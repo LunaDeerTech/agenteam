@@ -1,0 +1,301 @@
+{
+  "status": "DRAFT_ENGINEERING_INCREMENT_AND_REV0_COMBINATION_STATIC_PASS",
+  "stop": true,
+  "reviewer": "verification_runtime",
+  "fixed_inputs": [
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/engineering.md",
+      "bytes": 22014,
+      "sha256": "9197fc97facd71d142f1a94c387a3ab528d892f004b5b8b1d637aeb9e419f02e"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/freeze.json",
+      "bytes": 1259,
+      "sha256": "da9613e35b385226e999ae582647ae0a61f4fce2c7afcf5df9d59af02cd4ca77"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/protocol.draft.json",
+      "bytes": 15360,
+      "sha256": "83e3e652e9677a416f85fb67f3ba9afc8b870cf4740c2cbfe7341bd4ade235bf"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/selectors.json",
+      "bytes": 11638,
+      "sha256": "c36bed42977f75b67b4ec327c60ac8414c9f21f38a9076f6b09b2642a50f1044"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/sources.json",
+      "bytes": 6913,
+      "sha256": "5459246e3486968cc89c0c2d02dace19dc426ff01a92ce69850ede5de28d63ff"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/author-static.json",
+      "bytes": 1095,
+      "sha256": "1f6dc8c15e048fd4cd3ba53e7ff84206a9858b01e47a4d8150d595ec6aa0c777"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/spec-draft.md",
+      "bytes": 34963,
+      "sha256": "8b78072a09d2c87f8f69fc195c0a5535f0d43e0776f27d6b9b8e6dbb40f28c34"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-draft01-review/review.md",
+      "bytes": 3580,
+      "sha256": "463cd09aecf075c4f977361df605500c707afb7758898457a2e29ac23d27670f"
+    }
+  ],
+  "must_fix": [],
+  "not_formal_card_or_handover": true,
+  "necessary_fixed_source_refs": [
+    {
+      "path": "/workspace/agenteam/web/src/composables/useSession.ts",
+      "bytes": 163959,
+      "sha256": "8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/api/client.ts",
+      "bytes": 40512,
+      "sha256": "6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/api/account.ts",
+      "bytes": 18878,
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/App.vue",
+      "bytes": 10338,
+      "sha256": "d4bec3a781280a866f40506cdba6afcecc35a2203bf16ecf3161ebceba0dedd5"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/router/auth.ts",
+      "bytes": 10910,
+      "sha256": "9943512eee91a8ab12df120d6e748b28359ee8579ac0d2f58bbd22db4eef4562"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/router/index.ts",
+      "bytes": 5428,
+      "sha256": "68cc05f665917521b13fc3a755fe16c49fc3a4ead9cf92975db8bd893f01e709"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/views/projects/ProjectSettingsView.vue",
+      "bytes": 907,
+      "sha256": "06b5872439c8e04c88fafd87b5b9bc82ecef3696e3a5b565d0846504c59af069"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/components/layout/ProjectNav.vue",
+      "bytes": 1973,
+      "sha256": "7b08d4d22b3951e6753dcaad40d31e70efb049908d9630870ff8851c303c9a55"
+    },
+    {
+      "path": "/workspace/agenteam/api/openapi/project-models.json",
+      "bytes": 182343,
+      "sha256": "0ce108387b53167a9e7d218e7f15a34a9e1c81c3538338a24822c0d6719ce1f5"
+    },
+    {
+      "path": "/workspace/agenteam/api/openapi/project-model-credentials.json",
+      "bytes": 26263,
+      "sha256": "24b16a9e3f1d1b3ffe8847ffe3e463bd9b9bf58f9c489ab0e0fe7391bc990e83"
+    }
+  ],
+  "source_review_scope": "Stopped excerpts for Session signature/current/failure/finally and App aggregate, raw route/ProjectNav closure; two existing schema operation/receipt/metadata/observation definitions. Prior rev0 full HTTP semantics and policy review reused. Other draft source refs retained in original sources.json, not copied into a new closure.",
+  "t1": {
+    "methods": 17,
+    "get_methods": 6,
+    "mutation_methods": 9,
+    "post_lookup_methods": 2,
+    "old_default_dependencies": 14,
+    "new_default_append_position": 15,
+    "new_action_literals": 17,
+    "new_endpoint_keys": 17,
+    "write_options": "Existing WriteOptions unchanged; only Session private owner provides CSRF/key/signal to facade writes/lookups. Read API requires signal, does not send CSRF/key.",
+    "api_scope": "Five configuration/catalog reads plus six configuration writes and lookup; Credential metadata plus create/update/delete and lookup. Read DTOs remain complete and distinct from narrower write inputs; no System DTO alias.",
+    "capture_and_http": "Provider/Model protocol and provider context captured for local write policy; update does not send provider_id/protocol beyond formal input or mutate immutable fields. Configuration lookup sends only command kind; Credential lookup excludes value. Whole captured command is private receipt correlation, not extra HTTP.",
+    "transport_caps": "Five read successes 8MiB; remaining twelve successes 1KiB; Problem600000B; configuration seven request bodies1MiB; Credential create/update400KiB decoded65536B, delete/lookup1KiB.",
+    "current_and_failure": "Explicit ordinary Human Owner action and revision branches, complete identity/epoch/operation predicates, scoped Project failure and current CSRF semantics; no fallthrough to admin default or System denied. Actual finally releases original owner.",
+    "navigation": "Exactly /settings/model-providers and /settings/available-models in existing raw parser/union; no arbitrary prefix or query/hash/percent/backslash acceptance. ProjectNav same canonical username/project and closed leaves; settings href/default remains general. App adds new domain confirm without replacing nine existing confirmations or Selection/Summary separate intents."
+  },
+  "t2": {
+    "new_candidates": 6,
+    "old_candidates": 14,
+    "old_top_source_matches": [
+      {
+        "top": "TestAccountAuthenticationWebSessionLifecycle",
+        "source": "tests/account/authentication_web_test.go",
+        "line": 11,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountAuthenticationWebSessionLifecycle$",
+        "dist": "global"
+      },
+      {
+        "top": "TestAccountAuthenticationWebRevocationAndExpiry",
+        "source": "tests/account/authentication_web_test.go",
+        "line": 51,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountAuthenticationWebRevocationAndExpiry$",
+        "dist": "global"
+      },
+      {
+        "top": "TestAccountProjectOwnerWebEditAndRename",
+        "source": "tests/account/project_owner_web_test.go",
+        "line": 46,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountProjectOwnerWebEditAndRename$",
+        "dist": "owner-private"
+      },
+      {
+        "top": "TestAccountProjectOwnerWebOriginalRecovery",
+        "source": "tests/account/project_owner_web_test.go",
+        "line": 50,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountProjectOwnerWebOriginalRecovery$",
+        "dist": "owner-private"
+      },
+      {
+        "top": "TestAccountProjectOwnerWebIdentityAndOwnership",
+        "source": "tests/account/project_owner_web_test.go",
+        "line": 54,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountProjectOwnerWebIdentityAndOwnership$",
+        "dist": "owner-private"
+      },
+      {
+        "top": "TestAccountProjectOwnerAuditWebAuthorityAndRecovery",
+        "source": "tests/account/project_owner_audit_web_test.go",
+        "line": 151,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountProjectOwnerAuditWebAuthorityAndRecovery$",
+        "dist": "audit-private"
+      },
+      {
+        "top": "TestAccountProjectOwnerAuditWebNavigationAndLayouts",
+        "source": "tests/account/project_owner_audit_web_test.go",
+        "line": 154,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountProjectOwnerAuditWebNavigationAndLayouts$",
+        "dist": "audit-private"
+      },
+      {
+        "top": "TestAccountSystemProvidersWebOutcomeRecovery",
+        "source": "tests/account/system_providers_web_test.go",
+        "line": 37,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountSystemProvidersWebOutcomeRecovery$",
+        "dist": "global"
+      },
+      {
+        "top": "TestAccountSystemModelsWebOutcomeRecovery",
+        "source": "tests/account/system_models_web_test.go",
+        "line": 41,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountSystemModelsWebOutcomeRecovery$",
+        "dist": "global"
+      },
+      {
+        "top": "TestAccountSystemModelSelectionWebOutcomeRecovery",
+        "source": "tests/account/system_model_selection_web_test.go",
+        "line": 40,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountSystemModelSelectionWebOutcomeRecovery$",
+        "dist": "global"
+      },
+      {
+        "top": "TestAccountSystemMeetingSummaryWebRecovery",
+        "source": "tests/account/system_meeting_summary_web_test.go",
+        "line": 30,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountSystemMeetingSummaryWebRecovery$",
+        "dist": "summary-private"
+      },
+      {
+        "top": "TestAccountSystemMeetingSummaryWebAuthorityNavigation",
+        "source": "tests/account/system_meeting_summary_web_test.go",
+        "line": 33,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountSystemMeetingSummaryWebAuthorityNavigation$",
+        "dist": "summary-private"
+      },
+      {
+        "top": "TestAccountPersonalSettingsWebThemeAndNavigation",
+        "source": "tests/account/personal_settings_web_test.go",
+        "line": 43,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountPersonalSettingsWebThemeAndNavigation$",
+        "dist": "global-via-auth"
+      },
+      {
+        "top": "TestAccountSystemAuditWebAuthorityAndOwnership",
+        "source": "tests/account/system_audit_web_test.go",
+        "line": 41,
+        "one_definition_found": true,
+        "anchored_selector": "^TestAccountSystemAuditWebAuthorityAndOwnership$",
+        "dist": "global"
+      }
+    ],
+    "source_definition_only_not_binary_discovery": true,
+    "asset_summary": {
+      "owner_private": 3,
+      "audit_private": 2,
+      "summary_private": 2,
+      "global_including_personal_via_auth": 7
+    },
+    "old_budgets_unchanged": true,
+    "auth_revocation": "Two original browser cases share one120s top; not two top budgets.",
+    "conditional_runtime_representatives": "Not scheduled unless final diff changes their dedicated operation/cap/failure or leaf/ownership navigation; triggers and exact candidates already declared."
+  },
+  "t3": {
+    "ipc_actions": 9,
+    "protocol": "project-owner-models.v1",
+    "exact_target": "Closed operation/project/known-target/query and single-next-browser-request; exact Session GET hold is private. No arbitrary path/header/SQL/eval.",
+    "release": "Exact arm_id plus request_token; request-token comes from actual outer handler; release ack/body completion not join. Existing accepted outer-handler-return/unwind boundary retained.",
+    "safe_evidence": "Admission before body persistence, actual operation/status/schema/client and source classification; request materials/key/digests, Cookie/CSRF and Session bodies excluded. 17 real endpoints separate from private controls. NativeEOF, full upstream, typed parse, schema, commit and handler join remain distinct.",
+    "recovery": "Complete safe mutation receipt loss/cut control only after real upstream result; durable Tx snapshot separate. Both lookups remain historical observation and require explicit original Execute confirmation where formally allowed; archived configuration replay versus Credential lookup-only retained.",
+    "budgets": {
+      "browser_seconds": 45,
+      "workers": 1,
+      "retries": 0,
+      "top_seconds_including_cleanup": 120,
+      "allocation_seconds": [
+        35,
+        45,
+        10,
+        30
+      ],
+      "package_minutes": 6,
+      "tcp_seconds": 75,
+      "fresh_disk_GiB": 5,
+      "containers": 4,
+      "networks": 3,
+      "ipc_ack_seconds_within_browser": 8
+    },
+    "failure": "Every owned process/handler/proxy/goroutine/Node/schema/preparation/root cleanup registered before start, actual wait/join and double exact absent/owned/runtime/browser clear; fail then retire and STOP, no implicit retry/successor.",
+    "independent_minimum": "Two additional differently constructed recovery and authority rounds remain to be written and independently reviewed; cannot replace them with author results."
+  },
+  "handover_items_not_new_semantic_defects": [
+    {
+      "id": "T1-final-baseline",
+      "item": "Original opening statement only Audit JS repair is historical. Root subsequently accepted Audit View3bb842a2 and test480b2cfb; formal card must rebind final accepted Audit whole-card/shared-source baseline and stopped ownership. This engineering draft is not that handover.",
+      "source": "Root explicit task steering; no active Audit files were read."
+    },
+    {
+      "id": "T3-private-agreement",
+      "item": "Exact per-mode material/expected/snapshot DTOs and frontend/backend versioned agreement are expressly pending before harness implementation, together with actual closure, tool/schema/imports/dist binding, six-top discovery and executable driver/grants.",
+      "not_claimed": "Runtime-ready or executable private protocol."
+    },
+    {
+      "id": "T4-formal-spec",
+      "item": "Formal card path/revision/base, source ownership and final README remain pending. Original29 candidate paths and17 product operations are unchanged."
+    }
+  ],
+  "not_run": [
+    "Go",
+    "Node/type/build/list",
+    "browser",
+    "driver/filegate",
+    "schema validation execution",
+    "resource or host/current-dist scan",
+    "network",
+    "Git"
+  ],
+  "writes": "Only this scratch review directory; no product, test or repository documentation change."
+}

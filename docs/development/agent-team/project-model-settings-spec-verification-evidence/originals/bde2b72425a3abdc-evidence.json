@@ -1,0 +1,521 @@
+{
+  "state": "STOP_DRAFT_REV0_SPEC_STATIC_FEASIBLE_NO_REQUIRED_SEMANTIC_FIX",
+  "sealed_utc": "2026-10-08T14:39:04.453233+00:00",
+  "reviewer": "/root/verification_runtime",
+  "fixed_draft": {
+    "path": "/workspace/scratch/architecture-project-model-settings-draft01/spec-draft.md",
+    "bytes": 34963,
+    "sha256": "8b78072a09d2c87f8f69fc195c0a5535f0d43e0776f27d6b9b8e6dbb40f28c34"
+  },
+  "author_freeze": {
+    "path": "/workspace/scratch/architecture-project-model-settings-draft01/freeze.json",
+    "bytes": 1079,
+    "sha256": "71a927a53b1573668de1474a64cd626d580c5618a00d0e9a51afa1f2a50d0511"
+  },
+  "author_manifest": {
+    "path": "/workspace/scratch/architecture-project-model-settings-draft01/manifest.json",
+    "bytes": 1103,
+    "sha256": "4afaa039a92d845b3b336962b4e5d97f51060d10428dbad52129a01eca3872ee"
+  },
+  "author_source_map": {
+    "path": "/workspace/scratch/architecture-project-model-settings-draft01/sources.json",
+    "bytes": 7975,
+    "sha256": "bea2ff78e957d3d9cec6105df9f3c37dcc9ce32172e613821ab3e893601f23b2"
+  },
+  "author_original_integrity": {
+    "files": 5,
+    "all_manifest_bytes_and_sha256_match": true
+  },
+  "scope": "Independent draft SPEC STATIC only. Engineering completeness criteria and formal read/configuration/Credential contracts were read. No implementation, dynamic validation, Git, external network, Go/Node/browser/PG/resource or current host/assets checks.",
+  "engineering_basis": [
+    "AGENTS.md 基础先行/团队/所有权规则",
+    "docs/development/development-plan.md §§推进规则与每个模块的开工和完成标准",
+    "agenteam-verification skill"
+  ],
+  "sections": {
+    "## 1. 完整结果与开工门槛": 5,
+    "## 2. 路由、布局与用户行为": 22,
+    "## 3. 闭合数据、API与容量": 39,
+    "## 4. 表单与独立凭据命令": 77,
+    "## 5. 删除与引用边界": 91,
+    "## 6. 唯一Session owner与App期状态": 99,
+    "## 7. 写结果、Unknown与原请求恢复": 115,
+    "## 8. 候选唯一写域": 151,
+    "## 9. 必要验收与执行前提": 189,
+    "## 10. 交付范围与待root决定的工程项": 216
+  },
+  "operation_count": 17,
+  "configuration_operations": 12,
+  "credential_operations": 5,
+  "operations": [
+    {
+      "schema": "project-models.json",
+      "method": "GET",
+      "path": "/api/v1/projects/{project_id}/model-providers",
+      "request": null,
+      "success": {
+        "$ref": "#/components/schemas/ProviderPage"
+      }
+    },
+    {
+      "schema": "project-models.json",
+      "method": "POST",
+      "path": "/api/v1/projects/{project_id}/model-providers",
+      "request": {
+        "$ref": "#/components/schemas/ConfigurationCreateProvider"
+      },
+      "success": {
+        "$ref": "#/components/schemas/ConfigurationReceipt"
+      }
+    },
+    {
+      "schema": "project-models.json",
+      "method": "GET",
+      "path": "/api/v1/projects/{project_id}/model-providers/{provider_id}",
+      "request": null,
+      "success": {
+        "$ref": "#/components/schemas/Provider"
+      }
+    },
+    {
+      "schema": "project-models.json",
+      "method": "PUT",
+      "path": "/api/v1/projects/{project_id}/model-providers/{provider_id}",
+      "request": {
+        "$ref": "#/components/schemas/ConfigurationUpdateProvider"
+      },
+      "success": {
+        "$ref": "#/components/schemas/ConfigurationReceipt"
+      }
+    },
+    {
+      "schema": "project-models.json",
+      "method": "DELETE",
+      "path": "/api/v1/projects/{project_id}/model-providers/{provider_id}",
+      "request": {
+        "$ref": "#/components/schemas/ConfigurationDeleteProvider"
+      },
+      "success": {
+        "$ref": "#/components/schemas/ConfigurationReceipt"
+      }
+    },
+    {
+      "schema": "project-models.json",
+      "method": "GET",
+      "path": "/api/v1/projects/{project_id}/models",
+      "request": null,
+      "success": {
+        "$ref": "#/components/schemas/ModelPage"
+      }
+    },
+    {
+      "schema": "project-models.json",
+      "method": "POST",
+      "path": "/api/v1/projects/{project_id}/models",
+      "request": {
+        "$ref": "#/components/schemas/ConfigurationCreateModel"
+      },
+      "success": {
+        "$ref": "#/components/schemas/ConfigurationReceipt"
+      }
+    },
+    {
+      "schema": "project-models.json",
+      "method": "GET",
+      "path": "/api/v1/projects/{project_id}/models/{model_id}",
+      "request": null,
+      "success": {
+        "$ref": "#/components/schemas/Model"
+      }
+    },
+    {
+      "schema": "project-models.json",
+      "method": "PUT",
+      "path": "/api/v1/projects/{project_id}/models/{model_id}",
+      "request": {
+        "$ref": "#/components/schemas/ConfigurationUpdateModel"
+      },
+      "success": {
+        "$ref": "#/components/schemas/ConfigurationReceipt"
+      }
+    },
+    {
+      "schema": "project-models.json",
+      "method": "DELETE",
+      "path": "/api/v1/projects/{project_id}/models/{model_id}",
+      "request": {
+        "$ref": "#/components/schemas/ConfigurationDeleteModel"
+      },
+      "success": {
+        "$ref": "#/components/schemas/ConfigurationReceipt"
+      }
+    },
+    {
+      "schema": "project-models.json",
+      "method": "GET",
+      "path": "/api/v1/projects/{project_id}/available-chat-models",
+      "request": null,
+      "success": {
+        "$ref": "#/components/schemas/AvailableChatModelPage"
+      }
+    },
+    {
+      "schema": "project-models.json",
+      "method": "POST",
+      "path": "/api/v1/projects/{project_id}/model-commands/lookup",
+      "request": {
+        "$ref": "#/components/schemas/ConfigurationLookupInput"
+      },
+      "success": {
+        "$ref": "#/components/schemas/ConfigurationLookup"
+      }
+    },
+    {
+      "schema": "project-model-credentials.json",
+      "method": "POST",
+      "path": "/api/v1/projects/{project_id}/model-credentials",
+      "request": {
+        "$ref": "#/components/schemas/Create"
+      },
+      "success": {
+        "$ref": "#/components/schemas/Mutation"
+      }
+    },
+    {
+      "schema": "project-model-credentials.json",
+      "method": "PUT",
+      "path": "/api/v1/projects/{project_id}/model-credentials/{credential_id}",
+      "request": {
+        "$ref": "#/components/schemas/Update"
+      },
+      "success": {
+        "$ref": "#/components/schemas/Mutation"
+      }
+    },
+    {
+      "schema": "project-model-credentials.json",
+      "method": "DELETE",
+      "path": "/api/v1/projects/{project_id}/model-credentials/{credential_id}",
+      "request": {
+        "$ref": "#/components/schemas/Delete"
+      },
+      "success": {
+        "$ref": "#/components/schemas/Mutation"
+      }
+    },
+    {
+      "schema": "project-model-credentials.json",
+      "method": "GET",
+      "path": "/api/v1/projects/{project_id}/model-credentials/{credential_id}",
+      "request": null,
+      "success": {
+        "$ref": "#/components/schemas/Metadata"
+      }
+    },
+    {
+      "schema": "project-model-credentials.json",
+      "method": "POST",
+      "path": "/api/v1/projects/{project_id}/model-credential-commands/lookup",
+      "request": {
+        "$ref": "#/components/schemas/Lookup"
+      },
+      "success": {
+        "$ref": "#/components/schemas/Observation"
+      }
+    }
+  ],
+  "candidate_paths": [
+    {
+      "number": 1,
+      "path": "web/src/api/client.ts"
+    },
+    {
+      "number": 2,
+      "path": "web/src/api/project-models.ts"
+    },
+    {
+      "number": 3,
+      "path": "web/src/api/project-model-credentials.ts"
+    },
+    {
+      "number": 4,
+      "path": "web/src/composables/useSession.ts"
+    },
+    {
+      "number": 5,
+      "path": "web/src/composables/useProjectModelSettings.ts"
+    },
+    {
+      "number": 6,
+      "path": "web/src/App.vue"
+    },
+    {
+      "number": 7,
+      "path": "web/src/router/auth.ts"
+    },
+    {
+      "number": 8,
+      "path": "web/src/router/index.ts"
+    },
+    {
+      "number": 9,
+      "path": "web/src/views/projects/ProjectSettingsView.vue"
+    },
+    {
+      "number": 10,
+      "path": "web/src/components/layout/ProjectNav.vue"
+    },
+    {
+      "number": 11,
+      "path": "web/src/views/projects/ProjectModelProvidersView.vue"
+    },
+    {
+      "number": 12,
+      "path": "web/src/views/projects/ProjectModelsPanel.vue"
+    },
+    {
+      "number": 13,
+      "path": "web/src/views/projects/ProjectAvailableModelsView.vue"
+    },
+    {
+      "number": 14,
+      "path": "web/src/views/projects/ProjectProviderEditor.vue"
+    },
+    {
+      "number": 15,
+      "path": "web/src/views/projects/ProjectModelEditor.vue"
+    },
+    {
+      "number": 16,
+      "path": "web/src/views/projects/ProjectModelCredentialEditor.vue"
+    },
+    {
+      "number": 17,
+      "path": "web/src/views/projects/ProjectModelDeleteDialog.vue"
+    },
+    {
+      "number": 18,
+      "path": "web/src/tests/project-models-client.spec.ts"
+    },
+    {
+      "number": 19,
+      "path": "web/src/tests/project-model-credentials-client.spec.ts"
+    },
+    {
+      "number": 20,
+      "path": "web/src/tests/project-model-settings-state.spec.ts"
+    },
+    {
+      "number": 21,
+      "path": "web/src/tests/project-model-settings.spec.ts"
+    },
+    {
+      "number": 22,
+      "path": "web/src/tests/authentication.spec.ts"
+    },
+    {
+      "number": 23,
+      "path": "web/src/tests/project-workspace.spec.ts"
+    },
+    {
+      "number": 24,
+      "path": "tests/account/project_owner_models_web_fixture_test.go"
+    },
+    {
+      "number": 25,
+      "path": "tests/account/project_owner_models_web_test.go"
+    },
+    {
+      "number": 26,
+      "path": "tests/account-captcha-web/project-owner-models.config.js"
+    },
+    {
+      "number": 27,
+      "path": "tests/account-captcha-web/e2e/project-owner-models.spec.ts"
+    },
+    {
+      "number": 28,
+      "path": "web/src/tests/session.spec.ts"
+    },
+    {
+      "number": 29,
+      "path": "docs/development/frontend/README.md"
+    }
+  ],
+  "counts": {
+    "all": 29,
+    "technical": 28,
+    "frontend": 26,
+    "backend_new_go": 2,
+    "README_last": 1
+  },
+  "fixed_formal_sources_read_and_matched": [
+    {
+      "path": "/workspace/agenteam/docs/frontend-design/layouts/project-settings.md",
+      "bytes": 10518,
+      "sha256": "ed5eaf1bc5c3565af29e0a262daccbdab1ce49e53e90843a74f3e0c5a66e8115"
+    },
+    {
+      "path": "/workspace/agenteam/docs/frontend-design/layouts/settings-shell.md",
+      "bytes": 3344,
+      "sha256": "696e85efd8a042696921b9733795d0f58d8351286200b5b9d420311e64d8f0b8"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-owner-read-http.md",
+      "bytes": 36624,
+      "sha256": "fa6c3c434cacfc8d0a9db01266c76f1525088777cdf572f8051907a9f94f3277"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-credentials-http.md",
+      "bytes": 31413,
+      "sha256": "61c89885ea01e676e7c87bdca8debb3d1bdda1e501fd7b132ec99e398299042c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-configuration-write-http.md",
+      "bytes": 41814,
+      "sha256": "a3b805bfe149cd320992a46cbbedafd8166e5b49d081ba12c052c54b9ccfe9c6"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/configuration_policy.go",
+      "bytes": 3692,
+      "sha256": "0802ff9e5fbd14f485b91fb407fe86d1c46a2916469e1c8ac52e98ca21e5a912"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/contract/configuration.go",
+      "bytes": 19103,
+      "sha256": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/contract/types.go",
+      "bytes": 19439,
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/http_project_wire.go",
+      "bytes": 17785,
+      "sha256": "b076db427792f124ee740fe4f2a41285a2920b0f168ddf8cb81725f65e37d1ad"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/composables/useProjectWorkspace.ts",
+      "bytes": 26022,
+      "sha256": "07299d43da75bdae38f6f2520edfe26a8433fbc19e11263a8b109d9126921943"
+    },
+    {
+      "path": "/workspace/agenteam/api/openapi/project-models.json",
+      "bytes": 182343,
+      "sha256": "0ce108387b53167a9e7d218e7f15a34a9e1c81c3538338a24822c0d6719ce1f5"
+    },
+    {
+      "path": "/workspace/agenteam/api/openapi/project-model-credentials.json",
+      "bytes": 26263,
+      "sha256": "24b16a9e3f1d1b3ffe8847ffe3e463bd9b9bf58f9c489ab0e0fe7391bc990e83"
+    }
+  ],
+  "additional_bounded_stopped_source_reads": [
+    {
+      "path": "/workspace/agenteam/internal/central/model/commands.go",
+      "bytes": 21163,
+      "sha256": "22d0bffa662cfb76bb75a02ba2f087b52ab7fe4e3d67394b451c5865e86063c1"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/http_project_configuration_wire.go",
+      "bytes": 13034,
+      "sha256": "2689130f0e462586f76c310628f99ec02db2b758474e038864630009c4d40b83"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/http_project_credentials_wire.go",
+      "bytes": 6973,
+      "sha256": "cc1342583a0c7c37b8e5eb5bae31d168f2b87fbbbcf60ae9a1bc1877f42075df"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/secret/write.go",
+      "bytes": 20203,
+      "sha256": "75da5bef79eb6958d0fc5cfa2b862360c8e34f53eb66ce4f22e787cfe35d7c0f"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/secret/write_lookup.go",
+      "bytes": 4645,
+      "sha256": "af9ffabe8b2ef56c5539dc317693c92983ccdb231680d2445a544f338cc65633"
+    }
+  ],
+  "findings": [
+    {
+      "area": "complete_result_and_ownership",
+      "conclusion": "No draft-level required change",
+      "basis": "Two accepted settings leaves deliver Provider/Model management plus explicit independent Credential commands and safe available catalog. 17 operations map exactly to formal schemas; 29 unique paths give frontend26/backend2/README1. No backend contract, migration, lifecycle or Agent rewrite expansion is needed."
+    },
+    {
+      "area": "current_authority_and_archived_history",
+      "conclusion": "Matches formal contracts and actual gate order",
+      "basis": "Model commands.go uses Project Read before historical replay and first-write Mutate; Secret write.go applies Mutate before findReceipt. Admin is not an Owner bypass. Read remains available for archiving/archived and current authorization is rechecked per page/operation."
+    },
+    {
+      "area": "lookup_and_unknown",
+      "conclusion": "Closed and appropriately separated",
+      "basis": "Configuration found/receipt and Credential observed/result remain distinct. Neither confirms full semantic/material. Original Execute requires exact private original intent/body/key. Sticky Unknown is not cleared by GET equality, absence, late refusal or resource deletion; KeyReused forbids automatic rekey/replay. HTTP-loss recovery is not physical COMMIT-ACK loss."
+    },
+    {
+      "area": "safe_views_and_budgets",
+      "conclusion": "Matches formal schemas/cards",
+      "basis": "Five read success caps8MiB, write/lookup/metadata success1KiB, common Problem600000B; all seven configuration requests1MiB; Credential create/update400KiB and decoded1..65536B, delete/lookup1KiB. Config expected MaxInt64 differs from Credential Max-1. Full immutable EOF parsing, dynamic legitimate read objects and unbounded-business-count reasoning efforts preserved."
+    },
+    {
+      "area": "project_models_and_references",
+      "conclusion": "Correct whole-Project pagination and deletion limits",
+      "basis": "No provider_id list filter, no first-page/local-empty proof of Provider emptiness. Directory seven fields do not authorize System configuration reads. Project referenced Model deletion stays DependencyUnbound; no fake adapter, Agent rewrite, Summary override or invented preview."
+    },
+    {
+      "area": "secret_partial_success_and_evidence",
+      "conclusion": "Appropriate secret boundaries",
+      "basis": "Credential creation confirms only that command and keeps an explicit unbound safe ref; Provider submission requires a separate user action, with no automatic compensation or duplicate Credential creation. Material is write-only/private memory, never returned or captured in body/key/digest logs or screenshots; same-request evidence uses private comparison and safe booleans/lengths."
+    },
+    {
+      "area": "session_route_and_owner",
+      "conclusion": "Feasible with existing stopped seams; final signatures still need formal handoff",
+      "basis": "Full identity/session/epoch/generation/revision, actual Cookie owner through body cancellation/finally, checking versus identity changes, stable Project ID and currentGet ownership are explicit. currentReadContext is a readonly guard, not Mutate authority. Existing workspace imports projectRoute from authorized router/auth path, so expanding that exact closed route set need not introduce a workspace implementation path."
+    },
+    {
+      "area": "verification_and_retirement",
+      "conclusion": "Draft coverage forms complete intended scenarios; exact execution binding deferred",
+      "basis": "Six new exact tops include real root read/write, Credential partial success, original recovery, cross-Provider pagination, current authority/archive distinction, navigation and eight layout states. Same safe raw response is bound to schema/native client, request IDs/target/status/input and actual tail retirement. A separate differently constructed independent recovery/authority combination is required."
+    }
+  ],
+  "required_draft_semantic_fixes": [],
+  "future_exact_handoff_bindings": [
+    {
+      "id": "T1",
+      "required_before": "Formal SPEC acceptance and shared-source implementation handoff",
+      "binding": "Audit whole-card accepted STOP version/main and precise shared client/useSession/App/router/ProjectSettings/ProjectNav/tests. Freeze the concrete 17 typed method/action names and signatures, API composite/default dependency append position, unchanged existing callers and exact route-parser suffix types. The stopped currentReadContext is evidence of feasibility only, not final Audit acceptance."
+    },
+    {
+      "id": "T2",
+      "required_before": "Formal SPEC execution plan",
+      "binding": "Exact existing regression top/selectors and case bindings for auth lifecycle/revocation, Owner identity/edit, Audit authority/navigation, System Provider credential recovery/Model recovery/Selection recovery/Summary authority/navigation plus justified minimal App/theme representatives. Do not reuse stale shared-source PASS as current actual compatibility."
+    },
+    {
+      "id": "T3",
+      "required_before": "Harness implementation freeze and any resource grant",
+      "binding": "Versioned private IPC/actions/ack/target guards, same-root/store services and permitted synthetic setup, safe response capture/native client/schema inputs, current runtime/import/dist differences, exact one-case-per-top mapping and total45/120-including-cleanup/6m/TCP75/fresh5GiB budgets; nonce-owned exact7 IDs and every process/handler actual join. Existing SMTP9 topology applies only if an explicitly selected legacy case needs it."
+    },
+    {
+      "id": "T4",
+      "required_before": "Formal card placement/implementation",
+      "binding": "Formal card path/revision, accepted baseline/source provenance and unique writers. README remains a final deliverable after all28 technical paths; no product implementation/resources from this draft review."
+    }
+  ],
+  "limits": [
+    "This is not formal SPEC acceptance or any product PASS",
+    "Audit final shared-source acceptance remains outstanding",
+    "Private IPC, actual imports/dist/tool closure and precise legacy selectors are not yet frozen",
+    "No schema engine, frontend check, Go compile, browser or resource case executed",
+    "Original Model/Audit failures and hard stops are not affected",
+    "No claim that all future implementation details or all module D09/D26/D27/D28/E01 are complete"
+  ],
+  "read_navigation_notes": [
+    "A guessed agenteam-engineering skill path was absent; actual verification/design guidance and the complete development-plan engineering checklist were used.",
+    "Two guessed Model source filenames were absent; the formal commands.go and actual Secret writer/lookup files supplied the needed authority evidence.",
+    "Large AGENTS/source read outputs were initially truncated; relevant current rules, all draft sections and formal contract excerpts were reread in bounded chunks."
+  ],
+  "repository_files_written": [],
+  "dynamic_commands_executed": []
+}

@@ -1,0 +1,50 @@
+{
+  "state": "FRONTEND_SAME_SHA_AGREEMENT_STOP_STATIC_ONLY",
+  "agreed": true,
+  "blocking_issues": [],
+  "sources": {
+    "freeze.json": {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev2-t3/freeze.json",
+      "bytes": 1540,
+      "sha256": "03ae01a8b8413ee5fc5d755f3a16dc53d065b103c50bf9ed8fcf62caf18f6d68"
+    },
+    "t3-dto.md": {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev2-t3/t3-dto.md",
+      "bytes": 18129,
+      "sha256": "8c82af7cd694fa0b8432330394c304e64fd6e1aa61d943904f533bba8b00c408"
+    },
+    "endpoints.json": {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev2-t3/endpoints.json",
+      "bytes": 6087,
+      "sha256": "6c85ae889c8a86eb67695f2eb29773395b58db4f5bdfecc9c9182ff3e62fd9fa"
+    }
+  },
+  "checks": {
+    "same_sha_before_after": true,
+    "unique_business_operations": 17,
+    "families": {
+      "read": 6,
+      "mutation": 9,
+      "lookup": 2
+    },
+    "ipc_actions": 9,
+    "lookup_fault_effects_empty": true,
+    "private_session_exact": true
+  },
+  "agreement": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/model-settings-t3-consumption01/agreement.md",
+    "bytes": 3454,
+    "sha256": "931da9f62b03d866b84c55483b7574fc30b86bbb3f2e990dff042ac0f2547f10"
+  },
+  "pending": [
+    "backend same-SHA agreement",
+    "Audit whole-card acceptance",
+    "T1 final source handover",
+    "T4 formal card and writer authorization",
+    "actual dependency closure, driver and per-round resource grants"
+  ],
+  "product_implementation": false,
+  "business_source_read": false,
+  "node_go_browser_resources_executed": false,
+  "shared_draft_modified": false
+}

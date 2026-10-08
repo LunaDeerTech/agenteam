@@ -1,0 +1,356 @@
+{
+  "state": "PRIVATE_PROTOCOL_DRAFT_STATIC_ONLY_NOT_IMPLEMENTED_NOT_AUTHORIZED",
+  "version": "project-owner-models.v1",
+  "source_draft_sha256": "8b78072a09d2c87f8f69fc195c0a5535f0d43e0776f27d6b9b8e6dbb40f28c34",
+  "resource_authorized": false,
+  "paths": {
+    "fixture": "tests/account/project_owner_models_web_fixture_test.go",
+    "tops": "tests/account/project_owner_models_web_test.go",
+    "config": "tests/account-captcha-web/project-owner-models.config.js",
+    "spec": "tests/account-captcha-web/e2e/project-owner-models.spec.ts",
+    "private_dist_proposed": "/workspace/scratch/project-model-settings-ui/dist-ui01",
+    "browser_runtime_parent_proposed": "/workspace/scratch/pmui"
+  },
+  "files": {
+    "material": "project-models-material.json",
+    "request": "project-models-ipc.json",
+    "ack": "project-models-ack-{sequence}.json",
+    "result": "project-models-result.json"
+  },
+  "environment": {
+    "go_required": [
+      "AGENTEAM_AUTH_WEB_RUNTIME",
+      "AGENTEAM_PROJECT_MODELS_WEB_DIST",
+      "AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE",
+      "AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH"
+    ],
+    "node_explicit": [
+      "AGENTEAM_AUTH_WEB_ORIGIN",
+      "AGENTEAM_AUTH_WEB_PRIVATE",
+      "AGENTEAM_AUTH_WEB_CHROMIUM",
+      "AGENTEAM_PROJECT_MODELS_WEB_CASE",
+      "AGENTEAM_PROJECT_MODELS_WEB_DIST",
+      "AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE",
+      "AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH"
+    ],
+    "navigation_additional": "AGENTEAM_AUTH_WEB_IMAGES absolute path; trace/video off, no automatic failure screenshot with private input"
+  },
+  "material": {
+    "keys": [
+      "protocol",
+      "input_hash",
+      "mode",
+      "actors",
+      "projects",
+      "expected",
+      "system"
+    ],
+    "actors": [
+      "owner",
+      "other_owner",
+      "other_admin"
+    ],
+    "actor_keys": [
+      "email",
+      "password",
+      "user_id",
+      "username"
+    ],
+    "private_lifetime": "0600 task directory; never retained as public evidence; exact account materials used only through formal browser login.",
+    "project_keys_by_mode": {
+      "configuration": [
+        "main"
+      ],
+      "credential": [
+        "main"
+      ],
+      "recovery": [
+        "main",
+        "config_recovery",
+        "credential_recovery"
+      ],
+      "read": [
+        "main",
+        "second"
+      ],
+      "authority": [
+        "main",
+        "second",
+        "other",
+        "admin_owned",
+        "archiving",
+        "archived",
+        "deleting",
+        "pending",
+        "config_recovery",
+        "credential_recovery",
+        "referenced"
+      ],
+      "navigation": [
+        "main",
+        "second"
+      ]
+    },
+    "project_locator_keys": [
+      "id",
+      "username",
+      "name",
+      "normalized_name",
+      "owner_user_id",
+      "initialized",
+      "lifecycle"
+    ],
+    "expected": "Per-mode exact synthetic IDs/versions/counts from formal same-root preparation; immutable artifact schema fixed before implementation. No raw credential value, key, cookie/CSRF or SQL in expected.",
+    "system": "null except navigation; minimal existing formal Selection/Summary draft fixtures for aggregate guard only, no invocation or summary generation."
+  },
+  "ipc": {
+    "request_keys": [
+      "protocol",
+      "input_hash",
+      "sequence",
+      "action",
+      "args"
+    ],
+    "ack_keys": [
+      "protocol",
+      "input_hash",
+      "sequence",
+      "action",
+      "ok",
+      "result",
+      "error"
+    ],
+    "sequence": "strict next integer 1..128 per case; never reuse ack; one controller receiver, one outstanding request, duplicate/gap/unknown/oversize fail case",
+    "request_bytes_max": 8192,
+    "ack_bytes_max": 65536,
+    "ack_timeout_seconds": 8,
+    "publication": "0600 temp+atomic rename under exact task directory; no symlink/traversal; full JSON+EOF, exact members; fixed error enum only and result/error exclusive",
+    "unknown_control": "never dispatch SQL/HTTP or fake an ok; store safe failure flag, cancel owned work and fail after real retirement",
+    "actions": {
+      "counts": {
+        "args": {},
+        "result": "exact nonnegative safe counts by source/family/method, mutations vs POST lookups, Session checks, armed/claimed/upstream-complete/browser-EOF/handler-joined, schema/client bodies; no raw request data"
+      },
+      "arm": {
+        "args": "{operation: one of17 typed endpoint names OR getCurrentSession, project: fixed mode project key except Session, target_id: known registered ID only when endpoint has target, query: exact read query only, effect: closed allowed effect}",
+        "result": "{arm_id: fresh safe token, state:\"armed\"}",
+        "guard": "one arm at a time; exact registered Project/target class/method/canonical path+query, next single matching browser request only; unmatched/passive requests unchanged; cannot arm arbitrary URL, HTTP headers or global path",
+        "effects": [
+          "before_dispatch_hold",
+          "after_complete_hold",
+          "after_complete_cut",
+          "after_complete_disconnect"
+        ],
+        "effect_scope": "before_dispatch_hold reads/Session only; after_complete_cut/disconnect only nine mutation endpoints and exact admitted safe final receipt; after_complete_hold reads or mutation. Session body never persisted."
+      },
+      "control-state": {
+        "args": "{arm_id}",
+        "result": "{arm_id,request_token:null|token,state:\"armed\"|\"claimed\"|\"upstream_complete\"|\"released\"|\"joined\",upstream_complete:boolean,joined:boolean}",
+        "guard": "request_token assigned by one actual registered outer handler; state is observation, not body/commit proof"
+      },
+      "release": {
+        "args": "{arm_id,request_token}",
+        "result": "{arm_id,request_token,release_requested:true}",
+        "guard": "both exact identifiers required; release cannot assert joined or release another current request; no null/wildcard release"
+      },
+      "snapshot": {
+        "args": "{project:fixed-key}",
+        "result": "safe ID/version/deleted facts, committed per-family command/audit counts and ref presence; compare booleans and byte lengths only",
+        "guard": "same root Store, bounded read Tx; no raw request/key/material/digest/cookie/CSRF/SQL. Current state and receipt history are separate facts."
+      },
+      "logout": {
+        "args": "{session_id:registered-current-browser-session-id}",
+        "result": "{session_id,revoked:true}",
+        "guard": "formal Account Logout for exact registered same-root browser Session. No cookie/CSRF/material in ack/evidence; not direct revoked_at SQL."
+      },
+      "archive-recovery-project": {
+        "args": "{project:\"config_recovery\"|\"credential_recovery\",expected_version:exact-decimal}",
+        "result": "{project_id,initialized:true,lifecycle:\"archived\",fixture_only:true}",
+        "guard": "one-way active→archived exact pre-owned initialized row and version; no pending→initialized, no lifecycle participants. Register cleanup, label auxiliary SQL fact, never claim real archive workflow."
+      },
+      "reference-fact": {
+        "args": "{project:\"referenced\",state:\"present\"|\"absent\"}",
+        "result": "{project_id,model_id,reference_present:boolean,fixture_only:true}",
+        "guard": "only preallocated isolated reference slot and seeded Model with exact accepted scope/owner/role/target predicates; no caller SQL/ID replacement or production adapter. Actual delete still must return DEPENDENCY_UNBOUND when present."
+      },
+      "rename-reuse": {
+        "args": "{project:\"main\"}",
+        "result": "{renamed:ProjectLocator,replacement:ProjectLocator}",
+        "guard": "formal Project update plus existing accepted private creation fixture for one fixed preallocated name pair; no lifecycle/runtime acceptance, same original ID vs new ID asserted."
+      }
+    }
+  },
+  "private_replay_comparison": {
+    "keys": "assigned safe origin token, exact Project/endpoint/method and current request token; idempotency key and complete first body retained only in bounded private memory",
+    "maximum_selected_origins": 4,
+    "request_caps": "configuration1MiB; credential create/update400KiB; delete/lookup1KiB",
+    "result": "body_equal,key_equal,target_equal,identity_equal,method_equal plus byte lengths and committed count; never values, raw bytes or request/material/key digests",
+    "semantics": "lookup excludes material and carries original kind/key only as contract; historical observation never marked original Execute confirmation; no current GET required before replay"
+  },
+  "proxy_join": "register servers, each handler, observer, control loop, Node/schema children, prep Store/root and cleanup before start; held joined only at actual outer-handler return/unwind after ReverseProxy body/write/ErrorHandler. Release/body-close/EOF alone cannot join. Apply the accepted D1 boundary; do not reopen stopped join repairs.",
+  "evidence": {
+    "source": [
+      "setup",
+      "browser",
+      "control"
+    ],
+    "filenames": "response-{sequence:03}.json and body-{sha256}.json0600 only after safe response admission",
+    "sidecar_keys": [
+      "protocol",
+      "sequence",
+      "source_run",
+      "input_hash",
+      "source",
+      "operation",
+      "method",
+      "endpoint",
+      "query",
+      "status",
+      "content_type",
+      "content_length",
+      "request_id",
+      "project_id",
+      "resource_id",
+      "request_token",
+      "body_file",
+      "body_sha256",
+      "body_bytes",
+      "transfer_kind",
+      "body_stage"
+    ],
+    "transfer_kind": [
+      "forwarded",
+      "hold",
+      "cut",
+      "failure"
+    ],
+    "body_stage": "complete_formal_upstream; not browser EOF or commit proof",
+    "admission": "Only own fixed Project17 endpoints safe typed responses/Problems; synthetic configuration values allowlisted. Unknown shape/echo/private material is failed in memory, never written. Auth/Session/material request bodies excluded. Response metadata/Mutation/receipt safe body is allowed, raw Credential value is not.",
+    "browser_correlation": "exact request-token correlation observed privately plus method/path/query/status/content-type/length/request-id and full browser bytes/EOF; upstream-full, browser-complete, controlled-tail and durable Tx are separate sets",
+    "schema": "same original safe admitted response bytes, actual operation/status and two formal Project models/credentials schemas with exact local common/security references; fixed Python/jsonschema import bundle; no network resolver",
+    "client": "same retained original response bytes passed through actual browser-native new public17 APIs with exact request/response adapter; production request still actual root; replay parser request side effects disabled; no remarshal sample or fabricated DTO",
+    "screenshots": "navigation exactly8: light/dark ×1440x900/390x844 ×normal/reduced; capture only after material input cleared and safe modal closed; actual image review needed"
+  },
+  "checks_by_mode": {
+    "configuration": [
+      "owner_formal_commands",
+      "two_chat_protocols",
+      "immutable_provider_protocol_and_model_provider_type",
+      "enabled_and_catalog_separate",
+      "empty_provider_delete",
+      "provider_with_models_rejected",
+      "unique_durable_facts",
+      "safe_schema_client"
+    ],
+    "credential": [
+      "create_safe_ref_only",
+      "explicit_provider_bind",
+      "metadata",
+      "rotation",
+      "referenced_delete_rejected",
+      "explicit_unbind_delete",
+      "partial_success_retained",
+      "original_provider_only_recovery",
+      "safe_schema_client"
+    ],
+    "recovery": [
+      "configuration_response_loss",
+      "credential_response_loss",
+      "lookup_observation_only",
+      "same_original_bytes_and_key",
+      "unique_committed_facts",
+      "deleted_target_original_delete",
+      "no_implicit_writes_or_rekey",
+      "actual_owner_tail",
+      "safe_schema_client"
+    ],
+    "read": [
+      "providers_26",
+      "models_26_cross_two_providers",
+      "available_26_mixed_scopes",
+      "cursor_limit_only",
+      "no_provider_id",
+      "no_system_detail_bypass",
+      "safe_seven_fields",
+      "metadata_no_material",
+      "explicit_page_recovery",
+      "safe_schema_client"
+    ],
+    "authority": [
+      "ordinary_owner",
+      "admin_owner_only",
+      "other_owner_and_admin_rejected",
+      "current_revocation",
+      "same_session_checking",
+      "true_identity_change",
+      "cross_project_and_name_reuse",
+      "aux_lifecycle_gates",
+      "archived_config_original_replay",
+      "archived_credential_lookup_only",
+      "reference_unbound",
+      "late_tail_isolation",
+      "safe_schema_client"
+    ],
+    "navigation": [
+      "two_suffixes",
+      "default_general_and_audit",
+      "raw_return_rejection",
+      "draft_pending_partial_guard",
+      "selection_summary_separate_intents",
+      "keyboard_focus_drawer",
+      "private_input_cleared",
+      "eight_layouts",
+      "reduced_motion",
+      "no_overflow",
+      "no_debug",
+      "safe_schema_client"
+    ]
+  },
+  "final_result": {
+    "keys": [
+      "protocol",
+      "input_hash",
+      "completed",
+      "mode",
+      "checks",
+      "counts",
+      "schema_bodies",
+      "client_bodies",
+      "layouts"
+    ],
+    "completed": true,
+    "checks": "exact true keys from checks_by_mode; never publish completed before every required check + body validator succeeds",
+    "counts": "actual source-labelled attempts/completions/mutations/lookup/native EOF/upstream-full; no fixed equality across dispatch and sidecars. Every group requires actual relevant browser observations and safe schema/client success.",
+    "termination": "on failure retain evidence already produced; missing finish/schema/client/DOM remain unobserved, not reconstructed as pass"
+  },
+  "budgets": {
+    "workers": 1,
+    "retries": 0,
+    "browser_case_seconds": 45,
+    "top_including_cleanup_seconds": 120,
+    "new_top_allocation_seconds": {
+      "preparation": 35,
+      "browser_including_schema_and_client": 45,
+      "final_facts": 10,
+      "actual_cleanup": 30
+    },
+    "package_minutes": 6,
+    "tcp_tail_seconds": 75,
+    "fresh_disk_GiB": 5,
+    "resources_each": {
+      "containers": 4,
+      "networks": 3,
+      "exact_ids": 7
+    },
+    "ipc_ack_seconds_within_browser": 8,
+    "old_groups": "original45s case/120s top retained; auth revocation two browser subcases share one120s top, not two budgets",
+    "timeout": "fail closed; registered owned actual waits/joins and both retirement observations still required; exceeding budget cannot pass or authorize successor; root owns only serial resource/cache/asset grants. Outer driver watchdog must be frozen as execution artifact before run; no permission implied here."
+  },
+  "pending": [
+    "Audit whole-card acceptance and shared17-source formal handover",
+    "formal SPEC/path/base/write ownership",
+    "frontend/backend exact private material/snapshot DTO and protocol agreement before harness implementation",
+    "candidate hashes and actual dependency/import/runtime/schema closure, precise six-top discovery, own filegate and root per-round grant",
+    "independent two differently constructed recovery/authority rounds prepared and reviewed without product authorship"
+  ]
+}

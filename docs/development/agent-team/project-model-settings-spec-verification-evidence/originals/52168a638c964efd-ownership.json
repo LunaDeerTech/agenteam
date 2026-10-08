@@ -1,0 +1,186 @@
+{
+  "spec_writer_this_task": "architecture_worker",
+  "only_repository_writes": [
+    "docs/development/work-items/d27-project-owner-model-settings-ui.md",
+    "docs/development/work-items/d27-project-owner-model-settings-ui-endpoints.json"
+  ],
+  "technical_authors_require_root_followup_and_ack": true,
+  "product_paths": [
+    {
+      "card_id": 1,
+      "path": "web/src/api/client.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 2,
+      "path": "web/src/api/project-models.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 3,
+      "path": "web/src/api/project-model-credentials.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 4,
+      "path": "web/src/composables/useSession.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 5,
+      "path": "web/src/composables/useProjectModelSettings.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 6,
+      "path": "web/src/App.vue",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 7,
+      "path": "web/src/router/auth.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 8,
+      "path": "web/src/router/index.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 9,
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 10,
+      "path": "web/src/components/layout/ProjectNav.vue",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 11,
+      "path": "web/src/views/projects/ProjectModelProvidersView.vue",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 12,
+      "path": "web/src/views/projects/ProjectModelsPanel.vue",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 13,
+      "path": "web/src/views/projects/ProjectAvailableModelsView.vue",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 14,
+      "path": "web/src/views/projects/ProjectProviderEditor.vue",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 15,
+      "path": "web/src/views/projects/ProjectModelEditor.vue",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 16,
+      "path": "web/src/views/projects/ProjectModelCredentialEditor.vue",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 17,
+      "path": "web/src/views/projects/ProjectModelDeleteDialog.vue",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 18,
+      "path": "web/src/tests/project-models-client.spec.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 19,
+      "path": "web/src/tests/project-model-credentials-client.spec.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 20,
+      "path": "web/src/tests/project-model-settings-state.spec.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 21,
+      "path": "web/src/tests/project-model-settings.spec.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 22,
+      "path": "web/src/tests/authentication.spec.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 23,
+      "path": "web/src/tests/project-workspace.spec.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 24,
+      "path": "tests/account/project_owner_models_web_fixture_test.go",
+      "sole_author": "backend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 25,
+      "path": "tests/account/project_owner_models_web_test.go",
+      "sole_author": "backend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 26,
+      "path": "tests/account-captcha-web/project-owner-models.config.js",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 27,
+      "path": "tests/account-captcha-web/e2e/project-owner-models.spec.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 28,
+      "path": "web/src/tests/session.spec.ts",
+      "sole_author": "frontend_worker",
+      "product_write_authorized_now": false
+    },
+    {
+      "card_id": 29,
+      "path": "docs/development/frontend/README.md",
+      "sole_author": "root_to_assign_after_28_technical_acceptance",
+      "product_write_authorized_now": false
+    }
+  ],
+  "shared_git_go_cache_runtime_assets_owner": "root",
+  "runtime_authorization": false
+}

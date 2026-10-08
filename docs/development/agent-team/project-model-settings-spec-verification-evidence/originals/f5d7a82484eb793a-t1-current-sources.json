@@ -1,0 +1,610 @@
+{
+  "scope": "bounded current-source read and static signature extraction; no product checks or dependency graph",
+  "git_readonly": [
+    {
+      "argv": [
+        "git",
+        "symbolic-ref",
+        "--short",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "main\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "75411e27d0f2f5b998ae9a88e31fc9befa431095\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--",
+        "web/src/api/client.ts",
+        "web/src/api/account.ts",
+        "web/src/api/project-owner.ts",
+        "web/src/composables/useSession.ts",
+        "web/src/composables/useProjectWorkspace.ts",
+        "web/src/App.vue",
+        "web/src/router/auth.ts",
+        "web/src/router/index.ts",
+        "web/src/views/projects/ProjectSettingsView.vue",
+        "web/src/components/layout/ProjectNav.vue",
+        "web/src/tests/authentication.spec.ts",
+        "web/src/tests/project-workspace.spec.ts",
+        "web/src/tests/session.spec.ts",
+        "docs/development/frontend/README.md"
+      ],
+      "exit_code": 0,
+      "stdout": " M docs/development/frontend/README.md\n",
+      "stderr": ""
+    }
+  ],
+  "sources": [
+    {
+      "path": "web/src/api/client.ts",
+      "bytes": 40512,
+      "sha256": "6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd",
+      "direct_import_lines": []
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "bytes": 18878,
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+      "direct_import_lines": [
+        {
+          "line": 1,
+          "text": "import { AccountFailure, accountTransport, shape, string, uuid7, type Fetch } from './client'"
+        }
+      ]
+    },
+    {
+      "path": "web/src/api/project-owner.ts",
+      "bytes": 12215,
+      "sha256": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea",
+      "direct_import_lines": [
+        {
+          "line": 1,
+          "text": "import { AccountFailure, accountTransport, shape, string, uuid7, type Fetch } from './client'"
+        },
+        {
+          "line": 2,
+          "text": "import type { WriteOptions } from './account'"
+        },
+        {
+          "line": 3,
+          "text": "import { parseSystemInstant } from './system-account'"
+        }
+      ]
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "bytes": 163959,
+      "sha256": "8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7",
+      "direct_import_lines": [
+        {
+          "line": 1,
+          "text": "import { readonly, shallowReactive } from 'vue'"
+        },
+        {
+          "line": 2,
+          "text": "import {"
+        },
+        {
+          "line": 26,
+          "text": "} from '../api/account'"
+        },
+        {
+          "line": 27,
+          "text": "import { AccountFailure, uuid7, type Problem } from '../api/client'"
+        },
+        {
+          "line": 28,
+          "text": "import {"
+        },
+        {
+          "line": 32,
+          "text": "} from '../api/system-account'"
+        },
+        {
+          "line": 33,
+          "text": "import { useTheme } from './useTheme'"
+        },
+        {
+          "line": 34,
+          "text": "import {"
+        },
+        {
+          "line": 44,
+          "text": "} from '../api/system-invitations'"
+        },
+        {
+          "line": 46,
+          "text": "import {"
+        },
+        {
+          "line": 58,
+          "text": "} from '../api/system-providers'"
+        },
+        {
+          "line": 59,
+          "text": "import {"
+        },
+        {
+          "line": 66,
+          "text": "} from '../api/system-models'"
+        },
+        {
+          "line": 67,
+          "text": "import {"
+        },
+        {
+          "line": 73,
+          "text": "} from '../api/system-model-selection'"
+        },
+        {
+          "line": 74,
+          "text": "import {"
+        },
+        {
+          "line": 77,
+          "text": "} from '../api/system-meeting-summary'"
+        },
+        {
+          "line": 78,
+          "text": "import {"
+        },
+        {
+          "line": 84,
+          "text": "} from '../api/system-account-security'"
+        },
+        {
+          "line": 86,
+          "text": "import {"
+        },
+        {
+          "line": 96,
+          "text": "} from '../api/system-smtp-settings'"
+        },
+        {
+          "line": 97,
+          "text": "import {"
+        },
+        {
+          "line": 108,
+          "text": "} from '../api/system-smtp-delivery'"
+        },
+        {
+          "line": 110,
+          "text": "import {"
+        },
+        {
+          "line": 117,
+          "text": "} from '../api/system-outbound-policy'"
+        },
+        {
+          "line": 119,
+          "text": "import {"
+        },
+        {
+          "line": 124,
+          "text": "} from '../api/system-audit'"
+        },
+        {
+          "line": 125,
+          "text": "import {"
+        },
+        {
+          "line": 128,
+          "text": "} from '../api/system-runtime-information'"
+        },
+        {
+          "line": 130,
+          "text": "import {"
+        },
+        {
+          "line": 139,
+          "text": "} from '../api/project-owner'"
+        },
+        {
+          "line": 140,
+          "text": "import {"
+        },
+        {
+          "line": 144,
+          "text": "} from '../api/project-audit'"
+        }
+      ]
+    },
+    {
+      "path": "web/src/composables/useProjectWorkspace.ts",
+      "bytes": 26022,
+      "sha256": "07299d43da75bdae38f6f2520edfe26a8433fbc19e11263a8b109d9126921943",
+      "direct_import_lines": [
+        {
+          "line": 1,
+          "text": "import { computed, inject, reactive, ref, shallowReactive, watch, type InjectionKey } from 'vue'"
+        },
+        {
+          "line": 2,
+          "text": "import { AccountFailure } from '../api/client'"
+        },
+        {
+          "line": 3,
+          "text": "import {"
+        },
+        {
+          "line": 10,
+          "text": "} from '../api/project-owner'"
+        },
+        {
+          "line": 11,
+          "text": "import { projectRoute } from '../router/auth'"
+        },
+        {
+          "line": 12,
+          "text": "import { useSession, type PersonalIdentity, type SessionController } from './useSession'"
+        }
+      ]
+    },
+    {
+      "path": "web/src/App.vue",
+      "bytes": 10338,
+      "sha256": "d4bec3a781280a866f40506cdba6afcecc35a2203bf16ecf3161ebceba0dedd5",
+      "direct_import_lines": [
+        {
+          "line": 2,
+          "text": "import { computed, onMounted, onUnmounted, provide, shallowRef, watch } from 'vue'"
+        },
+        {
+          "line": 3,
+          "text": "import { useRoute, useRouter } from 'vue-router'"
+        },
+        {
+          "line": 4,
+          "text": "import AppShell from './components/layout/AppShell.vue'"
+        },
+        {
+          "line": 5,
+          "text": "import UiButton from './components/ui/UiButton.vue'"
+        },
+        {
+          "line": 6,
+          "text": "import UiState from './components/ui/UiState.vue'"
+        },
+        {
+          "line": 7,
+          "text": "import UiDialog from './components/ui/UiDialog.vue'"
+        },
+        {
+          "line": 8,
+          "text": "import { useSession, type PersonalIdentity } from './composables/useSession'"
+        },
+        {
+          "line": 9,
+          "text": "import { createPersonalSettings, personalSettingsKey } from './composables/usePersonalSettings'"
+        },
+        {
+          "line": 10,
+          "text": "import {"
+        },
+        {
+          "line": 21,
+          "text": "} from './router/auth'"
+        },
+        {
+          "line": 22,
+          "text": "import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'"
+        },
+        {
+          "line": 23,
+          "text": "import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'"
+        },
+        {
+          "line": 24,
+          "text": "import { createSystemProviders, systemProvidersKey } from './composables/useSystemProviders'"
+        },
+        {
+          "line": 25,
+          "text": "import { createSystemModels, systemModelsKey } from './composables/useSystemModels'"
+        },
+        {
+          "line": 26,
+          "text": "import {"
+        },
+        {
+          "line": 29,
+          "text": "} from './composables/useSystemModelSelection'"
+        },
+        {
+          "line": 30,
+          "text": "import {"
+        },
+        {
+          "line": 33,
+          "text": "} from './composables/useSystemAccountSecurity'"
+        },
+        {
+          "line": 34,
+          "text": "import {"
+        },
+        {
+          "line": 37,
+          "text": "} from './composables/useSystemSMTPSettings'"
+        },
+        {
+          "line": 38,
+          "text": "import {"
+        },
+        {
+          "line": 43,
+          "text": "} from './composables/useSystemSMTPDelivery'"
+        },
+        {
+          "line": 44,
+          "text": "import {"
+        },
+        {
+          "line": 47,
+          "text": "} from './composables/useSystemOutboundPolicy'"
+        },
+        {
+          "line": 48,
+          "text": "import { createProjectWorkspace, projectWorkspaceKey } from './composables/useProjectWorkspace'"
+        }
+      ]
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "bytes": 10910,
+      "sha256": "9943512eee91a8ab12df120d6e748b28359ee8579ac0d2f58bbd22db4eef4562",
+      "direct_import_lines": [
+        {
+          "line": 1,
+          "text": "import type { Router } from 'vue-router'"
+        },
+        {
+          "line": 2,
+          "text": "import { useSession, type SessionController } from '../composables/useSession'"
+        }
+      ]
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "bytes": 5428,
+      "sha256": "68cc05f665917521b13fc3a755fe16c49fc3a4ead9cf92975db8bd893f01e709",
+      "direct_import_lines": [
+        {
+          "line": 1,
+          "text": "import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'"
+        },
+        {
+          "line": 2,
+          "text": "import HomeView from '../views/HomeView.vue'"
+        },
+        {
+          "line": 3,
+          "text": "import LoginView from '../views/auth/LoginView.vue'"
+        },
+        {
+          "line": 4,
+          "text": "import NotFoundView from '../views/NotFoundView.vue'"
+        },
+        {
+          "line": 5,
+          "text": "import { installAuthentication, projectRoute } from './auth'"
+        },
+        {
+          "line": 6,
+          "text": "import { installAccountLinkCapture, type AccountEntryMode } from './account-link'"
+        }
+      ]
+    },
+    {
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "bytes": 907,
+      "sha256": "06b5872439c8e04c88fafd87b5b9bc82ecef3696e3a5b565d0846504c59af069",
+      "direct_import_lines": [
+        {
+          "line": 2,
+          "text": "import { computed } from 'vue'"
+        },
+        {
+          "line": 3,
+          "text": "import SettingsShell from '../../components/layout/SettingsShell.vue'"
+        },
+        {
+          "line": 4,
+          "text": "import { useProjectWorkspace } from '../../composables/useProjectWorkspace'"
+        }
+      ]
+    },
+    {
+      "path": "web/src/components/layout/ProjectNav.vue",
+      "bytes": 1973,
+      "sha256": "7b08d4d22b3951e6753dcaad40d31e70efb049908d9630870ff8851c303c9a55",
+      "direct_import_lines": [
+        {
+          "line": 2,
+          "text": "import { computed } from 'vue'"
+        },
+        {
+          "line": 3,
+          "text": "import { useRoute } from 'vue-router'"
+        },
+        {
+          "line": 4,
+          "text": "import { projectRoute } from '../../router/auth'"
+        }
+      ]
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "bytes": 24670,
+      "sha256": "1ab5f7f7b7eedf6ddec0597cacb87a3502816e93d214cf85cdb00fd34386bb4f",
+      "direct_import_lines": [
+        {
+          "line": 1,
+          "text": "import { afterEach, describe, expect, it, vi } from 'vitest'"
+        },
+        {
+          "line": 2,
+          "text": "import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'"
+        },
+        {
+          "line": 3,
+          "text": "import { createMemoryHistory, createRouter } from 'vue-router'"
+        },
+        {
+          "line": 4,
+          "text": "import { Rotate } from 'go-captcha-vue'"
+        },
+        {
+          "line": 5,
+          "text": "import type { AccountAPI, SessionView } from '../api/account'"
+        },
+        {
+          "line": 6,
+          "text": "import { AccountFailure } from '../api/client'"
+        },
+        {
+          "line": 7,
+          "text": "import type { SessionController } from '../composables/useSession'"
+        },
+        {
+          "line": 13,
+          "text": "import { createSessionController } from '../composables/useSession'"
+        },
+        {
+          "line": 14,
+          "text": "import { installAuthentication, safeReturnTarget } from '../router/auth'"
+        },
+        {
+          "line": 15,
+          "text": "import App from '../App.vue'"
+        },
+        {
+          "line": 16,
+          "text": "import LoginView from '../views/auth/LoginView.vue'"
+        },
+        {
+          "line": 17,
+          "text": "import HomeView from '../views/HomeView.vue'"
+        },
+        {
+          "line": 18,
+          "text": "import NotFoundView from '../views/NotFoundView.vue'"
+        }
+      ]
+    },
+    {
+      "path": "web/src/tests/project-workspace.spec.ts",
+      "bytes": 11815,
+      "sha256": "89d7b77705d05dede99042920e2acb02ec46906fe3c9dc593d72a1154aaf2ccd",
+      "direct_import_lines": [
+        {
+          "line": 1,
+          "text": "import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'"
+        },
+        {
+          "line": 2,
+          "text": "import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'"
+        },
+        {
+          "line": 3,
+          "text": "import { createMemoryHistory, createRouter, type Router } from 'vue-router'"
+        },
+        {
+          "line": 4,
+          "text": "import type { SessionController } from '../composables/useSession'"
+        },
+        {
+          "line": 10,
+          "text": "import { createSessionController } from '../composables/useSession'"
+        },
+        {
+          "line": 11,
+          "text": "import { createAccountAPI, type SessionView } from '../api/account'"
+        },
+        {
+          "line": 12,
+          "text": "import { createProjectOwnerAPI, type Project } from '../api/project-owner'"
+        },
+        {
+          "line": 13,
+          "text": "import { type Fetch } from '../api/client'"
+        },
+        {
+          "line": 14,
+          "text": "import { installAuthentication } from '../router/auth'"
+        },
+        {
+          "line": 15,
+          "text": "import App from '../App.vue'"
+        }
+      ]
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "bytes": 23661,
+      "sha256": "941e78cd6cdcb75990aaa9feebf2a740cfcec28cf8c0360d3e998bb3f66aed8a",
+      "direct_import_lines": [
+        {
+          "line": 1,
+          "text": "import { afterEach, describe, expect, it, vi } from 'vitest'"
+        },
+        {
+          "line": 2,
+          "text": "import { createSessionController } from '../composables/useSession'"
+        },
+        {
+          "line": 3,
+          "text": "import { AccountFailure, type Problem } from '../api/client'"
+        },
+        {
+          "line": 4,
+          "text": "import { createAccountAPI, type AccountAPI, type SessionView } from '../api/account'"
+        }
+      ]
+    },
+    {
+      "path": "docs/development/frontend/README.md",
+      "bytes": 84744,
+      "sha256": "5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e",
+      "direct_import_lines": [
+        {
+          "line": 565,
+          "text": "import { ref } from 'vue'"
+        },
+        {
+          "line": 566,
+          "text": "import { UiButton, UiField, UiInput, UiDialog } from '../../../web/src/components/ui'"
+        },
+        {
+          "line": 567,
+          "text": "import { useActionFeedback } from '../../../web/src/composables/useActionFeedback'"
+        }
+      ]
+    }
+  ],
+  "full_import_or_runtime_closure": false,
+  "source_content_copies": false,
+  "prior_read_error": {
+    "exception": "FileNotFoundError",
+    "path": "/workspace/agenteam/web/src/api/project.ts",
+    "before_error": [
+      "web/src/api/client.ts",
+      "web/src/api/account.ts"
+    ],
+    "disposition": "No files or Git commands were written/executed by the failed extraction; narrow rg --files web/src/api -g *project* located project-owner.ts. Corrected bounded pass reads the exact 14 listed inputs."
+  }
+}

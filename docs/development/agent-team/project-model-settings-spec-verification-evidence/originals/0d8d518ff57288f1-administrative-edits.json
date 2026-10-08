@@ -1,0 +1,107 @@
+[
+  {
+    "reason": "正式身份、已接受来源、Audit22、T1最小输入与T4状态",
+    "before": "# D27 Project Owner 模型设置 UI — 整合实施卡候选 v01\n\n状态：仅 scratch 整卡审阅候选，尚非正式规格、产品实施或资源许可。2026-10-08 将已审 rev0/rev1/T3 rev2 与双方同 SHA 确认组合；旧原件及其原时点的 pending/FAIL 不回写。本候选自身仍待完整 SPEC 独审。规格承担一个完整设置结果，不机械复制 System 大闭环。\n\n## 0. 固定依据、当前基线与交接状态\n\n| 固定规则来源 | SHA-256 前缀与适用范围 |\n| --- | --- |\n| rev0 规格 | `8b78072a`，两叶子、29路径、完整数据/身份/写恢复矩阵；独审 `463cd09a` |\n| rev1 工程补充 | `9197fc97`，17 typed 方法/action、第15依赖、两个后缀、14旧selector、6新top与预算；protocol `83e3e652`、selectors `c36bed42`；独审 `691ab122` |\n| T3 rev2 精确 DTO | `8c82af7c`、endpoints `6c85ae88`、freeze `03ae01a8`；独审 `0e60d1ae` |\n| 前端同 SHA 消费确认 | `931da9f6`，仅静态可消费、未实现 |\n| 后端同 SHA 消费确认 | `22754edd`，仅静态可消费；三tuple示例不是完整矩阵或动态证明 |\n\n完整路径、SHA 和字节见同目录 `sources.json`，原报告原位引用，不复制其证据树。各独审接受原固定增量，本候选的重排/组合尚未独验。\n\nAudit 前置先引用已封版本：17 web 由 `055c727b5bd1fb2f2794d402ce214ef5f95bd38b` 所在交付链及 build-v02 `source17.json` / `092b5e98` 绑定；其中 View=`3bb842a2`、受影响 App/router 测试=`480b2cfb`，原受控最终49由 `9b0453ea`接受。两 Go 为 `3fff89ba` / `77d36746`（candidate03/D1）；两 JS 为 config=`2524a04e`、spec=`a91d3ab7`（source-v03 `eaef9bd8`）。同目录 `audit-baseline.json` 保存全部21条精确路径/SHA及原冻结/接受链，仅提取已接受小版本图 `bba14d28` 和17源元数据；本轮未扫描21源码、未新验Go/JS或重建依赖图。\n\n这些版本引用**不等于 Audit 整卡接受或本卡开工基线**。root 已交付 Model Resolver `c36717c20fd98135cb7df167fc2e869aae7612de` 也不补 Audit 门槛。最终 main、App.vue/session.spec.ts 等本卡实际共享输入及 import closure，须在 Audit 整卡接受并相关写入停止后由 T1 一次最小重绑交接。不得拿此21行图代替本卡完整编译/运行输入。\n\n| 门槛 | 本候选状态 |\n| --- | --- |\n| 三 HTTP、Owner24、rev0/1/2 规则、T2 selector 静态定位 | 已有正式接受依据；不等于本次变更后的动态通过 |\n| T3 精确 DTO 与前后端同 SHA agreement | 静态确认已闭合；不意味着 harness/六case/材料净化/退休已实现 |\n| Audit 整卡＋T1 最终共享源码/签名/基线 handover | **pending，阻止实施** |\n| 本整合候选完整独审、T4 正式卡路径/修订/安装与唯一 writer | **pending，阻止实施**；29路径只是候选分工 |\n| 实施后实际工具/源码/import/schema/dist闭包、精确discovery、driver/filegate/逐轮grant | **pending，阻止执行**；false准备不能运行 |\n| 28技术完整接受后的README第29末件 | **pending，最后另授** |\n\n",
+    "after": "# D27 Project Owner 模型设置 UI — rev1\n\n状态：2026-10-08 正式规格安装；完整语义沿已获 root 接受的整合候选 c5674d4e，独立 SPEC STATIC d411c2ce 无必修。本次只完成 Audit 前置状态、T1 最小共享源码交接、永久定义引用及 T4 正式路径/唯一作者归位；安装差量与交接仍待独立复核和 root 接受。正式卡安装不是产品实施、工具运行或资源授权，实施启动由 root 另行下发。\n\n## 0. 固定依据、当前基线与交接状态\n\n唯一语义基准为整合候选 SHA-256 c5674d4e06618f264a00867de0fb65fb9710e56b6a96ccde1f8fdaa77a5641f3（84300 B）；原候选与旧 pending/FAIL 原件保持。完整独审 review=d411c2ce0dfe46b7417aa87e6846f95d3a9507e644f6ba10fd95f9b000e76871，evidence=3bd930dc22dfd1dfb2a6a5f45e74f12bb1e47857562dc1a04455fcd5ac246727，manifest=852f0f87a3b0fddb3528743a8d1fcecb078654753de35b24383c266406ec4028，均已由 root 读取/核同接受。\n\n| 已组合来源 | 固定身份与适用范围 |\n| --- | --- |\n| rev0 规格 / 独审 | 8b78072a / 463cd09a；两叶子、29路径、完整数据/身份/写恢复矩阵 |\n| rev1 工程 / 独审 | 9197fc97 / 691ab122；17 typed方法/action、第15依赖、14旧selector、6新top；protocol83e3e652、selectorsc36bed42 |\n| T3 精确DTO / 独审 | 8c82af7c / 0e60d1ae；endpoints6c85ae88、freeze03ae01a8 |\n| 前后端同SHA确认 | frontend931da9f6、backend22754edd；静态可消费，三tuple仅恢复代表可排布 |\n\n上述规则已完整内嵌 §2–10。历史 scratch 原件只有来源身份，尚未另归档者不声称已有永久档；不要求执行者从临时文件取得关键定义。唯一精确端点附件为 [d27-project-owner-model-settings-ui-endpoints.json](d27-project-owner-model-settings-ui-endpoints.json)，原字节 SHA-256 6c85ae889c8a86eb67695f2eb29773395b58db4f5bdfecc9c9182ff3e62fd9fa（6087 B）。附件原 status 表示来源当时未实施，保留其字节；本卡采用其 operation/method/path/target/query/effects 闭集，不生成第二套协议。\n\n[Audit UI 完整验收](../agent-team/project-owner-audit-ui-verification.md)已获 root 接受：最终22路径独审442ad7809fee233c37057c89b5749795c473b48651ea1feab820b10bcd9bb1f0 / manifest0bba9745e558e9f490a397c84d23c3336ccc54e60179e6cac0c2cb1e0aceb0f6；沿[永久21技术源表](../agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json) bf66509901d83abd2e69dc6b609baa6fb4278ce3a5fbaaebdef0d7c8d3ea6707，加 README 5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e / 84744 B。原三次 browser FAIL、受控 RED/最终49、各版本实际轮及视觉可见范围仍按原验收分列，不变成当前HEAD单次fresh全测。\n\nAudit17 web 的既有版本链保持055c727b5bd1fb2f2794d402ce214ef5f95bd38b，其中 View3bb842a2/test480b2cfb；Go两源3fff89ba/77d36746，JS两源2524a04e/a91d3ab7由上述永久表完整绑定。技术提交及本次只读观察的 main/HEAD 均为75411e27d0f2f5b998ae9a88e31fc9befa431095；README是已接受、尚待root文档提交的5fba工作树版本。root已确认技术/README/资源reader停止及global原3恢复；本轮不读取或验证dist/host资源。后续纯文档提交允许更新HEAD锚，但不能静默替换下表任一源码字节。\n\n### 0.1 T1 最小共享源码与实际签名\n\n下表为本次必要14输入的精确读取：13技术（10个后继可写既有文件＋3只读接口）及README末件。13技术当时均无工作树改动；不复制源码树，不扫描完整import/Go图。Audit重叠9源与bf665099永久表相同；App.vue、session.spec.ts及project-owner.ts与[Owner24源表](../agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/source-rows.json) a8e19c17相同；account.ts与已审rev1固定源7d84b31d相同。这里只复用既有接受链，未重跑其检查。\n\n| 现有输入 | 后继作用 | 字节 | SHA-256 |\n| --- | --- | ---: | --- |\n| web/src/api/client.ts | §8既有写域 | 40512 | 6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd |\n| web/src/api/account.ts | 只读契约 | 18878 | 7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37 |\n| web/src/api/project-owner.ts | 只读契约 | 12215 | 7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea |\n| web/src/composables/useSession.ts | §8既有写域 | 163959 | 8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7 |\n| web/src/composables/useProjectWorkspace.ts | 只读契约 | 26022 | 07299d43da75bdae38f6f2520edfe26a8433fbc19e11263a8b109d9126921943 |\n| web/src/App.vue | §8既有写域 | 10338 | d4bec3a781280a866f40506cdba6afcecc35a2203bf16ecf3161ebceba0dedd5 |\n| web/src/router/auth.ts | §8既有写域 | 10910 | 9943512eee91a8ab12df120d6e748b28359ee8579ac0d2f58bbd22db4eef4562 |\n| web/src/router/index.ts | §8既有写域 | 5428 | 68cc05f665917521b13fc3a755fe16c49fc3a4ead9cf92975db8bd893f01e709 |\n| web/src/views/projects/ProjectSettingsView.vue | §8既有写域 | 907 | 06b5872439c8e04c88fafd87b5b9bc82ecef3696e3a5b565d0846504c59af069 |\n| web/src/components/layout/ProjectNav.vue | §8既有写域 | 1973 | 7b08d4d22b3951e6753dcaad40d31e70efb049908d9630870ff8851c303c9a55 |\n| web/src/tests/authentication.spec.ts | §8既有写域 | 24670 | 1ab5f7f7b7eedf6ddec0597cacb87a3502816e93d214cf85cdb00fd34386bb4f |\n| web/src/tests/project-workspace.spec.ts | §8既有写域 | 11815 | 89d7b77705d05dede99042920e2acb02ec46906fe3c9dc593d72a1154aaf2ccd |\n| web/src/tests/session.spec.ts | §8既有写域 | 23661 | 941e78cd6cdcb75990aaa9feebf2a740cfcec28cf8c0360d3e998bb3f66aed8a |\n| docs/development/frontend/README.md | #29最后另授 | 84744 | 5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e |\n\nT1 实际签名/接入点（以下行号只定位本表版本）：\n\n- account.ts:81 的 WriteOptions 为 Readonly<{ csrfToken: string; key: string; signal?: AbortSignal }>；旧参数和可选 signal 保持。\n- useSession.ts:475–490 的 createSessionController 仍依次默认注入 api、systemAPI、invitationAPI、providerAPI、modelAPI、selectionAPI、accountSecurityAPI、smtpAPI、smtpDeliveryAPI、outboundAPI、auditAPI、runtimeInformationAPI、projectAPI、projectAuditAPI，共14项；§6.1只追加第15项。原 runAuthorized<T>(identity: PersonalIdentity, work: (op: Operation, current: () => boolean) => Promise<T>, command?: PersonalCommand, kind=personal): Promise<T> 位于1267；既有Project/Audit显式身份分派及1421实际finally释放owner均保持。\n- useProjectWorkspace.ts:30 的 createProjectWorkspace(auth: SessionController = useSession(), replaceRoute: (path: string) => Promise<unknown> = async () => undefined)；:140公开只读 currentReadContext，形状 Readonly<{ identity: PersonalIdentity; projectID: string; generation: number; readGeneration: number }> | null；:586 confirmLeave(target?: string) 返回Promise<boolean>。本卡不新增workspace写权，也不把此读归属当Mutate授权。\n- App.vue:53创建/provide唯一workspace，:109–121 Logout仍逐项等待9个confirmLeave，:160起停止navigation并dispose原owners；§6.1追加独立本域，不替换原9项及Selection内Summary双intent。\n- auth.ts:38 projectRoute(value: unknown) 当前返回 username/project_name/path 与 suffix=''|'/settings'|'/settings/general'|'/settings/audit' 或null，:44仍拒raw百分号/反斜线/query/hash，:109 installProjectNavigation采用confirmLeave(target?: string)及afterNavigation(to,from)。router/index.ts:116–135只有general/audit两child和general默认；新两literal只按§6.1添加。\n- ProjectSettingsView.vue:6只消费workspace visible/detail/paths，原两组为项目资料/安全记录；ProjectNav.vue:8–18只对同Project general/audit设置current。现authentication/project-workspace/session测试及client封闭endpoint/typed overload，均按表固定，未执行。\n\nT1完成的是最小静态基线/签名交接；实现后的真实源码及传递import、工具、schema、私有build、binary discovery与执行门禁仍按§9另行冻结，不由本表预填完成。\n\n| 门槛 | rev1安装时状态 |\n| --- | --- |\n| 三HTTP、Owner24、Audit22、既有规则及T2 selector静态定位 | 已接受；不代替模型设置实现后的检查 |\n| T3精确DTO及前后端同SHA确认 | 已静态闭合；完整恢复矩阵及每case上限保持 |\n| T1最小共享源码/签名/main交接 | 已记录上述固定输入；随本次安装差量交独审/root接受 |\n| 完整候选SPEC | d411c2ce已接受；其业务语义原样采用 |\n| T4正式卡/原字节附件/唯一writer | 本次安装，最终行政差量独审及root实施移交仍待 |\n| 实施后完整输入、精确discovery、driver/filegate/逐轮grant | pending；没有本卡执行许可 |\n| 28技术完整接受后的README第29末件 | pending，最后另授 |\n\n"
+  },
+  {
+    "reason": "正式卡身份",
+    "before": "推荐单张完整结果卡：",
+    "after": "本卡交付一个完整结果："
+  },
+  {
+    "reason": "正式卡身份",
+    "before": "| 直接依赖 | 正式接受与本稿消费 | 仍不据此完成 |",
+    "after": "| 直接依赖 | 正式接受与本卡消费 | 仍不据此完成 |"
+  },
+  {
+    "reason": "已满足Audit前置",
+    "before": "| 后继 Audit UI 完整接受 | **待满足**。client/useSession/router/ProjectSettings/ProjectNav/相关旧测试及只读currentReadContext须在接受后冻结移交 | 当前审计离线PASS、单轮通过或只读源码不代替整卡结果 |",
+    "after": "| Audit UI 完整22接受 | 已接受442ad780；client/useSession/router/ProjectSettings/ProjectNav/相关旧测试及只读currentReadContext按§0.1固定交接 | 有限版本组合，不声称所有producer或当前HEAD一次全新全测 |"
+  },
+  {
+    "reason": "正式写域身份",
+    "before": "29个候选路径（28技术＋README末件）",
+    "after": "29个产品路径（28技术＋README末件）"
+  },
+  {
+    "reason": "正式写域身份",
+    "before": "不凭本稿扩大。",
+    "after": "不凭本卡扩大。"
+  },
+  {
+    "reason": "行政前置更新",
+    "before": "开工前 root 须：接受正式SPEC；接受Audit整卡并给共享源停止快照；记录当时main与所需最小源码/工具输入、唯一写者；移交客户端/API→Session/state→UI→私有harness的可审冻结阶段。运行资源、Go/cache、资产窗另授。其它任务当前窗口不属于本任务。T3 双作者同 SHA 静态确认已具备，但不解除 §0 的 Audit/T1/T4 和执行前置。",
+    "after": "完整候选SPEC、Audit整卡和T3同SHA确认已接受，当前共享源码/签名见§0.1。root须在本次行政安装差量独审接受后另行下发实施，按客户端/API→Session/state→UI→私有harness逐段冻结；§8唯一作者分工不等于已启动。实现后的工具/完整输入以及运行资源、Go/cache、资产窗口仍分别固定、另授，其它任务窗口不属于本任务。"
+  },
+  {
+    "reason": "正式卡身份",
+    "before": "下列签名为本候选的精确接口建议；",
+    "after": "下列签名为本卡沿已接受候选采用的精确接口建议；"
+  },
+  {
+    "reason": "T1已核签名",
+    "before": "createSessionController在Audit接受后的实际参数末尾",
+    "after": "createSessionController在§0.1移交的实际参数末尾"
+  },
+  {
+    "reason": "T4正式分工",
+    "before": "## 8. 候选唯一写域",
+    "after": "## 8. 唯一产品写域与作者"
+  },
+  {
+    "reason": "T4唯一writer及授权边界",
+    "before": "下表是**提请正式卡采纳的候选**，当前全只读；README须全部28技术接受后另授。frontend独占#1–23/#26–28；backend独占新Go #24–25；root独占Git/协调/资产窗，其他旧Go/JS helper及共享Ui/样式/HTTP/schema/生产后端不授写。",
+    "after": "下表为正式29产品路径闭集；本次仅安装规格，尚不授权产品写入。root后继派工时 frontend_worker 为#1–23/#26–28唯一作者，backend_worker 为新Go #24–25唯一作者；两者需接到实际实施任务再开始。README #29须全部28技术接受后由root另授唯一文档作者；Git/协调/资产与资源调度归root。其他旧Go/JS helper及共享Ui/样式/HTTP/schema/生产后端不授写。architecture_worker本轮只写本正式卡及原字节端点附件，两份规格文件不增加第30个产品路径。"
+  },
+  {
+    "reason": "将已引用命令/分类定义内联",
+    "before": "固定14个受影响旧top，不以旧输入PASS代替。各一轮精确`^名称$`；不合并大regex。列表是源码已存在的static selector，不是当前binary discovery或运行许可。其准确命令/asset分类见`/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/selectors.json`。",
+    "after": "固定14个受影响旧top，不以旧输入PASS代替。各一轮精确`^名称$`；不合并大regex。列表是源码已存在的static selector，不是当前binary discovery或运行许可。原selectors c36bed42的精确命令模板为`sh scripts/test-objects.sh -run <one exact anchored selector>`，包`./tests/account`；实际工具、ENV、完整闭包及逐轮grant另行固定。下表与本节资产ENV自含其固定分类。"
+  },
+  {
+    "reason": "将已引用未排程条件内联",
+    "before": "发生实际相关diff时，`/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/selectors.json`已有精确候选及触发理由，须回报后重绑定。",
+    "after": "仅当最终diff修改runtime-information专有operation/cap/failure分支，才回报并重绑`^TestAccountSystemRuntimeInformationWebReadAndAuthority$`；仅当修改该leaf、其owner导航或busy-pageshow语义，才回报并重绑`^TestAccountSystemRuntimeInformationWebNavigationAndLifecycle$`。这两项沿原selectors c36bed42的conditional_not_scheduled，仍未排入14轮，不由本卡自动增加执行。"
+  },
+  {
+    "reason": "正式卡身份",
+    "before": "候选总顺序为6新top",
+    "after": "本卡总顺序为6新top"
+  },
+  {
+    "reason": "T3确认完成后仍保case冲突前置",
+    "before": "该草案场景不能猜关联/覆盖，必须在实施agreement前精确调整已有case安排",
+    "after": "本卡该case不能猜关联/覆盖，必须在具体case实施前报告root并精确调整已有case安排"
+  },
+  {
+    "reason": "精确端点永久附件归位",
+    "before": "17 operation literal及方法/路径/target/query条件见 `/workspace/scratch/architecture-project-model-settings-draft01/rev2-t3/endpoints.json`；",
+    "after": "17 operation literal及方法/路径/target/query条件见[唯一精确端点附件](d27-project-owner-model-settings-ui-endpoints.json)（原字节6c85ae88）；"
+  },
+  {
+    "reason": "原正式HTTP/Owner依赖的永久相对链接",
+    "before": "`project-model-owner-read-http-verification.md`",
+    "after": "[project-model-owner-read-http-verification.md](../agent-team/project-model-owner-read-http-verification.md)"
+  },
+  {
+    "reason": "原正式HTTP/Owner依赖的永久相对链接",
+    "before": "`project-model-credentials-http-verification.md`",
+    "after": "[project-model-credentials-http-verification.md](../agent-team/project-model-credentials-http-verification.md)"
+  },
+  {
+    "reason": "原正式HTTP/Owner依赖的永久相对链接",
+    "before": "`project-model-configuration-write-http-verification.md`",
+    "after": "[project-model-configuration-write-http-verification.md](../agent-team/project-model-configuration-write-http-verification.md)"
+  },
+  {
+    "reason": "原正式HTTP/Owner依赖的永久相对链接",
+    "before": "`project-owner-workspace-ui-final24-verification.md`",
+    "after": "[project-owner-workspace-ui-final24-verification.md](../agent-team/project-owner-workspace-ui-final24-verification.md)"
+  },
+  {
+    "reason": "T4唯一writer、安装与执行授权分界",
+    "before": "## 11. 正式化、唯一写权与交付\n\n无新增用户产品待决。本候选保留一个完整结果、29候选路径（28技术＋README末件）、17 HTTP operations＝6 GET＋9 mutation＋2 POST lookup、9 IPC、六新top＋14旧selector。UI不发布Audit/Event；配置与Secret事务事实仍由既有正式后端拥有，不加生产后端/SQL/迁移或Invocation适配。\n\n后继按 §0 门槛由 root 明确正式卡路径/修订、最终基线、引用归位、唯一frontend/backend作者和共享文件交接；正式安装前不执行 §8 写域。静态/离线/实际阶段按实际依赖冻结；作者自查后交未参与实现的独立负责人，原失败保留，只复验受影响差量。源码及导入闭包、Go/Node/Python工具、两HTTP schema实际refs、最终私有build与所有global reader必须在执行前闭合；不复制大型图、不机械使用历史输入数。Go/cache/业务资源和资产交换始终由root单独授予并串行，完整退休前不能接下一轮。\n\n正式化后仍按已有规则保最小、明确的共享域：frontend候选#1–23/#26–28，backend候选#24–25，README#29为28技术接受后末件；Git、三协调文档、资产和资源调度由root。必要范围外修改先给精确路径/原因/影响，不能以本候选预授。Audit原Go/JS/helper、Object/Provider tools/SPA停止路径及Image来源阻塞线保持只读停止。\n\n本卡不包括Project创建/生命周期/Owner转移、Agent配置或引用替代、非chat Project模型、生产调用/Resolver root/Invocations、平台selector、Project Summary override/默认复制、凭据目录或明文读取、连接测试、Provider discovery、生产SPA发布与E01。三硬停止与Jina停止保持，完整D09/D26/D27/D28与E01不因该卡或草案完成。\n\n本次仅组合固定 scratch 规则及小元数据，原稿未改。没有正式卡/仓库/产品写入，没有Go/Node/browser/网络/Git/资源执行。**整合候选 STOP，待完整SPEC独审；Audit/T1/T4及实际运行前置保持 pending。**\n",
+    "after": "## 11. 正式化、唯一写权与交付\n\n无新增用户产品待决。本卡保留一个完整结果、29产品路径（28技术＋README末件）、17 HTTP operations＝6 GET＋9 mutation＋2 POST lookup、9 IPC、六新top＋14旧selector。UI不发布Audit/Event；配置与Secret事务事实仍由既有正式后端拥有，不加生产后端/SQL/迁移或Invocation适配。\n\n本正式卡rev1与唯一原字节端点附件由architecture_worker安装，语义基础是已完整独审的c5674d4e，T1当前共享输入见§0.1。此刻不执行§8产品写域；root在行政差量独审接受后另下发业务实施和唯一作者实际ACK。静态/离线/实际阶段按依赖冻结；作者自查后交未参与实现的独立负责人，原失败保留，只复验受影响差量。源码及导入闭包、Go/Node/Python工具、两HTTP schema实际refs、最终私有build与所有global reader必须在执行前闭合；不复制大型图、不机械使用历史输入数。Go/cache/业务资源和资产交换始终由root单独授予并串行，完整退休前不能接下一轮。\n\n唯一分工按§8：frontend_worker负责#1–23/#26–28，backend_worker负责#24–25；README#29为28技术接受后另授末件；root负责Git、三协调文档、资产和资源调度。需要范围外修改先给精确路径/原因/影响，不能以本卡预授。Audit原Go/JS/helper、Object/Provider tools/SPA停止路径及Image来源阻塞线保持只读停止。角色必读技能与冻结/独验流程遵[团队流程](../agent-team/README.md)；前端遵[现有开发基础](../frontend/README.md)及[Project设置设计](../../frontend-design/layouts/project-settings.md)。\n\n本卡不包括Project创建/生命周期/Owner转移、Agent配置或引用替代、非chat Project模型、生产调用/Resolver root/Invocations、平台selector、Project Summary override/默认复制、凭据目录或明文读取、连接测试、Provider discovery、生产SPA发布与E01。三硬停止与Jina停止保持，完整D09/D26/D27/D28与E01不因该卡完成。\n\n本次只完成正式规格两文件安装及必要静态源码/签名交接，未改产品/原候选/旧报告，没有执行Go/Node/browser/网络/资源或Git写入。只读Git记录当时main/HEAD及14输入状态。**rev1安装 STOP，交行政差量＋T1/T4独验；业务实施、实际工具/闭包/资源及README末件仍未授权。**\n"
+  }
+]

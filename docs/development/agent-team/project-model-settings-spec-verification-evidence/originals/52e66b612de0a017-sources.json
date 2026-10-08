@@ -1,0 +1,119 @@
+{
+  "scope": "Selected fixed formal DTO/storage semantics and previously accepted drafts only; no complete System review or source graph. Some sources read as targeted excerpts; fingerprints identify the cited version, not full semantic re-review.",
+  "refs": [
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/spec-draft.md",
+      "bytes": 34963,
+      "sha256": "8b78072a09d2c87f8f69fc195c0a5535f0d43e0776f27d6b9b8e6dbb40f28c34"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/engineering.md",
+      "bytes": 22014,
+      "sha256": "9197fc97facd71d142f1a94c387a3ab528d892f004b5b8b1d637aeb9e419f02e"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/protocol.draft.json",
+      "bytes": 15360,
+      "sha256": "83e3e652e9677a416f85fb67f3ba9afc8b870cf4740c2cbfe7341bd4ade235bf"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/freeze.json",
+      "bytes": 1259,
+      "sha256": "da9613e35b385226e999ae582647ae0a61f4fce2c7afcf5df9d59af02cd4ca77"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-rev1-static-review/review.md",
+      "bytes": 2070,
+      "sha256": "691ab12294c0b68860481730741614079a1a400a17b29f8f8c4acdf6c89ba70d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-owner-read-http.md",
+      "bytes": 36624,
+      "sha256": "fa6c3c434cacfc8d0a9db01266c76f1525088777cdf572f8051907a9f94f3277"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-credentials-http.md",
+      "bytes": 31413,
+      "sha256": "61c89885ea01e676e7c87bdca8debb3d1bdda1e501fd7b132ec99e398299042c"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-configuration-write-http.md",
+      "bytes": 41814,
+      "sha256": "a3b805bfe149cd320992a46cbbedafd8166e5b49d081ba12c052c54b9ccfe9c6"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/http_project_credentials_wire.go",
+      "bytes": 6973,
+      "sha256": "cc1342583a0c7c37b8e5eb5bae31d168f2b87fbbbcf60ae9a1bc1877f42075df"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/http_project_configuration_wire.go",
+      "bytes": 13034,
+      "sha256": "2689130f0e462586f76c310628f99ec02db2b758474e038864630009c4d40b83"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/commands.go",
+      "bytes": 21163,
+      "sha256": "22d0bffa662cfb76bb75a02ba2f087b52ab7fe4e3d67394b451c5865e86063c1"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/secret/write_lookup.go",
+      "bytes": 4645,
+      "sha256": "af9ffabe8b2ef56c5539dc317693c92983ccdb231680d2445a544f338cc65633"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/secret/write.go",
+      "bytes": 20203,
+      "sha256": "75da5bef79eb6958d0fc5cfa2b862360c8e34f53eb66ce4f22e787cfe35d7c0f"
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/project_configuration_write_http_fixture_test.go",
+      "bytes": 9636,
+      "sha256": "126ae0c7b141caa82ebfce044fc9affd45179e3ccd31057ca63ae2cda312a380"
+    },
+    {
+      "path": "/workspace/agenteam/tests/model/project_credentials_http_fixture_test.go",
+      "bytes": 9905,
+      "sha256": "cfdc4107891cf0be9a6ba2d963ca90550932a577825a6e2a5743774c537ba38b"
+    },
+    {
+      "path": "/workspace/agenteam/tests/account/project_owner_audit_web_fixture_test.go",
+      "bytes": 51317,
+      "sha256": "3fff89ba02eedd4c7009f42e641cb26097f5fd39a2c5f379ec95a5a02558a55f"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/api/system-model-selection.ts",
+      "bytes": 7848,
+      "sha256": "a9b74ef52937636206abb0ac4a7b05aa8b2f260c8f94fd4b607c8ffe83da1b17"
+    },
+    {
+      "path": "/workspace/agenteam/web/src/api/system-meeting-summary.ts",
+      "bytes": 4255,
+      "sha256": "4ddefde1b19d7cbdf869ce7857a9551ea8979229a5d7d1fa91790fd13bc799ff"
+    }
+  ],
+  "anchors": {
+    "credential_dto": "http_project_credentials_wire.go:20,54-115; credential HTTP card §2-4 exact metadata/mutation/observation and archived Execute rule",
+    "configuration_dto": "http_project_configuration_wire.go:24-47,220-228; configuration HTTP card §3-5 exact request/receipt and archived same-original behavior",
+    "snapshot_safe_projection": "commands.go:150-185,297,432 phase/identity; Secret write_lookup.go:88; write.go:319,335-355; HTTP fixture exact count predicates referenced, no full-row dump reuse",
+    "system_draft_only": "system-model-selection.ts:18-31; system-meeting-summary.ts:5-12",
+    "registered_session_logout": "project_owner_audit_web_fixture_test.go:1047-1079 existing exact session registration and formal Logout boundary"
+  },
+  "frontend_message_feedback": {
+    "source": "Direct collaboration messages from frontend_worker in this task; no active draft source read by frontend.",
+    "accepted_consumer_needs": [
+      "ProjectLocator retains seven fields; archive expected_version only snapshot.project.version",
+      "Mode-closed safe seed IDs, names, protocol/version and 26 pagination ID/scope oracle; no large config/material copies",
+      "Navigation owner is formal System admin and actual Project Owner; Selection Memory plus single unified Summary draft alternate option",
+      "New formal create receipt IDs registered before response loss; exact arm/real request token release/join",
+      "Current/receipt/comparison separate; missing resource does not imply successful delete; unperformed comparisons null",
+      "Origin token equals original request token, pairing is not same command identity; use isolated existing recovery projects/operations",
+      "No browser-report IPC; proxy counts EOF/schema/client null, Node final result authoritative for its own observations",
+      "Credential generated/fill in memory; sanitize fill errors; no raw material/key/body/digest evidence",
+      "Cookie owner finally, server handler join and snapshot Tx are independent observations"
+    ],
+    "frontend_deems_sufficient_for_consumption": true,
+    "backend_consulted_this_round": false,
+    "dual_author_agreement": false
+  }
+}

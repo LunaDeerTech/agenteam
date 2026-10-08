@@ -1,0 +1,162 @@
+{
+  "status": "DOCUMENT_ARCHIVE_CHECKS_PASS_STOP",
+  "scope": "Only named frozen documents and new archive artifacts; no product or original source-tree verification.",
+  "new_originals_exact_copy_hash_and_bytes": 54,
+  "new_originals_unique_sha256": 54,
+  "new_original_json_parsed": 38,
+  "embedded_fixed_ref_checks": 156,
+  "formal_spec_and_endpoint_current_bytes_equal_fixed_refs": true,
+  "Git_object_content_independently_checked": false,
+  "Git_commit_and_remote_equality_supplied_by_root": "7b8af244fe87d43699c17c95077ee73971e18411",
+  "reused_permanent_paths_exist": 6,
+  "reused_permanent_bytes_rehashed": false,
+  "source_map_distinct_target_paths_exist": 62,
+  "generated_report_local_links": [
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/d411c2ce0dfe46b7-review.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/e1abcf0ec30fa19e-review.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d27-project-owner-model-settings-ui.md",
+      "exists": true
+    },
+    {
+      "target": "../work-items/d27-project-owner-model-settings-ui-endpoints.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/source-map.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/8b78072a09d2c87f-spec-draft.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/463cd09aecf075c4-review.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/9197fc97facd71d1-engineering.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/83e3e652e9677a41-protocol.draft.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/c36bed42977f75b6-selectors.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/691ab12294c0b688-review.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/8c82af7cd694fa0b-t3-dto.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/0e60d1ae009d6917-review.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/931da9f62b03d866-agreement.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/22754edd6ce04d72-agreement.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/c5674d4e06618f26-candidate.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/dedc14db178430fc-freeze.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/d411c2ce0dfe46b7-review.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/99a649d45341895b-freeze.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/ea62d6016e882322-candidate-to-formal.patch",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/e1abcf0ec30fa19e-review.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/f5d7a82484eb793a-t1-current-sources.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/9f55c8ac0db36105-t1-signature-excerpts.json",
+      "exists": true
+    },
+    {
+      "target": "project-owner-audit-ui-verification.md",
+      "exists": true
+    },
+    {
+      "target": "project-owner-audit-ui-verification-evidence/originals/442ad7809fee233c-review.md",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/3bd930dc22dfd1df-evidence.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/557d389d39353778-failures.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/originals/571084d08b366273-installation-attempt01-failure.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/source-map.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/manifest.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/checks.json",
+      "exists": true
+    },
+    {
+      "target": "project-model-settings-spec-verification-evidence/format.json",
+      "exists": true
+    }
+  ],
+  "original_evidence_historical_links": "Preserved byte for byte; not normalized or claimed migrated.",
+  "original_format_exception_count": 36,
+  "generated_format": "UTF-8/LF/final LF; no trailing whitespace, space-before-tab, CRLF or blank line at EOF.",
+  "preserved_failures": [
+    "Integrated reviewer read-only protocol.json basename error, tool exit 2; corrected protocol.draft.json.",
+    "Formal installation author read-only project.ts FileNotFoundError; corrected bounded lookup.",
+    "Formal installation functions.exec JavaScript parse error before nested tools started.",
+    "This archive tool exit 1 while checking a manifest link before generation; raw stderr and partial output hashes preserved, then sequencing corrected."
+  ],
+  "actual_actions": {
+    "new_frozen_document_reads_json_hashes_text_and_link_checks": true,
+    "active_business_source_read": false,
+    "Go_Node_browser_network_Git_resources": false,
+    "current_assets_cache_or_dependency_graph_read": false,
+    "original_bytes_normalized": false,
+    "repository_writes_outside_report_and_evidence": false
+  },
+  "acceptance_limit": "Complete SPEC STATIC and T1/T4 static handover accepted by root; implementation execution and product/dynamic acceptance not established here."
+}

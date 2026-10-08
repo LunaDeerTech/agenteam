@@ -1,0 +1,30 @@
+{
+  "status": "SPEC_STATIC_PASS_STOP_NOT_IMPLEMENTATION_AUTHORITY",
+  "candidate": {
+    "path": "/workspace/scratch/architecture-project-model-settings-draft01/integrated-card-v01/candidate.md",
+    "bytes": 84300,
+    "sha256": "c5674d4e06618f264a00867de0fb65fb9710e56b6a96ccde1f8fdaa77a5641f3"
+  },
+  "freeze": {
+    "path": "/workspace/scratch/architecture-project-model-settings-draft01/integrated-card-v01/freeze.json",
+    "bytes": 1432,
+    "sha256": "dedc14db178430fcaa2f5e9d51d5c77e240ef9ce258921d6980790707a055410"
+  },
+  "outputs": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-integrated-v01-review/review.md",
+      "bytes": 3444,
+      "sha256": "d411c2ce0dfe46b7417aa87e6846f95d3a9507e644f6ba10fd95f9b000e76871"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-integrated-v01-review/evidence.json",
+      "bytes": 12680,
+      "sha256": "3bd930dc22dfd1dfb2a6a5f45e74f12bb1e47857562dc1a04455fcd5ac246727"
+    }
+  ],
+  "source_inputs_count": 22,
+  "scope": "fixed scratch candidate review only",
+  "must_fix": [],
+  "resources_authorized": false,
+  "originals_preserved": true
+}

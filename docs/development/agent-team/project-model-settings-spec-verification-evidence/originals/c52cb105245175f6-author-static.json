@@ -1,0 +1,66 @@
+{
+  "status": "AUTHOR_STATIC_COMPOSITION_CHECK_ONLY_NOT_INDEPENDENT_SPEC_PASS",
+  "source_hashes_verified": 16,
+  "unchanged_rev0_sections": {
+    "2": {
+      "sha256": "5a17468f5183d0108e4885a445e4475cc1132823b176e905e125d5d7e688f16b",
+      "contained_exactly": true
+    },
+    "4": {
+      "sha256": "b0078aae1046bf86ae6096aef087b5d63dde1f5c0776ac0bf70ebe7a907d1cdb",
+      "contained_exactly": true
+    },
+    "5": {
+      "sha256": "76c6710993b58915f3b27c1a1edc2cc9d9ac257446e1c19f3076fb869d2da2e4",
+      "contained_exactly": true
+    },
+    "7": {
+      "sha256": "42ed94619eee80fd294e50057a6558b3e1896f14b50dc23ed3ff7a341128170d",
+      "contained_exactly": true
+    },
+    "8": {
+      "sha256": "d2fcb1fa8ca15cc5af3f888d74bb1501ab7e7f63b1fb687aecc25cbb93d15df7",
+      "contained_exactly": true
+    }
+  },
+  "complete_recovery_matrix_rev0_section7_preserved": true,
+  "paths": 29,
+  "technical_paths": 28,
+  "readme_last": 29,
+  "http_operations": 17,
+  "http_split": {
+    "GET": 6,
+    "mutation": 9,
+    "POST_lookup": 2
+  },
+  "ipc_actions": [
+    "counts",
+    "arm",
+    "control-state",
+    "release",
+    "snapshot",
+    "logout",
+    "archive-recovery-project",
+    "reference-fact",
+    "rename-reuse"
+  ],
+  "new_selectors": 6,
+  "old_selectors": 14,
+  "binary_discovery_performed": false,
+  "audit_metadata_rows": 21,
+  "audit_web_metadata_equal": 17,
+  "technical_sources_scanned": false,
+  "same_sha_author_agreements_referenced": true,
+  "three_tuple_examples_do_not_replace_matrix": true,
+  "all_inputs_unchanged_after_composition": true,
+  "repository_writes": false,
+  "go_node_network_git_resources": false,
+  "pending": [
+    "Audit full-card acceptance",
+    "T1 final shared-source/base/import handover",
+    "integrated candidate independent SPEC review",
+    "T4 formal install and unique writers",
+    "actual closure/discovery/driver/filegate/per-round grants",
+    "README last"
+  ]
+}

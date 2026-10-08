@@ -1,0 +1,15 @@
+{
+  "preserved_local_preparation_failures": [
+    {
+      "kind": "FileNotFoundError",
+      "raw": "FileNotFoundError: [Errno 2] No such file or directory: '/workspace/agenteam/web/src/api/project.ts'",
+      "disposition": "Initial bounded extractor stopped after reading client.ts/account.ts; no output or Git command completed. A narrow rg --files lookup located project-owner.ts; corrected bounded extraction completed."
+    },
+    {
+      "kind": "functions.exec JavaScript parse failure",
+      "raw": "SyntaxError: Unexpected token 'for'",
+      "disposition": "Missing array terminator in orchestration text; no nested tools started. Corrected wrapper performed only fixed scratch excerpt and accepted metadata reads."
+    }
+  ],
+  "product_failure_or_rerun": false
+}

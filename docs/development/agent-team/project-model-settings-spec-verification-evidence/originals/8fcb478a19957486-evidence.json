@@ -1,0 +1,420 @@
+{
+  "status": "FORMAL_INSTALL_T1_T4_STATIC_PASS_STOP",
+  "scope": "Administrative installation delta and minimal shared-source handover only; accepted full candidate semantic review reused.",
+  "formal_card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-model-settings-ui.md",
+    "bytes": 91436,
+    "sha256": "7cb91a5d8852f10edd0e777a508784e3d65ea73f50de9cc45e5b0c4682230f6d"
+  },
+  "endpoint_attachment": {
+    "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-model-settings-ui-endpoints.json",
+    "bytes": 6087,
+    "sha256": "6c85ae889c8a86eb67695f2eb29773395b58db4f5bdfecc9c9182ff3e62fd9fa"
+  },
+  "primary_fixed_refs": [
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/freeze.json",
+      "bytes": 4303,
+      "sha256": "99a649d45341895b3f15a7c75d3ee67807f1786e7acc93268a1c7a949b7a3ee9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-model-settings-ui.md",
+      "bytes": 91436,
+      "sha256": "7cb91a5d8852f10edd0e777a508784e3d65ea73f50de9cc45e5b0c4682230f6d"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-model-settings-ui-endpoints.json",
+      "bytes": 6087,
+      "sha256": "6c85ae889c8a86eb67695f2eb29773395b58db4f5bdfecc9c9182ff3e62fd9fa"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/administrative-edits.json",
+      "bytes": 23894,
+      "sha256": "0d8d518ff57288f1d94fa5aafab0712193533aa1811bfa7ef19691cba1e7884f"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/candidate-to-formal.patch",
+      "bytes": 36811,
+      "sha256": "ea62d6016e8823225e81dbc99330f333c78674da8a252271d016ced8b53367b1"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/checks.json",
+      "bytes": 6351,
+      "sha256": "4528ca63bf39e8cc66f6279dbae8b4506e50dc7dfa2f5ce83ec732de6d90593b"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/failures.json",
+      "bytes": 777,
+      "sha256": "557d389d393537781421fc97c504bbea3aab9bf5602887b846b234f8bc9693a1"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/formal-card.prepared.md",
+      "bytes": 91436,
+      "sha256": "7cb91a5d8852f10edd0e777a508784e3d65ea73f50de9cc45e5b0c4682230f6d"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/handover.md",
+      "bytes": 2117,
+      "sha256": "9e272dfac6d580138d0cf8e043badd79c48f44ae916429c526299ecfcd1ec844"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/ownership.json",
+      "bytes": 5589,
+      "sha256": "52168a638c964efdbcab995f70c5f12614bafa050605294da044c535a74625ff"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/product-path-presence.json",
+      "bytes": 2853,
+      "sha256": "714edc45fb2ab2320bda97c5340bd47755160cb857ecadea2b02663c5f158259"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/references.json",
+      "bytes": 2482,
+      "sha256": "379e0fc0802fa036b9c03d7260261a5148e04e2869600b2c9f99736762dc9a5b"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/reverse-restoration.json",
+      "bytes": 541,
+      "sha256": "b002f5d3a0e0937dd0fa7af8784ce6013a228fff180747a483f37e5ab0097612"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/review.md",
+      "bytes": 1021,
+      "sha256": "84b1dbeb07547acfcde5dd9f345d457a48cfd8b3e6a576225837aea0ffd483a8"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/t1-current-sources.json",
+      "bytes": 17076,
+      "sha256": "f5d7a82484eb793af791a93dc82732979bf499350aa12639eb8e4ffc11843f6e"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/t1-prior-source-rows.json",
+      "bytes": 13318,
+      "sha256": "297d15c561d07a953529c040644b06cc044412d2a8ec1df51be690e959b5aab1"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/t1-signature-excerpts.json",
+      "bytes": 103751,
+      "sha256": "9f55c8ac0db361051e9d19728aa77a031f4c5a0d7958b07881dd0734dae3f45e"
+    }
+  ],
+  "accepted_reference_refs": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-integrated-v01-review/review.md",
+      "bytes": 3444,
+      "sha256": "d411c2ce0dfe46b7417aa87e6846f95d3a9507e644f6ba10fd95f9b000e76871"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-integrated-v01-review/evidence.json",
+      "bytes": 12680,
+      "sha256": "3bd930dc22dfd1dfb2a6a5f45e74f12bb1e47857562dc1a04455fcd5ac246727"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-integrated-v01-review/manifest.json",
+      "bytes": 1193,
+      "sha256": "852f0f87a3b0fddb3528743a8d1fcecb078654753de35b24383c266406ec4028"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit22-final01/review.md",
+      "bytes": 2637,
+      "sha256": "442ad7809fee233c37057c89b5749795c473b48651ea1feab820b10bcd9bb1f0"
+    },
+    {
+      "path": "/workspace/scratch/owner-audit-ui-verification/audit22-final01/manifest.json",
+      "bytes": 1155,
+      "sha256": "0bba9745e558e9f490a397c84d23c3336ccc54e60179e6cac0c2cb1e0aceb0f6"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/integrated-card-v01/candidate.md",
+      "bytes": 84300,
+      "sha256": "c5674d4e06618f264a00867de0fb65fb9710e56b6a96ccde1f8fdaa77a5641f3"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev2-t3/endpoints.json",
+      "bytes": 6087,
+      "sha256": "6c85ae889c8a86eb67695f2eb29773395b58db4f5bdfecc9c9182ff3e62fd9fa"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/selectors.json",
+      "bytes": 11638,
+      "sha256": "c36bed42977f75b67b4ec327c60ac8414c9f21f38a9076f6b09b2642a50f1044"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "bytes": 14192,
+      "sha256": "bf66509901d83abd2e69dc6b609baa6fb4278ce3a5fbaaebdef0d7c8d3ea6707"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/source-rows.json",
+      "bytes": 9373,
+      "sha256": "a8e19c17393f4e5794eb16dbf366634a894aef318270d5c1a9604fb32d3e93a9"
+    },
+    {
+      "path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/sources.json",
+      "bytes": 6913,
+      "sha256": "5459246e3486968cc89c0c2d02dace19dc426ff01a92ce69850ede5de28d63ff"
+    }
+  ],
+  "audit_permanent_refs": [
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification.md",
+      "bytes": 16943,
+      "sha256": "9b87d13473fe868fbacdf04aaaa08607558b7ecb64e274895783476a7aa367b0"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/manifest.json",
+      "bytes": 350867,
+      "sha256": "6bf9e720feba8b4167ea81c2de39cf18b837228025efb75a5f08e862192a4220"
+    }
+  ],
+  "observed_administrative_comparison": {
+    "replacement_count": 21,
+    "each_before_and_after_uniquely_matched": true,
+    "forward_equals_installed_formal": true,
+    "reverse_equals_original_candidate_bytes": true,
+    "restored_bytes": 84300,
+    "restored_sha256": "c5674d4e06618f264a00867de0fb65fb9710e56b6a96ccde1f8fdaa77a5641f3",
+    "unified_patch_exact": true,
+    "fences_exact": 7,
+    "business_sections_2_4_5_7_exact": true,
+    "product_path_table_29_exact": true,
+    "endpoint_original_bytes_exact": true,
+    "relative_link_occurrences_existing": 12,
+    "contract_counts": "29 paths / 17 operations / 9 IPC / 6 new + 14 old; original budgets and complete recovery matrix unchanged"
+  },
+  "actual_named_sources": [
+    {
+      "path": "web/src/api/client.ts",
+      "bytes": 40512,
+      "sha256": "6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "bytes": 18878,
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+    },
+    {
+      "path": "web/src/api/project-owner.ts",
+      "bytes": 12215,
+      "sha256": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "bytes": 163959,
+      "sha256": "8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7"
+    },
+    {
+      "path": "web/src/composables/useProjectWorkspace.ts",
+      "bytes": 26022,
+      "sha256": "07299d43da75bdae38f6f2520edfe26a8433fbc19e11263a8b109d9126921943"
+    },
+    {
+      "path": "web/src/App.vue",
+      "bytes": 10338,
+      "sha256": "d4bec3a781280a866f40506cdba6afcecc35a2203bf16ecf3161ebceba0dedd5"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "bytes": 10910,
+      "sha256": "9943512eee91a8ab12df120d6e748b28359ee8579ac0d2f58bbd22db4eef4562"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "bytes": 5428,
+      "sha256": "68cc05f665917521b13fc3a755fe16c49fc3a4ead9cf92975db8bd893f01e709"
+    },
+    {
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "bytes": 907,
+      "sha256": "06b5872439c8e04c88fafd87b5b9bc82ecef3696e3a5b565d0846504c59af069"
+    },
+    {
+      "path": "web/src/components/layout/ProjectNav.vue",
+      "bytes": 1973,
+      "sha256": "7b08d4d22b3951e6753dcaad40d31e70efb049908d9630870ff8851c303c9a55"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "bytes": 24670,
+      "sha256": "1ab5f7f7b7eedf6ddec0597cacb87a3502816e93d214cf85cdb00fd34386bb4f"
+    },
+    {
+      "path": "web/src/tests/project-workspace.spec.ts",
+      "bytes": 11815,
+      "sha256": "89d7b77705d05dede99042920e2acb02ec46906fe3c9dc593d72a1154aaf2ccd"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "bytes": 23661,
+      "sha256": "941e78cd6cdcb75990aaa9feebf2a740cfcec28cf8c0360d3e998bb3f66aed8a"
+    },
+    {
+      "path": "docs/development/frontend/README.md",
+      "bytes": 84744,
+      "sha256": "5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e"
+    }
+  ],
+  "observed_actual_source_comparison": {
+    "named_inputs": 14,
+    "technical": 13,
+    "readme": 1,
+    "all_hashes_and_bytes_match": true,
+    "frozen_excerpt_lines_match_actual": 1236,
+    "semantic_read_scope": "Only necessary WriteOptions/default dependencies/runAuthorized/workspace/App/router/Settings/ProjectNav signatures and integration seams; no whole source semantic re-review",
+    "accepted_chain_source_counts": {
+      "audit_current": 9,
+      "owner24_unchanged": 3,
+      "rev1_account": 1
+    },
+    "old_owner_changed_rows_not_reused_as_current": true,
+    "full_transitive_import_or_runtime_closure": false
+  },
+  "signatures_checked": [
+    {
+      "path": "web/src/api/account.ts",
+      "ranges": [
+        [
+          81,
+          86
+        ]
+      ],
+      "finding": "WriteOptions readonly csrfToken/key with optional AbortSignal."
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "ranges": [
+        [
+          475,
+          491
+        ],
+        [
+          1267,
+          1338
+        ],
+        [
+          1388,
+          1432
+        ]
+      ],
+      "finding": "Fourteen defaults, original ordinary Project identity/current/failure dispatch, original actual finally releases owner; append fifteenth remains compatible."
+    },
+    {
+      "path": "web/src/composables/useProjectWorkspace.ts",
+      "ranges": [
+        [
+          30,
+          40
+        ],
+        [
+          136,
+          159
+        ],
+        [
+          586,
+          597
+        ]
+      ],
+      "finding": "Default Session+replaceRoute; readonly currentReadContext identity/stable ID/generations; confirmLeave returns asynchronous boolean; not Mutate grant."
+    },
+    {
+      "path": "web/src/App.vue",
+      "ranges": [
+        [
+          51,
+          68
+        ],
+        [
+          109,
+          129
+        ],
+        [
+          160,
+          180
+        ]
+      ],
+      "finding": "One provided workspace, nine sequential leave confirmations, original navigation/dispose lifecycle retained."
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "ranges": [
+        [
+          38,
+          66
+        ],
+        [
+          109,
+          125
+        ]
+      ],
+      "finding": "Exact general/audit suffix and raw rejection; existing private navigation owner signature."
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "ranges": [
+        [
+          109,
+          138
+        ]
+      ],
+      "finding": "Only general/audit children and general default at handover."
+    },
+    {
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "ranges": [
+        [
+          1,
+          34
+        ]
+      ],
+      "finding": "Existing workspace seam and original two settings groups."
+    },
+    {
+      "path": "web/src/components/layout/ProjectNav.vue",
+      "ranges": [
+        [
+          8,
+          24
+        ]
+      ],
+      "finding": "Same canonical Project and exact general/audit current; href unaffected by installation."
+    }
+  ],
+  "head_and_readme_boundary": {
+    "author_observation_preserved": "75411e27d0f2f5b998ae9a88e31fc9befa431095",
+    "later_docs_commit_reported_by_root": "3d9eeeae849c7bf0dbddbfb4f73f05b22b92688f",
+    "independent_git_execution": false,
+    "readme_bytes_unchanged_at_independent_read": true,
+    "no_rewrite_of_historical_observation_required": true
+  },
+  "ownership": {
+    "frontend_technical_paths": 26,
+    "backend_new_go_paths": 2,
+    "readme_last": 29,
+    "formal_files_do_not_expand_product_whitelist": true,
+    "root_can_assign_implementation_after_acceptance": true,
+    "implementation_started_by_reviewer": false,
+    "resources_authorized_by_review": false
+  },
+  "must_fix": [],
+  "remaining_execution_work": [
+    "Root actual author handoff and ACK",
+    "Implementation and its actual source/tool/import/schema/dist closure",
+    "Required compile/type/list/controlled/real verification under their scopes",
+    "Per-round immutable resource/cache/asset grants and full retirement",
+    "README last after 28 technical path acceptance"
+  ],
+  "prior_failures": {
+    "author_failures_ref": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/failures.json",
+    "preserved": true,
+    "new_product_failure_or_rerun": false
+  },
+  "actions": {
+    "bounded_source_document_hash_text_json_reads": true,
+    "go_node_browser_resource_network_git": false,
+    "product_checks": false,
+    "whole_graph_scan": false,
+    "repository_writes": false,
+    "scratch_only_outputs": true
+  },
+  "completed_utc": "2026-10-08T17:32:38.171740+00:00"
+}

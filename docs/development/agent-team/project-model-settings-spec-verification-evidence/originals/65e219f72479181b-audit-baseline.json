@@ -1,0 +1,335 @@
+{
+  "status": "PRE_HANDOVER_VERSION_REFERENCES_ONLY_NOT_AUDIT_WHOLE_CARD_ACCEPTANCE",
+  "source_map": {
+    "path": "/workspace/scratch/architecture-audit21-version-map01/rev02/source-map.json",
+    "sha256": "bba14d28a3b506067dabc23cd580d37e0862cb8f2eb90f6a141655b9c05ed879"
+  },
+  "web17_metadata": {
+    "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/source17.json",
+    "sha256": "092b5e98746adea56a5bccd8aa5c4aba7ba7152421aa36f649f19580d85a60e4"
+  },
+  "source_commit_reported_by_root": "055c727b5bd1fb2f2794d402ce214ef5f95bd38b",
+  "baseline_note": "055c contains accepted canonical two-source repair; no Git execution or product-source scan in this task. Final main/shared imports, including App and session tests outside this Audit17 list, remain T1 pending.",
+  "rows": [
+    {
+      "path": "web/src/api/client.ts",
+      "group": "API5",
+      "bytes": 40512,
+      "sha256": "6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd",
+      "source_freeze": "api_freeze",
+      "acceptance_chain": [
+        "api_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/api/project-audit.ts",
+      "group": "API5",
+      "bytes": 6261,
+      "sha256": "52858b0a4b7630a14a877a47b40d60481bc85792a7bd0c66796f6118c44aed06",
+      "source_freeze": "api_freeze",
+      "acceptance_chain": [
+        "api_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/api/project-audit-metadata.ts",
+      "group": "API5",
+      "bytes": 22784,
+      "sha256": "fb3ca7b14bed7b4d35502d8df9f3dafb940ae8acdddb8f748e7dd5bb8b2f7a92",
+      "source_freeze": "api_freeze",
+      "acceptance_chain": [
+        "api_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "group": "STATE6",
+      "bytes": 163959,
+      "sha256": "8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7",
+      "source_freeze": "state_freeze",
+      "acceptance_chain": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/composables/useProjectAudit.ts",
+      "group": "STATE6",
+      "bytes": 14945,
+      "sha256": "092c81000bf27d77d5a756372436f978316ee9c9499fe2abfccc96d06e271c4e",
+      "source_freeze": "state_freeze",
+      "acceptance_chain": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/composables/useProjectWorkspace.ts",
+      "group": "STATE6",
+      "bytes": 26022,
+      "sha256": "07299d43da75bdae38f6f2520edfe26a8433fbc19e11263a8b109d9126921943",
+      "source_freeze": "state_freeze",
+      "acceptance_chain": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "group": "STATE6",
+      "bytes": 10910,
+      "sha256": "9943512eee91a8ab12df120d6e748b28359ee8579ac0d2f58bbd22db4eef4562",
+      "source_freeze": "view_auth_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "group": "VIEWS6",
+      "bytes": 5428,
+      "sha256": "68cc05f665917521b13fc3a755fe16c49fc3a4ead9cf92975db8bd893f01e709",
+      "source_freeze": "view_auth_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "group": "VIEWS6",
+      "bytes": 907,
+      "sha256": "06b5872439c8e04c88fafd87b5b9bc82ecef3696e3a5b565d0846504c59af069",
+      "source_freeze": "view_auth_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/views/projects/ProjectAuditView.vue",
+      "group": "VIEWS6",
+      "bytes": 21200,
+      "sha256": "3bb842a27bffc267b9ba2be63b82a7e0ec53145fc2ffef775bdb694cc9b4b020",
+      "source_freeze": "canonical_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "canonical_review",
+        "canonical_actual_final49"
+      ]
+    },
+    {
+      "path": "web/src/tests/project-audit-client.spec.ts",
+      "group": "API5",
+      "bytes": 19234,
+      "sha256": "af74f4cbfab9ef1139cad653f436c1cd8a8824a660467454c1fbf3f1186305d1",
+      "source_freeze": "api_freeze",
+      "acceptance_chain": [
+        "api_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/tests/project-audit-metadata.spec.ts",
+      "group": "API5",
+      "bytes": 21924,
+      "sha256": "24b167617b12752eed2de1b0b1e3cad42cc11053288c4b2df7c22ec9f68c7e33",
+      "source_freeze": "api_freeze",
+      "acceptance_chain": [
+        "api_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/tests/project-audit-state.spec.ts",
+      "group": "STATE6",
+      "bytes": 32745,
+      "sha256": "f5f0ddafd782745f45148b1d8a2bbf3bb01e649ca7a645bdb53eda0eae64b539",
+      "source_freeze": "state_freeze",
+      "acceptance_chain": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/tests/project-audit.spec.ts",
+      "group": "VIEWS6",
+      "bytes": 26397,
+      "sha256": "480b2cfbb61d7aa9cc2c2e56d34519c58d026f2ad992473ac69ee58a758742d5",
+      "source_freeze": "canonical_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "canonical_review",
+        "canonical_actual_final49"
+      ]
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "group": "STATE6",
+      "bytes": 24670,
+      "sha256": "1ab5f7f7b7eedf6ddec0597cacb87a3502816e93d214cf85cdb00fd34386bb4f",
+      "source_freeze": "state_freeze",
+      "acceptance_chain": [
+        "state_review_with_D1",
+        "view_auth_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "web/src/tests/project-workspace.spec.ts",
+      "group": "VIEWS6",
+      "bytes": 11815,
+      "sha256": "89d7b77705d05dede99042920e2acb02ec46906fe3c9dc593d72a1154aaf2ccd",
+      "source_freeze": "view_auth_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "web17_offline_review"
+      ]
+    },
+    {
+      "path": "tests/account/project_owner_audit_web_fixture_test.go",
+      "group": "GO2",
+      "bytes": 51317,
+      "sha256": "3fff89ba02eedd4c7009f42e641cb26097f5fd39a2c5f379ec95a5a02558a55f",
+      "source_freeze": "go03_freeze",
+      "acceptance_chain": [
+        "go02_full_static_with_D1",
+        "go03_static",
+        "D1_actual_review",
+        "go_offline02",
+        "read02_review",
+        "authority02_review"
+      ]
+    },
+    {
+      "path": "tests/account/project_owner_audit_web_test.go",
+      "group": "GO2",
+      "bytes": 6289,
+      "sha256": "77d36746f15137a8c1016690f9a159e1c607e6878c7e866246ff1b9c34c55e19",
+      "source_freeze": "go03_freeze",
+      "acceptance_chain": [
+        "go02_full_static_with_D1",
+        "go03_static",
+        "D1_actual_review",
+        "go_offline02",
+        "read02_review",
+        "authority02_review"
+      ]
+    },
+    {
+      "path": "tests/account-captcha-web/project-owner-audit.config.js",
+      "group": "JS2",
+      "bytes": 1163,
+      "sha256": "2524a04e4fff6cb2467163a21f44cb5ca603820a1e63d06b28f3ea648b9bdd1f",
+      "source_freeze": "browser_freeze",
+      "acceptance_chain": [
+        "browser_review"
+      ]
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+      "group": "JS2",
+      "bytes": 68077,
+      "sha256": "a91d3ab7726c9e74ebca536ead5f41a903bb1dd38fba5aeeb99bdce63ca23193",
+      "source_freeze": "source_v03_freeze",
+      "acceptance_chain": [
+        "browser_review",
+        "source_v02_review",
+        "source_v03_review"
+      ]
+    },
+    {
+      "path": "web/src/components/layout/ProjectNav.vue",
+      "group": "VIEWS6",
+      "bytes": 1973,
+      "sha256": "7b08d4d22b3951e6753dcaad40d31e70efb049908d9630870ff8851c303c9a55",
+      "source_freeze": "view_auth_freeze",
+      "acceptance_chain": [
+        "view_auth_review",
+        "web17_offline_review"
+      ]
+    }
+  ],
+  "fixed_metadata_references": {
+    "api_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/api-v1/freeze.json",
+      "bytes": 19832,
+      "sha256": "1a2bcdf414409962155789b4732fa039bdfeaf8873f1afcd9b525f6df06f1264"
+    },
+    "state_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/state-v1/freeze.json",
+      "bytes": 23972,
+      "sha256": "c730a2e83a59f35971d4bfd81d74fa4c6cfcd5f3132d6c7aa510cfe7c9039f0c"
+    },
+    "view_auth_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/view-v1-auth-v2/freeze.json",
+      "bytes": 13090,
+      "sha256": "0a37aacae3f193319408b0d9210069110cac7125a3a775a84545aff567aaf746"
+    },
+    "canonical_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/canonical-read-repair-v1/freeze.json",
+      "bytes": 14693,
+      "sha256": "981f06610a55da23257a5f0182b607555934f09094a5f999ca7772f6caf0bb48"
+    },
+    "canonical_review": {
+      "path": "/workspace/scratch/architecture-audit-canonical-repair-review01/review.md",
+      "bytes": 2581,
+      "sha256": "9b0453ea78e87ac921aa34ff5b603be93023c27684ebf85f1f9c47ba0f629e3c"
+    },
+    "browser_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/browser-v1/freeze.json",
+      "bytes": 6515,
+      "sha256": "1a1a35b4f1f4b39a5fb26b3e3b30d56f639d36b3eb96086d3382ea537984d3f8"
+    },
+    "source_v03_freeze": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/source-v03/freeze.json",
+      "bytes": 4267,
+      "sha256": "eaef9bd8b1c66aaf193a7a295e4bb76e7d1ef0cec6641512c8cc5fbcf7a595df"
+    },
+    "source_v03_review": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/audit-source-v03-review01/review.md",
+      "bytes": 1572,
+      "sha256": "de56c9b7b0bf130472d3a85a5ce8c07ee3bc787870153accf6ad98e5269fccf7"
+    },
+    "go03_freeze": {
+      "path": "/workspace/scratch/project-audit-ui-backend/candidate03/freeze.json",
+      "bytes": 3732,
+      "sha256": "d8419a3907d31bf536337bc934399c848f71a50833589ee22844f6974a7fbcee"
+    },
+    "go03_static": {
+      "path": "/workspace/scratch/architecture-audit-go-candidate03-review/review.md",
+      "bytes": 2168,
+      "sha256": "b9f2d99fc5fc5575c0a9c354120e864b17852d5ac3bd77069ba3b75c6ef06630"
+    },
+    "D1_actual_review": {
+      "path": "/workspace/scratch/architecture-audit-d1-actual01-review/review.md",
+      "bytes": 1876,
+      "sha256": "79e7b09ca2507602da6b077a7da7987ee24490a183d1defc5af3e04c1cc3a393"
+    },
+    "new_build": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/freeze.json",
+      "bytes": 5516,
+      "sha256": "2be773aad6117e74f88c4ba7c0b1502ee06bbad2748257f5399d15a79e6b51ae"
+    },
+    "new_build_source17": {
+      "path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/source17.json",
+      "bytes": 3769,
+      "sha256": "092b5e98746adea56a5bccd8aa5c4aba7ba7152421aa36f649f19580d85a60e4"
+    }
+  },
+  "pending": [
+    "Audit whole-card final acceptance",
+    "T1 formal final shared-source/import handover",
+    "T4 final card install and unique-writer assignment"
+  ],
+  "technical_source_read_or_scan": false,
+  "dynamic_execution": false
+}

@@ -1,0 +1,4973 @@
+{
+  "web/src/api/client.ts": [
+    {
+      "line": 1,
+      "text": "export type CommitState = 'not_started' | 'not_committed' | 'committed' | 'unknown'"
+    },
+    {
+      "line": 2,
+      "text": "export interface Problem {"
+    },
+    {
+      "line": 3,
+      "text": "  type: string"
+    },
+    {
+      "line": 4,
+      "text": "  title: string"
+    },
+    {
+      "line": 5,
+      "text": "  status: number"
+    },
+    {
+      "line": 12,
+      "text": "  retry_hint?: string"
+    },
+    {
+      "line": 13,
+      "text": "}"
+    },
+    {
+      "line": 14,
+      "text": "export type FailureKind ="
+    },
+    {
+      "line": 15,
+      "text": "  'problem' | 'transport' | 'invalid-response' | 'cancelled' | 'invalid-input' | 'busy'"
+    },
+    {
+      "line": 16,
+      "text": ""
+    },
+    {
+      "line": 17,
+      "text": "// No request, raw response, password, token or underlying exception is retained."
+    },
+    {
+      "line": 26,
+      "text": "}"
+    },
+    {
+      "line": 27,
+      "text": ""
+    },
+    {
+      "line": 28,
+      "text": "export const uuid7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/"
+    },
+    {
+      "line": 29,
+      "text": "export function object(value: unknown): Record<string, unknown> {"
+    },
+    {
+      "line": 30,
+      "text": "  if (value === null || typeof value !== 'object' || Array.isArray(value)) {"
+    },
+    {
+      "line": 31,
+      "text": "    throw new AccountFailure('invalid-response')"
+    },
+    {
+      "line": 32,
+      "text": "  }"
+    },
+    {
+      "line": 33,
+      "text": "  return value as Record<string, unknown>"
+    },
+    {
+      "line": 34,
+      "text": "}"
+    },
+    {
+      "line": 35,
+      "text": "export function shape("
+    },
+    {
+      "line": 36,
+      "text": "  value: unknown,"
+    },
+    {
+      "line": 37,
+      "text": "  required: readonly string[],"
+    },
+    {
+      "line": 38,
+      "text": "  optional: readonly string[] = [],"
+    },
+    {
+      "line": 47,
+      "text": "  return result"
+    },
+    {
+      "line": 48,
+      "text": "}"
+    },
+    {
+      "line": 49,
+      "text": "export function string(value: unknown, minimum: number, maximum: number): string {"
+    },
+    {
+      "line": 50,
+      "text": "  if (typeof value !== 'string' || [...value].length < minimum || [...value].length > maximum) {"
+    },
+    {
+      "line": 51,
+      "text": "    throw new AccountFailure('invalid-response')"
+    },
+    {
+      "line": 52,
+      "text": "  }"
+    },
+    {
+      "line": 60,
+      "text": "  updateOwnerProject: ['PATCH', '/api/v1/projects/{id}', 200],"
+    },
+    {
+      "line": 61,
+      "text": "  lookupOwnerProject: ['POST', '/api/v1/projects/{id}/commands/lookup', 200],"
+    },
+    {
+      "line": 62,
+      "text": "  listProjectAudit: ['GET', '/api/v1/projects/{project_id}/audit', 200],"
+    },
+    {
+      "line": 63,
+      "text": "  getProjectAudit: ['GET', '/api/v1/projects/{project_id}/audit/{audit_id}', 200],"
+    },
+    {
+      "line": 64,
+      "text": "  bootstrap: ['GET', '/api/v1/auth/bootstrap', 200],"
+    },
+    {
+      "line": 65,
+      "text": "  session: ['GET', '/api/v1/session', 200],"
+    },
+    {
+      "line": 66,
+      "text": "  login: ['POST', '/api/v1/sessions/login', 200],"
+    },
+    {
+      "line": 122,
+      "text": "  retrySystemDelivery: ['POST', '/api/v1/system/mail-jobs/{id}/retry', 202],"
+    },
+    {
+      "line": 123,
+      "text": "} as const"
+    },
+    {
+      "line": 124,
+      "text": "export type Fetch = (input: string, init: RequestInit) => Promise<Response>"
+    },
+    {
+      "line": 125,
+      "text": ""
+    },
+    {
+      "line": 126,
+      "text": "function problem(value: unknown, status: number, requestID: string | null): Problem {"
+    },
+    {
+      "line": 127,
+      "text": "  const p = shape("
+    },
+    {
+      "line": 412,
+      "text": "]"
+    },
+    {
+      "line": 413,
+      "text": ""
+    },
+    {
+      "line": 414,
+      "text": "export const auditFilterActions = ["
+    },
+    {
+      "line": 415,
+      "text": "  'secret.create',"
+    },
+    {
+      "line": 416,
+      "text": "  'secret.update',"
+    },
+    {
+      "line": 417,
+      "text": "  'secret.delete',"
+    },
+    {
+      "line": 467,
+      "text": "  'knowledge.delete_subtree',"
+    },
+    {
+      "line": 468,
+      "text": "] as const"
+    },
+    {
+      "line": 469,
+      "text": "export const auditFilterResourceKinds = ["
+    },
+    {
+      "line": 470,
+      "text": "  'secret',"
+    },
+    {
+      "line": 471,
+      "text": "  'secret_master',"
+    },
+    {
+      "line": 472,
+      "text": "  'secret_rotation',"
+    },
+    {
+      "line": 494,
+      "text": "  'knowledge_document',"
+    },
+    {
+      "line": 495,
+      "text": "] as const"
+    },
+    {
+      "line": 496,
+      "text": "export const auditFilterFields = ["
+    },
+    {
+      "line": 497,
+      "text": "  'from',"
+    },
+    {
+      "line": 498,
+      "text": "  'to',"
+    },
+    {
+      "line": 499,
+      "text": "  'actor_kind',"
+    },
+    {
+      "line": 510,
+      "text": "  'agent_id',"
+    },
+    {
+      "line": 511,
+      "text": "] as const"
+    },
+    {
+      "line": 512,
+      "text": "export type AuditFilterField = (typeof auditFilterFields)[number]"
+    },
+    {
+      "line": 513,
+      "text": "export type AuditWireQuery = Readonly<"
+    },
+    {
+      "line": 514,
+      "text": "  Partial<Record<AuditFilterField | 'limit' | 'cursor', string>>"
+    },
+    {
+      "line": 515,
+      "text": ">"
+    },
+    {
+      "line": 516,
+      "text": "const auditQueryKeys = [...auditFilterFields, 'limit', 'cursor'] as const"
+    },
+    {
+      "line": 548,
+      "text": "// The transport accepts only a captured canonical query, never raw URLs or headers."
+    },
+    {
+      "line": 549,
+      "text": "// The page API normalizes legal offset Instants before this independent wire gate."
+    },
+    {
+      "line": 550,
+      "text": "export function captureAuditWireQuery(value: unknown): AuditWireQuery {"
+    },
+    {
+      "line": 551,
+      "text": "  try {"
+    },
+    {
+      "line": 552,
+      "text": "    const source = shape(value, [], auditQueryKeys)"
+    },
+    {
+      "line": 553,
+      "text": "    const result: Partial<Record<(typeof auditQueryKeys)[number], string>> = {}"
+    },
+    {
+      "line": 592,
+      "text": "  : { signal: AbortSignal; target: string }"
+    },
+    {
+      "line": 593,
+      "text": ""
+    },
+    {
+      "line": 594,
+      "text": "type ProjectAuditEndpoint = 'listProjectAudit' | 'getProjectAudit'"
+    },
+    {
+      "line": 595,
+      "text": "type ProjectAuditOptions<E extends ProjectAuditEndpoint> = E extends 'listProjectAudit'"
+    },
+    {
+      "line": 596,
+      "text": "  ? { signal: AbortSignal; projectID: string; audit: AuditWireQuery }"
+    },
+    {
+      "line": 597,
+      "text": "  : { signal: AbortSignal; projectID: string; target: string }"
+    },
+    {
+      "line": 598,
+      "text": ""
+    },
+    {
+      "line": 620,
+      "text": "]"
+    },
+    {
+      "line": 621,
+      "text": ""
+    },
+    {
+      "line": 622,
+      "text": "export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {"
+    },
+    {
+      "line": 623,
+      "text": "  function request<T, E extends ProjectAuditEndpoint>("
+    },
+    {
+      "line": 624,
+      "text": "    endpoint: E,"
+    },
+    {
+      "line": 625,
+      "text": "    parse: (value: unknown) => T,"
+    },
+    {
+      "line": 732,
+      "text": "    const [method, basePath, status] = endpoints[endpoint]"
+    },
+    {
+      "line": 733,
+      "text": "    let path: string = basePath"
+    },
+    {
+      "line": 734,
+      "text": "    if (endpoint === 'listProjectAudit' || endpoint === 'getProjectAudit') {"
+    },
+    {
+      "line": 735,
+      "text": "      try {"
+    },
+    {
+      "line": 736,
+      "text": "        shape(options, ["
+    },
+    {
+      "line": 737,
+      "text": "          'signal',"
+    },
+    {
+      "line": 738,
+      "text": "          'projectID',"
+    },
+    {
+      "line": 739,
+      "text": "          endpoint === 'listProjectAudit' ? 'audit' : 'target',"
+    },
+    {
+      "line": 740,
+      "text": "        ])"
+    },
+    {
+      "line": 741,
+      "text": "        const projectID = string(options.projectID, 36, 36)"
+    },
+    {
+      "line": 742,
+      "text": "        if (!uuid7.test(projectID)) throw new Error()"
+    },
+    {
+      "line": 743,
+      "text": "        path = basePath.replace('{project_id}', projectID)"
+    },
+    {
+      "line": 744,
+      "text": "        if (endpoint === 'listProjectAudit') {"
+    },
+    {
+      "line": 745,
+      "text": "          const encoded = new URLSearchParams(captureAuditWireQuery(options.audit)).toString()"
+    },
+    {
+      "line": 746,
+      "text": "          if (encoded) path += '?' + encoded"
+    },
+    {
+      "line": 747,
+      "text": "        } else {"
+    },
+    {
+      "line": 1055,
+      "text": "                  : (endpoint === 'listSystemAudit' ||"
+    },
+    {
+      "line": 1056,
+      "text": "                        endpoint === 'getSystemAudit' ||"
+    },
+    {
+      "line": 1057,
+      "text": "                        endpoint === 'listProjectAudit' ||"
+    },
+    {
+      "line": 1058,
+      "text": "                        endpoint === 'getProjectAudit') &&"
+    },
+    {
+      "line": 1059,
+      "text": "                      success"
+    },
+    {
+      "line": 1060,
+      "text": "                    ? 1024 * 1024"
+    },
+    {
+      "line": 1061,
+      "text": "                    : 600_000,"
+    }
+  ],
+  "web/src/api/account.ts": [
+    {
+      "line": 79,
+      "text": "  confirmation: string"
+    },
+    {
+      "line": 80,
+      "text": "}>"
+    },
+    {
+      "line": 81,
+      "text": "export type WriteOptions = Readonly<{ csrfToken: string; key: string; signal?: AbortSignal }>"
+    },
+    {
+      "line": 82,
+      "text": "export type AvatarDownload = Readonly<{ metadata: AvatarMetadata; blob: Blob }>"
+    },
+    {
+      "line": 83,
+      "text": "export type DeliveryChannel = 'smtp' | 'backend_log'"
+    },
+    {
+      "line": 84,
+      "text": "export type LinkInput = Readonly<{ token: string }>"
+    },
+    {
+      "line": 85,
+      "text": "export type BrowserReadOptions = Readonly<{ csrfToken: string; signal?: AbortSignal }>"
+    },
+    {
+      "line": 86,
+      "text": "export type InvitationInspection = Readonly<{ email: string; expires_at: string }>"
+    },
+    {
+      "line": 87,
+      "text": "export type InvitationRedeemed = Readonly<{ completed: true; login_required: true }>"
+    },
+    {
+      "line": 88,
+      "text": "export type InvitationInput = Readonly<{"
+    },
+    {
+      "line": 89,
+      "text": "  token: string"
+    }
+  ],
+  "web/src/api/project-owner.ts": [
+    {
+      "line": 3,
+      "text": "import { parseSystemInstant } from './system-account'"
+    },
+    {
+      "line": 4,
+      "text": ""
+    },
+    {
+      "line": 5,
+      "text": "export type ProjectLifecycle = 'active' | 'archiving' | 'archived' | 'deleting'"
+    },
+    {
+      "line": 6,
+      "text": "export type Project = Readonly<{"
+    },
+    {
+      "line": 7,
+      "text": "  id: string"
+    },
+    {
+      "line": 8,
+      "text": "  owner_user_id: string"
+    },
+    {
+      "line": 9,
+      "text": "  name: string"
+    },
+    {
+      "line": 10,
+      "text": "  normalized_name: string"
+    },
+    {
+      "line": 11,
+      "text": "  description: string"
+    },
+    {
+      "line": 12,
+      "text": "  lifecycle: Exclude<ProjectLifecycle, 'deleting'>"
+    },
+    {
+      "line": 13,
+      "text": "  version: string"
+    },
+    {
+      "line": 14,
+      "text": "  current_sprint_id: string | null"
+    },
+    {
+      "line": 15,
+      "text": "  created_at: string"
+    },
+    {
+      "line": 17,
+      "text": "  archived_at: string | null"
+    },
+    {
+      "line": 18,
+      "text": "}>"
+    },
+    {
+      "line": 19,
+      "text": "export type ResolvedProject = Readonly<Omit<Project, 'lifecycle'> & { lifecycle: ProjectLifecycle }>"
+    },
+    {
+      "line": 20,
+      "text": "export type ProjectListItem = Readonly<"
+    },
+    {
+      "line": 21,
+      "text": "  { id: string; name: string; version: string } & ("
+    },
+    {
+      "line": 22,
+      "text": "    | { lifecycle: 'active' | 'archived'; description: string }"
+    },
+    {
+      "line": 23,
+      "text": "    | { lifecycle: 'archiving'; description: string; operation_id: string }"
+    },
+    {
+      "line": 24,
+      "text": "    | { lifecycle: 'deleting'; operation_id: string }"
+    },
+    {
+      "line": 25,
+      "text": "  )"
+    },
+    {
+      "line": 26,
+      "text": ">"
+    },
+    {
+      "line": 27,
+      "text": "export type ProjectPage = Readonly<{"
+    },
+    {
+      "line": 28,
+      "text": "  items: readonly ProjectListItem[]"
+    },
+    {
+      "line": 29,
+      "text": "  next_cursor: string | null"
+    },
+    {
+      "line": 30,
+      "text": "}>"
+    },
+    {
+      "line": 31,
+      "text": "export type ProjectQuery = Readonly<{"
+    },
+    {
+      "line": 32,
+      "text": "  limit: number"
+    },
+    {
+      "line": 33,
+      "text": "  lifecycle?: readonly ProjectLifecycle[]"
+    },
+    {
+      "line": 34,
+      "text": "  cursor?: string"
+    },
+    {
+      "line": 35,
+      "text": "}>"
+    },
+    {
+      "line": 36,
+      "text": "export type ProjectAddress = Readonly<{ username: string; project_name: string }>"
+    },
+    {
+      "line": 37,
+      "text": "export type ProjectUpdate = Readonly<{"
+    },
+    {
+      "line": 38,
+      "text": "  expected_version: string"
+    },
+    {
+      "line": 39,
+      "text": "  name?: string"
+    },
+    {
+      "line": 40,
+      "text": "  description?: string"
+    },
+    {
+      "line": 41,
+      "text": "}>"
+    },
+    {
+      "line": 42,
+      "text": "export type ProjectLookup ="
+    },
+    {
+      "line": 43,
+      "text": "  | Readonly<{ state: 'committed'; result: Readonly<{ command: 'update'; project: Project }> }>"
+    },
+    {
+      "line": 44,
+      "text": "  | Readonly<{ state: 'in_progress' | 'not_observed' }>"
+    },
+    {
+      "line": 45,
+      "text": "export interface ProjectOwnerAPI {"
+    },
+    {
+      "line": 46,
+      "text": "  list(query: ProjectQuery, signal: AbortSignal): Promise<ProjectPage>"
+    },
+    {
+      "line": 47,
+      "text": "  resolve(address: ProjectAddress, ownerID: string, signal: AbortSignal): Promise<ResolvedProject>"
+    },
+    {
+      "line": 48,
+      "text": "  get(id: string, ownerID: string, signal: AbortSignal): Promise<Project>"
+    },
+    {
+      "line": 49,
+      "text": "  update(id: string, ownerID: string, input: ProjectUpdate, write: WriteOptions): Promise<Project>"
+    },
+    {
+      "line": 50,
+      "text": "  lookup("
+    },
+    {
+      "line": 51,
+      "text": "    id: string,"
+    },
+    {
+      "line": 52,
+      "text": "    ownerID: string,"
+    },
+    {
+      "line": 53,
+      "text": "    input: ProjectUpdate,"
+    },
+    {
+      "line": 54,
+      "text": "    write: WriteOptions,"
+    },
+    {
+      "line": 100,
+      "text": "  return unicode(value, 1, 8192)"
+    },
+    {
+      "line": 101,
+      "text": "}"
+    },
+    {
+      "line": 102,
+      "text": "export function captureProjectAddress(value: unknown): ProjectAddress {"
+    },
+    {
+      "line": 103,
+      "text": "  return input(() => {"
+    },
+    {
+      "line": 104,
+      "text": "    const v = shape(value, ['username', 'project_name'])"
+    },
+    {
+      "line": 105,
+      "text": "    const username = string(v.username, 3, 32)"
+    },
+    {
+      "line": 106,
+      "text": "    requireValue(/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])$/.test(username))"
+    },
+    {
+      "line": 107,
+      "text": "    return Object.freeze({"
+    },
+    {
+      "line": 108,
+      "text": "      username: username.toLowerCase(),"
+    },
+    {
+      "line": 109,
+      "text": "      project_name: name(v.project_name).toLowerCase(),"
+    },
+    {
+      "line": 110,
+      "text": "    })"
+    },
+    {
+      "line": 111,
+      "text": "  })"
+    },
+    {
+      "line": 112,
+      "text": "}"
+    },
+    {
+      "line": 113,
+      "text": "export function captureProjectQuery(value: unknown): ProjectQuery {"
+    },
+    {
+      "line": 114,
+      "text": "  return input(() => {"
+    },
+    {
+      "line": 115,
+      "text": "    const v = shape(value, ['limit'], ['cursor', 'lifecycle'])"
+    },
+    {
+      "line": 116,
+      "text": "    requireValue("
+    },
+    {
+      "line": 117,
+      "text": "      typeof v.limit === 'number' && Number.isInteger(v.limit) && v.limit >= 1 && v.limit <= 100,"
+    },
+    {
+      "line": 118,
+      "text": "    )"
+    },
+    {
+      "line": 119,
+      "text": "    const captured: { limit: number; lifecycle?: readonly ProjectLifecycle[]; cursor?: string } = {"
+    },
+    {
+      "line": 120,
+      "text": "      limit: v.limit,"
+    },
+    {
+      "line": 121,
+      "text": "    }"
+    },
+    {
+      "line": 122,
+      "text": "    if (Object.hasOwn(v, 'lifecycle')) {"
+    },
+    {
+      "line": 133,
+      "text": "  })"
+    },
+    {
+      "line": 134,
+      "text": "}"
+    },
+    {
+      "line": 135,
+      "text": "export function captureProjectUpdate(value: unknown): ProjectUpdate {"
+    },
+    {
+      "line": 136,
+      "text": "  return input(() => {"
+    },
+    {
+      "line": 137,
+      "text": "    const v = shape(value, ['expected_version'], ['name', 'description'])"
+    },
+    {
+      "line": 138,
+      "text": "    requireValue(Object.hasOwn(v, 'name') || Object.hasOwn(v, 'description'))"
+    },
+    {
+      "line": 139,
+      "text": "    const result = Object.freeze({"
+    },
+    {
+      "line": 140,
+      "text": "      expected_version: version(v.expected_version),"
+    },
+    {
+      "line": 141,
+      "text": "      ...(Object.hasOwn(v, 'name') ? { name: name(v.name) } : {}),"
+    },
+    {
+      "line": 142,
+      "text": "      ...(Object.hasOwn(v, 'description') ? { description: description(v.description) } : {}),"
+    },
+    {
+      "line": 143,
+      "text": "    })"
+    },
+    {
+      "line": 144,
+      "text": "    requireValue(encoder.encode(JSON.stringify(result)).byteLength <= 64 * 1024)"
+    },
+    {
+      "line": 263,
+      "text": "  })"
+    },
+    {
+      "line": 264,
+      "text": "}"
+    },
+    {
+      "line": 265,
+      "text": "export function createProjectOwnerAPI(fetcher?: Fetch): ProjectOwnerAPI {"
+    },
+    {
+      "line": 266,
+      "text": "  const request = accountTransport(fetcher)"
+    },
+    {
+      "line": 267,
+      "text": "  return {"
+    },
+    {
+      "line": 268,
+      "text": "    async list(value, signal) {"
+    },
+    {
+      "line": 269,
+      "text": "      const query = captureProjectQuery(value)"
+    },
+    {
+      "line": 270,
+      "text": "      return request('listOwnerProjects', (value) => page(value, query), {"
+    },
+    {
+      "line": 271,
+      "text": "        signal,"
+    },
+    {
+      "line": 272,
+      "text": "        projects: query,"
+    },
+    {
+      "line": 273,
+      "text": "      })"
+    },
+    {
+      "line": 274,
+      "text": "    },"
+    }
+  ],
+  "web/src/composables/useSession.ts": [
+    {
+      "line": 359,
+      "text": "}"
+    },
+    {
+      "line": 360,
+      "text": "type Intent = LoginIntent | LogoutIntent"
+    },
+    {
+      "line": 361,
+      "text": "type Action ="
+    },
+    {
+      "line": 362,
+      "text": "  | 'restore'"
+    },
+    {
+      "line": 363,
+      "text": "  | 'login'"
+    },
+    {
+      "line": 364,
+      "text": "  | 'logout'"
+    },
+    {
+      "line": 365,
+      "text": "  | 'personal'"
+    },
+    {
+      "line": 366,
+      "text": "  | 'entry'"
+    },
+    {
+      "line": 367,
+      "text": "  | 'system'"
+    },
+    {
+      "line": 368,
+      "text": "  | 'audit-read'"
+    },
+    {
+      "line": 369,
+      "text": "  | 'runtime-information-read'"
+    },
+    {
+      "line": 370,
+      "text": "  | 'invitation-read'"
+    },
+    {
+      "line": 473,
+      "text": "// Only this controller owns authentication materials and the four Cookie-producing"
+    },
+    {
+      "line": 474,
+      "text": "// endpoints. Its public state has no token, command key, password or retry body."
+    },
+    {
+      "line": 475,
+      "text": "export function createSessionController("
+    },
+    {
+      "line": 476,
+      "text": "  api: AccountAPI = createAccountAPI(),"
+    },
+    {
+      "line": 477,
+      "text": "  systemAPI: SystemAccountAPI = createSystemAccountAPI(),"
+    },
+    {
+      "line": 478,
+      "text": "  invitationAPI: SystemInvitationAPI = createSystemInvitationAPI(),"
+    },
+    {
+      "line": 479,
+      "text": "  providerAPI: SystemProviderAPI = createSystemProviderAPI(),"
+    },
+    {
+      "line": 480,
+      "text": "  modelAPI: SystemModelAPI = createSystemModelAPI(),"
+    },
+    {
+      "line": 481,
+      "text": "  selectionAPI: SystemModelSelectionAPI = createSystemModelSelectionAPI(),"
+    },
+    {
+      "line": 482,
+      "text": "  accountSecurityAPI: SystemAccountSecurityAPI = createSystemAccountSecurityAPI(),"
+    },
+    {
+      "line": 483,
+      "text": "  smtpAPI: SystemSMTPSettingsAPI = createSystemSMTPSettingsAPI(),"
+    },
+    {
+      "line": 484,
+      "text": "  smtpDeliveryAPI: SystemSMTPDeliveryAPI = createSystemSMTPDeliveryAPI(),"
+    },
+    {
+      "line": 485,
+      "text": "  outboundAPI: SystemOutboundPolicyAPI = createSystemOutboundPolicyAPI(),"
+    },
+    {
+      "line": 486,
+      "text": "  auditAPI: SystemAuditAPI = createSystemAuditAPI(),"
+    },
+    {
+      "line": 487,
+      "text": "  runtimeInformationAPI: SystemRuntimeInformationAPI = createSystemRuntimeInformationAPI(),"
+    },
+    {
+      "line": 488,
+      "text": "  projectAPI: ProjectOwnerAPI = createProjectOwnerAPI(),"
+    },
+    {
+      "line": 489,
+      "text": "  projectAuditAPI: ProjectAuditAPI = createProjectAuditAPI(),"
+    },
+    {
+      "line": 490,
+      "text": ") {"
+    },
+    {
+      "line": 491,
+      "text": "  const state = shallowReactive<PublicState>({"
+    },
+    {
+      "line": 492,
+      "text": "    phase: 'checking',"
+    },
+    {
+      "line": 493,
+      "text": "    user: null,"
+    },
+    {
+      "line": 494,
+      "text": "    session: null,"
+    },
+    {
+      "line": 495,
+      "text": "    busy: false,"
+    },
+    {
+      "line": 496,
+      "text": "    challengeBusy: false,"
+    },
+    {
+      "line": 497,
+      "text": "    challengeRequired: false,"
+    },
+    {
+      "line": 498,
+      "text": "    challenge: null,"
+    },
+    {
+      "line": 525,
+      "text": "  let systemRevision = 0,"
+    },
+    {
+      "line": 526,
+      "text": "    auditRevision = 0,"
+    },
+    {
+      "line": 527,
+      "text": "    projectAuditRevision = 0,"
+    },
+    {
+      "line": 528,
+      "text": "    runtimeInformationRevision = 0"
+    },
+    {
+      "line": 529,
+      "text": "  let invitationReadRevision = 0,"
+    },
+    {
+      "line": 530,
+      "text": "    invitationRevision = 0"
+    },
+    {
+      "line": 531,
+      "text": "  let invitationIntent: SystemInvitationIntent | null = null"
+    },
+    {
+      "line": 532,
+      "text": "  let invitationUncertain = false,"
+    },
+    {
+      "line": 533,
+      "text": "    invitationChecked = false"
+    },
+    {
+      "line": 534,
+      "text": "  const invitationState = shallowReactive<{"
+    },
+    {
+      "line": 535,
+      "text": "    progress: Readonly<{"
+    },
+    {
+      "line": 536,
+      "text": "      kind: InvitationCommand['kind']"
+    },
+    {
+      "line": 1265,
+      "text": "    }"
+    },
+    {
+      "line": 1266,
+      "text": "  }"
+    },
+    {
+      "line": 1267,
+      "text": "  function runAuthorized<T>("
+    },
+    {
+      "line": 1268,
+      "text": "    identity: PersonalIdentity,"
+    },
+    {
+      "line": 1269,
+      "text": "    work: (op: Operation, current: () => boolean) => Promise<T>,"
+    },
+    {
+      "line": 1270,
+      "text": "    command?: PersonalCommand,"
+    },
+    {
+      "line": 1271,
+      "text": "    kind:"
+    },
+    {
+      "line": 1272,
+      "text": "      | 'personal'"
+    },
+    {
+      "line": 1273,
+      "text": "      | 'system'"
+    },
+    {
+      "line": 1274,
+      "text": "      | 'audit-read'"
+    },
+    {
+      "line": 1275,
+      "text": "      | 'runtime-information-read'"
+    },
+    {
+      "line": 1276,
+      "text": "      | 'invitation-read'"
+    },
+    {
+      "line": 1277,
+      "text": "      | 'invitation-write'"
+    },
+    {
+      "line": 1278,
+      "text": "      | ProviderAction"
+    },
+    {
+      "line": 1279,
+      "text": "      | ModelAction"
+    },
+    {
+      "line": 1280,
+      "text": "      | SelectionAction"
+    },
+    {
+      "line": 1281,
+      "text": "      | AccountSecurityAction"
+    },
+    {
+      "line": 1282,
+      "text": "      | SMTPAction"
+    },
+    {
+      "line": 1283,
+      "text": "      | SMTPDeliveryAction"
+    },
+    {
+      "line": 1284,
+      "text": "      | OutboundPolicyAction"
+    },
+    {
+      "line": 1285,
+      "text": "      | ProjectAction"
+    },
+    {
+      "line": 1286,
+      "text": "      | ProjectAuditAction = 'personal',"
+    },
+    {
+      "line": 1287,
+      "text": "  ): Promise<T> {"
+    },
+    {
+      "line": 1288,
+      "text": "    if (owner) return Promise.reject(new AccountFailure('busy'))"
+    },
+    {
+      "line": 1289,
+      "text": "    const revisionNow = () =>"
+    },
+    {
+      "line": 1290,
+      "text": "      isProjectAuditAction(kind)"
+    },
+    {
+      "line": 1291,
+      "text": "        ? projectAuditRevision"
+    },
+    {
+      "line": 1292,
+      "text": "        : isProjectAction(kind)"
+    },
+    {
+      "line": 1293,
+      "text": "          ? projectRevisions[kind]"
+    },
+    {
+      "line": 1294,
+      "text": "          : kind === 'system'"
+    },
+    {
+      "line": 1295,
+      "text": "            ? systemRevision"
+    },
+    {
+      "line": 1296,
+      "text": "            : kind === 'audit-read'"
+    },
+    {
+      "line": 1297,
+      "text": "              ? auditRevision"
+    },
+    {
+      "line": 1298,
+      "text": "              : kind === 'runtime-information-read'"
+    },
+    {
+      "line": 1299,
+      "text": "                ? runtimeInformationRevision"
+    },
+    {
+      "line": 1300,
+      "text": "                : kind === 'invitation-read'"
+    },
+    {
+      "line": 1301,
+      "text": "                  ? invitationReadRevision"
+    },
+    {
+      "line": 1302,
+      "text": "                  : kind === 'invitation-write'"
+    },
+    {
+      "line": 1303,
+      "text": "                    ? invitationRevision"
+    },
+    {
+      "line": 1304,
+      "text": "                    : kind === 'personal'"
+    },
+    {
+      "line": 1305,
+      "text": "                      ? personalRevision"
+    },
+    {
+      "line": 1306,
+      "text": "                      : isModelAction(kind)"
+    },
+    {
+      "line": 1307,
+      "text": "                        ? modelRevisions[kind]"
+    },
+    {
+      "line": 1308,
+      "text": "                        : isSelectionAction(kind)"
+    },
+    {
+      "line": 1309,
+      "text": "                          ? selectionRevisions[kind]"
+    },
+    {
+      "line": 1310,
+      "text": "                          : isAccountSecurityAction(kind)"
+    },
+    {
+      "line": 1311,
+      "text": "                            ? accountSecurityRevisions[kind]"
+    },
+    {
+      "line": 1312,
+      "text": "                            : isSMTPAction(kind)"
+    },
+    {
+      "line": 1313,
+      "text": "                              ? smtpRevisions[kind]"
+    },
+    {
+      "line": 1314,
+      "text": "                              : isSMTPDeliveryAction(kind)"
+    },
+    {
+      "line": 1315,
+      "text": "                                ? smtpDeliveryRevisions[kind]"
+    },
+    {
+      "line": 1316,
+      "text": "                                : isOutboundPolicyAction(kind)"
+    },
+    {
+      "line": 1317,
+      "text": "                                  ? outboundRevisions[kind]"
+    },
+    {
+      "line": 1318,
+      "text": "                                  : providerRevisions[kind]"
+    },
+    {
+      "line": 1319,
+      "text": "    const revision = revisionNow()"
+    },
+    {
+      "line": 1320,
+      "text": "    const op: Operation = {"
+    },
+    {
+      "line": 1321,
+      "text": "      kind,"
+    },
+    {
+      "line": 1322,
+      "text": "      generation: ++generation,"
+    },
+    {
+      "line": 1323,
+      "text": "      abort: new AbortController(),"
+    },
+    {
+      "line": 1324,
+      "text": "      expired: false,"
+    },
+    {
+      "line": 1325,
+      "text": "      confirmed: false,"
+    },
+    {
+      "line": 1326,
+      "text": "      visible: Promise.resolve(),"
+    },
+    {
+      "line": 1327,
+      "text": "    }"
+    },
+    {
+      "line": 1328,
+      "text": "    const current = () =>"
+    },
+    {
+      "line": 1329,
+      "text": "      valid(op) &&"
+    },
+    {
+      "line": 1330,
+      "text": "      revision === revisionNow() &&"
+    },
+    {
+      "line": 1331,
+      "text": "      sameIdentity(identity, personalContext.identity) &&"
+    },
+    {
+      "line": 1332,
+      "text": "      (kind === 'personal' ||"
+    },
+    {
+      "line": 1333,
+      "text": "        (isProjectAction(kind) || isProjectAuditAction(kind)"
+    },
+    {
+      "line": 1334,
+      "text": "          ? state.phase === 'authenticated' &&"
+    },
+    {
+      "line": 1335,
+      "text": "            personalContext.phase === 'current' &&"
+    },
+    {
+      "line": 1336,
+      "text": "            state.user?.id === identity.userID &&"
+    },
+    {
+      "line": 1337,
+      "text": "            state.session?.id === identity.sessionID"
+    },
+    {
+      "line": 1338,
+      "text": "          : state.phase === 'authenticated' && state.user?.role === 'admin' && !systemDenied()))"
+    },
+    {
+      "line": 1339,
+      "text": "    owner = op"
+    },
+    {
+      "line": 1340,
+      "text": "    state.busy = true"
+    },
+    {
+      "line": 1341,
+      "text": "    let resolveVisible!: (value: T) => void, rejectVisible!: (failure: AccountFailure) => void"
+    },
+    {
+      "line": 1342,
+      "text": "    const visible = new Promise<T>((resolve, reject) => {"
+    },
+    {
+      "line": 1343,
+      "text": "      resolveVisible = resolve"
+    },
+    {
+      "line": 1344,
+      "text": "      rejectVisible = reject"
+    },
+    {
+      "line": 1345,
+      "text": "    })"
+    },
+    {
+      "line": 1346,
+      "text": "    op.visible = visible.then("
+    },
+    {
+      "line": 1347,
+      "text": "      () => undefined,"
+    },
+    {
+      "line": 1348,
+      "text": "      () => undefined,"
+    },
+    {
+      "line": 1349,
+      "text": "    )"
+    },
+    {
+      "line": 1350,
+      "text": "    const unknown = (e: AccountFailure) => {"
+    },
+    {
+      "line": 1351,
+      "text": "      if (command && personalIntent === command && isUnknown(e)) {"
+    },
+    {
+      "line": 1352,
+      "text": "        command.checked = false"
+    },
+    {
+      "line": 1353,
+      "text": "        command.unsettled = true"
+    },
+    {
+      "line": 1354,
+      "text": "      }"
+    },
+    {
+      "line": 1355,
+      "text": "      if (command?.kind === 'password' && sameIdentity(identity, personalContext.identity))"
+    },
+    {
+      "line": 1356,
+      "text": "        passwordSessionCheck = true"
+    },
+    {
+      "line": 1357,
+      "text": "    }"
+    },
+    {
+      "line": 1358,
+      "text": "    const endVisible = (e: AccountFailure) => {"
+    },
+    {
+      "line": 1359,
+      "text": "      if (command?.kind === 'password' && op.confirmed) {"
+    },
+    {
+      "line": 1360,
+      "text": "        if (current())"
+    },
+    {
+      "line": 1361,
+      "text": "          personalState.passwordProgress = {"
+    },
+    {
+      "line": 1362,
+      "text": "            identity,"
+    },
+    {
+      "line": 1363,
+      "text": "            requestGeneration: op.generation,"
+    },
+    {
+      "line": 1364,
+      "text": "            phase: 'session-unconfirmed',"
+    },
+    {
+      "line": 1365,
+      "text": "          }"
+    },
+    {
+      "line": 1366,
+      "text": "        resolveVisible({"
+    },
+    {
+      "line": 1367,
+      "text": "          kind: 'password',"
+    },
+    {
+      "line": 1368,
+      "text": "          value: { commandConfirmed: true, sessionConfirmed: false, failure: e },"
+    },
+    {
+      "line": 1369,
+      "text": "        } as T)"
+    },
+    {
+      "line": 1370,
+      "text": "      } else {"
+    },
+    {
+      "line": 1371,
+      "text": "        unknown(e)"
+    },
+    {
+      "line": 1372,
+      "text": "        rejectVisible(e)"
+    },
+    {
+      "line": 1373,
+      "text": "      }"
+    },
+    {
+      "line": 1374,
+      "text": "    }"
+    },
+    {
+      "line": 1375,
+      "text": "    op.abandon = () => {"
+    },
+    {
+      "line": 1376,
+      "text": "      endVisible(new AccountFailure('cancelled'))"
+    },
+    {
+      "line": 1377,
+      "text": "      // A password response can rotate the Cookie. Keep its original bounded"
+    },
+    {
+      "line": 1378,
+      "text": "      // POST -> Session check alive even when its page no longer consumes it."
+    },
+    {
+      "line": 1379,
+      "text": "      if (command?.kind !== 'password') op.abort.abort()"
+    },
+    {
+      "line": 1380,
+      "text": "    }"
+    },
+    {
+      "line": 1381,
+      "text": "    const timer = setTimeout(() => {"
+    },
+    {
+      "line": 1382,
+      "text": "      endVisible(new AccountFailure('cancelled'))"
+    },
+    {
+      "line": 1383,
+      "text": "      op.expired = true"
+    },
+    {
+      "line": 1384,
+      "text": "      op.abort.abort()"
+    },
+    {
+      "line": 1385,
+      "text": "    }, 30_000)"
+    },
+    {
+      "line": 1386,
+      "text": "    // This is the same owner as authentication, not another queue. The visible"
+    },
+    {
+      "line": 1387,
+      "text": "    // promise is bounded; actual body/cancel completion alone releases ownership."
+    },
+    {
+      "line": 1388,
+      "text": "    const actual = Promise.resolve()"
+    },
+    {
+      "line": 1389,
+      "text": "      .then(async () => {"
+    },
+    {
+      "line": 1390,
+      "text": "        if (!current()) throw new AccountFailure('cancelled')"
+    },
+    {
+      "line": 1391,
+      "text": "        const result = await work(op, current)"
+    },
+    {
+      "line": 1392,
+      "text": "        const confirmedPassword = command?.kind === 'password' && op.confirmed"
+    },
+    {
+      "line": 1393,
+      "text": "        if (!current() && !confirmedPassword) throw new AccountFailure('cancelled')"
+    },
+    {
+      "line": 1394,
+      "text": "        return result"
+    },
+    {
+      "line": 1395,
+      "text": "      })"
+    },
+    {
+      "line": 1396,
+      "text": "      .catch((error: unknown) => {"
+    },
+    {
+      "line": 1397,
+      "text": "        const e = isProjectAuditAction(kind)"
+    },
+    {
+      "line": 1398,
+      "text": "          ? projectAuditFailure(current, error)"
+    },
+    {
+      "line": 1399,
+      "text": "          : isProjectAction(kind)"
+    },
+    {
+      "line": 1400,
+      "text": "            ? projectFailure(identity, op, error)"
+    },
+    {
+      "line": 1401,
+      "text": "            : kind !== 'personal'"
+    },
+    {
+      "line": 1402,
+      "text": "              ? systemFailure(identity, op, current, error)"
+    },
+    {
+      "line": 1403,
+      "text": "              : personalFailure(identity, error)"
+    },
+    {
+      "line": 1404,
+      "text": "        if (command && personalIntent === command) {"
+    },
+    {
+      "line": 1405,
+      "text": "          if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {"
+    },
+    {
+      "line": 1406,
+      "text": "            command.checked = false"
+    },
+    {
+      "line": 1407,
+      "text": "            command.unsettled = true"
+    },
+    {
+      "line": 1408,
+      "text": "          } else personalIntent = null"
+    },
+    {
+      "line": 1409,
+      "text": "        }"
+    },
+    {
+      "line": 1410,
+      "text": "        if (command?.kind === 'password' && !op.confirmed) {"
+    },
+    {
+      "line": 1411,
+      "text": "          if (isUnknown(e)) unknown(e)"
+    },
+    {
+      "line": 1412,
+      "text": "          else if (sameIdentity(identity, personalContext.identity)) passwordSessionCheck = false"
+    },
+    {
+      "line": 1413,
+      "text": "        }"
+    },
+    {
+      "line": 1414,
+      "text": "        if (command?.kind === 'password' && op.confirmed)"
+    },
+    {
+      "line": 1415,
+      "text": "          return {"
+    },
+    {
+      "line": 1416,
+      "text": "            kind: 'password',"
+    },
+    {
+      "line": 1417,
+      "text": "            value: { commandConfirmed: true, sessionConfirmed: false, failure: e },"
+    },
+    {
+      "line": 1418,
+      "text": "          } as T"
+    },
+    {
+      "line": 1419,
+      "text": "        throw e"
+    },
+    {
+      "line": 1420,
+      "text": "      })"
+    },
+    {
+      "line": 1421,
+      "text": "      .finally(() => {"
+    },
+    {
+      "line": 1422,
+      "text": "        clearTimeout(timer)"
+    },
+    {
+      "line": 1423,
+      "text": "        op.abandon = undefined"
+    },
+    {
+      "line": 1424,
+      "text": "        if (owner === op) {"
+    },
+    {
+      "line": 1425,
+      "text": "          owner = null"
+    },
+    {
+      "line": 1426,
+      "text": "          state.busy = false"
+    },
+    {
+      "line": 1427,
+      "text": "        }"
+    },
+    {
+      "line": 1428,
+      "text": "      })"
+    },
+    {
+      "line": 1429,
+      "text": "    void actual.then(resolveVisible, rejectVisible)"
+    },
+    {
+      "line": 1430,
+      "text": "    return visible"
+    },
+    {
+      "line": 1431,
+      "text": "  }"
+    },
+    {
+      "line": 1432,
+      "text": "  function readPersonal<T>("
+    },
+    {
+      "line": 3916,
+      "text": "  }"
+    },
+    {
+      "line": 3917,
+      "text": "  function clearProjectAuditRead() {"
+    },
+    {
+      "line": 3918,
+      "text": "    ++projectAuditRevision"
+    },
+    {
+      "line": 3919,
+      "text": "    if (owner && isProjectAuditAction(owner.kind)) owner.abandon?.()"
+    },
+    {
+      "line": 3920,
+      "text": "  }"
+    },
+    {
+      "line": 3921,
+      "text": "  function projectAuditFailure(current: () => boolean, error: unknown) {"
+    },
+    {
+      "line": 3922,
+      "text": "    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')"
+    },
+    {
+      "line": 3923,
+      "text": "    // Only the current domain revision/operation/full identity can invalidate"
+    },
+    {
+      "line": 3924,
+      "text": "    // the Session. GET-local denial and CSRF codes do not authorize cleanup."
+    },
+    {
+      "line": 3925,
+      "text": "    if (current() && unavailableSession(e)) {"
+    },
+    {
+      "line": 3926,
+      "text": "      clearIdentity()"
+    },
+    {
+      "line": 3927,
+      "text": "      clearBrowser()"
+    },
+    {
+      "line": 3931,
+      "text": "    return e"
+    },
+    {
+      "line": 3932,
+      "text": "  }"
+    },
+    {
+      "line": 3933,
+      "text": "  const projectAudit = {"
+    },
+    {
+      "line": 3934,
+      "text": "    list(projectID: string, query: AuditQuery) {"
+    },
+    {
+      "line": 3935,
+      "text": "      try {"
+    },
+    {
+      "line": 3936,
+      "text": "        const identity = personalIdentity()"
+    },
+    {
+      "line": 3937,
+      "text": "        const project = captureProjectAuditID(projectID),"
+    },
+    {
+      "line": 3938,
+      "text": "          captured = captureAuditQuery(query)"
+    },
+    {
+      "line": 3939,
+      "text": "        return runAuthorized("
+    },
+    {
+      "line": 3940,
+      "text": "          identity,"
+    },
+    {
+      "line": 3941,
+      "text": "          (op) => projectAuditAPI.list(project, captured, op.abort.signal),"
+    },
+    {
+      "line": 3942,
+      "text": "          undefined,"
+    },
+    {
+      "line": 3943,
+      "text": "          'project-audit-list',"
+    },
+    {
+      "line": 3944,
+      "text": "        )"
+    },
+    {
+      "line": 3945,
+      "text": "      } catch (error) {"
+    },
+    {
+      "line": 3946,
+      "text": "        return Promise.reject(error)"
+    },
+    {
+      "line": 3950,
+      "text": "      try {"
+    },
+    {
+      "line": 3951,
+      "text": "        const identity = personalIdentity()"
+    },
+    {
+      "line": 3952,
+      "text": "        const project = captureProjectAuditID(projectID),"
+    },
+    {
+      "line": 3953,
+      "text": "          target = captureProjectAuditID(auditID)"
+    },
+    {
+      "line": 3954,
+      "text": "        return runAuthorized("
+    },
+    {
+      "line": 3955,
+      "text": "          identity,"
+    },
+    {
+      "line": 3956,
+      "text": "          (op) => projectAuditAPI.get(project, target, op.abort.signal),"
+    },
+    {
+      "line": 3957,
+      "text": "          undefined,"
+    },
+    {
+      "line": 3958,
+      "text": "          'project-audit-get',"
+    },
+    {
+      "line": 3959,
+      "text": "        )"
+    },
+    {
+      "line": 3960,
+      "text": "      } catch (error) {"
+    },
+    {
+      "line": 3961,
+      "text": "        return Promise.reject(error)"
+    }
+  ],
+  "web/src/composables/useProjectWorkspace.ts": [
+    {
+      "line": 28,
+      "text": "// App owns this single workspace across temporary RouterView removal during checking."
+    },
+    {
+      "line": 29,
+      "text": "// Session alone retains original request bytes, keys and CSRF materials."
+    },
+    {
+      "line": 30,
+      "text": "export function createProjectWorkspace("
+    },
+    {
+      "line": 31,
+      "text": "  auth: SessionController = useSession(),"
+    },
+    {
+      "line": 32,
+      "text": "  replaceRoute: (path: string) => Promise<unknown> = async () => undefined,"
+    },
+    {
+      "line": 33,
+      "text": ") {"
+    },
+    {
+      "line": 34,
+      "text": "  const detail = shallowReactive<{ phase: Phase; project: Project | null; message: string }>({"
+    },
+    {
+      "line": 35,
+      "text": "    phase: 'inactive',"
+    },
+    {
+      "line": 36,
+      "text": "    project: null,"
+    },
+    {
+      "line": 37,
+      "text": "    message: '',"
+    },
+    {
+      "line": 38,
+      "text": "  })"
+    },
+    {
+      "line": 39,
+      "text": "  const list = shallowReactive<{"
+    },
+    {
+      "line": 40,
+      "text": "    phase: Phase"
+    },
+    {
+      "line": 41,
+      "text": "    items: readonly ProjectListItem[]"
+    },
+    {
+      "line": 42,
+      "text": "    message: string"
+    },
+    {
+      "line": 43,
+      "text": "    stale: boolean"
+    },
+    {
+      "line": 44,
+      "text": "    filter: 'all' | ProjectLifecycle"
+    },
+    {
+      "line": 138,
+      "text": "  // A readonly seam for sibling read-only pages. Resolve alone, retained draft"
+    },
+    {
+      "line": 139,
+      "text": "  // data, a failed/currently-running Get and checking never provide authority."
+    },
+    {
+      "line": 140,
+      "text": "  const currentReadContext = computed<Readonly<{"
+    },
+    {
+      "line": 141,
+      "text": "    identity: PersonalIdentity"
+    },
+    {
+      "line": 142,
+      "text": "    projectID: string"
+    },
+    {
+      "line": 143,
+      "text": "    generation: number"
+    },
+    {
+      "line": 144,
+      "text": "    readGeneration: number"
+    },
+    {
+      "line": 145,
+      "text": "  }> | null>(() => {"
+    },
+    {
+      "line": 146,
+      "text": "    const currentIdentity = auth.personalContext.identity"
+    },
+    {
+      "line": 147,
+      "text": "    const value = detail.project"
+    },
+    {
+      "line": 148,
+      "text": "    if ("
+    },
+    {
+      "line": 149,
+      "text": "      disposed ||"
+    },
+    {
+      "line": 150,
+      "text": "      mode !== 'detail' ||"
+    },
+    {
+      "line": 151,
+      "text": "      !projectRoute(route) ||"
+    },
+    {
+      "line": 152,
+      "text": "      !visible.value ||"
+    },
+    {
+      "line": 153,
+      "text": "      detail.phase !== 'current' ||"
+    },
+    {
+      "line": 154,
+      "text": "      !value ||"
+    },
+    {
+      "line": 584,
+      "text": "    }"
+    },
+    {
+      "line": 585,
+      "text": "  }"
+    },
+    {
+      "line": 586,
+      "text": "  async function confirmLeave(target?: string) {"
+    },
+    {
+      "line": 587,
+      "text": "    if (target && target === canonicalNavigation) return true"
+    },
+    {
+      "line": 588,
+      "text": "    if (!dirty.value) return !confirmation.open"
+    },
+    {
+      "line": 589,
+      "text": "    if ("
+    },
+    {
+      "line": 590,
+      "text": "      !(await requestConfirmation("
+    },
+    {
+      "line": 591,
+      "text": "        '放弃项目修改？',"
+    },
+    {
+      "line": 592,
+      "text": "        '将放弃本地草稿和原命令追踪；此前请求仍可能生效，离开不会撤销服务器命令。',"
+    },
+    {
+      "line": 593,
+      "text": "        '放弃并离开',"
+    },
+    {
+      "line": 594,
+      "text": "      ))"
+    },
+    {
+      "line": 595,
+      "text": "    )"
+    },
+    {
+      "line": 596,
+      "text": "      return false"
+    },
+    {
+      "line": 597,
+      "text": "    resetTracking()"
+    },
+    {
+      "line": 598,
+      "text": "    return true"
+    },
+    {
+      "line": 599,
+      "text": "  }"
+    },
+    {
+      "line": 600,
+      "text": "  function afterNavigation(to: string, _from = '') {"
+    },
+    {
+      "line": 685,
+      "text": "  return {"
+    },
+    {
+      "line": 686,
+      "text": "    visible,"
+    },
+    {
+      "line": 687,
+      "text": "    currentReadContext,"
+    },
+    {
+      "line": 688,
+      "text": "    detail,"
+    },
+    {
+      "line": 689,
+      "text": "    ownerName,"
+    },
+    {
+      "line": 690,
+      "text": "    paths,"
+    },
+    {
+      "line": 691,
+      "text": "    list,"
+    },
+    {
+      "line": 692,
+      "text": "    hasPrevious,"
+    },
+    {
+      "line": 693,
+      "text": "    hasNext,"
+    },
+    {
+      "line": 694,
+      "text": "    setFilter,"
+    },
+    {
+      "line": 695,
+      "text": "    setLimit,"
+    },
+    {
+      "line": 696,
+      "text": "    previous,"
+    },
+    {
+      "line": 697,
+      "text": "    next,"
+    },
+    {
+      "line": 698,
+      "text": "    retryList,"
+    },
+    {
+      "line": 699,
+      "text": "    fromFirst,"
+    },
+    {
+      "line": 700,
+      "text": "    rowPath,"
+    },
+    {
+      "line": 701,
+      "text": "    draft,"
+    },
+    {
+      "line": 726,
+      "text": "  }"
+    },
+    {
+      "line": 727,
+      "text": "}"
+    },
+    {
+      "line": 728,
+      "text": "export type ProjectWorkspace = ReturnType<typeof createProjectWorkspace>"
+    },
+    {
+      "line": 729,
+      "text": "export const projectWorkspaceKey: InjectionKey<ProjectWorkspace> = Symbol('project-workspace')"
+    },
+    {
+      "line": 730,
+      "text": "export function useProjectWorkspace(): ProjectWorkspace {"
+    },
+    {
+      "line": 731,
+      "text": "  const owner = inject(projectWorkspaceKey)"
+    },
+    {
+      "line": 732,
+      "text": "  if (!owner) throw new Error('Project workspace owner is missing')"
+    },
+    {
+      "line": 733,
+      "text": "  return owner"
+    },
+    {
+      "line": 734,
+      "text": "}"
+    }
+  ],
+  "web/src/App.vue": [
+    {
+      "line": 1,
+      "text": "<script setup lang=\"ts\">"
+    },
+    {
+      "line": 2,
+      "text": "import { computed, onMounted, onUnmounted, provide, shallowRef, watch } from 'vue'"
+    },
+    {
+      "line": 3,
+      "text": "import { useRoute, useRouter } from 'vue-router'"
+    },
+    {
+      "line": 4,
+      "text": "import AppShell from './components/layout/AppShell.vue'"
+    },
+    {
+      "line": 5,
+      "text": "import UiButton from './components/ui/UiButton.vue'"
+    },
+    {
+      "line": 6,
+      "text": "import UiState from './components/ui/UiState.vue'"
+    },
+    {
+      "line": 7,
+      "text": "import UiDialog from './components/ui/UiDialog.vue'"
+    },
+    {
+      "line": 8,
+      "text": "import { useSession, type PersonalIdentity } from './composables/useSession'"
+    },
+    {
+      "line": 9,
+      "text": "import { createPersonalSettings, personalSettingsKey } from './composables/usePersonalSettings'"
+    },
+    {
+      "line": 10,
+      "text": "import {"
+    },
+    {
+      "line": 11,
+      "text": "  installPersonalNavigation,"
+    },
+    {
+      "line": 12,
+      "text": "  installAccountEntryNavigation,"
+    },
+    {
+      "line": 13,
+      "text": "  installInvitationNavigation,"
+    },
+    {
+      "line": 14,
+      "text": "  installProviderNavigation,"
+    },
+    {
+      "line": 15,
+      "text": "  installModelNavigation,"
+    },
+    {
+      "line": 16,
+      "text": "  installModelSelectionNavigation,"
+    },
+    {
+      "line": 17,
+      "text": "  installAccountSecurityNavigation,"
+    },
+    {
+      "line": 18,
+      "text": "  installSMTPSettingsNavigation,"
+    },
+    {
+      "line": 20,
+      "text": "  installProjectNavigation,"
+    },
+    {
+      "line": 21,
+      "text": "} from './router/auth'"
+    },
+    {
+      "line": 22,
+      "text": "import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'"
+    },
+    {
+      "line": 23,
+      "text": "import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'"
+    },
+    {
+      "line": 24,
+      "text": "import { createSystemProviders, systemProvidersKey } from './composables/useSystemProviders'"
+    },
+    {
+      "line": 25,
+      "text": "import { createSystemModels, systemModelsKey } from './composables/useSystemModels'"
+    },
+    {
+      "line": 26,
+      "text": "import {"
+    },
+    {
+      "line": 27,
+      "text": "  createSystemModelSelection,"
+    },
+    {
+      "line": 28,
+      "text": "  systemModelSelectionKey,"
+    },
+    {
+      "line": 29,
+      "text": "} from './composables/useSystemModelSelection'"
+    },
+    {
+      "line": 30,
+      "text": "import {"
+    },
+    {
+      "line": 31,
+      "text": "  createSystemAccountSecurity,"
+    },
+    {
+      "line": 32,
+      "text": "  systemAccountSecurityKey,"
+    },
+    {
+      "line": 33,
+      "text": "} from './composables/useSystemAccountSecurity'"
+    },
+    {
+      "line": 34,
+      "text": "import {"
+    },
+    {
+      "line": 35,
+      "text": "  createSystemSMTPSettings,"
+    },
+    {
+      "line": 36,
+      "text": "  systemSMTPSettingsKey,"
+    },
+    {
+      "line": 37,
+      "text": "} from './composables/useSystemSMTPSettings'"
+    },
+    {
+      "line": 38,
+      "text": "import {"
+    },
+    {
+      "line": 39,
+      "text": "  createSystemSMTPDelivery,"
+    },
+    {
+      "line": 42,
+      "text": "  smtpSectionsKey,"
+    },
+    {
+      "line": 43,
+      "text": "} from './composables/useSystemSMTPDelivery'"
+    },
+    {
+      "line": 44,
+      "text": "import {"
+    },
+    {
+      "line": 45,
+      "text": "  createSystemOutboundPolicy,"
+    },
+    {
+      "line": 46,
+      "text": "  systemOutboundPolicyKey,"
+    },
+    {
+      "line": 47,
+      "text": "} from './composables/useSystemOutboundPolicy'"
+    },
+    {
+      "line": 48,
+      "text": "import { createProjectWorkspace, projectWorkspaceKey } from './composables/useProjectWorkspace'"
+    },
+    {
+      "line": 49,
+      "text": "const auth = useSession(),"
+    },
+    {
+      "line": 50,
+      "text": "  state = auth.state,"
+    },
+    {
+      "line": 51,
+      "text": "  route = useRoute(),"
+    },
+    {
+      "line": 52,
+      "text": "  router = useRouter()"
+    },
+    {
+      "line": 53,
+      "text": "const projects = createProjectWorkspace(auth, (path) => router.replace(path))"
+    },
+    {
+      "line": 54,
+      "text": "provide(projectWorkspaceKey, projects)"
+    },
+    {
+      "line": 55,
+      "text": "const stopProjectNavigation = installProjectNavigation(router, projects)"
+    },
+    {
+      "line": 56,
+      "text": "const settings = createPersonalSettings(auth)"
+    },
+    {
+      "line": 57,
+      "text": "provide(personalSettingsKey, settings)"
+    },
+    {
+      "line": 58,
+      "text": "const stopPersonalNavigation = installPersonalNavigation(router, settings)"
+    },
+    {
+      "line": 59,
+      "text": "const entry = createAccountEntry(auth)"
+    },
+    {
+      "line": 60,
+      "text": "provide(accountEntryKey, entry)"
+    },
+    {
+      "line": 61,
+      "text": "const stopEntryNavigation = installAccountEntryNavigation(router, entry)"
+    },
+    {
+      "line": 62,
+      "text": "const invitations = createSystemInvitations(auth)"
+    },
+    {
+      "line": 63,
+      "text": "provide(systemInvitationsKey, invitations)"
+    },
+    {
+      "line": 64,
+      "text": "const stopInvitationNavigation = installInvitationNavigation(router, invitations)"
+    },
+    {
+      "line": 65,
+      "text": "const providers = createSystemProviders(auth)"
+    },
+    {
+      "line": 66,
+      "text": "provide(systemProvidersKey, providers)"
+    },
+    {
+      "line": 67,
+      "text": "const stopProviderNavigation = installProviderNavigation(router, providers)"
+    },
+    {
+      "line": 68,
+      "text": "const models = createSystemModels(auth)"
+    },
+    {
+      "line": 69,
+      "text": "provide(systemModelsKey, models)"
+    },
+    {
+      "line": 70,
+      "text": "const stopModelNavigation = installModelNavigation(router, models)"
+    },
+    {
+      "line": 71,
+      "text": "const selection = createSystemModelSelection(auth)"
+    },
+    {
+      "line": 72,
+      "text": "provide(systemModelSelectionKey, selection)"
+    },
+    {
+      "line": 73,
+      "text": "const stopSelectionNavigation = installModelSelectionNavigation(router, selection)"
+    },
+    {
+      "line": 74,
+      "text": "const accountSecurity = createSystemAccountSecurity(auth)"
+    },
+    {
+      "line": 75,
+      "text": "provide(systemAccountSecurityKey, accountSecurity)"
+    },
+    {
+      "line": 76,
+      "text": "const stopAccountSecurityNavigation = installAccountSecurityNavigation(router, accountSecurity)"
+    },
+    {
+      "line": 77,
+      "text": "const smtp = createSystemSMTPSettings(auth)"
+    },
+    {
+      "line": 78,
+      "text": "provide(systemSMTPSettingsKey, smtp)"
+    },
+    {
+      "line": 79,
+      "text": "const smtpObservationIdentity = shallowRef<PersonalIdentity | null>(null)"
+    },
+    {
+      "line": 80,
+      "text": "const stopSMTPAvailability = watch("
+    },
+    {
+      "line": 81,
+      "text": "  () => smtp.observation.value,"
+    },
+    {
+      "line": 82,
+      "text": "  (value) => {"
+    },
+    {
+      "line": 83,
+      "text": "    smtpObservationIdentity.value = value ? auth.personalContext.identity : null"
+    },
+    {
+      "line": 84,
+      "text": "  },"
+    },
+    {
+      "line": 85,
+      "text": "  { flush: 'sync' },"
+    },
+    {
+      "line": 86,
+      "text": ")"
+    },
+    {
+      "line": 87,
+      "text": "const smtpAvailability = computed(() => {"
+    },
+    {
+      "line": 88,
+      "text": "  const observed = smtpObservationIdentity.value,"
+    },
+    {
+      "line": 89,
+      "text": "    current = auth.personalContext.identity"
+    },
+    {
+      "line": 90,
+      "text": "  return Object.freeze({"
+    },
+    {
+      "line": 91,
+      "text": "    ready:"
+    },
+    {
+      "line": 92,
+      "text": "      smtp.observation.phase === 'ready' &&"
+    },
+    {
+      "line": 93,
+      "text": "      !!observed &&"
+    },
+    {
+      "line": 94,
+      "text": "      !!current &&"
+    },
+    {
+      "line": 100,
+      "text": "})"
+    },
+    {
+      "line": 101,
+      "text": "const smtpDelivery = createSystemSMTPDelivery(auth, () => smtpAvailability.value)"
+    },
+    {
+      "line": 102,
+      "text": "provide(systemSMTPDeliveryKey, smtpDelivery)"
+    },
+    {
+      "line": 103,
+      "text": "const smtpSections = createSMTPSections(auth, smtp, smtpDelivery)"
+    },
+    {
+      "line": 104,
+      "text": "provide(smtpSectionsKey, smtpSections)"
+    },
+    {
+      "line": 105,
+      "text": "const stopSMTPNavigation = installSMTPSettingsNavigation(router, smtpSections)"
+    },
+    {
+      "line": 106,
+      "text": "const outboundPolicy = createSystemOutboundPolicy(auth)"
+    },
+    {
+      "line": 107,
+      "text": "provide(systemOutboundPolicyKey, outboundPolicy)"
+    },
+    {
+      "line": 108,
+      "text": "const stopOutboundNavigation = installOutboundPolicyNavigation(router, outboundPolicy)"
+    },
+    {
+      "line": 109,
+      "text": "async function logout() {"
+    },
+    {
+      "line": 110,
+      "text": "  if ("
+    },
+    {
+      "line": 111,
+      "text": "    (await settings.confirmLeave()) &&"
+    },
+    {
+      "line": 112,
+      "text": "    (await invitations.confirmLeave()) &&"
+    },
+    {
+      "line": 113,
+      "text": "    (await providers.confirmLeave()) &&"
+    },
+    {
+      "line": 114,
+      "text": "    (await models.confirmLeave()) &&"
+    },
+    {
+      "line": 115,
+      "text": "    (await selection.confirmLeave()) &&"
+    },
+    {
+      "line": 116,
+      "text": "    (await accountSecurity.confirmLeave()) &&"
+    },
+    {
+      "line": 117,
+      "text": "    (await smtpSections.confirmLeave()) &&"
+    },
+    {
+      "line": 118,
+      "text": "    (await outboundPolicy.confirmLeave()) &&"
+    },
+    {
+      "line": 119,
+      "text": "    (await projects.confirmLeave())"
+    },
+    {
+      "line": 120,
+      "text": "  )"
+    },
+    {
+      "line": 121,
+      "text": "    await auth.logout()"
+    },
+    {
+      "line": 122,
+      "text": "}"
+    },
+    {
+      "line": 123,
+      "text": "async function refreshVisible() {"
+    },
+    {
+      "line": 124,
+      "text": "  if ("
+    },
+    {
+      "line": 125,
+      "text": "    document.visibilityState === 'hidden' ||"
+    },
+    {
+      "line": 126,
+      "text": "    !route.meta.authentication ||"
+    },
+    {
+      "line": 127,
+      "text": "    route.meta.accountEntry ||"
+    },
+    {
+      "line": 128,
+      "text": "    state.busy"
+    },
+    {
+      "line": 129,
+      "text": "  )"
+    },
+    {
+      "line": 130,
+      "text": "    return"
+    },
+    {
+      "line": 131,
+      "text": "  await auth.restore()"
+    },
+    {
+      "line": 132,
+      "text": "}"
+    },
+    {
+      "line": 133,
+      "text": "let navigating = false"
+    },
+    {
+      "line": 134,
+      "text": "watch("
+    },
+    {
+      "line": 135,
+      "text": "  () => [state.phase, state.busy] as const,"
+    },
+    {
+      "line": 158,
+      "text": "  window.addEventListener('pageshow', refreshVisible)"
+    },
+    {
+      "line": 159,
+      "text": "})"
+    },
+    {
+      "line": 160,
+      "text": "onUnmounted(() => {"
+    },
+    {
+      "line": 161,
+      "text": "  document.removeEventListener('visibilitychange', refreshVisible)"
+    },
+    {
+      "line": 162,
+      "text": "  window.removeEventListener('pageshow', refreshVisible)"
+    },
+    {
+      "line": 163,
+      "text": "  stopProjectNavigation()"
+    },
+    {
+      "line": 164,
+      "text": "  projects.dispose()"
+    },
+    {
+      "line": 165,
+      "text": "  stopPersonalNavigation()"
+    },
+    {
+      "line": 166,
+      "text": "  stopEntryNavigation()"
+    },
+    {
+      "line": 167,
+      "text": "  stopInvitationNavigation()"
+    },
+    {
+      "line": 168,
+      "text": "  stopProviderNavigation()"
+    },
+    {
+      "line": 169,
+      "text": "  stopModelNavigation()"
+    },
+    {
+      "line": 170,
+      "text": "  stopSelectionNavigation()"
+    },
+    {
+      "line": 171,
+      "text": "  stopAccountSecurityNavigation()"
+    },
+    {
+      "line": 172,
+      "text": "  stopSMTPNavigation()"
+    },
+    {
+      "line": 173,
+      "text": "  stopOutboundNavigation()"
+    },
+    {
+      "line": 174,
+      "text": "  outboundPolicy.dispose()"
+    },
+    {
+      "line": 175,
+      "text": "  stopSMTPAvailability()"
+    },
+    {
+      "line": 176,
+      "text": "  smtpSections.dispose()"
+    }
+  ],
+  "web/src/router/auth.ts": [
+    {
+      "line": 36,
+      "text": "  'debug',"
+    },
+    {
+      "line": 37,
+      "text": "])"
+    },
+    {
+      "line": 38,
+      "text": "export function projectRoute(value: unknown): {"
+    },
+    {
+      "line": 39,
+      "text": "  username: string"
+    },
+    {
+      "line": 40,
+      "text": "  project_name: string"
+    },
+    {
+      "line": 41,
+      "text": "  suffix: '' | '/settings' | '/settings/general' | '/settings/audit'"
+    },
+    {
+      "line": 42,
+      "text": "  path: string"
+    },
+    {
+      "line": 43,
+      "text": "} | null {"
+    },
+    {
+      "line": 44,
+      "text": "  if (typeof value !== 'string' || /[%\\\\?#]/.test(value)) return null"
+    },
+    {
+      "line": 45,
+      "text": "  const match ="
+    },
+    {
+      "line": 46,
+      "text": "    /^\\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\\/([A-Za-z0-9._-]{1,64})(\\/settings(?:\\/(?:general|audit))?)?$/.exec("
+    },
+    {
+      "line": 47,
+      "text": "      value,"
+    },
+    {
+      "line": 48,
+      "text": "    )"
+    },
+    {
+      "line": 49,
+      "text": "  if (!match) return null"
+    },
+    {
+      "line": 50,
+      "text": "  const username = match[1]!.toLowerCase(),"
+    },
+    {
+      "line": 51,
+      "text": "    project_name = match[2]!.toLowerCase()"
+    },
+    {
+      "line": 52,
+      "text": "  if (reservedProjectRoots.has(username) || project_name === '.' || project_name === '..')"
+    },
+    {
+      "line": 53,
+      "text": "    return null"
+    },
+    {
+      "line": 54,
+      "text": "  const suffix = (match[3] ?? '') as '' | '/settings' | '/settings/general' | '/settings/audit'"
+    },
+    {
+      "line": 55,
+      "text": "  return { username, project_name, suffix, path: `/${username}/${project_name}${suffix}` }"
+    },
+    {
+      "line": 56,
+      "text": "}"
+    },
+    {
+      "line": 57,
+      "text": "export function safeReturnTarget(value: unknown): string {"
+    },
+    {
+      "line": 58,
+      "text": "  if (typeof value === 'string' && (returnTargets as readonly string[]).includes(value))"
+    },
+    {
+      "line": 59,
+      "text": "    return value"
+    },
+    {
+      "line": 60,
+      "text": "  return projectRoute(value)?.path ?? '/'"
+    },
+    {
+      "line": 61,
+      "text": "}"
+    },
+    {
+      "line": 62,
+      "text": "export function isAccountSwitch(value: unknown): boolean {"
+    },
+    {
+      "line": 63,
+      "text": "  return value === '1'"
+    },
+    {
+      "line": 64,
+      "text": "}"
+    },
+    {
+      "line": 65,
+      "text": "const accountEntryNavigation = new WeakMap<"
+    },
+    {
+      "line": 66,
+      "text": "  Router,"
+    },
+    {
+      "line": 67,
+      "text": "  {"
+    },
+    {
+      "line": 68,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 69,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 70,
+      "text": "  }"
+    },
+    {
+      "line": 71,
+      "text": ">()"
+    },
+    {
+      "line": 72,
+      "text": "export function installAccountEntryNavigation("
+    },
+    {
+      "line": 73,
+      "text": "  router: Router,"
+    },
+    {
+      "line": 74,
+      "text": "  owner: {"
+    },
+    {
+      "line": 75,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 76,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 77,
+      "text": "  },"
+    },
+    {
+      "line": 78,
+      "text": ") {"
+    },
+    {
+      "line": 79,
+      "text": "  accountEntryNavigation.set(router, owner)"
+    },
+    {
+      "line": 80,
+      "text": "  return () => {"
+    },
+    {
+      "line": 81,
+      "text": "    if (accountEntryNavigation.get(router) === owner) accountEntryNavigation.delete(router)"
+    },
+    {
+      "line": 82,
+      "text": "  }"
+    },
+    {
+      "line": 83,
+      "text": "}"
+    },
+    {
+      "line": 84,
+      "text": ""
+    },
+    {
+      "line": 85,
+      "text": "const personalNavigation = new WeakMap<"
+    },
+    {
+      "line": 86,
+      "text": "  Router,"
+    },
+    {
+      "line": 87,
+      "text": "  { confirmLeave: () => Promise<boolean>; afterNavigation: (to: string, from: string) => void }"
+    },
+    {
+      "line": 88,
+      "text": ">()"
+    },
+    {
+      "line": 89,
+      "text": "export function installPersonalNavigation("
+    },
+    {
+      "line": 90,
+      "text": "  router: Router,"
+    },
+    {
+      "line": 91,
+      "text": "  owner: {"
+    },
+    {
+      "line": 92,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 93,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 94,
+      "text": "  },"
+    },
+    {
+      "line": 95,
+      "text": ") {"
+    },
+    {
+      "line": 96,
+      "text": "  personalNavigation.set(router, owner)"
+    },
+    {
+      "line": 97,
+      "text": "  return () => {"
+    },
+    {
+      "line": 98,
+      "text": "    if (personalNavigation.get(router) === owner) personalNavigation.delete(router)"
+    },
+    {
+      "line": 99,
+      "text": "  }"
+    },
+    {
+      "line": 100,
+      "text": "}"
+    },
+    {
+      "line": 101,
+      "text": ""
+    },
+    {
+      "line": 102,
+      "text": "const projectNavigation = new WeakMap<"
+    },
+    {
+      "line": 103,
+      "text": "  Router,"
+    },
+    {
+      "line": 104,
+      "text": "  {"
+    },
+    {
+      "line": 105,
+      "text": "    confirmLeave: (target?: string) => Promise<boolean>"
+    },
+    {
+      "line": 106,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 107,
+      "text": "  }"
+    },
+    {
+      "line": 108,
+      "text": ">()"
+    },
+    {
+      "line": 109,
+      "text": "export function installProjectNavigation("
+    },
+    {
+      "line": 110,
+      "text": "  router: Router,"
+    },
+    {
+      "line": 111,
+      "text": "  owner: {"
+    },
+    {
+      "line": 112,
+      "text": "    confirmLeave: (target?: string) => Promise<boolean>"
+    },
+    {
+      "line": 113,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 114,
+      "text": "  },"
+    },
+    {
+      "line": 115,
+      "text": ") {"
+    },
+    {
+      "line": 116,
+      "text": "  projectNavigation.set(router, owner)"
+    },
+    {
+      "line": 117,
+      "text": "  return () => {"
+    },
+    {
+      "line": 118,
+      "text": "    if (projectNavigation.get(router) === owner) projectNavigation.delete(router)"
+    },
+    {
+      "line": 119,
+      "text": "  }"
+    },
+    {
+      "line": 120,
+      "text": "}"
+    },
+    {
+      "line": 121,
+      "text": ""
+    },
+    {
+      "line": 122,
+      "text": "export function installAuthentication(router: Router, auth: SessionController = useSession()) {"
+    },
+    {
+      "line": 123,
+      "text": "  router.beforeEach(async (to, from) => {"
+    },
+    {
+      "line": 124,
+      "text": "    if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))"
+    },
+    {
+      "line": 125,
+      "text": "      return {"
+    },
+    {
+      "line": 126,
+      "text": "        name: 'not-found',"
+    },
+    {
+      "line": 127,
+      "text": "        params: { pathMatch: to.fullPath.slice(1).split('/') },"
+    },
+    {
+      "line": 128,
+      "text": "        replace: true,"
+    },
+    {
+      "line": 129,
+      "text": "      }"
+    },
+    {
+      "line": 130,
+      "text": "    if ("
+    },
+    {
+      "line": 131,
+      "text": "      from.meta.projectWorkspace &&"
+    },
+    {
+      "line": 132,
+      "text": "      to.fullPath !== from.fullPath &&"
+    },
+    {
+      "line": 133,
+      "text": "      !((await projectNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)"
+    },
+    {
+      "line": 134,
+      "text": "    )"
+    },
+    {
+      "line": 135,
+      "text": "      return false"
+    },
+    {
+      "line": 136,
+      "text": "    // Ask before Session revalidation can temporarily unmount the dirty page."
+    },
+    {
+      "line": 137,
+      "text": "    if ("
+    },
+    {
+      "line": 138,
+      "text": "      from.path === '/system/outbound-policy' &&"
+    },
+    {
+      "line": 139,
+      "text": "      to.fullPath !== from.fullPath &&"
+    },
+    {
+      "line": 140,
+      "text": "      !((await outboundPolicyNavigation.get(router)?.confirmLeave()) ?? true)"
+    },
+    {
+      "line": 141,
+      "text": "    )"
+    },
+    {
+      "line": 142,
+      "text": "      return false"
+    },
+    {
+      "line": 143,
+      "text": "    if ("
+    },
+    {
+      "line": 144,
+      "text": "      from.path === '/system/smtp' &&"
+    },
+    {
+      "line": 145,
+      "text": "      to.fullPath !== from.fullPath &&"
+    },
+    {
+      "line": 146,
+      "text": "      !((await smtpNavigation.get(router)?.confirmLeave()) ?? true)"
+    },
+    {
+      "line": 147,
+      "text": "    )"
+    },
+    {
+      "line": 148,
+      "text": "      return false"
+    },
+    {
+      "line": 149,
+      "text": "    if ("
+    },
+    {
+      "line": 150,
+      "text": "      from.path === '/system/account-security' &&"
+    },
+    {
+      "line": 151,
+      "text": "      to.fullPath !== from.fullPath &&"
+    },
+    {
+      "line": 152,
+      "text": "      !((await accountSecurityNavigation.get(router)?.confirmLeave()) ?? true)"
+    },
+    {
+      "line": 153,
+      "text": "    )"
+    },
+    {
+      "line": 154,
+      "text": "      return false"
+    },
+    {
+      "line": 155,
+      "text": "    if ("
+    },
+    {
+      "line": 156,
+      "text": "      from.path === '/system/model-selection' &&"
+    },
+    {
+      "line": 157,
+      "text": "      to.fullPath !== from.fullPath &&"
+    },
+    {
+      "line": 158,
+      "text": "      !((await modelSelectionNavigation.get(router)?.confirmLeave()) ?? true)"
+    },
+    {
+      "line": 159,
+      "text": "    )"
+    },
+    {
+      "line": 160,
+      "text": "      return false"
+    },
+    {
+      "line": 161,
+      "text": "    if ("
+    },
+    {
+      "line": 162,
+      "text": "      from.path === '/system/models' &&"
+    },
+    {
+      "line": 163,
+      "text": "      to.fullPath !== from.fullPath &&"
+    },
+    {
+      "line": 164,
+      "text": "      !((await modelNavigation.get(router)?.confirmLeave()) ?? true)"
+    },
+    {
+      "line": 165,
+      "text": "    )"
+    },
+    {
+      "line": 166,
+      "text": "      return false"
+    },
+    {
+      "line": 167,
+      "text": "    if ("
+    },
+    {
+      "line": 168,
+      "text": "      from.path === '/system/providers' &&"
+    },
+    {
+      "line": 169,
+      "text": "      to.fullPath !== from.fullPath &&"
+    },
+    {
+      "line": 170,
+      "text": "      !((await providerNavigation.get(router)?.confirmLeave()) ?? true)"
+    },
+    {
+      "line": 171,
+      "text": "    )"
+    },
+    {
+      "line": 172,
+      "text": "      return false"
+    },
+    {
+      "line": 173,
+      "text": "    if ("
+    },
+    {
+      "line": 174,
+      "text": "      from.path === '/system/invitations' &&"
+    },
+    {
+      "line": 175,
+      "text": "      to.fullPath !== from.fullPath &&"
+    },
+    {
+      "line": 176,
+      "text": "      !((await invitationNavigation.get(router)?.confirmLeave()) ?? true)"
+    },
+    {
+      "line": 177,
+      "text": "    )"
+    },
+    {
+      "line": 178,
+      "text": "      return false"
+    },
+    {
+      "line": 179,
+      "text": "    if ("
+    },
+    {
+      "line": 180,
+      "text": "      from.path.startsWith('/settings') &&"
+    },
+    {
+      "line": 181,
+      "text": "      to.fullPath !== from.fullPath &&"
+    },
+    {
+      "line": 182,
+      "text": "      !((await personalNavigation.get(router)?.confirmLeave()) ?? true)"
+    },
+    {
+      "line": 183,
+      "text": "    )"
+    },
+    {
+      "line": 184,
+      "text": "      return false"
+    },
+    {
+      "line": 185,
+      "text": "    if (from.meta.accountEntry && to.fullPath !== from.fullPath) {"
+    },
+    {
+      "line": 186,
+      "text": "      if (!((await accountEntryNavigation.get(router)?.confirmLeave()) ?? true) || auth.state.busy)"
+    },
+    {
+      "line": 187,
+      "text": "        return false"
+    },
+    {
+      "line": 188,
+      "text": "      auth.entry.abandon()"
+    },
+    {
+      "line": 189,
+      "text": "    }"
+    },
+    {
+      "line": 190,
+      "text": "    if (to.meta.accountEntry) {"
+    },
+    {
+      "line": 191,
+      "text": "      if (auth.state.busy) return false"
+    },
+    {
+      "line": 192,
+      "text": "      if (from.name === 'login') auth.leave()"
+    },
+    {
+      "line": 193,
+      "text": "      return true"
+    },
+    {
+      "line": 207,
+      "text": "  })"
+    },
+    {
+      "line": 208,
+      "text": "  router.afterEach((to, from, failure) => {"
+    },
+    {
+      "line": 209,
+      "text": "    if (!failure) projectNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)"
+    },
+    {
+      "line": 210,
+      "text": "    if (!failure) outboundPolicyNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)"
+    },
+    {
+      "line": 211,
+      "text": "    if (!failure) smtpNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)"
+    },
+    {
+      "line": 212,
+      "text": "    if (!failure) accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)"
+    },
+    {
+      "line": 213,
+      "text": "    if (!failure) modelSelectionNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)"
+    },
+    {
+      "line": 214,
+      "text": "    if (!failure) modelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)"
+    },
+    {
+      "line": 215,
+      "text": "    if (!failure) providerNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)"
+    },
+    {
+      "line": 216,
+      "text": "    if (!failure) invitationNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)"
+    },
+    {
+      "line": 217,
+      "text": "    if (!failure) personalNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)"
+    },
+    {
+      "line": 218,
+      "text": "    if (!failure && from.meta.authentication && !to.meta.authentication) auth.leave()"
+    },
+    {
+      "line": 219,
+      "text": "    if (!failure) accountEntryNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)"
+    },
+    {
+      "line": 220,
+      "text": "  })"
+    },
+    {
+      "line": 221,
+      "text": "}"
+    },
+    {
+      "line": 222,
+      "text": ""
+    },
+    {
+      "line": 223,
+      "text": "const accountSecurityNavigation = new WeakMap<"
+    },
+    {
+      "line": 224,
+      "text": "  Router,"
+    },
+    {
+      "line": 225,
+      "text": "  {"
+    },
+    {
+      "line": 226,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 227,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 228,
+      "text": "  }"
+    },
+    {
+      "line": 229,
+      "text": ">()"
+    },
+    {
+      "line": 230,
+      "text": "export function installAccountSecurityNavigation("
+    },
+    {
+      "line": 231,
+      "text": "  router: Router,"
+    },
+    {
+      "line": 232,
+      "text": "  owner: {"
+    },
+    {
+      "line": 233,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 234,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 235,
+      "text": "  },"
+    },
+    {
+      "line": 236,
+      "text": ") {"
+    },
+    {
+      "line": 237,
+      "text": "  accountSecurityNavigation.set(router, owner)"
+    },
+    {
+      "line": 238,
+      "text": "  return () => {"
+    },
+    {
+      "line": 239,
+      "text": "    if (accountSecurityNavigation.get(router) === owner) accountSecurityNavigation.delete(router)"
+    },
+    {
+      "line": 240,
+      "text": "  }"
+    },
+    {
+      "line": 241,
+      "text": "}"
+    },
+    {
+      "line": 242,
+      "text": ""
+    },
+    {
+      "line": 243,
+      "text": "const invitationNavigation = new WeakMap<"
+    },
+    {
+      "line": 244,
+      "text": "  Router,"
+    },
+    {
+      "line": 245,
+      "text": "  {"
+    },
+    {
+      "line": 246,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 247,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 248,
+      "text": "  }"
+    },
+    {
+      "line": 249,
+      "text": ">()"
+    },
+    {
+      "line": 250,
+      "text": "export function installInvitationNavigation("
+    },
+    {
+      "line": 251,
+      "text": "  router: Router,"
+    },
+    {
+      "line": 252,
+      "text": "  owner: {"
+    },
+    {
+      "line": 253,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 254,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 255,
+      "text": "  },"
+    },
+    {
+      "line": 256,
+      "text": ") {"
+    },
+    {
+      "line": 257,
+      "text": "  invitationNavigation.set(router, owner)"
+    },
+    {
+      "line": 258,
+      "text": "  return () => {"
+    },
+    {
+      "line": 259,
+      "text": "    if (invitationNavigation.get(router) === owner) invitationNavigation.delete(router)"
+    },
+    {
+      "line": 260,
+      "text": "  }"
+    },
+    {
+      "line": 261,
+      "text": "}"
+    },
+    {
+      "line": 262,
+      "text": ""
+    },
+    {
+      "line": 263,
+      "text": "const providerNavigation = new WeakMap<"
+    },
+    {
+      "line": 264,
+      "text": "  Router,"
+    },
+    {
+      "line": 265,
+      "text": "  {"
+    },
+    {
+      "line": 266,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 267,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 268,
+      "text": "  }"
+    },
+    {
+      "line": 269,
+      "text": ">()"
+    },
+    {
+      "line": 270,
+      "text": "export function installProviderNavigation("
+    },
+    {
+      "line": 271,
+      "text": "  router: Router,"
+    },
+    {
+      "line": 272,
+      "text": "  owner: {"
+    },
+    {
+      "line": 273,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 274,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 275,
+      "text": "  },"
+    },
+    {
+      "line": 276,
+      "text": ") {"
+    },
+    {
+      "line": 277,
+      "text": "  providerNavigation.set(router, owner)"
+    },
+    {
+      "line": 278,
+      "text": "  return () => {"
+    },
+    {
+      "line": 279,
+      "text": "    if (providerNavigation.get(router) === owner) providerNavigation.delete(router)"
+    },
+    {
+      "line": 280,
+      "text": "  }"
+    },
+    {
+      "line": 281,
+      "text": "}"
+    },
+    {
+      "line": 282,
+      "text": ""
+    },
+    {
+      "line": 283,
+      "text": "const modelNavigation = new WeakMap<"
+    },
+    {
+      "line": 284,
+      "text": "  Router,"
+    },
+    {
+      "line": 285,
+      "text": "  {"
+    },
+    {
+      "line": 286,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 287,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 288,
+      "text": "  }"
+    },
+    {
+      "line": 289,
+      "text": ">()"
+    },
+    {
+      "line": 290,
+      "text": "export function installModelNavigation("
+    },
+    {
+      "line": 291,
+      "text": "  router: Router,"
+    },
+    {
+      "line": 292,
+      "text": "  owner: {"
+    },
+    {
+      "line": 293,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 294,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 295,
+      "text": "  },"
+    },
+    {
+      "line": 296,
+      "text": ") {"
+    },
+    {
+      "line": 297,
+      "text": "  modelNavigation.set(router, owner)"
+    },
+    {
+      "line": 298,
+      "text": "  return () => {"
+    },
+    {
+      "line": 299,
+      "text": "    if (modelNavigation.get(router) === owner) modelNavigation.delete(router)"
+    },
+    {
+      "line": 300,
+      "text": "  }"
+    },
+    {
+      "line": 301,
+      "text": "}"
+    },
+    {
+      "line": 302,
+      "text": ""
+    },
+    {
+      "line": 303,
+      "text": "const modelSelectionNavigation = new WeakMap<"
+    },
+    {
+      "line": 304,
+      "text": "  Router,"
+    },
+    {
+      "line": 305,
+      "text": "  { confirmLeave: () => Promise<boolean>; afterNavigation: (to: string, from: string) => void }"
+    },
+    {
+      "line": 306,
+      "text": ">()"
+    },
+    {
+      "line": 307,
+      "text": "export function installModelSelectionNavigation("
+    },
+    {
+      "line": 308,
+      "text": "  router: Router,"
+    },
+    {
+      "line": 309,
+      "text": "  owner: {"
+    },
+    {
+      "line": 310,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 311,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 312,
+      "text": "  },"
+    },
+    {
+      "line": 313,
+      "text": ") {"
+    },
+    {
+      "line": 314,
+      "text": "  modelSelectionNavigation.set(router, owner)"
+    },
+    {
+      "line": 315,
+      "text": "  return () => {"
+    },
+    {
+      "line": 316,
+      "text": "    if (modelSelectionNavigation.get(router) === owner) modelSelectionNavigation.delete(router)"
+    },
+    {
+      "line": 317,
+      "text": "  }"
+    },
+    {
+      "line": 318,
+      "text": "}"
+    },
+    {
+      "line": 319,
+      "text": ""
+    },
+    {
+      "line": 320,
+      "text": "const smtpNavigation = new WeakMap<"
+    },
+    {
+      "line": 321,
+      "text": "  Router,"
+    },
+    {
+      "line": 322,
+      "text": "  { confirmLeave: () => Promise<boolean>; afterNavigation: (to: string, from: string) => void }"
+    },
+    {
+      "line": 323,
+      "text": ">()"
+    },
+    {
+      "line": 324,
+      "text": "export function installSMTPSettingsNavigation("
+    },
+    {
+      "line": 325,
+      "text": "  router: Router,"
+    },
+    {
+      "line": 326,
+      "text": "  owner: {"
+    },
+    {
+      "line": 327,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 328,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 329,
+      "text": "  },"
+    },
+    {
+      "line": 330,
+      "text": ") {"
+    },
+    {
+      "line": 331,
+      "text": "  smtpNavigation.set(router, owner)"
+    },
+    {
+      "line": 332,
+      "text": "  return () => {"
+    },
+    {
+      "line": 333,
+      "text": "    if (smtpNavigation.get(router) === owner) smtpNavigation.delete(router)"
+    },
+    {
+      "line": 334,
+      "text": "  }"
+    },
+    {
+      "line": 335,
+      "text": "}"
+    },
+    {
+      "line": 336,
+      "text": ""
+    },
+    {
+      "line": 337,
+      "text": "const outboundPolicyNavigation = new WeakMap<"
+    },
+    {
+      "line": 338,
+      "text": "  Router,"
+    },
+    {
+      "line": 339,
+      "text": "  { confirmLeave: () => Promise<boolean>; afterNavigation: (to: string, from: string) => void }"
+    },
+    {
+      "line": 340,
+      "text": ">()"
+    },
+    {
+      "line": 341,
+      "text": "export function installOutboundPolicyNavigation("
+    },
+    {
+      "line": 342,
+      "text": "  router: Router,"
+    },
+    {
+      "line": 343,
+      "text": "  owner: {"
+    },
+    {
+      "line": 344,
+      "text": "    confirmLeave: () => Promise<boolean>"
+    },
+    {
+      "line": 345,
+      "text": "    afterNavigation: (to: string, from: string) => void"
+    },
+    {
+      "line": 346,
+      "text": "  },"
+    },
+    {
+      "line": 347,
+      "text": ") {"
+    },
+    {
+      "line": 348,
+      "text": "  outboundPolicyNavigation.set(router, owner)"
+    },
+    {
+      "line": 349,
+      "text": "  return () => {"
+    },
+    {
+      "line": 350,
+      "text": "    if (outboundPolicyNavigation.get(router) === owner) outboundPolicyNavigation.delete(router)"
+    },
+    {
+      "line": 351,
+      "text": "  }"
+    },
+    {
+      "line": 352,
+      "text": "}"
+    }
+  ],
+  "web/src/router/index.ts": [
+    {
+      "line": 114,
+      "text": "        },"
+    },
+    {
+      "line": 115,
+      "text": "        {"
+    },
+    {
+      "line": 116,
+      "text": "          path: 'settings',"
+    },
+    {
+      "line": 117,
+      "text": "          component: () => import('../views/projects/ProjectSettingsView.vue'),"
+    },
+    {
+      "line": 118,
+      "text": "          redirect: (to) => {"
+    },
+    {
+      "line": 119,
+      "text": "            const address = projectRoute(to.fullPath)"
+    },
+    {
+      "line": 120,
+      "text": "            return address"
+    },
+    {
+      "line": 121,
+      "text": "              ? address.path + '/general'"
+    },
+    {
+      "line": 122,
+      "text": "              : { name: 'not-found', params: { pathMatch: to.fullPath.slice(1).split('/') } }"
+    },
+    {
+      "line": 123,
+      "text": "          },"
+    },
+    {
+      "line": 124,
+      "text": "          children: ["
+    },
+    {
+      "line": 125,
+      "text": "            {"
+    },
+    {
+      "line": 126,
+      "text": "              path: 'general',"
+    },
+    {
+      "line": 127,
+      "text": "              name: 'project-general',"
+    },
+    {
+      "line": 128,
+      "text": "              component: () => import('../views/projects/ProjectGeneralSettings.vue'),"
+    },
+    {
+      "line": 129,
+      "text": "            },"
+    },
+    {
+      "line": 130,
+      "text": "            {"
+    },
+    {
+      "line": 131,
+      "text": "              path: 'audit',"
+    },
+    {
+      "line": 132,
+      "text": "              name: 'project-audit',"
+    },
+    {
+      "line": 133,
+      "text": "              component: () => import('../views/projects/ProjectAuditView.vue'),"
+    },
+    {
+      "line": 134,
+      "text": "            },"
+    },
+    {
+      "line": 135,
+      "text": "          ],"
+    },
+    {
+      "line": 136,
+      "text": "        },"
+    },
+    {
+      "line": 137,
+      "text": "      ],"
+    },
+    {
+      "line": 138,
+      "text": "    },"
+    },
+    {
+      "line": 139,
+      "text": "    ...pages,"
+    },
+    {
+      "line": 140,
+      "text": "    { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundView },"
+    },
+    {
+      "line": 141,
+      "text": "  ],"
+    },
+    {
+      "line": 142,
+      "text": "})"
+    },
+    {
+      "line": 143,
+      "text": "installAuthentication(router)"
+    },
+    {
+      "line": 144,
+      "text": "declare module 'vue-router' {"
+    },
+    {
+      "line": 145,
+      "text": "  interface RouteMeta {"
+    },
+    {
+      "line": 146,
+      "text": "    navigation?: { label: string; order: number }"
+    },
+    {
+      "line": 147,
+      "text": "    authentication?: boolean"
+    },
+    {
+      "line": 148,
+      "text": "    protected?: boolean"
+    },
+    {
+      "line": 149,
+      "text": "    projectWorkspace?: boolean"
+    },
+    {
+      "line": 150,
+      "text": "    systemAdmin?: boolean"
+    },
+    {
+      "line": 151,
+      "text": "    accountEntry?: AccountEntryMode"
+    },
+    {
+      "line": 152,
+      "text": "  }"
+    }
+  ],
+  "web/src/views/projects/ProjectSettingsView.vue": [
+    {
+      "line": 1,
+      "text": "<script setup lang=\"ts\">"
+    },
+    {
+      "line": 2,
+      "text": "import { computed } from 'vue'"
+    },
+    {
+      "line": 3,
+      "text": "import SettingsShell from '../../components/layout/SettingsShell.vue'"
+    },
+    {
+      "line": 4,
+      "text": "import { useProjectWorkspace } from '../../composables/useProjectWorkspace'"
+    },
+    {
+      "line": 5,
+      "text": ""
+    },
+    {
+      "line": 6,
+      "text": "const { visible, detail, paths } = useProjectWorkspace()"
+    },
+    {
+      "line": 7,
+      "text": "const groups = computed(() =>"
+    },
+    {
+      "line": 8,
+      "text": "  paths.value.settings"
+    },
+    {
+      "line": 9,
+      "text": "    ? ["
+    },
+    {
+      "line": 10,
+      "text": "        { label: '项目资料', path: paths.value.settings, leaf: '基本信息' },"
+    },
+    {
+      "line": 11,
+      "text": "        { label: '安全记录', path: paths.value.home + '/settings/audit', leaf: '项目审计' },"
+    },
+    {
+      "line": 12,
+      "text": "      ]"
+    },
+    {
+      "line": 13,
+      "text": "    : [],"
+    },
+    {
+      "line": 14,
+      "text": ")"
+    },
+    {
+      "line": 15,
+      "text": "</script>"
+    },
+    {
+      "line": 16,
+      "text": ""
+    },
+    {
+      "line": 17,
+      "text": "<template>"
+    },
+    {
+      "line": 18,
+      "text": "  <SettingsShell"
+    },
+    {
+      "line": 19,
+      "text": "    v-if=\"visible && detail.project\""
+    },
+    {
+      "line": 20,
+      "text": "    title=\"项目设置\""
+    },
+    {
+      "line": 21,
+      "text": "    :groups=\"groups\""
+    },
+    {
+      "line": 22,
+      "text": "    :show-logout=\"false\""
+    },
+    {
+      "line": 23,
+      "text": "  >"
+    },
+    {
+      "line": 24,
+      "text": "    <RouterView />"
+    },
+    {
+      "line": 25,
+      "text": "  </SettingsShell>"
+    },
+    {
+      "line": 26,
+      "text": "  <div v-else-if=\"visible\" class=\"project-settings-recovery\"><RouterView /></div>"
+    },
+    {
+      "line": 27,
+      "text": "</template>"
+    },
+    {
+      "line": 28,
+      "text": ""
+    },
+    {
+      "line": 29,
+      "text": "<style scoped>"
+    },
+    {
+      "line": 30,
+      "text": ".project-settings-recovery {"
+    },
+    {
+      "line": 31,
+      "text": "  min-width: 0;"
+    },
+    {
+      "line": 32,
+      "text": "  padding: var(--space);"
+    },
+    {
+      "line": 33,
+      "text": "}"
+    },
+    {
+      "line": 34,
+      "text": "</style>"
+    }
+  ],
+  "web/src/components/layout/ProjectNav.vue": [
+    {
+      "line": 1,
+      "text": "<script setup lang=\"ts\">"
+    },
+    {
+      "line": 2,
+      "text": "import { computed } from 'vue'"
+    },
+    {
+      "line": 3,
+      "text": "import { useRoute } from 'vue-router'"
+    },
+    {
+      "line": 4,
+      "text": "import { projectRoute } from '../../router/auth'"
+    },
+    {
+      "line": 5,
+      "text": ""
+    },
+    {
+      "line": 6,
+      "text": "const props = defineProps<{ name: string; home: string; settings: string }>()"
+    },
+    {
+      "line": 7,
+      "text": "const route = useRoute()"
+    },
+    {
+      "line": 8,
+      "text": "const settingsCurrent = computed(() => {"
+    },
+    {
+      "line": 9,
+      "text": "  const current = projectRoute(route.fullPath),"
+    },
+    {
+      "line": 10,
+      "text": "    target = projectRoute(props.settings)"
+    },
+    {
+      "line": 11,
+      "text": "  return ("
+    },
+    {
+      "line": 12,
+      "text": "    !!current &&"
+    },
+    {
+      "line": 13,
+      "text": "    !!target &&"
+    },
+    {
+      "line": 14,
+      "text": "    target.suffix === '/settings/general' &&"
+    },
+    {
+      "line": 15,
+      "text": "    current.username === target.username &&"
+    },
+    {
+      "line": 16,
+      "text": "    current.project_name === target.project_name &&"
+    },
+    {
+      "line": 17,
+      "text": "    (current.suffix === '/settings/general' || current.suffix === '/settings/audit')"
+    },
+    {
+      "line": 18,
+      "text": "  )"
+    },
+    {
+      "line": 19,
+      "text": "})"
+    },
+    {
+      "line": 20,
+      "text": "</script>"
+    },
+    {
+      "line": 21,
+      "text": ""
+    },
+    {
+      "line": 22,
+      "text": "<template>"
+    },
+    {
+      "line": 23,
+      "text": "  <nav class=\"project-nav\" aria-label=\"项目导航\">"
+    },
+    {
+      "line": 24,
+      "text": "    <RouterLink"
+    },
+    {
+      "line": 25,
+      "text": "      class=\"project-name\""
+    },
+    {
+      "line": 26,
+      "text": "      :to=\"home\""
+    },
+    {
+      "line": 27,
+      "text": "      :title=\"name\""
+    },
+    {
+      "line": 29,
+      "text": "      >{{ name }}</RouterLink"
+    },
+    {
+      "line": 30,
+      "text": "    >"
+    },
+    {
+      "line": 31,
+      "text": "    <RouterLink :to=\"settings\" :aria-current=\"settingsCurrent ? 'page' : undefined\""
+    },
+    {
+      "line": 32,
+      "text": "      >项目设置</RouterLink"
+    },
+    {
+      "line": 33,
+      "text": "    >"
+    },
+    {
+      "line": 34,
+      "text": "  </nav>"
+    },
+    {
+      "line": 35,
+      "text": "</template>"
+    },
+    {
+      "line": 36,
+      "text": ""
+    },
+    {
+      "line": 37,
+      "text": "<style scoped>"
+    },
+    {
+      "line": 38,
+      "text": ".project-nav {"
+    },
+    {
+      "line": 39,
+      "text": "  display: flex;"
+    },
+    {
+      "line": 40,
+      "text": "  align-items: center;"
+    },
+    {
+      "line": 41,
+      "text": "  gap: 8px;"
+    }
+  ],
+  "web/src/tests/authentication.spec.ts": [
+    {
+      "line": 1,
+      "text": "import { afterEach, describe, expect, it, vi } from 'vitest'"
+    },
+    {
+      "line": 2,
+      "text": "import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'"
+    },
+    {
+      "line": 3,
+      "text": "import { createMemoryHistory, createRouter } from 'vue-router'"
+    },
+    {
+      "line": 4,
+      "text": "import { Rotate } from 'go-captcha-vue'"
+    },
+    {
+      "line": 5,
+      "text": "import type { AccountAPI, SessionView } from '../api/account'"
+    },
+    {
+      "line": 6,
+      "text": "import { AccountFailure } from '../api/client'"
+    },
+    {
+      "line": 7,
+      "text": "import type { SessionController } from '../composables/useSession'"
+    },
+    {
+      "line": 8,
+      "text": "const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))"
+    },
+    {
+      "line": 11,
+      "text": "  return { ...actual, useSession: () => selected.auth! }"
+    },
+    {
+      "line": 12,
+      "text": "})"
+    },
+    {
+      "line": 13,
+      "text": "import { createSessionController } from '../composables/useSession'"
+    },
+    {
+      "line": 14,
+      "text": "import { installAuthentication, safeReturnTarget } from '../router/auth'"
+    },
+    {
+      "line": 15,
+      "text": "import App from '../App.vue'"
+    },
+    {
+      "line": 16,
+      "text": "import LoginView from '../views/auth/LoginView.vue'"
+    },
+    {
+      "line": 17,
+      "text": "import HomeView from '../views/HomeView.vue'"
+    },
+    {
+      "line": 18,
+      "text": "import NotFoundView from '../views/NotFoundView.vue'"
+    },
+    {
+      "line": 19,
+      "text": ""
+    },
+    {
+      "line": 20,
+      "text": "const id = '01900000-0000-7000-8000-000000000001'"
+    },
+    {
+      "line": 116,
+      "text": "    })),"
+    },
+    {
+      "line": 117,
+      "text": "  }"
+    },
+    {
+      "line": 118,
+      "text": "  selected.auth = createSessionController(api)"
+    },
+    {
+      "line": 119,
+      "text": "  const router = createRouter({"
+    },
+    {
+      "line": 120,
+      "text": "    history: createMemoryHistory(),"
+    },
+    {
+      "line": 121,
+      "text": "    routes: ["
+    },
+    {
+      "line": 122,
+      "text": "      {"
+    },
+    {
+      "line": 123,
+      "text": "        path: '/',"
+    },
+    {
+      "line": 124,
+      "text": "        name: 'home',"
+    },
+    {
+      "line": 125,
+      "text": "        component: HomeView,"
+    },
+    {
+      "line": 496,
+      "text": "    'accepts existing Owner username %s and canonicalizes only the closed path',"
+    },
+    {
+      "line": 497,
+      "text": "    (username) => {"
+    },
+    {
+      "line": 498,
+      "text": "      for (const suffix of ['', '/settings', '/settings/general', '/settings/audit']) {"
+    },
+    {
+      "line": 499,
+      "text": "        expect(safeReturnTarget(`/${username}/DeMo${suffix}`)).toBe("
+    },
+    {
+      "line": 500,
+      "text": "          `/${username.toLowerCase()}/demo${suffix}`,"
+    },
+    {
+      "line": 501,
+      "text": "        )"
+    },
+    {
+      "line": 502,
+      "text": "      }"
+    },
+    {
+      "line": 503,
+      "text": "      expect(safeReturnTarget(`/${username}/demo?token=private`)).toBe('/')"
+    },
+    {
+      "line": 504,
+      "text": "      expect(safeReturnTarget(`/${username}/demo/extra`)).toBe('/')"
+    },
+    {
+      "line": 505,
+      "text": "      expect(safeReturnTarget(`/${username}/owner.dot-name/settings/audit`)).toBe("
+    },
+    {
+      "line": 506,
+      "text": "        `/${username.toLowerCase()}/owner.dot-name/settings/audit`,"
+    },
+    {
+      "line": 507,
+      "text": "      )"
+    },
+    {
+      "line": 508,
+      "text": "    },"
+    },
+    {
+      "line": 509,
+      "text": "  )"
+    },
+    {
+      "line": 510,
+      "text": "  it.each(["
+    },
+    {
+      "line": 511,
+      "text": "    '/system/users/extra',"
+    },
+    {
+      "line": 512,
+      "text": "    '/settings/unknown',"
+    },
+    {
+      "line": 513,
+      "text": "    '/api/v1',"
+    },
+    {
+      "line": 535,
+      "text": "    '/admin-/demo',"
+    },
+    {
+      "line": 536,
+      "text": "    '/ADMIN/demo/SETTINGS',"
+    },
+    {
+      "line": 537,
+      "text": "    '/owner/demo/settings/audit/',"
+    },
+    {
+      "line": 538,
+      "text": "    '/owner/demo/settings/audit/01970000-0000-7000-8000-000000000001',"
+    },
+    {
+      "line": 539,
+      "text": "    '/owner/demo/settings/audit?cursor=private',"
+    },
+    {
+      "line": 540,
+      "text": "    '/owner/demo/settings/audit#detail',"
+    },
+    {
+      "line": 541,
+      "text": "    '/owner/demo/settings/%61udit',"
+    },
+    {
+      "line": 542,
+      "text": "    '/owner/demo/settings/AUDIT',"
+    },
+    {
+      "line": 543,
+      "text": "    '/owner/demo/settings/audit\\\\more',"
+    },
+    {
+      "line": 544,
+      "text": "  ])('rejects raw path outside Project branch: %j', (value) => {"
+    },
+    {
+      "line": 545,
+      "text": "    expect(safeReturnTarget(value)).toBe('/')"
+    },
+    {
+      "line": 546,
+      "text": "  })"
+    },
+    {
+      "line": 547,
+      "text": "  it('preserves old static targets alongside the new list', () => {"
+    },
+    {
+      "line": 548,
+      "text": "    expect(safeReturnTarget('/system/users')).toBe('/system/users')"
+    },
+    {
+      "line": 549,
+      "text": "    expect(safeReturnTarget('/settings/profile')).toBe('/settings/profile')"
+    },
+    {
+      "line": 550,
+      "text": "    expect(safeReturnTarget('/projects')).toBe('/projects')"
+    }
+  ],
+  "web/src/tests/project-workspace.spec.ts": [
+    {
+      "line": 1,
+      "text": "import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'"
+    },
+    {
+      "line": 2,
+      "text": "import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'"
+    },
+    {
+      "line": 3,
+      "text": "import { createMemoryHistory, createRouter, type Router } from 'vue-router'"
+    },
+    {
+      "line": 4,
+      "text": "import type { SessionController } from '../composables/useSession'"
+    },
+    {
+      "line": 5,
+      "text": "const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))"
+    },
+    {
+      "line": 8,
+      "text": "  useSession: () => selected.auth!,"
+    },
+    {
+      "line": 9,
+      "text": "}))"
+    },
+    {
+      "line": 10,
+      "text": "import { createSessionController } from '../composables/useSession'"
+    },
+    {
+      "line": 11,
+      "text": "import { createAccountAPI, type SessionView } from '../api/account'"
+    },
+    {
+      "line": 12,
+      "text": "import { createProjectOwnerAPI, type Project } from '../api/project-owner'"
+    },
+    {
+      "line": 13,
+      "text": "import { type Fetch } from '../api/client'"
+    },
+    {
+      "line": 14,
+      "text": "import { installAuthentication } from '../router/auth'"
+    },
+    {
+      "line": 15,
+      "text": "import App from '../App.vue'"
+    },
+    {
+      "line": 16,
+      "text": ""
+    },
+    {
+      "line": 17,
+      "text": "const id = (n: number) => `01900000-0000-7000-8000-${String(n).padStart(12, '0')}`"
+    },
+    {
+      "line": 167,
+      "text": "    intercept ? intercept(url, init) : normal(url, init),"
+    },
+    {
+      "line": 168,
+      "text": "  )"
+    },
+    {
+      "line": 169,
+      "text": "  selected.auth = createSessionController("
+    },
+    {
+      "line": 170,
+      "text": "    createAccountAPI(fetcher),"
+    },
+    {
+      "line": 171,
+      "text": "    undefined,"
+    },
+    {
+      "line": 172,
+      "text": "    undefined,"
+    },
+    {
+      "line": 173,
+      "text": "    undefined,"
+    },
+    {
+      "line": 174,
+      "text": "    undefined,"
+    },
+    {
+      "line": 175,
+      "text": "    undefined,"
+    },
+    {
+      "line": 176,
+      "text": "    undefined,"
+    }
+  ],
+  "web/src/tests/session.spec.ts": [
+    {
+      "line": 1,
+      "text": "import { afterEach, describe, expect, it, vi } from 'vitest'"
+    },
+    {
+      "line": 2,
+      "text": "import { createSessionController } from '../composables/useSession'"
+    },
+    {
+      "line": 3,
+      "text": "import { AccountFailure, type Problem } from '../api/client'"
+    },
+    {
+      "line": 4,
+      "text": "import { createAccountAPI, type AccountAPI, type SessionView } from '../api/account'"
+    },
+    {
+      "line": 5,
+      "text": ""
+    },
+    {
+      "line": 6,
+      "text": "const id = '01900000-0000-7000-8000-000000000001'"
+    },
+    {
+      "line": 7,
+      "text": "const time = '2026-10-05T12:34:56.123456Z'"
+    },
+    {
+      "line": 8,
+      "text": "const anonymous = 'A'.repeat(43),"
+    },
+    {
+      "line": 9,
+      "text": "  sessionToken = 'S'.repeat(43)"
+    },
+    {
+      "line": 10,
+      "text": "const password = '  Original 密码 12345  '"
+    },
+    {
+      "line": 114,
+      "text": "    })),"
+    },
+    {
+      "line": 115,
+      "text": "  } satisfies AccountAPI"
+    },
+    {
+      "line": 116,
+      "text": "  return { api, controller: createSessionController(api) }"
+    },
+    {
+      "line": 117,
+      "text": "}"
+    },
+    {
+      "line": 118,
+      "text": "afterEach(() => {"
+    },
+    {
+      "line": 119,
+      "text": "  vi.useRealTimers()"
+    },
+    {
+      "line": 120,
+      "text": "  vi.restoreAllMocks()"
+    },
+    {
+      "line": 121,
+      "text": "})"
+    },
+    {
+      "line": 122,
+      "text": "describe('Account Session ownership', () => {"
+    },
+    {
+      "line": 123,
+      "text": "  it.each(['content-type', 'oversize'])("
+    },
+    {
+      "line": 124,
+      "text": "    'retains Cookie ownership until response body cancellation joins: %s',"
+    },
+    {
+      "line": 162,
+      "text": "        })"
+    },
+    {
+      "line": 163,
+      "text": "      })"
+    },
+    {
+      "line": 164,
+      "text": "      const c = createSessionController(api)"
+    },
+    {
+      "line": 165,
+      "text": "      await c.restore()"
+    },
+    {
+      "line": 166,
+      "text": "      const call = c.login(view.user.email, password).then(() => {"
+    },
+    {
+      "line": 167,
+      "text": "        returned = true"
+    },
+    {
+      "line": 168,
+      "text": "      })"
+    },
+    {
+      "line": 169,
+      "text": "      try {"
+    },
+    {
+      "line": 170,
+      "text": "        await vi.advanceTimersByTimeAsync(0)"
+    },
+    {
+      "line": 171,
+      "text": "        expect(cancellations).toBe(1)"
+    },
+    {
+      "line": 172,
+      "text": "        expect(c.state.busy).toBe(true)"
+    }
+  ],
+  "docs/development/frontend/README.md": []
+}

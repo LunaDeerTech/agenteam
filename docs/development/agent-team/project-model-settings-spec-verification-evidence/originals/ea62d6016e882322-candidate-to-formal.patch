@@ -1,0 +1,218 @@
+--- accepted-c5674d4e/candidate.md
++++ docs/development/work-items/d27-project-owner-model-settings-ui.md
+@@ -1,48 +1,82 @@
+-# D27 Project Owner 模型设置 UI — 整合实施卡候选 v01
+-
+-状态：仅 scratch 整卡审阅候选，尚非正式规格、产品实施或资源许可。2026-10-08 将已审 rev0/rev1/T3 rev2 与双方同 SHA 确认组合；旧原件及其原时点的 pending/FAIL 不回写。本候选自身仍待完整 SPEC 独审。规格承担一个完整设置结果，不机械复制 System 大闭环。
++# D27 Project Owner 模型设置 UI — rev1
++
++状态：2026-10-08 正式规格安装；完整语义沿已获 root 接受的整合候选 c5674d4e，独立 SPEC STATIC d411c2ce 无必修。本次只完成 Audit 前置状态、T1 最小共享源码交接、永久定义引用及 T4 正式路径/唯一作者归位；安装差量与交接仍待独立复核和 root 接受。正式卡安装不是产品实施、工具运行或资源授权，实施启动由 root 另行下发。
+ 
+ ## 0. 固定依据、当前基线与交接状态
+ 
+-| 固定规则来源 | SHA-256 前缀与适用范围 |
++唯一语义基准为整合候选 SHA-256 c5674d4e06618f264a00867de0fb65fb9710e56b6a96ccde1f8fdaa77a5641f3（84300 B）；原候选与旧 pending/FAIL 原件保持。完整独审 review=d411c2ce0dfe46b7417aa87e6846f95d3a9507e644f6ba10fd95f9b000e76871，evidence=3bd930dc22dfd1dfb2a6a5f45e74f12bb1e47857562dc1a04455fcd5ac246727，manifest=852f0f87a3b0fddb3528743a8d1fcecb078654753de35b24383c266406ec4028，均已由 root 读取/核同接受。
++
++| 已组合来源 | 固定身份与适用范围 |
+ | --- | --- |
+-| rev0 规格 | `8b78072a`，两叶子、29路径、完整数据/身份/写恢复矩阵；独审 `463cd09a` |
+-| rev1 工程补充 | `9197fc97`，17 typed 方法/action、第15依赖、两个后缀、14旧selector、6新top与预算；protocol `83e3e652`、selectors `c36bed42`；独审 `691ab122` |
+-| T3 rev2 精确 DTO | `8c82af7c`、endpoints `6c85ae88`、freeze `03ae01a8`；独审 `0e60d1ae` |
+-| 前端同 SHA 消费确认 | `931da9f6`，仅静态可消费、未实现 |
+-| 后端同 SHA 消费确认 | `22754edd`，仅静态可消费；三tuple示例不是完整矩阵或动态证明 |
+-
+-完整路径、SHA 和字节见同目录 `sources.json`，原报告原位引用，不复制其证据树。各独审接受原固定增量，本候选的重排/组合尚未独验。
+-
+-Audit 前置先引用已封版本：17 web 由 `055c727b5bd1fb2f2794d402ce214ef5f95bd38b` 所在交付链及 build-v02 `source17.json` / `092b5e98` 绑定；其中 View=`3bb842a2`、受影响 App/router 测试=`480b2cfb`，原受控最终49由 `9b0453ea`接受。两 Go 为 `3fff89ba` / `77d36746`（candidate03/D1）；两 JS 为 config=`2524a04e`、spec=`a91d3ab7`（source-v03 `eaef9bd8`）。同目录 `audit-baseline.json` 保存全部21条精确路径/SHA及原冻结/接受链，仅提取已接受小版本图 `bba14d28` 和17源元数据；本轮未扫描21源码、未新验Go/JS或重建依赖图。
+-
+-这些版本引用**不等于 Audit 整卡接受或本卡开工基线**。root 已交付 Model Resolver `c36717c20fd98135cb7df167fc2e869aae7612de` 也不补 Audit 门槛。最终 main、App.vue/session.spec.ts 等本卡实际共享输入及 import closure，须在 Audit 整卡接受并相关写入停止后由 T1 一次最小重绑交接。不得拿此21行图代替本卡完整编译/运行输入。
+-
+-| 门槛 | 本候选状态 |
++| rev0 规格 / 独审 | 8b78072a / 463cd09a；两叶子、29路径、完整数据/身份/写恢复矩阵 |
++| rev1 工程 / 独审 | 9197fc97 / 691ab122；17 typed方法/action、第15依赖、14旧selector、6新top；protocol83e3e652、selectorsc36bed42 |
++| T3 精确DTO / 独审 | 8c82af7c / 0e60d1ae；endpoints6c85ae88、freeze03ae01a8 |
++| 前后端同SHA确认 | frontend931da9f6、backend22754edd；静态可消费，三tuple仅恢复代表可排布 |
++
++上述规则已完整内嵌 §2–10。历史 scratch 原件只有来源身份，尚未另归档者不声称已有永久档；不要求执行者从临时文件取得关键定义。唯一精确端点附件为 [d27-project-owner-model-settings-ui-endpoints.json](d27-project-owner-model-settings-ui-endpoints.json)，原字节 SHA-256 6c85ae889c8a86eb67695f2eb29773395b58db4f5bdfecc9c9182ff3e62fd9fa（6087 B）。附件原 status 表示来源当时未实施，保留其字节；本卡采用其 operation/method/path/target/query/effects 闭集，不生成第二套协议。
++
++[Audit UI 完整验收](../agent-team/project-owner-audit-ui-verification.md)已获 root 接受：最终22路径独审442ad7809fee233c37057c89b5749795c473b48651ea1feab820b10bcd9bb1f0 / manifest0bba9745e558e9f490a397c84d23c3336ccc54e60179e6cac0c2cb1e0aceb0f6；沿[永久21技术源表](../agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json) bf66509901d83abd2e69dc6b609baa6fb4278ce3a5fbaaebdef0d7c8d3ea6707，加 README 5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e / 84744 B。原三次 browser FAIL、受控 RED/最终49、各版本实际轮及视觉可见范围仍按原验收分列，不变成当前HEAD单次fresh全测。
++
++Audit17 web 的既有版本链保持055c727b5bd1fb2f2794d402ce214ef5f95bd38b，其中 View3bb842a2/test480b2cfb；Go两源3fff89ba/77d36746，JS两源2524a04e/a91d3ab7由上述永久表完整绑定。技术提交及本次只读观察的 main/HEAD 均为75411e27d0f2f5b998ae9a88e31fc9befa431095；README是已接受、尚待root文档提交的5fba工作树版本。root已确认技术/README/资源reader停止及global原3恢复；本轮不读取或验证dist/host资源。后续纯文档提交允许更新HEAD锚，但不能静默替换下表任一源码字节。
++
++### 0.1 T1 最小共享源码与实际签名
++
++下表为本次必要14输入的精确读取：13技术（10个后继可写既有文件＋3只读接口）及README末件。13技术当时均无工作树改动；不复制源码树，不扫描完整import/Go图。Audit重叠9源与bf665099永久表相同；App.vue、session.spec.ts及project-owner.ts与[Owner24源表](../agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/source-rows.json) a8e19c17相同；account.ts与已审rev1固定源7d84b31d相同。这里只复用既有接受链，未重跑其检查。
++
++| 现有输入 | 后继作用 | 字节 | SHA-256 |
++| --- | --- | ---: | --- |
++| web/src/api/client.ts | §8既有写域 | 40512 | 6002dbe5b68d24fa4451bd11187cb6e0a07dce07e08a926c71944f26f3df14cd |
++| web/src/api/account.ts | 只读契约 | 18878 | 7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37 |
++| web/src/api/project-owner.ts | 只读契约 | 12215 | 7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea |
++| web/src/composables/useSession.ts | §8既有写域 | 163959 | 8095ffbd4b8a7b5566a8945e84eed85715d556296b9801d836ff5c1046b3b6a7 |
++| web/src/composables/useProjectWorkspace.ts | 只读契约 | 26022 | 07299d43da75bdae38f6f2520edfe26a8433fbc19e11263a8b109d9126921943 |
++| web/src/App.vue | §8既有写域 | 10338 | d4bec3a781280a866f40506cdba6afcecc35a2203bf16ecf3161ebceba0dedd5 |
++| web/src/router/auth.ts | §8既有写域 | 10910 | 9943512eee91a8ab12df120d6e748b28359ee8579ac0d2f58bbd22db4eef4562 |
++| web/src/router/index.ts | §8既有写域 | 5428 | 68cc05f665917521b13fc3a755fe16c49fc3a4ead9cf92975db8bd893f01e709 |
++| web/src/views/projects/ProjectSettingsView.vue | §8既有写域 | 907 | 06b5872439c8e04c88fafd87b5b9bc82ecef3696e3a5b565d0846504c59af069 |
++| web/src/components/layout/ProjectNav.vue | §8既有写域 | 1973 | 7b08d4d22b3951e6753dcaad40d31e70efb049908d9630870ff8851c303c9a55 |
++| web/src/tests/authentication.spec.ts | §8既有写域 | 24670 | 1ab5f7f7b7eedf6ddec0597cacb87a3502816e93d214cf85cdb00fd34386bb4f |
++| web/src/tests/project-workspace.spec.ts | §8既有写域 | 11815 | 89d7b77705d05dede99042920e2acb02ec46906fe3c9dc593d72a1154aaf2ccd |
++| web/src/tests/session.spec.ts | §8既有写域 | 23661 | 941e78cd6cdcb75990aaa9feebf2a740cfcec28cf8c0360d3e998bb3f66aed8a |
++| docs/development/frontend/README.md | #29最后另授 | 84744 | 5fba4510b37716c19a36eefdab7b488204390bcf1dd348bcdb2b857b0ad5ee7e |
++
++T1 实际签名/接入点（以下行号只定位本表版本）：
++
++- account.ts:81 的 WriteOptions 为 Readonly<{ csrfToken: string; key: string; signal?: AbortSignal }>；旧参数和可选 signal 保持。
++- useSession.ts:475–490 的 createSessionController 仍依次默认注入 api、systemAPI、invitationAPI、providerAPI、modelAPI、selectionAPI、accountSecurityAPI、smtpAPI、smtpDeliveryAPI、outboundAPI、auditAPI、runtimeInformationAPI、projectAPI、projectAuditAPI，共14项；§6.1只追加第15项。原 runAuthorized<T>(identity: PersonalIdentity, work: (op: Operation, current: () => boolean) => Promise<T>, command?: PersonalCommand, kind=personal): Promise<T> 位于1267；既有Project/Audit显式身份分派及1421实际finally释放owner均保持。
++- useProjectWorkspace.ts:30 的 createProjectWorkspace(auth: SessionController = useSession(), replaceRoute: (path: string) => Promise<unknown> = async () => undefined)；:140公开只读 currentReadContext，形状 Readonly<{ identity: PersonalIdentity; projectID: string; generation: number; readGeneration: number }> | null；:586 confirmLeave(target?: string) 返回Promise<boolean>。本卡不新增workspace写权，也不把此读归属当Mutate授权。
++- App.vue:53创建/provide唯一workspace，:109–121 Logout仍逐项等待9个confirmLeave，:160起停止navigation并dispose原owners；§6.1追加独立本域，不替换原9项及Selection内Summary双intent。
++- auth.ts:38 projectRoute(value: unknown) 当前返回 username/project_name/path 与 suffix=''|'/settings'|'/settings/general'|'/settings/audit' 或null，:44仍拒raw百分号/反斜线/query/hash，:109 installProjectNavigation采用confirmLeave(target?: string)及afterNavigation(to,from)。router/index.ts:116–135只有general/audit两child和general默认；新两literal只按§6.1添加。
++- ProjectSettingsView.vue:6只消费workspace visible/detail/paths，原两组为项目资料/安全记录；ProjectNav.vue:8–18只对同Project general/audit设置current。现authentication/project-workspace/session测试及client封闭endpoint/typed overload，均按表固定，未执行。
++
++T1完成的是最小静态基线/签名交接；实现后的真实源码及传递import、工具、schema、私有build、binary discovery与执行门禁仍按§9另行冻结，不由本表预填完成。
++
++| 门槛 | rev1安装时状态 |
+ | --- | --- |
+-| 三 HTTP、Owner24、rev0/1/2 规则、T2 selector 静态定位 | 已有正式接受依据；不等于本次变更后的动态通过 |
+-| T3 精确 DTO 与前后端同 SHA agreement | 静态确认已闭合；不意味着 harness/六case/材料净化/退休已实现 |
+-| Audit 整卡＋T1 最终共享源码/签名/基线 handover | **pending，阻止实施** |
+-| 本整合候选完整独审、T4 正式卡路径/修订/安装与唯一 writer | **pending，阻止实施**；29路径只是候选分工 |
+-| 实施后实际工具/源码/import/schema/dist闭包、精确discovery、driver/filegate/逐轮grant | **pending，阻止执行**；false准备不能运行 |
+-| 28技术完整接受后的README第29末件 | **pending，最后另授** |
++| 三HTTP、Owner24、Audit22、既有规则及T2 selector静态定位 | 已接受；不代替模型设置实现后的检查 |
++| T3精确DTO及前后端同SHA确认 | 已静态闭合；完整恢复矩阵及每case上限保持 |
++| T1最小共享源码/签名/main交接 | 已记录上述固定输入；随本次安装差量交独审/root接受 |
++| 完整候选SPEC | d411c2ce已接受；其业务语义原样采用 |
++| T4正式卡/原字节附件/唯一writer | 本次安装，最终行政差量独审及root实施移交仍待 |
++| 实施后完整输入、精确discovery、driver/filegate/逐轮grant | pending；没有本卡执行许可 |
++| 28技术完整接受后的README第29末件 | pending，最后另授 |
+ 
+ ## 1. 完整结果与开工门槛
+ 
+-推荐单张完整结果卡：当前 Human Owner 在 Project 设置中管理本 Project chat Providers/Models、Model-purpose Credential，并浏览安全的 System/Project 可用 chat 目录；所有写入具有明确结果、版本冲突和原请求恢复。两个菜单叶子遵守正式 project-settings §1/4：Providers 与可用模型。本 Project Models 的管理放在 Providers 叶子的内部“项目 Models”面板，不新增第三个设置叶子。
+-
+-| 直接依赖 | 正式接受与本稿消费 | 仍不据此完成 |
++本卡交付一个完整结果：当前 Human Owner 在 Project 设置中管理本 Project chat Providers/Models、Model-purpose Credential，并浏览安全的 System/Project 可用 chat 目录；所有写入具有明确结果、版本冲突和原请求恢复。两个菜单叶子遵守正式 project-settings §1/4：Providers 与可用模型。本 Project Models 的管理放在 Providers 叶子的内部“项目 Models”面板，不新增第三个设置叶子。
++
++| 直接依赖 | 正式接受与本卡消费 | 仍不据此完成 |
+ | --- | --- | --- |
+-| Project Model 五读 HTTP | a0b012ce，`project-model-owner-read-http-verification.md`；Provider/Model list/get、七字段 available、当前逐页 Owner/Session、8 MiB完整表示 | 配置可调用、外部Provider网络或生产Resolver |
+-| Project Model Credential HTTP | e4b1b891，`project-model-credentials-http-verification.md`；Create/Update/Delete、metadata、被动lookup、默认根 | 材料GET、Credential列表、跨命令原子绑定 |
+-| Project Model 配置写 HTTP | cc850b22，`project-model-configuration-write-http-verification.md`；六写、found/receipt lookup、同默认根读写 | Agent rewrite、删除preview、Project selector |
+-| Owner UI 最终24 | `project-owner-workspace-ui-final24-verification.md`，14d9d717/末件0a939a7f；稳定ID、Resolve→Get、Session、导航确认、当前Owner与只读生命周期 | 创建/归档/恢复/删除UI或生命周期链完整绑定 |
++| Project Model 五读 HTTP | a0b012ce，[project-model-owner-read-http-verification.md](../agent-team/project-model-owner-read-http-verification.md)；Provider/Model list/get、七字段 available、当前逐页 Owner/Session、8 MiB完整表示 | 配置可调用、外部Provider网络或生产Resolver |
++| Project Model Credential HTTP | e4b1b891，[project-model-credentials-http-verification.md](../agent-team/project-model-credentials-http-verification.md)；Create/Update/Delete、metadata、被动lookup、默认根 | 材料GET、Credential列表、跨命令原子绑定 |
++| Project Model 配置写 HTTP | cc850b22，[project-model-configuration-write-http-verification.md](../agent-team/project-model-configuration-write-http-verification.md)；六写、found/receipt lookup、同默认根读写 | Agent rewrite、删除preview、Project selector |
++| Owner UI 最终24 | [project-owner-workspace-ui-final24-verification.md](../agent-team/project-owner-workspace-ui-final24-verification.md)，14d9d717/末件0a939a7f；稳定ID、Resolve→Get、Session、导航确认、当前Owner与只读生命周期 | 创建/归档/恢复/删除UI或生命周期链完整绑定 |
+ | 既有 System/账号前端基础 | frontend README 对应完整验收；复用唯一Cookie owner、Ui/Dialog/SettingsShell、严格标量/Instant等纯工具 | 不复用System端点、admin谓词、按Provider分页或Impact状态机 |
+-| 后继 Audit UI 完整接受 | **待满足**。client/useSession/router/ProjectSettings/ProjectNav/相关旧测试及只读currentReadContext须在接受后冻结移交 | 当前审计离线PASS、单轮通过或只读源码不代替整卡结果 |
+-
+-后端三卡已提供此UI所需全部公开协议，无新增迁移、公共contract、SQL或生产root修改理由。29个候选路径（28技术＋README末件）是同一设置结果的有限范围；不先做只有列表的界面卡。Provider与Credential是显式独立命令，Model共享这些稳定引用和当前Owner，不引入自动创建/补偿工作流。若实现确需额外共享路径，先报精确理由并修订正式卡，不凭本稿扩大。
+-
+-开工前 root 须：接受正式SPEC；接受Audit整卡并给共享源停止快照；记录当时main与所需最小源码/工具输入、唯一写者；移交客户端/API→Session/state→UI→私有harness的可审冻结阶段。运行资源、Go/cache、资产窗另授。其它任务当前窗口不属于本任务。T3 双作者同 SHA 静态确认已具备，但不解除 §0 的 Audit/T1/T4 和执行前置。
++| Audit UI 完整22接受 | 已接受442ad780；client/useSession/router/ProjectSettings/ProjectNav/相关旧测试及只读currentReadContext按§0.1固定交接 | 有限版本组合，不声称所有producer或当前HEAD一次全新全测 |
++
++后端三卡已提供此UI所需全部公开协议，无新增迁移、公共contract、SQL或生产root修改理由。29个产品路径（28技术＋README末件）是同一设置结果的有限范围；不先做只有列表的界面卡。Provider与Credential是显式独立命令，Model共享这些稳定引用和当前Owner，不引入自动创建/补偿工作流。若实现确需额外共享路径，先报精确理由并修订正式卡，不凭本卡扩大。
++
++完整候选SPEC、Audit整卡和T3同SHA确认已接受，当前共享源码/签名见§0.1。root须在本次行政安装差量独审接受后另行下发实施，按客户端/API→Session/state→UI→私有harness逐段冻结；§8唯一作者分工不等于已启动。实现后的工具/完整输入以及运行资源、Go/cache、资产窗口仍分别固定、另授，其它任务窗口不属于本任务。
+ 
+ ## 2. 路由、布局与用户行为
+ 
+@@ -101,7 +135,7 @@
+ 
+ ### 3.1 精确 typed 方法、Session action 与 endpoint
+ 
+-两新API文件保持原写域#2/#3。下列签名为本候选的精确接口建议；ID/版本仍string以兼容既有风格，但捕获时严格UUIDv7/精确十进制校验，不代表任意string合法。`WriteOptions`原样取`api/account.ts:81`，仅Session私有owner注入CSRF/key/signal。读取query恰cursor?/limit?，limit验证1..100；UI可选25/50/100不缩窄HTTP typed API。无provider_id、任意path/header/scope/actor或caller cap。
++两新API文件保持原写域#2/#3。下列签名为本卡沿已接受候选采用的精确接口建议；ID/版本仍string以兼容既有风格，但捕获时严格UUIDv7/精确十进制校验，不代表任意string合法。`WriteOptions`原样取`api/account.ts:81`，仅Session私有owner注入CSRF/key/signal。读取query恰cursor?/limit?，limit验证1..100；UI可选25/50/100不缩窄HTTP typed API。无provider_id、任意path/header/scope/actor或caller cap。
+ 
+ ```ts
+ type ProjectChatProtocol = 'openai-chat-completions' | 'anthropic-messages';
+@@ -218,7 +252,7 @@
+ 
+ ## 6. 唯一Session owner与App期状态
+ 
+-createSessionController在Audit接受后的实际参数末尾追加一个带默认值的ProjectModelSettings API依赖（内部可组合两新API），旧参数位置/省略调用不变。新增17个明确action及本域revision/封闭facade，使用原runAuthorized与私有Cookie/CSRF持有者；不导出任意callback，不重建fetch队列，不伪装personal/System/旧project-read。
++createSessionController在§0.1移交的实际参数末尾追加一个带默认值的ProjectModelSettings API依赖（内部可组合两新API），旧参数位置/省略调用不变。新增17个明确action及本域revision/封闭facade，使用原runAuthorized与私有Cookie/CSRF持有者；不导出任意callback，不重建fetch队列，不伪装personal/System/旧project-read。
+ 
+ 当前predicate要求authenticated Human、完整user/session/identity epoch、operation generation与本域revision；普通Owner和admin Owner同样处理，每次正式API仍由后端当前Owner授权。System denied/admin变化不能授予或撤销本Project；局部403/404不能污染System。当前合法401会话错误、当前写CSRF失败沿既有全局失效链；旧identity/generation的晚401/403/finally不得清新Session。
+ 
+@@ -284,9 +318,9 @@
+ 
+ UI内存跨checking恢复不扩大为跨新Session恢复；真正新Session/CSRF后旧材料清除。后端同User新Session可能接受历史语义是后端能力，本卡不因此持久保存原请求。
+ 
+-## 8. 候选唯一写域
+-
+-下表是**提请正式卡采纳的候选**，当前全只读；README须全部28技术接受后另授。frontend独占#1–23/#26–28；backend独占新Go #24–25；root独占Git/协调/资产窗，其他旧Go/JS helper及共享Ui/样式/HTTP/schema/生产后端不授写。
++## 8. 唯一产品写域与作者
++
++下表为正式29产品路径闭集；本次仅安装规格，尚不授权产品写入。root后继派工时 frontend_worker 为#1–23/#26–28唯一作者，backend_worker 为新Go #24–25唯一作者；两者需接到实际实施任务再开始。README #29须全部28技术接受后由root另授唯一文档作者；Git/协调/资产与资源调度归root。其他旧Go/JS helper及共享Ui/样式/HTTP/schema/生产后端不授写。architecture_worker本轮只写本正式卡及原字节端点附件，两份规格文件不增加第30个产品路径。
+ 
+ | # | 路径 | 最小作用 |
+ | --- | --- | --- |
+@@ -347,7 +381,7 @@
+ 
+ ### 9.1 精确14旧回归及资产 reader
+ 
+-固定14个受影响旧top，不以旧输入PASS代替。各一轮精确`^名称$`；不合并大regex。列表是源码已存在的static selector，不是当前binary discovery或运行许可。其准确命令/asset分类见`/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/selectors.json`。
++固定14个受影响旧top，不以旧输入PASS代替。各一轮精确`^名称$`；不合并大regex。列表是源码已存在的static selector，不是当前binary discovery或运行许可。原selectors c36bed42的精确命令模板为`sh scripts/test-objects.sh -run <one exact anchored selector>`，包`./tests/account`；实际工具、ENV、完整闭包及逐轮grant另行固定。下表与本节资产ENV自含其固定分类。
+ 
+ | 组 | 精确selector | tests/account来源 | 资产 | 必要理由 |
+ | --- | --- | --- | --- | --- |
+@@ -366,7 +400,7 @@
+ | personal-theme | `^TestAccountPersonalSettingsWebThemeAndNavigation$` | `personal_settings_web_test.go:43` | global-via-auth | App theme preview/cancel、dirty-menu/back/logout与同Session checking的最小旧personal代表。 |
+ | system-audit-authority | `^TestAccountSystemAuditWebAuthorityAndOwnership$` | `system_audit_web_test.go:41` | global | 旧admin只读分支代表：ordinary-forbidden、两GET、cancel-join/cross-domain/logout/late-isolated；防新Project分支吞旧System默认分类。 |
+ 
+-旧System Provider Outcome已含credential与Provider原请求恢复，不默认再跑其整6组；Model/Selection同取恢复代表。Summary Recovery保双intent、AuthorityNavigation保aggregate，不能只留一个。Owner新增OriginalRecovery是为新恢复分类不能吞旧committed三态。SystemAudit取一个只读admin/actual-tail代表；Runtime专用分支、leaf和导航若最终未改，不另加其两top；发生实际相关diff时，`/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/selectors.json`已有精确候选及触发理由，须回报后重绑定。全旧pure check仍按本节执行。
++旧System Provider Outcome已含credential与Provider原请求恢复，不默认再跑其整6组；Model/Selection同取恢复代表。Summary Recovery保双intent、AuthorityNavigation保aggregate，不能只留一个。Owner新增OriginalRecovery是为新恢复分类不能吞旧committed三态。SystemAudit取一个只读admin/actual-tail代表；Runtime专用分支、leaf和导航若最终未改，不另加其两top；仅当最终diff修改runtime-information专有operation/cap/failure分支，才回报并重绑`^TestAccountSystemRuntimeInformationWebReadAndAuthority$`；仅当修改该leaf、其owner导航或busy-pageshow语义，才回报并重绑`^TestAccountSystemRuntimeInformationWebNavigationAndLifecycle$`。这两项沿原selectors c36bed42的conditional_not_scheduled，仍未排入14轮，不由本卡自动增加执行。全旧pure check仍按本节执行。
+ 
+ Owner三轮用`AGENTEAM_PROJECT_OWNER_WEB_DIST`；Audit两轮用`AGENTEAM_PROJECT_AUDIT_WEB_DIST`；Summary两轮用`AGENTEAM_MEETING_SUMMARY_WEB_DIST`。其余7轮读旧global dist（personal经authentication fixture）。新6轮只私有dist。future root须让这些asset reader使用同一个已审新build；global唯一备份/交换/最后reader退休恢复另授，不能从ENV存在推断私有支持。独立driver若仍逐组校验global/private相等，也算global reader。
+ 
+@@ -376,7 +410,7 @@
+ 
+ 六新top每轮1case、workers1/retries0、browser45s含同body检查；Go top120s含cleanup，建议准备35+browser45+终局事实10+实际cleanup30秒。总包原6m，TCP尾75s，fresh5GiB；每轮4容器/3网络共7ID，direct/adopted实际wait、watchdog实际join，两次exact absent/owned与runtime/browser-runtime空。14旧轮原budget/内部subcase保持；AuthRevocation两case共用同120s，不能倍增。IPC单ack8s计入45s，不加额外case时间。预算耗尽只能FAIL/完整退休后STOP，不能先pass后清理或自动续轮。
+ 
+-每轮唯一root资源/Go-cache/asset窗口，阶段不能并行占用；候选总顺序为6新top→14必要旧top（每轮单独冻结/退役），失败停止，无自动重跑。独立至少再2轮：不同构造的配置＋Credential Unknown/原Execute组合，以及current权限＋归档两恢复路径组合；其selector/source尚需独立作者冻结，不借作者结果预填。外层可执行driver/watchdog/完整input gate与每轮grant是执行前固定件，当前没有可执行true模板或授权。
++每轮唯一root资源/Go-cache/asset窗口，阶段不能并行占用；本卡总顺序为6新top→14必要旧top（每轮单独冻结/退役），失败停止，无自动重跑。独立至少再2轮：不同构造的配置＋Credential Unknown/原Execute组合，以及current权限＋归档两恢复路径组合；其selector/source尚需独立作者冻结，不借作者结果预填。外层可执行driver/watchdog/完整input gate与每轮grant是执行前固定件，当前没有可执行true模板或授权。
+ 
+ ## 10. 私有 harness 协议与精确 DTO
+ 
+@@ -463,7 +497,7 @@
+ 
+ 每origin历史仅查其私有内存内正式identity：配置namespace model.project/owners=[Project,Human]，Credential secret/相同owners及正式digest计算；只取安全receipt列。0行不证明原Unknown回滚，committed_rows=1须有同族完整receipt/result，否则fixture_failed/无候选。各Project的Audit/Event总数是明确的同scope总数，不能冒充逐origin Audit关联；测试比较串行步骤前后差量，并另核该origin唯一receipt。引用查询只本Project/登记Model或Credential，不能读全库ref；fixture_only三项单列，不宣称真实归档或引用owner adapter绑定。
+ 
+-origin_token **等于首个由arm选中的mutation真实original_request_token**，最多4个。每个 `(ProjectKey, operation, target_id)` 只允许一个selected origin；collection create的target_id=null仍只一项，避免根据key“匹配”而漏掉换key。后续同精确端点请求只成为比较候选，不依赖key相等来决定配对；这不是同command identity的证明，更不能把正常新意图写冒称原重放。受控case须用既有不同recovery Project/operation隔离同端点其它合法新意图，并结合key/body布尔及明确UI原Execute动作判断。只有两份完整有界body、header key、登记身份均实际捕获后才产生comparison，尚未比较为null。latest comparison＋comparison_count足够逐步骤检查；不存重放body历史。若同tuple需要第二个独立origin则该草案场景不能猜关联/覆盖，必须在实施agreement前精确调整已有case安排，不增加IPC动作或产品能力。
++origin_token **等于首个由arm选中的mutation真实original_request_token**，最多4个。每个 `(ProjectKey, operation, target_id)` 只允许一个selected origin；collection create的target_id=null仍只一项，避免根据key“匹配”而漏掉换key。后续同精确端点请求只成为比较候选，不依赖key相等来决定配对；这不是同command identity的证明，更不能把正常新意图写冒称原重放。受控case须用既有不同recovery Project/operation隔离同端点其它合法新意图，并结合key/body布尔及明确UI原Execute动作判断。只有两份完整有界body、header key、登记身份均实际捕获后才产生comparison，尚未比较为null。latest comparison＋comparison_count足够逐步骤检查；不存重放body历史。若同tuple需要第二个独立origin则本卡该case不能猜关联/覆盖，必须在具体case实施前报告root并精确调整已有case安排，不增加IPC动作或产品能力。
+ 
+ 原body通过正式请求被实际消费时的有界tap收集，不预读后重构请求；原/重放UTF8 bytes与header key原样比较，不trim/排序/remarshal。identity_equal指原命令的稳定Human+Project+namespace+kind，Session不是命令identity组成部分；仅来自已登记正式Login/Session的私有关联，不接受caller声明。未知身份/不完整捕获的comparison必须null并让要求该证据的case失败，不能false冒已比较。该布尔不是当前授权判定；同User新Session可原同义重放，当前Session有效性仍由真实请求验证。Secret材料和request/key/digest仅内存，不进snapshot/日志/sidecar。
+ 
+@@ -473,7 +507,7 @@
+ 
+ request仍恰 `{protocol,input_hash,sequence,action,args}`，严格next sequence1..128；ack仍恰 `{protocol,input_hash,sequence,action,ok,result,error}`。ok=true时error=null、result是该action精确DTO；ok=false时result=null，error仅固定 `invalid_envelope|invalid_sequence|invalid_action|invalid_arguments|unknown_target|arm_busy|token_mismatch|not_ready|budget_exhausted|fixture_failed`，无message/stack/SQL。未知/错误控制置安全失败标记并触发原已注册退休，不能继续装作PASS。8KiB request/64KiB ack/8s ack界原样保留。
+ 
+-17 operation literal及方法/路径/target/query条件见 `/workspace/scratch/architecture-project-model-settings-draft01/rev2-t3/endpoints.json`；只再允许既定私有 `getCurrentSession` GET。Project target只能material已登记ID或**完整正式create安全结果中产生的新ID**；后者在施加cut/disconnect之前原子登记，即使browser没收到也能供后续原请求/metadata精确控制。必须同时核scope/operation/receipt类型和resource ID，不能据任意JSON `id`登记。分页cursor同样只取本case完整正式safe页，仍通过原cursor校验。
++17 operation literal及方法/路径/target/query条件见[唯一精确端点附件](d27-project-owner-model-settings-ui-endpoints.json)（原字节6c85ae88）；只再允许既定私有 `getCurrentSession` GET。Project target只能material已登记ID或**完整正式create安全结果中产生的新ID**；后者在施加cut/disconnect之前原子登记，即使browser没收到也能供后续原请求/metadata精确控制。必须同时核scope/operation/receipt类型和resource ID，不能据任意JSON `id`登记。分页cursor同样只取本case完整正式safe页，仍通过原cursor校验。
+ 
+ arm args精确 `{operation,project,target_id,query,effect}`，所有字段必有；Session为project/target_id/query=null；17端点中的collection无target，detail必登记target；非list query=null。list query是`CanonicalPageQuery`字符串：只含0/1个cursor、0/1个limit，limit1..100，cursor取上述登记值，按正式编码、无重复/额外key/ForceQuery；记住此原字符串并与下一真实请求RawQuery逐字比较，不能放宽为任意query字典。所有canonical path由操作表＋登记ID生成，无URL/method/header参数。
+ 
+@@ -720,12 +754,12 @@
+ 
+ ## 11. 正式化、唯一写权与交付
+ 
+-无新增用户产品待决。本候选保留一个完整结果、29候选路径（28技术＋README末件）、17 HTTP operations＝6 GET＋9 mutation＋2 POST lookup、9 IPC、六新top＋14旧selector。UI不发布Audit/Event；配置与Secret事务事实仍由既有正式后端拥有，不加生产后端/SQL/迁移或Invocation适配。
+-
+-后继按 §0 门槛由 root 明确正式卡路径/修订、最终基线、引用归位、唯一frontend/backend作者和共享文件交接；正式安装前不执行 §8 写域。静态/离线/实际阶段按实际依赖冻结；作者自查后交未参与实现的独立负责人，原失败保留，只复验受影响差量。源码及导入闭包、Go/Node/Python工具、两HTTP schema实际refs、最终私有build与所有global reader必须在执行前闭合；不复制大型图、不机械使用历史输入数。Go/cache/业务资源和资产交换始终由root单独授予并串行，完整退休前不能接下一轮。
+-
+-正式化后仍按已有规则保最小、明确的共享域：frontend候选#1–23/#26–28，backend候选#24–25，README#29为28技术接受后末件；Git、三协调文档、资产和资源调度由root。必要范围外修改先给精确路径/原因/影响，不能以本候选预授。Audit原Go/JS/helper、Object/Provider tools/SPA停止路径及Image来源阻塞线保持只读停止。
+-
+-本卡不包括Project创建/生命周期/Owner转移、Agent配置或引用替代、非chat Project模型、生产调用/Resolver root/Invocations、平台selector、Project Summary override/默认复制、凭据目录或明文读取、连接测试、Provider discovery、生产SPA发布与E01。三硬停止与Jina停止保持，完整D09/D26/D27/D28与E01不因该卡或草案完成。
+-
+-本次仅组合固定 scratch 规则及小元数据，原稿未改。没有正式卡/仓库/产品写入，没有Go/Node/browser/网络/Git/资源执行。**整合候选 STOP，待完整SPEC独审；Audit/T1/T4及实际运行前置保持 pending。**
++无新增用户产品待决。本卡保留一个完整结果、29产品路径（28技术＋README末件）、17 HTTP operations＝6 GET＋9 mutation＋2 POST lookup、9 IPC、六新top＋14旧selector。UI不发布Audit/Event；配置与Secret事务事实仍由既有正式后端拥有，不加生产后端/SQL/迁移或Invocation适配。
++
++本正式卡rev1与唯一原字节端点附件由architecture_worker安装，语义基础是已完整独审的c5674d4e，T1当前共享输入见§0.1。此刻不执行§8产品写域；root在行政差量独审接受后另下发业务实施和唯一作者实际ACK。静态/离线/实际阶段按依赖冻结；作者自查后交未参与实现的独立负责人，原失败保留，只复验受影响差量。源码及导入闭包、Go/Node/Python工具、两HTTP schema实际refs、最终私有build与所有global reader必须在执行前闭合；不复制大型图、不机械使用历史输入数。Go/cache/业务资源和资产交换始终由root单独授予并串行，完整退休前不能接下一轮。
++
++唯一分工按§8：frontend_worker负责#1–23/#26–28，backend_worker负责#24–25；README#29为28技术接受后另授末件；root负责Git、三协调文档、资产和资源调度。需要范围外修改先给精确路径/原因/影响，不能以本卡预授。Audit原Go/JS/helper、Object/Provider tools/SPA停止路径及Image来源阻塞线保持只读停止。角色必读技能与冻结/独验流程遵[团队流程](../agent-team/README.md)；前端遵[现有开发基础](../frontend/README.md)及[Project设置设计](../../frontend-design/layouts/project-settings.md)。
++
++本卡不包括Project创建/生命周期/Owner转移、Agent配置或引用替代、非chat Project模型、生产调用/Resolver root/Invocations、平台selector、Project Summary override/默认复制、凭据目录或明文读取、连接测试、Provider discovery、生产SPA发布与E01。三硬停止与Jina停止保持，完整D09/D26/D27/D28与E01不因该卡完成。
++
++本次只完成正式规格两文件安装及必要静态源码/签名交接，未改产品/原候选/旧报告，没有执行Go/Node/browser/网络/资源或Git写入。只读Git记录当时main/HEAD及14输入状态。**rev1安装 STOP，交行政差量＋T1/T4独验；业务实施、实际工具/闭包/资源及README末件仍未授权。**

@@ -1,0 +1,280 @@
+{
+  "state": "DRAFT_STATIC_ONLY_NO_EXECUTION_AUTHORITY",
+  "package": "./tests/account",
+  "literal_command_template": "sh scripts/test-objects.sh -run <one exact anchored selector>",
+  "new": [
+    {
+      "group": "new-models-configuration",
+      "mode": "configuration",
+      "top": "TestAccountProjectOwnerModelsWebConfigurationLifecycle",
+      "selector": "^TestAccountProjectOwnerModelsWebConfigurationLifecycle$",
+      "browser_case_seconds": 45,
+      "top_including_cleanup_seconds": 120,
+      "package_timeout_minutes": 6,
+      "tcp_tail_seconds": 75,
+      "resources": {
+        "containers": 4,
+        "networks": 3
+      },
+      "dist": "private only; AGENTEAM_PROJECT_MODELS_WEB_DIST"
+    },
+    {
+      "group": "new-models-credential",
+      "mode": "credential",
+      "top": "TestAccountProjectOwnerModelsWebCredentialLifecycle",
+      "selector": "^TestAccountProjectOwnerModelsWebCredentialLifecycle$",
+      "browser_case_seconds": 45,
+      "top_including_cleanup_seconds": 120,
+      "package_timeout_minutes": 6,
+      "tcp_tail_seconds": 75,
+      "resources": {
+        "containers": 4,
+        "networks": 3
+      },
+      "dist": "private only; AGENTEAM_PROJECT_MODELS_WEB_DIST"
+    },
+    {
+      "group": "new-models-recovery",
+      "mode": "recovery",
+      "top": "TestAccountProjectOwnerModelsWebOriginalRecovery",
+      "selector": "^TestAccountProjectOwnerModelsWebOriginalRecovery$",
+      "browser_case_seconds": 45,
+      "top_including_cleanup_seconds": 120,
+      "package_timeout_minutes": 6,
+      "tcp_tail_seconds": 75,
+      "resources": {
+        "containers": 4,
+        "networks": 3
+      },
+      "dist": "private only; AGENTEAM_PROJECT_MODELS_WEB_DIST"
+    },
+    {
+      "group": "new-models-read",
+      "mode": "read",
+      "top": "TestAccountProjectOwnerModelsWebReadAndPagination",
+      "selector": "^TestAccountProjectOwnerModelsWebReadAndPagination$",
+      "browser_case_seconds": 45,
+      "top_including_cleanup_seconds": 120,
+      "package_timeout_minutes": 6,
+      "tcp_tail_seconds": 75,
+      "resources": {
+        "containers": 4,
+        "networks": 3
+      },
+      "dist": "private only; AGENTEAM_PROJECT_MODELS_WEB_DIST"
+    },
+    {
+      "group": "new-models-authority",
+      "mode": "authority",
+      "top": "TestAccountProjectOwnerModelsWebAuthorityAndIdentity",
+      "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+      "browser_case_seconds": 45,
+      "top_including_cleanup_seconds": 120,
+      "package_timeout_minutes": 6,
+      "tcp_tail_seconds": 75,
+      "resources": {
+        "containers": 4,
+        "networks": 3
+      },
+      "dist": "private only; AGENTEAM_PROJECT_MODELS_WEB_DIST"
+    },
+    {
+      "group": "new-models-navigation",
+      "mode": "navigation",
+      "top": "TestAccountProjectOwnerModelsWebNavigationAndLayouts",
+      "selector": "^TestAccountProjectOwnerModelsWebNavigationAndLayouts$",
+      "browser_case_seconds": 45,
+      "top_including_cleanup_seconds": 120,
+      "package_timeout_minutes": 6,
+      "tcp_tail_seconds": 75,
+      "resources": {
+        "containers": 4,
+        "networks": 3
+      },
+      "dist": "private only; AGENTEAM_PROJECT_MODELS_WEB_DIST"
+    }
+  ],
+  "old": [
+    {
+      "group": "auth-lifecycle",
+      "top": "TestAccountAuthenticationWebSessionLifecycle",
+      "selector": "^TestAccountAuthenticationWebSessionLifecycle$",
+      "source": "tests/account/authentication_web_test.go",
+      "line": 11,
+      "dist": "global",
+      "reason": "原bootstrap/Login/Session/Logout及两条正式审计事实；第15依赖不能改变省略调用。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "auth-revocation",
+      "top": "TestAccountAuthenticationWebRevocationAndExpiry",
+      "selector": "^TestAccountAuthenticationWebRevocationAndExpiry$",
+      "source": "tests/account/authentication_web_test.go",
+      "line": 51,
+      "dist": "global",
+      "reason": "原revocation与expiry两subcase；失效后隐藏受保护内容，两个browser各45s仍共用原120s top。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "owner-edit",
+      "top": "TestAccountProjectOwnerWebEditAndRename",
+      "selector": "^TestAccountProjectOwnerWebEditAndRename$",
+      "source": "tests/account/project_owner_web_test.go",
+      "line": 46,
+      "dist": "owner-private",
+      "reason": "原更新、版本冲突、rename与dirty-navigation；两后缀和App新确认不能损坏基本资料。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "owner-recovery",
+      "top": "TestAccountProjectOwnerWebOriginalRecovery",
+      "selector": "^TestAccountProjectOwnerWebOriginalRecovery$",
+      "source": "tests/account/project_owner_web_test.go",
+      "line": 50,
+      "dist": "owner-private",
+      "reason": "Owner三态lookup/原PATCH与新Model两类历史观察区分，保原key/body与local-abandon。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "owner-identity",
+      "top": "TestAccountProjectOwnerWebIdentityAndOwnership",
+      "selector": "^TestAccountProjectOwnerWebIdentityAndOwnership$",
+      "source": "tests/account/project_owner_web_test.go",
+      "line": 54,
+      "dist": "owner-private",
+      "reason": "同Session checking、换Session/Owner、late-read、aggregate与正式Logout。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "audit-authority",
+      "top": "TestAccountProjectOwnerAuditWebAuthorityAndRecovery",
+      "selector": "^TestAccountProjectOwnerAuditWebAuthorityAndRecovery$",
+      "source": "tests/account/project_owner_audit_web_test.go",
+      "line": 151,
+      "dist": "audit-private",
+      "reason": "旧独立Audit action/revision及actual body/cancel尾部与新域单owner互不混淆；依Audit最终accepted版本重绑。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "audit-navigation",
+      "top": "TestAccountProjectOwnerAuditWebNavigationAndLayouts",
+      "selector": "^TestAccountProjectOwnerAuditWebNavigationAndLayouts$",
+      "source": "tests/account/project_owner_audit_web_test.go",
+      "line": 154,
+      "dist": "audit-private",
+      "reason": "原settings-current/default-general/raw-return/focus与既有写草稿guard；两新leaf不能改Audit与ProjectNav。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "provider-recovery",
+      "top": "TestAccountSystemProvidersWebOutcomeRecovery",
+      "selector": "^TestAccountSystemProvidersWebOutcomeRecovery$",
+      "source": "tests/account/system_providers_web_test.go",
+      "line": 37,
+      "dist": "global",
+      "reason": "现top同时有credential_replayed/provider_replayed/historical_only/confirmed_read_failure，足够作旧System凭据＋Provider恢复代表。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "model-recovery",
+      "top": "TestAccountSystemModelsWebOutcomeRecovery",
+      "selector": "^TestAccountSystemModelsWebOutcomeRecovery$",
+      "source": "tests/account/system_models_web_test.go",
+      "line": 41,
+      "dist": "global",
+      "reason": "原create/update/delete重放、历史lookup与删后原请求，保System DTO及容量分类。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "selection-recovery",
+      "top": "TestAccountSystemModelSelectionWebOutcomeRecovery",
+      "selector": "^TestAccountSystemModelSelectionWebOutcomeRecovery$",
+      "source": "tests/account/system_model_selection_web_test.go",
+      "line": 40,
+      "dist": "global",
+      "reason": "accepted-cut、lookup-only、old404、same-original；新的Project配置不得误用selector command。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "summary-recovery",
+      "top": "TestAccountSystemMeetingSummaryWebRecovery",
+      "selector": "^TestAccountSystemMeetingSummaryWebRecovery$",
+      "source": "tests/account/system_meeting_summary_web_test.go",
+      "line": 30,
+      "dist": "summary-private",
+      "reason": "真实双intent/cross-key/local-abandon保持，防新域清Summary或旧Selection未决材料。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "summary-authority-navigation",
+      "top": "TestAccountSystemMeetingSummaryWebAuthorityNavigation",
+      "selector": "^TestAccountSystemMeetingSummaryWebAuthorityNavigation$",
+      "source": "tests/account/system_meeting_summary_web_test.go",
+      "line": 33,
+      "dist": "summary-private",
+      "reason": "现有aggregate/checking/new-session/current403/logout/owner/focus，覆盖App和旧两个intent的聚合确认。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "personal-theme",
+      "top": "TestAccountPersonalSettingsWebThemeAndNavigation",
+      "selector": "^TestAccountPersonalSettingsWebThemeAndNavigation$",
+      "source": "tests/account/personal_settings_web_test.go",
+      "line": 43,
+      "dist": "global-via-auth",
+      "reason": "App theme preview/cancel、dirty-menu/back/logout与同Session checking的最小旧personal代表。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    },
+    {
+      "group": "system-audit-authority",
+      "top": "TestAccountSystemAuditWebAuthorityAndOwnership",
+      "selector": "^TestAccountSystemAuditWebAuthorityAndOwnership$",
+      "source": "tests/account/system_audit_web_test.go",
+      "line": 41,
+      "dist": "global",
+      "reason": "旧admin只读分支代表：ordinary-forbidden、两GET、cancel-join/cross-domain/logout/late-isolated；防新Project分支吞旧System默认分类。",
+      "top_including_cleanup_seconds": 120,
+      "browser_case_seconds": 45,
+      "original_body_unchanged": true
+    }
+  ],
+  "conditional_not_scheduled": [
+    {
+      "top": "TestAccountSystemRuntimeInformationWebReadAndAuthority",
+      "selector": "^TestAccountSystemRuntimeInformationWebReadAndAuthority$",
+      "trigger": "Only if final diff changes runtime-information-specific operation/cap/failure branch; normal candidate leaves it unchanged."
+    },
+    {
+      "top": "TestAccountSystemRuntimeInformationWebNavigationAndLifecycle",
+      "selector": "^TestAccountSystemRuntimeInformationWebNavigationAndLifecycle$",
+      "trigger": "Only if final diff changes this leaf/its owner navigation or busy-pageshow semantics."
+    }
+  ],
+  "summary": "6 new plus14 affected-old author invocations. Auth revocation top contains2 original browser subcases. No selector execution or current discovery claim; exact discovery and post-Audit handover remain required. No whole System suite copied."
+}

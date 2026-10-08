@@ -1,0 +1,41 @@
+{
+  "README_last": true,
+  "available_fields_exact_seven": true,
+  "candidate_paths": 29,
+  "credential_collection_has_POST_only": true,
+  "existing_paths_checked_for_existence_only": 11,
+  "manual_contract_checks": [
+    "configuration Read/history precedes new Mutate; archived original Execute remains legal subject to exact semantic/current facts",
+    "Secret final Apply Mutate precedes receipt; archived Execute remains denied even with receipt",
+    "lookup found/receipt and observed/result stay distinct historical observations; only original Execute confirms complete semantic/material",
+    "old Owner Update committed lookup confirmation is not generalized",
+    "current identity/Project read context only binds UI; backend current authorization remains authoritative",
+    "credential create does not auto-create/update Provider; partial confirmed ref remains explicit",
+    "no System API, provider_id filter, credential list/material GET/preview, Agent rewrite, lifecycle, platform selectors, Summary override, external calls or production binding",
+    "Audit acceptance and unique shared handoff are prerequisites, not counted complete"
+  ],
+  "new_paths_absent": 18,
+  "no_Go_Node_driver_binary_list_resources_cache_network_Git": true,
+  "no_delete_preview_in_schema": true,
+  "no_external_network_research": true,
+  "no_repo_or_formal_card_writes": true,
+  "operations_from_official_schemas": {
+    "configuration_reads_writes_lookup": 12,
+    "credential_metadata_writes_lookup": 5,
+    "total": 17
+  },
+  "page_cursor_relation_actual_HTTP_source": {
+    "empty_means_no_cursor": true,
+    "nonempty_cursor_requires_count_equal_limit": true
+  },
+  "project_models_query_exact_cursor_limit": true,
+  "self_check_is_not_independent_SPEC_acceptance": true,
+  "source_refs_bytes_sha_unchanged": 24,
+  "status": "AUTHOR_STATIC_DRAFT_SELF_CHECK_PASS_STOP_NOT_FORMAL_SPEC",
+  "technical_paths": 28,
+  "unresolved_engineering_before_formal_card": [
+    "Audit final accepted shared-source handoff and baseline",
+    "final current Session constructor/guard binding and exact minimal old runtime selectors",
+    "bounded private harness control protocol and budgets before implementation freeze"
+  ]
+}

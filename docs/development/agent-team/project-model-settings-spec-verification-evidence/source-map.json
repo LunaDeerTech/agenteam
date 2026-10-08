@@ -1,0 +1,610 @@
+{
+  "status": "SPEC_STATIC_AND_T1_T4_ROOT_ACCEPTED_ARCHIVE_STOP",
+  "date": "2026-10-08",
+  "scope": "Accepted full candidate plus final administrative installation/static handover; no product or dynamic acceptance.",
+  "root_supplied_spec_commit": "7b8af244fe87d43699c17c95077ee73971e18411",
+  "git_anchor_provenance": "Root supplied complete commit and push/remote equality; archiver did not execute Git or inspect Git objects.",
+  "preparation_manifest": {
+    "path": "/workspace/scratch/project-model-settings-spec-archive01/preparation01/manifest.json",
+    "bytes": 1474,
+    "sha256": "19e03500f68234c2444b67bd7c730e4557e8117f742c4e6baa9a4faccc113af1"
+  },
+  "counts": {
+    "new_original_entities": 54,
+    "new_original_bytes": 564180,
+    "prior_permanent_entities_reused": 6,
+    "prior_permanent_bytes_reused": 59087,
+    "fixed_spec_git_refs": 2,
+    "fixed_spec_bytes_not_copied": 97523,
+    "source_map_rows": 62
+  },
+  "sources": [
+    {
+      "logical_id": "architecture-project-model-settings-draft01/freeze.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/freeze.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/71a927a53b157366-freeze.json",
+      "bytes": 1079,
+      "sha256": "71a927a53b1573668de1474a64cd626d580c5618a00d0e9a51afa1f2a50d0511",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/spec-draft.md",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/spec-draft.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/8b78072a09d2c87f-spec-draft.md",
+      "bytes": 34963,
+      "sha256": "8b78072a09d2c87f8f69fc195c0a5535f0d43e0776f27d6b9b8e6dbb40f28c34",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/decision.md",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/decision.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/203ec1431407922e-decision.md",
+      "bytes": 1054,
+      "sha256": "203ec1431407922ed3e2845dc86c7102617ecbf4a7a06c637c95b0804f2650b4",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/sources.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/sources.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/bea2ff78e957d3d9-sources.json",
+      "bytes": 7975,
+      "sha256": "bea2ff78e957d3d9cec6105df9f3c37dcc9ce32172e613821ab3e893601f23b2",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/checks.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/checks.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/7f4183c108ade39c-checks.json",
+      "bytes": 2215,
+      "sha256": "7f4183c108ade39cea5e818ca702fe99692517832eba957dd998e246897b7426",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/rev1-static/freeze.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/freeze.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/da9613e35b385226-freeze.json",
+      "bytes": 1259,
+      "sha256": "da9613e35b385226e999ae582647ae0a61f4fce2c7afcf5df9d59af02cd4ca77",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/rev1-static/author-static.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/author-static.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/1f6dc8c15e048fd4-author-static.json",
+      "bytes": 1095,
+      "sha256": "1f6dc8c15e048fd4cd3ba53e7ff84206a9858b01e47a4d8150d595ec6aa0c777",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/rev1-static/engineering.md",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/engineering.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/9197fc97facd71d1-engineering.md",
+      "bytes": 22014,
+      "sha256": "9197fc97facd71d142f1a94c387a3ab528d892f004b5b8b1d637aeb9e419f02e",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/rev1-static/protocol.draft.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/protocol.draft.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/83e3e652e9677a41-protocol.draft.json",
+      "bytes": 15360,
+      "sha256": "83e3e652e9677a416f85fb67f3ba9afc8b870cf4740c2cbfe7341bd4ade235bf",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/rev1-static/selectors.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/selectors.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/c36bed42977f75b6-selectors.json",
+      "bytes": 11638,
+      "sha256": "c36bed42977f75b67b4ec327c60ac8414c9f21f38a9076f6b09b2642a50f1044",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/rev1-static/sources.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/sources.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/5459246e3486968c-sources.json",
+      "bytes": 6913,
+      "sha256": "5459246e3486968cc89c0c2d02dace19dc426ff01a92ce69850ede5de28d63ff",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/rev2-t3/freeze.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/rev2-t3/freeze.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/03ae01a8b8413ee5-freeze.json",
+      "bytes": 1540,
+      "sha256": "03ae01a8b8413ee5fc5d755f3a16dc53d065b103c50bf9ed8fcf62caf18f6d68",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/rev2-t3/t3-dto.md",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/rev2-t3/t3-dto.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/8c82af7cd694fa0b-t3-dto.md",
+      "bytes": 18129,
+      "sha256": "8c82af7cd694fa0b8432330394c304e64fd6e1aa61d943904f533bba8b00c408",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/rev2-t3/sources.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/rev2-t3/sources.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/52e66b612de0a017-sources.json",
+      "bytes": 6270,
+      "sha256": "52e66b612de0a017aeffaaea560b89f8c24bf63683d5933579fe8155bbbbefb9",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/rev2-t3/author-static.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/rev2-t3/author-static.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/1fe2726a21ee0df7-author-static.json",
+      "bytes": 1292,
+      "sha256": "1fe2726a21ee0df71d4186e3037e9b1712cba8a4ddd1f7ec15d80f85126a213d",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/integrated-card-v01/freeze.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/integrated-card-v01/freeze.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/dedc14db178430fc-freeze.json",
+      "bytes": 1432,
+      "sha256": "dedc14db178430fcaa2f5e9d51d5c77e240ef9ce258921d6980790707a055410",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/integrated-card-v01/candidate.md",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/integrated-card-v01/candidate.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/c5674d4e06618f26-candidate.md",
+      "bytes": 84300,
+      "sha256": "c5674d4e06618f264a00867de0fb65fb9710e56b6a96ccde1f8fdaa77a5641f3",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/integrated-card-v01/rule-map.md",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/integrated-card-v01/rule-map.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/40f95db2a586eb5a-rule-map.md",
+      "bytes": 3076,
+      "sha256": "40f95db2a586eb5a624d5c0c662a6a68a46a024882c71e3d3934cc3587686c25",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/integrated-card-v01/audit-baseline.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/integrated-card-v01/audit-baseline.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/65e219f72479181b-audit-baseline.json",
+      "bytes": 11466,
+      "sha256": "65e219f72479181b820dd811ee2bba66b7882d5daaf7266c6df05f7691181aba",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/integrated-card-v01/sources.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/integrated-card-v01/sources.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/29b7ba270076b2ba-sources.json",
+      "bytes": 4134,
+      "sha256": "29b7ba270076b2ba5f2df48f9c76d2adb3199b10529d2d66d09711c40386ec17",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/integrated-card-v01/author-static.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/integrated-card-v01/author-static.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/c52cb105245175f6-author-static.json",
+      "bytes": 1923,
+      "sha256": "c52cb105245175f6b5a2c4215501fc8df0108f0c4ef8d3e450c45145c22a1757",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/freeze.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/freeze.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/99a649d45341895b-freeze.json",
+      "bytes": 4303,
+      "sha256": "99a649d45341895b3f15a7c75d3ee67807f1786e7acc93268a1c7a949b7a3ee9",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/administrative-edits.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/administrative-edits.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/0d8d518ff57288f1-administrative-edits.json",
+      "bytes": 23894,
+      "sha256": "0d8d518ff57288f1d94fa5aafab0712193533aa1811bfa7ef19691cba1e7884f",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/candidate-to-formal.patch",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/candidate-to-formal.patch",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/ea62d6016e882322-candidate-to-formal.patch",
+      "bytes": 36811,
+      "sha256": "ea62d6016e8823225e81dbc99330f333c78674da8a252271d016ced8b53367b1",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/checks.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/checks.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/4528ca63bf39e8cc-checks.json",
+      "bytes": 6351,
+      "sha256": "4528ca63bf39e8cc66f6279dbae8b4506e50dc7dfa2f5ce83ec732de6d90593b",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/failures.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/failures.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/557d389d39353778-failures.json",
+      "bytes": 777,
+      "sha256": "557d389d393537781421fc97c504bbea3aab9bf5602887b846b234f8bc9693a1",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/handover.md",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/handover.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/9e272dfac6d58013-handover.md",
+      "bytes": 2117,
+      "sha256": "9e272dfac6d580138d0cf8e043badd79c48f44ae916429c526299ecfcd1ec844",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/ownership.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/ownership.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/52168a638c964efd-ownership.json",
+      "bytes": 5589,
+      "sha256": "52168a638c964efdbcab995f70c5f12614bafa050605294da044c535a74625ff",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/product-path-presence.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/product-path-presence.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/714edc45fb2ab232-product-path-presence.json",
+      "bytes": 2853,
+      "sha256": "714edc45fb2ab2320bda97c5340bd47755160cb857ecadea2b02663c5f158259",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/references.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/references.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/379e0fc0802fa036-references.json",
+      "bytes": 2482,
+      "sha256": "379e0fc0802fa036b9c03d7260261a5148e04e2869600b2c9f99736762dc9a5b",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/reverse-restoration.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/reverse-restoration.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/b002f5d3a0e0937d-reverse-restoration.json",
+      "bytes": 541,
+      "sha256": "b002f5d3a0e0937dd0fa7af8784ce6013a228fff180747a483f37e5ab0097612",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/review.md",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/review.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/84b1dbeb07547acf-review.md",
+      "bytes": 1021,
+      "sha256": "84b1dbeb07547acfcde5dd9f345d457a48cfd8b3e6a576225837aea0ffd483a8",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/t1-current-sources.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/t1-current-sources.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/f5d7a82484eb793a-t1-current-sources.json",
+      "bytes": 17076,
+      "sha256": "f5d7a82484eb793af791a93dc82732979bf499350aa12639eb8e4ffc11843f6e",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/t1-prior-source-rows.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/t1-prior-source-rows.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/297d15c561d07a95-t1-prior-source-rows.json",
+      "bytes": 13318,
+      "sha256": "297d15c561d07a953529c040644b06cc044412d2a8ec1df51be690e959b5aab1",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "architecture-project-model-settings-draft01/formal-install-v01/t1-signature-excerpts.json",
+      "source_path": "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/t1-signature-excerpts.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/9f55c8ac0db36105-t1-signature-excerpts.json",
+      "bytes": 103751,
+      "sha256": "9f55c8ac0db361051e9d19728aa77a031f4c5a0d7958b07881dd0734dae3f45e",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-draft01-review/review.md",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-draft01-review/review.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/463cd09aecf075c4-review.md",
+      "bytes": 3580,
+      "sha256": "463cd09aecf075c4f977361df605500c707afb7758898457a2e29ac23d27670f",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-draft01-review/evidence.json",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-draft01-review/evidence.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/bde2b72425a3abdc-evidence.json",
+      "bytes": 20662,
+      "sha256": "bde2b72425a3abdc4f2b1b1e54ae9a75305e6aff77f482ab6bf032be1fd5595f",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-draft01-review/manifest.json",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-draft01-review/manifest.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/1e91289a52b3befa-manifest.json",
+      "bytes": 727,
+      "sha256": "1e91289a52b3befaac89529be4dda508a7aae6f9a99b1a7e44ce415847cb965d",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-rev1-static-review/review.md",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-rev1-static-review/review.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/691ab12294c0b688-review.md",
+      "bytes": 2070,
+      "sha256": "691ab12294c0b68860481730741614079a1a400a17b29f8f8c4acdf6c89ba70d",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-rev1-static-review/evidence.json",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-rev1-static-review/evidence.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/3c476c677dcf24de-evidence.json",
+      "bytes": 14503,
+      "sha256": "3c476c677dcf24deb2a52c93f4dd4c6b31f510f4899b6f7f77c41e5d122188c3",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-rev1-static-review/manifest.json",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-rev1-static-review/manifest.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/b42fbdbed6fcba39-manifest.json",
+      "bytes": 590,
+      "sha256": "b42fbdbed6fcba393d94de2bd44d1add2d1a3855d826cd6a0e7e68d6c0d2d3ef",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-rev2-t3-review/review.md",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-rev2-t3-review/review.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/0e60d1ae009d6917-review.md",
+      "bytes": 2862,
+      "sha256": "0e60d1ae009d691756fcd7cb8a3c12b6bb636b0aadab52494697c46a0e6af363",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-rev2-t3-review/manifest.json",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-rev2-t3-review/manifest.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/67e2118fb36c27b0-manifest.json",
+      "bytes": 3034,
+      "sha256": "67e2118fb36c27b0b3446f8bfa356a620a5803a26f3a06128d56fa714c648e77",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-integrated-v01-review/review.md",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-integrated-v01-review/review.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/d411c2ce0dfe46b7-review.md",
+      "bytes": 3444,
+      "sha256": "d411c2ce0dfe46b7417aa87e6846f95d3a9507e644f6ba10fd95f9b000e76871",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-integrated-v01-review/evidence.json",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-integrated-v01-review/evidence.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/3bd930dc22dfd1df-evidence.json",
+      "bytes": 12680,
+      "sha256": "3bd930dc22dfd1dfb2a6a5f45e74f12bb1e47857562dc1a04455fcd5ac246727",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-integrated-v01-review/manifest.json",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-integrated-v01-review/manifest.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/852f0f87a3b0fddb-manifest.json",
+      "bytes": 1193,
+      "sha256": "852f0f87a3b0fddb3528743a8d1fcecb078654753de35b24383c266406ec4028",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "project-owner-audit-ui-frontend/model-settings-t3-consumption01/agreement.md",
+      "source_path": "/workspace/scratch/project-owner-audit-ui-frontend/model-settings-t3-consumption01/agreement.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/931da9f62b03d866-agreement.md",
+      "bytes": 3454,
+      "sha256": "931da9f62b03d866b84c55483b7574fc30b86bbb3f2e990dff042ac0f2547f10",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "project-owner-audit-ui-frontend/model-settings-t3-consumption01/manifest.json",
+      "source_path": "/workspace/scratch/project-owner-audit-ui-frontend/model-settings-t3-consumption01/manifest.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/b6870c527499c59d-manifest.json",
+      "bytes": 1712,
+      "sha256": "b6870c527499c59df77f0a5aa5a96d7fa52d0da9fd3df3a4411998831ce7ce4f",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "project-model-settings-backend/t3-agreement01/agreement.md",
+      "source_path": "/workspace/scratch/project-model-settings-backend/t3-agreement01/agreement.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/22754edd6ce04d72-agreement.md",
+      "bytes": 6906,
+      "sha256": "22754edd6ce04d72ede991154ec9a85f2be6c63e4d9f53c3a0f0db34356033b2",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "project-model-settings-backend/t3-agreement01/freeze.json",
+      "source_path": "/workspace/scratch/project-model-settings-backend/t3-agreement01/freeze.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/62b585f7a12f8769-freeze.json",
+      "bytes": 5493,
+      "sha256": "62b585f7a12f876947ec2f40baacb6002425eeaa417cb366266e208eb9f9aee3",
+      "handling": "original_bytes_preserved",
+      "category": "frozen_spec_and_acceptance_chain"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-formal-install-v01-review/review.md",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-formal-install-v01-review/review.md",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/e1abcf0ec30fa19e-review.md",
+      "bytes": 2440,
+      "sha256": "e1abcf0ec30fa19e94a4dfc3cfd22cc959f62f856173770a183b61f7a0709e79",
+      "handling": "original_bytes_preserved",
+      "category": "final_installation_T1_T4_static_review"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-formal-install-v01-review/evidence.json",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-formal-install-v01-review/evidence.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/8fcb478a19957486-evidence.json",
+      "bytes": 15513,
+      "sha256": "8fcb478a199574867e2b016acb8f31711be6f31a81496d83352000a59cf457e7",
+      "handling": "original_bytes_preserved",
+      "category": "final_installation_T1_T4_static_review"
+    },
+    {
+      "logical_id": "owner-ui-runtime-verification/project-model-settings-formal-install-v01-review/manifest.json",
+      "source_path": "/workspace/scratch/owner-ui-runtime-verification/project-model-settings-formal-install-v01-review/manifest.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/c4131890c563fd27-manifest.json",
+      "bytes": 1494,
+      "sha256": "c4131890c563fd27f006f9afe3f805806cfa66f6013f4045a890be91806b523f",
+      "handling": "original_bytes_preserved",
+      "category": "final_installation_T1_T4_static_review"
+    },
+    {
+      "logical_id": "project-model-settings-spec-archive01/installation-attempt01-failure.json",
+      "source_path": "/workspace/scratch/project-model-settings-spec-archive01/installation-attempt01-failure.json",
+      "archive_path": "docs/development/agent-team/project-model-settings-spec-verification-evidence/originals/571084d08b366273-installation-attempt01-failure.json",
+      "bytes": 1812,
+      "sha256": "571084d08b36627360a386f856ab020be7d01b7869b951d66abacc3284835c9b",
+      "handling": "original_bytes_preserved",
+      "category": "archive_local_tool_failure_preserved"
+    },
+    {
+      "logical_id": "formal_endpoint_attachment_with_original_T3_alias",
+      "source_path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-model-settings-ui-endpoints.json",
+      "source_aliases": [
+        "/workspace/scratch/architecture-project-model-settings-draft01/rev2-t3/endpoints.json"
+      ],
+      "archive_path": "docs/development/work-items/d27-project-owner-model-settings-ui-endpoints.json",
+      "bytes": 6087,
+      "sha256": "6c85ae889c8a86eb67695f2eb29773395b58db4f5bdfecc9c9182ff3e62fd9fa",
+      "git_ref": "7b8af244fe87d43699c17c95077ee73971e18411:docs/development/work-items/d27-project-owner-model-settings-ui-endpoints.json",
+      "handling": "fixed_git_blob_reference_no_copy"
+    },
+    {
+      "logical_id": "formal_model_settings_rev1_spec_with_prepared_alias",
+      "source_path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-model-settings-ui.md",
+      "source_aliases": [
+        "/workspace/scratch/architecture-project-model-settings-draft01/formal-install-v01/formal-card.prepared.md"
+      ],
+      "archive_path": "docs/development/work-items/d27-project-owner-model-settings-ui.md",
+      "bytes": 91436,
+      "sha256": "7cb91a5d8852f10edd0e777a508784e3d65ea73f50de9cc45e5b0c4682230f6d",
+      "git_ref": "7b8af244fe87d43699c17c95077ee73971e18411:docs/development/work-items/d27-project-owner-model-settings-ui.md",
+      "handling": "fixed_git_blob_reference_no_copy"
+    },
+    {
+      "logical_id": "architecture-audit21-version-map01/rev02/source-map.json",
+      "source_path": "/workspace/scratch/architecture-audit21-version-map01/rev02/source-map.json",
+      "archive_path": "docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bba14d28a3b50606-source-map.json",
+      "sha256": "bba14d28a3b506067dabc23cd580d37e0862cb8f2eb90f6a141655b9c05ed879",
+      "bytes": 27961,
+      "categories": [
+        "fixed_21_version_metadata"
+      ],
+      "handling": "reuse_accepted_permanent_entity_in_place_no_rehash",
+      "category": "prior_accepted_permanent_reference"
+    },
+    {
+      "logical_id": "project-owner-audit-ui-frontend/build-v02/source17.json",
+      "source_path": "/workspace/scratch/project-owner-audit-ui-frontend/build-v02/source17.json",
+      "archive_path": "docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/092b5e98746adea5-source17.json",
+      "sha256": "092b5e98746adea56a5bccd8aa5c4aba7ba7152421aa36f649f19580d85a60e4",
+      "bytes": 3769,
+      "categories": [
+        "author_offline_or_correction",
+        "fixed_phase_reference"
+      ],
+      "handling": "reuse_accepted_permanent_entity_in_place_no_rehash",
+      "category": "prior_accepted_permanent_reference"
+    },
+    {
+      "logical_id": "owner-audit-ui-verification/audit21-technical-final01/source-rows.json",
+      "source_path": "/workspace/scratch/owner-audit-ui-verification/audit21-technical-final01/source-rows.json",
+      "archive_path": "docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "sha256": "bf66509901d83abd2e69dc6b609baa6fb4278ce3a5fbaaebdef0d7c8d3ea6707",
+      "bytes": 14192,
+      "categories": [
+        "final_twenty_one_prior_pending_stage",
+        "final_twenty_one_technical_review"
+      ],
+      "handling": "reuse_accepted_permanent_entity_in_place_no_rehash",
+      "category": "prior_accepted_permanent_reference"
+    },
+    {
+      "logical_id": "owner-audit-ui-verification/audit22-final01/review.md",
+      "source_path": "/workspace/scratch/owner-audit-ui-verification/audit22-final01/review.md",
+      "archive_path": "docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/442ad7809fee233c-review.md",
+      "sha256": "442ad7809fee233c37057c89b5749795c473b48651ea1feab820b10bcd9bb1f0",
+      "bytes": 2637,
+      "categories": [
+        "final_twenty_two_review"
+      ],
+      "handling": "reuse_accepted_permanent_entity_in_place_no_rehash",
+      "category": "prior_accepted_permanent_reference"
+    },
+    {
+      "logical_id": "owner-audit-ui-verification/audit22-final01/manifest.json",
+      "source_path": "/workspace/scratch/owner-audit-ui-verification/audit22-final01/manifest.json",
+      "archive_path": "docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/0bba9745e558e9f4-manifest.json",
+      "sha256": "0bba9745e558e9f490a397c84d23c3336ccc54e60179e6cac0c2cb1e0aceb0f6",
+      "bytes": 1155,
+      "categories": [
+        "final_twenty_two_review"
+      ],
+      "handling": "reuse_accepted_permanent_entity_in_place_no_rehash",
+      "category": "prior_accepted_permanent_reference"
+    },
+    {
+      "source_path": "/workspace/agenteam/docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/source-rows.json",
+      "archive_path": "docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/source-rows.json",
+      "sha256": "a8e19c17393f4e5794eb16dbf366634a894aef318270d5c1a9604fb32d3e93a9",
+      "bytes": 9373,
+      "handling": "reuse_accepted_permanent_entity_in_place_no_rehash",
+      "category": "prior_accepted_permanent_reference"
+    }
+  ],
+  "limits": {
+    "embedded_business_source_refs_are_provenance_only": true,
+    "prior_permanent_originals_rehashed": false,
+    "source_tree_or_current_active_implementation_read": false,
+    "no_recursive_reference_copy": true,
+    "followup_does_not_prove_author_ACK_or_execution": true
+  }
+}

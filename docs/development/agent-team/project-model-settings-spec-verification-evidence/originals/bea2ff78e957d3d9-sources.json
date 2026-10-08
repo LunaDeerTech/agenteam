@@ -1,0 +1,157 @@
+{
+  "created_utc": "2026-10-08T14:24:09.949169+00:00",
+  "no_Git_baseline_claim": "Root will freeze the post-Audit accepted baseline before formal SPEC/implementation.",
+  "no_whole_source_graph_copied": true,
+  "read_only_navigation_misses": [
+    "Initial broad filename search included archived evidence paths; no artifact bodies were opened from that listing.",
+    "Guessed docs/design and model/policy.go locations did not exist; corrected to formal frontend-design and configuration_policy.go."
+  ],
+  "source_count": 24,
+  "sources": [
+    {
+      "bytes": 10518,
+      "path": "/workspace/agenteam/docs/frontend-design/layouts/project-settings.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "ed5eaf1bc5c3565af29e0a262daccbdab1ce49e53e90843a74f3e0c5a66e8115"
+    },
+    {
+      "bytes": 3344,
+      "path": "/workspace/agenteam/docs/frontend-design/layouts/settings-shell.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "696e85efd8a042696921b9733795d0f58d8351286200b5b9d420311e64d8f0b8"
+    },
+    {
+      "bytes": 2843,
+      "path": "/workspace/agenteam/docs/frontend-design/layouts/project-workspace.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "7201d7be393cbd95a6fdea9b6b33dd0bdebb8758cdb7b48243815b4d968f092e"
+    },
+    {
+      "bytes": 36624,
+      "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-owner-read-http.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "fa6c3c434cacfc8d0a9db01266c76f1525088777cdf572f8051907a9f94f3277"
+    },
+    {
+      "bytes": 31413,
+      "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-credentials-http.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "61c89885ea01e676e7c87bdca8debb3d1bdda1e501fd7b132ec99e398299042c"
+    },
+    {
+      "bytes": 41814,
+      "path": "/workspace/agenteam/docs/development/work-items/d09-project-model-configuration-write-http.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "a3b805bfe149cd320992a46cbbedafd8166e5b49d081ba12c052c54b9ccfe9c6"
+    },
+    {
+      "bytes": 6830,
+      "path": "/workspace/agenteam/docs/development/agent-team/project-model-owner-read-http-verification.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "a2ad088c3bd7f72c33eae9222f3b1759bc0f198e042a73d3eaab9455dec3c39d"
+    },
+    {
+      "bytes": 6421,
+      "path": "/workspace/agenteam/docs/development/agent-team/project-model-credentials-http-verification.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "b8e3f0f75b2235a228db6e3213adcbff1169be5712e7306c6fb5ab5a73b7f560"
+    },
+    {
+      "bytes": 6538,
+      "path": "/workspace/agenteam/docs/development/agent-team/project-model-configuration-write-http-verification.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "d1262d7435cd2b5c3f83800b8b2212a299f78ef4ee9a140304807fa80a8d8e3e"
+    },
+    {
+      "bytes": 56133,
+      "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-workspace-ui.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "1355c8c8da07929f3970fa962d6929e246f2f3feba163ddaaae8e01dca7c6cb3"
+    },
+    {
+      "bytes": 6073,
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-workspace-ui-final24-verification.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "e9be5e2d8ccd16d8bfe8a6f75c2316250dd284ba5eb4311eafc3b681b6b55966"
+    },
+    {
+      "bytes": 77620,
+      "path": "/workspace/agenteam/docs/development/frontend/README.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "b71fcd01556fd0403e69a2eeceba8d5c03047a9d9a32863e5a3b90ff37fa95e0"
+    },
+    {
+      "bytes": 39298,
+      "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-audit-ui.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "1202290254b5b44e5e7bb67359b4fb294f9612ce3daa1279389d90ee614206eb"
+    },
+    {
+      "bytes": 22379,
+      "path": "/workspace/agenteam/docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "5731fc8251fe04e610c67e9a2c5fb16d928cd381b97284a915327dfddc87a4b4"
+    },
+    {
+      "bytes": 3692,
+      "path": "/workspace/agenteam/internal/central/model/configuration_policy.go",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "0802ff9e5fbd14f485b91fb407fe86d1c46a2916469e1c8ac52e98ca21e5a912"
+    },
+    {
+      "bytes": 19103,
+      "path": "/workspace/agenteam/internal/central/model/contract/configuration.go",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "ffa8783140063167d179cc09818125e93895841693d63c20568fb5a7e7a7c51c"
+    },
+    {
+      "bytes": 19439,
+      "path": "/workspace/agenteam/internal/central/model/contract/types.go",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4"
+    },
+    {
+      "bytes": 8391,
+      "path": "/workspace/agenteam/internal/central/httpapi/problem.go",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde"
+    },
+    {
+      "bytes": 22624,
+      "path": "/workspace/agenteam/web/src/api/system-providers.ts",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade"
+    },
+    {
+      "bytes": 13323,
+      "path": "/workspace/agenteam/web/src/api/system-models.ts",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "ffa1b0d4a917eee4b3faddffd30f96d650bfceffa24191b5e3833b54ea62cf29"
+    },
+    {
+      "bytes": 26022,
+      "path": "/workspace/agenteam/web/src/composables/useProjectWorkspace.ts",
+      "scope": "Current stopped seam read only; Audit whole-card acceptance still pending",
+      "sha256": "07299d43da75bdae38f6f2520edfe26a8433fbc19e11263a8b109d9126921943"
+    },
+    {
+      "bytes": 182343,
+      "path": "/workspace/agenteam/api/openapi/project-models.json",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "0ce108387b53167a9e7d218e7f15a34a9e1c81c3538338a24822c0d6719ce1f5"
+    },
+    {
+      "bytes": 26263,
+      "path": "/workspace/agenteam/api/openapi/project-model-credentials.json",
+      "scope": "Necessary formal or stable contract reference; acceptance scope stated in spec",
+      "sha256": "24b16a9e3f1d1b3ffe8847ffe3e463bd9b9bf58f9c489ab0e0fe7391bc990e83"
+    },
+    {
+      "bytes": 17785,
+      "path": "/workspace/agenteam/internal/central/model/http_project_wire.go",
+      "scope": "Exact accepted HTTP page invariant: nonempty next cursor requires full page; bounded read-only excerpt inspected.",
+      "sha256": "b076db427792f124ee740fe4f2a41285a2920b0f168ddf8cb81725f65e37d1ad"
+    }
+  ],
+  "state": "DRAFT_SOURCE_REFERENCES_NOT_EXECUTION_INPUT_GATE"
+}

@@ -1,0 +1,160 @@
+{
+  "status": "AUTHOR_DOCUMENT_STATIC_ONLY_NOT_INDEPENDENT_INSTALL_ACCEPTANCE",
+  "candidate_sha256": "c5674d4e06618f264a00867de0fb65fb9710e56b6a96ccde1f8fdaa77a5641f3",
+  "formal_sha256": "7cb91a5d8852f10edd0e777a508784e3d65ea73f50de9cc45e5b0c4682230f6d",
+  "reverse_exact_to_candidate": true,
+  "all_fenced_contract_blocks_exact": true,
+  "fenced_blocks": 7,
+  "complete_recovery_matrix_and_sections_2_4_5_7_exact": true,
+  "product_table_29_exact": true,
+  "17_operations_and_9_IPC_unchanged": true,
+  "six_new_and_fourteen_old_selectors_unchanged": true,
+  "two_existing_conditional_runtime_selectors_remain_not_scheduled": true,
+  "caps_and_budgets_unchanged": true,
+  "endpoints_sha256": "6c85ae889c8a86eb67695f2eb29773395b58db4f5bdfecc9c9182ff3e62fd9fa",
+  "endpoints_original_bytes_exact": true,
+  "current_source_inputs": 14,
+  "technical_sources": 13,
+  "accepted_source_metadata_matches": [
+    {
+      "path": "web/src/api/client.ts",
+      "reference": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "reference": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    {
+      "path": "web/src/composables/useProjectWorkspace.ts",
+      "reference": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "reference": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "reference": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    {
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "reference": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "reference": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    {
+      "path": "web/src/tests/project-workspace.spec.ts",
+      "reference": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    {
+      "path": "web/src/components/layout/ProjectNav.vue",
+      "reference": "/workspace/agenteam/docs/development/agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    {
+      "path": "web/src/api/project-owner.ts",
+      "reference": "/workspace/agenteam/docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/source-rows.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    {
+      "path": "web/src/App.vue",
+      "reference": "/workspace/agenteam/docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/source-rows.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "reference": "/workspace/agenteam/docs/development/agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/source-rows.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "reference": "/workspace/scratch/architecture-project-model-settings-draft01/rev1-static/sources.json",
+      "bytes_equal": true,
+      "sha256_equal": true
+    }
+  ],
+  "README_exact_accepted_5fba": true,
+  "local_links": [
+    {
+      "target": "d27-project-owner-model-settings-ui-endpoints.json",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/project-owner-audit-ui-verification.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/project-owner-audit-ui-verification-evidence/originals/bf66509901d83abd-source-rows.json",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/project-owner-workspace-ui-final24-verification-evidence/originals/independent/source-rows.json",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/project-model-owner-read-http-verification.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/project-model-credentials-http-verification.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/project-model-configuration-write-http-verification.md",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/project-owner-workspace-ui-final24-verification.md",
+      "exists": true
+    },
+    {
+      "target": "d27-project-owner-model-settings-ui-endpoints.json",
+      "exists": true
+    },
+    {
+      "target": "../agent-team/README.md",
+      "exists": true
+    },
+    {
+      "target": "../frontend/README.md",
+      "exists": true
+    },
+    {
+      "target": "../../frontend-design/layouts/project-settings.md",
+      "exists": true
+    }
+  ],
+  "new_product_paths_absent": 18,
+  "full_dependency_graph_or_dynamic_checks": false,
+  "git_write": false,
+  "go_node_network_browser_resources": false,
+  "pending": [
+    "Independent administrative delta/T1/T4 review and root acceptance",
+    "Root actual implementation handover/author ACK",
+    "Implementation inputs, tool/import/schema/dist closure and precise discovery",
+    "Per-round filegate/runtime/asset grants",
+    "README last after all 28 technical paths accepted"
+  ]
+}
