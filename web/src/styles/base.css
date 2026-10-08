@@ -120,15 +120,6 @@ fieldset {
   color: var(--text);
   flex: none;
 }
-.brand-mark {
-  width: 23px;
-  height: 23px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--control-border);
-  border-radius: 50%;
-  font-size: 17px;
-}
 .system-nav a:hover {
   text-decoration: none;
   color: var(--text);
@@ -151,17 +142,6 @@ fieldset {
 .system-nav nav a:hover {
   background: color-mix(in srgb, var(--nav-selected) 85%, var(--text));
   color: var(--text);
-}
-.brand-mark {
-  transition:
-    background var(--motion) var(--ease),
-    border-color var(--motion) var(--ease),
-    color var(--motion) var(--ease);
-}
-.system-nav .brand:hover .brand-mark {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-  color: var(--accent);
 }
 .system-nav nav .router-link-active {
   background: var(--nav-selected);

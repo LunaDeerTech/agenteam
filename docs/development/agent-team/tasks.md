@@ -1,5 +1,27 @@
 # 团队任务台账
 
+当前品牌交付接受（2026-10-08）：用户f10ba4a8官方资产已用于根README（6c46681b）、导航和四auth入口及浅深SVG favicon。网页12实际安装/type PASS/4既有文件81项PASS/私有生产build PASS；独立同源build1.122s PASS，5位置×3宽×2主题30实际状态、键盘/外观preview-cancel/reduced-motion、四SVG服务原bytes与head媒体通过，33原截图逐看核心及邻近布局未见缺陷，root另看手机登录/桌面深色导航。深色README helper小favicon样例可见性未作全通过、不称原生tab或远端GitHub/生产hosting；states.width=144是logo宽覆盖同名字段，真实viewport由截图/overflow/elapsed保留，原件未改。实际browser轮88.668s<180、所有owned实际wait/两空/端口两空/input同、STOP；browser observations SHA5d4cb233与result f757f310，作者freeze ddef293a，独立证据/workspace/scratch/branding-independent-v1。九docs/logos与f10原bytes保持。仅品牌有限交付，Owner独立9限定接受但#22/完整D27/生产/三停止保持，下一原任务不借品牌结论。
+
+当前品牌自测（2026-10-08）：网页12原候选安装停写，ddef293a封存；type9.533s PASS、4既有文件81项PASS、private Vite1.013s PASS及产物核对PASS，root已核12/candidate/所有sealed证据SHA与九logos=原f10 bytes。verification_worker已ACK正式按70d1开始独立build/private preview受控展示，类型与已有测试复用，不触global dist/原3/stage53。根README已push6c46681b，独立Owner9限定接受/资源已退役；#22/完整D27/生产/三停止边界不扩。
+
+当前品牌接入（2026-10-08）：Owner独立A3+B6九轮本人actual PASS/全STOP正式报告4942c4de已root通读限定接受，65ID退役/117schema/50client/自有8图逐看；原3恢复d22c8a58、53留stage，资源窗口关闭。根README官方浅深picture已push6c46681b；frontend唯一网页12路径已安装原候选，正在固定输入type/受影响已有小组/private outDir build，未借旧9品牌验收。品牌独立展示方案70d1仅PLAN，待作者STOP后另执行；#22开发README仍scratch v2预审，完整Owner/生产/三停止保持。
+
+## 2026-10-08：独立B2–B4停止/B5窗口，#22文案窄修
+
+B2 shortac754f6c2eaf1489850b7cea37afe4a1e9db6c2d9c2bf594f0e5aad7f4f39884/outerb9382e571649d2d17b2ee9e37fde9b93862412aa9d068da71f84f727ac7e2b2c，session38437 actualexit0 terminal6bdbaf、top12.71/browser8.6/direct60.540/7ID+4adoptedwait/join/ownedruntime双空/TCP38.388末09:17:58.093056/input同/forcedmonitor0、4nonownedshim，旧Summary recovery两accepted losses全case真过，无Project schema/client。root读sealed必要result+fullSTOP后独立B3 true2f45a462f4404dd47af3b0251c7bcaf246b4e9ebcf91e1eb5fae832b2f3f8c4d授，B3 shortad9505da799dedf0aaa502dd96c1730d9c54fef022492108a1cd850cf4906eb4/session44356 actualexit0 terminal8dc3c7、top16.05/browser10.9/direct69.082/7ID+4adoptedwait/join/ownedruntime双空/TCP38.378末09:21:47.266210/input同/forcedmonitor0/4nonownedshim，Summaryauthority/aggregate-navigation/Sessioncontinuity全casePASS，SQL只是owned facts准备，非角色生产API或生成调用。
+
+root另单轮B4 true06bc8403f3aaf4faeb4841d9f7be08572d5ff98e20480412061019df7fcc8a3c授，B4 shortdf7adf26e2903654b4c04ac65005c2881989f1f24cace6d778bbe52fcaee82d1/session86349 actualexit0 terminalc0e334、top5.88/browser3.3/direct57.539/7ID+4adoptedwait/join/ownedruntime双空/TCP37.379末09:25:20.537480/input同/forcedmonitor0/4nonownedshim，login/refresh/CSRF/logout全casePASS；前三+B1–4实际49ID互异，三legacy无Project schema/client挪用。root逐必要short/raw事实读接受，均fullSTOP。root现正式B5 only ind-b-smtp01/old-smtp-delivery truef6bfb6a657bc96b3fda15f8c9550f47be5661082e28837a1f68480674ceef11c，ind ACK亲跑firstgate/原budget/newnonce，SMTP9/waits/shims只能实际观察计，不预填PASS，B6未授。same53/原3backup original-dist-indab01保持、active不push/network/换资产。
+
+品牌展示方案 /workspace/scratch/owner-ui-verification/branding-runtime-plan-v1.md SHA70d1fa5684005f9e4e99487c5c9f97e375fe1030afefc7a1f8927a6d14699614/json6a8897e6f81c4e908749994e69e591dd2bc5ad9da1fb839ca9ee2915b3f92c91 已root实际通读仅PLAN接受，three45s/whole180/ownports preview与受控GETidentity/四SVGactualservedbytes/五入口3宽2theme/Tabfocus/reducedmotion/不一致theme与Cancel/icon16-32/README privatepicture展示，严分非业务/生产/浏览器chromeicon或GitHub远端。没有现实type/build/browser，仅待全9退休原3恢复及品牌source安装/作者typebuild后另授；不重跑21业务整套。
+
+#22精确frontendREADME scratchv1 e756已root读patch（23源与原acceptedUI19/Go04/browser-v5指纹同），预审唯一新增冲突文案必修：NAME_TAKEN只保输入/field_error可改后明确save，不强制freshGet；VERSION_CONFLICT/PROJECT_NOT_ACTIVE/INVALID_STATE才conflict+requiresRead。root已授frontend只scratchv2句子拆分，其余段落/命令/23provenance复用，v1原失败文案/冻结保，产品source/仓库doc/brand不动。其余预审继续，未接受#22末件或完整24；rootREADME品牌217byte先交保持6c46681b，网站12未安装。以下历史。
+
+## 2026-10-08：品牌README已push，独立B2实际
+
+根README与协调小commit6c46681b9508d54e0c8b3f9d849ff2ffed46e9c3已在B1全退休间push精确核远端同。root实际README e3ac2d01与candidate同，移除既定217byte fragment即与Git原README bytes同；初次比较插入点空行位置假设ASSERT失败已保工具原输出，改为精确片段还原核通过，未改变产品bytes，不补写初次PASS。此前根README安装manifestb9d342c6/原STATIC0ed8258c/format证据组合，网页12与九源资产保。
+
+root单独0444 B2 freeze.root-ind-b-summary01.json SHAf95acb01f8ef727ae67426f5824d8ea90a3ab3409808b6d5dbb0eb0ddf8dc2b1，仅ind-b-summary01/old-summary-recovery；原B1短json schema字段已按简化actual路径消费，不依旧A1字段。ind-runtime ACK实际亲跑first1165gate accepted，browser8.6/top12.71已PASS，outer session38437仍退役尾部，不能称整轮或授B3。rootactive不push/network/换资产、固定53/原3backup保持，其他doc/方案均无资源。verifier-worker已授仅scratch品牌后续有限type/独立outDirbuild与privatepreview/受控readSession展示验证方案，五入口+System/lightdark/390-768-1440/主题不一致/reducedmotion/focus/overflow/icon16-32/README picture；不现实执行或声称后台/生产hosting，不重扫原已接受static/body/业务21套件。#22 frontendREADME只scratch片段准备，网站12未安装/完整9与Owner未接受。以下历史。
+
 ## 2026-10-08：独立A3通过/B1窗口，根README独立先交授权
 
 A3 short346d58d86a9f9d5c45e015915c7bc0925b8c92cee6a9cccf4110e53feba04930/md6d03041d759bad84e3731c2b8da81b0e3b0f78c043216c531c84318fb12fa4d1，actualouter session97978 exit0 terminal243598/outer SHA205fd9ab5bf2f72bec38a3b27dbf33a707d23691b2db350314d9a7bbb7677187；browser10.2/top18.08/direct65.612/schema17/client11 list2resolve4get4problem1/7ID+4adoptedwait/join/ownedruntimeTCP37.374s末双清09:01:48.881097/input同/forcedmonitor0/4nonowned未waitshim；本人fullSTOP，root读必要handoff接受，前三21ID互异。root另单轮 B1 freeze.root-ind-b-recovery01.json SHA6a43f6cbe86a5e8c749b15e6bbbee90b57a0c5455396ff3e38d2596a94f1410d仅ind-b-recovery01/new-recovery，ind已ACK实际亲跑；firstgate同/browser5.3/top13.11已PASS但outer session50230未终局，不能称整轮或开始B2。

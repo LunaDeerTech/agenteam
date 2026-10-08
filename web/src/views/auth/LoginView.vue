@@ -8,6 +8,7 @@ import UiInput from '../../components/ui/UiInput.vue'
 import UiField from '../../components/ui/UiField.vue'
 import UiState from '../../components/ui/UiState.vue'
 import RotateChallenge from '../../components/account/RotateChallenge.vue'
+import AppBrand from '../../components/layout/AppBrand.vue'
 
 const auth = useSession(),
   state = auth.state,
@@ -162,9 +163,9 @@ onUnmounted(() => {
 <template>
   <main id="main-content" class="account-entry">
     <section class="login-panel" aria-labelledby="login-title">
-      <RouterLink class="brand login-brand" to="/" aria-label="agenteam 入口"
-        ><span class="brand-mark" aria-hidden="true">a</span>agenteam</RouterLink
-      >
+      <RouterLink class="brand login-brand" to="/" aria-label="agenteam 入口">
+        <AppBrand />
+      </RouterLink>
       <h1 id="login-title" ref="heading" tabindex="-1">登录</h1>
       <p class="login-description">使用邮箱和密码继续。</p>
       <div

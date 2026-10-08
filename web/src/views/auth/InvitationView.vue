@@ -4,6 +4,7 @@ import UiButton from '../../components/ui/UiButton.vue'
 import UiField from '../../components/ui/UiField.vue'
 import UiInput from '../../components/ui/UiInput.vue'
 import UiState from '../../components/ui/UiState.vue'
+import AppBrand from '../../components/layout/AppBrand.vue'
 const entry = useAccountEntry(),
   state = entry.state,
   draft = entry.draft
@@ -13,9 +14,7 @@ const { heading, form, submit } = useAccountEntryForm(entry)
 <template>
   <main id="main-content" class="account-entry">
     <section class="entry-panel" aria-labelledby="invitation-title">
-      <RouterLink class="brand" to="/" aria-label="agenteam 入口"
-        ><span class="brand-mark" aria-hidden="true">a</span>agenteam</RouterLink
-      >
+      <RouterLink class="brand" to="/" aria-label="agenteam 入口"><AppBrand /></RouterLink>
       <h1 id="invitation-title" ref="heading" tabindex="-1">接受邀请</h1>
       <p class="description">创建邀请邮箱对应的账号，登录仍使用邮箱。</p>
       <UiState v-if="state.phase === 'preparing'" kind="loading" title="正在校验邀请链接" />

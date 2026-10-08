@@ -4,6 +4,7 @@ import UiButton from '../../components/ui/UiButton.vue'
 import UiField from '../../components/ui/UiField.vue'
 import UiInput from '../../components/ui/UiInput.vue'
 import UiState from '../../components/ui/UiState.vue'
+import AppBrand from '../../components/layout/AppBrand.vue'
 const entry = useAccountEntry(),
   state = entry.state,
   draft = entry.draft
@@ -13,9 +14,7 @@ const { heading, form, submit } = useAccountEntryForm(entry)
 <template>
   <main id="main-content" class="account-entry">
     <section class="entry-panel" aria-labelledby="reset-password-title">
-      <RouterLink class="brand" to="/" aria-label="agenteam 入口"
-        ><span class="brand-mark" aria-hidden="true">a</span>agenteam</RouterLink
-      >
+      <RouterLink class="brand" to="/" aria-label="agenteam 入口"><AppBrand /></RouterLink>
       <h1 id="reset-password-title" ref="heading" tabindex="-1">重置密码</h1>
       <p class="description">设置新密码后，请重新登录。</p>
       <UiState v-if="state.phase === 'preparing'" kind="loading" title="正在校验重置链接" />
