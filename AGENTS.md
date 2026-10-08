@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+本次恢复（2026-10-08）：快照 `work/2cf00e06` 干净，实际远端已有初始化收敛产品与归档，已安全快进本地 `main/ff396a4e` 并推送核一致；旧 UI candidate04/harness/scratch 未恢复，重新按已接受 rev2.1 实现及独验，不冒称保留源码或浏览器 PASS。当前四新实例已 ACK，文件/资源所有权与下一步见 [恢复记录](docs/development/agent-team/recovery-2026-10-08-environment.md)。历史接受及三停止边界保持。
+
 Current status (2026-10-08, initialization convergence accepted): Project 初始化收敛授权库完整6路径（5技术＋README）已接受，产品 `39ebd57e` 已推送且 root 核远端一致；6真实PG／40子例、42不同资源ID与24非owned未wait shim（449→473、轮间无额外）沿原表归档，owned资源实际wait双清，原STATIC／格式／工具失败保留。新gate无写、原成功gate不变；生产Skills/root与创建HTTP未绑定，完整D08/D10未完成。 [验收与原始证据](docs/development/agent-team/project-initialization-convergence-verification.md)。
 
 Owner工作区UI candidate04仅#21 locator修订离线通过；真实read01 Outbox setup失败、read02 label失败均保留并已独核退出，尚无browser top PASS；正在按已接受 `39ebd57e` 重新绑定Go依赖，旧16／独立A-B未跑、asset未交换、前端README未授，UI产品未接受。

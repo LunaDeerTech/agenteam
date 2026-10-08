@@ -1,5 +1,17 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 2026-10-08：恢复快照与远端增量核对
+
+本次环境初始检出 `work` / `2cf00e06`，工作树干净；`/workspace/scratch` 和 `/tmp` 未包含此前 UI candidate04、Go harness 或其运行目录。旧记录和已归档原件保留，但不得把失落的未提交源码或未归档运行证据声称为已恢复。
+
+实际 `git ls-remote origin refs/heads/main` / `git fetch origin main` 发现远端为 `ff396a4e`，比快照新增已接受产品 `39ebd57e` 与归档 `ff396a4e`；`git rev-list --left-right --count HEAD...FETCH_HEAD` 为 `0 2`。新建本地 `main` 后 `git merge --ff-only origin/main` 安全快进，旧 `work` 保留；`git push origin main` 返回 `Everything up-to-date`，随后核远端仍为 `ff396a4e`。无强推、回退或覆盖他人改动。
+
+首个已定规格可执行工作为 [D27 Owner 工作区 UI rev2.1](../work-items/d27-project-owner-workspace-ui.md)。新 frontend_worker 已实际 ACK，唯一持有卡内 21 个前端/JS 技术路径（含 #24）；新 backend_worker 已实际 ACK，唯一持有 #18–19 两个 Go harness/test 新路径；新 verification_worker 已实际 ACK，负责固定输入独立验收；新 fixture_recovery 已实际 ACK，仅恢复固定测试依赖。均使用仓库要求的 `gpt-6-astra / max`，子实例不再委派。root 唯一维护本次台账、恢复入口与 Git 交付。前端、Go 仅获必要离线检查和自有构建输出；真实 PG/browser 与旧 web/dist 资产交换尚未启动，资源窗口由 root 在实际图与工具就绪后统一安排。
+
+当前阶段为重新实现与依赖恢复，未获新 UI 技术或产品 PASS。依赖已接受的 Owner Read/Update/Resolve、Audit 与初始化收敛库；生产 Skills/root、创建 HTTP、Resolution/Invocations/D24 仍未绑定，ready503、完整 D08–D28/E01 未完成，E01 未开始。三项历史安全机制停止保持；此处不恢复或改派被终止的原动作，不以 UI harness 代替生产 SPA 发布验收。
+
+下一步：冻结并独验最小客户端/路由完整结果，按小块构建检查后提交推送；恢复真实测试依赖与同源 harness，按 rev2.1 验收五新 top、16 旧 top 和独立风险补集；每轮保留实际失败、输入与 owned 退役证据。初始化收敛库已有固定验收按相关输入一致性复用，不机械重跑整包。
+
 当前增量（2026-10-08，初始化收敛库接受）：Project 初始化收敛授权库完整6路径（5技术＋README）已接受，产品 `39ebd57e` 已推送且 root 核远端一致；6真实PG／40子例、42不同资源ID与24非owned未wait shim（449→473、轮间无额外）沿原表归档，owned资源实际wait双清，原STATIC／格式／工具失败保留。新gate无写、原成功gate不变；生产Skills/root与创建HTTP未绑定，完整D08/D10未完成。 [验收与原始证据](project-initialization-convergence-verification.md)。
 
 Owner工作区UI candidate04仅#21 locator修订离线通过；真实read01 Outbox setup失败、read02 label失败均保留并已独核退出，尚无browser top PASS；正在按已接受 `39ebd57e` 重新绑定Go依赖，旧16／独立A-B未跑、asset未交换、前端README未授，UI产品未接受。
