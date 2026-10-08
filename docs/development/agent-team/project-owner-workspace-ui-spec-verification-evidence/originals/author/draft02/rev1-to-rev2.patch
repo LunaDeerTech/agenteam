@@ -1,0 +1,19 @@
+--- draft01/draft.md
++++ draft02/draft.md
+@@ -1,4 +1,4 @@
+-# D26/D27 Owner 项目入口、工作区与基本信息编辑 UI — scratch rev1
++# D26/D27 Owner 项目入口、工作区与基本信息编辑 UI — scratch rev2
+ 
+ 状态：完整工程规格草稿，待独立完整 STATIC 与 root 采纳；未正式归位、未授权产品实施或任何测试资源。固定接受产品 `cc850b2244cad771eb862a2c82d99887d5da7284`、配置归档 `b91cb89f0575cf7f54faa5d253b5571d7435b670`，来源见 [inputs.json](inputs.json)，23 路径见 [candidate-paths.json](candidate-paths.json)。不读取 Audit 活动实现，不把当前工作树等同于该接受基线。
+ 
+@@ -39,7 +39,9 @@
+ 
+ username 使用正式路由规则（3–32 ASCII、英文字母/数字、仅内部连字符），不是新账号创建规则；项目名 1–64 ASCII `[A-Za-z0-9._-]` 且不等于 `.`/`..`。不可把账号创建 reserved-name 表整张套到路由，尤其现有 `admin` 必须可作为 Owner username，`projects` 也可以拥有 `/projects/demo`，单段 `/projects` 仍是列表。
+ 
+-保护已有应用命名空间：`api`、`assets`、`auth`、`login`、`logout`、`invite`、`forgot-password`、`reset-password`、`reset`、`settings`、`system`、`personal`、`diagnostics`、`livez`、`readyz`、`debug` 首段不进入 Project 动态分支。合法既有静态路由优先；其未知子路径保持原 NotFound/API 归属，不被解释为 Project。其余符合正式语法的现存用户名（含 `admin`、`root`、`support`、`projects`）不因创建时禁名而自行禁止。纯前端 raw path guard 在任何 Project API 前核验，不能仅相信 router 已 decode 的 params。必须覆盖 `/system/users`、`/settings/profile`、`/api/v1/...` 与动态路径竞争的反例；本卡不声明修改生产服务器的路由保留规则。
++保护已有应用命名空间：`api`、`assets`、`auth`、`login`、`logout`、`invite`、`reset`、`settings`、`system`、`personal`、`diagnostics`、`livez`、`readyz`、`debug` 首段不进入 Project 动态分支。合法既有静态路由优先；其未知子路径保持原 NotFound/API 归属，不被解释为 Project。其余符合正式语法的现存用户名（含 `admin`、`root`、`support`、`projects`）不因创建时禁名而自行禁止。纯前端 raw path guard 在任何 Project API 前核验，不能仅相信 router 已 decode 的 params。必须覆盖 `/system/users`、`/settings/profile`、`/api/v1/...` 与动态路径竞争的反例；本卡不声明修改生产服务器的路由保留规则。
++
++`forgot-password` 与 `reset-password` 不属于上述首段禁集：固定 Account `reservedNames` 没有二者，二者符合正式 NormalizeUsername 与 CurrentUserRoutes 规则。单段 `/forgot-password`、`/reset-password` 仍优先进入原公开账号页，原 query/token 捕获、隔离及清除保持；不能因新增 Project 路由改变它们。严格两段 `/forgot-password/demo`、`/reset-password/demo` 及各自 `/settings`、`/settings/general` 后缀，按同一封闭动态 route/return 规则接受，再执行正式 Resolve → 稳定 ID Get，不能只因首段同名拒绝。路由与 safeReturnTarget 测试须同时覆盖这六个合法 Project 目标、单段公开入口原 query/token 处理，以及 Project 目标携 query/token、额外后缀或编码路径仍被拒绝；公开 token 不能转成 Project return 或请求参数。
+ 
+ 登录成功仅消费该安全目标；新的 Session 仍须自己的 Resolve/Get，不消费登录前缓存授权。未登录保存目标不保存 Project 内容、命令、token、key 或 body 到 URL/history/localStorage/sessionStorage。账号切换、公开邀请/reset 参数既有隔离及清除不受影响。
+ 

@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "scope": "Complete independent specification STATIC = rev1 full review + rev2 B1-only delta; not implementation authorization or runtime acceptance",
+  "reviewed": {
+    "draft.md": "c71bfc5acbdd63dce8895af6f25beedef85fe1aa8f23730803692dd58bd72974",
+    "freeze.json": "e801086265339e2799ba6fac6444f008954527f9c18a85e64813226ca46cfbad",
+    "inputs.json": "dbd4a8c68311f0de89b3442bfdc259f3d0ac16d5ca6d595d1d6a81530b29cf3b",
+    "candidate-paths.json": "408b9c64cf397ce1ef472522b433bc8e90fc35dd064410e6c2cd44a1c4933597",
+    "rev1-to-rev2.patch": "5822465422498218af94554333c3222e73eb95c3234a564c0ece94e975be2d23",
+    "change.json": "e2643835ab5d2054930428d7c5e47a1aafd1182024dd9255b40725e867060521"
+  },
+  "reused_full_review": {
+    "review.md": {
+      "path": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-review01/review.md",
+      "sha256": "7d7274b5275b57fa0d8a5979da6cd23a36a599043e96bb63a76b7a913ddf4c95"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-review01/result.json",
+      "sha256": "67e9b7be47aca46bb00014571d41f2f67e4955b157f39ace74fffbca1cb7014d"
+    },
+    "freeze.json": {
+      "path": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-review01/freeze.json",
+      "sha256": "1bfdee8c9159e98cb4bf21b3c0b80261a67aab7da296e9d896f6e9a6e0ff997e"
+    }
+  },
+  "checks": {
+    "exact_patch_matches": true,
+    "reverse_authorized_section_and_title_restores_rev1_bytes": true,
+    "candidate_23_bytes_unchanged": true,
+    "all_65_input_source_entries_unchanged_and_current_match": true,
+    "local_links": 15,
+    "B1_closed": true,
+    "old_public_single_segment_query_token_contract_preserved": true,
+    "dynamic_project_route_return_6_positive_cases_required": true,
+    "project_query_token_extra_suffix_encoded_path_negative_cases_required": true,
+    "remaining_blockers": []
+  },
+  "limits": [
+    "Scratch specification acceptance only; root formal placement/implementation/resource authorization separate",
+    "No Go/Node/browser/native/PG/resources executed",
+    "No active Audit or author product used",
+    "SPA stopped publication unchanged; harness does not prove Central deployment"
+  ],
+  "stopped": true
+}

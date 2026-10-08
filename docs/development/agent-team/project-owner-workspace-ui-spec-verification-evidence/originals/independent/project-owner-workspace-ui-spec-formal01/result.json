@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "scope": "Final formal specification placement; complete rev1 review + rev2 B1 correction + administrative/link/source appendix only",
+  "formal_card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-workspace-ui.md",
+    "sha256": "b6676740c3e1cd7bf63177a33595eff2177ff3e7f1580889a35af4a8ed1fb20a"
+  },
+  "formal_freeze": {
+    "path": "/workspace/scratch/project-owner-workspace-ui-spec/formal01/freeze.json",
+    "sha256": "338077d1a4a7fb283483550a21cefeb7363a05dcacc1d8105c6061a68a91b8a4"
+  },
+  "formal_patch_sha256": "b627c8cdb2eab3653da939a2cd1e73d5908f354a3def00ceddb62ca1539db56a",
+  "reused_review02": {
+    "path": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-review02/freeze.json",
+    "sha256": "e07f9d92ddfb5aa12803333a40b963b775b18888532de09cbd8a7b37ce4bed60"
+  },
+  "checks": {
+    "independent_inverse_equals_rev2_all_bytes": true,
+    "links_same_absolute_targets": true,
+    "finite_source_rows_hashes": 65,
+    "candidate_rows_exact": 23,
+    "existing_candidate_hash_rows_exact": 8,
+    "local_links_exist": 77,
+    "technical_drift": false,
+    "dangling_scratch_dependency": false,
+    "implementation_or_resource_authorization_added": false,
+    "B1_fix_preserved": true
+  },
+  "limits": [
+    "Specification only; implementation, execution, actual graphs, Audit handoff and resource windows remain separate root authorizations",
+    "No Go/Node/browser/resource or product/Git changes",
+    "SPA stops unchanged; no Central deployment acceptance"
+  ],
+  "stopped": true
+}

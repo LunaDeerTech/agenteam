@@ -1,0 +1,60 @@
+{
+  "status": "FROZEN scratch rev2 B1 correction; independent narrow STATIC pending; no implementation authorization",
+  "utc": "2026-10-08T00:21:46.123206+00:00",
+  "previous_freeze": {
+    "path": "/workspace/scratch/project-owner-workspace-ui-spec/draft01/freeze.json",
+    "sha256": "6680d2964553812dd5002d45efe7344610abc081591d0617e758652bf09bacfd"
+  },
+  "files": {
+    "draft.md": {
+      "sha256": "c71bfc5acbdd63dce8895af6f25beedef85fe1aa8f23730803692dd58bd72974",
+      "bytes": 39417
+    },
+    "inputs.json": {
+      "sha256": "dbd4a8c68311f0de89b3442bfdc259f3d0ac16d5ca6d595d1d6a81530b29cf3b",
+      "bytes": 16178
+    },
+    "candidate-paths.json": {
+      "sha256": "408b9c64cf397ce1ef472522b433bc8e90fc35dd064410e6c2cd44a1c4933597",
+      "bytes": 4059
+    },
+    "rev1-to-rev2.patch": {
+      "sha256": "5822465422498218af94554333c3222e73eb95c3234a564c0ece94e975be2d23",
+      "bytes": 3776
+    },
+    "change.json": {
+      "sha256": "e2643835ab5d2054930428d7c5e47a1aafd1182024dd9255b40725e867060521",
+      "bytes": 1593
+    },
+    "check.py": {
+      "sha256": "038e410067da80d2bc65e31462c5bf14e5b715c0d741818c078ea9f8d7d77d7c",
+      "bytes": 4548
+    },
+    "self-check.json": {
+      "sha256": "75d0e0c023cd06a82ae1517f71dd79f15ab7ae1d94d3b6fb0c9eb76eb301ad3b",
+      "bytes": 2881
+    }
+  },
+  "self_check": {
+    "argv": [
+      "/usr/bin/python3",
+      "/workspace/scratch/project-owner-workspace-ui-spec/draft02/check.py"
+    ],
+    "cwd": "/workspace",
+    "actual_exit_code": 0,
+    "stdout": "self-check.json",
+    "scope": "document static only"
+  },
+  "semantic_delta": "§3.1 only removes two legal username prefixes from whole-prefix denial and binds exact dynamic/public-route regression; title revision label administrative; remaining technical bytes equal",
+  "other_technical_bytes_equal": true,
+  "candidate_bytes_equal": true,
+  "source_count": 65,
+  "local_links": 15,
+  "old_top_count": 16,
+  "rev1_preserved": true,
+  "repository_writes": [],
+  "product_execution": false,
+  "resources": [],
+  "git_operations": [],
+  "stopped_writing": true
+}

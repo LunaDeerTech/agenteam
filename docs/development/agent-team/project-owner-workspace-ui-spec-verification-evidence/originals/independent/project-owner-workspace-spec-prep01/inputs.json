@@ -1,0 +1,75 @@
+{
+  "status": "PREPARED_ONLY",
+  "baseline_product": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "archive": "b91cb89f0575cf7f54faa5d253b5571d7435b670",
+  "recommendation_inputs": {
+    "/workspace/scratch/after-configuration-frontier01/recommendation.md": {
+      "sha256": "39f7fa3bc100a08f2a587c4a34fb025e04ccfe4f1910522d0bd83eea3ce36e0a"
+    },
+    "/workspace/scratch/after-configuration-frontier01/inputs.json": {
+      "sha256": "bfc5b6ca5f3b62036bf30c1a6a534318c0edabb40d9faa4666084cf915470cf4"
+    },
+    "/workspace/scratch/after-configuration-frontier01/candidate-paths.json": {
+      "sha256": "c7459b0099e748988bd9ef44e6a9312891256d60da4c7d9b5441620f7521642c"
+    }
+  },
+  "verified_input_count": 25,
+  "additional_fixed_sources": [
+    {
+      "path": "web/src/composables/useSession.ts",
+      "git_baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+      "sha256": "f8409de32debb34d1f36d502372a746217c54d8d86299fbd6cc4a16a2e92b90d",
+      "working_bytes_equal": true
+    },
+    {
+      "path": "internal/central/project/http/handler.go",
+      "git_baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+      "sha256": "7acac6171cfe580dafd1e8821659bde2926eddb15ec54969024245d3a5c1052e",
+      "working_bytes_equal": true
+    },
+    {
+      "path": "internal/central/project/http/update.go",
+      "git_baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+      "sha256": "99f487afa654325e60d505149f3d9def1c6a747e6fd6444c8703cb8997710d25",
+      "working_bytes_equal": true
+    },
+    {
+      "path": "internal/central/project/http/update_wire.go",
+      "git_baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+      "sha256": "a589a7054b43b7f6a25b7d0dcc6743389dc507eee8199b15c3bd2e4accdd1452",
+      "working_bytes_equal": true
+    },
+    {
+      "path": "internal/central/project/http/wire.go",
+      "git_baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+      "sha256": "323936c09a2f78059abadfedfbdc38dce35040cb361ea8c62287112605da3bc5",
+      "working_bytes_equal": true
+    },
+    {
+      "path": "internal/central/usage/http/handler.go",
+      "git_baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+      "sha256": "e56b1050691ef5c10b0649d4d06e94a6d4a819f832db85ed49e9faca0f0eebe9",
+      "working_bytes_equal": true
+    },
+    {
+      "path": "internal/central/usage/http/wire.go",
+      "git_baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+      "sha256": "e61a6bb68b7e88e06c6972b4df0b614301195d71e1305f05faf9436fdd441f9c",
+      "working_bytes_equal": true
+    },
+    {
+      "path": "internal/central/app/project_usage.go",
+      "git_baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+      "sha256": "13abb6bbdc4d38d40b1ba627aa989aec503ffe55c7a310dd42d11acc33d81275",
+      "working_bytes_equal": true
+    }
+  ],
+  "scope_note": "Original 22 paths retained; root explicitly added useSession.ts as path 23 for upcoming specification only.",
+  "excluded": [
+    "active Audit sources",
+    "active author draft",
+    "Go/Node/browser/resources",
+    "Git/product/official-document writes"
+  ],
+  "no_active_commands_or_owned_resources": true
+}

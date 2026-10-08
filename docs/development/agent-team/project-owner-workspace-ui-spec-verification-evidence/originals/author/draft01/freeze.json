@@ -1,0 +1,47 @@
+{
+  "status": "FROZEN scratch rev1; author self-check complete; independent STATIC pending; implementation unauthorized",
+  "utc": "2026-10-08T00:16:08.526941+00:00",
+  "baseline_product": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "archive": "b91cb89f0575cf7f54faa5d253b5571d7435b670",
+  "files": {
+    "draft.md": {
+      "sha256": "182dafda155613991980d0ebacf47efda39164eb7bd2f3d798615928a035ba18",
+      "bytes": 38589
+    },
+    "inputs.json": {
+      "sha256": "0312423e1d38d7d21e59836157d467e1de7f0f9161f8d92ea37eba0debf91a66",
+      "bytes": 15525
+    },
+    "candidate-paths.json": {
+      "sha256": "408b9c64cf397ce1ef472522b433bc8e90fc35dd064410e6c2cd44a1c4933597",
+      "bytes": 4059
+    },
+    "check.py": {
+      "sha256": "038e410067da80d2bc65e31462c5bf14e5b715c0d741818c078ea9f8d7d77d7c",
+      "bytes": 4548
+    },
+    "self-check.json": {
+      "sha256": "cc03b92e3ac35717ef56e1da8a66562465f0145c7edcf3a5b151610dabe94eec",
+      "bytes": 2881
+    }
+  },
+  "self_check_command": {
+    "cwd": "/workspace",
+    "argv": [
+      "/usr/bin/python3",
+      "/workspace/scratch/project-owner-workspace-ui-spec/draft01/check.py"
+    ],
+    "stdout": "/workspace/scratch/project-owner-workspace-ui-spec/draft01/self-check.json",
+    "actual_exit_code": 0,
+    "scope": "static hashes, JSON, link existence, UTF-8/LF/trailing whitespace, candidate table, fixed old selectors, SPA path disjointness, cap arithmetic; no product execution"
+  },
+  "repository_writes": [],
+  "runtime_resources": [],
+  "git_operations": [],
+  "source_copy_count": 0,
+  "technical_scope_count": 22,
+  "readme_last_number": 22,
+  "total_candidate_count": 23,
+  "coordination": "Audit active sources excluded; future shared Go graph waits accepted handoff or root-authorized fixed accepted overlay. Three stops persist.",
+  "stop_writing": true
+}

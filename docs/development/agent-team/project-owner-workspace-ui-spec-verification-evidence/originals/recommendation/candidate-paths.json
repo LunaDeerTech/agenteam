@@ -1,0 +1,96 @@
+{
+  "status": "proposal only; exact scope to be frozen in formal specification after root selection",
+  "count": 22,
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "existing": true
+    },
+    {
+      "path": "web/src/api/project-owner.ts",
+      "existing": false
+    },
+    {
+      "path": "web/src/composables/useProjectWorkspace.ts",
+      "existing": false
+    },
+    {
+      "path": "web/src/App.vue",
+      "existing": true
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "existing": true
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "existing": true
+    },
+    {
+      "path": "web/src/components/layout/ProjectNav.vue",
+      "existing": false
+    },
+    {
+      "path": "web/src/views/projects/ProjectListView.vue",
+      "existing": false
+    },
+    {
+      "path": "web/src/views/projects/ProjectWorkspaceView.vue",
+      "existing": false
+    },
+    {
+      "path": "web/src/views/projects/ProjectHomeView.vue",
+      "existing": false
+    },
+    {
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "existing": false
+    },
+    {
+      "path": "web/src/views/projects/ProjectGeneralSettings.vue",
+      "existing": false
+    },
+    {
+      "path": "web/src/tests/project-owner-client.spec.ts",
+      "existing": false
+    },
+    {
+      "path": "web/src/tests/project-workspace-state.spec.ts",
+      "existing": false
+    },
+    {
+      "path": "web/src/tests/project-workspace.spec.ts",
+      "existing": false
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "existing": true
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "existing": true
+    },
+    {
+      "path": "tests/account/project_owner_web_fixture_test.go",
+      "existing": false
+    },
+    {
+      "path": "tests/account/project_owner_web_test.go",
+      "existing": false
+    },
+    {
+      "path": "tests/account-captcha-web/project-owner.config.js",
+      "existing": false
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/project-owner.spec.ts",
+      "existing": false
+    },
+    {
+      "path": "docs/development/frontend/README.md",
+      "existing": true
+    }
+  ],
+  "single_writer": "one frontend author; independent verifier separate; root owns coordination",
+  "no_backend_production_changes": true
+}

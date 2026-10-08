@@ -8,6 +8,12 @@ AT-0005 已逐项确认审计方向；正式文档归位和验收见[同步任�
 
 ## 当前基线与计划范围
 
+2026-10-08 当前增量：[Owner 工作区 UI 规格](agent-team/project-owner-workspace-ui-spec-verification.md)完整 rev1＋rev2 B1＋正式末件 STATIC 接受，`8cf81b44` 已推送并由 root 核远端一致。fixture_recovery 与 summary_verification 均已实际 ACK：作者开始 #1–17/#20–21/#23 共 20 个 web/JS 路径，必要 Node ≤45s/唯一 Vite outDir 已授；独审仅 scratch 准备。Go #18–19 仅 scratch，README #22、真实 browser/PG/webdist 未授，UI 产品未接受。
+
+[2026-10-08 恢复记录](agent-team/recovery-2026-10-08-environment.md)固定五实例 ACK 与原 Audit 输入保留；Audit #12–14 已安装、format02 通过，原 app-run01 终局已核，原工具失败保留；wire03 待验，产品未接受，#15–16 文档/native/PG 未授。恢复不等于机器重启或历史进程 actual wait。配置写入 `cc850b22`／归档 `b91cb89f` 及其他已接受能力保持。
+
+管理员统一会议 Summary initial/update 含首轮标题，Project 不 override/复制初值，compaction/Execution Summary 不改。production Resolution/Invocations/D24 未绑定，ready503、D08–D28/E01 未完、E01 未开始及 Object runtime join/OpenAI tools 独立验证/SPA concurrent-publication 三停止不变；以下历史原文保留。
+
 2026-10-07 当前增量：[Project Model配置写入HTTP](agent-team/project-model-configuration-write-http-verification.md)完整15路径（14技术＋README）已接受，产品 `cc850b22` 已推送且root核远端一致。版本组合与原失败保留：5实际native（含作者首红）、11实际PG每轮7资源actualwait/双清，实表核77不同ID；44新增daemon/PID1 shim非owned、未wait，不称全机清零。本卡22原body与旧域13分列，全部任务窗口已归还。
 
 [Project Owner Audit规格](agent-team/project-owner-audit-http-spec-verification.md) `9eb167e4`／归档 `210bd733` 已接受。以 `cc850b22` 为基线，root正式移交 `account.go`；usage_verification已ACK并开始唯一#1–14技术实施，必要45s离线已授，当前尚无执行结论。next_frontier已ACK，仅独立scratch准备；Audit #15–16文档末件与native/PG未授，产品未接受。

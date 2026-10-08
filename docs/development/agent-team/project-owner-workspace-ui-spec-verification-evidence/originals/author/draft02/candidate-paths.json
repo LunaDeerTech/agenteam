@@ -1,0 +1,146 @@
+{
+  "status": "scratch rev1 candidate; root accepted necessary Session path23; implementation unauthorized",
+  "count": 23,
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "existing": true,
+      "number": 1,
+      "baseline_sha256": "998e1edd8c1ffe3a3133b821f5169ec4b48cba8fefa98478b9abfa17f0bb6d7e"
+    },
+    {
+      "path": "web/src/api/project-owner.ts",
+      "existing": false,
+      "number": 2,
+      "baseline_sha256": null
+    },
+    {
+      "path": "web/src/composables/useProjectWorkspace.ts",
+      "existing": false,
+      "number": 3,
+      "baseline_sha256": null
+    },
+    {
+      "path": "web/src/App.vue",
+      "existing": true,
+      "number": 4,
+      "baseline_sha256": "4f7068223c59aa7e819dd5cfef6599fb590f663633edd2e821d29d1a1bc1b24b"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "existing": true,
+      "number": 5,
+      "baseline_sha256": "b38c47c9965fb22a0366e9af73137725d3648ce6f4ce786b5f5d6d059c9c71f0"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "existing": true,
+      "number": 6,
+      "baseline_sha256": "bdc8db93bfd9222a5d1d079f2f6b868d0c00200edb892a517ae28e1f9f725715"
+    },
+    {
+      "path": "web/src/components/layout/ProjectNav.vue",
+      "existing": false,
+      "number": 7,
+      "baseline_sha256": null
+    },
+    {
+      "path": "web/src/views/projects/ProjectListView.vue",
+      "existing": false,
+      "number": 8,
+      "baseline_sha256": null
+    },
+    {
+      "path": "web/src/views/projects/ProjectWorkspaceView.vue",
+      "existing": false,
+      "number": 9,
+      "baseline_sha256": null
+    },
+    {
+      "path": "web/src/views/projects/ProjectHomeView.vue",
+      "existing": false,
+      "number": 10,
+      "baseline_sha256": null
+    },
+    {
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "existing": false,
+      "number": 11,
+      "baseline_sha256": null
+    },
+    {
+      "path": "web/src/views/projects/ProjectGeneralSettings.vue",
+      "existing": false,
+      "number": 12,
+      "baseline_sha256": null
+    },
+    {
+      "path": "web/src/tests/project-owner-client.spec.ts",
+      "existing": false,
+      "number": 13,
+      "baseline_sha256": null
+    },
+    {
+      "path": "web/src/tests/project-workspace-state.spec.ts",
+      "existing": false,
+      "number": 14,
+      "baseline_sha256": null
+    },
+    {
+      "path": "web/src/tests/project-workspace.spec.ts",
+      "existing": false,
+      "number": 15,
+      "baseline_sha256": null
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "existing": true,
+      "number": 16,
+      "baseline_sha256": "da1065fc139ecb8343ef87199a300424233c802cbb9b9ef1aa546039cc2a96b1"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "existing": true,
+      "number": 17,
+      "baseline_sha256": "4c4d1483b3f75a5a3fca6f5f54d39526cae24c5f0a6674989d90348f30fbfc3a"
+    },
+    {
+      "path": "tests/account/project_owner_web_fixture_test.go",
+      "existing": false,
+      "number": 18,
+      "baseline_sha256": null
+    },
+    {
+      "path": "tests/account/project_owner_web_test.go",
+      "existing": false,
+      "number": 19,
+      "baseline_sha256": null
+    },
+    {
+      "path": "tests/account-captcha-web/project-owner.config.js",
+      "existing": false,
+      "number": 20,
+      "baseline_sha256": null
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/project-owner.spec.ts",
+      "existing": false,
+      "number": 21,
+      "baseline_sha256": null
+    },
+    {
+      "path": "docs/development/frontend/README.md",
+      "existing": true,
+      "number": 22,
+      "baseline_sha256": "2b4545145a9b377de0f6d7d76cc0e8d808e62f2b846f51b4561d9cc2e9ba24d6"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "existing": true,
+      "number": 23,
+      "baseline_sha256": "f8409de32debb34d1f36d502372a746217c54d8d86299fbd6cc4a16a2e92b90d"
+    }
+  ],
+  "single_writer": "one frontend author; independent verifier separate; root owns coordination",
+  "no_backend_production_changes": true
+}

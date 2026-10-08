@@ -1,0 +1,154 @@
+--- draft02/draft.md
++++ docs/development/work-items/d27-project-owner-workspace-ui.md
+@@ -1,12 +1,12 @@
+-# D26/D27 Owner 项目入口、工作区与基本信息编辑 UI — scratch rev2
+-
+-状态：完整工程规格草稿，待独立完整 STATIC 与 root 采纳；未正式归位、未授权产品实施或任何测试资源。固定接受产品 `cc850b2244cad771eb862a2c82d99887d5da7284`、配置归档 `b91cb89f0575cf7f54faa5d253b5571d7435b670`，来源见 [inputs.json](inputs.json)，23 路径见 [candidate-paths.json](candidate-paths.json)。不读取 Audit 活动实现，不把当前工作树等同于该接受基线。
++# D27 Project Owner 项目入口、工作区与基本信息编辑 UI
++
++状态：rev2 完整限定独立 STATIC PASS，root 已采纳；本次正式归位待独立末件窄核。仅规格接受，尚未授权产品实施、Go/浏览器执行或真实资源。固定接受产品 `cc850b2244cad771eb862a2c82d99887d5da7284`、配置归档 `b91cb89f0575cf7f54faa5d253b5571d7435b670`；固定来源见附录 A，23 路径白名单见 §8。不读取 Audit 活动实现，不把当前工作树等同于该接受基线。
+ 
+ ## 1. 完整结果、既定决定与前置
+ 
+-交付普通 Human Owner 能从系统“项目”入口查看自己的项目，以名称地址进入已重新授权的稳定 Project 工作区，在双导航下查看真实概要、编辑名称和描述，并在结果不确定时查证、显式重放原 Update 意图。管理员同样必须是该 Project Owner，无身份豁免。页面行为依据[系统页面](../../../agenteam/docs/frontend-design/layouts/system-pages.md)、[项目工作台](../../../agenteam/docs/frontend-design/layouts/project-workspace.md)、[项目设置](../../../agenteam/docs/frontend-design/layouts/project-settings.md)及[通用设置](../../../agenteam/docs/frontend-design/layouts/settings-shell.md)，不另开产品决定。
+-
+-本卡只绑定已接受的 Owner List/Get、独立 Resolve、Update 及其 lookup。来源分别为 [Owner Read 验收](../../../agenteam/docs/development/agent-team/project-owner-read-http-verification.md)、[Owner Update 验收](../../../agenteam/docs/development/agent-team/project-owner-update-http-verification.md)、[Resolve 所属 Usage 卡](../../../agenteam/docs/development/work-items/d09-project-usage-read-http.md)，实际 schema 为 [project-owner.json](../../../agenteam/api/openapi/project-owner.json) 与 [project-usage.json](../../../agenteam/api/openapi/project-usage.json)。这些子能力已接受，不等于 D08–D28 全模块完成。
++交付普通 Human Owner 能从系统“项目”入口查看自己的项目，以名称地址进入已重新授权的稳定 Project 工作区，在双导航下查看真实概要、编辑名称和描述，并在结果不确定时查证、显式重放原 Update 意图。管理员同样必须是该 Project Owner，无身份豁免。页面行为依据[系统页面](../../frontend-design/layouts/system-pages.md)、[项目工作台](../../frontend-design/layouts/project-workspace.md)、[项目设置](../../frontend-design/layouts/project-settings.md)及[通用设置](../../frontend-design/layouts/settings-shell.md)，不另开产品决定。
++
++本卡只绑定已接受的 Owner List/Get、独立 Resolve、Update 及其 lookup。来源分别为 [Owner Read 验收](../agent-team/project-owner-read-http-verification.md)、[Owner Update 验收](../agent-team/project-owner-update-http-verification.md)、[Resolve 所属 Usage 卡](d09-project-usage-read-http.md)，实际 schema 为 [project-owner.json](../../../api/openapi/project-owner.json) 与 [project-usage.json](../../../api/openapi/project-usage.json)。这些子能力已接受，不等于 D08–D28 全模块完成。
+ 
+ 不做 Project 创建、归档、恢复、删除、Owner 转移，也不增加会议、任务、知识库、Agent、Skills、Model/Provider/Credential、MCP、变量、Scheduler、审计或 Usage 页面。设置只呈现本卡实际绑定的“基本信息”，不放死链接、假统计、未绑定功能占位页。系统管理员统一配置会议 Summary initial/update（含首轮标题）的决定保持；不增加 Project override、复制默认值或第二选择器。production Resolution/Invocations、D24、ready503、Object runtime join/OpenAI tools 独立验证停止均保持。
+ 
+@@ -14,11 +14,11 @@
+ 
+ ## 2. SPA 停止项与可验交付边界
+ 
+-停止原件是[接续记录 §26](../../../agenteam/docs/development/agent-team/recovery-2026-10-06-continuation.md)：concurrent-publication 探针被平台内容安全机制终止，run 目录不存在、没有实际执行证据；stage02 竞态静态缺口未关闭，脚本返修与发布暂停，禁止重试、改写或转交该任务。本卡不以新名称重启该探针。
+-
+-[D28 SPA 卡](../../../agenteam/docs/development/work-items/d28-central-spa-hosting.md)的停止链包括 `scripts/build-central-web.mjs` 及其测试、`internal/central/webassets/` 的 handler/bundle/build-tag/共享 bundle 文件、`internal/central/app/app.go`/webassets 两源、`tests/process/central_web_test.go`、central-spa Playwright config/spec 及 `docs/development/backend/frontend-hosting.md`。本卡 23 写路径与该 16 路径无交集；也不执行 `agenteam_web` tagged build、共享 embed 生成、`dist/agenteam` 发布、staging/锁/原子发布或并发发布探针。前端源码是未来发布的上游输入，不代表停止缺陷被修复。
+-
+-普通 `web/package.json` 的 Vue 类型检查、Vitest 和 Vite 构建可在未来授权的任务自有 outDir 完成。真实浏览器沿[已接受 Summary harness](../../../agenteam/tests/account/system_meeting_summary_web_fixture_test.go)的方式：任务自有 loopback 同源入口提供固定静态 dist、以 reverse proxy 转发到真实 no-tag Central API，并为客户端路由提供 harness index fallback。此结果只证明浏览器产品、正式 API 与当前 harness 的集成；不是 Central 生产 SPA 托管、生产直链 fallback、安装部署或发布接受。Vite 代理不能代替正式 API。
++停止原件是[接续记录 §26](../agent-team/recovery-2026-10-06-continuation.md)：concurrent-publication 探针被平台内容安全机制终止，run 目录不存在、没有实际执行证据；stage02 竞态静态缺口未关闭，脚本返修与发布暂停，禁止重试、改写或转交该任务。本卡不以新名称重启该探针。
++
++[D28 SPA 卡](d28-central-spa-hosting.md)的停止链包括 `scripts/build-central-web.mjs` 及其测试、`internal/central/webassets/` 的 handler/bundle/build-tag/共享 bundle 文件、`internal/central/app/app.go`/webassets 两源、`tests/process/central_web_test.go`、central-spa Playwright config/spec 及 `docs/development/backend/frontend-hosting.md`。本卡 23 写路径与该 16 路径无交集；也不执行 `agenteam_web` tagged build、共享 embed 生成、`dist/agenteam` 发布、staging/锁/原子发布或并发发布探针。前端源码是未来发布的上游输入，不代表停止缺陷被修复。
++
++普通 `web/package.json` 的 Vue 类型检查、Vitest 和 Vite 构建可在未来授权的任务自有 outDir 完成。真实浏览器沿[已接受 Summary harness](../../../tests/account/system_meeting_summary_web_fixture_test.go)的方式：任务自有 loopback 同源入口提供固定静态 dist、以 reverse proxy 转发到真实 no-tag Central API，并为客户端路由提供 harness index fallback。此结果只证明浏览器产品、正式 API 与当前 harness 的集成；不是 Central 生产 SPA 托管、生产直链 fallback、安装部署或发布接受。Vite 代理不能代替正式 API。
+ 
+ 旧浏览器用例若硬编码 `web/dist`，只能在 root 明确给出唯一资产窗口后，按已接受方式冻结旧资产清单、记录交换、actual reader 全部退出后恢复原字节并复核；不能并发构建/覆盖、改变发布脚本或把它叫生产发布。若某验收要求实际依赖被停止的发布链，则该项停报 root，不能换 harness 后宣称它通过。
+ 
+@@ -153,7 +153,7 @@
+ 
+ ## 8. 唯一候选白名单与兼容面
+ 
+-23路径：22技术（#1–21及#23），README #22末件。新15/旧8；精确基线哈希与存在性见 [candidate-paths.json](candidate-paths.json)。实施、返修与文档授权由 root 另发，本草稿不授写。
++23路径：22技术（#1–21及#23），README #22末件。新15/旧8；精确白名单如下，8个既有路径的基线哈希见附录 A.2，其余15路径在规格冻结时不存在。实施、返修与文档授权由 root 另发，本规格不授写。
+ 
+ | # | 路径 | 作用 |
+ | --- | --- | --- |
+@@ -255,4 +255,105 @@
+ 
+ ## 10. 当前交付与结束条件
+ 
+-当前只交此 scratch draft、候选23路径及有限来源哈希，没有源码复制、产品实现、测试运行或资源。工程选择均基于已确认 Owner页面规则与正式端口；无需新增用户产品决定。尚待独立完整STATIC、root采纳/正式归位、实施派工及Audit实际共享图交接；原三个停止保持。任何技术来源冲突、未接受依赖或scope不足只停受影响处报root，不以占位能力补齐。
++本卡归位已接受的 rev2 规格、候选23路径及有限来源哈希，没有源码复制、产品实现、测试运行或资源。工程选择均基于已确认 Owner页面规则与正式端口；无需新增用户产品决定。正式归位末件窄核、实施派工及Audit实际共享图交接仍待完成；原三个停止保持。任何技术来源冲突、未接受依赖或scope不足只停受影响处报root，不以占位能力补齐。
++
++## 附录 A. 固定来源与行政定位
++
++以下为规格来源指纹，不是实际 Go/browser/runtime 闭包，也不授权消费 Audit 活动源。基线提交由 root 提供并已核远端；本卡作者未执行 Git。独立 rev1 全文审查唯一 B1 已在 rev2 修订：合法 username `forgot-password`、`reset-password` 的 Project 路径不再被首段整体禁用，公开单段入口保持。原 rev1 与修订证据保留，正式规格验收原件待归档；不以尚未生成的归档页作链接。
++
++| 固定文档原件 | SHA-256 |
++| --- | --- |
++| 受审 rev1 草稿 | `182dafda155613991980d0ebacf47efda39164eb7bd2f3d798615928a035ba18` |
++| 受审 rev1 冻结 | `6680d2964553812dd5002d45efe7344610abc081591d0617e758652bf09bacfd` |
++| 已接受 rev2 草稿 | `c71bfc5acbdd63dce8895af6f25beedef85fe1aa8f23730803692dd58bd72974` |
++| rev1 → rev2 精确差量 | `5822465422498218af94554333c3222e73eb95c3234a564c0ece94e975be2d23` |
++| rev2 冻结 | `e801086265339e2799ba6fac6444f008954527f9c18a85e64813226ca46cfbad` |
++| rev2 输入索引（65源） | `dbd4a8c68311f0de89b3442bfdc259f3d0ac16d5ca6d595d1d6a81530b29cf3b` |
++| 候选清单（23路径） | `408b9c64cf397ce1ef472522b433bc8e90fc35dd064410e6c2cd44a1c4933597` |
++
++### A.1 有限来源65项
++
++文件路径为仓库定位，hash 固定本卡读取版本；文档后续行政更新不自动成为产品输入，未来运行须绑定当时真正接受并交接的相关源。下表不复制源码或工具。
++
++| 来源 | SHA-256 |
++| --- | --- |
++| [docs/development/development-plan.md](../development-plan.md) | `93b80c48b6b2fba4240b0a271177e5ce2ccb899b892ba39cd5f4a5b42babaa78` |
++| [docs/frontend-design/README.md](../../frontend-design/README.md) | `729afba2f45792b46fcc6906947b9516c87e88515c62a20b605f62c07af82e12` |
++| [docs/frontend-design/layouts/system-pages.md](../../frontend-design/layouts/system-pages.md) | `ecdeebc169105d27218c4b8759a750ff9948a54f4e96fd95a8d74204fb9fea22` |
++| [docs/frontend-design/layouts/project-workspace.md](../../frontend-design/layouts/project-workspace.md) | `7201d7be393cbd95a6fdea9b6b33dd0bdebb8758cdb7b48243815b4d968f092e` |
++| [docs/frontend-design/layouts/project-settings.md](../../frontend-design/layouts/project-settings.md) | `ed5eaf1bc5c3565af29e0a262daccbdab1ce49e53e90843a74f3e0c5a66e8115` |
++| [docs/development/frontend/README.md](../frontend/README.md) | `2b4545145a9b377de0f6d7d76cc0e8d808e62f2b846f51b4561d9cc2e9ba24d6` |
++| [docs/development/agent-team/project-owner-read-http-verification.md](../agent-team/project-owner-read-http-verification.md) | `0a8fcce3e0360179e35ed079332b220219c0f500f0cd9576e58b7c67c0efbc6e` |
++| [docs/development/agent-team/project-owner-update-http-verification.md](../agent-team/project-owner-update-http-verification.md) | `a79a76f60a38f57af558734892836f55883cfc0da105d4ff85bdcf8591bb1a50` |
++| [docs/development/work-items/d09-project-usage-read-http.md](d09-project-usage-read-http.md) | `b872bc7481c8236bbfdea826c7e40c9f96f083669b4189f1a9437b1d976ac6e0` |
++| [api/openapi/project-owner.json](../../../api/openapi/project-owner.json) | `1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3` |
++| [api/openapi/project-usage.json](../../../api/openapi/project-usage.json) | `a908bd1e82d576441e978006fbfd5328e600480a4aa606dca3c818160a47feb4` |
++| [docs/development/agent-team/project-model-configuration-write-http-verification.md](../agent-team/project-model-configuration-write-http-verification.md) | `d1262d7435cd2b5c3f83800b8b2212a299f78ef4ee9a140304807fa80a8d8e3e` |
++| [docs/development/agent-team/project-model-credentials-http-verification.md](../agent-team/project-model-credentials-http-verification.md) | `b8e3f0f75b2235a228db6e3213adcbff1169be5712e7306c6fb5ab5a73b7f560` |
++| [docs/development/agent-team/project-model-owner-read-http-verification.md](../agent-team/project-model-owner-read-http-verification.md) | `a2ad088c3bd7f72c33eae9222f3b1759bc0f198e042a73d3eaab9455dec3c39d` |
++| [docs/development/agent-team/system-meeting-summary-settings-verification.md](../agent-team/system-meeting-summary-settings-verification.md) | `cfc2d76f81444f869c826cab319f060242132b1dc82de0f550052ae27fed7f2f` |
++| [docs/development/agent-team/system-meeting-summary-resolution-verification.md](../agent-team/system-meeting-summary-resolution-verification.md) | `dcdca9e22f46ea69b8b03c108873422a77aa4a644108d37f6beed2c0c6205ec1` |
++| [docs/development/work-items/d04-project-owner-audit-http.md](d04-project-owner-audit-http.md) | `504ce392a4352a395c527bd7928fca5abef94e0aa313b733be12677c0ac79f55` |
++| [docs/development/agent-team/recovery-2026-10-06-continuation.md](../agent-team/recovery-2026-10-06-continuation.md) | `a5a629d17ae51b0c037b8efdf238f42b01afe46479a28779340af1021504ab18` |
++| [docs/development/work-items/d28-central-spa-hosting.md](d28-central-spa-hosting.md) | `2cd71ed46779cbf382d0c507624839129a912ffa26a14056fe70678ae117fbd8` |
++| [web/src/router/index.ts](../../../web/src/router/index.ts) | `b38c47c9965fb22a0366e9af73137725d3648ce6f4ce786b5f5d6d059c9c71f0` |
++| [web/src/router/auth.ts](../../../web/src/router/auth.ts) | `bdc8db93bfd9222a5d1d079f2f6b868d0c00200edb892a517ae28e1f9f725715` |
++| [web/src/api/client.ts](../../../web/src/api/client.ts) | `998e1edd8c1ffe3a3133b821f5169ec4b48cba8fefa98478b9abfa17f0bb6d7e` |
++| [web/src/App.vue](../../../web/src/App.vue) | `4f7068223c59aa7e819dd5cfef6599fb590f663633edd2e821d29d1a1bc1b24b` |
++| [web/package.json](../../../web/package.json) | `20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c` |
++| [tests/account/system_meeting_summary_web_fixture_test.go](../../../tests/account/system_meeting_summary_web_fixture_test.go) | `d88fe8e6e77dfd43785e885e19e024d455cba364cef33a452498db7fe711da35` |
++| [web/src/composables/useSession.ts](../../../web/src/composables/useSession.ts) | `f8409de32debb34d1f36d502372a746217c54d8d86299fbd6cc4a16a2e92b90d` |
++| [web/src/composables/usePersonalSettings.ts](../../../web/src/composables/usePersonalSettings.ts) | `bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679` |
++| [web/src/composables/useSystemProviders.ts](../../../web/src/composables/useSystemProviders.ts) | `79e92bc3f18a9045d5eacf0de425df128997940b31958aee65ae795728ff7488` |
++| [web/src/api/system-providers.ts](../../../web/src/api/system-providers.ts) | `b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade` |
++| [web/src/api/system-account.ts](../../../web/src/api/system-account.ts) | `84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6` |
++| [web/src/components/layout/SystemNav.vue](../../../web/src/components/layout/SystemNav.vue) | `f381d7134b04d7f2f43e10a2be55ca2fd885b75b75e5528913582fc6d88ed1f7` |
++| [web/src/components/layout/SettingsShell.vue](../../../web/src/components/layout/SettingsShell.vue) | `8815f6b4ccae1afbaeef4edd3e18ae92d700a791ea156bb97204069e0859feac` |
++| [internal/central/project/contract/validation.go](../../../internal/central/project/contract/validation.go) | `73db8aeb4db685433279cdeeb119fe12a231d7193d9b93e97305b7f30445c64b` |
++| [internal/central/project/contract/types.go](../../../internal/central/project/contract/types.go) | `7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1` |
++| [internal/central/project/repository.go](../../../internal/central/project/repository.go) | `f89d5b582b79cb31434d70c03be43a99ac1b66261591850d141263c2af44ed55` |
++| [internal/central/account/profile.go](../../../internal/central/account/profile.go) | `ea855986f5af22b6d2eead4137409526dd24d8d87ed82049a3443b77d473b1b5` |
++| [internal/central/account/validation.go](../../../internal/central/account/validation.go) | `60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94` |
++| [internal/central/foundation/fault.go](../../../internal/central/foundation/fault.go) | `94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de` |
++| [docs/development/work-items/d08-project-owner-read-http.md](d08-project-owner-read-http.md) | `45d77d3add041e9c87cb936c6c7cc82b84c112d897758e6234e3d8a654071bc4` |
++| [docs/development/work-items/d08-project-owner-update-http.md](d08-project-owner-update-http.md) | `fe99b367797e6a4d02278581cff900c38fa769d572c1d5e98389d5a70bf3846d` |
++| [docs/development/frontend/components.md](../frontend/components.md) | `0a20dc50008737e56d094e641dc2354816596553785fa4c3bf5de2d3d3784e96` |
++| [docs/frontend-design/layouts/settings-shell.md](../../frontend-design/layouts/settings-shell.md) | `696e85efd8a042696921b9733795d0f58d8351286200b5b9d420311e64d8f0b8` |
++| [docs/frontend-design/styles/components-and-interactions.md](../../frontend-design/styles/components-and-interactions.md) | `ae4e5a22a34aa9c05582e0a5799d417ef18d82aad9413e2fe811cdca9ed3f3a7` |
++| [tests/account/system_meeting_summary_web_test.go](../../../tests/account/system_meeting_summary_web_test.go) | `dbd26eab2e29128fc014209d6ba4e5f3ffa36abb61f759f15f99efe4119b0376` |
++| [tests/account-captcha-web/system-meeting-summary.config.js](../../../tests/account-captcha-web/system-meeting-summary.config.js) | `df49760216621b4534ba03f3cddef2d82b2747168080f9e8f6fd3120a42331e1` |
++| [tests/account-captcha-web/package.json](../../../tests/account-captcha-web/package.json) | `ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58` |
++| [scripts/test-objects.sh](../../../scripts/test-objects.sh) | `71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87` |
++| [tests/model/project_configuration_fixture_test.go](../../../tests/model/project_configuration_fixture_test.go) | `d19c5fb039e784e9747fe853261ceefa4ebdccba9659e5a1010e34832e5c523a` |
++| [.agents/skills/agenteam-design/SKILL.md](../../../.agents/skills/agenteam-design/SKILL.md) | `81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81` |
++| [.agents/skills/agenteam-vue-development/SKILL.md](../../../.agents/skills/agenteam-vue-development/SKILL.md) | `a52ae4b3e6913f3a37b6944e833de9fc282ecb282bf6d2478aea783b19bee039` |
++| [.agents/skills/vue-testing-best-practices/SKILL.md](../../../.agents/skills/vue-testing-best-practices/SKILL.md) | `376fd21d6adfd37f7d102fa17ca099abddef16943389f37588405b013cef23b8` |
++| [tests/account/account_entry_web_test.go](../../../tests/account/account_entry_web_test.go) | `9d939b87c874b1674e2c1615a3ca5e15de8afcf0cac47393215ea9371c3c48fd` |
++| [tests/account/authentication_web_test.go](../../../tests/account/authentication_web_test.go) | `5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76` |
++| [tests/account/personal_settings_web_test.go](../../../tests/account/personal_settings_web_test.go) | `bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b` |
++| [tests/account/system_invitations_web_test.go](../../../tests/account/system_invitations_web_test.go) | `bae6e22be8f6bbcf06349f8b1a85858503c1b5ce623ce2a519e48df04f92cf0a` |
++| [tests/account/system_providers_web_test.go](../../../tests/account/system_providers_web_test.go) | `1082f1a9e7bb38d9655c0a4d3fcf3dcdd62d63aac60b14472b6cebd7873f48cd` |
++| [tests/account/system_models_web_test.go](../../../tests/account/system_models_web_test.go) | `d05ac43aca6998bd251d40d9ec4a41b0f33b399490e555faa18d13dd68132038` |
++| [tests/account/system_model_selection_web_test.go](../../../tests/account/system_model_selection_web_test.go) | `6c60bb68e521685eedfbca9107c026c3f6646119cda4f5c841d2533ed77e3c8e` |
++| [tests/account/system_account_security_web_test.go](../../../tests/account/system_account_security_web_test.go) | `3fdece54c9b80706a9939f4bb6346afe220b2f37abb2201d7e41213d6b10556d` |
++| [tests/account/system_smtp_settings_web_test.go](../../../tests/account/system_smtp_settings_web_test.go) | `df9fee364590ffe0f8fa9998e341c59e466a8d0b8c65047970b9f4ffb90bbd1b` |
++| [tests/account/system_smtp_delivery_web_test.go](../../../tests/account/system_smtp_delivery_web_test.go) | `9cb43e944cfdfaed19955dd80c6646e576aa8a2500b669888755129389196f52` |
++| [tests/account/system_outbound_policy_web_test.go](../../../tests/account/system_outbound_policy_web_test.go) | `61ec8d9518df4ef6c24e3ab67c6afd83babdac888660fdd338856555bec473b8` |
++| [tests/account/system_user_directory_web_test.go](../../../tests/account/system_user_directory_web_test.go) | `8f949e08cb00f4676a4b6f0367cc110e5782dfd261f3e8cdee4e9155fb2f8dbe` |
++| [tests/account/system_audit_web_test.go](../../../tests/account/system_audit_web_test.go) | `ced0a767c84ef783ab0ca6170627c8f77fc0bb30cd299d4783cfbed08c58930f` |
++| [tests/account/system_runtime_information_web_test.go](../../../tests/account/system_runtime_information_web_test.go) | `d0ff7c71af3cac638031507c9f3f502bfcacdec23335294ff8b40ce512a9b121` |
++
++### A.2 候选既有路径基线
++
++§8是完整23路径白名单；下表仅补8个既有文件的固定原字节，其余15个新路径及编号以§8为准。#22 README最后另授，#23 Session扩展已经纳入本规格；不包括三根、Audit、SPA停止链或四入口。
++
++| 编号 | 既有路径 | SHA-256 |
++| --- | --- | --- |
++| 1 | `web/src/api/client.ts` | `998e1edd8c1ffe3a3133b821f5169ec4b48cba8fefa98478b9abfa17f0bb6d7e` |
++| 4 | `web/src/App.vue` | `4f7068223c59aa7e819dd5cfef6599fb590f663633edd2e821d29d1a1bc1b24b` |
++| 5 | `web/src/router/index.ts` | `b38c47c9965fb22a0366e9af73137725d3648ce6f4ce786b5f5d6d059c9c71f0` |
++| 6 | `web/src/router/auth.ts` | `bdc8db93bfd9222a5d1d079f2f6b868d0c00200edb892a517ae28e1f9f725715` |
++| 16 | `web/src/tests/authentication.spec.ts` | `da1065fc139ecb8343ef87199a300424233c802cbb9b9ef1aa546039cc2a96b1` |
++| 17 | `web/src/tests/session.spec.ts` | `4c4d1483b3f75a5a3fca6f5f54d39526cae24c5f0a6674989d90348f30fbfc3a` |
++| 22 | `docs/development/frontend/README.md` | `2b4545145a9b377de0f6d7d76cc0e8d808e62f2b846f51b4561d9cc2e9ba24d6` |
++| 23 | `web/src/composables/useSession.ts` | `f8409de32debb34d1f36d502372a746217c54d8d86299fbd6cc4a16a2e92b90d` |

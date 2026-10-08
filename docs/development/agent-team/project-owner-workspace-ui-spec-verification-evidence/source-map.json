@@ -1,0 +1,416 @@
+{
+  "status": "COMPLETE_REV1_PLUS_REV2_B1_AND_FORMAL_PLACEMENT_STATIC_ACCEPTED_SPEC_ONLY",
+  "specification_commit": "8cf81b44a93fce53ac3f5a218bfc9569e193eeb7",
+  "publication": "Root reports pushed and remote equality, rechecked after 2026-10-08 environment recovery; worker runs no Git.",
+  "fixed_product_baseline": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "fixed_baseline_archive": "b91cb89f0575cf7f54faa5d253b5571d7435b670",
+  "originals": [
+    {
+      "source": "/workspace/scratch/after-configuration-frontier01/recommendation.md",
+      "archive": "originals/recommendation/recommendation.md",
+      "sha256": "39f7fa3bc100a08f2a587c4a34fb025e04ccfe4f1910522d0bd83eea3ce36e0a",
+      "bytes": 8504,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/after-configuration-frontier01/inputs.json",
+      "archive": "originals/recommendation/inputs.json",
+      "sha256": "bfc5b6ca5f3b62036bf30c1a6a534318c0edabb40d9faa4666084cf915470cf4",
+      "bytes": 5859,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/after-configuration-frontier01/candidate-paths.json",
+      "archive": "originals/recommendation/candidate-paths.json",
+      "sha256": "c7459b0099e748988bd9ef44e6a9312891256d60da4c7d9b5441620f7521642c",
+      "bytes": 2305,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/after-configuration-frontier01/self-check.json",
+      "archive": "originals/recommendation/self-check.json",
+      "sha256": "80cb56dba5e0ec4c436a22aa4b0e5cea04fd2a73f27958ed0ae45911008c96ff",
+      "bytes": 662,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-owner-workspace-spec-prep01/preparation.md",
+      "archive": "originals/independent/project-owner-workspace-spec-prep01/preparation.md",
+      "sha256": "2e23f08ecc92c8818703271a19943a66debea48569a856d913e9f85908a05ed6",
+      "bytes": 5987,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-owner-workspace-spec-prep01/inputs.json",
+      "archive": "originals/independent/project-owner-workspace-spec-prep01/inputs.json",
+      "sha256": "91b4baff27961bfbfa2dcb3dfe2a69da499a579689c1495fc279cdeee0ce7c61",
+      "bytes": 3103,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-owner-workspace-spec-prep01/freeze.json",
+      "archive": "originals/independent/project-owner-workspace-spec-prep01/freeze.json",
+      "sha256": "0c3bfe4e0acf1569af504c9ebccda6af3b988a514273ad5370259a2bf3875f01",
+      "bytes": 245,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-review01/review.md",
+      "archive": "originals/independent/project-owner-workspace-ui-spec-review01/review.md",
+      "sha256": "7d7274b5275b57fa0d8a5979da6cd23a36a599043e96bb63a76b7a913ddf4c95",
+      "bytes": 3818,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-review01/result.json",
+      "archive": "originals/independent/project-owner-workspace-ui-spec-review01/result.json",
+      "sha256": "67e9b7be47aca46bb00014571d41f2f67e4955b157f39ace74fffbca1cb7014d",
+      "bytes": 21365,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-review01/freeze.json",
+      "archive": "originals/independent/project-owner-workspace-ui-spec-review01/freeze.json",
+      "sha256": "1bfdee8c9159e98cb4bf21b3c0b80261a67aab7da296e9d896f6e9a6e0ff997e",
+      "bytes": 241,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-review02/review.md",
+      "archive": "originals/independent/project-owner-workspace-ui-spec-review02/review.md",
+      "sha256": "86ac4926af79ba2fbcbd02e6b33b429fb95fb8bf8820eeeefaedb3311168f070",
+      "bytes": 1301,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-review02/result.json",
+      "archive": "originals/independent/project-owner-workspace-ui-spec-review02/result.json",
+      "sha256": "5001571f97d0b6317c04d15ed7f56817cb3247127206496cfbc51ce4fd20aa41",
+      "bytes": 2285,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-review02/freeze.json",
+      "archive": "originals/independent/project-owner-workspace-ui-spec-review02/freeze.json",
+      "sha256": "e07f9d92ddfb5aa12803333a40b963b775b18888532de09cbd8a7b37ce4bed60",
+      "bytes": 231,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft01/freeze.json",
+      "archive": "originals/author/draft01/freeze.json",
+      "sha256": "6680d2964553812dd5002d45efe7344610abc081591d0617e758652bf09bacfd",
+      "bytes": 1835,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft01/inputs.json",
+      "archive": "originals/author/draft01/inputs.json",
+      "sha256": "0312423e1d38d7d21e59836157d467e1de7f0f9161f8d92ea37eba0debf91a66",
+      "bytes": 15525,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft01/self-check.json",
+      "archive": "originals/author/draft01/self-check.json",
+      "sha256": "cc03b92e3ac35717ef56e1da8a66562465f0145c7edcf3a5b151610dabe94eec",
+      "bytes": 2881,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft02/freeze.json",
+      "archive": "originals/author/draft02/freeze.json",
+      "sha256": "e801086265339e2799ba6fac6444f008954527f9c18a85e64813226ca46cfbad",
+      "bytes": 2088,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft02/inputs.json",
+      "archive": "originals/author/draft02/inputs.json",
+      "sha256": "dbd4a8c68311f0de89b3442bfdc259f3d0ac16d5ca6d595d1d6a81530b29cf3b",
+      "bytes": 16178,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft02/candidate-paths.json",
+      "archive": "originals/author/draft02/candidate-paths.json",
+      "sha256": "408b9c64cf397ce1ef472522b433bc8e90fc35dd064410e6c2cd44a1c4933597",
+      "bytes": 4059,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft02/rev1-to-rev2.patch",
+      "archive": "originals/author/draft02/rev1-to-rev2.patch",
+      "sha256": "5822465422498218af94554333c3222e73eb95c3234a564c0ece94e975be2d23",
+      "bytes": 3776,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft02/change.json",
+      "archive": "originals/author/draft02/change.json",
+      "sha256": "e2643835ab5d2054930428d7c5e47a1aafd1182024dd9255b40725e867060521",
+      "bytes": 1593,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft02/check.py",
+      "archive": "originals/author/draft02/check.py",
+      "sha256": "038e410067da80d2bc65e31462c5bf14e5b715c0d741818c078ea9f8d7d77d7c",
+      "bytes": 4548,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft02/self-check.json",
+      "archive": "originals/author/draft02/self-check.json",
+      "sha256": "75d0e0c023cd06a82ae1517f71dd79f15ab7ae1d94d3b6fb0c9eb76eb301ad3b",
+      "bytes": 2881,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/formal01/freeze.json",
+      "archive": "originals/author/formal01/freeze.json",
+      "sha256": "338077d1a4a7fb283483550a21cefeb7363a05dcacc1d8105c6061a68a91b8a4",
+      "bytes": 1982,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/formal01/draft-to-formal.patch",
+      "archive": "originals/author/formal01/draft-to-formal.patch",
+      "sha256": "b627c8cdb2eab3653da939a2cd1e73d5908f354a3def00ceddb62ca1539db56a",
+      "bytes": 23544,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/formal01/link-map.json",
+      "archive": "originals/author/formal01/link-map.json",
+      "sha256": "4d04d2e50ae251f85eb871820c87c817b3c15f44fba63c23303c1dc763e00835",
+      "bytes": 3670,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/formal01/administrative-map.json",
+      "archive": "originals/author/formal01/administrative-map.json",
+      "sha256": "6c62b4f6acf24860de68bba3b228b60931097c637554adfc2217d797d928b4e8",
+      "bytes": 17031,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/formal01/check.py",
+      "archive": "originals/author/formal01/check.py",
+      "sha256": "53492eea747e1b22772f56b63e86d14b74dede4a9c103885015c06101e0f2373",
+      "bytes": 2944,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/formal01/self-check.json",
+      "archive": "originals/author/formal01/self-check.json",
+      "sha256": "a5113764ee06efc6b77d48278f4239054f8bfcfdf27cdc00c4961925c8320e2b",
+      "bytes": 715,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-formal01/review.md",
+      "archive": "originals/independent/project-owner-workspace-ui-spec-formal01/review.md",
+      "sha256": "3c02ff242334f16d283f4b73125c9d094371911cf9698d114069117507e1f271",
+      "bytes": 963,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-formal01/result.json",
+      "archive": "originals/independent/project-owner-workspace-ui-spec-formal01/result.json",
+      "sha256": "a8e2588650b94e551351b16bee5f2c80e9c17968f5ce214ee92bcb860232cecd",
+      "bytes": 1582,
+      "mode": "original"
+    },
+    {
+      "source": "/workspace/scratch/summary-verification/project-owner-workspace-ui-spec-formal01/freeze.json",
+      "archive": "originals/independent/project-owner-workspace-ui-spec-formal01/freeze.json",
+      "sha256": "959ed4c092b96fb5998b7971601e314683bb6ab181726158f3795351c03ceb2b",
+      "bytes": 231,
+      "mode": "original"
+    }
+  ],
+  "byte_duplicate_aliases": [
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft01/candidate-paths.json",
+      "same_as": "/workspace/scratch/project-owner-workspace-ui-spec/draft02/candidate-paths.json",
+      "sha256": "408b9c64cf397ce1ef472522b433bc8e90fc35dd064410e6c2cd44a1c4933597",
+      "archive": "originals/author/draft02/candidate-paths.json",
+      "mode": "byte-identical alias, one retained copy"
+    },
+    {
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft01/check.py",
+      "same_as": "/workspace/scratch/project-owner-workspace-ui-spec/draft02/check.py",
+      "sha256": "038e410067da80d2bc65e31462c5bf14e5b715c0d741818c078ea9f8d7d77d7c",
+      "archive": "originals/author/draft02/check.py",
+      "mode": "byte-identical alias, one retained copy"
+    }
+  ],
+  "fingerprint_only": [
+    {
+      "path": "/workspace/scratch/project-owner-workspace-ui-spec/draft01/draft.md",
+      "sha256": "182dafda155613991980d0ebacf47efda39164eb7bd2f3d798615928a035ba18",
+      "bytes": 38589,
+      "mode": "fingerprint only; reconstruct from accepted formal Git card and retained inverse patches"
+    },
+    {
+      "path": "/workspace/scratch/project-owner-workspace-ui-spec/draft02/draft.md",
+      "sha256": "c71bfc5acbdd63dce8895af6f25beedef85fe1aa8f23730803692dd58bd72974",
+      "bytes": 39417,
+      "mode": "fingerprint only; reconstruct from accepted formal Git card and retained inverse patches"
+    }
+  ],
+  "reconstruction": {
+    "formal_card_at_spec_commit": {
+      "commit": "8cf81b44a93fce53ac3f5a218bfc9569e193eeb7",
+      "path": "docs/development/work-items/d27-project-owner-workspace-ui.md",
+      "sha256": "b6676740c3e1cd7bf63177a33595eff2177ff3e7f1580889a35af4a8ed1fb20a",
+      "bytes": 52894
+    },
+    "reverse_steps": [
+      {
+        "patch": "originals/author/formal01/draft-to-formal.patch",
+        "result_sha256": "c71bfc5acbdd63dce8895af6f25beedef85fe1aa8f23730803692dd58bd72974",
+        "result_bytes": 39417,
+        "equals_original": "draft02/draft.md"
+      },
+      {
+        "patch": "originals/author/draft02/rev1-to-rev2.patch",
+        "result_sha256": "182dafda155613991980d0ebacf47efda39164eb7bd2f3d798615928a035ba18",
+        "result_bytes": 38589,
+        "equals_original": "draft01/draft.md"
+      }
+    ],
+    "performed": "Exact unified-hunk reversal in memory and equality to original drafts; no original helper or Git execution",
+    "duplicate_draft_or_source_tree_copied": false
+  },
+  "fixed_sources": {
+    "index": "originals/author/draft02/inputs.json",
+    "count": 65,
+    "source_tree_files_copied": 0,
+    "verification": "Draft01/Draft02 source indexes and independent rev1 source_hash_checks agree exactly. Original reviews record fixed-source checks. Archive task does not rehash all current product files or copy the tree.",
+    "additional_independent_reads": "Five further fixed baseline paths stay separately identified in the original rev1 result; not silently counted in the 65."
+  },
+  "capacity": {
+    "list_static_conservative_bytes": 5067008,
+    "list_cap_bytes": 5242880,
+    "projection_cap_bytes": 65536,
+    "actual_runtime_or_browser_maximum_measured": false
+  },
+  "original_format_exceptions": [
+    {
+      "archive": "originals/author/draft02/rev1-to-rev2.patch",
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/draft02/rev1-to-rev2.patch",
+      "sha256": "5822465422498218af94554333c3222e73eb95c3234a564c0ece94e975be2d23",
+      "issues": [
+        {
+          "line": 6,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 8,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 10,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 12,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 17,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 19,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 19,
+          "type": "new blank line at EOF",
+          "trailing_blank_lines": [
+            19
+          ]
+        }
+      ]
+    },
+    {
+      "archive": "originals/author/formal01/draft-to-formal.patch",
+      "source": "/workspace/scratch/project-owner-workspace-ui-spec/formal01/draft-to-formal.patch",
+      "sha256": "b627c8cdb2eab3653da939a2cd1e73d5908f354a3def00ceddb62ca1539db56a",
+      "issues": [
+        {
+          "line": 10,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 12,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 19,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 21,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 23,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 25,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 36,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 38,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 40,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 42,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 45,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 49,
+          "type": "trailing whitespace"
+        },
+        {
+          "line": 51,
+          "type": "trailing whitespace"
+        }
+      ]
+    }
+  ],
+  "format_scope": "Byte scanner lists trailing whitespace, space-before-tab, trailing whitespace-only EOF, missing final newline and CR. This is not a Git diff --check run; root performs the actual staged check. Originals are neither normalized nor ignored.",
+  "limits": [
+    "Only listed originals copied. Historical original Markdown/scratch paths keep their original meaning; source-map locates the retained copies.",
+    "Formal full text is reused from the accepted specification commit; two inverse patches reconstruct rev2 and rev1. No source tree, binary, cache or repeated full draft copied.",
+    "STATIC accepts the specification only; browser/Go/runtime behavior and production SPA hosting/publication are not accepted by these records.",
+    "Original inputs preserve five path/skill/read-probe corrections; they are documentation preparation facts, not product test failures.",
+    "2026-10-08 implementation authorization and recovery coordination are recorded separately in the recovery page. They do not retroactively change the original review scope."
+  ],
+  "statistics": {
+    "original_files": 32,
+    "original_bytes": 163932,
+    "format_files": 2,
+    "format_issue_types": {
+      "trailing whitespace": 19,
+      "new blank line at EOF": 1
+    }
+  }
+}

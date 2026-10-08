@@ -1,0 +1,32 @@
+{
+  "finding": "B1 only technical finding in independent rev1 complete STATIC; root accepted narrow correction",
+  "sources": {
+    "internal/central/account/validation.go": {
+      "path": "/workspace/agenteam/internal/central/account/validation.go",
+      "sha256": "60728d7f7959cc0644146798f7d82798adbfc054dcf815faf7acf0f282ae0c94"
+    },
+    "internal/central/account/profile.go": {
+      "path": "/workspace/agenteam/internal/central/account/profile.go",
+      "sha256": "ea855986f5af22b6d2eead4137409526dd24d8d87ed82049a3443b77d473b1b5"
+    },
+    "router": {
+      "path": "/workspace/agenteam/web/src/router/index.ts",
+      "sha256": "b38c47c9965fb22a0366e9af73137725d3648ce6f4ce786b5f5d6d059c9c71f0"
+    },
+    "auth": {
+      "path": "/workspace/agenteam/web/src/router/auth.ts",
+      "sha256": "bdc8db93bfd9222a5d1d079f2f6b868d0c00200edb892a517ae28e1f9f725715"
+    }
+  },
+  "source_facts": [
+    "account/validation.go:40 reservedNames excludes forgot-password and reset-password; NormalizeUsername accepts their length and interior hyphen",
+    "account/profile.go:29-50 CurrentUserRoutes validates canonical lower username without the account creation reserved-name rejection",
+    "router/index.ts:33-44 declares exact single-segment public forgot/reset routes, not whole-prefix ownership"
+  ],
+  "allowed_technical_section": "3.1 only",
+  "other_technical_bytes_equal": true,
+  "candidate_file_sha256_same": true,
+  "no_account_router_product_modification": true,
+  "rev1_preserved": true,
+  "diff_sha256": "5822465422498218af94554333c3222e73eb95c3234a564c0ece94e975be2d23"
+}

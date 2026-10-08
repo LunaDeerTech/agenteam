@@ -1,0 +1,41 @@
+{
+  "kind": "author scratch-document self-check only; not independent STATIC or product PASS",
+  "files": {
+    "draft.md": "c71bfc5acbdd63dce8895af6f25beedef85fe1aa8f23730803692dd58bd72974",
+    "inputs.json": "dbd4a8c68311f0de89b3442bfdc259f3d0ac16d5ca6d595d1d6a81530b29cf3b",
+    "candidate-paths.json": "408b9c64cf397ce1ef472522b433bc8e90fc35dd064410e6c2cd44a1c4933597",
+    "check.py": "038e410067da80d2bc65e31462c5bf14e5b715c0d741818c078ea9f8d7d77d7c"
+  },
+  "source_count": 65,
+  "source_hash_mismatches": [],
+  "candidate_count": 23,
+  "technical_count": 22,
+  "readme_last_number": 22,
+  "candidate_old_count": 8,
+  "candidate_new_count": 15,
+  "local_link_count": 15,
+  "old_top_count": 16,
+  "old_tops": {
+    "TestAccountAuthenticationWebSessionLifecycle": "/workspace/agenteam/tests/account/authentication_web_test.go",
+    "TestAccountAuthenticationWebRevocationAndExpiry": "/workspace/agenteam/tests/account/authentication_web_test.go",
+    "TestAccountPersonalSettingsWebProfileAndAvatar": "/workspace/agenteam/tests/account/personal_settings_web_test.go",
+    "TestAccountPersonalSettingsWebThemeAndNavigation": "/workspace/agenteam/tests/account/personal_settings_web_test.go",
+    "TestAccountPersonalSettingsWebPasswordRotation": "/workspace/agenteam/tests/account/personal_settings_web_test.go",
+    "TestAccountSystemInvitationsWebOutcomeRecovery": "/workspace/agenteam/tests/account/system_invitations_web_test.go",
+    "TestAccountSystemProvidersWebCredentialReplacement": "/workspace/agenteam/tests/account/system_providers_web_test.go",
+    "TestAccountSystemModelsWebOutcomeRecovery": "/workspace/agenteam/tests/account/system_models_web_test.go",
+    "TestAccountSystemModelSelectionWebOutcomeRecovery": "/workspace/agenteam/tests/account/system_model_selection_web_test.go",
+    "TestAccountSystemMeetingSummaryWebRecovery": "/workspace/agenteam/tests/account/system_meeting_summary_web_test.go",
+    "TestAccountSystemMeetingSummaryWebAuthorityNavigation": "/workspace/agenteam/tests/account/system_meeting_summary_web_test.go",
+    "TestAccountSystemAccountSecurityWebOutcomeRecovery": "/workspace/agenteam/tests/account/system_account_security_web_test.go",
+    "TestAccountSystemSMTPSettingsWebOutcomeRecovery": "/workspace/agenteam/tests/account/system_smtp_settings_web_test.go",
+    "TestAccountSystemSMTPDeliveryWebTestAndRetry": "/workspace/agenteam/tests/account/system_smtp_delivery_web_test.go",
+    "TestAccountSystemOutboundPolicyWebMutationAndRecovery": "/workspace/agenteam/tests/account/system_outbound_policy_web_test.go",
+    "TestAccountPublicEntryWebIdentityNavigation": "/workspace/agenteam/tests/account/account_entry_web_test.go"
+  },
+  "spa_stopped_path_intersection": [],
+  "complete_list_conservative_bytes": 5067008,
+  "complete_list_cap_bytes": 5242880,
+  "errors": [],
+  "product_commands_resources_git_executed": false
+}

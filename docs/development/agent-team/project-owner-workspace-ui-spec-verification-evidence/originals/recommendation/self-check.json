@@ -1,0 +1,18 @@
+{
+  "status": "PASS_READ_ONLY_SELF_CHECK_NOT_INDEPENDENT_OR_PRODUCT",
+  "sources": 25,
+  "all_sources_same_hash_at_end": true,
+  "candidate_count": 22,
+  "relative_links_checked": [
+    "inputs.json",
+    "candidate-paths.json"
+  ],
+  "errors": [],
+  "no_repository_write_or_execution": true,
+  "scope": "scratch recommendation only; no Go/browser/resources/Git",
+  "artifacts": {
+    "recommendation.md": "39f7fa3bc100a08f2a587c4a34fb025e04ccfe4f1910522d0bd83eea3ce36e0a",
+    "inputs.json": "bfc5b6ca5f3b62036bf30c1a6a534318c0edabb40d9faa4666084cf915470cf4",
+    "candidate-paths.json": "c7459b0099e748988bd9ef44e6a9312891256d60da4c7d9b5441620f7521642c"
+  }
+}

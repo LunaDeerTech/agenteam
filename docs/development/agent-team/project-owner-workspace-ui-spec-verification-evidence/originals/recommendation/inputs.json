@@ -1,0 +1,115 @@
+{
+  "status": "READ_ONLY_BOUNDED_RECOMMENDATION_NOT_SPEC_OR_IMPLEMENTATION",
+  "utc": "2026-10-07T23:58:33.990612+00:00",
+  "baseline_product": "cc850b2244cad771eb862a2c82d99887d5da7284",
+  "archive": "b91cb89f0575cf7f54faa5d253b5571d7435b670",
+  "baseline_provenance": "root supplied accepted/pushed/remote-confirmed; no Git command executed",
+  "sources": {
+    "plan": {
+      "path": "/workspace/agenteam/docs/development/development-plan.md",
+      "sha256": "93b80c48b6b2fba4240b0a271177e5ce2ccb899b892ba39cd5f4a5b42babaa78"
+    },
+    "frontend-design": {
+      "path": "/workspace/agenteam/docs/frontend-design/README.md",
+      "sha256": "729afba2f45792b46fcc6906947b9516c87e88515c62a20b605f62c07af82e12"
+    },
+    "project-pages": {
+      "path": "/workspace/agenteam/docs/frontend-design/layouts/system-pages.md",
+      "sha256": "ecdeebc169105d27218c4b8759a750ff9948a54f4e96fd95a8d74204fb9fea22"
+    },
+    "workspace-design": {
+      "path": "/workspace/agenteam/docs/frontend-design/layouts/project-workspace.md",
+      "sha256": "7201d7be393cbd95a6fdea9b6b33dd0bdebb8758cdb7b48243815b4d968f092e"
+    },
+    "settings-design": {
+      "path": "/workspace/agenteam/docs/frontend-design/layouts/project-settings.md",
+      "sha256": "ed5eaf1bc5c3565af29e0a262daccbdab1ce49e53e90843a74f3e0c5a66e8115"
+    },
+    "frontend-status": {
+      "path": "/workspace/agenteam/docs/development/frontend/README.md",
+      "sha256": "2b4545145a9b377de0f6d7d76cc0e8d808e62f2b846f51b4561d9cc2e9ba24d6"
+    },
+    "owner-read": {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-read-http-verification.md",
+      "sha256": "0a8fcce3e0360179e35ed079332b220219c0f500f0cd9576e58b7c67c0efbc6e"
+    },
+    "owner-update": {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-owner-update-http-verification.md",
+      "sha256": "a79a76f60a38f57af558734892836f55883cfc0da105d4ff85bdcf8591bb1a50"
+    },
+    "resolve": {
+      "path": "/workspace/agenteam/docs/development/work-items/d09-project-usage-read-http.md",
+      "sha256": "b872bc7481c8236bbfdea826c7e40c9f96f083669b4189f1a9437b1d976ac6e0"
+    },
+    "owner-wire": {
+      "path": "/workspace/agenteam/api/openapi/project-owner.json",
+      "sha256": "1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3"
+    },
+    "resolve-wire": {
+      "path": "/workspace/agenteam/api/openapi/project-usage.json",
+      "sha256": "a908bd1e82d576441e978006fbfd5328e600480a4aa606dca3c818160a47feb4"
+    },
+    "configuration-accepted": {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-model-configuration-write-http-verification.md",
+      "sha256": "d1262d7435cd2b5c3f83800b8b2212a299f78ef4ee9a140304807fa80a8d8e3e"
+    },
+    "credentials-accepted": {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-model-credentials-http-verification.md",
+      "sha256": "b8e3f0f75b2235a228db6e3213adcbff1169be5712e7306c6fb5ab5a73b7f560"
+    },
+    "model-read": {
+      "path": "/workspace/agenteam/docs/development/agent-team/project-model-owner-read-http-verification.md",
+      "sha256": "a2ad088c3bd7f72c33eae9222f3b1759bc0f198e042a73d3eaab9455dec3c39d"
+    },
+    "summary-settings": {
+      "path": "/workspace/agenteam/docs/development/agent-team/system-meeting-summary-settings-verification.md",
+      "sha256": "cfc2d76f81444f869c826cab319f060242132b1dc82de0f550052ae27fed7f2f"
+    },
+    "summary-resolution": {
+      "path": "/workspace/agenteam/docs/development/agent-team/system-meeting-summary-resolution-verification.md",
+      "sha256": "dcdca9e22f46ea69b8b03c108873422a77aa4a644108d37f6beed2c0c6205ec1"
+    },
+    "audit-spec-only": {
+      "path": "/workspace/agenteam/docs/development/work-items/d04-project-owner-audit-http.md",
+      "sha256": "504ce392a4352a395c527bd7928fca5abef94e0aa313b733be12677c0ac79f55"
+    },
+    "spa-stop-record": {
+      "path": "/workspace/agenteam/docs/development/agent-team/recovery-2026-10-06-continuation.md",
+      "sha256": "a5a629d17ae51b0c037b8efdf238f42b01afe46479a28779340af1021504ab18"
+    },
+    "spa-scope": {
+      "path": "/workspace/agenteam/docs/development/work-items/d28-central-spa-hosting.md",
+      "sha256": "2cd71ed46779cbf382d0c507624839129a912ffa26a14056fe70678ae117fbd8"
+    },
+    "router": {
+      "path": "/workspace/agenteam/web/src/router/index.ts",
+      "sha256": "b38c47c9965fb22a0366e9af73137725d3648ce6f4ce786b5f5d6d059c9c71f0"
+    },
+    "auth": {
+      "path": "/workspace/agenteam/web/src/router/auth.ts",
+      "sha256": "bdc8db93bfd9222a5d1d079f2f6b868d0c00200edb892a517ae28e1f9f725715"
+    },
+    "transport": {
+      "path": "/workspace/agenteam/web/src/api/client.ts",
+      "sha256": "998e1edd8c1ffe3a3133b821f5169ec4b48cba8fefa98478b9abfa17f0bb6d7e"
+    },
+    "app": {
+      "path": "/workspace/agenteam/web/src/App.vue",
+      "sha256": "4f7068223c59aa7e819dd5cfef6599fb590f663633edd2e821d29d1a1bc1b24b"
+    },
+    "package-scripts": {
+      "path": "/workspace/agenteam/web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    "accepted-harness": {
+      "path": "/workspace/agenteam/tests/account/system_meeting_summary_web_fixture_test.go",
+      "sha256": "d88fe8e6e77dfd43785e885e19e024d455cba364cef33a452498db7fe711da35"
+    }
+  },
+  "excluded": "Audit active source/root/secret not read; no Go/browser/resource/network/Git executed; no repository writes; source tree not copied",
+  "read_probe_notes": [
+    "web/src/router/meta.ts does not exist; RouteMeta is declared in router/index.ts",
+    "scripts/build-web.sh and scripts/check-web.sh do not exist; authoritative build is web/package.json scripts; no missing path executed",
+    "SPA original blocked probe run directory is absent by preserved stop record; no dynamic evidence invented or attempted"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "status": "FROZEN formal specification placement; root accepted rev2 specification; formal final narrow STATIC pending; product/resources unauthorized",
+  "utc": "2026-10-08T00:25:05.740560+00:00",
+  "target": {
+    "path": "/workspace/agenteam/docs/development/work-items/d27-project-owner-workspace-ui.md",
+    "sha256": "b6676740c3e1cd7bf63177a33595eff2177ff3e7f1580889a35af4a8ed1fb20a",
+    "bytes": 52894
+  },
+  "files": {
+    "draft-to-formal.patch": {
+      "sha256": "b627c8cdb2eab3653da939a2cd1e73d5908f354a3def00ceddb62ca1539db56a",
+      "bytes": 23544
+    },
+    "link-map.json": {
+      "sha256": "4d04d2e50ae251f85eb871820c87c817b3c15f44fba63c23303c1dc763e00835",
+      "bytes": 3670
+    },
+    "administrative-map.json": {
+      "sha256": "6c62b4f6acf24860de68bba3b228b60931097c637554adfc2217d797d928b4e8",
+      "bytes": 17031
+    },
+    "check.py": {
+      "sha256": "53492eea747e1b22772f56b63e86d14b74dede4a9c103885015c06101e0f2373",
+      "bytes": 2944
+    },
+    "self-check.json": {
+      "sha256": "a5113764ee06efc6b77d48278f4239054f8bfcfdf27cdc00c4961925c8320e2b",
+      "bytes": 715
+    }
+  },
+  "source_rev2": {
+    "path": "/workspace/scratch/project-owner-workspace-ui-spec/draft02/draft.md",
+    "sha256": "c71bfc5acbdd63dce8895af6f25beedef85fe1aa8f23730803692dd58bd72974"
+  },
+  "source_rev2_freeze_sha256": "e801086265339e2799ba6fac6444f008954527f9c18a85e64813226ca46cfbad",
+  "self_check_command": {
+    "cwd": "/workspace",
+    "argv": [
+      "/usr/bin/python3",
+      "/workspace/scratch/project-owner-workspace-ui-spec/formal01/check.py"
+    ],
+    "stdout": "/workspace/scratch/project-owner-workspace-ui-spec/formal01/self-check.json",
+    "actual_exit_code": 0
+  },
+  "scope": "one formal work card plus owned scratch evidence only",
+  "technical_drift": false,
+  "candidate_count": 23,
+  "source_hash_count": 65,
+  "relative_link_count": 77,
+  "product_commands": [],
+  "resources": [],
+  "git_operations": [],
+  "stopped_writing": true
+}
