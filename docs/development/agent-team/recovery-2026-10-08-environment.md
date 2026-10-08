@@ -1,5 +1,13 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 当前：Model 八技术接受，Audit 新构建准备
+
+HEAD159995ed已push核同。Model七作者＋独立A/B实际PASS/fullSTOP；最终八技术ab14ab6b/799c837f已root通读核固定原件接受，六PG待提交。fixture正永久归档且已获README#9末件安装，完整九路径待独验。Audit两源View3bb842a2/test480b2cfb窄修独核9b0453ea/root接受，最终49/49实际通过；原nav01 FAIL/原DOM缺口保留。frontend唯一private build-v02/dist-ui02进行，backend仅exact06cf新v04 false准备，root disposition0006fb3e授权范围仅准备；待新build STOP接受后root换global资产、filegate及单轮导航。Go/cache/业务资源全空，旧59及原3backup保持，构建期间不Git/换资产。原失败guard、三停止/Jina/生产/完整项目与E01未完不变。详最新台账。
+
+## 当前：独立 Model A 接续；Audit View 两源受控返修
+
+HEAD159995ed已push核同；作者Model新五＋旧两全部实际PASS/fullSTOP，旧两独核中，root单grant9bb67e63仅交runtime `ind-model-a01/ind-a`独占Go/cache/业务资源，B未授。旧Summary整组三top+退休123.345860s真实保留，各top120不变，末nonowned6单列。Audit authority02 result2b26772c与独核6dce1378已root接受；nav01原FAIL/完整退休独核cb849ce6已读核，PNG0，第二直达有上游200但browser EOF未证。frontend当前仅#10 View/#14 App测试受控RED→窄修，原大写失败/同gate小写成功已报告，候选与GREEN待验；不改a91d browser/其它源/59，不跑实际Audit。原失败guard/缺DOM不回填；独立Audit final03仅false准备、因产品返修后续build需重绑定，无filegate/资源。root不Git/push/换资产，原3backup保持。两README与模型设置下一卡仅scratch，详细refs在最新台账；三停止/Jina/生产/E01不变。
+
 ## 当前checkpoint：Model新五轮已STOP，Audit authority02可单轮接续
 
 当前所有Go/cache/资源已退役，无活跃业务命令。Model v03 Selection/Atomicity/Authorization/Replay/Unknown五轮均实际PASS、35不同资源双清；Replay原outer119.967490s与Unknown118.145440s保持，原FAIL/cleanupfalse不回填。Atomicity462a545e/Authorization2b93e811独审已root读核；Replay/Unknown独审活跃，旧两组与独立A/B未授。Audit spec source-v03 a91d/eaef与末件de56已接受，v03 exact06cf false准备及sourcecheck04工具actualexit0/1179输入同已核；原authority01失败完整保留。root仅三协调文档checkpoint，之后才单授auditauthority02。59资产/原3backup保持，末reader全退役仍需root恢复；三停止/Jina/生产/整卡/E01未完不变，详细原件与后继见最新台账。

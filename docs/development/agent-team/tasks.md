@@ -1,5 +1,23 @@
 # 团队任务台账
 
+## 2026-10-08：Embedding 八技术正式接受；审计导航两源修复接受
+
+Model旧Resolver6＋Summary3最终独核d5f3b199/0002538c/dc4ca4ea已root接受；独立A grant9bb67e63、B grantc9478ca6分别实际exit0，top6.43/6.28s、outer118.580069/112.947926s，共16RUN/10叶，999输入同/14本代不同ID双absent、owned-runtime双空、TCP51.422573/52.453116s。正式c26b5095/2487f9ac/24f267be已root通读hash接受，0adopted、88/84仅观察数、8非owned shim不wait。最终八技术ab14ab6b/f40a3fe6/bfbecbd1/799c837f已root通读并核固定三原件，复用独审一次八当前源scan；六PG精确清单可提交，已提交policy/pure保持。原74纯组合、compile/list边界、作者996与overlay999版本、原Selection FAIL/cleanupfalse及独立恢复不回填；非当前HEAD一次全套。fixture获永久小档与#9 README末件安装，完整九路径待末件独验。
+
+Audit canonical-read-repair-v1 freeze981f0661：仅View58309a18→3bb842a2/test0ba34fdf→480b2cfb；strict projectRoute(from.fullPath)且目标恰其canonical Audit path才保读取，其余route update/leave/unmount仍退休。原受控RED大写FAIL/小写PASS及作者green01新invalid-query期望FAIL均保，作者修最终期望后48+1组合；独立最终一文件49/49实际PASS4.402721s、128输入同、actualwait/watcherjoin/owned双空。独审9b0453ea/6b02298e/b5491904已root通读核关键patch与固定refs接受；不补原nav01 DOM，不声称原实际唯一归因。root disposition0006fb3e保原FAIL及三代guards，仅准exact06cf新v04准备。frontend正新private dist-ui02 build；backend false待最终build/资产绑定，a91d browser/Go不改且不重编/list。global旧59与原3backup保持，新导航/8图/旧10/独立4仍未完成。全部业务资源已空；构建结束后root再提交/交换。三停止/Jina/生产/E01保持。
+
+## 2026-10-08：七组 Model 作者完成；Audit 大写直达竞态受控返修
+
+三协调文档checkpoint `159995ed44840a6dd3075c673d892de63b372bdf` 已push且root ls-remote核同。Model五新独核最后Replay de379ff4/f97b2421/ce7defd3、Unknown1f02d923/0ae75485/88030aa3及八技术路径映射8c4c50a0/2fb1a8d6/8429dad0已root读hash有限接受，映射不冒最终八/九路径接受。作者旧Resolver6 grant74f3ede9/session23925已actual0，41RUN/pkg12.136、fixture62.784/outer118.255019s，innerd40814a1/outerccdeb003 root读核；7ID/owned-runtime双清/TCP52.435794s，0adopted/81observed/4非ownedshim。旧Summary3 grant949788b2/session86026 actual0，25RUN/pkg17.022、fixture66.882/outer123.345860s，innerb692e88b/outercfd39cdb root读核；该时长是3top整组含退休，原各top120/TCP75未变，top5.92/5.38/4.69均complete。7ID/owned-runtime双清/TCP53.455268s、996输入同；nonowned实数6为4shim另sh860607(ppid608/start4260573)与pg_isready860635(ppid860607/start4260576)，不认领wait/kill或擅归因。当前v03七成功轮49不同ID仅本代，旧两组独核正在组合；原首次失败/cleanupfalse保持。root只读final02后制0444单grant9bb67e63给runtime独立`ind-model-a01/ind-a`，原bbe8/d2/probe348d/overlay39e及预算不变；当前ACK接续，B未授，A/B不借作者结果通过。
+
+Audit source-v03后的authority02：grant7a4591f9/session87282 actual0，top28.44/browser21.4/full79.398s，result2b26772c；103原件634642B，manifest0a344ac6/handoff315d5890，独核6dce1378/7c79f0ea/1069fa68已root全文读hash接受。47尝试中34EOF=22成功+12Problem、19list/15detail，10显式gate probe与24页面请求分开、13未完成排除，schema/client同bytes34通过不是另34HTTP。精确current401→unavailable/会话尚未确认→用户restore才checking→登录及末两401已到，原authority01缺DOM和FAIL不补。direct+4adopted、7ID/owned-runtime-browser双清/TCP38.378140s/1179同、4非ownedshim保。
+
+Audit navigation原单grant e2e997aa/session44344 FAIL已全退休：resultbd3f5d78/raw5ffe1059，top16.06/full68.15s actualexit1；第2次已登录大写dotted直接goto HTML200后a91d spec1713 ready nativefact5s超时，尚未到该ready后面的heading或其它导航/8图/finish；PNG0且无error-context。manifest0d98d13a/handoff1f0409fe的30原件478292B，2上游list200同1389B body不等于2次browser EOF，proxy61/61，direct+4adopted/7ID双absent/owned-runtime双空/TCP39.377561/inputsame。独审cb849ce6/ba043eff/c6550fb4已root读核，仅原FAIL/退休/契约；每document序号重置，旧序号归因无依据，原canonical-replace→leave只静态假说。
+
+frontend只读诊断1275be78后，root只授卡#10 `ProjectAuditView.vue` 与#14 `project-audit.spec.ts`：实际App/router/factory的同gate大小写受控复现，原product RED后才窄修合法同Project同audit规范化update，不改真实browser场景规避问题。作者报告canonical-red01实际exit1/2.925s：大写FAIL、小写PASS、cancelled1/aborted/页面已停止且Cookie owner仍持至gate release；这是新受控竞态证据，不补旧navDOM。原View58309a18未改时RED，现仅两源窄修/targeted GREEN/type/format≤45s活跃；root尚未验新候选。workspace/API/auth/Session/Go/a91d/browser预算/private59/README保持，无build/真实后继授权；Audit v03原失败guard不改。
+
+Audit独立final03 stop76af8aa8/manifest a7216a76/false5dc536f7/preparation3d7f5121仅metadata已root读说明；942/66+241=1183是继承差量，exacte893/wrapper/四组/59要求保持。尚未filegate/资源，当前View返修后须重新精确绑定最终build，不把该false准备当新产品有效门禁。README#21候选30e4bf74未安装（31 action/14resource输出措辞待最终细化）；Model README#9候选a4c1eaf3仅4段未安装。Owner模型设置T1–T3补充9197fc97/da9613e3、9IPC草案83e3e652/14旧selectors c36bed42只scratch，root尚未完整读新件；Audit共享源正式handover/T4仍pending。59/原3backup不动，三停止/Jina/生产未绑定/ready503/完整卡/E01保持。
+
 ## 2026-10-08：Model 新五轮实际齐备；Audit 恢复前提修正已接受
 
 资源当前均已全退役STOP。Authorization工具session14946实际exit0已确认；独审2b93e811/0ed1aaa5/865f5fc6已root通读核报告指纹，55RUN含父组/50叶、权限/锁/Secret witness断言有限接受。Atomicity独审462a545e/99f7e0f3/bd9502a1已root同样接受，未重复扫描996闭包。
