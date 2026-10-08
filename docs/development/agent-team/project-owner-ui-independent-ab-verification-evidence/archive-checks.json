@@ -1,0 +1,322 @@
+{
+  "status": "PASS_ARCHIVAL_FILES_ONLY",
+  "actual_command_kind": "Python standard-library file-only SHA/bytes/JSON/PNG-header/local-link/text-format checks; no product or schema/client checker execution.",
+  "logical_originals": 479,
+  "logical_original_bytes": 5562402,
+  "all_source_archive_SHA_bytes_equal": true,
+  "distinct_entities": 403,
+  "parsed_original_JSON_entities": 373,
+  "UTF8_text_entities": 395,
+  "PNG_header_and_dimension_checks": [
+    {
+      "archive": "originals/runs/ind-b-layout01/screenshots/project-owner-dark-1440-no-preference.png",
+      "sha256": "dac48bdc9e433341e4dccbf09bf6918107b3a141ad8e133e75bce9df148270b3",
+      "width": 1440,
+      "height": 900,
+      "visual_acceptance_reused_from_formal_report": true
+    },
+    {
+      "archive": "originals/runs/ind-b-layout01/screenshots/project-owner-dark-1440-reduce.png",
+      "sha256": "5db6a6ea665231b7e2d77bd0712e1c7e48a48a6dd3490eb8d1cebae67f4cd0ef",
+      "width": 1440,
+      "height": 900,
+      "visual_acceptance_reused_from_formal_report": true
+    },
+    {
+      "archive": "originals/runs/ind-b-layout01/screenshots/project-owner-dark-390-no-preference.png",
+      "sha256": "e0cc81348056d4eebc0cd1fc02ed38c3100e6cae5b2dd744b5707e819e0f115e",
+      "width": 390,
+      "height": 844,
+      "visual_acceptance_reused_from_formal_report": true
+    },
+    {
+      "archive": "originals/runs/ind-b-layout01/screenshots/project-owner-dark-390-reduce.png",
+      "sha256": "21925083251022c81868e9be485d04af4de8c37b09a2af01440c3360c465a507",
+      "width": 390,
+      "height": 844,
+      "visual_acceptance_reused_from_formal_report": true
+    },
+    {
+      "archive": "originals/runs/ind-b-layout01/screenshots/project-owner-light-1440-no-preference.png",
+      "sha256": "30c22fab69ee7c09bd567a9bb715ca9de8e5e71f5ecd561b6964c75ff6d26e52",
+      "width": 1440,
+      "height": 900,
+      "visual_acceptance_reused_from_formal_report": true
+    },
+    {
+      "archive": "originals/runs/ind-b-layout01/screenshots/project-owner-light-1440-reduce.png",
+      "sha256": "cb9294d24aba37684354b8ff85cf7030ea3059951caab7c3c91aeda093d10761",
+      "width": 1440,
+      "height": 900,
+      "visual_acceptance_reused_from_formal_report": true
+    },
+    {
+      "archive": "originals/runs/ind-b-layout01/screenshots/project-owner-light-390-no-preference.png",
+      "sha256": "7ea9f2ac6a6ac607c7e18cb480c2e94d8033d93405487cd018677dfbd2e90b74",
+      "width": 390,
+      "height": 844,
+      "visual_acceptance_reused_from_formal_report": true
+    },
+    {
+      "archive": "originals/runs/ind-b-layout01/screenshots/project-owner-light-390-reduce.png",
+      "sha256": "17d0c674a5415dcbb2be18a9b278489c6047b0f240c299e075634e3e5a3b2d28",
+      "width": 390,
+      "height": 844,
+      "visual_acceptance_reused_from_formal_report": true
+    }
+  ],
+  "new_physical_original_files": 385,
+  "new_physical_original_bytes": 4705177,
+  "new_original_tree_exactly_matches_source_map": true,
+  "prior_entity_reuse": {
+    "physical": 18,
+    "bytes": 88855,
+    "logical": 85
+  },
+  "prior_map_checks": [
+    {
+      "path": "docs/development/agent-team/project-owner-ui-old14-success-verification-evidence/source-map.json",
+      "sha256": "71cb1e689800382421013b6124756c2f173d519e09358923fc07b95026b13d8d",
+      "bytes": 182098
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/source-map.json",
+      "sha256": "8ffcdcd0e866e86ec141db818cce3b6c6a8f63fca523393ba67a9b0f4441bf42",
+      "bytes": 117427
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-read02-verification-evidence/source-map.json",
+      "sha256": "fbcf9a48067bc4c6d881dd4a8b8cb4647321ea5c155f4ad82c82d8a0026df6e8",
+      "bytes": 71938
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-edit03-verification-evidence/source-map.json",
+      "sha256": "30ebd434bb81abde9f0d9d649851f9b48dbabb5dfc8b57bd97d862345a264de4",
+      "bytes": 50940
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+      "sha256": "8def86bff5d0dab0f4f4bcca48bb93f7fbcd70a9570e095471a1a5591017bc71",
+      "bytes": 68980
+    }
+  ],
+  "old_author_composition_references_checked": 8,
+  "final_report_SHA256": "4942c4deed2b32dca67827fcb66d7ec11bc63dd0c2822329928ded26a6a0a00e",
+  "final_manifest_SHA256": "1f7c094c58f3952b39892834ed001e40a8312485f7bd9a8bf85e299bdd2d7b1a",
+  "root_restore_SHA256": "d22c8a582143a991e05b831ab20dab4000636c4ebe32208042e3b4288021aae4",
+  "run_scope": {
+    "files": 429,
+    "bytes": 4556881,
+    "launch_files": 9,
+    "launch_bytes": 164240,
+    "handoff_files": 9,
+    "outer_terminal_files": 9,
+    "immutable_single_round_grants": 9
+  },
+  "arithmetic_from_sealed_final_evidence": {
+    "actual_rounds": 9,
+    "browser_cases_passed": 9,
+    "unique_resource_ids": 65,
+    "containers": 37,
+    "networks": 28,
+    "actual_direct_waits": 9,
+    "actual_adopted_waits": 36,
+    "watchdog_joins": 9,
+    "new_nonowned_unwaited_PID1_shims": 37,
+    "Project_schema_responses": 117,
+    "native_browser_client_checks": 50,
+    "native_client_counts": {
+      "list": 10,
+      "resolve": 12,
+      "get": 23,
+      "problem": 5
+    },
+    "legacy_rounds_without_Project_checkers": 4,
+    "run_original_count": 429,
+    "run_original_bytes": 4556881,
+    "launch_original_count": 9,
+    "launch_original_bytes": 164240,
+    "own_screenshots": 8,
+    "own_unique_PNG_hashes": 8
+  },
+  "all_grants_match_round_frozen_bytes": true,
+  "inherited_exact_Git_blob_SHA_references": 10,
+  "new_Git_or_source_graph_check": false,
+  "Markdown_files_checked": 4,
+  "local_links_checked": 38,
+  "fragment_checks": 0,
+  "links": [
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/final/review.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/final/evidence.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/final/original-index.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/final/manifest.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/source-map.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/handoffs/ind-a-read01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/handoffs/ind-a-edit01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/handoffs/ind-a-identity01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/handoffs/ind-b-recovery01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/handoffs/ind-b-summary01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/handoffs/ind-b-sumauth01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/handoffs/ind-b-auth01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/handoffs/ind-b-smtp01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/handoffs/ind-b-layout01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/runs/ind-b-layout01/screenshots/project-owner-light-1440-no-preference.png"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/runs/ind-b-layout01/screenshots/project-owner-dark-1440-no-preference.png"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/runs/ind-b-layout01/screenshots/project-owner-light-1440-reduce.png"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/runs/ind-b-layout01/screenshots/project-owner-dark-1440-reduce.png"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/runs/ind-b-layout01/screenshots/project-owner-light-390-no-preference.png"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/runs/ind-b-layout01/screenshots/project-owner-dark-390-no-preference.png"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/runs/ind-b-layout01/screenshots/project-owner-light-390-reduce.png"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/runs/ind-b-layout01/screenshots/project-owner-dark-390-reduce.png"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/preparation/freeze.prepared-final05.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/preparation/rounds.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/preparation/rebind-final05-report.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/root/restore-after-indab01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/originals/root/exchange-indab01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-recovered-read02-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-recovered-edit03-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-recovered-nextnew01-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-old14-success-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-recovered-read01-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-recovered-edit02-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-recovered-old16batch01-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-legacy-profile-json-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/archive-checks.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+      "target": "project-owner-ui-independent-ab-verification-evidence/format-exceptions.json"
+    }
+  ],
+  "generated_UTF8_LF_final_newline_no_trailing_whitespace": true,
+  "format_exceptions": {
+    "entities": 213,
+    "missing_final_LF_original_JSON": 204,
+    "original_raw_with_trailing_whitespace": 9,
+    "trailing_whitespace_lines": 27,
+    "details": "format-exceptions.json"
+  },
+  "archival_initial_failure": {
+    "exit": 1,
+    "stderr": "Traceback (most recent call last):\n  File \"<stdin>\", line 44, in <module>\nKeyError: 'round'\n",
+    "cause": "Initial archiver assumed all handoffs use round; B handoffs use run and nested authorization. Corrected the reader for both original schemas; no fixed input or destination was changed by this failed attempt.",
+    "subsequent_generation_exit": 0
+  },
+  "limits": [
+    "No re-execution of product/schema/native-client/business checker, Go, Node, browser, resource, Git or network.",
+    "No current dist/host or active-window inputs read.",
+    "No whole source/runtime/cache/dependency/closure graph copied.",
+    "Actual A/B and visual conclusions come from fixed independent executor originals; archive integrity is not a second runtime or visual acceptance."
+  ]
+}

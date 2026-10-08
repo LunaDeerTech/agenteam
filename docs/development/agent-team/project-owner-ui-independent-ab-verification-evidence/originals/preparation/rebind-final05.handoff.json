@@ -1,0 +1,44 @@
+{
+  "status": "STOP_METADATA_ONLY_FINAL05_REBIND_FALSE",
+  "files": {
+    "freeze.prepared-final05.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/freeze.prepared-final05.json",
+      "sha256": "061863b05b510f154810a98738d98f0818e14a5577141d0c1933250fdd5d75f7",
+      "bytes": 44087
+    },
+    "rebind-final05.delta.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/rebind-final05.delta.json",
+      "sha256": "217c9663fba71bc07c63e72679cb120788fd4d4351733bb3ea3269be6b8732f2",
+      "bytes": 7542
+    },
+    "rebind-final05-report.md": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/rebind-final05-report.md",
+      "sha256": "84560404591aefbe93080b44a757e9b3550218bb0481c1d818d94c93504b7c2e",
+      "bytes": 2786
+    }
+  },
+  "changed_keys_from_previous_independent": [
+    "browser_acceptance_at_preparation",
+    "closure",
+    "independent_preparation",
+    "source_acceptance",
+    "status",
+    "versioned_successor"
+  ],
+  "changed_keys_from_final05": [
+    "browser_runtime_root",
+    "executable_now",
+    "independent_preparation",
+    "permitted_groups",
+    "status",
+    "versioned_successor"
+  ],
+  "root_authorized_resources": false,
+  "executable_now": false,
+  "new_filegate_or_actual_AB_pass": false,
+  "driver_sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+  "rounds_sha256": "6e5b86acd1c443b28252f11808a0eb329faa6ab3026c956ae31b638847f71fb7",
+  "old_refs_unchanged": true,
+  "requires_each_round_root_grant_and_backend_stable_STOP_ownership_handoff": true,
+  "no_active_owned_reader_or_command": true
+}

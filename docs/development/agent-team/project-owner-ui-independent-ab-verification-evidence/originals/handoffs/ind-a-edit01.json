@@ -1,0 +1,271 @@
+{
+  "status": "INDEPENDENT_A2_ACTUAL_PASS_FULLY_RETIRED_STOP",
+  "round": "ind-a-edit01",
+  "group": "new-edit",
+  "exact_top": "TestAccountProjectOwnerWebEditAndRename",
+  "executor": "/root/verification_runtime",
+  "authorization_sha256": "d989260fe53369fe5ec2712c7602f2b84bb6e6b79f47b0c3008cfe74507c8218",
+  "driver_sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+  "own_initial_gate": {
+    "accepted": true,
+    "files": 1165,
+    "same_expected_actual_digest": "6bb347c9ea8c32d19dd0176302019b64ddeaec778ad14dbd8011a1bc88436f55",
+    "before_fresh_resources": true
+  },
+  "browser_seconds": 6.3,
+  "top_seconds": 12.74,
+  "direct_command_seconds": 60.194,
+  "direct_identity": {
+    "pid": 442740,
+    "starttime": "1939201"
+  },
+  "actual_direct_wait_completed": true,
+  "adopted_actual_waits": [
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 447123,
+      "starttime": "1942498",
+      "time": "2026-10-08T08:52:35.806619+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 447130,
+      "starttime": "1942498",
+      "time": "2026-10-08T08:52:35.806640+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 447139,
+      "starttime": "1942498",
+      "time": "2026-10-08T08:52:35.806660+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 447141,
+      "starttime": "1942498",
+      "time": "2026-10-08T08:52:35.806675+00:00"
+    }
+  ],
+  "watchdog_joined": true,
+  "outer_terminal": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/ind-a-edit01-outer-terminal.json",
+    "sha256": "426ebc7b53f2a309957ee53834e50c01e7d54e842173fdac3fadc761a68765e7",
+    "actual_exit": 0,
+    "session_id": 14008,
+    "terminal_chunk": "ce64ed"
+  },
+  "launch": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/ind-a-edit01-launch.raw",
+    "sha256": "68569a0bf5159c1aae12f7a2da0350e94a24f9f1b48de2e1ff7a7a64baacd880"
+  },
+  "run_directory": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01",
+  "original_run_files_count": 56,
+  "critical_original_refs": {
+    "raw.log": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/raw.log",
+      "sha256": "7db24707aa63e30aabbeb81b2639bd074245fb0957998477beaa9a61d5dc863b",
+      "bytes": 4728
+    },
+    "result.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/result.json",
+      "sha256": "13e756d8f2501e2b0be691987aa54f85348497f6284a4a91f6acdc1986472622",
+      "bytes": 23238
+    },
+    "command.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/command.json",
+      "sha256": "3e9cb312f8ae7059a0050cfa390ac83abe123acca882add525962bc242c89174",
+      "bytes": 2657
+    },
+    "cleanup.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/cleanup.json",
+      "sha256": "23b1a78b8717f5ebf1b63dba70fe29e0343ec1a8dd63b1ffab53aa9733608b57",
+      "bytes": 48959
+    },
+    "adopted-waits.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/adopted-waits.json",
+      "sha256": "d576ab2d3d4aebaa5bfe17624f9bd20687af922dde4c1ddf6acf8e1bd3bfa13b",
+      "bytes": 575
+    },
+    "owned-tail-retirement.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74
+    },
+    "watchdog.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/watchdog.json",
+      "sha256": "57be8a3f879dd36fb4716bd375b6a632938358f66e3d06919ee89bea03bbe8e4",
+      "bytes": 526
+    },
+    "observed-resources.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/observed-resources.json",
+      "sha256": "5305a04f81828eaa2275162b8b2cbdca9d60fa3917d22dd3572dda49c62ab985",
+      "bytes": 5093
+    },
+    "input-before.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/input-before.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815
+    },
+    "input-after.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815
+    },
+    "verification-input.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/verification-input.json",
+      "sha256": "28a3a07afc2eb7907269ef3e8ae77aaeeb19311e27c7751a3492db51ec5bf2dc",
+      "bytes": 183
+    },
+    "frozen-input.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/frozen-input.json",
+      "sha256": "d989260fe53369fe5ec2712c7602f2b84bb6e6b79f47b0c3008cfe74507c8218",
+      "bytes": 44754
+    },
+    "tcp-tail-observation.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/tcp-tail-observation.json",
+      "sha256": "c1f99df0019d40e54997e7d3d46251d235ea28241f08cb3b3b7acd923706d731",
+      "bytes": 186965
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/schema-validation.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/schema-validation.json",
+      "sha256": "f923954e8ad40a485e55ffa09094c9be2ecbc0f76325de7842f29b2b364dbcb9",
+      "bytes": 76
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/same-body-validation.json": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-a-edit01/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/same-body-validation.json",
+      "sha256": "f2e6317b82c05d51133ae86a183626b21e385628d3d8329cdbe8ea847711da09",
+      "bytes": 72
+    }
+  },
+  "safe_evidence": {
+    "sidecars": 19,
+    "unique_bodies": 11,
+    "sidecar_closed10_and_input_run_body_sha_bindings_checked": true,
+    "http_status_counts": [
+      {
+        "method": "GET",
+        "status": 200,
+        "count": 12
+      },
+      {
+        "method": "PATCH",
+        "status": 200,
+        "count": 5
+      },
+      {
+        "method": "PATCH",
+        "status": 409,
+        "count": 2
+      }
+    ],
+    "schema_validation": {
+      "status": 0,
+      "signal": null,
+      "stdout": "19\n",
+      "stderr": "",
+      "failed_to_run": false
+    },
+    "same_body_validation": {
+      "schemas": 19,
+      "client_reads": {
+        "list": 0,
+        "resolve": 1,
+        "get": 6,
+        "problem": 0
+      }
+    },
+    "native_browser_client_reads": 7,
+    "limits": "Only native browser GETs matched by original X-Request-ID use public client; setup001-004 and helper012GET/013PATCH excluded. PATCH/Problem schema validation is not independent mutation publicclient replay; runtime URL/Owner map not persisted.",
+    "completed": "Actual whole frozen edit case reached final checker and Go completed/final facts, including name/facts locator fixes, rename route/nav, confirmed-command/current-Get-failure/re-read, no-extra-PATCH/facts/description assertions. No extra DOM/trace/screenshot claimed."
+  },
+  "retirement": {
+    "exact_resource_ids": [
+      "098c8728f38239476c8650e8c5f06c76eea2bc06b26115209567b39e3fe1b4ad",
+      "0a23cd20021fe6ad95c2be5f47d0964125c7b0e870bc67280bfc8cda98190e82",
+      "2e2e1e204d68b83045c09465dd2b984374ab99b8e361cd3b8bd6057624da6d2e",
+      "698e2b65b04ac24dbb743d93346fa39a06da7b2c5dc0502aafa67ea76ad065d6",
+      "b6b358510e6e4a76327af294630bcfb0e2f9fc54e5e4c37a9910ddf7d161d82b",
+      "be42d53525e6576f374d6646263c0895451ec45566b33bf19f5d15de1387fb64",
+      "cebbf9d7406ca03979cf6131c0ec83507a37f572ebee4969ef7a38b456e01e51"
+    ],
+    "resource_topology": {
+      "containers": 4,
+      "networks": 3
+    },
+    "each_id_double_absent": true,
+    "owned_runtime_browser_runtime_double_empty": true,
+    "baseline_unchanged": true,
+    "cleanup_times": [
+      "2026-10-08T08:52:57.671367+00:00",
+      "2026-10-08T08:52:58.368085+00:00"
+    ],
+    "input_before_after_same": true,
+    "tcp_tail_seconds": 39.41553871799988,
+    "tcp_last_two_clear": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T08:53:38.081959+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T08:53:38.286716+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "tcp_signals_sent": false,
+    "forced_tail_actions": 0,
+    "monitor_errors": 0,
+    "new_nonowned_unwaited_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 442964,
+        "ppid": 1,
+        "starttime": "1939420",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 443316,
+        "ppid": 1,
+        "starttime": "1939676",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 443680,
+        "ppid": 1,
+        "starttime": "1939887",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 444271,
+        "ppid": 1,
+        "starttime": "1940101",
+        "state": "Z"
+      }
+    ],
+    "limit": "Owned actual retirement; nonowned shims not waited/killed, supplementary TCP polling not complete connection trace."
+  },
+  "A1_composition": {
+    "handoff_sha256": "0a93cca64aed39a94d9dd922670fae3fb3720fbf73a5b429e4088d5eb745b82b",
+    "A2_started_after_A1_final_tcp": true,
+    "resource_ids_disjoint": true
+  },
+  "no_active_owned_resource_command_or_reader": true,
+  "subsequent_round_authorized": false,
+  "next_requested_round": "A3 ind-a-identity01/new-identity requires separate root grant",
+  "no_retry_or_follow_on_executed": true,
+  "stop": true
+}

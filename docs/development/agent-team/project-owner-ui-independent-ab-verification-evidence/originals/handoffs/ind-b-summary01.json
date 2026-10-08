@@ -1,0 +1,220 @@
+{
+  "status": "INDEPENDENT_REAL_B2_PASS_FULL_RETIREMENT_STOP",
+  "run": "ind-b-summary01",
+  "group": "old-summary-recovery",
+  "exact_top": "TestAccountSystemMeetingSummaryWebRecovery",
+  "authorization": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/freeze.root-ind-b-summary01.json",
+    "sha256": "f95acb01f8ef727ae67426f5824d8ea90a3ab3409808b6d5dbb0eb0ddf8dc2b1",
+    "bytes": 44867
+  },
+  "outer_terminal": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/ind-b-summary01-outer-terminal.json",
+    "sha256": "b9382e571649d2d17b2ee9e37fde9b93862412aa9d068da71f84f727ac7e2b2c",
+    "bytes": 351
+  },
+  "launch": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/ind-b-summary01-launch.raw",
+    "sha256": "6f28af0d1b582cf2bbedc531759914933d5c774435c6bdaa58d78ef5aadfa174",
+    "bytes": 18259
+  },
+  "driver_sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+  "first_input_gate": {
+    "accepted": true,
+    "files_count": 1165,
+    "actual_digest": "6bb347c9ea8c32d19dd0176302019b64ddeaec778ad14dbd8011a1bc88436f55",
+    "before_after_equal": true
+  },
+  "actual": {
+    "browser_cases_passed": 1,
+    "browser_seconds": 8.6,
+    "top_seconds": 12.71,
+    "direct_seconds": 60.54,
+    "direct_pid": 480244,
+    "direct_starttime": "2085248",
+    "started_utc": "2026-10-08T09:16:17.759747+00:00",
+    "direct_ended_utc": "2026-10-08T09:17:18.299950+00:00",
+    "actual_direct_wait": true,
+    "adopted_waits": [
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 484488,
+        "starttime": "2088339",
+        "time": "2026-10-08T09:16:56.451504+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 484495,
+        "starttime": "2088339",
+        "time": "2026-10-08T09:16:56.451524+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 484496,
+        "starttime": "2088339",
+        "time": "2026-10-08T09:16:56.451540+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 484497,
+        "starttime": "2088339",
+        "time": "2026-10-08T09:16:56.451557+00:00"
+      }
+    ],
+    "watchdog_joined": true,
+    "case": "[recovery] two accepted response losses keep independent original bodies and receipts",
+    "completion": "Original frozen Summary browser case and Go top reached PASS. Formal bootstrap/invite/redeem/login/Logout fixture; no extra probe or checker run.",
+    "schema_client": "Legacy group has no Project schema-validation/same-body-validation originals; no Project schema/client counts claimed."
+  },
+  "limits": [
+    "Authority role SQL is owned fact preparation only.",
+    "No generation, Invocation or production SPA acceptance.",
+    "Browser assertion success is not a newly persisted HTTP-body/DOM/trace transcript.",
+    "Accepted HTTP response-loss recovery is not PostgreSQL COMMIT-ACK loss injection."
+  ],
+  "retirement": {
+    "resource_ids": [
+      "04db912b227fbe3badf903e64e0ca57da7f2ede80d20776d367d578ee674caed",
+      "29aa3d85746a22292ac00431fb799dba9718c366ae10684512871efa6a201ac0",
+      "5187eb7199d0574285c013e5c59b85a1daa09edf1f7d85fa3be682ea7ac60338",
+      "67cdeb5db709530deaabcabd535b487e4b44d7e34abb367aa6c1445b432baaf1",
+      "7118de9edd3ffb0920f578a20c5921bb0c70a36759e3d6ce19a6af955ecc50bf",
+      "d356075e0dd010e8e59602d99f25d3d6a8cbd142a324bd645e863e65e437105f",
+      "f5d5f61339b498da216ade0c8b147e0d2dacbe5de8c983f974ec893fc27926f6"
+    ],
+    "each_exact_absent_twice": true,
+    "owned_runtime_browser_runtime_empty_twice": true,
+    "baseline_unchanged_twice": true,
+    "tcp_seconds": 38.38756828199985,
+    "tcp_last_two_clear": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T09:17:57.888146+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T09:17:58.093056+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "forced_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_unwaited_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 480472,
+        "ppid": 1,
+        "starttime": "2085479",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 480858,
+        "ppid": 1,
+        "starttime": "2085758",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 481209,
+        "ppid": 1,
+        "starttime": "2085966",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 481718,
+        "ppid": 1,
+        "starttime": "2086143",
+        "state": "Z"
+      }
+    ],
+    "scope": "Owned fixture retirement; supplementary host TCP polling is not complete short-connection trace or host ownership proof."
+  },
+  "sequencing": {
+    "prior_B1_last_tcp_clear": "2026-10-08T09:10:33.740735+00:00",
+    "started_after_prior_clear": true,
+    "IDs_disjoint_all_prior_independent_rounds": true,
+    "actual_unique_IDs_first5": 35
+  },
+  "critical_original_refs": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/raw.log",
+      "sha256": "4f48472eb3479fe5ea0543887ae734ee4fd504645cfd1ce749b55265ddaadb65",
+      "bytes": 4182
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/result.json",
+      "sha256": "0a13b3fa5308be0ea58f08cfa77a31fb71baddb6ddb59000d540fcb3e8b17f3f",
+      "bytes": 25429
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/command.json",
+      "sha256": "53c21cab00bef5a66600e833fa74a01cb057eb8e75ce49098a2d87f768a35161",
+      "bytes": 2674
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/cleanup.json",
+      "sha256": "e6a44cb0461d37668511d1bd91cf5614dacd86b9c70000e22666cb19d6503926",
+      "bytes": 53755
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/adopted-waits.json",
+      "sha256": "ed8a54019e49c56f502ae9d121c3e135a8c2cd5b1829ebc2f4f1903feed0f575",
+      "bytes": 575
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/watchdog.json",
+      "sha256": "c81e6d504cb1cb9cf22203c9bf9f6fa4e4cf4b4f08e7d75a768cb73928ee4184",
+      "bytes": 535
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/observed-resources.json",
+      "sha256": "302f5a6bd7dbc1be9bdf1486687c4c0795fb573bbe8292d54f5f11b2c544769b",
+      "bytes": 5106
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/input-before.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/verification-input.json",
+      "sha256": "10710652da5ad76ec159f2b56bb7bade14c7288e74cf8c423faa52a6101dffc4",
+      "bytes": 183
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/frozen-input.json",
+      "sha256": "f95acb01f8ef727ae67426f5824d8ea90a3ab3409808b6d5dbb0eb0ddf8dc2b1",
+      "bytes": 44867
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-summary01/tcp-tail-observation.json",
+      "sha256": "86e51dc0d1a5a859481f6bdf3450ab5a12d32bb651d6a6d20414979b625d4728",
+      "bytes": 116923
+    }
+  ],
+  "next": "B3 ind-b-sumauth01/old-summary-authority not started; separate root grant required.",
+  "source_or_asset_mutations": false
+}

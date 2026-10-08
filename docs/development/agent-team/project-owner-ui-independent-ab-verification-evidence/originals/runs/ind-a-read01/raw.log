@@ -1,0 +1,81 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.92.56.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=b2f9cb75d97df1cdff6f86d44ce77dec
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=5da894968a74aebab3dacd3b6fd8aeac
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.560s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.012s [no tests to run]
+=== RUN   TestAccountProjectOwnerWebReadAndNavigation
+    project_owner_web_fixture_test.go:606: auxiliary archived fact prepared after real acceptance; lifecycle participants were not executed
+    project_owner_web_test.go:43: 
+        Running 1 test using 1 worker
+        
+        [1A[2K[1/1] e2e/project-owner.spec.ts:304:1 › [read] current Owner pages, exact deep links and stable IDs
+        [1A[2K  1 passed (8.6s)
+        
+    project_owner_web_fixture_test.go:1091: Project Node direct child actually waited; adopted descendants remain owned by outer subreaper
+    project_owner_web_test.go:43: Project Owner production browser mode=read; default root and formal Account/Project APIs; private static hosting only; Skills preparation and terminal lifecycle facts are not D10 or lifecycle-runtime acceptance
+    project_owner_web_fixture_test.go:282: Project proxy Serve and all body handlers actually joined
+    project_owner_web_fixture_test.go:519: Project preparation service actually joined before ProcessGuard release
+    project_owner_web_fixture_test.go:187: Project default root actual join
+--- PASS: TestAccountProjectOwnerWebReadAndNavigation (17.41s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	18.458s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.019s [no tests to run]
+D03 fixture cleanup checked for nonce e249954c2c1263041400e60a83698e03
+D04 outbound fixture cleanup checked for nonce 5da894968a74aebab3dacd3b6fd8aeac
+D05 object fixture exact resource cleanup checked nonce=b2f9cb75d97df1cdff6f86d44ce77dec

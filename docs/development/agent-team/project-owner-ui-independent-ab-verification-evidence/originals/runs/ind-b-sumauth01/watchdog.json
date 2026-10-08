@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 21104.176777286,
+      "top": "TestAccountSystemMeetingSummaryWebAuthorityNavigation"
+    },
+    {
+      "event": "result",
+      "monotonic": 21120.228138261,
+      "observed_seconds": 16.051360975001444,
+      "reported_seconds": 16.05,
+      "state": "PASS",
+      "top": "TestAccountSystemMeetingSummaryWebAuthorityNavigation"
+    }
+  ],
+  "expected": [
+    "TestAccountSystemMeetingSummaryWebAuthorityNavigation"
+  ],
+  "failures": []
+}

@@ -1,0 +1,222 @@
+{
+  "status": "INDEPENDENT_REAL_B3_PASS_FULL_RETIREMENT_STOP",
+  "run": "ind-b-sumauth01",
+  "group": "old-summary-authority",
+  "exact_top": "TestAccountSystemMeetingSummaryWebAuthorityNavigation",
+  "authorization": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/freeze.root-ind-b-sumauth01.json",
+    "sha256": "2f45a462f4404dd47af3b0251c7bcaf246b4e9ebcf91e1eb5fae832b2f3f8c4d",
+    "bytes": 44914
+  },
+  "outer_terminal": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/ind-b-sumauth01-outer-terminal.json",
+    "sha256": "b26a6858176377900245b86de9cf25113f507889bd27bc420330c2056808f754",
+    "bytes": 353
+  },
+  "launch": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/ind-b-sumauth01-launch.raw",
+    "sha256": "f0c5823d579d00d796d22c1a57b10b1bc7bcc52313da4716f1f8d8dde10e35b9",
+    "bytes": 18725
+  },
+  "driver_sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+  "first_input_gate": {
+    "accepted": true,
+    "files_count": 1165,
+    "actual_digest": "6bb347c9ea8c32d19dd0176302019b64ddeaec778ad14dbd8011a1bc88436f55",
+    "before_after_equal": true
+  },
+  "actual": {
+    "browser_cases_passed": 1,
+    "browser_seconds": 10.9,
+    "top_seconds": 16.05,
+    "direct_seconds": 69.082,
+    "direct_pid": 489788,
+    "direct_starttime": "2107313",
+    "started_utc": "2026-10-08T09:19:58.413400+00:00",
+    "direct_ended_utc": "2026-10-08T09:21:07.496195+00:00",
+    "actual_direct_wait": true,
+    "adopted_waits": [
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 494432,
+        "starttime": "2111003",
+        "time": "2026-10-08T09:20:45.680221+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 494435,
+        "starttime": "2111003",
+        "time": "2026-10-08T09:20:45.680242+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 494437,
+        "starttime": "2111003",
+        "time": "2026-10-08T09:20:45.680261+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 494438,
+        "starttime": "2111003",
+        "time": "2026-10-08T09:20:45.680278+00:00"
+      }
+    ],
+    "watchdog_joined": true,
+    "case": "[authority] one aggregate navigation decision, actual Session continuity and current authorization",
+    "completion": "Original frozen Summary browser case and Go top reached PASS; no extra probe/checker run.",
+    "original_business_log": [
+      "    system_meeting_summary_web_test.go:34: Summary production browser mode=authority; formal bootstrap/invite/redeem/login/Logout; authority role SQL is owned fact preparation only; no generation/Invocation/production SPA claim"
+    ],
+    "schema_client": "Legacy group has no Project schema/client checker count; none claimed."
+  },
+  "limits": [
+    "Authority role SQL is owned fact preparation only.",
+    "No generation, Invocation or production SPA acceptance.",
+    "Browser assertion success is not a newly persisted HTTP-body/DOM/trace transcript."
+  ],
+  "retirement": {
+    "resource_ids": [
+      "038f9c8062cbc57da538612e755a3b91908a7ccb585c61dd0fbe0e3020892ca8",
+      "3e3075d3880550aea724e1d575f92b6bf59fcf9c30590c1e760de1468047e2ec",
+      "78b007919f3ccbcc901b39bdd371a1a401030c380125e2998c785cb57692ae06",
+      "a66dec36a359075d6c2d46c4fbbd8a71d37578b1201b31bdc242b8c8bb6c58db",
+      "ada8b010c76db5173bda38a895c517f40d41dd4f16d01d00e0c9435822a486a1",
+      "b9f722df9c6bd91e4f6d22eb0230c9a48373fce7d67e1990f3b56b4473c752eb",
+      "cdd5d3d3a4296612e2dd67b367435b6e7d0190437a476c177f65b3f592ae9cd6"
+    ],
+    "each_exact_absent_twice": true,
+    "owned_runtime_browser_runtime_empty_twice": true,
+    "baseline_unchanged_twice": true,
+    "tcp_seconds": 38.37775818999944,
+    "tcp_last_two_clear": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T09:21:47.062286+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T09:21:47.266210+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "forced_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_unwaited_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 490160,
+        "ppid": 1,
+        "starttime": "2107782",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 490716,
+        "ppid": 1,
+        "starttime": "2108267",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 491084,
+        "ppid": 1,
+        "starttime": "2108532",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 491711,
+        "ppid": 1,
+        "starttime": "2108734",
+        "state": "Z"
+      }
+    ],
+    "scope": "Owned fixture retirement; supplementary host TCP polling is not complete short-connection trace or host ownership proof."
+  },
+  "sequencing": {
+    "prior_B2_last_tcp_clear": "2026-10-08T09:17:58.093056+00:00",
+    "started_after_prior_clear": true,
+    "IDs_disjoint_all_prior_independent_rounds": true,
+    "actual_unique_IDs_first6": 42
+  },
+  "critical_original_refs": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/raw.log",
+      "sha256": "9a9857f88b74c22faaf0114287f568a90d7fbc94a042ecc51f7df0e4a1f12a3d",
+      "bytes": 4503
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/result.json",
+      "sha256": "65a28d9e08a7c1d68ee2b1d90779b963057fcf69099c204dec681fa31cbcff6d",
+      "bytes": 26068
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/command.json",
+      "sha256": "c858f99f70d87dcc1b6c79873be5ce45281e18fd994ea70cfa61c6dcd20db789",
+      "bytes": 2686
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/cleanup.json",
+      "sha256": "a24d17b57e6f00aae4b5215353b49360609d65952210a880401c2b9f66fd148f",
+      "bytes": 55139
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/adopted-waits.json",
+      "sha256": "92312de3c39ee69a6d84e4d247994bfbed61850d93e26be9f0b0c10f41a30b06",
+      "bytes": 575
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/watchdog.json",
+      "sha256": "a8c78dbb60fe96475650bab36c307757f38e39695a81a244e6f83cdc9d05c131",
+      "bytes": 568
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/observed-resources.json",
+      "sha256": "33f8500c75894d88cbdf20d519ca0489fe750ff5a8228341d30635c391f7e023",
+      "bytes": 5105
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/input-before.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/verification-input.json",
+      "sha256": "a41ba7dfb821757bf3997ce74573d38c6ae7e49680aa5c9abd3d93e92830f4d1",
+      "bytes": 183
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/frozen-input.json",
+      "sha256": "2f45a462f4404dd47af3b0251c7bcaf246b4e9ebcf91e1eb5fae832b2f3f8c4d",
+      "bytes": 44914
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-sumauth01/tcp-tail-observation.json",
+      "sha256": "55e8172d4eb266127f156060f250ab88e6bc5aa8095da4b701186f4d34ea8412",
+      "bytes": 138427
+    }
+  ],
+  "next": "B4 ind-b-auth01/old-auth-lifecycle not started; separate root grant required.",
+  "source_or_asset_mutations": false
+}

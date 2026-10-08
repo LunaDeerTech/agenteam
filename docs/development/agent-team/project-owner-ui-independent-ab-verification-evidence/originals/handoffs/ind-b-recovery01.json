@@ -1,0 +1,248 @@
+{
+  "status": "INDEPENDENT_REAL_B1_PASS_FULL_RETIREMENT_STOP",
+  "run": "ind-b-recovery01",
+  "group": "new-recovery",
+  "exact_top": "TestAccountProjectOwnerWebOriginalRecovery",
+  "authorization": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/freeze.root-ind-b-recovery01.json",
+    "sha256": "6a43f6cbe86a5e8c749b15e6bbbee90b57a0c5455396ff3e38d2596a94f1410d",
+    "bytes": 44705
+  },
+  "outer_terminal": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/ind-b-recovery01-outer-terminal.json",
+    "sha256": "3d2223b8f95bbb34c883b232a60269fe9994e97dff1f7f4092fc7468d5b93638",
+    "bytes": 352
+  },
+  "launch": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/ind-b-recovery01-launch.raw",
+    "sha256": "4ebaf7a63d88161db7065b48af5d622235f20c095bc24e602b3c605051cf60d3",
+    "bytes": 17723
+  },
+  "driver_sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+  "first_input_gate": {
+    "accepted": true,
+    "files_count": 1165,
+    "actual_digest": "6bb347c9ea8c32d19dd0176302019b64ddeaec778ad14dbd8011a1bc88436f55",
+    "before_after_equal": true
+  },
+  "actual": {
+    "browser_cases_passed": 1,
+    "browser_seconds": 5.3,
+    "top_seconds": 13.11,
+    "direct_seconds": 61.348,
+    "direct_pid": 468285,
+    "direct_starttime": "2040727",
+    "started_utc": "2026-10-08T09:08:52.552323+00:00",
+    "direct_ended_utc": "2026-10-08T09:09:53.901022+00:00",
+    "actual_direct_wait": true,
+    "adopted_waits": [
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 472899,
+        "starttime": "2044221",
+        "time": "2026-10-08T09:09:32.008604+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 472900,
+        "starttime": "2044221",
+        "time": "2026-10-08T09:09:32.008626+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 472901,
+        "starttime": "2044221",
+        "time": "2026-10-08T09:09:32.008643+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 472895,
+        "starttime": "2044221",
+        "time": "2026-10-08T09:09:32.008649+00:00"
+      }
+    ],
+    "watchdog_joined": true,
+    "schema": {
+      "status": 0,
+      "signal": null,
+      "stdout": "19\n",
+      "stderr": "",
+      "failed_to_run": false
+    },
+    "same_body_client": {
+      "schemas": 19,
+      "client_reads": {
+        "list": 0,
+        "resolve": 2,
+        "get": 6,
+        "problem": 0
+      }
+    },
+    "complete": "Fixed browser case and Go final/completed checks reached actual PASS; formal app.Run/API fixture; no checker rerun."
+  },
+  "recovery_scope": {
+    "actual_committed": "Formal Project update commit followed by private proxy HTTP response loss; page unknown then explicit original-request lookup committed and matching original key/body replay/unique facts assertions. Archived historical replay/local abandon case assertions also reached.",
+    "controlled_other_states": "in_progress and not_observed are controlled fixture states, not actual concurrent production outcomes.",
+    "exclusions": [
+      "Not PostgreSQL COMMIT acknowledgement loss injection.",
+      "Lifecycle/archived SQL preparation does not execute lifecycle participants or accept D10.",
+      "Public client counts are native browser GET reads; writes and IPC/setup are separate.",
+      "URL/Owner matching occurs in the executed browser checker; no extra persistent URL/Owner transcript or DOM/trace is claimed."
+    ]
+  },
+  "retirement": {
+    "resource_ids": [
+      "0268d404b9beabb76b8245aaff2150fffb167645785f978a15a57806cef71450",
+      "74751dd5e4b12e3eb344fda5e99284dbcb5ca2e7f3ed5ac8ee40e745fc2c7e78",
+      "ab5867cb3e225aeda4c031d27834381682eab68579538da384ba7254ca4c9caa",
+      "bf0eebb0e9d85ec6eb080002c87379809dfa7cf88cd09c9fe78e645bcd5bc584",
+      "c7dd6a118a80ef500e5fe001027a5788e321d21734895cd37540eed46bef5c25",
+      "e1d90f83a68862e3a52bb023110bbd957e837956623b56a4ac01e0b6b444e5d9",
+      "ed48e54ca8e06892275047eb359034ac576848760fb434bc24ebb014f1ac1287"
+    ],
+    "each_exact_absent_twice": true,
+    "owned_runtime_browser_runtime_empty_twice": true,
+    "baseline_unchanged_twice": true,
+    "tcp_seconds": 38.38916568700006,
+    "tcp_last_two_clear": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T09:10:33.537029+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T09:10:33.740735+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "forced_actions": 0,
+    "monitor_errors": 0,
+    "new_non_owned_unwaited_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 468532,
+        "ppid": 1,
+        "starttime": "2040976",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 468880,
+        "ppid": 1,
+        "starttime": "2041220",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 469242,
+        "ppid": 1,
+        "starttime": "2041452",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 469862,
+        "ppid": 1,
+        "starttime": "2041650",
+        "state": "Z"
+      }
+    ],
+    "scope": "Owned fixture retirement only; supplementary host TCP polling is not complete short-connection tracing or host ownership proof."
+  },
+  "sequencing": {
+    "prior_A3_last_tcp_clear": "2026-10-08T09:01:48.881097+00:00",
+    "started_after_prior_clear": true,
+    "IDs_disjoint_prior_A1_A2_A3": true,
+    "actual_unique_IDs_A1_A2_A3_B1": 28
+  },
+  "critical_original_refs": [
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/raw.log",
+      "sha256": "5aa49f21646bb05522878f235ad0048b180aa9c41d7fb439c24fae05a9fee155",
+      "bytes": 4886
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/result.json",
+      "sha256": "1b7a5b4144e284157933cf70e412f23c730a5c7ff5fe86aea927c948fc62bb95",
+      "bytes": 24662
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/command.json",
+      "sha256": "78847661b93839be330c845982757f3c3472f49744f1ea0aac179acaeeb12787",
+      "bytes": 2680
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/cleanup.json",
+      "sha256": "ba8f4ee6ad04278d54c6b8c940c399dcdbd6e14d98af2478971af9fb7a9bae6c",
+      "bytes": 52049
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/adopted-waits.json",
+      "sha256": "4ed5f74ff2cb85d0a7e4d9a78220651e28f1c4942de18600573da8a85031364d",
+      "bytes": 575
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/watchdog.json",
+      "sha256": "29de35512917c2fbde393400b5f493fd920c8f2beaed1d79cd7498193b8caead",
+      "bytes": 535
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/observed-resources.json",
+      "sha256": "e4914899143e1d2b971f29ca90ee3b9ad036a16a83e8ab5376dc9c1e353b0a1a",
+      "bytes": 5113
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/input-before.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/verification-input.json",
+      "sha256": "f7b095f29da1cfb5832a53450e9c5d722732394fc35bb259e1e58ca1e97f66ba",
+      "bytes": 183
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/frozen-input.json",
+      "sha256": "6a43f6cbe86a5e8c749b15e6bbbee90b57a0c5455396ff3e38d2596a94f1410d",
+      "bytes": 44705
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/tcp-tail-observation.json",
+      "sha256": "8cd3afe4c34cf1eef06bb95c30d7a4e9f1656fc025efe3962d09dce5b1021d9e",
+      "bytes": 180763
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/schema-validation.json",
+      "sha256": "f923954e8ad40a485e55ffa09094c9be2ecbc0f76325de7842f29b2b364dbcb9",
+      "bytes": 76
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/runs/ind-b-recovery01/safe-http-evidence/TestAccountProjectOwnerWebOriginalRecovery/same-body-validation.json",
+      "sha256": "e3c79b25fa7eb046b1f29a355576f8d46d15d35ae00c353158efcc20aaea297c",
+      "bytes": 72
+    }
+  ],
+  "next": "B2 ind-b-summary01/old-summary-recovery not started; separate root grant required.",
+  "source_or_asset_mutations": false
+}

@@ -1,0 +1,168 @@
+{
+  "status": "METADATA_ONLY_REBIND_STOP_NO_NEW_GATE",
+  "recorded_utc": "2026-10-08T08:03:34.895938+00:00",
+  "frozen": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/freeze.prepared-final05.json",
+    "sha256": "061863b05b510f154810a98738d98f0818e14a5577141d0c1933250fdd5d75f7"
+  },
+  "base_author_final05": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/freeze.final.json",
+    "sha256": "62da72e10ae28fde09bcf016756a476585fe9a99192d0bf8dcaf25b6b720bebc"
+  },
+  "previous_independent": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/freeze.prepared.json",
+    "sha256": "4ce0c0cccbad04b75a2d57a45d4aa8c451638aef7e97b87fe4126bc19d6e1325"
+  },
+  "changed_keys_from_previous_independent": [
+    "browser_acceptance_at_preparation",
+    "closure",
+    "independent_preparation",
+    "source_acceptance",
+    "status",
+    "versioned_successor"
+  ],
+  "changed_keys_from_final05": [
+    "browser_runtime_root",
+    "executable_now",
+    "independent_preparation",
+    "permitted_groups",
+    "status",
+    "versioned_successor"
+  ],
+  "unchanged_running_keys_from_final05": [
+    "accepted_driver",
+    "author_input_digest",
+    "browser_manifest",
+    "browser_versions_provenance",
+    "candidate_sha256",
+    "dist",
+    "dist_assets",
+    "driver_runtime_files",
+    "driver_sha256",
+    "frontend_manifest",
+    "groups",
+    "legacy_dist",
+    "pending_inputs",
+    "root_authorized_resources",
+    "runtime_bundles",
+    "closure",
+    "source_acceptance"
+  ],
+  "source_delta": {
+    "path": "/workspace/agenteam/tests/account-captcha-web/e2e/personal-settings.spec.ts",
+    "before_sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+    "after_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+    "imports_added": false,
+    "basis": "Accepted source two-hunk review096892; no source rereview or new compilation."
+  },
+  "own_execution": {
+    "driver_path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/driver.py",
+    "driver_sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+    "driver_copied_or_changed": false,
+    "browser_runtime_root": "/workspace/scratch/owui/ind",
+    "rounds": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/rounds.json",
+      "sha256": "6e5b86acd1c443b28252f11808a0eb329faa6ab3026c956ae31b638847f71fb7"
+    },
+    "round_count": 9,
+    "groups": [
+      "new-read",
+      "new-edit",
+      "new-identity",
+      "new-recovery",
+      "old-summary-recovery",
+      "old-summary-authority",
+      "old-auth-lifecycle",
+      "old-smtp-delivery",
+      "new-layouts"
+    ],
+    "budgets": {
+      "fresh_minimum_free_bytes": 5368709120,
+      "new_browser_case_seconds": 45,
+      "new_browser_retries": 0,
+      "new_browser_workers": 1,
+      "old_internal_case_policy": "original exact config/body/budget and retries unchanged",
+      "package_minutes": 6,
+      "tcp_tail_seconds": 75,
+      "top_including_cleanup_seconds": 120
+    },
+    "topology": {
+      "count_is_plan_not_observation": true,
+      "ordinary_resource_ids_per_round": 7,
+      "ordinary_rounds": 8,
+      "smtp_delivery_rounds": 1,
+      "smtp_resource_ids_per_round": 9,
+      "total_planned_if_all_execute": 65
+    },
+    "source_graph_files": 955,
+    "package_file_sets": 66,
+    "runtime_tool_entries": 210,
+    "explicit_files": 1165,
+    "python_modules": 171,
+    "python_schema_resources": 20,
+    "assets": 53
+  },
+  "gate_evidence_composition": "Prior independent gate02 is limited pure-file PASS for old4ce0 input, gate01 recorder FAIL retained. Accepted author final05 gate validates new one-source input. Their composition does not constitute a new independent filegate or actual A/B PASS. First separately root-authorized actual A1 must run unchanged driver original input gate before resource startup.",
+  "prior_gate02_retirement_limit": "Actual child.wait+originalPID/starttime doubleabsent+wrapper actualexit0. Missing children proc remains not_available, no whole-owned-tree doubleempty claim.",
+  "refs": {
+    "original_independent_handoff": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/handoff.json",
+      "sha256": "7e11edadd299eb1ebd915b5acf5f60dbd2534a06fabaa3cb8fee78e5826d5602"
+    },
+    "original_independent_freeze": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/freeze.prepared.json",
+      "sha256": "4ce0c0cccbad04b75a2d57a45d4aa8c451638aef7e97b87fe4126bc19d6e1325"
+    },
+    "original_rounds": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/rounds.json",
+      "sha256": "6e5b86acd1c443b28252f11808a0eb329faa6ab3026c956ae31b638847f71fb7"
+    },
+    "original_gate01_failure": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/filegate01/failure-review.json",
+      "sha256": "0593f6d2aad9af7e54c768bcea1ec2f2383d7625ab813144079e0e4a03bebd54"
+    },
+    "original_gate02_result": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/filegate02/result.json",
+      "sha256": "a2beb7b9b4cae75c2026ffa10f215be7c50abc3ac7fdaf3a45fa583bc67fac09"
+    },
+    "original_gate02_wrapper_terminal": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/ind-driver-v01/filegate02/wrapper-terminal.json",
+      "sha256": "226292dc9180420f333e9ebdbc366f52e25c6e94376ae6ef7ebb0d5dab18cb2c"
+    },
+    "final05_handoff": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/handoff.json",
+      "sha256": "9be1f4422396f483889f49f35d3c2cbf6db17637a32902f92217b20198ec639a"
+    },
+    "final05_freeze": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/freeze.final.json",
+      "sha256": "62da72e10ae28fde09bcf016756a476585fe9a99192d0bf8dcaf25b6b720bebc"
+    },
+    "final05_closure": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/closure.delta.json",
+      "sha256": "126be6bacf25182c6af0cd0d7c317e48ae7fbd3dc7bb834f92b31e5c623e98af"
+    },
+    "final05_author_gate_raw": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/source-check.raw",
+      "sha256": "73bf8ce608a154eaa3c5ccdda41272bac05af192a84c8126ffd953ede5b3c027"
+    },
+    "final05_author_gate_meta": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/source-check.meta.json",
+      "sha256": "712bdb84d013ffa3e6622f99f856cb891ad22b11e34ca44b4f499a89006c18ea"
+    },
+    "final05_independent_prepared_review": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/final05-review/review.md",
+      "sha256": "b3b24a3bc99f130db40a0ecb45b72e4937e7b620b2eaa8d68fdf1d89924bb166"
+    },
+    "source_independent_review": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/legacy-profile-json-static-review/review.md",
+      "sha256": "096892daf6b09d72168638e2c848b24a8f895e3fdfe79680f72e716333eba1a5"
+    }
+  },
+  "root_authorized_resources": false,
+  "executable_now": false,
+  "new_checks_or_resources_executed": false,
+  "wholegraph_cache_source_copy_or_index_rebuild": false,
+  "author_old14_results_accepted_by_this_rebind": false,
+  "next_round_policy": "Every round requires separate root grant after backend entire OLD14 stable STOP and exclusive ownership handoff; prior PASS/full actualwait/retirement/source equality then new grant, otherwise retire and STOP.",
+  "stop": true
+}

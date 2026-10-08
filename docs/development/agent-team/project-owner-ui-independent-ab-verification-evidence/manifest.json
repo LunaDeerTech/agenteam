@@ -1,0 +1,41 @@
+{
+  "status": "STOP_ARCHIVE_COMPLETE_FOR_ROOT_REVIEW",
+  "write_scope": [
+    "docs/development/agent-team/project-owner-ui-independent-ab-verification.md",
+    "docs/development/agent-team/project-owner-ui-independent-ab-verification-evidence"
+  ],
+  "files": {
+    "docs/development/agent-team/project-owner-ui-independent-ab-verification.md": {
+      "sha256": "6f2f3a1eb5e7d83d1a07ead26125c27c49f6ab2a5ebc592256ca51d0943bd24c",
+      "bytes": 10771
+    },
+    "docs/development/agent-team/project-owner-ui-independent-ab-verification-evidence/source-map.json": {
+      "sha256": "b369f3e221464c640a78d52c3facdc6ebc2f1b735f7431b6dcce18acbda6bae7",
+      "bytes": 274138
+    },
+    "docs/development/agent-team/project-owner-ui-independent-ab-verification-evidence/archive-checks.json": {
+      "sha256": "741e5d381b17751f35a4d2319566dbccf246fb6c32cd5c8eb5b3ac3e3410e1ec",
+      "bytes": 15115
+    },
+    "docs/development/agent-team/project-owner-ui-independent-ab-verification-evidence/format-exceptions.json": {
+      "sha256": "bc46fd6bda61739b7ebd1b07c438dde21daad4268431eebbc8037f4b3f2731ba",
+      "bytes": 70498
+    }
+  },
+  "counts": {
+    "logical_originals": 479,
+    "logical_original_bytes": 5562402,
+    "distinct_content_sha256": 403,
+    "new_physical_original_files": 385,
+    "new_physical_original_bytes": 4705177,
+    "reused_prior_physical_originals": 18,
+    "reused_prior_physical_bytes": 88855,
+    "reused_prior_logical_originals": 85
+  },
+  "formal_review_permanent_entity": {
+    "path": "docs/development/agent-team/project-owner-ui-independent-ab-verification-evidence/originals/final/review.md",
+    "sha256": "4942c4deed2b32dca67827fcb66d7ec11bc63dd0c2822329928ded26a6a0a00e",
+    "bytes": 4678
+  },
+  "no_remaining_archivist_commands_readers_or_writes": true
+}
