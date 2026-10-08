@@ -1,0 +1,109 @@
+{
+  "status": "PREPARATION_ONLY_STOP_NOT_SPEC_ACCEPTANCE",
+  "formal_card_read": false,
+  "root_reported_reserved_migration_only": "00021_work_structure.sql",
+  "product_or_dynamic_actions": false,
+  "report": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/d11-work-structure-spec-preparation01/preparation.md",
+    "sha256": "c9864dc6b97550c257d86bc5d90e178c889ebb5a31f2aea50aa34ab6299b40d2",
+    "bytes": 3181
+  },
+  "inputs": [
+    {
+      "path": "/workspace/scratch/architecture-d11-structure-frontier01/freeze.json",
+      "sha256": "8f4d55aaa0c269a17394c40a061ebe25791b5b8e11d7c1737a4d5d6f8f733cc2",
+      "bytes": 903,
+      "read_scope": "whole frozen preparation text"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-structure-frontier01/candidate.md",
+      "sha256": "28034095f87c68dff09a88fc37e5ce7e10e7817cac07e24259617c9715876c68",
+      "bytes": 12323,
+      "read_scope": "whole frozen preparation text"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-structure-frontier01/sources.json",
+      "sha256": "72c2c05cbcb3a516ca1e4e4a89921313af9c9713dead7a4169913655f77d18ec",
+      "bytes": 4780,
+      "read_scope": "whole frozen preparation text"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-structure-frontier01/result.json",
+      "sha256": "517507d6635fc37349542c9adcc63eb024f621f393d272385c65d3f516a5a36c",
+      "bytes": 1828,
+      "read_scope": "whole frozen preparation text"
+    },
+    {
+      "path": "/workspace/scratch/d11-work-structure-backend-preparation01/handover.md",
+      "sha256": "8dd3182565d1017274f4cf8ecf95275bce6cb205e3e14ec8b275b5f44677cc30",
+      "bytes": 4983,
+      "read_scope": "whole frozen preparation text"
+    },
+    {
+      "path": "/workspace/scratch/d11-work-structure-backend-preparation01/source-refs.json",
+      "sha256": "ea50b467b7d79d5246bc31231e10284d82de2a0f6cf83e2b20012851c3708ce5",
+      "bytes": 13267,
+      "read_scope": "whole frozen preparation text"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/authority.go",
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "bytes": 9818,
+      "read_scope": "64–108 current Session and RequireOwnerInTx"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/external_event_authority.go",
+      "sha256": "d7d43050ca99e20dd221564ad3a3a12c018f9dd0505e6ad68e287e8cd353a519",
+      "bytes": 3243,
+      "read_scope": "whole existing Model-only gate, both stages and issuer/Tx/locks"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/events.go",
+      "sha256": "4f97a16b6b9176f58c5ce05d22253664d602556a066a7c2ecec5f0995398d52d",
+      "bytes": 12341,
+      "read_scope": "289–352 exact producer dispatch"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/outbox/append.go",
+      "sha256": "39242c8c5c1b4596c8e11bbff8f494d66b7b838abcf76667b27f872fde2c3706",
+      "bytes": 8131,
+      "read_scope": "1–190 prepare locks and current authorization/history/NewFact order"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/outbox/contract/authority.go",
+      "sha256": "1c78ac9f0e8c9ff996e9b9048f65d1f8d7bc005989d1021b2e5e13c2f721f5a0",
+      "bytes": 11951,
+      "read_scope": "146–198 ProjectRequest validation"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/foundation/lock.go",
+      "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+      "bytes": 5196,
+      "read_scope": "89–180 lock constructors, ranks and closed aggregate/record types"
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/postgres/transaction.go",
+      "sha256": "aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3",
+      "bytes": 9811,
+      "read_scope": "191–330 same-store live Tx and RequireHeldLocks/AcquireAll"
+    },
+    {
+      "path": "/workspace/agenteam/docs/architecture/project-work-management/task-domain-model.md",
+      "sha256": "6cec22a2d2022613c518dac5054c76c4151e6a2272b9a815206c183d5c376624",
+      "bytes": 14768,
+      "read_scope": "32–96 canonical hierarchy and two manual-rank groups"
+    },
+    {
+      "path": "/workspace/agenteam/docs/architecture/project-work-management/sprint-lifecycle.md",
+      "sha256": "8286667a16cbdebef8e26a12c853d20e6d8f578fbd3353748d70151c3ce68e31",
+      "bytes": 15564,
+      "read_scope": "606–676 update/completed/delete constraints"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d01-contracts/domain-lifecycle.md",
+      "sha256": "0119faf85081fa60719f10a73a5483343021bd34f26da1be06af79fce1317c71",
+      "bytes": 19526,
+      "read_scope": "65–96 occupancy same-Tx/phantom constraints;143–157 deletion retention matrix"
+    }
+  ]
+}

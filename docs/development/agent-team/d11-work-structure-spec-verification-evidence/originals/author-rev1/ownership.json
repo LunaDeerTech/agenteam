@@ -1,0 +1,140 @@
+{
+  "spec_writer": "architecture_worker",
+  "authorized_writes": [
+    "/workspace/agenteam/docs/development/work-items/d11-work-structure.md",
+    "/workspace/scratch/architecture-d11-work-structure-spec01"
+  ],
+  "product_paths": [
+    {
+      "number": 1,
+      "path": "internal/central/work/contract/structure.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 2,
+      "path": "internal/central/work/contract/structure_test.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 3,
+      "path": "internal/central/work/contract/events.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 4,
+      "path": "internal/central/work/contract/events_test.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 5,
+      "path": "internal/central/work/service.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 6,
+      "path": "internal/central/work/structure.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 7,
+      "path": "internal/central/work/rank.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 8,
+      "path": "internal/central/work/reader.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 9,
+      "path": "internal/central/work/repository.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 10,
+      "path": "internal/central/work/events.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 11,
+      "path": "internal/central/work/structure_test.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 12,
+      "path": "internal/central/project/work_event_authority.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 13,
+      "path": "internal/central/project/events.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": false,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 14,
+      "path": "db/migrations/00021_work_structure.sql",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 15,
+      "path": "tests/work/fixture_test.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 16,
+      "path": "tests/work/structure_test.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 17,
+      "path": "tests/work/structure_concurrency_test.go",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": true,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    },
+    {
+      "number": 18,
+      "path": "docs/development/backend/README.md",
+      "owner": "fixture_recovery, only after independent SPEC acceptance and root implementation handover",
+      "is_new": false,
+      "status": "NOT_IMPLEMENTED_NOT_AUTHORIZED"
+    }
+  ],
+  "migration_reservation": "00021_work_structure.sql; root reserved only",
+  "shared_gate": "Project dispatcher/migration embedding/Go-cache/PG/README serialized by root; no shared install inside Model Settings resource windows",
+  "root_confirmed_head": "0d06fd69",
+  "no_business_or_resource_authorization": true,
+  "state": "STOP"
+}

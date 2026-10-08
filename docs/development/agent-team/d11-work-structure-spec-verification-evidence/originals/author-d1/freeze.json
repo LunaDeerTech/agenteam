@@ -1,0 +1,55 @@
+{
+  "format": 1,
+  "state": "STOP",
+  "kind": "D11 rev1+D1 narrow revision2 candidate",
+  "formal_card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d11-work-structure.md",
+    "bytes": 59597,
+    "sha256": "c07c7112a5fd77bd475cd843fbffc9680b030b626550632f2999d849476bf07c"
+  },
+  "outputs": [
+    {
+      "path": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/card.rev2.md",
+      "bytes": 59597,
+      "sha256": "c07c7112a5fd77bd475cd843fbffc9680b030b626550632f2999d849476bf07c"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/rev1-to-rev2.patch",
+      "bytes": 1869,
+      "sha256": "90a53acd6a7537b8ae9c2b96002e79e8624b7ef88b3e90f19230b5aff3305af1"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/sources.json",
+      "bytes": 1452,
+      "sha256": "4ca37f3efacf08acaa069f5198efd6d7834dbee85551696ba4e5aeb642910fde"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/checks.json",
+      "bytes": 1641,
+      "sha256": "4915ccedfab1f7de1c4be1992acba98387ba742c640c5a074ebeb7b0be73c1f2"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/review.md",
+      "bytes": 1149,
+      "sha256": "d8c851183723a327197a66a5277c15a5d6df7b506bc34bbee0836f5f38e4ba37"
+    }
+  ],
+  "originals_preserved": {
+    "rev1_card": {
+      "path": "/workspace/scratch/architecture-d11-work-structure-spec01/card.rev1.md",
+      "bytes": 59476,
+      "sha256": "6d4f33356ece71a3f2a5d69d6155bb1d1284e8455c9bb2e272a5483c85457527"
+    },
+    "rev1_freeze": {
+      "path": "/workspace/scratch/architecture-d11-work-structure-spec01/freeze.json",
+      "bytes": 1907,
+      "sha256": "bc88d06b9c2b653c8972d03e51055c5bd81ec6eaf5e045020ac7c1d8bbff6260"
+    },
+    "rev1_full_review": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/d11-work-structure-spec-rev1-review/review.md",
+      "bytes": 2586,
+      "sha256": "fdd314b38b6b27ca0b557f6f67f9f118430ed225cf40615c3bb402ab9b0a422d"
+    }
+  },
+  "remaining": "independent D1 delta + final combination review; no product authorization"
+}

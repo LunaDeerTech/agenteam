@@ -1,0 +1,292 @@
+{
+  "format": 1,
+  "scope": "bounded SPEC inputs, not a Go execution closure",
+  "head": "0d06fd69 (root-confirmed after recovery; no Git command by author)",
+  "files": [
+    {
+      "path": "internal/central/project/authority.go",
+      "bytes": 9818,
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "read_scope": "RequireOwnerInTx/current：当前 Session、Owner、Read/Mutate",
+      "kind": "necessary_shared_source",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "internal/central/project/contract/lifecycle.go",
+      "bytes": 29744,
+      "sha256": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6",
+      "read_scope": "CheckOwnerGate/CheckOwnerActorKind/ProjectAuthority",
+      "kind": "necessary_shared_source",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "internal/central/project/contract/types.go",
+      "bytes": 12125,
+      "sha256": "7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1",
+      "read_scope": "既有 SprintID、ProjectRef.CurrentSprintID",
+      "kind": "necessary_shared_source",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "internal/central/project/events.go",
+      "bytes": 12341,
+      "sha256": "4f97a16b6b9176f58c5ce05d22253664d602556a066a7c2ecec5f0995398d52d",
+      "read_scope": "唯一旧产品写域；Project/Model/Lifecycle 精确分派",
+      "kind": "necessary_shared_source",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "internal/central/project/external_event_authority.go",
+      "bytes": 3243,
+      "sha256": "d7d43050ca99e20dd221564ad3a3a12c018f9dd0505e6ad68e287e8cd353a519",
+      "read_scope": "已验 Model gate 绑定模式；不更改",
+      "kind": "necessary_shared_source",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "internal/central/project/repository.go",
+      "bytes": 16349,
+      "sha256": "f89d5b582b79cb31434d70c03be43a99ac1b66261591850d141263c2af44ed55",
+      "read_scope": "Store 五个方法及安全错误",
+      "kind": "necessary_shared_source"
+    },
+    {
+      "path": "internal/central/account/session.go",
+      "bytes": 4862,
+      "sha256": "4df72697b0e66dd372be859099e7d813960d36402ca540c2a01576ff68adb0e5",
+      "read_scope": "TouchActivityInTx：User EX、同 Tx、当前 Session",
+      "kind": "necessary_shared_source"
+    },
+    {
+      "path": "internal/central/foundation/id.go",
+      "bytes": 3120,
+      "sha256": "40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54",
+      "read_scope": "UUIDv7/CommandMeta",
+      "kind": "necessary_shared_source"
+    },
+    {
+      "path": "internal/central/foundation/fault.go",
+      "bytes": 5460,
+      "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+      "read_scope": "closed Code/安全 Fault",
+      "kind": "necessary_shared_source"
+    },
+    {
+      "path": "internal/central/foundation/lock.go",
+      "bytes": 5196,
+      "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+      "read_scope": "全局锁枚举、RankGroup、SprintAggregate",
+      "kind": "necessary_shared_source",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "internal/central/postgres/transaction.go",
+      "bytes": 9811,
+      "sha256": "aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3",
+      "read_scope": "同 Store/活 Tx/EX满足SH/缺锁poison",
+      "kind": "necessary_shared_source"
+    },
+    {
+      "path": "internal/central/outbox/contract/append.go",
+      "bytes": 2344,
+      "sha256": "4367c1e4a02fa3062da31d6d0305b5b74ed704cc434b3f0c53509e170d8be93f",
+      "read_scope": "Appender/opaque AppendPlan",
+      "kind": "necessary_shared_source",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "internal/central/outbox/contract/authority.go",
+      "bytes": 11951,
+      "sha256": "1c78ac9f0e8c9ff996e9b9048f65d1f8d7bc005989d1021b2e5e13c2f721f5a0",
+      "read_scope": "ProducerAuthority/ProjectAuthority/Stages/NormalizeLocks512",
+      "kind": "necessary_shared_source",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "internal/central/outbox/append.go",
+      "bytes": 8131,
+      "sha256": "39242c8c5c1b4596c8e11bbff8f494d66b7b838abcf76667b27f872fde2c3706",
+      "read_scope": "PrepareAppend完整锁与Append两阶段实际顺序",
+      "kind": "necessary_shared_source"
+    },
+    {
+      "path": "internal/central/outbox/service.go",
+      "bytes": 8014,
+      "sha256": "3fdfd1d2565a30984b9c912bd2e5a1a128c4d0496128005b245f194e0690e507",
+      "read_scope": "producer映射与catalog Seal",
+      "kind": "necessary_shared_source",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "internal/central/event/contract/event.go",
+      "bytes": 5820,
+      "sha256": "0f1934a31b04706bead116552775c0b4e824dd6f3fc593f3a32808f3e22436ea",
+      "read_scope": "typed Event/Header/Summary",
+      "kind": "necessary_shared_source"
+    },
+    {
+      "path": "internal/central/event/contract/catalog.go",
+      "bytes": 6395,
+      "sha256": "55a5b24a36eec5409385a72f9be342d568eb8ca4651921bed4b25a13b2eb8742",
+      "read_scope": "DefineEvent与sealed catalog",
+      "kind": "necessary_shared_source"
+    },
+    {
+      "path": "internal/central/cursor/cursor.go",
+      "bytes": 6023,
+      "sha256": "c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f",
+      "read_scope": "Scope/digest/order/position/generation签名",
+      "kind": "necessary_shared_source"
+    },
+    {
+      "path": "internal/central/cursor/canonical.go",
+      "bytes": 3484,
+      "sha256": "1c3a9cab07b385301f27126f4794bf4439e1a97022a3d630013b598d3a7a5836",
+      "read_scope": "canonical-v1",
+      "kind": "necessary_shared_source"
+    },
+    {
+      "path": "db/migrations/embed.go",
+      "bytes": 146,
+      "sha256": "ec8dfa638b97c1456b5d04e536b319c5d7d4f8faea755c194796ea69be1ad578",
+      "read_scope": "全局SQL嵌入自动包含新编号",
+      "kind": "necessary_shared_source"
+    },
+    {
+      "path": "docs/development/development-plan.md",
+      "bytes": 92715,
+      "sha256": "b9c767dd6a6d53672163e902a817e694f6e9410ab39a8b968fa0d89be4909ac9",
+      "read_scope": "D11顺序及已验子能力原则",
+      "kind": "necessary_rule_or_regression_reference",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "docs/architecture/project-work-management/task-domain-model.md",
+      "bytes": 14768,
+      "sha256": "6cec22a2d2022613c518dac5054c76c4151e6a2272b9a815206c183d5c376624",
+      "read_scope": "层级/rank/version/幂等/Tx",
+      "kind": "necessary_rule_or_regression_reference",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "docs/architecture/project-work-management/sprint-lifecycle.md",
+      "bytes": 15564,
+      "sha256": "8286667a16cbdebef8e26a12c853d20e6d8f578fbd3353748d70151c3ce68e31",
+      "read_scope": "结构/投影/readonly/后继删除与生命周期",
+      "kind": "necessary_rule_or_regression_reference",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "docs/architecture/project-work-management/README.md",
+      "bytes": 17039,
+      "sha256": "40b9f74b542baf493f2e8559ec966a46a25e23ddc265fb481a43b59d7a480760",
+      "read_scope": "Owner与Project门禁",
+      "kind": "necessary_rule_or_regression_reference",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "docs/development/work-items/d01-contracts/foundation.md",
+      "bytes": 17854,
+      "sha256": "8761c3d2871c5a8121b31de978fd96530466eafd3cae9a2a3c1a5267827edc60",
+      "read_scope": "§标量/错误/Cursor/业务幂等/Tx",
+      "kind": "necessary_rule_or_regression_reference",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "docs/development/work-items/d01-contracts/domain-lifecycle.md",
+      "bytes": 19526,
+      "sha256": "0119faf85081fa60719f10a73a5483343021bd34f26da1be06af79fce1317c71",
+      "read_scope": "Work端口与后继占用/清理责任",
+      "kind": "necessary_rule_or_regression_reference",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "docs/development/work-items/d01-contracts/runtime-events.md",
+      "bytes": 17337,
+      "sha256": "b7020c4cfa8ecd91bf43621d4d9c58763b0412be22577b9b247453e39fa78fe0",
+      "read_scope": "typed领域事件同Tx责任",
+      "kind": "necessary_rule_or_regression_reference",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "docs/development/work-items/d03-postgresql-foundation.md",
+      "bytes": 18171,
+      "sha256": "2935da7f5c50645b55c76e2c20371fde45471e03f7ee4ee64b05602ea294b319",
+      "read_scope": "已完成子能力依据",
+      "kind": "necessary_rule_or_regression_reference",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "docs/development/work-items/d06-transactional-outbox.md",
+      "bytes": 44255,
+      "sha256": "5531828a53f6dd2ac9122afb8e0775f0c5e799b2aa02940c4682d280d7eb4c77",
+      "read_scope": "最终接受依据",
+      "kind": "necessary_rule_or_regression_reference",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "docs/development/work-items/d08-project-owner.md",
+      "bytes": 20489,
+      "sha256": "fc06c6fd328f4cd424e141e58acf696e22b350c8c9cfa0e0a38a85937724b186",
+      "read_scope": "B01/B02接受及fixture有限范围",
+      "kind": "necessary_rule_or_regression_reference",
+      "matches_frontier_input": true
+    },
+    {
+      "path": "internal/central/project/commands.go",
+      "bytes": 16702,
+      "sha256": "938d5274a447d3af8d8a9857725522407ba40cb033bb505dc267038261f4817b",
+      "read_scope": "read/receipt/newmutation与Unknown串行确认已验模式",
+      "kind": "necessary_rule_or_regression_reference"
+    },
+    {
+      "path": "internal/central/project/authority_test.go",
+      "bytes": 6785,
+      "sha256": "1716e35f980079f94ac25ad8233127898bfd30092b92090a6605cf3b589ba2a2",
+      "read_scope": "精确三个纯回归名",
+      "kind": "necessary_rule_or_regression_reference"
+    },
+    {
+      "path": "internal/central/project/events_test.go",
+      "bytes": 2383,
+      "sha256": "7847e47d711590f4ff242db9e0ee1c30c5bb36e9469508f492a7f0bbd3996776",
+      "read_scope": "精确两个纯回归名",
+      "kind": "necessary_rule_or_regression_reference"
+    },
+    {
+      "path": "internal/central/project/external_event_authority_test.go",
+      "bytes": 5065,
+      "sha256": "fc4c20657003ca7285fc928ba297e2cbccc8915e26bda1c1de7db144c14f6452",
+      "read_scope": "精确两个Model gate纯回归名",
+      "kind": "necessary_rule_or_regression_reference"
+    },
+    {
+      "path": "tests/project/b02_fixture_test.go",
+      "bytes": 32239,
+      "sha256": "6687003d2f1700f336c365477237e413580fb5d217e6a6754733d4326434df94",
+      "read_scope": "真实Authority与持久隔离Skill初始化、无Login声明",
+      "kind": "necessary_rule_or_regression_reference"
+    },
+    {
+      "path": "tests/project/b02_owner_commands_test.go",
+      "bytes": 45066,
+      "sha256": "5d4b886c58ae4b286da9e79e5470688db953091e54905badb0ea5993064b7b35",
+      "read_scope": "精确三个旧PG回归名",
+      "kind": "necessary_rule_or_regression_reference"
+    },
+    {
+      "path": "tests/project/b02_commit_proxy_test.go",
+      "bytes": 4073,
+      "sha256": "f6a8912ca242d7f275ac84120dc1a25f250ba3d5c55696ecfdf44861e0c338aa",
+      "read_scope": "真实COMMIT代理模式；仅参考不覆盖",
+      "kind": "necessary_rule_or_regression_reference"
+    },
+    {
+      "path": "tests/outbox/append_registration_test.go",
+      "bytes": 11189,
+      "sha256": "f39bd28c9c92dadc500899aee3c7373d84934673cb8afae274a1bd644928b184",
+      "read_scope": "精确两个旧PG回归名",
+      "kind": "necessary_rule_or_regression_reference"
+    }
+  ]
+}

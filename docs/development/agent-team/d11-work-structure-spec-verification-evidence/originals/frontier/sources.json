@@ -1,0 +1,134 @@
+[
+  {
+    "path": "docs/development/development-plan.md",
+    "bytes": 92715,
+    "sha256": "b9c767dd6a6d53672163e902a817e694f6e9410ab39a8b968fa0d89be4909ac9",
+    "read_scope": "D11:308–316; modules/subcap rule:157,177; Work/Executor cycle:179–185"
+  },
+  {
+    "path": "docs/architecture/project-work-management/task-domain-model.md",
+    "bytes": 14768,
+    "sha256": "6cec22a2d2022613c518dac5054c76c4151e6a2272b9a815206c183d5c376624",
+    "read_scope": "32–119,173–197,286–378,429–455"
+  },
+  {
+    "path": "docs/architecture/project-work-management/sprint-lifecycle.md",
+    "bytes": 15564,
+    "sha256": "8286667a16cbdebef8e26a12c853d20e6d8f578fbd3353748d70151c3ce68e31",
+    "read_scope": "46–176,180–261,303–345,479–563,606–720"
+  },
+  {
+    "path": "docs/architecture/project-work-management/README.md",
+    "bytes": 17039,
+    "sha256": "40b9f74b542baf493f2e8559ec966a46a25e23ddc265fb481a43b59d7a480760",
+    "read_scope": "64–104,270–323"
+  },
+  {
+    "path": "docs/development/work-items/d01-contracts/domain-lifecycle.md",
+    "bytes": 19526,
+    "sha256": "0119faf85081fa60719f10a73a5483343021bd34f26da1be06af79fce1317c71",
+    "read_scope": "5–34,65–95,119–134,151"
+  },
+  {
+    "path": "docs/development/work-items/d01-contracts/runtime-events.md",
+    "bytes": 17337,
+    "sha256": "b7020c4cfa8ecd91bf43621d4d9c58763b0412be22577b9b247453e39fa78fe0",
+    "read_scope": "21–61"
+  },
+  {
+    "path": "docs/development/work-items/d01-contracts/foundation.md",
+    "bytes": 17854,
+    "sha256": "8761c3d2871c5a8121b31de978fd96530466eafd3cae9a2a3c1a5267827edc60",
+    "read_scope": "134–165"
+  },
+  {
+    "path": "docs/development/work-items/d03-postgresql-foundation.md",
+    "bytes": 18171,
+    "sha256": "2935da7f5c50645b55c76e2c20371fde45471e03f7ee4ee64b05602ea294b319",
+    "read_scope": "completed status/Tx and lock acceptance"
+  },
+  {
+    "path": "docs/development/work-items/d06-transactional-outbox.md",
+    "bytes": 44255,
+    "sha256": "5531828a53f6dd2ac9122afb8e0775f0c5e799b2aa02940c4682d280d7eb4c77",
+    "read_scope": "B01 accepted99; final170–176"
+  },
+  {
+    "path": "docs/development/work-items/d08-project-owner.md",
+    "bytes": 20489,
+    "sha256": "fc06c6fd328f4cd424e141e58acf696e22b350c8c9cfa0e0a38a85937724b186",
+    "read_scope": "B01/B02 acceptance and limits1–22,68–75"
+  },
+  {
+    "path": "docs/architecture/security-governance/audit.md",
+    "bytes": 16224,
+    "sha256": "c5be8ea4041cebffe6eb4ee994147fcf6c8b7f75d324898a4c90bbd0962e9929",
+    "read_scope": "15–38"
+  },
+  {
+    "path": "internal/central/project/authority.go",
+    "bytes": 9818,
+    "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+    "read_scope": "16–26,64–144"
+  },
+  {
+    "path": "internal/central/project/contract/lifecycle.go",
+    "bytes": 29744,
+    "sha256": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6",
+    "read_scope": "33–67,789–795"
+  },
+  {
+    "path": "internal/central/project/contract/types.go",
+    "bytes": 12125,
+    "sha256": "7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1",
+    "read_scope": "16–26,70–96"
+  },
+  {
+    "path": "internal/central/project/events.go",
+    "bytes": 12341,
+    "sha256": "4f97a16b6b9176f58c5ce05d22253664d602556a066a7c2ecec5f0995398d52d",
+    "read_scope": "289–352"
+  },
+  {
+    "path": "internal/central/project/external_event_authority.go",
+    "bytes": 3243,
+    "sha256": "d7d43050ca99e20dd221564ad3a3a12c018f9dd0505e6ad68e287e8cd353a519",
+    "read_scope": "14–78"
+  },
+  {
+    "path": "internal/central/outbox/contract/authority.go",
+    "bytes": 11951,
+    "sha256": "1c78ac9f0e8c9ff996e9b9048f65d1f8d7bc005989d1021b2e5e13c2f721f5a0",
+    "read_scope": "20–109,146–203"
+  },
+  {
+    "path": "internal/central/outbox/contract/append.go",
+    "bytes": 2344,
+    "sha256": "4367c1e4a02fa3062da31d6d0305b5b74ed704cc434b3f0c53509e170d8be93f",
+    "read_scope": "13–62"
+  },
+  {
+    "path": "internal/central/outbox/service.go",
+    "bytes": 8014,
+    "sha256": "3fdfd1d2565a30984b9c912bd2e5a1a128c4d0496128005b245f194e0690e507",
+    "read_scope": "18–62"
+  },
+  {
+    "path": "internal/central/foundation/lock.go",
+    "bytes": 5196,
+    "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+    "read_scope": "89–137"
+  },
+  {
+    "path": "internal/central/audit/contract/types.go",
+    "bytes": 15562,
+    "sha256": "e39c14959dc0e705e07b5848b420e48b06f3756c3c083c9ca1a471a049a9679d",
+    "read_scope": "286–299; no Work producer claim"
+  },
+  {
+    "path": "db/migrations/00013_project_owner.sql",
+    "bytes": 20029,
+    "sha256": "6ec8c84b7fcedd538550ece134c2df3e35febfe13e4906c74aa91dd1fe878cc0",
+    "read_scope": "12–18,83–88"
+  }
+]

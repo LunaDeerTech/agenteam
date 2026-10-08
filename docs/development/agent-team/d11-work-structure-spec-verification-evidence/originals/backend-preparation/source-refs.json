@@ -1,0 +1,230 @@
+{
+  "status": "READ_ONLY_BACKEND_FEASIBILITY_PREPARATION_STOP_NOT_SPEC_OR_IMPLEMENTATION_AUTHORITY",
+  "date": "2026-10-08",
+  "root_reported_head_only_no_Git_run": "0d06fd69af3ebba9af0422f30e097149356e1f0c",
+  "frozen_candidate_refs": [
+    {
+      "path": "/workspace/scratch/architecture-d11-structure-frontier01/candidate.md",
+      "bytes": 12323,
+      "sha256": "28034095f87c68dff09a88fc37e5ce7e10e7817cac07e24259617c9715876c68"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-structure-frontier01/sources.json",
+      "bytes": 4780,
+      "sha256": "72c2c05cbcb3a516ca1e4e4a89921313af9c9713dead7a4169913655f77d18ec"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-structure-frontier01/freeze.json",
+      "bytes": 903,
+      "sha256": "8f4d55aaa0c269a17394c40a061ebe25791b5b8e11d7c1737a4d5d6f8f733cc2"
+    }
+  ],
+  "necessary_source_refs": [
+    {
+      "path": "/workspace/agenteam/internal/central/project/authority.go",
+      "repository_path": "internal/central/project/authority.go",
+      "bytes": 9818,
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "read_scope": "16–106: AuthorityDependencies/NewAuthority/current/RequireOwnerInTx",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review.",
+      "candidate_source_ref_matches": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/events.go",
+      "repository_path": "internal/central/project/events.go",
+      "bytes": 12341,
+      "sha256": "4f97a16b6b9176f58c5ce05d22253664d602556a066a7c2ecec5f0995398d52d",
+      "read_scope": "289–352: Discover/ValidateInTx producer dispatch",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review.",
+      "candidate_source_ref_matches": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/external_event_authority.go",
+      "repository_path": "internal/central/project/external_event_authority.go",
+      "bytes": 3243,
+      "sha256": "d7d43050ca99e20dd221564ad3a3a12c018f9dd0505e6ad68e287e8cd353a519",
+      "read_scope": "whole 78-line existing Model-only Project gate",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review.",
+      "candidate_source_ref_matches": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/contract/lifecycle.go",
+      "repository_path": "internal/central/project/contract/lifecycle.go",
+      "bytes": 29744,
+      "sha256": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6",
+      "read_scope": "33–67: Owner gate and Actor kind dispatch",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review.",
+      "candidate_source_ref_matches": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/contract/types.go",
+      "repository_path": "internal/central/project/contract/types.go",
+      "bytes": 12125,
+      "sha256": "7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1",
+      "read_scope": "70–96: ProjectRef/current_sprint_id identity",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review.",
+      "candidate_source_ref_matches": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/project/service.go",
+      "repository_path": "internal/central/project/service.go",
+      "bytes": 7098,
+      "sha256": "ee0b6294d901829c0d89f4bdcfb0869031dfbea968ded2d07add070c6282591f",
+      "read_scope": "16–82: dependencies/New/sameStore; cleanup interface only",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review."
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/outbox/contract/authority.go",
+      "repository_path": "internal/central/outbox/contract/authority.go",
+      "bytes": 11951,
+      "sha256": "1c78ac9f0e8c9ff996e9b9048f65d1f8d7bc005989d1021b2e5e13c2f721f5a0",
+      "read_scope": "20–109,146–215: issuer/dependencies/normalization/ProducerAuthority/ProjectRequest",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review.",
+      "candidate_source_ref_matches": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/outbox/contract/append.go",
+      "repository_path": "internal/central/outbox/contract/append.go",
+      "bytes": 2344,
+      "sha256": "4367c1e4a02fa3062da31d6d0305b5b74ed704cc434b3f0c53509e170d8be93f",
+      "read_scope": "13–62: opaque AppendPlan and Appender signatures",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review.",
+      "candidate_source_ref_matches": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/outbox/service.go",
+      "repository_path": "internal/central/outbox/service.go",
+      "bytes": 8014,
+      "sha256": "3fdfd1d2565a30984b9c912bd2e5a1a128c4d0496128005b245f194e0690e507",
+      "read_scope": "18–62: Store/Authorizations/New and catalog Seal",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review.",
+      "candidate_source_ref_matches": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/outbox/append.go",
+      "repository_path": "internal/central/outbox/append.go",
+      "bytes": 8131,
+      "sha256": "39242c8c5c1b4596c8e11bbff8f494d66b7b838abcf76667b27f872fde2c3706",
+      "read_scope": "PrepareAppend/validateAppend/AppendEventInTx/appendLocalGate",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review."
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/event/contract/catalog.go",
+      "repository_path": "internal/central/event/contract/catalog.go",
+      "bytes": 6395,
+      "sha256": "55a5b24a36eec5409385a72f9be342d568eb8ca4651921bed4b25a13b2eb8742",
+      "read_scope": "DefineEvent/Seal/Owns/NewEvent typed registration",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review."
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/foundation/lock.go",
+      "repository_path": "internal/central/foundation/lock.go",
+      "bytes": 5196,
+      "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+      "read_scope": "89–166 plus CompareLockKeys: constructors/order",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review.",
+      "candidate_source_ref_matches": true
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/foundation/scalar.go",
+      "repository_path": "internal/central/foundation/scalar.go",
+      "bytes": 3285,
+      "sha256": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198",
+      "read_scope": "107–127: IdempotencyKey key alphabet and byte limit",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review."
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/postgres/transaction.go",
+      "repository_path": "internal/central/postgres/transaction.go",
+      "bytes": 9811,
+      "sha256": "aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3",
+      "read_scope": "191–330: same-store live Tx, held-lock checks, AcquireAll ordering/upgrade rejection",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review."
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/events.go",
+      "repository_path": "internal/central/model/events.go",
+      "bytes": 9367,
+      "sha256": "b3e4462e2c8638310934e1cbf993b15edb4c1252e45c8ba0b1ec125ee1fa56aa",
+      "read_scope": "37–58,145–210: separate typed catalog/producer mechanism precedent only",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review."
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/commands.go",
+      "repository_path": "internal/central/model/commands.go",
+      "bytes": 21163,
+      "sha256": "22d0bffa662cfb76bb75a02ba2f087b52ab7fe4e3d67394b451c5865e86063c1",
+      "read_scope": "61–84: private prepared context identity precedent only",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review."
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/model/audit_authority.go",
+      "repository_path": "internal/central/model/audit_authority.go",
+      "bytes": 4105,
+      "sha256": "248ec324c9e941ce8d214df4f1086cf2e45cbe01310d19a6d505561ae6bc55f0",
+      "read_scope": "39–106: same-Tx command/canonical facts validation precedent, not copied Work policy",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review."
+    },
+    {
+      "path": "/workspace/agenteam/tests/project/b02_fixture_test.go",
+      "repository_path": "tests/project/b02_fixture_test.go",
+      "bytes": 32239,
+      "sha256": "6687003d2f1700f336c365477237e413580fb5d217e6a6754733d4326434df94",
+      "read_scope": "80–85,198–216,258–466: pure keys, positive Human/Project fixture, persistent isolated initializer; Object runtime helpers excluded",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review."
+    },
+    {
+      "path": "/workspace/agenteam/tests/project/initialization_convergence_fixture_test.go",
+      "repository_path": "tests/project/initialization_convergence_fixture_test.go",
+      "bytes": 9586,
+      "sha256": "b3dd6815c8d3e08e53f6c2a1c8662898c4451efd4676126e6defe945e44dfd90",
+      "read_scope": "20–26,64–85: negative scope contrast; no Human Session/initializer in that fixture",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review."
+    },
+    {
+      "path": "/workspace/agenteam/internal/central/object/download_keyring.go",
+      "repository_path": "internal/central/object/download_keyring.go",
+      "bytes": 3620,
+      "sha256": "a5eed30b0f8e7b453dd42bf1b1b0cce62f2c75e0ff3bd8803eed2839cae5e3a0",
+      "read_scope": "24–82: pure keyring parser required by accepted Account fixture; no Object runtime/stopped API",
+      "scope_note": "Hash identifies complete file bytes; semantic reading limited to named seams, not whole-source or dependency-graph review."
+    }
+  ],
+  "source_count": 20,
+  "candidate_source_rows_rechecked_equal": 9,
+  "handover": {
+    "path": "/workspace/scratch/d11-work-structure-backend-preparation01/handover.md",
+    "bytes": 4983,
+    "sha256": "8dd3182565d1017274f4cf8ecf95275bce6cb205e3e14ec8b275b5f44677cc30"
+  },
+  "conclusion": "No additional public-interface blocker identified within the candidate seams; Work Project gate is currently unbound and remains required same-card implementation. Full formal SPEC acceptance and root source authority are pending.",
+  "actual_checks": "Only stopped text reads, necessary source signatures, JSON/UTF8/LF/links and SHA identity. No compile/type/list/test or runtime inference.",
+  "lookup_failures_preserved": [
+    {
+      "tool_chunk": "fd0511",
+      "tool_actual_exit": 2,
+      "diagnostics": [
+        "rg: internal/central/store: IO error for operation on internal/central/store: No such file or directory (os error 2)",
+        "rg: tests/project/fixture_test.go: No such file or directory (os error 2)"
+      ],
+      "disposition": "Narrow known package lookup located postgres transaction implementation and tests/project/b02_fixture_test.go; no repository mutation."
+    },
+    {
+      "tool_chunk": "a05df0",
+      "tool_actual_exit": 0,
+      "diagnostic": "rg: internal/central/postgres/lock.go: No such file or directory (os error 2)",
+      "exit_scope": "Compound read command finished successfully on later sed; rg diagnostic is still preserved, not represented as clean lookup.",
+      "disposition": "rg located AcquireAll/RequireHeldLocks/InTx in internal/central/postgres/transaction.go."
+    }
+  ],
+  "limits": {
+    "active_formal_card_read": false,
+    "product_or_repository_writes": false,
+    "source_tree_copied": false,
+    "full_graph_scanned": false,
+    "Go_Node_Git_network_resources": false,
+    "rank_policy_or_caps_chosen": false,
+    "background_commands_or_resources": false,
+    "implementation_authorization_received": false
+  }
+}

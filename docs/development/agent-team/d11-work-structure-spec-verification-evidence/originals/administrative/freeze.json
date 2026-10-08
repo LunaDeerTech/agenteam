@@ -1,0 +1,28 @@
+{
+  "state": "CARD_ADMINISTRATIVE_STOP",
+  "card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d11-work-structure.md",
+    "bytes": 60230,
+    "sha256": "812490b67b956469e274eecfde851eb084e47648fe0e3944eb5668fa8961c27f"
+  },
+  "outputs": [
+    {
+      "path": "/workspace/scratch/architecture-d11-work-structure-spec01/administrative-v01/card.administrative.md",
+      "bytes": 60230,
+      "sha256": "812490b67b956469e274eecfde851eb084e47648fe0e3944eb5668fa8961c27f"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-work-structure-spec01/administrative-v01/administrative.patch",
+      "bytes": 4961,
+      "sha256": "e4ab74b52b1ab297a0de52be94cc93b5952f85708ad09ff4f5107e78d3e95340"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-work-structure-spec01/administrative-v01/checks.json",
+      "bytes": 4218,
+      "sha256": "f021f46d2250b7ab9577afe4aad2aa8b314f66cb968567f4d0d50ea1a895e1a4"
+    }
+  ],
+  "accepted_semantics_sha256": "c07c7112a5fd77bd475cd843fbffc9680b030b626550632f2999d849476bf07c",
+  "independent_spec_review_sha256": "febcf667db03d15ed6c9059e1d99c01f9fa4429cf6843379592f6b35da302237",
+  "archive_work_continues": "docs/development/agent-team/d11-work-structure-spec-verification.md and its evidence only"
+}

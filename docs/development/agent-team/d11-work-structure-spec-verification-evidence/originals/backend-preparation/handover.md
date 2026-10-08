@@ -1,0 +1,15 @@
+# D11 结构库后端只读可实现性准备
+
+**未发现超出候选已列写域的新公共接口阻塞；STOP，等待正式SPEC独审/root移交。** 只消费停止候选28034095及其定位的当前必要接口，不是实施、独立SPEC验收或第二套规格。正式 d11-work-structure.md 活跃稿未读；00021只采用root预留事实，未创建SQL或产品文件。固定SHA与读取范围见 [source-refs.json](source-refs.json)。
+
+1. **Project-owned Work gate仍未绑定，必须真实补齐。** `project/events.go:289–352`当前仅显式分派Project/Model，非Project producer落DependencyUnbound；候选新`work_event_authority.go`及两个入口窄分派正是必要接缝。`external_event_authority.go:23–78`提供可复用机制：完整Actor/Event/Project＋两stage绑定同issuer，CurrentAccess用Read、NewFact用Mutate，并核同Store活Tx与真实User/Project持锁。Work的event type/schema/aggregate闭集仍由正式SPEC冻结，不能放宽为任意producer，不能把Project gate当Work canonical事实证明。
+
+2. **真实producer同Tx事实可沿现有Outbox口实现。** `ProducerAuthority`已给DiscoverAppend与ValidateAppendInTx(...,Stage)；Appender已给PrepareAppend与AppendEventInTx。后者先查实际完整持锁，调用producer＋Project CurrentAccess，再查同event历史，只有新事件继续两方NewFact并同TxINSERT。Work须自己校验issuer、完整summary/actor/命令identity/阶段及同Tx持久command＋canonical结构事实，不能信调用方传的parent/version/receipt。现Model的私有prepared context、summary digest及`validatePreparedFact`说明此证明方式能落在现接口；其函数始终Mutate是Model业务策略，不是可直接搬给Work历史重放的规则。未发现需扩大Outbox公共接口或先做dispatcher/消费者。
+
+3. **注册与锁顺序有硬约束，但现constructor足够。** `event.DefineEvent[T]`要求typed codec/validator，catalog身份检查有效；`outbox.New`立即Seal catalog并复制producer映射，因此Work与Project typed definitions及真实producer须先备齐。PrepareAppend会增registry(rank1)与event-record(rank6)锁；必须和command、User、Project EX、RankGroup以及必要SprintAggregate合成首次AcquireAll的完整union，不可先取Project再补rank1。`postgres/transaction.go:254–330`明确EX可满足Shared要求，禁止SH→EX升级和较低顺序补锁；失败会poison Tx。同rank由CompareLockKeys的canonical继续排序，不手写先后。RankGroupLock使用已有IdempotencyKey规则：1–128字节、ASCII字母数字及`._:/-`，可表达稳定Project/父ID作用域；规范键和rank算法由正式SPEC决定。另NormalizeLocks先拒绝原始输入len>512再去重，重复锁也先计数；多event/rebalance的union须满足既有上限，不能只检查最终去重数量。本范围不用新增MilestoneAggregate，不触公共锁表。
+
+4. **独立library的Human正向Project fixture有可复用路径，无须绑定Object stopped。** `tests/project/b02_fixture_test.go:261–309`组合真实Account Authority、Project Authority/Service、Audit与Outbox；`315–340`的Human是明确测试拥有的Account/Session持久行，通过真实当前Session检查，再走真实CreateProject。它不是正式Login/bootstrap或生产创建HTTP成功。`344–466`的已验隔离initializer持久保存Skill事实，确认阶段用同Tx/持锁/Project ValidateInitializationInTx与真实记录；不能改成总返回completed的stub。`fixtureProcess:81–84`有有效当前ID而ConfirmStopped返回ResourceBusy，正常初始化路径不证明或消费进程死亡；Object ProcessGuard只属另一死亡/恢复路径，不纳本卡。Account所需DownloadKeyring仅纯配置解析（download_keyring.go:24–82），没有Object service/runtime/stopped绑定。后继D11自己fixture须只复用这些正常路径；不把整个B02含Object runtime的测试组搬入。另一个initialization_convergence fixture明确无Human Session/initializer，不能替代这里的正向事实。
+
+这里只确认上述接口可承载候选意图。事件闭集、命令DTO/semantic/receipt、rank编码与rebalance、cursor/容量、错误顺序、同Tx具体实现及验收均留正式卡；没有自行选择或增添规则。首结构卡无Task membership/占用、Delete正向、Sprint lifecycle/current_sprint写、Work cleanup participant、Agent/Tool或生产root；缺绑定不得当empty或成功。三停止/Jina/Image BLOCKED保持。
+
+两次窄定位中的错误原事实保留在refs：一次猜测不存在store目录/fixture basename导致rg exit2，后一次不存在postgres/lock.go的rg诊断（组合读取工具最终exit0）；依据实际rg定位改读postgres/transaction.go与b02_fixture_test.go，未伪造原检查或运行业务。没有Go/Node/Git/网络/DB/资源操作，没有源码拷贝、完整依赖图或表/端口/stub。完成自有两小件写入后STOP。

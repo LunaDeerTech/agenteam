@@ -1,0 +1,353 @@
+{
+  "format": 1,
+  "status": "FINITE_SPEC_ARCHIVE_STOP",
+  "scope": "D11 accepted SPEC and nonsemantic administrative handover only; no product/runtime acceptance",
+  "original_count": 34,
+  "original_bytes": 315325,
+  "originals": [
+    {
+      "source": "/workspace/scratch/architecture-d11-structure-frontier01/candidate.md",
+      "archive": "originals/frontier/candidate.md",
+      "bytes": 12323,
+      "sha256": "28034095f87c68dff09a88fc37e5ce7e10e7817cac07e24259617c9715876c68",
+      "group": "frontier",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-structure-frontier01/freeze.json",
+      "archive": "originals/frontier/freeze.json",
+      "bytes": 903,
+      "sha256": "8f4d55aaa0c269a17394c40a061ebe25791b5b8e11d7c1737a4d5d6f8f733cc2",
+      "group": "frontier",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-structure-frontier01/sources.json",
+      "archive": "originals/frontier/sources.json",
+      "bytes": 4780,
+      "sha256": "72c2c05cbcb3a516ca1e4e4a89921313af9c9713dead7a4169913655f77d18ec",
+      "group": "frontier",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-structure-frontier01/result.json",
+      "archive": "originals/frontier/result.json",
+      "bytes": 1828,
+      "sha256": "517507d6635fc37349542c9adcc63eb024f621f393d272385c65d3f516a5a36c",
+      "group": "frontier",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/card.rev1.md",
+      "archive": "originals/author-rev1/card.rev1.md",
+      "bytes": 59476,
+      "sha256": "6d4f33356ece71a3f2a5d69d6155bb1d1284e8455c9bb2e272a5483c85457527",
+      "group": "author-rev1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/freeze.json",
+      "archive": "originals/author-rev1/freeze.json",
+      "bytes": 1907,
+      "sha256": "bc88d06b9c2b653c8972d03e51055c5bd81ec6eaf5e045020ac7c1d8bbff6260",
+      "group": "author-rev1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/sources.json",
+      "archive": "originals/author-rev1/sources.json",
+      "bytes": 11808,
+      "sha256": "8e129b5732a2635ec694d788cb9764df23c2d788c0314c3a38d7a6464a31066c",
+      "group": "author-rev1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/checks.json",
+      "archive": "originals/author-rev1/checks.json",
+      "bytes": 8638,
+      "sha256": "c985ca7147dc6f2e84efcc7cf3fee160eecc68f9305b19159dae95eefa1b9a97",
+      "group": "author-rev1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/scope-delta.md",
+      "archive": "originals/author-rev1/scope-delta.md",
+      "bytes": 2906,
+      "sha256": "9a0afb08a9f672cff147e2b999921b94f60e90b0546ca1b4e68338bd3d4badc4",
+      "group": "author-rev1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/author-review.md",
+      "archive": "originals/author-rev1/author-review.md",
+      "bytes": 2457,
+      "sha256": "c61c8ed4c66b5558d027965216b8c48b1403a359f24dc8c04d02a1b0d86594e0",
+      "group": "author-rev1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/ownership.json",
+      "archive": "originals/author-rev1/ownership.json",
+      "bytes": 5362,
+      "sha256": "850313671565f02549723e839083cc0a7fec4c0c2e0978f8e0dbe21b2d6b9147",
+      "group": "author-rev1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/result.json",
+      "archive": "originals/author-rev1/result.json",
+      "bytes": 3009,
+      "sha256": "7ac5d45fb635cca0b19ba2fdabf03a403066135c83e88627021508f5bd9fab43",
+      "group": "author-rev1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/d11-work-structure-spec-preparation01/preparation.md",
+      "archive": "originals/independent-preparation/preparation.md",
+      "bytes": 3181,
+      "sha256": "c9864dc6b97550c257d86bc5d90e178c889ebb5a31f2aea50aa34ab6299b40d2",
+      "group": "independent-preparation",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/d11-work-structure-spec-preparation01/refs.json",
+      "archive": "originals/independent-preparation/refs.json",
+      "bytes": 4810,
+      "sha256": "2d53d94c91ee5e8dae67e1a3c6a9943ef72e93f0c6271f8ed4bd616b0817fbb1",
+      "group": "independent-preparation",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/d11-work-structure-spec-rev1-review/review.md",
+      "archive": "originals/independent-rev1/review.md",
+      "bytes": 2586,
+      "sha256": "fdd314b38b6b27ca0b557f6f67f9f118430ed225cf40615c3bb402ab9b0a422d",
+      "group": "independent-rev1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/d11-work-structure-spec-rev1-review/evidence.json",
+      "archive": "originals/independent-rev1/evidence.json",
+      "bytes": 14053,
+      "sha256": "5017abbcbf0717cb572f75fd18c57b08bc190400e8d18e20e71feacb44efcf12",
+      "group": "independent-rev1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/d11-work-structure-spec-rev1-review/manifest.json",
+      "archive": "originals/independent-rev1/manifest.json",
+      "bytes": 745,
+      "sha256": "81c9f2ad27f1aa9a51cb1f75b7e6a234a38221fcfa88b3a6f0f6de1aedecbc22",
+      "group": "independent-rev1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/card.rev2.md",
+      "archive": "originals/author-d1/card.rev2.md",
+      "bytes": 59597,
+      "sha256": "c07c7112a5fd77bd475cd843fbffc9680b030b626550632f2999d849476bf07c",
+      "group": "author-d1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/rev1-to-rev2.patch",
+      "archive": "originals/author-d1/rev1-to-rev2.patch",
+      "bytes": 1869,
+      "sha256": "90a53acd6a7537b8ae9c2b96002e79e8624b7ef88b3e90f19230b5aff3305af1",
+      "group": "author-d1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/sources.json",
+      "archive": "originals/author-d1/sources.json",
+      "bytes": 1452,
+      "sha256": "4ca37f3efacf08acaa069f5198efd6d7834dbee85551696ba4e5aeb642910fde",
+      "group": "author-d1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/checks.json",
+      "archive": "originals/author-d1/checks.json",
+      "bytes": 1641,
+      "sha256": "4915ccedfab1f7de1c4be1992acba98387ba742c640c5a074ebeb7b0be73c1f2",
+      "group": "author-d1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/review.md",
+      "archive": "originals/author-d1/review.md",
+      "bytes": 1149,
+      "sha256": "d8c851183723a327197a66a5277c15a5d6df7b506bc34bbee0836f5f38e4ba37",
+      "group": "author-d1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/freeze.json",
+      "archive": "originals/author-d1/freeze.json",
+      "bytes": 2181,
+      "sha256": "29eb50dc66e425fbf9091a07e8961c3abd726928acdec668709b6b40a32144dc",
+      "group": "author-d1",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/d11-work-structure-spec-rev2-review/review.md",
+      "archive": "originals/independent-final/review.md",
+      "bytes": 1605,
+      "sha256": "febcf667db03d15ed6c9059e1d99c01f9fa4429cf6843379592f6b35da302237",
+      "group": "independent-final",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/d11-work-structure-spec-rev2-review/evidence.json",
+      "archive": "originals/independent-final/evidence.json",
+      "bytes": 4073,
+      "sha256": "ea9760f249f242ec055e2b701aa88afe39c94bfa2748cb471c90945a0d5b2637",
+      "group": "independent-final",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/d11-work-structure-spec-rev2-review/manifest.json",
+      "archive": "originals/independent-final/manifest.json",
+      "bytes": 768,
+      "sha256": "bca8acb9eadc3bb3dd82bf82c026eb9e76fd89e092a96256546921218fa1ab03",
+      "group": "independent-final",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/d11-work-structure-backend-preparation01/handover.md",
+      "archive": "originals/backend-preparation/handover.md",
+      "bytes": 4983,
+      "sha256": "8dd3182565d1017274f4cf8ecf95275bce6cb205e3e14ec8b275b5f44677cc30",
+      "group": "backend-preparation",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/d11-work-structure-backend-preparation01/source-refs.json",
+      "archive": "originals/backend-preparation/source-refs.json",
+      "bytes": 13267,
+      "sha256": "ea50b467b7d79d5246bc31231e10284d82de2a0f6cf83e2b20012851c3708ce5",
+      "group": "backend-preparation",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/d11-work-structure-backend-preparation01/formal-rev1-consumption01/consumption.md",
+      "archive": "originals/backend-consumption/consumption.md",
+      "bytes": 5103,
+      "sha256": "e99a042e96b1bfcf4d74715c528a4c3b885468620242e4cb5d94cdbcabacec0a",
+      "group": "backend-consumption",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/d11-work-structure-backend-preparation01/formal-rev1-consumption01/refs.json",
+      "archive": "originals/backend-consumption/refs.json",
+      "bytes": 6178,
+      "sha256": "b8d12fd145773593bf1184a7377ca7429db59de8081a220aaadd63a82c02c0d4",
+      "group": "backend-consumption",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/administrative-v01/card.administrative.md",
+      "archive": "originals/administrative/card.administrative.md",
+      "bytes": 60230,
+      "sha256": "812490b67b956469e274eecfde851eb084e47648fe0e3944eb5668fa8961c27f",
+      "group": "administrative",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/administrative-v01/administrative.patch",
+      "archive": "originals/administrative/administrative.patch",
+      "bytes": 4961,
+      "sha256": "e4ab74b52b1ab297a0de52be94cc93b5952f85708ad09ff4f5107e78d3e95340",
+      "group": "administrative",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/administrative-v01/checks.json",
+      "archive": "originals/administrative/checks.json",
+      "bytes": 4218,
+      "sha256": "f021f46d2250b7ab9577afe4aad2aa8b314f66cb968567f4d0d50ea1a895e1a4",
+      "group": "administrative",
+      "original_bytes_preserved": true
+    },
+    {
+      "source": "/workspace/scratch/architecture-d11-work-structure-spec01/administrative-v01/freeze.json",
+      "archive": "originals/administrative/freeze.json",
+      "bytes": 1278,
+      "sha256": "50af1bc9dc655d4560f8d3eab9e38a57dd863ee2213e0c61d57bb0ffb8567a0f",
+      "group": "administrative",
+      "original_bytes_preserved": true
+    }
+  ],
+  "group_roles": {
+    "frontier": "accepted direction only; no implementation grant",
+    "author-rev1": "full original rev1 candidate and author checks; original D1 error retained",
+    "independent-preparation": "bounded read-only preparation; not SPEC acceptance",
+    "independent-rev1": "whole rev1 independent FAIL with sole D1",
+    "author-d1": "one-line D1 correction and exact reverse to rev1; awaiting independent result at that historical time",
+    "independent-final": "D1 delta plus full-rev1 final composition PASS subsequently accepted by root",
+    "backend-preparation": "necessary interface/fixture preparation, not independent acceptance",
+    "backend-consumption": "full original rev1 author consumption, known D1 and no new interface blocker, not implementation",
+    "administrative": "five administrative replacements, exact reverse to accepted c07; card stopped before later gofmt grant"
+  },
+  "reused_permanent_originals": [
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/driver.py",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "bytes": 38744,
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "copied_here": false,
+      "permanent_bytes_hash_checked": true,
+      "prior_index": {
+        "path": "../project-owner-ui-recovered-read02-verification-evidence/source-map.json",
+        "bytes": 71938,
+        "sha256": "fbcf9a48067bc4c6d881dd4a8b8cb4647321ea5c155f4ad82c82d8a0026df6e8"
+      },
+      "commit_recorded_by_prior_index": "629bf2d0b941b3d1a5ec7f6ad06a0bd51ec9672c",
+      "git_reverified_in_this_task": false,
+      "reused_scope": "419–438 supplementary host TCP tail <=75s/two clear observations;490–494 fresh disk >=5GiB;657 tail observation after cleanup double scan; no execution"
+    }
+  ],
+  "historical_repository_card_mapping": [
+    {
+      "repository_path": "docs/development/work-items/d11-work-structure.md",
+      "sha256": "6d4f33356ece71a3f2a5d69d6155bb1d1284e8455c9bb2e272a5483c85457527",
+      "archive": "originals/author-rev1/card.rev1.md"
+    },
+    {
+      "repository_path": "docs/development/work-items/d11-work-structure.md",
+      "sha256": "c07c7112a5fd77bd475cd843fbffc9680b030b626550632f2999d849476bf07c",
+      "archive": "originals/author-d1/card.rev2.md"
+    },
+    {
+      "repository_path": "docs/development/work-items/d11-work-structure.md",
+      "sha256": "812490b67b956469e274eecfde851eb084e47648fe0e3944eb5668fa8961c27f",
+      "archive": "originals/administrative/card.administrative.md"
+    }
+  ],
+  "reused_repository_source_indexes": [
+    "originals/frontier/sources.json",
+    "originals/author-rev1/sources.json",
+    "originals/independent-preparation/refs.json",
+    "originals/independent-rev1/evidence.json",
+    "originals/backend-preparation/source-refs.json",
+    "originals/backend-consumption/refs.json"
+  ],
+  "repository_source_policy": {
+    "frozen_author_input_rows": 38,
+    "copied_repository_sources": 0,
+    "source_tree_rescanned": false,
+    "go_dependency_graph_created": false,
+    "baseline_record": "0d06fd69 as recorded in original author sources.json/root recovery confirmation; no Git command by archivist",
+    "lookup": "Use original path + SHA in the preserved index with repository history or existing permanent evidence; metadata is not a fresh verification of current files.",
+    "formal_dependencies": "Original card source links and hashes remain the recorded authority; no upstream module is newly accepted by this archive."
+  },
+  "original_link_policy": "Raw original links and absolute source paths retain their original context. Resolve copied small artifacts through this source-map; do not rewrite original bytes or treat their relative links as newly authored archive links.",
+  "authorization_history": {
+    "spec_acceptance": "root accepted whole rev1 review plus sole D1 final composition; original FAIL remains",
+    "administrative_acceptance": "root read patch/four refs and reversed all five replacements to exact c07; accepted 812490b6",
+    "product_author": "fixture_recovery, #1–17 scratch only",
+    "later_narrow_grant": "root separately granted fixed local scratch gofmt <=45s without build cache after administrative snapshot; not executed or verified by SPEC archivist",
+    "not_granted": "main install; compile/vet/list/testbody; Node; real resources; README #18"
+  },
+  "no_dynamic_execution_by_archivist": true
+}

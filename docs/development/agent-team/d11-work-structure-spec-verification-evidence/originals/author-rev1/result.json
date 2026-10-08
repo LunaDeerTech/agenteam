@@ -1,0 +1,76 @@
+{
+  "status": "SPEC_CANDIDATE_STOP",
+  "revision": 1,
+  "card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d11-work-structure.md",
+    "bytes": 59476,
+    "sha256": "6d4f33356ece71a3f2a5d69d6155bb1d1284e8455c9bb2e272a5483c85457527"
+  },
+  "snapshot": {
+    "path": "/workspace/scratch/architecture-d11-work-structure-spec01/card.rev1.md",
+    "bytes": 59476,
+    "sha256": "6d4f33356ece71a3f2a5d69d6155bb1d1284e8455c9bb2e272a5483c85457527"
+  },
+  "checks": {
+    "path": "/workspace/scratch/architecture-d11-work-structure-spec01/checks.json",
+    "bytes": 8638,
+    "sha256": "c985ca7147dc6f2e84efcc7cf3fee160eecc68f9305b19159dae95eefa1b9a97"
+  },
+  "sources": {
+    "path": "/workspace/scratch/architecture-d11-work-structure-spec01/sources.json",
+    "bytes": 11808,
+    "sha256": "8e129b5732a2635ec694d788cb9764df23c2d788c0314c3a38d7a6464a31066c"
+  },
+  "scope_delta": {
+    "path": "/workspace/scratch/architecture-d11-work-structure-spec01/scope-delta.md",
+    "bytes": 2906,
+    "sha256": "9a0afb08a9f672cff147e2b999921b94f60e90b0546ca1b4e68338bd3d4badc4"
+  },
+  "self_review": {
+    "path": "/workspace/scratch/architecture-d11-work-structure-spec01/author-review.md",
+    "bytes": 2457,
+    "sha256": "c61c8ed4c66b5558d027965216b8c48b1403a359f24dc8c04d02a1b0d86594e0"
+  },
+  "ownership": {
+    "path": "/workspace/scratch/architecture-d11-work-structure-spec01/ownership.json",
+    "bytes": 5362,
+    "sha256": "850313671565f02549723e839083cc0a7fec4c0c2e0978f8e0dbe21b2d6b9147"
+  },
+  "upstream_refs": [
+    {
+      "path": "/workspace/scratch/architecture-d11-structure-frontier01/candidate.md",
+      "bytes": 12323,
+      "sha256": "28034095f87c68dff09a88fc37e5ce7e10e7817cac07e24259617c9715876c68"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-structure-frontier01/sources.json",
+      "bytes": 4780,
+      "sha256": "72c2c05cbcb3a516ca1e4e4a89921313af9c9713dead7a4169913655f77d18ec"
+    },
+    {
+      "path": "/workspace/scratch/architecture-d11-structure-frontier01/freeze.json",
+      "bytes": 903,
+      "sha256": "8f4d55aaa0c269a17394c40a061ebe25791b5b8e11d7c1737a4d5d6f8f733cc2"
+    },
+    {
+      "path": "/workspace/scratch/d11-work-structure-backend-preparation01/handover.md",
+      "bytes": 4983,
+      "sha256": "8dd3182565d1017274f4cf8ecf95275bce6cb205e3e14ec8b275b5f44677cc30"
+    },
+    {
+      "path": "/workspace/scratch/d11-work-structure-backend-preparation01/source-refs.json",
+      "bytes": 13267,
+      "sha256": "ea50b467b7d79d5246bc31231e10284d82de2a0f6cf83e2b20012851c3708ce5"
+    }
+  ],
+  "actual_checks": "bounded source SHA consistency, local links/fragments, closed path and selector declarations, document format, author semantic self-review only",
+  "not_performed": [
+    "independent SPEC review",
+    "implementation",
+    "Go/Node/compiled discovery",
+    "network",
+    "Git",
+    "database/Docker/ports/resources"
+  ],
+  "next": "root -> verification_runtime full independent SPEC review; implementation not granted"
+}

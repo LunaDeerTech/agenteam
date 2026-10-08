@@ -1,0 +1,41 @@
+{
+  "format": 1,
+  "status": "D11_SPEC_ACCEPTED_PERMANENT_DOCUMENTATION_STOP",
+  "accepted_semantics_sha256": "c07c7112a5fd77bd475cd843fbffc9680b030b626550632f2999d849476bf07c",
+  "administrative_card_sha256": "812490b67b956469e274eecfde851eb084e47648fe0e3944eb5668fa8961c27f",
+  "product_acceptance": false,
+  "whole_rev1_independent_FAIL_preserved": true,
+  "unique_D1_final_independent_PASS": "febcf667db03d15ed6c9059e1d99c01f9fa4429cf6843379592f6b35da302237",
+  "original_count": 34,
+  "original_bytes": 315325,
+  "source_map": "source-map.json",
+  "original_inventory_sha256": "c9482a9d62395def8727b268237addd28b8dcb21ee1d4f38c1b583c3dc218391",
+  "generated_files": [
+    {
+      "path": "../d11-work-structure-spec-verification.md",
+      "bytes": 5067,
+      "sha256": "6734a650a408999add6ba46f2d479e58c98668625998d859ab2c869d096a1f65"
+    },
+    {
+      "path": "source-map.json",
+      "bytes": 16620,
+      "sha256": "51e1bec5fa76db5cc6086be807c7548d9def864a9e3097b68bc8a7a385c5b342"
+    },
+    {
+      "path": "format-exceptions.json",
+      "bytes": 2956,
+      "sha256": "98621454f1b2ae0ab9bbb34d03e65e00d129dd2a80932f41d68726825dc379c6"
+    },
+    {
+      "path": "archive-checks.json",
+      "bytes": 5105,
+      "sha256": "020aff90d6e9831ef6d31e5c8048a87d1048ff1af5c3c5f211971f16f8096e7a"
+    }
+  ],
+  "originals_and_old_FAIL_unchanged": true,
+  "existing_permanent_driver_reused_not_copied": true,
+  "generated_format_clean": true,
+  "implementation_scope": "fixture_recovery scratch #1–17; later fixed local gofmt <=45s only; main/compile/vet/list/body/Node/resources/#18 not granted",
+  "archivist_dynamic_execution": false,
+  "commit_owner": "root"
+}

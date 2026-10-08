@@ -1,0 +1,11 @@
+--- card.rev1.md
++++ card.rev2.md
+@@ -336,7 +336,7 @@
+ 
+ ### 8.4 资源和时间基准
+ 
+-实际命令/参数/ENV/依赖闭包由实施/独验在本卡下准备并封 STOP，root 授唯一窗口后才执行；本规格没有启动资源。保原基准：离线每命令≤45s；每新/旧 PG top **120s 含 setup/body/cleanup**；Go package hard timeout≤6m；owned TCP 暴露总窗≤75s；fixture Memory 上限≤5GiB；原七资源 ID 管理上限/退役方法适用。PG-only 不为凑七个 ID 启动 MinIO/browser/Node，实际需要的容器/network/目录/端口/代理/child 列精确有限清单；若沿原七 ID fixture，就七项全部入两次不存在证据；新增或超出需 root 明授，不自动扩大。
++实际命令/参数/ENV/依赖闭包由实施/独验在本卡下准备并封 STOP，root 授唯一窗口后才执行；本规格没有启动资源。保原基准：离线每命令≤45s；每新/旧 PG top **120s 含 setup/body/cleanup**；Go package hard timeout≤6m；启动前 fresh 可用磁盘≥5GiB；owned/resource cleanup 后的补充 host TCP delta 尾部两次清空观察总限≤75s（不证明完整短连接轨迹或 tuple ownership）；原七资源 ID 管理上限/退役方法适用。PG-only 不为凑七个 ID 启动 MinIO/browser/Node，实际需要的容器/network/目录/端口/代理/child 列精确有限清单；若沿原七 ID fixture，就七项全部入两次不存在证据；新增或超出需 root 明授，不自动扩大。
+ 
+ 输入固定到实际最小 Go 闭包/迁移/工具与 helper，按源变化做差量，不机械沿用旧903/486等数量，不复制大图。绑定 Go local toolchain、race 与 build tags；浏览器/Node/web/dist/schema 不属于本库输入。安装 #12–14 后按当前闭包重新绑定离线 binary与后续各轮，不能拿安装前编译结论覆盖新迁移。
+ 

@@ -1,0 +1,141 @@
+{
+  "status": "ARCHIVE_AUTHOR_STATIC_PASS_STOP",
+  "scope": "documentation bytes, references, exact patch application/inverse and format only; no product or runtime acceptance",
+  "original_count": 34,
+  "original_bytes": 315325,
+  "all_originals_exact_to_fixed_source": true,
+  "original_json_parses": true,
+  "source_map_embedded_original_references_checked_before_copy": 30,
+  "unmapped_scratch_input_references": 0,
+  "single_D1": {
+    "hunks": 1,
+    "added_lines": 1,
+    "removed_lines": 1,
+    "forward_exact": true,
+    "reverse_exact": true,
+    "reverse_sha256": "6d4f33356ece71a3f2a5d69d6155bb1d1284e8455c9bb2e272a5483c85457527",
+    "semantic_accepted_sha256": "c07c7112a5fd77bd475cd843fbffc9680b030b626550632f2999d849476bf07c"
+  },
+  "administrative": {
+    "hunks": 4,
+    "replacements": 5,
+    "forward_exact": true,
+    "reverse_exact": true,
+    "reverse_sha256": "c07c7112a5fd77bd475cd843fbffc9680b030b626550632f2999d849476bf07c",
+    "formal_current_equals_archived_snapshot": true,
+    "formal_sha256": "812490b67b956469e274eecfde851eb084e47648fe0e3944eb5668fa8961c27f",
+    "root_acceptance": "root confirmed independent inverse and accepted 812490b6"
+  },
+  "generated_report_local_links": [
+    {
+      "target": "../work-items/d11-work-structure.md",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/author-rev1/card.rev1.md",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/author-rev1/freeze.json",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/independent-rev1/review.md",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/independent-rev1/evidence.json",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/author-d1/rev1-to-rev2.patch",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/author-d1/card.rev2.md",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/independent-final/review.md",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/independent-final/evidence.json",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/independent-final/manifest.json",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/backend-preparation/handover.md",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/backend-consumption/consumption.md",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/administrative/administrative.patch",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/administrative/checks.json",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/originals/administrative/card.administrative.md",
+      "exists": true
+    },
+    {
+      "target": "project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/source-map.json",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/manifest.json",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/archive-checks.json",
+      "exists": true
+    },
+    {
+      "target": "d11-work-structure-spec-verification-evidence/format-exceptions.json",
+      "exists": true
+    }
+  ],
+  "raw_original_markdown_links_rewritten_or_revalidated": false,
+  "existing_permanent_driver_reused_exact": true,
+  "repository_source_files_copied": 0,
+  "repository_source_tree_rescanned": false,
+  "go_graph_built": false,
+  "format": {
+    "original_exception_files": 2,
+    "original_trailing_whitespace_lines": 15,
+    "original_blank_lines_at_eof": 1,
+    "actual_line_kind": "unified_diff_context_blank; literal single space",
+    "generated_text_clean": true,
+    "originals_not_normalized": true
+  },
+  "preseal_check_attempts": [
+    {
+      "actual_exit": 1,
+      "tool_chunk": "fbd8e6",
+      "stderr": "Traceback (most recent call last):\n  File \"<stdin>\", line 39, in <module>\nAssertionError: d11-work-structure-spec-verification-evidence/manifest.json\n",
+      "reason": "forward link to manifest was checked before generating the manifest",
+      "resolution": "Generate metadata first, then check all report links before sealing; no original or card bytes changed."
+    }
+  ],
+  "not_performed": [
+    "Go/Node/Git/network",
+    "compile/vet/list/testbody",
+    "PG/other real resources",
+    "business source changes",
+    "development-plan or root coordination docs changes",
+    "new independent product review"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "status": "AUTHOR_D1_NARROW_STATIC_PASS",
+  "revision_label": "rev1+D1; rev2 frozen combination identifier, original card header intentionally untouched under §8.4-only grant",
+  "before": {
+    "path": "/workspace/scratch/architecture-d11-work-structure-spec01/card.rev1.md",
+    "bytes": 59476,
+    "sha256": "6d4f33356ece71a3f2a5d69d6155bb1d1284e8455c9bb2e272a5483c85457527"
+  },
+  "after": {
+    "path": "/workspace/agenteam/docs/development/work-items/d11-work-structure.md",
+    "bytes": 59597,
+    "sha256": "c07c7112a5fd77bd475cd843fbffc9680b030b626550632f2999d849476bf07c"
+  },
+  "diff": {
+    "path": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/rev1-to-rev2.patch",
+    "bytes": 1869,
+    "sha256": "90a53acd6a7537b8ae9c2b96002e79e8624b7ef88b3e90f19230b5aff3305af1"
+  },
+  "changed_line_ranges_zero_based": [
+    [
+      "replace",
+      338,
+      339,
+      338,
+      339
+    ]
+  ],
+  "hunks": 1,
+  "changed_section": "§8.4 only, fixed line339",
+  "reverse_patch_applied_in_memory": {
+    "byte_equal": true,
+    "bytes": 59476,
+    "sha256": "6d4f33356ece71a3f2a5d69d6155bb1d1284e8455c9bb2e272a5483c85457527"
+  },
+  "original_frozen_outputs_unchanged": 7,
+  "format_check": "no trailing whitespace or tabs; code/link/other sections unchanged by exact reverse identity",
+  "removed_wrong_meanings": [
+    "Memory<=5GiB",
+    "whole-runtime TCP exposure<=75s"
+  ],
+  "preserved_budgets": [
+    "offline<=45s",
+    "top120s incl setup/body/cleanup",
+    "package<=6m",
+    "resource identities and actual retirement"
+  ],
+  "no_runtime_commands": true,
+  "independent_combination_review_pending": true
+}

@@ -1,0 +1,111 @@
+{
+  "scope": "34 immutable text originals; only actual observed original whitespace exceptions are registered",
+  "strict_utf8_pass": true,
+  "exception_files": 2,
+  "trailing_whitespace_lines": 15,
+  "blank_lines_at_eof": 1,
+  "exceptions": [
+    {
+      "archive": "originals/author-d1/rev1-to-rev2.patch",
+      "sha256": "90a53acd6a7537b8ae9c2b96002e79e8624b7ef88b3e90f19230b5aff3305af1",
+      "bytes": 1869,
+      "trailing_whitespace": [
+        {
+          "line": 4,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 6,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 9,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 11,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        }
+      ],
+      "blank_lines_at_eof": [
+        {
+          "line": 11,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        }
+      ],
+      "normalization_performed": false
+    },
+    {
+      "archive": "originals/administrative/administrative.patch",
+      "sha256": "e4ab74b52b1ab297a0de52be94cc93b5952f85708ad09ff4f5107e78d3e95340",
+      "bytes": 4961,
+      "trailing_whitespace": [
+        {
+          "line": 5,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 13,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 15,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 17,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 20,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 24,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 26,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 29,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 31,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 33,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        },
+        {
+          "line": 35,
+          "line_kind": "unified_diff_context_blank",
+          "literal_line": " "
+        }
+      ],
+      "blank_lines_at_eof": [],
+      "normalization_performed": false
+    }
+  ],
+  "original_bytes_preserved": true,
+  "generated_files_exceptions": [],
+  "git_diff_check_executed": false
+}

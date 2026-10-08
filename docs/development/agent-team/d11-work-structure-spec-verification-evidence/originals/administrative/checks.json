@@ -1,0 +1,48 @@
+{
+  "status": "ADMINISTRATIVE_AUTHOR_STATIC_PASS",
+  "before": {
+    "path": "/workspace/scratch/architecture-d11-work-structure-spec01/rev2/card.rev2.md",
+    "bytes": 59597,
+    "sha256": "c07c7112a5fd77bd475cd843fbffc9680b030b626550632f2999d849476bf07c"
+  },
+  "after": {
+    "path": "/workspace/agenteam/docs/development/work-items/d11-work-structure.md",
+    "bytes": 60230,
+    "sha256": "812490b67b956469e274eecfde851eb084e47648fe0e3944eb5668fa8961c27f"
+  },
+  "replacement_count": 5,
+  "replacements": [
+    {
+      "from": "- 修订：rev1；阶段：正式工程规格候选，待完整独立 SPEC 审查及 root 接受；不是实施或资源授权。",
+      "to": "- 修订：rev1＋D1；阶段：完整独立 SPEC 静审及唯一 D1 差量/最终组合已通过，root 已接受。见[永久 SPEC 验证记录](../agent-team/d11-work-structure-spec-verification.md)。这是规格接受，不是产品实现、编译或真实 PG 验收通过。"
+    },
+    {
+      "from": "- 唯一规格 writer：architecture_worker。本卡接受后的业务作者暂定 fixture_recovery；产品独审由 root 指定未参与实现的实例。backend_worker 继续 Model Settings UI 两个 Go harness，不共享本卡写域。",
+      "to": "- 唯一规格 writer：architecture_worker；唯一业务作者：fixture_recovery。root 已移交 #1–17 仅在作者 scratch 形成完整实施候选，尚未授权 main 安装、Go/Node 或资源执行；#18 README 末件未授。产品独审由 root 指定未参与实现的实例；backend_worker 继续 Model Settings UI 两个 Go harness，不共享本卡写域。"
+    },
+    {
+      "from": "下表是本卡接受后才可移交的 **18 路径闭集（17 技术＋README 末件）**；本次规格作者仅写本卡及自有 scratch，未取得任何产品写权。原候选 18 路径可容纳完整结果，暂无必须扩大路径的接口缺口。",
+      "to": "下表为已接受 SPEC 的 **18 路径闭集（17 技术＋README 末件）**。root 已移交 fixture_recovery 的当前范围仅为 #1–17 的 scratch 完整实施候选；main 安装、Go/Node/资源和 #18 README 仍未授。规格作者没有产品写权；原候选 18 路径保持，未扩大接口或文件范围。"
+    },
+    {
+      "from": "开工前：root 接受完整独立 SPEC；唯一业务 writer/18路径与00021交接；共享 Project/migration 安装窗与 Model Settings 活动输入分离；具体真实执行计划/测试 selector/input freeze 接受。现在只有规格，未满足实施门槛。",
+      "to": "当前：root 已接受完整独立 SPEC（rev1 全文＋唯一 D1 修订的最终组合），并将 #1–17 仅 scratch 实施移交 fixture_recovery；00021 仅预留。main 安装、共享 Project/migration 窗、Go/Node/真实资源和具体执行计划/selector/input freeze 仍须 root 单独移交并与 Model Settings 活动输入分离；#18 README 未授。尚无产品实现或动态验收通过结论。"
+    },
+    {
+      "from": "SPEC 作者只做文档结构/闭集/本地链接/字段与权限优先序/来源 SHA 自查；无 Go/Node/PG/网络/Git/产品执行。完整独立 SPEC 和后继实施验收仍待 root 移交。原候选/失败/来源字节保留，卡封存后 STOP。",
+      "to": "SPEC 作者仅做文档结构/闭集/本地链接/字段与权限优先序/来源 SHA 自查，无 Go/Node/PG/网络/Git/产品执行。完整 rev1 独审原 FAIL `fdd314b3`、唯一 D1 差量及最终组合 PASS `febcf667` 均保留；root 已接受 rev1＋D1，产品验收与执行授权保持上述后继边界。原候选/失败/来源字节原样保存，行政末件封存后 STOP。"
+    }
+  ],
+  "reverse_exact": {
+    "bytes": 59597,
+    "sha256": "c07c7112a5fd77bd475cd843fbffc9680b030b626550632f2999d849476bf07c",
+    "matches_c07": true
+  },
+  "sections_2_through_8_product_bytes_unchanged": true,
+  "only_section6_ownership_stage_sentence_changed": true,
+  "format_clean": true,
+  "new_report_link_target_exists": true,
+  "product_grant": "scratch only #1–17; no install/check/resource/#18 grant",
+  "permanent_report_and_evidence": "author continues preparing; not part of this card STOP",
+  "no_runtime_execution": true
+}
