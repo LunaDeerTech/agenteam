@@ -1,5 +1,9 @@
 # 2026-10-08 环境恢复与当前交接
 
+## Embedding rev3接受；Audit页面修复独验
+
+Embedding卡f6535ef6/独审0095e4ce已root读核接受，仅原错误优先序三行澄清；原rev2小档4cdf94f9已推核同。两Model源STATIC已接受，fixture获精确安装/离线pure-race-vet窗口，尚待实际结果；PG6继续scratch。Audit七源0a37aaca修复真实App非法query被丢后误读，作者119/type/format通过，独审活跃；state20限定组合保留、整体接受待D1闭合，API5已提交。frontend只写两JS，Go D1只源修/封候选，真实资源窗口关闭。三停止/Jina、原dist3/53stage与生产/E01边界不扩。
+
 ## 12:25 UTC：客户端已交付，后端两个限定修订
 
 Audit API五源b0714899已推远端核同，state受控独验与剩余页面/JS并行。Go完整STATIC仅hold joined过早D1，原candidate02保留，作者窄修实际outer handler终局；尚无真实资源。Embedding rev2规格小档15实体已root核接受，当前卡rev3仅澄清既有canonical lease的有ref Agent mismatch先Forbidden与无refsemantic冲突区别，不改store/resolver。policy/pure仅scratch STATIC无必修、实际Go未验，PG6继续scratch。全局dist原3/旧53stage、三停止/Jina、生产未绑/ready503与完整模块/E01边界保持。

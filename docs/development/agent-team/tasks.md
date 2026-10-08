@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-08：Embedding rev3接受与Audit路由真实回归
+
+Embedding rev3卡f6535ef653a943fa3138d8fbad9794815a755fa0af87a22b2557727129031a93经独审0095e4ce接受；root核三行diff65b866f0及冻结853d09f1五原件、仓库/冻结卡同。沿原完整审＋rev2组合，仅澄清同Call结构合法重新Discover/Resolve、当前授权/原writer/更早错误、committed历史ref及canonical身份优先序；无ref与有ref都不单独承诺唯一码，原9路径/全部top/预算未变。原rev2永久档4cdf94f9已推远端核同，不回写历史。policy/pure-v2静态f3a39879接受，唯一作者fixture获精确安装及必要45s offline pure/race/vet，PG6仍scratch，实际结果待冻结。
+
+Audit state-v1独审9ae45bdf/result0221767a为20受控组合（原18＋修正两探针前提后2），原exit1/两FAIL保留，69输入同/实际wait/owned双空；不接受六源整体：作者App首轮43/46暴露非法query经not-found丢弃后Resolve/Get误读。root实核auth→App→Workspace链，授权仅auth to.fullPath一行及活动router-index同类窄修，API5与state余5不改；view-v1-auth-v2冻结0a37aaca包含七源、原43/46失败、修后119/119＋type/format通过，17非法地址实际零ProjectAPI。verification已实际ACK独审完整七源/真实App补集，不重跑原20/71；frontend仅余两JS活跃。Go D1仍作者窄修封存，不执行Go；无真实资源/globaldist窗口。三停止/Jina及生产/完整D08–D28/E01未完保持。
+
 ## 2026-10-08：Embedding rev2规格归档与并行窄修
 
 [Embedding rev2规格永久档](platform-embedding-resolution-spec-verification.md)报告2034e79d已root实核：15原件72479B、17逻辑定位、manifest14730b73/source-map d822b4a0及固定48f8293e卡Gitblob核同；原diff11eeeaac的10个尾白行保留、无EOF例外。仅保存已接受规格，不扩大为实现验收。Audit API五源b0714899b5f3724b797acfdbb3020a4b5998bae2已推核远端同；state六源独验正在受控检查，frontend余8源继续。Audit Go完整独审313a16f8仅D1 held joined提前，backend获两原新源窄修，candidate02编译原件保留、暂不重跑。Embedding两scratch源STATIC无必修待封报告；PG作者发现卡无条件Memory Agent同Call语义错误，root实读resolution_store.go canonical检查及resolver readErr优先序，architecture仅卡rev3窄澄清，有ref绑定不匹配Forbidden/无ref合法事实后IdempotencyKeyReused分别覆盖，产品store/resolver不扩改。所有真实资源窗口仍关闭，原dist3/53stage、三停止/Jina、生产ready503与D08–D28/E01未完保持。
