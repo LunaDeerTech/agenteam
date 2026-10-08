@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "docker",
+    "image",
+    "ls",
+    "--digests",
+    "--no-trunc"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "NODE_PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules",
+    "HTTP_PROXY": "<inherited-present>",
+    "HTTPS_PROXY": "<inherited-present>",
+    "NO_PROXY": "<inherited-present>",
+    "http_proxy": "<inherited-present>",
+    "https_proxy": "<inherited-present>",
+    "no_proxy": "<inherited-present>"
+  },
+  "started_ns": 1791430343849074433,
+  "pid": 4196,
+  "exit_code": 0,
+  "ended_ns": 1791430343878692264,
+  "elapsed_seconds": 0.029617831,
+  "raw_sha256": "9dbe4bf50626b8f28b21889e5f8fb654b2d1a5e049dcc73c356895eb85698bd5"
+}

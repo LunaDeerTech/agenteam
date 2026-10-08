@@ -1,0 +1,14 @@
+{"path": "/workspace/go/pkg/mod/cache/download/github.com/minio/minio/@v", "exists": false, "entries": null}
+{"path": "/workspace/go/pkg/mod/github.com/minio", "exists": true, "entries": ["cli@v1.24.2", "colorjson@v1.0.8", "console@v1.7.7-0.20250905210349-2017f33b26e1", "crc64nvme@v1.0.1", "csvparser@v1.0.0", "dnscache@v0.1.1", "dperf@v0.6.3", "filepath@v1.0.0", "highwayhash@v1.0.3", "kms-go", "madmin-go", "mc@v0.0.0-20250313080218-cf909e1063a9", "md5-simd@v1.1.2", "minio-go", "mux@v1.9.2", "pkg", "selfupdate@v0.6.0", "simdjson-go@v0.4.5", "sio@v0.4.1", "websocket@v1.6.0", "xxml@v0.0.3", "zipindex@v0.4.0"]}
+{"path": "/workspace/go/pkg/mod/cache/download/github.com/philhofer/fwd/@v", "exists": true, "entries": ["list", "v1.1.3-0.20240916144458-20a13a1f6b7c.info", "v1.1.3-0.20240916144458-20a13a1f6b7c.lock", "v1.1.3-0.20240916144458-20a13a1f6b7c.mod", "v1.1.3-0.20240916144458-20a13a1f6b7c.zip", "v1.1.3-0.20240916144458-20a13a1f6b7c.ziphash"]}
+{"path": "/workspace/go/pkg/mod/cache/download/github.com/tinylib/msgp/@v", "exists": true, "entries": ["list", "v1.2.5.info", "v1.2.5.lock", "v1.2.5.mod", "v1.2.5.zip", "v1.2.5.ziphash"]}
+{"path": "/workspace/scratch/fixture-recovery/bin", "exists": false, "entries": null}
+{"path": "/tmp/agenteam-d05-r01-hxwb6ogm/bin", "exists": false, "entries": null}
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 860, in exists
+    self.stat(follow_symlinks=follow_symlinks)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 840, in stat
+    return os.stat(self, follow_symlinks=follow_symlinks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: '/root/.cache/ms-playwright'

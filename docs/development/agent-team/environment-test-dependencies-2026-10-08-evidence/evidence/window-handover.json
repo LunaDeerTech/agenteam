@@ -1,0 +1,46 @@
+{
+  "source": "Current task coordination messages, recorded after the actions; these are not command execution logs.",
+  "scope": "No product/script/lock edits; dependency commands only. Documentation added later under two explicitly assigned paths.",
+  "events": [
+    {
+      "from": "root",
+      "to": "fixture_recovery",
+      "action": "Authorized restoring only the original fixed PostgreSQL digests and exact MinIO source/binary in the owned scratch root. Prohibited Git, delegation, containers, databases, listeners and touching existing infrastructure."
+    },
+    {
+      "from": "root",
+      "to": "fixture_recovery",
+      "action": "Expanded scope to be the sole installer for tests/account-captcha-web npm ci and matching browser dependencies, preserving lock bytes."
+    },
+    {
+      "from": "root",
+      "to": "fixture_recovery",
+      "action": "Authorized necessary web locked dependency repair only after frontend_worker acknowledges no active Node readers."
+    },
+    {
+      "from": "frontend_worker",
+      "to": "fixture_recovery",
+      "action": "ACK: no current Node readers/checks/background tasks; continued source/test editing only and promised no Node commands until the install window was released."
+    },
+    {
+      "from": "fixture_recovery",
+      "to": "frontend_worker",
+      "action": "Released the dependency window after successful harness npm ci, identical locked integrity verification, copying only missing go-captcha-vue@2.0.7, two successful npm ls commands and unchanged package/lock fingerprints."
+    },
+    {
+      "from": "root",
+      "to": "fixture_recovery",
+      "action": "Directed reuse of existing /usr/bin/chromium when version and libraries are complete; no additional browser download required. No optional browser download had started and none was performed."
+    },
+    {
+      "from": "fixture_recovery",
+      "to": "root and verification_worker",
+      "action": "Reported exact MinIO binary SHA/version/size, both fixed PostgreSQL digest inspections, locked Node dependency completion and browser version/library observations; no dynamic resource or product verification claimed."
+    },
+    {
+      "from": "root",
+      "to": "fixture_recovery",
+      "action": "Authorized only docs/development/agent-team/environment-test-dependencies-2026-10-08.md and corresponding -evidence/ for this archive. Entry points, task ledger and Git remain root-owned."
+    }
+  ]
+}

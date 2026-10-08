@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "npm",
+    "ls",
+    "--depth=0",
+    "--prefix",
+    "web"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "NODE_PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules",
+    "HTTP_PROXY": "<inherited-present>",
+    "HTTPS_PROXY": "<inherited-present>",
+    "NO_PROXY": "<inherited-present>",
+    "http_proxy": "<inherited-present>",
+    "https_proxy": "<inherited-present>",
+    "no_proxy": "<inherited-present>"
+  },
+  "started_ns": 1791430413670146659,
+  "pid": 5245,
+  "exit_code": 1,
+  "ended_ns": 1791430414128834782,
+  "elapsed_seconds": 0.458688123,
+  "raw_sha256": "a468c559d65c27462e61eeaac2cb23797d0a513f0ae0624e6657d2f2ba1717ec"
+}

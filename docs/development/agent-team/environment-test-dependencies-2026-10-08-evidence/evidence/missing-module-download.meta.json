@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "mod",
+    "download",
+    "-json",
+    "github.com/philhofer/fwd@v1.2.0",
+    "github.com/tinylib/msgp@v1.4.0"
+  ],
+  "cwd": "/workspace/scratch/fixture-recovery-new",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "https://proxy.golang.org",
+    "GOSUMDB": "sum.golang.org",
+    "GOMODCACHE": "/workspace/scratch/fixture-recovery-new/missing-modcache",
+    "GOCACHE": "/workspace/scratch/fixture-recovery-new/gocache",
+    "GOTELEMETRY": "off",
+    "GOFLAGS": "",
+    "GOPATH": "/workspace/scratch/fixture-recovery-new/gopath",
+    "NODE_PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules",
+    "HTTP_PROXY": "<inherited-present>",
+    "HTTPS_PROXY": "<inherited-present>",
+    "NO_PROXY": "<inherited-present>",
+    "http_proxy": "<inherited-present>",
+    "https_proxy": "<inherited-present>",
+    "no_proxy": "<inherited-present>"
+  },
+  "started_ns": 1791430492929419272,
+  "pid": 6434,
+  "exit_code": 0,
+  "ended_ns": 1791430493685057513,
+  "elapsed_seconds": 0.755638241,
+  "raw_sha256": "db0010226aee03b2a1fa3c18624bf15f39dbbeba61d40a78a33ce9ebb284900d"
+}

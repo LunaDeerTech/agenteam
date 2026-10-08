@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-08：固定验收依赖恢复与永久原件
+
+[依赖恢复报告](environment-test-dependencies-2026-10-08.md)与99个小证据文件已由作者自查、root 核原97项字节／JSON／当前锁输入和相对链接。精确 MinIO SHA/release/commit、PG17/PG16 固定 digest、Node 锁依赖和根 Go 31 项 Sum/GoModSum已恢复；39组实际命令保留5个原失败，backend原graph失败另列。未启动测试容器、数据库、listener或浏览器，不标记业务接受。root 实际 Git 检查仅三个原 raw 的 trailing tab／末尾空行，已逐字节核同原件并在报告精确登记，不改写历史字节。
+
+MinIO 注入 `AGENTEAM_MINIO_BINARY=/workspace/scratch/fixture-recovery-new/bin/minio`，Go cache `/workspace/go/pkg/mod`；独占安装窗口全部归还，执行者已停止写入。后续Go actual graph已通过，首race编译触45s边界保留，缓存有明确进展后按同预算重试；该后续产品检查不回写依赖恢复为业务通过。Owner UI controller/六页面/Go harness仍未整卡验收，真实资源窗尚未启动。产品客户端 `7dbd42a3` 已推送核远端一致；相关记录和依赖报告按各自提交历史定位，完整平台与E01及三停止边界保持。
+
 ## 2026-10-08：Owner UI 客户端与安全回跳小块接受
 
 D27 rev2.1 的 API／pure safe return 子能力 `api-v1` 五源已通过独立限定验收：`web/src/api/client.ts`、`web/src/api/project-owner.ts`、`web/src/router/auth.ts`、`web/src/tests/project-owner-client.spec.ts`、`web/src/tests/authentication.spec.ts`。作者最终 api-unit03 112/112、format-check02 与 api-types01 通过；后者之后仅旧测试期待及格式变化。独立最终 258/258（183 独立＋60 作者客户端＋15 既有 Account）通过，1.725s，五源前后 SHA 同、direct actual wait 0、无 adopted、owned 两扫空；root 核五安装字节与 freeze 一致并审关键差异。

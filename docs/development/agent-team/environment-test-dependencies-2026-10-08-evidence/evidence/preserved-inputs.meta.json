@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "sha256sum",
+    "scripts/test-objects.sh",
+    "tests/testsupport/objectstore/fixture.go",
+    "tests/testsupport/objectstore/cmd/fixture/main.go",
+    "tests/testsupport/postgres/fixture.go",
+    "web/package.json",
+    "web/package-lock.json",
+    "docs/development/agent-team/environment-test-dependencies-2026-10-07-evidence/evidence/source-verification.json",
+    "docs/development/agent-team/environment-test-dependencies-2026-10-07-evidence/evidence/missing-module-verification.json",
+    "docs/development/agent-team/environment-test-dependencies-2026-10-07-evidence/evidence/minio-build-04.meta.json",
+    "/workspace/toolchains/go1.27.1/bin/go"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "NODE_PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules",
+    "HTTP_PROXY": "<inherited-present>",
+    "HTTPS_PROXY": "<inherited-present>",
+    "NO_PROXY": "<inherited-present>",
+    "http_proxy": "<inherited-present>",
+    "https_proxy": "<inherited-present>",
+    "no_proxy": "<inherited-present>"
+  },
+  "started_ns": 1791430664051509148,
+  "pid": 17123,
+  "exit_code": 0,
+  "ended_ns": 1791430664065806097,
+  "elapsed_seconds": 0.014296949,
+  "raw_sha256": "92a6675f8e2cbed5d67fd70a29f3c48af7c3d0834d447d9065798e1ca579b78a"
+}

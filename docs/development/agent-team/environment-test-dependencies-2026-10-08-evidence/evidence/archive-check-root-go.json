@@ -1,0 +1,16 @@
+{
+  "scope": "Root Go dependency supplement only; the 76 first-stage copied files and its archive-check.json are unchanged.",
+  "copied_files": 21,
+  "copied_bytes": 245088,
+  "ordered_path_sha256_pairs_sha256": "06ff8772e987b11b49c49a9651aaae6b574fe80b4f2fced25650e343aa979c9c",
+  "copy_verified_byte_for_byte": true,
+  "copied_inputs": [
+    "inputs/go.mod",
+    "inputs/go.sum"
+  ],
+  "upstream_original_failure": [
+    "upstream/graph-account01/raw",
+    "upstream/graph-account01/meta.json"
+  ],
+  "no_module_cache_or_source_tree_copied": true
+}

@@ -1,5 +1,11 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 2026-10-08：固定验收依赖恢复与永久原件
+
+[依赖恢复报告](environment-test-dependencies-2026-10-08.md)与99个小证据文件已由作者自查、root 核原97项字节／JSON／当前锁输入和相对链接。精确 MinIO SHA/release/commit、PG17/PG16 固定 digest、Node 锁依赖和根 Go 31 项 Sum/GoModSum已恢复；39组实际命令保留5个原失败，backend原graph失败另列。未启动测试容器、数据库、listener或浏览器，不标记业务接受。root 实际 Git 检查仅三个原 raw 的 trailing tab／末尾空行，已逐字节核同原件并在报告精确登记，不改写历史字节。
+
+MinIO 注入 `AGENTEAM_MINIO_BINARY=/workspace/scratch/fixture-recovery-new/bin/minio`，Go cache `/workspace/go/pkg/mod`；独占安装窗口全部归还，执行者已停止写入。后续Go actual graph已通过，首race编译触45s边界保留，缓存有明确进展后按同预算重试；该后续产品检查不回写依赖恢复为业务通过。Owner UI controller/六页面/Go harness仍未整卡验收，真实资源窗尚未启动。产品客户端 `7dbd42a3` 已推送核远端一致；相关记录和依赖报告按各自提交历史定位，完整平台与E01及三停止边界保持。
+
 ## 2026-10-08：恢复快照与远端增量核对
 
 本次环境初始检出 `work` / `2cf00e06`，工作树干净；`/workspace/scratch` 和 `/tmp` 未包含此前 UI candidate04、Go harness 或其运行目录。旧记录和已归档原件保留，但不得把失落的未提交源码或未归档运行证据声称为已恢复。

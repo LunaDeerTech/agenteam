@@ -1,0 +1,227 @@
+{
+  "cache": "/workspace/go/pkg/mod",
+  "uid": 1000,
+  "cache_uid": 1000,
+  "cache_writable": true,
+  "required_modules": [
+    {
+      "path": "github.com/jackc/pgx/v5",
+      "version": "v5.11.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/minio/minio-go/v7",
+      "version": "v7.3.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/pressly/goose/v3",
+      "version": "v3.28.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/wenlng/go-captcha/v2",
+      "version": "v2.0.5",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "golang.org/x/crypto",
+      "version": "v0.55.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/cespare/xxhash/v2",
+      "version": "v2.3.0",
+      "directory_exists": true,
+      "zip_exists": true,
+      "mod_exists": true
+    },
+    {
+      "path": "github.com/dustin/go-humanize",
+      "version": "v1.0.1",
+      "directory_exists": true,
+      "zip_exists": true,
+      "mod_exists": true
+    },
+    {
+      "path": "github.com/golang/freetype",
+      "version": "v0.0.0-20170609003504-e2365dfdc4a0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/google/uuid",
+      "version": "v1.6.0",
+      "directory_exists": true,
+      "zip_exists": true,
+      "mod_exists": true
+    },
+    {
+      "path": "github.com/jackc/pgpassfile",
+      "version": "v1.0.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/jackc/pgservicefile",
+      "version": "v0.0.0-20240606120523-5a60cdf6a761",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/jackc/puddle/v2",
+      "version": "v2.2.2",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/klauspost/compress",
+      "version": "v1.19.2",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/klauspost/cpuid/v2",
+      "version": "v2.4.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/klauspost/crc32",
+      "version": "v1.3.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/mfridman/interpolate",
+      "version": "v0.0.2",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/minio/crc64nvme",
+      "version": "v1.1.1",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/minio/md5-simd",
+      "version": "v1.1.2",
+      "directory_exists": true,
+      "zip_exists": true,
+      "mod_exists": true
+    },
+    {
+      "path": "github.com/philhofer/fwd",
+      "version": "v1.2.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/rs/xid",
+      "version": "v1.6.0",
+      "directory_exists": true,
+      "zip_exists": true,
+      "mod_exists": true
+    },
+    {
+      "path": "github.com/sethvargo/go-retry",
+      "version": "v0.4.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/tinylib/msgp",
+      "version": "v1.6.4",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "github.com/zeebo/xxh3",
+      "version": "v1.1.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "go.uber.org/multierr",
+      "version": "v1.11.0",
+      "directory_exists": true,
+      "zip_exists": true,
+      "mod_exists": true
+    },
+    {
+      "path": "go.yaml.in/yaml/v3",
+      "version": "v3.0.5",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "golang.org/x/image",
+      "version": "v0.45.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "golang.org/x/net",
+      "version": "v0.58.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "golang.org/x/sync",
+      "version": "v0.22.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "golang.org/x/sys",
+      "version": "v0.47.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "golang.org/x/text",
+      "version": "v0.41.0",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    },
+    {
+      "path": "gopkg.in/ini.v1",
+      "version": "v1.67.3",
+      "directory_exists": false,
+      "zip_exists": false,
+      "mod_exists": false
+    }
+  ],
+  "go_mod_sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+  "go_sum_sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+}

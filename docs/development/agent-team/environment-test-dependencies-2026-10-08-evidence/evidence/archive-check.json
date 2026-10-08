@@ -1,0 +1,19 @@
+{
+  "source_root": "/workspace/scratch/fixture-recovery-new",
+  "archive_root": "/workspace/agenteam/docs/development/agent-team/environment-test-dependencies-2026-10-08-evidence",
+  "copied_files": 76,
+  "copied_bytes": 143470,
+  "copy_verified_byte_for_byte": true,
+  "ordered_path_sha256_pairs_sha256": "aaecedc799d73ac22c4d7faa63c78ffaad7432fd1e00529e400e499573cc9381",
+  "scope": "71 evidence files plus five small command/context helpers; no binary, source ZIP/tree, module cache, npm cache or node_modules copied.",
+  "excluded_artifacts": [
+    "bin/minio",
+    "download/minio.zip",
+    "src/",
+    "missing-modcache/",
+    "gocache/",
+    "gopath/",
+    "tmp/",
+    "node_modules/"
+  ]
+}
