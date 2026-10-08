@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 17869.078999102,
+      "top": "TestAccountSystemSMTPSettingsWebOutcomeRecovery"
+    },
+    {
+      "event": "result",
+      "monotonic": 17883.093196279,
+      "observed_seconds": 14.014197176999005,
+      "reported_seconds": 14.04,
+      "state": "PASS",
+      "top": "TestAccountSystemSMTPSettingsWebOutcomeRecovery"
+    }
+  ],
+  "expected": [
+    "TestAccountSystemSMTPSettingsWebOutcomeRecovery"
+  ],
+  "failures": []
+}

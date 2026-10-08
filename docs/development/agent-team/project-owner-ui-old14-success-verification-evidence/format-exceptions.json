@@ -1,0 +1,240 @@
+{
+  "scope": "258 unique permanent original entities referenced by the 391 logical sources; includes 5 reused prior entities.",
+  "utf8_strict_all_pass": true,
+  "missing_final_lf": 0,
+  "crlf_files": 0,
+  "bare_cr_files": 0,
+  "extra_blank_line_at_eof_files": 0,
+  "original_exception_entities": 14,
+  "trailing_whitespace_lines": 43,
+  "exceptions": [
+    {
+      "archive": "originals/runs/oldprofile02/raw.log",
+      "sha256": "7ee05226c590db08d7323efac20e242054e985814a1eb2708584d5a7f3b5684e",
+      "bytes": 4307,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          31,
+          33,
+          36
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldtheme01/raw.log",
+      "sha256": "765c672eeee67f2180ecfc9a8d53cbb06d7a2798a13bbded9935cf0cedf1e7ed",
+      "bytes": 4950,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          35,
+          37,
+          40
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldpassword01/raw.log",
+      "sha256": "7cb88af9d5821d9dd2f5f603fa007965d9dbf30ffd5048d782786e0e5640e846",
+      "bytes": 4343,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          31,
+          33,
+          36
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldinvite01/raw.log",
+      "sha256": "a338cc44183f1031544ea0ea6158d12a554e93718affa8d06067c785d0b89dab",
+      "bytes": 4761,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          31,
+          33,
+          37,
+          39
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldproviders01/raw.log",
+      "sha256": "b0a8c8fad56b12f924b57b329793c1cc7c7c084b58709a80e101feedceab8770",
+      "bytes": 4214,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          31,
+          33,
+          36
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldmodels01/raw.log",
+      "sha256": "9358695eca3addad5ff2366cb8bc26c993c4828544a5165f860242b299878572",
+      "bytes": 4161,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          31,
+          33,
+          36
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldselection01/raw.log",
+      "sha256": "077577e096c8dfc4015315f3bff60afba5d4b34642c20079e99550ddc91dceec",
+      "bytes": 4189,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          31,
+          33,
+          36
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldsummaryrec01/raw.log",
+      "sha256": "6567d6dfa19c00c966cc64f6be974a04f015f0efcfca1d416665e221b7ca7230",
+      "bytes": 4182,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          31,
+          33,
+          36
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldsummarynav01/raw.log",
+      "sha256": "085253f6a4a718e7eacac9aebe2f4a08ea37b623c8095257f1f8923273c2ae70",
+      "bytes": 4502,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          33,
+          35,
+          38
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldaccountsec01/raw.log",
+      "sha256": "6bc63c38cf5088158766b487f0c89ef181b1550790c40d0954b72a7bb3b074d9",
+      "bytes": 4189,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          31,
+          33,
+          36
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldsmtpsettings01/raw.log",
+      "sha256": "d55289f5061eccc0798f68bc13df11d2e9971cc53953a35e8efc27f3da00e515",
+      "bytes": 4138,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          31,
+          33,
+          36
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldsmtpdelivery01/raw.log",
+      "sha256": "eaf334d9c5d9ae9ab7f3fc534964aab869cb2be730cf25ee97bcea10bf0f7b33",
+      "bytes": 4340,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          32,
+          34,
+          37
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldoutbound01/raw.log",
+      "sha256": "98e5dc59020770b01a3fe974974d3337eb840bbf0273fa7a66f8fb286d9a54e6",
+      "bytes": 4196,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          31,
+          33,
+          36
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    },
+    {
+      "archive": "originals/runs/oldpublic01/raw.log",
+      "sha256": "8ea435fbdc5e02b10b7fe110bcd03edbad4957bd64cbe4a1b0ddf25fc3e40a50",
+      "bytes": 5625,
+      "sources": [
+        "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/raw.log"
+      ],
+      "issues": {
+        "trailing_whitespace_lines": [
+          34,
+          36,
+          39
+        ]
+      },
+      "disposition": "Original bytes retained unchanged; no normalization or fabricated PASS."
+    }
+  ],
+  "raw_bytes_modified": false,
+  "git_diff_check_executed_by_archivist": false,
+  "git_limit": "Root instruction forbids Git during archival; root performs delivery review of exact raw exceptions."
+}

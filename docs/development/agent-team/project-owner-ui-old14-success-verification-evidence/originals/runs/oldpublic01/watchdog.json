@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 18272.964772784,
+      "top": "TestAccountPublicEntryWebIdentityNavigation"
+    },
+    {
+      "event": "result",
+      "monotonic": 18287.990045784,
+      "observed_seconds": 15.025273000002926,
+      "reported_seconds": 15.03,
+      "state": "PASS",
+      "top": "TestAccountPublicEntryWebIdentityNavigation"
+    }
+  ],
+  "expected": [
+    "TestAccountPublicEntryWebIdentityNavigation"
+  ],
+  "failures": []
+}

@@ -1,0 +1,994 @@
+{
+  "status": "FIVE_SEALED_AUTHOR_ACTUAL_ROUNDS_ORIGINALS_AND_OWNED_RETIREMENT_PASS_STOP",
+  "recorded_utc": "2026-10-08T08:27:05.960895+00:00",
+  "reviewer": "verification_runtime",
+  "rounds": [
+    {
+      "round": "oldinvite01",
+      "order": 4,
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldinvite01-handoff.json",
+        "sha256": "a61d93dfc316ab8b27ed4b6b723cba2c4f9d321c21447ccec7b83df86b510a4b"
+      },
+      "all_run_file_bytes_and_sha_match": true,
+      "run_file_count": 24,
+      "run_bytes": 318572,
+      "launch": {
+        "path": "/workspace/scratch/owner-ui-backend/oldinvite01-launch.raw",
+        "sha256": "aa3f37e572c2c45a3b01909c3b3bf1630f1678fa25831f3f02562e08ac4e0c6a"
+      },
+      "raw": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/raw.log",
+        "sha256": "a338cc44183f1031544ea0ea6158d12a554e93718affa8d06067c785d0b89dab"
+      },
+      "result": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/result.json",
+        "sha256": "8e0a5ee79cc1b58e34e0dc4bb733c65f624d607fab32c58dec6b77bd5f88c384"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/cleanup.json",
+        "sha256": "bc02b9f6b251208ad2154a2b900fdca9857ebd1676979470e8af7fef461140be"
+      },
+      "exact_top": "TestAccountSystemInvitationsWebOutcomeRecovery",
+      "group": "old-invitations",
+      "selected_raw_lines": [
+        "=== RUN   TestAccountSystemInvitationsWebOutcomeRecovery",
+        "    system_invitations_web_test.go:56: ",
+        "        [1/1] e2e/system-invitations.spec.ts:588:1 › [outcome] actual accepted response loss, replay, abandon, read failure and version competition",
+        "        e2e/system-invitations.spec.ts:588:1 › [outcome] actual accepted response loss, replay, abandon, read failure and version competition",
+        "          1 passed (7.4s)",
+        "    system_invitations_web_test.go:56: real invitation production browser group=outcome completed within original 45s browser/2m top budgets; task-owned response/clock/authority controls are fixture preparation, not production hosting or elapsed-time claims",
+        "--- PASS: TestAccountSystemInvitationsWebOutcomeRecovery (12.43s)"
+      ],
+      "result_limit": "Original outcome case: accepted response loss, replay, abandon, read failure and version competition. Owned response/clock/authority controls are fixture preparation, not production hosting or natural elapsed-time claims; this outcome mode does not add SMTP resources.",
+      "browser_summary": [
+        "1 passed (7.4s)"
+      ],
+      "top_result_event": [
+        {
+          "event": "result",
+          "monotonic": 16791.725610884,
+          "observed_seconds": 12.435575097002584,
+          "reported_seconds": 12.43,
+          "state": "PASS",
+          "top": "TestAccountSystemInvitationsWebOutcomeRecovery"
+        }
+      ],
+      "direct": {
+        "pid": 323173,
+        "starttime": "1674999",
+        "exit": 0,
+        "actual_wait": true,
+        "seconds": 63.584,
+        "started_utc": "2026-10-08T08:07:55.273488+00:00",
+        "ended_utc": "2026-10-08T08:08:58.858080+00:00"
+      },
+      "outer": {
+        "actual_exit": 0,
+        "session": 3414,
+        "final_chunk": "b71461"
+      },
+      "adopted_actual_waits": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 327745,
+          "starttime": "1678510",
+          "time": "2026-10-08T08:08:37.046297+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 327747,
+          "starttime": "1678510",
+          "time": "2026-10-08T08:08:37.046335+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 327741,
+          "starttime": "1678510",
+          "time": "2026-10-08T08:08:37.046343+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 327743,
+          "starttime": "1678510",
+          "time": "2026-10-08T08:08:37.046348+00:00"
+        }
+      ],
+      "watchdog_joined": true,
+      "exact_resource_ids": [
+        "09d8aa417c5187a911341945214416ee960ae24b4992eb58d0d1142ef9cab0b7",
+        "19e2652a77ad871ff5dfbd7096e4479fbe64e39f90097a80abcbe36cdf9cbd62",
+        "2a491f59748559e235d1b1cceb2f81b0756c150c089ae5d90172a588c1366f81",
+        "43a1156b212df26628b77d7b284c59c0903e1452ac8aed244f3fa3f6384fb754",
+        "8376c8faf6b1270013a0dd87075a420392386f1964d84e7c01e1c85924eac419",
+        "95fc49d675b6ad0d88a360dca70a2e91bb496eac7328177331b6c5d05b03b359",
+        "ddffdb06985cff0019adbe7d9498f69bc9d65248e8dbf46e049f536be6409ae9"
+      ],
+      "topology": {
+        "container": 4,
+        "network": 3
+      },
+      "cleanup_samples": [
+        {
+          "time": "2026-10-08T08:08:59.055446+00:00",
+          "all_7_ids_doubly_absent": true,
+          "baseline_unchanged": true,
+          "owned_processes": [],
+          "runtime_entries": [],
+          "browser_runtime_entries": [],
+          "remaining_new": []
+        },
+        {
+          "time": "2026-10-08T08:08:59.747964+00:00",
+          "all_7_ids_doubly_absent": true,
+          "baseline_unchanged": true,
+          "owned_processes": [],
+          "runtime_entries": [],
+          "browser_runtime_entries": [],
+          "remaining_new": []
+        }
+      ],
+      "tcp": {
+        "seconds": 37.36102088500047,
+        "budget_seconds": 75,
+        "signals_sent": false,
+        "role": "supplementary host polling; not complete short-connection trace or ownership proof",
+        "last_two_clear_scans": [
+          {
+            "active_rows": [],
+            "new_host_rows": [],
+            "time": "2026-10-08T08:09:37.408013+00:00",
+            "time_wait_rows": []
+          },
+          {
+            "active_rows": [],
+            "new_host_rows": [],
+            "time": "2026-10-08T08:09:37.611751+00:00",
+            "time_wait_rows": []
+          }
+        ]
+      },
+      "forced_actions": 0,
+      "monitor_errors": 0,
+      "new_nonowned_unwaited_pid1_shims": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 323562,
+          "ppid": 1,
+          "starttime": "1675458",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 324064,
+          "ppid": 1,
+          "starttime": "1675840",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 324358,
+          "ppid": 1,
+          "starttime": "1676060",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 324944,
+          "ppid": 1,
+          "starttime": "1676251",
+          "state": "Z"
+        }
+      ],
+      "shim_original_baseline_identity_comparison_matched": true,
+      "safe_http_body_files": 0,
+      "images": []
+    },
+    {
+      "round": "oldproviders01",
+      "order": 5,
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldproviders01-handoff.json",
+        "sha256": "546c7333e01fb6338638ce26ad5cdeac2562e37d81a6f318001bd03bdb71b083"
+      },
+      "all_run_file_bytes_and_sha_match": true,
+      "run_file_count": 24,
+      "run_bytes": 325021,
+      "launch": {
+        "path": "/workspace/scratch/owner-ui-backend/oldproviders01-launch.raw",
+        "sha256": "bb1e03d178c43f4c394f9665e5913aa608eccf6e068c2b3658e6b5010442aacb"
+      },
+      "raw": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/raw.log",
+        "sha256": "b0a8c8fad56b12f924b57b329793c1cc7c7c084b58709a80e101feedceab8770"
+      },
+      "result": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/result.json",
+        "sha256": "2c276fb3868ff5c58eb4843b60051853d401b443e9fd68e1e00c7836b42413c7"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/cleanup.json",
+        "sha256": "a48174b95262274e0060b40aab2e5d5f76b5c6835f349da3608869a9551675a8"
+      },
+      "exact_top": "TestAccountSystemProvidersWebCredentialReplacement",
+      "group": "old-providers",
+      "selected_raw_lines": [
+        "=== RUN   TestAccountSystemProvidersWebCredentialReplacement",
+        "    system_providers_web_test.go:35: ",
+        "        [1/1] e2e/system-providers.spec.ts:522:1 › [credential] new and replacement credentials, preserved shared ref, partial success and reviewed rebase",
+        "          1 passed (6.9s)",
+        "    system_providers_web_test.go:35: real Provider production browser group=credential completed; original 45s browser/2m top budgets, formal writes and owned response controls; configuration success makes no external connectivity claim",
+        "--- PASS: TestAccountSystemProvidersWebCredentialReplacement (11.60s)"
+      ],
+      "result_limit": "Original credential case: new/replacement credentials, preserved shared reference, partial success and reviewed rebase. Formal configuration success does not demonstrate external provider connectivity.",
+      "browser_summary": [
+        "1 passed (6.9s)"
+      ],
+      "top_result_event": [
+        {
+          "event": "result",
+          "monotonic": 16918.040085585,
+          "observed_seconds": 11.615814979999413,
+          "reported_seconds": 11.6,
+          "state": "PASS",
+          "top": "TestAccountSystemProvidersWebCredentialReplacement"
+        }
+      ],
+      "direct": {
+        "pid": 331882,
+        "starttime": "1687713",
+        "exit": 0,
+        "actual_wait": true,
+        "seconds": 62.933,
+        "started_utc": "2026-10-08T08:10:02.408433+00:00",
+        "ended_utc": "2026-10-08T08:11:05.341507+00:00"
+      },
+      "outer": {
+        "actual_exit": 0,
+        "session": 2899,
+        "final_chunk": "9c9255"
+      },
+      "adopted_actual_waits": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 336458,
+          "starttime": "1691196",
+          "time": "2026-10-08T08:10:43.243853+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 336461,
+          "starttime": "1691196",
+          "time": "2026-10-08T08:10:43.243907+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 336462,
+          "starttime": "1691196",
+          "time": "2026-10-08T08:10:43.243931+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 336464,
+          "starttime": "1691196",
+          "time": "2026-10-08T08:10:43.243950+00:00"
+        }
+      ],
+      "watchdog_joined": true,
+      "exact_resource_ids": [
+        "3ad680a64b1060cc2e6de0860f79735f07c16ed8541e726c13fe0602c886912f",
+        "41c61387b91665692abab9e9fa8cb757ee7edddeb2849ce0b4abad5c093fefac",
+        "6a945c36e6937c5a1dcfa502ce8c0d5a8ab3eb94f6cd436fcd12fb4932387311",
+        "72435d3fb47adb07c9d44eece0f132b4a1e28d60c1a0cdc7ecb1e46de7850e71",
+        "848f997310eda4d566011632a1dc2241d5107553f3d43ed878fb49835e49bde5",
+        "9fb8a6ad226f46f17af14ca15b6b3c9c5b00921e53a264aeb0fff6e0d6d0fd8b",
+        "aa346ad3e4bad1422969fb8dae9375316d8db42d1a56e2e3f3ec0ae0098cf134"
+      ],
+      "topology": {
+        "container": 4,
+        "network": 3
+      },
+      "cleanup_samples": [
+        {
+          "time": "2026-10-08T08:11:05.528584+00:00",
+          "all_7_ids_doubly_absent": true,
+          "baseline_unchanged": true,
+          "owned_processes": [],
+          "runtime_entries": [],
+          "browser_runtime_entries": [],
+          "remaining_new": []
+        },
+        {
+          "time": "2026-10-08T08:11:06.207618+00:00",
+          "all_7_ids_doubly_absent": true,
+          "baseline_unchanged": true,
+          "owned_processes": [],
+          "runtime_entries": [],
+          "browser_runtime_entries": [],
+          "remaining_new": []
+        }
+      ],
+      "tcp": {
+        "seconds": 38.37455635399965,
+        "budget_seconds": 75,
+        "signals_sent": false,
+        "role": "supplementary host polling; not complete short-connection trace or ownership proof",
+        "last_two_clear_scans": [
+          {
+            "active_rows": [],
+            "new_host_rows": [],
+            "time": "2026-10-08T08:11:44.881300+00:00",
+            "time_wait_rows": []
+          },
+          {
+            "active_rows": [],
+            "new_host_rows": [],
+            "time": "2026-10-08T08:11:45.085044+00:00",
+            "time_wait_rows": []
+          }
+        ]
+      },
+      "forced_actions": 0,
+      "monitor_errors": 0,
+      "new_nonowned_unwaited_pid1_shims": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 332339,
+          "ppid": 1,
+          "starttime": "1688201",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 332792,
+          "ppid": 1,
+          "starttime": "1688592",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 333140,
+          "ppid": 1,
+          "starttime": "1688786",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 333645,
+          "ppid": 1,
+          "starttime": "1688996",
+          "state": "Z"
+        }
+      ],
+      "shim_original_baseline_identity_comparison_matched": true,
+      "safe_http_body_files": 0,
+      "images": []
+    },
+    {
+      "round": "oldmodels01",
+      "order": 6,
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldmodels01-handoff.json",
+        "sha256": "282293b136ecde3074702611414dbaa8e8f60a5ae1e283e9fcd2bd4435271327"
+      },
+      "all_run_file_bytes_and_sha_match": true,
+      "run_file_count": 24,
+      "run_bytes": 322004,
+      "launch": {
+        "path": "/workspace/scratch/owner-ui-backend/oldmodels01-launch.raw",
+        "sha256": "3c699e548439b6cb9507ddfab862b018f04d7ab00bba8466662e016ed73a88e0"
+      },
+      "raw": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/raw.log",
+        "sha256": "9358695eca3addad5ff2366cb8bc26c993c4828544a5165f860242b299878572"
+      },
+      "result": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/result.json",
+        "sha256": "819a4d6a6d30d39abc14cd2eb54aa451965b42ca340050399bef6f959d1247c0"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/cleanup.json",
+        "sha256": "74e6ab472c4033003f09b1772b111f175cfb7fdefd684e38969e3d90c18dcd1a"
+      },
+      "exact_top": "TestAccountSystemModelsWebOutcomeRecovery",
+      "group": "old-models",
+      "selected_raw_lines": [
+        "=== RUN   TestAccountSystemModelsWebOutcomeRecovery",
+        "    system_models_web_test.go:42: ",
+        "        [1/1] e2e/system-models.spec.ts:858:1 › [outcome] accepted create/update/delete response loss preserves one original command and facts",
+        "          1 passed (11.4s)",
+        "    system_models_web_test.go:42: real Model production browser group=outcome completed; 45s browser/2m top budgets, formal commands/selectors and exact owned controls; no Provider invocation or foreign adapter claim",
+        "--- PASS: TestAccountSystemModelsWebOutcomeRecovery (16.15s)"
+      ],
+      "result_limit": "Original outcome case: accepted create/update/delete response losses retain one original command and facts. No Provider invocation or foreign adapter result claimed.",
+      "browser_summary": [
+        "1 passed (11.4s)"
+      ],
+      "top_result_event": [
+        {
+          "event": "result",
+          "monotonic": 17050.65728017,
+          "observed_seconds": 16.14339368599758,
+          "reported_seconds": 16.15,
+          "state": "PASS",
+          "top": "TestAccountSystemModelsWebOutcomeRecovery"
+        }
+      ],
+      "direct": {
+        "pid": 340594,
+        "starttime": "1700464",
+        "exit": 0,
+        "actual_wait": true,
+        "seconds": 67.602,
+        "started_utc": "2026-10-08T08:12:09.924936+00:00",
+        "ended_utc": "2026-10-08T08:13:17.527162+00:00"
+      },
+      "outer": {
+        "actual_exit": 0,
+        "session": 36290,
+        "final_chunk": "7d526f"
+      },
+      "adopted_actual_waits": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 345144,
+          "starttime": "1704012",
+          "time": "2026-10-08T08:12:55.875305+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 345142,
+          "starttime": "1704012",
+          "time": "2026-10-08T08:12:55.875334+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 345147,
+          "starttime": "1704012",
+          "time": "2026-10-08T08:12:55.875359+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 345148,
+          "starttime": "1704012",
+          "time": "2026-10-08T08:12:55.875380+00:00"
+        }
+      ],
+      "watchdog_joined": true,
+      "exact_resource_ids": [
+        "054846f8e0e5e203dcd55089e960304e64d96f7ee654e62cc48b778d5fc9862c",
+        "2199c2d22fbd0a8dafc781942c9b9f0eb69be5610072d5a62bbef6a81f1338d3",
+        "32383320d000e959b3738000100a067f98f685b1da109552826eb2d18afa5cef",
+        "3d6a22be59b3fcc0aa18d015fb58e0144dfc9d5a4125dadd7e2f7c4877f25be5",
+        "4ba627ea193d944273b3742104842abd59299c4ad205f3206fcec8025adeebd6",
+        "58a3b4f6e9d7101738d770303ece38c46d78e3e742e6a6e2177d7fa9a0750514",
+        "ee140625973fcd84d053fa5be22a0aba909538cea379fd21eb77bf5d42122d1c"
+      ],
+      "topology": {
+        "container": 4,
+        "network": 3
+      },
+      "cleanup_samples": [
+        {
+          "time": "2026-10-08T08:13:17.705740+00:00",
+          "all_7_ids_doubly_absent": true,
+          "baseline_unchanged": true,
+          "owned_processes": [],
+          "runtime_entries": [],
+          "browser_runtime_entries": [],
+          "remaining_new": []
+        },
+        {
+          "time": "2026-10-08T08:13:18.397786+00:00",
+          "all_7_ids_doubly_absent": true,
+          "baseline_unchanged": true,
+          "owned_processes": [],
+          "runtime_entries": [],
+          "browser_runtime_entries": [],
+          "remaining_new": []
+        }
+      ],
+      "tcp": {
+        "seconds": 39.38042554899948,
+        "budget_seconds": 75,
+        "signals_sent": false,
+        "role": "supplementary host polling; not complete short-connection trace or ownership proof",
+        "last_two_clear_scans": [
+          {
+            "active_rows": [],
+            "new_host_rows": [],
+            "time": "2026-10-08T08:13:58.076617+00:00",
+            "time_wait_rows": []
+          },
+          {
+            "active_rows": [],
+            "new_host_rows": [],
+            "time": "2026-10-08T08:13:58.280839+00:00",
+            "time_wait_rows": []
+          }
+        ]
+      },
+      "forced_actions": 0,
+      "monitor_errors": 0,
+      "new_nonowned_unwaited_pid1_shims": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 341031,
+          "ppid": 1,
+          "starttime": "1700943",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 341486,
+          "ppid": 1,
+          "starttime": "1701365",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 341850,
+          "ppid": 1,
+          "starttime": "1701572",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 342350,
+          "ppid": 1,
+          "starttime": "1701757",
+          "state": "Z"
+        }
+      ],
+      "shim_original_baseline_identity_comparison_matched": true,
+      "safe_http_body_files": 0,
+      "images": []
+    },
+    {
+      "round": "oldselection01",
+      "order": 7,
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldselection01-handoff.json",
+        "sha256": "6b476898edb195463997b4d520037d331d162b80c6f3e5b335bc089704374b61"
+      },
+      "all_run_file_bytes_and_sha_match": true,
+      "run_file_count": 24,
+      "run_bytes": 317075,
+      "launch": {
+        "path": "/workspace/scratch/owner-ui-backend/oldselection01-launch.raw",
+        "sha256": "6248f8ae49b07e5e464d04afd0b59acb493dadd84e55cd67a3aee411504d936a"
+      },
+      "raw": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/raw.log",
+        "sha256": "077577e096c8dfc4015315f3bff60afba5d4b34642c20079e99550ddc91dceec"
+      },
+      "result": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/result.json",
+        "sha256": "d5bec34db8184b5f6c51701e8ca38ce681871fc8d0ef04b90553ccd5adc0761d"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/cleanup.json",
+        "sha256": "9f400388ab9c2efce1a5224a35ff3fcab7b9321c2798108bfad8fefab93562b4"
+      },
+      "exact_top": "TestAccountSystemModelSelectionWebOutcomeRecovery",
+      "group": "old-selection",
+      "selected_raw_lines": [
+        "=== RUN   TestAccountSystemModelSelectionWebOutcomeRecovery",
+        "    system_model_selection_web_test.go:41: ",
+        "        [1/1] e2e/system-model-selection.spec.ts:923:1 › [outcome] accepted loss, historical lookup and explicit original replay after formal deletion",
+        "          1 passed (8.3s)",
+        "    system_model_selection_web_test.go:41: real Selection production browser group=outcome completed with 45s browser/2m top budgets; formal configuration facts only, no Provider invocation or index rebuild claim",
+        "--- PASS: TestAccountSystemModelSelectionWebOutcomeRecovery (12.66s)"
+      ],
+      "result_limit": "Original outcome case: accepted loss, historical lookup and explicit original replay after formal deletion. Formal configuration facts only, no Provider invocation or index rebuild claim.",
+      "browser_summary": [
+        "1 passed (8.3s)"
+      ],
+      "top_result_event": [
+        {
+          "event": "result",
+          "monotonic": 17353.975906796,
+          "observed_seconds": 12.670230632000312,
+          "reported_seconds": 12.66,
+          "state": "PASS",
+          "top": "TestAccountSystemModelSelectionWebOutcomeRecovery"
+        }
+      ],
+      "direct": {
+        "pid": 351375,
+        "starttime": "1731100",
+        "exit": 0,
+        "actual_wait": true,
+        "seconds": 64.723,
+        "started_utc": "2026-10-08T08:17:16.281215+00:00",
+        "ended_utc": "2026-10-08T08:18:21.004803+00:00"
+      },
+      "outer": {
+        "actual_exit": 0,
+        "session": 24579,
+        "final_chunk": "b0188f"
+      },
+      "adopted_actual_waits": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 355926,
+          "starttime": "1734656",
+          "time": "2026-10-08T08:17:59.442566+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 355929,
+          "starttime": "1734656",
+          "time": "2026-10-08T08:17:59.442590+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 355930,
+          "starttime": "1734656",
+          "time": "2026-10-08T08:17:59.442609+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 355931,
+          "starttime": "1734656",
+          "time": "2026-10-08T08:17:59.442626+00:00"
+        }
+      ],
+      "watchdog_joined": true,
+      "exact_resource_ids": [
+        "076f33232cb21474ac21aed5b318036078997297062d73984d6cc729692ab162",
+        "18fccab2dfd68eb44fdb2c450e839e3b01a1180e616be0c7f7afd04d6519b9e4",
+        "670934f021f0b846f877525d1dc18b6b70d1f1f71f181737611f07fb2cd46de0",
+        "6a91593e59b1d602f340c0d1afd97b4cfb6b67381e3939ae47ce84113efa75a1",
+        "cd4219c29e6c0c75866ede0719e0b9b730cbe4e2a886217e67efee32e714eea0",
+        "e9aac95db21a4a3fd3954c9e4dd9eec273065b17d813c42b78582a961f5ecb02",
+        "f8340c18a7af1536817b5a55d79be0a475b774f29195c7bc1f1a17e0ad72d99c"
+      ],
+      "topology": {
+        "container": 4,
+        "network": 3
+      },
+      "cleanup_samples": [
+        {
+          "time": "2026-10-08T08:18:21.172049+00:00",
+          "all_7_ids_doubly_absent": true,
+          "baseline_unchanged": true,
+          "owned_processes": [],
+          "runtime_entries": [],
+          "browser_runtime_entries": [],
+          "remaining_new": []
+        },
+        {
+          "time": "2026-10-08T08:18:21.850482+00:00",
+          "all_7_ids_doubly_absent": true,
+          "baseline_unchanged": true,
+          "owned_processes": [],
+          "runtime_entries": [],
+          "browser_runtime_entries": [],
+          "remaining_new": []
+        }
+      ],
+      "tcp": {
+        "seconds": 38.39226575700013,
+        "budget_seconds": 75,
+        "signals_sent": false,
+        "role": "supplementary host polling; not complete short-connection trace or ownership proof",
+        "last_two_clear_scans": [
+          {
+            "active_rows": [],
+            "new_host_rows": [],
+            "time": "2026-10-08T08:19:00.540312+00:00",
+            "time_wait_rows": []
+          },
+          {
+            "active_rows": [],
+            "new_host_rows": [],
+            "time": "2026-10-08T08:19:00.745278+00:00",
+            "time_wait_rows": []
+          }
+        ]
+      },
+      "forced_actions": 0,
+      "monitor_errors": 0,
+      "new_nonowned_unwaited_pid1_shims": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 351802,
+          "ppid": 1,
+          "starttime": "1731608",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 352253,
+          "ppid": 1,
+          "starttime": "1732026",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 352619,
+          "ppid": 1,
+          "starttime": "1732236",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 353116,
+          "ppid": 1,
+          "starttime": "1732426",
+          "state": "Z"
+        }
+      ],
+      "shim_original_baseline_identity_comparison_matched": true,
+      "safe_http_body_files": 0,
+      "images": []
+    },
+    {
+      "round": "oldsummaryrec01",
+      "order": 8,
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldsummaryrec01-handoff.json",
+        "sha256": "7bb4de72634dad2720e43a77b88bf1fa67cd5a13b620c32f0230d474c20a772e"
+      },
+      "all_run_file_bytes_and_sha_match": true,
+      "run_file_count": 24,
+      "run_bytes": 313815,
+      "launch": {
+        "path": "/workspace/scratch/owner-ui-backend/oldsummaryrec01-launch.raw",
+        "sha256": "61c6e322a98269d02fcb429cdbafb3c5adc78a9c089c5483b5ab97509b8152d9"
+      },
+      "raw": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/raw.log",
+        "sha256": "6567d6dfa19c00c966cc64f6be974a04f015f0efcfca1d416665e221b7ca7230"
+      },
+      "result": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/result.json",
+        "sha256": "9e113681388f3b809ca5f421c18463390ec38af156b713d826008169fcd2d12e"
+      },
+      "cleanup": {
+        "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/cleanup.json",
+        "sha256": "7e87b59f2f053e6f0cb5414e958d5ce1ca156dd28032da5a49e24666a0e8f9d6"
+      },
+      "exact_top": "TestAccountSystemMeetingSummaryWebRecovery",
+      "group": "old-summary-recovery",
+      "selected_raw_lines": [
+        "=== RUN   TestAccountSystemMeetingSummaryWebRecovery",
+        "    system_meeting_summary_web_test.go:31: ",
+        "        [1/1] e2e/system-meeting-summary.spec.ts:628:1 › [recovery] two accepted response losses keep independent original bodies and receipts",
+        "          1 passed (8.7s)",
+        "    system_meeting_summary_web_test.go:31: Summary production browser mode=recovery; formal bootstrap/invite/redeem/login/Logout; authority role SQL is owned fact preparation only; no generation/Invocation/production SPA claim",
+        "--- PASS: TestAccountSystemMeetingSummaryWebRecovery (13.08s)"
+      ],
+      "result_limit": "Original recovery case: two accepted response losses preserve independent original bodies and receipts. Formal bootstrap/invite/redeem/login/Logout fixture and owned authority fact setup; no Summary generation, Invocation or production SPA claim.",
+      "browser_summary": [
+        "1 passed (8.7s)"
+      ],
+      "top_result_event": [
+        {
+          "event": "result",
+          "monotonic": 17488.198730928,
+          "observed_seconds": 13.094426693001878,
+          "reported_seconds": 13.08,
+          "state": "PASS",
+          "top": "TestAccountSystemMeetingSummaryWebRecovery"
+        }
+      ],
+      "direct": {
+        "pid": 360199,
+        "starttime": "1744480",
+        "exit": 0,
+        "actual_wait": true,
+        "seconds": 65.363,
+        "started_utc": "2026-10-08T08:19:30.077382+00:00",
+        "ended_utc": "2026-10-08T08:20:35.440599+00:00"
+      },
+      "outer": {
+        "actual_exit": 0,
+        "session": 38023,
+        "final_chunk": "b3ccae"
+      },
+      "adopted_actual_waits": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 364761,
+          "starttime": "1748019",
+          "time": "2026-10-08T08:20:13.364523+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 364764,
+          "starttime": "1748020",
+          "time": "2026-10-08T08:20:13.364552+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 364765,
+          "starttime": "1748020",
+          "time": "2026-10-08T08:20:13.364581+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 364766,
+          "starttime": "1748020",
+          "time": "2026-10-08T08:20:13.364605+00:00"
+        }
+      ],
+      "watchdog_joined": true,
+      "exact_resource_ids": [
+        "3aa4d343c2950c590210933adfc4da1a3f3ba6fe380ac4043a3fe2af3d8429e8",
+        "5b7b3f3718e2b3e15b71d61b25d32437ff8a5e928c8ec9b43639f6cdc7f5653a",
+        "62148cce9ca4d1425965ea4175b8b5fa30cbe9f490da8315ebf44c5d1ba68d94",
+        "8ccf6a6c79729f0c2d0439a40768eeffdec7b3a31f9f7471822e38b1f3ca7844",
+        "a8a5f664eda91cd8a918f1fe388768d815af5f62ca65a25d77436bc84f93ef1e",
+        "bed7b2703c812c9ed7d2cc6087ceecf44010b4bec45fbb92c75b5a1af00c8123",
+        "f325b5951e68cccabf0b4d02c23834b77249b49aa26d39c4cedb260f5479fc82"
+      ],
+      "topology": {
+        "container": 4,
+        "network": 3
+      },
+      "cleanup_samples": [
+        {
+          "time": "2026-10-08T08:20:35.637263+00:00",
+          "all_7_ids_doubly_absent": true,
+          "baseline_unchanged": true,
+          "owned_processes": [],
+          "runtime_entries": [],
+          "browser_runtime_entries": [],
+          "remaining_new": []
+        },
+        {
+          "time": "2026-10-08T08:20:36.348546+00:00",
+          "all_7_ids_doubly_absent": true,
+          "baseline_unchanged": true,
+          "owned_processes": [],
+          "runtime_entries": [],
+          "browser_runtime_entries": [],
+          "remaining_new": []
+        }
+      ],
+      "tcp": {
+        "seconds": 37.4117239920015,
+        "budget_seconds": 75,
+        "signals_sent": false,
+        "role": "supplementary host polling; not complete short-connection trace or ownership proof",
+        "last_two_clear_scans": [
+          {
+            "active_rows": [],
+            "new_host_rows": [],
+            "time": "2026-10-08T08:21:14.061274+00:00",
+            "time_wait_rows": []
+          },
+          {
+            "active_rows": [],
+            "new_host_rows": [],
+            "time": "2026-10-08T08:21:14.267715+00:00",
+            "time_wait_rows": []
+          }
+        ]
+      },
+      "forced_actions": 0,
+      "monitor_errors": 0,
+      "new_nonowned_unwaited_pid1_shims": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 360637,
+          "ppid": 1,
+          "starttime": "1744976",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 361089,
+          "ppid": 1,
+          "starttime": "1745418",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 361473,
+          "ppid": 1,
+          "starttime": "1745645",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 362024,
+          "ppid": 1,
+          "starttime": "1745839",
+          "state": "Z"
+        }
+      ],
+      "shim_original_baseline_identity_comparison_matched": true,
+      "safe_http_body_files": 0,
+      "images": []
+    }
+  ],
+  "verified_run_files": 120,
+  "verified_run_bytes": 1596487,
+  "verified_launch_files": 5,
+  "verified_launch_bytes": 60234,
+  "common_true_input_sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+  "common_input_digest": "6bb347c9ea8c32d19dd0176302019b64ddeaec778ad14dbd8011a1bc88436f55",
+  "input_before_after_equal_and_match_preceding_personal3": true,
+  "resource_baseline_sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+  "baseline_equal_across_first8": true,
+  "all_selected_top_selectors_match_root_order": true,
+  "all_next_start_after_previous_final_tcp_clear": true,
+  "all_disk_snapshots_exceed_original_5GiB": true,
+  "new_five_totals": {
+    "unique_actual_resource_ids": 35,
+    "direct_actual_waits": 5,
+    "adopted_actual_waits": 20,
+    "watchdog_joins": 5,
+    "nonowned_unwaited_pid1_shims": 20
+  },
+  "preceding_personal3": {
+    "review": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/old14-personal3-result-review/review.md",
+      "sha256": "e1808d3c87f384ab39da67cc763cc8553ba2afaad56c3031efc25c53352a3008"
+    },
+    "evidence": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/old14-personal3-result-review/evidence.json",
+      "sha256": "7f01cd7c629141ac0449dac658103ad04903c73b57822092d5f7d74c304c0e7d"
+    },
+    "reused_no_business_or_retirement_rerun": true
+  },
+  "composition_first8_totals": {
+    "unique_actual_resource_ids": 56,
+    "direct_actual_waits": 8,
+    "adopted_actual_waits": 32,
+    "watchdog_joins": 8,
+    "nonowned_unwaited_pid1_shims": 32
+  },
+  "unaccepted_or_unread": [
+    "Later six OLD14 rounds not consumed",
+    "No independent actual A/B",
+    "No new persistent HTTP-body/DOM/trace/image/Project-schema/client evidence",
+    "No full D27/README acceptance"
+  ],
+  "verification_actions": "Read only declared sealed originals, metadata and accepted prior evidence. No current dist/host/active round, sourcegraph, Go/Node/browser/check/resource/network execution.",
+  "must_fix": [],
+  "stop": true
+}

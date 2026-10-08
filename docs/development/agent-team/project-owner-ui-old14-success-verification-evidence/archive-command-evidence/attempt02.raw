@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/owner-ui-old14-archive/archive.py", line 166, in <module>
+    assert changed_keys == ['permitted_groups', 'root_authorization', 'root_authorized_resources', 'status']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

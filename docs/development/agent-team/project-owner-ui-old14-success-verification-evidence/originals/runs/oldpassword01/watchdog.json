@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 16633.990006402,
+      "top": "TestAccountPersonalSettingsWebPasswordRotation"
+    },
+    {
+      "event": "result",
+      "monotonic": 16648.951369761,
+      "observed_seconds": 14.961363358997914,
+      "reported_seconds": 14.95,
+      "state": "PASS",
+      "top": "TestAccountPersonalSettingsWebPasswordRotation"
+    }
+  ],
+  "expected": [
+    "TestAccountPersonalSettingsWebPasswordRotation"
+  ],
+  "failures": []
+}

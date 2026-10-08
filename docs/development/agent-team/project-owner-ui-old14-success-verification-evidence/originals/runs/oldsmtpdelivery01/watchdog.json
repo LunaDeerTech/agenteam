@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 17999.644596608,
+      "top": "TestAccountSystemSMTPDeliveryWebTestAndRetry"
+    },
+    {
+      "event": "result",
+      "monotonic": 18028.445843276,
+      "observed_seconds": 28.801246668001113,
+      "reported_seconds": 28.78,
+      "state": "PASS",
+      "top": "TestAccountSystemSMTPDeliveryWebTestAndRetry"
+    }
+  ],
+  "expected": [
+    "TestAccountSystemSMTPDeliveryWebTestAndRetry"
+  ],
+  "failures": []
+}

@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 16906.424270605,
+      "top": "TestAccountSystemProvidersWebCredentialReplacement"
+    },
+    {
+      "event": "result",
+      "monotonic": 16918.040085585,
+      "observed_seconds": 11.615814979999413,
+      "reported_seconds": 11.6,
+      "state": "PASS",
+      "top": "TestAccountSystemProvidersWebCredentialReplacement"
+    }
+  ],
+  "expected": [
+    "TestAccountSystemProvidersWebCredentialReplacement"
+  ],
+  "failures": []
+}

@@ -1,0 +1,18 @@
+{
+  "executable_now": false,
+  "failure_review": {
+    "path": "/workspace/scratch/owner-ui-runtime-verification/oldprofile01-result-review/review.md",
+    "sha256": "707d99ab78e94aca6d48843061fb92ddbb9da4f2c1283923af1c06dd7044fca2"
+  },
+  "historical_pending_note": "handoff was sealed just before this root message; its failure-review pending field is historical and resolved only by this separate reference, not rewritten",
+  "preparation_handoff": {
+    "path": "/workspace/scratch/owner-ui-backend/old14-continuation01/handoff.json",
+    "sha256": "5ff1f28bd3ce8f0bc8e97a52c23726f7a9a62abe439027248471e2a8c57b9350"
+  },
+  "root_authorized_resources": false,
+  "root_disposition": "sealed failure/retirement limited review accepted; prior auth2 author PASS may be composed within unchanged auth dependencies; oldprofile01 original FAIL and absent body/UI evidence remain; fourteen remaining tops require actual final facts",
+  "root_supplied_failure_review_manifest_sha256": "06ef47da268d0a09a386a046dda1c08310e063775af2c7786e07139ecef08284",
+  "source_acceptance_pending": true,
+  "state": "STOP_FIXED_FAILURE_REVIEW_REFERENCE_ONLY",
+  "tests_or_resources_executed": false
+}

@@ -1,0 +1,55 @@
+{
+  "schema": "owner-ui-old14-permanent-archive-v1",
+  "scope": "OLD14_BATCH01 author actual 14 PASS and limited independent sealed-original/owned-retirement acceptance. Not independent actual A/B, fresh final05 all16 execution, README22 or complete D27.",
+  "logical_originals": 391,
+  "logical_original_bytes": 6080712,
+  "category_totals": {
+    "round_handoff": {
+      "logical_files": 14,
+      "logical_bytes": 107916
+    },
+    "round_launch": {
+      "logical_files": 14,
+      "logical_bytes": 178502
+    },
+    "run_original": {
+      "logical_files": 336,
+      "logical_bytes": 5488348
+    },
+    "batch_result": {
+      "logical_files": 2,
+      "logical_bytes": 28769
+    },
+    "root_asset_record": {
+      "logical_files": 2,
+      "logical_bytes": 9934
+    },
+    "continuation_preparation": {
+      "logical_files": 2,
+      "logical_bytes": 28190
+    },
+    "final05_author": {
+      "logical_files": 8,
+      "logical_bytes": 59458
+    },
+    "root_true_input": {
+      "logical_files": 1,
+      "logical_bytes": 45246
+    },
+    "independent_prepared": {
+      "logical_files": 3,
+      "logical_bytes": 15875
+    },
+    "independent_result": {
+      "logical_files": 9,
+      "logical_bytes": 118474
+    }
+  },
+  "distinct_content_sha256": 258,
+  "new_physical_original_files": 253,
+  "new_physical_original_bytes": 4807752,
+  "reused_prior_physical_originals": 5,
+  "reused_prior_physical_bytes": 43935,
+  "reused_prior_logical_originals": 84,
+  "same_sha_logical_deduplication": 133
+}

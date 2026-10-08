@@ -1,0 +1,3847 @@
+{
+  "schema": "owner-ui-old14-permanent-archive-v1",
+  "scope": "OLD14_BATCH01 author actual 14 PASS and limited independent sealed-original/owned-retirement acceptance. Not independent actual A/B, fresh final05 all16 execution, README22 or complete D27.",
+  "administrative_baseline_reported_by_root": "7410e866",
+  "baseline_check_limit": "Root supplied archive baseline; no Git command, current dist, host, or active independent-window input was read by the archivist.",
+  "original_batch_result_sha256": "f8f36ced07c67ffd731ee75d505816b5e246d8db7f600655002ed193602b70f1",
+  "originals": [
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldprofile02-handoff.json",
+      "archive": "originals/handoffs/oldprofile02.json",
+      "sha256": "ad82fadfc79160116f9a7609c132d42d288e2cbd372009eb5403c9d69b0bce36",
+      "bytes": 7681,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldprofile02-launch.raw",
+      "archive": "originals/launch/oldprofile02.raw",
+      "sha256": "89b6d9d4b2e6d971b6f7ca15169a6a2447c6e1e711594bbf1473be13b7a48bc9",
+      "bytes": 9820,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/adopted-waits.json",
+      "archive": "originals/runs/oldprofile02/adopted-waits.json",
+      "sha256": "056742643a38935e990ee9b13d0b3044651dc2054ba1340598f96a839a41e302",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/cleanup.json",
+      "archive": "originals/runs/oldprofile02/cleanup.json",
+      "sha256": "6abe2576b3636d06766bb3e42cf1c7b694ddb01f6e4dc7fd05575bf4115c8dd4",
+      "bytes": 27531,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/command.json",
+      "archive": "originals/runs/oldprofile02/command.json",
+      "sha256": "cf06cf6c44f69b6dbd833cd8df24ed95f6a13ee96129dace3df4dd5d09078d70",
+      "bytes": 2619,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/disk-before-spawn.json",
+      "archive": "originals/runs/oldprofile02/disk-before-spawn.json",
+      "sha256": "3fa1dc2355ea8119b32db36421f2a8b489c5078195b9a3217e6ffe1aa599425f",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/disk-preflight.json",
+      "archive": "originals/runs/oldprofile02/disk-preflight.json",
+      "sha256": "8f7aa61e8d7b7380123f25652f18f28988f6481d370d4e935c15ad1b90a37be6",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/observed-processes.json",
+      "archive": "originals/runs/oldprofile02/observed-processes.json",
+      "sha256": "f5920133440a514fd01df8a93c430479f4c992d861b0b2fc2690a565c1608876",
+      "bytes": 15950,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/observed-resources.json",
+      "archive": "originals/runs/oldprofile02/observed-resources.json",
+      "sha256": "bf8c684f7f9654af043b7cf069caf245fcc8ca60617a93117c2dc131188e4561",
+      "bytes": 5051,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/process-baseline.json",
+      "archive": "originals/runs/oldprofile02/process-baseline.json",
+      "sha256": "056c82ce24ee57b0b0093cf172621c04d8b491dbea07c8f616784d39cf5c0f25",
+      "bytes": 11580,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/raw.log",
+      "archive": "originals/runs/oldprofile02/raw.log",
+      "sha256": "7ee05226c590db08d7323efac20e242054e985814a1eb2708584d5a7f3b5684e",
+      "bytes": 4307,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/result.json",
+      "archive": "originals/runs/oldprofile02/result.json",
+      "sha256": "f3a0001f853a8ece09221d8576a8be3a3af2d1ad079a4b360950f691d31ff28a",
+      "bytes": 13493,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/tcp-baseline.json",
+      "archive": "originals/runs/oldprofile02/tcp-baseline.json",
+      "sha256": "8c17a985fdad4e7bbf952ba6683f38078251f226526c4686b5f8019f1e22a7f0",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/tcp-observed-delta.json",
+      "archive": "originals/runs/oldprofile02/tcp-observed-delta.json",
+      "sha256": "a2ab223f66b49256e7319ca2c920b8e005ef1e53bde74f8da6f14a638439388c",
+      "bytes": 9167,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/tcp-tail-observation.json",
+      "archive": "originals/runs/oldprofile02/tcp-tail-observation.json",
+      "sha256": "2564ced30b1cb54a9a84f40ed8a88406798c91bdc815145b1b3ed5b469ecc40d",
+      "bytes": 135556,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02/watchdog.json",
+      "archive": "originals/runs/oldprofile02/watchdog.json",
+      "sha256": "14f95e250c39a64ba746dff87858bf09822712148b28fcf97f7858d304730498",
+      "bytes": 546,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldtheme01-handoff.json",
+      "archive": "originals/handoffs/oldtheme01.json",
+      "sha256": "eb97cb8805630d182b342779b9098b05af130c634276aa1a266dc1730d5aecc8",
+      "bytes": 7680,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldtheme01-launch.raw",
+      "archive": "originals/launch/oldtheme01.raw",
+      "sha256": "17265a87f0aa9d37af4987f0ab77b5280e1306d9c81a09fff9ff1d1df546ed8b",
+      "bytes": 10258,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/adopted-waits.json",
+      "archive": "originals/runs/oldtheme01/adopted-waits.json",
+      "sha256": "84261d35c9bdd8e6808ad9d47e32d8a002c275bfba76d89d1137dd03367d2f04",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/cleanup.json",
+      "archive": "originals/runs/oldtheme01/cleanup.json",
+      "sha256": "b376f48e95cf7d25eb232eb55b4781cf7b4a7d6f83907344e1272f16d01a83d7",
+      "bytes": 28915,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/command.json",
+      "archive": "originals/runs/oldtheme01/command.json",
+      "sha256": "a191fe57ed359bbbd915de1ab0b66e458ab576fbd5860ab94e3b9d46fe350620",
+      "bytes": 2612,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/disk-before-spawn.json",
+      "archive": "originals/runs/oldtheme01/disk-before-spawn.json",
+      "sha256": "f7c0166b9e43e936415d119b2e1e251a893d53b3e35038f99d4128f2b68f5fb0",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/disk-preflight.json",
+      "archive": "originals/runs/oldtheme01/disk-preflight.json",
+      "sha256": "ac40221e861c3e8cc7c94f3c39eb3805e45f7017900fe3ddd89c24449f5b62cf",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/observed-processes.json",
+      "archive": "originals/runs/oldtheme01/observed-processes.json",
+      "sha256": "493a643b6840863749a829fdc6db63da7d6a2019fed9d76d7f85251c2e5ed866",
+      "bytes": 17731,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/observed-resources.json",
+      "archive": "originals/runs/oldtheme01/observed-resources.json",
+      "sha256": "c8907cdedb2e9e8d6d6ab157bd73feca03e7c88c941f84215b3bfd5a2acb2132",
+      "bytes": 5043,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/process-baseline.json",
+      "archive": "originals/runs/oldtheme01/process-baseline.json",
+      "sha256": "5d617efc2b64ee5bdb0593181ba600bee7b9fa156e9535073d4442abbf2611ce",
+      "bytes": 11985,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/raw.log",
+      "archive": "originals/runs/oldtheme01/raw.log",
+      "sha256": "765c672eeee67f2180ecfc9a8d53cbb06d7a2798a13bbded9935cf0cedf1e7ed",
+      "bytes": 4950,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/result.json",
+      "archive": "originals/runs/oldtheme01/result.json",
+      "sha256": "53c6a9a00ec5c53df879bddfa0bbbd36b9c84743b3c695074bf3f97d7f07b488",
+      "bytes": 14115,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/tcp-baseline.json",
+      "archive": "originals/runs/oldtheme01/tcp-baseline.json",
+      "sha256": "db4d3cc85854e27fb312b8a9aff6dd5f8350cd35925d6eb39a64ba9a1eaf8305",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldtheme01/tcp-observed-delta.json",
+      "sha256": "e0831170b483b9e764fecc0d1c24da3096a8129db7ef291abe84401a5e7d29ec",
+      "bytes": 11332,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldtheme01/tcp-tail-observation.json",
+      "sha256": "622a9e26d9ccf2bd1abf925237f306a70d4a883769e424dd85be72f2cb334a13",
+      "bytes": 172363,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01/watchdog.json",
+      "archive": "originals/runs/oldtheme01/watchdog.json",
+      "sha256": "10757437d424093544fceb6d9f919f37c56ded104349ae319f6e50e01c8b63bc",
+      "bytes": 552,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldpassword01-handoff.json",
+      "archive": "originals/handoffs/oldpassword01.json",
+      "sha256": "4b775000da5d5519d6d6a2dc3d5f13fa3f372e33d405a3268f18f43efa84ee1a",
+      "bytes": 7688,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldpassword01-launch.raw",
+      "archive": "originals/launch/oldpassword01.raw",
+      "sha256": "ca8233ef9ae093a4c40ab9335cd19ec8d45ee807aa1f7be0a0f3e2c10c643efe",
+      "bytes": 10716,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/adopted-waits.json",
+      "archive": "originals/runs/oldpassword01/adopted-waits.json",
+      "sha256": "bfe95eb9896077b7a19af87274ae2a1288c338037698bbde7a767b525db2e9e6",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/cleanup.json",
+      "archive": "originals/runs/oldpassword01/cleanup.json",
+      "sha256": "a5e9a5d7eaaec7f4c3ba76ea8af783358c4e51bb52532a2283316acc079c037b",
+      "bytes": 30299,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/command.json",
+      "archive": "originals/runs/oldpassword01/command.json",
+      "sha256": "3df3fe5935e4a43d96abb4e62e125874f79309cef97f00dc184c202d7a7142f7",
+      "bytes": 2625,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/disk-before-spawn.json",
+      "archive": "originals/runs/oldpassword01/disk-before-spawn.json",
+      "sha256": "815002b104924950e860450b0b222430728a2e28858e69a2d1db07e63bcc6e3c",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/disk-preflight.json",
+      "archive": "originals/runs/oldpassword01/disk-preflight.json",
+      "sha256": "aeb90dc97570e4b0f09c20104a16dcd382c823215b3f5f49b6b4bd0b8e0b946f",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/observed-processes.json",
+      "archive": "originals/runs/oldpassword01/observed-processes.json",
+      "sha256": "6bfc52c6dbe1fb69621e4295584aceab27e354634968655f6a3dad5c9c32e488",
+      "bytes": 17584,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/observed-resources.json",
+      "archive": "originals/runs/oldpassword01/observed-resources.json",
+      "sha256": "fe013f7c9d0cb104cf4314a5b00a99e9b44e8bc213c45f9634b00c4d1e5c79c5",
+      "bytes": 5058,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/process-baseline.json",
+      "archive": "originals/runs/oldpassword01/process-baseline.json",
+      "sha256": "bb112c3bbfbe78ff62812815aaed182a5738710b811306e5efe7de98ac07ddb7",
+      "bytes": 12513,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/raw.log",
+      "archive": "originals/runs/oldpassword01/raw.log",
+      "sha256": "7cb88af9d5821d9dd2f5f603fa007965d9dbf30ffd5048d782786e0e5640e846",
+      "bytes": 4343,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/result.json",
+      "archive": "originals/runs/oldpassword01/result.json",
+      "sha256": "d3da192ecbba7ca787c1a0f75073326f5f3d4cb8846f800a3ef3d9a3a5a7e0ac",
+      "bytes": 14756,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/tcp-baseline.json",
+      "archive": "originals/runs/oldpassword01/tcp-baseline.json",
+      "sha256": "3c4d3174669ffe285650a4106d8a1eccbacc8ed3f481d27e902941d2dfb4a8ee",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldpassword01/tcp-observed-delta.json",
+      "sha256": "9c684c6a3df194bcf658d156797923f5787e35acbf308411d4536b30e04267c2",
+      "bytes": 14337,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldpassword01/tcp-tail-observation.json",
+      "sha256": "bb265133eb70c53a4800c38012f1e595c1dc84a05630b9b29148017e8733ae74",
+      "bytes": 290789,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01/watchdog.json",
+      "archive": "originals/runs/oldpassword01/watchdog.json",
+      "sha256": "6698839e70ba0e114ce18fb3c54b9e900928ad12f64f7b980a782991756299b8",
+      "bytes": 547,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldinvite01-handoff.json",
+      "archive": "originals/handoffs/oldinvite01.json",
+      "sha256": "a61d93dfc316ab8b27ed4b6b723cba2c4f9d321c21447ccec7b83df86b510a4b",
+      "bytes": 7674,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldinvite01-launch.raw",
+      "archive": "originals/launch/oldinvite01.raw",
+      "sha256": "aa3f37e572c2c45a3b01909c3b3bf1630f1678fa25831f3f02562e08ac4e0c6a",
+      "bytes": 11147,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/adopted-waits.json",
+      "archive": "originals/runs/oldinvite01/adopted-waits.json",
+      "sha256": "6937e2018a37addfcd0ece25c347d0c9f07675797245855e679ab927f1a9fc2c",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/cleanup.json",
+      "archive": "originals/runs/oldinvite01/cleanup.json",
+      "sha256": "bc02b9f6b251208ad2154a2b900fdca9857ebd1676979470e8af7fef461140be",
+      "bytes": 31683,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/command.json",
+      "archive": "originals/runs/oldinvite01/command.json",
+      "sha256": "b32ef261407eaad4246e971b8f54e03ebc74dc905edbac538478db9263d36947",
+      "bytes": 2615,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/disk-before-spawn.json",
+      "archive": "originals/runs/oldinvite01/disk-before-spawn.json",
+      "sha256": "ba526b519081685c13557e12c8659fffb4b8e0032b331e1a87b324cf9bc65e7a",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/disk-preflight.json",
+      "archive": "originals/runs/oldinvite01/disk-preflight.json",
+      "sha256": "19a5b7c516b31255bff5fb987087db06bdd90d00b7d4a5334c2a10f13b8ee0c8",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/observed-processes.json",
+      "archive": "originals/runs/oldinvite01/observed-processes.json",
+      "sha256": "6d36f7c298485facf3c54efa0bafe98991511c1f8a9b2b96fa453aef69549a18",
+      "bytes": 16105,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/observed-resources.json",
+      "archive": "originals/runs/oldinvite01/observed-resources.json",
+      "sha256": "1295243e5b1ca97d43e2b46cc9932411ae24cf42455cf5ff2c62dbb26281ecad",
+      "bytes": 5048,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/process-baseline.json",
+      "archive": "originals/runs/oldinvite01/process-baseline.json",
+      "sha256": "bd36400fbd1082f311af72d4b5d15ae0318d348fdaa989361df6bb76bacbd44b",
+      "bytes": 13041,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/raw.log",
+      "archive": "originals/runs/oldinvite01/raw.log",
+      "sha256": "a338cc44183f1031544ea0ea6158d12a554e93718affa8d06067c785d0b89dab",
+      "bytes": 4761,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/result.json",
+      "archive": "originals/runs/oldinvite01/result.json",
+      "sha256": "8e0a5ee79cc1b58e34e0dc4bb733c65f624d607fab32c58dec6b77bd5f88c384",
+      "bytes": 15373,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/tcp-baseline.json",
+      "archive": "originals/runs/oldinvite01/tcp-baseline.json",
+      "sha256": "36c242fbd67895c1bd0316f728d66f7248251c0b80b25aa9afbe02d1cf80181a",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldinvite01/tcp-observed-delta.json",
+      "sha256": "171db364b67a377c54baf6696f884f5fda8da285dc8af2e0ecdce73a0b9a35f9",
+      "bytes": 8887,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldinvite01/tcp-tail-observation.json",
+      "sha256": "de7695c2f507576454c3d4f529caf57187e535273c869938bcfcc34a61becc8e",
+      "bytes": 126849,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01/watchdog.json",
+      "archive": "originals/runs/oldinvite01/watchdog.json",
+      "sha256": "deb4444f5f1a6ee35a0c6d76e3e9ff96854b08b7900ae07334dc42cdbf74bbce",
+      "bytes": 547,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldproviders01-handoff.json",
+      "archive": "originals/handoffs/oldproviders01.json",
+      "sha256": "546c7333e01fb6338638ce26ad5cdeac2562e37d81a6f318001bd03bdb71b083",
+      "bytes": 7688,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldproviders01-launch.raw",
+      "archive": "originals/launch/oldproviders01.raw",
+      "sha256": "bb1e03d178c43f4c394f9665e5913aa608eccf6e068c2b3658e6b5010442aacb",
+      "bytes": 11618,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/adopted-waits.json",
+      "archive": "originals/runs/oldproviders01/adopted-waits.json",
+      "sha256": "72d9fb2235f136112eb870775ceab7cabd811d2565b65e38171f2d44080b20bd",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/cleanup.json",
+      "archive": "originals/runs/oldproviders01/cleanup.json",
+      "sha256": "a48174b95262274e0060b40aab2e5d5f76b5c6835f349da3608869a9551675a8",
+      "bytes": 33067,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/command.json",
+      "archive": "originals/runs/oldproviders01/command.json",
+      "sha256": "8e9470329e1fd72c51ee88b476f18cfc1e70829d0323d4ad7cbc1a0f7dc70c5c",
+      "bytes": 2633,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/disk-before-spawn.json",
+      "archive": "originals/runs/oldproviders01/disk-before-spawn.json",
+      "sha256": "f47963eb185a3e330f1e0e4e50ed4cb2703f8f24adde1320ed44e69ab7d24820",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/disk-preflight.json",
+      "archive": "originals/runs/oldproviders01/disk-preflight.json",
+      "sha256": "281d7c140346b044a2c98365db824fa9d2fe954f6dc048f4c64c948bdeade3be",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/observed-processes.json",
+      "archive": "originals/runs/oldproviders01/observed-processes.json",
+      "sha256": "c61d5f0c5ebae324b2fb28f172bb7bfc8c34d3a26c242f2744398b46fb32644a",
+      "bytes": 16272,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/observed-resources.json",
+      "archive": "originals/runs/oldproviders01/observed-resources.json",
+      "sha256": "d4e87c788f050fa778d4e9e8c194858c0cd810385438b290086ba391bdce3c65",
+      "bytes": 5063,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/process-baseline.json",
+      "archive": "originals/runs/oldproviders01/process-baseline.json",
+      "sha256": "893da37e698a843e591493ede69bf8727d1f5d412b7c58f74058f6e22db276d4",
+      "bytes": 13569,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/raw.log",
+      "archive": "originals/runs/oldproviders01/raw.log",
+      "sha256": "b0a8c8fad56b12f924b57b329793c1cc7c7c084b58709a80e101feedceab8770",
+      "bytes": 4214,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/result.json",
+      "archive": "originals/runs/oldproviders01/result.json",
+      "sha256": "2c276fb3868ff5c58eb4843b60051853d401b443e9fd68e1e00c7836b42413c7",
+      "bytes": 16021,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/tcp-baseline.json",
+      "archive": "originals/runs/oldproviders01/tcp-baseline.json",
+      "sha256": "54050f6429d5e50d80caabbc907ae054914e5e7071af7d1d658f595f36a34213",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldproviders01/tcp-observed-delta.json",
+      "sha256": "a02956144edb1e89bc77da0b9cf6ccf729fbd1f321cff98e8dbd7b7c22121cef",
+      "bytes": 7582,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldproviders01/tcp-tail-observation.json",
+      "sha256": "466b23d6a7cf629ecb74601a0b21e6db4246c0cc5a5af3888613970e2d2a8371",
+      "bytes": 132379,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01/watchdog.json",
+      "archive": "originals/runs/oldproviders01/watchdog.json",
+      "sha256": "570f40592c824c081067baa3aff0144e2e87dbaf32ce219a99d8ecafcdc23748",
+      "bytes": 558,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldmodels01-handoff.json",
+      "archive": "originals/handoffs/oldmodels01.json",
+      "sha256": "282293b136ecde3074702611414dbaa8e8f60a5ae1e283e9fcd2bd4435271327",
+      "bytes": 7659,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldmodels01-launch.raw",
+      "archive": "originals/launch/oldmodels01.raw",
+      "sha256": "3c699e548439b6cb9507ddfab862b018f04d7ab00bba8466662e016ed73a88e0",
+      "bytes": 12026,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/adopted-waits.json",
+      "archive": "originals/runs/oldmodels01/adopted-waits.json",
+      "sha256": "0df576264f039627e45ef5a27820fa98771ca6f9542c3544e9c2d98f8caa0cb8",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/cleanup.json",
+      "archive": "originals/runs/oldmodels01/cleanup.json",
+      "sha256": "74e6ab472c4033003f09b1772b111f175cfb7fdefd684e38969e3d90c18dcd1a",
+      "bytes": 34451,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/command.json",
+      "archive": "originals/runs/oldmodels01/command.json",
+      "sha256": "a77a0b89958bf136d52f5f32880d28f333a8e747e407d8a079043d05bb18179a",
+      "bytes": 2610,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/disk-before-spawn.json",
+      "archive": "originals/runs/oldmodels01/disk-before-spawn.json",
+      "sha256": "9d9363a8bbc1118182bf8ac5ebeb1ff092e0d512aa34048b92dccb44a8108b20",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/disk-preflight.json",
+      "archive": "originals/runs/oldmodels01/disk-preflight.json",
+      "sha256": "d092057d4a2ce574291f0ea9cc75a97cbb0c939a29e2c58566df8b0bf2346a19",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/observed-processes.json",
+      "archive": "originals/runs/oldmodels01/observed-processes.json",
+      "sha256": "944861a3c7bc02068de2370dfba30c868b74bc0b28d656a9229340905a34afae",
+      "bytes": 16272,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/observed-resources.json",
+      "archive": "originals/runs/oldmodels01/observed-resources.json",
+      "sha256": "29d08f8e0b06fab3098d8014b9fbff9a8883e068cdc3bdbfca8a40d28dc780da",
+      "bytes": 5040,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/process-baseline.json",
+      "archive": "originals/runs/oldmodels01/process-baseline.json",
+      "sha256": "1ad0f1fb986e282ac7b3fe092bbf7e4220756fb28f054bb6b184310ea9e09311",
+      "bytes": 14097,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/raw.log",
+      "archive": "originals/runs/oldmodels01/raw.log",
+      "sha256": "9358695eca3addad5ff2366cb8bc26c993c4828544a5165f860242b299878572",
+      "bytes": 4161,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/result.json",
+      "archive": "originals/runs/oldmodels01/result.json",
+      "sha256": "819a4d6a6d30d39abc14cd2eb54aa451965b42ca340050399bef6f959d1247c0",
+      "bytes": 16625,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/tcp-baseline.json",
+      "archive": "originals/runs/oldmodels01/tcp-baseline.json",
+      "sha256": "e3bd364ce3485ed82eaa3136b628bfaddf594bb7f8398caa47bb326f0f0ff3b5",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldmodels01/tcp-observed-delta.json",
+      "sha256": "d9f2300f66a383a5ba336fc7f21f71c07ab3d9cc126c7e47788ab486f4501d7d",
+      "bytes": 8742,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldmodels01/tcp-tail-observation.json",
+      "sha256": "c08acecae751f814a8b9ceb69f686eb007c0d145ad74582d38e83a5acfe3c03d",
+      "bytes": 125813,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01/watchdog.json",
+      "archive": "originals/runs/oldmodels01/watchdog.json",
+      "sha256": "91c9d30c1d21aee4d74699cee4a63edb09185da06cab89148540d8084bfa65f9",
+      "bytes": 530,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldselection01-handoff.json",
+      "archive": "originals/handoffs/oldselection01.json",
+      "sha256": "6b476898edb195463997b4d520037d331d162b80c6f3e5b335bc089704374b61",
+      "bytes": 7688,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldselection01-launch.raw",
+      "archive": "originals/launch/oldselection01.raw",
+      "sha256": "6248f8ae49b07e5e464d04afd0b59acb493dadd84e55cd67a3aee411504d936a",
+      "bytes": 12504,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/adopted-waits.json",
+      "archive": "originals/runs/oldselection01/adopted-waits.json",
+      "sha256": "8de8103e68f6dd45ef35e5dbfa58a29c368bd697ff10489e86f4c377bee7c4ef",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/cleanup.json",
+      "archive": "originals/runs/oldselection01/cleanup.json",
+      "sha256": "9f400388ab9c2efce1a5224a35ff3fcab7b9321c2798108bfad8fefab93562b4",
+      "bytes": 35835,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/command.json",
+      "archive": "originals/runs/oldselection01/command.json",
+      "sha256": "11b36a29df00c544b171e228965e4fcac2595fb11ab98cbb7879de0979b2d708",
+      "bytes": 2632,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/disk-before-spawn.json",
+      "archive": "originals/runs/oldselection01/disk-before-spawn.json",
+      "sha256": "25a6cdf6548562b24107239943e7270b37b52355cd3aae5c23c3f6dd2e896d50",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/disk-preflight.json",
+      "archive": "originals/runs/oldselection01/disk-preflight.json",
+      "sha256": "9f71ad98845960b5f698638b596d6d68fb34d4d843769b28fcaf00ba52474e3b",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/observed-processes.json",
+      "archive": "originals/runs/oldselection01/observed-processes.json",
+      "sha256": "53de13e7b995dcf38630c69c68ffe477ecf343f8f3c6207406c3e161e6980fa1",
+      "bytes": 16755,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/observed-resources.json",
+      "archive": "originals/runs/oldselection01/observed-resources.json",
+      "sha256": "7d7ddb4f9681921e8d56901d3bea2d6b80ecacc45b2782e6193dd73a3c0a036a",
+      "bytes": 5057,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/process-baseline.json",
+      "archive": "originals/runs/oldselection01/process-baseline.json",
+      "sha256": "eabfa3be8171ea555bc73f7d6b9ae66926334f1cde636288e90a136a884e9ec4",
+      "bytes": 14625,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/raw.log",
+      "archive": "originals/runs/oldselection01/raw.log",
+      "sha256": "077577e096c8dfc4015315f3bff60afba5d4b34642c20079e99550ddc91dceec",
+      "bytes": 4189,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/result.json",
+      "archive": "originals/runs/oldselection01/result.json",
+      "sha256": "d5bec34db8184b5f6c51701e8ca38ce681871fc8d0ef04b90553ccd5adc0761d",
+      "bytes": 17276,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/tcp-baseline.json",
+      "archive": "originals/runs/oldselection01/tcp-baseline.json",
+      "sha256": "209d87006f94ac29f319f4518d33d33d175c9584184c336b09b8db99d3208af3",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldselection01/tcp-observed-delta.json",
+      "sha256": "2043188643f5b65f7848a9dfe9a4baafd8dc7c4de0637a5df54c8886b3c5948e",
+      "bytes": 9228,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldselection01/tcp-tail-observation.json",
+      "sha256": "f1f2603a0c62a37a63c2d4c7572be4efc3309256dbd03433219b3a205475ddbf",
+      "bytes": 117259,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01/watchdog.json",
+      "archive": "originals/runs/oldselection01/watchdog.json",
+      "sha256": "5949df6fc1f211010df0556cc972e8a542268e54baa63c440c21318611456a35",
+      "bytes": 556,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldsummaryrec01-handoff.json",
+      "archive": "originals/handoffs/oldsummaryrec01.json",
+      "sha256": "7bb4de72634dad2720e43a77b88bf1fa67cd5a13b620c32f0230d474c20a772e",
+      "bytes": 7683,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldsummaryrec01-launch.raw",
+      "archive": "originals/launch/oldsummaryrec01.raw",
+      "sha256": "61c6e322a98269d02fcb429cdbafb3c5adc78a9c089c5483b5ab97509b8152d9",
+      "bytes": 12939,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/adopted-waits.json",
+      "archive": "originals/runs/oldsummaryrec01/adopted-waits.json",
+      "sha256": "8909e2afe1449571566f29d3787733de023d5865eb74f28ad584f9c4b0ec33a2",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/cleanup.json",
+      "archive": "originals/runs/oldsummaryrec01/cleanup.json",
+      "sha256": "7e87b59f2f053e6f0cb5414e958d5ce1ca156dd28032da5a49e24666a0e8f9d6",
+      "bytes": 37219,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/command.json",
+      "archive": "originals/runs/oldsummaryrec01/command.json",
+      "sha256": "e51949b1f07512967ad72bb1da14961b548ad72fef7dc5f6df880bacd77fe8ed",
+      "bytes": 2630,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/disk-before-spawn.json",
+      "archive": "originals/runs/oldsummaryrec01/disk-before-spawn.json",
+      "sha256": "eea69f58b31963ff48f28251c1bc09f004399045c17e448bd3844d42bd6f8635",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/disk-preflight.json",
+      "archive": "originals/runs/oldsummaryrec01/disk-preflight.json",
+      "sha256": "cbb8f655f1cd4f3ab632ab0ef1031e6f609be1655e1807d03627faaf7ff0eecd",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/observed-processes.json",
+      "archive": "originals/runs/oldsummaryrec01/observed-processes.json",
+      "sha256": "df88f827212cf14ef2ba90c5ece7915aae44c344cd24e7ee0b13979893c746da",
+      "bytes": 16427,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/observed-resources.json",
+      "archive": "originals/runs/oldsummaryrec01/observed-resources.json",
+      "sha256": "762a727193eea9809b7b2faff25db6aa71553eb34ed576d94bb67d34bcd29c4b",
+      "bytes": 5068,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/process-baseline.json",
+      "archive": "originals/runs/oldsummaryrec01/process-baseline.json",
+      "sha256": "1c3e3d6c6ca3c5aaf1fb5b0ecd7a6d092b8eae5bb944ec2baba33ab06fc6084b",
+      "bytes": 15153,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/raw.log",
+      "archive": "originals/runs/oldsummaryrec01/raw.log",
+      "sha256": "6567d6dfa19c00c966cc64f6be974a04f015f0efcfca1d416665e221b7ca7230",
+      "bytes": 4182,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/result.json",
+      "archive": "originals/runs/oldsummaryrec01/result.json",
+      "sha256": "9e113681388f3b809ca5f421c18463390ec38af156b713d826008169fcd2d12e",
+      "bytes": 17901,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/tcp-baseline.json",
+      "archive": "originals/runs/oldsummaryrec01/tcp-baseline.json",
+      "sha256": "596fe3dc48426cbf33dd150e082a187fe1b08859a69a58cf12ae37a752f2c9ab",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldsummaryrec01/tcp-observed-delta.json",
+      "sha256": "b6648b2d62aa53c3c34818916ed3a7f3943a38662e61fb51c9a8d37714bc6357",
+      "bytes": 7629,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldsummaryrec01/tcp-tail-observation.json",
+      "sha256": "3a8c54283d74ac990ad3e73826ff6e0aa7ee6811ac2d159ccf55a3557b886c25",
+      "bytes": 113408,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01/watchdog.json",
+      "archive": "originals/runs/oldsummaryrec01/watchdog.json",
+      "sha256": "1ab8eac792ad6e5652a7b96c194862f3078da4c559c98dff693abd58a1290721",
+      "bytes": 535,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldsummarynav01-handoff.json",
+      "archive": "originals/handoffs/oldsummarynav01.json",
+      "sha256": "5229169cc7b0a6a3a539f7dca6b6c3048ce98e6bae72f3cb9df2f45be3733445",
+      "bytes": 7708,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldsummarynav01-launch.raw",
+      "archive": "originals/launch/oldsummarynav01.raw",
+      "sha256": "fd8cef84475d953d7627748c5e365772869648b03f8049dc8b1ca53644d615a3",
+      "bytes": 13407,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/adopted-waits.json",
+      "archive": "originals/runs/oldsummarynav01/adopted-waits.json",
+      "sha256": "ddca429aa40d5c3be36854f0b91a054223c5c17d4da1dff93e5e29cfef133554",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/cleanup.json",
+      "archive": "originals/runs/oldsummarynav01/cleanup.json",
+      "sha256": "aa55d501e0b75c6c7080bbde579f982e6a07ab4803f3cdb4827f67ec619edf71",
+      "bytes": 38603,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/command.json",
+      "archive": "originals/runs/oldsummarynav01/command.json",
+      "sha256": "8ff6b86822699feaadfc5db0fc36f6095925799ef4425527ac0ac376ad249588",
+      "bytes": 2641,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/disk-before-spawn.json",
+      "archive": "originals/runs/oldsummarynav01/disk-before-spawn.json",
+      "sha256": "def3c1b3f7a2c0ce51f42dac0f5fa88a88f4390046d0844a4ae959afccbcb257",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/disk-preflight.json",
+      "archive": "originals/runs/oldsummarynav01/disk-preflight.json",
+      "sha256": "0942ad882d8609a7069fffe38fcc465e127394338e457c7f83d851b9ef4ab61c",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/observed-processes.json",
+      "archive": "originals/runs/oldsummarynav01/observed-processes.json",
+      "sha256": "f8643d586a8f1f6ef8e520311645f43e0fc5cb865e7f5b317b7a82347a7937f8",
+      "bytes": 16425,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/observed-resources.json",
+      "archive": "originals/runs/oldsummarynav01/observed-resources.json",
+      "sha256": "b06a519be3d522a9b27e02efe2292941d069a6debc8b94a5f3b5f6c192134f87",
+      "bytes": 5066,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/process-baseline.json",
+      "archive": "originals/runs/oldsummarynav01/process-baseline.json",
+      "sha256": "c06c8317687fa5de66b15f14b99a9612e3b672bff3e597ac60a9b36a2b0f9c24",
+      "bytes": 15681,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/raw.log",
+      "archive": "originals/runs/oldsummarynav01/raw.log",
+      "sha256": "085253f6a4a718e7eacac9aebe2f4a08ea37b623c8095257f1f8923273c2ae70",
+      "bytes": 4502,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/result.json",
+      "archive": "originals/runs/oldsummarynav01/result.json",
+      "sha256": "1f0b35399e82b238d64da0bb1aadbbe9caad7f04f003fa0d171d5c94102b0a96",
+      "bytes": 18542,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/tcp-baseline.json",
+      "archive": "originals/runs/oldsummarynav01/tcp-baseline.json",
+      "sha256": "fad874202e2ece7def1cc90c31962c61c49caf3594d51754e3e2b54c6cb68323",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldsummarynav01/tcp-observed-delta.json",
+      "sha256": "b3f9cd46637f2117261bba331148fa13b62f265129d47141c240486676c41009",
+      "bytes": 9083,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldsummarynav01/tcp-tail-observation.json",
+      "sha256": "b08c2ad44e153e94dec2e241d0e3f7293b93337a8104f15ceac8110e12c25561",
+      "bytes": 130182,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01/watchdog.json",
+      "archive": "originals/runs/oldsummarynav01/watchdog.json",
+      "sha256": "e0f22d21bc9a56ee2da80e0f6df7a8b937d220f951722447e88bdc3915748202",
+      "bytes": 567,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldaccountsec01-handoff.json",
+      "archive": "originals/handoffs/oldaccountsec01.json",
+      "sha256": "131dcae7174fae69b7af5e020566e770e48df4ffe32cd20107498862f6eebf5b",
+      "bytes": 7701,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldaccountsec01-launch.raw",
+      "archive": "originals/launch/oldaccountsec01.raw",
+      "sha256": "35337ba05823c8b40c1930d86f4547ac708516f127e15d8a7baa9d2ec5cf653b",
+      "bytes": 13844,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/adopted-waits.json",
+      "archive": "originals/runs/oldaccountsec01/adopted-waits.json",
+      "sha256": "d85fdab29f54cdbfa34462354a77c555f034c02aa26a3659765774fc735999ed",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/cleanup.json",
+      "archive": "originals/runs/oldaccountsec01/cleanup.json",
+      "sha256": "b3ec3fb62fae6e13a34f90b83d4cca5edf0a7e4a058b9d9315c07c76a12c6466",
+      "bytes": 39987,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/command.json",
+      "archive": "originals/runs/oldaccountsec01/command.json",
+      "sha256": "474f7595913ae34136772919b31b4bf134dd39173b476e110b7c19438f4f5d65",
+      "bytes": 2639,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/disk-before-spawn.json",
+      "archive": "originals/runs/oldaccountsec01/disk-before-spawn.json",
+      "sha256": "1267b6dc76c2b89607471d2412469f1d8eeddfe3a871aedb9724b5d70bcbc949",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/disk-preflight.json",
+      "archive": "originals/runs/oldaccountsec01/disk-preflight.json",
+      "sha256": "4a7e45776d945264a5a3fe227bfffa81059f44da14d966680b79977e6a77218b",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/observed-processes.json",
+      "archive": "originals/runs/oldaccountsec01/observed-processes.json",
+      "sha256": "83a0ef8015888cbba5cdaae6dbef96286028184542a4a20163ffc09099542396",
+      "bytes": 15789,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/observed-resources.json",
+      "archive": "originals/runs/oldaccountsec01/observed-resources.json",
+      "sha256": "8d14d42c3d646b1a5d5b77dc4a0099c47beb74fb7bd69cadfe8563831e8996c6",
+      "bytes": 5066,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/process-baseline.json",
+      "archive": "originals/runs/oldaccountsec01/process-baseline.json",
+      "sha256": "31345b79ab9f79fdac1d89262f90f0ad35b0f89ce197d1c7830afa0c226c492e",
+      "bytes": 16209,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/raw.log",
+      "archive": "originals/runs/oldaccountsec01/raw.log",
+      "sha256": "6bc63c38cf5088158766b487f0c89ef181b1550790c40d0954b72a7bb3b074d9",
+      "bytes": 4189,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/result.json",
+      "archive": "originals/runs/oldaccountsec01/result.json",
+      "sha256": "82710054891d61ca20c80934be30db044919aa2ff8d5be962d5033d28c423b83",
+      "bytes": 19166,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/tcp-baseline.json",
+      "archive": "originals/runs/oldaccountsec01/tcp-baseline.json",
+      "sha256": "bf135a13a10ccf2e859eff5b61f20a14e31b57776d88ac971f99c738c64f42c4",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldaccountsec01/tcp-observed-delta.json",
+      "sha256": "eec91e2c5cc72c6f73bab6e250337721e39a9e35ec262900d49b1022402d7672",
+      "bytes": 7477,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldaccountsec01/tcp-tail-observation.json",
+      "sha256": "b6c9c07d7b602958bbee0274ce627686083cef12265602f76e47625ffeacb2f2",
+      "bytes": 131372,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01/watchdog.json",
+      "archive": "originals/runs/oldaccountsec01/watchdog.json",
+      "sha256": "a93866126fe5fbeaada58c222e5d2a8c263532bec2b46d2b7c62679ba8d5dcf4",
+      "bytes": 559,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldsmtpsettings01-handoff.json",
+      "archive": "originals/handoffs/oldsmtpsettings01.json",
+      "sha256": "50a4ca61c4fd656c3210d3af1e05d7b969e18a3fcc6ea593b0c0618c7f07f6d7",
+      "bytes": 7699,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldsmtpsettings01-launch.raw",
+      "archive": "originals/launch/oldsmtpsettings01.raw",
+      "sha256": "4a0d38292e97ffc3fd10c609b328c1ef927a36f8c4deae2c4b1988b47ab2f85c",
+      "bytes": 14294,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/adopted-waits.json",
+      "archive": "originals/runs/oldsmtpsettings01/adopted-waits.json",
+      "sha256": "dba17ab2197570a20bd3ca95b64e18b099465778e5998718836727deb239d20c",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/cleanup.json",
+      "archive": "originals/runs/oldsmtpsettings01/cleanup.json",
+      "sha256": "15903e0ac6d66c7e3586f607c581d082a2777bb449ee210acc7e1eb1121cf1df",
+      "bytes": 41371,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/command.json",
+      "archive": "originals/runs/oldsmtpsettings01/command.json",
+      "sha256": "b4588f94882b9754680fc9feba94fef217d5a9a74f05dab581530d0575699842",
+      "bytes": 2646,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/disk-before-spawn.json",
+      "archive": "originals/runs/oldsmtpsettings01/disk-before-spawn.json",
+      "sha256": "31f1f98d3a5713882bbf4ab4d6853cb143114f5c99129ba3e2e7e35e9a9b17a9",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/disk-preflight.json",
+      "archive": "originals/runs/oldsmtpsettings01/disk-preflight.json",
+      "sha256": "30965c3f5361dad438cf615cf0466380517ae661bc4d7b4607a662100a003881",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/observed-processes.json",
+      "archive": "originals/runs/oldsmtpsettings01/observed-processes.json",
+      "sha256": "fd66a8b6c685337e984907214bc05f2e78fad15e0f0064933db0a0f2aa73ba2c",
+      "bytes": 16755,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/observed-resources.json",
+      "archive": "originals/runs/oldsmtpsettings01/observed-resources.json",
+      "sha256": "f3a3e6af7ae8b6c70947d8463420d77757e560e958b5a0fefbad74eb1b4d6c92",
+      "bytes": 5078,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/process-baseline.json",
+      "archive": "originals/runs/oldsmtpsettings01/process-baseline.json",
+      "sha256": "cdaf0a443f7c8cb138b4382118c4d409af3e62a5336b38788495c9aa1a1c711c",
+      "bytes": 16737,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/raw.log",
+      "archive": "originals/runs/oldsmtpsettings01/raw.log",
+      "sha256": "d55289f5061eccc0798f68bc13df11d2e9971cc53953a35e8efc27f3da00e515",
+      "bytes": 4138,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/result.json",
+      "archive": "originals/runs/oldsmtpsettings01/result.json",
+      "sha256": "8196535ea855e1507605cfec3cf352e6896bb86f31035a842c61b88fe90fe002",
+      "bytes": 19801,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/tcp-baseline.json",
+      "archive": "originals/runs/oldsmtpsettings01/tcp-baseline.json",
+      "sha256": "e22ea5373334d276f7d4744f20b036d2bb503e42b919797df87b3930d222f912",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldsmtpsettings01/tcp-observed-delta.json",
+      "sha256": "0e06dcf73d0911c603603b52583f8cf21697cf9c3d163c3a48971c2d2137a863",
+      "bytes": 11115,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldsmtpsettings01/tcp-tail-observation.json",
+      "sha256": "42f8cdcd0a2f06b03f7f8a8ffa87003f7a07673dd1985a92093ec75d549b133c",
+      "bytes": 154555,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01/watchdog.json",
+      "archive": "originals/runs/oldsmtpsettings01/watchdog.json",
+      "sha256": "816558a0434d9c3a8c2d40f4e2ed4adc33f5cdb3aa5a7c63d70ae5f1ce82cce7",
+      "bytes": 550,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldsmtpdelivery01-handoff.json",
+      "archive": "originals/handoffs/oldsmtpdelivery01.json",
+      "sha256": "e54e54f61d38f61fc78074fe1964c050be1cd8c89a636e59f0dbaf112733f9d4",
+      "bytes": 7995,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldsmtpdelivery01-launch.raw",
+      "archive": "originals/launch/oldsmtpdelivery01.raw",
+      "sha256": "139cab2695ec08aa8591caa0f877c63f5aac391908459b2fb77634c9aabefb67",
+      "bytes": 14954,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/adopted-waits.json",
+      "archive": "originals/runs/oldsmtpdelivery01/adopted-waits.json",
+      "sha256": "7a9295f8a88f227e039d88de6df7b9ccc235919fe41a0efedef4d4e5b55f2e10",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/cleanup.json",
+      "archive": "originals/runs/oldsmtpdelivery01/cleanup.json",
+      "sha256": "45e4d0ff9c56100b021d3b93922e2ab9a3f417afff3c2aa1ca48b854b08e0b94",
+      "bytes": 43533,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/command.json",
+      "archive": "originals/runs/oldsmtpdelivery01/command.json",
+      "sha256": "100163d0b1f837984375d1a6e5636f30173cfb51b0e88278c964963ea1cbed32",
+      "bytes": 2643,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/disk-before-spawn.json",
+      "archive": "originals/runs/oldsmtpdelivery01/disk-before-spawn.json",
+      "sha256": "beebf030679222f19c6bb9337b900aa3211debf858ad9b667e08bfcbdf5e4510",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/disk-preflight.json",
+      "archive": "originals/runs/oldsmtpdelivery01/disk-preflight.json",
+      "sha256": "dc7602aa56e9b844c2dc7eaf4f7ab014c2c3798d5db7d99b9094fe45d140162a",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/observed-processes.json",
+      "archive": "originals/runs/oldsmtpdelivery01/observed-processes.json",
+      "sha256": "8eb185a3c595109f75b0443a712a99b5ad69fb6d284ea884548d22adbbcee21f",
+      "bytes": 18691,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/observed-resources.json",
+      "archive": "originals/runs/oldsmtpdelivery01/observed-resources.json",
+      "sha256": "bb80e754af12a6e9abce8b0e84b4a8a092303320a9a4456a483973d1e7290afa",
+      "bytes": 6652,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/process-baseline.json",
+      "archive": "originals/runs/oldsmtpdelivery01/process-baseline.json",
+      "sha256": "4efb28e0085d247aa1830530a081b958f6fd176bea8faad897a14bd254bd278c",
+      "bytes": 17265,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/raw.log",
+      "archive": "originals/runs/oldsmtpdelivery01/raw.log",
+      "sha256": "eaf334d9c5d9ae9ab7f3fc534964aab869cb2be730cf25ee97bcea10bf0f7b33",
+      "bytes": 4340,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/result.json",
+      "archive": "originals/runs/oldsmtpdelivery01/result.json",
+      "sha256": "8831ea8eee8bb38052fdeb64ff794d438e8caa99beac0e3a81a83e689befab1a",
+      "bytes": 20740,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/tcp-baseline.json",
+      "archive": "originals/runs/oldsmtpdelivery01/tcp-baseline.json",
+      "sha256": "fab6e756a28553ff116affc5585e0c6bb586c6aeecaf703bf1c527ae0e984114",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldsmtpdelivery01/tcp-observed-delta.json",
+      "sha256": "5679afad146c8f8428e12e930c46889c5f725417c736dce66aecc44f10fc5522",
+      "bytes": 20269,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldsmtpdelivery01/tcp-tail-observation.json",
+      "sha256": "17c94b81bd87c00cb524d7e6fe9db87690f9d0aa7dec78b692400cd9beea17ea",
+      "bytes": 753643,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01/watchdog.json",
+      "archive": "originals/runs/oldsmtpdelivery01/watchdog.json",
+      "sha256": "2020bcf0c4ee83b0ccaefceb6d6143afa717368fb5df3b42f93948320515c78d",
+      "bytes": 541,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldoutbound01-handoff.json",
+      "archive": "originals/handoffs/oldoutbound01.json",
+      "sha256": "ba4800d135d8ea9c26006663dc2c507661a5666e6774a73d2109b7ea34563b8f",
+      "bytes": 7700,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldoutbound01-launch.raw",
+      "archive": "originals/launch/oldoutbound01.raw",
+      "sha256": "2405efe539c67a96acb154c9a00fab77eef7cfd04f62f726c17c93d6b4516f65",
+      "bytes": 15282,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/adopted-waits.json",
+      "archive": "originals/runs/oldoutbound01/adopted-waits.json",
+      "sha256": "ad045759c5d8f7bf0b88a439521e0df2c1456707032f37f78d44b47a20fbdcba",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/cleanup.json",
+      "archive": "originals/runs/oldoutbound01/cleanup.json",
+      "sha256": "5c384d020b4c1665458860da4fcd4becca0d6170a13d97bec6cff51bd0740537",
+      "bytes": 44485,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/command.json",
+      "archive": "originals/runs/oldoutbound01/command.json",
+      "sha256": "9f8618679617cd0309cbaacfb1cac979db59ede79f13a022735e6b1e4b8757d8",
+      "bytes": 2632,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/disk-before-spawn.json",
+      "archive": "originals/runs/oldoutbound01/disk-before-spawn.json",
+      "sha256": "5fb666563dcdfeacc95cd4a4c6f2689f1bd463945c0df24678fe06016b6cfa08",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/disk-preflight.json",
+      "archive": "originals/runs/oldoutbound01/disk-preflight.json",
+      "sha256": "5b324640067811a40d6d6b0a8913896e65e3bbc221c92945cbc3c726e3c6ba8b",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/observed-processes.json",
+      "archive": "originals/runs/oldoutbound01/observed-processes.json",
+      "sha256": "4124b2eac38779d789adc477ad27f89cd241f5a5304c7eea3207821e9a212b9c",
+      "bytes": 16272,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/observed-resources.json",
+      "archive": "originals/runs/oldoutbound01/observed-resources.json",
+      "sha256": "c2267f0a1a3542f8dcd7d4ed23183e22d7bb6c2631ce8be4a08be5bdd7f81507",
+      "bytes": 5058,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/process-baseline.json",
+      "archive": "originals/runs/oldoutbound01/process-baseline.json",
+      "sha256": "75341e0623ea9ba8a2fbabf2e97cc2ae32c7e192219ee732477e184df3d5363a",
+      "bytes": 17925,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/raw.log",
+      "archive": "originals/runs/oldoutbound01/raw.log",
+      "sha256": "98e5dc59020770b01a3fe974974d3337eb840bbf0273fa7a66f8fb286d9a54e6",
+      "bytes": 4196,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/result.json",
+      "archive": "originals/runs/oldoutbound01/result.json",
+      "sha256": "1b9bffa65a58edfe9fe66f484f6707650786404742b62b5a07c51e230addd6d9",
+      "bytes": 21201,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/tcp-baseline.json",
+      "archive": "originals/runs/oldoutbound01/tcp-baseline.json",
+      "sha256": "32357aa420cefaf8917b648ee99ebb912d56502d2d0e5bb42f871c5e10bb1ec5",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldoutbound01/tcp-observed-delta.json",
+      "sha256": "6f17a60d65bf92c32f8399d4783277a929921a60bf62b0cc838aac475a5974a9",
+      "bytes": 8931,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldoutbound01/tcp-tail-observation.json",
+      "sha256": "7cb8aa737942b5812694cce2a046730a5fa2e65a4401b7e44a2bde18aa07a966",
+      "bytes": 140962,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01/watchdog.json",
+      "archive": "originals/runs/oldoutbound01/watchdog.json",
+      "sha256": "070bb5a8c81bae67b80b72ab41e23257eae86e92dc219a4e07430e33d5626cab",
+      "bytes": 567,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldpublic01-handoff.json",
+      "archive": "originals/handoffs/oldpublic01.json",
+      "sha256": "ed80247f97a1d777dadf30a29a1a2bc9d7a3e6491fea42b907f4ddae2955ffe6",
+      "bytes": 7672,
+      "category": "round_handoff",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldpublic01-launch.raw",
+      "archive": "originals/launch/oldpublic01.raw",
+      "sha256": "79fb95234a0730766a5c7ad606b83cae60fe138fe65c3305c1bc0adf9ef662fd",
+      "bytes": 15693,
+      "category": "round_launch",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/adopted-waits.json",
+      "archive": "originals/runs/oldpublic01/adopted-waits.json",
+      "sha256": "0efc56d845dfce000de7b4b21db41f6e59731c398595a49c5ffad88b9b8d55c2",
+      "bytes": 575,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/cleanup.json",
+      "archive": "originals/runs/oldpublic01/cleanup.json",
+      "sha256": "328e6703f296d0b50ede03f755bfb953aea0bf4b56aa5ca282c487f2ddf84211",
+      "bytes": 45869,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/command.json",
+      "archive": "originals/runs/oldpublic01/command.json",
+      "sha256": "15652af3cbf1703285a14aa8efb198272d099e218da2ce2b9b86df59d8f7a042",
+      "bytes": 2612,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/disk-before-spawn.json",
+      "archive": "originals/runs/oldpublic01/disk-before-spawn.json",
+      "sha256": "6f9dbeaef88d6bf17c618bdc21596587de3b289824de220278da7c906c1f3456",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/disk-preflight.json",
+      "archive": "originals/runs/oldpublic01/disk-preflight.json",
+      "sha256": "23fba587205ba163d895920bfaf44d7c58f0c91b40afce58719ae68250862672",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/frozen-input.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/input-after.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/input-before.json",
+      "archive": "originals/runs/oldprofile02/input-after.json",
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763",
+      "bytes": 815,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/observed-processes.json",
+      "archive": "originals/runs/oldpublic01/observed-processes.json",
+      "sha256": "186d54489815a2bc1dc3a2a1e51dfa6812813781d8c4670df18ae33afb2abb07",
+      "bytes": 15467,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/observed-resources.json",
+      "archive": "originals/runs/oldpublic01/observed-resources.json",
+      "sha256": "0bdc39db531761787bbdbb1f6ce162593d8731d302ff358eafed79772925e293",
+      "bytes": 5045,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "category": "run_original",
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/process-baseline.json",
+      "archive": "originals/runs/oldpublic01/process-baseline.json",
+      "sha256": "b9485c3644002fc769bee94fc2f9add2691a8f617e65ac1a49ccc2d948d10e54",
+      "bytes": 18453,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/raw.log",
+      "archive": "originals/runs/oldpublic01/raw.log",
+      "sha256": "8ea435fbdc5e02b10b7fe110bcd03edbad4957bd64cbe4a1b0ddf25fc3e40a50",
+      "bytes": 5625,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/result.json",
+      "archive": "originals/runs/oldpublic01/result.json",
+      "sha256": "8968d5ae99f86a2892c177a946377f8fcd35430db20c67f926b44a1b234392eb",
+      "bytes": 21808,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/tcp-baseline.json",
+      "archive": "originals/runs/oldpublic01/tcp-baseline.json",
+      "sha256": "4cc2b5b16968fda1b3d25e002b4d138439c074365cba682e7b508f6850bd4a37",
+      "bytes": 1725,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldpublic01/tcp-observed-delta.json",
+      "sha256": "6fa66d0da2010c53d2753de62fd0b9d30e0177282cb227388bbd30c13b667710",
+      "bytes": 8499,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldpublic01/tcp-tail-observation.json",
+      "sha256": "be552224a13016297c31c986f411b278fe993ef72d26704507d737c3af425236",
+      "bytes": 129692,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/verification-input.json",
+      "archive": "originals/runs/oldprofile02/verification-input.json",
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14",
+      "bytes": 183,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01/watchdog.json",
+      "archive": "originals/runs/oldpublic01/watchdog.json",
+      "sha256": "20eb82d62bb0d7955bf9a3980f0ee6a0f4bebae774ac0b02202fdbf1b1e3258b",
+      "bytes": 538,
+      "category": "run_original",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/old14-batch01-result.json",
+      "archive": "originals/author/old14-batch01-result.json",
+      "sha256": "f8f36ced07c67ffd731ee75d505816b5e246d8db7f600655002ed193602b70f1",
+      "bytes": 24315,
+      "category": "batch_result",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/old14-batch01-result.md",
+      "archive": "originals/author/old14-batch01-result.md",
+      "sha256": "b865904baf3174d573a4b2b951d5c06c30e6f184d0caaaa3f6d1287289248a08",
+      "bytes": 4454,
+      "category": "batch_result",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-assets/exchange-old14batch01.json",
+      "archive": "originals/root/exchange-old14batch01.json",
+      "sha256": "7a71cdca425d3b6889a035a13b6c80ec0e3a6e694ab8a98308b2035c55feb62e",
+      "bytes": 9104,
+      "category": "root_asset_record",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-assets/restore-after-old14batch01.json",
+      "archive": "originals/root/restore-after-old14batch01.json",
+      "sha256": "e54f10daff1abdd7c082d63357bceeea37b9083fdc86e004ac3ce67a77254960",
+      "bytes": 830,
+      "category": "root_asset_record",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/old14-continuation01/handoff.json",
+      "archive": "originals/preparation/old14-continuation-handoff.json",
+      "sha256": "5ff1f28bd3ce8f0bc8e97a52c23726f7a9a62abe439027248471e2a8c57b9350",
+      "bytes": 27010,
+      "category": "continuation_preparation",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/old14-continuation01/failure-review-binding.json",
+      "archive": "originals/preparation/failure-review-binding.json",
+      "sha256": "c809b4b8a367d17b088b12d32fd68fd6940f6d62ae189e27f8cd5cc45564650a",
+      "bytes": 1180,
+      "category": "continuation_preparation",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/handoff.json",
+      "archive": "originals/input/final05/handoff.json",
+      "sha256": "9be1f4422396f483889f49f35d3c2cbf6db17637a32902f92217b20198ec639a",
+      "bytes": 5225,
+      "category": "final05_author",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/binding.json",
+      "archive": "originals/input/final05/binding.json",
+      "sha256": "5e9747238c7433a0cf490494874bb8688eef8c44abc340cbae84e0097b5dd9dd",
+      "bytes": 5929,
+      "category": "final05_author",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/closure.delta.json",
+      "archive": "originals/input/final05/closure.delta.json",
+      "sha256": "126be6bacf25182c6af0cd0d7c317e48ae7fbd3dc7bb834f92b31e5c623e98af",
+      "bytes": 569,
+      "category": "final05_author",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/delta.md",
+      "archive": "originals/input/final05/delta.md",
+      "sha256": "f1dd66bf7e3b1b757184d203d78cf500668a9a696f1786618dc510fc99b40763",
+      "bytes": 1540,
+      "category": "final05_author",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/freeze.final.json",
+      "archive": "originals/input/final05/freeze.final.json",
+      "sha256": "62da72e10ae28fde09bcf016756a476585fe9a99192d0bf8dcaf25b6b720bebc",
+      "bytes": 42841,
+      "category": "final05_author",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/handoff.md",
+      "archive": "originals/input/final05/handoff.md",
+      "sha256": "2549d3806ad1b0f282d67ac3d99f82888551997d5bb5373848fcae2339ff5794",
+      "bytes": 1342,
+      "category": "final05_author",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/source-check.meta.json",
+      "archive": "originals/input/final05/source-check.meta.json",
+      "sha256": "712bdb84d013ffa3e6622f99f856cb891ad22b11e34ca44b4f499a89006c18ea",
+      "bytes": 1231,
+      "category": "final05_author",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/source-check.raw",
+      "archive": "originals/input/final05/source-check.raw",
+      "sha256": "73bf8ce608a154eaa3c5ccdda41272bac05af192a84c8126ffd953ede5b3c027",
+      "bytes": 781,
+      "category": "final05_author",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/freeze.root-old14batch01.json",
+      "archive": "originals/runs/oldprofile02/frozen-input.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+      "bytes": 45246,
+      "category": "root_true_input",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/final05-review/review.md",
+      "archive": "originals/independent/final05-review/review.md",
+      "sha256": "b3b24a3bc99f130db40a0ecb45b72e4937e7b620b2eaa8d68fdf1d89924bb166",
+      "bytes": 2984,
+      "category": "independent_prepared",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/final05-review/evidence.json",
+      "archive": "originals/independent/final05-review/evidence.json",
+      "sha256": "678053a6e5a5ea5274c5d2718cd17b1924c33578c4866d5d23a77ae671c01e85",
+      "bytes": 12400,
+      "category": "independent_prepared",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/final05-review/manifest.json",
+      "archive": "originals/independent/final05-review/manifest.json",
+      "sha256": "e1de31e165f27d09d0d48b38cff662821b378bbfe6765e0d10904915f71c7c54",
+      "bytes": 491,
+      "category": "independent_prepared",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/old14-personal3-result-review/review.md",
+      "archive": "originals/independent/old14-personal3-result-review/review.md",
+      "sha256": "e1808d3c87f384ab39da67cc763cc8553ba2afaad56c3031efc25c53352a3008",
+      "bytes": 3499,
+      "category": "independent_result",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/old14-personal3-result-review/evidence.json",
+      "archive": "originals/independent/old14-personal3-result-review/evidence.json",
+      "sha256": "7f01cd7c629141ac0449dac658103ad04903c73b57822092d5f7d74c304c0e7d",
+      "bytes": 22247,
+      "category": "independent_result",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/old14-personal3-result-review/manifest.json",
+      "archive": "originals/independent/old14-personal3-result-review/manifest.json",
+      "sha256": "191fc19dccc14c23af9f3115716904f7a8406a704eee129ba411b550ad66528b",
+      "bytes": 521,
+      "category": "independent_result",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/old14-domain5-result-review/review.md",
+      "archive": "originals/independent/old14-domain5-result-review/review.md",
+      "sha256": "8de9ebad2321e10a630c2cc65251706766426bbebfc9875391e46c53bc43d0f9",
+      "bytes": 3309,
+      "category": "independent_result",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/old14-domain5-result-review/evidence.json",
+      "archive": "originals/independent/old14-domain5-result-review/evidence.json",
+      "sha256": "63c7a901b62efe61722dbc0b9adb8445d2a4c362773ae85f5ae597e2dff1d9bb",
+      "bytes": 35635,
+      "category": "independent_result",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/old14-domain5-result-review/manifest.json",
+      "archive": "originals/independent/old14-domain5-result-review/manifest.json",
+      "sha256": "2cc9c4a626e60bafcbc4b6112459d99b4a57c214e43d53acb5728daa2338733a",
+      "bytes": 517,
+      "category": "independent_result",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/old14-batch01-result-review/review.md",
+      "archive": "originals/independent/old14-batch01-result-review/review.md",
+      "sha256": "f23c6c6d52230d56e7f36e41a7e04a6ab0b72d76591ea31c38096db16129619c",
+      "bytes": 3127,
+      "category": "independent_result",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/old14-batch01-result-review/evidence.json",
+      "archive": "originals/independent/old14-batch01-result-review/evidence.json",
+      "sha256": "c335623aac70f7ba32f61d181ae130886087c3cfca6a3194168f41685726b9b2",
+      "bytes": 49102,
+      "category": "independent_result",
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/old14-batch01-result-review/manifest.json",
+      "archive": "originals/independent/old14-batch01-result-review/manifest.json",
+      "sha256": "7ed69703f932955f9390fb91600632f72318ce591dce0121da19ef9ec86cc616",
+      "bytes": 517,
+      "category": "independent_result",
+      "reuse_prior_committed_original": false
+    }
+  ],
+  "logical_originals": 391,
+  "logical_original_bytes": 6080712,
+  "category_totals": {
+    "round_handoff": {
+      "logical_files": 14,
+      "logical_bytes": 107916
+    },
+    "round_launch": {
+      "logical_files": 14,
+      "logical_bytes": 178502
+    },
+    "run_original": {
+      "logical_files": 336,
+      "logical_bytes": 5488348
+    },
+    "batch_result": {
+      "logical_files": 2,
+      "logical_bytes": 28769
+    },
+    "root_asset_record": {
+      "logical_files": 2,
+      "logical_bytes": 9934
+    },
+    "continuation_preparation": {
+      "logical_files": 2,
+      "logical_bytes": 28190
+    },
+    "final05_author": {
+      "logical_files": 8,
+      "logical_bytes": 59458
+    },
+    "root_true_input": {
+      "logical_files": 1,
+      "logical_bytes": 45246
+    },
+    "independent_prepared": {
+      "logical_files": 3,
+      "logical_bytes": 15875
+    },
+    "independent_result": {
+      "logical_files": 9,
+      "logical_bytes": 118474
+    }
+  },
+  "distinct_content_sha256": 258,
+  "new_physical_original_files": 253,
+  "new_physical_original_bytes": 4807752,
+  "reused_prior_physical_originals": 5,
+  "reused_prior_physical_bytes": 43935,
+  "reused_prior_logical_originals": 84,
+  "same_sha_logical_deduplication": 133,
+  "reused_prior_originals": {
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json": {
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "source_map": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+      "source_map_sha256": "8def86bff5d0dab0f4f4bcca48bb93f7fbcd70a9570e095471a1a5591017bc71"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json": {
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "source_map": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+      "source_map_sha256": "8def86bff5d0dab0f4f4bcca48bb93f7fbcd70a9570e095471a1a5591017bc71"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt": {
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "source_map": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+      "source_map_sha256": "8def86bff5d0dab0f4f4bcca48bb93f7fbcd70a9570e095471a1a5591017bc71"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json": {
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "source_map": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+      "source_map_sha256": "8def86bff5d0dab0f4f4bcca48bb93f7fbcd70a9570e095471a1a5591017bc71"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json": {
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "source_map": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+      "source_map_sha256": "8def86bff5d0dab0f4f4bcca48bb93f7fbcd70a9570e095471a1a5591017bc71"
+    }
+  },
+  "prior_source_maps": [
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+      "sha256": "8def86bff5d0dab0f4f4bcca48bb93f7fbcd70a9570e095471a1a5591017bc71",
+      "bytes": 68980,
+      "role": "Previously accepted permanent mapping; inherited without a new Git command or source-graph scan."
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/source-map.json",
+      "sha256": "8ffcdcd0e866e86ec141db818cce3b6c6a8f63fca523393ba67a9b0f4441bf42",
+      "bytes": 117427,
+      "role": "Previously accepted permanent mapping; inherited without a new Git command or source-graph scan."
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-ui-legacy-profile-json-verification-evidence/source-map.json",
+      "sha256": "8f25e926b7c0d4bd9f6245080189ed4a15a2d4b6d80d2235153bd68394acb6d4",
+      "bytes": 19069,
+      "role": "Previously accepted permanent mapping; inherited without a new Git command or source-graph scan."
+    }
+  ],
+  "history_references_not_counted_as_new_scope_originals": [
+    {
+      "role": "auth_lifecycle",
+      "source": "/workspace/scratch/owner-ui-backend/oldauthlife01-handoff.json",
+      "archive": "../project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/oldauthlife01-handoff.json",
+      "sha256": "b05e9b210940f9215180afc5cadcc21111f636be9e48c59de09f9d8c41716f2d",
+      "bytes": 7676,
+      "source_map": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+      "counted_in_391_new_scope_logical_originals": false,
+      "historical_only_no_rerun": true
+    },
+    {
+      "role": "auth_revocation_expiry",
+      "source": "/workspace/scratch/owner-ui-backend/oldauthrevoke01-handoff.json",
+      "archive": "../project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/oldauthrevoke01-handoff.json",
+      "sha256": "bf29f927fbcebe862ef1d181a3abf7836ddb34115e9fae845e12625e9e4fd30d",
+      "bytes": 8345,
+      "source_map": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+      "counted_in_391_new_scope_logical_originals": false,
+      "historical_only_no_rerun": true
+    },
+    {
+      "role": "oldprofile01_failure",
+      "source": "/workspace/scratch/owner-ui-backend/oldprofile01-handoff.json",
+      "archive": "../project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/oldprofile01-handoff.json",
+      "sha256": "765738c021c959007202a2c7ce65195932962d81ca0f4b43ab28e42d1d189d95",
+      "bytes": 7671,
+      "source_map": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+      "counted_in_391_new_scope_logical_originals": false,
+      "historical_only_no_rerun": true
+    },
+    {
+      "role": "previous_failed_batch",
+      "source": "/workspace/scratch/owner-ui-backend/old16-batch01-result.json",
+      "archive": "../project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/old16-batch01-result.json",
+      "sha256": "adc742d93b38b0d0fe9594a331b118d286cacc0f006f9983f3faa7ba438472a1",
+      "bytes": 12006,
+      "source_map": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+      "counted_in_391_new_scope_logical_originals": false,
+      "historical_only_no_rerun": true
+    }
+  ],
+  "git_sources_inherited_for_single_source_delta": [
+    {
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "654d70bc2102adad918e7e47f9adf37b5113d465",
+      "sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+      "bytes": 38698
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "commit": "80ec2ab378c7420d65240bf9c1b8a48e871e5acd",
+      "git_blob": "65c6bb36c524f14a093015ef8b19a55cbbe17971",
+      "sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+      "bytes": 38762
+    }
+  ],
+  "git_provenance_limit": "The two Git/blob/SHA references are inherited from the accepted legacy-profile source map; no new Git or source check was executed.",
+  "closure_binding": {
+    "prior_final04_closure_sha256": "4b642b20b1fc1cca4460aa130517e4190356353e8bf19976a86dd6beeffdd35b",
+    "final05_closure_delta_sha256": "126be6bacf25182c6af0cd0d7c317e48ae7fbd3dc7bb834f92b31e5c623e98af",
+    "one_accepted_source_delta": {
+      "after_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+      "before_sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+    },
+    "accepted_source_commit": "80ec2ab378c7420d65240bf9c1b8a48e871e5acd",
+    "inherited_counts": {
+      "explicit_input_hashes": 1165,
+      "file_sets": 66,
+      "python_jsonschema_resources": 20,
+      "python_modules": 171,
+      "repository_files": 955
+    },
+    "new_full_graph_scan": false,
+    "source_tree_or_tool_cache_copied": false
+  },
+  "authorization_binding": {
+    "false_sha256": "62da72e10ae28fde09bcf016756a476585fe9a99192d0bf8dcaf25b6b720bebc",
+    "true_sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f",
+    "changed_top_level_keys": [
+      "root_authorization",
+      "root_authorized_resources",
+      "status"
+    ],
+    "false_retained": true,
+    "old14_resource_authority_historical_only": true
+  },
+  "round_bindings": [
+    {
+      "run": "oldprofile02",
+      "group": "old-personal-profile",
+      "exact_top": "TestAccountPersonalSettingsWebProfileAndAvatar",
+      "handoff_sha256": "ad82fadfc79160116f9a7609c132d42d288e2cbd372009eb5403c9d69b0bce36",
+      "run_original_files": 24,
+      "run_original_bytes": 319463,
+      "launch_bytes": 9820,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        11.19
+      ],
+      "browser_original_summaries": [
+        "1 passed (5.6s)"
+      ],
+      "direct_seconds": 62.888,
+      "direct_identity": {
+        "pid": 295588,
+        "starttime": "1632722"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "33c208a48b67b9f8f9d2d0d30401a7744142c0a67f9255d797569855ca9ae359",
+        "a7733a834ae4c464c691cbfa974648527a121ac491c9972404438b20232766b1",
+        "b30435dd16d7762e46eb32ec6fdc7243066727229e3e4fdc47240ab8d3e1013a",
+        "b9659020b3f32e5a3de8f4f48d25be0d5f60b7986d8b227eda6e98a90f3d07f5",
+        "e102b69fa60a92fa85213fb47d82c5c370ef523ca8504c3b96a443c17e4b7f4c",
+        "e30c4d5b3eaffa33c7ccee5c051c709f0000f7e87e5cf3d607c0e4a1c0ddba8e",
+        "e96341241d45760c25d17afc79e4031e8a9048f02b9e47ff5d399575c43ba426"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 39.3881970049988
+    },
+    {
+      "run": "oldtheme01",
+      "group": "old-personal-theme",
+      "exact_top": "TestAccountPersonalSettingsWebThemeAndNavigation",
+      "handoff_sha256": "eb97cb8805630d182b342779b9098b05af130c634276aa1a266dc1730d5aecc8",
+      "run_original_files": 24,
+      "run_original_bytes": 363261,
+      "launch_bytes": 10258,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        16.24
+      ],
+      "browser_original_summaries": [
+        "1 passed (10.7s)"
+      ],
+      "direct_seconds": 67.249,
+      "direct_identity": {
+        "pid": 304476,
+        "starttime": "1646680"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "01c100aed22503d85c6af18953b8c9e9859cbd87e834fb46f91efe8aa4a42f76",
+        "1c58976438a19f0a36a005ab8256514c1e10ef37e75d9486f4a8c04dac838c78",
+        "27d07019c33899e94feed5d5216502d2ac35f5693bf43ee414dac910f5a5e4f6",
+        "2ee7e8513159b255bca272631d2775884ba467519438c65f9e68d017ef779f9a",
+        "4ec853ddcef78afbaa15333610b348e018be0ed0c2bac42e6fdd56461a8afe93",
+        "50f54ddfc61ba188eee988d424ec2240e6d7f8067776f44c15f2ce7b7f0d75ce",
+        "b61139be282fae593ce7f66554ab49c80c8a62eb0487ff4f2fd5a2b0b99b6900"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 38.36475533200064
+    },
+    {
+      "run": "oldpassword01",
+      "group": "old-personal-password",
+      "exact_top": "TestAccountPersonalSettingsWebPasswordRotation",
+      "handoff_sha256": "4b775000da5d5519d6d6a2dc3d5f13fa3f372e33d405a3268f18f43efa84ee1a",
+      "run_original_files": 24,
+      "run_original_bytes": 486514,
+      "launch_bytes": 10716,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        14.95
+      ],
+      "browser_original_summaries": [
+        "1 passed (8.5s)"
+      ],
+      "direct_seconds": 68.501,
+      "direct_identity": {
+        "pid": 313772,
+        "starttime": "1660188"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "20b2a9df695e691db15139efd1ba7527d2be331b942346cc950c127b5a83a65b",
+        "686ff8636aa38f8860d64616defadb6d6d6880409f07d735e367b0353152b404",
+        "a9523356b43e3c3ef95c7745cbd833c346757c12cc0fada0a84a9e68161baf9d",
+        "b8fea64e0039d3318a5770e131a6c88ee4158fb8e3f8449f9fd88ec6fb4197e3",
+        "cbb03b0de8f7037e58205dda7b39f021686dd5d397ff783982392bf482870e32",
+        "dc5990047b99dd257d91b87562811e28a00bc6aa28b35c82841d32e17165dac9",
+        "ff98397936df96b83b64b603e245a7d9be279fd3e47290915fe4b327ab83cf19"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 39.38632576600139
+    },
+    {
+      "run": "oldinvite01",
+      "group": "old-invitations",
+      "exact_top": "TestAccountSystemInvitationsWebOutcomeRecovery",
+      "handoff_sha256": "a61d93dfc316ab8b27ed4b6b723cba2c4f9d321c21447ccec7b83df86b510a4b",
+      "run_original_files": 24,
+      "run_original_bytes": 318572,
+      "launch_bytes": 11147,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        12.43
+      ],
+      "browser_original_summaries": [
+        "1 passed (7.4s)"
+      ],
+      "direct_seconds": 63.584,
+      "direct_identity": {
+        "pid": 323173,
+        "starttime": "1674999"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "09d8aa417c5187a911341945214416ee960ae24b4992eb58d0d1142ef9cab0b7",
+        "19e2652a77ad871ff5dfbd7096e4479fbe64e39f90097a80abcbe36cdf9cbd62",
+        "2a491f59748559e235d1b1cceb2f81b0756c150c089ae5d90172a588c1366f81",
+        "43a1156b212df26628b77d7b284c59c0903e1452ac8aed244f3fa3f6384fb754",
+        "8376c8faf6b1270013a0dd87075a420392386f1964d84e7c01e1c85924eac419",
+        "95fc49d675b6ad0d88a360dca70a2e91bb496eac7328177331b6c5d05b03b359",
+        "ddffdb06985cff0019adbe7d9498f69bc9d65248e8dbf46e049f536be6409ae9"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 37.36102088500047
+    },
+    {
+      "run": "oldproviders01",
+      "group": "old-providers",
+      "exact_top": "TestAccountSystemProvidersWebCredentialReplacement",
+      "handoff_sha256": "546c7333e01fb6338638ce26ad5cdeac2562e37d81a6f318001bd03bdb71b083",
+      "run_original_files": 24,
+      "run_original_bytes": 325021,
+      "launch_bytes": 11618,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        11.6
+      ],
+      "browser_original_summaries": [
+        "1 passed (6.9s)"
+      ],
+      "direct_seconds": 62.933,
+      "direct_identity": {
+        "pid": 331882,
+        "starttime": "1687713"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "3ad680a64b1060cc2e6de0860f79735f07c16ed8541e726c13fe0602c886912f",
+        "41c61387b91665692abab9e9fa8cb757ee7edddeb2849ce0b4abad5c093fefac",
+        "6a945c36e6937c5a1dcfa502ce8c0d5a8ab3eb94f6cd436fcd12fb4932387311",
+        "72435d3fb47adb07c9d44eece0f132b4a1e28d60c1a0cdc7ecb1e46de7850e71",
+        "848f997310eda4d566011632a1dc2241d5107553f3d43ed878fb49835e49bde5",
+        "9fb8a6ad226f46f17af14ca15b6b3c9c5b00921e53a264aeb0fff6e0d6d0fd8b",
+        "aa346ad3e4bad1422969fb8dae9375316d8db42d1a56e2e3f3ec0ae0098cf134"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 38.37455635399965
+    },
+    {
+      "run": "oldmodels01",
+      "group": "old-models",
+      "exact_top": "TestAccountSystemModelsWebOutcomeRecovery",
+      "handoff_sha256": "282293b136ecde3074702611414dbaa8e8f60a5ae1e283e9fcd2bd4435271327",
+      "run_original_files": 24,
+      "run_original_bytes": 322004,
+      "launch_bytes": 12026,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        16.15
+      ],
+      "browser_original_summaries": [
+        "1 passed (11.4s)"
+      ],
+      "direct_seconds": 67.602,
+      "direct_identity": {
+        "pid": 340594,
+        "starttime": "1700464"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "054846f8e0e5e203dcd55089e960304e64d96f7ee654e62cc48b778d5fc9862c",
+        "2199c2d22fbd0a8dafc781942c9b9f0eb69be5610072d5a62bbef6a81f1338d3",
+        "32383320d000e959b3738000100a067f98f685b1da109552826eb2d18afa5cef",
+        "3d6a22be59b3fcc0aa18d015fb58e0144dfc9d5a4125dadd7e2f7c4877f25be5",
+        "4ba627ea193d944273b3742104842abd59299c4ad205f3206fcec8025adeebd6",
+        "58a3b4f6e9d7101738d770303ece38c46d78e3e742e6a6e2177d7fa9a0750514",
+        "ee140625973fcd84d053fa5be22a0aba909538cea379fd21eb77bf5d42122d1c"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 39.38042554899948
+    },
+    {
+      "run": "oldselection01",
+      "group": "old-selection",
+      "exact_top": "TestAccountSystemModelSelectionWebOutcomeRecovery",
+      "handoff_sha256": "6b476898edb195463997b4d520037d331d162b80c6f3e5b335bc089704374b61",
+      "run_original_files": 24,
+      "run_original_bytes": 317075,
+      "launch_bytes": 12504,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        12.66
+      ],
+      "browser_original_summaries": [
+        "1 passed (8.3s)"
+      ],
+      "direct_seconds": 64.723,
+      "direct_identity": {
+        "pid": 351375,
+        "starttime": "1731100"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "076f33232cb21474ac21aed5b318036078997297062d73984d6cc729692ab162",
+        "18fccab2dfd68eb44fdb2c450e839e3b01a1180e616be0c7f7afd04d6519b9e4",
+        "670934f021f0b846f877525d1dc18b6b70d1f1f71f181737611f07fb2cd46de0",
+        "6a91593e59b1d602f340c0d1afd97b4cfb6b67381e3939ae47ce84113efa75a1",
+        "cd4219c29e6c0c75866ede0719e0b9b730cbe4e2a886217e67efee32e714eea0",
+        "e9aac95db21a4a3fd3954c9e4dd9eec273065b17d813c42b78582a961f5ecb02",
+        "f8340c18a7af1536817b5a55d79be0a475b774f29195c7bc1f1a17e0ad72d99c"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 38.39226575700013
+    },
+    {
+      "run": "oldsummaryrec01",
+      "group": "old-summary-recovery",
+      "exact_top": "TestAccountSystemMeetingSummaryWebRecovery",
+      "handoff_sha256": "7bb4de72634dad2720e43a77b88bf1fa67cd5a13b620c32f0230d474c20a772e",
+      "run_original_files": 24,
+      "run_original_bytes": 313815,
+      "launch_bytes": 12939,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        13.08
+      ],
+      "browser_original_summaries": [
+        "1 passed (8.7s)"
+      ],
+      "direct_seconds": 65.363,
+      "direct_identity": {
+        "pid": 360199,
+        "starttime": "1744480"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "3aa4d343c2950c590210933adfc4da1a3f3ba6fe380ac4043a3fe2af3d8429e8",
+        "5b7b3f3718e2b3e15b71d61b25d32437ff8a5e928c8ec9b43639f6cdc7f5653a",
+        "62148cce9ca4d1425965ea4175b8b5fa30cbe9f490da8315ebf44c5d1ba68d94",
+        "8ccf6a6c79729f0c2d0439a40768eeffdec7b3a31f9f7471822e38b1f3ca7844",
+        "a8a5f664eda91cd8a918f1fe388768d815af5f62ca65a25d77436bc84f93ef1e",
+        "bed7b2703c812c9ed7d2cc6087ceecf44010b4bec45fbb92c75b5a1af00c8123",
+        "f325b5951e68cccabf0b4d02c23834b77249b49aa26d39c4cedb260f5479fc82"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 37.4117239920015
+    },
+    {
+      "run": "oldsummarynav01",
+      "group": "old-summary-authority",
+      "exact_top": "TestAccountSystemMeetingSummaryWebAuthorityNavigation",
+      "handoff_sha256": "5229169cc7b0a6a3a539f7dca6b6c3048ce98e6bae72f3cb9df2f45be3733445",
+      "run_original_files": 24,
+      "run_original_bytes": 334955,
+      "launch_bytes": 13407,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        15.85
+      ],
+      "browser_original_summaries": [
+        "1 passed (10.6s)"
+      ],
+      "direct_seconds": 68.738,
+      "direct_identity": {
+        "pid": 369107,
+        "starttime": "1757685"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "28a0b0f514ff8cb81fcbe20efa9924ffe2819347afd5bf9d4f429b775a369608",
+        "3f052145950741f66dcc952202c4371a29f54adf9ddc1f819af2d401fd8db5f8",
+        "5cd245e68a3adeb86ba9aa3ca9beaf8eab7e1db5481012c4d775970fafc56fb8",
+        "774a9f95dd1890f076bb6c91c05017f8a07d94347e14a92a0fe3cecfe8e49c5c",
+        "7e3b103dcc52bc8d536c8ea5724238251bd696d615242a8bf7b36c7c10941208",
+        "a7c33c9c436b11edf63b4bb74192d654b679f3337a3017a07b21a1f1dee7696c",
+        "b48c1638fb56012a12154be16edcdca09baf7cb1fdec124483c5dd2cad94a08b"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 39.398066264999215
+    },
+    {
+      "run": "oldaccountsec01",
+      "group": "old-account-security",
+      "exact_top": "TestAccountSystemAccountSecurityWebOutcomeRecovery",
+      "handoff_sha256": "131dcae7174fae69b7af5e020566e770e48df4ffe32cd20107498862f6eebf5b",
+      "run_original_files": 24,
+      "run_original_bytes": 336116,
+      "launch_bytes": 13844,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        10.28
+      ],
+      "browser_original_summaries": [
+        "1 passed (6.8s)"
+      ],
+      "direct_seconds": 60.058,
+      "direct_identity": {
+        "pid": 378392,
+        "starttime": "1771104"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "32aecb29d47a7b747fdec5fca595b643dbdf1a471b3aa43220f5195a1a427ba4",
+        "3b76250c99c7760c0a4e5ab2d77c0023e70e9a8eb552fbb1ea9ef9ce1942f8bf",
+        "5fee883d81cf1b8da2b11d3cb0987ef0fa05fbf60519ff2df84f1edf1a7b1f86",
+        "68ec9bd04fa00af548927cfea33f0eaeb7be5128d8589fa674506fb56da698d4",
+        "6b2c9c63fd1508c90076778e432d1c313ea5daa8664a5a0e765d4719b030ce5b",
+        "964f657db57b3ea1ec66d0b6a6b93c0ca1b959298c97fbdf483899d23e8a4751",
+        "e35eabc9b937ce5a6b5f843f9aecca57d8249987b9df02d5b8af98277b9034b2"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 38.377034564000496
+    },
+    {
+      "run": "oldsmtpsettings01",
+      "group": "old-smtp-settings",
+      "exact_top": "TestAccountSystemSMTPSettingsWebOutcomeRecovery",
+      "handoff_sha256": "50a4ca61c4fd656c3210d3af1e05d7b969e18a3fcc6ea593b0c0618c7f07f6d7",
+      "run_original_files": 24,
+      "run_original_bytes": 366409,
+      "launch_bytes": 14294,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        14.04
+      ],
+      "browser_original_summaries": [
+        "1 passed (7.8s)"
+      ],
+      "direct_seconds": 66.005,
+      "direct_identity": {
+        "pid": 386823,
+        "starttime": "1783869"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "96117d882000e3901fbb84ebc2823b6cad0bfbffcd5cc74b62ff8a604a087355",
+        "96660e51e516b0eba1e81f44064e8215f94bcfc6793fedbb9f0a867308ff1e5d",
+        "9669f6abcd1e51bfbcd0dfc72f7fb30cb17cf48b711473076234d3ca9664cae2",
+        "d661b81286f859c50cd60d00935701493b5508031e6ef7fbd9901f1cd2c6483a",
+        "e06f5abffaac32db0847c04cd168e606426e9cf2f790d211b6a75b849817c5ab",
+        "eb7bf57caf7d3edac55c3ec613ea85de7b1c114caeb2131ccb6ad705d4bb150b",
+        "fe8b43f6faae2b3a984d0654a9f1f291120e4e692bb703afb047c8b3265e7696"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 38.37924490799924
+    },
+    {
+      "run": "oldsmtpdelivery01",
+      "group": "old-smtp-delivery",
+      "exact_top": "TestAccountSystemSMTPDeliveryWebTestAndRetry",
+      "handoff_sha256": "e54e54f61d38f61fc78074fe1964c050be1cd8c89a636e59f0dbaf112733f9d4",
+      "run_original_files": 24,
+      "run_original_bytes": 981980,
+      "launch_bytes": 14954,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        28.78
+      ],
+      "browser_original_summaries": [
+        "1 passed (16.3s)"
+      ],
+      "direct_seconds": 79.952,
+      "direct_identity": {
+        "pid": 395775,
+        "starttime": "1796993"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "288eeb279c7456d4bfb1764f17cb5ed31d0245a2c4cb6be46e66c895945f792e",
+        "3db12ad18320567843a2197830990e459c20cb4c6c8fde9a7a7291ae699bbec0",
+        "c051d3831a7d331e1ee84be0f16bfed6f1b03d0b3f7d85930d2598637326841c",
+        "ca9e29fe00b3788be99f054d5cce2206a15e983c5532f0c165c1a47184d64a28",
+        "cb32090b46d664e98ff3c00d108105c53f6bb717674f605b115df308fbb68e03",
+        "cc78508fd78ae63234f6832c1f689c53eb43a602e606d0bb00241019223c2502",
+        "e6af1c74a3f5cf225e0d0a1097e32a811e6515edccea6fb12e14d1e75ca1643a",
+        "ee76e26ce1d27ca66973ad5150ac424422b6ddac0677049216dfbef1ecd566fe",
+        "f39f661aeb67d960e8c73600ee11b0e818489d9af5c79440382a2820e54481fa"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 5,
+      "tcp_tail_seconds": 38.37520117099848
+    },
+    {
+      "run": "oldoutbound01",
+      "group": "old-outbound-policy",
+      "exact_top": "TestAccountSystemOutboundPolicyWebMutationAndRecovery",
+      "handoff_sha256": "ba4800d135d8ea9c26006663dc2c507661a5666e6774a73d2109b7ea34563b8f",
+      "run_original_files": 24,
+      "run_original_bytes": 355892,
+      "launch_bytes": 15282,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        11.08
+      ],
+      "browser_original_summaries": [
+        "1 passed (6.3s)"
+      ],
+      "direct_seconds": 61.281,
+      "direct_identity": {
+        "pid": 406707,
+        "starttime": "1811460"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "383cc74379675b21bb1a971e2d7b8fc675596f0e97ffc6e1dd6e46593a915075",
+        "717529d136be0e6a746b4eb6d0af45b81d939a5247c9b538b34c7ab0a29cc9ed",
+        "9463674b8cb2ccf8471402a6702392c75f89b1baa86bfffc87cd6b3f67e46950",
+        "99a849f3445fdbdba73d0f2104dcdb61af03f2487d992d0d93f6031fc861e1a8",
+        "b67094504f9408dc0c20603ef5005b7c8d0a08b697f1dc5da872e2112b020b45",
+        "d315a5d1d219419b3a8bd90d2493603d918c5d433aaa83ab25f0c78e00c37ba4",
+        "fed85e5d25ffd3097652b808c876a5f4244dc5a40db42dca77f99945b3cbc37b"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 37.369944828998996
+    },
+    {
+      "run": "oldpublic01",
+      "group": "old-public-entry",
+      "exact_top": "TestAccountPublicEntryWebIdentityNavigation",
+      "handoff_sha256": "ed80247f97a1d777dadf30a29a1a2bc9d7a3e6491fea42b907f4ddae2955ffe6",
+      "run_original_files": 24,
+      "run_original_bytes": 347271,
+      "launch_bytes": 15693,
+      "outer_actual_exit": 0,
+      "top_reported_seconds": [
+        15.03
+      ],
+      "browser_original_summaries": [
+        "1 passed (9.3s)"
+      ],
+      "direct_seconds": 68.277,
+      "direct_identity": {
+        "pid": 415266,
+        "starttime": "1824161"
+      },
+      "direct_actual_wait_count": 1,
+      "adopted_actual_wait_count": 4,
+      "watchdog_actual_join_count": 1,
+      "exact_resource_ids": [
+        "2fe845f5b8c93303023a1a9f9f79fc709b2a710c6fc9b60580752bbc8f7f7b41",
+        "35d3a4b58907170acffcf3a1278e33b8252c363193a38bf18a40da6d69feb401",
+        "7e81903bc7717092296cb0e2128eb77d33e2e2f269121c33014b76ba61f2dd30",
+        "97acccb6b0ed01f1d3389b1675e7e9b75839ed257bf14f69c4c58d5013ddd6d2",
+        "9fcdeaa9b56284bc8f6bfa1cdc8ff0d043c9dd7d6c26dd03fdd12b2824ba8ba3",
+        "b62ef94da193a12bbb4c5cd77d84526fcedf346c2c448fa0056b8ca5017acf7d",
+        "f0d2ef76fe0007039c8ecf17502aae00d731bee9a413069d403509bd89c830ef"
+      ],
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "tcp_tail_seconds": 38.393882864998886
+    }
+  ],
+  "independent_result_reviews": {
+    "old14-personal3-result-review": {
+      "review_sha256": "e1808d3c87f384ab39da67cc763cc8553ba2afaad56c3031efc25c53352a3008",
+      "evidence_sha256": "7f01cd7c629141ac0449dac658103ad04903c73b57822092d5f7d74c304c0e7d",
+      "manifest_sha256": "191fc19dccc14c23af9f3115716904f7a8406a704eee129ba411b550ad66528b"
+    },
+    "old14-domain5-result-review": {
+      "review_sha256": "8de9ebad2321e10a630c2cc65251706766426bbebfc9875391e46c53bc43d0f9",
+      "evidence_sha256": "63c7a901b62efe61722dbc0b9adb8445d2a4c362773ae85f5ae597e2dff1d9bb",
+      "manifest_sha256": "2cc9c4a626e60bafcbc4b6112459d99b4a57c214e43d53acb5728daa2338733a"
+    },
+    "old14-batch01-result-review": {
+      "review_sha256": "f23c6c6d52230d56e7f36e41a7e04a6ab0b72d76591ea31c38096db16129619c",
+      "evidence_sha256": "c335623aac70f7ba32f61d181ae130886087c3cfca6a3194168f41685726b9b2",
+      "manifest_sha256": "7ed69703f932955f9390fb91600632f72318ce591dce0121da19ef9ec86cc616"
+    }
+  },
+  "restoration_record_sha256": "e54f10daff1abdd7c082d63357bceeea37b9083fdc86e004ac3ce67a77254960",
+  "proof_boundary": "Original complete legacy cases and Go final facts; no separately persisted body, DOM, trace, screenshots or Project schema/client artifacts in these 336 run originals. Original oldprofile01 FAIL, prior 2PASS/1FAIL/13NOT_RUN and format/type failures preserved in linked permanent archives. New archive checks are only file integrity, mapping, parsing and formatting; no runtime or business execution."
+}

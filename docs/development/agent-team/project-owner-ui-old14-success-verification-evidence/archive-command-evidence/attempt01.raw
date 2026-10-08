@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/owner-ui-old14-archive/archive.py", line 161, in <module>
+    add(REVIEW / group / filename, f'originals/independent/{group}/{filename}', 'independent_prepared' if group == 'final05-review' else 'independent_result', sha)
+  File "/workspace/scratch/owner-ui-old14-archive/archive.py", line 66, in add
+    data = read(p, expected, size)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/owner-ui-old14-archive/archive.py", line 24, in read
+    assert digest(data) == expected, ('SHA mismatch', str(p), expected, digest(data))
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('SHA mismatch', '/workspace/scratch/owner-ui-runtime-verification/old14-personal3-result-review/manifest.json', '191fc19dccc14c23af9f3115716904f7a9a62abe439027248471e2a8c57b9350', '191fc19dccc14c23af9f3115716904f7a8406a704eee129ba411b550ad66528b')

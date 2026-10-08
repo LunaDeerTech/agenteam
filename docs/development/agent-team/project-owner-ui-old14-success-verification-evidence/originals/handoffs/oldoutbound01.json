@@ -1,0 +1,236 @@
+{
+  "actual_direct_wait_completed": true,
+  "adopted_waits": [
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 411076,
+      "starttime": "1814806",
+      "time": "2026-10-08T08:31:18.970522+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 411079,
+      "starttime": "1814806",
+      "time": "2026-10-08T08:31:18.970548+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 411080,
+      "starttime": "1814806",
+      "time": "2026-10-08T08:31:18.970567+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 411081,
+      "starttime": "1814806",
+      "time": "2026-10-08T08:31:18.970587+00:00"
+    }
+  ],
+  "batch": "old14-batch01",
+  "browser_original_summaries": [
+    "1 passed (6.3s)"
+  ],
+  "checks": {
+    "actual_direct_wait": true,
+    "adopted_actual_waits": true,
+    "all_prior_old_rounds_passed_and_retired": true,
+    "authorization_and_driver_frozen": true,
+    "baseline_resources_unchanged": true,
+    "driver_accepted": true,
+    "exact_ids_double_absent": true,
+    "ids_disjoint_previous_rounds": true,
+    "input_same_as_prior_old_rounds": true,
+    "no_forced_cleanup_or_monitor_error": true,
+    "owned_runtime_double_empty": true,
+    "resource_topology_matches": true,
+    "selected_top_pass": true,
+    "source_inputs_same": true,
+    "tcp_delta_double_clear": true,
+    "watchdog_joined": true
+  },
+  "cleanup_sha256": "5c384d020b4c1665458860da4fcd4becca0d6170a13d97bec6cff51bd0740537",
+  "conditional_advance_allowed": true,
+  "direct_command_seconds": 61.281,
+  "direct_identity": {
+    "pid": 406707,
+    "starttime": "1811460"
+  },
+  "exact_resource_ids": [
+    "383cc74379675b21bb1a971e2d7b8fc675596f0e97ffc6e1dd6e46593a915075",
+    "717529d136be0e6a746b4eb6d0af45b81d939a5247c9b538b34c7ab0a29cc9ed",
+    "9463674b8cb2ccf8471402a6702392c75f89b1baa86bfffc87cd6b3f67e46950",
+    "99a849f3445fdbdba73d0f2104dcdb61af03f2487d992d0d93f6031fc861e1a8",
+    "b67094504f9408dc0c20603ef5005b7c8d0a08b697f1dc5da872e2112b020b45",
+    "d315a5d1d219419b3a8bd90d2493603d918c5d433aaa83ab25f0c78e00c37ba4",
+    "fed85e5d25ffd3097652b808c876a5f4244dc5a40db42dca77f99945b3cbc37b"
+  ],
+  "exact_top": "TestAccountSystemOutboundPolicyWebMutationAndRecovery",
+  "expected_resource_ids": 7,
+  "failure_policy": "any false condition stops entire remaining batch after actual retirement; no retry or source/budget modification",
+  "group": "old-outbound-policy",
+  "images": [],
+  "independent_review": "pending; author actual result only",
+  "launch": {
+    "path": "/workspace/scratch/owner-ui-backend/oldoutbound01-launch.raw",
+    "sha256": "2405efe539c67a96acb154c9a00fab77eef7cfd04f62f726c17c93d6b4516f65"
+  },
+  "legacy_domain_validation": "only unchanged original legacy top assertions and raw; no Project schema/client counts imported or claimed",
+  "new_nonowned_unwaited_pid1_shims": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 407122,
+      "ppid": 1,
+      "starttime": "1811961",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 407520,
+      "ppid": 1,
+      "starttime": "1812245",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 407852,
+      "ppid": 1,
+      "starttime": "1812448",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 408365,
+      "ppid": 1,
+      "starttime": "1812627",
+      "state": "Z"
+    }
+  ],
+  "order": 13,
+  "outer_actual_exit": 0,
+  "outer_final_chunk": "5200a4",
+  "outer_session": 12591,
+  "raw_sha256": "98e5dc59020770b01a3fe974974d3337eb840bbf0273fa7a66f8fb286d9a54e6",
+  "result_sha256": "1b9bffa65a58edfe9fe66f484f6707650786404742b62b5a07c51e230addd6d9",
+  "round": "oldoutbound01",
+  "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01",
+  "run_file_count": 24,
+  "run_files": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "sha256": "ad045759c5d8f7bf0b88a439521e0df2c1456707032f37f78d44b47a20fbdcba"
+    },
+    "baseline.json": {
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "cancellation.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "cleanup.json": {
+      "bytes": 44485,
+      "sha256": "5c384d020b4c1665458860da4fcd4becca0d6170a13d97bec6cff51bd0740537"
+    },
+    "command.json": {
+      "bytes": 2632,
+      "sha256": "9f8618679617cd0309cbaacfb1cac979db59ede79f13a022735e6b1e4b8757d8"
+    },
+    "disk-before-spawn.json": {
+      "bytes": 183,
+      "sha256": "5fb666563dcdfeacc95cd4a4c6f2689f1bd463945c0df24678fe06016b6cfa08"
+    },
+    "disk-preflight.json": {
+      "bytes": 183,
+      "sha256": "5b324640067811a40d6d6b0a8913896e65e3bbc221c92945cbc3c726e3c6ba8b"
+    },
+    "driver.py.txt": {
+      "bytes": 38744,
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "frozen-input.json": {
+      "bytes": 45246,
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f"
+    },
+    "input-after.json": {
+      "bytes": 815,
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763"
+    },
+    "input-before.json": {
+      "bytes": 815,
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763"
+    },
+    "local-image-digests.json": {
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "monitor-errors.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "observed-processes.json": {
+      "bytes": 16272,
+      "sha256": "4124b2eac38779d789adc477ad27f89cd241f5a5304c7eea3207821e9a212b9c"
+    },
+    "observed-resources.json": {
+      "bytes": 5058,
+      "sha256": "c2267f0a1a3542f8dcd7d4ed23183e22d7bb6c2631ce8be4a08be5bdd7f81507"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "process-baseline.json": {
+      "bytes": 17925,
+      "sha256": "75341e0623ea9ba8a2fbabf2e97cc2ae32c7e192219ee732477e184df3d5363a"
+    },
+    "raw.log": {
+      "bytes": 4196,
+      "sha256": "98e5dc59020770b01a3fe974974d3337eb840bbf0273fa7a66f8fb286d9a54e6"
+    },
+    "result.json": {
+      "bytes": 21201,
+      "sha256": "1b9bffa65a58edfe9fe66f484f6707650786404742b62b5a07c51e230addd6d9"
+    },
+    "tcp-baseline.json": {
+      "bytes": 1725,
+      "sha256": "32357aa420cefaf8917b648ee99ebb912d56502d2d0e5bb42f871c5e10bb1ec5"
+    },
+    "tcp-observed-delta.json": {
+      "bytes": 8931,
+      "sha256": "6f17a60d65bf92c32f8399d4783277a929921a60bf62b0cc838aac475a5974a9"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 140962,
+      "sha256": "7cb8aa737942b5812694cce2a046730a5fa2e65a4401b7e44a2bde18aa07a966"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14"
+    },
+    "watchdog.json": {
+      "bytes": 567,
+      "sha256": "070bb5a8c81bae67b80b72ab41e23257eae86e92dc219a4e07430e33d5626cab"
+    }
+  },
+  "safe_evidence_file_count": 0,
+  "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+  "tcp_tail_seconds": 37.369944828998996,
+  "watchdog_result_events": [
+    {
+      "event": "result",
+      "monotonic": 18153.65774046,
+      "observed_seconds": 11.068816710998362,
+      "reported_seconds": 11.08,
+      "state": "PASS",
+      "top": "TestAccountSystemOutboundPolicyWebMutationAndRecovery"
+    }
+  ]
+}

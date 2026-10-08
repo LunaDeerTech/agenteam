@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 16779.290035787,
+      "top": "TestAccountSystemInvitationsWebOutcomeRecovery"
+    },
+    {
+      "event": "result",
+      "monotonic": 16791.725610884,
+      "observed_seconds": 12.435575097002584,
+      "reported_seconds": 12.43,
+      "state": "PASS",
+      "top": "TestAccountSystemInvitationsWebOutcomeRecovery"
+    }
+  ],
+  "expected": [
+    "TestAccountSystemInvitationsWebOutcomeRecovery"
+  ],
+  "failures": []
+}

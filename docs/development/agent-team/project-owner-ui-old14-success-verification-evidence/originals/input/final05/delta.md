@@ -1,0 +1,9 @@
+# final05 必要差量及有限复用
+
+继承 original final04，仅覆盖既有 personal-settings.spec.ts：155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba → a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603。来源是已静态独核的 legacy-profile-json-v4/76058b57、review096892da 和 root 已推产品80ec2ab；没有读取活动候选或重写历史pending。
+
+合并闭包955路径不增减，66目录集合逐项不变，唯一源SHA差量即上述TS。原210 runtime/tool证据项、总1165显式SHA、171实际Python模块、20schema资源及所有runtime bundles保持。Project browser-v5、UI19、Go04、auth fixtures/config/source、locks、group selector映射及实际Go图原件都不改。新增来源引用只作为冻结manifest内的接受证据，不把审查文档添加为运行模块或扩闭包。
+
+v04→v05只改运行目录来源，driver代码exactBB。permitted_groups限定原剩14，首oldprofile02后原13；root_authorized_resources=false。原case预算/top120含cleanup/package6m/TCP75/fresh5GiB、7或SMTPdelivery9拓扑与退休规则保持，原v04 FAILguard和所有失败原件不变。
+
+auth2有限复用证明仅来自：旧两top原实际PASS/退休证据、此次只改personal spec、所有其它运行源/配置/工具实际文件门禁同。不是final05 auth重跑，也不证明14通过；受影响personal profile/theme/password仍必须真实执行。原native clone helper tee正文的观察边界不外推到未观察流尾或Cookie owner尾部。

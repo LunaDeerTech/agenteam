@@ -1,0 +1,547 @@
+{
+  "all_recorded_round_checks": {
+    "actual_direct_wait": true,
+    "adopted_actual_waits": true,
+    "all_prior_old_rounds_passed_and_retired": true,
+    "authorization_and_driver_frozen": true,
+    "baseline_resources_unchanged": true,
+    "driver_accepted": true,
+    "exact_ids_double_absent": true,
+    "ids_disjoint_previous_rounds": true,
+    "input_same_as_prior_old_rounds": true,
+    "no_forced_cleanup_or_monitor_error": true,
+    "owned_runtime_double_empty": true,
+    "resource_topology_matches": true,
+    "selected_top_pass": true,
+    "source_inputs_same": true,
+    "tcp_delta_double_clear": true,
+    "watchdog_joined": true
+  },
+  "control_boundaries": {
+    "model_provider_selection": "Formal configuration/commands and accepted-response recovery, without Provider network invocation or index rebuild claim.",
+    "nonowned_shims": "Recorded daemon/PID1 shim identities are not owned child joins; they were neither killed nor represented as machine-wide process zero.",
+    "outbound_policy": "Policy facts/replay/audit only, no target probes/SMTP sockets/external mailbox/production hosting/Runtime claim.",
+    "public_entry": "Formal identity navigation/reset production path; private delivery/link preparation remains the original fixture boundary.",
+    "smtp_delivery": "Owned SMTP protocol outcomes and reviewed retry; protocol acceptance does not establish external mailbox delivery.",
+    "smtp_settings": "Configuration only; no SMTP connection/authentication/delivery or recipient acceptance claim.",
+    "summary_authority": "Owned role SQL is auxiliary authorization fact preparation, not a production role-management API. No generation/Invocation claim."
+  },
+  "counts": {
+    "actual_distinct_resource_ids": 100,
+    "actual_resource_id_reuse_count": 0,
+    "actually_executed_rounds": 14,
+    "adopted_actual_waits": 56,
+    "adopted_distinct_pid_starttime_identities": 56,
+    "direct_actual_waits": 14,
+    "direct_distinct_pid_starttime_identities": 14,
+    "fail": 0,
+    "new_nonowned_distinct_pid_starttime_shims": 57,
+    "new_nonowned_unwaited_pid1_shims": 57,
+    "not_run": 0,
+    "original_run_files_referenced_not_copied": 336,
+    "pass": 14,
+    "planned_rounds": 14,
+    "screenshots": 0,
+    "watchdog_actual_joins": 14
+  },
+  "created_utc": "2026-10-08T08:37:58.607086+00:00",
+  "history_and_limited_reuse": {
+    "auth_lifecycle": {
+      "path": "/workspace/scratch/owner-ui-backend/oldauthlife01-handoff.json",
+      "reuse": "previous author actual PASS, not rerun",
+      "sha256": "b05e9b210940f9215180afc5cadcc21111f636be9e48c59de09f9d8c41716f2d"
+    },
+    "auth_revocation_expiry": {
+      "path": "/workspace/scratch/owner-ui-backend/oldauthrevoke01-handoff.json",
+      "reuse": "previous author actual PASS, not rerun",
+      "sha256": "bf29f927fbcebe862ef1d181a3abf7836ddb34115e9fae845e12625e9e4fd30d"
+    },
+    "impact_boundary": "Only the one personal-settings spec changed; auth fixtures/config/source, UI19, Go04, Project browser-v5, tools and locks stayed unchanged in the fixed closure. Old16 coverage is the explicitly bounded composition of the prior auth2 and these new14; this report does not claim a fresh all16 run or retract any historical failure.",
+    "oldprofile01_failure": {
+      "path": "/workspace/scratch/owner-ui-backend/oldprofile01-handoff.json",
+      "preserved": true,
+      "reason": "Original CDP Network.getResponseBody failure before duplicate field-error assertion; original missing body/UI/final-facts evidence remains missing.",
+      "sha256": "765738c021c959007202a2c7ce65195932962d81ca0f4b43ab28e42d1d189d95"
+    },
+    "previous_failed_batch": {
+      "outcome": "2 PASS, 1 FAIL, 13 NOT_RUN; unchanged",
+      "path": "/workspace/scratch/owner-ui-backend/old16-batch01-result.json",
+      "sha256": "adc742d93b38b0d0fe9594a331b118d286cacc0f006f9983f3faa7ba438472a1"
+    },
+    "prior_author_format_and_type_failures_preserved": true
+  },
+  "independent_acceptance": "This is the author actual batch result. Independent sealed-round review and whole-card acceptance are separate; no independent runtime A/B execution is claimed.",
+  "legacy_validation_scope": "Unchanged original selected legacy top/browser assertions and raw evidence, with the single accepted personal-settings native JSON response helper fix. No new Project schema/public-client counts are borrowed for these legacy rounds.",
+  "provenance": {
+    "closure_counts_unchanged": {
+      "explicit_input_hashes": 1165,
+      "file_sets": 66,
+      "python_jsonschema_resources": 20,
+      "python_modules": 171,
+      "repository_files": 955
+    },
+    "driver": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/driver.py",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "false_final05": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/freeze.final.json",
+      "sha256": "62da72e10ae28fde09bcf016756a476585fe9a99192d0bf8dcaf25b6b720bebc",
+      "unchanged": true
+    },
+    "plan": {
+      "path": "/workspace/scratch/owner-ui-backend/old14-continuation01/handoff.json",
+      "sha256": "5ff1f28bd3ce8f0bc8e97a52c23726f7a9a62abe439027248471e2a8c57b9350"
+    },
+    "root_authorized_truecopy": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/freeze.root-old14batch01.json",
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f"
+    },
+    "sole_legacy_source_delta": {
+      "after_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+      "before_sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+    },
+    "source_fix_commit": "80ec2ab378c7420d65240bf9c1b8a48e871e5acd"
+  },
+  "rounds": [
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (5.6s)"
+      ],
+      "cleanup_sha256": "6abe2576b3636d06766bb3e42cf1c7b694ddb01f6e4dc7fd05575bf4115c8dd4",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountPersonalSettingsWebProfileAndAvatar",
+      "group": "old-personal-profile",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldprofile02-handoff.json",
+        "sha256": "ad82fadfc79160116f9a7609c132d42d288e2cbd372009eb5403c9d69b0bce36"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 1,
+      "outer_actual_exit": 0,
+      "raw_sha256": "7ee05226c590db08d7323efac20e242054e985814a1eb2708584d5a7f3b5684e",
+      "result_sha256": "f3a0001f853a8ece09221d8576a8be3a3af2d1ad079a4b360950f691d31ff28a",
+      "run": "oldprofile02",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldprofile02",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 39.3881970049988,
+      "top_reported_seconds": [
+        11.19
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (10.7s)"
+      ],
+      "cleanup_sha256": "b376f48e95cf7d25eb232eb55b4781cf7b4a7d6f83907344e1272f16d01a83d7",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountPersonalSettingsWebThemeAndNavigation",
+      "group": "old-personal-theme",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldtheme01-handoff.json",
+        "sha256": "eb97cb8805630d182b342779b9098b05af130c634276aa1a266dc1730d5aecc8"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 2,
+      "outer_actual_exit": 0,
+      "raw_sha256": "765c672eeee67f2180ecfc9a8d53cbb06d7a2798a13bbded9935cf0cedf1e7ed",
+      "result_sha256": "53c6a9a00ec5c53df879bddfa0bbbd36b9c84743b3c695074bf3f97d7f07b488",
+      "run": "oldtheme01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldtheme01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 38.36475533200064,
+      "top_reported_seconds": [
+        16.24
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (8.5s)"
+      ],
+      "cleanup_sha256": "a5e9a5d7eaaec7f4c3ba76ea8af783358c4e51bb52532a2283316acc079c037b",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountPersonalSettingsWebPasswordRotation",
+      "group": "old-personal-password",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldpassword01-handoff.json",
+        "sha256": "4b775000da5d5519d6d6a2dc3d5f13fa3f372e33d405a3268f18f43efa84ee1a"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 3,
+      "outer_actual_exit": 0,
+      "raw_sha256": "7cb88af9d5821d9dd2f5f603fa007965d9dbf30ffd5048d782786e0e5640e846",
+      "result_sha256": "d3da192ecbba7ca787c1a0f75073326f5f3d4cb8846f800a3ef3d9a3a5a7e0ac",
+      "run": "oldpassword01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpassword01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 39.38632576600139,
+      "top_reported_seconds": [
+        14.95
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (7.4s)"
+      ],
+      "cleanup_sha256": "bc02b9f6b251208ad2154a2b900fdca9857ebd1676979470e8af7fef461140be",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountSystemInvitationsWebOutcomeRecovery",
+      "group": "old-invitations",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldinvite01-handoff.json",
+        "sha256": "a61d93dfc316ab8b27ed4b6b723cba2c4f9d321c21447ccec7b83df86b510a4b"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 4,
+      "outer_actual_exit": 0,
+      "raw_sha256": "a338cc44183f1031544ea0ea6158d12a554e93718affa8d06067c785d0b89dab",
+      "result_sha256": "8e0a5ee79cc1b58e34e0dc4bb733c65f624d607fab32c58dec6b77bd5f88c384",
+      "run": "oldinvite01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldinvite01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 37.36102088500047,
+      "top_reported_seconds": [
+        12.43
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (6.9s)"
+      ],
+      "cleanup_sha256": "a48174b95262274e0060b40aab2e5d5f76b5c6835f349da3608869a9551675a8",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountSystemProvidersWebCredentialReplacement",
+      "group": "old-providers",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldproviders01-handoff.json",
+        "sha256": "546c7333e01fb6338638ce26ad5cdeac2562e37d81a6f318001bd03bdb71b083"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 5,
+      "outer_actual_exit": 0,
+      "raw_sha256": "b0a8c8fad56b12f924b57b329793c1cc7c7c084b58709a80e101feedceab8770",
+      "result_sha256": "2c276fb3868ff5c58eb4843b60051853d401b443e9fd68e1e00c7836b42413c7",
+      "run": "oldproviders01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldproviders01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 38.37455635399965,
+      "top_reported_seconds": [
+        11.6
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (11.4s)"
+      ],
+      "cleanup_sha256": "74e6ab472c4033003f09b1772b111f175cfb7fdefd684e38969e3d90c18dcd1a",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountSystemModelsWebOutcomeRecovery",
+      "group": "old-models",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldmodels01-handoff.json",
+        "sha256": "282293b136ecde3074702611414dbaa8e8f60a5ae1e283e9fcd2bd4435271327"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 6,
+      "outer_actual_exit": 0,
+      "raw_sha256": "9358695eca3addad5ff2366cb8bc26c993c4828544a5165f860242b299878572",
+      "result_sha256": "819a4d6a6d30d39abc14cd2eb54aa451965b42ca340050399bef6f959d1247c0",
+      "run": "oldmodels01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldmodels01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 39.38042554899948,
+      "top_reported_seconds": [
+        16.15
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (8.3s)"
+      ],
+      "cleanup_sha256": "9f400388ab9c2efce1a5224a35ff3fcab7b9321c2798108bfad8fefab93562b4",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountSystemModelSelectionWebOutcomeRecovery",
+      "group": "old-selection",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldselection01-handoff.json",
+        "sha256": "6b476898edb195463997b4d520037d331d162b80c6f3e5b335bc089704374b61"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 7,
+      "outer_actual_exit": 0,
+      "raw_sha256": "077577e096c8dfc4015315f3bff60afba5d4b34642c20079e99550ddc91dceec",
+      "result_sha256": "d5bec34db8184b5f6c51701e8ca38ce681871fc8d0ef04b90553ccd5adc0761d",
+      "run": "oldselection01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldselection01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 38.39226575700013,
+      "top_reported_seconds": [
+        12.66
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (8.7s)"
+      ],
+      "cleanup_sha256": "7e87b59f2f053e6f0cb5414e958d5ce1ca156dd28032da5a49e24666a0e8f9d6",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountSystemMeetingSummaryWebRecovery",
+      "group": "old-summary-recovery",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldsummaryrec01-handoff.json",
+        "sha256": "7bb4de72634dad2720e43a77b88bf1fa67cd5a13b620c32f0230d474c20a772e"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 8,
+      "outer_actual_exit": 0,
+      "raw_sha256": "6567d6dfa19c00c966cc64f6be974a04f015f0efcfca1d416665e221b7ca7230",
+      "result_sha256": "9e113681388f3b809ca5f421c18463390ec38af156b713d826008169fcd2d12e",
+      "run": "oldsummaryrec01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummaryrec01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 37.4117239920015,
+      "top_reported_seconds": [
+        13.08
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (10.6s)"
+      ],
+      "cleanup_sha256": "aa55d501e0b75c6c7080bbde579f982e6a07ab4803f3cdb4827f67ec619edf71",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountSystemMeetingSummaryWebAuthorityNavigation",
+      "group": "old-summary-authority",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldsummarynav01-handoff.json",
+        "sha256": "5229169cc7b0a6a3a539f7dca6b6c3048ce98e6bae72f3cb9df2f45be3733445"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 9,
+      "outer_actual_exit": 0,
+      "raw_sha256": "085253f6a4a718e7eacac9aebe2f4a08ea37b623c8095257f1f8923273c2ae70",
+      "result_sha256": "1f0b35399e82b238d64da0bb1aadbbe9caad7f04f003fa0d171d5c94102b0a96",
+      "run": "oldsummarynav01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsummarynav01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 39.398066264999215,
+      "top_reported_seconds": [
+        15.85
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (6.8s)"
+      ],
+      "cleanup_sha256": "b3ec3fb62fae6e13a34f90b83d4cca5edf0a7e4a058b9d9315c07c76a12c6466",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountSystemAccountSecurityWebOutcomeRecovery",
+      "group": "old-account-security",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldaccountsec01-handoff.json",
+        "sha256": "131dcae7174fae69b7af5e020566e770e48df4ffe32cd20107498862f6eebf5b"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 10,
+      "outer_actual_exit": 0,
+      "raw_sha256": "6bc63c38cf5088158766b487f0c89ef181b1550790c40d0954b72a7bb3b074d9",
+      "result_sha256": "82710054891d61ca20c80934be30db044919aa2ff8d5be962d5033d28c423b83",
+      "run": "oldaccountsec01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldaccountsec01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 38.377034564000496,
+      "top_reported_seconds": [
+        10.28
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (7.8s)"
+      ],
+      "cleanup_sha256": "15903e0ac6d66c7e3586f607c581d082a2777bb449ee210acc7e1eb1121cf1df",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountSystemSMTPSettingsWebOutcomeRecovery",
+      "group": "old-smtp-settings",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldsmtpsettings01-handoff.json",
+        "sha256": "50a4ca61c4fd656c3210d3af1e05d7b969e18a3fcc6ea593b0c0618c7f07f6d7"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 11,
+      "outer_actual_exit": 0,
+      "raw_sha256": "d55289f5061eccc0798f68bc13df11d2e9971cc53953a35e8efc27f3da00e515",
+      "result_sha256": "8196535ea855e1507605cfec3cf352e6896bb86f31035a842c61b88fe90fe002",
+      "run": "oldsmtpsettings01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpsettings01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 38.37924490799924,
+      "top_reported_seconds": [
+        14.04
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 9,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (16.3s)"
+      ],
+      "cleanup_sha256": "45e4d0ff9c56100b021d3b93922e2ab9a3f417afff3c2aa1ca48b854b08e0b94",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountSystemSMTPDeliveryWebTestAndRetry",
+      "group": "old-smtp-delivery",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldsmtpdelivery01-handoff.json",
+        "sha256": "e54e54f61d38f61fc78074fe1964c050be1cd8c89a636e59f0dbaf112733f9d4"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 5,
+      "order": 12,
+      "outer_actual_exit": 0,
+      "raw_sha256": "eaf334d9c5d9ae9ab7f3fc534964aab869cb2be730cf25ee97bcea10bf0f7b33",
+      "result_sha256": "8831ea8eee8bb38052fdeb64ff794d438e8caa99beac0e3a81a83e689befab1a",
+      "run": "oldsmtpdelivery01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 38.37520117099848,
+      "top_reported_seconds": [
+        28.78
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (6.3s)"
+      ],
+      "cleanup_sha256": "5c384d020b4c1665458860da4fcd4becca0d6170a13d97bec6cff51bd0740537",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountSystemOutboundPolicyWebMutationAndRecovery",
+      "group": "old-outbound-policy",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldoutbound01-handoff.json",
+        "sha256": "ba4800d135d8ea9c26006663dc2c507661a5666e6774a73d2109b7ea34563b8f"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 13,
+      "outer_actual_exit": 0,
+      "raw_sha256": "98e5dc59020770b01a3fe974974d3337eb840bbf0273fa7a66f8fb286d9a54e6",
+      "result_sha256": "1b9bffa65a58edfe9fe66f484f6707650786404742b62b5a07c51e230addd6d9",
+      "run": "oldoutbound01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldoutbound01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 37.369944828998996,
+      "top_reported_seconds": [
+        11.08
+      ],
+      "watchdog_actual_join_count": 1
+    },
+    {
+      "actual_resource_id_count": 7,
+      "adopted_actual_wait_count": 4,
+      "all_checks_pass": true,
+      "browser_original_summaries": [
+        "1 passed (9.3s)"
+      ],
+      "cleanup_sha256": "328e6703f296d0b50ede03f755bfb953aea0bf4b56aa5ca282c487f2ddf84211",
+      "direct_actual_wait_count": 1,
+      "exact_top": "TestAccountPublicEntryWebIdentityNavigation",
+      "group": "old-public-entry",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldpublic01-handoff.json",
+        "sha256": "ed80247f97a1d777dadf30a29a1a2bc9d7a3e6491fea42b907f4ddae2955ffe6"
+      },
+      "new_nonowned_unwaited_pid1_shim_count": 4,
+      "order": 14,
+      "outer_actual_exit": 0,
+      "raw_sha256": "8ea435fbdc5e02b10b7fe110bcd03edbad4957bd64cbe4a1b0ddf25fc3e40a50",
+      "result_sha256": "8968d5ae99f86a2892c177a946377f8fcd35430db20c67f926b44a1b234392eb",
+      "run": "oldpublic01",
+      "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldpublic01",
+      "run_file_count": 24,
+      "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+      "tcp_tail_seconds": 38.393882864998886,
+      "top_reported_seconds": [
+        15.03
+      ],
+      "watchdog_actual_join_count": 1
+    }
+  ],
+  "schema": "old14-batch01-author-result-v1",
+  "status": "AUTHOR_ACTUAL_14_PASS_FULLY_RETIRED_STOP",
+  "terminal": {
+    "all_actual_owner_waits_and_watcher_joins_completed": true,
+    "all_fixture_browser_and_globaldist_readers_retired": true,
+    "all_source_inputs_same_within_and_between_rounds": true,
+    "asset_backup": "/workspace/scratch/owner-ui-assets/original-dist-old14batch01",
+    "asset_restoration_owner": "root",
+    "asset_restore_not_performed_or_rechecked_by_backend": true,
+    "last_exact_ids_double_absent": true,
+    "last_owned_runtime_double_empty": true,
+    "last_run": "oldpublic01",
+    "last_tcp_double_clear": true,
+    "last_tcp_tail_seconds": 38.393882864998886,
+    "no_remaining_author_resource_command": true,
+    "root_notified_asset_window_released": true,
+    "subsequent_resource_execution_authorized_by_this_result": false
+  }
+}

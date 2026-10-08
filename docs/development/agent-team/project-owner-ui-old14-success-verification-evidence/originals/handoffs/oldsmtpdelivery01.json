@@ -1,0 +1,246 @@
+{
+  "actual_direct_wait_completed": true,
+  "adopted_waits": [
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 401352,
+      "starttime": "1801245",
+      "time": "2026-10-08T08:29:13.240767+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 401355,
+      "starttime": "1801245",
+      "time": "2026-10-08T08:29:13.240790+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 401356,
+      "starttime": "1801245",
+      "time": "2026-10-08T08:29:13.240797+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 401357,
+      "starttime": "1801245",
+      "time": "2026-10-08T08:29:13.240805+00:00"
+    }
+  ],
+  "batch": "old14-batch01",
+  "browser_original_summaries": [
+    "1 passed (16.3s)"
+  ],
+  "checks": {
+    "actual_direct_wait": true,
+    "adopted_actual_waits": true,
+    "all_prior_old_rounds_passed_and_retired": true,
+    "authorization_and_driver_frozen": true,
+    "baseline_resources_unchanged": true,
+    "driver_accepted": true,
+    "exact_ids_double_absent": true,
+    "ids_disjoint_previous_rounds": true,
+    "input_same_as_prior_old_rounds": true,
+    "no_forced_cleanup_or_monitor_error": true,
+    "owned_runtime_double_empty": true,
+    "resource_topology_matches": true,
+    "selected_top_pass": true,
+    "source_inputs_same": true,
+    "tcp_delta_double_clear": true,
+    "watchdog_joined": true
+  },
+  "cleanup_sha256": "45e4d0ff9c56100b021d3b93922e2ab9a3f417afff3c2aa1ca48b854b08e0b94",
+  "conditional_advance_allowed": true,
+  "direct_command_seconds": 79.952,
+  "direct_identity": {
+    "pid": 395775,
+    "starttime": "1796993"
+  },
+  "exact_resource_ids": [
+    "288eeb279c7456d4bfb1764f17cb5ed31d0245a2c4cb6be46e66c895945f792e",
+    "3db12ad18320567843a2197830990e459c20cb4c6c8fde9a7a7291ae699bbec0",
+    "c051d3831a7d331e1ee84be0f16bfed6f1b03d0b3f7d85930d2598637326841c",
+    "ca9e29fe00b3788be99f054d5cce2206a15e983c5532f0c165c1a47184d64a28",
+    "cb32090b46d664e98ff3c00d108105c53f6bb717674f605b115df308fbb68e03",
+    "cc78508fd78ae63234f6832c1f689c53eb43a602e606d0bb00241019223c2502",
+    "e6af1c74a3f5cf225e0d0a1097e32a811e6515edccea6fb12e14d1e75ca1643a",
+    "ee76e26ce1d27ca66973ad5150ac424422b6ddac0677049216dfbef1ecd566fe",
+    "f39f661aeb67d960e8c73600ee11b0e818489d9af5c79440382a2820e54481fa"
+  ],
+  "exact_top": "TestAccountSystemSMTPDeliveryWebTestAndRetry",
+  "expected_resource_ids": 9,
+  "failure_policy": "any false condition stops entire remaining batch after actual retirement; no retry or source/budget modification",
+  "group": "old-smtp-delivery",
+  "images": [],
+  "independent_review": "pending; author actual result only",
+  "launch": {
+    "path": "/workspace/scratch/owner-ui-backend/oldsmtpdelivery01-launch.raw",
+    "sha256": "139cab2695ec08aa8591caa0f877c63f5aac391908459b2fb77634c9aabefb67"
+  },
+  "legacy_domain_validation": "only unchanged original legacy top assertions and raw; no Project schema/client counts imported or claimed",
+  "new_nonowned_unwaited_pid1_shims": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 396168,
+      "ppid": 1,
+      "starttime": "1797437",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 396694,
+      "ppid": 1,
+      "starttime": "1797886",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 397021,
+      "ppid": 1,
+      "starttime": "1798073",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 397570,
+      "ppid": 1,
+      "starttime": "1798261",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 400567,
+      "ppid": 1,
+      "starttime": "1800745",
+      "state": "Z"
+    }
+  ],
+  "order": 12,
+  "outer_actual_exit": 0,
+  "outer_final_chunk": "ba0839",
+  "outer_session": 72788,
+  "raw_sha256": "eaf334d9c5d9ae9ab7f3fc534964aab869cb2be730cf25ee97bcea10bf0f7b33",
+  "result_sha256": "8831ea8eee8bb38052fdeb64ff794d438e8caa99beac0e3a81a83e689befab1a",
+  "round": "oldsmtpdelivery01",
+  "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v05/runs/oldsmtpdelivery01",
+  "run_file_count": 24,
+  "run_files": {
+    "adopted-waits.json": {
+      "bytes": 575,
+      "sha256": "7a9295f8a88f227e039d88de6df7b9ccc235919fe41a0efedef4d4e5b55f2e10"
+    },
+    "baseline.json": {
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "cancellation.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "cleanup.json": {
+      "bytes": 43533,
+      "sha256": "45e4d0ff9c56100b021d3b93922e2ab9a3f417afff3c2aa1ca48b854b08e0b94"
+    },
+    "command.json": {
+      "bytes": 2643,
+      "sha256": "100163d0b1f837984375d1a6e5636f30173cfb51b0e88278c964963ea1cbed32"
+    },
+    "disk-before-spawn.json": {
+      "bytes": 183,
+      "sha256": "beebf030679222f19c6bb9337b900aa3211debf858ad9b667e08bfcbdf5e4510"
+    },
+    "disk-preflight.json": {
+      "bytes": 183,
+      "sha256": "dc7602aa56e9b844c2dc7eaf4f7ab014c2c3798d5db7d99b9094fe45d140162a"
+    },
+    "driver.py.txt": {
+      "bytes": 38744,
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "frozen-input.json": {
+      "bytes": 45246,
+      "sha256": "2c261920d79f8d454a375e609fbab243fc912bbd4136a916228d2afff8b8172f"
+    },
+    "input-after.json": {
+      "bytes": 815,
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763"
+    },
+    "input-before.json": {
+      "bytes": 815,
+      "sha256": "7d0153d35012be44be3d5c3b0360847b771d9aae0c5e8327fda1f8eff7792763"
+    },
+    "local-image-digests.json": {
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "monitor-errors.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "observed-processes.json": {
+      "bytes": 18691,
+      "sha256": "8eb185a3c595109f75b0443a712a99b5ad69fb6d284ea884548d22adbbcee21f"
+    },
+    "observed-resources.json": {
+      "bytes": 6652,
+      "sha256": "bb80e754af12a6e9abce8b0e84b4a8a092303320a9a4456a483973d1e7290afa"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "process-baseline.json": {
+      "bytes": 17265,
+      "sha256": "4efb28e0085d247aa1830530a081b958f6fd176bea8faad897a14bd254bd278c"
+    },
+    "raw.log": {
+      "bytes": 4340,
+      "sha256": "eaf334d9c5d9ae9ab7f3fc534964aab869cb2be730cf25ee97bcea10bf0f7b33"
+    },
+    "result.json": {
+      "bytes": 20740,
+      "sha256": "8831ea8eee8bb38052fdeb64ff794d438e8caa99beac0e3a81a83e689befab1a"
+    },
+    "tcp-baseline.json": {
+      "bytes": 1725,
+      "sha256": "fab6e756a28553ff116affc5585e0c6bb586c6aeecaf703bf1c527ae0e984114"
+    },
+    "tcp-observed-delta.json": {
+      "bytes": 20269,
+      "sha256": "5679afad146c8f8428e12e930c46889c5f725417c736dce66aecc44f10fc5522"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 753643,
+      "sha256": "17c94b81bd87c00cb524d7e6fe9db87690f9d0aa7dec78b692400cd9beea17ea"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "sha256": "fbb87ce247c1d42b36e6ebb5411dfb506828d2d3943bfd5e58a55ce36cc3ae14"
+    },
+    "watchdog.json": {
+      "bytes": 541,
+      "sha256": "2020bcf0c4ee83b0ccaefceb6d6143afa717368fb5df3b42f93948320515c78d"
+    }
+  },
+  "safe_evidence_file_count": 0,
+  "status": "OLD14_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+  "tcp_tail_seconds": 38.37520117099848,
+  "watchdog_result_events": [
+    {
+      "event": "result",
+      "monotonic": 18028.445843276,
+      "observed_seconds": 28.801246668001113,
+      "reported_seconds": 28.78,
+      "state": "PASS",
+      "top": "TestAccountSystemSMTPDeliveryWebTestAndRetry"
+    }
+  ]
+}

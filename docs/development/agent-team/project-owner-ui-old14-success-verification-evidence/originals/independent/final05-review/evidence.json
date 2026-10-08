@@ -1,0 +1,276 @@
+{
+  "status": "LIMITED_PREPARED_PASS_STOP",
+  "reviewer": "verification_runtime",
+  "recorded_utc": "2026-10-08T07:57:22.547818+00:00",
+  "refs": {
+    "binding.json": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/binding.json",
+      "sha256": "5e9747238c7433a0cf490494874bb8688eef8c44abc340cbae84e0097b5dd9dd"
+    },
+    "closure.delta.json": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/closure.delta.json",
+      "sha256": "126be6bacf25182c6af0cd0d7c317e48ae7fbd3dc7bb834f92b31e5c623e98af"
+    },
+    "delta.md": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/delta.md",
+      "sha256": "f1dd66bf7e3b1b757184d203d78cf500668a9a696f1786618dc510fc99b40763"
+    },
+    "freeze.final.json": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/freeze.final.json",
+      "sha256": "62da72e10ae28fde09bcf016756a476585fe9a99192d0bf8dcaf25b6b720bebc"
+    },
+    "handoff.md": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/handoff.md",
+      "sha256": "2549d3806ad1b0f282d67ac3d99f82888551997d5bb5373848fcae2339ff5794"
+    },
+    "source-check.meta.json": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/source-check.meta.json",
+      "sha256": "712bdb84d013ffa3e6622f99f856cb891ad22b11e34ca44b4f499a89006c18ea"
+    },
+    "source-check.raw": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/source-check.raw",
+      "sha256": "73bf8ce608a154eaa3c5ccdda41272bac05af192a84c8126ffd953ede5b3c027"
+    },
+    "handoff.json": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final05/handoff.json",
+      "sha256": "9be1f4422396f483889f49f35d3c2cbf6db17637a32902f92217b20198ec639a"
+    }
+  },
+  "all_7_handoff_files_match": true,
+  "additional_necessary_fixed_refs_match": 15,
+  "closure_delta": {
+    "base_closure": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/closure.delta.json",
+      "sha256": "4b642b20b1fc1cca4460aa130517e4190356353e8bf19976a86dd6beeffdd35b"
+    },
+    "files": {
+      "/workspace/agenteam/tests/account-captcha-web/e2e/personal-settings.spec.ts": {
+        "role": "accepted sole legacy personal-settings native JSON observation correction; two hunks only; old bodies/assertions/budgets retained",
+        "sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603"
+      }
+    },
+    "package_file_sets": {}
+  },
+  "source_acceptance": {
+    "accepted_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+    "limits": "existing formatter exception and all original failed attempts retained; no real profile or final14 execution acceptance; clone observation does not prove unobserved response-tail or Cookie-owner completion",
+    "previous_sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+    "provenance": {
+      "author_checks": {
+        "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/checks.json",
+        "sha256": "e39ac241e46d376012407ba49cd40b9e755831fa37fa7778efc3aba94574d517"
+      },
+      "author_freeze": {
+        "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/freeze.json",
+        "sha256": "76058b575eb4d8efb3233b450b7b2b49530f1f9b9f7e9ce115e134ae0648fc20"
+      },
+      "author_handoff": {
+        "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/handoff.md",
+        "sha256": "4594a6e8dcb08c540e52ed38c5b7f0ff92b06a8385070bb981b28717bbc16729"
+      },
+      "author_provenance": {
+        "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/provenance.json",
+        "sha256": "bf8e820874b9edf073e95e509bb112838c143813a02d2f0a6d6b10ffcd1230dd"
+      },
+      "effective_delta": {
+        "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/delta.patch",
+        "sha256": "3fc53c1e37ba1f42a6c458f3e96f00d51e111b3a51044199ca3ed1e894b62dc8"
+      },
+      "independent_evidence": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/legacy-profile-json-static-review/evidence.json",
+        "sha256": "7ff2b6feef90dc305f264e949daa3fc0aaf9d213e61d69f0deb4067f707c3039"
+      },
+      "independent_manifest": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/legacy-profile-json-static-review/manifest.json",
+        "sha256": "75350c5ea5fda899c0e12d56ca07d38eedfc5506d4e579db3e457533cf0df563"
+      },
+      "independent_review": {
+        "path": "/workspace/scratch/owner-ui-runtime-verification/legacy-profile-json-static-review/review.md",
+        "sha256": "096892daf6b09d72168638e2c848b24a8f895e3fdfe79680f72e716333eba1a5"
+      },
+      "source_snapshot": {
+        "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/personal-settings.after.ts",
+        "sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603"
+      }
+    },
+    "root_reported_product_commit": "80ec2ab378c7420d65240bf9c1b8a48e871e5acd",
+    "source": "/workspace/agenteam/tests/account-captcha-web/e2e/personal-settings.spec.ts",
+    "status": "LIMITED_SOURCE_STATIC_AND_AUTHOR_TYPES_ACCEPTED_BY_ROOT"
+  },
+  "git80ec_source_sha_matches": true,
+  "unchanged_freeze_fields_from_final04": [
+    "accepted_driver",
+    "author_input_digest",
+    "browser_manifest",
+    "browser_runtime_root",
+    "browser_versions_provenance",
+    "candidate_sha256",
+    "dist",
+    "dist_assets",
+    "driver_runtime_files",
+    "driver_sha256",
+    "frontend_manifest",
+    "groups",
+    "legacy_dist",
+    "pending_inputs",
+    "root_authorized_resources",
+    "runtime_bundles"
+  ],
+  "new_or_changed_metadata_fields": [
+    "browser_acceptance_at_preparation",
+    "closure",
+    "permitted_groups",
+    "source_acceptance",
+    "status",
+    "versioned_successor"
+  ],
+  "driver": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/driver.py",
+    "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+  },
+  "driver_actual_hash_matches": true,
+  "counts": {
+    "inherited_repository_files": 955,
+    "inherited_package_file_sets": 66,
+    "unchanged_runtime_tool_entries": 210,
+    "filegate_actual_explicit_hashes": 1165,
+    "inherited_python_modules": 171,
+    "inherited_python_schema_resources": 20
+  },
+  "source_gate_raw": {
+    "docker_path_and_hash_match": true,
+    "files_count": 1165,
+    "actual_digest": "6bb347c9ea8c32d19dd0176302019b64ddeaec778ad14dbd8011a1bc88436f55",
+    "expected_digest": "6bb347c9ea8c32d19dd0176302019b64ddeaec778ad14dbd8011a1bc88436f55",
+    "missing": [],
+    "mismatches": [],
+    "package_set_changes": [],
+    "candidate_sha256": "ee7b7104dd9ee79802ac0f4f1409b3170f4d2a8d27318369533cec10ea46837f",
+    "closure_sha256": "126be6bacf25182c6af0cd0d7c317e48ae7fbd3dc7bb834f92b31e5c623e98af",
+    "minio_matches": true,
+    "browser_and_graph_boundary": {
+      "external_selected_groups_match": true,
+      "dist_match": true,
+      "legacy_dist_match": true,
+      "runtime_bundles_match": true,
+      "browser_manifest_bound": true,
+      "browser_mismatches": [],
+      "pending_inputs": [],
+      "accepted": true
+    },
+    "accepted": true,
+    "resources_started": false
+  },
+  "source_gate_meta": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/scratch/owner-ui-backend/resource-driver-v05/driver.py",
+      "--name",
+      "final-input05",
+      "--group",
+      "old-personal-profile",
+      "--frozen",
+      "/workspace/scratch/owner-ui-backend/resource-inputs-final05/freeze.final.json",
+      "--check-input-only"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 1.669532177000292,
+    "budget_seconds": 45,
+    "timed_out": false,
+    "error": null,
+    "direct_process": {
+      "pid": 289921,
+      "starttime": 1580359,
+      "state": "R"
+    },
+    "actual_direct_wait_completed": true,
+    "owned_identity_tail": [
+      {
+        "identity": null,
+        "original_identity_remaining": false
+      },
+      {
+        "identity": null,
+        "original_identity_remaining": false
+      }
+    ],
+    "resource_execution": false,
+    "driver_sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+    "frozen_sha256": "62da72e10ae28fde09bcf016756a476585fe9a99192d0bf8dcaf25b6b720bebc",
+    "driver_and_frozen_same_after": true,
+    "mode": "pure input file hashes/filename sets; no external command child or fixture",
+    "raw_sha256": "73bf8ce608a154eaa3c5ccdda41272bac05af192a84c8126ffd953ede5b3c027"
+  },
+  "retirement_limit": "Original direct child actualwait and original PID/starttime double absence; pure filegate branch, no fixture/Go/Node/browser or resource process. No whole-host cleanup claim. Driver and frozen manifest recorded unchanged afterward; 1165 files matched expected at gate time, not an independently rerun second full after-snapshot.",
+  "plan": {
+    "path": "/workspace/scratch/owner-ui-backend/old14-continuation01/handoff.json",
+    "sha256": "5ff1f28bd3ce8f0bc8e97a52c23726f7a9a62abe439027248471e2a8c57b9350",
+    "accepted_static_review": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/old14-continuation01-review/review.md",
+      "sha256": "edcf6d7ed7e2463df471f7daadee8c742ef06d489e54e5feff2d65b36ba38eb5"
+    },
+    "permitted_groups": [
+      "old-personal-profile",
+      "old-personal-theme",
+      "old-personal-password",
+      "old-invitations",
+      "old-providers",
+      "old-models",
+      "old-selection",
+      "old-summary-recovery",
+      "old-summary-authority",
+      "old-account-security",
+      "old-smtp-settings",
+      "old-smtp-delivery",
+      "old-outbound-policy",
+      "old-public-entry"
+    ],
+    "permitted_exactly_equals_plan_order": true,
+    "first_round": "oldprofile02",
+    "unique_run_paths": 14,
+    "max_short_browser_runtime_characters": 41,
+    "planned_ids_only": 100,
+    "topology": "13 rounds x7; SMTP delivery only x9; each fresh nonce and exact IDs",
+    "budgets": {
+      "fresh_minimum_free_bytes_per_round": 5368709120,
+      "package_minutes": 6,
+      "tcp_tail_seconds": 75,
+      "top_including_cleanup_seconds": 120
+    },
+    "case_policy": "Original legacy internal case budgets/bodies/retries unchanged; Project45 not imposed.",
+    "advance": "Prior actual PASS+direct/adopted wait/watchdogjoin+exact IDs/owned/runtime/TCP double clear+unchanged baseline/input+complete originals and exclusive reader ownership.",
+    "failure": "Retire actual owned work fully, preserve all originals, STOP entire batch; no next/retry/budget increase.",
+    "historical_pending_metadata_left_unchanged": true
+  },
+  "auth2_limited_reuse": {
+    "claim": "retain prior auth2 author results by accepted one-personal-spec delta and unchanged auth/app/Go/config/tool inputs; not a final05 auth rerun or proof all16 passed",
+    "prior_passes": [
+      {
+        "path": "/workspace/scratch/owner-ui-backend/oldauthlife01-handoff.json",
+        "sha256": "b05e9b210940f9215180afc5cadcc21111f636be9e48c59de09f9d8c41716f2d"
+      },
+      {
+        "path": "/workspace/scratch/owner-ui-backend/oldauthrevoke01-handoff.json",
+        "sha256": "bf29f927fbcebe862ef1d181a3abf7836ddb34115e9fae845e12625e9e4fd30d"
+      }
+    ],
+    "required_gate": "one final05 file gate must confirm only this TS hash differs, with all955 paths/66sets and fixed runtime tools unchanged; personal profile/theme/password remain in required14"
+  },
+  "asset_exchange": {
+    "path": "/workspace/scratch/owner-ui-assets/exchange-old14batch01.json",
+    "sha256": "7a71cdca425d3b6889a035a13b6c80ec0e3a6e694ab8a98308b2035c55feb62e"
+  },
+  "asset_limit": "Only root exchange record hash bound; verifier did not inspect current dist/backup contents or host. Root reports53 with original3 intact backup original-dist-old14batch01.",
+  "root_authorized_resources": false,
+  "pending_inputs": [],
+  "resources_started": false,
+  "verification_execution": "Read-only fixed metadata/hash/Git one source. No check/filegate/Go/Node/TypeScript/browser/list/build/resource/host scan; no wholegraph or source-tree copy.",
+  "must_fix": [],
+  "pending": [
+    "Root separate immutable truecopy/exclusive resource grant",
+    "Actual oldprofile02 and remaining13 original tops",
+    "Independent actual A/B",
+    "README22/full D27"
+  ],
+  "stop": true
+}

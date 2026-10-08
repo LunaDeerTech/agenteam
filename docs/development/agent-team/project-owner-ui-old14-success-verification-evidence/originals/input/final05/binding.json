@@ -1,0 +1,129 @@
+{
+  "asset_exchange": {
+    "path": "/workspace/scratch/owner-ui-assets/exchange-old14batch01.json",
+    "sha256": "7a71cdca425d3b6889a035a13b6c80ec0e3a6e694ab8a98308b2035c55feb62e"
+  },
+  "auth2_limited_reuse": {
+    "claim": "retain prior auth2 author results by accepted one-personal-spec delta and unchanged auth/app/Go/config/tool inputs; not a final05 auth rerun or proof all16 passed",
+    "prior_passes": [
+      {
+        "path": "/workspace/scratch/owner-ui-backend/oldauthlife01-handoff.json",
+        "sha256": "b05e9b210940f9215180afc5cadcc21111f636be9e48c59de09f9d8c41716f2d"
+      },
+      {
+        "path": "/workspace/scratch/owner-ui-backend/oldauthrevoke01-handoff.json",
+        "sha256": "bf29f927fbcebe862ef1d181a3abf7836ddb34115e9fae845e12625e9e4fd30d"
+      }
+    ],
+    "required_gate": "one final05 file gate must confirm only this TS hash differs, with all955 paths/66sets and fixed runtime tools unchanged; personal profile/theme/password remain in required14"
+  },
+  "changed_repository_sources": [
+    {
+      "after_sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603",
+      "before_sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba",
+      "path": "/workspace/agenteam/tests/account-captcha-web/e2e/personal-settings.spec.ts"
+    }
+  ],
+  "driver": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/driver.py",
+    "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+  },
+  "driver_preparation": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v05/preparation.json",
+    "sha256": "f279522a26a0158cbce7601a256f740fb21021a9dd53f96b5106d44585bd446c"
+  },
+  "internal_cases": "original legacy budgets/bodies/retries unchanged",
+  "legacy_source_provenance": {
+    "author_checks": {
+      "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/checks.json",
+      "sha256": "e39ac241e46d376012407ba49cd40b9e755831fa37fa7778efc3aba94574d517"
+    },
+    "author_freeze": {
+      "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/freeze.json",
+      "sha256": "76058b575eb4d8efb3233b450b7b2b49530f1f9b9f7e9ce115e134ae0648fc20"
+    },
+    "author_handoff": {
+      "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/handoff.md",
+      "sha256": "4594a6e8dcb08c540e52ed38c5b7f0ff92b06a8385070bb981b28717bbc16729"
+    },
+    "author_provenance": {
+      "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v4/provenance.json",
+      "sha256": "bf8e820874b9edf073e95e509bb112838c143813a02d2f0a6d6b10ffcd1230dd"
+    },
+    "effective_delta": {
+      "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/delta.patch",
+      "sha256": "3fc53c1e37ba1f42a6c458f3e96f00d51e111b3a51044199ca3ed1e894b62dc8"
+    },
+    "independent_evidence": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/legacy-profile-json-static-review/evidence.json",
+      "sha256": "7ff2b6feef90dc305f264e949daa3fc0aaf9d213e61d69f0deb4067f707c3039"
+    },
+    "independent_manifest": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/legacy-profile-json-static-review/manifest.json",
+      "sha256": "75350c5ea5fda899c0e12d56ca07d38eedfc5506d4e579db3e457533cf0df563"
+    },
+    "independent_review": {
+      "path": "/workspace/scratch/owner-ui-runtime-verification/legacy-profile-json-static-review/review.md",
+      "sha256": "096892daf6b09d72168638e2c848b24a8f895e3fdfe79680f72e716333eba1a5"
+    },
+    "source_snapshot": {
+      "path": "/workspace/scratch/owner-ui-recovery/legacy-profile-json-v1/personal-settings.after.ts",
+      "sha256": "a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603"
+    }
+  },
+  "no_extra_graph_or_test_execution": true,
+  "permitted_groups": [
+    "old-personal-profile",
+    "old-personal-theme",
+    "old-personal-password",
+    "old-invitations",
+    "old-providers",
+    "old-models",
+    "old-selection",
+    "old-summary-recovery",
+    "old-summary-authority",
+    "old-account-security",
+    "old-smtp-settings",
+    "old-smtp-delivery",
+    "old-outbound-policy",
+    "old-public-entry"
+  ],
+  "previous_closure": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/closure.delta.json",
+    "sha256": "4b642b20b1fc1cca4460aa130517e4190356353e8bf19976a86dd6beeffdd35b"
+  },
+  "previous_final": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/freeze.final.json",
+    "sha256": "ab92204024887b840d45174b1d72250b6930bb967fba4936f10472d03052db4d"
+  },
+  "provenance_scope": "source acceptance metadata is bound by this frozen manifest; it is not added as a runtime module or copied into the existing 1165 file graph",
+  "resources_started": false,
+  "root_authorized_resources": false,
+  "root_reported_product_commit": "80ec2ab378c7420d65240bf9c1b8a48e871e5acd",
+  "runtime_counts_unchanged": {
+    "explicit_file_hashes": 1165,
+    "package_file_sets": 66,
+    "python_actual_modules": 171,
+    "python_schema_resources": 20,
+    "repository_files": 955
+  },
+  "unchanged_budgets": {
+    "fresh_minimum_free_bytes_per_round": 5368709120,
+    "package_minutes": 6,
+    "tcp_tail_seconds": 75,
+    "top_including_cleanup_seconds": 120
+  },
+  "unchanged_driver_sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+  "unchanged_groups": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v01/groups.json",
+    "sha256": "f925efaf256bad0461b18a6a408f352b703ce321bd27e08c59359664110b1a8c"
+  },
+  "unchanged_project_browser_manifest": {
+    "path": "/workspace/scratch/owner-ui-recovery/browser-v5/freeze.json",
+    "sha256": "a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85"
+  },
+  "unchanged_ui": {
+    "path": "/workspace/scratch/owner-ui-recovery/ui-v1/freeze.json",
+    "sha256": "b7a9ef34a10d0230b541d0daffb19d765d023aa27469a9ca144952f5d1bd9f64"
+  }
+}

@@ -1,0 +1,577 @@
+{
+  "status": "PASS_FILE_ARCHIVE_CHECKS_ONLY",
+  "command": {
+    "argv": [
+      "python3",
+      "/workspace/scratch/owner-ui-old14-archive/check_archive.py"
+    ],
+    "cwd": "/workspace/agenteam",
+    "script_sha256": "4e71e09e8158ac29bda5b98d8091cfcef0650ac7f249ed395deb2a08926940fb",
+    "exit": 0,
+    "operations": "Read only enumerated sealed originals, referenced permanent entities and own two new paths; SHA/bytes, JSON, counts, local Markdown links and text format."
+  },
+  "source_and_archive_sha_bytes_equal": true,
+  "checked_logical_originals": 391,
+  "checked_logical_bytes": 6080712,
+  "checked_distinct_entities": 258,
+  "checked_json_entities": 221,
+  "json_entity_paths": [
+    "originals/handoffs/oldprofile02.json",
+    "originals/runs/oldprofile02/adopted-waits.json",
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+    "originals/runs/oldprofile02/cleanup.json",
+    "originals/runs/oldprofile02/command.json",
+    "originals/runs/oldprofile02/disk-before-spawn.json",
+    "originals/runs/oldprofile02/disk-preflight.json",
+    "originals/runs/oldprofile02/frozen-input.json",
+    "originals/runs/oldprofile02/input-after.json",
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+    "originals/runs/oldprofile02/observed-processes.json",
+    "originals/runs/oldprofile02/observed-resources.json",
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+    "originals/runs/oldprofile02/process-baseline.json",
+    "originals/runs/oldprofile02/result.json",
+    "originals/runs/oldprofile02/tcp-baseline.json",
+    "originals/runs/oldprofile02/tcp-observed-delta.json",
+    "originals/runs/oldprofile02/tcp-tail-observation.json",
+    "originals/runs/oldprofile02/verification-input.json",
+    "originals/runs/oldprofile02/watchdog.json",
+    "originals/handoffs/oldtheme01.json",
+    "originals/runs/oldtheme01/adopted-waits.json",
+    "originals/runs/oldtheme01/cleanup.json",
+    "originals/runs/oldtheme01/command.json",
+    "originals/runs/oldtheme01/disk-before-spawn.json",
+    "originals/runs/oldtheme01/disk-preflight.json",
+    "originals/runs/oldtheme01/observed-processes.json",
+    "originals/runs/oldtheme01/observed-resources.json",
+    "originals/runs/oldtheme01/process-baseline.json",
+    "originals/runs/oldtheme01/result.json",
+    "originals/runs/oldtheme01/tcp-baseline.json",
+    "originals/runs/oldtheme01/tcp-observed-delta.json",
+    "originals/runs/oldtheme01/tcp-tail-observation.json",
+    "originals/runs/oldtheme01/watchdog.json",
+    "originals/handoffs/oldpassword01.json",
+    "originals/runs/oldpassword01/adopted-waits.json",
+    "originals/runs/oldpassword01/cleanup.json",
+    "originals/runs/oldpassword01/command.json",
+    "originals/runs/oldpassword01/disk-before-spawn.json",
+    "originals/runs/oldpassword01/disk-preflight.json",
+    "originals/runs/oldpassword01/observed-processes.json",
+    "originals/runs/oldpassword01/observed-resources.json",
+    "originals/runs/oldpassword01/process-baseline.json",
+    "originals/runs/oldpassword01/result.json",
+    "originals/runs/oldpassword01/tcp-baseline.json",
+    "originals/runs/oldpassword01/tcp-observed-delta.json",
+    "originals/runs/oldpassword01/tcp-tail-observation.json",
+    "originals/runs/oldpassword01/watchdog.json",
+    "originals/handoffs/oldinvite01.json",
+    "originals/runs/oldinvite01/adopted-waits.json",
+    "originals/runs/oldinvite01/cleanup.json",
+    "originals/runs/oldinvite01/command.json",
+    "originals/runs/oldinvite01/disk-before-spawn.json",
+    "originals/runs/oldinvite01/disk-preflight.json",
+    "originals/runs/oldinvite01/observed-processes.json",
+    "originals/runs/oldinvite01/observed-resources.json",
+    "originals/runs/oldinvite01/process-baseline.json",
+    "originals/runs/oldinvite01/result.json",
+    "originals/runs/oldinvite01/tcp-baseline.json",
+    "originals/runs/oldinvite01/tcp-observed-delta.json",
+    "originals/runs/oldinvite01/tcp-tail-observation.json",
+    "originals/runs/oldinvite01/watchdog.json",
+    "originals/handoffs/oldproviders01.json",
+    "originals/runs/oldproviders01/adopted-waits.json",
+    "originals/runs/oldproviders01/cleanup.json",
+    "originals/runs/oldproviders01/command.json",
+    "originals/runs/oldproviders01/disk-before-spawn.json",
+    "originals/runs/oldproviders01/disk-preflight.json",
+    "originals/runs/oldproviders01/observed-processes.json",
+    "originals/runs/oldproviders01/observed-resources.json",
+    "originals/runs/oldproviders01/process-baseline.json",
+    "originals/runs/oldproviders01/result.json",
+    "originals/runs/oldproviders01/tcp-baseline.json",
+    "originals/runs/oldproviders01/tcp-observed-delta.json",
+    "originals/runs/oldproviders01/tcp-tail-observation.json",
+    "originals/runs/oldproviders01/watchdog.json",
+    "originals/handoffs/oldmodels01.json",
+    "originals/runs/oldmodels01/adopted-waits.json",
+    "originals/runs/oldmodels01/cleanup.json",
+    "originals/runs/oldmodels01/command.json",
+    "originals/runs/oldmodels01/disk-before-spawn.json",
+    "originals/runs/oldmodels01/disk-preflight.json",
+    "originals/runs/oldmodels01/observed-processes.json",
+    "originals/runs/oldmodels01/observed-resources.json",
+    "originals/runs/oldmodels01/process-baseline.json",
+    "originals/runs/oldmodels01/result.json",
+    "originals/runs/oldmodels01/tcp-baseline.json",
+    "originals/runs/oldmodels01/tcp-observed-delta.json",
+    "originals/runs/oldmodels01/tcp-tail-observation.json",
+    "originals/runs/oldmodels01/watchdog.json",
+    "originals/handoffs/oldselection01.json",
+    "originals/runs/oldselection01/adopted-waits.json",
+    "originals/runs/oldselection01/cleanup.json",
+    "originals/runs/oldselection01/command.json",
+    "originals/runs/oldselection01/disk-before-spawn.json",
+    "originals/runs/oldselection01/disk-preflight.json",
+    "originals/runs/oldselection01/observed-processes.json",
+    "originals/runs/oldselection01/observed-resources.json",
+    "originals/runs/oldselection01/process-baseline.json",
+    "originals/runs/oldselection01/result.json",
+    "originals/runs/oldselection01/tcp-baseline.json",
+    "originals/runs/oldselection01/tcp-observed-delta.json",
+    "originals/runs/oldselection01/tcp-tail-observation.json",
+    "originals/runs/oldselection01/watchdog.json",
+    "originals/handoffs/oldsummaryrec01.json",
+    "originals/runs/oldsummaryrec01/adopted-waits.json",
+    "originals/runs/oldsummaryrec01/cleanup.json",
+    "originals/runs/oldsummaryrec01/command.json",
+    "originals/runs/oldsummaryrec01/disk-before-spawn.json",
+    "originals/runs/oldsummaryrec01/disk-preflight.json",
+    "originals/runs/oldsummaryrec01/observed-processes.json",
+    "originals/runs/oldsummaryrec01/observed-resources.json",
+    "originals/runs/oldsummaryrec01/process-baseline.json",
+    "originals/runs/oldsummaryrec01/result.json",
+    "originals/runs/oldsummaryrec01/tcp-baseline.json",
+    "originals/runs/oldsummaryrec01/tcp-observed-delta.json",
+    "originals/runs/oldsummaryrec01/tcp-tail-observation.json",
+    "originals/runs/oldsummaryrec01/watchdog.json",
+    "originals/handoffs/oldsummarynav01.json",
+    "originals/runs/oldsummarynav01/adopted-waits.json",
+    "originals/runs/oldsummarynav01/cleanup.json",
+    "originals/runs/oldsummarynav01/command.json",
+    "originals/runs/oldsummarynav01/disk-before-spawn.json",
+    "originals/runs/oldsummarynav01/disk-preflight.json",
+    "originals/runs/oldsummarynav01/observed-processes.json",
+    "originals/runs/oldsummarynav01/observed-resources.json",
+    "originals/runs/oldsummarynav01/process-baseline.json",
+    "originals/runs/oldsummarynav01/result.json",
+    "originals/runs/oldsummarynav01/tcp-baseline.json",
+    "originals/runs/oldsummarynav01/tcp-observed-delta.json",
+    "originals/runs/oldsummarynav01/tcp-tail-observation.json",
+    "originals/runs/oldsummarynav01/watchdog.json",
+    "originals/handoffs/oldaccountsec01.json",
+    "originals/runs/oldaccountsec01/adopted-waits.json",
+    "originals/runs/oldaccountsec01/cleanup.json",
+    "originals/runs/oldaccountsec01/command.json",
+    "originals/runs/oldaccountsec01/disk-before-spawn.json",
+    "originals/runs/oldaccountsec01/disk-preflight.json",
+    "originals/runs/oldaccountsec01/observed-processes.json",
+    "originals/runs/oldaccountsec01/observed-resources.json",
+    "originals/runs/oldaccountsec01/process-baseline.json",
+    "originals/runs/oldaccountsec01/result.json",
+    "originals/runs/oldaccountsec01/tcp-baseline.json",
+    "originals/runs/oldaccountsec01/tcp-observed-delta.json",
+    "originals/runs/oldaccountsec01/tcp-tail-observation.json",
+    "originals/runs/oldaccountsec01/watchdog.json",
+    "originals/handoffs/oldsmtpsettings01.json",
+    "originals/runs/oldsmtpsettings01/adopted-waits.json",
+    "originals/runs/oldsmtpsettings01/cleanup.json",
+    "originals/runs/oldsmtpsettings01/command.json",
+    "originals/runs/oldsmtpsettings01/disk-before-spawn.json",
+    "originals/runs/oldsmtpsettings01/disk-preflight.json",
+    "originals/runs/oldsmtpsettings01/observed-processes.json",
+    "originals/runs/oldsmtpsettings01/observed-resources.json",
+    "originals/runs/oldsmtpsettings01/process-baseline.json",
+    "originals/runs/oldsmtpsettings01/result.json",
+    "originals/runs/oldsmtpsettings01/tcp-baseline.json",
+    "originals/runs/oldsmtpsettings01/tcp-observed-delta.json",
+    "originals/runs/oldsmtpsettings01/tcp-tail-observation.json",
+    "originals/runs/oldsmtpsettings01/watchdog.json",
+    "originals/handoffs/oldsmtpdelivery01.json",
+    "originals/runs/oldsmtpdelivery01/adopted-waits.json",
+    "originals/runs/oldsmtpdelivery01/cleanup.json",
+    "originals/runs/oldsmtpdelivery01/command.json",
+    "originals/runs/oldsmtpdelivery01/disk-before-spawn.json",
+    "originals/runs/oldsmtpdelivery01/disk-preflight.json",
+    "originals/runs/oldsmtpdelivery01/observed-processes.json",
+    "originals/runs/oldsmtpdelivery01/observed-resources.json",
+    "originals/runs/oldsmtpdelivery01/process-baseline.json",
+    "originals/runs/oldsmtpdelivery01/result.json",
+    "originals/runs/oldsmtpdelivery01/tcp-baseline.json",
+    "originals/runs/oldsmtpdelivery01/tcp-observed-delta.json",
+    "originals/runs/oldsmtpdelivery01/tcp-tail-observation.json",
+    "originals/runs/oldsmtpdelivery01/watchdog.json",
+    "originals/handoffs/oldoutbound01.json",
+    "originals/runs/oldoutbound01/adopted-waits.json",
+    "originals/runs/oldoutbound01/cleanup.json",
+    "originals/runs/oldoutbound01/command.json",
+    "originals/runs/oldoutbound01/disk-before-spawn.json",
+    "originals/runs/oldoutbound01/disk-preflight.json",
+    "originals/runs/oldoutbound01/observed-processes.json",
+    "originals/runs/oldoutbound01/observed-resources.json",
+    "originals/runs/oldoutbound01/process-baseline.json",
+    "originals/runs/oldoutbound01/result.json",
+    "originals/runs/oldoutbound01/tcp-baseline.json",
+    "originals/runs/oldoutbound01/tcp-observed-delta.json",
+    "originals/runs/oldoutbound01/tcp-tail-observation.json",
+    "originals/runs/oldoutbound01/watchdog.json",
+    "originals/handoffs/oldpublic01.json",
+    "originals/runs/oldpublic01/adopted-waits.json",
+    "originals/runs/oldpublic01/cleanup.json",
+    "originals/runs/oldpublic01/command.json",
+    "originals/runs/oldpublic01/disk-before-spawn.json",
+    "originals/runs/oldpublic01/disk-preflight.json",
+    "originals/runs/oldpublic01/observed-processes.json",
+    "originals/runs/oldpublic01/observed-resources.json",
+    "originals/runs/oldpublic01/process-baseline.json",
+    "originals/runs/oldpublic01/result.json",
+    "originals/runs/oldpublic01/tcp-baseline.json",
+    "originals/runs/oldpublic01/tcp-observed-delta.json",
+    "originals/runs/oldpublic01/tcp-tail-observation.json",
+    "originals/runs/oldpublic01/watchdog.json",
+    "originals/author/old14-batch01-result.json",
+    "originals/root/exchange-old14batch01.json",
+    "originals/root/restore-after-old14batch01.json",
+    "originals/preparation/old14-continuation-handoff.json",
+    "originals/preparation/failure-review-binding.json",
+    "originals/input/final05/handoff.json",
+    "originals/input/final05/binding.json",
+    "originals/input/final05/closure.delta.json",
+    "originals/input/final05/freeze.final.json",
+    "originals/input/final05/source-check.meta.json",
+    "originals/independent/final05-review/evidence.json",
+    "originals/independent/final05-review/manifest.json",
+    "originals/independent/old14-personal3-result-review/evidence.json",
+    "originals/independent/old14-personal3-result-review/manifest.json",
+    "originals/independent/old14-domain5-result-review/evidence.json",
+    "originals/independent/old14-domain5-result-review/manifest.json",
+    "originals/independent/old14-batch01-result-review/evidence.json",
+    "originals/independent/old14-batch01-result-review/manifest.json"
+  ],
+  "new_original_tree_exactly_matches_source_map": true,
+  "new_original_files": 253,
+  "new_original_bytes": 4807752,
+  "reused_prior_entities": 5,
+  "reused_prior_bytes": 43935,
+  "reused_prior_logical_references": 84,
+  "prior_mapping_checks": [
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json",
+      "sha256": "8def86bff5d0dab0f4f4bcca48bb93f7fbcd70a9570e095471a1a5591017bc71",
+      "bytes": 68980
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/source-map.json",
+      "sha256": "8ffcdcd0e866e86ec141db818cce3b6c6a8f63fca523393ba67a9b0f4441bf42",
+      "bytes": 117427
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-ui-legacy-profile-json-verification-evidence/source-map.json",
+      "sha256": "8f25e926b7c0d4bd9f6245080189ed4a15a2d4b6d80d2235153bd68394acb6d4",
+      "bytes": 19069
+    }
+  ],
+  "historical_original_checks": [
+    {
+      "role": "auth_lifecycle",
+      "archive": "../project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/oldauthlife01-handoff.json",
+      "sha256": "b05e9b210940f9215180afc5cadcc21111f636be9e48c59de09f9d8c41716f2d",
+      "bytes": 7676
+    },
+    {
+      "role": "auth_revocation_expiry",
+      "archive": "../project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/oldauthrevoke01-handoff.json",
+      "sha256": "bf29f927fbcebe862ef1d181a3abf7836ddb34115e9fae845e12625e9e4fd30d",
+      "bytes": 8345
+    },
+    {
+      "role": "oldprofile01_failure",
+      "archive": "../project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/oldprofile01-handoff.json",
+      "sha256": "765738c021c959007202a2c7ce65195932962d81ca0f4b43ab28e42d1d189d95",
+      "bytes": 7671
+    },
+    {
+      "role": "previous_failed_batch",
+      "archive": "../project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/old16-batch01-result.json",
+      "sha256": "adc742d93b38b0d0fe9594a331b118d286cacc0f006f9983f3faa7ba438472a1",
+      "bytes": 12006
+    }
+  ],
+  "root_handoffs_match": {
+    "author_batch": "f8f36ced07c67ffd731ee75d505816b5e246d8db7f600655002ed193602b70f1",
+    "independent": {
+      "old14-personal3-result-review": {
+        "review_sha256": "e1808d3c87f384ab39da67cc763cc8553ba2afaad56c3031efc25c53352a3008",
+        "evidence_sha256": "7f01cd7c629141ac0449dac658103ad04903c73b57822092d5f7d74c304c0e7d",
+        "manifest_sha256": "191fc19dccc14c23af9f3115716904f7a8406a704eee129ba411b550ad66528b"
+      },
+      "old14-domain5-result-review": {
+        "review_sha256": "8de9ebad2321e10a630c2cc65251706766426bbebfc9875391e46c53bc43d0f9",
+        "evidence_sha256": "63c7a901b62efe61722dbc0b9adb8445d2a4c362773ae85f5ae597e2dff1d9bb",
+        "manifest_sha256": "2cc9c4a626e60bafcbc4b6112459d99b4a57c214e43d53acb5728daa2338733a"
+      },
+      "old14-batch01-result-review": {
+        "review_sha256": "f23c6c6d52230d56e7f36e41a7e04a6ab0b72d76591ea31c38096db16129619c",
+        "evidence_sha256": "c335623aac70f7ba32f61d181ae130886087c3cfca6a3194168f41685726b9b2",
+        "manifest_sha256": "7ed69703f932955f9390fb91600632f72318ce591dce0121da19ef9ec86cc616"
+      }
+    },
+    "restore": "e54f10daff1abdd7c082d63357bceeea37b9083fdc86e004ac3ce67a77254960"
+  },
+  "counts_bound_to_fixed_manifest_and_independent_reviews": {
+    "run_files": 336,
+    "run_bytes": 5488348,
+    "launch_files": 14,
+    "launch_bytes": 178502,
+    "handoff_files": 14,
+    "unique_resource_ids": 100,
+    "direct_actual_waits": 14,
+    "adopted_actual_waits": 56,
+    "watchdog_actual_joins": 14,
+    "new_nonowned_unwaited_pid1_shims": 57
+  },
+  "runtime_counts_limit": "Archive arithmetic and fixed independent review are reused; no live resources, process scans or waits occurred in this archival task.",
+  "authorization_changed_keys_checked": [
+    "root_authorization",
+    "root_authorized_resources",
+    "status"
+  ],
+  "permitted_groups_unchanged_checked": true,
+  "git_sources_limit": "Two exact personal-settings Git/blob/SHA references inherited from accepted permanent legacy-profile map; no Git command executed.",
+  "all_new_markdown_local_links_resolve": true,
+  "local_links_checked": 41,
+  "links": [
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/author/old14-batch01-result.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/author/old14-batch01-result.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/independent/old14-personal3-result-review/review.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/independent/old14-personal3-result-review/evidence.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/independent/old14-personal3-result-review/manifest.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/independent/old14-domain5-result-review/review.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/independent/old14-domain5-result-review/evidence.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/independent/old14-domain5-result-review/manifest.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/independent/old14-batch01-result-review/review.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/independent/old14-batch01-result-review/evidence.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/independent/old14-batch01-result-review/manifest.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-legacy-profile-json-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/input/final05/handoff.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/input/final05/closure.delta.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/independent/final05-review/review.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/input/final05/source-check.raw"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/input/final05/source-check.meta.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/input/final05/freeze.final.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/runs/oldprofile02/frozen-input.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/source-map.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldprofile02.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldtheme01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldpassword01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldinvite01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldproviders01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldmodels01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldselection01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldsummaryrec01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldsummarynav01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldaccountsec01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldsmtpsettings01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldsmtpdelivery01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldoutbound01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/handoffs/oldpublic01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/runs/oldprofile02/command.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/root/restore-after-old14batch01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/originals/root/exchange-old14batch01.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-recovered-old16batch01-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-legacy-profile-json-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/archive-checks.json"
+    },
+    {
+      "source": "docs/development/agent-team/project-owner-ui-old14-success-verification.md",
+      "target": "project-owner-ui-old14-success-verification-evidence/format-exceptions.json"
+    }
+  ],
+  "fragments_present": 0,
+  "generated_utf8_lf_final_newline_no_trailing_whitespace": true,
+  "original_format_exceptions": {
+    "file": "format-exceptions.json",
+    "files": 14,
+    "trailing_whitespace_lines": 43
+  },
+  "archival_generation_attempts": [
+    {
+      "attempt": 1,
+      "argv": [
+        "python3",
+        "/workspace/scratch/owner-ui-old14-archive/archive.py"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment": "Inherited Python environment; no secret/environment enumeration or product runtime execution.",
+      "script_at_execution_sha256": "2fc63ad73a23519d682d2f08594ceb6fdbdd3af354c911e9a88560ec188c7989",
+      "exit": 1,
+      "raw_source": "/workspace/scratch/owner-ui-old14-archive/archive.raw",
+      "raw_archive": "archive-command-evidence/attempt01.raw",
+      "raw_sha256": "99c056c064a4d6809a253df7301801174e772623d064ea4e18402c9fa0ab92b1",
+      "raw_bytes": 900,
+      "result": "Archival transcription error in expected personal3 manifest SHA. Stopped before destination creation. Corrected to root-supplied and actual 191fc19d...66528b."
+    },
+    {
+      "attempt": 2,
+      "argv": [
+        "python3",
+        "/workspace/scratch/owner-ui-old14-archive/archive.py"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment": "Inherited Python environment; no secret/environment enumeration or product runtime execution.",
+      "script_at_execution_sha256": "916e9fbbc625de196227381cc63ed8fbde18c74ae20bcd2186310e9f6bc57788",
+      "exit": 1,
+      "raw_source": "/workspace/scratch/owner-ui-old14-archive/archive-attempt02.raw",
+      "raw_archive": "archive-command-evidence/attempt02.raw",
+      "raw_sha256": "f02fab9191d02d8e265b80b883b4fe884f4c09bcf742408e4cfe0da67b91f45f",
+      "raw_bytes": 353,
+      "result": "Archival assertion incorrectly expected permitted_groups to change. Fixed inputs prove it remained equal; actual changed keys are root_authorization, root_authorized_resources and status. Stopped before destination creation."
+    },
+    {
+      "attempt": 3,
+      "argv": [
+        "python3",
+        "/workspace/scratch/owner-ui-old14-archive/archive.py"
+      ],
+      "cwd": "/workspace/agenteam",
+      "environment": "Inherited Python environment; no secret/environment enumeration or product runtime execution.",
+      "script_at_execution_sha256": "ce6b7f8d68fa97a6e9935703a31561907a2f6f91d139b3d796747f9b8e0e7bd5",
+      "exit": 0,
+      "raw_source": "/workspace/scratch/owner-ui-old14-archive/archive-attempt03.raw",
+      "raw_archive": "archive-command-evidence/attempt03.raw",
+      "raw_sha256": "e6bc61bb8bc4111b68ccf1a6b0b3ddbdea645696ba54c30b3211f832344daa71",
+      "raw_bytes": 1510,
+      "result": "Every designated input matched; enumerated originals copied/reused and source map generated."
+    },
+    {
+      "phase": "archive validation",
+      "attempt": 1,
+      "argv": [
+        "python3",
+        "/workspace/scratch/owner-ui-old14-archive/check_archive.py"
+      ],
+      "cwd": "/workspace/agenteam",
+      "script_at_execution_sha256": "88515137ade19370174d685a53ff59067e34a46b109413ad59bc9675437b9407",
+      "exit": 1,
+      "raw_archive": "archive-command-evidence/check-attempt01.raw",
+      "raw_sha256": "ee5393ccb10f66bd1948a7c984ec2a02e1c81be8a168038045afc65176b9c8ab",
+      "raw_bytes": 428,
+      "result": "The checker attempted to resolve its own archive-checks.json report before writing it. Corrected the ordering; source/archive SHA and original JSON/format checks had already passed. This was not a product or original-evidence failure."
+    }
+  ],
+  "limits": [
+    "No Go, Node, browser, resource, network, stopped-item probe or Git command.",
+    "No current dist/host/active independent-window read.",
+    "No source/runtime/cache/dependency/asset tree or full closure copied.",
+    "No product, oldprofile01-failure, independent actual A/B or whole-card conclusion manufactured by archive checks."
+  ]
+}
