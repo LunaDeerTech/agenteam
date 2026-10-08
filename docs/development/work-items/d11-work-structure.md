@@ -1,5 +1,7 @@
 # D11 Work Milestone / Sprint 结构库
 
+当前接受补充（2026-10-08）：本卡全部18路径已按固定版本组合获得root正式接受并交付 `a64fb5e783373255a4b0ae7936e5685f25f458c6`，root已核origin/main一致；见[永久验收及全18补充](../agent-team/d11-work-structure-verification.md)。原失败/U1修复、各轮源版本、独立B外部工具terminal缺口与原监督器Wait/root当前清零证据分别保留；不是完整D11或生产Work。以下SPEC阶段及初始授权叙述保留原时点，当前接受状态以本补充和永久验收为准。
+
 - 修订：rev1＋D1；阶段：完整独立 SPEC 静审及唯一 D1 差量/最终组合已通过，root 已接受。见[永久 SPEC 验证记录](../agent-team/d11-work-structure-spec-verification.md)。这是规格接受，不是产品实现、编译或真实 PG 验收通过。
 - 来源锚：root 恢复后确认 `main@0d06fd69`；技术依据另按 §10 的必要文件 SHA 固定，不声称整个 HEAD 或上游模块已经验收。
 - 唯一规格 writer：architecture_worker；唯一业务作者：fixture_recovery。root 已移交 #1–17 仅在作者 scratch 形成完整实施候选，尚未授权 main 安装、Go/Node 或资源执行；#18 README 末件未授。产品独审由 root 指定未参与实现的实例；backend_worker 继续 Model Settings UI 两个 Go harness，不共享本卡写域。

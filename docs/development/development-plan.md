@@ -1,5 +1,7 @@
 # agenteam 开发计划
 
+当前完成记录（2026-10-08，D11 Work Structure）：[结构卡](work-items/d11-work-structure.md)全部18路径已按固定版本组合获得root正式接受，并交付 `a64fb5e783373255a4b0ae7936e5685f25f458c6`，root已核origin/main一致；见[永久验收及全18补充](agent-team/d11-work-structure-verification.md)。原失败/U1修复、各轮源版本及独立B外部工具terminal缺口保留；不是一次当前HEAD全测或完整D11，Task/Agent/执行/生命周期等未绑定责任不变。以下既有记录保留原时点。
+
 当前完成记录（2026-10-08，Project Owner Audit UI rev2）：[本卡](work-items/d27-project-owner-audit-ui.md)全部 22 路径已按固定版本组合独验并获 root 正式接受，最终报告 `442ad780` 无未关闭必修。技术锚为 `75411e27d0f2f5b998ae9a88e31fc9befa431095`，README 末件为 `5fba4510`；见[永久验收](agent-team/project-owner-audit-ui-verification.md)。新 Audit 53 份完整 EOF／schema／client 与旧 Owner 的 response-event 关联重放分别记账，原失败与版本边界保留；不代表完整 D27、生产或 E01，原三停止及 Jina 边界不变。以下既有记录按原时点保留。
 
 当前完成记录（2026-10-08，平台 Embedding current-selection Resolver）：[本卡](work-items/d09-platform-embedding-resolution.md)完整九路径已按固定版本组合通过独验并获 root 正式接受。policy/pure 固定 `fa4bc1238ea1ee167af9948dda74a11da90ccda3`，六 PG 固定 `28dc84cf0cbec0188bbc4b9577d16bcabf0de2b7`，README 末件为 `8dfab520`；[永久验收报告](agent-team/platform-embedding-resolution-verification.md)保存七轮作者成功、独立 A/B、原失败与恢复及最终九路径独审 `39890564`。这是本卡限定组合完成，非当前 HEAD 单次全测、生产接入或完整 D09/D13/D14；生产 consumer、serving、Invocation、默认 root 与原三停止边界保持。以下既有记录按原时点保留。
