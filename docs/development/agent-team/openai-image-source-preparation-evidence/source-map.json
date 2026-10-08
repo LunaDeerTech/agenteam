@@ -1,0 +1,406 @@
+{
+  "status": "SOURCE_BLOCKED_STOP_NO_IMAGE_PROFILE_OR_IMPLEMENTATION_CARD",
+  "date": "2026-10-08",
+  "counts": {
+    "logical_originals": 26,
+    "new_unique_original_entities": 25,
+    "new_unique_original_bytes": 55446,
+    "prior_Chat_permanent_refs_reused": 12,
+    "prior_design_reference": 1,
+    "scratch_frontier_reference_not_copied": 1,
+    "SDK_image_originals_recovered": 0
+  },
+  "sources": [
+    {
+      "logical_id": "architecture-image-local-source01/freeze.json",
+      "source_path": "/workspace/scratch/architecture-image-local-source01/freeze.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/e3a4fd165ba87a1f-freeze.json",
+      "bytes": 523,
+      "sha256": "e3a4fd165ba87a1f337eb0d938caed2f30922ea42156c7b2885a682c4925f062",
+      "category": "local_reference_chain",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "architecture-image-local-source01/report.md",
+      "source_path": "/workspace/scratch/architecture-image-local-source01/report.md",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/ffe245525bd6bbb6-report.md",
+      "bytes": 2978,
+      "sha256": "ffe245525bd6bbb699af96553c66be792f5a25739db10836b3d4ec91ed6a7de8",
+      "category": "local_reference_chain",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "architecture-image-local-source01/source-checks.json",
+      "source_path": "/workspace/scratch/architecture-image-local-source01/source-checks.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/a0bee2c541887c12-source-checks.json",
+      "bytes": 6400,
+      "sha256": "a0bee2c541887c12bc840ca09b03534419a2ebe507079ae0df73440fc0abab39",
+      "category": "local_reference_chain",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "architecture-image-pinned-source01/freeze.json",
+      "source_path": "/workspace/scratch/architecture-image-pinned-source01/freeze.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/038ae21f9cf422ed-freeze.json",
+      "bytes": 2089,
+      "sha256": "038ae21f9cf422edb280d534739c36afd9d137f0e6be1f36b9731112339c3070",
+      "category": "direct_request_DNS_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "architecture-image-pinned-source01/fetch-one.py",
+      "source_path": "/workspace/scratch/architecture-image-pinned-source01/fetch-one.py",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/ec425fe3698fe6f0-fetch-one.py",
+      "bytes": 4651,
+      "sha256": "ec425fe3698fe6f01576b18431fb18e89c7a4fc731abf29c4d3c794906b5be63",
+      "category": "direct_request_DNS_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "architecture-image-pinned-source01/local-binding.json",
+      "source_path": "/workspace/scratch/architecture-image-pinned-source01/local-binding.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/a9286150975fb6c5-local-binding.json",
+      "bytes": 1191,
+      "sha256": "a9286150975fb6c50d20cf3ee9240b6c546af3c0e2c66faf598510d634f7bf3b",
+      "category": "direct_request_DNS_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "architecture-image-pinned-source01/report.md",
+      "source_path": "/workspace/scratch/architecture-image-pinned-source01/report.md",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/e08e32cbc4f4100e-report.md",
+      "bytes": 1683,
+      "sha256": "e08e32cbc4f4100e1657da5d3c8daa176ae3f485c95a47beaa6e90fec90b9076",
+      "category": "direct_request_DNS_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "architecture-image-pinned-source01/requests.json",
+      "source_path": "/workspace/scratch/architecture-image-pinned-source01/requests.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/e84d334ff7238bdf-requests.json",
+      "bytes": 1067,
+      "sha256": "e84d334ff7238bdfe71575af51c25a9eeeeb74c462f70988055cb262f10859be",
+      "category": "direct_request_DNS_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "architecture-image-pinned-source01/result.json",
+      "source_path": "/workspace/scratch/architecture-image-pinned-source01/result.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/f8db082d52d6cf67-result.json",
+      "bytes": 1780,
+      "sha256": "f8db082d52d6cf67ff63bbb0e434b79b39baab59d4df4471d5dbe1d155b3e194",
+      "category": "direct_request_DNS_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "architecture-image-pinned-source01/tool-terminal.json",
+      "source_path": "/workspace/scratch/architecture-image-pinned-source01/tool-terminal.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/091ea1f3197e1446-tool-terminal.json",
+      "bytes": 739,
+      "sha256": "091ea1f3197e1446da17b8966c81d818e95f59cd8193f0059383d5380808fa2d",
+      "category": "direct_request_DNS_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "architecture-image-pinned-source01/tree.body",
+      "source_path": "/workspace/scratch/architecture-image-pinned-source01/tree.body",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/e3b0c44298fc1c14-tree.body",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "direct_request_DNS_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "architecture-image-pinned-source01/tree.headers.json",
+      "source_path": "/workspace/scratch/architecture-image-pinned-source01/tree.headers.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/ec134e421f086149-tree.headers.json",
+      "bytes": 86,
+      "sha256": "ec134e421f08614991c923bfa48b1101d0354f8f291ac9d6528cba006effcfb6",
+      "category": "direct_request_DNS_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "architecture-image-pinned-source01/tree.result.json",
+      "source_path": "/workspace/scratch/architecture-image-pinned-source01/tree.result.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/999f5cc2b5e043b0-tree.result.json",
+      "bytes": 905,
+      "sha256": "999f5cc2b5e043b0c45bc789a2f15dfcdb35f29d9aa4e2f1dacc03f154ce4c50",
+      "category": "direct_request_DNS_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/manifest.json",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/manifest.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/8b7d91cb1be1d635-manifest.json",
+      "bytes": 3914,
+      "sha256": "8b7d91cb1be1d635cfd55a112aae7005185ee22684574594cad66afda882d399",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/fetch-one.py",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/fetch-one.py",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/053b9142a056fa6c-fetch-one.py",
+      "bytes": 11636,
+      "sha256": "053b9142a056fa6c176a6ff2ff0fa382b5b49ab480a95e71c6b5a07ccd1ffbea",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/fetch-wrapper.json",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/fetch-wrapper.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/ecc170b09e010ff1-fetch-wrapper.json",
+      "bytes": 312,
+      "sha256": "ecc170b09e010ff1f36474df23a7c323ebc8479f35f2b2a3a1953b147e2f8db0",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/local-binding.json",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/local-binding.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/84944f1f942326ce-local-binding.json",
+      "bytes": 3066,
+      "sha256": "84944f1f942326ce37caf61700c612b5a39880f78134beabe711b42d9089719d",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/requests.json",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/requests.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/4d9c689f5fabb520-requests.json",
+      "bytes": 2745,
+      "sha256": "4d9c689f5fabb520aa06181031849a8383c2006198c684748afe383703750fdc",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/tree.spawn.json",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/tree.spawn.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/91b0746fbe214811-tree.spawn.json",
+      "bytes": 1275,
+      "sha256": "91b0746fbe2148112cb2ccdd0899fc4e77931394d8262ef63fd57f40232ab06e",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/tree.headers.raw",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/tree.headers.raw",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/d601a9fcf1ee2f33-tree.headers.raw",
+      "bytes": 143,
+      "sha256": "d601a9fcf1ee2f33c412bc32ea51de88030ee1a20a6186b03c16f7b3e0adbee4",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/tree.stderr.raw",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/tree.stderr.raw",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/115ac061d5c11b9f-tree.stderr.raw",
+      "bytes": 47,
+      "sha256": "115ac061d5c11b9f88bc706341277e549679986ec53ba237026722b790803312",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/tree.body",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/tree.body",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/e3b0c44298fc1c14-tree.body",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/tree.result.json",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/tree.result.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/6060bb370d189f59-tree.result.json",
+      "bytes": 2310,
+      "sha256": "6060bb370d189f595bf41fbdc78e52e24fca7bd87bb7963fb99402703bc15acb",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/tool-terminal.json",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/tool-terminal.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/5a207bad5f2c5aed-tool-terminal.json",
+      "bytes": 615,
+      "sha256": "5a207bad5f2c5aed1a9b796d549753e386f4acc18b8f3bcd8dce04c80280d33e",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/result.json",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/result.json",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/d0fb0d31ee1c1c9b-result.json",
+      "bytes": 3363,
+      "sha256": "d0fb0d31ee1c1c9b6770dc6dd243ec57c0f15f46037ef6b1ee2ebcfd0e3d13df",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    },
+    {
+      "logical_id": "image-pinned-source-proxy01/report.md",
+      "source_path": "/workspace/scratch/image-pinned-source-proxy01/report.md",
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/ae9db5d55f972f6a-report.md",
+      "bytes": 1928,
+      "sha256": "ae9db5d55f972f6a46a9b547ece082728db9a9f6edcaf9ddb1fb146530002e49",
+      "category": "standard_proxy_CONNECT_failure",
+      "handling": "original_bytes_preserved_SHA_deduplicated"
+    }
+  ],
+  "prior_permanent_refs": [
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/README.md",
+      "bytes": 3856,
+      "sha256": "f2f8bc8af4d0353cf3923ca27808ded07cb981bda8cefea2cd134914b5cf958f",
+      "archive_path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/README.md",
+      "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/source-manifest.json",
+      "bytes": 10059,
+      "sha256": "14de67c09ce263b11414505fcd52f125b48684dfafa23374281a6b066d317760",
+      "archive_path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/source-manifest.json",
+      "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/field-manifest.json",
+      "bytes": 16372,
+      "sha256": "15784f0d4e30c4770680a314564e7546e8220766277488a02a290e9db4934cb3",
+      "archive_path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/field-manifest.json",
+      "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/excerpt-manifest.json",
+      "bytes": 12656,
+      "sha256": "4dd28262f5a24b178718f82cb2eeb50bb6a93fc3e0730da7dc4b7a55e90e86ad",
+      "archive_path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/excerpt-manifest.json",
+      "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/recovery-report.md",
+      "bytes": 2708,
+      "sha256": "9681a1ff12b17402437a6cc17c045b1b238ae8be28e58486450888ce963f0b3b",
+      "archive_path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/recovery-report.md",
+      "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/initial-fetch.json",
+      "bytes": 497,
+      "sha256": "5cf0700940f6db85befca5d80975314a4d47533113270241492f2448d939c4fd",
+      "archive_path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/initial-fetch.json",
+      "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/git-fetch-commands.json",
+      "bytes": 876,
+      "sha256": "14c62beacc8b5f4be71f0fc84f6fed127203921f3110d120ae235176a111718e",
+      "archive_path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/git-fetch-commands.json",
+      "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/archive-checks.json",
+      "bytes": 2480,
+      "sha256": "8f9431af760cabd04d800a26f5b6378627cff089866d96376bd36a3f29eac2d9",
+      "archive_path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/archive-checks.json",
+      "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/independent-sdk-identity-checks.json",
+      "bytes": 4542,
+      "sha256": "7236f194557ee0e10d4160c30e1dd241813373b9cb41927cf1f93d2a0e5057a7",
+      "archive_path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/independent-sdk-identity-checks.json",
+      "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/review-rev1.md",
+      "bytes": 8047,
+      "sha256": "67ec3c31ee904ddd02987468a47132d74f3a9ec97508c1d022e236e732d58341",
+      "archive_path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/review-rev1.md",
+      "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/LICENSE.openai",
+      "bytes": 11336,
+      "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
+      "archive_path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/LICENSE.openai",
+      "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/commit-object.base64",
+      "bytes": 2242,
+      "sha256": "dbed95a1c48dcbd99c8c1b5c83409d09c572776c95b3b1b5872f481661e6bd75",
+      "archive_path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/commit-object.base64",
+      "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+    }
+  ],
+  "design_reference": {
+    "path": "/workspace/agenteam/docs/development/work-items/d09-model-system-token-usage-design.md",
+    "bytes": 70084,
+    "sha256": "2597bcceb2f200b5143a91f74d3f0afee14468aeced5aabe53f70719052996c5",
+    "read_scope": "section 6 and source reference only; reused from preceding bounded analysis",
+    "archive_path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+    "handling": "prior_permanent_reference_in_place_not_copied_or_rehashed"
+  },
+  "frontier_provenance": {
+    "path": "/workspace/scratch/architecture-backend-frontier-after-embedding01/candidate.md",
+    "bytes": 8270,
+    "sha256": "59752cac175a061ae3b9ec7fc0af7ada2692cf67b955cfb55212d940d5340085",
+    "handling": "fixed_scratch_frontier_provenance_only_not_copied",
+    "content_acceptance": "Not Image fields, profile or implementation authority."
+  },
+  "official_repository": "https://github.com/openai/openai-python",
+  "fixed_commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "fixed_tree_oid_from_old_commit_record": "f1b9a07a4b1f2d908bcb08d9cac4449f93616933",
+  "attempted_tree_url": "https://api.github.com/repos/openai/openai-python/git/trees/f1b9a07a4b1f2d908bcb08d9cac4449f93616933?recursive=1",
+  "missing_required_sources": [
+    {
+      "path": "src/openai/types/image_generate_params.py",
+      "planned_official_raw_url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/image_generate_params.py",
+      "request_started_in_either_attempt": false,
+      "bytes_recovered": false,
+      "sha256": null,
+      "git_blob_sha1": null,
+      "fields": null,
+      "direct_imports": null,
+      "transitive_type_closure": null
+    },
+    {
+      "path": "src/openai/types/images_response.py",
+      "planned_official_raw_url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/images_response.py",
+      "request_started_in_either_attempt": false,
+      "bytes_recovered": false,
+      "sha256": null,
+      "git_blob_sha1": null,
+      "fields": null,
+      "direct_imports": null,
+      "transitive_type_closure": null
+    },
+    {
+      "path": "src/openai/types/image.py",
+      "planned_official_raw_url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/image.py",
+      "request_started_in_either_attempt": false,
+      "bytes_recovered": false,
+      "sha256": null,
+      "git_blob_sha1": null,
+      "fields": null,
+      "direct_imports": null,
+      "transitive_type_closure": null
+    },
+    {
+      "path": "src/openai/resources/images.py",
+      "planned_official_raw_url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/resources/images.py",
+      "request_started_in_either_attempt": false,
+      "bytes_recovered": false,
+      "sha256": null,
+      "git_blob_sha1": null,
+      "fields": null,
+      "direct_imports": null,
+      "transitive_type_closure": null
+    }
+  ],
+  "old_research_SHA_without_original_bytes": "41f04a202111e3ab99ea0c904112accc76dfc6844975b3c518640c1e090a515f",
+  "empty_entity_aliases": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "meaning": "One empty-byte entity maps two distinct captures. Direct body is a no-response placeholder; proxy body is captured zero stdout, not a complete proxy response body. Neither is SDK source."
+  },
+  "commit_license_scope": "Prior fixed Chat archive bytes and recorded identity reused in place. No new remote identity, signature, tree membership or Image blob proof."
+}

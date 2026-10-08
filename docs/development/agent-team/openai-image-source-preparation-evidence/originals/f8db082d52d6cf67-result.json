@@ -1,0 +1,56 @@
+{
+  "status": "PINNED_OFFICIAL_SOURCE_RECOVERY_DNS_FAIL_STOP",
+  "original_local_blocked_ffe24552_unchanged": true,
+  "network_attempts": 1,
+  "maximum_authorized_attempts": 6,
+  "raw_source_requests_started": 0,
+  "HTTP_response_received": false,
+  "stopped_after_first_failure": true,
+  "retry_or_alternate_channel": false,
+  "tree_metadata_retrieved": false,
+  "sources": [
+    {
+      "path": "src/openai/types/image_generate_params.py",
+      "retrieved": false,
+      "sha256": null,
+      "git_blob_sha1": null,
+      "commit_membership_proven": false,
+      "direct_imports": null
+    },
+    {
+      "path": "src/openai/types/images_response.py",
+      "retrieved": false,
+      "sha256": null,
+      "git_blob_sha1": null,
+      "commit_membership_proven": false,
+      "direct_imports": null
+    },
+    {
+      "path": "src/openai/types/image.py",
+      "retrieved": false,
+      "sha256": null,
+      "git_blob_sha1": null,
+      "commit_membership_proven": false,
+      "direct_imports": null
+    },
+    {
+      "path": "src/openai/resources/images.py",
+      "retrieved": false,
+      "sha256": null,
+      "git_blob_sha1": null,
+      "commit_membership_proven": false,
+      "direct_imports": null
+    }
+  ],
+  "image_generations_field_facts": null,
+  "transitive_source_paths": null,
+  "absence_of_evidence_not_empty_field_or_import_set": true,
+  "commit_identity": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "root_tree_identity_from_old_commit": "f1b9a07a4b1f2d908bcb08d9cac4449f93616933",
+  "local_reused_object_verification": "local-binding.json",
+  "signature_verified": false,
+  "SDK_or_product_code_executed": false,
+  "provider_conformance_or_profile_approval": false,
+  "repository_or_formal_card_modified": false,
+  "go_node_resources_or_git": false
+}

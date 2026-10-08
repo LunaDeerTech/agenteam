@@ -1,0 +1,55 @@
+{
+  "status": "DNS_FAIL_STOP_NO_SOURCE_RECOVERED",
+  "captured_utc": "2026-10-08T17:32:53.094445+00:00",
+  "network_attempts": 1,
+  "raw_source_requests": 0,
+  "tool_actual_exit": 1,
+  "originals_and_report": [
+    {
+      "path": "/workspace/scratch/architecture-image-pinned-source01/fetch-one.py",
+      "bytes": 4651,
+      "sha256": "ec425fe3698fe6f01576b18431fb18e89c7a4fc731abf29c4d3c794906b5be63"
+    },
+    {
+      "path": "/workspace/scratch/architecture-image-pinned-source01/local-binding.json",
+      "bytes": 1191,
+      "sha256": "a9286150975fb6c50d20cf3ee9240b6c546af3c0e2c66faf598510d634f7bf3b"
+    },
+    {
+      "path": "/workspace/scratch/architecture-image-pinned-source01/report.md",
+      "bytes": 1683,
+      "sha256": "e08e32cbc4f4100e1657da5d3c8daa176ae3f485c95a47beaa6e90fec90b9076"
+    },
+    {
+      "path": "/workspace/scratch/architecture-image-pinned-source01/requests.json",
+      "bytes": 1067,
+      "sha256": "e84d334ff7238bdfe71575af51c25a9eeeeb74c462f70988055cb262f10859be"
+    },
+    {
+      "path": "/workspace/scratch/architecture-image-pinned-source01/result.json",
+      "bytes": 1780,
+      "sha256": "f8db082d52d6cf67ff63bbb0e434b79b39baab59d4df4471d5dbe1d155b3e194"
+    },
+    {
+      "path": "/workspace/scratch/architecture-image-pinned-source01/tool-terminal.json",
+      "bytes": 739,
+      "sha256": "091ea1f3197e1446da17b8966c81d818e95f59cd8193f0059383d5380808fa2d"
+    },
+    {
+      "path": "/workspace/scratch/architecture-image-pinned-source01/tree.body",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/architecture-image-pinned-source01/tree.headers.json",
+      "bytes": 86,
+      "sha256": "ec134e421f08614991c923bfa48b1101d0354f8f291ac9d6528cba006effcfb6"
+    },
+    {
+      "path": "/workspace/scratch/architecture-image-pinned-source01/tree.result.json",
+      "bytes": 905,
+      "sha256": "999f5cc2b5e043b0c45bc789a2f15dfcdb35f29d9aa4e2f1dacc03f154ce4c50"
+    }
+  ],
+  "no_further_network_or_business_authorization": true
+}

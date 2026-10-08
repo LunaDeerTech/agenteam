@@ -1,0 +1,67 @@
+{
+  "scope": "new independently authorized existing-environment-proxy channel; old direct failure untouched",
+  "official_commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "root_tree": "f1b9a07a4b1f2d908bcb08d9cac4449f93616933",
+  "commit_object": {
+    "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/commit-object.base64",
+    "encoded_bytes": 2242,
+    "encoded_sha256": "dbed95a1c48dcbd99c8c1b5c83409d09c572776c95b3b1b5872f481661e6bd75",
+    "decoded_bytes": 1659,
+    "decoded_sha256": "4a18fa5995a190f5cbff6f3313422abbae18861e401e2251ba73e7c8a59a9702",
+    "computed_git_commit_sha1": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+    "root_tree": "f1b9a07a4b1f2d908bcb08d9cac4449f93616933",
+    "signature_verified": false
+  },
+  "license": {
+    "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/LICENSE.openai",
+    "bytes": 11336,
+    "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
+    "git_blob": "cbb5bb26e40dd13a02c7874298f70b9d68bab57e"
+  },
+  "old_direct_failure_refs": {
+    "freeze_path": "/workspace/scratch/architecture-image-pinned-source01/freeze.json",
+    "freeze_sha256": "038ae21f9cf422edb280d534739c36afd9d137f0e6be1f36b9731112339c3070",
+    "report_sha256": "e08e32cbc4f4100e1657da5d3c8daa176ae3f485c95a47beaa6e90fec90b9076"
+  },
+  "curl": {
+    "path": "/usr/bin/curl",
+    "bytes": 321880,
+    "sha256": "d2136f430029a8750c6c3280effdca0383e24b1f606e32d63e3b4154409b1038"
+  },
+  "proxy_policy": "curl default inherited environment; values not inspected, recorded or modified; curl config disabled; no netrc/Git credentials",
+  "requests_max": 5,
+  "body_limit_bytes": 2097152,
+  "request_total_seconds_max": 30,
+  "curl_network_timeout_seconds": 29,
+  "redirects": false,
+  "retries": 0,
+  "urls": [
+    {
+      "slug": "tree",
+      "url": "https://api.github.com/repos/openai/openai-python/git/trees/f1b9a07a4b1f2d908bcb08d9cac4449f93616933?recursive=1",
+      "source_path": null
+    },
+    {
+      "slug": "source1",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/image_generate_params.py",
+      "source_path": "src/openai/types/image_generate_params.py"
+    },
+    {
+      "slug": "source2",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/images_response.py",
+      "source_path": "src/openai/types/images_response.py"
+    },
+    {
+      "slug": "source3",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/image.py",
+      "source_path": "src/openai/types/image.py"
+    },
+    {
+      "slug": "source4",
+      "url": "https://raw.githubusercontent.com/openai/openai-python/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/resources/images.py",
+      "source_path": "src/openai/resources/images.py"
+    }
+  ],
+  "signature_verified": false,
+  "sdk_execution": false
+}

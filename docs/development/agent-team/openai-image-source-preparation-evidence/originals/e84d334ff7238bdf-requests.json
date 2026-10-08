@@ -1,0 +1,32 @@
+{
+  "attempts": [
+    {
+      "ordinal": 1,
+      "slug": "tree",
+      "method": "GET",
+      "url": "https://api.github.com/repos/openai/openai-python/git/trees/f1b9a07a4b1f2d908bcb08d9cac4449f93616933?recursive=1",
+      "started_utc": "2026-10-08T17:31:33.406567+00:00",
+      "total_deadline_seconds": 30,
+      "body_limit_bytes": 2097152,
+      "state": "FAIL_STOP",
+      "status": null,
+      "response_complete": false,
+      "body_bytes": 0,
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_sha1": null,
+      "elapsed_seconds": 0.009836785000516102,
+      "connection_closed": true,
+      "failure": {
+        "type": "gaierror",
+        "message": "[Errno -3] Temporary failure in name resolution"
+      },
+      "redirect_followed": false,
+      "retry_count": 0,
+      "response_paths": [
+        "/workspace/scratch/architecture-image-pinned-source01/tree.body",
+        "/workspace/scratch/architecture-image-pinned-source01/tree.headers.json"
+      ]
+    }
+  ],
+  "stopped_on_failure": true
+}

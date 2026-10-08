@@ -1,0 +1,48 @@
+{
+  "status": "SOURCE_ARCHIVE_DOCUMENT_CHECKS_PASS_STOP",
+  "new_logical_original_hashes_and_lengths": 26,
+  "new_unique_entities_exact_copy": 25,
+  "new_JSON_originals_parsed": 17,
+  "embedded_fixed_ref_checks": 24,
+  "old_permanent_reference_paths_exist": 13,
+  "old_Chat_originals_rehashed_or_copied": false,
+  "frontier_candidate_SHA_checked_content_not_copied": {
+    "path": "/workspace/scratch/architecture-backend-frontier-after-embedding01/candidate.md",
+    "bytes": 8270,
+    "sha256": "59752cac175a061ae3b9ec7fc0af7ada2692cf67b955cfb55212d940d5340085",
+    "handling": "fixed_scratch_frontier_provenance_only_not_copied",
+    "content_acceptance": "Not Image fields, profile or implementation authority."
+  },
+  "local_link_targets_exist_at_completion": [
+    "openai-image-source-preparation-evidence/originals/ffe245525bd6bbb6-report.md",
+    "openai-image-source-preparation-evidence/originals/e08e32cbc4f4100e-report.md",
+    "openai-image-source-preparation-evidence/originals/ae9db5d55f972f6a-report.md",
+    "openai-image-source-preparation-evidence/source-map.json",
+    "openai-image-source-preparation-evidence/originals/d601a9fcf1ee2f33-tree.headers.raw",
+    "openai-image-source-preparation-evidence/originals/115ac061d5c11b9f-tree.stderr.raw",
+    "openai-image-source-preparation-evidence/originals/091ea1f3197e1446-tool-terminal.json",
+    "openai-image-source-preparation-evidence/originals/6060bb370d189f59-tree.result.json",
+    "openai-image-source-preparation-evidence/originals/5a207bad5f2c5aed-tool-terminal.json",
+    "evidence/d09-openai-chat-wire-source/source-manifest.json",
+    "evidence/d09-openai-chat-wire-source/commit-object.base64",
+    "evidence/d09-openai-chat-wire-source/LICENSE.openai",
+    "openai-image-source-preparation-evidence/source-map.json",
+    "openai-image-source-preparation-evidence/manifest.json",
+    "openai-image-source-preparation-evidence/checks.json",
+    "openai-image-source-preparation-evidence/format.json"
+  ],
+  "original_historical_links": "Preserved unmodified; not claimed migrated or independently revalidated.",
+  "source_fields_imports_and_blob_identity_remain_null": true,
+  "empty_capture_not_complete_proxy_response_body": true,
+  "direct_proxy_failure_boundaries_separately_recorded": true,
+  "generated_format": "UTF-8/LF/final LF with no trailing whitespace, indent space-before-tab or blank EOF lines.",
+  "actions": {
+    "bounded_document_JSON_hash_link_and_raw_byte_checks": true,
+    "network_retry_or_new_tool_environment_check": false,
+    "SDK_install_import_or_execution": false,
+    "Go_Node_Git_or_business_resources": false,
+    "old_Chat17_source_or_dependency_graph_scan": false,
+    "writes_outside_two_authorized_repository_paths": false
+  },
+  "result_scope": "SOURCE/BLOCKED only. No new Image field/profile/implementation/conformance conclusion."
+}

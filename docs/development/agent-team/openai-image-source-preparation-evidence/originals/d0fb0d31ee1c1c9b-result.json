@@ -1,0 +1,98 @@
+{
+  "status": "PROXY_CONNECT_403_FAIL_STOP_NO_IMAGE_SOURCE_RECOVERED",
+  "authorization": "new standard existing HTTPS proxy channel; old direct-DNS attempt and guard retained",
+  "official_commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "bound_commit_root_tree": "f1b9a07a4b1f2d908bcb08d9cac4449f93616933",
+  "local_commit_object_recomputed": true,
+  "local_license_reused": true,
+  "commit_signature_verified": false,
+  "attempts": 1,
+  "planned_maximum_attempts": 5,
+  "raw_source_requests": 0,
+  "network_retry_count": 0,
+  "redirects_followed": 0,
+  "first_request": {
+    "url": "https://api.github.com/repos/openai/openai-python/git/trees/f1b9a07a4b1f2d908bcb08d9cac4449f93616933?recursive=1",
+    "curl_exit_code": 56,
+    "exact_safe_diagnostic": "curl: (56) CONNECT tunnel failed, response 403",
+    "proxy_connect_response_status": 403,
+    "proxy_tunnel_established": false,
+    "github_application_response_observed": false,
+    "github_application_status": null,
+    "proxy_declared_content_length": 16,
+    "curl_stdout_bytes": 0,
+    "curl_stdout_eof": true,
+    "complete_proxy_response_body_preserved": false,
+    "github_source_body_received": false,
+    "elapsed_seconds": 0.014061549001780804
+  },
+  "source_bytes_and_direct_imports": [
+    {
+      "path": "src/openai/types/image_generate_params.py",
+      "recovered": false,
+      "git_blob_sha1": null,
+      "fields": null,
+      "direct_imports": null
+    },
+    {
+      "path": "src/openai/types/images_response.py",
+      "recovered": false,
+      "git_blob_sha1": null,
+      "fields": null,
+      "direct_imports": null
+    },
+    {
+      "path": "src/openai/types/image.py",
+      "recovered": false,
+      "git_blob_sha1": null,
+      "fields": null,
+      "direct_imports": null
+    },
+    {
+      "path": "src/openai/resources/images.py",
+      "recovered": false,
+      "git_blob_sha1": null,
+      "fields": null,
+      "direct_imports": null
+    }
+  ],
+  "tree_membership_proof_obtained": false,
+  "schema_or_field_contract_frozen": false,
+  "sdk_installed_or_executed": false,
+  "provider_conformance": false,
+  "profile_approved": false,
+  "process_retirement": {
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-I",
+      "-B",
+      "/workspace/scratch/image-pinned-source-proxy01/fetch-one.py",
+      "tree"
+    ],
+    "tool_chunk_id": "2237f9",
+    "tool_actual_exit_code": 1,
+    "tool_reported_wall_time_seconds": 2.2695e-05,
+    "curl_actual_wait_completed": true,
+    "curl_exit_code": 56,
+    "owned_direct_pid": 1085237,
+    "owned_starttime": "5126715",
+    "two_identity_observations": [
+      null,
+      null
+    ],
+    "forced_kill": false,
+    "active_task_command_or_reader": false,
+    "whole_host_or_process_tree_emptiness_claimed": false
+  },
+  "proxy_values_read_or_recorded": false,
+  "raw_stderr_handling": "Only compared whole bytes with the fixed safe CONNECT403 diagnostic; no proxy environment values or credentials inspected/printed. Original private stderr retained.",
+  "environment_dns_trust_no_proxy_changed": false,
+  "netrc_or_git_credentials_used": false,
+  "repository_or_old_original_writes": false,
+  "further_network_authorized": false,
+  "skills_used": [
+    "agenteam-design",
+    "agenteam-verification"
+  ],
+  "completed_utc": "2026-10-08T17:45:17.348422+00:00"
+}

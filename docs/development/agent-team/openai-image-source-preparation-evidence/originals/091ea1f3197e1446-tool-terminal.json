@@ -1,0 +1,21 @@
+{
+  "tool": "exec_command",
+  "command": "python3 /workspace/scratch/architecture-image-pinned-source01/fetch-one.py tree",
+  "chunk_id": "8ba708",
+  "exit_code": 1,
+  "session_id": null,
+  "exception_handling": "helper caught the exception and emitted its type/message to stdout JSON and tree.result.json; no Python traceback or tool stderr was emitted",
+  "stdout_result": {
+    "slug": "tree",
+    "state": "FAIL_STOP",
+    "status": null,
+    "body_bytes": 0,
+    "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "elapsed_seconds": 0.009836785000516102,
+    "failure": {
+      "type": "gaierror",
+      "message": "[Errno -3] Temporary failure in name resolution"
+    }
+  },
+  "stderr_text": ""
+}

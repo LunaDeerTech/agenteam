@@ -1,0 +1,94 @@
+{
+  "status": "PROXY_CONNECT_403_FAIL_STOP_NO_IMAGE_SOURCE_RECOVERED",
+  "sources_recovered": 0,
+  "attempts": 1,
+  "next_raw_requests_not_started": 4,
+  "files": [
+    {
+      "path": "/workspace/scratch/image-pinned-source-proxy01/fetch-one.py",
+      "bytes": 11636,
+      "sha256": "053b9142a056fa6c176a6ff2ff0fa382b5b49ab480a95e71c6b5a07ccd1ffbea"
+    },
+    {
+      "path": "/workspace/scratch/image-pinned-source-proxy01/fetch-wrapper.json",
+      "bytes": 312,
+      "sha256": "ecc170b09e010ff1f36474df23a7c323ebc8479f35f2b2a3a1953b147e2f8db0"
+    },
+    {
+      "path": "/workspace/scratch/image-pinned-source-proxy01/local-binding.json",
+      "bytes": 3066,
+      "sha256": "84944f1f942326ce37caf61700c612b5a39880f78134beabe711b42d9089719d"
+    },
+    {
+      "path": "/workspace/scratch/image-pinned-source-proxy01/requests.json",
+      "bytes": 2745,
+      "sha256": "4d9c689f5fabb520aa06181031849a8383c2006198c684748afe383703750fdc"
+    },
+    {
+      "path": "/workspace/scratch/image-pinned-source-proxy01/tree.spawn.json",
+      "bytes": 1275,
+      "sha256": "91b0746fbe2148112cb2ccdd0899fc4e77931394d8262ef63fd57f40232ab06e"
+    },
+    {
+      "path": "/workspace/scratch/image-pinned-source-proxy01/tree.headers.raw",
+      "bytes": 143,
+      "sha256": "d601a9fcf1ee2f33c412bc32ea51de88030ee1a20a6186b03c16f7b3e0adbee4"
+    },
+    {
+      "path": "/workspace/scratch/image-pinned-source-proxy01/tree.stderr.raw",
+      "bytes": 47,
+      "sha256": "115ac061d5c11b9f88bc706341277e549679986ec53ba237026722b790803312"
+    },
+    {
+      "path": "/workspace/scratch/image-pinned-source-proxy01/tree.body",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/image-pinned-source-proxy01/tree.result.json",
+      "bytes": 2310,
+      "sha256": "6060bb370d189f595bf41fbdc78e52e24fca7bd87bb7963fb99402703bc15acb"
+    },
+    {
+      "path": "/workspace/scratch/image-pinned-source-proxy01/tool-terminal.json",
+      "bytes": 615,
+      "sha256": "5a207bad5f2c5aed1a9b796d549753e386f4acc18b8f3bcd8dce04c80280d33e"
+    },
+    {
+      "path": "/workspace/scratch/image-pinned-source-proxy01/result.json",
+      "bytes": 3363,
+      "sha256": "d0fb0d31ee1c1c9b6770dc6dd243ec57c0f15f46037ef6b1ee2ebcfd0e3d13df"
+    },
+    {
+      "path": "/workspace/scratch/image-pinned-source-proxy01/report.md",
+      "bytes": 1928,
+      "sha256": "ae9db5d55f972f6a46a9b547ece082728db9a9f6edcaf9ddb1fb146530002e49"
+    }
+  ],
+  "old_direct_failure_refs_reused": {
+    "freeze_path": "/workspace/scratch/architecture-image-pinned-source01/freeze.json",
+    "freeze_sha256": "038ae21f9cf422edb280d534739c36afd9d137f0e6be1f36b9731112339c3070",
+    "report_sha256": "e08e32cbc4f4100e1657da5d3c8daa176ae3f485c95a47beaa6e90fec90b9076"
+  },
+  "old_commit_license_refs_reused": {
+    "commit_object": {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/commit-object.base64",
+      "encoded_bytes": 2242,
+      "encoded_sha256": "dbed95a1c48dcbd99c8c1b5c83409d09c572776c95b3b1b5872f481661e6bd75",
+      "decoded_bytes": 1659,
+      "decoded_sha256": "4a18fa5995a190f5cbff6f3313422abbae18861e401e2251ba73e7c8a59a9702",
+      "computed_git_commit_sha1": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+      "root_tree": "f1b9a07a4b1f2d908bcb08d9cac4449f93616933",
+      "signature_verified": false
+    },
+    "license": {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/LICENSE.openai",
+      "bytes": 11336,
+      "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
+      "git_blob": "cbb5bb26e40dd13a02c7874298f70b9d68bab57e"
+    }
+  },
+  "scope": "first allowed standard-proxy request rejected at CONNECT; no SDK/source/profile claims",
+  "all_owned_commands_stopped": true,
+  "no_further_network": true
+}

@@ -1,0 +1,95 @@
+{
+  "maximum_attempts": 5,
+  "attempts": [
+    {
+      "slug": "tree",
+      "url": "https://api.github.com/repos/openai/openai-python/git/trees/f1b9a07a4b1f2d908bcb08d9cac4449f93616933?recursive=1",
+      "source_path": null,
+      "ordinal": 1,
+      "started_utc": "2026-10-08T17:43:12.431731+00:00",
+      "argv": [
+        "/usr/bin/curl",
+        "--disable",
+        "--silent",
+        "--show-error",
+        "--proto",
+        "=https",
+        "--proto-redir",
+        "=https",
+        "--max-redirs",
+        "0",
+        "--retry",
+        "0",
+        "--max-time",
+        "29",
+        "--max-filesize",
+        "2097152",
+        "--request",
+        "GET",
+        "--header",
+        "Accept: application/vnd.github+json",
+        "--header",
+        "Accept-Encoding: identity",
+        "--user-agent",
+        "agenteam-pinned-public-source/1",
+        "--dump-header",
+        "/workspace/scratch/image-pinned-source-proxy01/tree.headers.raw",
+        "--output",
+        "-",
+        "https://api.github.com/repos/openai/openai-python/git/trees/f1b9a07a4b1f2d908bcb08d9cac4449f93616933?recursive=1"
+      ],
+      "state": "FAIL_STOP",
+      "environment_policy": "inherit standard environment without reading or changing proxy/credentials/DNS/trust/no_proxy; curl config disabled; no netrc",
+      "body_limit_bytes": 2097152,
+      "request_total_seconds_max": 30,
+      "direct_process": {
+        "pid": 1085237,
+        "starttime": "5126715",
+        "state": "R"
+      },
+      "status": 403,
+      "observed_status_lines": [
+        {
+          "status": 403,
+          "reason": "Forbidden"
+        }
+      ],
+      "selected_headers": {
+        "content-type": [
+          "text/plain"
+        ],
+        "content-length": [
+          "16"
+        ],
+        "date": [
+          "Thu, 08 Oct 2026 17:43:12 GMT"
+        ]
+      },
+      "stdout_EOF": true,
+      "body_bytes": 0,
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "curl_exit_code": 56,
+      "actual_wait_completed": true,
+      "direct_identity_observations": [
+        null,
+        null
+      ],
+      "direct_identity_absent_twice": true,
+      "whole_process_tree_claimed": false,
+      "forced_kill": false,
+      "elapsed_seconds": 0.014061549001780804,
+      "failure": {
+        "kind": "Rejected",
+        "code": "curl_nonzero_exit"
+      },
+      "binding": null,
+      "redirect_followed": false,
+      "retry_count": 0,
+      "stderr_bytes": 47,
+      "stderr_sha256": "115ac061d5c11b9f88bc706341277e549679986ec53ba237026722b790803312",
+      "stderr_content_not_inspected_or_printed": true,
+      "proxy_values_not_inspected_or_recorded": true
+    }
+  ],
+  "stopped_on_failure": true
+}

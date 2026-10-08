@@ -1,0 +1,157 @@
+{
+  "status": "REQUIRED_IMAGE_SOURCE_MISSING_IN_BOUND_REFERENCE_CHAIN_STOP",
+  "official_commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "original_research_report_sha256": "41f04a202111e3ab99ea0c904112accc76dfc6844975b3c518640c1e090a515f",
+  "original_research_report_bytes_retrieved": false,
+  "chain": "design section 6 -> archived Chat wire source README/manifest -> original local git-fetch root and offline restore locations",
+  "manifest": {
+    "declared_commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+    "adopted_source_count": 17,
+    "image_original_count": 0,
+    "old_manifest_does_not_authorize_other_files": true
+  },
+  "commit_object": {
+    "decoded_bytes": 1659,
+    "sha256": "4a18fa5995a190f5cbff6f3313422abbae18861e401e2251ba73e7c8a59a9702",
+    "git_commit_sha1": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+    "matches_archived_manifest": true,
+    "tree_oid": "f1b9a07a4b1f2d908bcb08d9cac4449f93616933",
+    "tree_object_retrieved": false,
+    "signature_verified": false
+  },
+  "license": {
+    "bytes": 11336,
+    "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
+    "git_blob": "cbb5bb26e40dd13a02c7874298f70b9d68bab57e",
+    "matches_archived_license_record": true,
+    "new_tree_membership_proven": false
+  },
+  "local_locations": [
+    {
+      "path": "/workspace/agenteam-openai-chat-source-5t6d72b5",
+      "exists_at_read": false,
+      "reference": "initial-fetch/git-fetch-commands or archive-checks"
+    },
+    {
+      "path": "/workspace/agenteam-openai-chat-source-5t6d72b5/objects.git",
+      "exists_at_read": false,
+      "reference": "initial-fetch/git-fetch-commands or archive-checks"
+    },
+    {
+      "path": "/tmp/agenteam-openai-wire-rev2-u62vqiwd/restored-sources",
+      "exists_at_read": false,
+      "reference": "initial-fetch/git-fetch-commands or archive-checks"
+    },
+    {
+      "path": "/tmp/agenteam-openai-wire-rev2-u62vqiwd/restored-sources-final",
+      "exists_at_read": false,
+      "reference": "initial-fetch/git-fetch-commands or archive-checks"
+    }
+  ],
+  "missing_required_files": [
+    {
+      "path": "src/openai/types/image_generate_params.py",
+      "sha256": null,
+      "git_blob": null,
+      "retrieved": false
+    },
+    {
+      "path": "src/openai/types/images_response.py",
+      "sha256": null,
+      "git_blob": null,
+      "retrieved": false
+    },
+    {
+      "path": "src/openai/types/image.py",
+      "sha256": null,
+      "git_blob": null,
+      "retrieved": false
+    },
+    {
+      "path": "src/openai/resources/images.py",
+      "sha256": null,
+      "git_blob": null,
+      "retrieved": false
+    }
+  ],
+  "necessary_transitive_types": "not enumerable as an authenticated closure without the four Image originals; no filename or fields inferred from Chat/Embedding",
+  "inputs": [
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/README.md",
+      "bytes": 3856,
+      "sha256": "f2f8bc8af4d0353cf3923ca27808ded07cb981bda8cefea2cd134914b5cf958f"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/source-manifest.json",
+      "bytes": 10059,
+      "sha256": "14de67c09ce263b11414505fcd52f125b48684dfafa23374281a6b066d317760"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/field-manifest.json",
+      "bytes": 16372,
+      "sha256": "15784f0d4e30c4770680a314564e7546e8220766277488a02a290e9db4934cb3"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/excerpt-manifest.json",
+      "bytes": 12656,
+      "sha256": "4dd28262f5a24b178718f82cb2eeb50bb6a93fc3e0730da7dc4b7a55e90e86ad"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/recovery-report.md",
+      "bytes": 2708,
+      "sha256": "9681a1ff12b17402437a6cc17c045b1b238ae8be28e58486450888ce963f0b3b"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/initial-fetch.json",
+      "bytes": 497,
+      "sha256": "5cf0700940f6db85befca5d80975314a4d47533113270241492f2448d939c4fd"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/git-fetch-commands.json",
+      "bytes": 876,
+      "sha256": "14c62beacc8b5f4be71f0fc84f6fed127203921f3110d120ae235176a111718e"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/archive-checks.json",
+      "bytes": 2480,
+      "sha256": "8f9431af760cabd04d800a26f5b6378627cff089866d96376bd36a3f29eac2d9"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/independent-sdk-identity-checks.json",
+      "bytes": 4542,
+      "sha256": "7236f194557ee0e10d4160c30e1dd241813373b9cb41927cf1f93d2a0e5057a7"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/review-rev1.md",
+      "bytes": 8047,
+      "sha256": "67ec3c31ee904ddd02987468a47132d74f3a9ec97508c1d022e236e732d58341"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/LICENSE.openai",
+      "bytes": 11336,
+      "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/commit-object.base64",
+      "bytes": 2242,
+      "sha256": "dbed95a1c48dcbd99c8c1b5c83409d09c572776c95b3b1b5872f481661e6bd75"
+    },
+    {
+      "path": "/workspace/agenteam/docs/development/work-items/d09-model-system-token-usage-design.md",
+      "bytes": 70084,
+      "sha256": "2597bcceb2f200b5143a91f74d3f0afee14468aeced5aabe53f70719052996c5",
+      "read_scope": "section 6 and source reference only; reused from preceding bounded analysis"
+    }
+  ],
+  "execution": {
+    "sdk_import": false,
+    "sdk_execute": false,
+    "go_node": false,
+    "git_command": false,
+    "network": false,
+    "fetch_install": false,
+    "resources": false,
+    "repository_write": false
+  },
+  "scope_limit": "Only the named archival reference chain and its exact local paths. No global filesystem absence claim, no recursive artifact-index scan."
+}

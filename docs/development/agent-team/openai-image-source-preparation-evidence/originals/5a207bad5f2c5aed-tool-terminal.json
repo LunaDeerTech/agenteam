@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-I",
+    "-B",
+    "/workspace/scratch/image-pinned-source-proxy01/fetch-one.py",
+    "tree"
+  ],
+  "tool_chunk_id": "2237f9",
+  "tool_actual_exit_code": 1,
+  "tool_reported_wall_time_seconds": 2.2695e-05,
+  "curl_actual_wait_completed": true,
+  "curl_exit_code": 56,
+  "owned_direct_pid": 1085237,
+  "owned_starttime": "5126715",
+  "two_identity_observations": [
+    null,
+    null
+  ],
+  "forced_kill": false,
+  "active_task_command_or_reader": false,
+  "whole_host_or_process_tree_emptiness_claimed": false
+}

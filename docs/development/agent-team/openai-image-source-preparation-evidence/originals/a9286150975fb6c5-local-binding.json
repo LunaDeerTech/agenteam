@@ -1,0 +1,29 @@
+{
+  "official_commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "commit_object": {
+    "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/commit-object.base64",
+    "encoded_bytes": 2242,
+    "encoded_sha256": "dbed95a1c48dcbd99c8c1b5c83409d09c572776c95b3b1b5872f481661e6bd75",
+    "decoded_bytes": 1659,
+    "decoded_sha256": "4a18fa5995a190f5cbff6f3313422abbae18861e401e2251ba73e7c8a59a9702",
+    "computed_git_commit_sha1": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+    "root_tree": "f1b9a07a4b1f2d908bcb08d9cac4449f93616933",
+    "signature_verified": false
+  },
+  "license": {
+    "path": "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/LICENSE.openai",
+    "bytes": 11336,
+    "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
+    "git_blob": "cbb5bb26e40dd13a02c7874298f70b9d68bab57e"
+  },
+  "network_plan": {
+    "maximum_requests": 6,
+    "planned_requests": 5,
+    "deadline_seconds_each": 30,
+    "maximum_response_body_bytes": 2097152,
+    "automatic_retry": false,
+    "follow_redirects": false,
+    "credentials": false,
+    "transitive_downloads": false
+  }
+}

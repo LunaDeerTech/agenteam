@@ -1,0 +1,86 @@
+{
+  "status": "ORIGINAL_RAW_BYTES_PRESERVED",
+  "method": "Local byte/line inventory only; no Git command executed. CR before LF remains a recorded trailing whitespace byte; actual staged diagnostics are for root to compare.",
+  "exception_entities": 1,
+  "whitespace_diagnostic_count": 8,
+  "whitespace_counts": {
+    "trailing_whitespace": 7,
+    "new_blank_line_at_EOF": 1
+  },
+  "byte_indicator_count": 7,
+  "byte_indicator_counts": {
+    "CRLF": 7
+  },
+  "exceptions": [
+    {
+      "archive_path": "docs/development/agent-team/openai-image-source-preparation-evidence/originals/d601a9fcf1ee2f33-tree.headers.raw",
+      "bytes": 143,
+      "sha256": "d601a9fcf1ee2f33c412bc32ea51de88030ee1a20a6186b03c16f7b3e0adbee4",
+      "diagnostics": [
+        {
+          "line": 1,
+          "kind": "trailing_whitespace"
+        },
+        {
+          "line": 2,
+          "kind": "trailing_whitespace"
+        },
+        {
+          "line": 3,
+          "kind": "trailing_whitespace"
+        },
+        {
+          "line": 4,
+          "kind": "trailing_whitespace"
+        },
+        {
+          "line": 5,
+          "kind": "trailing_whitespace"
+        },
+        {
+          "line": 6,
+          "kind": "trailing_whitespace"
+        },
+        {
+          "line": 7,
+          "kind": "trailing_whitespace"
+        },
+        {
+          "line": 7,
+          "kind": "new_blank_line_at_EOF"
+        }
+      ],
+      "byte_indicators": [
+        {
+          "line": 1,
+          "kind": "CRLF"
+        },
+        {
+          "line": 2,
+          "kind": "CRLF"
+        },
+        {
+          "line": 3,
+          "kind": "CRLF"
+        },
+        {
+          "line": 4,
+          "kind": "CRLF"
+        },
+        {
+          "line": 5,
+          "kind": "CRLF"
+        },
+        {
+          "line": 6,
+          "kind": "CRLF"
+        },
+        {
+          "line": 7,
+          "kind": "CRLF"
+        }
+      ]
+    }
+  ],
+  "normalization_performed": false
+}
