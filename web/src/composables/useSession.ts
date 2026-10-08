@@ -137,7 +137,13 @@ import {
   type ProjectUpdate,
   type ProjectLookup,
 } from '../api/project-owner'
+import {
+  createProjectAuditAPI,
+  captureProjectAuditID,
+  type ProjectAuditAPI,
+} from '../api/project-audit'
 type ProjectAction = 'project-read' | 'project-update' | 'project-lookup'
+type ProjectAuditAction = 'project-audit-list' | 'project-audit-get'
 export type ProjectProgress = Readonly<{
   targetID: string
   phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
@@ -371,6 +377,7 @@ type Action =
   | SMTPDeliveryAction
   | OutboundPolicyAction
   | ProjectAction
+  | ProjectAuditAction
 interface Operation {
   generation: number
   kind: Action
@@ -479,6 +486,7 @@ export function createSessionController(
   auditAPI: SystemAuditAPI = createSystemAuditAPI(),
   runtimeInformationAPI: SystemRuntimeInformationAPI = createSystemRuntimeInformationAPI(),
   projectAPI: ProjectOwnerAPI = createProjectOwnerAPI(),
+  projectAuditAPI: ProjectAuditAPI = createProjectAuditAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -516,6 +524,7 @@ export function createSessionController(
   })
   let systemRevision = 0,
     auditRevision = 0,
+    projectAuditRevision = 0,
     runtimeInformationRevision = 0
   let invitationReadRevision = 0,
     invitationRevision = 0
@@ -698,6 +707,7 @@ export function createSessionController(
     )
   }
   function clearIdentity(invalidate = true) {
+    clearProjectAuditRead()
     state.user = null
     state.session = null
     if (invalidate) {
@@ -830,6 +840,7 @@ export function createSessionController(
     )
       clearOutboundPolicyState()
     if (!same || view.user.role !== 'admin') clearAuditRead()
+    if (!same) clearProjectAuditRead()
     if (!same || view.user.role !== 'admin') clearRuntimeInformationRead()
     state.notice = ''
     state.fields = {}
@@ -1271,37 +1282,40 @@ export function createSessionController(
       | SMTPAction
       | SMTPDeliveryAction
       | OutboundPolicyAction
-      | ProjectAction = 'personal',
+      | ProjectAction
+      | ProjectAuditAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
-      isProjectAction(kind)
-        ? projectRevisions[kind]
-        : kind === 'system'
-          ? systemRevision
-          : kind === 'audit-read'
-            ? auditRevision
-            : kind === 'runtime-information-read'
-              ? runtimeInformationRevision
-              : kind === 'invitation-read'
-                ? invitationReadRevision
-                : kind === 'invitation-write'
-                  ? invitationRevision
-                  : kind === 'personal'
-                    ? personalRevision
-                    : isModelAction(kind)
-                      ? modelRevisions[kind]
-                      : isSelectionAction(kind)
-                        ? selectionRevisions[kind]
-                        : isAccountSecurityAction(kind)
-                          ? accountSecurityRevisions[kind]
-                          : isSMTPAction(kind)
-                            ? smtpRevisions[kind]
-                            : isSMTPDeliveryAction(kind)
-                              ? smtpDeliveryRevisions[kind]
-                              : isOutboundPolicyAction(kind)
-                                ? outboundRevisions[kind]
-                                : providerRevisions[kind]
+      isProjectAuditAction(kind)
+        ? projectAuditRevision
+        : isProjectAction(kind)
+          ? projectRevisions[kind]
+          : kind === 'system'
+            ? systemRevision
+            : kind === 'audit-read'
+              ? auditRevision
+              : kind === 'runtime-information-read'
+                ? runtimeInformationRevision
+                : kind === 'invitation-read'
+                  ? invitationReadRevision
+                  : kind === 'invitation-write'
+                    ? invitationRevision
+                    : kind === 'personal'
+                      ? personalRevision
+                      : isModelAction(kind)
+                        ? modelRevisions[kind]
+                        : isSelectionAction(kind)
+                          ? selectionRevisions[kind]
+                          : isAccountSecurityAction(kind)
+                            ? accountSecurityRevisions[kind]
+                            : isSMTPAction(kind)
+                              ? smtpRevisions[kind]
+                              : isSMTPDeliveryAction(kind)
+                                ? smtpDeliveryRevisions[kind]
+                                : isOutboundPolicyAction(kind)
+                                  ? outboundRevisions[kind]
+                                  : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1316,7 +1330,7 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (isProjectAction(kind)
+        (isProjectAction(kind) || isProjectAuditAction(kind)
           ? state.phase === 'authenticated' &&
             personalContext.phase === 'current' &&
             state.user?.id === identity.userID &&
@@ -1380,11 +1394,13 @@ export function createSessionController(
         return result
       })
       .catch((error: unknown) => {
-        const e = isProjectAction(kind)
-          ? projectFailure(identity, op, error)
-          : kind !== 'personal'
-            ? systemFailure(identity, op, current, error)
-            : personalFailure(identity, error)
+        const e = isProjectAuditAction(kind)
+          ? projectAuditFailure(current, error)
+          : isProjectAction(kind)
+            ? projectFailure(identity, op, error)
+            : kind !== 'personal'
+              ? systemFailure(identity, op, current, error)
+              : personalFailure(identity, error)
         if (command && personalIntent === command) {
           if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
             command.checked = false
@@ -3895,6 +3911,58 @@ export function createSessionController(
     ++auditRevision
     if (owner?.kind === 'audit-read') owner.abandon?.()
   }
+  function isProjectAuditAction(kind: Action): kind is ProjectAuditAction {
+    return kind === 'project-audit-list' || kind === 'project-audit-get'
+  }
+  function clearProjectAuditRead() {
+    ++projectAuditRevision
+    if (owner && isProjectAuditAction(owner.kind)) owner.abandon?.()
+  }
+  function projectAuditFailure(current: () => boolean, error: unknown) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    // Only the current domain revision/operation/full identity can invalidate
+    // the Session. GET-local denial and CSRF codes do not authorize cleanup.
+    if (current() && unavailableSession(e)) {
+      clearIdentity()
+      clearBrowser()
+      state.phase = 'unavailable'
+      state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
+    }
+    return e
+  }
+  const projectAudit = {
+    list(projectID: string, query: AuditQuery) {
+      try {
+        const identity = personalIdentity()
+        const project = captureProjectAuditID(projectID),
+          captured = captureAuditQuery(query)
+        return runAuthorized(
+          identity,
+          (op) => projectAuditAPI.list(project, captured, op.abort.signal),
+          undefined,
+          'project-audit-list',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    get(projectID: string, auditID: string) {
+      try {
+        const identity = personalIdentity()
+        const project = captureProjectAuditID(projectID),
+          target = captureProjectAuditID(auditID)
+        return runAuthorized(
+          identity,
+          (op) => projectAuditAPI.get(project, target, op.abort.signal),
+          undefined,
+          'project-audit-get',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    abandon: clearProjectAuditRead,
+  }
   const audit = {
     list(query: AuditQuery) {
       try {
@@ -4451,6 +4519,7 @@ export function createSessionController(
     state: readonly(state),
     personalContext: readonly(personalContext),
     projects,
+    projectAudit,
     personal,
     system,
     entry,

@@ -1,8 +1,22 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { projectRoute } from '../../router/auth'
 
-defineProps<{ name: string; home: string; settings: string }>()
+const props = defineProps<{ name: string; home: string; settings: string }>()
 const route = useRoute()
+const settingsCurrent = computed(() => {
+  const current = projectRoute(route.fullPath),
+    target = projectRoute(props.settings)
+  return (
+    !!current &&
+    !!target &&
+    target.suffix === '/settings/general' &&
+    current.username === target.username &&
+    current.project_name === target.project_name &&
+    (current.suffix === '/settings/general' || current.suffix === '/settings/audit')
+  )
+})
 </script>
 
 <template>
@@ -14,7 +28,7 @@ const route = useRoute()
       :aria-current="route.path === home ? 'page' : undefined"
       >{{ name }}</RouterLink
     >
-    <RouterLink :to="settings" :aria-current="route.path === settings ? 'page' : undefined"
+    <RouterLink :to="settings" :aria-current="settingsCurrent ? 'page' : undefined"
       >项目设置</RouterLink
     >
   </nav>

@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+Audit web17离线阶段接受（2026-10-08）：root读280fa718及067080be、核17固定源/必要build原件，API5已b0714899；当前接受其余12 state/View/auth源码。private Vite59文件794400B/品牌4SVG原bytes与189inputs同；API71/state18＋2/App9＋1独验，原fullunit2265/2266 FAIL＋旧file20PASS组合，非fresh全绿。额外旧test一selectorf41fbee3已推核同，Model双源fa4bc123已推核同。浏览器JS等待OpenAPI既有409补正（两路径GET/HEAD四处，单JSON）；Go03 offline02四cmdPASS，overlay02 prepared6baaecb4通过但未执行；fixture获Model新六PG安装/仅包compile-vet窗口，实际PG/resources/全局dist仍无。三停止/Jina/生产/E01未完不变。
+
 Embedding两源纯阶段接受（2026-10-08）：root读最终独审0c31f9d6及核原件，policy c8ccd095/pure dd1e60b7限定接受。作者最新ProfileMatrix24＋原其余50共74唯一RUN与vet、本人独立三补集两轮组合通过；原Marshal空对空/可变ContextLength期待已仅测试修正，原FAIL不回写。实际PG/整卡/生产未接受，fixture继续六PG scratch。Audit17 web STATIC/受控067080be组合通过，private build已作者PASS待根核；全unit原2265/2266唯一旧全App img断言与品牌冲突，单test窄修20PASS另独审8e5fa273。Go03当前四offline已PASS全STOP，overlay01 STATIC O1 v4需scratch窄修；正式OpenAPI既有409遗漏正仅scratch补正。无业务资源，全局dist原3保持，三停止/Jina/生产/E01边界不变。
 
 Embedding rev3规格接受（2026-10-08）：root读三行差量及独审0095e4ce、核卡f6535ef6/原件，按既有canonical/semantic优先序限定有ref不相容Forbidden与其它前置全通过后KeyReused；9路径/预算不变，不扩产品。policy/pure-v2 STATIC f3a39879接受，fixture获精确安装两源/45s offline pure-race-vet，实际结果待。Audit state20受控组合保留但App非法query重定向丢参数误触发Resolve/Get为必修；仅auth一行＋router-index窄修，七源0a37aaca作者119/type/formatPASS，独审活跃，API5已b0714899。Go D1窄修封候选中、JS两源作者活跃，资源仍关闭；三停止/Jina保持。

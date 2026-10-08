@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-08：Audit web17离线阶段接受与真实前准备
+
+root通读最终离线独审280fa718/result279759df，结合原067080be/450a0898接受17 web阶段；API5已b0714899，本次只交其余12个不同文件。17安装源与三冻结/原type/privatebuild相同，root核必要build command/input原件；独审实际核59文件794400B完整目录与4品牌SVG原字节、index/public5前后同，三Debug静态标识无命中（不冒充运行时Debug结论）。原189输入type复用，privatebuild1.279s actualexit0/directwait/owned双空。API71、state18＋2、App9＋1维持版本组合；fullunit原56文件2265/2266 FAIL＋旧文件20/20 PASS闭合，不称修后全套fresh。额外品牌兼容维护单源经根读8e5fa273及精确一行diff，已f41fbee38808d32ca7e318500e10cffdad2551d2推核同；坏metadata/组件存在/私诊断/重试/零写断言保持。
+
+Model两源纯阶段已fa4bc1238ea1ee167af9948dda74a11da90ccda3推核同。六PG候选a442fcb8（76506B）作者STOP后，根授仅六新tests/model路径安装及精确包race-c/vet≤45s，尚无PG/资源。Audit Go03 offline02 freeze027101e0/result3c43b6bf已四cmd真实PASS、906inputs同、4directwait/owned双空，root读result；D1 overlay01原UUIDv4静态首红保，overlay02仅两v7常量差量独审6baaecb4 preparedPASS，true执行未授，等待Go窗口。浏览器JS仍等正式OpenAPI遗漏既有409的单JSON补正：同两路径GET/HEAD四处，GET原Problem/四headers、HEAD四headers无body；runtime唯一scratch作者，不改Go/common行为、不用schema fallback。web17提交不是整卡22接受，JS/真实HTTP/PG/browser八图/README21仍待。全局dist原3、三停止/Jina、ready503与完整D08–D28/E01未完保持。
+
 ## 2026-10-08：Embedding policy/pure限定接受
 
 root正式接受卡#1/#2：policy c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a、pure dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d。最终独审0c31f9d6/evidence0db6126a、作者修复6582ef64/resulta6c36e7d/manifestfe6f4c9d均根读核，全部作者原件和安装双SHA一致。组合为最新ProfileMatrix24 RUN/PASS（race6.602s）＋原74中未受影响50，原vet按产品/import未变复用；不是最终源一次全套fresh。作者原负例整体record Marshal忽略err导致空对空、clone可变期待两断言已窄修为Input/error与const8192，EntryGuards/其余内容同。独立三补集9f3768ef由首轮identity/session＋no-ref通过和pure02 profile通过组成；首轮probe零Version Marshal前提FAIL13.360s、四投影修正后4.239s定点PASS均原样保，352 inputs同/实际wait/owned双空。所有Go窗口已退役；PG6未安装，真实授权/事务/lease/replay/Unknown与整卡/生产仍未验。

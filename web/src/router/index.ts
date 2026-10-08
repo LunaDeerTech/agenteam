@@ -119,13 +119,18 @@ export const router = createRouter({
             const address = projectRoute(to.fullPath)
             return address
               ? address.path + '/general'
-              : { name: 'not-found', params: { pathMatch: to.path.slice(1).split('/') } }
+              : { name: 'not-found', params: { pathMatch: to.fullPath.slice(1).split('/') } }
           },
           children: [
             {
               path: 'general',
               name: 'project-general',
               component: () => import('../views/projects/ProjectGeneralSettings.vue'),
+            },
+            {
+              path: 'audit',
+              name: 'project-audit',
+              component: () => import('../views/projects/ProjectAuditView.vue'),
             },
           ],
         },

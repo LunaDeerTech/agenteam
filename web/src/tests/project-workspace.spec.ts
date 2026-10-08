@@ -228,7 +228,7 @@ describe('Project production routes and public interactions', () => {
     expect(f.wrapper.text()).not.toContain('会议')
     expect(f.wrapper.find('h1').text()).toBe('Demo')
   })
-  it('enters from the real list and routes settings to the single General leaf', async () => {
+  it('enters from the real list and keeps General as the default before the Audit leaf', async () => {
     const f = await page()
     await f.wrapper.find('a[href="/owner/demo"]').trigger('click')
     await flushPromises()
@@ -242,7 +242,7 @@ describe('Project production routes and public interactions', () => {
         .find('nav[aria-label="项目设置"]')
         .findAll('a')
         .map((link) => link.text()),
-    ).toEqual(['基本信息'])
+    ).toEqual(['基本信息', '项目审计'])
   })
   it('retains URL and input when a Project navigation is cancelled, then explicitly discards', async () => {
     const f = await page('/owner/demo/settings/general')

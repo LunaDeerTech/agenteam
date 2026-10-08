@@ -38,12 +38,12 @@ const reservedProjectRoots = new Set([
 export function projectRoute(value: unknown): {
   username: string
   project_name: string
-  suffix: '' | '/settings' | '/settings/general'
+  suffix: '' | '/settings' | '/settings/general' | '/settings/audit'
   path: string
 } | null {
   if (typeof value !== 'string' || /[%\\?#]/.test(value)) return null
   const match =
-    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/general)?)?$/.exec(
+    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit))?)?$/.exec(
       value,
     )
   if (!match) return null
@@ -51,7 +51,7 @@ export function projectRoute(value: unknown): {
     project_name = match[2]!.toLowerCase()
   if (reservedProjectRoots.has(username) || project_name === '.' || project_name === '..')
     return null
-  const suffix = (match[3] ?? '') as '' | '/settings' | '/settings/general'
+  const suffix = (match[3] ?? '') as '' | '/settings' | '/settings/general' | '/settings/audit'
   return { username, project_name, suffix, path: `/${username}/${project_name}${suffix}` }
 }
 export function safeReturnTarget(value: unknown): string {
@@ -124,7 +124,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
       return {
         name: 'not-found',
-        params: { pathMatch: to.path.slice(1).split('/') },
+        params: { pathMatch: to.fullPath.slice(1).split('/') },
         replace: true,
       }
     if (

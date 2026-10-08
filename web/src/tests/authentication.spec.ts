@@ -495,13 +495,16 @@ describe('Project login return closed paths', () => {
   it.each(['Admin', 'root', 'support', 'projects', 'forgot-password', 'reset-password'])(
     'accepts existing Owner username %s and canonicalizes only the closed path',
     (username) => {
-      for (const suffix of ['', '/settings', '/settings/general']) {
+      for (const suffix of ['', '/settings', '/settings/general', '/settings/audit']) {
         expect(safeReturnTarget(`/${username}/DeMo${suffix}`)).toBe(
           `/${username.toLowerCase()}/demo${suffix}`,
         )
       }
       expect(safeReturnTarget(`/${username}/demo?token=private`)).toBe('/')
       expect(safeReturnTarget(`/${username}/demo/extra`)).toBe('/')
+      expect(safeReturnTarget(`/${username}/owner.dot-name/settings/audit`)).toBe(
+        `/${username.toLowerCase()}/owner.dot-name/settings/audit`,
+      )
     },
   )
   it.each([
@@ -531,6 +534,13 @@ describe('Project login return closed paths', () => {
     '/-admin/demo',
     '/admin-/demo',
     '/ADMIN/demo/SETTINGS',
+    '/owner/demo/settings/audit/',
+    '/owner/demo/settings/audit/01970000-0000-7000-8000-000000000001',
+    '/owner/demo/settings/audit?cursor=private',
+    '/owner/demo/settings/audit#detail',
+    '/owner/demo/settings/%61udit',
+    '/owner/demo/settings/AUDIT',
+    '/owner/demo/settings/audit\\more',
   ])('rejects raw path outside Project branch: %j', (value) => {
     expect(safeReturnTarget(value)).toBe('/')
   })

@@ -135,6 +135,39 @@ export function createProjectWorkspace(
   let canonicalNavigation = '',
     resolveConfirmation: ((value: boolean) => void) | null = null
   let successTimer: ReturnType<typeof setTimeout> | undefined
+  // A readonly seam for sibling read-only pages. Resolve alone, retained draft
+  // data, a failed/currently-running Get and checking never provide authority.
+  const currentReadContext = computed<Readonly<{
+    identity: PersonalIdentity
+    projectID: string
+    generation: number
+    readGeneration: number
+  }> | null>(() => {
+    const currentIdentity = auth.personalContext.identity
+    const value = detail.project
+    if (
+      disposed ||
+      mode !== 'detail' ||
+      !projectRoute(route) ||
+      !visible.value ||
+      detail.phase !== 'current' ||
+      !value ||
+      !boundID ||
+      value.id !== boundID ||
+      !same(identity, currentIdentity) ||
+      !currentIdentity ||
+      value.owner_user_id !== currentIdentity.userID ||
+      auth.state.user?.id !== currentIdentity.userID ||
+      auth.state.session?.id !== currentIdentity.sessionID
+    )
+      return null
+    return Object.freeze({
+      identity: Object.freeze({ ...currentIdentity }),
+      projectID: boundID,
+      generation,
+      readGeneration,
+    })
+  })
   const live = (own: number, captured: PersonalIdentity | null) =>
     !disposed &&
     own === generation &&
@@ -651,6 +684,7 @@ export function createProjectWorkspace(
   }
   return {
     visible,
+    currentReadContext,
     detail,
     ownerName,
     paths,
