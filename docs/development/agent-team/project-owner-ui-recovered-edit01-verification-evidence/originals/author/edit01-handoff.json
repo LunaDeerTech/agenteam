@@ -1,0 +1,346 @@
+{
+  "adopted_wait_records": [
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 134836,
+      "starttime": "766094",
+      "time": "2026-10-08T05:37:11.944073+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 134838,
+      "starttime": "766094",
+      "time": "2026-10-08T05:37:11.944096+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 134841,
+      "starttime": "766094",
+      "time": "2026-10-08T05:37:11.944113+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 134842,
+      "starttime": "766094",
+      "time": "2026-10-08T05:37:11.944128+00:00"
+    }
+  ],
+  "authorization_sha256": "d7c694849a176880ac90e19cfb0f19a0392416d644402f8fa8dab8c7adbe4fb9",
+  "browser_case_budget_seconds": 45,
+  "browser_freeze_sha256": "55f8ebe064a27558bbf3c822c825d4b35cc4fa5433dd3a71258343da5f97c3d8",
+  "cancellations": [],
+  "command_seconds": 96.558,
+  "driver_sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+  "exact_ids_absent_twice": [
+    true,
+    true
+  ],
+  "failure": {
+    "assertion": "page.getByLabel('项目名称', { exact: true }).fill('owner-duplicate')",
+    "error": "Test timeout of 45000ms exceeded; locator.fill waiting for label",
+    "last_completed_assertion": "after 取消修改, 项目描述 has empty string value",
+    "source": "tests/account-captcha-web/e2e/project-owner.spec.ts:627",
+    "unexecuted_remaining_scope": [
+      "name conflict assertion",
+      "version conflict",
+      "rename canonical navigation",
+      "confirmed current read failure",
+      "final same-body validation",
+      "complete edit result"
+    ]
+  },
+  "go_candidate": "04",
+  "launch_raw": {
+    "path": "/workspace/scratch/owner-ui-backend/edit01-launch.raw",
+    "sha256": "8e6ca8d3e478df7cc2eb143b06931154a41d4ee56e912474bd24c6967e3bf526"
+  },
+  "original_run_files": {
+    "adopted-waits.json": {
+      "bytes": 571,
+      "sha256": "d02fe7a9ae396ab6cca5b67d06509411f4dc40bc5ffc690fc4627afe01daae9c"
+    },
+    "baseline.json": {
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "cancellation.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "cleanup.json": {
+      "bytes": 10903,
+      "sha256": "747f2b9830c14ca4ed55647013d7c14d805309e928bcf73e3bca5ac643084af3"
+    },
+    "command.json": {
+      "bytes": 2580,
+      "sha256": "bbd32698485297049a38c65ab59d8535325a65d24531da3c3060d69457635215"
+    },
+    "disk-before-spawn.json": {
+      "bytes": 183,
+      "sha256": "4131defbedc004b926c48dfa444ea98ef578faf404aafb1ec271bc94fced5c1f"
+    },
+    "disk-preflight.json": {
+      "bytes": 183,
+      "sha256": "a533aed1ff3cfaef80dac588f366885c53fbe63167a4b629f3723c04c50266cf"
+    },
+    "driver.py.txt": {
+      "bytes": 38744,
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "frozen-input.json": {
+      "bytes": 39431,
+      "sha256": "d7c694849a176880ac90e19cfb0f19a0392416d644402f8fa8dab8c7adbe4fb9"
+    },
+    "input-after.json": {
+      "bytes": 815,
+      "sha256": "8179d5e9264a18b0ff92c72f133a3a143c83d2dbc2a5eb580db40613ac3a913c"
+    },
+    "input-before.json": {
+      "bytes": 815,
+      "sha256": "8179d5e9264a18b0ff92c72f133a3a143c83d2dbc2a5eb580db40613ac3a913c"
+    },
+    "local-image-digests.json": {
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "monitor-errors.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "observed-processes.json": {
+      "bytes": 15913,
+      "sha256": "a6a00b9a63ca7313166faa6d96eaa7ab6b802c2855a50043caa1b05bcd8922cc"
+    },
+    "observed-resources.json": {
+      "bytes": 5023,
+      "sha256": "9a94545a6dc5530d3021c3e7be8ce5eca75e311051b6ef1ab77ffed8ee54c96f"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "process-baseline.json": {
+      "bytes": 5025,
+      "sha256": "056c6df125a5d6b5c5f1534df3bfdafa98d78482f2a5150b345882dca7b888f1"
+    },
+    "raw.log": {
+      "bytes": 5707,
+      "sha256": "ff96885c679f00369e6b31e18161717ed3d65330bff24e90cd4803a9772860fc"
+    },
+    "result.json": {
+      "bytes": 5925,
+      "sha256": "2ba6607faccec1e9facbe5b8baee29613604b6791e81247a5b18d23cf2c44a27"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-695de6208f94d76085cbcd8a102a2ee38261cd01f3cf5b48216d80f8e092c2f0.json": {
+      "bytes": 380,
+      "sha256": "695de6208f94d76085cbcd8a102a2ee38261cd01f3cf5b48216d80f8e092c2f0"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-b2644ab8bcca4f8489a46c1764589df44be48b234d48430917d4e8ecb77c2d3f.json": {
+      "bytes": 383,
+      "sha256": "b2644ab8bcca4f8489a46c1764589df44be48b234d48430917d4e8ecb77c2d3f"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-c29fd81c57e49e0f1951193a4b7a3b14db8ca992e7265d322c1fcecedb81d061.json": {
+      "bytes": 404,
+      "sha256": "c29fd81c57e49e0f1951193a4b7a3b14db8ca992e7265d322c1fcecedb81d061"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-c5008ed822dbb5af5c23feaebab4d40140c8712e5b2e09dcfa2ccf1e3860d818.json": {
+      "bytes": 365,
+      "sha256": "c5008ed822dbb5af5c23feaebab4d40140c8712e5b2e09dcfa2ccf1e3860d818"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-d46945e16ad0c01090ad4b70ede99593fc8c47e59efb44a420683fe2a34c4216.json": {
+      "bytes": 333,
+      "sha256": "d46945e16ad0c01090ad4b70ede99593fc8c47e59efb44a420683fe2a34c4216"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-ed4e6a0bf00c073e25d3ca294934b66bf3a18cbd008c1a47484943a72f8176c3.json": {
+      "bytes": 368,
+      "sha256": "ed4e6a0bf00c073e25d3ca294934b66bf3a18cbd008c1a47484943a72f8176c3"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-001.json": {
+      "bytes": 539,
+      "sha256": "e0be122d68ba35c701c793d3aa90051db358bafc79ff33c81b8db927f3eb6031"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-002.json": {
+      "bytes": 539,
+      "sha256": "62da1199c9ec67563b71b12aec6b21cae34e753c832e4c41e276db500bb60c6e"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-003.json": {
+      "bytes": 539,
+      "sha256": "952d90335c6b3c8fa647904a2c64f287e8ee4c9ac33765aa4ee31d8d2e6c7462"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-004.json": {
+      "bytes": 539,
+      "sha256": "f3d4ee29f98cb884d10e602c98464ea92e14ecaffdd5138a0c3b924b4357ce9c"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-005.json": {
+      "bytes": 474,
+      "sha256": "4f0faac02956e3a6b1fb626e081c5e4cd8f26d461af6fc3dbb84b16503e006d8"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-006.json": {
+      "bytes": 539,
+      "sha256": "8a240ebddfc1e440052f85df6ad7f172c0382ee04145a9958d06c3149ac7b2ce"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-007.json": {
+      "bytes": 541,
+      "sha256": "9c420d8eb2de27474754524730c020204ac01312e86bebcc31fcf116c7a729fc"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-008.json": {
+      "bytes": 539,
+      "sha256": "c21708c48bef25a3cbfba36aed8b74fb31a6586571f104e665d86128b8390111"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-009.json": {
+      "bytes": 541,
+      "sha256": "b5aa5e6c26030c181c413e890d16c972b9f14482b60ccd8d46214453dd273a05"
+    },
+    "safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-010.json": {
+      "bytes": 539,
+      "sha256": "1da707e48527408079908a5d13667c7b04d44c1f0a7548ba420d48ee870a04f3"
+    },
+    "tcp-baseline.json": {
+      "bytes": 1725,
+      "sha256": "4a182ff03ccfdc6a5c4bec182f25fa21f8c3e2dcd4cf1cc60037e59f93381c7d"
+    },
+    "tcp-observed-delta.json": {
+      "bytes": 10172,
+      "sha256": "bbd66997cc4a46a42b0bca22b2a27764bdcd776b4d640197949c9ca3f64a8ee5"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 181407,
+      "sha256": "5cdca8558f34b4db98545a5cdd7a58a6d13cf529ba96102989d54dcdbd44177a"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "sha256": "84ef453c4c70d514883dc148301dd415af4bdd7661bdbfc533ccb1d3a8de2992"
+    },
+    "watchdog.json": {
+      "bytes": 523,
+      "sha256": "4ae4989c3844d223f54a4199abb7f6d27a84b20f1413daf4263a0206260c0555"
+    }
+  },
+  "outer_exec_actual_exit": 1,
+  "outer_exec_session": 83644,
+  "outer_exit_tool_chunk": "85b2ea",
+  "retirement": {
+    "actual_wait_completed": true,
+    "adopted_waits": 4,
+    "double_cleanup": true,
+    "forced_tail_actions": 0,
+    "host_tcp_delta_double_clear": true,
+    "host_tcp_tail_seconds": 40.36585689399999,
+    "monitor_errors": 0,
+    "new_non_owned_processes_at_final_scan": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 130746,
+        "ppid": 1,
+        "starttime": "763228",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 131099,
+        "ppid": 1,
+        "starttime": "763459",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 131465,
+        "ppid": 1,
+        "starttime": "763633",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 131933,
+        "ppid": 1,
+        "starttime": "763807",
+        "state": "Z"
+      }
+    ],
+    "new_pid1_zombies_not_owned_or_joined": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 130746,
+        "ppid": 1,
+        "starttime": "763228",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 131099,
+        "ppid": 1,
+        "starttime": "763459",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 131465,
+        "ppid": 1,
+        "starttime": "763633",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 131933,
+        "ppid": 1,
+        "starttime": "763807",
+        "state": "Z"
+      }
+    ],
+    "observed_resources": 7,
+    "resource_topology_matches": true,
+    "source_files_unchanged": true,
+    "top_watchdog_complete": true,
+    "verification_inputs_unchanged": true,
+    "watchdog_thread_joined": true
+  },
+  "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/edit01",
+  "safe_evidence": {
+    "all_sidecar_body_hashes_match": true,
+    "last_response": {
+      "body_file": "body-d46945e16ad0c01090ad4b70ede99593fc8c47e59efb44a420683fe2a34c4216.json",
+      "body_sha256": "d46945e16ad0c01090ad4b70ede99593fc8c47e59efb44a420683fe2a34c4216",
+      "content_type": "application/json",
+      "endpoint": "/api/v1/projects/01a11a03-4428-7bd2-97cb-ad4982f9be4b",
+      "input_hash": "d7c694849a176880ac90e19cfb0f19a0392416d644402f8fa8dab8c7adbe4fb9",
+      "method": "GET",
+      "project_id": "01a11a03-4428-7bd2-97cb-ad4982f9be4b",
+      "request_id": "01a11a03-5506-7c96-8085-bf8efb4d92ea",
+      "source_run": "TestAccountProjectOwnerWebEditAndRename",
+      "status": 200
+    },
+    "method_status_counts": [
+      {
+        "count": 8,
+        "method": "GET",
+        "status": 200
+      },
+      {
+        "count": 2,
+        "method": "PATCH",
+        "status": 200
+      }
+    ],
+    "same_body_validation_present": false,
+    "schema_validation_present": false,
+    "screenshots": 0,
+    "sidecars": 10,
+    "unique_bodies": 6
+  },
+  "source_changes": false,
+  "status": "EDIT01_ACTUAL_FAIL_RETIRED_STOP",
+  "successors_started": false,
+  "top_seconds": 52.78
+}

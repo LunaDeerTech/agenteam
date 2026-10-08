@@ -1,0 +1,817 @@
+{
+  "status": "EDIT01_ACTUAL_FAIL_PRESERVED_OWNED_RETIREMENT_REVIEW_PASS_LABEL_LOCATOR_DEFECT_CONFIRMED_STOP",
+  "reviewer": "/root/verification_runtime",
+  "recorded_utc": "2026-10-08T05:53:52.596297+00:00",
+  "scope": "Independent read-only audit of author edit01 and two separately authorized local synthetic DOM experiments; no business/resource retry or source edits",
+  "references": {
+    "handoff": {
+      "path": "/workspace/scratch/owner-ui-backend/edit01-handoff.json",
+      "sha256": "b82defa1f9b8b051d5d4b4e646da7089754d422e545d838abdc96fbbdacf7238"
+    },
+    "handoff_md": {
+      "path": "/workspace/scratch/owner-ui-backend/edit01-handoff.md",
+      "sha256": "e0e445bbdf09597a0a808fd4281fafcffa5af9f179eac0668fe77f11c654860e"
+    },
+    "raw": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/edit01/raw.log",
+      "sha256": "ff96885c679f00369e6b31e18161717ed3d65330bff24e90cd4803a9772860fc"
+    },
+    "result": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/edit01/result.json",
+      "sha256": "2ba6607faccec1e9facbe5b8baee29613604b6791e81247a5b18d23cf2c44a27"
+    },
+    "launch_raw": {
+      "path": "/workspace/scratch/owner-ui-backend/edit01-launch.raw",
+      "sha256": "8e6ca8d3e478df7cc2eb143b06931154a41d4ee56e912474bd24c6967e3bf526"
+    },
+    "authorized_input": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/edit01/frozen-input.json",
+      "sha256": "d7c694849a176880ac90e19cfb0f19a0392416d644402f8fa8dab8c7adbe4fb9"
+    },
+    "driver": {
+      "path": "/workspace/scratch/owner-ui-backend/resource-driver-v02/runs/edit01/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "browser_v3": {
+      "path": "/workspace/scratch/owner-ui-recovery/browser-v3/freeze.json",
+      "sha256": "55f8ebe064a27558bbf3c822c825d4b35cc4fa5433dd3a71258343da5f97c3d8"
+    },
+    "go04": {
+      "path": "/workspace/scratch/owner-ui-backend/candidate04/sha256.json",
+      "sha256": "ee7b7104dd9ee79802ac0f4f1409b3170f4d2a8d27318369533cec10ea46837f"
+    },
+    "root_restore": {
+      "path": "/workspace/scratch/owner-ui-assets/restore-after-edit01.json",
+      "sha256": "111c0cf88c0d06af9e9fa279a4df5fd7554ccee2be4eac719d6da565e8a5a9af"
+    },
+    "AGENTS_read": {
+      "path": "/workspace/agenteam/AGENTS.md",
+      "sha256": "14ede276c08192e3be4659989d44df53af153a8d376539e4f3217ef7bfef3a2f"
+    },
+    "verification_skill": {
+      "path": "/workspace/agenteam/.agents/skills/agenteam-verification/SKILL.md",
+      "sha256": "a982bdc7614bbe2283d690fadf5628775175e0745b4bb2acebf3f5ba4ad1fa61"
+    },
+    "vue_testing_skill": {
+      "path": "/workspace/agenteam/.agents/skills/vue-testing-best-practices/SKILL.md",
+      "sha256": "376fd21d6adfd37f7d102fa17ca099abddef16943389f37588405b013cef23b8"
+    }
+  },
+  "fixed_source_hashes": {
+    "web/src/components/ui/UiField.vue": "9e40a4c00994826f9a65ed0c1cf095f7e6d5e44b93a95a4788b82ab1b9f3e0a1",
+    "web/src/components/ui/UiInput.vue": "fd182981669131383f2a36fd422da461f94237a7ba019a469c05dcb9c5afcbaf",
+    "web/src/views/projects/ProjectGeneralSettings.vue": "0c5013fc4e7f022d04aa4e52caa41dec247cb6c2f20bf7d4947d505b4c2e2607",
+    "web/src/composables/useProjectWorkspace.ts": "feb739df291657486a30506cb41cc94478657c523b1e90b18e5f53efc74bec7d",
+    "frozen_browser_v3_spec": "96d7d3715c757f0fcd354bd3b58bb9b61cb17409b33cac61c3a6f8d23dbb2f98"
+  },
+  "original_integrity": {
+    "manifest_files": 40,
+    "actual_files": 40,
+    "all_sizes_sha256_match": true,
+    "extra": [],
+    "missing": [],
+    "safe_sidecars": 10,
+    "raw_bodies": 6,
+    "all_body_hashes_input_hash_source_run_match": true,
+    "schema_validation_present": false,
+    "same_body_validation_present": false,
+    "screenshots": 0,
+    "safe_responses": [
+      {
+        "sidecar": "response-001.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a03-45bd-735e-9ca3-2a0b528cf6a6",
+        "body_sha256": "c5008ed822dbb5af5c23feaebab4d40140c8712e5b2e09dcfa2ccf1e3860d818",
+        "id": "01a11a03-4428-7bd2-97cb-ad4982f9be4b",
+        "name": "owner-main",
+        "version": "1",
+        "description": "Owner browser fixture owner-main",
+        "role": "fixture preparation"
+      },
+      {
+        "sidecar": "response-002.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a03-45c3-7824-b9ac-3d8ffc68d0b3",
+        "body_sha256": "695de6208f94d76085cbcd8a102a2ee38261cd01f3cf5b48216d80f8e092c2f0",
+        "id": "01a11a03-4459-7798-ab97-e43c702ba4cd",
+        "name": "owner-duplicate",
+        "version": "1",
+        "description": "Owner browser fixture owner-duplicate",
+        "role": "fixture preparation"
+      },
+      {
+        "sidecar": "response-003.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a03-45c8-70a4-9981-62ed62132587",
+        "body_sha256": "c29fd81c57e49e0f1951193a4b7a3b14db8ca992e7265d322c1fcecedb81d061",
+        "id": "01a11a03-4484-75bf-a7a5-7d78b0a05669",
+        "name": "owner-archived",
+        "version": "3",
+        "description": "Owner browser fixture owner-archived",
+        "role": "fixture preparation"
+      },
+      {
+        "sidecar": "response-004.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a03-45cc-788b-b13e-35afe665868a",
+        "body_sha256": "b2644ab8bcca4f8489a46c1764589df44be48b234d48430917d4e8ecb77c2d3f",
+        "id": "01a11a03-44ad-7c93-b1c4-44dce84c47cf",
+        "name": "owner-archiving",
+        "version": "2",
+        "description": "Owner browser fixture owner-archiving",
+        "role": "fixture preparation"
+      },
+      {
+        "sidecar": "response-005.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a03-523a-76cf-97d9-5232101e0881",
+        "body_sha256": "c5008ed822dbb5af5c23feaebab4d40140c8712e5b2e09dcfa2ccf1e3860d818",
+        "id": "01a11a03-4428-7bd2-97cb-ad4982f9be4b",
+        "name": "owner-main",
+        "version": "1",
+        "description": "Owner browser fixture owner-main",
+        "role": "browser flow; no final schema/client validation"
+      },
+      {
+        "sidecar": "response-006.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a03-524e-78a2-9272-4d7cd0e59ef4",
+        "body_sha256": "c5008ed822dbb5af5c23feaebab4d40140c8712e5b2e09dcfa2ccf1e3860d818",
+        "id": "01a11a03-4428-7bd2-97cb-ad4982f9be4b",
+        "name": "owner-main",
+        "version": "1",
+        "description": "Owner browser fixture owner-main",
+        "role": "browser flow; no final schema/client validation"
+      },
+      {
+        "sidecar": "response-007.json",
+        "method": "PATCH",
+        "status": 200,
+        "request_id": "01a11a03-53d3-7624-8c71-0e2483a8d033",
+        "body_sha256": "ed4e6a0bf00c073e25d3ca294934b66bf3a18cbd008c1a47484943a72f8176c3",
+        "id": "01a11a03-4428-7bd2-97cb-ad4982f9be4b",
+        "name": "owner-main",
+        "version": "2",
+        "description": "  first description\n保持空格  ",
+        "role": "browser flow; no final schema/client validation"
+      },
+      {
+        "sidecar": "response-008.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a03-5407-7d36-813a-01e793744a70",
+        "body_sha256": "ed4e6a0bf00c073e25d3ca294934b66bf3a18cbd008c1a47484943a72f8176c3",
+        "id": "01a11a03-4428-7bd2-97cb-ad4982f9be4b",
+        "name": "owner-main",
+        "version": "2",
+        "description": "  first description\n保持空格  ",
+        "role": "browser flow; no final schema/client validation"
+      },
+      {
+        "sidecar": "response-009.json",
+        "method": "PATCH",
+        "status": 200,
+        "request_id": "01a11a03-54c3-7543-b071-3a7b8abc2bd6",
+        "body_sha256": "d46945e16ad0c01090ad4b70ede99593fc8c47e59efb44a420683fe2a34c4216",
+        "id": "01a11a03-4428-7bd2-97cb-ad4982f9be4b",
+        "name": "owner-main",
+        "version": "3",
+        "description": "",
+        "role": "browser flow; no final schema/client validation"
+      },
+      {
+        "sidecar": "response-010.json",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a11a03-5506-7c96-8085-bf8efb4d92ea",
+        "body_sha256": "d46945e16ad0c01090ad4b70ede99593fc8c47e59efb44a420683fe2a34c4216",
+        "id": "01a11a03-4428-7bd2-97cb-ad4982f9be4b",
+        "name": "owner-main",
+        "version": "3",
+        "description": "",
+        "role": "browser flow; no final schema/client validation"
+      }
+    ]
+  },
+  "failure": {
+    "top": "TestAccountProjectOwnerWebEditAndRename",
+    "actual_outer_exit": 1,
+    "direct_exit": 1,
+    "command_seconds": 96.558,
+    "top_seconds": 52.78,
+    "browser_budget_seconds": 45,
+    "source": "frozen browser-v3 spec line 627",
+    "operation": "getByLabel(项目名称, exact:true).fill(owner-duplicate)",
+    "raw_observation": "Waiting for label until total 45000ms case deadline; no resolved-element/actionability log or retained DOM snapshot",
+    "last_completed_assertion": "line626 getByLabel(项目描述, exact:true) has empty value after 取消修改 click",
+    "classification": "Harness name locator mismatches fixed required UiField label text; current evidence does not establish a product cancel-state defect or exclude every other actual edit01 state factor"
+  },
+  "completed_prefix": {
+    "proof": "Sequential frozen assertions before failing line plus native response bodies, not an overall partial-test PASS",
+    "steps": [
+      "enter owner settings via Resolve/Get",
+      "initial save disabled",
+      "save exact spaced/newline description",
+      "confirmed current read and version +1",
+      "save disabled and first saved facts unchanged on observe",
+      "clear description and confirm empty persisted value",
+      "dirty navigation confirmation then continue editing keeps URL/draft",
+      "cancel edits returns description draft to empty"
+    ],
+    "body_versions": [
+      "001/005/006 main version1",
+      "007 PATCH +008 GET version2, exact spaced/newline description",
+      "009 PATCH +010 GET version3, empty description"
+    ]
+  },
+  "unexecuted_suffix": [
+    "duplicate-name save/error and retained name draft",
+    "version-conflict and explicit current read/adoption",
+    "rename and canonical navigation",
+    "confirmed write followed by failed current read and retry without PATCH",
+    "final schema/client validation",
+    "completed edit result"
+  ],
+  "static_cause": {
+    "project_component": "ProjectGeneralSettings.vue name field required at lines112-131; description not required; both fields under same editor.ready form",
+    "shared_component": "UiField.vue line15 appends span aria-hidden=true with text space-star; UiInput forwards attributes to input",
+    "cancel_path": "useProjectWorkspace.cancelEdits lines437-439 calls applyCurrent subject to guards; applyCurrent lines195-211 copies current name/description/version and sets editor.ready=true. No asymmetric removal of name field in this path.",
+    "playwright_algorithm": "Fixed 1.56.1 internal:label uses getElementLabels -> elementText; normalized full label text contains aria-hidden descendant text. Role engine uses accessible name and omits the hidden star.",
+    "mandatory_fix": "Only #21: unify one exact textbox accessible-name helper for all seven name locators; leave description locators and shared product UiField unchanged",
+    "affected_frozen_v3_lines": [
+      627,
+      632,
+      658,
+      1117,
+      1119,
+      1131,
+      1153
+    ],
+    "minimal_regression": "Existing authorized local three-variant label experiment proves locator semantics; successor helper delta + necessary offline format/type/list, then separately authorized full new-edit and later layouts under frozen inputs"
+  },
+  "semantic_experiments": {
+    "label-semantics01": {
+      "files": {
+        "label-semantics01/experiment.cjs": {
+          "bytes": 3827,
+          "sha256": "43063778e5b5bdbd0c5f8b68d90954033fdc18bc23f285bc1356c79e4bf481d4"
+        },
+        "label-semantics01/inputs.json": {
+          "bytes": 1892,
+          "sha256": "80668d80b3c38bd1da95ada4899a443d2706d316e5356f413eb5c308a0b4676d"
+        },
+        "label-semantics01/late-empty-directory-cleanup.json": {
+          "bytes": 369,
+          "sha256": "e786cff19b7e12d9e5f7a4dc106ed79f457ca81032a4d8916f85062ffc869592"
+        },
+        "label-semantics01/raw.log": {
+          "bytes": 66,
+          "sha256": "a84cd1fdbbdcd3a734be2227d823b24e9d74fa82fdc3bd980f08e048ca5eb2a9"
+        },
+        "label-semantics01/result.json": {
+          "bytes": 5461,
+          "sha256": "9e8bbdf9bef843c9db607201f0e8752ad82b6f938bbf9099766305e53843cef1"
+        },
+        "label-semantics01/retirement.json": {
+          "bytes": 2339,
+          "sha256": "b8bc193d21fe155a818775210e9e4d42d2ba63864ff3067d1bce171154570107"
+        },
+        "label-semantics01/supervisor.py": {
+          "bytes": 3629,
+          "sha256": "d5e6cffbf6fd561081251f3d1612170317d3507d6b741fe6cd06e0175ae03fbf"
+        }
+      },
+      "result": {
+        "status": "FAIL",
+        "browserClosed": false,
+        "controls": 0,
+        "network_requests": 0,
+        "cause": "Chromium SingletonSocket path too long in reviewer TMPDIR; browser launch failed before setContent"
+      },
+      "retirement": {
+        "status": "FAIL",
+        "seconds_including_cleanup": 0.6274513469998055,
+        "limit_seconds": 15,
+        "supervisor_pid": 149256,
+        "direct_pid": 149259,
+        "direct_actual_wait": true,
+        "direct_exit": 1,
+        "adopted_waits": [
+          {
+            "pid": 149286,
+            "starttime": "837856",
+            "ppid": 149256,
+            "state": "Z",
+            "name": "chrome_crashpad",
+            "actual_wait": true,
+            "exit": 0,
+            "time": "2026-10-08T05:48:23.914813+00:00"
+          },
+          {
+            "pid": 149289,
+            "starttime": "837856",
+            "ppid": 149256,
+            "state": "Z",
+            "name": "chromium",
+            "actual_wait": true,
+            "exit": 0,
+            "time": "2026-10-08T05:48:23.914844+00:00"
+          },
+          {
+            "pid": 149290,
+            "starttime": "837856",
+            "ppid": 149256,
+            "state": "Z",
+            "name": "chrome_crashpad",
+            "actual_wait": true,
+            "exit": 0,
+            "time": "2026-10-08T05:48:23.914853+00:00"
+          },
+          {
+            "pid": 149291,
+            "starttime": "837856",
+            "ppid": 149256,
+            "state": "Z",
+            "name": "chromium",
+            "actual_wait": true,
+            "exit": 0,
+            "time": "2026-10-08T05:48:23.914896+00:00"
+          }
+        ],
+        "observed": {
+          "149259:837826": {
+            "pid": 149259,
+            "starttime": "837826",
+            "ppid": 149256,
+            "state": "Z",
+            "name": "MainThread"
+          },
+          "149271:837851": {
+            "pid": 149271,
+            "starttime": "837851",
+            "ppid": 149259,
+            "state": "S",
+            "name": "chromium"
+          },
+          "149286:837856": {
+            "pid": 149286,
+            "starttime": "837856",
+            "ppid": 149256,
+            "state": "Z",
+            "name": "chrome_crashpad"
+          },
+          "149289:837856": {
+            "pid": 149289,
+            "starttime": "837856",
+            "ppid": 149256,
+            "state": "Z",
+            "name": "chromium"
+          },
+          "149290:837856": {
+            "pid": 149290,
+            "starttime": "837856",
+            "ppid": 149256,
+            "state": "Z",
+            "name": "chrome_crashpad"
+          },
+          "149291:837856": {
+            "pid": 149291,
+            "starttime": "837856",
+            "ppid": 149256,
+            "state": "Z",
+            "name": "chromium"
+          }
+        },
+        "actions": [],
+        "errors": [],
+        "owned_double_scan": [
+          {
+            "time": "2026-10-08T05:48:23.968020+00:00",
+            "owned": []
+          },
+          {
+            "time": "2026-10-08T05:48:24.070152+00:00",
+            "owned": []
+          }
+        ],
+        "runtime_entries": [
+          "org.chromium.Chromium.rHvdZn"
+        ]
+      },
+      "actual_outer_exit": 1,
+      "execution_tool_chunks": [
+        "1db2c5"
+      ],
+      "late_empty_directory_cleanup_not_within_first_15s": true
+    },
+    "label-semantics02": {
+      "files": {
+        "label-semantics02/experiment.cjs": {
+          "bytes": 3827,
+          "sha256": "43063778e5b5bdbd0c5f8b68d90954033fdc18bc23f285bc1356c79e4bf481d4"
+        },
+        "label-semantics02/inputs.json": {
+          "bytes": 2447,
+          "sha256": "76fff107b920583d13406bfe16ecbaef989a8f674738e60c46841bbf77dfa0ad"
+        },
+        "label-semantics02/raw.log": {
+          "bytes": 65,
+          "sha256": "df4573930723e923556a50ce22c94a3d883db10bc831c720bb8d6ca2bcf41649"
+        },
+        "label-semantics02/result.json": {
+          "bytes": 944,
+          "sha256": "7d79eb1fbf5dc6f8e27d9c586edf35433dd11729a6fc8935cc63a7bdd4abb926"
+        },
+        "label-semantics02/retirement.json": {
+          "bytes": 3183,
+          "sha256": "8adc8e4b4abee1a4fb1df88dd5278a76b1485d0e3afe6d0662892e30b07745b6"
+        },
+        "label-semantics02/supervisor.py": {
+          "bytes": 3664,
+          "sha256": "688ffc6a622d4c566bc6aedad75b91231ec214690b35a9264454d8d3b6840253"
+        }
+      },
+      "result": {
+        "scope": "synthetic local label semantics only; not edit01 DOM",
+        "requests": [],
+        "controls": [
+          {
+            "stage": "required aria-hidden star",
+            "exactLabel": 0,
+            "exactStarLabel": 1,
+            "exactRole": 1,
+            "exactStarRole": 0,
+            "descriptionLabel": 1,
+            "labelText": "项目名称 *"
+          },
+          {
+            "stage": "visible-to-accessibility star",
+            "exactLabel": 0,
+            "exactStarLabel": 1,
+            "exactRole": 0,
+            "exactStarRole": 1,
+            "descriptionLabel": 1,
+            "labelText": "项目名称 *"
+          },
+          {
+            "stage": "no star",
+            "exactLabel": 1,
+            "exactStarLabel": 0,
+            "exactRole": 1,
+            "exactStarRole": 0,
+            "descriptionLabel": 1,
+            "labelText": "项目名称"
+          }
+        ],
+        "browserClosed": true,
+        "browserVersion": "151.0.7922.173",
+        "originalExactFill": {
+          "expectedTimeout": true,
+          "timeoutMs": 150
+        },
+        "roleFillSucceeded": true,
+        "status": "PASS"
+      },
+      "retirement": {
+        "status": "PASS",
+        "seconds_including_cleanup": 1.4834586390006734,
+        "limit_seconds": 15,
+        "supervisor_pid": 150363,
+        "direct_pid": 150366,
+        "direct_actual_wait": true,
+        "direct_exit": 0,
+        "adopted_waits": [
+          {
+            "pid": 150412,
+            "starttime": "847881",
+            "ppid": 150363,
+            "state": "Z",
+            "name": "chrome_crashpad",
+            "actual_wait": true,
+            "exit": 0,
+            "time": "2026-10-08T05:50:05.078467+00:00"
+          },
+          {
+            "pid": 150414,
+            "starttime": "847881",
+            "ppid": 150363,
+            "state": "Z",
+            "name": "chrome_crashpad",
+            "actual_wait": true,
+            "exit": 0,
+            "time": "2026-10-08T05:50:05.078491+00:00"
+          },
+          {
+            "pid": 150416,
+            "starttime": "847881",
+            "ppid": 150363,
+            "state": "Z",
+            "name": "chromium",
+            "actual_wait": true,
+            "exit": 0,
+            "time": "2026-10-08T05:50:05.078511+00:00"
+          },
+          {
+            "pid": 150417,
+            "starttime": "847882",
+            "ppid": 150363,
+            "state": "Z",
+            "name": "chromium",
+            "actual_wait": true,
+            "exit": 0,
+            "time": "2026-10-08T05:50:05.078529+00:00"
+          }
+        ],
+        "observed": {
+          "150366:847852": {
+            "pid": 150366,
+            "starttime": "847852",
+            "ppid": 150363,
+            "state": "S",
+            "name": "MainThread"
+          },
+          "150378:847876": {
+            "pid": 150378,
+            "starttime": "847876",
+            "ppid": 150366,
+            "state": "Z",
+            "name": "chromium"
+          },
+          "150412:847881": {
+            "pid": 150412,
+            "starttime": "847881",
+            "ppid": 150363,
+            "state": "Z",
+            "name": "chrome_crashpad"
+          },
+          "150414:847881": {
+            "pid": 150414,
+            "starttime": "847881",
+            "ppid": 150363,
+            "state": "Z",
+            "name": "chrome_crashpad"
+          },
+          "150416:847881": {
+            "pid": 150416,
+            "starttime": "847881",
+            "ppid": 150363,
+            "state": "Z",
+            "name": "chromium"
+          },
+          "150417:847882": {
+            "pid": 150417,
+            "starttime": "847882",
+            "ppid": 150363,
+            "state": "Z",
+            "name": "chromium"
+          },
+          "150439:847886": {
+            "pid": 150439,
+            "starttime": "847886",
+            "ppid": 150416,
+            "state": "S",
+            "name": "chromium"
+          },
+          "150455:847918": {
+            "pid": 150455,
+            "starttime": "847918",
+            "ppid": 150378,
+            "state": "S",
+            "name": "chromium"
+          },
+          "150456:847922": {
+            "pid": 150456,
+            "starttime": "847922",
+            "ppid": 150417,
+            "state": "S",
+            "name": "chromium"
+          },
+          "150487:847930": {
+            "pid": 150487,
+            "starttime": "847930",
+            "ppid": 150417,
+            "state": "S",
+            "name": "chromium"
+          },
+          "150496:847932": {
+            "pid": 150496,
+            "starttime": "847932",
+            "ppid": 150417,
+            "state": "R",
+            "name": "chromium"
+          },
+          "150498:847932": {
+            "pid": 150498,
+            "starttime": "847932",
+            "ppid": 150417,
+            "state": "Z",
+            "name": "chromium"
+          }
+        },
+        "actions": [],
+        "errors": [],
+        "owned_double_scan": [
+          {
+            "time": "2026-10-08T05:50:05.080244+00:00",
+            "owned": []
+          },
+          {
+            "time": "2026-10-08T05:50:05.182593+00:00",
+            "owned": []
+          }
+        ],
+        "runtime_entries": []
+      },
+      "actual_outer_exit": 0,
+      "execution_tool_chunks": [
+        "9411d0",
+        "30bb84"
+      ],
+      "late_empty_directory_cleanup_not_within_first_15s": false
+    }
+  },
+  "experiment_limits": {
+    "actual_edit01_dom": false,
+    "loaded_vue_or_business": false,
+    "loaded_product_assets": false,
+    "listener_or_business_fixture": false,
+    "page_requests": 0,
+    "only_about_blank_setContent": true,
+    "tools": "Frozen Playwright1.56.1 and system Chromium151.0.7922.173, no skill installed",
+    "playwright_skill_exception": "Required skill unavailable; root explicitly authorized direct use of installed frozen tools under user existing independent-test authorization. Never claimed skill was read.",
+    "label01_preserved": "Failed launch due reviewer long TMPDIR, direct+4 adopted actual waits and owned double-empty in0.627s; empty temp directory removed later with separate record, not retrospectively cleanup-within15 PASS",
+    "label02_scope": "Identical experiment.cjs SHA; separately authorized successor changes only short TMPDIR, completes1.483s including direct/adopted cleanup/owned double-empty/runtime empty; no automatic retry"
+  },
+  "retirement": {
+    "direct_pid": 130520,
+    "direct_starttime": "762993",
+    "direct_actual_wait": true,
+    "watchdog_joined": true,
+    "adopted_actual_waits": [
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 134836,
+        "starttime": "766094",
+        "time": "2026-10-08T05:37:11.944073+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 134838,
+        "starttime": "766094",
+        "time": "2026-10-08T05:37:11.944096+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 134841,
+        "starttime": "766094",
+        "time": "2026-10-08T05:37:11.944113+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 134842,
+        "starttime": "766094",
+        "time": "2026-10-08T05:37:11.944128+00:00"
+      }
+    ],
+    "exact_resources": {
+      "574ca71ccca41afc1716df915a2008e6964e492e716085ae92d378e01d456c0a": {
+        "kind": "container",
+        "name": "/agenteam-d03-430b42adf8d24b6e3c39cbac8ace8f1f-pg16",
+        "labels": {
+          "agenteam.d03.fixture": "430b42adf8d24b6e3c39cbac8ace8f1f"
+        }
+      },
+      "5e618a29026aaeea911e40a66344fc0d21ec45d34c0732e0b25c41bad7c759f2": {
+        "kind": "container",
+        "name": "/agenteam-d05-object-41796c7358d21d38cb18c563b898bfa0",
+        "labels": {
+          "agenteam.d05.objectfixture": "41796c7358d21d38cb18c563b898bfa0"
+        }
+      },
+      "66300d3b20f5a7803eefec180b5990da06e5b4f0b85e1ec1169a8b48df28a3df": {
+        "kind": "network",
+        "name": "agenteam-d03-430b42adf8d24b6e3c39cbac8ace8f1f",
+        "labels": {
+          "agenteam.d03.fixture": "430b42adf8d24b6e3c39cbac8ace8f1f"
+        }
+      },
+      "67c9ac911f0a8223d38fa9a44600187adebd83fecef41394a90c7355297b1ee1": {
+        "kind": "network",
+        "name": "agenteam-d04-net-2830497b91c6475fc66a1086c40d06a4",
+        "labels": {
+          "agenteam.d04.networkfixture": "2830497b91c6475fc66a1086c40d06a4"
+        }
+      },
+      "a85d53bce3bb92b2dbcad1634d9a4d9ffa2bfeedf3c35aefbc5b67c217aacecf": {
+        "kind": "container",
+        "name": "/agenteam-d04-net-2830497b91c6475fc66a1086c40d06a4",
+        "labels": {
+          "agenteam.d04.networkfixture": "2830497b91c6475fc66a1086c40d06a4"
+        }
+      },
+      "dde399c974b2873f55eb15ff6930f6c4d6998d9e85f64664493f7c40e32b0a8d": {
+        "kind": "network",
+        "name": "agenteam-d05-object-41796c7358d21d38cb18c563b898bfa0",
+        "labels": {
+          "agenteam.d05.objectfixture": "41796c7358d21d38cb18c563b898bfa0"
+        }
+      },
+      "f4cef241bff2a29843daf0ca747da39da4e7d38b662ee5a1cdeaa609686ade56": {
+        "kind": "container",
+        "name": "/agenteam-d03-430b42adf8d24b6e3c39cbac8ace8f1f",
+        "labels": {
+          "agenteam.d03.fixture": "430b42adf8d24b6e3c39cbac8ace8f1f"
+        }
+      }
+    },
+    "exact_seven_ids_absent_twice": true,
+    "owned_process_runtime_and_new_resources_empty_twice": true,
+    "unrelated_docker_baseline_unchanged_twice": true,
+    "monitor_errors": 0,
+    "cancellations": 0,
+    "forced_tail_actions": 0,
+    "tcp_tail_seconds": 40.36585689399999,
+    "tcp_last_two_scans": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T05:38:13.234181+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T05:38:13.438217+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "tcp_role": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "tcp_signals_sent": false,
+    "nonowned_new_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 130746,
+        "ppid": 1,
+        "starttime": "763228",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 131099,
+        "ppid": 1,
+        "starttime": "763459",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 131465,
+        "ppid": 1,
+        "starttime": "763633",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 131933,
+        "ppid": 1,
+        "starttime": "763807",
+        "state": "Z"
+      }
+    ],
+    "nonowned_limit": "Not owned, signaled or claimed joined; no global machine empty claim",
+    "raw_inner_completion": "Node waited; proxy Serve/body handlers joined; preparation Project service joined before ProcessGuard release; formal app root joined; original fixture cleanup checks completed"
+  },
+  "input_consistency": {
+    "before_after_equal": true,
+    "files": 1165,
+    "authorization_sha256": "d7c694849a176880ac90e19cfb0f19a0392416d644402f8fa8dab8c7adbe4fb9",
+    "permitted_groups": [
+      "new-edit"
+    ],
+    "root_restore_recorded_utc": "2026-10-08T05:38:57.261281+00:00",
+    "restore_after_tcp_double_clear": true,
+    "restored_original_three_files_reported_exact": true,
+    "post_round_restore_not_input_drift": true
+  },
+  "pending": [
+    "new-edit corrected successor real completion",
+    "remaining new/old browser and Go tops",
+    "independent real A/B",
+    "layouts and visual evidence",
+    "full D27 acceptance"
+  ],
+  "writer_state": "STOP. Only this scratch review tree and specifically authorized short temporary directory written. No source/repository docs/Git writes or business resources."
+}

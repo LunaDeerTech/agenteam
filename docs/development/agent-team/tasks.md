@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-08：edit01失败与v4窄修永久归档，edit02输入准备通过
+
+[edit01永久失败与修正记录](project-owner-ui-recovered-edit01-verification.md)已STOP：92逻辑原件、新68物理400778 bytes/13复用，root逐source/archive原bytes/SHA、70指纹和43Git定位核同。原FAIL、未执行后段与schema/client、缺当时DOM、label01启动FAIL/晚空目录清理、label02语义PASS独立分列，原18格式例外不改字节；v4只Gitf09f定位，已关闭七定位必修，非真实edit/layouts通过。
+
+final03作者唯一filegate0/1.318秒与独立PREPARED PASS已STOP，955源/66目录集合/1165指纹沿final02复用，只#21与manifest/driver路径变化。独审报告 `/workspace/scratch/owner-ui-runtime-verification/final03-review/review.md` SHA `12fc0eaf6c7cfdb34e5b6c0d53de60249d719d9a15ea5f1751a86ab043f36d20`，固定准备freeze SHA `99d71e028ded80f7b7979f8ee9a32ef4fe88c1a1c21b8a415ae665faa2290232`；root核七交接文件指纹与driver exactBB。false原件不修改；下一步root另建唯一edit02授权copy后执行，尚未开始。53资产窗口与原3完整backup original-dist-edit02保持，退役后root恢复。后继完整卡与原生产/三停止边界均保持，以下为历史。
+
 ## 2026-10-08：browser-v4必填名称定位器限定修正
 
 独立负责人已确认v4小差量PASS：仅#21新增按textbox精确无障碍名称定位的helper，替换edit3/layouts4共7处；原fill/value/focus/样式/readonly断言与31处描述定位保留。#20、19UI、Go04与锁字节不变。独立本地label02（1.483秒、actualwait/direct4adopted/双清、0请求）证明原required UiField结构exactLabel为0而exactRole为1并可fill；label01启动失败和edit01 FAIL保持，实验不是原edit DOM。

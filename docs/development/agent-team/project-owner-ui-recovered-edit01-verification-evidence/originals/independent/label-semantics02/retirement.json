@@ -1,0 +1,150 @@
+{
+  "status": "PASS",
+  "seconds_including_cleanup": 1.4834586390006734,
+  "limit_seconds": 15,
+  "supervisor_pid": 150363,
+  "direct_pid": 150366,
+  "direct_actual_wait": true,
+  "direct_exit": 0,
+  "adopted_waits": [
+    {
+      "pid": 150412,
+      "starttime": "847881",
+      "ppid": 150363,
+      "state": "Z",
+      "name": "chrome_crashpad",
+      "actual_wait": true,
+      "exit": 0,
+      "time": "2026-10-08T05:50:05.078467+00:00"
+    },
+    {
+      "pid": 150414,
+      "starttime": "847881",
+      "ppid": 150363,
+      "state": "Z",
+      "name": "chrome_crashpad",
+      "actual_wait": true,
+      "exit": 0,
+      "time": "2026-10-08T05:50:05.078491+00:00"
+    },
+    {
+      "pid": 150416,
+      "starttime": "847881",
+      "ppid": 150363,
+      "state": "Z",
+      "name": "chromium",
+      "actual_wait": true,
+      "exit": 0,
+      "time": "2026-10-08T05:50:05.078511+00:00"
+    },
+    {
+      "pid": 150417,
+      "starttime": "847882",
+      "ppid": 150363,
+      "state": "Z",
+      "name": "chromium",
+      "actual_wait": true,
+      "exit": 0,
+      "time": "2026-10-08T05:50:05.078529+00:00"
+    }
+  ],
+  "observed": {
+    "150366:847852": {
+      "pid": 150366,
+      "starttime": "847852",
+      "ppid": 150363,
+      "state": "S",
+      "name": "MainThread"
+    },
+    "150378:847876": {
+      "pid": 150378,
+      "starttime": "847876",
+      "ppid": 150366,
+      "state": "Z",
+      "name": "chromium"
+    },
+    "150412:847881": {
+      "pid": 150412,
+      "starttime": "847881",
+      "ppid": 150363,
+      "state": "Z",
+      "name": "chrome_crashpad"
+    },
+    "150414:847881": {
+      "pid": 150414,
+      "starttime": "847881",
+      "ppid": 150363,
+      "state": "Z",
+      "name": "chrome_crashpad"
+    },
+    "150416:847881": {
+      "pid": 150416,
+      "starttime": "847881",
+      "ppid": 150363,
+      "state": "Z",
+      "name": "chromium"
+    },
+    "150417:847882": {
+      "pid": 150417,
+      "starttime": "847882",
+      "ppid": 150363,
+      "state": "Z",
+      "name": "chromium"
+    },
+    "150439:847886": {
+      "pid": 150439,
+      "starttime": "847886",
+      "ppid": 150416,
+      "state": "S",
+      "name": "chromium"
+    },
+    "150455:847918": {
+      "pid": 150455,
+      "starttime": "847918",
+      "ppid": 150378,
+      "state": "S",
+      "name": "chromium"
+    },
+    "150456:847922": {
+      "pid": 150456,
+      "starttime": "847922",
+      "ppid": 150417,
+      "state": "S",
+      "name": "chromium"
+    },
+    "150487:847930": {
+      "pid": 150487,
+      "starttime": "847930",
+      "ppid": 150417,
+      "state": "S",
+      "name": "chromium"
+    },
+    "150496:847932": {
+      "pid": 150496,
+      "starttime": "847932",
+      "ppid": 150417,
+      "state": "R",
+      "name": "chromium"
+    },
+    "150498:847932": {
+      "pid": 150498,
+      "starttime": "847932",
+      "ppid": 150417,
+      "state": "Z",
+      "name": "chromium"
+    }
+  },
+  "actions": [],
+  "errors": [],
+  "owned_double_scan": [
+    {
+      "time": "2026-10-08T05:50:05.080244+00:00",
+      "owned": []
+    },
+    {
+      "time": "2026-10-08T05:50:05.182593+00:00",
+      "owned": []
+    }
+  ],
+  "runtime_entries": []
+}

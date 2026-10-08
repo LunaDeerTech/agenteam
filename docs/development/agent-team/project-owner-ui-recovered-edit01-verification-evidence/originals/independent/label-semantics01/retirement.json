@@ -1,0 +1,110 @@
+{
+  "status": "FAIL",
+  "seconds_including_cleanup": 0.6274513469998055,
+  "limit_seconds": 15,
+  "supervisor_pid": 149256,
+  "direct_pid": 149259,
+  "direct_actual_wait": true,
+  "direct_exit": 1,
+  "adopted_waits": [
+    {
+      "pid": 149286,
+      "starttime": "837856",
+      "ppid": 149256,
+      "state": "Z",
+      "name": "chrome_crashpad",
+      "actual_wait": true,
+      "exit": 0,
+      "time": "2026-10-08T05:48:23.914813+00:00"
+    },
+    {
+      "pid": 149289,
+      "starttime": "837856",
+      "ppid": 149256,
+      "state": "Z",
+      "name": "chromium",
+      "actual_wait": true,
+      "exit": 0,
+      "time": "2026-10-08T05:48:23.914844+00:00"
+    },
+    {
+      "pid": 149290,
+      "starttime": "837856",
+      "ppid": 149256,
+      "state": "Z",
+      "name": "chrome_crashpad",
+      "actual_wait": true,
+      "exit": 0,
+      "time": "2026-10-08T05:48:23.914853+00:00"
+    },
+    {
+      "pid": 149291,
+      "starttime": "837856",
+      "ppid": 149256,
+      "state": "Z",
+      "name": "chromium",
+      "actual_wait": true,
+      "exit": 0,
+      "time": "2026-10-08T05:48:23.914896+00:00"
+    }
+  ],
+  "observed": {
+    "149259:837826": {
+      "pid": 149259,
+      "starttime": "837826",
+      "ppid": 149256,
+      "state": "Z",
+      "name": "MainThread"
+    },
+    "149271:837851": {
+      "pid": 149271,
+      "starttime": "837851",
+      "ppid": 149259,
+      "state": "S",
+      "name": "chromium"
+    },
+    "149286:837856": {
+      "pid": 149286,
+      "starttime": "837856",
+      "ppid": 149256,
+      "state": "Z",
+      "name": "chrome_crashpad"
+    },
+    "149289:837856": {
+      "pid": 149289,
+      "starttime": "837856",
+      "ppid": 149256,
+      "state": "Z",
+      "name": "chromium"
+    },
+    "149290:837856": {
+      "pid": 149290,
+      "starttime": "837856",
+      "ppid": 149256,
+      "state": "Z",
+      "name": "chrome_crashpad"
+    },
+    "149291:837856": {
+      "pid": 149291,
+      "starttime": "837856",
+      "ppid": 149256,
+      "state": "Z",
+      "name": "chromium"
+    }
+  },
+  "actions": [],
+  "errors": [],
+  "owned_double_scan": [
+    {
+      "time": "2026-10-08T05:48:23.968020+00:00",
+      "owned": []
+    },
+    {
+      "time": "2026-10-08T05:48:24.070152+00:00",
+      "owned": []
+    }
+  ],
+  "runtime_entries": [
+    "org.chromium.Chromium.rHvdZn"
+  ]
+}

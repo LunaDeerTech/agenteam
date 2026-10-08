@@ -1,0 +1,17 @@
+{
+  "files": {
+    "/workspace/scratch/owner-ui-runtime-verification/edit01-review/label-semantics01/experiment.cjs": "43063778e5b5bdbd0c5f8b68d90954033fdc18bc23f285bc1356c79e4bf481d4",
+    "/workspace/scratch/owner-ui-runtime-verification/edit01-review/label-semantics01/supervisor.py": "d5e6cffbf6fd561081251f3d1612170317d3507d6b741fe6cd06e0175ae03fbf",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "/usr/bin/chromium": "2c8d32d29dc6781c35ae196ea83299d507ac88fc339301abe74672feda299779",
+    "/usr/lib/chromium/chromium": "d387400aaf740ccb75e5e996a34aa0940e6e97683a4eabd6ae34c1eed6804723",
+    "/workspace/agenteam/tests/account-captcha-web/node_modules/playwright/package.json": "388159d9169e9aa04bd24a92fb102321e7aca1af8c5ce9fc130f354af148587a",
+    "/workspace/agenteam/tests/account-captcha-web/node_modules/playwright-core/lib/generated/injectedScriptSource.js": "182c693b9391268858635866f97e3cc2f68939c42460e1407c3cd865837e282f",
+    "/workspace/agenteam/web/src/components/ui/UiField.vue": "9e40a4c00994826f9a65ed0c1cf095f7e6d5e44b93a95a4788b82ab1b9f3e0a1",
+    "/workspace/agenteam/web/src/components/ui/UiInput.vue": "fd182981669131383f2a36fd422da461f94237a7ba019a469c05dcb9c5afcbaf",
+    "/workspace/agenteam/web/src/views/projects/ProjectGeneralSettings.vue": "0c5013fc4e7f022d04aa4e52caa41dec247cb6c2f20bf7d4947d505b4c2e2607"
+  },
+  "source_browser_freeze_sha256": "55f8ebe064a27558bbf3c822c825d4b35cc4fa5433dd3a71258343da5f97c3d8",
+  "permission": "root authorized exactly one local setContent semantic experiment, <=15s including owned cleanup; no business fixture/server/network/assets",
+  "playwright_skill": "Unavailable in current skill locations; direct use of frozen tool explicitly authorized by root under existing user test authorization; no skill claimed read"
+}

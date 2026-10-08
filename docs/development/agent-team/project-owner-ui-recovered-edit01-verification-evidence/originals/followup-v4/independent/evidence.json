@@ -1,0 +1,260 @@
+{
+  "status": "BOUNDED_BROWSER_V4_NAME_LOCATOR_FIX_PASS_STOP",
+  "recorded_utc": "2026-10-08T05:58:00.101017+00:00",
+  "reviewer": "/root/verification_runtime",
+  "scope": "Only #21 required project-name locator repair; independent read-only delta/evidence review using already completed label02 semantics",
+  "source_baseline": "root handed-off be34ff9916d3e2354b4edd33df08c99021b02c2c browser-v3; current main coordination6501ca05 declared by root",
+  "references": {
+    "/workspace/scratch/owner-ui-recovery/browser-v4/freeze.json": "9688d909627f3e8253c68e989ebecd7cac8b6f16d84b9196b9297ba854f006d9",
+    "/workspace/scratch/owner-ui-recovery/browser-v4/delta.patch": "a38a421b04f7b0100287ec805ecfe4e56536d0c580aa85b3e724a626eed40f23",
+    "/workspace/scratch/owner-ui-recovery/browser-v4/handoff.md": "bf649ebc2e5ebe264cc1b6c6932993048e8559d653998054e8dfe391923b6350",
+    "/workspace/scratch/owner-ui-recovery/browser-v4/checks.json": "83c78357a058cacdb3a176dd28959789da38ced8a5c4d6d76995c24fe0a045b8",
+    "/workspace/scratch/owner-ui-recovery/browser-v4/inputs.json": "8f4a6b18143fe7c15ac9d397e2f0b6a8ef5e772e1412e69fac85cfa4f7529957",
+    "/workspace/scratch/owner-ui-recovery/browser-v4/imports.json": "c1be647023227872098b597215bf71e2239a608a1340176cba4b2501a87b40bc",
+    "/workspace/scratch/owner-ui-recovery/browser-v4/tools.json": "84d86731a74ef9805882fbf471be1385e5f43f74860dabbd0bdac19c84ecff2c",
+    "/workspace/scratch/owner-ui-recovery/browser-v4/tests/account-captcha-web/e2e/project-owner.spec.ts": "0c498b269c1b52d76ef18f2e249eba3714d643b1aa4dbd353f06e60953444cf0",
+    "/workspace/scratch/owner-ui-recovery/browser-v4/tests/account-captcha-web/project-owner.config.js": "46db46eefbff68c1da3f3a96fc3c6cfd607abbcaa60b4bd5afa7a15db9aff54b",
+    "/workspace/scratch/owner-ui-recovery/browser-v3/freeze.json": "55f8ebe064a27558bbf3c822c825d4b35cc4fa5433dd3a71258343da5f97c3d8",
+    "/workspace/scratch/owner-ui-recovery/browser-v3/tests/account-captcha-web/e2e/project-owner.spec.ts": "96d7d3715c757f0fcd354bd3b58bb9b61cb17409b33cac61c3a6f8d23dbb2f98",
+    "/workspace/scratch/owner-ui-runtime-verification/edit01-review/manifest.json": "5aed79a26bbd476c9a3577b3d8dca4ab337215321eed839045169c0a4fb771c2",
+    "/workspace/scratch/owner-ui-runtime-verification/edit01-review/label-semantics02/result.json": "7d79eb1fbf5dc6f8e27d9c586edf35433dd11729a6fc8935cc63a7bdd4abb926",
+    "/workspace/scratch/owner-ui-runtime-verification/edit01-review/label-semantics02/retirement.json": "8adc8e4b4abee1a4fb1df88dd5278a76b1485d0e3afe6d0662892e30b07745b6"
+  },
+  "delta": {
+    "helper": "const projectName = (page: Page) => page.getByRole(\"textbox\", { name: \"项目名称\", exact: true });",
+    "replacement_count": 7,
+    "edit_uses": [
+      "fill duplicate name",
+      "assert retained duplicate draft",
+      "fill rename"
+    ],
+    "layouts_uses": [
+      "focus name",
+      "assert name focus",
+      "evaluate focus outline/shadow style",
+      "assert archived readonly attribute"
+    ],
+    "all_behavior_assertions_retained": true,
+    "description_locator_count_before_after": [
+      31,
+      31
+    ],
+    "new_required_name_exact_labels_remaining": 0,
+    "imports_tools_byte_identical_to_v3": true,
+    "only_changed_explicit_input": [
+      "tests/account-captcha-web/e2e/project-owner.spec.ts"
+    ],
+    "config_sha256": "46db46eefbff68c1da3f3a96fc3c6cfd607abbcaa60b4bd5afa7a15db9aff54b"
+  },
+  "unchanged_fixed_products": {
+    "/workspace/scratch/owner-ui-recovery/ui-v1/freeze.json": {
+      "count": 19,
+      "manifest_sha256": "b7a9ef34a10d0230b541d0daffb19d765d023aa27469a9ca144952f5d1bd9f64",
+      "current_source_hashes_match": true
+    },
+    "/workspace/scratch/owner-ui-backend/candidate04/sha256.json": {
+      "count": 2,
+      "manifest_sha256": "ee7b7104dd9ee79802ac0f4f1409b3170f4d2a8d27318369533cec10ea46837f",
+      "current_source_hashes_match": true
+    }
+  },
+  "locks_and_config_and_api_input_hashes_match": true,
+  "offline_checks": {
+    "browser-v4-format-check01": {
+      "result": {
+        "exit": 0,
+        "timeout": false,
+        "elapsed_seconds": 0.6020840130004217,
+        "direct_actual_wait": 151619,
+        "adopted_actual_wait": [],
+        "owned_pids": {
+          "151619": "856916"
+        },
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "command": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "web/node_modules/prettier/bin/prettier.cjs",
+          "--check",
+          "tests/account-captcha-web/e2e/project-owner.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 40,
+        "cleanup_seconds": 4
+      },
+      "files": {
+        "/workspace/scratch/owner-ui-recovery/browser-v4-format-check01/raw.log": {
+          "bytes": 66,
+          "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+        },
+        "/workspace/scratch/owner-ui-recovery/browser-v4-format-check01/result.json": {
+          "bytes": 251,
+          "sha256": "4760b7d0ec161185ec1d1e67de45e2749a8889447aae53e08f944af0bb582834"
+        },
+        "/workspace/scratch/owner-ui-recovery/browser-v4-format-check01/inputs-before.json": {
+          "bytes": 1366,
+          "sha256": "8f4a6b18143fe7c15ac9d397e2f0b6a8ef5e772e1412e69fac85cfa4f7529957"
+        },
+        "/workspace/scratch/owner-ui-recovery/browser-v4-format-check01/command.json": {
+          "bytes": 299,
+          "sha256": "97cd428a76e0af6c40beffb783d082c3132b6197cc2c46ae03ae5e83e36991bc"
+        },
+        "/workspace/scratch/owner-ui-recovery/browser-v4-format-check01/inputs-after.json": {
+          "bytes": 1366,
+          "sha256": "8f4a6b18143fe7c15ac9d397e2f0b6a8ef5e772e1412e69fac85cfa4f7529957"
+        }
+      },
+      "frozen_v4_input_before_after_exact": true
+    },
+    "browser-v4-types01": {
+      "result": {
+        "exit": 0,
+        "timeout": false,
+        "elapsed_seconds": 1.4993423680007254,
+        "direct_actual_wait": 151610,
+        "adopted_actual_wait": [],
+        "owned_pids": {
+          "151610": "856915"
+        },
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "command": {
+        "argv": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "web/node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--allowJs",
+          "--checkJs",
+          "--target",
+          "ES2022",
+          "--module",
+          "ESNext",
+          "--moduleResolution",
+          "Bundler",
+          "--lib",
+          "ES2022,DOM",
+          "--strict",
+          "--skipLibCheck",
+          "--types",
+          "node",
+          "--typeRoots",
+          "web/node_modules/@types",
+          "tests/account-captcha-web/project-owner.config.js",
+          "tests/account-captcha-web/e2e/project-owner.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 40,
+        "cleanup_seconds": 4
+      },
+      "files": {
+        "/workspace/scratch/owner-ui-recovery/browser-v4-types01/raw.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "/workspace/scratch/owner-ui-recovery/browser-v4-types01/result.json": {
+          "bytes": 251,
+          "sha256": "a7e6d63f16bbb145b03788c76539dca63a14cdc077599cfc8e5a4c8f7e39eb57"
+        },
+        "/workspace/scratch/owner-ui-recovery/browser-v4-types01/inputs-before.json": {
+          "bytes": 1366,
+          "sha256": "8f4a6b18143fe7c15ac9d397e2f0b6a8ef5e772e1412e69fac85cfa4f7529957"
+        },
+        "/workspace/scratch/owner-ui-recovery/browser-v4-types01/command.json": {
+          "bytes": 631,
+          "sha256": "e783697b8fb62b2e85c48a901e9ec4ff25044392231242e2a41ad46494fd422c"
+        },
+        "/workspace/scratch/owner-ui-recovery/browser-v4-types01/inputs-after.json": {
+          "bytes": 1366,
+          "sha256": "8f4a6b18143fe7c15ac9d397e2f0b6a8ef5e772e1412e69fac85cfa4f7529957"
+        }
+      },
+      "frozen_v4_input_before_after_exact": true
+    },
+    "browser-v4-list01": {
+      "result": {
+        "exit": 0,
+        "timeout": false,
+        "elapsed_seconds": 4.283671539000352,
+        "direct_actual_wait": 151612,
+        "adopted_actual_wait": [],
+        "owned_pids": {
+          "151612": "856915",
+          "151626": "856917",
+          "151719": "857042",
+          "151732": "857109",
+          "151745": "857186",
+          "151778": "857258"
+        },
+        "owned_scan_1": {},
+        "owned_scan_2": {},
+        "inputs_same": true
+      },
+      "command": {
+        "argv": [
+          "python3",
+          "/workspace/scratch/owner-ui-recovery/browser-list.py"
+        ],
+        "cwd": "/workspace/agenteam",
+        "budget_seconds": 40,
+        "cleanup_seconds": 4
+      },
+      "files": {
+        "/workspace/scratch/owner-ui-recovery/browser-v4-list01/raw.log": {
+          "bytes": 765,
+          "sha256": "42e0cdbd831b7043ad9e252fd6c6cba1d0c7ffc3c63b43338bcc73aba2af4a83"
+        },
+        "/workspace/scratch/owner-ui-recovery/browser-v4-list01/result.json": {
+          "bytes": 370,
+          "sha256": "3ad27c623163d0636d37601de3774cc7c4a6ba46d41ec70cdbffc54e3d96e346"
+        },
+        "/workspace/scratch/owner-ui-recovery/browser-v4-list01/inputs-before.json": {
+          "bytes": 1366,
+          "sha256": "8f4a6b18143fe7c15ac9d397e2f0b6a8ef5e772e1412e69fac85cfa4f7529957"
+        },
+        "/workspace/scratch/owner-ui-recovery/browser-v4-list01/command.json": {
+          "bytes": 174,
+          "sha256": "527c5a6d6add0cb647eb9f070c58359fa8867f33bb4b59ccd62f808e23f34158"
+        },
+        "/workspace/scratch/owner-ui-recovery/browser-v4-list01/inputs-after.json": {
+          "bytes": 1366,
+          "sha256": "8f4a6b18143fe7c15ac9d397e2f0b6a8ef5e772e1412e69fac85cfa4f7529957"
+        }
+      },
+      "frozen_v4_input_before_after_exact": true
+    }
+  },
+  "semantic_evidence_reuse": {
+    "experiment": "/workspace/scratch/owner-ui-runtime-verification/edit01-review/label-semantics02",
+    "actual_exit": 0,
+    "seconds_including_cleanup": 1.4834586390006734,
+    "original_required_structure_label_exact_count": 0,
+    "exact_role_count": 1,
+    "role_fill_pass": true,
+    "description_control_pass": true,
+    "direct_and_four_adopted_actual_waits": true,
+    "owned_double_empty": true,
+    "runtime_empty": true,
+    "not_rerun_for_v4": true,
+    "not_actual_edit01_dom": true
+  },
+  "must_fix_closed": "The seven required-name exact label locators that mismatch UiField hidden-star label text",
+  "remaining_must_fix": [],
+  "acceptance": "Complete independent acceptance for the single locator-fix slice only; root may commit/push #21",
+  "not_accepted": [
+    "real corrected new-edit completion",
+    "real layouts/visual completion",
+    "other new/old or independent A/B execution",
+    "full D27"
+  ],
+  "prior_failures_preserved": [
+    "edit01 actual business FAIL",
+    "label-semantics01 launch FAIL with separately recorded late empty-directory cleanup"
+  ],
+  "writes": "Only this scratch directory; no source/Git writes, new execution, browser or resource command",
+  "state": "STOP"
+}

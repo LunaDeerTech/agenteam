@@ -1,0 +1,320 @@
+{
+  "status": "ARCHIVE_INTEGRITY_PASS_STOP",
+  "acceptance_scope": "Original author edit01 FAIL preserved; independent original integrity and owned retirement PASS; synthetic selector semantics only. Separate Git f09f browser-v4 seven-locator fix accepted using frozen delta and original offline checks. No real corrected edit/layouts/other tops/A-B/visual/full D27 acceptance.",
+  "business_resource_network_schema_client_commands_run_by_archiver": false,
+  "handoff_sha256": "b82defa1f9b8b051d5d4b4e646da7089754d422e545d838abdc96fbbdacf7238",
+  "independent_stop_manifest_sha256": "5aed79a26bbd476c9a3577b3d8dca4ab337215321eed839045169c0a4fb771c2",
+  "logical_original_refs_checked": 92,
+  "author_original_run_files_checked": 40,
+  "author_original_run_bytes": 338584,
+  "independent_manifest_members_checked": 15,
+  "followup_v4_original_refs_checked": 25,
+  "followup_v4_manifest_members_checked": 2,
+  "followup_v4_explicit_git_inputs_checked": 13,
+  "followup_v4_delta_equals_git_be34_to_f09f": true,
+  "followup_v4_checks_reused_not_rerun": {
+    "browser-v4-format-check01": {
+      "exit": 0,
+      "seconds": 0.6020840130004217,
+      "direct_actual_wait": 151619,
+      "inputs_same": true
+    },
+    "browser-v4-types01": {
+      "exit": 0,
+      "seconds": 1.4993423680007254,
+      "direct_actual_wait": 151610,
+      "inputs_same": true
+    },
+    "browser-v4-list01": {
+      "exit": 0,
+      "seconds": 4.283671539000352,
+      "direct_actual_wait": 151612,
+      "inputs_same": true
+    }
+  },
+  "new_physical_original_files_checked": 68,
+  "new_physical_original_bytes": 400778,
+  "reused_prior_physical_originals_checked": 13,
+  "all_original_bytes_and_sha_match": true,
+  "git_small_sources_and_blobs_checked": 43,
+  "inherited_full_source_binding": {
+    "source_map": "docs/development/agent-team/project-owner-ui-recovered-read02-verification-evidence/source-map.json",
+    "commit": "6501ca05714681ce7f8d8c120fc38d85af50b0ea",
+    "source_map_sha256": "fbcf9a48067bc4c6d881dd4a8b8cb4647321ea5c155f4ad82c82d8a0026df6e8",
+    "same_closure_sha256": "8c11333ddc9514ed71a9a96b92fa833bb93bb886464468ad013e384067717d98",
+    "same_candidate_sha256": "ee7b7104dd9ee79802ac0f4f1409b3170f4d2a8d27318369533cec10ea46837f",
+    "same_browser_manifest_sha256": "55f8ebe064a27558bbf3c822c825d4b35cc4fa5433dd3a71258343da5f97c3d8",
+    "same_ui_manifest_sha256": "b7a9ef34a10d0230b541d0daffb19d765d023aa27469a9ca144952f5d1bd9f64",
+    "same_assets_manifest_sha256": "00bd636e8446c8e75690bcf07745975bd7a4f9b906172de4d3ae55ab10393752",
+    "inherited_merged_repository_inputs": 955,
+    "all_sources_match_fixed_git_commit": "be34ff9916d3e2354b4edd33df08c99021b02c2c",
+    "new_full_tree_or_asset_scan_performed": false,
+    "frozen_input_top_level_changes_from_read02": [
+      "permitted_groups",
+      "root_authorization",
+      "status"
+    ]
+  },
+  "reused_manifest_refs_checked": 2,
+  "json_syntax_files_parsed_excluding_this_result": 55,
+  "json_parse_is_not_schema_or_client_execution": true,
+  "markdown_local_links_checked": 34,
+  "derived_text_format_checked": [
+    "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+    "source-map.json",
+    "format-exceptions.json"
+  ],
+  "original_format_exception_files": 18,
+  "git_original_diagnostic_files": [
+    {
+      "path": "originals/followup-v4/author/browser-v4-list01/raw.log",
+      "exit": 3
+    },
+    {
+      "path": "originals/run/raw.log",
+      "exit": 3
+    }
+  ],
+  "new_file_git_exit_counts_excluding_this_result": {
+    "1": 69,
+    "3": 2
+  },
+  "original_crlf_files": [],
+  "original_standalone_cr_files": [],
+  "tracked_scoped_diff_check_exit": 0,
+  "new_file_check": "git diff --no-index --check -- /dev/null <every new file and report>; difference exit1 without diagnostics distinguished from formatting failure",
+  "same_body_original_integrity": {
+    "sidecars": 10,
+    "unique_request_ids": 10,
+    "unique_body_files": 6,
+    "method_status_counts": [
+      {
+        "method": "GET",
+        "status": 200,
+        "count": 8
+      },
+      {
+        "method": "PATCH",
+        "status": 200,
+        "count": 2
+      }
+    ],
+    "all_bindings_match": true,
+    "schema_validation_present": false,
+    "same_body_validation_present": false,
+    "validation_executed_by_archiver": false
+  },
+  "checked_report_sha256": "695825928cf70f52d717af2c440b9d36bbd75258edd0d4ad4c78c2e27161f110",
+  "checked_source_map_sha256": "9d7e1f951800d66e4d94e40aec1ca46928ad289b1234591515a25cc3542ca1e8",
+  "checked_format_exceptions_sha256": "2fc0c5bc567d9bf8937d49ee0af4f207e6c6b435acb249c174bd00d35ba40288",
+  "files_sha256_excluding_this_result": {
+    "format-exceptions.json": "2fc0c5bc567d9bf8937d49ee0af4f207e6c6b435acb249c174bd00d35ba40288",
+    "originals/author/edit01-handoff.json": "b82defa1f9b8b051d5d4b4e646da7089754d422e545d838abdc96fbbdacf7238",
+    "originals/author/edit01-handoff.md": "e0e445bbdf09597a0a808fd4281fafcffa5af9f179eac0668fe77f11c654860e",
+    "originals/author/edit01-launch.raw": "8e6ca8d3e478df7cc2eb143b06931154a41d4ee56e912474bd24c6967e3bf526",
+    "originals/followup-v4/author/browser-v4/checks.json": "83c78357a058cacdb3a176dd28959789da38ced8a5c4d6d76995c24fe0a045b8",
+    "originals/followup-v4/author/browser-v4/delta.patch": "a38a421b04f7b0100287ec805ecfe4e56536d0c580aa85b3e724a626eed40f23",
+    "originals/followup-v4/author/browser-v4/freeze.json": "9688d909627f3e8253c68e989ebecd7cac8b6f16d84b9196b9297ba854f006d9",
+    "originals/followup-v4/author/browser-v4/handoff.md": "bf649ebc2e5ebe264cc1b6c6932993048e8559d653998054e8dfe391923b6350",
+    "originals/followup-v4/author/browser-v4/inputs.json": "8f4a6b18143fe7c15ac9d397e2f0b6a8ef5e772e1412e69fac85cfa4f7529957",
+    "originals/followup-v4/author/browser-v4-format-check01/command.json": "97cd428a76e0af6c40beffb783d082c3132b6197cc2c46ae03ae5e83e36991bc",
+    "originals/followup-v4/author/browser-v4-format-check01/raw.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "originals/followup-v4/author/browser-v4-format-check01/result.json": "4760b7d0ec161185ec1d1e67de45e2749a8889447aae53e08f944af0bb582834",
+    "originals/followup-v4/author/browser-v4-list01/command.json": "527c5a6d6add0cb647eb9f070c58359fa8867f33bb4b59ccd62f808e23f34158",
+    "originals/followup-v4/author/browser-v4-list01/raw.log": "42e0cdbd831b7043ad9e252fd6c6cba1d0c7ffc3c63b43338bcc73aba2af4a83",
+    "originals/followup-v4/author/browser-v4-list01/result.json": "3ad27c623163d0636d37601de3774cc7c4a6ba46d41ec70cdbffc54e3d96e346",
+    "originals/followup-v4/author/browser-v4-types01/command.json": "e783697b8fb62b2e85c48a901e9ec4ff25044392231242e2a41ad46494fd422c",
+    "originals/followup-v4/author/browser-v4-types01/raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "originals/followup-v4/author/browser-v4-types01/result.json": "a7e6d63f16bbb145b03788c76539dca63a14cdc077599cfc8e5a4c8f7e39eb57",
+    "originals/followup-v4/independent/evidence.json": "ef69c758a80f2d0842bd0991dabae1d1f6dee40702b22af500c14b141a22560f",
+    "originals/followup-v4/independent/manifest.json": "75c7a526ec2b25d49ba622564902dc7c91b8f816d01810c3257452b04f9388c1",
+    "originals/followup-v4/independent/review.md": "294311ed90f015ba5e84a711d15fec344b9f7c47604cd8baa90e0368cfc8c897",
+    "originals/independent/evidence.json": "8cf9387f1566fc32127e1facb9b7aef5f50ac21d05c64d5419c38f49bc29650b",
+    "originals/independent/label-semantics01/experiment.cjs": "43063778e5b5bdbd0c5f8b68d90954033fdc18bc23f285bc1356c79e4bf481d4",
+    "originals/independent/label-semantics01/inputs.json": "80668d80b3c38bd1da95ada4899a443d2706d316e5356f413eb5c308a0b4676d",
+    "originals/independent/label-semantics01/late-empty-directory-cleanup.json": "e786cff19b7e12d9e5f7a4dc106ed79f457ca81032a4d8916f85062ffc869592",
+    "originals/independent/label-semantics01/raw.log": "a84cd1fdbbdcd3a734be2227d823b24e9d74fa82fdc3bd980f08e048ca5eb2a9",
+    "originals/independent/label-semantics01/result.json": "9e8bbdf9bef843c9db607201f0e8752ad82b6f938bbf9099766305e53843cef1",
+    "originals/independent/label-semantics01/retirement.json": "b8bc193d21fe155a818775210e9e4d42d2ba63864ff3067d1bce171154570107",
+    "originals/independent/label-semantics01/supervisor.py": "d5e6cffbf6fd561081251f3d1612170317d3507d6b741fe6cd06e0175ae03fbf",
+    "originals/independent/label-semantics02/inputs.json": "76fff107b920583d13406bfe16ecbaef989a8f674738e60c46841bbf77dfa0ad",
+    "originals/independent/label-semantics02/raw.log": "df4573930723e923556a50ce22c94a3d883db10bc831c720bb8d6ca2bcf41649",
+    "originals/independent/label-semantics02/result.json": "7d79eb1fbf5dc6f8e27d9c586edf35433dd11729a6fc8935cc63a7bdd4abb926",
+    "originals/independent/label-semantics02/retirement.json": "8adc8e4b4abee1a4fb1df88dd5278a76b1485d0e3afe6d0662892e30b07745b6",
+    "originals/independent/label-semantics02/supervisor.py": "688ffc6a622d4c566bc6aedad75b91231ec214690b35a9264454d8d3b6840253",
+    "originals/independent/manifest.json": "5aed79a26bbd476c9a3577b3d8dca4ab337215321eed839045169c0a4fb771c2",
+    "originals/independent/review.md": "b6a32620298a78476ab464b920642cb018a91da625424e29703e46ca13e2d111",
+    "originals/root/restore-after-edit01.json": "111c0cf88c0d06af9e9fa279a4df5fd7554ccee2be4eac719d6da565e8a5a9af",
+    "originals/run/adopted-waits.json": "d02fe7a9ae396ab6cca5b67d06509411f4dc40bc5ffc690fc4627afe01daae9c",
+    "originals/run/cleanup.json": "747f2b9830c14ca4ed55647013d7c14d805309e928bcf73e3bca5ac643084af3",
+    "originals/run/command.json": "bbd32698485297049a38c65ab59d8535325a65d24531da3c3060d69457635215",
+    "originals/run/disk-before-spawn.json": "4131defbedc004b926c48dfa444ea98ef578faf404aafb1ec271bc94fced5c1f",
+    "originals/run/disk-preflight.json": "a533aed1ff3cfaef80dac588f366885c53fbe63167a4b629f3723c04c50266cf",
+    "originals/run/frozen-input.json": "d7c694849a176880ac90e19cfb0f19a0392416d644402f8fa8dab8c7adbe4fb9",
+    "originals/run/observed-processes.json": "a6a00b9a63ca7313166faa6d96eaa7ab6b802c2855a50043caa1b05bcd8922cc",
+    "originals/run/observed-resources.json": "9a94545a6dc5530d3021c3e7be8ce5eca75e311051b6ef1ab77ffed8ee54c96f",
+    "originals/run/process-baseline.json": "056c6df125a5d6b5c5f1534df3bfdafa98d78482f2a5150b345882dca7b888f1",
+    "originals/run/raw.log": "ff96885c679f00369e6b31e18161717ed3d65330bff24e90cd4803a9772860fc",
+    "originals/run/result.json": "2ba6607faccec1e9facbe5b8baee29613604b6791e81247a5b18d23cf2c44a27",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-695de6208f94d76085cbcd8a102a2ee38261cd01f3cf5b48216d80f8e092c2f0.json": "695de6208f94d76085cbcd8a102a2ee38261cd01f3cf5b48216d80f8e092c2f0",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-b2644ab8bcca4f8489a46c1764589df44be48b234d48430917d4e8ecb77c2d3f.json": "b2644ab8bcca4f8489a46c1764589df44be48b234d48430917d4e8ecb77c2d3f",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-c29fd81c57e49e0f1951193a4b7a3b14db8ca992e7265d322c1fcecedb81d061.json": "c29fd81c57e49e0f1951193a4b7a3b14db8ca992e7265d322c1fcecedb81d061",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-c5008ed822dbb5af5c23feaebab4d40140c8712e5b2e09dcfa2ccf1e3860d818.json": "c5008ed822dbb5af5c23feaebab4d40140c8712e5b2e09dcfa2ccf1e3860d818",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-d46945e16ad0c01090ad4b70ede99593fc8c47e59efb44a420683fe2a34c4216.json": "d46945e16ad0c01090ad4b70ede99593fc8c47e59efb44a420683fe2a34c4216",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/body-ed4e6a0bf00c073e25d3ca294934b66bf3a18cbd008c1a47484943a72f8176c3.json": "ed4e6a0bf00c073e25d3ca294934b66bf3a18cbd008c1a47484943a72f8176c3",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-001.json": "e0be122d68ba35c701c793d3aa90051db358bafc79ff33c81b8db927f3eb6031",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-002.json": "62da1199c9ec67563b71b12aec6b21cae34e753c832e4c41e276db500bb60c6e",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-003.json": "952d90335c6b3c8fa647904a2c64f287e8ee4c9ac33765aa4ee31d8d2e6c7462",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-004.json": "f3d4ee29f98cb884d10e602c98464ea92e14ecaffdd5138a0c3b924b4357ce9c",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-005.json": "4f0faac02956e3a6b1fb626e081c5e4cd8f26d461af6fc3dbb84b16503e006d8",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-006.json": "8a240ebddfc1e440052f85df6ad7f172c0382ee04145a9958d06c3149ac7b2ce",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-007.json": "9c420d8eb2de27474754524730c020204ac01312e86bebcc31fcf116c7a729fc",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-008.json": "c21708c48bef25a3cbfba36aed8b74fb31a6586571f104e665d86128b8390111",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-009.json": "b5aa5e6c26030c181c413e890d16c972b9f14482b60ccd8d46214453dd273a05",
+    "originals/run/safe-http-evidence/TestAccountProjectOwnerWebEditAndRename/response-010.json": "1da707e48527408079908a5d13667c7b04d44c1f0a7548ba420d48ee870a04f3",
+    "originals/run/tcp-baseline.json": "4a182ff03ccfdc6a5c4bec182f25fa21f8c3e2dcd4cf1cc60037e59f93381c7d",
+    "originals/run/tcp-observed-delta.json": "bbd66997cc4a46a42b0bca22b2a27764bdcd776b4d640197949c9ca3f64a8ee5",
+    "originals/run/tcp-tail-observation.json": "5cdca8558f34b4db98545a5cdd7a58a6d13cf529ba96102989d54dcdbd44177a",
+    "originals/run/verification-input.json": "84ef453c4c70d514883dc148301dd415af4bdd7661bdbfc533ccb1d3a8de2992",
+    "originals/run/watchdog.json": "4ae4989c3844d223f54a4199abb7f6d27a84b20f1413daf4263a0206260c0555",
+    "source-map.json": "9d7e1f951800d66e4d94e40aec1ca46928ad289b1234591515a25cc3542ca1e8"
+  },
+  "links": [
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-read01-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-read02-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-workspace-ui-controlled-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-client-verification.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/author/edit01-handoff.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/author/edit01-handoff.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/run/frozen-input.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/run/raw.log"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/run/result.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/run/command.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/author/edit01-launch.raw"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/independent/review.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/independent/evidence.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/independent/manifest.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/independent/label-semantics01/result.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/independent/label-semantics01/retirement.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/independent/label-semantics01/late-empty-directory-cleanup.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/independent/label-semantics01/experiment.cjs"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/independent/label-semantics02/result.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/independent/label-semantics02/retirement.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/run/adopted-waits.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/run/observed-resources.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/run/cleanup.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/run/tcp-tail-observation.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/root/restore-after-edit01.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/source-map.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/format-exceptions.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/archive-checks.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/followup-v4/author/browser-v4/freeze.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/followup-v4/author/browser-v4/delta.patch"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/followup-v4/independent/review.md"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/followup-v4/independent/evidence.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/followup-v4/independent/manifest.json"
+    },
+    {
+      "document": "docs/development/agent-team/project-owner-ui-recovered-edit01-verification.md",
+      "target": "project-owner-ui-recovered-edit01-verification-evidence/originals/followup-v4/author/browser-v4/checks.json"
+    }
+  ]
+}

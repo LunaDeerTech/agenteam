@@ -1,0 +1,41 @@
+{
+  "scope": "synthetic local label semantics only; not edit01 DOM",
+  "requests": [],
+  "controls": [
+    {
+      "stage": "required aria-hidden star",
+      "exactLabel": 0,
+      "exactStarLabel": 1,
+      "exactRole": 1,
+      "exactStarRole": 0,
+      "descriptionLabel": 1,
+      "labelText": "项目名称 *"
+    },
+    {
+      "stage": "visible-to-accessibility star",
+      "exactLabel": 0,
+      "exactStarLabel": 1,
+      "exactRole": 0,
+      "exactStarRole": 1,
+      "descriptionLabel": 1,
+      "labelText": "项目名称 *"
+    },
+    {
+      "stage": "no star",
+      "exactLabel": 1,
+      "exactStarLabel": 0,
+      "exactRole": 1,
+      "exactStarRole": 0,
+      "descriptionLabel": 1,
+      "labelText": "项目名称"
+    }
+  ],
+  "browserClosed": true,
+  "browserVersion": "151.0.7922.173",
+  "originalExactFill": {
+    "expectedTimeout": true,
+    "timeoutMs": 150
+  },
+  "roleFillSucceeded": true,
+  "status": "PASS"
+}
