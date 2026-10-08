@@ -14,6 +14,45 @@
       "exceptions": [
         "original lacks final newline"
       ]
+    },
+    {
+      "path": "originals/author/api-types01/raw.log",
+      "preserved_original_sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+      "exceptions": [
+        "new blank line at EOF"
+      ],
+      "root_git_observed_line": 4
+    },
+    {
+      "path": "originals/author/api-unit01/raw.log",
+      "preserved_original_sha256": "e0ac6b0828cb7f33fe0f919b0b04a38cc294268a62523bef726626067740e3fb",
+      "exceptions": [
+        "new blank line at EOF"
+      ],
+      "root_git_observed_line": 34
+    },
+    {
+      "path": "originals/author/api-unit02/raw.log",
+      "preserved_original_sha256": "6bc93de0a3f05b54b912bcc709c1b6e5574786c18658cebc5e4bc5b29d44d7f3",
+      "exceptions": [
+        "new blank line at EOF"
+      ],
+      "root_git_observed_line": 13
+    },
+    {
+      "path": "originals/author/api-unit03/raw.log",
+      "preserved_original_sha256": "26e915e9a02a02cfb669b01d566de11a36eaef9da038de51610fe52ab00aa75d",
+      "exceptions": [
+        "new blank line at EOF"
+      ],
+      "root_git_observed_line": 13
     }
-  ]
+  ],
+  "root_git_check": {
+    "comparison": "20d45a72..0ed093f1",
+    "exit": 2,
+    "observed_original_raw_files": 4,
+    "other_paths_have_no_git_whitespace_findings": true,
+    "original_bytes_unchanged": true
+  }
 }

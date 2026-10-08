@@ -51,3 +51,5 @@ Node 24.19.0、Vitest 4.1.11、单 worker 的独立最终轮实际 1.725s，258/
 本块没有独立全 Vue 类型检查、全部旧 mutator、Session/controller、真实 Router/App、页面状态、PG/HTTP/browser、八布局或发布验收。新页面、唯一 Cookie owner 与原意图恢复仍须后继冻结组合；作者完整页面测试也不能由本次纯返回函数替代。前端 README、完整24路径Owner UI、完整D27、创建HTTP与生产SPA均不在本次交付内，三个历史停止项没有被解除或重试。
 
 本次只归位本报告与证据目录。68个逻辑原件复用为56个归档文件，原始证据432672 bytes；产品源码、cache、node_modules、二进制、dist、大依赖图和私密运行材料不复制。[归档检查](project-owner-ui-client-verification-evidence/archive-checks.json)只核字节、Git定位、引用与格式，没有重跑业务。两份原Vitest JSON没有末尾换行，见[格式例外](project-owner-ui-client-verification-evidence/format-exceptions.json)，原字节保持。
+
+root 后继实际 Git 核对追加：`20d45a72..0ed093f1` 检查另观察作者 `api-types01/raw.log:4`、`api-unit01/raw.log:34`、`api-unit02/raw.log:13`、`api-unit03/raw.log:13` 的末尾空行，逐项与原件 SHA／字节核同，已加入格式登记，保留不改。此前作者归档检查及两原JSON无末换行结论保持其原时点；本追加不重跑业务或更改产品。
