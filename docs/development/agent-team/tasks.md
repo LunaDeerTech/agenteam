@@ -1,5 +1,17 @@
 # 团队任务台账
 
+## 2026-10-08：独立A3通过/B1窗口，根README独立先交授权
+
+A3 short346d58d86a9f9d5c45e015915c7bc0925b8c92cee6a9cccf4110e53feba04930/md6d03041d759bad84e3731c2b8da81b0e3b0f78c043216c531c84318fb12fa4d1，actualouter session97978 exit0 terminal243598/outer SHA205fd9ab5bf2f72bec38a3b27dbf33a707d23691b2db350314d9a7bbb7677187；browser10.2/top18.08/direct65.612/schema17/client11 list2resolve4get4problem1/7ID+4adoptedwait/join/ownedruntimeTCP37.374s末双清09:01:48.881097/input同/forcedmonitor0/4nonowned未waitshim；本人fullSTOP，root读必要handoff接受，前三21ID互异。root另单轮 B1 freeze.root-ind-b-recovery01.json SHA6a43f6cbe86a5e8c749b15e6bbbee90b57a0c5455396ff3e38d2596a94f1410d仅ind-b-recovery01/new-recovery，ind已ACK实际亲跑；firstgate同/browser5.3/top13.11已PASS但outer session50230未终局，不能称整轮或开始B2。
+
+README目标澄清：rev2.1 §8 #22精确为docs/development/frontend/README.md；品牌13中的README是根README.md，二者不同。root必要只读最终closure六层keys（955文件/210runtime/set）确认根README不受当前运行输入或根文件集合绑定，非全graph重建/执行gate。因独立无依赖，现另授fixture仅根README应用已经0ed8258c独审的217byte顶部picture，先核基线8f6a51f1、H1/其余正文bytes保持，九原logo只读，复用原候选格式PASS不再Node。只纯文档、不任何网页12路径/图片复制/host/dist/network/资源/Git；完成STOP后root仅B1全退休间commitpush，不污染TCP。网页其余12仍待Owner fixed消费结束。此前“README22后若根基线改变重放”的硬保护保留，但#22不同文件不会自动造成根README漂移；禁止整文件覆盖新正文通用规则保。53/原3backup原窗/完整9/网页/完整Owner/生产三停止保持，以下历史。
+
+## 2026-10-08：旧14永久档已交，独立A3亲跑
+
+旧14永久档264file commit adcb48be4de1ceb77c3653e4b4abb36d9c94d277已push核远端同，root391原件/两Git及43原raw诊断精确注册line-set核合，新生成文本无格式错。root仅在前A2全部退役间push，之后正式交单轮A3 true8e051062给ind-runtime，已实际ACK开始new-identity/ind-a-identity01，原BB1165gate先过/newnonce/budget/FAIL退休STOP，B1未授。asset53/原3backup original-dist-indab01完整保持，rootactive不push/network/换资产。
+
+frontend另授仅scratch README22必要片段候选，读原README/卡rev2.1/固定23source，能力/独立启动-privateharness命令与生产未绑定边界，不提前声明未完成A-B/fullD27。不仓库写/图副本/type/build/browser/resource/network/Git，不读active。正式末件仍须技术23及亲跑9接受后另授；品牌其后只新README顶部picture，13candidate保持STOP。以下为历史。
+
 ## 2026-10-08：旧14永久档接受，独立A2停止/A3准备
 
 old14 success永久报告dd2be6e08cadaa471963825fefe36ca59ef6e4ad4d0c3051b94ba3a06cb2b3e6、source-map71cb1e689800382421013b6124756c2f173d519e09358923fc07b95026b13d8d、checks6ac39b59b9da054ef84a8684c62131a578241f6a7945fc412f07c1298ff30436、format643d14452d7d03b4905ca947fc4e7dd22deb5542b3010b0ee15756718cadc87f。root391逻辑原件逐archive/source bytes/SHA核同6080712B、258指纹/253新增实体4807752B/5永久实体43935B原位复用84逻辑；336run5488348B+14handoff/14launch无遗漏、两必要Gitref/blob/SHA实核，closure图不copy。原14run raw43处尾空白逐行注册不改bytes，工具三初稿失败raw保存非产品失败；false→true原三键/permittedgroups已同沿原件纠正。永久档只作者14+旧2有限组合原件退役，非独立A-B/README22/品牌/完整Owner。

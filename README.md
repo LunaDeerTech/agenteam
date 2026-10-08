@@ -1,5 +1,10 @@
 # agenteam
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/logos/agenteam-horizontal-dark.svg" />
+  <img src="docs/logos/agenteam-horizontal-light.svg" alt="agenteam" width="320" height="84" />
+</picture>
+
 agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期项目状态、任务、会议、Agent 执行与人类审核。
 
 ## 当前增量：凭据HTTP完整接受与配置写入实施启动（2026-10-07）

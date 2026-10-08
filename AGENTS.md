@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+当前限定并行（2026-10-08）：root核fixed closure955/driver210及sets根README不受测输入绑定，已另授fixture仅根README已审217byte picture先交，无其他品牌源码/资产/资源。README22实际目标docs/development/frontend/README.md与品牌根README不同，前简写条件仅在根文件另变时重放picture。ind A3fullPASS/STOP后root单轮B1 true6a43f6cb，已ACK实际，53/原3backup保；active不push/network/换资产，网页12路径仍待fixed消费结束。详台账，完整Owner/生产/三停止保持。
+
+当前独立窗口（2026-10-08）：old14永久档adcb48be已push远端核同；root正式单轮A3 new-identity true8e051062交执行，ind-runtime实际ACK开始，先原1165gate。53/原3backup window保持，active不push/network/换资产/下一B1未授，FAIL全退休STOP。frontend仅scratch准备README22必要片段，品牌候选STATIC有限接受不安装；完整Owner/生产/三停止保持，详台账。
+
 当前归档（2026-10-08）：old14永久391逻辑原件/258指纹/两Gitrefs已root核、253新增实体4807752B/5共用原位复用，raw14份43尾空白逐行保留；三归档工具初稿失败原件保。独立A2本人整轮PASS/fullSTOP schema19/client7/7ID，17eb7f9f；A3 true8e051062已root制备尚未开始。品牌候选STATIC有限接受未安装，53/原3backup intact，当前无资源，下一实际单轮另交，详台账。
 
 当前增量（2026-10-08）：品牌13候选STATIC独审0ed8258c有限PASS/STOP，原43固定文件核同，未安装/type/build/browser；README22后只重放picture。独立A1亲跑整轮PASS/full退役，schema46/client16/7ID/4adopted，短handoff0a93cca6；root读必要sealed终局并另授A2 new-edit trued989260f，ind-runtime已实际ACK。53/原3backup窗口保持，活跃不push/network/换资产/后轮未授，详台账；完整Owner与生产/三停止保持。
