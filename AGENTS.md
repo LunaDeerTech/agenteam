@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+Embedding两源纯阶段接受（2026-10-08）：root读最终独审0c31f9d6及核原件，policy c8ccd095/pure dd1e60b7限定接受。作者最新ProfileMatrix24＋原其余50共74唯一RUN与vet、本人独立三补集两轮组合通过；原Marshal空对空/可变ContextLength期待已仅测试修正，原FAIL不回写。实际PG/整卡/生产未接受，fixture继续六PG scratch。Audit17 web STATIC/受控067080be组合通过，private build已作者PASS待根核；全unit原2265/2266唯一旧全App img断言与品牌冲突，单test窄修20PASS另独审8e5fa273。Go03当前四offline已PASS全STOP，overlay01 STATIC O1 v4需scratch窄修；正式OpenAPI既有409遗漏正仅scratch补正。无业务资源，全局dist原3保持，三停止/Jina/生产/E01边界不变。
+
 Embedding rev3规格接受（2026-10-08）：root读三行差量及独审0095e4ce、核卡f6535ef6/原件，按既有canonical/semantic优先序限定有ref不相容Forbidden与其它前置全通过后KeyReused；9路径/预算不变，不扩产品。policy/pure-v2 STATIC f3a39879接受，fixture获精确安装两源/45s offline pure-race-vet，实际结果待。Audit state20受控组合保留但App非法query重定向丢参数误触发Resolve/Get为必修；仅auth一行＋router-index窄修，七源0a37aaca作者119/type/formatPASS，独审活跃，API5已b0714899。Go D1窄修封候选中、JS两源作者活跃，资源仍关闭；三停止/Jina保持。
 
 Embedding rev2规格永久档接受（2026-10-08）：root核15实体72479B/source-map及manifest，原diff10尾白按原行保留；这是已提交48f8293e规格的历史档。Audit API5已b0714899推送核同，state独验继续。Audit Go完整STATIC313a16f8仅D1，backend正窄修held完成绑定outer handler退出。Embedding policy/pure-v2静态无必修待正式原件；卡中同Call换Memory Agent错误优先序正按原canonical lease语义澄清rev3，有refForbidden/无refsemantic冲突分别覆盖，不扩改store/resolver。无真实资源，三停止/Jina保持。

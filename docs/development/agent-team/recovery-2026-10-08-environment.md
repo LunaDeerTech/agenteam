@@ -1,5 +1,9 @@
 # 2026-10-08 环境恢复与当前交接
 
+## Embedding纯阶段交付；Audit离线组合收口
+
+Model卡#1/#2已root按最终独审0c31f9d6接受，policy c8ccd095/pure dd1e60b7，最新24＋原50/race/vet与独立三补集组合通过；测试断言缺口及独立首FAIL保。六PG仅scratch，真实PG/整卡/生产未验。Audit17web受控组合通过，privatebuild作者通过待根核；旧SystemAudit全App img断言与品牌冲突的额外单test已20PASS独审，单独维护。Go03四offline PASS全退役，D1 overlay O1仅UUIDv7 scratch修；OpenAPI既有409遗漏仅scratch补正。尚无真实资源/globaldist窗口，三停止/Jina及生产/E01边界不变。
+
 ## Embedding rev3接受；Audit页面修复独验
 
 Embedding卡f6535ef6/独审0095e4ce已root读核接受，仅原错误优先序三行澄清；原rev2小档4cdf94f9已推核同。两Model源STATIC已接受，fixture获精确安装/离线pure-race-vet窗口，尚待实际结果；PG6继续scratch。Audit七源0a37aaca修复真实App非法query被丢后误读，作者119/type/format通过，独审活跃；state20限定组合保留、整体接受待D1闭合，API5已提交。frontend只写两JS，Go D1只源修/封候选，真实资源窗口关闭。三停止/Jina、原dist3/53stage与生产/E01边界不扩。

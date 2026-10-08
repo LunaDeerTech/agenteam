@@ -1,5 +1,11 @@
 # 团队任务台账
 
+## 2026-10-08：Embedding policy/pure限定接受
+
+root正式接受卡#1/#2：policy c8ccd0950f39015e2817c143ce224ef36956938dbeaf002e634f3ada5db2304a、pure dd1e60b71975fd83cc3ff33e6dbf4c8a8bbf3667e97791e95d3b2d62689b072d。最终独审0c31f9d6/evidence0db6126a、作者修复6582ef64/resulta6c36e7d/manifestfe6f4c9d均根读核，全部作者原件和安装双SHA一致。组合为最新ProfileMatrix24 RUN/PASS（race6.602s）＋原74中未受影响50，原vet按产品/import未变复用；不是最终源一次全套fresh。作者原负例整体record Marshal忽略err导致空对空、clone可变期待两断言已窄修为Input/error与const8192，EntryGuards/其余内容同。独立三补集9f3768ef由首轮identity/session＋no-ref通过和pure02 profile通过组成；首轮probe零Version Marshal前提FAIL13.360s、四投影修正后4.239s定点PASS均原样保，352 inputs同/实际wait/owned双空。所有Go窗口已退役；PG6未安装，真实授权/事务/lease/replay/Unknown与整卡/生产仍未验。
+
+Audit state+View的12不同源及原API5最终核同，root通读067080be/result450a0898并核17源/17证据引用：App受控原9＋定点1、state原18＋2与API71组合；真实非法query缺陷两处fullPath闭合。原App两FAIL为总次数期待过强，录证旧A合法路由及完整context重建默认读，B完整Get前零Audit后恰一；不称导航全程零额外请求。前端private59 build作者PASS待根核，原整套2265/2266 FAIL由额外品牌兼容旧test单selector维护关闭20PASS，独审8e5fa273另交。Go03四offline实际PASS/全STOP、尚无D1动态：overlay01独审9dd538d2仅O1 v4常量使endpoint拒绝，backend只scratch v7窄修。OpenAPI两GET遗漏既有409，runtime仅scratch补同Problem/headers，Go/source与原行为不扩；浏览器JS等待正式schema，不加fallback。三停止/Jina、原dist3、生产ready503及完整D08–D28/E01未完保持。
+
 ## 2026-10-08：Embedding rev3接受与Audit路由真实回归
 
 Embedding rev3卡f6535ef653a943fa3138d8fbad9794815a755fa0af87a22b2557727129031a93经独审0095e4ce接受；root核三行diff65b866f0及冻结853d09f1五原件、仓库/冻结卡同。沿原完整审＋rev2组合，仅澄清同Call结构合法重新Discover/Resolve、当前授权/原writer/更早错误、committed历史ref及canonical身份优先序；无ref与有ref都不单独承诺唯一码，原9路径/全部top/预算未变。原rev2永久档4cdf94f9已推远端核同，不回写历史。policy/pure-v2静态f3a39879接受，唯一作者fixture获精确安装及必要45s offline pure/race/vet，PG6仍scratch，实际结果待冻结。
