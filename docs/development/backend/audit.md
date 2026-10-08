@@ -1,6 +1,6 @@
 # Audit 与签名 cursor
 
-`internal/central/audit` 消费 D03 Store/Tx，`audit/contract` 只依赖基础类型与最小 `identity/contract`。`00002_audit.sql` 在同一全局迁移序列增加 `agenteam_audit.audit_records`。本库不创建 User/Session/Project 事实；D07 绑定当前 Session/System 权限，D08 负责 Owner/gate/删除 cause。现有通用库语义保持，新增 System 管理 HTTP 见下节；不提供 Project Audit HTTP。未绑定端口返回 `DEPENDENCY_UNBOUND`。规格见 [D04 B01](../work-items/d04-security-design.md#4-b01audit-与签名-cursor)。
+`internal/central/audit` 消费 D03 Store/Tx，`audit/contract` 只依赖基础类型与最小 `identity/contract`。`00002_audit.sql` 在同一全局迁移序列增加 `agenteam_audit.audit_records`。本库不创建 User/Session/Project 事实；D07 绑定当前 Session/System 权限，D08 负责 Owner/gate/删除 cause。现有通用库语义保持，System 管理 HTTP 与 Project Owner Audit GET/HEAD 均已装配，具体边界见下文。未绑定端口返回 `DEPENDENCY_UNBOUND`。规格见 [D04 B01](../work-items/d04-security-design.md#4-b01audit-与签名-cursor)。
 
 ## 写入与未知提交
 
@@ -49,6 +49,22 @@ HTTP 沿现 Account boundary 核 Cookie、Host/Origin/Fetch-Metadata；ListSyste
 
 输出为闭合十字段 DTO，保留37种 action、13个 Service、17类 resource 和5种允许关联及其条件约束。metadata 经正式 typed 构造器重建，默认 JSON 转义后最多4096B；不输出认证材料、原 DB JSON 或关联对象正文。成功响应在写200前完整编码，最终 UTF-8 JSON 最多1 MiB（1048576B）；975420B 是保守页上界算术，不是规模性能证据。局部3s预算从预认证之前开始并继承更早 parent，实际读写、Flush、Body.Close 和取消 callback 必须完成；能力不足或短写/写错/Flush失败 abort，不作无界降级。普通日志/显式 Problem 不带 filter/cursor、记录内容或嵌套 cause，保持唯一 RequestID、安全 headers 和原其他 API 链。
 
+## Project Owner Audit HTTP
+
+默认 Central 根提供 `GET/HEAD /api/v1/projects/{project_id}/audit` 和 `GET/HEAD /api/v1/projects/{project_id}/audit/{audit_id}`，契约见 [Project Owner Audit 规格](../work-items/d04-project-owner-audit-http.md) 与 [Project Audit OpenAPI](../../../api/openapi/project-audit.json)。公开窄能力 `ListProject/GetProject` 在同一个真实 Tx 中先取 User Shared、再取 Project Shared，并重验当前 Human Session、Owner 和 Project Read gate；管理员没有跨 Owner 豁免，Agent/Service 不是查询主体。initialized 的 active/archiving/archived 可读，initializing/deleting 拒绝；没有新增 Audit 写入、保留期、导出、清理或生命周期流程。
+
+列表默认50条、显式1–200条，复用原16项严格 query 和签名 cursor。filter 接受通用合法动作，合法 System-only action 在 Project 下返回空页；输出为31种 Project action、14类 resource 的闭合11字段投影，历史 Actor/typed metadata/关联必须满足各分支。全部行含额外哨兵均验证，Rows.Close 后再查 Err，严格 `(created_at,id)` DESC，next_cursor 签最后实际返回行；cursor 绑定 scope/filter/order，不授权限，也不绑定 limit 或提供跨页快照。summary 只取固定安全文案，不复制 name/description、材料、模型参数、正文或原数据库 JSON。
+
+GET/HEAD 都实际读空请求体至 EOF，并完成相同授权、SQL、验证和完整编码；HEAD 不写实体，Content-Length 等于 GET 表示。其他方法405、Allow 精确 `GET, HEAD`；原 Account pathClean 先拒绝 trailing slash 等不规范路径，合法未知尾部404。完整响应最多1 MiB，写200前已验证和编码。局部3秒预算从预认证前开始并继承更早 parent，覆盖实际 I/O、Flush、Body.Close、服务和取消回调的实际收尾；逐项处理 setter/Close panic，保留原 tracked writer/RequestID/安全错误日志。过期后不发布候选或继续响应写入，尾部必须同步等待，不承诺所有 handler 在3秒内已返回。
+
+仅原读取 Tx 实际 Committed、callback 完整且 ctx 仍有效才发布。取消、错误、坏行或 Unknown 一律零 record/items/cursor；`ProjectReadUnknownAttempt` 保存原 State/Cause/AttemptID，HTTP 只用既有安全 Problem，不增加 cause 字段或头。该读取没有 command/receipt、确认端点、WithoutCancel 或自动重读；既有 `retry_hint=lookup` 不表示本口提供查证能力。旧 System facade、通用 List/Get 和写入 `LookupAppend` 不改。默认根复用同 Store、Account/Project Authority 与原 auditor，不新增 initializer/worker。
+
+本卡作者普通/race、标准 schema、三轮真实 native 和四新八旧 PG top 已通过，独立受控补集及 A02/B01 两个真实代表也通过。31动作及有限可选分支/反例的341标准例、实际200行页598220B与真实 Sign/Verify 页590584B分别有证据；8192B shape cursor 仅用于容量边界，不冒称实际签名产物。作者四份 GET 原字节及两份空 HEAD、独立两份 GET 原字节（1389B/727B）及同长度空 HEAD 均按各自来源验证；GET 由固定标准 Draft202012/FormatChecker 检查，不把合成样例当真实 HTTP。
+
+原作者 new1 的400只定位至断言行，日志未记当时 action；两新测试把 `provider.*` 误写成 `model.provider.*` 的静态缺陷修正后重跑通过，生产未变，原 STATIC 漏检保留。独立 A01 私有坏 metadata 注入实际仅返回 DATABASE_SQL_FAILED，未进入待测 List；根据固定 schema 静态定位为既有 Project typed CHECK 不接受该形状，原轮未记录 SQLSTATE 或约束名；改用 PostgreSQL 可存而正式 scanner 拒绝的 UUIDv4 request_id 后 A02 通过，不放宽 SQL 或生产校验。所有原失败和版本组合保留。三 native 轮实际等待 direct3/adopted3、9个 listener 的全 TCP 含 TIME_WAIT 及 owned 双清；作者九轮和独立三轮 PG 各七资源实际等待/双清，daemon/PID1 差集另列未 wait，不声称全机清零。
+
+物理 Unknown 证据绑定同一原读取 backend 的 `C(COMMIT)` 与 `Z(I)` 后丢失 ACK，保留原 cause/attempt，与结果装饰分开。正常关闭和100ms耗尽均有实际根路径；强制 root 返回不能由后续 fixture/client/backend 退役倒填为全部 inner join。正式 Account 身份和真实 Project/Secret/Model producer 参与主链，隔离 Skills 辅助不等于生产创建绑定。生产 Resolution/Invocations、D24、Project 创建/生命周期根仍未绑定，ready503；Object runtime join、OpenAI tools 独审、SPA 并发发布三停止保持，本卡不宣称完整 D04/D27、UI 或 Runtime 完成。
+
 ## cursor 与部署配置
 
 `AGENTEAM_CENTRAL_CURSOR_KEYRING` 从本块起必填，进程不自动生成、不从数据库或 UI 读取：
@@ -95,4 +111,4 @@ AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-security.sh -run '^(TestAud
 
 独立私有 overlay 的 selector 为 ^(TestAuditIndependentCurrentAuthorityAndTerminal|TestAuditIndependentRootProducerProjection)$，同轮两项 PASS、actual exit0 /105.717s；这些探针不是仓库公开测试入口。前者是真实 PG/正式 Authority 加受控 writer，后者为同 root 原生连接；受控 writer 提交前未发布不能称 TCP 零字节。真实 DB1s锁超时不冒称自然3s，Unknown 零候选沿受控验证。全部资源轮实际等待并双清，自有 ID/PID 与原基线分开，历史 PPID1 僵尸不在回收声明中。原纯测/trace/native 前提失败及 query-pure02 早退路径缺少独立 goroutine join 证据的限制均保留。
 
-本结果不覆盖 Project Audit HTTP、UI、完整 D04/D27、SPA 或 Runtime。后续主线新增同包前端 harness 的整合编译/发现需另记，固定基线真实轮不冒称后续主线动态验证。
+上述 System 管理 HTTP 的历史验收不覆盖 Project Audit HTTP；Project 的当前范围见上节。该历史验收仍不覆盖 UI、完整 D04/D27、SPA 或 Runtime。后续主线新增同包前端 harness 的整合编译/发现需另记，固定基线真实轮不冒称后续主线动态验证。
