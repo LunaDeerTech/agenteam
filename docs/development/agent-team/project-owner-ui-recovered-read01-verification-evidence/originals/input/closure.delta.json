@@ -1,0 +1,103 @@
+{
+  "base_closure": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-driver-v01/closure.json",
+    "sha256": "8d0ce424c05b056be08e530093886bf5e21d60c494073b3c53f8ff3e6c848dc3"
+  },
+  "files": {
+    "/workspace/agenteam/tests/account-captcha-web/e2e/project-owner.spec.ts": {
+      "role": "browser-v2 exact source or actual static runtime import",
+      "sha256": "b903a21939f158d84de6995ea872f2dce8dfc09ef37d8716dfe4388a7d20e676"
+    },
+    "/workspace/agenteam/tests/account-captcha-web/project-owner.config.js": {
+      "role": "browser-v2 exact source or actual static runtime import",
+      "sha256": "46db46eefbff68c1da3f3a96fc3c6cfd607abbcaa60b4bd5afa7a15db9aff54b"
+    },
+    "/workspace/agenteam/web/src/api/account.ts": {
+      "role": "browser-v2 exact source or actual static runtime import",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+    },
+    "/workspace/agenteam/web/src/api/system-account.ts": {
+      "role": "browser-v2 exact source or actual static runtime import",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+    }
+  },
+  "package_file_sets": {
+    "/workspace/agenteam/tests/account-captcha-web": {
+      "embed_directory": true,
+      "names": [
+        ".gitignore",
+        "README.md",
+        "account-entry.config.js",
+        "authentication.config.js",
+        "dialog-outside-focus.config.js",
+        "index.html",
+        "package-lock.json",
+        "package.json",
+        "personal-settings.config.js",
+        "playwright.config.js",
+        "project-owner.config.js",
+        "system-account-security.config.js",
+        "system-audit.config.js",
+        "system-invitations.config.js",
+        "system-meeting-summary.config.js",
+        "system-model-selection.config.js",
+        "system-models.config.js",
+        "system-outbound-policy.config.js",
+        "system-providers.config.js",
+        "system-runtime-information.config.js",
+        "system-smtp-delivery.config.js",
+        "system-smtp-settings.config.js",
+        "system-user-directory.config.js",
+        "tsconfig.json"
+      ]
+    },
+    "/workspace/agenteam/tests/account-captcha-web/e2e": {
+      "embed_directory": true,
+      "names": [
+        "account-entry.spec.ts",
+        "authentication.spec.ts",
+        "dialog-outside-focus.spec.ts",
+        "drag-geometry.ts",
+        "personal-settings.spec.ts",
+        "project-owner.spec.ts",
+        "public-solver-check.mjs",
+        "public-solver.ts",
+        "rotate.spec.ts",
+        "system-account-security.spec.ts",
+        "system-audit.spec.ts",
+        "system-invitations.spec.ts",
+        "system-meeting-summary.spec.ts",
+        "system-model-selection.spec.ts",
+        "system-models.spec.ts",
+        "system-outbound-policy.spec.ts",
+        "system-providers.spec.ts",
+        "system-runtime-information.spec.ts",
+        "system-smtp-delivery.spec.ts",
+        "system-smtp-settings.spec.ts",
+        "system-user-directory.spec.ts"
+      ]
+    },
+    "/workspace/agenteam/web/src/api": {
+      "embed_directory": true,
+      "names": [
+        "account.ts",
+        "client.ts",
+        "outbound-rules.ts",
+        "project-owner.ts",
+        "system-account-security.ts",
+        "system-account.ts",
+        "system-audit-metadata.ts",
+        "system-audit.ts",
+        "system-invitations.ts",
+        "system-meeting-summary.ts",
+        "system-model-selection.ts",
+        "system-models.ts",
+        "system-outbound-policy.ts",
+        "system-providers.ts",
+        "system-runtime-information.ts",
+        "system-smtp-delivery.ts",
+        "system-smtp-settings.ts"
+      ]
+    }
+  }
+}

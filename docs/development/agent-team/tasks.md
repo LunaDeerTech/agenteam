@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-08：重建read01永久失败档与read02实际终局
+
+[read01失败与退役永久记录](project-owner-ui-recovered-read01-verification.md)及必要小原件已冻结，root核111逻辑原件source/archive SHA/字节、34固定Gitblob及111证据指纹/JSON/链接一致。原FAIL保留，独立task-owned退役接受；70原格式例外保留，其中只有raw.log十行尾空格是Git实际诊断，其余69为原JSON无末换行。4未提交Go04/browser-v2小源副本仅复现输入，不冒充产品接受，不复制完整树/依赖/资产/私有material。
+
+read02作者实际整轮PASS/STOP（command59.722s、top15.36s、browser8s），7资源逐ID双absent、actualwait4adopted/watchdogjoin、owned/runtime与TCP delta双清、输入同；4新daemon PID1 shim非owned另列。46sidecar/39body及46 schema、browser同body list6/resolve3/get3/problem4和dot036–039原件已交独核，setup28GET不算browser。独立终局审查仍进行，尚不据作者结论接受4path测试harness或完整卡。
+
+read02全部reader退役后root已实际恢复原web/dist3file及SHA，`/workspace/scratch/owner-ui-assets/restore-after-read02.json`固定，测试53file保存 `test-dist-ui-v1`可复用。无后继资源/资产交换，源Go04/browser-v3/UI19停写；下一步独核read02后交付已验读取小块，再按实际前置安排edit/recovery/identity/layouts及旧16/独立A-B。D08–D28/E01/生产未绑定/ready503与三停止均保持；以下原条为历史时点。
+
 ## 2026-10-08：真实read01失败退役与限定测试返修
 
 重建的真实read01实际FAIL（全链114.299s，新top17.21s，browser exit1），原93件固定交接 `/workspace/scratch/owner-ui-backend/read01-handoff.json` SHA `21085e942b887d083b3b9e0e88e3766e4d03245fad8c211acb116f50b27b2200`。独立正式FAIL/退役审查 `/workspace/scratch/owner-ui-runtime-verification/read01-review/review.md` SHA `91bd78d6763577fc1d6626bd737b634900ac9b2c822b7f9aacc74cd3232e995c`：实际direct wait、4 adopted wait、watchdog join、7资源逐ID两次absent、owned/runtime双空、TCP全态delta双清及输入同；4新增daemon PID1 shim非owned、未wait另列，历史僵尸未碰。

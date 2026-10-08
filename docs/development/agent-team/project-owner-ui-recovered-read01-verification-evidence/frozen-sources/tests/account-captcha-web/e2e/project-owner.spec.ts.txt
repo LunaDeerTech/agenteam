@@ -1,0 +1,1145 @@
+import { test, expect, type Page, type Locator } from "@playwright/test";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+  writeFileSync,
+} from "node:fs";
+import { createHash } from "node:crypto";
+import { dirname, isAbsolute, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
+import {
+  createProjectOwnerAPI,
+  type Project,
+  type ProjectLifecycle,
+} from "../../../web/src/api/project-owner";
+import { AccountFailure, uuid7 } from "../../../web/src/api/client";
+
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
+const evidence = process.env.AGENTEAM_PROJECT_OWNER_WEB_EVIDENCE!;
+const repository = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+type Credential = {
+  email: string;
+  password: string;
+  user_id: string;
+  username: string;
+};
+type Material = {
+  admin: Credential;
+  owner: Credential;
+  other: Credential;
+  ids: Record<string, string>;
+  projects: Record<string, Project>;
+  system: {
+    ids: Record<string, string>;
+    names: Record<string, string>;
+    selector_id: string;
+    summary_id: string;
+  } | null;
+};
+type Observation = {
+  project: Pick<Project, "id" | "description" | "version">;
+  update_commands: number;
+  update_audits: number;
+  update_events: number;
+  dropped: number;
+  replayed: number;
+  same_original: boolean;
+  patch_requests: number;
+  lookup_requests: number;
+};
+const material = (): Material =>
+  JSON.parse(
+    readFileSync(join(directory, "project-owner-material.json"), "utf8"),
+  );
+const button = (page: Page | Locator, name: string) =>
+  page.getByRole("button", { name, exact: true });
+const saveButton = (page: Page) =>
+  page.getByRole("button", { name: /^(保存修改|已确认保存)$/ });
+const projectLink = (page: Page) =>
+  page
+    .getByRole("navigation", { name: "系统导航", exact: true })
+    .getByRole("link", {
+      name: "项目",
+      exact: true,
+    });
+const dialog = (page: Page) => page.getByRole("dialog");
+const rows = (page: Page) =>
+  page
+    .getByRole("list", { name: "项目列表", exact: true })
+    .getByRole("listitem");
+const settingsPath = (
+  data: Material,
+  key = "main",
+  who: "owner" | "admin" = "owner",
+) =>
+  `/${data[who].username}/${data.projects[key]!.normalized_name}/settings/general`;
+
+const acknowledgementFields = {
+  observe: [
+    "project",
+    "update_commands",
+    "update_audits",
+    "update_events",
+    "dropped",
+    "replayed",
+    "same_original",
+    "patch_requests",
+    "lookup_requests",
+  ],
+  "drop-next-update": [],
+  "fail-next-read": [],
+  "fail-session": [],
+  "hold-next-read": [],
+  "hold-status": ["started", "finished"],
+  "release-read": [],
+  update: ["project"],
+  archive: ["fact_only"],
+  "reuse-name": ["project"],
+} as const;
+let sequence = 0;
+async function ipc(
+  action: keyof typeof acknowledgementFields,
+  fields: Record<string, string> = {},
+) {
+  const current = ++sequence;
+  const request = join(directory, "project-owner-ipc.json");
+  const ack = join(directory, `project-owner-ack-${current}.json`);
+  writeFileSync(
+    request + ".tmp",
+    JSON.stringify({ sequence: current, action, ...fields }),
+    {
+      mode: 0o600,
+    },
+  );
+  renameSync(request + ".tmp", request);
+  await expect
+    .poll(() => existsSync(ack), { timeout: 4_000, intervals: [20, 40, 100] })
+    .toBe(true);
+  const value = JSON.parse(readFileSync(ack, "utf8"));
+  // The frozen Go protocol returns sequence and action-specific fields, with
+  // no synthetic "ok" flag. Service ProjectRef may omit archived_at, so only
+  // the safe fields used by this private observation are validated here.
+  const keys = ["sequence", ...acknowledgementFields[action]];
+  expect(
+    value !== null &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      Object.keys(value).length === keys.length &&
+      keys.every((key) => Object.hasOwn(value, key)) &&
+      value.sequence === current,
+  ).toBe(true);
+  if (action === "observe" || action === "update" || action === "reuse-name") {
+    const project = value.project;
+    const data = material();
+    const key = fields.project ?? "main";
+    const owner =
+      action !== "reuse-name" && key === "admin" ? data.admin : data.owner;
+    expect(
+      project !== null &&
+        typeof project === "object" &&
+        !Array.isArray(project) &&
+        typeof project.id === "string" &&
+        uuid7.test(project.id) &&
+        project.owner_user_id === owner.user_id &&
+        (action === "reuse-name" || project.id === data.ids[key]) &&
+        typeof project.description === "string" &&
+        typeof project.version === "string" &&
+        /^[1-9][0-9]{0,18}$/.test(project.version) &&
+        BigInt(project.version) <= 9223372036854775807n,
+    ).toBe(true);
+  }
+  if (action === "observe") {
+    expect(
+      [
+        "update_commands",
+        "update_audits",
+        "update_events",
+        "dropped",
+        "replayed",
+        "patch_requests",
+        "lookup_requests",
+      ].every((key) => Number.isSafeInteger(value[key]) && value[key] >= 0) &&
+        typeof value.same_original === "boolean",
+    ).toBe(true);
+  }
+  if (action === "hold-status")
+    expect(
+      typeof value.started === "boolean" && typeof value.finished === "boolean",
+    ).toBe(true);
+  if (action === "archive") expect(value.fact_only === true).toBe(true);
+  return value as Observation & {
+    started: boolean;
+    finished: boolean;
+    fact_only: boolean;
+  };
+}
+function complete(value: Record<string, unknown>) {
+  writeFileSync(
+    join(directory, "project-owner-result.json"),
+    JSON.stringify({ completed: true, ...value }),
+    {
+      mode: 0o600,
+    },
+  );
+}
+
+// Observe only safe request coordinates and the response's request ID. Never
+// inspect Cookie, CSRF, command keys, request bodies or clone a response stream.
+type ReadFact = { url: URL; ownerID: string; status: number };
+const readFacts = new Map<string, ReadFact>();
+const observationTails: Promise<void>[] = [];
+function observe(page: Page, initialOwner: string) {
+  let ownerID = initialOwner;
+  const requests: { method: string; endpoint: string }[] = [];
+  page.on("request", (request) => {
+    const endpoint = new URL(request.url()).pathname;
+    if (endpoint.startsWith("/api/v1/"))
+      requests.push({ method: request.method(), endpoint });
+  });
+  page.on("response", (response) => {
+    const url = new URL(response.url());
+    if (
+      response.request().method() !== "GET" ||
+      !url.pathname.startsWith("/api/v1/projects")
+    )
+      return;
+    const captured = ownerID;
+    observationTails.push(
+      (async () => {
+        const id = await response.headerValue("x-request-id");
+        if (id)
+          readFacts.set(id, {
+            url,
+            ownerID: captured,
+            status: response.status(),
+          });
+      })(),
+    );
+  });
+  return {
+    requests,
+    identity: (value: string) => {
+      ownerID = value;
+    },
+  };
+}
+async function login(page: Page, credential: Credential) {
+  await expect(page.locator("#login-email")).toBeVisible();
+  // Playwright errors must not print a credential passed to fill().
+  try {
+    await page.locator("#login-email").fill(credential.email);
+    await page.locator("#login-password").fill(credential.password);
+  } catch {
+    throw new Error("PRIVATE_PROJECT_LOGIN_INPUT_FAILED");
+  }
+  await button(page, "登录").click();
+  await expect(button(page, "退出登录")).toBeEnabled();
+  await expect(page).not.toHaveURL(/\/login(?:\?|$)/);
+}
+async function ready(page: Page, id: string) {
+  await expect(
+    page.getByRole("form", { name: "项目基本信息", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator(".project-facts")).toContainText(id);
+  await expect(button(page, "重新读取当前值")).toBeEnabled();
+}
+async function enter(page: Page, data: Material, key = "main") {
+  await page.goto(settingsPath(data, key));
+  await login(page, data.owner);
+  await ready(page, data.ids[key]!);
+}
+async function save(page: Page, rename = false, keyboard = false) {
+  await expect(saveButton(page)).toBeEnabled();
+  if (keyboard) {
+    await saveButton(page).focus();
+    await page.keyboard.press("Enter");
+  } else await saveButton(page).click();
+  if (rename) {
+    await expect(dialog(page)).toHaveAccessibleName("确认更改项目名称？");
+    await button(dialog(page), "确认保存").click();
+  }
+}
+async function confirmed(page: Page, id: string) {
+  await expect(
+    page.getByRole("heading", { name: "命令已确认", exact: true }),
+  ).toBeVisible();
+  await ready(page, id);
+  await expect(saveButton(page)).toBeDisabled();
+}
+async function chooseFilter(page: Page, value: string) {
+  await button(page, "项目状态").click();
+  await page.getByRole("option", { name: value, exact: true }).click();
+  await expect(button(page, "从首页重新读取")).toBeEnabled();
+}
+async function continueEditing(page: Page) {
+  await expect(dialog(page)).toBeVisible();
+  await button(dialog(page), "继续编辑").click();
+  await expect(dialog(page)).toHaveCount(0);
+}
+async function factsUnchanged(before: Observation, after: Observation) {
+  expect(after.update_commands === before.update_commands).toBe(true);
+  expect(after.update_audits === before.update_audits).toBe(true);
+  expect(after.update_events === before.update_events).toBe(true);
+}
+
+// The fixture stores the original, complete safe bytes before any deliberate
+// response loss. Schema validation and the public client below read those same
+// bytes; successful mutation decoding remains the application's own operation.
+const schemaProgram = String.raw`
+import hashlib,json,pathlib,sys
+from jsonschema import Draft202012Validator
+from referencing import Registry,Resource
+from referencing.jsonschema import DRAFT202012
+try:
+ root=pathlib.Path(sys.argv[1]); evidence=pathlib.Path(sys.argv[2]); base=root/'api/openapi'
+ docs={n:json.loads((base/n).read_bytes()) for n in ['common.json','project-owner.json','project-usage.json']}
+ registry=Registry().with_resources(((base/n).as_uri(),Resource.from_contents(d,default_specification=DRAFT202012)) for n,d in docs.items())
+ count=0
+ for path in sorted(evidence.glob('response-*.json')):
+  m=json.loads(path.read_bytes()); filename='body-'+m['body_sha256']+'.json'
+  assert m['body_file']==filename and len(m['input_hash'])==64 and m['source_run'].startswith('TestAccountProjectOwnerWeb')
+  raw=(evidence/filename).read_bytes(); assert hashlib.sha256(raw).hexdigest()==m['body_sha256']
+  endpoint=m['endpoint']; name='project-usage.json' if endpoint=='/api/v1/projects/resolve' else 'project-owner.json'
+  route=endpoint if endpoint in ['/api/v1/projects','/api/v1/projects/resolve'] else '/api/v1/projects/{id}'+('/commands/lookup' if endpoint.endswith('/commands/lookup') else '')
+  response=docs[name]['paths'][route][m['method'].lower()]['responses'][str(m['status'])]
+  media=m['content_type'].split(';')[0].strip().lower(); ref=response['content'][media]['schema']
+  schema=dict(docs[name]); schema['$id']=(base/name).as_uri(); schema.update(ref)
+  Draft202012Validator(schema,registry=registry).validate(json.loads(raw)); count+=1
+ assert count>0
+ print(count)
+except Exception:
+ print('SAFE_PROJECT_BODY_SCHEMA_FAILED',file=sys.stderr); sys.exit(1)
+`;
+async function verifyBodies(requireReads = false) {
+  await Promise.all(observationTails);
+  const checked = spawnSync(
+    "python3",
+    ["-c", schemaProgram, repository, evidence],
+    {
+      encoding: "utf8",
+      timeout: 6_000,
+      maxBuffer: 4096,
+    },
+  );
+  writeFileSync(
+    join(evidence, "schema-validation.json"),
+    JSON.stringify({
+      status: checked.status,
+      signal: checked.signal,
+      stdout: checked.stdout,
+      stderr: checked.stderr,
+      failed_to_run: !!checked.error,
+    }),
+    { mode: 0o600 },
+  );
+  expect(checked.status === 0 && /^\d+\s*$/.test(checked.stdout)).toBe(true);
+  const counts = { list: 0, resolve: 0, get: 0, problem: 0 };
+  for (const name of readdirSync(evidence).filter((name) =>
+    /^response-\d+\.json$/.test(name),
+  )) {
+    const meta = JSON.parse(readFileSync(join(evidence, name), "utf8"));
+    const fact = readFacts.get(meta.request_id);
+    if (!fact || meta.method !== "GET") continue;
+    expect(
+      meta.endpoint === fact.url.pathname && meta.status === fact.status,
+    ).toBe(true);
+    expect(meta.body_file === `body-${meta.body_sha256}.json`).toBe(true);
+    const raw = readFileSync(join(evidence, meta.body_file));
+    expect(
+      createHash("sha256").update(raw).digest("hex") === meta.body_sha256,
+    ).toBe(true);
+    const api = createProjectOwnerAPI(
+      async () =>
+        new Response(new Uint8Array(raw).buffer, {
+          status: meta.status,
+          headers: {
+            "Content-Type": meta.content_type,
+            "X-Request-ID": meta.request_id,
+          },
+        }),
+    );
+    const signal = new AbortController().signal;
+    const url = fact.url;
+    const kind =
+      url.pathname === "/api/v1/projects"
+        ? "list"
+        : url.pathname.endsWith("/resolve")
+          ? "resolve"
+          : "get";
+    try {
+      if (kind === "list")
+        await api.list(
+          {
+            limit: Number(url.searchParams.get("limit") ?? "50"),
+            ...(url.searchParams.has("cursor")
+              ? { cursor: url.searchParams.get("cursor")! }
+              : {}),
+            ...(url.searchParams.has("lifecycle")
+              ? {
+                  lifecycle: url.searchParams
+                    .get("lifecycle")!
+                    .split(",") as ProjectLifecycle[],
+                }
+              : {}),
+          },
+          signal,
+        );
+      else if (kind === "resolve")
+        await api.resolve(
+          {
+            username: url.searchParams.get("username")!,
+            project_name: url.searchParams.get("project_name")!,
+          },
+          fact.ownerID,
+          signal,
+        );
+      else await api.get(meta.project_id, fact.ownerID, signal);
+      expect(meta.status === 200).toBe(true);
+      counts[kind]++;
+    } catch (error) {
+      expect(
+        meta.status !== 200 &&
+          error instanceof AccountFailure &&
+          error.kind === "problem",
+      ).toBe(true);
+      counts.problem++;
+    }
+  }
+  if (requireReads)
+    expect(counts.list > 0 && counts.resolve > 0 && counts.get > 0).toBe(true);
+  const value = { schemas: Number(checked.stdout), client_reads: counts };
+  writeFileSync(
+    join(evidence, "same-body-validation.json"),
+    JSON.stringify(value),
+    { mode: 0o600 },
+  );
+  return value;
+}
+
+test("[read] current Owner pages, exact deep links and stable IDs", async ({
+  page,
+  browser,
+}) => {
+  const data = material();
+  observe(page, data.owner.user_id);
+  await page.goto("/projects");
+  await expect(page).toHaveURL(
+    (url) =>
+      url.pathname === "/login" &&
+      url.searchParams.get("return") === "/projects",
+  );
+  await login(page, data.owner);
+  await expect(page).toHaveURL(/\/projects$/);
+  await expect(rows(page)).toHaveCount(25);
+  const first = await rows(page).locator("h2").allTextContents();
+  await button(page, "下一页").click();
+  await expect(page.getByText("第 2 页", { exact: true })).toBeVisible();
+  const second = await rows(page).locator("h2").allTextContents();
+  expect(
+    second.length > 0 &&
+      new Set([...first, ...second]).size === first.length + second.length,
+  ).toBe(true);
+  const total = first.length + second.length;
+  expect(total >= 26).toBe(true);
+  await expect(button(page, "下一页")).toBeDisabled();
+  await button(page, "上一页").click();
+  await expect(rows(page).locator("h2")).toHaveText(first);
+  await button(page, "每页数量").click();
+  await page.getByRole("option", { name: "50 项", exact: true }).click();
+  await expect(rows(page)).toHaveCount(total);
+  await chooseFilter(page, "已归档");
+  await expect(rows(page)).toHaveCount(1);
+  await expect(rows(page)).toContainText("owner-archived");
+  await chooseFilter(page, "正在删除");
+  await expect(rows(page)).toHaveCount(1);
+  await expect(rows(page)).toContainText("删除正在处理中，项目内容不可访问。");
+  await expect(rows(page).getByRole("link")).toHaveCount(0);
+  await expect(rows(page).locator(".project-description")).toHaveCount(0);
+  await page.goto(`/${data.owner.username}/owner-deleting/settings/general`);
+  await expect(
+    page.getByRole("heading", { name: "项目不可用", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("form", { name: "项目基本信息" })).toHaveCount(0);
+  const response = await page.goto(
+    `/${data.owner.username.toUpperCase()}/OWNER.DOT-NAME`,
+  );
+  expect(response?.status() === 200).toBe(true);
+  await expect(page).toHaveURL(
+    new RegExp(`/${data.owner.username}/owner\\.dot-name$`),
+  );
+  await expect(
+    page.getByRole("heading", { name: "owner.dot-name", exact: true }),
+  ).toBeVisible();
+  const settings = await page.goto(
+    `/${data.owner.username}/owner.dot-name/settings`,
+  );
+  expect(settings?.status() === 200).toBe(true);
+  await expect(page).toHaveURL(
+    new RegExp(`/${data.owner.username}/owner\\.dot-name/settings/general$`),
+  );
+  await ready(page, data.ids.dotted!);
+  for (const credential of [data.other, data.admin]) {
+    const context = await browser.newContext();
+    try {
+      const outsider = await context.newPage();
+      observe(outsider, credential.user_id);
+      await outsider.goto(
+        process.env.AGENTEAM_AUTH_WEB_ORIGIN! + settingsPath(data),
+      );
+      await login(outsider, credential);
+      await expect(
+        outsider.getByRole("heading", { name: "项目不可用", exact: true }),
+      ).toBeVisible();
+      await expect(
+        outsider.getByRole("form", { name: "项目基本信息" }),
+      ).toHaveCount(0);
+    } finally {
+      await context.close();
+    }
+  }
+  await ipc("update", { name: "owner-renamed-outside" });
+  await page.goto(settingsPath(data));
+  await expect(
+    page.getByRole("heading", { name: "项目不可用", exact: true }),
+  ).toBeVisible();
+  const reused = await ipc("reuse-name", { name: "owner-main" });
+  expect(reused.project.id !== data.ids.main).toBe(true);
+  await button(page, "重新读取项目").click();
+  await ready(page, reused.project.id);
+  await expect(page.locator(".project-facts")).not.toContainText(
+    data.ids.main!,
+  );
+  const bodies = await verifyBodies(true);
+  complete({
+    pagination: true,
+    filters: true,
+    return: true,
+    resolve_get: true,
+    non_owner: true,
+    deleting: true,
+    reused_name: true,
+    projects: total,
+    bodies,
+  });
+});
+
+test("[edit] explicit saves, conflicts and confirmed current-read failure", async ({
+  page,
+}) => {
+  const data = material();
+  const observation = observe(page, data.owner.user_id);
+  await enter(page, data);
+  const before = await ipc("observe");
+  await expect(saveButton(page)).toBeDisabled();
+  await page
+    .getByLabel("项目描述", { exact: true })
+    .fill("  first description\n保持空格  ");
+  await save(page);
+  await confirmed(page, data.ids.main!);
+  const first = await ipc("observe");
+  expect(first.project.description === "  first description\n保持空格  ").toBe(
+    true,
+  );
+  expect(
+    BigInt(first.project.version) === BigInt(before.project.version) + 1n,
+  ).toBe(true);
+  await expect(saveButton(page)).toBeDisabled();
+  await factsUnchanged(first, await ipc("observe"));
+  await page.getByLabel("项目描述", { exact: true }).fill("");
+  await save(page);
+  await confirmed(page, data.ids.main!);
+  expect((await ipc("observe")).project.description === "").toBe(true);
+  await page
+    .getByLabel("项目描述", { exact: true })
+    .fill("unsaved navigation draft");
+  const originalURL = page.url();
+  await projectLink(page).click();
+  await expect(dialog(page)).toHaveAccessibleName("放弃项目修改？");
+  await continueEditing(page);
+  await expect(page).toHaveURL(originalURL);
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "unsaved navigation draft",
+  );
+  await button(page, "取消修改").click();
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue("");
+  await page.getByLabel("项目名称", { exact: true }).fill("owner-duplicate");
+  await save(page, true);
+  await expect(
+    page.getByText("此名称已被占用。", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByLabel("项目名称", { exact: true })).toHaveValue(
+    "owner-duplicate",
+  );
+  await button(page, "取消修改").click();
+  await page
+    .getByLabel("项目描述", { exact: true })
+    .fill("my conflicting draft");
+  await ipc("update", { description: "newer server value" });
+  await save(page);
+  await expect(
+    page.getByText("当前项目已变化，请显式重读当前值；原草稿及版本保留。", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(button(page, "使用当前值重新编辑")).toBeDisabled();
+  await button(page, "重新读取当前值").click();
+  await expect(button(page, "使用当前值重新编辑")).toBeEnabled();
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "my conflicting draft",
+  );
+  await button(page, "使用当前值重新编辑").click();
+  await expect(dialog(page)).toHaveAccessibleName("采用当前项目值？");
+  await button(dialog(page), "采用当前值").click();
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "newer server value",
+  );
+  await page.getByLabel("项目名称", { exact: true }).fill("Owner.Renamed");
+  await save(page, true);
+  await confirmed(page, data.ids.main!);
+  await expect(page).toHaveURL(
+    new RegExp(`/${data.owner.username}/owner\\.renamed/settings/general$`),
+  );
+  await expect(
+    page.getByRole("navigation", { name: "项目导航" }),
+  ).toContainText("Owner.Renamed");
+  await ipc("fail-next-read");
+  await page
+    .getByLabel("项目描述", { exact: true })
+    .fill("confirmed while Get is unavailable");
+  await save(page);
+  await expect(
+    page.getByRole("heading", { name: "命令已确认", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "项目信息读取失败", exact: true }),
+  ).toBeVisible();
+  const confirmedFact = await ipc("observe");
+  const patchCount = observation.requests.filter(
+    (r) => r.method === "PATCH",
+  ).length;
+  await button(page, "重新读取项目").click();
+  await confirmed(page, data.ids.main!);
+  expect(
+    observation.requests.filter((r) => r.method === "PATCH").length ===
+      patchCount,
+  ).toBe(true);
+  await factsUnchanged(confirmedFact, await ipc("observe"));
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "confirmed while Get is unavailable",
+  );
+  complete({
+    save: true,
+    clear_description: true,
+    rename: true,
+    name_conflict: true,
+    version_conflict: true,
+    dirty_navigation: true,
+    confirmed_read_failure: true,
+    bodies: await verifyBodies(),
+  });
+});
+
+test("[recovery] real committed response loss, original replay and local abandon", async ({
+  page,
+}) => {
+  const data = material();
+  observe(page, data.owner.user_id);
+  await enter(page, data);
+  const baseline = await ipc("observe");
+  await ipc("drop-next-update");
+  await page
+    .getByLabel("项目描述", { exact: true })
+    .fill("lookup confirmed original");
+  await save(page);
+  await expect(
+    page.getByRole("heading", { name: "结果不确定", exact: true }),
+  ).toBeVisible();
+  const lost = await ipc("observe");
+  expect(
+    lost.patch_requests === baseline.patch_requests + 1 &&
+      lost.lookup_requests === baseline.lookup_requests,
+  ).toBe(true);
+  expect(lost.update_commands === baseline.update_commands + 1).toBe(true);
+  await button(page, "查证原命令").click();
+  await confirmed(page, data.ids.main!);
+  const looked = await ipc("observe");
+  expect(
+    looked.patch_requests === lost.patch_requests &&
+      looked.lookup_requests === lost.lookup_requests + 1,
+  ).toBe(true);
+  await factsUnchanged(lost, looked);
+  await ipc("drop-next-update");
+  await page
+    .getByLabel("项目描述", { exact: true })
+    .fill("historical active receipt");
+  await save(page);
+  await expect(
+    page.getByRole("heading", { name: "结果不确定", exact: true }),
+  ).toBeVisible();
+  await ipc("update", { description: "current newer archived information" });
+  expect((await ipc("archive")).fact_only).toBe(true);
+  await button(page, "重新读取当前值").click();
+  await expect(
+    page.getByText("项目已归档，当前内容只读。", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveAttribute(
+    "readonly",
+    "",
+  );
+  const historical = await ipc("observe");
+  await expect(button(page, "按原请求重放")).toBeEnabled();
+  await button(page, "按原请求重放").click();
+  await confirmed(page, data.ids.main!);
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "current newer archived information",
+  );
+  const replayed = await ipc("observe");
+  expect(
+    replayed.same_original && replayed.replayed === 1 && replayed.dropped === 2,
+  ).toBe(true);
+  expect(
+    replayed.patch_requests === historical.patch_requests + 1 &&
+      replayed.lookup_requests === historical.lookup_requests,
+  ).toBe(true);
+  await factsUnchanged(historical, replayed);
+  expect(
+    replayed.update_commands === baseline.update_commands + 3 &&
+      replayed.update_audits === baseline.update_audits + 3 &&
+      replayed.update_events === baseline.update_events + 3,
+  ).toBe(true);
+  await page.goto(settingsPath(data, "duplicate"));
+  await ready(page, data.ids.duplicate!);
+  await ipc("drop-next-update", { project: "duplicate" });
+  await page
+    .getByLabel("项目描述", { exact: true })
+    .fill("committed despite local abandon");
+  await save(page);
+  await expect(
+    page.getByRole("heading", { name: "结果不确定", exact: true }),
+  ).toBeVisible();
+  const abandonedBefore = await ipc("observe", { project: "duplicate" });
+  await button(page, "放弃本地追踪").click();
+  await expect(dialog(page)).toHaveAccessibleName("放弃本地追踪？");
+  await button(dialog(page), "放弃本地追踪").click();
+  await expect(
+    page.getByRole("heading", { name: "结果不确定", exact: true }),
+  ).toHaveCount(0);
+  await button(page, "重新读取当前值").click();
+  await ready(page, data.ids.duplicate!);
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "committed despite local abandon",
+  );
+  await factsUnchanged(
+    abandonedBefore,
+    await ipc("observe", { project: "duplicate" }),
+  );
+  complete({
+    uncertain: true,
+    lookup_only: true,
+    same_original: true,
+    unique_facts: true,
+    historical: true,
+    local_abandon: true,
+    lookup_states_real: ["committed"],
+    lifecycle_fact_preparation_only: true,
+    bodies: await verifyBodies(),
+  });
+});
+
+async function refreshSession(page: Page) {
+  await page.evaluate(() => window.dispatchEvent(new Event("pageshow")));
+}
+async function sessionID(page: Page) {
+  return page.evaluate(async () => {
+    const response = await fetch("/api/v1/session", {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    if (response.status !== 200) return "";
+    const value = await response.json();
+    return typeof value.session?.id === "string" ? value.session.id : "";
+  });
+}
+async function revokeCurrentSession(page: Page) {
+  const status = await page.evaluate(async () => {
+    const current = await fetch("/api/v1/session", {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    const value = await current.json();
+    const response = await fetch("/api/v1/sessions/logout", {
+      method: "POST",
+      credentials: "same-origin",
+      cache: "no-store",
+      redirect: "error",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": value.csrf_token,
+        "Idempotency-Key": crypto.randomUUID(),
+      },
+      body: "{}",
+    });
+    return response.status;
+  });
+  expect(status === 204).toBe(true);
+  await refreshSession(page);
+  await expect(page).toHaveURL(/\/login$/);
+}
+async function aggregateDrafts(page: Page, data: Material) {
+  await page.goto(settingsPath(data, "admin", "admin"));
+  await ready(page, data.ids.admin!);
+  await page
+    .getByLabel("项目描述", { exact: true })
+    .fill("project draft before System");
+  await page
+    .getByRole("navigation", { name: "系统导航" })
+    .getByRole("link", { name: "系统设置", exact: true })
+    .click();
+  await continueEditing(page);
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "project draft before System",
+  );
+  await projectLink(page).click();
+  await button(dialog(page), "放弃并离开").click();
+  await expect(page).toHaveURL(/\/projects$/);
+  await page
+    .getByRole("navigation", { name: "系统导航" })
+    .getByRole("link", { name: "系统设置", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/system\/users$/);
+  await page
+    .getByRole("navigation", { name: "系统设置", exact: true })
+    .getByRole("link", { name: "平台模型用途", exact: true })
+    .click();
+  const summary = page.locator(".meeting-summary-settings");
+  await expect(button(summary, "重读会议 Summary 配置")).toBeEnabled();
+  await button(summary, "编辑会议 Summary").click();
+  await button(summary, "选择会议 Summary Model").click();
+  const provider = summary.locator(".choices > li").filter({
+    has: page.locator("strong", { hasText: "Owner draft memory Provider" }),
+  });
+  await button(provider, "查看此 Provider 的 Models").click();
+  const model = summary.locator(".choices > li").filter({
+    has: page.locator("strong", { hasText: data.system!.names.summary_1! }),
+  });
+  await button(model, "选择此会议 Summary Model").click();
+  await page.getByRole("button", { name: "编辑用途", exact: true }).click();
+  await expect(dialog(page)).toHaveAccessibleName("配置平台模型用途");
+  await button(dialog(page), "不配置 Image Generation").click();
+  await page.evaluate(() => history.back());
+  await expect(dialog(page)).toContainText("四项平台用途、会议 Summary");
+  await button(dialog(page), "继续编辑").click();
+  await expect(dialog(page)).toHaveAccessibleName("配置平台模型用途");
+  await expect(page.locator(".summary-editor")).toContainText(
+    "草稿 Model：" + data.system!.names.summary_1!,
+  );
+  await expect(page.locator(".draft-purposes > li").last()).toContainText(
+    "不配置",
+  );
+  await page.evaluate(() => history.back());
+  await expect(dialog(page)).toContainText("四项平台用途、会议 Summary");
+  await button(dialog(page), "放弃修改").click();
+  await expect(page).toHaveURL(/\/system\/users$/);
+  await expect(dialog(page)).toHaveCount(0);
+}
+
+test("[identity] actual Session continuity, authorization and aggregate drafts", async ({
+  page,
+  browser,
+}) => {
+  const data = material();
+  const observation = observe(page, data.owner.user_id);
+  await enter(page, data);
+  const originalSession = await sessionID(page);
+  expect(originalSession.length === 36).toBe(true);
+  await page
+    .getByLabel("项目描述", { exact: true })
+    .fill("same-session private draft");
+  await ipc("fail-session");
+  await refreshSession(page);
+  await expect(button(page, "检查当前会话")).toBeEnabled();
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveCount(0);
+  await button(page, "检查当前会话").click();
+  await ready(page, data.ids.main!);
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "same-session private draft",
+  );
+  expect((await sessionID(page)) === originalSession).toBe(true);
+  await button(page, "退出登录").click();
+  await continueEditing(page);
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "same-session private draft",
+  );
+  await revokeCurrentSession(page);
+  await login(page, data.owner);
+  await page.goto(settingsPath(data));
+  await ready(page, data.ids.main!);
+  expect((await sessionID(page)) !== originalSession).toBe(true);
+  await expect(page.getByLabel("项目描述", { exact: true })).not.toHaveValue(
+    "same-session private draft",
+  );
+  await ipc("hold-next-read");
+  await button(page, "重新读取当前值").click();
+  await expect
+    .poll(async () => (await ipc("hold-status")).started, {
+      intervals: [20, 40],
+    })
+    .toBe(true);
+  expect((await ipc("hold-status")).finished).toBe(false);
+  await expect(button(page, "退出登录")).toBeDisabled();
+  const heldRequests = observation.requests.length;
+  await projectLink(page).click();
+  await expect(page).toHaveURL(/\/projects$/);
+  await ipc("release-read");
+  await expect
+    .poll(async () => (await ipc("hold-status")).finished, {
+      intervals: [20, 40],
+    })
+    .toBe(true);
+  await expect(rows(page).first()).toBeVisible();
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveCount(0);
+  expect(
+    observation.requests.slice(heldRequests).every((r) => r.method === "GET"),
+  ).toBe(true);
+  const context = await browser.newContext();
+  try {
+    const outsider = await context.newPage();
+    observe(outsider, data.other.user_id);
+    await outsider.goto(
+      process.env.AGENTEAM_AUTH_WEB_ORIGIN! + settingsPath(data),
+    );
+    await login(outsider, data.other);
+    await expect(
+      outsider.getByRole("heading", { name: "项目不可用", exact: true }),
+    ).toBeVisible();
+    await expect(
+      outsider.getByRole("form", { name: "项目基本信息" }),
+    ).toHaveCount(0);
+    await outsider.goto(
+      process.env.AGENTEAM_AUTH_WEB_ORIGIN! +
+        `/${data.other.username}/other-project/settings/general`,
+    );
+    await ready(outsider, data.ids.other!);
+  } finally {
+    await context.close();
+  }
+  await button(page, "退出登录").click();
+  await expect(page).toHaveURL(/\/login$/);
+  observation.identity(data.admin.user_id);
+  await login(page, data.admin);
+  await aggregateDrafts(page, data);
+  complete({
+    logout: true,
+    non_owner: true,
+    checking: true,
+    new_session: true,
+    late_read: true,
+    owner: true,
+    aggregate: true,
+    bodies: await verifyBodies(),
+  });
+});
+
+async function noOverflow(page: Page) {
+  expect(
+    await page.evaluate(() => {
+      const nodes = [
+        document.documentElement,
+        document.body,
+        document.querySelector("main"),
+        document.querySelector(".project-form"),
+      ].filter((n): n is HTMLElement => n instanceof HTMLElement);
+      return nodes.every((node) => node.scrollWidth <= node.clientWidth + 1);
+    }),
+  ).toBe(true);
+}
+async function focusedInside(page: Page) {
+  expect(
+    await dialog(page).evaluate((node) =>
+      node.contains(document.activeElement),
+    ),
+  ).toBe(true);
+}
+
+test("[layouts] eight themes, sizes and motion settings with keyboard recovery", async ({
+  page,
+  browser,
+}) => {
+  const data = material();
+  observe(page, data.owner.user_id);
+  await page.goto("/projects");
+  await login(page, data.owner);
+  const entry = page.getByRole("link", { name: "owner-main", exact: true });
+  await entry.focus();
+  await page.keyboard.press("Enter");
+  await expect(
+    page.getByRole("heading", { name: "owner-main", exact: true }),
+  ).toBeVisible();
+  const settings = page
+    .getByRole("navigation", { name: "项目导航" })
+    .getByRole("link", { name: "项目设置", exact: true });
+  await settings.focus();
+  await page.keyboard.press("Enter");
+  await ready(page, data.ids.main!);
+  await page.getByLabel("项目描述", { exact: true }).focus();
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.insertText("keyboard saved description");
+  await save(page, false, true);
+  await confirmed(page, data.ids.main!);
+  await page.getByLabel("项目描述", { exact: true }).focus();
+  await page.keyboard.insertText(" cancelled");
+  await button(page, "取消修改").focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "keyboard saved description",
+  );
+  await page
+    .getByLabel("项目描述", { exact: true })
+    .fill("keyboard leave draft");
+  await projectLink(page).focus();
+  await page.keyboard.press("Enter");
+  await expect(dialog(page)).toHaveAccessibleName("放弃项目修改？");
+  await focusedInside(page);
+  await page.keyboard.press("Escape");
+  await expect(dialog(page)).toHaveCount(0);
+  await expect(projectLink(page)).toBeFocused();
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "keyboard leave draft",
+  );
+  await button(page, "取消修改").click();
+  await page.getByLabel("项目描述", { exact: true }).focus();
+  await page.keyboard.insertText(" conflicting keyboard edit");
+  await ipc("update", { description: "keyboard conflict current value" });
+  await save(page, false, true);
+  await expect(button(page, "使用当前值重新编辑")).toBeDisabled();
+  await button(page, "重新读取当前值").focus();
+  await page.keyboard.press("Enter");
+  await expect(button(page, "使用当前值重新编辑")).toBeEnabled();
+  await button(page, "使用当前值重新编辑").focus();
+  await page.keyboard.press("Enter");
+  await expect(dialog(page)).toHaveAccessibleName("采用当前项目值？");
+  await focusedInside(page);
+  await button(dialog(page), "采用当前值").focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "keyboard conflict current value",
+  );
+  let layouts = 0;
+  const images = process.env.AGENTEAM_AUTH_WEB_IMAGES;
+  if (!images || !isAbsolute(images))
+    throw new Error("OWNED_PROJECT_LAYOUT_IMAGES_REQUIRED");
+  mkdirSync(images, { recursive: true, mode: 0o700 });
+  for (const colorScheme of ["light", "dark"] as const) {
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 390, height: 844 },
+    ]) {
+      for (const reducedMotion of ["no-preference", "reduce"] as const) {
+        await page.setViewportSize(viewport);
+        await page.emulateMedia({ colorScheme, reducedMotion });
+        await expect(page.locator("html")).toHaveAttribute(
+          "data-theme",
+          colorScheme,
+        );
+        await expect(
+          page.getByRole("navigation", { name: "系统导航", exact: true }),
+        ).toBeVisible();
+        await expect(
+          page.getByRole("navigation", { name: "项目导航", exact: true }),
+        ).toBeVisible();
+        await expect(settings).toHaveAttribute("aria-current", "page");
+        await expect(
+          page.getByRole("heading", { name: "基本信息", exact: true }),
+        ).toBeVisible();
+        await noOverflow(page);
+        await page.getByLabel("项目名称", { exact: true }).focus();
+        await expect(
+          page.getByLabel("项目名称", { exact: true }),
+        ).toBeFocused();
+        expect(
+          await page.evaluate(
+            (reduced) =>
+              matchMedia("(prefers-reduced-motion: reduce)").matches ===
+              reduced,
+            reducedMotion === "reduce",
+          ),
+        ).toBe(true);
+        expect(
+          await page
+            .getByLabel("项目名称", { exact: true })
+            .evaluate((node) => {
+              const style = getComputedStyle(node);
+              return (
+                style.outlineStyle !== "none" || style.boxShadow !== "none"
+              );
+            }),
+        ).toBe(true);
+        await page.screenshot({
+          path: join(
+            images,
+            `project-owner-${colorScheme}-${viewport.width}-${reducedMotion}.png`,
+          ),
+          fullPage: true,
+          animations: "disabled",
+        });
+        layouts++;
+      }
+    }
+  }
+  await page.goto(settingsPath(data, "archived"));
+  await ready(page, data.ids.archived!);
+  await expect(page.getByLabel("项目名称", { exact: true })).toHaveAttribute(
+    "readonly",
+    "",
+  );
+  await expect(saveButton(page)).toBeDisabled();
+  await ipc("fail-next-read", { project: "archived" });
+  await button(page, "重新读取当前值").click();
+  await expect(
+    page.getByRole("heading", { name: "项目信息读取失败", exact: true }),
+  ).toBeVisible();
+  await noOverflow(page);
+  const context = await browser.newContext();
+  try {
+    const empty = await context.newPage();
+    observe(empty, data.admin.user_id);
+    await empty.goto(process.env.AGENTEAM_AUTH_WEB_ORIGIN! + "/projects");
+    await login(empty, data.admin);
+    await expect(
+      empty.getByRole("heading", { name: "当前没有项目", exact: true }),
+    ).toBeVisible();
+  } finally {
+    await context.close();
+  }
+  await page.goto("/debug");
+  await expect(
+    page.getByRole("heading", { name: "未找到页面", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: /Debug/i })).toHaveCount(0);
+  const assets = await page
+    .locator('script[src^="/assets/"]')
+    .evaluateAll((nodes) =>
+      nodes.map((node) => (node as HTMLScriptElement).src),
+    );
+  expect(assets.length > 0).toBe(true);
+  for (const asset of assets) {
+    const response = await page.request.get(asset);
+    expect(response.status() === 200).toBe(true);
+    const source = await response.text();
+    expect(!/DebugView|views\/debug|debug-demo/.test(source)).toBe(true);
+  }
+  complete({
+    keyboard: true,
+    focus: true,
+    no_overflow: true,
+    readonly: true,
+    empty: true,
+    no_debug: true,
+    layouts,
+    bodies: await verifyBodies(),
+  });
+});

@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前终局（2026-10-08）：[重建read01永久失败档](docs/development/agent-team/project-owner-ui-recovered-read01-verification.md)已冻结核原件；read02作者实际整轮PASS并完全退役，dot/schema/samebody正在独核，未据此接受完整D27或后继。原web/dist3file已再次按SHA恢复，测试53file保留供后继复用，当前无资源。Go04/browser-v3四路径未提交、UI19不变，待read02独立终局后小块交付与继续剩余新旧场景；[台账](docs/development/agent-team/tasks.md)保存精确范围。
+
 当前最新（2026-10-08）：重建真实read01 FAIL仅browser-v2标题期待过强，实际409 typed error正确；7资源/actualwait/owned双清独核，4非owned daemon shims另列。只返修JS→v3，产品19/Go/API不变；read02准备STATIC/PREPARED接受、尚未实际启动。原资产已在read01退役后恢复，第二轮测试再换53，原3完整备份original-dist-read02，后继退役后root须恢复。当前Go18–19/browser20–21未提交，完整卡未接受；[台账](docs/development/agent-team/tasks.md)记录原件与下一步。
 
 当前增量（2026-10-08）：ui-v1产品 `088f4d34` 已推送核同，[永久controlled验收](docs/development/agent-team/project-owner-workspace-ui-controlled-verification.md)55逻辑原件/37Git源已核归档。测试资产53file已临时替换，原3file目录完整备份，真实reader全部退役后root须恢复；资源尚未启动。JS browser-v1独审J1为ack字段不匹配，已续派仅JS→v2，Go协议不变；driver/最终TS-Python输入待独审。详情与原件见[恢复记录](docs/development/agent-team/recovery-2026-10-08-environment.md)，不称真实browser/PG或完整D27接受。

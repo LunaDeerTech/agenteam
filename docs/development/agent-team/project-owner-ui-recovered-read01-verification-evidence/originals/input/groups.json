@@ -1,0 +1,118 @@
+{
+  "browser_case_seconds": 45,
+  "failure_policy": "retire actual owned tail, preserve original failure, stop successor rounds; never auto retry",
+  "first_window": "new-read only; includes real dotted direct navigation; others await root after terminal PASS",
+  "groups": {
+    "new-edit": [
+      "TestAccountProjectOwnerWebEditAndRename"
+    ],
+    "new-identity": [
+      "TestAccountProjectOwnerWebIdentityAndOwnership"
+    ],
+    "new-layouts": [
+      "TestAccountProjectOwnerWebLayouts"
+    ],
+    "new-read": [
+      "TestAccountProjectOwnerWebReadAndNavigation"
+    ],
+    "new-recovery": [
+      "TestAccountProjectOwnerWebOriginalRecovery"
+    ],
+    "old-account-security": [
+      "TestAccountSystemAccountSecurityWebOutcomeRecovery"
+    ],
+    "old-auth-lifecycle": [
+      "TestAccountAuthenticationWebSessionLifecycle"
+    ],
+    "old-auth-revocation": [
+      "TestAccountAuthenticationWebRevocationAndExpiry"
+    ],
+    "old-invitations": [
+      "TestAccountSystemInvitationsWebOutcomeRecovery"
+    ],
+    "old-models": [
+      "TestAccountSystemModelsWebOutcomeRecovery"
+    ],
+    "old-outbound-policy": [
+      "TestAccountSystemOutboundPolicyWebMutationAndRecovery"
+    ],
+    "old-personal-password": [
+      "TestAccountPersonalSettingsWebPasswordRotation"
+    ],
+    "old-personal-profile": [
+      "TestAccountPersonalSettingsWebProfileAndAvatar"
+    ],
+    "old-personal-theme": [
+      "TestAccountPersonalSettingsWebThemeAndNavigation"
+    ],
+    "old-providers": [
+      "TestAccountSystemProvidersWebCredentialReplacement"
+    ],
+    "old-public-entry": [
+      "TestAccountPublicEntryWebIdentityNavigation"
+    ],
+    "old-selection": [
+      "TestAccountSystemModelSelectionWebOutcomeRecovery"
+    ],
+    "old-smtp-delivery": [
+      "TestAccountSystemSMTPDeliveryWebTestAndRetry"
+    ],
+    "old-smtp-settings": [
+      "TestAccountSystemSMTPSettingsWebOutcomeRecovery"
+    ],
+    "old-summary-authority": [
+      "TestAccountSystemMeetingSummaryWebAuthorityNavigation"
+    ],
+    "old-summary-recovery": [
+      "TestAccountSystemMeetingSummaryWebRecovery"
+    ]
+  },
+  "new_top_budget_seconds": 120,
+  "order": [
+    "new-read",
+    "new-edit",
+    "new-recovery",
+    "new-identity",
+    "new-layouts",
+    "old-auth-lifecycle",
+    "old-auth-revocation",
+    "old-personal-profile",
+    "old-personal-theme",
+    "old-personal-password",
+    "old-invitations",
+    "old-providers",
+    "old-models",
+    "old-selection",
+    "old-summary-recovery",
+    "old-summary-authority",
+    "old-account-security",
+    "old-smtp-settings",
+    "old-smtp-delivery",
+    "old-outbound-policy",
+    "old-public-entry"
+  ],
+  "package_budget": "6m",
+  "resource_counts": {
+    "new-edit": 7,
+    "new-identity": 7,
+    "new-layouts": 7,
+    "new-read": 7,
+    "new-recovery": 7,
+    "old-account-security": 7,
+    "old-auth-lifecycle": 7,
+    "old-auth-revocation": 7,
+    "old-invitations": 7,
+    "old-models": 7,
+    "old-outbound-policy": 7,
+    "old-personal-password": 7,
+    "old-personal-profile": 7,
+    "old-personal-theme": 7,
+    "old-providers": 7,
+    "old-public-entry": 7,
+    "old-selection": 7,
+    "old-smtp-delivery": 9,
+    "old-smtp-settings": 7,
+    "old-summary-authority": 7,
+    "old-summary-recovery": 7
+  }
+}

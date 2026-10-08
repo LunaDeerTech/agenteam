@@ -1,0 +1,214 @@
+{
+  "scope": "Independent review of author real read01 frozen failure/retirement evidence and fixed contract/source. No new real resource, probe, process stop or test command; no product/repository docs/Git writes.",
+  "utc": "2026-10-08T05:08:03.272828+00:00",
+  "handoff_sha256": "21085e942b887d083b3b9e0e88e3766e4d03245fad8c211acb116f50b27b2200",
+  "handoff_md_sha256": "c1e8e715e421075461c51346d4c292a60b90d7f72099d869a83b7c7236b1a6a5",
+  "manifest_files": 93,
+  "manifest_hash_errors": [],
+  "manifest_extra_files": [],
+  "manifest_missing_files": [],
+  "launch_log_hash_matches": true,
+  "run_raw_sha256": "c5cf12b7a1cf93e4d060d03eff89c89966c4ae3e04ae98006884f544029f0e8d",
+  "result_sha256": "d1b1377b225ba356b11869f01e4641e8eb8fc38ab1578dc0feb60e6f6d99c05b",
+  "source_hashes": {
+    "/workspace/agenteam/docs/development/work-items/d27-project-owner-workspace-ui.md": "37725ca136a9fe957714c0d29ef2ab43f86d82de5b1e265598f546f2dc143828",
+    "/workspace/agenteam/docs/development/work-items/d09-project-usage-read-http.md": "b872bc7481c8236bbfdea826c7e40c9f96f083669b4189f1a9437b1d976ac6e0",
+    "/workspace/agenteam/internal/central/project/authority.go": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+    "/workspace/agenteam/internal/central/project/contract/lifecycle.go": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6",
+    "/workspace/agenteam/internal/central/usage/http/handler.go": "e56b1050691ef5c10b0649d4d06e94a6d4a819f832db85ed49e9faca0f0eebe9",
+    "/workspace/scratch/owner-ui-recovery/ui-v1/web/src/composables/useProjectWorkspace.ts": "feb739df291657486a30506cb41cc94478657c523b1e90b18e5f53efc74bec7d",
+    "/workspace/scratch/owner-ui-recovery/ui-v1/web/src/views/projects/ProjectWorkspaceView.vue": "a73263a6d2e12e0d46a3cd3373ae3d54396ac3699b360855090ac47a1265712f",
+    "/workspace/scratch/owner-ui-recovery/browser-v2/tests/account-captcha-web/e2e/project-owner.spec.ts": "b903a21939f158d84de6995ea872f2dce8dfc09ef37d8716dfe4388a7d20e676"
+  },
+  "product_result": "FAIL, preserved; test expectation exceeds existing contract",
+  "failure": {
+    "action": "navigate to deleting Project settings/general then wait heading 项目不可用",
+    "assertion": "getByRole(heading,{name:项目不可用,exact:true}).toBeVisible()",
+    "locator_timeout_ms": 5000,
+    "next_dotted_navigation_executed": false,
+    "source": "tests/account-captcha-web/e2e/project-owner.spec.ts:465",
+    "top_seconds": 17.21
+  },
+  "contract_classification": {
+    "D09": "D09 §32 explicitly keeps deleting under original typed Read-gate refusal. Authority.ResolveProjectPath calls RequireOwnerInTx(Read); CheckOwnerGate returns ProjectNotActive for deleting; HTTP forwards error with no candidate.",
+    "D27": "D27 §3.2 forbids publishing deleting content and allows unavailable representation; it does not require a409 to map to unavailable or exact heading 项目不可用. §5.2 has separate read-error/unavailable states.",
+    "current_ui": "Frozen ui-v1 denied handles401/403/404. Real409/not_committed enters read-error; fresh navigation has no detail candidate and view provides explicit retry/list return. No direct-browser DOM snapshot retained, so exact rendered heading is source correlation rather than observed DOM proof.",
+    "minimum_fix": "Only #21 expectation: existing read-error heading plus actual Resolve409/PROJECT_NOT_ACTIVE and no following stable-ID Get, mutation, form, ProjectNav; keep allowed deleting DTO controlled nonpublication test. No product/API/parser/Session/Go/state-mapping change required by this failure."
+  },
+  "last_safe_response": {
+    "body_file": "body-5c481df4498f0f277a63120b04d4620e464a13cdea76f479af74adab6239dfe6.json",
+    "body_sha256": "5c481df4498f0f277a63120b04d4620e464a13cdea76f479af74adab6239dfe6",
+    "content_type": "application/problem+json",
+    "endpoint": "/api/v1/projects/resolve",
+    "input_hash": "af1c94db9b1ab1a4155b1dbc150c9f592b573013c4fd1062682883137091fb72",
+    "method": "GET",
+    "project_id": "",
+    "request_id": "01a119dd-ff15-7b8b-ad70-5fb2004174c4",
+    "source_run": "TestAccountProjectOwnerWebReadAndNavigation",
+    "status": 409
+  },
+  "last_safe_problem": {
+    "type": "urn:agenteam:problem:project-not-active",
+    "title": "Project not active",
+    "status": 409,
+    "detail": "The project is not active.",
+    "instance": "/api/v1",
+    "code": "PROJECT_NOT_ACTIVE",
+    "request_id": "01a119dd-ff15-7b8b-ad70-5fb2004174c4",
+    "commit_state": "not_committed"
+  },
+  "safe_body_integrity": {
+    "sidecars": 35,
+    "unique_bodies": 34,
+    "errors": [],
+    "categories": [
+      {
+        "method": "GET",
+        "status": 200,
+        "kind": "project-get",
+        "count": 28
+      },
+      {
+        "method": "GET",
+        "status": 200,
+        "kind": "list",
+        "count": 6
+      },
+      {
+        "method": "GET",
+        "status": 409,
+        "kind": "resolve",
+        "count": 1
+      }
+    ],
+    "setup_get_boundary": "28 Project GETs came from fixture formal preparation before browser; six browser list responses and one Resolve409 are later.",
+    "schema_validation_present": false,
+    "client_validation_present": false
+  },
+  "retirement": {
+    "direct_pid": 82997,
+    "direct_starttime": "516107",
+    "direct_exit": 1,
+    "direct_wait_completed": true,
+    "command_seconds": 114.299,
+    "go_top_seconds": 17.21,
+    "watchdog_joined": true,
+    "adopted_actual_waits": [
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 89218,
+        "starttime": "521280",
+        "time": "2026-10-08T04:55:46.672762+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 89219,
+        "starttime": "521280",
+        "time": "2026-10-08T04:55:46.672793+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 89220,
+        "starttime": "521280",
+        "time": "2026-10-08T04:55:46.672808+00:00"
+      },
+      {
+        "actual_wait": true,
+        "exit": 0,
+        "pid": 89215,
+        "starttime": "521280",
+        "time": "2026-10-08T04:55:46.672813+00:00"
+      }
+    ],
+    "adopted_all_observed": true,
+    "forced_actions": 0,
+    "monitor_errors": 0,
+    "exact_resource_ids": [
+      "15649612da71e4454fcbd9c22b7fdc0b97bdbc6dfdb0ec8ebf205e089581fc34",
+      "7ec72aea499ffa69107be5cb2cd47e769d0e270434e00cd992ca63bc6860d9a6",
+      "935f9267169858181219e45a2f89b839da8a56127d1fa044c1c69af913a0833f",
+      "958f19547d6d55239cbae0f1c9433364021de74f28265ec71c1e55327c8712f4",
+      "aae626b99899dc6d9fcf35000d2352dcfdbf4807d01d65709aa60ac6ff654658",
+      "e321b3d32210ab6f663dfd9032c572e760971de0bbe0e2df739b0d94af8987bd",
+      "edf63748c3d198c6e0202f363939f7f8d2771148b1814fc1f023d88828fa8175"
+    ],
+    "all_exact_ids_absent_twice": true,
+    "owned_and_runtime_double_clear": true,
+    "tcp_double_clear": true,
+    "tcp_seconds": 7.235452465999515,
+    "tcp_last_two_scans": [
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T04:56:49.004966+00:00",
+        "time_wait_rows": []
+      },
+      {
+        "active_rows": [],
+        "new_host_rows": [],
+        "time": "2026-10-08T04:56:49.208657+00:00",
+        "time_wait_rows": []
+      }
+    ],
+    "tcp_scope": "supplementary host polling; not complete short-connection trace or ownership proof",
+    "nonowned_pid1_shims": [
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 83411,
+        "ppid": 1,
+        "starttime": "516592",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 84098,
+        "ppid": 1,
+        "starttime": "517308",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 84466,
+        "ppid": 1,
+        "starttime": "517522",
+        "state": "Z"
+      },
+      {
+        "executable": "",
+        "name": "containerd-shim",
+        "pid": 85086,
+        "ppid": 1,
+        "starttime": "517791",
+        "state": "Z"
+      }
+    ],
+    "nonowned_pid1_not_mislabelled_owned": true,
+    "input_before_after_identical": true,
+    "verification_inputs_unchanged": true,
+    "real_failure_path_scope": "Go browser assertion failure through normal registered cleanup actually exercised. D1 arbitrary Python post-Popen exception injection remains unexecuted."
+  },
+  "asset_restoration": {
+    "root_record": "/workspace/scratch/owner-ui-assets/restore-after-read01.json",
+    "root_record_sha256": "d77915d321b78e1804369e8007ef2a714743dba28f16fcf9b2e292a3dfaf5faa",
+    "scope": "Original3files restored by root only after terminal retirement; later restoration and authorized browser-v3 edits are not in-round drift. Frozen v2 and original input-before/after are the basis."
+  },
+  "unverified": [
+    "Browser assertion at465 failed; next line466 absence-of-form assertion not reached.",
+    "Dotted direct navigation at467 and subsequent non-owner/admin/name-reuse cases not reached.",
+    "Final verifyBodies schema/public-client checks not reached; no schema/client PASS.",
+    "No screenshots or visual PASS.",
+    "Complete read-top and all subsequent real new/old/A-B acceptances remain pending."
+  ],
+  "conclusions": {
+    "run": "FAIL",
+    "retirement_evidence": "PASS for actual read01 task-owned failure cleanup; four daemon-owned PID1 shims separately unjoined",
+    "required_change": "test-only narrow correction",
+    "successor_execution": "not authorized by this review"
+  }
+}
