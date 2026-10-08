@@ -132,6 +132,16 @@ export const router = createRouter({
               name: 'project-audit',
               component: () => import('../views/projects/ProjectAuditView.vue'),
             },
+            {
+              path: 'model-providers',
+              name: 'project-model-providers',
+              component: () => import('../views/projects/ProjectModelProvidersView.vue'),
+            },
+            {
+              path: 'available-models',
+              name: 'project-available-models',
+              component: () => import('../views/projects/ProjectAvailableModelsView.vue'),
+            },
           ],
         },
       ],

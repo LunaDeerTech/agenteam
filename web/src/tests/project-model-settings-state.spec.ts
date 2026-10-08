@@ -1157,7 +1157,7 @@ describe('App-lifetime Project model coordinator', () => {
     expect(JSON.stringify(page.progress.value)).not.toContain('original private value')
   })
   it.each(['archiving', 'archived'] as const)(
-    '%s permits configuration original Execute but only passive Credential recovery',
+    'S2 fresh %s Owner Get after checking permits configuration original Execute but only passive Credential recovery',
     async (lifecycle) => {
       const f = await fixture(),
         page = await f.page()
@@ -1168,6 +1168,10 @@ describe('App-lifetime Project model coordinator', () => {
       expect(page.progress.value?.phase).toBe('uncertain')
       f.setProject(project(10, lifecycle))
       f.setModels(defaultModels)
+      await f.auth.restore()
+      await flushPromises()
+      expect(page.visible.value).toBe(false)
+      expect(page.canReplay.value).toBe(false)
       await page.readOwner()
       await flushPromises()
       expect(page.canMutate.value).toBe(false)
@@ -1181,6 +1185,10 @@ describe('App-lifetime Project model coordinator', () => {
       await credentialPage.createCredential()
       other.setProject(project(10, lifecycle))
       other.setModels(defaultModels)
+      await other.auth.restore()
+      await flushPromises()
+      expect(credentialPage.visible.value).toBe(false)
+      expect(credentialPage.canLookup.value).toBe(false)
       await credentialPage.readOwner()
       await flushPromises()
       expect(credentialPage.canReplay.value).toBe(false)
@@ -1192,7 +1200,7 @@ describe('App-lifetime Project model coordinator', () => {
       expect(credentialPage.progress.value?.phase).toBe('uncertain')
     },
   )
-  it('same identity checking hides observations and restores drafts/Unknown only after current Owner Get', async () => {
+  it('S2 same identity checking keeps Unknown hidden through a held fresh Owner Get before exact replay', async () => {
     const f = await fixture(),
       page = await f.page()
     await page.newProvider()
@@ -1200,7 +1208,14 @@ describe('App-lifetime Project model coordinator', () => {
     f.setModels(async () => problem('COMMIT_UNKNOWN', 503, 'unknown'))
     await page.saveProvider()
     const original = f.writes()[0]![1]
-    const session = barrier<Response>()
+    const session = barrier<Response>(),
+      owner = barrier<Response>(),
+      priorRead = page.viewContext.value!.readGeneration,
+      readsBefore = f.calls().length
+    releases.push(
+      () => session.resolve(json(view())),
+      () => owner.resolve(json(project())),
+    )
     f.setSession(() => session.promise)
     const restoring = f.auth.restore()
     await flushPromises()
@@ -1212,13 +1227,105 @@ describe('App-lifetime Project model coordinator', () => {
     session.resolve(json(view()))
     await restoring
     await flushPromises()
+    expect(page.visible.value).toBe(false)
+    expect(page.viewContext.value).toBeNull()
+    expect(f.calls()).toHaveLength(readsBefore)
+    expect(await page.lookupOriginal()).toBe(false)
+    expect(await page.replayOriginal()).toBe(false)
+    expect(f.writes()).toHaveLength(1)
+    f.setOwner((path) => {
+      expect(path).toBe(`/api/v1/projects/${projectID}`)
+      return owner.promise
+    })
+    const reading = page.readOwner()
+    await flushPromises()
+    expect(page.visible.value).toBe(false)
+    expect(page.viewContext.value).toBeNull()
+    expect(page.providerForm.name).toBe('Provider')
+    expect(page.progress.value?.phase).toBe('uncertain')
+    expect(f.calls()).toHaveLength(readsBefore)
+    owner.resolve(json({ ...project(), version: '9' }))
+    await reading
+    await flushPromises()
     expect(page.visible.value).toBe(true)
+    expect(page.viewContext.value!.readGeneration).toBeGreaterThan(priorRead)
     expect(page.providerForm.name).toBe('Provider')
     expect(await page.replayOriginal()).toBe(true)
     expect(f.writes().at(-1)![1].body).toBe(original.body)
     expect(new Headers(f.writes().at(-1)![1].headers).get('Idempotency-Key')).toBe(
       new Headers(original.headers).get('Idempotency-Key'),
     )
+  })
+  it('S2 failed fresh Owner Get retains dirty version, prepared ref and unsubmitted material until an explicit successful read', async () => {
+    const f = await fixture(),
+      page = await f.page()
+    await page.readProvider(providerID)
+    page.providerForm.name = 'Keep the original draft'
+    await page.openCredential('create')
+    page.credentialValue.value = 'created private material'
+    expect(await page.createCredential()).toBe(true)
+    const prepared = page.preparedCredential.value
+    expect(prepared?.credential_id).toBe(credentialID)
+    page.credentialValue.value = 'unsubmitted private material'
+    const modelCalls = f.calls().length,
+      writes = f.writes().length,
+      priorRead = page.viewContext.value!.readGeneration
+    f.setOwner(async () => problem('DEPENDENCY_UNAVAILABLE', 503))
+    await f.auth.restore()
+    await flushPromises()
+    expect(page.visible.value).toBe(false)
+    expect(page.viewContext.value).toBeNull()
+    expect(f.calls()).toHaveLength(modelCalls)
+    await page.readOwner()
+    expect(f.workspace.detail.phase).toBe('read-error')
+    expect(page.visible.value).toBe(false)
+    expect(page.providerForm.name).toBe('Keep the original draft')
+    expect(page.provider.version).toBe('1')
+    expect(page.preparedCredential.value).toEqual(prepared)
+    expect(page.credentialValue.value).toBe('unsubmitted private material')
+    expect(f.calls()).toHaveLength(modelCalls)
+    f.setOwner(async () => json({ ...project(), version: '19' }))
+    f.setModels(async (path, init) =>
+      init.method === 'GET' && path.includes('/model-providers')
+        ? json({ items: [provider(projectID, 20, '7')], next_cursor: null })
+        : defaultModels(path, init),
+    )
+    await page.readOwner()
+    await flushPromises()
+    expect(page.visible.value).toBe(true)
+    expect(page.viewContext.value!.readGeneration).toBeGreaterThan(priorRead)
+    expect(page.currentProject.value?.version).toBe('19')
+    expect(page.providers.state.items[0]?.version).toBe('7')
+    expect(page.providerForm.name).toBe('Keep the original draft')
+    expect(page.provider.version).toBe('1')
+    expect(page.preparedCredential.value).toEqual(prepared)
+    expect(page.credentialValue.value).toBe('unsubmitted private material')
+    expect(f.writes()).toHaveLength(writes)
+  })
+  it('S2 navigation clearing a confirmed local draft does not waive the fresh Owner Get gate', async () => {
+    const f = await fixture(),
+      page = await f.page(),
+      target = '/owner/main/settings/available-models'
+    await page.newProvider()
+    page.providerForm.name = 'Discard only this draft'
+    const moving = page.confirmLeave(target)
+    page.confirm()
+    expect(await moving).toBe(true)
+    const before = f.calls().length
+    await f.auth.restore()
+    f.workspace.afterNavigation(target)
+    page.afterNavigation(target)
+    await flushPromises()
+    expect(page.providerForm.name).toBe('')
+    expect(page.visible.value).toBe(false)
+    expect(page.viewContext.value).toBeNull()
+    expect(f.calls()).toHaveLength(before)
+    await page.readOwner()
+    await flushPromises()
+    expect(page.visible.value).toBe(true)
+    expect(page.available.state.items).toHaveLength(2)
+    expect(page.providerForm.name).toBe('')
+    expect(f.writes()).toHaveLength(0)
   })
   it.each(['session', 'csrf', 'user'] as const)(
     'real %s identity change clears all material/drafts/observations',

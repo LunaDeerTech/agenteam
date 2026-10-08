@@ -495,7 +495,14 @@ describe('Project login return closed paths', () => {
   it.each(['Admin', 'root', 'support', 'projects', 'forgot-password', 'reset-password'])(
     'accepts existing Owner username %s and canonicalizes only the closed path',
     (username) => {
-      for (const suffix of ['', '/settings', '/settings/general', '/settings/audit']) {
+      for (const suffix of [
+        '',
+        '/settings',
+        '/settings/general',
+        '/settings/audit',
+        '/settings/model-providers',
+        '/settings/available-models',
+      ]) {
         expect(safeReturnTarget(`/${username}/DeMo${suffix}`)).toBe(
           `/${username.toLowerCase()}/demo${suffix}`,
         )
@@ -544,6 +551,32 @@ describe('Project login return closed paths', () => {
   ])('rejects raw path outside Project branch: %j', (value) => {
     expect(safeReturnTarget(value)).toBe('/')
   })
+  it.each(['model-providers', 'available-models'])(
+    'keeps the %s return leaf closed to raw suffix escapes',
+    (leaf) => {
+      const base = `/owner/demo/settings/${leaf}`
+      for (const suffix of [
+        '/',
+        '/child',
+        '?cursor=opaque',
+        '?',
+        '#detail',
+        '#',
+        '%2Fchild',
+        '\\child',
+      ])
+        expect(safeReturnTarget(base + suffix)).toBe('/')
+      expect(safeReturnTarget(`/owner/demo/settings/${leaf.toUpperCase()}`)).toBe('/')
+      expect(
+        safeReturnTarget(
+          `/owner/demo/settings/%${leaf.charCodeAt(0).toString(16)}${leaf.slice(1)}`,
+        ),
+      ).toBe('/')
+      expect(safeReturnTarget(`/OWNER/owner.dot-name/settings/${leaf}`)).toBe(
+        `/owner/owner.dot-name/settings/${leaf}`,
+      )
+    },
+  )
   it('preserves old static targets alongside the new list', () => {
     expect(safeReturnTarget('/system/users')).toBe('/system/users')
     expect(safeReturnTarget('/settings/profile')).toBe('/settings/profile')

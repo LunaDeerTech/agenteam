@@ -269,7 +269,7 @@ export function createProjectModelSettings(
   const pageMode = ref<'none' | 'providers' | 'available'>('none'),
     disposed = ref(false),
     activeRead = ref(false),
-    gateRead = ref<number | null>(null)
+    gateRead = shallowRef<Context | null>(null)
   const providerBaseline = ref(''),
     modelBaseline = ref('')
   const providerReviewContext = shallowRef<Context | null>(null),
@@ -608,6 +608,7 @@ export function createProjectModelSettings(
     credentialValue.value = ''
     credentialMetadataContext.value = null
   }
+  // Local draft/intent retirement cannot authorize a cached Owner context.
   function clearAll() {
     hideObservations()
     auth.projectModelSettings.abandonPending()
@@ -620,7 +621,6 @@ export function createProjectModelSettings(
     modelsOpen.value = false
     message.value = ''
     feedback.value = 'idle'
-    gateRead.value = null
     submitted = null
     acceptedReceipt = null
   }
@@ -629,7 +629,7 @@ export function createProjectModelSettings(
       (e.problem?.status === 403 || e.problem?.status === 404) &&
       sameContext(context, scope.value)
     ) {
-      gateRead.value = context.readGeneration
+      gateRead.value = context
       message.value = '当前项目或目标权限尚不能确认。请显式重新读取项目后再继续。'
       hideObservations()
     }
@@ -1441,6 +1441,9 @@ export function createProjectModelSettings(
     return true
   }
   function invalidateCurrent() {
+    // Workspace may restore its cached context after same-identity checking.
+    // Losing this scope requires a newer successful Owner Get before reuse.
+    if (scope.value) gateRead.value = scope.value
     scope.value = null
     hideObservations()
     needsInitial = pageMode.value !== 'none'
@@ -1450,6 +1453,7 @@ export function createProjectModelSettings(
     const currentIdentity = auth.personalContext.identity
     if ((identity || currentIdentity) && !sameIdentity(identity, currentIdentity)) {
       identity = currentIdentity
+      gateRead.value = null
       clearAll()
       scope.value = null
       boundID.value = null
@@ -1469,12 +1473,21 @@ export function createProjectModelSettings(
       return
     }
     if (boundID.value !== null && boundID.value !== current.projectID) clearAll()
+    if (gateRead.value !== null) {
+      const prior = gateRead.value
+      if (
+        sameIdentity(prior.identity, current.identity) &&
+        prior.projectID === current.projectID &&
+        current.readGeneration <= prior.readGeneration
+      )
+        return
+      gateRead.value = null
+    }
     if (!sameContext(scope.value, current)) {
       hideObservations()
       scope.value = current
       boundID.value = current.projectID
       needsInitial = true
-      if (gateRead.value !== null && current.readGeneration > gateRead.value) gateRead.value = null
     }
     const completed = progress.value
     if (visible.value && completed?.phase === 'confirmed' && completed.receipt)
@@ -1563,6 +1576,7 @@ export function createProjectModelSettings(
     if (disposed.value) return
     disposed.value = true
     stop()
+    gateRead.value = null
     clearAll()
     scope.value = null
     boundID.value = null

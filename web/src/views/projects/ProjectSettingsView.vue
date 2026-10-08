@@ -9,6 +9,14 @@ const groups = computed(() =>
     ? [
         { label: '项目资料', path: paths.value.settings, leaf: '基本信息' },
         { label: '安全记录', path: paths.value.home + '/settings/audit', leaf: '项目审计' },
+        {
+          key: 'project-models-providers',
+          label: '模型与 Provider',
+          children: [
+            { path: paths.value.home + '/settings/model-providers', label: 'Providers' },
+            { path: paths.value.home + '/settings/available-models', label: '可用模型' },
+          ],
+        },
       ]
     : [],
 )

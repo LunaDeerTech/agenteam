@@ -373,6 +373,7 @@ describe('production App/Owner/Audit route composition', () => {
       expect(menu.findAll('.settings-group-toggle').map((entry) => entry.text())).toEqual([
         '项目资料',
         '安全记录',
+        '模型与 Provider',
       ])
       expect(menu.get('a[href="/owner/demo/settings/audit"]').attributes('aria-current')).toBe(
         'page',

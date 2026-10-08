@@ -1,4 +1,6 @@
-# D27 Project Owner 模型设置 UI — rev1
+# D27 Project Owner 模型设置 UI — rev1＋菜单兼容补充
+
+范围补充（2026-10-08）：下文原 rev1 的29路径/28技术表述及规格安装状态保留为历史口径。本次经 root 精确评估，仅在 §8 新增旧 Audit 菜单期待兼容路径 #30；当前总30路径＝29技术路径＋README #29末件，原 #1–29 编号不变。产品语义、17操作、端点、预算与9 IPC均不变。
 
 状态：2026-10-08 正式规格安装；完整语义沿已获 root 接受的整合候选 c5674d4e，独立 SPEC STATIC d411c2ce 无必修。本次只完成 Audit 前置状态、T1 最小共享源码交接、永久定义引用及 T4 正式路径/唯一作者归位；安装差量与交接仍待独立复核和 root 接受。正式卡安装不是产品实施、工具运行或资源授权，实施启动由 root 另行下发。
 
@@ -353,8 +355,11 @@ UI内存跨checking恢复不扩大为跨新Session恢复；真正新Session/CSRF
 | 27 | 新tests/account-captcha-web/e2e/project-owner-models.spec.ts | 六真实UI场景、同body/schema/client及8图 |
 | 28 | web/src/tests/session.spec.ts | 本域与旧mutator单owner/安全错误隔离兼容 |
 | 29 | docs/development/frontend/README.md | 技术接受后能力/边界/真实命令末件 |
+| 30 | web/src/tests/project-audit.spec.ts | 旧 Audit 设置菜单期待仅追加模型与 Provider，保留其余断言 |
 
 workspace仅消费公开currentReadContext/detail，不新增workspace写域。System API/composables只读，纯类型/标量工具能原样复用才引用，不能导出System callback或调用其HTTP。默认不改ProjectGeneral/ProjectWorkspaceView、原account TestMain、test-objects/security/postgres脚本、旧browser spec、公共fixture、schema/contract/store/root/迁移/锁文件。若实际旧测试只有菜单期待变化，限#23；其它新的必要修改交root精确评估。
+
+菜单兼容补充：root 已按上述升级条件批准 frontend_worker 唯一修改 #30，仅在原设置菜单组的精确期待数组追加“模型与 Provider”一项，不改其余49用例断言及安全/权限边界。此为原 rev1 29路径闭集之外新增的唯一技术路径；当前30路径中的29技术须全部接受后，README #29仍由 root 另授末件。旧完整单元检查的2626 PASS/2 FAIL原件保留，修后仅重验该文件49用例并如实组合既有结果，不扩大预算。
 
 ## 9. 必要验收与执行前提
 
