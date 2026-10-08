@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 2026-10-08：nextnew01独核终局、远端资产安全整合
+
+远端独立提交f10ba4a8的九个docs/logos新增资产已完整保留；root仅对本地未发表edit03文档提交使用merge-backend rebase，推送后本地与远端精确同为7aa19f75cc1b125635cf5e85ab4d5d57021ca198。edit03报告和archive-checks原SHA复核未变；运行955源、19UI、Go04、browser-v5与53测试资产不受logo增量影响，工作树无冲突。
+
+layouts01独立固定原件/8图可见区域/owned退役正式PASS/STOP：报告SHA440a4d45bc855b9b40136bd49b13e840e05520318542e34923dbceb3e021b211；三轮条件串行终局报告SHA29faeacc03636bc7ce8b56e9ae23303d22d04889416b7ae584879c83163fea2e。末TCP双清06:51:09.406Z，root原3恢复06:54:53.303Z；21ID/3direct12adopted/12非owned未waitshims、schema52/client27精确分列。390截图不展示内部scroll下部控件，motion媒体/静图不证明nativezoom。
+
+verification_worker正在有限永久归档三轮原件与八PNG，复用已发表共同输入，勿复制wholegraph/cache。old16-batch01只读准备清单SHAecfabc5ebfa2d301bd96abfd5eae90bea1a7b6c37d6be354655c74c2d01c50f5，rootfalse/未执行，runtime仅复核原16 selectors/预算/7或9ID与条件串行退役。完整D27仍待旧16、真正独立实际A/B及README22；当前无资源窗口，生产未绑定/ready503/D08–D28/E01与三停止边界保持。以下为历史。
+
 ## 2026-10-08：edit03成功永久档、五新作者真实轮次通过
 
 [edit03成功永久档](project-owner-ui-recovered-edit03-verification.md)已STOP，root核80逻辑source/archive原bytes/SHA、68指纹与42Git定位一致；新增66原件428344 bytes/12复用，33原格式例外不改字节。作者全edit case与owned退役独核PASS，仅原schema19/client GET7，PATCH/Problem不虚增client；两次edit原FAIL继续保留。

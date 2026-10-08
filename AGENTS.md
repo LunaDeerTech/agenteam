@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+当前接续（2026-10-08）：远端九个docs/logos资产已保留，edit03成功永久档安全rebase并推送核同7aa19f75。nextnew01三成功轮原件及8图可见区域独审正式PASS/STOP，原3恢复；其永久档正在有限归档，旧16准备独审进行。旧16、独立实际A/B、README22与完整D27未接受，无当前资源窗口；生产/三停止边界保持，详台账。
+
 当前增量（2026-10-08）：五新作者真实轮次PASS并全退役（read02、edit03、recovery/identity/layouts），原3资产恢复，无资源窗口。edit03成功永久档80逻辑原件/42Git已核；recovery/identity独核PASS，八layout图已逐看可见区域通过、正式终局报告进行。old16只准备/独立实际A-B未跑/README22与完整D27未接受；详[台账](docs/development/agent-team/tasks.md)，生产/三停止边界保持。
 
 当前终局（2026-10-08）：edit02永久档104逻辑原件/43Git已核；edit03作者实际整轮PASS并完全退役、原3资产已恢复，19schema/resolve1 get6尾验已产。短manifest封存与独立终局复核待交，不据作者结果接受整卡；source19/Go04/browser-v5固定，当前无资源/资产窗口。详情见[台账](docs/development/agent-team/tasks.md)，后继完整D27/生产/三停止边界保持。

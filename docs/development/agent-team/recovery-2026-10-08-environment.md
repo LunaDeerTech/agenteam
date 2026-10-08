@@ -1,5 +1,9 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 最新接续：三轮正式独核STOP，旧16准备复核
+
+nextnew01三轮固定原件、8图可见区域与实际退役正式有限PASS；原3资产已恢复，无窗口。三成功轮永久小档正在归档，旧16清单仅准备独审、尚未跑；独立实际A/B/README22/完整D27仍待执行。远端九个docs/logos新增完整保留，edit03档安全rebase/push后main/remote7aa19f75核同，运行源码和测试资产不变。精确SHA/计数/范围见[台账](tasks.md)，生产与三停止保持。
+
 ## 最新接续：五新作者真实PASS、旧域与独立A/B待跑
 
 [edit03成功永久档](project-owner-ui-recovered-edit03-verification.md)80逻辑原件/42Git核同。nextnew三轮全部PASS实际退役，21ID不重/ownedruntimeTCP双清/input同、12非ownedshim单列；原3已恢复，无资源窗口。recovery/identity独核PASS、layout8图可见区域已逐看但正式终局报告进行，非完整D27；旧16仅准备、独立A/B与README未验。精确输入和限制见[台账](tasks.md)。
