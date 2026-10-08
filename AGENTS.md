@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+当前故障终局（2026-10-08）：旧16首批前2 PASS，第3oldprofile01在旧browser duplicate.json()读取400正文时Protocol error FAIL，后13未跑。三轮已完全退役，21ID/3direct16adopted/ownedruntimeTCP双清/input同，root恢复原3；无当前窗口。原FAIL待独审归因，不预定产品/测试原因，不重试/改预算。独立A/B仅false准备，完整D27/README22未接受；生产与三停止保持，详台账。
+
+当前资源窗口（2026-10-08）：old16准备独审PASS/STOP后root已授条件串行16原top，唯一truecopy332a391e、53测试资产已安装，原3完整backup original-dist-old16batch01。backend唯一真实资源owner，FAIL先全退役STOP；root活跃轮不push/network/换资产，末尾全reader退役后恢复。独审仅准备自有A/B false执行输入，实际A/B/README22/完整D27仍未接受，详台账；生产与三停止保持。
+
 当前接续（2026-10-08）：远端九个docs/logos资产已保留，edit03成功永久档安全rebase并推送核同7aa19f75。nextnew01三成功轮原件及8图可见区域独审正式PASS/STOP，原3恢复；其永久档正在有限归档，旧16准备独审进行。旧16、独立实际A/B、README22与完整D27未接受，无当前资源窗口；生产/三停止边界保持，详台账。
 
 当前增量（2026-10-08）：五新作者真实轮次PASS并全退役（read02、edit03、recovery/identity/layouts），原3资产恢复，无资源窗口。edit03成功永久档80逻辑原件/42Git已核；recovery/identity独核PASS，八layout图已逐看可见区域通过、正式终局报告进行。old16只准备/独立实际A-B未跑/README22与完整D27未接受；详[台账](docs/development/agent-team/tasks.md)，生产/三停止边界保持。

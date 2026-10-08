@@ -1,5 +1,13 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 最新终局：旧16第三轮FAIL，原资产恢复
+
+旧域首批2PASS/1FAIL/13NOT_RUN，第3个人资料测试在读取400正文时Protocol error，待固定原件独核归因。三轮actualwait/21ID/ownedruntimeTCP双清完成，root原3已精确恢复，53回stage，无当前资源。独立A/B仅自有false准备，01记录器技术FAIL保留/02有限文件准备PASS待封；完整D27/README22未接受。精确原件/限制见[台账](tasks.md)，生产与三停止保持。
+
+## 最新资源窗口：旧16已授条件串行
+
+旧16准备独核PASS/STOP后root安装固定53测试资产，原3完整backup original-dist-old16batch01；唯一truecopy332a391e授权backend逐原top串行，任一失败退役后全批STOP。root活跃期不push/network/换资产，全reader退役后恢复原3。独立A/B仅自有false输入准备，尚未执行；旧16结果、README22/完整D27未接受。精确refs/预算/所有权见[台账](tasks.md)，三停止与生产边界保持。
+
 ## 最新接续：三轮正式独核STOP，旧16准备复核
 
 nextnew01三轮固定原件、8图可见区域与实际退役正式有限PASS；原3资产已恢复，无窗口。三成功轮永久小档正在归档，旧16清单仅准备独审、尚未跑；独立实际A/B/README22/完整D27仍待执行。远端九个docs/logos新增完整保留，edit03档安全rebase/push后main/remote7aa19f75核同，运行源码和测试资产不变。精确SHA/计数/范围见[台账](tasks.md)，生产与三停止保持。

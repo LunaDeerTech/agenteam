@@ -1,5 +1,21 @@
 # 团队任务台账
 
+## 2026-10-08：旧16第3失败，整批退役并恢复
+
+oldauthlife01整轮PASS（top7.60s/browser5.0/direct53.563/TCP39.394，4adopted）；oldauthrevoke01整轮PASS（top12.42s/browser4.4+3.1/direct64.721/TCP37.385，8adopted）。第3oldprofile01唯一top FAIL8.54s，personal-settings.spec.ts:441 duplicate.json()在重复username400 field_errors读取处报Network.getResponseBody No data found for resource；不预先定性产品/旧test根因，后13NOT_RUN。失败handoff SHA765738c021c959007202a2c7ce65195932962d81ca0f4b43ab28e42d1d189d95，原24run文件保持，未到avatar矩阵/最终facts不能补称通过。
+
+失败实际session11569 exit1/direct58.746s+4adopted wait/watchdogjoin，7精确ID两absent/owned-runtime双空/TCP38.399双清/input与前轮同、monitor/cancel/forced0。三实际轮共21不同ID/3direct+16adopted，各新增非owned未waitshims按原件另列，114只是未实现计划。作者已停资源/reader，不建立后继或重试；v04被FAIL阻止后继。root在reader0后两rename恢复原3 SHA，restore-after-old16batch01.json SHA43bf31225ededd1bb2417c73808911bddc7a777d4eeec5ede31b1ff49514dde6，固定53回stage；当前无资源/资产窗口。批result正在封，独立故障复核待固定原件。
+
+独立A/B自有exactBB+falsefreeze4ce0c0cc准备：唯一filegate01 stdout输入accepted但记录器读取不存在的proc children文件后exit1，元数据/双空缺失按技术FAIL保留；root只授versioned02记录器窄修与一次纯文件后继，01原件不改。02作者有限PASS actualchild.wait/定点PID双absent/wrapperexit0、children not_available，不冒称全树双空；正式prepared STOP待交，未启动独立真实A/B。旧16/README22/完整D27未接受；生产/ready503与三停止保持。以下为历史。
+
+## 2026-10-08：旧16条件串行实际窗口授权
+
+old16原清单独审PREPARED PASS/STOP，报告SHA71b7905ed68880b2774d8c37bf2a465ed0861eb5a1f48304b4b7de74ca33270a。root重新核原3/stage53与live reader0，采用两rename安装53，原3完整保留original-dist-old16batch01；exchange-old16batch01.json SHA7138d0ef9f68d27792da440e09ed5daa7b055e002839550f5474aeee3b85c073。
+
+独立0444授权副本freeze.root-old16batch01.json SHA332a391ee12bf8f4142242363ce8e725e2683b8358013814b74361f340f818c5，原final04 false不动；仅16原group/固定順序，首oldauthlife01。backend唯一真实资源执行者；仅前轮实际PASS、direct/adopted/watchdogjoin、exact7或SMTPdelivery9ID/owned/runtime/TCP双清/input同与原件齐后下一轮。任意FAIL/incomplete先退役留原件后STOP全批，不重试/修源/改预算。原内部case、top120含cleanup/pkg6m/TCP75/fresh5GiB保持，114资源数只是计划。
+
+root在全批活跃期不做Git push/network或资产交换，结束后实际reader全部退役才恢复原3；此协调记录暂不提交。runtime另派独立A/B自有exactBB目录/必要path delta/falsefreeze与一次file-only gate准备，无真实资源/主机扫描/活动run读取，实际A/B逐轮root授权等作者稳定所有权交回。三新永久档继续有限文档归档；旧16尚未有结果、完整D27/README22/生产未绑定与三停止保持。以下为历史。
+
 ## 2026-10-08：nextnew01独核终局、远端资产安全整合
 
 远端独立提交f10ba4a8的九个docs/logos新增资产已完整保留；root仅对本地未发表edit03文档提交使用merge-backend rebase，推送后本地与远端精确同为7aa19f75cc1b125635cf5e85ab4d5d57021ca198。edit03报告和archive-checks原SHA复核未变；运行955源、19UI、Go04、browser-v5与53测试资产不受logo增量影响，工作树无冲突。
