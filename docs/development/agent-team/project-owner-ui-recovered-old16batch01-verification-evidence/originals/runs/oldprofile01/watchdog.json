@@ -1,0 +1,24 @@
+{
+  "active": [],
+  "budget_seconds": 120.0,
+  "complete": true,
+  "events": [
+    {
+      "event": "run",
+      "monotonic": 13782.464975703,
+      "top": "TestAccountPersonalSettingsWebProfileAndAvatar"
+    },
+    {
+      "event": "result",
+      "monotonic": 13791.009761208,
+      "observed_seconds": 8.544785505000618,
+      "reported_seconds": 8.54,
+      "state": "FAIL",
+      "top": "TestAccountPersonalSettingsWebProfileAndAvatar"
+    }
+  ],
+  "expected": [
+    "TestAccountPersonalSettingsWebProfileAndAvatar"
+  ],
+  "failures": []
+}

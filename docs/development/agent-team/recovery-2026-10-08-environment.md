@@ -1,5 +1,13 @@
 # 2026-10-08 环境恢复与当前交接
 
+## 最新永久档：旧16首批失败与窄修待验
+
+[old16首批永久报告](project-owner-ui-recovered-old16batch01-verification.md)104逻辑/65指纹/48Git root核同，原2PASS/1FAIL/13未跑和3轮退役/无body证据缺口保持。额外单legacy补丁2处已落地，唯一格式提示在原helper169旧行；无关formatter改动已恢复，原格式FAIL/输出保留，v3仅显式TS检查待交。old14计划限定STATIC PASS但source/final05 pending，无资源；原3已恢复，A-B/README22/full未验。精确计数和授权见[台账](tasks.md)，生产与三停止保持。
+
+## 最新窄修：旧profile取证额外单测试路径
+
+root明确授personal-settings.spec.ts仅PATCH/me400闭集target+duplicate调用复用既有原native响应观察器，不变状态/字段/UI/facts/预算；24卡接受不扩大，原FAIL/无body证据缺口保持。作者有限format/type后独核STOP，资源未授、原3已restore；old16后13/真正A-B/README22/full未验。精确边界见[台账](tasks.md)，生产与三停止保持。
+
 ## 最新归档：三新成功原件永久核验
 
 [nextnew01永久报告](project-owner-ui-recovered-nextnew01-verification.md)207逻辑原件/164指纹/42Git已root核合，8图逐映射7原PNG实体，schema52/client27及视觉/退役范围明确。旧16第3FAIL/后13未跑待归因，原3恢复无资源；独立实际A/B/README22/完整D27未接受。精确计数/原格式例外见[台账](tasks.md)，生产与三停止保持。

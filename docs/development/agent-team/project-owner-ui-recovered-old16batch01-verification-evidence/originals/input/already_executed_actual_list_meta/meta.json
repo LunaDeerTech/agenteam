@@ -1,0 +1,231 @@
+{
+  "argv": [
+    "/workspace/scratch/owner-ui-backend/account.test",
+    "-test.list=^Test(AccountProjectOwnerWeb(ReadAndNavigation|EditAndRename|OriginalRecovery|IdentityAndOwnership|Layouts)|AccountAuthenticationWeb(SessionLifecycle|RevocationAndExpiry)|AccountPersonalSettingsWeb(ProfileAndAvatar|ThemeAndNavigation|PasswordRotation)|AccountSystemInvitationsWebOutcomeRecovery|AccountSystemProvidersWebCredentialReplacement|AccountSystemModelsWebOutcomeRecovery|AccountSystemModelSelectionWebOutcomeRecovery|AccountSystemMeetingSummaryWeb(Recovery|AuthorityNavigation)|AccountSystemAccountSecurityWebOutcomeRecovery|AccountSystemSMTPSettingsWebOutcomeRecovery|AccountSystemSMTPDeliveryWebTestAndRetry|AccountSystemOutboundPolicyWebMutationAndRecovery|AccountPublicEntryWebIdentityNavigation)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "budget_seconds": 45,
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/go/pkg/mod",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOWORK": "off",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "GOTELEMETRY": "off"
+  },
+  "before": {
+    "files": 515,
+    "sha256": "8f17d436ae898828ecde16e10ec7438ae219b79638c43d4531dcb48e6e66b0e9"
+  },
+  "baseline": [
+    {
+      "pid": 1,
+      "ppid": 0,
+      "pgid": 0,
+      "starttime": 27,
+      "state": "S"
+    },
+    {
+      "pid": 2,
+      "ppid": 1,
+      "pgid": 0,
+      "starttime": 37,
+      "state": "S"
+    },
+    {
+      "pid": 214,
+      "ppid": 1,
+      "pgid": 214,
+      "starttime": 561,
+      "state": "S"
+    },
+    {
+      "pid": 266,
+      "ppid": 214,
+      "pgid": 266,
+      "starttime": 573,
+      "state": "S"
+    },
+    {
+      "pid": 604,
+      "ppid": 1,
+      "pgid": 604,
+      "starttime": 618,
+      "state": "S"
+    },
+    {
+      "pid": 608,
+      "ppid": 1,
+      "pgid": 608,
+      "starttime": 618,
+      "state": "S"
+    },
+    {
+      "pid": 654,
+      "ppid": 604,
+      "pgid": 654,
+      "starttime": 622,
+      "state": "S"
+    },
+    {
+      "pid": 655,
+      "ppid": 608,
+      "pgid": 655,
+      "starttime": 622,
+      "state": "S"
+    },
+    {
+      "pid": 708,
+      "ppid": 214,
+      "pgid": 214,
+      "starttime": 628,
+      "state": "S"
+    },
+    {
+      "pid": 714,
+      "ppid": 214,
+      "pgid": 214,
+      "starttime": 628,
+      "state": "S"
+    },
+    {
+      "pid": 737,
+      "ppid": 214,
+      "pgid": 214,
+      "starttime": 629,
+      "state": "S"
+    },
+    {
+      "pid": 803,
+      "ppid": 655,
+      "pgid": 803,
+      "starttime": 653,
+      "state": "S"
+    },
+    {
+      "pid": 804,
+      "ppid": 655,
+      "pgid": 804,
+      "starttime": 653,
+      "state": "S"
+    },
+    {
+      "pid": 842,
+      "ppid": 0,
+      "pgid": 0,
+      "starttime": 688,
+      "state": "S"
+    },
+    {
+      "pid": 860,
+      "ppid": 655,
+      "pgid": 860,
+      "starttime": 745,
+      "state": "S"
+    },
+    {
+      "pid": 861,
+      "ppid": 655,
+      "pgid": 861,
+      "starttime": 745,
+      "state": "S"
+    },
+    {
+      "pid": 862,
+      "ppid": 655,
+      "pgid": 862,
+      "starttime": 745,
+      "state": "S"
+    },
+    {
+      "pid": 1486,
+      "ppid": 1,
+      "pgid": 1486,
+      "starttime": 4582,
+      "state": "Z"
+    },
+    {
+      "pid": 1619,
+      "ppid": 1,
+      "pgid": 1619,
+      "starttime": 5418,
+      "state": "Z"
+    },
+    {
+      "pid": 1987,
+      "ppid": 1,
+      "pgid": 1987,
+      "starttime": 8779,
+      "state": "Z"
+    },
+    {
+      "pid": 3656,
+      "ppid": 1,
+      "pgid": 3656,
+      "starttime": 18468,
+      "state": "Z"
+    },
+    {
+      "pid": 31393,
+      "ppid": 1,
+      "pgid": 31393,
+      "starttime": 143455,
+      "state": "Z"
+    },
+    {
+      "pid": 35193,
+      "ppid": 1,
+      "pgid": 35193,
+      "starttime": 154902,
+      "state": "Z"
+    },
+    {
+      "pid": 37528,
+      "ppid": 842,
+      "pgid": 37528,
+      "starttime": 173813,
+      "state": "R"
+    }
+  ],
+  "started_ns": 1791431863476149100,
+  "direct_pid": 37531,
+  "ended_ns": 1791431864571833456,
+  "elapsed_seconds": 1.0956793080001717,
+  "direct_exit": 0,
+  "timed_out": false,
+  "actual_wait": [
+    {
+      "pid": 37531,
+      "status": 0,
+      "exit": 0,
+      "direct": true
+    }
+  ],
+  "observed": [
+    {
+      "pid": 37531,
+      "ppid": 37528,
+      "pgid": 37531,
+      "starttime": 173819,
+      "state": "Z",
+      "argv": [
+        ""
+      ]
+    }
+  ],
+  "owned_empty": [
+    [],
+    []
+  ],
+  "inputs_same": true,
+  "after": {
+    "files": 515,
+    "sha256": "8f17d436ae898828ecde16e10ec7438ae219b79638c43d4531dcb48e6e66b0e9"
+  },
+  "changed_inputs": [],
+  "raw_sha256": "431e84afab6679160abb83091fd534f708683ec36b3b4833f01b1359eb6dd821",
+  "watchdog": "synchronous supervision loop returned; no watchdog process/thread"
+}

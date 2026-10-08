@@ -1,5 +1,23 @@
 # 团队任务台账
 
+## 2026-10-08：旧16失败首批永久档与旧格式例外
+
+[old16首批永久报告](project-owner-ui-recovered-old16batch01-verification.md)已STOP，root核104逻辑原件1221820 bytes source/archive一致、65指纹/48Git定位同；新增62实体834054 bytes，复用18已发表实体129964 bytes（37逻辑）。72run原件900775 bytes+3launch完整核，同原2PASS/1FAIL/13NOT_RUN、3direct exit0/0/1+16adopted/3watchdog/21不同ID双清/input同/root原3restore；12nonowned未waitshim单列，原profile441 CDP无body与后段未到不回填。
+
+报告SHA7ba239518f302fb386617cc5d3a66329354331f73af8c4522742918db9ac25bf，checks SHAe5f0f58d6af964a80cfb854f92ba2b5f68bd1cad8cc22473a7b0dd322914640f；48Git=继承42+6必要独审路径，包括原personal spec固定Git367/155b源码。原3raw共18trailing登记原字节，无缺EOF/CRLF/单CR；归档仅本地有限bytes/JSON/links/Git，不业务重跑。
+
+额外legacy单路径补丁候选a0fede03ce80118de78a9ba033540bca25587288927791f2daa761c48ea30603，只2预定hunks。v1 format-check01 exit1/0.611s原件保留、TS未跑；root另授v2单文件formatter，实际exit0/0.619s，但唯一diff是原helper169旧行拆行，授权新增2处本身无格式差量。作者已恢复无关helper原字节，保v2 formatter输出SHA dab4013cb76c4514f231df0d7b1334e4670a36893b334ccf3f65e34f708a8081与delta；root明确继承这一旧格式例外，不新修helper、不重复format，另v3仅显式personal spec strict TS≤45s，source仍待checks/独审接受，不预称profile产品PASS。
+
+old14原计划STATIC PASS报告SHAedcf6d7ed7e2463df471f7daadee8c742ef06d489e54e5feff2d65b36ba38eb5，pending source/final05/rootfalse，不可执行。原auth2限定复用需新一源差量/其fixtures与source/UI/Go/tool不变证明；14实际/独立A-B/README22/完整D27与生产/三停止边界保持。无当前资源/资产窗口，以下为历史。
+
+## 2026-10-08：明确额外legacy单路径取证窄修授权
+
+固定personal-settings.spec.ts原SHA155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba=Git367；独审与frontend只读诊断（SHA1a28af62fffe2cc949610e7230878185b982e87eb1384c4d381435582001d1a1）一致：已观察PATCH/api/v1/me400，FAIL在441 CDP duplicate.json正文取得前，field_errors/aria-invalid/后段avatar与facts未证，不能从原件排除全部产品因素。
+
+root明确授权原24card之外的额外单测试路径tests/account-captcha-web/e2e/personal-settings.spec.ts，只闭集增PATCH/me400 target并将duplicate原取值复用既有settingsJSONFor。保持status400、/username ALREADY_EXISTS及全部后续UI/持久facts/原预算/重试；helper本身原nativepromise/Response、clone600000 UTF8/read-cancel-release不改，clone tee不冒称无干扰或owner tail证明。没有产品/API行为或用户新决定，UI19/Go04/currentProject20–21不写，原FAIL仍留。
+
+frontend solewriter仅此extra path与小scratch delta/必要单文件format+现有TS检查≤45s，完成STOP后runtime独立静审，root再明确冻结一源闭包/失败driver后继准备与实际profile资源授权；当前未授业务/Go/browser/PG/list/build/fullsuite或外网重跑。不静默扩24card接受，首2旧PASS后继复用需按实际影响核边界，后13/A-B/README22/完整D27仍待执行。old16永久小档正在按固定原件准备，待正式indSTOP refs；原3已恢复，无窗口。以下为历史。
+
 ## 2026-10-08：nextnew01三成功轮永久原件接受
 
 [nextnew01永久报告](project-owner-ui-recovered-nextnew01-verification.md)及有限证据档已STOP，root核207逻辑原件（2222066 bytes）source/archive原字节/SHA同、164指纹/42产品Git定位同；新增161原件实体1759266 bytes，复用21已提交实体150436 bytes（40逻辑）。166 run原件1838418 bytes+3 launch冻结，8原图路径/尺寸/bytes/SHA逐映射为7未改PNG实体。checks SHAce7ee43d4e53765e77ea01f3fceb084203b27f427b5e8f79e3b154f41ab21cba，报告SHAf841c7b6027106817a9eede46eac42122ad3df2b75275f8590a80544860fce95。

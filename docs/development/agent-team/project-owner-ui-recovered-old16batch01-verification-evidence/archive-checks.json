@@ -1,0 +1,359 @@
+{
+  "status": "ARCHIVE_INTEGRITY_PASS_STOP_AUTHOR_PROFILE_FAIL_PRESERVED",
+  "scope": "Only stopped old16-batch01 originals: first2 author actual PASS and all3 owned-retirement independent review accepted, original profile FAIL and13 NOT_RUN preserved. No new tests/schema/client/browser/resources/network or current globaldist reads; no whole955 graph scan.",
+  "source_map_sha256": "8def86bff5d0dab0f4f4bcca48bb93f7fbcd70a9570e095471a1a5591017bc71",
+  "report_sha256": "7ba239518f302fb386617cc5d3a66329354331f73af8c4522742918db9ac25bf",
+  "format_exceptions_sha256": "3c2d01f13473f8e319e28938e01ca5c4b764e954e34a0079d56d489fcc047ed1",
+  "logical_originals_verified": 104,
+  "logical_original_bytes": 1221820,
+  "physical_originals_verified_including_reused": 80,
+  "new_physical_original_files": 62,
+  "new_physical_original_bytes": 834054,
+  "reused_prior_physical_originals": 18,
+  "reused_prior_physical_bytes": 129964,
+  "reused_prior_logical_originals": 37,
+  "fixed_product_Git_blob_SHA_bindings": 48,
+  "independent_seven_Git367_references_verified": true,
+  "prior_committed_original_Git_bindings": 18,
+  "reused_UI_manifest_Git_bindings": 2,
+  "inherited_source_map_Git_binding_verified": true,
+  "run_original_files": 72,
+  "run_original_bytes": 900775,
+  "launch_raw_originals": 3,
+  "round_record_reconciliation": [
+    {
+      "run": "oldauthlife01",
+      "state": "PASS",
+      "top": "TestAccountAuthenticationWebSessionLifecycle",
+      "run_original_files": 24,
+      "run_original_bytes": 240998,
+      "launch_sha256": "6f1b92cf0f0da1bdfad15915edfa393ef67b1aed294ecffb88f0526498eea693",
+      "raw_sha256": "3f39071bbb502e63e6692dd92d7170cc84165dc16c8a99cfd64d3b97c233485a",
+      "result_sha256": "5a102bf6a0fd847d5b142cd205cc045baa3787e75adb199987bc5c116305b533",
+      "direct_actual_wait": {
+        "pid": 241248,
+        "pid_starttime": "1336254",
+        "started_utc": "2026-10-08T07:11:27.820251+00:00",
+        "ended_utc": "2026-10-08T07:12:21.383102+00:00",
+        "exit": 0,
+        "seconds": 53.563,
+        "actual_wait_completed": true
+      },
+      "adopted_actual_waits": 4,
+      "watchdog_completed_and_joined": true,
+      "exact_resource_ids": [
+        "07a76d0f41b7a9d001d20d9bb12f227997b69f03adbe8d1d3c9729c6ba80ba07",
+        "1342dd0c86f9d4ca07c4af87d329df7b04a3bc7ada39654a9af9dde6c4bcc192",
+        "453f2512e869ef00f4d314a1c20276d8c41dc9e2b861885b032ce1f6edefbbba",
+        "465ae1ee63d389099e1f26cbe092f74143271157950247fcffe613d4b676a745",
+        "90f2ea641804e8c97cf3b8b76bbe77d1f4e6b1c740f9a383c596813632017d2a",
+        "9ab160f14b433da17eee13f0fb044bccb98605731bc41433a4792e2f90dabe91",
+        "e7aa84815e90f51502fcb260cbd8ea64b8a9ddc6a4c061f83baf2110b3f6fa1c"
+      ],
+      "owned_and_exact_resources_double_empty": true,
+      "tcp_last_two_scans": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T07:13:01.947070+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T07:13:02.150733+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "tcp_tail_seconds": 39.394405484001254,
+      "new_nonowned_unwaited_PID1_shims": [
+        {
+          "pid": 241473,
+          "starttime": "1336470"
+        },
+        {
+          "pid": 241826,
+          "starttime": "1336713"
+        },
+        {
+          "pid": 242193,
+          "starttime": "1336933"
+        },
+        {
+          "pid": 242793,
+          "starttime": "1337112"
+        }
+      ],
+      "Project_safe_evidence_files_in_original_manifest": 0,
+      "images_in_original_handoff": 0
+    },
+    {
+      "run": "oldauthrevoke01",
+      "state": "PASS",
+      "top": "TestAccountAuthenticationWebRevocationAndExpiry",
+      "run_original_files": 24,
+      "run_original_bytes": 335581,
+      "launch_sha256": "504c7a43c74fe9089ff21460af60945e11d7c155bd08b1a2170ee030a3a94d95",
+      "raw_sha256": "bd0e1d747b3627393195ae04d30e7a4fbe09ba672a4e1a1d0a68173dcba2e80f",
+      "result_sha256": "05d229158a13ff5ab618e209c9d6ab5fe3cb04f33ea395f52ed0d42d42546088",
+      "direct_actual_wait": {
+        "pid": 250475,
+        "pid_starttime": "1358509",
+        "started_utc": "2026-10-08T07:15:10.369423+00:00",
+        "ended_utc": "2026-10-08T07:16:15.090351+00:00",
+        "exit": 0,
+        "seconds": 64.721,
+        "actual_wait_completed": true
+      },
+      "adopted_actual_waits": 8,
+      "watchdog_completed_and_joined": true,
+      "exact_resource_ids": [
+        "03af965b681b6ca53fe9ab20f03071cd6af8c6410e6dce9365c9fa37b628a12a",
+        "47ce1713a397da14e7ccaede757be454486aface25e682fa1cdf5fab730c3bdf",
+        "6d05b695a65e6370985fe9da1e8a58a35e60f50af30c73df8523bb987ac862db",
+        "83c8878cc214bdc64dea44a8a002731325383935ce9b931551b5ac5eaade814b",
+        "aaee234593b1a7955eae8a785a0190bd78ecf59775a208d4698759d49efaedb8",
+        "fa737ee41a0cd9f2988f9ba5ab0a62f885b4fb36a9dc58057f48cdb6205b6e67",
+        "fbdc8ba4cae41435a5a4ec1c1dca0228d4a9b650fa9d35eff664234b33fe9f6e"
+      ],
+      "owned_and_exact_resources_double_empty": true,
+      "tcp_last_two_scans": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T07:16:53.630573+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T07:16:53.834427+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "tcp_tail_seconds": 37.384781926999494,
+      "new_nonowned_unwaited_PID1_shims": [
+        {
+          "pid": 250910,
+          "starttime": "1358990"
+        },
+        {
+          "pid": 251365,
+          "starttime": "1359406"
+        },
+        {
+          "pid": 251733,
+          "starttime": "1359626"
+        },
+        {
+          "pid": 252356,
+          "starttime": "1359839"
+        }
+      ],
+      "Project_safe_evidence_files_in_original_manifest": 0,
+      "images_in_original_handoff": 0
+    },
+    {
+      "run": "oldprofile01",
+      "state": "FAIL",
+      "top": "TestAccountPersonalSettingsWebProfileAndAvatar",
+      "run_original_files": 24,
+      "run_original_bytes": 324196,
+      "launch_sha256": "f1c89eb0ea085e49618d564beaa8aa138f48dfd1ee80722016ff9e075df945da",
+      "raw_sha256": "2d8dec1e104b2c11e333f63f191e923ef0d25589d8b5c723db1f6fea5568ee69",
+      "result_sha256": "1c7defd5344b5bfc2c1cffc081f818c84457b8a5f2aeff745d43594734b13356",
+      "direct_actual_wait": {
+        "pid": 260240,
+        "pid_starttime": "1375349",
+        "started_utc": "2026-10-08T07:17:58.772437+00:00",
+        "ended_utc": "2026-10-08T07:18:57.518945+00:00",
+        "exit": 1,
+        "seconds": 58.746,
+        "actual_wait_completed": true
+      },
+      "adopted_actual_waits": 4,
+      "watchdog_completed_and_joined": true,
+      "exact_resource_ids": [
+        "538c9e660930a2084852c331377ea699b228a6e2090ccf82c58809cc7b50731e",
+        "5858b4564d3fd0afffecb5cf4bb894dd08a86b238012d11778b2ab61d5e9b376",
+        "5dfae72bc869d814e0fdc2235d5b8e403300c01ecd7e26aec8dc93639a8589a0",
+        "6c615891246bc5967f979bfbbb7a5ad1085a0a6687ce676eec2454ba8a4d234f",
+        "9703213da2d518f5cfd36769d489d9c9ddd44119f0808e1882ddcd0dbe248274",
+        "9b11c8d329816d26aace6b470bca1b9e27916ac75ada4163f386c96338dcb34b",
+        "a0b02ffbb3735169bb70797098af2b87f3329ad332890a59d28fa37044c7770d"
+      ],
+      "owned_and_exact_resources_double_empty": true,
+      "tcp_last_two_scans": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T07:19:37.090781+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T07:19:37.294799+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "tcp_tail_seconds": 38.39937690000079,
+      "new_nonowned_unwaited_PID1_shims": [
+        {
+          "pid": 260608,
+          "starttime": "1375727"
+        },
+        {
+          "pid": 260964,
+          "starttime": "1375974"
+        },
+        {
+          "pid": 261314,
+          "starttime": "1376181"
+        },
+        {
+          "pid": 262053,
+          "starttime": "1376578"
+        }
+      ],
+      "Project_safe_evidence_files_in_original_manifest": 0,
+      "images_in_original_handoff": 0
+    }
+  ],
+  "totals": {
+    "PASS": 2,
+    "FAIL": 1,
+    "NOT_RUN": 13,
+    "resource_ids_distinct": 21,
+    "direct_actual_waits": 3,
+    "direct_exits": [
+      0,
+      0,
+      1
+    ],
+    "adopted_actual_waits": 16,
+    "adopted_distribution": [
+      4,
+      8,
+      4
+    ],
+    "watchdogs_joined": 3,
+    "new_nonowned_unwaited_PID1_shims": 12,
+    "Project_safe_HTTP_artifacts": 0,
+    "images": 0
+  },
+  "failure_proof_boundary": {
+    "line": 441,
+    "column": 27,
+    "operation": "Playwright Response.json / CDP Network.getResponseBody",
+    "error": "No data found for resource with given identifier",
+    "proven": "Matched PATCH /api/v1/me and responseFor400 status assertion completed; field_errors assertion did not complete.",
+    "no_persisted_body_DOM_or_network_trace": true,
+    "product_cause": "not established; no independent actual body evidence to validate field_errors or exclude all product factors",
+    "minimal_followup": "Separately authorize one legacy spec path; extend existing SettingsJSONTarget with PATCH /api/v1/me400 and replace only duplicate response body acquisition with existing settingsJSONFor. Keep400/field_errors/aria-invalid/currentGet/all later behavior and facts/budget unchanged; freeze+one-source closure delta+new actual run required.",
+    "instrumentation_limits": "Existing native fetch observation returns original promise/Response, clones small error body<=600000, joins read/cancel/release; changes body observation and is not proof of an uninstrumented stream/owner tail."
+  },
+  "all_six_input_hashes": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932",
+  "all_three_Docker_baselines_equal": true,
+  "sequential_start_after_prior_TCP_clear": true,
+  "root_original3_restore_matches_exchange": true,
+  "root_restore_after_last_TCP_clear": true,
+  "root_restore_sha256": "43bf31225ededd1bb2417c73808911bddc7a777d4eeec5ede31b1ff49514dde6",
+  "new_archive_json_parsed_including_this_result": 54,
+  "reused_original_json_parsed": 14,
+  "report_local_links_checked": 19,
+  "all_report_local_links_exist": true,
+  "new_text_files_no_index_checked_excluding_this_result": 65,
+  "git_no_index_exit_counts_excluding_this_result": {
+    "1": 62,
+    "3": 3
+  },
+  "registered_original_whitespace_diagnostics": [
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/raw.log",
+      "sha256": "3f39071bbb502e63e6692dd92d7170cc84165dc16c8a99cfd64d3b97c233485a",
+      "stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/raw.log:31: trailing whitespace.\n+    authentication_web_test.go:15: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/raw.log:33: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/raw.log:36: trailing whitespace.\n+        \n"
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log",
+      "sha256": "bd0e1d747b3627393195ae04d30e7a4fbe09ba672a4e1a1d0a68173dcba2e80f",
+      "stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log:32: trailing whitespace.\n+    authentication_web_test.go:57: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log:34: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log:37: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log:41: trailing whitespace.\n+    authentication_web_test.go:57: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log:43: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log:46: trailing whitespace.\n+        \n"
+    },
+    {
+      "path": "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log",
+      "sha256": "2d8dec1e104b2c11e333f63f191e923ef0d25589d8b5c723db1f6fea5568ee69",
+      "stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:31: trailing whitespace.\n+    personal_settings_web_test.go:26: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:33: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:35: trailing whitespace.\n+        \u001b\u001b[1A\u001b\u001b[2K  1) e2e/personal-settings.spec.ts:327:1 › [profile] current profile, exact final inputs and three real static avatar formats \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:36: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:38: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:47: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:48: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:50: trailing whitespace.\n+            e2e/personal-settings.spec.ts:327:1 › [profile] current profile, exact final inputs and three real static avatar formats \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:51: trailing whitespace.\n+        \n"
+    }
+  ],
+  "registered_original_missing_EOF_files": 0,
+  "format_exception_original_files": 3,
+  "scoped_tracked_diff_check_exit": 0,
+  "new_evidence_directory_files_including_this_result": 65,
+  "files_sha256_excluding_this_result": {
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification.md": "7ba239518f302fb386617cc5d3a66329354331f73af8c4522742918db9ac25bf",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/format-exceptions.json": "3c2d01f13473f8e319e28938e01ca5c4b764e954e34a0079d56d489fcc047ed1",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/old16-batch01-result.json": "adc742d93b38b0d0fe9594a331b118d286cacc0f006f9983f3faa7ba438472a1",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/old16-batch01-result.md": "a2181a8c8eaa448d5d806cd22f99897bb54945cf1cc337df1ca92b70d3ea0885",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/oldauthlife01-handoff.json": "b05e9b210940f9215180afc5cadcc21111f636be9e48c59de09f9d8c41716f2d",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/oldauthlife01-launch.raw": "6f1b92cf0f0da1bdfad15915edfa393ef67b1aed294ecffb88f0526498eea693",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/oldauthrevoke01-handoff.json": "bf29f927fbcebe862ef1d181a3abf7836ddb34115e9fae845e12625e9e4fd30d",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/oldauthrevoke01-launch.raw": "504c7a43c74fe9089ff21460af60945e11d7c155bd08b1a2170ee030a3a94d95",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/oldprofile01-handoff.json": "765738c021c959007202a2c7ce65195932962d81ca0f4b43ab28e42d1d189d95",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/author/oldprofile01-launch.raw": "f1c89eb0ea085e49618d564beaa8aa138f48dfd1ee80722016ff9e075df945da",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/independent/evidence.json": "db3c06a31abce484d6be3f6ef72baa65ec241534d3555e1e4148c2bb6dffdf32",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/independent/manifest.json": "06ef47da268d0a09a386a046dda1c08310e063775af2c7786e07139ecef08284",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/independent/review.md": "707d99ab78e94aca6d48843061fb92ddbb9da4f2c1283923af1c06dd7044fca2",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/input/already_executed_actual_list_meta/meta.json": "89122d921543853d3849c96c9d80b693c1a9493f205a396863d407871362ba95",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/input/already_executed_actual_list_raw/raw": "431e84afab6679160abb83091fd534f708683ec36b3b4833f01b1359eb6dd821",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/preparation/handoff.json": "ecfabc5ebfa2d301bd96abfd5eae90bea1a7b6c37d6be354655c74c2d01c50f5",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/preparation/handoff.md": "c2abb726c4d4b7d705c59142a7f4abc73384cdf0f54da727b825eee7e71e3ed7",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/preparation/independent-review.md": "71b7905ed68880b2774d8c37bf2a465ed0861eb5a1f48304b4b7de74ca33270a",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/root/exchange-old16batch01.json": "7138d0ef9f68d27792da440e09ed5daa7b055e002839550f5474aeee3b85c073",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/root/restore-after-old16batch01.json": "43bf31225ededd1bb2417c73808911bddc7a777d4eeec5ede31b1ff49514dde6",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/adopted-waits.json": "a4d3f509486cfe9860214a3ec7941b952ba957972153a176807cacbbb99ab737",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/cleanup.json": "332ed98bbe765bbc19fc4e89c768eb28b5dfae2ce2765c32b98a5dda2fa88c04",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/command.json": "09ba46d4b792c5c17fe61da472f8cf63c26e60bc8a20003c776872ec53982cb4",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/disk-before-spawn.json": "166d205d7550ad8915402f63d696ac8916d04972900e5f6f008eee63349ba3a4",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/disk-preflight.json": "9cf9908009a2511c07f0544b73e6750810d00e8e243a438779635e6366a85448",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/frozen-input.json": "332a391ee12bf8f4142242363ce8e725e2683b8358013814b74361f340f818c5",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/observed-processes.json": "e1858a4cd98db72652531aa610637f5a029d8b0cb893b042cb4f18eda0917a2a",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/observed-resources.json": "e8e6bc3ab314d7ef094228da149048107d2106bc8ccbbe110dbb77cb874732be",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/process-baseline.json": "fd72ab8c75e23f690aa89e5a35592aa415370c85b8a21b8c1d128ba79c2afdfe",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/raw.log": "3f39071bbb502e63e6692dd92d7170cc84165dc16c8a99cfd64d3b97c233485a",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/result.json": "5a102bf6a0fd847d5b142cd205cc045baa3787e75adb199987bc5c116305b533",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/tcp-baseline.json": "a35cdea221238c2d1f9b4d6e5ae11f610b8da331d92a56bc554899e3c8c96d34",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/tcp-observed-delta.json": "e4de14d5361030584404b864119b07fb72243577fbfba7b9b6b791e9027db148",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/tcp-tail-observation.json": "acc4e696d46bca95ab3830398e52c42e01ee5a89b8fa5d73a7dc5550d9793fcc",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/verification-input.json": "9be3e869b9a7aa9c925d11eebb75d0cece0cd56ebf46525dc980c194a37586c1",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/watchdog.json": "c1e4e20b246c76a3b2f81513d4d90e293e64b857592a44ae327a11f0aaab7188",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/adopted-waits.json": "59823a23146512b29324d9a8ad912d59315758bc38c6fe814e193368f7774c79",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/cleanup.json": "55ebb1abead2e30cbc8ab8d36a1926cf0fb05cdfc243247b2db68d0a97a8660b",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/command.json": "6c145464fcefff15cd16af264b46226e6ea3cd2b5bf446f87853a18bd7369799",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/disk-before-spawn.json": "b749590aaeefadd27d39aea69517b09e80a7814bcbedd8de021c0f14d3994860",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/disk-preflight.json": "a1f428ca34b2922cfc2cd089f63d3b0af6879c5256e6e62aa5c45d156ab06bfe",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/observed-processes.json": "cffd280af2ce8f01165e562ab9e065e77ef12ffd6d4a78b362da50b03c0d6c96",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/observed-resources.json": "3818462c67831c2ba6ba154f066baf64a4bd5457b239468439ccb5c69f81ffe9",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/process-baseline.json": "ada6ead3e1871f5d1b38db0aab4baed7355f452d8a2d5e28b6b1342494cae55f",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log": "bd0e1d747b3627393195ae04d30e7a4fbe09ba672a4e1a1d0a68173dcba2e80f",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/result.json": "05d229158a13ff5ab618e209c9d6ab5fe3cb04f33ea395f52ed0d42d42546088",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/tcp-baseline.json": "96310a113b271d1dfd48be72c23fd7c1ac3d3a8315532a7554bee9b6b51a69fb",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/tcp-observed-delta.json": "d43310d4f516bf1011684449ebdedfef422386bcf8ab0baaf353f1ded3650041",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/tcp-tail-observation.json": "bc850220179133391939c516b0932fe3495185d502c2eff0fcb5f8fb0d4c91a3",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/watchdog.json": "74d211bd9899f258734bf72702215f0a443e075f33df3ad0518dec0d3937090b",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/adopted-waits.json": "67ad6e1916eeb0dae8e8b3cc054888837259b666403e1719a931fdf3b89c3a03",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/cleanup.json": "3e73c313935eeec537f855a0e29a65c5b1619d3286843d96aa399b34a457c79a",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/command.json": "21b4f76a9bb7ae4259c37afec5f6c973a91bc6b9a31b2fc633a273aebacee251",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/disk-before-spawn.json": "c59c3996bb09c3ca2003996733c714d4114fcf09137be5e13bb1ec50ec0bfb18",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/disk-preflight.json": "406fabb7f122ce82627d5429ddb6f07e7c740ed95e0a0f0158ba4188063c5b85",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/observed-processes.json": "08aab5d08b0f23b1461738bd9c0009ba86257342db5459664e74df07d02bb104",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/observed-resources.json": "f1a3e66fdc6d9c70804c951d159bb64504c757276014feaab4fb753f4505dd1a",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/process-baseline.json": "19433e9b63b014efdf273c5431737dca61bc64962cc4d6887907acf75826ed6c",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log": "2d8dec1e104b2c11e333f63f191e923ef0d25589d8b5c723db1f6fea5568ee69",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/result.json": "1c7defd5344b5bfc2c1cffc081f818c84457b8a5f2aeff745d43594734b13356",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/tcp-baseline.json": "2b52641ecc6c9c1e9ed65d0a6eb51953c74ec8166041c034edac5e4169e16b88",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/tcp-observed-delta.json": "4c0a0d040a24199962dddde8f498092c81dd16be78c128d963c59af3f4037262",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/tcp-tail-observation.json": "41790a4b40c982b509455b4fa8396eed5fe32d41f92e02e1268175621ded111a",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/watchdog.json": "5964d763974ff3fb3eca031c90a6b8457bd701c1d2d76680265edec7fc71e54a",
+    "docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/source-map.json": "8def86bff5d0dab0f4f4bcca48bb93f7fbcd70a9570e095471a1a5591017bc71"
+  }
+}

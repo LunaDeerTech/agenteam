@@ -1,0 +1,265 @@
+{
+  "actual_direct_wait_completed": true,
+  "adopted_waits": [
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 255104,
+      "starttime": "1361860",
+      "time": "2026-10-08T07:15:47.579404+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 255107,
+      "starttime": "1361860",
+      "time": "2026-10-08T07:15:47.579426+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 255109,
+      "starttime": "1361860",
+      "time": "2026-10-08T07:15:47.579441+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 255110,
+      "starttime": "1361860",
+      "time": "2026-10-08T07:15:47.579458+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 255957,
+      "starttime": "1362534",
+      "time": "2026-10-08T07:15:52.950444+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 255959,
+      "starttime": "1362534",
+      "time": "2026-10-08T07:15:52.950466+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 255962,
+      "starttime": "1362534",
+      "time": "2026-10-08T07:15:52.950496+00:00"
+    },
+    {
+      "actual_wait": true,
+      "exit": 0,
+      "pid": 255963,
+      "starttime": "1362534",
+      "time": "2026-10-08T07:15:52.950520+00:00"
+    }
+  ],
+  "batch": "old16-batch01",
+  "browser_original_summaries": [
+    "1 passed (4.4s)",
+    "1 passed (3.1s)"
+  ],
+  "checks": {
+    "actual_direct_wait": true,
+    "adopted_actual_waits": true,
+    "all_prior_old_rounds_passed_and_retired": true,
+    "authorization_and_driver_frozen": true,
+    "baseline_resources_unchanged": true,
+    "driver_accepted": true,
+    "exact_ids_double_absent": true,
+    "ids_disjoint_previous_rounds": true,
+    "input_same_as_prior_old_rounds": true,
+    "no_forced_cleanup_or_monitor_error": true,
+    "owned_runtime_double_empty": true,
+    "resource_topology_matches": true,
+    "selected_top_pass": true,
+    "source_inputs_same": true,
+    "tcp_delta_double_clear": true,
+    "watchdog_joined": true
+  },
+  "cleanup_sha256": "55ebb1abead2e30cbc8ab8d36a1926cf0fb05cdfc243247b2db68d0a97a8660b",
+  "conditional_advance_allowed": true,
+  "direct_command_seconds": 64.721,
+  "direct_identity": {
+    "pid": 250475,
+    "starttime": "1358509"
+  },
+  "exact_resource_ids": [
+    "03af965b681b6ca53fe9ab20f03071cd6af8c6410e6dce9365c9fa37b628a12a",
+    "47ce1713a397da14e7ccaede757be454486aface25e682fa1cdf5fab730c3bdf",
+    "6d05b695a65e6370985fe9da1e8a58a35e60f50af30c73df8523bb987ac862db",
+    "83c8878cc214bdc64dea44a8a002731325383935ce9b931551b5ac5eaade814b",
+    "aaee234593b1a7955eae8a785a0190bd78ecf59775a208d4698759d49efaedb8",
+    "fa737ee41a0cd9f2988f9ba5ab0a62f885b4fb36a9dc58057f48cdb6205b6e67",
+    "fbdc8ba4cae41435a5a4ec1c1dca0228d4a9b650fa9d35eff664234b33fe9f6e"
+  ],
+  "exact_top": "TestAccountAuthenticationWebRevocationAndExpiry",
+  "expected_resource_ids": 7,
+  "failure_policy": "any false condition stops entire remaining batch after actual retirement; no retry or source/budget modification",
+  "group": "old-auth-revocation",
+  "images": [],
+  "independent_review": "pending; author actual result only",
+  "launch": {
+    "path": "/workspace/scratch/owner-ui-backend/oldauthrevoke01-launch.raw",
+    "sha256": "504c7a43c74fe9089ff21460af60945e11d7c155bd08b1a2170ee030a3a94d95"
+  },
+  "legacy_domain_validation": "only unchanged original legacy top assertions and raw; no Project schema/client counts imported or claimed",
+  "new_nonowned_unwaited_pid1_shims": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 250910,
+      "ppid": 1,
+      "starttime": "1358990",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 251365,
+      "ppid": 1,
+      "starttime": "1359406",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 251733,
+      "ppid": 1,
+      "starttime": "1359626",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 252356,
+      "ppid": 1,
+      "starttime": "1359839",
+      "state": "Z"
+    }
+  ],
+  "order": 2,
+  "outer_actual_exit": 0,
+  "outer_final_chunk": "bb9050",
+  "outer_session": 1400,
+  "raw_sha256": "bd0e1d747b3627393195ae04d30e7a4fbe09ba672a4e1a1d0a68173dcba2e80f",
+  "result_sha256": "05d229158a13ff5ab618e209c9d6ab5fe3cb04f33ea395f52ed0d42d42546088",
+  "round": "oldauthrevoke01",
+  "run_directory": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01",
+  "run_file_count": 24,
+  "run_files": {
+    "adopted-waits.json": {
+      "bytes": 1147,
+      "sha256": "59823a23146512b29324d9a8ad912d59315758bc38c6fe814e193368f7774c79"
+    },
+    "baseline.json": {
+      "bytes": 4129,
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "cancellation.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "cleanup.json": {
+      "bytes": 23153,
+      "sha256": "55ebb1abead2e30cbc8ab8d36a1926cf0fb05cdfc243247b2db68d0a97a8660b"
+    },
+    "command.json": {
+      "bytes": 2635,
+      "sha256": "6c145464fcefff15cd16af264b46226e6ea3cd2b5bf446f87853a18bd7369799"
+    },
+    "disk-before-spawn.json": {
+      "bytes": 183,
+      "sha256": "b749590aaeefadd27d39aea69517b09e80a7814bcbedd8de021c0f14d3994860"
+    },
+    "disk-preflight.json": {
+      "bytes": 183,
+      "sha256": "a1f428ca34b2922cfc2cd089f63d3b0af6879c5256e6e62aa5c45d156ab06bfe"
+    },
+    "driver.py.txt": {
+      "bytes": 38744,
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "frozen-input.json": {
+      "bytes": 42246,
+      "sha256": "332a391ee12bf8f4142242363ce8e725e2683b8358013814b74361f340f818c5"
+    },
+    "input-after.json": {
+      "bytes": 815,
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+    },
+    "input-before.json": {
+      "bytes": 815,
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+    },
+    "local-image-digests.json": {
+      "bytes": 985,
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "monitor-errors.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "observed-processes.json": {
+      "bytes": 19600,
+      "sha256": "cffd280af2ce8f01165e562ab9e065e77ef12ffd6d4a78b362da50b03c0d6c96"
+    },
+    "observed-resources.json": {
+      "bytes": 5068,
+      "sha256": "3818462c67831c2ba6ba154f066baf64a4bd5457b239468439ccb5c69f81ffe9"
+    },
+    "owned-tail-retirement.json": {
+      "bytes": 74,
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "process-baseline.json": {
+      "bytes": 9801,
+      "sha256": "ada6ead3e1871f5d1b38db0aab4baed7355f452d8a2d5e28b6b1342494cae55f"
+    },
+    "raw.log": {
+      "bytes": 5027,
+      "sha256": "bd0e1d747b3627393195ae04d30e7a4fbe09ba672a4e1a1d0a68173dcba2e80f"
+    },
+    "result.json": {
+      "bytes": 11531,
+      "sha256": "05d229158a13ff5ab618e209c9d6ab5fe3cb04f33ea395f52ed0d42d42546088"
+    },
+    "tcp-baseline.json": {
+      "bytes": 1725,
+      "sha256": "96310a113b271d1dfd48be72c23fd7c1ac3d3a8315532a7554bee9b6b51a69fb"
+    },
+    "tcp-observed-delta.json": {
+      "bytes": 11907,
+      "sha256": "d43310d4f516bf1011684449ebdedfef422386bcf8ab0baaf353f1ded3650041"
+    },
+    "tcp-tail-observation.json": {
+      "bytes": 155074,
+      "sha256": "bc850220179133391939c516b0932fe3495185d502c2eff0fcb5f8fb0d4c91a3"
+    },
+    "verification-input.json": {
+      "bytes": 183,
+      "sha256": "9be3e869b9a7aa9c925d11eebb75d0cece0cd56ebf46525dc980c194a37586c1"
+    },
+    "watchdog.json": {
+      "bytes": 550,
+      "sha256": "74d211bd9899f258734bf72702215f0a443e075f33df3ad0518dec0d3937090b"
+    }
+  },
+  "safe_evidence_file_count": 0,
+  "status": "OLD16_AUTHOR_ACTUAL_PASS_FULLY_RETIRED",
+  "tcp_tail_seconds": 37.384781926999494,
+  "watchdog_result_events": [
+    {
+      "event": "result",
+      "monotonic": 13627.750216917,
+      "observed_seconds": 12.415225909000583,
+      "reported_seconds": 12.42,
+      "state": "PASS",
+      "top": "TestAccountAuthenticationWebRevocationAndExpiry"
+    }
+  ]
+}

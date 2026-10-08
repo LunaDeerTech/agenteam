@@ -1,0 +1,57 @@
+{
+  "policy": "Keep author failures, earlier successes and all stopped original bytes unchanged. No-index exit1 without diagnostics is ordinary differing content; only bounded archive integrity/format checks, no test or resource rerun. Raw embedded +Go-line context is not a file-path diagnostic.",
+  "physical_originals_checked_including_reused": 80,
+  "git_no_index_exit_counts": {
+    "1": 77,
+    "3": 3
+  },
+  "crlf_files": [],
+  "standalone_cr_files": [],
+  "files": [
+    {
+      "path": "originals/runs/oldauthlife01/raw.log",
+      "reused_prior": false,
+      "preserved_original_sha256": "3f39071bbb502e63e6692dd92d7170cc84165dc16c8a99cfd64d3b97c233485a",
+      "exceptions": [
+        "original 31: trailing whitespace.",
+        "original 33: trailing whitespace.",
+        "original 36: trailing whitespace."
+      ],
+      "git_no_index_check_exit": 3,
+      "git_no_index_check_stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/raw.log:31: trailing whitespace.\n+    authentication_web_test.go:15: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/raw.log:33: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthlife01/raw.log:36: trailing whitespace.\n+        \n"
+    },
+    {
+      "path": "originals/runs/oldauthrevoke01/raw.log",
+      "reused_prior": false,
+      "preserved_original_sha256": "bd0e1d747b3627393195ae04d30e7a4fbe09ba672a4e1a1d0a68173dcba2e80f",
+      "exceptions": [
+        "original 32: trailing whitespace.",
+        "original 34: trailing whitespace.",
+        "original 37: trailing whitespace.",
+        "original 41: trailing whitespace.",
+        "original 43: trailing whitespace.",
+        "original 46: trailing whitespace."
+      ],
+      "git_no_index_check_exit": 3,
+      "git_no_index_check_stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log:32: trailing whitespace.\n+    authentication_web_test.go:57: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log:34: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log:37: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log:41: trailing whitespace.\n+    authentication_web_test.go:57: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log:43: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldauthrevoke01/raw.log:46: trailing whitespace.\n+        \n"
+    },
+    {
+      "path": "originals/runs/oldprofile01/raw.log",
+      "reused_prior": false,
+      "preserved_original_sha256": "2d8dec1e104b2c11e333f63f191e923ef0d25589d8b5c723db1f6fea5568ee69",
+      "exceptions": [
+        "original 31: trailing whitespace.",
+        "original 33: trailing whitespace.",
+        "original 35: trailing whitespace.",
+        "original 36: trailing whitespace.",
+        "original 38: trailing whitespace.",
+        "original 47: trailing whitespace.",
+        "original 48: trailing whitespace.",
+        "original 50: trailing whitespace.",
+        "original 51: trailing whitespace."
+      ],
+      "git_no_index_check_exit": 3,
+      "git_no_index_check_stdout": "/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:31: trailing whitespace.\n+    personal_settings_web_test.go:26: \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:33: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:35: trailing whitespace.\n+        \u001b\u001b[1A\u001b\u001b[2K  1) e2e/personal-settings.spec.ts:327:1 › [profile] current profile, exact final inputs and three real static avatar formats \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:36: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:38: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:47: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:48: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:50: trailing whitespace.\n+            e2e/personal-settings.spec.ts:327:1 › [profile] current profile, exact final inputs and three real static avatar formats \n/workspace/agenteam/docs/development/agent-team/project-owner-ui-recovered-old16batch01-verification-evidence/originals/runs/oldprofile01/raw.log:51: trailing whitespace.\n+        \n"
+    }
+  ]
+}

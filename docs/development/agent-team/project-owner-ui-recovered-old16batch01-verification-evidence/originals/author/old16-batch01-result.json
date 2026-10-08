@@ -1,0 +1,342 @@
+{
+  "all_executed_ids_double_absent": true,
+  "all_executed_rounds_retired": true,
+  "asset_ownership": "root may restore original3 after this full actual retirement; post-round asset restoration must not be labeled in-round input drift",
+  "authorization": {
+    "path": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/freeze.root-old16batch01.json",
+    "sha256": "332a391ee12bf8f4142242363ce8e725e2683b8358013814b74361f340f818c5"
+  },
+  "current_resources_or_background_readers": false,
+  "driver_failure_guard": "v04 now contains failed oldprofile01; no further round, new version, retry, source/driver/budget change authorized",
+  "executed_rounds": [
+    {
+      "adopted_actual_waits": 4,
+      "all_retirement_and_input_conditions_complete": true,
+      "browser": [
+        "1 passed (5.0s)"
+      ],
+      "cleanup_sha256": "332ed98bbe765bbc19fc4e89c768eb28b5dfae2ce2765c32b98a5dda2fa88c04",
+      "command_seconds": 53.563,
+      "exact_resource_ids": [
+        "07a76d0f41b7a9d001d20d9bb12f227997b69f03adbe8d1d3c9729c6ba80ba07",
+        "1342dd0c86f9d4ca07c4af87d329df7b04a3bc7ada39654a9af9dde6c4bcc192",
+        "453f2512e869ef00f4d314a1c20276d8c41dc9e2b861885b032ce1f6edefbbba",
+        "465ae1ee63d389099e1f26cbe092f74143271157950247fcffe613d4b676a745",
+        "90f2ea641804e8c97cf3b8b76bbe77d1f4e6b1c740f9a383c596813632017d2a",
+        "9ab160f14b433da17eee13f0fb044bccb98605731bc41433a4792e2f90dabe91",
+        "e7aa84815e90f51502fcb260cbd8ea64b8a9ddc6a4c061f83baf2110b3f6fa1c"
+      ],
+      "exact_top": "TestAccountAuthenticationWebSessionLifecycle",
+      "group": "old-auth-lifecycle",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldauthlife01-handoff.json",
+        "sha256": "b05e9b210940f9215180afc5cadcc21111f636be9e48c59de09f9d8c41716f2d"
+      },
+      "order": 1,
+      "outer_exit": 0,
+      "raw_sha256": "3f39071bbb502e63e6692dd92d7170cc84165dc16c8a99cfd64d3b97c233485a",
+      "reported_top_seconds": 7.6,
+      "result_sha256": "5a102bf6a0fd847d5b142cd205cc045baa3787e75adb199987bc5c116305b533",
+      "round": "oldauthlife01",
+      "run_files": 24,
+      "state": "PASS",
+      "tcp_tail_seconds": 39.394405484001254
+    },
+    {
+      "adopted_actual_waits": 8,
+      "all_retirement_and_input_conditions_complete": true,
+      "browser": [
+        "1 passed (4.4s)",
+        "1 passed (3.1s)"
+      ],
+      "cleanup_sha256": "55ebb1abead2e30cbc8ab8d36a1926cf0fb05cdfc243247b2db68d0a97a8660b",
+      "command_seconds": 64.721,
+      "exact_resource_ids": [
+        "03af965b681b6ca53fe9ab20f03071cd6af8c6410e6dce9365c9fa37b628a12a",
+        "47ce1713a397da14e7ccaede757be454486aface25e682fa1cdf5fab730c3bdf",
+        "6d05b695a65e6370985fe9da1e8a58a35e60f50af30c73df8523bb987ac862db",
+        "83c8878cc214bdc64dea44a8a002731325383935ce9b931551b5ac5eaade814b",
+        "aaee234593b1a7955eae8a785a0190bd78ecf59775a208d4698759d49efaedb8",
+        "fa737ee41a0cd9f2988f9ba5ab0a62f885b4fb36a9dc58057f48cdb6205b6e67",
+        "fbdc8ba4cae41435a5a4ec1c1dca0228d4a9b650fa9d35eff664234b33fe9f6e"
+      ],
+      "exact_top": "TestAccountAuthenticationWebRevocationAndExpiry",
+      "group": "old-auth-revocation",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldauthrevoke01-handoff.json",
+        "sha256": "bf29f927fbcebe862ef1d181a3abf7836ddb34115e9fae845e12625e9e4fd30d"
+      },
+      "order": 2,
+      "outer_exit": 0,
+      "raw_sha256": "bd0e1d747b3627393195ae04d30e7a4fbe09ba672a4e1a1d0a68173dcba2e80f",
+      "reported_top_seconds": 12.42,
+      "result_sha256": "05d229158a13ff5ab618e209c9d6ab5fe3cb04f33ea395f52ed0d42d42546088",
+      "round": "oldauthrevoke01",
+      "run_files": 24,
+      "state": "PASS",
+      "tcp_tail_seconds": 37.384781926999494
+    },
+    {
+      "adopted_actual_waits": 4,
+      "all_retirement_and_input_conditions_complete": true,
+      "browser": [
+        "1 failed"
+      ],
+      "cleanup_sha256": "3e73c313935eeec537f855a0e29a65c5b1619d3286843d96aa399b34a457c79a",
+      "command_seconds": 58.746,
+      "exact_resource_ids": [
+        "538c9e660930a2084852c331377ea699b228a6e2090ccf82c58809cc7b50731e",
+        "5858b4564d3fd0afffecb5cf4bb894dd08a86b238012d11778b2ab61d5e9b376",
+        "5dfae72bc869d814e0fdc2235d5b8e403300c01ecd7e26aec8dc93639a8589a0",
+        "6c615891246bc5967f979bfbbb7a5ad1085a0a6687ce676eec2454ba8a4d234f",
+        "9703213da2d518f5cfd36769d489d9c9ddd44119f0808e1882ddcd0dbe248274",
+        "9b11c8d329816d26aace6b470bca1b9e27916ac75ada4163f386c96338dcb34b",
+        "a0b02ffbb3735169bb70797098af2b87f3329ad332890a59d28fa37044c7770d"
+      ],
+      "exact_top": "TestAccountPersonalSettingsWebProfileAndAvatar",
+      "group": "old-personal-profile",
+      "handoff": {
+        "path": "/workspace/scratch/owner-ui-backend/oldprofile01-handoff.json",
+        "sha256": "765738c021c959007202a2c7ce65195932962d81ca0f4b43ab28e42d1d189d95"
+      },
+      "order": 3,
+      "outer_exit": 1,
+      "raw_sha256": "2d8dec1e104b2c11e333f63f191e923ef0d25589d8b5c723db1f6fea5568ee69",
+      "reported_top_seconds": 8.54,
+      "result_sha256": "1c7defd5344b5bfc2c1cffc081f818c84457b8a5f2aeff745d43594734b13356",
+      "round": "oldprofile01",
+      "run_files": 24,
+      "state": "FAIL",
+      "tcp_tail_seconds": 38.39937690000079
+    }
+  ],
+  "failure": {
+    "column": 27,
+    "line": 441,
+    "operation": "await duplicate.json() before field_errors assertion",
+    "original_error": "response.json: Protocol error (Network.getResponseBody): No data found for resource with given identifier",
+    "original_file": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+    "reached_boundary": "original profile browser case reached reading duplicate username response body; body read threw before the field_errors /username ALREADY_EXISTS assertion completed",
+    "root_cause": "not determined here; original error preserved for independent review, not assigned to product or legacy-test implementation",
+    "round": "oldprofile01",
+    "uncompleted": "that assertion and following profile/avatar steps; final browser result and Go profile/avatar final facts were not completed"
+  },
+  "independent_review": "pending for this failed batch; author originals only",
+  "legacy_validation_boundaries": [
+    "lifecycle: original actual login/refresh/Session CSRF/logout assertions; audit count2 logged by original Go test",
+    "revocation: real password change; expiry: one owned Session expiry row moved into past before real GET/router observation, not natural-time waiting",
+    "profile: browser response body retrieval failed; no completed final profile/avatar facts",
+    "no Project schema/client count was borrowed, no additional legacy schema or independent dynamic test executed"
+  ],
+  "new_nonowned_unwaited_pid1_shims": [
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 241473,
+      "ppid": 1,
+      "starttime": "1336470",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 241826,
+      "ppid": 1,
+      "starttime": "1336713",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 242193,
+      "ppid": 1,
+      "starttime": "1336933",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 242793,
+      "ppid": 1,
+      "starttime": "1337112",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 250910,
+      "ppid": 1,
+      "starttime": "1358990",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 251365,
+      "ppid": 1,
+      "starttime": "1359406",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 251733,
+      "ppid": 1,
+      "starttime": "1359626",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 252356,
+      "ppid": 1,
+      "starttime": "1359839",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 260608,
+      "ppid": 1,
+      "starttime": "1375727",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 260964,
+      "ppid": 1,
+      "starttime": "1375974",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 261314,
+      "ppid": 1,
+      "starttime": "1376181",
+      "state": "Z"
+    },
+    {
+      "executable": "",
+      "name": "containerd-shim",
+      "pid": 262053,
+      "ppid": 1,
+      "starttime": "1376578",
+      "state": "Z"
+    }
+  ],
+  "not_run": [
+    {
+      "exact_top": "TestAccountPersonalSettingsWebThemeAndNavigation",
+      "group": "old-personal-theme",
+      "order": 4,
+      "run_name": "oldtheme01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountPersonalSettingsWebPasswordRotation",
+      "group": "old-personal-password",
+      "order": 5,
+      "run_name": "oldpassword01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemInvitationsWebOutcomeRecovery",
+      "group": "old-invitations",
+      "order": 6,
+      "run_name": "oldinvite01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemProvidersWebCredentialReplacement",
+      "group": "old-providers",
+      "order": 7,
+      "run_name": "oldproviders01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemModelsWebOutcomeRecovery",
+      "group": "old-models",
+      "order": 8,
+      "run_name": "oldmodels01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemModelSelectionWebOutcomeRecovery",
+      "group": "old-selection",
+      "order": 9,
+      "run_name": "oldselection01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemMeetingSummaryWebRecovery",
+      "group": "old-summary-recovery",
+      "order": 10,
+      "run_name": "oldsummaryrec01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemMeetingSummaryWebAuthorityNavigation",
+      "group": "old-summary-authority",
+      "order": 11,
+      "run_name": "oldsummarynav01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemAccountSecurityWebOutcomeRecovery",
+      "group": "old-account-security",
+      "order": 12,
+      "run_name": "oldaccountsec01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemSMTPSettingsWebOutcomeRecovery",
+      "group": "old-smtp-settings",
+      "order": 13,
+      "run_name": "oldsmtpsettings01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemSMTPDeliveryWebTestAndRetry",
+      "group": "old-smtp-delivery",
+      "order": 14,
+      "run_name": "oldsmtpdelivery01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemOutboundPolicyWebMutationAndRecovery",
+      "group": "old-outbound-policy",
+      "order": 15,
+      "run_name": "oldoutbound01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountPublicEntryWebIdentityNavigation",
+      "group": "old-public-entry",
+      "order": 16,
+      "run_name": "oldpublic01",
+      "state": "NOT_RUN"
+    }
+  ],
+  "owned_runtime_tcp_double_clear": true,
+  "planned114_is_not_actual_result": true,
+  "preparation": {
+    "path": "/workspace/scratch/owner-ui-backend/old16-batch01/handoff.json",
+    "sha256": "ecfabc5ebfa2d301bd96abfd5eae90bea1a7b6c37d6be354655c74c2d01c50f5"
+  },
+  "sources_and_verification_inputs_same_within_and_between_rounds": true,
+  "status": "OLD16_BATCH01_STOP_2PASS_1FAIL_13NOT_RUN_FULLY_RETIRED",
+  "summary_counts": {
+    "FAIL": 1,
+    "NOT_RUN": 13,
+    "PASS": 2,
+    "actual_adopted_waits": 16,
+    "actual_direct_waits": 3,
+    "actual_distinct_resource_ids": 21,
+    "launch_raw_files": 3,
+    "new_nonowned_unwaited_pid1_shims": 12,
+    "run_original_files": 72,
+    "watchdog_actual_joins": 3
+  }
+}

@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+当前永久归档（2026-10-08）：旧16首批永久档已root核104逻辑/65指纹/48Git，原2PASS/1FAIL/13未跑与3轮21ID/3direct16adopted退役独核保持。窄legacy补丁2处source候选a0fede；格式唯一提示原helper169旧行，formatter仅改该无关行后已恢复，原v1 FAIL/v2输出均留，root授v3仅显式TS检查，source未接受/资源未授。原3恢复，实际A/B/README22/完整D27未验，详台账，生产/三停止保持。
+
+当前窄修授权（2026-10-08）：oldprofile01归因限定CDP取body阶段失败/原400已匹配，正文和后续UI/facts未证。独审与作者诊断一致最小必要额外legacy单路径personal-settings.spec.ts，root已授仅PATCH/me400 target+duplicate取值复用现有settingsJSONFor，全部断言/预算不变；不扩原24卡接受/不称产品PASS。作者有限格式/type后STOP独审，资源未授；原3恢复，旧16后13/A-B/README22/full未验，详台账，生产/三停止保持。
+
 当前归档（2026-10-08）：nextnew01三成功轮永久档已root核207逻辑原件/164指纹/42Git，新增161实体1759266 bytes、21共同实体复用；8图逻辑映射7PNG原实体，schema52/client27与有限视觉/退役独核接受。旧16原2PASS/第3FAIL/13未跑待独审，原3已恢复，无当前资源；实际A/B/README22/完整D27未接受，详台账，生产与三停止保持。
 
 当前故障终局（2026-10-08）：旧16首批前2 PASS，第3oldprofile01在旧browser duplicate.json()读取400正文时Protocol error FAIL，后13未跑。三轮已完全退役，21ID/3direct16adopted/ownedruntimeTCP双清/input同，root恢复原3；无当前窗口。原FAIL待独审归因，不预定产品/测试原因，不重试/改预算。独立A/B仅false准备，完整D27/README22未接受；生产与三停止保持，详台账。

@@ -1,0 +1,930 @@
+{
+  "status": "OLDPROFILE01_FAIL_PRESERVED_OLD_FIRST2_AUTHOR_PASS_AND_ALL3_OWNED_RETIREMENT_INDEPENDENT_REVIEW_PASS",
+  "scope": "Frozen original review only; no resource/test/check/probe rerun.",
+  "rounds": [
+    {
+      "round": "oldauthlife01",
+      "state": "PASS",
+      "run_originals": 24,
+      "run_bytes": 240998,
+      "all_run_and_launch_sha_bytes_match": true,
+      "direct": {
+        "pid": 241248,
+        "pid_starttime": "1336254",
+        "started_utc": "2026-10-08T07:11:27.820251+00:00",
+        "ended_utc": "2026-10-08T07:12:21.383102+00:00",
+        "exit": 0,
+        "seconds": 53.563,
+        "actual_wait_completed": true,
+        "watchdog_thread_joined": true
+      },
+      "browser": [
+        "1 passed (5.0s)"
+      ],
+      "adopted": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 245364,
+          "starttime": "1339050",
+          "time": "2026-10-08T07:12:00.054365+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 245367,
+          "starttime": "1339050",
+          "time": "2026-10-08T07:12:00.054388+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 245368,
+          "starttime": "1339050",
+          "time": "2026-10-08T07:12:00.054406+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 245370,
+          "starttime": "1339050",
+          "time": "2026-10-08T07:12:00.054422+00:00"
+        }
+      ],
+      "resource_ids": [
+        "07a76d0f41b7a9d001d20d9bb12f227997b69f03adbe8d1d3c9729c6ba80ba07",
+        "1342dd0c86f9d4ca07c4af87d329df7b04a3bc7ada39654a9af9dde6c4bcc192",
+        "453f2512e869ef00f4d314a1c20276d8c41dc9e2b861885b032ce1f6edefbbba",
+        "465ae1ee63d389099e1f26cbe092f74143271157950247fcffe613d4b676a745",
+        "90f2ea641804e8c97cf3b8b76bbe77d1f4e6b1c740f9a383c596813632017d2a",
+        "9ab160f14b433da17eee13f0fb044bccb98605731bc41433a4792e2f90dabe91",
+        "e7aa84815e90f51502fcb260cbd8ea64b8a9ddc6a4c061f83baf2110b3f6fa1c"
+      ],
+      "cleanup": [
+        {
+          "baseline_unchanged": true,
+          "browser_runtime_entries": [],
+          "exact_absent": {
+            "07a76d0f41b7a9d001d20d9bb12f227997b69f03adbe8d1d3c9729c6ba80ba07": {
+              "absent": true
+            },
+            "1342dd0c86f9d4ca07c4af87d329df7b04a3bc7ada39654a9af9dde6c4bcc192": {
+              "absent": true
+            },
+            "453f2512e869ef00f4d314a1c20276d8c41dc9e2b861885b032ce1f6edefbbba": {
+              "absent": true
+            },
+            "465ae1ee63d389099e1f26cbe092f74143271157950247fcffe613d4b676a745": {
+              "absent": true
+            },
+            "90f2ea641804e8c97cf3b8b76bbe77d1f4e6b1c740f9a383c596813632017d2a": {
+              "absent": true
+            },
+            "9ab160f14b433da17eee13f0fb044bccb98605731bc41433a4792e2f90dabe91": {
+              "absent": true
+            },
+            "e7aa84815e90f51502fcb260cbd8ea64b8a9ddc6a4c061f83baf2110b3f6fa1c": {
+              "absent": true
+            }
+          },
+          "owned_processes": [],
+          "remaining_new": [],
+          "runtime_entries": [],
+          "time": "2026-10-08T07:12:21.568483+00:00"
+        },
+        {
+          "baseline_unchanged": true,
+          "browser_runtime_entries": [],
+          "exact_absent": {
+            "07a76d0f41b7a9d001d20d9bb12f227997b69f03adbe8d1d3c9729c6ba80ba07": {
+              "absent": true
+            },
+            "1342dd0c86f9d4ca07c4af87d329df7b04a3bc7ada39654a9af9dde6c4bcc192": {
+              "absent": true
+            },
+            "453f2512e869ef00f4d314a1c20276d8c41dc9e2b861885b032ce1f6edefbbba": {
+              "absent": true
+            },
+            "465ae1ee63d389099e1f26cbe092f74143271157950247fcffe613d4b676a745": {
+              "absent": true
+            },
+            "90f2ea641804e8c97cf3b8b76bbe77d1f4e6b1c740f9a383c596813632017d2a": {
+              "absent": true
+            },
+            "9ab160f14b433da17eee13f0fb044bccb98605731bc41433a4792e2f90dabe91": {
+              "absent": true
+            },
+            "e7aa84815e90f51502fcb260cbd8ea64b8a9ddc6a4c061f83baf2110b3f6fa1c": {
+              "absent": true
+            }
+          },
+          "owned_processes": [],
+          "remaining_new": [],
+          "runtime_entries": [],
+          "time": "2026-10-08T07:12:22.254329+00:00"
+        }
+      ],
+      "tcp_seconds": 39.394405484001254,
+      "tcp_final_two": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T07:13:01.947070+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T07:13:02.150733+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 241473,
+          "ppid": 1,
+          "starttime": "1336470",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 241826,
+          "ppid": 1,
+          "starttime": "1336713",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 242193,
+          "ppid": 1,
+          "starttime": "1336933",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 242793,
+          "ppid": 1,
+          "starttime": "1337112",
+          "state": "Z"
+        }
+      ],
+      "source_inputs_same": true,
+      "no_persisted_safe_bodies": true,
+      "refs": [
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/raw.log",
+          "bytes": 4109,
+          "sha256": "3f39071bbb502e63e6692dd92d7170cc84165dc16c8a99cfd64d3b97c233485a"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/result.json",
+          "bytes": 10890,
+          "sha256": "5a102bf6a0fd847d5b142cd205cc045baa3787e75adb199987bc5c116305b533"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/command.json",
+          "bytes": 2622,
+          "sha256": "09ba46d4b792c5c17fe61da472f8cf63c26e60bc8a20003c776872ec53982cb4"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/adopted-waits.json",
+          "bytes": 575,
+          "sha256": "a4d3f509486cfe9860214a3ec7941b952ba957972153a176807cacbbb99ab737"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/cleanup.json",
+          "bytes": 21769,
+          "sha256": "332ed98bbe765bbc19fc4e89c768eb28b5dfae2ce2765c32b98a5dda2fa88c04"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/tcp-tail-observation.json",
+          "bytes": 73734,
+          "sha256": "acc4e696d46bca95ab3830398e52c42e01ee5a89b8fa5d73a7dc5550d9793fcc"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/input-before.json",
+          "bytes": 815,
+          "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/input-after.json",
+          "bytes": 815,
+          "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/watchdog.json",
+          "bytes": 538,
+          "sha256": "c1e4e20b246c76a3b2f81513d4d90e293e64b857592a44ae327a11f0aaab7188"
+        }
+      ]
+    },
+    {
+      "round": "oldauthrevoke01",
+      "state": "PASS",
+      "run_originals": 24,
+      "run_bytes": 335581,
+      "all_run_and_launch_sha_bytes_match": true,
+      "direct": {
+        "pid": 250475,
+        "pid_starttime": "1358509",
+        "started_utc": "2026-10-08T07:15:10.369423+00:00",
+        "ended_utc": "2026-10-08T07:16:15.090351+00:00",
+        "exit": 0,
+        "seconds": 64.721,
+        "actual_wait_completed": true,
+        "watchdog_thread_joined": true
+      },
+      "browser": [
+        "1 passed (4.4s)",
+        "1 passed (3.1s)"
+      ],
+      "adopted": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 255104,
+          "starttime": "1361860",
+          "time": "2026-10-08T07:15:47.579404+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 255107,
+          "starttime": "1361860",
+          "time": "2026-10-08T07:15:47.579426+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 255109,
+          "starttime": "1361860",
+          "time": "2026-10-08T07:15:47.579441+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 255110,
+          "starttime": "1361860",
+          "time": "2026-10-08T07:15:47.579458+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 255957,
+          "starttime": "1362534",
+          "time": "2026-10-08T07:15:52.950444+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 255959,
+          "starttime": "1362534",
+          "time": "2026-10-08T07:15:52.950466+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 255962,
+          "starttime": "1362534",
+          "time": "2026-10-08T07:15:52.950496+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 255963,
+          "starttime": "1362534",
+          "time": "2026-10-08T07:15:52.950520+00:00"
+        }
+      ],
+      "resource_ids": [
+        "03af965b681b6ca53fe9ab20f03071cd6af8c6410e6dce9365c9fa37b628a12a",
+        "47ce1713a397da14e7ccaede757be454486aface25e682fa1cdf5fab730c3bdf",
+        "6d05b695a65e6370985fe9da1e8a58a35e60f50af30c73df8523bb987ac862db",
+        "83c8878cc214bdc64dea44a8a002731325383935ce9b931551b5ac5eaade814b",
+        "aaee234593b1a7955eae8a785a0190bd78ecf59775a208d4698759d49efaedb8",
+        "fa737ee41a0cd9f2988f9ba5ab0a62f885b4fb36a9dc58057f48cdb6205b6e67",
+        "fbdc8ba4cae41435a5a4ec1c1dca0228d4a9b650fa9d35eff664234b33fe9f6e"
+      ],
+      "cleanup": [
+        {
+          "baseline_unchanged": true,
+          "browser_runtime_entries": [],
+          "exact_absent": {
+            "03af965b681b6ca53fe9ab20f03071cd6af8c6410e6dce9365c9fa37b628a12a": {
+              "absent": true
+            },
+            "47ce1713a397da14e7ccaede757be454486aface25e682fa1cdf5fab730c3bdf": {
+              "absent": true
+            },
+            "6d05b695a65e6370985fe9da1e8a58a35e60f50af30c73df8523bb987ac862db": {
+              "absent": true
+            },
+            "83c8878cc214bdc64dea44a8a002731325383935ce9b931551b5ac5eaade814b": {
+              "absent": true
+            },
+            "aaee234593b1a7955eae8a785a0190bd78ecf59775a208d4698759d49efaedb8": {
+              "absent": true
+            },
+            "fa737ee41a0cd9f2988f9ba5ab0a62f885b4fb36a9dc58057f48cdb6205b6e67": {
+              "absent": true
+            },
+            "fbdc8ba4cae41435a5a4ec1c1dca0228d4a9b650fa9d35eff664234b33fe9f6e": {
+              "absent": true
+            }
+          },
+          "owned_processes": [],
+          "remaining_new": [],
+          "runtime_entries": [],
+          "time": "2026-10-08T07:16:15.283947+00:00"
+        },
+        {
+          "baseline_unchanged": true,
+          "browser_runtime_entries": [],
+          "exact_absent": {
+            "03af965b681b6ca53fe9ab20f03071cd6af8c6410e6dce9365c9fa37b628a12a": {
+              "absent": true
+            },
+            "47ce1713a397da14e7ccaede757be454486aface25e682fa1cdf5fab730c3bdf": {
+              "absent": true
+            },
+            "6d05b695a65e6370985fe9da1e8a58a35e60f50af30c73df8523bb987ac862db": {
+              "absent": true
+            },
+            "83c8878cc214bdc64dea44a8a002731325383935ce9b931551b5ac5eaade814b": {
+              "absent": true
+            },
+            "aaee234593b1a7955eae8a785a0190bd78ecf59775a208d4698759d49efaedb8": {
+              "absent": true
+            },
+            "fa737ee41a0cd9f2988f9ba5ab0a62f885b4fb36a9dc58057f48cdb6205b6e67": {
+              "absent": true
+            },
+            "fbdc8ba4cae41435a5a4ec1c1dca0228d4a9b650fa9d35eff664234b33fe9f6e": {
+              "absent": true
+            }
+          },
+          "owned_processes": [],
+          "remaining_new": [],
+          "runtime_entries": [],
+          "time": "2026-10-08T07:16:15.946911+00:00"
+        }
+      ],
+      "tcp_seconds": 37.384781926999494,
+      "tcp_final_two": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T07:16:53.630573+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T07:16:53.834427+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 250910,
+          "ppid": 1,
+          "starttime": "1358990",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 251365,
+          "ppid": 1,
+          "starttime": "1359406",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 251733,
+          "ppid": 1,
+          "starttime": "1359626",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 252356,
+          "ppid": 1,
+          "starttime": "1359839",
+          "state": "Z"
+        }
+      ],
+      "source_inputs_same": true,
+      "no_persisted_safe_bodies": true,
+      "refs": [
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/raw.log",
+          "bytes": 5027,
+          "sha256": "bd0e1d747b3627393195ae04d30e7a4fbe09ba672a4e1a1d0a68173dcba2e80f"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/result.json",
+          "bytes": 11531,
+          "sha256": "05d229158a13ff5ab618e209c9d6ab5fe3cb04f33ea395f52ed0d42d42546088"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/command.json",
+          "bytes": 2635,
+          "sha256": "6c145464fcefff15cd16af264b46226e6ea3cd2b5bf446f87853a18bd7369799"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/adopted-waits.json",
+          "bytes": 1147,
+          "sha256": "59823a23146512b29324d9a8ad912d59315758bc38c6fe814e193368f7774c79"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/cleanup.json",
+          "bytes": 23153,
+          "sha256": "55ebb1abead2e30cbc8ab8d36a1926cf0fb05cdfc243247b2db68d0a97a8660b"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/tcp-tail-observation.json",
+          "bytes": 155074,
+          "sha256": "bc850220179133391939c516b0932fe3495185d502c2eff0fcb5f8fb0d4c91a3"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/input-before.json",
+          "bytes": 815,
+          "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/input-after.json",
+          "bytes": 815,
+          "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/watchdog.json",
+          "bytes": 550,
+          "sha256": "74d211bd9899f258734bf72702215f0a443e075f33df3ad0518dec0d3937090b"
+        }
+      ]
+    },
+    {
+      "round": "oldprofile01",
+      "state": "FAIL",
+      "run_originals": 24,
+      "run_bytes": 324196,
+      "all_run_and_launch_sha_bytes_match": true,
+      "direct": {
+        "pid": 260240,
+        "pid_starttime": "1375349",
+        "started_utc": "2026-10-08T07:17:58.772437+00:00",
+        "ended_utc": "2026-10-08T07:18:57.518945+00:00",
+        "exit": 1,
+        "seconds": 58.746,
+        "actual_wait_completed": true,
+        "watchdog_thread_joined": true
+      },
+      "browser": [
+        "1 failed"
+      ],
+      "adopted": [
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 264866,
+          "starttime": "1378863",
+          "time": "2026-10-08T07:18:36.266914+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 264869,
+          "starttime": "1378863",
+          "time": "2026-10-08T07:18:36.266937+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 264870,
+          "starttime": "1378863",
+          "time": "2026-10-08T07:18:36.266954+00:00"
+        },
+        {
+          "actual_wait": true,
+          "exit": 0,
+          "pid": 264871,
+          "starttime": "1378863",
+          "time": "2026-10-08T07:18:36.266968+00:00"
+        }
+      ],
+      "resource_ids": [
+        "538c9e660930a2084852c331377ea699b228a6e2090ccf82c58809cc7b50731e",
+        "5858b4564d3fd0afffecb5cf4bb894dd08a86b238012d11778b2ab61d5e9b376",
+        "5dfae72bc869d814e0fdc2235d5b8e403300c01ecd7e26aec8dc93639a8589a0",
+        "6c615891246bc5967f979bfbbb7a5ad1085a0a6687ce676eec2454ba8a4d234f",
+        "9703213da2d518f5cfd36769d489d9c9ddd44119f0808e1882ddcd0dbe248274",
+        "9b11c8d329816d26aace6b470bca1b9e27916ac75ada4163f386c96338dcb34b",
+        "a0b02ffbb3735169bb70797098af2b87f3329ad332890a59d28fa37044c7770d"
+      ],
+      "cleanup": [
+        {
+          "baseline_unchanged": true,
+          "browser_runtime_entries": [],
+          "exact_absent": {
+            "538c9e660930a2084852c331377ea699b228a6e2090ccf82c58809cc7b50731e": {
+              "absent": true
+            },
+            "5858b4564d3fd0afffecb5cf4bb894dd08a86b238012d11778b2ab61d5e9b376": {
+              "absent": true
+            },
+            "5dfae72bc869d814e0fdc2235d5b8e403300c01ecd7e26aec8dc93639a8589a0": {
+              "absent": true
+            },
+            "6c615891246bc5967f979bfbbb7a5ad1085a0a6687ce676eec2454ba8a4d234f": {
+              "absent": true
+            },
+            "9703213da2d518f5cfd36769d489d9c9ddd44119f0808e1882ddcd0dbe248274": {
+              "absent": true
+            },
+            "9b11c8d329816d26aace6b470bca1b9e27916ac75ada4163f386c96338dcb34b": {
+              "absent": true
+            },
+            "a0b02ffbb3735169bb70797098af2b87f3329ad332890a59d28fa37044c7770d": {
+              "absent": true
+            }
+          },
+          "owned_processes": [],
+          "remaining_new": [],
+          "runtime_entries": [],
+          "time": "2026-10-08T07:18:57.719434+00:00"
+        },
+        {
+          "baseline_unchanged": true,
+          "browser_runtime_entries": [],
+          "exact_absent": {
+            "538c9e660930a2084852c331377ea699b228a6e2090ccf82c58809cc7b50731e": {
+              "absent": true
+            },
+            "5858b4564d3fd0afffecb5cf4bb894dd08a86b238012d11778b2ab61d5e9b376": {
+              "absent": true
+            },
+            "5dfae72bc869d814e0fdc2235d5b8e403300c01ecd7e26aec8dc93639a8589a0": {
+              "absent": true
+            },
+            "6c615891246bc5967f979bfbbb7a5ad1085a0a6687ce676eec2454ba8a4d234f": {
+              "absent": true
+            },
+            "9703213da2d518f5cfd36769d489d9c9ddd44119f0808e1882ddcd0dbe248274": {
+              "absent": true
+            },
+            "9b11c8d329816d26aace6b470bca1b9e27916ac75ada4163f386c96338dcb34b": {
+              "absent": true
+            },
+            "a0b02ffbb3735169bb70797098af2b87f3329ad332890a59d28fa37044c7770d": {
+              "absent": true
+            }
+          },
+          "owned_processes": [],
+          "remaining_new": [],
+          "runtime_entries": [],
+          "time": "2026-10-08T07:18:58.392809+00:00"
+        }
+      ],
+      "tcp_seconds": 38.39937690000079,
+      "tcp_final_two": [
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T07:19:37.090781+00:00",
+          "time_wait_rows": []
+        },
+        {
+          "active_rows": [],
+          "new_host_rows": [],
+          "time": "2026-10-08T07:19:37.294799+00:00",
+          "time_wait_rows": []
+        }
+      ],
+      "nonowned_not_waited": [
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 260608,
+          "ppid": 1,
+          "starttime": "1375727",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 260964,
+          "ppid": 1,
+          "starttime": "1375974",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 261314,
+          "ppid": 1,
+          "starttime": "1376181",
+          "state": "Z"
+        },
+        {
+          "executable": "",
+          "name": "containerd-shim",
+          "pid": 262053,
+          "ppid": 1,
+          "starttime": "1376578",
+          "state": "Z"
+        }
+      ],
+      "source_inputs_same": true,
+      "no_persisted_safe_bodies": true,
+      "refs": [
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/raw.log",
+          "bytes": 4891,
+          "sha256": "2d8dec1e104b2c11e333f63f191e923ef0d25589d8b5c723db1f6fea5568ee69"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/result.json",
+          "bytes": 12144,
+          "sha256": "1c7defd5344b5bfc2c1cffc081f818c84457b8a5f2aeff745d43594734b13356"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/command.json",
+          "bytes": 2619,
+          "sha256": "21b4f76a9bb7ae4259c37afec5f6c973a91bc6b9a31b2fc633a273aebacee251"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/adopted-waits.json",
+          "bytes": 575,
+          "sha256": "67ad6e1916eeb0dae8e8b3cc054888837259b666403e1719a931fdf3b89c3a03"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/cleanup.json",
+          "bytes": 24537,
+          "sha256": "3e73c313935eeec537f855a0e29a65c5b1619d3286843d96aa399b34a457c79a"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/tcp-tail-observation.json",
+          "bytes": 147499,
+          "sha256": "41790a4b40c982b509455b4fa8396eed5fe32d41f92e02e1268175621ded111a"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/input-before.json",
+          "bytes": 815,
+          "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/input-after.json",
+          "bytes": 815,
+          "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+        },
+        {
+          "path": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/watchdog.json",
+          "bytes": 545,
+          "sha256": "5964d763974ff3fb3eca031c90a6b8457bd701c1d2d76680265edec7fc71e54a"
+        }
+      ]
+    }
+  ],
+  "batch": {
+    "states": [
+      "PASS",
+      "PASS",
+      "FAIL"
+    ],
+    "remaining_not_run": [
+      {
+        "exact_top": "TestAccountPersonalSettingsWebThemeAndNavigation",
+        "group": "old-personal-theme",
+        "order": 4,
+        "run_name": "oldtheme01",
+        "state": "NOT_RUN"
+      },
+      {
+        "exact_top": "TestAccountPersonalSettingsWebPasswordRotation",
+        "group": "old-personal-password",
+        "order": 5,
+        "run_name": "oldpassword01",
+        "state": "NOT_RUN"
+      },
+      {
+        "exact_top": "TestAccountSystemInvitationsWebOutcomeRecovery",
+        "group": "old-invitations",
+        "order": 6,
+        "run_name": "oldinvite01",
+        "state": "NOT_RUN"
+      },
+      {
+        "exact_top": "TestAccountSystemProvidersWebCredentialReplacement",
+        "group": "old-providers",
+        "order": 7,
+        "run_name": "oldproviders01",
+        "state": "NOT_RUN"
+      },
+      {
+        "exact_top": "TestAccountSystemModelsWebOutcomeRecovery",
+        "group": "old-models",
+        "order": 8,
+        "run_name": "oldmodels01",
+        "state": "NOT_RUN"
+      },
+      {
+        "exact_top": "TestAccountSystemModelSelectionWebOutcomeRecovery",
+        "group": "old-selection",
+        "order": 9,
+        "run_name": "oldselection01",
+        "state": "NOT_RUN"
+      },
+      {
+        "exact_top": "TestAccountSystemMeetingSummaryWebRecovery",
+        "group": "old-summary-recovery",
+        "order": 10,
+        "run_name": "oldsummaryrec01",
+        "state": "NOT_RUN"
+      },
+      {
+        "exact_top": "TestAccountSystemMeetingSummaryWebAuthorityNavigation",
+        "group": "old-summary-authority",
+        "order": 11,
+        "run_name": "oldsummarynav01",
+        "state": "NOT_RUN"
+      },
+      {
+        "exact_top": "TestAccountSystemAccountSecurityWebOutcomeRecovery",
+        "group": "old-account-security",
+        "order": 12,
+        "run_name": "oldaccountsec01",
+        "state": "NOT_RUN"
+      },
+      {
+        "exact_top": "TestAccountSystemSMTPSettingsWebOutcomeRecovery",
+        "group": "old-smtp-settings",
+        "order": 13,
+        "run_name": "oldsmtpsettings01",
+        "state": "NOT_RUN"
+      },
+      {
+        "exact_top": "TestAccountSystemSMTPDeliveryWebTestAndRetry",
+        "group": "old-smtp-delivery",
+        "order": 14,
+        "run_name": "oldsmtpdelivery01",
+        "state": "NOT_RUN"
+      },
+      {
+        "exact_top": "TestAccountSystemOutboundPolicyWebMutationAndRecovery",
+        "group": "old-outbound-policy",
+        "order": 15,
+        "run_name": "oldoutbound01",
+        "state": "NOT_RUN"
+      },
+      {
+        "exact_top": "TestAccountPublicEntryWebIdentityNavigation",
+        "group": "old-public-entry",
+        "order": 16,
+        "run_name": "oldpublic01",
+        "state": "NOT_RUN"
+      }
+    ],
+    "distinct_resource_ids": 21,
+    "actual_direct_waits": 3,
+    "actual_adopted_waits": 16,
+    "adopted_distribution": [
+      4,
+      8,
+      4
+    ],
+    "new_nonowned_unwaited_shims": 12,
+    "all_Docker_baselines_equal": true,
+    "all_six_input_hashes_equal": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932",
+    "ordered_start_after_prior_tcp_clear": true,
+    "last_tcp_clear": "2026-10-08T07:19:37.294799+00:00",
+    "root_restore_utc": "2026-10-08T07:21:10.668955+00:00",
+    "original3_restore_exact_and_after_retirement": true
+  },
+  "failure": {
+    "line": 441,
+    "column": 27,
+    "operation": "Playwright Response.json / CDP Network.getResponseBody",
+    "error": "No data found for resource with given identifier",
+    "proven": "Matched PATCH /api/v1/me and responseFor400 status assertion completed; field_errors assertion did not complete.",
+    "no_persisted_body_DOM_or_network_trace": true,
+    "product_cause": "not established; no independent actual body evidence to validate field_errors or exclude all product factors",
+    "minimal_followup": "Separately authorize one legacy spec path; extend existing SettingsJSONTarget with PATCH /api/v1/me400 and replace only duplicate response body acquisition with existing settingsJSONFor. Keep400/field_errors/aria-invalid/currentGet/all later behavior and facts/budget unchanged; freeze+one-source closure delta+new actual run required.",
+    "instrumentation_limits": "Existing native fetch observation returns original promise/Response, clones small error body<=600000, joins read/cancel/release; changes body observation and is not proof of an uninstrumented stream/owner tail."
+  },
+  "required_repairs": [
+    "Reliable acquisition of the original duplicate400 response JSON in the existing test, preserving assertions; exact CDP missing-body mechanism remains unproven."
+  ],
+  "not_accepted": [
+    "oldprofile final profile/avatar facts",
+    "remaining13 old groups",
+    "independent actual A/B",
+    "README22",
+    "complete D27"
+  ],
+  "references": [
+    {
+      "path": "/workspace/scratch/owner-ui-backend/old16-batch01-result.json",
+      "bytes": 12006,
+      "sha256": "adc742d93b38b0d0fe9594a331b118d286cacc0f006f9983f3faa7ba438472a1"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/old16-batch01-result.md",
+      "bytes": 1678,
+      "sha256": "a2181a8c8eaa448d5d806cd22f99897bb54945cf1cc337df1ca92b70d3ea0885"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/oldauthlife01-handoff.json",
+      "bytes": 7676,
+      "sha256": "b05e9b210940f9215180afc5cadcc21111f636be9e48c59de09f9d8c41716f2d"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/oldauthlife01-launch.raw",
+      "bytes": 7998,
+      "sha256": "6f1b92cf0f0da1bdfad15915edfa393ef67b1aed294ecffb88f0526498eea693"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/oldauthrevoke01-handoff.json",
+      "bytes": 8345,
+      "sha256": "bf29f927fbcebe862ef1d181a3abf7836ddb34115e9fae845e12625e9e4fd30d"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/oldauthrevoke01-launch.raw",
+      "bytes": 8460,
+      "sha256": "504c7a43c74fe9089ff21460af60945e11d7c155bd08b1a2170ee030a3a94d95"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/oldprofile01-handoff.json",
+      "bytes": 7671,
+      "sha256": "765738c021c959007202a2c7ce65195932962d81ca0f4b43ab28e42d1d189d95"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-backend/oldprofile01-launch.raw",
+      "bytes": 8885,
+      "sha256": "f1c89eb0ea085e49618d564beaa8aa138f48dfd1ee80722016ff9e075df945da"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-assets/restore-after-old16batch01.json",
+      "bytes": 842,
+      "sha256": "43bf31225ededd1bb2417c73808911bddc7a777d4eeec5ede31b1ff49514dde6"
+    },
+    {
+      "path": "/workspace/scratch/owner-ui-assets/exchange-old16batch01.json",
+      "bytes": 9081,
+      "sha256": "7138d0ef9f68d27792da440e09ed5daa7b055e002839550f5474aeee3b85c073"
+    }
+  ],
+  "git_sources": [
+    {
+      "git_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "bytes": 38698,
+      "sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba"
+    },
+    {
+      "git_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "path": "tests/account/personal_settings_web_test.go",
+      "bytes": 6059,
+      "sha256": "bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b"
+    },
+    {
+      "git_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "path": "tests/account/personal_settings_web_fixture_test.go",
+      "bytes": 12476,
+      "sha256": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b"
+    },
+    {
+      "git_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "path": "tests/account/authentication_web_test.go",
+      "bytes": 3639,
+      "sha256": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76"
+    },
+    {
+      "git_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "path": "tests/account-captcha-web/e2e/authentication.spec.ts",
+      "bytes": 20266,
+      "sha256": "a87ba8393cd9702412725a1e41c4333bb7f9d00fa0af8e3a9a9f10841461f169"
+    },
+    {
+      "git_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "path": "web/src/api/client.ts",
+      "bytes": 38830,
+      "sha256": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c"
+    },
+    {
+      "git_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "bytes": 25993,
+      "sha256": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679"
+    }
+  ]
+}

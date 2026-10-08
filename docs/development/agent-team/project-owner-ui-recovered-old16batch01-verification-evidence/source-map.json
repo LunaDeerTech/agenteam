@@ -1,0 +1,1441 @@
+{
+  "scope": "Preserve oldprofile01 actual FAIL, independently accepted first two author actual PASS and all three owned retirements; remaining13 NOT_RUN. No independent actual A/B, complete Profile/Avatar, README22, full D27 or production acceptance.",
+  "harness_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+  "ui_commit": "088f4d3490db4d86781090f0602299901c5f3247",
+  "original_batch_result_sha256": "adc742d93b38b0d0fe9594a331b118d286cacc0f006f9983f3faa7ba438472a1",
+  "originals": [
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/adopted-waits.json",
+      "archive": "originals/runs/oldauthlife01/adopted-waits.json",
+      "sha256": "a4d3f509486cfe9860214a3ec7941b952ba957972153a176807cacbbb99ab737",
+      "bytes": 575,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/cleanup.json",
+      "archive": "originals/runs/oldauthlife01/cleanup.json",
+      "sha256": "332ed98bbe765bbc19fc4e89c768eb28b5dfae2ce2765c32b98a5dda2fa88c04",
+      "bytes": 21769,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/command.json",
+      "archive": "originals/runs/oldauthlife01/command.json",
+      "sha256": "09ba46d4b792c5c17fe61da472f8cf63c26e60bc8a20003c776872ec53982cb4",
+      "bytes": 2622,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/disk-before-spawn.json",
+      "archive": "originals/runs/oldauthlife01/disk-before-spawn.json",
+      "sha256": "166d205d7550ad8915402f63d696ac8916d04972900e5f6f008eee63349ba3a4",
+      "bytes": 183,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/disk-preflight.json",
+      "archive": "originals/runs/oldauthlife01/disk-preflight.json",
+      "sha256": "9cf9908009a2511c07f0544b73e6750810d00e8e243a438779635e6366a85448",
+      "bytes": 183,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/frozen-input.json",
+      "archive": "originals/runs/oldauthlife01/frozen-input.json",
+      "sha256": "332a391ee12bf8f4142242363ce8e725e2683b8358013814b74361f340f818c5",
+      "bytes": 42246,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/input-after.json",
+      "archive": "../project-owner-ui-recovered-edit03-verification-evidence/originals/run/input-after.json",
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932",
+      "bytes": 815,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/input-before.json",
+      "archive": "../project-owner-ui-recovered-edit03-verification-evidence/originals/run/input-after.json",
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932",
+      "bytes": 815,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/observed-processes.json",
+      "archive": "originals/runs/oldauthlife01/observed-processes.json",
+      "sha256": "e1858a4cd98db72652531aa610637f5a029d8b0cb893b042cb4f18eda0917a2a",
+      "bytes": 16910,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/observed-resources.json",
+      "archive": "originals/runs/oldauthlife01/observed-resources.json",
+      "sha256": "e8e6bc3ab314d7ef094228da149048107d2106bc8ccbbe110dbb77cb874732be",
+      "bytes": 5058,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/process-baseline.json",
+      "archive": "originals/runs/oldauthlife01/process-baseline.json",
+      "sha256": "fd72ab8c75e23f690aa89e5a35592aa415370c85b8a21b8c1d128ba79c2afdfe",
+      "bytes": 9273,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/raw.log",
+      "archive": "originals/runs/oldauthlife01/raw.log",
+      "sha256": "3f39071bbb502e63e6692dd92d7170cc84165dc16c8a99cfd64d3b97c233485a",
+      "bytes": 4109,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/result.json",
+      "archive": "originals/runs/oldauthlife01/result.json",
+      "sha256": "5a102bf6a0fd847d5b142cd205cc045baa3787e75adb199987bc5c116305b533",
+      "bytes": 10890,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/tcp-baseline.json",
+      "archive": "originals/runs/oldauthlife01/tcp-baseline.json",
+      "sha256": "a35cdea221238c2d1f9b4d6e5ae11f610b8da331d92a56bc554899e3c8c96d34",
+      "bytes": 1725,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldauthlife01/tcp-observed-delta.json",
+      "sha256": "e4de14d5361030584404b864119b07fb72243577fbfba7b9b6b791e9027db148",
+      "bytes": 5432,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldauthlife01/tcp-tail-observation.json",
+      "sha256": "acc4e696d46bca95ab3830398e52c42e01ee5a89b8fa5d73a7dc5550d9793fcc",
+      "bytes": 73734,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/verification-input.json",
+      "archive": "originals/runs/oldauthlife01/verification-input.json",
+      "sha256": "9be3e869b9a7aa9c925d11eebb75d0cece0cd56ebf46525dc980c194a37586c1",
+      "bytes": 183,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthlife01/watchdog.json",
+      "archive": "originals/runs/oldauthlife01/watchdog.json",
+      "sha256": "c1e4e20b246c76a3b2f81513d4d90e293e64b857592a44ae327a11f0aaab7188",
+      "bytes": 538,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldauthlife01-handoff.json",
+      "archive": "originals/author/oldauthlife01-handoff.json",
+      "sha256": "b05e9b210940f9215180afc5cadcc21111f636be9e48c59de09f9d8c41716f2d",
+      "bytes": 7676,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldauthlife01-launch.raw",
+      "archive": "originals/author/oldauthlife01-launch.raw",
+      "sha256": "6f1b92cf0f0da1bdfad15915edfa393ef67b1aed294ecffb88f0526498eea693",
+      "bytes": 7998,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/adopted-waits.json",
+      "archive": "originals/runs/oldauthrevoke01/adopted-waits.json",
+      "sha256": "59823a23146512b29324d9a8ad912d59315758bc38c6fe814e193368f7774c79",
+      "bytes": 1147,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/cleanup.json",
+      "archive": "originals/runs/oldauthrevoke01/cleanup.json",
+      "sha256": "55ebb1abead2e30cbc8ab8d36a1926cf0fb05cdfc243247b2db68d0a97a8660b",
+      "bytes": 23153,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/command.json",
+      "archive": "originals/runs/oldauthrevoke01/command.json",
+      "sha256": "6c145464fcefff15cd16af264b46226e6ea3cd2b5bf446f87853a18bd7369799",
+      "bytes": 2635,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/disk-before-spawn.json",
+      "archive": "originals/runs/oldauthrevoke01/disk-before-spawn.json",
+      "sha256": "b749590aaeefadd27d39aea69517b09e80a7814bcbedd8de021c0f14d3994860",
+      "bytes": 183,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/disk-preflight.json",
+      "archive": "originals/runs/oldauthrevoke01/disk-preflight.json",
+      "sha256": "a1f428ca34b2922cfc2cd089f63d3b0af6879c5256e6e62aa5c45d156ab06bfe",
+      "bytes": 183,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/frozen-input.json",
+      "archive": "originals/runs/oldauthlife01/frozen-input.json",
+      "sha256": "332a391ee12bf8f4142242363ce8e725e2683b8358013814b74361f340f818c5",
+      "bytes": 42246,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/input-after.json",
+      "archive": "../project-owner-ui-recovered-edit03-verification-evidence/originals/run/input-after.json",
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932",
+      "bytes": 815,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/input-before.json",
+      "archive": "../project-owner-ui-recovered-edit03-verification-evidence/originals/run/input-after.json",
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932",
+      "bytes": 815,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/observed-processes.json",
+      "archive": "originals/runs/oldauthrevoke01/observed-processes.json",
+      "sha256": "cffd280af2ce8f01165e562ab9e065e77ef12ffd6d4a78b362da50b03c0d6c96",
+      "bytes": 19600,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/observed-resources.json",
+      "archive": "originals/runs/oldauthrevoke01/observed-resources.json",
+      "sha256": "3818462c67831c2ba6ba154f066baf64a4bd5457b239468439ccb5c69f81ffe9",
+      "bytes": 5068,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/process-baseline.json",
+      "archive": "originals/runs/oldauthrevoke01/process-baseline.json",
+      "sha256": "ada6ead3e1871f5d1b38db0aab4baed7355f452d8a2d5e28b6b1342494cae55f",
+      "bytes": 9801,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/raw.log",
+      "archive": "originals/runs/oldauthrevoke01/raw.log",
+      "sha256": "bd0e1d747b3627393195ae04d30e7a4fbe09ba672a4e1a1d0a68173dcba2e80f",
+      "bytes": 5027,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/result.json",
+      "archive": "originals/runs/oldauthrevoke01/result.json",
+      "sha256": "05d229158a13ff5ab618e209c9d6ab5fe3cb04f33ea395f52ed0d42d42546088",
+      "bytes": 11531,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/tcp-baseline.json",
+      "archive": "originals/runs/oldauthrevoke01/tcp-baseline.json",
+      "sha256": "96310a113b271d1dfd48be72c23fd7c1ac3d3a8315532a7554bee9b6b51a69fb",
+      "bytes": 1725,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldauthrevoke01/tcp-observed-delta.json",
+      "sha256": "d43310d4f516bf1011684449ebdedfef422386bcf8ab0baaf353f1ded3650041",
+      "bytes": 11907,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldauthrevoke01/tcp-tail-observation.json",
+      "sha256": "bc850220179133391939c516b0932fe3495185d502c2eff0fcb5f8fb0d4c91a3",
+      "bytes": 155074,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/verification-input.json",
+      "archive": "originals/runs/oldauthlife01/verification-input.json",
+      "sha256": "9be3e869b9a7aa9c925d11eebb75d0cece0cd56ebf46525dc980c194a37586c1",
+      "bytes": 183,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldauthrevoke01/watchdog.json",
+      "archive": "originals/runs/oldauthrevoke01/watchdog.json",
+      "sha256": "74d211bd9899f258734bf72702215f0a443e075f33df3ad0518dec0d3937090b",
+      "bytes": 550,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldauthrevoke01-handoff.json",
+      "archive": "originals/author/oldauthrevoke01-handoff.json",
+      "sha256": "bf29f927fbcebe862ef1d181a3abf7836ddb34115e9fae845e12625e9e4fd30d",
+      "bytes": 8345,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldauthrevoke01-launch.raw",
+      "archive": "originals/author/oldauthrevoke01-launch.raw",
+      "sha256": "504c7a43c74fe9089ff21460af60945e11d7c155bd08b1a2170ee030a3a94d95",
+      "bytes": 8460,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/adopted-waits.json",
+      "archive": "originals/runs/oldprofile01/adopted-waits.json",
+      "sha256": "67ad6e1916eeb0dae8e8b3cc054888837259b666403e1719a931fdf3b89c3a03",
+      "bytes": 575,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/baseline.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb",
+      "bytes": 4129,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/cancellation.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/cleanup.json",
+      "archive": "originals/runs/oldprofile01/cleanup.json",
+      "sha256": "3e73c313935eeec537f855a0e29a65c5b1619d3286843d96aa399b34a457c79a",
+      "bytes": 24537,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/command.json",
+      "archive": "originals/runs/oldprofile01/command.json",
+      "sha256": "21b4f76a9bb7ae4259c37afec5f6c973a91bc6b9a31b2fc633a273aebacee251",
+      "bytes": 2619,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/disk-before-spawn.json",
+      "archive": "originals/runs/oldprofile01/disk-before-spawn.json",
+      "sha256": "c59c3996bb09c3ca2003996733c714d4114fcf09137be5e13bb1ec50ec0bfb18",
+      "bytes": 183,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/disk-preflight.json",
+      "archive": "originals/runs/oldprofile01/disk-preflight.json",
+      "sha256": "406fabb7f122ce82627d5429ddb6f07e7c740ed95e0a0f0158ba4188063c5b85",
+      "bytes": 183,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/driver.py.txt",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/frozen-input.json",
+      "archive": "originals/runs/oldauthlife01/frozen-input.json",
+      "sha256": "332a391ee12bf8f4142242363ce8e725e2683b8358013814b74361f340f818c5",
+      "bytes": 42246,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/input-after.json",
+      "archive": "../project-owner-ui-recovered-edit03-verification-evidence/originals/run/input-after.json",
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932",
+      "bytes": 815,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/input-before.json",
+      "archive": "../project-owner-ui-recovered-edit03-verification-evidence/originals/run/input-after.json",
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932",
+      "bytes": 815,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/local-image-digests.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05",
+      "bytes": 985,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/monitor-errors.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/observed-processes.json",
+      "archive": "originals/runs/oldprofile01/observed-processes.json",
+      "sha256": "08aab5d08b0f23b1461738bd9c0009ba86257342db5459664e74df07d02bb104",
+      "bytes": 16749,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/observed-resources.json",
+      "archive": "originals/runs/oldprofile01/observed-resources.json",
+      "sha256": "f1a3e66fdc6d9c70804c951d159bb64504c757276014feaab4fb753f4505dd1a",
+      "bytes": 5053,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/owned-tail-retirement.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d",
+      "bytes": 74,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/process-baseline.json",
+      "archive": "originals/runs/oldprofile01/process-baseline.json",
+      "sha256": "19433e9b63b014efdf273c5431737dca61bc64962cc4d6887907acf75826ed6c",
+      "bytes": 10329,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/raw.log",
+      "archive": "originals/runs/oldprofile01/raw.log",
+      "sha256": "2d8dec1e104b2c11e333f63f191e923ef0d25589d8b5c723db1f6fea5568ee69",
+      "bytes": 4891,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/result.json",
+      "archive": "originals/runs/oldprofile01/result.json",
+      "sha256": "1c7defd5344b5bfc2c1cffc081f818c84457b8a5f2aeff745d43594734b13356",
+      "bytes": 12144,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/tcp-baseline.json",
+      "archive": "originals/runs/oldprofile01/tcp-baseline.json",
+      "sha256": "2b52641ecc6c9c1e9ed65d0a6eb51953c74ec8166041c034edac5e4169e16b88",
+      "bytes": 1725,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/tcp-observed-delta.json",
+      "archive": "originals/runs/oldprofile01/tcp-observed-delta.json",
+      "sha256": "4c0a0d040a24199962dddde8f498092c81dd16be78c128d963c59af3f4037262",
+      "bytes": 9167,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/tcp-tail-observation.json",
+      "archive": "originals/runs/oldprofile01/tcp-tail-observation.json",
+      "sha256": "41790a4b40c982b509455b4fa8396eed5fe32d41f92e02e1268175621ded111a",
+      "bytes": 147499,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/verification-input.json",
+      "archive": "originals/runs/oldauthlife01/verification-input.json",
+      "sha256": "9be3e869b9a7aa9c925d11eebb75d0cece0cd56ebf46525dc980c194a37586c1",
+      "bytes": 183,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/runs/oldprofile01/watchdog.json",
+      "archive": "originals/runs/oldprofile01/watchdog.json",
+      "sha256": "5964d763974ff3fb3eca031c90a6b8457bd701c1d2d76680265edec7fc71e54a",
+      "bytes": 545,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldprofile01-handoff.json",
+      "archive": "originals/author/oldprofile01-handoff.json",
+      "sha256": "765738c021c959007202a2c7ce65195932962d81ca0f4b43ab28e42d1d189d95",
+      "bytes": 7671,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/oldprofile01-launch.raw",
+      "archive": "originals/author/oldprofile01-launch.raw",
+      "sha256": "f1c89eb0ea085e49618d564beaa8aa138f48dfd1ee80722016ff9e075df945da",
+      "bytes": 8885,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/old16-batch01-result.json",
+      "archive": "originals/author/old16-batch01-result.json",
+      "sha256": "adc742d93b38b0d0fe9594a331b118d286cacc0f006f9983f3faa7ba438472a1",
+      "bytes": 12006,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/old16-batch01-result.md",
+      "archive": "originals/author/old16-batch01-result.md",
+      "sha256": "a2181a8c8eaa448d5d806cd22f99897bb54945cf1cc337df1ca92b70d3ea0885",
+      "bytes": 1678,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/old16-batch01/handoff.json",
+      "archive": "originals/preparation/handoff.json",
+      "sha256": "ecfabc5ebfa2d301bd96abfd5eae90bea1a7b6c37d6be354655c74c2d01c50f5",
+      "bytes": 28081,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/old16-batch01/handoff.md",
+      "archive": "originals/preparation/handoff.md",
+      "sha256": "c2abb726c4d4b7d705c59142a7f4abc73384cdf0f54da727b825eee7e71e3ed7",
+      "bytes": 3312,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/old16-batch01-review/review.md",
+      "archive": "originals/preparation/independent-review.md",
+      "sha256": "71b7905ed68880b2774d8c37bf2a465ed0861eb5a1f48304b4b7de74ca33270a",
+      "bytes": 4347,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/freeze.root-old16batch01.json",
+      "archive": "originals/runs/oldauthlife01/frozen-input.json",
+      "sha256": "332a391ee12bf8f4142242363ce8e725e2683b8358013814b74361f340f818c5",
+      "bytes": 42246,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-assets/exchange-old16batch01.json",
+      "archive": "originals/root/exchange-old16batch01.json",
+      "sha256": "7138d0ef9f68d27792da440e09ed5daa7b055e002839550f5474aeee3b85c073",
+      "bytes": 9081,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-assets/restore-after-old16batch01.json",
+      "archive": "originals/root/restore-after-old16batch01.json",
+      "sha256": "43bf31225ededd1bb2417c73808911bddc7a777d4eeec5ede31b1ff49514dde6",
+      "bytes": 842,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/list-tops01/meta.json",
+      "archive": "originals/input/already_executed_actual_list_meta/meta.json",
+      "sha256": "89122d921543853d3849c96c9d80b693c1a9493f205a396863d407871362ba95",
+      "bytes": 4801,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/list-tops01/raw",
+      "archive": "originals/input/already_executed_actual_list_raw/raw",
+      "sha256": "431e84afab6679160abb83091fd534f708683ec36b3b4833f01b1359eb6dd821",
+      "bytes": 973,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/browser-v5/freeze.json",
+      "archive": "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/freeze.json",
+      "sha256": "a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85",
+      "bytes": 251,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v04/driver.py",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e",
+      "bytes": 38744,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/closure.delta.json",
+      "archive": "../project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/closure.delta.json",
+      "sha256": "4b642b20b1fc1cca4460aa130517e4190356353e8bf19976a86dd6beeffdd35b",
+      "bytes": 550,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-driver-v01/groups.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/input/groups.json",
+      "sha256": "f925efaf256bad0461b18a6a408f352b703ce321bd27e08c59359664110b1a8c",
+      "bytes": 3265,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/freeze.final.json",
+      "archive": "../project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/freeze.final.json",
+      "sha256": "ab92204024887b840d45174b1d72250b6930bb967fba4936f10472d03052db4d",
+      "bytes": 39379,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/handoff.json",
+      "archive": "../project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/handoff.json",
+      "sha256": "e86f48e2ea2894bb0c140cae244ad8290e08f7f15875d89c562944501a48bad6",
+      "bytes": 1942,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/binding.json",
+      "archive": "../project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/binding.json",
+      "sha256": "1d876dddad216ea13072e20fe8086c07874ede78e267cf3607bffb42e3e4ca33",
+      "bytes": 2462,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-backend/resource-inputs-final04/handoff.md",
+      "archive": "../project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/handoff.md",
+      "sha256": "32d813b209b77c0c2b7a52f4d9548fbc0019f0f417a9e2acc31c5f93488cd09c",
+      "bytes": 1033,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/final04-review/review.md",
+      "archive": "../project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/independent-prepared-review.md",
+      "sha256": "ef683c221094249b7a0fb9bb7108947709939b916a81a87397ae2e44de07815f",
+      "bytes": 2522,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/browser-v5/checks.json",
+      "archive": "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/checks.json",
+      "sha256": "3ff59b5622f5fb89acbdaed0d6dabbed401b47155ca21c32e1274d028e4f503e",
+      "bytes": 1013,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/browser-v5/handoff.md",
+      "archive": "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/handoff.md",
+      "sha256": "d2865841fca971040256113e960dc97ffdf83488367e5ec8f3eee2c24bdfaed3",
+      "bytes": 1266,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/browser-v5/imports.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/imports.json",
+      "sha256": "c1be647023227872098b597215bf71e2239a608a1340176cba4b2501a87b40bc",
+      "bytes": 704,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/browser-v5/tools.json",
+      "archive": "../project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/tools.json",
+      "sha256": "84d86731a74ef9805882fbf471be1385e5f43f74860dabbd0bdac19c84ecff2c",
+      "bytes": 30827,
+      "reuse_prior_committed_original": true
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/oldprofile01-result-review/review.md",
+      "archive": "originals/independent/review.md",
+      "sha256": "707d99ab78e94aca6d48843061fb92ddbb9da4f2c1283923af1c06dd7044fca2",
+      "bytes": 7333,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/oldprofile01-result-review/evidence.json",
+      "archive": "originals/independent/evidence.json",
+      "sha256": "db3c06a31abce484d6be3f6ef72baa65ec241534d3555e1e4148c2bb6dffdf32",
+      "bytes": 32867,
+      "reuse_prior_committed_original": false
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-runtime-verification/oldprofile01-result-review/manifest.json",
+      "archive": "originals/independent/manifest.json",
+      "sha256": "06ef47da268d0a09a386a046dda1c08310e063775af2c7786e07139ecef08284",
+      "bytes": 485,
+      "reuse_prior_committed_original": false
+    }
+  ],
+  "logical_originals": 104,
+  "logical_original_bytes": 1221820,
+  "new_physical_original_files": 62,
+  "new_physical_original_bytes": 834054,
+  "reused_prior_physical_originals": 18,
+  "reused_prior_physical_bytes": 129964,
+  "reused_prior_logical_originals": 37,
+  "reused_prior_originals": {
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/baseline.json",
+      "sha256": "bee54c6c08ea2ef5edc4f4dc611717cdf6b33966ba9b136325a5becf1c2b21fb"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/cancellation.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/driver.py.txt",
+      "sha256": "bb666f55bf39f6454a370f62459d3e72416d90767f14a75d2e99775b8c11b38e"
+    },
+    "../project-owner-ui-recovered-edit03-verification-evidence/originals/run/input-after.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit03-verification-evidence/originals/run/input-after.json",
+      "sha256": "af0a368fa712ae80c72e6edf0ac19ecaa6914b59c33ce5b1a189c2cb9b65a932"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/local-image-digests.json",
+      "sha256": "87420b77c9a500273c70efd8ac685a8fdee71439a8ef9782b1ef58048f4bcb05"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/run/owned-tail-retirement.json",
+      "sha256": "0995cdb496c7acf5e5648747fc263012972a8bf92bd4afc77f2371ccc694060d"
+    },
+    "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/freeze.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/freeze.json",
+      "sha256": "a878bb0c423cc8820bc3e5060ef96fad290542226d45447ae6dfa0624965ff85"
+    },
+    "../project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/closure.delta.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/closure.delta.json",
+      "sha256": "4b642b20b1fc1cca4460aa130517e4190356353e8bf19976a86dd6beeffdd35b"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/input/groups.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/input/groups.json",
+      "sha256": "f925efaf256bad0461b18a6a408f352b703ce321bd27e08c59359664110b1a8c"
+    },
+    "../project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/freeze.final.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/freeze.final.json",
+      "sha256": "ab92204024887b840d45174b1d72250b6930bb967fba4936f10472d03052db4d"
+    },
+    "../project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/handoff.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/handoff.json",
+      "sha256": "e86f48e2ea2894bb0c140cae244ad8290e08f7f15875d89c562944501a48bad6"
+    },
+    "../project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/binding.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/binding.json",
+      "sha256": "1d876dddad216ea13072e20fe8086c07874ede78e267cf3607bffb42e3e4ca33"
+    },
+    "../project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/handoff.md": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/handoff.md",
+      "sha256": "32d813b209b77c0c2b7a52f4d9548fbc0019f0f417a9e2acc31c5f93488cd09c"
+    },
+    "../project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/independent-prepared-review.md": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit03-verification-evidence/originals/input/final04/independent-prepared-review.md",
+      "sha256": "ef683c221094249b7a0fb9bb7108947709939b916a81a87397ae2e44de07815f"
+    },
+    "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/checks.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/checks.json",
+      "sha256": "3ff59b5622f5fb89acbdaed0d6dabbed401b47155ca21c32e1274d028e4f503e"
+    },
+    "../project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/handoff.md": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-edit02-verification-evidence/originals/followup-v5/author/browser-v5/handoff.md",
+      "sha256": "d2865841fca971040256113e960dc97ffdf83488367e5ec8f3eee2c24bdfaed3"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/imports.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/imports.json",
+      "sha256": "c1be647023227872098b597215bf71e2239a608a1340176cba4b2501a87b40bc"
+    },
+    "../project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/tools.json": {
+      "commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+      "repo_path": "docs/development/agent-team/project-owner-ui-recovered-read01-verification-evidence/originals/input/browser-v2/tools.json",
+      "sha256": "84d86731a74ef9805882fbf471be1385e5f43f74860dabbd0bdac19c84ecff2c"
+    }
+  },
+  "git_sources": [
+    {
+      "path": "api/openapi/common.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "22f7d8e5f560f05380ca9c8031260f2d941ad273",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+    },
+    {
+      "path": "api/openapi/project-owner.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "8ec4fd687720aaf146400c13cc56fbfb67504f02",
+      "sha256": "1b4dfdb90214dacfa1451c57e27936ee8b43cba74523b7d0d10642285e0f5ac3"
+    },
+    {
+      "path": "api/openapi/project-usage.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "9e9a07bb21a7d4ba95af2d36e915240cceb84f38",
+      "sha256": "a908bd1e82d576441e978006fbfd5328e600480a4aa606dca3c818160a47feb4"
+    },
+    {
+      "path": "docs/development/work-items/d09-project-usage-read-http.md",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "707aa1abe88ba7092231511210a877d8154ee686",
+      "sha256": "b872bc7481c8236bbfdea826c7e40c9f96f083669b4189f1a9437b1d976ac6e0"
+    },
+    {
+      "path": "docs/development/work-items/d27-project-owner-workspace-ui.md",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "706ab4993b14202a0d9364e9e1a1a323b5dd0c12",
+      "sha256": "37725ca136a9fe957714c0d29ef2ab43f86d82de5b1e265598f546f2dc143828"
+    },
+    {
+      "path": "go.mod",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "2db97d5624d9575b72eb8e345b064bc4185388dc",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758"
+    },
+    {
+      "path": "go.sum",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "7f96b9efaf394930b1df6f095e0879e33cd95403",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+    },
+    {
+      "path": "internal/central/project/authority.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "c8af518a1a99084f07f56633d1ec3e3afe774af4",
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321"
+    },
+    {
+      "path": "internal/central/project/contract/lifecycle.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "f7f0829a87bde8cfda7ed5c59f50117bd2f6fe79",
+      "sha256": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6"
+    },
+    {
+      "path": "internal/central/usage/http/handler.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "512a485a6bd430e20d8523e7d1e7991679c5a7b1",
+      "sha256": "e56b1050691ef5c10b0649d4d06e94a6d4a819f832db85ed49e9faca0f0eebe9"
+    },
+    {
+      "path": "scripts/test-objects.sh",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "12ab48fcf0cd9c9cb8b2e9a2f9dfff27fa2720a7",
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87"
+    },
+    {
+      "path": "tests/account-captcha-web/package-lock.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "f78a2b24920e973c088d3aae414e9448cce9b3d2",
+      "sha256": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+    },
+    {
+      "path": "tests/account-captcha-web/package.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "0b55badac320dbde3a1088d804950c591df8510e",
+      "sha256": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58"
+    },
+    {
+      "path": "tests/account-captcha-web/project-owner.config.js",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "338716063324fc1f3fceb58ef1a31f3b1256f923",
+      "sha256": "46db46eefbff68c1da3f3a96fc3c6cfd607abbcaa60b4bd5afa7a15db9aff54b"
+    },
+    {
+      "path": "tests/account/project_owner_web_fixture_test.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "a7940803578cd8a96bac06f58b9ee48870016ae6",
+      "sha256": "662e1f2edd0e4cc0d03408251de0a031e0491ca4530c042e7bfc86139070f24b"
+    },
+    {
+      "path": "tests/account/project_owner_web_test.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "7a73493c5e2daec94f860f584c54e562c53ae797",
+      "sha256": "e91d920777b6bd48adae2ad96c1f2d2e1cd0f6f8c254af3a9a497a684a44e5a6"
+    },
+    {
+      "path": "web/src/App.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "83929ae442616623f29547d684c58a0fca7adf60",
+      "sha256": "d4bec3a781280a866f40506cdba6afcecc35a2203bf16ecf3161ebceba0dedd5"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "43eb1e384093014945d3e7dcf5a87f31567bb795",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+    },
+    {
+      "path": "web/src/api/client.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "117c3e9bda8a6199f955d33f75e1d016a81cb455",
+      "sha256": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c"
+    },
+    {
+      "path": "web/src/api/project-owner.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "dcbdde685f8516f2f61382a2668f01e9167b9c45",
+      "sha256": "7c99fbbfd19da6faf768dfd6c49e33e65b53c1ccf5b62094be332f55fe0510ea"
+    },
+    {
+      "path": "web/src/api/system-account.ts",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "b1126fd95c23db81300d4edb85a01076a9e4729d",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+    },
+    {
+      "path": "web/src/components/layout/ProjectNav.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "1f23302d20f8221cd0a59af630353858fb83d84a",
+      "sha256": "e7ed96d6ab970a8fbe7678709d9ee55d355ad7cf25d7e1f0bb36f64df2b7f13a"
+    },
+    {
+      "path": "web/src/composables/useProjectWorkspace.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "9fa5502291766aedaaa8d3a6dc9e121b338358fe",
+      "sha256": "feb739df291657486a30506cb41cc94478657c523b1e90b18e5f53efc74bec7d"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "30dfe558cef3b3a0355a1a3059dad4418200088f",
+      "sha256": "3cd4b03151177d3beee5770557be0d7ff625e547f0424a35961e335085073b88"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "6860a590ab7426b9d8e11ee90de2b876772e22a1",
+      "sha256": "ac9daa0d484aaa673cce3df9abedf332482d414309df8ad2e78e576092c62e21"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "3c6bbbc08e6a93c0bc755c0a7bfd91631a7c2ac9",
+      "sha256": "5f741b512c7469a4c04c38502a1ec3e34a77aefdcc3e04484066cb03c9dbe415"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "f6d72d2e0780355cdde396015a4534b410355e0d",
+      "sha256": "687fed6455e6e6b693a2ccadd850336b29a49178c93985d6493c4d5479ca6d48"
+    },
+    {
+      "path": "web/src/tests/project-owner-client.spec.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "ee72dee6b24e4dcdd97f606549a72c19246bf051",
+      "sha256": "befbcac0445b4ca6a52a92ccab9f84b6f23850f524119d08f291d116c7b01f6e"
+    },
+    {
+      "path": "web/src/tests/project-workspace-state.spec.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "d38cc30686e7c72bca0aef537ff8f8e696dd0c6d",
+      "sha256": "d4edd90c09149cdc92d2c1886170c78dc913b04a77e22c8cd306e499ba00381b"
+    },
+    {
+      "path": "web/src/tests/project-workspace.spec.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "6f569a3f23d69081c5ec52e9308017f6dd7ccfff",
+      "sha256": "9b06021aa672002618d15e217b469534e21266ac1734db6fcf8508e05c0b63df"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "62959b8cadb133ddb55af91109e7082f559720ec",
+      "sha256": "941e78cd6cdcb75990aaa9feebf2a740cfcec28cf8c0360d3e998bb3f66aed8a"
+    },
+    {
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "1fb9054391c47a02420b92bf3826056c50d9e150",
+      "sha256": "a740bf6ef4aac400116055219e4f5e1f5cd0899a52159eb0a4e5241ec93fc896"
+    },
+    {
+      "path": "web/src/views/projects/ProjectGeneralSettings.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "7539a563f1f2188aa09e760f2228c7bb61261771",
+      "sha256": "0c5013fc4e7f022d04aa4e52caa41dec247cb6c2f20bf7d4947d505b4c2e2607"
+    },
+    {
+      "path": "web/src/views/projects/ProjectHomeView.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "e5da086f75e779d6daa9388be0626737288cddc7",
+      "sha256": "cb4fec3b9bb24b05acbd85319b6ca90d694fef193d1ae9ccb48ab6997339e922"
+    },
+    {
+      "path": "web/src/views/projects/ProjectListView.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "cb25493b29e854a7b0824bb9a8a83e252125c058",
+      "sha256": "aafa7b81ad789c627f83f4bca684f16441f41b72232fbfddb8df268b317b909f"
+    },
+    {
+      "path": "web/src/views/projects/ProjectSettingsView.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "1436e24ab77cf977c2374524f03dbd93f9096e20",
+      "sha256": "02e3807faffe1bf390e0af6ba81e90e42668211e9bd6c52cc4a209cd2407d59e"
+    },
+    {
+      "path": "web/src/views/projects/ProjectWorkspaceView.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "4b223544a75f00c1f8eba1b301172e436a4ef178",
+      "sha256": "a73263a6d2e12e0d46a3cd3373ae3d54396ac3699b360855090ac47a1265712f"
+    },
+    {
+      "path": "web/src/components/ui/UiField.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "28d12e4932379b0bcf858ea8a9fd494bebec7596",
+      "sha256": "9e40a4c00994826f9a65ed0c1cf095f7e6d5e44b93a95a4788b82ab1b9f3e0a1"
+    },
+    {
+      "path": "web/src/components/ui/UiInput.vue",
+      "commit": "088f4d3490db4d86781090f0602299901c5f3247",
+      "git_blob": "e534185ba9cc796a36da8d3ea6f6a31fc1d5716f",
+      "sha256": "fd182981669131383f2a36fd422da461f94237a7ba019a469c05dcb9c5afcbaf"
+    },
+    {
+      "path": "web/package-lock.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "5fada3969e90bb48ad582cb4fda659cf741e689b",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    {
+      "path": "web/package.json",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "f4c678be98e404989c80b8cedbc74cedc5fc3800",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/project-owner.spec.ts",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "6bb43098ad6e9c673106603b330e8b639814e666",
+      "sha256": "3cb33cf8505356c6fdb971fc75af7f47b57f960de8181fbc52a2bb02ea0ef009"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "654d70bc2102adad918e7e47f9adf37b5113d465",
+      "sha256": "155bba1a7bf85ac5020c97b68dd45ade920b0e5016e6dd1f97d7a0202b1699ba"
+    },
+    {
+      "path": "tests/account/personal_settings_web_test.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "c9055060ea3cb853087d826b39b5e64c9cf6029d",
+      "sha256": "bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b"
+    },
+    {
+      "path": "tests/account/personal_settings_web_fixture_test.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "efcf93ad2893e80078a5c97fb1cc5e8326890587",
+      "sha256": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b"
+    },
+    {
+      "path": "tests/account/authentication_web_test.go",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "f3e7184c2e9977005e34bcfced2113ce1f565a8e",
+      "sha256": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/authentication.spec.ts",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "3dc932b86b715922b80823ec42905db88527a849",
+      "sha256": "a87ba8393cd9702412725a1e41c4333bb7f9d00fa0af8e3a9a9f10841461f169"
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+      "git_blob": "2be5694438b1e4d7d2569d424ec83b8cbdce7c84",
+      "sha256": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679"
+    }
+  ],
+  "reused_existing_manifests": [
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/ui-v1/freeze.json",
+      "existing_archive": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification-evidence/originals/author/ui-v1/freeze.json",
+      "commit": "83d6dd88150d0c584b3938a213e795b1cd14bb0b",
+      "sha256": "b7a9ef34a10d0230b541d0daffb19d765d023aa27469a9ca144952f5d1bd9f64"
+    },
+    {
+      "source": "/workspace/scratch/owner-ui-recovery/ui-v1/assets.json",
+      "existing_archive": "docs/development/agent-team/project-owner-workspace-ui-controlled-verification-evidence/originals/author/ui-v1/assets.json",
+      "commit": "83d6dd88150d0c584b3938a213e795b1cd14bb0b",
+      "sha256": "00bd636e8446c8e75690bcf07745975bd7a4f9b906172de4d3ae55ab10393752"
+    }
+  ],
+  "closure_binding": {
+    "inherited_source_map": "docs/development/agent-team/project-owner-ui-recovered-nextnew01-verification-evidence/source-map.json",
+    "inherited_commit": "3ae43e9b4d68e80b99d7c6075eb8f3ee831f12bb",
+    "inherited_source_map_sha256": "8ffcdcd0e866e86ec141db818cce3b6c6a8f63fca523393ba67a9b0f4441bf42",
+    "final04_closure_sha256": "4b642b20b1fc1cca4460aa130517e4190356353e8bf19976a86dd6beeffdd35b",
+    "source_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+    "merged_repository_inputs_inherited": 955,
+    "source_delta_from_accepted_nextnew01": [],
+    "new_full_graph_scan": false
+  },
+  "authorization_binding": {
+    "prepared_final04_sha256": "ab92204024887b840d45174b1d72250b6930bb967fba4936f10472d03052db4d",
+    "prepared_final04_authorized_resources": false,
+    "selector_preparation_sha256": "ecfabc5ebfa2d301bd96abfd5eae90bea1a7b6c37d6be354655c74c2d01c50f5",
+    "selector_preparation_authorized_resources": false,
+    "actual_frozen_input_sha256": "332a391ee12bf8f4142242363ce8e725e2683b8358013814b74361f340f818c5",
+    "actual_authorized_resources": true,
+    "changed_top_level_keys_from_prepared_final04": [
+      "permitted_groups",
+      "root_authorization",
+      "root_authorized_resources",
+      "status"
+    ],
+    "permitted_groups": [
+      "old-auth-lifecycle",
+      "old-auth-revocation",
+      "old-personal-profile",
+      "old-personal-theme",
+      "old-personal-password",
+      "old-invitations",
+      "old-providers",
+      "old-models",
+      "old-selection",
+      "old-summary-recovery",
+      "old-summary-authority",
+      "old-account-security",
+      "old-smtp-settings",
+      "old-smtp-delivery",
+      "old-outbound-policy",
+      "old-public-entry"
+    ],
+    "ordered_rounds": [
+      {
+        "group": "old-auth-lifecycle",
+        "run": "oldauthlife01"
+      },
+      {
+        "group": "old-auth-revocation",
+        "run": "oldauthrevoke01"
+      },
+      {
+        "group": "old-personal-profile",
+        "run": "oldprofile01"
+      },
+      {
+        "group": "old-personal-theme",
+        "run": "oldtheme01"
+      },
+      {
+        "group": "old-personal-password",
+        "run": "oldpassword01"
+      },
+      {
+        "group": "old-invitations",
+        "run": "oldinvite01"
+      },
+      {
+        "group": "old-providers",
+        "run": "oldproviders01"
+      },
+      {
+        "group": "old-models",
+        "run": "oldmodels01"
+      },
+      {
+        "group": "old-selection",
+        "run": "oldselection01"
+      },
+      {
+        "group": "old-summary-recovery",
+        "run": "oldsummaryrec01"
+      },
+      {
+        "group": "old-summary-authority",
+        "run": "oldsummarynav01"
+      },
+      {
+        "group": "old-account-security",
+        "run": "oldaccountsec01"
+      },
+      {
+        "group": "old-smtp-settings",
+        "run": "oldsmtpsettings01"
+      },
+      {
+        "group": "old-smtp-delivery",
+        "run": "oldsmtpdelivery01"
+      },
+      {
+        "group": "old-outbound-policy",
+        "run": "oldoutbound01"
+      },
+      {
+        "group": "old-public-entry",
+        "run": "oldpublic01"
+      }
+    ],
+    "prior_prepared_input_unchanged": true
+  },
+  "round_bindings": [
+    {
+      "run": "oldauthlife01",
+      "handoff_sha256": "b05e9b210940f9215180afc5cadcc21111f636be9e48c59de09f9d8c41716f2d",
+      "top": "TestAccountAuthenticationWebSessionLifecycle",
+      "state": "PASS",
+      "outer_exit": 0,
+      "run_original_files": 24,
+      "run_original_bytes": 240998,
+      "direct_command_seconds": 53.563,
+      "reported_top_seconds": 7.6,
+      "browser_original_summaries": [
+        "1 passed (5.0s)"
+      ],
+      "adopted_actual_waits": 4,
+      "tcp_tail_seconds": 39.394405484001254,
+      "exact_resource_ids": [
+        "07a76d0f41b7a9d001d20d9bb12f227997b69f03adbe8d1d3c9729c6ba80ba07",
+        "1342dd0c86f9d4ca07c4af87d329df7b04a3bc7ada39654a9af9dde6c4bcc192",
+        "453f2512e869ef00f4d314a1c20276d8c41dc9e2b861885b032ce1f6edefbbba",
+        "465ae1ee63d389099e1f26cbe092f74143271157950247fcffe613d4b676a745",
+        "90f2ea641804e8c97cf3b8b76bbe77d1f4e6b1c740f9a383c596813632017d2a",
+        "9ab160f14b433da17eee13f0fb044bccb98605731bc41433a4792e2f90dabe91",
+        "e7aa84815e90f51502fcb260cbd8ea64b8a9ddc6a4c061f83baf2110b3f6fa1c"
+      ]
+    },
+    {
+      "run": "oldauthrevoke01",
+      "handoff_sha256": "bf29f927fbcebe862ef1d181a3abf7836ddb34115e9fae845e12625e9e4fd30d",
+      "top": "TestAccountAuthenticationWebRevocationAndExpiry",
+      "state": "PASS",
+      "outer_exit": 0,
+      "run_original_files": 24,
+      "run_original_bytes": 335581,
+      "direct_command_seconds": 64.721,
+      "reported_top_seconds": 12.42,
+      "browser_original_summaries": [
+        "1 passed (4.4s)",
+        "1 passed (3.1s)"
+      ],
+      "adopted_actual_waits": 8,
+      "tcp_tail_seconds": 37.384781926999494,
+      "exact_resource_ids": [
+        "03af965b681b6ca53fe9ab20f03071cd6af8c6410e6dce9365c9fa37b628a12a",
+        "47ce1713a397da14e7ccaede757be454486aface25e682fa1cdf5fab730c3bdf",
+        "6d05b695a65e6370985fe9da1e8a58a35e60f50af30c73df8523bb987ac862db",
+        "83c8878cc214bdc64dea44a8a002731325383935ce9b931551b5ac5eaade814b",
+        "aaee234593b1a7955eae8a785a0190bd78ecf59775a208d4698759d49efaedb8",
+        "fa737ee41a0cd9f2988f9ba5ab0a62f885b4fb36a9dc58057f48cdb6205b6e67",
+        "fbdc8ba4cae41435a5a4ec1c1dca0228d4a9b650fa9d35eff664234b33fe9f6e"
+      ]
+    },
+    {
+      "run": "oldprofile01",
+      "handoff_sha256": "765738c021c959007202a2c7ce65195932962d81ca0f4b43ab28e42d1d189d95",
+      "top": "TestAccountPersonalSettingsWebProfileAndAvatar",
+      "state": "FAIL",
+      "outer_exit": 1,
+      "run_original_files": 24,
+      "run_original_bytes": 324196,
+      "direct_command_seconds": 58.746,
+      "reported_top_seconds": 8.54,
+      "browser_original_summaries": [
+        "1 failed"
+      ],
+      "adopted_actual_waits": 4,
+      "tcp_tail_seconds": 38.39937690000079,
+      "exact_resource_ids": [
+        "538c9e660930a2084852c331377ea699b228a6e2090ccf82c58809cc7b50731e",
+        "5858b4564d3fd0afffecb5cf4bb894dd08a86b238012d11778b2ab61d5e9b376",
+        "5dfae72bc869d814e0fdc2235d5b8e403300c01ecd7e26aec8dc93639a8589a0",
+        "6c615891246bc5967f979bfbbb7a5ad1085a0a6687ce676eec2454ba8a4d234f",
+        "9703213da2d518f5cfd36769d489d9c9ddd44119f0808e1882ddcd0dbe248274",
+        "9b11c8d329816d26aace6b470bca1b9e27916ac75ada4163f386c96338dcb34b",
+        "a0b02ffbb3735169bb70797098af2b87f3329ad332890a59d28fa37044c7770d"
+      ]
+    }
+  ],
+  "not_run": [
+    {
+      "exact_top": "TestAccountPersonalSettingsWebThemeAndNavigation",
+      "group": "old-personal-theme",
+      "order": 4,
+      "run_name": "oldtheme01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountPersonalSettingsWebPasswordRotation",
+      "group": "old-personal-password",
+      "order": 5,
+      "run_name": "oldpassword01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemInvitationsWebOutcomeRecovery",
+      "group": "old-invitations",
+      "order": 6,
+      "run_name": "oldinvite01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemProvidersWebCredentialReplacement",
+      "group": "old-providers",
+      "order": 7,
+      "run_name": "oldproviders01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemModelsWebOutcomeRecovery",
+      "group": "old-models",
+      "order": 8,
+      "run_name": "oldmodels01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemModelSelectionWebOutcomeRecovery",
+      "group": "old-selection",
+      "order": 9,
+      "run_name": "oldselection01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemMeetingSummaryWebRecovery",
+      "group": "old-summary-recovery",
+      "order": 10,
+      "run_name": "oldsummaryrec01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemMeetingSummaryWebAuthorityNavigation",
+      "group": "old-summary-authority",
+      "order": 11,
+      "run_name": "oldsummarynav01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemAccountSecurityWebOutcomeRecovery",
+      "group": "old-account-security",
+      "order": 12,
+      "run_name": "oldaccountsec01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemSMTPSettingsWebOutcomeRecovery",
+      "group": "old-smtp-settings",
+      "order": 13,
+      "run_name": "oldsmtpsettings01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemSMTPDeliveryWebTestAndRetry",
+      "group": "old-smtp-delivery",
+      "order": 14,
+      "run_name": "oldsmtpdelivery01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountSystemOutboundPolicyWebMutationAndRecovery",
+      "group": "old-outbound-policy",
+      "order": 15,
+      "run_name": "oldoutbound01",
+      "state": "NOT_RUN"
+    },
+    {
+      "exact_top": "TestAccountPublicEntryWebIdentityNavigation",
+      "group": "old-public-entry",
+      "order": 16,
+      "run_name": "oldpublic01",
+      "state": "NOT_RUN"
+    }
+  ],
+  "proof_boundary": "Only original legacy assertions and command results. No Project safe body/schema/client artifacts, screenshot, DOM snapshot or trace is present in these 72 run originals. No new resource or test is executed during archival.",
+  "independent_stop_manifest_sha256": "06ef47da268d0a09a386a046dda1c08310e063775af2c7786e07139ecef08284",
+  "independent_git_provenance": {
+    "seven_original_Git367_references_verified": true,
+    "new_source_map_paths": [
+      "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "tests/account/personal_settings_web_test.go",
+      "tests/account/personal_settings_web_fixture_test.go",
+      "tests/account/authentication_web_test.go",
+      "tests/account-captcha-web/e2e/authentication.spec.ts",
+      "web/src/composables/usePersonalSettings.ts"
+    ],
+    "same_bytes_reused_from_existing_source_map": [
+      {
+        "path": "web/src/api/client.ts",
+        "independent_commit": "367156d89773660c4a671a4b73d5ea7a16e24f50",
+        "source_map_commit": "088f4d3490db4d86781090f0602299901c5f3247",
+        "same_sha256": "a33ce22a8e8bcfb2490770c0daa93571718ab87c09c770be1ae4d72c78cb3e0c"
+      }
+    ],
+    "source_entities_copied": false
+  }
+}
