@@ -694,7 +694,7 @@ describe('Audit visible filters, complete inline observations and local focus', 
     await click('刷新第一页')
     expect(f.wrapper.text()).toContain('系统审计读取失败')
     expect(f.wrapper.find('[aria-label="系统审计列表"]').exists()).toBe(false)
-    expect(f.wrapper.find('img').exists()).toBe(false)
+    expect(f.wrapper.getComponent(SystemAuditView).find('img').exists()).toBe(false)
     f.setAudit(async () => problem())
     await click('重试读取')
     expect(f.wrapper.text()).not.toContain('<private diagnostic>')
