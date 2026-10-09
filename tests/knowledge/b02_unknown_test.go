@@ -253,3 +253,155 @@ func TestKnowledgeB02CommitUnknown(t *testing.T) {
 		}
 	}
 }
+
+// Only the final Knowledge checkpoint is intercepted. Object deletion, its
+// Audit and reference/lease checks have already happened through real D05.
+type knowledgeCleanupCommitStore struct {
+	knowledge.Store
+	cleanup  string
+	proxy    *commitproxy.Proxy
+	armed    atomic.Bool
+	original chan f.CommitResult
+}
+
+func (s *knowledgeCleanupCommitStore) WithinTx(ctx context.Context, cause f.TransactionCause, callback func(context.Context, f.Tx) error) f.CommitResult {
+	d := cause.Details()
+	matched := cause.Kind() == f.RecoveryCause && d.Owner == "knowledge.cleanup" && d.RecoveryRunID == s.cleanup && d.CheckpointRef == ""
+	result := s.Store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		if err := callback(ctx, tx); err != nil {
+			return err
+		}
+		if !matched || s.armed.Load() {
+			return nil
+		}
+		x, err := s.Store.InTx(tx)
+		if err != nil {
+			return err
+		}
+		var completed, objectDeleted bool
+		err = x.QueryRow(ctx, `SELECT c.phase='completed',o.state='deleted'
+ FROM agenteam_knowledge.object_cleanup c JOIN agenteam_object.objects o ON o.id=c.object_id
+ WHERE c.id=$1`, s.cleanup).Scan(&completed, &objectDeleted)
+		if err != nil || !completed {
+			return err
+		}
+		if !objectDeleted {
+			return errors.New("cleanup checkpoint reached before real Object deletion")
+		}
+		if !s.armed.CompareAndSwap(false, true) {
+			return nil
+		}
+		var pid int32
+		if err = x.QueryRow(ctx, `SELECT pg_backend_pid()`).Scan(&pid); err != nil {
+			return err
+		}
+		return s.proxy.Arm(pid)
+	})
+	if matched && result.State() == f.Unknown {
+		select {
+		case s.original <- result:
+		default:
+		}
+	}
+	return result
+}
+
+func TestKnowledgeB02CleanupCommitUnknown(t *testing.T) {
+	for _, commit := range []bool{false, true} {
+		outcome := "not_forwarded"
+		if commit {
+			outcome = "committed_ack_lost"
+		}
+		t.Run(outcome, func(t *testing.T) {
+			x, observer, proxy := unknownPublicationFixture(t)
+			actor := x.human(t)
+			project := x.project(t, actor, true)
+			document := publicationSeedContent(t, x, actor, project, "cleanup checkpoint bytes")
+			preview, err := x.service.PrepareDeleteSubtree(knowledgeContext(t), actor, project, document.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			meta := treeMeta(t)
+			deleted, err := x.service.DeleteSubtree(knowledgeContext(t), actor, meta, project, document.ID, preview.Confirmation)
+			if err != nil || !deleted.CleanupPending || len(deleted.DeletedIDs) != 1 {
+				t.Fatal("real deletion did not establish exact cleanup work", err)
+			}
+			var cleanup string
+			if err = observer.QueryRow(knowledgeContext(t), `SELECT id::text FROM agenteam_knowledge.object_cleanup
+ WHERE project_id=$1 AND document_id=$2 AND object_id=$3 AND phase<>'completed'`, project.String(), document.ID.String(), document.ObjectID.String()).Scan(&cleanup); err != nil {
+				t.Fatal("missing exact durable cleanup identity", err)
+			}
+			store := &knowledgeCleanupCommitStore{Store: x.raw, cleanup: cleanup, proxy: proxy, original: make(chan f.CommitResult, 1)}
+			s, err := knowledge.New(store, x.deps)
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(func() {
+				s.Stop()
+				ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+				defer cancel()
+				if err := s.Drain(ctx); err != nil {
+					t.Error("cleanup Unknown caller did not drain", err)
+				}
+			})
+			ctx := knowledgeContext(t)
+			returned, joined := make(chan error, 1), make(chan struct{})
+			go func() { defer close(joined); returned <- s.RecoverCleanup(ctx) }()
+			t.Cleanup(func() { proxy.Release(); runtimeAwait(t, joined) })
+			runtimeAwait(t, proxy.Reached())
+			var original f.CommitResult
+			select {
+			case original = <-store.original:
+			case <-ctx.Done():
+				t.Fatal("original Store cleanup Unknown was not observed")
+			}
+			d := original.Cause().Details()
+			if original.State() != f.Unknown || original.AttemptID().Validate() != nil || original.Cause().Kind() != f.RecoveryCause || d.Owner != "knowledge.cleanup" || d.RecoveryRunID != cleanup || d.CheckpointRef != "" {
+				t.Fatal("cleanup Unknown lost its original exact transaction cause")
+			}
+			if commit {
+				proxy.Release()
+				runtimeAwait(t, proxy.Committed())
+				runtimeAwait(t, proxy.HeldJoined())
+			} else {
+				unknownRollbackWriter(t, observer, proxy)
+			}
+			runtimeAwait(t, joined)
+			callErr := <-returned
+			var fault *f.Fault
+			if !errors.As(callErr, &fault) || fault.Code != f.CommitUnknown || fault.CommitState != f.Unknown || fault.CauseID != original.AttemptID().String() {
+				t.Fatal("cleanup public result replaced the native Unknown", callErr)
+			}
+			wantPhase := "object"
+			if commit {
+				wantPhase = "completed"
+			}
+			var phase, objectState string
+			if err = observer.QueryRow(knowledgeContext(t), `SELECT c.phase,o.state FROM agenteam_knowledge.object_cleanup c
+ JOIN agenteam_object.objects o ON o.id=c.object_id WHERE c.id=$1 AND c.object_id=$2`, cleanup, document.ObjectID.String()).Scan(&phase, &objectState); err != nil || phase != wantPhase || objectState != "deleted" {
+				t.Fatal("actual checkpoint outcome was confused with physical deletion", phase, objectState, err)
+			}
+			if deletes, objectDeletes, _ := recoveryDeleteFacts(t, x, project); deletes != 1 || objectDeletes != 1 {
+				t.Fatal("real physical deletion was not completed exactly once")
+			}
+			beforeEvents, beforeActivity := titleEventCount(t, x, project), x.activity(t, actor)
+			if err = s.RecoverCleanup(knowledgeContext(t)); err != nil {
+				t.Fatal("cleanup did not converge from original checkpoint outcome", err)
+			}
+			if err = s.RecoverCleanup(knowledgeContext(t)); err != nil {
+				t.Fatal("completed cleanup did not replay safely", err)
+			}
+			if deletes, objectDeletes, pending := recoveryDeleteFacts(t, x, project); deletes != 1 || objectDeletes != 1 || pending != 0 || titleEventCount(t, x, project) != beforeEvents || !x.activity(t, actor).Equal(beforeActivity) {
+				t.Fatal("checkpoint recovery repeated Object Audit or user facts")
+			}
+			digest, err := kc.DeleteDigest(actor, meta, project, document.ID, preview.Confirmation)
+			if err != nil {
+				t.Fatal(err)
+			}
+			lookup, err := s.LookupCommand(knowledgeContext(t), actor, kc.LookupRequest{ProjectID: project, Command: kc.DeleteSubtree, Key: meta.IdempotencyKey, SemanticDigest: digest})
+			if err != nil || lookup.State != kc.Committed || lookup.Receipt == nil || len(lookup.Receipt.DeletedIDs) != 1 || lookup.Receipt.DeletedIDs[0] != document.ID {
+				t.Fatal("cleanup checkpoint recovery changed the original delete receipt", err)
+			}
+		})
+	}
+}
