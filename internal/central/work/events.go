@@ -89,6 +89,9 @@ func eventBinding(record *commandRecord, actor i.Actor, summary event.Summary) (
 	return digest(raw), locks, opaque, nil
 }
 func (a *Authority) DiscoverAppend(ctx context.Context, actor i.Actor, summary event.Summary) (oc.Dependencies, error) {
+	if taskEventTriple(summary) {
+		return a.discoverTaskAppend(ctx, actor, summary)
+	}
 	st := a.state()
 	if st == nil {
 		return oc.Dependencies{}, fault(f.DependencyUnbound)
@@ -129,6 +132,9 @@ func eventProject(summary event.Summary) (c.ProjectID, error) {
 }
 
 func (a *Authority) ValidateAppendInTx(ctx context.Context, tx f.Tx, actor i.Actor, summary event.Summary, deps oc.Dependencies, stage oc.Stage) error {
+	if taskEventTriple(summary) {
+		return a.validateTaskAppendInTx(ctx, tx, actor, summary, deps, stage)
+	}
 	st := a.state()
 	if st == nil {
 		return fault(f.DependencyUnbound)

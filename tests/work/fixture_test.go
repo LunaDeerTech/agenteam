@@ -70,8 +70,8 @@ func newDatabase(t *testing.T) *pgfixture.Database {
 	migrate(t, db)
 	conn := db.Connect(t)
 	var count int
-	if err := conn.QueryRow(ctxFor(t), `SELECT count(*) FROM pg_tables WHERE schemaname='agenteam_work'`).Scan(&count); err != nil || count != 5 {
-		t.Fatal("compiled 00021 must supply exactly five Work tables", err)
+	if err := conn.QueryRow(ctxFor(t), `SELECT count(*) FROM pg_tables WHERE schemaname='agenteam_work' AND tablename IN ('milestones','sprints','milestone_order_groups','sprint_order_groups','structure_commands')`).Scan(&count); err != nil || count != 5 {
+		t.Fatal("compiled migrations must retain all five named Structure tables", err)
 	}
 	return db
 }
