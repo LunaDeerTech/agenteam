@@ -43,3 +43,11 @@
 - 真实Prepare方法：绑定authority.CheckPlan后才control/nonce/seal，不二次Discover/不换candidate；新值真实kind1 AEAD、意图真实kind3 AEAD；历史已完成重放仅准备摘要比较，metadata-only不封新业务值；失败销毁D04自有候选，不销毁调用者Intent。三top race10260→734ad6 actual0，测试失败也释放mutex的强化仅重跑正向top13922→fa22d0 actual0。nonce Unknown不发布candidate、不复用range或重试。
 - Store/authority与已提交nonce-range在这些测试中均明确controlled；实际密码原语/私有Service方法不等于真实D10授权、PG SQL、初始化或Migrator验证。公开Apply、nativeAudit、rotation/Cleanup仍未实现/未接，不称producer完整。所有Go命令已actualWait，无PG/browser/socket/网络或在途编译。
 - 本文与上述七技术源共8路径统一freeze供root保存；后继新文件可独立推进，但不混入本片段验收。
+
+## 专用 Apply 与 native Secret Audit（有限纯结果）
+
+- 前8路径已root保存372d1e94；Skills正对此前固定crypto/plan/prepared/read/Prepare独审，本新Apply不混入其范围。root已明确D04唯一预留正式00029，当前仍只保未执行draft，等root装配实际连续25–28前缀，不添加正式迁移、不创建D10未来Owner表。
+- 新七技术路径：`secret/contract/project_variable_purpose.go`，以及`secret/`中的`project_variable_metadata.go`、`project_variable_apply{,_test}.go`、`project_variable_audit{,_test}.go`、`project_audit.go`（仅3行私有variant分派）。旧Purpose.Valid/旧loader闭集不变，专用loader反向拒Model等用途。Apply在同caller Tx先ReceiptRead和真实kind3摘要Match，原意图已完成则返回历史结果；未观察才NewWrite、完整原锁、epoch/purpose/内部version/删除引用约束，再实际值/receipt/nativeAudit。none仅专用receipt，无值更新/值Audit；零行、SQL或Audit失败不发布安全结果，没有新增commit/补锁/回调重跑。
+- 新私有Audit witness在native写后生成，只含同Store/Tx/原Request/Entry/Key/安全前后像/receipt与payload ID/复制锁，无Service/keyring/prepared/sealed/材料；与旧mutation/resolution互斥。checker重新查专用receipt、kind3 exact owner及实际canonical，外部expected与内部Credential version保持独立。
+- 实际Prepare/AEAD/Match/Apply/native Secret checker纯控制：91996→423e6b actual0（首4top，1.046s）；补退休后新Session历史重放与22个native witness负控后15128→4c748a actual0（6top，1.097s）。后一个命令里的ProjectAudit分支未匹配旧名字，未据此声称旧组跑过；随后按实际`^TestSecretProjectAudit`补6旧top，21736→111c8b actual0（1.036s）。Store/authority/Append transport均明确controlled，SQL未由PG解析，事务原子回滚与真实D10权限仍未验；不把内存模型写入失败当真实rollback证据。
+- 本文与七技术路径共8freeze供root保存；rotation/Cleanup接线、正式迁移/PG、真实D10 provider和Owner整组仍未完成。Model交付输入继续冻结；本线所有编译/控制均离线，无真实资源占用。
