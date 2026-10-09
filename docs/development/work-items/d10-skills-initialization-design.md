@@ -21,7 +21,7 @@
 | D05 initiator 事实 | `object/transfer_upload.go:18–21` 仅 Human/Agent 取 ID，Service 会把空 UserID 写入 `uploads.initiator_id safe_id NOT NULL`。仅上述已验证初始化分支持久原 CreationID；保 Human/Agent 原路径。原 ObjectService Audit 的 InitiatorKind=Service/InitiatorID=CreationID 已符合闭集，不改通用 Audit actions/resource/producer/SQL 旧约束。 |
 | 初始化中的 Object Audit | 正式 `object.NewProjectAuditAuthority(Store)` 以同 Store、原 Tx/Entry/key 的私有 witness 校验真实对象前置。正式 `project.NewInitializationAuditAuthority` 先核当前 active Project/Creation/owner/action 状态，再调用真实 Skill exact key/object/attempt 映射与 Object checker 的组合；其普通四口原样委托，constructor 不证明所注入 provider 的真实身份。本域实现这个缺失组合，不新增 Audit 枚举或泛放 Service。 |
 | 已失败初始化的收敛 | 正式 `InitializationConvergenceAuthority` 已存在；同 Store 活 Tx/Project EX 核 accepted/initializing/failed/completed 的原 Creation/key/owner 关系，仅 active Project 原工作观察/收敛，不授新写/发布。重试由 D08 将原 Creation 重新置 initializing。 |
-| 不可逆清理 | 当前 `CleanupReleaseAccess` 支持 Avatar 和 Knowledge 的精确原因变体，尚无 SkillRevision+ProjectDeleted。新增仅此 closed 分支，绑定当前 lifecycle cause/版本和 exact revision/upload/object；保全部旧变体。`ReleaseForCleanupInTx` 已按精确授权通用执行，当前未发现必须改其实现。 |
+| 不可逆清理 | SkillRevision+ProjectDeleted 的 closed shape 已补且有限独审；现 `ReleaseForCleanupInTx` 可以关闭 exact upload 的 reserved/canonical 引用。真实本域 CleanupAuthority/plan 尚未接入；旧 candidate 的原 cleanup cause 不会被新 gate 覆盖，重放约束见 §16，不泛放旧原因或改写 D05 记录。 |
 | Project 清理准入 | 当前 `project.LifecycleAuthority.ValidateLifecycleInTx` 对 CleanupPhase 明确 DependencyUnbound；Stop/Inspect 的既有真实当前 cause 校验不等于清理准入。真实 Skill Project delete 集成依赖正式清理授权，不能通过本域 allow 或查 Project 私表替代。 |
 | 删除中的 Object Audit | 已交 D08 初始化 wrapper 只允许 active Project；删除不复用或放宽该 gate。需本域精确外层组合：当前 Project cleanup cause + 本域已关 serving 的原 revision/upload/object 映射 + 原上下文中的真实 Object 私有 witness。否则返回 unbound/拒绝，不能把 ObjectDelete 的 digest cause 当 CreationID。 |
 | 生产装配与停止项 | D05 checker 和 D08 两库已可复用；真实 Skill provider 尚未实现，root 未绑定，Object runtime join 仍停止。新服务可以消费正式 ports 独立编码/PG验证，受控 delegate 不能替代真实对象发布、永久删除或 root/shared guard 组合验收。 |
@@ -189,3 +189,116 @@ D08 active-only 初始化 Audit 分支保持原样。新本域生命周期 Audit
 4. **运行/生产组合**：真实 lifecycle provider与完整多域participant、公平tail、共享启动/健康/停止budget、原guard至actualjoin/DB最后、生产构造和root检查。Object停止项未解时此层不可执行/不可通过；本域可构建库仍继续交付准备。没有新增HTTP/UI端点，不宣称整站创建可用。
 
 源码放新 `internal/central/skill/*.go`、适用同包tests、`tests/skills/*_test.go` 和00027；测试fixture复用现 tests/testsupport和既有有界监督器，不复制一套资源框架。实际资源命令/输入/预算先报root按全局窗口执行，全部direct/adopted Wait、资源ID/私有目录/双TCP尾闭合后才释放。独立验收由未参与实现者选风险补集，作者pure/PG不能冒独验。README在对应事实接受后更新，当前仅SPEC，无服务/PG/对象/生产PASS。
+
+## 16. 下一独立结果：Skills 精确 Project Cleanup（rev1 SPEC）
+
+本节是 Stop 子能力已真实 PG 通过后的下一工程规格，尚未实施／独审。仅补 Skills 清理库及明确的 Project CleanupPhase 依赖；不授本实例跨写 Project、App、D04 产品。root 已将全局 **00028** 预留给必要的 Skills 清理升级，以下只定数据变化，不先写 SQL。生产完整 participant、后台调度与共享 ProcessGuard 仍由 root 组合；Object Runtime join 停项不恢复。
+
+### 16.1 可交付结果与授权范围
+
+实现本域 `Cleanup(ctx, ProjectLifecycle actor, LifecycleCause, Project ScopeRef, *CleanupCheckpoint)`、`oc.CleanupAuthority` 的 exact SkillRevision 分支，以及同一 Authority 的 cleanup access planner／必要维护分支。没有通用 Skill 删除、Creation 取消、按目录扫描删除或 Project 全域 Object 清理入口。现有 Stop/initializer/OwnerReader 的正式语义不变。
+
+| 当前正式能力 | 本结果如何消费／尚缺什么 |
+| --- | --- |
+| D08 `ValidateLifecycleInTx` | 复用原签名；当前 CleanupPhase 直接 unbound，需按 §16.3 实现唯一 Skills 当前门禁。Stop 已验事实不能直接当清理许可。 |
+| D05 `NewCleanupReleaseAccess`＋opaque `AccessLockPlan/LockedAccess` | 已支持 SkillRevision+ProjectDeleted、原 UploadID，具体 Release 同 Tx 无 I/O；本域 Discover/Validate 尚未支持 CleanupReleaseAccess/ObjectCleanupAccess。 |
+| D05 `DeleteUnreferencedWithinBudget` | 同原 cause 获取当前 cleanup 授权后，负责实际 writer/reader/lease/marker/payload 和自己的事务尾；不由 Skills 操作 MinIO 或 D05 表。 |
+| 本域旧 Maintenance provider | 只接 Inspect/FinishWriter/JoinAttempt/ReleaseReader/ReleaseProcess；补 ClaimCleanup/CheckpointCleanup/FinalizeCleanup 的 exact parent 映射。它们不授普通读写或任意 Project 清理。 |
+| Object Audit 私有 witness | `object.NewProjectAuditAuthority` 已有；active 初始化 wrapper 不能用于删除。新增本域精确 ObjectDelete 外层，原 context/Tx/entry/key 原样交真实 checker。 |
+| D08 清理报告／checkpoint | 已有 opaque 类型，只作进度、没有免复验权限。最小清理回执仍只有 D08 最终 deletion receipt，Skills 不新增永久第二份项目墓碑。 |
+
+### 16.2 原始映射与 reserved 边界
+
+本域唯一初始化映射是 `Project/Creation/key → Skill/Revision → Object/Upload`，`object_attempts` 追加每个原 candidate 的 AttemptID/ProcessID；换 candidate 不换 Object/Upload。D05 在旧 candidate 已实际 closed 后接受重试：对旧 candidate 记 `AbandonedAttempt + 原 UploadID` cleanup，再生成新 candidate。新 candidate 后来 Publish、D08 正式 Confirm 后，已 initialized Project 仍可能留下旧的**未发布 candidate payload/marker**；它们可能已是 abandoned，而非字面 reserved 状态。这是本节要清的真实遗留来源，不创造第二个 Object 或重写原 attempt 归属。
+
+Project Delete 时清理 canonical 引用及同一原 Object 下所有 candidate；本域在同 Store/Tx/完整锁下核原 Creation/key/Skill/Revision/Object/Upload，D05 再核实际 upload/attempt/cleanup 私有事实。旧 candidate 的 process 不是当前 cleanup worker；两者不能混为同一进程所有权。
+
+00027 的 `cleanup→skills(project,id,revision)` FK 仅允许已有已发表 Skill，因此不能表达 `initializations.phase=reserved/failed` 且尚无 skills 行的 exact Object/Upload。00028 解除这一发表行前置，但**不扩授权**：
+
+- 当前 D08 `checkNewLifecycle` 拒绝 `!initialized` 的 BeginDelete；初始化收敛口只观察 active 原 Creation，不授不可逆清理。整个 Creation 尚未完成时，不能构造 ProjectDeleted、伪造当前 Cleaning，或把 failed 当已取消。
+- 本轮合法正向是已 initialized Project 的当前正式 Delete/清理，以及该发布对象的旧未发布 candidate；已 initialized 而本域发布事实矛盾仍拒绝，不借新 FK 放过损坏映射。
+- 未 initialized Creation 的独立取消／不可逆清理需要后续 D08 正式语义和授权，另列依赖。迁移可证明该精确记录**可存储**，不以这种 schema fixture 冒称当前产品可以删除未初始化 Project。
+
+### 16.3 Project CleanupPhase 最小真实门禁
+
+共享实现归 root 指定的 Project owner，优先沿原 `LifecycleAuthority.ValidateLifecycleInTx` 补**仅 SkillsParticipant** 的 CleanupPhase 分支，其他尚未实现 participant 保持原明确 unbound。不修改 D04/D06 的清理口或把整 CleanupPhase 统一 allow。
+
+门禁不得开自己的 Tx、补调用方漏锁或做 I/O；同一 Store 的活 Tx 已持 Project SH（Skills 实际持 EX）才读 Project 私有事实，逐项核：
+
+1. actor 为正式 ProjectLifecycle，ProjectScope、Actor.ProjectID、Actor.CauseRef、scope.ProjectID 和原 OperationID 精确一致；cause.Action=Delete，固定 ProjectVersion 合法。
+2. 当前 Project 已 initialized、lifecycle=Deleting、当前 operation pointer 等于原 operation；Project.version 与 operation.project_version 均等于 cause.ProjectVersion，原 operation.owner 与当前 Project Owner 一致。当前 Session/Human 不是此后台许可来源，不能只核一个 Service 名称。
+3. operation **当前**为 Cleaning、cleanup_stage=domains；Accepted/Stopping/Failed（即使 resume=cleanup）/Completed 全拒绝。失败必须由正式 Retry 重新进入原 Cleaning 后才继续，不由下游跳阶段。
+4. 冻结 manifest 的 participant 名称、contract_version、owner module、reference kinds、CleanupAfter 与已注册兼容声明完全一致；Skills 必须存在，不按空表省略。所有 required participant stop_state 已 stopped；Skills 当前 cleanup_state 只能 required/pending，不能凭 completed 重新获得物理写许可。
+5. Skills 的全部 CleanupAfter 依赖已 completed；不得越过 outbox/audit/final 屏障。此检查只证明当前清理准入，真实启用的 Variables/Skills 组合报告和全域 actual stop 由生产 registry 负责，声明元数据不冒实现绑定。
+
+缺 binding/兼容版本保持 DependencyUnbound，错 actor/cause/Project/版本拒绝，阶段不符 InvalidState，矛盾持久事实 DependencyUnavailable。Project 已删除的最小 receipt 只可支撑另有明确契约的终态查询，本分支不给新清理、Audit 或资源写权。Stop/Inspect 的既有分支和 Outbox 当前 unbound 不因本补口改变。
+
+### 16.4 本域权限、opaque plan 与完整锁
+
+`Authority.CheckCleanupInTx(ctx,tx,cause,object)` 只认 SkillRevision owner、ProjectDeleted reason、exact 本域 cleanup ID。由本域持久记录恢复原 lifecycle OperationID/action/version 并构造该职责的 actor，随后调用 §16.3；构造 actor 本身不是授权。必须同时核 exact owner revision/Project、Object/Upload、原 initialization/attempt provenance，以及该记录已在当前 Tx 关闭服务 gate。发表 Skill 必须 serving=false；没有 Skill 行的状态只按 §16.2 的真实授权范围处理。
+
+`CheckProjectCleanupInTx` 不由 Skill provider 获得成功实现：全 Project 清理属于后序 artifact-object participant。不可变 root router 把该方法送真实 Project/Object adapter；若孤立 Skill provider 被直接用于全 Project 清理，明确 DependencyUnbound，不能拿单个 revision 的记录授权全 Project。
+
+AccessPlanner 新增两种 exact 分支：
+
+- CleanupReleaseAccess：包含原 cleanup cause、ObjectID、UploadID，发现原初始化 command、Project EX、真实父 Skill EX、Object EX 及 D05 返回的所有 command/object/work 锁。初次 discovery 可从初始化原映射发现拟用 CleanupID；它不是授权，不能因此作 I/O。
+- ObjectCleanupAccess/CleanupObjectAccess：必须已有持久 gated/pending 记录，只匹配原 cleanup identity；同 Tx 当前门禁和不变映射重验后才交 D05。
+
+服务调用 D05 `DiscoverAccess`，在自己的 `WithinTx` 内**一次** `AcquireAccessPlansInTx` 获取 D05 plan＋本域额外锁的完整排序并集；不先拿部分锁再补。完整 plan 仍使用真实 Object 实例私有 issuer 和该 live Tx 的 LockedAccess。错 Store/实例/Tx、漏锁/弱锁、mapping drift、替换 owner/object/upload/cleanup/cause 均拒绝。discovery digest 绑定全部不可变原材料，不把首次 Tx 内合法的“拟建记录→gated／serving关闭”转换误作新的授权；Validate 则检查转换后的真实当前行。两个并发首次清理只能复用唯一已提交 CleanupID，不能冲突后随意换 ID。
+
+### 16.5 00028 的最小数据升级
+
+预留迁移建议名 `00028_skill_cleanup.sql`，待本 SPEC 独审接受后才实现：移除 cleanup 指向已发表 `skills` 的那个 composite FK；保留 `cleanup→initializations(project,skill,revision,object,upload)` exact DEFERRABLE FK、原字段 CHECK/时间/version/Project+operation+revision 唯一约束。现有 initialization 的原 Creation 及所有 attempt FK 继续提供 provenance，不添加外域 FK/cascade，也不复制 Object payload/key/lease/process 私有事实。
+
+无需凭空新增“已发布替身”或把 object/upload 改 nullable；planned 且未 Reserve 没有物理对象，不生成假 cleanup 项。当前一 Project 一个不可变内置 revision、所有旧 attempt 共享其原 Object/Upload，因此一个 cleanup 项对应整个对象，物理 attempt 列表归 D05。旧00027字节不改；00028 必须验证已发表旧数据升级、未发表 exact mapping 可表达、跨 Project/Skill/revision/object/upload 的错配仍受 FK 拒绝及升级事务失败完整回滚。未来多 revision 若改变该基数，另做正式规格，不能在这里暗加全量扫描。
+
+### 16.6 Gate、实际清理及 Unknown
+
+本域 Cleanup 进入已有真实 service call 账本，绑定 Project 便于本地 join 核对；不启动 background goroutine。所有 Tx 和 D05 I/O 都在调用方剩余预算内，D08 单 participant 既定至多2s是上限而非新的2s续期。root Stop/Drain/Force 必须等待这次调用及其实际尾；持久 cleanup worker/instance/fence 由 D05 与 D08 自有 claim 承担，不给 Skill work 表新增假 reader/init 工作来充数。
+
+1. 核 actor/cause/scope/checkpoint 形状，发现原映射与真实 D05 release plan。在完整 union Tx 下重验当前 CleanupPhase、原 stop 事实和本域没有未 joined 初始化/reader 工作、没有仍活的原本地 call（本次 Cleanup 不计入原工作）。Unknown 或外国死亡/原 writer 终局未证，返回 Pending/原错，不能先物理删除。
+2. 同 Tx 插入／复用唯一 exact cleanup 记录，关闭 serving，并调用 `ReleaseForCleanupInTx` 撤销原 upload、删除 reserved/canonical 引用、gate 全部原 attempt。任一错误回滚本域与 D05 gate；不持 Tx 做物理 I/O。只有整个事务 **Committed** 才进入下一步。
+3. 若 gate COMMIT Unknown，保留原物理 transaction attempt/cause、原 CleanupID，不取消／清理新对象，也不把无行当回滚。后继同原完整锁与当前门禁确认：真实 gated 行与关闭服务事实只能由上述原子 Tx 留下。确认已 gated 后直接继续物理阶段，**不重复 Release**。
+4. 已提交 gated/pending 原项调用 `DeleteUnreferencedWithinBudget`。匹配 result.OperationID，只有 CleanupCompleted 且 Remaining.References/ActiveLeases 为空才获本次对象完成事实；Pending、原错误／Unknown、无行／ResourceDeleted 均不能单独变 Completed。D05 负责所有原 candidate 的实际 I/O、marker 删除及 lease/work 终局，不用 marker、cancel、wrapper flag 或本地空 map 替代。
+5. 物理完成后，新的完整 union Tx 再核 §16.3、原 cleanup/mapping 和所有原工作终局，将 exact 项写 completed，再按本域 FK 顺序在该 Tx 清本 Project 的 cleanup、revisions、skills、work、object_attempts、initializations；不存在第二阶段残留正文/manifest/key/attempt墓碑。任何失败/Unknown 保持原结果和原身份，不能提前从内存忘记尚未返回的操作。
+
+重放细节：D05 `gateAttempt` 的冲突分支保留每个旧 attempt 的原 operation/reason；当前 Release 的 revoked 重放分支要求 D05 所有 cleanup 原因一致，不能把存在旧 AbandonedAttempt 的对象当作这种单因重放。步骤2的本域 gated 行与 Release 原子提交，因此步骤3用本域当前事实确认后跳过 Release，不更改旧 D05 原因来迁就重放。部分混杂/矛盾 gate 仍拒绝，不修成“已 revoked 即成功”。
+
+最终本域清空事务 Unknown 后，必须重新取得原 Project EX 和当前 §16.3 gate并核**全部六表本 Project 都空、原本地工作实际已退役**；只有该单调终态可返回本域 Completed，不发新的 Object 调用。其依据是：进入 Cleaning 前已持久确认实际 Skills stop；初始化/普通写已被当前 Deleting gate永久拒绝；本域唯一清空路径在 D05 完成以后原子删全范围。任意部分缺失、其他残留或尚活原 call 都不能按空初始化行成功。此规则不允许用空表删除 required manifest 项；root 始终调用真实 participant。首次 Stop 对缺初始化仍失败，未初始化 Project 更不能进入此终态分支。
+
+checkpoint 使用既有 provider-owned Schema=1 opaque bytes，仅包含原 Project/operation/version、exact cleanup identity与阶段等有界进度，复制与公开格式均沿现契约。错 participant/cause/scope/schema/材料拒绝；传入 checkpoint 从不替代当前行、锁、gate、物理结果或 join。只有 D08 最终 receipt 可以在 Project 永久删除后保留；本域 Completed 不声明后序 Object/Secret/Outbox/Audit 已清。
+
+### 16.7 清理维护与 ObjectDelete Audit
+
+本域 Maintenance provider 的新增允许表必须显式闭合：
+
+| operation | 本域核对 | 仍由 D05 证明 |
+| --- | --- | --- |
+| ClaimCleanupAccess | 原 Object＋旧或当前 exact Attempt 必须存在 object_attempts，关联原 Project/Creation/Skill/Revision/Upload；原 cleanup gate 已有，完整父锁纳入 plan | 实例匹配、真实 candidate 的 cleanup_gate、引用/活 lease、原 claim/worker/fence |
+| CheckpointCleanupAccess | 同上；请求的 InstanceID/AttemptID/CleanupID/WorkerID/Fence 全部进入不变 request/dependency binding，不把原 candidate ProcessID当当前 worker | 私有当前 cleanup 调用证据、实际返回、原 worker/fence 与 checkpoint终局；不能凭公开字段构造成功 |
+| FinalizeCleanupAccess | exact 原 Object 及本域 gate/原 mapping；不要求本域或 Object deleted 后态已经写出 | 所有 candidate cleaned、引用与活 lease 为空，原清理原因与原 Tx/witness |
+
+这三个分支只提供父锁/映射和原 gate；不调用 active 初始化写授权，也不扩成所有 Maintenance 通配。RecoverAttemptAccess／其他未列 operation 仍 unbound。已有 FinishWriter/JoinAttempt/ReleaseReader/ReleaseProcess 技术退役语义不改；原 Object Runtime join 停项不在本节解决。
+
+新增本域 `LifecycleAuditAuthority` 组合为 `audit.ProjectAuthority` 的外层，构造接既有 Project 初始化/普通授权 delegate、本域 Authority 与真实同 Store Object ProjectFactAuthority。只拦截当前 Skills cleanup exact Object 的 `ObjectDelete`，其它条目完整原样委托一次。它不修改 D04 actions/schema，不自己 append：
+
+- 同原 context/Tx、Project EX/Skill EX/Object EX及完整 command locks，当前 §16.3 gate、serving已关闭、原 cleanup/object/upload/Creation 和 retained attempt 映射均真实；同 scope/actor=ObjectService、resource=原 Object、空 associations、Outcome=Success、phase=Deleted、reason空、ordinal=1、完整 media/size 与原包事实一致。
+- metadata.InitiatorKind=Service／InitiatorID仍为**原 CreationID**，不是 lifecycle OperationID。AppendKey.CauseRef 是 D05 的删除 digest；D05 从最早 cleanup operation 派生，存在旧 AbandonedAttempt 时可能不同于本域新 CleanupID，不能在 Skills 猜一个摘要替代。
+- 原 Entry/key/context 原样交 `object.ProjectAuditAuthority.CheckProjectAuditInTx`，由真实私有 witness证明实际 native调用点、同 Store/Tx和原 digest/attempt/lease前置。公开字段完全相同但没有 witness仍拒；Audit在 objects.state=deleted UPDATE前发生，不能要求不存在的后态。
+- 本最小清理路径不生成 UploadComplete，也不新增删除期间 UploadFailed 的绕过；后者仍沿原初始化 wrapper及其真实gate，若后续确有合法清理失败事实需要另补精确分支，先报告root。普通active初始化Audit与其它域 routes 保持原样；不增加Activity或业务Event。
+
+### 16.8 精确写域、组合责任与验收
+
+后续本域实施预计触及 `internal/central/skill/{service,object_authority,object_maintenance,audit_authority}.go` 及新 `cleanup*.go/lifecycle_cleanup*.go` 与相应同包测试、`tests/skills`、00028、本文/主卡/current。不回写00027，不重新解释旧 frozen binary/StopPG PASS。
+
+共享需求限于 `internal/central/project/lifecycle_authority.go` 和相邻测试的 §16.3 Skills CleanupPhase；root指定唯一写者并独审后消费，现有 Project contract 不加通用 allow/新 phase。正式真实组合测试可使用这个 provider，同一 Store/Tx/锁必须实际验证；根的 immutable owner/cleanup/planner/Audit routes、完整 `agent-skills-variables` 组合、manifest能力版本、initializer与participant同时绑定，以及 DB最后／guard实际join均由root后继接入。D04／App没有本节作者写权；若真实端口不能落实某条规则，先报告精确缺口，不能以库内stub通过。
+
+最小验收范围：
+
+1. 00028 fresh+00027含发表旧数据升级、exact reserved映射可存／错tuple拒绝、迁移事务回滚；明确 reserved schema正向不等未初始化Project删除许可。
+2. CleanupPhase真实PG：当前Cleaning/Owner/cause/version/manifest/依赖成功；停止未齐、wrong participant/contract version、failed尚未Retry、audit/final屏障、foreignStore/endedTx/漏Project锁与未initialized全拒，既有Stop回归不扩大范围。
+3. 本域opaque plan与原子gate：同实例/liveTx/完整锁；fake/mutated plan、same-public-fields／不同issuer、mapping drift；Release失败本域与Object一起回滚；COMMIT Unknown在原锁终局前不发物理调用，确认gated后不重复Release。
+4. 真D05组合：当前published＋旧未发布candidate/旧AbandonedAttempt cause、reserved/canonical关闭、原upload回执不能复活、多个原因保持；同cause重试一次ObjectDelete Audit，fake witness拒，真实Audit失败回滚Object终态；真实writer/reader/lease/marker未终局不得Completed，实际Close／死亡原writer终局后才推进。未解决Object全域Runtime停项不因此标PASS。
+5. 物理结果／本域final回滚与Unknown、全部六表终态原子清空/当前门禁重查、partial缺失拒、迟到旧Creation/operation与另一Project不受影响；无额外Activity/Event、原System Audit不动；未initializedCreation不可借DDL或技术退役权清理。
+
+独立者审SPEC后，先实施本域数据/provider/受控事务边界，再消费root提供的真实D08门禁完成PG；真实D05/生命周期组合需各自freshgrant。可构建、pure、受控PG、真实D05和完整root分别报告，任何一个层次都不替代其他层次。

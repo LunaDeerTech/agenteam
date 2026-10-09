@@ -51,6 +51,10 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 
 当前00027的cleanup表通过FK要求已有skills行，无法持久表达尚未发表的reserved attempt清理。已执行迁移不重写；后续由root协调新的全局迁移编号及兼容升级。本轮只记录该实现前置，没有修改DDL或Cleanup口。
 
+下一独立清理结果已形成 [§16 rev1 SPEC](d10-skills-initialization-design.md#16-下一独立结果skills-精确-project-cleanuprev1-spec)，待Knowledge未参与设计者独审。root已仅预留00028给必要Skills升级，当前不写SQL：最小去除cleanup对已发表skills的FK，保原initialization exact tuple及其余约束。授权仍是正式已initialized Project的当前Cleaning/原Owner-cause-version/manifest依赖；D08不允许未initialized Creation进入Delete，迁移可存reserved不等获得取消/清理权。合法遗留来源是同Object/Upload重试后留下的旧未发布candidate，其原AbandonedAttempt原因保持。
+
+该SPEC补精确CleanupAuthority与opaque release/object plan、三项Claim/Checkpoint/Finalize父锁维护、同Tx关闭serving与Release、预算内真实物理join和原Unknown确认。已确认gated重放不重复Release，不覆盖D05旧cleanup cause；ObjectDelete沿原Creation metadata与真实Object私有witness，不猜最早cleanup摘要。本域最终全部六表原子清空、currentgate下单调空终态复核；没有永久Skills第二份deletion receipt。共享只提出Project lifecycle_authority.go及测试的Skills CleanupPhase需求，尚未授权跨写；D04/App/完整participant/root和Object Runtime停项保持。详细否例、数据边界及层级验收见§16，不把新SPEC或旧StopPG称清理已实现。
+
 root负责D08当前Cleaning/participant/原Owner/operation/action/version的真实清理授权，以及把实际启用的Variables、Skills等域组合为同一`agent-skills-variables` participant并固定manifest/依赖顺序；生产initializer与participant同时接入，Object共享guard保持至实际join及DB最后。Object Runtime停止项和完整生产组合未验事实继续保留。
 
 ## 验收与当前证据

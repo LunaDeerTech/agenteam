@@ -9,6 +9,14 @@
 - 下一步：原CommitRecovery已实际闭合；Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority和真实D05三子组合仍各自等待root单top fresh grant后实际执行。前三项用原两资源PG窗口，D05用原七资源窗口；资源、缓存继续唯一所有。root授权的Project精确Stop子能力已获下述有限独审；旧binary及对应产品基线单独保留，不将旧PG结果外推新产品。不spawn，root协调交叉审查。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
 
+## 下一独立清理 SPEC（待未参与者审）
+
+- root授权推进精确CleanupAuthority/Project CleanupPhase工程规格，并仅预留全局00028给Skills后续必要升级。本轮在 [D10设计§16](../docs/development/work-items/d10-skills-initialization-design.md#16-下一独立结果skills-精确-project-cleanuprev1-spec) 与主卡写rev1可审片段，未写SQL/产品，未跨改Project/App/D04。00027不重写。
+- 最小数据变化去除cleanup到已发表skills的FK，保留原initialization exact Project/Skill/Revision/Object/Upload约束；当前D08 !initialized不得BeginDelete，reserved可存绝不等取消/清理授权。已initialized Project的合法遗留是原candidate实际closed后同Object/Upload重试、留下旧AbandonedAttempt payload/marker；原Creation与每个attempt映射须同Tx核实。
+- 明确root负责Project lifecycle_authority.go及测试的Skills-only CleanupPhase：同Store/liveTx/Project锁、当前Cleaning/domains、原Owner/action/operation/ProjectVersion、冻结manifest与依赖、全stop终局。Skills消费并补Cleanup/Release opaque plan、Claim/Checkpoint/Finalize exact父锁provider；同Tx gate+Release后实际预算内D05清理，原Unknown确认、已gated不重复Release、不重写旧D05 cause；ObjectDelete原Creation metadata＋真实Object witness。最终六表原子清空与当前gate下单调终态复核，不另留永久本域receipt；全participant/root/Object runtime join仍后继。
+- Knowledge TCP诊断移植临时优先窄审已完成：f8fe7d actual0，增量逐字Runner57642926，逆除分别逐字Knowledge666169b6／Runner3e7fd3bd，driver未改、11exact三表相同、预算/Wait/resource/input/gate其余字节保持。只接受已审方法的精确移植，无资源运行，不回填原56777或54818终态；已回root/作者，不另复制控制源。
+- 本节三路径（主卡/设计/current）freeze供root保存并交Knowledge未参与设计者独审。Work native作者刚交稳定整包71076b59，按root优先级接其独审；本域无执行／资源，不因等待它而继续改已冻结SPEC。
+
 ## 本轮恢复保存与 Knowledge 独立风险审查
 
 - root 已保存当前 Stop PG 测试／卡／本文三路径到 `19353f4e766783cdaabd3068833c424f3a631985`；此前 `70036` race-c、`f8911f` 单 top discovery 仅编译准备，随后12子已由96753实际验证。原 `39205` CommitRecovery 完整 PASS 只对应旧 frozen binary 产品组合，不外推到新增 Stop。本轮Stop使用原两资源 driver，无 MinIO/harness新依赖，结果见下。
