@@ -1,6 +1,6 @@
 # D15 Runner 身份与 Control Channel
 
-状态：rev2 两项独审缺陷修正后冻结待差异复审；仅规格与依赖准备，未实施、未运行身份/控制通道。
+状态：rev2 已获独立有限SPEC接受，进入实施；共享wire首片段作者离线通过，身份/控制通道/真实平台尚未运行。
 
 ## 1. 结果、依据与边界
 
@@ -205,6 +205,6 @@ Config只新增上述身份/登记参数与可选`AGENTEAM_RUNNER_CA_FILE`，已
 
 ## 10. 当前状态与下一步
 
-rev1独审发现payload闭集不完整及HTTP误列不存在Foundation Conflict，两项原结论保留；rev2仅补本卡§6/7的闭集表与§3既有码映射，待原审者差异复审。作者自查只完成正式来源/现Account/Audit/Runner D02依赖核对。根授权一次固定依赖准备，`go mod download github.com/gorilla/websocket@v1.5.3`实际exit0，使用本树任务缓存；不等于产品/协议构建或测试通过。当前未启动任何server/PG/browser，未实施migration或产品。
+rev1独审发现payload闭集不完整及HTTP误列不存在Foundation Conflict，两项原结论保留；rev2仅补本卡§6/7的闭集表与§3既有码映射，原审者差异复审已接受；这不是产品运行接受。规格阶段作者自查完成正式来源/现Account/Audit/Runner D02依赖核对。根授权一次固定依赖准备，`go mod download github.com/gorilla/websocket@v1.5.3`实际exit0，使用本树任务缓存；不等于产品/协议构建或测试通过。当前未启动任何server/PG/browser，未实施migration；已落盘共享wire首片段，普通test/race/短时fuzz作者自测actual0，尚未独立实现验收。
 
-本卡7个文档链接（含fragment）及current链接作者自查通过；限定diff whitespace通过，新文件亦逐行核无尾空白。卡/current现冻结供未参与设计的验证者SPEC审查（identity共享路径已获根授权）。通过后先shared wire/identity/service，再WSS与双rootconsumer，按有限稳定片段交叉独审；真实资源/其余平台gate保持显式未验。
+本卡7个文档链接（含fragment）及current链接作者自查通过；限定diff whitespace通过，新文件亦逐行核无尾空白。SPEC已接受（identity共享路径已获根授权）。按shared wire/identity/service、WSS与双rootconsumer推进，有限稳定片段交叉独审；真实资源/其余平台gate保持显式未验。

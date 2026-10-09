@@ -1,8 +1,8 @@
 # 当前工作：D15 Runner 身份与 Control Channel
 
-- 工作树：`/workspace/agenteam-runner-control`；分支 `ai/runner-control`，基线正式 `f1c94ee5`。root 负责所有 Git 写入、共享范围及真实资源调度。
-- 唯一规格：[d15-runner-control.md](../docs/development/work-items/d15-runner-control.md)，rev2 两项独审修正后冻结待差异复审；设计/实施者 `/root/service_delivery/blocker_spec_review`，D15 独立验收须另派未参与者。
-- 当前只有本卡/current 写入；未实施产品、00026 或共享接口；不会等待尚未实现的 Agent/Skills/Object 才设计，也不会以 stub 冒生产集成。
-- root 已授权卡§2共享域及 `runner-identity` 闭集身份。00026 预留；真实迁移必须等24/25完整连续来源，不填空迁移。
-- 固定依赖 `github.com/gorilla/websocket v1.5.3` 已按根单次下载窗 actual exit0，缓存为本树 `output/ai/runner-control/go-mod`；下载未改go.mod/go.sum。网络窗已释放，无服务/PG/browser/TCP/后台进程。
-- 作者自查：卡7个链接含fragment/current链接与whitespace均通过。下一步：原独审者复核13帧/四终态闭集与Foundation错误码两项修正，卡/current已冻结；接受前不实施。Linux/macOS真实支持矩阵、D10/D16/D17/D18真实绑定gate仍未验。
+- 树 `/workspace/agenteam-runner-control` / `ai/runner-control`，基线正式 `f1c94ee5`；root掌管Git与真实资源。
+- [规格卡](../docs/development/work-items/d15-runner-control.md) rev2已由未参与设计者有限复审接受；原rev1两处payload闭集/错误码缺陷已纠正。设计/实施者 `/root/service_delivery/blocker_spec_review`，不能独立验收本实现。
+- 当前稳定片段：`internal/runnerprotocol/{scalar.go,types.go,json.go,message.go,payload.go,payload_methods.go,protocol_test.go}`，13消息/strict JSON/原子decode/关联/安全默认输出/深拷贝，已可构建；无Central import。
+- 作者离线普通test28107、race60285均actual exit0；fuzz13404 actual0（5s配置，约38313执行）。首次无测试编译调用因本人工具包装未保留session终态，不作PASS证据；后续有完整actual终态。以上只wire局部自测，不代表auth/transport/root/真实平台。
+- 固定gorilla/websocket1.5.3已下载至独占任务cache，网络窗已释放，go.mod/go.sum尚未改。00026须等真实24/25连续输入；根已授卡§2共享域。
+- 本范围无PG/server/browser/TCP或后台命令。下一阶段本地Ed25519身份/原子文件/排他锁，随后设备认证与control；真实资源须fresh grant。Linux/macOS及D10/D16/D17/D18集成gate保持未验。
