@@ -1,7 +1,10 @@
 -- DRAFT ONLY: not a numbered migration and not an accepted Migrator input.
 -- No SQL in this file has been executed against PostgreSQL.
--- Formal base: main 8cb0a953, migration prefix through 00024. Root owns future
--- contiguous-prefix assembly and number allocation; no placeholder migrations.
+-- Base main 8cb0a953 had migrations through 00024. Root has now assembled the
+-- actual 00025-00028 inputs as test dependencies; 00028 is not PG/EXPLAIN verified.
+-- Root reserved 00029 exclusively for this D04 storage change. This remains a
+-- draft pending the saved-prefix checkpoint and formal migration preparation.
+-- D10 Owner tables are outside this change and will use their own later number.
 -- Existing CHECK names below follow 00003's column constraints and must be
 -- confirmed by the eventual formal migration integration test.
 

@@ -73,7 +73,9 @@ Prepare 在事务外分配 nonce 并密封必要材料，不写 durable planned 
 
 并发 create 的获胜映射若与事务外候选 Ref 不同，应退出事务、重发现并按 D10 原有限重准备规则处理；不在锁内加锁或无界重试。Unknown 保留原 attempt/cause/CommitResult，D04 不私自另开确认事务或重跑 callback；由 D10 按原一次、有界确认协议处理，不能把未提交/未知都变成成功。
 
-## 4. 精确 SQL 与 index 需求（未分配迁移号）
+## 4. 精确 SQL 与 index 需求（00029 已预留，尚未正式装配）
+
+root 已将正式 00029 分配本域唯一 writer。当前只有 [未执行 DDL 草案](../../../.agent-state/secret-variable-storage/project-variable-storage.draft.sql)，不在正式迁移目录；本树起点≤24，现由root装入25 Knowledge（main29dd4298）、26 Runner（eea4ced0）、27 Skills（7cf7a58e）、28共享cleanup indexes（eda849dc）的实际连续输入。该装配是后继测试依赖，28尚未PG/EXPLAIN；不能据文件连续称Migrator通过。下一步保存该前缀后落本域29并做真实迁移验证，不跳号或用空占位。此号只包含下列D04存储对象，D10 Owner的canonical/history/completed表由其后继独立迁移负责。
 
 1. `secret_payloads.owner_kind` 扩为 1/2/3；kind3 仅 Project scope，摘要明文恰 32 bytes、密文恰 48 bytes。kind1/2 既有约束和编码保持。不能修改历史 migration00003，后续使用独立已授权迁移。
 2. `secrets.purpose` 新增仅 Project scope 的 `project_variable`；旧 `secret_command_receipts.purpose`、`secret_references.consumer`、`secret_leases.consumer` 闭集不扩大，避免经旧 API 或执行消费者旁路。
@@ -97,4 +99,8 @@ CleanupProject 保持真实 D08 deleting gate/操作与 cause，既有 reference
 
 纯测试先覆盖闭集 Intent/Request、opaque issuer 与 copy/mutation、保密输出及材料销毁、原语义稳定/区分、kind3/AAD 及旧 golden、stage/错误与 Unknown 分类。后继真实 PG 必须验证 receipt replay/KeyReused/并发 create 重发现/历史映射、所有 current gates、完整锁并集、原子回滚、rotation/canary/Retire、100/101 cleanup、deleted Credential 和 private Audit witness 负控。独立审查针对实际固定差异与可复跑控制；不把无 PG 的 pure 或编译结果计入这些矩阵。
 
-当前仍缺真实 D10 authority provider 与 Owner final-Tx、迁移号及 D04 producer 实现；本卡不以 stub 越过。prepared/名称/表名三缺口已获 Runner 5bac1f/e52a29 有限 SPEC 接受；实施发现的 CheckPlan 单一接口增量另待窄复核。已保存92aca721的两纯 Go 源只覆盖无材料 Request/owned Intent；原 session57406→477472 两 contract 包 race actual0，不证明 authority、加密、SQL、Audit 或整 producer 可交付。
+SPEC 的 prepared/名称/表名三缺口及 CheckPlan 增量已分别获 Runner 有限复核。D04 typed Request/Intent、kind3 crypto、plan/prepared、实际 Prepare/Match/Lookup/Apply 与 native Secret Audit、rotation/Cleanup 增量已经落源；旧入口 Purpose.Valid 保持闭集。原 Intent 与后继 crypto/plan/prepared/read/Prepare 的有限独审已接受，Apply/nativeAudit 与维护增量仍待其各自代码独审。
+
+作者完整 Secret implementation/contract 两包纯 race 已实际通过（5785→713106）。新的纯测试调用实际 Service/AEAD/native facts checker，Store/当前 authority/Append transport/commit 是明确受控端口，不能据此宣称真实 D10 权限、PostgreSQL SQL/原子回滚、100/101 cleanup 或 Unknown 数据库结果。具体可复跑入口和已核有限范围保存在 [current](../../../.agent-state/current.md)。
+
+仍缺真实 D10 authority provider 与 Owner final-Tx、正式00029及实际PG矩阵；25–28文件装配不是SQL验收，本树基线8cb也未自动包含后继SecretAudit读兼容主线。不得以production stub、纯回调或静态SQL检查越过这些依赖，本卡尚不能正式交付。

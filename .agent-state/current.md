@@ -58,3 +58,9 @@
 - Cleanup在原persisted lifecycle gate/Project EX/引用与lease检查之后追加100条专用receipt批次：先查缺失或wrong scope/project/kind/owner payload，异常失败；同Tx exact回执与kind3 payload成对删除；完成判据加新表。原Unknown仍返回Unknown错误/不发布completed，不重跑callback。D10删除后历史归属无需current canonical。
 - 新3top/20sub controlled race92922→82e3af actual0（1.028s）；其中调用真实reverse helper/ApplyPreparedRewrap/Cleanup方法并检查SQL闭集与次数，明确不能证明PG执行100/101、Rows扫描或实际commit/rollback。旧PrepareRewrap的真实PG扫描、启动canary/Retire及并发/Unknown完整数据库验证仍待正式00029与真实资源。19e978 diffcheck0。
 - 本轮所有纯生产增量到齐后，实际`go test -race -count=1 ./internal/central/secret ./internal/central/secret/contract`全两包5785→713106 actual0（1.219s/1.032s）；没有TestMain/真实资源，本线无在途命令。本文＋四维护技术共5路径freeze供root保存，原已保存片段不再列待存。真实SQL/完整集成未验，不称D04或D27正式完成。
+
+## 连续迁移输入装配（仅测试依赖）
+
+- 维护5路径已root保存e0fb80df，Apply/维护全部Go源freeze给Skills后继独审。此前372d1e94十二技术源已获Skills有限接受，无mustfix；其实际Prepare→Match/退休/错误与第二nonceUnknown四独立top已保存其树9071db4a，不外推本后继Apply/PG/真实D10权限。
+- root db4b48实际装入四原源：`00025_knowledge.sql`来自main29dd4298，`00026_runner_control.sql`来自eea4ced0，`00027_skills.sql`来自7cf7a58e，`00028_cleanup_indexes.sql`来自eda849dc；本人d1a577只读核四文件和连续prefix均在。本线不改这四源。28仅测试候选，未PG/EXPLAIN；不存在空占位或绕过Migrator的验证。
+- 本文/卡/draft注释已与该实际状态对齐；加上述4 SQL共7路径freeze供root保存。draft DDL语句未改、正式29尚未创建或执行。root授权随后落本域`00029_project_variable_receipts.sql`及有限真实SQL/事务测试准备，真实资源另需fresh grant；真实D10权限与Owner结果仍独立缺口。
