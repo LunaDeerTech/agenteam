@@ -132,3 +132,5 @@
 - read首轮outer70759实际exit1/92.544s、Go17.46s；directWait216527 exit1、4adoptedWait0、watchdog/observerjoin、七ID双absent/descendants[]、hostTCP两空、input同一（owned-read-b99f5314…）。闭合browser诊断timeout/spec649、870，step=read-available-pages；前Provider/Model分页及详情有safe200见证，available浏览器新请求未见safe sidecar，不先归因产品。独审继续检查navigation/native观察，原FAIL保留。
 
 - T0a纯状态核心正式main交付ad8b1fb68fe6ff19baef3819ec620573f6730729：8路径，仅2产品源/2独验probe/完整已接受流转SPEC及README/ledger/current；准确候选vet、Central与Runner build actual0，正常push实际0且ls-remote精确确认。完整Transfer/Agent事实/Blocker/Scheduler未实现。Model delivery仍固定已接受dbf/00022及原第七binary，当前不更新其编译闭包。
+
+- read首轮后的限定接线修复独审通过：仅openProject中在唯一真实leaf范围内处理可见“重新读取项目”门槛，点击并确认隐藏后保留原nativeEOF/create enabled，既有S2 real-router测试证明叶切换需要fresh Owner读。修前8行diff反向hash精确回到首轮inputs；按独审建议补隐藏确认1行。strictTS与read discovery实际0；一次discovery PRIVATE变量名错误setupFAIL0tests保留，正确AUTH_WEB_PRIVATE重跑通过。无产品变更/额外fetch/IPC，原FAIL因果不回填；下一第二read完整资源窗。

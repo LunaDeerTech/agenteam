@@ -644,6 +644,15 @@ async function openProject(page: Page, material: Material, key: ProjectKey, suff
   }
   await expect(page).toHaveURL(new URL(`/${project.username}/${project.normalized_name}/settings/${suffix}`, process.env.AGENTEAM_AUTH_WEB_ORIGIN!).href);
   await expect(page.getByRole("heading", { name: suffix === "model-providers" ? "Providers" : "可用模型", level: 1, exact: true })).toBeVisible();
+  // A route change may retire the cached Owner observation. Obtain the
+  // fresh read through the actual leaf action before expecting its list.
+  const leaf = page.locator(suffix === "model-providers" ? "section.project-providers" : "section.available-models");
+  const reread = button(leaf, "重新读取项目");
+  if (await reread.isVisible()) {
+    await expect(reread).toBeEnabled();
+    await reread.click();
+    await expect(reread).toBeHidden();
+  }
   if (suffix === "model-providers") await expect(button(page, "创建 Provider")).toBeEnabled();
   const endpoint = `/api/v1/projects/${project.id}/${suffix === "model-providers" ? "model-providers" : "available-chat-models"}`;
   await expect.poll(async () => (await nativeFacts(page)).some((fact) => fact.path === endpoint && fact.method === "GET" && fact.eof && fact.ended)).toBe(true);
