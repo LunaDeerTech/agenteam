@@ -232,7 +232,7 @@ function resolveSnapshot(value: unknown): Record<string, boolean | number | stri
 type ResponseDiagnosticTarget = { kind: 'session' } | { kind: 'resolve'; username: string; project_name: string };
 // Both targets remain outside the Model operation whitelist. They share one
 // evaluate owner and sampler, observing only the original selected response.
-async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTarget, artifact: 'authority-resolve-diagnostic.json' | 'independent-b-session-diagnostic.json') {
+async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTarget, artifact: 'authority-resolve-diagnostic.json' | 'independent-b-session-diagnostic.json' | 'authority-session-response-diagnostic.json') {
   // All times below are Node observations relative to this invocation, not
   // browser EOF times or the beginning of Playwright's overall test budget.
   const timeOrigin = performance.now();
@@ -358,8 +358,8 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
 async function beginResolveDiagnostic(page: Page, project: Project) {
   return beginResponseDiagnostic(page, { kind: 'resolve', username: project.username, project_name: project.normalized_name }, 'authority-resolve-diagnostic.json');
 }
-export async function beginSessionResponseDiagnostic(page: Page) {
-  return beginResponseDiagnostic(page, { kind: 'session' }, 'independent-b-session-diagnostic.json');
+export async function beginSessionResponseDiagnostic(page: Page, mode: 'independent-b' | 'authority' = 'independent-b') {
+  return beginResponseDiagnostic(page, { kind: 'session' }, mode === 'authority' ? 'authority-session-response-diagnostic.json' : 'independent-b-session-diagnostic.json');
 }
 
 // Session bodies remain private in this call. Only the formal safe identity is
@@ -374,7 +374,7 @@ async function sessionStage<T>(work: Promise<T>, code: SessionStageCode) {
   } finally { if (timer !== undefined) clearTimeout(timer); }
 }
 async function sessionIdentity(page: Page, action: () => Promise<void>, step: (name: string) => void, wait: AuthorityAwait) {
-  const diagnostic = await wait('authority-session-identity-begin-session-diagnostic-005', () => beginSessionDiagnostic(page, 'authority'));
+  const diagnostic = await wait('authority-session-identity-begin-session-diagnostic-005', () => beginSessionResponseDiagnostic(page, 'authority').catch(() => null));
   let diagnosticFailed = false;
   let selected: Request | undefined;
   const observation = { headers_seen: false, finished_event: false, failed_event: false };
@@ -387,14 +387,17 @@ async function sessionIdentity(page: Page, action: () => Promise<void>, step: (n
     publish(); step('authority-session-action-started');
     const waiting = page.waitForResponse((response) => {
       if (new URL(response.url()).pathname !== '/api/v1/session' || response.request().method() !== 'GET' || response.status() !== 200) return false;
-      selected = response.request(); diagnostic.select(response); observation.headers_seen = true; publish(); return true;
+      selected = response.request();
+      try { diagnostic?.select(response); } catch { /* Diagnostic binding cannot replace the selected response. */ }
+      observation.headers_seen = true; publish(); return true;
     }, { timeout: 5_000 });
+    try { diagnostic?.start(); } catch { /* Diagnostic timing cannot interrupt the original action. */ }
     const [response] = await wait('authority-session-identity-all-006', () => Promise.all([
       sessionStage(waiting, 'PROJECT_MODELS_AUTHORITY_SESSION_HEADERS_TIMEOUT'),
       (async () => { await wait('authority-session-identity-session-stage-007', () => sessionStage(action(), 'PROJECT_MODELS_AUTHORITY_SESSION_ACTION_TIMEOUT')); step('authority-session-action-returned'); })(),
     ]));
     step('authority-session-headers-observed');
-    try { need(await wait('authority-session-identity-session-stage-008', () => sessionStage(response.finished(), 'PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT')) === null, 'PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE'); }
+    try { need(await wait('authority-session-identity-session-stage-008', () => sessionStage(diagnostic ? diagnostic.finishedWait(() => response.finished()) : response.finished(), 'PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT')) === null, 'PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE'); }
     catch (error) {
       if (error instanceof Error && error.message === 'PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT') throw error;
       throw new Error('PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE');
@@ -411,7 +414,9 @@ async function sessionIdentity(page: Page, action: () => Promise<void>, step: (n
     }
   } catch (error) { diagnosticFailed = true; throw error; } finally {
     page.off('request', requested); page.off('requestfinished', finished); page.off('requestfailed', failed); publish();
-    await wait('authority-session-identity-finish-010', () => diagnostic.finish(diagnosticFailed));
+    if (diagnostic) await wait('authority-session-identity-finish-010', async () => {
+      try { await diagnostic.finish(diagnosticFailed); } catch { /* Missing diagnostics must preserve the original Session result. */ }
+    });
   }
 }
 async function pageshow(page: Page, wait: AuthorityAwait) { await wait('authority-pageshow-evaluate-011', () => page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow')))); }
