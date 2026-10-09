@@ -140,3 +140,5 @@ CRUD02随后获新独占窗口并执行，whole FAIL：Go20.86s/browser exit1，
 独审阶段又确证诊断缺陷：late PW事件能升级退休观察，冻结reader上的诊断安装能让原getReader新增throw。已分别加退休门禁及非侵入安装异常处理，并以observer-error阻止不完整观测推EOF/CL；原红及修后JS定向反控保留。生产/dist02/普通gate不动；Go安全派生条件受影响，须待磁盘恢复后新binary07及Go控制，本次尚未整体验收或真实重跑。
 
 Runner补尾发现缓存旧wrapper在退休后可重装hook，已为全部缓存入口增加退休后原方法纯委托，保this/args/原Promise/throw且不更新观察；实际红绿和最终strictTS通过。更新的Go投影正反已由Runner实际独立通过，此次cached返修不改Go；Runner最终退休控制复审接受且无剩余must-fix，仅接受本次离线诊断准备。磁盘恢复后新binary07 race编译与六精确入口发现均actualWait0，原dist02复用；新CRUD03仍须另获fresh真实窗口，没有新动态PASS，原CRUD02 wholeFAIL不变。
+
+CRUD03 随后以已审诊断源、binary07与原dist02获独占fresh窗口，作者真实CRUD/历史范围whole PASS：Go19.32s，外部工具实际terminal0，监督器113.178s terminal0。原普通finished、原响应body/schema/client和SQL后验门槛保持；Node/handler/service/root/Go/driver实际尾、四owned adopted actualWait0、7资源/private/runtime/desc与TCP双尾及输入不变全部闭合，窗口已释放。CRUD01/02的原FAIL、未确证归因和未执行范围保持；本次通过不接受完整D27或独立动态验收。下一现有AuthorityAndLifecycle可复用同一候选，仍须fresh资源窗口；ReadAndPagination、OriginalRecovery、IdentityAndCancellation、Layouts及额外恢复负例仍待实际，归档fixture不冒完整生命周期。
