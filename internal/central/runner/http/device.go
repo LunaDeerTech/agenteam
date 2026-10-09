@@ -32,19 +32,21 @@ type deviceService interface {
 // Its bounded slots cover body decoding and original service return, including
 // cancellation tails. The same slot gate is used by the control upgrade owner.
 type DeviceHandler struct {
-	devices deviceService
-	slots   chan struct{}
+	devices  deviceService
+	slots    chan struct{}
+	control  controlBackend
+	registry *controlRegistry
 }
 
 func NewDeviceHandler(s *service.Service) (*DeviceHandler, error) {
 	if s == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	return &DeviceHandler{devices: s, slots: make(chan struct{}, 128)}, nil
+	return &DeviceHandler{devices: s, control: s, slots: make(chan struct{}, 128), registry: &controlRegistry{sessions: make(map[p.ID]*controlSession)}}, nil
 }
 
 func HandlesDevicePath(path string) bool {
-	return path == enrollPath || path == challengePath
+	return path == enrollPath || path == challengePath || path == controlPath
 }
 
 func deviceRequest(r *http.Request, control bool) error {
@@ -110,6 +112,10 @@ func (h *DeviceHandler) ServeHTTP(w http.ResponseWriter, request *http.Request) 
 	if request == nil {
 		panic(http.ErrAbortHandler)
 	}
+	if request.URL != nil && request.URL.Path == controlPath {
+		h.serveControl(w, request)
+		return
+	}
 	budget := 2 * time.Second
 	if request.URL != nil && request.URL.Path == enrollPath {
 		budget = 30 * time.Second
@@ -163,7 +169,7 @@ func (h *DeviceHandler) execute(w http.ResponseWriter, r *http.Request) ([]byte,
 	if e := deviceRequest(r, false); e != nil {
 		return nil, e
 	}
-	if !HandlesDevicePath(r.URL.Path) {
+	if r.URL.Path != enrollPath && r.URL.Path != challengePath {
 		return nil, f.NewFault(f.NotFound, f.NotStarted)
 	}
 	if r.Method != http.MethodPost {
