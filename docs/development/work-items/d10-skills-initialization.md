@@ -1,6 +1,6 @@
 # D10：Skills 初始化与不可变内容
 
-状态：rev3，2026-10-09，P2 持久初始化服务 SPEC 已获未参与实现者有限独立接受，持续实施。P1 纯契约与真实 builtin 的既有提交及[独立验收](../agent-team/d10-p1-recovery-verification.md)不变。当前基线正式 main `ca9f2d5d` 已包含 D08 初始化 Audit 授权库；P2 受控 Object 边界下的真实 PG 持久初始化、发布回滚与原 COMMIT 恢复三个作者 top 已通过。后增Project精确Stop已获有限独审，当前产品真实PG12子完整PASS；D05组合仍只完成编译准备。完整服务验收、D05真实发布/清理和生产root仍未闭合。本文不代表 D10 完成。
+状态：rev3，2026-10-09，P2 持久初始化服务 SPEC 已获未参与实现者有限独立接受，持续实施。P1 纯契约与真实 builtin 的既有提交及[独立验收](../agent-team/d10-p1-recovery-verification.md)不变。当前基线正式 main `ca9f2d5d` 已包含 D08 初始化 Audit 授权库；P2 受控 Object 边界下的真实 PG 持久初始化、发布回滚与原 COMMIT 恢复三个作者 top 已通过。后增Project精确Stop已获有限独审，当前产品真实PG12子完整PASS；当前binary的真实D05发布/private witness/replay/Package三子组合亦已完整PASS（70196）。完整服务验收、独立迁移/Admission/Owner矩阵、D05清理和生产root仍未闭合。本文不代表 D10 完成。
 
 依据：[开发计划](../development-plan.md)、[Skills 架构](../../architecture/agent-skills.md)、[D01 资源/Skills 契约](d01-contracts/resources-skills.md)、[本工作项规格](d10-skills-initialization-design.md)。S01 候选基线 `71dc17671631632bb26e251ad8491e74092ac975`，原主卡 SHA `a258ed11366946529082e885b5ec1e74d033687d1aec60d69000691862811b88`；独立结论 `/tmp/agenteam-d10-s01-review-4r1gg40i/report.md` SHA `49381427440c1f2a09219361e8a1b902ecb8c0db1d1700a35350050f6136f990` 无新增硬阻断，只采纳规格，不证明真实链路。
 
@@ -16,7 +16,7 @@ P1交付真实非空 Add Skills 文本、确定性 ZIP v1、不可变 manifest�
 
 - **已存在且可复用**：D05 `object.NewProjectAuditAuthority(Store)` 私有同Tx witness checker；D08 `InitializationConvergenceAuthority` 和 `NewInitializationAuditAuthority`。旧“checker/constructor不存在”的历史前提已过时，不另造重复实现。
 - **精确补口已完成并获有限独审**：D05 初始化 Service/SkillRevision/Creation cause闭集、同分支Service initiator UUID、SkillRevision+ProjectDeleted不可逆release，保留原Avatar和Knowledge变体。该证据仍不证明真实D05发布或清理。
-- **实现与绑定边界**：真实 Skill exact key/object/attempt provider及本域服务已实现，真实Object组合源码已接线并编译；完整 participant/生产root仍未绑定。D08初始化Audit wrapper是active-only，不能用它放行删除。
+- **实现与绑定边界**：真实 Skill exact key/object/attempt provider及本域服务已实现，真实Object组合发布/读取三子已由70196实际通过；完整 participant/生产root仍未绑定。D08初始化Audit wrapper是active-only，不能用它放行删除。
 - **真实清理前置**：当前Project lifecycle CleanupPhase明确DependencyUnbound；需正式同cause清理授权和本域删除Audit组合，不跨域私表、不临时allow。Object runtime join停止项保持，未齐前不得运行或宣称完整root停止/永久删除组合。
 - 00024/25/26前缀已由root按精确来源集成，00027已随三次真实初始化fixture连续执行；独立升级/约束/DDL回滚矩阵仍待。未改旧迁移/共享Audit CHECK。真实PG+明确受控delegates只验证本域；真实D05/MinIO/witness及生产绑定须各自实际验收。
 
@@ -44,6 +44,7 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 - 当前Stop另有独立 `TestSkillLifecycleStopPersistence` 12子源码准备，消费真实Project LifecycleAuthority/同Store锁/真实work SQL，并以原完整帧proxy验证Stop COMMIT未确认不得取消。覆盖当前phase/cause/participant/Owner拒例、archive/delete原held Discard的实际join和独立真实父锁竞争；Project/Creation/lifecycle明示规范种子，Object/Process受控。70036 race-c与f8911f唯一top发现actual0，独立 `skill-pg-stop.test` 使用 `d0a16242` 产品+新测试；尚未执行PG/socket，旧binaries及harness未改。
 
 - 当前产品Stop作者真实PG `96753` 完整PASS：沿70036 binary／d0a16242产品＋19353f4e测试，12子Go5.32s；同env首采5,707,370,496 bytes满足5GiB后exec，Go986629与driver986046实际Wait0，driver15.375s／supervisor74.585s、outeractual0。两精确PG资源双退役、desc/runtime/private及TCP双尾、inputs_unchanged全齐，现场run仅owned.json且两PID不存在后归还窗口。实证当前Project LifecycleAuthority/原cause与phase/participant/Owner、真实父锁、archive/delete持有调用实际join、原Stop COMMIT Unknown不取消及后继已知提交取消；仍为规范Project/lifecycle种子和受控Object/Process，不称D05/foreign死亡/整participant/root通过。原件与完整env/cwd见 `.agent-state/current.md`；原初始化三组旧产品结论不扩大。
+- 当前70036 binary的真实 `TestSkillObjectInitializationPublication` 作者组合 `70196` 完整PASS：唯一top/3子Go2.85s，exec同进程fresh可用5,912,387,584 bytes通过5GiB，Go1.27.1与原MinIO SHA核定后沿七资源原chain执行。测试1069251／driver1067176实际Wait0，outer actual0、supervisor102.059s；七精确资源与三private双退役、runtime/desc/TCP双尾及inputs_unchanged全齐。实证真实Skill→Object→Project/Audit私有witness、MinIO canonical publication、重建Skill service原ID零重复重放、原包完整EOF与Close后reader/lease/work终局，公开字段完整仍不能伪造private witness。Project/Creation/Human为规范种子，不是真实Create/Login；ProcessGuard仅构造且未绑定Runtime，Cleanup/Purger/root仍unbound，不证明foreign进程停止或完整participant。当前产品来源d0a16242、测试组合19353f4e；原69925编译失败与旧8884准备binary不重写。准确命令及原日志定位见恢复点。
 
 ## 生命周期后续依赖与责任
 

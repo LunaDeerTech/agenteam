@@ -1,12 +1,12 @@
 # Skills 持久初始化服务恢复点
 
 - 树：`/workspace/agenteam-skills`，分支 `ai/skills-service`；基线正式 main `ca9f2d5d`。D08已正式交付，旧初始化树保持冻结，不再修改。
-- 当前：已完成Variables独验并返回D10作者；rev3 SPEC已获独立有限接受。本域四口initializer、OwnerReader、持久work和有界公平Recover均可构建。原产品作者真实PG的Persistence（60950）、PublicationRollback（58518）与CommitRecovery（39205）已完整PASS，均明确消费受控Object端口；后增Project精确Stop已获有限独审，当前产品PG12子（96753）完整PASS。真实D05对象组合仅完成编译准备，生产root仍未绑定。
+- 当前：已完成Variables独验并返回D10作者；rev3 SPEC已获独立有限接受。本域四口initializer、OwnerReader、持久work和有界公平Recover均可构建。原产品作者真实PG的Persistence（60950）、PublicationRollback（58518）与CommitRecovery（39205）已完整PASS，均明确消费受控Object端口；后增Project精确Stop已获有限独审，当前产品PG12子（96753）完整PASS。当前70036 binary的真实D05发布/private witness/replay/Package三子70196亦完整PASS；生产root与Cleanup/Purger仍未绑定。
 - 已保存SPEC片段：`docs/development/work-items/d10-skills-initialization.md`、`docs/development/work-items/d10-skills-initialization-design.md`、本文。已由root保存/push ea13186d，设计技术段继续freeze；未自行Git操作。
 - 当前可复用：实际D05 same-Store Object Audit checker；D08 original initialization四口、收敛口与初始化Audit wrapper。本域Skill exact映射provider已实现，真实Object组合测试已接线但未动态；生产root未绑定，constructor非nil不证明真实组合。
 - 共享待协调：D05初始化Service closed shape/initiator及SkillRevision+ProjectDeleted release三个窄补口已完成并获有限独审，尚不证明真实清理；Project CleanupPhase现unbound，本域active初始化与删除Audit分流、生产同participant组合仍待。Project CleanupPhase/root仍未授写，Object runtime join停止项不恢复。
 - 迁移00027已随上述初始化及当前Stop的真实PG fixture连续执行；单独升级、约束和DDL失败回滚矩阵仍未动态。root已精确刷新00024到正式3cea6076，00025保持da16d95a、00026保持4174e160；前序来源与各域证据不替代本域独立迁移验收。
-- 下一步：原CommitRecovery已实际闭合；Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority和真实D05三子组合仍各自等待root单top fresh grant后实际执行。前三项用原两资源PG窗口，D05用原七资源窗口；资源、缓存继续唯一所有。root授权的Project精确Stop子能力已获下述有限独审；旧binary及对应产品基线单独保留，不将旧PG结果外推新产品。不spawn，root协调交叉审查。
+- 下一步：原CommitRecovery及当前真实D05发布三子已实际闭合；Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority仍待root fresh grant后沿已独审exact三top组合、原两资源PG105秒实际执行。资源、缓存继续唯一所有。root授权的Project精确Stop子能力已获下述有限独审；旧binary及对应产品基线单独保留，不将旧PG结果外推新产品。不spawn，root协调交叉审查。Cleanup rev2只到规格接受，D05新口与Project当前CleanupPhase须先独立交付。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
 
 ## 下一独立清理 SPEC（rev2 有限接受，尚未实施）
@@ -64,6 +64,32 @@ python3 .agent-state/skills-pg-combo/controls.py
 - `b09e76` actual0／28离线控制：运行实际新driver验证3个允许selector（组合＋两个旧单top）与6个宽／错序／缺项／多项拒例；允许项故意使用不存在parent，恰在Statfs失败退出，无资源创建。实际helper核正向／缺项／多项／重复／仅sub／无效UTF8／失读；实际supervisor main在受控已Wait child、空desc/tcp下跑正向、缺项、无效UTF8与旧单top四例，保实际Wait观察及完整双尾，未把控制当真实资源回收。两工具逆去唯一增量后全文逐字 `4442a356`，264020 syntax/gofmt/diffcheck actual0。
 - 未验范围仍是Migration 4直接子（其中30约束负例）、Admission work/reserve 2子、Owner 12子，7个独立DB顺序清理、两个proxy顺序实际join；只计划原105秒内一次有限组合尝试，未实跑、不保证静态耗时、不增预算。真实D05另走原七资源root-chain／同70036 binary／单独ObjectPublication三子，Cleanup unbound/noRuntime限制不变。已PASS的四top不重跑。
 - 两工具／必要controls／本文4路径已由root保存 `c89aa120`。Variables未参与者窄审有限接受、无mustfix：8321c1原28控actual0；0a703d另以实际supervisor main验证driver exit2＋exact3top仍保2、读取OSError仍完整Wait[123]/desc双轮/TCP双空/input/terminal。两源逆投影逐字4442，无failfast；不是三业务PG通过。当前工具、controls和70036 binary保持该版本，只有本次SPEC三文档另改。新真实窗口仍需root fresh grant。
+
+## 当前真实 D05 发布组合完整结果
+
+- root fresh grant仅 `^TestSkillObjectInitializationPublication$`；70196 outer actualexit0，唯一top/3子Go2.85s，supervisor102.059s。exec同进程freshstatvfs=5,912,387,584 bytes≥5,368,709,120后才启动；实核Go go1.27.1、MinIO固定SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`、70036 binary32,895,591 B及全部cache目录。继承PATH前置固定Go，原root chain/Go6m/root540+60+3/TCP75/七资源不变；没有调用未实现Cleanup/Purger或Runtime。
+- 原测试1069251和driver1067176实际Wait0且现场PID absent；nonce f533129b688f666158069193983c0276（Object）、7a80f2bc9106a12cf08d95215fb0da2d（outbound）、dcb7828ed9ff7e988b6041548f2f6921（PG）对应七精确ID双absent、三private双absent，runtime双empty、desc双[]，exacttops/actual_test_wait=True。HOST_TCP两次delta_empty、inputs_unchanged=True/terminal0齐；现场run仅owned.json/request.json/空runtime，三private无路径或symlink。原日志 `output/ai/skills/pg/pg-5c0cde23115d4d73aee1aa87a795007c.log` 及同名owned目录。窗口完整释放后才更新本文，不续跑下一组。
+- 消费当前d0a16242产品及19353f4e测试组合，真实Skills、Object.Service.Initialize、MinIO和Audit/private witness全链；重建Skill service不换原Object/Upload/Attempt或重复Audit，真实Package EOF仍未Joined、Close后read lease与work结账，完整公开字段无法伪造private witness。上游Project/Creation/Human均规范种子，不是Project.Create/Login；ProcessGuard只构造资源、未绑定Runtime，不称foreign进程停止、Cleanup/metadata purge/完整participant/root或独立动态验收。旧8884 binary未执行，旧69925编译FAIL保持。
+- 实际启动入口如下；命令前同一Python进程已执行上述freshstatvfs／Go／MinIO／binary核定，再exec该supervisor。任何再运行仍需root新grant。
+
+```sh
+# cwd: /workspace/agenteam-skills/tests/skills
+env -u AGENTEAM_PG_FIXTURE -u AGENTEAM_PG_UNSUPPORTED_FIXTURE \
+ -u AGENTEAM_OBJECT_FIXTURE -u AGENTEAM_OUTBOUND_FIXTURE \
+ PATH=/workspace/toolchains/go1.27.1/bin:$PATH \
+ GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2 \
+ GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
+ GOCACHE=/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache \
+ GOTMPDIR=/workspace/agenteam-skills/output/ai/skills/compile/tmp \
+ AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go \
+ AGENTEAM_MINIO_BINARY=/workspace/agenteam-skills/output/ai/deps-minio/bin/minio \
+ python3 /workspace/agenteam-skills/.agent-state/task-planning-recovery/pg_only_supervisor.py \
+ --root-chain \
+ --driver /workspace/agenteam-skills/.agent-state/work-owner-http/root_chain_driver.py \
+ --binary /workspace/agenteam-skills/output/ai/skills/compile/skill-pg-stop.test \
+ --run '^TestSkillObjectInitializationPublication$' \
+ --output /workspace/agenteam-skills/output/ai/skills/pg
+```
 
 ## 当前 Stop PG 完整结果
 
