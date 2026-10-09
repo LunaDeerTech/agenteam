@@ -174,6 +174,23 @@ import {
   type ProjectCredentialDeleted,
   type ProjectCredentialObservation,
 } from '../api/project-model-credentials'
+import {
+  createProjectVariablesAPI,
+  captureProjectVariableCommand,
+  captureProjectVariableID,
+  captureProjectVariableQuery,
+  projectVariableBody,
+  projectVariableTarget,
+  parseProjectVariable,
+  parseProjectVariablePage,
+  parseProjectVariableReceipt,
+  parseProjectVariableLookup,
+  type ProjectVariablesAPI,
+  type ProjectVariableCommand,
+  type ProjectVariableQuery,
+  type ProjectVariableReceipt,
+  type ProjectVariableLookup,
+} from '../api/project-variables'
 import { shape } from '../api/client'
 const projectModelReadActions = [
   'project-model-provider-list',
@@ -198,6 +215,32 @@ const projectModelLookupActions = [
   'project-model-configuration-lookup',
   'project-model-credential-lookup',
 ] as const
+type ProjectVariableAction =
+  | 'project-variable-list'
+  | 'project-variable-get'
+  | 'project-variable-write'
+  | 'project-variable-lookup'
+type ProjectVariableIntent = {
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+  command: ProjectVariableCommand | null
+  body: string | null
+  uncertain: boolean
+  keyConflict: boolean
+}
+export type ProjectVariablesProgress = Readonly<{
+  projectID: string
+  kind: ProjectVariableCommand['kind']
+  targetID: string
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  receipt: ProjectVariableReceipt | null
+  observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
+  lookingUp: boolean
+  contextValid: boolean
+  keyConflict: boolean
+  canReplayOriginal: boolean
+}>
 type ProjectModelReadAction = (typeof projectModelReadActions)[number]
 type ProjectModelWriteAction = (typeof projectModelWriteActions)[number]
 type ProjectModelLookupAction = (typeof projectModelLookupActions)[number]
@@ -471,6 +514,7 @@ type Action =
   | ProjectAction
   | ProjectAuditAction
   | ProjectModelAction
+  | ProjectVariableAction
 interface Operation {
   generation: number
   kind: Action
@@ -581,6 +625,7 @@ export function createSessionController(
   projectAPI: ProjectOwnerAPI = createProjectOwnerAPI(),
   projectAuditAPI: ProjectAuditAPI = createProjectAuditAPI(),
   projectModelSettingsAPI: ProjectModelSettingsAPI = createProjectModelSettingsAPI(),
+  projectVariablesAPI: ProjectVariablesAPI = createProjectVariablesAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -670,6 +715,20 @@ export function createSessionController(
   let projectModelIntent: ProjectModelIntent | null = null
   const projectModelState = shallowReactive<{
     progress: Omit<ProjectModelSettingsProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
+  const variableRevisions: Record<ProjectVariableAction, number> = {
+    'project-variable-list': 0,
+    'project-variable-get': 0,
+    'project-variable-write': 0,
+    'project-variable-lookup': 0,
+  }
+  const isVariableAction = (kind: Action): kind is ProjectVariableAction =>
+    Object.hasOwn(variableRevisions, kind)
+  const isVariableRead = (kind: Action) =>
+    kind === 'project-variable-list' || kind === 'project-variable-get'
+  let variableIntent: ProjectVariableIntent | null = null
+  const variableState = shallowReactive<{
+    progress: Omit<ProjectVariablesProgress, 'contextValid' | 'canReplayOriginal'> | null
   }>({ progress: null })
   const outboundRevisions: Record<OutboundPolicyAction, number> = {
     'outbound-policy-read': 0,
@@ -816,9 +875,11 @@ export function createSessionController(
   function clearIdentity(invalidate = true) {
     clearProjectAuditRead()
     clearProjectModelReads()
+    clearVariableReads()
     state.user = null
     state.session = null
     if (invalidate) {
+      clearVariablePending()
       clearProjectModelState()
       clearProjectState()
       clearInvitationState()
@@ -883,6 +944,7 @@ export function createSessionController(
       previous.sessionID === view.session.id &&
       (!sessionCSRF || sessionCSRF === view.csrf_token)
     if (!same) {
+      clearVariablePending()
       clearProjectModelState()
       clearProjectState()
       ++personalRevision
@@ -1394,41 +1456,44 @@ export function createSessionController(
       | OutboundPolicyAction
       | ProjectAction
       | ProjectAuditAction
-      | ProjectModelAction = 'personal',
+      | ProjectModelAction
+      | ProjectVariableAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
-      isProjectModelAction(kind)
-        ? projectModelRevisions[kind]
-        : isProjectAuditAction(kind)
-          ? projectAuditRevision
-          : isProjectAction(kind)
-            ? projectRevisions[kind]
-            : kind === 'system'
-              ? systemRevision
-              : kind === 'audit-read'
-                ? auditRevision
-                : kind === 'runtime-information-read'
-                  ? runtimeInformationRevision
-                  : kind === 'invitation-read'
-                    ? invitationReadRevision
-                    : kind === 'invitation-write'
-                      ? invitationRevision
-                      : kind === 'personal'
-                        ? personalRevision
-                        : isModelAction(kind)
-                          ? modelRevisions[kind]
-                          : isSelectionAction(kind)
-                            ? selectionRevisions[kind]
-                            : isAccountSecurityAction(kind)
-                              ? accountSecurityRevisions[kind]
-                              : isSMTPAction(kind)
-                                ? smtpRevisions[kind]
-                                : isSMTPDeliveryAction(kind)
-                                  ? smtpDeliveryRevisions[kind]
-                                  : isOutboundPolicyAction(kind)
-                                    ? outboundRevisions[kind]
-                                    : providerRevisions[kind]
+      isVariableAction(kind)
+        ? variableRevisions[kind]
+        : isProjectModelAction(kind)
+          ? projectModelRevisions[kind]
+          : isProjectAuditAction(kind)
+            ? projectAuditRevision
+            : isProjectAction(kind)
+              ? projectRevisions[kind]
+              : kind === 'system'
+                ? systemRevision
+                : kind === 'audit-read'
+                  ? auditRevision
+                  : kind === 'runtime-information-read'
+                    ? runtimeInformationRevision
+                    : kind === 'invitation-read'
+                      ? invitationReadRevision
+                      : kind === 'invitation-write'
+                        ? invitationRevision
+                        : kind === 'personal'
+                          ? personalRevision
+                          : isModelAction(kind)
+                            ? modelRevisions[kind]
+                            : isSelectionAction(kind)
+                              ? selectionRevisions[kind]
+                              : isAccountSecurityAction(kind)
+                                ? accountSecurityRevisions[kind]
+                                : isSMTPAction(kind)
+                                  ? smtpRevisions[kind]
+                                  : isSMTPDeliveryAction(kind)
+                                    ? smtpDeliveryRevisions[kind]
+                                    : isOutboundPolicyAction(kind)
+                                      ? outboundRevisions[kind]
+                                      : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1443,7 +1508,10 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (isProjectAction(kind) || isProjectAuditAction(kind) || isProjectModelAction(kind)
+        (isProjectAction(kind) ||
+        isProjectAuditAction(kind) ||
+        isProjectModelAction(kind) ||
+        isVariableAction(kind)
           ? state.phase === 'authenticated' &&
             personalContext.phase === 'current' &&
             state.user?.id === identity.userID &&
@@ -1507,15 +1575,17 @@ export function createSessionController(
         return result
       })
       .catch((error: unknown) => {
-        const e = isProjectModelAction(kind)
-          ? projectModelFailure(kind, current, error)
-          : isProjectAuditAction(kind)
-            ? projectAuditFailure(current, error)
-            : isProjectAction(kind)
-              ? projectFailure(identity, op, error)
-              : kind !== 'personal'
-                ? systemFailure(identity, op, current, error)
-                : personalFailure(identity, error)
+        const e = isVariableAction(kind)
+          ? variableFailure(kind, current, error)
+          : isProjectModelAction(kind)
+            ? projectModelFailure(kind, current, error)
+            : isProjectAuditAction(kind)
+              ? projectAuditFailure(current, error)
+              : isProjectAction(kind)
+                ? projectFailure(identity, op, error)
+                : kind !== 'personal'
+                  ? systemFailure(identity, op, current, error)
+                  : personalFailure(identity, error)
         if (command && personalIntent === command) {
           if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
             command.checked = false
@@ -4002,6 +4072,324 @@ export function createSessionController(
       return performOutboundPolicy(outboundIntent)
     },
   }
+  function clearVariableReads() {
+    ++variableRevisions['project-variable-list']
+    ++variableRevisions['project-variable-get']
+    if (owner && isVariableRead(owner.kind)) owner.abandon?.()
+  }
+  function clearVariablePending() {
+    const retiring =
+      owner && isVariableAction(owner.kind) && !isVariableRead(owner.kind) ? owner : null
+    ++variableRevisions['project-variable-write']
+    ++variableRevisions['project-variable-lookup']
+    if (variableIntent) {
+      variableIntent.command = null
+      variableIntent.body = null
+    }
+    variableIntent = null
+    variableState.progress = null
+    retiring?.abandon?.()
+  }
+  function variableFailure(kind: ProjectVariableAction, current: () => boolean, error: unknown) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    if (
+      current() &&
+      (unavailableSession(e) ||
+        (!isVariableRead(kind) && e.problem?.status === 403 && e.problem.code === 'CSRF_FAILED'))
+    ) {
+      clearIdentity()
+      clearBrowser()
+      state.phase = 'unavailable'
+      state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
+    }
+    return e
+  }
+  function knownVariableRejection(e: AccountFailure) {
+    const p = e.problem
+    if (!p || !['not_started', 'not_committed'].includes(p.commit_state)) return false
+    return (
+      (p.status === 400 && p.code === 'INVALID_ARGUMENT') ||
+      (p.status === 401 && ['UNAUTHENTICATED', 'SESSION_REVOKED'].includes(p.code)) ||
+      (p.status === 403 && ['FORBIDDEN', 'CSRF_FAILED', 'ORIGIN_DENIED'].includes(p.code)) ||
+      (p.status === 404 && p.code === 'NOT_FOUND') ||
+      (p.status === 409 &&
+        ['VERSION_CONFLICT', 'PROJECT_NOT_ACTIVE', 'RESOURCE_BUSY'].includes(p.code)) ||
+      (p.status === 413 && p.code === 'PAYLOAD_TOO_LARGE') ||
+      (p.status === 415 && p.code === 'UNSUPPORTED_MEDIA_TYPE') ||
+      (p.status === 503 &&
+        ['DEPENDENCY_UNBOUND', 'DEPENDENCY_UNAVAILABLE', 'SHUTTING_DOWN'].includes(p.code))
+    )
+  }
+  function publishVariable(
+    original: ProjectVariableIntent,
+    command: ProjectVariableCommand,
+    phase: ProjectVariablesProgress['phase'],
+    receipt: ProjectVariableReceipt | null = null,
+  ) {
+    const previous = variableState.progress
+    // A later observation or failed replay cannot undo a verified historical receipt.
+    variableState.progress = Object.freeze({
+      projectID: command.projectID,
+      kind: command.kind,
+      targetID: projectVariableTarget(command),
+      phase: previous?.receipt ? 'confirmed' : phase,
+      receipt: receipt ?? previous?.receipt ?? null,
+      observation: 'none',
+      lookingUp: false,
+      keyConflict: original.keyConflict,
+    })
+  }
+  async function executeVariable(
+    original: ProjectVariableIntent,
+    command: ProjectVariableCommand,
+    signal: AbortSignal,
+  ): Promise<ProjectVariableReceipt> {
+    let result: ProjectVariableReceipt
+    switch (command.kind) {
+      case 'create':
+        result = await projectVariablesAPI.create(
+          command.projectID,
+          command.request,
+          original.csrf,
+          original.key,
+          signal,
+        )
+        break
+      case 'update':
+        result = await projectVariablesAPI.update(
+          command.projectID,
+          command.targetID,
+          command.expectedVersion,
+          command.request,
+          original.csrf,
+          original.key,
+          signal,
+        )
+        break
+      case 'delete':
+        result = await projectVariablesAPI.delete(
+          command.projectID,
+          command.targetID,
+          command.expectedVersion,
+          original.csrf,
+          original.key,
+          signal,
+        )
+        break
+    }
+    const parsed = parseProjectVariableReceipt(result, command)
+    checkVariableHistory(original, parsed)
+    return parsed
+  }
+  function checkVariableHistory(original: ProjectVariableIntent, receipt: ProjectVariableReceipt) {
+    const confirmed = variableState.progress?.receipt
+    if (
+      variableIntent === original &&
+      confirmed &&
+      JSON.stringify(confirmed) !== JSON.stringify(receipt)
+    )
+      throw new AccountFailure('invalid-response')
+  }
+  function performVariable(original: ProjectVariableIntent): Promise<ProjectVariableReceipt> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    const command = original.command
+    if (
+      variableIntent !== original ||
+      !command ||
+      !projectContext(original) ||
+      original.keyConflict
+    )
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const revision = variableRevisions['project-variable-write']
+    const retained = () =>
+      variableIntent === original &&
+      revision === variableRevisions['project-variable-write'] &&
+      sameIdentity(original.identity, personalContext.identity)
+    let dispatched = false
+    publishVariable(original, command, 'submitting')
+    return runAuthorized(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !retained() || original.command !== command)
+          throw new AccountFailure('cancelled')
+        if (JSON.stringify(projectVariableBody(command)) !== original.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        return executeVariable(original, command, op.abort.signal)
+      },
+      undefined,
+      'project-variable-write',
+    ).then(
+      (receipt) => {
+        if (!retained() || !projectContext(original)) throw new AccountFailure('cancelled')
+        publishVariable(original, command, 'confirmed', receipt)
+        return receipt
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (retained()) {
+          original.keyConflict ||=
+            e.problem?.status === 409 && e.problem.code === 'IDEMPOTENCY_KEY_REUSED'
+          original.uncertain ||= original.keyConflict || (dispatched && !knownVariableRejection(e))
+          publishVariable(original, command, original.uncertain ? 'uncertain' : 'rejected')
+        }
+        throw e
+      },
+    )
+  }
+  const projectVariables = {
+    get progress(): ProjectVariablesProgress | null {
+      const progress = variableState.progress,
+        original = variableIntent
+      if (!progress || !original) return null
+      const contextValid = projectContext(original)
+      return Object.freeze({
+        ...progress,
+        contextValid,
+        canReplayOriginal:
+          contextValid &&
+          !!original.command &&
+          original.body !== null &&
+          !original.keyConflict &&
+          !owner &&
+          !state.busy,
+      })
+    },
+    list(projectID: string, query: ProjectVariableQuery) {
+      try {
+        const identity = personalIdentity(),
+          project = captureProjectVariableID(projectID),
+          captured = captureProjectVariableQuery(query)
+        return runAuthorized(
+          identity,
+          async (op) =>
+            parseProjectVariablePage(
+              await projectVariablesAPI.list(project, captured, op.abort.signal),
+              project,
+              captured,
+            ),
+          undefined,
+          'project-variable-list',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    get(projectID: string, targetID: string) {
+      try {
+        const identity = personalIdentity(),
+          project = captureProjectVariableID(projectID),
+          target = captureProjectVariableID(targetID)
+        return runAuthorized(
+          identity,
+          async (op) =>
+            parseProjectVariable(
+              await projectVariablesAPI.get(project, target, op.abort.signal),
+              project,
+              target,
+            ),
+          undefined,
+          'project-variable-get',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    start(command: ProjectVariableCommand): Promise<ProjectVariableReceipt> {
+      try {
+        const identity = personalIdentity()
+        if (variableIntent || personalIntent || pending) throw new AccountFailure('busy')
+        const captured = captureProjectVariableCommand(command)
+        const original: ProjectVariableIntent = {
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+          command: captured,
+          body: JSON.stringify(projectVariableBody(captured)),
+          uncertain: false,
+          keyConflict: false,
+        }
+        variableIntent = original
+        return performVariable(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    lookupOriginal(): Promise<ProjectVariableLookup> {
+      const original = variableIntent,
+        command = original?.command
+      if (owner) return Promise.reject(new AccountFailure('busy'))
+      if (!original || !command || !projectContext(original) || original.keyConflict)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      const revision = variableRevisions['project-variable-lookup']
+      const retained = () =>
+        variableIntent === original &&
+        revision === variableRevisions['project-variable-lookup'] &&
+        sameIdentity(original.identity, personalContext.identity)
+      variableState.progress = Object.freeze({ ...variableState.progress!, lookingUp: true })
+      return runAuthorized(
+        original.identity,
+        async (op) => {
+          if (JSON.stringify(projectVariableBody(command)) !== original.body)
+            throw new AccountFailure('invalid-input')
+          const result = parseProjectVariableLookup(
+            await projectVariablesAPI.lookup(command, original.csrf, original.key, op.abort.signal),
+            command,
+          )
+          if (result.status === 'committed') checkVariableHistory(original, result.receipt)
+          return result
+        },
+        undefined,
+        'project-variable-lookup',
+      ).then(
+        (result) => {
+          if (!retained() || !projectContext(original)) throw new AccountFailure('cancelled')
+          if (result.status === 'committed')
+            publishVariable(original, command, 'confirmed', result.receipt)
+          variableState.progress = Object.freeze({
+            ...variableState.progress!,
+            lookingUp: false,
+            observation: result.status,
+          })
+          return result
+        },
+        (error: unknown) => {
+          const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+          if (retained()) {
+            original.keyConflict ||=
+              e.problem?.status === 409 && e.problem.code === 'IDEMPOTENCY_KEY_REUSED'
+            variableState.progress = Object.freeze({
+              ...variableState.progress!,
+              lookingUp: false,
+              observation: 'failed',
+              keyConflict: original.keyConflict,
+            })
+          }
+          throw e
+        },
+      )
+    },
+    replayOriginal(): Promise<ProjectVariableReceipt> {
+      if (!variableIntent || !projectVariables.progress?.canReplayOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performVariable(variableIntent)
+    },
+    abandonReads: clearVariableReads,
+    abandonPending: clearVariablePending,
+    editRejected() {
+      if (
+        owner ||
+        !variableIntent ||
+        !projectContext(variableIntent) ||
+        variableIntent.uncertain ||
+        variableIntent.keyConflict ||
+        variableState.progress?.phase !== 'rejected'
+      )
+        return false
+      clearVariablePending()
+      return true
+    },
+  }
   function clearProjectModelPayload(original: ProjectModelIntent | null) {
     if (!original) return
     original.payload.command = null
@@ -5260,6 +5648,7 @@ export function createSessionController(
     projects,
     projectAudit,
     projectModelSettings,
+    projectVariables,
     personal,
     system,
     entry,

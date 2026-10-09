@@ -34,7 +34,7 @@ root 已授本树以下七共享路径的本域最小增量：
 
 `useProjectWorkspace.ts`、`ProjectWorkspaceView.vue`、`ProjectNav.vue` 只读复用。root最终逐差异整合，不用本树旧基线覆盖WorkUI/Model增量。
 
-浏览器拟新增 `tests/account/project_variables_web_test.go`、`project_variables_web_fixture_test.go`，`tests/account-captcha-web/project-variables.config.js`、`e2e/project-variables.spec.ts`、`e2e/project-variables.helpers.ts`。既有 `tests/account/project_owner_web_fixture_test.go` 的Variables-only可选观察/config/IPC seam另报root授予，nil默认Owner行为原样，不依赖Work WIP类型。runner精确selector扩展另报工具写权，不复制监督器。独立probe由未参与者持有。
+浏览器拟新增 `tests/account/project_variables_web_test.go`、`project_variables_web_fixture_test.go`，`tests/account-captcha-web/project-variables.config.js`、`e2e/project-variables.spec.ts`、`e2e/project-variables.helpers.ts`。既有 `tests/account/project_owner_web_fixture_test.go` 的Variables-only可选观察/config/IPC seam已获root授予，nil默认Owner行为原样，不依赖Work WIP类型。runner精确selector扩展另报工具写权，不复制监督器。独立probe由未参与者持有。
 
 ## 3. API/Session 接口
 
@@ -112,4 +112,4 @@ controller放App生命周期，临时页面卸载不丢同身份内存。导航/
 
 ## 8. 当前实施状态
 
-先本卡/current冻结短审；API+Session及判别力纯控、controller/view/路由消费、真实fixture和适用回归，最后独立验收。每片段可构建保存，WIP不当整卡完成。Vue与测试技能已读；新树尚无node_modules，准备比较同lock并恢复私有离线依赖，未执行产品测试。页面/工程选择待root与独审核准，不增加用户未定决定。
+SPEC rev1已获独立窄审接受，无mustfix；这不是产品或动态验收。API/client首片段strictTS及新旧客户端102纯控已通过，Session首片段32纯控及strictTS通过；controller/view/路由、真实fixture与独立动态验收尚未完成。每片段可构建保存，WIP不当整卡完成。Vue与测试技能已读；两套本树私有node_modules已按同package/lock离线恢复，无下载，未build dist或运行真实资源。
