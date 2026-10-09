@@ -39,3 +39,30 @@ STORAGE_REVIEW_RUN='^TestIndependentStoragePrepareSecondNonceUnknown$' \
 固定 Go `/workspace/toolchains/go1.27.1/bin/go` 前置继承 PATH；`GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2 GOFLAGS=-mod=readonly`。只读 `GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod`，Skills 独占 `GOCACHE=/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache`，`GOTMPDIR=/workspace/agenteam-skills/output/ai/skills/compile/tmp`。Go 使用 `-race -count=1 -p=1 -timeout=30s`，控制完成后实际命令均已退出。
 
 后继门槛：真实 D10 authority 的 CheckPlan 私有 Store/binding 与 ReceiptRead/NewWrite 当前权限、原完整锁和真实 SQL；并发 create 重发现、历史 deleted Credential/receipt 重放与 KeyReused；Apply/D10 final-Tx/Audit/Outbox/Activity 原子性；正式连续迁移的约束/升级/回滚；kind3 rotation/canary/Retire、100/101 Cleanup。当前不含这些生产闭包，也不解除既有 Object Runtime 或其他停止项。
+
+## 后继 Apply / native Audit / rotation / Cleanup 增量
+
+独立审查输入为 `dccb6fed` Apply 与 `e0fb80df` 维护的11技术源；作者树后来 `e9fb256f` 只含无关文档，恢复后 `844cbc` 核 Go 差异为空。范围：`contract/project_variable_purpose.go`、`project_variable_metadata.go`、`project_variable_apply{,_test}.go`、`project_variable_audit{,_test}.go`、`project_audit.go`、`rotation.go`、`cleanup.go`、`project_variable_maintenance{,_test}.go`。**该后继增量有限离线接受，无本范围 mustfix。** 先前372阶段不重跑；没有把新未运行迁移/PG测试纳入结论。
+
+- 新 Purpose 常量保持旧 Valid 闭集；专用 loader 拒旧用途，旧 loader 拒 dedicated 已存用途。Apply 先真实 Match/ReceiptRead，历史匹配直接返回原结果、不同语义拒绝；未观察时再次检查同 Tx、完整持锁、NewWrite 与 write epoch。Create 精确候选冲突需重新准备，Update/Delete 校验旧 Credential version/purpose/owner，Delete 检查 references/活 leases；metadata-only 不改变业务 payload/Secret Audit。只在 caller Tx 写值、专用 receipt 和 native Audit，不隐藏提交、补锁或确认事务。
+- 新 Audit 分派只增加私有 variant，旧 mutation/resolution checker 字节保留（`f2af63` 逆核）；两 variant 互斥。实际 Apply 才产生私有上下文，绑定同 Store/Tx/Request/Entry/key/原 locks 与 receipt/value payload、前后版本；checker 重读专用 receipt、精确 kind3 owner 和实际 canonical 或删除事实。公开 prepared、projection、合法 metadata 均不是 witness。作者22项 native 负控及原6项旧 Secret Project Audit 控制在未变输入下复用，不额外复制矩阵。
+- rotation 为 kind3 读原专用 receipt 的 exact id/payload/Project 取历史 Credential 锁；不依赖该 Credential 仍活。Apply 在原锁组内重新核 mapping 和 payload owner，漂移拒绝，不追加新聚合锁。原 CAS 仍使用每项 payload/master-version/wrap-revision；processed 取实际 affected count。Cleanup 继续原 Project EX/当前 lifecycle gate，保 reference/active lease Pending，在同事务新增最多100条原 Project receipt 的 tuple 检查与删除；完成还要求新 receipt 表为空。旧 kind1/2 路径没有改变。
+
+本人新 `7587/7e1ab1` actual exit0、race **1.025s，3 top/5 sub**：
+
+1. 构造真正合法的旧 `secret/update` identity 作校验阳性，再只改新 Purpose，公共 PrepareWrite 必须在 SQL/nonce 前拒绝；旧 current loader 的 Model 阳性、stored dedicated 拒绝与专用 loader 的 Model 拒绝分别可达。不会因沿用 D10 command namespace 本就错误而产生伪阴性。
+2. Apply 的 ReceiptRead 通过后，让完整持锁条件失效：第二次检查阻止 NewWrite 和所有写/Audit。另令 NewWrite 返回原 Unknown/cause，必须原样透传、零写，不从前一个读阶段继承写权限。
+3. 通过小型既有 Postgres Rows overlay bridge，让真实 `PrepareRewrap` 执行 last-ID 空页→head rescan→三种 owner kind 的扫描与实际 Rows.Close，再真实 AEAD rewrap。三种内容/ciphertext 与历史 Credential 都保持；实际 Apply 检查各自 CAS 参数，末项 UPDATE0 只计两项，末项 owner 漂移则返回 Busy/零公开进度、无 checkpoint、不补锁。漂移发生前前两项可以已执行 SQL；真实 caller Tx 的整批回滚仍须 PG，控制不冒该事实。
+
+原作者证据复用：新 Apply/Audit 6 top `15128/4c748a`，旧 Secret Project Audit 6 top `21736/111c8b`，维护3 top/20 sub `92922/82e3af`，完整两个 Secret 包 `5785/713106`。这些及本人的 Store、authority、Appender transport、候选 Rows、CAS tag 都是明确受控输入；实际执行的是 Service/AEAD/Match/native checker/Rows wrapper，未连接数据库。环境恢复前本后继尚未启动命令；本次7587实际终态已取得，不复用未知进程结果。
+
+复现后继独验：
+
+```sh
+# cwd: /workspace/agenteam-skills
+python3 .agent-state/secret-variable-storage-review/run_increment.py
+```
+
+固定离线 env/cache 与上段相同。仅运行 `^TestIndependentStorageIncrement`，复用 [已有 Rows 桥](../knowledge-b02-review/postgres_rows_bridge.go)；新脚本检查 Secret Go 固定差异为空，未改生产或前阶段控制。`f2af63` 另核旧 Purpose/write/storage/error 逐字372原版，原 Project Audit 除唯一新分派完全不变。
+
+后继真实闭包仍是 D10 provider/Owner final-Tx 与当前权限、连续00029迁移/SQL约束和原子回滚、原COMMIT Unknown确认、专用 receipt 并发与历史 deleted Credential、实际 rotation/head rescan/CAS/canary/Retire、100/101 Cleanup 与同 Project 完整尾。Runner 独审00029是另一范围；此处既不提前接受DDL，也不把controlled 100/101计数或原Unknown分类控制当真实数据库结论。

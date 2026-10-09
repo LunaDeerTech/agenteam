@@ -28,6 +28,13 @@
 - 本人7872/530ae3 actual0，race1.048s，3top/10sub：真实Prepare加密后历史Match正向（新Session需新plan）、不同语义与失读/密文/kind/receipt/Project/payload替换拒；Match实际持锁中Destroy等待，原Unknown/cancel保错且不读历史，actual返回后清sealed buffers，caller材料保留；公共Match拒伪接口/包装/foreignService且其方法/authority/SQL零调用。新增单top10894/a02a8b actual0/race1.016s只补第一kind3已seal、第二nonceUnknown的nil候选/无重试或范围复用/caller材料保留。旧前三top未变不重跑。
 - 新资产 `.agent-state/secret-variable-storage-review/{stages_test.go,run.py,README.md}`；固定Go/offline/readonly/原独占cache入口与作者结果复用范围在README。controlled Store/authority/nonce不称实际D10授权/PG/提交；真实provider、正式连续DDL、Apply同Tx/privateAudit与rotation/Cleanup仍待。四路径freeze供root保存，无本人命令或真实资源在途。
 
+## D04 Apply / native Audit / rotation / Cleanup 后继有限独审
+
+- 前阶段4路径已root保存9071db4a；新审 `dccb6fed`＋`e0fb80df` 的11Go增量，有限离线接受、无mustfix。环境恢复后作者HEAD e9fb256f、Go逐字e0（844cbc）；先前后继仅只读，没有未知在途命令。本次不纳活动SQL/PG测试，不重复372前阶段。
+- 本人7587/7e1ab1 actual0/race1.025s，3top/5sub：有效legacy identity正向后仅改newPurpose在SQL/nonce前拒、双loader用途隔离；Apply ReceiptRead之后实际再核全锁/NewWrite，Unknown原cause透传且零写；真实PrepareRewrap last-ID空页→head rescan/actual Rows.Close→混合kind1/2/3 AEAD与原historical Credential→Apply原CAS。末项CAS0按实际两项计数；末owner漂移拒，无补锁/checkpoint/公开进度。controlled前两项SQL不称实际整Tx回滚。
+- 静核native witness只由实际Apply产生，同Store/Tx/原Request/完整锁/receipt与前后像重验，旧variant互斥；f2af63核旧Purpose/write/storage/error及原Project Audit保留。作者15128/21736/92922/5785未变范围复用，不新增同类全矩阵。实际D10 provider/Owner、00029/SQL/COMMIT Unknown、100/101 Cleanup、rotation/canary/Retire均仍待真实闭包；Runner另审DDL不替代本文。
+- 新资产 `.agent-state/secret-variable-storage-review/{increment_test.go,run_increment.py}`，复用既有postgres Rows桥，README已追加；连同本文四路径freeze供root下个安全窗口保存。新Go/原产品均未修改，无本人命令/真实资源在途；原Work08环境中断结果不外推。
+
 ## 三组 PG 首轮 4315：整体 FAIL，资源已退役
 
 - root fresh grant只允许原70036业务binary（32,895,591 B）/97198 combo driver（15,394,731 B）与literal `^TestSkill(Migration|InitializationAdmissionUnknown|OwnerMetadataCurrentAuthority)$`。cwd仍 `tests/skills`，完整固定env沿下节Stop命令，仅driver换 `output/ai/skills/compile/pg-only-skills-combo-driver`、selector换该literal；另显式AGENTEAM_GO和固定MinIO变量，继承PATH。exec同process freshstatvfs=5,492,891,648 bytes≥5GiB，原Go6m/driver105+15/supervisor123+3/TCP75/PG两资源不变。
