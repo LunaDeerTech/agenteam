@@ -209,6 +209,7 @@ const test = base.extend<{ ownOrigin: void }, { harness: Harness }>({
         join(root, "main.ts"),
         `import { createApp } from 'vue'; import Harness from './Harness.vue';
 import './src/styles/tokens.css'; import './src/styles/base.css'; import './src/styles/components.css';
+document.documentElement.dataset.theme = new URLSearchParams(location.search).get('theme') === 'dark' ? 'dark' : 'light';
 document.body.style.overflow = 'auto'; createApp(Harness).mount('#app');`,
       );
       await writeFile(
@@ -531,126 +532,137 @@ async function pointerTarget(target: Locator) {
     .toBe(true);
 }
 
-for (const kind of ["dialog", "drawer"]) {
-  for (const width of [390, 1440]) {
-    for (const reducedMotion of ["no-preference", "reduce"] as const) {
-      test(`${kind} ${width} ${reducedMotion}: activation order overrides Teleport order`, async ({
-        page,
-        harness,
-      }) => {
-        await page.setViewportSize({ width, height: 900 });
-        await page.emulateMedia({ reducedMotion });
-        await visit(page, harness, kind, "&mode=reverse-order");
-        await page.getByTestId("launch").click();
-        await expect(page.getByTestId("order-lower-input")).toBeFocused();
-        const lower = page
-          .locator(".ui-dialog")
-          .filter({ has: page.getByTestId("order-lower-input") });
-        const confirmation = page
-          .locator(".ui-dialog")
-          .filter({ has: page.getByTestId("order-confirmation-input") });
-        const launch = page.getByTestId("order-confirmation-launch");
-        const close = page.getByTestId("order-confirmation-close");
-        await launch.click();
-        await expect(
-          page.getByTestId("order-confirmation-input"),
-        ).toBeFocused();
-        expect(
-          await page.evaluate(() => {
-            const panels = [...document.querySelectorAll(".ui-dialog")];
-            return (
-              panels[0]?.contains(
-                document.querySelector(
-                  '[data-testid="order-confirmation-input"]',
-                ),
-              ) &&
-              panels[1]?.contains(
-                document.querySelector('[data-testid="order-lower-input"]'),
-              )
-            );
-          }),
-        ).toBe(true);
-        await expect(lower).toHaveJSProperty("inert", true);
-        await expect(confirmation).toHaveJSProperty("inert", false);
-        await pointerTarget(close);
-        await close.click();
-        await expect(confirmation).toHaveCount(0);
-        await expect(launch).toBeFocused();
-        await expect(lower).toHaveJSProperty("inert", false);
-        // Reopening the earlier component must still put its whole backdrop on top.
-        await launch.click();
-        await expect(confirmation).toBeVisible();
-        const overlay = confirmation.locator("..");
-        const box = await overlay.boundingBox();
-        if (!box) throw new Error("ORDER_OVERLAY_BOX_REQUIRED");
-        const point = { x: box.x + 2, y: box.y + 2 };
-        await expect
-          .poll(() =>
-            overlay.evaluate(
-              (node, point) =>
-                document.elementFromPoint(point.x, point.y) === node,
-              point,
-            ),
-          )
-          .toBe(true);
-        await page.mouse.click(point.x, point.y);
-        await expect(confirmation).toHaveCount(0);
-        await expect(launch).toBeFocused();
-
-        await page.getByTestId("order-popover-anchor").click();
-        const popover = page.getByRole("dialog", {
-          name: "Layer actions",
-          exact: true,
-        });
-        const fromPopover = page.getByTestId("order-popover-confirm");
-        await pointerTarget(fromPopover);
-        await fromPopover.click();
-        await expect(confirmation).toBeVisible();
-        await expect(page.locator(".ui-popover")).toHaveJSProperty(
-          "inert",
-          true,
-        );
-        await pointerTarget(close);
-        await close.click();
-        await expect(confirmation).toHaveCount(0);
-        await expect(fromPopover).toBeFocused();
-        await expect(popover).toHaveJSProperty("inert", false);
-        await pointerTarget(fromPopover);
-        await fromPopover.click();
-        await expect(
-          page.getByTestId("order-confirmation-input"),
-        ).toBeFocused();
-        await page.getByTestId("order-remove-lower").click();
-        await expect(lower).toHaveCount(0);
-        await expect(page.locator(".ui-popover")).toHaveCount(0);
-        await expect(confirmation).toHaveJSProperty("inert", false);
-        await expect(page.getByTestId("order-remove-lower")).toBeFocused();
-        const reopen = page.getByTestId("order-reopen-lower");
-        await pointerTarget(reopen);
-        await reopen.click();
-        await expect(page.getByTestId("order-lower-input")).toBeFocused();
-        await expect(confirmation).toHaveJSProperty("inert", true);
-        await expect(lower).toHaveJSProperty("inert", false);
-        for (const key of ["Tab", "Shift+Tab"]) {
-          await page.keyboard.press(key);
+for (const theme of ["light", "dark"] as const) {
+  for (const kind of ["dialog", "drawer"]) {
+    for (const width of [390, 1440]) {
+      for (const reducedMotion of ["no-preference", "reduce"] as const) {
+        test(`${theme} ${kind} ${width} ${reducedMotion}: activation order overrides Teleport order`, async ({
+          page,
+          harness,
+        }) => {
+          await page.setViewportSize({ width, height: 900 });
+          await page.emulateMedia({ reducedMotion });
+          await visit(
+            page,
+            harness,
+            kind,
+            `&mode=reverse-order&theme=${theme}`,
+          );
+          await expect(page.locator("html")).toHaveAttribute(
+            "data-theme",
+            theme,
+          );
+          await page.getByTestId("launch").click();
+          await expect(page.getByTestId("order-lower-input")).toBeFocused();
+          const lower = page
+            .locator(".ui-dialog")
+            .filter({ has: page.getByTestId("order-lower-input") });
+          const confirmation = page
+            .locator(".ui-dialog")
+            .filter({ has: page.getByTestId("order-confirmation-input") });
+          const launch = page.getByTestId("order-confirmation-launch");
+          const close = page.getByTestId("order-confirmation-close");
+          await launch.click();
+          await expect(
+            page.getByTestId("order-confirmation-input"),
+          ).toBeFocused();
           expect(
-            await lower.evaluate((node) =>
-              node.contains(document.activeElement),
-            ),
+            await page.evaluate(() => {
+              const panels = [...document.querySelectorAll(".ui-dialog")];
+              return (
+                panels[0]?.contains(
+                  document.querySelector(
+                    '[data-testid="order-confirmation-input"]',
+                  ),
+                ) &&
+                panels[1]?.contains(
+                  document.querySelector('[data-testid="order-lower-input"]'),
+                )
+              );
+            }),
           ).toBe(true);
-        }
-        const lowerClose = page.getByTestId("order-lower-close");
-        await pointerTarget(lowerClose);
-        await lowerClose.click();
-        await expect(lower).toHaveCount(0);
-        await expect(confirmation).toHaveJSProperty("inert", false);
-        await expect(reopen).toBeFocused();
-        await pointerTarget(close);
-        await page.keyboard.press("Escape");
-        await expect(page.locator(".ui-overlay")).toHaveCount(0);
-        await expect(page.locator("#app")).toHaveJSProperty("inert", false);
-        await expect(page.locator("body")).toHaveCSS("overflow", "auto");
-      });
+          await expect(lower).toHaveJSProperty("inert", true);
+          await expect(confirmation).toHaveJSProperty("inert", false);
+          await pointerTarget(close);
+          await close.click();
+          await expect(confirmation).toHaveCount(0);
+          await expect(launch).toBeFocused();
+          await expect(lower).toHaveJSProperty("inert", false);
+          // Reopening the earlier component must still put its whole backdrop on top.
+          await launch.click();
+          await expect(confirmation).toBeVisible();
+          const overlay = confirmation.locator("..");
+          const box = await overlay.boundingBox();
+          if (!box) throw new Error("ORDER_OVERLAY_BOX_REQUIRED");
+          const point = { x: box.x + 2, y: box.y + 2 };
+          await expect
+            .poll(() =>
+              overlay.evaluate(
+                (node, point) =>
+                  document.elementFromPoint(point.x, point.y) === node,
+                point,
+              ),
+            )
+            .toBe(true);
+          await page.mouse.click(point.x, point.y);
+          await expect(confirmation).toHaveCount(0);
+          await expect(launch).toBeFocused();
+
+          await page.getByTestId("order-popover-anchor").click();
+          const popover = page.getByRole("dialog", {
+            name: "Layer actions",
+            exact: true,
+          });
+          const fromPopover = page.getByTestId("order-popover-confirm");
+          await pointerTarget(fromPopover);
+          await fromPopover.click();
+          await expect(confirmation).toBeVisible();
+          await expect(page.locator(".ui-popover")).toHaveJSProperty(
+            "inert",
+            true,
+          );
+          await pointerTarget(close);
+          await close.click();
+          await expect(confirmation).toHaveCount(0);
+          await expect(fromPopover).toBeFocused();
+          await expect(popover).toHaveJSProperty("inert", false);
+          await pointerTarget(fromPopover);
+          await fromPopover.click();
+          await expect(
+            page.getByTestId("order-confirmation-input"),
+          ).toBeFocused();
+          await page.getByTestId("order-remove-lower").click();
+          await expect(lower).toHaveCount(0);
+          await expect(page.locator(".ui-popover")).toHaveCount(0);
+          await expect(confirmation).toHaveJSProperty("inert", false);
+          await expect(page.getByTestId("order-remove-lower")).toBeFocused();
+          const reopen = page.getByTestId("order-reopen-lower");
+          await pointerTarget(reopen);
+          await reopen.click();
+          await expect(page.getByTestId("order-lower-input")).toBeFocused();
+          await expect(confirmation).toHaveJSProperty("inert", true);
+          await expect(lower).toHaveJSProperty("inert", false);
+          for (const key of ["Tab", "Shift+Tab"]) {
+            await page.keyboard.press(key);
+            expect(
+              await lower.evaluate((node) =>
+                node.contains(document.activeElement),
+              ),
+            ).toBe(true);
+          }
+          const lowerClose = page.getByTestId("order-lower-close");
+          await pointerTarget(lowerClose);
+          await lowerClose.click();
+          await expect(lower).toHaveCount(0);
+          await expect(confirmation).toHaveJSProperty("inert", false);
+          await expect(reopen).toBeFocused();
+          await pointerTarget(close);
+          await page.keyboard.press("Escape");
+          await expect(page.locator(".ui-overlay")).toHaveCount(0);
+          await expect(page.locator("#app")).toHaveJSProperty("inert", false);
+          await expect(page.locator("body")).toHaveCSS("overflow", "auto");
+        });
+      }
     }
   }
 }

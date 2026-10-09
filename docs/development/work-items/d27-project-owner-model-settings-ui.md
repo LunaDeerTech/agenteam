@@ -19,7 +19,7 @@
 
 两次恢复失败后的受控结论仅用于后续修复：正式 header/Flush 后零 body 断连已在受控 native fetch 比较中验证；旧分支一次 fetch 可能透明发出两次 POST 并读到完整 EOF。ReadPrivate 的 Lstat→Open→SameFile 与 JS atomic rename 存在源码可确定竞态；候选改为先 NOFOLLOW|NONBLOCK 打开，再以同一 fd 验证 regular/0600/size，保留原有界读取、清理与 Close，pure-file 受控 12 叶／17 RUN/PASS 已接受。原恢复轮未采得具体 error 类别，以上不能回填两次 business FAIL 的确切因果。早期受控 browser launch 失败及 TMP 后续清理同样保留，短根成功不证明原 launch 失败原因。
 
-**实际恢复输入：** §8 #24–27 四个 harness 和 `.agent-state/model-ui-recovery/` 的六场景模块、同 body 校验、资源 driver、必要脱敏失败输入，以及 `.agent-state/model-ui-regression/` 两个旧回归 helper 已从 Git 恢复。主线程已重建 `/workspace/agenteam-delivery`，固定正式 `11c16867` 与最后迁移 `00022`，并复制当前两份未完成整卡验收的 Model Go 测试源；新 binary 尚待编译，不能沿用旧 `dbf` 编译证据。`output/ai/model-ui-recovery/` 私有构建产物与固定 MinIO binary 仍需重建，不重新实现 harness。Go 1.27.1、固定 Chromium 151.0.7922.173 及其正式 SHA 已核实，锁定浏览器依赖已恢复，私有资产待 build。Docker 当前两容器属于既有 `agenteam-dev-infra`，不作为测试资源、不连接或清理；真实测试须另外创建并登记 owned fixture。
+**实际恢复输入：** 以下未验输入位于活动 `ai/product-continuation` 分支，未随共享组件修复交付 `main`。§8 #24–27 四个 harness 和 `.agent-state/model-ui-recovery/` 的六场景模块、同 body 校验、资源 driver、必要脱敏失败输入，以及 `.agent-state/model-ui-regression/` 两个旧回归 helper 已从 Git 恢复。主线程已重建 `/workspace/agenteam-delivery`，固定正式 `11c16867` 与最后迁移 `00022`，并复制当前两份未完成整卡验收的 Model Go 测试源；新 binary 尚待编译，不能沿用旧 `dbf` 编译证据。`output/ai/model-ui-recovery/` 私有构建产物与固定 MinIO binary 仍需重建，不重新实现 harness。Go 1.27.1、固定 Chromium 151.0.7922.173 及其正式 SHA 已核实，锁定浏览器依赖已恢复，私有资产待 build。Docker 当前两容器属于既有 `agenteam-dev-infra`，不作为测试资源、不连接或清理；真实测试须另外创建并登记 owned fixture。
 
 下一步由本任务负责人组织：
 
@@ -36,7 +36,13 @@
 - `createSessionController` 已在原 14 个默认依赖后追加第 15 项 `projectModelSettingsAPI`，公开本域封闭 facade；旧依赖次序保持，详见 §6.1。
 - `createProjectWorkspace` 仍公开只读 `currentReadContext`，含完整 identity、ProjectID、generation、readGeneration；`confirmLeave(target?: string)` 返回 `Promise<boolean>`。此读归属不能作为 Mutate 授权。
 - `App.vue` 已创建并 provide 唯一本域 controller，Logout 聚合确认已追加本域；路由、设置菜单和 ProjectNav 已包含两个合法后缀。保持既有 Owner/System/Selection/Summary 的独立 intent 与实际 owner 尾部约束。
-- 审查按上述入口及实际改动补读必要依赖；此静态核对没有执行产品测试，也不证明缺失 harness、私有 build 或运行资源已恢复。
+- 审查按上述入口及实际改动补读必要依赖；上述静态签名核对不替代 §0 的实际恢复状态或真实验收。
+
+### 0.2 共享浮层遮挡修复
+
+authority 第二轮的真实 hit-test 证明：后激活的确认框虽然获得焦点与模态所有权，其遮罩仍可能被 DOM 顺序较后的旧 Provider 遮罩覆盖。共享 `useLayer` 现按同一激活栈同步绘制顺序，`UiDialog` 整体遮罩与 `UiPopover` 绑定该层级，Drawer 继承 Dialog 行为；焦点、inert 与关闭策略保持原契约，设计规范同步说明。这是单独可交付的通用组件修复，不表示 D27 剩余场景已通过。
+
+当前 `npm run check --prefix web` 完整通过：格式、60 个文件共 2632 个单元测试、类型及生产构建；首轮因现存依赖目录缺少锁定 `go-captcha-vue` 导致的失败保留，经 `npm ci --prefix web` 恢复后通过。真实组件浏览器浅色 8 项与深色补集 8 项分别通过，覆盖 Dialog/Drawer、390/1440 宽度、正常/减少动效、逆 DOM 激活、实际指针命中、Popover/模态叠加、移除重开、Tab/Escape 与焦点恢复；两轮 child 实际 wait=0，Vite close 已返回，worker 已退出。深色第一次选择器未命中产生的 0 tests setup FAIL 保留。六路径限定实现、完整工程检查与真实结果已获独立接受，不复用为 Project authority/navigation 的业务通过。
 
 ## 1. 完整结果与开工门槛
 
@@ -53,7 +59,7 @@
 
 后端三卡已提供此UI所需全部公开协议，无新增迁移、公共contract、SQL或生产root修改理由。30个产品路径（29技术＋README）是同一设置结果的有限范围；不先做只有列表的界面卡。Provider与Credential是显式独立命令，Model共享这些稳定引用和当前Owner，不引入自动创建/补偿工作流。若实现确需额外共享路径，向直接负责人说明理由与影响；涉及跨任务所有权或公共契约时由主线程协调并修订范围。
 
-正式 SPEC、Audit 整卡和端点协议已接受；前端当前交付及缺失 harness 见 §0。负责人按依赖组织剩余实现和验证，指定文件、Go/cache、资产及测试资源的唯一所有者；跨任务窗口由主线程协调，不能占用其他任务资源。
+正式 SPEC、Audit 整卡和端点协议已接受；前端当前交付及恢复输入见 §0。负责人按依赖组织剩余实现和验证，指定文件、Go/cache、资产及测试资源的唯一所有者；跨任务窗口由主线程协调，不能占用其他任务资源。
 
 ## 2. 路由、布局与用户行为
 
@@ -297,7 +303,7 @@ UI内存跨checking恢复不扩大为跨新Session恢复；真正新Session/CSRF
 
 ## 8. 唯一产品写域与作者
 
-下表保留30个产品路径及原编号。25个web文件已提交，#24–27四个harness当前缺失，README #29需随后续实际验收结果同步。负责人按前端、Go harness、浏览器验证等完整子目标分派唯一写入者并整合；文档与相关实现同次交付，不再设置README末件许可。Git由主线程负责，共享资产／资源指定唯一所有者。范围不因此扩展到公共Ui／样式、HTTP/schema或生产后端。
+下表保留30个产品路径及原编号。25个web文件已提交，#24–27四个harness已恢复，README #29需随后续实际验收结果同步。负责人按前端、Go harness、浏览器验证等完整子目标分派唯一写入者并整合；文档与相关实现同次交付，不再设置README末件许可。Git由主线程负责，共享资产／资源指定唯一所有者。除 §0.2 已单独授权的共享浮层修复外，不扩展到公共 Ui／样式、HTTP/schema或生产后端。
 
 | # | 路径 | 最小作用 |
 | --- | --- | --- |
@@ -338,7 +344,7 @@ workspace仅消费公开currentReadContext/detail，不新增workspace写域。S
 
 ## 9. 必要验收与执行前提
 
-前端执行者按任务读取design/vue-development/vue-testing-best-practices；Go harness读取Go技能，独立验证者读取verification，真实browser再读取可用Playwright技能。先恢复§0缺失输入，以当前Git基线、限定diff和停止写入状态交审，记录实际工具、锁文件及必要依赖；不要沿用已缺失的scratch或未经核实的执行状态。
+前端执行者按任务读取design/vue-development/vue-testing-best-practices；Go harness读取Go技能，独立验证者读取verification，真实browser使用仓库测试工程技能。先核实 §0 的恢复输入，以当前Git基线、限定diff和停止写入状态交审，记录实际工具、锁文件及必要依赖；不要沿用已缺失的scratch或未经核实的执行状态。
 
 离线：新增两个API、state、App/router组合和#22/#23/#28；完整`npm run check --prefix web`及私有outDir生产build。Go两新源须完成精确integration/race compile/vet与six-top discovery，再在负责人安排的隔离资源中实际验证；编译/list不是业务通过。只核必要依赖与真正新增的运行时imports，不复制System/Audit依赖图或另生成全闭包manifest；已有检查在相关输入未变时复用。
 
@@ -736,7 +742,7 @@ Node独立保持native EOF/typed client/schema验证记录，final_result的coun
 
 无新增用户产品待决。本卡保留一个完整结果、30产品路径（29技术＋README）、17 HTTP operations＝6 GET＋9 mutation＋2 POST lookup、9 IPC、六新top＋14旧selector。UI不发布Audit/Event；配置与Secret事务事实仍由既有正式后端拥有，不加生产后端/SQL/迁移或Invocation适配。
 
-当前接续以§0为准，先恢复缺失harness，再按§9–10补齐验收。主线程负责全局约束、跨任务资源与Git交付；一级负责人自主拆分、整合和组织独立验证，下级可按收益继续委派，模型与运行时约束统一见[团队流程](../agent-team/README.md)。同一文件和共享资源只有一个写入者／所有者；范围内工程问题由直接负责人解决，跨任务契约、预算或产品含义变化才升级。
+当前接续以§0为准，从已恢复harness与必要构建产物按§9–10补齐验收。主线程负责全局约束、跨任务资源与Git交付；一级负责人自主拆分、整合和组织独立验证，下级可按收益继续委派，模型与运行时约束统一见[团队流程](../agent-team/README.md)。同一文件和共享资源只有一个写入者／所有者；范围内工程问题由直接负责人解决，跨任务契约、预算或产品含义变化才升级。
 
 前端遵[现有开发基础](../frontend/README.md)及[Project设置设计](../../frontend-design/layouts/project-settings.md)。稳定输入使用Git基线、限定diff及停止写入范围；原始日志与截图放`output/ai/<task>/`或必要短外部目录。相关检查输入未变时复用，修复后只重跑受影响检查，权限／恢复等高风险场景由未参与实现者独立验证。失败原件和未验证边界保留，命令与自有资源的结束状态必须实际确认。
 

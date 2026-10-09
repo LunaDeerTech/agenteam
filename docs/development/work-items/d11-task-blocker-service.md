@@ -1,6 +1,6 @@
 # D11 B0-P：Human backlog Blocker 持久服务
 
-状态：工程规格待独立 SPEC 审查；未实施、未验收。本卡是 [B0-C](d11-task-blocker-contracts.md) 两类契约的真实服务消费者，不表示 Task transition、完整 D11 或生产 root 已完成。迁移 `00023_task_blockers.sql` 由 root 分配给本卡，尚未创建。
+状态：工程规格已独立 SPEC 接受；实施与真实验收未完成。本卡是 [B0-C](d11-task-blocker-contracts.md) 两类契约的真实服务消费者，不表示 Task transition、完整 D11 或生产 root 已完成。迁移 `00023_task_blockers.sql` 由 root 分配给本卡，尚未创建。
 
 ## 1. 完整结果与真实依赖
 
@@ -133,4 +133,4 @@ migration实际测试fresh、populated00022升级、re-run与失败回滚；原p
 
 ## 9. 当前状态
 
-首轮独立SPEC核实本卡backlog范围、真实端口、迁移/锁及文件闭包，发现两处必须修正文义：Activity真实端口不能保证同微秒/逐次更新；同形UUID JSON不能识别命令marker来源。已据实际端口修正§6，待差异复审；尚无新源码、迁移或测试通过结论。实施/真实验收缺口不得由本规格内容替代。
+独立SPEC已接受本卡限定backlog子结果。首轮发现的两处文义缺陷（Activity同微秒/逐次更新承诺、同形UUID JSON的命令marker来源）已按真实端口修正§6并经差异复审；原首轮不接受事实保留。独立检查覆盖正式源码、链接及格式，没有运行Go/PG/browser或产品行为。当前实施与真实验收尚未完成，不代表完整B0-P组合/T1或D11完成。
