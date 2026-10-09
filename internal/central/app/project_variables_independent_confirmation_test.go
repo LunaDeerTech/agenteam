@@ -29,8 +29,14 @@ import (
 
 type independentConfirmationCall struct {
 	pid       int32
+	original  context.Context
 	cancelled <-chan struct{}
 	returned  <-chan struct{}
+}
+
+type independentForceObservation struct {
+	ctx context.Context
+	at  time.Time
 }
 
 // This wrapper observes the real transaction and real CommitResult. Only the
@@ -44,14 +50,14 @@ type independentConfirmationStore struct {
 	release     chan struct{}
 	releaseOnce sync.Once
 	unknown     chan f.CommitResult
-	forced      chan context.Context
+	forced      chan independentForceObservation
 	forceOnce   sync.Once
 	writer      atomic.Int32
 }
 
 func (s *independentConfirmationStore) unhold() { s.releaseOnce.Do(func() { close(s.release) }) }
 func (s *independentConfirmationStore) ForceClose(ctx context.Context) error {
-	s.forceOnce.Do(func() { s.forced <- ctx })
+	s.forceOnce.Do(func() { s.forced <- independentForceObservation{ctx, time.Now()} })
 	return s.Store.ForceClose(ctx)
 }
 func (s *independentConfirmationStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
@@ -67,6 +73,7 @@ func (s *independentConfirmationStore) WithinTx(ctx context.Context, cause f.Tra
 	}
 	returned := make(chan struct{})
 	defer close(returned)
+	originalContext := ctx
 	result := s.Store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		x, e := s.Store.InTx(tx)
 		if e != nil {
@@ -77,7 +84,7 @@ func (s *independentConfirmationStore) WithinTx(ctx context.Context, cause f.Tra
 			return e
 		}
 		if confirmation {
-			s.entered <- independentConfirmationCall{pid, ctx.Done(), returned}
+			s.entered <- independentConfirmationCall{pid, originalContext, ctx.Done(), returned}
 			<-s.release
 			return fn(ctx, tx)
 		}
@@ -140,7 +147,7 @@ func TestIndependentProjectVariablesRootConfirmationForce(t *testing.T) {
 			if e != nil {
 				return nil, e
 			}
-			store = &independentConfirmationStore{Store: raw, key: key, proxy: proxy, entered: make(chan independentConfirmationCall, 1), release: make(chan struct{}), unknown: make(chan f.CommitResult, 1), forced: make(chan context.Context, 1)}
+			store = &independentConfirmationStore{Store: raw, key: key, proxy: proxy, entered: make(chan independentConfirmationCall, 1), release: make(chan struct{}), unknown: make(chan f.CommitResult, 1), forced: make(chan independentForceObservation, 1)}
 			return store, nil
 		},
 		observeAccount: func(v *account.Service) { accounts = v },
@@ -213,7 +220,25 @@ func TestIndependentProjectVariablesRootConfirmationForce(t *testing.T) {
 	if e = admin.QueryRow(databaseTestContext(t), `SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND pid=$1 AND xact_start IS NOT NULL)`, call.pid).Scan(&active); e != nil || !active {
 		t.Fatal("confirmation lacks actual live transaction")
 	}
+	deadline, bounded := call.original.Deadline()
+	signalAt := time.Now()
+	if !bounded || call.original.Err() != nil || !signalAt.Before(deadline) {
+		t.Fatal("invalid stimulus: confirmation already cancelled or unbounded")
+	}
+	select {
+	case <-call.cancelled:
+		t.Fatal("invalid stimulus: transaction already cancelled before signal")
+	default:
+	}
 	signals <- syscall.SIGTERM
+	independentForceWait(t, call.original.Done(), "original confirmation cancellation")
+	cancelObservedAt := time.Now()
+	// All timestamps carry Go's monotonic clock. Observing Done strictly before
+	// the unchanged original deadline excludes a natural deadline winning the
+	// race after the pre-signal check. A late/equal observation is inconclusive.
+	if call.original.Err() != context.Canceled || !signalAt.Before(cancelObservedAt) || !cancelObservedAt.Before(deadline) {
+		t.Fatal("invalid stimulus: root cancellation before original deadline unproved")
+	}
 	independentForceWait(t, call.cancelled, "confirmation context cancellation")
 	if variables.Joined() {
 		t.Fatal("cancelled confirmation falsely joined")
@@ -232,12 +257,16 @@ func TestIndependentProjectVariablesRootConfirmationForce(t *testing.T) {
 		t.Fatal("mutation owner returned without confirmation")
 	default:
 	}
-	var actual context.Context
+	var force independentForceObservation
 	select {
-	case actual = <-store.forced:
+	case force = <-store.forced:
 	default:
 		t.Fatal("DB Force did not receive root context")
 	}
+	if !cancelObservedAt.Before(force.at) || !force.at.Before(deadline) {
+		t.Fatal("invalid stimulus: actual Force before original deadline unproved")
+	}
+	actual := force.ctx
 	owner.mu.Lock()
 	expected := owner.forced
 	owner.mu.Unlock()
