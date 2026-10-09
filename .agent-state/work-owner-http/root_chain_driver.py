@@ -26,6 +26,7 @@ TARGETS = {
     '^TestKnowledgeB02CommitUnknown$': 'tests/knowledge',
     '^TestKnowledgeB02Concurrency$': 'tests/knowledge',
     '^TestKnowledgeB02CleanupCommitUnknown$': 'tests/knowledge',
+    '^TestKnowledgeB02ProcessRecovery$': 'tests/knowledge',
 }
 
 

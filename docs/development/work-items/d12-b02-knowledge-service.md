@@ -156,11 +156,21 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 作者实际完整组及独立风险probe分列执行者/断言来源，保原红及固定输入；阶段准备或compile-only不能称B02通过。无HTTP/root、D13、Agent destructive、全Project lifecycle验收声明。交付固定版本、实际命令/原日志、结论/限制与精确提交路径即可，不复制全树/大索引。候选已完成独立静态审查并获采纳，报告 `/tmp/agenteam-d12-b02-review-acect8x7/report.md` SHA `df2fdea872d0e755449c8b966abdbe8962285d1b76e781f3ea7dd422bf2a86a8`；这不替代实现与真实业务验收。正式卡的路径和状态归位不更改未编号 DDL，原草案 SHA `fe3ed8d6084dced33618e2a7d565492424c1f061bbc5cb54f40d93c5331ca217`。
 
+### 当前有限交付门槛
+
+B02可单独交付的是§1的完整Human canonical／树服务库及真实适配器；当前六个作者top／二十子真实通过。后继按下列有限闭包收敛，不继续追加无已知缺口的作者测试组：
+
+1. **现成五组真实尾**：Runtime三子、Publication CommitUnknown六子、Concurrency三子、Cleanup CommitUnknown两子、ProcessRecovery一个top，各消费其已记录输入／独占窗口，全部实际Wait与资源尾齐；遇失败只修相关原因并复验受影响组。Process精确入口已获Work测试独审与Skills harness窄审接受，仍未真实执行。此五组是已承诺异常／竞争／恢复门槛，不能由编译或入口审查替代。
+2. **完整库独立风险审查及有限补集**：此前只有共享C4、部分publication／join等片段独审，尚无覆盖最终十五生产源／00025／实际适配器的整体独立结论。由未参与实现者核当前权限→原command→完整锁→真实外域事实→最终同Tx→资源退休链，复用已有迁移、B01／分页及作者固定输入证据。独立真实补集按两类组织，避免重做全矩阵：内容／权限／事实类补DOCX与raw length/SHA拒绝的正式D05组合、最终当前授权变化及伪Knowledge Audit/Event事实拒绝；树／引用类补正文Update与Move交错不覆parent、preview后成员移入/移出导致旧scope拒绝、旧upload revoked后不能重新Attach及错cleanup cause拒绝。已有Activity终点失败已证明整Tx的Audit/Event回滚，不为每条SQL复制同类故障。Unknown与真实Process接管由独立者审查完整原生实测及关键判据，发现未覆盖风险才给精确最小反例，不预设新增泛化harness或更多生产功能。
+3. **同一最终输入整合**：root保留Project `audit_facts.go/events.go`中的Variables／其它已交付相邻分派，以正式00024→00025及后继全局迁移顺序整合；不能整文件覆盖，也不改写已执行迁移。合并后只对实际改变的共享分派／构造及其直接回归运行检查；没有相关差异的已通过binary／场景继续复用，若生产闭包改变则明确重编和受影响复验。最终整理完整库原子交付与简短台账，不能以分支checkpoint当main已交付。
+
+B02当前不需要新增正式port：现有Account/Project、Object/SourceReads/ReferenceCleanup/Cleaner、Audit、Outbox、ProcessAuthority均已有注入口和测试组合。KnowledgeFile真实来源已验；UploadedObject／Artifact等只消费各自已绑定正式provider，未绑定分支保持明确拒绝，不把本域resolver包装成外域成功。HTTP／UI／下载URL、D13、生产root和B03全Project participant属于已排除的后继范围；其缺失不阻塞这个库交付，也不能在交付时声称已绑定。Object runtime join停项、共享guard至多域实际join／DB最后、Project lifecycle cleanup／source_project join留待B03及上游正式组合，不在B02中偷偷解停或造成功stub。
+
 ## 8. 本轮实际实施与验证
 
 第二十九片段新增已授权 `tests/knowledge/b02_process_test.go`／单 top `TestKnowledgeB02ProcessRecovery`，补齐可选真实 Runtime fixture。每实例的 Account／Project／Knowledge／D05／Audit／Outbox 仍同一 Store，真实 `NewRuntime.Initialize`绑定同host／spool claim。旧 owned child 的 Knowledge work claim 确认提交后，在委托 Prepare 前阻塞；只经 D05 Service.Drain 释放 spool 目录锁，bound Runtime Guard仍持独立claim flock。新实例必须调用原Guard核旧ID并得到 ResourceBusy，planned work／当前Activity及零publication副作用保持；这一步不把Service.Drain或unbound Close视为死亡证明。随后只精确SIGKILL已启动child并收实际Wait／SIGKILL状态，Guard对原ID给真实停机证据后，原命令以新attempt／fence恢复一次canonical／Object Audit／Event，完成receipt重放不得增加Prepare、停机证明或事实。私有pipe／0600 config避免命令key与fixture凭据进入输出；没有产品源码／root修改，也不恢复Object runtime join停项。
 
-本片段只完成离线准备：首编误选旧modcache setupFAIL，纠正到固定只读缓存后通过；最终race-c36066、精确top discovery与integration vet0eaf3f实际0，独立binary `output/ai/knowledge/knowledge-process-race.test`。fixture剥新Runtime分支后全文逆比较558303逐字c73054c3，既有Direct／Business测试体未改；原五个待真实binary未重编，各自原输入和结论保持。新top尚未配置exact harness入口、未独审、未启动真实PG／Process，不称跨进程恢复或整个B02通过。
+本片段只完成离线准备：首编误选旧modcache setupFAIL，纠正到固定只读缓存后通过；最终race-c36066、精确top discovery与integration vet0eaf3f实际0，独立binary `output/ai/knowledge/knowledge-process-race.test`。fixture剥新Runtime分支后全文逆比较558303逐字c73054c3，既有Direct／Business测试体未改；原五个待真实binary未重编，各自原输入和结论保持。初次可构建阶段未配置exact入口、未独审或启动真实PG／Process。随后Work UI作者对96049336测试／e04a9e5可选fixture有限独审接受，无mustfix，结构控制c905f0实际0确认旧11函数含Direct/Business两top逐字不变、只有nil包装／唯一新top、无SQL伪造claim/stopped；复用作者race/list/vet。原两harness随后各+1精确selector／singleton，作者167b19离线全文逆差异、config1正4负、11target一致／原预算与observer1正4负实际0，Skills随后独立有限接受，无mustfix；其实际config1正4负、11target／原预算及observer1正5负（各14次资源观察）控制exit0，未跑真实资源。没有运行真实PG／Process，不称跨进程恢复、Object join或整个B02通过。
 
 修正Cleanup恢复首启27247是环境前置SETUP FAIL，fixture编译缺固定GOMODCACHE、GOPROXY=off拒绝模块lookup；没有业务top、Go PID或7资源记录，不能报业务或资源退役通过。driver931240实际Wait1、desc双空、runtime双empty、TCP双delta_empty／inputs_unchanged齐，outer1.498s，现场run仅request.json与空runtime。完整含环境复现命令已写current；其后freshgrant99411沿原binary／预算完整PASS，结论见下，不回填本次失败。
 
