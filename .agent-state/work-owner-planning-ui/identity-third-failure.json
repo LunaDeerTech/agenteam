@@ -1,0 +1,116 @@
+{
+  "case": "identity-03",
+  "input_checkpoint": "4caa6a443caddb13c047e7f4d1ea05f542f613ec",
+  "binary": "work-ui-account-race-12.test",
+  "selector": "^TestAccountProjectWorkPlanningWebIdentityAndOwnership$",
+  "actual_session": 54638,
+  "actual_exit": 1,
+  "go_seconds": 59.13,
+  "supervisor_seconds": 173.143,
+  "failure": {
+    "source": "project-work-planning.spec.ts:762 -> requalify:740",
+    "operation": "first pageshow Session requalification after canceling Logout, before any real Logout",
+    "status": 200,
+    "assertion": "await original response.finished() then null",
+    "timeout_ms": 45000,
+    "same_session_body_read_completed": false,
+    "session_failed_finished_event_sampled": false
+  },
+  "reached": [
+    "initial Work Task selection and draft",
+    "public Logout confirmation canceled",
+    "original Task draft still displayed",
+    "first pageshow Session response with integer status200"
+  ],
+  "not_reached": [
+    "same Session body assertion",
+    "formal Logout204 and revocation SQL",
+    "new Session",
+    "held read cancellation",
+    "other Owner/admin rejection",
+    "Project rename and public refresh",
+    "Owner/Work/Model leave guards",
+    "old-name reuse",
+    "expiry",
+    "final observer verification",
+    "final Go persistent assertions"
+  ],
+  "original_work_observation": {
+    "boundary": "Node observation snapshot at afterEach; not a final post-close state",
+    "browser_native_eof_observed": false,
+    "observer_request_counts": [
+      7
+    ],
+    "request_failed_observations": [
+      {
+        "method": "GET",
+        "endpoint": "milestones",
+        "project_id": "01a12170-0180-725e-bb8a-e3461015ff1d",
+        "request_id": "01a12170-1b44-70f1-a1fe-4d8013b2a086",
+        "request_at": 1377.131,
+        "response_at": 1396.954,
+        "request_failed_at": 1406.438,
+        "request_finished_at": null,
+        "response_finished_at": null,
+        "observer_rejected_at": null,
+        "failure_reason": "aborted",
+        "response_same_request_object": true,
+        "original_body_await": null
+      },
+      {
+        "method": "GET",
+        "project_id": "01a12170-0180-725e-bb8a-e3461015ff1d",
+        "target_id": "01a12170-0521-7a75-bce6-2a27825a7c30",
+        "endpoint": "sprints/id",
+        "request_id": "01a12170-21c5-756c-b5c6-591019a46408",
+        "request_at": 3035.961,
+        "response_at": 3056.295,
+        "request_failed_at": 3060.36,
+        "request_finished_at": null,
+        "response_finished_at": null,
+        "observer_rejected_at": null,
+        "failure_reason": "aborted",
+        "response_same_request_object": true,
+        "original_body_await": null
+      }
+    ],
+    "limits": [
+      "Only Work endpoints were observed; these two failed GETs are not the Session request awaited by requalify.",
+      "Ordinary GET failures are not declared expectedIncomplete.",
+      "No same-response browser EOF, production decode/publication or final post-close state was captured."
+    ]
+  },
+  "terminal": {
+    "driver_actual_wait": true,
+    "driver_exit": 1,
+    "go_actual_wait": true,
+    "go_exit": 1,
+    "adopted_actual_wait": {
+      "803967": 0,
+      "803970": 0,
+      "803971": 0,
+      "803973": 0
+    },
+    "adopted_observed_states": [
+      "Z",
+      "Z",
+      "Z",
+      "Z"
+    ],
+    "stop_sent": false,
+    "node_proxy_preparation_root_join": true,
+    "seven_resource_ids_two_observations_absent": true,
+    "descendants_two_observations_empty": true,
+    "runtime_two_observations_empty": true,
+    "private_two_observations_absent": true,
+    "host_tcp_two_delta_empty": true,
+    "inputs_unchanged": true
+  },
+  "limits": [
+    "Whole run FAIL; no timeout or successful finished gate changed.",
+    "The new explicit Project refresh and recovery stages were not dynamically reached.",
+    "Prior identity01/02, planning and read FAILs remain unchanged; current clean tails do not backfill old tails.",
+    "Initial progress wording new-Session requalification was corrected by the exact frozen source: this was the first pre-Logout requalification."
+  ],
+  "ordinary_log": "output/ai/work-owner-planning-ui/pg/identity-03.log"
+}
