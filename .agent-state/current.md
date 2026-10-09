@@ -1,17 +1,32 @@
 # Knowledge Owner 只读 HTTP
 
-- 新 owner_read_http_test.go/owner_read_http_transactions_test.go 已形成未编译WIP四top十四子：Metadata4、CurrentAuthority5、Transactions3、CommitUnknown2。真实Service造文档/树/删除，五路GET/HEAD/本地Schema、literal与cursor绑定、零读事实、Account正式logout、同Tx User SH/EX两顺序/currentOwner、实际原SELECT relation等待取消/Tx退出、complete-frame两Unknown零候选；合法Deleting夹具保manifest/participants/原FK，不冒BeginDelete。gofmt/diffcheck328df1通过，尚未编译或业务执行。复用原B02 proxy/native资源仅在将来root窗口；本轮仍无socket/PG/编译。fixture已root保存1ee8b7e3，当前待存两新matrix+本current，HTTP包输入继续b6635c27冻结。
+当前结果为独立adapter候选，尚未通过native或PG实际门；production root/正文/下载URL/D13/UI及Object Runtime停项不在范围。基线正式main29dd4298。四生产源和pure/native/Schema输入固定b6635c27，真实Account fixture为1ee8b7e3，四PG top矩阵为bb98b6cd；本树无B02产品或SQL改动。
 
-- 新 tests/knowledge/owner_read_http_fixture_test.go 为可恢复集成WIP：复用B02真实同Store publication/Object，另绑定实际Account Bootstrap/Invitation/Redeem/Login及原私有recoverylog生命周期；不调用旧SQL human/session。Project初始化明确为原上游SQL fixture，不冒Project.Create/Skills验收。仅gofmt 977338通过，尚未编译/PG运行；矩阵源码继续准备，已有HTTP生产/native/schema保持b6635c27冻结。当前没有命令或资源在途，因磁盘协调继续暂停新编译。
+- 作者pure：6157/884f76首10精确top实际exit1，唯一失败是新测试误期待公开cause_id。仅修测试，67777/e3a2ed定向race exit0/1.017s，其余未变9项复用首轮；原整体FAIL不改。54742/cec8af标准本地Schema20正反例实际race0/1.132s。90700/34e070仅native三个top的race编译/发现actual0，无body执行。首生成ddc1bf是write前Python匹配错误，后已正常落源。
+- 独立Runner：0b74首五路径/e48d7a只读接受；abcfdd实际指出40个HEAD错误Schema错误声明body，窄修后cc7bba原红控制转绿，GET/通用Problem/HEAD200/DTO未变。75434/0db8c1两个实际pure风险控race0/1.023s，覆盖真实handler AgentRun安全投影/坏末项零候选，以及原Body.Close后仍等待held AfterFunc实际return与无提前清deadline。限定纯接受，无剩余本轮mustfix；不是正式Owner/SQL/native验收。
+- 三新tests形成四top十四子：Metadata4、CurrentAuthority5、Transactions3、CommitUnknown2。正式Account Bootstrap/Invitation/Redeem/Login/Logout，实际B02发布/树/删除、五GET/HEAD/Schema/无读事实，两个真实User SH/EX顺序与原SELECT取消/Tx退出，complete-frame两种原COMMIT Unknown零候选。Project初始化/转Owner/Deleting为明确上游测试SQL事实，Deleting保原门/manifest/participants/FK，不冒Project.Create/BeginDelete/Skills结果。
+- 一次定向integration race-c：95050/ddfc46 actual0；cb0358精确list actual0恰四top、未执行body。候选`output/ai/knowledge-owner-read/knowledge-owner-read-http-race.test`为40,566,169B。首同process UTC2026-10-09T23:11:16.199609+00:00 available5829890048B，末5763674112B；没有命令/资源在途，不建新cache。旧首pure阶段全机波动约438MB不可归因单缓存，已按协调暂停并获本次定向编译授权。
+- 原两root工具仅新增一个封闭四top入口/expected集；driver另纳入实际运行需要的本地Schema helper、两Schema JSON与当前Python解释器4项input，显式传该同一解释器。原所有input、7资源、Go6m/root540+60+3/TCP75/全Wait/双尾保持，无TCP诊断算法移植。559377 pure controls actual0：逆去精确增量全文=bb98、config1正6负、observer22格每格14资源替身。资源/时间为明确替身，未main/PG/socket；不能冒真实尾。MinIO本地依赖准备由root协调，入口尚待Runner窄审。
 
-- Runner增量独审发现并实际abcfdd复现HEAD Schema错误：5×8错误状态仍声明Problem body，但真实handler/Account HEAD不写body。限定修复knowledge-owner.json的40个HEAD error refs＋专用bodyless HeadProblem，GET/200/全部DTO不变；本域schema-controls补45个HEAD状态的无content/原表示header检查。作者后继Python控制实际通过，原20 DTO标准Schema证据沿字节不变复用，不重编Go。Runner本人原红控cc7bba actual0，五HEAD全响应resolved content=0、GET/通用Problem/HEAD200/DTO保持原样，有限复审接受；原失败不回填。
-- Schema后继54742/cec8af：原offline env额外`AGENTEAM_KNOWLEDGE_HTTP_SCHEMA_PYTHON=$(command -v python3)`，精确`^TestKnowledgeHTTPStandardSchema$`定向race actual0/1.132s；独立本地JSON Schema标准validator执行20正反例，包括实际五响应、内部Object字段、精确Version/UUID/换行/creator/MIME/空数组等。没有网络引用获取。
-- 新native_test.go仅准备三个exact tops：`TestKnowledgeHTTPNativeDeadlines`、`TestKnowledgeHTTPNativeKeepAliveAndClose`、`TestKnowledgeHTTPNativeBackpressureAndDisconnect`；必须`AGENTEAM_KNOWLEDGE_HTTP_NATIVE=1`才执行真实socket。90700/34e070仅`go test -mod=readonly -p=1 -race -timeout=5m -run '^$' -list '^TestKnowledgeHTTPNative(Deadlines|KeepAliveAndClose|BackpressureAndDisconnect)$' ./internal/central/knowledge/http` actual0/1.025s，恰3top，无body执行。复用已验Variables native owner helpers，改为本域真实GET/HEAD/200项安全metadata，其controlled端口仅证明transport，不能冒真实权限/root。首生成脚本ddc1bf因旧函数名匹配错误在write前失败，随后3be578正常落源，未启动资源。
-- 全机available首5918224384B→最新5480509440B（50146b），并行期间变化不可归因单缓存。按root约300MB协调条件现暂停后继编译/大integration，继续源码；无命令在途。最新技术8paths已root保存35b62908，新Schema/native两tests＋本地schema-controls.py及两docs此次冻结供root保存。native/PG实际与完整独立验收仍未运行。
-- 最新：四生产源和wire/query/handler/io四测试已闭合。首pure race6157/884f76实际exit1/0.350s，10精确top只有Unknown控制失败：测试错误期待公开cause_id，共享Problem正式不公开。只改测试捕获原Fault传递及拒绝公开cause，67777/e3a2ed定向实际exit0/1.017s；其余未变9项复用首轮，首FAIL不回填。没有产品修改来迁就断言。首同进程available5918224384B，后5753090048B，总变化165MB以内；未造大integration binary/缓存副本。
-- 实际命令：固定下列Go/cache/offline环境，`go test -mod=readonly -p=1 -race -count=1 -timeout=5m -run '^TestKnowledgeHTTP(ReadRoutesAndHEAD|RejectsBeforeDomainAndPreservesFault|BoundInstancesAndAuthentication|StrictQueriesAndRoutes|ExplicitSafeProjection|ProjectionRejectsWholeCandidate|RepresentationLimitAndCancellation|NativeCapabilityFailureAndIOAbort|CancellationCallbackActuallyJoined|ActualCommandTailPreventsReturnAndLatePublication)$' ./internal/central/knowledge/http`；修后只跑`^TestKnowledgeHTTPRejectsBeforeDomainAndPreservesFault$`。含NativeCapability名字的是受控writer纯测试，无socket；真正native/PG尚未实现或运行。
-- wire用显式12字段/最小tombstone与私有5MiB增量编码，坏后项/完整祖先校验失败零候选。独立Schema JSON/本地refs8603a6实际0，标准validator已安装但矩阵尚未运行。Runner对0b74首五路径只读有限接受，无mustfix；wire/schema/tests增量待其审，不外推动态结论。当前无命令/资源在途，文件冻结供root保存后继续新Schema/native/PG测试。
-- 新树基线正式main29dd4298；本人唯一写域为新knowledge/http、独立knowledge-owner Schema、新owner_read_http tests、本卡/current与必要任务资产。D05旧closure不变。
-- 已读本树AGENTS、团队流程及Go/security/design技能；短规格已落五类metadata/tree GET/HEAD、真实Service/Account构造、显式安全DTO、2s/5MiB/严格query和实际尾。正文/URL/D13/root/B02生产/SQL不在范围。
-- 首片段已落新http/handler.go、query.go、io.go：五路真实实例构造、严格query及原2s原生I/O退休；io.go仅改package逐字复用已交普通Variables I/O。安全wire函数尚未加入，因此源码当前未闭合，未编译/未业务验收。27cfa5仅三源gofmt实际0；无命令或真实资源在途。Runner C独占真实窗口，禁止本树native socket/PG；按root磁盘协调暂停编译/缓存写。
-- 复用Go1.27.1，GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2；GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod，独占GOCACHE=/workspace/agenteam-knowledge/output/ai/knowledge/go-cache，不建新缓存。
+## 可复用命令与剩余门
+
+以下环境固定；PATH必须保继承值后仅前置Go。GoMod共享只读，原Knowledge独占cache：
+
+```sh
+export PATH=/workspace/toolchains/go1.27.1/bin:$PATH
+export GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2
+export GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod
+export GOCACHE=/workspace/agenteam-knowledge/output/ai/knowledge/go-cache
+```
+
+已执行编译为`go test -tags=integration -mod=readonly -p=1 -race -c -o output/ai/knowledge-owner-read/knowledge-owner-read-http-race.test ./tests/knowledge`，外层timeout5m；list为候选`-test.run=^$ -test.list='^TestKnowledgeOwnerReadHTTP(Metadata|CurrentAuthority|Transactions|CommitUnknown)$'`。入口纯控：`python3 -B .agent-state/knowledge-owner-read/root-selector-controls.py`。
+
+后继PG仅在root fresh grant且同process首statvfs available>=5368709120B、固定MinIO就绪后启动；下列未执行，首轮output父pg需absent：
+
+```sh
+python3 .agent-state/task-planning-recovery/pg_only_supervisor.py --root-chain --driver /workspace/agenteam-knowledge-http/.agent-state/work-owner-http/root_chain_driver.py --binary /workspace/agenteam-knowledge-http/output/ai/knowledge-owner-read/knowledge-owner-read-http-race.test --run '^TestKnowledgeOwnerReadHTTP(Metadata|CurrentAuthority|Transactions|CommitUnknown)$' --output /workspace/agenteam-knowledge-http/output/ai/knowledge-owner-read/pg
+```
+
+原业务每top含fixture cleanup上限120s，整个Go6m；不自动rerun或扩预算。PG完整Go/driver/outer actualWait、7ID双absent、private/runtime/desc/TCP双delta与inputsame才算整轮通过。七次独立Account/PG fixture setup未实测总时长，若不适合原6m则依实际有意义拆组。
+
+native仍独立短窗，必须`AGENTEAM_KNOWLEDGE_HTTP_NATIVE=1`且精确`^TestKnowledgeHTTPNative(Deadlines|KeepAliveAndClose|BackpressureAndDisconnect)$`才运行真实socket；三个top六子已源码准备，未执行。默认无该env跳过。它只证明transport，正式权限依PG矩阵。完整有限结果仍须native与PG实际、入口/业务风险独审及真实尾；不把当前编译或test-only fixture当生产root可用。

@@ -123,6 +123,7 @@ def observe_root_chain(directory, log, log_path, selector):
     log.flush()
     output = log_path.read_text()
     expected = {
+        '^TestKnowledgeOwnerReadHTTP(Metadata|CurrentAuthority|Transactions|CommitUnknown)$': {'TestKnowledgeOwnerReadHTTPMetadata', 'TestKnowledgeOwnerReadHTTPCurrentAuthority', 'TestKnowledgeOwnerReadHTTPTransactions', 'TestKnowledgeOwnerReadHTTPCommitUnknown'},
         '^TestWorkOwnerRootActual(Command|Reader)Join$': {'TestWorkOwnerRootActualCommandJoin', 'TestWorkOwnerRootActualReaderJoin'},
         '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': {'TestWorkOwnerHTTPProcessRoutingAndPersistence'},
         '^TestIndependentWorkOwnerRootConfirmationJoin$': {'TestIndependentWorkOwnerRootConfirmationJoin'},

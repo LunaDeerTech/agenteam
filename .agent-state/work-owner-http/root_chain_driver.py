@@ -13,9 +13,11 @@ import sys
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 GO = Path('/workspace/toolchains/go1.27.1/bin/go')
+SCHEMA_PYTHON = Path(sys.executable).resolve()
 MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
+    '^TestKnowledgeOwnerReadHTTP(Metadata|CurrentAuthority|Transactions|CommitUnknown)$': 'tests/knowledge',
     '^TestWorkOwnerRootActual(Command|Reader)Join$': 'internal/central/app',
     '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': 'tests/process',
     '^TestIndependentWorkOwnerRootConfirmationJoin$': 'internal/central/app',
@@ -38,6 +40,8 @@ def input_paths(binary):
     paths = {Path(binary).resolve(), Path(__file__).resolve(), GO, MINIO,
              REPOSITORY / '.agent-state/task-planning-recovery/pg_only_supervisor.py',
              REPOSITORY / 'go.mod', REPOSITORY / 'go.sum',
+             SCHEMA_PYTHON, REPOSITORY / '.agent-state/knowledge-owner-read/schema-controls.py',
+             REPOSITORY / 'api/openapi/knowledge-owner.json', REPOSITORY / 'api/openapi/common.json',
              REPOSITORY / 'internal/central/account/assets/weak-passwords.json',
              REPOSITORY / 'internal/central/skill/builtin/add-skills/v1/SKILL.md'}
     for name in ('test-objects.sh', 'test-security.sh', 'test-postgres.sh'):
@@ -96,6 +100,7 @@ def main():
                 'GOFLAGS': '-mod=readonly -p=2',
                 'AGENTEAM_MINIO_BINARY': str(MINIO),
                 'AGENTEAM_FIXTURE_TEST_BINARY': plan['binary'],
+                'AGENTEAM_KNOWLEDGE_HTTP_SCHEMA_PYTHON': str(SCHEMA_PYTHON),
                 'AGENTEAM_FIXTURE_TEST_CWD': plan['cwd'],
                 'AGENTEAM_FIXTURE_OWNED_RECORD': str(directory / 'owned.json'),
                 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime)})

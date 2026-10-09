@@ -1,6 +1,6 @@
 # D12 Human Owner Knowledge metadata 与文档树 HTTP
 
-状态：四个adapter生产源、Schema及10个pure控制已落；首轮9项未失败，Unknown控制因误期待公开cause_id失败，修正控制后定向race通过。标准Schema20正反例实际通过，native三个top已race编译/精确发现但未执行；真实PG/整结果独立验收未完成。基线正式 main `29dd429881783595e5a1304b86af5bfb56ec80b2`。只交付可独立构造的五类只读 HTTP adapter，不接生产 root，不修改 B02/SQL，不包含正文、下载 URL、D13、UI 或 Project lifecycle/Runtime 停止项。依据 [B02 服务](d12-b02-knowledge-service.md)、[D12 规格](d12-knowledge-documents-design.md) §3/6 与既有 Owner HTTP/Account boundary。
+状态：adapter生产源/Schema已落并获Runner有限源码与两个独立pure风险控接受；唯一HEAD Schema must-fix已原红转绿。作者纯控与标准Schema已有实际证据，四PG top十四子已race编译/精确发现（尚未执行）；native三个top仅编译发现。真实PG/native与整结果验收仍未完成。基线正式 main `29dd429881783595e5a1304b86af5bfb56ec80b2`。只交付可独立构造的五类只读 HTTP adapter，不接生产 root，不修改 B02/SQL，不包含正文、下载 URL、D13、UI 或 Project lifecycle/Runtime 停止项。依据 [B02 服务](d12-b02-knowledge-service.md)、[D12 规格](d12-knowledge-documents-design.md) §3/6 与既有 Owner HTTP/Account boundary。
 
 ## API 与真实依赖
 
@@ -35,3 +35,5 @@ children 的 parent_document_id 必须是字面 `null` 或规范 UUIDv7；不把
 唯一写域：新 `internal/central/knowledge/http/{handler,query,wire,io}.go` 及相邻pure/native tests，新 `api/openapi/knowledge-owner.json`，新 `tests/knowledge/owner_read_http*`，本卡/current及必要任务资产。复用既有有界HTTP I/O模式，不改共享框架/全局schema/原B02产品/SQL/生产root。Schema覆盖实际DTO与五路参数/错误，不声明其他Knowledge能力。
 
 有限矩阵：① pure严格路由/query/DTO/隐藏字段canary/坏尾项/安全Fault与schema、原I/O取消/短写/Close/实际callback；② native socket慢body/慢写/断连/HEAD/keepalive/原2s自然期限与实际尾；③真实同Store Account正式登录、当前Project Owner、B02真实服务的五API/非空分页树/删除tombstone、每页撤权与两种锁序、取消/真实读COMMIT Unknown零候选。公共内容变更用于产生业务事实，不复制B02全量发布矩阵。PG/native均另需root独占窗口；pure/编译不冒动态通过。未参与实现者独立核安全投影/权限与有价值负控后才交付该有限adapter。
+
+后继实际候选为四top封闭组 `TestKnowledgeOwnerReadHTTP{Metadata,CurrentAuthority,Transactions,CommitUnknown}`：真实Account正式身份、原B02同Store实际出版，Project初始化/Owner变化/合法Deleting仅明确上游SQL夹具。四top十四子覆盖上述权限/输出/事务矩阵；局部test-only回调只观察/阻塞原事务，不替换CommitResult/授权/SQL行。整个Go仍6m，单top包含fixture实际收尾120s；原七资源root链/全部实际Wait与双尾不变。运行时Schema helper/两JSON和当前Python解释器也进入input gate，候选/命令与实际限制见本树current。
