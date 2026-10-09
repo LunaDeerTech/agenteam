@@ -1,6 +1,6 @@
 # D08 Project 对 Skills 清理的当前授权
 
-状态：按正式 main `29dd4298` 已实现精确分支，作者限定 pure/race/vet 通过；产品与测试获有限离线独审，作者当前事实、Tx与真实锁竞争三个PG矩阵均完整通过；独立PG补集仍待，尚未正式交付。规则来源为已接受的 Skills cleanup rev2 §16.3、§16.8（`ai/skills-initialization` 的 `d10-skills-initialization-design.md`），以及现有 [LifecycleAuthority](recovery-d08-lifecycle-authority.md) 与 [生命周期合同](../../../internal/central/project/contract/lifecycle.go)。
+状态：精确 Skills CleanupPhase 授权已实现并独立接受，待主线程正式交付。作者 pure/race/vet、三个真实 PG 顶层与独立 PG 风险补集均通过，原命令与资源完整收尾。规则来源为已接受的 [Skills cleanup rev2 §16.3、§16.8](https://github.com/LunaDeerTech/agenteam/blob/1e8b5c67/docs/development/work-items/d10-skills-initialization-design.md)，以及现有 [LifecycleAuthority](recovery-d08-lifecycle-authority.md) 与 [生命周期合同](../../../internal/central/project/contract/lifecycle.go)。
 
 ## 结果与范围
 
@@ -26,12 +26,17 @@
 
 先固定 Go1.27.1/local/off，复用原 Work 独占缓存及只读 modcache，进行受影响 pure/race/vet；真实 PG 和候选集成编译另按资源调度，不启动浏览器/Object backend。作者与未参与者结论分列，编译/pure 不替代真实授权矩阵。原 Object Runtime join、E01 等停止项不变。
 
-作者当前检查：固定 Go1.27.1/off/-p1、原缓存，新增两 pure top 与原 LifecycleAuthority 构造兼容共3top/19sub race实际0（89499→0cff7b，1.024s），同包vet实际0（65938→750b69）。三PG测试源码已落盘，包含原SH阻塞Owner writer的实际pg_locks等待判据与两个caller Tx实际返回，离线race候选现已编译并各exact-list恰1，尚未实际运行；不将这些刺激设计记作真实通过。
+已完成的限定验证如下；各项均按其固定输入接受，不声称当前主线全量回归或整个 D08 完成。
 
-Skills独立有限接受44702/c18c79：真实公开gate/严格loader/Rows方法配controlled Store共1top4sub race0，覆盖同ctx/Tx/SH、两轮Rows关闭与读取错误拒绝；原Stop/Inspect/Outbox/SQL逆差异不变。PG候选及3single发现、原driver编译已实际0；新增仅三exact入口的RUN/PASS闭集与纯控制待独立窄核，实际仍沿原2资源、105+15/123+3/TCP75，无自动实跑。
+| 验证 | 实际结果与边界 |
+| --- | --- |
+| 作者 pure/race/vet | 新增两 pure 顶层与原 LifecycleAuthority 构造兼容共 3 顶层、19 子项通过（89499→0cff7b），同包 vet 通过（65938→750b69）。 |
+| 独立源码与受控 Store/Rows | 44702/c18c79 的 1 顶层、4 子项 race 通过；实际公开 gate/严格 loader 验证同 ctx/Tx/SH、两轮 Rows 关闭、后次读取失败不能复用先前授权。逆差异确认旧 Stop/Inspect/Outbox、合同及 SQL 不变。受控 Store 不代替下列 PG 结果。 |
+| 作者当前事实 PG | `TestProjectSkillsCleanupCurrentFacts` 的 1 顶层、28 子项完整通过（14793→b4694d），覆盖当前阶段、Owner/版本/manifest、参与者停止及依赖完成矩阵。 |
+| 作者 caller Tx PG | `TestProjectSkillsCleanupTransactions` 的 1 顶层、4 子项完整通过（86222→c6f0be），验证 SH/EX、不补锁或开 Tx、foreign/ended/取消及封闭 actor/participant 拒绝。 |
+| 作者锁竞争 PG | `TestProjectSkillsCleanupCurrentFactsRemainLocked` 完整通过（66964→75bf35）；实际观察 Project SH 与 Owner writer 的精确 ExclusiveLock 等待，释放后两个原 Tx 均提交，旧 Owner/operation 随后不再获准。 |
+| 独立 PG 补集 | `TestProjectSkillsCleanupIndependentRevalidation` 的 1 顶层、3 子项完整通过（76329→d17c95）：同原 Tx 首次获准后进度撤权/恢复并回滚、Owner 漂移/恢复并提交、原调用取消与 ended Tx 拒绝及后继健康 Tx。原私有快照及 Activity/Audit/Event/command 保持。 |
 
-当前真实矩阵：CurrentFacts首轮1top28sub全部PASS、业务4.59s，原Go/driver/outer实际Wait0，2资源双退役、private/runtime/desc双清、TCP双empty/input一致，supervisor72.057s（14793→b4694d）。该轮仅本项作者PG结果，Transactions后继结果如下；CurrentFactsRemainLocked后继结果如下，不将有限源码独审或受控initializer/phase/前驱声明当作真实Skills cleanup/生产registry已绑定。
+作者 3 顶层、32 子项与独立 1 顶层、3 子项均由未放宽的各自实际窗口完成：Go/driver/outer 原 Wait、两个精确资源双退役、private/runtime/desc、TCP 双样本与输入一致性全部收尾。入口发现及闭集映射另获有限独审；其工具只用于恢复执行，不作为产品授权或 PG 结果替代。
 
-Transactions第2single也已完整PASS：1top4sub、业务1.79s，原Go/driver/outer实际Wait0、2资源/private/runtime/desc/TCP/input全尾齐，supervisor70.969s（86222→c6f0be）。覆盖原SH/EX caller Tx、不代补锁或开Tx、foreign/ended/取消和封闭actor/participant拒绝；第三真实SH阻塞Owner writer矩阵后继结果如下。
-
-CurrentFactsRemainLocked第3single完整PASS：业务1.74s，实际观察原Project SH持有者与Owner writer的精确ExclusiveLock等待，释放后两个原Tx均实际Committed，随后旧Owner/operation不再授权。原Go/driver/outer Wait0、2资源/private/runtime/desc/TCP/input完整尾齐，supervisor71.755s（66964→75bf35）。作者3top32sub按固定输入组合通过；独立PG补集尚待，源码独审及受控Rows控制不能提升为正式交付或真实Skills工作完成。
+正式交付仅含该单一产品文件、相邻 pure 测试、作者与独立 PG 测试、本卡和 D08 台账条目。独立 PG 源按其已验版本原样纳入。环境监督工具、缓存、二进制、原始日志及逐轮检查点保留任务分支，不混入产品交付。受控阶段/参与者事实不证明真实 Skills cleanup、D05 最后同事务组合或生产 registry/root 已绑定；这些后继工作及 Object Runtime join 停止项保持。
