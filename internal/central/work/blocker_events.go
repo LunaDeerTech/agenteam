@@ -129,7 +129,7 @@ func validateBlockerRecord(r *blockerRecord, a i.Actor) error {
 		return internal(e)
 	}
 	if r.State == "completed" {
-		if r.Receipt == nil || r.Committed == nil || r.Committed.Time().Before(r.Created.Time()) || !sameValue(*r.Receipt, out) {
+		if r.Receipt == nil || r.Committed == nil || r.Committed.Time().Before(r.Created.Time()) || r.Committed.Time().Before(at.Time()) || !sameValue(*r.Receipt, out) {
 			return internal(nil)
 		}
 	} else if r.State != "planned" || r.Receipt != nil || r.Committed != nil {

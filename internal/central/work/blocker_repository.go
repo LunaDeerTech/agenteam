@@ -136,7 +136,7 @@ func (v *blockerPlan) UnmarshalJSON(raw []byte) error {
 	if e = n.TaskEvent.UnmarshalJSON(fields["task_event"]); e != nil {
 		return internal(e)
 	}
-	if n.Header, e = decodeTaskPlanHeader(fields["header"]); e != nil {
+	if n.Header, e = decodeBlockerPlanHeader(fields["header"]); e != nil {
 		return e
 	}
 	if e = n.Payload.UnmarshalJSON(fields["payload"]); e != nil {
@@ -277,6 +277,9 @@ func completeBlockerCommand(ctx context.Context, x postgres.SQLExecutor, r *bloc
 	if at.Time().Before(r.Created.Time()) {
 		at = r.Created
 	}
+	if at.Time().Before(out.Task.UpdatedAt.Time()) {
+		at = out.Task.UpdatedAt
+	}
 	return taskAffected(x.Exec(ctx, `UPDATE agenteam_work.task_blocker_commands SET state='completed',receipt=$2,committed_at=$3 WHERE id=$1 AND state='planned' AND plan_revision=$4`, r.ID.String(), raw, at.Time(), int64(r.Revision)))
 }
 
@@ -337,4 +340,19 @@ func applyBlockerPlan(ctx context.Context, s *blockerScope, r *blockerRecord) er
 		return e
 	}
 	return taskAffected(x.Exec(ctx, `INSERT INTO agenteam_work.task_events(id,project_id,task_id,task_version,type,actor,operation_id,blocker_operation_id,correlation_id,payload,created_at) VALUES($1,$2,$3,$4,$5,$6,NULL,$7,$7,$8,$9)`, h.ID.String(), h.ProjectID.String(), h.TaskID.String(), int64(h.TaskVersion), string(h.Type), actor, h.OperationID.String(), raw, h.CreatedAt.Time()))
+}
+
+func decodeBlockerPlanHeader(raw []byte) (event.Header, error) {
+	fields, err := taskPrivateObject(raw, taskPlanCap, []string{"event_id", "event_type", "schema_version", "occurred_at", "scope", "aggregate_type", "aggregate_id", "aggregate_version"}, nil)
+	if err != nil {
+		return event.Header{}, err
+	}
+	if _, err = taskPrivateObject(fields["scope"], taskPlanCap, []string{"kind", "project_id"}, nil); err != nil {
+		return event.Header{}, err
+	}
+	h, err := event.DecodeHeader(raw)
+	if err != nil || h.EventType != c.TaskBlockersChangedName || h.AggregateType != c.TaskAggregate || h.SchemaVersion != c.TaskBlockerSchemaVersion || h.Scope.Kind != event.ProjectScope || h.AggregateVersion == nil || *h.AggregateVersion < 2 || h.AggregateSequence != nil {
+		return event.Header{}, internal(err)
+	}
+	return h, nil
 }

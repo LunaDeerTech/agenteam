@@ -85,7 +85,7 @@ DECLARE old_name text; matches integer;
 BEGIN
  SELECT count(*),min(conname) INTO matches,old_name FROM pg_constraint
  WHERE conrelid='agenteam_work.task_events'::regclass AND contype='c'
- AND pg_get_constraintdef(oid)='CHECK ((correlation_id = operation_id))';
+ AND pg_get_constraintdef(oid) IN ('CHECK ((correlation_id = operation_id))','CHECK (((correlation_id)::uuid = (operation_id)::uuid))');
  IF matches<>1 THEN RAISE EXCEPTION 'unexpected task history correlation constraint'; END IF;
  EXECUTE format('ALTER TABLE agenteam_work.task_events DROP CONSTRAINT %I',old_name);
 END;
