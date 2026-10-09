@@ -147,4 +147,6 @@ SPEC 已由未参与其实现的 model_delivery 独立有限审查接受，无 m
 
 `TestProjectInitializationAuditTransactionBoundary` 首轮由作者本人实际执行：session45958 outer exit0，Go 2.63s、9子例全部通过，完整73.381s。覆盖无锁/SH/错Project锁、foreign/ended Tx、取消/关闭Store拒绝，并用两个真实PG连接证明 wrapper 返回后原EX仍阻塞SH/EX，直到调用方释放。Go/driver实际Wait0，无adopted残留，desc两空；两ID双absent、私密退休（目录仅owned.json）、TCP两空、inputs unchanged。原始安全日志：`output/ai/project-initialization-audit/pg/pg-1353338f9d774bc4bb30861b685d7424.log`。窗口已向root释放。
 
-以上只证明真实 Project/Creation 状态/原key/owner/事务中的授权调用门槛及受控 delegate 契约，不能推成真Skill/Object发布。`TestProjectInitializationAuditDelegation` 和未参与者独立产品/PG补集仍待实际运行；不标本卡完成，不用旧验收顶替。下一top保持同一四Go源、race binary与已独审supervisor，等root freshgrant。
+`TestProjectInitializationAuditDelegation` 首轮由作者本人实际执行：session76352 outer exit0，Go 1.84s、7子例全部通过，完整72.290s。真实同Tx provider查询错误、Fault/普通错误/取消均保持失败；真实Object checker缺私有witness仍拒绝，caller rollback和普通Unbound保持。Go/driver实际Wait0，无adopted残留，desc两空；两ID双absent、私密退休（目录仅owned.json）、TCP两空、inputs unchanged。原始安全日志：`output/ai/project-initialization-audit/pg/pg-3fa9d16ab8ab4476bf120ca4d0c94b92.log`。窗口已先向root释放。
+
+未参与四Go实现的 model_delivery 已亲自只读审查最终产品源，有限接受、无must-fix；其自主不同输入的真实PG风险补集仍待运行。三作者top共42子例只证明真实 Project/Creation 状态/原key/owner/事务中的授权调用门槛、受控delegate契约及真实Object缺witness拒绝，不能推成真Skill/Object发布，也不替代独立动态验收。独立PG补集和README末件完成前不标本卡完成；四Go源持续冻结。
