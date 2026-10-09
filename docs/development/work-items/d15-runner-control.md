@@ -84,7 +84,7 @@ WSS `/api/v1/runner/control`，subprotocol 精确 `agenteam.runner.v1`；凭据�
 
 跨 Central 进程不把内存 map 当全局真相：generation/current owner 存DB，每个新 request 的实际 write 前与每个会改变/发布事实的 inbound message 都核对应 generation。发送门在短事务持该 Runner 连接锁验证，真正 write 和该短事务共用≤5s上界，才允许新代际发布；不得持锁执行 operation。替换后旧 socket 最多在下一次≤1s代际观察中主动关闭；期间旧 inbound 不能发布，原 pending 可保守 unknown。各独立 registry 必须通过真实双实例竞争验收。仅支持当前进程所属连接的 dispatch；无跨 Central 的 RPC 转发，连接归别进程时返回 backend_unavailable 而非删除配置/伪造offline。此限制须出现在生产说明，不能宣称 HA dispatch。
 
-online 是数据库当前连接的有界视图：必须存在当前 connection 行、已经完成 hello、credential_generation 与 connection_generation 均匹配 Runner，且原有30s lease尚未到期。已知连接退役、任一代际失效或lease到期则读为offline；连接属于其它仍有效owner时，不得仅凭本进程registry缺席读为offline。数据库无法确定这些事实时返回unavailable，不合成offline。incompatible仍沿下段独立规则优先投影。
+online 是数据库当前连接的有界视图：必须存在当前 connection 行、已经完成 hello、credential_generation 与 connection_generation 均匹配 Runner，且原有30s lease尚未到期。已知连接退役、任一代际失效或lease到期则读为offline；连接属于其它仍有效owner时，不得仅凭本进程registry缺席读为offline。数据库连接/借用不可用时返回unavailable，不合成offline。D03已知NotCommitted的InternalError仅在其真实postgres.Error为AdmissionStopped或ConnectionFailed时映射DependencyUnavailable；SQL、事务/锁用法、配置、Begin及未知分类保留原错误，不能一概冒暂时断网，Unknown保原attempt/cause。incompatible仍沿下段独立规则优先投影。
 
 本次根明确批准的有限SPEC修订以以上持久事实/原30s租约替代旧稿“旧owner不存在即offline”的即时判定要求：现D01/D02没有跨进程owner即时死亡provider；未知crash/partition不能被当作已确证死亡，其保守online视图最多保留至最后一次续约的原lease到期。Central重启以新随机owner启动，不接管旧连接、不恢复旧request或跨owner dispatch；仍有效旧lease只影响读取视图，不能授予新进程旧RPC权限。此修订不新增全局HA/owner端口、不改变30s或迁移，也不声称旧稿即时判定已实现。身份撤销/re-enroll与接收/发送共用同代际门，撤销提交后不能用旧key创建新连接，旧连接不能发布成功；已发送的外部副作用不宣称回滚。管理员元数据version与高频heartbeat独立，heartbeat不造成每秒配置version冲突。
 
@@ -233,3 +233,5 @@ Central 管理契约/Reader/commands及typed Audit首片段已可构建，精确
 Admin有限HTTP与设备登记/challenge/Audit producer已可构建，作者精确纯控通过。HTTP只Request/Recorder，设备只明确私有SQL executor，均不冒native/PG行为；设备首次测试类型名编译错误已修，原失败保留。Central认证代际/WSS/root尚待接线，现有真实迁移结果不代这些业务SQL或全D15验收。
 
 Central WSS/root生产装配及major不兼容持久标记已接入，新增标记只在已认证当前连接门内写入；作者精确纯控通过，尚无真实升级、nonce/heartbeat业务SQL或双实例运行结果。§5已由根明确修订为原30s持久lease有界在线视图，替代缺少provider的即时owner死亡判定；现Reader SQL按hello/双代际/lease投影，未依赖本地owner map，其真实正反与native门槛仍待验。
+
+首批真实业务验收源`TestRunnerControlManagement`与`TestRunnerControlDeviceAndReader`已可构建、精确发现，尚未运行。前者使用真实Account Bootstrap/Login、同Store typed Audit、原intent/同User新Session及AFTER ROW异常证明原子回滚；后者消费真实登记/挑战/签名/hello/双Service代际/退役与自然30s lease，闭池负例不得返回offline。两组分窗沿原PG-only预算，不含WSS/双cmd/native结果。DB错误映射仅两个已知admission码；作者首次纯控误将配置错误也期望Unavailable且Unknown刺激runID非法，原72615失败保留，不能当closed-DB实际反例。修后精确四pure tops通过；真实闭池仍由后续PG组验证。

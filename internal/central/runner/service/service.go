@@ -187,7 +187,14 @@ func resultError(result f.CommitResult) error {
 	case f.Committed:
 		return nil
 	case f.NotCommitted:
-		return result.Fault()
+		original := result.Fault()
+		var database *postgres.Error
+		if original.Code == f.InternalError && errors.As(original, &database) && database != nil && databaseAdmissionUnavailable(database.Code()) {
+			copy := *original
+			copy.Code = f.DependencyUnavailable
+			return &copy
+		}
+		return original
 	}
 	v := f.NewFault(f.CommitUnknown, f.Unknown)
 	v.RetryHint = "lookup"
@@ -195,6 +202,13 @@ func resultError(result f.CommitResult) error {
 		v.CauseID = result.AttemptID().String()
 	}
 	return v.WithCause(commitFailure{result})
+}
+
+// Only borrow/admission failures are classified here. D03 also uses Error for
+// poisoned SQL, invalid handles, lock errors and other internal defects; those
+// retain their original domain code and must not become retryable outages.
+func databaseAdmissionUnavailable(code postgres.Code) bool {
+	return code == postgres.AdmissionStopped || code == postgres.ConnectionFailed
 }
 
 var _ c.Reader = (*Service)(nil)
