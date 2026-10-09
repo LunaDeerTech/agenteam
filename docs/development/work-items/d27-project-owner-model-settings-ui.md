@@ -38,6 +38,10 @@ authority 第四轮仍 FAIL：浏览器原 45 秒总预算在 `authority-same-se
 
 navigation 第四轮已通过新的 Model 专属种子目录读取与 raw-return 检查，随后仍 FAIL：`navigation-draft-and-focus` 中 History 返回后选择“继续编辑”，名称值保留断言通过，但名称输入框恢复焦点的等待超时（模块第 231 行）；本轮未采实际 activeElement，不能先认定焦点去了哪里。闭合原件见 [navigation-focus-fourth-failure.json](../../../.agent-state/model-ui-recovery/navigation-focus-fourth-failure.json)。九个安全响应，尚无八张布局图；Go 19.47 秒、外层实际 exit=1／106.80 秒，direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、子进程空、TCP 双空和输入同一全部完成。authority 的局部 5 秒分段诊断另已 strict TS、自查与独立有限审查接受，仅可定位后续失败，不等于原请求或业务通过。
 
+authority 第五轮有界诊断再次 FAIL，明确停在 Session `finished()` 的 5 秒观察：headers 已见、finished event 未见、failed event 已见，受控 release 已返回；尚不能据此区分原生 body 消费结果与 Playwright 请求终态事件。闭合原件见 [authority-session-fifth-failure.json](../../../.agent-state/model-ui-recovery/authority-session-fifth-failure.json)。Go 21.82 秒、外层实际 exit=1／114.68 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、子进程空、TCP 双空与输入同一均完成。原各轮 FAIL 保留，不能通过删掉 EOF 门槛或追加 GET 把观察改成成功。
+
+另一个精确组件正反例已作者与独立者各自实跑：原 trigger 始终可用时通过，确认期间 disabled、同 tick 关闭确认并解除 disabled 时失败；原节点最终已 connected／enabled／非 inert／保值，实际焦点在下层关闭按钮。它证明共享层的局部恢复时序缺口，不回填 navigation 第四轮未采集的 activeElement；后继共享修复及其适用验证仍在进行，§0.2 已接受结论保持绑定原版本。
+
 ### 0.1 T1 最小共享源码与实际签名
 
 以下为当前已提交接入点的最小核对，不再复制实施前源码哈希表或过期行号：
