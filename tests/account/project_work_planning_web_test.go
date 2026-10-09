@@ -230,16 +230,164 @@ func TestAccountProjectWorkPlanningWebBlockers(t *testing.T) {
 }
 func TestAccountProjectWorkPlanningWebOriginalRecovery(t *testing.T) {
 	f := runProjectWorkPlanningWeb(t, "recovery", "three_domains", "lookup_original", "same_replay", "history", "archive", "unique_facts")
-	f.guard.Lock()
-	defer f.guard.Unlock()
-	if f.dropped != 3 || len(f.lost) != 3 {
-		t.Fatal("three actual committed original responses were not truncated")
-	}
+	assertProjectWorkOriginalRecovery(t, f)
 }
 func TestAccountProjectWorkPlanningWebIdentityAndOwnership(t *testing.T) {
-	runProjectWorkPlanningWeb(t, "identity", "logout", "revocation", "owner", "checking", "new_session", "late_read", "confirmations")
+	f := runProjectWorkPlanningWeb(t, "identity", "logout", "revocation", "owner", "checking", "new_session", "late_read", "confirmations")
+	f.guard.Lock()
+	defer f.guard.Unlock()
+	if f.hold == nil || f.hold.path != projectOwnerWebPath+"/"+f.seeds["main"].ProjectID+"/tasks/"+f.seeds["main"].TaskID || !f.hold.started || !f.hold.finished || !f.readCanceled {
+		t.Fatal("declared late read did not observe the exact held Task request cancellation and actual finish")
+	}
 }
 func TestAccountProjectWorkPlanningWebLayouts(t *testing.T) {
 	f := runProjectWorkPlanningWeb(t, "layouts", "keyboard", "focus", "no_overflow", "readonly", "empty", "error", "no_debug")
 	_ = f
+}
+
+func assertProjectWorkOriginalRecovery(t *testing.T, f *projectWorkPlanningWebFixture) {
+	t.Helper()
+	f.guard.Lock()
+	lost := make(map[string]projectWorkPlanningWebObservation, len(f.lost))
+	for key, value := range f.lost {
+		lost[key] = value
+	}
+	dropped, replayed, cutInvalid := f.dropped, f.replayed, f.cutInvalid
+	f.guard.Unlock()
+	if cutInvalid || dropped != 3 || replayed != 3 || len(lost) != 3 {
+		t.Fatal("three-domain original loss/replay matrix incomplete")
+	}
+	for _, domain := range []string{"structure", "task", "blocker"} {
+		original, ok := lost[domain]
+		if !ok || original.Domain != domain || original.Status != 200 {
+			t.Fatal("original completed response unavailable")
+		}
+		cut := original.Cut
+		if len(original.Response) <= 1 || cut.Written != 1 || !cut.WriteOK || !cut.FlushOK || !cut.HijackOK || !cut.CloseOK {
+			t.Fatal("original response did not actually complete its deliberate one-byte cut and connection close")
+		}
+		seed := f.seeds[domain]
+		var historical, originalResponse map[string]any
+		if json.Unmarshal(original.StoredReceipt, &historical) != nil || json.Unmarshal(original.Response, &originalResponse) != nil || !reflect.DeepEqual(historical, originalResponse) {
+			t.Fatal("lost original bytes do not match the original durable receipt")
+		}
+		var commandID, lifecycle string
+		var stored []byte
+		if err := f.store.QueryRow(f.ctx, `SELECT id,receipt FROM `+workCommandTable(domain)+` WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3 AND state='completed'`, seed.ProjectID, original.Command, original.Key).Scan(&commandID, &stored); err != nil {
+			t.Fatal("original historical command missing after replay")
+		}
+		var currentStored map[string]any
+		if json.Unmarshal(stored, &currentStored) != nil || !reflect.DeepEqual(historical, currentStored) {
+			t.Fatal("historical receipt rewritten by later commands or replay")
+		}
+		if err := f.store.QueryRow(f.ctx, `SELECT lifecycle FROM agenteam_project.projects WHERE id=$1`, seed.ProjectID).Scan(&lifecycle); err != nil || lifecycle != "archived" {
+			t.Fatal("historical replay did not cross actual archived gate")
+		}
+		var source map[string]any
+		if json.Unmarshal(original.Body, &source) != nil {
+			t.Fatal("private original request invalid")
+		}
+		lookup, mutation := 0, 0
+		for _, observed := range f.observations() {
+			if observed.Key != original.Key {
+				continue
+			}
+			if observed.ProjectID != original.ProjectID || observed.Domain != domain || observed.Command != original.Command || observed.TargetID != original.TargetID || observed.CSRF != original.CSRF {
+				t.Fatal("original identity or target changed")
+			}
+			var response map[string]any
+			if observed.Status != 200 || json.Unmarshal(observed.Response, &response) != nil {
+				t.Fatal("original lookup or replay lacks its same successful response")
+			}
+			if strings.HasSuffix(observed.RawPath, "/lookup") {
+				var query map[string]any
+				if json.Unmarshal(observed.Body, &query) != nil || !reflect.DeepEqual(query["request"], source["request"]) || !reflect.DeepEqual(query["expected_version"], source["expected_version"]) || query["command"] != original.Command {
+					t.Fatal("lookup meaning differs from original mutation")
+				}
+				stateKey, receiptKey := "status", "receipt"
+				if domain == "structure" {
+					stateKey, receiptKey = "state", "result"
+				}
+				if response[stateKey] != "committed" || !reflect.DeepEqual(response[receiptKey], historical) {
+					t.Fatal("lookup did not return the exact historical receipt")
+				}
+				lookup++
+			} else {
+				var request map[string]any
+				if observed.Method != original.Method || observed.RawPath != original.RawPath || json.Unmarshal(observed.Body, &request) != nil || !reflect.DeepEqual(request, source) || !reflect.DeepEqual(response, historical) {
+					t.Fatal("replay changed original method/path/body or historical result")
+				}
+				mutation++
+			}
+		}
+		if lookup != 2 || mutation != 2 {
+			t.Fatal("exact original lookup/replay attempt count mismatch")
+		}
+		objectKey := "task"
+		if domain == "structure" {
+			objectKey = "milestone"
+		}
+		object, ok := historical[objectKey].(map[string]any)
+		if !ok || object["id"] != original.TargetID {
+			t.Fatal("historical target mismatch")
+		}
+		eventID, _ := historical["event_id"].(string)
+		if domain != "structure" {
+			eventIDs, ok := historical["event_ids"].([]any)
+			if !ok || len(eventIDs) != 1 {
+				t.Fatal("historical Outbox shape invalid")
+			}
+			eventID, _ = eventIDs[0].(string)
+			operationColumn := "operation_id"
+			if domain == "blocker" {
+				operationColumn = "blocker_operation_id"
+			}
+			var n int
+			if err := f.store.QueryRow(f.ctx, `SELECT count(*) FROM agenteam_work.task_events WHERE id=$1 AND project_id=$2 AND task_id=$3 AND `+operationColumn+`=$4 AND task_version=$5`, historical["task_event_id"], seed.ProjectID, original.TargetID, commandID, object["version"]).Scan(&n); err != nil || n != 1 {
+				t.Fatal("original history not bound to the original operation/version")
+			}
+		}
+		var n int
+		if err := f.store.QueryRow(f.ctx, `SELECT count(*) FROM agenteam_outbox.events WHERE id=$1 AND producer='work' AND project_id=$2 AND aggregate_id=$3 AND aggregate_version=$4`, eventID, seed.ProjectID, original.TargetID, object["version"]).Scan(&n); err != nil || n != 1 {
+			t.Fatal("original Outbox not bound to original version")
+		}
+		// Independent formal mutations after the lost original advance current
+		// facts; original Lookup/replay must retain the earlier exact receipt.
+		var currentText, currentVersion string
+		column, table := "plan", "tasks"
+		if domain == "structure" {
+			column, table = "title", "milestones"
+		}
+		if err := f.store.QueryRow(f.ctx, `SELECT `+column+`,version::text FROM agenteam_work.`+table+` WHERE project_id=$1 AND id=$2`, seed.ProjectID, original.TargetID).Scan(&currentText, &currentVersion); err != nil || currentText != "独立更新后的当前值" || currentVersion == object["version"] {
+			t.Fatal("later current value was not kept separate from the original historical receipt")
+		}
+		deltas := map[string]int{"structure_commands": 0, "task_commands": 0, "blocker_commands": 0, "history": 0, "outbox": 2}
+		switch domain {
+		case "structure":
+			deltas["structure_commands"] = 2
+		case "task":
+			deltas["task_commands"], deltas["history"] = 2, 2
+		case "blocker":
+			deltas["task_commands"], deltas["blocker_commands"], deltas["history"], deltas["outbox"] = 1, 2, 3, 3
+		}
+		after, baseline := f.facts(f.ctx, seed.ProjectID), f.recoveryBaselines[domain]
+		if baseline == nil {
+			t.Fatal("real recovery seed baseline missing")
+		}
+		for name, delta := range deltas {
+			if after[name].(int) != baseline[name].(int)+delta {
+				t.Fatal("original recovery/replay produced an extra or missing fact", domain, name)
+			}
+		}
+		if domain == "blocker" {
+			b, ok := historical["blocker"].(map[string]any)
+			if !ok || b["resolved_at"] != nil {
+				t.Fatal("historical added blocker was replaced with later resolution")
+			}
+			var resolved bool
+			if err := f.store.QueryRow(f.ctx, `SELECT resolved_at IS NOT NULL AND resolution_comment='后继解除' FROM agenteam_work.task_blockers WHERE id=$1 AND project_id=$2`, b["id"], seed.ProjectID).Scan(&resolved); err != nil || !resolved {
+				t.Fatal("later real blocker resolution missing")
+			}
+		}
+	}
 }

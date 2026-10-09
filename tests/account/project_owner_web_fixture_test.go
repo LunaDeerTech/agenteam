@@ -220,18 +220,7 @@ func (f *projectOwnerWebFixture) startRoot(t *testing.T, ctx context.Context) co
 			http.Error(w, "owned Project API unavailable", http.StatusBadGateway)
 			return
 		}
-		for key, values := range lost.header {
-			w.Header()[key] = append([]string(nil), values...)
-		}
-		w.Header().Del("Transfer-Encoding")
-		w.Header().Set("Content-Length", strconv.Itoa(lost.length))
-		w.Header().Set("Connection", "close")
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("{"))
-		_ = http.NewResponseController(w).Flush()
-		if conn, _, err := w.(http.Hijacker).Hijack(); err == nil {
-			_ = conn.Close()
-		}
+		writeProjectOwnerWebLost(w, lost)
 	}
 	assets := http.FileServer(http.Dir(dist))
 	var handlers sync.WaitGroup
@@ -830,9 +819,36 @@ func (f *projectOwnerWebFixture) observeRequest(w http.ResponseWriter, r *http.R
 	return true
 }
 
+// The existing one-byte truncation remains unchanged for a nil observer.
+func writeProjectOwnerWebLost(w http.ResponseWriter, lost *projectOwnerWebLost) {
+	for key, values := range lost.header {
+		w.Header()[key] = append([]string(nil), values...)
+	}
+	w.Header().Del("Transfer-Encoding")
+	w.Header().Set("Content-Length", strconv.Itoa(lost.length))
+	w.Header().Set("Connection", "close")
+	w.WriteHeader(http.StatusOK)
+	written, writeErr := w.Write([]byte("{"))
+	flushErr := http.NewResponseController(w).Flush()
+	conn, _, hijackErr := w.(http.Hijacker).Hijack()
+	closeOK := false
+	if hijackErr == nil {
+		closeOK = conn.Close() == nil
+	}
+	if lost.observe != nil {
+		lost.observe(projectOwnerWebLossObservation{Written: written, WriteOK: writeErr == nil, FlushOK: flushErr == nil, HijackOK: hijackErr == nil, CloseOK: closeOK})
+	}
+}
+
+type projectOwnerWebLossObservation struct {
+	Written                             int
+	WriteOK, FlushOK, HijackOK, CloseOK bool
+}
+
 type projectOwnerWebLost struct {
-	header http.Header
-	length int
+	header  http.Header
+	length  int
+	observe func(projectOwnerWebLossObservation)
 }
 
 func (*projectOwnerWebLost) Error() string { return "owned committed response deliberately truncated" }

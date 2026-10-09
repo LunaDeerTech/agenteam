@@ -289,8 +289,192 @@ type Observed = {
   finished: boolean;
   failed: boolean;
 };
+// Only these four intentional faults may produce an expected incomplete Request.
+type WorkIncompleteDeclaration = {
+  kind:
+    | "lost-milestone-update"
+    | "lost-task-update"
+    | "lost-blocker-add"
+    | "canceled-task-read";
+  projectID: string;
+  targetID: string;
+  expectedVersion?: string;
+  text?: string;
+};
+function workIncompleteLedger() {
+  type Slot = {
+    spec: WorkIncompleteDeclaration;
+    request?: Request;
+    key?: string;
+    body?: string;
+    allowed: boolean;
+    failed: boolean;
+    failure: Promise<void>;
+    settleFailure: () => void;
+  };
+  const slots: Slot[] = [];
+  let closed = false;
+  let errors = 0;
+  const keys = (value: object) => Object.keys(value).sort().join(",");
+  function matches(slot: Slot, request: Request) {
+    const spec = slot.spec,
+      url = new URL(request.url());
+    const entity =
+      spec.kind === "lost-milestone-update" ? "milestones" : "tasks";
+    const suffix = spec.kind === "lost-blocker-add" ? "/blockers" : "";
+    if (
+      url.search ||
+      url.pathname !==
+        `/api/v1/projects/${spec.projectID}/${entity}/${spec.targetID}${suffix}`
+    )
+      return false;
+    if (spec.kind === "canceled-task-read")
+      return request.method() === "GET" && request.postData() === null;
+    if (
+      request.method() !== (spec.kind === "lost-blocker-add" ? "POST" : "PATCH")
+    )
+      return false;
+    const key = request.headers()["idempotency-key"];
+    if (!key || !uuid7.test(key)) return false;
+    try {
+      const body = request.postDataJSON();
+      if (
+        !body ||
+        keys(body) !== "expected_version,request" ||
+        body.expected_version !== spec.expectedVersion
+      )
+        return false;
+      const payload = body.request;
+      if (!payload || typeof payload !== "object" || Array.isArray(payload))
+        return false;
+      if (spec.kind === "lost-blocker-add") {
+        if (
+          keys(payload) !== "blocker_id,description,metadata,type" ||
+          !uuid7.test(payload.blocker_id) ||
+          payload.description !== spec.text ||
+          payload.type !== "waiting_for_human" ||
+          !payload.metadata ||
+          Array.isArray(payload.metadata) ||
+          typeof payload.metadata !== "object" ||
+          keys(payload.metadata) !== ""
+        )
+          return false;
+      } else if (keys(payload) !== "title" || payload.title !== spec.text)
+        return false;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  function expectedFailure(request: Request) {
+    return slots.some(
+      (slot) => slot.request === request && slot.allowed && slot.failed,
+    );
+  }
+  return {
+    declare(spec: WorkIncompleteDeclaration) {
+      const cancel = spec.kind === "canceled-task-read";
+      if (
+        closed ||
+        slots.length >= 4 ||
+        slots.some((slot) => !slot.failed) ||
+        ![
+          "lost-milestone-update",
+          "lost-task-update",
+          "lost-blocker-add",
+          "canceled-task-read",
+        ].includes(spec.kind) ||
+        !uuid7.test(spec.projectID) ||
+        !uuid7.test(spec.targetID) ||
+        (cancel
+          ? spec.expectedVersion !== undefined || spec.text !== undefined
+          : !/^[1-9][0-9]*$/.test(spec.expectedVersion ?? "") || !spec.text)
+      ) {
+        throw new Error("WORK_INCOMPLETE_DECLARATION_REJECTED");
+      }
+      let settleFailure!: () => void;
+      const failure = new Promise<void>((resolve) => {
+        settleFailure = resolve;
+      });
+      const slot: Slot = {
+        spec: { ...spec },
+        allowed: !cancel,
+        failed: false,
+        failure,
+        settleFailure,
+      };
+      slots.push(slot);
+      return {
+        authorizeCancellation() {
+          if (!cancel || !slot.request || slot.failed || slot.allowed || closed)
+            throw new Error("WORK_INCOMPLETE_CANCEL_NOT_HELD");
+          // Caller first requires the real fixture hold.started, then invokes
+          // this immediately before the actual navigation cancellation action.
+          slot.allowed = true;
+        },
+      };
+    },
+    request(request: Request) {
+      for (const slot of slots) {
+        if (slot.failed || !matches(slot, request)) continue;
+        if (slot.request) {
+          errors++;
+          return;
+        }
+        slot.request = request;
+        slot.key = request.headers()["idempotency-key"];
+        slot.body = request.postData() ?? undefined;
+        return;
+      }
+    },
+    failed(request: Request) {
+      const slot = slots.find((value) => value.request === request);
+      if (!slot) {
+        errors++;
+        return;
+      }
+      if (closed || !slot.allowed || slot.failed) errors++;
+      slot.failed = true;
+      slot.settleFailure();
+    },
+    close() {
+      closed = true;
+    },
+    terminal(request: Request, originalFinished: Promise<Error | null>) {
+      const slot = slots.find((value) => value.request === request);
+      if (!slot) return originalFinished;
+      // The caller still starts exactly one original finished() operation and
+      // records its own real return; failure winning never labels it finished.
+      return Promise.race([
+        originalFinished,
+        slot.failure.then(() => new Error("WORK_DECLARED_INCOMPLETE")),
+      ]);
+    },
+    expectedFailure,
+    declared(request: Request) {
+      return slots.some((slot) => slot.request === request);
+    },
+    verify(expected: number, failedRequests: Set<Request>) {
+      return (
+        (slots.length === 0 || !closed) &&
+        errors === 0 &&
+        expected === slots.length &&
+        slots.every(
+          (slot) =>
+            slot.request &&
+            slot.allowed &&
+            slot.failed &&
+            failedRequests.has(slot.request),
+        ) &&
+        [...failedRequests].every(expectedFailure)
+      );
+    },
+  };
+}
+
 export function observe(page: Page) {
   const startedAt = performance.now();
+  const incompleteRequests = workIncompleteLedger();
   type Timing = {
     request: Request;
     response?: Response;
@@ -350,6 +534,7 @@ export function observe(page: Page) {
   }));
   page.on("close", () => {
     closedAt = now();
+    incompleteRequests.close();
   });
   const facts = new Map<string, Observed>();
   const tails: Promise<void>[] = [];
@@ -358,6 +543,7 @@ export function observe(page: Page) {
   page.on("requestfailed", (request) => {
     if (isWork(new URL(request.url()))) {
       failedRequests.add(request);
+      incompleteRequests.failed(request);
       const value = timing(request);
       value.request_failed_at = now();
       value.failure_reason = safeWorkFailure(request);
@@ -373,6 +559,7 @@ export function observe(page: Page) {
     if (isWork(url)) {
       requests.push({ method: r.method(), path: url.pathname });
       timing(r).request_at = now();
+      incompleteRequests.request(r);
     }
   });
   page.on("requestfinished", (request) => {
@@ -399,8 +586,27 @@ export function observe(page: Page) {
         if (!id || facts.has(id))
           throw new Error("WORK_RESPONSE_IDENTITY_MISSING_OR_DUPLICATE");
         facts.set(id, fact);
-        const error = await r.finished();
-        observed.response_finished_at = now();
+        const originalFinished = r.finished();
+        let error: Error | null;
+        if (incompleteRequests.declared(r.request())) {
+          error = await incompleteRequests.terminal(
+            r.request(),
+            originalFinished.then(
+              (result) => {
+                observed.response_finished_at = now();
+                return result;
+              },
+              (failure: unknown) => {
+                observerErrors++;
+                observed.observer_rejected_at = now();
+                throw failure;
+              },
+            ),
+          );
+        } else {
+          error = await originalFinished;
+          observed.response_finished_at = now();
+        }
         fact.finished = error === null;
         fact.failed = error !== null;
       })().catch(() => {
@@ -414,9 +620,13 @@ export function observe(page: Page) {
   });
   return {
     requests,
+    declareIncomplete: incompleteRequests.declare,
     async verify(expectedIncomplete = 0) {
       await Promise.all(tails);
       expect(observerErrors).toBe(0);
+      expect(
+        incompleteRequests.verify(expectedIncomplete, failedRequests),
+      ).toBe(true);
       const checked = spawnSync(
         "python3",
         ["-c", schemaProgram, repository, evidence],

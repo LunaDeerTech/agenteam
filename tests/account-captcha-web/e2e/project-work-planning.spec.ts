@@ -520,6 +520,23 @@ test("[recovery] three committed lost responses retain original intent and histo
     const seed = data.work[domain]!;
     await current(page, seed[`${kind}_id`]);
     await ipc("arm-loss", { project: domain, domain });
+    const expectedVersion = await details(page)
+      .locator("dt")
+      .filter({ hasText: /^当前版本$/ })
+      .locator("+ dd")
+      .innerText();
+    seen.declareIncomplete({
+      kind:
+        domain === "structure"
+          ? "lost-milestone-update"
+          : domain === "task"
+            ? "lost-task-update"
+            : "lost-blocker-add",
+      projectID: seed.project_id,
+      targetID: seed[`${kind}_id`],
+      expectedVersion,
+      text: domain === "blocker" ? "历史阻塞原命令" : "历史原命令 " + domain,
+    });
     if (domain === "blocker") {
       await choose(page, "阻塞类型", "等待人工处理");
       await page
@@ -633,8 +650,19 @@ test("[identity] dirty guards, same Session checking, revocation and old read is
   const nextSession = await (await page.request.get("/api/v1/session")).json();
   expect(nextSession.session.id !== originalSession.session.id).toBe(true);
   await ipc("hold-read", { resource: "task" });
+  const canceledRead = seen.declareIncomplete({
+    kind: "canceled-task-read",
+    projectID: data.work.main!.project_id,
+    targetID: data.work.main!.task_id,
+  });
   await button(editor(page), "读取当前值").click();
-  await expect.poll(async () => (await ipc("hold-status")).started).toBe(true);
+  await expect
+    .poll(async () => {
+      const hold = await ipc("hold-status");
+      return hold.started === true && hold.finished === false;
+    })
+    .toBe(true);
+  canceledRead.authorizeCancellation();
   await page.goto(path(data, "duplicate", "task"));
   await ipc("release-read");
   await ready(page, data.work.duplicate!.task_id);

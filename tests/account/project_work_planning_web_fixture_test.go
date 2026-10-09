@@ -3,12 +3,14 @@
 package account_test
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -30,6 +32,7 @@ type projectWorkPlanningWebObservation struct {
 	CSRF                                                                 [32]byte
 	Body, Response, StoredReceipt                                        []byte
 	Status                                                               int
+	Cut                                                                  projectOwnerWebLossObservation
 }
 type projectWorkPlanningWebRequestKey struct{}
 type projectWorkPlanningWebSeed struct {
@@ -46,7 +49,10 @@ type projectWorkPlanningWebFixture struct {
 	mode                    string
 	pendingProject          foundation.ID[identity.Project]
 	readCursorMutation      *projectWorkPlanningWebObservation
+	cutInvalid              bool
+	readCanceled            bool
 	planningBaseline        map[string]any
+	recoveryBaselines       map[string]map[string]any
 	activitySession         string
 	activityBefore          time.Time
 	guard                   sync.Mutex
@@ -142,6 +148,12 @@ func newProjectWorkPlanningWebFixture(t *testing.T, ctx context.Context, mode st
 	}
 	if mode == "planning" {
 		f.planningBaseline = f.facts(ctx, f.seeds["main"].ProjectID)
+	}
+	if mode == "recovery" || mode == "independent-recovery" {
+		f.recoveryBaselines = make(map[string]map[string]any, len(f.seeds))
+		for key, seed := range f.seeds {
+			f.recoveryBaselines[key] = f.facts(ctx, seed.ProjectID)
+		}
 	}
 	f.private("project-work-planning-material.json", map[string]any{"admin": f.admin, "owner": f.owner, "other": f.other, "ids": f.ids, "projects": f.initial, "work": f.seeds})
 	f.guard.Lock()
@@ -337,6 +349,7 @@ func (f *projectWorkPlanningWebFixture) controlResponse(response *http.Response)
 		timer.Stop()
 		f.guard.Lock()
 		hold.finished = true
+		f.readCanceled = response.Request.Context().Err() != nil
 		f.guard.Unlock()
 	}
 	if !drop {
@@ -359,7 +372,18 @@ func (f *projectWorkPlanningWebFixture) controlResponse(response *http.Response)
 	f.dropped++
 	f.guard.Unlock()
 	_ = response.Body.Close()
-	return &projectOwnerWebLost{header: response.Header.Clone(), length: len(raw)}
+	return &projectOwnerWebLost{header: response.Header.Clone(), length: len(raw), observe: func(cut projectOwnerWebLossObservation) {
+		f.guard.Lock()
+		defer f.guard.Unlock()
+		original, found := f.lost[obs.Domain]
+		if !found || original.Key != obs.Key || index >= len(f.records) || f.records[index].Key != obs.Key {
+			f.cutInvalid = true
+			return
+		}
+		original.Cut = cut
+		f.lost[obs.Domain] = original
+		f.records[index].Cut = cut
+	}}
 }
 func workCommandTable(domain string) string {
 	switch domain {
@@ -603,4 +627,99 @@ func (f *projectWorkPlanningWebFixture) facts(ctx context.Context, project strin
 		f.t.Fatal("owned Work fact observation failed")
 	}
 	return map[string]any{"structure_commands": structure, "task_commands": tasks, "blocker_commands": blockers, "history": history, "outbox": events}
+}
+
+// This controlled writer does not open sockets. Actual downstream truncation
+// is separately required by the recovery browser top and recorded callback.
+type projectWorkCutWriter struct {
+	header http.Header
+	mode   string
+	trace  []string
+	conn   net.Conn
+}
+
+func (w *projectWorkCutWriter) Header() http.Header { return w.header }
+func (w *projectWorkCutWriter) WriteHeader(code int) {
+	if code != http.StatusOK {
+		panic("unexpected cut status")
+	}
+	w.trace = append(w.trace, "status")
+}
+func (w *projectWorkCutWriter) Write(p []byte) (int, error) {
+	w.trace = append(w.trace, "write")
+	if string(p) != "{" {
+		panic("unexpected cut bytes")
+	}
+	if w.mode == "write" {
+		return 0, errors.New("controlled write")
+	}
+	if w.mode == "short" {
+		return 0, nil
+	}
+	return len(p), nil
+}
+func (w *projectWorkCutWriter) FlushError() error {
+	w.trace = append(w.trace, "flush")
+	if w.mode == "flush" {
+		return errors.New("controlled flush")
+	}
+	return nil
+}
+func (w *projectWorkCutWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	w.trace = append(w.trace, "hijack")
+	if w.mode == "hijack" {
+		return nil, nil, errors.New("controlled hijack")
+	}
+	return &projectWorkCutConn{Conn: w.conn, owner: w}, nil, nil
+}
+
+type projectWorkCutConn struct {
+	net.Conn
+	owner *projectWorkCutWriter
+}
+
+func (c *projectWorkCutConn) Close() error {
+	c.owner.trace = append(c.owner.trace, "close")
+	err := c.Conn.Close()
+	if c.owner.mode == "close" {
+		return errors.New("controlled close")
+	}
+	return err
+}
+func TestProjectWorkLossCutObservation(t *testing.T) {
+	for _, mode := range []string{"success", "write", "short", "flush", "hijack", "close", "default-nil"} {
+		t.Run(mode, func(t *testing.T) {
+			local, peer := net.Pipe()
+			t.Cleanup(func() { _ = local.Close(); _ = peer.Close() })
+			w := &projectWorkCutWriter{header: make(http.Header), mode: mode, conn: local}
+			lost := &projectOwnerWebLost{header: http.Header{"Content-Type": []string{"application/json"}, "Transfer-Encoding": []string{"chunked"}}, length: 123}
+			calls := 0
+			var got projectOwnerWebLossObservation
+			if mode != "default-nil" {
+				lost.observe = func(value projectOwnerWebLossObservation) { calls++; got = value }
+			}
+			writeProjectOwnerWebLost(w, lost)
+			want := []string{"status", "write", "flush", "hijack"}
+			if mode != "hijack" {
+				want = append(want, "close")
+			}
+			if !reflect.DeepEqual(w.trace, want) || w.header.Get("Content-Length") != "123" || w.header.Get("Connection") != "close" || w.header.Get("Transfer-Encoding") != "" || lost.header.Get("Transfer-Encoding") != "chunked" {
+				t.Fatal("cut operation order or framing/default header isolation changed")
+			}
+			if mode == "default-nil" {
+				if calls != 0 {
+					t.Fatal("nil callback invoked")
+				}
+				return
+			}
+			written := 1
+			if mode == "write" || mode == "short" {
+				written = 0
+			}
+			wantCut := projectOwnerWebLossObservation{Written: written, WriteOK: mode != "write", FlushOK: mode != "flush", HijackOK: mode != "hijack", CloseOK: mode != "hijack" && mode != "close"}
+			if calls != 1 || got != wantCut {
+				t.Fatal("cut return values were not observed exactly once", got, wantCut)
+			}
+		})
+	}
 }
