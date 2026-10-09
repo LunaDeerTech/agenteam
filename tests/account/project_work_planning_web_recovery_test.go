@@ -32,9 +32,18 @@ type projectWorkRecoveryStage struct {
 	FaultInstalled                                            bool
 	WireAttempts, ClosedAttempts                              int
 	Rejected                                                  bool
+	RejectionReason                                           projectWorkRecoveryRejection
 }
 
 const projectWorkUnforwardedAttemptLimit = 4
+
+type projectWorkRecoveryRejection string
+
+const (
+	projectWorkFirstBinding  projectWorkRecoveryRejection = "first_binding"
+	projectWorkRepeatBinding projectWorkRecoveryRejection = "repeat_binding"
+	projectWorkAttemptLimit  projectWorkRecoveryRejection = "attempt_limit"
+)
 
 func closeProjectWorkUnforwarded(w http.ResponseWriter) (bool, bool, error) {
 	conn, _, err := http.NewResponseController(w).Hijack()
@@ -80,6 +89,18 @@ func (f *projectWorkPlanningWebFixture) recoveryBeforeForward(w http.ResponseWri
 		}
 		if !matches || stage.WireAttempts >= projectWorkUnforwardedAttemptLimit {
 			stage.Rejected = true
+			// Preserve only the first rejection's closed branch, never request
+			// material or an arbitrary error string. This does not alter the gate.
+			if stage.RejectionReason == "" {
+				switch {
+				case !matches && first:
+					stage.RejectionReason = projectWorkFirstBinding
+				case !matches:
+					stage.RejectionReason = projectWorkRepeatBinding
+				default:
+					stage.RejectionReason = projectWorkAttemptLimit
+				}
+			}
 			f.guard.Unlock()
 			return false, errors.New("owned unforwarded original changed or exceeded its bound")
 		}
@@ -132,22 +153,23 @@ func (f *projectWorkPlanningWebFixture) writeRecoveryStageEvidence() {
 		return
 	}
 	type safeStage struct {
-		Kind           string `json:"kind"`
-		Bound          bool   `json:"bound"`
-		WireAttempts   int    `json:"wire_attempts"`
-		ClosedAttempts int    `json:"closed_attempts"`
-		Rejected       bool   `json:"rejected"`
-		LookupObserved bool   `json:"lookup_observed"`
-		Completed      bool   `json:"completed"`
-		FaultInstalled bool   `json:"fault_installed"`
-		FaultHits      int64  `json:"fault_hits"`
+		Kind            string                       `json:"kind"`
+		Bound           bool                         `json:"bound"`
+		WireAttempts    int                          `json:"wire_attempts"`
+		ClosedAttempts  int                          `json:"closed_attempts"`
+		Rejected        bool                         `json:"rejected"`
+		RejectionReason projectWorkRecoveryRejection `json:"rejection_reason"`
+		LookupObserved  bool                         `json:"lookup_observed"`
+		Completed       bool                         `json:"completed"`
+		FaultInstalled  bool                         `json:"fault_installed"`
+		FaultHits       int64                        `json:"fault_hits"`
 	}
 	stages := make([]safeStage, 0, 2)
 	f.guard.Lock()
 	for _, kind := range []string{"not-observed", "in-progress"} {
 		if seed, ok := f.seeds[kind]; ok {
 			if stage := f.recoveryStages[seed.ProjectID]; stage != nil {
-				stages = append(stages, safeStage{kind, stage.Original != nil, stage.WireAttempts, stage.ClosedAttempts, stage.Rejected, stage.LookupObserved, stage.Completed, stage.FaultInstalled, stage.FaultHits})
+				stages = append(stages, safeStage{kind, stage.Original != nil, stage.WireAttempts, stage.ClosedAttempts, stage.Rejected, stage.RejectionReason, stage.LookupObserved, stage.Completed, stage.FaultInstalled, stage.FaultHits})
 			}
 		}
 	}
@@ -685,6 +707,23 @@ func TestProjectWorkNotObservedBoundaryControls(t *testing.T) {
 			if proceed || err == nil || !stage.Rejected || len(w.trace) != 0 || len(w.header) != 0 || projectWorkUnforwardedComplete(*stage) {
 				t.Fatal("changed or excessive stage request was admitted or fabricated a response")
 			}
+			wantReason := projectWorkRepeatBinding
+			if sample.name == "limit" {
+				wantReason = projectWorkAttemptLimit
+			} else if sample.name == "first-meaning" {
+				wantReason = projectWorkFirstBinding
+			}
+			if stage.RejectionReason != wantReason {
+				t.Fatal("safe rejection reason does not identify the original gate")
+			}
+			// A later, different failure must not overwrite the first observed
+			// reason; neither is permission to release the existing barrier.
+			stage.Original = &original
+			stage.WireAttempts = projectWorkUnforwardedAttemptLimit
+			proceed, err = f.recoveryBeforeForward(w, nil, original)
+			if proceed || err == nil || stage.RejectionReason != wantReason || projectWorkUnforwardedComplete(*stage) {
+				t.Fatal("subsequent rejection rewrote the first branch or released")
+			}
 		})
 	}
 	t.Run("physical-limit-and-close-failure", func(t *testing.T) {
@@ -733,9 +772,19 @@ func TestProjectWorkRecoverySafeStageEvidence(t *testing.T) {
 		t.Fatal(err)
 	}
 	var got []map[string]any
-	want := []map[string]any{{"kind": "not-observed", "bound": true, "wire_attempts": float64(2), "closed_attempts": float64(2), "rejected": false, "lookup_observed": false, "completed": false, "fault_installed": false, "fault_hits": float64(0)}}
+	want := []map[string]any{{"kind": "not-observed", "bound": true, "wire_attempts": float64(2), "closed_attempts": float64(2), "rejected": false, "rejection_reason": "", "lookup_observed": false, "completed": false, "fault_installed": false, "fault_hits": float64(0)}}
 	if json.Unmarshal(raw, &got) != nil || !reflect.DeepEqual(got, want) || bytes.Contains(raw, []byte("private-")) {
 		t.Fatal("recovery evidence changed its closed projection")
+	}
+	for _, reason := range []projectWorkRecoveryRejection{projectWorkFirstBinding, projectWorkRepeatBinding, projectWorkAttemptLimit} {
+		f.recoveryStages["private-project"].RejectionReason = reason
+		f.recoveryStages["private-project"].Rejected = true
+		f.writeRecoveryStageEvidence()
+		raw, err = os.ReadFile(filepath.Join(directory, "work-recovery-stage-evidence.json"))
+		want[0]["rejected"], want[0]["rejection_reason"] = true, string(reason)
+		if err != nil || json.Unmarshal(raw, &got) != nil || !reflect.DeepEqual(got, want) || bytes.Contains(raw, []byte("private-")) {
+			t.Fatal("failure sidecar changed its safe branch projection")
+		}
 	}
 	f.mode, f.evidence = "identity", filepath.Join(directory, "absent")
 	f.writeRecoveryStageEvidence() // other cases neither write nor require a directory

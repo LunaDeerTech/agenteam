@@ -1,0 +1,94 @@
+{
+  "case": "recovery-02",
+  "input_checkpoint": "eec02e58663e4297a550252e02bbffd8e8da4d93",
+  "binary": "work-ui-account-race-13.test",
+  "selector": "^TestAccountProjectWorkPlanningWebOriginalRecovery$",
+  "actual_session": 83659,
+  "actual_exit": 1,
+  "go_seconds": 18.55,
+  "supervisor_seconds": 120.552,
+  "preflight": {
+    "fresh_disk_sample_before_exec": true,
+    "available_bytes": 6362923008,
+    "required_bytes": 5368709120,
+    "gate": "PASS"
+  },
+  "failure": {
+    "stage": "not-observed",
+    "before_forward_fixture_error": true,
+    "go_assertion": "not_observed original was forwarded or acquired a fact",
+    "source": "project_work_planning_web_recovery_test.go:324",
+    "assertion_is_combined_not_proof_of_forwarding_or_written_fact": true
+  },
+  "safe_stage_projection": [
+    {
+      "kind": "not-observed",
+      "bound": true,
+      "wire_attempts": 4,
+      "closed_attempts": 4,
+      "rejected": true,
+      "lookup_observed": false,
+      "completed": false,
+      "fault_installed": false,
+      "fault_hits": 0
+    }
+  ],
+  "observed_public_lookup": {
+    "status": 200,
+    "state": "not_observed",
+    "result": null,
+    "original_request_binding_checked_by_ipc": true,
+    "count_sql_returned_without_error": true,
+    "actual_sql_count_not_persisted": true
+  },
+  "not_reached": [
+    "nonterminal entire SQL/current/facts proof and barrier release",
+    "explicit same-key replay",
+    "in_progress final-Outbox fault/planned rollback",
+    "three committed-loss domains and changed meaning",
+    "final Go durable assertions"
+  ],
+  "terminal": {
+    "go_pid": 870453,
+    "go_actual_wait": true,
+    "go_exit": 1,
+    "driver_pid": 868269,
+    "driver_actual_wait": true,
+    "driver_exit": 1,
+    "adopted_observed_states": [
+      "Z",
+      "Z",
+      "Z",
+      "Z",
+      "Z",
+      "Z"
+    ],
+    "adopted_actual_wait": {
+      "870789": 0,
+      "870791": 0,
+      "870773": 0,
+      "870740": 9,
+      "870794": 0,
+      "870795": 0
+    },
+    "supervisor_stop_sent": false,
+    "node_proxy_preparation_root_join": true,
+    "seven_resource_ids_two_observations_absent": true,
+    "descendants_two_observations_empty": true,
+    "runtime_two_observations_empty": true,
+    "private_two_observations_absent": true,
+    "host_tcp_two_delta_empty": true,
+    "inputs_unchanged": true,
+    "exact_tops": true,
+    "actual_test_wait": true
+  },
+  "limits": [
+    "Whole business run FAIL; four actual zero-response closes do not identify whether rejection was mismatch or the attempt cap.",
+    "Original attempt chronology/material and rejection reason were not persisted. No retrospective retry cause established.",
+    "Combined assertion is not evidence of a written command or business fact; public original Lookup observed not_observed.",
+    "No final browser failure observer or native EOF/production publication evidence saved before IPC fatal.",
+    "One adopted actual Wait status was 9; source not inferred.",
+    "First recovery FAIL and missing-startup-disk evidence remain unchanged."
+  ],
+  "ordinary_log": "output/ai/work-owner-planning-ui/pg/recovery-02.log"
+}
