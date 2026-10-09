@@ -23,7 +23,7 @@ func main() { os.Exit(run()) }
 
 func variableNative(selector string) bool {
 	switch selector {
-	case "^TestVariableHTTPNativeDeadlines$", "^TestVariableHTTPNativeKeepAliveAndClose$", "^TestVariableHTTPNativeBackpressureAndDisconnect$":
+	case "^TestVariableHTTPNativeDeadlines$", "^TestVariableHTTPNativeKeepAliveAndClose$", "^TestVariableHTTPNativeBackpressureAndDisconnect$", "^TestVariableHTTPNative(Deadlines|KeepAliveAndClose|BackpressureAndDisconnect)$":
 		return true
 	}
 	return false
