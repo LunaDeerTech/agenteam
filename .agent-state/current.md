@@ -1,5 +1,10 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- root已装配连续前序SQL，作者7ef673逐字核对：`00025_knowledge.sql=aaa408c8`、`00026_runner_control.sql=eea4ced0`、`00027_skills.sql=7cf7a58e`。它们只是本任务Migrator的稳定验收依赖装配，不表示Runner/Skills整模块或当前D05能力接受；正式28仍须真实计划/迁移/场景与独审。
+
+- 新3测试源片段：`tests/objects/project_audit_fixture_test.go`仅增加可选planner/cleanup构造口，nil保持原接线；`metadata_cleanup_fixture_test.go`用明确test-only当前Owner/Project/cause/Skill/phase SQL端口与真实held锁，复用真正Object service/Stop/backend/native ProjectAuditAuthority；`metadata_cleanup_test.go`首top准备65次真实Read/EOF/Close历史、原2s物理Delete、跨表32/同Tx重复拒绝整批回滚、最后4anchor与fixture父mapping一起回滚或提交。fixture不冒Skills/D08生产Cleanup实现，Skills最后5核心联动仍待真实消费者。
+- `12025/bce801` 原offlineenv实际 `go test -mod=readonly -p=1 -tags=integration -run '^$' ./tests/objects` exit0/0.008s/no tests to run，只证明集成源码编译；未启动PG/MinIO/socket或调用业务。270b06 diffcheck0。该3test+本current冻结，无命令在途；后续仍需65+旧attempt/1001历史、PUT FK包、真实COMMIT Unknown/执行计划及独立实施验收。
+
 - 迁移归属更新：root已在Skills确认原占位无独立DDL后，将00028移交本人为共享cleanup索引唯一writer，候选`00028_cleanup_indexes.sql`。root尚待装配稳定00025/26/27，当前仅`.agent-state/object-metadata-cleanup/indexes-draft.sql`可恢复候选（未执行/未真实计划），不先写正式迁移或跳号。卡§7.1包括Skills joined work查询及initializations→work完整FK反查，首候选完整Project/id索引兼顾两者，最终按实际EXPLAIN删减。
 - Stop lane1/lane4查询细化已落：reserved Upload直接给原Object主ID；pending native与active external lease两组各限32后按原transfer主ID合并。9893/a7b97a Stop定向race exit0/1.021s，限编译及既有pure，不证明SQL计划；cursor/fullpending/权限/actualWait不改。当前7路径稳定冻结，无命令在途。
 
