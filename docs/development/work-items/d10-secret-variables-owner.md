@@ -171,11 +171,11 @@ Stop关闭admission并取消读写/Lookup/确认；Drain等实际函数/Rows/Tx/
 
 ## 8. 文件与迁移唯一owner
 
-当前仅本文/current可写。以下是实施提案，不授予写权；root明确整合基线/唯一owner后才扩大闭包。
+root 已授权并分配 A 纯合同结果给 `/root/knowledge`：五个新的 `projectvariable/contract/secret_{types,commands,query,events,directory}.go`、其测试、独立 `api/openapi/secret-variables.json` 及本文/current。其余下表仍是实施提案，未授予共享源、D04、生产装配或 SQL 写权。
 
 | 拟文件/接缝 | 责任 |
 | --- | --- |
-| projectvariable/contract/secret_types.go、secret_commands.go、secret_query.go、secret_directory.go及测试；本域secret_service/commands/repository/reader/directory/references/http等源与测试 | Secret Variables作者；仍在原业务域 |
+| projectvariable/contract/secret_types.go、secret_commands.go、secret_query.go、secret_events.go、secret_directory.go及测试；本域secret_service/commands/repository/reader/directory/references/http等源与测试 | Secret Variables作者；仍在原业务域 |
 | 现projectvariable service/repository/reader/commands/authority/events的必要兼容 | 同作者获得共享写权，普通变量作者停对应路径；旧行为回归 |
 | secret/contract/project_variable.go、secret/project_variable_write.go、project_variable_lookup.go、原Purpose/legacy写入/envelope/receipt/rotation/canary/cleanup/ProjectAudit兼容 | root明确D04接缝唯一owner，同一实施闭包可交同作者，必须独立安全审查；kind3及新回执全生命周期属于同一个必要前置，不留无人负责部分 |
 | 一条或必要有序前向migration，编号TBD | root按当前全局顺序分配唯一owner；统筹变量shape/intent receipt/kind3/Purpose/Audit CHECK，不占Knowledge/Runner预留，00028现由root给Skills后继需求预留，本卡不占用；不改旧migration |
@@ -210,8 +210,20 @@ SPEC接受后实施，作者完整矩阵一次确定；独验补真正风险，�
 
 rev2在现产品规则内提出闭合工程范围：专用purpose/typed intent与sameStore authority、新kind3加密回执和rotation/CleanupProject、单final Tx的私有Outbox准备及两域native Audit证明、资源侧Agent引用端口。§2/§7限额是本SPEC工程选择，随本修订审查，不宣称已经产品实测。没有新增明文权限、级联删除或消费用途决定。
 
-实施前仍有三个明确门槛：未参与者审查本修订的权限/事务/恢复及加密存储闭包；root在当时正式main上分配D04、D10、Project/Audit/root共享路径的唯一owner和前向迁移号；确认本结果会实际实现并验收全部§4/§6新增端口，不能把“只改D10”当闭合交付。D04旧API的存在不证明这些前置就绪。Agent F1 adapter是另一真实后继，由F1作者在已定端口上实现/验收；本卡的未绑定拒绝不阻止Owner CRUD开发，也不构成F1引用正向通过。
+rev2 SPEC 已获 Model 未参与者有限接受（ee4095）；A 纯合同已获单独授权。Owner 服务实施仍须 root 在当时正式 main 上分配 D04、D10、Project/Audit/root 共享路径的唯一 owner 和前向迁移号；确认本结果会实际实现并验收全部§4/§6新增端口，不能把“只改D10”当闭合交付。D04旧API的存在不证明这些前置就绪。Agent F1 adapter是另一真实后继，由F1作者在已定端口上实现/验收；本卡的未绑定拒绝不阻止Owner CRUD开发，也不构成F1引用正向通过。
 
 已有产品规则足以限定Owner后端：无明文读、固定type、覆盖保持ID、有引用拒绝删除。本草案不新增级联清理、自动解绑、空Secret、进程热更新或Secret使用scope。若后续目标确实要求这些额外行为，再回到正式产品规则；不为用户未请求功能补问。当前未发现阻止Owner SPEC编写的新产品决定。
 
 SPEC接受仅准冻结范围开工；Owner后端须产品/HTTP/root与独验闭合；F1 Secret前置须真实Agent adapter同Tx创建/引用实证后才完整闭合。任何一层都不等于完整D10、MCP/Runner材料使用或Project生命周期完成。
+
+## 11. A 纯合同作者结果
+
+五个新 Go 合同源定义独立 Secret 命令闭集、安全 metadata/receipt/两态 Lookup、专用事件及 F1 目录/引用端口。请求构造器克隆 `SecretMaterial`；`UseValue` 只借同步私有副本，`Destroy` 清可控材料，JSON/fmt/log 对请求只给固定标记。strict JSON 解码保 presence，拒空值/NUL/坏 UTF-8、孤立 surrogate、重复/未知字段；无 plaintext semantic digest API。metadata 不含 value、摘要、长度、mask 或 CredentialRef。
+
+目录/引用计划按独立 issuer、完整 Actor（含当前 Session）、Project、原 Agent command、AgentID、expected/result version 和排序集合绑定；计划不可反序列化，锁集克隆归一且至少包含原 command/User/Project gate，引用包含 Agent EX 及完整 owner plan 锁。空集合 nil/empty 语义一致。`SecretReferenceOwnerAuthority` 只是正式接口，F1 实际 preimage/create witness、postimage、同 Store/活 Tx/实际持锁及当前授权仍由后继真实 provider 验证，构造器形状检查不是授权证明。
+
+独立 OpenAPI 保存三个 Secret 路径的闭合 schema，原普通 API/DTO/CommandName、Purpose.Valid、D04、Project、Catalog/default root 与 SQL 均未改。新 Catalog 注册函数尚无生产调用。Owner Service/HTTP 和前向迁移没有实现，不存在成功 stub。
+
+作者离线验证：新 7 top 定向 race `90452/c20c4b` actual0；旧普通合同定向 race `28070/cfbedb` actual0；包级 vet `bc2800` actual0。OpenAPI 全部172本地引用解析；Draft202012 本地 registry 38 正负控制 `3ae145` actual0，涵盖安全输出、65536边界、null/空值、三种Lookup identity与receipt分支；未解析网络引用。首次仅编译 `56776/324761` 因新event重复旧Change enum失败，已删除重复声明后通过；首 schema 控制 `fc1edf` 使用无六位小数的非canonical Instant失败，修正夹具后通过，不修改共享Instant规则。
+
+以上是作者纯合同结果，待未参与者独立审查；不代表§9真实权限、数据库、引用、D04加密存储/rotation、Unknown、HTTP或退出验收。
