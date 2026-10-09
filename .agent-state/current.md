@@ -6,3 +6,4 @@
 - 已核 B01 12 源与 C1/C2/C3 存在；29 源未有旧实现。Project Knowledge Audit 与 Outbox gate 尚缺，先按正式端口实现本域，真实组合前接入；不以替身宣称授权或完整业务接受。
 - `00024` 由 ProjectVariables 占用、`00026` 由 Runner control 占用。00025 不越过未就绪连续前序运行；当前无本树 PG／browser／socket 或后台资源。
 - Object runtime join 等既有停止项不恢复。阶段源码可构建后冻结并交 root 检查点，随后交未参与者审查。已有 service/repository/runtime/read、query/source/commands、00025 六表和 Audit 增量、subtree preview/Move 同Tx/standalone写入。第四片段 Object Authority/精确 cleanup checker/KnowledgeFile exact revision resolver 已可构建；实际限定 race 14355 与 vet 通过。原编译／fixture 前置 FAIL 在卡保留。纯控不证明真实授权或 SQL，迁移未执行，完整 Documents／清理执行循环／内容发布恢复／Delete／Audit/Event 仍未齐，下一继续这些闭合实现。
+- 第五片段 Audit/Event fact adapters 已可构建，限定 race 4255/vet 实际通过；原命令 Audit key、exact Store/Tx 私有 witness、当前 receipt/tombstone 与 event producer 私有 issuer/Session/gates 已有本域检查。尚未接实际内容/删除执行链，C4/generic Project Outbox 仍未绑定，整体未验。下一实现出版意图/测量/保留原 cause 的发布恢复以及完整 Delete。

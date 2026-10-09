@@ -19,15 +19,16 @@ import (
 // lock union; it neither grants access nor substitutes for current Owner checks.
 type Authority struct{ data func() *authorityState }
 type authorityState struct {
-	store    Store
-	projects pc.ProjectAuthority
+	store       Store
+	projects    pc.ProjectAuthority
+	eventIssuer ob.PlanIssuer
 }
 
 func NewAuthority(store Store, projects pc.ProjectAuthority) (*Authority, error) {
 	if nilPort(store) || nilPort(projects) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	st := &authorityState{store: store, projects: projects}
+	st := &authorityState{store: store, projects: projects, eventIssuer: ob.NewPlanIssuer()}
 	return &Authority{data: func() *authorityState { return st }}, nil
 }
 func (a *Authority) state() *authorityState {
