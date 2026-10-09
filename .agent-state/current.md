@@ -70,3 +70,9 @@
 - 原 group audit-authority，exact TestAccountProjectOwnerAuditWebAuthorityAndRecovery；首exec同进程 fresh5,837,934,592B，固定 d8c1a058/本树资产与原45/120/75、7资源门槛。nonce07b38cc403ad406186ea3dba1b232371；body PASS32.48s。
 - 本人原62616的 ee71a4 实际 outer exit0；terminal elapsed118.606s，directWait0/四adoptedWait0/全部join/7ID两次absent/runtime/private清/TCP双空/input同一/retirementtrue（0e339a只读）。root跨agentUnknown不冒原终态；实际窗口已释放，无第二group。
 - D27卡同步有限结果；本次只冻结卡与本文两记录待root保存。AuditNavigation与新Resolve authority尚未实跑；49546FAIL和整卡未完成保留。D04新树的SPEC/纯合同工作不改变本树冻结源码或验收产物。
+
+## 新 main AuditNavigation 完整结果
+
+- 原group audit-navigation / exact TestAccountProjectOwnerAuditWebNavigationAndLayouts；21:33:10.029773Z首exec同processfresh5,450,375,168B，沿89c691c4冻结源卡、原d8c/本树helpers/assets与45/120/75、7IDs。nonceceac7034ee7c4c7ba9c233d25965133a，PW1passed16.3s，body25.59s，实际18attempt/17completed/17schema/17client。
+- 原session15723本人3f93b1实际outer exit0；ce06e0 terminal elapsed113.856s/retirementtrue/directWait0/4adopted0/watchdog与observerjoin/top≤120/7ID双absent/runtime与private清/TCP双空/input同一，原log另有Node与服务joins/desc双空。已即时向root释放唯一真实窗，不开下一group。
+- 当前main两Audit exacttops均完整PASS，只按该固定组合接受；新Resolve方法authority与D27正式整合交付仍待，49546和35073保留。仅本文与D27卡新增有限记录，源码/产物不改，两docs freeze供root保存。
