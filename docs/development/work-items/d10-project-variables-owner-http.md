@@ -170,7 +170,7 @@ list query原文≤32KiB，limit默认50/显式canonical 1..100，cursor≤8192B
 
 ## 7. 默认根与实际退出
 
-装配顺序：Store→变量事实Authority→同一Project Authority AuditFacts→同Catalog VariableEvents→同Outbox Producers→变量Service（同Audit/Account Activity/cursor）→真实HTTPBoundary→精确路由。`app/project_usage.go`承接事实Authority参数，不能另建ProjectAuthority绕Audit；`account.go`将同Service owner安装进现工作集合。部分构造失败、Stop/晚到install竞争必须退役新owner，不留不受根管理的入口。
+装配顺序：Store→变量事实Authority→同一Project Authority AuditFacts→同Catalog VariableEvents→同Outbox Producers→变量Service（同Audit/Account Activity/cursor）→真实HTTPBoundary→精确路由。`app/project_usage.go`在既有构造入口内部先建立变量事实Authority，注入同一Project Authority并将确切对象随装配结果交回；保持现有入口签名，不另建ProjectAuthority绕Audit；`account.go`将同Service owner安装进现工作集合。部分构造失败、Stop/晚到install竞争必须退役新owner，不留不受根管理的入口。
 
 read/Lookup总2s、mutation总30s，从认证前开始并继承更早deadline。私有I/O沿Work已验模式：实际Body Read/Close、完整UTF-8/JSON/编码、Write/Flush、取消回调join、清deadline；unwrap最多64层，循环/缺能力明确abort。取消/短写/Close/Flush/deadline失败/panic不遗弃goroutine；3s确认尾可实际继续但不延长HTTP发布期限，wrapper超时不能释放仍在跑的业务owner。
 
@@ -202,4 +202,4 @@ PG复用 `tests/testsupport/postgres`，HTTP真实Account/Project准备参考 `t
 
 SPEC 已获独立有限审查及版本输入差异复核接受，无未决 mustfix。§2.1 复用现成 CommandMeta.ExpectedVersion；初审“端口无法实现”的表述已纠正为本卡须明确单一版本来源，无新增版本参数。
 
-首个可构建片段为四契约、Audit 三 action 的契约/现有 HTTP/schema/客户端兼容及必要纯测试。Go 三包 pure、七个新 Go top 的 race、前端两文件99项及严格类型检查实际通过；Audit HTTP 使用正式 Draft2020-12 与本地 common 引用。首轮 Go 缺显式 schema Python 环境的 setup FAIL、旧前端 Project 关系测试误将新变量 action 纳入的1项 FAIL均保留，修正前置/测试分类后的限定复验通过。第二片段已实现00024、领域六能力/调用owner/事实Authority及Project精确分派，并完成窄pure/race/vet。私有completed缺receipt负控首轮实际FAIL，补状态闭合后复验通过。SQL仅静态核原4个Audit CHECK闭集全部保留及事务标记，不冒真实PG语法/约束/原子事实验收。HTTP与默认根尚未接入；两个片段均不算完整产品交付。
+首个可构建片段为四契约、Audit 三 action 的契约/现有 HTTP/schema/客户端兼容及必要纯测试。Go 三包 pure、七个新 Go top 的 race、前端两文件99项及严格类型检查实际通过；Audit HTTP 使用正式 Draft2020-12 与本地 common 引用。首轮 Go 缺显式 schema Python 环境的 setup FAIL、旧前端 Project 关系测试误将新变量 action 纳入的1项 FAIL均保留，修正前置/测试分类后的限定复验通过。第二片段已实现00024、领域六能力/调用owner/事实Authority及Project精确分派，并完成窄pure/race/vet。私有completed缺receipt负控首轮实际FAIL，补状态闭合后复验通过。SQL仅静态核原4个Audit CHECK闭集全部保留及事务标记，不冒真实PG语法/约束/原子事实验收。00024及Project精确事实分派另获独立有限静态审查接受，不扩为整个服务或PG验收。第三片段已接入六能力HTTP、正式OpenAPI与默认根同Authority/Catalog装配、精确路由和实际调用join；正式schema纯控、限定HTTP/root race、vet及两个入口离线build实际通过。HTTP I/O首轮两项测试把合法摘要description字段误判为私密诊断的FAIL保留，缩小至诊断前缀后的复验通过。尚未运行真实PG/native/root；接下来建设真实Account/Project前置的持久化、权限、竞争、恢复与退出验收，不算完整产品交付。

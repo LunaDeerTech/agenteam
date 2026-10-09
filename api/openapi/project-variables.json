@@ -1,0 +1,1308 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Project Owner Ordinary Variables",
+    "version": "0.1.0",
+    "description": "Initialized Project current Human Owner only; no administrator bypass. Active mutations, initialized archiving/archived read/Lookup/completed replay; pending/deleting reject. Not Secret/Agent/runtime injection. Request/detail/mutation/Lookup 1 MiB, summary list 5 MiB. Exact UTF-8 byte caps, duplicate members, Unicode scalar validity, canonical version/ID, sorting, presence and cross-field version/identity/time checks are enforced by Go in addition to this schema. Delete preserves historical ordinary values in command receipts and does not promise erasure. Freeze the original key/body/ID/version before sending; not_observed/current GET is not commit proof."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/variables": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "projectVariableVariableSummaryPageGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Unsupported method for known resource.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "200": {
+            "$ref": "#/components/responses/VariableSummaryPage"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          }
+        ],
+        "description": "Lookup/read total deadline 2s, mutations 30s, beginning before authentication; actual body Close and native I/O cancellation callbacks are joined. Lookup uses the original Idempotency-Key and complete original request; no automatic replay."
+      },
+      "head": {
+        "operationId": "projectVariableVariableSummaryPageHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Unsupported method for known resource.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "200": {
+            "description": "Same current authority, query and full encoding as GET; no body, exact Content-Length."
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          }
+        ],
+        "description": "Lookup/read total deadline 2s, mutations 30s, beginning before authentication; actual body Close and native I/O cancellation callbacks are joined. Lookup uses the original Idempotency-Key and complete original request; no automatic replay."
+      },
+      "post": {
+        "operationId": "projectVariableVariableMutationPost",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Unsupported method for known resource.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "200": {
+            "$ref": "#/components/responses/VariableMutation"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VariableCreateBody"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "description": "Lookup/read total deadline 2s, mutations 30s, beginning before authentication; actual body Close and native I/O cancellation callbacks are joined. Lookup uses the original Idempotency-Key and complete original request; no automatic replay."
+      }
+    },
+    "/api/v1/projects/{project_id}/variables/{variable_id}": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "variable_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "projectVariableVariableGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Unsupported method for known resource.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH, DELETE"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "200": {
+            "$ref": "#/components/responses/Variable"
+          }
+        },
+        "description": "Lookup/read total deadline 2s, mutations 30s, beginning before authentication; actual body Close and native I/O cancellation callbacks are joined. Lookup uses the original Idempotency-Key and complete original request; no automatic replay."
+      },
+      "head": {
+        "operationId": "projectVariableVariableHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Unsupported method for known resource.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH, DELETE"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "200": {
+            "description": "Same current authority, query and full encoding as GET; no body, exact Content-Length."
+          }
+        },
+        "description": "Lookup/read total deadline 2s, mutations 30s, beginning before authentication; actual body Close and native I/O cancellation callbacks are joined. Lookup uses the original Idempotency-Key and complete original request; no automatic replay."
+      },
+      "patch": {
+        "operationId": "projectVariableVariableMutationPatch",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Unsupported method for known resource.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH, DELETE"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "200": {
+            "$ref": "#/components/responses/VariableMutation"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VariableUpdateBody"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "description": "Lookup/read total deadline 2s, mutations 30s, beginning before authentication; actual body Close and native I/O cancellation callbacks are joined. Lookup uses the original Idempotency-Key and complete original request; no automatic replay."
+      },
+      "delete": {
+        "operationId": "projectVariableVariableMutationDelete",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Unsupported method for known resource.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH, DELETE"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "200": {
+            "$ref": "#/components/responses/VariableMutation"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VariableDeleteBody"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "description": "Lookup/read total deadline 2s, mutations 30s, beginning before authentication; actual body Close and native I/O cancellation callbacks are joined. Lookup uses the original Idempotency-Key and complete original request; no automatic replay."
+      }
+    },
+    "/api/v1/projects/{project_id}/variables/commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "projectVariableVariableCommandLookupPostLookup",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Unsupported method for known resource.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "200": {
+            "$ref": "#/components/responses/VariableCommandLookup"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VariableLookupBody"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "description": "Lookup/read total deadline 2s, mutations 30s, beginning before authentication; actual body Close and native I/O cancellation callbacks are joined. Lookup uses the original Idempotency-Key and complete original request; no automatic replay."
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account Session; configured loopback HTTP uses agenteam_local_session. No caller Actor or bearer bypass."
+      }
+    },
+    "parameters": {
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "$ref": "./common.json#/components/schemas/IdempotencyKey"
+        },
+        "description": "Exactly one original key, unchanged and not trimmed; duplicate header values rejected, including identical ones."
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 50
+        },
+        "description": "Canonical decimal 1..100; duplicate, empty or noncanonical forms rejected."
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "required": false,
+        "allowEmptyValue": false,
+        "schema": {
+          "$ref": "#/components/schemas/Cursor"
+        }
+      },
+      "CSRF": {
+        "name": "X-CSRF-Token",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": "Actual current Account Session CSRF token; POST Lookup is unsafe and also requires it."
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Safe shared Problem with original commit_state and lawful hint, never error text or a candidate receipt. Failed publication after a successful mutation aborts the connection instead of asserting rollback.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Variable": {
+        "description": "Complete validated representation. Cache-Control: no-store. No partial output.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Variable"
+            }
+          }
+        }
+      },
+      "VariableSummaryPage": {
+        "description": "Complete validated representation. Cache-Control: no-store. No partial output.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/VariableSummaryPage"
+            }
+          }
+        }
+      },
+      "VariableMutation": {
+        "description": "Complete validated representation. Cache-Control: no-store. No partial output.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/VariableMutation"
+            }
+          }
+        }
+      },
+      "VariableCommandLookup": {
+        "description": "Complete validated representation. Cache-Control: no-store. No partial output.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/VariableCommandLookup"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "VariableName": {
+        "type": "string",
+        "maxLength": 128,
+        "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,127}$",
+        "not": {
+          "pattern": "^[aA][gG][eE][nN][tT][eE][aA][mM](?:$|_)"
+        }
+      },
+      "VariableDescription": {
+        "type": "string",
+        "maxLength": 4096,
+        "pattern": "^[^\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f]*$",
+        "description": "At most 4096 UTF-8 bytes; Unicode scalar text; TAB/LF/CR permitted."
+      },
+      "VariableValue": {
+        "type": "string",
+        "maxLength": 32768,
+        "pattern": "^[^\\u0000]*$",
+        "description": "Ordinary value, not a Secret. At most 32768 UTF-8 bytes; no NUL; no normalization."
+      },
+      "Variable": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "type": {
+            "const": "variable"
+          },
+          "name": {
+            "$ref": "#/components/schemas/VariableName"
+          },
+          "description": {
+            "$ref": "#/components/schemas/VariableDescription"
+          },
+          "value": {
+            "$ref": "#/components/schemas/VariableValue"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "id",
+          "project_id",
+          "type",
+          "name",
+          "description",
+          "value",
+          "version",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "VariableSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "type": {
+            "const": "variable"
+          },
+          "name": {
+            "$ref": "#/components/schemas/VariableName"
+          },
+          "description": {
+            "$ref": "#/components/schemas/VariableDescription"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "id",
+          "project_id",
+          "type",
+          "name",
+          "description",
+          "version",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "VariableSummaryPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/VariableSummary"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "VariableCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "variable_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "name": {
+            "$ref": "#/components/schemas/VariableName"
+          },
+          "description": {
+            "$ref": "#/components/schemas/VariableDescription"
+          },
+          "value": {
+            "$ref": "#/components/schemas/VariableValue"
+          }
+        },
+        "required": [
+          "variable_id",
+          "name",
+          "description",
+          "value"
+        ]
+      },
+      "VariableUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/VariableName"
+          },
+          "description": {
+            "$ref": "#/components/schemas/VariableDescription"
+          },
+          "value": {
+            "$ref": "#/components/schemas/VariableValue"
+          }
+        },
+        "required": [],
+        "minProperties": 1
+      },
+      "VariableDeleted": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "type": {
+            "const": "variable"
+          },
+          "version": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              {
+                "not": {
+                  "const": "1"
+                }
+              }
+            ]
+          },
+          "deleted_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "id",
+          "project_id",
+          "type",
+          "version",
+          "deleted_at"
+        ]
+      },
+      "VariableCreateReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "command": {
+            "const": "project.variable.create"
+          },
+          "changed": {
+            "const": true
+          },
+          "event_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "variable": {
+            "$ref": "#/components/schemas/Variable"
+          }
+        },
+        "required": [
+          "command",
+          "changed",
+          "event_id",
+          "audit_id",
+          "variable"
+        ],
+        "allOf": [
+          {
+            "properties": {
+              "variable": {
+                "properties": {
+                  "version": {
+                    "const": "1"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "VariableUpdateNoopReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "command": {
+            "const": "project.variable.update"
+          },
+          "changed": {
+            "const": false
+          },
+          "event_id": {
+            "type": "null"
+          },
+          "audit_id": {
+            "type": "null"
+          },
+          "variable": {
+            "$ref": "#/components/schemas/Variable"
+          }
+        },
+        "required": [
+          "command",
+          "changed",
+          "event_id",
+          "audit_id",
+          "variable"
+        ]
+      },
+      "VariableUpdateReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "command": {
+            "const": "project.variable.update"
+          },
+          "changed": {
+            "const": true
+          },
+          "event_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "variable": {
+            "$ref": "#/components/schemas/Variable"
+          }
+        },
+        "required": [
+          "command",
+          "changed",
+          "event_id",
+          "audit_id",
+          "variable"
+        ],
+        "allOf": [
+          {
+            "properties": {
+              "variable": {
+                "properties": {
+                  "version": {
+                    "not": {
+                      "const": "1"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "VariableDeleteReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "command": {
+            "const": "project.variable.delete"
+          },
+          "changed": {
+            "const": true
+          },
+          "event_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "deleted": {
+            "$ref": "#/components/schemas/VariableDeleted"
+          }
+        },
+        "required": [
+          "command",
+          "changed",
+          "event_id",
+          "audit_id",
+          "deleted"
+        ]
+      },
+      "VariableMutation": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/VariableCreateReceipt"
+          },
+          {
+            "$ref": "#/components/schemas/VariableUpdateReceipt"
+          },
+          {
+            "$ref": "#/components/schemas/VariableUpdateNoopReceipt"
+          },
+          {
+            "$ref": "#/components/schemas/VariableDeleteReceipt"
+          }
+        ]
+      },
+      "VariableCommandLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "const": "committed"
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/VariableMutation"
+              }
+            },
+            "required": [
+              "status",
+              "receipt"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              },
+              "receipt": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "status",
+              "receipt"
+            ]
+          }
+        ]
+      },
+      "VariableCreateBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/VariableCreate"
+          }
+        },
+        "required": [
+          "request"
+        ]
+      },
+      "VariableUpdateBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/VariableUpdate"
+          }
+        },
+        "required": [
+          "expected_version",
+          "request"
+        ]
+      },
+      "VariableDeleteBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "expected_version"
+        ]
+      },
+      "VariableLookupBody": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "request": {
+                "$ref": "#/components/schemas/VariableCreate"
+              },
+              "command": {
+                "const": "project.variable.create"
+              }
+            },
+            "required": [
+              "request",
+              "command"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "request": {
+                "$ref": "#/components/schemas/VariableUpdate"
+              },
+              "command": {
+                "const": "project.variable.update"
+              },
+              "target_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "expected_version",
+              "request",
+              "command",
+              "target_id"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "command": {
+                "const": "project.variable.delete"
+              },
+              "target_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "expected_version",
+              "command",
+              "target_id"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
