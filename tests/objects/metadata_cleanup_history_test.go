@@ -1,0 +1,131 @@
+//go:build integration
+
+package objects_test
+
+import (
+	"context"
+	"io"
+	"strings"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/minio/minio-go/v7"
+)
+
+func TestObjectMetadataCleanupOldAttemptsAndStopHistory(t *testing.T) {
+	base := newFixture(t, false)
+	proxy := newStorageProxy(t, base)
+	// This owns only the setup proxy's lifetime. Every Stop/cleanup call below
+	// still receives the original 2s budget; the test binary keeps its 6m cap.
+	proxy.cancel()
+	proxy.ctx, proxy.cancel = context.WithTimeout(context.Background(), 5*time.Minute)
+	cfg := auditStorageConfig(t, base, proxy.server.URL)
+	f, _ := metadataCleanupFixtureOn(t, base, objectAuditOptions{config: &cfg})
+	body := strings.Repeat("x", 2*oc.StreamBufferSize+64)
+	cmd := command(t, "actual-old-candidates")
+	var object oc.ObjectID
+	for range 65 {
+		proxy.mode.Store(proxyRejectCandidateRead)
+		_, err := f.service.PutObject(contextFor(t), f.actor, f.owner, cmd, "text/plain", int64(len(body)), nil, io.NopCloser(strings.NewReader(body)))
+		if err == nil {
+			t.Fatal("controlled real verification failure was accepted")
+		}
+		var raw, key string
+		var closed bool
+		err = f.store.QueryRow(contextFor(t), `SELECT u.object_id::text,a.candidate_key,a.io_closed FROM agenteam_object.uploads u JOIN agenteam_object.upload_attempts a ON a.id=u.current_attempt_id WHERE u.command_key=$1`, string(cmd.IdempotencyKey)).Scan(&raw, &key, &closed)
+		if err != nil || !closed {
+			t.Fatal("failed candidate did not actually close", err)
+		}
+		current, err := foundation.ParseID[oc.StoredObject](raw)
+		if err != nil || object.Validate() == nil && object != current {
+			t.Fatal("same command changed the original Object identity", err)
+		}
+		object = current
+		// Remove the task-owned bytes, then let real verification establish
+		// absence, original AbandonedAttempt cause, cleanup and joined work.
+		// No native phase/io_closed/joined/checkpoint is fabricated with SQL.
+		if err := f.s3.RemoveObject(contextFor(t), f.bucket, key, minio.RemoveObjectOptions{}); err != nil {
+			t.Fatal(err)
+		}
+		proxy.mode.Store(proxyPass)
+		if err := f.service.Recover(contextFor(t)); err != nil {
+			t.Fatal("real failed-candidate recovery", err)
+		}
+	}
+	put, err := f.service.PutObject(contextFor(t), f.actor, f.owner, cmd, "text/plain", int64(len(body)), nil, io.NopCloser(strings.NewReader(body)))
+	if err != nil || put.Meta.ID != object {
+		t.Fatal("same command did not publish its fresh current candidate", err)
+	}
+	var oldCount int
+	var original string
+	err = f.store.QueryRow(contextFor(t), `SELECT count(*),min(c.operation_id::text) FROM agenteam_object.cleanup_operations c JOIN agenteam_object.uploads u ON u.object_id=c.object_id WHERE c.object_id=$1 AND c.reason='abandoned_attempt' AND c.operation_id=u.id AND c.phase='completed'`, object.String()).Scan(&oldCount, &original)
+	if err != nil || oldCount != 65 {
+		t.Fatal("old completed causes were not produced by actual recovery", err, oldCount)
+	}
+	for range 1001 {
+		r, err := f.service.ReadObject(contextFor(t), f.actor, f.owner, object, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, readErr := io.Copy(io.Discard, r)
+		closeErr := r.Close()
+		if readErr != nil || closeErr != nil {
+			t.Fatal("real terminal history reader", readErr, closeErr)
+		}
+	}
+	// Keep one later native reader truly live. Its selected Object has >1000
+	// historical rows, which the old fanout projection could never advance.
+	proxy.mode.Store(proxyHoldReadBody)
+	reader, err := f.service.ReadObject(contextFor(t), f.actor, f.owner, object, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer reader.Close()
+	assertStopBodyHeld(t, proxy)
+	var live int
+	if err := f.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='reader' AND state='active'`, object.String()).Scan(&live); err != nil || live != 1 {
+		t.Fatal("late reader was not actually live", err, live)
+	}
+	actor, stop := activateObjectStop(t, f.fixture, oc.ProjectStopDelete)
+	ctx, cancel := context.WithTimeout(contextFor(t), 2*time.Second)
+	_, err = f.service.RequestProjectStop(ctx, actor, stop)
+	cancel()
+	if err != nil {
+		t.Fatal("bounded first Stop", err)
+	}
+	proxy.release()
+	_ = reader.Close() // Preserve any cancellation error; completion is checked below.
+	stopUntilSettled(t, f.service, actor, stop)
+	if err := f.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND state='active'`, object.String()).Scan(&live); err != nil || live != 0 {
+		t.Fatal("Stop skipped an active native lease", err, live)
+	}
+	operation, err := foundation.ParseID[oc.CleanupOperation](stop.Details().OperationID.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	cleanup, err := oc.NewObjectCleanupCause(oc.CleanupDetails{OperationID: operation, Owner: f.owner, Reason: oc.ProjectDeleted})
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.sql(t, `INSERT INTO object_fixture.metadata_cleanup(operation_id,object_id,upload_id,project_id,owner_id,skill_id,user_id,project_version,phase) SELECT $1,u.object_id,u.id,u.project_id,u.owner_id,r.parent_id,p.owner_id,p.version,'gated' FROM agenteam_object.uploads u JOIN object_fixture.owners r ON r.id=u.owner_id JOIN object_fixture.projects p ON p.id=u.project_id WHERE u.object_id=$2`, operation.String(), object.String())
+	for range 2 {
+		if r := metadataRelease(t, f, cleanup, object); r.State() != foundation.Committed {
+			t.Fatal("canonical release/replay rejected old independent causes", r.Fault())
+		}
+	}
+	ctx, cancel = context.WithTimeout(contextFor(t), 2*time.Second)
+	cleaned, err := f.service.DeleteUnreferencedWithinBudget(ctx, cleanup, object)
+	cancel()
+	if err != nil || cleaned.State != oc.CleanupCompleted {
+		t.Fatal("bounded physical cleanup after genuine history", err)
+	}
+	if err := f.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND reason='abandoned_attempt' AND operation_id=$2 AND phase='completed'`, object.String(), original).Scan(&oldCount); err != nil || oldCount != 65 {
+		t.Fatal("cleanup rewrote old causes", err, oldCount)
+	}
+	if objectAuditCount(t, f.fixture, ac.ObjectDelete) != 1 {
+		t.Fatal("canonical delete did not append exactly one native Audit")
+	}
+}

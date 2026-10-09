@@ -1,5 +1,9 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- 环境恢复后实际核对 HEAD `eda849dc`，保留现存三个测试增量：`tests/objects/metadata_cleanup_fixture_test.go` 提取可选真实 Store/backend 构造；新 `metadata_cleanup_unknown_test.go` 准备最后四 anchors 与 fixture 父行同 Tx 的两种真实 COMMIT 丢响应；新 `metadata_cleanup_history_test.go` 准备65个真实失败候选及1001个真实已关闭 reader 后的活 reader/Stop/原 cause 重放。它们不是伪造 native joined/cleaned 的 SQL 成功夹具，仍使用明确 test-only 跨域门禁，不能代表 Skills 消费者实现。
+- 该三个测试与本 current 现冻结供 root 保存。Unknown 片段在恢复前 `38461/3c598e` 仅执行原 offlineenv 的 `go test -mod=readonly -p=1 -tags=integration -run '^$' ./tests/objects`，actual0/0.008s；本次恢复未取得 history 新增后的编译或任何实际业务终态，故当前全源码组合仍是待检查 WIP。没有补跑真实资源或把缺失工具会话补为 PASS；Work08 原窗口的恢复由其 owner 负责。
+- 接续先离线核这三个用例的实际生命周期/预算并编译，随后补32跨表与真实 Unknown、1001历史及22候选索引的 EXPLAIN/父 DELETE FK 计划矩阵。D05 当前没有真实 PG/MinIO、迁移28、执行计划或 Skills 最后同 Tx 组合验收；本轮无自有真实资源和在途命令。下面记录保留各历史阶段当时事实，当前范围以上述新状态为准。
+
 - 基于9c4a2fd7新增正式路径`db/migrations/00028_cleanup_indexes.sql`，目前为22条待真实计划验证的索引候选；前序1..28连续、tx/Goose头、22索引名唯一且与前序无冲突，1e36bd静查通过，不是SQL执行/迁移验收。未编号draft已由正式候选取代并删除，旧26df655a保留其历史。
 - 索引配套3产品增量：bounded pending候选加入NOT cleanup_gate，与完整终局partial谓词一致；metadata四历史查询显式按原UUID列排序，避免同名text输出排序；lease完整pending沿既有active/released闭集用active条件；ReferenceCleanup注释补已接受Skills精确分支。51423/d6d9ca受影响Bounded/Metadata/ObjectProjectAudit定向race exit0/1.043s，34645/6a4892两Object包vet exit0；均原offlineenv，无命令在途。Variables独审固定26df655a主体，以上增量另交其复核，不能混作已审。
 

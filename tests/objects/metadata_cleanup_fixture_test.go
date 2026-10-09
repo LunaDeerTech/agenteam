@@ -125,8 +125,17 @@ func (a *metadataCleanupAuthority) CheckCleanupInTx(ctx context.Context, tx foun
 }
 
 func newMetadataCleanupFixture(t *testing.T) (*objectAuditFixture, *objectStopAuthority) {
+	return metadataCleanupFixtureOn(t, newFixture(t, false), objectAuditOptions{})
+}
+
+func metadataCleanupFixtureOn(t *testing.T, original *fixture, options objectAuditOptions) (*objectAuditFixture, *objectStopAuthority) {
 	t.Helper()
-	base := newFixture(t, false)
+	copyFixture := *original
+	base := &copyFixture
+	if options.pg != nil {
+		base.store = options.pg
+		base.authority = &authority{base.store}
+	}
 	owner, err := oc.NewObjectOwner(oc.SkillRevision, base.owner.Details().ID, base.project.String())
 	if err != nil {
 		t.Fatal(err)
@@ -136,7 +145,8 @@ func newMetadataCleanupFixture(t *testing.T) (*objectAuditFixture, *objectStopAu
 	base.sql(t, `CREATE TABLE object_fixture.metadata_cleanup(operation_id uuid NOT NULL,object_id uuid PRIMARY KEY,upload_id uuid NOT NULL,project_id uuid NOT NULL,owner_id uuid NOT NULL,skill_id uuid NOT NULL,user_id uuid NOT NULL,project_version bigint NOT NULL,phase text NOT NULL CHECK(phase IN ('gated','completed')))`)
 	stop := newObjectStopAuthority(t, base, base.store)
 	authority := &metadataCleanupAuthority{base.authority}
-	return objectAuditOn(t, base, objectAuditOptions{stop: stop, planner: authority, cleanup: authority}), stop
+	options.stop, options.planner, options.cleanup = stop, authority, authority
+	return objectAuditOn(t, base, options), stop
 }
 
 func metadataCleanupCause(t *testing.T, f *objectAuditFixture, object oc.ObjectID) oc.ObjectCleanupCause {
