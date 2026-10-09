@@ -115,6 +115,52 @@ class OwnerControls(unittest.TestCase):
         self.assertEqual(result['reason'], 'proc_unavailable')
         self.assertFalse(result['complete'])
 
+    def test_executable_read_error_is_unknown(self):
+        with patch.object(module, 'time', Clock()), \
+             patch.object(module.os, 'readlink', side_effect=PermissionError('private-canary')), \
+             patch.object(Path, 'stat') as stat:
+            self.assertIsNone(module.tcp_executable_identity(Path('/synthetic/321'), 1))
+            stat.assert_not_called()
+
+    def test_directory_enumeration_deadline_cannot_report_complete(self):
+        for stage in ('open', 'entry', 'eof'):
+            clock = Clock()
+
+            class TimedEntries:
+                def __enter__(self):
+                    if stage == 'open':
+                        clock.now = 2
+                    return self
+
+                def __exit__(self, *args):
+                    pass
+
+                def __next__(self):
+                    self.assert_before_deadline()
+                    clock.now = 2
+                    if stage == 'eof':
+                        raise StopIteration
+                    return SimpleNamespace(name='321', path='/synthetic/321')
+
+                def assert_before_deadline(self):
+                    assert clock.now < 1, 'enumeration started after deadline'
+
+            with patch.object(module, 'time', clock), \
+                 patch.object(module.os, 'scandir', return_value=TimedEntries()), \
+                 patch.object(module, 'tcp_process_identity') as identity:
+                result = module.tcp_owner_evidence({ROW}, 1)
+                identity.assert_not_called()
+                self.assertEqual(result['reason'], 'budget')
+                self.assertFalse(result['complete'])
+
+    def test_missing_first_or_second_executable_is_unknown(self):
+        for values in ([None], [EXECUTABLE, None]):
+            result, _ = self.scan(executables=values)
+            self.assertEqual(result['unreadable'], 1)
+            self.assertEqual(result['matches'], [])
+            self.assertFalse(result['complete'])
+            self.assertEqual(result['reason'], 'partial')
+
     def test_inode_zero_and_expired_budget_do_not_scan(self):
         result, calls = self.scan(rows={ZERO})
         self.assertEqual(calls, 0)
@@ -139,6 +185,61 @@ class OwnerControls(unittest.TestCase):
         result, _ = self.scan(identities=identity, clock=clock)
         self.assertEqual(result['matches'], [])
         self.assertEqual(result['reason'], 'budget')
+
+    def test_each_proc_operation_stops_before_the_next_after_deadline(self):
+        order = ['identity1', 'link1', 'exe1', 'identity2', 'link2', 'exe2']
+        for trigger in order:
+            with self.subTest(trigger=trigger):
+                clock, events, counts = Clock(), [], dict(identity=0, link=0, exe=0)
+
+                def observe(kind, value):
+                    def run(*args):
+                        counts[kind] += 1
+                        name = kind + str(counts[kind])
+                        events.append(name)
+                        if name == trigger:
+                            clock.now = 2
+                        return value
+                    return run
+
+                result, scans = self.scan(clock=clock,
+                    identities=observe('identity', IDENTITY),
+                    links=observe('link', 'socket:[123]'),
+                    executables=observe('exe', EXECUTABLE))
+                self.assertEqual(events, order[:order.index(trigger) + 1])
+                self.assertEqual(scans, 1 if trigger == 'identity1' else 2)
+                self.assertFalse(result['complete'])
+                self.assertEqual(result['reason'], 'budget')
+                self.assertEqual(result['matches'], [])
+
+    def test_executable_readlink_deadline_prevents_stat(self):
+        clock = Clock()
+
+        def readlink(_):
+            clock.now = 2
+            return '/test/synthetic-binary'
+
+        with patch.object(module, 'time', clock), \
+             patch.object(module.os, 'readlink', side_effect=readlink), \
+             patch.object(Path, 'stat') as stat:
+            self.assertIsNone(module.tcp_executable_identity(Path('/proc/321'), 1))
+            stat.assert_not_called()
+
+    def test_directory_iteration_checks_budget_before_and_after_next(self):
+        clock, calls = Clock(), []
+
+        def entries():
+            calls.append('first')
+            clock.now = 2
+            yield 'unpublishable'
+            calls.append('second')
+            yield 'forbidden'
+
+        with patch.object(module, 'time', clock):
+            self.assertEqual(list(module.tcp_entries_before_deadline(entries(), 1)), [])
+            self.assertEqual(calls, ['first'])
+            self.assertEqual(list(module.tcp_entries_before_deadline(entries(), 1)), [])
+            self.assertEqual(calls, ['first'])
 
     def test_scan_caps_do_not_claim_complete(self):
         for kwargs, field, limit in [(dict(processes=2049, fds=0), 'processes', 2048),

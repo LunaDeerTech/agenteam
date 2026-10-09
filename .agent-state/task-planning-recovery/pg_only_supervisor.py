@@ -162,14 +162,31 @@ def tcp_process_identity(path):
             'start_ticks': int(fields[19])}
 
 
-def tcp_executable_identity(path):
+def tcp_executable_identity(path, deadline):
     link = path / 'exe'
     try:
+        if time.monotonic() >= deadline:
+            return None
         target = os.readlink(link)
+        if time.monotonic() >= deadline:
+            return None
         stat = link.stat()
+        if time.monotonic() >= deadline:
+            return None
         return {'path': target, 'device': stat.st_dev, 'inode': stat.st_ino}
     except (OSError, ValueError):
         return None
+
+
+def tcp_entries_before_deadline(entries, deadline):
+    while time.monotonic() < deadline:
+        try:
+            entry = next(entries)
+        except StopIteration:
+            return
+        if time.monotonic() >= deadline:
+            return
+        yield entry
 
 
 def tcp_owner_evidence(rows, deadline):
@@ -185,6 +202,8 @@ def tcp_owner_evidence(rows, deadline):
     considered = list(islice(rows, 4096))
     inodes = {row[4] for row in considered if row[4] != '0'}
     result['inode_zero_considered_rows'] = sum(row[4] == '0' for row in considered)
+    if time.monotonic() >= deadline:
+        return result
     if not inodes:
         result.update(complete=not result['rows_truncated'], reason='no_nonzero_inode')
         return result
@@ -192,7 +211,7 @@ def tcp_owner_evidence(rows, deadline):
         return result
     try:
         with os.scandir('/proc') as processes:
-            for entry in processes:
+            for entry in tcp_entries_before_deadline(processes, deadline):
                 if time.monotonic() >= deadline:
                     return result
                 if not entry.name.isdecimal():
@@ -204,8 +223,10 @@ def tcp_owner_evidence(rows, deadline):
                 path = Path(entry.path)
                 try:
                     before = tcp_process_identity(path)
+                    if time.monotonic() >= deadline:
+                        return result
                     with os.scandir(path / 'fd') as descriptors:
-                        for descriptor in descriptors:
+                        for descriptor in tcp_entries_before_deadline(descriptors, deadline):
                             if time.monotonic() >= deadline:
                                 return result
                             if result['fds'] >= 8192 or len(result['matches']) >= 256:
@@ -214,16 +235,32 @@ def tcp_owner_evidence(rows, deadline):
                             result['fds'] += 1
                             try:
                                 link = os.readlink(descriptor.path)
+                                if time.monotonic() >= deadline:
+                                    return result
                                 match = re.fullmatch(r'socket:\[([0-9]+)\]', link)
                                 if match is None or match[1] not in inodes:
                                     continue
-                                executable = tcp_executable_identity(path)
+                                executable = tcp_executable_identity(path, deadline)
                                 if time.monotonic() >= deadline:
                                     return result
+                                if executable is None:
+                                    result['unreadable'] += 1
+                                    continue
                                 after = tcp_process_identity(path)
+                                if time.monotonic() >= deadline:
+                                    return result
+                                second_link = os.readlink(descriptor.path)
+                                if time.monotonic() >= deadline:
+                                    return result
+                                second_executable = tcp_executable_identity(path, deadline)
+                                if time.monotonic() >= deadline:
+                                    return result
+                                if second_executable is None:
+                                    result['unreadable'] += 1
+                                    continue
                                 if (before['start_ticks'] != after['start_ticks']
-                                        or os.readlink(descriptor.path) != link
-                                        or tcp_executable_identity(path) != executable):
+                                        or second_link != link
+                                        or second_executable != executable):
                                     result['unstable'] += 1
                                     continue
                                 if time.monotonic() >= deadline:
@@ -241,6 +278,8 @@ def tcp_owner_evidence(rows, deadline):
                     result['unreadable'] += 1
     except OSError:
         result['reason'] = 'proc_unavailable'
+        return result
+    if time.monotonic() >= deadline:
         return result
     complete = (result['unreadable'] == 0 and result['vanished'] == 0
                 and result['unstable'] == 0 and not result['rows_truncated'])
