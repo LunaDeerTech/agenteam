@@ -23,10 +23,12 @@
 ## 未完成与后续
 
 - Task DTO/typed event/六Fault/Project闭集4源已形成可构建片段：作者离线 contract+Foundation 旧pure实际exit0；Task新pure测试待补。Project追加离线检查首因固定依赖缺失FAIL，准确 go mod download 后三包实际PASS；Task runtime/reader/PG测试仍实施，尚未验收。
-- Model harness首段3源已形成：同fd私有读取/严格JSON/IPC闭合和case配置；作者限定两个Go源race测试exit0，独立复核进行中；decode当前仅envelope/action键闭合，值类型/union与登记授权还需补齐，不能当完整IPC admission；完整后端fixture与浏览器业务仍未实现。
+- Model harness首段3源已形成：同fd私有读取/严格JSON/IPC闭合和case配置；作者限定两个Go源race测试exit0，独立复核已完成，绑定 `02e3daaf`：四race测试、private/JSON边界及13个Node配置检查PASS；8个非法typed/union IPC参数仍获空错误真实复现，独立probe保留预期exit1；decode当前仅envelope/action键闭合，值类型/union与登记授权还需补齐，不能当完整IPC admission；完整后端fixture与浏览器业务仍未实现。
 - 当前尚无新整卡产品测试通过结论。阶段源码完成后先作者自测、冻结限定输入，再按风险安排独立验证；每个完整结果及时交付 main 并普通 push、核实远端。
 - Model UI 原恢复 FAIL、Work Structure 原 Unknown01 FAIL 与独立 B 外部工具终态缺口保留，不回填历史。
 - Object runtime join、OpenAI tools 独立验收、SPA concurrent-publication、Jina/Image 来源沿台账停止边界保持；局部停止不妨碍 Task 规划与验收输入恢复。
 - E01 未开始。游戏参考版本、完整内容分母、权重与可复现覆盖率须在平台前置完成后、游戏实施前冻结；最终需要平台内任务/协作/执行/审核/产物和真实试玩证据。
+- root交付worktree `/workspace/agenteam-delivery` 的 `main` 仅带基线与4个Task contract源；三包race、vet及Central/Runner两入口build实际exit0。尚未commit/push main，等待新pure测试和独立契约审查，不把构建当完整验收。
+- Model独立可复跑probe：`.agent-state/model-ui-recovery/independent-probe.py`；审查输入固定02e3daaf，未来新输入须另验。
 - 当前保存必须遵守用户“不提交无法构建的中间状态”：仅保存独立闭合、可构建的明确片段，未闭合源码保留工作区待依赖完成。
 - 工具全树当前 7 席位；子实例显式 Astra/Ultra，priority 实际生效未确认。不因配置 100 推断当前容量。
