@@ -35,6 +35,14 @@ root fresh grant 后沿原脚本、固定cmd和新 `output/ai/runner-control/os-
 
 原观测器只在完全命中syscall/wchan条件时保存见证，没有保存未匹配的安全任务快照。因此原失败不能区分阻塞读未成立、内核观测名称/条件差异或其它未记录情况。下一步若增加诊断，只能补有限安全观测/控制并另获实际窗口，不能把后采样或源码猜测回填本轮。OS三格、正式测试最小接入仍未完成；DefaultProcesses及独立补集未由本轮执行。
 
+## 第二轮安全诊断结果
+
+已审诊断7e4a与原固定cmd，在root新的唯一窗口执行新`output/ai/runner-control/os-signals-diagnostic-02`。首同进程UTC2026-10-09T23:50:35.672768Z，available5,650,419,712B且output不存在；15233/2841d9→b9fa47 actual outer1。仍仅eof首格，原5s报`initial_read_not_observed`；没有TERM/INT或后两格。原OS01失败及其缺失快照不回填。
+
+ba3061读取原0600 events：owned PID1345287/start_ticks6226730/pipeinode3098639；末样本identity_checked=true、fd0_flags=0、fd0_inode3098639，七task原扫描完成且error=null。TID1345289两次SYS_read=0、fd0=true，原完整syscall样本相同，wchan闭集投影为`anon_pipe_read`。原判据只接受`pipe_read`，因此不接受这个样本；安全输出没有保存原buffer/count/address，不能重建未保留字段，也不能借此宣称信号三格通过。本轮观察把内核等待点名称与原严格gate差异变成实际事实，不将源码候选当OS01根因。
+
+原cleanup在快照落盘前已返回，记录killed=true/actual_waited=true/parent_pipe_ends_closed=true；精确PID随后/proc absent，private只保留eof/identity.json.lock，无identity.json。没有原Wait数值状态，不能补造。失败目录按方法保留、没有重跑或新增清理；实际全局free5,646,598,144B。窗口释放，无自有活资源或TCP双空宣称。下一步若适配本kernel等待点，只能另作有限方法差异/独审并获fresh窗口；当前脚本原gate未变。
+
 ## 固定 cmd 与命令
 
 在明确独占窗口前，不执行此脚本的 main。先由原固定离线环境单独构建原 cmd 至新私有 output 文件，并记录真实 build Wait 与 SHA；不复用测试 binary 冒默认 cmd。沿已有本树 GOCACHE、只读 GOMODCACHE、Go1.27.1/local/off、保留原 PATH。构建不修改正式源码或 C 输入。
