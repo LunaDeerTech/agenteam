@@ -6,7 +6,7 @@
 
 ## 当前恢复点与并行所有权
 
-Task Planning、B0-P限定Blocker服务与Work Owner HTTP/root已正式交付，当前继续D27 Model业务验收及Human规划界面实施。后者在基于正式main的 `/workspace/agenteam-work-ui` 隔离树推进，rev1规格已独立接受，API/Session/controller已有限定独立纯控制，页面和真实fixture由负责人接续，尚无UI真实验收通过结论。现有六名子代理分别推进Work UI、Model authority诊断、普通Project Variables、D08初始化Audit库前置、D15 Runner身份控制与D12 Knowledge B02六条实现线；各自独立worktree/唯一writer，阶段冻结后交叉独审。迁移预留变量00024、Knowledge00025、Runner00026；精确范围/人员/恢复位置见分支记录，不复制活动未验产品。接口唯一来源仍是正式SPEC/contract，台账只链接提供方、消费方与待真实集成gate。主线程负责统筹、规划、安排、汇报、验收决策和Git；实现、排查、测试与文档由子代理承担。实际所有权与资源接续见分支记录，共享入口、迁移、构建资产与测试资源只允许一个写入者或明确串行。
+Task Planning、B0-P限定Blocker服务与Work Owner HTTP/root已正式交付，当前继续D27 Model业务验收及Human规划界面实施。后者在基于正式main的 `/workspace/agenteam-work-ui` 隔离树推进，rev1规格已独立接受，API/Session/controller已有限定独立纯控制，页面和真实fixture由负责人接续，首planning真实轮整体FAIL，Sprint创建后查证按钮原5秒禁用等待、观察器末端与driver后descendant STOP保留；实际退出与七资源/TCP尾已收齐，尚无UI通过结论。现有六名子代理分别推进Work UI、Model authority诊断、普通Project Variables、D08初始化Audit库前置、D15 Runner身份控制与D12 Knowledge B02六条实现线；各自独立worktree/唯一writer，阶段冻结后交叉独审。迁移预留变量00024、Knowledge00025、Runner00026；精确范围/人员/恢复位置见分支记录，不复制活动未验产品。接口唯一来源仍是正式SPEC/contract，台账只链接提供方、消费方与待真实集成gate。主线程负责统筹、规划、安排、汇报、验收决策和Git；实现、排查、测试与文档由子代理承担。实际所有权与资源接续见分支记录，共享入口、迁移、构建资产与测试资源只允许一个写入者或明确串行。
 
 | 工作项 | 当前可证状态 | 接手时的下一步与完成边界 |
 | --- | --- | --- |

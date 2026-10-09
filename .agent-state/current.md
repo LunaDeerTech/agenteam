@@ -19,7 +19,7 @@
 
 - 按当前用户要求，root负责统筹、规划、安排、汇报、验收决策与全部Git操作；实现、排查、测试及文档由子代理执行。本文件与全局台账已交接给 `/root/service_delivery` 唯一写入，原实施实例停写；两领域专属卡仍由对应负责人维护。检查点明确列文件，未验但可构建片段应保存，不提交未闭合无法构建源码。
 - 六条实现线分别由六名子代理承担，阶段冻结后交叉独审，不为每线固定常驻作者与独验。
-- Work 规划 UI：`/root/service_delivery` 在 `/workspace/agenteam-work-ui`、`ai/work-owner-planning-ui` 接管全部页面、fixture 与六作者矩阵；API/Session/controller已有有限独立纯控制，完整 UI/浏览器未验。原独验已在四 fixture 静审边界转 Runner 作者；Lookup TargetID 观察缺陷由 UI 负责人修复，后续独审由 root 轮转未参与者。
+- Work 规划 UI：`/root/service_delivery` 在 `/workspace/agenteam-work-ui`、`ai/work-owner-planning-ui` 接管全部页面、fixture 与六作者矩阵；API/Session/controller已有有限独立纯控制，首planning真实轮整体FAIL，Sprint创建后原查证按钮5秒禁用等待及观察器/driver后descendant终态问题待定位；实际退出与七资源/TCP尾已收齐，未接受UI。原独验已在四 fixture 静审边界转 Runner 作者；Lookup TargetID 观察缺陷由 UI 负责人修复，后续独审由 root 轮转未参与者。
 - Model：`/root/model_delivery/recover_harness` 继续原活动树 D27 authority 诊断；原负责人转 Knowledge，原独验转 D08。已接受范围仍新5/6、A/B、旧14/14；真实 Session proxy 诊断完整PASS且获有限独立接受；后继 SessionAppDiagnostic 两格亦完整PASS，真实App前置共四次Session/零Model，同响应与七资源全尾齐，但均未复现故障，不替代 authority 业务门槛。
 - 普通 Project Variables：`/workspace/agenteam-project-variables`、`ai/project-variables`，正式基线 main `f1c94ee5`；`blocker_implementation` 已实际转入写 SPEC/current，目标已有 initialized Project 当前 Human Owner 的普通变量 CRUD/分页/原意图恢复/正式 HTTP/root，预留迁移 `00024`。Secret/Agent白名单/执行注入不在本轮；正式port支持独立模块实施，真实跨模块绑定另列gate，不能因Skills/Object最终集成缺口暂停所有Agent准备。
 - D08 初始化 Audit 库前置：`/workspace/agenteam-project-initialization`、`ai/project-initialization`，由 `/root/model_delivery/independent_acceptance` 实际转作者，规格已独审接受，首个真实 Facts 顶层完整 PASS（26子项、实际外层退出及两资源/TCP双尾齐），其余动态与最终接受仍待；无新迁移，不是创建HTTP/Skills服务或完整D08，Object join停止项保持。

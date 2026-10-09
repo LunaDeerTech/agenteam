@@ -23,7 +23,8 @@ const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const nativeSource = join(root, '.agent-state/model-ui-recovery/native-client-probe.ts');
 const nativeBundlePath = join(root, 'output/ai/model-ui-recovery/client-probe/native-client-probe.js');
 function casesFor(mode) {
-  need(['default', 'promise-boundary', 'owned-fixture', 'owned-app'].includes(mode), 'SESSION_PROBE_MODE');
+  need(['default', 'promise-boundary', 'owned-fixture', 'owned-app', 'owned-login'].includes(mode), 'SESSION_PROBE_MODE');
+  if (mode === 'owned-login') return ['early', 'stable'].map(action => ({ frame: 'browser-login', consumer: 'account', action }));
   if (mode === 'owned-app') return ['direct-account', 'pageshow'].map(action => ({ frame: 'app', consumer: 'account', action }));
   if (mode === 'owned-fixture') return [{ frame: 'owned-fixture', consumer: 'account' }];
   return mode === 'default'
@@ -203,9 +204,9 @@ function installFixtureConsumer(createAccountAPI) {
 
 async function inputs(mode) {
   need(packageVersion === '1.56.1', 'SESSION_PROBE_PLAYWRIGHT_VERSION');
-  const files = [source, ...(['owned-fixture', 'owned-app'].includes(mode) ? [] : [join(dirname(source), 'run-session-consumption.py'), join(dirname(source), 'run-shared-components.py')]), join(root, 'web/src/api/account.ts'), join(root, 'web/src/api/client.ts'), join(root, 'web/package-lock.json'), join(root, 'tests/account-captcha-web/package-lock.json')];
+  const files = [source, ...(['owned-fixture', 'owned-app', 'owned-login'].includes(mode) ? [] : [join(dirname(source), 'run-session-consumption.py'), join(dirname(source), 'run-shared-components.py')]), join(root, 'web/src/api/account.ts'), join(root, 'web/src/api/client.ts'), join(root, 'web/package-lock.json'), join(root, 'tests/account-captcha-web/package-lock.json')];
   if (mode !== 'default') files.push(nativeSource, nativeBundlePath, ...['system-account', 'project-model-credentials', 'project-models'].map(name => join(root, `web/src/api/${name}.ts`)));
-  if (['owned-fixture', 'owned-app'].includes(mode)) files.push(join(root, 'tests/account/project_owner_models_web_fixture_test.go'), join(root, 'tests/account/project_owner_models_web_test.go'), join(dirname(source), 'run-owned-top.py'));
+  if (['owned-fixture', 'owned-app', 'owned-login'].includes(mode)) files.push(join(root, 'tests/account/project_owner_models_web_fixture_test.go'), join(root, 'tests/account/project_owner_models_web_test.go'), join(dirname(source), 'run-owned-top.py'));
   return Object.fromEntries(await Promise.all(files.map(async (path) => [path, hash(await readFile(path))])));
 }
 async function prepare(mode) {
@@ -222,7 +223,7 @@ async function prepare(mode) {
   const virtual = '\0independent-session-consumption', entry = join(output, 'virtual-session-entry.js');
   const result = await build({ configFile: false, root, logLevel: 'silent', plugins: [{
     name: 'independent-session-entry', enforce: 'pre', resolveId: (id) => id === entry ? virtual : undefined,
-    load: (id) => id === virtual ? `import { createAccountAPI } from ${JSON.stringify(join(root, 'web/src/api/account.ts'))};\n(${(['owned-fixture', 'owned-app'].includes(mode) ? installFixtureConsumer : mode === 'promise-boundary' ? installPromiseBoundary : installBrowser).toString()})(createAccountAPI);` : undefined,
+    load: (id) => id === virtual ? `import { createAccountAPI } from ${JSON.stringify(join(root, 'web/src/api/account.ts'))};\n(${(['owned-fixture', 'owned-app', 'owned-login'].includes(mode) ? installFixtureConsumer : mode === 'promise-boundary' ? installPromiseBoundary : installBrowser).toString()})(createAccountAPI);` : undefined,
   }], build: { write: false, minify: false, sourcemap: false, lib: { entry, name: 'SessionConsumption', formats: ['iife'] } } });
   const chunks = (Array.isArray(result) ? result : [result]).flatMap((row) => row.output);
   need(chunks.length === 1 && chunks[0].type === 'chunk');
@@ -324,6 +325,112 @@ async function appSessionCase(browser, fixture, nativeBundle, bundle, action, ro
   }
 }
 
+// Request timestamps are Node listener observations on one monotonic clock,
+// not browser send times. The selected response is the first real 200 Session
+// after arming the wait, including a request observed before the action.
+async function loginSessionCase(browser, fixture, nativeBundle, bundle, action, rows, step) {
+  need(action === 'early' || action === 'stable', 'SESSION_PROBE_LOGIN_ACTION');
+  const context = await browser.newContext({ serviceWorkers: 'block' }), page = await context.newPage();
+  const report = { frame: 'browser-login', consumer: 'account', action, requests: [], response_candidates: 0, selected_request_observed: false, selected_request_before_action: false, selected_request_after_action: false, native: null, events: { headers: false, finished: false, failed: false, response_finished: 'pending', pw_headers_bound: false, cdp_headers_bound: false, cdp_finished: false, cdp_failed: false, cdp_canceled: false, cdp_aborted: false }, application_ready: false, observer_joined_after_close: false, fail_code: null };
+  rows.push(report);
+  const events = report.events;
+  const records = new Map(), cdpRecords = new Map(), base = performance.now(), observations = [];
+  let cdp, selected, selectedResponse, requestID, actionAt, armed = false, capExceeded = false, responseResolve, finishedPromise;
+  const responseWaiting = new Promise(resolve => { responseResolve = resolve; });
+  const kindOf = request => request.url() === fixture.origin + '/api/v1/session' && request.method() === 'GET' ? 'session'
+    : request.url() === fixture.origin + '/api/v1/auth/bootstrap' && request.method() === 'GET' ? 'bootstrap'
+    : request.url() === fixture.origin + '/api/v1/sessions/login' && request.method() === 'POST' ? 'login' : 'other';
+  const requested = request => {
+    const url = new URL(request.url());
+    if (url.origin !== fixture.origin || !(url.pathname === '/api/v1' || url.pathname.startsWith('/api/v1/'))) return;
+    if (records.size >= 10) { capExceeded = true; return; }
+    const row = { kind: kindOf(request), observed_ms: performance.now() - base, status: null, finished: false, failed: false };
+    records.set(request, row); report.requests.push(row);
+  };
+  const responded = response => {
+    const record = records.get(response.request());
+    if (record) record.status = response.status();
+    if (!armed || kindOf(response.request()) !== 'session' || response.status() !== 200) return;
+    report.response_candidates++;
+    if (selected) return;
+    selected = response.request(); selectedResponse = response; events.headers = true;
+    finishedPromise = response.finished();
+    observations.push(finishedPromise.then(error => { events.response_finished = error === null ? 'complete' : 'error'; }, () => { events.response_finished = 'rejected'; }));
+    responseResolve(response);
+  };
+  const finished = request => { const row = records.get(request); if (row) row.finished = true; if (request === selected) events.finished = true; };
+  const failed = request => { const row = records.get(request); if (row) row.failed = true; if (request === selected) events.failed = true; };
+  const sent = event => {
+    if (event.request.url !== fixture.origin + '/api/v1/session' || event.request.method !== 'GET') return;
+    if (cdpRecords.size >= 6) { capExceeded = true; return; }
+    cdpRecords.set(event.requestId, { token: null, finished: false, failed: false, canceled: false, aborted: false });
+  };
+  const received = event => { const row = cdpRecords.get(event.requestId); if (row) row.token = Object.entries(event.response.headers).find(([name]) => name.toLowerCase() === 'x-request-id')?.[1] ?? null; };
+  const loaded = event => { const row = cdpRecords.get(event.requestId); if (row) row.finished = true; };
+  const lost = event => { const row = cdpRecords.get(event.requestId); if (row) { row.failed = true; row.canceled = event.canceled === true; row.aborted = event.errorText === 'net::ERR_ABORTED'; } };
+  const publish = () => {
+    const record = records.get(selected);
+    report.selected_request_observed = !!record;
+    report.selected_request_before_action = !!record && actionAt !== undefined && record.observed_ms < actionAt;
+    report.selected_request_after_action = !!record && actionAt !== undefined && record.observed_ms >= actionAt;
+    report.action_observed_ms = actionAt ?? null;
+    report.request_cap_exceeded = capExceeded;
+    const matches = requestID ? [...cdpRecords.values()].filter(row => row.token === requestID) : [];
+    events.cdp_headers_bound = matches.length === 1;
+    if (matches.length === 1) {
+      const row = matches[0];
+      Object.assign(events, { cdp_finished: row.finished, cdp_failed: row.failed, cdp_canceled: row.canceled, cdp_aborted: row.aborted });
+    }
+    if (record) Object.assign(events, { finished: record.finished, failed: record.failed });
+  };
+  for (const [name, listener] of [['request', requested], ['response', responded], ['requestfinished', finished], ['requestfailed', failed]]) page.on(name, listener);
+  try {
+    await page.addInitScript({ content: nativeBundle.toString('utf8') + '\nProjectModelsNativeProbe.install();\n' + bundle.toString('utf8') });
+    cdp = await context.newCDPSession(page); await cdp.send('Network.enable');
+    for (const [name, listener] of [['Network.requestWillBeSent', sent], ['Network.responseReceived', received], ['Network.loadingFinished', loaded], ['Network.loadingFailed', lost]]) cdp.on(name, listener);
+    step('login-' + action + '-form');
+    await page.goto(fixture.origin + '/login', { waitUntil: 'load', timeout: 5000 });
+    await expect(page.locator('#login-email')).toBeVisible({ timeout: 5000 });
+    await page.locator('#login-email').fill(fixture.login.email, { timeout: 5000 });
+    await page.locator('#login-password').fill(fixture.login.password, { timeout: 5000 });
+    await page.getByRole('button', { name: '登录', exact: true }).click({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: '退出登录', exact: true })).toBeEnabled({ timeout: 5000 });
+    if (action === 'stable') await appHomeReady(page, fixture.origin);
+    // This helper only publishes native booleans/counts; App still owns Session
+    // decoding and identity checks. No response.json/clone/extra read or GET.
+    need(await page.evaluate(() => window.__projectModelsProbe.sessionBegin('session-proxy', Date.now() + 250, undefined, true)) === true, 'SESSION_PROBE_NATIVE_ARM');
+    armed = true;
+    step('login-' + action + '-pageshow');
+    actionAt = performance.now() - base;
+    await bounded(page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow'))), 5000, 'SESSION_PROBE_CONSUMPTION_TIMEOUT');
+    await bounded(responseWaiting, 5000, 'SESSION_PROBE_RESPONSE_TIMEOUT');
+    requestID = await bounded(selectedResponse.headerValue('x-request-id'), 1000, 'SESSION_PROBE_HEADER_OBSERVATION');
+    events.pw_headers_bound = typeof requestID === 'string' && requestID.length > 0;
+    need(await bounded(finishedPromise, 5000, 'SESSION_PROBE_FINISH_TIMEOUT') === null, 'SESSION_PROBE_FINISH_ERROR');
+    await appHomeReady(page, fixture.origin); report.application_ready = true;
+    report.native = await bounded(page.evaluate(id => window.finishFixtureSession(id), requestID), 1000, 'SESSION_PROBE_NATIVE_SNAPSHOT');
+    publish();
+    checkFixtureNative(report.native);
+    const count = (kind, status) => report.requests.filter(row => row.kind === kind && (status === undefined || row.status === status)).length;
+    need(!capExceeded && count('session') >= 3 && count('session') <= 5 && count('session', 401) >= 1 && count('session', 401) <= 2 && count('session', 200) >= 2 && count('session') === count('session', 401) + count('session', 200) && count('bootstrap') === count('session', 401) && count('bootstrap', 200) === count('bootstrap') && count('login') === 1 && count('login', 200) === 1 && count('other') === 0, 'SESSION_PROBE_LOGIN_REQUESTS');
+    need(report.response_candidates === 1 && report.selected_request_observed && events.pw_headers_bound && events.cdp_headers_bound && events.finished && events.cdp_finished && !events.failed && !events.cdp_failed && events.response_finished === 'complete', 'SESSION_PROBE_REQUEST_BINDING');
+  } catch (error) {
+    report.fail_code = /^SESSION_PROBE_[A-Z_]+$/.test(error?.message ?? '') ? error.message : 'SESSION_PROBE_FAILED';
+    throw error;
+  } finally {
+    if (report.native === null) { try { report.native = await bounded(page.evaluate(id => window.finishFixtureSession(id), requestID ?? null), 1000, 'SESSION_PROBE_NATIVE_SNAPSHOT'); } catch { /* preserve original failure */ } }
+    publish();
+    // Snapshot measurement before teardown. Join later does not rewrite it.
+    report.events = { ...events };
+    for (const [name, listener] of [['request', requested], ['response', responded], ['requestfinished', finished], ['requestfailed', failed]]) page.off(name, listener);
+    if (cdp) for (const [name, listener] of [['Network.requestWillBeSent', sent], ['Network.responseReceived', received], ['Network.loadingFinished', loaded], ['Network.loadingFailed', lost]]) cdp.off(name, listener);
+    await bounded(context.close(), 2000, 'SESSION_PROBE_CONTEXT_CLOSE');
+    await bounded(Promise.all(observations), 1000, 'SESSION_PROBE_OBSERVER_JOIN');
+    report.observer_joined_after_close = true;
+    records.clear(); cdpRecords.clear();
+  }
+}
+
 function sessionObservation(page, cdp, origin, fixture, owned) {
   let finishedObservation = Promise.resolve(), headersObservation = Promise.resolve();
   const events = { request_count: 0, headers: false, finished: false, failed: false, response_finished: 'pending', cdp_request_count: 0, cdp_headers_bound: false, cdp_finished: false, cdp_failed: false, cdp_canceled: false, cdp_aborted: false };
@@ -398,6 +505,13 @@ async function worker(directory, mode, fixture = null) {
       await json(join(directory, 'browser-owned.json'), { ...await processIdentity(child.pid), port: Number(new URL(browserServer.wsEndpoint()).port) });
       browser = await chromium.connect(browserServer.wsEndpoint(), { timeout: 5000 });
       need(browser.version() === '151.0.7922.173', 'SESSION_PROBE_BROWSER_VERSION');
+      if (mode === 'owned-login') {
+        for (const { action } of casesFor(mode)) {
+          try { await loginSessionCase(browser, fixture, nativeBundle, bundle, action, rows, next => { stage = next; }); }
+          catch (error) { failCode ??= /^SESSION_PROBE_[A-Z_]+$/.test(error?.message ?? '') ? error.message : 'SESSION_PROBE_FAILED'; }
+        }
+        return;
+      }
       if (mode === 'owned-app') {
         for (const { action } of casesFor(mode)) {
           stage = 'app-' + action;
@@ -488,19 +602,23 @@ async function ownedFixture(directory, mode) {
   try { fixture = JSON.parse(raw.toString('utf8')); } finally { raw.fill(0); }
   const origin = new URL(fixture.origin);
   need(fixture.mode === mode && fixture.protocol === 'project-session-proxy.v1' && fixture.supervisor_pid === process.ppid && fixture.input_hash === process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH && /^[0-9a-f]{64}$/.test(fixture.input_hash) && origin.protocol === 'http:' && origin.hostname === '127.0.0.1' && !!origin.port && origin.origin === fixture.origin, 'SESSION_PROBE_FIXTURE_BINDING');
+  if (mode === 'owned-login') {
+    need(!Object.hasOwn(fixture, 'cookies') && !Object.hasOwn(fixture, 'expected') && fixture.login && Object.keys(fixture.login).sort().join() === 'email,password,user_id' && Object.values(fixture.login).every(value => typeof value === 'string' && value.length > 0 && value.length <= 1024), 'SESSION_PROBE_FIXTURE_LOGIN');
+  } else {
   need(Array.isArray(fixture.cookies) && fixture.cookies.length > 0 && fixture.cookies.length <= 4 && fixture.cookies.every(cookie => Object.keys(cookie).length === 2 && typeof cookie.name === 'string' && typeof cookie.value === 'string'), 'SESSION_PROBE_FIXTURE_COOKIES');
   need(Object.keys(fixture.expected).sort().join() === 'csrf,session_id,user_id' && Object.values(fixture.expected).every(value => typeof value === 'string' && value.length > 0), 'SESSION_PROBE_FIXTURE_IDENTITY');
+  }
   need(hash(await readFile(join(output, 'prepared.json'))) === fixture.prepared_hash && hash(await readFile(join(output, 'client.js'))) === fixture.client_hash, 'SESSION_PROBE_FIXTURE_INPUTS');
   try { await worker(directory, mode, fixture); }
-  finally { for (const cookie of fixture.cookies) cookie.value = ''; fixture.expected.csrf = ''; }
+  finally { if (mode === 'owned-login') { fixture.login.email = ''; fixture.login.password = ''; } else { for (const cookie of fixture.cookies) cookie.value = ''; fixture.expected.csrf = ''; } }
 }
 
 try {
   process.umask(0o077);
   const { args, mode } = argumentsFor(process.argv.slice(2));
   if (args.length === 1 && args[0] === '--prepare') await prepare(mode);
-  else if (args.length === 2 && args[0] === '--worker' && !['owned-fixture', 'owned-app'].includes(mode) && /^run-[0-9a-f]{16}$/.test(args[1].slice(output.length + 1)) && dirname(args[1]) === output) await worker(args[1], mode);
-  else if (args.length === 2 && args[0] === '--owned-fixture' && ['owned-fixture', 'owned-app'].includes(mode)) await ownedFixture(args[1], mode);
+  else if (args.length === 2 && args[0] === '--worker' && !['owned-fixture', 'owned-app', 'owned-login'].includes(mode) && /^run-[0-9a-f]{16}$/.test(args[1].slice(output.length + 1)) && dirname(args[1]) === output) await worker(args[1], mode);
+  else if (args.length === 2 && args[0] === '--owned-fixture' && ['owned-fixture', 'owned-app', 'owned-login'].includes(mode)) await ownedFixture(args[1], mode);
   else throw new Error('SESSION_PROBE_ARGUMENTS');
 } catch (error) {
   // Preparation has no Session or running browser; compiler diagnostics are

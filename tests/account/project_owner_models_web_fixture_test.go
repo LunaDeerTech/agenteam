@@ -76,12 +76,38 @@ type projectModelsWebFixture struct {
 
 // Enabled only by the independent App diagnostic; no Session body leaves Go.
 type projectModelsWebSessionDiagnostic struct {
-	Expected          projectModelsWebSession
-	Compared, Matched int
+	Expected                                        projectModelsWebSession
+	Compared, Matched                               int
+	LoginMode                                       bool
+	Sessions                                        map[string]projectModelsWebSession
+	Unauthenticated, Bootstrap, Logins, NewSessions int
 }
 
 func (d *projectModelsWebSessionDiagnostic) observe(value projectModelsWebSession) {
 	d.Compared++
+	if d.LoginMode {
+		if value.User != d.Expected.User || value.Cookie == "" || value.ID == "" || value.CSRF == "" || value.Cookie == d.Expected.Cookie || value.ID == d.Expected.ID {
+			return
+		}
+		prior, known := d.Sessions[value.Cookie]
+		if !known {
+			if len(d.Sessions) >= 2 {
+				return
+			}
+			for _, other := range d.Sessions {
+				if other.ID == value.ID {
+					return
+				}
+			}
+			d.Sessions[value.Cookie] = value
+			d.NewSessions++
+			prior = value
+		}
+		if prior == value {
+			d.Matched++
+		}
+		return
+	}
 	if value == d.Expected {
 		d.Matched++
 	}
@@ -228,6 +254,14 @@ func (f *projectModelsWebFixture) serveAPI(proxy http.Handler, w http.ResponseWr
 	if f.browserActive {
 		source = "browser"
 	}
+	if source == "browser" && f.sessionDiagnostic != nil && f.sessionDiagnostic.LoginMode {
+		if r.Method == http.MethodGet && r.URL.Path == "/api/v1/auth/bootstrap" {
+			f.sessionDiagnostic.Bootstrap++
+		}
+		if r.Method == http.MethodPost && r.URL.Path == "/api/v1/sessions/login" {
+			f.sessionDiagnostic.Logins++
+		}
+	}
 	project, target, operation := f.match(r)
 	request := &projectModelsWebRequest{Token: fmt.Sprintf("r%06d", f.requestSequence), Source: source, Project: project, Target: target, Operation: operation}
 	request.Method, request.Path, request.Key = r.Method, r.URL.Path, r.Header.Get("Idempotency-Key")
@@ -334,6 +368,13 @@ func (f *projectModelsWebFixture) observeResponse(response *http.Response) error
 		return errors.New("owned Project model request registration missing")
 	}
 	if request.Operation == nil {
+		if request.Source == "browser" && response.Request.Method == http.MethodGet && response.Request.URL.Path == "/api/v1/session" && response.StatusCode == http.StatusUnauthorized {
+			f.mu.Lock()
+			if f.sessionDiagnostic != nil && f.sessionDiagnostic.LoginMode {
+				f.sessionDiagnostic.Unauthenticated++
+			}
+			f.mu.Unlock()
+		}
 		if response.Request.Method == http.MethodGet && response.Request.URL.Path == "/api/v1/session" && response.StatusCode == http.StatusOK {
 			raw, err := io.ReadAll(io.LimitReader(response.Body, 600001))
 			closed := response.Body.Close()
@@ -2332,12 +2373,22 @@ func projectModelsWebBrowserFailure(raw []byte, exitCode int, contextDone bool) 
 // This independent diagnostic never enters the six business result decoders.
 // The existing root/proxy owns HTTP; the Node worker owns only its browser.
 func (f *projectModelsWebFixture) browserSessionProxyDiagnostic(ctx context.Context, app ...bool) {
-	mode, rows := "owned-fixture", 1
+	mode := "owned-fixture"
 	if len(app) > 1 || len(app) == 1 && !app[0] {
 		f.t.Fatal("Session diagnostic mode invalid")
 	}
 	if len(app) == 1 {
-		mode, rows = "owned-app", 2
+		mode = "owned-app"
+	}
+	f.browserSessionDiagnostic(ctx, mode)
+}
+
+func (f *projectModelsWebFixture) browserSessionDiagnostic(ctx context.Context, mode string) {
+	rows := 2
+	if mode == "owned-fixture" {
+		rows = 1
+	} else if mode != "owned-app" && mode != "owned-login" {
+		f.t.Fatal("Session diagnostic mode invalid")
 	}
 	root := filepath.Clean(filepath.Join(f.webRoot, "../../../.."))
 	probeOutput := filepath.Join(root, "output/ai/model-ui-session-probe")
@@ -2357,14 +2408,22 @@ func (f *projectModelsWebFixture) browserSessionProxyDiagnostic(ctx context.Cont
 	if !known || session.User != f.owner.UserID || session.CSRF != f.ownerCSRF || len(cookies) == 0 {
 		f.t.Fatal("Session diagnostic owned identity unavailable")
 	}
-	if mode == "owned-app" {
+	if mode == "owned-app" || mode == "owned-login" {
 		f.mu.Lock()
 		f.sessionDiagnostic = &projectModelsWebSessionDiagnostic{Expected: session}
+		if mode == "owned-login" {
+			f.sessionDiagnostic.LoginMode = true
+			f.sessionDiagnostic.Sessions = map[string]projectModelsWebSession{}
+		}
 		f.mu.Unlock()
 		defer func() {
 			f.mu.Lock()
 			f.sessionDiagnostic.Expected = projectModelsWebSession{}
 			facts := map[string]int{"compared": f.sessionDiagnostic.Compared, "matched": f.sessionDiagnostic.Matched}
+			if f.sessionDiagnostic.LoginMode {
+				facts["new_sessions"], facts["unauthenticated"], facts["bootstrap"], facts["logins"] = f.sessionDiagnostic.NewSessions, f.sessionDiagnostic.Unauthenticated, f.sessionDiagnostic.Bootstrap, f.sessionDiagnostic.Logins
+				clear(f.sessionDiagnostic.Sessions)
+			}
 			f.mu.Unlock()
 			f.safeEvidence("session-buffer-identity.json", facts)
 		}()
@@ -2377,8 +2436,16 @@ func (f *projectModelsWebFixture) browserSessionProxyDiagnostic(ctx context.Cont
 		return fmt.Sprintf("%x", sha256.Sum256(raw))
 	}
 	privateName := "session-proxy-private.json"
-	f.private(privateName, map[string]any{"protocol": "project-session-proxy.v1", "mode": mode, "supervisor_pid": os.Getpid(), "origin": f.origin, "input_hash": f.inputHash, "cookies": cookies,
-		"expected": map[string]string{"user_id": session.User, "session_id": session.ID, "csrf": session.CSRF}, "prepared_hash": boundHash("prepared.json"), "client_hash": boundHash("client.js")})
+	descriptor := map[string]any{"protocol": "project-session-proxy.v1", "mode": mode, "supervisor_pid": os.Getpid(), "origin": f.origin, "input_hash": f.inputHash,
+		"prepared_hash": boundHash("prepared.json"), "client_hash": boundHash("client.js")}
+	if mode == "owned-login" {
+		descriptor["login"] = map[string]string{"email": f.owner.Email, "password": f.owner.Password, "user_id": f.owner.UserID}
+	} else {
+		descriptor["cookies"] = cookies
+		descriptor["expected"] = map[string]string{"user_id": session.User, "session_id": session.ID, "csrf": session.CSRF}
+	}
+	f.private(privateName, descriptor)
+	clear(descriptor)
 	for _, cookie := range cookies {
 		cookie["value"] = ""
 	}

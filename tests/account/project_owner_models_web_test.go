@@ -228,6 +228,62 @@ func TestAccountProjectOwnerModelsWebSessionAppDiagnostic(t *testing.T) {
 	f.safeEvidence("go-session-app-diagnostic.json", map[string]any{"protocol": "project-session-proxy.v1", "input_hash": f.inputHash, "diagnostic_completed": true, "proxy_actual_join": joined, "browser_session_requests": 4, "browser_model_requests": 0, "session_identity_matches": 4, "authority_business_pass": false})
 }
 
+func TestAccountProjectOwnerModelsWebBrowserLoginDiagnostic(t *testing.T) {
+	started := time.Now()
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	t.Cleanup(func() {
+		cancel()
+		if time.Since(started) > 120*time.Second {
+			t.Error("browser login diagnostic exceeded original top budget")
+		}
+	})
+	f := newProjectModelsWebFixture(t, ctx, "configuration")
+	f.browserSessionDiagnostic(ctx, "owned-login")
+	f.stopProxy()
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	modelRequests := 0
+	for _, count := range f.modelCounts {
+		modelRequests += count.Browser
+	}
+	joined := f.modelServer.Started == f.modelServer.Finished && f.modelControls.Held == f.modelControls.HeldJoined && !f.modelFailure
+	d := f.sessionDiagnostic
+	sessions := f.modelSessionCounts["browser"]
+	if !joined || modelRequests != 0 || d == nil || sessions < 6 || sessions > 10 || d.Compared < 4 || d.Compared > 8 || d.Matched != d.Compared || d.Unauthenticated < 2 || d.Unauthenticated > 4 || sessions != d.Compared+d.Unauthenticated || d.Bootstrap != d.Unauthenticated || d.Logins != 2 || d.NewSessions != 2 {
+		t.Fatal("browser login diagnostic request, identity or callback ownership invalid")
+	}
+	f.safeEvidence("go-browser-login-diagnostic.json", map[string]any{"protocol": "project-session-proxy.v1", "input_hash": f.inputHash, "diagnostic_completed": true, "proxy_actual_join": joined, "browser_session_requests": sessions, "browser_model_requests": 0, "session_identity_matches": d.Matched, "new_sessions": d.NewSessions, "unauthenticated": d.Unauthenticated, "bootstrap": d.Bootstrap, "logins": d.Logins, "authority_business_pass": false})
+}
+
+func TestProjectModelsWebLoginDiagnosticIdentity(t *testing.T) {
+	expected := projectModelsWebSession{ID: "setup-session", User: "owner", Cookie: "setup-cookie", CSRF: "setup-csrf"}
+	first := projectModelsWebSession{ID: "first-session", User: "owner", Cookie: "first-cookie", CSRF: "first-csrf"}
+	second := projectModelsWebSession{ID: "second-session", User: "owner", Cookie: "second-cookie", CSRF: "second-csrf"}
+	for _, test := range []struct {
+		name              string
+		values            []projectModelsWebSession
+		matched, sessions int
+	}{
+		{"two-new-stable", []projectModelsWebSession{first, first, second, second}, 4, 2},
+		{"reject-setup-cookie", []projectModelsWebSession{expected}, 0, 0},
+		{"reject-other-owner", []projectModelsWebSession{{ID: first.ID, User: "other", Cookie: first.Cookie, CSRF: first.CSRF}}, 0, 0},
+		{"reject-changed-csrf", []projectModelsWebSession{first, {ID: first.ID, User: first.User, Cookie: first.Cookie, CSRF: "changed"}}, 1, 1},
+		{"reject-session-reuse", []projectModelsWebSession{first, {ID: first.ID, User: first.User, Cookie: second.Cookie, CSRF: first.CSRF}}, 1, 1},
+		{"reject-third-context", []projectModelsWebSession{first, second, {ID: "third", User: first.User, Cookie: "third", CSRF: first.CSRF}}, 2, 2},
+		{"reject-missing", []projectModelsWebSession{{}}, 0, 0},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			d := projectModelsWebSessionDiagnostic{Expected: expected, LoginMode: true, Sessions: map[string]projectModelsWebSession{}}
+			for _, value := range test.values {
+				d.observe(value)
+			}
+			if d.Compared != len(test.values) || d.Matched != test.matched || d.NewSessions != test.sessions {
+				t.Fatal("login identity boundary invalid")
+			}
+		})
+	}
+}
+
 func TestProjectModelsWebSessionDiagnosticIdentity(t *testing.T) {
 	expected := projectModelsWebSession{ID: "session-canary", User: "user-canary", Cookie: "cookie-canary", CSRF: "csrf-canary"}
 	for _, test := range []struct {
