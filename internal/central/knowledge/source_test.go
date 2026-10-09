@@ -123,7 +123,7 @@ type closeProbe struct {
 
 func (*closeProbe) Read([]byte) (int, error) { return 0, io.EOF }
 func (r *closeProbe) Close() error           { r.calls++; return r.err }
-func TestCanonicalUnderlyingCloseFailureDoesNotReportCallJoined(t *testing.T) {
+func TestCanonicalSynchronousCloseRetiresCallAndPreservesError(t *testing.T) {
 	scope, err := id.InProject(newID[id.Project](t))
 	if err != nil {
 		t.Fatal(err)
@@ -140,15 +140,62 @@ func TestCanonicalUnderlyingCloseFailureDoesNotReportCallJoined(t *testing.T) {
 	}
 	joined := 0
 	tracked := &trackedRead{body: reader, done: func() { joined++ }}
-	if err = tracked.Close(); !errors.Is(err, closeErr) || joined != 0 {
-		t.Fatal("failure became join", err, joined)
+	if err = tracked.Close(); err != closeErr || joined != 1 {
+		t.Fatal("returned typed Close lost its error or kept the local call", err, joined)
 	}
-	probe.err = nil
-	if err = tracked.Close(); err != nil || joined != 1 {
-		t.Fatal("real close did not join", err, joined)
+	if err = tracked.Close(); err != closeErr || joined != 1 {
+		t.Fatal("repeated typed Close lost the error or retired twice", err, joined)
 	}
-	if err = tracked.Close(); err != nil || joined != 1 {
-		t.Fatal("double join", err, joined)
+}
+
+func TestCanonicalCloseMustActuallyReturnBeforeDrain(t *testing.T) {
+	st := &serviceState{calls: make(map[*call]struct{}), changed: make(chan struct{})}
+	s := &Service{data: func() *serviceState { return st }}
+	_, done, err := s.begin(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer done()
+	scope, _ := id.InProject(newID[id.Project](t))
+	now, _ := f.NewInstant(time.Now())
+	body := &contentCloseBody{started: make(chan struct{}), release: make(chan struct{}), err: context.Canceled}
+	reader, err := oc.NewObjectReader(oc.ObjectMeta{ID: newID[oc.StoredObject](t), Scope: scope, MediaType: kc.PlainText, ByteSize: 0, SHA256: ob.DigestBytes(nil), State: oc.Available, Version: 1, CreatedAt: now}, nil, body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tracked := &trackedRead{body: reader, done: done}
+	result, joined := make(chan error, 1), make(chan struct{})
+	go func() { defer close(joined); result <- tracked.Close() }()
+	defer func() {
+		select {
+		case <-body.release:
+		default:
+			close(body.release)
+		}
+		<-joined
+	}()
+	select {
+	case <-body.started:
+	case <-time.After(time.Second):
+		t.Fatal("Close did not reach actual boundary")
+	}
+	s.Stop()
+	budget, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err = s.Drain(budget); !errors.Is(err, context.Canceled) {
+		t.Fatal("blocked Close was mistaken for join", err)
+	}
+	close(body.release)
+	select {
+	case <-joined:
+	case <-time.After(time.Second):
+		t.Fatal("released Close did not actually return")
+	}
+	if err = <-result; err != context.Canceled {
+		t.Fatal("Close cancellation was hidden", err)
+	}
+	if err = s.Drain(context.Background()); err != nil {
+		t.Fatal("returned typed Close did not retire local call", err)
 	}
 }
 

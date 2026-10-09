@@ -50,6 +50,8 @@ type serviceState struct {
 	// empty call registry or a cancelled context is never equivalent to join.
 	joinedPublications   map[f.ID[publicationAttempt]]publicationWork
 	retiringPublications map[f.ID[publicationAttempt]]*publicationRetirement
+	cleanupCursor        cleanupCursor
+	cleanupScanning      bool
 }
 type call struct{ cancel context.CancelFunc }
 

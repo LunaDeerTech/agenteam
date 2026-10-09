@@ -15,7 +15,10 @@ import (
 )
 
 // A returned stream keeps the service call registered until the underlying
-// Object reader actually closes successfully. Cancellation alone is not join.
+// typed Object reader's synchronous Close actually returns. D05 joins its I/O
+// before returning even when it preserves a read/cancellation/release error.
+// This retires only our local call, not D05's durable lease or global runtime.
+// Cancellation alone, or a generic SourceInput.Close error, is not join.
 type trackedRead struct {
 	body *oc.ObjectReader
 	done func()
@@ -25,9 +28,7 @@ type trackedRead struct {
 func (r *trackedRead) Read(p []byte) (int, error) { return r.body.Read(p) }
 func (r *trackedRead) Close() error {
 	err := r.body.Close()
-	if err == nil {
-		r.once.Do(r.done)
-	}
+	r.once.Do(r.done)
 	return err
 }
 
@@ -63,8 +64,8 @@ func (s *Service) OpenCanonical(ctx context.Context, actor id.Actor, project id.
 	if err != nil {
 		return kc.CanonicalRead{}, portError(err)
 	}
-	// Once a reader exists, an unsuccessful Close must not remove its active
-	// call. A subsequent process shutdown may observe the outstanding work.
+	// Once a typed D05 reader exists, retain the call until its synchronous
+	// Close actually returns, while preserving any original error separately.
 	owned = false
 	tracked := &trackedRead{body: reader, done: done}
 	closeFailure := func(primary error) (kc.CanonicalRead, error) {
