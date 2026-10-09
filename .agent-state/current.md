@@ -1,7 +1,7 @@
 # D04 Secret Variable Storage 当前检查点
 
 - 树：`/workspace/agenteam-secret-variable-storage`，分支 `ai/secret-variable-storage`，正式 main 基线 `8cb0a95338dc417ff34be06c00086fbbc7159efa`；root 独占 Git/迁移编号/实际资源授权。
-- 任务：落实已接受 D10 rev2 的 D04 专用 producer，保持旧 kind1/2、Model/Account/消费者边界。[工作项](../docs/development/work-items/d04-secret-variable-storage.md) rev2/CheckPlan及实现已获有限独审；core3、maintenance与write/nonce恢复四格已完整真实PASS，第二组maintenance Unknown/并发六格待fresh grant。真实D10 provider/Owner与正式main集成未完成。00029属本域；正式main当前仅至25，26–28在本树为测试依赖，00029正式SQL交付须等连续前缀，不把本producer接受当其交付。
+- 任务：落实已接受 D10 rev2 的 D04 专用 producer，保持旧 kind1/2、Model/Account/消费者边界。[工作项](../docs/development/work-items/d04-secret-variable-storage.md) rev2/CheckPlan及实现已获有限独审；core3、maintenance与固定四top/十格恢复矩阵均已完整真实PASS，本producer有限证据到齐，不追加默认矩阵。真实D10 provider/Owner与正式main集成未完成。00029属本域；正式main当前仅至25，26–28在本树为测试依赖，00029正式SQL交付须等连续前缀，不把本producer接受当其交付。
 - 已读 AGENTS、团队 README、D10 卡、实际 Secret/ProjectVariable/迁移源码及 Go、database、security、verification、test-engineering、design skills。D10 A 的正式契约不等于专用 authority/provider 或 Owner 实现。
 - 与 Knowledge 核对：现 store-only 事实 Authority 不反持 Project/Secret；独立专用 authority 在 Project 后、Secret Service 前构造。Knowledge 的新 Audit 树只做严格合同/读端兼容，不写 D04/private witness/Owner facts。
 - 端口已固定：contract窄prepared＋本Service私有concrete issuer、无IO CheckPlan和两个当前stage、四producer方法。真实D10 provider必须后继正式绑定；没有late setter/默认允许/生产stub，当前pure中的authority与SQL明确controlled。
@@ -115,3 +115,10 @@
 - Go pid1316929 actualWait0、driver pid1316333 actualWait0/16.158957741s/cleanup=true；nonce `2c4df6dd805954ff1a062eeba47ef745`，container `f5ef4fa040d6fa9598a089a7fc78641941386b2aef5cce3ccf4bc87f90054cc8`、network `543ae4cb40651d44f3682ec5691cc87d1d2b43451ff0eda580ae56ed384bf597`精确ID两次absent。d5818a原desc双[]、HOST_TCP双delta_empty、inputs_unchanged=True/terminal0/76.654s；原0755目录仅0600 owned.json、六private文件已退役。窗口已向root释放，无在途命令/自有资源，不自动启动第二组；旧core/maintenance输入与产物不变。
 - D10只读核发现rev2完整completed先于Audit的AuditID循环：现AppendInTx先authorize、再内部生成ID，A changed receipt严格需实际AuditID。按root授权只修D10卡§4/6及D04卡对应一句：D04 Apply→D10 canonical/history+sameStore/liveTx/原Actor-Session/cause/Entry-Key/实际D04 observation私有mutation witness→真实D10 Audit→完整completed→Outbox/Activity。checker仍读本Tx真实后像/history，Outbox仍须完整completed；不改A/e940/任何生产API或源，不增加持久planned，当前仅SPEC delta待Variables独审。
 - 本文＋D04结果卡＋D10既有SPEC共3docs freeze；所有业务/DDL/入口/候选保持原冻结。固定十格后收敛验收，不默认增加矩阵；即使第二组通过，结论仍分producer有限接受与正式00029待26–28前缀交付。
+
+## maintenance Unknown／并发恢复末窗（完整 PASS，固定十格到齐）
+
+- 870b5030已保存上次结果与SPEC，生产/tests/候选/driver不变；2026-10-09T23:30:43.836871Z同进程fresh available6105874432后执行exact `^TestSecretVariableStorageSQL(MaintenanceUnknown|Concurrency)$`，独立fresh `sql-recovery-state-01`。原session54310→497aa8本人实际outer0；日志`output/ai/secret-variable-storage/sql-recovery-state-01/pg-47c0244750a146c9ad2e936bd7e9da2f.log`，Concurrency5.13s（same-intent1.86/changed-value1.72/stale-credential-version1.55）、MaintenanceUnknown5.36s（rotation-refresh1.81/rotation-no-refresh1.76/cleanup1.80），6目标格/8精确RUN和PASS。真实目标COMMIT、双方原PID/精确advisory锁阻塞、原flight返回、proxy Close/wg与Store退役均经实际测试收束。
+- Go pid1321833 actualWait0、driver pid1321267 actualWait0/18.898929705s/cleanup=true；nonce `004c6774b6d458550331dd887a49bb7b`，container `c8c3acd3270dccbc993b3625a921ab4425dab2b6ef1427dd34172ad79f4516c9`、network `2fa9d56c3d85352ff554819af7f4b4df7fc6a53438ec0d0eb1ea98d1214b4a83`精确ID两次absent。6f42ec原desc双[]、HOST_TCP双delta_empty、inputs_unchanged=True/terminal0/78.814s；原0755目录只0600 owned.json，六private文件已退役。窗口已立即释放，无自有资源/在途命令。
+- 两recovery窗合计固定四top/十目标格/13实际节点完整PASS；与原core17节点和101 receipt/轮换/100+1 cleanup结果共同构成本树D04 producer有限证据，D10 authority仍明确controlled。正式00029仍等26–28正式连续前缀及实际main装配；真实D10 Owner/HTTP/Agent F1/材料消费者不外推，也不把依赖迁移成功算其业务交付。
+- Variables已对870b5030相对b2c87c4f的D10顺序SPEC给有限接受，无must-fix（9cc710/e04da9只读diffcheck0）；不改A/e940/Audit API，未实施新D10 witness或Owner。本文＋D04卡两路径归位并freeze；生产/DDL/工具/产物继续保持，下一步由root协调正式前缀与main有限整合，不新增默认恢复工具。
