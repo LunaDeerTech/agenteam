@@ -236,3 +236,5 @@ Authority首轮完整真实FAIL（9.58s），Go/driver实际Wait、两资源/des
 作者defaultroot app首轮两子完整FAIL（8.32s）：在四路事务hold齐备前早返INVALID_ARGUMENT，原诊断未标调用，未触达取消/Force/Join断言；Go/driver实际Wait、七资源双absent、private/runtime/desc/TCP双尾、exact_tops及输入不变完整闭合。源核Delete测试CommandMeta遗漏正式必需RequestID，仅补真实生成ID并先Validate，completed使用get/list/lookup/delete闭集标签与已知Fault code安全投影；不将静态缺口回填成原轮实采Delete，不改产品、四路真实PID/锁、预算或退出判据。修后app03 race-c、精确发现及正式CommandMeta纯控通过；单源差异获独立有限审查接受，真实复验尚待；process03与native04不受该测试修复影响。
 
 作者实际cmd进程六能力/双HEAD/原意图与ProjectAudit消费、旧相邻路由及三真实TCP响应EOF前放弃后恢复，现完整PASS（3.80s）。Go/driver实际Wait、七资源/private/runtime/desc/TCP双尾、exact_tops与输入不变完整闭合；未重跑已有效库矩阵。剩余作者app03和native04 Close单top复验、最终装配收口，尚未整体接受。
+
+修后作者defaultroot app两子现完整PASS（正常退出6.13s、Force6.09s）：四路真实Tx/PID与取消后未join、原Force context/deadline及必要DB.ForceClose、释放后实际调用返回/Drain均保持原门槛通过。Go/driver实际Wait、七资源/private/runtime/desc/TCP双尾、exact_tops和输入不变闭合；原36769整体FAIL保留。候选受影响app/native两包已完成一次必要race-c与精确发现，旧入口/matrix/process构建复用。当前仅剩native04 KeepAliveAndClose真实复验及最终接受，不称已交付main。
