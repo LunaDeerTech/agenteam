@@ -97,6 +97,7 @@ type projectOwnerWebFixture struct {
 	hold                      *projectOwnerWebHold
 	responseSequence          int
 	stopProxy                 func()
+	variables                 *projectVariablesWebFixture
 }
 
 // The production no-tag app.Run owns authentication, authorization, commands
@@ -221,10 +222,15 @@ func (f *projectOwnerWebFixture) startRoot(t *testing.T, ctx context.Context) co
 		w.Header().Set("Content-Length", strconv.Itoa(lost.length))
 		w.Header().Set("Connection", "close")
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("{"))
-		_ = http.NewResponseController(w).Flush()
-		if conn, _, err := w.(http.Hijacker).Hijack(); err == nil {
-			_ = conn.Close()
+		written, writeErr := w.Write([]byte("{"))
+		flushErr := http.NewResponseController(w).Flush()
+		conn, _, hijackErr := w.(http.Hijacker).Hijack()
+		var closeErr error
+		if hijackErr == nil {
+			closeErr = conn.Close()
+		}
+		if lost.variableCut != nil {
+			lost.variableCut(written, writeErr, flushErr, hijackErr, closeErr)
 		}
 	}
 	assets := http.FileServer(http.Dir(dist))
@@ -268,6 +274,9 @@ func (f *projectOwnerWebFixture) startRoot(t *testing.T, ctx context.Context) co
 	f.stopProxy = func() {
 		stopProxyOnce.Do(func() {
 			f.releaseRead()
+			if f.variables != nil {
+				f.variables.releaseRead()
+			}
 			shutdown, stop := context.WithTimeout(context.Background(), 2*time.Second)
 			defer stop()
 			if err := server.Shutdown(shutdown); err != nil {
@@ -288,8 +297,14 @@ func (f *projectOwnerWebFixture) startRoot(t *testing.T, ctx context.Context) co
 }
 
 func newProjectOwnerWebFixture(t *testing.T, ctx context.Context, mode string) *projectOwnerWebFixture {
+	return newProjectOwnerWebFixtureWithVariables(t, ctx, mode, nil)
+}
+func newProjectOwnerWebFixtureWithVariables(t *testing.T, ctx context.Context, mode string, variables *projectVariablesWebFixture) *projectOwnerWebFixture {
 	t.Helper()
-	f := &projectOwnerWebFixture{mode: mode, ids: map[string]string{}, initial: map[string]any{}, sameOriginal: true}
+	f := &projectOwnerWebFixture{mode: mode, ids: map[string]string{}, initial: map[string]any{}, sameOriginal: true, variables: variables}
+	if variables != nil {
+		variables.owner = f
+	}
 	cfg := f.startRoot(t, ctx)
 	f.setup = &personalWebFixture{authenticationWebFixture: f.authenticationWebFixture}
 	f.admin = projectOwnerWebCredential{personalWebCredential: personalWebCredential{Email: f.entry.Email, Password: f.entry.Password, UserID: f.entry.ID}, Username: "admin"}
@@ -316,6 +331,9 @@ func newProjectOwnerWebFixture(t *testing.T, ctx context.Context, mode string) *
 			p := f.create(ctx, f.ownerActor, fmt.Sprintf("owner-page-%02d", n))
 			f.ids[fmt.Sprintf("page_%02d", n)] = p.ID.String()
 		}
+	}
+	if variables != nil {
+		variables.prepare(ctx)
 	}
 	f.lifecycle(ctx, "archived", pc.Archived)
 	f.lifecycle(ctx, "archiving", pc.Archiving)
@@ -764,6 +782,9 @@ type projectOwnerWebBody struct {
 func (b *projectOwnerWebBody) Close() error { clear(b.raw); return nil }
 
 func (f *projectOwnerWebFixture) observeRequest(w http.ResponseWriter, r *http.Request) bool {
+	if f.variables != nil && f.variables.handles(r) {
+		return f.variables.observeRequest(w, r)
+	}
 	f.mu.Lock()
 	fail := r.Method == http.MethodGet && (f.failSession && r.URL.Path == "/api/v1/session" || f.failReadPath != "" && r.URL.Path == f.failReadPath)
 	if fail {
@@ -808,13 +829,17 @@ func (f *projectOwnerWebFixture) observeRequest(w http.ResponseWriter, r *http.R
 }
 
 type projectOwnerWebLost struct {
-	header http.Header
-	length int
+	header      http.Header
+	length      int
+	variableCut func(int, error, error, error, error)
 }
 
 func (*projectOwnerWebLost) Error() string { return "owned committed response deliberately truncated" }
 
 func (f *projectOwnerWebFixture) controlResponse(response *http.Response) error {
+	if f.variables != nil && f.variables.handles(response.Request) {
+		return f.variables.controlResponse(response)
+	}
 	r := response.Request
 	if r == nil || !projectOwnerWebEndpoint(r.URL.Path) {
 		return nil
@@ -1054,7 +1079,11 @@ func (f *projectOwnerWebFixture) browser(ctx context.Context) map[string]any {
 	if err != nil {
 		f.t.Fatal(err)
 	}
-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "project-owner.config.js"))
+	configName, ipcName, resultName := "project-owner.config.js", "project-owner-ipc.json", "project-owner-result.json"
+	if f.variables != nil {
+		configName, ipcName, resultName = "project-variables.config.js", "project-variables-ipc.json", "project-variables-result.json"
+	}
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, configName))
 	cmd.Dir = root
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
@@ -1066,6 +1095,9 @@ func (f *projectOwnerWebFixture) browser(ctx context.Context) map[string]any {
 		}
 	}
 	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_PROJECT_OWNER_WEB_CASE="+f.mode, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "AGENTEAM_PROJECT_OWNER_WEB_EVIDENCE="+f.evidence, "PLAYWRIGHT_NO_COPY_PROMPT=1")
+	if f.variables != nil {
+		cmd.Env = append(cmd.Env, "AGENTEAM_PROJECT_VARIABLE_WEB_CASE="+f.variables.mode)
+	}
 	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
 		if !filepath.IsAbs(images) {
 			f.t.Fatal("Project screenshots require explicit absolute directory")
@@ -1088,6 +1120,9 @@ func (f *projectOwnerWebFixture) browser(ctx context.Context) map[string]any {
 		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 		cmd.Env = nil
 		f.releaseRead()
+		if f.variables != nil {
+			f.variables.releaseRead()
+		}
 		f.t.Log("Project Node direct child actually waited; adopted descendants remain owned by outer subreaper")
 	}()
 	ticker := time.NewTicker(20 * time.Millisecond)
@@ -1101,8 +1136,17 @@ wait:
 			joined = true
 			break wait
 		case <-ticker.C:
-			raw, err := os.ReadFile(filepath.Join(f.directory, "project-owner-ipc.json"))
+			raw, err := os.ReadFile(filepath.Join(f.directory, ipcName))
 			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			if f.variables != nil {
+				if err != nil {
+					clear(raw)
+					f.t.Fatal("private Variables IPC read failed")
+				}
+				sequence = f.variables.ipc(ctx, raw, sequence)
+				clear(raw)
 				continue
 			}
 			var request projectOwnerWebIPC
@@ -1141,11 +1185,15 @@ wait:
 		}
 	}
 	f.mu.Unlock()
-	f.t.Log(safe)
+	if f.variables == nil {
+		f.t.Log(safe)
+	} else if runErr != nil {
+		f.variables.safeFailure()
+	}
 	if runErr != nil {
 		f.t.Fatalf("actual Project production browser failed: %v", runErr)
 	}
-	raw, err := os.ReadFile(filepath.Join(f.directory, "project-owner-result.json"))
+	raw, err := os.ReadFile(filepath.Join(f.directory, resultName))
 	if err != nil {
 		f.t.Fatal("safe Project browser result missing")
 	}

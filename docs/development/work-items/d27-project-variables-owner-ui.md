@@ -1,6 +1,6 @@
 # D27 普通 Project Variables Owner 管理界面
 
-状态：rev1 规格草稿，待独立审查，尚无产品实现。正式依赖 main `3cea6076` 的[普通变量服务与 HTTP](d10-project-variables-owner-http.md)已接受；本卡不代表完整 D10/D27 或平台 ready。
+状态：rev1 规格已独立接受；API、Session、页面片段已实施并通过限定纯控，真实浏览器验收准备中。正式依赖 main `3cea6076` 的[普通变量服务与 HTTP](d10-project-variables-owner-http.md)已接受；本卡不代表完整 D10/D27 或平台 ready。
 
 ## 1. 完整结果
 
@@ -104,7 +104,18 @@ controller放App生命周期，临时页面卸载不丢同身份内存。导航/
 | 真实identity/authority | 同身份checking保稿；真实logout/revoke/newSession清内存；非Owner管理员/跨Project拒绝；prepare后归档拒绝及历史重放；held读取消/原ctx/handler实际退出 |
 | 独立 | 未参与者自行验证权限/历史意图/断流取消和持久事实，不用作者success布尔作oracle |
 
-作者case建议闭集read/crud/recovery/identity/authority/layouts，独立补集由验收者选。复用Owner fixture进程内默认no-tag `app.Run(...)`、真实Account/Project、私有生产资产托管和原Node actualWait/7资源链，不宣称独立cmd。持久test Skills仅作已有Project前置，不能证明真实Skills/创建HTTP；归档fixture明确是门禁输入，不冒完整生命周期。
+作者 case 闭集及精确入口如下；独立补集由验收者选。
+
+- `TestAccountProjectVariablesWebReadAndPagination`（read）
+- `TestAccountProjectVariablesWebCRUDAndHistory`（crud）
+- `TestAccountProjectVariablesWebOriginalRecovery`（recovery）
+- `TestAccountProjectVariablesWebIdentityAndCancellation`（identity）
+- `TestAccountProjectVariablesWebAuthorityAndLifecycle`（authority）
+- `TestAccountProjectVariablesWebLayouts`（layouts）
+
+两既有 harness 仅登记这六个 exact selector。仅命中这六项时采用同 owned 目录的 `ui-<16hex>` 短 stem，排他创建冲突即失败；driver 将已登记 `plan.runtime` 显式传入 `AGENTEAM_AUTH_WEB_RUNTIME` 并硬拒长度超过45。非 UI stem、env 与默认输入列表不变；UI 的可选 selector 输入绑定须包含实际配置、浏览器源和冻结资产。没有外置 TempDir、第二监督器或额外清理者，仍由原外层观察同一个 runtime/private/7资源并实际 Wait。须先 Go/browser 编译及精确发现，再实施工具窄增量并独审。
+
+复用Owner fixture进程内默认no-tag `app.Run(...)`、真实Account/Project、私有生产资产托管和原Node actualWait/7资源链，不宣称独立cmd。持久test Skills仅作已有Project前置，不能证明真实Skills/创建HTTP；归档fixture明确是门禁输入，不冒完整生命周期。
 
 故障预先绑定原Request/method/domain/project/target/key/body，先有后端完整Body+Close与同keycompleted，再真实截断。浏览器预期不完整仅接受该精确已登记请求故障，普通成功仍要求finished/完整EOF/schema/client。held GET须有真实started/release/ctx取消/handler返回，不用sleep或buffer完成冒join。不复制Model私有harness。非法route零变量读取，API/缺失asset不得回退SPA。
 
@@ -113,3 +124,5 @@ controller放App生命周期，临时页面卸载不丢同身份内存。导航/
 ## 8. 当前实施状态
 
 SPEC rev1已获独立窄审接受，无mustfix；这不是产品或动态验收。API/client首片段strictTS及新旧客户端102纯控已通过，Session首片段32纯控及strictTS通过；controller/view/路由已接实际Session facade，77项API/schema/状态/页面纯控通过；真实fixture与独立动态验收尚未完成。每片段可构建保存，WIP不当整卡完成。Vue与测试技能已读；两套本树私有node_modules已按同package/lock离线恢复，无下载，未build dist或运行真实资源。
+
+恢复到的真实 harness 草稿位于 `tests/account/project_owner_web_fixture_test.go`（Variables-only optional/nil 接缝）、`project_variables_web_fixture_test.go`、`project_variables_web_test.go`、`tests/account-captcha-web/project-variables.config.js`、`e2e/project-variables.helpers.ts`。六 Go 顶层入口已写，browser spec 尚缺；尚未编译/精确发现或运行真实资源，严格原意图绑定和 held-read join 仍待补齐。该可恢复片段只作 WIP 保存，不作为行为或独立验收结果。
