@@ -1,0 +1,228 @@
+{
+  "case": "read",
+  "technical_base": "51b46c8f8736b0b5ccb6ca50375125307bf03ec9",
+  "binary": "work-ui-account-race-08.test",
+  "selector": "^TestAccountProjectWorkPlanningWebReadAndNavigation$",
+  "result": "FAIL",
+  "go_seconds": 66.38,
+  "outer_session": 85803,
+  "outer_exit": 1,
+  "outer_seconds": 197.276,
+  "failure": {
+    "await": "originalBody(response): original response.finished()",
+    "step": "third filterRead, expected zero bug tasks at medium priority",
+    "location": "project-work-planning.spec.ts:230 -> filterRead:206 -> helpers.ts:260",
+    "case_budget_ms": 45000,
+    "go_durable_assertions_reached": false,
+    "later_filters_and_project_gates_reached": false
+  },
+  "limited_executed_evidence": [
+    "true external reorder with changed=true and actual pair reversal",
+    "original cursor returned 409 CURSOR_STALE, originalBody and stale prompt passed",
+    "typed main milestone/sprint/task navigation and refresh",
+    "first empty filter and second two-task filter completed their original response and assertions"
+  ],
+  "selected_original_upstream_responses": [
+    {
+      "sequence": 14,
+      "method": "POST",
+      "endpoint": "/api/v1/projects/01a1211d-2a0e-79cb-a354-933046598cfa/milestones/01a1211d-34b3-771e-bd19-138d35630543/reorder",
+      "status": 200,
+      "request_id": "01a1211d-633f-7490-abd0-483fde31d404",
+      "body_sha256": "2ec41b65b25e2ba46bdb0a2117718c229cd5b9aba845ec33d05ed1f173b7ccf9",
+      "body_bytes": 417,
+      "command": "work.milestone.reorder",
+      "changed": true
+    },
+    {
+      "sequence": 16,
+      "method": "GET",
+      "endpoint": "/api/v1/projects/01a1211d-2a0e-79cb-a354-933046598cfa/milestones",
+      "status": 409,
+      "request_id": "01a1211d-64c4-7b57-a9b6-9afe3465c7ae",
+      "body_sha256": "4fc441a6e93d8fceac507b996e921e65ed7502174c7a729d230d858145228f1b",
+      "body_bytes": 281,
+      "code": "CURSOR_STALE"
+    },
+    {
+      "sequence": 55,
+      "method": "GET",
+      "endpoint": "/api/v1/projects/01a1211d-2a0e-79cb-a354-933046598cfa/tasks",
+      "status": 200,
+      "request_id": "01a1211d-705c-7a9e-bd7f-27968387b33b",
+      "body_sha256": "eef46741adfc3a9f76294d3b78f37a45f113092ac9d44ee77c7a038a88ff09a1",
+      "body_bytes": 12,
+      "items": 0
+    },
+    {
+      "sequence": 56,
+      "method": "GET",
+      "endpoint": "/api/v1/projects/01a1211d-2a0e-79cb-a354-933046598cfa/tasks",
+      "status": 200,
+      "request_id": "01a1211d-73d6-7d0a-be9b-caf015613792",
+      "body_sha256": "7170052111470f55d52c2514ce37909e60166ec5547cfede1b3e5acbc33d3d1b",
+      "body_bytes": 915,
+      "items": 2
+    },
+    {
+      "sequence": 57,
+      "method": "GET",
+      "endpoint": "/api/v1/projects/01a1211d-2a0e-79cb-a354-933046598cfa/tasks",
+      "status": 200,
+      "request_id": "01a1211d-760b-7086-a1ea-bbd9ba0f9c05",
+      "body_sha256": "eef46741adfc3a9f76294d3b78f37a45f113092ac9d44ee77c7a038a88ff09a1",
+      "body_bytes": 12,
+      "items": 0,
+      "body_utf8": "{\"items\":[]}"
+    }
+  ],
+  "original_observer_snapshot": {
+    "boundary": "Node observation snapshot at afterEach; not a final post-close state",
+    "browser_native_eof_observed": false,
+    "snapshot_at": 44731.297,
+    "page_closed_at": null,
+    "truncated": false,
+    "selected_requests": [
+      {
+        "method": "GET",
+        "endpoint": "milestones",
+        "project_id": "01a1211d-2a0e-79cb-a354-933046598cfa",
+        "request_id": "01a1211d-624a-7a1d-aae0-60ae2af1dda1",
+        "request_at": 1633.799,
+        "response_at": 1644.757,
+        "request_failed_at": 1652.626,
+        "request_finished_at": null,
+        "response_finished_at": null,
+        "observer_rejected_at": null,
+        "failure_reason": "aborted",
+        "response_same_request_object": true,
+        "original_body_await": null
+      },
+      {
+        "method": "GET",
+        "endpoint": "milestones",
+        "project_id": "01a1211d-2a0e-79cb-a354-933046598cfa",
+        "request_id": "01a1211d-64c4-7b57-a9b6-9afe3465c7ae",
+        "request_at": 2266.953,
+        "response_at": 2279.567,
+        "request_failed_at": null,
+        "request_finished_at": 2302.745,
+        "response_finished_at": 2302.794,
+        "observer_rejected_at": null,
+        "failure_reason": null,
+        "response_same_request_object": true,
+        "original_body_await": {
+          "stage": "complete",
+          "at": 2307.426
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "milestones",
+        "project_id": "01a1211d-2a0e-79cb-a354-933046598cfa",
+        "request_id": "01a1211d-653b-7ee7-a277-8c238641070e",
+        "request_at": 2384.688,
+        "response_at": 2422.432,
+        "request_failed_at": 2432.283,
+        "request_finished_at": null,
+        "response_finished_at": null,
+        "observer_rejected_at": null,
+        "failure_reason": "aborted",
+        "response_same_request_object": true,
+        "original_body_await": null
+      },
+      {
+        "method": "GET",
+        "endpoint": "tasks",
+        "project_id": "01a1211d-2a0e-79cb-a354-933046598cfa",
+        "request_id": "01a1211d-705c-7a9e-bd7f-27968387b33b",
+        "request_at": 5252.979,
+        "response_at": 5264.307,
+        "request_failed_at": null,
+        "request_finished_at": 5273.355,
+        "response_finished_at": 5273.365,
+        "observer_rejected_at": null,
+        "failure_reason": null,
+        "response_same_request_object": true,
+        "original_body_await": {
+          "stage": "complete",
+          "at": 5284.937
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "tasks",
+        "project_id": "01a1211d-2a0e-79cb-a354-933046598cfa",
+        "request_id": "01a1211d-73d6-7d0a-be9b-caf015613792",
+        "request_at": 6128.738,
+        "response_at": 6143.65,
+        "request_failed_at": null,
+        "request_finished_at": 6166.658,
+        "response_finished_at": 6166.76,
+        "observer_rejected_at": null,
+        "failure_reason": null,
+        "response_same_request_object": true,
+        "original_body_await": {
+          "stage": "complete",
+          "at": 6182.187
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "tasks",
+        "project_id": "01a1211d-2a0e-79cb-a354-933046598cfa",
+        "request_id": "01a1211d-760b-7086-a1ea-bbd9ba0f9c05",
+        "request_at": 6731.689,
+        "response_at": 6765.307,
+        "request_failed_at": 6796.109,
+        "request_finished_at": null,
+        "response_finished_at": null,
+        "observer_rejected_at": null,
+        "failure_reason": "aborted",
+        "response_same_request_object": true,
+        "original_body_await": {
+          "stage": "finished",
+          "at": 6790.391
+        }
+      }
+    ]
+  },
+  "terminal": {
+    "direct_actual_wait": 1,
+    "adopted_count": 4,
+    "adopted_states_before_wait": [
+      "Z",
+      "Z",
+      "Z",
+      "Z"
+    ],
+    "adopted_actual_wait": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "process_stop_used": false,
+    "owned_resource_count": 7,
+    "exact_resources_double_absent": true,
+    "descendants_double_empty": true,
+    "runtime_double_empty": true,
+    "private_double_absent": true,
+    "host_tcp_result": "FAIL",
+    "host_tcp_delta_rows": 1,
+    "host_tcp_tuple_recorded": false,
+    "inputs_unchanged": true
+  },
+  "post_terminal_current_clear": {
+    "all_six_registered_driver_go_adopted_pids_absent": true,
+    "owned_runtime_empty": true,
+    "does_not_fill_original_tcp_result": true
+  },
+  "limits": [
+    "The original Request was observed aborted before the case timeout while response.finished remained pending; these are not two independent failures.",
+    "Original upstream GET200/items0 does not prove browser native EOF, production client decoding, or target state publication.",
+    "Earlier two Milestone GET aborted events are distinct; no common Model cause is established.",
+    "No recorded host TCP tuple means its ownership is unknown; no unknown process was killed.",
+    "Original planning FAILs/first STOP and read01 FAIL remain unchanged."
+  ]
+}
