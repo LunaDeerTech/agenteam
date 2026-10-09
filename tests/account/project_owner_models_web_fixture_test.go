@@ -2235,7 +2235,7 @@ func (f *projectModelsWebFixture) modelIPC(ctx context.Context, request projectM
 			}
 			stage = "mutate"
 			if get("state") == "present" {
-				_, err = x.Exec(ctx, `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,project_id,model_id,owner_version) SELECT 'agent',$1,'agent_model',$2,m.id,1 FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE m.id=$3 AND p.scope='project' AND p.project_id=$2 ON CONFLICT DO NOTHING`, f.modelReference, project, model)
+				_, err = x.Exec(ctx, `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,project_id,model_id,owner_version) SELECT 'agent',$1,'agent_model',$2::agenteam_model.safe_id,m.id,1 FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE m.id=$3 AND p.scope='project' AND p.project_id=$2 ON CONFLICT DO NOTHING`, f.modelReference, project, model)
 			} else {
 				_, err = x.Exec(ctx, `DELETE FROM agenteam_model.references WHERE owner_kind='agent' AND owner_id=$1 AND role='agent_model' AND project_id=$2 AND model_id=$3`, f.modelReference, project, model)
 			}
