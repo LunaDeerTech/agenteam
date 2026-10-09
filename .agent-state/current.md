@@ -8,7 +8,7 @@
 ## 当前工作与所有权
 
 1. Task Planning 本卡规划库已正式交付：20技术路径及README；七新八旧PG、独立A/B和pure/race/vet/build按限定组合接受，资源终态齐，原FAIL保留。状态/指派/执行/删除/HTTP/UI/生产Work仍未实现，完整D11未完成。
-2. D27 Model Settings：执行代理环境恢复后再次pending_init，已interrupt；root接管四测试harness、Model helpers与本卡状态。第七recovery完整PASS（schema/client13、全部Wait/join/7ID/TCP双清）；原六FAIL保留，六新仅1通过，其余5/14旧/独立AB待验。下一仅接线已预审read模块后真实运行；configcred/nav片段未实际验。
+2. D27 Model Settings：执行代理环境恢复后再次pending_init，已interrupt；root接管四测试harness、Model helpers与本卡状态。第七recovery完整PASS（schema/client13、全部Wait/join/7ID/TCP双清）；原六recovery FAIL及read首轮FAIL保留；read第二轮完整PASS，六新已2通过，其余4/14旧/独立AB待验。下一接线config/credential真实模块，authority/nav尚未完整实现。
 3. T0a纯状态核心：原作者环境恢复后pending_init已interrupt，root接管精确2新Work contract源及本卡状态；SPEC独立接受，作者pure与root race/vet已通过，独立4top/9child race实际exit0，最终独审通过并正式交付main ad8b1fb6。无Blocker/Transfer/fullDigest/事实服务/迁移。R1三个identity marker已main，不代表真实目录或F1。
 4. root 独占current、globalledger与Git；真实PG/browser/hostTCP按完整终态串行资源ACK。Model执行只使用 `/workspace/agenteam-delivery` 的正式main dbf/accepted00022，两个untrackedGo与原树同份；原树新增T0a未验源不得复制到delivery。所有Model glob在实际run中冻结，其他原树纯代码不在其hash闭包。
 5. 旧 `/root/task_planning`、`/root/model_ui_recovery` 持续pending_init已interrupt并停权；新实例已实际启动接续，不按旧实例名单推断进程。所有必要source/probe随ai checkpoint保存，output日志/产物可重建。
@@ -134,3 +134,6 @@
 - T0a纯状态核心正式main交付ad8b1fb68fe6ff19baef3819ec620573f6730729：8路径，仅2产品源/2独验probe/完整已接受流转SPEC及README/ledger/current；准确候选vet、Central与Runner build actual0，正常push实际0且ls-remote精确确认。完整Transfer/Agent事实/Blocker/Scheduler未实现。Model delivery仍固定已接受dbf/00022及原第七binary，当前不更新其编译闭包。
 
 - read首轮后的限定接线修复独审通过：仅openProject中在唯一真实leaf范围内处理可见“重新读取项目”门槛，点击并确认隐藏后保留原nativeEOF/create enabled，既有S2 real-router测试证明叶切换需要fresh Owner读。修前8行diff反向hash精确回到首轮inputs；按独审建议补隐藏确认1行。strictTS与read discovery实际0；一次discovery PRIVATE变量名错误setupFAIL0tests保留，正确AUTH_WEB_PRIVATE重跑通过。无产品变更/额外fetch/IPC，原FAIL因果不回填；下一第二read完整资源窗。
+
+- read第二轮完整PASS：outer9344实际exit0/92.574s、Go19.26s，browser completed=true/10checks真/schema-client各18/proxy_actual_join=true；directWait223878 exit0、4adoptedWait0、watchdog/observer实join、7IDs两次absent/descendants[]、TCP双空、input同一（owned-read-8ffb66d3…）。Providers26/Models26跨2Provider/available26混合scope、每页原始响应与新native token/有序DOM、显式首页恢复、第二Project隔离及credential metadata均完成，原read首轮FAIL保留。D27六新仅2/6；余4新、14旧及独立AB待验，整卡未完成。
+- 下一B0-C只读调查：现Work没有Blocker契约/持久服务，可按已接受流转§4逐类冻结rely_on与无外域引用waiting_for_human小纯闭包；metadata/description限额及历史payload工程规格尚待接受，没有B0-C产品源或运行前置。
