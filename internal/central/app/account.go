@@ -24,6 +24,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
 	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
 
 type accountRuntime interface {
@@ -56,6 +57,7 @@ type accountAssembly struct {
 	stopped      bool
 	started      bool
 	forced       context.Context
+	planning     accountWork
 	projects     accountWork
 	sink         accountWork
 	core         accountWork
@@ -133,7 +135,10 @@ func (a *accountAssembly) works() []accountWork {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	var work []accountWork
-	// Project calls must release their Account Activity dependency first.
+	// Work and Project calls must release Account Activity before core retires.
+	if a.planning != nil {
+		work = append(work, a.planning)
+	}
 	if a.projects != nil {
 		work = append(work, a.projects)
 	}
@@ -250,6 +255,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	workAuthority, err := createWorkPlanningAuthority(db, projectUsage.projects)
+	if err != nil {
+		return err
+	}
 	modelStore, ok := db.(model.Store)
 	if !ok {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
@@ -322,12 +331,16 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	workEvents, err := defineWorkPlanningEvents(catalog)
+	if err != nil {
+		return err
+	}
 	journalStore, ok := db.(outbox.Store)
 	if !ok {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
 	journal, err := outbox.New(journalStore, catalog, outbox.Authorizations{
-		Producers: map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects},
+		Producers: map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects, wc.WorkProducer: workAuthority},
 		Processes: outboxProcessAuthority{process: objects.process, guard: objects.guard},
 		Sessions:  authority, System: authority, Audit: auditor, Cursors: cfg.CursorKeyring(), Projects: projectUsage.projects,
 	})
@@ -339,6 +352,13 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		return err
 	}
 	if !accounts.install(ctx, func() { accounts.projects = &projectCommandWork{service: projectCommands} }) {
+		return context.Canceled
+	}
+	planning, err := createWorkPlanning(cfg, db, workAuthority, authority, journal, workEvents)
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() { accounts.planning = planning }) {
 		return context.Canceled
 	}
 	models, err := model.New(modelStore, modelAuthority, model.Dependencies{Secret: secrets, Audit: auditor, Events: journal, ConfigurationEvents: modelEvents, Cursors: cfg.CursorKeyring()})
@@ -456,8 +476,13 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	planningHandler, err := workPlanningHandler(planning, core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
 	if !accounts.install(ctx, func() {
 		accounts.handler = projectAuditRoutes(projectCredentialsRoutes(projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler), credentialHandler), projectAudit)
+		accounts.handler = workPlanningRoutes(accounts.handler, planningHandler)
 	}) {
 		return context.Canceled
 	}

@@ -17,10 +17,13 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"syscall"
 	"time"
 
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
+	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
 )
 
@@ -34,6 +37,21 @@ func run() (code int) {
 	}
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
+	target, err := selectedTestTarget(os.Getenv("AGENTEAM_FIXTURE_TEST_BINARY"), os.Getenv("AGENTEAM_FIXTURE_TEST_CWD"), *filter)
+	if err != nil {
+		return fail("invalid explicit fixture test binary, cwd or selector")
+	}
+	if target != nil {
+		// Listing executes no selected test and precedes PG resource creation. A
+		// package TestMain may still build its actual application binaries.
+		list := target.command(ctx, true)
+		list.Env = append(os.Environ(), "GOTOOLCHAIN=local")
+		list.Stderr = os.Stderr
+		raw, err := list.Output()
+		if err != nil || !target.matchesListing(string(raw)) {
+			return fail("explicit fixture selector has no actual test top")
+		}
+	}
 	nonce, err := pgfixture.RandomHex(16)
 	if err != nil {
 		return fail("fixture entropy failed")
@@ -220,6 +238,11 @@ func run() (code int) {
 		}
 		fmt.Printf("D03 fixture actual PostgreSQL=%d available_vector=%s image=%s\n", version, extension, fixture.Image)
 	}
+	if record := os.Getenv("AGENTEAM_FIXTURE_OWNED_RECORD"); record != "" {
+		if target == nil || !*objects || writeOwnedChainRecord(record, directory, fixture, unsupported) != nil {
+			return fail("explicit root chain ownership record failed")
+		}
+	}
 	goBinary := os.Getenv("AGENTEAM_GO")
 	if goBinary == "" {
 		return fail("exact Go binary required")
@@ -229,6 +252,9 @@ func run() (code int) {
 		arguments = append(arguments, "./tests/objects/...", "./internal/central/object/...")
 	}
 	cmd := exec.CommandContext(ctx, goBinary, arguments...)
+	if target != nil {
+		cmd = target.command(ctx, false)
+	}
 	// The Go command can create test executables and migration children. They
 	// all belong to this dedicated process group; cancel only this owned group.
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
@@ -239,7 +265,11 @@ func run() (code int) {
 	cmd.Env = append(os.Environ(), pgfixture.Env+"="+path, pgfixture.UnsupportedEnv+"="+unsupportedPath, "GOTOOLCHAIN=local", "TMPDIR="+directory)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
+	err = cmd.Run()
+	if target != nil && cmd.ProcessState != nil {
+		fmt.Printf("D03 explicit test actual_wait pid=%d code=%d selector=%s\n", cmd.ProcessState.Pid(), cmd.ProcessState.ExitCode(), target.filter)
+	}
+	if err != nil {
 		var exit *exec.ExitError
 		if errors.As(err, &exit) {
 			return exit.ExitCode()
@@ -249,6 +279,119 @@ func run() (code int) {
 	return 0
 }
 func fail(message string) int { fmt.Fprintln(os.Stderr, message); return 1 }
+
+// Explicit precompiled mode changes only the final test consumer. Both the
+// original object/outbound/PG resource chain and its default multi-package
+// invocation remain intact when these two environment variables are absent.
+type fixtureTestTarget struct {
+	binary, directory, filter string
+	pattern                   *regexp.Regexp
+}
+
+type ownedChainResource struct {
+	Kind  string `json:"kind"`
+	ID    string `json:"id"`
+	Label string `json:"label"`
+	Nonce string `json:"nonce"`
+}
+type ownedChainRecord struct {
+	Kind        string               `json:"kind"`
+	Resources   []ownedChainResource `json:"resources"`
+	Directories []string             `json:"directories"`
+}
+
+// The original fixtures remain the only Docker resource creators/cleaners.
+// This projection has no credentials, CA material, URL or private descriptor.
+func chainRecord(directory string, pg, unsupported pgfixture.Descriptor, object objectfixture.Descriptor, outbound netfixture.Descriptor, outboundDirectory string) ownedChainRecord {
+	return ownedChainRecord{
+		Kind: "work-owner-root-chain",
+		Resources: []ownedChainResource{
+			{"container", object.ContainerID, objectfixture.Label, object.Nonce},
+			{"network", object.NetworkID, objectfixture.Label, object.Nonce},
+			{"container", outbound.ContainerID, netfixture.Label, outbound.Nonce},
+			{"network", outbound.NetworkID, netfixture.Label, outbound.Nonce},
+			{"container", pg.ContainerID, pgfixture.Label, pg.Nonce},
+			{"container", unsupported.ContainerID, pgfixture.Label, pg.Nonce},
+			{"network", pg.NetworkID, pgfixture.Label, pg.Nonce},
+		},
+		Directories: []string{object.Directory, outboundDirectory, directory},
+	}
+}
+
+func writeOwnedChainRecord(path, directory string, pg, unsupported pgfixture.Descriptor) error {
+	if !filepath.IsAbs(path) {
+		return errors.New("absolute ownership record required")
+	}
+	object, err := objectfixture.Load()
+	if err != nil {
+		return err
+	}
+	outbound, err := netfixture.Load()
+	if err != nil {
+		return err
+	}
+	// PG descriptors were Verify'd above; the additional Load calls verify the
+	// two inherited descriptors' exact live IDs and nonce labels, not just JSON.
+	record := chainRecord(directory, pg, unsupported, *object, *outbound, filepath.Dir(os.Getenv(netfixture.Env)))
+	raw, err := json.Marshal(record)
+	if err != nil {
+		return err
+	}
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+	if err != nil {
+		return err
+	}
+	_, writeErr := f.Write(raw)
+	closeErr := f.Close()
+	return errors.Join(writeErr, closeErr)
+}
+
+func selectedTestTarget(binary, directory, filter string) (*fixtureTestTarget, error) {
+	if binary == "" && directory == "" {
+		return nil, nil
+	}
+	bad := errors.New("invalid explicit fixture target")
+	if !filepath.IsAbs(binary) || !filepath.IsAbs(directory) || !strings.HasPrefix(filter, "^") || !strings.HasSuffix(filter, "$") {
+		return nil, bad
+	}
+	program, err := os.Stat(binary)
+	if err != nil || !program.Mode().IsRegular() || program.Mode().Perm()&0111 == 0 {
+		return nil, bad
+	}
+	cwd, err := os.Stat(directory)
+	if err != nil || !cwd.IsDir() {
+		return nil, bad
+	}
+	pattern, err := regexp.Compile(filter)
+	if err != nil {
+		return nil, bad
+	}
+	return &fixtureTestTarget{binary, directory, filter, pattern}, nil
+}
+
+func (v *fixtureTestTarget) matchesListing(raw string) bool {
+	for _, line := range strings.Split(raw, "\n") {
+		name := strings.TrimSpace(line)
+		if strings.HasPrefix(name, "Test") && !strings.ContainsAny(name, " /\t\r") && v.pattern.MatchString(name) {
+			return true
+		}
+	}
+	return false
+}
+
+func (v *fixtureTestTarget) command(ctx context.Context, list bool) *exec.Cmd {
+	args := []string{"-test.v", "-test.count=1", "-test.timeout=6m", "-test.run=" + v.filter}
+	if list {
+		args = []string{"-test.list=" + v.filter}
+	}
+	cmd := exec.CommandContext(ctx, v.binary, args...)
+	cmd.Dir = v.directory
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	cmd.WaitDelay = 3 * time.Second
+	return cmd
+}
+
 func certificates(directory string) error {
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {

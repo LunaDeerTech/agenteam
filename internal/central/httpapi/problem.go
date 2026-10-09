@@ -64,6 +64,15 @@ var problemKinds = map[foundation.Code]problemKind{
 	foundation.ObjectPayloadMissing:    {503, "Object payload missing", "The stored content is unavailable."},
 	foundation.ObjectIntegrityMismatch: {502, "Object integrity mismatch", "The stored content failed integrity verification."},
 	foundation.RangeNotSatisfiable:     {416, "Range not satisfiable", "The requested byte range is outside the stored content."},
+	foundation.TaskNotFound:            {404, "Task not found", "The requested task was not found."},
+	foundation.TaskVersionConflict:     {409, "Task version conflict", "The task changed. Read it again before retrying."},
+	foundation.TaskStateInvalid:        {409, "Task state invalid", "The task state does not permit this action."},
+	foundation.TaskAssigneeRequired:    {409, "Task assignee required", "This action requires an assigned agent."},
+	foundation.TaskSprintInvalid:       {409, "Task sprint invalid", "The task sprint does not permit this action."},
+	foundation.TaskTerminalImmutable:   {409, "Task terminal immutable", "A terminal task cannot be changed."},
+	foundation.BlockerNotFound:         {404, "Blocker not found", "The requested blocker was not found."},
+	foundation.BlockerAlreadyResolved:  {409, "Blocker already resolved", "The blocker is already resolved."},
+	foundation.TaskDependencyCycle:     {409, "Task dependency cycle", "The task dependency would create a cycle."},
 }
 
 // WriteProblem projects a domain fault to a safe RFC 9457 response. It never uses
@@ -99,7 +108,7 @@ func WriteProblem(w http.ResponseWriter, r *http.Request, err error) {
 	if code == foundation.CommitUnknown {
 		p.RetryHint = "lookup"
 	}
-	if p.RetryHint == "" && (code == foundation.VersionConflict || code == foundation.CursorStale) {
+	if p.RetryHint == "" && (code == foundation.VersionConflict || code == foundation.TaskVersionConflict || code == foundation.CursorStale) {
 		p.RetryHint = "reread"
 	}
 	if p.RequestID.Validate() != nil {

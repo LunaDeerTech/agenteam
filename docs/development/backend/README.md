@@ -385,7 +385,7 @@ Human 重投先验证当前 Session/Owner 或 SystemAdmin，历史 receipt 也�
 
 17 条技术路径的固定版本组合已获接受：作者六个新 PG 顶层、五个旧 Project/Outbox 回归及独立 A/B 均实际通过。前五个新轮保留原版本；原 Unknown 轮的 Lookup 取消断言失败经 U1 窄修后重跑通过，旧五轮与独立 A/B 消费修后版本，不能称当前源码的一次全套运行。Unknown 使用真实 PG COMMIT frame 代理与独立连接等候，测试专属 Session、归档事实和 Skill receipt 不代替生产登录、Archive 或 Skill 链。原失败保留；独立 B 的监督器内 driver/helper/Go 实际 Wait 与资源退休齐全，但环境恢复后外部工具 session 的 terminal/exit 未取得，另有有限只读清零补证，不回填该工具终态。详见 [D11 结构库验证](../agent-team/d11-work-structure-verification.md)。
 
-Structure 本身不提供 Task canonical/membership、删除、Sprint start/complete/rollover、跨 Milestone 移动或 Project current_sprint pointer 写入；Task 规划库另见下文。Execution/Dispatch 占用 adapter 与 Work 生命周期清理仍待后继真实绑定，不能以空集合或 no-op 替代。Tool、HTTP/UI、App/生产 root 未装配 Work 服务，不新增生产 handler，也不改变 ready503。该结果不完成整个 D11 或平台；Object runtime join、OpenAI tools 独立验收、SPA 并发发布三项停止及 Jina/Image 来源阻塞保持。
+Structure 本身不提供 Task canonical/membership、删除、Sprint start/complete/rollover、跨 Milestone 移动或 Project current_sprint pointer 写入；Task 规划库另见下文。Execution/Dispatch 占用 adapter 与 Work 生命周期清理仍待后继真实绑定，不能以空集合或 no-op 替代。本次结构库交付不包含 Tool、HTTP/UI 或 App/生产 root；后继 HTTP/root 接入见下文，不改变 ready503。该结果不完成整个 D11 或平台；Object runtime join、OpenAI tools 独立验收、SPA 并发发布三项停止及 Jina/Image 来源阻塞保持。
 
 ## D11 Human Task 规划库
 
@@ -399,7 +399,7 @@ Task 命令采用独立的持久两阶段计划，在同一最终事务提交 ca
 
 每轮使用 `.agent-state/task-planning-recovery/` 中可恢复的两 ID PG-only driver、监督器与独立 probe，Go/driver/外层工具实际 Wait 完成，精确两 ID、owned runtime 和 host TCP delta 各两次为空；没有启动包含停止项的整套脚本。私有嵌套解码原缺陷、测试夹具及独立编排原失败均保留，修后范围和归档时间诊断的限制见工作项。直接 DTO 安全日志投影与业务 JSON 的边界沿该卡 §2，不能把任意嵌套 JSON 当日志净化。
 
-Task 删除、完整 Timeline/context、Sprint lifecycle、Blocker/reviewer、状态转换与指派、Execution/Dispatch、Work 清理、Tool/HTTP/UI 及生产 root 绑定仍未提供。测试专用的未来 state/assignee、归档、Session 与 Skill receipt 事实不代替真实 Agent、生命周期、登录或 Skills 生产链；本结果不完成 D11 或平台，也不改变 ready503 和既有停止项。
+Task 删除、完整 Timeline/context、Sprint lifecycle、reviewer、状态转换与指派、Execution/Dispatch、Work 清理与Tool/UI仍未提供；后继限定Blocker服务及HTTP/root范围见下文。测试专用的未来 state/assignee、归档、Session 与 Skill receipt 事实不代替真实 Agent、生命周期、登录或 Skills 生产链；本结果不完成 D11 或平台，也不改变 ready503 和既有停止项。
 
 ## D11 Task 纯状态核心
 
@@ -407,6 +407,23 @@ Task 删除、完整 Timeline/context、Sprint lifecycle、Blocker/reviewer、�
 
 ## D11 Blocker 两类纯契约
 
-[B0-C工作项](../work-items/d11-task-blocker-contracts.md)已实现并独立验收唯一 `TaskBlockerID`、`rely_on` 与无引用 `waiting_for_human` typed metadata、Create及小历史payload。严格codec校验三层原始大小和闭集、Clone与直接安全日志；五枚举识别中其余三类完整对象返回未绑定。作者pure/race/vet、独立公开API pure/race以及隔离候选Work race/vet/两入口build实际通过。旧TaskEvent与规划schema保持原闭集，真实图、当前归属、权限、持久Blocker和完整Transfer尚未提供。
+[B0-C工作项](../work-items/d11-task-blocker-contracts.md)已实现并独立验收唯一 `TaskBlockerID`、`rely_on` 与无引用 `waiting_for_human` typed metadata、Create及小历史payload。严格codec校验三层原始大小和闭集、Clone与直接安全日志；五枚举识别中其余三类完整对象返回未绑定。作者pure/race/vet、独立公开API pure/race以及隔离候选Work race/vet/两入口build实际通过。该纯契约交付保持旧TaskEvent与规划schema闭集，后继B0-P的真实图/归属/权限/持久范围见下文，完整Transfer仍未提供。
 
-T0b补齐Transfer/Lookup与新命令摘要、Human typed history、16KiB严格封套及纯多事实数据工厂；作者整包pure/race/vet与独立公开API各6顶层34子测试通过。仅消费B0-C两类metadata；当前授权、Blocker图、持久提交与生产producer仍未绑定，详见流转工作项的实施结果。
+T0b补齐Transfer/Lookup与新命令摘要、Human typed history、16KiB严格封套及纯多事实数据工厂；作者整包pure/race/vet与独立公开API各6顶层34子测试通过。仅消费B0-C两类metadata；T0b流转本身仍未绑定当前授权、Blocker图、持久提交与生产producer，详见流转工作项的实施结果。
+
+
+## D11 backlog Blocker 持久服务
+
+[B0-P 工作项](../work-items/d11-task-blocker-service.md)已正式交付：`work.NewBlocker` 为当前 Human Owner 的未指派 backlog Task 提供两类 Blocker 的 add、resolve、list 与原意图 Lookup。`rely_on` 检查同 Project 的真实任务依赖图，`waiting_for_human` 不带任务引用；迁移 `00023` 持久保存 Blocker、不可变命令计划和回执。变更与 Task.version、历史、`work.task_blocker_changed`、Outbox 和 Account Activity 在同一最终事务提交；真实权限、并发、Unknown、Planning/Structure 互操作与回滚验收已闭合，原失败及限定组合接受范围见工作项。
+
+该服务不提供页面、Agent 自动阻塞/恢复、Task 状态推进或完整 Work 清理。内部全量历史读取不能直接用作公开 HTTP 列表；后继分页接缝仅扫描当前页，并用同一事务中的 Task.version 校验签名 cursor。
+
+## D11 Work Owner HTTP 与默认根接入
+
+[Work Owner HTTP/root 工作项](../work-items/d11-work-owner-http.md)的限定实现与验收矩阵已完成，公开请求和响应见 [Work Planning OpenAPI](../../../api/openapi/work-planning.json)。默认根将当前真实 Session/CSRF 与同 Store 的三套 Work 服务、三套 Reader、Account Activity 及精确 Outbox producer 组合起来。面向已有 initialized Project 的当前 Owner，接口覆盖 Milestone/Sprint 创建、更新、排序与读取，未指派 backlog Task 的规划，以及两类 Blocker 的添加、查询和解除；管理员没有跨 Owner 旁路。
+
+命令调用者须在首次发送前保存 ID、原 `Idempotency-Key`、正文及适用的 `expected_version`；断连后以该原意图调用对应 Lookup，不从当前对象重建历史请求，也不自动重发。列表使用有界摘要分页，Blocker 默认仅返回 unresolved；整份请求上限 1 MiB，列表响应上限 5 MiB。读取和 Lookup 的总预算为 2 秒，变更为 30 秒，均包含认证和实际 I/O，继承更早的调用方期限。退出时三套命令服务先停止接收，再等实际调用返回；HTTP Reader、Account、Outbox 与数据库/对象 guard 继续沿根的真实退出链处理。
+
+分页、HTTP权限/恢复/Unknown、自然期限与连接故障、默认根21能力及命令/Reader退出验收均已通过；未参与实现者亲自完成真实网络丢响应恢复、撤销竞争及真实提交确认退出场景。原生传输覆盖GET/Lookup/PATCH，HEAD由pure/schema验证。原失败与修复后的限定证据组合见工作项，不表示一次当前HEAD全量测试。
+
+Project创建HTTP、生产Skills初始化及完整生命周期仍是独立前置；测试专用Skills receipt不证明新账号到Project创建的生产链已就绪。本范围不提供UI、Agent服务、状态转换、生产部署或整个平台ready，也不解除既有停止项。

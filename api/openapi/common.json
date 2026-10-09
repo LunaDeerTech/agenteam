@@ -240,7 +240,16 @@
               "SHUTTING_DOWN",
               "OBJECT_PAYLOAD_MISSING",
               "OBJECT_INTEGRITY_MISMATCH",
-              "RANGE_NOT_SATISFIABLE"
+              "RANGE_NOT_SATISFIABLE",
+              "TASK_NOT_FOUND",
+              "TASK_VERSION_CONFLICT",
+              "TASK_STATE_INVALID",
+              "TASK_ASSIGNEE_REQUIRED",
+              "TASK_SPRINT_INVALID",
+              "TASK_TERMINAL_IMMUTABLE",
+              "BLOCKER_NOT_FOUND",
+              "BLOCKER_ALREADY_RESOLVED",
+              "TASK_DEPENDENCY_CYCLE"
             ]
           },
           "request_id": {
