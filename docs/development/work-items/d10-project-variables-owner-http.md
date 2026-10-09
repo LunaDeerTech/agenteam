@@ -1,6 +1,6 @@
 # D10 普通 Project Variables Owner 服务与 HTTP
 
-> 状态：SPEC 已获独立有限审查接受，按授权范围实施中，尚未产品验收。工作分支 `ai/project-variables`，正式基线 `f1c94ee5`。迁移 `00024` 由 root 为本卡独占预留。
+> 状态：本卡限定的普通 Project Variables Owner 后端已实现并独立接受，迁移 `00024`、正式 HTTP 与默认根接线均在范围内。Git 交付以正式分支与提交为准；不将技术接受写成已推送 main。
 >
 > 完整结果：已有初始化 Project 的当前 Human Owner，可以经默认 Central HTTP 创建、读取、分页、更新及删除普通变量，以原意图 Lookup 与显式同 key 重放恢复响应丢失。本卡不是完整 D10、Agent F1、Secret 或执行环境注入交付。
 
@@ -198,7 +198,20 @@ PG复用 `tests/testsupport/postgres`，HTTP真实Account/Project准备参考 `t
 
 作者pure/race/vet、integration race-c/精确发现、两入口build与真实PG/native/root分别记结果，编译不是动态PASS。原FAIL保留、修后只跑影响范围；Model/UI/WIP不进正式候选。本卡完成也仅是普通Variable Owner后端，Agent F1、Secret、完整D10仍未完成。
 
-## 9. 当前状态与下一步
+## 9. 接受结论与保留的阶段事实
+
+本卡限定结果已接受，无剩余 mustfix。验收按明确输入的有效组合成立，不声称当前 HEAD 单次全量运行：
+
+| 范围 | 接受依据 |
+| --- | --- |
+| 契约、字段与安全投影 | 作者/独立 pure、race、vet、正式 OpenAPI/schema、Audit 客户端99控及严格类型检查；同一 namespace/版本输入/安全日志边界 |
+| 库与 HTTP | 12个作者顶层的限定组合：持久 CRUD/no-op/墓碑/历史、迁移恢复、分页、21个 SQL 注错、权限/竞争/双提交顺序、原意图、真实 COMMIT Unknown 及取消实际 join |
+| native I/O | 原轮已过自然期限及背压/断连；修后 KeepAliveAndClose 单组通过真实 EOF、精确 Close、abort/零发布和连接复用；原整轮 FAIL 保留 |
+| 默认根 | 真实 cmd 六能力/双HEAD/Audit及历史恢复；正常退出/Force 下四路真实 Tx、原清理 context/deadline、DB.ForceClose 与实际 join |
+| 独立风险补集 | 当前权限/原 intent/真实 COMMIT、实际 cmd 确认期间退出、根 Force 确认尾；均由未参与实现者本人运行并闭合实际 Wait 与资源尾 |
+| 装配 | 70个必要路径保留正式主线 D08；两入口及准确四包 race-c/发现，后继仅受影响 app/native 各一次复编；不带其他模块 WIP |
+
+上述真实轮次的进程 Wait、各自资源与 runtime/desc/TCP 双尾及输入不变均分别核实。Secret、Agent F1/运行环境注入、UI、完整 D10、Project 完整生命周期参与者，以及既有 Object 停止项不在本卡接受范围。以下保留各阶段原始失败和当时限制；历史段落中的“待验”不替代本节最终结论。
 
 SPEC 已获独立有限审查及版本输入差异复核接受，无未决 mustfix。§2.1 复用现成 CommandMeta.ExpectedVersion；初审“端口无法实现”的表述已纠正为本卡须明确单一版本来源，无新增版本参数。
 
@@ -238,3 +251,5 @@ Authority首轮完整真实FAIL（9.58s），Go/driver实际Wait、两资源/des
 作者实际cmd进程六能力/双HEAD/原意图与ProjectAudit消费、旧相邻路由及三真实TCP响应EOF前放弃后恢复，现完整PASS（3.80s）。Go/driver实际Wait、七资源/private/runtime/desc/TCP双尾、exact_tops与输入不变完整闭合；未重跑已有效库矩阵。剩余作者app03和native04 Close单top复验、最终装配收口，尚未整体接受。
 
 修后作者defaultroot app两子现完整PASS（正常退出6.13s、Force6.09s）：四路真实Tx/PID与取消后未join、原Force context/deadline及必要DB.ForceClose、释放后实际调用返回/Drain均保持原门槛通过。Go/driver实际Wait、七资源/private/runtime/desc/TCP双尾、exact_tops和输入不变闭合；原36769整体FAIL保留。候选受影响app/native两包已完成一次必要race-c与精确发现，旧入口/matrix/process构建复用。当前仅剩native04 KeepAliveAndClose真实复验及最终接受，不称已交付main。
+
+最后仅复验修后native KeepAliveAndClose，两子完整PASS（2.17s）：同连接跨旧deadline复用、真实空body EOF1/Close1、库读完成后Close失败的ErrAbortHandler/零响应与实际handler join均通过。Go/driver实际Wait0、runtime/private/desc/TCP双尾及输入不变齐；原84865整FAIL与缺失诊断保持。结合已通过且输入未变的Deadline/Backpressure范围，作者全部限定矩阵、独立三风险补集及候选必要构建闭合，本卡限定后端结果已独立接受；无新增产品修复或预算放宽。
