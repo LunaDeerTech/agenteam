@@ -29,6 +29,7 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 - 本域 repository/Authority 与有界 service owner 已形成可构建片段，作者累计7top离线race通过；观察/发现确认/同Tx确认三口新增2top共20子有效，覆盖当前门禁、原Unknown、私有issuer、活Tx/完整锁、发布关系损坏与serving关闭。首轮门禁Fault身份失败已修复并保留恢复记录。这些是受控端口证据；后续Initialize写入已形成片段，OwnerReader及恢复仍在实施，尚未PG。
 - 初始化写入四口已编译闭合：原计划/已知Reserve commit后才physical、同Tx Object canonical发布和Skill/Revision/checkpoint，作者1top/11子race actual0。Plan/Reserve/Publish Unknown、撤权、错误对象/临时receipt和Discard错误保留；这些由受控SQL/Object端口验证流程，尚不证明真实授权、PG、工作账本/恢复或生产绑定。
 - 精确Object/Audit授权作者定向race通过（2top/15子与1top/13子），包含真实D05 checker缺私有witness拒例；正向delegate仍受控。Owner元数据读1top/10子通过，OpenPackage随后已接入，作者3top/10子race通过；真实读流仍依赖D05且未做对象网络验收。持久work在physical前登记原process/父关系，实际Discard和调用返回后才结账；取消、Unknown和未结尾不提前Joined。作者集成5top/23子race actual0，跨进程恢复/真实PG仍未验；初次构建及fixture错误保留恢复点。
+- Object技术尾维护新增本域精确映射和同Store锁内重验，作者1top/14子race通过；D05仍须验证自身instance及私有实际return/lease/process证明，不产生新读写或不可逆清理许可。新physical恢复/清理尚未接入，原Owner操作兼容2top/15子仍通过。
 - 00024/25/26已由root按各域冻结来源导入本树，00027草案尚未PG；前序26没有本轮真实迁移通过结论。继续实现真实本域服务/四口与读流，不扩大P1或上述pure的结论。
 
 ## 验收与当前证据
