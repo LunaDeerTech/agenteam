@@ -2312,6 +2312,104 @@ func projectModelsWebBrowserFailure(raw []byte, exitCode int, contextDone bool) 
 	return map[string]any{"exit_code": exitCode, "context_done": contextDone, "reported_categories": categories, "spec_locations": locations}
 }
 
+// This independent diagnostic never enters the six business result decoders.
+// The existing root/proxy owns HTTP; the Node worker owns only its browser.
+func (f *projectModelsWebFixture) browserSessionProxyDiagnostic(ctx context.Context) {
+	root := filepath.Clean(filepath.Join(f.webRoot, "../../../.."))
+	probeOutput := filepath.Join(root, "output/ai/model-ui-session-probe")
+	endpoint, err := url.Parse(f.origin + "/api/v1/session")
+	if err != nil {
+		f.t.Fatal("Session diagnostic origin invalid")
+	}
+	cookieRequest := &http.Request{Header: make(http.Header)}
+	cookies := []map[string]string{}
+	for _, cookie := range f.ownerClient.Jar.Cookies(endpoint) {
+		cookieRequest.AddCookie(cookie)
+		cookies = append(cookies, map[string]string{"name": cookie.Name, "value": cookie.Value})
+	}
+	f.mu.Lock()
+	session, known := f.modelSessions[cookieRequest.Header.Get("Cookie")]
+	f.mu.Unlock()
+	if !known || session.User != f.owner.UserID || session.CSRF != f.ownerCSRF || len(cookies) == 0 {
+		f.t.Fatal("Session diagnostic owned identity unavailable")
+	}
+	boundHash := func(name string) string {
+		raw, err := os.ReadFile(filepath.Join(probeOutput, name))
+		if err != nil {
+			f.t.Fatal("Session diagnostic prepared input unavailable")
+		}
+		return fmt.Sprintf("%x", sha256.Sum256(raw))
+	}
+	privateName := "session-proxy-private.json"
+	f.private(privateName, map[string]any{"protocol": "project-session-proxy.v1", "supervisor_pid": os.Getpid(), "origin": f.origin, "input_hash": f.inputHash, "cookies": cookies,
+		"expected": map[string]string{"user_id": session.User, "session_id": session.ID, "csrf": session.CSRF}, "prepared_hash": boundHash("prepared.json"), "client_hash": boundHash("client.js")})
+	for _, cookie := range cookies {
+		cookie["value"] = ""
+	}
+	session = projectModelsWebSession{}
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, ".agent-state/model-ui-recovery/session-consumption-probe.mjs"), "--owned-fixture", f.evidence, "--mode", "owned-fixture")
+	cmd.Dir = root
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	cmd.WaitDelay = time.Second
+	for _, entry := range os.Environ() {
+		key, _, _ := strings.Cut(entry, "=")
+		if key != "TMPDIR" && key != "DEBUG" && key != "PWDEBUG" && !strings.HasPrefix(key, "AGENTEAM_") && !strings.HasPrefix(key, "SESSION_PROBE_") {
+			cmd.Env = append(cmd.Env, entry)
+		}
+	}
+	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_SESSION_PROXY_PRIVATE="+filepath.Join(f.directory, privateName), "AGENTEAM_SESSION_PROXY_EVIDENCE="+f.evidence, "AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH="+f.inputHash)
+	cmd.Stdout, cmd.Stderr = io.Discard, io.Discard
+	f.mu.Lock()
+	f.browserActive = true
+	f.mu.Unlock()
+	if err := cmd.Start(); err != nil {
+		f.t.Fatal("Session diagnostic child could not start")
+	}
+	done := make(chan error, 1)
+	go func() { done <- cmd.Wait() }()
+	joined := false
+	defer func() {
+		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		if !joined {
+			<-done
+		}
+		cmd.Env = nil
+	}()
+	var runErr error
+	select {
+	case runErr = <-done:
+		joined = true
+	case <-time.After(30 * time.Second):
+		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGTERM)
+		select {
+		case <-done:
+			joined = true
+		case <-time.After(15 * time.Second):
+		}
+		f.t.Fatal("Session diagnostic body budget exceeded; actual child retirement required")
+	}
+	if runErr != nil {
+		f.t.Fatal("Session diagnostic did not complete; safe result retained")
+	}
+	raw, err := projectModelsWebReadPrivate(filepath.Join(f.evidence, "result.json"), 65536)
+	if err != nil {
+		f.t.Fatal("Session diagnostic safe result unavailable")
+	}
+	defer clear(raw)
+	var result struct {
+		Mode    string  `json:"mode"`
+		Failure *string `json:"fail_code"`
+		Retired bool    `json:"retirement_complete"`
+		Rows    []struct {
+			Joined bool `json:"observer_joined_after_close"`
+		} `json:"rows"`
+	}
+	if json.Unmarshal(raw, &result) != nil || result.Mode != "owned-fixture" || result.Failure != nil || !result.Retired || len(result.Rows) != 1 || !result.Rows[0].Joined {
+		f.t.Fatal("Session diagnostic completion or browser retirement missing")
+	}
+}
+
 func (f *projectModelsWebFixture) browserModels(ctx context.Context) projectModelsWebResult {
 	root := filepath.Clean(filepath.Join(f.webRoot, "../../../../tests/account-captcha-web"))
 	if _, err := os.Stat(filepath.Join(root, "project-owner-models.config.js")); err != nil {

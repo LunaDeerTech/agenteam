@@ -177,6 +177,32 @@ func TestAccountProjectOwnerModelsWebNavigationAndLayouts(t *testing.T) {
 	runProjectModelsWeb(t, "navigation")
 }
 
+// Completion here is diagnostic evidence, never an authority/business PASS.
+func TestAccountProjectOwnerModelsWebSessionProxyDiagnostic(t *testing.T) {
+	started := time.Now()
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	t.Cleanup(func() {
+		cancel()
+		if time.Since(started) > 120*time.Second {
+			t.Error("Session proxy diagnostic exceeded original top budget")
+		}
+	})
+	f := newProjectModelsWebFixture(t, ctx, "configuration")
+	f.browserSessionProxyDiagnostic(ctx)
+	f.stopProxy()
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	modelRequests := 0
+	for _, count := range f.modelCounts {
+		modelRequests += count.Browser
+	}
+	joined := f.modelServer.Started == f.modelServer.Finished && f.modelControls.Held == f.modelControls.HeldJoined && !f.modelFailure
+	if !joined || f.modelSessionCounts["browser"] != 1 || modelRequests != 0 {
+		t.Fatal("isolated Session proxy diagnostic request or callback ownership invalid")
+	}
+	f.safeEvidence("go-session-proxy-diagnostic.json", map[string]any{"protocol": "project-session-proxy.v1", "input_hash": f.inputHash, "diagnostic_completed": true, "proxy_actual_join": joined, "browser_session_requests": 1, "browser_model_requests": 0, "authority_business_pass": false})
+}
+
 func TestProjectModelsWebPrivateInput(t *testing.T) {
 	directory := t.TempDir()
 	path := filepath.Join(directory, "input.json")
