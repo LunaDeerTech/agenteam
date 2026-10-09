@@ -45,7 +45,7 @@ type Configuration struct {
 
 func (c Configuration) Validate() error {
 	u, e := url.Parse(c.CentralURL)
-	if e != nil || u.Scheme != "https" || u.Host == "" || u.User != nil || u.Path != "" || u.RawPath != "" || u.RawQuery != "" || u.ForceQuery || u.Fragment != "" || u.Opaque != "" || u.String() != c.CentralURL || len(c.CentralURL) > 2048 || strings.ToLower(u.Host) != u.Host || strings.ContainsAny(u.Host, "%\\\x00") || !c.RunnerID.Valid() {
+	if e != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil || u.Path != "" || u.RawPath != "" || u.RawQuery != "" || u.ForceQuery || u.Fragment != "" || u.Opaque != "" || u.String() != c.CentralURL || len(c.CentralURL) > 2048 || strings.ToLower(u.Host) != u.Host || strings.ContainsAny(u.Host, "%\\\x00") || !c.RunnerID.Valid() {
 		return ErrInvalid
 	}
 	if len(c.RootPath) == 0 || len(c.RootPath) > 4096 || !utf8.ValidString(c.RootPath) || !strings.HasPrefix(c.RootPath, "/") || path.Clean(c.RootPath) != c.RootPath || strings.ContainsAny(c.RootPath, "\\\x00") {

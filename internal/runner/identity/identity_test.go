@@ -96,3 +96,28 @@ func TestIdentitySafeDefaults(t *testing.T) {
 		}
 	}
 }
+
+func TestIdentityRequiresOriginHostname(t *testing.T) {
+	for _, tc := range []struct {
+		origin string
+		valid  bool
+	}{
+		{"https://central.test", true}, {"https://central.test:443", true}, {"https://127.0.0.1:8443", true}, {"https://[::1]:8443", true},
+		{"https://:443", false}, {"https://", false}, {"https://[]:443", false},
+	} {
+		t.Run(tc.origin, func(t *testing.T) {
+			c := configuration()
+			c.CentralURL = tc.origin
+			if (c.Validate() == nil) != tc.valid {
+				t.Fatal("origin hostname boundary")
+			}
+			value, err := newPending(c, bytes.NewReader(bytes.Repeat([]byte{37}, 32)))
+			if (err == nil) != tc.valid {
+				t.Fatal("pending identity bypassed hostname", err)
+			}
+			if !tc.valid && value != (Identity{}) {
+				t.Fatal("invalid origin retained a private identity")
+			}
+		})
+	}
+}
