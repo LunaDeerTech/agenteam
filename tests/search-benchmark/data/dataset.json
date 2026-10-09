@@ -1,0 +1,25 @@
+{
+  "format_version": 1,
+  "dataset_revision": "lexical-v1",
+  "documents": 32,
+  "sources": 64,
+  "answerable_queries": 64,
+  "no_answer_queries": 8,
+  "categories": [
+    "zh",
+    "en",
+    "mixed",
+    "identifier",
+    "case_style",
+    "path",
+    "error_code",
+    "architecture"
+  ],
+  "splits": [
+    "dev",
+    "test"
+  ],
+  "source_notice": "内部原创测试材料；对外再分发许可未在本卡授予",
+  "authorship": "从零撰写的虚构项目说明；未采集用户、第三方文档或候选检索结果。",
+  "judgment_method": "作者依据语义对每个query穷举全部source；独立语义复核尚待完成。"
+}

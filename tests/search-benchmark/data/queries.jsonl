@@ -1,0 +1,72 @@
+{"dataset_revision":"lexical-v1","query_id":"q01","family_id":"f01","split":"dev","category":"zh","answerable":true,"text":"暂存快照还不完整时，发布与恢复应当怎样处理？"}
+{"dataset_revision":"lexical-v1","query_id":"q02","family_id":"f01","split":"dev","category":"en","answerable":true,"text":"How should publishing and recovery handle an incomplete staging snapshot?"}
+{"dataset_revision":"lexical-v1","query_id":"q03","family_id":"f01","split":"dev","category":"mixed","answerable":true,"text":"staging snapshot 未验证完时，发布门槛和 recovery 行为是什么？"}
+{"dataset_revision":"lexical-v1","query_id":"q04","family_id":"f01","split":"dev","category":"architecture","answerable":true,"text":"暂存态与已发布快照之间有哪些完整性和恢复边界？"}
+{"dataset_revision":"lexical-v1","query_id":"q05","family_id":"f02","split":"test","category":"zh","answerable":true,"text":"重量队列如何预留额度，并在取消后避免过早或重复归还？"}
+{"dataset_revision":"lexical-v1","query_id":"q06","family_id":"f02","split":"test","category":"en","answerable":true,"text":"How does a weighted queue reserve capacity and release it safely after cancellation?"}
+{"dataset_revision":"lexical-v1","query_id":"q07","family_id":"f02","split":"test","category":"mixed","answerable":true,"text":"Quay weight 额度何时预留，取消后何时才能 release？"}
+{"dataset_revision":"lexical-v1","query_id":"q08","family_id":"f02","split":"test","category":"architecture","answerable":true,"text":"重量准入票据与实际工作退出之间的资源守恒规则是什么？"}
+{"dataset_revision":"lexical-v1","query_id":"q09","family_id":"f03","split":"dev","category":"zh","answerable":true,"text":"文件长度或摘要验证失败时，怎样保证传输对象不会被发布？"}
+{"dataset_revision":"lexical-v1","query_id":"q10","family_id":"f03","split":"dev","category":"en","answerable":true,"text":"How do transfer verification and failure cleanup prevent a corrupt object from being published?"}
+{"dataset_revision":"lexical-v1","query_id":"q11","family_id":"f03","split":"dev","category":"mixed","answerable":true,"text":"Cedar transfer 的 length 和 digest 失败后，发布与 cleanup 如何衔接？"}
+{"dataset_revision":"lexical-v1","query_id":"q12","family_id":"f03","split":"dev","category":"architecture","answerable":true,"text":"流完整性验证与对象可见性、失败清理之间的边界是什么？"}
+{"dataset_revision":"lexical-v1","query_id":"q13","family_id":"f04","split":"test","category":"zh","answerable":true,"text":"跨午夜的计划槽位如何定身份，并避免多个 worker 重复执行？"}
+{"dataset_revision":"lexical-v1","query_id":"q14","family_id":"f04","split":"test","category":"en","answerable":true,"text":"How are recurring slots identified across midnight and deduplicated by competing workers?"}
+{"dataset_revision":"lexical-v1","query_id":"q15","family_id":"f04","split":"test","category":"mixed","answerable":true,"text":"Dawn 的 UTC midnight slot 如何生成身份并处理 worker 竞争？"}
+{"dataset_revision":"lexical-v1","query_id":"q16","family_id":"f04","split":"test","category":"architecture","answerable":true,"text":"计划时刻身份、显示时区与执行去重之间的边界是什么？"}
+{"dataset_revision":"lexical-v1","query_id":"q17","family_id":"f05","split":"dev","category":"zh","answerable":true,"text":"分页游标因集合变化失效后，查询校验和页面恢复应怎么做？"}
+{"dataset_revision":"lexical-v1","query_id":"q18","family_id":"f05","split":"dev","category":"en","answerable":true,"text":"What should query validation and page recovery do when a collection change makes a cursor stale?"}
+{"dataset_revision":"lexical-v1","query_id":"q19","family_id":"f05","split":"dev","category":"mixed","answerable":true,"text":"Flint stale cursor 需要核哪些查询身份，UI 又应如何恢复？"}
+{"dataset_revision":"lexical-v1","query_id":"q20","family_id":"f05","split":"dev","category":"architecture","answerable":true,"text":"签名分页游标的查询绑定与跨代页面恢复边界是什么？"}
+{"dataset_revision":"lexical-v1","query_id":"q21","family_id":"f06","split":"test","category":"zh","answerable":true,"text":"凭据轮换断连后，怎样保留原意图并安全确认结果？"}
+{"dataset_revision":"lexical-v1","query_id":"q22","family_id":"f06","split":"test","category":"en","answerable":true,"text":"How should a disconnected credential rotation preserve its original intent and confirm the result safely?"}
+{"dataset_revision":"lexical-v1","query_id":"q23","family_id":"f06","split":"test","category":"mixed","answerable":true,"text":"Iris rotation 断连后，immutable intent 和历史 lookup 有哪些约束？"}
+{"dataset_revision":"lexical-v1","query_id":"q24","family_id":"f06","split":"test","category":"architecture","answerable":true,"text":"凭据轮换的命令身份、未知结果和安全历史回执怎样衔接？"}
+{"dataset_revision":"lexical-v1","query_id":"q25","family_id":"f07","split":"dev","category":"zh","answerable":true,"text":"多个依赖移动并发时，如何原子防环并处理竞争失败？"}
+{"dataset_revision":"lexical-v1","query_id":"q26","family_id":"f07","split":"dev","category":"en","answerable":true,"text":"How do concurrent dependency moves prevent cycles atomically and recover from a lost race?"}
+{"dataset_revision":"lexical-v1","query_id":"q27","family_id":"f07","split":"dev","category":"mixed","answerable":true,"text":"Elm move edge 并发时，cycle check 与失败重读如何配合？"}
+{"dataset_revision":"lexical-v1","query_id":"q28","family_id":"f07","split":"dev","category":"architecture","answerable":true,"text":"图修订锁、防环判断与原子替边之间有哪些一致性要求？"}
+{"dataset_revision":"lexical-v1","query_id":"q29","family_id":"f08","split":"test","category":"zh","answerable":true,"text":"只改索引 profile 与修改文档正文时，旧代可见性有什么不同？"}
+{"dataset_revision":"lexical-v1","query_id":"q30","family_id":"f08","split":"test","category":"en","answerable":true,"text":"How does old-generation visibility differ between an index-profile change and a document-body update?"}
+{"dataset_revision":"lexical-v1","query_id":"q31","family_id":"f08","split":"test","category":"mixed","answerable":true,"text":"Pine profile rebuild 和 body update 对旧 serving generation 的处理有何区别？"}
+{"dataset_revision":"lexical-v1","query_id":"q32","family_id":"f08","split":"test","category":"architecture","answerable":true,"text":"canonical 正文版本、派生索引代际与原子激活之间的边界是什么？"}
+{"dataset_revision":"lexical-v1","query_id":"q33","family_id":"f09","split":"dev","category":"identifier","answerable":true,"text":"HarborDrain 何时才报告退出完成？"}
+{"dataset_revision":"lexical-v1","query_id":"q34","family_id":"f09","split":"dev","category":"case_style","answerable":true,"text":"drain_deadline 能否为每个组件重新开始计时？"}
+{"dataset_revision":"lexical-v1","query_id":"q35","family_id":"f09","split":"dev","category":"path","answerable":true,"text":"config/harbor/drain.toml 在何时读取，是否热更新？"}
+{"dataset_revision":"lexical-v1","query_id":"q36","family_id":"f09","split":"dev","category":"error_code","answerable":true,"text":"ERR_HARBOR_DRAIN_BUSY 表示什么，为什么不能立即复用资源？"}
+{"dataset_revision":"lexical-v1","query_id":"q37","family_id":"f03","split":"dev","category":"identifier","answerable":true,"text":"ParcelSeal 发布上传之前验证什么？"}
+{"dataset_revision":"lexical-v1","query_id":"q38","family_id":"f03","split":"dev","category":"case_style","answerable":true,"text":"upload_window 限制的是分片数量还是字节数？"}
+{"dataset_revision":"lexical-v1","query_id":"q39","family_id":"f03","split":"dev","category":"path","answerable":true,"text":"config/parcel/seal.toml 会在运行期间被重新读取吗？"}
+{"dataset_revision":"lexical-v1","query_id":"q40","family_id":"f03","split":"dev","category":"error_code","answerable":true,"text":"ERR_PARCEL_DIGEST 发生后候选对象是否可见？"}
+{"dataset_revision":"lexical-v1","query_id":"q41","family_id":"f11","split":"test","category":"identifier","answerable":true,"text":"RelayLease 的交接为什么要等待旧持有者实际停止？"}
+{"dataset_revision":"lexical-v1","query_id":"q42","family_id":"f11","split":"test","category":"case_style","answerable":true,"text":"lease_epoch 如何拒绝仍持有旧资源名称的写入者？"}
+{"dataset_revision":"lexical-v1","query_id":"q43","family_id":"f11","split":"test","category":"path","answerable":true,"text":"config/relay/leases.toml 是否保存当前租约持有者？"}
+{"dataset_revision":"lexical-v1","query_id":"q44","family_id":"f11","split":"test","category":"error_code","answerable":true,"text":"ERR_RELAY_STALE_EPOCH 能否通过延长租约期限修复？"}
+{"dataset_revision":"lexical-v1","query_id":"q45","family_id":"f12","split":"test","category":"identifier","answerable":true,"text":"MossCache 的新代发布需要满足什么条件？"}
+{"dataset_revision":"lexical-v1","query_id":"q46","family_id":"f12","split":"test","category":"case_style","answerable":true,"text":"cacheEpoch 是否允许同一个请求读取中途换代？"}
+{"dataset_revision":"lexical-v1","query_id":"q47","family_id":"f12","split":"test","category":"path","answerable":true,"text":"config/moss/cache.yaml 通过刷新仪表盘会重新加载吗？"}
+{"dataset_revision":"lexical-v1","query_id":"q48","family_id":"f12","split":"test","category":"error_code","answerable":true,"text":"ERR_MOSS_EPOCH_GAP 与普通 cache miss 有什么区别？"}
+{"dataset_revision":"lexical-v1","query_id":"q49","family_id":"f06","split":"test","category":"identifier","answerable":true,"text":"LedgerFence 允许跟随者继续之前必须确认什么？"}
+{"dataset_revision":"lexical-v1","query_id":"q50","family_id":"f06","split":"test","category":"case_style","answerable":true,"text":"commit_token 查询未知结果时能否更换原负载？"}
+{"dataset_revision":"lexical-v1","query_id":"q51","family_id":"f06","split":"test","category":"path","answerable":true,"text":"config/ledger/fence.toml 是否会续期当前确认的等待预算？"}
+{"dataset_revision":"lexical-v1","query_id":"q52","family_id":"f06","split":"test","category":"error_code","answerable":true,"text":"ERR_LEDGER_FENCE_WAIT 能否说明原提交已回滚？"}
+{"dataset_revision":"lexical-v1","query_id":"q53","family_id":"f07","split":"dev","category":"identifier","answerable":true,"text":"RouteLatch 替换路由时是否先删除旧路由？"}
+{"dataset_revision":"lexical-v1","query_id":"q54","family_id":"f07","split":"dev","category":"case_style","answerable":true,"text":"routeVersion 在重复当前配置时会推进吗？"}
+{"dataset_revision":"lexical-v1","query_id":"q55","family_id":"f07","split":"dev","category":"path","answerable":true,"text":"config/routes/latch.yaml 是否存放每个任务的具体路由？"}
+{"dataset_revision":"lexical-v1","query_id":"q56","family_id":"f07","split":"dev","category":"error_code","answerable":true,"text":"ERR_ROUTE_VERSION 后能否静默换新版本重发？"}
+{"dataset_revision":"lexical-v1","query_id":"q57","family_id":"f15","split":"dev","category":"identifier","answerable":true,"text":"PageAnchor 的续页身份绑定哪两个事实？"}
+{"dataset_revision":"lexical-v1","query_id":"q58","family_id":"f15","split":"dev","category":"case_style","answerable":true,"text":"page_anchor 可以当数字偏移量递增吗？"}
+{"dataset_revision":"lexical-v1","query_id":"q59","family_id":"f15","split":"dev","category":"path","answerable":true,"text":"config/pages/anchor.toml 能否使旧锚点重新有效？"}
+{"dataset_revision":"lexical-v1","query_id":"q60","family_id":"f15","split":"dev","category":"error_code","answerable":true,"text":"ERR_PAGE_ANCHOR_STALE 是否表示已经没有更多项目？"}
+{"dataset_revision":"lexical-v1","query_id":"q61","family_id":"f16","split":"test","category":"identifier","answerable":true,"text":"EchoReceipt 如何处理同一事件的重复投递？"}
+{"dataset_revision":"lexical-v1","query_id":"q62","family_id":"f16","split":"test","category":"case_style","answerable":true,"text":"receiptKey 能否绑定更新后的业务对象字段来重放？"}
+{"dataset_revision":"lexical-v1","query_id":"q63","family_id":"f16","split":"test","category":"path","answerable":true,"text":"config/echo/receipt.yaml 是否包含回调的原始负载？"}
+{"dataset_revision":"lexical-v1","query_id":"q64","family_id":"f16","split":"test","category":"error_code","answerable":true,"text":"ERR_ECHO_KEY_REUSED 是否可以按普通临时投递错误重试？"}
+{"dataset_revision":"lexical-v1","query_id":"q65","family_id":"nf01","split":"dev","category":"no_answer","answerable":false,"text":"虚构的 PolarReceipt 如何核验月球站的燃料票据？"}
+{"dataset_revision":"lexical-v1","query_id":"q66","family_id":"nf01","split":"dev","category":"no_answer","answerable":false,"text":"How does PolarReceipt validate fuel vouchers at a lunar station?"}
+{"dataset_revision":"lexical-v1","query_id":"q67","family_id":"nf02","split":"test","category":"no_answer","answerable":false,"text":"What is the retry interval for ERR_TIDAL_OCR_QUOTA?"}
+{"dataset_revision":"lexical-v1","query_id":"q68","family_id":"nf02","split":"test","category":"no_answer","answerable":false,"text":"ERR_TIDAL_OCR_QUOTA 应间隔多少秒重试？"}
+{"dataset_revision":"lexical-v1","query_id":"q69","family_id":"nf03","split":"dev","category":"no_answer","answerable":false,"text":"config/aurora/replicas.toml 的副本上限是多少？"}
+{"dataset_revision":"lexical-v1","query_id":"q70","family_id":"nf03","split":"dev","category":"no_answer","answerable":false,"text":"Which maximum replica count is set in config/aurora/replicas.toml?"}
+{"dataset_revision":"lexical-v1","query_id":"q71","family_id":"nf04","split":"test","category":"no_answer","answerable":false,"text":"Will CrystalTokenizer segment Thai compound words using a dictionary?"}
+{"dataset_revision":"lexical-v1","query_id":"q72","family_id":"nf04","split":"test","category":"no_answer","answerable":false,"text":"CrystalTokenizer 会用词典切分泰语复合词吗？"}
