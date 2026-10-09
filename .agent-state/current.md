@@ -1,10 +1,22 @@
 # D12 Knowledge B02 当前恢复点
 
-- Process375定向tests-only修正已落 `tests/knowledge/b02_process_test.go`：两个Prepare前/活guard拒绝后计数均要求commands=1、command_events=0，失败只输出两个安全计数；新processEventPlan独立查询原Project/key/document的planned且无receipt行，以正式严格ev.DecodeHeader核固定header的有效ID/时间、ContentChanged/schema1、Project/Document/version1，并比较live拒绝前后完整持久header不变。产品/fixture/harness均未改；94b3e6实际逆去这两处断言与新增header核验后逐字4b3caaf9，原live Guard、SIGKILL/actualWait、精确死证、新attempt/fence和canonical/Audit/Event/replay断言不变，gofmt解析/格式及diffcheck0。尚未重新编译或真实运行；77598保留原失败测试输入，不冒充修正版，拟另编 `output/ai/knowledge/knowledge-process-plan-fixed-race.test`，等待root磁盘/CPU编译窗口并交Work原审者窄审。原91700未采具体两个计数及后半未执行保持。
+- Process375定向tests-only修正已落 `tests/knowledge/b02_process_test.go`：两个Prepare前/活guard拒绝后计数均要求commands=1、command_events=0，失败只输出两个安全计数；新processEventPlan独立查询原Project/key/document的planned且无receipt行，以正式严格ev.DecodeHeader核固定header的有效ID/时间、ContentChanged/schema1、Project/Document/version1，并比较live拒绝前后完整持久header不变。产品/fixture/harness均未改；94b3e6实际逆去这两处断言与新增header核验后逐字4b3caaf9，原live Guard、SIGKILL/actualWait、精确死证、新attempt/fence和canonical/Audit/Event/replay断言不变，gofmt解析/格式及diffcheck0。Work原审者e9d8c9只读逆验证actual0后独立有限接受：原Guard及Lookup后SIGKILL/actualWait/death/recovery/replay尾逐字4b3caaf9；未动态。基于d7ae94a7的独立候选 `output/ai/knowledge/knowledge-process-plan-fixed-race.test` 已race-c73496／c3af32 actual0，87497e精确发现恰TestKnowledgeB02ProcessRecovery，36526696B；旧77598 binary保留36519881B、含原失败测试，不冒充修正版。首1632d7因编译命令漏integration tag而build constraints排除全部文件，setupFAIL保留；补唯一必需tag后编译成功。只完成离线ready，未真实运行、未重跑旧六top；原91700未采具体两个计数及后半未执行保持。
+
+- Process修正候选复现编译（cwd本树，仅离线）：
+
+```sh
+env PATH=/workspace/toolchains/go1.27.1/bin:$PATH \
+ GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2 \
+ GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
+ GOCACHE=/workspace/agenteam-knowledge/output/ai/knowledge/go-cache \
+ /workspace/toolchains/go1.27.1/bin/go test -mod=readonly -tags=integration -p=1 -race -c \
+ -o /workspace/agenteam-knowledge/output/ai/knowledge/knowledge-process-plan-fixed-race.test ./tests/knowledge
+./output/ai/knowledge/knowledge-process-plan-fixed-race.test -test.list '^TestKnowledgeB02ProcessRecovery$'
+```
 
 - 五top组合91700整体FAIL，窗口完整释放：精确selector `^TestKnowledgeB02(Cleanup|CommitUnknown|Concurrency|CleanupCommitUnknown|ProcessRecovery)$`，使用89b970d3两harness与原77598 candidate，组合映射经Model038551独立有限接受（两全文逆差异、8错selector拒、41observer控制；没有实测业务外推）。启动statvfs5702197248B；Concurrency3 PASS6.68s、修后Cleanup3 PASS10.67s（两Project公平子3.91s）、PublicationUnknown6 PASS16.45s、CleanupUnknown2 PASS5.46s。ProcessRecovery在2.40s于b02_process_test.go:375计划计数断言FAIL，尚未到same-key活guard拒绝／SIGKILL后恢复，不能称Process通过。Go1028097／driver1026096实际Wait1，outer a6b3b4 actualexit1／supervisor134.495s terminal1；e2bffa核7ID两轮14absent、private/runtime/desc双尾、TCP双delta_empty、exact_tops／actual_test_wait、inputs_unchanged全齐且无STOP；终态statvfs5699268608B。日志 `output/ai/knowledge/pg/pg-04554d791ca64ac680bc6498b1ccc816.log`。四组14子仅按各自真实断言有限接受，不改组合FAIL；P2当前SQL及公平清理已有真实证据，作者去重累计10top35sub，Process仍未接受。
 
-- Process首fail窄查：x.count第二值是command_events，prepareContentIntent在Prepare前只保存commands.plan固定header与planned publication；command_events到finishContentPublication阶段才形成。测试两处误expect第二值=1，拟改为0并核原plan/header不变及安全计数诊断。原91700未打印具体两个计数，不能回填当时值；此前确切planned/active work、零九项publication事实和Activity不变断言已通过。当前仅静核，未改产品/测试，后半Process待修正测试候选和freshgrant；不重跑无关已过四组。
+- Process首fail窄查：x.count第二值是command_events，prepareContentIntent在Prepare前只保存commands.plan固定header与planned publication；command_events到finishContentPublication阶段才形成。测试两处误expect第二值=1，拟改为0并核原plan/header不变及安全计数诊断。原91700未打印具体两个计数，不能回填当时值；此前确切planned/active work、零九项publication事实和Activity不变断言已通过。该首fail分析时尚未改产品/测试；后继测试修正/独审/新候选见本页最新事实，Process后半仍待freshgrant，不重跑无关已过四组。
 
 - 修后Runtime57974已完整PASS：首同进程statvfs5867839488B，产品/测试2287eca0与race-c77598新binary不变，消费34206ea4 TCP取证增量（Skills f8fe7d精确移植独审有限接受）。三子7.82s（canonical取消Close/Drain2.73s、实际委托Close2.68s、未开源lease后继退休2.42s），Go1017066／driver1015085实际Wait0；outer c34712 actualexit0，supervisor terminal0／104.995s。29ade3核7ID两轮14absent、private两absent／runtime两empty／desc两空、exact_tops与actual_test_wait=True、HOST_TCP双delta_empty、inputs_unchanged=True全部齐，无STOP；日志 `output/ai/knowledge/pg/pg-0a7b9115f922479997dc166ee227af3b.log`。原预算与gate未放宽，无命令或本轮资源在途，窗口已释放。此轮接受修后Runtime三子，不回填54818环境缺口或56777业务/TCP失败；作者累计七top/二十三子各自输入真实通过，受P2影响的Cleanup仍需当前binary三子补验，其余PublicationUnknown6／Concurrency3／CleanupUnknown2／Process1待初次真实。产品/测试/工具继续冻结，仅本current与卡更新待保存。
 
@@ -28,7 +40,7 @@ exec(compile(code, path, 'exec'), globals())
 PY
 ```
 
-- 修后Runtime54818在环境切换中丢失工具session：恢复首poll明确`Unknown process id 54818`，没有重启测试。精确日志 `output/ai/knowledge/pg/pg-62f545ac57a847159cb2d1996080fa98.log`／同名run的request绑定新 `knowledge-recovery-fixed-race.test` 与 `^TestKnowledgeB02Runtime$`。三子业务PASS共6.90s（canonical取消后Close/Drain2.48s、实际委托Close2.16s、未开源lease后继退休2.25s），Go998510／driver996487实际Wait0；原日志已写7ID/private/runtime/desc双尾、exact_tops与actual_test_wait=True。**缺HOST_TCP双观察、inputs_unchanged、supervisor terminal及外层实际退出结果，不记完整PASS。** 恢复后1bac30只读7精确ID/PID/runtime双清、cb843e三private目录不存在且Git干净0fd7b533，没有匹配活supervisor；root据当前自有资源清零确认窗口释放，不回填原终态或baseline。复现仍用下方完整env/statvfs/新binary/Runtime命令，须freshgrant，仅为补明确证据缺口重跑；P1/P2产品/测试/binary一字未变，后继57974已完成新一轮完整终态，旧轮缺口保持，公平Cleanup仍待独立窗口。
+- 修后Runtime54818在环境切换中丢失工具session：恢复首poll明确`Unknown process id 54818`，没有重启测试。精确日志 `output/ai/knowledge/pg/pg-62f545ac57a847159cb2d1996080fa98.log`／同名run的request绑定新 `knowledge-recovery-fixed-race.test` 与 `^TestKnowledgeB02Runtime$`。三子业务PASS共6.90s（canonical取消后Close/Drain2.48s、实际委托Close2.16s、未开源lease后继退休2.25s），Go998510／driver996487实际Wait0；原日志已写7ID/private/runtime/desc双尾、exact_tops与actual_test_wait=True。**缺HOST_TCP双观察、inputs_unchanged、supervisor terminal及外层实际退出结果，不记完整PASS。** 恢复后1bac30只读7精确ID/PID/runtime双清、cb843e三private目录不存在且Git干净0fd7b533，没有匹配活supervisor；root据当前自有资源清零确认窗口释放，不回填原终态或baseline。该轮补证复现使用本页固定env/statvfs，binary=knowledge-recovery-fixed-race.test、selector=^TestKnowledgeB02Runtime$，须freshgrant，仅为补明确证据缺口重跑；P1/P2产品/测试/binary一字未变，后继57974已完成新一轮完整终态，旧轮缺口保持，公平Cleanup仍待独立窗口。
 - Skills 对冻结P1/P2五源修复独立有限接受，无剩余mustfix：实际源码overlay15866 race0／1.044s（4top7sub），真实D05 constructor/cancel/monitor/Close覆盖normal、release-error、cancel、阻塞release不得提前Drain；65项32+32+1及高低新项下一轮、固定after/through；Hard/Unknown/ResourceBusy+Unknown保原error/cause/attempt；并发扫描Busy不SQL且实际join。独验首15786因其probe用DeepEqual比较opaque closure误判，改正式Owner.Equal/Cause.Details后通过，产品未改；不回填该FAIL。该独审本身不含PG；修后Runtime已由57974完整补验，Cleanup的新有界分页SQL仍待真实，原56777与TCP gate FAIL保持。作者产品和新binary未变，当前仅需真实复验，不再扩泛化测试。
 - 当前修后独立产物已可构建：`output/ai/knowledge/knowledge-recovery-fixed-race.test`，race-c77598 actual0；dd5fce精确发现Runtime／Cleanup／CommitUnknown／Concurrency／CleanupCommitUnknown／ProcessRecovery六top，当前domain+integration vet53340 actual0。产品输入为89613dc5三生产源修复，测试包含下面的UUID前置修正与两Project新子；现源码已获Skills15866有限独验并在57974通过Runtime3真实全尾。此单binary供6个精确组复用，原六binary全部保留原组合；下一实际为受影响Cleanup3，其余四组仍待初次当前组合实测。
 - 新回归测试首全包race59862曾因“新UUIDv7必比已有max大”的测试前置假设FAIL，正式UUIDv7无同毫秒单调保证，产品未动；仅将调度fixture换固定合法UUIDv7。真实两Project新子亦先持两实际大reader，读持久cleanup ID顺序后仅Close较后者，无sleep或修改SQL身份。修后全Knowledge/... race49004 actual0（domain1.255s／contract1.116s）；原Cleanup两个子例的逆差异da8223逐字89613dc5。原59862不回填，P1/P2产品依旧待独审/真实复验。
@@ -52,7 +64,7 @@ PY
 
 - 修正Cleanup恢复首启27247是环境 SETUP FAIL（非业务执行）：fixture编译继承不到固定GOMODCACHE，GOPROXY=off报module lookup disabled；没有 owned.json／7ID／Go test PID，不能认资源退役或业务结论。driver931240实际Wait1、desc双空、runtime双empty、hostTCP双delta_empty、inputs_unchanged=True，outer1.498s；现场PID不存在、run仅request.json和空runtime，窗口已释放。原件 `output/ai/knowledge/pg/pg-81deeb2b83334679b2fe831db4e881b7.log`。随后freshgrant99411只补显式工具环境，修正Cleanup完整PASS及资源终态见本页最新结果；不回填此轮setupFAIL。
 
-- 后继 root-chain 真实运行须使用完整固定环境（仍须每组 freshgrant，`--run`／`--binary`仅依获授精确组变更）：先同一执行环境 `statvfs` 核可用空间 ≥5368709120B，否则 exit78；下面是当前修后独立binary的Runtime精确命令。原6m test／540+60 supervisor／3s retire／75s TCP尾／7resources及全部实际Wait门槛不变，不能用缺环境后的编译失败当业务结果。原56777未修版本与99411Cleanup通过均仍绑定各自旧binary，不能与下面新候选混写。
+- 后继 root-chain 真实运行须使用完整固定环境（仍须每组 freshgrant，`--run`／`--binary`仅依获授精确组变更）：先同一执行环境 `statvfs` 核可用空间 ≥5368709120B，否则 exit78；下面是当前d7ae94a7测试修正候选的ProcessRecovery精确命令；复用原单top入口，仍未获真实运行结论。原6m test／540+60 supervisor／3s retire／75s TCP尾／7resources及全部实际Wait门槛不变，不能用缺环境后的编译失败当业务结果。原56777未修版本与99411Cleanup通过均仍绑定各自旧binary，不能与下面新候选混写。
 
 ```sh
 GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
@@ -71,8 +83,8 @@ if available < 5368709120:
 os.chdir('/workspace/agenteam-knowledge')
 os.execvp('python3', ['python3', '.agent-state/task-planning-recovery/pg_only_supervisor.py',
     '--root-chain', '--driver', '/workspace/agenteam-knowledge/.agent-state/work-owner-http/root_chain_driver.py',
-    '--binary', '/workspace/agenteam-knowledge/output/ai/knowledge/knowledge-recovery-fixed-race.test',
-    '--run', '^TestKnowledgeB02Runtime$', '--output', '/workspace/agenteam-knowledge/output/ai/knowledge/pg'])
+    '--binary', '/workspace/agenteam-knowledge/output/ai/knowledge/knowledge-process-plan-fixed-race.test',
+    '--run', '^TestKnowledgeB02ProcessRecovery$', '--output', '/workspace/agenteam-knowledge/output/ai/knowledge/pg'])
 PY
 ```
 
