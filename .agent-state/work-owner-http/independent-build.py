@@ -12,16 +12,18 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "output/ai/work-owner-http/independent"
 CACHE = ROOT / "output/ai/task-blocker-service/independent/gocache"
 parser = argparse.ArgumentParser()
-parser.add_argument("--target", choices=("pager", "http"), default="pager")
+parser.add_argument("--target", choices=("pager", "http", "root-confirmation"), default="pager")
 target = parser.parse_args().target
 TOP = {"pager": "TestIndependentWorkOwnerBlockerPagination",
-       "http": "TestIndependentWorkOwnerHTTPRecoveryAndAuthority"}[target]
+       "http": "TestIndependentWorkOwnerHTTPRecoveryAndAuthority",
+       "root-confirmation": "TestIndependentWorkOwnerRootConfirmationJoin"}[target]
+PACKAGE = "internal/central/app" if target == "root-confirmation" else "tests/work"
 OUT.mkdir(parents=True, exist_ok=True)
 (OUT / "tmp").mkdir(exist_ok=True)
 CACHE.mkdir(parents=True, exist_ok=True)
 overlay = OUT / f"{target}-overlay.json"
 overlay.write_text(json.dumps({"Replace": {
-    str(ROOT / f"tests/work/zz_independent_work_owner_{target}_test.go"):
+    str(ROOT / PACKAGE / f"zz_independent_work_owner_{target.replace('-', '_')}_test.go"):
     str(ROOT / f".agent-state/work-owner-http/independent-{target}_test.go")
 }}, indent=2) + "\n")
 env = os.environ.copy()
@@ -34,7 +36,7 @@ while (OUT / f"{target}-build-{number}.log").exists():
 binary = OUT / f"independent-{target}-race-{number}.test"
 command = ["/workspace/toolchains/go1.27.1/bin/go", "test", "-tags=integration",
            "-race", "-p=2", "-overlay=" + str(overlay), "-c", "-o", str(binary),
-           "./tests/work"]
+           "./" + PACKAGE]
 log_path = OUT / f"{target}-build-{number}.log"
 with log_path.open("w") as log:
     proc = subprocess.Popen(command, cwd=ROOT, env=env, stdout=log,

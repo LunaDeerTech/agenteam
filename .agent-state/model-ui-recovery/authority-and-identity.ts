@@ -165,7 +165,19 @@ export async function beginSessionDiagnostic(page: Page, mode: 'authority' | 'na
   };
 }
 
-function resolveSampler(page: Page, slot: string, requestID: () => string | null, publish: (value: unknown, expectedID: string | null) => void) {
+const resolveEvaluations = new WeakMap<Page, Promise<unknown>>();
+function resolveEvaluate(page: Page, work: () => Promise<unknown>): Promise<unknown> {
+  const prior = resolveEvaluations.get(page);
+  // A timed-out begin/end still owns its real evaluate. Join that original
+  // work without treating its result as the newly requested observation.
+  if (prior) return prior.then(() => null, () => null);
+  const original = work();
+  resolveEvaluations.set(page, original);
+  const clear = () => { if (resolveEvaluations.get(page) === original) resolveEvaluations.delete(page); };
+  void original.then(clear, clear);
+  return original;
+}
+function resolveSampler(page: Page, slot: string, requestID: () => string | null, publish: (value: unknown, expectedID: string | null) => void, initial?: Promise<unknown>) {
   let stopped = false, started = false, timer: ReturnType<typeof setTimeout> | undefined;
   let pending: Promise<void> | undefined, samples = 0, settled = 0, failed = 0;
   const schedule = () => { if (!stopped) timer = setTimeout(sample, 250); };
@@ -175,11 +187,16 @@ function resolveSampler(page: Page, slot: string, requestID: () => string | null
     const expectedID = requestID();
     samples++;
     let work: Promise<unknown>;
-    try { work = page.evaluate(({ slot, expectedID }) => (window as any).__projectModelsProbe.resolveSnapshot(slot, expectedID), { slot, expectedID }); }
+    try { work = resolveEvaluate(page, () => page.evaluate(({ slot, expectedID }) => (window as any).__projectModelsProbe.resolveSnapshot(slot, expectedID), { slot, expectedID })); }
     catch { settled++; failed++; schedule(); return; }
     const observed = work.then((value) => { settled++; if (!stopped) publish(value, expectedID); }, () => { settled++; failed++; }).catch(() => { failed++; });
     pending = observed;
     void observed.then(() => { if (pending === observed) pending = undefined; schedule(); }).catch(() => {});
+  }
+  if (initial) {
+    const joined = initial.then(() => {}, () => {});
+    pending = joined;
+    void joined.then(() => { if (pending === joined) pending = undefined; if (started && !stopped) sample(); }).catch(() => {});
   }
   return {
     start() { if (!started && !stopped) { started = true; sample(); } },
@@ -217,10 +234,6 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
   let beforeAction = 0, afterAction = 0;
   let latest: Record<string, boolean | number | string> | null = null, latestID: string | null = null;
   let snapshotSource: 'unavailable' | 'sample' | 'end' = 'unavailable';
-  const sampler = resolveSampler(page, slot, () => requestID, (value, expectedID) => {
-    const safe = resolveSnapshot(value);
-    if (safe !== null) { latest = safe; latestID = expectedID; snapshotSource = 'sample'; }
-  });
   const targets: Request[] = [], finished = new Set<Request>(), failed = new Set<Request>();
   const bounded = async <T>(work: () => Promise<T>): Promise<T | null> => {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -246,7 +259,14 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
   const completed = (request: Request) => { try { if (candidate(request)) finished.add(request); } catch {} };
   const rejected = (request: Request) => { try { if (candidate(request)) failed.add(request); } catch {} };
   page.on('request', requested); page.on('requestfinished', completed); page.on('requestfailed', rejected);
-  await bounded(() => page.evaluate(({ slot, expiresAt, target }) => (window as any).__projectModelsProbe.resolveBegin(slot, expiresAt, target), { slot, expiresAt, target }));
+  let beginning: Promise<unknown>;
+  try { beginning = resolveEvaluate(page, () => page.evaluate(({ slot, expiresAt, target }) => (window as any).__projectModelsProbe.resolveBegin(slot, expiresAt, target), { slot, expiresAt, target })); }
+  catch { beginning = Promise.resolve(null); }
+  const sampler = resolveSampler(page, slot, () => requestID, (value, expectedID) => {
+    const safe = resolveSnapshot(value);
+    if (safe !== null) { latest = safe; latestID = expectedID; snapshotSource = 'sample'; }
+  }, beginning);
+  await bounded(() => beginning);
   return {
     start() { active = true; },
     select(response: Response) {
@@ -259,7 +279,7 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
         const sampling = await sampler.stop();
         // A bounded join timeout does not retire the underlying evaluate.
         // Never overlap it with a second evaluate, including diagnostic end.
-        const value: unknown = sampling.sample_joined ? await bounded(() => page.evaluate(({ slot, requestID }) => (window as any).__projectModelsProbe.resolveEnd(slot, requestID), { slot, requestID })) : null;
+        const value: unknown = sampling.sample_joined ? await bounded(() => resolveEvaluate(page, () => page.evaluate(({ slot, requestID }) => (window as any).__projectModelsProbe.resolveEnd(slot, requestID), { slot, requestID }))) : null;
         const final = resolveSnapshot(value);
         if (final !== null) { latest = final; latestID = requestID; snapshotSource = 'end'; }
         if (!failure) return;
