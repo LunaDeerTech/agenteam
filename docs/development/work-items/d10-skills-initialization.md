@@ -1,29 +1,80 @@
 # D10：Skills 初始化与不可变内容
 
-状态：rev2，2026-10-05 仅同步提交与验收进度，P1 契约不变。S01 首个完整结果规格已独立采纳；P1 纯契约与真实 builtin 已提交 `8872110099c84cf0600bb5b62cdcd6c0c6c843e3`，并通过[本轮独立验收](../agent-team/d10-p1-recovery-verification.md)。**Skill 初始化服务、PG、D05 发布、D08 绑定、Agent/Tool/Runner 均未实现验收。** 本文状态不代表 D10 完成。
+状态：rev3，2026-10-09，P2 持久初始化服务 SPEC 已获未参与实现者有限独立接受，持续实施。P1 纯契约与真实 builtin 的既有提交及[独立验收](../agent-team/d10-p1-recovery-verification.md)不变。当前基线正式 main `ca9f2d5d` 已包含 D08 初始化 Audit 授权库；P2 受控 Object 边界下的真实 PG 持久初始化、发布回滚与原 COMMIT 恢复三个作者 top 已通过。后增Project精确Stop已获有限独审，当前产品真实PG12子完整PASS；当前binary的真实D05发布/private witness/replay/Package三子组合亦已完整PASS（70196）。完整服务验收、独立迁移/Admission/Owner矩阵、D05清理和生产root仍未闭合。本文不代表 D10 完成。
 
 依据：[开发计划](../development-plan.md)、[Skills 架构](../../architecture/agent-skills.md)、[D01 资源/Skills 契约](d01-contracts/resources-skills.md)、[本工作项规格](d10-skills-initialization-design.md)。S01 候选基线 `71dc17671631632bb26e251ad8491e74092ac975`，原主卡 SHA `a258ed11366946529082e885b5ec1e74d033687d1aec60d69000691862811b88`；独立结论 `/tmp/agenteam-d10-s01-review-4r1gg40i/report.md` SHA `49381427440c1f2a09219361e8a1b902ecb8c0db1d1700a35350050f6136f990` 无新增硬阻断，只采纳规格，不证明真实链路。
 
-## 当前授权 P1
+## 已交付 P1
 
 固定实现基线 `f401c15a5187690889eaea9ba9672ca8bdc85460`。新11路径：`internal/central/skill/contract/{types,package,read}.go` 及3对应测试，`internal/central/skill/{builtin,package}.go` 及2对应测试，`internal/central/skill/builtin/add-skills/v1/SKILL.md`。另仅本文及配套规格归位，共13路径；不改旧域、go.mod/go.sum、迁移、fixture、app或共享授权口。
 
 P1交付真实非空 Add Skills 文本、确定性 ZIP v1、不可变 manifest、严格路径/UTF-8/碰撞/资源限制、只读载体与实际本地 reader Close/Read 记账。只返回准备材料，绝不生成已初始化Project、已发布Skill或成功Object的生产结果。`OwnerReader` 是后段端口；没有默认成功实现。规范化使用锁文件已存在 `golang.org/x/text v0.41.0`，不新增依赖。
 
-## 后段真实前置
+## 当前 P2 授权与真实前置
 
-- D05 初始化专用 Service/SkillRevision/Creation cause 闭集、Service initiator UUID、不可逆 SkillRevision+ProjectDeleted release，各需单独授权及兼容验收。
-- **D05 ProjectFactAuthority 实现与 constructor 当前不存在。** 旧 A 的 stop/work/fence 冻结描述属于中断前记录，其未提交主体本轮未恢复，详见[恢复记录](../agent-team/recovery-2026-10-05.md#3-未恢复的实现与临时证据)；Object Audit 写前真实事实/私有同Tx见证方案仍由独立任务审定，不能临时allow。
-- P 初始化中的Object Audit专用路线和原失败创建的窄收敛口，以及当前lifecycle provider，均需各自正式冻结和验收。
-- 后段 Skill 服务在同Tx插入revision、D05 canonical/Audit及checkpoint；D08再次用其正式四方法确认后才初始化完成。全过程权限、Unknown、物理恢复和Project永久删除需真实PG/MinIO验证。
+本轮在独立 Skills 树实施完整持久初始化服务：新 Skill 域实现/测试、迁移 `00027_skills.sql`、本文/配套规格、后端 README必要事实与本树恢复点。不更改已交 P1编码规则，不新建外部安装/HTTP/UI入口；共享 D05/D08/Audit/root源须由root协调唯一写权。[当前详细规格](d10-skills-initialization-design.md#10-当前构造口与职责)覆盖数据、原四口、OwnerReader、权限/Tx/Unknown、真实Object发布清理与停止账本。
 
-这些前置不依赖D09默认模型或未绑定Tool/Mount；不阻止P1纯包。它们也不能通过空Skill、假的initializer、跨域查表或仅PUT成功绕过。
+- **已存在且可复用**：D05 `object.NewProjectAuditAuthority(Store)` 私有同Tx witness checker；D08 `InitializationConvergenceAuthority` 和 `NewInitializationAuditAuthority`。旧“checker/constructor不存在”的历史前提已过时，不另造重复实现。
+- **精确补口已完成并获有限独审**：D05 初始化 Service/SkillRevision/Creation cause闭集、同分支Service initiator UUID、SkillRevision+ProjectDeleted不可逆release，保留原Avatar和Knowledge变体。该证据仍不证明真实D05发布或清理。
+- **实现与绑定边界**：真实 Skill exact key/object/attempt provider及本域服务已实现，真实Object组合发布/读取三子已由70196实际通过；完整 participant/生产root仍未绑定。D08初始化Audit wrapper是active-only，不能用它放行删除。
+- **真实清理前置**：当前Project lifecycle CleanupPhase明确DependencyUnbound；需正式同cause清理授权和本域删除Audit组合，不跨域私表、不临时allow。Object runtime join停止项保持，未齐前不得运行或宣称完整root停止/永久删除组合。
+- 00024/25/26前缀已由root按精确来源集成，00027已随三次真实初始化fixture连续执行；独立升级/约束/DDL回滚矩阵仍待。未改旧迁移/共享Audit CHECK。真实PG+明确受控delegates只验证本域；真实D05/MinIO/witness及生产绑定须各自实际验收。
+
+P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试、00027 DDL草案；作者 `TestInitialization` 3top/9子实际通过，仅本域纯状态，尚无服务/PG/真实Object/网络结果。首次编译因误用不存在的Object NormalizeLocks setupFAIL已修正为已知四锁有序集合，原失败保留在恢复点。[验收分层](d10-skills-initialization-design.md#15-当前实现与验收分层)保留完整结果门槛；不得以空Skill、构造completed或仅PUT成功代替。
+
+## P2 当前可恢复阶段
+
+- rev3 SPEC 已获未参与实现的 Variables 作者有限独审接受。首 Store/命令/冻结包状态与3top/9子作者pure通过，只证明本域局部状态，不是初始化服务成功。
+- D05三个精确补口已按root授权落盘并获未参与者有限独审接受：初始化Service形状/Creation initiator、SkillRevision+ProjectDeleted release；原Runtime和Release实现未改。作者相关pure、Object contract完整race、原reservation函数定向race均actual0；独立实际overlay2top/6子通过；真实Object/PG和生产装配未跑。
+- 本域 repository/Authority 与有界 service owner 已形成可构建片段，作者累计7top离线race通过；观察/发现确认/同Tx确认三口新增2top共20子有效，覆盖当前门禁、原Unknown、私有issuer、活Tx/完整锁、发布关系损坏与serving关闭。首轮门禁Fault身份失败已修复并保留恢复记录。这些是受控端口证据；后续Initialize写入已形成片段，OwnerReader及恢复仍在实施，尚未PG。
+- 初始化写入四口已编译闭合：原计划/已知Reserve commit后才physical、同Tx Object canonical发布和Skill/Revision/checkpoint，作者1top/11子race actual0。Plan/Reserve/Publish Unknown、撤权、错误对象/临时receipt和Discard错误保留；这些由受控SQL/Object端口验证流程，尚不证明真实授权、PG、工作账本/恢复或生产绑定。
+- 精确Object/Audit授权作者定向race通过（2top/15子与1top/13子），包含真实D05 checker缺私有witness拒例；正向delegate仍受控。Owner元数据读1top/10子通过，OpenPackage随后已接入，作者3top/10子race通过；真实读流仍依赖D05且未做对象网络验收。持久work在physical前登记原process/父关系，实际Discard和调用返回后才结账；取消、Unknown和未结尾不提前Joined。作者集成5top/23子race actual0，跨进程恢复/真实PG仍未验；初次构建及fixture错误保留恢复点。
+- Object技术尾维护新增本域精确映射和同Store锁内重验，作者1top/14子race通过；D05仍须验证自身instance及私有实际return/lease/process证明，不产生新读写或不可逆清理许可。新physical恢复/清理尚未接入，原Owner操作兼容2top/15子仍通过。
+- 恢复新增持久work pass、100项有界轮转和精确进程终局/原锁/当前convergence gate，只结束原记账，不重开初始化发布。作者3top/14子race通过（含重建Service后仍可越过100忙项），完整skill/... race及vet均actual0。恢复首次错误构造名setupFAIL保留；PG、对象physical恢复/生命周期和root绑定仍未验/未闭合。
+- 00024已由root刷新到正式Variables来源，00025/26仍与各自稳定来源逐字一致，各域前序SQL验收事实可复用；本树00027尚未PG。新增真实PG验收源码覆盖四口持久发布/重建服务重读确认及发布失败回滚，race-c与两top精确发现通过；Project/Creation为披露的规范测试事实、Object为受控端口，本域Skill和Project权限/锁/事务实现真实消费。尚未运行PG、D05/private witness正例或生产root。原COMMIT恢复将复用已正式完整帧代理，不以受控CommitResult代实际提交证据。
+- 原 COMMIT 恢复第三 top 已形成可构建源码：复用正式完整帧代理，按实际发布事务 PID hold 原 COMMIT、Unknown 返回后释放并观察原提交与实际 join，再由原 key 和重建 Service 重读/重放。16497 race-c、858c2c 精确发现实际通过，尚未执行 PG/代理网络；没有把编译或控制端口写成真实提交结果。当前三个 top 每个都调用连续迁移，独立升级/DDL 失败回滚矩阵仍须另行实际覆盖。
+- 单独 `TestSkillMigration` 已实现 fresh/repeat、保旧 Account/Audit 事实与原约束的 00026→27 升级、六表合法图及 30 个 CHECK/FK 拒例、整 schema 故障回滚和原 checksum 恢复；35384 race-c、a4373e 精确发现 actual0。独立迁移 binary 与原初始化 binary 分开，尚未运行 SQL，不将前序各域验收或编译充作 00027 的真实结果。
+- 首个作者真实 PG top `TestSkillInitializationPersistence` 已完整 PASS（60950，Go 2.51s、outer 72.659s）：本域持久发布、重建 Service 后原 ID 重读/同命令重放、同 Tx 确认，以及缺锁/ended Tx/外来私有 issuer 拒绝。Go/driver 实际 Wait0、两资源双清、runtime/私有文件、desc/TCP 双尾与输入不变全部闭合，root 已有限接受。真实 Project Authority 与受控 Object 的分界保持；不证明 Project.Create/Human、D05 私有 witness/MinIO、生产 root 或独立验收。该轮连续迁移已实际执行，另外三个 top（发布回滚、COMMIT 恢复、独立迁移矩阵）仍未动态。
+- `TestSkillInitializationAdmissionUnknown` 另补 work 登记／Reserve 原 COMMIT 未确认时不得开始 physical 的两场景：使用真实 Store/Tx/原结果和正式完整帧代理，只有测试观察转发器，不替换 CommitResult；释放后原可见事实／只读 Pending／实际 work 结账与原 Unknown provenance 分开验证。97930 race-c、c293f4 精确发现 actual0，未运行 PG；受控 Object 边界不变，先前已冻结测试与产品没有修改。
+- 新 `TestSkillOwnerMetadataCurrentAuthority` 准备真实 PG 的 List/Get 当前权限矩阵：真实 Account.Initialize 注册测试 keyring，既有 Account/Project Authority 消费测试 User/Session；发布后未初始化 Project、跨 Owner/admin、Session 错配/缺失/撤销/过期、未知 Skill/Project、归档可读与删除拒绝共 12 子项，正向结果比对持久元数据且每次零 Object 操作。98760 race-c 与 33518 精确发现 actual0；初次编译因自有 GOTMPDIR 缺失未启动，补目录后构建。未执行 PG；Project/Creation completed 和生命周期状态是明示的规范测试前置，不是 Login、Project.Create、归档/删除命令或 D05 读流验收。只有新测试源，产品/原 fixture/既有 binaries 均未改。
+- 第二个作者真实 PG top `TestSkillInitializationPublicationRollback` 完整 PASS（58518，Go 1.86s、outer 69.153s）：受控 Object 发布拒绝后，真实 Skill/Revision 写入原子回滚、原 reserved attempt 保留、只读 Inspect 不续发且不能获得完成确认。Go/driver 实际 Wait0、两资源双清、私有目录、desc/TCP 双尾与 inputs_unchanged 均闭合后已释放窗口；不把受控发布失败外推成真实 D05 失败注入。COMMIT Recovery、Migration、Admission Unknown、OwnerReader 仍未实际运行。
+- 真实对象组合另形成 `TestSkillObjectInitializationPublication` 三子源码：同一 Store 的 Skill exact facts → D08 初始化授权 → 真实 Object 私有 witness/Audit，独立 object.Service.Initialize 后发布并重放，真实包 EOF/Close 与 reader lease/work 记账，精确公开字段不能伪造私有 witness。首 69925 编译拒绝把尚未实现的 Skill CleanupAuthority 接入；移除该错误 fixture 接线后 8884 race-c、2c8c10 精确发现 actual0。Cleanup 口明确 unbound、ProcessGuard 只构造、不装 Object Runtime，不声称旧进程停止/删除/root可用。新增两既有 harness 各一条精确单 top 映射，原 6m/七资源/Wait/预算不变；作者 d47937 控制与未参与者 685fef 窄审通过。尚未执行 MinIO/PG，不将编译、映射独审或此前受控 Object 结果充作真实对象通过。
+- 本域Project精确Stop子能力已实现并获未参与者有限独审接受：原初始化/包读取从准入关联稳定work ID，RequestStop同Store完整锁下消费现有StopPhase门禁、明确commit后才取消原call；Archive保合法reader，Delete包含reader。Inspect只按本实例实际返回或foreign精确停止+原Tx锁终局结账，不把取消/Close/空本地map当Stopped；原Unknown与100项之外Pending保持。最终4top/21子作者定向race、完整 `skill/...` race与vet通过；Knowledge作者对 `d0a16242` 六源独立overlay62067实际4top/2子race通过，覆盖锁失败、call未end、proof后identity漂移和原Unknown。全部仍用受控Store/Project/Process，不是PG/生命周期/根停止验收。原五个integration binaries和来源产品checkpoint `5291515f` 保留，新产品须另验。
+- 第三个原产品作者真实PG top `TestSkillInitializationCommitRecovery` 完整PASS（39205，Go3.88s、outer73.143s）：真实原COMMIT完整帧hold、原Unknown、释放后提交及proxy实际join，原key只读恢复与重建Service同ID零physical重放。Go/driver实际Wait0、两资源双退役、private/runtime及desc/TCP双尾、inputs_unchanged全闭合后释放窗口。此证据消费旧 `skill-pg-recovery.test`/`5291515f` 前产品，Object仍受控，不外推后增Stop、真实D05或root。
+- 当前Stop另有独立 `TestSkillLifecycleStopPersistence` 12子源码准备，消费真实Project LifecycleAuthority/同Store锁/真实work SQL，并以原完整帧proxy验证Stop COMMIT未确认不得取消。覆盖当前phase/cause/participant/Owner拒例、archive/delete原held Discard的实际join和独立真实父锁竞争；Project/Creation/lifecycle明示规范种子，Object/Process受控。70036 race-c与f8911f唯一top发现actual0，独立 `skill-pg-stop.test` 使用 `d0a16242` 产品+新测试；尚未执行PG/socket，旧binaries及harness未改。
+
+- 当前产品Stop作者真实PG `96753` 完整PASS：沿70036 binary／d0a16242产品＋19353f4e测试，12子Go5.32s；同env首采5,707,370,496 bytes满足5GiB后exec，Go986629与driver986046实际Wait0，driver15.375s／supervisor74.585s、outeractual0。两精确PG资源双退役、desc/runtime/private及TCP双尾、inputs_unchanged全齐，现场run仅owned.json且两PID不存在后归还窗口。实证当前Project LifecycleAuthority/原cause与phase/participant/Owner、真实父锁、archive/delete持有调用实际join、原Stop COMMIT Unknown不取消及后继已知提交取消；仍为规范Project/lifecycle种子和受控Object/Process，不称D05/foreign死亡/整participant/root通过。原件与完整env/cwd见 `.agent-state/current.md`；原初始化三组旧产品结论不扩大。
+- 当前70036 binary的真实 `TestSkillObjectInitializationPublication` 作者组合 `70196` 完整PASS：唯一top/3子Go2.85s，exec同进程fresh可用5,912,387,584 bytes通过5GiB，Go1.27.1与原MinIO SHA核定后沿七资源原chain执行。测试1069251／driver1067176实际Wait0，outer actual0、supervisor102.059s；七精确资源与三private双退役、runtime/desc/TCP双尾及inputs_unchanged全齐。实证真实Skill→Object→Project/Audit私有witness、MinIO canonical publication、重建Skill service原ID零重复重放、原包完整EOF与Close后reader/lease/work终局，公开字段完整仍不能伪造private witness。Project/Creation/Human为规范种子，不是真实Create/Login；ProcessGuard仅构造且未绑定Runtime，Cleanup/Purger/root仍unbound，不证明foreign进程停止或完整participant。当前产品来源d0a16242、测试组合19353f4e；原69925编译失败与旧8884准备binary不重写。准确命令及原日志定位见恢复点。
+
+## 剩余三组首轮实际失败
+
+固定70036/97198及唯一三top selector的4315整体FAIL，原Go6m/PG105+15/supervisor123+3/TCP75未变。Migration四直接子与30约束负例业务PASS10.73s；AdmissionUnknown两个子在原116聚合断言FAIL4.74s；Owner前11子PASS、最后deleting在夹具事务提交失败2.44s，公开门禁未到。原测试1094297/driver1093624实际Wait1，两精确资源双clean、desc双空、input不变、outeractual1已收；**原TCP差集1行超过尾，未保存具体行，whole接受不成立**。后验两ID明确absent、PID/private/runtime均退役，只证明可释放本域资源，不回填TCP或业务FAIL。
+
+静核两tests-only问题：CauseDetails.Primary含CommandIdentity非nil函数，reflect.DeepEqual会错误拒绝同原cause；deleting夹具缺生命周期operation父行而违反正式FK。root已授权保留原Unknown全部条件并改正式语义比较、补合法生命周期fixture前置，修复/独审/实际复验尚未完成；不改生产或关约束。原聚合断言缺逐条件观测保持缺口，不能补认。原日志、PID/nonce和完整命令边界见恢复点；其它旧组完整PASS保持各自原输入，不扩大本轮接受。
+
+4315后已完成两tests-only离线候选：Admission原opaque cause改完整正式语义比较，原Unknown/attempt/writer/空result门槛不减，14个实际Foundation控制证原DeepEqual错误及新比较拒绝差异；Owner deleting在同User/Project锁事务中建立正式operation/manifest/participants与精确version，保FK和原公开读门禁。race-c79510、integration vet31755、精确两top发现26e8fd均actual0；新32,903,693 B binary独立命名，旧70036/97198保留，修后两组尚未PG/独审接受。
+
+监督器同轮仅移植已审Runner57642926的有限TCP诊断，原整集差集/两次空/75s/Wait/资源门全不变，最多20ms诊断从原100ms间隔支出。固定18控制b663df actual0、Work未参与者7e8dc1窄审接受；首临时目录不存在的control setupERROR保留。只提供后继精确失败样本及受限owner观察，不归因或回填4315，不等测试夹具或业务接受。详源/命令与六路径freeze见恢复点。
+
+两fixture随后由Knowledge未参与者37ed09实际41个Foundation控制与正式同Tx lifecycle/FK源核有限接受。原三top修后79510候选在新61543真实窗口完整PASS：AdmissionUnknown2子4.44s、Migration4直接子含30约束9.55s、Owner12子2.03s。Go1138755/driver1138198实际Wait0，driver24.406s、supervisor84.760s、outeractual0；两精确资源双clean、private/runtime/desc、TCP双空及input不变全部齐。当前产品仍d0a16242，仅a5ebdd97两tests修复；不把规范Session/Project/lifecycle seed当真实Login/Create/BeginDelete，也不将受控Object此组当真实D05或完整participant/root。原4315全部失败与缺项保持；命令、原日志和资源定位在[恢复点](../../../.agent-state/current.md#修后原三-top61543-完整-pass)。
+
+## 生命周期后续依赖与责任
+
+上述Stop两口不构成完整`ProjectLifecycleParticipant`。本域下一段负责精确CleanupAuthority、同cause关闭serving与Release、预算内物理删除、删除Audit外层及所有实际terminal后的本域清理；必须消费真实D08 CleanupPhase准入，不能拿active初始化授权或技术退休权替代。
+
+当前00027的cleanup表通过FK要求已有skills行。Knowledge独审确认本次正式已initialized／已发表范围已有正确父行，旧未发布candidate也共用同Object/Upload/SkillRevision；因此不需要为本结果删除该FK。未初始化Creation取消仍缺正式D08语义，不以放宽DDL提前实现。
+
+下一独立清理结果修订为 [§16 rev2 SPEC](d10-skills-initialization-design.md#16-下一独立结果skills-精确-project-cleanuprev2-spec)，Knowledge未参与设计的续审已有限接受（704bee），无剩余本修订mustfix；root保存为1e8b5c67。只接受规格，未实施或动态验证。rev1三项问题及源码依据保留：dropFK缺合法必要case、历史work全删无有限进度、删父表后D05 CleanupProject仍先取Maintenance plan而断链。rev2保原FK、按32条收缩历史；00028原为本域占位，现由root正式移交D05/Knowledge作为共享cleanup索引迁移唯一写者。本域joined-work历史查询及initializations→work原FK反查须一并纳入其§7.1候选，以真实大历史EXPLAIN确认最小索引；不声称现Object索引清单已覆盖，不改FK/列/约束或自行写SQL。授权仍是正式已initialized Project当前Cleaning/原Owner-cause-version/manifest依赖，原AbandonedAttempt cause保持。
+
+该SPEC仍补精确CleanupAuthority、opaque release/object plan、物理阶段三项Maintenance、同Tx关闭serving/Release、实际join和原Unknown确认；已确认gated不重复Release，ObjectDelete沿原Creation与真实私有witness。新增不可省略的D05正式 `DeletedObjectMetadataPurger` 依赖：父映射存活时核当前gate和D05物理终局，有限清理私有历史；最后Object/Upload anchor和Skills核心在同一Tx删除，最终六表空只按该原子路径恢复Unknown。D05既有gate/stopWriters/clean及最终未完成检测均须避免无界重复已cleaned历史，同时保真实writer实际done／正式Guard证明。没有永久Skills第二份receipt、全域删除授权或缺行allow；该口当前不存在，DependencyUnbound不算本卡完成。root将独立分派Object补口与Project CleanupPhase，本实例未跨改产品；D04/App/完整root和Object Runtime停项保持。
+
+root负责D08当前Cleaning/participant/原Owner/operation/action/version的真实清理授权，以及把实际启用的Variables、Skills等域组合为同一`agent-skills-variables` participant并固定manifest/依赖顺序；生产initializer与participant同时接入，Object共享guard保持至实际join及DB最后。Object Runtime停止项和完整生产组合未验事实继续保留。
 
 ## 验收与当前证据
 
 以下保留原作者阶段的历史记录，原 `/tmp` 输入及日志本轮未恢复，不作为本轮重新验收的执行证据：P1 在固定隔离基线+32旧编译文件上完成 `skill/...` unit、race、vet、build，均exit0。最终13顶层/16子例：unit包0.008s/0.104s，race1.026s/1.272s；覆盖路径/ZIP攻击边界和读流实际join。首次12顶层unit同样通过，随后自查补ZIP解析前真实中央目录上限并重验。精确命令/原日志路径为 `/tmp/agenteam-d10-pure-1nuilmr2/validation.json`，当时分别保留原输入两版，并要求独立验收后才由主线程精确提交。原作者记录没有产品测试失败、没有fixture运行，最初Go技能路径定位失败已改读实际 `agenteam-go-development`，不计测试证据。
 
-后段验收见配套规格；未运行PG/DDL/MinIO/网络产品路径，未启服务、未绑定D08，无UI/Tool/Agent/Runner完成声明。原草案SQL路径为 `/tmp/agenteam-d10-s01-skills-uve1ji1r/skills-schema.draft.sql`（SHA `4b473f8785c8a15ca4a7b7e6a8f4b9d33569fd6f47bffe9a10f05fd904854dfc`），本轮未恢复；**没有迁移号、没有仓库迁移文件、没有执行或数据库验收**。
+后段验收见配套规格；上述 P1 历史阶段未运行 PG/DDL/MinIO 或绑定 D08。当前 P2 的有限 PG 结果以上节为准，仍无生产 root、MinIO、UI/Tool/Agent/Runner 完成声明。原草案SQL路径为 `/tmp/agenteam-d10-s01-skills-uve1ji1r/skills-schema.draft.sql`（SHA `4b473f8785c8a15ca4a7b7e6a8f4b9d33569fd6f47bffe9a10f05fd904854dfc`），本轮未恢复；当时没有迁移号或仓库迁移文件；当前00027已随初始化 fixture 连续执行，独立迁移验收仍待。
 
 ### P1 本轮独立验收
 

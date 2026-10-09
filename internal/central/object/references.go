@@ -180,8 +180,16 @@ func (s *Service) metadataAdmission(ctx context.Context) error {
 	return nil
 }
 func inspect(ctx context.Context, e postgres.SQLExecutor, id oc.ObjectID) (oc.ReferenceInspection, error) {
+	return inspectWithLimit(ctx, e, id, false)
+}
+
+func inspectWithLimit(ctx context.Context, e postgres.SQLExecutor, id oc.ObjectID, bounded bool) (oc.ReferenceInspection, error) {
 	out := oc.ReferenceInspection{References: []oc.ObjectReference{}, ActiveLeases: []oc.ObjectLease{}}
-	rows, err := e.Query(ctx, `SELECT owner_kind,owner_id::text,partition_id::text,kind FROM agenteam_object.object_references WHERE object_id=$1 ORDER BY owner_kind,owner_id`, id.String())
+	limit := ""
+	if bounded {
+		limit = " LIMIT 33"
+	}
+	rows, err := e.Query(ctx, `SELECT owner_kind,owner_id::text,partition_id::text,kind FROM agenteam_object.object_references WHERE object_id=$1 ORDER BY owner_kind,owner_id`+limit, id.String())
 	if err != nil {
 		return out, unavailable(err)
 	}
@@ -203,13 +211,17 @@ func inspect(ctx context.Context, e postgres.SQLExecutor, id oc.ObjectID) (oc.Re
 			return out, unavailable(err)
 		}
 		out.References = append(out.References, oc.ObjectReference{ObjectID: id, Owner: o, Kind: reference})
+		if bounded && len(out.References) > oc.ObjectMetadataPurgeBatchLimit {
+			rows.Close()
+			return oc.ReferenceInspection{}, failure(foundation.ResourceBusy, nil)
+		}
 	}
 	err = rows.Err()
 	rows.Close()
 	if err != nil {
 		return out, unavailable(err)
 	}
-	rows, err = e.Query(ctx, `SELECT id::text,owner_kind,owner_id::text FROM agenteam_object.object_leases WHERE object_id=$1 AND state='active' ORDER BY owner_kind,owner_id,id`, id.String())
+	rows, err = e.Query(ctx, `SELECT id::text,owner_kind,owner_id::text FROM agenteam_object.object_leases WHERE object_id=$1 AND state='active' ORDER BY owner_kind,owner_id,id`+limit, id.String())
 	if err != nil {
 		return out, unavailable(err)
 	}
@@ -231,6 +243,10 @@ func inspect(ctx context.Context, e postgres.SQLExecutor, id oc.ObjectID) (oc.Re
 			return out, unavailable(err)
 		}
 		out.ActiveLeases = append(out.ActiveLeases, oc.ObjectLease{ID: lease, ObjectID: id, Owner: o})
+		if bounded && len(out.References)+len(out.ActiveLeases) > oc.ObjectMetadataPurgeBatchLimit {
+			rows.Close()
+			return oc.ReferenceInspection{}, failure(foundation.ResourceBusy, nil)
+		}
 	}
 	err = rows.Err()
 	rows.Close()

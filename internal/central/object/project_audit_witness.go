@@ -33,21 +33,23 @@ const (
 // retains safe identities, never a Service, AccessPlan/PreparedPayload, backend
 // key, source, signed URL, or a provider's mutable authorization object.
 type projectAuditStage struct {
-	store    Store
-	tx       foundation.Tx
-	kind     projectAuditStageKind
-	locks    []foundation.LockRequest
-	actor    identity.Actor
-	owner    oc.ObjectOwner
-	object   oc.ObjectID
-	upload   oc.UploadID
-	attempt  oc.AttemptID
-	process  oc.ProcessID
-	objects  []oc.ObjectID
-	cleanup  oc.ProjectCleanupCause
-	stop     oc.ProjectStopCause
-	stopIDs  []string
-	transfer projectAuditTransferStage
+	store          Store
+	tx             foundation.Tx
+	kind           projectAuditStageKind
+	locks          []foundation.LockRequest
+	actor          identity.Actor
+	owner          oc.ObjectOwner
+	object         oc.ObjectID
+	upload         oc.UploadID
+	attempt        oc.AttemptID
+	process        oc.ProcessID
+	objects        []oc.ObjectID
+	cleanup        oc.ProjectCleanupCause
+	stop           oc.ProjectStopCause
+	stopIDs        []string
+	transfer       projectAuditTransferStage
+	boundedCleanup bool
+	cleanupWorkers []string
 }
 
 type projectAuditTransferStage struct {
@@ -159,6 +161,14 @@ func (s *Service) projectAuditAccessContext(ctx context.Context, tx foundation.T
 	if kind == auditPublish {
 		a := d.Attempt.Details()
 		p.object, p.upload, p.attempt = a.ObjectID, a.UploadID, a.ID
+	}
+	if kind == auditDelete && s.boundedCleanup(ctx, d.ObjectID) != nil {
+		workers, err := s.completedCleanupWorkers(ctx, d.ObjectID)
+		if err != nil {
+			return ctx, err
+		}
+		p.boundedCleanup = true
+		p.cleanupWorkers = append([]string(nil), workers...)
 	}
 	return context.WithValue(ctx, projectAuditStageKey{}, p), nil
 }

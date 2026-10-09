@@ -227,6 +227,8 @@ type objectAuditOptions struct {
 	config   *object.StorageConfig
 	stop     *objectStopAuthority
 	transfer *transferFixture
+	planner  oc.AccessPlanner
+	cleanup  oc.CleanupAuthority
 }
 type objectAuditFixture struct {
 	*fixture
@@ -270,6 +272,9 @@ func objectAuditOn(t *testing.T, original *fixture, o objectAuditOptions) *objec
 		t.Fatal(err)
 	}
 	var planner oc.AccessPlanner = f.authority
+	if o.planner != nil {
+		planner = o.planner
+	}
 	var runner *runnerAuthority
 	var gate oc.ProjectGate = f.authority
 	var leases oc.LeaseAuthority = f.authority
@@ -296,6 +301,9 @@ func objectAuditOn(t *testing.T, original *fixture, o objectAuditOptions) *objec
 	}
 	tap := &objectAuditTap{inner: realAudit}
 	auth := object.Authorizations{Planner: planner, Resources: f.authority, Read: f.authority, Gate: gate, Cleanup: f.authority, Leases: leases}
+	if o.cleanup != nil {
+		auth.Cleanup = o.cleanup
+	}
 	if o.stop != nil {
 		auth.ProjectStop = o.stop
 	}

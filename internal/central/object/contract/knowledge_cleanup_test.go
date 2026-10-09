@@ -26,7 +26,7 @@ func TestKnowledgeCleanupReleaseClosedOwnerAndReasonMatrix(t *testing.T) {
 				t.Fatal(err)
 			}
 			_, err = NewCleanupReleaseAccess(AccessRequestDetails{Operation: ReleaseForCleanupAccess, ObjectID: object, UploadID: upload, Cleanup: cause})
-			want := (kind == Avatar || kind == Knowledge) && (reason == ReplacedObject || reason == CancelledUpload) || kind == Knowledge && reason == OwnerDeleted
+			want := (kind == Avatar || kind == Knowledge) && (reason == ReplacedObject || reason == CancelledUpload) || kind == Knowledge && reason == OwnerDeleted || kind == SkillRevision && reason == ProjectDeleted
 			if (err == nil) != want {
 				t.Fatalf("closed cleanup matrix %s/%s: accepted=%v want=%v", kind, reason, err == nil, want)
 			}
