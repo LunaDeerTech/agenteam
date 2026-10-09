@@ -81,7 +81,7 @@
 - 独立Task A/B最终rromoyii组合完整PASS：A outer40886 exit0/69.414s（pg-c8c57e06…），B outer42492 exit0/84.273s（pg-63444268…）；bodyA2.64s/B18.24s，所有child/driver Wait0、两ID/runtime/TCP双空，22源末次changed=[]。20技术全文静审+privatecodec独立矩阵+A/B均通过，无已知未修产品阻断；作者余4新+4旧实际PG未齐，整卡不能接受。
 - D10 C1首3源core/reference/codec已gofmt并offline包编译exit0（no test files，只编译），稳定保存；3测试正在补齐，尚无实现行为/独立验收。D10原doc已补F1 ToolID层级BLOCKED/C1状态。Task transition最新草案把T0a无Blocker纯闭包与待B0-C的T0b明确拆开，358行peer修订冻结保存，独立SPEC读者须采用此最新输入。
 
-- Model第三轮32809 actualexit1：Go9.97s FAIL，未产生case step/afterEach诊断，具体早退出原因未定；完整terminal81.05s、directWait/4adoptedWait0/watchdog+resourceobserverjoin、7IDs/runtime/TCP双空/inputsame（owned-recovery-2920bc…）。原owner补Go对Node hook前错误的封闭安全类别/数值源位置投影，尚未冻结编译，不保存其活跃2Go差量，暂不第四业务run。
+- Model第三轮32809 actualexit1：Go9.97s FAIL，完整terminal81.05s、directWait/4adoptedWait0/watchdog+resourceobserverjoin、7IDs/runtime/TCP双空/inputsame（owned-recovery-2920bc…）。更正此前仅检查driver顶层遗漏证据子目录而误报未入body：实际case configuration-loss-armed，closed error CONTROLLED_NATIVE_LOSS_NOT_OBSERVED；r000032已真实create Provider、formal200/119B完整安全上游、transfer cut。native具体失败分支尚未保存，原owner将补仅安全native事实，不直接放宽断言。Node hook前诊断增强仍独立有用，但不是该轮已证根因修复。
 - Agent C1六source与doc已全freeze保存，pure0.023s/准确4依赖pure及race（Agent1.217s）/vet实际exit0，gofmt/diff/10链接均通过；3产品source未为tests修改。待独立实现验收，不提供真实Agent或生产服务。Task transition时间列歧义已单行消除，全文分段SPEC独立接受仅解锁T0a登记纯闭包，后继真实前置保留。下一窗作者连续剩4新top，完成后安全保存/排程再4旧Structure。
 
 - 作者新CommitUnknown完整PASS：body15.42s/driver22.085s，outer79229 exit0/81.798s，Go114010/driver113474 Wait0、两ID/runtime/TCP双空/inputsame（pg-13b99538…）。连续后Persistence扩展paging fixture在planning253事务not_committed INTERNAL_ERROR，body40.85s/Go116123/driver115607 Wait1、outer63817 exit1/106.529s、两ID/runtime/TCP双空/inputsame（pg-4810a4d8…）。Authority/Atomicity未启动；原owner核安全SQLstate/constraint原因，不先归因产品。
@@ -90,3 +90,5 @@
 - Agent C1独立实现验收已通过（8819779f六source＋卡固定）：5自有pure/race actualexit0，147JSON/Unicode负例、1282字符/保留字边界、组合247344B与rawcap、Clone/log/typedRef责任均通过；依赖不含Work/Task/App/Postgres或上层Tool。可复跑independent-core_test.go/independent-run.py已freeze；root在main隔离树复制6源+2probe，候选race1.205s/vet/Central与Runner build全部实际exit0。C1卡/README仅C1独立hunk已freeze准备正式main，不复制未交付Task段。
 - Paging FAIL静态定位是test matrix将future medium首项移到backlog critical保留midpoint，撞既有deferred tasks_group_rank_key；仍需安全23505/constraint实证和修后全top，不修改DDL/reader。Task源码保持PG停窗，仅原testowner最小合法rank/oracle返修。
 - Model新增独立read-pagination-contract.ts/probe.mjs已strictTS与1正16负/immutable纯probe实际exit0，保持当前recovery spec不import；只验证26目录种子/跨Provider/闭集关系，不当真实pagination。必要源码冻结保存后待实际readcase消费。
+
+- C1已正式交付main 7f2bb21176a0218286e82369b7efc75c3dab9017，正常push actual0/ls-remote精确确认；12路径仅6Agent纯source、2独立probe与卡/README/台账/current，没有00022或Model未验harness。main合入活动任务分支时保留所有Task/Model进度，仅整合root current与C1卡接受状态文档冲突。
