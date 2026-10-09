@@ -1,6 +1,6 @@
 # D11 Human Owner Task Timeline 只读库
 
-状态：rev1 草案，只授权本文与本树检查点；待独立SPEC审查，不是产品接受。正式基线 main `3cea6076`，独立树 `/workspace/agenteam-task-timeline`、分支 `ai/task-timeline-reader`。未实施、未占迁移号。
+状态：rev1完整SPEC获Skills独立有限接受，root已授权下述五作者新源实施，第六测试保留独立作者。正式基线 main `3cea6076`，独立树 `/workspace/agenteam-task-timeline`、分支 `ai/task-timeline-reader`。typed contract/Reader及限定纯控已实现；尚无真实PG验收，零迁移。
 
 ## 1. 完整结果与实际依赖
 
@@ -83,7 +83,7 @@ Rows每条Scan与最终Err均检查，所有路径真实Close后再退出Tx；ct
 
 ## 5. 实施闭集、兼容与所有权
 
-SPEC独审接受后由root确认产品写权；当前只有本文和本树current可以编辑。拟定新文件：
+SPEC独审后root已确认下述新文件写权；作者只实施前五项，第六由未参与者独立编写。闭集：
 
 | 路径 | 唯一内容 |
 | --- | --- |
@@ -116,4 +116,4 @@ Task planning/Blocker/Account/Project/PG/Cursor的已有实现和旧事件decode
 
 ## 7. 当前接受边界与下一步
 
-本文rev1已形成可审规格；未实施产品/迁移，未编译或运行Timeline纯控/真实PG，不宣称任何新能力通过。已有依赖来自正式main3cea6076，待未参与者重点审union wire兼容、当前授权/错误先后、水位在既有锁下的真实性、同时间测试刺激与未知future类型政策。root采纳并完成独审/写域确认后可直接推进实现，无需重复向用户询问已授权目标。
+完整SPEC已获未参与者有限接受；typed union/filter/cursor与同Tx Reader已实施，作者contract两top及Reader输入/cursor/scan三top纯控通过。新增作者PG矩阵首top源码含203条正式writer历史、同微秒/watermark、50/7/200分页及原receipt/重放；尚未编译或执行该集成top，其余两个权限/取消/完整性top待实施。不能把纯控、同时间刺激的可实现性或源码断言当真实Owner/PG/Rows/事务尾证明。没有迁移、HTTP/root或第六独立测试改动；原门槛与停止项保持。
