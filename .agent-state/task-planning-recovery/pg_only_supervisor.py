@@ -28,6 +28,27 @@ def budgets(root_chain):
     return (540, 60) if root_chain else (123, 3)
 
 
+SKILLS_CLEANUP_TOPS = {
+    '^TestProjectSkillsCleanupCurrentFacts$': 'TestProjectSkillsCleanupCurrentFacts',
+    '^TestProjectSkillsCleanupTransactions$': 'TestProjectSkillsCleanupTransactions',
+    '^TestProjectSkillsCleanupCurrentFactsRemainLocked$': 'TestProjectSkillsCleanupCurrentFactsRemainLocked',
+}
+
+
+def skills_cleanup_exact_top(log_path, selector):
+    expected = SKILLS_CLEANUP_TOPS.get(selector)
+    if expected is None:
+        return False
+    try:
+        output = log_path.read_text(encoding='utf-8')
+    except (OSError, UnicodeDecodeError):
+        return False
+    runs = re.findall(r'^=== RUN   (Test\w+)$', output, re.M)
+    passes = re.findall(r'^--- PASS: (Test\w+) \([0-9]+(?:\.[0-9]+)?s\)$', output, re.M)
+    refused = re.search(r'^\s*--- (?:FAIL|SKIP): ', output, re.M) is not None
+    return runs == [expected] and passes == [expected] and not refused
+
+
 def root_adapter(driver):
     expected = Path(__file__).resolve().parents[2] / '.agent-state/work-owner-http/root_chain_driver.py'
     if driver.resolve() != expected:
@@ -273,6 +294,12 @@ def main():
                 if remaining: code = 1
             if args.root_chain and not observe_root_chain(directory, log, log_path, args.run):
                 code = 1
+            if not args.root_chain and args.run in SKILLS_CLEANUP_TOPS:
+                log.flush()
+                exact = skills_cleanup_exact_top(log_path, args.run)
+                log.write(f'PROJECT_SKILLS exact_top={exact}\n')
+                if not exact:
+                    code = 1
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75

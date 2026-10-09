@@ -1,6 +1,6 @@
 # D08 Project 对 Skills 清理的当前授权
 
-状态：按正式 main `29dd4298` 已实现精确分支，作者限定 pure/race/vet 通过；独立审查进行，真实 PG 尚未验收。规则来源为已接受的 Skills cleanup rev2 §16.3、§16.8（`ai/skills-initialization` 的 `d10-skills-initialization-design.md`），以及现有 [LifecycleAuthority](recovery-d08-lifecycle-authority.md) 与 [生命周期合同](../../../internal/central/project/contract/lifecycle.go)。
+状态：按正式 main `29dd4298` 已实现精确分支，作者限定 pure/race/vet 通过；产品与测试获有限离线独审，真实 PG 尚未验收。规则来源为已接受的 Skills cleanup rev2 §16.3、§16.8（`ai/skills-initialization` 的 `d10-skills-initialization-design.md`），以及现有 [LifecycleAuthority](recovery-d08-lifecycle-authority.md) 与 [生命周期合同](../../../internal/central/project/contract/lifecycle.go)。
 
 ## 结果与范围
 
@@ -26,4 +26,6 @@
 
 先固定 Go1.27.1/local/off，复用原 Work 独占缓存及只读 modcache，进行受影响 pure/race/vet；真实 PG 和候选集成编译另按资源调度，不启动浏览器/Object backend。作者与未参与者结论分列，编译/pure 不替代真实授权矩阵。原 Object Runtime join、E01 等停止项不变。
 
-作者当前检查：固定 Go1.27.1/off/-p1、原缓存，新增两 pure top 与原 LifecycleAuthority 构造兼容共3top/19sub race实际0（89499→0cff7b，1.024s），同包vet实际0（65938→750b69）。三PG测试源码已落盘，包含原SH阻塞Owner writer的实际pg_locks等待判据与两个caller Tx实际返回，但尚未编译/运行；不将这些刺激设计记作真实通过。
+作者当前检查：固定 Go1.27.1/off/-p1、原缓存，新增两 pure top 与原 LifecycleAuthority 构造兼容共3top/19sub race实际0（89499→0cff7b，1.024s），同包vet实际0（65938→750b69）。三PG测试源码已落盘，包含原SH阻塞Owner writer的实际pg_locks等待判据与两个caller Tx实际返回，离线race候选现已编译并各exact-list恰1，尚未实际运行；不将这些刺激设计记作真实通过。
+
+Skills独立有限接受44702/c18c79：真实公开gate/严格loader/Rows方法配controlled Store共1top4sub race0，覆盖同ctx/Tx/SH、两轮Rows关闭与读取错误拒绝；原Stop/Inspect/Outbox/SQL逆差异不变。PG候选及3single发现、原driver编译已实际0；新增仅三exact入口的RUN/PASS闭集与纯控制待独立窄核，实际仍沿原2资源、105+15/123+3/TCP75，无自动实跑。
