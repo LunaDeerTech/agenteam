@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
-import { defineComponent, nextTick, ref } from 'vue'
+import { defineComponent, nextTick, ref, watch } from 'vue'
 import UiDialog from '../components/ui/UiDialog.vue'
 import UiDrawer from '../components/ui/UiDrawer.vue'
 import UiPopover from '../components/ui/UiPopover.vue'
@@ -339,6 +339,143 @@ async function escapeTop() {
   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
   await nextTick()
 }
+
+type ConfirmationAfterClose =
+  | 'none'
+  | 'other-focus'
+  | 'unmount-confirmation'
+  | 'replace-page'
+  | 'new-layer'
+  | 'transient-layer'
+  | 'reopen'
+
+function confirmationDisabledSurface(
+  disableInput: boolean,
+  afterClose: ConfirmationAfterClose = 'none',
+) {
+  const confirmation = ref(false)
+  const Editor = defineComponent({
+    components: { UiDialog },
+    setup: () => ({ confirmation, disableInput }),
+    template: `<UiDialog :open="true" title="Remaining editor">
+      <input data-recovery-input data-autofocus value="Unsaved draft"
+        :disabled="disableInput && confirmation" @keydown.enter="confirmation = true" />
+      <input data-other-input />
+    </UiDialog>`,
+  })
+  const wrapper = mount(
+    defineComponent({
+      components: { Editor, UiDialog },
+      setup() {
+        const lower = ref(false)
+        const confirmationMounted = ref(true)
+        const successor = ref(false)
+        let changed = false
+        watch(
+          confirmation,
+          (value, previous) => {
+            if (value || !previous || changed) return
+            changed = true
+            if (afterClose === 'other-focus')
+              document.querySelector<HTMLInputElement>('[data-other-input]')!.focus()
+            if (afterClose === 'unmount-confirmation') confirmationMounted.value = false
+            if (afterClose === 'replace-page') lower.value = false
+            if (afterClose === 'new-layer' || afterClose === 'transient-layer')
+              successor.value = true
+            if (afterClose === 'reopen') confirmation.value = true
+          },
+          { flush: 'post' },
+        )
+        watch(
+          successor,
+          (value) => {
+            if (value && afterClose === 'transient-layer') successor.value = false
+          },
+          { flush: 'post' },
+        )
+        return { lower, confirmation, confirmationMounted, successor }
+      },
+      // App owns the confirmation; the nested editor independently reads its
+      // blocking state. Keep that component boundary and render order here.
+      template: `<button data-launch @click="lower = true">Open editor</button>
+        <Editor v-if="lower" />
+        <input v-else data-new-page />
+        <UiDialog v-if="confirmationMounted" v-model:open="confirmation" title="Leave editor?">
+          <button data-continue data-autofocus @click="confirmation = false">Continue editing</button>
+        </UiDialog>
+        <UiDialog v-model:open="successor" title="New top layer">
+          <input data-successor-input data-autofocus />
+        </UiDialog>`,
+    }),
+    { attachTo: host },
+  )
+  mounted.push(wrapper)
+  return wrapper
+}
+
+it.each([
+  ['enabled throughout', false],
+  ['disabled only while confirmation is open', true],
+] as const)(
+  'restores the original editor input after cancellation (%s)',
+  async (_, disableInput) => {
+    await open(confirmationDisabledSurface(disableInput))
+    const input = document.querySelector<HTMLInputElement>('[data-recovery-input]')!
+    expect(document.activeElement).toBe(input)
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await flushPromises()
+    const continueEditing = document.querySelector<HTMLButtonElement>('[data-continue]')!
+    expect(document.activeElement).toBe(continueEditing)
+    expect(input.disabled).toBe(disableInput)
+    expect(input.closest<HTMLElement>('[role="dialog"]')!.inert).toBe(true)
+
+    continueEditing.click()
+    await flushPromises()
+    expect(document.querySelector('[data-continue]')).toBeNull()
+    expect(document.querySelector('[data-recovery-input]')).toBe(input)
+    expect(input.isConnected).toBe(true)
+    expect(input.disabled).toBe(false)
+    expect(input.closest<HTMLElement>('[role="dialog"]')!.inert).toBe(false)
+    expect(input.value).toBe('Unsaved draft')
+    expect(document.activeElement).toBe(input)
+  },
+)
+
+it.each([
+  'other-focus',
+  'unmount-confirmation',
+  'replace-page',
+  'new-layer',
+  'transient-layer',
+  'reopen',
+] as const)('cancels delayed editor focus restoration after %s', async (afterClose) => {
+  await open(confirmationDisabledSurface(true, afterClose))
+  const input = document.querySelector<HTMLInputElement>('[data-recovery-input]')!
+  input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+  await flushPromises()
+  expect(input.disabled).toBe(true)
+  const focus = vi.spyOn(input, 'focus')
+  document.querySelector<HTMLButtonElement>('[data-continue]')!.click()
+  await flushPromises()
+  expect(focus).not.toHaveBeenCalled()
+  if (afterClose === 'replace-page') {
+    expect(input.isConnected).toBe(false)
+    expect(document.querySelector('[data-new-page]')).not.toBeNull()
+  } else {
+    expect(input.isConnected).toBe(true)
+    expect(document.activeElement).toBe(
+      document.querySelector(
+        afterClose === 'other-focus'
+          ? '[data-other-input]'
+          : afterClose === 'new-layer'
+            ? '[data-successor-input]'
+            : afterClose === 'reopen'
+              ? '[data-continue]'
+              : '.dialog-header button',
+      ),
+    )
+  }
+})
 
 function remainingPanel() {
   const panel = document.querySelector<HTMLElement>('.ui-dialog')!

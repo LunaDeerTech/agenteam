@@ -14,12 +14,12 @@
 | 前端离线组合 | 历史完整单元 2626 PASS / 2 FAIL 为旧 Audit 菜单期待；#30 一行兼容后该文件 49/49 PASS。格式、类型、私有 build 及独立导航／焦点修复按各自版本组合接受，保留原失败，不宣称当前 HEAD 一次全量重跑。 |
 | 真实配置与凭据路径 | `modelsconfig03`、`modelscred01` 历史 actual PASS / fullSTOP；前两次配置 FAIL、Problem.instance 净化路径修复及其有限证据保留。 |
 | 恢复路径 | `modelsrecover01`、`modelsrecover02` 均 FAIL；后者缺最终 browser-result 与 durable facts，原 75s host TCP 观察未双清。后续有限窗口释放不能补写原 TCP 通过。 |
-| 当前恢复验收 | recovery 第七轮、read 第二轮、configuration 第三轮、credential 首轮完整通过，原各次失败保留。新 sharedLayer 修复改变模态层绘制顺序，尚待真实组件及受影响场景补验，不能将历史 PASS 直接写成新资产通过。 |
+| 当前恢复验收 | recovery 第七轮、read 第二轮、configuration 第三轮、credential 首轮完整通过，原各次失败保留。sharedLayer 修复及真实组件已按 §0.2 接受；受影响业务场景仍待补验，不能将历史 PASS 直接写成新资产通过。 |
 | 未完成门槛 | authority / navigation 两个新 top、旧 14 回归及独立 A/B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
 
 两次恢复失败后的受控结论仅用于后续修复：正式 header/Flush 后零 body 断连已在受控 native fetch 比较中验证；旧分支一次 fetch 可能透明发出两次 POST 并读到完整 EOF。ReadPrivate 的 Lstat→Open→SameFile 与 JS atomic rename 存在源码可确定竞态；候选改为先 NOFOLLOW|NONBLOCK 打开，再以同一 fd 验证 regular/0600/size，保留原有界读取、清理与 Close，pure-file 受控 12 叶／17 RUN/PASS 已接受。原恢复轮未采得具体 error 类别，以上不能回填两次 business FAIL 的确切因果。早期受控 browser launch 失败及 TMP 后续清理同样保留，短根成功不证明原 launch 失败原因。
 
-**实际恢复输入：** 以下未验输入位于活动 `ai/product-continuation` 分支，未随共享组件修复交付 `main`。§8 #24–27 四个 harness 和 `.agent-state/model-ui-recovery/` 的六场景模块、同 body 校验、资源 driver、必要脱敏失败输入，以及 `.agent-state/model-ui-regression/` 两个旧回归 helper 已从 Git 恢复。主线程已重建 `/workspace/agenteam-delivery`，固定正式 `11c16867` 与最后迁移 `00022`，并复制当前两份未完成整卡验收的 Model Go 测试源；新 binary 尚待编译，不能沿用旧 `dbf` 编译证据。`output/ai/model-ui-recovery/` 私有构建产物与固定 MinIO binary 仍需重建，不重新实现 harness。Go 1.27.1、固定 Chromium 151.0.7922.173 及其正式 SHA 已核实，锁定浏览器依赖已恢复，私有资产待 build。Docker 当前两容器属于既有 `agenteam-dev-infra`，不作为测试资源、不连接或清理；真实测试须另外创建并登记 owned fixture。
+**实际恢复输入：** 以下未验输入位于活动 `ai/product-continuation` 分支，未随共享组件修复交付 `main`。§8 #24–27 四个 harness 和 `.agent-state/model-ui-recovery/` 的六场景模块、同 body 校验、资源 driver、必要脱敏失败输入，以及 `.agent-state/model-ui-regression/` 两个旧回归 helper 已从 Git 恢复。主线程已重建 `/workspace/agenteam-delivery`，固定正式 `11c16867` 与最后迁移 `00022`，并复制当前两份未完成整卡验收的 Model Go 测试源；两份测试源已在该固定基线上重新 race 编译，不能沿用旧 `dbf` 编译证据。`output/ai/model-ui-recovery/` 私有 binary/helpers、原生 client probe、前端资产及固定 MinIO binary 均已从可恢复源码重建；Go 1.27.1、固定 Chromium 151.0.7922.173 及正式 SHA 已核实，锁定 web／浏览器依赖已恢复。Docker 当前两容器属于既有 `agenteam-dev-infra`，不作为测试资源、不连接或清理；真实测试须另外创建并登记 owned fixture。
 
 下一步由本任务负责人组织：
 
@@ -27,6 +27,22 @@
 2. 以当前 Git 基线、限定 diff 和停止写入范围交审，完成受影响的格式、类型、编译、精确 selector discovery 与安全输入检查。原始日志放 `output/ai/<task>/`；涉及 Unix socket 时使用有界短外部目录，恢复前核实际工具、资产和资源所有者。
 3. 保持 §9 场景和预算，先验证已有 sharedLayer 修复，再继续 authority / navigation、必要旧回归和独立 A/B。已有结果仅在相关输入／依赖可确认未变时复用；受新共享层行为影响的历史场景须补验。高风险恢复与权限场景须由未参与实现者独立验证。
 4. 负责人整合实现、必要测试、README 和简短台账，由主线程一次交付完整结果。不得以编译、受控 helper PASS、静态准备或旧实例 ACK 替代真实整卡验收。
+
+本次恢复后的 authority 第三轮仍 FAIL：已通过原共享遮罩阻挡点及归档后的配置原请求重放，随后在切换到凭据恢复 Project 时等待新的 Provider 列表读取超时；停在 `authority-archived-credential`，没有完成凭据归档场景。闭合脱敏诊断保存在 [authority-credential-navigation-failure.json](../../../.agent-state/model-ui-recovery/authority-credential-navigation-failure.json)，尚不能仅据超时确定产品或 harness 原因。Go 24.57 秒，外层实际 exit=1／110.53 秒；direct child 与四个 adopted child 均实际 wait，watchdog／observer join、七个资源双 absent、子进程空、TCP 双空及输入未变均已核实。本轮失败不回填前两轮因果，也不改变 4/6 边界。
+
+navigation 第三轮同样 FAIL：本轮 Session 已观察到 headers 与 finished、没有 failed event，随后完成 Model 创建与 Models 列表；切到可用模型叶时超时，fixture 另报安全代理终态不完整。闭合脱敏诊断见 [navigation-directory-failure.json](../../../.agent-state/model-ui-recovery/navigation-directory-failure.json)。Go 16.30 秒，外层实际 exit=1／100.69 秒；direct/four adopted 实际 wait、watchdog/observer join、七资源双 absent、进程空、TCP 双空及输入未变全部完成。静态检查发现 navigation 复用的 System 草稿种子名称为 `Owner draft memory*`，与 Model 安全目录准入的 `Models ` 前缀不一致；待纯正反例与受影响真实场景验证，修复限定测试种子，不扩响应白名单。没有生成或验收八张布局图，原两轮 Session 失败原因不回填。
+
+authority／navigation 四路径限定 harness 修复已独立接受：Project 切换等待公开导航发布及新的完整 GET 或真实重读门槛；navigation 改用 Model 专属 System 草稿种子，原安全准入逐字保留。旧种子纯正例实际失败，修后 11 top／33 child、strict TS、integration vet 与 race 编译全部通过；独立 A/B binary 已按新 fixture 重编，仅编译与发现通过，真实场景未执行。
+
+authority 第四轮仍 FAIL：浏览器原 45 秒总预算在 `authority-same-session-checking` 耗尽，仅四个安全响应，尚未到上述 Project 切换修复点；现有观察不能区分响应结束、JSON 读取或控制释放等待。闭合原件见 [authority-session-fourth-failure.json](../../../.agent-state/model-ui-recovery/authority-session-fourth-failure.json)。Go 55.03 秒，外层实际 exit=1／143.10 秒（含原 TCP 尾部观察）；direct 与四个 adopted child 实际 wait、watchdog／observer join、七资源双 absent、子进程空、TCP 双空与输入未变均已完成。保留原 FAIL，下一步仅补有界分段诊断，不加请求或预算；navigation 种子修复可独立复验。
+
+navigation 第四轮已通过新的 Model 专属种子目录读取与 raw-return 检查，随后仍 FAIL：`navigation-draft-and-focus` 中 History 返回后选择“继续编辑”，名称值保留断言通过，但名称输入框恢复焦点的等待超时（模块第 231 行）；本轮未采实际 activeElement，不能先认定焦点去了哪里。闭合原件见 [navigation-focus-fourth-failure.json](../../../.agent-state/model-ui-recovery/navigation-focus-fourth-failure.json)。九个安全响应，尚无八张布局图；Go 19.47 秒、外层实际 exit=1／106.80 秒，direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、子进程空、TCP 双空和输入同一全部完成。authority 的局部 5 秒分段诊断另已 strict TS、自查与独立有限审查接受，仅可定位后续失败，不等于原请求或业务通过。
+
+authority 第五轮有界诊断再次 FAIL，明确停在 Session `finished()` 的 5 秒观察：headers 已见、finished event 未见、failed event 已见，受控 release 已返回；尚不能据此区分原生 body 消费结果与 Playwright 请求终态事件。闭合原件见 [authority-session-fifth-failure.json](../../../.agent-state/model-ui-recovery/authority-session-fifth-failure.json)。Go 21.82 秒、外层实际 exit=1／114.68 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、子进程空、TCP 双空与输入同一均完成。原各轮 FAIL 保留，不能通过删掉 EOF 门槛或追加 GET 把观察改成成功。
+
+另一个精确组件正反例已作者与独立者各自实跑：原 trigger 始终可用时通过，确认期间 disabled、同 tick 关闭确认并解除 disabled 时失败；原节点最终已 connected／enabled／非 inert／保值，实际焦点在下层关闭按钮。它证明共享层的局部恢复时序缺口，不回填 navigation 第四轮未采集的 activeElement；后继共享修复及其适用验证仍在进行，§0.2 已接受结论保持绑定原版本。
+
+共享焦点后继修复的 114 项单测、独立 8 项正反例及完整前端 2640 项／类型／build 通过，但首轮真实组件未通过：18 个新用例都在打开确认框后的前置焦点断言失败，trace 证明确认按钮先聚焦、随后收到无指针点击，自动化尚未执行其后显式点击；不能精确指称未采集的键盘阶段。另有外层监督错误：临时附加的 120 秒整轮上限截断第 20 项，并漏收 adopted 实际 wait，末个 Vite close 也未证明。当前已无自有运行进程或监听端口，PID 115611 仅为 PPID 1 的已退出 zombie；不能补写原 Wait／close 或称该轮完整退役通过。必要事实见 [shared-focus-first-failure.json](../../../.agent-state/model-ui-recovery/shared-focus-first-failure.json)。只修该测试专属 Enter handler 的默认行为，保留全部焦点断言；新固定选集监督器按原每项 45 秒预算计总长并实际收取 adopted 终态，先复验单个代表前置场景，尚不正式接受共享修复。
 
 ### 0.1 T1 最小共享源码与实际签名
 
@@ -43,6 +59,12 @@
 authority 第二轮的真实 hit-test 证明：后激活的确认框虽然获得焦点与模态所有权，其遮罩仍可能被 DOM 顺序较后的旧 Provider 遮罩覆盖。共享 `useLayer` 现按同一激活栈同步绘制顺序，`UiDialog` 整体遮罩与 `UiPopover` 绑定该层级，Drawer 继承 Dialog 行为；焦点、inert 与关闭策略保持原契约，设计规范同步说明。这是单独可交付的通用组件修复，不表示 D27 剩余场景已通过。
 
 当前 `npm run check --prefix web` 完整通过：格式、60 个文件共 2632 个单元测试、类型及生产构建；首轮因现存依赖目录缺少锁定 `go-captcha-vue` 导致的失败保留，经 `npm ci --prefix web` 恢复后通过。真实组件浏览器浅色 8 项与深色补集 8 项分别通过，覆盖 Dialog/Drawer、390/1440 宽度、正常/减少动效、逆 DOM 激活、实际指针命中、Popover/模态叠加、移除重开、Tab/Escape 与焦点恢复；两轮 child 实际 wait=0，Vite close 已返回，worker 已退出。深色第一次选择器未命中产生的 0 tests setup FAIL 保留。六路径限定实现、完整工程检查与真实结果已获独立接受，不复用为 Project authority/navigation 的业务通过。
+
+### 0.3 确认关闭后的原焦点恢复
+
+共享层新增一次受保护的 DOM 更新后重试：正常关闭确认框时，若剩余模态内的原触发控件仍暂时 disabled，先保留既有合法兜底焦点，更新后再检查原节点与控件可用性。组件卸载／重开、层栈变化、页面或 panel 替换、用户自主移焦均使旧重试失效，不改变 Model 禁用策略或原焦点契约。技术范围仅 `useLayer.ts`、对应单元测试及真实组件 E2E；设计契约未变。
+
+最终版本完整 `npm run check --prefix web` 通过：格式、60 文件／2640 单测、类型及生产 build；其中共享组件单测 114／114，独立正反例 8 项通过。纠正测试专属 Enter 默认动作后，单代表场景与最终 21 项真实组件分别完整通过：Dialog／Drawer 的浅深色×390／1440×正常／减少动效共 16 项、2 个稳定启用对照，以及永久禁用 anchor、直接销毁、剩余模态／非 top 移除三项旧边界。最终 21 项无 skip／flaky／unexpected，direct 与四个 adopted child 实际 wait=0、Vite close、输入同一及两次子进程／监听空均已确认。该限定实现与最终结果已获独立接受；不以此替代 Project authority／navigation 或其余 D27 验收。首轮 18 个前置失败、外层缺失 Wait／close 及后续单例单复数解析 setup FAIL 保留，不回填为成功。
 
 ## 1. 完整结果与开工门槛
 

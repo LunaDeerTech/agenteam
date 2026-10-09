@@ -8,6 +8,7 @@ interface Layer {
   zIndex: Ref<number>
 }
 const layers: Layer[] = []
+let layerRevision = 0
 const selector =
   'button:not(:disabled), a[href], input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])'
 export function focusable(root: HTMLElement) {
@@ -148,6 +149,7 @@ export function useLayer(
   fallbackFocus?: Readonly<Ref<HTMLElement | null | undefined>>,
 ) {
   let record: Layer | undefined
+  let disposed = false
   const zIndex = ref(100)
   function remove(restore = true, allowFallback = false) {
     if (!record) return
@@ -159,6 +161,7 @@ export function useLayer(
       active.panel.value.setAttribute('aria-hidden', 'true')
     }
     layers.splice(index, 1)
+    layerRevision++
     record = undefined
     syncBackground()
     if (restore && wasTop) {
@@ -169,7 +172,37 @@ export function useLayer(
           if (!restorePageFocus(active.trigger) && fallback !== active.trigger)
             restorePageFocus(fallback)
         } else if (active.trigger?.isConnected) active.trigger.focus({ preventScroll: true })
-      } else restoreWithinModal(active.trigger, layers.slice(lastModal))
+      } else {
+        const allowed = layers.slice(lastModal)
+        const revision = layerRevision
+        const panels = allowed.map((layer) => layer.panel.value)
+        const retryTrigger =
+          allowFallback && active.trigger?.matches(':disabled') ? active.trigger : null
+        restoreWithinModal(active.trigger, allowed)
+        if (retryTrigger && allowed.some((layer) => layer.panel.value?.contains(retryTrigger))) {
+          const restored = document.activeElement
+          // A closing confirmation can still disable its editor until Vue has
+          // patched that sibling subtree. Retry only this original DOM target.
+          void nextTick(() => {
+            if (
+              disposed ||
+              open.value ||
+              record ||
+              layerRevision !== revision ||
+              document.activeElement !== restored ||
+              allowed.some((layer, index) => layer.panel.value !== panels[index])
+            )
+              return
+            if (
+              allowed.some((layer) => {
+                const current = layer.panel.value
+                return current && restorationVisible(current) && current.contains(retryTrigger)
+              })
+            )
+              restoreFocus(retryTrigger)
+          })
+        }
+      }
     }
     if (!layers.length) {
       document.removeEventListener('keydown', keydown, true)
@@ -197,6 +230,7 @@ export function useLayer(
         zIndex,
       }
       layers.push(record)
+      layerRevision++
       syncBackground()
       await nextTick()
       syncBackground()
@@ -209,6 +243,9 @@ export function useLayer(
     },
     { flush: 'sync', immediate: true },
   )
-  onBeforeUnmount(() => remove())
+  onBeforeUnmount(() => {
+    disposed = true
+    remove()
+  })
   return { isTop: () => layers.at(-1) === record, zIndex }
 }

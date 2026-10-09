@@ -33,7 +33,7 @@ const closure = [
 ];
 
 const shell = `<script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, defineComponent, h, nextTick, ref } from 'vue'
 import UiDialog from './src/components/ui/UiDialog.vue'
 import UiDrawer from './src/components/ui/UiDrawer.vue'
 import UiPopover from './src/components/ui/UiPopover.vue'
@@ -53,6 +53,29 @@ const pageTitle = ref<HTMLElement|null>(null), pageTrigger = ref<HTMLElement|nul
 const pageGeneration = ref(0), pageDetached = ref(false), pageFocuses = ref(0), alternate = ref(false)
 const pageNested = ref(false), nestedDisabled = ref(false)
 const layerMounted = ref(true)
+const editorDraft = ref('Unsaved draft')
+const disableEditor = query.get('blocking') !== 'false'
+// Preserve App's separate subscription/render boundary between the editor
+// subtree and its global confirmation dialog.
+const ConfirmationEditor = defineComponent({
+  setup: () => () => h(Surface, { open: true, title: 'Remaining editor' }, {
+    default: () => [
+      h('input', {
+        'data-testid': 'blocked-editor-input', 'data-autofocus': '',
+        value: editorDraft.value, disabled: disableEditor && confirmation.value,
+        onInput: (event: Event) => { editorDraft.value = (event.target as HTMLInputElement).value },
+        onKeydown: (event: KeyboardEvent) => {
+          if (event.key !== 'Enter') return
+          // This shortcut owns Enter; its default activation must not reach
+          // the confirmation button that receives focus during this gesture.
+          event.preventDefault()
+          confirmation.value = true
+        },
+      }),
+      h('input', { 'data-testid': 'editor-later-input' }),
+    ],
+  }),
+})
 const fallbackState = query.get('fallback') || 'valid'
 const pageFallback = computed(() => fallbackState === 'none' ? null : pageTitle.value)
 async function restorePage() {
@@ -124,6 +147,12 @@ async function remount() {
       </UiDialog>
     </section>
   </main>
+  <template v-if="mode === 'confirmation-disabled'">
+    <ConfirmationEditor v-if="lower" />
+    <UiDialog v-model:open="confirmation" title="Leave editor?">
+      <button data-testid="editor-continue" data-autofocus @click="confirmation = false">Continue editing</button>
+    </UiDialog>
+  </template>
   <template v-if="mode === 'reverse-order'">
     <UiDialog v-model:open="confirmation" title="Earlier confirmation">
       <input data-testid="order-confirmation-input" data-autofocus />
@@ -143,7 +172,7 @@ async function remount() {
       <template #footer="{ close }"><button data-testid="order-lower-close" @click="close">Close lower</button></template>
     </Surface>
   </template>
-  <template v-if="mode !== 'ordinary' && mode !== 'popover-page' && mode !== 'page-fallback' && mode !== 'reverse-order' && mounted">
+  <template v-if="mode !== 'ordinary' && mode !== 'popover-page' && mode !== 'page-fallback' && mode !== 'reverse-order' && mode !== 'confirmation-disabled' && mounted">
     <Surface v-model:open="lower" title="Remaining modal">
       <input data-testid="lower-input" data-autofocus />
       <div v-if="mode === 'native-target'" :contenteditable="nativeTarget === 'editable-child' && invalidTarget ? 'true' : undefined">
@@ -530,6 +559,56 @@ async function pointerTarget(target: Locator) {
       "the visible control must receive the native pointer",
     )
     .toBe(true);
+}
+
+const editorFocusCases: Array<{
+  blocking: boolean;
+  theme: "light" | "dark";
+  width: number;
+  reducedMotion: "no-preference" | "reduce";
+}> = [{ blocking: false, theme: "light", width: 1440, reducedMotion: "no-preference" }];
+for (const theme of ["light", "dark"] as const) {
+  for (const width of [390, 1440]) {
+    for (const reducedMotion of ["no-preference", "reduce"] as const) {
+      editorFocusCases.push({ blocking: true, theme, width, reducedMotion });
+    }
+  }
+}
+for (const kind of ["dialog", "drawer"]) {
+  for (const { blocking, theme, width, reducedMotion } of editorFocusCases) {
+    test(`${theme} ${kind} ${width} ${reducedMotion}: original editor focus survives confirmation (blocking=${blocking})`, async ({
+      page,
+      harness,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.emulateMedia({ reducedMotion });
+      await visit(page, harness, kind, `&mode=confirmation-disabled&blocking=${blocking}&theme=${theme}`);
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      await page.getByTestId("launch").click();
+      const input = page.getByTestId("blocked-editor-input");
+      await expect(input).toBeFocused();
+      await input.fill("Retained editor draft");
+      const original = await input.elementHandle();
+      if (!original) throw new Error("ORIGINAL_EDITOR_INPUT_REQUIRED");
+      try {
+        await page.keyboard.press("Enter");
+        await expect(page.getByTestId("editor-continue")).toBeFocused();
+        await expect(input).toHaveJSProperty("disabled", blocking);
+        await pointerTarget(page.getByTestId("editor-continue"));
+        await page.getByTestId("editor-continue").click();
+        await expect(page.getByRole("dialog", { name: "Leave editor?", exact: true })).toHaveCount(0);
+        await expect(input).toBeEnabled();
+        await expect(input).toHaveValue("Retained editor draft");
+        await expect(input).toBeFocused();
+        expect(await original.evaluate((node) => node.isConnected && document.activeElement === node)).toBe(true);
+        await page.getByTestId("editor-later-input").click();
+        await page.waitForTimeout(250);
+        await expect(page.getByTestId("editor-later-input")).toBeFocused();
+      } finally {
+        await original.dispose();
+      }
+    });
+  }
 }
 
 for (const theme of ["light", "dark"] as const) {
