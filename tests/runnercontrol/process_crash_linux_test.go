@@ -206,6 +206,17 @@ func runnerCrashIdentity(path string) (identity.Identity, [32]byte, [32]byte, bo
 
 var errRunnerCrashHeld = errors.New("owned crash response held")
 
+// HTTP/1.1 detects peer loss while a handler is held only after the request
+// body reaches EOF. Consume the original bounded bytes before the checkpoint;
+// this does not submit the enrollment to the backend or cancel its context.
+func runnerCrashPendingBody(request *http.Request) bool {
+	raw, readErr := io.ReadAll(io.LimitReader(request.Body, p.MaxDeviceBodyBytes+1))
+	closeErr := request.Body.Close()
+	complete := readErr == nil && closeErr == nil && request.ContentLength > 0 && int64(len(raw)) == request.ContentLength && len(raw) <= p.MaxDeviceBodyBytes
+	clear(raw)
+	return complete
+}
+
 // This transport has two finite holds, neither of which returns a fabricated
 // positive result: before invoking enrollment, or after the real backend's
 // complete known response but before any byte reaches the original child.
@@ -273,6 +284,13 @@ func newRunnerCrashTransport(t *testing.T, backend *runnerNativeServer, path str
 				return
 			}
 			if !committed {
+				if !runnerCrashPendingBody(request) {
+					v.mu.Lock()
+					v.failed = true
+					v.mu.Unlock()
+					http.Error(w, "unavailable", http.StatusBadGateway)
+					return
+				}
 				hold(request.Context(), false)
 				return
 			}

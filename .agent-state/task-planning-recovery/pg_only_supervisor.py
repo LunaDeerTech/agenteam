@@ -25,6 +25,24 @@ import uuid
 
 RUNNER_NATIVE_SAFETY_SELECTOR = '^TestRunnerControl(DeviceCompetition|NativeProtocolRejection|NativeDeadlines|NativeIdentityRecovery)$'
 RUNNER_CURRENT_AUTHORITY_SELECTOR = '^TestRunnerControl(CurrentAuthorityAndCredentialInvalidation|DeviceAndReader)$'
+RUNNER_PENDING_CRASH_SELECTOR = '^TestRunnerControlProcessCrashRecovery$/^pending_persisted_before_backend_admission$'
+
+
+def observe_runner_pending_crash(log_path, log):
+    parent = 'TestRunnerControlProcessCrashRecovery'
+    expected = {parent, parent + '/pending_persisted_before_backend_admission'}
+    try:
+        raw = log_path.read_text()
+    except (OSError, UnicodeDecodeError):
+        log.write('RUNNER pending_crash_exact_case=False log_unreadable=True\n')
+        return False
+    runs = re.findall(r'^=== RUN   (\S+)$', raw, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', raw, re.M)
+    passed = [name for state, name in results if state == 'PASS']
+    good = (len(runs) == 2 and set(runs) == expected and len(results) == 2
+            and len(passed) == 2 and set(passed) == expected)
+    log.write(f'RUNNER pending_crash_exact_case={good} run_count={len(runs)} result_count={len(results)}\n')
+    return good
 
 
 def observe_runner_native_safety(log_path, log):
@@ -395,7 +413,7 @@ def main():
     if adapter is not None:
         inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
     crash_inputs = None
-    if not args.root_chain and args.run == '^TestRunnerControlProcessCrashRecovery$':
+    if not args.root_chain and args.run in ('^TestRunnerControlProcessCrashRecovery$', RUNNER_PENDING_CRASH_SELECTOR):
         crash_started = time.monotonic()
         source = Path(__file__).resolve().parents[1] / 'runner-control/crash_inputs.py'
         spec = importlib.util.spec_from_file_location('runner_crash_inputs', source)
@@ -505,6 +523,10 @@ def main():
             if args.run == RUNNER_CURRENT_AUTHORITY_SELECTOR:
                 log.flush()
                 if not observe_runner_current_authority(log_path, log):
+                    code = 1
+            if args.run == RUNNER_PENDING_CRASH_SELECTOR:
+                log.flush()
+                if not observe_runner_pending_crash(log_path, log):
                     code = 1
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.

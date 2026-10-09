@@ -28,6 +28,7 @@ import (
 
 const runnerNativeSafetySelector = "^TestRunnerControl(DeviceCompetition|NativeProtocolRejection|NativeDeadlines|NativeIdentityRecovery)$"
 const runnerCurrentAuthoritySelector = "^TestRunnerControl(CurrentAuthorityAndCredentialInvalidation|DeviceAndReader)$"
+const runnerPendingCrashSelector = "^TestRunnerControlProcessCrashRecovery$/^pending_persisted_before_backend_admission$"
 
 func main()             { os.Exit(run()) }
 func fail(s string) int { fmt.Fprintln(os.Stderr, s); return 1 }
@@ -36,7 +37,7 @@ func run() (code int) {
 	binary := opts.String("test-binary", "", "precompiled race integration executable")
 	selector := opts.String("run", "", "one exact anchored top-level selector")
 	directory := opts.String("directory", "", "new private task-owned run directory")
-	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || *binary == "" || *directory == "" || (!regexp.MustCompile(`^\^Test[A-Za-z0-9]+\$$`).MatchString(*selector) && *selector != runnerNativeSafetySelector && *selector != runnerCurrentAuthoritySelector) {
+	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || *binary == "" || *directory == "" || (!regexp.MustCompile(`^\^Test[A-Za-z0-9]+\$$`).MatchString(*selector) && *selector != runnerNativeSafetySelector && *selector != runnerCurrentAuthoritySelector && *selector != runnerPendingCrashSelector) {
 		return fail("exact binary, directory and one anchored top are required")
 	}
 	start := time.Now()
@@ -51,6 +52,19 @@ func run() (code int) {
 	defer signalCancel()
 	ctx, cancel := context.WithTimeout(signalCtx, 105*time.Second)
 	defer cancel()
+	if *selector == runnerPendingCrashSelector {
+		// -test.list enumerates tops, never subtests. Discover the exact parent
+		// separately, under the original driver context, then run only the child.
+		discovery := exec.CommandContext(ctx, *binary, "-test.list=^TestRunnerControlProcessCrashRecovery$")
+		discovery.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+		discovery.Cancel = func() error { return syscall.Kill(-discovery.Process.Pid, syscall.SIGKILL) }
+		discovery.WaitDelay = 3 * time.Second
+		out, err := discovery.CombinedOutput()
+		if err != nil || strings.TrimSpace(string(out)) != "TestRunnerControlProcessCrashRecovery" {
+			return fail("original Runner crash parent discovery did not complete exactly")
+		}
+		fmt.Printf("DISCOVERY actual_wait pid=%d state=%s exact_parent=true\n", discovery.Process.Pid, discovery.ProcessState.String())
+	}
 	nonce, err := pgfixture.RandomHex(16)
 	if err != nil {
 		return fail("nonce failed")
