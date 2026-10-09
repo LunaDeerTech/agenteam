@@ -91,7 +91,8 @@ async function fixture() {
     owner = project(),
     liveVariable = variable(),
     variableCall: Fetch | null = null,
-    sessionCall: Fetch | null = null
+    sessionCall: Fetch | null = null,
+    ownerCall: Fetch | null = null
   const receipts: unknown[] = []
   const fetcher = vi.fn<Fetch>(async (url, init) => {
     if (url === '/api/v1/session') return sessionCall ? sessionCall(url, init) : json(current)
@@ -136,7 +137,7 @@ async function fixture() {
       receipts.push(receipt)
       return json(receipt)
     }
-    if (url.startsWith('/api/v1/projects/')) return json(owner)
+    if (url.startsWith('/api/v1/projects/')) return ownerCall ? ownerCall(url, init) : json(owner)
     throw new Error('unexpected fixture request')
   })
   const auth = createSessionController(
@@ -192,6 +193,9 @@ async function fixture() {
     },
     sessionCall(value: Fetch | null) {
       sessionCall = value
+    },
+    ownerCall(value: Fetch | null) {
+      ownerCall = value
     },
   }
 }
@@ -394,6 +398,96 @@ describe('Variables page consumes current Project owner and six actual API metho
       expect(await f.page.save()).toBe(false)
     },
   )
+  it('same identity recovery requires a fresh Owner Get before archived history becomes usable', async () => {
+    const f = await fixture()
+    await f.page.select(target)
+    f.page.draft.value = 'committed before archive'
+    await f.page.save()
+    const original = f.page.progress.value?.receipt
+    const held = barrier<Response>()
+    const ownerCalls = vi.fn<Fetch>(() => held.promise)
+    f.ownerCall(ownerCalls)
+    const before = variableCalls(f.fetcher).length
+    await f.auth.restore()
+    await settle()
+    expect(ownerCalls).toHaveBeenCalledTimes(1)
+    expect(ownerCalls.mock.calls[0]![0]).toBe(`/api/v1/projects/${projectID}`)
+    expect(f.page.visible.value).toBe(false)
+    expect(f.page.canMutate.value).toBe(false)
+    expect(f.page.canLookup.value).toBe(false)
+    expect(f.page.canReplay.value).toBe(false)
+    expect(variableCalls(f.fetcher)).toHaveLength(before)
+    expect(f.page.progress.value?.receipt).toEqual(original)
+    held.resolve(json({ ...project(), lifecycle: 'archived', archived_at: at }))
+    await settle()
+    expect(f.page.visible.value).toBe(true)
+    expect(f.page.canMutate.value).toBe(false)
+    expect(f.page.canLookup.value).toBe(true)
+    expect(f.page.canReplay.value).toBe(true)
+    expect(f.page.progress.value?.receipt).toEqual(original)
+  })
+  it.each([
+    ['INTERNAL_ERROR', 500],
+    ['FORBIDDEN', 403],
+  ] as const)(
+    'Owner requalification %s keeps Variables hidden until an explicit successful read',
+    async (code, status) => {
+      const f = await fixture()
+      await f.page.select(target)
+      f.page.draft.value = 'retained draft'
+      const ownerCalls = vi.fn<Fetch>(async () => problem(code, status))
+      f.ownerCall(ownerCalls)
+      const before = variableCalls(f.fetcher).length
+      await f.auth.restore()
+      await settle()
+      expect(ownerCalls).toHaveBeenCalledTimes(1)
+      expect(f.page.visible.value).toBe(false)
+      expect(f.page.canMutate.value).toBe(false)
+      expect(f.page.canSave.value).toBe(false)
+      expect(await f.page.createNew()).toBe(false)
+      expect(variableCalls(f.fetcher)).toHaveLength(before)
+      expect(f.page.draft.value).toBe('retained draft')
+      await settle()
+      expect(ownerCalls).toHaveBeenCalledTimes(1)
+      f.ownerCall(null)
+      await f.page.readOwner()
+      await settle()
+      expect(f.page.visible.value).toBe(true)
+      expect(f.page.draft.value).toBe('retained draft')
+      expect(f.page.editor.requiresRead).toBe(true)
+      expect(f.page.canSave.value).toBe(false)
+    },
+  )
+  it('late Owner requalification cannot republish after leaving the identity', async () => {
+    const f = await fixture()
+    await f.page.select(target)
+    f.page.draft.value = 'old identity draft'
+    const held = barrier<Response>()
+    f.ownerCall(() => held.promise)
+    await f.auth.restore()
+    await settle()
+    expect(f.auth.state.busy).toBe(true)
+    expect(f.page.visible.value).toBe(false)
+    f.auth.leave()
+    expect(f.page.draft.value).toBe('')
+    expect(f.page.editor.open).toBe(false)
+    held.resolve(json(project()))
+    await settle()
+    expect(f.page.visible.value).toBe(false)
+    expect(f.page.canMutate.value).toBe(false)
+    expect(f.workspace.detail.project).toBeNull()
+    const newOwner = vi.fn<Fetch>(async () =>
+      json({ ...project(), lifecycle: 'archived', archived_at: at }),
+    )
+    f.ownerCall(newOwner)
+    f.setSession({ ...view(), session: { ...view().session, id: id(3) } })
+    await f.auth.restore()
+    await settle()
+    expect(newOwner).toHaveBeenCalledTimes(2)
+    expect(f.page.visible.value).toBe(true)
+    expect(f.page.canMutate.value).toBe(false)
+    expect(f.page.draft.value).toBe('')
+  })
   it('leaving with dirty input is cancelable and accepted leave clears only Variables', async () => {
     const f = await fixture()
     await f.page.createNew()

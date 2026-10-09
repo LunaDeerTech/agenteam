@@ -291,6 +291,39 @@ describe('Variables exact route, Owner menu and actual page consumers', () => {
     expect(document.querySelector('table')?.textContent).not.toContain('ordinary text')
     expect(document.querySelector('nav[aria-label="变量分页"]')?.textContent).toContain('第 1 页')
   })
+  it('rechecks Owner after Session recovery before publishing archived controls and retained history', async () => {
+    const f = await fixture()
+    button('新建变量').click()
+    await flushPromises()
+    await set('名称', 'ARCHIVED_HISTORY')
+    await set('值', 'retained receipt')
+    button('创建变量').click()
+    await settle()
+    expect(button('查询原操作').disabled).toBe(false)
+    const original = f.auth.projectVariables.progress?.receipt
+    const normal = f.fetcher.getMockImplementation()!
+    let release!: (value: Response) => void
+    const held = new Promise<Response>((resolve) => {
+      release = resolve
+    })
+    const read = vi.fn(() => held)
+    f.fetcher.mockImplementation((url, init) =>
+      url === `/api/v1/projects/${projectID}` ? read() : normal(url, init),
+    )
+    await f.auth.restore()
+    await settle()
+    expect(read).toHaveBeenCalledTimes(1)
+    expect(document.body.textContent).not.toContain('新建变量')
+    expect(document.body.textContent).not.toContain('retained receipt')
+    release(json({ ...project, lifecycle: 'archived', archived_at: at }))
+    await settle()
+    expect(button('新建变量').disabled).toBe(true)
+    expect(document.body.textContent).toContain('项目当前只读（archived）')
+    expect(button('查询原操作').disabled).toBe(false)
+    expect(button('重放原操作').disabled).toBe(false)
+    expect(f.auth.projectVariables.progress?.receipt).toEqual(original)
+    expect(document.body.textContent).toContain('retained receipt')
+  })
   it('submits actual captured create from controls with inline success and original recovery controls', async () => {
     const f = await fixture()
     button('新建变量').click()

@@ -59,9 +59,22 @@ export function createProjectVariables(
     disposed = ref(false),
     boundID = ref<string | null>(null)
   const scope = computed(() => projectRoute(route.value)?.suffix === '/settings/variables')
-  const context = computed(() =>
+  const ownerContext = computed(() =>
     scope.value && !disposed.value ? workspace.currentReadContext.value : null,
   )
+  const ownerRecheck = ref<Context | null>(null)
+  let ownerRecheckAttempted = false
+  const context = computed(() => {
+    const current = ownerContext.value,
+      previous = ownerRecheck.value
+    return current &&
+      previous &&
+      current.projectID === previous.projectID &&
+      sameIdentity(current.identity, previous.identity) &&
+      current.readGeneration <= previous.readGeneration
+      ? null
+      : current
+  })
   const visible = computed(
     () =>
       !!context.value &&
@@ -196,6 +209,8 @@ export function createProjectVariables(
     feedback.value = 'idle'
   }
   function clearAll() {
+    ownerRecheck.value = null
+    ownerRecheckAttempted = false
     retireReads()
     auth.projectVariables.abandonPending()
     clearEditor()
@@ -553,13 +568,37 @@ export function createProjectVariables(
     route.value = to
   }
   const stop = watch(
-    () => [context.value, auth.personalContext.identity, auth.state.busy, scope.value] as const,
-    ([next, identity, busy]) => {
+    () =>
+      [
+        ownerContext.value,
+        auth.personalContext.identity,
+        auth.state.busy,
+        scope.value,
+        auth.personalContext.phase,
+        auth.state.phase,
+      ] as const,
+    ([next, identity, busy, _scope, phase]) => {
       if (disposed.value) return
       if (!sameIdentity(trackedIdentity, identity)) {
         clearAll()
         trackedIdentity = identity
         lastContext = null
+      }
+      // A same-Session check does not refresh Project lifecycle/authority. Keep
+      // drafts and intent, but require a new Owner Get before reusing them.
+      if ((phase !== 'current' || auth.state.phase !== 'authenticated') && lastContext) {
+        ownerRecheck.value = lastContext
+        ownerRecheckAttempted = false
+      }
+      if (next && ownerRecheck.value) {
+        if (context.value) {
+          ownerRecheck.value = null
+          ownerRecheckAttempted = false
+        } else if (!busy && phase === 'current' && !ownerRecheckAttempted) {
+          ownerRecheckAttempted = true
+          void workspace.readCurrent()
+          return
+        }
       }
       if (!next || !visible.value) {
         if (lastContext) {
