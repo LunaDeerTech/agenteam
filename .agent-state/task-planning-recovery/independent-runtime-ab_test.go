@@ -186,6 +186,15 @@ func TestTaskPlanningIndependentAuthorityMembership(t *testing.T) {
 	lookup := wc.TaskCommandLookupRequest{ProjectID: p.ID, Command: wc.TaskCommandCreate, IdempotencyKey: metaCreate.IdempotencyKey, SemanticDigest: semantic}
 	fresh := base.renew(t, owner)
 	userKey, _ := fnd.UserLock(owner.Details().UserID)
+	// Historical Execute and Lookup must use distinct completed Command
+	// identities: both acquire Command EX before User, so the same identity
+	// would serialize them before either can prove this shared User gate.
+	revokedReplayRequest := create
+	revokedReplayRequest.TaskID = id[wc.Task](t)
+	revokedReplayMeta := meta(t, "independent-revoked-history", nil)
+	if _, err := base.tasks.CreateTask(ctxFor(t), owner, revokedReplayMeta, p.ID, revokedReplayRequest); err != nil {
+		t.Fatal("independent second historical identity setup failed")
+	}
 
 	t.Run("revocation-gate-three-actual-callers", func(t *testing.T) {
 		writer, ws := observedTaskFixture(t, base)
@@ -198,7 +207,7 @@ func TestTaskPlanningIndependentAuthorityMembership(t *testing.T) {
 		blocker := hold.pid(t)
 		wo, ro, oo := observeLock(ws, userKey, nil), observeLock(rs, userKey, nil), observeLock(os, userKey, nil)
 		write, _ := independentRuntimeAsync(t, func(ctx context.Context) (wc.TaskMutation, error) {
-			return writer.tasks.CreateTask(ctx, owner, metaCreate, p.ID, create)
+			return writer.tasks.CreateTask(ctx, owner, revokedReplayMeta, p.ID, revokedReplayRequest)
 		})
 		read, _ := independentRuntimeAsync(t, func(ctx context.Context) (wc.Task, error) {
 			return reader.taskReader.GetTask(ctx, owner, p.ID, create.TaskID)

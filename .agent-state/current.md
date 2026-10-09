@@ -71,3 +71,5 @@
 - 最新独立A第二次7tes原FAIL是revocation首writer User锁等待未到，归档与membership双向子项PASS；outer14779 actualexit1/72.732s、child/driver Wait1、两ID/runtime/TCP双空/inputsame，B未启动。静态可确认Execute与Lookup同CommandEX不可能同时到User门槛；原轮未采Command holder PID，不回填谁先取得。独立owner仅自有A添加第二个真实完成Create身份用于历史Execute，Lookup/Get仍首身份，以同一User撤权对3真实waiter独立观察，修后重编待验。
 - D10 Agent完整rev0草案239行已冻结保存，C1为AgentCore/Ref六纯路径，可消费现identity/Model/Foundation；F1真实事实依Model引用/目录初始化等未绑定，不称完整Agent实施或Task指派可用。Task transitions规格仍待完整闭合/独审。
 - Model selector纯探针确认UiField真实markup在锁定Playwright算法中exact label=false而role accessible name=true；spec已改role/闭合password label regex，补安全细step和封闭failure类别/数字本spec定位，未保存敏感原message/stack，不回填第二次真实FAIL根因。TS strict/list与纯probe实际exit0，Go不变复用编译。
+
+- 独立A确定性返修仅自有A增加真实第二completedCreate身份用于历史Execute（Lookup/Get仍原对象），保留3个真实User门槛waiter/撤权零结果；rromoyii A/B新race-c/list actualexit0/Wait/hash一致，PG待重跑，旧7tes FAIL不回填。
