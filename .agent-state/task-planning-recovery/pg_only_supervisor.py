@@ -131,6 +131,7 @@ def observe_root_chain(directory, log, log_path, selector):
         '^TestKnowledgeB02Cleanup$': {'TestKnowledgeB02Cleanup'},
         '^TestKnowledgeB02Runtime$': {'TestKnowledgeB02Runtime'},
         '^TestKnowledgeB02CommitUnknown$': {'TestKnowledgeB02CommitUnknown'},
+        '^TestKnowledgeB02Concurrency$': {'TestKnowledgeB02Concurrency'},
     }.get(selector, set())
     actual = set(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='

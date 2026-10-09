@@ -172,12 +172,39 @@ func TestKnowledgeB02Cleanup(t *testing.T) {
 			t.Fatal(err)
 		}
 		lookup, err := x.service.LookupCommand(knowledgeContext(t), actor, kc.LookupRequest{ProjectID: p, Command: kc.DeleteSubtree, Key: meta.IdempotencyKey, SemanticDigest: digest})
-		if err != nil || lookup.State != kc.NotObserved || lookup.Receipt != nil {
-			t.Fatal("rolled-back delete left command receipt", err)
+		// Discovery committed the original delete plan in its own transaction.
+		// The failed final transaction must leave that plan resumable, with no
+		// completed receipt; it must not erase the already-durable intent.
+		if err != nil || lookup.State != kc.InProgress || lookup.Receipt != nil {
+			t.Fatal("rolled-back delete did not retain an incomplete original plan", lookup.State, lookup.Receipt != nil, err)
+		}
+		var planned bool
+		if err = x.raw.QueryRow(knowledgeContext(t), `SELECT state='planned' AND request IS NOT NULL AND plan IS NOT NULL AND receipt IS NULL
+ FROM agenteam_knowledge.commands WHERE project_id=$1 AND command_name='delete-subtree' AND command_key=$2`, p.String(), string(meta.IdempotencyKey)).Scan(&planned); err != nil || !planned {
+			t.Fatal("delete final rollback changed its durable preparation", err)
 		}
 		var published int
 		if err = x.raw.QueryRow(knowledgeContext(t), `SELECT count(*) FROM agenteam_object.object_references WHERE object_id IN ($1,$2) AND kind='canonical'`, root.ObjectID.String(), child.ObjectID.String()).Scan(&published); err != nil || published != 2 {
 			t.Fatal("rollback released real references", err)
+		}
+		resumed, err := x.service.DeleteSubtree(knowledgeContext(t), actor, meta, p, root.ID, preview.Confirmation)
+		if err != nil || resumed.Root != root.ID || len(resumed.DeletedIDs) != 2 || !resumed.CleanupPending {
+			t.Fatal("original delete key/token did not resume", err)
+		}
+		if d, objects, pending := recoveryDeleteFacts(t, x, p); d != 1 || objects != 0 || pending != 2 || titleEventCount(t, x, p) != beforeEvents+2 {
+			t.Fatal("resumed delete lost or duplicated final facts")
+		}
+		lookup, err = x.service.LookupCommand(knowledgeContext(t), actor, kc.LookupRequest{ProjectID: p, Command: kc.DeleteSubtree, Key: meta.IdempotencyKey, SemanticDigest: digest})
+		if err != nil || lookup.State != kc.Committed || lookup.Receipt == nil || len(lookup.Receipt.DeletedIDs) != 2 {
+			t.Fatal("resumed delete did not expose the committed receipt", err)
+		}
+		afterActivity := x.activity(t, actor)
+		replay, err := x.service.DeleteSubtree(knowledgeContext(t), actor, meta, p, root.ID, preview.Confirmation)
+		if err != nil || replay.Root != resumed.Root || len(replay.DeletedIDs) != 2 || replay.CleanupPending != resumed.CleanupPending || !x.activity(t, actor).Equal(afterActivity) {
+			t.Fatal("original completed delete replay changed receipt or activity", err)
+		}
+		if d, _, pending := recoveryDeleteFacts(t, x, p); d != 1 || pending != 2 || titleEventCount(t, x, p) != beforeEvents+2 {
+			t.Fatal("original completed delete replay repeated side effects")
 		}
 	})
 }

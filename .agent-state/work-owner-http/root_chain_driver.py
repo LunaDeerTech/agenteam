@@ -24,6 +24,7 @@ TARGETS = {
     '^TestKnowledgeB02Cleanup$': 'tests/knowledge',
     '^TestKnowledgeB02Runtime$': 'tests/knowledge',
     '^TestKnowledgeB02CommitUnknown$': 'tests/knowledge',
+    '^TestKnowledgeB02Concurrency$': 'tests/knowledge',
 }
 
 
