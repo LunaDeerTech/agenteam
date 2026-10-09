@@ -66,7 +66,7 @@ func (v *SecretVariableCommandLookupRequest) UnmarshalJSON(raw []byte) error {
 	if v == nil {
 		return invalid("", "INVALID_ENCODING")
 	}
-	n, err := decode[SecretVariableCommandLookupFields](raw, []string{"project_id", "command", "target_id", "idempotency_key"}, []string{"expected_version"}, nil, MaxSecretRequestBytes)
+	n, err := decodeSecret[SecretVariableCommandLookupFields](raw, []string{"project_id", "command", "target_id", "idempotency_key"}, []string{"expected_version"}, nil, MaxSecretRequestBytes)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (v *SecretVariableCommandLookup) UnmarshalJSON(raw []byte) error {
 	if v == nil {
 		return invalid("", "INVALID_ENCODING")
 	}
-	n, err := decode[struct {
+	n, err := decodeSecret[struct {
 		Status  SecretLookupStatus      `json:"status"`
 		Receipt *SecretVariableMutation `json:"receipt"`
 	}](raw, []string{"status", "receipt"}, nil, []string{"receipt"}, MaxSecretReceiptBytes)

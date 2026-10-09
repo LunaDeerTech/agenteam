@@ -82,7 +82,7 @@ func (v *SecretVariableDeleted) UnmarshalJSON(raw []byte) error {
 		return invalid("", "INVALID_ENCODING")
 	}
 	type wire SecretVariableDeleted
-	n, err := decode[wire](raw, []string{"id", "project_id", "type", "version", "deleted_at"}, nil, nil, 2048)
+	n, err := decodeSecret[wire](raw, []string{"id", "project_id", "type", "version", "deleted_at"}, nil, nil, 2048)
 	if err != nil {
 		return err
 	}
@@ -183,7 +183,7 @@ func (v *SecretVariableMutation) UnmarshalJSON(raw []byte) error {
 	if v == nil {
 		return invalid("", "INVALID_ENCODING")
 	}
-	m, err := fields(raw, []string{"command", "changed", "event_id", "audit_id"}, []string{"variable", "deleted"}, []string{"event_id", "audit_id"}, MaxSecretReceiptBytes)
+	m, err := secretFields(raw, []string{"command", "changed", "event_id", "audit_id"}, []string{"variable", "deleted"}, []string{"event_id", "audit_id"}, MaxSecretReceiptBytes)
 	if err != nil {
 		return err
 	}

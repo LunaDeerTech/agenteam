@@ -227,3 +227,5 @@ SPEC接受仅准冻结范围开工；Owner后端须产品/HTTP/root与独验闭�
 作者离线验证：新 7 top 定向 race `90452/c20c4b` actual0；旧普通合同定向 race `28070/cfbedb` actual0；包级 vet `bc2800` actual0。OpenAPI 全部172本地引用解析；Draft202012 本地 registry 38 正负控制 `3ae145` actual0，涵盖安全输出、65536边界、null/空值、三种Lookup identity与receipt分支；未解析网络引用。首次仅编译 `56776/324761` 因新event重复旧Change enum失败，已删除重复声明后通过；首 schema 控制 `fc1edf` 使用无六位小数的非canonical Instant失败，修正夹具后通过，不修改共享Instant规则。
 
 以上是作者纯合同结果，待未参与者独立审查；不代表§9真实权限、数据库、引用、D04加密存储/rotation、Unknown、HTTP或退出验收。
+
+Variables 独审在 A 的7c2fb954输入实际复现两 must-fix：未知 JSON 成员名经共用 fields 错误路径泄入公开 Fault（28456/6bc29f actual1），Name schema 的 `$` 接受末尾换行（3738f6）。修复只给新 Secret decoder 加固定 schema path 投影，含 deleted DTO 和事件共八入口；旧普通 helper 不改。未知成员统一空路径/INVALID_FIELD，已声明字段的 REQUIRED 等保留；Name 使用真正 EOF 的 negative lookahead。作者修后最终8top race20400/7e3ef9（补事件前97569/3743f9）、最终vet f5a918、Name14边界f25bfd均actual0；事件夹具首编译7143bd误用i.Operation失败，改本包Operation后通过，旧失败保留，仍待原独立审者复核；这些纯合同检查不增加任何生产能力结论。

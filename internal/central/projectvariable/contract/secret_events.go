@@ -42,7 +42,7 @@ func (v *SecretVariableChanged) UnmarshalJSON(raw []byte) error {
 		return invalid("", "INVALID_ENCODING")
 	}
 	type wire SecretVariableChanged
-	n, err := decode[wire](raw, []string{"variable_id", "operation_id", "change", "changed_fields"}, nil, nil, 8192)
+	n, err := decodeSecret[wire](raw, []string{"variable_id", "operation_id", "change", "changed_fields"}, nil, nil, 8192)
 	if err != nil {
 		return err
 	}

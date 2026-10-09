@@ -3,6 +3,7 @@ package contract
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -24,6 +25,44 @@ const (
 
 func secretSafe(w io.Writer) { _, _ = io.WriteString(w, "secret_variable") }
 func secretLog() slog.Value  { return slog.StringValue("secret_variable") }
+
+// Shared strict decoding remains unchanged for ordinary variables. Secret
+// decoders expose only declared schema paths: an unknown JSON member name may
+// itself contain material and must never become a public Fault path.
+func secretFields(raw []byte, required, optional, nullable []string, limit int) (map[string]json.RawMessage, error) {
+	m, err := fields(raw, required, optional, nullable, limit)
+	if err == nil {
+		return m, nil
+	}
+	var fault *f.Fault
+	if !errors.As(err, &fault) {
+		return nil, invalid("", "INVALID_ENCODING")
+	}
+	for _, field := range fault.FieldErrors {
+		known := field.Path == ""
+		for _, name := range required {
+			known = known || field.Path == "/"+name
+		}
+		for _, name := range optional {
+			known = known || field.Path == "/"+name
+		}
+		if !known {
+			return nil, invalid("", "INVALID_FIELD")
+		}
+	}
+	return nil, err
+}
+
+func decodeSecret[T any](raw []byte, required, optional, nullable []string, limit int) (T, error) {
+	var value T
+	if _, err := secretFields(raw, required, optional, nullable, limit); err != nil {
+		return value, err
+	}
+	if json.Unmarshal(raw, &value) != nil {
+		return value, invalid("", "INVALID_ENCODING")
+	}
+	return value, nil
+}
 
 // SecretVariable has deliberately no material, credential reference or value
 // fingerprint. Detail, list and historical receipts use this same safe shape.
@@ -75,7 +114,7 @@ func (v *SecretVariable) UnmarshalJSON(raw []byte) error {
 	if v == nil {
 		return invalid("", "INVALID_ENCODING")
 	}
-	n, err := decode[SecretVariableFields](raw, []string{"id", "project_id", "type", "name", "description", "version", "created_at", "updated_at"}, nil, nil, MaxSecretReceiptBytes)
+	n, err := decodeSecret[SecretVariableFields](raw, []string{"id", "project_id", "type", "name", "description", "version", "created_at", "updated_at"}, nil, nil, MaxSecretReceiptBytes)
 	if err != nil {
 		return err
 	}
@@ -190,7 +229,7 @@ func (v *SecretVariableCreate) UnmarshalJSON(raw []byte) error {
 	if v == nil {
 		return invalid("", "INVALID_ENCODING")
 	}
-	m, err := fields(raw, []string{"variable_id", "name", "description", "value"}, nil, nil, MaxSecretRequestBytes)
+	m, err := secretFields(raw, []string{"variable_id", "name", "description", "value"}, nil, nil, MaxSecretRequestBytes)
 	if err != nil {
 		return err
 	}
@@ -306,7 +345,7 @@ func (v *SecretVariableUpdate) UnmarshalJSON(raw []byte) error {
 	if v == nil {
 		return invalid("", "INVALID_ENCODING")
 	}
-	m, err := fields(raw, nil, []string{"name", "description", "value"}, nil, MaxSecretRequestBytes)
+	m, err := secretFields(raw, nil, []string{"name", "description", "value"}, nil, MaxSecretRequestBytes)
 	if err != nil {
 		return err
 	}

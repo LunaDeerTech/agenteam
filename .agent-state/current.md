@@ -1,9 +1,10 @@
 # 当前检查点
 
 - 目标：D10 Secret Variable Owner A 纯合同完整结果；分支 `ai/secret-variables-owner`，原正式基线 main `3cea6076bb01693ead2755826826d189626aa3aa`。rev2 SPEC 保存 `c35a7eca`，Model 独立只读 `ee4095` 有限接受；A 首 WIP 已保存 `6e322cc1`。
-- `/root/knowledge` 唯一写域：既有新卡/current、`internal/central/projectvariable/contract/secret_{types,commands,query,events,directory}.go`、`secret_{types,commands,directory}_test.go`、`api/openapi/secret-variables.json`，共11路径。root负责Git，当前完整片段冻结待保存/独审。旧普通DTO/CommandName、通用Purpose.Valid、D04/Project/root共享源、SQL/迁移/台账均未改；00028仍不占号。
+- `/root/knowledge` 唯一写域：既有新卡/current、`internal/central/projectvariable/contract/secret_{types,commands,query,events,directory}.go`、`secret_{types,commands,directory}_test.go`、`api/openapi/secret-variables.json`，共11路径。root负责Git，A 已保存7c2fb954；独审修复后的8个变更路径再次冻结供保存/复核，其余保持原字节。旧普通DTO/CommandName、通用Purpose.Valid、D04/Project/root共享源、SQL/迁移/台账均未改；00028仍不占号。
 - 已闭合 A：材料请求独立克隆/UseValue/Destroy、安全metadata/receipt、独立Secret命令与两态identity-only Lookup、专用Catalog事件、F1目录/引用 typed contracts与opaque issuer/锁/完整binding、闭合OpenAPI。没有Owner服务/HTTP实现、D04 provider或生产装配；F1实际authority与Store/Tx/当前权限须后继真实实现，不把plan形状当授权。
 - 实际离线检查：新7top race `90452/c20c4b` actual0/1.092s；旧普通合同race `28070/cfbedb` actual0/1.084s；vet `bc2800` actual0。OpenAPI172本地ref解析 `6d3918` actual0，Draft202012本地registry38正负控制 `3ae145` actual0；schema无网络获取。首次仅编译 `56776/324761` enum重复FAIL已修；首schema `fc1edf` 错用无6小数Instant的夹具FAIL，改canonical夹具后通过。没有Secret PG/socket/browser/真实服务检查。
+- Variables 独审原 `28456/6bc29f` actual1 确认六解码路径未知成员名泄入公开 Fault；`3738f6` schema 反例确认名称末尾换行被 `$` 接受，原失败保留。本次仅新 Secret 的 `secretFields/decodeSecret` 将未声明成员的错误路径投影为固定空路径，已知 schema path/错误码保留；包括 deleted DTO 与事件在内八 decoder 均使用它。Name 改为真实 EOF negative lookahead。第一轮新8top race `97569/3743f9` actual0/1.105s；补事件后最终8top race `20400/7e3ef9` actual0/1.120s（新回归8子，各正向+3未知成员，另已知path控制）。事件夹具初用不存在的 i.Operation，7143bd 编译FAIL，改本包 Operation 后通过；最终vet `f5a918` actual0（补充前fe3c96亦0）；Name schema14边界 `f25bfd` actual0。独审续验尚待结果，不复用旧通过掩盖红例。
 - 可复制Go命令（cwd本树，独占Knowledge cache）：
 
 ```sh

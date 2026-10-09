@@ -3,11 +3,13 @@ package contract
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
 	"testing"
 
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 )
@@ -157,5 +159,62 @@ func TestSecretVariableMetadataCannotContainMaterial(t *testing.T) {
 	d.Name = "agenteam_reserved"
 	if _, err = NewSecretVariable(d); err == nil {
 		t.Fatal("shared name validation bypass")
+	}
+}
+
+func TestSecretDecodersKeepUntrustedMemberNamesOutOfFaults(t *testing.T) {
+	metadata, err := json.Marshal(testSecretVariable(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	deleted := testSecretVariable(t).Fields()
+	deletedRaw, err := json.Marshal(SecretVariableDeleted{ID: deleted.ID, ProjectID: deleted.ProjectID, Type: SecretVariableType, Version: 2, DeletedAt: deleted.UpdatedAt})
+	if err != nil {
+		t.Fatal(err)
+	}
+	receipt := `{"command":"project.secret_variable.update","changed":false,"event_id":null,"audit_id":null,"variable":` + string(metadata) + `}`
+	cases := []struct {
+		name, valid string
+		make        func() json.Unmarshaler
+	}{
+		{"create", `{"variable_id":"` + deleted.ID.String() + `","name":"KEY","description":"","value":"fixture"}`, func() json.Unmarshaler { return new(SecretVariableCreate) }},
+		{"update", `{"name":"KEY"}`, func() json.Unmarshaler { return new(SecretVariableUpdate) }},
+		{"metadata", string(metadata), func() json.Unmarshaler { return new(SecretVariable) }},
+		{"deleted", string(deletedRaw), func() json.Unmarshaler { return new(SecretVariableDeleted) }},
+		{"event", `{"variable_id":"` + deleted.ID.String() + `","operation_id":"` + testID[Operation](3).String() + `","change":"created","changed_fields":["created"]}`, func() json.Unmarshaler { return new(SecretVariableChanged) }},
+		{"lookup", `{"project_id":"` + deleted.ProjectID.String() + `","command":"project.secret_variable.create","target_id":"` + deleted.ID.String() + `","idempotency_key":"fixture"}`, func() json.Unmarshaler { return new(SecretVariableCommandLookupRequest) }},
+		{"receipt", receipt, func() json.Unmarshaler { return new(SecretVariableMutation) }},
+		{"observation", `{"status":"committed","receipt":` + receipt + `}`, func() json.Unmarshaler { return new(SecretVariableCommandLookup) }},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			valid := tc.make()
+			if err := valid.UnmarshalJSON([]byte(tc.valid)); err != nil {
+				t.Fatal("positive decoder control failed", err)
+			}
+			if v, ok := valid.(*SecretVariableCreate); ok {
+				defer v.Destroy()
+			}
+			for _, key := range []string{"fixture-member-secret", "fixture-member-secret/credential~1", strings.Repeat("fixture-member-secret", 32)} {
+				encoded, _ := json.Marshal(key)
+				raw := tc.valid[:len(tc.valid)-1] + "," + string(encoded) + `:"fixture"}`
+				err := tc.make().UnmarshalJSON([]byte(raw))
+				var fault *f.Fault
+				if !errors.As(err, &fault) || fault.Code != f.InvalidArgument || len(fault.FieldErrors) != 1 || fault.FieldErrors[0].Path != "" || fault.FieldErrors[0].Code != "INVALID_FIELD" {
+					t.Fatal("unknown member lacked the fixed error projection")
+				}
+				public, marshalErr := json.Marshal(fault)
+				if marshalErr != nil || bytes.Contains(public, []byte("fixture-member-secret")) {
+					t.Fatal("unknown member escaped into the public error")
+				}
+			}
+		})
+	}
+	// Declared paths retain useful field errors; only untrusted names disappear.
+	var create SecretVariableCreate
+	err = create.UnmarshalJSON([]byte(`{"variable_id":"` + deleted.ID.String() + `","description":"","value":"fixture"}`))
+	var fault *f.Fault
+	if !errors.As(err, &fault) || len(fault.FieldErrors) != 1 || fault.FieldErrors[0].Path != "/name" || fault.FieldErrors[0].Code != "REQUIRED" {
+		t.Fatal("known schema path was lost")
 	}
 }
