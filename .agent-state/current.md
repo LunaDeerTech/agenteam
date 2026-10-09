@@ -57,3 +57,6 @@
 - 首Model recovery基于5534607b实际启动，owned-recovery-769015dc…在fixture-go adapter reject处exit1，尚未进入business/browser。实际terminal65.6s、directWait/watchdogjoin/input不变、hostTCP两空；helper cleanup均返回，但driver resources.json未登记（resources0），不能称7ID独立退役验收。原setup FAIL保留，由原owner修adapter参数/失败资源记录后重跑；其它5browser未实现。Task待资源安全交还重跑Concurrency，期间不做额外host网络/Git推送污染TCP tail。
 
 - Model独立553静审发现两处harness must-fix：delete/credential断连仅joined不足以证明after_complete效果；final严格计数允许complete_eof0而schema/client1的矛盾观测。原owner补三旗/逐token观测/精确effect计数及结果admission，setup adapter另修真实descriptor字段和失败资源采集；不把上述证据缺口称产品故障。
+
+- 独立Task A首PG原FAIL：基线Project create INVALID_ARGUMENT，尚未进入Task authority/membership场景；session98105实际exit1，driver/Go Wait1，两ID/runtime/TCP双空、input不变（pg-31ed606…）。独立作者核输入规范后最小修probe，B暂不启动，不能当产品故障或独立PASS。
+- 后继规格纯文档：d11-task-transitions.md前三节草案已可恢复，§4–13待续，未接受/未实施；d10-agent-configuration.md另一唯一作者起草中，尚未冻结，本次不保存该文件。Model返修进行中尚未冻结。
