@@ -7,4 +7,6 @@
 - 固定gorilla/websocket1.5.3已下载至独占任务cache，网络窗已释放，go.mod/go.sum尚未改。00026须等真实24/25连续输入；根已授卡§2共享域。
 - 新稳定片段：`internal/runner/identity/{identity.go,file_decode.go,file_unix.go,file_unsupported.go,identity_test.go,file_unix_test.go}`，pending/active Ed25519身份、安全默认输出、离线只读检查、FD相对no-follow目录验证、稳定flock与fsync/rename原子持久化。Linux真实文件普通场景/损坏/并发和受控I/O失败已由作者race75518实际exit0；首次普通77258因测试0644创建受umask收紧导致权限反例失败，现测试显式chmod纠正，原失败保留。未运行跨UID、真实进程Crash、macOS/其它CPU、登记或网络场景，不冒完整credential验收。
 - 认证签名片段 `internal/runnerprotocol/{auth.go,auth_test.go}` 与 `internal/runner/identity/{sign.go,sign_test.go}` 已闭合：严格Auth header/nonce/canonical Unix seconds、固定签名字节与Ed25519向量、pending同key恢复签名、安全默认输出；两包race59862实际exit0。向量用本地Python cryptography独立算法生成作作者oracle，非独立审查。当前未验证nonce数据库消费/时窗/真实TLS。
-- 本范围无PG/server/browser/TCP或后台命令。下一阶段共享精确认证签名与设备认证/control；真实资源须fresh grant。Linux/macOS及D10/D16/D17/D18集成gate保持未验。
+- 新control私有FIFO队列含32条/256KiB控制保留、已租借writer仍计容量、实际release前不清buffer；`outbox.go/outbox_test.go`作者race14933实际0，尚未接WebSocket consumer。
+- `00026_runner_control.sql`六表/Audit增量及卡§3/8持久代际、metadata细化已获独立有限接受。首审发现同代际清key后重绑及既有enrolled_at可改写，仅增两条拒绝谓词；最终独审6个定向控制及7组Audit闭集核通过，原缺陷保留。作者12个布尔/元组控制为SQLite共同子集（首次漏business_changed绑定的setup错误已纠正）；均无PostgreSQL语法/迁移结果，本树前序待根精确同步。前序00024旧project guard冲突已由原作者修复并窄审接受。
+- 本范围无PG/server/browser/TCP或后台命令。下一阶段先冻结00026独审边界，继续设备认证/control；真实资源须fresh grant。Linux/macOS及D10/D16/D17/D18集成gate保持未验。

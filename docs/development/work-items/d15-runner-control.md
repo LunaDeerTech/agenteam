@@ -38,6 +38,8 @@
 
 另有 `commands`（稳定命令身份、语义 digest、public receipt、原 Human 摘要、业务/提交时刻）、`enrollment_tokens`（随机摘要、generation、expires/consumed）、`identity_events`（登记/撤销的安全事实与 Audit append 身份）、`challenges`（随机摘要、同 generation、expires/consumed）、`connections`（runner 唯一当前 generation/connection_id、进程 owner、hello/last_seen/lease 信息）。只存公钥，不存 enrollment token、nonce、signature、private key 或 environment。token/nonce 原始材料只在一次请求/响应的私有内存中存在，不进 receipts、日志、错误或 Audit。
 
+持久模型细化：创建时 `version=1`、`credential_generation=1`、持久 `connection_generation=0`。首次登记绑定该已签发generation的key，业务version+1；显式撤销/重登记清key并使credential_generation/version各+1。每次认证仅递增connection_generation，heartbeat/hello/lease不改业务version/updated_at；移除当前connection也不重置持久代际。commands只在业务最终事务写入完整public receipt，不新增独立prepared事务；未知提交查证仍由原Command锁及真实COMMIT终态决定。commands/identity_events不可改写，token/challenge消耗和撤销不可逆；当前connection以延迟FK关联Runner当前两代际。
+
 所有 Admin 入口以现 Account `HTTPBoundary.RequireSystem` 为 HTTP 身份边界，在真实事务里持 User SH 后再次 `AuthorizeSystem(Read|Mutate)`；不同 User、过期/撤销 Session、被降为普通 User 均不得读取管理记录/receipt。当前 User 存在检查沿 Account；不补不存在的停用 User 能力。设备认证不使用 Human Session，设备请求拒 cookie/CSRF/浏览器 Origin，不能通过提供 Actor 字段得到管理员权限。
 
 Admin 前缀 `/api/v1/system/runners`：
@@ -172,6 +174,8 @@ failure/cancelled必须由实际runtime证明，cancel ack不是terminal。未�
 ## 8. Audit、迁移与生产 Stop/Join
 
 typed Audit action闭集 `runner.create` / `runner.update` / `runner.enrollment.issue` / `runner.enroll` / `runner.revoke`；resource=runner，System scope、RunnerID关联、producer=runner。管理动作Actor为当前Human；设备完成登记为注册的`runner-identity` service actor，cause指向同Tx identity_event；不借管理员历史Session伪造当前Human。metadata仅RunnerID、version、credential_generation、changed_fields、public_key_fingerprint（仅相关动作），不存name/path/token/nonce/signature。Audit authority验证同Tx命令/身份事件/current postimage、正确action、appendkey与Actor，foreign Tx/issuer、假记录/错generation/缺事实拒绝。有旧key的enrollment.issue在同Tx先写`runner.revoke` ordinal0，再写`runner.enrollment.issue` ordinal1；无旧key时只写issue ordinal0。旧token/nonce退休仍属于同新generation事实，无隐含第三条Audit。身份/命令与Audit必须全写或全回滚；Audit unavailable不放行登记。heartbeat/challenge/stream不是DomainEvent、不写Outbox或每次Audit；鉴权失败只安全限量诊断，本卡不新增业务安全事件消费者。
+
+metadata wire固定必填 `runner_id/version/credential_generation/changed_fields`：create为`["created"]`，update为description/name/tags实际变更字段的非空字节排序子集，三种安全动作均为`["credential"]`。`public_key_fingerprint`仅enroll必填、revoke有旧key时填写，其余禁止；指纹为`sha256:`加64小写hex。管理Audit的cause_ref为同Tx command UUID，登记为identity_event UUID；RunnerID association必须等于resource_id，其余association均空。此闭集由00026及typed producer共同验证，不以schema替代当前事务授权。
 
 00026所有新表check/unique/FK及Audit action/resource/producer/service_actor闭集在单事务增量更新；新DDL错误全rollback，历史Audit仍可读，新Runner行不会被旧code误当已识别；旧二进制面对更新schema沿D03版本检查拒启动，不能允许运行后静默忽略新Action。00026的Audit约束增量须以根整合后的1..25真实闭集为输入，不能用f1c94ee5旧集合覆盖D12/其它并行新增动作。新表约束限制key长度/状态组合/正generation，消耗的token/nonce不可恢复有效，旧generation不可重新绑定。Root整合后从00023+真实00024/25升级、重跑、迁移中断全rollback及旧Audit读取各有真实验收。
 
