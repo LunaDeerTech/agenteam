@@ -10,6 +10,7 @@
 
 | 工作项 | 当前可证状态 | 接手时的下一步与完成边界 |
 | --- | --- | --- |
+| [D10 Agent 核心与引用](../work-items/d10-agent-configuration.md) | **C1六纯契约已实现并独立验收**。17键AgentCore、3键AgentRef、strict codec/Clone/直接日志投影；作者pure/race/vet与5组独立pure/race通过。 | 仅纯类型与WorkReferences声明。F1真实创建/初始化/Model引用/目录/引用保护未实现；ToolID层级前置未闭合，没有真实Agent或Task指派绑定。 |
 | [D11 Work Structure](../work-items/d11-work-structure.md) | **本卡已完成**。四 contract `c3b1ee72` 与实现 `a64fb5e7` 已提交；18 路径均存在，限定技术域至本次基线无差异。 | 可供 Task planning 消费。全18按明确版本组合接受；保留 Unknown01 原 FAIL、U1 修复与独立 B 工具终态缺口。不是当前 HEAD 单次全量测试或完整 D11。 |
 | [D11 Task planning](../work-items/d11-task-planning.md) | **契约七路径已实现并独立验收；整卡未完成**。DTO/三态筛选/摘要/typed事件/六Fault及Project精确门禁已交付；原笼统enclosing日志承诺的两组FAIL保留，按Go真实投影边界修订规范。 | 活动 `ai/task-planning-recovery` 已恢复服务、查询、00022与两ID测试harness并推送可构建检查点；迁移、持久化分页、原子事件首轮真实PG及资源终态通过，仅作早反馈。继续补齐七新八旧、独立A/B及完整异常/竞争矩阵；状态机、指派、执行、删除、生产root与完整D11均未完成。 |
 | [D27 Project Model Settings UI](../work-items/d27-project-owner-model-settings-ui.md) | **前端已交付，整卡验收未完成**。API `b0ee596d`、state `17589540`、页面 `1133152f` 已提交，25个 web 源存在。 | 4个 Go/browser harness 文件缺失且无对应 Git 路径历史，旧私有构建/driver 不可取。先按正式卡及端点附件重建必要输入，再补 recovery/read/authority/navigation、旧14与独立 A/B；原业务失败不回填。 |

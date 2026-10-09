@@ -17,3 +17,5 @@
 - D27 Model Settings四缺失harness已重建可编译片段并推送，354现有unit通过，固定MinIO/锁定Playwright/Chromium已恢复；六业务浏览器场景尚未实现验收，原modelsrecover01/02 FAIL不回填。
 - D27真实构建使用隔离交付树中已验00021迁移；app/account会间接嵌入全部SQL，不能把未验00022作为它的已完成依赖。
 - 当前每轮任务的精确源码、环境启动、未完成项见远端活动分支current及[任务台账](../docs/development/agent-team/tasks.md)。Object join等既有停止项保留；E01未开始，不能声明最终覆盖率或试玩完成。
+
+- D10 C1六纯Agent契约实现与独验完成，必要6source/2probe/卡及README已纳正式交付候选。main只含已验Task七契约和本C1，不含00022/Taskruntime或未验Model harness。当前产品恢复继续在origin/ai/task-planning-recovery；C1未提供真实Agent创建/初始化/Owner授权，F1目录/Model引用/低层ToolID等依赖未绑定。
