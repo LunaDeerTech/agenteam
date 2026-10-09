@@ -3820,7 +3820,8 @@ export function createSessionController(
       revision === workRevisions['work-write'] &&
       projectContext(original)
     let dispatched = false
-    publishWork(command, 'submitting')
+    const confirmed = workState.progress?.phase === 'confirmed' ? workState.progress.receipt : null
+    publishWork(command, 'submitting', confirmed)
     return runAuthorized(
       original.identity,
       async (op, current) => {
@@ -3850,7 +3851,11 @@ export function createSessionController(
           original.keyConflict ||=
             e.problem?.status === 409 && e.problem.code === 'IDEMPOTENCY_KEY_REUSED'
           original.uncertain ||= original.keyConflict || (dispatched && !knownWorkRejection(e))
-          publishWork(command, original.uncertain ? 'uncertain' : 'rejected', null, e)
+          // A later attempt cannot undo the already validated historical receipt.
+          if (confirmed) {
+            original.uncertain = false
+            publishWork(command, 'confirmed', confirmed, e, 'committed')
+          } else publishWork(command, original.uncertain ? 'uncertain' : 'rejected', null, e)
         }
         throw e
       },

@@ -513,14 +513,14 @@ function actor(value: unknown, projectID: string): WorkActorHistory {
     'account-mail',
     'model-runtime',
   ])
-  const cause = string(v.cause_ref, 36, 64)
-  requireValue(uuid7.test(cause) || /^[0-9a-f]{64}$/.test(cause))
-  requireValue(v.project_id === null || id(v.project_id) === projectID)
+  const cause = string(v.cause_ref, 36, 71)
+  requireValue(uuid7.test(cause) || /^sha256:[0-9a-f]{64}$/.test(cause))
+  requireValue(id(v.project_id) === projectID)
   return {
     kind: 'service',
     service_name: name,
     cause_ref: cause,
-    project_id: v.project_id === null ? null : projectID,
+    project_id: projectID,
   }
 }
 function parseMilestone(
@@ -666,6 +666,7 @@ function page<T extends { id: string }>(
   value: unknown,
   parse: (v: unknown) => T,
   limit: number,
+  order: (item: T) => readonly (string | number)[],
 ): WorkPage<T> {
   const v = shape(value, ['items'], ['next_cursor'])
   requireValue(Array.isArray(v.items) && v.items.length <= limit)
@@ -674,6 +675,13 @@ function page<T extends { id: string }>(
     return parse(item)
   })
   requireValue(new Set(items.map((item) => item.id)).size === items.length)
+  requireValue(!Object.hasOwn(v, 'next_cursor') || items.length === limit)
+  for (let i = 1; i < items.length; i++) {
+    const previous = order(items[i - 1]!),
+      current = order(items[i]!)
+    const different = previous.findIndex((key, index) => key !== current[index])
+    requireValue(different >= 0 && previous[different]! < current[different]!)
+  }
   return freeze({
     items,
     ...(Object.hasOwn(v, 'next_cursor') ? { next_cursor: cursor(v.next_cursor) } : {}),
@@ -838,6 +846,7 @@ export function createWorkPlanningAPI(fetcher?: Fetch) {
               return result
             },
             Number(captured.limit ?? 50),
+            (item) => [item.manual_rank, item.id],
           ),
         { signal, projectID: project, workQuery: captured },
       )
@@ -949,6 +958,7 @@ export function createWorkPlanningAPI(fetcher?: Fetch) {
               return result
             },
             Number(captured.limit ?? 50),
+            (item) => [item.manual_rank, item.id],
           ),
         { signal, projectID: project, workQuery: captured },
       )
@@ -1065,6 +1075,13 @@ export function createWorkPlanningAPI(fetcher?: Fetch) {
               return result
             },
             Number(captured.limit ?? 50),
+            (item) => [
+              item.sprint_id,
+              states.indexOf(item.state),
+              ['critical', 'high', 'medium', 'low'].indexOf(item.priority),
+              item.manual_rank,
+              item.id,
+            ],
           ),
         { signal, projectID: project, workQuery: captured },
       )
@@ -1181,6 +1198,7 @@ export function createWorkPlanningAPI(fetcher?: Fetch) {
               return result
             },
             Number(captured.limit ?? 50),
+            (item) => [item.created_at, item.id],
           ),
         { signal, projectID: project, target: task, workQuery: captured },
       )

@@ -286,7 +286,7 @@ describe('Work closed API and original intent', () => {
     } = sprint
     const { description: _td, plan: _p, ...ts } = task
     returned = { items: [ms], next_cursor: 'opaque+/=字' }
-    await api.listMilestones(project, { limit: 50, cursor: 'opaque+/=字' }, signal())
+    await api.listMilestones(project, { limit: 1, cursor: 'opaque+/=字' }, signal())
     returned = milestone
     await api.getMilestone(project, milestoneID, signal())
     returned = { items: [ss] }
@@ -706,5 +706,171 @@ describe('Work transport byte limits and actual EOF/cancel', () => {
     expect(schemas.StructureLookup.oneOf[1]!.properties.result).toEqual({ type: 'null' })
     expect(schemas.TaskLookup.oneOf[1]!.properties.receipt).toEqual({ type: 'null' })
     expect(schemas.BlockerLookup.oneOf[1]!.properties.receipt).toEqual({ type: 'null' })
+  })
+})
+
+describe('Work historical actors, complete order and unique JSON members', () => {
+  it('accepts registered same-project service UUID or Digest causes and rejects unscoped or malformed history', async () => {
+    const value = {
+      ...sprint,
+      state: 'current',
+      started_at: at,
+      started_by: {
+        kind: 'service',
+        service_name: 'project-lifecycle',
+        project_id: project,
+        cause_ref: `sha256:${'a'.repeat(64)}`,
+      },
+    }
+    const get = (v: unknown) =>
+      createWorkPlanningAPI(async () => response(v)).getSprint(project, sprintID, signal())
+    expect((await get(value)).started_by).toEqual(value.started_by)
+    expect(
+      (await get({ ...value, started_by: { ...value.started_by, cause_ref: id(20) } })).state,
+    ).toBe('current')
+    for (const change of [
+      { cause_ref: 'a'.repeat(64) },
+      { cause_ref: `sha256:${'A'.repeat(64)}` },
+      { cause_ref: 'sha256:short' },
+      { project_id: null },
+      { project_id: id(99) },
+      { service_name: 'unknown-service' },
+    ]) {
+      await expect(
+        get({ ...value, started_by: { ...value.started_by, ...change } }),
+      ).rejects.toMatchObject({ kind: 'invalid-response' })
+    }
+  })
+  it('requires a full page for continuation and strict rank/id structure order', async () => {
+    const a = { ...base, manual_rank: '3'.repeat(32) },
+      b = { ...base, id: id(9), manual_rank: '8'.repeat(32) }
+    const list = (items: unknown[], next = false) =>
+      createWorkPlanningAPI(async () =>
+        response({ items, ...(next ? { next_cursor: 'opaque+/=' } : {}) }),
+      ).listMilestones(project, { limit: 2 }, signal())
+    expect((await list([a, b], true)).items.map((v) => v.id)).toEqual([a.id, b.id])
+    for (const items of [[], [a]])
+      await expect(list(items, true)).rejects.toMatchObject({ kind: 'invalid-response' })
+    for (const items of [
+      [b, a],
+      [{ ...a, id: id(9) }, a],
+    ])
+      await expect(list(items)).rejects.toMatchObject({ kind: 'invalid-response' })
+    const rows = [
+      { ...a, id: sprintID, milestone_id: milestoneID, state: 'planned' },
+      { ...b, milestone_id: milestoneID, state: 'planned' },
+    ]
+    await expect(
+      createWorkPlanningAPI(async () => response({ items: [...rows].reverse() })).listSprints(
+        project,
+        { milestone_id: milestoneID, limit: 2 },
+        signal(),
+      ),
+    ).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+  it('uses actual Task sprint/state/priority/rank/id ordering without locally sorting', async () => {
+    const { description: _d, plan: _p, ...row } = task
+    const list = (items: unknown[]) =>
+      createWorkPlanningAPI(async () => response({ items })).listTasks(
+        project,
+        { limit: 2 },
+        signal(),
+      )
+    const first = { ...row, state: 'cancelled', priority: 'low' },
+      second = { ...row, id: id(9), sprint_id: id(99), priority: 'critical' }
+    expect((await list([first, second])).items.map((v) => v.id)).toEqual([first.id, second.id])
+    for (const items of [
+      [second, first],
+      [
+        { ...row, state: 'done' },
+        { ...row, id: id(9), state: 'backlog' },
+      ],
+      [
+        { ...row, priority: 'low' },
+        { ...row, id: id(9), priority: 'critical' },
+      ],
+      [
+        { ...row, manual_rank: '9'.repeat(32) },
+        { ...row, id: id(9), manual_rank: '3'.repeat(32) },
+      ],
+      [{ ...row, id: id(9) }, row],
+    ])
+      await expect(list(items)).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+  it('requires strict Blocker creation-time and ID ordering', async () => {
+    const a = { ...blocker, id: id(7) },
+      b = { ...blocker, id: id(8) },
+      later = { ...b, created_at: '2026-10-09T10:00:01.000000Z' }
+    const list = (items: unknown[]) =>
+      createWorkPlanningAPI(async () => response({ items })).listTaskBlockers(
+        project,
+        taskID,
+        { limit: 2 },
+        signal(),
+      )
+    expect((await list([a, b])).items.map((v) => v.id)).toEqual([a.id, b.id])
+    for (const items of [
+      [b, a],
+      [later, a],
+    ])
+      await expect(list(items)).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+  it.each([
+    '"title":"wrong","title":"原始 标题"',
+    '"title":"原始 标题","title":"原始 标题"',
+    '"ti\\u0074le":"wrong","title":"原始 标题"',
+  ])('rejects duplicate or escaped-equal root members %s', async (duplicate) => {
+    const raw = JSON.stringify(milestone).replace('"title":"原始 标题"', duplicate)
+    const api = createWorkPlanningAPI(
+      async () => new Response(raw, { headers: { 'Content-Type': 'application/json' } }),
+    )
+    await expect(api.getMilestone(project, milestoneID, signal())).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+  })
+  it('rejects nested duplicates and conflicting Work Problem facts while retaining old-domain behavior', async () => {
+    const raw = JSON.stringify({
+      task,
+      changed: true,
+      task_event_id: id(21),
+      event_ids: [id(22)],
+    }).replace('"plan":""', '"plan":"wrong","plan":""')
+    const api = createWorkPlanningAPI(
+      async () => new Response(raw, { headers: { 'Content-Type': 'application/json' } }),
+    )
+    const c = originals[6]!
+    if (c.command !== 'work.task.create') throw new Error()
+    await expect(api.createTask(project, { request: c.request }, options())).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+    const p = {
+      type: 'urn:agenteam:problem:test',
+      title: 'Error',
+      detail: '',
+      instance: '/api/v1/projects',
+      status: 409,
+      code: 'VERSION_CONFLICT',
+      request_id: id(99),
+      commit_state: 'not_committed',
+    }
+    const problemText = JSON.stringify(p).replace(
+      '"commit_state":"not_committed"',
+      '"commit_state":"unknown","commit_state":"not_committed"',
+    )
+    const failure = createWorkPlanningAPI(
+      async () =>
+        new Response(problemText, {
+          status: 409,
+          headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': id(99) },
+        }),
+    )
+    await expect(failure.getTask(project, taskID, signal())).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+    const old = accountTransport(
+      async () =>
+        new Response('{"old":1,"old":2}', { headers: { 'Content-Type': 'application/json' } }),
+    )
+    expect(await old('bootstrap', (v) => v, { signal: signal() })).toEqual({ old: 2 })
   })
 })

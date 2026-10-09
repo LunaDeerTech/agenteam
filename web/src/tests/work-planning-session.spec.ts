@@ -447,3 +447,27 @@ describe('Work Session Cookie ownership and original recovery', () => {
     expect(f.auth.workPlanning.progress).toBeNull()
   })
 })
+
+describe('Work confirmed history survives a failed explicit replay', () => {
+  it.each(['rejection', 'disconnect'] as const)(
+    'preserves previously confirmed receipt after %s',
+    async (kind) => {
+      const f = await fixture(),
+        original = commands[1]!
+      f.setHandler(async () => response(wire(original)))
+      await f.auth.workPlanning.start(original)
+      const confirmed = f.auth.workPlanning.progress!.receipt
+      f.setHandler(async () => {
+        if (kind === 'disconnect') throw new Error('response lost')
+        return problem('PROJECT_NOT_ACTIVE', 409, 'not_started')
+      })
+      await expect(f.auth.workPlanning.retryOriginal()).rejects.toBeInstanceOf(AccountFailure)
+      expect(f.auth.workPlanning.progress).toMatchObject({
+        phase: 'confirmed',
+        receipt: confirmed,
+        contextValid: true,
+      })
+      expect(f.auth.workPlanning.progress?.failure).toBeInstanceOf(AccountFailure)
+    },
+  )
+})

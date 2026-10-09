@@ -382,11 +382,66 @@ export function projectModelJSONBytes(value: unknown): number {
   return Infinity
 }
 
+// Work JSON is closed at every object depth. JSON.parse alone would discard
+// duplicate members before the typed parser could detect conflicting facts.
+function workJSON(text: string): unknown {
+  const value: unknown = JSON.parse(text)
+  let position = 0
+  const whitespace = () => {
+    while (/[ \t\r\n]/.test(text[position] ?? '') && position < text.length) position++
+  }
+  function quoted(): string {
+    const start = position++
+    while (position < text.length) {
+      const ch = text[position++]
+      if (ch === '\\') position++
+      else if (ch === '"') return JSON.parse(text.slice(start, position)) as string
+    }
+    throw new AccountFailure('invalid-response')
+  }
+  function visit(depth: number): void {
+    if (depth > 64) throw new AccountFailure('invalid-response')
+    whitespace()
+    const marker = text[position]
+    if (marker === '"') {
+      quoted()
+      return
+    }
+    if (marker !== '{' && marker !== '[') {
+      while (position < text.length && !/[,}\]\s]/.test(text[position]!)) position++
+      return
+    }
+    const object = marker === '{',
+      close = object ? '}' : ']',
+      keys = new Set<string>()
+    position++
+    whitespace()
+    while (text[position] !== close) {
+      if (object) {
+        const key = quoted()
+        if (keys.has(key)) throw new AccountFailure('invalid-response')
+        keys.add(key)
+        whitespace()
+        position++
+      }
+      visit(depth + 1)
+      whitespace()
+      if (text[position] === close) break
+      position++
+      whitespace()
+    }
+    position++
+  }
+  visit(0)
+  return value
+}
+
 async function readJSON(
   response: Response,
   signal: AbortSignal,
   maximum = 600_000,
   preserveProjectModelJSON = false,
+  requireWorkJSON = false,
 ): Promise<unknown> {
   const reader = response.body?.getReader()
   if (!reader) throw new AccountFailure('invalid-response')
@@ -410,7 +465,11 @@ async function readJSON(
       text += decoder.decode(value, { stream: true })
     }
     text += decoder.decode()
-    return preserveProjectModelJSON ? projectModelJSON(text) : (JSON.parse(text) as unknown)
+    return requireWorkJSON
+      ? workJSON(text)
+      : preserveProjectModelJSON
+        ? projectModelJSON(text)
+        : (JSON.parse(text) as unknown)
   } finally {
     signal.removeEventListener('abort', abort)
     await cancel()
@@ -1538,6 +1597,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                         ? 1024 * 1024
                         : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
+          isWork,
         )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
