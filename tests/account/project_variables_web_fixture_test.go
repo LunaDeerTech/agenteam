@@ -18,7 +18,6 @@ import (
 	"strings"
 	"sync"
 	"testing"
-	"time"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -53,6 +52,10 @@ type projectVariablesWebFixture struct {
 	initial                  map[string]any
 	targets                  map[string]string
 	dropCommand, dropProject string
+	dropTarget               string
+	dropIndex                int
+	setupFacts               map[string][2]int
+	setupToken               string
 	hold                     *variableWebHold
 	responses                int
 	recording                bool
@@ -70,7 +73,7 @@ func newProjectVariablesWebFixture(t *testing.T, ctx context.Context, mode strin
 	if !variableWebMode(mode) {
 		t.Fatal("exact Variables browser case required")
 	}
-	v := &projectVariablesWebFixture{mode: mode, initial: map[string]any{}, targets: map[string]string{}}
+	v := &projectVariablesWebFixture{mode: mode, initial: map[string]any{}, targets: map[string]string{}, setupFacts: map[string][2]int{}, setupToken: id[identity.ProjectVariable](t).String()}
 	owner := newProjectOwnerWebFixtureWithVariables(t, ctx, "variables-"+mode, v)
 	v.owner = owner
 	owner.private("project-variables-material.json", map[string]any{"owner": owner.owner, "admin": owner.admin, "other": owner.other,
@@ -130,7 +133,41 @@ func (v *projectVariablesWebFixture) request(ctx context.Context, key, method, t
 	if target != "" {
 		path += "/" + target
 	}
-	return v.owner.setup.setupRequest(ctx, v.owner.ownerClient, method, path, body, v.owner.ownerCSRF, method != http.MethodGet, status)
+	client := *v.owner.ownerClient
+	client.Transport = variableWebSetupTransport{base: client.Transport, token: v.setupToken}
+	result := v.owner.setup.setupRequest(ctx, &client, method, path, body, v.owner.ownerCSRF, method != http.MethodGet, status)
+	if method != http.MethodGet && status == http.StatusOK {
+		facts := v.setupFacts[project]
+		facts[0]++
+		if result["changed"] == true {
+			facts[1]++
+		}
+		v.setupFacts[project] = facts
+	}
+	return result
+}
+
+// Only fixture setup carries this private nonce. Remove it before the default
+// root sees the request; setup responses never become browser observations.
+type variableWebSetupTransport struct {
+	base  http.RoundTripper
+	token string
+}
+
+func (t variableWebSetupTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	clone := r.Clone(r.Context())
+	clone.Header.Set("X-Agenteam-Variable-Fixture", t.token)
+	base := t.base
+	if base == nil {
+		base = http.DefaultTransport
+	}
+	return base.RoundTrip(clone)
+}
+func projectVariablesWebPage(raw string) bool {
+	if !strings.HasSuffix(raw, "/settings/variables") {
+		return false
+	}
+	return projectOwnerWebPage(strings.TrimSuffix(raw, "/settings/variables") + "/settings/general")
 }
 func variableWebEndpoint(r *http.Request) (project, target, command string, ok bool) {
 	if r == nil {
@@ -145,12 +182,12 @@ func variableWebEndpoint(r *http.Request) (project, target, command string, ok b
 	}
 	project = parts[0]
 	switch {
-	case len(parts) == 2:
+	case len(parts) == 2 && (r.Method == http.MethodGet || r.Method == http.MethodPost):
 		if r.Method == http.MethodPost {
 			command = "project.variable.create"
 		}
 		ok = true
-	case len(parts) == 3:
+	case len(parts) == 3 && (r.Method == http.MethodGet || r.Method == http.MethodPatch || r.Method == http.MethodDelete):
 		if _, err := f.ParseID[identity.ProjectVariable](parts[2]); err != nil {
 			return "", "", "", false
 		}
@@ -162,7 +199,7 @@ func variableWebEndpoint(r *http.Request) (project, target, command string, ok b
 		if r.Method == http.MethodDelete {
 			command = "project.variable.delete"
 		}
-	case len(parts) == 4 && parts[2] == "commands" && parts[3] == "lookup":
+	case r.Method == http.MethodPost && len(parts) == 4 && parts[2] == "commands" && parts[3] == "lookup":
 		ok = true
 	}
 	return
@@ -172,6 +209,11 @@ func (v *projectVariablesWebFixture) handles(r *http.Request) bool {
 	return ok
 }
 func (v *projectVariablesWebFixture) observeRequest(w http.ResponseWriter, r *http.Request) bool {
+	if r.Header.Get("X-Agenteam-Variable-Fixture") == v.setupToken {
+		r.Header.Del("X-Agenteam-Variable-Fixture")
+		*r = *r.WithContext(context.WithValue(r.Context(), variableWebRequestKey{}, -1))
+		return true
+	}
 	v.mu.Lock()
 	recording := v.recording
 	v.mu.Unlock()
@@ -224,6 +266,14 @@ func (v *projectVariablesWebFixture) observeRequest(w http.ResponseWriter, r *ht
 	}
 	a := &variableWebAttempt{Index: len(v.attempts) + 1, Method: r.Method, Path: r.URL.Path, Query: r.URL.RawQuery, Project: project, Target: target, Command: command, Key: r.Header.Get("Idempotency-Key"), Body: append([]byte(nil), raw...), CSRF: sha256.Sum256([]byte(r.Header.Get("X-CSRF-Token")))}
 	v.attempts = append(v.attempts, a)
+	if v.dropIndex == 0 && v.dropProject == project && v.dropCommand == command && v.dropTarget == target && !strings.HasSuffix(a.Path, "/commands/lookup") {
+		if a.Query != "" || a.Key == "" || r.Header.Get("X-CSRF-Token") == "" {
+			v.mu.Unlock()
+			http.Error(w, "private Variables cut original binding invalid", http.StatusBadRequest)
+			return false
+		}
+		v.dropIndex = a.Index
+	}
 	v.mu.Unlock()
 	*r = *r.WithContext(context.WithValue(r.Context(), variableWebRequestKey{}, a.Index))
 	r.Body = &projectOwnerWebBody{Reader: bytes.NewReader(raw), raw: raw}
@@ -238,6 +288,9 @@ func (v *projectVariablesWebFixture) controlResponse(response *http.Response) er
 	}
 	r := response.Request
 	index, ok := r.Context().Value(variableWebRequestKey{}).(int)
+	if ok && index == -1 {
+		return nil
+	}
 	if !ok {
 		return errors.New("private Variables response request binding missing")
 	}
@@ -267,23 +320,19 @@ func (v *projectVariablesWebFixture) controlResponse(response *http.Response) er
 		hold.Started = true
 		hold.Index = index
 	}
-	drop := v.dropProject == a.Project && v.dropCommand == a.Command && a.Method != http.MethodGet && !strings.HasSuffix(a.Path, "/commands/lookup") && response.StatusCode == http.StatusOK
+	drop := v.dropIndex == a.Index && v.dropProject == a.Project && v.dropCommand == a.Command && v.dropTarget == a.Target && response.StatusCode == http.StatusOK
 	v.mu.Unlock()
 	// This is the original complete backend representation, transferred only in
 	// the private runtime. It is never logged or emitted into public evidence.
-	v.owner.private("project-variables-response-"+strconv.Itoa(sequence)+".json", map[string]any{"index": index, "method": a.Method, "path": a.Path, "query": a.Query, "status": response.StatusCode, "body_b64": base64.StdEncoding.EncodeToString(raw), "content_type": response.Header.Get("Content-Type"), "request_b64": base64.StdEncoding.EncodeToString(a.Body), "request_id": response.Header.Get("X-Request-ID")})
+	v.owner.private("project-variables-response-"+strconv.Itoa(sequence)+".json", map[string]any{"index": index, "method": a.Method, "path": a.Path, "query": a.Query, "status": response.StatusCode, "body_b64": base64.StdEncoding.EncodeToString(raw), "content_type": response.Header.Get("Content-Type"), "request_b64": base64.StdEncoding.EncodeToString(a.Body), "request_id": response.Header.Get("X-Request-ID"), "key": a.Key, "csrf_sha256": fmt.Sprintf("%x", a.CSRF)})
 	response.Body = &projectOwnerWebBody{Reader: bytes.NewReader(raw), raw: raw}
 	if hold != nil {
-		timer := time.NewTimer(2 * time.Second)
 		select {
 		case <-hold.Release:
 		case <-r.Context().Done():
-		case <-timer.C:
 		}
-		timer.Stop()
 		v.mu.Lock()
 		hold.Canceled = errors.Is(r.Context().Err(), context.Canceled)
-		hold.Finished = true
 		v.mu.Unlock()
 	}
 	if !drop {
@@ -300,6 +349,8 @@ func (v *projectVariablesWebFixture) controlResponse(response *http.Response) er
 	v.mu.Lock()
 	v.dropProject = ""
 	v.dropCommand = ""
+	v.dropTarget = ""
+	v.dropIndex = 0
 	v.mu.Unlock()
 	_ = response.Body.Close()
 	return &projectOwnerWebLost{header: response.Header.Clone(), length: len(raw), variableCut: func(written int, writeErr, flushErr, hijackErr, closeErr error) {
@@ -307,6 +358,21 @@ func (v *projectVariablesWebFixture) controlResponse(response *http.Response) er
 		defer v.mu.Unlock()
 		a.Cut = &variableWebCut{written, writeErr == nil, flushErr == nil, hijackErr == nil, hijackErr == nil && closeErr == nil}
 	}}
+}
+
+// This observes the original proxy handler's actual return, after its held
+// response has seen the original context cancellation or explicit release.
+func (v *projectVariablesWebFixture) handlerReturned(r *http.Request) {
+	index, ok := r.Context().Value(variableWebRequestKey{}).(int)
+	if !ok {
+		return
+	}
+	v.mu.Lock()
+	defer v.mu.Unlock()
+	if v.hold != nil && v.hold.Started && v.hold.Index == index {
+		v.hold.Finished = true
+		v.hold.Canceled = errors.Is(r.Context().Err(), context.Canceled)
+	}
 }
 func (v *projectVariablesWebFixture) releaseRead() {
 	v.mu.Lock()
@@ -357,6 +423,12 @@ func (v *projectVariablesWebFixture) ipc(ctx context.Context, raw []byte, previo
 			v.mu.Unlock()
 			v.owner.t.Fatal("private Variables cut already armed")
 		}
+		if _, err := f.ParseID[identity.ProjectVariable](in.Target); err != nil {
+			v.mu.Unlock()
+			v.owner.t.Fatal("private Variables cut target invalid")
+		}
+		v.dropTarget = in.Target
+		v.dropIndex = 0
 		v.dropProject = project
 		v.dropCommand = "project.variable." + in.Kind
 		v.mu.Unlock()
@@ -438,6 +510,7 @@ func (v *projectVariablesWebFixture) verify(ctx context.Context) {
 	t := v.owner.t
 	changed := map[string]bool{}
 	cutKinds := map[string]int{}
+	browserFacts := map[string]map[string]bool{}
 	for _, a := range v.attempts {
 		if !a.EOF || !a.Closed {
 			t.Fatal("Variables observed response did not finish upstream body and Close")
@@ -460,9 +533,11 @@ func (v *projectVariablesWebFixture) verify(ctx context.Context) {
 		if err != nil {
 			t.Fatal("Variables private receipt encoding failed")
 		}
+		input := variableWebStoredInput(a, v.owner.owner.UserID)
 		var rows, history, audits, events int
-		err = v.owner.store.QueryRow(ctx, `SELECT count(*), coalesce(sum((SELECT count(*) FROM agenteam_projectvariable.history h WHERE h.project_id=c.project_id AND h.operation_id=c.id AND h.variable_id=c.target_id AND h.event_id=c.event_id)),0),coalesce(sum((SELECT count(*) FROM agenteam_audit.audit_records a WHERE a.id=(c.receipt->>'audit_id')::uuid AND a.project_id=c.project_id AND a.resource_id=c.target_id AND a.action=c.command_name AND a.producer='projectvariable' AND a.outcome='success')),0),coalesce(sum((SELECT count(*) FROM agenteam_outbox.events e WHERE e.id=c.event_id AND e.project_id=c.project_id AND e.aggregate_id=c.target_id AND e.producer='projectvariable')),0) FROM agenteam_projectvariable.commands c WHERE c.project_id=$1 AND c.command_name=$2 AND c.idempotency_key=$3 AND c.target_id=$4 AND c.state='completed' AND c.receipt=$5::jsonb`, a.Project, a.Command, a.Key, a.Target, string(receipt)).Scan(&rows, &history, &audits, &events)
+		err = v.owner.store.QueryRow(ctx, `SELECT count(*), coalesce(sum((SELECT count(*) FROM agenteam_projectvariable.history h WHERE h.project_id=c.project_id AND h.operation_id=c.id AND h.variable_id=c.target_id AND h.event_id=c.event_id)),0),coalesce(sum((SELECT count(*) FROM agenteam_audit.audit_records a WHERE a.id=(c.receipt->>'audit_id')::uuid AND a.project_id=c.project_id AND a.resource_id=c.target_id AND a.action=c.command_name AND a.producer='projectvariable' AND a.outcome='success')),0),coalesce(sum((SELECT count(*) FROM agenteam_outbox.events e WHERE e.id=c.event_id AND e.project_id=c.project_id AND e.aggregate_id=c.target_id AND e.producer='projectvariable')),0) FROM agenteam_projectvariable.commands c WHERE c.project_id=$1 AND c.command_name=$2 AND c.idempotency_key=$3 AND c.target_id=$4 AND c.state='completed' AND c.receipt=$5::jsonb AND c.actor_user_id=$6 AND c.request=$7::jsonb`, a.Project, a.Command, a.Key, a.Target, string(receipt), v.owner.owner.UserID, string(input)).Scan(&rows, &history, &audits, &events)
 		clear(receipt)
+		clear(input)
 		if err != nil {
 			t.Fatal("Variables original-key persistent receipt observation failed")
 		}
@@ -473,6 +548,10 @@ func (v *projectVariablesWebFixture) verify(ctx context.Context) {
 		if rows != 1 || history != want || audits != want || events != want {
 			t.Fatalf("Variables original-key facts rows=%d history=%d audit=%d events=%d", rows, history, audits, events)
 		}
+		if browserFacts[a.Project] == nil {
+			browserFacts[a.Project] = map[string]bool{}
+		}
+		browserFacts[a.Project][a.Command+":"+a.Key] = want == 1
 		if !lookup {
 			changed[a.Command] = true
 		}
@@ -486,10 +565,20 @@ func (v *projectVariablesWebFixture) verify(ctx context.Context) {
 				if later.Key != a.Key || later.Project != a.Project || later.Command != a.Command {
 					continue
 				}
-				if later.Target != a.Target || later.CSRF != a.CSRF || later.Status != http.StatusOK {
+				if later.Target != a.Target || later.CSRF != a.CSRF || later.Query != "" || later.Status != http.StatusOK {
 					t.Fatal("Variables recovery changed original identity or target")
 				}
 				if strings.HasSuffix(later.Path, "/commands/lookup") {
+					if later.Method != http.MethodPost || later.Path != "/api/v1/projects/"+a.Project+"/variables/commands/lookup" || !variableWebOriginalLookup(a, later) {
+						t.Fatal("Variables Lookup changed the original request semantics or presence")
+					}
+					var result struct {
+						Status  string          `json:"status"`
+						Receipt json.RawMessage `json:"receipt"`
+					}
+					if json.Unmarshal(later.Receipt, &result) != nil || result.Status != "committed" || !jsonSemanticEqual(result.Receipt, a.Receipt) {
+						t.Fatal("Variables Lookup replaced the historical receipt")
+					}
 					lookups++
 					continue
 				}
@@ -506,6 +595,21 @@ func (v *projectVariablesWebFixture) verify(ctx context.Context) {
 			}
 		}
 	}
+	for _, project := range v.owner.ids {
+		expected := v.setupFacts[project]
+		for _, changed := range browserFacts[project] {
+			expected[0]++
+			if changed {
+				expected[1]++
+			}
+		}
+		var commands, completed, history, audits, events int
+		err := v.owner.store.QueryRow(ctx, `SELECT (SELECT count(*) FROM agenteam_projectvariable.commands WHERE project_id=$1),(SELECT count(*) FROM agenteam_projectvariable.commands WHERE project_id=$1 AND state='completed'),(SELECT count(*) FROM agenteam_projectvariable.history WHERE project_id=$1),(SELECT count(*) FROM agenteam_audit.audit_records WHERE project_id=$1 AND producer='projectvariable'),(SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$1 AND producer='projectvariable')`, project).Scan(&commands, &completed, &history, &audits, &events)
+		if err != nil || commands != expected[0] || completed != expected[0] || history != expected[1] || audits != expected[1] || events != expected[1] {
+			t.Fatal("Variables seed and distinct browser intent totals do not match persistent facts")
+		}
+	}
+
 	if v.mode == "recovery" {
 		for _, kind := range []string{"create", "update", "delete"} {
 			if cutKinds["project.variable."+kind] != 1 {
@@ -537,4 +641,47 @@ func jsonSemanticEqual(left, right []byte) bool {
 	defer clear(x)
 	defer clear(y)
 	return bytes.Equal(x, y)
+}
+
+func variableWebOriginalLookup(original, lookup *variableWebAttempt) bool {
+	var body map[string]json.RawMessage
+	if json.Unmarshal(original.Body, &body) != nil {
+		return false
+	}
+	expected := map[string]any{"command": original.Command}
+	if original.Command != "project.variable.create" {
+		expected["target_id"] = original.Target
+		expected["expected_version"] = body["expected_version"]
+	}
+	if original.Command != "project.variable.delete" {
+		expected["request"] = body["request"]
+	}
+	raw, err := json.Marshal(expected)
+	if err != nil {
+		return false
+	}
+	defer clear(raw)
+	return jsonSemanticEqual(raw, lookup.Body)
+}
+
+func variableWebStoredInput(a *variableWebAttempt, user string) []byte {
+	var body map[string]json.RawMessage
+	if json.Unmarshal(a.Body, &body) != nil {
+		return nil
+	}
+	input := map[string]any{"project_id": a.Project, "actor_user_id": user, "command": a.Command, "target_id": a.Target}
+	if a.Command != "project.variable.create" {
+		input["expected_version"] = body["expected_version"]
+	}
+	if a.Command == "project.variable.create" {
+		input["create"] = body["request"]
+	}
+	if a.Command == "project.variable.update" {
+		input["update"] = body["request"]
+	}
+	raw, err := json.Marshal(input)
+	if err != nil {
+		return nil
+	}
+	return raw
 }

@@ -21,6 +21,20 @@ import time
 import uuid
 
 
+VARIABLE_UI_TOPS = {
+    'TestAccountProjectVariablesWebReadAndPagination',
+    'TestAccountProjectVariablesWebCRUDAndHistory',
+    'TestAccountProjectVariablesWebOriginalRecovery',
+    'TestAccountProjectVariablesWebIdentityAndCancellation',
+    'TestAccountProjectVariablesWebAuthorityAndLifecycle',
+    'TestAccountProjectVariablesWebLayouts',
+}
+
+
+def variable_ui_selector(selector):
+    return selector in {'^' + name + '$' for name in VARIABLE_UI_TOPS}
+
+
 def budgets(root_chain):
     # Root: original Go test 360s + readiness 75s + fixture cleanup 55s +
     # build/scheduling allowance 50s. The separate 60s TERM grace allows the
@@ -131,6 +145,8 @@ def observe_root_chain(directory, log, log_path, selector):
         '^TestIndependentProjectVariablesProcessConfirmationExit$': {'TestIndependentProjectVariablesProcessConfirmationExit'},
         '^TestIndependentProjectVariablesRootConfirmationForce$': {'TestIndependentProjectVariablesRootConfirmationForce'},
     }.get(selector, set())
+    if variable_ui_selector(selector):
+        expected = {selector[1:-1]}
     actual = set(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
@@ -178,9 +194,12 @@ def main():
     if adapter is not None and args.run not in adapter.TARGETS:
         parser.error('root mode requires one exact Work root selector')
     args.output.mkdir(parents=True, exist_ok=True)
-    stem = 'pg-' + uuid.uuid4().hex
+    ui = args.root_chain and variable_ui_selector(args.run)
+    stem = ('ui-' + uuid.uuid4().hex[:16]) if ui else ('pg-' + uuid.uuid4().hex)
     directory = args.output.resolve() / stem
     log_path = args.output / (stem + '.log')
+    if ui and (directory.exists() or directory.is_symlink() or log_path.exists() or log_path.is_symlink()):
+        raise FileExistsError('owned UI run collision')
     # Adopt only this supervisor's own descendants, so any unexpected survivor
     # can be actually waited and reported rather than inferred dead from ps.
     libc = ctypes.CDLL(None, use_errno=True)
@@ -189,7 +208,8 @@ def main():
     inputs = {str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest()
               for p in (args.driver, args.binary)}
     if adapter is not None:
-        inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
+        paths = adapter.input_paths(args.binary, args.run) if ui else adapter.input_paths(args.binary)
+        inputs = {str(p): adapter.sha(p) for p in paths}
     baseline = tcp()
     started = time.monotonic()
     child = None
@@ -201,7 +221,7 @@ def main():
         if child is not None and child.poll() is None:
             child.send_signal(signal.SIGTERM)
     old = {s: signal.signal(s, stop) for s in (signal.SIGINT, signal.SIGTERM)}
-    with log_path.open('w', buffering=1) as log:
+    with log_path.open('x' if ui else 'w', buffering=1) as log:
         try:
             child = subprocess.Popen([str(args.driver.resolve()), '--test-binary',
                 str(args.binary.resolve()), '--run', args.run, '--directory', str(directory)],

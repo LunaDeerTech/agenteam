@@ -238,6 +238,9 @@ func (f *projectOwnerWebFixture) startRoot(t *testing.T, ctx context.Context) co
 	server := &http.Server{ReadHeaderTimeout: 5 * time.Second, Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handlers.Add(1)
 		defer handlers.Done()
+		if f.variables != nil {
+			defer f.variables.handlerReturned(r)
+		}
 		if r.URL.Path == "/api/v1" || strings.HasPrefix(r.URL.Path, "/api/v1/") {
 			if !f.observeRequest(w, r) {
 				return
@@ -257,7 +260,7 @@ func (f *projectOwnerWebFixture) startRoot(t *testing.T, ctx context.Context) co
 		// Legal Project names may contain dots. Classify the original request
 		// path before treating an extension as a missing static asset; the
 		// frontend still performs its independent raw-route and API checks.
-		if projectOwnerWebPage(r.RequestURI) {
+		if projectOwnerWebPage(r.RequestURI) || f.variables != nil && projectVariablesWebPage(r.RequestURI) {
 			w.Header().Set("Cache-Control", "no-store")
 			http.ServeFile(w, r, filepath.Join(dist, "index.html"))
 			return

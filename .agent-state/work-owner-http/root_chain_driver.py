@@ -25,13 +25,56 @@ TARGETS = {
     '^TestIndependentProjectVariablesRootConfirmationForce$': 'internal/central/app',
 }
 
+UI_CASES = {
+    '^TestAccountProjectVariablesWebReadAndPagination$': 'read',
+    '^TestAccountProjectVariablesWebCRUDAndHistory$': 'crud',
+    '^TestAccountProjectVariablesWebOriginalRecovery$': 'recovery',
+    '^TestAccountProjectVariablesWebIdentityAndCancellation$': 'identity',
+    '^TestAccountProjectVariablesWebAuthorityAndLifecycle$': 'authority',
+    '^TestAccountProjectVariablesWebLayouts$': 'layouts',
+}
+TARGETS.update({selector: 'tests/account' for selector in UI_CASES})
+
+
+def ui_assets():
+    owned = (REPOSITORY / 'output/ai/project-variables-ui').resolve()
+    dist = Path(os.environ.get('AGENTEAM_PROJECT_OWNER_WEB_DIST', ''))
+    if (not dist.is_absolute() or dist.is_symlink()
+            or not dist.resolve().is_relative_to(owned)
+            or not (dist / 'index.html').is_file()):
+        raise ValueError('owned frozen Variables UI dist required')
+    assets = list(dist.rglob('*'))
+    if any(p.is_symlink() for p in assets):
+        raise ValueError('Variables assets must not alias another tree')
+    return sorted(p for p in assets if p.is_file())
+
+
+def ui_configuration(selector, directory):
+    if os.environ.get('AGENTEAM_PROJECT_VARIABLE_WEB_CASE') != UI_CASES[selector]:
+        raise ValueError('exact Variables UI case binding required')
+    if len(str(directory / 'runtime')) > 45:
+        raise ValueError('owned browser runtime exceeds original short-path bound')
+    ui_assets()
+    owned = (REPOSITORY / 'output/ai/project-variables-ui').resolve()
+    values = {}
+    for key in ('AGENTEAM_PROJECT_OWNER_WEB_EVIDENCE', 'AGENTEAM_AUTH_WEB_IMAGES'):
+        path = Path(os.environ.get(key, ''))
+        if (not path.is_absolute() or path.exists() or path.is_symlink()
+                or not path.parent.is_dir() or not path.parent.resolve().is_relative_to(owned)):
+            raise ValueError('fresh absolute owned Variables evidence/image paths required')
+        values[key] = str(path)
+    left, right = map(Path, values.values())
+    if left.is_relative_to(right) or right.is_relative_to(left):
+        raise ValueError('separate evidence and image paths required')
+    return values
+
 
 def sha(path):
     with Path(path).open('rb') as stream:
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
-def input_paths(binary):
+def input_paths(binary, selector=None):
     # The process TestMain rebuilds cmd binaries, so freezing only the test
     # executable would be insufficient. Include production sources and all
     # three actual go:embed inputs; never consume Model's private harness.
@@ -48,6 +91,20 @@ def input_paths(binary):
                      if not p.name.endswith('_test.go'))
     paths.update((REPOSITORY / 'db/migrations').glob('*.go'))
     paths.update((REPOSITORY / 'db/migrations').glob('*.sql'))
+    if selector in UI_CASES:
+        paths.update(ui_assets())
+        for directory in ('web/src', 'web/public'):
+            paths.update(p for p in (REPOSITORY / directory).rglob('*') if p.is_file())
+        paths.update(REPOSITORY / 'web' / name for name in
+                     ('index.html', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts'))
+        paths.update(REPOSITORY / 'tests/account' / name for name in
+                     ('project_owner_web_fixture_test.go', 'project_variables_web_fixture_test.go', 'project_variables_web_test.go'))
+        harness = REPOSITORY / 'tests/account-captcha-web'
+        paths.update(harness / name for name in
+                     ('package.json', 'package-lock.json', 'project-variables.config.js',
+                      'e2e/project-variables.spec.ts', 'e2e/project-variables.helpers.ts'))
+        # The strict browser validator builds a registry from this actual directory.
+        paths.update((REPOSITORY / 'api/openapi').glob('*.json'))
     return sorted(paths)
 
 
@@ -59,10 +116,13 @@ def configuration(binary, selector, directory):
         raise ValueError('exact root target and fresh absolute directory required')
     if not GO.is_file() or sha(MINIO) != MINIO_SHA:
         raise ValueError('fixed Go and verified cached MinIO required')
-    return {'binary': str(binary.resolve()), 'selector': selector,
+    plan = {'binary': str(binary.resolve()), 'selector': selector,
             'cwd': str(REPOSITORY / TARGETS[selector]),
             'directory': str(directory), 'runtime': str(directory / 'runtime'),
             'test_timeout': '6m', 'resources': 7}
+    if selector in UI_CASES:
+        plan['ui'] = ui_configuration(selector, directory)
+    return plan
 
 
 def main():
@@ -99,6 +159,15 @@ def main():
                 'AGENTEAM_FIXTURE_TEST_CWD': plan['cwd'],
                 'AGENTEAM_FIXTURE_OWNED_RECORD': str(directory / 'owned.json'),
                 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime)})
+    if 'ui' in plan:
+        for path in plan['ui'].values():
+            Path(path).mkdir(mode=0o700)
+        digest = hashlib.sha256()
+        for path in input_paths(args.test_binary, args.run):
+            digest.update(str(path).encode() + b'\0' + sha(path).encode() + b'\n')
+        env.update(plan['ui'])
+        env.update({'AGENTEAM_AUTH_WEB_RUNTIME': plan['runtime'],
+                    'AGENTEAM_PROJECT_OWNER_WEB_INPUT_HASH': digest.hexdigest()})
     os.chdir(REPOSITORY)
     # No child is started here: the original shell chain replaces this PID.
     # Its nested Go Cmd.Run and shell wait remain the actual child owners.
