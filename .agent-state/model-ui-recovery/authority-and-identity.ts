@@ -361,14 +361,19 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   need(revoked.session_id === ownerSession.sessionID && revoked.revoked === true, 'PROJECT_MODELS_AUTHORITY_REVOCATION_INVALID');
   const deniedCurrent = await observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 401, () => button(dialog, '重新读取 Provider').click());
   need(['SESSION_REVOKED', 'UNAUTHENTICATED'].includes(String(deniedCurrent.code)) && deniedCurrent.status === 401, 'PROJECT_MODELS_AUTHORITY_REVOCATION_RESPONSE_INVALID');
-  await expect(page.locator('#login-email')).toBeVisible(); await expect(providerDialog()).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '会话尚未确认', exact: true })).toBeVisible();
+  await expect(providerDialog()).toHaveCount(0);
   await expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0);
   harness.durableDelta(beforeRevocation, await harness.snapshot('main'), 0, 0);
   checks.current_revocation = true;
 
   harness.step('authority-true-identity-change');
+  await button(page, '检查当前会话').click();
+  await expect(page.locator('#login-email')).toBeVisible();
   // Same-document form interactions preserve every earlier native observation.
   // Re-login as the same human still creates a genuinely different Session.
+  // The live old-session draft here is Provider input. Credential tracking was
+  // explicitly abandoned earlier; the later empty input is a fresh-form check.
   await privateLogin(page, actors.owner);
   const newOwnerSession = await sessionIdentity(page, () => pageshow(page));
   need(newOwnerSession.userID === ownerSession.userID && newOwnerSession.sessionID !== ownerSession.sessionID && newOwnerSession.role === 'user', 'PROJECT_MODELS_AUTHORITY_NEW_SESSION_MISSING');

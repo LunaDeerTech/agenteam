@@ -2,13 +2,13 @@
 
 - 目标：从环境中断处恢复产品开发，完成 D01–D28 全部能力及 E01 平台内游戏复刻与真实试玩验收。
 - 状态：进行中；Task Planning 规划库、Agent C1、R1 纯身份已正式交付；完整 D11/D27、平台与 E01 未完成。
-- 当前分支：`ai/task-planning-recovery`，已合入正式 main `ad8b1fb6`（T0a纯状态核心）。Task runtime=`0273a604`、Agent C1=`7f2bb211`、R1=`dbf4a5e0` 均正常推送并精确远端确认；`1b38f470` 是初始恢复基线。
+- 当前分支：`ai/task-planning-recovery`，已合入正式 main `70b16f06`（B0-C两类纯契约）；T0a=`ad8b1fb6`。Task runtime=`0273a604`、Agent C1=`7f2bb211`、R1=`dbf4a5e0` 均正常推送并精确远端确认；`1b38f470` 是初始恢复基线。
 - 恢复核对：初始本地 `work` 为 `3add174d`、工作区干净；fetch 后保留并 fast-forward 远端三个协作流程提交。没有发现 `origin/ai/*` 活动任务分支，也无本地未推送独有提交。
 
 ## 当前工作与所有权
 
 1. Task Planning 本卡规划库已正式交付：20技术路径及README；七新八旧PG、独立A/B和pure/race/vet/build按限定组合接受，资源终态齐，原FAIL保留。状态/指派/执行/删除/HTTP/UI/生产Work仍未实现，完整D11未完成。
-2. D27 Model Settings：执行代理环境恢复后再次pending_init，已interrupt；root接管四测试harness、Model helpers与本卡状态。第七recovery完整PASS（schema/client13、全部Wait/join/7ID/TCP双清）；原六recovery FAIL及read首轮FAIL保留；read第二轮完整PASS，configuration第三轮完整PASS，六新已3通过，其余3/14旧/独立AB待验。下一credential首轮；authority/nav完整模块已类型检查待独审/接线/真实运行。
+2. D27 Model Settings：执行代理环境恢复后再次pending_init，已interrupt；root接管四测试harness、Model helpers与本卡状态。第七recovery完整PASS（schema/client13、全部Wait/join/7ID/TCP双清）；原六recovery FAIL及read首轮FAIL保留；read第二轮完整PASS，configuration第三轮完整PASS，credential首轮完整PASS，六新已4通过，其余2/14旧/独立AB待验。authority/nav完整模块已类型检查与独立预集成静核，下一接线/真实运行。
 3. T0a纯状态核心：原作者环境恢复后pending_init已interrupt，root接管精确2新Work contract源及本卡状态；SPEC独立接受，作者pure与root race/vet已通过，独立4top/9child race实际exit0，最终独审通过并正式交付main ad8b1fb6。无Blocker/Transfer/fullDigest/事实服务/迁移。R1三个identity marker已main，不代表真实目录或F1。
 4. root 独占current、globalledger与Git；真实PG/browser/hostTCP按完整终态串行资源ACK。Model执行只使用 `/workspace/agenteam-delivery` 的正式main dbf/accepted00022，两个untrackedGo与原树同份；原树新增B0-C未验源不得复制到delivery；T0a已验但当前Model编译基线仍明确固定dbf。所有Model glob在实际run中冻结，其他原树纯代码不在其hash闭包。
 5. 旧 `/root/task_planning`、`/root/model_ui_recovery` 持续pending_init已interrupt并停权；新实例已实际启动接续，不按旧实例名单推断进程。所有必要source/probe随ai checkpoint保存，output日志/产物可重建。
@@ -158,3 +158,7 @@
 - navigation-and-layouts.ts完整364行已strictTS11848准确Wait exit0并freeze，type-only引用authority接口；未注册/浏览器/8图/视觉验收，非PASS。root保存完整可构建模块后credential首轮，所有Modelglob冻结。B0-C隔离root contract/work race3.351/1.367实际0，准确vet/Central与Runner build5799实际0；独立验收仍进行、正式未交付。
 
 - B0-C独立实现验收接受：10491 actualexit0，公开API pure0.018/race1.129s，各5top/4parallel child真实run/pass，无skip/timeout/input变化；nested lexical cap/错误优先/最坏escaping/atomic/clone/log/legacy全部通过。首次独立probe自身vet suspect-or setupFAIL0tests保留run-hykp8e_8，拆开断言后产品不改复跑过。必要2probe冻结；root候选race/vet/两build0，准备正式8路径交付，无未验Model代码混入。
+
+- credential首轮完整PASS：outer76819actualexit0/93.998s、Go20.69s，browser completed=true/9checks真/schema-client各15/proxyjoin；directWait258194exit0、4adoptedWait0/watchdogobserverjoin、七ID双absent/descendants[]、TCP两空/input同一（owned-credential-fc349554…）。create/metadata/rotation/引用409/显式解绑删除及partial Provider loss原请求回放均通过，D27六新4/6。
+- B0-C已正式main交付70b16f0654c8d71561b9dda36d32a51153e1776f，正常pushactual0/ls-remote精确确认；8路径仅2source/2probe/SPEC/README/ledger/current，132链接及4source同一检查0，不含未验Model代码。恢复分支合并仅全局台账D27较新进度冲突，保留root较新行；未推送本地合并的残留标记已实际清除并amend，最终diff无冲突标记，其余成果保留，无force。
+- authority单处401路径mustfix已作者修正并strictTS0.943s/独审有限复核接受；先真实未确认态与保护区撤离，再检查当前会话至anonymous/login，不冒自动跳转。scope限held-tail阻止切页/newSession清Providerdirty，Credential此前已放弃不可冒仍待决清除。navigation预集成静核无mustfix；System仅双未保存草稿取消/隔离，8图尚未生成目视。2module待真实接线/验收，所有Modelglob冻结，下一authority。
