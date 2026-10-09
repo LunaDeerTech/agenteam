@@ -10,10 +10,13 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"math"
 	"sort"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"testing/fstest"
+	"time"
 
 	"github.com/LunaDeerTech/agenteam/db/migrations"
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
@@ -26,6 +29,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/work"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func TestTaskPlanningMigration(t *testing.T) {
@@ -316,6 +320,7 @@ func TestTaskPlanningAuthorityAndReplay(t *testing.T) {
 		_, err = f.tasks.CreateTask(ctxFor(t), a, meta(t, id[struct{}](t).String(), nil), p.ID, r)
 		requireCode(t, err, tc.code)
 	}
+	taskAuthorityMatrix(t, f, a, other)
 	f.seedTaskState(t, a, original.Task, wc.TaskStateDone, nil)
 	replay, err := f.tasks.UpdateTask(ctxFor(t), a, cm, p.ID, target.ID, request)
 	if err != nil {
@@ -355,10 +360,27 @@ func TestTaskPlanningAuthorityAndReplay(t *testing.T) {
 
 type taskFailAfterHistory struct {
 	oc.Appender
-	seen bool
+	store fixtureStore
+	seen  bool
 }
 
 func (a *taskFailAfterHistory) AppendEventInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, e event.Event, p oc.AppendPlan) (oc.AppendReceipt, error) {
+	x, err := a.store.InTx(tx)
+	if err != nil {
+		return oc.AppendReceipt{}, err
+	}
+	var payload wc.TaskChanged
+	if err = json.Unmarshal(e.PayloadBytes(), &payload); err != nil {
+		return oc.AppendReceipt{}, err
+	}
+	var found bool
+	err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_work.task_events h JOIN agenteam_work.tasks t ON (t.project_id,t.id)=(h.project_id,h.task_id) WHERE h.id=$1 AND h.operation_id=$2 AND h.correlation_id=h.operation_id AND h.task_version=$3 AND t.version=h.task_version AND h.created_at=$4 AND t.updated_at=h.created_at)`, payload.TaskEventID.String(), payload.CommandID.String(), int64(*e.Header().AggregateVersion), e.Header().OccurredAt.Time()).Scan(&found)
+	if err != nil {
+		return oc.AppendReceipt{}, err
+	}
+	if !found {
+		return oc.AppendReceipt{}, foundation.NewFault(foundation.InternalError, foundation.NotStarted)
+	}
 	a.seen = true
 	return oc.AppendReceipt{}, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted)
 }
@@ -380,7 +402,7 @@ func TestTaskPlanningAtomicityAndEvents(t *testing.T) {
 			var writer interface {
 				UpdateTask(context.Context, identity.Actor, foundation.CommandMeta, wc.ProjectID, wc.TaskID, wc.TaskFieldsUpdate) (wc.TaskMutation, error)
 			}
-			history := &taskFailAfterHistory{Appender: f.events}
+			history := &taskFailAfterHistory{Appender: f.events, store: f.store}
 			if point == "after-history" {
 				app = history
 			}
@@ -447,6 +469,7 @@ func TestTaskPlanningAtomicityAndEvents(t *testing.T) {
 	if failed.State() != foundation.NotCommitted {
 		t.Fatal("completed receipt accepted as new fact")
 	}
+	taskAtomicityMatrix(t, f, a, p.ID, s.ID, first.ID, captured)
 }
 
 // Full rows include original planned commands, all timestamps, and the Project
@@ -764,5 +787,852 @@ func taskCursorMutationMatrix(t *testing.T, f *taskFixture, a identity.Actor, p 
 	}
 	if _, err = f.raw.Exec(ctxFor(t), `INSERT INTO agenteam_work.task_query_generations(project_id,query_generation) VALUES($1,$2)`, p.String(), generation); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func taskFaultReason(t *testing.T, err error, code foundation.Code, reason string) {
+	t.Helper()
+	requireCode(t, err, code)
+	var fault *foundation.Fault
+	if !errors.As(err, &fault) || len(fault.FieldErrors) != 1 || fault.FieldErrors[0].Code != reason {
+		t.Fatal("missing exact safe reason", reason, err)
+	}
+}
+func taskAuthorityMatrix(t *testing.T, f *taskFixture, a, other identity.Actor) {
+	t.Helper()
+	t.Run("command-scope-writer-presence", func(t *testing.T) {
+		p, _, _ := f.create(t, a, "task-key-scope")
+		m := f.milestone(t, a, p.ID, "m")
+		s := f.sprint(t, a, p.ID, m.ID, "s")
+		request := wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: s.ID, Title: "original", Type: wc.TaskTypeFeature, Priority: wc.TaskPriorityLow}
+		metadata := meta(t, "same-key", nil)
+		created, err := f.tasks.CreateTask(ctxFor(t), a, metadata, p.ID, request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		title := "updated"
+		um := meta(t, "same-key", &created.Task.Version)
+		updated, err := f.tasks.UpdateTask(ctxFor(t), a, um, p.ID, created.Task.ID, wc.TaskFieldsUpdate{Title: &title})
+		if err != nil {
+			t.Fatal("same key different command", err)
+		}
+		_, err = f.tasks.ReorderTask(ctxFor(t), a, meta(t, "same-key", &updated.Task.Version), p.ID, created.Task.ID, wc.TaskReorder{})
+		if err != nil {
+			t.Fatal("third command key namespace", err)
+		}
+		var commands int
+		if err = f.raw.QueryRow(ctxFor(t), `SELECT count(DISTINCT command_name) FROM agenteam_work.task_commands WHERE project_id=$1 AND idempotency_key='same-key'`, p.ID.String()).Scan(&commands); err != nil || commands != 3 {
+			t.Fatal("command namespace conflated", commands, err)
+		}
+		empty := ""
+		_, err = f.tasks.UpdateTask(ctxFor(t), a, um, p.ID, created.Task.ID, wc.TaskFieldsUpdate{Title: &title, Description: &empty})
+		requireCode(t, err, foundation.IdempotencyKeyReused)
+		differentVersion := updated.Task.Version
+		changedMeta := um
+		changedMeta.ExpectedVersion = &differentVersion
+		_, err = f.tasks.UpdateTask(ctxFor(t), a, changedMeta, p.ID, created.Task.ID, wc.TaskFieldsUpdate{Title: &title})
+		requireCode(t, err, foundation.IdempotencyKeyReused)
+		p2, _, _ := f.create(t, a, "task-key-project")
+		m2 := f.milestone(t, a, p2.ID, "m")
+		s2 := f.sprint(t, a, p2.ID, m2.ID, "s")
+		r2 := request
+		r2.TaskID = id[wc.Task](t)
+		r2.SprintID = s2.ID
+		if _, err = f.tasks.CreateTask(ctxFor(t), a, metadata, p2.ID, r2); err != nil {
+			t.Fatal("same key other Project", err)
+		}
+		r2.TaskID = request.TaskID
+		_, err = f.tasks.CreateTask(ctxFor(t), a, meta(t, "occupied", nil), p2.ID, r2)
+		taskFaultReason(t, err, foundation.ResourceBusy, "TARGET_OCCUPIED")
+		r2.TaskID = id[wc.Task](t)
+		r2.SprintID = s.ID
+		_, err = f.tasks.CreateTask(ctxFor(t), a, meta(t, "foreign-sprint", nil), p2.ID, r2)
+		requireCode(t, err, foundation.TaskSprintInvalid)
+		r2.SprintID = id[c.Sprint](t)
+		_, err = f.tasks.CreateTask(ctxFor(t), a, meta(t, "missing-sprint", nil), p2.ID, r2)
+		requireCode(t, err, foundation.TaskSprintInvalid)
+		_, err = f.taskReader.GetTask(ctxFor(t), a, p2.ID, request.TaskID)
+		requireCode(t, err, foundation.TaskNotFound)
+		digest, err := wc.TaskCreateDigest(a, metadata, p.ID, request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		lookup := wc.TaskCommandLookupRequest{ProjectID: p.ID, Command: wc.TaskCommandCreate, IdempotencyKey: metadata.IdempotencyKey, SemanticDigest: digest}
+		f.transferOwner(t, a, other, p.ID)
+		_, err = f.tasks.CreateTask(ctxFor(t), other, metadata, p.ID, request)
+		requireCode(t, err, foundation.NotFound)
+		_, err = f.tasks.LookupTaskCommand(ctxFor(t), other, lookup)
+		requireCode(t, err, foundation.NotFound)
+		f.transferOwner(t, other, a, p.ID)
+		f.seedTaskState(t, a, updated.Task, wc.TaskStateDone, nil)
+		wrong := foundation.Version(1)
+		_, err = f.tasks.UpdateTask(ctxFor(t), a, meta(t, "version-before-terminal", &wrong), p.ID, created.Task.ID, wc.TaskFieldsUpdate{Title: &title})
+		requireCode(t, err, foundation.TaskVersionConflict)
+		replay, err := f.tasks.CreateTask(ctxFor(t), a, metadata, p.ID, request)
+		if err != nil {
+			t.Fatal("history before future state", err)
+		}
+		equalTaskMutation(t, created, replay)
+	})
+	t.Run("current-and-completed-sprint", func(t *testing.T) {
+		p, _, _ := f.create(t, a, "task-current")
+		m := f.milestone(t, a, p.ID, "m")
+		s := f.sprint(t, a, p.ID, m.ID, "s")
+		f.lifecycle(t, a, p.ID, s, false)
+		req := wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: s.ID, Title: "current", Type: wc.TaskTypeChore, Priority: wc.TaskPriorityLow}
+		metadata := meta(t, "current", nil)
+		created, err := f.tasks.CreateTask(ctxFor(t), a, metadata, p.ID, req)
+		if err != nil {
+			t.Fatal("current Sprint create", err)
+		}
+		title := "current update"
+		updated, err := f.tasks.UpdateTask(ctxFor(t), a, meta(t, "current-update", &created.Task.Version), p.ID, created.Task.ID, wc.TaskFieldsUpdate{Title: &title})
+		if err != nil {
+			t.Fatal("current Sprint update", err)
+		}
+		if _, err = f.tasks.ReorderTask(ctxFor(t), a, meta(t, "current-reorder", &updated.Task.Version), p.ID, updated.Task.ID, wc.TaskReorder{}); err != nil {
+			t.Fatal(err)
+		}
+		f.lifecycle(t, a, p.ID, s, true)
+		replay, err := f.tasks.CreateTask(ctxFor(t), a, metadata, p.ID, req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		equalTaskMutation(t, created, replay)
+		req.TaskID = id[wc.Task](t)
+		req.InitialState = wc.TaskStateTodo
+		_, err = f.tasks.CreateTask(ctxFor(t), a, meta(t, "completed-before-assignee", nil), p.ID, req)
+		requireCode(t, err, foundation.TaskSprintInvalid)
+	})
+	for _, state := range []c.Lifecycle{c.Archiving, c.Archived, c.Deleting} {
+		t.Run("history-planned-"+string(state), func(t *testing.T) {
+			p, _, _ := f.create(t, a, "task-"+string(state))
+			m := f.milestone(t, a, p.ID, "m")
+			s := f.sprint(t, a, p.ID, m.ID, "s")
+			req := wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: s.ID, Title: "history", Type: wc.TaskTypeTask, Priority: wc.TaskPriorityHigh}
+			metadata := meta(t, "completed", nil)
+			completed, err := f.tasks.CreateTask(ctxFor(t), a, metadata, p.ID, req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			pending := req
+			pending.TaskID = id[wc.Task](t)
+			pm := meta(t, "planned", nil)
+			app := &capturingAppender{Appender: f.events, before: func(context.Context, identity.Actor, event.Event) error {
+				return foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted)
+			}}
+			writer := f.newTaskService(t, app, f.accounts)
+			_, err = writer.CreateTask(ctxFor(t), a, pm, p.ID, pending)
+			requireCode(t, err, foundation.DependencyUnavailable)
+			pd, err := wc.TaskCreateDigest(a, pm, p.ID, pending)
+			if err != nil {
+				t.Fatal(err)
+			}
+			q := wc.TaskCommandLookupRequest{ProjectID: p.ID, Command: wc.TaskCommandCreate, IdempotencyKey: pm.IdempotencyKey, SemanticDigest: pd}
+			observed, err := f.tasks.LookupTaskCommand(ctxFor(t), a, q)
+			if err != nil || observed.Status != wc.LookupInProgress {
+				t.Fatal("planned premise", err)
+			}
+			if state == c.Archived {
+				f.seedLifecycle(t, a, p.ID, state)
+			} else {
+				f.seedProjectTransition(t, a, p.ID, state)
+			}
+			replay, err := f.tasks.CreateTask(ctxFor(t), a, metadata, p.ID, req)
+			if state == c.Deleting {
+				requireCode(t, err, foundation.ProjectNotActive)
+			} else {
+				if err != nil {
+					t.Fatal("history Read boundary", err)
+				}
+				equalTaskMutation(t, completed, replay)
+			}
+			_, err = f.tasks.CreateTask(ctxFor(t), a, pm, p.ID, pending)
+			requireCode(t, err, foundation.ProjectNotActive)
+			observed, err = f.tasks.LookupTaskCommand(ctxFor(t), a, q)
+			if state == c.Deleting {
+				requireCode(t, err, foundation.ProjectNotActive)
+			} else if err != nil || observed.Status != wc.LookupInProgress {
+				t.Fatal("planned readonly Lookup", err)
+			}
+			_, err = f.taskReader.GetTask(ctxFor(t), a, p.ID, completed.Task.ID)
+			if state == c.Deleting {
+				requireCode(t, err, foundation.ProjectNotActive)
+			} else if err != nil {
+				t.Fatal("archived current Get", err)
+			}
+		})
+	}
+	t.Run("uninitialized", func(t *testing.T) {
+		f.skills.setMode("pending")
+		defer f.skills.setMode("")
+		req := c.CreateProjectRequest{ProjectID: id[identity.Project](t), Name: "task-uninitialized"}
+		result, err := f.projects.CreateProject(ctxFor(t), a, meta(t, "task-pending-project", nil), req)
+		if err != nil || result.State == c.CreationReady {
+			t.Fatal("uninitialized fixture", err)
+		}
+		_, err = f.tasks.CreateTask(ctxFor(t), a, meta(t, "uninitialized-task", nil), req.ProjectID, wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: id[c.Sprint](t), Title: "uninitialized", Type: wc.TaskTypeBug, Priority: wc.TaskPriorityLow})
+		requireCode(t, err, foundation.ProjectNotActive)
+	})
+
+	t.Run("future-state-capabilities-and-anchors", func(t *testing.T) {
+		p, _, _ := f.create(t, a, "task-capabilities")
+		m := f.milestone(t, a, p.ID, "m")
+		s := f.sprint(t, a, p.ID, m.ID, "s")
+		request := wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: s.ID, Title: "original", Type: wc.TaskTypeTask, Priority: wc.TaskPriorityMedium}
+		metadata := meta(t, "capability-original", nil)
+		created, err := f.tasks.CreateTask(ctxFor(t), a, metadata, p.ID, request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		title := "must reject"
+		agent := id[identity.Agent](t)
+		for _, state := range []wc.TaskState{wc.TaskStateTodo, wc.TaskStateInProgress, wc.TaskStateInReview, wc.TaskStateBlocked, wc.TaskStateBacklog, wc.TaskStateDone, wc.TaskStateCancelled} {
+			assigned := &agent
+			if state == wc.TaskStateDone || state == wc.TaskStateCancelled {
+				assigned = nil
+			}
+			f.seedTaskState(t, a, created.Task, state, assigned)
+			code := foundation.DependencyUnbound
+			if state == wc.TaskStateDone || state == wc.TaskStateCancelled {
+				code = foundation.TaskTerminalImmutable
+			}
+			_, err = f.tasks.UpdateTask(ctxFor(t), a, meta(t, "state-update-"+string(state), &created.Task.Version), p.ID, created.Task.ID, wc.TaskFieldsUpdate{Title: &title})
+			requireCode(t, err, code)
+			_, err = f.tasks.ReorderTask(ctxFor(t), a, meta(t, "state-reorder-"+string(state), &created.Task.Version), p.ID, created.Task.ID, wc.TaskReorder{})
+			requireCode(t, err, code)
+			replay, err := f.tasks.CreateTask(ctxFor(t), a, metadata, p.ID, request)
+			if err != nil {
+				t.Fatal("history preceded capability", state, err)
+			}
+			equalTaskMutation(t, created, replay)
+		}
+		f.seedTaskState(t, a, created.Task, wc.TaskStateBacklog, nil)
+		missing := id[wc.Task](t)
+		_, err = f.tasks.UpdateTask(ctxFor(t), a, meta(t, "new-key-missing", &created.Task.Version), p.ID, missing, wc.TaskFieldsUpdate{Title: &title})
+		requireCode(t, err, foundation.TaskNotFound)
+		low := request
+		low.TaskID = id[wc.Task](t)
+		low.Priority = wc.TaskPriorityLow
+		anchor, err := f.tasks.CreateTask(ctxFor(t), a, meta(t, "foreign-group-anchor", nil), p.ID, low)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = f.tasks.ReorderTask(ctxFor(t), a, meta(t, "cross-group-anchor", &created.Task.Version), p.ID, created.Task.ID, wc.TaskReorder{BeforeID: &anchor.Task.ID})
+		requireCode(t, err, foundation.TaskNotFound)
+		_, err = f.tasks.ReorderTask(ctxFor(t), a, meta(t, "self-anchor", &created.Task.Version), p.ID, created.Task.ID, wc.TaskReorder{BeforeID: &created.Task.ID})
+		requireCode(t, err, foundation.InvalidArgument)
+		for _, state := range []wc.TaskState{wc.TaskStateInProgress, wc.TaskStateInReview, wc.TaskStateBlocked, wc.TaskStateCancelled} {
+			bad := request
+			bad.TaskID = id[wc.Task](t)
+			bad.InitialState = state
+			_, err = f.tasks.CreateTask(ctxFor(t), a, meta(t, "invalid-initial-"+string(state), nil), p.ID, bad)
+			requireCode(t, err, foundation.TaskStateInvalid)
+		}
+	})
+	t.Run("capacity-and-counter-boundaries", func(t *testing.T) { taskCapacityAndCounters(t, f, a) })
+}
+func taskCapacityAndCounters(t *testing.T, f *taskFixture, a identity.Actor) {
+	t.Helper()
+	p, _, _ := f.create(t, a, "task-capacity")
+	m := f.milestone(t, a, p.ID, "m")
+	s := f.sprint(t, a, p.ID, m.ID, "full")
+	empty := f.sprint(t, a, p.ID, m.ID, "empty")
+	req := wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: s.ID, Title: "capacity original", Type: wc.TaskTypeTask, Priority: wc.TaskPriorityCritical}
+	metadata := meta(t, "capacity-original", nil)
+	original, err := f.tasks.CreateTask(ctxFor(t), a, metadata, p.ID, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	medium := f.task(t, a, p.ID, s.ID, "medium original")
+	schedule, _ := foundation.ProjectScheduleLock(p.ID.String())
+	agent := id[identity.Agent](t)
+	seed := func(from, to int) {
+		f.tx(t, fixtureLocks(a, p.ID, foundation.LockRequest{Key: schedule, Mode: foundation.Exclusive}), func(ctx context.Context, tx foundation.Tx, x postgres.SQLExecutor) error {
+			if _, err := f.projectAuthority.RequireOwnerInTx(ctx, tx, a, p.ID, identity.Mutate); err != nil {
+				return err
+			}
+			_, err := x.Exec(ctx, `INSERT INTO agenteam_work.tasks(id,project_id,milestone_id,sprint_id,title,description,type,priority,state,assignee_agent_id,plan,manual_rank,version,created_at,updated_at)
+ SELECT ('01900000-0000-7000-8001-'||lpad(to_hex(n),12,'0'))::uuid,$1,$2,$3,'capacity','','task',(ARRAY['critical','high','medium','low'])[((n-1)/4096)%4+1],(ARRAY['backlog','todo','in_progress','in_review'])[(n-1)/16384+1],CASE WHEN n>16384 THEN $6::uuid ELSE NULL END,'',lpad(to_hex((n-1)%4096+1),32,'0'),1,clock_timestamp(),clock_timestamp() FROM generate_series($4::int,$5::int) n WHERE n<>1 AND n<>8193`, p.ID.String(), m.ID.String(), s.ID.String(), from, to, agent.String())
+			if err != nil {
+				return err
+			}
+			if _, err = x.Exec(ctx, `INSERT INTO agenteam_work.task_order_groups(project_id,milestone_id,sprint_id,state,priority,order_generation) SELECT DISTINCT project_id,milestone_id,sprint_id,state,priority,1 FROM agenteam_work.tasks WHERE project_id=$1 ON CONFLICT(project_id,sprint_id,state,priority) DO UPDATE SET order_generation=agenteam_work.task_order_groups.order_generation+1`, p.ID.String()); err != nil {
+				return err
+			}
+			_, err = x.Exec(ctx, `UPDATE agenteam_work.task_query_generations SET query_generation=query_generation+1 WHERE project_id=$1`, p.ID.String())
+			return err
+		})
+	}
+	seed(2, 4096)
+	var count int
+	if err = f.raw.QueryRow(ctxFor(t), `SELECT count(*) FROM agenteam_work.tasks WHERE project_id=$1 AND state='backlog' AND priority='critical'`, p.ID.String()).Scan(&count); err != nil || count != 4096 {
+		t.Fatal("exact full group fixture", count, err)
+	}
+	replay, err := f.tasks.CreateTask(ctxFor(t), a, metadata, p.ID, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	equalTaskMutation(t, original, replay)
+	over := req
+	over.TaskID = id[wc.Task](t)
+	_, err = f.tasks.CreateTask(ctxFor(t), a, meta(t, "group-overflow", nil), p.ID, over)
+	taskFaultReason(t, err, foundation.ResourceBusy, "GROUP_LIMIT")
+	priority := wc.TaskPriorityCritical
+	_, err = f.tasks.UpdateTask(ctxFor(t), a, meta(t, "priority-overflow", &medium.Version), p.ID, medium.ID, wc.TaskFieldsUpdate{Priority: &priority})
+	taskFaultReason(t, err, foundation.ResourceBusy, "GROUP_LIMIT")
+	seed(4097, 65536)
+	if err = f.raw.QueryRow(ctxFor(t), `SELECT count(*) FROM agenteam_work.tasks WHERE project_id=$1`, p.ID.String()).Scan(&count); err != nil || count != 65536 {
+		t.Fatal("exact full Project fixture", count, err)
+	}
+	var wrongGroups int
+	if err = f.raw.QueryRow(ctxFor(t), `SELECT count(*) FROM (SELECT count(*) AS n FROM agenteam_work.tasks WHERE project_id=$1 GROUP BY sprint_id,state,priority HAVING count(*)<>4096) g`, p.ID.String()).Scan(&wrongGroups); err != nil || wrongGroups != 0 {
+		t.Fatal("capacity fixture group limits", err)
+	}
+	replay, err = f.tasks.CreateTask(ctxFor(t), a, metadata, p.ID, req)
+	if err != nil {
+		t.Fatal("Project capacity displaced history", err)
+	}
+	equalTaskMutation(t, original, replay)
+	over.TaskID = id[wc.Task](t)
+	over.SprintID = empty.ID
+	_, err = f.tasks.CreateTask(ctxFor(t), a, meta(t, "project-overflow", nil), p.ID, over)
+	taskFaultReason(t, err, foundation.ResourceBusy, "PROJECT_TASK_LIMIT")
+	t.Log("test-owned 65536 canonical Tasks, 16 exact groups and real group/query rows; seeded Agent IDs prove no assignment capability")
+	p2, _, _ := f.create(t, a, "task-counters")
+	m2 := f.milestone(t, a, p2.ID, "m")
+	s2 := f.sprint(t, a, p2.ID, m2.ID, "s")
+	target := f.task(t, a, p2.ID, s2.ID, "counter")
+	other := f.task(t, a, p2.ID, s2.ID, "other")
+	title := "changed"
+	for _, kind := range []string{"version", "group", "query"} {
+		t.Run(kind, func(t *testing.T) {
+			var sql, restore string
+			var key string
+			expected := target.Version
+			switch kind {
+			case "version":
+				sql = `UPDATE agenteam_work.tasks SET version=$2 WHERE id=$1`
+				restore = sql
+				key = target.ID.String()
+				expected = foundation.Version(math.MaxInt64)
+			case "group":
+				sql = `UPDATE agenteam_work.task_order_groups SET order_generation=$2 WHERE project_id=$1`
+				restore = sql
+				key = p2.ID.String()
+			case "query":
+				sql = `UPDATE agenteam_work.task_query_generations SET query_generation=$2 WHERE project_id=$1`
+				restore = sql
+				key = p2.ID.String()
+			}
+			var old int64
+			switch kind {
+			case "version":
+				old = int64(target.Version)
+			case "group":
+				old, _ = f.generation(t, p2.ID, s2.ID, wc.TaskPriorityMedium)
+			case "query":
+				_, old = f.generation(t, p2.ID, s2.ID, wc.TaskPriorityMedium)
+			}
+			if _, err = f.raw.Exec(ctxFor(t), sql, key, int64(math.MaxInt64)); err != nil {
+				t.Fatal(err)
+			}
+			if kind == "group" {
+				_, err = f.tasks.ReorderTask(ctxFor(t), a, meta(t, "counter-group", &other.Version), p2.ID, other.ID, wc.TaskReorder{BeforeID: &target.ID})
+			} else {
+				_, err = f.tasks.UpdateTask(ctxFor(t), a, meta(t, "counter-"+kind, &expected), p2.ID, target.ID, wc.TaskFieldsUpdate{Title: &title})
+			}
+			taskFaultReason(t, err, foundation.InvalidState, "COUNTER_EXHAUSTED")
+			if _, err = f.raw.Exec(ctxFor(t), restore, key, old); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+// A transparent final-transaction hook: every assertion still invokes the real
+// Outbox producer after the persisted Task and TaskEvent have been written.
+type taskProbeAppender struct {
+	oc.Appender
+	check func(context.Context, foundation.Tx, event.Event, oc.AppendPlan) error
+	seen  bool
+}
+
+func (a *taskProbeAppender) AppendEventInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, e event.Event, p oc.AppendPlan) (oc.AppendReceipt, error) {
+	a.seen = true
+	if err := a.check(ctx, tx, e, p); err != nil {
+		return oc.AppendReceipt{}, err
+	}
+	return a.Appender.AppendEventInTx(ctx, tx, actor, e, p)
+}
+func taskAtomicityMatrix(t *testing.T, f *taskFixture, a identity.Actor, p wc.ProjectID, s wc.SprintID, target wc.TaskID, saved capturedEvent) {
+	t.Helper()
+	var auditBefore int
+	if err := f.raw.QueryRow(ctxFor(t), `SELECT count(*) FROM agenteam_audit.audit_records`).Scan(&auditBefore); err != nil {
+		t.Fatal(err)
+	}
+	t.Run("created-and-priority-payloads", func(t *testing.T) {
+		var raw []byte
+		var historyID string
+		if err := f.raw.QueryRow(ctxFor(t), `SELECT id::text,payload FROM agenteam_work.task_events WHERE task_id=$1 AND type='task_created'`, target.String()).Scan(&historyID, &raw); err != nil {
+			t.Fatal(err)
+		}
+		var created wc.TaskCreatedPayload
+		if err := json.Unmarshal(raw, &created); err != nil || created.InitialState != wc.TaskStateBacklog || created.Type != wc.TaskTypeTask || created.Priority != wc.TaskPriorityMedium || created.SprintID != s {
+			t.Fatal("real creation history", err)
+		}
+		var headerRaw, payloadRaw []byte
+		if err := f.raw.QueryRow(ctxFor(t), `SELECT header,payload FROM agenteam_outbox.events WHERE aggregate_id=$1 AND event_type='work.task_changed' AND aggregate_version=1`, target.String()).Scan(&headerRaw, &payloadRaw); err != nil {
+			t.Fatal(err)
+		}
+		var header event.Header
+		if err := json.Unmarshal(headerRaw, &header); err != nil {
+			t.Fatal(err)
+		}
+		ev, err := f.taskEvents.Restore(header, payloadRaw)
+		if err != nil {
+			t.Fatal(err)
+		}
+		body, err := f.taskEvents.DecodeTaskChanged(ev)
+		if err != nil || body.Change != wc.TaskCreatedChange || body.TaskEventID.String() != historyID || body.Position == nil || body.Position.NextID != nil {
+			t.Fatal("created typed payload", err)
+		}
+		current, err := f.taskReader.GetTask(ctxFor(t), a, p, target)
+		if err != nil {
+			t.Fatal(err)
+		}
+		priority, typ, plan := wc.TaskPriorityHigh, wc.TaskTypeBug, "new plan"
+		capture := &capturingAppender{Appender: f.events}
+		writer := f.newTaskService(t, capture, f.accounts)
+		updated, err := writer.UpdateTask(ctxFor(t), a, meta(t, "priority-and-type", &current.Version), p, target, wc.TaskFieldsUpdate{Priority: &priority, Type: &typ, Plan: &plan})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = f.raw.QueryRow(ctxFor(t), `SELECT payload FROM agenteam_work.task_events WHERE id=$1`, updated.TaskEventID.String()).Scan(&raw); err != nil {
+			t.Fatal(err)
+		}
+		var fields wc.TaskFieldsUpdatedPayload
+		if err = json.Unmarshal(raw, &fields); err != nil || fields.TypeChange == nil || fields.TypeChange.From != wc.TaskTypeTask || fields.TypeChange.To != typ || fields.PriorityChange == nil || fields.PriorityChange.From != wc.TaskPriorityMedium || fields.PriorityChange.To != priority || fields.Position == nil || fields.Position.Priority != priority || fields.Position.NextID != nil || !bytes.Equal(jsonBytes(t, fields.ChangedFields), []byte(`["plan","priority","type"]`)) {
+			t.Fatal("priority/type safe history", err)
+		}
+		last := capture.last(t)
+		body, err = f.taskEvents.DecodeTaskChanged(last.Event)
+		if err != nil || body.Change != wc.TaskUpdatedChange || body.TaskEventID != *updated.TaskEventID || body.Position == nil || *last.Event.Header().AggregateVersion != updated.Task.Version || last.Event.Header().OccurredAt != updated.Task.UpdatedAt {
+			t.Fatal("typed update Header/history alignment", err)
+		}
+		// A fresh no-op touches Activity exactly once; historical replay is read-only.
+		f.ageSession(t, a)
+		beforeG, beforeQ := f.generation(t, p, s, priority)
+		var activityBefore, activityAfter time.Time
+		if err = f.raw.QueryRow(ctxFor(t), `SELECT last_activity_at FROM agenteam_account.sessions WHERE id=$1`, a.Details().SessionID).Scan(&activityBefore); err != nil {
+			t.Fatal(err)
+		}
+		metadata := meta(t, "real-noop-activity", &updated.Task.Version)
+		noop, err := writer.UpdateTask(ctxFor(t), a, metadata, p, target, wc.TaskFieldsUpdate{Plan: &plan})
+		if err != nil || noop.Changed {
+			t.Fatal(err)
+		}
+		if err = f.raw.QueryRow(ctxFor(t), `SELECT last_activity_at FROM agenteam_account.sessions WHERE id=$1`, a.Details().SessionID).Scan(&activityAfter); err != nil || !activityAfter.After(activityBefore) {
+			t.Fatal("new noop omitted Activity", err)
+		}
+		afterG, afterQ := f.generation(t, p, s, priority)
+		if beforeG != afterG || beforeQ != afterQ {
+			t.Fatal("noop changed generations")
+		}
+		before := f.taskSnapshot(t, a)
+		replay, err := writer.UpdateTask(ctxFor(t), a, metadata, p, target, wc.TaskFieldsUpdate{Plan: &plan})
+		if err != nil {
+			t.Fatal(err)
+		}
+		equalTaskMutation(t, noop, replay)
+		if before != f.taskSnapshot(t, a) {
+			t.Fatal("historical noop touched facts")
+		}
+	})
+	t.Run("durable-history-and-postimage-are-mandatory", func(t *testing.T) {
+		for _, kind := range []string{"missing-history", "actor", "operation", "version", "time", "payload", "canonical", "query", "revision", "writer"} {
+			t.Run(kind, func(t *testing.T) {
+				current, err := f.taskReader.GetTask(ctxFor(t), a, p, target)
+				if err != nil {
+					t.Fatal(err)
+				}
+				before := f.taskSnapshot(t, a)
+				app := &taskProbeAppender{Appender: f.events}
+				app.check = func(ctx context.Context, tx foundation.Tx, e event.Event, _ oc.AppendPlan) error {
+					x, err := f.store.InTx(tx)
+					if err != nil {
+						return err
+					}
+					var payload wc.TaskChanged
+					if err = json.Unmarshal(e.PayloadBytes(), &payload); err != nil {
+						return err
+					}
+					var sql string
+					var args []any
+					switch kind {
+					case "missing-history":
+						sql = `DELETE FROM agenteam_work.task_events WHERE id=$1`
+						args = []any{payload.TaskEventID.String()}
+					case "actor":
+						sql = `UPDATE agenteam_work.task_events SET actor=jsonb_set(actor,'{user_id}',to_jsonb($2::text)) WHERE id=$1`
+						args = []any{payload.TaskEventID.String(), id[identity.User](t).String()}
+					case "operation":
+						sql = `UPDATE agenteam_work.task_events SET operation_id=(SELECT operation_id FROM agenteam_work.task_events WHERE id<>$1 ORDER BY id LIMIT 1),correlation_id=(SELECT operation_id FROM agenteam_work.task_events WHERE id<>$1 ORDER BY id LIMIT 1) WHERE id=$1`
+						args = []any{payload.TaskEventID.String()}
+					case "version":
+						sql = `UPDATE agenteam_work.task_events SET task_version=task_version+1 WHERE id=$1`
+						args = []any{payload.TaskEventID.String()}
+					case "time":
+						sql = `UPDATE agenteam_work.task_events SET created_at=created_at+interval '1 microsecond' WHERE id=$1`
+						args = []any{payload.TaskEventID.String()}
+					case "payload":
+						sql = `UPDATE agenteam_work.task_events SET payload=jsonb_set(payload,'{changed_fields}','["description"]'::jsonb) WHERE id=$1`
+						args = []any{payload.TaskEventID.String()}
+					case "canonical":
+						sql = `UPDATE agenteam_work.tasks SET plan='unexpected canonical value' WHERE id=$1`
+						args = []any{target.String()}
+					case "query":
+						sql = `UPDATE agenteam_work.task_query_generations SET query_generation=query_generation+1 WHERE project_id=$1`
+						args = []any{p.String()}
+					case "revision":
+						sql = `UPDATE agenteam_work.task_commands SET plan_revision=plan_revision+1 WHERE id=$1`
+						args = []any{payload.CommandID.String()}
+					case "writer":
+						sql = `UPDATE agenteam_work.task_commands SET actor_user_id=$2 WHERE id=$1`
+						args = []any{payload.CommandID.String(), id[identity.User](t).String()}
+					}
+					_, err = x.Exec(ctx, sql, args...)
+					return err
+				}
+				writer := f.newTaskService(t, app, f.accounts)
+				title := "denied " + kind
+				result, err := writer.UpdateTask(ctxFor(t), a, meta(t, "tamper-"+kind, &current.Version), p, target, wc.TaskFieldsUpdate{Title: &title})
+				if err == nil || !app.seen || result.Task.ID.Validate() == nil {
+					t.Fatal("real producer admitted tampered final fact", kind, err)
+				}
+				if before != f.taskSnapshot(t, a) {
+					t.Fatal("tampered final fact escaped rollback", kind)
+				}
+			})
+		}
+	})
+
+	t.Run("both-priority-groups-and-spectator-rank", func(t *testing.T) {
+		for _, kind := range []string{"source-generation", "target-generation", "spectator-rank"} {
+			t.Run(kind, func(t *testing.T) {
+				current, err := f.taskReader.GetTask(ctxFor(t), a, p, target)
+				if err != nil {
+					t.Fatal(err)
+				}
+				before := f.taskSnapshot(t, a)
+				priority := wc.TaskPriorityMedium
+				if current.Priority != wc.TaskPriorityHigh {
+					t.Fatal("priority source premise")
+				}
+				app := &taskProbeAppender{Appender: f.events}
+				app.check = func(ctx context.Context, tx foundation.Tx, _ event.Event, _ oc.AppendPlan) error {
+					x, err := f.store.InTx(tx)
+					if err != nil {
+						return err
+					}
+					if kind == "spectator-rank" {
+						tag, err := x.Exec(ctx, `UPDATE agenteam_work.tasks SET manual_rank='00000000000000000000000000000001' WHERE project_id=$1 AND sprint_id=$2 AND state='backlog' AND priority='medium' AND id<>$3`, p.String(), s.String(), target.String())
+						if err != nil {
+							return err
+						}
+						if tag.RowsAffected() < 1 {
+							return foundation.NewFault(foundation.InternalError, foundation.NotStarted)
+						}
+						return nil
+					}
+					group := current.Priority
+					if kind == "target-generation" {
+						group = priority
+					}
+					_, err = x.Exec(ctx, `UPDATE agenteam_work.task_order_groups SET order_generation=order_generation+1 WHERE project_id=$1 AND sprint_id=$2 AND state='backlog' AND priority=$3`, p.String(), s.String(), string(group))
+					return err
+				}
+				writer := f.newTaskService(t, app, f.accounts)
+				_, err = writer.UpdateTask(ctxFor(t), a, meta(t, "group-proof-"+kind, &current.Version), p, target, wc.TaskFieldsUpdate{Priority: &priority})
+				if err == nil || !app.seen {
+					t.Fatal("unmatched group postimage accepted", kind, err)
+				}
+				if before != f.taskSnapshot(t, a) {
+					t.Fatal("group postimage tampering escaped rollback", kind)
+				}
+			})
+		}
+	})
+	t.Run("typed-forgeries-and-header", func(t *testing.T) {
+		payload, err := f.taskEvents.DecodeTaskChanged(saved.Event)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, kind := range []string{"event-id", "command-id", "history-id", "actor", "time", "version", "aggregate", "catalog"} {
+			header := saved.Event.Header()
+			body := payload.Clone()
+			typed := f.taskEvents
+			switch kind {
+			case "event-id":
+				header.EventID = id[event.EventIdentity](t)
+			case "command-id":
+				body.CommandID = id[wc.TaskCommand](t)
+			case "history-id":
+				body.TaskEventID = id[wc.TaskEvent](t)
+			case "actor":
+				body.ActorUserID = id[identity.User](t)
+			case "time":
+				header.OccurredAt, _ = foundation.NewInstant(header.OccurredAt.Time().Add(time.Microsecond))
+			case "version":
+				version := *header.AggregateVersion + 1
+				header.AggregateVersion = &version
+			case "aggregate":
+				header.AggregateID = id[event.Aggregate](t)
+			case "catalog":
+				typed, err = wc.RegisterTaskEvents(event.NewCatalog())
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+			forged, err := typed.NewTaskChanged(header, body)
+			if err != nil {
+				t.Fatal("valid typed forgery premise", kind, err)
+			}
+			if _, err = f.events.PrepareAppend(ctxFor(t), a, forged); err == nil {
+				t.Fatal("typed forgery acquired real append plan", kind)
+			}
+		}
+	})
+	t.Run("issuer-actor-locks-and-transaction", func(t *testing.T) {
+		newAuthority, err := work.NewAuthority(f.store, f.projectAuthority)
+		if err != nil {
+			t.Fatal(err)
+		}
+		renewed := f.renew(t, a)
+		foreignDeps, err := oc.NewDependencies(oc.NewPlanIssuer(), saved.Plan.Details().Producer.Binding(), saved.Plan.Details().Producer.Locks(), saved.Plan.Details().Producer.Opaque())
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, kind := range []string{"issuer", "actor", "fake-dependencies", "missing-user", "missing-project", "missing-schedule", "shared-task", "foreign-store", "ended-tx", "historical-current", "completed-new"} {
+			t.Run(kind, func(t *testing.T) {
+				authority := f.authority
+				actor := a
+				deps := saved.Plan.Details().Producer
+				stage := oc.CurrentAccess
+				if kind == "issuer" {
+					authority = newAuthority
+				}
+				if kind == "actor" {
+					actor = renewed
+				}
+				if kind == "fake-dependencies" {
+					deps = foreignDeps
+				}
+				if kind == "completed-new" {
+					stage = oc.NewFact
+				}
+				locks := saved.Plan.Locks()
+				var remove foundation.LockKey
+				switch kind {
+				case "missing-user":
+					remove, _ = foundation.UserLock(a.Details().UserID)
+				case "missing-project":
+					remove, _ = foundation.ProjectLock(p.String())
+				case "missing-schedule":
+					remove, _ = foundation.ProjectScheduleLock(p.String())
+				case "shared-task":
+					remove, _ = foundation.AggregateLock(foundation.TaskAggregate, saved.Event.Header().AggregateID.String())
+				}
+				if remove.Validate() == nil {
+					filtered := []foundation.LockRequest{}
+					for _, l := range locks {
+						if foundation.CompareLockKeys(l.Key, remove) == 0 {
+							if kind == "shared-task" {
+								l.Mode = foundation.Shared
+							} else {
+								continue
+							}
+						}
+						filtered = append(filtered, l)
+					}
+					locks = filtered
+				}
+				var ended foundation.Tx
+				store := f.raw
+				if kind == "foreign-store" {
+					store = openStore(t, f.db.Config(t, nil))
+				}
+				result := store.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+					ended = tx
+					if err := store.AcquireAll(ctx, tx, locks); err != nil {
+						return err
+					}
+					if kind == "ended-tx" {
+						return nil
+					}
+					return authority.ValidateAppendInTx(ctx, tx, actor, saved.Event.Summary(), deps, stage)
+				})
+				if kind == "historical-current" || kind == "ended-tx" {
+					if result.State() != foundation.Committed {
+						t.Fatal("expected real read/terminal", kind, result.Fault())
+					}
+					if kind == "ended-tx" {
+						if err := authority.ValidateAppendInTx(ctxFor(t), ended, actor, saved.Event.Summary(), deps, stage); err == nil {
+							t.Fatal("ended transaction accepted")
+						}
+					}
+				} else if result.State() != foundation.NotCommitted {
+					t.Fatal("producer admitted unbound input", kind, result.Fault())
+				}
+			})
+		}
+	})
+	t.Run("obsolete-real-plan-revision", func(t *testing.T) {
+		current, err := f.taskReader.GetTask(ctxFor(t), a, p, target)
+		if err != nil {
+			t.Fatal(err)
+		}
+		capture := &capturingAppender{Appender: f.events}
+		injected := false
+		capture.after = func(ctx context.Context, _ identity.Actor, _ event.Event, _ oc.AppendPlan) error {
+			if injected {
+				return nil
+			}
+			injected = true
+			_, err := f.tasks.CreateTask(ctx, a, meta(t, "revision-interloper", nil), p, wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: s, Title: "changes real query generation", Type: wc.TaskTypeTask, Priority: wc.TaskPriorityLow})
+			return err
+		}
+		writer := f.newTaskService(t, capture, f.accounts)
+		title := "after real revision"
+		metadata := meta(t, "real-revision", &current.Version)
+		if _, err = writer.UpdateTask(ctxFor(t), a, metadata, p, target, wc.TaskFieldsUpdate{Title: &title}); err != nil {
+			t.Fatal(err)
+		}
+		capture.mu.Lock()
+		events := append([]capturedEvent(nil), capture.captured...)
+		capture.mu.Unlock()
+		if len(events) < 2 || events[0].Event.Header().EventID == events[len(events)-1].Event.Header().EventID {
+			t.Fatal("real replan did not replace event identity")
+		}
+		var revision int64
+		if err = f.raw.QueryRow(ctxFor(t), `SELECT plan_revision FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name='work.task.update' AND idempotency_key=$2`, p.String(), string(metadata.IdempotencyKey)).Scan(&revision); err != nil || revision < 2 {
+			t.Fatal("real revision not persisted", revision, err)
+		}
+		obsolete := events[0]
+		if _, err = f.events.PrepareAppend(ctxFor(t), a, obsolete.Event); err == nil {
+			t.Fatal("old event discovered after real replan")
+		}
+		result := f.store.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+			if err := f.store.AcquireAll(ctx, tx, obsolete.Plan.Locks()); err != nil {
+				return err
+			}
+			return f.authority.ValidateAppendInTx(ctx, tx, a, obsolete.Event.Summary(), obsolete.Plan.Details().Producer, oc.CurrentAccess)
+		})
+		if result.State() != foundation.NotCommitted {
+			t.Fatal("old opaque/revision remained valid")
+		}
+	})
+	t.Run("completed-outbox-event-cannot-be-recreated", func(t *testing.T) {
+		f.tx(t, saved.Plan.Locks(), func(ctx context.Context, _ foundation.Tx, x postgres.SQLExecutor) error {
+			_, err := x.Exec(ctx, `DELETE FROM agenteam_outbox.events WHERE id=$1`, saved.Event.Header().EventID.String())
+			return err
+		})
+		plan, err := f.events.PrepareAppend(ctxFor(t), a, saved.Event)
+		if err != nil {
+			t.Fatal(err)
+		}
+		result := f.store.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+			if err := f.store.AcquireAll(ctx, tx, plan.Locks()); err != nil {
+				return err
+			}
+			_, err := f.events.AppendEventInTx(ctx, tx, a, saved.Event, plan)
+			return err
+		})
+		if result.State() != foundation.NotCommitted {
+			t.Fatal("completed event resurrected")
+		}
+		var count int
+		if err = f.raw.QueryRow(ctxFor(t), `SELECT count(*) FROM agenteam_outbox.events WHERE id=$1`, saved.Event.Header().EventID.String()).Scan(&count); err != nil || count != 0 {
+			t.Fatal("missing event rebuilt", count, err)
+		}
+	})
+	var auditAfter, handlers, deliveries int
+	if err := f.raw.QueryRow(ctxFor(t), `SELECT (SELECT count(*) FROM agenteam_audit.audit_records),(SELECT count(*) FROM agenteam_outbox.handlers),(SELECT count(*) FROM agenteam_outbox.deliveries d JOIN agenteam_outbox.events e ON e.id=d.event_id WHERE e.event_type='work.task_changed')`).Scan(&auditAfter, &handlers, &deliveries); err != nil || auditAfter != auditBefore || handlers != 0 || deliveries != 0 {
+		t.Fatal("Task introduced Audit or delivery handler", err)
+	}
+	t.Run("current-read-before-first-work-sql", func(t *testing.T) { taskObserveCurrentRead(t, f, a, p, s) })
+}
+
+// Observation only: SQL is never rewritten, suppressed, or simulated. The same
+// concrete Store transaction still reaches real Account/Project authority.
+type taskSQLObserver struct {
+	fixtureStore
+	armed   atomic.Bool
+	workSQL atomic.Int64
+}
+
+func (s *taskSQLObserver) InTx(tx foundation.Tx) (postgres.SQLExecutor, error) {
+	x, err := s.fixtureStore.InTx(tx)
+	if err != nil {
+		return nil, err
+	}
+	return taskObservedExecutor{x, s}, nil
+}
+
+type taskObservedExecutor struct {
+	postgres.SQLExecutor
+	observer *taskSQLObserver
+}
+
+func (x taskObservedExecutor) observe(sql string) {
+	if x.observer.armed.Load() && strings.Contains(sql, "agenteam_work.") {
+		x.observer.workSQL.Add(1)
+	}
+}
+func (x taskObservedExecutor) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+	x.observe(sql)
+	return x.SQLExecutor.Exec(ctx, sql, args...)
+}
+func (x taskObservedExecutor) Query(ctx context.Context, sql string, args ...any) (*postgres.Rows, error) {
+	x.observe(sql)
+	return x.SQLExecutor.Query(ctx, sql, args...)
+}
+func (x taskObservedExecutor) QueryRow(ctx context.Context, sql string, args ...any) postgres.Row {
+	x.observe(sql)
+	return x.SQLExecutor.QueryRow(ctx, sql, args...)
+}
+func taskObserveCurrentRead(t *testing.T, base *taskFixture, a identity.Actor, p wc.ProjectID, s wc.SprintID) {
+	t.Helper()
+	raw := openStore(t, base.db.Config(t, nil))
+	store := &taskSQLObserver{fixtureStore: raw}
+	f := assembleTask(t, base.db, raw, store, false)
+	capture := &capturingAppender{Appender: f.events}
+	writer := f.newTaskService(t, capture, f.accounts)
+	if _, err := writer.CreateTask(ctxFor(t), a, meta(t, "sql-order-proof", nil), p, wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: s, Title: "proof", Type: wc.TaskTypeTask, Priority: wc.TaskPriorityLow}); err != nil {
+		t.Fatal(err)
+	}
+	saved := capture.last(t)
+	user, _ := foundation.UserLock(a.Details().UserID)
+	f.tx(t, []foundation.LockRequest{{Key: user, Mode: foundation.Exclusive}}, func(ctx context.Context, tx foundation.Tx, x postgres.SQLExecutor) error {
+		if err := f.accounts.RequireCurrentSession(ctx, tx, a); err != nil {
+			return err
+		}
+		_, err := x.Exec(ctx, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='administrative' WHERE id=$1`, a.Details().SessionID)
+		return err
+	})
+	store.armed.Store(true)
+	result := store.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+		if err := store.AcquireAll(ctx, tx, saved.Plan.Locks()); err != nil {
+			return err
+		}
+		return f.authority.ValidateAppendInTx(ctx, tx, a, saved.Event.Summary(), saved.Plan.Details().Producer, oc.CurrentAccess)
+	})
+	store.armed.Store(false)
+	if result.State() != foundation.NotCommitted {
+		t.Fatal("revoked producer committed")
+	}
+	requireCode(t, result.Fault(), foundation.SessionRevoked)
+	if store.workSQL.Load() != 0 {
+		t.Fatal("Work SQL preceded current Read denial", store.workSQL.Load())
 	}
 }

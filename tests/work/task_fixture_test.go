@@ -152,6 +152,7 @@ func doubleProxyTaskFixture(t *testing.T, base *taskFixture) (*taskFixture, *hoo
 	t.Helper()
 	writer := newCommitProxy(t, net.JoinHostPort("127.0.0.1", base.db.Fixture.Port), true)
 	confirmation := newCommitProxy(t, writer.listener.Addr().String(), true)
+	t.Log("owned complete-frame proxies", "writer", writer.listener.Addr().String(), "confirmation", confirmation.listener.Addr().String())
 	u, err := url.Parse(base.db.Fixture.URL(base.db.Name))
 	if err != nil {
 		t.Fatal(err)

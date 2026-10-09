@@ -38,4 +38,4 @@
 ## 当前可恢复片段
 
 - Model第三段：真实app.Run私有root/handler join、17端点登记、single-arm hold/cut/disconnect、安全响应/消费tap/原请求比较/Session登记已写入 fixture 源；delivery最新account integrationrace-c与5pure原语top实际exit0。constructor/9IPC dispatcher/同Txsnapshot及六浏览器业务尚未闭合，不宣称这些通过。
-- Task四个旧Project/Outbox回归顺序执行；首个OwnerPort body1.06s与所有监督器/外层/资源终态PASS，其余待执行。PG期间只在每top完整终态后做短Git保存窗，避免辅助hostTCP delta受推送连接污染。
+- Task四个必要旧Project/Outbox selector全部实际body/监督器/外层terminal/资源终态PASS。七新top矩阵作者已扩完整源码，expanded race-c到新独占二进制exit0，最新Work pure由root race运行PASS1.234s；扩展版七新与四旧Structure尚待实际运行，不把早反馈沿用为最新输入通过。PG期间只在每top完整终态后做短Git保存窗，避免辅助hostTCP delta受推送连接污染。

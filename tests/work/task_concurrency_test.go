@@ -742,6 +742,10 @@ func TestTaskPlanningConcurrencyAndRank(t *testing.T) {
 						t.Fatal(err)
 					}
 				}
+				sourceBefore, err := f.taskReader.ListTasks(ctxFor(t), a, p.ID, wc.TaskFilter{SprintID: &sprint.ID, Priority: taskPriorityPtr(wc.TaskPriorityMedium)}, foundation.DefaultPageRequest())
+				if err != nil {
+					t.Fatal(err)
+				}
 				sourceGen, query := f.generation(t, p.ID, sprint.ID, wc.TaskPriorityMedium)
 				destGen, _ := f.generation(t, p.ID, sprint.ID, high)
 				changed, err := second.UpdateTask(ctxFor(t), a, meta(t, "four-priority-"+edge, &moved.Task.Version), p.ID, moved.Task.ID, wc.TaskFieldsUpdate{Priority: &high})
@@ -753,7 +757,10 @@ func TestTaskPlanningConcurrencyAndRank(t *testing.T) {
 				if sourceAfter != sourceGen+1 || destAfter != destGen+1 || queryAfter != query+1 {
 					t.Fatal("priority migration counted rebalance twice")
 				}
-				for _, before := range dest {
+				for _, before := range append(sourceBefore.Items, dest...) {
+					if before.ID == changed.Task.ID {
+						continue
+					}
 					after, err := f.taskReader.GetTask(ctxFor(t), a, p.ID, before.ID)
 					if err != nil {
 						t.Fatal(err)
@@ -997,6 +1004,49 @@ func TestTaskPlanningMembership(t *testing.T) {
 			t.Fatal("Schedule SH satisfied required EX")
 		}
 	})
+	t.Run("SQL-and-context-failure-never-mean-empty", func(t *testing.T) {
+		for _, failure := range []string{"missing-table", "cancelled-context"} {
+			result := f.store.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+				if err := f.store.AcquireAll(ctx, tx, locks); err != nil {
+					return err
+				}
+				readCtx := ctx
+				if failure == "missing-table" {
+					x, err := f.store.InTx(tx)
+					if err != nil {
+						return err
+					}
+					if _, err = x.Exec(ctx, `ALTER TABLE agenteam_work.tasks RENAME TO tasks_fixture_hidden`); err != nil {
+						return err
+					}
+				} else {
+					var cancel context.CancelFunc
+					readCtx, cancel = context.WithCancel(ctx)
+					cancel()
+				}
+				yes, err := f.taskReader.HasTasksInSprintInTx(readCtx, tx, a, p.ID, s.ID)
+				if yes || err == nil {
+					t.Error("membership failure became legal empty/true", failure)
+				}
+				if failure == "cancelled-context" && !errors.Is(err, context.Canceled) {
+					t.Error("membership cancellation cause lost", err)
+				}
+				return err
+			})
+			if result.State() != foundation.NotCommitted {
+				t.Fatal("membership failure committed", failure, result.Fault())
+			}
+		}
+		// The failed same-Tx DDL is really rolled back, not repaired out-of-band.
+		f.tx(t, locks, func(ctx context.Context, tx foundation.Tx, _ postgres.SQLExecutor) error {
+			yes, err := f.taskReader.HasTasksInSprintInTx(ctx, tx, a, p.ID, s.ID)
+			if err == nil && !yes {
+				return errors.New("table rollback lost canonical member")
+			}
+			return err
+		})
+	})
+
 	t.Run("create-first-membership-real-shared-waiter", func(t *testing.T) {
 		sprint := f.sprint(t, a, p.ID, m.ID, "inverse")
 		writer, store := observedTaskFixture(t, f)
@@ -1136,3 +1186,5 @@ func seedTaskRanks(t *testing.T, f *taskFixture, a identity.Actor, p c.ProjectID
 	})
 	t.Log("test-owned dense ranks preserved all business columns", len(ids), priority)
 }
+
+func taskPriorityPtr(priority wc.TaskPriority) *wc.TaskPriority { return &priority }

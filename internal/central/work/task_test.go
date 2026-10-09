@@ -470,6 +470,55 @@ func TestTaskProducerRejectsBeforeFirstPrivateFactRead(t *testing.T) {
 	}
 }
 
+func TestTaskReorderPlanRequiresExactTargetPreimageRank(t *testing.T) {
+	r, actor, _ := pureTaskRecord(t)
+	before := r.Plan.After.Task.Clone()
+	before.ManualRank = "3fffffffffffffffffffffffffffffff"
+	after := before.Clone()
+	after.Version = 2
+	after.ManualRank = "bfffffffffffffffffffffffffffffff"
+	after.UpdatedAt, _ = f.NewInstant(before.UpdatedAt.Time().Add(time.Second))
+	spectator := pureID[c.Task](t, 50)
+	version := f.Version(1)
+	r.Command = taskReorder
+	r.Input.Command, r.Input.Create, r.Input.Reorder, r.Input.Expected = taskReorder, nil, &c.TaskReorder{}, &version
+	var err error
+	r.Semantic, err = r.Input.semantic(actor, r.Key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Plan.Before, r.Plan.After.Task = &before, after
+	r.Plan.Groups[0].Before = []rankItem{{before.ID.String(), before.ManualRank}, {spectator.String(), "7fffffffffffffffffffffffffffffff"}}
+	r.Plan.Groups[0].After = []rankItem{{spectator.String(), "7fffffffffffffffffffffffffffffff"}, {before.ID.String(), after.ManualRank}}
+	position := &c.TaskPosition{SprintID: after.SprintID, State: c.TaskStateBacklog, Priority: after.Priority, PreviousID: &spectator, OrderGeneration: 2}
+	fields := []c.TaskChangedField{c.TaskRankChanged}
+	r.Plan.Header, err = taskHeader(*r.EventID, after, after.UpdatedAt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Plan.Payload, err = json.Marshal(c.TaskChanged{CommandID: r.ID, ActorUserID: r.User, TaskEventID: *r.TaskEventID, MilestoneID: after.MilestoneID, SprintID: after.SprintID, Change: c.TaskReorderedChange, ChangedFields: fields, Position: position})
+	if err != nil {
+		t.Fatal(err)
+	}
+	payload, err := json.Marshal(c.TaskFieldsUpdatedPayload{ChangedFields: fields, Position: position})
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Plan.TaskEvent, err = json.Marshal(c.TaskEvent{ID: *r.TaskEventID, ProjectID: r.Project, TaskID: after.ID, TaskVersion: 2, Type: c.TaskEventFieldsUpdated, Actor: c.TaskEventActor{Type: i.Human, UserID: r.User, Source: "task_domain"}, OperationID: r.ID, CorrelationID: r.ID, Payload: payload, CreatedAt: after.UpdatedAt})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = validateTaskRecord(r, actor); err != nil {
+		t.Fatal("valid reorder plan rejected", err)
+	}
+	// Removing the target before insertion can otherwise hide this forged old
+	// physical rank: the resulting order and new rank would still be identical.
+	r.Plan.Groups[0].Before[0].Rank = "00000000000000000000000000000001"
+	if validateTaskRecord(r, actor) == nil {
+		t.Fatal("forged target preimage rank accepted")
+	}
+}
+
 func TestTaskProjectGateAcceptsOnlyExactNewTriple(t *testing.T) {
 	_, projects, _, _ := purePorts(t)
 	record, actor, summary := pureTaskRecord(t)
