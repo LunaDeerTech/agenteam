@@ -1,6 +1,6 @@
 # 当前执行检查点
 
-- 目标与状态：本卡“固定语料＋可重复离线评分工具”开发及独立验收完成，现准备主线程正式整合。只完成这个独立结果，不完成D13，也没有三后端、性能、许可或最终选型结论。正式来源：[工作项](../docs/development/work-items/d13-lexical-benchmark.md)。
+- 目标与状态：本卡“固定语料＋可重复离线评分工具”已正式交付 main `b2a7d0abef0b7ca0623c8e2a7c020658948848da`，远端已由 root 精确确认；本分支关闭，停止继续实施本卡。只完成这个独立结果，不完成D13，也没有三后端、性能、许可或最终选型结论。正式来源：[工作项](../docs/development/work-items/d13-lexical-benchmark.md)。
 - 工作树 `/workspace/agenteam-search-benchmark`，分支 `ai/search-benchmark`，正式基线main `3cea6076`；SPEC已保存5cf539dd，首数据0b6a1404、完整工具5dc38928、lexical-v2及独验控制00ab72ba已保存。Git写操作和正式main整合归root，不回填本次保存编号。
 - 最终范围：卡/current、台账仅本结果一行、`scripts/search-benchmark.py`、`tests/search-benchmark/{README.md,test_evaluator.py}`与data下corpus/queries/qrels/dataset四文件，另Model独占的 `.agent-state/search-benchmark-review/evaluator-controls.py`；共11条最终路径。未改既有产品、锁文件、SQL或共享测试工具。
 - 数据lexical-v2：内部原创32文档/64section，64有答案query（8类各8、dev/test各4）+8无答案（4/4），共4608显式grade。query/source正文和locator未因返修变化，family按意图整体分组；candidate导出不含答案/grade/family/category/split。语义判断在无检索结果时完成，未从候选命中生成正例。
@@ -11,4 +11,4 @@
 - Model评分器独验74159b actual0：128个独立手算/公开CLI/strict输入/标签隔离/确定性/冷热百分位检查，不用作者函数算expected；初轮误把q02当zh的独审夹具FAIL已按实际en纠正，不归因评分器。563bcf actual0最终窄核：scorer相对5dc全文不变，test只有control_run从metadata读取revision一行，q01 zh/dev与q02 en/dev及golden grade/分母不变，原128控复用。
 - 必要独验源由Model写入上述单路径，本作者未修改；可用 `PYTHONDONTWRITEBYTECODE=1 python3 .agent-state/search-benchmark-review/evaluator-controls.py` 复验，输出只到ignored `output/ai/search-benchmark-review/evaluator`。评分控制报告始终为imported_run，不能冒真实候选成绩。
 - 正式候选仍为native PostgreSQL FTS、PGroonga、pg_search；全部真实run、index/query性能、具体扩展/字典版本与许可、运维兼容性、固定dense leg的hybrid RRF及最终选型尚未验证。FTS不称BM25；无生产Knowledge/index/embedding依赖，不解除既有停止项。原创材料仅内部使用，不擅自授予公开再分发许可。
-- 最终收口仅更新必要接受文档、dataset判断来源状态与台账本结果单行；台账删除该新行后逐字等于正式main基线，其它活动树状态未复制。最终validate 8c9624 actual0，9本地链接/fragment/格式及台账单行逆投影24c6a2 actual0，diffcheck通过。已有不变作者/独验证据复用，全部最终路径冻结交root保存并正式整合；无自有活命令或真实资源。
+- 最终收口仅更新必要接受文档、dataset判断来源状态与台账本结果单行；台账删除该新行后逐字等于正式main基线，其它活动树状态未复制。最终validate 8c9624 actual0，9本地链接/fragment/格式及台账单行逆投影24c6a2 actual0，diffcheck通过。已有不变作者/独验证据复用，正式 main 的10个选定文件与已验输入逐 blob 一致。本检查点仅归位分支关闭状态，不改已交付卡/源码；后继真实后端评测与选型须另行授权任务，不从本卡恢复实施。无自有活命令或真实资源。
