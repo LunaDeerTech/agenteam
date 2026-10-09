@@ -21,7 +21,7 @@ func workEventBinding(request oc.ProjectRequest) (foundation.Digest, []foundatio
 	}
 	d := request.Details()
 	h := d.Event.Header
-	if d.Kind != oc.AppendProject || d.Event.Producer != "work" || h.SchemaVersion != 1 || !(h.EventType == "work.milestone_changed" && h.AggregateType == "work.milestone" || h.EventType == "work.sprint_changed" && h.AggregateType == "work.sprint" || h.EventType == "work.task_changed" && h.AggregateType == "work.task") {
+	if d.Kind != oc.AppendProject || d.Event.Producer != "work" || h.SchemaVersion != 1 || !(h.EventType == "work.milestone_changed" && h.AggregateType == "work.milestone" || h.EventType == "work.sprint_changed" && h.AggregateType == "work.sprint" || h.EventType == "work.task_changed" && h.AggregateType == "work.task" || h.EventType == "work.task_blockers_changed" && h.AggregateType == "work.task") {
 		return "", nil, fault(foundation.DependencyUnbound)
 	}
 	if d.Actor.Details().Kind != identity.Human || h.AggregateVersion == nil || h.AggregateVersion.Validate() != nil || h.AggregateSequence != nil || h.Scope.Kind != event.ProjectScope || h.Scope.ProjectID.String() != d.ProjectID.String() {
