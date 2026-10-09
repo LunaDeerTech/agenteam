@@ -23,4 +23,11 @@
 - 新`secret_repository.go`实现Secret目录/安全completed扫描与原observation重建、completed插入和独立generation读取；严格区分Variable与Credential版本、回执Event/Audit列和安全DTO，未知/损坏记录拒绝。没有直接读取D04表或材料。
 - 新`secret_write_authority.go`不可变绑定同Store与真实Project端口；Discover在原command/User/Project锁与当前Owner Read后才看历史，新写再检查Mutate与当前前像。CheckPlan仅私有issuer/完整原Actor(Session)/request纯验真；CheckInTx不另开Tx/补锁，完整锁和当前门先行，历史ReceiptRead不借写权限，NewWrite不接受已有completed。合法新create候选不同导致历史锁变化时只发私有reprepare标记，后续Owner不得用于Unknown重试。
 - 新`secret_authority_test.go`三top定向race：repository损坏列、私有/foreign计划与换Session、原锁/当前权限先于SQL、历史路径与发现Unknown。控制Store/Project/Rows明确为替身，不证明真实Session/SQL。首d859a3因测试API/不可比LockKey编译失败；修后57d02b与9d2dba分别发现测试非法key刺激和列下标错误，已修测试。最终711af2同进程fresh5650407424，原session49584→5e447a actual0（1.079s）；无活命令/实际资源。
-- 当前3新Go＋本文4paths冻结供root checkpoint。后续Owner服务、canonical/history/finalTx与真实facts/SQL仍待实现验收；D04/29/前缀和app/HTTP均未改。
+- 本阶段3新Go＋本文已root保存54c02308。后续canonical/history/finalTx与真实facts/SQL仍待实现验收；D04/29/前缀和app/HTTP均未改。
+
+## Owner调用、变更计划与查询首版
+
+- 新`secret_service.go`固定注入同Store facts/write authority、同一Project authority、D04/Audit/Outbox/Activity/cursor；本库Stop仅取消自己的原调用与confirmation，Drain等实际done，不关闭共享依赖。新`secret_plan.go`从A材料callback产生独立D04 Intent，不经明文string/JSON/digest；safe metadata计划区别显式value覆盖、metadata-only/no-op、Variable与Credential版本，计划自身固定安全输出。
+- 新`secret_plan_test.go`三top（语义含5子格）58156d fresh5598535680→原42864→a77c71 actual0/race1.021s：显式value/metadata/no-op/max版本、caller材料和Intent销毁隔离、原Session、Stop取消不冒Drain完成。构造/计划片段不代表Commands已实现。
+- 新`secret_reader.go`首版Get/List/Lookup：类型隔离、当前Owner先于SQL、独立cursor/generation；无历史Lookup仅当前Read及原command锁，不要求Mutate/当前target；有历史再同原锁D04 Lookup并逐字段核真实observation与D10完整receipt。identity-only Lookup不代写重放的原意图Match。
+- `secret_reader_test.go`三个定向控制已写，尚未编译：e9d9e7同进程fresh5336195072低于5GiB，实际exit1停在预飞，没有启动Go。已限定gofmt/diffcheck，无资源。当前5新Go＋本文6paths冻结供root保存；后继写命令/finalTx/facts/实际Rows与SQL仍待完成。旧D04/Model产物冻结，磁盘回收仅向root提供可替代旧candidate的精确只读信息，未自行删除。
