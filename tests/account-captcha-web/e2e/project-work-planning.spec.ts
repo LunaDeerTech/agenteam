@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
+import { randomUUID } from "node:crypto";
 import { join, isAbsolute } from "node:path";
 import {
   material,
@@ -667,13 +668,15 @@ test("[identity] dirty guards, same Session checking, revocation and old read is
   const originalSession = await sessionResponse.json();
   expect(checkedSession.session.id === originalSession.session.id).toBe(true);
   const revoked = await page.request.post("/api/v1/sessions/logout", {
+    data: {},
     headers: {
+      "Idempotency-Key": randomUUID(),
       "X-CSRF-Token": originalSession.csrf_token,
       Origin: new URL(page.url()).origin,
       "Sec-Fetch-Site": "same-origin",
     },
   });
-  expect(revoked.status() === 204).toBe(true);
+  expect(revoked.status()).toBe(204);
   expect(
     (await ipc("identity-revoked", { target: originalSession.session.id }))
       .revoked,

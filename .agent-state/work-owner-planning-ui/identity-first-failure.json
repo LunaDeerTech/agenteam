@@ -1,0 +1,205 @@
+{
+  "case": "identity-01",
+  "input_checkpoint": "3a1b2da9",
+  "binary": "work-ui-account-race-11.test",
+  "selector": "^TestAccountProjectWorkPlanningWebIdentityAndOwnership$",
+  "actual_session": 65559,
+  "actual_exit": 1,
+  "go_seconds": 15.57,
+  "supervisor_seconds": 140.395,
+  "failure": {
+    "source": "tests/account-captcha-web/e2e/project-work-planning.spec.ts:676",
+    "operation": "POST /api/v1/sessions/logout",
+    "assertion": "status === 204",
+    "observed_assertion_value": false,
+    "actual_status": null,
+    "error_body_observed": false
+  },
+  "reached": [
+    "initial actual Work Task selection",
+    "cancel Work logout confirmation",
+    "same-identity pageshow Session requalification and retained draft",
+    "actual logout HTTP request"
+  ],
+  "not_reached": [
+    "actual revoked Session SQL check",
+    "new Session",
+    "held read cancellation",
+    "other Owner/admin",
+    "Project rename/name reuse",
+    "Owner/Model/Work navigation guards",
+    "Session expiry",
+    "final Go persistent assertions"
+  ],
+  "original_work_observation": {
+    "status": "failed",
+    "boundary": "Node observation snapshot at afterEach; not a final post-close state",
+    "browser_native_eof_observed": false,
+    "observers": [
+      {
+        "snapshot_at": 2103.714,
+        "page_closed_at": null,
+        "truncated": false,
+        "requests": [
+          {
+            "method": "GET",
+            "endpoint": "milestones",
+            "project_id": "01a1214b-397e-7e50-9324-4de5920c0a7a",
+            "request_id": "01a1214b-5231-7ecd-9717-2c6c30e22fdd",
+            "request_at": 1280.03,
+            "response_at": 1294.803,
+            "request_failed_at": null,
+            "request_finished_at": 1307.008,
+            "response_finished_at": 1307.031,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a1214b-397e-7e50-9324-4de5920c0a7a",
+            "target_id": "01a1214b-3d03-7785-bd67-be6079beebbc",
+            "endpoint": "tasks/id",
+            "request_id": "01a1214b-524b-71a2-8633-add80fbe50fc",
+            "request_at": 1306.921,
+            "response_at": 1317.273,
+            "request_failed_at": null,
+            "request_finished_at": 1323.826,
+            "response_finished_at": 1323.836,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a1214b-397e-7e50-9324-4de5920c0a7a",
+            "target_id": "01a1214b-3d03-72a3-a01d-d36ae3784562",
+            "endpoint": "sprints/id",
+            "request_id": "01a1214b-525f-74d6-b7ba-72431ca76691",
+            "request_at": 1323.651,
+            "response_at": 1341.546,
+            "request_failed_at": null,
+            "request_finished_at": 1345.02,
+            "response_finished_at": 1345.027,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a1214b-397e-7e50-9324-4de5920c0a7a",
+            "target_id": "01a1214b-3d03-752e-b045-0de446c00e63",
+            "endpoint": "milestones/id",
+            "request_id": "01a1214b-5274-7b10-b9b8-18a81a9f12b5",
+            "request_at": 1344.943,
+            "response_at": 1360.292,
+            "request_failed_at": null,
+            "request_finished_at": 1387.525,
+            "response_finished_at": 1387.546,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a1214b-397e-7e50-9324-4de5920c0a7a",
+            "target_id": "01a1214b-3d03-7785-bd67-be6079beebbc",
+            "endpoint": "tasks/id",
+            "request_id": "01a1214b-5495-7e96-9af1-209707e96e01",
+            "request_at": 1891.106,
+            "response_at": 1907.108,
+            "request_failed_at": null,
+            "request_finished_at": 1910.487,
+            "response_finished_at": 1910.493,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a1214b-397e-7e50-9324-4de5920c0a7a",
+            "target_id": "01a1214b-3d03-72a3-a01d-d36ae3784562",
+            "endpoint": "sprints/id",
+            "request_id": "01a1214b-54ac-70db-971e-0d3f30bd7948",
+            "request_at": 1910.457,
+            "response_at": 1931.731,
+            "request_failed_at": null,
+            "request_finished_at": 1944.157,
+            "response_finished_at": 1944.169,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a1214b-397e-7e50-9324-4de5920c0a7a",
+            "target_id": "01a1214b-3d03-752e-b045-0de446c00e63",
+            "endpoint": "milestones/id",
+            "request_id": "01a1214b-54c2-7f48-8b75-5c9add7b8b8b",
+            "request_at": 1935.632,
+            "response_at": 1949.449,
+            "request_failed_at": null,
+            "request_finished_at": 1959.789,
+            "response_finished_at": 1959.808,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          }
+        ]
+      }
+    ]
+  },
+  "terminal": {
+    "driver_actual_wait": true,
+    "driver_exit": 1,
+    "go_actual_wait": true,
+    "go_exit": 1,
+    "adopted_actual_wait": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "adopted_observed_states": [
+      "Z",
+      "Z",
+      "Z",
+      "Z"
+    ],
+    "stop_sent": false,
+    "node_proxy_preparation_root_join": true,
+    "seven_resource_ids_two_observations_absent": true,
+    "descendants_two_observations_empty": true,
+    "runtime_two_observations_empty": true,
+    "private_two_observations_absent": true,
+    "host_tcp_two_delta_empty": true,
+    "inputs_unchanged": true
+  },
+  "limits": [
+    "ordinary observer did not observe browser native EOF",
+    "original non-204 integer and body were not captured",
+    "subsequent source inspection cannot backfill an observed status",
+    "no complete identity case acceptance"
+  ],
+  "post_run_source_finding": {
+    "formal_sources": [
+      "api/openapi/account.json#/paths/~1api~1v1~1sessions~1logout/post",
+      "web/src/api/account.ts:517",
+      "internal/central/account/http.go:169",
+      "internal/central/account/http_auth.go:115"
+    ],
+    "test_omissions": [
+      "Idempotency-Key",
+      "required JSON empty object"
+    ],
+    "observed_status_cause_not_backfilled": true
+  },
+  "ordinary_log": "output/ai/work-owner-planning-ui/pg/identity-01.log"
+}
