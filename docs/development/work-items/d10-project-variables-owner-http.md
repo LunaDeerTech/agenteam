@@ -202,4 +202,4 @@ PG复用 `tests/testsupport/postgres`，HTTP真实Account/Project准备参考 `t
 
 SPEC 已获独立有限审查及版本输入差异复核接受，无未决 mustfix。§2.1 复用现成 CommandMeta.ExpectedVersion；初审“端口无法实现”的表述已纠正为本卡须明确单一版本来源，无新增版本参数。
 
-首个可构建片段为四契约、Audit 三 action 的契约/现有 HTTP/schema/客户端兼容及必要纯测试。Go 三包 pure、七个新 Go top 的 race、前端两文件99项及严格类型检查实际通过；Audit HTTP 使用正式 Draft2020-12 与本地 common 引用。首轮 Go 缺显式 schema Python 环境的 setup FAIL、旧前端 Project 关系测试误将新变量 action 纳入的1项 FAIL均保留，修正前置/测试分类后的限定复验通过。尚无变量持久服务、HTTP、默认根或真实 PG 验收；00024 和领域读路径正在后续片段实施，不把首片段当完整产品交付。
+首个可构建片段为四契约、Audit 三 action 的契约/现有 HTTP/schema/客户端兼容及必要纯测试。Go 三包 pure、七个新 Go top 的 race、前端两文件99项及严格类型检查实际通过；Audit HTTP 使用正式 Draft2020-12 与本地 common 引用。首轮 Go 缺显式 schema Python 环境的 setup FAIL、旧前端 Project 关系测试误将新变量 action 纳入的1项 FAIL均保留，修正前置/测试分类后的限定复验通过。第二片段已实现00024、领域六能力/调用owner/事实Authority及Project精确分派，并完成窄pure/race/vet。私有completed缺receipt负控首轮实际FAIL，补状态闭合后复验通过。SQL仅静态核原4个Audit CHECK闭集全部保留及事务标记，不冒真实PG语法/约束/原子事实验收。HTTP与默认根尚未接入；两个片段均不算完整产品交付。
