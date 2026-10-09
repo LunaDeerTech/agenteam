@@ -1,6 +1,6 @@
 # D10 Secret Variables Owner 后端
 
-> 状态：工程 SPEC 草案，未独立审查、未实施。正式基线 main `3cea6076`。当前只写本文及分支 current，不占迁移号、不改产品。§10 的工程接缝仍须收敛，不能据此宣布实施依赖全部就绪。
+> 状态：工程 SPEC 草案 rev2，未独立审查、未实施。正式基线 main `3cea6076`。当前只写本文及分支 current，不占迁移号、不改产品。§4/§6 已提出专用 D04 端口、回执轮换/清理和真实事实证明方案；它们是本结果必须实现的前置，不能当作现有能力。实施授权及共享所有权仍见 §10。
 >
 > 拟完整结果：已初始化 Project 的当前 Human Owner，经默认 Central HTTP 创建 Secret Variable、读取安全元数据、分页、修改 name/description、覆盖 value、删除及恢复响应丢失。与普通变量共享业务 ID 和名称空间；明文不进入读取响应或持久命令。另落实 Agent F1 的资源侧目录/引用协议；真实 Agent canonical/引用适配由 F1 完成，不以测试 owner 代替。
 
@@ -27,7 +27,7 @@ UI、AgentConfig/Prompt、执行环境注入/masking、MCP revalidate、Project 
 | --- | --- |
 | id/project_id/type | 调用者提供 canonical UUIDv7业务 ID，全局不重用；type固定secret，不接任意type或variable/secret互转；跨Project不可见 |
 | name/description | 完全复用普通变量的大小写、保留名、UTF-8、长度/控制字符规则；两type共享名称空间 |
-| value写入 | 工程提案：1..65536 UTF-8 B，严格Unicode scalar、无NUL、不trim/规范化/解释；下限沿D04非空材料，空串不表示删除；限额随SPEC审查冻结 |
+| value写入 | 1..65536 UTF-8 B，沿D04 MaxValueBytes；严格Unicode scalar、无NUL、不trim/规范化/解释；下限沿D04非空材料，空串不表示删除 |
 | version | 对外Variable version，正int64十进制字符串；真正metadata改变、每次显式覆盖、删除各+1。内部Credential version独立，不能以一个expected替代两域版本 |
 | 时间 | DB微秒时刻；真实改变刷新updated_at，no-op不刷新 |
 | 安全metadata | 恰 `id,project_id,type,name,description,version,created_at,updated_at`；type=secret表示受保护值存在，不返回值、长度、尾号、摘要或固定星号伪值 |
@@ -36,7 +36,7 @@ update 的 name/description/value 至少一个 presence 字段，缺席保留；
 
 删除通过§5后，同Tx逻辑删除变量/清description与活映射，D04删除业务值；只保恢复/审计必要安全身份。旧名可供新ID，旧ID不复活。completed receipt可留安全历史metadata，不承诺备份擦除。Secret值及可离线枚举的值摘要不得进入普通command JSON。
 
-旧 `/variables` 继续只处理type=variable；Get/Update/Delete误用Secret ID返回NOT_FOUND，List/容量SQL显式过滤type，避免把新行交给旧严格DTO。两类create/rename仍共用Project EX和名称索引。工程提案为保持原4096普通变量上限，另设4096活Secret上限，不暗改为共享总额度；分页generation区分普通与Secret视图，保留旧普通cursor语义。
+旧 `/variables` 继续只处理type=variable；Get/Update/Delete误用Secret ID返回NOT_FOUND，List/容量SQL显式过滤type，避免把新行交给旧严格DTO。两类create/rename仍共用Project EX和名称索引。本SPEC工程限额保持原4096普通变量上限，另设4096活Secret上限；分页generation区分普通与Secret视图，保留旧普通cursor语义。满Secret容量只拒新增，不阻止修改/删除；受限错误只含固定code/field。
 
 ## 3. Owner 命令、恢复和事务
 
@@ -52,27 +52,52 @@ Unknown保原writer Attempt/Cause/CommitResult，不重跑callback。最多一�
 
 ## 4. D04 专用组合能力
 
-当前不是现成依赖：`WriteCommandLookupRequest.Validate`仅Model；Purpose没有ProjectVariable；现 `metadata.Purpose==consumer` 无法直接表示既定的同Secret供MCP与Agent环境使用。不得借Model/Runner purpose或复制两份值冒同一Secret。
+### 4.1 归属、端口和原始意图
 
-拟在 `secret/contract/project_variable.go` 增加专有ProjectVariable purpose（`project_variable`）、opaque ProjectVariableIntent/PreparedProjectVariableWrite、ProjectVariableWrites及ProjectVariableWriteAuthority。root将D10真实同Store映射/前像证明器注入同一Secret实例，缺证明器或foreign/ended Tx、issuer/command/Project/Variable/version不符拒绝，不以任意Service actor绕过。
+当前不是现成依赖：`WriteCommandLookupRequest.Validate`仅Model；Purpose没有ProjectVariable；现 `metadata.Purpose==consumer` 无法直接表示既定的同Secret供MCP与Agent环境使用。新增归属 `ProjectVariable = "project_variable"`，只允许Project scope和本专用组合口；不借Model/Runner purpose，不复制两份值，不扩旧Model Lookup的适用范围。Secret的contract定义新typed端口，D04实现加密和受保护回执，D10提供真实映射证明器；root注入同一Store/Secret实例，缺口返回DEPENDENCY_UNBOUND。
 
-完整意图绑定格式、稳定User、Project、外层command、VariableID、expected presence/值、内部映射/版本、name/description presence/内容、value presence/原始字节；create候选随机Credential ID不改变原意图。Session/CSRF/RequestID排除。D04消费专用typed metadata加SecretMaterial，不能开放caller传任意裸hash的泛型加密API。
+`secret/contract/project_variable.go`的类型边界如下；名字可在编码时依Go习惯微调，字段含义、权限和生命周期不能弱化。只导入identity/foundation及既有Secret类型，D04不反向导入projectvariable产品包。
 
-| 候选窄口 | 责任 |
+| 类型/工厂 | 精确内容与有效性 |
 | --- | --- |
-| 构造ProjectVariableIntent | 纯typed校验；短寿命SecretMaterial，安全fmt/slog/JSON，显式Destroy；完整semantic digest只在受保护内存/信封中 |
-| PrepareProjectVariableWrite | 在最外层Tx外准备nonce、可选sealed value和加密完整intent digest；返回同实例opaque候选、Ref、RequiredLocks，不保留明文/提交业务值 |
-| MatchProjectVariableIntentInTx | caller完整锁及当前权限后，解密原receipt digest并常量时间比较；typed未观察/匹配/改义；不给D10返回裸digest；completed写重放必须用此口 |
-| ApplyProjectVariableWriteInTx | 同Store/持锁/issuer/D10精确create witness或当前映射前像/write epoch；create、覆盖、delete改值，metadata-only/no-op只落intent proof；与外层同物理Tx |
-| LookupProjectVariableWriteInTx | 同caller Tx只观察安全身份/结果/绑定，不需原值；D10核自己完整历史receipt。旧Model Lookup保持闭集 |
+| ProjectVariableCommand | 闭集create/update/delete；外层CommandIdentity namespace=`projectvariable`，scope parts恰ProjectID，command=`project.secret_variable.create/update/delete`，key沿原CommandMeta。D04专用回执与Audit直接绑定这个原identity，不造第二个Model或legacy写命令 |
+| NewProjectVariableIntent(fields) → opaque ProjectVariableIntent | fields为当前Human Actor、ProjectID、VariableID、原CommandIdentity、外部expected的presence/值、name/description/value各自presence和原始内容；value为SecretMaterial。create三字段全有且无expected，update至少一字段且有expected，delete只有expected。工厂仅校验输入，不产生权限 |
+| ProjectVariableWriteBasis / ProjectVariableWritePlan | authority私有issuer签发；绑定同Store、精确Actor（含当前Session）、原identity、Project/Variable、操作、只读发现的变量version/映射CredentialRef及Credential version，create为精确未存在事实、候选Ref和ID不重用；RequiredLocks与安全binding不可变。不得含明文或低熵值的裸摘要 |
+| PreparedProjectVariableWrite | D04同实例opaque候选，绑定intent和authority plan、key epoch、随机receipt ID、可选sealed value、sealed intent digest及完整锁；不序列化恢复、不跨实例/进程使用。显式Destroy清理可控临时摘要/材料，fmt/slog/JSON只输出固定安全标签 |
+| ProjectVariableWriteObservation | typed未观察或完整安全结果：原receipt ID、Project/Variable/稳定User/command、原external expected、CredentialRef、值效果及结果Credential version、deleted；无value/digest/ciphertext。只供本域内部，HTTP另投影 |
 
-上述方法的精确Go字段/opaque工厂及D04 proof生命周期仍为§10工程收敛项，尚不能当已冻结实施API。专用intent/value沿原D04 AAD、receipt owner、rotation/canary/epoch和退休流程；不另设D10 keyring，不把加密intent降为可枚举hash。metadata-only/no-op也要完整intent proof，防止同key把“只改名”换成覆盖而命中旧成功。
+请求的受保护semantic为带版本和字段长度的无歧义编码，恰绑定稳定User、Project、原command、VariableID、external expected presence/值、name/description/value presence及原字节。**当前canonical、内部Credential version、随机候选Ref/receipt/event ID不属于原请求语义**；它们绑定在不可伪造的basis/实际结果中。否则后续修改或删除后无法重放原请求。Session/CSRF/RequestID也不属于原semantic；每次调用仍重新核当前Session和Owner。D04在内部计算32字节摘要并加密，不开放接收caller裸hash的通用保护口，也不给D10返回该摘要。
 
-低层legacy Human/Model写必须按**当前存储归属**拒绝绕过组合口修改/删除该Credential，包括purpose转换，不能只看请求purpose。组合口必须分别证明D10变量写与D04值写，generic合法DTO不能充授权。
+| 专用窄口 | 行为和同Tx证明 |
+| --- | --- |
+| ProjectVariableWriteAuthority.Discover(ctx, request) → plan | D10只读发现；request含Actor/Project/Variable/原identity、操作和external expected presence/值，不含材料。新写检查当前Owner/初始化及canonical前像；历史观察按当前Owner Read和自己原completed receipt绑定，不要求旧canonical仍存在。返回本authority的opaque plan和完整锁 |
+| ProjectVariableWriteAuthority.CheckInTx(ctx, tx, request, plan, stage) | 同Store活Tx、原issuer/Actor/identity、完整持锁、当前Session/Owner；stage闭集ReceiptRead或NewWrite。ReceiptRead绑定D10原writer及安全receipt或确实未观察；NewWrite另核Mutate、external expected、映射前像/create未存在。不得自开Tx/补锁；缺表行不是任意create许可 |
+| PrepareProjectVariableWrite(ctx, intent, plan) → prepared | 最外层Tx之外；验证专用typed语义/同实例plan，准备合法nonce和sealed候选。仅nonce预留可持久；不提交值或业务planned行。发现已完成原receipt时只准备比较所需内容，不再生成业务值 |
+| MatchProjectVariableIntentInTx(ctx, tx, prepared) → observation | 完整锁、当前ReceiptRead授权后，读取本专用receipt并在D04内部解密原intent digest、常量时间比较；未观察、匹配、IDEMPOTENCY_KEY_REUSED分明。completed写重放必须调用；不同Project/Variable/writer不能命中 |
+| ApplyProjectVariableWriteInTx(ctx, tx, prepared) → observation | 再核NewWrite证明和D04自身scope/purpose/版本/epoch/ref/lease；同物理Tx写值和加密intent回执。只接受已完整预取锁的候选，拒foreign/ended Tx或漂移。metadata-only/no-op也落完整intent proof，Credential version保持 |
+| LookupProjectVariableWriteInTx(ctx, tx, request, plan) → observation | identity-only、当前ReceiptRead授权及同Tx安全观察；不需原value，不等于验证caller原semantic。只能连同D10完整receipt恢复安全结果；不使用generic Model Lookup |
 
-存储归属与后继消费用途分开：本卡只开放Owner组合写，**不自动开放MCP/Runner lease**。将来对应UsagePlanner/Authority证明真实binding/执行与当前gate后，D04才按窄规则允许ProjectVariable归属用于该consumer；不全局放宽purpose比较。F1只维护白名单，无需材料解析。
+D04 Apply与D10 canonical顺序固定：完整union及两域当前前像校验 → D04值/intent回执及适用Audit → D10 canonical/映射/版本/generation、history与completed receipt → D10 Audit/Outbox/Activity → 同一commit。D04证明器查自己所属D10表的原前像，不以尚未存在的postimage循环授权；最后两域结果精确相合。所有失败回滚同一业务Tx。并发同key在准备期间获胜时，先匹配真实原receipt；新create候选Ref与原Ref不同需要另锁时退出Tx后重新发现，最多一次准备重试，不能锁内补锁、重base expected或重放Unknown callback。
 
-D04真create/覆盖/delete保一次secret.create/update/delete Audit；metadata-only/no-op不伪造值变更。D10为真实变量语义变化另记一次project.secret_variable.create/update/delete，以VariableID为资源，二者事实来源不同。Owner metadata/Lookup无secret.resolve。
+### 4.2 持久回执、信封和轮换
+
+新增D04自有 `agenteam_secret.project_variable_receipts`，与D10 `secret_commands` 一一对应；只在最终业务Tx完成时插入。最小列为receipt ID、ProjectID、VariableID、稳定UserID、原command identity摘要、closed command kind、external expected presence/值、原Credential ID、effect（create/replace/delete/none）、结果Credential version、deleted、digest_payload_id。唯一约束为(ProjectID,command identity摘要)及digest_payload_id；安全字段不含name/description/value/semantic摘要。D10记录原receipt ID和安全结果身份，不复制密文；跨域不建CASCADE或依赖canonical尚存的FK，历史delete/replay须可用。
+
+扩D04信封owner闭集为 `projectVariableReceiptOwner=3`，owner ID为新receipt ID；owner1值、owner2旧回执的格式和AAD字节保持不变。新owner3仍使用现AES-256-GCM/DEK/nonce/keyring/格式1，AAD显式包括kind3、Project scope、receipt ID和payload ID；plaintext固定32 B，ciphertext固定48 B，SQL CHECK和seal/open/scan/AAD验证同时扩精确分支。不得仅重用owner2却让rotation仍只查旧表，也不将新purpose加入无关lease consumer的合法闭集。
+
+现 `rotation.go` 的receiptOwner解析只查询 `secret_command_receipts`。本结果必须增加kind3 → 新receipt的精确owner/payload/Project/Credential反查，再沿原Project SH、Credential EX、write-key SH、epoch和payload CAS执行；delete后的历史receipt仍保原Credential ID用于锁，不要求当前Credential还存在。owner映射缺失但payload还在必须安全失败；并发已整体清除的payload可沿旧规则跳过。每批仍100，末尾重扫和写key EX退休检查覆盖全部三种owner；canary/启动校验不能漏kind3。新表不是D10自有第二套密钥设施。
+
+低层legacy Human/Model写必须按**当前存储归属**拒绝绕过组合口修改/删除该Credential，包括purpose转换，不能只看请求purpose。新的Purpose.Valid不自动使所有旧写口、Account/Model adapter、reference或lease consumer放行。矩阵覆盖请求旧purpose但目标已属ProjectVariable、伪造create、新归属System scope和合法专用写对照。
+
+### 4.3 CleanupProject及后继材料边界
+
+新回执纳入现D04 `CleanupProject`：仍由真实ProjectLifecycle actor、原operation/cause和D08当前删除/停机gate授权，Project EX内先核全部live references/active leases；有任一则pending。原值及旧回执清理不变，新表额外每批最多100行，删除所返回的exact digest_payload_id并核kind3/owner/Project一致；同Tx删除回执和payload，Unknown保原结果，不根据checkpoint跳过未确认行。最终Completed必须同时确认secrets、旧回执、新回执和全部Project payload为空。删除后的历史回执、metadata-only/no-op回执也必须被扫描；不能只随活Credential级联。Owner删除不提前清这些历史回执。
+
+这只是D04已有清理端口对新存储的必要覆盖，不交付D10 Project完整Cleanup participant。D08后继必须先让真实Agent/MCP等owner移除引用、确认停止，再清D10目录/引用/命令历史和D04材料；各域只删自有表、原cause不替换，不借本SPEC宣称该后继编排已绑定。缺正式D08 gate时D04仍拒绝，不能以全部表空跳过当前gate。
+
+存储归属与后继消费用途分开：本卡只开放Owner组合写，**不自动开放MCP/Runner lease**。将来UsagePlanner/Authority证明真实binding/执行与当前gate后，D04才按窄规则允许ProjectVariable归属用于该consumer；不全局放宽purpose比较。F1只维护白名单，无需材料解析。
+
+D04真create/覆盖/delete保一次secret.create/update/delete Audit；metadata-only/no-op不伪造值变更。D10为真实变量语义变化另记一次project.secret_variable.create/update/delete，以VariableID为资源。Owner metadata/Lookup无secret.resolve；具体native Audit证明见§6。
 
 ## 5. 目录、同Store引用与删除
 
@@ -81,6 +106,10 @@ D04真create/覆盖/delete保一次secret.create/update/delete Audit；metadata-
 候选资源API：DiscoverSecretVariables→opaque SecretDirectoryPlan，RequireSecretVariablesInTx→SecretDirectoryFacts；DiscoverSecretReferences→opaque SecretReferencePlan，ApplySecretReferencesInTx只在caller Tx维护。plan绑定issuer、Actor/User、Project、command、完整排序ID、Before/After、owner identity/version、映射和锁，不可反序列化构造。Discover短只读；InTx先同Store/活Tx/持锁再当前权限/计划/canonical检查，不自开Tx、补锁、解密、网络或Activity。
 
 本域引用表持Project/VariableID/owner_kind/owner_id/owner_version。本卡仅定义agent白名单类型、typed AgentID和F1最多256项集合；不准任意字符串owner。Agent F1提供SecretReferenceOwnerAuthority：事务外发现Agent gate及预期postimage；final证明同Tx真实Agent canonical、创建初始化witness或当前版本及完整postimage。创建前不存在必须由精确create plan处理，不能要求事务外已有Agent，也不能单凭caller承诺放行。
+
+资源contract的 `SecretReferenceChange` 固定为Actor、ProjectID、typed AgentID、原Agent CommandIdentity、create/update操作、expected owner version的presence/值、结果owner version、按ID排序去重的Before/After集合（各≤256）。`SecretReferenceOwnerAuthority.Discover(ctx, change)` 返回绑定同Store/issuer及完整锁的opaque OwnerPlan；`CheckAppliedInTx(ctx, tx, change, ownerPlan)` 必须在真实Agent canonical写入后验证精确postimage。旧Before、原expected及create初始化事实由Agent实际写入点的同Store/同Tx私有witness证明，不能以已覆盖的canonical反推，也不能仅以public DTO或历史receipt放行。F1是该端口唯一实际提供方；本卡不实现Agent SQL或成功返回的假authority。
+
+资源侧Discover组合OwnerPlan和每个Variable映射/版本，返回本域issuer的SecretReferencePlan。Apply在同caller Tx一次验证上述两类plan、当前Owner/gate和真实postimage，再精确比较本域原引用集=Before及owner_version、原子写After/新owner_version；Before为空也要验证完整查询和create/update语义，不能误当无权限路径。Directory Facts和Reference plan均不得作为可序列化bearer。F1创建/更新的canonical、引用集、Audit/Event/receipt同Tx回滚；资源端不得替Agent生成自己的写事务。删除/生命周期释放需要后继正式操作类型和原cause，不能借Owner update接口伪造Agent删除。
 
 本卡交付资源侧注册/plan/验证/表维护及未绑定拒绝；生产尚无Agent owner时引用变更明确DEPENDENCY_UNBOUND，不能造空Agent provider。只有F1真实adapter交付后才声明白名单新增/移除闭环。Owner删除查询本域真实引用表；存在引用即使adapter缺失也拒绝，未知owner行安全失败。对自有权威引用表的完整查询不是“外域空checker”；真实消费者只能经已注册且实际验证canonical的写口落引用。
 
@@ -95,6 +124,24 @@ final union至少外层及必要D04 command EX、User EX、secret-write-key SH�
 原子提交变量canonical/映射/generation、D04值和受保护intent receipt、D10 completed receipt/history、两域适用Audit、typed Outbox及Activity；任何一步失败全部业务事实回滚。合法nonce预留消耗是既定例外。当前Session/Owner/Project、两域版本/epoch和前像在final再核。
 
 候选event：producer=projectvariable，event=project.secret_variable_changed，aggregate=project.variable，schema1；payload仅variable_id/operation_id/change/changed_fields。Audit三action使用resource=project_variable，仅VariableID/version/字段名，因果绑定原command。name/description/value/值hash/CredentialRef不进这些metadata。ProjectVariable Authority与D04 ProjectAuditAuthority分别证明真实同Tx事实。
+
+### 6.1 单final Tx的Outbox事实来源
+
+现 `projectvariable/authority.go` 的 `appendBinding` 强制原普通command.Plan/EventID，DiscoverAppend又先读取其持久command。它不能直接证明本卡尚未持久的Secret准备阶段。原普通分支逐义保留，新增只处理 `project.secret_variable_changed` 的专用分支；不能取消旧plan检查或让全部caller只凭Event DTO通过。
+
+D10实际命令准备在读权限/前像和D04准备完成后，为非no-op生成安全event及**包私有call-local discovery witness**，再调用现Outbox.PrepareAppend。witness绑定同Store、Authority私有issuer、当前Actor、原CommandIdentity、Project/Variable、operation ID、目标version、原安全前像、exact Event Summary及D04候选receipt ID/Ref、完整command/Project/Credential锁。只在本域真实准备函数签发，私有context key或同等不可伪造的内部能力传递；不导出任意DTO→witness工厂，不含材料/值摘要，不持久化。DiscoverAppend校验本witness后用本authority自己的PlanIssuer生成Dependencies；binding只含上述安全身份、Summary及锁。copy/重放其他Project、Session、event或command均不匹配。缺witness的公开Outbox调用拒绝。
+
+最终AppendEventInTx仍走真实Outbox两stage及Project事实gate。CurrentAccess核本issuer/Actor/summary/完整锁和当前Session/Owner；NewFact读取**当前caller Tx中**的Secret canonical或墓碑、history、secret_commands completed row与其安全结果，核原operation/event/目标version/变化字段及exact D04 receipt observation相合。D10已完成行只在同一未提交Tx内暂可见，后续任何Audit/Outbox失败整笔回滚；不能只凭prepared witness充作已提交事实。无跨事务planned command，也无以allow替代CurrentAccess。no-op/replay不准备或Append新event；重启后的响应恢复读正式completed事实，不试图恢复call-local plan。
+
+Project的producer事实路由必须把新event/action导向同一个真实ProjectVariable Authority，Outbox Catalog、Project allowlist同步扩闭集。此私有准备分支是D10 Authority新增责任，现普通adapter与Outbox本身不能冒称已具备。
+
+### 6.2 两域Audit的opaque证明
+
+现D04 `project_audit_witness.go` 只在native applyWriteInTx的canonical/旧receipt成功后签发私有context witness，`project_audit.go`又验证旧receipt及legacy命令。这些事实不能由新typed DTO冒充。新增native ProjectVariable Apply的私有mutation variant：只在本专用值/新receipt实际写入后、紧邻Audit.Append签发，绑定同Store/同Tx/当前完整Actor/exact Entry与AppendKey、原外层CommandIdentity、kind3 receipt/payload、原CredentialRef/前版本及实际result/value payload。witness不携材料、sealed candidate、Service或Keyring；固定安全fmt/log。
+
+D04 ProjectAuditAuthority精确区分legacy/new/resolution三种互斥分支。新分支验证闭集外层identity、原producer=secret/ordinal0及command因果、所需持锁、专用receipt的原Project/Variable/稳定User/effect/result、kind3信封owner和payload关系，以及当下Credential canonical/value payload或delete缺行。create version=1，replace/delete恰前Credential version+1，purpose固定ProjectVariable；safe Audit metadata仍是原secret.create/update/delete的真实值变化语义。receipt effect=none绝不签发值Mutation witness，不伪造secret.update。任何public构造器、伪receipt ID、移植context到foreign Tx、错Session、旧witness改Entry均拒绝。
+
+D10自己的Audit通过本域secret_commands/history和canonical证明精确Variable变化及原命令，使用同一外层identity但producer=projectvariable，故与D04的Audit去重键区分。两域Audit均由当前Project事实路由先重验Owner/gate，D04存储证明器只负责自己的事实；不新增“Service拥有任意Project写权”。identity-only Lookup、metadata-only D04路径和no-op不产生Secret Resolve/Mutation审计。已归档历史写重放只返回原receipt，不补发任何Audit/Event。
 
 SQL CHECK、Audit contract、Project事实路由、HTTP/OpenAPI及现客户端decoder必须同步严格扩闭集，旧Audit仍可读；不宽松接受未知action。Activity仅真实变化，无no-op/replay增量。
 
@@ -112,7 +159,7 @@ SQL CHECK、Audit contract、Project事实路由、HTTP/OpenAPI及现客户端de
 
 Lookup不声称证明caller仍持原明文；显式写重放才重新提交完整原意图并由D04比较。同key改value/metadata/presence/version/target拒绝，不能以identity-only Lookup替代写比较。同User新Session可恢复，旧Owner失权不可恢复。
 
-工程cap拟input/detail/receipt/Lookup≤1MiB，list≤5MiB；实测65536 B value最坏escaping。strict拒unknown/duplicate/大小写别名/null/无效UTF-8/孤立surrogate/尾随值，错误末项不得发半页。总read/Lookup 2s、mutation30s、受跟踪确认最多3s沿现预算。
+工程cap为input/detail/receipt/Lookup≤1MiB，list≤5MiB；验收实测65536 B value最坏escaping。strict拒unknown/duplicate/大小写别名/null/无效UTF-8/孤立surrogate/尾随值，错误末项不得发半页。总read/Lookup 2s、mutation30s、受跟踪确认最多3s沿现预算。
 
 分页沿C name/id keyset、默认50/最大100、cursor≤8192 B；kind=project.secret_variables/type=secret，绑定User/Project/Secret generation。换limit/同User新Session可续，真实Secret变化stale，no-op/replay不变；两类cursor不可互用。Owner目录可见不授权未白名单Agent知道Secret存在。
 
@@ -130,8 +177,8 @@ Stop关闭admission并取消读写/Lookup/确认；Drain等实际函数/Rows/Tx/
 | --- | --- |
 | projectvariable/contract/secret_types.go、secret_commands.go、secret_query.go、secret_directory.go及测试；本域secret_service/commands/repository/reader/directory/references/http等源与测试 | Secret Variables作者；仍在原业务域 |
 | 现projectvariable service/repository/reader/commands/authority/events的必要兼容 | 同作者获得共享写权，普通变量作者停对应路径；旧行为回归 |
-| secret/contract/project_variable.go、secret/project_variable_write.go、project_variable_lookup.go、原Purpose/写入/receipt/rotation/ProjectAudit兼容 | root明确D04接缝owner，同一实施闭包可交同作者，必须独立安全审查；不可留无人负责前置 |
-| 一条或必要有序前向migration，编号TBD | root按当前全局顺序分配唯一owner；统筹变量shape/intent/Purpose/Audit CHECK，不占Knowledge/Runner预留、不改旧migration |
+| secret/contract/project_variable.go、secret/project_variable_write.go、project_variable_lookup.go、原Purpose/legacy写入/envelope/receipt/rotation/canary/cleanup/ProjectAudit兼容 | root明确D04接缝唯一owner，同一实施闭包可交同作者，必须独立安全审查；kind3及新回执全生命周期属于同一个必要前置，不留无人负责部分 |
+| 一条或必要有序前向migration，编号TBD | root按当前全局顺序分配唯一owner；统筹变量shape/intent receipt/kind3/Purpose/Audit CHECK，不占Knowledge/Runner预留，00028现由root给Skills后继需求预留，本卡不占用；不改旧migration |
 | Project/Audit/Outbox精确allowlist、api/openapi/secret-variables.json、现Audit schema/client decoder | 单一共享文件owner，保留旧完整闭集；不占无关UI/client全局文件 |
 | app/project_variables.go、project_usage.go、account.go及Secret装配/测试 | 唯一装配owner，保留main真实普通变量和现Secret用途 |
 | tests/projectvariable/secret_*、native/defaultroot/process | 作者/独验各自拥有自己的测试文件，真实资源统一排窗 |
@@ -153,13 +200,17 @@ SPEC接受后实施，作者完整矩阵一次确定；独验补真正风险，�
 | 竞争 | 普通vsSecret同名create/rename、同ID跨Project、同key同/异义、同expected覆盖/update/delete；真实PID/key/mode/waiter屏障，无sleep猜测 |
 | 引用 | 目录同Store/活Tx/锁/issuer/跨scope、缺Agent owner拒绝、资源真实引用表与Owner删除保护；Agent创建retain/release正向待F1真adapter，不能用假owner记通过 |
 | D04/Unknown | 实际ref/lease保护、final COMMIT未转发/提交丢响应、新SessionLookup/原replay、原Attempt/Cause；新intent payload实际rotation/退休、旧epoch拒绝 |
+| D04新增存储闭包 | kind3 AAD错owner/Project/payload拒绝、owner1/2历史解密兼容；metadata-only/no-op与已删除Credential的receipt轮换；超过100新回执多批Cleanup、真实当前gate/引用保护、Unknown不跳行、最终所有payload空 |
+| 真实证明接缝 | 无持久plan的专用Outbox prepare→final真实事实通过；缺/伪witness、错Actor/Tx/Store、prepared无canonical、跨event/receipt复用均拒绝；D04新native Audit variant与effect=none无值Audit；旧普通Outbox/旧Secret Audit回归 |
 | HTTP/root/退出 | 默认根Owner完整路径/实际schema/普通API回归；Body/Write/Close/Flush/确认取消与实际join；进程Wait、自有资源/runtime/desc/TCP完整尾 |
 
 未参与实现者至少独验低熵值和metadata-only/覆盖改义与当前撤权、共享名称/删除引用竞争及final Unknown、新Purpose/legacy绕过/receipt轮换。纯probe不代替真实权限/事务验收。
 
 ## 10. 草案收敛与结果边界
 
-尚待工程冻结：§4 opaque Go API精确字段/工厂/证明顺序及D04 receipt/rotation schema；§5 Agent authority签名及F1绑定责任；§2/§7工程限额；迁移号和共享路径唯一owner。这些是SPEC/跨域工程决定，不应以旧端口已存在跳过；当前不能把“只改D10”标为闭合实施。
+rev2在现产品规则内提出闭合工程范围：专用purpose/typed intent与sameStore authority、新kind3加密回执和rotation/CleanupProject、单final Tx的私有Outbox准备及两域native Audit证明、资源侧Agent引用端口。§2/§7限额是本SPEC工程选择，随本修订审查，不宣称已经产品实测。没有新增明文权限、级联删除或消费用途决定。
+
+实施前仍有三个明确门槛：未参与者审查本修订的权限/事务/恢复及加密存储闭包；root在当时正式main上分配D04、D10、Project/Audit/root共享路径的唯一owner和前向迁移号；确认本结果会实际实现并验收全部§4/§6新增端口，不能把“只改D10”当闭合交付。D04旧API的存在不证明这些前置就绪。Agent F1 adapter是另一真实后继，由F1作者在已定端口上实现/验收；本卡的未绑定拒绝不阻止Owner CRUD开发，也不构成F1引用正向通过。
 
 已有产品规则足以限定Owner后端：无明文读、固定type、覆盖保持ID、有引用拒绝删除。本草案不新增级联清理、自动解绑、空Secret、进程热更新或Secret使用scope。若后续目标确实要求这些额外行为，再回到正式产品规则；不为用户未请求功能补问。当前未发现阻止Owner SPEC编写的新产品决定。
 
