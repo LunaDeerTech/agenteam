@@ -17,4 +17,6 @@
 
 - 作者首轮 `TestKnowledgeB02Migration` 三子 fresh/populated_upgrade/rollback 全部 PASS：88917 actual exit0，Go 12.97s、driver 25.586s、supervisor 84.216s；Go/driver 实际 Wait0，精确 container/network 双退役、desc 双空、runtime 仅 owned.json、host TCP 双空及 inputs_unchanged 全齐，真实窗口已释放。日志 `output/ai/knowledge/pg/pg-fdeeabd18252457fbadd478f314a2caa.log`。仅接受本轮迁移／约束／升级回滚作者结果，不替代独立 PG、content SQL、真实 Owner/Object/Audit/Outbox 组合或完整 B02 验收。下一继续实际发布链，并补齐 Project 共享 gate 后再安排相关业务 PG。
 
-- C4 五技术源已可构建 freeze：Project Audit Knowledge 精确委托及 Outbox 双事件 gate；限定 Project/contract race 36007、vet/diffcheck 实际0。58386 的无版本测试前置误判和既有 HTTP schema interpreter 缺失 FAIL 保留卡；未修改产品门槛。Variables 作者已确认其相邻增量可并存，将对稳定五源有限独审；真实 Knowledge/Audit/Outbox 同 Store 组合仍未验，生产未绑。
+- C4 五技术源已可构建 freeze：Project Audit Knowledge 精确委托及 Outbox 双事件 gate；限定 Project/contract race 36007、vet/diffcheck 实际0。58386 的无版本测试前置误判和既有 HTTP schema interpreter 缺失 FAIL 保留卡；未修改产品门槛。Variables 作者已确认相邻增量可并存，并以本人实际源控制 63234 对稳定五源有限独审接受；真实 Knowledge/Audit/Outbox 同 Store 组合仍未验，生产未绑。
+
+- 第十片段 publication 实际资源退休／原 attempt-fence 同进程 joined 证明／本域持久 join 检查点已可构建。Close 阻塞/失败保持调用登记；Unknown 保留原物理 cause 与实际 join 证明，不以取消当退役。新增 race 67327（前80177亦0）、vet/diffcheck 通过；业务 SQL/真实 Object 仍未验，完整 Create/Update measured reserve/send/publish 继续实现。

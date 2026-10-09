@@ -8,13 +8,17 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	ob "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type descriptorBody struct{ reads, closes int }
@@ -144,6 +148,150 @@ type publicationProcesses struct {
 	err     error
 }
 
+func retirementFixture(t *testing.T) (*Service, *commandRecord, publicationWork, func()) {
+	t.Helper()
+	processes := &publicationProcesses{current: newID[ob.Process](t)}
+	st := &serviceState{deps: Dependencies{Processes: processes}, calls: map[*call]struct{}{}, changed: make(chan struct{})}
+	s := &Service{data: func() *serviceState { return st }}
+	_, done, err := s.begin(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	record := &commandRecord{id: newID[command](t), project: newID[id.Project](t), document: newID[kc.Document](t), state: kc.InProgress}
+	work, err := nextPublicationWork(record, nil, processes.current, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return s, record, work, done
+}
+
+func TestPublicationRetirementWaitsActualCloseBeforeLocalTakeover(t *testing.T) {
+	s, record, work, done := retirementFixture(t)
+	retirement, err := s.publicationRetirement(work, done)
+	if err != nil {
+		t.Fatal(err)
+	}
+	started, release := make(chan struct{}), make(chan struct{})
+	var once sync.Once
+	t.Cleanup(func() { once.Do(func() { close(release) }) })
+	if err = retirement.own(func() error { close(started); <-release; return nil }); err != nil {
+		t.Fatal(err)
+	}
+	result := make(chan error, 1)
+	go func() { result <- retirement.join() }()
+	<-started
+	s.Stop()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	defer cancel()
+	if err = s.Drain(ctx); err != context.DeadlineExceeded {
+		t.Fatal("cancel or close entry admitted premature Drain", err)
+	}
+	if proof, err := s.stoppedPublication(context.Background(), &work); err == nil || proof != nil {
+		t.Fatal("in-flight close admitted local takeover")
+	}
+	once.Do(func() { close(release) })
+	if err = <-result; err != nil {
+		t.Fatal(err)
+	}
+	if err = s.Drain(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	proof, err := s.stoppedPublication(context.Background(), &work)
+	if err != nil || proof == nil || !proof.joinedLocal {
+		t.Fatal("actual joined same-process proof missing", err)
+	}
+	next, err := nextPublicationWork(record, nil, work.process, &work, proof)
+	if err != nil || next.fence != work.fence+1 || next.attempt == work.attempt {
+		t.Fatal("same-process retry failed after actual resource join", err)
+	}
+	if err = retirement.join(); err != nil {
+		t.Fatal("retirement repeated a successful close", err)
+	}
+	if err = retirement.own(func() error { return nil }); err == nil {
+		t.Fatal("resource admitted after retirement")
+	}
+	for _, changed := range []publicationWork{
+		func() publicationWork { v := work; v.fence++; return v }(),
+		func() publicationWork { v := work; v.attempt = newID[publicationAttempt](t); return v }(),
+		func() publicationWork { v := work; v.process = newID[ob.Process](t); return v }(),
+	} {
+		if _, err = nextPublicationWork(record, nil, work.process, &changed, proof); err == nil {
+			t.Fatal("joined proof admitted another attempt/process/fence")
+		}
+	}
+}
+
+func TestPublicationRetirementCloseFailureRetainsCallAndExactEvidence(t *testing.T) {
+	s, _, work, done := retirementFixture(t)
+	retirement, err := s.publicationRetirement(work, done)
+	if err != nil {
+		t.Fatal(err)
+	}
+	order := []string{}
+	fail := true
+	if err = retirement.own(func() error { order = append(order, "source"); return nil }); err != nil {
+		t.Fatal(err)
+	}
+	if err = retirement.own(func() error {
+		order = append(order, "spool")
+		if fail {
+			return fault(f.ResourceBusy)
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err = retirement.join(); err == nil || strings.Join(order, ",") != "spool,source" {
+		t.Fatal("failed close skipped other resources or retired", err, order)
+	}
+	if proof, err := s.stoppedPublication(context.Background(), &work); err == nil || proof != nil {
+		t.Fatal("failed close produced joined proof")
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err = s.Drain(ctx); err != context.Canceled {
+		t.Fatal("failed close removed actual call", err)
+	}
+	fail = false
+	if err = retirement.join(); err != nil || strings.Join(order, ",") != "spool,source,spool" {
+		t.Fatal("close retry repeated successful resources", err, order)
+	}
+	if err = s.Drain(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestPublicationRetirementOldFinalizerCannotReplaceNewJoinedFence(t *testing.T) {
+	s, _, work, done := retirementFixture(t)
+	origin := newID[id.Project](t)
+	work.source = &origin
+	old, err := s.publicationRetirement(work, done)
+	if err != nil {
+		t.Fatal(err)
+	}
+	newWork := work.clone()
+	newWork.fence++
+	newWork.attempt = newID[publicationAttempt](t)
+	newRetirement, err := s.publicationRetirement(newWork, func() {})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = newRetirement.join(); err != nil {
+		t.Fatal(err)
+	}
+	origin = newID[id.Project](t)
+	if err = old.join(); err != nil {
+		t.Fatal(err)
+	}
+	proof, err := s.stoppedPublication(context.Background(), &newWork)
+	if err != nil || proof == nil || !proof.original.equal(newWork) {
+		t.Fatal("late finalizer replaced newer proof or source pointer aliased", err)
+	}
+	if proof, err := s.stoppedPublication(context.Background(), &work); err == nil || proof != nil {
+		t.Fatal("mutated/older work obtained newer proof")
+	}
+}
+
 func (p *publicationProcesses) CurrentProcess() ob.ProcessID { return p.current }
 func (p *publicationProcesses) ConfirmStopped(_ context.Context, process ob.ProcessID) error {
 	p.calls = append(p.calls, process)
@@ -239,5 +387,124 @@ func TestPublicationTakeoverRequiresActualExactStoppedProof(t *testing.T) {
 		if !found {
 			t.Fatal("cross-project source missing from initial full union")
 		}
+	}
+}
+
+type publicationCheckpointRow func(...any) error
+
+func (r publicationCheckpointRow) Scan(values ...any) error { return r(values...) }
+
+type publicationCheckpointStore struct {
+	Store
+	tx                       f.Tx
+	record                   *commandRecord
+	work                     publicationWork
+	unknown                  bool
+	attempt                  f.ID[f.TransactionAttempt]
+	cause                    f.TransactionCause
+	calls, acquires, updates int
+}
+
+func (s *publicationCheckpointStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
+	s.calls++
+	s.cause = cause
+	s.tx = f.NewTx()
+	if err := fn(ctx, s.tx); err != nil {
+		var fault *f.Fault
+		if !errors.As(err, &fault) {
+			panic("controlled callback returned non-Fault")
+		}
+		return f.NotCommittedResult(fault)
+	}
+	if s.unknown {
+		return f.UnknownResult(s.attempt, cause)
+	}
+	return f.CommittedResult()
+}
+func (s *publicationCheckpointStore) AcquireAll(_ context.Context, tx f.Tx, locks []f.LockRequest) error {
+	if tx != s.tx || len(locks) < 4 {
+		return errors.New("foreign transaction or incomplete union")
+	}
+	s.acquires++
+	return nil
+}
+func (s *publicationCheckpointStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
+	if tx != s.tx {
+		return nil, errors.New("foreign transaction")
+	}
+	return s, nil
+}
+func (s *publicationCheckpointStore) QueryRow(_ context.Context, sql string, _ ...any) postgres.Row {
+	return publicationCheckpointRow(func(v ...any) error {
+		if strings.Contains(sql, "FROM agenteam_knowledge.commands") {
+			r := s.record
+			*v[0].(*string), *v[1].(*string), *v[2].(*string), *v[3].(*string) = r.id.String(), r.project.String(), r.document.String(), r.user.String()
+			*v[4].(*string), *v[5].(*string), *v[6].(*string), *v[7].(*string) = string(r.name), string(r.key), r.digest.String(), "planned"
+			*v[8].(*[]byte), *v[9].(*time.Time), *v[10].(**time.Time) = nil, r.created.Time(), nil
+			return nil
+		}
+		if strings.Contains(sql, "FROM agenteam_knowledge.work_claims") {
+			w := s.work
+			*v[0].(*string), *v[1].(*string), *v[2].(**string) = w.command.String(), w.project.String(), nil
+			*v[3].(*string), *v[4].(*string), *v[5].(*int64), *v[6].(*string) = w.process.String(), w.attempt.String(), w.fence, w.phase
+			return nil
+		}
+		return errors.New("unexpected SQL")
+	})
+}
+func (s *publicationCheckpointStore) Exec(_ context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+	if !strings.Contains(sql, "SET phase='joined'") || len(args) != 4 || args[0] != s.work.command.String() || args[1] != s.work.process.String() || args[2] != s.work.attempt.String() || args[3] != s.work.fence {
+		return pgconn.CommandTag{}, errors.New("unbound checkpoint")
+	}
+	s.updates++
+	s.work.phase = "joined"
+	return pgconn.NewCommandTag("UPDATE 1"), nil
+}
+func TestPublicationJoinCheckpointKeepsProofAcrossUnknownAndChecksOriginalCommand(t *testing.T) {
+	s, record, work, done := retirementFixture(t)
+	_, actor, _ := queryFixture(t)
+	record.user, _ = f.ParseID[id.User](actor.Details().UserID)
+	record.name, record.key, record.digest = kc.Create, "original-publication-key", ob.DigestBytes([]byte("original intent"))
+	record.created, _ = f.NewInstant(time.Now())
+	store := &publicationCheckpointStore{record: record, work: work, unknown: true, attempt: newID[f.TransactionAttempt](t)}
+	s.state().store = store
+	if err := s.checkpointPublicationJoin(context.Background(), actor, record, work); err == nil || store.calls != 0 {
+		t.Fatal("absence of local join proof opened SQL")
+	}
+	retirement, err := s.publicationRetirement(work, done)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = retirement.join(); err != nil {
+		t.Fatal(err)
+	}
+	wrong := *record
+	wrong.id = newID[command](t)
+	store.record = &wrong
+	if err = s.checkpointPublicationJoin(context.Background(), actor, record, work); err == nil || store.updates != 0 {
+		t.Fatal("foreign original command checkpointed work")
+	}
+	store.record = record
+	err = s.checkpointPublicationJoin(context.Background(), actor, record, work)
+	var original commitFailure
+	if !errors.As(err, &original) || original.result.State() != f.Unknown || original.result.AttemptID() != store.attempt || original.result.Cause().Details().Primary.Canonical() != store.cause.Details().Primary.Canonical() {
+		t.Fatal("checkpoint Unknown lost exact physical attempt/cause", err)
+	}
+	if store.updates != 1 || store.calls != 2 || store.acquires != 2 {
+		t.Fatal("checkpoint retried callback or took locks more than once")
+	}
+	proof, err := s.stoppedPublication(context.Background(), &work)
+	if err != nil || proof == nil {
+		t.Fatal("Unknown removed actual join proof", err)
+	}
+	store.unknown = false
+	if err = s.checkpointPublicationJoin(context.Background(), actor, record, work); err != nil || store.updates != 1 {
+		t.Fatal("committed checkpoint could not be safely confirmed", err)
+	}
+	if _, exists := s.state().joinedPublications[work.command]; exists {
+		t.Fatal("confirmed durable join retained unnecessary memory proof")
+	}
+	if _, err = nextPublicationWork(record, nil, work.process, &store.work, nil); err != nil {
+		t.Fatal("durable joined attempt could not be retried", err)
 	}
 }

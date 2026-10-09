@@ -46,6 +46,9 @@ type serviceState struct {
 	stopped bool
 	calls   map[*call]struct{}
 	changed chan struct{}
+	// Only actual publication resource retirement installs these proofs. An
+	// empty call registry or a cancelled context is never equivalent to join.
+	joinedPublications map[f.ID[command]]publicationWork
 }
 type call struct{ cancel context.CancelFunc }
 

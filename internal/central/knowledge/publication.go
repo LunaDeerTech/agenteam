@@ -11,6 +11,7 @@ import (
 	"io"
 	"log/slog"
 	"math"
+	"sync"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -239,6 +240,13 @@ func loadPublicationWork(ctx context.Context, x postgres.SQLExecutor, commandID 
 func (w publicationWork) equal(other publicationWork) bool {
 	return w.command == other.command && w.project == other.project && w.process == other.process && w.attempt == other.attempt && w.fence == other.fence && w.phase == other.phase && equalProjectPointer(w.source, other.source)
 }
+func (w publicationWork) clone() publicationWork {
+	if w.source != nil {
+		origin := *w.source
+		w.source = &origin
+	}
+	return w
+}
 func equalProjectPointer(a, b *id.ProjectID) bool {
 	return a == nil && b == nil || a != nil && b != nil && *a == *b
 }
@@ -246,19 +254,32 @@ func equalProjectPointer(a, b *id.ProjectID) bool {
 // Only a successful real ProcessAuthority call can construct a stopped proof.
 // It is bound to the original persisted attempt/fence and rechecked in the
 // caller's transaction; clock age and a missing in-memory call are not proof.
-type publicationStopProof struct{ original publicationWork }
+type publicationStopProof struct {
+	original    publicationWork
+	joinedLocal bool
+}
 
 func (s *Service) stoppedPublication(ctx context.Context, old *publicationWork) (*publicationStopProof, error) {
 	if old == nil || old.phase == "joined" {
 		return nil, nil
 	}
-	if old.phase != "active" || old.process == s.state().deps.Processes.CurrentProcess() {
+	if old.phase != "active" {
 		return nil, fault(f.ResourceBusy)
+	}
+	if old.process == s.state().deps.Processes.CurrentProcess() {
+		st := s.state()
+		st.mu.Lock()
+		joined, ok := st.joinedPublications[old.command]
+		st.mu.Unlock()
+		if !ok || !joined.equal(*old) {
+			return nil, fault(f.ResourceBusy)
+		}
+		return &publicationStopProof{original: old.clone(), joinedLocal: true}, nil
 	}
 	if err := s.state().deps.Processes.ConfirmStopped(ctx, old.process); err != nil {
 		return nil, portError(err)
 	}
-	return &publicationStopProof{original: *old}, nil
+	return &publicationStopProof{original: old.clone()}, nil
 }
 
 func publicationLocks(actor id.Actor, record *commandRecord, source *id.ProjectID) ([]f.LockRequest, error) {
@@ -305,7 +326,7 @@ func nextPublicationWork(record *commandRecord, source *id.ProjectID, process ob
 			return publicationWork{}, internal(nil)
 		}
 		if previous.phase == "active" {
-			if previous.process == process || proof == nil || !proof.original.equal(*previous) {
+			if proof == nil || !proof.original.equal(*previous) || proof.joinedLocal != (previous.process == process) {
 				return publicationWork{}, fault(f.ResourceBusy)
 			}
 		} else if previous.phase != "joined" {
@@ -369,5 +390,158 @@ func requirePublicationWork(ctx context.Context, x postgres.SQLExecutor, work pu
 	if current == nil || work.phase != "active" || !current.equal(work) {
 		return fault(f.ResourceBusy)
 	}
+	return nil
+}
+
+// A publicationRetirement is held by one admitted call until every owned source,
+// lease and spool close has actually succeeded. Callers invoke join only after
+// all synchronous preparation/send/final callbacks have returned. Failure keeps
+// the call registered; the process cannot report Drain complete on cancellation.
+type publicationRetirement struct {
+	mu        sync.Mutex
+	service   *Service
+	work      publicationWork
+	resources []func() error
+	done      func()
+	joined    bool
+}
+
+func (s *Service) publicationRetirement(work publicationWork, done func()) (*publicationRetirement, error) {
+	if s.state() == nil || work.command.Validate() != nil || work.project.Validate() != nil || work.process != s.state().deps.Processes.CurrentProcess() || work.attempt.Validate() != nil || work.fence < 1 || work.phase != "active" || done == nil {
+		return nil, internal(nil)
+	}
+	return &publicationRetirement{service: s, work: work.clone(), done: done}, nil
+}
+
+func (r *publicationRetirement) own(close func() error) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.joined || close == nil {
+		return internal(nil)
+	}
+	r.resources = append(r.resources, close)
+	return nil
+}
+
+// No transaction is opened here: resource retirement cannot be made to depend
+// on the request's now-cancelled SQL context. Keep exact in-process evidence for
+// a subsequent caller to confirm under the original command lock. A process
+// restart instead uses the real ProcessAuthority stop proof.
+func (r *publicationRetirement) join() error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.joined {
+		return nil
+	}
+	var failure error
+	for n := len(r.resources) - 1; n >= 0; n-- {
+		if r.resources[n] == nil {
+			continue
+		}
+		if err := r.resources[n](); err != nil {
+			if failure == nil {
+				failure = portError(err)
+			}
+		} else {
+			r.resources[n] = nil
+		}
+	}
+	if failure != nil {
+		return failure
+	}
+	st := r.service.state()
+	st.mu.Lock()
+	if st.joinedPublications == nil {
+		st.joinedPublications = make(map[f.ID[command]]publicationWork)
+	}
+	// Preserve the newest locally joined attempt. An old finalizer cannot
+	// overwrite a newer fence that has already completed independently.
+	old, exists := st.joinedPublications[r.work.command]
+	if !exists || old.fence < r.work.fence || old.equal(r.work) {
+		st.joinedPublications[r.work.command] = r.work
+	}
+	st.mu.Unlock()
+	r.joined = true
+	r.resources = nil
+	r.done()
+	return nil
+}
+
+// checkpointPublicationJoin is an optional durable projection of an already
+// established local join, not the source of that proof. The caller supplies its
+// own still-live budget. Failed/Unknown SQL leaves the exact local proof intact.
+func (s *Service) checkpointPublicationJoin(ctx context.Context, actor id.Actor, record *commandRecord, work publicationWork) error {
+	st := s.state()
+	if st == nil {
+		return fault(f.DependencyUnbound)
+	}
+	st.mu.Lock()
+	joined, ok := st.joinedPublications[work.command]
+	st.mu.Unlock()
+	if !ok || !joined.equal(work) || record == nil || record.id != work.command || record.project != work.project {
+		return fault(f.ResourceBusy)
+	}
+	locks, err := publicationLocks(actor, record, work.source)
+	if err != nil {
+		return err
+	}
+	identity, err := kc.CommandIdentity(record.project, record.name, record.key)
+	if err != nil {
+		return portError(err)
+	}
+	cause, err := f.NewCommandsCause(identity)
+	if err != nil {
+		return portError(err)
+	}
+	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		x, err := st.store.InTx(tx)
+		if err != nil {
+			return portError(err)
+		}
+		original, err := loadCommand(ctx, x, record.project, record.name, record.key)
+		if err != nil {
+			return err
+		}
+		if original == nil || original.id != work.command || original.user != record.user || original.document != record.document || original.digest != record.digest {
+			return fault(f.ResourceBusy)
+		}
+		current, err := loadPublicationWork(ctx, x, work.command)
+		if err != nil {
+			return err
+		}
+		if current == nil {
+			return fault(f.ResourceBusy)
+		}
+		already := *current
+		already.phase = "active"
+		if !already.equal(work) {
+			return fault(f.ResourceBusy)
+		}
+		if current.phase == "joined" {
+			return nil
+		}
+		// This closes only the exact persisted work; it grants no document
+		// access and performs no user mutation after Session revocation.
+		tag, err := x.Exec(ctx, `UPDATE agenteam_knowledge.work_claims SET phase='joined'
+ WHERE command_id=$1 AND process_id=$2 AND attempt_id=$3 AND fence=$4 AND phase='active'`, work.command.String(), work.process.String(), work.attempt.String(), work.fence)
+		if err != nil {
+			return unavailable(err)
+		}
+		if tag.RowsAffected() != 1 {
+			return fault(f.ResourceBusy)
+		}
+		return nil
+	})
+	if err := txError(result); err != nil {
+		return err
+	}
+	st.mu.Lock()
+	if current, ok := st.joinedPublications[work.command]; ok && current.equal(work) {
+		delete(st.joinedPublications, work.command)
+	}
+	st.mu.Unlock()
 	return nil
 }
