@@ -146,6 +146,29 @@ System Model 路由使用同一 Account 安全边界，覆盖 `/api/v1/system/` 
 
 此口无写入、不拥有 Commit/Rollback，返回 nil 只在当前 Tx/持锁期间有效，不是 Owner grant、Skills 完成、发布许可、完成回执或 work 已 join 的证明。原 `ValidateInitializationInTx` 成功 gate 与其他写入、生命周期 gate 保持原义；新端口尚无生产 Skills/root 消费，不开放 Project 创建 HTTP，也不解除真实 Skills/初始化 Object 发布及共享 guard 依赖。Meeting Summary 继续由系统管理员统一选择 initial/update（含首轮标题）模型，项目不覆盖或复制默认值；生产 Resolution/Invocations、D24 仍未绑定，Object runtime join、OpenAI tools 独立验收、SPA 并发发布三项停止及 ready503 保持。
 
+## Project 初始化 Audit 授权库
+
+[初始化 Audit 规格](../work-items/d08-project-initialization-audit.md)对应 `project.NewInitializationAuditAuthority(*project.Authority, audit.ProjectFactAuthority)`。包装器仅为原初始化的 `ObjectUploadComplete`、`ObjectUploadFailed`、`ObjectDelete` 增加精确路线：在同 Store 活 Tx、已持 Project EX 下重新读取原 Creation/Project/owner/状态，再将原 context、Tx、Entry、AppendKey 交给事实 provider。CreationID 来自已验证的 Service initiator metadata；ObjectService actor 的 cause 必须是该 Object 操作的 UploadID、AttemptID 或删除摘要，不能混用 CreationID。普通 Authorize、Append、Lookup、Cleanup 保持原 Authority 行为。
+
+构造器只能拒绝缺失依赖，不能凭非 nil 接口证明 provider 已组合真实 Skill 的原初始化 key、精确对象/attempt 映射与同 Store Object 私有 witness checker。该 Skill provider 仍未实现，因此生产 root 未绑定此包装器，Project 创建 HTTP、真实 Skills/Object 初始化链和完整 D08 仍未完成；Object runtime join 停止边界保持。检查不写入、不补锁、不另开事务，也不拥有提交或回滚。
+
+库范围已通过 Project/contract 普通与 race 单测、vet、三组作者真实 PG 测试（42 个子例），以及未参与实现者的源码审查和四项不同输入的真实 PG 补集。独验核对同 Tx 的 owner/状态重新读取、原 context/物理事务与 Unknown Fault 身份保留、已结束 Tx 拒绝；受控 delegate 正例和真实 Object 缺私有 witness 负例分别计证，不代表真实 Skill 发布或实际 COMMIT ACK 丢失验收。
+
+从仓库根目录复现；先按上文设置 Go 1.27.1 并恢复锁定依赖。以下 PG-only 入口需要 Linux、Docker、[固定 PostgreSQL fixture](../../../tests/testsupport/postgres) 镜像及至少 5 GiB 可用磁盘，每次只创建一个 PG17 容器和一个 nonce network。使用既有监督器的原工作、退出及 TCP 尾预算，失败即停止后继测试；不需要 MinIO 或 Object Runtime。
+
+```sh
+D08_OUTPUT="$PWD/output/ai/project-initialization-audit"
+mkdir -p "$D08_OUTPUT/pg"
+GOTOOLCHAIN=local GOMAXPROCS=2 "$AGENTEAM_GO" test -mod=readonly -p=1 -race ./internal/central/project ./internal/central/project/contract
+GOTOOLCHAIN=local GOMAXPROCS=2 "$AGENTEAM_GO" test -mod=readonly -p=1 -race -tags=integration -c -o "$D08_OUTPUT/project-race.test" ./tests/project
+GOTOOLCHAIN=local GOMAXPROCS=2 "$AGENTEAM_GO" build -mod=readonly -p=1 -o "$D08_OUTPUT/pg-only-driver" .agent-state/task-planning-recovery/pg_only_driver.go
+for d08_top in TestProjectInitializationAuditFacts TestProjectInitializationAuditTransactionBoundary TestProjectInitializationAuditDelegation TestIndependentProjectInitializationAuditBoundaries; do
+  python3 .agent-state/task-planning-recovery/pg_only_supervisor.py \
+    --driver "$D08_OUTPUT/pg-only-driver" --binary "$D08_OUTPUT/project-race.test" \
+    --run "^${d08_top}$" --output "$D08_OUTPUT/pg" || exit 1
+done
+```
+
 ## Project Owner 列表与详情只读 HTTP
 
 默认 Central 根已提供 `GET/HEAD /api/v1/projects` 与 `GET/HEAD /api/v1/projects/{id}`，精确查询和字段见 [Project Owner OpenAPI](../../../api/openapi/project-owner.json) 与[实施规格](../work-items/d08-project-owner-read-http.md)。窄 Reader 复用 Usage 的同一 Project Authority、原数据库和 cursor keyring；每次读取在真实事务与完整锁计划内重验当前 Human Session、Owner 和项目状态，管理员没有跨 Owner 豁免。列表支持 lifecycle 过滤和有签名的 keyset cursor，逐页重新授权，完整校验所有行及额外哨兵后才截取页面；deleting 仅有最小列表投影，详情拒绝返回其旧内容。version 使用无损十进制字符串，nullable 与缺席字段严格区分。
