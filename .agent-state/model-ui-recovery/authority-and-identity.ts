@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '../../tests/account-captcha-web/node_modules/@playwright/test/index.js';
+import { expect, type Locator, type Page, type Request } from '../../tests/account-captcha-web/node_modules/@playwright/test/index.js';
 import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -86,15 +86,52 @@ function observer(page: Page, harness: AuthorityHarness) {
 }
 // Session bodies remain private in this call. Only the formal safe identity is
 // returned, never CSRF, cookies, login inputs, headers or their digests.
-async function sessionIdentity(page: Page, action: () => Promise<void>) {
-  const waiting = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/v1/session' && response.request().method() === 'GET' && response.status() === 200);
-  const [response] = await Promise.all([waiting, action()]);
-  need(await response.finished() === null, 'PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE');
+type SessionStageCode = `PROJECT_MODELS_AUTHORITY_${'SESSION_ACTION' | 'SESSION_HEADERS' | 'SESSION_FINISH' | 'SESSION_JSON' | 'CHECKING_COUNTS' | 'CHECKING_FACTS' | 'CHECKING_ARM' | 'CHECKING_HOLD' | 'CHECKING_RELEASE' | 'CHECKING_JOIN'}_TIMEOUT`;
+async function sessionStage<T>(work: Promise<T>, code: SessionStageCode) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const body = object(await response.json()), user = object(body.user), session = object(body.session);
-    need(uuid(user.id) && uuid(session.id) && (user.role === 'user' || user.role === 'admin'), 'PROJECT_MODELS_AUTHORITY_SESSION_INVALID');
-    return { userID: user.id, sessionID: session.id, role: user.role };
-  } catch { throw new Error('PROJECT_MODELS_AUTHORITY_SESSION_INVALID'); }
+    return await Promise.race([work, new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(() => reject(new Error(code)), 5_000);
+    })]);
+  } finally { if (timer !== undefined) clearTimeout(timer); }
+}
+async function sessionIdentity(page: Page, action: () => Promise<void>, step: (name: string) => void) {
+  let selected: Request | undefined;
+  const observation = { headers_seen: false, finished_event: false, failed_event: false };
+  const publish = () => writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-session-events.json'), JSON.stringify({ protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH, observation }), { mode: 0o600 });
+  const requested = (request: Request) => { if (new URL(request.url()).pathname === '/api/v1/session' && request.method() === 'GET') step('authority-session-request-observed'); };
+  const finished = (request: Request) => { if (request === selected) { observation.finished_event = true; publish(); } };
+  const failed = (request: Request) => { if (request === selected) { observation.failed_event = true; publish(); } };
+  page.on('request', requested); page.on('requestfinished', finished); page.on('requestfailed', failed);
+  try {
+    publish(); step('authority-session-action-started');
+    const waiting = page.waitForResponse((response) => {
+      if (new URL(response.url()).pathname !== '/api/v1/session' || response.request().method() !== 'GET' || response.status() !== 200) return false;
+      selected = response.request(); observation.headers_seen = true; publish(); return true;
+    }, { timeout: 5_000 });
+    const [response] = await Promise.all([
+      sessionStage(waiting, 'PROJECT_MODELS_AUTHORITY_SESSION_HEADERS_TIMEOUT'),
+      (async () => { await sessionStage(action(), 'PROJECT_MODELS_AUTHORITY_SESSION_ACTION_TIMEOUT'); step('authority-session-action-returned'); })(),
+    ]);
+    step('authority-session-headers-observed');
+    try { need(await sessionStage(response.finished(), 'PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT') === null, 'PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE'); }
+    catch (error) {
+      if (error instanceof Error && error.message === 'PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT') throw error;
+      throw new Error('PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE');
+    }
+    step('authority-session-finished');
+    try {
+      const body = object(await sessionStage(response.json(), 'PROJECT_MODELS_AUTHORITY_SESSION_JSON_TIMEOUT')), user = object(body.user), session = object(body.session);
+      need(uuid(user.id) && uuid(session.id) && (user.role === 'user' || user.role === 'admin'), 'PROJECT_MODELS_AUTHORITY_SESSION_INVALID');
+      step('authority-session-json-validated');
+      return { userID: user.id, sessionID: session.id, role: user.role };
+    } catch (error) {
+      if (error instanceof Error && error.message === 'PROJECT_MODELS_AUTHORITY_SESSION_JSON_TIMEOUT') throw error;
+      throw new Error('PROJECT_MODELS_AUTHORITY_SESSION_INVALID');
+    }
+  } finally {
+    page.off('request', requested); page.off('requestfinished', finished); page.off('requestfailed', failed); publish();
+  }
 }
 async function pageshow(page: Page) { await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow'))); }
 async function privateLogin(page: Page, actor: Actor) {
@@ -213,7 +250,7 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
 
   harness.step('authority-login');
   await harness.loginOwner(page);
-  const ownerSession = await sessionIdentity(page, () => pageshow(page));
+  const ownerSession = await sessionIdentity(page, () => pageshow(page), harness.step);
   need(ownerSession.userID === actors.owner.user_id && ownerSession.role === 'user', 'PROJECT_MODELS_AUTHORITY_ORDINARY_OWNER_REQUIRED');
   const first = await open(projects.main), initial = await harness.snapshot('main');
   const seed = initial.current.providers.find((row) => row.present);
@@ -223,24 +260,44 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
 
   harness.step('authority-same-session-checking');
   let dialog = await newProvider(page, 'Models Same Session Draft');
-  const checkingCounts = await harness.counts(), checkingFacts = await harness.nativeFacts(page);
-  const sessionArmResult = await harness.ipc({ action: 'arm', args: { operation: 'getCurrentSession', project: null, target_id: null, query: null, effect: 'before_dispatch_hold' } });
+  harness.step('authority-checking-draft-ready');
+  const checkingCounts = await sessionStage(harness.counts(), 'PROJECT_MODELS_AUTHORITY_CHECKING_COUNTS_TIMEOUT');
+  harness.step('authority-checking-counts-ready');
+  const checkingFacts = await sessionStage(harness.nativeFacts(page), 'PROJECT_MODELS_AUTHORITY_CHECKING_FACTS_TIMEOUT');
+  harness.step('authority-checking-arm-started');
+  const sessionArmResult = await sessionStage(harness.ipc({ action: 'arm', args: { operation: 'getCurrentSession', project: null, target_id: null, query: null, effect: 'before_dispatch_hold' } }), 'PROJECT_MODELS_AUTHORITY_CHECKING_ARM_TIMEOUT');
   need(typeof sessionArmResult.arm_id === 'string', 'PROJECT_MODELS_AUTHORITY_ARM_INVALID');
   const sessionArm = sessionArmResult.arm_id;
-  const restoredSession = sessionIdentity(page, () => pageshow(page));
-  const sessionHeld = await harness.control(sessionArm, (state) => state.held === true);
+  // Handle the concurrent observer immediately, then actually settle it on
+  // every path, including a failed hold, UI assertion, or release.
+  const restoredSession = sessionIdentity(page, () => pageshow(page), harness.step).then(
+    (value) => ({ ok: true as const, value }), (error: unknown) => ({ ok: false as const, error }),
+  );
   try {
-    await expect(page.getByRole('heading', { name: '正在确认会话', exact: true })).toBeVisible();
-    await expect(dialog).toBeHidden();
-    await expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0);
-    need((await harness.nativeFacts(page)).length === checkingFacts.length, 'PROJECT_MODELS_AUTHORITY_CHECKING_MODEL_REQUEST');
-    sameOperations(checkingCounts, await harness.counts());
-  } finally {
-    await harness.ipc({ action: 'release', args: { arm_id: sessionArm, request_token: String(sessionHeld.request_token) } });
-  }
-  const sameSession = await restoredSession;
-  need(sameSession.sessionID === ownerSession.sessionID && sameSession.userID === ownerSession.userID && sameSession.role === 'user', 'PROJECT_MODELS_AUTHORITY_SAME_SESSION_CHANGED');
-  await harness.control(sessionArm, (state) => state.joined === true);
+    harness.step('authority-checking-hold-started');
+    const sessionHeld = await sessionStage(harness.control(sessionArm, (state) => state.held === true), 'PROJECT_MODELS_AUTHORITY_CHECKING_HOLD_TIMEOUT');
+    harness.step('authority-checking-held');
+    try {
+      await expect(page.getByRole('heading', { name: '正在确认会话', exact: true })).toBeVisible();
+      harness.step('authority-checking-heading-visible');
+      await expect(dialog).toBeHidden();
+      await expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0);
+      harness.step('authority-checking-private-view-hidden');
+      need((await sessionStage(harness.nativeFacts(page), 'PROJECT_MODELS_AUTHORITY_CHECKING_FACTS_TIMEOUT')).length === checkingFacts.length, 'PROJECT_MODELS_AUTHORITY_CHECKING_MODEL_REQUEST');
+      sameOperations(checkingCounts, await sessionStage(harness.counts(), 'PROJECT_MODELS_AUTHORITY_CHECKING_COUNTS_TIMEOUT'));
+    } finally {
+      harness.step('authority-checking-release-started');
+      await sessionStage(harness.ipc({ action: 'release', args: { arm_id: sessionArm, request_token: String(sessionHeld.request_token) } }), 'PROJECT_MODELS_AUTHORITY_CHECKING_RELEASE_TIMEOUT');
+      harness.step('authority-checking-release-returned');
+    }
+    const restored = await restoredSession;
+    if (!restored.ok) throw restored.error;
+    const sameSession = restored.value;
+    need(sameSession.sessionID === ownerSession.sessionID && sameSession.userID === ownerSession.userID && sameSession.role === 'user', 'PROJECT_MODELS_AUTHORITY_SAME_SESSION_CHANGED');
+    harness.step('authority-checking-join-started');
+    await sessionStage(harness.control(sessionArm, (state) => state.joined === true), 'PROJECT_MODELS_AUTHORITY_CHECKING_JOIN_TIMEOUT');
+    harness.step('authority-checking-joined');
+  } finally { await restoredSession; }
   harness.step('authority-checking-restored');
   await reread(projects.main);
   harness.step('authority-owner-reread-complete');
@@ -326,7 +383,7 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   need(createdProvider, 'PROJECT_MODELS_AUTHORITY_COMMITTED_PROVIDER_MISSING');
   const configArchived = await harness.ipc({ action: 'archive-recovery-project', args: { project: 'config_recovery', expected_version: configCommitted.project.version } });
   need(configArchived.project_id === projects.config_recovery.id && configArchived.lifecycle === 'archived' && configArchived.fixture_only === true, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_INVALID');
-  const archiveSession = await sessionIdentity(page, () => pageshow(page));
+  const archiveSession = await sessionIdentity(page, () => pageshow(page), harness.step);
   need(archiveSession.sessionID === ownerSession.sessionID, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_SESSION_CHANGED');
   await reread(projects.config_recovery); dialog = providerDialog();
   await expect(button(dialog, '保存 Provider')).toBeDisabled(); await expect(button(dialog, '按原请求重放')).toBeEnabled();
@@ -351,7 +408,7 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   const credentialCommitted = await harness.snapshot('credential_recovery'); harness.durableDelta(credentialBefore, credentialCommitted, 0, 1);
   const credentialArchived = await harness.ipc({ action: 'archive-recovery-project', args: { project: 'credential_recovery', expected_version: credentialCommitted.project.version } });
   need(credentialArchived.project_id === projects.credential_recovery.id && credentialArchived.lifecycle === 'archived' && credentialArchived.fixture_only === true, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_INVALID');
-  const credentialSession = await sessionIdentity(page, () => pageshow(page));
+  const credentialSession = await sessionIdentity(page, () => pageshow(page), harness.step);
   need(credentialSession.sessionID === ownerSession.sessionID, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_SESSION_CHANGED');
   await reread(projects.credential_recovery); credential = credentialDialog();
   await expect(button(credential, '按原请求重放')).toBeDisabled(); await expect(button(credential, '创建凭据')).toBeDisabled();
@@ -422,7 +479,7 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   // The live old-session draft here is Provider input. Credential tracking was
   // explicitly abandoned earlier; the later empty input is a fresh-form check.
   await privateLogin(page, actors.owner);
-  const newOwnerSession = await sessionIdentity(page, () => pageshow(page));
+  const newOwnerSession = await sessionIdentity(page, () => pageshow(page), harness.step);
   need(newOwnerSession.userID === ownerSession.userID && newOwnerSession.sessionID !== ownerSession.sessionID && newOwnerSession.role === 'user', 'PROJECT_MODELS_AUTHORITY_NEW_SESSION_MISSING');
   await open(projects.main);
   await expect(providerDialog()).toHaveCount(0);
@@ -439,13 +496,13 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   harness.step('authority-other-owner-and-admin');
   await button(page, '退出登录').click(); await expect(page.locator('#login-email')).toBeVisible();
   await privateLogin(page, actors.other_owner);
-  const otherSession = await sessionIdentity(page, () => pageshow(page));
+  const otherSession = await sessionIdentity(page, () => pageshow(page), harness.step);
   need(otherSession.userID === actors.other_owner.user_id && otherSession.role === 'user' && otherSession.sessionID !== newOwnerSession.sessionID, 'PROJECT_MODELS_AUTHORITY_OTHER_OWNER_INVALID');
   await denied(projects.main, true);
   await open(projects.other); await expect(button(page, '创建 Provider')).toBeEnabled();
   await button(page, '退出登录').click(); await expect(page.locator('#login-email')).toBeVisible();
   await privateLogin(page, actors.other_admin);
-  const adminSession = await sessionIdentity(page, () => pageshow(page));
+  const adminSession = await sessionIdentity(page, () => pageshow(page), harness.step);
   need(adminSession.userID === actors.other_admin.user_id && adminSession.role === 'admin' && adminSession.sessionID !== otherSession.sessionID, 'PROJECT_MODELS_AUTHORITY_ADMIN_INVALID');
   await denied(projects.main, true);
   await open(projects.admin_owned); await expect(button(page, '创建 Provider')).toBeEnabled();
