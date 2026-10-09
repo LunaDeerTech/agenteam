@@ -1,6 +1,6 @@
 # D12 Human Owner Knowledge metadata 与文档树 HTTP
 
-状态：adapter生产源/Schema已落并获Runner有限源码与两个独立pure风险控接受；唯一HEAD Schema must-fix已原红转绿。作者纯控与标准Schema已有实际证据，四PG top十四子已实际整轮通过；native三个top已独立race候选编译/精确发现，driver也已编译；均未真实执行。native实际与整结果验收仍未完成。基线正式 main `29dd429881783595e5a1304b86af5bfb56ec80b2`。只交付可独立构造的五类只读 HTTP adapter，不接生产 root，不修改 B02/SQL，不包含正文、下载 URL、D13、UI 或 Project lifecycle/Runtime 停止项。依据 [B02 服务](d12-b02-knowledge-service.md)、[D12 规格](d12-knowledge-documents-design.md) §3/6 与既有 Owner HTTP/Account boundary。
+状态：五类Human Owner metadata/文档树只读 HTTP adapter 已实现，作者 pure/标准Schema、真实PG四top十四子与native三top六子均按限定组合通过，独立源码和安全投影/I/O风险控制接受；准备作为独立结果正式装配。开发基线main `29dd429881783595e5a1304b86af5bfb56ec80b2`，最终由root装配到正式main `ce65714a` 之后，仅新增本卡限定文件。不接生产root，不修改B02/SQL，不包含正文、下载URL、D13、UI或Project lifecycle/Runtime停止项。依据[B02服务](d12-b02-knowledge-service.md)、[D12规格](d12-knowledge-documents-design.md) §3/6与既有Owner HTTP/Account boundary。
 
 ## API 与真实依赖
 
@@ -30,16 +30,26 @@ children 的 parent_document_id 必须是字面 `null` 或规范 UUIDv7；不把
 
 本adapter不调用ReadDocument/OpenCanonical。正文后继负责有界文本UTF8/offset及实际reader Close；PDF/DOCX当前parser未绑定，raw stream不是下载授权。另已报告正式D12 §6的deleted正文410与现B02 source.go返回404差异，本结果不改或重新解释该行为。
 
-## 写域与验收
+## 验收与有限结论
 
-唯一写域：新 `internal/central/knowledge/http/{handler,query,wire,io}.go` 及相邻pure/native tests，新 `api/openapi/knowledge-owner.json`，新 `tests/knowledge/owner_read_http*`，本卡/current及必要任务资产。复用既有有界HTTP I/O模式，不改共享框架/全局schema/原B02产品/SQL/生产root。Schema覆盖实际DTO与五路参数/错误，不声明其他Knowledge能力。
+作者纯控制覆盖严格路由/query、安全DTO、隐藏字段canary、坏尾项、原I/O取消/短写/Close与实际callback join；本地标准Schema验证20正反例。首pure失败只因新测试误期待公开cause_id，保留原失败并定向修正测试。独立Runner有限源码审查通过，HEAD错误Schema声明body的must-fix经原红控制转绿；两个独立实际pure风险控制验证AgentRun安全投影/跨Project拒绝/坏末项零候选，以及Body.Close后仍等取消callback实际退出，无剩余已知must-fix。
 
-有限矩阵：① pure严格路由/query/DTO/隐藏字段canary/坏尾项/安全Fault与schema、原I/O取消/短写/Close/实际callback；② native socket慢body/慢写/断连/HEAD/keepalive/原2s自然期限与实际尾；③真实同Store Account正式登录、当前Project Owner、B02真实服务的五API/非空分页树/删除tombstone、每页撤权与两种锁序、取消/真实读COMMIT Unknown零候选。公共内容变更用于产生业务事实，不复制B02全量发布矩阵。PG/native均另需root独占窗口；pure/编译不冒动态通过。未参与实现者独立核安全投影/权限与有价值负控后才交付该有限adapter。
+PG `TestKnowledgeOwnerReadHTTP{Metadata,CurrentAuthority,Transactions,CommitUnknown}` 四top十四子在75649/8181d0完整通过：真实Account正式登录/注销、B02同Store五GET/HEAD、非空树/字面搜索/分页、tombstone、安全Schema/无读事实、每页当前Owner/Session、两个原User SH/EX锁序、原SELECT取消与Tx实际退出、两种真实complete-frame COMMIT Unknown零候选。Project初始化/Owner变化/合法Deleting为明确上游SQL fixture，不冒Project.Create/BeginDelete/Skills。原Go6m、每top含fixture尾120s不变；Go/driver/outer实际Wait0、七ID/三private/runtime/desc/TCP双尾与542inputsame齐，supervisor129.994s。
 
-后继实际候选为四top封闭组 `TestKnowledgeOwnerReadHTTP{Metadata,CurrentAuthority,Transactions,CommitUnknown}`：真实Account正式身份、原B02同Store实际出版，Project初始化/Owner变化/合法Deleting仅明确上游SQL夹具。四top十四子覆盖上述权限/输出/事务矩阵；局部test-only回调只观察/阻塞原事务，不替换CommitResult/授权/SQL行。整个Go仍6m，单top包含fixture实际收尾120s；原七资源root链/全部实际Wait与双尾不变。运行时Schema helper/两JSON和当前Python解释器也进入input gate，候选/命令与实际限制见本树current。
+native `TestKnowledgeHTTPNative{Deadlines,KeepAliveAndClose,BackpressureAndDisconnect}` 三top六子在35786/517ab4完整通过：自然2s与更早parent deadline、同连接keepalive清deadline、实际Body.Close错误、真实写背压/断连与原callback实际join。测试使用明确的局部authority/domain控制，仅证明传输；正式权限由PG矩阵证明。原Go90s/driver105s/supervisor123+共享3s/TCP75不变，三父六子各恰一次RUN/PASS、test/driver/outer实际Wait0、private/runtime/desc/TCP/input全尾齐，supervisor67.322s。两个真实窗口均已释放，不再追加矩阵或重复已通过场景。
 
+Schema测试运行时必须显式设置 `AGENTEAM_KNOWLEDGE_HTTP_SCHEMA_PYTHON` 为已安装 `jsonschema`（Draft202012Validator）与 `referencing` 的本地Python；helper只读本地两个Schema，不做网络引用。纯Schema测试在未配置时跳过，PG的实际响应Schema验证在缺少解释器时明确失败；不以跳过计验收。native须显式 `AGENTEAM_KNOWLEDGE_HTTP_NATIVE=1`，默认跳过。验收原精确命令/工具与失败记录留任务current/分支，不是生产运行依赖。
 
-PG入口已获Runner 1f7561/d2262e有限独审接受，固定MinIO由root准备；现已有下述完整实际结果。native继续复用既有driver/supervisor，唯一三top六子闭集、原Go90s/driver105s/123+3/TCP75及全尾不变；97611e离线76控制通过，原PG控制5a3165通过，native入口已获Runner addbbc/0cbac4/edb28c有限独审接受；60658/04e2a4原环境定向race-c＋driver build＋恰三top发现实际exit0、body=0，产物18,847,132B和4,857,127B，原PG候选保持。native真实运行仍待完成。有限交付收口只需：已验pure/Schema与独立安全投影/I/O风险控，加上当前四PG top十四子和native三top六子的实际完整终态；真实证据若指出缺陷，只补受影响范围。权限业务使用真实Account/B02同Store，native的局部authority/domain替身只证明传输，不冒完整App root或Runtime接入。
+## 最小正式文件范围
 
+共15个新增技术文件和本卡/台账D12行（17路径），无共享生产源patch：
 
-PG首轮75649/8181d0完整actualexit0，be9604核原证据：四top十四子全PASS（Metadata6.31s/Authority5.71s/Transactions16.14s/Unknown10.38s）；原Go/driver/outer实际Wait0、七ID双absent、三private/runtime/desc双清、TCP双delta_empty与542inputsame齐，supervisor129.994s。当前Account/B02同Store业务及实际读COMMIT Unknown边界已有实证；上游Project SQL fixture的范围保持。环境切换前旧grant本人未启动，取消后本轮重新fresh grant，不存在旧缺口补PASS。原精确命令、日志与输入见current；下一只补native三top六子真实门，不重复已过PG/pure，不增加product root/Runtime范围。
+| 范围 | 精确文件 |
+| --- | --- |
+| 新HTTP包（10） | `internal/central/knowledge/http/handler.go`、`query.go`、`wire.go`、`io.go`、`handler_test.go`、`query_test.go`、`wire_test.go`、`io_test.go`、`schema_test.go`、`native_test.go` |
+| 专用Schema（1） | `api/openapi/knowledge-owner.json` |
+| 真实PG矩阵（3） | `tests/knowledge/owner_read_http_fixture_test.go`、`owner_read_http_test.go`、`owner_read_http_transactions_test.go` |
+| 测试动态依赖（1） | `.agent-state/knowledge-owner-read/schema-controls.py`；它引用上述专用Schema及main已有的 `api/openapi/common.json`，不得漏交 |
+| 正式说明（2） | 本卡；`docs/development/agent-team/tasks.md` 仅D12单行，保留main其他行 |
+
+不携带整套WIP supervisor/native driver/selector controls覆盖main；编译产物、MinIO、日志、缓存不入正式结果。root构造仍未绑定，后继负责Service/Account生命周期与实际App装配；本结果不恢复Object Runtime join或增加下载、正文、写命令/创建/上传能力。完整D12仍未完成。
