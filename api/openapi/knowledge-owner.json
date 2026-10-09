@@ -257,28 +257,28 @@
             }
           },
           "400": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "401": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "403": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "404": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "405": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "409": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "500": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "503": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           }
         }
       }
@@ -386,28 +386,28 @@
             }
           },
           "400": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "401": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "403": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "404": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "405": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "409": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "500": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "503": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           }
         }
       }
@@ -695,28 +695,28 @@
             }
           },
           "400": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "401": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "403": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "404": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "405": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "409": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "500": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "503": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           }
         }
       }
@@ -824,28 +824,28 @@
             }
           },
           "400": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "401": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "403": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "404": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "405": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "409": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "500": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "503": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           }
         }
       }
@@ -1021,28 +1021,28 @@
             }
           },
           "400": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "401": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "403": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "404": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "405": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "409": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "500": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           },
           "503": {
-            "$ref": "#/components/responses/Problem"
+            "$ref": "#/components/responses/HeadProblem"
           }
         }
       }
@@ -1064,6 +1064,32 @@
           "application/problem+json": {
             "schema": {
               "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "HeadProblem": {
+        "description": "Same authenticated Problem status and representation headers as GET; HEAD always has zero response body.",
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "const": "application/problem+json"
+            }
+          },
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+            }
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
             }
           }
         }
