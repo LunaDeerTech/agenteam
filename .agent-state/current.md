@@ -47,3 +47,5 @@
 - Model第四段：constructor、9IPC dispatcher、只读snapshot与浏览器子进程受控入口/六Go selectors已补入两Go源，delivery race-c与6个pure实际exit0；六浏览器business仍未通过。
 
 - 私有修复/新独立probe已冻结待恢复：Task repository/events/test三源，private-matrix及private-run。最新独立A-B binary为忽略output中的 `independent-runtime-build-e1y4nejg/independent-runtime.test`；七新四旧Structure与独立A-B PG尚待运行。
+
+- expanded Concurrency首轮FAIL：same-key final hook未到，原Go/driver/outer均exit1且资源完整退役。原owner定位为测试观察器在Update发现阶段尚无command row时把ErrNoRows注成写错误；仅修并发测试观察为EXISTS/coalesce，真SQL错仍保留，4个handshake新增提前writer结果观察。新hooks binary race-c/精确11selector exit0，尚未实际重跑，不称产品并发缺陷或原PASS。

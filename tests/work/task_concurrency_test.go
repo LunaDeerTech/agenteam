@@ -95,7 +95,7 @@ func TestTaskPlanningCommitUnknown(t *testing.T) {
 						return err
 					}
 					var state string
-					if err = x.QueryRow(ctx, `SELECT state FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3`, p.ID.String(), string(wc.TaskCommandUpdate), string(m.IdempotencyKey)).Scan(&state); err != nil {
+					if err = x.QueryRow(ctx, `SELECT coalesce((SELECT state FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3),'')`, p.ID.String(), string(wc.TaskCommandUpdate), string(m.IdempotencyKey)).Scan(&state); err != nil {
 						return err
 					}
 					if state == phase && armed.CompareAndSwap(false, true) {
@@ -115,7 +115,7 @@ func TestTaskPlanningCommitUnknown(t *testing.T) {
 				original := callTaskAsync(t, func(ctx context.Context) (wc.TaskMutation, error) {
 					return f.tasks.UpdateTask(ctx, a, m, p.ID, target.ID, r)
 				})
-				await(t, proxy.reached)
+				awaitTaskStage(t, proxy.reached, original)
 				if proxy.backendPID.Load() != backend.Load() || backend.Load() <= 0 {
 					t.Fatal("COMMIT not bound to exact backend")
 				}
@@ -228,7 +228,7 @@ func TestTaskPlanningCommitUnknown(t *testing.T) {
 					return err
 				}
 				var completed bool
-				if err = x.QueryRow(ctx, `SELECT state='completed' FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3`, p.ID.String(), string(wc.TaskCommandUpdate), string(metadata.IdempotencyKey)).Scan(&completed); err != nil {
+				if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3 AND state='completed')`, p.ID.String(), string(wc.TaskCommandUpdate), string(metadata.IdempotencyKey)).Scan(&completed); err != nil {
 					return err
 				}
 				if completed && armed.CompareAndSwap(false, true) {
@@ -314,7 +314,7 @@ func TestTaskPlanningCommitUnknown(t *testing.T) {
 				return err
 			}
 			var completed bool
-			if err = x.QueryRow(ctx, `SELECT state='completed' FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3`, p.ID.String(), string(wc.TaskCommandUpdate), string(cm.IdempotencyKey)).Scan(&completed); err != nil {
+			if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3 AND state='completed')`, p.ID.String(), string(wc.TaskCommandUpdate), string(cm.IdempotencyKey)).Scan(&completed); err != nil {
 				return err
 			}
 			if !completed {
@@ -406,7 +406,7 @@ func TestTaskPlanningCommitUnknown(t *testing.T) {
 				return err
 			}
 			var completed bool
-			if err = x.QueryRow(ctx, `SELECT state='completed' FROM agenteam_work.task_commands WHERE project_id=$1 AND idempotency_key=$2`, p.ID.String(), string(m.IdempotencyKey)).Scan(&completed); err != nil {
+			if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_work.task_commands WHERE project_id=$1 AND idempotency_key=$2 AND state='completed')`, p.ID.String(), string(m.IdempotencyKey)).Scan(&completed); err != nil {
 				return err
 			}
 			if completed && armed.CompareAndSwap(false, true) {
@@ -424,7 +424,7 @@ func TestTaskPlanningCommitUnknown(t *testing.T) {
 		reply := callTaskAsync(t, func(ctx context.Context) (wc.TaskMutation, error) {
 			return f.tasks.UpdateTask(ctx, a, m, p.ID, target.ID, wc.TaskFieldsUpdate{Title: &text})
 		})
-		await(t, proxy.reached)
+		awaitTaskStage(t, proxy.reached, reply)
 		actualConfirmation := awaitLockAttempt(t, confirmationAttempt)
 		waitExactLock(t, base.db, actualConfirmation, false, proxy.backendPID.Load())
 		f.tasks.Stop()
@@ -466,7 +466,7 @@ func TestTaskPlanningCommitUnknown(t *testing.T) {
 						return err
 					}
 					var state string
-					if err = x.QueryRow(ctx, `SELECT state FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3`, p.ID.String(), string(wc.TaskCommandUpdate), string(m.IdempotencyKey)).Scan(&state); err != nil {
+					if err = x.QueryRow(ctx, `SELECT coalesce((SELECT state FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3),'')`, p.ID.String(), string(wc.TaskCommandUpdate), string(m.IdempotencyKey)).Scan(&state); err != nil {
 						return err
 					}
 					if state == "completed" {
@@ -534,7 +534,7 @@ func TestTaskPlanningConcurrencyAndRank(t *testing.T) {
 				return err
 			}
 			var completed bool
-			if err = x.QueryRow(ctx, `SELECT state='completed' FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3`, p.ID.String(), string(wc.TaskCommandUpdate), string(cm.IdempotencyKey)).Scan(&completed); err != nil {
+			if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3 AND state='completed')`, p.ID.String(), string(wc.TaskCommandUpdate), string(cm.IdempotencyKey)).Scan(&completed); err != nil {
 				return err
 			}
 			if completed && armed.CompareAndSwap(false, true) {
@@ -557,7 +557,7 @@ func TestTaskPlanningConcurrencyAndRank(t *testing.T) {
 		first := callTaskAsync(t, func(ctx context.Context) (wc.TaskMutation, error) {
 			return writer.tasks.UpdateTask(ctx, a, cm, p.ID, one.ID, wc.TaskFieldsUpdate{Title: &title})
 		})
-		await(t, reached)
+		awaitTaskStage(t, reached, first)
 		next := callTaskAsync(t, func(ctx context.Context) (wc.TaskMutation, error) {
 			return competitor.tasks.UpdateTask(ctx, a, cm, p.ID, one.ID, wc.TaskFieldsUpdate{Title: &title})
 		})
@@ -1068,7 +1068,7 @@ func TestTaskPlanningMembership(t *testing.T) {
 				return err
 			}
 			var completed bool
-			if err = x.QueryRow(ctx, `SELECT state='completed' FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3`, p.ID.String(), string(wc.TaskCommandCreate), string(cm.IdempotencyKey)).Scan(&completed); err != nil {
+			if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3 AND state='completed')`, p.ID.String(), string(wc.TaskCommandCreate), string(cm.IdempotencyKey)).Scan(&completed); err != nil {
 				return err
 			}
 			if completed && armed.CompareAndSwap(false, true) {
@@ -1089,7 +1089,7 @@ func TestTaskPlanningMembership(t *testing.T) {
 		original := callTaskAsync(t, func(ctx context.Context) (wc.TaskMutation, error) {
 			return writer.tasks.CreateTask(ctx, a, cm, p.ID, wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: sprint.ID, Title: "inverse winner", Type: wc.TaskTypeTask, Priority: wc.TaskPriorityMedium})
 		})
-		await(t, reached)
+		awaitTaskStage(t, reached, original)
 		observation := observeLock(readerStore, user, nil)
 		sprintKey, _ := foundation.AggregateLock(foundation.SprintAggregate, sprint.ID.String())
 		requested := []foundation.LockRequest{{Key: user, Mode: foundation.Shared}, {Key: projectKey, Mode: foundation.Shared}, {Key: schedule, Mode: foundation.Exclusive}, {Key: sprintKey, Mode: foundation.Shared}}
@@ -1188,3 +1188,18 @@ func seedTaskRanks(t *testing.T, f *taskFixture, a identity.Actor, p c.ProjectID
 }
 
 func taskPriorityPtr(priority wc.TaskPriority) *wc.TaskPriority { return &priority }
+
+// Discovery deliberately has no persistent command. Observation hooks must
+// leave it alone and a writer returning before the requested stage is an
+// immediate diagnostic failure, never an eight-second generic timeout.
+func awaitTaskStage(t *testing.T, reached <-chan struct{}, reply <-chan taskReply) {
+	t.Helper()
+	select {
+	case <-reached:
+		return
+	case got := <-reply:
+		t.Fatalf("Task writer returned before observed stage: changed=%t err=%v", got.result.Changed, got.err)
+	case <-time.After(8 * time.Second):
+		t.Fatal("owned Task stage handshake did not arrive")
+	}
+}
