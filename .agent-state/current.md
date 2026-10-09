@@ -84,3 +84,9 @@
 - 当前仅准备既有两资源 PG driver：单个精确锚定 selector，105s 主体＋15s 清理、supervisor 123＋3s、TCP 尾 75s、fresh 5GiB；测试 cwd 固定 `tests/skills`。COMMIT top 额外 loopback proxy 为该测试自有并要求实际 Close/join，不启 MinIO/七资源 root。Project/Creation 仍是披露的规范测试事实，外部 Object controlled；真实 Skill/Project/PG 与受控 D05 边界分开，尚无本轮真实资源或业务 PASS。
 - 82290 既有 PG driver 离线构建 actualexit0，产物 `output/ai/skills/compile/pg-only-driver`。原 driver 接受一个 canonical 精确锚定 top，不需新增 domain 映射或改监督器。主卡/本文更新完成后冻结；首个 Persistence top 已具备编译输入，单独 00027 升级/约束/DDL 失败回滚测试另行实施，不阻塞这个限定初始化子能力。
 - 第四个独立 top `TestSkillMigration` 已新增于 `tests/skills/migration_test.go`：fresh/repeat、已有 Account/Audit 数据的 00026→27 升级、六表合法延后外键循环和 30 项 CHECK/FK 拒例、末尾 DDL 故障整 schema 回滚/拒换 checksum/同源恢复。35384 离线 race-c actualexit0 至独立 `skill-pg-migration.test`，a4373e 精确发现 actual0，gofmt/diffcheck0；未执行 SQL。原三 top 的 `skill-pg-recovery.test` 和 driver 未改；新迁移源码与主卡/本文三路径冻结供保存，真实首窗仍仅 Persistence，不合并 selector 或扩大资源预算。
+
+## 首轮真实初始化持久性
+
+- `60950` 在根 fresh grant 的唯一窗口实际执行 `^TestSkillInitializationPersistence$`，cwd `tests/skills`、原 `skill-pg-recovery.test`/PG driver/supervisor；开始可用 6,400,135,168 bytes。Go 2.51s：真实本域发布/原 ID 持久观察、重建 Service 同原命令零新增 physical 重放、同 Tx 确认，以及缺真实父锁/已结束 Tx/另一 Service 私有 issuer 三负例均 PASS。
+- 实际 outer exit0/72.659s、driver 13.708s；Go PID865195 与 driver PID864527 实际 Wait0、两精确 PG/nonce network ID 双 clean、desc 两次空、HOST_TCP 两次 delta_empty、inputs_unchanged=True、terminal0。自有 runtime 仅 `owned.json`，私有 fixture/证书/临时清除，完整退役后已交还窗口。原件 `output/ai/skills/pg/pg-7bfba875db50465983258b7c2075eb56.log` 及同名目录。
+- 此为作者有限 PG 结果，root 已接受；真实 Skill/Project Authority/同 Store 锁与四口被消费，Project/Creation 为规范测试种子、D05 Object 为受控端口。不是独立验收、Project.Create/Human 正向、D05/private witness/MinIO 或生产 root 通过。PublicationRollback、CommitRecovery、独立 Migration 三 top 均仍未运行；未自动续轮。本轮使用的连续 00027 迁移已执行成功，但不替代尚未跑的升级/约束/DDL 回滚矩阵。

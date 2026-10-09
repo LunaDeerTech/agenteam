@@ -1,6 +1,6 @@
 # D10：Skills 初始化与不可变内容
 
-状态：rev3，2026-10-09，P2 持久初始化服务 SPEC 已获未参与实现者有限独立接受，开始实施。P1 纯契约与真实 builtin 的既有提交及[独立验收](../agent-team/d10-p1-recovery-verification.md)不变。当前基线正式 main `ca9f2d5d` 已包含 D08 初始化 Audit 授权库；P2 服务、PG、D05真实发布/清理和生产root仍未实现验收。本文不代表 D10 完成。
+状态：rev3，2026-10-09，P2 持久初始化服务 SPEC 已获未参与实现者有限独立接受，持续实施。P1 纯契约与真实 builtin 的既有提交及[独立验收](../agent-team/d10-p1-recovery-verification.md)不变。当前基线正式 main `ca9f2d5d` 已包含 D08 初始化 Audit 授权库；P2 首个受控 Object 边界下的真实 PG 初始化 top 已通过，完整服务验收、D05真实发布/清理和生产root仍未闭合。本文不代表 D10 完成。
 
 依据：[开发计划](../development-plan.md)、[Skills 架构](../../architecture/agent-skills.md)、[D01 资源/Skills 契约](d01-contracts/resources-skills.md)、[本工作项规格](d10-skills-initialization-design.md)。S01 候选基线 `71dc17671631632bb26e251ad8491e74092ac975`，原主卡 SHA `a258ed11366946529082e885b5ec1e74d033687d1aec60d69000691862811b88`；独立结论 `/tmp/agenteam-d10-s01-review-4r1gg40i/report.md` SHA `49381427440c1f2a09219361e8a1b902ecb8c0db1d1700a35350050f6136f990` 无新增硬阻断，只采纳规格，不证明真实链路。
 
@@ -34,12 +34,13 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 - 00024已由root刷新到正式Variables来源，00025/26仍与各自稳定来源逐字一致，各域前序SQL验收事实可复用；本树00027尚未PG。新增真实PG验收源码覆盖四口持久发布/重建服务重读确认及发布失败回滚，race-c与两top精确发现通过；Project/Creation为披露的规范测试事实、Object为受控端口，本域Skill和Project权限/锁/事务实现真实消费。尚未运行PG、D05/private witness正例或生产root。原COMMIT恢复将复用已正式完整帧代理，不以受控CommitResult代实际提交证据。
 - 原 COMMIT 恢复第三 top 已形成可构建源码：复用正式完整帧代理，按实际发布事务 PID hold 原 COMMIT、Unknown 返回后释放并观察原提交与实际 join，再由原 key 和重建 Service 重读/重放。16497 race-c、858c2c 精确发现实际通过，尚未执行 PG/代理网络；没有把编译或控制端口写成真实提交结果。当前三个 top 每个都调用连续迁移，独立升级/DDL 失败回滚矩阵仍须另行实际覆盖。
 - 单独 `TestSkillMigration` 已实现 fresh/repeat、保旧 Account/Audit 事实与原约束的 00026→27 升级、六表合法图及 30 个 CHECK/FK 拒例、整 schema 故障回滚和原 checksum 恢复；35384 race-c、a4373e 精确发现 actual0。独立迁移 binary 与原初始化 binary 分开，尚未运行 SQL，不将前序各域验收或编译充作 00027 的真实结果。
+- 首个作者真实 PG top `TestSkillInitializationPersistence` 已完整 PASS（60950，Go 2.51s、outer 72.659s）：本域持久发布、重建 Service 后原 ID 重读/同命令重放、同 Tx 确认，以及缺锁/ended Tx/外来私有 issuer 拒绝。Go/driver 实际 Wait0、两资源双清、runtime/私有文件、desc/TCP 双尾与输入不变全部闭合，root 已有限接受。真实 Project Authority 与受控 Object 的分界保持；不证明 Project.Create/Human、D05 私有 witness/MinIO、生产 root 或独立验收。该轮连续迁移已实际执行，另外三个 top（发布回滚、COMMIT 恢复、独立迁移矩阵）仍未动态。
 
 ## 验收与当前证据
 
 以下保留原作者阶段的历史记录，原 `/tmp` 输入及日志本轮未恢复，不作为本轮重新验收的执行证据：P1 在固定隔离基线+32旧编译文件上完成 `skill/...` unit、race、vet、build，均exit0。最终13顶层/16子例：unit包0.008s/0.104s，race1.026s/1.272s；覆盖路径/ZIP攻击边界和读流实际join。首次12顶层unit同样通过，随后自查补ZIP解析前真实中央目录上限并重验。精确命令/原日志路径为 `/tmp/agenteam-d10-pure-1nuilmr2/validation.json`，当时分别保留原输入两版，并要求独立验收后才由主线程精确提交。原作者记录没有产品测试失败、没有fixture运行，最初Go技能路径定位失败已改读实际 `agenteam-go-development`，不计测试证据。
 
-后段验收见配套规格；未运行PG/DDL/MinIO/网络产品路径，未启服务、未绑定D08，无UI/Tool/Agent/Runner完成声明。原草案SQL路径为 `/tmp/agenteam-d10-s01-skills-uve1ji1r/skills-schema.draft.sql`（SHA `4b473f8785c8a15ca4a7b7e6a8f4b9d33569fd6f47bffe9a10f05fd904854dfc`），本轮未恢复；当时没有迁移号或仓库迁移文件；当前P2已落00027草案，尚未执行或数据库验收。
+后段验收见配套规格；上述 P1 历史阶段未运行 PG/DDL/MinIO 或绑定 D08。当前 P2 的有限 PG 结果以上节为准，仍无生产 root、MinIO、UI/Tool/Agent/Runner 完成声明。原草案SQL路径为 `/tmp/agenteam-d10-s01-skills-uve1ji1r/skills-schema.draft.sql`（SHA `4b473f8785c8a15ca4a7b7e6a8f4b9d33569fd6f47bffe9a10f05fd904854dfc`），本轮未恢复；当时没有迁移号或仓库迁移文件；当前00027已随初始化 fixture 连续执行，独立迁移验收仍待。
 
 ### P1 本轮独立验收
 
