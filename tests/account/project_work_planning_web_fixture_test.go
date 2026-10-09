@@ -43,6 +43,9 @@ type projectWorkPlanningWebFixture struct {
 	ctx context.Context
 	*projectOwnerWebFixture
 	mode                    string
+	planningBaseline        map[string]any
+	activitySession         string
+	activityBefore          time.Time
 	guard                   sync.Mutex
 	enabled                 bool
 	records                 []projectWorkPlanningWebObservation
@@ -124,6 +127,9 @@ func newProjectWorkPlanningWebFixture(t *testing.T, ctx context.Context, mode st
 			version = httpString(t, httpObject(t, receipt, "task"), "version")
 		}
 	}
+	if mode == "planning" {
+		f.planningBaseline = f.facts(ctx, f.seeds["main"].ProjectID)
+	}
 	f.private("project-work-planning-material.json", map[string]any{"admin": f.admin, "owner": f.owner, "other": f.other, "ids": f.ids, "projects": f.initial, "work": f.seeds})
 	f.guard.Lock()
 	f.enabled = true
@@ -140,7 +146,11 @@ func (f *projectWorkPlanningWebFixture) seed(ctx context.Context, key string) pr
 	f.command(ctx, key, http.MethodPost, "milestones", map[string]any{"request": map[string]any{"milestone_id": s.MilestoneID, "title": "规划里程碑", "description": "初始里程碑"}})
 	f.command(ctx, key, http.MethodPost, "sprints", map[string]any{"request": map[string]any{"sprint_id": s.SprintID, "milestone_id": s.MilestoneID, "title": "规划 Sprint"}})
 	for _, target := range []string{s.TaskID, s.RelatedID} {
-		f.command(ctx, key, http.MethodPost, "tasks", map[string]any{"request": map[string]any{"task_id": target, "sprint_id": s.SprintID, "title": "规划任务", "type": "task", "priority": "medium", "plan": "初始 Plan"}})
+		priority := "medium"
+		if f.mode == "planning" && target == s.RelatedID {
+			priority = "high"
+		}
+		f.command(ctx, key, http.MethodPost, "tasks", map[string]any{"request": map[string]any{"task_id": target, "sprint_id": s.SprintID, "title": "规划任务", "type": "task", "priority": priority, "plan": "初始 Plan"}})
 	}
 	return s
 }
@@ -399,6 +409,34 @@ func (f *projectWorkPlanningWebFixture) ipc(ctx context.Context, r projectWorkPl
 	}
 	out := map[string]any{"sequence": r.Sequence}
 	switch r.Action {
+	case "age-activity":
+		if f.mode != "planning" || f.activitySession != "" {
+			f.t.Fatal("owned planning Activity stimulus unavailable")
+		}
+		if _, err := foundation.ParseID[identity.Session](r.Target); err != nil {
+			f.t.Fatal("owned planning Activity Session invalid")
+		}
+		// Age only the legitimately issued browser Session under its real User
+		// lock, crossing Account's existing 60s throttle without sleeping or
+		// fabricating identity. No Work row or business result is changed.
+		lock, err := foundation.UserLock(f.owner.UserID)
+		if err != nil {
+			f.t.Fatal("owned Activity User lock invalid")
+		}
+		result := f.store.WithinTx(ctx, cause(f.t), func(ctx context.Context, tx foundation.Tx) error {
+			if err := f.store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: lock, Mode: foundation.Exclusive}}); err != nil {
+				return err
+			}
+			x, err := f.store.InTx(tx)
+			if err != nil {
+				return err
+			}
+			return x.QueryRow(ctx, `UPDATE agenteam_account.sessions SET issued_at=clock_timestamp()-interval '2 minutes',last_activity_at=clock_timestamp()-interval '90 seconds' WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL AND absolute_expires_at>clock_timestamp() RETURNING last_activity_at`, r.Target, f.owner.UserID).Scan(&f.activityBefore)
+		})
+		if result.State() != foundation.Committed || result.Fault() != nil {
+			f.t.Fatal("owned Activity aging did not commit")
+		}
+		f.activitySession = r.Target
 	case "arm-loss":
 		if workCommandTable(r.Domain) == "" {
 			f.t.Fatal("owned Work loss domain rejected")

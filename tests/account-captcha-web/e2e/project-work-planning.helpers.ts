@@ -3,6 +3,7 @@ import {
   type Page,
   type Locator,
   type Request,
+  type Response,
 } from "@playwright/test";
 import {
   readFileSync,
@@ -140,6 +141,32 @@ export function complete(checks: Record<string, unknown>) {
     JSON.stringify({ completed: true, ...checks }),
     { mode: 0o600 },
   );
+}
+
+// Read the exact body already captured from this root response, never issue a
+// replacement GET or ask Playwright to read a second transport body.
+export async function originalBody(
+  response: Response,
+): Promise<Record<string, any>> {
+  const requestID = await response.headerValue("x-request-id");
+  expect(await response.finished()).toBeNull();
+  const matches = readdirSync(evidence)
+    .filter((name) => /^response-\d+\.json$/.test(name))
+    .map((name) => JSON.parse(readFileSync(join(evidence, name), "utf8")))
+    .filter((meta) => meta.request_id === requestID);
+  expect(matches.length).toBe(1);
+  const meta = matches[0];
+  expect(
+    meta.endpoint === new URL(response.url()).pathname &&
+      meta.method === response.request().method() &&
+      meta.status === response.status(),
+  ).toBe(true);
+  expect(meta.body_file === `body-${meta.body_sha256}.json`).toBe(true);
+  const raw = readFileSync(join(evidence, meta.body_file));
+  expect(
+    createHash("sha256").update(raw).digest("hex") === meta.body_sha256,
+  ).toBe(true);
+  return JSON.parse(raw.toString("utf8"));
 }
 
 // Requests are retained only in Node memory. Safe evidence contains response
@@ -397,6 +424,9 @@ try:
    if re.fullmatch(pattern,endpoint) and m['method'].lower() in methods: found.append(methods[m['method'].lower()])
   assert len(found)==1
   response=found[0]['responses'].get(str(m['status']),found[0]['responses'].get('default'))
+  if '$ref' in response:
+   ref=response['$ref']; assert re.fullmatch(r'#/components/responses/[A-Za-z0-9_]+',ref)
+   response=docs['work-planning.json']['components']['responses'][ref.rsplit('/',1)[1]]
   media=m['content_type'].split(';')[0].strip().lower(); schema=dict(docs['work-planning.json']); schema['$id']=(base/'work-planning.json').as_uri(); schema.update(response['content'][media]['schema'])
   Draft202012Validator(schema,registry=registry).validate(json.loads(raw)); count+=1
  assert count>0

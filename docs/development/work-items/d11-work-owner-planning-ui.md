@@ -179,7 +179,7 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 
 ### 8.2 作者真实浏览器矩阵
 
-复用 [Owner fixture](../../../tests/account/project_owner_web_fixture_test.go)、[Owner顶层](../../../tests/account/project_owner_web_test.go)的同包实际能力及 `scripts/test-objects.sh → outbound → postgres` 原链；真实默认 Central 根通过测试进程内 no-tag `app.Run(...)` 启动，结合正式 Account bootstrap/invitation/redeem/login 与实际 Session/CSRF，不手种Account/Session，不宣称本卡由独立cmd子进程托管。浏览器访问任务私有同源静态入口，反向代理正式 API；复用既有静态托管，对§3四route实际直接GET、浏览器地址导航及刷新验证，包含带点号Project名称。正例完整经过Session、Owner Resolve/Get和目标读取；非法Work后缀/ID/编码路径通过正式Vue原始路由校验拒绝，零Work读取；API与缺失asset沿原handler处理，不降为SPA。SPA内部点击不能替代直接访问与刷新检查。该历史路径托管仅属fixture，不是生产SPA发布。Work事实只能由正式HTTP/service产生；明确生命周期负向fixture输入不冒完整archive/cleanup。
+复用 [Owner fixture](../../../tests/account/project_owner_web_fixture_test.go)、[Owner顶层](../../../tests/account/project_owner_web_test.go)的同包实际能力及 `scripts/test-objects.sh → outbound → postgres` 原链；真实默认 Central 根通过测试进程内 no-tag `app.Run(...)` 启动，结合正式 Account bootstrap/invitation/redeem/login 与实际 Session/CSRF，不手种Account/Session，不宣称本卡由独立cmd子进程托管。浏览器访问任务私有同源静态入口，反向代理正式 API；复用既有静态托管，对§3四route实际直接GET、浏览器地址导航及刷新验证，包含带点号Project名称。正例完整经过Session、Owner Resolve/Get和目标读取；非法Work后缀/ID/编码路径通过正式Vue原始路由校验拒绝，零Work读取；API与缺失asset沿原handler处理，不降为SPA。SPA内部点击不能替代直接访问与刷新检查。该历史路径托管仅属fixture，不是生产SPA发布。Work事实只能由正式HTTP/service产生；明确生命周期负向fixture输入不冒完整archive/cleanup。Activity刺激只对正式登录取得且匹配本fixture Owner的Session，在真实User EX事务锁内回拨issued/last_activity时间以跨过既有60秒节流；之后真实UI命令必须推进last_activity，不制造身份/业务成功或放宽case时限。
 
 | 精确作者 top / case | 必须区分的结果 |
 | --- | --- |
@@ -208,7 +208,7 @@ Current Sprint 非空真实正例暂不可由正式生产接口形成：[Work St
 
 先冻结并独审本SPEC；按 §2 分离客户端/Session接入与页面/真实fixture任务，共享文件唯一writer，Model活动修改不带入新树。编译/纯测闭合片段可保存WIP，但未通过真实矩阵与独立审查不得称界面完成。最终一份原子结果包含产品、测试、必要README及限定台账；本卡完成仍不代表完整D11/D27、生产部署或创建Project链完成。
 
-rev1 已经未参与产品实现者独立接受。API、Session恢复与controller已通过相应有限独立纯控制，页面组合已可构建；四fixture有限静审所见Lookup目标投影缺陷已修，并有8组实际观察器纯/race对照通过；新race编译闭合。完整前端check实际通过（64文件2776单元、类型、production build），六作者PW与同体schema/client源已落盘/严格TS通过，但尚无完整UI独审或真实浏览器通过结论；planning先行有限审查，其他矩阵和独立两case不冒完成。Current Sprint验收事实纠正经原独验确认：正式非null生产者尚缺，保留上文后续真实集成gate。后续结果最小更新，复用上游与本卡新证据分开，原失败保留。
+rev1 已经未参与产品实现者独立接受。API、Session恢复与controller已通过相应有限独立纯控制，页面组合已可构建；四fixture有限静审所见Lookup目标投影缺陷已修，并有8组实际观察器纯/race对照通过；新race编译闭合。完整前端check实际通过（64文件2776单元、类型、production build），六作者PW与同体schema/client源已落盘/严格TS通过，但尚无完整UI独审或真实浏览器通过结论；planning首轮有限审查所见no-op排序与成功后关闭已移除按钮已统一修正；同体schema响应$ref、真实清空/原文/七读取刺激同步修正，持久后验补同key回执/Outbox/TaskEvent/最终对象/Activity及无额外事实，修后窄复核与真实首轮仍待。两driver19独立纯控接受，不能代资源实际退出。其他矩阵和独立两case不冒完成。Current Sprint验收事实纠正经原独验确认：正式非null生产者尚缺，保留上文后续真实集成gate。后续结果最小更新，复用上游与本卡新证据分开，原失败保留。
 
 ## 10. 已裁定的工程选择
 

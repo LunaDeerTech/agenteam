@@ -16,6 +16,7 @@ import {
   ipc,
   complete,
   observe,
+  originalBody,
 } from "./project-work-planning.helpers";
 
 const editor = (page: Page) =>
@@ -34,14 +35,54 @@ async function go(page: Page, destination: string) {
 async function discard(page: Page) {
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
-  await button(dialog, "放弃并离开").click();
+  await button(dialog, "放弃本地修改").click();
   await expect(dialog).toHaveCount(0);
 }
-async function orderTail(page: Page) {
-  await button(page, "调整同组顺序").click();
-  await expect(button(page, "移到组尾")).toBeEnabled();
-  await button(page, "移到组尾").click();
-  await confirmed(page);
+async function realOrdering(
+  page: Page,
+  peer: string,
+  kind: "milestone" | "sprint" | "task",
+) {
+  const selected = new URL(page.url()).pathname.split("/").at(-1)!;
+  const listPath = `/api/v1/projects/${material().work.main!.project_id}/${kind}s`;
+  async function open(expected: string[]) {
+    const pending = page.waitForResponse(
+      (r) =>
+        new URL(r.url()).pathname === listPath &&
+        r.request().method() === "GET",
+    );
+    await button(page, "调整同组顺序").click();
+    const body = await originalBody(await pending);
+    expect(body.items.map((item: { id: string }) => item.id)).toEqual(expected);
+    expect(body.next_cursor === undefined).toBe(true);
+  }
+  async function move(tail: boolean) {
+    const pending = page.waitForResponse(
+      (r) =>
+        new URL(r.url()).pathname === `${listPath}/${selected}/reorder` &&
+        r.request().method() === "POST",
+    );
+    if (!tail) {
+      await button(page, "移到哪个对象之前").click();
+      await page.getByRole("option").filter({ hasText: peer }).click();
+    }
+    await button(page, tail ? "移到组尾" : "移到所选对象之前").click();
+    const response = await pending;
+    expect(response.status()).toBe(200);
+    const body = await originalBody(response);
+    const request = response.request().postDataJSON();
+    expect(
+      body.changed === true &&
+        BigInt(body[kind].version) === BigInt(request.expected_version) + 1n,
+    ).toBe(true);
+    await confirmed(page);
+    await expect(button(page, "关闭排序")).toHaveCount(0);
+  }
+  await open([peer, selected]);
+  await move(false);
+  await open([selected, peer]);
+  await move(true);
+  await open([peer, selected]);
   await button(page, "关闭排序").click();
 }
 async function addHuman(page: Page, description: string) {
@@ -171,8 +212,15 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
   const data = material(),
     seen = observe(page);
   await enter(page, data);
+  const sessionResponse = await page.request.get("/api/v1/session");
+  expect(sessionResponse.status()).toBe(200);
+  const session = await sessionResponse.json();
+  await ipc("age-activity", { target: session.session.id });
   await button(page, "新建 Milestone").click();
   await title(page).fill("浏览器 Milestone");
+  await editor(page)
+    .getByRole("textbox", { name: "描述", exact: true })
+    .fill("真实待清空描述");
   await save(page, true);
   await current(page, "浏览器 Milestone");
   await title(page).fill("修改 Milestone");
@@ -181,14 +229,19 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
     .fill("");
   await save(page);
   await current(page, "修改 Milestone");
-  await orderTail(page);
+  await expect(
+    editor(page).getByRole("textbox", { name: "描述", exact: true }),
+  ).toHaveValue("");
+  await realOrdering(page, data.work.main!.milestone_id, "milestone");
+  await go(page, path(data, "main", "milestone"));
   await button(page, "新建 Sprint").click();
   await title(page).fill("浏览器 Sprint");
   await save(page, true);
   await current(page, "浏览器 Sprint");
   await title(page).fill("修改 Sprint");
   await save(page);
-  await orderTail(page);
+  await realOrdering(page, data.work.main!.sprint_id, "sprint");
+  await go(page, path(data, "main", "sprint"));
   await button(page, "新建 Task").click();
   await title(page).fill("浏览器 Task");
   await expect(button(editor(page), "创建")).toBeDisabled();
@@ -200,7 +253,9 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
     .fill(plan);
   await save(page, true);
   await current(page, "浏览器 Task");
-  await expect(details(page).locator("p.raw").last()).toHaveText(plan);
+  await expect
+    .poll(() => details(page).locator("p.raw").last().textContent())
+    .toBe(plan);
   await choose(page, "Task 优先级", "高");
   await title(page).fill("修改 Task");
   await editor(page)
@@ -209,7 +264,11 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
   await save(page);
   await current(page, "修改 Task");
   await expect(details(page)).toContainText("尚未填写 Plan");
-  await orderTail(page);
+  await realOrdering(page, data.work.main!.related_id, "task");
+  await button(page, "从首页读取阻塞记录").click();
+  await expect(
+    page.getByText("本页没有符合状态的阻塞记录。", { exact: true }),
+  ).toBeVisible();
   // A separate real command advances the selected version; the UI must retain
   // its original draft and require an explicit read/adopt, never auto-rebase.
   await go(page, path(data, "main", "task"));
