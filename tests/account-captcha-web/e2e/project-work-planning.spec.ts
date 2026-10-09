@@ -19,6 +19,7 @@ import {
   complete,
   observe,
   originalBody,
+  projectRefreshBody,
   saveWorkFailureObservations,
   evidence,
   repository,
@@ -51,7 +52,14 @@ async function discard(page: Page) {
   await button(dialog, "放弃本地修改").click();
   await expect(dialog).toHaveCount(0);
 }
-async function refreshProject(page: Page, projectID: string) {
+async function refreshProject(
+  page: Page,
+  projectID: string,
+  completion?: {
+    diagnostic: Awaited<ReturnType<typeof startWorkNativeDiagnostic>>;
+    ownerID: string;
+  },
+) {
   const [value] = await Promise.all([
     page.waitForResponse(
       (response) =>
@@ -61,6 +69,16 @@ async function refreshProject(page: Page, projectID: string) {
     button(page, "刷新项目信息").click(),
   ]);
   expect(value.status()).toBe(200);
+  if (completion) {
+    await completion.diagnostic.projectRefreshTerminal(value);
+    const result = await projectRefreshBody(
+      value,
+      projectID,
+      completion.ownerID,
+    );
+    completion.diagnostic.recordProjectRefresh(value.request(), result.proof);
+    return result.project;
+  }
   expect(await value.finished()).toBeNull();
   const current = await value.json();
   expect(current.id).toBe(projectID);
@@ -538,6 +556,7 @@ test("[recovery] three committed lost responses retain original intent and histo
     });
   diagnostic = await startWorkNativeDiagnostic(page, {
     ordinaryCompletion: true,
+    projectRefreshCompletion: true,
     projects: Object.values(data.work).map((seed) => seed.project_id),
     evidence,
     repository,
@@ -704,7 +723,10 @@ test("[recovery] three committed lost responses retain original intent and histo
       await ipc("archive", { project: domain });
       // The public stable-ID Project refresh, not a Session-only pageshow,
       // obtains the real archived state while retaining the original Work intent.
-      const archived = await refreshProject(page, seed.project_id);
+      const archived = await refreshProject(page, seed.project_id, {
+        diagnostic,
+        ownerID: data.owner.user_id,
+      });
       expect(archived.lifecycle).toBe("archived");
       await expect(
         page.getByText("项目已归档，当前内容只读。", { exact: true }),
@@ -719,6 +741,7 @@ test("[recovery] three committed lost responses retain original intent and histo
       await expect(recovery(page)).toHaveCount(0);
     }
     await diagnostic.finish();
+    expect(diagnostic.projectRefreshesComplete(3)).toBe(true);
     complete({
       three_domains: true,
       lookup_original: true,

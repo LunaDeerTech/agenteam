@@ -16,6 +16,7 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
+import { createProjectOwnerAPI } from "../../../web/src/api/project-owner";
 import { createWorkPlanningAPI } from "../../../web/src/api/work-planning";
 import { AccountFailure, uuid7 } from "../../../web/src/api/client";
 
@@ -281,6 +282,108 @@ export async function originalBody(
   const body = JSON.parse(raw.toString("utf8"));
   markWorkBodyAwait(response, "complete");
   return body;
+}
+
+// Recovery Project refresh only. Decode the one original sidecar through both
+// the formal schema and actual typed client; native/public completion is checked
+// separately after all observers have actually retired.
+export async function projectRefreshBody(
+  response: Response,
+  projectID: string,
+  ownerID: string,
+) {
+  const url = new URL(response.url()),
+    requestID = await response.headerValue("x-request-id");
+  expect(
+    !!requestID &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+        requestID,
+      ),
+  ).toBe(true);
+  expect(
+    response.request().method() === "GET" &&
+      !url.search &&
+      url.pathname === `/api/v1/projects/${projectID}` &&
+      response.status() === 200,
+  ).toBe(true);
+  const matches = readdirSync(evidence)
+    .filter((name) => /^response-\d+\.json$/.test(name))
+    .map((name) => JSON.parse(readFileSync(join(evidence, name), "utf8")))
+    .filter((meta) => meta.request_id === requestID);
+  expect(matches.length).toBe(1);
+  const meta = matches[0];
+  expect(
+    meta.endpoint === url.pathname &&
+      meta.method === "GET" &&
+      meta.status === 200 &&
+      meta.source_run === "TestAccountProjectWorkPlanningWebOriginalRecovery" &&
+      /^[0-9a-f]{64}$/.test(meta.input_hash) &&
+      /^[0-9a-f]{64}$/.test(meta.body_sha256) &&
+      meta.body_file === `body-${meta.body_sha256}.json` &&
+      meta.content_type.split(";")[0].trim().toLowerCase() ===
+        "application/json",
+  ).toBe(true);
+  const raw = readFileSync(join(evidence, meta.body_file));
+  expect(
+    createHash("sha256").update(raw).digest("hex") === meta.body_sha256,
+  ).toBe(true);
+  const schema = spawnSync(
+    "python3",
+    [
+      "-c",
+      String.raw`
+import json,pathlib,sys
+from jsonschema import Draft202012Validator
+from referencing import Registry,Resource
+from referencing.jsonschema import DRAFT202012
+try:
+ base=pathlib.Path(sys.argv[1])/'api/openapi'
+ docs={n:json.loads((base/n).read_bytes()) for n in ['common.json','project-owner.json']}
+ registry=Registry().with_resources(((base/n).as_uri(),Resource.from_contents(d,default_specification=DRAFT202012)) for n,d in docs.items())
+ doc=docs['project-owner.json']; response=doc['paths']['/api/v1/projects/{id}']['get']['responses']['200']
+ if '$ref' in response: response=doc['components']['responses'][response['$ref'].rsplit('/',1)[1]]
+ schema=dict(doc); schema['$id']=(base/'project-owner.json').as_uri(); schema.update(response['content']['application/json']['schema'])
+ Draft202012Validator(schema,registry=registry).validate(json.loads(sys.stdin.buffer.read()))
+except Exception: sys.exit(1)
+`,
+      repository,
+    ],
+    { input: raw, timeout: 5000, maxBuffer: 1024 },
+  );
+  expect(schema.status === 0 && !schema.error).toBe(true);
+  let calls = 0;
+  const api = createProjectOwnerAPI(async (input, init) => {
+    calls++;
+    expect(
+      input === url.pathname &&
+        init?.method === "GET" &&
+        init.body === undefined,
+    ).toBe(true);
+    return new globalThis.Response(raw, {
+      status: 200,
+      headers: {
+        "Content-Type": meta.content_type,
+        "Content-Length": String(raw.length),
+        "X-Request-ID": requestID!,
+      },
+    });
+  });
+  const project = await api.get(
+    projectID,
+    ownerID,
+    new AbortController().signal,
+  );
+  expect(calls).toBe(1);
+  expect(project.lifecycle).toBe("archived");
+  return {
+    project,
+    proof: {
+      requestID: requestID!,
+      bytes: raw.length,
+      ownerID,
+      version: project.version,
+    },
+  };
 }
 
 // Requests are retained only in Node memory. Safe evidence contains response

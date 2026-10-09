@@ -17,7 +17,7 @@
 - 六作者 Playwright 源与同体 schema/client helper 已落盘并严格TS通过，首个 planning 精确case离线发现 actual0、恰1项；这是可构建WIP，尚未动态接受。首轮先独立核规划9写、Plan/版本冲突/分组顺序；其它五case还需核完整卡矩阵，尤其撤销/过期、pending/deleting、旧名复用、Owner/Model确认链与in_progress/not_observed刺激，不能因源码已有case或结果布尔冒完成。两个独立场景尚无源，由root轮转未参与者。
 - 原root链仅本树两工具最小扩8个精确UI top、真实输入/私有dist、四owned路径和短ui目录；原三个root target/default预算保持。31作者纯控制通过，含旧配置逐项等价、未登记target、丢目标、目录碰撞、错误资产/case与预算；此控制用替身仅核selector判据，不冒资源退役。工具语法及19项独立有限控制通过，原配置/预算/实际Wait判据未见mustfix；未运行真实PG/browser/socket。
 - Current Sprint边界已按正式Structure契约与独审事实纠正：没有正式非null指针生产者，本轮真实无Current/planned typed选择；自动current/用户选择规则保留纯投影控制，非null真实正例待D11生命周期接通，不用SQL伪造、不称已验证。
-- 下一步：08原业务FAIL及终态缺口已保存安全投影，先只读核spec707 Project refresh等待门；没有该原响应EOF/失败原因/typed owner证据就不归因或扩大方法。既有Work/Blocker限定方法、binary14/私有dist/cap4与预算保持冻结；后继真实轮另需fresh grant，不自动重跑。
+- 下一步：root已授权的单 Project 根GET刷新接缝已实施并冻结待Runner窄独审；原Request/唯一XID/native EOF和同体schema/client必须与原projects.get→Workspace本次readGeneration/accept/canonicalize/实际owner尾联合，最终三份不同Project证明齐才继续原complete。新增55控46030/fa6c07实际0；旧Work/Blocker实际消费者116控13067/389233及native41控99922/ab92ab实际0，均0unhandled；strictTS82068/0b4c55、四原函数AST和root adapter仅两输入逆投影d2c455通过。测试入口与范围见`.agent-state/work-owner-planning-ui/project-refresh-diagnosis.md`。未改产品/Go/binary14/私有dist/cap4/预算，未启真实资源；08原FAIL及尾缺口保持，新实际轮另需fresh grant。
 
 - 首组planning有限独审发现三个排序均为no-op及成功后点击已移除按钮；作者另查得schema响应$ref未解引用、描述清空/Plan原文/第七读取刺激不足，均保留原WIP未验事实。统一修为三组真实双对象前移/移尾与同原响应重读顺序、changed/version校验；同体schema红控修后正负通过。Go后验逐key校验原receipt/Outbox/TaskEvent/最终对象与精确无额外事实；合法登录Session仅在User EX锁内回拨测试时钟以越过已有Activity节流，未手种身份或Work事实。当前窄复核待排，新race编译与TS实际通过；纯配置发现02因调用漏ENV失败，补齐后另记，未启动浏览器。其它五case的未闭合矩阵不因此接受。
 

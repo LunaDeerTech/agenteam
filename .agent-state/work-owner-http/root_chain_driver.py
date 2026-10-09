@@ -100,8 +100,8 @@ def input_paths(binary):
         harness = REPOSITORY / 'tests/account-captcha-web'
         paths.update((harness / 'e2e').glob('project-work-planning*.ts'))
         paths.update(harness / name for name in ('project-work-planning.config.js', 'package.json', 'package-lock.json'))
-        paths.update(REPOSITORY / 'web/src/api' / name for name in ('work-planning.ts', 'client.ts', 'account.ts', 'system-account.ts'))
-        paths.update(REPOSITORY / 'api/openapi' / name for name in ('common.json', 'work-planning.json'))
+        paths.update(REPOSITORY / 'web/src/api' / name for name in ('work-planning.ts', 'project-owner.ts', 'client.ts', 'account.ts', 'system-account.ts'))
+        paths.update(REPOSITORY / 'api/openapi' / name for name in ('common.json', 'work-planning.json', 'project-owner.json'))
     return sorted(paths)
 
 

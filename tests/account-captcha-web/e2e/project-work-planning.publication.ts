@@ -6,12 +6,14 @@ export type WorkSessionBinding = {
   entry: string;
   asset: string;
   export_name: string;
+  workspace_marker?: "project-workspace";
 };
 
 // The same AST rule as Model's accepted singleton selector, against Work's
 // unchanged private assets. No minified name or second controller is assumed.
 export async function workSessionBinding(
   root: string,
+  projectRefresh = false,
 ): Promise<WorkSessionBinding> {
   const ts = createRequire(join(root, "web/package.json"))(
     "typescript",
@@ -120,7 +122,33 @@ export async function workSessionBinding(
       .length !== 1
   )
     throw new Error("WORK_DIAGNOSTIC_SINGLETON_LOADED");
-  return { ...matches[0]!, entry };
+  if (projectRefresh) {
+    let markers = 0;
+    const visit = (
+      node: import("../../../web/node_modules/typescript").Node,
+    ) => {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        node.expression.text === "Symbol" &&
+        node.arguments.length === 1 &&
+        (ts.isStringLiteral(node.arguments[0]!) ||
+          ts.isNoSubstitutionTemplateLiteral(node.arguments[0]!)) &&
+        node.arguments[0]!.text === "project-workspace"
+      )
+        markers++;
+      ts.forEachChild(node, visit);
+    };
+    visit(ast);
+    if (markers !== 1) throw new Error("WORK_PROJECT_WORKSPACE_MARKER");
+  }
+  return {
+    ...matches[0]!,
+    entry,
+    ...(projectRefresh
+      ? { workspace_marker: "project-workspace" as const }
+      : {}),
+  };
 }
 
 // Runs only after the existing page entry is ready. This observes public
@@ -169,6 +197,34 @@ export async function installWorkPublicationDiagnostic({
     !methods.every((name) => typeof auth.workPlanning[name] === "function")
   )
     return "facade-unavailable";
+  let workspace: any;
+  if (binding.workspace_marker) {
+    const element = document.querySelector("#app") as any;
+    const instance = element?._vnode?.component;
+    const keys =
+      instance?.provides &&
+      Object.getOwnPropertySymbols(instance.provides).filter(
+        (key) => key.description === binding.workspace_marker,
+      );
+    if (
+      !element?.__vue_app__ ||
+      element.__vue_app__._container !== element ||
+      instance?.parent !== null ||
+      instance?.root !== instance ||
+      keys?.length !== 1
+    )
+      return "workspace-unavailable";
+    workspace = instance.provides[keys[0]];
+    if (
+      !workspace?.currentReadContext ||
+      !workspace.detail ||
+      !workspace.blocked ||
+      typeof workspace.readCurrent !== "function" ||
+      typeof auth.projects?.get !== "function"
+    )
+      return "workspace-unavailable";
+  }
+  let refresh: any = null;
   const initialIdentity = { ...auth.personalContext.identity };
   const uuid =
     /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -199,6 +255,22 @@ export async function installWorkPublicationDiagnostic({
     }
   };
   const target = (name: string, args: unknown[]) => {
+    if (name === "getProject") {
+      if (
+        !refresh ||
+        args.length !== 1 ||
+        typeof args[0] !== "string" ||
+        !uuid.test(args[0]) ||
+        args[0] !== refresh.entry?.projectID ||
+        refresh.row
+      )
+        return null;
+      return {
+        method: "GET",
+        path: `/api/v1/projects/${args[0]}`,
+        target_id: args[0],
+      };
+    }
     if (["getMilestone", "getTask", "getSprint"].includes(name)) {
       if (
         args.length !== 2 ||
@@ -288,8 +360,86 @@ export async function installWorkPublicationDiagnostic({
     for (const restore of restores.splice(0)) safe(restore);
   };
   try {
-    for (const name of methods) {
-      const original = auth.workPlanning[name];
+    if (workspace) {
+      const original = workspace.readCurrent;
+      const wrapped = function (this: unknown, ...args: unknown[]) {
+        const frame: any = { entry: null, row: null };
+        safe(() => {
+          const entry = workspace.currentReadContext.value;
+          frame.entry = entry && { ...entry, identity: { ...entry.identity } };
+        });
+        const previous = refresh;
+        if (!retired && args.length === 0 && !previous) refresh = frame;
+        let promise: Promise<unknown>;
+        try {
+          promise = Reflect.apply(original, this, args);
+        } finally {
+          refresh = previous;
+        }
+        if (frame.row) {
+          pending++;
+          void promise
+            .then(
+              () => {
+                if (retired) return;
+                safe(() => {
+                  const row = frame.row,
+                    context = workspace.currentReadContext.value;
+                  const value = workspace.detail.project;
+                  row.workspace_returned = 1;
+                  row.workspace_settled_at = at();
+                  row.workspace_published =
+                    row.fulfilled === 1 &&
+                    row.rejected === 0 &&
+                    sameIdentity() &&
+                    context?.identity?.userID === initialIdentity.userID &&
+                    context?.identity?.sessionID ===
+                      initialIdentity.sessionID &&
+                    context?.identity?.epoch === initialIdentity.epoch &&
+                    context?.projectID === row.target_id &&
+                    context.generation === frame.entry.generation &&
+                    context.readGeneration === frame.entry.readGeneration + 1 &&
+                    workspace.detail.phase === "current" &&
+                    workspace.blocked.value === false &&
+                    value?.id === row.target_id &&
+                    value.owner_user_id === row.result_owner_id &&
+                    value.lifecycle === row.result_lifecycle &&
+                    value.version === row.result_version &&
+                    row.result_lifecycle === "archived";
+                  row.workspace_canonical = location.pathname
+                    .toLowerCase()
+                    .startsWith(
+                      `/${auth.state.user.username.toLowerCase()}/${value?.normalized_name}/`,
+                    );
+                  sampleDOM();
+                });
+              },
+              () => {
+                if (!retired)
+                  safe(() => {
+                    frame.row.workspace_rejected = 1;
+                  });
+              },
+            )
+            .catch(() => {
+              observerFailed = true;
+            })
+            .then(() => {
+              pending--;
+            });
+        }
+        return promise;
+      };
+      workspace.readCurrent = wrapped;
+      restores.push(() => {
+        if (workspace.readCurrent === wrapped) workspace.readCurrent = original;
+        else observerFailed = true;
+      });
+    }
+    for (const name of [...methods, ...(workspace ? ["getProject"] : [])]) {
+      const facade = name === "getProject" ? auth.projects : auth.workPlanning;
+      const key = name === "getProject" ? "get" : name;
+      const original = facade[key];
       if (typeof original !== "function") throw Error("facade-unavailable");
       const wrapped = function (this: unknown, ...args: unknown[]) {
         let row: any;
@@ -319,6 +469,16 @@ export async function installWorkPublicationDiagnostic({
               confirmed_observed_after_fulfilled_at: null,
               active: true,
             };
+            if (name === "getProject") {
+              refresh.row = row;
+              Object.assign(row, {
+                workspace_returned: 0,
+                workspace_rejected: 0,
+                workspace_published: false,
+                workspace_canonical: false,
+                workspace_settled_at: null,
+              });
+            }
             calls.push(row);
             sampleDOM();
           });
@@ -343,6 +503,24 @@ export async function installWorkPublicationDiagnostic({
                   row.active = false;
                   row.settled_at = at();
                   const result = value as any;
+                  if (name === "getProject") {
+                    row.result_owner_id = uuid.test(result?.owner_user_id)
+                      ? result.owner_user_id
+                      : null;
+                    row.result_lifecycle = [
+                      "active",
+                      "archiving",
+                      "archived",
+                    ].includes(result?.lifecycle)
+                      ? result.lifecycle
+                      : null;
+                    row.result_version =
+                      typeof result?.version === "string" &&
+                      /^[1-9][0-9]{0,18}$/.test(result.version)
+                        ? result.version
+                        : null;
+                    row.result_target_matches = result?.id === row.target_id;
+                  }
                   row.result_kind = name.startsWith("get")
                     ? "typed-detail-returned"
                     : name === "checkOriginal" &&
@@ -386,10 +564,9 @@ export async function installWorkPublicationDiagnostic({
         }
         return promise;
       };
-      auth.workPlanning[name] = wrapped;
+      facade[key] = wrapped;
       restores.push(() => {
-        if (auth.workPlanning[name] === wrapped)
-          auth.workPlanning[name] = original;
+        if (facade[key] === wrapped) facade[key] = original;
         else observerFailed = true;
       });
     }

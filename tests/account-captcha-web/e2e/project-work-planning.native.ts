@@ -1,4 +1,8 @@
-import type { Page, Request as PWRequest } from "@playwright/test";
+import type {
+  Page,
+  Request as PWRequest,
+  Response as PWResponse,
+} from "@playwright/test";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -11,6 +15,7 @@ import {
 export function installWorkNativeDiagnostic(config: {
   projects: string[];
   expiresAt: number;
+  projectRefreshCompletion?: boolean;
 }) {
   const host = window as any;
   if (host.__workNativeDiagnostic || Date.now() >= config.expiresAt) return;
@@ -92,15 +97,23 @@ export function installWorkNativeDiagnostic(config: {
       /^\/api\/v1\/projects\/([^/]+)\/(milestones|sprints|tasks|structure-commands|task-commands)(?:\/([^/]+))?(?:\/(blockers|blocker-commands)(?:\/([^/]+))?)?$/.exec(
         url.pathname,
       );
+    const projectRoot =
+      config.projectRefreshCompletion === true &&
+      method === "GET" &&
+      !url.search &&
+      /^\/api\/v1\/projects\/[^/]+$/.test(url.pathname) &&
+      uuid.test(url.pathname.split("/")[4]!) &&
+      config.projects.includes(url.pathname.split("/")[4]!);
     const selected =
       !retired &&
       url.origin === location.origin &&
-      match &&
-      uuid.test(match[1]!) &&
-      config.projects.includes(match[1]!) &&
-      (!match[3] || uuid.test(match[3]) || match[3] === "lookup") &&
-      (!match[5] || uuid.test(match[5]) || match[5] === "lookup") &&
-      ["GET", "POST", "PATCH", "DELETE"].includes(method);
+      (projectRoot ||
+        (match &&
+          uuid.test(match[1]!) &&
+          config.projects.includes(match[1]!) &&
+          (!match[3] || uuid.test(match[3]) || match[3] === "lookup") &&
+          (!match[5] || uuid.test(match[5]) || match[5] === "lookup") &&
+          ["GET", "POST", "PATCH", "DELETE"].includes(method)));
     if (!selected || entries.length >= 256) {
       if (selected) overflow = true;
       return Reflect.apply(originalFetch, window, [input, init]);
@@ -384,6 +397,7 @@ export function workOrdinaryConsumption(
   report: any,
   sequence: number,
   requestID: string,
+  projectRefresh = false,
 ): boolean {
   const uuid =
     /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -423,16 +437,34 @@ export function workOrdinaryConsumption(
     pw.request_id !== requestID ||
     pw.status !== 200 ||
     pw.declaration !== null ||
-    pw.failed_at === null ||
-    !Number.isFinite(pw.failed_at) ||
-    pw.finished_event_at !== null ||
+    !(
+      (projectRefresh &&
+        pw.failed_at === null &&
+        Number.isFinite(pw.finished_event_at) &&
+        pw.project_terminal === "finished" &&
+        pw.project_failed_count === 0 &&
+        pw.project_finished_count === 1) ||
+      (pw.failed_at !== null &&
+        Number.isFinite(pw.failed_at) &&
+        pw.finished_event_at === null &&
+        (!projectRefresh ||
+          (pw.project_terminal === "failed" &&
+            pw.project_failure_aborted === true &&
+            pw.project_failed_count === 1 &&
+            pw.project_finished_count === 0)))
+    ) ||
     !Number.isFinite(pw.request_at) ||
     !Number.isFinite(pw.response_at) ||
     pw.request_at > pw.response_at ||
-    pw.response_at > pw.failed_at
+    pw.response_at > (pw.failed_at ?? pw.finished_event_at)
   )
     return false;
   const parts = typeof pw.path === "string" ? pw.path.split("/") : [];
+  const project =
+    projectRefresh &&
+    parts.length === 5 &&
+    pw.method === "GET" &&
+    pw.has_query === false;
   const detail =
     parts.length === 7 &&
     pw.method === "GET" &&
@@ -453,7 +485,7 @@ export function workOrdinaryConsumption(
   if (
     parts.slice(0, 4).join("/") !== "/api/v1/projects" ||
     !uuid.test(parts[4]) ||
-    !(detail || lookup || blockerLookup)
+    !(projectRefresh ? project : detail || lookup || blockerLookup)
   )
     return false;
   const matches = report.documents.flatMap((doc: any) =>
@@ -554,6 +586,24 @@ export function workOrdinaryConsumption(
     call.settled_at > call.sample_at
   )
     return false;
+  if (project)
+    return (
+      call.operation === "getProject" &&
+      call.target_id === parts[4] &&
+      call.result_kind === "typed-detail-returned" &&
+      call.result_target_matches === true &&
+      uuid.test(call.result_owner_id) &&
+      call.result_lifecycle === "archived" &&
+      typeof call.result_version === "string" &&
+      /^[1-9][0-9]{0,18}$/.test(call.result_version) &&
+      call.workspace_returned === 1 &&
+      call.workspace_rejected === 0 &&
+      call.workspace_published === true &&
+      call.workspace_canonical === true &&
+      Number.isFinite(call.workspace_settled_at) &&
+      call.settled_at <= call.workspace_settled_at &&
+      call.workspace_settled_at <= call.sample_at
+    );
   return detail
     ? call.operation ===
         (
@@ -578,16 +628,30 @@ export async function startWorkNativeDiagnostic(
     repository: string;
     classify: (request: PWRequest) => string | null;
     ordinaryCompletion?: boolean;
+    projectRefreshCompletion?: boolean;
   },
 ) {
   const expiresAt = Date.now() + 45_000;
-  const binding = await workSessionBinding(config.repository);
+  const binding = await workSessionBinding(
+    config.repository,
+    config.projectRefreshCompletion === true,
+  );
   await page.addInitScript(installWorkNativeDiagnostic, {
     projects: config.projects,
     expiresAt,
+    projectRefreshCompletion: config.projectRefreshCompletion,
   });
   const rows = new Map<PWRequest, any>(),
     documents = new Map<string, any>();
+  const projectWaiters = new Map<PWRequest, () => void>();
+  const projectProofs = new Map<
+    PWRequest,
+    { requestID: string; bytes: number; ownerID: string; version: string }
+  >();
+  const closeProjectWaiters = () => {
+    for (const resolve of projectWaiters.values()) resolve();
+    projectWaiters.clear();
+  };
   let finalReport: any = null;
   let stopped = false,
     paused = false,
@@ -606,6 +670,14 @@ export async function startWorkNativeDiagnostic(
     /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
   const safePath = (path: unknown) => {
     if (typeof path !== "string") return false;
+    if (
+      config.projectRefreshCompletion === true &&
+      /^\/api\/v1\/projects\/[^/]+$/.test(path)
+    )
+      return (
+        uuid.test(path.split("/")[4]!) &&
+        config.projects.includes(path.split("/")[4]!)
+      );
     const match =
       /^\/api\/v1\/projects\/([^/]+)\/(milestones|sprints|tasks|structure-commands|task-commands)(?:\/([^/]+))?(?:\/(blockers|blocker-commands)(?:\/([^/]+))?)?$/.exec(
         path,
@@ -637,6 +709,16 @@ export async function startWorkNativeDiagnostic(
       failed_at: null,
       finished_event_at: null,
       status: 0,
+      ...(config.projectRefreshCompletion &&
+      new URL(request.url()).pathname.split("/").length === 5
+        ? {
+            has_query: !!new URL(request.url()).search,
+            project_failed_count: 0,
+            project_finished_count: 0,
+            project_terminal: null,
+            project_failure_aborted: false,
+          }
+        : {}),
     });
   };
   const responded = (response: any) => {
@@ -655,18 +737,33 @@ export async function startWorkNativeDiagnostic(
   };
   const requestFailed = (request: PWRequest) => {
     const row = rows.get(request);
-    if (row && !stopped && !pageClosed && !contextClosed) row.failed_at = at();
+    if (row && !stopped && !pageClosed && !contextClosed) {
+      row.failed_at = at();
+      if (row.project_failed_count !== undefined) {
+        row.project_failed_count++;
+        row.project_failure_aborted =
+          request.failure()?.errorText === "net::ERR_ABORTED";
+        projectWaiters.get(request)?.();
+      }
+    }
   };
   const requestFinished = (request: PWRequest) => {
     const row = rows.get(request);
-    if (row && !stopped && !pageClosed && !contextClosed)
+    if (row && !stopped && !pageClosed && !contextClosed) {
       row.finished_event_at = at();
+      if (row.project_finished_count !== undefined) {
+        row.project_finished_count++;
+        projectWaiters.get(request)?.();
+      }
+    }
   };
   const pageClose = () => {
     pageClosed = true;
+    closeProjectWaiters();
   };
   const contextClose = () => {
     contextClosed = true;
+    closeProjectWaiters();
   };
   page.on("request", requested);
   page.on("response", responded);
@@ -704,10 +801,10 @@ export async function startWorkNativeDiagnostic(
     const result = scalar(
       row,
       publication
-        ? "call_id call_at fulfilled rejected synchronous_throws native_requests native_sequence settled_at detail_observed_after_fulfilled_at confirmed_observed_after_fulfilled_at sample_at"
+        ? "call_id call_at fulfilled rejected synchronous_throws native_requests native_sequence settled_at workspace_returned workspace_rejected workspace_settled_at detail_observed_after_fulfilled_at confirmed_observed_after_fulfilled_at sample_at"
         : "sequence call_id status readers read_calls read_settled read_rejected bytes reader_cancel_calls reader_cancel_settled reader_cancel_rejected stream_cancel_calls stream_cancel_settled stream_cancel_rejected release_calls release_successes abort_events headers_order read_done_order read_rejected_order abort_order reader_cancel_order stream_cancel_order release_order content_length",
       publication
-        ? "entry_identity_matches entry_not_busy active identity_current authenticated not_busy detail_target_present entry_detail_target_present recovery_confirmed entry_recovery_confirmed recovery_uncertain replay_available"
+        ? "workspace_published workspace_canonical result_target_matches entry_identity_matches entry_not_busy active identity_current authenticated not_busy detail_target_present entry_detail_target_present recovery_confirmed entry_recovery_confirmed recovery_uncertain replay_available"
         : "has_query headers_seen read_done cancel_before_eof signal_aborted_at_start signal_aborted content_length_present content_length_valid content_encoding_identity eof_before_interruption length_comparable_before_binding length_matches_before_binding",
     );
     result.method = row.method;
@@ -716,6 +813,7 @@ export async function startWorkNativeDiagnostic(
       if (
         !uuid.test(row.target_id) ||
         ![
+          ...(config.projectRefreshCompletion ? ["getProject"] : []),
           "getMilestone",
           "getTask",
           "getSprint",
@@ -736,6 +834,26 @@ export async function startWorkNativeDiagnostic(
       result.target_id = row.target_id;
       result.operation = row.operation;
       result.result_kind = row.result_kind;
+      if (row.operation === "getProject") {
+        for (const key of [
+          "result_owner_id",
+          "result_lifecycle",
+          "result_version",
+        ]) {
+          const value = row[key];
+          if (value === undefined || value === null) continue;
+          if (
+            typeof value !== "string" ||
+            !(key === "result_owner_id"
+              ? uuid.test(value)
+              : key === "result_lifecycle"
+                ? ["active", "archiving", "archived"].includes(value)
+                : /^[1-9][0-9]{0,18}$/.test(value))
+          )
+            throw Error("project-result");
+          result[key] = value;
+        }
+      }
     } else {
       if (row.request_id !== null && !uuid.test(row.request_id))
         throw Error("request_id");
@@ -978,6 +1096,119 @@ export async function startWorkNativeDiagnostic(
   }
   sample();
   return {
+    async projectRefreshTerminal(response: PWResponse) {
+      const request = response.request(),
+        row = rows.get(request),
+        url = new URL(response.url());
+      if (
+        !config.projectRefreshCompletion ||
+        stopped ||
+        pageClosed ||
+        contextClosed ||
+        !row ||
+        request.method() !== "GET" ||
+        url.search ||
+        url.pathname.split("/").length !== 5 ||
+        row.project_terminal !== null ||
+        response.status() !== 200 ||
+        projectWaiters.has(request)
+      )
+        throw Error("WORK_PROJECT_REFRESH_TERMINAL");
+      let deadline: ReturnType<typeof setTimeout> | undefined;
+      try {
+        if (row.failed_at === null && row.finished_event_at === null)
+          await new Promise<void>((resolve) => {
+            projectWaiters.set(request, resolve);
+            deadline = setTimeout(resolve, Math.max(0, expiresAt - Date.now()));
+          });
+        if (stopped || pageClosed || contextClosed || Date.now() >= expiresAt)
+          throw Error("WORK_PROJECT_REFRESH_CLOSED");
+        if (
+          row.project_failed_count === 1 &&
+          row.project_finished_count === 0 &&
+          row.project_failure_aborted === true
+        )
+          row.project_terminal = "failed";
+        else if (
+          row.project_failed_count === 0 &&
+          row.project_finished_count === 1 &&
+          (await response.finished()) === null &&
+          !stopped &&
+          !pageClosed &&
+          !contextClosed &&
+          Date.now() < expiresAt
+        )
+          row.project_terminal = "finished";
+        else throw Error("WORK_PROJECT_REFRESH_EVENTS");
+      } finally {
+        if (deadline) clearTimeout(deadline);
+        projectWaiters.delete(request);
+      }
+    },
+    recordProjectRefresh(
+      request: PWRequest,
+      proof: {
+        requestID: string;
+        bytes: number;
+        ownerID: string;
+        version: string;
+      },
+    ) {
+      const row = rows.get(request);
+      if (
+        !config.projectRefreshCompletion ||
+        stopped ||
+        !row?.project_terminal ||
+        projectProofs.has(request) ||
+        row.request_id !== proof.requestID ||
+        !uuid.test(proof.ownerID) ||
+        !Number.isSafeInteger(proof.bytes) ||
+        proof.bytes <= 0
+      )
+        throw Error("WORK_PROJECT_REFRESH_PROOF");
+      projectProofs.set(request, { ...proof });
+    },
+    projectRefreshesComplete(expected: number) {
+      return (
+        config.projectRefreshCompletion === true &&
+        stopped &&
+        expected === 3 &&
+        projectProofs.size === expected &&
+        new Set(
+          [...projectProofs.keys()].map(
+            (request) => new URL(request.url()).pathname,
+          ),
+        ).size === expected &&
+        [...projectProofs].every(([request, proof]) => {
+          const row = rows.get(request);
+          if (
+            !row ||
+            !workOrdinaryConsumption(
+              finalReport,
+              row.sequence,
+              proof.requestID,
+              true,
+            )
+          )
+            return false;
+          const matches = finalReport.documents.flatMap((doc: any) =>
+            doc.native.requests
+              .filter((n: any) => n.request_id === proof.requestID)
+              .map((n: any) => ({ doc, n })),
+          );
+          if (matches.length !== 1) return false;
+          const { doc, n } = matches[0],
+            call = doc.publication.calls.find(
+              (c: any) => c.call_id === n.call_id,
+            );
+          return (
+            n.bytes === proof.bytes &&
+            call.result_owner_id === proof.ownerID &&
+            call.result_version === proof.version
+          );
+        })
+      );
+    },
     consumed(request: PWRequest, requestID: string) {
       const row = rows.get(request);
       return (
@@ -989,6 +1220,7 @@ export async function startWorkNativeDiagnostic(
       );
     },
     async flush() {
+      closeProjectWaiters();
       paused = true;
       if (timer) clearTimeout(timer);
       let joined = !pending,
@@ -1069,6 +1301,7 @@ export async function startWorkNativeDiagnostic(
     async finish() {
       if (stopped) return;
       stopped = true;
+      closeProjectWaiters();
       if (timer) clearTimeout(timer);
       let joined = !pending,
         endSeen = false;
