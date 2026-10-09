@@ -2,16 +2,17 @@
 
 - 目标：从环境中断处恢复产品开发，完成 D01–D28 全部能力及 E01 平台内游戏复刻与真实试玩验收。
 - 状态：进行中；Task Planning 规划库、Agent C1、R1 纯身份已正式交付；完整 D11/D27、平台与 E01 未完成。
-- 当前分支：`ai/task-planning-recovery`，已合入正式 main `70b16f06`（B0-C两类纯契约）；T0a=`ad8b1fb6`。Task runtime=`0273a604`、Agent C1=`7f2bb211`、R1=`dbf4a5e0` 均正常推送并精确远端确认；`1b38f470` 是初始恢复基线。
-- 恢复核对：初始本地 `work` 为 `3add174d`、工作区干净；fetch 后保留并 fast-forward 远端三个协作流程提交。没有发现 `origin/ai/*` 活动任务分支，也无本地未推送独有提交。
+- 当前分支：`ai/product-continuation`；恢复基线为远端 `ai/task-planning-recovery` 的 `da4953f5`，包含正式 main `11c16867`（T0b）、`70b16f06`（B0-C）及未验 Model/sharedLayer 成果。正式交付范围以任务台账为准。
+- 本次恢复：本地初始 `work`=`ad8b1fb6`、工作区干净；普通 fetch 仅跟踪 main。通过 `git ls-remote --heads origin 'ai/*'` 发现活动分支，再显式 fetch 并 fast-forward 保留全部成果。后续恢复不能只凭本地 remote refs 判断没有活动分支。
 
 ## 当前工作与所有权
 
-1. Task Planning 本卡规划库已正式交付：20技术路径及README；七新八旧PG、独立A/B和pure/race/vet/build按限定组合接受，资源终态齐，原FAIL保留。状态/指派/执行/删除/HTTP/UI/生产Work仍未实现，完整D11未完成。
-2. D27 Model Settings：执行代理环境恢复后再次pending_init，已interrupt；root接管四测试harness、Model helpers与本卡状态。第七recovery完整PASS（schema/client13、全部Wait/join/7ID/TCP双清）；原六recovery FAIL及read首轮FAIL保留；read第二轮完整PASS，configuration第三轮完整PASS，credential首轮完整PASS，六新已4通过，其余2/14旧/独立AB待验。authority/nav完整模块已类型检查与独立预集成静核，下一接线/真实运行。
-3. T0a纯状态核心：原作者环境恢复后pending_init已interrupt，root接管精确2新Work contract源及本卡状态；SPEC独立接受，作者pure与root race/vet已通过，独立4top/9child race实际exit0，最终独审通过并正式交付main ad8b1fb6。无Blocker/Transfer/fullDigest/事实服务/迁移。R1三个identity marker已main，不代表真实目录或F1。
-4. root 独占current、globalledger与Git；真实PG/browser/hostTCP按完整终态串行资源ACK。Model执行只使用 `/workspace/agenteam-delivery` 的正式main dbf/accepted00022，两个untrackedGo与原树同份；原树新增B0-C未验源不得复制到delivery；T0a已验但当前Model编译基线仍明确固定dbf。所有Model glob在实际run中冻结，其他原树纯代码不在其hash闭包。
-5. 旧 `/root/task_planning`、`/root/model_ui_recovery` 持续pending_init已interrupt并停权；新实例已实际启动接续，不按旧实例名单推断进程。所有必要source/probe随ai checkpoint保存，output日志/产物可重建。
+1. root 独占本文件、全局台账与 Git；当前没有丢弃或覆盖既有成果。下方历史记录是旧运行事实，不代表本次资源或实例仍存在。
+2. `/root/model_delivery` 接续 D27 未完成验收及既有 sharedLayer 修复，拥有 Model 专属 harness、相关任务卡及既有 sharedLayer 限定产品/测试/设计路径；先核必要依赖和旧输入，随后真实验证。六新场景历史已接受4项，authority/navigation、旧14与独立验收仍待完成；原 FAIL 保留，不重写为 PASS。
+3. `/root/service_delivery` 核 D10/D11 真实服务及必要前置的就绪依赖，确定完整结果与精确写域后推进；不得绕过未验生产端口或既有停止项。T0a/B0-C/T0b 已正式交付，不重复实现或无变化验收。
+4. Model 树协调任务自有 PG/browser/hostTCP 窗口，启动前通知 root；窗口中 root 不做 Git 网络操作，完整终态后保存。各树纯测试使用独立缓存；迁移与跨树公共契约由 root 协调。
+5. 本次子代理显式请求 `gpt-6-astra / ultra`；工具未提供 service tier 字段，实际 Fast 生效未确认。实际全树容量7席，按就绪工作动态协调。
+
 ## 环境实际核对
 
 - Go：`/workspace/toolchains/go1.27.1/bin/go`，实际版本 `go1.27.1 linux/amd64`。
