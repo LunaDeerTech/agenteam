@@ -177,3 +177,5 @@
 
 - authority第二outer33737实际exit1/86.130s、Go16.62s，directWait284065exit1/4adopted0/全部join/7IDs双absent/descendants[]/TCP双空/input同一（owned-authority-c48ecd54…）。具体closedFAIL DISCARD_CLICK_FAILED，step=authority-discard-confirm-visible；本轮真实hit-test证明2overlay均z100，目标confirmation index0 visible/enabled/noninert，但click center命中后DOM index1旧Provideroverlay，其panel已inert/aria-hidden。这是本轮具体遮挡证据，原第一轮因果不回填；必要脱敏原件保存authority-overlay-failure.json。下一修sharedLayer层级须有意义回归、资产重build与新真实验收，尚未产品修复。
 - 两module诊断限定独审已通过，独立AST实际exit0/0.152s，字段闭集/最多8overlay/真实click与pageshow/无DOM改写或force；原业务门槛保留。旧14两个新regression helper写域已独立授Model作者子负责人，原Go/TS/config/Modeldriver不动，执行资源仍root独占。
+
+- T0b六新文件已完整落盘并编译selector发现实际session22217 Wait exit0/六名全在，作者源freeze进入pure/race/vet；首次新测试引用不存在旧DecodeTaskEvent编译FAIL保留，仅新测试改为旧Unmarshal后通过。当前保存可构建未验片段，不宣称T0b实现已接受；作者热cache检查中，独立公开APIprobe仅自有源准备未运行。
