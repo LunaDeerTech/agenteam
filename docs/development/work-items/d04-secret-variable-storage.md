@@ -1,6 +1,6 @@
 # D04 Project Secret Variable 存储 producer
 
-状态（2026-10-09）：SPEC rev2 待三处接口修订复核；无依赖 Request/Intent 纯合同已实现并通过两 contract 包 race，完整 producer、迁移与真实 PG 尚未实现/验收。工作树基线为正式 main `8cb0a95338dc417ff34be06c00086fbbc7159efa`。本卡落实已接受的 [D10 rev2](d10-secret-variables-owner.md) §4、§6，不改变 Secret Variable 的业务语义。D10 A 的五个 contract、三个测试及 schema 已正式交付，不等于本 producer 或 D10 Owner 已实现。
+状态（2026-10-09）：SPEC rev2 的三处接口缺口已获有限复核；本次最小 CheckPlan 增量待窄复核；无依赖 Request/Intent 纯合同已实现并通过两 contract 包 race，完整 producer、迁移与真实 PG 尚未实现/验收。工作树基线为正式 main `8cb0a95338dc417ff34be06c00086fbbc7159efa`。本卡落实已接受的 [D10 rev2](d10-secret-variables-owner.md) §4、§6，不改变 Secret Variable 的业务语义。D10 A 的五个 contract、三个测试及 schema 已正式交付，不等于本 producer 或 D10 Owner 已实现。
 
 ## 1. 范围、所有者与构造顺序
 
@@ -31,6 +31,7 @@ CommandIdentity 必须复用 D10 A：namespace `projectvariable`、ownerIDs 恰 
 ```go
 type ProjectVariableWriteAuthority interface {
     Discover(context.Context, ProjectVariableWriteRequest) (ProjectVariableWritePlan, error)
+    CheckPlan(ProjectVariableWriteRequest, ProjectVariableWritePlan) error
     CheckInTx(context.Context, foundation.Tx, ProjectVariableWriteRequest, ProjectVariableWritePlan, ProjectVariableWriteStage) error
 }
 // Stage 闭集仅 ReceiptRead / NewWrite；零值及其他值拒绝。
@@ -49,6 +50,8 @@ type PreparedProjectVariableWrite interface {
     json.Marshaler
 }
 ```
+
+`CheckPlan` 是绑定实际 authority 对**原 request + 原 plan**的纯验真：用其私有 issuer 与原 request binding 确认同实例、原候选及不变安全 basis/完整锁；无 IO、不开 Tx、不重发现、不重新分配或替换 candidate。D04 Prepare 在调用任何 seal/nonce 准备之前经此端口验证。它不重验当前 Session/Owner/Project 权限，不能代替 ReceiptRead/NewWrite 的实际当前检查；零 plan、其他 issuer/请求/Session 或伪造/漂移均拒绝。不导出 issuer getter、token、callback 或 late setter。不能以 caller 自己的 Validate 声称验真，也不能对 Discover 两次结果强求全等：合法 create 的 Discover 可产生不同随机候选 Ref，二次重发现会错误地永久拒绝合法 create，忽略该字段或静默换候选同样不允许。
 
 `ProjectVariablePreparation` 是 opaque、不可反序列化的安全投影：原无材料 Request、`foundation.ID[ProjectVariableReceipt]` 类型的 ReceiptID 与同 Project CredentialRef。字段读取保留 copy 语义；历史路径给原 receipt/ref，新路径给本候选 receipt/ref，不能把二者混用。该投影与复制的完整锁供 D10 在最终事务之前构造原 Outbox 私有 discovery witness；最终 observation 不能替代这一准备阶段。它们本身均不是授权、已提交事实或 private Audit witness。固定安全 fmt/slog/JSON；不公开 key epoch、nonce、sealed data、semantic digest 或材料。
 
@@ -94,4 +97,4 @@ CleanupProject 保持真实 D08 deleting gate/操作与 cause，既有 reference
 
 纯测试先覆盖闭集 Intent/Request、opaque issuer 与 copy/mutation、保密输出及材料销毁、原语义稳定/区分、kind3/AAD 及旧 golden、stage/错误与 Unknown 分类。后继真实 PG 必须验证 receipt replay/KeyReused/并发 create 重发现/历史映射、所有 current gates、完整锁并集、原子回滚、rotation/canary/Retire、100/101 cleanup、deleted Credential 和 private Audit witness 负控。独立审查针对实际固定差异与可复跑控制；不把无 PG 的 pure 或编译结果计入这些矩阵。
 
-当前仍缺真实 D10 authority provider 与 Owner final-Tx、迁移号及 D04 producer 实现；本卡不以 stub 越过。prepared 接缝在本 rev2 固定，待 Runner 对三缺口 delta 限定复核。已保存92aca721的两纯 Go 源只覆盖无材料 Request/owned Intent；原 session57406→477472 两 contract 包 race actual0，不证明 authority、加密、SQL、Audit 或整 producer 可交付。
+当前仍缺真实 D10 authority provider 与 Owner final-Tx、迁移号及 D04 producer 实现；本卡不以 stub 越过。prepared/名称/表名三缺口已获 Runner 5bac1f/e52a29 有限 SPEC 接受；实施发现的 CheckPlan 单一接口增量另待窄复核。已保存92aca721的两纯 Go 源只覆盖无材料 Request/owned Intent；原 session57406→477472 两 contract 包 race actual0，不证明 authority、加密、SQL、Audit 或整 producer 可交付。
