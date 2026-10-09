@@ -102,7 +102,9 @@ export async function installResolvePublicationObservation({ binding, target, sl
         const problem = error instanceof Failure && error.kind === 'problem' ? error.problem : null;
         if (facts.resolve_calls === 1 && facts.target_calls === 1 && problem && typeof problem === 'object' && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(problem.request_id) && Number.isInteger(problem.status)) {
           facts.typed_problem = true; requestID = problem.request_id;
-          facts.problem_status = problem.status; facts.problem_instance_matches = problem.instance === '/api/v1/projects/resolve';
+          // Account.HTTPBoundary projects a fixed safe instance, not the
+          // request endpoint. Request identity is bound separately above.
+          facts.problem_status = problem.status; facts.problem_instance_matches = problem.instance === '/api/v1';
         }
       });
     }).catch(() => { if (!disposed) facts.observer_failed = true; }).then(() => { pending--; });

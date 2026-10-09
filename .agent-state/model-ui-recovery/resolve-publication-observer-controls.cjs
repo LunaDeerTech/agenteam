@@ -95,6 +95,15 @@ source = source.slice(0, begin) + String.raw`
   await test('selected wrong ID does not bind a real typed error', () => controlled({}, async x => {
     const o = await arm(x); x.navigate(); await drain(); x.release(); await drain(); const row = o.finish(id(88)); evidence(x, row); assert(row.typed_problem); assert.equal(row.problem_request_id_matches, false);
   }));
+  for (const problemInstance of ['/api/v1/projects/resolve', '/api/v1/', '/other']) await test('schema-valid instance outside the actual boundary contract stays unbound: ' + problemInstance, () => controlled({ problemInstance }, async x => {
+    const o = await arm(x); x.navigate(); await drain(); x.release(); await drain(); const row = o.finish(); evidence(x, row);
+    assert(row.typed_problem && row.problem_request_id_matches && row.error_dom_after_rejection);
+    assert.equal(row.problem_instance_matches, false);
+  }));
+  await test('query in Problem instance is rejected by the actual client before typed Problem publication', () => controlled({ problemInstance: '/api/v1?private=canary' }, async x => {
+    const o = await arm(x); x.navigate(); await drain(); x.release(); await drain(); const row = o.finish(); evidence(x, row);
+    assert.equal(row.typed_problem, false); assert.equal(row.problem_instance_matches, false); assert.equal(row.error_dom_after_rejection, false);
+  }));
   await test('second exact target resolve is counted and cannot borrow one typed Problem binding', () => controlled({}, async x => {
     const o = await arm(x); x.navigate(); await drain(); const other = x.auth.projects.resolve({ ...target }).catch(() => {}); await other; x.release(); await drain(); const row = o.finish(); evidence(x, row); assert.equal(row.resolve_calls, 2); assert.equal(row.target_calls, 2); assert.equal(row.typed_problem, false); assert.equal(row.error_dom_after_rejection, false);
   }));

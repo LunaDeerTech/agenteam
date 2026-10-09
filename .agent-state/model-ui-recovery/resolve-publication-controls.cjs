@@ -9,7 +9,10 @@ const crypto = require('node:crypto');
 const root = path.resolve(__dirname, '../..');
 const { JSDOM } = require(root + '/web/node_modules/jsdom');
 const output = root + '/output/ai/model-ui-recovery/resolve-publication-controls';
-const id = n => `01900000-0000-7000-8000-${String(n).padStart(12, '0')}`;
+const boundaryInput = process.env.AGENTEAM_RESOLVE_BOUNDARY_INPUT
+  ? JSON.parse(fs.readFileSync(process.env.AGENTEAM_RESOLVE_BOUNDARY_INPUT, 'utf8'))
+  : null;
+const id = n => n === 99 && boundaryInput ? boundaryInput['404'].body.request_id : `01900000-0000-7000-8000-${String(n).padStart(12, '0')}`;
 const instant = '2026-10-05T12:34:56.123456Z';
 const session = {
   user: { id: id(1), email: 'private@example.test', username: 'owner', display_name: 'Private', role: 'user', theme: 'system', version: '1', initial_password_suggestion: false },
@@ -56,7 +59,7 @@ function observe(w, auth, AccountFailure, expectedID, options = {}) {
       if (stopped) return;
       rejected = ++sequence;
       typed = error instanceof AccountFailure && error.kind === 'problem';
-      requestMatched = typed && error.problem.request_id === expectedID && error.problem.instance === '/api/v1/projects/resolve' && error.problem.status === (options.status ?? 404);
+      requestMatched = typed && error.problem.request_id === expectedID && error.problem.instance === '/api/v1' && error.problem.status === (options.status ?? 404);
       options.onRejected?.();
     }).catch(error => unhandled.push(error));
     return pending;
@@ -119,7 +122,9 @@ export { sessionDiagnostics } from '../.agent-state/model-ui-recovery/native-cli
       requests++;
       return new Promise(resolve => pending.push(() => {
         const status = options.status ?? 404;
-        const problem = { type: 'urn:agenteam:problem:not-found', title: '', detail: '', instance: '/api/v1/projects/resolve', status, code: status === 409 ? 'INVALID_STATE' : 'NOT_FOUND', request_id: options.badProblem ? id(98) : id(99), commit_state: 'not_started' };
+        const problem = boundaryInput ? structuredClone(boundaryInput[String(status)].body) : { type: 'urn:agenteam:problem:not-found', title: '', detail: '', instance: '/api/v1', status, code: status === 409 ? 'INVALID_STATE' : 'NOT_FOUND', request_id: id(99), commit_state: 'not_started' };
+        if (options.badProblem) problem.request_id = id(98);
+        if (options.problemInstance !== undefined) problem.instance = options.problemInstance;
         const bytes = new TextEncoder().encode(JSON.stringify(problem));
         resolve(new Response(bytes, { status, headers: { 'content-type': 'application/problem+json', 'content-length': String(bytes.byteLength), 'x-request-id': id(99) } }));
       }));
