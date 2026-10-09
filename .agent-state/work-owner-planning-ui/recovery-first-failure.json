@@ -1,0 +1,151 @@
+{
+  "case": "recovery-01",
+  "input_checkpoint": "4caa6a443caddb13c047e7f4d1ea05f542f613ec",
+  "binary": "work-ui-account-race-12.test",
+  "selector": "^TestAccountProjectWorkPlanningWebOriginalRecovery$",
+  "actual_session": 77556,
+  "actual_exit": 1,
+  "go_seconds": 23.06,
+  "supervisor_seconds": 121.896,
+  "failure": {
+    "stage": "not-observed",
+    "source": "project-work-planning.spec.ts:565",
+    "assertion": "original uncertain-result heading visible",
+    "timeout_ms": 5000
+  },
+  "observed_original_response": {
+    "request_id": "01a1218a-829d-7375-a97c-ff5b75a47d95",
+    "status": 200,
+    "command": "work.milestone.update",
+    "changed": true,
+    "version": "2",
+    "declared_stage_title_matches": true,
+    "project_and_target_match_original_endpoint": true,
+    "next_get_equals_receipt": true
+  },
+  "work_observation": {
+    "status": "failed",
+    "boundary": "Node observation snapshot at afterEach; not a final post-close state",
+    "browser_native_eof_observed": false,
+    "observers": [
+      {
+        "snapshot_at": 6902.132,
+        "page_closed_at": null,
+        "truncated": false,
+        "requests": [
+          {
+            "method": "GET",
+            "endpoint": "milestones",
+            "project_id": "01a1218a-6a13-7fd6-aef3-1ea2ce415fcb",
+            "request_id": "01a1218a-80db-718b-9255-a966ccd5ff03",
+            "request_at": 1433.934,
+            "response_at": 1456.62,
+            "request_failed_at": null,
+            "request_finished_at": 1468.291,
+            "response_finished_at": 1468.316,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a1218a-6a13-7fd6-aef3-1ea2ce415fcb",
+            "target_id": "01a1218a-6a50-75fa-aba0-c9999a490029",
+            "endpoint": "milestones/id",
+            "request_id": "01a1218a-80fa-775d-a5c7-e72123f213a5",
+            "request_at": 1468.219,
+            "response_at": 1484.021,
+            "request_failed_at": null,
+            "request_finished_at": 1494.692,
+            "response_finished_at": 1494.708,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "PATCH",
+            "project_id": "01a1218a-6a13-7fd6-aef3-1ea2ce415fcb",
+            "target_id": "01a1218a-6a50-75fa-aba0-c9999a490029",
+            "endpoint": "milestones/id",
+            "request_id": "01a1218a-829d-7375-a97c-ff5b75a47d95",
+            "request_at": 1888.779,
+            "response_at": 1970.018,
+            "request_failed_at": null,
+            "request_finished_at": 1980.918,
+            "response_finished_at": 1980.934,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a1218a-6a13-7fd6-aef3-1ea2ce415fcb",
+            "target_id": "01a1218a-6a50-75fa-aba0-c9999a490029",
+            "endpoint": "milestones/id",
+            "request_id": "01a1218a-82f9-7094-bc53-322232db6bde",
+            "request_at": 1978.474,
+            "response_at": 1992.338,
+            "request_failed_at": null,
+            "request_finished_at": 1997.393,
+            "response_finished_at": 1997.407,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          }
+        ]
+      }
+    ]
+  },
+  "not_reached": [
+    "not_observed public Lookup and zero same-key SQL proof",
+    "explicit same-key replay",
+    "in_progress final-Outbox fault/planned rollback",
+    "three committed-loss domains and changed-meaning counterexamples",
+    "archive/current historical recovery",
+    "final Go durable assertions"
+  ],
+  "preflight": {
+    "fresh_disk_sample_before_start": false,
+    "required_available_gib": 5,
+    "inflight_available_gib": 4.134,
+    "limitation": "The in-flight value cannot prove or disprove startup availability. No complete environment acceptance."
+  },
+  "terminal": {
+    "go_actual_wait": true,
+    "go_exit": 1,
+    "driver_actual_wait": true,
+    "driver_exit": 1,
+    "adopted_actual_wait": {
+      "836756": 0,
+      "836759": 0,
+      "836761": 0,
+      "836762": 0
+    },
+    "adopted_observed_states": [
+      "Z",
+      "Z",
+      "Z",
+      "Z"
+    ],
+    "stop_sent": false,
+    "node_proxy_preparation_root_join": true,
+    "seven_resource_ids_two_observations_absent": true,
+    "descendants_two_observations_empty": true,
+    "runtime_two_observations_empty": true,
+    "private_two_observations_absent": true,
+    "host_tcp_two_delta_empty": true,
+    "inputs_unchanged": true
+  },
+  "limits": [
+    "Whole business run FAIL and separate startup-disk evidence gap retained.",
+    "No hook-hit/physical-attempt counter or original request body/key was persisted; transparent retry is not an observed cause.",
+    "The fixture source permits later attempts after first binding; an offline counterexample and exact-stage barrier repair are authorized, not yet complete.",
+    "No real browser native EOF/production publication or post-failure SQL was captured.",
+    "No in_progress/final-Outbox result is proved by this run."
+  ],
+  "ordinary_log": "output/ai/work-owner-planning-ui/pg/recovery-01.log"
+}
