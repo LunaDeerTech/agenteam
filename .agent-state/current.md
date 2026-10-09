@@ -1,5 +1,7 @@
 # 当前工作：D15 Runner 身份与 Control Channel
 
+- Knowledge HTTP最小root入口独审已闭合：bb98b6cd加作者冻结5scope，两工具仅精确四top映射及4项Schema运行时输入/同解释器env。本人1f7561 actual0复核全文逆投影、config1正6负、22observer×14资源替身；独立d2262e actual0核旧input恰加4、同解释器覆盖继承值与真实Go/helper消费接线、5遗漏/替换负控。无must-fix；本树knowledge-http-review新增root-input-controls.py及review记录，未main/Go/native/PG/socket，四top14子和实际七资源全尾未验。OS默认cmd待另授权离线build到新output/ai/runner-control/agenteam-runner-os-probe-01；该路径只读确认未用，不重编任何旧candidate，不自行启动OS探针。
+
 - 最新独立窄审：Skills P2-only prereap 固定78c61d38有限接受，无must-fix。本人66751f/66b3ad分别64/42 Python控actual0；3d6ede独立12控actual0，把原stat parser、双PID/start_ticks/PPID/state、前置安全日志与精确WNOHANG连贯执行，含exe无权、PIDreuse/错pid/坏UTF8/截断/非直接Z/live/peer非零及错Wait拒绝。逆去三个helper和exact P2 root四行后supervisor逐字4530b375，旧budget/资源/清理/TCP/input全尾不变。资产 `.agent-state/skills-p2-review/{controls.py,review.md}`；均无真实proc/child/PG/socket/Go，不回填原P2-01 wholeFAIL或缺身份，修后实际仍待独占窗口。当前无自有活动资源。
 
 - 树 `/workspace/agenteam-runner-control` / `ai/runner-control`，基线正式 `f1c94ee5`；root掌管Git与真实资源。

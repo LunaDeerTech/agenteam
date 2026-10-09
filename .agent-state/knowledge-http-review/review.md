@@ -52,3 +52,13 @@ B02五API/权限撤销/读COMMIT Unknown及原生慢I/O仍需以后独占窗口�
 `risk_test.go` 与 `run-risk.py` 两个独立pure top已在根缓存协调后实际执行：真实handler的AgentRun字段/foreign creator拒绝、坏末项不得发布首项；原Body.Close与AfterFunc分别持有，需在实际原finish函数阻塞channel的栈证据上确认body退役后仍等callback，非用sleep或即时select猜测。采用只读overlay排除作者尚未稳定的native/schema tests，固定Go/local/off/本树独占cache，只选两个新top；75434→0db8c1 actualrace0，Go包耗时1.023s；首同进程UTC2026-10-09T23:06:08.805785Z可用5,993,074,688B，178048核实际终态后overlay临时目录为空、自有cache增加76,869,632B，23:07:06全局可用5,865,771,008B。没有TestMain/PG/native/浏览器/OS子项，未写作者源或作者cache。权限和domain均明确复用作者private doubles，不替真实Account/PG验收。
 
 当前有限独审结论：冻结生产Go及修后Schema无剩余must-fix。原abcfdd HEAD schema缺陷、作者6157错误cause_id测试预期与修后67777真实终态分别保留。独立控制只证明安全投影和原取消/Close/callback接线；真实Account当前Owner/权限锁序/PG读COMMIT Unknown、自然socket期限与keepalive等动态门仍待后继验证，不能据private ports直接交付生产root。
+
+## 四 top 最小 root 入口
+
+固定 `bb98b6cd` 加作者冻结的两工具、控制及两文档增量。唯一新 selector 为 `^TestKnowledgeOwnerReadHTTP(Metadata|CurrentAuthority|Transactions|CommitUnknown)$`，映射到 tests/knowledge，supervisor expected 恰四 top。原工具预算、七资源、清理、TCP 和 input 尾不变；不移植其它树的 TCP 方法。
+
+本人 `1f7561` 实际执行作者 `python3 -B .agent-state/knowledge-owner-read/root-selector-controls.py` exit0：新增精确行逆删后两工具逐字基线、config 1 正6负、observer 22格每格14精确资源替身观察。旧已通过产品/Schema/独立pure范围复用，未重复业务矩阵。
+
+本人 `d2262e` 实际执行本目录 `root-input-controls.py` exit0。新 input_paths 是原集合加且仅加当前解释器、Schema脚本、knowledge-owner.json 和 common.json，均存在；旧 TARGETS 不变。直接执行原 main 的单个 env.update AST，确认继承的错误解释器值被覆盖为输入记录中的同一个 SCHEMA_PYTHON。实际 Go 使用该 env 值执行原 CommandContext/CombinedOutput、15s 子预算和本地脚本；脚本只从已记录两份本地 Schema 建 registry。四遗漏和错误解释器替换负控拒绝。没有执行 main/execve、业务 candidate、PG/socket 或 Go 编译；脚本所用既有 Python 包仍是本环境依赖，不声称额外冻结全部解释器安装。
+
+结论：此最小入口有限接受，无 must-fix。候选四 top/14子的真实业务、原生 I/O 与实际七资源完整尾尚未运行，不由 selector 或替身观察升级为通过。
