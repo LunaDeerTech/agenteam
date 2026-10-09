@@ -212,3 +212,6 @@ SPEC 已获独立有限审查及版本输入差异复核接受，无未决 mustf
 事务核心四源与四契约已获另一未参与者有限静审；发现 Create 使用另一 Project 已占全局 ID 时误回 ID_CONFLICT。两项作者纯负控先实际失败，修后 Create 仅查自域 Project marker，将跨 Project 判为 NOT_FOUND；同 Project（含墓碑）仍 ID_CONFLICT，独立 INSERT 兜底只处理该主键的23505，普通 UPDATE/其他存储错误分类不变。领域限定 race 通过，返修获独立窄复核接受；未把源层修复等同真实并发通过。新增 Authority/Concurrency/HTTP/Recovery 验收源码覆盖当前权限、双提交顺序、原意图、完整 COMMIT 帧与取消 join，已形成12个可发现 top；全部新增动态仍待。Migration 的旧数据输入补用正式 Work CreateMilestone，核旧对象/命令/Outbox 与原回执升级后保持，未用 SQL 手种成功事实。
 
 下一 PG 组合仅 `TestProjectVariable(Migration|PaginationAndLimits|Atomicity)`，三 top 各用独立数据库，不重跑已有效 Persistence。原 PG driver 输入校验只新增这一唯一常量例外，原单 top、运行/资源/退出及全部预算逐字保持；作者15项与独立10项有限输入控制通过。新 binary 的编译/发现另记于分支恢复点；未获 fresh grant 前不启动资源。原 Authority 的 CommitResult 测试 API误用、Recovery 的 sealed Rows 测试前置编译失败均保留，已限修后编译闭合。
+
+
+默认根验收两源已离线闭合：app top 保留正式根装配、真实 Account Actor 与四个实际 BEGIN/PID 的 Get/List/Delete/Lookup，在 graceful/Force 下核取消、原共享 DB context/deadline、未提前 Joined 及真实返回后 join；它不把 absent Project 上的退出屏障冒成成功业务事实。process top 消费实际 cmd、正式 Cookie/CSRF、六能力和双HEAD、三原意图历史恢复、ProjectAudit三安全动作及旧相邻路由；另三命令各在真实 TCP 收到成功响应头/首字节后关闭而未观察完整正文/EOF，再由新真实Session原Lookup/显式同key重放核持久事实。此传输刺激与库HTTP的 ResponseWriter失败控制分开。两源race-c/精确发现与process TestMain两入口build实际通过，尚无native/defaultroot动态结论。原root链adapter仅增两个闭合selector→已有cwd，固定MinIO缓存按原SHA复用；作者纯输入控制通过，独立窄审及真实窗另行排队。

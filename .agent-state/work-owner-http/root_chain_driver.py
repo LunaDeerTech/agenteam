@@ -19,6 +19,8 @@ TARGETS = {
     '^TestWorkOwnerRootActual(Command|Reader)Join$': 'internal/central/app',
     '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': 'tests/process',
     '^TestIndependentWorkOwnerRootConfirmationJoin$': 'internal/central/app',
+    '^TestProjectVariablesRootActualCallJoin$': 'internal/central/app',
+    '^TestProjectVariablesHTTPProcessRoutingAndPersistence$': 'tests/process',
 }
 
 
