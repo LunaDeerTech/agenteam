@@ -57,21 +57,19 @@ def reap(adopted):
         adopted.append({"pid": pid, "status": status})
 
 
-def settle(adopted):
-    deadline = time.monotonic() + 10
-    while not reap(adopted) and time.monotonic() < deadline:
+def settle(adopted, deadline=None):
+    deadline = time.monotonic() + 15 if deadline is None else deadline
+    normal_deadline = max(time.monotonic(), min(time.monotonic() + 10, deadline - 5))
+    while not reap(adopted) and time.monotonic() < normal_deadline:
         time.sleep(.05)
     if reap(adopted):
         return True
     signal_owned(signal.SIGKILL)
-    # After killing only identified descendants, collect their actual statuses.
-    # Do not raise or leave the subreaper while adopted children are still live.
-    while True:
-        try:
-            pid, status = os.waitpid(-1, 0)
-            adopted.append({"pid": pid, "status": status})
-        except ChildProcessError:
-            return False
+    while not reap(adopted) and time.monotonic() < deadline:
+        time.sleep(.05)
+    # A missing actual wait remains a failed retirement; the retained active
+    # marker blocks a successor. Never turn a later absence into this wait.
+    return False
 
 
 def listening(ports):
@@ -93,6 +91,9 @@ def main():
     os.umask(0o077)
     evidence = ROOT / 'output/ai/model-ui-recovery' / ('shared-focus-' + args.scope + '-' + uuid.uuid4().hex)
     evidence.mkdir(mode=0o700)
+    active = evidence.parent / 'shared-focus-active.json'
+    with active.open('x') as marker:
+        json.dump({"evidence": str(evidence)}, marker)
     run = Path(tempfile.mkdtemp(prefix='ml-focus-'))
     environment = dict(os.environ, AGENTEAM_DIALOG_WEB_ROOT=str(ROOT / 'web'), AGENTEAM_DIALOG_RUN_DIR=str(run), AGENTEAM_DIALOG_CHROMIUM='/usr/bin/chromium')
     command = ['node', 'tests/account-captcha-web/node_modules/@playwright/test/cli.js', 'test', '--config=tests/account-captcha-web/dialog-outside-focus.config.js', '--grep', pattern]
@@ -100,6 +101,8 @@ def main():
     source_paths = [Path(__file__), ROOT / 'tests/account-captcha-web/dialog-outside-focus.config.js', ROOT / 'tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts']
     sources = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in source_paths}
     child = None
+    retirement_deadline = None
+    ports = set()
     started = time.monotonic()
     assert ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0
     try:
@@ -116,15 +119,21 @@ def main():
                 code = child.wait(timeout=45 * count + 15)
             except subprocess.TimeoutExpired:
                 facts['failure'] = 'COMPONENT_TOTAL_BUDGET_EXCEEDED'
+                retirement_deadline = time.monotonic() + 15
                 signal_owned(signal.SIGTERM)
                 try:
                     child.wait(timeout=5)
                 except subprocess.TimeoutExpired:
                     signal_owned(signal.SIGKILL)
-                    child.wait()
+                    try:
+                        child.wait(timeout=max(.01, retirement_deadline - time.monotonic()))
+                    except subprocess.TimeoutExpired:
+                        facts['failure'] = 'COMPONENT_TERMINATION_INCOMPLETE'
                 code = 1
-            facts.update(direct_actual_wait=True, direct_exit=child.returncode)
-        facts['normal_adopted_settlement'] = settle(facts['adopted_actual_waits'])
+            facts.update(direct_actual_wait=child.returncode is not None, direct_exit=child.returncode)
+        retirement_deadline = retirement_deadline or time.monotonic() + 15
+        if facts['direct_actual_wait']:
+            facts['normal_adopted_settlement'] = settle(facts['adopted_actual_waits'], retirement_deadline)
         servers = [json.loads(p.read_text()) for p in run.glob('server-*.json')]
         facts['server_closed'] = bool(servers) and all(s['closed'] for s in servers)
         facts['inputs_unchanged'] = all(hashlib.sha256(Path(p).read_bytes()).hexdigest() == digest for p, digest in sources.items()) and bool(servers) and all(hashlib.sha256((ROOT / 'web' / p).read_bytes()).hexdigest() == digest for s in servers for p, digest in s['inputs'].items())
@@ -137,14 +146,26 @@ def main():
     except Exception:
         facts.setdefault('failure', 'COMPONENT_SUPERVISOR_FAILED')
     finally:
-        if child is not None and child.poll() is None:
+        retirement_deadline = retirement_deadline or time.monotonic() + 15
+        if child is not None and child.returncode is None:
             signal_owned(signal.SIGKILL)
-            child.wait()
-            facts.update(direct_actual_wait=True, direct_exit=child.returncode)
+            try:
+                child.wait(timeout=max(.01, retirement_deadline - time.monotonic()))
+            except subprocess.TimeoutExpired:
+                facts['failure'] = 'COMPONENT_TERMINATION_INCOMPLETE'
+            facts.update(direct_actual_wait=child.returncode is not None, direct_exit=child.returncode)
         if descendants():
             signal_owned(signal.SIGKILL)
-        settle(facts['adopted_actual_waits'])
+        if child is None or facts['direct_actual_wait']:
+            settle(facts['adopted_actual_waits'], retirement_deadline)
         facts['final_descendants'] = sorted(descendants())
+        facts['current_owned_listeners'] = listening(ports)
+        facts['current_retired'] = not facts['final_descendants'] and not facts['current_owned_listeners'] and (child is None or facts['direct_actual_wait'])
+        if facts['current_retired']:
+            active.unlink()
+        else:
+            facts['exit'] = 1
+            facts['failure'] = 'COMPONENT_TERMINATION_INCOMPLETE'
         facts['elapsed_seconds'] = time.monotonic() - started
         (evidence / 'terminal.json').write_text(json.dumps(facts, indent=2) + '\n')
     print(json.dumps({"evidence": str(evidence), **facts}))
