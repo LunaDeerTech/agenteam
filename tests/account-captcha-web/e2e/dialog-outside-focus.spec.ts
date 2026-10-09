@@ -555,13 +555,29 @@ async function pointerTarget(target: Locator) {
     .toBe(true);
 }
 
+const editorFocusCases: Array<{
+  blocking: boolean;
+  theme: "light" | "dark";
+  width: number;
+  reducedMotion: "no-preference" | "reduce";
+}> = [{ blocking: false, theme: "light", width: 1440, reducedMotion: "no-preference" }];
+for (const theme of ["light", "dark"] as const) {
+  for (const width of [390, 1440]) {
+    for (const reducedMotion of ["no-preference", "reduce"] as const) {
+      editorFocusCases.push({ blocking: true, theme, width, reducedMotion });
+    }
+  }
+}
 for (const kind of ["dialog", "drawer"]) {
-  for (const blocking of [false, true]) {
-    test(`${kind}: original editor focus survives confirmation (blocking=${blocking})`, async ({
+  for (const { blocking, theme, width, reducedMotion } of editorFocusCases) {
+    test(`${theme} ${kind} ${width} ${reducedMotion}: original editor focus survives confirmation (blocking=${blocking})`, async ({
       page,
       harness,
     }) => {
-      await visit(page, harness, kind, `&mode=confirmation-disabled&blocking=${blocking}`);
+      await page.setViewportSize({ width, height: 900 });
+      await page.emulateMedia({ reducedMotion });
+      await visit(page, harness, kind, `&mode=confirmation-disabled&blocking=${blocking}&theme=${theme}`);
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
       await page.getByTestId("launch").click();
       const input = page.getByTestId("blocked-editor-input");
       await expect(input).toBeFocused();
