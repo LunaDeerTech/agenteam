@@ -92,3 +92,5 @@
 - Model新增独立read-pagination-contract.ts/probe.mjs已strictTS与1正16负/immutable纯probe实际exit0，保持当前recovery spec不import；只验证26目录种子/跨Provider/闭集关系，不当真实pagination。必要源码冻结保存后待实际readcase消费。
 
 - C1已正式交付main 7f2bb21176a0218286e82369b7efc75c3dab9017，正常push actual0/ls-remote精确确认；12路径仅6Agent纯source、2独立probe与卡/README/台账/current，没有00022或Model未验harness。main合入活动任务分支时保留所有Task/Model进度，仅整合root current与C1卡接受状态文档冲突。
+
+- Task paging单测试修复100增5删已gofmt/author race-c与11list实际exit0，产物work-paging-rankfix-author-v2.test；诊断先在真实回滚Tx复现原冲突并严格验23505/tasks_group_rank_key，合法seed刷新205项真实rank后给28项唯一1..28并同步oracle，原分页/过滤/游标/cap矩阵全部保留。仅测试源改变，DDL/reader及运行实现不变；真实诊断与修后Persistence待执行。

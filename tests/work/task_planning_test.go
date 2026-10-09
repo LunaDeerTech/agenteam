@@ -566,8 +566,56 @@ func taskAllPages(t *testing.T, f *taskFixture, a identity.Actor, p wc.ProjectID
 func taskExpectedFilter(v wc.Task, filter wc.TaskFilter) bool {
 	return (filter.State == nil || v.State == *filter.State) && (filter.Priority == nil || v.Priority == *filter.Priority) && (filter.Type == nil || v.Type == *filter.Type) && (filter.MilestoneID == nil || v.MilestoneID == *filter.MilestoneID) && (filter.SprintID == nil || v.SprintID == *filter.SprintID) && (!filter.AssigneeAgentID.Present || (v.AssigneeAgentID == nil && filter.AssigneeAgentID.AgentID == nil) || (v.AssigneeAgentID != nil && filter.AssigneeAgentID.AgentID != nil && *v.AssigneeAgentID == *filter.AssigneeAgentID.AgentID)) && (filter.Text == nil || strings.Contains(v.Title, *filter.Text) || strings.Contains(v.Description, *filter.Text) || strings.Contains(v.Plan, *filter.Text))
 }
+func taskPagingOriginalRankCollision(t *testing.T, f *taskFixture, a identity.Actor, p wc.ProjectID, first, moved wc.Task) {
+	t.Helper()
+	original, err := f.taskReader.GetTask(ctxFor(t), a, p, first.ID)
+	if err != nil {
+		t.Fatal("read original geometry target", err)
+	}
+	before, err := f.taskReader.GetTask(ctxFor(t), a, p, moved.ID)
+	if err != nil {
+		t.Fatal("read original geometry source", err)
+	}
+	if original.SprintID != before.SprintID || original.ManualRank != before.ManualRank {
+		t.Fatal("paging geometry collision precondition changed")
+	}
+	schedule, _ := foundation.ProjectScheduleLock(p.String())
+	// SQLExecutor forbids savepoints and poisons failed transactions. Use a
+	// separate real transaction so the expected SQL error is fully rolled back.
+	result := f.store.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+		if err := f.store.AcquireAll(ctx, tx, fixtureLocks(a, p, foundation.LockRequest{Key: schedule, Mode: foundation.Exclusive})); err != nil {
+			return err
+		}
+		if _, err := f.projectAuthority.RequireOwnerInTx(ctx, tx, a, p, identity.Mutate); err != nil {
+			return err
+		}
+		x, err := f.store.InTx(tx)
+		if err != nil {
+			return err
+		}
+		if _, err := x.Exec(ctx, `UPDATE agenteam_work.tasks SET state='backlog',priority='critical' WHERE id=$1`, before.ID.String()); err != nil {
+			return err
+		}
+		if _, err := x.Exec(ctx, `SET CONSTRAINTS ALL IMMEDIATE`); err != nil {
+			return err
+		}
+		return errors.New("original paging geometry unexpectedly satisfied rank uniqueness")
+	})
+	var pg *pgconn.PgError
+	if errors.As(result.Fault(), &pg) {
+		t.Logf("original paging geometry: SQLSTATE=%s constraint=%s", pg.Code, pg.ConstraintName)
+	}
+	if result.State() != foundation.NotCommitted || pg == nil || pg.Code != "23505" || pg.ConstraintName != "tasks_group_rank_key" {
+		t.Fatal("original geometry did not prove the expected rolled-back rank collision", result.State(), result.Fault())
+	}
+	after, err := f.taskReader.GetTask(ctxFor(t), a, p, before.ID)
+	if err != nil || !bytes.Equal(jsonBytes(t, before), jsonBytes(t, after)) {
+		t.Fatal("original geometry probe did not preserve source canonical", err)
+	}
+}
 func taskPagingMatrix(t *testing.T, f *taskFixture, a identity.Actor, p wc.ProjectID, tasks []wc.Task) {
 	t.Helper()
+	taskPagingOriginalRankCollision(t, f, a, p, tasks[0], tasks[1])
 	agentA, agentB := id[identity.Agent](t), id[identity.Agent](t)
 	states := []wc.TaskState{wc.TaskStateBacklog, wc.TaskStateTodo, wc.TaskStateInProgress, wc.TaskStateInReview, wc.TaskStateBlocked, wc.TaskStateDone, wc.TaskStateCancelled}
 	priorities := []wc.TaskPriority{wc.TaskPriorityCritical, wc.TaskPriorityHigh, wc.TaskPriorityMedium, wc.TaskPriorityLow}
@@ -576,10 +624,54 @@ func taskPagingMatrix(t *testing.T, f *taskFixture, a identity.Actor, p wc.Proje
 		if _, err := f.projectAuthority.RequireOwnerInTx(ctx, tx, a, p, identity.Mutate); err != nil {
 			return err
 		}
+		diagnose := func(stage string, err error) error {
+			if err != nil {
+				var pg *pgconn.PgError
+				if errors.As(err, &pg) {
+					t.Logf("paging geometry %s: SQLSTATE=%s constraint=%s", stage, pg.Code, pg.ConstraintName)
+				} else {
+					t.Logf("paging geometry %s failed without PostgreSQL error metadata", stage)
+				}
+			}
+			return err
+		}
+		// Read current ranks instead of assuming every earlier create receipt
+		// still carries the stored rank after possible rank maintenance.
+		rows, err := x.Query(ctx, `SELECT id::text,manual_rank FROM agenteam_work.tasks WHERE project_id=$1`, p.String())
+		if err != nil {
+			return diagnose("read ranks", err)
+		}
+		ranks := make(map[string]string, len(tasks))
+		for rows.Next() {
+			var taskID, rank string
+			if err := rows.Scan(&taskID, &rank); err != nil {
+				rows.Close()
+				return diagnose("scan rank", err)
+			}
+			ranks[taskID] = rank
+		}
+		err = rows.Err()
+		rows.Close()
+		if err != nil {
+			return diagnose("read ranks complete", err)
+		}
+		if len(ranks) != len(tasks) {
+			return errors.New("paging geometry rank membership mismatch")
+		}
+		for n := range tasks {
+			rank, ok := ranks[tasks[n].ID.String()]
+			if !ok {
+				return errors.New("paging geometry missing stored rank")
+			}
+			tasks[n].ManualRank = rank
+		}
 		for n := 0; n < 28; n++ {
 			task := &tasks[n+1]
 			task.State = states[n/4]
 			task.Priority = priorities[n%4]
+			// The real create ranks are all at least the first midpoint. These
+			// distinct positive low ranks keep every seeded target group legal.
+			task.ManualRank = fmt.Sprintf("%032x", n+1)
 			task.AssigneeAgentID = nil
 			if n%3 == 0 {
 				task.AssigneeAgentID = &agentA
@@ -590,15 +682,18 @@ func taskPagingMatrix(t *testing.T, f *taskFixture, a identity.Actor, p wc.Proje
 			if task.AssigneeAgentID != nil {
 				agent = task.AssigneeAgentID.String()
 			}
-			if _, err := x.Exec(ctx, `UPDATE agenteam_work.tasks SET state=$2,priority=$3,assignee_agent_id=$4 WHERE id=$1`, task.ID.String(), string(task.State), string(task.Priority), agent); err != nil {
-				return err
+			if _, err := x.Exec(ctx, `UPDATE agenteam_work.tasks SET state=$2,priority=$3,assignee_agent_id=$4,manual_rank=$5 WHERE id=$1`, task.ID.String(), string(task.State), string(task.Priority), agent, task.ManualRank); err != nil {
+				return diagnose("seed member", err)
 			}
 		}
 		if _, err := x.Exec(ctx, `INSERT INTO agenteam_work.task_order_groups(project_id,milestone_id,sprint_id,state,priority,order_generation) SELECT DISTINCT project_id,milestone_id,sprint_id,state,priority,1 FROM agenteam_work.tasks WHERE project_id=$1 ON CONFLICT DO NOTHING`, p.String()); err != nil {
-			return err
+			return diagnose("seed groups", err)
 		}
-		_, err := x.Exec(ctx, `UPDATE agenteam_work.task_query_generations SET query_generation=query_generation+1 WHERE project_id=$1`, p.String())
-		return err
+		if _, err := x.Exec(ctx, `UPDATE agenteam_work.task_query_generations SET query_generation=query_generation+1 WHERE project_id=$1`, p.String()); err != nil {
+			return diagnose("advance query generation", err)
+		}
+		_, err = x.Exec(ctx, `SET CONSTRAINTS ALL IMMEDIATE`)
+		return diagnose("validate seeded ranks", err)
 	})
 	t.Log("test-owned future state/assignee geometry proves persistent predicates only; no Agent assignment or state transition API")
 	title, description, plan := "Case%_\\Title", "OnlyDescription", "OnlyPlan"
