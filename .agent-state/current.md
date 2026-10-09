@@ -29,11 +29,11 @@
 - 当前作者完整binary：`output/ai/task-blocker-service/implementation/work-blocker-complete-race.test`；driver：`output/ai/task-blocker-service/author/pg-only-driver`；使用已有 `.agent-state/task-planning-recovery/pg_only_supervisor.py`，精确一个selector、原105s及完整资源尾，output为`output/ai/task-blocker-service/pg`。日志/二进制可重建；必要源码在正式tests和`.agent-state/task-blocker-service/`。
 - 正式交付从 `/workspace/agenteam-blocker-delivery` 组装32个B0-P必要文件及候选台账的限定更新，未复制活动树的Model成果或全局文档。735个Go/test/embed输入及9个补充输入与已验来源逐字节一致，离线integration race编译、9个精确top发现与两入口build均实际通过；最终卡、台账与独立装配审查已完成。不提供Agent/执行/跨状态Blocker、HTTP、生产root或完整D11。
 
-- 后续 Work Owner HTTP/root rev2规格已在 `docs/development/work-items/d11-work-owner-http.md` 独立接受；分页首四源、九码Problem接缝与根生命周期库片段均可构建，限定pure/race通过，Problem另有vet与独立静审接受。HTTP/root尚未接通，无新迁移。新PG页测试首编译被不可比较LockKey阻断，无动态通过，正由原作者修复。仅限定已有有效 Project Owner 的正式HTTP规划能力，规格由 `/root/service_delivery` 唯一维护。
+- 后续 Work Owner HTTP/root rev2规格已在 `docs/development/work-items/d11-work-owner-http.md` 独立接受；分页首四源、九码Problem接缝与根生命周期库片段均可构建，限定pure/race通过，Problem另有vet与独立静审接受。HTTP/root尚未接通，无新迁移。新PG页测试首编译因不可比较LockKey失败，原失败保留；最小修复后作者与独立probe均race编译及精确发现通过，尚无动态通过。仅限定已有有效 Project Owner 的正式HTTP规划能力，规格由 `/root/service_delivery` 唯一维护。
 
 ## D27实际状态与下一步
 
-- 六新case历史接受4项（recovery/read/configuration/credential）；authority/navigation仍FAIL。共享层两次产品修复后，受影响recovery/configuration/credential须用新资产补验；read只有单层，核相关输入/依赖无变化后可复用。旧14的owner-edit、owner-recovery、owner-identity与audit-authority已完整PASS并完成资源终态，现已过4项；余10项待验；独立A第二轮完整PASS并完成资源清理；首轮停在credential-rotation的完整FAIL保留，原具体原因未确证；B仍待验。
+- 六新case历史接受4项（recovery/read/configuration/credential）；authority/navigation仍FAIL。共享层两次产品修复后，受影响recovery/configuration/credential须用新资产补验；read只有单层，核相关输入/依赖无变化后可复用。旧14的owner-edit、owner-recovery、owner-identity与audit-authority已完整PASS并完成资源终态，audit-navigation第二轮也已完整PASS，8张响应式截图独审接受（390px仅菜单关闭态，不称展开菜单验收），首轮FAIL保留；现已过5项，余9项待验；独立A第二轮完整PASS并完成资源清理；首轮停在credential-rotation的完整FAIL保留，原具体原因未确证；B仍待验。
 - 最新authority第7完整FAIL：原45s case timedOut，具体子步骤未知；实际资源已完整退役，但原terminal未单列runtime_empty，不能后补该项PASS。第6轮Session与归档配置重放通过后停在ProjectNav settings目标未发布、以及第5轮Session原FAIL仍保留；不得由后轮局部观察声称间歇失败已修复或放宽finished/EOF/身份门槛。
 - 最新navigation第5使用新资产后完整FAIL：初始Session等待报 `SESSION_FINISH_TIMEOUT`，headers/failed已见、finished未见，尚未进入焦点场景。实际进程退出、七个自有资源/runtime/hostTCP双清及输入不变均已确认；第4轮焦点FAIL保留，本轮不能判定共享焦点修复的业务效果。
 - 精确失败输入在 `.agent-state/model-ui-recovery/*failure.json`；完整主harness为两Model Go、config/spec及该目录case模块。独立A/B四源在`.agent-state/model-ui-independent/`，已编译/类型/发现并随新Go夹具复编；A第二轮已真实完整PASS，首轮FAIL保留，B尚未真实执行。
@@ -48,7 +48,7 @@
 - 正式组件整合树 `/workspace/agenteam-shared-layer-delivery` 当前 `ai/shared-layer-delivery`，包含已推送main的两组件提交；不混入未验Model或B0-P产品。
 - 固定Chromium、锁定Playwright、PG/MinIO及helpers已恢复；可重建产物在output。既有dev infra不属于任务，不连接、不清理。
 - PG/browser/hostTCP只运行一个明确资源窗口。实际Go/driver/外层终态及资源尾结束前，不进行Git网络、下载或另一browser/socket测试；离线纯测试与无输入冲突写入可继续。每轮完整终态才交接，原失败不补写PASS。
-- 本次汇总时B0-P全部真实PG轮、Model已通过的四个旧case及authority第7轮均已完整释放窗口；Model独立A第二轮完整PASS，首轮FAIL保留。root现将真实窗口交Model Audit定向复验，后端仅离线实施。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
+- 本次汇总时B0-P全部真实PG轮、Model已通过的五个旧case及authority第7轮均已完整释放窗口；Model独立A第二轮完整PASS，首轮FAIL保留。Model Audit第二轮已完整释放，下一窗口由root协调独立B，之后优先后端分页作者精确一轮；后端保持离线。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
 
 ## 保留停止项与最终验收
 

@@ -199,4 +199,4 @@ PG/native HTTP/真实root资源必须等root分配独占窗口。Task Planning�
 
 ## 9. 当前可证状态
 
-已按正式计划及实际构造/授权/根接缝确认依赖就绪，root授予上述写域。rev1独审暂不接受：遗漏九码Problem映射、混淆graceful/forced退出、详情query及framing边界不全、自然期限/EOF验收不够明确；rev2逐项修正并采用现process harness，已获独立差异审查接受，无剩余must-fix。分页四源已可构建且限定pure通过；九码Problem/schema与输出测试已落盘，限定pure/race及原错误/schema回归通过。HTTP/root尚未完成，没有本卡动态通过结论。全局进度与实际资源窗口由任务台账/分支记录维护，本卡不复制逐轮聊天、日志或全树哈希。
+已按正式计划及实际构造/授权/根接缝确认依赖就绪，root授予上述写域。rev1独审暂不接受：遗漏九码Problem映射、混淆graceful/forced退出、详情query及framing边界不全、自然期限/EOF验收不够明确；rev2逐项修正并采用现process harness，已获独立差异审查接受，无剩余must-fix。分页四源及作者真实PG测试已闭合，限定pure/race/vet与integration race编译、精确一个top发现通过；独立分页产品静审无must-fix，三个独立动态场景的probe也已race编译并精确发现。作者与独立首编译因作者测试直接比较含func的LockKey失败，原失败保留；修复仅改为正式CompareLockKeys。九码Problem/schema已通过限定pure/race/vet及原错误/schema回归，独立差异静审接受。根生命周期库片段限定pure/race通过，尚未接入account/root路由。HTTP实施进行中；上述分页动态场景尚未运行，没有本卡HTTP或默认根动态通过结论。全局进度与实际资源窗口由任务台账/分支记录维护，本卡不复制逐轮聊天、日志或全树哈希。
