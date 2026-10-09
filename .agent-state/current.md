@@ -8,7 +8,7 @@
 ## 当前工作与所有权
 
 1. Task Planning 本卡规划库已正式交付：20技术路径及README；七新八旧PG、独立A/B和pure/race/vet/build按限定组合接受，资源终态齐，原FAIL保留。状态/指派/执行/删除/HTTP/UI/生产Work仍未实现，完整D11未完成。
-2. D27 Model Settings：执行代理环境恢复后再次pending_init，已interrupt；root接管四测试harness、Model helpers与本卡状态。第七recovery完整PASS（schema/client13、全部Wait/join/7ID/TCP双清）；原六recovery FAIL及read首轮FAIL保留；read第二轮完整PASS，六新已2通过，其余4/14旧/独立AB待验。下一接线config/credential真实模块，authority/nav尚未完整实现。
+2. D27 Model Settings：执行代理环境恢复后再次pending_init，已interrupt；root接管四测试harness、Model helpers与本卡状态。第七recovery完整PASS（schema/client13、全部Wait/join/7ID/TCP双清）；原六recovery FAIL及read首轮FAIL保留；read第二轮完整PASS，configuration第三轮完整PASS，六新已3通过，其余3/14旧/独立AB待验。下一credential首轮；authority/nav完整模块已类型检查待独审/接线/真实运行。
 3. T0a纯状态核心：原作者环境恢复后pending_init已interrupt，root接管精确2新Work contract源及本卡状态；SPEC独立接受，作者pure与root race/vet已通过，独立4top/9child race实际exit0，最终独审通过并正式交付main ad8b1fb6。无Blocker/Transfer/fullDigest/事实服务/迁移。R1三个identity marker已main，不代表真实目录或F1。
 4. root 独占current、globalledger与Git；真实PG/browser/hostTCP按完整终态串行资源ACK。Model执行只使用 `/workspace/agenteam-delivery` 的正式main dbf/accepted00022，两个untrackedGo与原树同份；原树新增B0-C未验源不得复制到delivery；T0a已验但当前Model编译基线仍明确固定dbf。所有Model glob在实际run中冻结，其他原树纯代码不在其hash闭包。
 5. 旧 `/root/task_planning`、`/root/model_ui_recovery` 持续pending_init已interrupt并停权；新实例已实际启动接续，不按旧实例名单推断进程。所有必要source/probe随ai checkpoint保存，output日志/产物可重建。
@@ -153,3 +153,6 @@
 
 - Native context限定2行独验已接受：真实web client本地Vite bundle离线内存对照actualexit0/0.101s，双协议create/update共4旧完整command均invalid-input/fetch0，4精确context各fetch1且请求path/method/body/key/CSRF/receipt严格一致；source反向仅2行回到configuration2 input hash，无请求/响应门槛修改。新probe.mjs已freeze，独立同行只读复核完成；原第二browser因果不回填。下一第三configuration，所有Model输入再次冻结。
 - authority-and-identity.ts完整410行已落盘/严格TS实际exit0/0.871s并freeze，仅单新module，未注册/独审/真实browser；navigation仍只内存未落盘。已恢复真实启动Model作者，root保存可构建模块，不记casePASS。B0-C隔离候选root race正在完成，独验仍进行。
+
+- configuration第三完整PASS：outer27184实际exit0/95.307s、Go24.39s，browser completed=true/8checks真/schema-client各49/proxy_actual_join=true；directWait251442exit0、4adoptedWait0/watchdogobserverjoin、7IDs双absent/descendants[]、TCP两空/input同一（owned-configuration-8bb0d756…）。13条真实提交/最终occupiedProvider409无durable变化/双协议immutable与目录启停隔离及精确计数通过，原两FAIL保留，D27六新3/6。
+- navigation-and-layouts.ts完整364行已strictTS11848准确Wait exit0并freeze，type-only引用authority接口；未注册/浏览器/8图/视觉验收，非PASS。root保存完整可构建模块后credential首轮，所有Modelglob冻结。B0-C隔离root contract/work race3.351/1.367实际0，准确vet/Central与Runner build5799实际0；独立验收仍进行、正式未交付。

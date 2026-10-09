@@ -1,6 +1,6 @@
 # D27 Project Owner 模型设置 UI — rev1＋菜单兼容补充
 
-状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 30 路径（29 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30 是旧 Audit 菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮与 read 第二轮实际完整通过（2/6 新 top，含完整资源终态）。原 recovery 六次失败与 read 首轮失败保留。其余四个新 top、14 个旧回归和独立 A/B 尚未完成；已恢复或注册的源码不代表真实场景通过。
+状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 30 路径（29 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30 是旧 Audit 菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮、read 第二轮与 configuration 第三轮实际完整通过（3/6 新 top，含完整资源终态）。原 recovery 六次、read 首轮与 configuration 前两轮失败保留。其余三个新 top、14 个旧回归和独立 A/B 尚未完成；已恢复或注册的源码不代表真实场景通过。
 
 本卡保存产品规格、验收场景与恢复所需事实；团队调度、稳定输入、证据留存和 Git 交付统一遵循[团队流程](../agent-team/README.md)。旧逐轮 root grant、重复哈希表、README 最后另授和永久归档步骤不再作为日常流程。历史全文可从 `e55ad7d1` 的本卡及当时[任务台账](../agent-team/tasks.md)、[环境交接](../agent-team/recovery-2026-10-08-environment.md)文件历史定位，不改写原失败或未验证范围。
 
