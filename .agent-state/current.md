@@ -59,3 +59,6 @@
 - 9bb7ed实际沿原build配置write:false编译7modules，生成code逐字等于当前private native bundle；account d8c1a058／helper／应用dist不改。先前自有data-URL导入探针6de162因模块URL写法失败，未启动build；修探针后通过，不是产品缺陷。旧35073终态缺口保留。
 - 自读168f53实际确认两个负例：candidate已继续后原PW提前拒绝／returnedError会只记joined。root授权收紧；contract只允许正常null或实际close后观察到的拒绝，先让当轮已排队settlement被观察，不能借close标记。82862→5d9840实际0（adapter19，含两原红及queued-rejection；publish6），均无unhandled。新19产品控制的输出标签改为method implemented／real authority not run，不再沿旧diagnostic标签误示当前gate未改。
 - 本次仅三技术增量（rejection-contract／rejection-adapter-controls／rejection-controls）加方法文／卡／本文六路径冻结；其余e4f6cd31保持。Runner正作实现独审，结果未得；没有PG／browser／socket／网络授权，新main仍未完成。
+
+- c58e5652之后作者c32d1e与Runner独立fda84b均确认另一方法回归：candidate安装不可用／5s超时会抢先拒绝原normal Promise，不能保原45s内正常finished路径。root授权的一行修复只把candidate失败交回同一已登记normal Promise；不新调用finished／请求／预算，正常拒绝仍FAIL，candidate一旦ready后原end／owner门槛不绕过。10694→d21416实际0，adapter23／unhandled0，新增直接提取实际normal+completion初值的四控（unavailable、timeout、原normal拒绝、403不启candidate）；其余控制复用。当前authority＋adapter＋本文三路径冻结待保存和Runner复核。
+- Audit readiness2278f1只读确认两个旧exact top／正式Go函数／原env与继承PATH、四非法selector拒绝；现d8c binary与dist不重编／不重跑发现。两Audit只共享D27卡、binary/helpers/dist/owned_resources及其本域regression脚手架／Audit spec/client/schema，不读取Resolve case或nativeprobe。MinIO symlink被原frozen_inputs普通文件门槛拒绝的风险已报root，root负责转为同固定产物普通hardlink；未获实际窗口。

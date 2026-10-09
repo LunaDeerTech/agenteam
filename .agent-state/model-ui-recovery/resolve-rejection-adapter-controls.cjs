@@ -91,6 +91,27 @@ source = source.slice(0, begin) + String.raw`
     assert.equal(lifetime.facts().all_original_promises_joined,true);
     assert.equal(JSON.stringify(lifetime.facts()).includes('controlled-private-failure'),false);
   });
+  // Execute the actual denied normal/completion initializers, not a copied race.
+  const initializers={};
+  const visit=node=>{ if(ts.isVariableDeclaration(node) && ['normal','completion'].includes(node.name.getText(ast))) initializers[node.name.getText(ast)]=node.initializer.getText(ast); ts.forEachChild(node,visit); }; visit(ast);
+  assert(initializers.normal && initializers.completion);
+  const completionSource=ts.transpileModule('async function run(){const normal='+initializers.normal+'; return '+initializers.completion+';}',{compilerOptions:{target:ts.ScriptTarget.ES2024}}).outputText;
+  const actualCompletion=new Function('originalFinished','response','rejection','diagnostic','need','wait',completionSource+';return run();');
+  const race=(finished,candidate,status=404)=>actualCompletion(finished,{status:()=>status},{status:404},{resolveReady:candidate},(v,code)=>{if(!v)throw Error(code);},(_,work)=>work());
+  for(const mode of ['unavailable','timeout']) await test('candidate '+mode+' preserves same original normal completion path',async()=>{
+    let settle,calls=0,done=false; const original=new Promise(resolve=>{settle=resolve;});
+    const outcome=race(original,()=>{calls++;return Promise.reject(Error('controlled-'+mode));});
+    void outcome.then(()=>{done=true;},()=>{done=true;}); await flush(); assert.equal(done,false);assert.equal(calls,1);
+    settle(null);assert.equal(await outcome,'normal');
+  });
+  await test('original normal rejection still fails while candidate remains pending',async()=>{
+    const error=Error('controlled-original');let reject;
+    const original=new Promise((_,r)=>{reject=r;});const outcome=race(original,()=>new Promise(()=>{}));
+    reject(error);await assert.rejects(outcome,value=>value===error);
+  });
+  await test('unlisted 403 keeps original normal path and never starts a candidate',async()=>{
+    assert.equal(await race(Promise.resolve(null),()=>{throw Error('candidate-called');},403),'normal');
+  });
 ` + source.slice(end);
 replace("'/output/ai/model-ui-recovery/resolve-publication-observer-controls'", "'/output/ai/model-ui-recovery/resolve-rejection-adapter-controls'");
 replace('original_session_gate_and_resolve_postconditions_unchanged: true,', 'original_session_gate_and_resolve_postconditions_unchanged: true, controlled_target_close: true, actual_locked_pw_finished: true,');

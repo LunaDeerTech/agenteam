@@ -973,7 +973,7 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
     diagnostic.select(response);
     const originalFinished = resolveLifetime.register(diagnostic.finishedWait(() => response.finished()));
     const normal = originalFinished.then(value => { need(value === null, 'PROJECT_MODELS_AUTHORITY_OWNER_GATE_INVALID'); return 'normal' as const; });
-    const completion = await wait('authority-denied-finished-054', () => response.status() === rejection.status ? Promise.race([normal, diagnostic.resolveReady()]) : normal);
+    const completion = await wait('authority-denied-finished-054', () => response.status() === rejection.status ? Promise.race([normal, diagnostic.resolveReady().catch(() => normal)]) : normal);
     need(foreign ? [403, 404].includes(response.status()) : response.status() === 409, 'PROJECT_MODELS_AUTHORITY_OWNER_GATE_INVALID');
     await wait('authority-denied-to-be-visible-055', () => expect(page.getByRole('heading', { name: foreign ? '项目不可用' : '项目信息读取失败', exact: true })).toBeVisible());
     await wait('authority-denied-to-have-count-056', () => expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0));
