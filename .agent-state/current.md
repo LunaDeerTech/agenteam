@@ -137,3 +137,5 @@
 
 - read第二轮完整PASS：outer9344实际exit0/92.574s、Go19.26s，browser completed=true/10checks真/schema-client各18/proxy_actual_join=true；directWait223878 exit0、4adoptedWait0、watchdog/observer实join、7IDs两次absent/descendants[]、TCP双空、input同一（owned-read-8ffb66d3…）。Providers26/Models26跨2Provider/available26混合scope、每页原始响应与新native token/有序DOM、显式首页恢复、第二Project隔离及credential metadata均完成，原read首轮FAIL保留。D27六新仅2/6；余4新、14旧及独立AB待验，整卡未完成。
 - 下一B0-C只读调查：现Work没有Blocker契约/持久服务，可按已接受流转§4逐类冻结rely_on与无外域引用waiting_for_human小纯闭包；metadata/description限额及历史payload工程规格尚待接受，没有B0-C产品源或运行前置。
+
+- 配置/凭据case已真实接线（共享typed adapter直连原snapshot/receipt/delta/replay/control/native/finish）；两个mode各唯一discovery、strictTS实际0。限定diff独审接受，逆转接线精确回到read2 frozen spec、原configcred模块同一hash；diagnostic仅固定四source/closedcode与数值位置，不落rawmessage/stack。2case尚未真实运行，下一先configuration；所有Model glob freeze，复用已接受dbf/00022第七binary，B0-C仅独立卡SPEC写者可并行。
