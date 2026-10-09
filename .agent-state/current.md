@@ -2,14 +2,14 @@
 
 - 目标：从环境中断处恢复产品开发，完成 D01–D28 全部能力及 E01 平台内游戏复刻与真实试玩验收。
 - 状态：进行中；Task Planning 规划库、Agent C1、R1 纯身份已正式交付；完整 D11/D27、平台与 E01 未完成。
-- 当前分支：`ai/task-planning-recovery`，已合入正式 main `dbf4a5e0`。Task runtime=`0273a604`、Agent C1=`7f2bb211`、R1=`dbf4a5e0` 均正常推送并精确远端确认；`1b38f470` 是初始恢复基线。
+- 当前分支：`ai/task-planning-recovery`，已合入正式 main `ad8b1fb6`（T0a纯状态核心）。Task runtime=`0273a604`、Agent C1=`7f2bb211`、R1=`dbf4a5e0` 均正常推送并精确远端确认；`1b38f470` 是初始恢复基线。
 - 恢复核对：初始本地 `work` 为 `3add174d`、工作区干净；fetch 后保留并 fast-forward 远端三个协作流程提交。没有发现 `origin/ai/*` 活动任务分支，也无本地未推送独有提交。
 
 ## 当前工作与所有权
 
 1. Task Planning 本卡规划库已正式交付：20技术路径及README；七新八旧PG、独立A/B和pure/race/vet/build按限定组合接受，资源终态齐，原FAIL保留。状态/指派/执行/删除/HTTP/UI/生产Work仍未实现，完整D11未完成。
 2. D27 Model Settings：执行代理环境恢复后再次pending_init，已interrupt；root接管四测试harness、Model helpers与本卡状态。第七recovery完整PASS（schema/client13、全部Wait/join/7ID/TCP双清）；原六FAIL保留，六新仅1通过，其余5/14旧/独立AB待验。下一仅接线已预审read模块后真实运行；configcred/nav片段未实际验。
-3. T0a纯状态核心：原作者环境恢复后pending_init已interrupt，root接管精确2新Work contract源及本卡状态；SPEC独立接受，作者pure与root race/vet已通过，独立4top/9child race实际exit0，最终独审与正式交付待完成。无Blocker/Transfer/fullDigest/事实服务/迁移。R1三个identity marker已main，不代表真实目录或F1。
+3. T0a纯状态核心：原作者环境恢复后pending_init已interrupt，root接管精确2新Work contract源及本卡状态；SPEC独立接受，作者pure与root race/vet已通过，独立4top/9child race实际exit0，最终独审通过并正式交付main ad8b1fb6。无Blocker/Transfer/fullDigest/事实服务/迁移。R1三个identity marker已main，不代表真实目录或F1。
 4. root 独占current、globalledger与Git；真实PG/browser/hostTCP按完整终态串行资源ACK。Model执行只使用 `/workspace/agenteam-delivery` 的正式main dbf/accepted00022，两个untrackedGo与原树同份；原树新增T0a未验源不得复制到delivery。所有Model glob在实际run中冻结，其他原树纯代码不在其hash闭包。
 5. 旧 `/root/task_planning`、`/root/model_ui_recovery` 持续pending_init已interrupt并停权；新实例已实际启动接续，不按旧实例名单推断进程。所有必要source/probe随ai checkpoint保存，output日志/产物可重建。
 ## 环境实际核对
@@ -130,3 +130,5 @@
 
 - T0a独立最终接受：Go1.27.1离线race，4top/9child真实run/pass、882角色/current组合、严格codec/legacy/clone；session9346实际exit0/1.078s，无mustfix。root隔离候选contract/work race3.028/1.312s实际0，准备最终准确vet与两入口build及正常main交付。
 - read首轮outer70759实际exit1/92.544s、Go17.46s；directWait216527 exit1、4adoptedWait0、watchdog/observerjoin、七ID双absent/descendants[]、hostTCP两空、input同一（owned-read-b99f5314…）。闭合browser诊断timeout/spec649、870，step=read-available-pages；前Provider/Model分页及详情有safe200见证，available浏览器新请求未见safe sidecar，不先归因产品。独审继续检查navigation/native观察，原FAIL保留。
+
+- T0a纯状态核心正式main交付ad8b1fb68fe6ff19baef3819ec620573f6730729：8路径，仅2产品源/2独验probe/完整已接受流转SPEC及README/ledger/current；准确候选vet、Central与Runner build actual0，正常push实际0且ls-remote精确确认。完整Transfer/Agent事实/Blocker/Scheduler未实现。Model delivery仍固定已接受dbf/00022及原第七binary，当前不更新其编译闭包。
