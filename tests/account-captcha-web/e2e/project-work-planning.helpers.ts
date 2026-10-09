@@ -157,13 +157,108 @@ export function complete(checks: Record<string, unknown>) {
   );
 }
 
+type WorkAwaitStage = "header" | "finished" | "sidecar" | "complete";
+const workBodyAwaits = new WeakMap<
+  Response,
+  { stage: WorkAwaitStage; at: number }
+>();
+const failureSnapshots: (() => unknown)[] = [];
+function markWorkBodyAwait(response: Response, stage: WorkAwaitStage) {
+  workBodyAwaits.set(response, { stage, at: performance.now() });
+}
+// Only fixed endpoint kinds and canonical public IDs leave the observer. Never
+// persist a raw URL/query, request headers/body, or arbitrary failure text.
+function workDiagnosticTarget(request: Request) {
+  const method = ["GET", "POST", "PATCH"].includes(request.method())
+    ? request.method()
+    : "other";
+  const p = new URL(request.url()).pathname.split("/").slice(1);
+  const base = { method, endpoint: "unclassified-work" };
+  if (
+    p[0] !== "api" ||
+    p[1] !== "v1" ||
+    p[2] !== "projects" ||
+    !uuid7.test(p[3] ?? "")
+  )
+    return base;
+  if (
+    (p[4] === "structure-commands" || p[4] === "task-commands") &&
+    p.length === 6 &&
+    p[5] === "lookup"
+  )
+    return { method, endpoint: p[4] + "/lookup", project_id: p[3] };
+  if (!["milestones", "sprints", "tasks"].includes(p[4] ?? "")) return base;
+  if (p.length === 5) return { method, endpoint: p[4], project_id: p[3] };
+  if (!uuid7.test(p[5] ?? "")) return base;
+  const target = { method, project_id: p[3], target_id: p[5] };
+  if (p.length === 6) return { ...target, endpoint: p[4] + "/id" };
+  if (p.length === 7 && p[6] === "reorder")
+    return { ...target, endpoint: p[4] + "/id/reorder" };
+  if (
+    p[4] === "tasks" &&
+    p[6] === "blockers" &&
+    (p.length === 7 || (p.length === 8 && p[7] === "resolve"))
+  )
+    return {
+      ...target,
+      endpoint:
+        p.length === 7 ? "tasks/id/blockers" : "tasks/id/blockers/resolve",
+    };
+  if (
+    p[4] === "tasks" &&
+    p[6] === "blocker-commands" &&
+    p.length === 8 &&
+    p[7] === "lookup"
+  )
+    return { ...target, endpoint: "tasks/id/blocker-commands/lookup" };
+  return base;
+}
+function safeWorkFailure(request: Request) {
+  const reason = request.failure()?.errorText;
+  return reason === "net::ERR_ABORTED"
+    ? "aborted"
+    : reason === "net::ERR_CONNECTION_CLOSED"
+      ? "connection-closed"
+      : reason === "net::ERR_CONTENT_LENGTH_MISMATCH"
+        ? "content-length-mismatch"
+        : reason
+          ? "other-network-failure"
+          : "unspecified";
+}
+export function saveWorkFailureObservations(status: string | null) {
+  try {
+    if (status !== null)
+      writeFileSync(
+        join(evidence, "work-failure-observation.json"),
+        JSON.stringify({
+          status: ["failed", "timedOut", "interrupted"].includes(status)
+            ? status
+            : "other-failure",
+          boundary:
+            "Node observation snapshot at afterEach; not a final post-close state",
+          browser_native_eof_observed: false,
+          observers: failureSnapshots.map((snapshot) => snapshot()),
+        }),
+        { mode: 0o600 },
+      );
+  } catch {
+    // Diagnostic I/O cannot replace the original case failure or its wait gate.
+    console.error("WORK_DIAGNOSTIC_WRITE_FAILED");
+  } finally {
+    failureSnapshots.length = 0;
+  }
+}
+
 // Read the exact body already captured from this root response, never issue a
 // replacement GET or ask Playwright to read a second transport body.
 export async function originalBody(
   response: Response,
 ): Promise<Record<string, any>> {
+  markWorkBodyAwait(response, "header");
   const requestID = await response.headerValue("x-request-id");
+  markWorkBodyAwait(response, "finished");
   expect(await response.finished()).toBeNull();
+  markWorkBodyAwait(response, "sidecar");
   const matches = readdirSync(evidence)
     .filter((name) => /^response-\d+\.json$/.test(name))
     .map((name) => JSON.parse(readFileSync(join(evidence, name), "utf8")))
@@ -180,7 +275,9 @@ export async function originalBody(
   expect(
     createHash("sha256").update(raw).digest("hex") === meta.body_sha256,
   ).toBe(true);
-  return JSON.parse(raw.toString("utf8"));
+  const body = JSON.parse(raw.toString("utf8"));
+  markWorkBodyAwait(response, "complete");
+  return body;
 }
 
 // Requests are retained only in Node memory. Safe evidence contains response
@@ -193,12 +290,78 @@ type Observed = {
   failed: boolean;
 };
 export function observe(page: Page) {
+  const startedAt = performance.now();
+  type Timing = {
+    request: Request;
+    response?: Response;
+    request_id: string | null;
+    request_at: number | null;
+    response_at: number | null;
+    request_failed_at: number | null;
+    request_finished_at: number | null;
+    response_finished_at: number | null;
+    observer_rejected_at: number | null;
+    failure_reason: string | null;
+  };
+  const timings = new Map<Request, Timing>();
+  let truncated = false;
+  let closedAt: number | null = null;
+  const now = () => Number((performance.now() - startedAt).toFixed(3));
+  const timing = (request: Request) => {
+    let value = timings.get(request);
+    if (!value) {
+      value = {
+        request,
+        request_id: null,
+        request_at: null,
+        response_at: null,
+        request_failed_at: null,
+        request_finished_at: null,
+        response_finished_at: null,
+        observer_rejected_at: null,
+        failure_reason: null,
+      };
+      if (timings.size < 256) timings.set(request, value);
+      else truncated = true;
+    }
+    return value;
+  };
+  failureSnapshots.push(() => ({
+    snapshot_at: now(),
+    page_closed_at: closedAt,
+    truncated,
+    requests: [...timings.values()].map((value) => {
+      const { request, response, ...safe } = value;
+      const stage = response && workBodyAwaits.get(response);
+      return {
+        ...workDiagnosticTarget(request),
+        ...safe,
+        response_same_request_object: response
+          ? response.request() === request
+          : null,
+        original_body_await: stage
+          ? {
+              stage: stage.stage,
+              at: Number((stage.at - startedAt).toFixed(3)),
+            }
+          : null,
+      };
+    }),
+  }));
+  page.on("close", () => {
+    closedAt = now();
+  });
   const facts = new Map<string, Observed>();
   const tails: Promise<void>[] = [];
   let observerErrors = 0;
   const failedRequests = new Set<Request>();
   page.on("requestfailed", (request) => {
-    if (isWork(new URL(request.url()))) failedRequests.add(request);
+    if (isWork(new URL(request.url()))) {
+      failedRequests.add(request);
+      const value = timing(request);
+      value.request_failed_at = now();
+      value.failure_reason = safeWorkFailure(request);
+    }
   });
   const requests: { method: string; path: string }[] = [];
   const isWork = (url: URL) =>
@@ -207,11 +370,21 @@ export function observe(page: Page) {
     );
   page.on("request", (r) => {
     const url = new URL(r.url());
-    if (isWork(url)) requests.push({ method: r.method(), path: url.pathname });
+    if (isWork(url)) {
+      requests.push({ method: r.method(), path: url.pathname });
+      timing(r).request_at = now();
+    }
+  });
+  page.on("requestfinished", (request) => {
+    if (isWork(new URL(request.url())))
+      timing(request).request_finished_at = now();
   });
   page.on("response", (r) => {
     const url = new URL(r.url());
     if (!isWork(url)) return;
+    const observed = timing(r.request());
+    observed.response = r;
+    observed.response_at = now();
     const fact: Observed = {
       request: r.request(),
       url,
@@ -222,16 +395,19 @@ export function observe(page: Page) {
     tails.push(
       (async () => {
         const id = await r.headerValue("x-request-id");
+        observed.request_id = id && uuid7.test(id) ? id : null;
         if (!id || facts.has(id))
           throw new Error("WORK_RESPONSE_IDENTITY_MISSING_OR_DUPLICATE");
         facts.set(id, fact);
         const error = await r.finished();
+        observed.response_finished_at = now();
         fact.finished = error === null;
         fact.failed = error !== null;
       })().catch(() => {
         // Attach the rejection sink immediately, including when the case ends
         // before verify. This records observation failure, never transport EOF.
         observerErrors++;
+        observed.observer_rejected_at = now();
         fact.failed = true;
       }),
     );

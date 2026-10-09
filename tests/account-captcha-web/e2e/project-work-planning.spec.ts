@@ -17,7 +17,16 @@ import {
   complete,
   observe,
   originalBody,
+  saveWorkFailureObservations,
 } from "./project-work-planning.helpers";
+
+test.afterEach(async ({}, info) => {
+  saveWorkFailureObservations(
+    info.status === info.expectedStatus
+      ? null
+      : (info.status ?? "other-failure"),
+  );
+});
 
 const editor = (page: Page) =>
   page.getByRole("form", { name: /^(规划结构编辑|Task 规划编辑)$/ });
@@ -115,7 +124,9 @@ test("[read] actual Owner route, bounded pages, deep links and stale cursor", as
   const data = material(),
     seen = observe(page);
   await enter(page, data);
-  await expect(page.getByText("请选择 Sprint", { exact: false })).toBeVisible();
+  await expect(
+    page.getByText("当前没有正在进行的 Sprint，请选择。", { exact: true }),
+  ).toBeVisible();
   await expect(page).toHaveURL(new RegExp("/tasks/explore$"));
   const pages = tree(page).locator('[aria-label="Milestone 分页"]');
   await expect(tree(page).getByRole("treeitem")).toHaveCount(50);
@@ -147,12 +158,87 @@ test("[read] actual Owner route, bounded pages, deep links and stale cursor", as
       "所选对象不在已加载的树页中。这里显示直接读取的详情与父级；树中的位置尚未加载。",
     ),
   ).toBeVisible();
+  await go(page, path(data, "main", "sprint"));
+  await button(tree(page), "展开页已变更").click();
+  await expect(button(tree(page), "展开规划 Sprint")).toBeEnabled();
+  await button(tree(page), "展开规划 Sprint").click();
+  await expect(button(page, "新建 Task")).toBeEnabled();
+  const filters = page.getByRole("form", { name: "Task 筛选", exact: true });
+  async function filterRead(
+    expected: { text?: string; type?: string; priority?: string },
+    count: number,
+    clear = false,
+  ) {
+    const response = page.waitForResponse(
+      (r) =>
+        r.request().method() === "GET" &&
+        new URL(r.url()).pathname ===
+          `/api/v1/projects/${data.work.main!.project_id}/tasks`,
+    );
+    await button(filters, clear ? "清除筛选" : "从首页筛选").click();
+    const received = await response;
+    expect(received.status()).toBe(200);
+    const query = Object.fromEntries(new URL(received.url()).searchParams);
+    expect(query).toEqual({
+      limit: "50",
+      sprint_id: data.work.main!.sprint_id,
+      state: "backlog",
+      assignee_agent_id: "null",
+      ...expected,
+    });
+    const body = await originalBody(received);
+    expect(body.items).toHaveLength(count);
+    expect(body.next_cursor).toBeUndefined();
+    await expect(button(filters, "从首页筛选")).toBeEnabled();
+    // Public tree items are visible only after their own two real expansions.
+    await expect(
+      tree(page).locator('[role="treeitem"][data-tree-id^="task:"]'),
+    ).toHaveCount(count);
+    if (!count)
+      await expect(
+        tree(page).getByText("本页没有符合条件的 Task", { exact: true }),
+      ).toBeVisible();
+  }
+  await filters
+    .getByRole("textbox", { name: "标题或描述", exact: true })
+    .fill("不存在的任务筛选");
+  await filterRead({ text: "不存在的任务筛选" }, 0);
+  await filters
+    .getByRole("textbox", { name: "标题或描述", exact: true })
+    .fill("规划任务");
+  await choose(page, "筛选 Task 类型", "任务");
+  await choose(page, "筛选 Task 优先级", "中");
+  await filterRead({ text: "规划任务", type: "task", priority: "medium" }, 2);
+  await choose(page, "筛选 Task 类型", "缺陷");
+  await filterRead({ text: "规划任务", type: "bug", priority: "medium" }, 0);
+  await choose(page, "筛选 Task 类型", "任务");
+  await choose(page, "筛选 Task 优先级", "高");
+  await filterRead({ text: "规划任务", type: "task", priority: "high" }, 0);
+  await filterRead({}, 2, true);
+
   for (const kind of [undefined, "milestone", "sprint", "task"] as const) {
     await go(page, path(data, "dotted", kind));
     if (kind) await current(page, data.work.dotted![`${kind}_id`]);
     await page.reload();
     await ready(page, kind ? data.work.dotted![`${kind}_id`] : undefined);
   }
+  const foreignTask = data.work.duplicate!.task_id;
+  const foreignGet = page.waitForResponse(
+    (r) =>
+      r.request().method() === "GET" &&
+      new URL(r.url()).pathname ===
+        `/api/v1/projects/${data.work.main!.project_id}/tasks/${foreignTask}`,
+  );
+  await page.goto(path(data, "main", "task", foreignTask));
+  const foreignResponse = await foreignGet;
+  expect(foreignResponse.status()).toBe(404);
+  expect((await originalBody(foreignResponse)).code).toBe("TASK_NOT_FOUND");
+  await expect(button(page, "重新读取所选对象")).toBeEnabled();
+  await expect(details(page)).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "规划层级" })).toHaveCount(
+    0,
+  );
+
   for (const suffix of [
     "/tasks",
     "/tasks/explore/tasks/not-an-id",
@@ -178,6 +264,19 @@ test("[read] actual Owner route, bounded pages, deep links and stale cursor", as
     missingAPI.status() === 404 &&
       !(missingAPI.headers()["content-type"] ?? "").includes("text/html"),
   ).toBe(true);
+  for (const name of ["work.pending", "owner-deleting"]) {
+    const before = seen.requests.length;
+    const destination = `/${data.owner.username}/${name}/tasks/explore`;
+    await page.goto(destination);
+    await expect(
+      page.getByRole("heading", { name: "项目不可用", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "任务规划", exact: true }),
+    ).toHaveCount(0);
+    expect(new URL(page.url()).pathname).toBe(destination);
+    expect(seen.requests).toHaveLength(before);
+  }
   const deniedContext = await browser.newContext();
   try {
     const denied = await deniedContext.newPage(),
@@ -202,6 +301,9 @@ test("[read] actual Owner route, bounded pages, deep links and stale cursor", as
     parent: true,
     permissions: true,
     cursor: true,
+    filters: true,
+    initialization: true,
+    wrong_parent: true,
     bodies: await seen.verify(),
   });
 });

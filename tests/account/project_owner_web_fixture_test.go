@@ -516,6 +516,9 @@ func (f *projectOwnerWebFixture) prepareService(ctx context.Context, cfg config.
 		f.t.Fatal("owned Skills preparation schema unavailable", err)
 	}
 	skills := &projectOwnerWebSkills{store: store, authority: authority, issuer: pc.NewInitializationPlanIssuer()}
+	if f.work != nil {
+		skills.pendingProject = f.work.pendingProject
+	}
 	service, err := project.New(store, project.Dependencies{Authority: authority, Activity: accounts, Audit: aud, Events: journal, ProjectEvents: typed, Initializer: skills, Processes: processes, Cursors: cfg.CursorKeyring(), LifecycleRegistry: projectOwnerWebRegistry(f.t)}, project.DefaultConfig())
 	if err != nil {
 		f.t.Fatal(err)
@@ -623,9 +626,10 @@ func (f *projectOwnerWebFixture) lifecycle(ctx context.Context, key string, stat
 // private schema, protected/published and rechecked through the accepted
 // initialization authority in the caller's exact locked transaction.
 type projectOwnerWebSkills struct {
-	store     *postgres.Store
-	authority *project.Authority
-	issuer    pc.InitializationPlanIssuer
+	pendingProject foundation.ID[identity.Project] // immutable, exact Work negative input only
+	store          *postgres.Store
+	authority      *project.Authority
+	issuer         pc.InitializationPlanIssuer
 }
 
 func (s *projectOwnerWebSkills) InspectProjectSkills(ctx context.Context, actor identity.Actor, r pc.InitializationRequest) (pc.InitializationResult, error) {
@@ -653,6 +657,9 @@ func (s *projectOwnerWebSkills) InspectProjectSkills(ctx context.Context, actor 
 }
 
 func (s *projectOwnerWebSkills) InitializeProjectSkills(ctx context.Context, actor identity.Actor, r pc.InitializationRequest) (pc.InitializationResult, error) {
+	if s.pendingProject.Validate() == nil && r.ProjectID == s.pendingProject {
+		return s.InspectProjectSkills(ctx, actor, r)
+	}
 	lock, _ := foundation.ProjectLock(r.ProjectID.String())
 	cause, err := foundation.NewRecoveryCause("project.owner-web-skills", r.CreationID.String(), "")
 	if err != nil {

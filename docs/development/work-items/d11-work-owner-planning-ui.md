@@ -232,3 +232,7 @@ rev1 已经未参与产品实现者独立接受。API、Session恢复与controll
 第二轮定位修订仅两PW源：save显式区分structure/task并精确匹配对应form与“创建”/“创建 Task”；实际既有controller在提交时校验必选项而非预禁用，故测试改为未填提交→两字段错误且Task POST为0，仅填type→priority错误且POST仍0，最后显式priority后沿原创建/恢复链。未改产品、预算、EOF/schema或Go持久断言。严格TS69044及精确单planning发现43725均actual0；最初TS命令漏既有Node typeRoots/DOM.Iterable的setup失败保留。未参与本修订者核真实模板及6正反控制后有限接受；原binary05与私有dist不变，第三轮须新独立输出目录并等待root fresh grant。
 
 第三轮planning仍完整FAIL：bea8ad29/binary05与原私有dist、原45秒case；首Milestone前移POST的originalBody停在原response.finished，直至case总界。74490实际exit1/167.494秒、Go58.81秒；Task标签修正与Go持久后验均未到。代理同原POST200完整上游body及随后Get200已记录，但缺浏览器reader/CL、PWfailed/CDP时序，不推根因或与Model同因。direct actualWait1、四现场Z→actualWait0、七资源/desc/runtime/private/TCP双尾与inputsame齐，窗口已释放；01/02原FAIL和首STOP保留。必要脱敏原件见 `.agent-state/work-owner-planning-ui/planning-third-failure.json`，普通原log在output/ai/work-owner-planning-ui/pg/planning-03.log。后继仅复用已接受观察模式做精确Work请求诊断设计，不放宽finished/EOF/身份或盲重跑。
+
+后继失败观察限定在既有两PW源：原Request对象关联request/response/failed/finished及page-close的Node单调观测时间，合法公开ID、闭集endpoint和脱敏failure分类；记录原originalBody当前await阶段。最多保留256个请求，失败afterEach写出安全快照，成功不生成该产物；观察写失败不替换原测试失败。不新增finished调用、原生fetch或请求，不改变原Promise/gate/45秒预算；快照不是关闭后最终状态，也没有观察浏览器native EOF。实际源15正反纯控通过且0unhandled、严格TS通过，尚待有限独审/真实使用，不能据此解释第三轮或推同Model根因。
+
+read补充输入仍仅测试：私有Skills替身对唯一固定Project保留pending，其创建/权限仍经正式Project服务，默认fixture不启用；浏览器应拒绝pending/deleting且零Work请求，末端SQL仅核真实Project状态和无Work事实。Task筛选核同原GET的完整body、精确query和公开树结果，跨Project对象必须404且无旧详情。三Go源已实际integration race编译binary06，原binary05不含此read输入；PW严格TS及精确read发现通过。这些是未独审、未真实运行的可构建验收源，不计入UI通过范围。

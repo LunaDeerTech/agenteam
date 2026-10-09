@@ -46,7 +46,29 @@ func runProjectWorkPlanningWeb(t *testing.T, mode string, required ...string) *p
 	return f
 }
 func TestAccountProjectWorkPlanningWebReadAndNavigation(t *testing.T) {
-	runProjectWorkPlanningWeb(t, "read", "pagination", "deep_links", "refresh", "raw_route", "parent", "permissions", "cursor")
+	f := runProjectWorkPlanningWeb(t, "read", "pagination", "deep_links", "refresh", "raw_route", "parent", "permissions", "cursor", "filters", "initialization", "wrong_parent")
+	for _, observed := range f.observations() {
+		if observed.Method != "GET" {
+			t.Fatal("read-only browser emitted a Work command")
+		}
+		if observed.ProjectID == f.ids["pending"] || observed.ProjectID == f.ids["deleting"] {
+			t.Fatal("unqualified Project published a Work request")
+		}
+	}
+	var pending, deleting bool
+	if err := f.store.QueryRow(f.ctx, `SELECT initialized_at IS NULL AND lifecycle='active' FROM agenteam_project.projects WHERE id=$1`, f.ids["pending"]).Scan(&pending); err != nil || !pending {
+		t.Fatal("pending initialization gate lost its actual input")
+	}
+	if err := f.store.QueryRow(f.ctx, `SELECT lifecycle='deleting' FROM agenteam_project.projects WHERE id=$1`, f.ids["deleting"]).Scan(&deleting); err != nil || !deleting {
+		t.Fatal("real BeginDelete gate lost its actual input")
+	}
+	for _, key := range []string{"pending", "deleting"} {
+		for _, count := range f.facts(f.ctx, f.ids[key]) {
+			if count.(int) != 0 {
+				t.Fatal("denied Project acquired Work command/history/outbox facts")
+			}
+		}
+	}
 }
 func TestAccountProjectWorkPlanningWebStructureAndTasks(t *testing.T) {
 	f := runProjectWorkPlanningWeb(t, "planning", "structure", "task", "plan", "ordering", "conflict", "current_receipt")

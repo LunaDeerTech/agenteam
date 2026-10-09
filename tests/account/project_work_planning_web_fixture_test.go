@@ -43,6 +43,7 @@ type projectWorkPlanningWebFixture struct {
 	ctx context.Context
 	*projectOwnerWebFixture
 	mode                    string
+	pendingProject          foundation.ID[identity.Project]
 	planningBaseline        map[string]any
 	activitySession         string
 	activityBefore          time.Time
@@ -68,6 +69,9 @@ func newProjectWorkPlanningWebFixture(t *testing.T, ctx context.Context, mode st
 		t.Fatal("closed Work browser case required")
 	}
 	f := &projectWorkPlanningWebFixture{ctx: ctx, mode: mode, seeds: map[string]projectWorkPlanningWebSeed{}, lost: map[string]projectWorkPlanningWebObservation{}}
+	if mode == "read" {
+		f.pendingProject = id[identity.Project](t)
+	}
 	newProjectOwnerWebFixtureWithWork(t, ctx, "work-"+mode, f)
 	t.Cleanup(func() {
 		f.releaseRead()
@@ -108,6 +112,13 @@ func newProjectWorkPlanningWebFixture(t *testing.T, ctx context.Context, mode st
 		f.initial["dotted"] = f.setup.setupRequest(ctx, f.ownerClient, http.MethodGet, projectOwnerWebPath+"/"+dotted.ID.String(), nil, "", false, http.StatusOK)
 	}
 	if mode == "read" {
+		// The exact private Skills dependency intentionally remains pending for
+		// this one ID. The real Project service still owns every creation fact.
+		pending, err := f.projects.CreateProject(ctx, f.ownerActor, foundation.CommandMeta{RequestID: id[foundation.Request](t), IdempotencyKey: foundation.IdempotencyKey(id[struct{}](t).String())}, pc.CreateProjectRequest{ProjectID: f.pendingProject, Name: "work.pending"})
+		if err != nil || pending.State != pc.CreationPending || pending.Operation == nil || pending.Operation.ProjectID != f.pendingProject {
+			t.Fatal("formal pending Project stimulus unavailable", err)
+		}
+		f.ids["pending"] = f.pendingProject.String()
 		for n := 0; n < 50; n++ {
 			f.command(ctx, "main", http.MethodPost, "milestones", map[string]any{"request": map[string]any{"milestone_id": id[struct{}](t).String(), "title": "分页里程碑"}})
 		}

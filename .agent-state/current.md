@@ -15,7 +15,7 @@
 - 六作者 Playwright 源与同体 schema/client helper 已落盘并严格TS通过，首个 planning 精确case离线发现 actual0、恰1项；这是可构建WIP，尚未动态接受。首轮先独立核规划9写、Plan/版本冲突/分组顺序；其它五case还需核完整卡矩阵，尤其撤销/过期、pending/deleting、旧名复用、Owner/Model确认链与in_progress/not_observed刺激，不能因源码已有case或结果布尔冒完成。两个独立场景尚无源，由root轮转未参与者。
 - 原root链仅本树两工具最小扩8个精确UI top、真实输入/私有dist、四owned路径和短ui目录；原三个root target/default预算保持。31作者纯控制通过，含旧配置逐项等价、未登记target、丢目标、目录碰撞、错误资产/case与预算；此控制用替身仅核selector判据，不冒资源退役。工具语法及19项独立有限控制通过，原配置/预算/实际Wait判据未见mustfix；未运行真实PG/browser/socket。
 - Current Sprint边界已按正式Structure契约与独审事实纠正：没有正式非null指针生产者，本轮真实无Current/planned typed选择；自动current/用户选择规则保留纯投影控制，非null真实正例待D11生命周期接通，不用SQL伪造、不称已验证。
-- 下一步：负责人先修第二轮Task创建定位并复核剩余planning刺激后申请单组复验，其余矩阵继续；root轮转未参与者核完整组合并编写两个独立场景；正式真实验收前先闭合相应输入与原资源监督链，不伪造接口或成功布尔。既有停止项不变。最终正式交付排除本恢复文件，不将 WIP 当成 main 结果。
+- 下一步：负责人完成Work失败同请求观察和read闭包后交有限独审，再按root窗口安排相应单组；planning前三轮原FAIL保留，其余矩阵继续；root轮转未参与者核完整组合并编写两个独立场景；正式真实验收前先闭合相应输入与原资源监督链，不伪造接口或成功布尔。既有停止项不变。最终正式交付排除本恢复文件，不将 WIP 当成 main 结果。
 
 - 首组planning有限独审发现三个排序均为no-op及成功后点击已移除按钮；作者另查得schema响应$ref未解引用、描述清空/Plan原文/第七读取刺激不足，均保留原WIP未验事实。统一修为三组真实双对象前移/移尾与同原响应重读顺序、changed/version校验；同体schema红控修后正负通过。Go后验逐key校验原receipt/Outbox/TaskEvent/最终对象与精确无额外事实；合法登录Session仅在User EX锁内回拨测试时钟以越过已有Activity节流，未手种身份或Work事实。当前窄复核待排，新race编译与TS实际通过；纯配置发现02因调用漏ENV失败，补齐后另记，未启动浏览器。其它五case的未闭合矩阵不因此接受。
 
@@ -28,3 +28,5 @@
 - 第二轮定位修订仅两PW源：save显式区分structure/task并精确匹配对应form与“创建”/“创建 Task”；实际既有controller在提交时校验必选项而非预禁用，故测试改为未填提交→两字段错误且Task POST为0，仅填type→priority错误且POST仍0，最后显式priority后沿原创建/恢复链。未改产品、预算、EOF/schema或Go持久断言。严格TS69044及精确单planning发现43725均actual0；最初TS命令漏既有Node typeRoots/DOM.Iterable的setup失败保留。未参与本修订者核真实模板及6正反控制后有限接受；原binary05与私有dist不变，第三轮须新独立输出目录并等待root fresh grant。
 
 - 第三轮planning仍完整FAIL：bea8ad29/binary05与原私有dist、原45秒case；首Milestone前移POST的originalBody停在原response.finished，直至case总界。74490实际exit1/167.494秒、Go58.81秒；Task标签修正与Go持久后验均未到。代理同原POST200完整上游body及随后Get200已记录，但缺浏览器reader/CL、PWfailed/CDP时序，不推根因或与Model同因。direct actualWait1、四现场Z→actualWait0、七资源/desc/runtime/private/TCP双尾与inputsame齐，窗口已释放；01/02原FAIL和首STOP保留。必要脱敏原件见 `.agent-state/work-owner-planning-ui/planning-third-failure.json`，普通原log在output/ai/work-owner-planning-ui/pg/planning-03.log。后继仅复用已接受观察模式做精确Work请求诊断设计，不放宽finished/EOF/身份或盲重跑。
+
+- 后继离线闭合两测试片段，尚未独审或真实运行：read补实际分页/筛选结果、跨Project对象404及pending/deleting零Work请求与持久零事实。pending仅私有Skills替身对一个预先固定Project返回真实Pending检查结果，Project创建仍走正式服务；共享fixture默认不启用。三Go源的account race binary06于89243实际编译exit0；binary05保持旧输入，不含新增read前置。两PW源同时新增失败afterEach安全观察，按原Request对象关联闭集endpoint/合法公开ID、Node单调事件时间、原originalBody等待阶段和脱敏reason，最多256条；不新增finished调用、原生fetch、请求或预算，明示没有观察浏览器native EOF。实际源15正反控制通过/0unhandled，strictTS19901与read单case发现46268均actual0。所有planning原gate及已记录FAIL保留；两片段仅可构建WIP，root轮转独审后才能申请真实窗口。
