@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 )
@@ -35,6 +36,9 @@ type serviceCall struct {
 	ctx            context.Context
 	cancel         context.CancelFunc
 	initialization bool
+	project        id.ProjectID
+	workID         skillWorkID
+	kind           workKind
 	once           sync.Once
 }
 type serviceState struct {
@@ -76,6 +80,24 @@ func (Service) MarshalJSON() ([]byte, error) { return []byte(`"skill_service"`),
 func (*Service) UnmarshalJSON([]byte) error  { return invalid() }
 func (Service) LogValue() slog.Value         { return slog.StringValue("skill_service") }
 func (s *Service) begin(ctx context.Context, initialization bool) (*serviceCall, error) {
+	return s.admit(ctx, initialization, id.ProjectID{}, skillWorkID{}, "")
+}
+
+// Physical calls acquire their immutable reference before admission. The same
+// ID is persisted if work registration succeeds; lifecycle snapshots also see
+// the admitted interval before that transaction has committed.
+func (s *Service) beginProjectWork(ctx context.Context, project id.ProjectID, kind workKind) (*serviceCall, error) {
+	if project.Validate() != nil || kind != initializationWork && kind != packageReaderWork {
+		return nil, invalid()
+	}
+	workID, e := f.NewID[skillWork]()
+	if e != nil {
+		return nil, unavailable(e)
+	}
+	return s.admit(ctx, kind == initializationWork, project, workID, kind)
+}
+
+func (s *Service) admit(ctx context.Context, initialization bool, project id.ProjectID, workID skillWorkID, kind workKind) (*serviceCall, error) {
 	state := s.state()
 	if state == nil {
 		return nil, fault(f.DependencyUnbound)
@@ -95,7 +117,7 @@ func (s *Service) begin(ctx context.Context, initialization bool) (*serviceCall,
 		return nil, fault(f.ResourceBusy)
 	}
 	workCtx, cancel := context.WithCancel(ctx)
-	call := &serviceCall{ctx: workCtx, cancel: cancel, initialization: initialization}
+	call := &serviceCall{ctx: workCtx, cancel: cancel, initialization: initialization, project: project, workID: workID, kind: kind}
 	state.calls[call] = struct{}{}
 	if initialization {
 		state.initializations++

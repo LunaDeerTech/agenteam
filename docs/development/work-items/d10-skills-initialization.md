@@ -39,6 +39,15 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 - 新 `TestSkillOwnerMetadataCurrentAuthority` 准备真实 PG 的 List/Get 当前权限矩阵：真实 Account.Initialize 注册测试 keyring，既有 Account/Project Authority 消费测试 User/Session；发布后未初始化 Project、跨 Owner/admin、Session 错配/缺失/撤销/过期、未知 Skill/Project、归档可读与删除拒绝共 12 子项，正向结果比对持久元数据且每次零 Object 操作。98760 race-c 与 33518 精确发现 actual0；初次编译因自有 GOTMPDIR 缺失未启动，补目录后构建。未执行 PG；Project/Creation completed 和生命周期状态是明示的规范测试前置，不是 Login、Project.Create、归档/删除命令或 D05 读流验收。只有新测试源，产品/原 fixture/既有 binaries 均未改。
 - 第二个作者真实 PG top `TestSkillInitializationPublicationRollback` 完整 PASS（58518，Go 1.86s、outer 69.153s）：受控 Object 发布拒绝后，真实 Skill/Revision 写入原子回滚、原 reserved attempt 保留、只读 Inspect 不续发且不能获得完成确认。Go/driver 实际 Wait0、两资源双清、私有目录、desc/TCP 双尾与 inputs_unchanged 均闭合后已释放窗口；不把受控发布失败外推成真实 D05 失败注入。COMMIT Recovery、Migration、Admission Unknown、OwnerReader 仍未实际运行。
 - 真实对象组合另形成 `TestSkillObjectInitializationPublication` 三子源码：同一 Store 的 Skill exact facts → D08 初始化授权 → 真实 Object 私有 witness/Audit，独立 object.Service.Initialize 后发布并重放，真实包 EOF/Close 与 reader lease/work 记账，精确公开字段不能伪造私有 witness。首 69925 编译拒绝把尚未实现的 Skill CleanupAuthority 接入；移除该错误 fixture 接线后 8884 race-c、2c8c10 精确发现 actual0。Cleanup 口明确 unbound、ProcessGuard 只构造、不装 Object Runtime，不声称旧进程停止/删除/root可用。新增两既有 harness 各一条精确单 top 映射，原 6m/七资源/Wait/预算不变；作者 d47937 控制与未参与者 685fef 窄审通过。尚未执行 MinIO/PG，不将编译、映射独审或此前受控 Object 结果充作真实对象通过。
+- 本域Project精确Stop子能力已实现，等待独审：原初始化/包读取从准入关联稳定work ID，RequestStop同Store完整锁下消费现有StopPhase门禁、明确commit后才取消原call；Archive保合法reader，Delete包含reader。Inspect只按本实例实际返回或foreign精确停止+原Tx锁终局结账，不把取消/Close/空本地map当Stopped；原Unknown与100项之外Pending保持。最终4top/21子作者定向race通过，包含真实本地阻塞Discard/Read及归档后继续读包；完整 `skill/...` race与vet亦已通过，全部仍用受控Store/Project/Process，不是PG/生命周期/根停止验收。原五个integration binaries和来源产品checkpoint `5291515f` 保留，新产品须另验。
+
+## 生命周期后续依赖与责任
+
+上述Stop两口不构成完整`ProjectLifecycleParticipant`。本域下一段负责精确CleanupAuthority、同cause关闭serving与Release、预算内物理删除、删除Audit外层及所有实际terminal后的本域清理；必须消费真实D08 CleanupPhase准入，不能拿active初始化授权或技术退休权替代。
+
+当前00027的cleanup表通过FK要求已有skills行，无法持久表达尚未发表的reserved attempt清理。已执行迁移不重写；后续由root协调新的全局迁移编号及兼容升级。本轮只记录该实现前置，没有修改DDL或Cleanup口。
+
+root负责D08当前Cleaning/participant/原Owner/operation/action/version的真实清理授权，以及把实际启用的Variables、Skills等域组合为同一`agent-skills-variables` participant并固定manifest/依赖顺序；生产initializer与participant同时接入，Object共享guard保持至实际join及DB最后。Object Runtime停止项和完整生产组合未验事实继续保留。
 
 ## 验收与当前证据
 

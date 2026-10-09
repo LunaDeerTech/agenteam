@@ -17,24 +17,28 @@ import (
 type ownedWork struct {
 	fact     workFact
 	row      initializationRow
+	call     *serviceCall
 	returned bool
 }
 
-func (s *Service) newOwnedWork(row initializationRow, kind workKind) (*ownedWork, error) {
+func (s *Service) newOwnedWork(row initializationRow, kind workKind, call *serviceCall) (*ownedWork, error) {
 	state := s.state()
-	workID, e := f.NewID[skillWork]()
-	if e != nil {
-		return nil, unavailable(e)
+	if call == nil || call.project != row.request.ProjectID || call.kind != kind || call.workID.Validate() != nil {
+		return nil, invalid()
 	}
 	now, e := f.NewInstant(time.Now().UTC().Truncate(time.Microsecond))
 	if e != nil {
 		return nil, unavailable(e)
 	}
-	w := &ownedWork{fact: workFact{id: workID, project: row.request.ProjectID, skill: row.skill, process: state.process, kind: kind, phase: workRunning, fence: 1, created: now}, row: row}
+	w := &ownedWork{fact: workFact{id: call.workID, project: row.request.ProjectID, skill: row.skill, process: state.process, kind: kind, phase: workRunning, fence: 1, created: now}, row: row, call: call}
 	if e = w.fact.validate(); e != nil {
 		return nil, e
 	}
 	state.mu.Lock()
+	if _, admitted := state.calls[call]; !admitted || state.work[w.fact.id] != nil {
+		state.mu.Unlock()
+		return nil, fault(f.InvalidState)
+	}
 	state.work[w.fact.id] = w
 	state.mu.Unlock()
 	return w, nil
@@ -60,8 +64,8 @@ func (s *Service) registrationFailed(w *ownedWork, err error) {
 	}
 	s.forgetOwnedWork(w)
 }
-func (s *Service) registerInitializationWork(ctx context.Context, actor id.Actor, row initializationRow) (*ownedWork, error) {
-	w, e := s.newOwnedWork(row, initializationWork)
+func (s *Service) registerInitializationWork(ctx context.Context, actor id.Actor, row initializationRow, call *serviceCall) (*ownedWork, error) {
+	w, e := s.newOwnedWork(row, initializationWork, call)
 	if e != nil {
 		return nil, e
 	}

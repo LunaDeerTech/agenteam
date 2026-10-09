@@ -19,7 +19,7 @@ var _ pc.ProjectSkillInitializer = (*Service)(nil)
 // Each call follows one original command. No physical operation follows an
 // unknown reservation commit; a later caller must rediscover the same facts.
 func (s *Service) InitializeProjectSkills(ctx context.Context, actor id.Actor, request pc.InitializationRequest) (out pc.InitializationResult, err error) {
-	call, err := s.begin(ctx, true)
+	call, err := s.beginProjectWork(ctx, request.ProjectID, initializationWork)
 	if err != nil {
 		return out, err
 	}
@@ -35,7 +35,7 @@ func (s *Service) InitializeProjectSkills(ctx context.Context, actor id.Actor, r
 	if result.State != pc.InitializationResultPending {
 		return result, nil
 	}
-	work, err := s.registerInitializationWork(ctx, actor, row)
+	work, err := s.registerInitializationWork(ctx, actor, row, call)
 	if err != nil {
 		return out, err
 	}

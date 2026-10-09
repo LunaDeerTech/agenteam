@@ -6,7 +6,7 @@
 - 当前可复用：实际D05 same-Store Object Audit checker；D08 original initialization四口、收敛口与初始化Audit wrapper。本域Skill exact映射provider已实现，真实Object组合测试已接线但未动态；生产root未绑定，constructor非nil不证明真实组合。
 - 共享待协调：D05初始化Service closed shape/initiator及SkillRevision+ProjectDeleted release三个窄补口已完成并获有限独审，尚不证明真实清理；Project CleanupPhase现unbound，本域active初始化与删除Audit分流、生产同participant组合仍待。Project CleanupPhase/root仍未授写，Object runtime join停止项不恢复。
 - 迁移00027已随上述两次真实PG初始化fixture连续执行；单独升级、约束和DDL失败回滚矩阵仍未动态。root已精确刷新00024到正式3cea6076，00025保持da16d95a、00026保持4174e160；前序来源与各域证据不替代本域独立迁移验收。
-- 下一步：已准备CommitRecovery、Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority及真实D05三子组合，各自等待root单top fresh grant后实际执行。前四项用原两资源PG窗口，D05用原七资源窗口；资源、缓存继续唯一所有。暂不改生产service/runtime_work等已冻结输入，不spawn，root协调交叉审查。
+- 下一步：已准备CommitRecovery、Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority及真实D05三子组合，各自等待root单top fresh grant后实际执行。前四项用原两资源PG窗口，D05用原七资源窗口；资源、缓存继续唯一所有。root随后授权本域Project精确Stop子能力，现已形成下述作者离线通过片段、等待独审；旧binary及对应产品基线单独保留，不将旧PG结果外推新产品。不spawn，root协调交叉审查。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
 
 ## 首个持久实现片段
@@ -112,3 +112,20 @@
 - 初 69925 race-c actualexit1：fixture 错将 `*skill.Authority` 当成尚未实现的 `CleanupAuthority`。只移除这条无效绑定，Cleanup 继续原 DependencyUnbound，不补 allow/stub或产品；ProcessGuard 只持构造资源，未绑定 Runtime、不能证明旧进程停止。随后 8884 race-c actualexit0 至 `output/ai/skills/compile/skill-object-publication.test`，2c8c10 精确发现唯一 `TestSkillObjectInitializationPublication` actual0，gofmt/diffcheck0；该组合尚未实际运行。
 - 本域缓存 MinIO 从 Variables 已验缓存本地精确复制，SHA 为原固定 `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`，没有执行它。既有 `root_chain_driver.py` 和 `pg_only_supervisor.py` 各只新增 `^TestSkillObjectInitializationPublication$` → `tests/skills`/expected singleton。作者 d47937 actual0（反删两行全文原样、实际配置 1正4负、observer 尾5控）；未参与实现的 service_delivery 窄审 685fef actual0，无 mustfix，原 6m/七资源/Wait/预算均未变，不是业务独验。
 - 新测试、两 harness、主卡/本文共五路径再次 freeze 供恢复保存；无资源/编译在途。此前 CommitRecovery/Migration/Admission/OwnerReader 均仍未动态。生产 service/runtime_work 暂不变：后续精确 lifecycle participant 需要工作与原调用的 Project/取消关联及真实 CleanupPhase，不能拿当前技术尾替代业务停止授权，Object Runtime 停止项继续保留。
+
+## Project 精确 Stop 子能力
+
+- 前五路径已由root保存并远端确认 `5291515fd6190da335a3eea8c9153a19321f49ac`。root随后明确授权本域Stop片段；原 `skill-pg-recovery.test`、`skill-pg-migration.test`、`skill-pg-admission.test`、`skill-pg-owner-read.test`、`skill-object-publication.test` 及测试/harness均未改，继续对应该checkpoint前的产品源。下述新产品不能复用旧binary的业务PASS。
+- `service.go`、`runtime_work.go`、`initialization_write.go`、`read_package.go` 让初始化/reader从准入即取得Project及稳定work ID，持久work绑定原call。新 `lifecycle_stop.go` 仅提供RequestStop/InspectStop两口：同Store完整原锁+当前StopPhase确认后捕获refs，已知commit后才取消；Archive只停初始化、Delete包含reader。Inspect本身不取消；本地必须私有实际returned，foreign必须精确ProcessAuthority后再取原锁/重验gate，原登记或退休Unknown保留原owner，取消不等于join。100项之外仍返回Pending，缺本域初始化不能冒空域完成。
+- 新 `lifecycle_stop_test.go` 最终4top/21子作者race通过，包括当前门禁/原Unknown/跨Project/Meeting拒绝、实际合法archive reader、阻塞Discard/Read在Close/cancel后仍Pending、原登记无行/持久退休Unknown、精确foreign终局和fence重验、101项尾。初8f96b2是错误GOMODCACHE导致setupFAIL，GOPROXYoff没有网络；修正后86040定向race1.234s actual0。随后71500全 `skill/...` race actual0（skill2.317s、contract1.317s）；再补缺本域事实拒例后18336最终Stop定向race1.213s actual0，27243 `go vet -mod=readonly -p=1 ./internal/central/skill/...` actual0，gofmt通过。均为受控Store/Project/Process的作者本地证据，没有真实PG/生命周期/根停止或独立验收。
+- 下次可复制环境与定向命令（目录必须存在；复用现cache，不删除或复制）：
+
+```sh
+GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2 \
+GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
+GOCACHE=/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache \
+GOTMPDIR=/workspace/agenteam-skills/output/ai/skills/compile/tmp \
+/workspace/toolchains/go1.27.1/bin/go test -mod=readonly -p=1 -race ./internal/central/skill -run '^TestSkillLifecycleStop' -count=1 -timeout=45s -v
+```
+
+- 此6源+主卡/本文8路径freeze供checkpoint和未参与者独审，无资源/编译在途。不声明完整ProjectLifecycleParticipant，不新建成功Cleanup。后续root负责D08真实CleanupPhase准入和多域`agent-skills-variables`组合/manifest/root guard；本域负责精确CleanupAuthority、Release、预算物理删除与删除Audit外层。00027 cleanup的skills FK无法表达尚未发表的reserved attempt清理，后段需root分配新全局迁移；本轮不重写已执行00027、不改Cleanup/Project/app，Object Runtime停止项保留。

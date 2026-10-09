@@ -18,7 +18,7 @@ func (s *Service) OpenPackage(ctx context.Context, actor id.Actor, project id.Pr
 	if skill.Validate() != nil || revision.Validate() != nil {
 		return nil, invalid()
 	}
-	call, err := s.begin(ctx, false)
+	call, err := s.beginProjectWork(ctx, project, packageReaderWork)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (s *Service) OpenPackage(ctx context.Context, actor id.Actor, project id.Pr
 			return e
 		}
 		metadata = m
-		work, e = s.newOwnedWork(row, packageReaderWork)
+		work, e = s.newOwnedWork(row, packageReaderWork, call)
 		if e != nil {
 			return e
 		}
