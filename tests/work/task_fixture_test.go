@@ -5,6 +5,7 @@ package work_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net"
 	"net/url"
 	"testing"
@@ -216,6 +217,86 @@ func (f *taskFixture) generation(t *testing.T, p c.ProjectID, s wc.SprintID, pri
 		t.Fatal(err)
 	}
 	return g, q
+}
+
+// This seeds canonical archived Project input and a rolled-back malformed
+// timestamp control; it does not execute the Project lifecycle protocol.
+func taskSeedArchivedProject(t *testing.T, f *taskFixture, a identity.Actor, p c.ProjectID) {
+	t.Helper()
+	snapshot := func() string {
+		t.Helper()
+		var out string
+		if err := f.raw.QueryRow(ctxFor(t), `SELECT to_jsonb(p)::text FROM agenteam_project.projects p WHERE id=$1`, p.String()).Scan(&out); err != nil {
+			t.Fatal("archive fixture Project snapshot", foundation.NewFault(foundation.InternalError, foundation.NotStarted).WithCause(err))
+		}
+		return out
+	}
+	before := snapshot()
+	result := f.store.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+		if err := f.store.AcquireAll(ctx, tx, fixtureLocks(a, p)); err != nil {
+			return err
+		}
+		if _, err := f.projectAuthority.RequireOwnerInTx(ctx, tx, a, p, identity.Read); err != nil {
+			return err
+		}
+		x, err := f.store.InTx(tx)
+		if err != nil {
+			return err
+		}
+		// Observe the old fixture expression without assuming that two clocks
+		// always differ at PostgreSQL's stored microsecond precision.
+		if _, err := x.Exec(ctx, `UPDATE agenteam_project.projects SET lifecycle='archived',archived_at=clock_timestamp(),updated_at=clock_timestamp() WHERE id=$1`, p.String()); err != nil {
+			return err
+		}
+		var legacyAfter bool
+		if err := x.QueryRow(ctx, `SELECT archived_at>updated_at FROM agenteam_project.projects WHERE id=$1`, p.String()).Scan(&legacyAfter); err != nil {
+			return err
+		}
+		t.Logf("legacy archive seed observed archived_after_updated=%t; prior failed run timestamps were not captured", legacyAfter)
+		// A deterministic malformed control proves the exact ProjectRef read
+		// failure independently of the old expression's clock coincidence.
+		if _, err := x.Exec(ctx, `WITH moment AS MATERIALIZED (SELECT clock_timestamp() AS value) UPDATE agenteam_project.projects SET lifecycle='archived',updated_at=moment.value,archived_at=moment.value+interval '1 microsecond' FROM moment WHERE id=$1`, p.String()); err != nil {
+			return err
+		}
+		var malformed bool
+		if err := x.QueryRow(ctx, `SELECT archived_at=updated_at+interval '1 microsecond' FROM agenteam_project.projects WHERE id=$1`, p.String()).Scan(&malformed); err != nil {
+			return err
+		}
+		if !malformed {
+			return errors.New("archive fixture malformed timestamp control missing")
+		}
+		_, err = f.projectAuthority.RequireOwnerInTx(ctx, tx, a, p, identity.Read)
+		if err == nil {
+			return errors.New("archive fixture malformed timestamp was accepted")
+		}
+		return err
+	})
+	if result.State() != foundation.NotCommitted {
+		t.Fatal("malformed archive fixture did not roll back", result.State(), result.Fault())
+	}
+	requireCode(t, result.Fault(), foundation.DependencyUnavailable)
+	if snapshot() != before {
+		t.Fatal("malformed archive fixture changed persisted Project")
+	}
+	t.Log("malformed archive timestamp control: archived_after_updated=true, current Read DEPENDENCY_UNAVAILABLE, transaction not_committed, Project unchanged")
+	f.tx(t, fixtureLocks(a, p), func(ctx context.Context, tx foundation.Tx, x postgres.SQLExecutor) error {
+		if _, err := f.projectAuthority.RequireOwnerInTx(ctx, tx, a, p, identity.Read); err != nil {
+			return err
+		}
+		if _, err := x.Exec(ctx, `WITH moment AS MATERIALIZED (SELECT clock_timestamp() AS value) UPDATE agenteam_project.projects SET lifecycle='archived',archived_at=moment.value,updated_at=moment.value FROM moment WHERE id=$1`, p.String()); err != nil {
+			return err
+		}
+		access, err := f.projectAuthority.RequireOwnerInTx(ctx, tx, a, p, identity.Read)
+		if err != nil {
+			return err
+		}
+		ref := access.Project()
+		if ref.Validate() != nil || ref.Lifecycle != c.Archived || ref.ArchivedAt == nil || !ref.ArchivedAt.Time().Equal(ref.UpdatedAt.Time()) {
+			return errors.New("single-moment archive fixture is not canonical")
+		}
+		return nil
+	})
+	t.Log("test-only single-moment archived Project input verified by current Read; no lifecycle participant run")
 }
 
 // These are canonical future facts, not an implemented Agent or state transition.

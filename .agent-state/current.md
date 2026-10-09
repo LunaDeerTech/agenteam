@@ -97,3 +97,6 @@
 
 - Task rankfix Persistence已完整PASS：body43.92s/driver48.486s、outer34134 exit0/108.495s，两ID/runtime/TCP双空/inputsame（pg-12f39fa…）；原23505/tasks_group_rank_key由真实回滚Tx确证，合法rank矩阵全过。新Authority随后body6.05s FAIL，两个archived历史分支DependencyUnavailable（planning354/1041），Go130242/driver129700 Wait1、outer35090 exit1/72.347s及资源/input全闭合（pg-dbfea1fa…）；候选是shared seedLifecycle多clock_timestamp导致archived_at>updated_at，需原owner严格实证，不先归因产品。Atomicity/旧4未启动。
 - Model spec仅诊断增强冻结：actualLoss严格断言之前0600 wx写control/current-native fixed13字段/expected_bytes，路径与空query/数值/size闭合，不含请求或header值、不放宽token/ended/非EOF/status/bytes门槛。TSstrict/list/diff实际exit0；第四run仅为取得第三真实controlled-loss分项，尚无已证transport修复。
+
+- Model第四轮99747 actualexit1，全终态83.44s/Go8.69s，7ID双absent、全部Wait/join、descendants/TCP双空/input同一。原controlled-loss-a0001实际native唯一r000032/status200/ended/非EOF/cancelled/released，三控制旗均真；bytes=0/chunks=[]是旧exact1唯一失败，不能把server cut字节等同reader交付。spec冻结仅cut改max1（disconnect仍0），新增cancel/release，保留其余严格门槛；TS/list/diff实际0，待独立复核及第五真实run，原FAIL保留。
+- Task Authority仅2测试源冻结并编译race-c/list实际0，新增私有归档helper：观察旧双clock关系、不回填原FAIL；真实确定性+1µs非法输入须Read DependencyUnavailable/NotCommitted/整行回滚，合法同一materialized时刻再Read/Ref.Validate校验。产品/DDL/shared旧helper不变，Authority与Atomicity待真实运行。D01三资源低层身份草案首57行冻结，仅SPEC未接受未实施，后半验收/责任章节待续。

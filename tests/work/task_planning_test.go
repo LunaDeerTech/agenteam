@@ -348,7 +348,7 @@ func TestTaskPlanningAuthorityAndReplay(t *testing.T) {
 	equalTaskMutation(t, original, replay)
 	_, err = f.tasks.UpdateTask(ctxFor(t), a, meta(t, "completed", &original.Task.Version), p.ID, target.ID, request)
 	requireCode(t, err, foundation.TaskSprintInvalid)
-	f.seedLifecycle(t, a, p.ID, c.Archived)
+	taskSeedArchivedProject(t, f, a, p.ID)
 	replay, err = f.tasks.UpdateTask(ctxFor(t), a, cm, p.ID, target.ID, request)
 	if err != nil {
 		t.Fatal("archived completed history", err)
@@ -1029,7 +1029,7 @@ func taskAuthorityMatrix(t *testing.T, f *taskFixture, a, other identity.Actor) 
 				t.Fatal("planned premise", err)
 			}
 			if state == c.Archived {
-				f.seedLifecycle(t, a, p.ID, state)
+				taskSeedArchivedProject(t, f, a, p.ID)
 			} else {
 				f.seedProjectTransition(t, a, p.ID, state)
 			}

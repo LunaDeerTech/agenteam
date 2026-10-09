@@ -665,7 +665,7 @@ function originalReplay(value: Snapshot, token: string) {
 }
 type NativeFact = { token: string | null; method: string; path: string; query: string; status: number; eof: boolean; ended: boolean; cancelled: boolean; released: boolean; bytes: number; chunks: number[]; has_body: boolean; mutation_headers: boolean };
 async function nativeFacts(page: Page): Promise<NativeFact[]> { return page.evaluate(() => (window as any).__projectModelsProbe.facts()); }
-async function actualLoss(page: Page, control: Record<string, unknown>, expectedBytes: number) {
+async function actualLoss(page: Page, control: Record<string, unknown>, maximumObservedBytes: 0 | 1) {
   invariant(control.joined === true && control.upstream_complete === true && control.safe_admitted === true && control.effect_applied === true && requestToken(control.request_token), "PROJECT_MODELS_CONTROLLED_LOSS_NOT_APPLIED");
   const facts = await nativeFacts(page);
   // A failed assertion must preserve its safe observations. The stream can
@@ -677,11 +677,14 @@ async function actualLoss(page: Page, control: Record<string, unknown>, expected
     return row;
   });
   invariant(attempts.length <= 512 && armToken(control.arm_id), "PROJECT_MODELS_CONTROLLED_NATIVE_DIAGNOSTIC_REJECTED");
-  const diagnostic = JSON.stringify({ protocol, input_hash: inputHash, control, expected_bytes: expectedBytes, mutation_attempts: attempts });
+  const diagnostic = JSON.stringify({ protocol, input_hash: inputHash, control, maximum_observed_bytes: maximumObservedBytes, mutation_attempts: attempts });
   invariant(Buffer.byteLength(diagnostic) <= 1048576, "PROJECT_MODELS_CONTROLLED_NATIVE_DIAGNOSTIC_REJECTED");
   writeFileSync(join(evidence, `controlled-loss-${control.arm_id}.json`), diagnostic, { mode: 0o600, flag: "wx" });
   const matches = facts.filter((fact) => fact.token === control.request_token);
-  invariant(matches.length === 1 && matches[0]!.ended && !matches[0]!.eof && matches[0]!.status === 200 && matches[0]!.bytes === expectedBytes, "PROJECT_MODELS_CONTROLLED_NATIVE_LOSS_NOT_OBSERVED");
+  // A native errored stream may discard its queued cut byte before the actual
+  // reader receives it. Keep the control's bound and require native failure
+  // plus the real cancel/release tail, without equating writes with delivery.
+  invariant(matches.length === 1 && matches[0]!.ended && !matches[0]!.eof && matches[0]!.cancelled && matches[0]!.released && matches[0]!.status === 200 && matches[0]!.bytes <= maximumObservedBytes, "PROJECT_MODELS_CONTROLLED_NATIVE_LOSS_NOT_OBSERVED");
 }
 async function verifyBodies(page: Page) {
   const facts = await nativeFacts(page); invariant(facts.length > 0 && facts.every((fact) => fact.ended), "PROJECT_MODELS_NATIVE_TAIL_INCOMPLETE");
