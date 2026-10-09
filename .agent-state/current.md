@@ -35,3 +35,11 @@
 - 根唯一新增写权：本树原 `pg_only_supervisor.py`，仅把non-root异常direct/adopted收尾置原3s绝对deadline；TERM最多1s，SIGKILL directWait与adopted共享余量。direct尚未wait不得generic waitpid抢reap，pending显式FAIL/actual=false，不能写joined。旧root-chain/正常两ID/原TCP尾不变。
 - 本地进程控制源在ignored `output/ai/project-initialization-audit/supervisor-controls/check.py`；v1六控34175 exit0/实际owned desc空，原日志保留，其中exited-adopted parent被过短测试启动预算截到，故v2明确让其自然exit0、忽略TERM正控实际-9。v2结果另见result-v2.json及*-v2.log，不覆盖原件；无socket/network/PG。
 - 下一：监督器单源freeze交未参与者窄审；root freshgrant后先实际新Facts top，完整资源尾后再按调度其余两top；产品独立静/PG补集仍待root分配。本卡仍不是产品接受，未来真Skill+Object组合/HTTP/root均未绑定。
+
+## 作者首个真实PG完整终态（2026-10-09）
+
+- supervisor已4b82af57保存并获recover_harness本人独立6控接受；本人v2控制83492 actual0，真实child全Wait且最终desc空。
+- 首Facts精确命令：`python3 /workspace/agenteam-project-initialization/.agent-state/task-planning-recovery/pg_only_supervisor.py --driver /workspace/agenteam-project-initialization/output/ai/project-initialization-audit/pg-only-driver --binary /workspace/agenteam-project-initialization/output/ai/project-initialization-audit/project-race.test --run '^TestProjectInitializationAuditFacts$' --output /workspace/agenteam-project-initialization/output/ai/project-initialization-audit/pg`，cwd本树；session64065 actualouter0。
+- Go2.57s/26子例PASS，Go538098 Wait0/driver536678 Wait0，未有adopted；完整72.323s，1PG+1network双absent、desc2空、私有凭据与CA私钥退休（只留owned.json）、HOST_TCP2空、inputs unchanged。安全原件`pg/pg-bee9d7b19c6b4f80b22ac79400bbc0a5.log`，全局窗已交root。
+- 下一精确selector `^TestProjectInitializationAuditTransactionBoundary$`，随后 `^TestProjectInitializationAuditDelegation$`，同以上命令仅换run参数；四Go源/race binary/已独审supervisor均未变，无需重编或重复pure，freshgrant前不运行。
+- 剩余两top、产品独立静审/真实PG补集、最终README未完成；当前只是作者首top，不称真Skills/Object初始化或整卡通过。

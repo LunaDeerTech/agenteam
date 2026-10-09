@@ -1,6 +1,6 @@
 # D08 Project 初始化 Audit 授权库（rev0）
 
-2026-10-09。状态：**SPEC 已获 model_delivery 独立有限审查接受（无 must-fix）；实现与作者验证进行中，真实 PG 尚未执行。** 工作树 `/workspace/agenteam-project-initialization`，分支 `ai/project-initialization`，交接基线为正式 main `f1c94ee5`。本卡只交付可独立验证的初始化专用授权库，不表示完整 D08 创建 HTTP、Skills 发布或 Object Runtime 已可用。
+2026-10-09。状态：**SPEC 已获 model_delivery 独立有限审查接受（无 must-fix）；实现与作者验证进行中，作者真实 PG 首个 Facts 已完整通过；另外两 top 与独立产品验收尚未执行。** 工作树 `/workspace/agenteam-project-initialization`，分支 `ai/project-initialization`，交接基线为正式 main `f1c94ee5`。本卡只交付可独立验证的初始化专用授权库，不表示完整 D08 创建 HTTP、Skills 发布或 Object Runtime 已可用。
 
 ## 1. 目标、依据与当前缺口
 
@@ -138,3 +138,11 @@ ObjectDelete 不是任意对象删除许可；失败收敛不能发起新的 Res
 ## 7. 恢复与当前状态
 
 SPEC 已由未参与其实现的 model_delivery 独立有限审查接受，无 must-fix，root 已授权四新 Go 源持续实施。当前 wrapper 与纯测试已落盘；作者离线检查和后续真实 PG 的实际结果分别记录在本树 current，不把中间编译或纯测试当产品独立验收。原首次依赖缓存缺失、冷构建超时和测试编译/预期错误保留，不回填。尚未运行 PG/browser/网络或执行 Git，生产绑定仍缺真实 Skill provider。后续持续完成四新源、实际验证及 README；真实资源另等明确交窗。
+
+### 作者当前实际结果（2026-10-09）
+
+四新 Go 源已完成，原成功 gate/普通 routing/共享域源未改。Project/contract 全部普通与 race pure、vet 以及 integration race 编译/精确三 top 发现均实际 exit0；这是作者检查，不是独立产品接受。资源监督器 non-root 有界退出窄修已由未参与者独立六控制接受；不改变正常两 ID、旧 root-chain 或业务预算。
+
+`TestProjectInitializationAuditFacts` 首轮由作者本人实际执行：session64065 outer exit0，Go 2.57s、26子例全部通过，完整72.323s。Go/driver实际Wait0，无adopted残留，owned descendants两空；1PG容器+1nonce network两ID双absent，私有凭据/CA私钥已删除（目录仅留安全owned.json），TCP两空、driver/binary inputs unchanged。原始安全日志：`output/ai/project-initialization-audit/pg/pg-bee9d7b19c6b4f80b22ac79400bbc0a5.log`。窗口已向root释放。
+
+本轮只证明真实 Project/Creation 状态/原key/owner/事务中的授权调用门槛及受控 delegate 契约，不能推成真Skill/Object发布。`TestProjectInitializationAuditTransactionBoundary`、`TestProjectInitializationAuditDelegation` 和未参与者独立产品/PG补集仍待实际运行；不标本卡完成，不用旧验收顶替。下一top保持同一四Go源、race binary与已独审supervisor，等root freshgrant。
