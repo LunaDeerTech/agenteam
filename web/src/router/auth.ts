@@ -45,11 +45,12 @@ export function projectRoute(value: unknown): {
     | '/settings/audit'
     | '/settings/model-providers'
     | '/settings/available-models'
+    | '/settings/variables'
   path: string
 } | null {
   if (typeof value !== 'string' || /[%\\?#]/.test(value)) return null
   const match =
-    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|model-providers|available-models))?)?$/.exec(
+    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|model-providers|available-models|variables))?)?$/.exec(
       value,
     )
   if (!match) return null
@@ -145,6 +146,26 @@ export function installProjectModelSettingsNavigation(
   }
 }
 
+const projectVariablesNavigation = new WeakMap<
+  Router,
+  {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  }
+>()
+export function installProjectVariablesNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  projectVariablesNavigation.set(router, owner)
+  return () => {
+    if (projectVariablesNavigation.get(router) === owner) projectVariablesNavigation.delete(router)
+  }
+}
+
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   router.beforeEach(async (to, from) => {
     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
@@ -162,6 +183,11 @@ export function installAuthentication(router: Router, auth: SessionController = 
     if (
       to.fullPath !== from.fullPath &&
       !((await projectModelNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
+    )
+      return false
+    if (
+      to.fullPath !== from.fullPath &&
+      !((await projectVariablesNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
     )
       return false
     // Ask before Session revalidation can temporarily unmount the dirty page.
@@ -239,6 +265,8 @@ export function installAuthentication(router: Router, auth: SessionController = 
   router.afterEach((to, from, failure) => {
     if (!failure) projectNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) projectModelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+    if (!failure)
+      projectVariablesNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) outboundPolicyNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) smtpNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)

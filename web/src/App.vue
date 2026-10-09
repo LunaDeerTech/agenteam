@@ -19,6 +19,7 @@ import {
   installOutboundPolicyNavigation,
   installProjectNavigation,
   installProjectModelSettingsNavigation,
+  installProjectVariablesNavigation,
 } from './router/auth'
 import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'
 import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'
@@ -51,6 +52,7 @@ import {
   createProjectModelSettings,
   projectModelSettingsKey,
 } from './composables/useProjectModelSettings'
+import { createProjectVariables, projectVariablesKey } from './composables/useProjectVariables'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
@@ -61,6 +63,9 @@ const stopProjectNavigation = installProjectNavigation(router, projects)
 const projectModels = createProjectModelSettings(auth, projects)
 provide(projectModelSettingsKey, projectModels)
 const stopProjectModelNavigation = installProjectModelSettingsNavigation(router, projectModels)
+const variables = createProjectVariables(auth, projects)
+provide(projectVariablesKey, variables)
+const stopProjectVariablesNavigation = installProjectVariablesNavigation(router, variables)
 const settings = createPersonalSettings(auth)
 provide(personalSettingsKey, settings)
 const stopPersonalNavigation = installPersonalNavigation(router, settings)
@@ -114,6 +119,9 @@ const stopSMTPNavigation = installSMTPSettingsNavigation(router, smtpSections)
 const outboundPolicy = createSystemOutboundPolicy(auth)
 provide(systemOutboundPolicyKey, outboundPolicy)
 const stopOutboundNavigation = installOutboundPolicyNavigation(router, outboundPolicy)
+function variableFocusTarget() {
+  return document.getElementById('project-variables-title')
+}
 async function logout() {
   if (
     (await settings.confirmLeave()) &&
@@ -125,7 +133,8 @@ async function logout() {
     (await smtpSections.confirmLeave()) &&
     (await outboundPolicy.confirmLeave()) &&
     (await projects.confirmLeave()) &&
-    (await projectModels.confirmLeave())
+    (await projectModels.confirmLeave()) &&
+    (await variables.confirmLeave())
   )
     await auth.logout()
 }
@@ -156,6 +165,7 @@ watch(
 onMounted(() => {
   projects.afterNavigation(route.fullPath, '')
   projectModels.afterNavigation(route.fullPath, '')
+  variables.afterNavigation(route.fullPath, '')
   entry.afterNavigation(route.fullPath, '')
   invitations.afterNavigation(route.fullPath, '')
   providers.afterNavigation(route.fullPath, '')
@@ -170,6 +180,8 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', refreshVisible)
   window.removeEventListener('pageshow', refreshVisible)
+  stopProjectVariablesNavigation()
+  variables.dispose()
   stopProjectModelNavigation()
   projectModels.dispose()
   stopProjectNavigation()
@@ -237,6 +249,18 @@ onUnmounted(() => {
     </div>
   </AppShell>
   <RouterView v-else />
+  <UiDialog
+    :open="variables.confirmation.open"
+    :title="variables.confirmation.title"
+    :fallback-focus="variableFocusTarget()"
+    @update:open="!$event && variables.cancelConfirmation()"
+  >
+    <p>{{ variables.confirmation.message }}</p>
+    <template #footer>
+      <UiButton variant="ghost" @click="variables.cancelConfirmation">取消</UiButton>
+      <UiButton @click="variables.confirm">{{ variables.confirmation.label }}</UiButton>
+    </template>
+  </UiDialog>
   <UiDialog
     :open="projectModels.confirmation.open"
     :title="projectModels.confirmation.title"

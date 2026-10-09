@@ -548,6 +548,12 @@ sh scripts/test-security.sh -run '^TestAccountSystemOutboundPolicyWebNavigationA
 
 Runtime 的 light/dark × 390/768/1024/1440 八图由作者逐张查看，主线程仅查看 light390、dark768；两个旧导航各保留八图，作者各查看 light390、dark1440，合计实际查看十二张。图均为 900px 高局部视口，不代表整页覆盖。原生焦点、Tab、Drawer 与实际取消尾部另由相应断言验证；合成 `pageshow` 不称真实 BFCache，native reader 的 done 也可能由取消产生，不能单独证明完整响应或 owner 已释放。本次真实运行基于私有固定 `a0e73bd` 与冻结 dist，不称 main 动态实测、生产 SPA 托管、健康探测、ready 行为改变，亦不代表完整 D27/D28。
 
+## 普通项目变量界面（实施中）
+
+[Variables Owner UI](../work-items/d27-project-variables-owner-ui.md) 在 `/:username/:project_name/settings/variables` 消费正式六 HTTP 能力，仅供已有 initialized Project 的当前 Human Owner。列表只取摘要，固定每页50项及 opaque 前后游标；选择对象后读取完整值。新建、字段 presence 更新和删除绑定稳定 UUIDv7、原版本及原意图，未知结果只经用户明确 Lookup 或同意图重放恢复，已确认历史与当前读取分开。
+
+临时同身份 Session 检查隐藏内容但保留内存草稿；真实身份或 CSRF epoch 改变销毁材料。刷新或关闭页面不承诺恢复。归档中/已归档仅读及历史恢复，新写禁止；不含 Secret、Agent/运行环境注入、Project创建或生产 SPA 托管。当前 API/Session、页面与路由已有离线纯控，真实浏览器及独立产品验收尚未完成，不能把编译或纯控当作整项交付。
+
 ## Debug 与主题
 
 Debug 覆盖按钮、表单、选择、树、内容容器、消息、浮层、异常和导航组件，以及实际 CSS 参数。演示操作只修改本地状态，消息使用文本插值，搜索范围仅为组件目录。

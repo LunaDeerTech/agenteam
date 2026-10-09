@@ -138,6 +138,11 @@ export const router = createRouter({
               component: () => import('../views/projects/ProjectModelProvidersView.vue'),
             },
             {
+              path: 'variables',
+              name: 'project-variables',
+              component: () => import('../views/projects/ProjectVariablesView.vue'),
+            },
+            {
               path: 'available-models',
               name: 'project-available-models',
               component: () => import('../views/projects/ProjectAvailableModelsView.vue'),

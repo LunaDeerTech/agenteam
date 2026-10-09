@@ -1,3 +1,5 @@
+import { spawnSync } from 'node:child_process'
+import { resolve } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import { accountTransport, type Fetch } from '../api/client'
 import {
@@ -302,4 +304,95 @@ describe('ordinary Project Variables closed protocol', () => {
     release()
     await expect(call).rejects.toMatchObject({ kind: 'cancelled' })
   })
+})
+
+it('validates actual encoded Variables requests and decoded responses with the formal Draft2020-12 schema', async () => {
+  const vectors: { schema: string; body: unknown; valid: boolean }[] = []
+  const values = [
+    { items: [row] },
+    full,
+    created,
+    updated,
+    deleted,
+    ...[created, updated, deleted].map((receipt) => ({ status: 'committed', receipt })),
+  ]
+  const schemas = [
+    'VariableSummaryPage',
+    'Variable',
+    'VariableMutation',
+    'VariableMutation',
+    'VariableMutation',
+    'VariableCommandLookup',
+    'VariableCommandLookup',
+    'VariableCommandLookup',
+  ]
+  const bodies = [
+    'VariableCreateBody',
+    'VariableUpdateBody',
+    'VariableDeleteBody',
+    'VariableLookupBody',
+    'VariableLookupBody',
+    'VariableLookupBody',
+  ]
+  let responseIndex = 0,
+    requestIndex = 0
+  const api = createProjectVariablesAPI(async (_path, init) => {
+    if (init.body)
+      vectors.push({
+        schema: bodies[requestIndex++]!,
+        body: JSON.parse(String(init.body)),
+        valid: true,
+      })
+    const value = values[responseIndex]
+    vectors.push({
+      schema: schemas[responseIndex++]!,
+      body: JSON.parse(JSON.stringify(value)),
+      valid: true,
+    })
+    return response(value)
+  })
+  await api.list(project, { limit: 50 }, signal())
+  await api.get(project, target, signal())
+  await api.create(project, original, csrf, key, signal())
+  await api.update(project, target, '1', { value: '' }, csrf, key, signal())
+  await api.delete(project, target, '2', csrf, key, signal())
+  for (const command of [create, update, deletion]) await api.lookup(command, csrf, key, signal())
+  for (const [schema, body] of [
+    ['VariableCreateBody', { request: original, expected_version: '1' }],
+    ['VariableDeleteBody', { expected_version: '2', request: {} }],
+    ['VariableUpdateBody', { expected_version: '1', request: { value: null } }],
+    ['VariableSummaryPage', { items: [full] }],
+    ['VariableCommandLookup', { status: 'committed', receipt: null }],
+    ['VariableCommandLookup', { status: 'not_observed', receipt: created }],
+  ] as const)
+    vectors.push({ schema, body, valid: false })
+  const python =
+    process.env.AGENTEAM_PROJECT_VARIABLE_SCHEMA_PYTHON ??
+    '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3'
+  const result = spawnSync(
+    python,
+    [
+      '-c',
+      `
+import sys,json,pathlib
+from jsonschema import Draft202012Validator,FormatChecker
+from referencing import Registry,Resource
+from referencing.jsonschema import DRAFT202012
+root=pathlib.Path(sys.argv[1]); base=(root/'project-variables.json').as_uri()
+registry=Registry()
+for name in ['project-variables.json','common.json']:
+ doc=json.loads((root/name).read_bytes())
+ registry=registry.with_resource((root/name).as_uri(),Resource.from_contents(doc,default_specification=DRAFT202012))
+for n,vector in enumerate(json.load(sys.stdin)):
+ valid=Draft202012Validator({'$ref':base+'#/components/schemas/'+vector['schema']},registry=registry,format_checker=FormatChecker()).is_valid(vector['body'])
+ if valid!=vector['valid']:raise SystemExit('schema vector '+str(n)+' disagrees')
+print('formal schema vectors accepted')
+`,
+      resolve(process.cwd(), '../api/openapi'),
+    ],
+    { input: JSON.stringify(vectors), encoding: 'utf8', timeout: 20000, maxBuffer: 1024 * 1024 },
+  )
+  expect(result.error).toBeUndefined()
+  expect(result.status, result.stderr).toBe(0)
+  expect(vectors).toHaveLength(20)
 })

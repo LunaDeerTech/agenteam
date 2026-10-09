@@ -112,4 +112,4 @@ controller放App生命周期，临时页面卸载不丢同身份内存。导航/
 
 ## 8. 当前实施状态
 
-SPEC rev1已获独立窄审接受，无mustfix；这不是产品或动态验收。API/client首片段strictTS及新旧客户端102纯控已通过，Session首片段32纯控及strictTS通过；controller/view/路由、真实fixture与独立动态验收尚未完成。每片段可构建保存，WIP不当整卡完成。Vue与测试技能已读；两套本树私有node_modules已按同package/lock离线恢复，无下载，未build dist或运行真实资源。
+SPEC rev1已获独立窄审接受，无mustfix；这不是产品或动态验收。API/client首片段strictTS及新旧客户端102纯控已通过，Session首片段32纯控及strictTS通过；controller/view/路由已接实际Session facade，77项API/schema/状态/页面纯控通过；真实fixture与独立动态验收尚未完成。每片段可构建保存，WIP不当整卡完成。Vue与测试技能已读；两套本树私有node_modules已按同package/lock离线恢复，无下载，未build dist或运行真实资源。

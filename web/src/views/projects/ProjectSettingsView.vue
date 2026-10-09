@@ -10,6 +10,11 @@ const groups = computed(() =>
         { label: '项目资料', path: paths.value.settings, leaf: '基本信息' },
         { label: '安全记录', path: paths.value.home + '/settings/audit', leaf: '项目审计' },
         {
+          key: 'project-variables-secrets',
+          label: '变量与 Secret',
+          children: [{ path: paths.value.home + '/settings/variables', label: 'Variables' }],
+        },
+        {
           key: 'project-models-providers',
           label: '模型与 Provider',
           children: [
