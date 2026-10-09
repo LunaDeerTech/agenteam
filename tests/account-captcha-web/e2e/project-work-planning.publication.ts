@@ -227,11 +227,14 @@ export async function installWorkPublicationDiagnostic({
       return null;
     if (
       name === "checkOriginal" &&
-      ["task", "structure"].includes(progress.domain)
+      ["task", "structure", "blocker"].includes(progress.domain)
     )
       return {
         method: "POST",
-        path: `/api/v1/projects/${progress.projectID}/${progress.domain}-commands/lookup`,
+        path:
+          progress.domain === "blocker"
+            ? `/api/v1/projects/${progress.projectID}/tasks/${progress.targetID}/blocker-commands/lookup`
+            : `/api/v1/projects/${progress.projectID}/${progress.domain}-commands/lookup`,
         target_id: progress.targetID,
       };
     if (
@@ -346,7 +349,9 @@ export async function installWorkPublicationDiagnostic({
                         ((row.path.endsWith("/task-commands/lookup") &&
                           result?.domain === "task") ||
                           (row.path.endsWith("/structure-commands/lookup") &&
-                            result?.domain === "structure")) &&
+                            result?.domain === "structure") ||
+                          (row.path.endsWith("/blocker-commands/lookup") &&
+                            result?.domain === "blocker")) &&
                         ["committed", "in_progress", "not_observed"].includes(
                           result.domain === "structure"
                             ? result.value?.state

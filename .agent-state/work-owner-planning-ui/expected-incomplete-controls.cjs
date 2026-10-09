@@ -903,6 +903,7 @@ process.on("unhandledRejection", () => unhandled++);
     ["GET", `tasks/${target}`],
     ["POST", "structure-commands/lookup"],
     ["POST", "task-commands/lookup"],
+    ["POST", `tasks/${target}/blocker-commands/lookup`],
   ])
     await check(
       "ordinary original event with full witness is separately complete: " +
@@ -1047,7 +1048,11 @@ process.on("unhandledRejection", () => unhandled++);
     ["PATCH", `milestones/${target}`],
     ["GET", `tasks/${target}?limit=1`],
     ["GET", "tasks"],
-    ["POST", `tasks/${target}/blocker-commands/lookup`],
+    ["GET", `tasks/${target}/blocker-commands/lookup`],
+    ["POST", `tasks/${target}/blocker-commands/lookup?unexpected=1`],
+    ["POST", `tasks/${target}/blocker-commands/lookup/extra`],
+    ["POST", `tasks/not-a-task/blocker-commands/lookup`],
+    ["POST", `tasks/${target}/blockers`],
   ])
     await check(
       "ordinary alternative cannot include other endpoint: " +

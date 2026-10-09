@@ -587,16 +587,23 @@ export function workOrdinaryCompletionEvents() {
       const parts = url.pathname.split("/");
       if (
         url.search ||
-        parts.length !== 7 ||
         parts.slice(0, 4).join("/") !== "/api/v1/projects" ||
         !uuid7.test(parts[4]!) ||
         !(
-          (request.method() === "GET" &&
+          (parts.length === 7 &&
+            request.method() === "GET" &&
             ["milestones", "sprints", "tasks"].includes(parts[5]!) &&
             uuid7.test(parts[6]!)) ||
-          (request.method() === "POST" &&
+          (parts.length === 7 &&
+            request.method() === "POST" &&
             ["structure-commands", "task-commands"].includes(parts[5]!) &&
-            parts[6] === "lookup")
+            parts[6] === "lookup") ||
+          (parts.length === 9 &&
+            request.method() === "POST" &&
+            parts[5] === "tasks" &&
+            uuid7.test(parts[6]!) &&
+            parts[7] === "blocker-commands" &&
+            parts[8] === "lookup")
         )
       )
         return;

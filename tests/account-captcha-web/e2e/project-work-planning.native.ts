@@ -434,18 +434,26 @@ export function workOrdinaryConsumption(
     return false;
   const parts = typeof pw.path === "string" ? pw.path.split("/") : [];
   const detail =
+    parts.length === 7 &&
     pw.method === "GET" &&
     ["milestones", "sprints", "tasks"].includes(parts[5]) &&
     uuid.test(parts[6]);
   const lookup =
+    parts.length === 7 &&
     pw.method === "POST" &&
     ["structure-commands", "task-commands"].includes(parts[5]) &&
     parts[6] === "lookup";
+  const blockerLookup =
+    parts.length === 9 &&
+    pw.method === "POST" &&
+    parts[5] === "tasks" &&
+    uuid.test(parts[6]) &&
+    parts[7] === "blocker-commands" &&
+    parts[8] === "lookup";
   if (
-    parts.length !== 7 ||
     parts.slice(0, 4).join("/") !== "/api/v1/projects" ||
     !uuid.test(parts[4]) ||
-    !(detail || lookup)
+    !(detail || lookup || blockerLookup)
   )
     return false;
   const matches = report.documents.flatMap((doc: any) =>
@@ -558,6 +566,7 @@ export function workOrdinaryConsumption(
         call.target_id === parts[6] &&
         call.result_kind === "typed-detail-returned"
     : call.operation === "checkOriginal" &&
+        (!blockerLookup || call.target_id === parts[6]) &&
         ["committed", "in_progress", "not_observed"].includes(call.result_kind);
 }
 

@@ -128,7 +128,7 @@ function installer(file, name) {
       "workOrdinaryConsumption",
     ),
   );
-  let positiveReport;
+  let positiveReport, blockerReport;
   function reportOf(e) {
     const n = e.native.requests[0];
     const report = {
@@ -222,9 +222,11 @@ function installer(file, name) {
       readerEntered = deferred(),
       streamEntered = deferred();
     const endpoint =
-      kind === "structure" || kind === "lookup-task"
-        ? `/api/v1/projects/${project}/${kind === "structure" ? "structure" : "task"}-commands/lookup`
-        : `/api/v1/projects/${project}/${kind === "milestone" ? "milestones" : kind === "sprint" ? "sprints" : "tasks"}/${target}`;
+      kind === "lookup-blocker"
+        ? `/api/v1/projects/${project}/tasks/${target}/blocker-commands/lookup`
+        : ["structure", "lookup-task", "lookup-blocker"].includes(kind)
+          ? `/api/v1/projects/${project}/${kind === "structure" ? "structure" : "task"}-commands/lookup`
+          : `/api/v1/projects/${project}/${kind === "milestone" ? "milestones" : kind === "sprint" ? "sprints" : "tasks"}/${target}`;
     w.fetch = (url, init) => {
       if (url === "/api/v1/session")
         return Promise.resolve(
@@ -241,7 +243,9 @@ function installer(file, name) {
       assert.equal(url, endpoint);
       assert.equal(
         init.method,
-        kind === "structure" || kind === "lookup-task" ? "POST" : "GET",
+        ["structure", "lookup-task", "lookup-blocker"].includes(kind)
+          ? "POST"
+          : "GET",
       );
       requestCount++;
       let value =
@@ -254,6 +258,40 @@ function installer(file, name) {
               : kind === "structure"
                 ? { state: "in_progress", result: null }
                 : { status: "in_progress", receipt: null };
+      if (kind === "lookup-blocker" && options.lookupStatus) {
+        value = {
+          status: options.lookupStatus,
+          receipt:
+            options.lookupStatus === "committed"
+              ? {
+                  task,
+                  blocker: {
+                    id: id(14),
+                    project_id: project,
+                    task_id: target,
+                    type: "waiting_for_human",
+                    description: "",
+                    metadata: {},
+                    created_at: at,
+                    created_by: {
+                      type: "human",
+                      user_id: id(1),
+                      source: "task_domain",
+                    },
+                    resolved_at: null,
+                    resolved_by: null,
+                    resolution_comment: null,
+                  },
+                  task_event_id: id(21),
+                  event_ids: [id(22)],
+                }
+              : null,
+        };
+        if (options.wrongReceiptTask)
+          value.receipt.task = { ...task, id: id(15) };
+        if (options.wrongReceiptBlocker)
+          value.receipt.blocker = { ...value.receipt.blocker, id: id(15) };
+      }
       const bytes = options.badUTF8
         ? Uint8Array.of(255)
         : new TextEncoder().encode(
@@ -278,7 +316,11 @@ function installer(file, name) {
           readerEntered.resolve();
           return (
             options.readerHeld ? readerHold.promise : Promise.resolve()
-          ).then(() => cancel());
+          ).then(() => {
+            if (options.readerRejected)
+              throw Error("owned reader cancel failure");
+            return cancel();
+          });
         };
         return reader;
       };
@@ -286,7 +328,11 @@ function installer(file, name) {
         streamEntered.resolve();
         return (
           options.streamHeld ? streamHold.promise : Promise.resolve()
-        ).then(() => cancelStream());
+        ).then(() => {
+          if (options.streamRejected)
+            throw Error("owned stream cancel failure");
+          return cancelStream();
+        });
       };
       return Promise.resolve(
         new Response(body, {
@@ -308,7 +354,7 @@ function installer(file, name) {
     await auth.restore();
     assert.equal(auth.state.phase, "authenticated");
     assert.equal(auth.state.busy, false);
-    if (kind === "structure" || kind === "lookup-task") {
+    if (["structure", "lookup-task", "lookup-blocker"].includes(kind)) {
       preparing = true;
       await auth.workPlanning
         .start(
@@ -321,14 +367,28 @@ function installer(file, name) {
                 expected_version: "1",
                 request: { title: "original" },
               }
-            : {
-                domain: "task",
-                projectID: project,
-                command: "work.task.update",
-                targetID: target,
-                expected_version: "1",
-                request: { plan: "original" },
-              },
+            : kind === "lookup-blocker"
+              ? {
+                  domain: "blocker",
+                  projectID: project,
+                  command: "work.task.blocker.add",
+                  taskID: target,
+                  expected_version: "1",
+                  request: {
+                    blocker_id: id(14),
+                    type: "waiting_for_human",
+                    description: "",
+                    metadata: {},
+                  },
+                }
+              : {
+                  domain: "task",
+                  projectID: project,
+                  command: "work.task.update",
+                  targetID: target,
+                  expected_version: "1",
+                  request: { plan: "original" },
+                },
         )
         .catch(() => {});
       preparing = false;
@@ -356,16 +416,17 @@ function installer(file, name) {
     let settled = false,
       outcome = "pending";
     const call = () => {
-      const result =
-        kind === "structure" || kind === "lookup-task"
-          ? auth.workPlanning.checkOriginal()
-          : auth.workPlanning[
-              kind === "milestone"
-                ? "getMilestone"
-                : kind === "sprint"
-                  ? "getSprint"
-                  : "getTask"
-            ](project, target);
+      const result = ["structure", "lookup-task", "lookup-blocker"].includes(
+        kind,
+      )
+        ? auth.workPlanning.checkOriginal()
+        : auth.workPlanning[
+            kind === "milestone"
+              ? "getMilestone"
+              : kind === "sprint"
+                ? "getSprint"
+                : "getTask"
+          ](project, target);
       void result.then(
         () => {
           settled = true;
@@ -416,6 +477,7 @@ function installer(file, name) {
     "task",
     "structure",
     "lookup-task",
+    "lookup-blocker",
   ])
     await check(
       "actual " +
@@ -449,12 +511,13 @@ function installer(file, name) {
           assert(!JSON.stringify(e).includes("private-material-canary"));
           assert.equal(accepts(e), true);
           if (kind === "milestone") positiveReport = reportOf(e);
+          if (kind === "lookup-blocker") blockerReport = reportOf(e);
         } finally {
           await x.cleanup();
         }
       },
     );
-  for (const kind of ["milestone", "structure"])
+  for (const kind of ["milestone", "structure", "lookup-blocker"])
     for (const held of ["reader", "stream"])
       await check(
         "actual " +
@@ -470,6 +533,13 @@ function installer(file, name) {
             await drain();
             assert.equal(x.settled(), false);
             assert.equal(x.auth.state.busy, true);
+            if (kind === "lookup-blocker") {
+              await assert.rejects(
+                x.auth.workPlanning.getTask(project, target),
+                (error) => error.kind === "busy",
+              );
+              assert.equal(x.count(), 1);
+            }
             assert.equal(
               x.w.__workPublicationDiagnostic.snapshot().calls[0].fulfilled,
               0,
@@ -490,68 +560,147 @@ function installer(file, name) {
           }
         },
       );
-  for (const ending of ["abandon", "timer", "identity"])
+  for (const kind of ["milestone", "lookup-blocker"])
+    for (const ending of ["abandon", "timer", "identity"])
+      await check(
+        "actual early " +
+          kind +
+          " " +
+          ending +
+          " rejects visibly without releasing held original owner or late success",
+        async () => {
+          const x = await setup(kind, { streamHeld: true });
+          try {
+            const promise = x.call();
+            await x.streamEntered.promise;
+            await drain();
+            if (ending === "abandon") {
+              if (kind === "lookup-blocker") x.auth.workPlanning.abandon();
+              else x.auth.workPlanning.abandonRead();
+            } else if (ending === "timer") x.timer();
+            else x.auth.leave();
+            await promise.catch(() => {});
+            await drain();
+            assert.equal(x.outcome(), "rejected");
+            assert.equal(x.auth.state.busy, true);
+            assert.equal(
+              x.w.__workPublicationDiagnostic.snapshot().calls[0].fulfilled,
+              0,
+            );
+            x.releaseStream();
+            await drain();
+            assert.equal(x.auth.state.busy, false);
+            const e = x.finish();
+            assert.equal(e.public.calls[0].fulfilled, 0);
+            assert.equal(e.public.calls[0].rejected, 1);
+            assert.equal(e.native.requests[0].signal_aborted, true);
+            assert.equal(accepts(e), false);
+            if (ending === "identity")
+              assert.equal(e.public.calls[0].identity_current, false);
+            assert.equal(x.count(), 1);
+          } finally {
+            await x.cleanup();
+          }
+        },
+      );
+  for (const kind of ["milestone", "lookup-blocker"])
+    for (const invalid of ["badJSON", "badUTF8", "badSchema"])
+      await check(
+        "actual malformed ordinary " +
+          kind +
+          " response with " +
+          invalid +
+          " cannot become typed completion",
+        async () => {
+          const x = await setup(kind, { [invalid]: true });
+          try {
+            await x.call().catch(() => {});
+            await drain();
+            const e = x.finish();
+            assert.equal(
+              e.native.requests[0].length_matches_before_binding,
+              invalid !== "badUTF8",
+            );
+            assert.equal(e.public.calls[0].fulfilled, 0);
+            assert.equal(e.public.calls[0].rejected, 1);
+            assert.equal(x.auth.state.busy, false);
+            assert.equal(accepts(e), false);
+          } finally {
+            await x.cleanup();
+          }
+        },
+      );
+
+  for (const status of ["not_observed", "committed"])
     await check(
-      "actual early " +
-        ending +
-        " rejects visibly without releasing held original owner or late success",
+      "actual Blocker Lookup strict " +
+        status +
+        " response completes after owner tail",
       async () => {
-        const x = await setup("milestone", { streamHeld: true });
+        const x = await setup("lookup-blocker", { lookupStatus: status });
         try {
-          const promise = x.call();
-          await x.streamEntered.promise;
+          const result = await x.call();
           await drain();
-          if (ending === "abandon") x.auth.workPlanning.abandonRead();
-          else if (ending === "timer") x.timer();
-          else x.auth.leave();
-          await promise.catch(() => {});
-          await drain();
-          assert.equal(x.outcome(), "rejected");
-          assert.equal(x.auth.state.busy, true);
-          assert.equal(
-            x.w.__workPublicationDiagnostic.snapshot().calls[0].fulfilled,
-            0,
-          );
-          x.releaseStream();
-          await drain();
+          assert.equal(result.domain, "blocker");
+          assert.equal(result.value.status, status);
           assert.equal(x.auth.state.busy, false);
-          const e = x.finish();
-          assert.equal(e.public.calls[0].fulfilled, 0);
-          assert.equal(e.public.calls[0].rejected, 1);
-          assert.equal(e.native.requests[0].signal_aborted, true);
-          assert.equal(accepts(e), false);
-          if (ending === "identity")
-            assert.equal(e.public.calls[0].identity_current, false);
+          const evidence = x.finish();
+          assert.equal(evidence.public.calls[0].result_kind, status);
+          assert.equal(accepts(evidence), true);
           assert.equal(x.count(), 1);
         } finally {
           await x.cleanup();
         }
       },
     );
-  for (const invalid of ["badJSON", "badUTF8", "badSchema"])
+  for (const issue of [
+    "wrongReceiptTask",
+    "wrongReceiptBlocker",
+    "readerRejected",
+    "streamRejected",
+  ])
     await check(
-      "actual malformed ordinary response with " +
-        invalid +
-        " cannot become typed completion",
+      "actual Blocker Lookup rejects completion witness with " + issue,
       async () => {
-        const x = await setup("milestone", { [invalid]: true });
+        const x = await setup("lookup-blocker", {
+          lookupStatus: "committed",
+          [issue]: true,
+        });
         try {
           await x.call().catch(() => {});
           await drain();
-          const e = x.finish();
-          assert.equal(
-            e.native.requests[0].length_matches_before_binding,
-            invalid !== "badUTF8",
-          );
-          assert.equal(e.public.calls[0].fulfilled, 0);
-          assert.equal(e.public.calls[0].rejected, 1);
+          const evidence = x.finish();
           assert.equal(x.auth.state.busy, false);
-          assert.equal(accepts(e), false);
+          if (issue.startsWith("wrongReceipt")) {
+            assert.equal(evidence.public.calls[0].fulfilled, 0);
+            assert.equal(evidence.public.calls[0].rejected, 1);
+          } else {
+            assert.equal(
+              evidence.native.requests[0][
+                issue === "readerRejected"
+                  ? "reader_cancel_rejected"
+                  : "stream_cancel_rejected"
+              ],
+              1,
+            );
+          }
+          assert.equal(accepts(evidence), false);
+          assert.equal(x.count(), 1);
         } finally {
           await x.cleanup();
         }
       },
     );
+  for (const issue of ["wrong-target", "missing-public", "wrong-result"])
+    await check("Blocker Lookup exact binding rejects " + issue, async () => {
+      const report = structuredClone(blockerReport);
+      const call = report.documents[0].publication.calls[0];
+      if (issue === "wrong-target") call.target_id = id(15);
+      if (issue === "missing-public")
+        report.documents[0].publication.calls = [];
+      if (issue === "wrong-result") call.result_kind = "other-returned";
+      assert.equal(judge(report, 1, id(100)), false);
+    });
 
   const negativeFields = [
     ["observation_finished", false],
