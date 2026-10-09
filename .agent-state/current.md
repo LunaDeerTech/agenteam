@@ -41,6 +41,12 @@
 - 本人96791/4806f2 actual0，6差异控制/0unhandled：真实改名canonical阳性、显式adopt/directfacade不代无参Workspace刷新、两实际读取同XID拒绝、Workspace与Project facade hook冲突保替换且退休失败。首96940/48d000为自有two-read probe漏投影第二native的setupFAIL，补保真实两行后过，不是产品反例。087856核四旧AST/adapter两输入逆投影/产品零差异；首057bf0把schemaProgram常量当函数的静核setupFAIL保留。
 - 作者55/旧116/41与TS未变范围复用，不全矩阵重跑。新 `.agent-state/work-project-read-review/{controls.cjs,README.md}`＋本文3路径冻结供root保存；无本人live命令、PG/browser/socket/network或作者源写入。新实际仍由root fresh grant。
 
+## Variables authority 首次 detail GET 增量有限独审
+
+- root已保存D04 recovery两文档 `d80d2fb3`。新只读Variables `0c5a9e6d..2a603a3d` 的14冻结路径，限定authority首次main GET/noquery/200有限离线接受、无must-fix；原Session/transport owner尾、真实Variables live/adopt/SFC当前字段、同Request/XID/private正式decoder/Schema、旧native EOF/CL/两cancel/release/document end及采样join共同闭合。旧普通响应/其他路径门保留，生产/API/Go主验收/SQL后验与native/authority源未改，driver只加detail输入。
+- 本人85150/5ca8ba actual0，5个实际lockedPW installer/helper差异控制：首错XID/晚DOM不得退休后升级、owned hook无法还原必须拒但cached调用保原、同Request failed后finished仍拒、额外参数原样委托不入候选。首c8dc37 hashbang与70378/3d174b非strict静默赋值断言误判均为本人setupFAIL，已修probe，不是作者产品缺陷。
+- 原producer consumer/SFC10、作者observer116/typedGo51/旧诊断与TS复用，不重跑全矩阵；无PG/socket/browser/network或新Go编译。新增 `.agent-state/variables-detail-review/{controls.cjs,README.md}`＋本文3路径freeze供root保存，无live进程/资源。原Authority03 wholeFAIL不回填，新09候选与真实运行仍待。
+
 ## D04 SQL recovery 方法独立有限审查
 
 - 前 Work GET 三路径已root保存/push `ece8121a`。本次只读D04 `sql-recovery-followup.md`（自述基线9ae2e0ab）与实际 Postgres/Secret/两 COMMIT-frame proxy 源，限定方法可实施；四top/十格为 final Unknown三、nonce一、maintenance三、实际锁竞争三。不启动任何PG/socket/被测child，不改作者提案/生产/现742候选，也没有用controlled Store伪造Unknown或重做旧纯控。
