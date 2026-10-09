@@ -1,6 +1,6 @@
 # 默认 Runner OS 信号最小可行性探针
 
-状态：探针只有源码与静态检查；默认 Runner cmd 已独立离线构建，**未启动探针子进程，未证明该环境的阻塞读假设**。正式 C 源码、候选及两工具映射未修改。C 已另获真实完整通过，本探针不与其混跑，也不能代替 DefaultProcesses 或独立验证。
+状态：默认 Runner cmd 已独立离线构建，首轮探针实际 FAIL：eof 首格未在原5s内取得要求的初始阻塞读见证，后两格未执行。**尚未证明该环境的阻塞读假设；也没有发出业务停止信号，不能判断 OS 三格生命周期行为。** 正式 C 源码、候选及两工具映射未修改。C 已另获真实完整通过，本探针不与其混跑，也不能代替 DefaultProcesses 或独立验证。
 
 ## 固定入口与依据
 
@@ -27,7 +27,15 @@
 
 每格正常收尾要求 stdout/stderr 实际 EOF、空 stdout、actual Wait、原 PID 消失、相同 lock inode 可独占取得、父 pipe 全关闭；随后只删除本格自己新建的空身份 lock 和目录。无后台 copier/thread。失败路径先对仍未 reap 的自有直接 child SIGKILL、3s 内 actual Wait，再关父 pipe；不碰任意 PID、共享资源或失败目录。清理超时保留 FAIL/缺失尾，不能以 kill 请求代替实际 Wait。任何一格失败后不启动下一格。
 
-## 后继执行准备（cmd 已构建，探针尚未执行）
+## 首轮结果与后继边界
+
+root fresh grant 后沿原脚本、固定cmd和新 `output/ai/runner-control/os-signals-01` 执行。首同进程 UTC2026-10-09T23:32:41Z 可用6,105,567,232B；session29686→ecba67 actual exit1。持久 events.jsonl 只进入 eof 格，记录自有PID1323863、start_ticks6119304、pipe inode3042207及公共starting。原初始5s到期报 `initial_read_not_observed`；没有initial_blocked_read、signal_sent或后两格事实，不当作真实第二信号/截止时间测试失败。
+
+原finally记录 killed=true、actual_waited=true、parent_pipe_ends_closed=true。5cf3ec紧接实际外层终态只读确认该精确PID的/proc路径不存在；失败输出只保留0600 events.jsonl和0700 eof目录内identity.json.lock，没有identity.json。失败目录按原约定保留；没有新cleanup、自动重跑或额外资源启动，窗口已释放。cleanup未保存原Wait数值状态，不能补造-9等原终态字段；其Wait已返回与外层actual1是分别记录的事实。
+
+原观测器只在完全命中syscall/wchan条件时保存见证，没有保存未匹配的安全任务快照。因此原失败不能区分阻塞读未成立、内核观测名称/条件差异或其它未记录情况。下一步若增加诊断，只能补有限安全观测/控制并另获实际窗口，不能把后采样或源码猜测回填本轮。OS三格、正式测试最小接入仍未完成；DefaultProcesses及独立补集未由本轮执行。
+
+## 固定 cmd 与命令
 
 在明确独占窗口前，不执行此脚本的 main。先由原固定离线环境单独构建原 cmd 至新私有 output 文件，并记录真实 build Wait 与 SHA；不复用测试 binary 冒默认 cmd。沿已有本树 GOCACHE、只读 GOMODCACHE、Go1.27.1/local/off、保留原 PATH。构建不修改正式源码或 C 输入。
 
