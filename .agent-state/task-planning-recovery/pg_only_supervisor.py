@@ -394,10 +394,26 @@ def main():
               for p in (args.driver, args.binary)}
     if adapter is not None:
         inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
+    crash_inputs = None
+    if not args.root_chain and args.run == '^TestRunnerControlProcessCrashRecovery$':
+        crash_started = time.monotonic()
+        source = Path(__file__).resolve().parents[1] / 'runner-control/crash_inputs.py'
+        spec = importlib.util.spec_from_file_location('runner_crash_inputs', source)
+        crash_module = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(crash_module)
+            crash_inputs = crash_module.capture(args.driver.resolve(), args.binary.resolve(),
+                                                crash_started + driver_timeout)
+        except (OSError, ValueError, TypeError, KeyError, subprocess.TimeoutExpired):
+            print('STOP Runner crash build inputs unavailable within original budget')
+            return 1
     baseline_times = {'started_ns': time.monotonic_ns()}
     baseline = tcp()
     baseline_times['ended_ns'] = time.monotonic_ns()
     started = time.monotonic()
+    if crash_inputs is not None:
+        started = crash_started
+        driver_timeout = max(0, driver_timeout - (time.monotonic() - crash_started))
     child = None
     code = 1
     interrupted = False
@@ -514,8 +530,11 @@ def main():
                           'rows': rows, 'delta': failure_delta}
                 log.write(f'STOP host TCP delta tail not empty: {len(failure_delta)} rows\n')
                 save_tcp_failure(log_path, args.run, baseline, baseline_times, tcp_samples, reread, log)
-            same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
-                       for p, digest in inputs.items())
+            if crash_inputs is not None:
+                same = crash_module.unchanged(crash_inputs)
+            else:
+                same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
+                           for p, digest in inputs.items())
             if not same: code = 1
             if interrupted: code = 1
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')
