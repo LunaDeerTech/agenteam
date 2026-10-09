@@ -158,6 +158,10 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ### 当前有限交付门槛
 
+整体独审现有两项 mustfix，均由未参与实现的 Skills 作者用实际源码 offline overlay 复现（61981／99769 race0），不把复现 PASS 当产品通过：canonical `trackedRead.Close` 在真实 D05 Close 已实际 join 但保留取消错误时永不注销本域 call；`RecoverCleanup` 每次从首条开始且首 Pending 立即返回，使其他 Project 长期饥饿。root 已授权本域定向修复；Object runtime join 停项及全域停止责任不变。独立原件在 Skills 树 `.agent-state/knowledge-b02-review/`，源/契约/限制俱全。
+
+原未修 Runtime 三子随后实际56777整体FAIL（Go14.81s）：canonical Stop/Close 子已观察精确reader lease released和Close原context.Canceled，最后Knowledge Drain超时；后两子实际Close barrier和取消后源lease后继退休通过。Go/driver实际Wait1、7ID/private/runtime/desc双尾及input gate齐，但hostTCP75s尾仍2行，无双delta_empty，外层exit1；不记完整窗口通过。终态后当前ESTABLISHED行归codex PID848，原baseline未持久，不能回填原delta归属或改写TCP失败。原binary与三子输入保留，不把未来修后源冒作本轮通过。
+
 B02可单独交付的是§1的完整Human canonical／树服务库及真实适配器；当前六个作者top／二十子真实通过。后继按下列有限闭包收敛，不继续追加无已知缺口的作者测试组：
 
 1. **现成五组真实尾**：Runtime三子、Publication CommitUnknown六子、Concurrency三子、Cleanup CommitUnknown两子、ProcessRecovery一个top，各消费其已记录输入／独占窗口，全部实际Wait与资源尾齐；遇失败只修相关原因并复验受影响组。Process精确入口已获Work测试独审与Skills harness窄审接受，仍未真实执行。此五组是已承诺异常／竞争／恢复门槛，不能由编译或入口审查替代。
