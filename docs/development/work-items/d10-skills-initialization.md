@@ -51,7 +51,7 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 
 当前00027的cleanup表通过FK要求已有skills行。Knowledge独审确认本次正式已initialized／已发表范围已有正确父行，旧未发布candidate也共用同Object/Upload/SkillRevision；因此不需要为本结果删除该FK。未初始化Creation取消仍缺正式D08语义，不以放宽DDL提前实现。
 
-下一独立清理结果修订为 [§16 rev2 SPEC](d10-skills-initialization-design.md#16-下一独立结果skills-精确-project-cleanuprev2-spec)，待Knowledge续审。rev1三项问题及源码依据保留：dropFK缺合法必要case、历史work全删无有限进度、删父表后D05 CleanupProject仍先取Maintenance plan而断链。rev2保原FK、按32条收缩历史；00028仅保留预留，本域joined-work索引是否采用须按查询/大历史EXPLAIN确认，未写SQL。授权仍是正式已initialized Project当前Cleaning/原Owner-cause-version/manifest依赖，原AbandonedAttempt cause保持。
+下一独立清理结果修订为 [§16 rev2 SPEC](d10-skills-initialization-design.md#16-下一独立结果skills-精确-project-cleanuprev2-spec)，Knowledge未参与设计的续审已有限接受（704bee），无剩余本修订mustfix；root保存为1e8b5c67。只接受规格，未实施或动态验证。rev1三项问题及源码依据保留：dropFK缺合法必要case、历史work全删无有限进度、删父表后D05 CleanupProject仍先取Maintenance plan而断链。rev2保原FK、按32条收缩历史；00028仅保留预留，本域joined-work索引是否采用须按查询/大历史EXPLAIN确认，未写SQL。授权仍是正式已initialized Project当前Cleaning/原Owner-cause-version/manifest依赖，原AbandonedAttempt cause保持。
 
 该SPEC仍补精确CleanupAuthority、opaque release/object plan、物理阶段三项Maintenance、同Tx关闭serving/Release、实际join和原Unknown确认；已确认gated不重复Release，ObjectDelete沿原Creation与真实私有witness。新增不可省略的D05正式 `DeletedObjectMetadataPurger` 依赖：父映射存活时核当前gate和D05物理终局，有限清理私有历史；最后Object/Upload anchor和Skills核心在同一Tx删除，最终六表空只按该原子路径恢复Unknown。D05既有gate/stopWriters/clean及最终未完成检测均须避免无界重复已cleaned历史，同时保真实writer实际done／正式Guard证明。没有永久Skills第二份receipt、全域删除授权或缺行allow；该口当前不存在，DependencyUnbound不算本卡完成。root将独立分派Object补口与Project CleanupPhase，本实例未跨改产品；D04/App/完整root和Object Runtime停项保持。
 

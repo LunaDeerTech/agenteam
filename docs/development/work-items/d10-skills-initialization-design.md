@@ -192,7 +192,7 @@ D08 active-only 初始化 Audit 分支保持原样。新本域生命周期 Audit
 
 ## 16. 下一独立结果：Skills 精确 Project Cleanup（rev2 SPEC）
 
-本节是 Stop 子能力已真实 PG 通过后的下一工程规格，尚未实施／接受。Knowledge 对 rev1 确认三处问题：合法已发表范围不需要删除 FK、历史 work 不能无界全删、先删父映射会阻断后序 D05 维护。rev2 撤回 drop FK，规定有限批次，并明确新增 D05 正式元数据清理能力作为不可省略的上游依赖。不授本实例跨写 Project、Object、App、D04 产品；root 已原则同意另立 D05 独立实现，不以 DependencyUnbound 充作本卡完成。全局 **00028** 只预留，未写 SQL。生产完整 participant、后台调度与共享 ProcessGuard 仍由 root 组合；Object Runtime join 停项不恢复。
+本节是 Stop 子能力已真实 PG 通过后的下一工程规格。Knowledge 未参与设计的续审已有限接受（704bee，无剩余本修订 mustfix），root 保存为1e8b5c67；尚未实施或动态验证。Knowledge 对 rev1 确认三处问题：合法已发表范围不需要删除 FK、历史 work 不能无界全删、先删父映射会阻断后序 D05 维护。rev2 撤回 drop FK，规定有限批次，并明确新增 D05 正式元数据清理能力作为不可省略的上游依赖。不授本实例跨写 Project、Object、App、D04 产品；root 已原则同意另立 D05 独立实现，不以 DependencyUnbound 充作本卡完成。D05 仍须另行冻结实际可执行规格、查询／索引与退休证明，并完成独审及真实组合，不能以本节设计接受替代。全局 **00028** 只预留，未写 SQL。生产完整 participant、后台调度与共享 ProcessGuard 仍由 root 组合；Object Runtime join 停项不恢复。
 
 ### 16.1 可交付结果与授权范围
 

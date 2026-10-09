@@ -9,13 +9,18 @@
 - 下一步：原CommitRecovery已实际闭合；Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority和真实D05三子组合仍各自等待root单top fresh grant后实际执行。前三项用原两资源PG窗口，D05用原七资源窗口；资源、缓存继续唯一所有。root授权的Project精确Stop子能力已获下述有限独审；旧binary及对应产品基线单独保留，不将旧PG结果外推新产品。不spawn，root协调交叉审查。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
 
-## 下一独立清理 SPEC（rev2 待续审）
+## 下一独立清理 SPEC（rev2 有限接受，尚未实施）
 
 - root授权推进精确CleanupAuthority/Project CleanupPhase工程规格并仅预留00028。原rev1三路径已保存 `e9e608f9`；Knowledge独审确认三mustfix：合法已initialized/published范围并不需要dropFK、历史work无界不能一Tx全删、删本域父表后D05 CleanupProject仍先取Maintenance plan会断链。原问题保留，未把rev1记接受。
 - 修订的 [D10设计§16 rev2](../docs/development/work-items/d10-skills-initialization-design.md#16-下一独立结果skills-精确-project-cleanuprev2-spec) 撤回dropFK，保留00027全部约束；合法遗留仍同一发表Skill的旧未发布candidate/AbandonedAttempt。work与非当前attempt在已知物理完成后每批≤32，并保当前attempt和所有核心行；Unknown保原cause/attempt，按真实剩余事实续进。00028只预留joined-work索引候选，现主键id/partial-live索引不覆盖按Project历史扫描，需大历史查询计划确认，未写DDL。
 - Project共享门禁仍由root指定owner补Skills-only当前CleanupPhase。另明确当前不存在的D05正式 `DeletedObjectMetadataPurger`＋唯一closed Access operation依赖：真实当前gate／opaque plan／同Store Tx／原Object与Upload anchor、私有物理完成及actualjoin前置，metadata历史每次≤32，最后Object/Upload与Skills核心同Tx清除。后序ProjectCleanup不再见此Object，避免无父映射Maintenance循环；缺口不能由root泛路由或DependencyUnbound假完成。Object既有gate/clean也须避免每次无界重扫已cleaned历史；root原则同意另建隔离D05实现，此实例不改Object/Project/App/D04产品或Runtime join。
 - Knowledge TCP诊断移植临时优先窄审已完成：f8fe7d actual0，增量逐字Runner57642926，逆除分别逐字Knowledge666169b6／Runner3e7fd3bd，driver未改、11exact三表相同、预算/Wait/resource/input/gate其余字节保持。只接受已审方法的精确移植，无资源运行，不回填原56777或54818终态；已回root/作者，不另复制控制源。
-- Knowledge续审确认三原问题实质闭合为明确D05前置，另要求stopWriters同样纳入有界发现／原writer终局重验。§16.6.2与验收已补gate/stopWriters/clean/最后未完成检测全链、查询索引及历史后部尚活writer反例，仍保实际done／正式Guard证明。本次仅主卡/设计/current三路径再次freeze待最终有限结论；未实施Cleanup或SQL，无测试／真实资源在途。
+- Knowledge续审确认三原问题实质闭合为明确D05前置，另要求stopWriters同样纳入有界发现／原writer终局重验。§16.6.2与验收补齐gate/stopWriters/clean/最后未完成检测全链、查询索引及历史后部尚活writer反例后，704bee独审有限接受、无本修订mustfix；root已保存三docs为1e8b5c67。仍保实际done／正式Guard证明；D05实际可执行SPEC／索引／退休证明、产品独审和真实组合是未实现前置。本次只回填限定结论，未实施Cleanup或SQL。
+
+## 后续 Work 方法与 Timeline SPEC 独审
+
+- Work普通完成提案已由root保存5a49197a，技术仍d3322e3e；本实例只读核真实Session/API/transport、原proxy同body及固定PW1.56.1源码，接受其闭集方法可实施性，未接受新gate或实际owner动态证据。真实正常fulfillment位于actual请求／两层cancel和own-finally后；visible timeout/abandon只拒绝。必须先做真实源held-reader／outer-cancel、earlyreject／identity负控，再接受对应技术实现。当前expiry与显式finish共用retire，缺首次退休原因及退休时pending证明；晚finish/source:end不得把到期或未完成观察升级。精确正式依据与必要拒例见[方法审查](work-cut-review/README.md#普通完成方法的限定判定)。原06及05整体FAIL不变，未改Work源、未跑新browser/PG/socket。
+- Timeline完整rev1（root已保存cf912e3e）后端SPEC有限接受，无mustfix，仅文档静核。四类严格原wire／独立TaskTimelineReader、每页当前Owner、原锁和(created_at,id)+Task.Version水位可由现writer/read端口闭合；真实writer共用无参SELECT clock_timestamp()，单一Store测试包装仅控制该成功Scan可产生同时间刺激，不手种正向历史。三精确PGtop、Rows/Tx/原goroutine实际取消join、未知族默认报错与无迁移边界保持。未编译／执行产品或PG，>200真实命令是否能在原105秒完成须实际验证，不能据静核扩大预算。
 
 ## 本轮恢复保存与 Knowledge 独立风险审查
 
