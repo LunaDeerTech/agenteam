@@ -37,6 +37,9 @@ func nilPort(v any) bool {
 	}
 	return false
 }
+func sameStore(a, b Store) bool {
+	return !nilPort(a) && !nilPort(b) && reflect.TypeOf(a) == reflect.TypeOf(b) && reflect.TypeOf(a).Comparable() && a == b
+}
 func fault(c f.Code) *f.Fault     { return f.NewFault(c, f.NotStarted) }
 func unavailable(err error) error { return fault(f.DependencyUnavailable).WithCause(err) }
 func internal(err error) error    { return fault(f.InternalError).WithCause(err) }

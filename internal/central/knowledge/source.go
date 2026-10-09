@@ -170,3 +170,161 @@ func (s *Service) ReadDocument(ctx context.Context, actor id.Actor, project id.P
 }
 
 var _ kc.CanonicalReads = (*Service)(nil)
+
+// SourceResolver binds exact Knowledge revisions. Other business variants
+// belong to their real domain providers in the outer source router.
+type SourceResolver struct{ data func() *sourceState }
+type sourceState struct {
+	store     Store
+	authority *Authority
+	objects   oc.Objects
+}
+
+func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*SourceResolver, error) {
+	if nilPort(store) || authority.state() == nil || !sameStore(store, authority.state().store) || nilPort(objects) {
+		return nil, fault(f.DependencyUnbound)
+	}
+	st := &sourceState{store: store, authority: authority, objects: objects}
+	return &SourceResolver{data: func() *sourceState { return st }}, nil
+}
+func (r *SourceResolver) state() *sourceState {
+	if r == nil || r.data == nil {
+		return nil
+	}
+	return r.data()
+}
+
+func sourceOwner(reference oc.BusinessFileRef) (oc.ObjectOwner, error) {
+	if reference.Validate() != nil {
+		return oc.ObjectOwner{}, fault(f.InvalidArgument)
+	}
+	d := reference.Details()
+	if d.Kind != oc.KnowledgeFile {
+		return oc.ObjectOwner{}, fault(f.DependencyUnbound)
+	}
+	return oc.NewObjectOwner(oc.Knowledge, d.DocumentID, d.ProjectID.String())
+}
+
+func (r *SourceResolver) sourceInTx(ctx context.Context, tx f.Tx, actor id.Actor, reference oc.BusinessFileRef) (kc.DocumentRef, error) {
+	st := r.state()
+	if st == nil {
+		return kc.DocumentRef{}, fault(f.DependencyUnbound)
+	}
+	owner, err := sourceOwner(reference)
+	if err != nil {
+		return kc.DocumentRef{}, err
+	}
+	x, project, document, err := st.authority.ownerScope(ctx, tx, actor, owner, id.Read)
+	if err != nil {
+		return kc.DocumentRef{}, err
+	}
+	row, err := loadDocument(ctx, x, project, document)
+	if err != nil {
+		return kc.DocumentRef{}, err
+	}
+	if row.head.Active == nil {
+		return kc.DocumentRef{}, fault(f.NotFound)
+	}
+	if row.head.Active.ContentVersion != reference.Details().Revision {
+		return kc.DocumentRef{}, fault(f.VersionConflict)
+	}
+	return *row.head.Active, nil
+}
+
+func (r *SourceResolver) sourceSnapshot(ctx context.Context, actor id.Actor, reference oc.BusinessFileRef) (kc.DocumentRef, error) {
+	st := r.state()
+	if st == nil {
+		return kc.DocumentRef{}, fault(f.DependencyUnbound)
+	}
+	if _, err := sourceOwner(reference); err != nil {
+		return kc.DocumentRef{}, err
+	}
+	project := reference.Details().ProjectID
+	if err := readInput(ctx, actor, project); err != nil {
+		return kc.DocumentRef{}, err
+	}
+	locks, err := scopeLocks(actor, project, false)
+	if err != nil {
+		return kc.DocumentRef{}, err
+	}
+	cause, err := readCause()
+	if err != nil {
+		return kc.DocumentRef{}, err
+	}
+	var out kc.DocumentRef
+	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		var err error
+		out, err = r.sourceInTx(ctx, tx, actor, reference)
+		return err
+	})
+	if err = txError(result); err != nil {
+		return kc.DocumentRef{}, err
+	}
+	return out, nil
+}
+
+func (r *SourceResolver) Resolve(ctx context.Context, actor id.Actor, reference oc.BusinessFileRef) (oc.ResolvedSource, error) {
+	doc, err := r.sourceSnapshot(ctx, actor, reference)
+	if err != nil {
+		return oc.ResolvedSource{}, err
+	}
+	owner, err := sourceOwner(reference)
+	if err != nil {
+		return oc.ResolvedSource{}, err
+	}
+	meta, err := r.state().objects.StatObject(ctx, actor, owner, doc.ObjectID)
+	if err != nil {
+		return oc.ResolvedSource{}, portError(err)
+	}
+	current, err := r.sourceSnapshot(ctx, actor, reference)
+	if err != nil {
+		return oc.ResolvedSource{}, err
+	}
+	if current.ObjectID != doc.ObjectID {
+		return oc.ResolvedSource{}, fault(f.VersionConflict)
+	}
+	if meta.ID != current.ObjectID || meta.MediaType != current.MediaType {
+		return oc.ResolvedSource{}, internal(nil)
+	}
+	return oc.NewResolvedSource(oc.ResolvedSourceDetails{Reference: reference, Owner: owner, Meta: meta, Revision: current.ContentVersion})
+}
+
+func (r *SourceResolver) ValidateInTx(ctx context.Context, tx f.Tx, actor id.Actor, source oc.ResolvedSource, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
+	st := r.state()
+	if st == nil {
+		return fault(f.DependencyUnbound)
+	}
+	if source.Validate() != nil {
+		return fault(f.InvalidArgument)
+	}
+	owner, err := sourceOwner(source.Details().Reference)
+	if err != nil {
+		return err
+	}
+	if !owner.Equal(source.Details().Owner) {
+		return fault(f.InvalidArgument)
+	}
+	request, err := oc.NewSourceAccess(oc.AccessRequestDetails{Operation: plan.Details().Request.Details().Operation, Actor: actor, Source: source})
+	if err != nil {
+		return portError(err)
+	}
+	// The Object issuer checks the exact source request, caller Tx, token and
+	// full held union. No new discovery, transaction, locks or network I/O here.
+	if err = st.objects.ValidateAccessPlanInTx(ctx, tx, request, plan, locked); err != nil {
+		return portError(err)
+	}
+	doc, err := r.sourceInTx(ctx, tx, actor, source.Details().Reference)
+	if err != nil {
+		return err
+	}
+	d := source.Details()
+	if doc.ObjectID != d.Meta.ID || doc.ContentVersion != d.Revision || doc.MediaType != d.Meta.MediaType {
+		return f.NewFault(f.ResourceBusy, f.NotCommitted)
+	}
+	return nil
+}
+
+var _ oc.SourceResolver = (*SourceResolver)(nil)

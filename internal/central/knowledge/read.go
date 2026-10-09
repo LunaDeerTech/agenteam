@@ -65,7 +65,7 @@ func (s *Service) readScope(ctx context.Context, tx f.Tx, actor id.Actor, projec
 	if err != nil {
 		return nil, portError(err)
 	}
-	if access.Project().ID != project {
+	if !access.Matches(actor, project) {
 		return nil, internal(nil)
 	}
 	return x, nil
