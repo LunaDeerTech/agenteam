@@ -1,5 +1,9 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- rev1 `e32b62c6`已获Variables独立有限设计接受（f4c64f实际FK控制）及Skills消费兼容核；root现授权本卡列明的Service/SQL实现，Runtime停项与迁移28不变。当前不是产品验收。
+- 实施首片段：`contract/access.go`接入仅SkillRevision/ProjectDeleted的Purge operation，并逐字定向装配Skills已接受的同scope CleanupRelease分支；`contract/knowledge_cleanup_test.go`仅同步既有闭集期望，`contract/metadata_cleanup_test.go`补闭集/字段/原物理清理兼容及opaque exact operation/issuer/Tx拒例。无Service/SQL改动或真实资源。
+- 实际定向race `70213/7a3267` exit0/1.032s：原env，`go test -mod=readonly -p=1 -race -count=1 -run '^(TestObjectMetadataPurge|TestKnowledgeCleanupRelease|TestAccess)' ./internal/central/object/contract`。后续实现metadata原生终局/同Tx单次预算，再接有界物理链及Stop五lane；初始四路径历史事实如下，旧“待独审”是前轮状态。
+
 - 分支 `ai/object-metadata-cleanup`，基线正式 main `b2a7d0ab`。目标是 initialized Skills Cleanup 所需 D05 有界物理收敛/实际退休/最后同 Tx 元数据删除；不恢复 Runtime join 停项。
 - 初始四路径：本文件、新卡 `docs/development/work-items/d05-bounded-metadata-cleanup.md`、`internal/central/object/contract/metadata_cleanup.go` 及 `_test.go`，已由root保存 `e61ed54d`。本次仅两docs细化为rev1；旧产品/SQL/迁移/root与纯合同源码未改。
 - 实际发现：全历史 attempt 扫描；Stop LIMIT1001全历史投影循环；stop后的maintenanceAdmission拒新cleanup；main尚缺Skills分支已有Release闭集增量。另有revoked Release全cause相等拒旧AbandonedAttempt、尾部Maintenance/Inspect超出Skills许可及全量inspect。SPEC已列必要旧源与分支边界，后续先独审再接写域。

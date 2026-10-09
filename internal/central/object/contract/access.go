@@ -220,13 +220,20 @@ func newAccessRequest(kind AccessKind, d AccessRequestDetails) (AccessRequest, e
 		}
 	case ObjectCleanupAccess:
 		allow("object", "cleanup")
-		err = require(d.Operation == CleanupObjectAccess && d.ObjectID.Validate() == nil && d.Cleanup.Validate() == nil)
+		allowedOperation := d.Operation == CleanupObjectAccess
+		if d.Operation == PurgeDeletedObjectMetadataAccess {
+			cause := d.Cleanup.Details()
+			owner := cause.Owner.Details()
+			allowedOperation = owner.Kind == SkillRevision && validID(owner.ProjectID) && cause.Reason == ProjectDeleted
+		}
+		err = require(allowedOperation && d.ObjectID.Validate() == nil && d.Cleanup.Validate() == nil)
 	case CleanupReleaseAccess:
 		allow("object", "cleanup", "upload")
 		cause := d.Cleanup.Details()
 		owner := cause.Owner.Details()
 		allowedCause := owner.Kind == Avatar && (cause.Reason == ReplacedObject || cause.Reason == CancelledUpload) ||
-			owner.Kind == Knowledge && validID(owner.ProjectID) && (cause.Reason == ReplacedObject || cause.Reason == CancelledUpload || cause.Reason == OwnerDeleted)
+			owner.Kind == Knowledge && validID(owner.ProjectID) && (cause.Reason == ReplacedObject || cause.Reason == CancelledUpload || cause.Reason == OwnerDeleted) ||
+			owner.Kind == SkillRevision && validID(owner.ProjectID) && cause.Reason == ProjectDeleted
 		err = require(d.Operation == ReleaseForCleanupAccess && d.ObjectID.Validate() == nil && d.UploadID.Validate() == nil && d.Cleanup.Validate() == nil && allowedCause)
 	case ProjectCleanupAccess:
 		allow("actor", "project_cleanup")
