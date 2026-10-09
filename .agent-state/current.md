@@ -18,6 +18,15 @@
 - 原件 `output/ai/skills/pg/pg-50d4ed0b91ef46a381a43b229a68f010.log` 与同名owned目录。70036原binary不覆盖。原业务输入没有变化，后续候选必须独立命名。
 - 两项静态已证夹具错误：Admission将 `CauseDetails` 用reflect.DeepEqual比较，其Primary为含非nil闭包的CommandIdentity，连自身都不DeepEqual；须逐正式语义字段/Primary.Canonical与有序Related比较，保持原Unknown/attempt/原cause/空结果/原writer全部门槛，不打印私有key。原聚合断言没有逐字段记录，不能声称旧轮其它条件已过。Owner deleting写随机current_lifecycle_operation_id但未创建该operation，违反00013正式projects_operation_fk；须建立最小正式有效生命周期fixture前置，不关闭FK或冒真实BeginDelete。root授权这两个tests-only窄修；本文冻结时尚未写修复、未重编或再PG。
 
+## 4315 后两夹具修复与安全 TCP 诊断（离线 ready）
+
+- 基线9e3fc022后只修 `tests/skills/admission_unknown_test.go` 与 `owner_read_test.go`。前者用验证过的Cause及全部正式语义字段比较：Primary.Canonical、有序Related、Kind以及Job/Delivery/Recovery全部标量，不用opaque JSON或DeepEqual；原Unknown state、原attempt、空result、writer PID等一律保留，聚合失败另列八个安全布尔值，不输出key/cause/ID。`repair-controls.py cause` 从实际新helper抽取并链接真实Foundation，8ceba1 actual0/14控含原DeepEqual自身恒false、同identity不同构造为true及所有改变/相关顺序/错误kind/无效cause拒绝。不是旧轮未采字段通过的证据。
+- Owner deleting用 `seedReaderDeletingProject`：同UserEX+ProjectEX Tx读取现有archived/initialized/current Owner/version，写正式accepted Delete operation（project_version=current+1）、真实RequiredManifest与digest及required participant，再精确旧version更新Project到deleting并引用同operation。保留正式FK、rows1、原currentOwner公开读拒绝；仍是披露的上游生命周期fixture，不是实际BeginDelete。复用原已验Stop fixture的纯manifest构造，不改原Stop测试或产品。
+- 新candidate `output/ai/skills/compile/skill-pg-admission-owner-fixed.test` 32,903,693 B：79510 race-c actual0、31755 integration vet actual0、26e8fd精确列AdmissionUnknown/Owner两top actual0，gofmt/diffcheck0；未PG。旧70036 32,895,591 B与97198 driver15,394,731 B都保留。命令沿本页固定Go1.27.1/offline/cache/GOMAXPROCS2/GOTMPDIR完整env，构建为 `go test -mod=readonly -p=1 -race -tags=integration -c -o output/ai/skills/compile/skill-pg-admission-owner-fixed.test ./tests/skills`；两tests-only修复待未参与者审，真实再运行须fresh grant，不默开或修改selector。
+- 原supervisor有限移植已接受Runner57642926／Knowledge算法：只增闭集TCP样本与inode/PID稳定身份/可执行文件身份观测，原baseline/delta整集与两次空、75s尾、原Wait/资源/selector/root/default预算原样。观测扫描从原100ms pause支付≤20ms，不用owner豁免任何行；保留原baseline、最后两次循环样本与失败后再读各自时间，0600/exclusive文件，不输出argv/env/comm。549faf逐字核所有新函数和tail等于固定Runner source。
+- `python3 .agent-state/skills-pg-combo/repair-controls.py tcp` b663df原18控实际0（从已保存Git blob复用原控制，仅当前树、原Skills基线8e7afde8、临时输出目录切到本树）；逆除TCP增量后整supervisor逐字原版。首780c74中17控过，1控临时parent目录不存在setupERROR；只修控制输出路径后18过，原失败保持。Work未参与者7e8dc1独立18控及7函数逐字核后有限接受TCP移植无mustfix；不评cause/fixture或Skills PG，不回填4315原TCP失败。
+- 6路径全部冻结供root checkpoint：两test、supervisor、`.agent-state/skills-pg-combo/repair-controls.py`、本页、D10主卡。无执行/资源在途。Work方法整包独审3scope已root保存9e3fc022，当前授权仅离线；Knowledge独立两top候选2578a9ef仍待封闭工具映射，随后推进。
+
 ## 下一独立清理 SPEC（rev2 有限接受，尚未实施）
 
 - root授权推进精确CleanupAuthority/Project CleanupPhase工程规格并仅预留00028。原rev1三路径已保存 `e9e608f9`；Knowledge独审确认三mustfix：合法已initialized/published范围并不需要dropFK、历史work无界不能一Tx全删、删本域父表后D05 CleanupProject仍先取Maintenance plan会断链。原问题保留，未把rev1记接受。
@@ -28,7 +37,7 @@
 
 ## 后续 Work 方法与 Timeline SPEC 独审
 
-- 最新Work `5a49197a..0ad6e5b6` 普通方法整包独审有限接受无mustfix；仅offline技术，不回填06/05失败、不冒新浏览器/七资源结果。本人67453实际102控0/0unhandled（原98＋4真实Session held reader/stream时第二facade busy且不发HTTP，原尾释放后唯一typed成功）；helper4497/80、native13536/41实际0。6b8451 actual AST核originalBody/decodeOriginal/schemaProgram/四截断ledger逐字原版、5处originalBody调用不变、产品/Go sidecar无diff。独立proof为 `.agent-state/work-cut-review/ordinary-controls.cjs`，命令/边界见同目录README；首native8cd8b0 cwd缺TS setupFAIL保留后纠正。已回root及作者，新实际仍freshgrant；此3scope待checkpoint，Skills两个fixture修复及TCP诊断移植尚未动源。
+- 最新Work `5a49197a..0ad6e5b6` 普通方法整包独审有限接受无mustfix；仅offline技术，不回填06/05失败、不冒新浏览器/七资源结果。本人67453实际102控0/0unhandled（原98＋4真实Session held reader/stream时第二facade busy且不发HTTP，原尾释放后唯一typed成功）；helper4497/80、native13536/41实际0。6b8451 actual AST核originalBody/decodeOriginal/schemaProgram/四截断ledger逐字原版、5处originalBody调用不变、产品/Go sidecar无diff。独立proof为 `.agent-state/work-cut-review/ordinary-controls.cjs`，命令/边界见同目录README；首native8cd8b0 cwd缺TS setupFAIL保留后纠正。已回root及作者，新实际仍freshgrant；此3scope已root保存9e3fc022；Skills两个fixture修复与TCP诊断最新范围见上节。
 
 - Work普通完成提案已由root保存5a49197a，技术仍d3322e3e；本实例只读核真实Session/API/transport、原proxy同body及固定PW1.56.1源码，接受其闭集方法可实施性，未接受新gate或实际owner动态证据。真实正常fulfillment位于actual请求／两层cancel和own-finally后；visible timeout/abandon只拒绝。必须先做真实源held-reader／outer-cancel、earlyreject／identity负控，再接受对应技术实现。当前expiry与显式finish共用retire，缺首次退休原因及退休时pending证明；晚finish/source:end不得把到期或未完成观察升级。精确正式依据与必要拒例见[方法审查](work-cut-review/README.md#普通完成方法的限定判定)。原06及05整体FAIL不变，未改Work源、未跑新browser/PG/socket。
 - Timeline完整rev1（root已保存cf912e3e）后端SPEC有限接受，无mustfix，仅文档静核。四类严格原wire／独立TaskTimelineReader、每页当前Owner、原锁和(created_at,id)+Task.Version水位可由现writer/read端口闭合；真实writer共用无参SELECT clock_timestamp()，单一Store测试包装仅控制该成功Scan可产生同时间刺激，不手种正向历史。三精确PGtop、Rows/Tx/原goroutine实际取消join、未知族默认报错与无迁移边界保持。未编译／执行产品或PG，>200真实命令是否能在原105秒完成须实际验证，不能据静核扩大预算。

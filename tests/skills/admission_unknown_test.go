@@ -4,7 +4,6 @@ package skill_test
 
 import (
 	"context"
-	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -30,6 +29,26 @@ type admissionCommitStore struct {
 	armed    bool
 	writer   int32
 	original f.CommitResult
+}
+
+// CauseDetails contains opaque CommandIdentity closures. DeepEqual (and the
+// redacted JSON form) cannot compare their original semantic identities.
+func sameAdmissionCause(a, b f.TransactionCause) bool {
+	if a.Validate() != nil || b.Validate() != nil {
+		return false
+	}
+	x, y := a.Details(), b.Details()
+	if x.Kind != y.Kind || x.Primary.Canonical() != y.Primary.Canonical() || len(x.Related) != len(y.Related) ||
+		x.JobType != y.JobType || x.JobID != y.JobID || x.JobAttemptID != y.JobAttemptID || x.EventID != y.EventID || x.HandlerName != y.HandlerName ||
+		x.Owner != y.Owner || x.RecoveryRunID != y.RecoveryRunID || x.CheckpointRef != y.CheckpointRef {
+		return false
+	}
+	for i := range x.Related {
+		if x.Related[i].Canonical() != y.Related[i].Canonical() {
+			return false
+		}
+	}
+	return true
 }
 
 func (s *admissionCommitStore) WithinTx(ctx context.Context, cause f.TransactionCause, callback func(context.Context, f.Tx) error) f.CommitResult {
@@ -112,8 +131,11 @@ func TestSkillInitializationAdmissionUnknown(t *testing.T) {
 			first := <-returned
 			unknown, ok := skill.UnknownAttempt(first.err)
 			if !ok || unknown.State() != f.Unknown || observing.original.State() != f.Unknown || unknown.AttemptID().Validate() != nil || unknown.AttemptID() != observing.original.AttemptID() ||
-				!reflect.DeepEqual(unknown.Cause().Details(), observing.original.Cause().Details()) || first.value.State != "" || proxy.WriterPID() != observing.writer {
-				t.Fatal("admission lost its actual physical Unknown or returned completion")
+				!sameAdmissionCause(unknown.Cause(), observing.original.Cause()) || first.value.State != "" || proxy.WriterPID() != observing.writer {
+				t.Fatalf("admission Unknown invariant: extracted=%t public_unknown=%t physical_unknown=%t valid_attempt=%t same_attempt=%t same_cause=%t empty_result=%t original_writer=%t", ok,
+					unknown.State() == f.Unknown, observing.original.State() == f.Unknown, unknown.AttemptID().Validate() == nil,
+					unknown.AttemptID() == observing.original.AttemptID(), sameAdmissionCause(unknown.Cause(), observing.original.Cause()),
+					first.value.State == "", proxy.WriterPID() == observing.writer)
 			}
 			wantSteps := ""
 			if target == "reserve" {
@@ -158,7 +180,7 @@ func TestSkillInitializationAdmissionUnknown(t *testing.T) {
 			assertAdmissionFacts(t, direct, v.request, phase, attempts, 0, 1)
 			preserved, ok := skill.UnknownAttempt(first.err)
 			if !ok || preserved.State() != f.Unknown || preserved.AttemptID() != unknown.AttemptID() ||
-				!reflect.DeepEqual(preserved.Cause().Details(), unknown.Cause().Details()) {
+				!sameAdmissionCause(preserved.Cause(), unknown.Cause()) {
 				t.Fatal("later committed evidence rewrote the original Unknown")
 			}
 		})

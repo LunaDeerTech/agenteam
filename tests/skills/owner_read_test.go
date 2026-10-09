@@ -130,13 +130,59 @@ func TestSkillOwnerMetadataCurrentAuthority(t *testing.T) {
 		read(t, owner, v.request.ProjectID, "")
 	})
 	t.Run("deleting_current_owner", func(t *testing.T) {
-		readerMutation(t, p, v, `UPDATE agenteam_project.projects SET lifecycle='deleting',current_lifecycle_operation_id=$2,updated_at=clock_timestamp(),version=version+1 WHERE id=$1`, v.request.ProjectID.String(), testID[pc.Operation](t).String())
+		seedReaderDeletingProject(t, p, v)
 		read(t, owner, v.request.ProjectID, f.ProjectNotActive)
 	})
 	if len(v.objects.steps) != physicalSteps {
 		t.Fatal("metadata directory issued external work")
 	}
 	assertPublishedFacts(t, p, v, complete)
+}
+
+// This is a valid upstream lifecycle seed, not BeginDelete. Keep the current
+// archived Project version/Owner, its real manifest and required participants
+// consistent with the operation parent referenced by the Project FK.
+func seedReaderDeletingProject(t *testing.T, p *skillPG, v *skillCase) {
+	t.Helper()
+	manifest := skillStopManifest(t)
+	raw, err := json.Marshal(manifest.Entries())
+	if err != nil {
+		t.Fatal(err)
+	}
+	digest, err := manifest.Digest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	operation := testID[pc.Operation](t)
+	result := p.store.WithinTx(testContext(t), testCause(t), func(ctx context.Context, tx f.Tx) error {
+		user, _ := f.UserLock(v.owner.String())
+		project, _ := f.ProjectLock(v.request.ProjectID.String())
+		if err := p.store.AcquireAll(ctx, tx, []f.LockRequest{{Key: user, Mode: f.Exclusive}, {Key: project, Mode: f.Exclusive}}); err != nil {
+			return err
+		}
+		x, err := p.store.InTx(tx)
+		if err != nil {
+			return err
+		}
+		var version int64
+		if err = x.QueryRow(ctx, `SELECT version FROM agenteam_project.projects WHERE id=$1 AND owner_user_id=$2 AND lifecycle='archived' AND initialized_at IS NOT NULL`, v.request.ProjectID.String(), v.owner.String()).Scan(&version); err != nil {
+			return err
+		}
+		if _, err = x.Exec(ctx, `INSERT INTO agenteam_project.lifecycle_operations(id,project_id,owner_user_id,action,project_version,state,version,required_manifest,manifest_digest,created_at,updated_at) VALUES($1,$2,$3,'delete',$4,'accepted',1,$5::jsonb,$6,clock_timestamp(),clock_timestamp())`, operation.String(), v.request.ProjectID.String(), v.owner.String(), version+1, raw, digest.String()); err != nil {
+			return err
+		}
+		for _, entry := range manifest.Entries() {
+			if _, err = x.Exec(ctx, `INSERT INTO agenteam_project.lifecycle_participants(operation_id,participant_name,contract_version,stop_state,cleanup_state,version) VALUES($1,$2,$3,'required','required',1)`, operation.String(), string(entry.Name), int64(entry.ContractVersion)); err != nil {
+				return err
+			}
+		}
+		tag, err := x.Exec(ctx, `UPDATE agenteam_project.projects SET lifecycle='deleting',current_lifecycle_operation_id=$2,updated_at=clock_timestamp(),version=version+1 WHERE id=$1 AND version=$3 AND lifecycle='archived'`, v.request.ProjectID.String(), operation.String(), version)
+		if err == nil && tag.RowsAffected() != 1 {
+			return f.NewFault(f.InvalidState, f.NotCommitted)
+		}
+		return err
+	})
+	requireCommitted(t, result)
 }
 
 // Register the same explicit test keys used by newSkillPG through the actual

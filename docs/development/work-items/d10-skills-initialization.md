@@ -52,6 +52,10 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 
 静核两tests-only问题：CauseDetails.Primary含CommandIdentity非nil函数，reflect.DeepEqual会错误拒绝同原cause；deleting夹具缺生命周期operation父行而违反正式FK。root已授权保留原Unknown全部条件并改正式语义比较、补合法生命周期fixture前置，修复/独审/实际复验尚未完成；不改生产或关约束。原聚合断言缺逐条件观测保持缺口，不能补认。原日志、PID/nonce和完整命令边界见恢复点；其它旧组完整PASS保持各自原输入，不扩大本轮接受。
 
+4315后已完成两tests-only离线候选：Admission原opaque cause改完整正式语义比较，原Unknown/attempt/writer/空result门槛不减，14个实际Foundation控制证原DeepEqual错误及新比较拒绝差异；Owner deleting在同User/Project锁事务中建立正式operation/manifest/participants与精确version，保FK和原公开读门禁。race-c79510、integration vet31755、精确两top发现26e8fd均actual0；新32,903,693 B binary独立命名，旧70036/97198保留，修后两组尚未PG/独审接受。
+
+监督器同轮仅移植已审Runner57642926的有限TCP诊断，原整集差集/两次空/75s/Wait/资源门全不变，最多20ms诊断从原100ms间隔支出。固定18控制b663df actual0、Work未参与者7e8dc1窄审接受；首临时目录不存在的control setupERROR保留。只提供后继精确失败样本及受限owner观察，不归因或回填4315，不等测试夹具或业务接受。详源/命令与六路径freeze见恢复点。
+
 ## 生命周期后续依赖与责任
 
 上述Stop两口不构成完整`ProjectLifecycleParticipant`。本域下一段负责精确CleanupAuthority、同cause关闭serving与Release、预算内物理删除、删除Audit外层及所有实际terminal后的本域清理；必须消费真实D08 CleanupPhase准入，不能拿active初始化授权或技术退休权替代。
