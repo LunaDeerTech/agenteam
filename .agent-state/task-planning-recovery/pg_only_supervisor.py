@@ -123,8 +123,16 @@ def observe_root_chain(directory, log, log_path, selector):
         if not empty: good = False
         if round == 1: time.sleep(.1)
     log.flush()
-    output = log_path.read_text()
+    if selector == '^TestKnowledgeB02IndependentTreeReference$/^revoked_persisted_public_receipt_identity_and_old_attachment$':
+        try:
+            output = log_path.read_text()
+        except (OSError, UnicodeDecodeError):
+            log.write('KNOWLEDGE independent_exact_receipt_sub=False log_unreadable=True\n')
+            return False
+    else:
+        output = log_path.read_text()
     expected = {
+        '^TestKnowledgeB02IndependentTreeReference$/^revoked_persisted_public_receipt_identity_and_old_attachment$': {'TestKnowledgeB02IndependentTreeReference'},
         '^TestKnowledgeB02Independent(Content|TreeReference)$': {'TestKnowledgeB02IndependentContent', 'TestKnowledgeB02IndependentTreeReference'},
         '^TestWorkOwnerRootActual(Command|Reader)Join$': {'TestWorkOwnerRootActualCommandJoin', 'TestWorkOwnerRootActualReaderJoin'},
         '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': {'TestWorkOwnerHTTPProcessRoutingAndPersistence'},
@@ -140,6 +148,14 @@ def observe_root_chain(directory, log, log_path, selector):
         '^TestKnowledgeB02(Cleanup|CommitUnknown|Concurrency|CleanupCommitUnknown|ProcessRecovery)$': {'TestKnowledgeB02Cleanup', 'TestKnowledgeB02CommitUnknown', 'TestKnowledgeB02Concurrency', 'TestKnowledgeB02CleanupCommitUnknown', 'TestKnowledgeB02ProcessRecovery'},
     }.get(selector, set())
     actual = set(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
+    if selector == '^TestKnowledgeB02IndependentTreeReference$/^revoked_persisted_public_receipt_identity_and_old_attachment$':
+        top = 'TestKnowledgeB02IndependentTreeReference'
+        names = [top, top + '/revoked_persisted_public_receipt_identity_and_old_attachment']
+        runs = re.findall(r'^=== RUN   ([^\r\n]+)$', output, re.M)
+        terminals = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): ([^\s]+)(?:[ \t]|$)', output, re.M)
+        exact = sorted(runs) == sorted(names) and sorted(terminals) == sorted(('PASS', name) for name in names)
+        good = good and exact
+        log.write(f'KNOWLEDGE independent_exact_receipt_sub={exact}\n')
     if selector == '^TestKnowledgeB02Independent(Content|TreeReference)$':
         count = len(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
         good = good and count == 2

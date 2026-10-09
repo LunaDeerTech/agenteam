@@ -7,7 +7,7 @@
 两 exact top 为 `TestKnowledgeB02IndependentContent`、`TestKnowledgeB02IndependentTreeReference`，各三 direct 子组，selector `^TestKnowledgeB02Independent(Content|TreeReference)$`。原race-c45237 actualexit0；9ccae9 discovery actual0 精确两 top；vet67704 actualexit0；gofmt 与 56e9b6 diffcheck actual0。原候选 `output/ai/knowledge-independent/knowledge-independent-race.test` 为 36,862,944 B，绑定两新测试2578a9ef，工具冻结f285be16。首次真实89530整体FAIL、全部实际资源尾完整，见下节；失败摘要已root保存b7798cd5。后续仅最后一子窄修的新candidate67286已离线编译，未PG、待未参与者窄审，见修复节；当前无执行在途。首 race-c91846 因 Content 未使用 oc import 编译 FAIL，移除后才通过，原结果保留。
 
 - Content：有效 DOCX ZIP 原字节/实际 canonical reader EOF+Close，声明短长长度和 SHA 错误不产生发布事实；真实 D05 Send 完成、real Outbox PrepareAppend 返回后，同 User EX 锁撤销上游 Session，final gate 必须拒绝，后继有效 Session 用新源恢复原 key；真实发布 Event 与 Delete Audit 正控，对公共合法 Event 缺原 command_event、精确公共 Audit 缺原 Tx 私有 witness 均拒绝。
-- TreeReference：真实正文替换上传后插入真实 Move，final/replay 不覆盖当前 parent；preview 成员真实移出/移入、count 同值但旧 scope 拒绝，fresh scope 只删当前成员；真实 PublishVerifiedInTx 返回的原 opaque receipt 在替换后不能 Consume/Attach 复活，精确 Cleanup cause 重放与 wrong operation/reason 对照。
+- TreeReference：真实正文替换上传后插入真实 Move，final/replay 不覆盖当前 parent；preview 成员真实移出/移入、count 同值但旧 scope 拒绝，fresh scope 只删当前成员；最后一子原Publish返回Receipt假设已失败，修后改真实原行公开身份投影与两个各自正向的旧对象撤销、精确Cleanup cause重放及错cause对照，仍待实际。
 - 正向 canonical/reference/upload/Audit/Event/command facts 来自真实 Knowledge+Object+Audit+Outbox API。直接 SQL 仅读取事实，以及明确上游 Account/Project seeds 与持 User 锁 Session 撤销刺激；不造 canonical、claim、receipt、cleanup authority 或 private witness。复用已审 `newPublicationFixture(nil Runtime)` 同 Store 组合，来源实读/Close、原 calls Drain、reader lease/work active 零均检查；不声称 Runtime/ProcessGuard/Project Create/真实 Login。
 - 允许失败后的 planned command、上传/退休记录保留，检查的是无新增已发布事实，不用总库零行否认正式恢复账本。普通 source.Close 收尾不替代原业务结果。最后一子原计划以 Create 原 receipt Consume 和正文替换的 ExistingOwner active Attach 为正控，再拒绝被撤销旧 upload；89530暴露其把 Publish 返回结果当作有效 receipt 的前置假设错误，后续正负例均未到，不能认该计划已实现有效验证。
 
@@ -32,7 +32,17 @@ root明确授权只读真实原uploads行，用公开`NewUploadReceipt`投影原
 
 67286（faf08c/c4755d）race-c actual0，新候选`output/ai/knowledge-independent/knowledge-independent-receipt-fixed-race.test`为36,877,449 B，旧45237未覆盖；3e4853 integration vet actual0。f4e507实际list精确两top，并核原Content三子和TreeReference前两子源码逐字未变、产品/迁移无diff。使用本页完整Go1.27.1/offline/readonly/独占cache env，构建命令仅将`-o`换新候选路径；3b2587 gofmt/diffcheck0。未执行任何修后PG，原89530五子证据只复用未变范围，整个独立补集仍未接受。
 
-本树工具仍只封闭原两top组合，没有暗加单top/子selector或skip。后续只补最后一子实际所需的精确工具映射由root另协调，原七资源/预算/全尾不放宽。当前仅最后一子源与本摘要两路径冻结供保存及未参与者窄审；没有自有live或真实资源。
+上述两路径已root保存87898d82，Work未参与者正做该业务test窄审；此时不再编辑业务测试。root随后仅授权本树工具追加实际末子exact映射，见下节，原七资源/预算/全尾不放宽。
+
+## 精确末子工具映射（离线待独审）
+
+实读当前测试名后，唯一新增literal为`^TestKnowledgeB02IndependentTreeReference$/^revoked_persisted_public_receipt_identity_and_old_attachment$`。brief中的`revoked_original_receipt`占位旧名不接受；原封闭两top组合和所有旧selector保持原字节与行为。只在原Python driver TARGETS增加tests/knowledge入口、supervisor expected增加单top，且仅对该新selector核日志：RUN集合和出现次数恰为一个父top与一个目标sub，终态也必须这两项各一次PASS。空parent、wrong/extra/duplicate子或top、缺任一PASS、SKIP/FAIL均拒，不能仅凭父PASS接受。仅新分支捕获OSError/UnicodeDecodeError返回FAIL，原main继续TCP/input/terminal尾。
+
+`python3 .agent-state/knowledge-independent/selector-controls.py`：首82e9cf为98控actual0；补实际supervisor main后f17d5d为113控actual0。包含两工具逆除本增量全文逐字87898d82、原两top增量再逆除逐字2578a9ef、所有表/原预算一致；实际configuration旧/新正例与各五拒例不创建runtime；新observer18格覆盖零子、错子、多子、重复、缺PASS、SKIP/FAIL、无/错Wait和日志损坏，每格原14资源观察/双private/runtime保留。实际main的正向、非法UTF8、读OSError三格使用受控driver已Wait0、资源/TCP观察输入，验证原Wait[540]、14资源、双desc/private/runtime、baseline+双TCP、inputs_unchanged及terminal0/1均可达。控制未启真实PG、MinIO、socket或browser，也不把受控资源观察当实际回收。
+
+复用67286候选36,877,449 B，不重编业务或driver（入口为Python）。后续真正末子运行沿下方完整root env/cwd/工具/output，只有`--binary`替换为`output/ai/knowledge-independent/knowledge-independent-receipt-fixed-race.test`，`--run`替换为上述literal；仍需freshgrant及同process freshstatvfs≥5368709120，Go6m/root540+60+3/TCP75/七精确资源与全部实际Wait尾不变。原89530五子证据只复用未变范围，不重复作者矩阵或暗加skip。
+
+当前freeze四路径：`.agent-state/work-owner-http/root_chain_driver.py`、`.agent-state/task-planning-recovery/pg_only_supervisor.py`、`.agent-state/knowledge-independent/selector-controls.py`及本摘要，交root保存及未参与者窄审。业务测试仍87898d82不变，无自有命令或真实资源在途。
 
 ## 固定离线命令
 
