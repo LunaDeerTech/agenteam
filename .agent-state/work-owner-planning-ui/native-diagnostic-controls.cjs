@@ -613,6 +613,114 @@ async function consume(f) {
       assert.equal(f.finish().observer_failed, true);
     },
   );
+
+  for (const layer of ["native", "publication"]) {
+    for (const trigger of [
+      "expiry",
+      "overdue-before-timer",
+      "pending-before-late-settlement",
+    ]) {
+      await check(
+        layer + " first retirement cannot be upgraded: " + trigger,
+        async () => {
+          let expiry,
+            now = Date.now();
+          class Clock extends Date {
+            static now() {
+              return now;
+            }
+          }
+          const timers = {
+            Date: Clock,
+            setTimeout(fn) {
+              expiry = fn;
+              return 1;
+            },
+            clearTimeout() {},
+          };
+          const held = deferred();
+          let finish, snapshot, settle;
+          if (layer === "native") {
+            const f = native({ environment: timers, read: () => held.promise });
+            await f.window.fetch(endpoint);
+            await tick();
+            if (trigger === "pending-before-late-settlement")
+              f.stream.getReader().read();
+            finish = f.finish;
+            snapshot = () => f.window.__workNativeDiagnostic.snapshot();
+            settle = () => held.resolve({ done: true });
+          } else {
+            const f = await publication(timers);
+            if (trigger === "pending-before-late-settlement")
+              f.auth.workPlanning.getTask(project, target);
+            finish = () => f.window.__workPublicationDiagnostic.finish();
+            snapshot = () => f.window.__workPublicationDiagnostic.snapshot();
+            settle = () => f.resolve({ id: target });
+          }
+          if (trigger === "expiry") expiry();
+          if (trigger === "overdue-before-timer") now += 60_000;
+          const first = finish();
+          assert.equal(
+            first.retirement_reason,
+            trigger === "pending-before-late-settlement"
+              ? "explicit"
+              : "expired",
+          );
+          if (trigger === "pending-before-late-settlement")
+            assert(first.pending_at_retirement > 0);
+          settle();
+          await tick();
+          const second = finish();
+          assert.equal(second.retirement_reason, first.retirement_reason);
+          assert.equal(
+            second.pending_at_retirement,
+            first.pending_at_retirement,
+          );
+          assert.equal(snapshot().pending_observations, 0);
+        },
+      );
+    }
+  }
+  await check(
+    "Structure Lookup binds its original public call and refuses another returned domain",
+    async () => {
+      for (const returnedDomain of ["structure", "task"]) {
+        const f = await publication();
+        f.auth.workPlanning.progress = {
+          domain: "structure",
+          projectID: project,
+          targetID: target,
+        };
+        const promise = f.auth.workPlanning.checkOriginal();
+        assert.equal(promise, f.promise);
+        assert.equal(
+          f.window.__workPublicationDiagnostic.bindNative(
+            "POST",
+            `/api/v1/projects/${project}/structure-commands/lookup`,
+            1,
+          ),
+          1,
+        );
+        f.resolve({
+          domain: returnedDomain,
+          value:
+            returnedDomain === "structure"
+              ? { state: "in_progress", result: null }
+              : { status: "in_progress", receipt: null },
+        });
+        await promise;
+        await tick();
+        const end = f.window.__workPublicationDiagnostic.finish();
+        assert.equal(
+          end.calls[0].result_kind,
+          returnedDomain === "structure" ? "in_progress" : "other-returned",
+        );
+        assert.equal(end.pending_at_retirement, 0);
+        assert.equal(end.retirement_reason, "explicit");
+        assert.equal(f.calls(), 1);
+      }
+    },
+  );
   const moduleCode = ts.transpileModule(
     fs.readFileSync(publicationPath, "utf8"),
     {
@@ -887,6 +995,8 @@ async function consume(f) {
         row.call_id = 1;
         f.snapshot.publication = {
           retired: true,
+          retirement_reason: "explicit",
+          pending_at_retirement: 0,
           observer_failed: false,
           overflow: false,
           pending_observations: 0,

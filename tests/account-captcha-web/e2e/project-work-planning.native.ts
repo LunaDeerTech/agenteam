@@ -18,6 +18,8 @@ export function installWorkNativeDiagnostic(config: {
   const uuid =
     /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
   const documentID = crypto.randomUUID();
+  let retirementReason: "active" | "explicit" | "expired" = "active";
+  let pendingAtRetirement: number | null = null;
   let retired = false,
     overflow = false,
     observerFailed = false,
@@ -323,6 +325,8 @@ export function installWorkNativeDiagnostic(config: {
   };
   const snapshot = () => ({
     document_id: documentID,
+    retirement_reason: retirementReason,
+    pending_at_retirement: pendingAtRetirement,
     retired,
     overflow,
     observer_failed: observerFailed,
@@ -349,20 +353,25 @@ export function installWorkNativeDiagnostic(config: {
       };
     }),
   });
-  const retire = () => {
+  const retire = (reason: "explicit" | "expired") => {
     if (retired) return;
+    retirementReason = Date.now() >= config.expiresAt ? "expired" : reason;
+    pendingAtRetirement = pending;
     retired = true;
     clearTimeout(timer);
     for (const stop of detach.splice(0)) safe(stop);
     if (window.fetch === wrapper) window.fetch = originalFetch;
     else observerFailed = true;
   };
-  const timer = setTimeout(retire, Math.max(0, config.expiresAt - Date.now()));
+  const timer = setTimeout(
+    () => retire("expired"),
+    Math.max(0, config.expiresAt - Date.now()),
+  );
   window.fetch = wrapper;
   host.__workNativeDiagnostic = {
     snapshot,
     finish() {
-      retire();
+      retire("explicit");
       return snapshot();
     },
   };
@@ -556,6 +565,14 @@ export async function startWorkNativeDiagnostic(
     }
     return result;
   };
+  const retirement = (reason: unknown) => {
+    if (
+      typeof reason !== "string" ||
+      !["active", "explicit", "expired", "failed"].includes(reason)
+    )
+      throw Error("retirement");
+    return reason;
+  };
   function publish(value: any, source: "sample" | "end") {
     let native: any,
       publication: any = null;
@@ -573,9 +590,10 @@ export async function startWorkNativeDiagnostic(
       native = {
         ...scalar(
           raw,
-          "pending_observations",
+          "pending_observations pending_at_retirement",
           "retired overflow observer_failed",
         ),
+        retirement_reason: retirement(raw.retirement_reason),
         document_id: raw.document_id,
         requests: raw.requests.map((row: any) => projectRow(row)),
       };
@@ -586,9 +604,10 @@ export async function startWorkNativeDiagnostic(
         publication = {
           ...scalar(
             raw,
-            "pending_observations",
+            "pending_observations pending_at_retirement",
             "retired overflow observer_failed",
           ),
+          retirement_reason: retirement(raw.retirement_reason),
           calls: raw.calls.map((row: any) => projectRow(row, true)),
         };
       }

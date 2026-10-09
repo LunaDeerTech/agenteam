@@ -172,6 +172,8 @@ export async function installWorkPublicationDiagnostic({
   const initialIdentity = { ...auth.personalContext.identity };
   const uuid =
     /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  let retirementReason: "active" | "explicit" | "expired" | "failed" = "active";
+  let pendingAtRetirement: number | null = null;
   let retired = false,
     observerFailed = false,
     overflow = false,
@@ -223,10 +225,13 @@ export async function installWorkPublicationDiagnostic({
       !uuid.test(progress.targetID)
     )
       return null;
-    if (name === "checkOriginal" && progress.domain === "task")
+    if (
+      name === "checkOriginal" &&
+      ["task", "structure"].includes(progress.domain)
+    )
       return {
         method: "POST",
-        path: `/api/v1/projects/${progress.projectID}/task-commands/lookup`,
+        path: `/api/v1/projects/${progress.projectID}/${progress.domain}-commands/lookup`,
         target_id: progress.targetID,
       };
     if (
@@ -269,9 +274,11 @@ export async function installWorkPublicationDiagnostic({
   };
   let observer: MutationObserver | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
-  const retire = () => {
+  const retire = (reason: "explicit" | "expired" | "failed") => {
     if (retired) return;
     sampleDOM();
+    retirementReason = Date.now() >= expiresAt ? "expired" : reason;
+    pendingAtRetirement = pending;
     retired = true;
     observer?.disconnect();
     clearTimeout(timer);
@@ -336,11 +343,18 @@ export async function installWorkPublicationDiagnostic({
                   row.result_kind = name.startsWith("get")
                     ? "typed-detail-returned"
                     : name === "checkOriginal" &&
-                        result?.domain === "task" &&
+                        ((row.path.endsWith("/task-commands/lookup") &&
+                          result?.domain === "task") ||
+                          (row.path.endsWith("/structure-commands/lookup") &&
+                            result?.domain === "structure")) &&
                         ["committed", "in_progress", "not_observed"].includes(
-                          result.value?.status,
+                          result.domain === "structure"
+                            ? result.value?.state
+                            : result.value?.status,
                         )
-                      ? result.value.status
+                      ? result.domain === "structure"
+                        ? result.value.state
+                        : result.value.status
                       : name === "retryOriginal" &&
                           result?.domain === "structure"
                         ? "typed-receipt-returned"
@@ -384,6 +398,8 @@ export async function installWorkPublicationDiagnostic({
     const snapshot = () => {
       sampleDOM();
       return {
+        retirement_reason: retirementReason,
+        pending_at_retirement: pendingAtRetirement,
         retired,
         observer_failed: observerFailed,
         overflow,
@@ -392,7 +408,10 @@ export async function installWorkPublicationDiagnostic({
         calls: calls.map((row) => ({ ...row })),
       };
     };
-    timer = setTimeout(retire, Math.max(0, expiresAt - Date.now()));
+    timer = setTimeout(
+      () => retire("expired"),
+      Math.max(0, expiresAt - Date.now()),
+    );
     host.__workPublicationDiagnostic = {
       snapshot,
       bindNative(method: string, path: string, sequence: number) {
@@ -416,13 +435,13 @@ export async function installWorkPublicationDiagnostic({
         return row.call_id;
       },
       finish() {
-        retire();
+        retire("explicit");
         return snapshot();
       },
     };
     return "installed";
   } catch {
-    retire();
+    retire("failed");
     return "observer-unavailable";
   }
 }
