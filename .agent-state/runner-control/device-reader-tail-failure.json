@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "outcome": "failed",
+  "selector": "^TestRunnerControlDeviceAndReader$",
+  "outer_session": 86448,
+  "cwd": "/workspace/agenteam-runner-control",
+  "command": [
+    "python3",
+    ".agent-state/task-planning-recovery/pg_only_supervisor.py",
+    "--driver",
+    "/workspace/agenteam-runner-control/output/ai/runner-control/pg-only-driver",
+    "--binary",
+    "/workspace/agenteam-runner-control/output/ai/runner-control/runnercontrol-service-race-2.test",
+    "--run",
+    "^TestRunnerControlDeviceAndReader$",
+    "--output",
+    "/workspace/agenteam-runner-control/output/ai/runner-control/pg"
+  ],
+  "fresh_disk_bytes": 6904758272,
+  "original_log": "output/ai/runner-control/pg/pg-bb7488d9a521460b8df9aa5b48496a62.log",
+  "body": {
+    "result": "PASS",
+    "elapsed_seconds": 34.6
+  },
+  "actual_wait": {
+    "go_pid": 856818,
+    "go_exit": 0,
+    "driver_pid": 856150,
+    "driver_exit": 0,
+    "outer_exit": 1
+  },
+  "driver_elapsed_seconds": 46.280261107,
+  "supervisor_elapsed_seconds": 121.96,
+  "owned": {
+    "container_id": "74de6b6286ca01fbda1a5c4b8628978454fe5f72a0ae7a4c3755554385a63435",
+    "network_id": "7748cc7808c8e49c04658748c3658cd24690286edaecbe214ccbc458fb8f90f7",
+    "nonce": "5d0e269351849567d16102acce79e538",
+    "two_retire_observations_clean": true,
+    "two_runtime_descendants_observations_empty": true
+  },
+  "inputs_unchanged": true,
+  "failure": {
+    "stage": "host_tcp_delta_tail",
+    "original_row_count": 4,
+    "original_tuples": null,
+    "original_states": null,
+    "original_inodes": null,
+    "ownership": "unknown",
+    "missing_evidence": "The original supervisor retained baseline/delta only in memory and logged only the final row count; the saved run directory contains owned.json only. Later observations cannot identify the original four rows."
+  },
+  "current_observation": {
+    "observed_at_utc": "2026-10-09T17:00:49.405743+00:00",
+    "matching_known_pids_test_pgid_or_readable_exact_executable": [],
+    "unreadable_stat_count": 0,
+    "unreadable_exe_count": 348,
+    "exact_fixture_port": 32955,
+    "tcp_rows_for_exact_port": [],
+    "scope": "Current observation only; unreadable executables are not classified. No reconstruction of the original four-row host delta."
+  },
+  "limits": [
+    "Body PASS is not whole-run PASS.",
+    "No native/client top or repeat run started.",
+    "No process killed or unknown socket/resource cleaned during diagnosis.",
+    "Known Go test process group and readable exact binaries show no current matches; this does not prove historical host TCP ownership."
+  ]
+}
