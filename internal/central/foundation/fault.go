@@ -45,6 +45,12 @@ const (
 	ObjectPayloadMissing    Code = "OBJECT_PAYLOAD_MISSING"
 	ObjectIntegrityMismatch Code = "OBJECT_INTEGRITY_MISMATCH"
 	RangeNotSatisfiable     Code = "RANGE_NOT_SATISFIABLE"
+	TaskNotFound            Code = "TASK_NOT_FOUND"
+	TaskVersionConflict     Code = "TASK_VERSION_CONFLICT"
+	TaskStateInvalid        Code = "TASK_STATE_INVALID"
+	TaskAssigneeRequired    Code = "TASK_ASSIGNEE_REQUIRED"
+	TaskSprintInvalid       Code = "TASK_SPRINT_INVALID"
+	TaskTerminalImmutable   Code = "TASK_TERMINAL_IMMUTABLE"
 )
 
 func (c Code) Known() bool {
@@ -55,7 +61,7 @@ func (c Code) Known() bool {
 		ProjectNotActive, ConfirmationStale, SchemaUnsupported, CapabilityUnsupported,
 		RateLimited, DependencyUnbound, DependencyUnavailable, CommitUnknown, InternalError,
 		PayloadTooLarge, UnsupportedMediaType, ShuttingDown, ObjectPayloadMissing,
-		ObjectIntegrityMismatch, RangeNotSatisfiable:
+		ObjectIntegrityMismatch, RangeNotSatisfiable, TaskNotFound, TaskVersionConflict, TaskStateInvalid, TaskAssigneeRequired, TaskSprintInvalid, TaskTerminalImmutable:
 		return true
 	}
 	return false

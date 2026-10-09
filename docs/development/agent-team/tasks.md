@@ -6,12 +6,12 @@
 
 ## 当前恢复点与并行所有权
 
-本次未启动下表产品任务。后续恢复开发时，主线程给一级负责人完整子目标，由其安排下级实现、自测、独立验证和文件/资源所有权；共享入口、迁移、构建资产与测试资源只允许一个写入者或明确串行。
+本次已恢复 D11 Task Planning 与 D27 Model harness 工作，实际进度见对应行及活动分支。后续恢复开发时，主线程给一级负责人完整子目标，由其安排下级实现、自测、独立验证和文件/资源所有权；共享入口、迁移、构建资产与测试资源只允许一个写入者或明确串行。
 
 | 工作项 | 当前可证状态 | 接手时的下一步与完成边界 |
 | --- | --- | --- |
 | [D11 Work Structure](../work-items/d11-work-structure.md) | **本卡已完成**。四 contract `c3b1ee72` 与实现 `a64fb5e7` 已提交；18 路径均存在，限定技术域至本次基线无差异。 | 可供 Task planning 消费。全18按明确版本组合接受；保留 Unknown01 原 FAIL、U1 修复与独立 B 工具终态缺口。不是当前 HEAD 单次全量测试或完整 D11。 |
-| [D11 Task planning](../work-items/d11-task-planning.md) | **规格已完成，实施待恢复**。`97439ffd` 只交付规格/验收文档；Human 未指派 backlog、查询/普通字段/rank、必要 TaskEvent 和真实 membership 范围已确定。 | 原 scratch 已不可取；15 个新增技术路径（含预留 `00022_task_planning.sql`）均缺失，其他6个共享/README路径存在不代表已实现。按已接受规格恢复20技术路径与必要说明，独立 A/B 仍只有计划。不得冒称状态机、指派、执行、删除或完整 D11 完成。 |
+| [D11 Task planning](../work-items/d11-task-planning.md) | **契约七路径已实现并独立验收；整卡未完成**。DTO/三态筛选/摘要/typed事件/六Fault及Project精确门禁已交付；原笼统enclosing日志承诺的两组FAIL保留，按Go真实投影边界修订规范。 | 活动 `ai/task-planning-recovery` 已恢复服务、查询、00022与两ID测试harness并推送可构建检查点；迁移、持久化分页、原子事件首轮真实PG及资源终态通过，仅作早反馈。继续补齐七新八旧、独立A/B及完整异常/竞争矩阵；状态机、指派、执行、删除、生产root与完整D11均未完成。 |
 | [D27 Project Model Settings UI](../work-items/d27-project-owner-model-settings-ui.md) | **前端已交付，整卡验收未完成**。API `b0ee596d`、state `17589540`、页面 `1133152f` 已提交，25个 web 源存在。 | 4个 Go/browser harness 文件缺失且无对应 Git 路径历史，旧私有构建/driver 不可取。先按正式卡及端点附件重建必要输入，再补 recovery/read/authority/navigation、旧14与独立 A/B；原业务失败不回填。 |
 | [D08 Project 与 Owner](../work-items/d08-project-owner.md) | **部分子能力接受，模块未完成**。基础权限/生命周期事实、Owner 读写 HTTP、Audit 与初始化收敛已有交付。 | 完整 lifecycle 推进/清理、Artifact/Object 组合、Skills 初始化与创建 HTTP/root 仍未闭合；Object join 是实际阻塞，不能用空适配器跳过。按[领域绑定卡](../work-items/recovery-project-domain-bindings.md)定位剩余接缝。 |
 | [D09 Model System](../work-items/d09-model-system-token-usage.md) | **部分库与 HTTP 接受，模块未完成**。已有配置、Owner/Usage HTTP、Summary、Chat text 与 Embeddings/平台选择 Resolver 等限定成果。 | 生产 Resolution/Invocation 与 consumer 仍未绑定；OpenAI tools 独立动态验收停止，Jina/Image 来源缺口另列。不能把 wire、受控 fixture 或 UI 通过写成真实 Provider/生产调用完成。 |
