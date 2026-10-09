@@ -12,6 +12,9 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -27,7 +30,11 @@ type projectWorkRecoveryStage struct {
 	Hijacked, Closed, NotForwarded, LookupObserved, Completed bool
 	FaultHits                                                 int64
 	FaultInstalled                                            bool
+	WireAttempts, ClosedAttempts                              int
+	Rejected                                                  bool
 }
+
+const projectWorkUnforwardedAttemptLimit = 4
 
 func closeProjectWorkUnforwarded(w http.ResponseWriter) (bool, bool, error) {
 	conn, _, err := http.NewResponseController(w).Hijack()
@@ -57,19 +64,35 @@ func projectWorkRecoveryStageMatches(stage *projectWorkRecoveryStage, o projectW
 	return json.Unmarshal(o.Body, &body) == nil && reflect.DeepEqual(body, map[string]any{"expected_version": stage.ExpectedVersion, "request": map[string]any{"title": stage.Text}})
 }
 
-// This runs before the existing ReverseProxy receives the one declared request.
+// This runs before the existing ReverseProxy receives the declared request.
 // A zero-response close is kept distinct from the completed-response truncation
 // fixture: no fabricated headers, receipt, successful status, or body is emitted.
 func (f *projectWorkPlanningWebFixture) recoveryBeforeForward(w http.ResponseWriter, r *http.Request, o projectWorkPlanningWebObservation) (bool, error) {
 	f.guard.Lock()
 	stage := f.recoveryStages[o.ProjectID]
-	if !projectWorkRecoveryStageMatches(stage, o) {
+	armedUnforwarded := stage != nil && stage.Kind == "not-observed" && !stage.LookupObserved && o.Method == http.MethodPatch && o.RawPath == projectOwnerWebPath+"/"+stage.Project+"/milestones/"+stage.Target
+	first := stage != nil && stage.Original == nil
+	if armedUnforwarded {
+		matches := projectWorkRecoveryStageMatches(stage, o)
+		if !first {
+			original := stage.Original
+			matches = o.ProjectID == original.ProjectID && o.TargetID == original.TargetID && o.Domain == original.Domain && o.Command == original.Command && o.RawQuery == "" && o.Key == original.Key && o.CSRF == original.CSRF && bytes.Equal(o.Body, original.Body)
+		}
+		if !matches || stage.WireAttempts >= projectWorkUnforwardedAttemptLimit {
+			stage.Rejected = true
+			f.guard.Unlock()
+			return false, errors.New("owned unforwarded original changed or exceeded its bound")
+		}
+		stage.WireAttempts++
+	} else if !projectWorkRecoveryStageMatches(stage, o) {
 		f.guard.Unlock()
 		return true, nil
 	}
-	copy := o
-	copy.Body = append([]byte(nil), o.Body...)
-	stage.Original = &copy
+	if first {
+		copy := o
+		copy.Body = append([]byte(nil), o.Body...)
+		stage.Original = &copy
+	}
 	f.guard.Unlock()
 	if stage.Kind == "in-progress" {
 		return true, f.installRecoveryOutboxFault(r.Context(), stage)
@@ -77,20 +100,62 @@ func (f *projectWorkPlanningWebFixture) recoveryBeforeForward(w http.ResponseWri
 	if stage.Kind != "not-observed" {
 		return false, errors.New("closed recovery stage unavailable")
 	}
-	var count int
-	if err := f.store.QueryRow(r.Context(), `SELECT count(*) FROM agenteam_work.structure_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3`, o.ProjectID, o.Command, o.Key).Scan(&count); err != nil || count != 0 {
-		return false, errors.New("unforwarded original key already has a command")
+	if first {
+		var count int
+		if err := f.store.QueryRow(r.Context(), `SELECT count(*) FROM agenteam_work.structure_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3`, o.ProjectID, o.Command, o.Key).Scan(&count); err != nil || count != 0 {
+			return false, errors.New("unforwarded original key already has a command")
+		}
 	}
 	hijacked, closed, closeErr := closeProjectWorkUnforwarded(w)
 	f.guard.Lock()
-	stage.Hijacked = hijacked
-	stage.Closed = closed
+	stage.Hijacked = stage.Hijacked || hijacked
+	stage.Closed = stage.Closed || closed
+	if hijacked && closed && closeErr == nil {
+		stage.ClosedAttempts++
+	}
 	stage.NotForwarded = true
 	f.guard.Unlock()
 	if closeErr != nil {
 		return false, errors.New("owned before-forward close failed")
 	}
 	return false, nil
+}
+
+func projectWorkUnforwardedComplete(stage projectWorkRecoveryStage) bool {
+	return stage.Original != nil && stage.NotForwarded && stage.Hijacked && stage.Closed && !stage.Rejected && stage.WireAttempts >= 1 && stage.WireAttempts <= projectWorkUnforwardedAttemptLimit && stage.ClosedAttempts == stage.WireAttempts
+}
+
+// Called only after stopProxy has joined. This projection contains no request
+// material, IDs, arbitrary errors or caller-controlled strings, including on FAIL.
+func (f *projectWorkPlanningWebFixture) writeRecoveryStageEvidence() {
+	if f.mode != "recovery" {
+		return
+	}
+	type safeStage struct {
+		Kind           string `json:"kind"`
+		Bound          bool   `json:"bound"`
+		WireAttempts   int    `json:"wire_attempts"`
+		ClosedAttempts int    `json:"closed_attempts"`
+		Rejected       bool   `json:"rejected"`
+		LookupObserved bool   `json:"lookup_observed"`
+		Completed      bool   `json:"completed"`
+		FaultInstalled bool   `json:"fault_installed"`
+		FaultHits      int64  `json:"fault_hits"`
+	}
+	stages := make([]safeStage, 0, 2)
+	f.guard.Lock()
+	for _, kind := range []string{"not-observed", "in-progress"} {
+		if seed, ok := f.seeds[kind]; ok {
+			if stage := f.recoveryStages[seed.ProjectID]; stage != nil {
+				stages = append(stages, safeStage{kind, stage.Original != nil, stage.WireAttempts, stage.ClosedAttempts, stage.Rejected, stage.LookupObserved, stage.Completed, stage.FaultInstalled, stage.FaultHits})
+			}
+		}
+	}
+	f.guard.Unlock()
+	raw, err := json.Marshal(stages)
+	if err != nil || os.WriteFile(filepath.Join(f.evidence, "work-recovery-stage-evidence.json"), raw, 0600) != nil {
+		f.t.Error("safe recovery stage evidence could not be saved")
+	}
 }
 
 func (f *projectWorkPlanningWebFixture) installRecoveryOutboxFault(ctx context.Context, stage *projectWorkRecoveryStage) error {
@@ -255,7 +320,7 @@ func (f *projectWorkPlanningWebFixture) recoveryIPC(ctx context.Context, r proje
 			f.t.Fatal("actual recovery command observation failed")
 		}
 		if stage.Kind == "not-observed" {
-			if total != 0 || !stage.NotForwarded || !stage.Hijacked || !stage.Closed {
+			if total != 0 || !projectWorkUnforwardedComplete(stage) {
 				f.t.Fatal("not_observed original was forwarded or acquired a fact")
 			}
 		} else if total != 1 || planned != 1 || !stage.FaultInstalled {
@@ -266,7 +331,12 @@ func (f *projectWorkPlanningWebFixture) recoveryIPC(ctx context.Context, r proje
 			f.t.Fatal("nonterminal observation changed canonical/history/Outbox facts")
 		}
 		f.guard.Lock()
-		f.recoveryStages[seed.ProjectID].LookupObserved = true
+		live := f.recoveryStages[seed.ProjectID]
+		if stage.Kind == "not-observed" && !projectWorkUnforwardedComplete(*live) {
+			f.guard.Unlock()
+			f.t.Fatal("unforwarded original still closing or rejected before release")
+		}
+		live.LookupObserved = true
 		f.guard.Unlock()
 		out["state"] = strings.ReplaceAll(stage.Kind, "-", "_")
 	case "complete-planned-original":
@@ -449,8 +519,15 @@ func assertProjectWorkRecoveryStages(t *testing.T, f *projectWorkPlanningWebFixt
 				nonterminalMutation++
 			}
 		}
-		if committedLookup != 1 || nonterminalLookup != 1 || successfulMutation != 1 || nonterminalMutation != 1 {
-			t.Fatal("original operations differ from exactly one initial attempt, nonterminal Lookup, explicit continuation and committed Lookup")
+		wantInitial := 1
+		if stage.Kind == "not-observed" {
+			if !projectWorkUnforwardedComplete(stage) {
+				t.Fatal("unforwarded physical attempts did not all close within their bound")
+			}
+			wantInitial = stage.ClosedAttempts
+		}
+		if committedLookup != 1 || nonterminalLookup != 1 || successfulMutation != 1 || nonterminalMutation != wantInitial {
+			t.Fatal("original operations differ from closed physical attempts, one nonterminal Lookup, explicit continuation and committed Lookup")
 		}
 		_ = commandID // the actual unique command is observed above; no synthetic ID is supplied.
 	}
@@ -521,6 +598,147 @@ func TestProjectWorkRecoveryStageDefaultNoop(t *testing.T) {
 	if !proceed || err != nil || len(w.trace) != 0 || len(w.header) != 0 {
 		t.Fatal("unconfigured recovery hook changed default forwarding")
 	}
+}
+
+func TestProjectWorkNotObservedRepeatBoundary(t *testing.T) {
+	const project = "01900000-0000-7000-8000-000000000001"
+	const target = "01900000-0000-7000-8000-000000000002"
+	const key, csrf = "original-key", "private-test-csrf"
+	path := projectOwnerWebPath + "/" + project + "/milestones/" + target
+	body := []byte(`{"expected_version":"1","request":{"title":"original"}}`)
+	original := projectWorkPlanningWebObservation{Method: http.MethodPatch, RawPath: path, ProjectID: project, TargetID: target, Domain: "structure", Command: "work.milestone.update", Key: key, CSRF: sha256.Sum256([]byte(csrf)), Body: body}
+	stage := &projectWorkRecoveryStage{Kind: "not-observed", Project: project, Target: target, ExpectedVersion: "1", Text: "original", Original: &original, NotForwarded: true, Hijacked: true, Closed: true, WireAttempts: 1, ClosedAttempts: 1}
+	f := &projectWorkPlanningWebFixture{mode: "recovery", enabled: true, recoveryStages: map[string]*projectWorkRecoveryStage{project: stage}, records: []projectWorkPlanningWebObservation{original}}
+	owner := &projectOwnerWebFixture{work: f, authenticationWebFixture: &authenticationWebFixture{t: t}}
+	f.projectOwnerWebFixture = owner
+	request := func() *http.Request {
+		r := httptest.NewRequest(http.MethodPatch, path, bytes.NewReader(body))
+		r.Header.Set("Idempotency-Key", key)
+		r.Header.Set("X-CSRF-Token", csrf)
+		return r
+	}
+	local, peer := net.Pipe()
+	t.Cleanup(func() { _ = local.Close(); _ = peer.Close() })
+	w := &projectWorkCutWriter{header: make(http.Header), conn: local}
+	if owner.observeRequest(w, request()) {
+		t.Fatal("same original wire attempt escaped the armed not_observed boundary")
+	}
+	if !reflect.DeepEqual(w.trace, []string{"hijack", "close"}) || len(w.header) != 0 {
+		t.Fatal("repeated original was not really closed without a response")
+	}
+	if stage.WireAttempts != 2 || stage.ClosedAttempts != 2 || !projectWorkUnforwardedComplete(*stage) {
+		t.Fatal("actual repeated close was not counted")
+	}
+	// This models only the release flag set after the dynamic fixture has
+	// verified the public original Lookup and actual same-key SQL absence.
+	// It does not claim to establish those PG facts in this pure test.
+	stage.LookupObserved = true
+	replayed := request()
+	untouched := &projectWorkCutWriter{header: make(http.Header)}
+	if !owner.observeRequest(untouched, replayed) || len(untouched.trace) != 0 {
+		t.Fatal("explicit replay after verified Lookup was still intercepted")
+	}
+	forwarded, err := io.ReadAll(replayed.Body)
+	if err != nil || !bytes.Equal(forwarded, body) || replayed.Header.Get("Idempotency-Key") != key || replayed.Header.Get("X-CSRF-Token") != csrf {
+		t.Fatal("released original body/key/Session changed")
+	}
+	_ = replayed.Body.Close()
+}
+
+func TestProjectWorkNotObservedBoundaryControls(t *testing.T) {
+	const project = "01900000-0000-7000-8000-000000000001"
+	const target = "01900000-0000-7000-8000-000000000002"
+	original := projectWorkPlanningWebObservation{Method: http.MethodPatch, RawPath: projectOwnerWebPath + "/" + project + "/milestones/" + target, ProjectID: project, TargetID: target, Domain: "structure", Command: "work.milestone.update", Key: "original-key", CSRF: sha256.Sum256([]byte("original-session")), Body: []byte(`{"expected_version":"1","request":{"title":"original"}}`)}
+	newStage := func() *projectWorkRecoveryStage {
+		return &projectWorkRecoveryStage{Kind: "not-observed", Project: project, Target: target, ExpectedVersion: "1", Text: "original", Original: &original, NotForwarded: true, Hijacked: true, Closed: true, WireAttempts: 1, ClosedAttempts: 1}
+	}
+	for _, sample := range []struct {
+		name   string
+		change func(*projectWorkRecoveryStage, *projectWorkPlanningWebObservation)
+	}{
+		{"key", func(_ *projectWorkRecoveryStage, o *projectWorkPlanningWebObservation) { o.Key = "changed-key" }},
+		{"raw-body", func(_ *projectWorkRecoveryStage, o *projectWorkPlanningWebObservation) {
+			o.Body = append([]byte(" "), o.Body...)
+		}},
+		{"csrf", func(_ *projectWorkRecoveryStage, o *projectWorkPlanningWebObservation) {
+			o.CSRF = sha256.Sum256([]byte("another-session"))
+		}},
+		{"query", func(_ *projectWorkRecoveryStage, o *projectWorkPlanningWebObservation) { o.RawQuery = "extra=1" }},
+		{"command", func(_ *projectWorkRecoveryStage, o *projectWorkPlanningWebObservation) {
+			o.Command = "work.milestone.reorder"
+		}},
+		{"target", func(_ *projectWorkRecoveryStage, o *projectWorkPlanningWebObservation) { o.TargetID = project }},
+		{"limit", func(s *projectWorkRecoveryStage, _ *projectWorkPlanningWebObservation) {
+			s.WireAttempts, s.ClosedAttempts = 4, 4
+		}},
+		{"first-meaning", func(s *projectWorkRecoveryStage, o *projectWorkPlanningWebObservation) {
+			s.Original = nil
+			o.Body = []byte(`{"expected_version":"1","request":{"title":"changed"}}`)
+		}},
+	} {
+		t.Run(sample.name, func(t *testing.T) {
+			stage, observed := newStage(), original
+			sample.change(stage, &observed)
+			f := &projectWorkPlanningWebFixture{recoveryStages: map[string]*projectWorkRecoveryStage{project: stage}}
+			w := &projectWorkCutWriter{header: make(http.Header)}
+			proceed, err := f.recoveryBeforeForward(w, nil, observed)
+			if proceed || err == nil || !stage.Rejected || len(w.trace) != 0 || len(w.header) != 0 || projectWorkUnforwardedComplete(*stage) {
+				t.Fatal("changed or excessive stage request was admitted or fabricated a response")
+			}
+		})
+	}
+	t.Run("physical-limit-and-close-failure", func(t *testing.T) {
+		stage := newStage()
+		f := &projectWorkPlanningWebFixture{recoveryStages: map[string]*projectWorkRecoveryStage{project: stage}}
+		for want := 2; want <= 4; want++ {
+			local, peer := net.Pipe()
+			w := &projectWorkCutWriter{header: make(http.Header), conn: local}
+			proceed, err := f.recoveryBeforeForward(w, nil, original)
+			_ = peer.Close()
+			_ = local.Close()
+			if proceed || err != nil || stage.WireAttempts != want || stage.ClosedAttempts != want || !projectWorkUnforwardedComplete(*stage) {
+				t.Fatal("bounded physical attempt did not really close")
+			}
+		}
+		stage = newStage()
+		f.recoveryStages[project] = stage
+		w := &projectWorkCutWriter{header: make(http.Header), mode: "hijack"}
+		proceed, err := f.recoveryBeforeForward(w, nil, original)
+		if proceed || err == nil || stage.WireAttempts != 2 || stage.ClosedAttempts != 1 || projectWorkUnforwardedComplete(*stage) {
+			t.Fatal("failed physical close was accepted as a completed barrier")
+		}
+	})
+	t.Run("other-target-read-and-lookup", func(t *testing.T) {
+		f := &projectWorkPlanningWebFixture{recoveryStages: map[string]*projectWorkRecoveryStage{project: newStage()}}
+		for _, o := range []projectWorkPlanningWebObservation{
+			{ProjectID: project, Method: http.MethodGet, RawPath: original.RawPath},
+			{ProjectID: project, Method: http.MethodPost, RawPath: projectOwnerWebPath + "/" + project + "/structure-commands/lookup"},
+			{ProjectID: project, Method: http.MethodPatch, RawPath: projectOwnerWebPath + "/" + project + "/milestones/" + project},
+		} {
+			w := &projectWorkCutWriter{header: make(http.Header)}
+			proceed, err := f.recoveryBeforeForward(w, nil, o)
+			if !proceed || err != nil || len(w.trace) != 0 {
+				t.Fatal("declared not_observed barrier captured an unrelated operation")
+			}
+		}
+	})
+}
+
+func TestProjectWorkRecoverySafeStageEvidence(t *testing.T) {
+	directory := t.TempDir()
+	f := &projectWorkPlanningWebFixture{mode: "recovery", projectOwnerWebFixture: &projectOwnerWebFixture{evidence: directory, authenticationWebFixture: &authenticationWebFixture{t: t}}, seeds: map[string]projectWorkPlanningWebSeed{"not-observed": {ProjectID: "private-project"}}, recoveryStages: map[string]*projectWorkRecoveryStage{"private-project": {Kind: "not-observed", Original: &projectWorkPlanningWebObservation{Key: "private-key", Body: []byte("private-body")}, WireAttempts: 2, ClosedAttempts: 2}}}
+	f.writeRecoveryStageEvidence()
+	raw, err := os.ReadFile(filepath.Join(directory, "work-recovery-stage-evidence.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got []map[string]any
+	want := []map[string]any{{"kind": "not-observed", "bound": true, "wire_attempts": float64(2), "closed_attempts": float64(2), "rejected": false, "lookup_observed": false, "completed": false, "fault_installed": false, "fault_hits": float64(0)}}
+	if json.Unmarshal(raw, &got) != nil || !reflect.DeepEqual(got, want) || bytes.Contains(raw, []byte("private-")) {
+		t.Fatal("recovery evidence changed its closed projection")
+	}
+	f.mode, f.evidence = "identity", filepath.Join(directory, "absent")
+	f.writeRecoveryStageEvidence() // other cases neither write nor require a directory
 }
 
 // The only additional same-key attempt is the independently issued, closed

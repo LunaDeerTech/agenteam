@@ -200,6 +200,8 @@ Current Sprint 非空真实正例暂不可由正式生产接口形成：[Work St
 
 `in_progress` 的唯一额外刺激限定本轮私有 PG：对精确 Project/target/原 command/key 的最终 Outbox 写入施加 owned SQL 故障。原命令必须由默认根自己提交真实 planned，最终事务实际回滚；以 SQL 和正式 Lookup 双核 planned/in_progress 及零新增业务/History/Outbox事实，不种或改这些结果行。移除故障后，私有真实客户端以同 User/原 key/原 body 外部续写，UI 只再次明确 Lookup；界面在 in_progress 时仍禁重放、不自动轮询。若实际服务收敛到别的状态，本刺激失败，不伪造 planned。`not_observed` 仅对预先精确绑定的原请求在 owned proxy 未转发前断连，并核同 key 不存在；改义反例沿正式 HTTP 返回409，核原 receipt/业务及计数不变。二者均不豁免普通成功 finished/同体门槛，不扩大生产接口、资源链或预算。
 
+`not_observed` 的断连屏障持续到公开原 Lookup、真实同 key SQL 零记录及当前业务/History/Outbox 不变三者核验完成；随后才解除，供用户明确按原请求重放。屏障只接收该 stage 的精确 Project/target/PATCH/command、原 key、原始 body 字节和原 CSRF；同路径改义拒绝，其他读取和 Lookup 保持原转发。允许至多四次由实际客户端产生的同义物理尝试，每次均须真实 Hijack/Close 且零响应，fixture 不主动重试；超限、身份或材料变化均令验收失败。Go 后验要求实际关闭数等于这些零响应记录数，仍恰一次非终态 Lookup、一次显式成功重放和一次 committed Lookup，不以多个物理尝试伪造多个浏览器 Request 或 expectedIncomplete。原 proxy join 后仅保存 stage 闭集、是否绑定、尝试/实际关闭计数、拒绝及已核验释放标记，不落 key/body/CSRF/业务 ID；旧轮未采该信息不补写。
+
 ### 8.3 独立与终态
 
 未参与实施者本人执行两个独立top：`TestIndependentProjectWorkPlanningWebRecovery`（三域真实原意图/历史与归档门禁）和 `TestIndependentProjectWorkPlanningWebAuthority`（身份/旧尾/切项目/聚合确认）。对应独立spec由独立作者编写，config仅接受这两个明确case及六作者case，不能任意执行目录。作者结果不冒独立动态。
@@ -270,3 +272,5 @@ identity第二轮39077仍完整FAIL（3cdb9df2/binary11，Go32.33秒、outer143.
 identity第三轮54638仍完整FAIL（4caa6a44/binary12，Go59.13秒、outer173.143秒）：初次Work草稿及取消Logout后，首次pageshow Session整数200已返，但原response.finished一直未返直到45秒case总界。此处尚在正式Logout之前，不是新Session阶段；同Session正文断言、撤销/新Session、rename及新公开刷新均未到。Work安全观察另有Milestone列表与Sprint详情两条普通GET aborted/finished未返，未采本次Session的failed/finished事件，不混为同请求或借expectedIncomplete通过；仍缺浏览器EOF与生产decode/publish证据。directWait1、四Z→actualWait0、各服务join及七资源/desc/runtime/private/TCP双尾与inputsame齐，资源已释放。必要原件 `.agent-state/work-owner-planning-ui/identity-third-failure.json`，普通原log output/ai/work-owner-planning-ui/pg/identity-03.log；原FAIL全保留，不盲重跑。
 
 recovery首轮77556完整FAIL（4caa6a44/binary12，Go23.06秒、outer121.896秒）：首not_observed阶段实际原PATCH200/finished，receipt.changed真/version2及后继Get同值，而“不确定”标题未出现，原5秒断言失败。公开Lookup/同key零事实及in_progress/三域历史/最终Go后验均未到；未持久采原wire尝试数或hook命中，不把源码可能放行再次请求写成已证透明重试。directWait1、四Z→actualWait0、各服务join及七资源/desc/runtime/private/TCP双尾与inputsame齐。另有独立前置缺口：首执行未采启动前fresh可用磁盘；运行中4.134GiB不能倒推启动前是否≥5GiB，不计完整环境接受。必要原件 `.agent-state/work-owner-planning-ui/recovery-first-failure.json`，普通原log output/ai/work-owner-planning-ui/pg/recovery-01.log。下一仅在原fixture修精确stage屏障/安全计数并做原handler离线红绿控制，不改产品、5秒或造not_observed事实；旧FAIL均保留。
+
+not_observed刺激窄修已有离线红→绿：原Owner.observeRequest→Work路径85611实际失败，已绑定原请求再次到达会被放行；修后按§8.2持续屏障与安全计数，10个相关纯top及子控race31166实际0/1.052秒，包含原key/raw body/CSRF/target/command/query变更拒绝、4次边界、关闭失败及公开读取默认转发。仅fixture两Go源变化，产品/Playwright/private dist和原预算不变；binary13 race-c95423与精确top发现41597均actual0；尚待未参与者窄审，真实修后结果未有，不回填首轮透明重试或not_observed事实。

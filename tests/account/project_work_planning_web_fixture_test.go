@@ -87,6 +87,7 @@ func newProjectWorkPlanningWebFixture(t *testing.T, ctx context.Context, mode st
 	t.Cleanup(func() {
 		f.releaseRead()
 		f.stopProxy()
+		f.writeRecoveryStageEvidence()
 		f.guard.Lock()
 		defer f.guard.Unlock()
 		for i := range f.records {
