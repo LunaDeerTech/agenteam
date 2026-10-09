@@ -69,6 +69,9 @@ func (a *Authority) CheckAppendInTx(ctx context.Context, tx f.Tx, entry ac.Entry
 	if ctx == nil || !tx.Valid() || entry.Validate() != nil || key.Validate() != nil {
 		return fault(f.InvalidArgument)
 	}
+	if entry.Fields().Actor.Details().Kind == id.Service {
+		return a.checkEnrollment(ctx, tx, entry, key)
+	}
 	proof, ok := ctx.Value(auditProofKey{}).(*auditProof)
 	if !ok || proof == nil || proof.authority != a || proof.tx != tx || proof.record == nil || proof.key.Details() != key.Details() || !sameEntry(proof.entry, entry) {
 		return fault(f.Forbidden)

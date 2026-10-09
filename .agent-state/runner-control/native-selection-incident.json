@@ -1,0 +1,72 @@
+{
+  "kind": "unauthorized_native_test_selection",
+  "owner": "/root/service_delivery/blocker_spec_review",
+  "tool_session": 18858,
+  "cwd": "/workspace/agenteam-runner-control",
+  "argv": [
+    "timeout",
+    "45s",
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-mod=readonly",
+    "-p=2",
+    "-race",
+    "./internal/central/runner/...",
+    "./internal/central/audit/...",
+    "./internal/central/identity/contract"
+  ],
+  "environment": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTELEMETRY": "off",
+    "GOMODCACHE": "/workspace/agenteam-runner-control/output/ai/runner-control/go-mod",
+    "GOCACHE": "/workspace/agenteam-runner-control/output/ai/runner-control/gocache",
+    "GOTMPDIR": "/workspace/agenteam-runner-control/output/ai/runner-control/tmp"
+  },
+  "outer_actual_exit": 124,
+  "selection_error": "Recursive audit package selection included three ungated Audit HTTP native tests without a resource grant.",
+  "known_selected_ungated_native_tops": [
+    "TestAuditHTTPNativeEOFAndKeepAlive",
+    "TestAuditHTTPNativeSlowBodyBudgets",
+    "TestAuditHTTPNativeWriteAndFlushAbort"
+  ],
+  "specific_top_execution_observed": false,
+  "go_pid": null,
+  "http_pid": 701386,
+  "pgid": 700513,
+  "session_id": 700513,
+  "retained_testlog": {
+    "path": "output/ai/runner-control/tmp/go-build923276268/b279/testlog.txt",
+    "bytes": 0,
+    "mtime_utc": "2026-10-09T14:53:57.888807+00:00"
+  },
+  "testmain_mtime_utc": "2026-10-09T14:53:24.637323+00:00",
+  "http_start_from_boot_ticks_utc_approx": "2026-10-09T14:53:57.420000+00:00",
+  "start_clock_note": "Derived from integer btime and process ticks; not an exact wall-clock launch sample.",
+  "exact_termination_utc": null,
+  "owned_group_observation": {
+    "at_utc": "2026-10-09T14:58:27.252065+00:00",
+    "non_z_count": 0,
+    "members": [
+      {
+        "pid": 701386,
+        "name": "http.test",
+        "state": "Z",
+        "ppid": 1,
+        "pgid": 700513,
+        "sid": 700513,
+        "stat_exit_code": 15
+      }
+    ]
+  },
+  "http_actual_wait_collected": false,
+  "listener_start_or_retirement_observed": false,
+  "limitations": [
+    "Zero-byte testlog does not identify a started or completed top.",
+    "Current zombie state does not replace original Wait or listener retirement evidence.",
+    "Original Go PID and exact termination wall time were not sampled.",
+    "No unrelated process was killed and PID 1 was not modified."
+  ],
+  "containment": "New test commands paused; source-only work continued. Root later restored offline checks restricted to explicit packages and inspected exact tops; real resources still require fresh grant."
+}
