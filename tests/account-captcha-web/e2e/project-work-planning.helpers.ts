@@ -21,7 +21,10 @@ import { AccountFailure, uuid7 } from "../../../web/src/api/client";
 
 export const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
 export const evidence = process.env.AGENTEAM_PROJECT_OWNER_WEB_EVIDENCE!;
-const repository = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+export const repository = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../..",
+);
 export type Credential = {
   email: string;
   password: string;
@@ -524,6 +527,9 @@ function workIncompleteLedger() {
     declared(request: Request) {
       return slots.some((slot) => slot.request === request);
     },
+    declarationKind(request: Request) {
+      return slots.find((slot) => slot.request === request)?.spec.kind ?? null;
+    },
     verify(expected: number, failedRequests: Set<Request>) {
       return (
         (slots.length === 0 || !closed) &&
@@ -718,6 +724,7 @@ export function observe(page: Page) {
   return {
     requests,
     declareIncomplete: incompleteRequests.declare,
+    declarationKind: incompleteRequests.declarationKind,
     async verify(expectedIncomplete = 0) {
       await Promise.all(tails);
       expect(observerErrors).toBe(0);

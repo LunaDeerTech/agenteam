@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { join, isAbsolute } from "node:path";
+import { startWorkNativeDiagnostic } from "./project-work-planning.native";
 import {
   material,
   button,
@@ -19,6 +20,8 @@ import {
   observe,
   originalBody,
   saveWorkFailureObservations,
+  evidence,
+  repository,
 } from "./project-work-planning.helpers";
 
 test.afterEach(async ({}, info) => {
@@ -529,63 +532,56 @@ test("[recovery] three committed lost responses retain original intent and histo
 }) => {
   const data = material(),
     seen = observe(page);
-  for (const [index, stage] of (
-    ["not-observed", "in-progress"] as const
-  ).entries()) {
-    if (!index) await enter(page, data, "milestone", stage);
-    else await go(page, path(data, stage, "milestone"));
-    const seed = data.work[stage]!;
-    await current(page, seed.milestone_id);
-    const armed = await ipc("arm-recovery-stage", { project: stage });
-    const version = await details(page)
-      .locator("dt")
-      .filter({ hasText: /^当前版本$/ })
-      .locator("+ dd")
-      .innerText();
-    expect(
-      version === armed.expected_version &&
-        armed.title === "恢复状态原命令 " + stage,
-    ).toBe(true);
-    if (stage === "not-observed") {
-      seen.declareIncomplete({
-        kind: "unforwarded-milestone-update",
-        projectID: seed.project_id,
-        targetID: seed.milestone_id,
-        expectedVersion: version,
-        text: armed.title,
-      });
-    }
-    await title(page).fill(armed.title);
-    await button(editor(page), "保存修改").click();
-    await expect(
-      recovery(page).getByRole("heading", {
-        name: "原命令结果不确定",
-        exact: true,
-      }),
-    ).toBeVisible();
-    await button(recovery(page), "查证原命令").click();
-    const stateMessage =
-      stage === "in-progress"
-        ? "本次查证仍在处理中；不会自动轮询或重放。"
-        : "本次未观察到原命令，不代表从未提交或已经回滚。";
-    await expect(recovery(page)).toContainText(stateMessage);
-    await expect(
-      recovery(page).getByRole("heading", {
-        name: "原命令结果不确定",
-        exact: true,
-      }),
-    ).toBeVisible();
-    const durable = await ipc("observe-recovery-stage", { project: stage });
-    expect(durable.state === stage.replaceAll("-", "_")).toBe(true);
-    if (stage === "in-progress") {
-      await expect(button(recovery(page), "按原请求重放")).toBeDisabled();
-      const before = seen.requests.filter(
-        (request) =>
-          request.method !== "GET" && !request.path.endsWith("/lookup"),
-      ).length;
-      await ipc("complete-planned-original", { project: stage });
-      // External continuation cannot publish UI success on its own or cause
-      // the browser to replay/poll. A fresh explicit original Lookup is needed.
+  const diagnostic = await startWorkNativeDiagnostic(page, {
+    projects: Object.values(data.work).map((seed) => seed.project_id),
+    evidence,
+    repository,
+    classify: seen.declarationKind,
+  });
+  try {
+    for (const [index, stage] of (
+      ["not-observed", "in-progress"] as const
+    ).entries()) {
+      if (!index) await enter(page, data, "milestone", stage);
+      else {
+        await diagnostic.flush();
+        await go(page, path(data, stage, "milestone"));
+      }
+      await diagnostic.installPublication();
+      const seed = data.work[stage]!;
+      await current(page, seed.milestone_id);
+      const armed = await ipc("arm-recovery-stage", { project: stage });
+      const version = await details(page)
+        .locator("dt")
+        .filter({ hasText: /^当前版本$/ })
+        .locator("+ dd")
+        .innerText();
+      expect(
+        version === armed.expected_version &&
+          armed.title === "恢复状态原命令 " + stage,
+      ).toBe(true);
+      if (stage === "not-observed") {
+        seen.declareIncomplete({
+          kind: "unforwarded-milestone-update",
+          projectID: seed.project_id,
+          targetID: seed.milestone_id,
+          expectedVersion: version,
+          text: armed.title,
+        });
+      }
+      await title(page).fill(armed.title);
+      await button(editor(page), "保存修改").click();
+      await expect(
+        recovery(page).getByRole("heading", {
+          name: "原命令结果不确定",
+          exact: true,
+        }),
+      ).toBeVisible();
+      await button(recovery(page), "查证原命令").click();
+      const stateMessage =
+        stage === "in-progress"
+          ? "本次查证仍在处理中；不会自动轮询或重放。"
+          : "本次未观察到原命令，不代表从未提交或已经回滚。";
       await expect(recovery(page)).toContainText(stateMessage);
       await expect(
         recovery(page).getByRole("heading", {
@@ -593,122 +589,145 @@ test("[recovery] three committed lost responses retain original intent and histo
           exact: true,
         }),
       ).toBeVisible();
-      expect(
-        seen.requests.filter(
+      const durable = await ipc("observe-recovery-stage", { project: stage });
+      expect(durable.state === stage.replaceAll("-", "_")).toBe(true);
+      if (stage === "in-progress") {
+        await expect(button(recovery(page), "按原请求重放")).toBeDisabled();
+        const before = seen.requests.filter(
           (request) =>
             request.method !== "GET" && !request.path.endsWith("/lookup"),
-        ).length === before,
+        ).length;
+        await ipc("complete-planned-original", { project: stage });
+        // External continuation cannot publish UI success on its own or cause
+        // the browser to replay/poll. A fresh explicit original Lookup is needed.
+        await expect(recovery(page)).toContainText(stateMessage);
+        await expect(
+          recovery(page).getByRole("heading", {
+            name: "原命令结果不确定",
+            exact: true,
+          }),
+        ).toBeVisible();
+        expect(
+          seen.requests.filter(
+            (request) =>
+              request.method !== "GET" && !request.path.endsWith("/lookup"),
+          ).length === before,
+        ).toBe(true);
+      } else {
+        await expect(button(recovery(page), "按原请求重放")).toBeEnabled();
+        await button(recovery(page), "按原请求重放").click();
+        await confirmed(page);
+      }
+      await button(recovery(page), "查证原命令").click();
+      await confirmed(page);
+      await expect(recovery(page)).toContainText(armed.title);
+      await button(recovery(page), "放弃本地追踪").click();
+      await discard(page);
+      await expect(recovery(page)).toHaveCount(0);
+    }
+    for (const domain of ["structure", "task", "blocker"]) {
+      const kind = domain === "structure" ? "milestone" : "task";
+      await diagnostic.flush();
+      await go(page, path(data, domain, kind));
+      await diagnostic.installPublication();
+      const seed = data.work[domain]!;
+      await current(page, seed[`${kind}_id`]);
+      await ipc("arm-loss", { project: domain, domain });
+      const expectedVersion = await details(page)
+        .locator("dt")
+        .filter({ hasText: /^当前版本$/ })
+        .locator("+ dd")
+        .innerText();
+      seen.declareIncomplete({
+        kind:
+          domain === "structure"
+            ? "lost-milestone-update"
+            : domain === "task"
+              ? "lost-task-update"
+              : "lost-blocker-add",
+        projectID: seed.project_id,
+        targetID: seed[`${kind}_id`],
+        expectedVersion,
+        text: domain === "blocker" ? "历史阻塞原命令" : "历史原命令 " + domain,
+      });
+      if (domain === "blocker") {
+        await choose(page, "阻塞类型", "等待人工处理");
+        await page
+          .getByRole("textbox", { name: "阻塞说明", exact: true })
+          .fill("历史阻塞原命令");
+        await button(
+          page.getByRole("form", { name: "添加阻塞", exact: true }),
+          "添加阻塞",
+        ).click();
+      } else {
+        await title(page).fill("历史原命令 " + domain);
+        await button(editor(page), "保存修改").click();
+      }
+      await expect(
+        recovery(page).getByRole("heading", {
+          name: "原命令结果不确定",
+          exact: true,
+        }),
+      ).toBeVisible();
+      await button(editor(page), "读取当前值").click();
+      await expect(
+        recovery(page).getByRole("heading", {
+          name: "原命令结果不确定",
+          exact: true,
+        }),
+      ).toBeVisible();
+      await ipc("update", {
+        project: domain,
+        resource: kind,
+        text: "独立更新后的当前值",
+      });
+      await button(recovery(page), "查证原命令").click();
+      await confirmed(page);
+      if (domain !== "blocker")
+        await expect(recovery(page)).toContainText("历史原命令 " + domain);
+      if (domain === "blocker") {
+        const id = await recovery(page)
+          .locator("dt")
+          .filter({ hasText: /^历史阻塞记录 ID$/ })
+          .locator("+ dd")
+          .textContent();
+        await ipc("resolve", { project: domain, target: id, text: "后继解除" });
+      }
+      expect(
+        (await ipc("reject-changed-meaning", { project: domain })).rejected,
       ).toBe(true);
-    } else {
-      await expect(button(recovery(page), "按原请求重放")).toBeEnabled();
+      await ipc("archive", { project: domain });
+      // The public stable-ID Project refresh, not a Session-only pageshow,
+      // obtains the real archived state while retaining the original Work intent.
+      const archived = await refreshProject(page, seed.project_id);
+      expect(archived.lifecycle).toBe("archived");
+      await expect(
+        page.getByText("项目已归档，当前内容只读。", { exact: true }),
+      ).toBeVisible();
+      await button(recovery(page), "查证原命令").click();
+      await confirmed(page);
       await button(recovery(page), "按原请求重放").click();
       await confirmed(page);
+      await expect(button(page, "新建 Milestone")).toBeDisabled();
+      await button(recovery(page), "放弃本地追踪").click();
+      if (await page.getByRole("dialog").count()) await discard(page);
+      await expect(recovery(page)).toHaveCount(0);
     }
-    await button(recovery(page), "查证原命令").click();
-    await confirmed(page);
-    await expect(recovery(page)).toContainText(armed.title);
-    await button(recovery(page), "放弃本地追踪").click();
-    await discard(page);
-    await expect(recovery(page)).toHaveCount(0);
-  }
-  for (const domain of ["structure", "task", "blocker"]) {
-    const kind = domain === "structure" ? "milestone" : "task";
-    await go(page, path(data, domain, kind));
-    const seed = data.work[domain]!;
-    await current(page, seed[`${kind}_id`]);
-    await ipc("arm-loss", { project: domain, domain });
-    const expectedVersion = await details(page)
-      .locator("dt")
-      .filter({ hasText: /^当前版本$/ })
-      .locator("+ dd")
-      .innerText();
-    seen.declareIncomplete({
-      kind:
-        domain === "structure"
-          ? "lost-milestone-update"
-          : domain === "task"
-            ? "lost-task-update"
-            : "lost-blocker-add",
-      projectID: seed.project_id,
-      targetID: seed[`${kind}_id`],
-      expectedVersion,
-      text: domain === "blocker" ? "历史阻塞原命令" : "历史原命令 " + domain,
+    complete({
+      three_domains: true,
+      lookup_original: true,
+      same_replay: true,
+      history: true,
+      archive: true,
+      unique_facts: true,
+      in_progress: true,
+      not_observed: true,
+      meaning_conflict: true,
+      bodies: await seen.verify(4),
     });
-    if (domain === "blocker") {
-      await choose(page, "阻塞类型", "等待人工处理");
-      await page
-        .getByRole("textbox", { name: "阻塞说明", exact: true })
-        .fill("历史阻塞原命令");
-      await button(
-        page.getByRole("form", { name: "添加阻塞", exact: true }),
-        "添加阻塞",
-      ).click();
-    } else {
-      await title(page).fill("历史原命令 " + domain);
-      await button(editor(page), "保存修改").click();
-    }
-    await expect(
-      recovery(page).getByRole("heading", {
-        name: "原命令结果不确定",
-        exact: true,
-      }),
-    ).toBeVisible();
-    await button(editor(page), "读取当前值").click();
-    await expect(
-      recovery(page).getByRole("heading", {
-        name: "原命令结果不确定",
-        exact: true,
-      }),
-    ).toBeVisible();
-    await ipc("update", {
-      project: domain,
-      resource: kind,
-      text: "独立更新后的当前值",
-    });
-    await button(recovery(page), "查证原命令").click();
-    await confirmed(page);
-    if (domain !== "blocker")
-      await expect(recovery(page)).toContainText("历史原命令 " + domain);
-    if (domain === "blocker") {
-      const id = await recovery(page)
-        .locator("dt")
-        .filter({ hasText: /^历史阻塞记录 ID$/ })
-        .locator("+ dd")
-        .textContent();
-      await ipc("resolve", { project: domain, target: id, text: "后继解除" });
-    }
-    expect(
-      (await ipc("reject-changed-meaning", { project: domain })).rejected,
-    ).toBe(true);
-    await ipc("archive", { project: domain });
-    // The public stable-ID Project refresh, not a Session-only pageshow,
-    // obtains the real archived state while retaining the original Work intent.
-    const archived = await refreshProject(page, seed.project_id);
-    expect(archived.lifecycle).toBe("archived");
-    await expect(
-      page.getByText("项目已归档，当前内容只读。", { exact: true }),
-    ).toBeVisible();
-    await button(recovery(page), "查证原命令").click();
-    await confirmed(page);
-    await button(recovery(page), "按原请求重放").click();
-    await confirmed(page);
-    await expect(button(page, "新建 Milestone")).toBeDisabled();
-    await button(recovery(page), "放弃本地追踪").click();
-    if (await page.getByRole("dialog").count()) await discard(page);
-    await expect(recovery(page)).toHaveCount(0);
+  } finally {
+    await diagnostic.finish();
   }
-  complete({
-    three_domains: true,
-    lookup_original: true,
-    same_replay: true,
-    history: true,
-    archive: true,
-    unique_facts: true,
-    in_progress: true,
-    not_observed: true,
-    meaning_conflict: true,
-    bodies: await seen.verify(4),
-  });
 });
 
 test("[identity] dirty guards, same Session checking, revocation and old read isolation", async ({
