@@ -1,10 +1,11 @@
-import { nextTick, onBeforeUnmount, watch, type Ref } from 'vue'
+import { nextTick, onBeforeUnmount, ref, watch, type Ref } from 'vue'
 import type { CloseReason } from '../components/ui/types'
 interface Layer {
   panel: Ref<HTMLElement | null>
   trigger: HTMLElement | null
   modal: boolean
   close: (reason: CloseReason) => void
+  zIndex: Ref<number>
 }
 const layers: Layer[] = []
 const selector =
@@ -90,6 +91,9 @@ function syncBackground() {
   document.body.style.overflow = modal ? 'hidden' : previousOverflow
   const lastModal = layers.map((l) => l.modal).lastIndexOf(true)
   layers.forEach((layer, index) => {
+    // Teleport anchors retain component order, which can differ from open order.
+    // Paint the entire surface in the same order as keyboard and modal ownership.
+    layer.zIndex.value = 100 + index
     const panel = layer.panel.value
     if (!panel) return
     panel.inert = index < lastModal
@@ -144,6 +148,7 @@ export function useLayer(
   fallbackFocus?: Readonly<Ref<HTMLElement | null | undefined>>,
 ) {
   let record: Layer | undefined
+  const zIndex = ref(100)
   function remove(restore = true, allowFallback = false) {
     if (!record) return
     const active = record
@@ -189,6 +194,7 @@ export function useLayer(
         trigger: trigger?.value || (document.activeElement as HTMLElement),
         close,
         modal,
+        zIndex,
       }
       layers.push(record)
       syncBackground()
@@ -204,5 +210,5 @@ export function useLayer(
     { flush: 'sync', immediate: true },
   )
   onBeforeUnmount(() => remove())
-  return { isTop: () => layers.at(-1) === record }
+  return { isTop: () => layers.at(-1) === record, zIndex }
 }

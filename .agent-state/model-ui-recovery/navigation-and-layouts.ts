@@ -63,15 +63,47 @@ function observer(page: Page, harness: NavigationHarness) {
 }
 // Session bodies remain private in this call. Only the formal safe identity is
 // returned, never CSRF, cookies, login inputs, headers or their digests.
-async function sessionIdentity(page: Page, action: () => Promise<void>) {
-  const waiting = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/v1/session' && response.request().method() === 'GET' && response.status() === 200, { timeout: 5_000 });
-  const [response] = await Promise.all([waiting, action()]);
-  need(await response.finished() === null, 'PROJECT_MODELS_NAVIGATION_SESSION_INCOMPLETE');
+async function sessionStage<T>(work: Promise<T>, code: 'PROJECT_MODELS_NAVIGATION_SESSION_FINISH_TIMEOUT' | 'PROJECT_MODELS_NAVIGATION_SESSION_JSON_TIMEOUT') {
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const body = object(await response.json()), user = object(body.user), session = object(body.session);
-    need(uuid(user.id) && uuid(session.id) && (user.role === 'user' || user.role === 'admin'), 'PROJECT_MODELS_NAVIGATION_SESSION_INVALID');
-    return { userID: user.id, sessionID: session.id, role: user.role };
-  } catch { throw new Error('PROJECT_MODELS_NAVIGATION_SESSION_INVALID'); }
+    return await Promise.race([work, new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(() => reject(new Error(code)), 5_000);
+    })]);
+  } finally { if (timer !== undefined) clearTimeout(timer); }
+}
+async function sessionIdentity(page: Page, action: () => Promise<void>, step: (name: string) => void) {
+  let selected: Request | undefined;
+  const observation = { headers_seen: false, finished_event: false, failed_event: false };
+  const publish = () => writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'navigation-session-events.json'), JSON.stringify({ protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH, observation }), { mode: 0o600 });
+  const finished = (request: Request) => { if (request === selected) { observation.finished_event = true; publish(); } };
+  const failed = (request: Request) => { if (request === selected) { observation.failed_event = true; publish(); } };
+  page.on('requestfinished', finished); page.on('requestfailed', failed);
+  try {
+    publish();
+    const waiting = page.waitForResponse((response) => {
+      if (new URL(response.url()).pathname !== '/api/v1/session' || response.request().method() !== 'GET' || response.status() !== 200) return false;
+      selected = response.request(); observation.headers_seen = true; publish(); return true;
+    }, { timeout: 5_000 });
+    const [response] = await Promise.all([waiting, (async () => { await action(); step('navigation-session-action-returned'); })()]);
+    step('navigation-session-headers-observed');
+    try { need(await sessionStage(response.finished(), 'PROJECT_MODELS_NAVIGATION_SESSION_FINISH_TIMEOUT') === null, 'PROJECT_MODELS_NAVIGATION_SESSION_INCOMPLETE'); }
+    catch (error) {
+      if (error instanceof Error && error.message === 'PROJECT_MODELS_NAVIGATION_SESSION_FINISH_TIMEOUT') throw error;
+      throw new Error('PROJECT_MODELS_NAVIGATION_SESSION_INCOMPLETE');
+    }
+    step('navigation-session-finished');
+    try {
+      const body = object(await sessionStage(response.json(), 'PROJECT_MODELS_NAVIGATION_SESSION_JSON_TIMEOUT')), user = object(body.user), session = object(body.session);
+      need(uuid(user.id) && uuid(session.id) && (user.role === 'user' || user.role === 'admin'), 'PROJECT_MODELS_NAVIGATION_SESSION_INVALID');
+      step('navigation-session-json-validated');
+      return { userID: user.id, sessionID: session.id, role: user.role };
+    } catch (error) {
+      if (error instanceof Error && error.message === 'PROJECT_MODELS_NAVIGATION_SESSION_JSON_TIMEOUT') throw error;
+      throw new Error('PROJECT_MODELS_NAVIGATION_SESSION_INVALID');
+    }
+  } finally {
+    page.off('requestfinished', finished); page.off('requestfailed', failed); publish();
+  }
 }
 async function pageshow(page: Page) {
   const observation = await page.evaluate(async () => {
@@ -122,7 +154,7 @@ export async function runNavigationAndLayouts(page: Page, harness: NavigationHar
     harness.step('navigation-login');
     await harness.loginOwner(page);
     harness.step('navigation-login-complete');
-    const identity = await sessionIdentity(page, () => pageshow(page));
+    const identity = await sessionIdentity(page, () => pageshow(page), harness.step);
     harness.step('navigation-session-observed');
     need(identity.userID === owner.user_id && identity.role === 'admin', 'PROJECT_MODELS_NAVIGATION_ADMIN_OWNER_REQUIRED');
     harness.step('navigation-open-begin');

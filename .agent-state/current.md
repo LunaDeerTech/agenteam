@@ -182,3 +182,6 @@
 
 - T0b六源最终完整freeze，35最大facts/两32768Task文本/32768最坏escapedcomment/16最大add+16resolve跨data factory/envelope/lookup组合已补齐；最终pure92733Wait0/1.720s、race75738Wait0/24.292s、vet/list/gofmt实际0。作者热cache准确释放，转授独立公开APIprobe真正验证，尚不main交付。
 - navigation第二outer11756实际exit1/125.233s，directWait/4adopted0/joins/7IDs双absent/descendants[]/TCP2空/input同一；step login-complete、真实pageshow安全投影为home/visible/logout可用→logout disabled，最终仍45s整体timeout，尚未证明卡在headers/EOF/json。脱敏原件navigation-session-failure.json保存；已授权同module最小分段与有界EOF诊断。sharedLayer作者获5精确产品/test路径离线实现，assets未build/未改；独立review已实际启动，原main5paths稳定baseline导出。
+
+- sharedLayer五精确产品/test路径+nav诊断module最终作者freeze；VueTS83504Wait0/componentTS43145Wait0/navTS74937Wait0/Prettier0。Vitest首轮104/106新例过早读nextTick inert，仅测试flushPromises修正，77191实际Wait0/106/106；原FAIL保留。产品仅既有layers栈同步绘制rank+Dialog整overlay/Popover浮层绑定，Drawer继承，原focus/inert/close策略保持。root仅规范67同步CSSfallback与注册stack排序；真实8component浏览器仍未执行，新assets尚未build。限定两个diff交独审，先nav有限诊断后真实第三诊断/共享UI资源；其余未验源不混main。
+- navmodule仅真实Session action/header/finished/json分段与5s可清理timer，3布尔exactRequest事件finallyoff，无第二GET/no成功或join伪造。旧14两个新helper作者离线selfcheck中，尚未freeze。独立T0b准确热cache=/home/agent/.cache/go-build已实际转授，旧outputcache未使用；root不并行Go检查。

@@ -27,9 +27,16 @@ function close(reason: CloseReason) {
   open.value = false
   emit('close', reason)
 }
-const layer = useLayer(open, panel, close, true, undefined, toRef(props, 'fallbackFocus'))
+const { isTop, zIndex } = useLayer(
+  open,
+  panel,
+  close,
+  true,
+  undefined,
+  toRef(props, 'fallbackFocus'),
+)
 function outsidePointerDown(event: PointerEvent) {
-  if (!layer.isTop() || !props.closeOnOutside) return
+  if (!isTop() || !props.closeOnOutside) return
   event.preventDefault()
   close('outside')
 }
@@ -45,6 +52,7 @@ function beforeLeave(el: Element) {
         v-if="open"
         class="ui-overlay"
         :class="{ 'drawer-overlay': drawer }"
+        :style="{ zIndex }"
         @pointerdown.self="outsidePointerDown"
       >
         <section
