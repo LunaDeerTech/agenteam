@@ -15,10 +15,74 @@ import os
 from pathlib import Path
 import re
 import signal
+import stat
 import subprocess
 import sys
 import time
 import uuid
+
+
+SECRET_STORAGE_CORE = '^TestSecretVariableStorageSQL(ReplayAndEffects|AtomicAuditAndOwnerRollback|ClosedConstraints)$'
+SECRET_STORAGE_MAINTENANCE = '^TestSecretVariableStorageSQLRotationDeletedOwnerAndCleanup$'
+SECRET_STORAGE_CASES = {
+    SECRET_STORAGE_CORE: {
+        'TestSecretVariableStorageSQLReplayAndEffects',
+        'TestSecretVariableStorageSQLAtomicAuditAndOwnerRollback',
+        'TestSecretVariableStorageSQLClosedConstraints',
+        *('TestSecretVariableStorageSQLAtomicAuditAndOwnerRollback/' + name for name in
+          ('owner-tail', 'audit-without-witness', 'audit-wrong-payload-kind',
+           'audit-wrong-payload-owner', 'missing-lock')),
+        *('TestSecretVariableStorageSQLClosedConstraints/' + name for name in
+          ('v4-variable', 'effect-create-mismatch', 'create-expected-present',
+           'command-digest', 'duplicate-command', 'duplicate-payload',
+           'kind3-system', 'kind3-length', 'purpose-system')),
+    },
+    SECRET_STORAGE_MAINTENANCE: {'TestSecretVariableStorageSQLRotationDeletedOwnerAndCleanup'},
+}
+
+
+def secret_storage_inputs(driver, binary):
+    # Precompiled test and driver; no TestMain rebuild or Go metadata process.
+    # Freeze the selected storage/fixture/migration sources as well as the two
+    # executable artifacts. This is scoped input evidence, not a whole-repo hash.
+    root = Path(__file__).resolve().parents[2]
+    output = root / 'output/ai/secret-variable-storage'
+    if (driver != output / 'pg-only-driver' or binary != output / 'secret-variable-storage-sql-reviewed.test'):
+        raise ValueError('exact Secret storage artifacts required')
+    paths = {driver, binary, Path(__file__).resolve(), root / 'go.mod', root / 'go.sum',
+             root / '.agent-state/task-planning-recovery/pg_only_driver.go'}
+    for name in ('secret_variable_storage_fixture_test.go', 'secret_variable_storage_test.go',
+                 'secret_variable_storage_maintenance_test.go', 'audit_common_test.go',
+                 'secret_common_test.go', 'secret_project_audit_fixture_test.go', 'secret_rotation_test.go'):
+        paths.add(root / 'tests/security' / name)
+    for name in ('secret', 'audit', 'foundation', 'postgres', 'cursor',
+                 'identity/contract', 'projectvariable/contract'):
+        paths.update(p for p in (root / 'internal/central' / name).rglob('*.go')
+                     if not p.name.endswith('_test.go'))
+    paths.update((root / 'tests/testsupport/postgres').glob('*.go'))
+    paths.update((root / 'db/migrations').glob('*.go'))
+    paths.update((root / 'db/migrations').glob('*.sql'))
+    for path in paths:
+        if path.resolve(strict=True) != path or not stat.S_ISREG(path.stat().st_mode):
+            raise ValueError('non-regular Secret storage input')
+    return tuple(sorted(paths))
+
+
+def observe_secret_storage(log_path, log, selector):
+    expected = SECRET_STORAGE_CASES[selector]
+    try:
+        raw = log_path.read_text()
+    except (OSError, UnicodeDecodeError):
+        log.write('SECRET_STORAGE exact_cases=False log_unreadable=True\n')
+        return False
+    runs = re.findall(r'^=== RUN   (\S+)$', raw, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', raw, re.M)
+    passed = [name for state, name in results if state == 'PASS']
+    good = (len(runs) == len(expected) and set(runs) == expected
+            and len(results) == len(expected) and len(passed) == len(expected)
+            and set(passed) == expected)
+    log.write(f'SECRET_STORAGE exact_cases={good} run_count={len(runs)} result_count={len(results)}\n')
+    return good
 
 
 def budgets(root_chain):
@@ -173,8 +237,11 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
+    if 'SecretVariableStorage' in args.run and (args.root_chain or args.run not in SECRET_STORAGE_CASES):
+        parser.error('Secret storage requires one exact PG-only core or maintenance group')
     driver_timeout, term_grace = budgets(args.root_chain)
     adapter = root_adapter(args.driver) if args.root_chain else None
+    secret_storage = not args.root_chain and args.run in SECRET_STORAGE_CASES
     if adapter is not None and args.run not in adapter.TARGETS:
         parser.error('root mode requires one exact Work root selector')
     args.output.mkdir(parents=True, exist_ok=True)
@@ -190,6 +257,9 @@ def main():
               for p in (args.driver, args.binary)}
     if adapter is not None:
         inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
+    if secret_storage:
+        inputs = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
+                  for p in secret_storage_inputs(args.driver, args.binary)}
     baseline = tcp()
     started = time.monotonic()
     child = None
@@ -273,6 +343,8 @@ def main():
                 if remaining: code = 1
             if args.root_chain and not observe_root_chain(directory, log, log_path, args.run):
                 code = 1
+            if secret_storage and not observe_secret_storage(log_path, log, args.run):
+                code = 1
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75
@@ -288,8 +360,16 @@ def main():
             if empty != 2:
                 code = 1
                 log.write(f'STOP host TCP delta tail not empty: {len(tcp() - baseline)} rows\n')
-            same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
-                       for p, digest in inputs.items())
+            if secret_storage:
+                try:
+                    same = (all(hashlib.sha256(Path(p).read_bytes()).hexdigest() == digest
+                                for p, digest in inputs.items())
+                            and set(inputs) == {str(p) for p in secret_storage_inputs(args.driver, args.binary)})
+                except (OSError, ValueError):
+                    same = False
+            else:
+                same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
+                           for p, digest in inputs.items())
             if not same: code = 1
             if interrupted: code = 1
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')

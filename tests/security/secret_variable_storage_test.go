@@ -3,12 +3,15 @@
 package security_test
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"testing"
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 )
 
@@ -110,7 +113,7 @@ func TestSecretVariableStorageSQLReplayAndEffects(t *testing.T) {
 }
 
 func TestSecretVariableStorageSQLAtomicAuditAndOwnerRollback(t *testing.T) {
-	for _, mode := range []string{"owner-tail", "audit-without-witness", "audit-wrong-payload-kind", "missing-lock"} {
+	for _, mode := range []string{"owner-tail", "audit-without-witness", "audit-wrong-payload-kind", "audit-wrong-payload-owner", "missing-lock"} {
 		t.Run(mode, func(t *testing.T) {
 			v := newSecretVariableStorageFixture(t)
 			value := "before-rollback"
@@ -118,23 +121,105 @@ func TestSecretVariableStorageSQLAtomicAuditAndOwnerRollback(t *testing.T) {
 			created, commit := v.apply(t, initial, nil)
 			beforeResult := requireSecretVariableStored(t, created, commit, sc.ProjectVariableCreated, 1)
 			before := v.counts(t)
+			type snapshot struct {
+				purpose, payload                  string
+				version, master, revision         int64
+				cipher, nonce, wrapped, wrapNonce []byte
+			}
+			readSnapshot := func(ctx context.Context, x postgres.SQLExecutor) (snapshot, error) {
+				var s snapshot
+				err := x.QueryRow(ctx, `SELECT s.purpose,s.version,p.payload_id::text,p.ciphertext,p.data_nonce,p.wrapped_dek,p.wrap_nonce,p.master_version,p.wrap_revision FROM agenteam_secret.secrets s JOIN agenteam_secret.secret_payloads p ON p.payload_id=s.current_payload_id WHERE s.id=$1`, beforeResult.Ref.Details().ID.String()).Scan(&s.purpose, &s.version, &s.payload, &s.cipher, &s.nonce, &s.wrapped, &s.wrapNonce, &s.master, &s.revision)
+				return s, err
+			}
+			original, err := readSnapshot(auditContext(t), v.store)
+			if err != nil {
+				t.Fatal(err)
+			}
 			changed := "must-rollback-value"
 			p := v.prepare(t, v.intent(t, sc.Update, "rollback-update", 7, &changed), created, false)
+			projection, err := p.Preparation()
+			if err != nil {
+				t.Fatal(err)
+			}
+			prepared, err := projection.Fields()
+			if err != nil {
+				t.Fatal(err)
+			}
+			ownerCalls, beforeCalls, checksBefore := 0, 0, v.ports.checks
+			writesObserved, mutationApplied := false, false
+			ownerFailure := errors.New("controlled-owner-tail-failure")
+			var missingWitnessFailure error
+			observeWrites := func(ctx context.Context, tx f.Tx, auditWritten bool) error {
+				x, err := v.store.InTx(tx)
+				if err != nil {
+					return err
+				}
+				now, err := readSnapshot(ctx, x)
+				if err != nil {
+					return err
+				}
+				var receiptCount, auditCount int
+				if err = x.QueryRow(ctx, `SELECT (SELECT count(*) FROM agenteam_secret.project_variable_receipts WHERE id=$1),(SELECT count(*) FROM agenteam_audit.audit_records WHERE project_id=$2 AND action='secret.update')`, prepared.ReceiptID.String(), v.project.String()).Scan(&receiptCount, &auditCount); err != nil {
+					return err
+				}
+				wantAudit := 0
+				if auditWritten {
+					wantAudit = 1
+				}
+				if now.version != 2 || now.purpose != "project_variable" || now.payload == original.payload || bytes.Equal(now.cipher, original.cipher) || receiptCount != 1 || auditCount != wantAudit {
+					return errors.New("target native writes not reached")
+				}
+				writesObserved = true
+				return nil
+			}
 			var after func(context.Context, f.Tx) error
 			if mode == "owner-tail" {
-				after = func(context.Context, f.Tx) error { return f.NewFault(f.InvalidState, f.NotStarted) }
+				after = func(ctx context.Context, tx f.Tx) error {
+					ownerCalls++
+					if err := observeWrites(ctx, tx, true); err != nil {
+						return err
+					}
+					return f.NewFault(f.InvalidState, f.NotStarted).WithCause(ownerFailure)
+				}
 			}
-			if mode == "audit-without-witness" || mode == "audit-wrong-payload-kind" {
+			if mode == "audit-without-witness" || mode == "audit-wrong-payload-kind" || mode == "audit-wrong-payload-owner" {
 				v.ports.before = func(ctx context.Context, tx f.Tx, entry ac.Entry, key ac.AppendKey) (ac.Entry, ac.AppendKey, error) {
+					beforeCalls++
+					if err := observeWrites(ctx, tx, false); err != nil {
+						return entry, key, err
+					}
 					if mode == "audit-without-witness" {
-						return entry, key, v.ports.checker.CheckProjectAuditInTx(context.Background(), tx, entry, key)
+						missingWitnessFailure = v.ports.checker.CheckProjectAuditInTx(context.Background(), tx, entry, key)
+						return entry, key, missingWitnessFailure
 					}
 					x, err := v.store.InTx(tx)
 					if err != nil {
 						return entry, key, err
 					}
-					_, err = x.Exec(ctx, `UPDATE agenteam_secret.secret_payloads SET owner_kind=2 WHERE payload_id=(SELECT digest_payload_id FROM agenteam_secret.project_variable_receipts WHERE project_id=$1 AND command_digest=$2)`, v.project.String(), key.Details().CauseRef)
-					return entry, key, err
+					query := `UPDATE agenteam_secret.secret_payloads SET owner_kind=2 WHERE payload_id=(SELECT digest_payload_id FROM agenteam_secret.project_variable_receipts WHERE project_id=$1 AND command_digest=$2)`
+					args := []any{v.project.String(), key.Details().CauseRef}
+					wrongOwner := newID[sc.ProjectVariableReceipt](t).String()
+					if mode == "audit-wrong-payload-owner" {
+						query = `UPDATE agenteam_secret.secret_payloads SET owner_id=$3::uuid WHERE payload_id=(SELECT digest_payload_id FROM agenteam_secret.project_variable_receipts WHERE project_id=$1 AND command_digest=$2)`
+						args = append(args, wrongOwner)
+					}
+					tag, err := x.Exec(ctx, query, args...)
+					if err != nil {
+						return entry, key, err
+					}
+					if tag.RowsAffected() != 1 {
+						return entry, key, errors.New("tamper did not update original receipt payload")
+					}
+					var kind int16
+					var owner string
+					if err = x.QueryRow(ctx, `SELECT p.owner_kind,p.owner_id::text FROM agenteam_secret.secret_payloads p JOIN agenteam_secret.project_variable_receipts r ON r.digest_payload_id=p.payload_id WHERE r.id=$1`, prepared.ReceiptID.String()).Scan(&kind, &owner); err != nil {
+						return entry, key, err
+					}
+					if mode == "audit-wrong-payload-owner" && (kind != 3 || owner != wrongOwner) || mode == "audit-wrong-payload-kind" && (kind != 2 || owner != prepared.ReceiptID.String()) {
+						return entry, key, errors.New("wrong stored native tamper")
+					}
+					mutationApplied = true
+					return entry, key, nil
 				}
 			}
 			var got sc.ProjectVariableWriteObservation
@@ -150,12 +235,46 @@ func TestSecretVariableStorageSQLAtomicAuditAndOwnerRollback(t *testing.T) {
 			if commit.State() != f.NotCommitted || got.Validate() == nil {
 				t.Fatalf("rejected transaction published %s", commit.State())
 			}
+			fault := commit.Fault()
+			switch mode {
+			case "owner-tail":
+				requireCode(t, fault, f.InvalidState)
+				if ownerCalls != 1 || !writesObserved || !errors.Is(fault, ownerFailure) || v.ports.checks != checksBefore+1 {
+					t.Fatal("owner-tail failure target not reached")
+				}
+			case "missing-lock":
+				// WithinTx rejects the original poisoned LockNotHeld before the callback wrapper.
+				requireCode(t, fault, f.InternalError)
+				var pg *postgres.Error
+				if !errors.As(fault, &pg) || pg.Code() != postgres.LockNotHeld || beforeCalls != 0 || ownerCalls != 0 || v.ports.checks != checksBefore {
+					t.Fatal("missing-lock fault origin differs")
+				}
+			default:
+				requireCode(t, fault, f.DependencyUnavailable)
+				forbidden := false
+				for cause := error(fault); cause != nil; cause = errors.Unwrap(cause) {
+					if value, ok := cause.(*f.Fault); ok && value.Code == f.Forbidden {
+						forbidden = true
+					}
+				}
+				if beforeCalls != 1 || !writesObserved || !forbidden {
+					t.Fatal("native Audit denial target not reached")
+				}
+				if mode == "audit-without-witness" {
+					requireCode(t, missingWitnessFailure, f.Forbidden)
+					if !errors.Is(fault, missingWitnessFailure) || v.ports.checks != checksBefore {
+						t.Fatal("missing witness failure not propagated")
+					}
+				} else if !mutationApplied || v.ports.checks != checksBefore+1 {
+					t.Fatal("native checker did not reject stored wrong tuple")
+				}
+			}
 			if v.counts(t) != before {
 				t.Fatal("D04/Audit partial commit")
 			}
-			var version int64
-			if err := v.store.QueryRow(auditContext(t), `SELECT version FROM agenteam_secret.secrets WHERE id=$1`, beforeResult.Ref.Details().ID.String()).Scan(&version); err != nil || version != 1 {
-				t.Fatal("canonical escaped rollback", err)
+			restored, err := readSnapshot(auditContext(t), v.store)
+			if err != nil || restored.purpose != original.purpose || restored.version != original.version || restored.payload != original.payload || restored.master != original.master || restored.revision != original.revision || !bytes.Equal(restored.cipher, original.cipher) || !bytes.Equal(restored.nonce, original.nonce) || !bytes.Equal(restored.wrapped, original.wrapped) || !bytes.Equal(restored.wrapNonce, original.wrapNonce) {
+				t.Fatal("old canonical payload identity/bytes escaped rollback", err)
 			}
 		})
 	}
