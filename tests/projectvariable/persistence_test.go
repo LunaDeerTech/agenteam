@@ -415,7 +415,7 @@ func TestProjectVariableMigration(t *testing.T) {
 		if e != nil {
 			t.Fatal(e)
 		}
-		files["00024_project_variables.sql"] = &fstest.MapFile{Data: append(raw, []byte("\nSELECT 1/0;\n")...)}
+		files["00024_project_variables.sql"] = &fstest.MapFile{Data: append(raw, []byte("\nSELECT public.variable_fixture_migration_dependency();\n")...)}
 		source, e := postgres.NewSource(files, nil)
 		if e != nil {
 			t.Fatal(e)
@@ -424,15 +424,47 @@ func TestProjectVariableMigration(t *testing.T) {
 		if e != nil {
 			t.Fatal(e)
 		}
-		if r := m.Migrate(ctxFor(t)); r.Migrated {
-			t.Fatal("injected migration accepted")
+		// D03 keeps the pending attempt/checksum even when the SQL transaction
+		// rolls back. Repair only this test-owned dependency, never the source.
+		result := m.Migrate(ctxFor(t))
+		var pg *pgconn.PgError
+		if result.Migrated || !errors.As(result.Fault, &pg) || pg.Code != "42883" {
+			t.Fatal("intentional missing migration dependency did not fail")
 		}
 		conn := db.Connect(t)
-		var absent bool
-		if e = conn.QueryRow(ctxFor(t), `SELECT to_regnamespace('agenteam_projectvariable') IS NULL`).Scan(&absent); e != nil || !absent {
-			t.Fatal("partial schema survived", e)
+		manifest := source.Manifest()
+		expectedChecksum := manifest[len(manifest)-1].Checksum
+		journal := func(wantApplied bool) {
+			t.Helper()
+			var absent bool
+			var pending, applied, goose int
+			var checksum string
+			e := conn.QueryRow(ctxFor(t), `SELECT to_regnamespace('agenteam_projectvariable') IS NULL,
+ (SELECT count(*) FROM agenteam_meta.migration_journal WHERE version=24 AND state='pending'),
+ (SELECT count(*) FROM agenteam_meta.migration_journal WHERE version=24 AND state='applied'),
+ (SELECT count(*) FROM agenteam_meta.goose_db_version WHERE version_id=24 AND is_applied),
+ (SELECT checksum FROM agenteam_meta.migration_journal WHERE version=24)`).Scan(&absent, &pending, &applied, &goose, &checksum)
+			if e != nil || checksum != string(expectedChecksum) {
+				t.Fatal("migration journal identity", e)
+			}
+			if wantApplied {
+				if absent || pending != 0 || applied != 1 || goose != 1 {
+					t.Fatal("same-byte retry not applied exactly once")
+				}
+			} else if !absent || pending != 1 || applied != 0 || goose != 0 {
+				t.Fatal("DDL rollback or immutable pending journal lost")
+			}
 		}
-		migrate(t, db)
+		journal(false)
+		if _, e = conn.Exec(ctxFor(t), `CREATE FUNCTION public.variable_fixture_migration_dependency() RETURNS void LANGUAGE SQL AS 'SELECT NULL::void'`); e != nil {
+			t.Fatal(e)
+		}
+		for range 2 {
+			if result := m.Migrate(ctxFor(t)); !result.Migrated {
+				t.Fatal("same source retry failed", result.Fault)
+			}
+			journal(true)
+		}
 	})
 }
 
@@ -460,8 +492,9 @@ func TestProjectVariableAtomicity(t *testing.T) {
 					}
 					version = out.Fields().Variable.Fields().Version
 				}
-				// Account's existing 60s activity throttle is intentionally made due.
-				if _, e := v.raw.Exec(ctxFor(t), `UPDATE agenteam_account.sessions SET last_activity_at=clock_timestamp()-interval '2 minutes' WHERE id=$1`, a.Details().SessionID); e != nil {
+				// Test-owned timing fact makes Account's existing 60s throttle due
+				// while preserving its last_activity_at >= issued_at constraint.
+				if _, e := v.raw.Exec(ctxFor(t), `UPDATE agenteam_account.sessions SET issued_at=LEAST(issued_at,clock_timestamp()-interval '3 minutes'),last_activity_at=clock_timestamp()-interval '2 minutes' WHERE id=$1`, a.Details().SessionID); e != nil {
 					t.Fatal(e)
 				}
 				key := id[struct{}](t).String()

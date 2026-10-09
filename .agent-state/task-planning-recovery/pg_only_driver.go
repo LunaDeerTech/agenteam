@@ -27,6 +27,7 @@ import (
 )
 
 const variableStorageSelector = `^TestProjectVariable(Migration|PaginationAndLimits|Atomicity)$`
+const variableStorageRepairSelector = `^TestProjectVariable(Migration|Atomicity)$`
 
 func main()             { os.Exit(run()) }
 func fail(s string) int { fmt.Fprintln(os.Stderr, s); return 1 }
@@ -35,7 +36,7 @@ func run() (code int) {
 	binary := opts.String("test-binary", "", "precompiled race integration executable")
 	selector := opts.String("run", "", "one exact anchored top-level selector")
 	directory := opts.String("directory", "", "new private task-owned run directory")
-	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || *binary == "" || *directory == "" || (!regexp.MustCompile(`^\^Test[A-Za-z0-9]+\$$`).MatchString(*selector) && *selector != variableStorageSelector) {
+	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || *binary == "" || *directory == "" || (!regexp.MustCompile(`^\^Test[A-Za-z0-9]+\$$`).MatchString(*selector) && *selector != variableStorageSelector && *selector != variableStorageRepairSelector) {
 		return fail("exact binary, directory and one anchored top are required")
 	}
 	start := time.Now()
