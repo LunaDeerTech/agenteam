@@ -32,6 +32,8 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 - Object技术尾维护新增本域精确映射和同Store锁内重验，作者1top/14子race通过；D05仍须验证自身instance及私有实际return/lease/process证明，不产生新读写或不可逆清理许可。新physical恢复/清理尚未接入，原Owner操作兼容2top/15子仍通过。
 - 恢复新增持久work pass、100项有界轮转和精确进程终局/原锁/当前convergence gate，只结束原记账，不重开初始化发布。作者3top/14子race通过（含重建Service后仍可越过100忙项），完整skill/... race及vet均actual0。恢复首次错误构造名setupFAIL保留；PG、对象physical恢复/生命周期和root绑定仍未验/未闭合。
 - 00024已由root刷新到正式Variables来源，00025/26仍与各自稳定来源逐字一致，各域前序SQL验收事实可复用；本树00027尚未PG。新增真实PG验收源码覆盖四口持久发布/重建服务重读确认及发布失败回滚，race-c与两top精确发现通过；Project/Creation为披露的规范测试事实、Object为受控端口，本域Skill和Project权限/锁/事务实现真实消费。尚未运行PG、D05/private witness正例或生产root。原COMMIT恢复将复用已正式完整帧代理，不以受控CommitResult代实际提交证据。
+- 原 COMMIT 恢复第三 top 已形成可构建源码：复用正式完整帧代理，按实际发布事务 PID hold 原 COMMIT、Unknown 返回后释放并观察原提交与实际 join，再由原 key 和重建 Service 重读/重放。16497 race-c、858c2c 精确发现实际通过，尚未执行 PG/代理网络；没有把编译或控制端口写成真实提交结果。当前三个 top 每个都调用连续迁移，独立升级/DDL 失败回滚矩阵仍须另行实际覆盖。
+- 单独 `TestSkillMigration` 已实现 fresh/repeat、保旧 Account/Audit 事实与原约束的 00026→27 升级、六表合法图及 30 个 CHECK/FK 拒例、整 schema 故障回滚和原 checksum 恢复；35384 race-c、a4373e 精确发现 actual0。独立迁移 binary 与原初始化 binary 分开，尚未运行 SQL，不将前序各域验收或编译充作 00027 的真实结果。
 
 ## 验收与当前证据
 

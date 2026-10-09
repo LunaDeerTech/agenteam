@@ -76,3 +76,11 @@
 - 离线Go1.27.1/p1/GOMAXPROCS2/GOPROXYoff、独占原Variables独验GOCACHE：`go test -mod=readonly -p=1 -race -tags=integration -c -o output/ai/skills/compile/skill-pg.test ./tests/skills`，26616 actualexit0；2732a4实际精确发现 `TestSkillInitializationPersistence`/`TestSkillInitializationPublicationRollback` 两top。只编译/发现，没有执行PG或网络。
 - root额外精确导入正式3cea6076的 `.agent-state/project-variables-independent/commitproxy/{proxy,proxy_test}.go`，后继原完整COMMIT帧恢复直接复用它；不得修改此已验helper或另造proxy/监督框架。前序00024变更随本批保存，25/26逐字旧稳定源，不制造变更。
 - 本批两新Go+主卡/本文+上述两proxy+00024共7路径可构建freeze交root；无编译/资源在途。下一另新增COMMIT恢复测试接线，真实105+15/123+3/75窗口仍须freshgrant；现有PG两top未动态。D05/生命周期/生产root未闭合与Object停止项原样保留。
+
+## 原 COMMIT 帧恢复验收准备
+
+- root 已保存前段 `7b2c6753` 与新 `tests/skills/commit_recovery_test.go` 的 `492c08ea`，本实例现已恢复 Skills 作者角色。新的恢复测试复用正式 commitproxy：精确原发布事务 PID、完整 COMMIT 帧先 hold、原调用 Unknown、释放后实际 COMMIT/代理 join、原 key Inspect 与重建 Service 重放；不替换 CommitResult，不把 Unknown 后的观察改写成原调用已确认。
+- 16497 离线 race-c actualexit0，产物 `output/ai/skills/compile/skill-pg-recovery.test`；858c2c 精确发现 `TestSkillInitializationCommitRecovery` actualexit0。旧 `skill-pg.test` 未覆盖新 top，保留但不用于该恢复场景。三个已编 top 均未执行 PG；每个 fixture 调用连续迁移，只说明将实际消费 00027，不冒独立升级/DDL 失败回滚验收。
+- 当前仅准备既有两资源 PG driver：单个精确锚定 selector，105s 主体＋15s 清理、supervisor 123＋3s、TCP 尾 75s、fresh 5GiB；测试 cwd 固定 `tests/skills`。COMMIT top 额外 loopback proxy 为该测试自有并要求实际 Close/join，不启 MinIO/七资源 root。Project/Creation 仍是披露的规范测试事实，外部 Object controlled；真实 Skill/Project/PG 与受控 D05 边界分开，尚无本轮真实资源或业务 PASS。
+- 82290 既有 PG driver 离线构建 actualexit0，产物 `output/ai/skills/compile/pg-only-driver`。原 driver 接受一个 canonical 精确锚定 top，不需新增 domain 映射或改监督器。主卡/本文更新完成后冻结；首个 Persistence top 已具备编译输入，单独 00027 升级/约束/DDL 失败回滚测试另行实施，不阻塞这个限定初始化子能力。
+- 第四个独立 top `TestSkillMigration` 已新增于 `tests/skills/migration_test.go`：fresh/repeat、已有 Account/Audit 数据的 00026→27 升级、六表合法延后外键循环和 30 项 CHECK/FK 拒例、末尾 DDL 故障整 schema 回滚/拒换 checksum/同源恢复。35384 离线 race-c actualexit0 至独立 `skill-pg-migration.test`，a4373e 精确发现 actual0，gofmt/diffcheck0；未执行 SQL。原三 top 的 `skill-pg-recovery.test` 和 driver 未改；新迁移源码与主卡/本文三路径冻结供保存，真实首窗仍仅 Persistence，不合并 selector 或扩大资源预算。
