@@ -86,3 +86,7 @@
 
 - 作者新CommitUnknown完整PASS：body15.42s/driver22.085s，outer79229 exit0/81.798s，Go114010/driver113474 Wait0、两ID/runtime/TCP双空/inputsame（pg-13b99538…）。连续后Persistence扩展paging fixture在planning253事务not_committed INTERNAL_ERROR，body40.85s/Go116123/driver115607 Wait1、outer63817 exit1/106.529s、两ID/runtime/TCP双空/inputsame（pg-4810a4d8…）。Authority/Atomicity未启动；原owner核安全SQLstate/constraint原因，不先归因产品。
 - Model Node早失败诊断3源已freeze：Go只投影封闭failure类别/本spec数值位置，spec补beforeEach probe/material读取细step，不落原message/stack/log/body。delivery race-c、failureprojection racepure、accountvet、2Go cmp、TSstrict/list/diff实际exit0；原第三FAIL未定位，诊断更改不回填根因。
+
+- Agent C1独立实现验收已通过（8819779f六source＋卡固定）：5自有pure/race actualexit0，147JSON/Unicode负例、1282字符/保留字边界、组合247344B与rawcap、Clone/log/typedRef责任均通过；依赖不含Work/Task/App/Postgres或上层Tool。可复跑independent-core_test.go/independent-run.py已freeze；root在main隔离树复制6源+2probe，候选race1.205s/vet/Central与Runner build全部实际exit0。C1卡/README仅C1独立hunk已freeze准备正式main，不复制未交付Task段。
+- Paging FAIL静态定位是test matrix将future medium首项移到backlog critical保留midpoint，撞既有deferred tasks_group_rank_key；仍需安全23505/constraint实证和修后全top，不修改DDL/reader。Task源码保持PG停窗，仅原testowner最小合法rank/oracle返修。
+- Model新增独立read-pagination-contract.ts/probe.mjs已strictTS与1正16负/immutable纯probe实际exit0，保持当前recovery spec不import；只验证26目录种子/跨Provider/闭集关系，不当真实pagination。必要源码冻结保存后待实际readcase消费。

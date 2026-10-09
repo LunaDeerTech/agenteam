@@ -1,6 +1,6 @@
 # D10 Agent 配置与当前身份事实
 
-状态：**C1 SPEC 已接受，六文件实现与作者验证完成，待独立实现验收；F1 未接受、未实施**。本轮实施仅限 §8 的六个纯契约文件，没有 Agent 服务、迁移、动态授权或生产绑定。C1 规格接受不等于实现验收；正文中的 F1 新类型、接口、字段与工程上限仍待独立 SPEC 审查，不因被其它草稿引用而成为已验能力。`identity.AgentID` 只是 typed identity。本文不占用迁移号，进入真实持久实施前由 root 根据当时全局序列分配。
+状态：**C1 六个纯契约文件已实现并经独立验收接受，待 Git 交付；F1 未接受、未实施、BLOCKED**。本轮实施仅限 §8 的六个纯契约文件，没有 Agent 服务、迁移、动态授权或生产绑定。C1 接受不扩展到 F1；正文中的 F1 新类型、接口、字段与工程上限仍待独立 SPEC 审查，不因被其它草稿引用而成为已验能力。`identity.AgentID` 只是 typed identity。本文不占用迁移号，进入真实持久实施前由 root 根据当时全局序列分配。
 
 本卡拟分成两个可分别验收的结果：**C1 纯 AgentCore 与当前身份端口契约**可在规格接受后先行；**F1 Human Owner 创建、读取、修改真实 Agent 配置，并提供同 caller Tx 的当前身份事实**必须等本卡列出的真实前置闭合后开工。F1 不接受 SQL 手种 Agent、默认成功目录或未绑定初始化作为生产创建路径。C1 完成不解锁 Task 指派；F1 完成也不等于 Executor、Agent 删除、完整 D10 或平台 ready。
 
@@ -224,6 +224,8 @@ C1纯验证：每个核心字段上下限/最大escaping；UUIDv4/零/大写ID�
 
 C1 当前作者验证已覆盖上述纯边界，包括解码失败时接收者不变、同时最大正文的六倍 JSON escaping、完整 raw cap 以及标准 `json.Unmarshal` 裁外层空白的边界。`AgentCore/AgentRef` 的 `Decode` 入口检查完整 supplied raw；直接 fmt/slog 为固定安全投影，业务 JSON 和任意外层容器的 JSON 日志回退仍可包含正文，不宣称自动脱敏。Go 1.27.1 离线 `-p=2` 下，Agent contract 及其 Foundation、Identity contract、Model contract 的作者 pure、race、vet 均已通过；这不证明真实 Owner/Tx/Agent 初始化、引用或执行授权。
 
+未参与实现的验证者另以五个独立纯测试检查严格 JSON、字符边界、组合上限、深复制与日志安全边界，全部通过，race 检查实际退出 0；同时核实六文件与规格输入稳定，依赖不含 Task runtime 或上层 Tool 契约。该独立接受仅覆盖 C1 纯契约，F1、真实 Agent 初始化与授权仍未验收。
+
 F1真实PG必须逐项证明：
 
 | 场景 | 必须观测的事实 |
@@ -240,4 +242,4 @@ F1真实PG必须逐项证明：
 
 所有并发必须用实际caller Tx PID、精确预期key/mode、granted=false与blocker握手后释放/取消，不靠sleep。独立验证者须全文STATIC并各自构造Owner撤权/Ref竞争以及跨ownerModel替换/Unknown两组真实场景；作者tests不能代替独立结论。真实资源/单top预算沿当时明确的私有PG-only fixture与所有权，未获扩展不启动Object/Runner/Provider；需要受阻真实依赖时如实BLOCKED，不削弱断言或复制空实现。离线检查每条≤45秒且GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off。
 
-C1 SPEC 已接受，六文件实现与作者验证已完成，尚未取得独立实现验收；其接受只开放依赖纯类型的编译工作。F1 尚未接受或实施，只有全部实际前置、真创建/事实/引用与独立验证通过才可供 Task assignee/reviewer 正向绑定。完整 Agent 配置、Skills/Variables、删除、Executor 与完整 D10 的未完成事实保留。
+C1 六个纯契约文件已实现并经独立验收接受，待 Git 交付；其接受只开放依赖纯类型的编译工作。F1 尚未接受或实施并保持 BLOCKED，只有全部实际前置、真创建/事实/引用与独立验证通过才可供 Task assignee/reviewer 正向绑定。完整 Agent 配置、Skills/Variables、删除、Executor 与完整 D10 的未完成事实保留。
