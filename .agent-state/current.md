@@ -158,3 +158,7 @@
 - navigation-and-layouts.ts完整364行已strictTS11848准确Wait exit0并freeze，type-only引用authority接口；未注册/浏览器/8图/视觉验收，非PASS。root保存完整可构建模块后credential首轮，所有Modelglob冻结。B0-C隔离root contract/work race3.351/1.367实际0，准确vet/Central与Runner build5799实际0；独立验收仍进行、正式未交付。
 
 - B0-C独立实现验收接受：10491 actualexit0，公开API pure0.018/race1.129s，各5top/4parallel child真实run/pass，无skip/timeout/input变化；nested lexical cap/错误优先/最坏escaping/atomic/clone/log/legacy全部通过。首次独立probe自身vet suspect-or setupFAIL0tests保留run-hykp8e_8，拆开断言后产品不改复跑过。必要2probe冻结；root候选race/vet/两build0，准备正式8路径交付，无未验Model代码混入。
+
+- T0b六新纯contract/test及独立两probe完成；独立82636实际0，pure/race各6top34child，vet0。仅Human历史/两Blocker metadata/纯工厂，真实授权图持久producer未绑定。root隔离候选准确race/vet与两入口build进行，尚未main push；Model恢复仍见origin/ai/task-planning-recovery，不含未验Model产品或harness。
+
+- root隔离70b main候选完整contract/work race实际0（23.745/1.343s），准确vet及Central/Runner两入口build actual0（外层74308实际Wait0）；六source/test与两独验probe和root冻结输入逐字相同，12限定路径正式提交，无未验Model来源。仅纯T0b，真实集成未完成。

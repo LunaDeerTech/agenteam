@@ -60,7 +60,7 @@ A 的一般写权限来自正式 Tool/Execution 授权，不凭 AgentID 存在�
 
 新增 `TaskTransitionCommandID`、`TaskBlockerID` 仅分别对应真实流转命令和 Blocker 身份，复用 Foundation typed UUIDv7；Agent、Task、TaskEvent、Project 等沿既有 marker。跨事件的 operation/correlation 使用流转命令身份；不把 transport RequestID 写成 operation。BlockerID 的唯一定义归 Blocker 契约子结果，本卡只引用，不能各造同名 marker。
 
-以下完整请求/接口是 §10 的 **T0b** 目标，须先有 B0-C 已接受且可编译的唯一 `TaskBlockerID/TaskBlockerCreate` 与 typed metadata 契约。当前不存在这些类型，不能把此片段称为可直接独立编译的 T0a 结果，也不能用重复 marker、`json.RawMessage` 或 `map[string]any` 临时填洞。T0a 只交付不引用 Blocker 请求/事实的状态边决策、角色判定和新 Position；纯决策的受控输入不证明任何运行依赖事实。
+以下完整请求/接口是 §10 的 **T0b** 目标，须先有 B0-C 已接受且可编译的唯一 `TaskBlockerID/TaskBlockerCreate` 与 typed metadata 契约。B0-C 的唯一类型及 rely_on、无引用 waiting_for_human 两类 metadata 已实现并独立接受，其余三类仍为 DEPENDENCY_UNBOUND；此片段仍属于 T0b，不属于 T0a，也不能用重复 marker、`json.RawMessage` 或 `map[string]any` 临时填洞。T0a 只交付不引用 Blocker 请求/事实的状态边决策、角色判定和新 Position；纯决策的受控输入不证明任何运行依赖事实。
 
 ```go
 type TaskTransitions interface {
@@ -389,6 +389,146 @@ wire 精确六个 required 字段 `sprint_id,state,priority,previous_id,next_id,
 
 在后续获得源码及工具链资源授权后，使用仓库要求的 Go 1.27.1 与任务自有临时 GOCACHE/GOTMPDIR：`go test -count=1 ./internal/central/work/contract`、`go test -race -count=1 ./internal/central/work/contract`、`go vet ./internal/central/work/contract`；以 `GOTOOLCHAIN=local` 和实际选定二进制运行，不联网补依赖或占共享缓存。独立实例至少实际复跑上述新增 selector 的 pure/race 负例并检查限定 diff，记录准确命令/退出；本次文档只检查本地链接、anchor、限定差异与格式，不运行 Go/PG/network。两文件闭包若必须改 shared helper、Foundation 或旧 schema 才能通过，先升级所有权与规格，不越界补丁。
 
+### 10.5 T0b 完整纯契约的工程闭包
+
+**范围与文件。** T0a 与 [B0-C 两类 Blocker 契约](d11-task-blocker-contracts.md) 已实现并分别独立接受，现可冻结 T0b 的纯 Go 结果；六文件纯结果已实现并独立验收，实施结果见文末；此段不授予运行服务能力。后续拟新增且仅新增 `internal/central/work/contract/task_transition_contracts.go`、`task_transition_history.go`、`task_transition_events.go` 及各自同名 `_test.go`，共六文件；源码开工须另授写域，名称冲突先协调。不改既有 Task/T0a/B0-C/identity/Foundation/event/Outbox/Project 源或测试，不新增依赖、迁移、服务构造器、真实 producer/gate 注册。完整请求及数据结果仅支持 B0-C 已验两类 metadata，其余三类保持 `DEPENDENCY_UNBOUND`；带引用 waiting_for_human 保持 B0-C 的严格拒绝，不作降级。
+
+**请求、回执与命令。** 采用 §3 的 TaskTransfer、TaskTransitionMutation、TaskTransitions 接口原字段/签名；接口只有声明，无成功实现。`identity`、`foundation`、`event` 指现有 contract 包，新增 API 为：
+
+```go
+type TaskTransitionCommand struct{}
+type TaskTransitionCommandID = foundation.ID[TaskTransitionCommand]
+type TaskTransitionCommandName string
+const TaskTransitionTransfer TaskTransitionCommandName = "work.task.transfer"
+
+type TaskTransitionLookupRequest struct {
+    ProjectID ProjectID
+    Command TaskTransitionCommandName
+    IdempotencyKey foundation.IdempotencyKey
+    SemanticDigest foundation.Digest
+}
+type TaskTransitionLookup struct {
+    Status LookupState
+    Receipt *TaskTransitionMutation
+}
+func TaskTransitionIdentity(ProjectID, foundation.IdempotencyKey) (foundation.CommandIdentity, error)
+func TaskTransferDigest(identity.Actor, foundation.CommandMeta,
+    ProjectID, TaskID, TaskTransfer) (foundation.Digest, error)
+```
+
+所有 wire key 沿 §3 精确 snake_case。TaskTransfer.Validate 只检查 canonical target、pointer/text、两数组数量、Blocker typed shape、ID 唯一与 add/resolve 不相交；不凭无 from/preimage 的请求判合法边，也不判当前 assignee/Blocker/占用。每数组0–16项、合计≤32；先核数量再逐项，重复和重叠即拒。所有已定义字段/集合的 shape 错误优先 INVALID_ARGUMENT；逐项遇到 B0-C 的 DEPENDENCY_UNBOUND 时保留该错误并继续检查其余已定义 shape，全部 shape 合法后才返回所保留的未绑定错误，不因数组排列改变两者优先级，也不检查未冻结 metadata 的业务语义。MarshalJSON 在深复制上排序两个集合，始终输出 `add_blockers:[]`、`resolve_blocker_ids:[]`；Unmarshal 也规范为非 nil 空数组及 canonical ID 排序，assignee/comment 仍只在实际存在时输出。Clone 保留 Go 的 nil/presence 与顺序，不改输入；编码排序不能改 caller slice。评论严格执行 §3 的32768-byte/非空白/控制字符规则，正文不规范化。
+
+Mutation 三字段 required/non-null，Task必须合法且version≥2，有序 TaskEventIDs 长1–35、均合法且严格递增，EventIDs 恰一个合法ID；没有 no-op 或单历史兼容分支。Lookup request四字段 required/non-null且command只能 transfer；Lookup两字段 required，committed 必须有完整receipt，in_progress/not_observed 必须显式null receipt。Lookup标量与历史读取规则仍按 §9，纯值不产生提交观察结果。
+
+**摘要闭集。** TaskTransitionIdentity 精确使用 §9 的 project namespace、单个 project owner ID与固定command。TaskTransferDigest 独立实现，禁止复用旧 planning 的 `taskCommandDigest`（其 format/target_id/actor_user_id不同）。错误顺序固定为：先检查Project/Task参数与CommandMeta（含必有ExpectedVersion），形状失败返回INVALID_ARGUMENT；再调用上述TaskTransfer.Validate，原样保留其Known Fault，已定义shape错误为INVALID_ARGUMENT，shape合法但含三类未绑定Blocker时为DEPENDENCY_UNBOUND，不能改码；仅请求验证成功后才检查Actor，未构造为UNAUTHENTICATED。支持已构造 Human 与 AgentRun 的稳定主体编码，但只证明身份形状。AgentRun 的主体Project必须与参数Project一致，否则 `FORBIDDEN`；任意 Service均 `FORBIDDEN`，正式Service/cause摘要分支留给T3，不由当前Service注册推导权限。不得调用或放宽旧Human-only ValidateActor来假装已绑定Agent能力；后继服务仍按§4/§9重新证明当前权限，未绑定运行入口仍为DEPENDENCY_UNBOUND。
+
+canonical-v1 对象精确七键为 §9 所列，`actor_subject` 的 Human 分支为 `{kind:"human",user_id}`，AgentRun为 `{kind:"agent_run",project_id,agent_id,execution_id}`；不含Session。`expected_version` 使用必有且合法的 foundation.Version 十进制字符串，meta.RequestID/IdempotencyKey 仍须通过形状验证但不进摘要。`request` 使用上述规范请求 JSON：省略的 assignee/comment 仍省略，两个集合展开空并排序；再由现有 cursor.CanonicalJSON 排key并 SHA-256，返回 `sha256:<64 lowercase hex>`。任何错误返回空 Digest，不产生计划或grant。静态黄金向量：Human user UUID `00000000-0000-7000-8000-000000000001`、project尾号002、task尾号003，expected=`"1"`，请求只有 target_state=todo及展开的两个空数组，规范对象350 bytes，摘要为 `sha256:ca26dbe5269b1cb0355ab2008a5ddbf2a3f5f33cfdf2f4ea6c1e8443ae9df657`；这只是字节规格，尚非Go实测。
+
+**独立历史分支。** Human历史的实际结构按§6.1冻结；新类型不复用旧RawMessage TaskEvent。当前Actor Go值只持UserID，codec固定生成/严格读取 `{type:"human",user_id,source:"task_domain"}`；不存在可填写的Service/Agent分支、身份转换器或授权布尔值。后继Agent/System的持久source/cause decoder仍待正式authority卡，当前均不能解码成功。
+
+```go
+type TaskTransitionActor struct { UserID identity.UserID }
+type TaskTransitionEventType string
+const (
+    TaskTransitionStateChanged TaskTransitionEventType = "state_changed"
+    TaskTransitionAssigneeChanged TaskTransitionEventType = "assignee_changed"
+    TaskTransitionBlockerAdded TaskTransitionEventType = "blocker_added"
+    TaskTransitionBlockerResolved TaskTransitionEventType = "blocker_resolved"
+    TaskTransitionComment TaskTransitionEventType = "comment"
+)
+type TaskStateChangedPayload struct { FromState, ToState TaskState }
+type TaskAssigneeChangedPayload struct {
+    FromAgentID *identity.AgentID
+    ToAgentID identity.AgentID
+}
+type TaskCommentPayload struct { Body string }
+type TaskTransitionFactPayload struct {
+    StateChanged *TaskStateChangedPayload
+    AssigneeChanged *TaskAssigneeChangedPayload
+    BlockerAdded *TaskBlockerAddedPayload
+    BlockerResolved *TaskBlockerResolvedPayload
+    Comment *TaskCommentPayload
+}
+type TaskTransitionEvent struct {
+    ID TaskEventID
+    ProjectID ProjectID
+    TaskID TaskID
+    TaskVersion foundation.Version
+    Type TaskTransitionEventType
+    Actor TaskTransitionActor
+    OperationID TaskTransitionCommandID
+    CorrelationID TaskTransitionCommandID
+    Payload TaskTransitionFactPayload
+    CreatedAt foundation.Instant
+}
+```
+
+state payload wire仍为§6.1三required字段，`reason_code` 必须null，由codec固定输出；任何非null值拒绝，不预造未冻结reason枚举。该Human数据分支的from/to必须满足§2的H边，终态/同state/claim/Busy不合法；验证只核数据自洽，非法声明统一INVALID_ARGUMENT，不替代T0a/§9的运行错误顺序。assignee payload两个key required，仅from可null，to合法且与非null from不同。comment沿请求正文规则。FactPayload是Go typed union，不提供独立JSON codec；ValidateFor(TaskTransitionEventType)要求恰一个对应非nil指针，payload wire不含分支名或第二个type。
+
+TaskTransitionEvent十个wire字段全部required/non-null，version≥2，operation/correlation为同一新command ID，Actor和CreatedAt合法；payload按type直调具体codec。Blocker payload只引用既有B0-C类型，Resolved在本transition历史分支额外要求ResolutionComment=nil。每个事件自身不证明一整批事实完整，组合顺序/关联由下述数据工厂检查。旧TaskEvent/TaskEventActor/两旧type及单历史receipt继续拒绝全部新增分支。
+
+**封套与纯数据工厂。** 复用已验 TaskTransitionPosition；只有下面新封套进入现有 event catalog，较大的本地comment历史不注册成Outbox payload：
+
+```go
+const TaskTransitionedName event.StableName = "work.task_transitioned"
+const TaskTransitionSchemaVersion uint32 = 1
+type TaskTransitioned struct {
+    CommandID TaskTransitionCommandID
+    Actor TaskTransitionActor
+    TaskEventIDs []TaskEventID
+    MilestoneID MilestoneID
+    SprintID SprintID
+    FromState, ToState TaskState
+    AssigneeChange *TaskAssigneeChangedPayload
+    SourcePosition, TargetPosition TaskTransitionPosition
+}
+type TaskTransitionEvents struct { /* private catalog + EventType[TaskTransitioned] */ }
+func RegisterTaskTransitionEvents(*event.Catalog) (TaskTransitionEvents, error)
+func (TaskTransitionEvents) Valid() bool
+func (TaskTransitionEvents) NewTaskTransitioned(event.Header, TaskTransitioned) (event.Event, error)
+func (TaskTransitionEvents) Restore(event.Header, []byte) (event.Event, error)
+func (TaskTransitionEvents) DecodeTaskTransitioned(event.Event) (TaskTransitioned, error)
+func (TaskTransitionEvents) NewTaskTransitionData(h event.Header, before, after Task,
+    request TaskTransfer, history []TaskTransitionEvent,
+    source, target TaskTransitionPosition) (TaskTransitionMutation, event.Event, error)
+```
+
+TaskTransitioned采用§6.2全部required字段，只有assignee_change可null；IDs有序合法、严格递增且1–35，Actor只Human，from/to为H边。source/target state分别对应from/to；两Position的Sprint均等于封套Sprint、priority相同，target.NextID必须nil。New/Restore/Decode还检查Header精确triple `(work.task_transitioned,work.task,1)`、Project scope、合法AggregateID、AggregateVersion≥2、无AggregateSequence及OccurredAt；以aggregate TaskID对两Position调用ValidateTarget。仅此封套无法证明TaskEventIDs的内容或真实邻居，不能把New成功当成已完成producer事实核对。
+
+NewTaskTransitionData是有界纯数据一致性工厂，不读取事实或自动生成ID/time。它要求合法before/after、同一Task/Project，before.Version<MaxInt64且after恰+1；除state/assignee/manual_rank/version/updated_at外所有Task字段精确不变，after.UpdatedAt=Header.OccurredAt且不早于before.UpdatedAt。Header的Project/aggregate/version匹配after；request目标、显式或保留assignee与after一致，四条必填comment和两条显式交接沿§2/§3检查。source/target分别匹配before/after的Sprint/state/priority；真实rank/邻居/代数关系仍不可由这些受控值证明。
+
+history必须恰好是本请求的完整事实序列：首条state，其payload.FromState/ToState必须分别等于before.State/after.State；assignee仅当实际值变化时一条，其payload.FromAgentID与before.AssigneeAgentID按nil/value精确相等，payload.ToAgentID与非nil after.AssigneeAgentID的值精确相等；resolve按请求ID排序且逐项ID相等、comment=null；add按请求ID排序且逐项ID/type相等；总comment仅当请求存在时一条且正文逐字节相等。无缺项/多项/重复/乱序；同ID显式交接没有assignee事件，仍保留state+comment。全体history必须同Project/Task/new version/Actor/operation/correlation/CreatedAt，IDs严格递增，时间等于Header；command ID/Actor从这批一致数据取值。工厂从核对后的history生成封套IDs与assignee_change，使用after深复制生成receipt、EventIDs恰Header.EventID，再经NewTaskTransitioned构造event值；失败返回零Mutation和零Event。传入的before/after/history仍可能是调用者编造值，纯检查不证明它们曾存在或写入；没有Blocker count、Grant、无占用bool、AppendPlan或伪持久完成结果。
+
+Register仅向caller提供的有效未Seal Catalog调用既有 `event.DefineEvent`，精确绑定WorkProducer、上述name/aggregate/version、`event.JSONCodec[TaskTransitioned]`及Validate；不自动Seal/注册旧事件，也不改变生产composition root。nil/zero/sealed/重复或冲突注册拒绝。Restore先查工厂与schema，再直接调用自有严格payload decoder，后走New；错误schema为SCHEMA_UNSUPPORTED。Decode先查同Catalog.Owns和WorkProducer，再event.DecodeEvent与Work Header/Position复核，成功返回深Clone，拒绝foreign/zero event。所有event生成/解码失败返回零值；其余数据不符为现有INVALID_ARGUMENT/NotStarted，B0-C缺类型保留DEPENDENCY_UNBOUND。
+
+实际event API是 Definition/EventType/Event；Catalog issuer只证明schema来源。通用Catalog.Restore在交给codec前会canonicalize，可能压掉外空白或替换孤立surrogate，故它不提供本卡原字节边界保证；新自有Restore必须先严格检查完整raw，Decode无法还原已丢失的原字节。Event.Summary().PayloadDigest由既有event.NewEvent对canonical payload计算，不对`json.Marshal(event.Event)`的安全标记求业务摘要。Project当前gate只认识旧三个triple，新triple仍未绑定；§6.2的purpose、PlanIssuer、CurrentAccess/NewFact、锁与同Tx真实producer全部留T1，不在T0b造成功adapter或调用Appender发布。
+
+**统一codec与cap。** TaskTransfer、Mutation、两个Lookup、Actor、三个新concrete payload、TaskTransitionEvent、TaskTransitioned均有精确 `Validate() error`、`Clone() T`、`MarshalJSON() ([]byte,error)`、`(*T) UnmarshalJSON([]byte) error`、`Format(fmt.State,rune)`、`LogValue() slog.Value`；FactPayload有`ValidateFor(TaskTransitionEventType) error`、Clone及安全投影，不单独编解码；两个新string枚举有Validate/Marshal/Unmarshal/安全投影。TaskTransitionEvents有固定Format/LogValue，不提供业务JSON恢复工厂。分别提供 `DecodeTaskTransfer`、`DecodeTaskTransitionMutation`、`DecodeTaskTransitionLookupRequest`、`DecodeTaskTransitionLookup`、`DecodeTaskTransitionActor`、`DecodeTaskStateChangedPayload`、`DecodeTaskAssigneeChangedPayload`、`DecodeTaskCommentPayload`、`DecodeTaskTransitionEvent`、`DecodeTaskTransitioned`，签名统一为 `func DecodeX([]byte) (X,error)`。
+
+| 新增上限常量 | 值 / 对象 |
+| --- | --- |
+| MaxTaskTransitionNameBytes | 64，两新string枚举 |
+| MaxTaskTransferBytes / MaxTaskTransitionResultBytes / MaxTaskTransitionLookupBytes | 各512KiB，request / mutation / lookup result；Lookup request复用MaxTaskLookupRequestBytes=16KiB |
+| MaxTaskTransitionActorBytes | 1KiB |
+| MaxTaskTransitionCommentBytes / MaxTaskCommentPayloadBytes | 32768正文 / 256KiB comment payload |
+| MaxTaskTransitionEventBytes / MaxTaskTransitionCommentEventBytes | 16KiB非comment record / 272KiB comment record |
+| MaxTaskTransitionedBytes | 16KiB封套；其他小payload复用MaxTaskHistoryPayloadBytes=8KiB |
+
+raw与完整marshal输出都执行这些上限。外层在任何canonicalize/标准Unmarshal前检查自身完整raw；嵌套的每个Blocker item/metadata、Actor、Position和按type选择的payload必须保持原始token范围后调用自有codec核各自cap，不能先压空白再检查。拒绝missing/null/unknown/duplicate/case-key/非法UTF-8/孤立surrogate/尾值/数值ID或版本；nil receiver安全拒绝，失败不改receiver，所有Decode失败返回零值；Clone复制全部slice、pointer与B0-C metadata。输入数组/历史最多既定数量，不放宽既有Task的512KiB容量；最大合法Task文本、32768字节最坏escaping comment、16个最大Blocker create+16个resolve必须各自及组合能编码。沿§11的request/receipt/history预算，Factory不返回或宣称已验证4MiB持久plan。
+
+所有新DTO/enum/factory的直接fmt/slog固定`work_task_transition`，错误只现有Known/Safe Fault/NotStarted与固定安全路径，不附正文/ID/key/原cause；enclosing容器限制仍沿§11。不新增§9的运行业务错误码，不以纯schema错误改变服务的权限/replay/版本优先。三份test文件固定以下六个top selector；T0b设计者及实现者不能充当独验。
+
+| top selector | 独立可判定的完整目标 |
+| --- | --- |
+| TestTaskTransferPresenceAndSets | 五字段presence/null闭集；七target shape；assignee/comment精确保留；16/17与32上限、重复/重叠；排序不改caller；两Blocker成功、三类unbound、外域reference拒绝；完整raw及嵌套item/metadata cap |
+| TestTaskTransferDigestAndLookup | 上述固定黄金摘要；每语义字段/expected/subject变化，Session/RequestID/key变化不变；集合排列与nil/[]等价、presence区分；非法meta/Actor/跨Project Agent/Service拒绝；非法meta+合法technical→INVALID_ARGUMENT，任一shape错误+合法technical不论排列均INVALID_ARGUMENT，合法technical+Human或零Actor均DEPENDENCY_UNBOUND，合法已绑定请求+零Actor→UNAUTHENTICATED；Lookup状态/receipt/command闭集与最大receipt |
+| TestTaskTransitionHistoryTypedFacts | 五分支恰一typed payload、十字段严格codec、Human-only Actor及reason=null、B0-C两类小payload；version/operation/correlation、comment字节与cap、失败原子/深Clone；Agent/System与旧type拒绝 |
+| TestTaskTransitionDataFactory | 完整多事实/同ID交接两事实；缺/多/乱序/重复/换type/ID/Actor/operation/time/version/Task字段/位置/Header全部拒绝；before in_progress(A)→after in_review(B)却给另一合法H边backlog→cancelled或另一合法assignee对C→D分别拒绝，from-assignee的nil/value不符亦拒；两必填assignee/四必填comment；MaxInt64边界、输入不变、零结果；不伪造当前授权/图事实 |
+| TestTaskTransitionTypedEnvelopeFactory | 同catalog注册/New/Restore/Decode/Seal；foreign/zero/duplicate/wrongproducer/triple/header/sequence/自邻居拒绝；原raw16KiB/孤立surrogate先于canonicalize；canonical payload digest、clone隔离与受控并行；明确通用Catalog恢复的限制 |
+| TestTaskTransitionContractBoundsAndLegacy | 所有raw cap/cap+1与同时最坏合法文本/Blocker/receipt组合、直接日志/Fault保真、nilreceiver；旧planning请求/command/TaskEvent/Human/单历史Mutation/TaskChanged严格拒绝新增输入，旧正例及T0a/B0-C继续通过 |
+
+后续实现按Go1.27.1、离线GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off/GOTELEMETRY=off、任务独占缓存/temp及`-p=2`执行准确selector发现、Work contract整包pure/race/vet；独立实例用未参与设计的公开API oracle覆盖摘要/多事实/嵌套raw/foreign factory/旧schema否定，实际Wait/退出后才记通过。当前仅文档链接/anchor、限定差异与字节算式静查，无Go或数据库执行；§13及B0-P/T1/T2/T3所有真实事实门槛不变。
+
 ## 11. 上限、持久编码与安全投影
 
 新增单request≤512KiB，单mutation/lookup receipt≤512KiB，lookup request≤16KiB，typed `TaskTransitioned` payload≤16KiB；comment payload≤256KiB、comment record≤272KiB，其他history payload≤8KiB/record≤16KiB，actor≤1KiB，私有plan≤4MiB。cap检查自有codec实际收到的整个raw及marshal完整输出，不把标准json.Unmarshal裁掉的外空白算作已测覆盖。Task自身沿原512KiB，不用新较小结果cap限制其满额description/plan。
@@ -454,4 +594,12 @@ D10当前Agent事实与Work引用保护是明确责任依赖，不是产品未�
 
 已实现 `internal/central/work/contract/task_transition_rules.go` 及相邻测试。作者 pure、root contract race（2.931s）、准确 vet 与六个新增 selector 发现实际退出0；独立公开API overlay 使用 Go1.27.1、离线 `-race -p=2`，4顶层/9子测试全部实际运行通过（1.078s，工具session9346实际exit0）。独立 oracle 检查49状态对×6角色×3当前assignee，共882组合，以及错误优先、8KiB原始输入、失败receiver保留、并行Clone和旧Position/schema隔离。两产品源与独立探针均冻结，未修改旧契约或迁移。
 
-可复跑独立验收：[probe_test.go](../../../.agent-state/task-transition-core-recovery/probe_test.go)、[run.sh](../../../.agent-state/task-transition-core-recovery/run.sh)。以上只证明纯类型与决策；没有运行PG/Agent事实/Blocker/Executor/Scheduler，也没有授权或提交能力。完整Transfer与§13前置继续待实现。
+可复跑独立验收：[probe_test.go](../../../.agent-state/task-transition-core-recovery/probe_test.go)、[run.sh](../../../.agent-state/task-transition-core-recovery/run.sh)。以上只证明纯类型与决策；没有运行PG/Agent事实/Blocker/Executor/Scheduler，也没有授权或提交能力。完整Transfer纯契约已由T0b补齐；§13真实前置继续待实现。
+
+### T0b 实施与验收结果
+
+已实现§10.5限定的六个contract/test文件，覆盖完整请求与命令摘要、Human typed历史、严格封套和纯多事实数据工厂。作者最终整包pure、race、vet及六selector发现实际退出0；最大35事实、两类Blocker及最坏文本组合通过。首次新测试使用不存在的旧API导致编译失败，只修新测试后复验通过，原失败不作成功记录。
+
+独立公开API验收使用Go1.27.1离线overlay，pure/race各6顶层、34子测试实际运行通过，vet实际退出0（外层工具session82636）。它另行构造固定摘要、前后状态/assignee逐值反例、最大组合、嵌套原始raw容量、foreign factory、Clone/日志及旧schema否定，不使用作者helper计算期望。可复跑：[probe_test.go](../../../.agent-state/task-transition-recovery/t0b-independent/probe_test.go)、[run.sh](../../../.agent-state/task-transition-recovery/t0b-independent/run.sh)。
+
+本结果只消费B0-C已接受两类metadata，历史仅Human分支；AgentRun摘要只验证稳定主体形状。纯数据工厂不证明真实Task/Blocker/邻居或授权事实，不写DB、不发布event、不提供Grant，生产gate仍未绑定新triple。通用Catalog.Restore原字节局限保留；自有Restore先严格检查raw。T1/T2/T3与完整D11仍未完成。
