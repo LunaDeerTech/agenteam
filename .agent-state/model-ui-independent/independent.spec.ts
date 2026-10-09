@@ -893,7 +893,16 @@ async function openProject(
   m: Row,
   key: Key,
   discardPrepared = false,
+  archivedOwner: "credential_recovery" | "config_recovery" | null = null,
 ) {
+  if (archivedOwner !== null)
+    need(
+      selected === "b" &&
+        ((archivedOwner === "credential_recovery" &&
+          key === "config_recovery") ||
+          (archivedOwner === "config_recovery" && key === "main")),
+      "INDEPENDENT_ARCHIVED_OWNER_TRANSITION",
+    );
   const p = m.projects[key],
     target = `/${p.username}/${p.normalized_name}/settings/model-providers`;
   const settingsTarget = `/${p.username}/${p.normalized_name}/settings/general`;
@@ -927,6 +936,28 @@ async function openProject(
         dispatchEvent(new PopStateEvent("popstate", { state: history.state }));
       }, target),
     );
+    if (archivedOwner !== null) {
+      const ownerConfirm = page.getByRole("dialog", {
+        name: "放弃项目修改？",
+        exact: true,
+      });
+      await wait("independent-b-open-project-owner-confirm-visible", () =>
+        expect(ownerConfirm).toBeVisible(),
+      );
+      need(
+        !(await wait(
+          "independent-b-open-project-owner-target-unpublished",
+          () => targetPublished(),
+        )),
+        "INDEPENDENT_OWNER_LEAVE_ALREADY_PUBLISHED",
+      );
+      await wait("independent-b-open-project-owner-confirm-click", () =>
+        button(ownerConfirm, "放弃并离开").click(),
+      );
+      await wait("independent-b-open-project-owner-confirm-hidden", () =>
+        expect(ownerConfirm).toBeHidden(),
+      );
+    }
     const confirm = page.getByRole("dialog", {
       name: "离开项目模型设置？",
       exact: true,
@@ -1861,7 +1892,7 @@ test("[independent-b] archived rotation stays observation-only while config repl
   );
   step("provider-update-archive");
   await wait("independent-b-case-b-open-project-dm", () =>
-    openProject(page, m, "config_recovery", true),
+    openProject(page, m, "config_recovery", true, "credential_recovery"),
   );
   await wait("independent-b-case-b-click-dn", () =>
     button(page, "创建 Provider").click(),
@@ -1949,7 +1980,7 @@ test("[independent-b] archived rotation stays observation-only while config repl
   );
   step("current-revocation");
   await wait("independent-b-case-b-open-project-ef", () =>
-    openProject(page, m, "main"),
+    openProject(page, m, "main", false, "config_recovery"),
   );
   const seed = m.expected.projects.main.providers[0]?.id;
   need(id(seed), "INDEPENDENT_SEED_PROVIDER");
