@@ -6,7 +6,7 @@
 
 ## 当前恢复点与并行所有权
 
-Task Planning、B0-P限定Blocker服务与Work Owner HTTP/root已正式交付，当前继续D27 Model业务验收及Human规划界面实施。后者在基于正式main的 `/workspace/agenteam-work-ui` 隔离树推进，rev1规格已独立接受，API/Session/controller已有限定独立纯控制，页面和真实fixture由负责人接续，planning前三轮整体FAIL/首STOP保留；原响应式与测试标签修订已窄独审，第三轮更早卡Milestone前移原response.finished直到45秒，Task修订与Go持久后验未到；上游完整body不推浏览器或Model同因，实际退出与七资源/TCP尾齐，尚无UI通过结论。read首轮亦完整FAIL/全尾齐：title更新不改变正式order_generation；真实reorder刺激窄修后read02已过409提示及前两筛选，但第三筛选原Request aborted/finished待到45秒，整体FAIL且hostTCP尾另有无tuple单行差异。已登记资源已清，不后补原尾或推client完成，UI仍未接受。现有六名子代理分别推进Work UI、Model authority诊断、普通Project Variables作者及独验、D15 Runner身份控制与D12 Knowledge B02；Skills已保存cfb82d9d后阶段暂停，其作者实际转独立Variables树（fc6ffd9e基线，自有新源/缓存）。各自独立worktree/唯一writer，按阶段轮转审查。普通Variables首Persistence、Knowledge及Runner各首迁移三SQL子项已真实完整PASS并完成资源尾，均非整卡接受；Knowledge OwnerTree修后32137亦完整PASS/全尾齐，原失败保留；变量后继Pagination单top通过，同轮Migration恢复与Atomicity测试前置失败的整体FAIL保留；两项前置窄修后Migration/Atomicity已完整PASS并完成资源尾（85519），权限/竞争/恢复/native/root仍待；迁移预留变量00024、Knowledge00025、Runner00026、Skills00027；精确范围/人员/恢复位置见分支记录，不复制活动未验产品。接口唯一来源仍是正式SPEC/contract，台账只链接提供方、消费方与待真实集成gate。主线程负责统筹、规划、安排、汇报、验收决策和Git；实现、排查、测试与文档由子代理承担。实际所有权与资源接续见分支记录，共享入口、迁移、构建资产与测试资源只允许一个写入者或明确串行。
+Task Planning、B0-P限定Blocker服务与Work Owner HTTP/root已正式交付，当前继续D27 Model业务验收及Human规划界面实施。后者在基于正式main的 `/workspace/agenteam-work-ui` 隔离树推进，rev1规格已独立接受，API/Session/controller已有限定独立纯控制，页面和真实fixture由负责人接续，planning前三轮整体FAIL/首STOP保留；原响应式与测试标签修订已窄独审，第三轮更早卡Milestone前移原response.finished直到45秒，Task修订与Go持久后验未到；上游完整body不推浏览器或Model同因，实际退出与七资源/TCP尾齐，尚无UI通过结论。read首轮亦完整FAIL/全尾齐：title更新不改变正式order_generation；真实reorder刺激窄修后read02已过409提示及前两筛选，但第三筛选原Request aborted/finished待到45秒，整体FAIL且hostTCP尾另有无tuple单行差异。已登记资源已清，不后补原尾或推client完成，UI仍未接受。现有六名子代理分别推进Work UI、Model authority诊断、普通Project Variables作者及独验、D15 Runner身份控制与D12 Knowledge B02；Skills已保存cfb82d9d后阶段暂停，其作者实际转独立Variables树（fc6ffd9e基线，自有新源/缓存）。各自独立worktree/唯一writer，按阶段轮转审查。普通Variables首Persistence、Knowledge及Runner各首迁移三SQL子项已真实完整PASS并完成资源尾，均非整卡接受；Knowledge OwnerTree修后32137亦完整PASS/全尾齐，原失败保留；变量后继Pagination单top通过，同轮Migration恢复与Atomicity测试前置失败的整体FAIL保留；两项前置窄修后Migration/Atomicity已完整PASS并完成资源尾（85519），作者Concurrency及Authority/FinalAuthority限定组已完整通过，独立64224在新独占窗同输入重跑完整PASS；HTTP24954单top失败正在修测试刺激，其它恢复/native/root门槛仍待；迁移预留变量00024、Knowledge00025、Runner00026、Skills00027；精确范围/人员/恢复位置见分支记录，不复制活动未验产品。接口唯一来源仍是正式SPEC/contract，台账只链接提供方、消费方与待真实集成gate。主线程负责统筹、规划、安排、汇报、验收决策和Git；实现、排查、测试与文档由子代理承担。实际所有权与资源接续见分支记录，共享入口、迁移、构建资产与测试资源只允许一个写入者或明确串行。
 
 | 工作项 | 当前可证状态 | 接手时的下一步与完成边界 |
 | --- | --- | --- |
@@ -49,9 +49,11 @@ D08–D28 各模块仍有未完成范围，E01 未开始；首个未完成模块
 
 **Model Settings UI：** 历史 `modelsconfig01/02` 均失败；`modelsconfig03` 与 `modelscred01` 后续有限通过。`modelsrecover01/02` 仍为 FAIL：前者缺原 native/DOM/final facts；后者虽到达 Credential 断连恢复、Model DELETE cut/lookup/replay 等步骤，最终 browser-result/final durable 缺失，原 host TCP 未在原期限内双清。后续观察或窗口释放不能补写原通过。受控 header/Flush 与 ReadPrivate 同 fd 快照探针通过只证明限定行为，不确定旧 business FAIL 的具体原因。
 
-`modelsrecover03`、author v06/private v04的历史准备描述不构成动态通过。当前主harness与独立A/B可执行输入已恢复并保存，独立A第二轮真实完整PASS且资源已清，首轮FAIL保留，B尚未真实运行；共享组件修复后按相关差异补验，不能把旧二进制、旧sourcecheck或前端unit代作真实浏览器结论。详细场景与实现范围以[当前卡](../work-items/d27-project-owner-model-settings-ui.md)为准。
+`modelsrecover03`、author v06/private v04的历史准备描述不构成动态通过。当前独立A第二轮及B第六轮均已按限定完整结果接受，B1–5原FAIL与首轮Wait缺口保留；不能把历史二进制或前端unit代作当前真实浏览器结论。范围以[当前卡](../work-items/d27-project-owner-model-settings-ui.md)为准。
 
 **Work Structure：** 六新 PG 按版本组合通过，Unknown01 原 FAIL 经 U1 Lookup 取消修复后 Unknown02 11/11；五旧回归及独立 A/B 实际断言通过。独立 B 的监督器 Wait、2个资源清理与 watcher join 有记录，但外部工具 `session20487` 恢复后返回 Unknown process，原 terminal/exit 缺失。后续 current-clear 只证明当时 PID/资源不存在，不补原工具终态、不推断机器重启；完整接受仍沿[报告中的限定组合](d11-work-structure-verification.md)。
+
+最新独占环境核对：Runner误启native与Model LoginOwner42057监督尾重叠，保留其主体观察及实际退出事实，撤回整窗接受；Variables独验90414独占性未证，后继64224同输入新独占窗完整PASS仅作为新轮接受。UI read02原无tuple TCP差异独立保留，不推同一原因。
 
 其他历史原 FAIL 与受限组合结论保留在对应验收报告及基线文件历史；这里不复制每轮日志，也不把后验通过改写为原失败原因已知。
 
