@@ -90,3 +90,9 @@
 - `60950` 在根 fresh grant 的唯一窗口实际执行 `^TestSkillInitializationPersistence$`，cwd `tests/skills`、原 `skill-pg-recovery.test`/PG driver/supervisor；开始可用 6,400,135,168 bytes。Go 2.51s：真实本域发布/原 ID 持久观察、重建 Service 同原命令零新增 physical 重放、同 Tx 确认，以及缺真实父锁/已结束 Tx/另一 Service 私有 issuer 三负例均 PASS。
 - 实际 outer exit0/72.659s、driver 13.708s；Go PID865195 与 driver PID864527 实际 Wait0、两精确 PG/nonce network ID 双 clean、desc 两次空、HOST_TCP 两次 delta_empty、inputs_unchanged=True、terminal0。自有 runtime 仅 `owned.json`，私有 fixture/证书/临时清除，完整退役后已交还窗口。原件 `output/ai/skills/pg/pg-7bfba875db50465983258b7c2075eb56.log` 及同名目录。
 - 此为作者有限 PG 结果，root 已接受；真实 Skill/Project Authority/同 Store 锁与四口被消费，Project/Creation 为规范测试种子、D05 Object 为受控端口。不是独立验收、Project.Create/Human 正向、D05/private witness/MinIO 或生产 root 通过。PublicationRollback、CommitRecovery、独立 Migration 三 top 均仍未运行；未自动续轮。本轮使用的连续 00027 迁移已执行成功，但不替代尚未跑的升级/约束/DDL 回滚矩阵。
+
+## work／Reserve 未确认时的 physical 边界准备
+
+- 新 `tests/skills/admission_unknown_test.go` 定义 `TestSkillInitializationAdmissionUnknown` 的 work／reserve 两子项。测试 Store 转发器仅在原 callback 成功后的同一真实 Tx 读取精确本域阶段与 work，按原 backend PID arm 正式完整帧代理；真实 `WithinTx` 的 ctx/Tx/cause/CommitResult 原样保留，不注入假的 Unknown。
+- 要求 work 登记 Unknown 时没有 prepare，Reserve Unknown 时仅 prepare/reserve/discard、没有 Upload/Publish；原帧释放前后的真实可见行分别核对。释放后只 Inspect 原 command 的 Pending 及实际 Drain 记账，不自动续写；原 physical Attempt/Cause/Unknown 值必须保持。Object 端口受控，不冒真实 D05。原 fixture/产品/先前 binaries 均未改。
+- 97930 独立 race-c actualexit0 至 `output/ai/skills/compile/skill-pg-admission.test`，c293f4 精确发现唯一 top actual0，gofmt/diffcheck0；没有执行该 PG/socket 场景。新源码与主卡/本文三路径冻结供恢复保存；资源仍按单 top fresh grant，原两资源/预算不变。
