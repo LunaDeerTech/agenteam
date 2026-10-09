@@ -158,6 +158,8 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ### 当前有限交付门槛
 
+修后新整包独立binary已race-c77598／六精确top发现dd5fce／domain与integration vet53340实际0，未覆盖旧产物。首全包race59862因新测试误假定UUIDv7分配单调而FAIL；只修受控ID前置，真实新子也改为持两reader后读取实际cleanup排序选择保留项，产品不改。修后全Knowledge/... race49004实际0；原Cleanup两子逆差异da8223逐字89613dc5。此为可构建/纯控制，不等于P1/P2独审或新SQL/真实业务通过，下一真实仅安排修后Runtime与Cleanup受影响组及原未验异常组。
+
 针对P2只在既有Cleanup top追加两Project真实子例：首精确live reader不阻塞后项物理删除，连续恢复保持一次Object Audit，Close后首项才完成；原两子及selector不改。该增量当前仅源码准备，拟用新的修后独立binary，不算真实PASS，也不增加泛化harness入口。
 
 两项本域返修当前仅作者离线通过：typed canonical ObjectReader 的同步 Close 返回是本域流调用实际结束边界，返回的原读取/取消/释放错误仍原样上交；不将本域注销当 D05 lease 已释放或全域 join，也不改变 generic SourceInput/publication 的失败退休要求。RecoverCleanup 每次最多32项，固定一轮的最高持久ID与内存轮转位置，Pending不阻止同批独立项，hard/Unknown保持原结果并停原项，轮末重开新的有限上界；不新增worker、TTL或预算，内存游标不是完成证明。五源定向作者race13078实际0（9top11sub）；独审和新SQL/真实组合复验仍待，旧预编输入不覆盖。

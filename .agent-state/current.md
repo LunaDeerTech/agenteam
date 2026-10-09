@@ -1,5 +1,7 @@
 # D12 Knowledge B02 当前恢复点
 
+- 当前修后独立产物已可构建：`output/ai/knowledge/knowledge-recovery-fixed-race.test`，race-c77598 actual0；dd5fce精确发现Runtime／Cleanup／CommitUnknown／Concurrency／CleanupCommitUnknown／ProcessRecovery六top，当前domain+integration vet53340 actual0。产品输入为89613dc5三生产源修复，测试包含下面的UUID前置修正与两Project新子；现源码冻结待Skills独验，不是PG/修后真实PASS。此单binary供6个精确组复用，原六binary全部保留原组合；下一实际优先修后Runtime3／Cleanup3，其余四组仍待初次当前组合实测。
+- 新回归测试首全包race59862曾因“新UUIDv7必比已有max大”的测试前置假设FAIL，正式UUIDv7无同毫秒单调保证，产品未动；仅将调度fixture换固定合法UUIDv7。真实两Project新子亦先持两实际大reader，读持久cleanup ID顺序后仅Close较后者，无sleep或修改SQL身份。修后全Knowledge/... race49004 actual0（domain1.255s／contract1.116s）；原Cleanup两个子例的逆差异da8223逐字89613dc5。原59862不回填，P1/P2产品依旧待独审/真实复验。
 - 原 `tests/knowledge/b02_recovery_test.go` 的 Cleanup top 已追加唯一针对性子例 `pending_reader_does_not_starve_another_project`：真实两Project、先发cleanup的精确live reader保持active，连续两轮公开恢复必须让后Project对象真正deleted且Audit一次，首项仍Pending；实际Close后首项收敛、无新增Activity/Event。原两个子例断言不改，top仍原精确selector；9f2365 diffcheck0，仅已落源码，尚未编译/真实运行。拟另编 `output/ai/knowledge/knowledge-recovery-fixed-race.test` 供当前修后 Runtime/Cleanup及后继同包组，旧六binary都保留原组合，不覆盖。
 - P1/P2返修首片段已落五源并待独立复核：`internal/central/knowledge/{source.go,source_test.go,recovery.go,recovery_test.go,service.go}`。typed canonical ObjectReader 的同步Close实际返回后注销本域call，原error原样返回；不修改generic SourceInput/publication失败退休或Object。RecoverCleanup每次最多32，QueryRow只聚合至多33个ID、Cleaner前SQL Row已结束；固定本轮through与内存after保证轮转，普通Pending继续后项，hard/Unknown原样且停原项，并发扫描Busy，无后台/新预算。作者13078定向race actual0／1.035s（9top11sub）：P1阻塞/返回/error一次退休、P2跨Project/32界/新到项不延长本轮/Unknown不被Busy覆盖/取消和并发admission，以及原generic关闭失败与exact cleanup checkpoint控制均通过。新SQL尚未PG，未独审；旧六个ready二进制（含失败Runtime）均仍原未修输入，禁止拿它们声称当前修后通过或覆盖原失败。
 - 原 Runtime56777 已实际整体 FAIL：三子中 canonical Stop/Close 子9.26s在真实精确reader lease已released、Close保留context.Canceled之后，Knowledge Drain仍5s超时；后两子真实Close barrier／取消后未开源lease由live ctx退休分别PASS2.91s／2.64s，Go14.81s。Go976269／driver974224实际Wait1，7ID双absent、private/runtime/desc双尾空，exact_tops／actual_test_wait／inputs_unchanged=True，外层130.912s actualexit1。**host TCP尾未闭合**：75s后仍2行，无双delta_empty，不能报完整全尾。后续只读当前2非listen行，一TIME_WAIT inode0、一ESTABLISHED inode2206968属于PID848/PPID0/comm=codex；原baseline未保存，不回填其就是原delta。未动非自有连接，实际本任务PID已不存在、run仅owned.json/request.json/空runtime。日志 `output/ai/knowledge/pg/pg-2300580824024bb5b4d3e0884cf898a5.log`；root处理窗口协调，不自动重试。
@@ -20,7 +22,7 @@
 
 - 修正Cleanup恢复首启27247是环境 SETUP FAIL（非业务执行）：fixture编译继承不到固定GOMODCACHE，GOPROXY=off报module lookup disabled；没有 owned.json／7ID／Go test PID，不能认资源退役或业务结论。driver931240实际Wait1、desc双空、runtime双empty、hostTCP双delta_empty、inputs_unchanged=True，outer1.498s；现场PID不存在、run仅request.json和空runtime，窗口已释放。原件 `output/ai/knowledge/pg/pg-81deeb2b83334679b2fe831db4e881b7.log`。随后freshgrant99411只补显式工具环境，修正Cleanup完整PASS及资源终态见本页最新结果；不回填此轮setupFAIL。
 
-- 后继 root-chain 真实运行须使用完整固定环境（仍须每组 freshgrant，`--run`／`--binary`仅依获授精确组变更）：先同一执行环境 `statvfs` 核可用空间 ≥5368709120B，否则 exit78；通过后执行下列修正Cleanup原命令。原6m test／540+60 supervisor／3s retire／75s TCP尾／7resources及全部实际Wait门槛不变，不能用缺环境后的编译失败当业务结果。
+- 后继 root-chain 真实运行须使用完整固定环境（仍须每组 freshgrant，`--run`／`--binary`仅依获授精确组变更）：先同一执行环境 `statvfs` 核可用空间 ≥5368709120B，否则 exit78；下面是当前修后独立binary的Runtime精确命令。原6m test／540+60 supervisor／3s retire／75s TCP尾／7resources及全部实际Wait门槛不变，不能用缺环境后的编译失败当业务结果。原56777未修版本与99411Cleanup通过均仍绑定各自旧binary，不能与下面新候选混写。
 
 ```sh
 GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
@@ -39,8 +41,8 @@ if available < 5368709120:
 os.chdir('/workspace/agenteam-knowledge')
 os.execvp('python3', ['python3', '.agent-state/task-planning-recovery/pg_only_supervisor.py',
     '--root-chain', '--driver', '/workspace/agenteam-knowledge/.agent-state/work-owner-http/root_chain_driver.py',
-    '--binary', '/workspace/agenteam-knowledge/output/ai/knowledge/knowledge-cleanup-race.test',
-    '--run', '^TestKnowledgeB02Cleanup$', '--output', '/workspace/agenteam-knowledge/output/ai/knowledge/pg'])
+    '--binary', '/workspace/agenteam-knowledge/output/ai/knowledge/knowledge-recovery-fixed-race.test',
+    '--run', '^TestKnowledgeB02Runtime$', '--output', '/workspace/agenteam-knowledge/output/ai/knowledge/pg'])
 PY
 ```
 

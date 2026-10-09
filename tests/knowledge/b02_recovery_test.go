@@ -142,7 +142,7 @@ func TestKnowledgeB02Cleanup(t *testing.T) {
 		actor := x.human(t)
 		firstProject, laterProject := x.project(t, actor, true), x.project(t, actor, true)
 		first := publicationSeedContent(t, x, actor, firstProject, strings.Repeat("p", 2*oc.StreamBufferSize+1))
-		later := publicationSeedContent(t, x, actor, laterProject, "independent later cleanup")
+		later := publicationSeedContent(t, x, actor, laterProject, strings.Repeat("q", 2*oc.StreamBufferSize+1))
 		reader, err := x.service.OpenCanonical(knowledgeContext(t), actor, firstProject, first.ID, nil)
 		if err != nil {
 			t.Fatal(err)
@@ -160,6 +160,23 @@ func TestKnowledgeB02Cleanup(t *testing.T) {
  WHERE object_id=$1 AND owner_kind='reader' AND state='active'`, first.ObjectID.String()).Scan(&lease); err != nil {
 			t.Fatal("first cleanup lacks an actual active reader", err)
 		}
+		otherReader, err := x.service.OpenCanonical(knowledgeContext(t), actor, laterProject, later.ID, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		otherClosed := false
+		defer func() {
+			if !otherClosed {
+				if err := otherReader.Close(); err != nil {
+					t.Error("other reader Close", err)
+				}
+			}
+		}()
+		var otherLease string
+		if err = x.raw.QueryRow(knowledgeContext(t), `SELECT id::text FROM agenteam_object.object_leases
+ WHERE object_id=$1 AND owner_kind='reader' AND state='active'`, later.ObjectID.String()).Scan(&otherLease); err != nil {
+			t.Fatal("other cleanup lacks an actual active reader", err)
+		}
 		for _, document := range []kc.DocumentRef{first, later} {
 			preview, err := x.service.PrepareDeleteSubtree(knowledgeContext(t), actor, document.ProjectID, document.ID)
 			if err != nil || len(preview.Nodes) != 1 {
@@ -172,9 +189,22 @@ func TestKnowledgeB02Cleanup(t *testing.T) {
 		}
 		var ordered bool
 		if err = x.raw.QueryRow(knowledgeContext(t), `SELECT a.id<b.id FROM agenteam_knowledge.object_cleanup a,
- agenteam_knowledge.object_cleanup b WHERE a.object_id=$1 AND b.object_id=$2`, first.ObjectID.String(), later.ObjectID.String()).Scan(&ordered); err != nil || !ordered {
-			t.Fatal("held-reader cleanup must precede the other project", err)
+ agenteam_knowledge.object_cleanup b WHERE a.object_id=$1 AND b.object_id=$2`, first.ObjectID.String(), later.ObjectID.String()).Scan(&ordered); err != nil {
+			t.Fatal("actual cleanup order", err)
 		}
+		// UUIDv7 does not promise ordering between allocations in one millisecond.
+		// Hold both real readers until the persisted IDs establish the order;
+		// close only the later one, never alter either durable cleanup identity.
+		if !ordered {
+			first, later = later, first
+			firstProject, laterProject = laterProject, firstProject
+			reader, otherReader = otherReader, reader
+			lease, otherLease = otherLease, lease
+		}
+		if err = otherReader.Close(); err != nil {
+			t.Fatal("actual later reader Close", err)
+		}
+		otherClosed = true
 		beforeActivity := x.activity(t, actor)
 		beforeFirstEvents, beforeLaterEvents := titleEventCount(t, x, firstProject), titleEventCount(t, x, laterProject)
 		for range 2 {

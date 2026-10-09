@@ -3,6 +3,7 @@ package knowledge
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sort"
 	"strings"
 	"testing"
@@ -91,8 +92,11 @@ func (c *cleanupScanCleaner) DeleteUnreferenced(_ context.Context, cause oc.Obje
 func cleanupScanFixture(t *testing.T, count int) (*Service, *cleanupScanStore, *cleanupScanCleaner) {
 	t.Helper()
 	store := &cleanupScanStore{records: make(map[string]sourceRow)}
-	for range count {
-		key := newID[oc.CleanupOperation](t)
+	for n := range count {
+		key, err := f.ParseID[oc.CleanupOperation](fmt.Sprintf("01900000-0000-7000-8000-%012x", n+1))
+		if err != nil {
+			t.Fatal(err)
+		}
 		store.keys = append(store.keys, key.String())
 		// Distinct projects establish that no shared business cause is required.
 		store.records[key.String()] = sourceRow{values: []any{key.String(), newID[id.Project](t).String(), newID[kc.Document](t).String(), newID[command](t).String(), newID[oc.StoredObject](t).String(), newID[oc.Upload](t).String(), "owner_deleted", "object"}}
@@ -131,7 +135,10 @@ func TestCleanupBatchBoundAndFixedPassFrontier(t *testing.T) {
 		t.Fatal("batch was not bounded", len(cleaner.seen), store.frontiers)
 	}
 	frontier := store.keys[34]
-	arrival := newID[oc.CleanupOperation](t)
+	arrival, err := f.ParseID[oc.CleanupOperation]("01900000-0000-7000-8000-000000000100")
+	if err != nil {
+		t.Fatal(err)
+	}
 	if arrival.String() <= frontier {
 		t.Fatal("test arrival must be after captured frontier")
 	}
