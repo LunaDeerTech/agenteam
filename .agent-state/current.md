@@ -41,6 +41,11 @@
 - 本人96791/4806f2 actual0，6差异控制/0unhandled：真实改名canonical阳性、显式adopt/directfacade不代无参Workspace刷新、两实际读取同XID拒绝、Workspace与Project facade hook冲突保替换且退休失败。首96940/48d000为自有two-read probe漏投影第二native的setupFAIL，补保真实两行后过，不是产品反例。087856核四旧AST/adapter两输入逆投影/产品零差异；首057bf0把schemaProgram常量当函数的静核setupFAIL保留。
 - 作者55/旧116/41与TS未变范围复用，不全矩阵重跑。新 `.agent-state/work-project-read-review/{controls.cjs,README.md}`＋本文3路径冻结供root保存；无本人live命令、PG/browser/socket/network或作者源写入。新实际仍由root fresh grant。
 
+## Project Skills CleanupPhase 首轮独立静审
+
+- Variables审查三路径已root远端保存 `d2a26f41`。只读新树 `/workspace/agenteam-project-skills-cleanup` 的29dd基线后冻结 `lifecycle_authority.go`＋短卡，按Skills rev2 §16.3及原D08 source首轮未发现确定must-fix。新Skills-only/Delete/current Cleaning/domains/full stopped/required或pending/全部依赖门仍消费原Store活Tx及原Project SH；严格Project/operation/manifest/Owner/version读取沿原loader，未生成跨Tx授权或做清理。
+- 本人8d6f98 actual0逆去新dispatch和两个私有函数后生产逐字29dd，旧decoder/Object Stop Inspect/Outbox/contract/SQL不变。新 `.agent-state/project-skills-cleanup-review/README.md` 记录首轮静核和待验闭包；本次无编译/Go probe/PG/socket/browser，不把静审当整块接受，作者测试仍准备中。当前root磁盘暂停编译照守，下一独立控制仅对稳定有意义场景，不重复旧Project全包。
+
 ## Variables authority 首次 detail GET 增量有限独审
 
 - root已保存D04 recovery两文档 `d80d2fb3`。新只读Variables `0c5a9e6d..2a603a3d` 的14冻结路径，限定authority首次main GET/noquery/200有限离线接受、无must-fix；原Session/transport owner尾、真实Variables live/adopt/SFC当前字段、同Request/XID/private正式decoder/Schema、旧native EOF/CL/两cancel/release/document end及采样join共同闭合。旧普通响应/其他路径门保留，生产/API/Go主验收/SQL后验与native/authority源未改，driver只加detail输入。
