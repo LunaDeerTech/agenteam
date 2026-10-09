@@ -33,7 +33,7 @@ def dump_lines(path, rows):
 def control_run(dataset):
     return {
         "format_version": 1,
-        "dataset_revision": "lexical-v1",
+        "dataset_revision": dataset["meta"]["dataset_revision"],
         "backend": "native_pg_fts",
         "backend_version": "evaluator-control-not-a-backend-run",
         "config": {"analyzer": "control-only", "query_mode": "control-only", "ranking": "hand-written-control", "candidate_k": 20, "tie_break": "source_id_ascii", "adapter_revision": "evaluator-test"},

@@ -30,7 +30,7 @@
 
 ## 3. 固定语料和 Query
 
-数据修订为 `lexical-v1`。采用从零撰写的虚构项目文档，不采集用户项目、账户、日志、真实凭据、第三方文档或未授权数据。文本可使用普通架构概念与虚构标识符，但不得整段复制现有项目文档。来源声明记录创作方式和人工复核情况，不声称代表真实用户查询分布。
+当前数据修订为 `lexical-v2`，原 `lexical-v1` 保留Git历史。采用从零撰写的虚构项目文档，不采集用户项目、账户、日志、真实凭据、第三方文档或未授权数据。文本可使用普通架构概念与虚构标识符，但不得整段复制现有项目文档。来源声明记录创作方式和人工复核情况，不声称代表真实用户查询分布。
 
 固定 32 篇文档，每篇恰好 2 个 section，共 64 个 source。每个 corpus 行包含 `dataset_revision`、`document_id`、`source_id`、`title`、`section`、`raw_text`；ID 使用本数据集稳定 ASCII 标识，不冒充生产 UUID。`source_id` 唯一，section 是定位信息，文档内两个 section 不重名。标题和 section 各最多 160 UTF-8 bytes，raw_text 为 128–4096 UTF-8 bytes。文本严格 UTF-8、LF、无 NUL；冻结后不自动 Unicode 归一化、翻译或改写。
 
@@ -137,3 +137,7 @@ SPEC 窄审固定边界后才能写数据与工具。完成本卡要求：固定
 标准库工具在Python3.12.14实际运行：validate与export通过；17个测试方法包含手算graded指标、相关分母/截断、完整CLI宏平均与无答案隔离、严格JSON/ID/grade/family反例、新输出失败清理及同输入逐字评分重放，最终actual0。普通文件读取使用POSIX nonblocking打开并校验regular file，拒绝在输入FIFO上阻塞；没有启动检索器、数据库或额外网络。详见[运行说明](../../../tests/search-benchmark/README.md)及本分支检查点中的实际命令和日志。
 
 测试构造的运行文件是评分控制，版本明确标记为非backend执行，不构成候选成绩。独立审查还需重新手算并执行CLI、核全部query/source判断及family边界；三真实候选/性能/许可证/hybrid对照仍未验证。
+
+独立首轮语义审指出：通用query不能被作者intent暗限于Cedar/Flint，存在跨文档支持漏标；相邻Harbor/Moss/Page直接条件及少量背景分级不一致；启动时一次加载的同义问题跨split。现以lexical-v2返修，query正文不改，补真实字面相关grade与理由，q09的充分答案按字面升为3；合并相关同族并按整体意图调整q47/q55的split，各类4/4及所有数量不变。原v1及首次问题保留，返修仍待独立复核。
+
+评分代码已获Model限定独审接受：独立手算与真实CLI共128项检查actual0，未使用作者函数计算期望，范围不含数据语义或backend执行。v2只使测试控制的dataset revision从固定数据读取，不修改评分器或黄金期望；该窄变化和修后数据组合仍需复核。

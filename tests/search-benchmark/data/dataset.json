@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "dataset_revision": "lexical-v1",
+  "dataset_revision": "lexical-v2",
   "documents": 32,
   "sources": 64,
   "answerable_queries": 64,
@@ -21,5 +21,5 @@
   ],
   "source_notice": "内部原创测试材料；对外再分发许可未在本卡授予",
   "authorship": "从零撰写的虚构项目说明；未采集用户、第三方文档或候选检索结果。",
-  "judgment_method": "作者依据语义对每个query穷举全部source；独立语义复核尚待完成。"
+  "judgment_method": "作者先按语义穷举；独立首轮指出通用query漏标、等级与隐藏同族，lexical-v2按字面补直接支持并整体调整family；独立返修复核尚待完成。"
 }
