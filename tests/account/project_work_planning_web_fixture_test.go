@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -44,6 +45,7 @@ type projectWorkPlanningWebFixture struct {
 	*projectOwnerWebFixture
 	mode                    string
 	pendingProject          foundation.ID[identity.Project]
+	readCursorMutation      *projectWorkPlanningWebObservation
 	planningBaseline        map[string]any
 	activitySession         string
 	activityBefore          time.Time
@@ -509,7 +511,32 @@ func (f *projectWorkPlanningWebFixture) ipc(ctx context.Context, r projectWorkPl
 			suffix = prefix + "/" + r.Target
 		}
 		current := f.setup.setupRequest(ctx, f.ownerClient, http.MethodGet, projectOwnerWebPath+"/"+seed.ProjectID+"/"+suffix, nil, "", false, http.StatusOK)
-		out["receipt"] = f.command(ctx, key, http.MethodPatch, suffix, map[string]any{"expected_version": current["version"], "request": map[string]any{field: *r.Text}})
+		receipt := f.command(ctx, key, http.MethodPatch, suffix, map[string]any{"expected_version": current["version"], "request": map[string]any{field: *r.Text}})
+		out["receipt"] = receipt
+		if f.mode == "read" {
+			if key != "main" || r.Resource != "milestone" || r.Target != "" || *r.Text != "页已变更" || f.readCursorMutation != nil {
+				f.t.Fatal("read cursor stimulus must be the one exact external Milestone update")
+			}
+			// The private preparation client has its own genuine Session/CSRF.
+			// Bind its returned receipt to the exact observed request/key; do not
+			// exempt arbitrary PATCHes or browser writes from the read-only gate.
+			for _, observed := range f.observations() {
+				if observed.Method != http.MethodPatch || observed.Status != http.StatusOK || observed.Domain != "structure" || observed.Command != "work.milestone.update" || observed.ProjectID != seed.ProjectID || observed.TargetID != seed.MilestoneID || observed.RawPath != projectOwnerWebPath+"/"+seed.ProjectID+"/"+suffix || observed.Key == "" || observed.CSRF != sha256.Sum256([]byte(f.ownerCSRF)) {
+					continue
+				}
+				var sameBody map[string]any
+				if json.Unmarshal(observed.Response, &sameBody) != nil || !reflect.DeepEqual(sameBody, receipt) {
+					continue
+				}
+				if f.readCursorMutation != nil {
+					f.t.Fatal("external cursor stimulus matched more than one observed request")
+				}
+				f.readCursorMutation = &observed
+			}
+			if f.readCursorMutation == nil {
+				f.t.Fatal("external cursor stimulus has no exact original observed request")
+			}
+		}
 	case "resolve":
 		target := r.Target
 		if _, err := foundation.ParseID[struct{}](target); err != nil {

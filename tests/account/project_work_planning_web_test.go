@@ -47,13 +47,23 @@ func runProjectWorkPlanningWeb(t *testing.T, mode string, required ...string) *p
 }
 func TestAccountProjectWorkPlanningWebReadAndNavigation(t *testing.T) {
 	f := runProjectWorkPlanningWeb(t, "read", "pagination", "deep_links", "refresh", "raw_route", "parent", "permissions", "cursor", "filters", "initialization", "wrong_parent")
+	if f.readCursorMutation == nil {
+		t.Fatal("read cursor stimulus was not actually observed")
+	}
+	externalWrites := 0
 	for _, observed := range f.observations() {
 		if observed.Method != "GET" {
-			t.Fatal("read-only browser emitted a Work command")
+			if !reflect.DeepEqual(observed, *f.readCursorMutation) {
+				t.Fatal("read-only browser emitted a Work command")
+			}
+			externalWrites++
 		}
 		if observed.ProjectID == f.ids["pending"] || observed.ProjectID == f.ids["deleting"] {
 			t.Fatal("unqualified Project published a Work request")
 		}
+	}
+	if externalWrites != 1 {
+		t.Fatal("read cursor stimulus did not remain a single exact external mutation")
 	}
 	var pending, deleting bool
 	if err := f.store.QueryRow(f.ctx, `SELECT initialized_at IS NULL AND lifecycle='active' FROM agenteam_project.projects WHERE id=$1`, f.ids["pending"]).Scan(&pending); err != nil || !pending {
