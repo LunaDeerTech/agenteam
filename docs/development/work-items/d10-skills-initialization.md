@@ -22,6 +22,12 @@ P1交付真实非空 Add Skills 文本、确定性 ZIP v1、不可变 manifest�
 
 P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试、00027 DDL草案；作者 `TestInitialization` 3top/9子实际通过，仅本域纯状态，尚无服务/PG/真实Object/网络结果。首次编译因误用不存在的Object NormalizeLocks setupFAIL已修正为已知四锁有序集合，原失败保留在恢复点。[验收分层](d10-skills-initialization-design.md#15-当前实现与验收分层)保留完整结果门槛；不得以空Skill、构造completed或仅PUT成功代替。
 
+## P2 当前可恢复阶段
+
+- rev3 SPEC 已获未参与实现的 Variables 作者有限独审接受。首 Store/命令/冻结包状态与3top/9子作者pure通过，只证明本域局部状态，不是初始化服务成功。
+- D05三个精确补口已按root授权落盘待独审：初始化Service形状/Creation initiator、SkillRevision+ProjectDeleted release；原Runtime和Release实现未改。作者相关pure、Object contract完整race、原reservation函数定向race均actual0；真实Object/PG和生产装配未跑。
+- 00024/25/26已由root按各域冻结来源导入本树，00027草案尚未PG；前序26没有本轮真实迁移通过结论。继续实现真实本域服务/四口与读流，不扩大P1或上述pure的结论。
+
 ## 验收与当前证据
 
 以下保留原作者阶段的历史记录，原 `/tmp` 输入及日志本轮未恢复，不作为本轮重新验收的执行证据：P1 在固定隔离基线+32旧编译文件上完成 `skill/...` unit、race、vet、build，均exit0。最终13顶层/16子例：unit包0.008s/0.104s，race1.026s/1.272s；覆盖路径/ZIP攻击边界和读流实际join。首次12顶层unit同样通过，随后自查补ZIP解析前真实中央目录上限并重验。精确命令/原日志路径为 `/tmp/agenteam-d10-pure-1nuilmr2/validation.json`，当时分别保留原输入两版，并要求独立验收后才由主线程精确提交。原作者记录没有产品测试失败、没有fixture运行，最初Go技能路径定位失败已改读实际 `agenteam-go-development`，不计测试证据。

@@ -50,7 +50,15 @@ func NewOwnerAuthorization(d OwnerAuthorizationDetails) (OwnerAuthorization, err
 		return OwnerAuthorization{}, bad()
 	}
 	if a.Kind == identity.Service && d.Intent != identity.Converge && d.Intent != identity.Lifecycle {
-		return OwnerAuthorization{}, bad()
+		// Only the original initialization may prepare/publish or look up its
+		// Skill revision. The domain planner still authorizes each operation;
+		// this shape cannot grant object-body reads or protected leases.
+		_, creationErr := foundation.ParseID[struct{}](d.CreationCause)
+		if a.ServiceName != identity.ProjectInitialization || d.Owner.Details().Kind != SkillRevision ||
+			(d.Intent != identity.Read && d.Intent != identity.Mutate) || creationErr != nil ||
+			a.CauseRef != d.CreationCause || d.ReadObjectID != (ObjectID{}) || d.ProtectedLease != nil {
+			return OwnerAuthorization{}, bad()
+		}
 	}
 	if a.Kind == identity.AgentRun && (d.Owner.Details().ProjectID == "" || a.ProjectID != d.Owner.Details().ProjectID) || a.Kind == identity.Service && a.ProjectID != d.Owner.Details().ProjectID {
 		return OwnerAuthorization{}, bad()
