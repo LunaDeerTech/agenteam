@@ -151,4 +151,5 @@ ALTER TABLE agenteam_audit.audit_records ADD CONSTRAINT audit_records_knowledge_
   AND CASE WHEN metadata->>'deleted_count' ~ '^[1-9][0-9]{0,18}$'
    THEN (metadata->>'deleted_count')::numeric<=9223372036854775807 ELSE false END
   AND tool_id IS NULL AND execution_id IS NULL AND tool_call_id IS NULL AND operation_id IS NULL
-  AND request_id IS NULL AND approval_id IS NULL AND runner_id IS NULL)) IS TRUE);
+  AND request_id IS NULL AND approval_id IS NULL AND runner_id IS NULL
+  AND correlation_id IS NULL AND http_trace_id IS NULL)) IS TRUE);
