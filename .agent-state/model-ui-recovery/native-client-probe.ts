@@ -14,42 +14,60 @@ function canonical(value: unknown): string {
   return JSON.stringify(value)
 }
 
-// Diagnostic-only Session slot. It never retains bytes, parses a body, or
+// Diagnostic-only Session/Resolve slots. They never retain bytes, parse a body, or
 // contributes to the Model operation facts or acceptance gates.
-function sessionDiagnostics(nativeFetch: typeof window.fetch) {
+function sessionDiagnostics(nativeFetch: typeof window.fetch, kind: 'session' | 'resolve' = 'session') {
   const initial = () => ({ requests: 0, readers: 0, read_calls: 0, read_settled: 0, read_rejected: 0, bytes: 0,
     reader_cancel_calls: 0, reader_cancel_settled: 0, reader_cancel_rejected: 0,
     stream_cancel_calls: 0, stream_cancel_settled: 0, stream_cancel_rejected: 0,
     release_calls: 0, release_successes: 0, abort_events: 0, headers_seen: false,
     status_ok: false, read_done: false, cancel_before_eof: false, failure: 'none' });
-  type Slot = { id: string; expiresAt: number; facts: ReturnType<typeof initial>; requestID: string | null; signal: AbortSignal | null; detach: () => void };
+  type Target = { username: string; project_name: string };
+  const orders = () => ({ headers_order: 0, read_done_order: 0, read_rejected_order: 0, abort_order: 0, reader_cancel_order: 0, stream_cancel_order: 0, release_order: 0 });
+  type Slot = { id: string; expiresAt: number; facts: ReturnType<typeof initial>; requestID: string | null; signal: AbortSignal | null; detach: () => void;
+    target: Target | null; order: ReturnType<typeof orders>; sequence: number; status: number; signalAbortedAtStart: boolean; timer?: ReturnType<typeof setTimeout> };
   let current: Slot | undefined;
-  function close() { current?.detach(); current = undefined }
-  function begin(id: string, expiresAt: number) {
+  function close() { current?.detach(); if (current?.timer !== undefined) clearTimeout(current.timer); current = undefined }
+  function begin(id: string, expiresAt: number, target?: Target) {
     // A timed-out evaluate may still execute later. Its original deadline and
     // caller-owned identity must survive that lost return value.
     if (typeof id !== 'string' || !id || id.length > 64 || !Number.isFinite(expiresAt) || Date.now() >= expiresAt) return false;
-    close(); current = { id, expiresAt, facts: initial(), requestID: null, signal: null, detach: () => {} }; return true;
+    if (kind === 'resolve' && (!target || typeof target.username !== 'string' || !/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])$/.test(target.username) || target.username.length < 3 || target.username.length > 32 || typeof target.project_name !== 'string' || !/^[a-z0-9._-]{1,64}$/.test(target.project_name) || ['.', '..'].includes(target.project_name))) return false;
+    close();
+    const slot: Slot = { id, expiresAt, facts: initial(), requestID: null, signal: null, detach: () => {}, target: kind === 'resolve' ? { ...target! } : null, order: orders(), sequence: 0, status: 0, signalAbortedAtStart: false };
+    current = slot;
+    // The original case has a 45s budget. This only retires an abandoned
+    // diagnostic slot; it never aborts, reads, or completes a real request.
+    if (kind === 'resolve') slot.timer = setTimeout(() => { if (current === slot) close() }, 45_000);
+    return true;
   }
-  function end(id: string, expectedID: string | null) {
+  function snapshot(id: string, expectedID: string | null) {
     if (!current || current.id !== id) return null;
     const slot = current;
     const result = { ...slot.facts, request_id_match: slot.facts.requests === 1 && !!slot.requestID && slot.requestID === expectedID,
       signal_aborted: slot.signal?.aborted === true };
-    close(); return result;
+    return kind === 'resolve' ? { ...result, status: slot.status, signal_aborted_at_start: slot.signalAbortedAtStart, ...slot.order } : result;
+  }
+  function end(id: string, expectedID: string | null) {
+    const result = snapshot(id, expectedID);
+    if (result !== null) close();
+    return result;
   }
   function fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> | undefined {
     const slot = current;
     if (!slot) return;
-    if (slot.facts.requests === 0 && Date.now() >= slot.expiresAt) { close(); return }
+    if (kind === 'session' && slot.facts.requests === 0 && Date.now() >= slot.expiresAt) { close(); return }
     const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url, location.origin);
     const method = init?.method ?? (input instanceof Request ? input.method : 'GET');
-    if (url.origin !== location.origin || url.pathname !== '/api/v1/session' || url.search || method !== 'GET') return;
+    if (url.origin !== location.origin || url.pathname !== (kind === 'session' ? '/api/v1/session' : '/api/v1/projects/resolve') || method !== 'GET') return;
+    if (kind === 'session' ? !!url.search : url.searchParams.size !== 2 || url.searchParams.getAll('username').length !== 1 || url.searchParams.getAll('project_name').length !== 1 || url.searchParams.get('username') !== slot.target?.username || url.searchParams.get('project_name') !== slot.target?.project_name) return;
     slot.facts.requests++;
     const pending = nativeFetch(input, init);
     if (slot.facts.requests !== 1) return pending;
     slot.signal = init?.signal ?? (input instanceof Request ? input.signal : null);
-    const abort = () => { slot.facts.abort_events++ };
+    slot.signalAbortedAtStart = slot.signal?.aborted === true;
+    const mark = (key: keyof ReturnType<typeof orders>) => { if (slot.order[key] === 0) slot.order[key] = ++slot.sequence };
+    const abort = () => { slot.facts.abort_events++; mark('abort_order') };
     slot.signal?.addEventListener('abort', abort, { once: true });
     slot.detach = () => slot.signal?.removeEventListener('abort', abort);
     const failed = (code: string) => { if (slot.facts.failure === 'none') slot.facts.failure = code };
@@ -59,13 +77,14 @@ function sessionDiagnostics(nativeFetch: typeof window.fetch) {
       void work.then(done, rejected).catch(() => failed('observer-error'));
     }
     observe(pending, (response) => {
-      slot.facts.headers_seen = true; slot.facts.status_ok = response.status === 200;
+      slot.facts.headers_seen = true; slot.facts.status_ok = response.status === 200; slot.status = response.status; mark('headers_order');
       slot.requestID = response.headers.get('X-Request-ID');
       const stream = response.body;
       if (!stream) return;
       const streamCancel = stream.cancel.bind(stream), getReader = stream.getReader.bind(stream);
       stream.cancel = (...args) => {
         slot.facts.stream_cancel_calls++; slot.facts.cancel_before_eof ||= !slot.facts.read_done;
+        mark('stream_cancel_order');
         const result = streamCancel(...args);
         observe(result, () => { slot.facts.stream_cancel_settled++ }, () => {
           slot.facts.stream_cancel_settled++; slot.facts.stream_cancel_rejected++; failed('stream-cancel-rejected');
@@ -83,13 +102,14 @@ function sessionDiagnostics(nativeFetch: typeof window.fetch) {
           const result = Reflect.apply(read, reader, args) as ReturnType<typeof read>;
           observe(result, (value) => {
             slot.facts.read_settled++;
-            if (value.done) slot.facts.read_done = true;
+            if (value.done) { slot.facts.read_done = true; mark('read_done_order') }
             else slot.facts.bytes += value.value.byteLength;
-          }, () => { slot.facts.read_settled++; slot.facts.read_rejected++; failed('read-rejected') });
+          }, () => { slot.facts.read_settled++; slot.facts.read_rejected++; mark('read_rejected_order'); failed('read-rejected') });
           return result;
         };
         reader.cancel = (...args) => {
           slot.facts.reader_cancel_calls++; slot.facts.cancel_before_eof ||= !slot.facts.read_done;
+          mark('reader_cancel_order');
           const result = cancel(...args);
           observe(result, () => { slot.facts.reader_cancel_settled++ }, () => {
             slot.facts.reader_cancel_settled++; slot.facts.reader_cancel_rejected++; failed('reader-cancel-rejected');
@@ -98,6 +118,7 @@ function sessionDiagnostics(nativeFetch: typeof window.fetch) {
         };
         reader.releaseLock = () => {
           slot.facts.release_calls++;
+          mark('release_order');
           try { release(); slot.facts.release_successes++ }
           catch (error) { failed('release-threw'); throw error }
         };
@@ -106,12 +127,13 @@ function sessionDiagnostics(nativeFetch: typeof window.fetch) {
     }, () => failed('fetch-rejected'));
     return pending;
   }
-  return { begin, end, close, fetch };
+  return { begin, snapshot, end, close, fetch };
 }
 
 export function install() {
   const nativeFetch = window.fetch.bind(window)
   const session = sessionDiagnostics(nativeFetch)
+  const resolve = sessionDiagnostics(nativeFetch, 'resolve')
   const observations: Observation[] = []
   let disposed = false
   const projectPath = /^\/api\/v1\/projects\/([0-9a-f-]{36})\/(model-providers|models|available-chat-models|model-credentials|model-commands\/lookup|model-credential-commands\/lookup)(?:\/([0-9a-f-]{36}))?$/
@@ -154,7 +176,7 @@ export function install() {
       return response
     } catch (error) { entry.ended = true; throw error }
   }
-  window.fetch = (input, init) => session.fetch(input, init) ?? projectFetch(input, init)
+  window.fetch = (input, init) => session.fetch(input, init) ?? resolve.fetch(input, init) ?? projectFetch(input, init)
 
   function publicFacts() {
     return observations.map((o) => ({ token: o.token, method: o.request.method, path: o.request.path, query: o.request.query, status: o.status,
@@ -264,6 +286,7 @@ export function install() {
   }
   Object.defineProperty(window, '__projectModelsProbe', { value: {
     facts: publicFacts, verify, sessionBegin: session.begin, sessionEnd: session.end,
-    dispose() { session.close(); for (const o of observations) { o.request.body = null; o.request.headers = new Headers(); for (const chunk of o.chunks) chunk.fill(0) }; observations.length = 0; disposed = true },
+    resolveBegin: resolve.begin, resolveSnapshot: resolve.snapshot, resolveEnd: resolve.end,
+    dispose() { session.close(); resolve.close(); for (const o of observations) { o.request.body = null; o.request.headers = new Headers(); for (const chunk of o.chunks) chunk.fill(0) }; observations.length = 0; disposed = true },
   } })
 }

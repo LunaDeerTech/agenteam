@@ -424,4 +424,4 @@ T0b补齐Transfer/Lookup与新命令摘要、Human typed history、16KiB严格�
 
 命令调用者须在首次发送前保存 ID、原 `Idempotency-Key`、正文及适用的 `expected_version`；断连后以该原意图调用对应 Lookup，不从当前对象重建历史请求，也不自动重发。列表使用有界摘要分页，Blocker 默认仅返回 unresolved；整份请求上限 1 MiB，列表响应上限 5 MiB。读取和 Lookup 的总预算为 2 秒，变更为 30 秒，均包含认证和实际 I/O，继承更早的调用方期限。退出时三套命令服务先停止接收，再等实际调用返回；HTTP Reader、Account、Outbox 与数据库/对象 guard 继续沿根的真实退出链处理。
 
-目前分页的作者和独立真实验收、HTTP/schema/根接线的限定纯检查，以及自然期限和连接/EOF 两组 native 验收已通过；最后 native 故障组、真实权限/事务恢复矩阵及默认根动态验收仍待完成，不标为已交付。Project 创建 HTTP、生产 Skills 初始化及完整生命周期仍是独立前置；测试专用 Skills receipt 不证明新账号到 Project 创建的生产链已就绪。本范围不提供 UI、Agent 服务、状态转换、生产部署或整个平台 ready，也不解除既有停止项。
+目前分页的作者和独立真实验收、HTTP/schema/根接线的限定纯检查，以及自然期限、连接/EOF 与故障/持有三组 native 验收已通过（实际 GET/Lookup/PATCH，HEAD仅pure/schema）；真实权限/事务恢复矩阵及默认根动态验收仍待完成，不标为已交付。Project 创建 HTTP、生产 Skills 初始化及完整生命周期仍是独立前置；测试专用 Skills receipt 不证明新账号到 Project 创建的生产链已就绪。本范围不提供 UI、Agent 服务、状态转换、生产部署或整个平台 ready，也不解除既有停止项。

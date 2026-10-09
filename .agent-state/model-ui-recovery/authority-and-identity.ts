@@ -165,6 +165,74 @@ export async function beginSessionDiagnostic(page: Page, mode: 'authority' | 'na
   };
 }
 
+// Resolve remains outside the Model operation whitelist. This observes the
+// original selected response without selecting a replacement or changing a gate.
+async function beginResolveDiagnostic(page: Page, project: Project) {
+  const slot = randomUUID(), expiresAt = Date.now() + 250;
+  const target = { username: project.username, project_name: project.normalized_name };
+  let active = false, selected: Response | undefined, requestID: string | null = null;
+  let beforeAction = 0, afterAction = 0;
+  const targets: Request[] = [], finished = new Set<Request>(), failed = new Set<Request>();
+  const bounded = async <T>(work: () => Promise<T>): Promise<T | null> => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try { return await Promise.race([work(), new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), 250); })]); }
+    catch { return null; }
+    finally { if (timer !== undefined) clearTimeout(timer); }
+  };
+  const candidate = (request: Request) => {
+    const url = new URL(request.url());
+    return url.origin === new URL(page.url()).origin && url.pathname === '/api/v1/projects/resolve';
+  };
+  const targetMatch = (request: Request) => {
+    const query = new URL(request.url()).searchParams;
+    return candidate(request) && request.method() === 'GET' && query.size === 2 &&
+      query.getAll('username').length === 1 && query.getAll('project_name').length === 1 &&
+      query.get('username') === target.username && query.get('project_name') === target.project_name;
+  };
+  const requested = (request: Request) => { try {
+    if (!candidate(request)) return;
+    if (active) { afterAction++; if (targetMatch(request)) targets.push(request); }
+    else beforeAction++;
+  } catch { /* Observation cannot interrupt the original request. */ } };
+  const completed = (request: Request) => { try { if (candidate(request)) finished.add(request); } catch {} };
+  const rejected = (request: Request) => { try { if (candidate(request)) failed.add(request); } catch {} };
+  page.on('request', requested); page.on('requestfinished', completed); page.on('requestfailed', rejected);
+  await bounded(() => page.evaluate(({ slot, expiresAt, target }) => (window as any).__projectModelsProbe.resolveBegin(slot, expiresAt, target), { slot, expiresAt, target }));
+  return {
+    start() { active = true; },
+    select(response: Response) {
+      selected = response;
+      try { void response.headerValue('x-request-id').then((value) => { requestID = value; }, () => {}).catch(() => {}); } catch {}
+    },
+    async finish(failure: boolean) {
+      try {
+        const value: unknown = await bounded(() => page.evaluate(({ slot, requestID }) => (window as any).__projectModelsProbe.resolveEnd(slot, requestID), { slot, requestID }));
+        if (!failure) return;
+        const counts = ['requests', 'readers', 'read_calls', 'read_settled', 'read_rejected', 'bytes', 'reader_cancel_calls', 'reader_cancel_settled', 'reader_cancel_rejected', 'stream_cancel_calls', 'stream_cancel_settled', 'stream_cancel_rejected', 'release_calls', 'release_successes', 'abort_events', 'status', 'headers_order', 'read_done_order', 'read_rejected_order', 'abort_order', 'reader_cancel_order', 'stream_cancel_order', 'release_order'];
+        const flags = ['headers_seen', 'status_ok', 'read_done', 'cancel_before_eof', 'request_id_match', 'signal_aborted', 'signal_aborted_at_start'];
+        const codes = ['none', 'fetch-rejected', 'get-reader-threw', 'read-rejected', 'reader-cancel-rejected', 'stream-cancel-rejected', 'release-threw', 'observer-error'];
+        let native: Record<string, boolean | number | string> | null = null;
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          const row = value as Record<string, unknown>;
+          if (Object.keys(row).length === counts.length + flags.length + 1 && counts.every((key) => Number.isSafeInteger(row[key]) && Number(row[key]) >= 0) && Number(row.status) <= 599 && flags.every((key) => typeof row[key] === 'boolean') && typeof row.failure === 'string' && codes.includes(row.failure))
+            native = Object.fromEntries([...counts, ...flags, 'failure'].map((key) => [key, row[key] as boolean | number | string]));
+        }
+        const request = selected?.request(), error = request?.failure()?.errorText;
+        const pwFailure = error === undefined ? 'none' : error === 'net::ERR_ABORTED' ? 'aborted' : error === 'net::ERR_CONNECTION_RESET' ? 'reset' : error === 'net::ERR_CONNECTION_CLOSED' ? 'closed' : 'other';
+        writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-resolve-diagnostic.json'), JSON.stringify({
+          protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH,
+          diagnostic: native === null ? 'unavailable' : 'captured', pw_candidates_before_action: beforeAction,
+          pw_candidates_after_action: afterAction, pw_target_requests: targets.length,
+          pw_selected_target_match: !!request && targetMatch(request), pw_request_match: targets.length === 1 && targets[0] === request,
+          pw_request_id_seen: !!requestID, pw_status: selected?.status() ?? null,
+          pw_finished_event: !!request && finished.has(request), pw_failed_event: !!request && failed.has(request), pw_failure: pwFailure, native,
+        }), { mode: 0o600 });
+      } catch { /* Missing diagnostic evidence must preserve the original error. */ }
+      finally { page.off('request', requested); page.off('requestfinished', completed); page.off('requestfailed', rejected); }
+    },
+  };
+}
+
 // Session bodies remain private in this call. Only the formal safe identity is
 // returned, never CSRF, cookies, login inputs, headers or their digests.
 type SessionStageCode = `PROJECT_MODELS_AUTHORITY_${'SESSION_ACTION' | 'SESSION_HEADERS' | 'SESSION_FINISH' | 'SESSION_JSON' | 'CHECKING_COUNTS' | 'CHECKING_FACTS' | 'CHECKING_ARM' | 'CHECKING_HOLD' | 'CHECKING_RELEASE' | 'CHECKING_JOIN'}_TIMEOUT`;
@@ -375,14 +443,21 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   }
   async function denied(project: Project, foreign: boolean) {
     const before = await wait('authority-denied-native-facts-051', () => harness.nativeFacts(page)), beforeCounts = await wait('authority-denied-counts-052', () => harness.counts());
+    const diagnostic = await beginResolveDiagnostic(page, project);
+    let diagnosticFailed = false;
+    try {
     const responsePromise = wait('authority-denied-resolve-headers', () => page.waitForResponse((response) => new URL(response.url()).pathname === '/api/v1/projects/resolve'));
+    diagnostic.start();
     const [response] = await wait('authority-denied-all-053', () => Promise.all([responsePromise, wait('authority-denied-navigation-action', () => harness.navigate(page, route(project)))]));
+    diagnostic.select(response);
     need(await wait('authority-denied-finished-054', () => response.finished()) === null && (foreign ? [403, 404].includes(response.status()) : response.status() === 409), 'PROJECT_MODELS_AUTHORITY_OWNER_GATE_INVALID');
     await wait('authority-denied-to-be-visible-055', () => expect(page.getByRole('heading', { name: foreign ? '项目不可用' : '项目信息读取失败', exact: true })).toBeVisible());
     await wait('authority-denied-to-have-count-056', () => expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0));
     await wait('authority-denied-to-have-count-057', () => expect(page.getByRole('dialog')).toHaveCount(0));
     need((await wait('authority-denied-native-facts-058', () => harness.nativeFacts(page))).length === before.length, 'PROJECT_MODELS_AUTHORITY_DENIED_MODEL_REQUEST');
     sameOperations(beforeCounts, await wait('authority-denied-counts-059', () => harness.counts()));
+    } catch (error) { diagnosticFailed = true; throw error; }
+    finally { await diagnostic.finish(diagnosticFailed); }
   }
 
   harness.step('authority-login');
