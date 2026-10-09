@@ -1,13 +1,12 @@
 #!/usr/bin/env node
-// Independent investigation only. --prepare is offline; --run needs the
-// separately assigned loopback/browser window. No production or D27 gate edits.
+// Independent investigation only. --prepare is offline. The Python subreaper
+// owns runtime entry/retirement; direct --run is deliberately unavailable.
 import { createHash, randomBytes } from 'node:crypto';
-import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { lstat, mkdir, readFile, writeFile, unlink } from 'node:fs/promises';
+import { lstat, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { build } from '../../web/node_modules/vite/dist/node/index.js';
 
 const source = fileURLToPath(import.meta.url), root = resolve(dirname(source), '../..');
@@ -116,7 +115,7 @@ function installBrowser(createAccountAPI) {
 
 async function inputs() {
   need(packageVersion === '1.56.1', 'SESSION_PROBE_PLAYWRIGHT_VERSION');
-  const files = [source, join(root, 'web/src/api/account.ts'), join(root, 'web/src/api/client.ts'), join(root, 'web/package-lock.json'), join(root, 'tests/account-captcha-web/package-lock.json')];
+  const files = [source, join(dirname(source), 'run-session-consumption.py'), join(dirname(source), 'run-shared-components.py'), join(root, 'web/src/api/account.ts'), join(root, 'web/src/api/client.ts'), join(root, 'web/package-lock.json'), join(root, 'tests/account-captcha-web/package-lock.json')];
   return Object.fromEntries(await Promise.all(files.map(async (path) => [path, hash(await readFile(path))])));
 }
 async function prepare() {
@@ -139,12 +138,14 @@ async function prepare() {
 
 async function worker(directory) {
   let stage = 'preflight', browserServer, browser, server, browserExit, socketCount = 0, current;
-  const sockets = new Set(), rows = [], resources = { server_closed: false, browser_closed: false, browser_actual_wait: false, browser_exit_code: null, sockets_empty: false };
+  const sockets = new Set(), rows = [], resources = { server_closed: false, browser_closed: false, browser_server_closed: false, browser_actual_wait: false, browser_exit_code: null, sockets_empty: false };
   let failCode = null, requestedStop;
   const stopped = new Promise((_, reject) => { requestedStop = () => reject(new Error('SESSION_PROBE_STOPPED')); });
   process.on('SIGTERM', requestedStop); process.on('SIGINT', requestedStop);
   try {
     const prepared = JSON.parse(await readFile(join(output, 'prepared.json'), 'utf8'));
+    const marker = JSON.parse(await readFile(join(output, 'active.json'), 'utf8'));
+    need(marker.directory === directory && marker.nonce === process.env.SESSION_PROBE_SUPERVISED && marker.supervisor_pid === process.ppid, 'SESSION_PROBE_SUPERVISOR_REQUIRED');
     need(JSON.stringify(prepared.inputs) === JSON.stringify(await inputs()), 'SESSION_PROBE_INPUT_CHANGED');
     const bundle = await readFile(join(output, 'client.js')); need(hash(bundle) === prepared.bundle_sha256);
     const run = async () => {
@@ -165,11 +166,12 @@ async function worker(directory) {
       server.on('connection', (socket) => { socketCount++; sockets.add(socket); socket.on('close', () => sockets.delete(socket)); });
       await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
       const address = server.address(); need(address && typeof address === 'object'); const origin = `http://127.0.0.1:${address.port}`;
+      await json(join(directory, 'http-owned.json'), { pid: process.pid, port: address.port });
       stage = 'browser';
       browserServer = await chromium.launchServer({ executablePath: '/usr/bin/chromium', headless: true, host: '127.0.0.1', port: 0, args: ['--no-sandbox', '--disable-background-networking', '--disable-component-update', '--disable-sync'], timeout: 8000 });
       const child = browserServer.process(); resources.browser_pid = child.pid;
       browserExit = new Promise((resolve) => { child.once('exit', (code, signal) => { resources.browser_actual_wait = true; resources.browser_exit_code = code; resources.browser_signal = signal; resolve(); }); });
-      await json(join(directory, 'browser-owned.json'), await processIdentity(child.pid));
+      await json(join(directory, 'browser-owned.json'), { ...await processIdentity(child.pid), port: Number(new URL(browserServer.wsEndpoint()).port) });
       browser = await chromium.connect(browserServer.wsEndpoint(), { timeout: 5000 });
       need(browser.version() === '151.0.7922.173', 'SESSION_PROBE_BROWSER_VERSION');
       for (const frame of ['length', 'chunked', 'truncated-json', 'disconnect']) for (const consumer of ['native', 'account']) {
@@ -234,52 +236,19 @@ async function worker(directory) {
   finally {
     process.off('SIGTERM', requestedStop); process.off('SIGINT', requestedStop);
     if (browser) { try { await bounded(browser.close(), 3000, 'SESSION_PROBE_BROWSER_CLOSE'); resources.browser_closed = true; } catch { failCode ??= 'SESSION_PROBE_BROWSER_CLOSE'; } }
-    if (browserServer) { try { await bounded(browserServer.close(), 3000, 'SESSION_PROBE_SERVER_CLOSE'); await bounded(browserExit, 1000, 'SESSION_PROBE_BROWSER_WAIT'); } catch { failCode ??= 'SESSION_PROBE_BROWSER_WAIT'; } }
+    if (browserServer) { try { await bounded(browserServer.close(), 3000, 'SESSION_PROBE_SERVER_CLOSE'); resources.browser_server_closed = true; await bounded(browserExit, 1000, 'SESSION_PROBE_BROWSER_WAIT'); } catch { failCode ??= 'SESSION_PROBE_BROWSER_WAIT'; } }
     if (server) { try { server.closeAllConnections(); await bounded(new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve())), 1000, 'SESSION_PROBE_HTTP_CLOSE'); resources.server_closed = true; } catch { failCode ??= 'SESSION_PROBE_HTTP_CLOSE'; } }
     resources.sockets_empty = sockets.size === 0; resources.connections = socketCount;
-    const retired = resources.server_closed && resources.browser_closed && resources.browser_actual_wait && resources.sockets_empty;
+    const retired = resources.server_closed && resources.browser_closed && resources.browser_server_closed && resources.browser_actual_wait && resources.sockets_empty;
     if (resources.browser_actual_wait && (resources.browser_exit_code !== 0 || resources.browser_signal !== null)) failCode ??= 'SESSION_PROBE_BROWSER_EXIT';
     await json(join(directory, 'result.json'), { stage, fail_code: failCode, rows, resources, retirement_complete: retired });
     process.exitCode = failCode || !retired ? 1 : 0;
   }
 }
 
-async function run() {
-  const directory = join(output, 'run-' + randomBytes(8).toString('hex'));
-  await mkdir(directory, { mode: 0o700 });
-  const active = join(output, 'active.json'); await json(active, { directory });
-  const child = spawn(process.execPath, [source, '--worker', directory], { cwd: root, detached: true, stdio: 'ignore', env: { ...process.env, DEBUG: '', PWDEBUG: '' } });
-  let timedOut = false;
-  const signal = (pid, name) => { try { process.kill(pid, name); } catch (error) { if (error.code !== 'ESRCH') throw error; } };
-  const graceful = () => { timedOut = true; if (child.pid) signal(-child.pid, 'SIGTERM'); };
-  const force = async () => {
-    timedOut = true;
-    try {
-      const owned = JSON.parse(await readFile(join(directory, 'browser-owned.json'), 'utf8'));
-      const actual = await processIdentity(owned.pid);
-      if (Number.isSafeInteger(owned.pid) && owned.pid > 1 && actual.group === owned.group && actual.start === owned.start)
-        signal(actual.group === actual.pid ? -actual.pid : actual.pid, 'SIGKILL');
-    } catch { /* Failure remains unretired; never infer a safe broad kill. */ }
-    if (child.pid) signal(-child.pid, 'SIGKILL');
-  };
-  process.on('SIGTERM', graceful); process.on('SIGINT', graceful);
-  const stop = setTimeout(graceful, 35_000);
-  const kill = setTimeout(() => { void force(); }, 45_000);
-  let terminal;
-  try { terminal = await new Promise((resolve) => { child.once('exit', (code, signal) => resolve({ actual_wait: true, code, signal })); child.once('error', () => resolve({ actual_wait: false, code: null, signal: null })); }); }
-  finally { clearTimeout(stop); clearTimeout(kill); process.off('SIGTERM', graceful); process.off('SIGINT', graceful); }
-  let result; try { result = JSON.parse(await readFile(join(directory, 'result.json'), 'utf8')); } catch { result = null; }
-  const passed = !timedOut && terminal.actual_wait && terminal.code === 0 && result?.retirement_complete === true && result.rows?.length === 8 && result.fail_code === null;
-  await json(join(directory, 'terminal.json'), { ...terminal, worker_pid: child.pid, timed_out: timedOut, passed });
-  if (result?.retirement_complete === true) await unlink(active);
-  console.log(JSON.stringify({ directory, passed, actual_wait: terminal.actual_wait, code: terminal.code }));
-  process.exitCode = passed ? 0 : 1;
-}
-
 try {
   process.umask(0o077);
   if (process.argv.length === 3 && process.argv[2] === '--prepare') await prepare();
-  else if (process.argv.length === 3 && process.argv[2] === '--run') await run();
   else if (process.argv.length === 4 && process.argv[2] === '--worker' && /^run-[0-9a-f]{16}$/.test(process.argv[3].slice(output.length + 1)) && dirname(process.argv[3]) === output) await worker(process.argv[3]);
   else throw new Error('SESSION_PROBE_ARGUMENTS');
 } catch (error) {

@@ -36,7 +36,7 @@
 - 最新navigation第4在继续编辑后焦点断言FAIL，原值保留。共享焦点局部正反例已证实并完成正式修复，但不回填原navigation因果；下一需新资产真实复验。
 - 精确失败输入在 `.agent-state/model-ui-recovery/*failure.json`；完整主harness为两Model Go、config/spec及该目录case模块。独立A/B四源在`.agent-state/model-ui-independent/`，已编译/类型/发现并随新Go夹具复编，**尚未真实执行**。
 - 新组件固定1/21监督器 `run-shared-components.py` 已有有界实际Wait/descendants/listener处理；单例及21矩阵当前完整PASS。最初临时runner留下已退出孤儿zombie PID115611/PPID1，无活测试进程/监听，原actualWait/Viteclose无法补回；不杀PID1，不称原清理PASS。
-- Session消费探针 `session-consumption-probe.mjs` 已有保存基线；最新去除重复监督、复用组件清理的返修及新增 `run-session-consumption.py` **仍可能是未保存工作区改动**，先让owner闭合/冻结并检查再checkpoint。真实8case尚未运行，不阻塞已接受组件交付。
+- Session消费探针 `session-consumption-probe.mjs` 已有保存基线；最新去除重复监督、复用组件清理的返修及新增 `run-session-consumption.py` 已闭合冻结并保存，node/Python语法与8input离线准备通过；使用固定30+15秒总界的任务自有worker执行。真实8case尚未运行，不阻塞已接受组件交付。
 - Model私有dist已同步本次2640全检查构建的64文件，与web/dist逐字节同一。后续业务用该新资产，旧PASS不等于新资产通过。
 
 ## 环境与共享资源
