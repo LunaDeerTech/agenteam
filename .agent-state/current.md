@@ -1,7 +1,7 @@
 # Secret Variable Audit 读端当前检查点
 
 - 分支 `ai/secret-variable-audit`，正式main基线 `8cb0a953`。root已保存17源/文档 `a347c986`，Knowledge明确交接后不再写本树，Variables为唯一接续作者。独立完整结果是三个Secret Variable Audit action的typed合同、Go/HTTP安全投影、OpenAPI与TS严格decoder；不是实际持久写入或事实提供者。
-- 本限定结果作者完成、独立接受，待root原子整合；七返修已保存 `ea91ee0f`。技术源保持冻结，不继续扩展SQL CHECK、D04、Project事实或root；后继真实写入另属新完整结果。
+- 本限定结果已正式原子交付 main `e94077ebe1810d9d61918d5fe4a4d932d8bbfba2`，root已精确确认远端；本分支停止实施该结果。技术源与已交付卡保持冻结，不继续扩展SQL CHECK、D04、Project事实或root；完整Secret写入仍未完成，后继真实写入另属新完整结果。
 - 规格见 `docs/development/work-items/d10-secret-variable-audit-read.md`。已实现单独Secret action predicate/metadata和三处既有闭集入口，普通ProjectVariableAction未扩；真实row scanner及HTTP安全projection；两OpenAPI的精确filter/三record；TS parser/filter和正负测试。D04、Project事实、Outbox/root、SQL CHECK/迁移未改，00028未占号。
 - 作者实际Go：21595/0097ba race0（contract新top3子＋真实row decoder新top3子，1.014/1.017s）；42309/907e65 race0（真实HTTP encoder＋标准Schema三正形21负控，1.954s）。范围不是真实PG/持久写入/权限provider。
 - TS第一次31184/bfc94e actual1：旧穷举计数和metadata向量未扩，3失败/142通过；该轮与无语义Prettier格式化重叠，不作为稳定通过证据。补向量/范围后49374/25a5a2 actual1：2失败/146通过，剩余为project-audit-client旧fetch count78应随56+26同步；metadata测试以process.cwd定位Schema，命令误从repo而非web启动导致ENOENT。两次原FAIL保留，不记前端整体通过；新四例在两轮均通过。
