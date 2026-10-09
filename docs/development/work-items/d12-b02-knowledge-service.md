@@ -1,6 +1,6 @@
 # D12 B02：完整 Human canonical 内容与文档树服务
 
-状态（2026-10-09）：**按已接受 rev1 契约开始 B02 实现，尚未验收。** 独立树 `ai/knowledge-service` 从正式 `f1c94ee5` 开工；B01 的 12 个纯契约文件、C1 `cursor.Text`、C2 Knowledge Audit 闭集、C3 精确 ReferenceCleanup 已在基线中存在。§4 的 29 个服务／测试路径无可恢复旧实现，本轮由唯一作者实现；首批服务构造、调用登记／取消与 Drain、严格 canonical 行读取和当前事实口已可构建，完整 Documents／发布／树变更尚未闭合；本域迁移独占 `00025_knowledge.sql`，`00024` 为另一树 ProjectVariables、`00026` 为 Runner control，不能按本树当前最高编号重排。
+状态（2026-10-09）：**B02有限Human Service库已实现，作者矩阵与独立风险补集闭合；待主线装配及共享Project路由组合核验。** 结果包括真实canonical内容、文档树、原子变更、来源复制、本域恢复和Object/Audit/Outbox事实适配器，迁移固定为`00025_knowledge.sql`。作者10top35sub及ProcessRecovery独立单top各按实际固定输入接受；未参与实现者的五个未变风险子组与修正末子82746完整PASS构成六组有限补集。原FAIL与环境终态缺口不回填。本结果不包含Knowledge HTTP/UI、下载URL、D13、B03完整Project lifecycle或生产root绑定；Object runtime join等停止项保持。
 
 依据：[D12 主卡](d12-knowledge-documents.md)、[D12 规格](d12-knowledge-documents-design.md) §3–7 及本卡已接受 rev1。旧 `/tmp` 候选／报告路径仅是历史定位，不是本轮必需输入；当前实际 B01 源码与正式规格是恢复依据。代码、SQL 与受控依赖测试可先行；完整业务接受仍需真实 Owner／Object／Audit／Outbox 组合、并发恢复与资源退出证据，不能把测试替身当生产授权。Object runtime join 等原停止项保持，当前不改 Object 实现、App root 或公共 fixture。
 
@@ -9,7 +9,7 @@
 - 经 root 授权，B01 `contract/events.go`／`events_test.go` 仅补向后兼容的 `KnowledgeEvents.Valid() bool`：零值 false、真实 Catalog 注册后 true，封存 Catalog 不使已注册类型失效。它只支持构造拒绝缺失依赖，不是事件事实或权限。未改编码／闭集，已获未参与者有限独审接受。
 
 - C1/C2/C3 已有实际源码，保留只读，不重复实现。D05 的 `NewProjectAuditAuthority` 已存在；它的存在不等于 Project 已接入 Object producer，也不证明本轮 Object runtime 组合已接受。
-- Project 外域 Audit 路由实际位于 `project/audit_facts.go`，原基线仅接納 Secret、Object 明确 `DEPENDENCY_UNBOUND`；root 已授 §3 C4 五技术路径，现开始补 Knowledge，公开接口不变。Variables 并行树在同两个既有文件另增独立分支，最终由 root 按限定差异合并，保留两域与全部旧路由，禁止整文件覆盖。
+- Project 外域 Audit 路由实际位于 `project/audit_facts.go`；本分支已实现 Knowledge/Object 精确注册和委托，公开接口不变。主线现有 Variables/Secret 等分支由装配者保留，按 §4 合并局部增量，禁止整文件覆盖。
 - Project Outbox 原 `project/events.go` 已接 Model／Work 专口，本轮只增精确 Knowledge gate，不新造任意 Human producer 的通用放行。历史 `outbox_authority.go` 候选不是现存输入。B02 自有 producer 独立证明真实命令/当前事实；gate 仅证明当前 Project 权限，两者消费同一 Tx。
 - 本域 `Documents`、树 mutation、canonical read/fact 与对象所有权／清理适配器按 B01 端口实现。D13、HTTP、受控下载 URL、全 Project participant 仍属后继；本轮不以它们未就绪阻止本域代码开工，也不把它们称作已绑定。
 
@@ -75,7 +75,11 @@ Variables 作者在独立树拥有同两文件的相邻增量；早期 provider/
 
 ## 4. 新领域完整白名单与构造
 
-新生产源精确15路径，均 `internal/central/knowledge/`：`service.go`、`repository.go`、`commands.go`、`planner.go`、`publication.go`、`recovery.go`、`runtime.go`、`object_authority.go`、`source.go`、`cleanup.go`、`read.go`、`query.go`、`tree.go`、`events.go`、`audit_authority.go`。相邻测试精确8：`service_test.go`、`commands_test.go`、`planner_test.go`、`publication_test.go`、`runtime_test.go`、`source_test.go`、`tree_test.go`、`query_test.go`。新集成6路径均 `tests/knowledge/`：`b02_fixture_test.go`、`b02_owner_tree_test.go`、`b02_publication_test.go`、`b02_recovery_test.go`、`b02_migration_test.go`、`b02_audit_event_test.go`。新领域共29路径；每个落笔前检查不存在，出现已有文件即报所有权冲突。12个 B01 源保持只读；Go module/dependency、app/config、公共测试fixture、D05活跃旧域均不在白名单。
+当前交付范围以实际文件为准。生产15源均在 `internal/central/knowledge/`：`service.go`、`repository.go`、`commands.go`、`planner.go`、`publication.go`、`recovery.go`、`runtime.go`、`object_authority.go`、`source.go`、`cleanup.go`、`read.go`、`query.go`、`tree.go`、`events.go`、`audit_authority.go`。相邻9个测试为`service_test.go`、`commands_test.go`、`planner_test.go`、`publication_test.go`、`recovery_test.go`、`runtime_test.go`、`source_test.go`、`tree_test.go`、`query_test.go`。B01只另取`contract/events.go`及`events_test.go`的向后兼容Valid增量；其余既有契约不覆盖。
+
+作者集成10文件均在`tests/knowledge/`：`b02_fixture_test.go`、`b02_owner_tree_test.go`、`b02_publication_test.go`、`b02_recovery_test.go`、`b02_migration_test.go`、`b02_audit_event_test.go`、`b02_concurrency_test.go`、`b02_runtime_test.go`、`b02_unknown_test.go`、`b02_process_test.go`。独立树另有`b02_independent_content_test.go`、`b02_independent_tree_reference_test.go`，由root随其实际监督/精确子例发现复验资产一并装配，不能误称它们已在作者树。正式SQL只有`db/migrations/00025_knowledge.sql`。
+
+Project共享域只合`audit_facts.go`与`events.go`的Knowledge/Object闭集增量，以及新增`knowledge_event_authority.go`、`object_audit_facts.go`和`knowledge_audit_test.go`、`knowledge_event_authority_test.go`、`object_audit_facts_test.go`；`audit_facts_test.go`仅取对应注册期望。必须保留主线ProjectVariable、Secret、Model、Work与初始化全部分支及测试，不能从本旧基线整文件覆盖。主线Secret Audit新合同/HTTP/schema/client、app/config、Go依赖、D05后继bounded provider均不在本次装配范围。
 
 ```go
 // 新knowledge/service.go；Store的完整签名与已验project.Store相同。
@@ -156,9 +160,13 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 作者实际完整组及独立风险probe分列执行者/断言来源，保原红及固定输入；阶段准备或compile-only不能称B02通过。无HTTP/root、D13、Agent destructive、全Project lifecycle验收声明。交付固定版本、实际命令/原日志、结论/限制与精确提交路径即可，不复制全树/大索引。候选已完成独立静态审查并获采纳，报告 `/tmp/agenteam-d12-b02-review-acect8x7/report.md` SHA `df2fdea872d0e755449c8b966abdbe8962285d1b76e781f3ea7dd422bf2a86a8`；这不替代实现与真实业务验收。正式卡的路径和状态归位不更改未编号 DDL，原草案 SHA `fe3ed8d6084dced33618e2a7d565492424c1f061bbc5cb54f40d93c5331ca217`。
 
-### 当前有限交付门槛
+### 当前有限Service库验收与装配边界
 
-ProcessRecovery修正候选50756完整PASS：基于d7ae94a7测试＋f3ce0c7a记录、race-c73496/c3af32的 `knowledge-process-plan-fixed-race.test`，原root-chain与唯一 `^TestKnowledgeB02ProcessRecovery$` 未改；首同进程statvfs5716013056B。实际单top2.40s通过（无t.Run子例），覆盖原活Guard拒绝、精确owned SIGKILL/actualWait、原ID真实死亡证明、新attempt/fence和唯一canonical/Audit/Event及replay尾。Go1079008实际Wait0、driver1077003实际Wait0；本人726572外层actualexit0，53297e核7ID两轮14absent、private/runtime/desc双清、exact_tops/actual_test_wait=True、HOST_TCP双delta_empty、inputs_unchanged=True，supervisor terminal0/92.535s且无STOP。终态statvfs5713051648B，日志 `output/ai/knowledge/pg/pg-d776f88b697049b1853a3f24616ca380.log`。本任务资源完整退役，无命令在途；旧91700FAIL及当时未采counts/未到后半不回填。当前作者固定输入已通过原10top35sub外加Process单top；完整B02仍待未参与者两top六组有限风险补集与最终整合。
+作者固定输入累计10top35sub＋Process50756单top已通过，含修后Runtime57974和公平Cleanup的实际组合；独立P1/P2源码风险审及15866定向复核已接受。独立风险补集采用89530中五个未变且实际通过子组＋82746修正末子，后者父2.45s/子0.62s、Go与driver实际Wait0、outer c5f341 exit0、19cd10确认7ID双退役/private/runtime/desc/TCP/input全齐；原件位于独立树`output/ai/knowledge-independent/pg/pg-9712da3407794d34aca1f45aa5bd6132.log`。覆盖DOCX与D05真实raw length/SHA拒绝、最终current authority、伪Audit/Event事实、正文/Move交错、preview成员变化、真实旧upload引用撤销与错误cleanup cause。89530整体FAIL、62452发现前置FAIL及作者旧失败保持原结论；不把分组合接受改成某一旧整轮PASS。
+
+本域库验收门槛已闭合。剩余是root基于当前主线按§4装配、未参与者核必要共享路由组合及相关回归；不扩出新普通case矩阵。真实上游Account/Project规范seed与同Store Object/Audit/Outbox fixture的边界不变，不能外推为真实Login/Create、HTTP/UI、D13、全Project生命周期或生产root已绑定。
+
+ProcessRecovery修正候选50756完整PASS：基于d7ae94a7测试＋f3ce0c7a记录、race-c73496/c3af32的 `knowledge-process-plan-fixed-race.test`，原root-chain与唯一 `^TestKnowledgeB02ProcessRecovery$` 未改；首同进程statvfs5716013056B。实际单top2.40s通过（无t.Run子例），覆盖原活Guard拒绝、精确owned SIGKILL/actualWait、原ID真实死亡证明、新attempt/fence和唯一canonical/Audit/Event及replay尾。Go1079008实际Wait0、driver1077003实际Wait0；本人726572外层actualexit0，53297e核7ID两轮14absent、private/runtime/desc双清、exact_tops/actual_test_wait=True、HOST_TCP双delta_empty、inputs_unchanged=True，supervisor terminal0/92.535s且无STOP。终态statvfs5713051648B，日志 `output/ai/knowledge/pg/pg-d776f88b697049b1853a3f24616ca380.log`。本任务资源完整退役，无命令在途；旧91700FAIL及当时未采counts/未到后半不回填。该作者阶段已通过原10top35sub外加Process单top；后继六组有限独立补集已按本节当前结论闭合，仍待主线装配。
 
 Process375定向tests-only修正已落 `tests/knowledge/b02_process_test.go`：两个Prepare前/活guard拒绝后计数均要求commands=1、command_events=0，失败只输出两个安全计数；新processEventPlan独立查询原Project/key/document的planned且无receipt行，以正式严格ev.DecodeHeader核固定header的有效ID/时间、ContentChanged/schema1、Project/Document/version1，并比较live拒绝前后完整持久header不变。产品/fixture/harness均未改；94b3e6实际逆去这两处断言与新增header核验后逐字4b3caaf9，原live Guard、SIGKILL/actualWait、精确死证、新attempt/fence和canonical/Audit/Event/replay断言不变，gofmt解析/格式及diffcheck0。Work原审者e9d8c9只读逆验证actual0后独立有限接受：原Guard及Lookup后SIGKILL/actualWait/death/recovery/replay尾逐字4b3caaf9；未动态。基于d7ae94a7的独立候选 `output/ai/knowledge/knowledge-process-plan-fixed-race.test` 已race-c73496／c3af32 actual0，87497e精确发现恰TestKnowledgeB02ProcessRecovery，36526696B；旧77598 binary保留36519881B、含原失败测试，不冒充修正版。首1632d7因编译命令漏integration tag而build constraints排除全部文件，setupFAIL保留；补唯一必需tag后编译成功。该编译阶段只证明离线ready，未重跑旧六top；后继50756实际结果见最新记录，原91700未采具体两个计数及未到后半保持。
 
@@ -185,7 +193,7 @@ P1/P2五源修复已获原独立审查者Skills有限接受，无剩余mustfix�
 B02可单独交付的是§1的完整Human canonical／树服务库及真实适配器；当前原十个作者top／三十五子与Process单top（无t.Run子例）均已按各自固定输入真实通过，包含P2修后Cleanup三子及50756真实Guard恢复；91700组合原始FAIL仍保留。后继按下列有限闭包收敛，不继续追加无已知缺口的作者测试组：
 
 1. **Process真实闭环已补齐**：四组91700有限通过及50756修正Process单top完整通过分别保留各自固定输入证据。Process原前置断言FAIL不回填；后继新候选已实际验证活guard、精确SIGKILL/Wait、same-command恢复及幂等终态。独立者审原生证据和关键判据，不无因重跑已通过组。
-2. **完整库独立风险审查及有限补集**：Skills已核十五生产源／00025／四Project适配器并发现P1/P2，修复已获有限复核接受；整体最终独立结论仍须结合当前真实组与以下有限风险补集。由未参与实现者核当前权限→原command→完整锁→真实外域事实→最终同Tx→资源退休链，复用已有迁移、B01／分页及作者固定输入证据。独立真实补集按两类组织，避免重做全矩阵：内容／权限／事实类补DOCX与raw length/SHA拒绝的正式D05组合、最终当前授权变化及伪Knowledge Audit/Event事实拒绝；树／引用类补正文Update与Move交错不覆parent、preview后成员移入/移出导致旧scope拒绝、旧upload revoked后不能重新Attach及错cleanup cause拒绝。已有Activity终点失败已证明整Tx的Audit/Event回滚，不为每条SQL复制同类故障。Unknown与真实Process接管由独立者审查完整原生实测及关键判据，发现未覆盖风险才给精确最小反例，不预设新增泛化harness或更多生产功能。
+2. **完整库独立风险审查及有限补集**：Skills已核十五生产源／00025／四Project适配器并发现P1/P2，修复已获有限复核接受；整体有限独立结论现已结合当前真实组和六组风险补集闭合；下述为所执行的有限风险范围。由未参与实现者核当前权限→原command→完整锁→真实外域事实→最终同Tx→资源退休链，复用已有迁移、B01／分页及作者固定输入证据。独立真实补集按两类组织，避免重做全矩阵：内容／权限／事实类补DOCX与raw length/SHA拒绝的正式D05组合、最终当前授权变化及伪Knowledge Audit/Event事实拒绝；树／引用类补正文Update与Move交错不覆parent、preview后成员移入/移出导致旧scope拒绝、旧upload revoked后不能重新Attach及错cleanup cause拒绝。已有Activity终点失败已证明整Tx的Audit/Event回滚，不为每条SQL复制同类故障。Unknown与真实Process接管由独立者审查完整原生实测及关键判据，发现未覆盖风险才给精确最小反例，不预设新增泛化harness或更多生产功能。
 3. **同一最终输入整合**：root保留Project `audit_facts.go/events.go`中的Variables／其它已交付相邻分派，以正式00024→00025及后继全局迁移顺序整合；不能整文件覆盖，也不改写已执行迁移。合并后只对实际改变的共享分派／构造及其直接回归运行检查；没有相关差异的已通过binary／场景继续复用，若生产闭包改变则明确重编和受影响复验。最终整理完整库原子交付与简短台账，不能以分支checkpoint当main已交付。
 
 B02当前不需要新增正式port：现有Account/Project、Object/SourceReads/ReferenceCleanup/Cleaner、Audit、Outbox、ProcessAuthority均已有注入口和测试组合。KnowledgeFile真实来源已验；UploadedObject／Artifact等只消费各自已绑定正式provider，未绑定分支保持明确拒绝，不把本域resolver包装成外域成功。HTTP／UI／下载URL、D13、生产root和B03全Project participant属于已排除的后继范围；其缺失不阻塞这个库交付，也不能在交付时声称已绑定。Object runtime join停项、共享guard至多域实际join／DB最后、Project lifecycle cleanup／source_project join留待B03及上游正式组合，不在B02中偷偷解停或造成功stub。
