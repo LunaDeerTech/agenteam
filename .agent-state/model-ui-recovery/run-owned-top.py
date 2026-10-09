@@ -192,13 +192,15 @@ def main():
             # Helpers own removal of their exact resources. Failure does not
             # authorize guessed cleanup or operation on unrelated containers.
             remaining = [p.name for p in private.iterdir() if p != runtime]
-            if remaining or list(runtime.iterdir()):
+            runtime_empty = not (remaining or list(runtime.iterdir()))
+            if not runtime_empty:
                 code = 1
             # Retained private diagnostics are never copied to evidence. After
             # every owned process actually retired, remove only this new root.
             import shutil
             shutil.rmtree(private)
-            if private.exists():
+            private_removed = not private.exists()
+            if not private_removed:
                 code = 1
             deadline = time.monotonic() + 75
             empty = 0
@@ -218,7 +220,7 @@ def main():
             if not unchanged:
                 code = 1
             log.write(f"SUPERVISOR frozen_inputs_unchanged={unchanged} terminal={code}\n")
-            terminal = {"case": args.case, "selector": env["MODELS_EXACT_SELECTOR"], "exit": code, "elapsed_seconds": time.monotonic() - started, "direct_actual_wait": child.returncode is not None, "adopted_actual_waits": adopted, "watchdog_joined": not thread.is_alive(), "tcp_empty_observations": empty, "inputs_unchanged": unchanged, "resources": len(resources)}
+            terminal = {"case": args.case, "selector": env["MODELS_EXACT_SELECTOR"], "exit": code, "elapsed_seconds": time.monotonic() - started, "direct_actual_wait": child.returncode is not None, "adopted_actual_waits": adopted, "watchdog_joined": not thread.is_alive(), "runtime_empty": runtime_empty, "private_removed": private_removed, "tcp_empty_observations": empty, "inputs_unchanged": unchanged, "resources": len(resources)}
             (evidence / "terminal.json").write_text(json.dumps(terminal, indent=2))
         finally:
             stop.set()

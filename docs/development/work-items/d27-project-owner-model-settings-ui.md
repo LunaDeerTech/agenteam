@@ -46,6 +46,8 @@ navigation 第五轮使用 §0.3 已接受修复的新私有资产，仍在初�
 
 authority 第六轮使用已独审的新诊断，本轮 Session 原 finished／JSON／身份门槛通过，但不证明旧间歇失败已修复。已完成归档配置原请求重放，随后切到凭据恢复 Project 时 FAIL：URL 等待已过，公开 Project 设置链接的目标 href 尚未发布（模块第 282 行）；17 个安全响应，尚未开始凭据归档场景，没有 Session 失败诊断产物。必要事实见 [authority-navigation-sixth-failure.json](../../../.agent-state/model-ui-recovery/authority-navigation-sixth-failure.json)。Go 25.15 秒、外层实际 exit=1／114.59 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空及输入同一均完成。下一步核实真实导航确认或当前 Owner 发布条件，区分产品缺陷与测试前置遗漏，保持原断言与预算。
 
+authority 第七轮整体仍 FAIL：原 45 秒用例预算在 `authority-lifecycle-gates` 耗尽，本轮显式 Session headers／finished 已见且 failed 未见，仅 13 个安全响应，尚未进入归档配置场景；没有新的导航 DOM 或原生 Session 失败产物。当前错误投影只保留 timeout 与通用入口，确切等待子步骤未记录，不能据不同停点猜测根因。必要事实见 [authority-lifecycle-seventh-failure.json](../../../.agent-state/model-ui-recovery/authority-lifecycle-seventh-failure.json)。Go 56.64 秒、外层实际 exit=1／146.76 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、descendant 双空、临时目录实际移除、TCP 双空与输入同一均完成。原 main driver 没有单独记录删除前 runtime-empty 谓词，失败退出不能证明该谓词通过；目录移除后当前资源清空不回填原观察。下一版只补既有 await 的稳定开始／完成步骤及既有清理谓词的安全输出，保留业务门槛、请求与预算，独审后再有意义复验。
+
 独立 A 已由独验者本人首次实际执行，整体 FAIL：停在凭据轮换阶段，仅四个安全响应，最后为 metadata GET 200；原失败投影只有错误数量，没有保留具体断言，不能认定确切根因。必要安全事实见 [independent-a-first-failure.json](../../../.agent-state/model-ui-independent/independent-a-first-failure.json)。Go 13.26 秒、外层实际 exit=1／107.38 秒；direct／四 adopted 实际 wait、Node／proxy／body／service／root join、七资源双 absent、runtime 与临时目录移除、TCP 双空、输入同一及两个 marker 移除全部完成。离线源码确认该构造会同时展示 metadata 与未绑定候选两个 `dl`，而测试使用单元素选择器；只修语义定位并补闭合错误投影，仍需正反控制及独审，不将此候选回填为原 FAIL 的已知原因。
 
 独立 A 第二轮已由独验者本人完整通过：只修“已读版本”的语义定位并补闭合错误投影，作者与独立正反控制、strict TS 均通过；该修复不确定首轮缺失断言的根因。原未知／原请求组合五项检查全部为 true，八份完整响应完成同 body／schema／正式客户端校验，另两次预期断流被正确识别。Go 18.18 秒、外层实际 exit=0／106.16 秒；direct／四 adopted 实际 wait=0、Node／proxy／body／service／root join、七资源双 absent、runtime 与临时目录移除、TCP 双空、输入同一及两个 marker 移除全部完成。消费当轮已冻结的 common Problem.code 既有 Work 错误码补充；B 尚未执行，原 A 首轮 FAIL 保留。
@@ -60,6 +62,8 @@ authority 第六轮使用已独审的新诊断，本轮 Session 原 finished／J
 | `owner-recovery` | 14.56 | 100.34 |
 | `owner-identity` | 19.58 | 105.55 |
 | `audit-authority` | 30.37 | 116.96 |
+
+历史 read 第二轮按未受影响读取路径有限复用，已获独立影响核对接受：正式记录可恢复，读取流程及相关业务代码未变，顺序单 Dialog 不进入已修共享层的叠层或剩余模态解禁回焦分支。该轮原始 run／响应／输入文件当前缺失，因此不声称当前二进制／资产／环境完整闭包重新核验，也不记作新资产实跑通过；此复用不扩展到 authority／navigation 或受影响的 recovery／configuration／credential。
 
 Session 诊断首版的迟到初始化清理缺陷已独立复现；限定返修的类型／私有构建、作者 34 项与独立 20 项离线控制通过，已获有限独审接受。两个 Session helper 共享同响应安全计数，区分 EOF／读拒绝／abort／EOF 前取消与 EOF 后清理；公开 Request ID 仅在浏览器内比较，缺失或迟到不能解释为同响应，原 finished／JSON／身份门槛保留。已用于 authority 第六轮；该轮 Session 未失败，尚无真实失败的原生诊断可用于解释旧因果，不改变各轮原 FAIL。
 
