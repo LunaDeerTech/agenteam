@@ -8,5 +8,6 @@
 
 - 首可恢复技术片段：contract/task_timeline.go、其task_timeline_test.go、work/task_timeline_reader.go三新源已实现，严格四类union/筛选、原wire、Owner每页同Tx锁、时间ID seek与Task.Version水位，未改旧源。172fc4/38147最终actual0：定向`^TestTaskTimeline`下contract两top通过；work包仅编译成功并明确no tests to run，不能冒Reader行为已验。gofmt/diffcheck通过。没有Timeline真实运行。
 - 新增Reader三项纯控已实测：输入拒绝不碰Store、签名cursor绑定与固定水位、两族原wire及损坏/未知行拒绝。首次72f654为测试源编译错误并保留；修复后71793/56146e actual0，`^TestTaskTimeline`下contract两top与Reader三top通过。测试未替代真实Owner/锁/Rows/事务/PG分页证明。
-- 作者PG矩阵首可恢复片段已新增`tests/work/task_timeline_test.go`：正式Create+200次Update+Add/Resolve共203条四族历史、sameStore实际clock Scan限定覆盖、receipt持久关联、Reader重建、默认50/改7/200分页、反序types/同User新Session、双向W排除后写与原重放无第二事实。仅gofmt/差异检查通过，尚未集成编译或PG执行；AuthorityAndCancellation/IntegrityAndCompatibility两top仍待写，不能当整矩阵ready。
-- 当前该新集成测试与card/current三路径冻结供root checkpoint；离线只读modcache为原model-ui-recovery/go-mod，复用本人无竞争的Work implementation/gocache，Go1.27.1/local/off/-p1/GOMAXPROCS2；未新建GB缓存。无在途Go/测试进程。下一补正式writer PG矩阵，再交独审；真实窗口另fresh grant。
+- 作者PG矩阵首可恢复片段已新增`tests/work/task_timeline_test.go`：正式Create+200次Update+Add/Resolve共203条四族历史、sameStore实际clock Scan限定覆盖、receipt持久关联、Reader重建、默认50/改7/200分页、反序types/同User新Session、双向W排除后写与原重放无第二事实。仅gofmt/差异检查通过，尚无PG执行。AuthorityAndCancellation/IntegrityAndCompatibility两个作者top随后已补当前Session/Owner/lifecycle、原锁与SQL/Rows取消、坏行/lookahead及旧codec/Reader兼容，尚待动态证明。
+- 最新首次集成编译65213 actual1因作者测试类型名ErrorCode/TaskEventMarker误用；按正式Code/TaskEvent修正后99817 actual0，普通integration可构建。三个作者top源码已齐，真实PG、race编译与独立验收未完成。
+- 当前该集成测试与card/current三路径冻结供root checkpoint；离线只读modcache为原model-ui-recovery/go-mod，复用本人无竞争的Work implementation/gocache，Go1.27.1/local/off/-p1/GOMAXPROCS2；未新建GB缓存。无在途Go/测试进程。下一补正式writer PG矩阵，再交独审；真实窗口另fresh grant。

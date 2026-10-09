@@ -116,4 +116,4 @@ Task planning/Blocker/Account/Project/PG/Cursor的已有实现和旧事件decode
 
 ## 7. 当前接受边界与下一步
 
-完整SPEC已获未参与者有限接受；typed union/filter/cursor与同Tx Reader已实施，作者contract两top及Reader输入/cursor/scan三top纯控通过。新增作者PG矩阵首top源码含203条正式writer历史、同微秒/watermark、50/7/200分页及原receipt/重放；尚未编译或执行该集成top，其余两个权限/取消/完整性top待实施。不能把纯控、同时间刺激的可实现性或源码断言当真实Owner/PG/Rows/事务尾证明。没有迁移、HTTP/root或第六独立测试改动；原门槛与停止项保持。
+完整SPEC已获未参与者有限接受；typed union/filter/cursor与同Tx Reader已实施，作者contract两top及Reader输入/cursor/scan三top纯控通过。新增作者PG矩阵首top源码含203条正式writer历史、同微秒/watermark、50/7/200分页及原receipt/重放；另外两个权限/取消/完整性top已补齐，首次integration编译因新测试两个类型名错误失败，修正后普通integration编译成功；三个top尚未真实执行或独立验收，race编译未做。不能把纯控、同时间刺激的可实现性或源码断言当真实Owner/PG/Rows/事务尾证明。没有迁移、HTTP/root或第六独立测试改动；原门槛与停止项保持。
