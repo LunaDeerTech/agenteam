@@ -1,10 +1,10 @@
 # D12 Human Owner Knowledge metadata 与文档树 HTTP
 
-状态：实施中，基线正式 main `29dd429881783595e5a1304b86af5bfb56ec80b2`。只交付可独立构造的五类只读 HTTP adapter，不接生产 root，不修改 B02/SQL，不包含正文、下载 URL、D13、UI 或 Project lifecycle/Runtime 停止项。依据 [B02 服务](d12-b02-knowledge-service.md)、[D12 规格](d12-knowledge-documents-design.md) §3/6 与既有 Owner HTTP/Account boundary。
+状态：四个adapter生产源、Schema及10个pure控制已落；首轮9项未失败，Unknown控制因误期待公开cause_id失败，修正控制后定向race通过。尚未Schema执行验收/native/PG或整结果独立接受。基线正式 main `29dd429881783595e5a1304b86af5bfb56ec80b2`。只交付可独立构造的五类只读 HTTP adapter，不接生产 root，不修改 B02/SQL，不包含正文、下载 URL、D13、UI 或 Project lifecycle/Runtime 停止项。依据 [B02 服务](d12-b02-knowledge-service.md)、[D12 规格](d12-knowledge-documents-design.md) §3/6 与既有 Owner HTTP/Account boundary。
 
 ## API 与真实依赖
 
-前缀为 `/api/v1/projects/{project_id}/knowledge/documents`；全部只允许 GET/HEAD，其他方法405及 `Allow: GET, HEAD`，HEAD执行相同授权、查询和完整投影但不写body。
+前缀为 `/api/v1/projects/{project_id}/knowledge/documents`；全部只允许 GET/HEAD，通过浏览器/身份前置后其他方法405及 `Allow: GET, HEAD`（未认证或跨Origin仍先401/403），HEAD执行相同授权、查询和完整投影但不写body。
 
 | 路径后缀 | 查询 | 服务 |
 | --- | --- | --- |

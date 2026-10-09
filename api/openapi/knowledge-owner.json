@@ -1,0 +1,1358 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Human Owner Knowledge metadata and tree reads",
+    "version": "1.0.0",
+    "description": "Independent adapter; production root is not installed. Current Human Session/Project Owner reauthorized for every request. GET/HEAD only; no content, object IDs, downloads or D13. Original 2s request budget and 5 MiB complete response; strict duplicate/unknown/query parsing in Go. Root children requires explicit parent_document_id=null. Search is literal title substring, not full-text retrieval. Safe scalar/relationship/current authorization invariants remain enforced in Go."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/knowledge/documents": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "knowledgeOwnerDocumentsGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "title_query",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])"
+            }
+          },
+          {
+            "name": "source_kind",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "enum": [
+                "text",
+                "file"
+              ]
+            }
+          },
+          {
+            "name": "media_type",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "enum": [
+                "text/plain",
+                "text/markdown",
+                "application/pdf",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              ]
+            }
+          },
+          {
+            "name": "indexing_status",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "enum": [
+                "pending",
+                "processing",
+                "ready",
+                "failed"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50,
+              "description": "Canonical decimal, no sign or leading zero."
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])",
+              "maxLength": 8192,
+              "description": "Opaque signed cursor, byte cap enforced by Go; do not inspect or log."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete authorized representation; no-store. HEAD has identical Content-Length and no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "knowledgeOwnerDocumentsHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "title_query",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])"
+            }
+          },
+          {
+            "name": "source_kind",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "enum": [
+                "text",
+                "file"
+              ]
+            }
+          },
+          {
+            "name": "media_type",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "enum": [
+                "text/plain",
+                "text/markdown",
+                "application/pdf",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              ]
+            }
+          },
+          {
+            "name": "indexing_status",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "enum": [
+                "pending",
+                "processing",
+                "ready",
+                "failed"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50,
+              "description": "Canonical decimal, no sign or leading zero."
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])",
+              "maxLength": 8192,
+              "description": "Opaque signed cursor, byte cap enforced by Go; do not inspect or log."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete authorized representation; no-store. HEAD has identical Content-Length and no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/{document_id}": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "knowledgeOwnerDocumentGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Complete authorized representation; no-store. HEAD has identical Content-Length and no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentHead"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "knowledgeOwnerDocumentHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Complete authorized representation; no-store. HEAD has identical Content-Length and no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/children": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "knowledgeOwnerChildrenGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "parent_document_id",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                {
+                  "const": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "title_query",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])"
+            }
+          },
+          {
+            "name": "source_kind",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "enum": [
+                "text",
+                "file"
+              ]
+            }
+          },
+          {
+            "name": "media_type",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "enum": [
+                "text/plain",
+                "text/markdown",
+                "application/pdf",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              ]
+            }
+          },
+          {
+            "name": "indexing_status",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "enum": [
+                "pending",
+                "processing",
+                "ready",
+                "failed"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50,
+              "description": "Canonical decimal, no sign or leading zero."
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])",
+              "maxLength": 8192,
+              "description": "Opaque signed cursor, byte cap enforced by Go; do not inspect or log."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete authorized representation; no-store. HEAD has identical Content-Length and no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "knowledgeOwnerChildrenHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "parent_document_id",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                {
+                  "const": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "title_query",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])"
+            }
+          },
+          {
+            "name": "source_kind",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "enum": [
+                "text",
+                "file"
+              ]
+            }
+          },
+          {
+            "name": "media_type",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "enum": [
+                "text/plain",
+                "text/markdown",
+                "application/pdf",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              ]
+            }
+          },
+          {
+            "name": "indexing_status",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "enum": [
+                "pending",
+                "processing",
+                "ready",
+                "failed"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50,
+              "description": "Canonical decimal, no sign or leading zero."
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])",
+              "maxLength": 8192,
+              "description": "Opaque signed cursor, byte cap enforced by Go; do not inspect or log."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete authorized representation; no-store. HEAD has identical Content-Length and no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/{document_id}/ancestors": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "knowledgeOwnerAncestorsGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Complete authorized representation; no-store. HEAD has identical Content-Length and no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ancestors"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "knowledgeOwnerAncestorsHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Complete authorized representation; no-store. HEAD has identical Content-Length and no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/search-titles": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "knowledgeOwnerTitleSearchGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "title_query",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50,
+              "description": "Canonical decimal, no sign or leading zero."
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])",
+              "maxLength": 8192,
+              "description": "Opaque signed cursor, byte cap enforced by Go; do not inspect or log."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete authorized representation; no-store. HEAD has identical Content-Length and no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TitlePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "knowledgeOwnerTitleSearchHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "title_query",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50,
+              "description": "Canonical decimal, no sign or leading zero."
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])",
+              "maxLength": 8192,
+              "description": "Opaque signed cursor, byte cap enforced by Go; do not inspect or log."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete authorized representation; no-store. HEAD has identical Content-Length and no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account session cookie; configured loopback HTTP uses agenteam_local_session. No bearer or caller-supplied Actor."
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Safe Problem, preserving original code and commit state. Read Unknown publishes no candidates and a subsequent GET is not commit confirmation.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Document": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "parent_document_id",
+          "title",
+          "content_version",
+          "source_kind",
+          "media_type",
+          "status",
+          "indexing_status",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "parent_document_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])",
+            "maxLength": 512
+          },
+          "content_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "source_kind": {
+            "enum": [
+              "text",
+              "file"
+            ]
+          },
+          "media_type": {
+            "enum": [
+              "text/plain",
+              "text/markdown",
+              "application/pdf",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ]
+          },
+          "status": {
+            "const": "active"
+          },
+          "indexing_status": {
+            "enum": [
+              "pending",
+              "processing",
+              "ready",
+              "failed"
+            ]
+          },
+          "created_by": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "user_id"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "human"
+                  },
+                  "user_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "project_id",
+                  "agent_id",
+                  "execution_id"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "agent_run"
+                  },
+                  "project_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "agent_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "execution_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                }
+              }
+            ]
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "source_kind": {
+                  "const": "text"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "media_type": {
+                  "enum": [
+                    "text/plain",
+                    "text/markdown"
+                  ]
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "media_type": {
+                  "enum": [
+                    "application/pdf",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Tombstone": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "content_version",
+          "deleted_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "content_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "deleted_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        }
+      },
+      "DocumentHead": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "active"
+            ],
+            "properties": {
+              "active": {
+                "$ref": "#/components/schemas/Document"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "deleted"
+            ],
+            "properties": {
+              "deleted": {
+                "$ref": "#/components/schemas/Tombstone"
+              }
+            }
+          }
+        ]
+      },
+      "Ancestors": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            }
+          }
+        }
+      },
+      "TitleHit": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document",
+          "ancestors"
+        ],
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          },
+          "ancestors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            }
+          }
+        }
+      },
+      "DocumentPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            },
+            "maxItems": 200
+          },
+          "next_cursor": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])",
+            "maxLength": 8192,
+            "description": "Opaque signed cursor, byte cap enforced by Go; do not inspect or log."
+          }
+        }
+      },
+      "TitlePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TitleHit"
+            },
+            "maxItems": 200
+          },
+          "next_cursor": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])",
+            "maxLength": 8192,
+            "description": "Opaque signed cursor, byte cap enforced by Go; do not inspect or log."
+          }
+        }
+      }
+    }
+  }
+}
