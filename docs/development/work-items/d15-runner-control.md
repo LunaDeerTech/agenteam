@@ -187,6 +187,8 @@ Runner生产app沿既有lifecycle原shutdown总预算与第二信号force语义�
 
 Config只新增上述身份/登记参数与可选`AGENTEAM_RUNNER_CA_FILE`，已有LOG_LEVEL/SHUTDOWN_TIMEOUT语义保留；无明文token参数。正式启动需identity，未配置返回安全配置错误，不再以D02空循环冒D15产品就绪；`--help/--version/--check-config`保持离线。中央HTTP根复用现middleware RequestID/安全日志/账户Session，设备秘密header与URL不进accesslog；整条失败链的Format/JSON/slog均有canary反例。
 
+Runner实际入口为满足上述既定行为，根补授权仅本树`tests/process/process_test.go`与`internal/platform/logging/{logging.go,logging_test.go}`。中立日志不导入Runner/Central业务类型；新增`runner_connection`事件仅接受`disconnected/connecting/connected/incompatible`状态，只有当前认证且hello完成的`connected`投影两个连接布尔为true，操作注册仍为空且ready不据此变true。默认false、未知状态归disconnected、旧Central行为不变；配置错误字段只补闭集`AGENTEAM_RUNNER_IDENTITY_FILE/CENTRAL_URL/ID/ROOT_PATH/CA_FILE`，禁止值/秘密。原D02无身份空循环测试随正式入口改为私有身份+受控TLS请求中的实际信号退出；该身份文件只作进程刺激，不能当真实Central登记或认证成功证据。
+
 ## 9. 支持矩阵与验收门槛
 
 库固定 Go1.27.1、gorilla/websocket1.5.3，TLS1.2+。首期目标平台：Linux kernel≥5.15、amd64/arm64（基准Ubuntu22.04/24.04）；macOS≥14、amd64/arm64。文件权限、fsync/rename/flock与网络取消分别在真实OS验证。Windows明确不支持。当前环境只可提供Linux的实际运行证据；macOS及未实际CPU矩阵保持未验，不能用GOOS/GOARCH交叉编译或fakefs改写成全平台PASS。D16 Bash版本/D17桌面支持另卡，不被D15 hello空能力覆盖。

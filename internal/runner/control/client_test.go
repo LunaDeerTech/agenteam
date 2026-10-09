@@ -423,3 +423,81 @@ func TestClientForceWaitsForActualReturnAndIdentityLock(t *testing.T) {
 		t.Fatal("device transport did not close after original return")
 	}
 }
+
+func TestClientEnrollmentSourceOwnedUntilActualReturn(t *testing.T) {
+	original := deviceIdentity(t)
+	configuration := original.Configuration()
+	file := &clientIdentity{value: original}
+	entered, release := make(chan struct{}), make(chan struct{})
+	calls := 0
+	c := newClientForTest(t, Options{Configuration: &configuration, EnrollmentSource: func(ctx context.Context) (p.EnrollmentToken, error) {
+		calls++
+		close(entered)
+		<-release
+		return p.EnrollmentToken{}, errors.New("PRIVATE_SOURCE_CANARY")
+	}}, file, nil)
+	c.device = func(identity.Configuration, *x509.CertPool) (deviceBackend, error) {
+		t.Error("cancelled input reached native client")
+		return nil, ErrTransport
+	}
+	done := make(chan error, 1)
+	go func() { done <- c.Run(context.Background()) }()
+	await(t, entered)
+	c.Stop()
+	deadline, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	if c.Force(deadline) != context.DeadlineExceeded || file.closed.Load() {
+		t.Fatal("input cancellation released original owner before return")
+	}
+	close(release)
+	if err := awaitClient(t, done); err != context.Canceled {
+		t.Fatal("private source error escaped cancellation", err)
+	}
+	if calls != 1 || len(file.snapshot()) != 0 || !file.closed.Load() {
+		t.Fatal("input was retried or changed pending identity")
+	}
+}
+func TestClientObservationsAreCurrentAndJoined(t *testing.T) {
+	original := deviceIdentity(t)
+	file := &clientIdentity{value: original}
+	socket := clientSocket()
+	challenge := freshChallenge(t)
+	observed := make(chan ConnectionState, 8)
+	held, release := make(chan struct{}), make(chan struct{})
+	options := Options{Observe: func(ctx context.Context, state ConnectionState) {
+		observed <- state
+		if state == Connected {
+			saved := file.snapshot()
+			if len(saved) != 1 || saved[0].State() != identity.Active {
+				t.Error("connected published before durable identity")
+			}
+			close(held)
+			<-release
+		}
+	}}
+	device := &clientDevice{challengeFn: func(context.Context, p.ID) (p.ChallengeResponse, error) { return challenge, nil }, connectFn: func(context.Context, identity.Identity, p.Nonce) (*wire, error) { return wireWithSocket(socket), nil }}
+	c := newClientForTest(t, options, file, device)
+	done := make(chan error, 1)
+	go func() { done <- c.Run(context.Background()) }()
+	nextMessage(t, socket)
+	socket.in <- helloAck(t)
+	await(t, held)
+	c.Stop()
+	deadline, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	if c.Force(deadline) != context.DeadlineExceeded || file.closed.Load() {
+		t.Fatal("observer callback was not owned until actual return")
+	}
+	close(release)
+	if err := awaitClient(t, done); err != context.Canceled {
+		t.Fatal(err)
+	}
+	close(observed)
+	var states []ConnectionState
+	for state := range observed {
+		states = append(states, state)
+	}
+	if !reflect.DeepEqual(states, []ConnectionState{Connecting, Connected, Disconnected}) {
+		t.Fatal("current hello did not own state sequence", states)
+	}
+}

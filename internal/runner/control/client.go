@@ -23,12 +23,25 @@ import (
 // credential enrollment; a normal reconnect never reuses an enrollment token.
 // Configuration may be omitted when the private identity file already exists.
 type Options struct {
-	IdentityFile    string
-	Configuration   *identity.Configuration
-	EnrollmentToken p.EnrollmentToken
-	RunnerVersion   string
-	Roots           *x509.CertPool
+	IdentityFile     string
+	Configuration    *identity.Configuration
+	EnrollmentToken  p.EnrollmentToken
+	EnrollmentSource func(context.Context) (p.EnrollmentToken, error)
+	RunnerVersion    string
+	Roots            *x509.CertPool
+	Observe          func(context.Context, ConnectionState)
 }
+
+// ConnectionState is a safe public projection. Connected means the current
+// authenticated connection completed its Hello, not that an operation is bound.
+type ConnectionState string
+
+const (
+	Disconnected ConnectionState = "disconnected"
+	Connecting   ConnectionState = "connecting"
+	Connected    ConnectionState = "connected"
+	Incompatible ConnectionState = "incompatible"
+)
 
 func (Options) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "runner_control_options") }
 func (Options) MarshalJSON() ([]byte, error) { return []byte(`"runner_control_options"`), nil }
@@ -66,6 +79,9 @@ func (*Client) MarshalJSON() ([]byte, error) { return []byte(`"runner_control_cl
 func (*Client) LogValue() slog.Value         { return slog.StringValue("runner_control_client") }
 
 func New(options Options) (*Client, error) {
+	if options.EnrollmentToken.Valid() && options.EnrollmentSource != nil {
+		return nil, identity.ErrInvalid
+	}
 	if runtime.GOOS != "linux" && runtime.GOOS != "darwin" || runtime.GOARCH != "amd64" && runtime.GOARCH != "arm64" {
 		return nil, identity.ErrUnsupported
 	}
@@ -116,6 +132,7 @@ func (c *Client) Run(ctx context.Context) (result error) {
 	c.cancel = cancel
 	options := c.options
 	c.options.EnrollmentToken = p.EnrollmentToken{}
+	c.options.EnrollmentSource = nil
 	c.mu.Unlock()
 	defer func() { cancel(); close(c.done) }()
 	if err := owned.Err(); err != nil {
@@ -136,6 +153,26 @@ func (c *Client) Run(ctx context.Context) (result error) {
 	}
 	if err == nil && options.Configuration != nil && id.Configuration() != *options.Configuration {
 		return identity.ErrInvalid
+	}
+	if options.EnrollmentSource != nil {
+		if err != nil && options.Configuration == nil {
+			return identity.ErrInvalid
+		}
+		token, readErr := options.EnrollmentSource(owned)
+		options.EnrollmentSource = nil
+		if readErr != nil {
+			if owned.Err() != nil {
+				return owned.Err()
+			}
+			return identity.ErrInvalid
+		}
+		if owned.Err() != nil {
+			return owned.Err()
+		}
+		if !token.Valid() {
+			return identity.ErrInvalid
+		}
+		options.EnrollmentToken = token
 	}
 	if options.EnrollmentToken.Valid() {
 		configuration := options.Configuration
@@ -189,6 +226,10 @@ func (c *Client) Run(ctx context.Context) (result error) {
 		if err = owned.Err(); err != nil {
 			return err
 		}
+		observeConnection(owned, options.Observe, Connecting)
+		if err = owned.Err(); err != nil {
+			return err
+		}
 		challenge, attemptErr := device.challenge(owned, id.Configuration().RunnerID)
 		var connection *wire
 		if attemptErr == nil {
@@ -215,12 +256,19 @@ func (c *Client) Run(ctx context.Context) (result error) {
 					id = active
 				}
 				activeAt = time.Now()
+				observeConnection(owned, options.Observe, Connected)
 				return nil
 			}
 			attemptErr = s.run(owned)
 		}
 		// session.run has joined the original reader and callback before these local
 		// values are inspected or the next authentication may begin.
+		state := Disconnected
+		var protocol protocolFailure
+		if errors.Is(attemptErr, p.ErrIncompatibleVersion) || errors.As(attemptErr, &protocol) && protocol.code == p.IncompatibleVersion {
+			state = Incompatible
+		}
+		observeConnection(owned, options.Observe, state)
 		if localErr != nil {
 			return localErr
 		}
@@ -247,6 +295,12 @@ func (c *Client) Run(ctx context.Context) (result error) {
 		if err = c.wait(owned, delay); err != nil {
 			return err
 		}
+	}
+}
+
+func observeConnection(ctx context.Context, observer func(context.Context, ConnectionState), state ConnectionState) {
+	if observer != nil {
+		observer(ctx, state)
 	}
 }
 
