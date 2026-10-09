@@ -94,3 +94,6 @@
 - C1已正式交付main 7f2bb21176a0218286e82369b7efc75c3dab9017，正常push actual0/ls-remote精确确认；12路径仅6Agent纯source、2独立probe与卡/README/台账/current，没有00022或Model未验harness。main合入活动任务分支时保留所有Task/Model进度，仅整合root current与C1卡接受状态文档冲突。
 
 - Task paging单测试修复100增5删已gofmt/author race-c与11list实际exit0，产物work-paging-rankfix-author-v2.test；诊断先在真实回滚Tx复现原冲突并严格验23505/tasks_group_rank_key，合法seed刷新205项真实rank后给28项唯一1..28并同步oracle，原分页/过滤/游标/cap矩阵全部保留。仅测试源改变，DDL/reader及运行实现不变；真实诊断与修后Persistence待执行。
+
+- Task rankfix Persistence已完整PASS：body43.92s/driver48.486s、outer34134 exit0/108.495s，两ID/runtime/TCP双空/inputsame（pg-12f39fa…）；原23505/tasks_group_rank_key由真实回滚Tx确证，合法rank矩阵全过。新Authority随后body6.05s FAIL，两个archived历史分支DependencyUnavailable（planning354/1041），Go130242/driver129700 Wait1、outer35090 exit1/72.347s及资源/input全闭合（pg-dbfea1fa…）；候选是shared seedLifecycle多clock_timestamp导致archived_at>updated_at，需原owner严格实证，不先归因产品。Atomicity/旧4未启动。
+- Model spec仅诊断增强冻结：actualLoss严格断言之前0600 wx写control/current-native fixed13字段/expected_bytes，路径与空query/数值/size闭合，不含请求或header值、不放宽token/ended/非EOF/status/bytes门槛。TSstrict/list/diff实际exit0；第四run仅为取得第三真实controlled-loss分项，尚无已证transport修复。

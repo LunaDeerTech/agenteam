@@ -667,7 +667,20 @@ type NativeFact = { token: string | null; method: string; path: string; query: s
 async function nativeFacts(page: Page): Promise<NativeFact[]> { return page.evaluate(() => (window as any).__projectModelsProbe.facts()); }
 async function actualLoss(page: Page, control: Record<string, unknown>, expectedBytes: number) {
   invariant(control.joined === true && control.upstream_complete === true && control.safe_admitted === true && control.effect_applied === true && requestToken(control.request_token), "PROJECT_MODELS_CONTROLLED_LOSS_NOT_APPLIED");
-  const matches = (await nativeFacts(page)).filter((fact) => fact.token === control.request_token);
+  const facts = await nativeFacts(page);
+  // A failed assertion must preserve its safe observations. The stream can
+  // fail before exposing response headers, so retain every bounded mutation
+  // attempt, including a null token; never retain input/header values.
+  const attempts = facts.filter((fact) => fact.method !== "GET").map((fact) => {
+    const row = exact(fact, ["token", "method", "path", "query", "status", "eof", "ended", "cancelled", "released", "bytes", "chunks", "has_body", "mutation_headers"]);
+    invariant((row.token === null || requestToken(row.token)) && ["POST", "PUT", "DELETE"].includes(String(row.method)) && /^\/api\/v1\/projects\/[0-9a-f-]{36}\/(model-providers|models|model-credentials|model-commands\/lookup|model-credential-commands\/lookup)(?:\/[0-9a-f-]{36})?$/.test(String(row.path)) && row.query === "" && count(row.status) && Number(row.status) <= 599 && count(row.bytes) && Number(row.bytes) <= 8388608 && Array.isArray(row.chunks) && row.chunks.length <= 8388608 && row.chunks.every(count) && row.chunks.reduce((total, n) => total + n, 0) === row.bytes && ["eof", "ended", "cancelled", "released", "has_body", "mutation_headers"].every((key) => typeof row[key] === "boolean"), "PROJECT_MODELS_CONTROLLED_NATIVE_DIAGNOSTIC_REJECTED");
+    return row;
+  });
+  invariant(attempts.length <= 512 && armToken(control.arm_id), "PROJECT_MODELS_CONTROLLED_NATIVE_DIAGNOSTIC_REJECTED");
+  const diagnostic = JSON.stringify({ protocol, input_hash: inputHash, control, expected_bytes: expectedBytes, mutation_attempts: attempts });
+  invariant(Buffer.byteLength(diagnostic) <= 1048576, "PROJECT_MODELS_CONTROLLED_NATIVE_DIAGNOSTIC_REJECTED");
+  writeFileSync(join(evidence, `controlled-loss-${control.arm_id}.json`), diagnostic, { mode: 0o600, flag: "wx" });
+  const matches = facts.filter((fact) => fact.token === control.request_token);
   invariant(matches.length === 1 && matches[0]!.ended && !matches[0]!.eof && matches[0]!.status === 200 && matches[0]!.bytes === expectedBytes, "PROJECT_MODELS_CONTROLLED_NATIVE_LOSS_NOT_OBSERVED");
 }
 async function verifyBodies(page: Page) {
