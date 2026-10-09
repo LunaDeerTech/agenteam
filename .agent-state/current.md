@@ -16,7 +16,14 @@
 - 新两测试 `cleanup_authority_test.go/lifecycle_cleanup_test.go`：7top/21直接子实际race0（37618/fdb3cd，1.185s），实际Service/Authority/typed plan及D05 native checker缺witness负控；Store/Project/Object事务/physical为明确doubles。覆盖当前拒绝/原Unknown、弱锁/错mapping/foreignTx、旧candidate与worker分列、closed阶段、原Audit上下文与拒绝、checkpoint闭集、gate回滚/两类受控Unknown、不重复Release、65 joined work每32、最后Object与本域整回滚/受控final Unknown、实际held physical返回前Stop不Joined。不是PG/真实D05/native Audit正向或真实COMMIT证据。
 - 74993/6761ad首空-run race编译actual0；新增测试第一次8a417a actual1是测试stateID误传byte而正式helper需int，业务未运行，修后67212/a30d34首3top5子race0。该原编译失败保留，不归产品SQL。后继7top按上行真实结果。
 - 全 `skill/...` race与vet 95821：测试9b286a包2.070s/contract1.288s，test actual0；vet a302b4 actual0。每次原命令同process fresh≥5GiB，最后UTC23:45:55.840359Z/5,805,240,320B；无新cache/网络/PG/socket。093dae diffcheck0，原私有go-tmp无子目录，无在途命令。
-- 当前首完整库阶段可构建、作者pure通过，尚未独审。真实Skill→Project gate→D05 physical/native Audit/最后同Tx组合测试尚未写/编译/运行；28专用迁移/成本及其它D05规模缺项保持。下一优先该实际业务测试与有价值异常刺激，不扩通用harness；真实运行必须freshgrant。
+- 首完整库11路径已由root保存远端 `598bc02e`。Knowledge消费层独审有限接受、无本轮已确认mustfix，11239/194d92实际race0/1.127s、4top17sub：异常physical/Purge结果、原Unknown、早parent deadline、全空仍当前gate/实际held或cancelled reader/returned-Unknown work/partial core、1work+65attempt每32及rollbackUnknown恢复。实际Skills配明确Store/Object doubles；该审不包含审查者参与实现的D05，也不是PG/FK/最后真实双域提交。原作者7top/fullrace/vet复用。
+
+## 真实组合测试源码准备
+
+- 新 `tests/skills/lifecycle_cleanup_fixture_test.go/lifecycle_cleanup_test.go/lifecycle_cleanup_unknown_test.go` 已形成2top5直接子源码。fixture真正绑定同Store Project LifecycleAuthority、Skill Authority/Service、Object Service/MinIO及Audit；沿原初始化私有Audit再包本域Cleanup Audit路由，Runtime仍nil。Project创建/ready、accepted Delete与Cleaning阶段/其它participant stop是明确上游事实；本域Skill及Object Stop必须真实返回Stopped后才进入Cleaning，不冒完整root或BeginDelete。
+- `TestSkillLifecycleCleanupPersistence` 三子：当前phase/version拒绝不写；实际关闭serving+Release后的原Tx失败整回滚；65次实际OpenPackage原EOF/Close产生历史，物理完成/native Audit一次、原payload删除或永久空marker、Skill work每32、D05 metadata每32；最后Object四anchor＋Skill五核心同原活Tx删除后注错整回滚，再真实提交/全六表空重建replay。不SQL伪造canonical/claim/witness/reader join，hook只在原真实callback后查看或拒绝该Tx。
+- `TestSkillLifecycleCleanupCommitRecovery` 两子拟复用原未改完整COMMIT-frame proxy：gate及最后双域anchor分别只arm真实原backend，原Store返回Unknown且候选为空；独立连接看原基线、精确Project key的真实pg_locks/pg_blocking_pids证原writer锁仍持有，取消竞争者后实际Tx返回；释放原COMMIT、实际proxy writer join后重建Service恢复原cleanup ID/最终全空，原Unknown不回填。仅此两种晚提交边界，不宣称所有COMMIT失败模式均已覆盖。
+- 当前三新源仅gofmt/静核/diffcheck，尚未编译或运行；静核修正测试误写不存在的ObjectLock为正式AggregateLock(ObjectAggregate)，并在新Unknown测试优先注册Release/实际HeldJoined，使提前断言失败也先解除原代理writer再执行Object/Skill/Store Drain，未执行错误候选。磁盘采样低于5GiB时按root暂停编译，没有PG/MinIO/proxy/socket启动或在途命令。下一获得空间和明确构建边界后只构建这一新增组合候选；仍不扩通用harness。真实运行须freshgrant，00028专用迁移/成本、D05规模及完整participant/root缺项保持。
 
 实际命令均在下列固定env与本树cwd中；GOTMPDIR为本树 `output/ai/skills-cleanup/go-tmp`：
 
