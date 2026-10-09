@@ -1,5 +1,7 @@
 # 当前工作：D15 Runner 身份与 Control Channel
 
+- Knowledge native3入口有限独审接受，无must-fix：391f0cb7..bca64eb5唯一完整literal/env，3父6子RUN/PASS均恰一次，旧90/105/123+3/TCP75/root540+60与全尾不改。本人addbbc 76纯控0、0cbac4原PG回归0，独立edb28c实际main替身两格0：非法UTF8日志安全FAIL仍走Wait/desc/reap/TCP双空/input尾，旧Work入口不进新gate。持久资产knowledge-http-review/native-tail-controls.py及review；无Go/native/socket/PG，六子实际及新driver构建仍待安排。本人所有命令终态，无活动资源，默认Runner OS探针继续未运行。
+
 - 默认Runner OS探针的真实cmd已离线build完成：49073→09d6d6 actual0，首同process UTC2026-10-09T23:21:48.358993Z available5,644,451,840B，固定Go1.27.1/local/off/readonly/-p1/原cache/保Node PATH，无tags/race/hooks。`output/ai/runner-control/agenteam-runner-os-probe-01` 11,090,755B/SHA256 `7f1c32bb97b91365570ba440adffd69605cb4a29ab724ac7922b8647f3015a78`；d51328读buildinfo核linux/amd64/真实cmd/VCS4eb69445/modified=false，后free5,633,101,824B。没有执行OS探针，原blocking stdin假设和三格实际仍待fresh窗口，无自有活动资源。
 - D15有限交付剩余已收拢：本树Linux/amd64 identity/control空registry的生产实现已具备，已通过Migration/Management、NativeGeneration/Client、A+DeviceReader、Protocol修后、C完整尾；Competition/Deadlines/IdentityRecovery及B committed子保留所在原整轮FAIL中的限定通过，B pending修后另有完整PASS，绝不回填原FAIL。当前必须完成的已准备实际范围为DefaultProcesses正常双cmd单top、独立树Management Concurrent/LogoutOrder/CommitUnknown三top、此默认Runner OS三格；然后root在当前main上限定装配、连续迁移/Audit/Account与启动受影响回归，保已有正式交付。OS目前仅agent-state可行性probe，正式进程测试是否需补接依实际结果收口，不先称已验。未发现需先扩产品接口的当前stage缺口；跨UID实证、macOS≥14及未实际CPU平台矩阵仍保留，不能称全D15。未实现的public verified Dispatch/Mount/Execution/approval/Secret masking、D16真实operation、D17 Data/Tunnel和D18/19消费者属于后继明确生产绑定，空registry/UNSUPPORTED_OPERATION不冒可执行能力，不因本交付无限追加普通frame排列。
 

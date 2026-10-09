@@ -62,3 +62,13 @@ B02五API/权限撤销/读COMMIT Unknown及原生慢I/O仍需以后独占窗口�
 本人 `d2262e` 实际执行本目录 `root-input-controls.py` exit0。新 input_paths 是原集合加且仅加当前解释器、Schema脚本、knowledge-owner.json 和 common.json，均存在；旧 TARGETS 不变。直接执行原 main 的单个 env.update AST，确认继承的错误解释器值被覆盖为输入记录中的同一个 SCHEMA_PYTHON。实际 Go 使用该 env 值执行原 CommandContext/CombinedOutput、15s 子预算和本地脚本；脚本只从已记录两份本地 Schema 建 registry。四遗漏和错误解释器替换负控拒绝。没有执行 main/execve、业务 candidate、PG/socket 或 Go 编译；脚本所用既有 Python 包仍是本环境依赖，不声称额外冻结全部解释器安装。
 
 结论：此最小入口有限接受，无 must-fix。候选四 top/14子的真实业务、原生 I/O 与实际七资源完整尾尚未运行，不由 selector 或替身观察升级为通过。
+
+## Native 三 top 最小入口
+
+固定 `391f0cb7..bca64eb5` 的四技术源增量：supervisor 新 exact gate、native_driver.go 唯一 selector/env 分支、作者 native 控制及原 PG 控制的逆投影适配。只完整 `^TestKnowledgeHTTPNative(Deadlines|KeepAliveAndClose|BackpressureAndDisconnect)$` 获新原生环境开关；不是开放任意正则或单项入口。实际 native 测试源码原环境 gate 与新值一致；supervisor 只在 nonroot 同 literal 下检查三个父 top 与六个原子项，RUN 和 PASS 的集合及次数均严格闭合，缺项、SKIP、FAIL、重复、额外项或读错均失败。
+
+本人 `addbbc` 实际运行作者 `native-selector-controls.py` exit0（76 控），`0cbac4` 原 `root-selector-controls.py` 回归 exit0。两工具逆去新必要分支后全文等于基线，原 Go90s/driver105s/nonroot123+3/TCP75、root540+60 与原资源/清理/Wait/input 尾未修改。native 只消费已编译测试和 driver；原非root输入记录行为不扩大为运行时源码构建闭包。作者原7cc5ca仅控制自身逆投影漏末括号的失败保留，不当产品失败或通过。
+
+独立 `python3 -B .agent-state/knowledge-http-review/native-tail-controls.py` 的 `edb28c` actual0：执行原 supervisor main，全部 OS/process/time/TCP 边界明确替身。原实际临时日志插入非法UTF8，新 gate 返回False且终态1，仍走原 actual driver Wait、三次desc检查、原reap、TCP基线和双空、inputsame尾；legacy Work native selector不触新gate，保持原终态0。没有实际proc读取、业务子进程、native socket、PG、Go构建或 main外部副作用。
+
+结论为入口有限接受，无 must-fix；既有产品/Schema/pure结论复用。原生六子、真实driver构建和实际owner退休门仍待后继授权，不把模拟完整尾称真实通过。
