@@ -1,10 +1,10 @@
 # D04 Secret Variable Storage 当前检查点
 
 - 树：`/workspace/agenteam-secret-variable-storage`，分支 `ai/secret-variable-storage`，正式 main 基线 `8cb0a95338dc417ff34be06c00086fbbc7159efa`；root 独占 Git/迁移编号/实际资源授权。
-- 任务：落实已接受 D10 rev2 的 D04 专用 producer，保持旧 kind1/2、Model/Account/消费者边界。新 [工作项](../docs/development/work-items/d04-secret-variable-storage.md) rev1 形成 SPEC、端口、归属与 exact SQL/index needs，尚待独审收口。已新增无依赖 typed Request/Intent 纯合同及控制；Service/SQL/provider 仍未实现，未占迁移号；28 reserved Skills。
+- 任务：落实已接受 D10 rev2 的 D04 专用 producer，保持旧 kind1/2、Model/Account/消费者边界。[工作项](../docs/development/work-items/d04-secret-variable-storage.md) rev2/CheckPlan 已有限独审接受；typed合同、crypto、Prepare/Match/Lookup/Apply、native Secret Audit及维护增量已落代码，纯控制的实际范围见下。真实D10 provider/Owner、正式连续迁移与PG矩阵未完成；root已将00029预留本域，00028由Knowledge统一cleanup索引协调。
 - 已读 AGENTS、团队 README、D10 卡、实际 Secret/ProjectVariable/迁移源码及 Go、database、security、verification、test-engineering、design skills。D10 A 的正式契约不等于专用 authority/provider 或 Owner 实现。
 - 与 Knowledge 核对：现 store-only 事实 Authority 不反持 Project/Secret；独立专用 authority 在 Project 后、Secret Service 前构造。Knowledge 的新 Audit 树只做严格合同/读端兼容，不写 D04/private witness/Owner facts。
-- 端口开放点：专用 prepared capability 的 contract 载体需要与 producer 接口一起固定；不以 any/公开 unwrap/摘要 getter 或 late setter 先行接线。Intent/request 校验及纯 kind3 编码可以先推进，旧 Service/SQL 接线待 SPEC/端口独审。
+- 端口已固定：contract窄prepared＋本Service私有concrete issuer、无IO CheckPlan和两个当前stage、四producer方法。真实D10 provider必须后继正式绑定；没有late setter/默认允许/生产stub，当前pure中的authority与SQL明确controlled。
 - 缓存：复用 `/workspace/agenteam/output/ai/model-ui-recovery/go-build` 的既有独占编译 cache；只读 `/workspace/agenteam/output/ai/model-ui-recovery/go-mod`。本树不另建 GB cache。实际 compile 前与 root 确认无本线 cache 在途，Go1.27.1、离线 env、独有 GOTMPDIR；本轮仅复用该 cache 执行下面两 contract 包的小范围离线 race，已结束。
 - 独立 Model AuditAuthority 原 session62616 已实际 outer exit0（ee71a4），完整原尾齐并已释放唯一真实窗口；D04 未占 PG/browser/socket/网络。本树 SPEC/current 是新 recoverable 两路径，未执行动态产品验证。
 
@@ -51,3 +51,10 @@
 - 新私有Audit witness在native写后生成，只含同Store/Tx/原Request/Entry/Key/安全前后像/receipt与payload ID/复制锁，无Service/keyring/prepared/sealed/材料；与旧mutation/resolution互斥。checker重新查专用receipt、kind3 exact owner及实际canonical，外部expected与内部Credential version保持独立。
 - 实际Prepare/AEAD/Match/Apply/native Secret checker纯控制：91996→423e6b actual0（首4top，1.046s）；补退休后新Session历史重放与22个native witness负控后15128→4c748a actual0（6top，1.097s）。后一个命令里的ProjectAudit分支未匹配旧名字，未据此声称旧组跑过；随后按实际`^TestSecretProjectAudit`补6旧top，21736→111c8b actual0（1.036s）。Store/authority/Append transport均明确controlled，SQL未由PG解析，事务原子回滚与真实D10权限仍未验；不把内存模型写入失败当真实rollback证据。
 - 本文与七技术路径共8freeze供root保存；rotation/Cleanup接线、正式迁移/PG、真实D10 provider和Owner整组仍未完成。Model交付输入继续冻结；本线所有编译/控制均离线，无真实资源占用。
+
+## kind3 轮换归属与有界项目清理（有限纯结果）
+
+- Apply七技术/本文已root保存dccb6fed并保持freeze，交Skills在前段独审后续审。本新增四技术源为`secret/rotation.go`、`cleanup.go`、`project_variable_maintenance{,_test}.go`。kind3按原receipt ID＋exact payload＋Project反查原Credential，保删除后聚合锁；receipt缺失但payload仍在则失败，二者已退役才跳过。实际ApplyRewrap在原一次完整锁后再核反查和payload owner，映射变动不补锁、不CAS，要求离Tx重新准备。原kind1/2分支、100批次/head rescan、canary/最终全payload栅栏均未扩大或旁路。
+- Cleanup在原persisted lifecycle gate/Project EX/引用与lease检查之后追加100条专用receipt批次：先查缺失或wrong scope/project/kind/owner payload，异常失败；同Tx exact回执与kind3 payload成对删除；完成判据加新表。原Unknown仍返回Unknown错误/不发布completed，不重跑callback。D10删除后历史归属无需current canonical。
+- 新3top/20sub controlled race92922→82e3af actual0（1.028s）；其中调用真实reverse helper/ApplyPreparedRewrap/Cleanup方法并检查SQL闭集与次数，明确不能证明PG执行100/101、Rows扫描或实际commit/rollback。旧PrepareRewrap的真实PG扫描、启动canary/Retire及并发/Unknown完整数据库验证仍待正式00029与真实资源。19e978 diffcheck0。
+- 本轮所有纯生产增量到齐后，实际`go test -race -count=1 ./internal/central/secret ./internal/central/secret/contract`全两包5785→713106 actual0（1.219s/1.032s）；没有TestMain/真实资源，本线无在途命令。本文＋四维护技术共5路径freeze供root保存，原已保存片段不再列待存。真实SQL/完整集成未验，不称D04或D27正式完成。
