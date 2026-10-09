@@ -47,3 +47,10 @@
 - 新 `skill/{work_repository,work_repository_test,runtime_work}.go` 和service/initializer接线：physical前同Tx持久登记原process/父关系/唯一work；只有实际Discard与调用返回后才技术结账，cancel/Stop/Unknown不得提前Joined；Drain沿调用者原ctx，不借新预算。原注册Unknown用原command锁串行判定，未确认尾保留本地owner。跨进程恢复/真实生命周期仍待实现。
 - work片段首轮36292错误引用不存在sc.Skill、随后534f15测试unused import均setupFAIL，修后65428 race actual0/1.072s（1top/10子）。集成81715 race actual0/1.355s：5top/23子，含writer13子、work10子和实际阻塞Discard后取消/原预算/持久join控制。精确selector `^Test(InitializationWriter|SkillInitializationWork|SkillService|SkillWork)`，Go/p1/offline/cache同前；无socket/PG。
 - 本批read2、work3、service及writer2、本文/主卡共10路径freeze交root。设计技术段、D05七源保持冻结。下一继续OpenPackage、维护授权/跨进程恢复；局部controlled端口PASS不替代实际Object/PG或生产绑定。
+
+## Owner PackageReader可构建片段
+
+- 上一read/work10路径已root保存/push629cd46b。新 `skill/{read_package,read_package_test}.go` 实现OpenPackage及OwnerReader接口断言：当前Owner授权/完整immutable Revision和work登记在同一次已知commit后才真实Object ReadObject；由Object再查当前门禁，不移交缓存grant。
+- 原P1 PackageReader保持，底层本域owner同时等实际Read/Close和取消callback返回；EOF不等Close，取消/Unknown不等work已commit，D05租约Unknown仍由D05持有。未借新的清理ctx，原错误/原预算保留；错误body、metadata/range不符都实际Close。
+- 作者32726 race actual0/1.096s，2top/10子（当前gate/登记Unknown/错revision、Object、range/原body与Close错误/退休Unknown/实际阻塞Read+取消）；补取消发生在Open移交前91114 race actual0/1.053s，1top。源保持原P1内容/契约，所有Object和SQL为明确controlled端口，没有网络、PG或D05实际lease结果。
+- 新2源+主卡/本文4路径freeze交root，继续维护精确映射与跨进程恢复；不把完整OwnerReader编译断言称作生产绑定或完整Skills完成。
