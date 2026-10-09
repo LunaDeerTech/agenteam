@@ -28,6 +28,8 @@
 
 ## 后续 Work 方法与 Timeline SPEC 独审
 
+- 最新Work `5a49197a..0ad6e5b6` 普通方法整包独审有限接受无mustfix；仅offline技术，不回填06/05失败、不冒新浏览器/七资源结果。本人67453实际102控0/0unhandled（原98＋4真实Session held reader/stream时第二facade busy且不发HTTP，原尾释放后唯一typed成功）；helper4497/80、native13536/41实际0。6b8451 actual AST核originalBody/decodeOriginal/schemaProgram/四截断ledger逐字原版、5处originalBody调用不变、产品/Go sidecar无diff。独立proof为 `.agent-state/work-cut-review/ordinary-controls.cjs`，命令/边界见同目录README；首native8cd8b0 cwd缺TS setupFAIL保留后纠正。已回root及作者，新实际仍freshgrant；此3scope待checkpoint，Skills两个fixture修复及TCP诊断移植尚未动源。
+
 - Work普通完成提案已由root保存5a49197a，技术仍d3322e3e；本实例只读核真实Session/API/transport、原proxy同body及固定PW1.56.1源码，接受其闭集方法可实施性，未接受新gate或实际owner动态证据。真实正常fulfillment位于actual请求／两层cancel和own-finally后；visible timeout/abandon只拒绝。必须先做真实源held-reader／outer-cancel、earlyreject／identity负控，再接受对应技术实现。当前expiry与显式finish共用retire，缺首次退休原因及退休时pending证明；晚finish/source:end不得把到期或未完成观察升级。精确正式依据与必要拒例见[方法审查](work-cut-review/README.md#普通完成方法的限定判定)。原06及05整体FAIL不变，未改Work源、未跑新browser/PG/socket。
 - Timeline完整rev1（root已保存cf912e3e）后端SPEC有限接受，无mustfix，仅文档静核。四类严格原wire／独立TaskTimelineReader、每页当前Owner、原锁和(created_at,id)+Task.Version水位可由现writer/read端口闭合；真实writer共用无参SELECT clock_timestamp()，单一Store测试包装仅控制该成功Scan可产生同时间刺激，不手种正向历史。三精确PGtop、Rows/Tx/原goroutine实际取消join、未知族默认报错与无迁移边界保持。未编译／执行产品或PG，>200真实命令是否能在原105秒完成须实际验证，不能据静核扩大预算。
 

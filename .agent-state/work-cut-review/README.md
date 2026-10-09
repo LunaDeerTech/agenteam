@@ -52,3 +52,23 @@ node .agent-state/work-cut-review/native-controls.cjs
 可实施范围只为 recovery 预先确定、HTTP200／无query、已安装原public观察的detail GET与Structure／Task Lookup。必须联合同一原Request/Response与唯一XID/document/method/path/status、真实EOF先于任何取消／拒绝／abort、identity编码合法CL等字节、两层原cancel成功及release、原typed正常fulfillment及当前identity、实际文档end和全部观察尾、原sidecar/schema/client及全部UI/Go/SQL/resource后验。四声明cut、held-read、原originalBody三调用、list/query/mutation/Problem/未知路由保持旧方法。成功finished反证、重复／错身份／仅pageclose／缺public或end均拒绝；未返回分支不能丢给race后冒join。原06首Structure Lookup无public、末document无end，既有六fulfillment尚无该新方法实际控制，不能回填。
 
 发现并已交作者的必要观察补口：当前 native353–365与publication273/395/418的expiry及显式finish共用同一retire，只有retired／source:end不能区分先到期再取快照。新实现须保闭集首次退休原因、退休当时pending与实际期限；即使timer尚未调度但期限已到，也不能由finish记为主动完成。晚finish或晚callback不得将已到期／当时未就绪升级为可接受end；owned hooks还原失败仍必须拒绝。新门槛使用证据前还须真实Session＋实际WorkAPI/transport控制EOF后分别阻塞reader及outer cancel、visible早拒绝／身份改变／晚尾；不能以mock facade正常resolve替代。作者冻结技术后另行独审；本轮没有代码改动、PG、browser、socket或新动态PASS。
+
+## 普通完成方法技术整包限定接受
+
+Work冻结 `5a49197a..0ad6e5b6`，仅四TS/helper-native-publication-spec、三CJS控制及必要正式方法说明。未改 Work 作者树，未参与实现；有限离线接受，无mustfix，不回填 recovery06/05 FAIL，不证明新browser/PG/Go/SQL/七资源实际结果。
+
+本人重新运行作者实际源码98控（44531）与native41控（13536）、helper80控（4497）全部actual0/0unhandled。新增可恢复控制 [ordinary-controls.cjs](ordinary-controls.cjs)，以locked transform的原作者actual Session+Work API+transport fixture注入四个独立风险检查：Milestone/Structure各自reader/outer stream取消尾held时，第二次真实facade调用必须由原Session拒绝busy，fetch计数仍1；原可见Promise仍pending、原owner仍held，只有释放该原尾后原Promise正常typed fulfillment，第二次被拒的调用无native绑定、不能成为完成证据。67453最终102控actual0/0unhandled（原98＋4）；不是102组浏览器或网络用例。
+
+```sh
+# cwd /workspace/agenteam-skills；wrapper只向本树忽略output写可重建结果
+node .agent-state/work-cut-review/ordinary-controls.cjs owner
+node .agent-state/work-cut-review/ordinary-controls.cjs helper
+# cwd /workspace/agenteam-work-ui；只读源、无文件输出
+node .agent-state/work-owner-planning-ui/native-diagnostic-controls.cjs
+```
+
+首8cd8b0把native脚本从Skills cwd启动，因固定相对路径找不到TypeScript而setupFAIL，未执行控制；仅纠正cwd后13536通过，原失败保留。独立6b8451实际TypeScript AST核 `originalBody`、`decodeOriginal`、`schemaProgram`、四截断ledger逐字等于5a49197a；spec里实际5处originalBody调用同原参数字节不变（先前方法描述称“三调用”，本次以实际五处为准），产品web/src/internal/Go sidecar无diff。复用作者strictTS48083与exact list46979，不重复无输入变化的检查。
+
+接受的因果边界：recovery原Request起点选定的无query200详情GET或Structure/TaskLookup，actual failed/closed/finished先判；known failed从未调用不必达finished。正常finished仍实际await原finished为null，其它端点、声明cut、held-read及originalBody保持原路径。备选证据联合唯一Request/XID/document/public调用、EOF早于cancel、identity编码CL实际等长、两cancel成功及release、原typed正常fulfillment及同当前identity、真实Session actual.catch.finally在visible正常成功前释放的源码桥、两观察器explicit首次退休/pending-at-retirement0/未过期限/实际hooks还原、Node实际end/evaluate返回和原body SHA/schema/client。首次expiry或pending不能由晚finish升级；晚counterevent在原decode后再查，缺end或pageclose不接受。显式retired只表示停观察，仍须observer_failedfalse与这些实际尾。
+
+预算仍两个串行最多250ms观察等待，全部在原PW45/expect5/Go120/Go6m/root540+60+3/TCP75内；未增budget、未白名单忽略failed、未第二次HTTP补证、未抓原body或私有owner。生成报告是闭集安全字段，本方法不依据落盘报告反读授权。真实下一轮仍由root统一freshgrant。
