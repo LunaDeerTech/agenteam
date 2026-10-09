@@ -1,6 +1,6 @@
 # D11 Owner Work Planning HTTP 与默认生产根
 
-修订：rev2，2026-10-09，**SPEC已独立接受，分页作者及独立动态已通过；HTTP/root接线可构建，完整动态验收尚未完成**。
+修订：rev2，2026-10-09，**SPEC与限定技术已独立接受，规定动态矩阵已通过，候选装配最终确认中**。
 
 ## 1. 完整结果与真实前置
 
@@ -202,6 +202,30 @@ PG/native HTTP/真实root资源必须等root分配独占窗口。Task Planning�
 
 先覆盖完整矩阵再按资源分组，不在每轮结束后不断补造同类top。不重复B0-P内部全图/容量/14处SQL回滚等未改逻辑的全套动态验收；新增分页、HTTP、根接线及相关旧路由/退出链必须有自己的证据。必要静态检查为受影响包pure/race/vet、集成binary真实编译/精确top发现、两入口build与限定diff-check。完整结果的一次原子交付包含实现、测试、schema、卡和最小台账更新。
 
-## 9. 当前可证状态
+## 9. 验收结果与保留边界
 
-已按正式计划及实际构造/授权/根接缝确认依赖就绪，root授予上述写域。rev1独审暂不接受：遗漏九码Problem映射、混淆graceful/forced退出、详情query及framing边界不全、自然期限/EOF验收不够明确；rev2逐项修正并采用现process harness，已获独立差异审查接受，无剩余must-fix。分页四源及作者真实PG测试已闭合，限定pure/race/vet与integration race编译、精确一个top发现通过；独立分页产品静审无must-fix，三个独立动态场景的probe也已race编译并精确发现。作者与独立首编译因作者测试直接比较含func的LockKey失败，原失败保留；修复仅改为正式CompareLockKeys。九码Problem/schema已通过限定pure/race/vet及原错误/schema回归，独立差异静审接受。根生命周期库片段限定pure/race通过，后续HTTP/root接线状态见下文；作者分页首轮整体FAIL（4子项中3PASS）：取消子项在Reader持Schedule SH时等待writer后阶段User EX，实际writer先等待discovery Schedule EX，因而5s内未到观测点；仅修测试锁观测及提前返回诊断，预算和产品不变。该轮Go实际退出1/9.52s、driver实际退出1/17.15s，外层实际退出1/92.472s且输入不变；两自有ID双退役/runtime双空齐，但hostTCP原尾仍1行delta，原尾FAIL保留。随后仅现场核到该轮端口/PID无存活，不将后验clear补原PASS。观测最小修复已独立差异接受；作者第二轮四子项完整PASS（Go4.54s、driver14.006s、外层73.761s，均实际退出0），两自有ID/runtime/hostTCP双清及输入不变齐。此结果不改首轮两个FAIL。未参与Work实现的Model负责人本人执行冻结的独立分页三场景，完整PASS（Go4.55s、外层72.463s），实际Go/driver/外层Wait、两精确资源双退役、runtime/hostTCP双空及输入不变齐；分页子能力据作者复验及独立运行限定接受。HTTP五产品源与默认根接线已可构建，19个HTTP pure top的race、正式编码schema与vet通过，根接线限定pure/race/vet通过；native三top已编译/发现；Deadlines作者首轮已完整PASS（Go34.20s、外层95.848s），自然read/Lookup各2.00s、mutation30.04s与更早parent0.15s均通过，子测试/driver/外层actualWait0及runtime/private/desc/TCP双尾/输入不变齐。该轮使用受控domain/auth，只证明真实socket期限与调用所有权；KeepaliveAndEOF随后亦完整PASS（Go2.19s、外层62.599s），同连接旧deadline经过后的GET/Lookup POST/PATCH请求、framing、Content-Length及真实底层EOF通过；HEAD仅有既有pure/schema证据，实际Wait/runtime/private/desc/TCP双尾与输入不变齐；WriteCloseAndConfirmationTail最后完整PASS（8子Go2.19s、外层63.582s），实际Wait/runtime/private/desc/TCP双尾与输入不变齐。三组native限定运输验收闭合；flush/clear仅证明server abort及EOF，不能声称撤回此前可能发出的完整200，受控confirmation-tail不替代真实COMMIT确认。HTTP额外两个输入缺口（组合query键、空Content-Encoding）先有真实负控失败，最小修后通过，原失败保留。公开schema已独立有限接受；真实cmd根21能力基线和根三命令持有真实PG Tx的graceful/force测试均已race编译及精确发现；前者TestMain离线真实构建两入口。真实HTTP作者三top及独立网络cut/撤销竞争probe均已race编译并精确发现，限定静审接受；作者Blocker当前态观察误用默认unresolved过滤，经独审指出后只改测试显式resolved，无产品变更或动态运行结论。新增三纯Reader经真实HTTP持有Tx的根graceful/force测试已race编译/发现及限定静审接受，仅客户端调用返回不冒完整EOF。作者HTTP AuthorityAndPersistence首轮11子完整PASS（Go19.94s、外层90.790s），实际Go/driver/外层Wait与两精确PG资源/runtime/hostTCP双尾及输入不变齐；证明真实登录/Session撤销、两阶段当前权限和Project状态门禁。Owner转移与已归档状态是明确test-only持久输入，不证明相应生产流程。IntentRecovery随后6子完整PASS（Go10.80s、外层80.263s），三域原意图、新Session历史回执、改义冲突与真实在途锁等待无假absence通过，实际Wait与两PG资源/runtime/TCP双尾齐；作者首次丢响应是受控Write失败，真实网络cut由独立probe另验。Unknown首轮7子完整PASS（Go62.05s、外层130.521s），三域最终COMMIT分别forwarded/unforwarded与Structure planning COMMIT未转发均沿真实Unknown/确认锁验证通过；实际Go/driver/外层Wait、两精确PG资源双退役、runtime/hostTCP双空及输入不变齐，原预算未改。未参与实现者本人执行独立HTTP完整PASS（Go8.62s、外层76.641s），真实proxy读完三域上游完整响应后切断客户端连接，原意图经同User新Session查回历史receipt且无第二写入；另经实际HTTP认证后、Reader取得锁前正式Logout，真实事务重核拒绝。实际Go/driver/外层Wait、两精确资源/runtime/hostTCP双尾与输入不变齐，不外推尚未运行的默认根。默认根真实进程21能力首轮完整PASS（Go2.25s、外层103.506s），实际cmd根使用正式登录cookie与既有Project服务准备，Work持久闭环及Session、原Project Model Provider读取代表共存，进程退出/后端连接归零通过；test-only Skills前置不证明D10或Project创建生产能力。原Object→outbound→PG脚本链实际Go/driver/外层Wait0、七精确资源双absent、runtime/private/desc双清、hostTCP双空与输入不变齐；新可选根监督模式本轮实际使用通过。命令/Reader首组合整轮FAIL（Reader 9.55s、Command 7.67s、外层109.616s）：Command graceful/force两子与Reader graceful通过，Reader force将DB接收ctx尚未过期断言为续期而失败。原根在转Force时建立唯一共享1s ctx，并由resources记录后原样传递DB；无未完成命令时允许DB在该ctx过期前开始，不应仅靠Err判定期限被重设。最小测试修正只捕获真实DB ForceClose收到的ctx，并与根记录的原Force ctx比较对象身份及非空Deadline；未参与实现者实际六项ctx正反控制通过，独立有限接受，修后race编译及原两top精确发现通过。随后原两top四子真实完整PASS（Reader9.84s、Command7.91s、外层111.671s），Go/driver/外层actualWait0、七精确资源双退役、runtime/private/desc双清、hostTCP双空及输入不变齐；补证Reader DB可在原Force ctx未到期时调用，而持有Command会耗尽同一期限，两者均不得伪造join。不改产品或预算，不把整轮改PASS。原Go/driver/外层实际退出1，七精确资源双退役、runtime/private/desc双清、hostTCP双空及输入不变齐。独立confirmation仍待；独立根confirmation一域两子probe在运行前修正SIGTERM与独立Force阶段的期限混淆，并捕获bundle/DB入口的ctx、时刻与Err，不能以后置取消状态冒充调用当时事实；最终probe已race编译/精确发现，首轮本人运行两子均在末端“一个completed命令/一个Milestone/一个Work事件”的泛SQL断言FAIL（Go7.99s、外层131.247s）；前置实际Unknown、转发COMMIT/ReadyForQuery及生命周期断言已走过，但不称任何整子PASS。原Go/chain/外层actualWait1、七精确资源双退役、runtime/private/desc双清、hostTCP双空及输入不变齐。只读核到同一SQL参数先用于receipt JSON text后用于UUID列，属于明确测试类型缺陷；原失败未采SQLSTATE/count，不能回填具体运行码或称持久事实缺失。仅将同一参数明确为UUID并在JSON文本比较侧转text，分开安全SQLSTATE与整数计数诊断；未参与这次修复的实施者核正式存储/receipt/event形态并以有限纯控验证安全投影，差异审查接受。修后probe已race编译/精确发现，真实复验仍待；三个计数均须为1及原期限/实际退出门槛不变。全局进度与实际资源窗口由任务台账/分支记录维护，本卡不复制逐轮聊天、日志或全树哈希。
+本卡限定实现与规定动态矩阵已完成。rev1独审指出的九码映射、退出语义、输入/framing及自然期限/EOF缺口已在rev2修正并获独立接受；Account首版不包含用户禁用/删除的事实纠正见§4。最终装配确认仅核必要文件与已验输入，不扩大本卡产品范围。
+
+| 已通过范围 | 实际证据及限制 |
+| --- | --- |
+| 分页、Problem、HTTP与根接线 | 受影响pure/race/vet、19个HTTP纯top、真实编码schema与独立公开接口审查通过；三域原Lookup形态、九码安全映射及原unknown-code回退保持。集成二进制编译与精确发现通过。 |
+| 真实分页 | 修后作者四子完整PASS，另由未参与Work实现的Model负责人本人执行独立三场景完整PASS；覆盖当前权限、版本/cursor、读取快照及真实锁取消。外层分别73.761s、72.463s。 |
+| native传输 | Deadlines、KeepaliveAndEOF、WriteCloseAndConfirmationTail三组完整PASS；自然读/Lookup各2s、写30s及更早parent、同连接旧deadline经过后复用、实际底层EOF与故障/持有尾均有真实socket证据。实际方法为GET/Lookup POST/PATCH；HEAD仅pure/schema。 |
+| 作者真实HTTP | AuthorityAndPersistence 11子、IntentRecovery 6子、Unknown 7子均完整PASS。包括正式登录、当前权限/Project门禁、历史receipt与改义冲突、真实在途锁及三域最终COMMIT forwarded/unforwarded、Structure planning COMMIT未转发。 |
+| 独立真实HTTP | 未参与产品实现者本人执行完整PASS（Go8.62s、外层76.641s）：真实proxy读完三域上游完整响应后切断客户端连接，原意图经同User新Session找回历史receipt且无第二写入；正式Logout在HTTP认证后、Reader取锁前发生，真实事务重核拒绝。 |
+| 默认根真实进程 | 正式cmd根21能力、Session与原Project Model Provider读取代表共存、持久闭环及实际进程/后端连接退出完整PASS（Go2.25s、外层103.506s）。 |
+| 根命令与Reader持有 | 修后原两top四子完整PASS（Reader9.84s、Command7.91s、外层111.671s）：真实Tx及HTTP调用仍被持有时不得伪造join；graceful实际返回后退出，Force沿根原ctx/Deadline，耗尽时仍发起DB.ForceClose。 |
+| 独立真实提交确认 | 未参与产品实现者本人用最终probe04执行graceful/Force两子完整PASS（Go7.80s、外层101.522s）。实际COMMIT帧与旧writer锁产生原Unknown，确认沿真实独立期限；持有确认时验证Stop/Drain/Force及Activity/DB退出顺序，最后实际转发COMMIT/ReadyForQuery并取得且仅取得一个completed命令、一个version1 Milestone及一个对应Work事件。 |
+
+以上接受的动态轮均有实际Go/driver或原资源链/外层Wait及输入不变。PG-only轮的两个精确资源、真实根原Object→outbound→PG链的七个精确资源均双退役；native不伪造PG资源。各轮实际runtime/private/descendants与hostTCP尾按所属监督器收齐。根可选监督模式已在真实进程、生命周期与独立确认三类轮次实际使用，原资源链仍是唯一清理者。
+
+原失败保留，不能把修后结果回填成旧轮通过：
+
+- 分页初次编译把含func的LockKey直接比较，改用正式CompareLockKeys后通过。首真实分页整轮FAIL，三个子项通过、取消子项观测了后阶段User EX而实际首先阻塞Schedule EX；只修测试观测并独审，原预算不变。该轮自有资源退役齐但hostTCP原尾有一行delta，原尾FAIL保留；后验端口/PID清理不补原PASS。随后作者复验与独立动态按上表接受。
+- HTTP组合query键与空Content-Encoding先有负控失败，最小产品修复后通过；作者Blocker当前态测试误用默认unresolved过滤，经独审后仅改显式resolved，不能称此前有动态通过。
+- 根命令/Reader首组合整轮FAIL（外层109.616s），Command两子与Reader graceful通过，Reader force把ctx尚未过期误判为续期。正式根在graceful之后创建一次独立1s Force ctx，无被持有命令时DB可在该ctx未过期时开始。最小测试修正改核DB实际ctx与根记录的同对象、同非空Deadline，独立六项正反控制接受；产品/预算未改，原组合复验结果单列在上表。
+- 独立确认probe在运行前修正了把SIGTERM起算与Force阶段期限混淆的判据，并在bundle/DB入口捕获ctx、时刻与Err，不以后置取消状态冒充当时事实。probe03首次真实两子均在末端持久事实泛SQL断言FAIL（外层131.247s），实际退出和七资源全尾齐，但原SQLSTATE/count未采，不能回填具体运行码或称持久事实缺失。静核确认同一参数先用于JSON text后用于UUID列的测试类型缺陷；probe04只统一UUID参数并在JSON侧转text，拆开安全SQLSTATE和整数计数诊断。未参与该修复的实施者核正式存储/receipt/event形态及安全投影纯控制后有限接受，三个计数仍各须1，修后本人真实结果见上表。
+
+Owner转移、最终archived状态与测试用Skills receipt只是明确的持久fixture输入，不证明对应生产流程或D10服务。作者IntentRecovery首次丢响应使用受控Write失败，真正网络cut由独立HTTP证明。native的受控domain/auth与confirmation-tail不替代真实授权、COMMIT或默认根；flush/clear错误证明server abort及EOF，不能声称撤回此前可能发送的完整200。Reader客户端调用返回也不单独充当完整EOF证据。
+
+交付候选只含本卡38个必要文件与main基线上一条Work HTTP台账更新，不携带Model WIP或全局current。两个正式入口build、Work/app/process集成race编译及必要精确发现通过；62个本地包、775个实际Go/embed/module输入与活动已验闭包一致，外部依赖身份相同。受影响Reader测试同步后仅补候选app编译，独立probe自身编译与候选字节一致性另核，未重复无变化的产品矩阵。最终文件装配与文档差异由独立角色确认后交root原子提交。

@@ -1,0 +1,165 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-authority-38e09af6a253486fb202069a624b2f4a",
+  "case": "authority",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority",
+  "actual_tool_session": 63620,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 25.95,
+  "terminal": {
+    "case": "authority",
+    "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+    "exit": 1,
+    "elapsed_seconds": 116.48399435100146,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 382285,
+        "status": 0
+      },
+      {
+        "pid": 382288,
+        "status": 0
+      },
+      {
+        "pid": 382290,
+        "status": 0
+      },
+      {
+        "pid": 382291,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-flow-open-141-rejected-first-rejected-authority-open-to-have-attribute-043"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "db3cb1620be024d750dc710217fd75c59f17c1b03e464db88fe60004bde4bf8f",
+    "mode": "authority",
+    "status": "failed",
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "call": null,
+        "locations": [
+          {
+            "source": "authority-and-identity.ts",
+            "line": 556,
+            "column": 81
+          },
+          {
+            "source": "authority-and-identity.ts",
+            "line": 89,
+            "column": 22
+          },
+          {
+            "source": "authority-and-identity.ts",
+            "line": 556,
+            "column": 13
+          }
+        ]
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      }
+    ]
+  },
+  "navigation_dom": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "db3cb1620be024d750dc710217fd75c59f17c1b03e464db88fe60004bde4bf8f",
+    "observation": {
+      "url_is_target": true,
+      "nav_count": 1,
+      "settings_count": 1,
+      "settings_target": false,
+      "settings_other_known": true,
+      "settings_current": true,
+      "nav_visible": true,
+      "nav_inert": true,
+      "model_leave_confirmation": false,
+      "owner_leave_confirmation": true,
+      "session_checking": false,
+      "session_unconfirmed": false,
+      "owner_checking": false,
+      "owner_loading": false,
+      "owner_read_error": false,
+      "owner_unavailable": false,
+      "owner_reread": {
+        "count": 0,
+        "visible": false,
+        "enabled": false,
+        "inert": false,
+        "aria_hidden": false
+      },
+      "model_leaf_visible": true,
+      "model_reread": {
+        "count": 0,
+        "visible": false,
+        "enabled": false,
+        "inert": false,
+        "aria_hidden": false
+      },
+      "logout": {
+        "count": 1,
+        "visible": true,
+        "enabled": true,
+        "inert": true,
+        "aria_hidden": false
+      }
+    }
+  },
+  "session_events": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "db3cb1620be024d750dc710217fd75c59f17c1b03e464db88fe60004bde4bf8f",
+    "observation": {
+      "headers_seen": true,
+      "finished_event": true,
+      "failed_event": false
+    }
+  },
+  "safe_model_response_count": 17,
+  "retirement_observations": [
+    {
+      "observation": 1,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    },
+    {
+      "observation": 2,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    }
+  ],
+  "resource_observer_actual_join": true,
+  "post_terminal_owned_private_root_absent": true,
+  "observed_boundary": {
+    "transition": "config_recovery archive replay to credential_recovery",
+    "pending_assertion": "authority-open-to-have-attribute-043",
+    "target_owner_published": false,
+    "exact_owner_confirmation_visible": true,
+    "model_confirmation_visible": false,
+    "session_or_resolve_finished_failure_reproduced_this_run": false,
+    "owner_internal_editor_state_sampled": false,
+    "prior_navigation_failure_dom_reconstructed": false,
+    "prior_intermittent_finished_cause_proven": false
+  },
+  "followup": "Handle the exact Owner confirmation only for this explicit archive-reread transition, preserving default navigation, product contract, budget and all destination/fresh-response gates. Independently review the actual-source controls before rerunning."
+}

@@ -29,7 +29,9 @@
 - 当前作者完整binary：`output/ai/task-blocker-service/implementation/work-blocker-complete-race.test`；driver：`output/ai/task-blocker-service/author/pg-only-driver`；使用已有 `.agent-state/task-planning-recovery/pg_only_supervisor.py`，精确一个selector、原105s及完整资源尾，output为`output/ai/task-blocker-service/pg`。日志/二进制可重建；必要源码在正式tests和`.agent-state/task-blocker-service/`。
 - 正式交付从 `/workspace/agenteam-blocker-delivery` 组装32个B0-P必要文件及候选台账的限定更新，未复制活动树的Model成果或全局文档。735个Go/test/embed输入及9个补充输入与已验来源逐字节一致，离线integration race编译、9个精确top发现与两入口build均实际通过；最终卡、台账与独立装配审查已完成。不提供Agent/执行/跨状态Blocker、HTTP、生产root或完整D11。
 
-- 后续 Work Owner HTTP/root rev2规格已在 `docs/development/work-items/d11-work-owner-http.md` 独立接受；分页首四源、九码Problem接缝与根生命周期库片段均可构建，限定pure/race通过，Problem另有vet与独立静审接受。HTTP/root接线已可构建：19个HTTP纯top/race/正式schema/vet及根接线限定pure/race/vet通过，native三top和真实root源码已race编译；native Deadlines作者首轮完整PASS（自然2s读/Lookup、30s写与早parent），完整Wait/runtime/TCP尾齐，KeepaliveAndEOF也已完整PASS/全尾齐，最后native八子亦完整PASS/全尾齐，三组限定运输验收闭合（真实GET/Lookup/PATCH，HEAD仅pure/schema），HTTP Authority11子已完整PASS/全尾齐，IntentRecovery6子亦完整PASS/全尾齐（作者受控Write失败，非native断连）；Unknown7子亦完整PASS/全尾齐；未参与实现者本人独立HTTP也完整PASS，三域真实网络断连恢复及认证后撤销竞争通过，默认root真实进程21能力亦完整PASS/7资源全退役，命令与Reader首组合整轮FAIL：Command两子与Reader graceful通过，Reader force把ctx未过期判为续期失败，最小测试修正改核原共享ctx身份/期限，已独审接受并race编译，修后原Command/Reader四子完整PASS并退役，原FAIL保留；完整退出和7资源尾齐，独立confirmation首轮两子在末端SQL泛断言整体FAIL，实际退出/7资源尾齐；同一参数混用于text/UUID是测试缺陷，原SQLSTATE/count未采，不称持久事实缺失，正在最小修测试；无新迁移。新PG页测试首编译因不可比较LockKey失败，原失败保留；最小修复后作者与独立probe均race编译及精确发现通过。作者分页首PG整体FAIL/3子PASS，取消子测等待错误后阶段User EX，实际writer先受Schedule EX阻塞，正在仅修测试观测；Go/driver/外层实际退出与自有资源退役齐，原hostTCP尾1行delta失败保留，后验自有端口/PIDclear不补PASS。独立接受最小观测修复后，作者第二轮四子项完整PASS/73.761s且Go/driver/外层actual0、两自有ID/runtime/hostTCP双清/inputsame齐；独立页由未参与Work实现的Model负责人本人执行冻结probe三场景，完整PASS/72.463s，actualWait与两自有资源/runtime/TCP双尾齐，分页限定接受，原首FAIL不改。仅限定已有有效 Project Owner 的正式HTTP规划能力，规格由 `/root/service_delivery` 唯一维护。
+- Work Owner HTTP/root规定动态矩阵已全部通过：已有initialized Project当前Human Owner的21能力、三域原意图恢复、真实分页/权限/Unknown、native、默认根与实际退出均闭合；未参与实现者本人完成独立分页、网络断连/撤销及最终真实提交确认。最后probe04两子完整PASS/101.522s，实际Wait与七资源/runtime/private/TCP双尾齐；不包含UI、Project创建/真实Skills、Task状态推进或完整D11，无新迁移。
+- 原首分页整FAIL与hostTCP尾FAIL、Reader force旧期限判据整FAIL、独立确认probe03泛SQL断言整FAIL全部保留。修复范围、缺失原SQLSTATE/count及证据限制见 `docs/development/work-items/d11-work-owner-http.md` §9，不回填旧轮。
+- 正式候选 `/workspace/agenteam-work-http-delivery` 含38必要文件+main基线Work HTTP台账一行共39；62本地包/775输入与已验来源闭包一致，两入口build及3包race编译通过，测试修正按影响补编译/同步。最终卡/README/台账已同步，独立装配最终确认中；root尚未正式Git交付，当前不启动下一UI实施。
 
 ## D27实际状态与下一步
 
@@ -48,7 +50,7 @@
 - 正式组件整合树 `/workspace/agenteam-shared-layer-delivery` 当前 `ai/shared-layer-delivery`，包含已推送main的两组件提交；不混入未验Model或B0-P产品。
 - 固定Chromium、锁定Playwright、PG/MinIO及helpers已恢复；可重建产物在output。既有dev infra不属于任务，不连接、不清理。
 - PG/browser/hostTCP只运行一个明确资源窗口。实际Go/driver/外层终态及资源尾结束前，不进行Git网络、下载或另一browser/socket测试；离线纯测试与无输入冲突写入可继续。每轮完整终态才交接，原失败不补写PASS。
-- 本次汇总时B0-P全部真实PG轮、Model已通过的九个旧case及authority第10轮均已完整释放窗口；Model独立A第二轮完整PASS，首轮FAIL保留。Model Audit第二轮与独立B、后端分页作者首轮现无活自有资源；B外层Wait缺口和分页原hostTCP尾FAIL保留。configuration新资产与作者分页第二轮已完整PASS/全尾释放；Model B2已完整FAIL并释放，后端独立分页借由Model负责人本人完整PASS/全尾释放；credential与recovery新资产也已完整PASS并释放。后端native入口独立有限静审接受，Deadlines、KeepaliveAndEOF与WriteCloseAndConfirmationTail三轮均已完整PASS并释放（受控domain/auth的真实I/O期限/连接/EOF/abort，非真实授权/COMMIT证据；HEAD仅pure/schema）；HTTP Authority首轮11子已完整PASS并完成两精确PG资源/runtime/TCP全尾释放；IntentRecovery6子和Unknown7子也均完整PASS并释放全尾；独立HTTP随后由未参与实现者本人完整PASS并释放全尾；默认root真实进程21能力随后完整PASS并释放原7资源与全尾；后端生命周期首组合整轮FAIL并完整退出/7资源退役，Command两子与Reader graceful通过，Reader force期限观测最小修正已独审接受/编译，修后四子完整PASS并退役，原FAIL保留；独立confirmation首轮末端SQL泛断言整体FAIL/资源已清，缺原SQLSTATE/count，最小测试修正待复验。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
+- 本次汇总时Work Owner HTTP规定动态轮与Model最新authority10、B6及九个已过旧case均已完整退出并释放各自资源；后续实际窗口仍由root明确分配。Work原分页hostTCP尾FAIL、独立确认probe03整FAIL及Model B1原工具Wait缺口分别保留，不用后验清理补原PASS。Go/driver/资源链/外层实际Wait、精确资源双退役及runtime/TCP尾仍是每轮交接条件。
 
 ## 保留停止项与最终验收
 

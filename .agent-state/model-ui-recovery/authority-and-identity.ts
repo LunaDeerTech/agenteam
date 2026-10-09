@@ -535,7 +535,12 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
     if (!(await wait('authority-leaf-ready-fresh-read-031', () => freshRead())) && await wait('authority-leaf-ready-is-visible-032', () => reread.isVisible())) { await wait('authority-leaf-ready-to-be-enabled-033', () => expect(reread).toBeEnabled()); await wait('authority-leaf-ready-click-034', () => reread.click()); await wait('authority-leaf-ready-to-be-hidden-035', () => expect(reread).toBeHidden()); }
     await wait('authority-leaf-ready-to-be-enabled-036', () => expect(button(leaf, '刷新 Providers')).toBeEnabled());
   }
-  async function open(project: Project, discard = false) {
+  async function open(project: Project, discard = false, archivedOwner: 'config_recovery' | null = null) {
+    if (archivedOwner !== null) {
+      need(archivedOwner === 'config_recovery' && project === projects.credential_recovery && !discard && checks.archived_config_original_replay === true, 'PROJECT_MODELS_AUTHORITY_ARCHIVED_OWNER_TRANSITION');
+      const source = projects.config_recovery;
+      await wait('authority-open-archived-owner-source', () => expect(page.getByRole('navigation', { name: '项目导航', exact: true }).getByRole('link', { name: '项目设置', exact: true })).toHaveAttribute('href', '/' + source.username + '/' + source.normalized_name + '/settings/general'));
+    }
     const before = await wait('authority-open-native-facts-037', () => harness.nativeFacts(page));
     const diagnostic = await wait('authority-open-begin-session-diagnostic-038', () => beginSessionDiagnostic(page, 'authority'));
     let diagnosticFailed = false;
@@ -548,6 +553,14 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
     page.on('response', sessionResponse);
     try { return await wait('authority-open-observe-039', () => observe('listProjectModelProviders', project.id, 'GET', 'model-providers', 200, async () => {
       await wait('authority-open-navigate-040', () => harness.navigate(page, route(project)));
+      if (archivedOwner !== null) {
+        const confirmation = page.getByRole('dialog', { name: '放弃项目修改？', exact: true });
+        await wait('authority-open-archived-owner-visible', () => expect(confirmation).toBeVisible());
+        const published = await wait('authority-open-archived-owner-target-unpublished', () => page.getByRole('navigation', { name: '项目导航', exact: true }).getByRole('link', { name: '项目设置', exact: true }).evaluateAll((links, href) => links.some((link) => link.getAttribute('href') === href), '/' + project.username + '/' + project.normalized_name + '/settings/general'));
+        need(!published, 'PROJECT_MODELS_AUTHORITY_OWNER_LEAVE_ALREADY_PUBLISHED');
+        await wait('authority-open-archived-owner-confirm', () => button(confirmation, '放弃并离开').click());
+        await wait('authority-open-archived-owner-hidden', () => expect(confirmation).toBeHidden());
+      }
       if (discard) await wait('authority-open-click-041', () => button(page.getByRole('dialog', { name: '离开项目模型设置？', exact: true }), '放弃并离开').click());
       await wait('authority-open-to-be-042', () => expect.poll(() => new URL(page.url()).pathname).toBe(route(project)));
       // pushState changes the URL before the router and Owner read publish the
@@ -738,7 +751,7 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   checks.archived_config_original_replay = true;
 
   harness.step('authority-archived-credential');
-  await wait('authority-flow-open-141', () => open(projects.credential_recovery));
+  await wait('authority-flow-open-141', () => open(projects.credential_recovery, false, 'config_recovery'));
   const credentialBefore = await wait('authority-flow-snapshot-142', () => harness.snapshot('credential_recovery'));
   await wait('authority-flow-click-143', () => button(page, '创建凭据').click());
   let credential = credentialDialog(); await wait('authority-flow-fill-credential-144', () => harness.fillCredential(credential));

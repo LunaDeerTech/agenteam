@@ -420,8 +420,10 @@ T0b补齐Transfer/Lookup与新命令摘要、Human typed history、16KiB严格�
 
 ## D11 Work Owner HTTP 与默认根接入
 
-[Work Owner HTTP/root 工作项](../work-items/d11-work-owner-http.md)正在实施验收，公开请求和响应见 [Work Planning OpenAPI](../../../api/openapi/work-planning.json)。已可构建的默认根接线将当前真实 Session/CSRF 与同 Store 的三套 Work 服务、三套 Reader、Account Activity 及精确 Outbox producer 组合起来。面向已有 initialized Project 的当前 Owner，接口覆盖 Milestone/Sprint 创建、更新、排序与读取，未指派 backlog Task 的规划，以及两类 Blocker 的添加、查询和解除；管理员没有跨 Owner 旁路。
+[Work Owner HTTP/root 工作项](../work-items/d11-work-owner-http.md)的限定实现与验收矩阵已完成，公开请求和响应见 [Work Planning OpenAPI](../../../api/openapi/work-planning.json)。默认根将当前真实 Session/CSRF 与同 Store 的三套 Work 服务、三套 Reader、Account Activity 及精确 Outbox producer 组合起来。面向已有 initialized Project 的当前 Owner，接口覆盖 Milestone/Sprint 创建、更新、排序与读取，未指派 backlog Task 的规划，以及两类 Blocker 的添加、查询和解除；管理员没有跨 Owner 旁路。
 
 命令调用者须在首次发送前保存 ID、原 `Idempotency-Key`、正文及适用的 `expected_version`；断连后以该原意图调用对应 Lookup，不从当前对象重建历史请求，也不自动重发。列表使用有界摘要分页，Blocker 默认仅返回 unresolved；整份请求上限 1 MiB，列表响应上限 5 MiB。读取和 Lookup 的总预算为 2 秒，变更为 30 秒，均包含认证和实际 I/O，继承更早的调用方期限。退出时三套命令服务先停止接收，再等实际调用返回；HTTP Reader、Account、Outbox 与数据库/对象 guard 继续沿根的真实退出链处理。
 
-目前分页的作者和独立真实验收、HTTP/schema/根接线的限定纯检查，以及自然期限、连接/EOF 与故障/持有三组 native 验收已通过（实际 GET/Lookup/PATCH，HEAD仅pure/schema）；真实HTTP权限组亦已完整通过；事务恢复、独立HTTP及默认根动态验收仍待完成，不标为已交付。Project 创建 HTTP、生产 Skills 初始化及完整生命周期仍是独立前置；测试专用 Skills receipt 不证明新账号到 Project 创建的生产链已就绪。本范围不提供 UI、Agent 服务、状态转换、生产部署或整个平台 ready，也不解除既有停止项。
+分页、HTTP权限/恢复/Unknown、自然期限与连接故障、默认根21能力及命令/Reader退出验收均已通过；未参与实现者亲自完成真实网络丢响应恢复、撤销竞争及真实提交确认退出场景。原生传输覆盖GET/Lookup/PATCH，HEAD由pure/schema验证。原失败与修复后的限定证据组合见工作项，不表示一次当前HEAD全量测试。
+
+Project创建HTTP、生产Skills初始化及完整生命周期仍是独立前置；测试专用Skills receipt不证明新账号到Project创建的生产链已就绪。本范围不提供UI、Agent服务、状态转换、生产部署或整个平台ready，也不解除既有停止项。
