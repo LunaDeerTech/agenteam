@@ -35,14 +35,15 @@ type workRootHeldCall struct {
 // Ignoring cancellation until release lets the root prove actual call ownership.
 type workRootHeldStore struct {
 	*postgres.Store
-	entered     chan workRootHeldCall
-	release     chan struct{}
-	releaseOnce sync.Once
-	force       chan bool
-	forceOnce   sync.Once
-	holdReaders bool
-	dbStopped   chan struct{}
-	stopOnce    sync.Once
+	entered      chan workRootHeldCall
+	release      chan struct{}
+	releaseOnce  sync.Once
+	force        chan bool
+	forceContext chan context.Context
+	forceOnce    sync.Once
+	holdReaders  bool
+	dbStopped    chan struct{}
+	stopOnce     sync.Once
 }
 
 func (s *workRootHeldStore) unhold() { s.releaseOnce.Do(func() { close(s.release) }) }
@@ -80,7 +81,12 @@ func (s *workRootHeldStore) StopAdmission() {
 	s.Store.StopAdmission()
 }
 func (s *workRootHeldStore) ForceClose(ctx context.Context) error {
-	s.forceOnce.Do(func() { s.force <- ctx.Err() != nil })
+	s.forceOnce.Do(func() {
+		if s.forceContext != nil {
+			s.forceContext <- ctx
+		}
+		s.force <- ctx.Err() != nil
+	})
 	return s.Store.ForceClose(ctx)
 }
 
@@ -95,7 +101,7 @@ func TestWorkOwnerRootActualReaderJoin(t *testing.T) {
 			if forced {
 				budget = "1s"
 			}
-			held := &workRootHeldStore{entered: make(chan workRootHeldCall, 3), release: make(chan struct{}), force: make(chan bool, 1), holdReaders: true, dbStopped: make(chan struct{})}
+			held := &workRootHeldStore{entered: make(chan workRootHeldCall, 3), release: make(chan struct{}), force: make(chan bool, 1), forceContext: make(chan context.Context, 1), holdReaders: true, dbStopped: make(chan struct{})}
 			root := newModelRootApp(t, budget, func(root *modelRootApp, deps *dependencies) {
 				deps.open = func(ctx context.Context, cfg postgres.Config) (database, error) {
 					raw, err := postgres.Open(ctx, cfg)
@@ -177,9 +183,19 @@ func TestWorkOwnerRootActualReaderJoin(t *testing.T) {
 					t.Fatal("forced root claimed graceful reader join")
 				}
 				select {
-				case expired := <-held.force:
-					if !expired {
-						t.Fatal("forced reader DB received a new deadline")
+				case actual := <-held.forceContext:
+					// With no held command Drain, DB may start before the shared
+					// force deadline expires. Its identity and deadline must survive.
+					root.owned.mu.Lock()
+					original := root.owned.forced
+					root.owned.mu.Unlock()
+					if actual == nil || actual != original {
+						t.Fatal("forced reader DB did not receive the original shared context")
+					}
+					deadline, bounded := actual.Deadline()
+					expected, originalBounded := original.Deadline()
+					if !bounded || !originalBounded || !deadline.Equal(expected) {
+						t.Fatal("forced reader DB did not retain the original shared deadline")
 					}
 				default:
 					t.Fatal("held reader prevented required DB ForceClose")

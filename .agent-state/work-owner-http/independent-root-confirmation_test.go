@@ -40,15 +40,28 @@ type independentConfirmationWait struct {
 	deadline time.Time
 }
 type independentConfirmationMarker struct{}
+type independentConfirmationForce struct {
+	ctx     context.Context
+	entered time.Time
+	err     error
+}
 type independentConfirmationBundle struct {
 	*workPlanningAssembly
-	draining chan struct{}
-	once     sync.Once
+	draining  chan struct{}
+	once      sync.Once
+	forced    chan independentConfirmationForce
+	forceOnce sync.Once
 }
 
 func (b *independentConfirmationBundle) Drain(ctx context.Context) error {
 	b.once.Do(func() { close(b.draining) })
 	return b.workPlanningAssembly.Drain(ctx)
+}
+func (b *independentConfirmationBundle) Force(ctx context.Context) error {
+	b.forceOnce.Do(func() {
+		b.forced <- independentConfirmationForce{ctx: ctx, entered: time.Now(), err: ctx.Err()}
+	})
+	return b.workPlanningAssembly.Force(ctx)
 }
 
 type independentConfirmationStore struct {
@@ -63,7 +76,7 @@ type independentConfirmationStore struct {
 	sqlReturned                                    chan error
 	release, returned, dbStopped                   chan struct{}
 	releaseOnce, returnedOnce, stopOnce, forceOnce sync.Once
-	forced                                         chan context.Context
+	forced                                         chan independentConfirmationForce
 }
 
 func (s *independentConfirmationStore) unhold() { s.releaseOnce.Do(func() { close(s.release) }) }
@@ -137,7 +150,9 @@ func (s *independentConfirmationStore) StopAdmission() {
 	s.Store.StopAdmission()
 }
 func (s *independentConfirmationStore) ForceClose(ctx context.Context) error {
-	s.forceOnce.Do(func() { s.forced <- ctx })
+	s.forceOnce.Do(func() {
+		s.forced <- independentConfirmationForce{ctx: ctx, entered: time.Now(), err: ctx.Err()}
+	})
 	return s.Store.ForceClose(ctx)
 }
 
@@ -148,7 +163,7 @@ func TestIndependentWorkOwnerRootConfirmationJoin(t *testing.T) {
 			if forced {
 				budget = "1s"
 			}
-			s := &independentConfirmationStore{original: make(chan f.CommitResult, 1), entered: make(chan independentConfirmationWait, 1), sqlReturned: make(chan error, 1), release: make(chan struct{}), returned: make(chan struct{}), dbStopped: make(chan struct{}), forced: make(chan context.Context, 1)}
+			s := &independentConfirmationStore{original: make(chan f.CommitResult, 1), entered: make(chan independentConfirmationWait, 1), sqlReturned: make(chan error, 1), release: make(chan struct{}), returned: make(chan struct{}), dbStopped: make(chan struct{}), forced: make(chan independentConfirmationForce, 1)}
 			root := newModelRootApp(t, budget, func(root *modelRootApp, deps *dependencies) {
 				s.proxy = newIndependentConfirmationProxy(t, net.JoinHostPort("127.0.0.1", root.db.Fixture.Port))
 				deps.open = func(ctx context.Context, _ postgres.Config) (database, error) {
@@ -175,7 +190,7 @@ func TestIndependentWorkOwnerRootConfirmationJoin(t *testing.T) {
 			projectID := independentConfirmationProject(t, root, actor)
 			assembly := root.owned.accounts().(*accountAssembly)
 			planning := assembly.planning.(*workPlanningAssembly)
-			bundle := &independentConfirmationBundle{workPlanningAssembly: planning, draining: make(chan struct{})}
+			bundle := &independentConfirmationBundle{workPlanningAssembly: planning, draining: make(chan struct{}), forced: make(chan independentConfirmationForce, 1)}
 			activityDrain := make(chan struct{})
 			assembly.mu.Lock()
 			assembly.planning = bundle
@@ -252,7 +267,6 @@ func TestIndependentWorkOwnerRootConfirmationJoin(t *testing.T) {
 				}
 			}
 			waitCancel()
-			stopAt := time.Now()
 			root.signals <- syscall.SIGTERM
 			select {
 			case <-confirmation.ctx.Done():
@@ -284,17 +298,29 @@ func TestIndependentWorkOwnerRootConfirmationJoin(t *testing.T) {
 				if root.err == nil || planning.Joined() {
 					t.Fatal("forced root invented successful join")
 				}
-				var forcedCtx context.Context
+				var dbForce independentConfirmationForce
 				select {
-				case forcedCtx = <-s.forced:
+				case dbForce = <-s.forced:
 				default:
 					t.Fatal("unjoined confirmation prevented DB.ForceClose")
 				}
+				forcedCtx := dbForce.ctx
 				deadline, ok := forcedCtx.Deadline()
 				root.owned.mu.Lock()
 				originalForce := root.owned.forced
 				root.owned.mu.Unlock()
-				if !ok || forcedCtx != originalForce || forcedCtx.Err() == nil || deadline.After(stopAt.Add(1500*time.Millisecond)) {
+				var phase independentConfirmationForce
+				select {
+				case phase = <-bundle.forced:
+				default:
+					t.Fatal("real Work Force was not entered")
+				}
+				// The original root has a graceful phase, then one distinct 1s
+				// Force phase. The held command must consume this actual phase;
+				// a deadline measured from SIGTERM would conflate the two.
+				expected, bounded := phase.ctx.Deadline()
+				if !ok || !bounded || forcedCtx != originalForce || phase.ctx != originalForce || !deadline.Equal(expected) ||
+					phase.err != nil || !phase.entered.Before(deadline) || dbForce.err != context.DeadlineExceeded || dbForce.entered.Before(deadline) || deadline.After(phase.entered.Add(time.Second)) {
 					t.Fatal("Force renewed the original one-second budget")
 				}
 			} else {

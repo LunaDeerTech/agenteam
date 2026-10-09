@@ -1,6 +1,6 @@
 # D27 Project Owner 模型设置 UI — rev1＋菜单兼容补充
 
-状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 31 路径（30 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30–31 是旧 Audit 单元／真实浏览器菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮、read 第二轮、configuration 第三轮与 credential 首轮实际完整通过（4/6 新 top，含完整资源终态）；configuration／credential／recovery 又已在新共享资产上完整补验，其余资产影响边界见 §0。原 recovery 六次、read 首轮与 configuration 前两轮失败保留。其余两个新 top、旧回归余下 6 项和独立 B 尚未完成；独立 A 第二轮已完整通过；旧 Owner 三项、Audit 权限／恢复与导航两项、Summary 恢复／权限导航两项及 Account Session 生命周期均已完整通过，已恢复或注册的其他源码不代表真实场景通过。
+状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 31 路径（30 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30–31 是旧 Audit 单元／真实浏览器菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮、read 第二轮、configuration 第三轮与 credential 首轮实际完整通过（4/6 新 top，含完整资源终态）；configuration／credential／recovery 又已在新共享资产上完整补验，其余资产影响边界见 §0。原 recovery 六次、read 首轮与 configuration 前两轮失败保留。其余两个新 top、旧回归余下 5 项和独立 B 尚未完成；独立 A 第二轮已完整通过；旧 Owner 三项、Audit 权限／恢复与导航两项、Summary 恢复／权限导航两项、Account Session 生命周期及个人主题／受保护导航均已完整通过，已恢复或注册的其他源码不代表真实场景通过。
 
 本卡保存产品规格、验收场景与恢复所需事实；团队调度、稳定输入、证据留存和 Git 交付统一遵循[团队流程](../agent-team/README.md)。旧逐轮 root grant、重复哈希表、README 最后另授和永久归档步骤不再作为日常流程。历史全文可从 `e55ad7d1` 的本卡及当时[任务台账](../agent-team/tasks.md)、[环境交接](../agent-team/recovery-2026-10-08-environment.md)文件历史定位，不改写原失败或未验证范围。
 
@@ -15,7 +15,7 @@
 | 真实配置与凭据路径 | `modelsconfig03`、`modelscred01` 历史 actual PASS / fullSTOP；前两次配置 FAIL、Problem.instance 净化路径修复及其有限证据保留。 |
 | 恢复路径 | `modelsrecover01`、`modelsrecover02` 均 FAIL；后者缺最终 browser-result 与 durable facts，原 75s host TCP 观察未双清。后续有限窗口释放不能补写原 TCP 通过。 |
 | 当前恢复验收 | recovery 第七轮、read 第二轮、configuration 第三轮、credential 首轮完整通过，原各次失败保留。sharedLayer 修复及真实组件已按 §0.2–0.3 接受，configuration／credential／recovery 的新资产补验已完成；read 仅按限定历史证据复用，其余门槛仍未完成。 |
-| 未完成门槛 | authority / navigation 两个新 top、旧 14 回归中的余下 6 项及独立 B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
+| 未完成门槛 | authority / navigation 两个新 top、旧 14 回归中的余下 5 项及独立 B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
 
 两次恢复失败后的受控结论仅用于后续修复：正式 header/Flush 后零 body 断连已在受控 native fetch 比较中验证；旧分支一次 fetch 可能透明发出两次 POST 并读到完整 EOF。ReadPrivate 的 Lstat→Open→SameFile 与 JS atomic rename 存在源码可确定竞态；候选改为先 NOFOLLOW|NONBLOCK 打开，再以同一 fd 验证 regular/0600/size，保留原有界读取、清理与 Close，pure-file 受控 12 叶／17 RUN/PASS 已接受。原恢复轮未采得具体 error 类别，以上不能回填两次 business FAIL 的确切因果。早期受控 browser launch 失败及 TMP 后续清理同样保留，短根成功不证明原 launch 失败原因。
 
@@ -50,7 +50,7 @@ authority 第七轮整体仍 FAIL：原 45 秒用例预算在 `authority-lifecyc
 
 authority 第八轮以已独审的完整 await 观测复验仍 FAIL：原 45 秒总预算耗尽，稳定步骤明确为删除中 Project 的 `authority-denied-finished-054`，即原 Resolve `response.finished()` 未正常返回；响应头等待与导航已返回，后置 409、错误 DOM 及禁止 Model 请求断言尚未执行。当前匹配只记录 pathname，无法确认所选响应是否为本次意图的唯一 Resolve；13 份安全响应均为 Model 操作，Session 事件也不能替代 Resolve 的上游／客户端 EOF 与取消证据。原件见 [authority-resolve-eighth-failure.json](../../../.agent-state/model-ui-recovery/authority-resolve-eighth-failure.json)。Go 55.72 秒、外层实际 exit=1／146.17 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、descendant 双空、删除前 `runtime_empty=true`、删除后 `private_removed=true`、TCP 双空与输入同一均齐。下一步仅补同一原请求／响应的安全绑定与读取终态观测，保留原请求、预算及业务完成门槛，不据超时推定根因。
 
-authority 第九轮以已独立接受的 Resolve 同响应观测复验仍 FAIL，原 45 秒预算停在其他 Owner Project 的 `response.finished()`。本轮唯一目标 Request 与公开 Request-ID 比对均成立，响应 404；已采原生快照显示两次 read 均返回、246 字节且到达 EOF，无读取拒绝或 signal abort，顺序为 EOF→reader cancel→release→stream cancel，两次 cancel 均成功且没有 EOF 前取消。Playwright 未见 finished、见 failed=aborted，但事件相对总超时／context 关闭的时机未记录；147 次采样均实际返回并 join，未观察最终 slot end，不能把快照当关闭后末态，也未证明 Content-Length、服务端 handler 完成或 Problem 解码。后置状态码与 DOM 门槛尚未执行，原 finished 要求保持。原件见 [authority-resolve-ninth-failure.json](../../../.agent-state/model-ui-recovery/authority-resolve-ninth-failure.json)。Go 55.65 秒、外层实际 exit=1／146.44 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、descendant 双空、runtime-empty／private-removed、TCP 双空与输入同一均齐。仅排除本轮已采阶段的错目标／重复请求与 EOF 前取消，不推此前各轮同因；下一步优先利用现有安全头／日志核长度与事件时序，缺失处才补最小观测。
+authority 第九轮以已独立接受的 Resolve 同响应观测复验仍 FAIL，原 45 秒预算停在其他 Owner Project 的 `response.finished()`。本轮唯一目标 Request 与公开 Request-ID 比对均成立，响应 404；已采原生快照显示两次 read 均返回、246 字节且到达 EOF，无读取拒绝或 signal abort，顺序为 EOF→reader cancel→release→stream cancel，两次 cancel 均成功且没有 EOF 前取消。Playwright 未见 finished、见 failed=aborted，但事件相对总超时／context 关闭的时机未记录；147 次采样均实际返回并 join，未观察最终 slot end，不能把快照当关闭后末态，也未证明 Content-Length、服务端 handler 完成或 Problem 解码。后置状态码与 DOM 门槛尚未执行，原 finished 要求保持。原件见 [authority-resolve-ninth-failure.json](../../../.agent-state/model-ui-recovery/authority-resolve-ninth-failure.json)。Go 55.65 秒、外层实际 exit=1／146.44 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、descendant 双空、runtime-empty／private-removed、TCP 双空与输入同一均齐。仅排除本轮已采阶段的错目标／重复请求与 EOF 前取消，不推此前各轮同因；下一步优先利用现有安全头／日志核长度与事件时序，缺失处才补最小观测。后续独立核对当轮冻结旧源确认：这里的 EOF 仅指同一客户端 ReadableStream 的 `done:true` 先于已观测的 reader／stream cancel，原顺序与计数不变；不等同物理 HTTP／TCP 完整 EOF、长度满足或服务端完成。
 
 独立 A 已由独验者本人首次实际执行，整体 FAIL：停在凭据轮换阶段，仅四个安全响应，最后为 metadata GET 200；原失败投影只有错误数量，没有保留具体断言，不能认定确切根因。必要安全事实见 [independent-a-first-failure.json](../../../.agent-state/model-ui-independent/independent-a-first-failure.json)。Go 13.26 秒、外层实际 exit=1／107.38 秒；direct／四 adopted 实际 wait、Node／proxy／body／service／root join、七资源双 absent、runtime 与临时目录移除、TCP 双空、输入同一及两个 marker 移除全部完成。离线源码确认该构造会同时展示 metadata 与未绑定候选两个 `dl`，而测试使用单元素选择器；只修语义定位并补闭合错误投影，仍需正反控制及独审，不将此候选回填为原 FAIL 的已知原因。
 
@@ -66,9 +66,11 @@ authority 第九轮以已独立接受的 Resolve 同响应观测复验仍 FAIL�
 
 独立 B 对两处明确归档重读转场的 Owner 确认已做限定修正并获跨树独审：默认其他 open 不处理 Owner 提示，精确标题／按钮与目标未发布门槛保留，Model 确认独立处理，未更改 Owner 产品契约。第五轮尚未到该修复点便整体 FAIL：原 45 秒预算停在初始 Session `response.finished()`，稳定 firstRejected 为 `independent-b-session-finished-x`；pageshow 已返回并收到匹配 GET Session 的 200 头，JSON／身份门槛未执行，只有三份 setup 安全响应。必要事实见 [independent-b-fifth-failure.json](../../../.agent-state/model-ui-independent/independent-b-fifth-failure.json)。Go 54.53 秒、外层实际 Wait／exit=1／141.78 秒（原主体／清理预算内，另含 TCP 尾）；direct／四 adopted 实际 wait、所有 join、七资源双 absent、descendant 双空、runtime-empty／private-removed、TCP 双空、输入同一与 marker／临时目录移除均齐。尚无该 Session 的唯一请求／原生响应绑定、读取取消或 PW 事件时序，不能推定原因，也不能判定两 Owner 确认修复的真实效果；下一次 B 前复用已有同响应有界观察器，不在观测未变时重复完整轮。
 
+供后继 authority／独立 B 使用的共享同响应观察器已获有限独审接受：保留原 Promise、请求、预算及 finished／JSON／身份门槛，仅关联唯一响应的安全长度和单调事件时序。独审真实流反例发现取消后再次 read 也会返回 `done:true`，限定返修保留原 `read_done`，新增严格的中断前完成判据供长度比较及首次 EOF 采样；作者 47＋48 项控制及独立 6 项组合复验通过，原四源的另 6 项独立组合控制复用。真正完成后的正常清理仍为正例；旧 Session 投影及 A 路径保持，尚未以此完成新的 authority／B 真实业务验收。
+
 旧 `audit-navigation` 首轮整体 FAIL，原 driver 已保留具体断言：`settingsCurrent` 期待的设置分组仅有“项目资料／安全记录”，实际还包含本卡正式新增的“模型与 Provider”（E2E 第 1542 行，调用第 1715 行）。这是旧浏览器测试期待遗漏；§8 #31 同一数组的兼容修正已通过 strict TS／格式检查及有限独审，所有其他导航断言保留；后继真实复验结果另记如下。必要安全事实见 [audit-navigation-first-failure.json](../../../.agent-state/model-ui-regression/audit-navigation-first-failure.json)。Go 15.65 秒、外层实际 exit=1／106.58 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空、输入同一及 marker 移除均完成，零布局图。本首轮不计入通过，不把该 FAIL 改写为兼容后通过。
 
-旧回归现为 **8／14 完整通过**。下表八组均用 `run-owned-regression.py --group` 的原精确 selector 与当前私有资产执行，外层实际 exit=0；direct／四 adopted 实际 wait=0、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空、输入同一及 marker 移除全部确认。前七组使用专属 Owner／Audit／Summary 私有资产入口，无全局资产租约；`auth-lifecycle` 使用受监督的全局资产租约，原 `web/dist` 已实际恢复且该轮完整退役后才释放。八组均不消费新 Session 诊断源码或 bundle，不据此替代剩余 6 项。
+旧回归现为 **9／14 完整通过**。下表九组均用 `run-owned-regression.py --group` 的原精确 selector 与当前私有资产执行，外层实际 exit=0；direct／四 adopted 实际 wait=0、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空、输入同一及 marker 移除全部确认。前七组使用专属 Owner／Audit／Summary 私有资产入口，无全局资产租约；`auth-lifecycle` 与 `personal-theme` 使用受监督的全局资产租约，原 `web/dist` 已实际恢复且该轮完整退役后才释放。九组均不消费新 Session 诊断源码或 bundle，不据此替代剩余 5 项。
 
 | 已通过旧组 | Go top 秒 | 外层完整秒 |
 | --- | ---: | ---: |
@@ -80,6 +82,7 @@ authority 第九轮以已独立接受的 Resolve 同响应观测复验仍 FAIL�
 | `summary-recovery` | 17.17 | 104.81 |
 | `summary-authority-navigation` | 18.95 | 111.96 |
 | `auth-lifecycle` | 6.81 | 97.67 |
+| `personal-theme` | 19.02 | 107.04 |
 
 旧 Audit 导航第二轮的八张原始图已由独验者逐张目视：浅深各 390／768／1024／1440×900，可见范围无新增分组遮挡、文字交叠或横向布局溢出；三个较宽视口的新 Model 分组及两叶完整可读。390 为栏目菜单关闭的单列详情，只有菜单入口可见，不能据该图声称窄屏展开菜单已目视验收；滚动视口也不代表整页覆盖。浏览器断言、完整命令／资源终态及上述限定图审均已通过，不扩展为 Model 页面、原生缩放或 BFcache 的验证。其菜单期待单行兼容不更改产品行为，首轮确切数组差异及原 FAIL 保留。
 

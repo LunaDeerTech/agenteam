@@ -157,5 +157,17 @@
     "no_retry": true,
     "no_cross_run_cause_inferred": true
   },
-  "followup": "First inspect available safe headers and logs for length, server completion and failure timing. Add only missing same-response observations; preserve original finished, body, identity and business gates."
+  "followup": "First inspect available safe headers and logs for length, server completion and failure timing. Add only missing same-response observations; preserve original finished, body, identity and business gates.",
+  "interpretation_boundary": {
+    "independently_checked_frozen_source": "817500d4",
+    "native_eof_meaning": "The same uniquely bound client ReadableStream returned done:true before every observed reader/stream cancel; original recorded values are unchanged.",
+    "not_proven_by_this_observation": [
+      "physical HTTP/TCP body completeness",
+      "Content-Length satisfied",
+      "server handler completed",
+      "Playwright response finished",
+      "failure timing relative to case timeout or context close"
+    ],
+    "original_failure_unchanged": true
+  }
 }

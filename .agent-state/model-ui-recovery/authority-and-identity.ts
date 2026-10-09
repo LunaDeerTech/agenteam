@@ -218,7 +218,7 @@ function resolveSampler(page: Page, slot: string, requestID: () => string | null
 
 function resolveSnapshot(value: unknown): Record<string, boolean | number | string> | null {
   const counts = ['requests', 'readers', 'read_calls', 'read_settled', 'read_rejected', 'bytes', 'reader_cancel_calls', 'reader_cancel_settled', 'reader_cancel_rejected', 'stream_cancel_calls', 'stream_cancel_settled', 'stream_cancel_rejected', 'release_calls', 'release_successes', 'abort_events', 'status', 'headers_order', 'read_done_order', 'read_rejected_order', 'abort_order', 'reader_cancel_order', 'stream_cancel_order', 'release_order', 'content_length'];
-  const flags = ['headers_seen', 'status_ok', 'read_done', 'cancel_before_eof', 'request_id_match', 'signal_aborted', 'signal_aborted_at_start', 'content_length_present', 'content_length_valid', 'content_encoding_identity', 'content_length_comparable', 'content_length_matches_eof'];
+  const flags = ['headers_seen', 'status_ok', 'read_done', 'cancel_before_eof', 'request_id_match', 'signal_aborted', 'signal_aborted_at_start', 'content_length_present', 'content_length_valid', 'content_encoding_identity', 'content_length_comparable', 'content_length_matches_eof', 'eof_before_interruption'];
   const codes = ['none', 'fetch-rejected', 'get-reader-threw', 'read-rejected', 'reader-cancel-rejected', 'stream-cancel-rejected', 'release-threw', 'observer-error'];
   let native: Record<string, boolean | number | string> | null = null;
   if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -293,7 +293,7 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
     const safe = resolveSnapshot(value);
     if (safe !== null) {
       latest = safe; latestID = expectedID; snapshotSource = 'sample';
-      if (safe.read_done === true && safe.request_id_match === true && expectedID && expectedID === requestID && targets.length === 1 && targets[0] === selected?.request() && targetMatch(targets[0]!)) firstEOFSample ??= mark();
+      if (safe.eof_before_interruption === true && safe.request_id_match === true && expectedID && expectedID === requestID && targets.length === 1 && targets[0] === selected?.request() && targetMatch(targets[0]!)) firstEOFSample ??= mark();
     }
   }, beginning, kind);
   await bounded(() => beginning);

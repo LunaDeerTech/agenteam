@@ -47,9 +47,15 @@ function sessionDiagnostics(nativeFetch: typeof window.fetch, kind: 'session' | 
     const slot = current;
     const result = { ...slot.facts, request_id_match: slot.facts.requests === 1 && !!slot.requestID && slot.requestID === expectedID,
       signal_aborted: slot.signal?.aborted === true };
-    const comparable = slot.lengths.content_length_valid && slot.lengths.content_encoding_identity && slot.facts.read_done && result.request_id_match;
+    // cancel() can make a later read resolve done without an upstream EOF.
+    // Preserve that read fact, but only compare bytes completed before any
+    // observed cancellation, signal abort, or read rejection.
+    const eofBeforeInterruption = slot.facts.read_done && !slot.facts.cancel_before_eof && !slot.signalAbortedAtStart &&
+      (slot.order.abort_order === 0 || slot.order.read_done_order < slot.order.abort_order) &&
+      (slot.order.read_rejected_order === 0 || slot.order.read_done_order < slot.order.read_rejected_order);
+    const comparable = slot.lengths.content_length_valid && slot.lengths.content_encoding_identity && eofBeforeInterruption && result.request_id_match;
     return extended ? { ...result, status: slot.status, signal_aborted_at_start: slot.signalAbortedAtStart, ...slot.order, ...slot.lengths,
-      content_length_comparable: comparable, content_length_matches_eof: comparable && slot.lengths.content_length === slot.facts.bytes } : result;
+      eof_before_interruption: eofBeforeInterruption, content_length_comparable: comparable, content_length_matches_eof: comparable && slot.lengths.content_length === slot.facts.bytes } : result;
   }
   function end(id: string, expectedID: string | null) {
     const result = snapshot(id, expectedID);
