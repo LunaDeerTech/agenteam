@@ -4,12 +4,14 @@ package knowledge_test
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/knowledge"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 )
 
 func recoveryChild(t *testing.T, x *ownerTreeFixture, actor id.Actor, parent kc.DocumentRef) kc.DocumentRef {
@@ -40,7 +42,10 @@ func TestKnowledgeB02Cleanup(t *testing.T) {
 		x := newPublicationFixture(t)
 		actor := x.human(t)
 		p := x.project(t, actor, true)
-		root := publicationSeedContent(t, x, actor, p, "held root bytes")
+		// D05 eagerly verifies/releases a small payload during Open. Keep this
+		// body beyond its initial integrity window, then assert a real lease;
+		// merely retaining an ObjectReader value is not a live-reader proof.
+		root := publicationSeedContent(t, x, actor, p, strings.Repeat("r", 2*oc.StreamBufferSize+1))
 		child := recoveryChild(t, x, actor, root)
 		outside := publicationSeedContent(t, x, actor, p, "outside bytes")
 		stale, err := x.service.PrepareDeleteSubtree(knowledgeContext(t), actor, p, root.ID)
@@ -70,6 +75,10 @@ func TestKnowledgeB02Cleanup(t *testing.T) {
 				}
 			}
 		}()
+		var activeReaders int
+		if err = x.raw.QueryRow(knowledgeContext(t), `SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='reader' AND state='active'`, root.ObjectID.String()).Scan(&activeReaders); err != nil || activeReaders != 1 {
+			t.Fatal("exact actual reader was not active before deletion", err)
+		}
 		meta := treeMeta(t)
 		result, err := x.service.DeleteSubtree(knowledgeContext(t), actor, meta, p, root.ID, preview.Confirmation)
 		if err != nil || !result.CleanupPending || len(result.DeletedIDs) != 2 {

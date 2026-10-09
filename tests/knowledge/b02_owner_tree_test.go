@@ -82,6 +82,14 @@ func newOwnerTreeFixture(t *testing.T) *ownerTreeFixture {
 	if e != nil {
 		t.Fatal(e)
 	}
+	return newOwnerTreeFixtureOnStore(t, raw)
+}
+
+// The caller supplies an actually opened Store; every dependency below shares
+// that exact Store. Unknown tests can place the original connection behind a
+// real protocol proxy without replacing transaction outcomes or authorities.
+func newOwnerTreeFixtureOnStore(t *testing.T, raw *postgres.Store) *ownerTreeFixture {
+	t.Helper()
 	t.Cleanup(func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()

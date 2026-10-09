@@ -37,7 +37,11 @@ import (
 // on one Store. This fixture supplies no successful authorization stub.
 func newPublicationFixture(t *testing.T) *ownerTreeFixture {
 	t.Helper()
-	x := newOwnerTreeFixture(t)
+	return publicationFixtureFromTree(t, newOwnerTreeFixture(t))
+}
+
+func publicationFixtureFromTree(t *testing.T, x *ownerTreeFixture) *ownerTreeFixture {
+	t.Helper()
 	accounts := x.deps.Activity.(*account.Authority)
 	knowledgeFacts, err := knowledge.NewProjectAuditAuthority(x.raw)
 	if err != nil {
