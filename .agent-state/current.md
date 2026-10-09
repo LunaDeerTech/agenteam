@@ -18,3 +18,5 @@
 - 下一步：负责人先闭合planning审查与原链冻结后申请首个真实窗，其余矩阵继续；root轮转未参与者核完整组合并编写两个独立场景；正式真实验收前先闭合相应输入与原资源监督链，不伪造接口或成功布尔。既有停止项不变。最终正式交付排除本恢复文件，不将 WIP 当成 main 结果。
 
 - 首组planning有限独审发现三个排序均为no-op及成功后点击已移除按钮；作者另查得schema响应$ref未解引用、描述清空/Plan原文/第七读取刺激不足，均保留原WIP未验事实。统一修为三组真实双对象前移/移尾与同原响应重读顺序、changed/version校验；同体schema红控修后正负通过。Go后验逐key校验原receipt/Outbox/TaskEvent/最终对象与精确无额外事实；合法登录Session仅在User EX锁内回拨测试时钟以越过已有Activity节流，未手种身份或Work事实。当前窄复核待排，新race编译与TS实际通过；纯配置发现02因调用漏ENV失败，补齐后另记，未启动浏览器。其它五case的未闭合矩阵不因此接受。
+
+- 首planning真实轮完整FAIL：固定06cc0ffd/binary05/原selector，outer28407实际exit1/165.537秒、Go24.23秒；Milestone create/update与两次真实排序已走，Sprint create之后原“查证原命令”按钮enabled门槛5秒失败。只知Sprint POST与后续Get有200同体，不推UI持续disabled原因；末端Go持久断言未到。helper另有case终止时r.finished Test ended未收束；监督器发现driver后4个descendant并原样STOP，随后4个actualWait0；不能将此STOP抹去。Node/proxy/root及driver实际Wait、7资源双退役、desc/runtime/private双清、hostTCP双空/inputsame齐，资源已释放。原log在output/ai/work-owner-planning-ui/pg/planning-01.log。修后窄独审在本轮前已接受，仅证明输入就绪；当前离线定位产品/观察器与退役边界，不放宽5秒或直接重跑。

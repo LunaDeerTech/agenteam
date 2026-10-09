@@ -218,3 +218,7 @@ rev1 已经未参与产品实现者独立接受。API、Session恢复与controll
 2. Task create 的type/priority初始为空、用户必须明确选择；避免无产品来源的 `task/medium` 默认。Plan首版纯文本阅读/textarea编辑，不新增Markdown renderer依赖。
 3. 所有页固定50、仅opaque前后页；排序以明确“某对象之前/组尾”操作实现，暂不加拖拽或跨页“上移/置顶”推测。
 4. 恢复只覆盖同完整identity的内存原意图；真正Session/CSRF改变或刷新销毁，不新增跨Session界面。归档历史恢复沿正式服务Read→receipt→新写门禁，不因Project非active隐藏历史操作。
+
+### 首planning真实失败（保留）
+
+首轮原45秒case/120秒Go/6分钟包预算不变，Go24.23秒失败、外层实际exit1/165.537秒。Milestone创建/编辑、前移/移尾及对应重读已执行；创建Sprint后原命令确认标题可见，但“查证原命令”仍disabled超过原5秒。服务端Sprint POST及随后Get有200同体，尚未定位持续禁用原因，不将前置响应称为完整UI或持久后验通过。case结束时观察器的response.finished另抛Test ended，需实际收束；原监督器因driver后4个descendant记STOP，之后4个实际Wait0。Node/proxy/root/driver实际退出、七资源双absent、desc/runtime/private/TCP双清及输入同一齐，原整体FAIL保留。后续只定位并修受影响边界，完整矩阵仍未接受。
