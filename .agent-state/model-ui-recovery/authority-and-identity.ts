@@ -178,7 +178,7 @@ function resolveEvaluate(page: Page, work: () => Promise<unknown>): Promise<unkn
   void original.then(clear, clear);
   return original;
 }
-function resolveSampler(page: Page, slot: string, requestID: () => string | null, publish: (value: unknown, expectedID: string | null) => void, initial?: Promise<unknown>) {
+function resolveSampler(page: Page, slot: string, requestID: () => string | null, publish: (value: unknown, expectedID: string | null) => void, initial?: Promise<unknown>, kind: 'session' | 'resolve' = 'resolve') {
   let stopped = false, started = false, timer: ReturnType<typeof setTimeout> | undefined;
   let pending: Promise<void> | undefined, samples = 0, settled = 0, failed = 0;
   const schedule = () => { if (!stopped) timer = setTimeout(sample, 250); };
@@ -188,7 +188,10 @@ function resolveSampler(page: Page, slot: string, requestID: () => string | null
     const expectedID = requestID();
     samples++;
     let work: Promise<unknown>;
-    try { work = resolveEvaluate(page, () => page.evaluate(({ slot, expectedID }) => (window as any).__projectModelsProbe.resolveSnapshot(slot, expectedID), { slot, expectedID })); }
+    try { work = resolveEvaluate(page, () => page.evaluate(({ slot, expectedID, kind }) => {
+      const probe = (window as any).__projectModelsProbe;
+      return kind === 'session' ? probe.sessionSnapshot(slot, expectedID) : probe.resolveSnapshot(slot, expectedID);
+    }, { slot, expectedID, kind })); }
     catch { settled++; failed++; schedule(); return; }
     const observed = work.then((value) => { settled++; if (!stopped) publish(value, expectedID); }, () => { settled++; failed++; }).catch(() => { failed++; });
     pending = observed;
@@ -214,8 +217,8 @@ function resolveSampler(page: Page, slot: string, requestID: () => string | null
 }
 
 function resolveSnapshot(value: unknown): Record<string, boolean | number | string> | null {
-  const counts = ['requests', 'readers', 'read_calls', 'read_settled', 'read_rejected', 'bytes', 'reader_cancel_calls', 'reader_cancel_settled', 'reader_cancel_rejected', 'stream_cancel_calls', 'stream_cancel_settled', 'stream_cancel_rejected', 'release_calls', 'release_successes', 'abort_events', 'status', 'headers_order', 'read_done_order', 'read_rejected_order', 'abort_order', 'reader_cancel_order', 'stream_cancel_order', 'release_order'];
-  const flags = ['headers_seen', 'status_ok', 'read_done', 'cancel_before_eof', 'request_id_match', 'signal_aborted', 'signal_aborted_at_start'];
+  const counts = ['requests', 'readers', 'read_calls', 'read_settled', 'read_rejected', 'bytes', 'reader_cancel_calls', 'reader_cancel_settled', 'reader_cancel_rejected', 'stream_cancel_calls', 'stream_cancel_settled', 'stream_cancel_rejected', 'release_calls', 'release_successes', 'abort_events', 'status', 'headers_order', 'read_done_order', 'read_rejected_order', 'abort_order', 'reader_cancel_order', 'stream_cancel_order', 'release_order', 'content_length'];
+  const flags = ['headers_seen', 'status_ok', 'read_done', 'cancel_before_eof', 'request_id_match', 'signal_aborted', 'signal_aborted_at_start', 'content_length_present', 'content_length_valid', 'content_encoding_identity', 'content_length_comparable', 'content_length_matches_eof'];
   const codes = ['none', 'fetch-rejected', 'get-reader-threw', 'read-rejected', 'reader-cancel-rejected', 'stream-cancel-rejected', 'release-threw', 'observer-error'];
   let native: Record<string, boolean | number | string> | null = null;
   if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -226,9 +229,10 @@ function resolveSnapshot(value: unknown): Record<string, boolean | number | stri
   return native;
 }
 
-// Resolve remains outside the Model operation whitelist. This observes the
-// original selected response without selecting a replacement or changing a gate.
-async function beginResolveDiagnostic(page: Page, project: Project) {
+type ResponseDiagnosticTarget = { kind: 'session' } | { kind: 'resolve'; username: string; project_name: string };
+// Both targets remain outside the Model operation whitelist. They share one
+// evaluate owner and sampler, observing only the original selected response.
+async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTarget, artifact: 'authority-resolve-diagnostic.json' | 'independent-b-session-diagnostic.json') {
   // All times below are Node observations relative to this invocation, not
   // browser EOF times or the beginning of Playwright's overall test budget.
   const timeOrigin = performance.now();
@@ -247,7 +251,7 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
   const contextClosed = () => { try { contextClose ??= mark(); } catch {} };
   const context = page.context();
   const slot = randomUUID(), expiresAt = Date.now() + 250;
-  const target = { username: project.username, project_name: project.normalized_name };
+  const kind = target.kind;
   let active = false, selected: Response | undefined, requestID: string | null = null;
   let beforeAction = 0, afterAction = 0;
   let latest: Record<string, boolean | number | string> | null = null, latestID: string | null = null;
@@ -261,10 +265,11 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
   };
   const candidate = (request: Request) => {
     const url = new URL(request.url());
-    return url.origin === new URL(page.url()).origin && url.pathname === '/api/v1/projects/resolve';
+    return url.origin === new URL(page.url()).origin && url.pathname === (kind === 'session' ? '/api/v1/session' : '/api/v1/projects/resolve');
   };
   const targetMatch = (request: Request) => {
     const query = new URL(request.url()).searchParams;
+    if (target.kind === 'session') return candidate(request) && request.method() === 'GET' && !new URL(request.url()).search;
     return candidate(request) && request.method() === 'GET' && query.size === 2 &&
       query.getAll('username').length === 1 && query.getAll('project_name').length === 1 &&
       query.get('username') === target.username && query.get('project_name') === target.project_name;
@@ -279,7 +284,10 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
   page.on('request', requested); page.on('requestfinished', completed); page.on('requestfailed', rejected);
   page.on('close', pageClosed); context.on('close', contextClosed);
   let beginning: Promise<unknown>;
-  try { beginning = resolveEvaluate(page, () => page.evaluate(({ slot, expiresAt, target }) => (window as any).__projectModelsProbe.resolveBegin(slot, expiresAt, target), { slot, expiresAt, target })); }
+  try { beginning = resolveEvaluate(page, () => page.evaluate(({ slot, expiresAt, target }) => {
+    const probe = (window as any).__projectModelsProbe;
+    return target.kind === 'session' ? probe.sessionBegin(slot, expiresAt, undefined, true) : probe.resolveBegin(slot, expiresAt, { username: target.username, project_name: target.project_name });
+  }, { slot, expiresAt, target })); }
   catch { beginning = Promise.resolve(null); }
   const sampler = resolveSampler(page, slot, () => requestID, (value, expectedID) => {
     const safe = resolveSnapshot(value);
@@ -287,7 +295,7 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
       latest = safe; latestID = expectedID; snapshotSource = 'sample';
       if (safe.read_done === true && safe.request_id_match === true && expectedID && expectedID === requestID && targets.length === 1 && targets[0] === selected?.request() && targetMatch(targets[0]!)) firstEOFSample ??= mark();
     }
-  }, beginning);
+  }, beginning, kind);
   await bounded(() => beginning);
   return {
     start() { active = true; try { actionStarted ??= mark(); } catch {} },
@@ -308,15 +316,22 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
         const sampling = await sampler.stop();
         // A bounded join timeout does not retire the underlying evaluate.
         // Never overlap it with a second evaluate, including diagnostic end.
-        const value: unknown = sampling.sample_joined ? await bounded(() => resolveEvaluate(page, () => page.evaluate(({ slot, requestID }) => (window as any).__projectModelsProbe.resolveEnd(slot, requestID), { slot, requestID }))) : null;
+        const value: unknown = sampling.sample_joined ? await bounded(() => resolveEvaluate(page, () => page.evaluate(({ slot, requestID, kind }) => {
+          const probe = (window as any).__projectModelsProbe;
+          if (kind === 'resolve') return probe.resolveEnd(slot, requestID);
+          const snapshot = probe.sessionSnapshot(slot, requestID);
+          probe.sessionEnd(slot, requestID);
+          return snapshot;
+        }, { slot, requestID, kind }))) : null;
         const final = resolveSnapshot(value);
         if (final !== null) { latest = final; latestID = requestID; snapshotSource = 'end'; }
         if (!failure) return;
         const native = latest;
         const request = selected?.request(), error = request?.failure()?.errorText;
         const pwFailure = error === undefined ? 'none' : error === 'net::ERR_ABORTED' ? 'aborted' : error === 'net::ERR_CONNECTION_RESET' ? 'reset' : error === 'net::ERR_CONNECTION_CLOSED' ? 'closed' : 'other';
-        writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-resolve-diagnostic.json'), JSON.stringify({
+        writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, artifact), JSON.stringify({
           protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH,
+          request_kind: kind,
           diagnostic: native === null ? 'unavailable' : 'captured', pw_candidates_before_action: beforeAction,
           pw_candidates_after_action: afterAction, pw_target_requests: targets.length,
           pw_selected_target_match: !!request && targetMatch(request), pw_request_match: targets.length === 1 && targets[0] === request,
@@ -327,7 +342,7 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
           pw_finished_event: !!request && finished.has(request), pw_failed_event: !!request && failed.has(request), pw_failure: pwFailure, native,
           // Null means not observed before this projection. A close notification
           // is not evidence of when a close operation was initiated.
-          timing: { clock: 'node-performance', origin: 'resolve-diagnostic-begin', action_started: actionStarted,
+          timing: { clock: 'node-performance', origin: kind === 'session' ? 'session-diagnostic-begin' : 'resolve-diagnostic-begin', action_started: actionStarted,
             first_bound_eof_sample: firstEOFSample, pw_finished: request ? finishedTimes.get(request) ?? null : null,
             pw_failed: request ? failedTimes.get(request)?.at ?? null : null,
             pw_failed_test_status: request ? failedTimes.get(request)?.test_status ?? 'unknown' : 'unknown',
@@ -338,6 +353,13 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
       finally { page.off('request', requested); page.off('requestfinished', completed); page.off('requestfailed', rejected); page.off('close', pageClosed); context.off('close', contextClosed); }
     },
   };
+}
+
+async function beginResolveDiagnostic(page: Page, project: Project) {
+  return beginResponseDiagnostic(page, { kind: 'resolve', username: project.username, project_name: project.normalized_name }, 'authority-resolve-diagnostic.json');
+}
+export async function beginSessionResponseDiagnostic(page: Page) {
+  return beginResponseDiagnostic(page, { kind: 'session' }, 'independent-b-session-diagnostic.json');
 }
 
 // Session bodies remain private in this call. Only the formal safe identity is
