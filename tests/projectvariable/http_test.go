@@ -329,7 +329,31 @@ func TestProjectVariableHTTPIntentRecovery(t *testing.T) {
 	}
 	t.Run("in-flight-lookup-does-not-invent-absence", func(t *testing.T) {
 		i := v.intent(t, vc.CreateCommand)
+		// HTTP authentication takes User SH before decoding. Complete that real
+		// Cookie/CSRF check before the writer holds User EX, then release this
+		// same request into Lookup while the writer's command lock is held.
+		authenticated, decode := make(chan struct{}), make(chan struct{})
+		var decodeOnce sync.Once
+		releaseDecode := func() { decodeOnce.Do(func() { close(decode) }) }
+		defer releaseDecode()
+		request := variableHTTPRequest(ctxFor(t), v.ownerBrowser, "POST", i.lookupPath, i.lookupBody, i.meta.IdempotencyKey)
+		request.Body = &authReadBarrier{ReadCloser: request.Body, before: func() {
+			close(authenticated)
+			select {
+			case <-decode:
+			case <-request.Context().Done():
+			}
+		}}
+		reading := httpAsync(t, v, request)
+		select {
+		case <-authenticated:
+		case r := <-reading:
+			t.Fatalf("Lookup returned before real authentication/body boundary status=%d", r.status)
+		case <-time.After(5 * time.Second):
+			t.Fatal("Lookup did not reach authenticated body read")
+		}
 		reached, pid, release := holdVariableFinal(t, v, i.project, i.command, i.meta.IdempotencyKey)
+		defer release()
 		writer := httpAsync(t, v, variableHTTPRequest(ctxFor(t), v.ownerBrowser, i.method, i.path, i.body, i.meta.IdempotencyKey))
 		select {
 		case <-reached:
@@ -340,12 +364,14 @@ func TestProjectVariableHTTPIntentRecovery(t *testing.T) {
 		}
 		key, _ := f.CommandLock(i.identity)
 		observed := observeLock(v.tracked, key)
-		reading := httpAsync(t, v, variableHTTPRequest(ctxFor(t), v.ownerBrowser, "POST", i.lookupPath, i.lookupBody, i.meta.IdempotencyKey))
+		releaseDecode()
 		select {
 		case attempt := <-observed:
 			v.waitLock(t, attempt, false, pid.Load())
 		case r := <-reading:
-			t.Fatalf("Lookup returned before real lock %d", r.status)
+			var problem httpapi.Problem
+			_ = json.Unmarshal(r.body, &problem)
+			t.Fatalf("Lookup returned before real lock status=%d code=%s aborted=%t", r.status, problem.Code, r.aborted)
 		case <-time.After(5 * time.Second):
 			t.Fatal("Lookup command lock absent")
 		}
