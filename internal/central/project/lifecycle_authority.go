@@ -177,7 +177,10 @@ func (a *LifecycleAuthority) ValidateLifecycleInTx(ctx context.Context, tx found
 		return err
 	}
 	if phase == c.CleanupPhase {
-		return fault(foundation.DependencyUnbound)
+		if participant != c.SkillsParticipant {
+			return fault(foundation.DependencyUnbound)
+		}
+		return a.validateSkillsCleanupInTx(ctx, tx, project, cause)
 	}
 	x, err := a.lifecycleExecutor(ctx, tx, project)
 	if err != nil {
@@ -188,6 +191,63 @@ func (a *LifecycleAuthority) ValidateLifecycleInTx(ctx context.Context, tx found
 		return err
 	}
 	return fact.authorize(false)
+}
+
+// Only the current Skills domain-cleanup step is implemented. The original
+// cause/manifest checks remain shared with Stop/Inspect, but their terminal
+// identity acceptance is never sufficient to authorize a cleanup write.
+func (a *LifecycleAuthority) validateSkillsCleanupInTx(ctx context.Context, tx foundation.Tx, project c.ProjectID, cause c.LifecycleCause) error {
+	if cause.Action != c.Delete {
+		return fault(foundation.Forbidden)
+	}
+	x, err := a.lifecycleExecutor(ctx, tx, project)
+	if err != nil {
+		return err
+	}
+	fact, err := a.lifecycleFact(ctx, x, project, cause, c.SkillsParticipant)
+	if err != nil {
+		return err
+	}
+	if fact.state != c.OperationCleaning {
+		return fault(foundation.InvalidState)
+	}
+	// Reuse the strict decoder in the same original transaction and Project
+	// lock. No release/reacquire or new transaction can separate these reads.
+	r, err := loadLifecycleOperation(ctx, x, project, cause.OperationID)
+	if err != nil {
+		return err
+	}
+	return skillsCleanupProgress(r)
+}
+
+func skillsCleanupProgress(r *lifecycleRecord) error {
+	if r == nil {
+		return unavailable(nil)
+	}
+	if r.operation.Action != c.Delete || r.operation.State != c.OperationCleaning || r.cleanupStage != "domains" {
+		return fault(foundation.InvalidState)
+	}
+	states := make(map[c.ParticipantName]string, len(r.participants))
+	for _, row := range r.participants {
+		if row.stop != "stopped" {
+			return unavailable(nil)
+		}
+		states[row.name] = row.cleanup
+	}
+	if states[c.SkillsParticipant] != "required" && states[c.SkillsParticipant] != "pending" {
+		return fault(foundation.InvalidState)
+	}
+	for _, entry := range r.manifest.Entries() {
+		if entry.Name == c.SkillsParticipant {
+			for _, dependency := range entry.CleanupAfter {
+				if states[dependency] != "completed" {
+					return fault(foundation.InvalidState)
+				}
+			}
+			return nil
+		}
+	}
+	return fault(foundation.DependencyUnbound)
 }
 
 var _ LifecycleFacts = (*LifecycleAuthority)(nil)
