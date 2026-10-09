@@ -139,4 +139,6 @@ migration实际测试fresh、populated00022升级、re-run与失败回滚；原p
 
 首轮 `TestTaskBlockerPersistence` 整体FAIL：真实4096历史边界得到RESOURCE_BUSY但遗漏既定BLOCKER_HISTORY_LIMIT reason；此规则由§1所引transition契约继承，本轮将安全字段位置在§5明确。262144项目容量、已填充00022升级与重跑、DDL失败回滚及两类真实新增/解除/读取/重建重放四个子项本轮body通过，但不替代整top通过。Go、driver与外层实际退出1；两任务资源、runtime及host TCP均完成双次清空，冻结输入未变。该首次失败保留。
 
-history错误字段已作单分支最小修复，定向六分支pure/race通过；恰4096的resolve继续进入真实读取、history超限损坏事实及其它容量错误保持原行为。新增独立顶层 `TestTaskBlockerHistoryCapacityRegression` 复用原失败场景，供下一真实窗口仅复验相关路径；真实复验、其余三新top及独立A/B仍待完成，尚无完整服务接受结论。
+history错误字段已作单分支最小修复，定向六分支pure/race通过，并经独立STATIC限定接受；恰4096的resolve继续进入真实读取、history超限损坏事实及其它容量错误保持原行为。独立顶层 `TestTaskBlockerHistoryCapacityRegression` 复用原失败场景，已在固定输入下真实race通过（body 6.89秒），覆盖4096历史与256未解除容量；Go、driver与外层均实际退出0，两任务资源、runtime及host TCP均双次清空，输入未变。首轮Persistence整体FAIL仍保留，已通过的四个无关子项未重复运行。
+
+独立runtime全文STATIC除上述已修history字段未发现新增must-fix；自有A/B probe与构建脚本已落入 `.agent-state/task-blocker-service/`，离线race编译及精确top发现通过，尚未运行真实PG。其余三新top、独立A/B和必要既有服务回归仍待完成，尚无完整服务接受结论。

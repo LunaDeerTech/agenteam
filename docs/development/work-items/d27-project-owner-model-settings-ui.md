@@ -14,12 +14,12 @@
 | 前端离线组合 | 历史完整单元 2626 PASS / 2 FAIL 为旧 Audit 菜单期待；#30 一行兼容后该文件 49/49 PASS。格式、类型、私有 build 及独立导航／焦点修复按各自版本组合接受，保留原失败，不宣称当前 HEAD 一次全量重跑。 |
 | 真实配置与凭据路径 | `modelsconfig03`、`modelscred01` 历史 actual PASS / fullSTOP；前两次配置 FAIL、Problem.instance 净化路径修复及其有限证据保留。 |
 | 恢复路径 | `modelsrecover01`、`modelsrecover02` 均 FAIL；后者缺最终 browser-result 与 durable facts，原 75s host TCP 观察未双清。后续有限窗口释放不能补写原 TCP 通过。 |
-| 当前恢复验收 | recovery 第七轮、read 第二轮、configuration 第三轮、credential 首轮完整通过，原各次失败保留。新 sharedLayer 修复改变模态层绘制顺序，尚待真实组件及受影响场景补验，不能将历史 PASS 直接写成新资产通过。 |
+| 当前恢复验收 | recovery 第七轮、read 第二轮、configuration 第三轮、credential 首轮完整通过，原各次失败保留。sharedLayer 修复及真实组件已按 §0.2 接受；受影响业务场景仍待补验，不能将历史 PASS 直接写成新资产通过。 |
 | 未完成门槛 | authority / navigation 两个新 top、旧 14 回归及独立 A/B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
 
 两次恢复失败后的受控结论仅用于后续修复：正式 header/Flush 后零 body 断连已在受控 native fetch 比较中验证；旧分支一次 fetch 可能透明发出两次 POST 并读到完整 EOF。ReadPrivate 的 Lstat→Open→SameFile 与 JS atomic rename 存在源码可确定竞态；候选改为先 NOFOLLOW|NONBLOCK 打开，再以同一 fd 验证 regular/0600/size，保留原有界读取、清理与 Close，pure-file 受控 12 叶／17 RUN/PASS 已接受。原恢复轮未采得具体 error 类别，以上不能回填两次 business FAIL 的确切因果。早期受控 browser launch 失败及 TMP 后续清理同样保留，短根成功不证明原 launch 失败原因。
 
-**实际恢复输入：** 以下未验输入位于活动 `ai/product-continuation` 分支，未随共享组件修复交付 `main`。§8 #24–27 四个 harness 和 `.agent-state/model-ui-recovery/` 的六场景模块、同 body 校验、资源 driver、必要脱敏失败输入，以及 `.agent-state/model-ui-regression/` 两个旧回归 helper 已从 Git 恢复。主线程已重建 `/workspace/agenteam-delivery`，固定正式 `11c16867` 与最后迁移 `00022`，并复制当前两份未完成整卡验收的 Model Go 测试源；新 binary 尚待编译，不能沿用旧 `dbf` 编译证据。`output/ai/model-ui-recovery/` 私有构建产物与固定 MinIO binary 仍需重建，不重新实现 harness。Go 1.27.1、固定 Chromium 151.0.7922.173 及其正式 SHA 已核实，锁定浏览器依赖已恢复，私有资产待 build。Docker 当前两容器属于既有 `agenteam-dev-infra`，不作为测试资源、不连接或清理；真实测试须另外创建并登记 owned fixture。
+**实际恢复输入：** 以下未验输入位于活动 `ai/product-continuation` 分支，未随共享组件修复交付 `main`。§8 #24–27 四个 harness 和 `.agent-state/model-ui-recovery/` 的六场景模块、同 body 校验、资源 driver、必要脱敏失败输入，以及 `.agent-state/model-ui-regression/` 两个旧回归 helper 已从 Git 恢复。主线程已重建 `/workspace/agenteam-delivery`，固定正式 `11c16867` 与最后迁移 `00022`，并复制当前两份未完成整卡验收的 Model Go 测试源；两份测试源已在该固定基线上重新 race 编译，不能沿用旧 `dbf` 编译证据。`output/ai/model-ui-recovery/` 私有 binary/helpers、原生 client probe、前端资产及固定 MinIO binary 均已从可恢复源码重建；Go 1.27.1、固定 Chromium 151.0.7922.173 及正式 SHA 已核实，锁定 web／浏览器依赖已恢复。Docker 当前两容器属于既有 `agenteam-dev-infra`，不作为测试资源、不连接或清理；真实测试须另外创建并登记 owned fixture。
 
 下一步由本任务负责人组织：
 
@@ -31,6 +31,10 @@
 本次恢复后的 authority 第三轮仍 FAIL：已通过原共享遮罩阻挡点及归档后的配置原请求重放，随后在切换到凭据恢复 Project 时等待新的 Provider 列表读取超时；停在 `authority-archived-credential`，没有完成凭据归档场景。闭合脱敏诊断保存在 [authority-credential-navigation-failure.json](../../../.agent-state/model-ui-recovery/authority-credential-navigation-failure.json)，尚不能仅据超时确定产品或 harness 原因。Go 24.57 秒，外层实际 exit=1／110.53 秒；direct child 与四个 adopted child 均实际 wait，watchdog／observer join、七个资源双 absent、子进程空、TCP 双空及输入未变均已核实。本轮失败不回填前两轮因果，也不改变 4/6 边界。
 
 navigation 第三轮同样 FAIL：本轮 Session 已观察到 headers 与 finished、没有 failed event，随后完成 Model 创建与 Models 列表；切到可用模型叶时超时，fixture 另报安全代理终态不完整。闭合脱敏诊断见 [navigation-directory-failure.json](../../../.agent-state/model-ui-recovery/navigation-directory-failure.json)。Go 16.30 秒，外层实际 exit=1／100.69 秒；direct/four adopted 实际 wait、watchdog/observer join、七资源双 absent、进程空、TCP 双空及输入未变全部完成。静态检查发现 navigation 复用的 System 草稿种子名称为 `Owner draft memory*`，与 Model 安全目录准入的 `Models ` 前缀不一致；待纯正反例与受影响真实场景验证，修复限定测试种子，不扩响应白名单。没有生成或验收八张布局图，原两轮 Session 失败原因不回填。
+
+authority／navigation 四路径限定 harness 修复已独立接受：Project 切换等待公开导航发布及新的完整 GET 或真实重读门槛；navigation 改用 Model 专属 System 草稿种子，原安全准入逐字保留。旧种子纯正例实际失败，修后 11 top／33 child、strict TS、integration vet 与 race 编译全部通过；独立 A/B binary 已按新 fixture 重编，仅编译与发现通过，真实场景未执行。
+
+authority 第四轮仍 FAIL：浏览器原 45 秒总预算在 `authority-same-session-checking` 耗尽，仅四个安全响应，尚未到上述 Project 切换修复点；现有观察不能区分响应结束、JSON 读取或控制释放等待。闭合原件见 [authority-session-fourth-failure.json](../../../.agent-state/model-ui-recovery/authority-session-fourth-failure.json)。Go 55.03 秒，外层实际 exit=1／143.10 秒（含原 TCP 尾部观察）；direct 与四个 adopted child 实际 wait、watchdog／observer join、七资源双 absent、子进程空、TCP 双空与输入未变均已完成。保留原 FAIL，下一步仅补有界分段诊断，不加请求或预算；navigation 种子修复可独立复验。
 
 ### 0.1 T1 最小共享源码与实际签名
 
