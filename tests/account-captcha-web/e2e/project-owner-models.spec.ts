@@ -772,7 +772,9 @@ test("[recovery] actual original configuration and credential requests", async (
   const committed = await snapshot("config_recovery"); durableDelta(before, committed, 1, 0);
   const providerID = committed.current.providers.find((row) => row.present)!.id;
   const noImplicit = await counts();
+  step("configuration-lookup");
   await button(dialog, "查证原请求").click();
+  await expect.poll(async () => operationCount(await counts(), "lookupProjectModelConfiguration")).toBe(operationCount(noImplicit, "lookupProjectModelConfiguration") + 1);
   await expect(dialog.getByLabel("历史观察", { exact: true })).toBeVisible();
   await expect(dialog.getByText(/结果尚未确认/)).toBeVisible();
   await expect(dialog.getByLabel("严格执行回执", { exact: true })).toHaveCount(0);

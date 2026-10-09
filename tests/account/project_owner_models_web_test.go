@@ -394,4 +394,34 @@ func TestProjectModelsWebResponseAdmission(t *testing.T) {
 			t.Fatal("invalid or sensitive credential result admitted")
 		}
 	}
+	for _, lookup := range []struct {
+		name, operation, flag, member, body string
+	}{
+		{"configuration", "lookupProjectModelConfiguration", "found", "receipt", valid},
+		{"credential", "lookupProjectModelCredential", "observed", "result", credential},
+	} {
+		t.Run(lookup.name+"-lookup", func(t *testing.T) {
+			request.Operation = &projectModelsWebOperation{Operation: lookup.operation, Family: "lookup"}
+			wrap := func(flag, body string) []byte {
+				return []byte(`{"` + lookup.flag + `":` + flag + `,"` + lookup.member + `":` + body + `}`)
+			}
+			for _, raw := range [][]byte{wrap("true", lookup.body), wrap("false", "null")} {
+				if err := f.admitResponse(request, response, raw); err != nil {
+					t.Error("formal safe lookup union rejected")
+				}
+			}
+			for _, raw := range [][]byte{
+				wrap("true", "null"),
+				wrap("false", lookup.body),
+				wrap("true", strings.TrimSuffix(lookup.body, "}")+`,"value":"private-canary"}`),
+				wrap("true", strings.Replace(lookup.body, `"version":"1"`, `"version":"0"`, 1)),
+				wrap("true", `{}`),
+				[]byte(`{"` + lookup.flag + `":false,"` + lookup.member + `":null,"value":"private-canary"}`),
+			} {
+				if err := f.admitResponse(request, response, raw); err == nil {
+					t.Error("invalid or sensitive lookup union admitted")
+				}
+			}
+		})
+	}
 }

@@ -1137,6 +1137,9 @@ func (f *projectModelsWebFixture) admitResponse(request *projectModelsWebRequest
 		if string(fields[flag]) != "true" || string(fields[value]) == "null" {
 			return bad
 		}
+		// Decode the inner value independently. Unmarshal reuses a non-nil
+		// map and would otherwise retain the lookup envelope's two members.
+		result = nil
 		if json.Unmarshal(fields[value], &result) != nil {
 			return bad
 		}

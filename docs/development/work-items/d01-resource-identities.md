@@ -1,6 +1,6 @@
 # D01 Tool、Mount 与项目变量的低层身份
 
-状态：**R1 SPEC 已独立审查接受，产品未实施**。本轮仅完成本文的规格接受，不修改已交付 Agent C1、Task、现有契约、迁移或其它规格。R1 只解决三个 canonical ID 的 Go 定义位置与唯一性；没有目录、实体事实、授权、初始化、引用写入或运行适配。后续实施仍须另行分配精确写域，尚未授权两个 Identity Go 文件落盘；本文不分配迁移号。
+状态：**R1 纯契约已实现并通过独立验收**。两个 Identity Go 文件定义三个 canonical marker 与 Foundation ID alias，另有针对性纯测试；准确四依赖包 race/vet 与独立外部消费 probe 均实际通过。R1 只解决 ID 的定义位置和唯一性，没有目录、实体事实、授权、初始化、引用写入或运行适配，不修改已交付 Agent C1、Task 或迁移。
 
 ## 1. 问题、依据与已确定语义
 
@@ -8,19 +8,19 @@
 
 | 身份 | 已有正式来源 | 已确定的含义 | 当前 Go 事实 |
 | --- | --- | --- | --- |
-| Tool | [D01 ToolSpec](d01-contracts/model-tool.md#toolspecbinding-与可信调用)、[Stable Tool Identity](../../architecture/tool-system/tool-definition-registry.md#1-stable-tool-identity) | `tool_id` 是 UUIDv7 数据库身份；`stable_key` 表达 `builtin:<name>`、`runner:<name>`、`mcp:<config_id>:<remote_name>`。Tool revision、模型可见名称与临时在线状态都不替代 identity | 尚无 Tool canonical marker 或 `tool/contract` 包；Audit、Artifact、Secret 中已有受校验的字符串关联字段，它们不是 Tool 目录 |
-| Mount | [Agent Mount](../../architecture/runner/agent-workspace.md#3-agent-mount)、[D01 目录](d01-contracts/resources-skills.md#agent-配置与真实目录) | Mount 是 Agent 到系统级 Runner 的配置关系，携逻辑 workspace；归属指定 Project/Agent，不是 RunnerID、workspace 名或宿主绝对路径 | 尚无 Mount marker、正式 Mount 目录或 `runner/contract` 实现；RunnerProtocol 不得 import Central 业务类型 |
-| Project Variable | [变量数据模型](../../architecture/project-work-management/project-environment-variables.md#2-数据模型)、[Secret 白名单](../../architecture/project-work-management/project-environment-variables.md#52-secret-白名单) | 一个 ProjectEnvironmentVariable 具有稳定 `id` 与 `type=variable\|secret`。普通变量全 Project Agent 可见；只有 Secret 分支进入 Agent 白名单。Secret 覆盖 value 保持同一个变量 ID | 尚无 ProjectVariable marker、真实业务目录与白名单引用保护；现有 Secret CredentialID/CredentialRef 是受保护凭据身份及引用，不是项目变量 ID |
+| Tool | [D01 ToolSpec](d01-contracts/model-tool.md#toolspecbinding-与可信调用)、[Stable Tool Identity](../../architecture/tool-system/tool-definition-registry.md#1-stable-tool-identity) | `tool_id` 是 UUIDv7 数据库身份；`stable_key` 表达 `builtin:<name>`、`runner:<name>`、`mcp:<config_id>:<remote_name>`。Tool revision、模型可见名称与临时在线状态都不替代 identity | Tool canonical marker 已位于 `identity/contract`；仍无 `tool/contract` 包或真实 Registry；Audit、Artifact、Secret 中已有受校验的字符串关联字段，它们不是 Tool 目录 |
+| Mount | [Agent Mount](../../architecture/runner/agent-workspace.md#3-agent-mount)、[D01 目录](d01-contracts/resources-skills.md#agent-配置与真实目录) | Mount 是 Agent 到系统级 Runner 的配置关系，携逻辑 workspace；归属指定 Project/Agent，不是 RunnerID、workspace 名或宿主绝对路径 | Mount marker 已位于 `identity/contract`；尚无正式 Mount 目录或 `runner/contract` 实现；RunnerProtocol 不得 import Central 业务类型 |
+| Project Variable | [变量数据模型](../../architecture/project-work-management/project-environment-variables.md#2-数据模型)、[Secret 白名单](../../architecture/project-work-management/project-environment-variables.md#52-secret-白名单) | 一个 ProjectEnvironmentVariable 具有稳定 `id` 与 `type=variable\|secret`。普通变量全 Project Agent 可见；只有 Secret 分支进入 Agent 白名单。Secret 覆盖 value 保持同一个变量 ID | ProjectVariable marker 已位于 `identity/contract`；尚无真实业务目录与白名单引用保护；现有 Secret CredentialID/CredentialRef 是受保护凭据身份及引用，不是项目变量 ID |
 
 [D01 标量](d01-contracts/foundation.md#标量与编码)已经固定业务 `ID<K>` 为非零 UUIDv7；本卡据此提出三个具体 marker 的工程声明，不把尚未冻结的资源 DTO、scope 字段或生命周期写成已接受。Tool 的 UUID 与 stable key 分离也已由 D01 收敛，无需重新决定是否改用字符串主键。
 
-实际核对入口为 `internal/central/identity/contract/identity.go`、`internal/central/foundation/id.go`、`internal/central/secret/contract/types.go`、`internal/central/audit/contract/types.go`、`internal/central/artifact/contract/types.go` 与 `internal/central/agent/contract/{core,reference}.go`。现 identity 层已定义 User、Session、Project、Agent、Execution marker；它们不实现各实体服务。现有 Skill 使用低层 canonical SkillID 的 alias，也说明声明位置与领域事实所有者可以分开，但本卡不迁改 Skill。
+实际核对入口为 `internal/central/identity/contract/{identity,resources}.go`、`internal/central/foundation/id.go`、`internal/central/secret/contract/types.go`、`internal/central/audit/contract/types.go`、`internal/central/artifact/contract/types.go` 与 `internal/central/agent/contract/{core,reference}.go`。现 identity 层已定义 User、Session、Project、Agent、Execution marker；它们不实现各实体服务。现有 Skill 使用低层 canonical SkillID 的 alias，也说明声明位置与领域事实所有者可以分开，但本卡不迁改 Skill。
 
 ## 2. 拟独立 R1 与精确 Go 声明
 
 R1 选择现有层 1 `internal/central/identity/contract` 作为三个 canonical marker 的唯一定义位置，不新增依赖层，不把领域实体塞进 Foundation。
 
-拟新增 `resources.go`：
+`resources.go` 声明：
 
 ```go
 package contract
@@ -36,9 +36,9 @@ type MountID = foundation.ID[Mount]
 type ProjectVariableID = foundation.ID[ProjectVariable]
 ```
 
-这六项声明是本卡的工程提案，当前不存在可消费实现。R1 不增加 `ToolRef/MountRef/VariableRef` DTO、`ResourceKind` 泛型资源 union、Catalog 接口、Actor、Scope、ServiceName 或 AccessGrant。三类业务互不赋值，仍各自调用现有 `foundation.NewID[K]/ParseID[K]`；不包装第二个 ID 生成器、parser、JSON codec、Clone 或 formatter。
+这六项声明已经实现，可供纯类型消费者编译依赖。R1 不增加 `ToolRef/MountRef/VariableRef` DTO、`ResourceKind` 泛型资源 union、Catalog 接口、Actor、Scope、ServiceName 或 AccessGrant。三类业务互不赋值，仍各自调用现有 `foundation.NewID[K]/ParseID[K]`；不包装第二个 ID 生成器、parser、JSON codec、Clone 或 formatter。
 
-变量仅用一个 `ProjectVariable` marker，普通与 Secret 的区别属于当前 canonical 记录的 `type`，不是两个可绕过类型检查的 ID namespace。不声明新的 `SecretVariable` marker，也不把 CredentialID alias 成 ProjectVariableID。未来 D10 完整配置可将现占位名称 `SecretVariableID` 收敛为 `identity.ProjectVariableID`，保留 `allowed_secret_variable_ids` wire 键，并由真实目录校验每项确属同 Project 的 Secret。此项尚待本卡接受及 D10 owner 同步后才能消费，本文不原地修改已交付 AgentCore。
+变量仅用一个 `ProjectVariable` marker，普通与 Secret 的区别属于当前 canonical 记录的 `type`，不是两个可绕过类型检查的 ID namespace。不声明新的 `SecretVariable` marker，也不把 CredentialID alias 成 ProjectVariableID。D10 F1 文稿已将原 `SecretVariableID` 占位名收敛为 `identity.ProjectVariableID`，保留 `allowed_secret_variable_ids` wire 键；未来真实目录仍须校验每项确属同 Project 的 Secret。F1 完整配置尚未实施，已交付 AgentCore 不增加字段。
 
 领域未来若需要本包短名，只能写 `type ToolID = identity.ToolID` 等 **alias**；不得另写 `type Tool struct{}`、`type ToolID identity.ToolID` 或用字符串来形成第二种 canonical 身份。Alias 不代表该领域获得其它域的事实管理权。跨数据层或 wire 显式 parse 保持所属 marker；不能因底层字节相同就把 ToolID 转换为 MountID、变量 ID 或 AgentID。这里禁止的是业务误用：Go 对相同底层形状可能允许显式类型转换，本卡只要求不同 marker 不可隐式赋值，不宣称语言能阻止所有强制转换。
 
@@ -58,7 +58,7 @@ ID 只表示稳定关联，不编码 Project/Agent/scope、资源类别状态、
 
 ## 4. 下游消费与目录分层仍未完成
 
-R1 若被接受并交付，生产依赖方向将是：
+R1 的声明可按以下依赖方向消费；下游实现仍须各自接受：
 
 | 消费者 | ID 的允许来源 | 仍须由责任卡闭合的内容 |
 | --- | --- | --- |
@@ -76,7 +76,7 @@ Runner 两端通信继续使用自己的 `internal/runnerprotocol` wire schema�
 
 ## 5. 兼容、引用与仍缺的能力
 
-R1 是向现有 identity 包添加独立声明，没有已有这三种 Go marker 需要迁移，也没有新 DB、event schema、HTTP wire 或历史数据。它不重写 Agent C1 的 17/3 键，不放宽已有 DTO，不把旧 Audit/Secret/Artifact 的字符串字段改名或重编码。既有 Model `model.Tool` 是模型调用投影，并不是 Registry Tool marker，不迁入 identity，也不能拿它生成 Registry ToolID。
+R1 向现有 identity 包添加独立声明，没有迁改已有 marker，也没有新 DB、event schema、HTTP wire 或历史数据。它不重写 Agent C1 的 17/3 键，不放宽已有 DTO，不把旧 Audit/Secret/Artifact 的字符串字段改名或重编码。既有 Model `model.Tool` 是模型调用投影，并不是 Registry Tool marker，不迁入 identity，也不能拿它生成 Registry ToolID。
 
 Tool stable key 继续由 Tool/MCP owner 维护。`builtin:...`、`runner:...`、`mcp:...` 不能通过 `ParseID[identity.Tool]`；调用者只有 key 或 model-visible name 时，必须通过正式当前 Registry/执行映射找到 UUID，不能截断、大小写合并、hash 成 UUID 或生成新 ID 代替查询。新 discovery 不自动扩大 Agent allowlist，临时离线不重编号；这些既定规则与 R1 保持独立。
 
@@ -99,12 +99,12 @@ Object runtime join、OpenAI tools 独立验收、Central SPA concurrent-publica
 
 ## 6. 可独立实施闭包与验收
 
-当前实际写域仅本文。若本规格接受，R1 拟定的产品/测试源闭包精确为两文件：
+本次产品/测试源闭包精确为两文件：
 
 1. `internal/central/identity/contract/resources.go`：仅 §2 六项声明与清晰注释，直接依赖 Foundation；不改旧 identity Actor/Scope、现 Foundation 或其它域。
 2. `internal/central/identity/contract/resources_test.go`：新 marker 的消费、区分与继承标量边界测试；使用现 Foundation 生成/解析，不复制 parser、registry、authority、fake catalog 或可执行资源 fixture。
 
-同一结果的必要文档同步由已分配 owner 处理：本卡状态；D01 索引中低层身份声明责任；D10 F1 文稿中 `SecretVariableID` 占位名与 ToolID 层级缺口的精确后续状态；后端 README/任务台账仅记录实际纯结果。它们的精确路径是 `docs/development/work-items/d01-resource-identities.md`、`docs/development/work-items/d01-contracts/README.md`、`docs/development/work-items/d10-agent-configuration.md`、`docs/development/backend/README.md`、`docs/development/agent-team/tasks.md`。这些同步不提前成为本轮写权，root 在实施派工中登记唯一作者；没有服务、go.mod、新依赖或迁移号。
+同一结果的必要文档同步由已分配 owner 处理：本卡状态；D01 索引中低层身份声明责任；D10 F1 文稿中 `SecretVariableID` 占位名与 ToolID 层级缺口的精确后续状态；后端 README/任务台账仅记录实际纯结果。它们的精确路径是 `docs/development/work-items/d01-resource-identities.md`、`docs/development/work-items/d01-contracts/README.md`、`docs/development/work-items/d10-agent-configuration.md`、`docs/development/backend/README.md`、`docs/development/agent-team/tasks.md`。这些文档已在本次结果同步，由 root 统一整合；没有服务、go.mod、新依赖或迁移号。
 
 纯实现验收必须区分以下事实：
 
