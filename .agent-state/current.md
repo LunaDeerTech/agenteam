@@ -9,5 +9,8 @@
 - 首可恢复技术片段：contract/task_timeline.go、其task_timeline_test.go、work/task_timeline_reader.go三新源已实现，严格四类union/筛选、原wire、Owner每页同Tx锁、时间ID seek与Task.Version水位，未改旧源。172fc4/38147最终actual0：定向`^TestTaskTimeline`下contract两top通过；work包仅编译成功并明确no tests to run，不能冒Reader行为已验。gofmt/diffcheck通过。没有Timeline真实运行。
 - 新增Reader三项纯控已实测：输入拒绝不碰Store、签名cursor绑定与固定水位、两族原wire及损坏/未知行拒绝。首次72f654为测试源编译错误并保留；修复后71793/56146e actual0，`^TestTaskTimeline`下contract两top与Reader三top通过。测试未替代真实Owner/锁/Rows/事务/PG分页证明。
 - 作者PG矩阵首可恢复片段已新增`tests/work/task_timeline_test.go`：正式Create+200次Update+Add/Resolve共203条四族历史、sameStore实际clock Scan限定覆盖、receipt持久关联、Reader重建、默认50/改7/200分页、反序types/同User新Session、双向W排除后写与原重放无第二事实。仅gofmt/差异检查通过，尚无PG执行。AuthorityAndCancellation/IntegrityAndCompatibility两个作者top随后已补当前Session/Owner/lifecycle、原锁与SQL/Rows取消、坏行/lookahead及旧codec/Reader兼容，尚待动态证明。
-- 最新首次集成编译65213 actual1因作者测试类型名ErrorCode/TaskEventMarker误用；按正式Code/TaskEvent修正后99817 actual0，普通integration可构建。三个作者top源码已齐，真实PG、race编译与独立验收未完成。
-- 当前该集成测试与card/current三路径冻结供root checkpoint；离线只读modcache为原model-ui-recovery/go-mod，复用本人无竞争的Work implementation/gocache，Go1.27.1/local/off/-p1/GOMAXPROCS2；未新建GB缓存。无在途Go/测试进程。下一补正式writer PG矩阵，再交独审；真实窗口另fresh grant。
+- 最新首次集成编译65213 actual1因作者测试类型名ErrorCode/TaskEventMarker误用；按正式Code/TaskEvent修正后99817 actual0，普通integration可构建。三个作者top源码已齐，真实PG与作者矩阵独立验收未完成。
+- 当前该集成测试与card/current三路径冻结供root checkpoint；离线只读modcache为原model-ui-recovery/go-mod，复用本人无竞争的Work implementation/gocache，Go1.27.1/local/off/-p1/GOMAXPROCS2；未新建GB缓存。无在途Go/测试进程。下一按三个精确作者top分别申请真实PG窗口；无整组联合selector，原预算不变。
+
+- Reader四技术源获Knowledge未参与者有限独验接受：独立overlay23681/acd731 race0（2top5sub，受控Store/Authority＋实际Rows方法），作者strictcodec52491/24163d race0；不冒真实PG/Owner/物理锁。本人当前三作者top race候选41409实际编译0，后继-list恰PersistenceAndPaging/AuthorityAndCancellation/IntegrityAndCompatibility三项；未执行任何top。复用原Work独占gocache和只读modcache，无新GB缓存。
+- 实际候选：`output/ai/task-timeline/task-timeline-race.test`。原PG-only监督工具源未改，另仅构建原driver到本树输出。计划每个top独占fresh窗口，Go6m/driver105＋15/outer123＋3/TCP75保持；首top坚持正式203历史＋2后写与两重放，第二top含当前权限/生命周期及3实际取消，第三top含6隔离损坏行与旧接口兼容，每top一个owned测试DB。无实测耗时，超过105必须原FAIL，不减事件量或扩预算。本卡只读库不增加HTTP/defaultroot产品接线；PG实际Wait、两ID双退役、runtime/desc/TCP/input尾仍需完整。
