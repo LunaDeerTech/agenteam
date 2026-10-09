@@ -1,25 +1,28 @@
 # 当前执行检查点
 
-- 任务：各层优先并行、同角色多实例，将项目子代理并发设置提高到 100，并保持冲突可控。
-- 状态：已完成；配置、工具和规则已验收，正式交付目标为 `main`，推送结果以实际远端为准。
+- 目标：从环境中断处恢复产品开发，完成 D01–D28 全部能力及 E01 平台内游戏复刻与真实试玩验收。
+- 状态：进行中；产品恢复实施尚未验收，不能视为 D11/D27 或全平台完成。
+- 当前分支：`ai/task-planning-recovery`，恢复基线为远端 `main` 的 `1b38f470`。
+- 恢复核对：初始本地 `work` 为 `3add174d`、工作区干净；fetch 后保留并 fast-forward 远端三个协作流程提交。没有发现 `origin/ai/*` 活动任务分支，也无本地未推送独有提交。
 
-## 交付结果
+## 当前工作与所有权
 
-- `.codex/config.toml` 的 `agents.max_concurrent_threads_per_session` 从 20 提高到 100，计全树并发子线程，不含主线程；深度设置与 Astra/Ultra/priority 保持。
-- `AGENTS.md`、11 角色、子树交付技能、团队 README/任务模板/设计依据统一为各层优先并行：发现已就绪结果即分派，可重复创建同角色实例，容量可用时滚动补派，不等待整个批次。
-- 不另设角色单例或永久子树配额。唯一文件写者、写权交接、共享迁移/锁文件/资产/缓存/端口/数据库/fixture 所有权保留；能隔离则隔离，只串行冲突部分，独立验收仍针对稳定输入。
-- `scripts/ai-team.py` 的 `check`、`start` 新增 `--max-agents N` 单次正整数覆盖；不传则使用仓库 100。报告配置来源、请求值和读回值，并明确实际可用席位未测量。
+1. D11 Task Planning：按[正式规格](../docs/development/work-items/d11-task-planning.md)恢复缺失实施。负责人负责卡中产品/测试路径、迁移 `00022` 和局部 README，安排唯一写者及自测；未参与实现者独立验证后才正式交付。两 ID PG-only harness 旧源同样缺失，必要重建输入保存在 `.agent-state/task-planning-recovery/`。
+2. D27 Model Settings：并行按[正式卡](../docs/development/work-items/d27-project-owner-model-settings-ui.md)重建四个缺失 Go/browser harness；此执行者仅写本卡四测试路径及 `.agent-state/model-ui-recovery/`，保留旧 FAIL，尚未运行业务或独立验收。
+3. root 独占当前检查点、全局台账与 Git。构建、迁移和真实测试资源按唯一写者与隔离 fixture 协调；必要源码随检查点保存，可再生日志在忽略的 `output/ai/`。
 
-## 验证与边界
+## 环境实际核对
 
-- 20 项工具测试通过；覆盖省略、继承、仓库值、单次覆盖、非法值拒绝和原有行为。额外边界审查验证参数安全、只读 RPC、正确覆盖和错误配置阻止启动。
-- 真实 CLI `check` 读回 `source=repo`、`requested_spawned_threads=100`、`observed_config_value=100`；11 角色映射和 11 仓库技能保持有效。没有创建 100 个模型实例，实际席位仍为 `not_measured`。
-- 11 角色 TOML、模型字段、技能元信息/引用、相关文档链接/标题和限定差异格式检查通过。已通过的进程收尾检查按未变输入复用。
-- CLI 字段没有合法无限值；省略整个仓库字段会回退本机/后端默认，可能更小。本次按用户要求明确配置 100。
-- 未修改产品代码、运行产品测试、修改全局 trust 或降低模型；产品状态仍见[任务台账](../docs/development/agent-team/tasks.md)。
+- Go：`/workspace/toolchains/go1.27.1/bin/go`，实际版本 `go1.27.1 linux/amd64`。
+- Docker server：`28.4.0`；工作盘可用约 30 GiB。
+- 已成功取得测试固定 PG 镜像 `pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc`；尚未启动任务 fixture，镜像存在不代表业务验证。
+- 现有 `scripts/test-postgres.sh` 默认会转 Object 套件，公共 PG fixture 会含 PG16 且未列 tests/work，不能直接当 Task 两 ID 测试 driver。
+- MinIO/浏览器条件待按对应目标核实；不使用旧 onboarding 版本冒固定测试版本。
 
-## 后续接续
+## 未完成与后续
 
-1. 本并行调度任务已完成，不重复实施。新开发任务按[团队流程](../docs/development/agent-team/README.md)尽可能并行派发，按[跨设备说明](README.md)自动保存必要文件。
-2. 新 CLI 会话使用 `python3 scripts/ai-team.py start`，默认请求仓库的 100；需要只读核对时使用 `check`，单次另选容量用 `--max-agents N`。已有 API 会话沿实际工具容量派工。
-3. 修改启动工具时运行 `python3 -B -m unittest discover -s scripts/tests -p 'test_ai_team.py'`；未修改的自动检查点工具无需重测。
+- 当前尚无新产品测试通过结论。阶段源码完成后先作者自测、冻结限定输入，再按风险安排独立验证；每个完整结果及时交付 main 并普通 push、核实远端。
+- Model UI 原恢复 FAIL、Work Structure 原 Unknown01 FAIL 与独立 B 外部工具终态缺口保留，不回填历史。
+- Object runtime join、OpenAI tools 独立验收、SPA concurrent-publication、Jina/Image 来源沿台账停止边界保持；局部停止不妨碍 Task 规划与验收输入恢复。
+- E01 未开始。游戏参考版本、完整内容分母、权重与可复现覆盖率须在平台前置完成后、游戏实施前冻结；最终需要平台内任务/协作/执行/审核/产物和真实试玩证据。
+- 工具全树当前 7 席位；子实例显式 Astra/Ultra，priority 实际生效未确认。不因配置 100 推断当前容量。
