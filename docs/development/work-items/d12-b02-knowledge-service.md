@@ -158,6 +158,10 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ## 8. 本轮实际实施与验证
 
+追加的 Project Object Audit 接缝沿 D08 正式 §9.2／§9.2.1，复用 `audit.ProjectFactAuthority` 与 `object.NewProjectAuditAuthority(Store)`，不新增公开 port。授权精确五源为 Project `audit_facts.go`、`object_audit_facts.go`、`object_audit_facts_test.go`、`audit_facts_test.go`、`knowledge_audit_test.go`，真实组合测试仍用本卡 `b02_audit_event_test.go`。构造复制并选择 Object provider；只分派 ObjectService 的 upload complete／failed／delete，严格核 Project／cause／resource／outcome／ordinal／空 associations。先要求同 Store 活 Tx 与 Project SH 并重读已初始化项目；complete 还须当前 Active Mutate，failed／delete 只在真实 Object 私有同 Tx witness 证明已有事实后收敛。当前 Human Owner 不从 metadata 重建，而由真实 Knowledge→Project 授权及 D05 publish 前检查链证明；普通 Owner Converge、Transfer、初始化专用授权、Object runtime join 停止项和生产 root 均不变。缺 provider／私有 witness／精确 mapping 拒绝，原 ctx／Tx／Entry／Key／Fault／Unknown 原样委托。
+
+该片段限定 race60546（前84176亦0）、Project vet 与 diffcheck 实际通过，包含旧 Secret／Knowledge 分派和 Initialization 控制、新状态矩阵、foreign／模拟 ended Tx／弱锁、原 Unknown、真实 D05 checker 无私有 witness 负控及 Transfer 仍 Unbound。首编 ordinal 类型／不可比较 LockKey／测试 Row 名错误和首次 opaque Actor 直接 DeepEqual 的测试误判均已修，保留原 FAIL，不改业务门槛。尚未独立接受或真实 D05／Account Owner／SQL 组合；本树没有 Variables 的相邻 Project 增量，最终合并需保留其精确分派并回归，当前不得称已验证 Variables 或真实 stale-owner 发布拒绝。
+
 首批 `service.go`、`repository.go`、`runtime.go`、`read.go` 与两项相邻测试已落盘；`GetDocument`／`ReadAncestors`／`ReadCurrentInTx` 通过同 Store 活 Tx、完整已有锁和真实 Project port 后才查询本域，取消不能代替实际 Drain。Unknown 保留原物理 attempt／cause，安全格式不泄露 command key。当前只是完整 B02 的中间片段，没有生产 stub、完整 Documents 实现、迁移或真实业务接受。
 
 Go 1.27.1、`GOPROXY=off GOSUMDB=off`、独占 GOCACHE、只读既有固定 modcache 下，`go test -p 2 ./internal/central/knowledge/...` 实际通过。首编曾因 Object marker 名误写失败，改为正式 `StoredObject`；随后测试 fixture 使用非法非 UUID owner 导致 `INVALID_TRANSACTION_CAUSE`，修为正式 typed UUID 后通过。当前 pure 只覆盖构造、真实调用返回前不能 Drain、多个调用退出、Unknown 私有因果与已有 B01；SQL／权限／并发和对象组合还未真实执行，不冒充已验。

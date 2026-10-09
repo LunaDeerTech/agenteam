@@ -39,7 +39,8 @@ func TestAuditFactsConstructionClosedAndCopied(t *testing.T) {
 	}{
 		{"nil", ac.SecretProducer, nil, foundation.DependencyUnbound},
 		{"typed-nil", ac.SecretProducer, typedNil, foundation.DependencyUnbound},
-		{"object-reserved", ac.ObjectProducer, checker, foundation.DependencyUnbound},
+		{"object-nil", ac.ObjectProducer, nil, foundation.DependencyUnbound},
+		{"object-typed-nil", ac.ObjectProducer, typedNil, foundation.DependencyUnbound},
 		{"project", ac.ProjectProducer, checker, foundation.InvalidArgument},
 		{"artifact", ac.ArtifactProducer, checker, foundation.InvalidArgument},
 		{"account", ac.AccountProducer, checker, foundation.InvalidArgument},

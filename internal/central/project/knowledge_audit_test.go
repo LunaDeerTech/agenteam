@@ -53,8 +53,8 @@ func TestKnowledgeAuditProviderSelectionAndDefaultUnbound(t *testing.T) {
 	if err = a.CheckAppendInTx(context.Background(), x.store.tx, entry, key); err != nil || called != 1 {
 		t.Fatal("provider selection aliased caller map", err, called)
 	}
-	if _, err = NewAuthority(x.store, AuthorityDependencies{Sessions: x.a.state().sessions, AuditFacts: selected}); err == nil {
-		t.Fatal("reserved Object provider admitted")
+	if _, err = NewAuthority(x.store, AuthorityDependencies{Sessions: x.a.state().sessions, AuditFacts: selected}); err != nil {
+		t.Fatal("separate Object provider selection rejected", err)
 	}
 }
 

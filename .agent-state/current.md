@@ -1,5 +1,7 @@
 # D12 Knowledge B02 当前恢复点
 
+- 新追加的 Project Object Audit 分派五源已可构建：ObjectService 精确 complete／failed／delete、同 Store 活 Tx／Project SH／初始化与生命周期门禁、原 witness 委托，缺 provider／mapping／witness fail-closed。限定 race60546、Project vet／diffcheck 实际0；原测试编译／opaque 比较 FAIL 保留卡。未独审／未真实 D05 组合，Variables 相邻分派须最终合并保留；Transfer、初始化专用 Authority、普通 Owner Converge 和 Object runtime join 停止项不变。精确追加写域及矩阵见卡 §8。Knowledge 发布保留／发送与 original CreationCause 三源正在本域实施，尚未纳入此片段。
+
 - 工作树 `/workspace/agenteam-knowledge`，分支 `ai/knowledge-service`，正式基线 `f1c94ee5`。唯一作者 `/root/model_delivery`；Git／worktree 与真实资源窗口由 root 负责。
 - 按 [B02 正式卡](../docs/development/work-items/d12-b02-knowledge-service.md) 已接受 rev1 实现完整 Human canonical 内容与文档树库；不是 HTTP／UI／D13／Project 全域 lifecycle 交付。
 - 唯一写域：卡 §4 的 29 个新领域／测试路径、`db/migrations/00025_knowledge.sql`、该卡、本文件及必要 `docs/development/backend/README.md`。另授 B01 `contract/events.go`／`events_test.go` 仅补 Valid()；追加 C4 精确共享写域为 Project 的 audit_facts.go/events.go 及三个 knowledge 专属新文件，见正式卡 §3；Object、其他共享口及公共 fixture 不在写域。
