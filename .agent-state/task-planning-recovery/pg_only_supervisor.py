@@ -23,6 +23,22 @@ import time
 import uuid
 
 
+RUNNER_NATIVE_SAFETY_SELECTOR = '^TestRunnerControl(DeviceCompetition|NativeProtocolRejection|NativeDeadlines|NativeIdentityRecovery)$'
+
+
+def observe_runner_native_safety(log_path, log):
+    expected = {'TestRunnerControlDeviceCompetition', 'TestRunnerControlNativeProtocolRejection',
+                'TestRunnerControlNativeDeadlines', 'TestRunnerControlNativeIdentityRecovery'}
+    try:
+        actual = re.findall(r'^=== RUN   (Test\w+)$', log_path.read_text(), re.M)
+    except OSError:
+        log.write('RUNNER native_safety_exact_tops=False log_unreadable=True\n')
+        return False
+    good = len(actual) == len(expected) and set(actual) == expected
+    log.write(f'RUNNER native_safety_exact_tops={good} top_count={len(actual)}\n')
+    return good
+
+
 def budgets(root_chain):
     # Root: original Go test 360s + readiness 75s + fixture cleanup 55s +
     # build/scheduling allowance 50s. The separate 60s TERM grace allows the
@@ -450,6 +466,10 @@ def main():
                 if remaining: code = 1
             if args.root_chain and not observe_root_chain(directory, log, log_path, args.run):
                 code = 1
+            if args.run == RUNNER_NATIVE_SAFETY_SELECTOR:
+                log.flush()
+                if not observe_runner_native_safety(log_path, log):
+                    code = 1
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75
