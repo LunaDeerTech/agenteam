@@ -28,4 +28,12 @@
 - 四fixture helper98176顺序构建、各actualWait0；Vite63221 actual0，286modules/64assets，写本树私有dist；native b386c1 actual0，7modules/89.09kB。原web/dist未写。
 - d7e52b实际新资产的公开singleton+AccountFailure精确导出解析通过；只提取原driver输入表达式预飞26source/6binary/5formal/64asset，路径均新树实际文件。Python schema依赖可用，无main/网络/资源执行。
 - 构建结束可用5,550,333,952B，私有Go tmp空；此非未来真实启动门槛。全部构建/检查actualWait已终态，没有活Go/Node检查。
-- 现freeze全部限定源、本文、卡与新增README段供root安全checkpoint。拟真实scope仍authority＋audit-authority/audit-navigation（由root最终定案），必须freshgrant。未跑新main业务，旧证据不冒新组合PASS。
+- 上述76范围已由root保存为f013f484；Runner最终91f83d只读核26source/6binary/5formal/64assets及真实ELF/JS闭包，无新增must-fix。其接受仅限就绪。
+
+## 新main首次authority实际FAIL（已完整释放）
+
+- root fresh独占授权后，session49546于2026-10-09T19:52:18.165644Z同进程statvfs确认5,966,323,712B≥5GiB，直接exec本树原driver；固定d8c1a058与本树实际assets/helpers、原预算和gate不变。
+- Go57.95s／outer147.133s，工具实际terminal exit1。失败停在pending生命周期拒绝Resolve的原finished054；仅13safe responses，原055–059、credential153、reference178及其后均未到。旧组合authority19不冒本组合通过。
+- 同请求409，native EOF262=CL，2read、2cancel均settled且release成功；PW在动作后约47.9ms aborted，原finished直到pageclose约36.46s后才拒。实际typed Problem、Request-ID相等、当前身份及loading→error DOM已采，但problem_instance_matches=false、selected_bound=false，slot end／hooks退休未观察，不接受新Resolve gate。held008原Session联合gate通过271.657ms且PW正常finished，非异常路径正例。
+- direct1058181／Node、四adopted实际Wait（均0），watchdog／resource observer／root／proxy handlers／prepService join；七ID双absent、desc双空、runtime空/private removed、TCP双空、inputs同一全部齐。窗口已释放。最小必要记录在`.agent-state/model-ui-recovery/main-authority-first-failure.json`，原件留原output目录。
+- 只读核实后再决定有意义增量；不改finished门槛，不盲重跑，尚未运行两ProjectAudit真实top。当前无新真实资源grant。

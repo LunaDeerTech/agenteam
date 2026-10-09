@@ -1,0 +1,260 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-authority-dc5929566e4a4307b54105b79f0508f5",
+  "case": "authority",
+  "combination": "formal-main-first",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority",
+  "actual_tool_session": 49546,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 57.95,
+  "disk_preflight": {
+    "utc": "2026-10-09T19:52:18.165644+00:00",
+    "available_bytes": 5966323712,
+    "minimum_bytes": 5368709120,
+    "passed": true
+  },
+  "input_revision": "f013f484",
+  "main_base": "3cea6076bb01693ead2755826826d189626aa3aa",
+  "binary_sha256": "d8c1a058e73d06c95cd121c023f19d435997851d2d19ca229ba8eef38f4a7af3",
+  "input_hash": "3bbeb19007d15a6207bc4276441c1dc0b1b781a250e649f211689671c359f5c1",
+  "terminal": {
+    "case": "authority",
+    "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+    "navigation_image": null,
+    "navigation_captures": 0,
+    "exit": 1,
+    "elapsed_seconds": 147.1334810469998,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 1060162,
+        "status": 0
+      },
+      {
+        "pid": 1060165,
+        "status": 0
+      },
+      {
+        "pid": 1060167,
+        "status": 0
+      },
+      {
+        "pid": 1060168,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "node_actual_wait_observed": true,
+  "resource_observer_actual_join": true,
+  "root_proxy_handlers_preparation_join_observed": true,
+  "retirement_observations": [
+    {
+      "observation": 1,
+      "exact_absent_count": 7,
+      "descendant_count": 0
+    },
+    {
+      "observation": 2,
+      "exact_absent_count": 7,
+      "descendant_count": 0
+    }
+  ],
+  "safe_response_count": 13,
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-lifecycle-pending-denied-rejected-first-rejected-authority-denied-finished-054"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "3bbeb19007d15a6207bc4276441c1dc0b1b781a250e649f211689671c359f5c1",
+    "mode": "authority",
+    "status": "timedOut",
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "call": null,
+        "locations": []
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [
+      "test-timeout-reported"
+    ],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      }
+    ]
+  },
+  "session_consumption": {
+    "consumer_gate": {
+      "accepted": true,
+      "within_header_deadline": true,
+      "observed_elapsed_ms": 271.65700600000037
+    },
+    "pw_finished_event": true,
+    "pw_failed_event": false,
+    "pw_failure": "none",
+    "snapshot_source": "end",
+    "slot_end_observed": true,
+    "observers_retired": true,
+    "consumption_publication_evidence_complete": true
+  },
+  "resolve_diagnostic": {
+    "pw_candidates_before_action": 0,
+    "pw_candidates_after_action": 1,
+    "pw_target_requests": 1,
+    "pw_selected_target_match": true,
+    "pw_request_match": true,
+    "pw_request_id_seen": true,
+    "pw_status": 409,
+    "snapshot_source": "sample",
+    "snapshot_selected_bound": true,
+    "snapshot_native_terminal": true,
+    "slot_end_observed": false,
+    "samples": 142,
+    "sample_settled": 142,
+    "sample_failed": 0,
+    "sample_joined": true,
+    "sample_join_unavailable": false,
+    "pw_finished_event": false,
+    "pw_failed_event": true,
+    "pw_failure": "aborted",
+    "native": {
+      "requests": 1,
+      "readers": 1,
+      "read_calls": 2,
+      "read_settled": 2,
+      "read_rejected": 0,
+      "bytes": 262,
+      "reader_cancel_calls": 1,
+      "reader_cancel_settled": 1,
+      "reader_cancel_rejected": 0,
+      "stream_cancel_calls": 1,
+      "stream_cancel_settled": 1,
+      "stream_cancel_rejected": 0,
+      "release_calls": 1,
+      "release_successes": 1,
+      "abort_events": 0,
+      "status": 409,
+      "headers_order": 1,
+      "read_done_order": 2,
+      "read_rejected_order": 0,
+      "abort_order": 0,
+      "reader_cancel_order": 3,
+      "stream_cancel_order": 5,
+      "release_order": 4,
+      "content_length": 262,
+      "headers_seen": true,
+      "status_ok": false,
+      "read_done": true,
+      "cancel_before_eof": false,
+      "request_id_match": true,
+      "signal_aborted": false,
+      "signal_aborted_at_start": false,
+      "content_length_present": true,
+      "content_length_valid": true,
+      "content_encoding_identity": true,
+      "content_length_comparable": true,
+      "content_length_matches_eof": true,
+      "eof_before_interruption": true,
+      "failure": "none"
+    },
+    "timing": {
+      "clock": "node-performance",
+      "origin": "resolve-diagnostic-begin",
+      "action_started": {
+        "order": 1,
+        "elapsed_ms": 249.01522999999906
+      },
+      "first_bound_eof_sample": {
+        "order": 3,
+        "elapsed_ms": 555.5947959999994
+      },
+      "pw_finished": null,
+      "pw_failed": {
+        "order": 2,
+        "elapsed_ms": 296.9241759999986
+      },
+      "pw_failed_test_status": "passed",
+      "original_finished_wait_rejected": {
+        "order": 5,
+        "elapsed_ms": 36712.829099
+      },
+      "page_close_notification": {
+        "order": 4,
+        "elapsed_ms": 36712.70066
+      },
+      "context_close_notification": {
+        "order": 6,
+        "elapsed_ms": 36717.534222
+      },
+      "projection_recorded": {
+        "order": 8,
+        "elapsed_ms": 36732.509833
+      }
+    },
+    "resolve_publication_install": "armed",
+    "resolve_publication_source": "sample",
+    "resolve_publication": {
+      "resolve_calls": 1,
+      "target_calls": 1,
+      "fulfilled": 0,
+      "rejected": 1,
+      "synchronous_throws": 0,
+      "problem_status": 409,
+      "pending_observations": 0,
+      "typed_problem": true,
+      "problem_instance_matches": false,
+      "entry_authenticated": true,
+      "entry_not_busy": true,
+      "entry_identity_matches": true,
+      "target_url_at_call": true,
+      "target_url_current": true,
+      "left_target": false,
+      "identity_current": true,
+      "authenticated": true,
+      "not_busy": true,
+      "old_error_heading_present": true,
+      "old_loading_dom_present": false,
+      "loading_dom_observed": true,
+      "error_dom_after_rejection": true,
+      "error_heading_present": true,
+      "error_heading_visible": true,
+      "zero_provider_lists": true,
+      "zero_dialogs": true,
+      "observer_failed": false,
+      "hooks_retired": false,
+      "lifetime_expired": false,
+      "problem_request_id_matches": true,
+      "clock": "browser-monotonic-observed-relative-to-install",
+      "timing": {
+        "call": 29,
+        "loading_dom": 30.399999998509884,
+        "rejected": 47,
+        "error_dom": 48.600000001490116,
+        "sample": 36428.89999999851
+      }
+    },
+    "resolve_publication_selected_bound": false,
+    "resolve_publication_observers_retired": false
+  },
+  "boundaries": [
+    "This new main combination failed at pending lifecycle denied Resolve original finished054. It did not reach its original055-059 postconditions, credential153 or reference178; old authority19 remains an accepted different input combination.",
+    "The actual typed Problem and public DOM samples are additional observations only: problem_instance_matches and selected_bound are false; slot end and observer retirement were not observed. No replacement Resolve gate is accepted.",
+    "PW reported aborted before the timeout and original response.finished rejected only after page close. Complete native EOF and settled cancellation do not convert the original finished gate into success.",
+    "The earlier held008 Session passed its existing limited gate with normal PW finished; it is not an aborted-PW positive example.",
+    "All original process/resource/TCP/input retirement checks completed. The business failure remains unchanged."
+  ]
+}
