@@ -178,7 +178,7 @@ function resolveEvaluate(page: Page, work: () => Promise<unknown>): Promise<unkn
   void original.then(clear, clear);
   return original;
 }
-function resolveSampler(page: Page, slot: string, requestID: () => string | null, publish: (value: unknown, expectedID: string | null) => void, initial?: Promise<unknown>, kind: 'session' | 'resolve' = 'resolve') {
+function resolveSampler(page: Page, slot: string, requestID: () => string | null, publish: (value: unknown, expectedID: string | null) => void, initial?: Promise<unknown>, kind: 'session' | 'resolve' = 'resolve', observeOwner = false) {
   let stopped = false, started = false, timer: ReturnType<typeof setTimeout> | undefined;
   let pending: Promise<void> | undefined, samples = 0, settled = 0, failed = 0;
   const schedule = () => { if (!stopped) timer = setTimeout(sample, 250); };
@@ -188,10 +188,11 @@ function resolveSampler(page: Page, slot: string, requestID: () => string | null
     const expectedID = requestID();
     samples++;
     let work: Promise<unknown>;
-    try { work = resolveEvaluate(page, () => page.evaluate(({ slot, expectedID, kind }) => {
+    try { work = resolveEvaluate(page, () => page.evaluate(({ slot, expectedID, kind, observeOwner }) => {
       const probe = (window as any).__projectModelsProbe;
-      return kind === 'session' ? probe.sessionSnapshot(slot, expectedID) : probe.resolveSnapshot(slot, expectedID);
-    }, { slot, expectedID, kind })); }
+      const native = kind === 'session' ? probe.sessionSnapshot(slot, expectedID) : probe.resolveSnapshot(slot, expectedID);
+      return observeOwner ? { native, owner: (window as any).__authorityRestoreOwner?.snapshot(expectedID) ?? null } : native;
+    }, { slot, expectedID, kind, observeOwner })); }
     catch { settled++; failed++; schedule(); return; }
     const observed = work.then((value) => { settled++; if (!stopped) publish(value, expectedID); }, () => { settled++; failed++; }).catch(() => { failed++; });
     pending = observed;
@@ -230,6 +231,7 @@ function resolveSnapshot(value: unknown): Record<string, boolean | number | stri
 }
 
 type RestoreOwner = { userID: string; sessionID: string; stage?: 'same-session-checking' };
+type SessionIdentity = { userID: string; sessionID: string; role: 'user' | 'admin' };
 type SessionBinding = { asset: string; export_name: string; entry: string };
 // Runs in the existing page. It observes the existing singleton and fetch;
 // it neither constructs a controller nor consumes a response body.
@@ -251,7 +253,8 @@ async function installRestoreOwnerObservation({ binding, expected, slot, expires
   const originalFetch = window.fetch, originalRestore = auth.restore, base = window.performance.now();
   let disposed = false, action = false, active = false, requestID: string | null = null;
   let pendingObservations = 0, hooksRetired = false;
-  const facts = { action_calls: 0, restore_calls: 0, owned_restore_calls: 0, session_requests: 0, owned_session_requests: 0, response_headers: 0, restore_settled: false, restore_rejected: false, restore_threw: false, entry_authenticated: false, entry_not_busy: false, authenticated: false, not_busy: false, user_matches: false, session_matches: false, observer_failed: false };
+  let publishedIdentity: SessionIdentity | null = null;
+  const facts = { action_calls: 0, restore_calls: 0, owned_restore_calls: 0, session_requests: 0, owned_session_requests: 0, response_headers: 0, restore_settled: false, restore_rejected: false, restore_threw: false, entry_authenticated: false, entry_not_busy: false, entry_user_matches: false, entry_session_matches: false, authenticated: false, not_busy: false, user_matches: false, session_matches: false, role_valid: false, observer_failed: false };
   const timing: Record<string, number | null> = { action: null, restore_enter: null, request: null, headers: null, restore_settled: null, state_sample: null };
   const safe = (work: () => void) => { try { work(); } catch { facts.observer_failed = true; } };
   const at = (key: string) => { timing[key] ??= window.performance.now() - base; };
@@ -287,6 +290,7 @@ async function installRestoreOwnerObservation({ binding, expected, slot, expires
       if (!owned) return;
       facts.owned_restore_calls++; at('restore_enter');
       facts.entry_authenticated = auth.state.phase === 'authenticated'; facts.entry_not_busy = auth.state.busy === false;
+      facts.entry_user_matches = auth.state.user?.id === expected.userID; facts.entry_session_matches = auth.state.session?.id === expected.sessionID;
       active = true;
     });
     let pending: Promise<unknown>;
@@ -296,20 +300,30 @@ async function installRestoreOwnerObservation({ binding, expected, slot, expires
       facts.restore_settled = true; at('restore_settled');
       facts.authenticated = auth.state.phase === 'authenticated'; facts.not_busy = auth.state.busy === false;
       facts.user_matches = auth.state.user?.id === expected.userID; facts.session_matches = auth.state.session?.id === expected.sessionID;
+      const role = auth.state.user?.role;
+      facts.role_valid = role === 'user' || role === 'admin';
+      if (facts.role_valid) publishedIdentity = { userID: auth.state.user?.id, sessionID: auth.state.session?.id, role };
       at('state_sample'); active = false; retireHooks();
     }, () => { facts.restore_settled = true; facts.restore_rejected = true; at('restore_settled'); active = false; retireHooks(); }));
     return pending;
   };
+  const snapshot = (expectedID: string | null) => {
+    const requestMatch = !!requestID && requestID === expectedID;
+    return { ...facts, pending_observations: pendingObservations, request_id_match: requestMatch, hooks_retired: hooksRetired,
+      published_role: publishedIdentity?.role ?? null,
+      completion_upper_bound: requestMatch && facts.action_calls === 1 && facts.restore_calls === 1 && facts.owned_restore_calls === 1 && facts.session_requests === 1 && facts.owned_session_requests === 1 && facts.response_headers === 1 && facts.entry_authenticated && facts.entry_not_busy && facts.entry_user_matches && facts.entry_session_matches && facts.restore_settled && !facts.restore_rejected && !facts.restore_threw && !facts.observer_failed && facts.authenticated && facts.not_busy && facts.user_matches && facts.session_matches && facts.role_valid && pendingObservations === 0 && hooksRetired,
+      clock: 'browser-monotonic-observed-relative-to-install', timing: { ...timing } };
+  };
   window.fetch = fetcher; auth.restore = restore;
   host.__authorityRestoreOwner = {
     action(begin: boolean) { if (disposed) return; action = begin; if (begin) { facts.action_calls++; at('action'); } else if (facts.owned_restore_calls === 0) retireHooks(); },
+    snapshot(expectedID: string | null) { return disposed ? null : snapshot(expectedID); },
+    identity() { return disposed || !publishedIdentity ? null : { ...publishedIdentity }; },
     finish(expectedID: string | null) {
       retireHooks();
-      const requestMatch = !!requestID && requestID === expectedID;
-      const result = { ...facts, pending_observations: pendingObservations, request_id_match: requestMatch,
-        completion_upper_bound: requestMatch && facts.action_calls === 1 && facts.restore_calls === 1 && facts.owned_restore_calls === 1 && facts.session_requests === 1 && facts.owned_session_requests === 1 && facts.response_headers === 1 && facts.entry_authenticated && facts.entry_not_busy && facts.restore_settled && !facts.restore_rejected && !facts.restore_threw && !facts.observer_failed && facts.authenticated && facts.not_busy && facts.user_matches && facts.session_matches && pendingObservations === 0,
-        clock: 'browser-monotonic-observed-relative-to-install', timing: { ...timing } };
+      const result = snapshot(expectedID);
       disposed = true; active = false; action = false; requestID = null; expected = { userID: '', sessionID: '' };
+      publishedIdentity = null;
       delete host.__authorityRestoreOwner;
       return result;
     },
@@ -320,11 +334,46 @@ function restoreOwnerProjection(value: unknown): Record<string, unknown> | null 
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const row = value as Record<string, unknown>;
   const counts = ['action_calls', 'restore_calls', 'owned_restore_calls', 'session_requests', 'owned_session_requests', 'response_headers', 'pending_observations'];
-  const flags = ['restore_settled', 'restore_rejected', 'restore_threw', 'entry_authenticated', 'entry_not_busy', 'authenticated', 'not_busy', 'user_matches', 'session_matches', 'observer_failed', 'request_id_match', 'completion_upper_bound'];
+  const flags = ['restore_settled', 'restore_rejected', 'restore_threw', 'entry_authenticated', 'entry_not_busy', 'entry_user_matches', 'entry_session_matches', 'authenticated', 'not_busy', 'user_matches', 'session_matches', 'role_valid', 'observer_failed', 'request_id_match', 'completion_upper_bound', 'hooks_retired'];
   const stages = ['action', 'restore_enter', 'request', 'headers', 'restore_settled', 'state_sample'];
   const times = row.timing as Record<string, unknown> | undefined;
-  if (Object.keys(row).length !== counts.length + flags.length + 2 || !counts.every(key => Number.isSafeInteger(row[key]) && Number(row[key]) >= 0) || !flags.every(key => typeof row[key] === 'boolean') || row.clock !== 'browser-monotonic-observed-relative-to-install' || !times || Object.keys(times).length !== stages.length || !stages.every(key => times[key] === null || typeof times[key] === 'number' && Number.isFinite(times[key]) && Number(times[key]) >= 0)) return null;
-  return { ...Object.fromEntries([...counts, ...flags].map(key => [key, row[key]])), clock: row.clock, timing: Object.fromEntries(stages.map(key => [key, times[key]])) };
+  if (Object.keys(row).length !== counts.length + flags.length + 3 || !counts.every(key => Number.isSafeInteger(row[key]) && Number(row[key]) >= 0) || !flags.every(key => typeof row[key] === 'boolean') || ![null, 'user', 'admin'].includes(row.published_role as any) || row.clock !== 'browser-monotonic-observed-relative-to-install' || !times || Object.keys(times).length !== stages.length || !stages.every(key => times[key] === null || typeof times[key] === 'number' && Number.isFinite(times[key]) && Number(times[key]) >= 0)) return null;
+  return { ...Object.fromEntries([...counts, ...flags, 'published_role'].map(key => [key, row[key]])), clock: row.clock, timing: Object.fromEntries(stages.map(key => [key, times[key]])) };
+}
+
+function consumedNative(native: Record<string, unknown> | null): boolean {
+  if (!native) return false;
+  const one = ['requests', 'readers', 'reader_cancel_calls', 'reader_cancel_settled', 'stream_cancel_calls', 'stream_cancel_settled', 'release_calls', 'release_successes'];
+  const zero = ['read_rejected', 'reader_cancel_rejected', 'stream_cancel_rejected', 'abort_events', 'read_rejected_order', 'abort_order'];
+  const yes = ['headers_seen', 'status_ok', 'read_done', 'request_id_match', 'content_length_present', 'content_length_valid', 'content_encoding_identity', 'content_length_comparable', 'content_length_matches_eof', 'eof_before_interruption'];
+  return one.every(key => native[key] === 1) && zero.every(key => native[key] === 0) && yes.every(key => native[key] === true) &&
+    native.failure === 'none' && native.status === 200 && native.cancel_before_eof === false && native.signal_aborted === false && native.signal_aborted_at_start === false &&
+    Number.isSafeInteger(native.read_calls) && Number(native.read_calls) > 0 && native.read_calls === native.read_settled &&
+    Number.isSafeInteger(native.bytes) && Number(native.bytes) > 0 && native.bytes === native.content_length &&
+    Number(native.headers_order) > 0 && Number(native.headers_order) < Number(native.read_done_order) &&
+    Number(native.read_done_order) < Number(native.reader_cancel_order) && Number(native.reader_cancel_order) < Number(native.release_order) && Number(native.release_order) < Number(native.stream_cancel_order);
+}
+function consumedOwner(owner: Record<string, unknown> | null): boolean {
+  if (!owner) return false;
+  const one = ['action_calls', 'restore_calls', 'owned_restore_calls', 'session_requests', 'owned_session_requests', 'response_headers'];
+  const yes = ['restore_settled', 'entry_authenticated', 'entry_not_busy', 'entry_user_matches', 'entry_session_matches', 'authenticated', 'not_busy', 'user_matches', 'session_matches', 'role_valid', 'request_id_match', 'hooks_retired'];
+  return one.every(key => owner[key] === 1) && yes.every(key => owner[key] === true) && owner.pending_observations === 0 &&
+    owner.restore_rejected === false && owner.restore_threw === false && owner.observer_failed === false && (owner.published_role === 'user' || owner.published_role === 'admin');
+}
+type ConsumptionResult = { evidence: Record<string, unknown>; identity: unknown };
+function acceptedSessionConsumption(value: ConsumptionResult | null, expected: RestoreOwner, deadline: number, now: number): SessionIdentity | null {
+  if (!value || !Number.isFinite(deadline) || !Number.isFinite(now) || now >= deadline) return null;
+  const e = value.evidence, native = resolveSnapshot(e.native), owner = restoreOwnerProjection(e.restore_owner);
+  const identity = value.identity as Partial<SessionIdentity> | null;
+  const timing = e.timing as Record<string, unknown> | null;
+  if (!consumedNative(native) || !consumedOwner(owner) || !identity || Object.keys(identity).length !== 3 || !uuid(identity.userID) || !uuid(identity.sessionID) ||
+    identity.userID !== expected.userID || identity.sessionID !== expected.sessionID || (identity.role !== 'user' && identity.role !== 'admin') || identity.role !== owner!.published_role ||
+    e.owner_install !== 'armed' || e.pw_candidates_before_action !== 0 || e.pw_candidates_after_action !== 1 || e.pw_target_requests !== 1 || e.pw_status !== 200 ||
+    e.pw_selected_target_match !== true || e.pw_request_match !== true || e.pw_request_id_seen !== true || e.snapshot_source !== 'end' || e.snapshot_selected_bound !== true || e.slot_end_observed !== true ||
+    e.sample_joined !== true || e.sample_join_unavailable !== false || e.sample_failed !== 0 || !Number.isSafeInteger(e.samples) || Number(e.samples) < 1 || e.samples !== e.sample_settled ||
+    e.cdp_ready !== true || e.cdp_candidates !== 1 || e.cdp_cap_exceeded !== false || e.cdp_selected_bound !== true || e.observers_retired !== true || e.browser_observers_retired !== true ||
+    !timing || timing.page_close_notification !== null || timing.context_close_notification !== null) return null;
+  return { userID: identity.userID, sessionID: identity.sessionID, role: identity.role };
 }
 
 type ResponseDiagnosticTarget = { kind: 'session' } | { kind: 'resolve'; username: string; project_name: string };
@@ -361,6 +410,8 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
   let active = false, selected: Response | undefined, requestID: string | null = null;
   let beforeAction = 0, afterAction = 0;
   let latest: Record<string, boolean | number | string> | null = null, latestID: string | null = null;
+  let latestOwner: Record<string, unknown> | null = null, progress: (() => void) | undefined;
+  let finalResult: ConsumptionResult | null = null, finalized = false;
   let snapshotSource: 'unavailable' | 'sample' | 'end' = 'unavailable';
   const targets: Request[] = [], finished = new Set<Request>(), failed = new Set<Request>();
   const bounded = async <T>(work: () => Promise<T>): Promise<T | null> => {
@@ -423,12 +474,14 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
   }, { slot, expiresAt, target })); }
   catch { beginning = Promise.resolve(null); }
   const sampler = resolveSampler(page, slot, () => requestID, (value, expectedID) => {
-    const safe = resolveSnapshot(value);
+    const safe = resolveSnapshot(restoreOwner && value && typeof value === 'object' ? (value as any).native : value);
+    if (restoreOwner) latestOwner = restoreOwnerProjection(value && typeof value === 'object' ? (value as any).owner : null);
     if (safe !== null) {
       latest = safe; latestID = expectedID; snapshotSource = 'sample';
       if (safe.eof_before_interruption === true && safe.request_id_match === true && expectedID && expectedID === requestID && targets.length === 1 && targets[0] === selected?.request() && targetMatch(targets[0]!)) firstEOFSample ??= mark();
     }
-  }, beginning, kind);
+    progress?.();
+  }, beginning, kind, !!restoreOwner);
   const beginResult = await bounded(() => beginning);
   const ownerInstall = !ownerBinding ? 'binding-unavailable' : beginResult === true ? 'armed'
     : typeof beginResult === 'string' && ['expired', 'assets-unobserved', 'observer-present', 'module-unavailable', 'singleton-unavailable', 'owner-unready', 'native-unavailable'].includes(beginResult) ? beginResult : 'unavailable';
@@ -446,26 +499,57 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
       void original.then(() => {}, rejected).catch(() => {});
       return original;
     },
-    async finish(failure: boolean) {
+    async consume(deadline: number): Promise<SessionIdentity> {
+      need(restoreOwner && ownerInstall === 'armed', 'PROJECT_MODELS_AUTHORITY_SESSION_CONSUMPTION_UNAVAILABLE');
+      while (!consumedNative(latest) || !consumedOwner(latestOwner)) {
+        need(performance.now() < deadline, 'PROJECT_MODELS_AUTHORITY_SESSION_CONSUMPTION_TIMEOUT');
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        try { await new Promise<void>((resolve) => { progress = resolve; timer = setTimeout(resolve, Math.max(0, deadline - performance.now())); }); }
+        finally { progress = undefined; if (timer !== undefined) clearTimeout(timer); }
+      }
+      // End is the final bound snapshot; sampler join and CDP detach are part
+      // of this same deadline, not a new allowance after the five seconds.
+      const result = await this.finish(false);
+      const checkedAt = performance.now();
+      const identity = acceptedSessionConsumption(result, restoreOwner, deadline, checkedAt);
+      if (result) {
+        const ownerArtifact = restoreOwner.stage === 'same-session-checking' ? 'authority-checking-session-consumption.json' : 'authority-credential-session-consumption.json';
+        writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, ownerArtifact), JSON.stringify({ ...result.evidence,
+          consumption_publication_evidence_complete: identity !== null,
+          consumer_gate: { accepted: identity !== null, within_header_deadline: checkedAt < deadline, observed_elapsed_ms: checkedAt - (deadline - 5_000) },
+        }), { mode: 0o600 });
+      }
+      need(identity, 'PROJECT_MODELS_AUTHORITY_SESSION_CONSUMPTION_INCOMPLETE');
+      return identity;
+    },
+    async finish(failure: boolean): Promise<ConsumptionResult | null> {
+      if (finalized) return finalResult;
+      finalized = true;
+      let projection: Record<string, unknown> | null = null, ownerEvidence: Record<string, unknown> | null = null;
+      let identity: unknown = null, retired = false;
       try {
         const sampling = await sampler.stop();
-        // A bounded join timeout does not retire the underlying evaluate.
-        // Never overlap it with a second evaluate, including diagnostic end.
+        // A timed-out evaluate keeps its single-flight ownership; no second
+        // read or end can overlap an original observation that has not joined.
         const value: unknown = sampling.sample_joined ? await bounded(() => resolveEvaluate(page, () => page.evaluate(({ slot, requestID, kind, observeOwner }) => {
           const probe = (window as any).__projectModelsProbe;
           if (kind === 'resolve') return probe.resolveEnd(slot, requestID);
           const snapshot = probe.sessionSnapshot(slot, requestID);
-          probe.sessionEnd(slot, requestID);
-          return observeOwner ? { native: snapshot, owner: (window as any).__authorityRestoreOwner?.finish(requestID) ?? null } : snapshot;
+          const ended = probe.sessionEnd(slot, requestID);
+          const observer = (window as any).__authorityRestoreOwner;
+          const identity = observeOwner ? observer?.identity() ?? null : null;
+          const owner = observeOwner ? observer?.finish(requestID) ?? null : null;
+          return observeOwner ? { native: ended !== null ? snapshot : null, owner, identity,
+            retired: ended !== null && probe.sessionSnapshot(slot, requestID) === null && !(window as any).__authorityRestoreOwner } : snapshot;
         }, { slot, requestID, kind, observeOwner: !!restoreOwner }))) : null;
         const owner = restoreOwnerProjection(restoreOwner && value && typeof value === 'object' ? (value as any).owner : null);
+        identity = restoreOwner && value && typeof value === 'object' ? (value as any).identity : null;
         const final = resolveSnapshot(restoreOwner && value && typeof value === 'object' ? (value as any).native : value);
         if (final !== null) { latest = final; latestID = requestID; snapshotSource = 'end'; }
-        if (!failure && !restoreOwner) return;
         const native = latest;
         const request = selected?.request(), error = request?.failure()?.errorText;
         const pwFailure = error === undefined ? 'none' : error === 'net::ERR_ABORTED' ? 'aborted' : error === 'net::ERR_CONNECTION_RESET' ? 'reset' : error === 'net::ERR_CONNECTION_CLOSED' ? 'closed' : 'other';
-        const projection = {
+        projection = {
           protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH,
           request_kind: kind,
           diagnostic: native === null ? 'unavailable' : 'captured', pw_candidates_before_action: beforeAction,
@@ -476,8 +560,6 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
           snapshot_native_terminal: native !== null && (native.read_done === true || Number(native.read_rejected) > 0 || native.failure === 'fetch-rejected'),
           slot_end_observed: final !== null, ...sampling,
           pw_finished_event: !!request && finished.has(request), pw_failed_event: !!request && failed.has(request), pw_failure: pwFailure, native,
-          // Null means not observed before this projection. A close notification
-          // is not evidence of when a close operation was initiated.
           timing: { clock: 'node-performance', origin: kind === 'session' ? 'session-diagnostic-begin' : 'resolve-diagnostic-begin', action_started: actionStarted,
             first_bound_eof_sample: firstEOFSample, pw_finished: request ? finishedTimes.get(request) ?? null : null,
             pw_failed: request ? failedTimes.get(request)?.at ?? null : null,
@@ -485,27 +567,50 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
             original_finished_wait_rejected: waitRejected, page_close_notification: pageClose,
             context_close_notification: contextClose, projection_recorded: mark() },
         };
-        if (failure) writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, artifact), JSON.stringify(projection), { mode: 0o600 });
         if (restoreOwner) {
           const matches = requestID ? [...ownerRows.values()].filter(row => row.id === requestID) : [];
-          const sameRequest = projection.snapshot_selected_bound && projection.pw_request_match && projection.pw_selected_target_match && projection.pw_status === 200 && beforeAction === 0 && afterAction === 1;
           const cdpBound = ownerCDPReady && !ownerCapExceeded && ownerRows.size === 1 && matches.length === 1;
           const cdp = cdpBound ? { request: matches[0]!.request, response: matches[0]!.response, finished: matches[0]!.finished, failed: matches[0]!.failed, aborted: matches[0]!.aborted, canceled: matches[0]!.canceled } : null;
-          const ownerArtifact = restoreOwner.stage === 'same-session-checking' ? 'authority-checking-session-consumption.json' : 'authority-credential-session-consumption.json';
-          writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, ownerArtifact), JSON.stringify({
-            ...projection, owner_install: ownerInstall, restore_owner: owner, cdp_ready: ownerCDPReady, cdp_candidates: ownerRows.size, cdp_cap_exceeded: ownerCapExceeded, cdp_selected_bound: cdpBound, cdp,
-            // This is a production consumption/publication completion bound,
-            // not a replacement for the original finished/JSON/identity gates.
-            consumption_publication_evidence_complete: ownerInstall === 'armed' && sameRequest && cdpBound && final !== null && native?.eof_before_interruption === true && native.content_length_comparable === true && native.content_length_matches_eof === true && owner?.completion_upper_bound === true,
-          }), { mode: 0o600 });
+          ownerEvidence = { ...projection, owner_install: ownerInstall, restore_owner: owner, browser_observers_retired: !!value && typeof value === 'object' && (value as any).retired === true, cdp_ready: ownerCDPReady, cdp_candidates: ownerRows.size, cdp_cap_exceeded: ownerCapExceeded, cdp_selected_bound: cdpBound, cdp };
         }
-      } catch { /* Missing diagnostic evidence must preserve the original error. */ }
+      } catch { /* Missing evidence never manufactures completion. */ }
       finally {
         ownerStopped = true;
-        if (ownerCDP) { for (const [name, listener] of ownerListeners) ownerCDP.off(name, listener); await bounded(() => ownerCDP!.detach()); }
-        ownerRows.clear();
-        page.off('request', requested); page.off('requestfinished', completed); page.off('requestfailed', rejected); page.off('close', pageClosed); context.off('close', contextClosed);
+        try {
+          let detached = !ownerCDP;
+          if (ownerCDP) {
+            for (const [name, listener] of ownerListeners) ownerCDP.off(name, listener);
+            detached = await bounded(() => ownerCDP!.detach().then(() => true)) === true;
+          }
+          ownerRows.clear();
+          page.off('request', requested); page.off('requestfinished', completed); page.off('requestfailed', rejected); page.off('close', pageClosed); context.off('close', contextClosed);
+          retired = detached;
+        } catch { retired = false; }
       }
+      // Refresh close/event facts after the actual observer tail. Safe output
+      // contains no identity values; that private projection is returned only.
+      if (projection) {
+        const request = selected?.request();
+        projection.pw_finished_event = !!request && finished.has(request);
+        projection.pw_failed_event = !!request && failed.has(request);
+        const timing = projection.timing as Record<string, unknown>;
+        timing.page_close_notification = pageClose; timing.context_close_notification = contextClose;
+        timing.pw_finished = request ? finishedTimes.get(request) ?? null : null;
+        timing.pw_failed = request ? failedTimes.get(request)?.at ?? null : null;
+        timing.projection_recorded = mark();
+        try {
+          if (failure) writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, artifact), JSON.stringify(projection), { mode: 0o600 });
+          if (restoreOwner && ownerEvidence) {
+            ownerEvidence = { ...ownerEvidence, ...projection, observers_retired: retired };
+            const ownerArtifact = restoreOwner.stage === 'same-session-checking' ? 'authority-checking-session-consumption.json' : 'authority-credential-session-consumption.json';
+            finalResult = { evidence: ownerEvidence, identity };
+            writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, ownerArtifact), JSON.stringify({ ...ownerEvidence,
+              consumption_publication_evidence_complete: acceptedSessionConsumption(finalResult, restoreOwner, Number.MAX_VALUE, performance.now()) !== null,
+            }), { mode: 0o600 });
+          }
+        } catch { finalResult = null; }
+      }
+      return finalResult;
     },
   };
 }
@@ -532,6 +637,7 @@ async function sessionIdentity(page: Page, action: () => Promise<void>, step: (n
   const diagnostic = await wait('authority-session-identity-begin-session-diagnostic-005', () => beginSessionResponseDiagnostic(page, 'authority', restoreOwner).catch(() => null));
   let diagnosticFailed = false;
   let selected: Request | undefined;
+  let headerDeadline: number | undefined;
   const observation = { headers_seen: false, finished_event: false, failed_event: false };
   const publish = () => writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-session-events.json'), JSON.stringify({ protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH, observation }), { mode: 0o600 });
   const requested = (request: Request) => { if (new URL(request.url()).pathname === '/api/v1/session' && request.method() === 'GET') step('authority-session-request-observed'); };
@@ -542,6 +648,7 @@ async function sessionIdentity(page: Page, action: () => Promise<void>, step: (n
     publish(); step('authority-session-action-started');
     const waiting = page.waitForResponse((response) => {
       if (new URL(response.url()).pathname !== '/api/v1/session' || response.request().method() !== 'GET' || response.status() !== 200) return false;
+      if (restoreOwner) headerDeadline = performance.now() + 5_000;
       selected = response.request();
       try { diagnostic?.select(response); } catch { /* Diagnostic binding cannot replace the selected response. */ }
       observation.headers_seen = true; publish(); return true;
@@ -552,6 +659,16 @@ async function sessionIdentity(page: Page, action: () => Promise<void>, step: (n
       (async () => { await wait('authority-session-identity-session-stage-007', () => sessionStage(action(), 'PROJECT_MODELS_AUTHORITY_SESSION_ACTION_TIMEOUT')); step('authority-session-action-returned'); })(),
     ]));
     step('authority-session-headers-observed');
+    if (restoreOwner) {
+      need(diagnostic && headerDeadline !== undefined, 'PROJECT_MODELS_AUTHORITY_SESSION_CONSUMPTION_UNAVAILABLE');
+      // Observe the exact original PW Promise once, without making its event
+      // mapping the consumption oracle or starting a second body read.
+      try { void diagnostic.finishedWait(() => response.finished()).catch(() => {}); }
+      catch { throw new Error('PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE'); }
+      const identity = await wait('authority-session-identity-consumption-008', () => diagnostic.consume(headerDeadline!));
+      step('authority-session-consumption-validated');
+      return identity;
+    }
     try { need(await wait('authority-session-identity-session-stage-008', () => sessionStage(diagnostic ? diagnostic.finishedWait(() => response.finished()) : response.finished(), 'PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT')) === null, 'PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE'); }
     catch (error) {
       if (error instanceof Error && error.message === 'PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT') throw error;
