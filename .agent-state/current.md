@@ -1,28 +1,28 @@
 # 当前执行检查点
 
-- 任务：建立自动跨设备开发接续；必要未完成文件与状态一起保存到 Git。
-- 状态：已完成；工具与工作流已验收，正式交付目标为 `main`，推送结果以实际远端为准。
-- 任务分支：`ai/cross-device-checkpoints`，保留为本任务检查点历史，不再作为活动产品任务。
-- 结果：主线程在安全边界自动提交并推送检查点，新设备 fetch 后继续对应任务，无需用户提醒保存。
+- 任务：调研公开 AI 开发团队实践，增强本项目的角色、技能和可用启动配置。
+- 状态：已完成；配置、技能、工具与文档已验收，正式交付目标为 `main`，推送结果以实际远端为准。
+- 任务分支：`ai/strengthen-agent-team`，保留为检查点历史，不再作为活动产品任务。
 
-## 文件与结果
+## 交付结果
 
-- 交接文档整理与本次接续功能一并正式交付：精简台账、环境恢复入口和活动任务卡，历史细节通过 Git 查询，不另造归档副本。
-- 保存工具：`scripts/ai-checkpoint.py`；集成测试：`scripts/tests/test_ai_checkpoint.py`。运行依赖 Git 和 Python 3.9 及以上，无额外 Python 包。
-- 持久规则：`AGENTS.md`、`.gitignore`、`.codex/agents/`、`.agents/skills/`、开发团队流程/模板/恢复/台账及开发计划；主线程统一 Git 操作，多层子代理主动交出可恢复片段。
-- `.agent-state/` 为受跟踪的恢复入口。必要源码、harness 和脱敏复现输入保存到正式路径或该目录；可再生日志继续忽略，符号链接不能替代必要文件内容。
+- `.codex/agents/` 共 11 种角色：保留原六种，新增 `delivery_lead`、`data_worker`、`security_reviewer`、`test_worker`、`platform_worker`。全部使用 `gpt-6-astra / ultra / priority` 配置。
+- `.agents/skills/` 共 10 个项目技能和原有 Vue 社区技能；新增子树交付、数据库、安全、测试工程、运行时排障方法，增强 Go/Vue/verification 的操作方法与分流。
+- [团队流程](../docs/development/agent-team/README.md)、任务模板和技能来源说明已同步；11 种角色按需选择，当前运行时全树仍共 7 席，不要求全部角色或固定审批链。
+- [设计依据](../docs/development/agent-team/team-design.md)保存 OpenAI、Anthropic、OpenHands、SWE-agent 一手来源与采用边界，不复制外部框架或技能包。
+- `scripts/ai-team.py` 提供 `check`、`start --dry-run`、`start -- PROMPT`；测试位于 `scripts/tests/test_ai_team.py`。启动显式加载本次 CLI 配置，不修改全局 trust、权限或 sandbox。
 
-## 验证与限制
+## 实际验证与边界
 
-- 15 项临时远端与双 clone Git 集成测试通过，覆盖新改删文件恢复、首次交接、推送失败重试、远端并发、暂存保护、路径边界与符号链接。
-- 独立审查另验证 5 组实际 Git 恢复/保护场景；发现指向本地临时文件的符号链接不能跨设备恢复，已修复并独立复验外部及断链拒绝行为。
-- 六份角色 TOML、五份技能元信息和相关格式检查通过；跨 825 份 Markdown 的 558 个相关链接/锚点检查通过。
-- 未运行 Go、Vue 或真实基础设施产品测试；本任务没有修改产品实现。
-- 旧任务的缺失源码不能凭摘要恢复：D11 Task Planning 实施未恢复，Model Settings 四个 harness 缺失，其他既有停止项保持。具体路径和产品下一步见[任务台账](../docs/development/agent-team/tasks.md)及[环境恢复说明](../docs/development/agent-team/recovery-2026-10-08-environment.md)。
-- 自动保存由运行中的 agent 在安全边界调用；普通 push 成功才表示另一设备可取。突然中断只能恢复到最近成功推送的检查点。
+- 15 项工具测试通过；真实 CLI `check` 确认 8 项显式有效设置、11 个角色映射及 11 个启用的仓库技能。
+- 独立审查发现父进程退出而子进程持有管道时可能卡在收尾，已修复并独立复验 app-server 和 version 两种退出边界；相关进程和 reader 实际结束，自有临时资源已清理。
+- 角色 TOML、变更技能元信息、角色/技能映射、格式及跨 831 份 Markdown 的 369 个相关链接/锚点检查通过。
+- 工具要求 Python 3.11+ 与 POSIX 进程组（Linux/macOS/WSL），当前不支持原生 Windows；本轮只在 Linux 实测。
+- 默认项目配置在本机仍因未信任而禁用；显式启动覆盖已验证。目录角色发现与同文件去重依据官方文档/加载器，本轮未运行真实角色实例或验证请求级 Fast 服务档位；未启动模型任务。
+- 未修改产品实现、运行 Go/Vue/真实基础设施产品测试或解除历史停止项。产品状态仍见[任务台账](../docs/development/agent-team/tasks.md)。
 
 ## 后续接续
 
-1. 本工作流任务已验收，不重复执行。新设备按[接续说明](README.md) fetch，查找与用户目标匹配的进行中/阻塞任务分支；没有活动检查点时从 `main` 的台账选择用户要求的下一项。
-2. 产品工作从真实依赖和缺失输入继续，不把工作流完成当作业务验收。新的执行任务使用新的 `ai/<task>` 分支并更新此状态文件。
-3. 修改保存工具时运行 `python3 -B -m unittest discover -s scripts/tests -p 'test_ai_checkpoint.py'`；测试只使用临时本地仓库，相关输入未变时复用已有结论。
+1. 本团队增强任务已完成，不重复实施。新任务先按[跨设备说明](README.md)恢复对应活动分支，或从 `main` 开始新的 `ai/<task>` 分支并更新此文件。
+2. 新 CLI 会话可从仓库根运行 `python3 scripts/ai-team.py start -- '接续当前任务，先读取 .agent-state/current.md'`，启动时自动预检；仅诊断使用 `check`。已有 API 会话按工具实际支持字段及团队流程派工。
+3. 修改启动工具时运行 `python3 -B -m unittest discover -s scripts/tests -p 'test_ai_team.py'`；相关输入未变时复用已有结论。原自动保存工具未修改，无需重跑其测试。

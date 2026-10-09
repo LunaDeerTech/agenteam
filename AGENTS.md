@@ -82,7 +82,7 @@ Keep credentials in ignored `.env*` files or root `secrets/`; commit sanitized e
 
 用户只与主线程沟通。主线程负责全局目标、约束、一级子目标、跨任务契约与资源预算、最终整合和 Git 交付；不逐项接管局部拆解、工具排查和重复证据核对。一级负责人接收完整子目标，负责设计细化、向二级执行者拆分、局部协调、验证与汇总；二级及更深代理可在确有收益时继续拆分。简单任务直接执行，不为凑层级或用满席位创建代理。
 
-六个专业角色及技能映射见团队流程。所有层级统一使用 `gpt-6-astra`、`ultra` 与 Fast Mode（配置 `service_tier = "priority"`），禁止静默降级为 `max` 或其他模型。支持显式创建参数时指定模型和思考强度，使用自包含任务和 `fork_turns=none`；Fast 的实际生效受运行时支持及配置加载影响，没有可确认信息时如实说明。各层继承权限与 sandbox；不修改全局 trust。
+专业角色、技能映射及按任务选择的最小团队见团队流程。复杂子目标可交给 `delivery_lead` 组织数据、安全、测试、平台和实现能力；专业角色按需要组合，不构成新增审批阶段。所有层级统一使用 `gpt-6-astra`、`ultra` 与 Fast Mode（配置 `service_tier = "priority"`），禁止静默降级为 `max` 或其他模型。支持显式创建参数时指定模型和思考强度，使用自包含任务和 `fork_turns=none`；Fast 的实际生效受运行时支持及配置加载影响，没有可确认信息时如实说明。各层继承权限与 sandbox；不修改全局 trust。新 CLI 会话可用 `python3 scripts/ai-team.py start` 显式加载本仓团队配置并预检，单独诊断用 `check`；已有 API 会话仍按实际工具支持的字段派工，脚本不改变当前会话。
 
 当前协作工具全树共享 7 个总席位（含主线程），以实时可用名额为准。主线程向一级负责人分配子树预算，父代理创建下级会消耗同一预算；为实际执行者预留名额，名额不足时由现有执行者完成或顺序推进，不能形成所有父代理等待未创建子代理的阻塞。深度按任务复杂度和运行时上限选择，允许多层，不固定仅一层。
 
@@ -98,4 +98,4 @@ Keep credentials in ignored `.env*` files or root `secrets/`; commit sanitized e
 
 子代理不得执行本仓库的 `git add`、`git commit`、`git push`、`git reset`、`git clean`，不得切换分支或创建、切换 worktree。检查点只需暂停所保存文件的写入，仍在运行的检查如实登记；正式验收时另行核实相关命令和资源终态。各级负责人确认保存范围停止写入后，由主线程仅暂存本次明确归属的文件；未验收内容可以且应当随自动 WIP 检查点保存，但不得标为 PASS 或正式完成。最终验收通过后，把任务分支的 WIP 整理为一个完整结果的 Conventional Commit，包含实现、测试、必要文档及简短台账更新。不把文档留作额外 `docs` / `docs archive` 收尾，不为回填提交哈希、整理报告或复制日志再开提交。独立的文档任务或有独立价值的阶段结果可以单独提交。持续授权包括正常检查点 commit/push，不包括部署、强推、丢弃改动或覆盖其他设备的提交；远端冲突须先获取并保留双方工作再整合。
 
-首次接任务只读本文件、[团队流程](docs/development/agent-team/README.md)和目标规格及相关技能；后续补读变化。任务模板见[精简简报](docs/development/agent-team/task-template.md)。Vue 测试读取 `vue-testing-best-practices`，浏览器任务使用可用的 `playwright` 技能。工作流变更只需相关配置解析、链接/一致性及格式检查，不运行无关产品测试，也不新增验收归档。
+首次接任务只读本文件、[团队流程](docs/development/agent-team/README.md)和目标规格及相关技能；后续补读变化。任务模板见[精简简报](docs/development/agent-team/task-template.md)。Vue 测试读取 `vue-testing-best-practices`；真实浏览器与测试 harness 使用仓库内的 `agenteam-test-engineering` 技能，环境已有的 `playwright` 技能可补充使用，不作为跨设备的必需前提。工作流变更只需相关配置解析、链接/一致性及格式检查，不运行无关产品测试，也不新增验收归档。

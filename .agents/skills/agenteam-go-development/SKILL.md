@@ -18,6 +18,21 @@ description: 在 agenteam 接到后端实现任务卡时使用，核对真实 Go
 - Runner 任务按需读 [Runner 架构入口](../../../docs/architecture/runner/README.md)。
 - 以实际源码、`go.mod`、Go 版本和任务卡为工程执行依据，不能以历史描述代替检查。
 
+## 按任务组合方法
+
+- schema、SQL adapter、锁、幂等与 Commit Unknown 使用[数据库技能](../agenteam-database/SKILL.md)。
+- 当前授权、Secret、受控出站与安全输出使用[安全技能](../agenteam-security/SKILL.md)。
+- 真实 fixture、并发/取消/恢复测试使用[测试工程技能](../agenteam-test-engineering/SKILL.md)；工具链、进程或资源故障使用[运行时技能](../agenteam-runtime-debugging/SKILL.md)。
+- 承担多执行者完整子目标时使用[子树交付技能](../agenteam-subtree-delivery/SKILL.md)，不因后端角色自动创建下级。
+
+## 从接口到实现
+
+先沿实际入口追到领域服务、repository 和外部端口，标出事实所有者与未绑定接缝。以当前规格列出这次要改变的正常、拒绝、重放和取消行为，再决定修改点；已有服务能承担的能力不在 HTTP 或 SQL adapter 里再实现一份。
+
+按调用链传播 `context.Context` 和更早截止时间，检查哪些资源由谁取得、关闭和 join。包装错误须保留 `errors.Is` / `errors.As` 所需判断能力，向外投影遵循正式错误契约；不要把库层取消、提交未知或部分关闭统一写成成功。
+
+测试先固定能区分缺陷的输入与外部可观察结果，选择相邻真实测试或适用 fixture 补场景。按[后端命令](../../../docs/development/backend/README.md)选择包级自测、vet、race 与 build；涉及数据库或进程时另核相应真实边界，单元通过不替代组合验证。
+
 ## 执行检查
 
 1. 核对卡片修订、当前任务确认分支的 Git 基线、授权文件与共享资源负责人，保留已登记的其他任务及用户改动。
@@ -42,11 +57,7 @@ Central 与 Runner 的具体实现分别留在各自目录，协议不承载 Cen
 
 ## 可恢复检查点
 
-未完成但后续必需的源码、测试 harness、失败复现脚本和必要输入，须按文件所有权保存到正式路径或受 Git 跟踪的 `.agent-state/<task>/`，不得只留在 `/tmp`、scratch 或 output。只读任务由直接负责人安排唯一写入者保存。重复原始日志仍放忽略的 `output/ai/`；关键且不可再生的证据主动精简、脱敏保存到 `.agent-state/<task>/`。
-
-形成有意义结果、交付及启动长检查前，主动向直接负责人报告可恢复检查点：停止本范围内执行者、下级及后台命令的相关写入，列出必要文件、已通过/失败/未验证内容和下一步。父级逐级汇总，由 root 沿用用户持续授权自动 WIP commit 并 push 到任务 `ai/<task>` 分支，无需用户提醒，也不等待产品验收；子代理不得执行本仓库 Git 写操作或分支操作。
-
-正式验收结果仍以一次原子变更交付，可在整合时整理 WIP。WIP 保存不代表 PASS，不免除独立验收或覆盖失败事实；常规 commit/push 授权不包含部署或 force push。
+按[自动保存规则](../../../docs/development/agent-team/README.md#自动保存与跨设备恢复)，在阶段产物、交付和长检查前主动暂停保存范围写入，向直接负责人交出必要源码、harness、脱敏输入及实际状态，由 root 自动 WIP commit/push。保存用仓库内普通文件；WIP 不表示验收通过，子代理不执行本仓库 Git 写操作。
 
 ## 证据与交付
 

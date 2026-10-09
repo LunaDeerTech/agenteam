@@ -17,7 +17,15 @@ description: 在 agenteam 接到前端实现任务卡时使用，按既定接口
 - 从 [前端设计入口](../../../docs/frontend-design/README.md) 选择任务对应的 `layouts/` 文档。
 - 从 [样式规范](../../../docs/frontend-design/styles/README.md) 选择任务对应的主题、密度和交互规范。
 - 写 Vue 测试时读取相邻 [Vue 测试最佳实践](../vue-testing-best-practices/SKILL.md)，仅加载当前测试需要的参考。
-- 浏览器任务使用环境中可用的 `playwright` 技能；不可用时报告限制。
+- 浏览器任务使用仓库内[测试工程技能](../agenteam-test-engineering/SKILL.md)及锁定 Playwright harness；机器已有的外部 `playwright` 技能可按需辅助，其缺失不构成硬前提。
+
+## 按可见行为实现
+
+1. 从路由、页面、composable、API client 到已有 Ui 控件追踪真实调用链，先确认本次状态由谁持有、接口返回什么以及哪些端口尚未绑定。
+2. 按当前接口列出涉及的加载、空态、权限拒绝、冲突、提交未知和恢复状态，明确用户动作与最终反馈。正式状态规则来自 API 与任务规格，不能从 Debug 样例推导。
+3. 对异步读取标明请求身份和页面/资源身份，构造迟到响应与导航切换检查，防止旧结果覆盖新上下文。命令草稿、幂等键、原 payload 与 lookup 的保留和恢复严格沿对应契约实现。
+4. 组件测试通过 props、emits、用户操作和渲染结果检查行为，避免只测内部方法或复制实现计算期望。先注册要观察的响应再触发动作；Promise flush、计时器推进和 DOM 更新分别等待。
+5. 组合真实浏览器测试前确认正式资产、owned 后端与锁定 executable，按[测试工程技能](../agenteam-test-engineering/SKILL.md)关联 UI、网络响应和最终业务事实。环境缺失用[运行时技能](../agenteam-runtime-debugging/SKILL.md)定位和恢复，权限竞争按需组合[安全技能](../agenteam-security/SKILL.md)。
 
 ## 执行检查
 
@@ -40,11 +48,7 @@ description: 在 agenteam 接到前端实现任务卡时使用，按既定接口
 
 ## 可恢复检查点
 
-未完成但后续必需的源码、测试 harness、失败复现脚本和必要输入，须按文件所有权保存到正式路径或受 Git 跟踪的 `.agent-state/<task>/`，不得只留在 `/tmp`、scratch 或 output。只读任务由直接负责人安排唯一写入者保存。重复原始日志仍放忽略的 `output/ai/`；关键且不可再生的证据主动精简、脱敏保存到 `.agent-state/<task>/`。
-
-形成有意义结果、交付及启动长检查前，主动向直接负责人报告可恢复检查点：停止本范围内执行者、下级及后台命令的相关写入，列出必要文件、已通过/失败/未验证内容和下一步。父级逐级汇总，由 root 沿用用户持续授权自动 WIP commit 并 push 到任务 `ai/<task>` 分支，无需用户提醒，也不等待产品验收；子代理不得执行本仓库 Git 写操作或分支操作。
-
-正式验收结果仍以一次原子变更交付，可在整合时整理 WIP。WIP 保存不代表 PASS，不免除独立验收或覆盖失败事实；常规 commit/push 授权不包含部署或 force push。
+按[自动保存规则](../../../docs/development/agent-team/README.md#自动保存与跨设备恢复)，在阶段产物、交付和长检查前主动暂停保存范围写入，向直接负责人交出必要页面源码、测试与浏览器 harness、脱敏输入及实际状态，由 root 自动 WIP commit/push。保存用仓库内普通文件；WIP 不表示验收通过，子代理不执行本仓库 Git 写操作。
 
 ## 证据与交付
 

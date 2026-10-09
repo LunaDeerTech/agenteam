@@ -1,0 +1,33 @@
+# 团队能力设计依据
+
+本页保存选型依据，角色和调度规则以[团队流程](README.md)为准。2026-10-09 核读以下公开一手资料，并结合本仓库 Go/Central/Runner、PostgreSQL、Vue、权限与恢复需求确定方案；不引入外部代理框架或自动安装技能包。
+
+## 本项目采用的设计
+
+保留架构、调研、后端、前端、文档和独立验证角色，补上子目标交付负责人、数据工程、安全审查、测试工程及平台工程。职责目录共有 11 种能力，实际任务按依赖、风险和可用席位选择；根线程确定全局目标与边界，交付负责人承担局部拆分、执行协调、返修和集成。
+
+五个新增项目技能提供可操作的方法：完整子目标交付、数据库与事务、安全检查、测试工程、运行环境与故障定位。原角色可组合这些技能，例如后端执行者使用数据库与调试技能，独立验证者使用安全或真实浏览器方法；不要求结果依次经过所有专家。浏览器检查的项目内入口可随 Git 到新设备，外部 Playwright 技能仅按可用性补充。
+
+职责靠唯一文件/资源所有者、清楚的接口和实际结果衔接。局部普通工程问题由负责人解决；缺少产品含义、跨子目标冲突或实质范围变化才向上升级。验证独立性按是否参与实现判断，不能靠换一个角色名称获得。
+
+## 一手实践与取舍
+
+| 来源 | 实际参考内容 | 本项目采用与适用边界 |
+| --- | --- | --- |
+| [Codex 子代理](https://learn.chatgpt.com/docs/agent-configuration/subagents)、[当前自定义角色文档](https://developers.openai.com/codex/subagents) | 角色职责、定向上下文和并行分工；探索、测试、故障分析可拆开，密集写入容易冲突 | 按需专业角色、明确所有权和局部汇总。目录角色发现与 CLI 配置字段按本机版本实际核对，不从网页推断当前会话已经加载 |
+| [Codex 技能](https://learn.chatgpt.com/docs/build-skills) | 名称/描述先用于选择，正文按需读取；技能应有明确触发和职责 | 技能保留触发、操作步骤、产物和限制，公共规则引用团队流程；用代表性任务检查角色与技能是否能选对 |
+| [OpenAI Harness engineering](https://openai.com/index/harness-engineering/) | 人类定方向，代理生成代码/测试/CI/文档；短入口、版本化知识、可观察环境及机械工程约束 | 保留短入口和 Git 恢复材料；强化可运行 harness、可复现环境和检查反馈。其低阻塞合并及偶发失败后补修策略不套用本项目高风险验收 |
+| [Anthropic Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) | 动态组织执行者；明确评价标准；以环境执行结果反馈迭代 | 一级负责人自主组织实现—自测—独立验证—局部返修。真实数据库、权限、并发与资源退出结果作为证据，模型意见不能替代这些结果 |
+| [Anthropic Multi-agent research](https://www.anthropic.com/engineering/multi-agent-research-system) | 简报给目标、产物、工具/来源与边界；预算随复杂度调整；精简回传与检查点 | 子树预算、按需上下文和可恢复片段。文章明确多数编码任务比研究任务更难并行，不据研究效果无限增代理或并发 |
+| [OpenHands SDK 架构](https://docs.openhands.dev/sdk/arch/overview)、[Conversation](https://docs.openhands.dev/sdk/arch/conversation)、[多 sandbox](https://github.com/OpenHands/OpenHands#option-3-with-multiple-docker-sandboxes) | 执行环境、会话状态与恢复机制；多个环境仍可能共享宿主挂载 | 容器数量不消除共享文件冲突；迁移、fixture、构建资产和进程仍有唯一所有者。保留必要文件和启动命令，不能只保存会话摘要 |
+| [SWE-agent 默认配置](https://github.com/SWE-agent/SWE-agent/blob/main/config/default.yaml)、[输出](https://swe-agent.com/latest/usage/trajectories/)、[批处理](https://swe-agent.com/latest/usage/batch_mode/) | 复现、修复、再验证；补丁产出与评估分开；成本和并发各自限额 | 调试技能要求基线、单一可证伪假设和受影响复验。基准配置的“不修改测试”不用于本项目必要测试交付，也不迁入 benchmark 流程 |
+
+这些来源的速度、规模和评测数字是作者在特定环境中的报告，本项目未复现，不作为效果承诺。全 AI 产码案例仍由人类确定产品方向、约束和结果是否满足需求。
+
+## 运行与验证原则
+
+- 所有角色继续统一 `gpt-6-astra / ultra`，Fast 配置为 `priority`；工具支持、配置生效和实际实例服务档位分别说明。
+- 当前工具全树共享 7 个席位。11 个角色按需选择；为执行和独立验证留名额，简单任务直接执行，不增加固定审批环节。
+- 官方文档及加载器支持发现角色目录；本轮未实测目录发现后的角色调用，项目配置可能因 trust 未加载。便携检查/启动入口显式传入本次会话配置，不修改全局 trust，不重复注册同一路径角色。
+- 检查角色字段、技能描述/引用、实际 CLI 有效配置与技能发现，并审查典型任务的人员选择。没有启动模型任务时，只声明配置与发现层面的验证。
+- 后续在真实任务中观察完整结果是否更快交付、局部问题是否能在子树内解决、是否出现重复验证或资源冲突；按事实调整团队。原始日志仍为本地临时材料，不新增永久流水和重复哈希清单。

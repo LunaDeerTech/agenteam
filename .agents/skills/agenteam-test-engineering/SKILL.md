@@ -1,0 +1,43 @@
+---
+name: agenteam-test-engineering
+description: 在 agenteam 新建或恢复测试 harness、真实数据库和进程组合、并发故障注入或浏览器验收时使用，把正式契约转成可重复刺激与可判定的行为证据。
+---
+
+# agenteam 测试工程
+
+供 `test_worker`、实现者及独立验证者组合使用。先确定任务要求的真实边界和测试文件写权；实现测试不自动构成独立验收。公共规则见[团队流程](../../../docs/development/agent-team/README.md)，审查方法见[验证技能](../agenteam-verification/SKILL.md)。
+
+## 触发与产物
+
+适用于缺失 harness 重建、多个真实服务的组合、协议断连/取消、并发恢复、浏览器流程和难以复现的测试失败。产物是可执行测试源、最小 fixture/probe、必要脱敏输入、精确运行命令及实际场景结果。可重建日志和构建产物继续忽略；源文件与必需输入不能只放 scratch 或符号链接中。
+
+## 从契约形成断言
+
+1. 将每个关键条款转成“前置事实 → 操作/故障时点 → 可观察结果”。先定义能区分正确与错误实现的判据，再选择单元、真实 PG、协议、进程或浏览器层级。
+2. 一条用例只依赖其声明的 fixture。领域替身用于明确的局部接口控制；需要生产装配、授权、事务或协议证明时使用真实路径，并说明仍未绑定的上游/下游。
+3. 为正常控制组和本次风险对应的负例设计输入：边界值、重复命令、竞争、失败与取消。覆盖来自行为风险，不以文件数量、快照数量或无意义重复测试衡量。
+4. 把刺激与判定分开。测试不能用待测实现计算自己的期望；除即时响应外，按契约核对最终持久事实、可见输出和实际副作用。
+
+## 并发、恢复与进程
+
+复用[tests/testsupport](../../../tests/testsupport/)的真实 fixture 和相邻测试构造。barrier、channel、数据库锁等待或受控代理证明操作确实到达目标时点；使用有界等待和诊断信息，不靠固定 sleep 猜竞争是否发生。
+
+故障注入点要能区分请求未到达、已处理但响应丢失、取消中和关闭后的不同事实。对 Commit Unknown、幂等重放和恢复，用独立连接或正式 lookup 确认结果；代理只改变任务定义的边界，不暗改产品成功条件。
+
+启动真实子进程时记录所属 PID/资源 ID，所有返回路径收集实际 wait/exit，按原总预算完成取消、join 与精确资源清理。若业务断言通过但工具 terminal 或资源退出缺失，分别报告，不能用后来的无进程观察补写原成功。卡死排查组合[运行时技能](../agenteam-runtime-debugging/SKILL.md)。
+
+## 仓库内浏览器方法
+
+本技能提供可随 Git 恢复的方法，不依赖机器预装的外部 `playwright` 技能。测试工具入口是[浏览器 harness](../../../tests/account-captcha-web/README.md)及其[package.json](../../../tests/account-captcha-web/package.json)/[锁文件](../../../tests/account-captcha-web/package-lock.json)，当前锁定 `@playwright/test` 1.56.1。组件层使用[web 工程](../../../web/package.json)的 Vue 3、Vitest 4 与 Vue Test Utils，执行前核实际 lock 和已安装版本。
+
+1. 核对目标 Go fixture、Playwright config、测试源、正式前端资产、浏览器 executable 与环境参数。现存 [Owner config](../../../tests/account-captcha-web/project-owner.config.js)展示了精确 owned origin/私有目录/case 校验；新 harness 沿目标规格设置，不能仅替换名字后宣称已验证。
+2. 缺依赖时在任务已有授权范围内用 `npm ci --prefix tests/account-captcha-web` 恢复锁定依赖；浏览器按当前 harness 与恢复说明的已确认组合恢复并实际核验。机器预装技能可按需辅助；没有该技能仍可调用仓库已安装 CLI。不要用会隐式下载 latest 的 `npx`，也不把历史受阻下载自动再试一遍。
+3. 真实组合测试由对应 Go fixture 提供隔离后端、测试账号、精确 origin 和进程预算。优先运行[后端说明](../../../docs/development/backend/README.md)对应脚本与选择器；缺少必需 fixture 的 standalone CLI 失败不代表页面业务失败。
+4. 用实际 role/label 等用户可见定位器和鼠标/键盘动作，等待可观察状态或指定响应。将目标请求与 response 关联，再按契约核对完整响应/最终持久事实及界面状态；仅收到 response event 不能证明流完整或命令已确认。
+5. 涉及视觉交互时覆盖任务要求的浅深色、窄屏、键盘、焦点恢复、减少动效和溢出。DOM 合成测试、jsdom 或组件单元测试只证明各自范围；真实浏览器是否启动、场景是否执行单独记录。
+
+## 执行与失败归因
+
+先确认选择器确实命中预期场景，再运行适用子集；`--list`、编译成功、`no tests to run` 和 skipped 不记作行为通过。相关输入及依赖未变时复用已有结果，修复后补跑受影响检查，不用放宽断言、加长预算或重试次数掩盖失败。
+
+失败先定位到产品行为、fixture/测试、环境或观测工具哪一层，保留最小复现与证据；无法区分时列出下一条能区分假设的检查。缺浏览器、真实 PG 或依赖时准确报告未执行的范围，按既有授权修复环境。长检查前主动交出[可恢复文件](../../../.agent-state/README.md)，运行结果与资源终态随后更新。
