@@ -1,5 +1,7 @@
 # 当前工作：D15 Runner 身份与 Control Channel
 
+- OS失败诊断最小增量已冻结待Vars独审：`runner-os-signals.py`只复用原读取循环已经取得的PID/start_ticks身份检查、fd0 inode/flags、≤128 TID双syscall/wchan样本作闭集投影；不存指针、任意proc文字、stdin/token或环境，不增加proc操作/等待。原严格pipe_read/双样本/身份、5s初始见证、原信号/Wait/3s cleanup全部保持；仅失败且原cleanup实际返回后输出末样本，证据写错不覆盖原失败。新增`runner-os-diagnostic-controls.py`，a34185 actual0/60纯控涵盖安全解析、alias仍拒、权限/缺失/格式、128上限、晚成功拒绝及cleanup先行。无真实child/proc/socket。固定Go源码表明继承blocking fd的kindNewFile不自动进netpoll；当前kernel符号含anon_pipe_read/fifo_pipe_read只是方法候选，不能补OS01原缺失wchan。原29686 FAIL完整保留；后继诊断需新output/freshgrant，只采事实，不预称原gate会过。
+
 - 独立 Management harness 固定 e7742936 有限独审接受，无 must-fix：本人 fb57ee 原 25 控、81fe57 独立 14 控均 actual0，精确三 top/计数/重复/坏 UTF8 与原全尾保持；两工具逆投影逐字 1ce69576。新 driver 未 build、实际 guard 及三业务 top 未运行。持久资产 `.agent-state/runner-management-review/{entry-controls.py,review.md}`；无自有活动资源。原 OS01 FAIL 不变，root 已授权仅补失败安全快照，实际新轮仍需 fresh grant。
 
 - 默认Runner OS探针首轮actual FAIL且已释放：首sameprocess UTC2026-10-09T23:32:41Z available6,105,567,232B，固定cmd/SHA沿下项，fresh `os-signals-01`，session29686→ecba67 actualouter1。仅eof首格/PID1323863/start_ticks6119304/pipeinode3042207，公共starting可见；原5s未取得初始阻塞读见证，`initial_read_not_observed`，未发TERM/INT、未执行其余两格。原finally killed=true、actual_waited=true、parent_pipe_ends_closed=true；5cf3ec核精确/proc/PID当前不存在，失败目录仅events.jsonl与eof/identity.json.lock，无identity.json，按原约定保留不删除。原Wait数值状态未写，不能补造；无自有活资源，无socket/TCP双空宣称。原证据没有未匹配的syscall/wchan安全快照，不能归因阻塞未成立或观测条件差异；不自动重跑、不升级OS行为结论。原脚本/cmd/Default/C/独立树均未改，后继仅允许另批有限诊断和新grant，详情runner-os-signals.md。

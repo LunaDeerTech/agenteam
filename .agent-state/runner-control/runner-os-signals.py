@@ -28,6 +28,50 @@ def require(ok, reason):
         raise Failure(reason)
 
 
+def safe_number(value, maximum, base=10):
+    # Closed numeric projection: never retain raw proc text or syscall addresses.
+    if not isinstance(value, str) or not 1 <= len(value) <= 20:
+        return None
+    try:
+        number = int(value, base)
+    except ValueError:
+        return None
+    return number if 0 <= number <= maximum else None
+
+
+def safe_syscall(fields):
+    if fields == ["running"]:
+        return {"state": "running", "number": None, "fd0": None}
+    if fields == ["-1"]:
+        return {"state": "not_in_syscall", "number": None, "fd0": None}
+    number = safe_number(fields[0], 65535) if fields else None
+    fd = safe_number(fields[1], 2**31 - 1, 0) if len(fields) >= 7 else None
+    return {"state": "sampled" if number is not None else "unavailable",
+            "number": number, "fd0": fd == 0 if fd is not None else None}
+
+
+def safe_thread_sample(tid, before, wchan, after):
+    allowed = {"pipe_read", "anon_pipe_read", "fifo_pipe_read", "0",
+               "futex_wait_queue", "futex_wait_queue_me", "do_epoll_wait",
+               "ep_poll", "ep_poll_callback"}
+    return {"tid": safe_number(tid, 2**31 - 1),
+            "before": safe_syscall(before), "after": safe_syscall(after),
+            "same_syscall_sample": before == after,
+            "wchan": wchan if wchan in allowed else "other"}
+
+
+def safe_proc_error(error):
+    if isinstance(error, PermissionError):
+        return "permission"
+    if isinstance(error, FileNotFoundError):
+        return "missing"
+    if isinstance(error, OSError):
+        return "io"
+    if isinstance(error, Failure):
+        return "witness_condition"
+    return "format"
+
+
 def process_identity(pid):
     data = Path(f"/proc/{pid}/stat").read_text()
     end = data.rfind(")")
@@ -73,6 +117,7 @@ class Child:
         self.directory = directory
         self.lock_identity = None
         self.start_ticks = None
+        self.read_snapshot = None
         self.binary_identity = (binary.stat().st_dev, binary.stat().st_ino)
 
     def start(self, binary):
@@ -153,22 +198,45 @@ class Child:
                 self.emit("log_projection", record=safe)
 
     def blocked_read(self):
+        # Reuse only reads in the original witness. No diagnostic re-read,
+        # extra task scan, wait, or alternate acceptance condition is added.
+        self.read_snapshot = {"pid": self.proc.pid, "start_ticks": self.start_ticks,
+                              "identity_checked": False, "fd0_inode": None,
+                              "fd0_flags": None, "task_limit": 128,
+                              "current_tid": None, "scan_complete": False,
+                              "threads": [], "error": None}
+        try:
+            return self._blocked_read()
+        except Exception as error:
+            self.read_snapshot["error"] = safe_proc_error(error)
+            raise
+
+    def _blocked_read(self):
         self.live_identity()
+        self.read_snapshot["identity_checked"] = True
         proc = Path(f"/proc/{self.proc.pid}")
-        require(os.readlink(proc / "fd/0") == f"pipe:[{self.pipe_inode}]", "stdin_pipe_changed")
+        link = os.readlink(proc / "fd/0")
+        if link.startswith("pipe:[") and link.endswith("]"):
+            self.read_snapshot["fd0_inode"] = safe_number(link[6:-1], 2**64 - 1)
+        require(link == f"pipe:[{self.pipe_inode}]", "stdin_pipe_changed")
         fdinfo = dict(line.split(":", 1) for line in (proc / "fdinfo/0").read_text().splitlines())
         flags = int(fdinfo["flags"].strip(), 8)
+        self.read_snapshot["fd0_flags"] = flags if 0 <= flags <= 2**32 - 1 else None
         require(flags & os.O_ACCMODE == os.O_RDONLY and not flags & os.O_NONBLOCK,
                 "child_stdin_not_blocking")
         tasks = list((proc / "task").iterdir())
         require(len(tasks) <= 128, "task_scan_limit")
         for task in tasks:
+            self.read_snapshot["current_tid"] = safe_number(task.name, 2**31 - 1)
             try:
                 before = (task / "syscall").read_text().split()
                 wchan = (task / "wchan").read_text().strip()
                 after = (task / "syscall").read_text().split()
             except FileNotFoundError:
+                self.read_snapshot["threads"].append({"tid": safe_number(task.name, 2**31 - 1),
+                                                      "error": "missing"})
                 continue  # A Go runtime thread can retire during a bounded scan.
+            self.read_snapshot["threads"].append(safe_thread_sample(task.name, before, wchan, after))
             # Linux amd64 SYS_read=0, arg0=fd0. Do not persist buffer addresses.
             if (len(before) >= 7 and before == after and before[0] == "0"
                     and int(before[1], 0) == 0 and int(before[3], 0) > 0
@@ -178,7 +246,17 @@ class Child:
                         "stdin_pipe_changed_after_snapshot")
                 return {"tid": int(task.name), "syscall": "read", "fd": 0,
                         "wchan": wchan, "blocking": True}
+        self.read_snapshot["scan_complete"] = True
         return None
+
+    def emit_failed_read_snapshot(self):
+        # Called only after original cleanup actually returns, never before kill
+        # or Wait. A failed evidence write cannot replace the original failure.
+        try:
+            self.emit("failed_read_snapshot", available=self.read_snapshot is not None,
+                      last_attempt=self.read_snapshot)
+        except (OSError, ValueError, TypeError):
+            print("runner_os_read_snapshot_unavailable", flush=True)
 
     def until(self, predicate, deadline, reason):
         while time.monotonic() < deadline:
@@ -235,6 +313,7 @@ class Child:
 def run_case(binary, directory, mode, emit):
     directory.mkdir(mode=0o700)
     child = Child(binary, directory, mode, emit)
+    failed = False
     try:
         child.start(binary)
         witness = child.until(child.blocked_read, time.monotonic() + 5, "initial_read_not_observed")
@@ -271,8 +350,13 @@ def run_case(binary, directory, mode, emit):
         require(not (directory / "identity.json").exists(), "identity_unexpectedly_persisted")
         require(not Path(f"/proc/{child.proc.pid}").exists(), "waited_pid_still_present")
         emit("case_assertions_pass", read_joined=(mode == "eof"), lock_released=True)
+    except Exception:
+        failed = True
+        raise
     finally:
         child.cleanup()
+        if failed:
+            child.emit_failed_read_snapshot()
     require(sorted(path.name for path in directory.iterdir()) == ["identity.json.lock"],
             "unexpected_private_file")
     (directory / "identity.json.lock").unlink()
