@@ -142,3 +142,5 @@
 
 - configuration首轮outer66381实际exit1/97.216s、Go27.43s，directWait230395 exit1/4adoptedWait0/watchdogobserverjoin/七ID双absent/TCP双空/input同一（owned-configuration-16df22…）。step delete-boundaries、helper88/274 timeout；49safe sidecars到occupied Provider GET200，未到最后409。独审源码发现真实Account boundary固定Problem.instance=/api/v1，与旧fixture硬比资源路径不一致。root direct httpapi formatter control先purePASS1.020s但绕过真实boundary；改真实boundary六code pure94182 actualexit1/0.021s确证准入缺陷（另一次unused import setupFAIL0tests保留）。最小只改fixture期望control为真实boundary并严格instance相等；6code正例+资源路径否定与全ProjectModelsWeb race66710实际0/1.072s，最新accepted dbf/00022 binary68486 race-c actual0，独验进行。原browserFAIL完整因果不回填。
 - B0-C两类纯契约194行新卡已冻结待独立SPEC，无源码授权；task_transition_core_spec仅本卡owner。model_acceptance_next已实际恢复且获2新authority/navigation模块唯一写域，当前无产品/主harness写权；执行资源窗前所有Modelglob必须停写。root仍独占Git/current/ledger和资源。
+
+- B0-C194行工程SPEC真正独立接受，无mustfix；10本地链接/7未来selector与大小静算actual0，非Go codec实测。root授原作者仅task_blockers.go/_test.go两个新源，七selector/严格caps/两类pure，shared热GOCACHE独占交作者，Modeldelivery禁止未验Blocker；独审者随后另作实现验收。Model作者2module尚未落盘已ACK全部glob暂停，下一configuration资源输入可冻结，Model Problem独验自有cache中。

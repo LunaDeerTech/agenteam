@@ -1,6 +1,6 @@
 # D11 Task Blocker B0-C 纯契约工程规格
 
-> 状态：工程草案，待独立 SPEC 接受；本轮仅文档，不授权源码实现。
+> 状态：工程规格已独立接受；两文件纯契约实现已授权并进行中，产品与运行验收尚未完成。
 >
 > 上游：[Task transition 工程规格](d11-task-transitions.md) §4.2、§6.1、§10–13；[Task Blocker / Dependency](../../architecture/project-work-management/task-blocker-dependency.md)、[Task Timeline](../../architecture/project-work-management/task-event-timeline.md)。T0a 状态规则与新 Position 已交付；本卡只闭合两类 Blocker 纯类型，不表示 B0-P、T0b 或运行服务完成。
 
