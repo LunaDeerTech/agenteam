@@ -1,6 +1,6 @@
 # Project Skills CleanupPhase 独立审查恢复点
 
-当前仅完成首轮静审；尚未编译、执行独立测试或 PG，不是整块最终接受。作者树 `/workspace/agenteam-project-skills-cleanup`，基线正式 main `29dd4298`。只读冻结生产 `internal/central/project/lifecycle_authority.go` 及 `docs/development/work-items/d08-project-skills-cleanup-authority.md`；作者新增测试仍在准备，本轮未将浮动测试纳入结论。依据为 Skills 已接受设计 §16.3 与正式 D08 LifecycleAuthority/contract/严格持久行 loader。
+结论：生产 `415e0df5` 与随后冻结的两新测试有限离线接受，无剩余 must-fix；真实 PG 尚未编译/执行，不是整块实际授权或生命周期验收。作者树 `/workspace/agenteam-project-skills-cleanup`，基线正式 main `29dd4298`。依据为 Skills 已接受设计 §16.3 与正式 D08 LifecycleAuthority/contract/严格持久行 loader。先前首轮静审记录保留如下，后续实际控制见末节。
 
 首轮未发现确定 must-fix：
 
@@ -13,3 +13,26 @@
 本人只读逆差异命令 `8d6f98` actual exit0：将唯一 Cleanup dispatch 改回原 Unbound 并移除两个新私有函数后，`lifecycle_authority.go` 逐字等于29dd；`lifecycle_store.go`、Object Stop/Inspect、Outbox authority、Project contract 和 SQL 均未改。没有执行 Go 或任何真实资源，当前遵守 root 的磁盘/编译暂停。
 
 后续只在作者测试稳定后选择有意义的独立负控；不重跑所有旧 Project。真实 PG 仍需证明所声明正向已到达当前事实门、SH/EX与foreign/ended/missing-lock边界、严格行/兼容声明与失败阶段拒绝、ctx取消后的原Tx退休；测试拥有的 Cleaning/participant事实必须与真实 BeginDelete 分开，不冒生产生命周期已推进。此处只是待验闭包说明，不向作者提供测试实现或提前认定未运行结果。
+
+## 冻结测试与本人实际控制
+
+作者稳定两源为 `internal/central/project/skills_cleanup_authority_test.go` 和 `tests/project/skills_cleanup_authority_test.go`。本人逐项静核3个 PG top：真实 Account/Project 创建与 BeginDelete/accepted/resolver 来源保留；Cleaning、额外前驱和 participant 完成、initializer 是明确受控测试事实。当前事实/严格兼容声明、只读全快照及Activity、SH/EX/foreign/ended/missing/取消与原事务终态均有断言。原 SH 持有者 PID、同DB/正式advisory key、pg_blocking_pids 的实际等待观察后才释放；两个原 callback/WithinTx 结果必须实际返回，失败 cleanup 亦释放/取消/等待。不把 SQL UPDATE 返回当事务 join；这三 top 尚未实跑。
+
+首轮较早读取的 pure fixture 曾未把新增 Skills 加入 Outbox 的直接 CleanupAfter；作者在运行前已补5行，最新冻结源与其 `89499/0cff7b` race0（3top/19sub）一致，此项已闭合、无生产变更。本人复用该作者定向结果及 `65938/750b69` vet0，不重做作者矩阵。
+
+root 解除本次小控制后，命令（cwd `/workspace/agenteam-skills`）：
+
+```sh
+python3 .agent-state/project-skills-cleanup-review/run.py
+```
+
+本人 `44702/c18c79` actual exit0，race1.025s，1top/4sub：
+
+- 实际公开 `ValidateLifecycleInTx` 经严格 Project/operation/manifest/participants loader 的正向；原ctx/Tx/Project SH只验证一次，第一轮真实 Rows wrapper 已 Close 后才第二次读取，两轮均关闭。
+- 原 RequireHeldLocks 失败保原 cause、零私有查询；没有补锁/新Txn。
+- 第二次 operation QueryRow 失败不得借第一轮成功事实放行，保原 cause。
+- participant 流已提供完整有效行但最终 Rows.Err 失败仍拒绝、保原 cause，并实际关闭 wrapper，不继续第二轮授权。
+
+Store/pgx.Rows 是明确 controlled facts；实际 public authority、strict decoder 和 postgres.Rows wrapper 在跑，不称真实 PG/真实锁或SQL解析。复用本树既有只读 `knowledge-b02-review/postgres_rows_bridge.go`，overlay不写作者树。首同process statvfs=5,649,293,312B后才执行，固定Go1.27.1/local/off/readonly/-p1，GOMODCACHE与独占 Variables-independent GOCACHE/GOTMPDIR 完整固化在run.py，非Work/VarsUI当前缓存，不建新cache。生产source运行前核415e、返回后逐字未变；无资源或子程序在途。
+
+冻结四路径：本文、`authority_test.go`、`run.py`、本树 current。待真实闭包仍为新3top与原PG完整尾，不外推Skills本域Cleanup、D05物理清理/last anchors、生产 registry/root或完整 Project 删除。

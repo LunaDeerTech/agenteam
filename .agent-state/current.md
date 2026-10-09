@@ -45,6 +45,8 @@
 
 - Variables审查三路径已root远端保存 `d2a26f41`。只读新树 `/workspace/agenteam-project-skills-cleanup` 的29dd基线后冻结 `lifecycle_authority.go`＋短卡，按Skills rev2 §16.3及原D08 source首轮未发现确定must-fix。新Skills-only/Delete/current Cleaning/domains/full stopped/required或pending/全部依赖门仍消费原Store活Tx及原Project SH；严格Project/operation/manifest/Owner/version读取沿原loader，未生成跨Tx授权或做清理。
 - 本人8d6f98 actual0逆去新dispatch和两个私有函数后生产逐字29dd，旧decoder/Object Stop Inspect/Outbox/contract/SQL不变。新 `.agent-state/project-skills-cleanup-review/README.md` 记录首轮静核和待验闭包；本次无编译/Go probe/PG/socket/browser，不把静审当整块接受，作者测试仍准备中。当前root磁盘暂停编译照守，下一独立控制仅对稳定有意义场景，不重复旧Project全包。
+- 后续稳定输入为生产415e0df5＋两新测试，有限离线接受，无剩余must-fix；3PGtop设计只读核真实BeginDelete与受控Cleaning/前驱事实分列、SH/EX/foreign/ended/取消及exact holder+key等待/原双callback尾，尚未编译/PG。pure fixture Outbox边已由作者运行前补齐，复用89499 race0/19sub和65938 vet0，不把较早读取的首版缺边报作未修问题。
+- root单次小控制授权后，本人44702/c18c79 actual0/race1.025s，1top4sub，真实public gate/strict loader/postgres.Rows wrapper验证同原ctx/Tx/SH与两轮实际Close、漏锁零私有查询、第二次读失败不得复用首授权、完整participant流终尾错误仍拒且保cause/Close。首同process statvfs5,649,293,312B，固定Go/off/readonly/-p1/原独占Variables-independent缓存；Store/rows事实controlled不冒PG，作者产品运行前415e核定及返回后逐字未变。新authority_test.go/run.py＋README/本文4路径freeze，全部terminal，无真实资源。此前首轮2docs及OS窄审已root保存7d6f731a。
 
 ## Variables authority 首次 detail GET 增量有限独审
 
