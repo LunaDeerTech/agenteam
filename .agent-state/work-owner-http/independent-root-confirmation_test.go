@@ -32,6 +32,7 @@ import (
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type independentConfirmationWait struct {
@@ -363,8 +364,19 @@ func TestIndependentWorkOwnerRootConfirmationJoin(t *testing.T) {
 				}
 			}
 			var commands, objects, events int
-			if err = admin.QueryRow(databaseTestContext(t), `SELECT (SELECT count(*) FROM agenteam_work.structure_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3 AND state='completed' AND receipt->'milestone'->>'id'=$4),(SELECT count(*) FROM agenteam_work.milestones WHERE project_id=$1 AND id=$4 AND version=1),(SELECT count(*) FROM agenteam_outbox.events WHERE producer='work' AND project_id=$1 AND aggregate_id=$4)`, projectID.String(), string(wc.MilestoneCreate), string(key), milestone.String()).Scan(&commands, &objects, &events); err != nil || commands != 1 || objects != 1 || events != 1 {
-				t.Fatal("late original COMMIT did not produce exactly one durable fact")
+			if err = admin.QueryRow(databaseTestContext(t), `SELECT
+ (SELECT count(*) FROM agenteam_work.structure_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3 AND state='completed' AND receipt->'milestone'->>'id'=$4::uuid::text),
+ (SELECT count(*) FROM agenteam_work.milestones WHERE project_id=$1 AND id=$4::uuid AND version=1),
+ (SELECT count(*) FROM agenteam_outbox.events WHERE producer='work' AND project_id=$1 AND aggregate_id=$4::uuid)`, projectID.String(), string(wc.MilestoneCreate), string(key), milestone.String()).Scan(&commands, &objects, &events); err != nil {
+				code := "unavailable"
+				var pgError *pgconn.PgError
+				if errors.As(err, &pgError) && len(pgError.Code) == 5 && strings.Trim(pgError.Code, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ") == "" {
+					code = pgError.Code
+				}
+				t.Fatalf("durable fact query failed: sqlstate=%s", code)
+			}
+			if commands != 1 || objects != 1 || events != 1 {
+				t.Fatalf("late original COMMIT fact counts: commands=%d milestones=%d events=%d", commands, objects, events)
 			}
 			s.proxy.close()
 			retireCtx, retireCancel := context.WithTimeout(context.Background(), time.Second)
