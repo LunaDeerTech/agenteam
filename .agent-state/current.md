@@ -15,7 +15,7 @@
 - 六作者 Playwright 源与同体 schema/client helper 已落盘并严格TS通过，首个 planning 精确case离线发现 actual0、恰1项；这是可构建WIP，尚未动态接受。首轮先独立核规划9写、Plan/版本冲突/分组顺序；其它五case还需核完整卡矩阵，尤其撤销/过期、pending/deleting、旧名复用、Owner/Model确认链与in_progress/not_observed刺激，不能因源码已有case或结果布尔冒完成。两个独立场景尚无源，由root轮转未参与者。
 - 原root链仅本树两工具最小扩8个精确UI top、真实输入/私有dist、四owned路径和短ui目录；原三个root target/default预算保持。31作者纯控制通过，含旧配置逐项等价、未登记target、丢目标、目录碰撞、错误资产/case与预算；此控制用替身仅核selector判据，不冒资源退役。工具语法及19项独立有限控制通过，原配置/预算/实际Wait判据未见mustfix；未运行真实PG/browser/socket。
 - Current Sprint边界已按正式Structure契约与独审事实纠正：没有正式非null指针生产者，本轮真实无Current/planned typed选择；自动current/用户选择规则保留纯投影控制，非null真实正例待D11生命周期接通，不用SQL伪造、不称已验证。
-- 下一步：recovery03整体FAIL与全尾已保存，observer幂等key窄修45离线控制/严格TS通过，等待有限独审；技术输入不含Go改动，binary14与私有dist保持。另两普通aborted/finished缺口不放行；只在新独审与root fresh grant后再排真实轮，首执行仍实采≥5GiB，cap4/全部预算不变。最终交付排除本恢复文件。
+- 下一步：recovery04因本轮显式PATH遗漏Node而在浏览器启动前整体FAIL，全尾已齐；保留继承PATH并仅前置Go的离线定位通过，未改技术源。幂等key窄修已获独立48控制有限接受，尚无修后动态结果；binary14与私有dist保持。下一轮须root新fresh grant，首执行仍实采≥5GiB；普通finished、cap4及全部预算不变。最终交付排除本恢复文件。
 
 - 首组planning有限独审发现三个排序均为no-op及成功后点击已移除按钮；作者另查得schema响应$ref未解引用、描述清空/Plan原文/第七读取刺激不足，均保留原WIP未验事实。统一修为三组真实双对象前移/移尾与同原响应重读顺序、changed/version校验；同体schema红控修后正负通过。Go后验逐key校验原receipt/Outbox/TaskEvent/最终对象与精确无额外事实；合法登录Session仅在User EX锁内回拨测试时钟以越过已有Activity节流，未手种身份或Work事实。当前窄复核待排，新race编译与TS实际通过；纯配置发现02因调用漏ENV失败，补齐后另记，未启动浏览器。其它五case的未闭合矩阵不因此接受。
 
@@ -69,3 +69,7 @@ identity第二轮39077仍完整FAIL（3cdb9df2/binary11，Go32.33秒、outer143.
 - recovery第三轮84156仍完整FAIL（feac9440文档/c9951551技术、binary14；Go25.30秒、outer123.348秒）。两非终态局部链已走：not_observed实际wire1/close1/truncate1且未拒绝、原Lookup与SQL/current/事实校验后解除并显式重放；in_progress实际final-Outbox fault_hits1、局部SQL/Lookup及原请求续写完成。随后首三域断流声明被WORK_INCOMPLETE_DECLARATION_REJECTED拒绝，三域历史/归档及最终observer/Go后验未到。首执行磁盘6916890624 bytes通过；Go/driver actualWait1、四Z→actualWait0无STOP，各服务join及七资源/desc/runtime/private/TCP双尾与inputsame齐，已释放窗口。必要事实见`.agent-state/work-owner-planning-ui/recovery-third-failure.json`，普通log在output/ai/work-owner-planning-ui/pg/recovery-03.log。另两普通请求aborted/finished未返独立保留，不借预期截断例外放行。
 
 - 随后离线源及实际crypto.randomUUID红控确认observer把正式幂等key误作资源UUIDv7；只将key改按Foundation 1..128 ASCII标量校验，Project/target/blocker的UUIDv7与原Request/headers/failed/finished/cap4门槛不变。红控d04cb8实际1，修后12664实际0/45控/0unhandled，strictTS4423实际0；formatter首check仅新增CJS换行失败，已格式化。两技术源已冻结交未参与者独审，未重编Go或运行新真实窗。该修复不回填本轮slot私有状态或另两普通请求根因；旧FAIL保持。
+
+- 幂等key窄修随后经Model未参与者有限接受，无mustfix：原45控及新增ASCII单字节全集、第二Request/关闭后failed、精确headers与原failed退休slot三控actual0，共48控/0unhandled。只接受输入修正，不改recovery03动态结论。
+
+- recovery04（37095，ae101b00技术/binary14）仍整体FAIL：Go10.69秒、outer111.417秒，fixture在启动Node前报locked Project browser runner could not start，尚无浏览器或key修正动态结果。本轮执行者显式PATH遗漏实际Node目录；离线4892b7确认旧PATH无法解析node，保留继承PATH并前置Go能执行Node v24.19.0/actual0。首执行磁盘6225076224、exec前再次6185058304 bytes均过5GiB；Go955958/driver953888实际Wait1，无浏览器adopted子、无STOP，proxy/body/preparation/root实际join，七资源/desc/runtime/private/TCP双尾与inputsame齐，窗口已释放。原失败见`.agent-state/work-owner-planning-ui/recovery-fourth-failure.json`；仅纠正下一执行环境，不改源、不放宽门槛、不自动复跑。

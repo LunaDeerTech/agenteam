@@ -1,0 +1,62 @@
+{
+  "case": "recovery-04",
+  "technical_checkpoint": "ae101b00",
+  "binary": "work-ui-account-race-14.test",
+  "selector": "^TestAccountProjectWorkPlanningWebOriginalRecovery$",
+  "actual_session": 37095,
+  "actual_exit": 1,
+  "go_seconds": 10.69,
+  "supervisor_seconds": 111.417,
+  "preflight": {
+    "first_execution_available_bytes": 6225076224,
+    "fresh_disk_sample_before_exec": true,
+    "exec_available_bytes": 6185058304,
+    "required_bytes": 5368709120,
+    "gate": "PASS"
+  },
+  "failure": {
+    "stage": "browser runner cmd.Start before Node",
+    "error": "locked Project browser runner could not start",
+    "source": "project_owner_web_fixture_test.go:1129",
+    "browser_started": false,
+    "key_fix_dynamic_verification_reached": false,
+    "final_go_durable_assertions_reached": false,
+    "cause": "Executor replaced inherited PATH with Go and system directories, omitting the actual Node directory.",
+    "offline_confirmation": {
+      "chunk": "4892b7",
+      "old_explicit_path_resolves_node": false,
+      "inherited_path_with_go_prefix_resolves_node": true,
+      "node": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "version": "v24.19.0",
+      "actual_exit": 0
+    }
+  },
+  "terminal": {
+    "go_pid": 955958,
+    "go_actual_wait": true,
+    "go_exit": 1,
+    "driver_pid": 953888,
+    "driver_actual_wait": true,
+    "driver_exit": 1,
+    "browser_adopted_children": [],
+    "supervisor_stop_sent": false,
+    "proxy_and_all_body_handlers_join": true,
+    "preparation_service_join_before_process_guard_release": true,
+    "default_root_join": true,
+    "seven_resource_ids_two_observations_absent": true,
+    "descendants_two_observations_empty": true,
+    "runtime_two_observations_empty": true,
+    "private_two_observations_absent": true,
+    "host_tcp_two_delta_empty": true,
+    "inputs_unchanged": true,
+    "exact_tops": true,
+    "actual_test_wait": true
+  },
+  "limits": [
+    "Whole run FAIL before browser startup; no recovery behavior was verified.",
+    "The independent 48-control key review accepts only the input correction, not this run or recovery03.",
+    "Original recovery01/02/03 failures and ordinary finished gaps remain unchanged.",
+    "Only the next execution environment is corrected; technical source and all gates remain frozen. A fresh grant is required before rerun."
+  ],
+  "ordinary_log": "output/ai/work-owner-planning-ui/pg/recovery-04.log"
+}
