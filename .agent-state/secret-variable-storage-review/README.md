@@ -66,3 +66,14 @@ python3 .agent-state/secret-variable-storage-review/run_increment.py
 固定离线 env/cache 与上段相同。仅运行 `^TestIndependentStorageIncrement`，复用 [已有 Rows 桥](../knowledge-b02-review/postgres_rows_bridge.go)；新脚本检查 Secret Go 固定差异为空，未改生产或前阶段控制。`f2af63` 另核旧 Purpose/write/storage/error 逐字372原版，原 Project Audit 除唯一新分派完全不变。
 
 后继真实闭包仍是 D10 provider/Owner final-Tx 与当前权限、连续00029迁移/SQL约束和原子回滚、原COMMIT Unknown确认、专用 receipt 并发与历史 deleted Credential、实际 rotation/head rescan/CAS/canary/Retire、100/101 Cleanup 与同 Project 完整尾。Runner 独审00029是另一范围；此处既不提前接受DDL，也不把controlled 100/101计数或原Unknown分类控制当真实数据库结论。
+
+## SQL 候选与 owned 入口审查（进行中）
+
+只读作者 `fde3ecb5` 两 SQL 测试文件及 `17969f85` 的 fixture。四 top 的真实边界是 Migrator/Postgres Store、Secret AEAD/receipt、Audit 服务与 native checker；D10 的 plan mapping/version 和当前授权仍由 `audit_fixture` 的测试端口提供，Discover 明确 unbound。原调用树不含 TestMain、MinIO 或出站 fixture，PG-only 两资源是适用的有限入口；实际耗时和完整尾尚未执行。
+
+首轮源码审查提出两项测试 must-fix，作者已接受，尚待冻结返修：
+
+1. `AtomicAuditAndOwnerRollback` 只查 NotCommitted/count/version，未断言目标 hook 确实到达或精确错误来源；`fixture.apply` 又主动清空所有未提交 observation，因此这个 invalid-result 断言不能证明本体拒绝路径。需要区分提前失败与实际 native 写/Audit 后的故障，并在回滚后检查旧 canonical/payload 精确身份与内容。
+2. 原 `audit-wrong-payload-kind` 只把 kind3 改成 kind2；合法 kind3 下错误 owner_id 的跨行关联由 native checker 而非 DDL 保证，尚缺该真实可存输入的拒绝与回滚证据。需要证明注入 SQL 确实成功，不能把 SQL CHECK 拒绝计为 native 拒绝。
+
+其它有限场景的路径已静核：四 effect/删除后历史重放与 KeyReused、新 Session 后当前拒绝；实际 producer 产生101条历史 receipt、删除 Credential 后轮换、移除旧 key 后重新初始化/原 receipt 重放、100+1 Cleanup；九个精确 SQLSTATE 约束负例。当前只是测试设计审查，不是业务 PASS；00029 静态审查由 Runner 负责。作者原27,842,774-byte候选只有编译/列举结果，返修需新候选，旧结果不外推。owned 入口待作者稳定后另审原预算、精确集合与实际 Wait/资源/输入尾，不创建通用 harness。

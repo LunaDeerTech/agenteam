@@ -35,6 +35,11 @@
 - 静核native witness只由实际Apply产生，同Store/Tx/原Request/完整锁/receipt与前后像重验，旧variant互斥；f2af63核旧Purpose/write/storage/error及原Project Audit保留。作者15128/21736/92922/5785未变范围复用，不新增同类全矩阵。实际D10 provider/Owner、00029/SQL/COMMIT Unknown、100/101 Cleanup、rotation/canary/Retire均仍待真实闭包；Runner另审DDL不替代本文。
 - 新资产 `.agent-state/secret-variable-storage-review/{increment_test.go,run_increment.py}`，复用既有postgres Rows桥，README已追加；连同本文四路径freeze供root下个安全窗口保存。新Go/原产品均未修改，无本人命令/真实资源在途；原Work08环境中断结果不外推。
 
+## D04 SQL 四 top 与 PG-only 入口独审（进行中）
+
+- Apply/维护四路径已root保存eaad50fd。新只读范围为作者fde3ecb5两SQL测试＋17969f85 fixture；复用已接受Go/29DDL，不重做旧矩阵。实际调用为PG Migrator/Store/Secret/Audit/native checker，D10权限与mapping仍明确controlled；无TestMain/MinIO依赖，两资源PG-only可行，耗时须实际验证。
+- 首轮发现两项测试must-fix并获作者确认：回滚负例缺目标hook到达/精确Fault及payload前后像，apply helper主动清零不代本体拒绝证据；合法kind3错owner_id的真实SQL/native拒绝与rollback尚缺。仅作者tests/fixture最小返修，旧候选编译/list不外推，新候选/精确入口待freeze后续审。详见原review README；无PG/socket/network、未改作者源或启动业务。
+
 ## 三组 PG 首轮 4315：整体 FAIL，资源已退役
 
 - root fresh grant只允许原70036业务binary（32,895,591 B）/97198 combo driver（15,394,731 B）与literal `^TestSkill(Migration|InitializationAdmissionUnknown|OwnerMetadataCurrentAuthority)$`。cwd仍 `tests/skills`，完整固定env沿下节Stop命令，仅driver换 `output/ai/skills/compile/pg-only-skills-combo-driver`、selector换该literal；另显式AGENTEAM_GO和固定MinIO变量，继承PATH。exec同process freshstatvfs=5,492,891,648 bytes≥5GiB，原Go6m/driver105+15/supervisor123+3/TCP75/PG两资源不变。
