@@ -119,10 +119,12 @@ controller放App生命周期，临时页面卸载不丢同身份内存。导航/
 
 故障预先绑定原Request/method/domain/project/target/key/body，先有后端完整Body+Close与同keycompleted，再真实截断。浏览器预期不完整仅接受该精确已登记请求故障，普通成功仍要求finished/完整EOF/schema/client。held GET须有真实started/release/ctx取消/handler返回，不用sleep或buffer完成冒join。不复制Model私有harness。非法route零变量读取，API/缺失asset不得回退SPA。
 
-预算沿既有Owner每Go top120s、Playwright45s、expect5s、workers1/retries0及原有界清理；root freshgrant独占真实窗口。dist构建/私有资产另协调，不能改他树dist。当前零socket/PG/browser执行。原FAIL和缺失测量保留，修后只验影响范围，编译/发现不是动态PASS。
+预算沿既有Owner每Go top120s、Playwright45s、expect5s、workers1/retries0及原有界清理；root freshgrant独占真实窗口。dist构建/私有资产另协调，不能改他树dist。首CRUD已真实执行但whole FAIL，其他场景和完整动态接受仍未完成。原FAIL和缺失测量保留，修后只验影响范围，编译/发现不是动态PASS。
 
 ## 8. 当前实施状态
 
-SPEC rev1已获独立窄审接受，无mustfix；这不是产品或动态验收。API/client首片段strictTS及新旧客户端102纯控已通过，Session首片段32纯控及strictTS通过；controller/view/路由已接实际Session facade，77项API/schema/状态/页面纯控通过；真实fixture与独立动态验收尚未完成。每片段可构建保存，WIP不当整卡完成。Vue与测试技能已读；两套本树私有node_modules已按同package/lock离线恢复，无下载，未build dist或运行真实资源。
+SPEC rev1已获独立窄审接受，无mustfix；这不是产品或动态验收。API/client首片段strictTS及新旧客户端102纯控已通过，Session首片段32纯控及strictTS通过；controller/view/路由已接实际Session facade，77项API/schema/状态/页面纯控通过；真实fixture与独立动态验收尚未完成。每片段可构建保存，WIP不当整卡完成。Vue与测试技能已读；两套本树私有node_modules已按同package/lock离线恢复，无下载，现已构建私有dist，首真实CRUD的FAIL与返修见下。
 
 真实 harness 源已补齐六个 Go 顶层和对应 Playwright 场景。Variables-only optional/nil 接缝保留 Owner 默认路径；普通变量 seed 与 browser 响应分开，私有台账核原 method/path/query/key/body/CSRF，SQL 按原 User/command/request/receipt 及去重操作核 command/history/Audit/Outbox；held GET 的原 context 取消和 handler 返回分别观察。browser strictTS、Go race compile03、六 Go 与六 browser 精确发现已通过，私有 dist01 已构建；最终 SQL 加强后 compile04 和六入口 discovery02 也已 actual0。两个既有工具仅六 selector 的 closed mapping/短 runtime/可选 input_paths(binary, selector=None) 增量已写，parse和精确正负控已过；非 UI 默认输入列表、stem和env不变。真实 PG/socket/browser仍零执行，无独立技术接受；完整卡仍进行中。
+
+首真实 CRUD01 whole FAIL，安全标记只到crud step2，PW具体失败行/DOM未保留，不回填根因。所有资源/进程/TCP实际尾已结束，旧adopted STOP保留。后续组件红控另确证了Variables replay getter的busy响应式依赖缺失：原owner持有期间的短路可让页面在当前GET完成后继续禁用重放；已先捕获reactive busy，原授权/串行/实际I/O尾不变。修后相关67纯控/strictTS通过，binary05与dist02已构建；CRUD脚本明确断言删除重放关闭详情，安全失败投影只含源码位置与布尔DOM。按root授权复用已有UI有限WNOHANG预reap，先采PID State并实际Wait0才通过，live/new/notwaitable/nonzero仍保留原失败gate；离线正负控通过，正在分别独立复核产品与harness增量。整卡未接受，后续真实重跑仍需fresh窗口；恢复负例的真实补集与最终共享接缝组合验收保留。

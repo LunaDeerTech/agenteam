@@ -98,11 +98,12 @@ afterEach(() => {
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
 })
-async function fixture() {
+async function fixture(variableFetch?: Fetch) {
   const fetcher = vi.fn<Fetch>(async (url, init) => {
     if (url === '/api/v1/session') return json(view)
     if (url.endsWith('/logout')) return new Response(null, { status: 204 })
     if (url.includes('/variables')) {
+      if (variableFetch) return variableFetch(url, init)
       if (init.method === 'GET')
         return json(url.includes('?') ? { items: [row] } : { ...row, value: 'ordinary text' })
       const body = JSON.parse(String(init.body)),
@@ -310,6 +311,88 @@ describe('Variables exact route, Owner menu and actual page consumers', () => {
     expect(button('查询原操作').disabled).toBe(false)
     expect(button('重放原操作').disabled).toBe(false)
     expect(document.querySelector('[role="status"]')?.textContent).not.toContain('private')
+  })
+  it('closes current detail after confirmed deletion and replay, while retaining historical tracking', async () => {
+    let deleted = false
+    const receipt = {
+      command: 'project.variable.delete',
+      changed: true,
+      deleted: {
+        id: target,
+        project_id: projectID,
+        type: 'variable',
+        version: '2',
+        deleted_at: at,
+      },
+      event_id: id(80),
+      audit_id: id(81),
+    }
+    const f = await fixture(async (url, init) => {
+      if (init.method === 'DELETE') {
+        deleted = true
+        return json(receipt)
+      }
+      if (init.method === 'GET' && url.includes('?')) return json({ items: [row] })
+      if (init.method === 'GET' && !deleted) return json({ ...row, value: 'ordinary text' })
+      if (init.method === 'GET')
+        return new Response(
+          JSON.stringify({
+            type: 'urn:agenteam:problem:test',
+            title: 'Test',
+            detail: 'not found',
+            instance: '/api/v1/projects',
+            code: 'NOT_FOUND',
+            status: 404,
+            commit_state: 'not_started',
+            request_id: id(90),
+          }),
+          {
+            status: 404,
+            headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': id(90) },
+          },
+        )
+      throw new Error('unexpected variable fixture request')
+    })
+    button('查看变量 CUSTOM').click()
+    await settle()
+    button('删除变量').click()
+    await settle()
+    const dialog = document.querySelector('[role="dialog"]')!
+    const confirmDelete = Array.from(dialog.querySelectorAll<HTMLButtonElement>('button')).find(
+      (node) => node.querySelector('.button-label')?.textContent?.trim() === '删除变量',
+    )!
+    expect(confirmDelete.disabled).toBe(false)
+    confirmDelete.click()
+    await settle()
+    expect(document.querySelector('.variable-editor')).toBeNull()
+    expect(document.querySelector('[aria-label="已确认历史回执"]')?.textContent).toContain(
+      '原删除已确认',
+    )
+    button('读取原对象当前信息').click()
+    await settle()
+    expect(document.querySelector('.variable-editor')?.textContent).toContain(
+      '当前对象不存在或不可访问',
+    )
+    expect(f.auth.projectVariables.progress?.canReplayOriginal).toBe(true)
+    expect(button('重放原操作').disabled).toBe(false)
+    button('重放原操作').click()
+    await settle()
+    expect(document.querySelector('.variable-editor')).toBeNull()
+    expect(document.querySelector('[aria-label="已确认历史回执"]')?.textContent).toContain(
+      '原删除已确认',
+    )
+    const writes = f.fetcher.mock.calls.filter(([, init]) => init.method === 'DELETE')
+    expect(writes).toHaveLength(2)
+    expect(writes[1]?.[1].body).toBe(writes[0]?.[1].body)
+    button('结束本地追踪').click()
+    await settle()
+    button('结束追踪').click()
+    await settle()
+    expect(document.querySelector('.variable-editor')).toBeNull()
+    expect(document.querySelector('[aria-label="原操作与历史回执"]')).toBeNull()
+    button('新建变量').click()
+    await settle()
+    expect(input('名称').value).toBe('')
   })
   it('logout asks Variables after existing guards, cancellation keeps draft and restores trigger focus', async () => {
     const f = await fixture()

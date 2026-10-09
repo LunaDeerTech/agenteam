@@ -4242,7 +4242,10 @@ export function createSessionController(
       const progress = variableState.progress,
         original = variableIntent
       if (!progress || !original) return null
-      const contextValid = projectContext(original)
+      // Track busy even while the private, non-reactive owner is held. Otherwise
+      // a computed page projection can retain canReplayOriginal=false after a read joins.
+      const contextValid = projectContext(original),
+        busy = state.busy
       return Object.freeze({
         ...progress,
         contextValid,
@@ -4251,8 +4254,8 @@ export function createSessionController(
           !!original.command &&
           original.body !== null &&
           !original.keyConflict &&
-          !owner &&
-          !state.busy,
+          !busy &&
+          !owner,
       })
     },
     list(projectID: string, query: ProjectVariableQuery) {

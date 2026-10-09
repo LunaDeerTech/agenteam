@@ -180,6 +180,34 @@ def descendants(root):
     return result - {root}
 
 
+def observe_ui_descendant_states(log):
+    # Only task-owned descendants are inspected; state is evidence at this
+    # instant, not a substitute for an actual wait or a process identity.
+    for pid in sorted(descendants(os.getpid())):
+        try:
+            status = Path(f'/proc/{pid}/status').read_text()
+            state = next(line.split()[1] for line in status.splitlines() if line.startswith('State:'))
+        except (FileNotFoundError, ProcessLookupError):
+            state = 'gone'
+        log.write(f'UI descendant_before_reap pid={pid} state={state}\n')
+
+
+def reap_ui_exited(log):
+    # A single finite descendant snapshot bounds this optional pre-reap. New,
+    # live or not-yet-waitable children continue to the original failure tail.
+    success = True
+    for _ in range(len(descendants(os.getpid()))):
+        try:
+            pid, status = os.waitpid(-1, os.WNOHANG)
+        except ChildProcessError:
+            return success
+        if pid == 0:
+            return success
+        log.write(f'SUPERVISOR ui_adopted_actual_wait pid={pid} status={status}\n')
+        success = success and status == 0
+    return success
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--driver', required=True, type=Path)
@@ -255,6 +283,11 @@ def main():
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
             else:
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
+            if ui:
+                observe_ui_descendant_states(log)
+                if not reap_ui_exited(log):
+                    code = 1
+                    log.write('STOP owned UI adopted child failed\n')
             survivors = descendants(os.getpid())
             if survivors:
                 code = 1

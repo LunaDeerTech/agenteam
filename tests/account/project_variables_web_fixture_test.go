@@ -493,11 +493,33 @@ func (v *projectVariablesWebFixture) safeFailure() {
 	}
 	defer clear(raw)
 	var value struct {
-		Phase string `json:"phase"`
-		Step  int    `json:"step"`
+		Phase  string `json:"phase"`
+		Step   int    `json:"step"`
+		Status string `json:"status"`
+		Source string `json:"source"`
+		Line   int    `json:"line"`
+		DOM    struct {
+			Observed  bool `json:"observed"`
+			Variables bool `json:"variables"`
+			Editor    bool `json:"editor"`
+			Close     bool `json:"close"`
+			History   bool `json:"history"`
+			Confirmed bool `json:"confirmed"`
+			Uncertain bool `json:"uncertain"`
+			Dialog    bool `json:"dialog"`
+		} `json:"dom"`
 	}
-	if json.Unmarshal(raw, &value) == nil && variableWebMode(value.Phase) && value.Step >= 0 && value.Step <= 128 {
-		v.owner.t.Logf("Variables browser safe failure case=%s step=%d", value.Phase, value.Step)
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
+	var tail any
+	if decoder.Decode(&value) != nil || decoder.Decode(&tail) != io.EOF || !variableWebMode(value.Phase) || value.Step < 0 || value.Step > 128 {
+		return
+	}
+	v.owner.t.Logf("Variables browser safe failure case=%s step=%d", value.Phase, value.Step)
+	statusOK := value.Status == "failed" || value.Status == "timedOut" || value.Status == "interrupted" || value.Status == "other"
+	sourceOK := value.Source == "spec" || value.Source == "helpers" || value.Source == "unknown"
+	if statusOK && sourceOK && value.Line >= 0 && value.Line <= 4000 {
+		v.owner.t.Logf("Variables browser safe failure status=%s source=%s line=%d dom_observed=%t variables=%t editor=%t close=%t history=%t confirmed=%t uncertain=%t dialog=%t", value.Status, value.Source, value.Line, value.DOM.Observed, value.DOM.Variables, value.DOM.Editor, value.DOM.Close, value.DOM.History, value.DOM.Confirmed, value.DOM.Uncertain, value.DOM.Dialog)
 	}
 }
 

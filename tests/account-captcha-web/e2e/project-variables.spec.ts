@@ -17,10 +17,15 @@ import {
   path,
   protect,
   ready,
+  recordFailure,
   select,
   table,
 } from "./project-variables.helpers";
 import { uuid7 } from "../../../web/src/api/client";
+
+test.afterEach(async ({ page }, info) => {
+  await recordFailure(page, info);
+});
 
 const projectLink = (page: Page) =>
   page
@@ -279,6 +284,7 @@ test("[crud] empty values, presence, no-op, deletion and same-name identity", as
       after.audits === before.audits &&
       after.events === before.events,
   ).toBe(true);
+  checkpoint();
   await remove(page);
   await confirmed(page);
   await button(page, "查询原操作").click();
@@ -286,10 +292,13 @@ test("[crud] empty values, presence, no-op, deletion and same-name identity", as
   await button(page, "读取原对象当前信息").click();
   await expect(editor(page)).toContainText("当前对象不存在或不可访问");
   await expect(history(page)).toContainText("原删除已确认");
+  checkpoint();
   await button(page, "重放原操作").click();
   await confirmed(page);
+  await expect(editor(page)).toHaveCount(0);
   await endTracking(page);
-  await button(page, "关闭详情").click();
+  await expect(editor(page)).toHaveCount(0);
+  checkpoint();
   const replacement = await create(
     page,
     "EMPTY_VALUE",
@@ -303,6 +312,7 @@ test("[crud] empty values, presence, no-op, deletion and same-name identity", as
   await select(page, "EMPTY_VALUE");
   await expect(field(page, "值")).toHaveValue("replacement ordinary value");
   expect((await currentID(page)) === replacement).toBe(true);
+  checkpoint();
   await errors.check();
   complete({
     crud: true,

@@ -1,6 +1,7 @@
 import {
   expect,
   type Page,
+  type TestInfo,
   type Locator,
   type Request,
   type Response as PWResponse,
@@ -165,6 +166,64 @@ export function checkpoint() {
     JSON.stringify({
       phase: process.env.AGENTEAM_PROJECT_VARIABLE_WEB_CASE,
       step,
+    }),
+    { mode: 0o600 },
+  );
+}
+// Export only a closed diagnostic projection. Playwright's raw message/stack
+// may contain user values and remains private; no DOM text or input is copied.
+export async function recordFailure(page: Page, info: TestInfo) {
+  if (info.status === info.expectedStatus) return;
+  const location = info.errors
+    .map((error) => error.stack ?? "")
+    .join("\n")
+    .match(/project-variables\.(spec|helpers)\.ts:(\d+):(\d+)/);
+  const status = ["failed", "timedOut", "interrupted"].includes(
+    info.status ?? "",
+  )
+    ? info.status
+    : "other";
+  let dom = {
+    observed: false,
+    variables: false,
+    editor: false,
+    close: false,
+    history: false,
+    confirmed: false,
+    uncertain: false,
+    dialog: false,
+  };
+  try {
+    dom = await page.evaluate(() => {
+      const history = document.querySelector('[aria-label="原操作与历史回执"]');
+      const phase = history?.querySelector("p")?.textContent ?? "";
+      return {
+        observed: true,
+        variables: Array.from(document.querySelectorAll("h1")).some(
+          (n) => n.textContent?.trim() === "Variables",
+        ),
+        editor: !!document.querySelector(".variable-editor"),
+        close: Array.from(
+          document.querySelectorAll("button .button-label"),
+        ).some((n) => n.textContent?.trim() === "关闭详情"),
+        history: !!history,
+        confirmed: phase.includes("原操作已确认"),
+        uncertain: phase.includes("结果尚未确认"),
+        dialog: !!document.querySelector('[role="dialog"]'),
+      };
+    });
+  } catch {
+    /* A closed page is represented by observed=false. */
+  }
+  writeFileSync(
+    join(directory, "project-variables-failure.json"),
+    JSON.stringify({
+      phase: process.env.AGENTEAM_PROJECT_VARIABLE_WEB_CASE,
+      step,
+      status,
+      source: location?.[1] ?? "unknown",
+      line: Number(location?.[2] ?? 0),
+      dom,
     }),
     { mode: 0o600 },
   );
