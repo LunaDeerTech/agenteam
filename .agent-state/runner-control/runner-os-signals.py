@@ -240,7 +240,7 @@ class Child:
             # Linux amd64 SYS_read=0, arg0=fd0. Do not persist buffer addresses.
             if (len(before) >= 7 and before == after and before[0] == "0"
                     and int(before[1], 0) == 0 and int(before[3], 0) > 0
-                    and wchan == "pipe_read"):
+                    and wchan in ("pipe_read", "anon_pipe_read")):
                 self.live_identity()
                 require(os.readlink(proc / "fd/0") == f"pipe:[{self.pipe_inode}]",
                         "stdin_pipe_changed_after_snapshot")

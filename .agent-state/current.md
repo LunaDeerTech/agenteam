@@ -1,5 +1,7 @@
 # 当前工作：D15 Runner 身份与 Control Channel
 
+- OS方法唯一兼容增量已freeze待Vars独审：基于02实际匿名pipe等待点，wchan仅扩为精确{pipe_read,anon_pipe_read}，fifo/epoll/近似拒绝；原身份/exe/自有fd0/flags/双raw/positive count/所有deadline与Wait/cleanup不变。803389实际72纯控0（原60+12 alias/错误样本与前后身份），无child/proc/socket；未改production/cmd。原01和02FAIL保持，不将本次纯控记三格通过；新实际需freshgrant和新output。
+
 - OS诊断02 actual FAIL且窗口释放：15233/2841d9→b9fa47 outer1，首同process23:50:35.672768Z free5,650,419,712B，fresh os-signals-diagnostic-02。原PID1345287/start6226730/pipe3098639；仅eof首格initial_read_not_observed，未发TERM/INT。ba3061原失败快照显示TID1345289两次SYS_read0/fd0、原syscall样本相同、wchan=anon_pipe_read，原gate仅pipe_read故不接受；不回填01/未保留字段/不称三格通过。原cleanup实际返回后才快照，killed/actual_waited/parent_fds_closed均true，当前精确PID absent，数值Wait未记录不补造；失败目录仅eof锁与events保留，无identity，后free5,646,598,144B。详情runner-os-signals.md；无自有活动资源、无重跑或gate变动。
 - 独立Management Logout-first单观察点修复有限接受：ed0d88逆唯一块后全文fb9945bf相同；真实target control与global同rank canonical使target先，改为created.Target的exact key，ShareLock/mutationPID/want1及原Audit/User链/actual结果/零事实不改。只静态，不编译/PG；原Management01 FAIL保留，修后单top待新候选与fresh窗口。记录runner-management-review/review.md。
 

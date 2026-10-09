@@ -65,16 +65,24 @@ class FakePath:
         return iter(self.tasks)
 
 
-def witness(wchan='pipe_read', error=None, task_count=1):
+def witness(wchan='pipe_read', error=None, task_count=1, syscalls=None, identity_error_at=0):
     child = probe.Child.__new__(probe.Child)
     child.proc = SimpleNamespace(pid=100)
     child.start_ticks = 200
     child.pipe_inode = 300
-    child.live_identity = lambda: None  # Identity mechanics unchanged; no proc access.
+    identity_calls = 0
+
+    def identity():
+        nonlocal identity_calls
+        identity_calls += 1
+        if identity_calls == identity_error_at:
+            raise probe.Failure('child_identity_changed')
+
+    child.live_identity = identity  # No proc access; both original checks remain.
     FakePath.tasks = [FakePath('/proc/100/task/' + str(400 + n)) for n in range(task_count)]
     FakePath.values = {'/proc/100/fdinfo/0': 'flags:\t00\n'}
     for task in FakePath.tasks:
-        FakePath.values[task.value + '/syscall'] = error or ' '.join(raw)
+        FakePath.values[task.value + '/syscall'] = error or syscalls or ' '.join(raw)
         FakePath.values[task.value + '/wchan'] = wchan
     FakePath.reads = []
     with patch.object(probe, 'Path', FakePath), patch.object(probe.os, 'readlink', return_value='pipe:[300]'):
@@ -85,14 +93,32 @@ def witness(wchan='pipe_read', error=None, task_count=1):
     return child, result, tuple(FakePath.reads)
 
 
-# Actual original strict witness still rejects both kernel-name candidates.
+# Only the old name and diagnostic02's exact anonymous-pipe name are accepted.
 for wchan in ('pipe_read', 'anon_pipe_read', 'fifo_pipe_read', 'PRIVATE-WCHAN'):
     child, result, reads = witness(wchan)
-    check(bool(result) == (wchan == 'pipe_read'))
+    check(bool(result) == (wchan in ('pipe_read', 'anon_pipe_read')))
     check(len(reads) == 4)  # fdinfo plus syscall/wchan/syscall, no diagnostic re-read.
     check(child.read_snapshot['pid'] == 100 and child.read_snapshot['start_ticks'] == 200)
     check(child.read_snapshot['fd0_inode'] == 300 and child.read_snapshot['fd0_flags'] == 0)
     check('PRIVATE' not in json.dumps(child.read_snapshot))
+
+# Alias compatibility cannot weaken any other part of the original witness.
+for wchan in ('anon_pipe_read_more', 'xanon_pipe_read', 'Anon_pipe_read', 'ep_poll'):
+    _, result, _ = witness(wchan)
+    check(result is None)
+for field, value in ((0, '19'), (1, '0x1'), (3, '0x0')):
+    changed = raw.copy()
+    changed[field] = value
+    _, result, _ = witness('anon_pipe_read', syscalls=' '.join(changed))
+    check(result is None)
+changed = raw.copy()
+changed[2] = '0xDIFFERENT_PRIVATE_ADDRESS'
+_, result, _ = witness('anon_pipe_read', syscalls=[' '.join(raw), ' '.join(changed)])
+check(result is None)  # Equal safe projections cannot replace raw equality.
+for at in (1, 2):
+    child, result, _ = witness('anon_pipe_read', identity_error_at=at)
+    check(isinstance(result, probe.Failure) and str(result) == 'child_identity_changed')
+    check(child.read_snapshot['error'] == 'witness_condition')
 for error, category in ((PermissionError('PRIVATE'), 'permission'),
                         (OSError('PRIVATE'), 'io'), (ValueError('PRIVATE'), 'format')):
     child, result, reads = witness(error=error)
@@ -155,7 +181,7 @@ with patch.object(probe, 'Child', FailingChild), patch('builtins.print') as prin
 tree = ast.parse(SOURCE.read_text())
 functions = {node.name: node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)}
 strict = ast.unparse(functions['_blocked_read'])
-check("wchan == 'pipe_read'" in strict and "before == after" in strict)
+check("wchan in ('pipe_read', 'anon_pipe_read')" in strict and "before == after" in strict)
 check('len(tasks) <= 128' in strict and 'self.live_identity()' in strict)
 check('time.monotonic() < deadline' in ast.unparse(functions['until']))
 check('deadline = time.monotonic() + 3' in ast.unparse(functions['cleanup']))

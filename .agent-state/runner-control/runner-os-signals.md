@@ -15,7 +15,7 @@
 
 ## 三格、判据和边界
 
-每格独占一个直接 Popen 子进程和自己的真实 stdin pipe，父进程不供字节或 EOF。发信号前必须核：原 PID/start_ticks、exe dev/inode、fd0 pipe inode 与 O_NONBLOCK 清除；同一 task 两次 syscall 快照相同，确为 Linux amd64 `read(fd0)` 且 `wchan=pipe_read`。最多128 task，任何权限失败或无法观察均 FAIL，无 sleep/flock-only 替代。信号后必须见公开 stopping 日志，再重复原阻塞读证明和同 inode 身份锁检查。轮询等待本身不作事实证据。
+每格独占一个直接 Popen 子进程和自己的真实 stdin pipe，父进程不供字节或 EOF。发信号前必须核：原 PID/start_ticks、exe dev/inode、fd0 pipe inode 与 O_NONBLOCK 清除；同一 task 两次 syscall 快照相同，确为 Linux amd64 `read(fd0)` 且 `wchan` 精确属于 `{pipe_read, anon_pipe_read}`。后者只来自诊断02实际匿名pipe等待点；fifo/epoll/任意近似名称均不接受。最多128 task，任何权限失败或无法观察均 FAIL，无 sleep/flock-only 替代。信号后必须见公开 stopping 日志，再重复原阻塞读证明和同 inode 身份锁检查。轮询等待本身不作事实证据。
 
 | 场景 | 原刺激 | 必须结果 |
 | --- | --- | --- |
@@ -41,7 +41,13 @@ root fresh grant 后沿原脚本、固定cmd和新 `output/ai/runner-control/os-
 
 ba3061读取原0600 events：owned PID1345287/start_ticks6226730/pipeinode3098639；末样本identity_checked=true、fd0_flags=0、fd0_inode3098639，七task原扫描完成且error=null。TID1345289两次SYS_read=0、fd0=true，原完整syscall样本相同，wchan闭集投影为`anon_pipe_read`。原判据只接受`pipe_read`，因此不接受这个样本；安全输出没有保存原buffer/count/address，不能重建未保留字段，也不能借此宣称信号三格通过。本轮观察把内核等待点名称与原严格gate差异变成实际事实，不将源码候选当OS01根因。
 
-原cleanup在快照落盘前已返回，记录killed=true/actual_waited=true/parent_pipe_ends_closed=true；精确PID随后/proc absent，private只保留eof/identity.json.lock，无identity.json。没有原Wait数值状态，不能补造。失败目录按方法保留、没有重跑或新增清理；实际全局free5,646,598,144B。窗口释放，无自有活资源或TCP双空宣称。下一步若适配本kernel等待点，只能另作有限方法差异/独审并获fresh窗口；当前脚本原gate未变。
+原cleanup在快照落盘前已返回，记录killed=true/actual_waited=true/parent_pipe_ends_closed=true；精确PID随后/proc absent，private只保留eof/identity.json.lock，无identity.json。没有原Wait数值状态，不能补造。失败目录按方法保留、没有重跑或新增清理；实际全局free5,646,598,144B。窗口释放，无自有活资源或TCP双空宣称。下一步若适配本kernel等待点，只能另作有限方法差异/独审并获fresh窗口；该轮结束时原gate未变。
+
+## 已观察匿名 pipe 名称的最小兼容修订
+
+root 在诊断02事实基础上仅授权原 wchan 条件改为精确 `{pipe_read, anon_pipe_read}`，没有接受 fifo、epoll、前后缀或任意等待点。原 PID/start_ticks/exe、fd0 自有 pipe inode/只读阻塞 flags、双原 syscall 全样本相等、SYS_read/fd0/positive count、所有 deadline/信号/actual Wait 与清理路径不变；不修改生产或默认 cmd。
+
+`803389` 实际运行 `python3 -B .agent-state/runner-control/runner-os-diagnostic-controls.py`，72纯控 exit0，含原60及新12：精确alias阳性、近似/其他wchan拒绝、错syscall/fd/zero count、同安全投影但原buffer字段不同拒绝、前后identity失效拒绝；原cleanup先行、失败落盘不覆盖原错误继续通过。均为内存替身，无新child/proc/socket或三格结果。源码冻结待Vars独立窄审；原01/02FAIL不变，新实际仍须未用output与freshgrant。
 
 ## 固定 cmd 与命令
 
