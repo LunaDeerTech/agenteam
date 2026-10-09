@@ -95,7 +95,7 @@ def frozen_inputs():
     paths = [SOURCE / name for name in ("independent_test.go", "independent.spec.ts", "independent.config.mjs", "run-independent.py")]
     paths += [ROOT / "tests/account" / name for name in ("project_owner_models_web_fixture_test.go", "project_owner_models_web_test.go")]
     paths += [ROOT / ".agent-state/model-ui-regression" / name for name in ("run-owned-regression.py", "fixture-go.py")]
-    paths += [ROOT / ".agent-state/model-ui-recovery" / name for name in ("owned_resources.py", "native-client-probe.ts", "validate-same-body.py")]
+    paths += [ROOT / ".agent-state/model-ui-recovery" / name for name in ("owned_resources.py", "native-client-probe.ts", "authority-and-identity.ts", "validate-same-body.py")]
     paths += [ROOT / "api/openapi" / name for name in ("common.json", "project-models.json", "project-model-credentials.json")]
     paths += [ROOT / "docs/development/work-items" / name for name in ("d27-project-owner-model-settings-ui.md", "d27-project-owner-model-settings-ui-endpoints.json")]
     paths += [BINARY, ACCEPTED / "client-probe/native-client-probe.js", ROOT / "tests/account-captcha-web/package-lock.json", ROOT / "output/ai/deps-minio/bin/minio"]

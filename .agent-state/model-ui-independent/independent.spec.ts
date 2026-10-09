@@ -4,6 +4,7 @@ import {
   type Page,
   type Locator,
 } from "../../tests/account-captcha-web/node_modules/@playwright/test/index.js";
+import { beginSessionResponseDiagnostic } from "../model-ui-recovery/authority-and-identity";
 import { createHash, randomBytes } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import {
@@ -739,33 +740,64 @@ async function login(page: Page, m: Row) {
   );
 }
 async function session(page: Page) {
-  const waiting = page.waitForResponse(
-    (r) =>
-      new URL(r.url()).pathname === "/api/v1/session" &&
-      r.request().method() === "GET" &&
-      r.status() === 200,
-  );
-  await wait("independent-b-session-evaluate-v", () =>
-    page.evaluate(() => dispatchEvent(new PageTransitionEvent("pageshow"))),
-  );
-  const response = await wait("independent-b-session-waiting-w", () => waiting);
-  need(
-    (await wait("independent-b-session-finished-x", () =>
-      response.finished(),
-    )) === null,
-    "INDEPENDENT_SESSION_EOF",
-  );
+  const diagnostic =
+    selected === "b"
+      ? await wait("independent-b-session-diagnostic-begin", () =>
+          beginSessionResponseDiagnostic(page).catch(() => null),
+        )
+      : null;
+  let diagnosticFailed = false;
   try {
-    const body = row(
-      await wait("independent-b-session-json-y", () => response.json()),
+    const waiting = page.waitForResponse(
+      (r) =>
+        new URL(r.url()).pathname === "/api/v1/session" &&
+        r.request().method() === "GET" &&
+        r.status() === 200,
     );
+    diagnostic?.start();
+    await wait("independent-b-session-evaluate-v", () =>
+      page.evaluate(() => dispatchEvent(new PageTransitionEvent("pageshow"))),
+    );
+    const response = await wait(
+      "independent-b-session-waiting-w",
+      () => waiting,
+    );
+    diagnostic?.select(response);
     need(
-      id(body.user.id) && id(body.session.id) && body.user.role === "user",
-      "INDEPENDENT_ORDINARY_OWNER",
+      (await wait("independent-b-session-finished-x", () =>
+        diagnostic
+          ? diagnostic.finishedWait(() => response.finished())
+          : response.finished(),
+      )) === null,
+      "INDEPENDENT_SESSION_EOF",
     );
-    return { user: body.user.id as string, session: body.session.id as string };
-  } catch {
-    throw new Error("INDEPENDENT_SESSION_SHAPE");
+    try {
+      const body = row(
+        await wait("independent-b-session-json-y", () => response.json()),
+      );
+      need(
+        id(body.user.id) && id(body.session.id) && body.user.role === "user",
+        "INDEPENDENT_ORDINARY_OWNER",
+      );
+      return {
+        user: body.user.id as string,
+        session: body.session.id as string,
+      };
+    } catch {
+      throw new Error("INDEPENDENT_SESSION_SHAPE");
+    }
+  } catch (error) {
+    diagnosticFailed = true;
+    throw error;
+  } finally {
+    if (diagnostic)
+      await wait("independent-b-session-diagnostic-finish", async () => {
+        try {
+          await diagnostic.finish(diagnosticFailed);
+        } catch {
+          /* Missing diagnostics cannot replace the Session result. */
+        }
+      });
   }
 }
 async function navigationFailure(
