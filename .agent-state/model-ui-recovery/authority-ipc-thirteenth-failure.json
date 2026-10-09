@@ -1,0 +1,156 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-authority-798816676bfd4752b78e0795aa995ecb",
+  "case": "authority",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority",
+  "actual_tool_session": 8086,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 28.68,
+  "terminal": {
+    "case": "authority",
+    "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+    "navigation_image": null,
+    "navigation_captures": 0,
+    "exit": 1,
+    "elapsed_seconds": 127.34316116300033,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 735776,
+        "status": 0
+      },
+      {
+        "pid": 735779,
+        "status": 0
+      },
+      {
+        "pid": 735706,
+        "status": 9
+      },
+      {
+        "pid": 735760,
+        "status": 0
+      },
+      {
+        "pid": 735781,
+        "status": 0
+      },
+      {
+        "pid": 735782,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-flow-ipc-178-started"
+  },
+  "browser_runner_failure": {
+    "context_done": true,
+    "exit_code": -1,
+    "reported_categories": [],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      }
+    ]
+  },
+  "credential_session_consumption": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "d46676b600729bdfa618d627eb229cfde77ff0f8336ab1c03cb95a7bedafa622",
+    "request_kind": "session",
+    "diagnostic": "unavailable",
+    "pw_candidates_before_action": 0,
+    "pw_candidates_after_action": 1,
+    "pw_target_requests": 1,
+    "pw_selected_target_match": true,
+    "pw_request_match": true,
+    "pw_request_id_seen": true,
+    "pw_status": 200,
+    "snapshot_source": "unavailable",
+    "snapshot_selected_bound": false,
+    "snapshot_native_terminal": false,
+    "slot_end_observed": false,
+    "samples": 1,
+    "sample_settled": 1,
+    "sample_failed": 0,
+    "sample_joined": true,
+    "sample_join_unavailable": false,
+    "pw_finished_event": true,
+    "pw_failed_event": false,
+    "pw_failure": "none",
+    "native": null,
+    "timing": {
+      "clock": "node-performance",
+      "origin": "session-diagnostic-begin",
+      "action_started": {
+        "order": 1,
+        "elapsed_ms": 793.1850780000004
+      },
+      "first_bound_eof_sample": null,
+      "pw_finished": {
+        "order": 5,
+        "elapsed_ms": 831.1498979999997
+      },
+      "pw_failed": null,
+      "pw_failed_test_status": "unknown",
+      "original_finished_wait_rejected": null,
+      "page_close_notification": null,
+      "context_close_notification": null,
+      "projection_recorded": {
+        "order": 6,
+        "elapsed_ms": 843.3933429999997
+      }
+    },
+    "restore_owner": null,
+    "cdp_ready": true,
+    "cdp_candidates": 1,
+    "cdp_cap_exceeded": false,
+    "cdp_selected_bound": true,
+    "cdp": {
+      "request": {
+        "order": 2,
+        "elapsed_ms": 811.7273999999998
+      },
+      "response": {
+        "order": 3,
+        "elapsed_ms": 824.141662
+      },
+      "finished": {
+        "order": 4,
+        "elapsed_ms": 831.0053449999996
+      },
+      "failed": null,
+      "aborted": false,
+      "canceled": false
+    },
+    "consumption_publication_evidence_complete": false
+  },
+  "safe_response_count": 26,
+  "last_safe_response": {
+    "operation": "listProjectAvailableChatModels",
+    "method": "GET",
+    "status": 200
+  },
+  "observed_boundary": {
+    "private_reference_preparation_started": true,
+    "following_reference_snapshot_reached": false,
+    "delete_request_reached": false,
+    "closed_ipc_error_not_preserved": true,
+    "credential_session_finished_passed": true,
+    "credential_consumption_witness_complete": false
+  },
+  "limitations": [
+    "Original private acknowledgement was retired; exact rejection code and SQL cause unavailable.",
+    "No product delete response was observed at this boundary; not a product deletion verdict.",
+    "Session native and restore-owner evidence are unavailable; PW/CDP finished alone is not a production consumption witness.",
+    "Original failures remain unchanged; no causal claim across runs."
+  ]
+}

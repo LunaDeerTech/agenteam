@@ -842,6 +842,29 @@ type projectModelsWebIPC struct {
 	Args      json.RawMessage `json:"args"`
 }
 
+// Only the existing closed IPC result crosses the private-directory boundary.
+// Arguments, targets and underlying database/transport errors remain private.
+func projectModelsWebIPCFailure(action string, sequence int, failure any) map[string]any {
+	if sequence < 1 || sequence > 128 {
+		return nil
+	}
+	switch action {
+	case "arm", "control-state", "release", "counts", "snapshot", "logout", "archive-recovery-project", "reference-fact", "rename-reuse":
+	default:
+		return nil
+	}
+	code, ok := failure.(string)
+	if !ok {
+		return nil
+	}
+	switch code {
+	case "invalid_envelope", "invalid_sequence", "invalid_action", "invalid_arguments", "unknown_target", "arm_busy", "token_mismatch", "not_ready", "budget_exhausted", "fixture_failed":
+		return map[string]any{"action": action, "sequence": sequence, "error": code}
+	default:
+		return nil
+	}
+}
+
 func decodeProjectModelsWebIPC(raw []byte, inputHash string, next int) (projectModelsWebIPC, string) {
 	var out projectModelsWebIPC
 	if len(raw) > 8192 {
@@ -2607,6 +2630,9 @@ wait:
 			}
 			f.private("project-models-ack-"+strconv.Itoa(sequence)+".json", ack)
 			if ack["ok"] != true {
+				if diagnostic := projectModelsWebIPCFailure(request.Action, request.Sequence, ack["error"]); diagnostic != nil {
+					f.safeEvidence("ipc-failure.json", diagnostic)
+				}
 				stop()
 			}
 		}

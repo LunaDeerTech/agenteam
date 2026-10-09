@@ -25,6 +25,40 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 )
 
+func TestProjectModelsWebIPCFailureProjection(t *testing.T) {
+	for _, code := range []string{"invalid_envelope", "invalid_sequence", "invalid_action", "invalid_arguments", "unknown_target", "arm_busy", "token_mismatch", "not_ready", "budget_exhausted", "fixture_failed"} {
+		t.Run(code, func(t *testing.T) {
+			value := projectModelsWebIPCFailure("reference-fact", 17, code)
+			if len(value) != 3 || value["action"] != "reference-fact" || value["sequence"] != 17 || value["error"] != code {
+				t.Fatal("closed IPC failure lost its original action, sequence or code")
+			}
+		})
+	}
+	for _, test := range []struct {
+		name, action string
+		sequence     int
+		failure      any
+	}{
+		{"raw-error", "reference-fact", 1, "private-canary-database-error"},
+		{"wrapped-error", "reference-fact", 1, fmt.Errorf("private-canary-database-error")},
+		{"nil-error", "reference-fact", 1, nil},
+		{"raw-action", "private-canary-target", 1, "fixture_failed"},
+		{"zero-sequence", "reference-fact", 0, "fixture_failed"},
+		{"over-budget", "reference-fact", 129, "fixture_failed"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			if value := projectModelsWebIPCFailure(test.action, test.sequence, test.failure); value != nil {
+				t.Fatal("private or invalid IPC failure escaped closed projection")
+			}
+		})
+	}
+	for _, action := range []string{"arm", "control-state", "release", "counts", "snapshot", "logout", "archive-recovery-project", "reference-fact", "rename-reuse"} {
+		if value := projectModelsWebIPCFailure(action, 128, "fixture_failed"); len(value) != 3 || value["action"] != action {
+			t.Fatal("existing IPC action or final permitted sequence missing")
+		}
+	}
+}
+
 func TestProjectModelsWebBrowserFailureProjection(t *testing.T) {
 	private := "private-canary-key-value-cookie-never-exported"
 	raw := []byte("ReferenceError: " + private + "\n at /private/project-owner-models.spec.ts:713:22\n at /private/project-owner-models.spec.ts:713:22\n at unrelated.spec.ts:999:1\n TypeError: " + private)
