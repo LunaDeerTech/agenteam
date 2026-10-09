@@ -1,6 +1,6 @@
 # D10 Agent 配置与当前身份事实
 
-状态：**rev0 草案，未接受、未实施**。本轮只编写本文件，没有 Agent 产品代码、迁移、动态验证或生产绑定。正文中的新类型、接口、字段与工程上限都是待独立 SPEC 审查的提案，不因被其它草稿引用而成为已验能力。Agent Management 尚无实现包；现存 `identity.AgentID` 只是 typed identity。本文不占用迁移号，进入真实持久实施前由 root 根据当时全局序列分配。
+状态：**C1 SPEC 已接受，C1 实现中；F1 未接受、未实施**。本轮实施仅限 §8 的六个纯契约文件，没有 Agent 服务、迁移、动态授权或生产绑定。C1 规格接受不等于实现验收；正文中的 F1 新类型、接口、字段与工程上限仍待独立 SPEC 审查，不因被其它草稿引用而成为已验能力。`identity.AgentID` 只是 typed identity。本文不占用迁移号，进入真实持久实施前由 root 根据当时全局序列分配。
 
 本卡拟分成两个可分别验收的结果：**C1 纯 AgentCore 与当前身份端口契约**可在规格接受后先行；**F1 Human Owner 创建、读取、修改真实 Agent 配置，并提供同 caller Tx 的当前身份事实**必须等本卡列出的真实前置闭合后开工。F1 不接受 SQL 手种 Agent、默认成功目录或未绑定初始化作为生产创建路径。C1 完成不解锁 Task 指派；F1 完成也不等于 Executor、Agent 删除、完整 D10 或平台 ready。
 
@@ -40,6 +40,8 @@ C1 需要闭合其实际类型的 presence、当前事实错误顺序、锁要�
 拟提供 Human Owner 的 `CreateAgent/GetAgent/UpdateAgent/LookupAgentCommand`，以及 `WorkReferences.RequireCurrentInTx`。只做直接配置；Preset 复制、运行时授权、Skill 动态分配、Agent 删除/停用/恢复、Project lifecycle participant、HTTP/UI/App root 不在 F1。
 
 F1 开工前必须已有可供组合的 Model 配置验证与 Agent 引用写入/替换、保护 Skill 默认分配、普通 Tool Registry 的 install-skill 身份、所支持 Capability 的真实目录及其引用保护。Agent constructor 不接受缺口端口，不能以“本次传空数组”为由注册假的全域目录。某类配置若拟另分结果，必须先收窄受支持命令/DTO与本卡验收范围并再经 SPEC 审查，不能实现时静默丢字段。
+
+**F1 BLOCKED：ToolID canonical 层级尚未闭合。** `agent/contract` 属层 4，不能 import 层 5 的 `tool/contract`；Tool 反而可以依赖 Agent 契约。未来完整配置所需 ToolID 的 canonical 类型位置必须由相关 owner 正式协调解决，不能向上 import、复制 marker 或以字符串占位。C1 的 AgentCore 排除三类引用数组，不涉及这个尚未接受的完整配置依赖。
 
 默认 Add Skills 启用、install-skill 默认启用且允许显式禁用属于既定产品规则。新 Agent 的配置事实与默认分配必须原子可证明，已有 Project initialized 只证明 Project 初始化，不证明该 Agent 已获得默认能力。缺保护技能、缺 Registry 或初始化错误时，创建失败且无可供 Work 指派的 active Agent。
 
@@ -212,7 +214,7 @@ F1拟独占`agenteam_agent`本域表：`agents`保存canonical核心与删除门
 
 ## 8. 拟写域与验收
 
-本轮实际写域只有本文。以下是规格接受后实施建议，**不是现在的写权**：
+本轮已授权写域为本文及下列 C1 六文件；F1 路径仍仅为后续建议，不是现在的写权：
 
 - C1精确六技术路径：`internal/central/agent/contract/core.go,core_test.go,reference.go,reference_test.go,codec.go,codec_test.go`。`core`定义AgentCore与合法元数据/Model标量；`reference`定义AgentRef/WorkReferences；`codec`只服务该六路径的嵌套strict raw/presence/Clone与安全输出。已有identity/Model/Foundation不改，不能添加未存在的Tool/Mount/Variable marker。必要开发README/台账同完整结果更新。
 - 完整Config契约与F1尚不能列为“可立即实施闭包”：Model配置窄口与Agent引用/替换回调、Tool/Mount/Variable canonical ID/目录、Skill新Agent初始化和Agent typed producer/Audit allowlist须由各owner先给出精确文件与责任，root统一批准完整实施闭包。然后在Agent本域安排commands/reader/repository/authority/events及纯/真实PG测试和唯一新迁移；不隐含改旧Model/Work/Project/Skill、HTTP、前端或生产root的权限。
@@ -236,4 +238,4 @@ F1真实PG必须逐项证明：
 
 所有并发必须用实际caller Tx PID、精确预期key/mode、granted=false与blocker握手后释放/取消，不靠sleep。独立验证者须全文STATIC并各自构造Owner撤权/Ref竞争以及跨ownerModel替换/Unknown两组真实场景；作者tests不能代替独立结论。真实资源/单top预算沿当时明确的私有PG-only fixture与所有权，未获扩展不启动Object/Runner/Provider；需要受阻真实依赖时如实BLOCKED，不削弱断言或复制空实现。离线检查每条≤45秒且GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off。
 
-C1接受只开放依赖其纯类型的编译工作；F1只有全部实际前置、真创建/事实/引用与独立验证通过才可供Task assignee/reviewer正向绑定。当前两个结果均未实施，本文等待独立SPEC审查；完整Agent配置、Skills/Variables、删除、Executor与完整D10的未完成事实保留。
+C1 SPEC 已接受，六文件实现与作者验证进行中，尚未取得独立实现验收；其接受只开放依赖纯类型的编译工作。F1 尚未接受或实施，只有全部实际前置、真创建/事实/引用与独立验证通过才可供 Task assignee/reviewer 正向绑定。完整 Agent 配置、Skills/Variables、删除、Executor 与完整 D10 的未完成事实保留。

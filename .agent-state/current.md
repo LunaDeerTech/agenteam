@@ -77,3 +77,6 @@
 - Task修后Membership完整outer59200 exit0，body2.16s/driver7.97s，Go99177/driver98668 Wait0，两ID/runtime/TCP双空/input不变（pg-a620aba…）。作者剩4新+4旧Structure，独立rromoyii A/B待实际完成；原FAIL不回填。
 - root隔离候选树 /workspace/agenteam-task-delivery / ai/task-planning-delivery 从main cbd0edc1只复制13未交付Task技术源；offline -p2 Central/Runner build实际exit0，两产物真实存在，不commit/接受/runtime装配，不改Model所在delivery00021树。正式交付仍待完整PG/AB/README真实范围。
 - Task transitions完整rev0草案352行已冻结保存，尚待独立SPEC；D10 C1六纯contract范围已独立SPEC接受，F1的ToolID不得从层5向上导入Agent层4，owner补低层接缝责任/阻断。已派C1六路径纯实现，无服务/迁移或指派正向能力。
+
+- 独立Task A/B最终rromoyii组合完整PASS：A outer40886 exit0/69.414s（pg-c8c57e06…），B outer42492 exit0/84.273s（pg-63444268…）；bodyA2.64s/B18.24s，所有child/driver Wait0、两ID/runtime/TCP双空，22源末次changed=[]。20技术全文静审+privatecodec独立矩阵+A/B均通过，无已知未修产品阻断；作者余4新+4旧实际PG未齐，整卡不能接受。
+- D10 C1首3源core/reference/codec已gofmt并offline包编译exit0（no test files，只编译），稳定保存；3测试正在补齐，尚无实现行为/独立验收。D10原doc已补F1 ToolID层级BLOCKED/C1状态。Task transition最新草案把T0a无Blocker纯闭包与待B0-C的T0b明确拆开，358行peer修订冻结保存，独立SPEC读者须采用此最新输入。

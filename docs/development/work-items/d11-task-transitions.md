@@ -60,6 +60,8 @@ A 的一般写权限来自正式 Tool/Execution 授权，不凭 AgentID 存在�
 
 新增 `TaskTransitionCommandID`、`TaskBlockerID` 仅分别对应真实流转命令和 Blocker 身份，复用 Foundation typed UUIDv7；Agent、Task、TaskEvent、Project 等沿既有 marker。跨事件的 operation/correlation 使用流转命令身份；不把 transport RequestID 写成 operation。BlockerID 的唯一定义归 Blocker 契约子结果，本卡只引用，不能各造同名 marker。
 
+以下完整请求/接口是 §10 的 **T0b** 目标，须先有 B0-C 已接受且可编译的唯一 `TaskBlockerID/TaskBlockerCreate` 与 typed metadata 契约。当前不存在这些类型，不能把此片段称为可直接独立编译的 T0a 结果，也不能用重复 marker、`json.RawMessage` 或 `map[string]any` 临时填洞。T0a 只交付不引用 Blocker 请求/事实的状态边决策、角色判定和新 Position；纯决策的受控输入不证明任何运行依赖事实。
+
 ```go
 type TaskTransitions interface {
     TransferTask(context.Context, identity.Actor, foundation.CommandMeta,
@@ -109,13 +111,13 @@ agent/contract.WorkReferences.RequireCurrentInTx(
   ctx, tx, actor, project_id, agent_id) -> AgentRef
 AgentRef {project_id, agent_id, config_version}
 
-work.HasCurrentAgentReferencesInTx(
+work/contract.AgentReferences.HasCurrentAgentReferencesInTx(
   ctx, tx, actor, project_id, agent_id) -> bool
 ```
 
 D10 的读口证明真实当前 Agent 存在、归属同 Project、初始化完成、未进入删除门禁，返回配置 version；不把 Model 引用 shape、Skills 安装回执或单个 AgentID 当事实。它不检查 busy，也不把 Runner 暂时离线、Model 调用失败当作该 Agent 消失。D10 决定当前配置何时具备可分配资格；Work 不自行添 active/disabled 枚举。当前 [D10 Agent configuration 草案](d10-agent-configuration.md) 的此口仅支持 Human：先当前Owner Read再查真实Agent，合法AgentRun暂为DEPENDENCY_UNBOUND。T2必须另补真实Run authority及Agent读取接缝，不能把Human-only口当作已支持运行身份。
 
-选择/保留 active-state assignee 时，在最终物理 Tx 内重新调用该口；显式目标 Agent 总是验证。配置 version 变动导致旧计划失效时，重新读取真实事实并重新准备，原 Task expected_version 不变。不能只凭准备阶段 AgentRef 或当前 Get 的缓存完成分配。缺口/typed nil/错误不能表示 Agent 合法；未实现返回 `DEPENDENCY_UNBOUND`，不存在/跨 Project/不可分配统一安全 `TASK_ASSIGNEE_INVALID`。
+选择/保留 active-state assignee 时，在最终物理 Tx 内重新调用该口；显式目标 Agent 总是验证。配置 version 变动导致旧计划失效时，重新读取真实事实并重新准备，原 Task expected_version 不变。不能只凭准备阶段 AgentRef 或当前 Get 的缓存完成分配。缺口/typed nil/错误不能表示 Agent 合法；未实现返回 `DEPENDENCY_UNBOUND`。仅在同 Tx 当前 Owner Read 已成功后，对 D10 明确的 Agent missing（含外 Project）或 `AGENT_NOT_CURRENT` 事实映射安全 `TASK_ASSIGNEE_INVALID`；不能把该调用所有 NOT_FOUND/INVALID_STATE 一概换码。授权/生命周期、依赖未绑定、Store/SQL、ctx取消错误保留各自安全语义与提交确定性，不借 assignee 错误隐藏真实失败。
 
 共享顺序为 Project gate→ProjectSchedule EX→AgentLock SH→Sprint/Task；显式新 Agent、当前 assignee、AgentRun actor 的 Agent 取完整 union。D10 删除/失效必须取得相同 Schedule EX 与目标 Agent EX，然后调用 Work 自有引用口；该引用口明确要求 Agent EX，SH 不满足。Work 口查真实 `tasks.assignee_agent_id`，包含 backlog/blocked 及终态保留的当前字段；reviewer 是同一列，不重复维护。历史 TaskEvent 中的 from/to Agent 是历史身份，不是当前分配；当前引用存在时 D10 不能通过级联/清空 Work 字段完成删除。Work 返回 false 只证明本域当下无引用，D10 仍须检查其余引用、slot、namespace/运行资源，不得据单个 bool 宣告安全删除。缺少任何必要 provider 不能回 empty。
 
@@ -123,7 +125,7 @@ Work 引用口验证同 Store 活 Tx、已持 User/Project/Schedule/Agent 锁和
 
 ### 4.2 Blocker：先落 Work-owned 完整子结果
 
-目前没有 Blocker 领域表、端口或真假空集证明。进入 todo、进入 blocked、从 blocked 恢复及任何 Blocker input 都依赖正式 Work Blocker 子结果；构造器不能默认 `HasUnresolved=false`。建议在本卡运行实现前独立完成以下有界成果，并在接受其卡时确定唯一字段/文件所有者：
+目前没有 Blocker 领域表、端口或真假空集证明。先拆 B0-C 纯契约结果，唯一定义 Blocker marker、type-specific metadata、Create DTO、严格codec/Clone/限额与必要历史 payload；其接受范围须逐类写明，未冻结的外域 metadata 不用 raw JSON 占位，也不能称五类全完成。完整 TaskTransfer 编码/摘要依赖此类型闭合，不能与它无依赖并行。随后 B0-P 实现真实持久与组合端口。进入 todo、进入 blocked、从 blocked 恢复及任何 Blocker input 都依赖 B0-P；构造器不能默认 `HasUnresolved=false`。建议在本卡运行实现前独立完成以下有界成果，并在接受其卡时确定唯一字段/文件所有者：
 
 ```text
 TaskBlockers.ReadInTx(ctx, tx, actor, project, task) -> BlockerSnapshot
@@ -282,15 +284,17 @@ U1和取消沿已验规划规则：请求取消且明确未开始/已回滚，�
 
 | 可独立结果 | 完整验收边界 | 依赖 / 尚不能声称 |
 | --- | --- | --- |
-| T0 纯契约与边决策 | presence、49边、权限角色判定、reason与多事实编码/摘要/cap/Clone、旧schema拒绝回归 | 不依赖Agent数据库；真实Actor授权与运行成功未证明 |
-| B0 Blocker领域基础 | strict types、真实表/图/批次/最后Blocker保护、共享锁与事实产出 | 真 metadata外域类型逐个绑定；无Provider不当empty |
+| T0a 无Blocker类型依赖的纯结果 | 49边、权限角色判定、`TaskTransitionPosition`及旧Position拒绝回归；只用现有Task/Agent等typed ID | 不含完整TaskTransfer、Blocker历史或全请求摘要；纯决策输入不证明真实Actor/Agent/Blocker能力 |
+| B0-C Blocker纯契约前置 | 唯一TaskBlockerID/Create、已明确type-specific metadata、严格codec/Clone/cap、相应历史payload | 逐类冻结；未定外域metadata保持未完成，不填RawMessage、不复制marker；无真实持久能力 |
+| T0b 完整transition纯契约 | 完整TaskTransfer的presence/摘要、多事实编码/cap/Clone、typed envelope与旧schema拒绝回归 | 依赖T0a及B0-C可编译类型闭合；不依赖Agent数据库，仍不证明真实授权/运行成功；Blocker类型覆盖不超过已验B0-C |
+| B0-P Blocker持久基础 | 真实表/图/批次/最后Blocker保护、共享锁与事实产出 | 依赖B0-C；真metadata外域provider逐个绑定；无Provider不当empty |
 | A0 D10当前Agent+引用保护 | 当前同Project事实、初始化/删除门禁、Work当前引用/删除竞争 | D10配置Create/Read/Update若仍缺Model/Skills/Tool目录则保持其阻塞；纯Agent契约不等于此结果 |
-| T1 Human transition服务 | 规划整卡通过；真实A0/B0及必要占用/位置provider，合法Human流转、rank/History/Outbox/receipt全事务 | 不把直接SQL造todo/Agent行作为正向种子；不声称Agent Tool、Scheduler或Executor已绑定 |
+| T1 Human transition服务 | 规划整卡通过；T0b、真实A0/B0-P及必要占用/位置provider，合法Human流转、rank/History/Outbox/receipt全事务 | 不把直接SQL造todo/Agent行作为正向种子；不声称Agent Tool、Scheduler或Executor已绑定 |
 | T2 AgentRun/reviewer绑定 | 真实Execution+Tool授权、当前reviewer比较、权限撤销/运行结束/恢复Lookup | 依赖D18/D21/D22；不能用NewAgentRun或成功mock替代 |
 | T3 Scheduler组合 | claim/Dispatch/slot/Busy逻辑位置/unknown/reconciliation真实原子竞争 | 依赖D22/D23正式adapter及mapping；不能经公共Transfer开放Scheduler边 |
 | 后继adapter/Timeline | HTTP/Tool一致服务入口、comment独立编辑软删与Timeline读取、Inbox投影 | 另卡明确范围与真实验收；不在本文自动注册 |
 
-T0/B0/A0 可以按真实依赖并行安排，T1所需代码可以拆有意义的可构建库结果，但不能把缺provider的运行构造器验收当作transition正向。确有不需要Agent/Blocker/执行能力的局部业务路径，必须逐项证明其真实前置和引用/占用边界后独立定scope；不能以一个nil adapter开启整个服务。具体文件闭集、shared gate/fault/迁移唯一作者由实施卡接受时登记，本纯规格不赋予任何代码写权。
+T0a、B0-C、A0 可按各自真实前置并行安排；B0-C类型闭合后，T0b与B0-P可以分别推进。T1所需代码可以拆有意义的可构建库结果，但不能把缺provider的运行构造器验收当作transition正向。D10独立C1纯契约即使已接受或交付，也不是A0的当前Agent事实/引用保护运行能力。确有不需要Agent/Blocker/执行能力的局部业务路径，必须逐项证明其真实前置和引用/占用边界后独立定scope；不能以一个nil adapter开启整个服务。具体文件闭集、shared gate/fault/迁移唯一作者由实施卡接受时登记，本纯规格不赋予任何代码写权。
 
 ## 11. 上限、持久编码与安全投影
 
@@ -309,6 +313,8 @@ plan最多两个512KiB Task、source/target前后四个4096项`(id,rank)`向量�
 纯规格验收只检查事实来源、精确闭集/权责/迁移兼容/依赖/矩阵/本地链接，不运行产品或PG，也不把文档接受标为服务PASS。实施时作者先完成自测，独立验证使用冻结输入与实际结果。真实PG按团队当前资源所有权调度；每轮记录准确selector、实际wait/退出与所拥有资源终态，不复制过时的逐轮审批或永久证据包流程。
 
 ### 12.1 纯契约与决策
+
+下表是 T0a、B0-C、T0b 的合并目标矩阵，不能把整表归入无需前置的 T0a。T0a只执行 §10限定的边/角色/Position项；涉及TaskTransfer、BlockerID/metadata、多事实或完整摘要的项，须等相应B0-C类型闭合后由T0b验证。
 
 | 测试组 | 必须证明 |
 | --- | --- |
@@ -347,6 +353,6 @@ Actor/调度绑定增加真实 `TestTaskTransitionsAgentReviewerAuthority`、`Te
 3. **Blocker外域引用与受信System原因。** Meeting/Approval的稳定typed reference、technical reason/cause允许来源、user_cancelled_execution的执行归属和用户停止证明，分别由D24/D19/D22/D23提供。B0可先完成无外域引用waiting_for_human/rely_on及全图/批次不变量；未冻结类型拒绝DependencyUnbound，不假空metadata。
 4. **D11/D23持久claim位置mapping。** 逻辑保护规则已定，精确映射表、两锚点消失时如何保留槽位、普通reorder的映射迁移与Busy并发保留字段需D23组合卡给出SQL和真实竞争证据。禁止把旧manual_rank恢复或“没有Scheduler实现”当todo组永远无pending的证明。
 
-D10当前Agent事实与Work引用保护是明确责任依赖，不是产品未决；同Project、当前存在/初始化/删除门禁及真实锁/引用检查已经固定，不能推迟为任意stub。规划整卡、D10真实服务和必要Blocker/运行provider完成前，T1/T2/T3不报完成。T0或某个正式依赖子结果可以独立交付；接受本规格也仅代表工程设计就绪，不代表迁移、服务、HTTP/Tool、Scheduler、Agent授权或真实PG矩阵已执行。
+D10当前Agent事实与Work引用保护是明确责任依赖，不是产品未决；同Project、当前存在/初始化/删除门禁及真实锁/引用检查已经固定，不能推迟为任意stub。规划整卡、D10真实服务和必要Blocker/运行provider完成前，T1/T2/T3不报完成。T0a或类型已闭合的T0b等正式子结果可以按各自边界独立交付；接受本规格也仅代表工程设计就绪，不代表迁移、服务、HTTP/Tool、Scheduler、Agent授权或真实PG矩阵已执行。
 
 本文只新增这张规格卡，不修改原状态机、planning/TaskPosition、产品或测试源；若独立SPEC审查确认需要调整业务来源、已有契约或跨域卡，由对应唯一作者在另一个明确范围中处理。交付记录以实际代码/测试和团队任务台账为准，不在本文追加逐轮运行日志。
