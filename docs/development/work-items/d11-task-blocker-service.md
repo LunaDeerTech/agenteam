@@ -1,6 +1,6 @@
 # D11 B0-P：Human backlog Blocker 持久服务
 
-状态：本卡限定的 Human 未指派 backlog Blocker 持久服务已实现并经独立验收接受；正式候选交付闭包正在收束。本卡是 [B0-C](d11-task-blocker-contracts.md) 两类契约的真实服务消费者，不表示完整跨状态 B0-P、Task transition、完整 D11 或生产 root 已完成。迁移 `00023_task_blockers.sql` 随服务交付。
+状态：本卡限定的 Human 未指派 backlog Blocker 持久服务已实现并经独立验收接受。本卡是 [B0-C](d11-task-blocker-contracts.md) 两类契约的真实服务消费者，不表示完整跨状态 B0-P、Task transition、完整 D11 或生产 root 已完成。迁移 `00023_task_blockers.sql` 随服务交付。
 
 ## 1. 完整结果与真实依赖
 
@@ -139,7 +139,7 @@ migration实际测试fresh、populated00022升级、re-run与失败回滚；原p
 
 ## 9. 当前状态
 
-本卡限定服务已独立接受，无剩余产品必须修复项。正式SPEC、三公开contract的独立公开API pure/race、runtime全文STATIC、独立验证者本人执行的A/B及全部必要真实回归共同构成结论；作者四包pure/race/vet、双入口build和完整integration race编译通过。候选工作树的精确装配与必要构建另核，不把产品接受提前写成已提交main。
+本卡限定服务已独立接受，无剩余产品必须修复项。正式SPEC、三公开contract的独立公开API pure/race、runtime全文STATIC、独立验证者本人执行的A/B及全部必要真实回归共同构成结论；作者四包pure/race/vet、双入口build和完整integration race编译通过。正式Git交付状态以分支记录和提交为准。
 
 下表按§8的实际场景组合接受。每个PASS轮均记录Go、driver、外层实际退出0，以及首行精确两任务资源、runtime与host TCP的双次清空，冻结输入未变。独立A/B由未参与实现的验证者本人运行；其余为作者测试及必要旧服务回归。
 

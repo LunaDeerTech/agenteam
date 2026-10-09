@@ -31,7 +31,7 @@
 
 ## D27实际状态与下一步
 
-- 六新case历史接受4项（recovery/read/configuration/credential）；authority/navigation仍FAIL。共享层两次产品修复后，受影响recovery/configuration/credential须用新资产补验；read只有单层，核相关输入/依赖无变化后可复用。旧14首项owner-edit已完整PASS并完成实际退出、七资源/runtime/hostTCP双清及输入一致检查；余13项和独立A/B待验，下一owner-recovery已就绪。
+- 六新case历史接受4项（recovery/read/configuration/credential）；authority/navigation仍FAIL。共享层两次产品修复后，受影响recovery/configuration/credential须用新资产补验；read只有单层，核相关输入/依赖无变化后可复用。旧14的owner-edit与owner-recovery已完整PASS并完成实际退出、七资源/runtime/hostTCP双清及输入一致检查，现已过2项；余12项和独立A/B待验，下一authority第6轮的新诊断真实验证已就绪。
 - 最新authority第5完整FAIL：Session headers已见、finished未见、failed已见。需核真实account客户端同一body EOF/cancel与Playwright/CDP事件差异；不能去掉EOF门槛、重发GET或凭CDP事件猜根因。各轮Model业务测试均已完成自有资源清理。
 - 最新navigation第5使用新资产后完整FAIL：初始Session等待报 `SESSION_FINISH_TIMEOUT`，headers/failed已见、finished未见，尚未进入焦点场景。实际进程退出、七个自有资源/runtime/hostTCP双清及输入不变均已确认；第4轮焦点FAIL保留，本轮不能判定共享焦点修复的业务效果。
 - 精确失败输入在 `.agent-state/model-ui-recovery/*failure.json`；完整主harness为两Model Go、config/spec及该目录case模块。独立A/B四源在`.agent-state/model-ui-independent/`，已编译/类型/发现并随新Go夹具复编，**尚未真实执行**。
@@ -46,7 +46,7 @@
 - 正式组件整合树 `/workspace/agenteam-shared-layer-delivery` 当前 `ai/shared-layer-delivery`，包含已推送main的两组件提交；不混入未验Model或B0-P产品。
 - 固定Chromium、锁定Playwright、PG/MinIO及helpers已恢复；可重建产物在output。既有dev infra不属于任务，不连接、不清理。
 - PG/browser/hostTCP只运行一个明确资源窗口。实际Go/driver/外层终态及资源尾结束前，不进行Git网络、下载或另一browser/socket测试；离线纯测试与无输入冲突写入可继续。每轮完整终态才交接，原失败不补写PASS。
-- 本次汇总时Model owner-edit与B0-P全部真实PG轮均已完整释放窗口，当前交root完成Git安全保存。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
+- 本次汇总时Model owner-recovery与B0-P全部真实PG轮均已完整释放窗口，当前交root完成Git安全保存。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
 
 ## 保留停止项与最终验收
 
