@@ -1,0 +1,203 @@
+# D10 普通 Project Variables Owner 服务与 HTTP
+
+> 状态：SPEC 初稿，待独立契约审查；尚无本卡产品、迁移或测试实现。工作分支 `ai/project-variables`，正式基线 `f1c94ee5`。迁移 `00024` 由 root 为本卡预留。
+>
+> 完整结果：已有初始化 Project 的当前 Human Owner，可以经默认 Central HTTP 创建、读取、分页、更新及删除普通变量，以原意图 Lookup 与显式同 key 重放恢复响应丢失。本卡不是完整 D10、Agent F1、Secret 或执行环境注入交付。
+
+## 1. 来源、真实依赖与排除范围
+
+业务依据是[项目变量架构](../../architecture/project-work-management/project-environment-variables.md)，身份复用[已交付 R1](d01-resource-identities.md)的 `identity.ProjectVariableID`。流程、完整模块门槛见[团队流程](../agent-team/README.md)、[开发计划](../development-plan.md#d10-agent-配置与项目变量)；全局产品状态只在[任务台账](../agent-team/tasks.md)维护。
+
+本基线已具有 Account HTTPBoundary/当前 Session/Activity、Project `Authority.RequireOwnerInTx`、Postgres Store/Tx/完整锁集与提交状态、签名 cursor、typed Audit、Catalog/Outbox 同事务追加、默认根及[Work Owner HTTP](d11-work-owner-http.md)的自然期限和真实退出模式。`identity/contract/resources.go` 已有唯一 ProjectVariable marker，不新增或借用 CredentialID。
+
+本领域不依赖 Skills、Model UI、Agent 目录或 Object 的新业务能力。默认根原有 Object/MinIO 启动与测试资源保持，不因本卡解除 Object join 停项。若测试需要新 Project，用正式 Project 服务与明确披露的持久测试 Skills 前置，不宣称真实 Skills 交付。
+
+排除 Secret 加密/明文/白名单、MCP 凭据引用、Agent F1/Prompt/ExecutionContext、Runner 环境注入、UI、Project 创建 HTTP、Project 完整归档/删除参与者。本次普通变量没有外域引用消费者，不造成功空引用检查。后继 Secret 必须扩展同一 Variables 目录和名称空间，另行落实 Credential 映射及引用保护；现 Credential 目录不自动成为 Project Variable。
+
+## 2. 精确文件与接缝
+
+当前仅授权本卡与本树 `.agent-state/current.md`。下表是实施必要范围建议，须经负责人协调唯一写者才取得产品写权，不是本稿自行授权共享修改。
+
+| 范围 | 路径与必要理由 |
+| --- | --- |
+| 新契约 | `internal/central/projectvariable/contract/{types,commands,query,events}.go` 及对应 `_test.go`；被本卡服务与 HTTP 直接消费，不先交无消费者纯类型 |
+| 新领域 | `internal/central/projectvariable/{service,authority,commands,repository,reader,events}.go` 及对应 `_test.go`；同 Store 授权、持久命令、分页、事实与调用生命周期 |
+| 新 HTTP | `internal/central/projectvariable/http/{handler,read,commands,wire,io}.go`、对应 `_test.go` 与 `native_test.go`；私有有界 I/O，不重构共享框架 |
+| 迁移 | `db/migrations/00024_project_variables.sql`；目录/命令/历史/generation 与 Audit 闭集 SQL 扩展，旧 migration 不改 |
+| Audit 契约 | 新 `internal/central/audit/contract/projectvariable.go`、`projectvariable_test.go`；现 `types.go`、`metadata.go` 及同名测试，仅注册本卡三 action/producer/resource 和严格 metadata |
+| Project 精确分派 | `internal/central/project/audit_facts.go`、`audit_facts_test.go`、`events.go`；新 `projectvariable_event_authority.go`、`projectvariable_event_authority_test.go`，保留既有 Work/Model 行为 |
+| 已有 Audit HTTP 消费 | `internal/central/audit/http/project_wire.go`、`project_wire_test.go`、`api/openapi/project-audit.json`；新记录要能经已有 Owner Audit 页读取，summary 沿 `Audit event`，无需修改 `audit/query.go` |
+| 已有 Audit 客户端兼容 | `web/src/api/project-audit-metadata.ts`、`web/src/tests/project-audit-metadata.spec.ts`、`web/src/tests/project-audit-client.spec.ts`；现客户端闭集解码会拒绝新 action/resource，须精确扩三分支与关系校验，避免普通变量写入导致既有安全记录页整页失败；不是新增变量 UI 或扩 System Audit filter |
+| 默认根 | `internal/central/app/account.go`、`account_test.go`、`project_usage.go`、`project_usage_test.go`；新 `project_variables.go`、`project_variables_test.go`、`project_variables_process_test.go`，落实构造顺序、路由、Stop/Drain/Force/Joined |
+| 新 schema | `api/openapi/project-variables.json`，复用现 `common.json` Problem，不新增公共错误 |
+| 集成/进程 | `tests/projectvariable/{fixture,persistence,authority,concurrency,recovery,http}_test.go`、`tests/process/project_variables_http_test.go`；复用真实 fixture、COMMIT 代理与默认根资源链 |
+| 独立验收 | `.agent-state/project-variables/` 内必要 probe/入口由未参与实现者独占，具体新增文件随派工登记，不复制日志或建立 manifest |
+| 必要文档 | 本卡、`docs/development/backend/README.md`、最终台账本卡行；current 只作恢复，不复制其他任务流水 |
+
+Foundation fault/lock、公共 httpapi/problem、common.json、Account 服务接口、Project authority.go 与生命周期参与者均保持现有契约。若实际需要扩域，先报具体缺口。不引入新依赖、worker、定时清理、通用注册框架。架构业务规则未改变，不预占架构文档写域。
+
+### 2.1 服务与 HTTP 的稳定接口
+
+`VariableID` 仅 alias `identity.ProjectVariableID`，ProjectID 仅 alias `identity.ProjectID`。DTO 具有严格 Validate/JSON/Clone；含原意图或用户值的类型采用私有封闭存储与显式 wire 投影，顶层和 enclosing fmt/slog 不泄露内容。
+
+```go
+type Commands interface {
+    // CommandMeta.ExpectedVersion must be nil for create.
+    CreateVariable(context.Context, identity.Actor, foundation.CommandMeta,
+        ProjectID, VariableCreate) (VariableMutation, error)
+    // CommandMeta.ExpectedVersion is required and validated for update/delete.
+    UpdateVariable(context.Context, identity.Actor, foundation.CommandMeta,
+        ProjectID, VariableID, VariableUpdate) (VariableMutation, error)
+    DeleteVariable(context.Context, identity.Actor, foundation.CommandMeta,
+        ProjectID, VariableID) (VariableMutation, error)
+    LookupVariableCommand(context.Context, identity.Actor,
+        VariableCommandLookupRequest) (VariableCommandLookup, error)
+}
+type Queries interface {
+    GetVariable(context.Context, identity.Actor, ProjectID, VariableID) (Variable, error)
+    ListVariables(context.Context, identity.Actor, ProjectID,
+        foundation.PageRequest) (foundation.Page[VariableSummary], error)
+}
+```
+
+版本输入只有现成的 `foundation.CommandMeta.ExpectedVersion *foundation.Version`（`foundation/id.go`）一个来源，不另加可冲突的版本参数。三个入口先 `CommandMeta.Validate()`，再按 command 检查 presence：create 必须 nil，update/delete 必须非 nil 且 `ExpectedVersion.Validate()` 成功，否则 INVALID_ARGUMENT；不能只依赖允许 nil 的通用 `CommandMeta.Validate()`。入口将值复制到私有原意图，避免调用者随后改变指针。HTTP PATCH/DELETE 的必需 `expected_version` 解码到此参数；Lookup 的原版本也放入同一 CommandMeta 后经同一 `VariableCommandDigest` 绑定其 presence 与值。delete 没有业务 request DTO，但绝不省略版本：预检、final 前像核对和同 key 改义检查均使用捕获的原版本，不能从当前对象补齐。
+
+command 稳定名为 `project.variable.create|update|delete`。公开纯工厂 `VariableCommandIdentity`、`VariableCommandDigest` 共用原意图规范化；Lookup request 含 ProjectID、Command、IdempotencyKey、SemanticDigest，不接任意 namespace。HTTP 由原 request 构造 digest，不要求客户端实现 Go 摘要。
+
+`NewAuthority(store Store)` 纯构造自有事实证明器，实现 Outbox ProducerAuthority、Audit ProjectFactAuthority，不读取 Project 私表或颁发 Owner 权限。该确切对象先注入 Project AuditFacts 与 Outbox Producer；再 `New(store, Dependencies{Authority, Projects, Events, VariableEvents, Audit, Activity, Cursors})` 建立同时实现 Commands/Queries 的 Service。拒绝 nil/typed nil、无效 keyring、已知不同 Store，不 late-fill 权限。`Stop()`、`Drain(ctx)` 覆盖读、写、Lookup、确认尾。HTTP `NewHTTPHandler(service, boundary)` 消费这六能力和真实 Account HTTPBoundary，`HandlesPath` 仅认本卡路径。
+
+## 3. 字段、版本与删除
+
+| 字段 | 规则 |
+| --- | --- |
+| id / project_id | canonical 小写 UUIDv7；id 创建前由调用者生成，稳定且全局不重用；跨 Project 不可见 |
+| type | 固定 `variable`；写 request 不接 type，拒绝 secret/credential 或额外字段 |
+| name | ASCII `[A-Za-z_][A-Za-z0-9_]{0,127}`，1..128 B；不 trim、不折叠大小写、不 Unicode 归一化；同 Project 存活记录按 C collation 精确唯一 |
+| 保留名 | ASCII 不区分大小写后等于 `AGENTEAM` 或以 `AGENTEAM_` 开头拒绝，避免覆盖平台 namespace |
+| description | 必须是字符串，可空，合法 Unicode scalar/UTF-8，≤4096 B；禁止 NUL 和除 TAB/LF/CR 外 Cc，逐字保存 |
+| value | 必须是字符串，可空，合法 Unicode scalar/UTF-8，≤32768 B；禁止 NUL，其余逐字保存，不解释模板/shell/URL/凭据 |
+| version | canonical 十进制字符串 `1..9223372036854775807`；创建1，真实更新/删除+1，不借 Project.version |
+| created_at / updated_at | 正式 Instant，DB 微秒时刻；创建相等，真实更新单调非减；no-op 不刷新 |
+
+完整 Variable 恰 `id,project_id,type,name,description,value,version,created_at,updated_at`；VariableSummary 恰去掉 `value` 的这些字段，不用空值假装详情。name、description 也是用户数据，不进日志或 Audit metadata。
+
+create request 恰 `{variable_id,name,description,value}`。update request 为 name/description/value 中至少一个 presence 字段：缺席保留、空串可清 description/value，null/重复/未知/大小写别名 key 拒绝。精确字节比较，先 expected_version 再判 no-op；陈旧版本即使新值相同也 VersionConflict。合法 no-op 保存 completed receipt，但不改对象/generation、不产生 history/Audit/Outbox/Activity。MaxInt64 允许 no-op 和完成重放，真实改变为 RESOURCE_BUSY。
+
+delete 是稳定 ID 的逻辑删除：版本+1、写 deleted_at、当前行清空 value/description；Get/List 排除墓碑。旧名称可给新 UUID 使用，旧 ID 不复活、不换 Project/type。delete 必须 expected_version，无 caller 时刻。新 key 删除已删除/不存在目标返回 NOT_FOUND；只有已完成同义同 key delete 返回原成功，不以“当前不存在”伪造幂等成功，不写第二事实。
+
+create/update 历史 receipt 保留当时完整普通值，后续更新、删除、同名新建不改写，只对当前仍获准的同 User Owner 可见。不承诺删除即擦除命令历史/备份，不增加历史公开浏览。普通变量不提供 Secret 安全承诺。后继外域引用消费者必须先落实正式同 caller Tx 引用保护和删除责任，本卡不开放其绑定或绕过现 Secret/Credential 保护。
+
+每 Project 最多4096条存活普通变量；满额 create 为 RESOURCE_BUSY、field `/variable_id:PROJECT_VARIABLE_LIMIT`，更新/删除不受此 create 限制。墓碑/commands/history 不自动清理，无保留期 job。
+
+## 4. 迁移、锁及原子事实
+
+00024 是 `-- agenteam:transaction tx` 的前向 Goose Up，新 schema `agenteam_projectvariable` 与本域 UUIDv7 domain，不改旧 migration。后继全局编号已分别预留00025给Knowledge、00026给Runner；本卡不提前消费尚未交付的后继迁移或据此扩大基线。最低表列如下：
+
+- `variables`：id PK、project_id、type、name COLLATE C、description、value、version、created_at、updated_at、deleted_at nullable；UNIQUE(project_id,id)，存活 `(project_id,name)` partial unique。type 当前 CHECK 仅 variable；未来 Secret 须前向扩同表/payload shape，不能另造不共享唯一约束的名称目录。
+- `project_generations`：project_id PK、query_generation 正 bigint；无行视为1，首次真实改变得2，每次真实 create/update/delete +1；no-op/replay 不变。
+- `commands`：id（本域 Operation UUIDv7）PK、project_id、actor_user_id、command_name、idempotency_key、semantic_digest、target_id、request jsonb、state(planned/completed)、plan_revision、plan jsonb nullable、event_id nullable、receipt jsonb nullable、created_at、committed_at nullable；唯一 `(project_id,command_name,idempotency_key)`，CHECK 严格关联计划/完成/有无改变 receipt 与 event ID。
+- `history`：id、project_id、variable_id、operation_id、version、kind(created/updated/deleted)、changed_fields、actor_user_id、occurred_at、event_id；operation_id、event_id、`(project_id,variable_id,version)` 各唯一，复合 FK 绑定本域 variable/command；仅安全字段名，不复制 name/value，无历史 HTTP。
+
+持久 request/receipt JSON 各≤512 KiB，plan≤1 MiB，history/event安全payload≤8 KiB。SQL CHECK 防 NULL 三值逻辑绕过、字节上限/UUID/version/墓碑 shape；Unicode/presence仍由严格领域验证。对象 ID/project/type/created_at 不可变、墓碑不得再更新。无跨模块 Project 私表 FK，当前所属和权限由正式 Authority 同 Tx 证明。合法最坏 escaping 必须实际编码验证，不只算术证明。
+
+只用现 LockKey：mutation 统一 command EX→User EX→Project EX，一次归一化 AcquireAll；User EX 满足 Activity，Project EX 同时保护名称、容量、对象版本、generation，并与 Project archive/Owner 变化串行。读用 User SH→Project SH，Lookup 再加 command EX，但 User/Project 为 SH。Outbox plan 锁先 union 后一次获取，不在 Tx 内降序加锁/SH升级EX，不增 aggregate kind 或借 CredentialLock。
+
+命令先同 Tx 当前 Read 授权并查 completed 原回执；命中不受当前目标删除/版本改变影响。未完成才做 Mutate gate和version/名称/容量。真实改变先持久 planned（稳定operation/event ID、原intent、前后像、冻结DB业务时刻），出 Tx 后 PrepareAppend，不在 SQL callback做外部准备。final Tx 重取完整锁集、当前Session/Owner/Project/command revision与前像，写对象+generation+history、typed Audit+Outbox+Activity、completed receipt，全部同物理 Tx，任一步失败全回滚。
+
+计划间其他命令改目标，final VERSION_CONFLICT，不改原 expected_version或自动rebase；名称和归档也重核。原 planned 可经相同意图显式尝试，但不满足前像仍明确拒绝。`in_progress` 只表示观测到未完成意图，不保证后台worker在执行，本卡没有worker。
+
+对象/history/event 用计划同一冻结DB业务时刻；command.created_at/committed_at记录各持久阶段。Audit created_at、Activity沿现端口自取时，Account原60s节流保持，不承诺同微秒或每次更新。no-op只完成命令，不虚构业务改变。
+
+### 4.1 Outbox 与 Audit 来源证明
+
+普通变量是持久配置，真实创建/改变/删除各产生一次安全 Audit 与配置事件以供 Owner 追溯。读/Lookup/no-op/replay不增加。Outbox producer=`projectvariable`、event=`project.variable_changed`、aggregate=`project.variable`、schema_version=1，Project scope，aggregate ID=VariableID、version=结果版本。payload恰 `variable_id,operation_id,change,changed_fields`；change=created/updated/deleted，创建字段 `[created]`、删除 `[deleted]`、更新为排序唯一的 name/description/value子集。无原值及可枚举值摘要。
+
+Audit action=`project.variable.create|update|delete`、producer=`projectvariable`、resource_kind=`project_variable`；metadata恰 `variable_id,version,changed_fields`。仅当前Human、Project scope、Success、空associations、ordinal0，cause_ref为原CommandIdentity规范sha256摘要。00024精确扩现Audit action/producer/resource CHECK并保留旧闭集；contract NewEntry/DecodeMetadata与Project Audit HTTP/schema/现有客户端metadata decoder同时接入，不能让新增记录毒化已有分页。客户端仅扩本三种严格记录，不宽松接受未知action，也不预占client.ts、useSession或新变量界面。
+
+事实 Authority 必须在 supplied Tx 验同Store、完整锁、原command/actor/revision、真实postimage/history/event与精确metadata。Project先核当前Owner/生命周期再分派确切producer。Outbox CurrentAccess/NewFact分别Read/Mutate，以issuer+purpose+summary绑定。仅同形UUID、producer字符串、伪cause或正确postimage但缺history均不能过关。任一真实Audit/Event/Activity端口缺失则DependencyUnbound，默认根不放成功替身。
+
+## 5. 当前权限、原意图和 Unknown
+
+| 当前事实 | Get/List/Lookup/完成同义重放 | 新写或未完成计划 |
+| --- | --- | --- |
+| 当前Human Owner、有效Session、initialized active | 允许且校验scope/目标 | 按版本和字段规则 |
+| initialized archiving/archived | 允许读与历史receipt | PROJECT_NOT_ACTIVE |
+| pending initialization或deleting | PROJECT_NOT_ACTIVE，无历史旁路 | 同左 |
+| 其他User（包括系统管理员）、跨Project目标 | NOT_FOUND，不泄露对象或命令存在 | 同左 |
+| 撤销/过期Session、当前User不存在 | 原认证错误与HTTP清Cookie规则 | 同左，final同Tx重核 |
+| AgentRun/Service/System scope | 不提供本卡能力 | AgentRun沿Project原DEPENDENCY_UNBOUND，Service为FORBIDDEN；不扩大Actor许可 |
+
+Account没有disabled User业务，本卡不造字段/假端口声称已验。预认证后、prepare后撤销Session/Owner变化/归档使用真实锁竞争验证，不能靠HTTP第一次认证缓存判最终权限。
+
+摘要绑定command、Project、target、actor UserID、expected_version的presence与值、规范request的presence与内容；不绑定SessionID/CSRF/RequestID/JSON成员次序。create不含expected_version，update/delete必须含。key空间为Project+command，同空间改target/字段/version/User为IDEMPOTENCY_KEY_REUSED，先当前授权、不泄露旧内容；不同command是独立正式命令空间。同User新Session保存原材料可恢复，失权旧Owner不可读。
+
+VariableMutation wire按command闭合：create/update恰 `{command,changed,variable,event_id,audit_id}`；delete恰 `{command,changed,deleted,event_id,audit_id}`，deleted恰 `{id,project_id,type,version,deleted_at}`。create/delete changed=true；update no-op changed=false且event_id/audit_id明确null；真实改变两个ID有效。无key/digest/plan/Session/SQL。Lookup恰 `{status,receipt}`，status为committed/in_progress/not_observed，后两者receipt=null。历史receipt按原intent验证，不查当前值代替或否定。
+
+Store Unknown保留原Attempt/Cause、不重跑SQLcallback。允许服务最多3s独立只读确认ctx查询相同canonical command；该尾由call owner跟踪，Stop取消、Drain实际join，并继续核当前Session/Owner。只有合法completed同义receipt确认成功。not_observed/in_progress/确认超时/当前拒绝都不证明原未提交，返回COMMIT_UNKNOWN、commit_state=unknown、retry_hint=lookup并保留因果。明确NotCommitted才按其实际错误返回。HTTP不自动重放/换key/version；真实响应丢EOF仍从原intent恢复，当前GET相同不是commit证明。
+
+## 6. HTTP、分页、错误与安全输出
+
+基路径 `P=/api/v1/projects/{project_id}/variables`，只认canonical UUIDv7及精确rawpath，不redirect/path.Clean、不抢原Project/Work/Model/Usage/Audit路由。
+
+| Method/path | 输入与结果 |
+| --- | --- |
+| GET/HEAD P | 仅limit/cursor；200摘要页 |
+| GET/HEAD P/{variable_id} | 无query/body；200完整Variable |
+| POST P | `{request:{variable_id,name,description,value}}`；200 create receipt |
+| PATCH P/{variable_id} | `{expected_version:"1",request:{...}}`；200 update receipt |
+| DELETE P/{variable_id} | `{expected_version:"1"}`，无request字段；200 delete receipt，不用204丢回执 |
+| POST P/commands/lookup | create恰 `{command,request}`；update恰 `{command,target_id,expected_version,request}`；delete恰 `{command,target_id,expected_version}`；200 Lookup |
+
+写和Lookup需真实Cookie Human、Host/Origin/Fetch-Metadata/CSRF及Idempotency-Key，Lookup用原key。只读无必需key。顺序沿Account CheckRequest/RequireHuman→解码→库同Tx重核，不提前Project Mutate检查破坏归档恢复。已有资源错method为405和精确Allow，未知路由404；HEAD无body但完成相同认证/I/O收尾。
+
+JSON input≤1MiB，detail/mutation/Lookup output≤1MiB，list≤5MiB。拒绝未知/重复（含escaped同名）/大小写别名key、无效UTF-8/孤立surrogate、null混淆、尾随JSON、非application/json、非UTF-8 charset、Content-Encoding。version只canonical decimal string。GET/HEAD实际body最多探测1B拒绝，不无界drain；详情/写/Lookup禁RawQuery/ForceQuery。
+
+list query原文≤32KiB，limit默认50/显式canonical 1..100，cursor≤8192B。未知/重复decoded key、空值、无等号、非法百分号/UTF-8/NUL/分号、裸`?`拒绝，没有名称搜索或隐藏filter。SQL按 `(name COLLATE C ASC,id ASC)` keyset与LIMIT limit+1，只取摘要列，不载全量value再切片。cursor绑定格式版本、kind=`project.variables`、UserID、ProjectID、type=variable、固定排序、最后真正返回name/id、同Tx query_generation；limit不绑定。同User新Session可续，任意真实变量改变（包括value）使旧cursor失效，no-op/replay不失效。错签名/绑定/position为CursorInvalid，generation变为CursorStale，不能退回首页。先当前授权再验cursor。空/末页不含next_cursor，有next_cursor须满页；wire `{items:[],next_cursor?:string}`，坏末项不得发布半页。
+
+| 条件 | HTTP/code/安全字段 |
+| --- | --- |
+| 字段/保留名/JSON/坏cursor | 400 INVALID_ARGUMENT或CURSOR_INVALID；保留名 `/request/name:RESERVED_NAME` |
+| 当前权限 | 原401/403/404 UNAUTHENTICATED/SESSION_REVOKED/FORBIDDEN/CSRF_FAILED/ORIGIN_DENIED/NOT_FOUND |
+| version/归档/改义/旧页 | 409 VERSION_CONFLICT/PROJECT_NOT_ACTIVE/IDEMPOTENCY_KEY_REUSED/CURSOR_STALE |
+| 存活name冲突 | 409 RESOURCE_BUSY，`/request/name:NAME_CONFLICT`，不回显占用记录 |
+| 容量或版本/generation耗尽 | 409 RESOURCE_BUSY；PROJECT_VARIABLE_LIMIT或VERSION_EXHAUSTED固定字段码 |
+| 长度/media | 413 PAYLOAD_TOO_LARGE / 415 UNSUPPORTED_MEDIA_TYPE |
+| 缺依赖/存储/Unknown/关停 | 原503 DEPENDENCY_UNBOUND/DEPENDENCY_UNAVAILABLE/COMMIT_UNKNOWN/SHUTTING_DOWN，保留实际commit_state/hint |
+
+复用公共Problem，不新增Foundation code。不把明确输入/DB失败都归Unknown，也不把未确认COMMIT写成NotCommitted。库已完成但receipt校验或输出失败时abort，不发布宣称未写入的Problem。正式Draft2020-12 schema验证真实encodeJSON正反样本及union、最大输入输出，不只测手写成功fixture。
+
+日志仅route模板、request_id、安全Fault code/state、数值统计；禁key/cursor/rawquery/name/description/value/request/receipt/SQL/CSRF/cookie及值摘要。DTO顶层/enclosing/错误链/根真实出口都用canary验证。普通值只进当前授权detail/mutation/Lookup body，Audit/Outbox仅上述安全metadata。
+
+## 7. 默认根与实际退出
+
+装配顺序：Store→变量事实Authority→同一Project Authority AuditFacts→同Catalog VariableEvents→同Outbox Producers→变量Service（同Audit/Account Activity/cursor）→真实HTTPBoundary→精确路由。`app/project_usage.go`承接事实Authority参数，不能另建ProjectAuthority绕Audit；`account.go`将同Service owner安装进现工作集合。部分构造失败、Stop/晚到install竞争必须退役新owner，不留不受根管理的入口。
+
+read/Lookup总2s、mutation总30s，从认证前开始并继承更早deadline。私有I/O沿Work已验模式：实际Body Read/Close、完整UTF-8/JSON/编码、Write/Flush、取消回调join、清deadline；unwrap最多64层，循环/缺能力明确abort。取消/短写/Close/Flush/deadline失败/panic不遗弃goroutine；3s确认尾可实际继续但不延长HTTP发布期限，wrapper超时不能释放仍在跑的业务owner。
+
+Service统一跟踪读/写/Lookup/确认。Stop禁止新admission并取消全部现存ctx与确认ctx，Drain仅每个调用实际返回后成功；根Force沿原总清理ctx，不另起后台无限等待或新预算。Joined必须实际owner与I/O回调结束，不能以当前进程不存在或另一个早过期布尔代替正在使用的DBctx事实。
+
+## 8. 完整验收与资源
+
+独审SPEC接受后实施；首片段可以持久服务闭合保存，但本卡须HTTP/defaultroot收敛才是完整结果。未参与实现者做独立验收。一次组织完整矩阵，不以逐轮补零散top代替整体设计。
+
+| 层 | 关键判据 |
+| --- | --- |
+| 纯契约/schema | name大小写/保留前缀/UTF-8/NUL/escaping、presence/null、ID区别、version边界、clone/enclosing日志、receipt原intent；最大100项摘要/完整value实际编码及坏末项拒绝 |
+| 迁移 | 空库、00023含旧Work数据升级、重复启动、故障回滚/journal；CHECK/partialunique/FK/墓碑不可变真实PG，旧Audit记录仍可读 |
+| 持久闭环 | create→page/detail→rename/valueupdate→no-op→delete；精确version/generation/commands/history/Audit/Outbox/Activity；同名新UUID/旧ID不复活/空值/4096容量；每阶段SQL故障全回滚 |
+| 竞争 | 两key同expected一赢家；同key同义/改义；同名create/rename；delete对update及同名重建；Session撤销/Owner变化/BeginArchive双提交顺序；真实PID/pg_locks/blocking_pids/barrier，不sleep冒竞争 |
+| 分页 | 101+真实记录、C序/页边/跨Project/User/换limit/同User新Session；篡改/变更失效/no-op不失效；Rows取消无半页且writer真实获锁完成 |
+| 恢复/Unknown | 三命令真实成功响应截断→新Session原Lookup/显式原replay；后续改/删仍旧receipt、无第二事实；实际完整COMMIT帧未转发/提交丢响应、内建确认成功/未观测/未完成/取消超时与attempt/cause保留 |
+| HTTP权限 | 真Account登录cookie/CSRF、他人/他人admin、撤销/过期、错parent、pending/deleting、归档历史恢复vs新写、严格method/path/body/query；不手seedSession证明正例 |
+| native/root | 真net/http读/写/Flush/Close/取消/join与自然2s/30s；真默认root六能力及HEAD、ProjectAudit消费新记录、原路由回归；进行中Read/mutation/COMMIT确认的Stop/Force/Joined、晚装配/部分失败 |
+| 独立 | 未参与实现者自行验证权限/原intent/Unknown/真实根确认退出，自己读持久事实，不以作者success布尔或httptest-only代实际root |
+
+PG复用 `tests/testsupport/postgres`，HTTP真实Account/Project准备参考 `tests/work/work_owner_http_fixture_test.go`，不得直接消费该包私有helper；完整帧代理参考 `tests/work/task_concurrency_test.go`。必要跨包窄helper另报写域，不复制监督器。
+
+默认root复用现 `scripts/test-objects.sh`→outbound→postgres七资源链、显式预编binary/cwd/selector、已验root_chain_driver/pg_only_supervisor。扩精确selector闭集须取得工具唯一写权。库层沿105s driver/90s test；root沿原每包6m与有界外层清理，不静默加时、不编造ID或缺manifest的退休。每轮实际子进程Wait、确认/回调join、自有ID/nonce标签、runtime及hostTCP双尾分别记录，root统一排资源窗。SPEC阶段不运行网络测试。
+
+作者pure/race/vet、integration race-c/精确发现、两入口build与真实PG/native/root分别记结果，编译不是动态PASS。原FAIL保留、修后只跑影响范围；Model/UI/WIP不进正式候选。本卡完成也仅是普通Variable Owner后端，Agent F1、Secret、完整D10仍未完成。
+
+## 9. 当前状态与下一步
+
+完整初稿已完成有限独审，其余范围可接受；唯一待窄复核项已补：§2.1 明确通过现成 CommandMeta.ExpectedVersion 输入删除版本，严格校验 presence/值并与HTTP和摘要同源。共享写域待协调、SPEC尚未最终接受。现在仅两份文档，没有00024 SQL、新Go、schema或实际产品验证。下一步冻结差异作窄复核，接受后由负责人分派实现与独立验收，不提前修改公共接缝。
