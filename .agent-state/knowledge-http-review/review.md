@@ -42,3 +42,11 @@ B02五API/权限撤销/读COMMIT Unknown及原生慢I/O仍需以后独占窗口�
 
 本阶段不审正文、下载、D13或生产 root，不重做已接受B02内部算法验收，
 也不将作者尚未完成的 wire/test/schema 当作通过证据。
+
+## 35b62908 wire/schema 增量
+
+静核显式12字段投影、Human/AgentRun原闭集和同Project校验；隐藏ObjectID仍先由正式DocumentRef.Validate验证，不进入JSON。Get只允许active或最小4字段tombstone；page核limit、所有项/过滤/顺序/重复，坏尾项返回nil而不发布前缀。祖先按根起连续/去重/无自身逐项验证；Search另核末祖先与文档parent一致。单独ancestors的完整性来自真实Service同Tx路径，不声称仅靠target ID就能重建其父链。逐个有界DTO编码到私有5MiB表示，链超界返回错误，不把大链一次交json.Marshal或静默截断；handler在实际发布前另核原绝对deadline。
+
+发现并返修一项schema must-fix：原5条HEAD的8种error都引用带content的Problem，实际Account HEAD不写body。独立 `head-schema.py` 原样执行abcfdd actual1明确40处；作者仅改专用无body HeadProblem后，cc7bba actual0全部清零。实际比较35b62908：GET/通用Problem/HEAD200/全部DTO schemas保持；90e24c另核10个唯一operation及GET/HEAD同身份/query与bodyless安全表示headers。原红保留，不是产品HTTP故障。
+
+已准备 `risk_test.go` 与 `run-risk.py` 两个独立pure top，尚未执行：真实handler的AgentRun字段/foreign creator拒绝、坏末项不得发布首项；原Body.Close与AfterFunc分别持有，需在实际原finish函数阻塞channel的栈证据上确认body退役后仍等callback，非用sleep或即时select猜测。采用只读overlay排除作者尚未稳定的native/schema tests，固定Go/local/off/本树独占cache，只选两个新top；当前仅gofmt/AST解析与diffcheck0，等根缓存协调后才运行。权限和domain均明确复用作者private doubles，不替真实Account/PG验收。
