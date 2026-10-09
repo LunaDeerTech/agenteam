@@ -14,7 +14,9 @@
 3. `/root/service_delivery` 推进 B0-P Human backlog Blocker 持久化完整服务，先冻结规格并独立审查，预留迁移00023及限定Work/Project authority/Foundation fault写域；完整规格草稿已保存于 `docs/development/work-items/d11-task-blocker-service.md`，独立SPEC已接受，产品实施与真实测试准备中，尚无实现/PG通过；不得绕过未验生产端口或既有停止项。T0a/B0-C/T0b 已正式交付，不重复实现或无变化验收。
 4. Model 树协调任务自有 PG/browser/hostTCP 窗口，启动前通知 root；窗口中 root 不做 Git 网络操作，完整终态后保存。各树纯测试使用独立缓存；迁移与跨树公共契约由 root 协调。
 5. 已由 root 创建 `/workspace/agenteam-delivery`，固定正式 `11c16867`（最后迁移00022），只增加与原树相同的两 Model Go harness。Model 编译/验收使用此隔离输入，避免新00023混入；未重建产物及未执行场景保持未验证。
-6. 本次子代理显式请求 `gpt-6-astra / ultra`；工具未提供 service tier 字段，实际 Fast 生效未确认。实际全树容量7席，按就绪工作动态协调。
+6. 本轮 Model authority 第三轮实际 FAIL：已越过旧遮挡与 sameSession，后在第二恢复 Project 的 GET 观察等待超时。Go24.57s、外层110.529s实际exit1；全部Wait/join、7ID双absent、descendants空、TCP双空、输入不变。原失败保留，Model负责人排查同步/诊断，不先认定产品故障。
+7. B0-P三新纯contract源（record/commands/events）已形成可构建片段，固定Go离线限定包编译exit0；尚未证明新业务行为。服务/00023/集成测试未闭合部分保持工作区，由负责人继续完成。
+8. 本次子代理显式请求 `gpt-6-astra / ultra`；工具未提供 service tier 字段，实际 Fast 生效未确认。实际全树容量7席，按就绪工作动态协调。
 
 ## 环境实际核对
 
