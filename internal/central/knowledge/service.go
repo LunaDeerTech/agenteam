@@ -48,7 +48,8 @@ type serviceState struct {
 	changed chan struct{}
 	// Only actual publication resource retirement installs these proofs. An
 	// empty call registry or a cancelled context is never equivalent to join.
-	joinedPublications map[f.ID[publicationAttempt]]publicationWork
+	joinedPublications   map[f.ID[publicationAttempt]]publicationWork
+	retiringPublications map[f.ID[publicationAttempt]]*publicationRetirement
 }
 type call struct{ cancel context.CancelFunc }
 
@@ -113,14 +114,19 @@ func (s *Service) runContentCommand(ctx context.Context, input contentInput, sou
 	defer func() {
 		var closeErr error
 		if retirement != nil {
-			closeErr = retirement.join()
+			closeErr = retirement.join(run)
 		} else if source != nil {
 			closeErr = source.Close()
 		}
 		if closeErr != nil {
-			// No done(): failed Close/Discard is not actual retirement. The
-			// registered operation remains visible to Stop/Drain until process
-			// termination; this does not repair the stopped D05 runtime path.
+			// Preserve the admitted call and its exact resource handles. A later
+			// recovery/Drain caller can retry with its own existing context; the
+			// failed request never invents a fresh cleanup timeout.
+			if retirement != nil {
+				if deferErr := s.deferPublicationRetirement(retirement, done); deferErr != nil && err == nil {
+					err = contentCompletionError(out, deferErr)
+				}
+			}
 			if err == nil {
 				err = contentCompletionError(out, closeErr)
 			}

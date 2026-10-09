@@ -237,3 +237,132 @@ func TestDrainWaitsForAllRegisteredCalls(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestDeferredPublicationRetirementKeepsAttemptAndActualCompletion(t *testing.T) {
+	t.Run("attempt isolation", func(t *testing.T) {
+		s, _, work, done := retirementFixture(t)
+		defer done()
+		old, err := s.publicationRetirement(work, done)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, secondDone, err := s.begin(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer secondDone()
+		secondWork := work.clone()
+		secondWork.attempt = newID[publicationAttempt](t)
+		second, err := s.publicationRetirement(secondWork, secondDone)
+		if err != nil {
+			t.Fatal(err)
+		}
+		failure := errors.New("lease not yet released")
+		allowOld := false
+		oldCalls, newCalls := 0, 0
+		if err = old.ownContext(func(context.Context) error {
+			oldCalls++
+			if !allowOld {
+				return failure
+			}
+			return nil
+		}); err != nil {
+			t.Fatal(err)
+		}
+		if err = second.ownContext(func(context.Context) error { newCalls++; return nil }); err != nil {
+			t.Fatal(err)
+		}
+		if err = old.join(context.Background()); !errors.Is(err, failure) {
+			t.Fatal(err)
+		}
+		if err = s.deferPublicationRetirement(old, done); err != nil {
+			t.Fatal(err)
+		}
+		if err = s.deferPublicationRetirement(second, secondDone); err != nil {
+			t.Fatal(err)
+		}
+		collisionWork := work.clone()
+		collisionWork.command = newID[command](t)
+		collision, err := s.publicationRetirement(collisionWork, func() { t.Error("wrong attempt owner retired") })
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = s.deferPublicationRetirement(collision, func() {}); err == nil || s.state().retiringPublications[work.attempt] != old {
+			t.Fatal("same attempt replaced an owned handle")
+		}
+		if err = second.join(context.Background()); err != nil || len(s.state().calls) != 1 || s.state().retiringPublications[work.attempt] != old || len(s.state().joinedPublications) != 1 {
+			t.Fatal("new retirement consumed old resources", err)
+		}
+		allowOld = true
+		if err = s.retryPublicationRetirements(context.Background(), work.command); err != nil {
+			t.Fatal(err)
+		}
+		if oldCalls != 2 || newCalls != 1 || len(s.state().calls) != 0 || len(s.state().retiringPublications) != 0 || len(s.state().joinedPublications) != 2 {
+			t.Fatal("exact retirement proof or resource count lost")
+		}
+	})
+	t.Run("concurrent retry is bounded", func(t *testing.T) {
+		s, _, work, done := retirementFixture(t)
+		defer done()
+		retirement, err := s.publicationRetirement(work, done)
+		if err != nil {
+			t.Fatal(err)
+		}
+		start, release := make(chan struct{}), make(chan struct{})
+		var releaseOnce sync.Once
+		result := make(chan error, 1)
+		started := false
+		t.Cleanup(func() {
+			releaseOnce.Do(func() { close(release) })
+			if started {
+				<-result
+			}
+		})
+		armed, calls := false, 0
+		failure := errors.New("first close rejected")
+		if err = retirement.ownContext(func(ctx context.Context) error {
+			calls++
+			if !armed {
+				return failure
+			}
+			close(start)
+			select {
+			case <-release:
+				return nil
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}); err != nil {
+			t.Fatal(err)
+		}
+		if err = retirement.join(context.Background()); !errors.Is(err, failure) {
+			t.Fatal(err)
+		}
+		if err = s.deferPublicationRetirement(retirement, done); err != nil {
+			t.Fatal(err)
+		}
+		armed = true
+		live, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		go func() { result <- s.retryPublicationRetirements(live, work.command) }()
+		started = true
+		<-start
+		bounded, stop := context.WithCancel(context.Background())
+		stop()
+		if err = s.Drain(bounded); err == nil {
+			t.Fatal("concurrent Close became joined")
+		}
+		if len(s.state().calls) != 1 || len(s.state().retiringPublications) != 1 || len(s.state().joinedPublications) != 0 || calls != 2 {
+			t.Fatal("another retry closed the same lease or lost ownership")
+		}
+		releaseOnce.Do(func() { close(release) })
+		err = <-result
+		started = false
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = s.Drain(live); err != nil || calls != 2 || len(s.state().calls) != 0 {
+			t.Fatal("actual closing callback did not retire", err)
+		}
+	})
+}

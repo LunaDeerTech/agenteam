@@ -206,6 +206,7 @@ type businessLeasePort struct {
 	lease                                          oc.SourceLease
 	resolveErr, validateErr, acquireErr, cancelErr error
 	resolves, validates, acquires, cancels         int
+	lastCancelContext                              context.Context
 }
 
 func (p *businessLeasePort) Resolve(_ context.Context, actor id.Actor, ref oc.BusinessFileRef) (oc.ResolvedSource, error) {
@@ -275,8 +276,12 @@ func (p *businessLeasePort) AcquireSourceInTx(_ context.Context, tx f.Tx, actor 
 	}
 	return p.lease, p.acquireErr
 }
-func (p *businessLeasePort) CancelSourceLease(_ context.Context, lease oc.SourceLease) error {
+func (p *businessLeasePort) CancelSourceLease(ctx context.Context, lease oc.SourceLease) error {
 	p.cancels++
+	p.lastCancelContext = ctx
+	if ctx.Err() != nil {
+		return unavailable(ctx.Err())
+	}
 	if p.store.active || lease.ID() != p.lease.ID() {
 		p.t.Fatal("source cancellation changed identity or ran in origin Tx")
 	}
@@ -284,7 +289,7 @@ func (p *businessLeasePort) CancelSourceLease(_ context.Context, lease oc.Source
 }
 
 func TestBusinessPublicationResolutionAndLeaseKeepExactSourceAndPhysicalCommit(t *testing.T) {
-	for _, mode := range []string{"valid", "unknown", "error with lease", "source stale", "owner revoked", "work drift", "wrong reference", "unsupported media", "resolve error", "cancel error", "clear unknown", "clear work drift", "clear current gate", "clear cancel error", "clear prepared drift"} {
+	for _, mode := range []string{"valid", "unknown", "error with lease", "source stale", "owner revoked", "work drift", "wrong reference", "unsupported media", "resolve error", "cancel error", "clear unknown", "clear work drift", "clear current gate", "clear cancel error", "clear prepared drift", "cancelled unknown recovery", "cancelled unknown drain"} {
 		t.Run(mode, func(t *testing.T) {
 			origin, document := newID[id.Project](t), newID[kc.Document](t)
 			ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.KnowledgeFile, ProjectID: origin, DocumentID: document.String(), Revision: 3})
@@ -355,7 +360,7 @@ func TestBusinessPublicationResolutionAndLeaseKeepExactSourceAndPhysicalCommit(t
 				t.Fatal("exact source resolution", err)
 			}
 			switch mode {
-			case "unknown":
+			case "unknown", "cancelled unknown recovery", "cancelled unknown drain":
 				store.unknownAt = 1
 			case "error with lease":
 				port.acquireErr = injected
@@ -368,7 +373,9 @@ func TestBusinessPublicationResolutionAndLeaseKeepExactSourceAndPhysicalCommit(t
 			case "cancel error":
 				port.cancelErr = injected
 			}
-			got, replay, err := s.acquireBusinessPublicationLease(context.Background(), input, intent, work, bound, retirement)
+			originCtx, cancelOrigin := context.WithCancel(context.Background())
+			defer cancelOrigin()
+			got, replay, err := s.acquireBusinessPublicationLease(originCtx, input, intent, work, bound, retirement)
 			if store.active || replay != nil || port.cancels != 0 {
 				t.Fatal("lease escaped original transaction or cancelled before retirement")
 			}
@@ -381,7 +388,7 @@ func TestBusinessPublicationResolutionAndLeaseKeepExactSourceAndPhysicalCommit(t
 			if got.ID() != lease.ID() || port.acquires != 1 || store.acquires != 1 {
 				t.Fatal("lease original identity/full union lost", err)
 			}
-			if mode == "unknown" {
+			if mode == "unknown" || strings.HasPrefix(mode, "cancelled unknown") {
 				var failure commitFailure
 				if !errors.As(err, &failure) || failure.result.AttemptID() != store.attempt || failure.result.Cause().Details().Primary.Canonical() != store.cause.Details().Primary.Canonical() {
 					t.Fatal("source lease Unknown lost physical cause", err)
@@ -392,6 +399,49 @@ func TestBusinessPublicationResolutionAndLeaseKeepExactSourceAndPhysicalCommit(t
 				}
 			} else if err != nil {
 				t.Fatal(err)
+			}
+			if strings.HasPrefix(mode, "cancelled unknown") {
+				originalUnknown := err
+				cancelOrigin()
+				if err := retirement.join(originCtx); !errors.Is(err, context.Canceled) {
+					t.Fatal("cancelled lease cleanup became join", err)
+				}
+				if retirement.joined || len(s.state().calls) != 1 || port.cancels != 1 {
+					t.Fatal("Unknown valid lease ownership lost")
+				}
+				if err := s.deferPublicationRetirement(retirement, retirement.done); err != nil {
+					t.Fatal(err)
+				}
+				if len(s.state().retiringPublications) != 1 {
+					t.Fatal("failed lease has no retry owner")
+				}
+				if err := s.retryPublicationRetirements(context.Background(), newID[command](t)); err != nil || port.cancels != 1 {
+					t.Fatal("other command retried this lease", err)
+				}
+				if mode == "cancelled unknown drain" {
+					s.Stop()
+					deadline, stop := context.WithDeadline(context.Background(), time.Now().Add(-time.Second))
+					defer stop()
+					if err := s.Drain(deadline); !errors.Is(err, context.DeadlineExceeded) || port.lastCancelContext != deadline || len(s.state().calls) != 1 {
+						t.Fatal("Drain refreshed budget or lost lease", err)
+					}
+				}
+				live, stop := context.WithTimeout(context.Background(), time.Second)
+				defer stop()
+				var retryErr error
+				if mode == "cancelled unknown drain" {
+					retryErr = s.Drain(live)
+				} else {
+					retryErr = s.retryPublicationRetirements(live, work.command)
+				}
+				if retryErr != nil || port.lastCancelContext != live || !retirement.joined || len(s.state().calls) != 0 || len(s.state().retiringPublications) != 0 {
+					t.Fatal("actual successor context did not retire lease", retryErr)
+				}
+				var original commitFailure
+				if !errors.As(originalUnknown, &original) || original.result.AttemptID() != store.attempt || store.updates != 1 || store.lease != lease.ID().String() {
+					t.Fatal("technical retirement rewrote Unknown/checkpoint")
+				}
+				return
 			}
 			wantCancels := 1
 			if mode == "valid" || strings.HasPrefix(mode, "clear ") {
@@ -469,7 +519,7 @@ func TestBusinessPublicationResolutionAndLeaseKeepExactSourceAndPhysicalCommit(t
 					}
 				}
 			}
-			joinErr := retirement.join()
+			joinErr := retirement.join(context.Background())
 			if port.cancels != wantCancels {
 				t.Fatal("returned lease was not actually retired")
 			}

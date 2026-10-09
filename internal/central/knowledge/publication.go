@@ -280,6 +280,9 @@ func (s *Service) claimContentPublication(ctx context.Context, input contentInpu
 		return work, nil, portError(err)
 	}
 	st := s.state()
+	if err = s.retryPublicationRetirements(ctx, intent.record.id); err != nil {
+		return work, nil, err
+	}
 	var previous *publicationWork
 	read := func(ctx context.Context, tx f.Tx) (postgres.SQLExecutor, *commandRecord, error) {
 		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
@@ -1007,7 +1010,7 @@ type publicationRetirement struct {
 	mu        sync.Mutex
 	service   *Service
 	work      publicationWork
-	resources []func() error
+	resources []func(context.Context) error
 	done      func()
 	joined    bool
 }
@@ -1020,6 +1023,12 @@ func (s *Service) publicationRetirement(work publicationWork, done func()) (*pub
 }
 
 func (r *publicationRetirement) own(close func() error) error {
+	if close == nil {
+		return internal(nil)
+	}
+	return r.ownContext(func(context.Context) error { return close() })
+}
+func (r *publicationRetirement) ownContext(close func(context.Context) error) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if r.joined || close == nil {
@@ -1029,12 +1038,19 @@ func (r *publicationRetirement) own(close func() error) error {
 	return nil
 }
 
-// No transaction is opened here: resource retirement cannot be made to depend
-// on the request's now-cancelled SQL context. Keep exact in-process evidence for
-// a subsequent caller to confirm under the original command lock. A process
-// restart instead uses the real ProcessAuthority stop proof.
-func (r *publicationRetirement) join() error {
-	r.mu.Lock()
+// Each retry uses its actual caller's existing context. No timeout is renewed
+// and no background owner is created. Failure leaves these same handles owned;
+// a later recovery or Drain may retry. Only actual resource retirement mints
+// the in-process proof; a restart still needs real ProcessAuthority evidence.
+func (r *publicationRetirement) join(ctx context.Context) error {
+	if ctx == nil {
+		return internal(nil)
+	}
+	// Another real closer may be blocked in I/O. Do not wait on its mutex past
+	// this caller's budget or run a second Close concurrently.
+	if !r.mu.TryLock() {
+		return fault(f.ResourceBusy)
+	}
 	defer r.mu.Unlock()
 	if r.joined {
 		return nil
@@ -1044,7 +1060,7 @@ func (r *publicationRetirement) join() error {
 		if r.resources[n] == nil {
 			continue
 		}
-		if err := r.resources[n](); err != nil {
+		if err := r.resources[n](ctx); err != nil {
 			if failure == nil {
 				failure = portError(err)
 			}
@@ -1068,6 +1084,9 @@ func (r *publicationRetirement) join() error {
 		return internal(nil)
 	}
 	st.joinedPublications[r.work.attempt] = r.work
+	if st.retiringPublications[r.work.attempt] == r {
+		delete(st.retiringPublications, r.work.attempt)
+	}
 	st.mu.Unlock()
 	r.joined = true
 	r.resources = nil

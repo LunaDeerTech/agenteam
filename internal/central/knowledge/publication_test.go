@@ -477,7 +477,7 @@ func TestDirectPublicationUsesActualD05MeasuredSpool(t *testing.T) {
 			} else if err != nil || prepared.Validate() != nil {
 				t.Fatal("actual measured preparation failed", err)
 			}
-			if err := retirement.join(); err != nil {
+			if err := retirement.join(context.Background()); err != nil {
 				t.Fatal(err)
 			}
 			entries, err := os.ReadDir(path)
@@ -569,7 +569,7 @@ func TestDirectPublicationValidatesProviderAndRetiresOwnedResources(t *testing.T
 			if mode == "close-error" && !errors.Is(err, closeFailure) {
 				t.Fatal("ignored provider Close failure lost")
 			}
-			joinErr := retirement.join()
+			joinErr := retirement.join(context.Background())
 			if (joinErr != nil) != (mode == "close-error") {
 				t.Fatal("incorrect resource retirement", joinErr)
 			}
@@ -610,7 +610,7 @@ func TestDirectPublicationRejectsIdentityBeforeTakingSource(t *testing.T) {
 				work.source = &origin
 				retirement.work = work.clone()
 			case "joined":
-				if err := retirement.join(); err != nil {
+				if err := retirement.join(context.Background()); err != nil {
 					t.Fatal(err)
 				}
 			case "cancelled":
@@ -626,7 +626,7 @@ func TestDirectPublicationRejectsIdentityBeforeTakingSource(t *testing.T) {
 				t.Fatal("rejected input consumed upload ownership", err)
 			}
 			_ = source.Close()
-			if err := retirement.join(); err != nil {
+			if err := retirement.join(context.Background()); err != nil {
 				t.Fatal(err)
 			}
 		})
@@ -939,7 +939,7 @@ func TestPublicationRetirementWaitsActualCloseBeforeLocalTakeover(t *testing.T) 
 		t.Fatal(err)
 	}
 	result := make(chan error, 1)
-	go func() { result <- retirement.join() }()
+	go func() { result <- retirement.join(context.Background()) }()
 	<-started
 	s.Stop()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
@@ -965,7 +965,7 @@ func TestPublicationRetirementWaitsActualCloseBeforeLocalTakeover(t *testing.T) 
 	if err != nil || next.fence != work.fence+1 || next.attempt == work.attempt {
 		t.Fatal("same-process retry failed after actual resource join", err)
 	}
-	if err = retirement.join(); err != nil {
+	if err = retirement.join(context.Background()); err != nil {
 		t.Fatal("retirement repeated a successful close", err)
 	}
 	if err = retirement.own(func() error { return nil }); err == nil {
@@ -1002,7 +1002,7 @@ func TestPublicationRetirementCloseFailureRetainsCallAndExactEvidence(t *testing
 	}); err != nil {
 		t.Fatal(err)
 	}
-	if err = retirement.join(); err == nil || strings.Join(order, ",") != "spool,source" {
+	if err = retirement.join(context.Background()); err == nil || strings.Join(order, ",") != "spool,source" {
 		t.Fatal("failed close skipped other resources or retired", err, order)
 	}
 	if proof, err := s.stoppedPublication(context.Background(), &work); err == nil || proof != nil {
@@ -1014,7 +1014,7 @@ func TestPublicationRetirementCloseFailureRetainsCallAndExactEvidence(t *testing
 		t.Fatal("failed close removed actual call", err)
 	}
 	fail = false
-	if err = retirement.join(); err != nil || strings.Join(order, ",") != "spool,source,spool" {
+	if err = retirement.join(context.Background()); err != nil || strings.Join(order, ",") != "spool,source,spool" {
 		t.Fatal("close retry repeated successful resources", err, order)
 	}
 	if err = s.Drain(context.Background()); err != nil {
@@ -1037,11 +1037,11 @@ func TestPublicationRetirementOldFinalizerCannotReplaceNewJoinedFence(t *testing
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = newRetirement.join(); err != nil {
+	if err = newRetirement.join(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	origin = newID[id.Project](t)
-	if err = old.join(); err != nil {
+	if err = old.join(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	proof, err := s.stoppedPublication(context.Background(), &newWork)
@@ -1236,7 +1236,7 @@ func TestPublicationJoinCheckpointKeepsProofAcrossUnknownAndChecksOriginalComman
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = retirement.join(); err != nil {
+	if err = retirement.join(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	wrong := *record
@@ -1282,7 +1282,7 @@ func TestPublicationUnknownAbsentSameFenceControl(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err = prior.join(); err != nil {
+			if err = prior.join(context.Background()); err != nil {
 				t.Fatal(err)
 			}
 			previous := first.clone()
@@ -1304,7 +1304,7 @@ func TestPublicationUnknownAbsentSameFenceControl(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err = retirement.join(); err != nil {
+			if err = retirement.join(context.Background()); err != nil {
 				t.Fatal(err)
 			}
 			proof, err := s.stoppedPublication(context.Background(), &second)
@@ -1325,7 +1325,7 @@ func TestPublicationSameFenceCheckpointCannotDeleteOtherProof(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = a.join(); err != nil {
+	if err = a.join(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	second, err := nextPublicationWork(record, nil, first.process, nil, nil)
@@ -1336,7 +1336,7 @@ func TestPublicationSameFenceCheckpointCannotDeleteOtherProof(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = b.join(); err != nil {
+	if err = b.join(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	store := &publicationCheckpointStore{record: record, work: second}
@@ -1363,7 +1363,7 @@ func TestPublicationAttemptCollisionRejectsDifferentIdentity(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = a.join(); err != nil {
+	if err = a.join(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	wrong := first.clone()
@@ -1373,7 +1373,7 @@ func TestPublicationAttemptCollisionRejectsDifferentIdentity(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = b.join(); err == nil || called {
+	if err = b.join(context.Background()); err == nil || called {
 		t.Fatal("same attempt different command replaced proof or retired call", err)
 	}
 	if proof, err := s.stoppedPublication(context.Background(), &first); err != nil || proof == nil || !proof.original.equal(first) {
@@ -1531,7 +1531,7 @@ func TestBusinessPublicationPreparesExactLeasedBytesAndJoinsActualReader(t *test
 			if beforePrepare && (upload.calls != 0 || body.reads != 0) {
 				t.Fatal("invalid source reached bytes/preparation")
 			}
-			joinErr := retirement.join()
+			joinErr := retirement.join(context.Background())
 			if mode == "close error" {
 				if !errors.Is(joinErr, physical) || len(s.state().calls) != 1 {
 					t.Fatal("failed reader Close became join", joinErr)

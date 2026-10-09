@@ -63,10 +63,19 @@ func (s *Service) Drain(ctx context.Context) error {
 		return nil
 	}
 	for {
+		if err := s.retryPublicationRetirements(ctx, f.ID[command]{}); err != nil {
+			return err
+		}
 		st.mu.Lock()
 		if len(st.calls) == 0 {
 			st.mu.Unlock()
 			return nil
+		}
+		// A failed caller can transfer retirement between the snapshot above
+		// and this lock. Consume it before waiting on the replacement channel.
+		if len(st.retiringPublications) != 0 {
+			st.mu.Unlock()
+			continue
 		}
 		changed := st.changed
 		st.mu.Unlock()
@@ -76,4 +85,57 @@ func (s *Service) Drain(ctx context.Context) error {
 			return ctx.Err()
 		}
 	}
+}
+
+// Transfer only the failed retirement of a completed synchronous operation.
+// The original admitted call stays registered; no goroutine, new work claim or
+// timeout is started here. Attempt identity prevents an older call from taking
+// ownership of a successor's resources.
+func (s *Service) deferPublicationRetirement(retirement *publicationRetirement, done func()) error {
+	st := s.state()
+	if st == nil || retirement == nil || retirement.service != s || done == nil {
+		return internal(nil)
+	}
+	retirement.mu.Lock()
+	defer retirement.mu.Unlock()
+	if retirement.joined {
+		return internal(nil)
+	}
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	if st.retiringPublications == nil {
+		st.retiringPublications = make(map[f.ID[publicationAttempt]]*publicationRetirement)
+	}
+	if old := st.retiringPublications[retirement.work.attempt]; old != nil {
+		if old == retirement {
+			return nil
+		}
+		return internal(nil)
+	}
+	retirement.done = done
+	st.retiringPublications[retirement.work.attempt] = retirement
+	close(st.changed)
+	st.changed = make(chan struct{})
+	return nil
+}
+
+func (s *Service) retryPublicationRetirements(ctx context.Context, commandID f.ID[command]) error {
+	if ctx == nil || s.state() == nil {
+		return internal(nil)
+	}
+	st := s.state()
+	st.mu.Lock()
+	var pending []*publicationRetirement
+	for _, retirement := range st.retiringPublications {
+		if commandID == (f.ID[command]{}) || retirement.work.command == commandID {
+			pending = append(pending, retirement)
+		}
+	}
+	st.mu.Unlock()
+	for _, retirement := range pending {
+		if err := retirement.join(ctx); err != nil {
+			return err
+		}
+	}
+	return nil
 }

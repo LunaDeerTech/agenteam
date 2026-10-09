@@ -486,7 +486,9 @@ func (s *Service) acquireBusinessPublicationLease(ctx context.Context, input con
 		// The handle cannot be reconstructed from a persisted UUID. Its issuer
 		// and actual originating Tx stay owned by the real SourceReads port.
 		owned := lease
-		if ownErr := retirement.own(func() error { return portError(st.deps.SourceReads.CancelSourceLease(ctx, owned)) }); ownErr != nil {
+		if ownErr := retirement.ownContext(func(cleanup context.Context) error {
+			return portError(st.deps.SourceReads.CancelSourceLease(cleanup, owned))
+		}); ownErr != nil {
 			return lease, replay, ownErr
 		}
 	}
