@@ -192,7 +192,7 @@ D08 active-only 初始化 Audit 分支保持原样。新本域生命周期 Audit
 
 ## 16. 下一独立结果：Skills 精确 Project Cleanup（rev2 SPEC）
 
-本节是 Stop 子能力已真实 PG 通过后的下一工程规格。Knowledge 未参与设计的续审已有限接受（704bee，无剩余本修订 mustfix），root 保存为1e8b5c67；尚未实施或动态验证。Knowledge 对 rev1 确认三处问题：合法已发表范围不需要删除 FK、历史 work 不能无界全删、先删父映射会阻断后序 D05 维护。rev2 撤回 drop FK，规定有限批次，并明确新增 D05 正式元数据清理能力作为不可省略的上游依赖。不授本实例跨写 Project、Object、App、D04 产品；root 已原则同意另立 D05 独立实现，不以 DependencyUnbound 充作本卡完成。D05 仍须另行冻结实际可执行规格、查询／索引与退休证明，并完成独审及真实组合，不能以本节设计接受替代。全局 **00028** 只预留，未写 SQL。生产完整 participant、后台调度与共享 ProcessGuard 仍由 root 组合；Object Runtime join 停项不恢复。
+本节是 Stop 子能力已真实 PG 通过后的下一工程规格。Knowledge 未参与设计的续审已有限接受（704bee，无剩余本修订 mustfix），root 保存为1e8b5c67；尚未实施或动态验证。Knowledge 对 rev1 确认三处问题：合法已发表范围不需要删除 FK、历史 work 不能无界全删、先删父映射会阻断后序 D05 维护。rev2 撤回 drop FK，规定有限批次，并明确新增 D05 正式元数据清理能力作为不可省略的上游依赖。不授本实例跨写 Project、Object、App、D04 产品；root 已原则同意另立 D05 独立实现，不以 DependencyUnbound 充作本卡完成。D05 仍须另行冻结实际可执行规格、查询／索引与退休证明，并完成独审及真实组合，不能以本节设计接受替代。全局 **00028** 原为 Skills 占位，现由 root 正式移交 D05/Knowledge 唯一写者，作为共享 cleanup 索引迁移；本域没有必须独占该号的 DDL，不写 SQL 或修改原 FK/列/约束。生产完整 participant、后台调度与共享 ProcessGuard 仍由 root 组合；Object Runtime join 停项不恢复。
 
 ### 16.1 可交付结果与授权范围
 
@@ -254,7 +254,7 @@ AccessPlanner 新增两种 exact 分支：
 
 一 Project 一个不可变内置 revision，只有 initialization、skills、revision、cleanup 和当前 attempt 这组核心行有固定基数。work 每次 reader/init 可追加，历史 attempts 也不能按常数处理。最终事务前必须分批删完这两类历史；不能对整个 Project 发一次无界 DELETE，再依赖2s超时从头重试。
 
-work 批次按 `WHERE project_id=$1 AND phase='joined' ORDER BY id LIMIT 33` 发现，至多取前32个 exact ID，在原 Project EX/Skill EX 和当前门禁下逐项重验后删除。第33项只表示 Pending；每个物理事务最多32条，取消／Unknown 不推进已确认游标。现有 work 主键仅 id，`skill_work_live_project` 又排除 joined，不能声称已有按 Project 的历史索引。00028 若最终用于本清扫，**仅候选增加** `(project_id,id) WHERE phase='joined'` 索引；需真实大历史 EXPLAIN/缓冲访问及升级回滚证据确认查询，不把 LIMIT 当作扫描成本上界。root 分配的号仍仅预留，是否采用该精确索引要随独立实现确认，不写或删除任何 FK。
+work 批次按 `WHERE project_id=$1 AND phase='joined' ORDER BY id LIMIT 33` 发现，至多取前32个 exact ID，在原 Project EX/Skill EX 和当前门禁下逐项重验后删除。第33项只表示 Pending；每个物理事务最多32条，取消／Unknown 不推进已确认游标。现有 work 主键仅 id，`skill_work_live_project` 又排除 joined，不能声称已有按 Project 的历史索引。该历史查询的候选索引为 `(project_id,id) WHERE phase='joined'`；但 work 另有 `(project_id,skill_id)` 指向 initializations 同列的 deferred FK，单 joined partial 不足以证明删除父行时的全部反查成本有界。root 已将 00028 移交 D05/Knowledge 统一维护共享 cleanup 索引，D05 规格 §7.1 须同时纳入这两条本域访问需求；由真实大历史 EXPLAIN/缓冲访问及升级回滚证据选择必要的最小索引，不先认定 partial 或完整 Project 前缀方案。LIMIT 不是扫描成本上界；Skills 不另写 SQL，不写或删除任何 FK。
 
 attempt 批次按现有 `skill_attempts_original_object(object_id,attempt_id)` 的原 Object 扫前33项，排除 initialization.current_attempt_id，最多删32个匹配原 Project/Creation/Skill/Revision/Upload 的历史行。每次均保留当前 attempt 与全部核心行；不依赖 UUID 生成时间或未来 ID 单调假设。当前 Deleting＋已完成 Stop 保证本 Project 没有新 work/attempt，按持久剩余事实从头取下一批即可，不需要可丢失的内存 offset。
 
@@ -298,7 +298,7 @@ type ObjectMetadataPurgeResult struct {
 
 - 外层仍在原 Project EX/Skill EX/Object EX/原 command 的完整 union Tx；调用真实 Skills CleanupAuthority 核当前 Cleaning、原 owner/cause/version、completed 与仍存核心映射。D05 再核同一原 Upload/Object、Scope/owner/initiator、revoked gate。不能把已丢失 Object/Upload 当正向；最后事务 Unknown 的全空恢复只在 Skills 层按上一段完成。
 - D05 私有事实证明真实物理阶段已完成：原 Object 的正式 Deleted 终态由其 finalize＋真实 Audit 事务生成，全部候选已 cleaned、清理记录已 completed、无 references/active leases；原 writer/reader/cleanup/transfer 回调与当前对象工作实际退出。它不制造死亡证明、不取消或等待新 I/O，不把 phase、lease TTL、marker 或 ctx.Err 当 actual join。缺任何证据返回 Pending/原错误且不删；仍受 Object Runtime 未闭合总限制约束。
-- 单次只清最多32条 D05 历史记录，跨表按 FK 依赖合计计数，不是每表各32。复用 exact Object/Upload 的已有索引，终局 lease、旧 cleanup/attempt、transfer 等 D05 自有记录由 D05 自己判断原退休证据并推进。被依赖的 current attempt、Upload/Object anchor 必须保到末尾；任何 transfer/source/其他关联退休未证仍 Pending，不直接级联或由 Skills 读 Object 表。缺合适索引或有界查询形状要在 D05 实现中另列，不由 Skills 抢用迁移28跨域DDL。
+- 单次只清最多32条 D05 历史记录，跨表按 FK 依赖合计计数，不是每表各32。复用 exact Object/Upload 的已有索引，终局 lease、旧 cleanup/attempt、transfer 等 D05 自有记录由 D05 自己判断原退休证据并推进。被依赖的 current attempt、Upload/Object anchor 必须保到末尾；任何 transfer/source/其他关联退休未证仍 Pending，不直接级联或由 Skills 读 Object 表。缺合适索引或有界查询形状要在 D05 实现中另列，00028 由 D05/Knowledge 唯一写者维护，Skills 不跨写 DDL。
 - Pending 的 SQL 进度由调用者原事务提交后生效，零额外事务／goroutine／HTTP／MinIO。下一调用根据尚存原 anchor 与剩余私有事实继续，历史行不存在只表示先前清除，不能补造原因或回执。最后所有历史已空时才删除最多固定数的 anchor 并返回匹配的 Completed；Skills 的最后核心删除必须跟在同 Tx 内。metadata purge 不新增/重写 ObjectDelete Audit、原历史 cause 或 Activity/Event。
 
 这里选择**两域最后 anchor 同 Tx 删除**，不选择长存父表、内存 handoff、缺行 allow 或后续 router 猜测。当前 `CleanupProject` 的真实控制流是 `access.go` 无 deleted 过滤地选对象，再 `cleanObject` 先取 Maintenance plan、最后才看 completed；它证明 rev1 的“先删 Skills 六表、以后让 Object purge”不可行。新补口未交付前，本卡处于依赖未闭合，不能宣布 participant 可用。
@@ -330,7 +330,7 @@ type ObjectMetadataPurgeResult struct {
 
 ### 16.8 精确写域、组合责任与验收
 
-后续本域实施预计触及 `internal/central/skill/{service,object_authority,object_maintenance,audit_authority}.go` 及新 `cleanup*.go/lifecycle_cleanup*.go` 与相应同包测试、`tests/skills`、本文/主卡/current。00028 仅为 §16.5 joined-work 索引候选预留，未获准写 SQL；不回写00027，不重新解释旧 frozen binary/StopPG PASS。
+后续本域实施预计触及 `internal/central/skill/{service,object_authority,object_maintenance,audit_authority}.go` 及新 `cleanup*.go/lifecycle_cleanup*.go` 与相应同包测试、`tests/skills`、本文/主卡/current。00028 已由 root 移交 D05/Knowledge 作为共享 cleanup 索引迁移，须纳 §16.5 历史 work 与原 FK 反查候选并以真实计划取舍；本域写域不含 SQL。不回写00027，不重新解释旧 frozen binary/StopPG PASS。
 
 共享需求分两项，均由 root 指定独立写者，不由 Skills 越权实现：
 

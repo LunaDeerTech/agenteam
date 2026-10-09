@@ -6,8 +6,15 @@
 - 当前可复用：实际D05 same-Store Object Audit checker；D08 original initialization四口、收敛口与初始化Audit wrapper。本域Skill exact映射provider已实现，真实Object组合测试已接线但未动态；生产root未绑定，constructor非nil不证明真实组合。
 - 共享待协调：D05初始化Service closed shape/initiator及SkillRevision+ProjectDeleted release三个窄补口已完成并获有限独审，尚不证明真实清理；Project CleanupPhase现unbound，本域active初始化与删除Audit分流、生产同participant组合仍待。Project CleanupPhase/root仍未授写，Object runtime join停止项不恢复。
 - 迁移00027已随上述初始化及当前Stop的真实PG fixture连续执行；原4315迁移业务PASS但whole FAIL保留。两fixture窄修后，61543当前三top组合完整PASS，含升级、约束、DDL失败回滚、AdmissionUnknown两子和Owner十二子，见下节。root已精确刷新00024到正式3cea6076，00025保持da16d95a、00026保持4174e160；前序来源与各域证据不替代本域独立迁移验收。
-- 下一步：本域上述有限初始化/Stop/当前D05及三top真实组已闭合各自范围，生产root/完整participant未完成。Cleanup rev2只到规格接受，D05新口与Project当前CleanupPhase须先独立交付。另在独立Knowledge树89530整体FAIL已完整尾释放，按授权只修其公开receipt投影前置；Work新增Blocker端点窄审已有限接受。无自动真实重跑，旧binary及产品基线保持，不spawn，由root协调资源和交叉审查。
+- 下一步：本域上述有限初始化/Stop/当前D05及三top真实组已闭合各自范围，生产root/完整participant未完成。Cleanup rev2只到规格接受，D05新口与Project当前CleanupPhase须先独立交付。独立Knowledge六组已按89530未变五子＋82746修复末子闭合，原失败不回填；当前完成新main装配有限独审，见下节。root已将原占位00028移交Knowledge作为共享cleanup索引唯一写者，Skills不写SQL、不放宽FK/列；本域joined-work查询与FK反查候选须由其真实EXPLAIN确认。无自动真实重跑，由root协调资源和交叉审查。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
+
+## B02 当前 main 装配独立有限接受
+
+- 对 `/workspace/agenteam-knowledge-delivery` main `e94077eb`＋root44来源及Work冻结四共享Project Go源，未参与实现者有限接受、无mustfix。44路径逐字固定作者 `aaa408c8` / 独立 `924d5627`；共享Audit/events逆去新增路由后逐字main，原初始化wrapper/相邻权限源未改。初始化测试差异仅两普通委托子例；作者首837326整体FAIL与修后64574 Project race0分别保留，不把原EX-only fixture误报当产品缺陷。
+- 本人 `python3 .agent-state/knowledge-delivery-review/run.py`，33965/3102cb actual0，race1.032s，4top/11sub：四Audit provider原ctx/Tx/key/Unknown/cause、错域/当前权限拒绝；四类event跨plan拒绝；真实Knowledge/Object checker缺private witness拒绝；Human/Agent普通Object的SH与Service初始化原EX隔离。固定Go1.27.1/offline/readonly/原独占cache完整入口在脚本与README，不PG/socket/network、不改交付产品。
+- 原15生产风险审及P1/P2 15866、当前作者10top35sub＋Process50756、独立89530五未变子＋82746末子有效证据按固定输入复用。实际补读57974 Runtime、91700四通过组/14sub和其原FAIL、50756新Process原生完整尾；82746末子actualWait/outer/七资源双尾及TCP/input全齐已在独立树458b943a保存。无具体生产闭包差异要求重复11top或六独立组。有限Service不含HTTP/UI/D13、Agent destructive、完整Project生命周期、生产root，Object Runtime join停项不恢复。
+- 新 `.agent-state/knowledge-delivery-review/{shared_test.go,run.py,README.md}` 与本文四路径冻结供root保存，无命令/资源在途。原89530/62452及作者旧失败和披露的上游seed/private/runtime边界不变；最终交付由root决定。
 
 ## D04 纯 Request / Intent 独立有限审查
 
