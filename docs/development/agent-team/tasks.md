@@ -6,7 +6,7 @@
 
 ## 当前恢复点与并行所有权
 
-Task Planning已正式交付，当前推进B0-P Blocker服务收尾验证与D27 Model业务验收。主线程负责统筹、规划、安排、汇报、验收决策和Git；实现、排查、测试与文档由子代理承担。实际所有权与资源接续见分支记录，共享入口、迁移、构建资产与测试资源只允许一个写入者或明确串行。
+Task Planning与B0-P限定Blocker服务已正式交付，当前继续D27 Model业务验收及下一就绪产品结果的选择。主线程负责统筹、规划、安排、汇报、验收决策和Git；实现、排查、测试与文档由子代理承担。实际所有权与资源接续见分支记录，共享入口、迁移、构建资产与测试资源只允许一个写入者或明确串行。
 
 | 工作项 | 当前可证状态 | 接手时的下一步与完成边界 |
 | --- | --- | --- |
@@ -15,9 +15,9 @@ Task Planning已正式交付，当前推进B0-P Blocker服务收尾验证与D27 
 | [D11 Work Structure](../work-items/d11-work-structure.md) | **本卡已完成**。四 contract `c3b1ee72` 与实现 `a64fb5e7` 已提交；18 路径均存在，限定技术域至本次基线无差异。 | 可供 Task planning 消费。全18按明确版本组合接受；保留 Unknown01 原 FAIL、U1 修复与独立 B 工具终态缺口。不是当前 HEAD 单次全量测试或完整 D11。 |
 | [D11 Task planning](../work-items/d11-task-planning.md) | **本卡规划库已实现、独立验收并正式交付main，完整D11未完成**。契约、三个Human规划命令、Lookup、当前Get/List、同Tx membership、TaskEvent/Outbox及00022已完成；原enclosing日志FAIL与真实投影边界保留。 | 七新PG顶层、四旧Project/Outbox、四旧Structure及独立A/B按限定版本组合已实际通过并完成资源终态；原观察器/非法Project输入/rank fixture/归档输入FAIL保留，测试修正的真实对照与完整top已通过。状态机、指派、执行、删除、生产root与完整D11均未完成。 |
 | [D11 Task 流转](../work-items/d11-task-transitions.md) | **T0a与T0b纯契约已实现并独立验收**。状态/角色/Position及Transfer/Lookup/摘要、Human typed历史、严格封套与纯多事实工厂已完成；作者及独立pure/race/vet通过。 | 仅纯决策与类型，不提供授权或提交能力。T0b仅消费B0-C两类；独立公开API各6顶层34子测试实际通过。运行服务仍须真实Agent/Blocker/occupancy与执行事实；完整D11未完成。 |
-| [D11 Blocker 纯契约](../work-items/d11-task-blocker-contracts.md) | **B0-C两类纯契约已实现并独立验收**。唯一BlockerID、rely_on/无引用waiting_for_human typed metadata、Create及小payload；strict codec/cap/Clone/log，作者及独立pure/race通过。 | T0b只可消费已接受两类；其余三类和外域引用保持未绑定。B0-P持久服务进展见下行，跨状态组合与完整流转仍未完成。 |
-| [D11 backlog Blocker 持久服务](../work-items/d11-task-blocker-service.md) | **限定服务已实现并独立接受，正式main交付待完成**。Human未指派backlog的add/resolve/list/lookup、真实完整图、同事务历史/Outbox/Activity/receipt及00023已保存；pure/race/vet/build、公开契约独验与runtime静审通过。 | History定向回归、Authority、Unknown、Concurrency、Interop、Atomicity、两个旧Work原子性回归及独立实例本人执行的A/B均真实完整PASS并完成资源双尾。首Persistence整轮FAIL保留，按未受影响子项及history字段修复定向回归组合接受；候选装配审查与Git交付待完成。非backlog、Agent/Executor、HTTP、生产root及完整D11仍未绑定。 |
-| [D27 Project Model Settings UI](../work-items/d27-project-owner-model-settings-ui.md) | **前端与harness已恢复，业务验收未完成**。六新case历史通过recovery/read/configuration/credential四项；authority第5轮与navigation第5轮仍FAIL。最新navigation在初始Session等待失败，未到焦点场景，已完成全部资源清理；旧焦点FAIL保留，不能把共享组件修复或旧业务PASS外推为新资产验收。 | 旧14的owner-edit与owner-recovery已真实完整PASS并完成资源双尾，现已过2项，余12项及独立A/B待验。请求读取诊断首版独验发现缺陷，最小返修已过类型/bundle检查，待复审；recovery/configuration/credential须补受影响验证，read仅复用有效原证据。Session八控制及runner纯控制只证明限定行为；原监督器runtime尾FAIL与后验清理分开保留，不放宽finished/EOF/身份门槛。 |
+| [D11 Blocker 纯契约](../work-items/d11-task-blocker-contracts.md) | **B0-C两类纯契约已实现并独立验收**。唯一BlockerID、rely_on/无引用waiting_for_human typed metadata、Create及小payload；strict codec/cap/Clone/log，作者及独立pure/race通过。 | T0b只可消费已接受两类；其余三类和外域引用保持未绑定。B0-P持久服务见下行，跨状态组合与完整流转仍未完成。 |
+| [D11 backlog Blocker 持久服务](../work-items/d11-task-blocker-service.md) | **限定服务已实现、独立接受并正式交付main**。Human Owner对未指派backlog Task的两类Blocker可add/resolve/list/lookup；真实完整图、Task版本及同事务历史/Outbox/Activity/receipt与00023已完成。 | 作者pure/race/vet/build、公开契约与runtime独验、真实权限/并发/Unknown/互操作/SQL回滚及旧Planning/Structure回归通过并完成资源终态；独立装配审查已接受。首Persistence整轮FAIL保留，以未受影响子项与修复后的History定向回归组合接受。非backlog、Agent/Executor、HTTP、生产root及完整D11仍未绑定。 |
+| [D27 Project Model Settings UI](../work-items/d27-project-owner-model-settings-ui.md) | **前端与harness已恢复，业务验收未完成**。六新case历史通过recovery/read/configuration/credential四项；authority第6轮与navigation第5轮仍FAIL并已完成全部资源清理。authority本轮Session与归档配置重放通过，后因ProjectNav未发布settings目标链接停在credential归档前；navigation未到焦点场景，原Session与焦点FAIL保留，不能把共享组件修复或旧业务PASS外推为新资产验收。 | 旧14的owner-edit与owner-recovery已真实完整PASS并完成资源双尾，现已过2项，余12项待验；独立A已获本轮真实窗口且结果未定，B待验。请求读取诊断返修已过类型/bundle及20项独立纯控制，有限审查接受，不证明旧间歇Session失败已修复；recovery/configuration/credential须补受影响验证，read仅复用有效原证据。Session八控制及runner纯控制只证明限定行为；原监督器runtime尾FAIL与后验清理分开保留，不放宽finished/EOF/身份门槛。 |
 | [D08 Project 与 Owner](../work-items/d08-project-owner.md) | **部分子能力接受，模块未完成**。基础权限/生命周期事实、Owner 读写 HTTP、Audit 与初始化收敛已有交付。 | 完整 lifecycle 推进/清理、Artifact/Object 组合、Skills 初始化与创建 HTTP/root 仍未闭合；Object join 是实际阻塞，不能用空适配器跳过。按[领域绑定卡](../work-items/recovery-project-domain-bindings.md)定位剩余接缝。 |
 | [D09 Model System](../work-items/d09-model-system-token-usage.md) | **部分库与 HTTP 接受，模块未完成**。已有配置、Owner/Usage HTTP、Summary、Chat text 与 Embeddings/平台选择 Resolver 等限定成果。 | 生产 Resolution/Invocation 与 consumer 仍未绑定；OpenAI tools 独立动态验收停止，Jina/Image 来源缺口另列。不能把 wire、受控 fixture 或 UI 通过写成真实 Provider/生产调用完成。 |
 | [D10 Skills 初始化](../work-items/d10-skills-initialization.md) | **P1 已交付，真实服务/绑定未完成**。builtin/不可变包 `8872110` 与 Project 初始化收敛 `39ebd57e` 可复用。 | 真实 Skill 服务、PG/Object 发布、D08 创建/生命周期与 Agent/Tool/Runner 绑定待实现或验收；Object join 阻塞相关真实组合。旧卡“ProjectFactAuthority 不存在”的时点描述已被 Object Audit/初始化收敛前置取代，接手应核现有接口。 |
@@ -48,7 +48,7 @@ D08–D28 各模块仍有未完成范围，E01 未开始；首个未完成模块
 
 **Model Settings UI：** 历史 `modelsconfig01/02` 均失败；`modelsconfig03` 与 `modelscred01` 后续有限通过。`modelsrecover01/02` 仍为 FAIL：前者缺原 native/DOM/final facts；后者虽到达 Credential 断连恢复、Model DELETE cut/lookup/replay 等步骤，最终 browser-result/final durable 缺失，原 host TCP 未在原期限内双清。后续观察或窗口释放不能补写原通过。受控 header/Flush 与 ReadPrivate 同 fd 快照探针通过只证明限定行为，不确定旧 business FAIL 的具体原因。
 
-`modelsrecover03`、author v06/private v04的历史准备描述不构成动态通过。当前主harness与独立A/B可执行输入已恢复并保存，独立A/B仍未真实运行；共享组件修复后按相关差异补验，不能把旧二进制、旧sourcecheck或前端unit代作真实浏览器结论。详细场景与实现范围以[当前卡](../work-items/d27-project-owner-model-settings-ui.md)为准。
+`modelsrecover03`、author v06/private v04的历史准备描述不构成动态通过。当前主harness与独立A/B可执行输入已恢复并保存，独立A本轮已获真实资源窗但结果未定，B尚未真实运行；共享组件修复后按相关差异补验，不能把旧二进制、旧sourcecheck或前端unit代作真实浏览器结论。详细场景与实现范围以[当前卡](../work-items/d27-project-owner-model-settings-ui.md)为准。
 
 **Work Structure：** 六新 PG 按版本组合通过，Unknown01 原 FAIL 经 U1 Lookup 取消修复后 Unknown02 11/11；五旧回归及独立 A/B 实际断言通过。独立 B 的监督器 Wait、2个资源清理与 watcher join 有记录，但外部工具 `session20487` 恢复后返回 Unknown process，原 terminal/exit 缺失。后续 current-clear 只证明当时 PID/资源不存在，不补原工具终态、不推断机器重启；完整接受仍沿[报告中的限定组合](d11-work-structure-verification.md)。
 
@@ -74,7 +74,7 @@ D08–D28 各模块仍有未完成范围，E01 未开始；首个未完成模块
 ## 接手步骤
 
 1. 按[团队流程](README.md)先 fetch origin，检查 `ai/*` 分支和 [current.md](../../../.agent-state/current.md)，能定位任务就自动接续；再核分支、提交、实际差异与上表目标卡，dirty 改动先保存，不覆盖其他任务工作。
-2. 后续接续B0-P收尾验证与Model业务验收时，由对应一级负责人组织子代理执行；核对共享文件/构建/Go缓存/测试资源所有权，局部细节与返修由负责人处理，无需恢复旧实施或重建已存在harness。
+2. 后续接续Model业务验收与下一就绪产品结果时，由对应一级负责人组织子代理执行；核对共享文件/构建/Go缓存/测试资源所有权，局部细节与返修由负责人处理，无需恢复旧实施或重建已存在harness。
 3. 先恢复必要源码与工具条件，再运行有意义的自测及按风险独立验证。必要源、harness、probe 进入正式仓库或 `.agent-state/<task>/`；原失败与未验范围保留，可再生原始日志放忽略的 `output/ai/`，不可再生的必要材料随 checkpoint 保存。
 4. 中间结果由主线程按[自动 checkpoint 规则](README.md#自动保存与跨设备恢复)在 `ai/<task>` 批次提交并推送，不等待整体验收或用户提醒；下级交出可恢复片段并停止相关写入。完整结果正式验收后交付 `main`，保存记录不代表PASS，也不替代真实测试与资源终态。
 
