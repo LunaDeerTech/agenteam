@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page, type Request, type Response } from '../../tests/account-captcha-web/node_modules/@playwright/test/index.js';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ConfigCredentialSnapshot as Snapshot } from './configuration-and-credential';
@@ -87,28 +87,33 @@ function observer(page: Page, harness: AuthorityHarness) {
 // Diagnostic failures must never replace the existing Session result. No
 // response body, request headers, IDs or raw error strings enter this artifact.
 export async function beginSessionDiagnostic(page: Page, mode: 'authority' | 'navigation') {
-  let slot: number | null = null, selected: Request | undefined, requestID: string | null = null;
+  const slot = randomUUID(), expiresAt = Date.now() + 250;
+  let selected: Request | undefined, requestID: string | null = null;
   const requests: Request[] = [];
-  const bounded = async <T>(work: Promise<T>): Promise<T | null> => {
+  const bounded = async <T>(work: () => Promise<T>): Promise<T | null> => {
     let timer: ReturnType<typeof setTimeout> | undefined;
-    try { return await Promise.race([work, new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), 250); })]); }
+    try { return await Promise.race([work(), new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), 250); })]); }
     catch { return null; }
     finally { if (timer !== undefined) clearTimeout(timer); }
   };
   const requested = (request: Request) => {
-    const url = new URL(request.url());
-    if (url.origin === new URL(page.url()).origin && url.pathname === '/api/v1/session' && !url.search && request.method() === 'GET') requests.push(request);
+    try {
+      const url = new URL(request.url());
+      if (url.origin === new URL(page.url()).origin && url.pathname === '/api/v1/session' && !url.search && request.method() === 'GET') requests.push(request);
+    } catch { /* Diagnostic metadata cannot interrupt a real request. */ }
   };
   page.on('request', requested);
-  slot = await bounded(page.evaluate(() => (window as any).__projectModelsProbe.sessionBegin() as number));
+  await bounded(() => page.evaluate(({ slot, expiresAt }) => (window as any).__projectModelsProbe.sessionBegin(slot, expiresAt) as boolean, { slot, expiresAt }));
   return {
     select(response: Response) {
-      selected = response.request();
-      void response.headerValue('x-request-id').then((value) => { requestID = value; }, () => {}).catch(() => {});
+      try {
+        selected = response.request();
+        void response.headerValue('x-request-id').then((value) => { requestID = value; }, () => {}).catch(() => {});
+      } catch { /* Only the diagnostic binding becomes unavailable. */ }
     },
     async finish(failed: boolean) {
       try {
-        const value: unknown = await bounded(page.evaluate(({ slot, requestID }) => (window as any).__projectModelsProbe.sessionEnd(slot, requestID), { slot, requestID }));
+        const value: unknown = await bounded(() => page.evaluate(({ slot, requestID }) => (window as any).__projectModelsProbe.sessionEnd(slot, requestID), { slot, requestID }));
         if (!failed) return;
         const counts = ['requests', 'readers', 'read_calls', 'read_settled', 'read_rejected', 'bytes', 'reader_cancel_calls', 'reader_cancel_settled', 'reader_cancel_rejected', 'stream_cancel_calls', 'stream_cancel_settled', 'stream_cancel_rejected', 'release_calls', 'release_successes', 'abort_events'];
         const flags = ['headers_seen', 'status_ok', 'read_done', 'cancel_before_eof', 'request_id_match', 'signal_aborted'];

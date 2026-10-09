@@ -22,11 +22,16 @@ function sessionDiagnostics(nativeFetch: typeof window.fetch) {
     stream_cancel_calls: 0, stream_cancel_settled: 0, stream_cancel_rejected: 0,
     release_calls: 0, release_successes: 0, abort_events: 0, headers_seen: false,
     status_ok: false, read_done: false, cancel_before_eof: false, failure: 'none' });
-  type Slot = { id: number; facts: ReturnType<typeof initial>; requestID: string | null; signal: AbortSignal | null; detach: () => void };
-  let serial = 0, current: Slot | undefined;
+  type Slot = { id: string; expiresAt: number; facts: ReturnType<typeof initial>; requestID: string | null; signal: AbortSignal | null; detach: () => void };
+  let current: Slot | undefined;
   function close() { current?.detach(); current = undefined }
-  function begin() { close(); current = { id: ++serial, facts: initial(), requestID: null, signal: null, detach: () => {} }; return serial }
-  function end(id: number | null, expectedID: string | null) {
+  function begin(id: string, expiresAt: number) {
+    // A timed-out evaluate may still execute later. Its original deadline and
+    // caller-owned identity must survive that lost return value.
+    if (typeof id !== 'string' || !id || id.length > 64 || !Number.isFinite(expiresAt) || Date.now() >= expiresAt) return false;
+    close(); current = { id, expiresAt, facts: initial(), requestID: null, signal: null, detach: () => {} }; return true;
+  }
+  function end(id: string, expectedID: string | null) {
     if (!current || current.id !== id) return null;
     const slot = current;
     const result = { ...slot.facts, request_id_match: slot.facts.requests === 1 && !!slot.requestID && slot.requestID === expectedID,
@@ -36,6 +41,7 @@ function sessionDiagnostics(nativeFetch: typeof window.fetch) {
   function fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> | undefined {
     const slot = current;
     if (!slot) return;
+    if (slot.facts.requests === 0 && Date.now() >= slot.expiresAt) { close(); return }
     const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url, location.origin);
     const method = init?.method ?? (input instanceof Request ? input.method : 'GET');
     if (url.origin !== location.origin || url.pathname !== '/api/v1/session' || url.search || method !== 'GET') return;

@@ -1,6 +1,6 @@
 # D11 B0-P：Human backlog Blocker 持久服务
 
-状态：工程规格已独立 SPEC 接受；真实服务实现候选已形成，整卡验收未完成。本卡是 [B0-C](d11-task-blocker-contracts.md) 两类契约的真实服务消费者，不表示 Task transition、完整 D11 或生产 root 已完成。迁移 `00023_task_blockers.sql` 已实现并随候选保存。
+状态：本卡限定的 Human 未指派 backlog Blocker 持久服务已实现并经独立验收接受；正式候选交付闭包正在收束。本卡是 [B0-C](d11-task-blocker-contracts.md) 两类契约的真实服务消费者，不表示完整跨状态 B0-P、Task transition、完整 D11 或生产 root 已完成。迁移 `00023_task_blockers.sql` 随服务交付。
 
 ## 1. 完整结果与真实依赖
 
@@ -139,28 +139,26 @@ migration实际测试fresh、populated00022升级、re-run与失败回滚；原p
 
 ## 9. 当前状态
 
-独立SPEC已接受本卡限定backlog子结果。首轮发现的两处文义缺陷（Activity同微秒/逐次更新承诺、同形UUID JSON的命令marker来源）已按真实端口修正§6并经差异复审；原首轮不接受事实保留。SPEC独审覆盖正式源码、链接及格式，没有运行Go/PG/browser或产品行为。当前实现与真实验收进展如下，不代表完整B0-P组合/T1或D11完成。
+本卡限定服务已独立接受，无剩余产品必须修复项。正式SPEC、三公开contract的独立公开API pure/race、runtime全文STATIC、独立验证者本人执行的A/B及全部必要真实回归共同构成结论；作者四包pure/race/vet、双入口build和完整integration race编译通过。候选工作树的精确装配与必要构建另核，不把产品接受提前写成已提交main。
 
-实现候选、00023及四个真实测试top已进入正式路径。作者四包完整pure/race/vet及两入口build通过；三公开contract另经独立公开API pure/race接受，仅覆盖其限定类型能力，完整runtime独审与独立PG仍在准备。首个runtime纯计划roundtrip因误用只认旧planning triple的header helper失败，已补本域严格decoder并复验通过；初始缺固定依赖缓存、作者与独立probe自身编译/刺激错误均保留，不当产品行为PASS。
+下表按§8的实际场景组合接受。每个PASS轮均记录Go、driver、外层实际退出0，以及首行精确两任务资源、runtime与host TCP的双次清空，冻结输入未变。独立A/B由未参与实现的验证者本人运行；其余为作者测试及必要旧服务回归。
 
-首轮 `TestTaskBlockerPersistence` 整体FAIL：真实4096历史边界得到RESOURCE_BUSY但遗漏既定BLOCKER_HISTORY_LIMIT reason；此规则由§1所引transition契约继承，本轮将安全字段位置在§5明确。262144项目容量、已填充00022升级与重跑、DDL失败回滚及两类真实新增/解除/读取/重建重放四个子项本轮body通过，但不替代整top通过。Go、driver与外层实际退出1；两任务资源、runtime及host TCP均完成双次清空，冻结输入未变。该首次失败保留。
+| 真实顶层selector | 实际结论 |
+| --- | --- |
+| TestTaskBlockerPersistence | 首轮整体FAIL永久保留；项目262144容量、已填充00022升级/重跑、DDL失败回滚、真实两类操作与恢复四个子项PASS按未变输入复用 |
+| TestTaskBlockerHistoryCapacityRegression | 完整PASS，6.89秒；独审最小history错误字段修复后的4096历史/256未解除容量，含达到历史上限后的resolve |
+| TestTaskBlockerAuthority | 完整PASS，3.39秒；权限、隔离、回滚和archived历史读取；未初始化/deleting由Interop覆盖 |
+| TestTaskBlockerUnknown | 完整PASS，15.69秒；四种原COMMIT组合、确认超时、显式Lookup/取消、原键恢复及Stop/Drain |
+| TestTaskBlockerConcurrency | 完整PASS，5.97秒；真实全图、同键与异键同版本、Planning双向版本竞争、Schedule gate |
+| TestTaskBlockerInteroperability | 完整PASS，5.22秒；正式BeginArchive/UpdateSprint双顺序及两个Project门禁，共六子项 |
+| TestTaskBlockerAtomicity | 完整PASS，7.00秒；七写点×add/resolve及两个正确后像缺history拒绝，共十六子项 |
+| TestIndependentTaskBlockerRuntimeA | 独立完整PASS，6.60秒；跨scope/writer、双prepared图竞争、旧revision恢复、producer及准备后Session权限，共四子项 |
+| TestIndependentTaskBlockerRuntimeB | 独立完整PASS，17.93秒；回滚、Planning/rank、四种Unknown及两个内建确认分支，共十一子项 |
+| TestTaskPlanningAtomicityAndEvents | 完整PASS，6.27秒；00023和新dispatcher下，旧Task三writer/历史/producer及原子回滚仍可用 |
+| TestWorkStructureAtomicityAndProducer | 完整PASS，2.40秒；旧Structure producer回退、Project gate及原子提交，十个子项 |
 
-history错误字段已作单分支最小修复，定向六分支pure/race通过，并经独立STATIC限定接受；恰4096的resolve继续进入真实读取、history超限损坏事实及其它容量错误保持原行为。定向顶层 `TestTaskBlockerHistoryCapacityRegression` 复用原失败场景，已在固定输入下真实race通过（body 6.89秒），覆盖4096历史与256未解除容量；Go、driver与外层均实际退出0，两任务资源、runtime及host TCP均双次清空，输入未变。首轮Persistence整体FAIL仍保留，已通过的四个无关子项未重复运行。
+首Persistence失败原因是history=4096新增只返回RESOURCE_BUSY，遗漏既定 `/blocker_id:BLOCKER_HISTORY_LIMIT`。原Go/driver/外层实际退出1及完整清理事实保留；单分支修复经独立差异接受，六分支pure/race和定向真实回归通过，未重跑四个无影响子项，也未把原整轮改写PASS。history损坏超限、其它容量和resolve行为未被放宽。
 
-`TestTaskBlockerAuthority` 在同一冻结产品基线上完整race PASS，六个子项body 3.39秒，Go、driver及外层实际退出0，两资源/runtime/host TCP双次清空。它证明已写的权限、隔离、回滚和归档历史读取场景；新增未初始化/deleting明确负向归Interop后续验收，不冒充已覆盖。
+前期缺陷同样保留：首SPEC的Activity同微秒/逐次更新承诺及JSON marker来源误述已按真实端口修正并独审接受；runtime纯计划roundtrip误用旧planning header helper已改本域严格decoder并复验通过。初始固定依赖缓存缺失、冷编译超时、作者/独立probe编译或刺激错误不当产品行为PASS。Concurrency两处首次User SH观察误用旧EX专用helper在运行前修正，经独审后真实通过。
 
-`TestTaskBlockerUnknown` 在同一冻结产品基线上完整race PASS，body 15.69秒；四种planned/completed×COMMIT转发/未转发组合均实际观察独立Command锁等待，确认超时保原Unknown、取消Lookup无假空、迟到Lookup/原key恢复与Stop/Drain均通过。Go、driver和外层实际退出0，两资源/runtime/host TCP双次清空；该旧输入不含后续B补充的内部确认成功/确定回滚分支。
-
-`TestTaskBlockerConcurrency` 在包含补充场景的新冻结输入上完整race PASS，七个子项body 5.97秒，Go/driver/外层实际退出0并完成两资源/runtime/host TCP双清。真实观察SH/EX精确锁等待，覆盖完整图与已解边排除、相反边一胜、同Task异key同expected一胜、同key重放、与Task Planning的双向版本竞争及Schedule gate；未用手持Schedule锁替代后续正式Structure命令互操作。
-
-`TestIndependentTaskBlockerRuntimeA` 由未参与实现的独立验证者本人执行并完整race PASS，四个子项body 6.60秒；Go/driver/外层实际退出0并完成两资源/runtime/host TCP双清，输入未变。独立动态接受跨Project/异writer隔离、双prepared真实图重算、Discover前旧revision被替换后的安全FORBIDDEN及Lookup/replay恢复、producer后像不足和准备后Session撤销拒绝。此同key限制仍在：旧调用可能先返回FORBIDDEN，不承诺所有并发初次调用都成功。
-
-`TestIndependentTaskBlockerRuntimeB` 同样由独立验证者本人执行并完整race PASS，十一个子项body 17.93秒；Go/driver/外层实际退出0、两资源/runtime/host TCP双清、输入未变。独立动态接受Outbox/Activity回滚、旧Planning两提交顺序、rank重算、四种原COMMIT Unknown，以及新增内建确认：真实COMMIT后completed在archived Read下返回原receipt，准备事务确定rollback后返回NotCommitted并保留原Attempt/Cause。这里的archived仍为明确fixture，不代表生命周期执行完成。
-
-`TestTaskBlockerInteroperability` 完整race PASS，六个子项body 5.22秒；Go/driver/外层实际退出0并完成两资源/runtime/host TCP双清，输入未变。正式BeginArchive和UpdateSprint各两种提交顺序均观察真实prepared/final与精确PID锁等待，Blocker事实、版本、rank及各域事件保持；未初始化与deleting拒绝路径也通过。归档仅接受入口accepted/archiving，四participant调用均为零，未执行或接受生命周期cleanup。
-
-`TestTaskBlockerAtomicity` 完整race PASS，十六个子项body 7.00秒；Go/driver/外层实际退出0并完成两资源/runtime/host TCP双清，输入未变。七个真实SQL写点×add/resolve均以AFTER ROW及不可回滚sequence证明实际命中，所有业务事实回滚、原planned保留、同key恢复及重放不重复；正确Task/Blocker/query后像仅删除history时，两分支producer均拒绝并回滚。
-
-`TestTaskPlanningAtomicityAndEvents` 在包含00023与新dispatcher的冻结产品上完整race PASS，body 6.27秒；Go/driver/外层实际退出0、两资源/runtime/host TCP双清、输入未变。既有Task创建/更新/排序的历史、producer门禁及原子回滚仍可用。
-
-独立runtime全文STATIC除上述已修history字段未发现新增must-fix；自有A/B probe与构建脚本已落入 `.agent-state/task-blocker-service/` 并完成上述独立真实验收。逐条验收覆盖核对发现的缺口已集中补入两个新top、Concurrency异key同版本及B内部确认。作者Concurrency两处首次User SH观察误用旧EX专用helper，已在运行前修为本地精确mode检查并经独立差异接受，未把此未运行的测试错误当产品FAIL。三个补充作者测试源已联合race编译通过、精确发现七个作者top和两个必要旧回归top，另经独立STATIC接受并完成上述真实验收。仅余必要旧Structure回归及最终独立收束，尚无完整服务接受结论。
+接受边界保持：同key旧调用若在Discover前被新revision替换，可能先返回FORBIDDEN，再由Lookup/replay恢复；不承诺所有并发初次调用均成功。正式归档竞争仅证明BeginArchive的accepted/archiving，四participant调用均为零；独立B的archived Read为明确fixture，不证明Lifecycle cleanup。没有Agent/Executor、非backlog或已指派任务、完整跨状态B0-P/T1、HTTP/UI/生产root、完整D11或其它停止项的完成结论。
