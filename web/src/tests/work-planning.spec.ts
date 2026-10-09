@@ -4,6 +4,17 @@ import ProjectWorkStructureEditor from '../views/projects/ProjectWorkStructureEd
 import ProjectWorkTaskEditor from '../views/projects/ProjectWorkTaskEditor.vue'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import { createSessionController } from '../composables/useSession'
+import type { SessionController } from '../composables/useSession'
+import { createAccountAPI } from '../api/account'
+import { createProjectOwnerAPI } from '../api/project-owner'
+import { createWorkPlanningAPI } from '../api/work-planning'
+import type { Fetch } from '../api/client'
+const selectedSession = vi.hoisted(() => ({ auth: null as SessionController | null }))
+vi.mock('../composables/useSession', async (original) => {
+  const source = await original<typeof import('../composables/useSession')>()
+  return { ...source, useSession: () => selectedSession.auth ?? source.useSession() }
+})
+import App from '../App.vue'
 import {
   installAuthentication,
   installProjectModelSettingsNavigation,
@@ -23,6 +34,9 @@ afterEach(() => {
     .reverse()
     .forEach((close) => close())
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
+  selectedSession.auth = null
+  document.body.innerHTML = ''
 })
 
 describe('Work planning production route boundary', () => {
@@ -276,5 +290,185 @@ describe('Work planning public editor interactions', () => {
     expect(wrapper.get<HTMLTextAreaElement>('textarea[name="work-task-plan"]').element.value).toBe(
       '草稿',
     )
+  })
+})
+
+async function productionPage(path = home + '/tasks/explore/milestones/' + id) {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn((media: string) => ({
+      matches: false,
+      media,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })),
+  )
+  const at = '2026-10-09T10:00:00.000000Z'
+  const projectID = id.replace('000010', '000011'),
+    userID = id.replace('000010', '000001')
+  const base = '/api/v1/projects/' + projectID
+  const project = {
+    id: projectID,
+    owner_user_id: userID,
+    name: 'Owner.Dot-Name',
+    normalized_name: 'owner.dot-name',
+    description: '',
+    lifecycle: 'active',
+    version: '1',
+    current_sprint_id: null,
+    created_at: at,
+    updated_at: at,
+    archived_at: null,
+  }
+  let milestone = {
+    id,
+    project_id: projectID,
+    title: 'Initial milestone',
+    description: 'Original description',
+    manual_rank: '8'.repeat(32),
+    version: '1',
+    created_at: at,
+    updated_at: at,
+  }
+  const json = (value: unknown) =>
+    new Response(JSON.stringify(value), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Request-ID': id.replace('000010', '000099'),
+      },
+    })
+  const fetcher = vi.fn<Fetch>(async (url, init) => {
+    if (url === '/api/v1/session')
+      return json({
+        user: {
+          id: userID,
+          email: 'owner@example.test',
+          username: 'owner',
+          display_name: 'Owner',
+          role: 'user',
+          theme: 'system',
+          version: '1',
+          initial_password_suggestion: false,
+        },
+        session: {
+          id: id.replace('000010', '000002'),
+          issued_at: at,
+          absolute_expires_at: at,
+          idle_expires_at: at,
+        },
+        csrf_token: 'S'.repeat(43),
+      })
+    if (url === '/api/v1/sessions/logout') return new Response(null, { status: 204 })
+    if (url === '/api/v1/auth/bootstrap')
+      return json({
+        csrf_token: 'A'.repeat(43),
+        challenge_modes: ['rotate'],
+        delivery_channel: 'backend_log',
+      })
+    if (url.startsWith('/api/v1/projects/resolve?') || url === base) return json(project)
+    if (url.startsWith(base + '/milestones?')) {
+      const { description: _description, ...summary } = milestone
+      return json({ items: [summary] })
+    }
+    if (url === base + '/milestones/' + id && init.method === 'GET') return json(milestone)
+    if (url === base + '/milestones/' + id && init.method === 'PATCH') {
+      const input = JSON.parse(init.body as string) as {
+        request: { title?: string; description?: string }
+      }
+      milestone = {
+        ...milestone,
+        ...input.request,
+        version: String(BigInt(milestone.version) + 1n),
+      }
+      return json({
+        command: 'work.milestone.update',
+        changed: true,
+        milestone,
+        sprint: null,
+        event_id: id.replace('000010', '000020'),
+      })
+    }
+    throw new Error('Unexpected production-page fixture request')
+  })
+  const auth = createSessionController(
+    createAccountAPI(fetcher),
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    createProjectOwnerAPI(fetcher),
+    undefined,
+    undefined,
+    createWorkPlanningAPI(fetcher),
+  )
+  selectedSession.auth = auth
+  const { router: source } = await import('../router')
+  source.options.history.destroy()
+  const router = createRouter({ history: createMemoryHistory(), routes: source.options.routes })
+  installAuthentication(router, auth)
+  await router.push(path)
+  await router.isReady()
+  const wrapper = mount(App, { attachTo: document.body, global: { plugins: [router] } })
+  cleanup.push(() => {
+    wrapper.unmount()
+    router.options.history.destroy()
+    auth.leave()
+  })
+  await flushPromises()
+  await flushPromises()
+  return { wrapper, router, auth, fetcher }
+}
+function publicButton(label: string) {
+  const button = [...document.querySelectorAll<HTMLButtonElement>('button')].find((value) => {
+    const copy = value.cloneNode(true) as HTMLElement
+    copy.querySelectorAll('[aria-hidden="true"]').forEach((hidden) => hidden.remove())
+    return (value.getAttribute('aria-label') ?? copy.textContent?.trim()) === label
+  })
+  if (!button) throw new Error('Missing public button: ' + label)
+  return button
+}
+describe('Work production App and router composition', () => {
+  it('renders the explicit planning entry and saves through the actual Session facade', async () => {
+    const f = await productionPage()
+    expect(f.wrapper.find('nav[aria-label="项目导航"] a[aria-current="page"]').text()).toBe(
+      '任务规划',
+    )
+    expect(f.wrapper.find('#work-planning-title').text()).toBe('任务规划')
+    await f.wrapper.find('input[name="work-structure-title"]').setValue('Updated title')
+    await f.wrapper.find('form[aria-label="规划结构编辑"]').trigger('submit')
+    await flushPromises()
+    expect(f.wrapper.find('section[aria-label="原命令恢复"]').text()).toContain('原命令已确认')
+    expect(f.wrapper.find('section[aria-label="当前读取内容"]').text()).toContain('Updated title')
+    expect(f.fetcher.mock.calls.filter(([, init]) => init.method === 'PATCH')).toHaveLength(1)
+  })
+  it('asks the Work owner before logout and retains draft after canceling', async () => {
+    const f = await productionPage()
+    await f.wrapper.find('input[name="work-structure-title"]').setValue('Keep this draft')
+    publicButton('退出登录').click()
+    await flushPromises()
+    expect(document.body.textContent).toContain('放弃任务规划修改？')
+    expect(f.fetcher.mock.calls.some(([url]) => url.endsWith('/logout'))).toBe(false)
+    publicButton('继续编辑').click()
+    await flushPromises()
+    expect(
+      f.wrapper.find<HTMLInputElement>('input[name="work-structure-title"]').element.value,
+    ).toBe('Keep this draft')
+    expect(f.auth.state.phase).toBe('authenticated')
+  })
+  it('does not register the unimplemented default Kanban path or request Work data there', async () => {
+    const f = await productionPage(home + '/tasks')
+    expect(f.router.currentRoute.value.name).toBe('not-found')
+    expect(
+      f.fetcher.mock.calls.some(([url]) => /\/(milestones|sprints|tasks)(\/|\?)/.test(url)),
+    ).toBe(false)
+    expect(f.wrapper.find('#work-planning-title').exists()).toBe(false)
   })
 })

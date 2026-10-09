@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { projectRoute } from '../../router/auth'
+import { projectRoute, workPlanningRoute } from '../../router/auth'
 
 const props = defineProps<{ name: string; home: string; settings: string }>()
 const route = useRoute()
+const workPath = computed(() => props.home + '/tasks/explore')
+const workCurrent = computed(() => workPlanningRoute(route.fullPath)?.home === props.home)
 const settingsCurrent = computed(() => {
   const current = projectRoute(route.fullPath),
     target = projectRoute(props.settings)
@@ -30,6 +32,9 @@ const settingsCurrent = computed(() => {
       :title="name"
       :aria-current="route.path === home ? 'page' : undefined"
       >{{ name }}</RouterLink
+    >
+    <RouterLink :to="workPath" :aria-current="workCurrent ? 'page' : undefined"
+      >任务规划</RouterLink
     >
     <RouterLink :to="settings" :aria-current="settingsCurrent ? 'page' : undefined"
       >项目设置</RouterLink

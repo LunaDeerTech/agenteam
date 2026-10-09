@@ -471,3 +471,57 @@ describe('Work confirmed history survives a failed explicit replay', () => {
     },
   )
 })
+
+const workRefusals = [
+  ['TASK_NOT_FOUND', 404],
+  ['TASK_VERSION_CONFLICT', 409],
+  ['TASK_STATE_INVALID', 409],
+  ['TASK_ASSIGNEE_REQUIRED', 409],
+  ['TASK_SPRINT_INVALID', 409],
+  ['TASK_TERMINAL_IMMUTABLE', 409],
+  ['BLOCKER_NOT_FOUND', 404],
+  ['BLOCKER_ALREADY_RESOLVED', 409],
+  ['TASK_DEPENDENCY_CYCLE', 409],
+] as const
+describe('Work formal domain-specific rejection boundaries', () => {
+  it.each(workRefusals)(
+    'classifies first explicit %s (%s) while preserving earlier uncertainty',
+    async (code, status) => {
+      const f = await fixture(),
+        command =
+          code.startsWith('BLOCKER_') || code === 'TASK_DEPENDENCY_CYCLE'
+            ? commands[2]!
+            : commands[1]!
+      for (const commit of ['not_started', 'not_committed'] as const) {
+        f.setHandler(async () => problem(code, status, commit))
+        await expect(f.auth.workPlanning.start(command)).rejects.toMatchObject({ kind: 'problem' })
+        expect(f.auth.workPlanning.progress).toMatchObject({ phase: 'rejected', canReplay: false })
+        f.auth.workPlanning.abandon()
+      }
+      f.setHandler(async () => {
+        throw new Error('lost original')
+      })
+      await expect(f.auth.workPlanning.start(command)).rejects.toMatchObject({ kind: 'transport' })
+      f.setHandler(async () => problem(code, status, 'not_started'))
+      await expect(f.auth.workPlanning.retryOriginal()).rejects.toMatchObject({ kind: 'problem' })
+      expect(f.auth.workPlanning.progress).toMatchObject({ phase: 'uncertain', canReplay: true })
+    },
+  )
+  it.each(workRefusals)(
+    'does not infer refusal from %s with wrong status or unknown commit',
+    async (code, status) => {
+      const f = await fixture()
+      for (const [actualStatus, commit] of [
+        [status, 'unknown'],
+        [503, 'not_started'],
+      ] as const) {
+        f.setHandler(async () => problem(code, actualStatus, commit))
+        await expect(f.auth.workPlanning.start(commands[1]!)).rejects.toMatchObject({
+          kind: 'problem',
+        })
+        expect(f.auth.workPlanning.progress).toMatchObject({ phase: 'uncertain', canReplay: true })
+        f.auth.workPlanning.abandon()
+      }
+    },
+  )
+})

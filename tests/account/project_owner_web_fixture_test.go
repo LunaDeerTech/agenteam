@@ -69,6 +69,7 @@ type projectOwnerWebHold struct {
 }
 
 type projectOwnerWebFixture struct {
+	work *projectWorkPlanningWebFixture // optional Work-only observer/config/IPC; nil preserves Owner behavior
 	*authenticationWebFixture
 	mode, evidence, inputHash string
 	setup                     *personalWebFixture
@@ -206,7 +207,12 @@ func (f *projectOwnerWebFixture) startRoot(t *testing.T, ctx context.Context) co
 	transport := &http.Transport{Proxy: nil}
 	proxy := httputil.NewSingleHostReverseProxy(backend)
 	proxy.Transport = transport
-	proxy.ModifyResponse = f.controlResponse
+	proxy.ModifyResponse = func(response *http.Response) error {
+		if f.work != nil && f.work.handlesResponse(response) {
+			return f.work.controlResponse(response)
+		}
+		return f.controlResponse(response)
+	}
 	proxy.ErrorLog = slog.NewLogLogger(slog.NewTextHandler(io.Discard, nil), slog.LevelError)
 	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, err error) {
 		var lost *projectOwnerWebLost
@@ -288,8 +294,15 @@ func (f *projectOwnerWebFixture) startRoot(t *testing.T, ctx context.Context) co
 }
 
 func newProjectOwnerWebFixture(t *testing.T, ctx context.Context, mode string) *projectOwnerWebFixture {
+	return newProjectOwnerWebFixtureWithWork(t, ctx, mode, nil)
+}
+
+func newProjectOwnerWebFixtureWithWork(t *testing.T, ctx context.Context, mode string, work *projectWorkPlanningWebFixture) *projectOwnerWebFixture {
 	t.Helper()
-	f := &projectOwnerWebFixture{mode: mode, ids: map[string]string{}, initial: map[string]any{}, sameOriginal: true}
+	f := &projectOwnerWebFixture{mode: mode, ids: map[string]string{}, initial: map[string]any{}, sameOriginal: true, work: work}
+	if work != nil {
+		work.projectOwnerWebFixture = f
+	}
 	cfg := f.startRoot(t, ctx)
 	f.setup = &personalWebFixture{authenticationWebFixture: f.authenticationWebFixture}
 	f.admin = projectOwnerWebCredential{personalWebCredential: personalWebCredential{Email: f.entry.Email, Password: f.entry.Password, UserID: f.entry.ID}, Username: "admin"}
@@ -764,6 +777,9 @@ type projectOwnerWebBody struct {
 func (b *projectOwnerWebBody) Close() error { clear(b.raw); return nil }
 
 func (f *projectOwnerWebFixture) observeRequest(w http.ResponseWriter, r *http.Request) bool {
+	if f.work != nil && f.work.handlesRequest(r) {
+		return f.work.observeRequest(w, r)
+	}
 	f.mu.Lock()
 	fail := r.Method == http.MethodGet && (f.failSession && r.URL.Path == "/api/v1/session" || f.failReadPath != "" && r.URL.Path == f.failReadPath)
 	if fail {
@@ -1054,7 +1070,11 @@ func (f *projectOwnerWebFixture) browser(ctx context.Context) map[string]any {
 	if err != nil {
 		f.t.Fatal(err)
 	}
-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "project-owner.config.js"))
+	prefix := "project-owner"
+	if f.work != nil {
+		prefix = "project-work-planning"
+	}
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, prefix+".config.js"))
 	cmd.Dir = root
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
@@ -1066,6 +1086,9 @@ func (f *projectOwnerWebFixture) browser(ctx context.Context) map[string]any {
 		}
 	}
 	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_PROJECT_OWNER_WEB_CASE="+f.mode, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "AGENTEAM_PROJECT_OWNER_WEB_EVIDENCE="+f.evidence, "PLAYWRIGHT_NO_COPY_PROMPT=1")
+	if f.work != nil {
+		cmd.Env = append(cmd.Env, "AGENTEAM_WORK_PLANNING_WEB_CASE="+f.work.mode)
+	}
 	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
 		if !filepath.IsAbs(images) {
 			f.t.Fatal("Project screenshots require explicit absolute directory")
@@ -1088,6 +1111,9 @@ func (f *projectOwnerWebFixture) browser(ctx context.Context) map[string]any {
 		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 		cmd.Env = nil
 		f.releaseRead()
+		if f.work != nil {
+			f.work.releaseRead()
+		}
 		f.t.Log("Project Node direct child actually waited; adopted descendants remain owned by outer subreaper")
 	}()
 	ticker := time.NewTicker(20 * time.Millisecond)
@@ -1101,14 +1127,21 @@ wait:
 			joined = true
 			break wait
 		case <-ticker.C:
-			raw, err := os.ReadFile(filepath.Join(f.directory, "project-owner-ipc.json"))
+			raw, err := os.ReadFile(filepath.Join(f.directory, prefix+"-ipc.json"))
 			if errors.Is(err, os.ErrNotExist) {
 				continue
 			}
 			var request projectOwnerWebIPC
+			var workRequest projectWorkPlanningWebIPC
 			decoder := json.NewDecoder(bytes.NewReader(raw))
 			decoder.DisallowUnknownFields()
-			decodeErr := decoder.Decode(&request)
+			var decodeErr error
+			if f.work == nil {
+				decodeErr = decoder.Decode(&request)
+			} else {
+				decodeErr = decoder.Decode(&workRequest)
+				request.Sequence = workRequest.Sequence
+			}
 			var tail any
 			endErr := decoder.Decode(&tail)
 			clear(raw)
@@ -1121,9 +1154,14 @@ wait:
 			if request.Sequence != sequence+1 {
 				f.t.Fatal("private Project IPC sequence invalid")
 			}
-			reply := f.ipc(ctx, request)
+			var reply map[string]any
+			if f.work == nil {
+				reply = f.ipc(ctx, request)
+			} else {
+				reply = f.work.ipc(ctx, workRequest)
+			}
 			sequence = request.Sequence
-			f.private("project-owner-ack-"+strconv.Itoa(sequence)+".json", reply)
+			f.private(prefix+"-ack-"+strconv.Itoa(sequence)+".json", reply)
 		}
 	}
 	// The runner writes only safe assertion failures; remove even privately
@@ -1141,11 +1179,14 @@ wait:
 		}
 	}
 	f.mu.Unlock()
+	if f.work != nil {
+		safe = f.work.redact(safe)
+	}
 	f.t.Log(safe)
 	if runErr != nil {
 		f.t.Fatalf("actual Project production browser failed: %v", runErr)
 	}
-	raw, err := os.ReadFile(filepath.Join(f.directory, "project-owner-result.json"))
+	raw, err := os.ReadFile(filepath.Join(f.directory, prefix+"-result.json"))
 	if err != nil {
 		f.t.Fatal("safe Project browser result missing")
 	}

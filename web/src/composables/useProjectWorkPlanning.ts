@@ -111,7 +111,10 @@ export function createProjectWorkPlanning(
   const treeOpen = ref(false)
   const reading = ref(false)
   const confirmation = reactive({ open: false, title: '', message: '', label: '放弃并离开' })
-  const progress = computed(() => auth.workPlanning.progress)
+  const progress = computed(() => {
+    const value = auth.workPlanning.progress
+    return value && boundProject === value.projectID ? value : null
+  })
   const context = computed<Context | null>(() => {
     const current = workspace.currentReadContext.value
     return address.value && current && workspace.paths.value.home === address.value.home
@@ -207,7 +210,8 @@ export function createProjectWorkPlanning(
       unsettled.value ||
       editor.conflict ||
       editor.requiresRead ||
-      (editor.kind !== 'milestone' && detail.sprint?.state === 'completed') ||
+      ((editor.kind === 'task' || (editor.kind === 'sprint' && !editor.creating)) &&
+        detail.sprint?.state === 'completed') ||
       (editor.kind === 'task' && !editor.creating && !editableTask.value),
   )
   const canSave = computed(
@@ -682,13 +686,13 @@ export function createProjectWorkPlanning(
     } else if (failure(error).kind === 'invalid-input')
       editor.message = '输入不符合规划要求，请检查后重试。'
     else editor.message = '本次请求未能完成，请查看错误并保留原草稿。'
-    if (problem?.code === 'VERSION_CONFLICT') {
+    if (['VERSION_CONFLICT', 'TASK_VERSION_CONFLICT'].includes(problem?.code ?? '')) {
       editor.conflict = true
       editor.requiresRead = true
       editor.message = '版本冲突，原草稿与版本已保留。请先读取当前值。'
     }
     for (const field of problem?.field_errors ?? []) {
-      const key = field.path.replace(/^request\./, '')
+      const key = field.path.replace(/^(?:\/request\/|request\.|\/)/, '')
       if (['title', 'description', 'type', 'priority', 'plan'].includes(key))
         editor.errors[key as keyof Form] = '此字段不符合要求，请检查输入。'
     }
@@ -760,7 +764,10 @@ export function createProjectWorkPlanning(
     recoveryMessage.value = ''
     try {
       const receipt = await auth.workPlanning.start(immutable)
-      if (live(own, captured)) await refreshAfterReceipt(receipt, captured, own, true)
+      if (live(own, captured)) {
+        await refreshAfterReceipt(receipt, captured, own, true)
+        return receipt
+      }
     } catch (error) {
       if (live(own, captured)) rejected(error)
     } finally {
@@ -924,7 +931,7 @@ export function createProjectWorkPlanning(
               blocker_id: newWorkPlanningID(),
               description: blockerDraft.description,
             }
-      await execute({
+      const receipt = await execute({
         domain: 'blocker',
         projectID: context.value!.projectID,
         taskID: task.id,
@@ -932,7 +939,7 @@ export function createProjectWorkPlanning(
         command: 'work.task.blocker.add',
         request,
       })
-      if (progress.value?.phase === 'confirmed') {
+      if (receipt) {
         Object.assign(blockerDraft, { type: '', description: '', relatedTaskID: '' })
         await loadBlockers()
       } else blockerDraft.message = editor.message || recoveryMessage.value
@@ -957,7 +964,7 @@ export function createProjectWorkPlanning(
       blockerDraft.message = '备注不能只有空白；不填写备注时请完全清空。'
       return
     }
-    await execute({
+    const receipt = await execute({
       domain: 'blocker',
       projectID: context.value!.projectID,
       taskID: detail.task.id,
@@ -968,7 +975,7 @@ export function createProjectWorkPlanning(
         resolution_comment: value === '' ? null : value,
       },
     })
-    if (progress.value?.phase === 'confirmed') {
+    if (receipt) {
       blockerDraft.resolvingID = ''
       blockerDraft.resolution = ''
       await loadBlockers()
@@ -1048,8 +1055,7 @@ export function createProjectWorkPlanning(
               request: { milestone_id: (current as WorkSprint).milestone_id, ...request },
             }
           : { domain: 'task', command: 'work.task.reorder', ...common, request }
-    await execute(command)
-    if (progress.value?.phase === 'confirmed') reorder.open = false
+    if (await execute(command)) reorder.open = false
   }
   async function expand(nodes: string[]) {
     if (blocked.value) return
@@ -1089,6 +1095,7 @@ export function createProjectWorkPlanning(
   }
   async function confirmLeave(target?: string) {
     if (target === canonicalNavigation && target) return true
+    if (target && canonicalAddress(workPlanningRoute(target))) return true
     if (!dirty.value) return !confirmation.open
     if (answer) return false
     Object.assign(confirmation, {
@@ -1111,10 +1118,21 @@ export function createProjectWorkPlanning(
     if (disposed) return
     const next = workPlanningRoute(to)
     if (address.value?.path === next?.path) return
+    if (canonicalAddress(next)) {
+      ++generation
+      auth.workPlanning.abandonRead()
+      reading.value = false
+      address.value = next
+      detailNeedsRead = true
+      void loadSelection()
+      return
+    }
+    const differentAddress = address.value?.home !== next?.home
     ++generation
     auth.workPlanning.abandonRead()
     reading.value = false
     address.value = next
+    if (differentAddress) clearAll()
     resetEditor()
     clearSelection()
     initial = !!next
@@ -1123,6 +1141,21 @@ export function createProjectWorkPlanning(
       return
     }
     void startInitial()
+  }
+  function canonicalAddress(next: Address | null) {
+    const previous = address.value,
+      current = workspace.currentReadContext.value
+    return (
+      !!next &&
+      !!previous &&
+      next.home !== previous.home &&
+      next.kind === previous.kind &&
+      next.id === previous.id &&
+      next.home === workspace.paths.value.home &&
+      !!current &&
+      current.projectID === boundProject &&
+      sameIdentity(current.identity, identity)
+    )
   }
   const stop = watch(
     () =>
@@ -1157,6 +1190,10 @@ export function createProjectWorkPlanning(
       const restored = !readContext && !!current
       readContext = current
       if (current && current.projectID !== boundProject) {
+        if (boundProject !== null) {
+          auth.workPlanning.abandon()
+          resetEditor()
+        }
         clearPage(milestones)
         sprints.clear()
         tasks.clear()

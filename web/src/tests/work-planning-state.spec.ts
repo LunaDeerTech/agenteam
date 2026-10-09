@@ -210,6 +210,40 @@ async function fixture(options: { current?: boolean; state?: WorkTask['state'] }
 }
 
 describe('Work planning current objects and original intent', () => {
+  it('invalidates an expired opaque cursor chain without silently falling back to page one', async () => {
+    const f = await fixture()
+    const rows = Array.from({ length: 50 }, (_, n) => ({
+      id: id(100 + n),
+      project_id: f.project.id,
+      title: 'row ' + n,
+      manual_rank: (n + 1).toString(16).padStart(32, '0'),
+      version: '1',
+      created_at: at,
+      updated_at: at,
+    }))
+    f.intercept((path, init) =>
+      path.startsWith(f.base + '/milestones?')
+        ? Promise.resolve(
+            new URL(path, 'https://unit.test').searchParams.has('cursor')
+              ? reject('CURSOR_STALE')
+              : response({ items: rows, next_cursor: 'opaque-first' }),
+          )
+        : f.normal(path, init),
+    )
+    await f.open()
+    expect(f.work.milestones.items).toHaveLength(50)
+    await f.work.loadMilestones('next')
+    expect(f.work.milestones.invalid).toBe(true)
+    expect(f.work.milestones.stale).toBe(true)
+    expect(f.work.milestones.previous).toEqual([])
+    expect(f.work.milestones.items).toHaveLength(50)
+    const count = f.fetcher.mock.calls.length
+    await f.work.loadMilestones('next')
+    await flushPromises()
+    expect(f.fetcher.mock.calls.length).toBe(count)
+    await f.work.loadMilestones('first')
+    expect(f.work.milestones.invalid).toBe(false)
+  })
   it('loads a direct Task and its actual parents without fabricating an in-page node', async () => {
     const f = await fixture()
     await f.open(`/tasks/explore/tasks/${f.task.id}`)

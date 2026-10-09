@@ -3694,10 +3694,17 @@ export function createSessionController(
           'RESOURCE_BUSY',
           'PROJECT_NOT_ACTIVE',
           'CURSOR_STALE',
+          'TASK_VERSION_CONFLICT',
+          'TASK_STATE_INVALID',
+          'TASK_ASSIGNEE_REQUIRED',
+          'TASK_SPRINT_INVALID',
+          'TASK_TERMINAL_IMMUTABLE',
+          'BLOCKER_ALREADY_RESOLVED',
+          'TASK_DEPENDENCY_CYCLE',
         ].includes(p.code)) ||
       (p.status === 401 && ['UNAUTHENTICATED', 'SESSION_REVOKED'].includes(p.code)) ||
       (p.status === 403 && ['FORBIDDEN', 'CSRF_FAILED', 'ORIGIN_DENIED'].includes(p.code)) ||
-      (p.status === 404 && p.code === 'NOT_FOUND') ||
+      (p.status === 404 && ['NOT_FOUND', 'TASK_NOT_FOUND', 'BLOCKER_NOT_FOUND'].includes(p.code)) ||
       (p.status === 503 && p.code === 'DEPENDENCY_UNBOUND')
     )
   }

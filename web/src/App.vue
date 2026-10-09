@@ -19,6 +19,7 @@ import {
   installOutboundPolicyNavigation,
   installProjectNavigation,
   installProjectModelSettingsNavigation,
+  installProjectWorkPlanningNavigation,
 } from './router/auth'
 import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'
 import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'
@@ -51,6 +52,10 @@ import {
   createProjectModelSettings,
   projectModelSettingsKey,
 } from './composables/useProjectModelSettings'
+import {
+  createProjectWorkPlanning,
+  projectWorkPlanningKey,
+} from './composables/useProjectWorkPlanning'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
@@ -61,6 +66,9 @@ const stopProjectNavigation = installProjectNavigation(router, projects)
 const projectModels = createProjectModelSettings(auth, projects)
 provide(projectModelSettingsKey, projectModels)
 const stopProjectModelNavigation = installProjectModelSettingsNavigation(router, projectModels)
+const projectWork = createProjectWorkPlanning(auth, projects, (path) => router.replace(path))
+provide(projectWorkPlanningKey, projectWork)
+const stopProjectWorkNavigation = installProjectWorkPlanningNavigation(router, projectWork)
 const settings = createPersonalSettings(auth)
 provide(personalSettingsKey, settings)
 const stopPersonalNavigation = installPersonalNavigation(router, settings)
@@ -125,7 +133,8 @@ async function logout() {
     (await smtpSections.confirmLeave()) &&
     (await outboundPolicy.confirmLeave()) &&
     (await projects.confirmLeave()) &&
-    (await projectModels.confirmLeave())
+    (await projectModels.confirmLeave()) &&
+    (await projectWork.confirmLeave())
   )
     await auth.logout()
 }
@@ -156,6 +165,7 @@ watch(
 onMounted(() => {
   projects.afterNavigation(route.fullPath, '')
   projectModels.afterNavigation(route.fullPath, '')
+  projectWork.afterNavigation(route.fullPath, '')
   entry.afterNavigation(route.fullPath, '')
   invitations.afterNavigation(route.fullPath, '')
   providers.afterNavigation(route.fullPath, '')
@@ -170,6 +180,8 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', refreshVisible)
   window.removeEventListener('pageshow', refreshVisible)
+  stopProjectWorkNavigation()
+  projectWork.dispose()
   stopProjectModelNavigation()
   projectModels.dispose()
   stopProjectNavigation()
@@ -237,6 +249,17 @@ onUnmounted(() => {
     </div>
   </AppShell>
   <RouterView v-else />
+  <UiDialog
+    :open="projectWork.confirmation.open"
+    :title="projectWork.confirmation.title"
+    @update:open="!$event && projectWork.cancelConfirmation()"
+  >
+    <p>{{ projectWork.confirmation.message }}</p>
+    <template #footer>
+      <UiButton variant="ghost" @click="projectWork.cancelConfirmation">继续编辑</UiButton>
+      <UiButton @click="projectWork.confirm">{{ projectWork.confirmation.label }}</UiButton>
+    </template>
+  </UiDialog>
   <UiDialog
     :open="projectModels.confirmation.open"
     :title="projectModels.confirmation.title"

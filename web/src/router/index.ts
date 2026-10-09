@@ -112,6 +112,16 @@ export const router = createRouter({
           name: 'project-home',
           component: () => import('../views/projects/ProjectHomeView.vue'),
         },
+        ...[
+          ['tasks/explore', 'project-work-explore'],
+          ['tasks/explore/milestones/:work_id', 'project-work-milestone'],
+          ['tasks/explore/sprints/:work_id', 'project-work-sprint'],
+          ['tasks/explore/tasks/:work_id', 'project-work-task'],
+        ].map(([path, name]) => ({
+          path: path!,
+          name: name!,
+          component: () => import('../views/projects/ProjectWorkPlanningView.vue'),
+        })),
         {
           path: 'settings',
           component: () => import('../views/projects/ProjectSettingsView.vue'),
