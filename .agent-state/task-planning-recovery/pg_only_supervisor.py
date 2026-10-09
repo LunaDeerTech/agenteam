@@ -176,6 +176,7 @@ def observe_root_chain(directory, log, log_path, selector):
         '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': {'TestWorkOwnerHTTPProcessRoutingAndPersistence'},
         '^TestIndependentWorkOwnerRootConfirmationJoin$': {'TestIndependentWorkOwnerRootConfirmationJoin'},
         '^TestRunnerControlDefaultProcesses$': {'TestRunnerControlDefaultProcesses'},
+        '^TestRunnerControlDefaultFailures$': {'TestRunnerControlDefaultFailures'},
     }.get(selector, set())
     actual = set(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='

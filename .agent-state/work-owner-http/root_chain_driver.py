@@ -20,6 +20,7 @@ TARGETS = {
     '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': 'tests/process',
     '^TestIndependentWorkOwnerRootConfirmationJoin$': 'internal/central/app',
     '^TestRunnerControlDefaultProcesses$': 'tests/process',
+    '^TestRunnerControlDefaultFailures$': 'tests/process',
 }
 
 
