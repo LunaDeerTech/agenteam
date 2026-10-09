@@ -155,3 +155,5 @@ Audit草案只冻结新五字段闭集和需要合并的既有约束名；不生
 首批 `service.go`、`repository.go`、`runtime.go`、`read.go` 与两项相邻测试已落盘；`GetDocument`／`ReadAncestors`／`ReadCurrentInTx` 通过同 Store 活 Tx、完整已有锁和真实 Project port 后才查询本域，取消不能代替实际 Drain。Unknown 保留原物理 attempt／cause，安全格式不泄露 command key。当前只是完整 B02 的中间片段，没有生产 stub、完整 Documents 实现、迁移或真实业务接受。
 
 Go 1.27.1、`GOPROXY=off GOSUMDB=off`、独占 GOCACHE、只读既有固定 modcache 下，`go test -p 2 ./internal/central/knowledge/...` 实际通过。首编曾因 Object marker 名误写失败，改为正式 `StoredObject`；随后测试 fixture 使用非法非 UUID owner 导致 `INVALID_TRANSACTION_CAUSE`，修为正式 typed UUID 后通过。当前 pure 只覆盖构造、真实调用返回前不能 Drain、多个调用退出、Unknown 私有因果与已有 B01；SQL／权限／并发和对象组合还未真实执行，不冒充已验。
+
+第二片段补上数据库 title/UUID 分页、签名游标绑定与字面搜索、canonical reader 的实际 Close 跟踪、有界 UTF-8 读取、原 command Lookup 与本域六表／Knowledge Audit 增量迁移。分页及读取纯控通过，`go test -race -p 2 ./internal/central/knowledge/...` 实际通过；首批 race 97475 亦实际通过。新增代码曾误用 `InvalidCursor` 名称及旧 ObjectOwner 构造形状，均在编译检查暴露并修正为正式 API。迁移 00025 仅落盘，未执行 SQL 或升级；连续前序 00024 与完整服务、对象／树写入及真 PG 仍未闭合。返回流只有底层 Close 成功才退出服务调用登记；Close 失败保持未退役事实，不能把 cancel 或 wrapper 关闭标记当资源 join。

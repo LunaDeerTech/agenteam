@@ -57,7 +57,7 @@ func New(store Store, deps Dependencies) (*Service, error) {
 			return nil, fault(f.DependencyUnbound)
 		}
 	}
-	if !deps.Events.Valid() {
+	if !deps.Events.Valid() || deps.Processes.CurrentProcess().Validate() != nil {
 		return nil, fault(f.DependencyUnbound)
 	}
 	if deps.Cursors.Validate() != nil || deps.Confirmations.Validate() != nil {
