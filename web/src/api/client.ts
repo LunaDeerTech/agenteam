@@ -638,6 +638,9 @@ export const auditFilterActions = [
   'model.delete',
   'model.selection.update',
   'knowledge.delete_subtree',
+  'project.secret_variable.create',
+  'project.secret_variable.update',
+  'project.secret_variable.delete',
 ] as const
 export const auditFilterResourceKinds = [
   'secret',
@@ -665,6 +668,7 @@ export const auditFilterResourceKinds = [
   'model_config',
   'model_selection',
   'knowledge_document',
+  'project_variable',
 ] as const
 export const auditFilterFields = [
   'from',

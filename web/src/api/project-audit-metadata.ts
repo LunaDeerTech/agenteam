@@ -336,6 +336,21 @@ const parsers = {
     version,
     changed_fields: exactFields(['deleted'] as const),
   }),
+  'project.secret_variable.create': record({
+    variable_id: auditID,
+    version,
+    changed_fields: exactFields(['created'] as const),
+  }),
+  'project.secret_variable.update': record({
+    variable_id: auditID,
+    version,
+    changed_fields: fields(['description', 'name', 'value'] as const),
+  }),
+  'project.secret_variable.delete': record({
+    variable_id: auditID,
+    version,
+    changed_fields: exactFields(['deleted'] as const),
+  }),
   'knowledge.delete_subtree': record({
     project_id: auditID,
     root_id: auditID,
@@ -489,7 +504,10 @@ export function validateProjectAuditRelations(
   if (
     entry.action === 'project.variable.create' ||
     entry.action === 'project.variable.update' ||
-    entry.action === 'project.variable.delete'
+    entry.action === 'project.variable.delete' ||
+    entry.action === 'project.secret_variable.create' ||
+    entry.action === 'project.secret_variable.update' ||
+    entry.action === 'project.secret_variable.delete'
   ) {
     requireAudit(
       actor.kind === 'human' &&
@@ -498,7 +516,8 @@ export function validateProjectAuditRelations(
         same('project_variable', entry.metadata.variable_id),
     )
     requireAudit(
-      entry.action === 'project.variable.create'
+      entry.action === 'project.variable.create' ||
+        entry.action === 'project.secret_variable.create'
         ? entry.metadata.version === '1'
         : BigInt(entry.metadata.version) >= 2n,
     )
