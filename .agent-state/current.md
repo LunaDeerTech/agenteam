@@ -4,14 +4,14 @@
 
 - 作者：`/root/model_delivery/independent_acceptance`，已由旧 Model 独验角色转为本卡 SPEC 与后续实现作者；不能独立验收自己的实现。
 - 交接树/分支/基线：`/workspace/agenteam-project-initialization` / `ai/project-initialization` / 正式 main `f1c94ee5`（父/root 交接事实；本人未执行 Git）。
-- 当前阶段：rev0 SPEC 已由 model_delivery 独立有限审查接受、root 已授四新 Go 源实施。wrapper + pure 测试形成首个可构建片段；两个 integration 新源待补，PG 未运行。
+- 当前阶段：rev0 SPEC 已由 model_delivery 独立有限审查接受；四新Go源完成，作者离线pure/race/vet/编译通过。真实Facts与TransactionBoundary两个top已完整PASS，Delegation与独立产品验收待运行。
 - 核心范围：`NewInitializationAuditAuthority(*Authority, audit.ProjectFactAuthority)`；初始化三个 Object Audit action 的同 Store 活 Tx/Project EX/Project-Creation-owner-状态事实，随后原 ctx/Tx/Entry/Key 委托完整上游 facts。普通四口保持原行为。
 - 关键区分：ObjectService Audit Actor cause 是 UploadID/AttemptID/delete digest；CreationID 在 typed Service initiator metadata。Entry 没有 initialization key 参数；真实 Skill provider 必须用自己的原请求/key 调原 Project gate，再组合既有 Object 私有 witness checker。当前真实 Skill mapping provider 不存在，非 nil 接口/受控 delegate 不能证明生产组合；本库不接根或创建 HTTP，不称 Skills/Object 发布可用。
 - 已读：本树 AGENTS、团队 README、architecture/backend/documentation profiles；design、Go、test-engineering、documentation、database 技能；D10 初始化设计、D08 Owner/收敛卡及验收，实际 Project/Audit/Object 接口与真实 PG fixture。
 - 唯一后继写域：新 `internal/central/project/initialization_audit.go`、`initialization_audit_test.go`；新 `tests/project/initialization_audit_fixture_test.go`、`initialization_audit_test.go`；本卡/current；完整验收后的 backend README 必要事实。不改旧 audit_facts、共享契约、Skill/app/Object 停止源或迁移；00024 已留 ProjectVariables。
 - 当前禁止 Git、新子席、network/socket/PG/browser/真实资源；离线 Go 编译/作者纯测已授权，Git 与资源由 `/root` 协调。SPEC/阶段冻结同时报 `/root` 和 `/root/model_delivery`。模型 astra ultra；priority 不可证。
-- 验证边界：planned pure/race/真实 PG 与独立补集均未执行；真实 PG Project facts + controlled delegate 与真实 Object 缺 witness 负控分别计证，不造真 Skill 正向。Object Runtime join 停止项保持。
-- 下一步：冻结首个可构建片段交 root 保存，继续两个新 integration 源和必要离线验证；真实窗另候明确授权。不回旧 Model 工作或修改其源/卡/诊断。
+- 验证边界：作者检查及两个PG top已完成，Delegation中的真实Object缺witness负控与独立补集仍待运行。真实 PG Project facts + controlled delegate 与真实 Object 缺 witness 负控分别计证，不造真 Skill 正向。Object Runtime join 停止项保持。
+- 下一步：冻结本次card/current交root保存，freshgrant后运行Delegation；随后独立产品静审/真实PG补集与最终README。不回旧 Model 工作或修改其源/卡/诊断。
 
 ## 首个实现片段（2026-10-09）
 
@@ -43,3 +43,10 @@
 - Go2.57s/26子例PASS，Go538098 Wait0/driver536678 Wait0，未有adopted；完整72.323s，1PG+1network双absent、desc2空、私有凭据与CA私钥退休（只留owned.json）、HOST_TCP2空、inputs unchanged。安全原件`pg/pg-bee9d7b19c6b4f80b22ac79400bbc0a5.log`，全局窗已交root。
 - 下一精确selector `^TestProjectInitializationAuditTransactionBoundary$`，随后 `^TestProjectInitializationAuditDelegation$`，同以上命令仅换run参数；四Go源/race binary/已独审supervisor均未变，无需重编或重复pure，freshgrant前不运行。
 - 剩余两top、产品独立静审/真实PG补集、最终README未完成；当前只是作者首top，不称真Skills/Object初始化或整卡通过。
+
+## 作者第二个真实PG完整终态（2026-10-09）
+
+- root已将首Facts记录eac8ac15实际push；随后freshgrant本人执行同一命令，仅`--run '^TestProjectInitializationAuditTransactionBoundary$'`，session45958 actualouter0。
+- Go2.63s/9子例PASS；Go545940 Wait0、driver544736 Wait0/13.985747582s，无adopted。完整73.381s；container4890f13543e16171cd8eae30504955b54c4aee3ee9c09705a6dd526526de49a3与network0dd6acb6a4fd7fa23bb7768f538361eedfa91560c8f8bca60c9d06258e8c85d9两次exact absent，desc2空、私密退休（仅owned.json）、TCP2空、inputs unchanged。安全原件`pg/pg-1353338f9d774bc4bb30861b685d7424.log`；全局窗口已先交root。
+- 实际门槛包括无锁/SH/错Project锁、foreign/ended Tx、取消/Store关闭拒绝；同Project另连接SH/EX实际阻塞，wrapper返回不释放caller EX，caller释放后waiter完成。没有新源/输入变化，无需重编或重复pure。
+- 下一精确selector只剩`^TestProjectInitializationAuditDelegation$`，其余driver/binary/supervisor/原105+15、123+3、75TCP、5GiB、1PG+1network保持；等root freshgrant才启动。产品独立静审/真实PG补集、最终README仍未完成，作者两top不等于本卡或生产发布接受。

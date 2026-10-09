@@ -104,7 +104,7 @@ ObjectDelete 不是任意对象删除许可；失败收敛不能发起新的 Res
 
 ## 6. 验收矩阵与证据分层
 
-**以下均是待执行计划。** 不以历史 Object/Convergence 验收或接口 fake 代替本库实际结果。
+以下为验收要求，实际执行状态见 §7。不以历史 Object/Convergence 验收或接口 fake 代替本库实际结果。
 
 ### 6.1 离线纯检查
 
@@ -137,7 +137,7 @@ ObjectDelete 不是任意对象删除许可；失败收敛不能发起新的 Res
 
 ## 7. 恢复与当前状态
 
-SPEC 已由未参与其实现的 model_delivery 独立有限审查接受，无 must-fix，root 已授权四新 Go 源持续实施。当前 wrapper 与纯测试已落盘；作者离线检查和后续真实 PG 的实际结果分别记录在本树 current，不把中间编译或纯测试当产品独立验收。原首次依赖缓存缺失、冷构建超时和测试编译/预期错误保留，不回填。尚未运行 PG/browser/网络或执行 Git，生产绑定仍缺真实 Skill provider。后续持续完成四新源、实际验证及 README；真实资源另等明确交窗。
+SPEC 已由未参与其实现的 model_delivery 独立有限审查接受，无 must-fix，root 已授权四新 Go 源持续实施。四新源已完成；作者离线检查与真实 PG 的实际结果分别记录在本树 current，不把作者检查当产品独立验收。原首次依赖缓存缺失、冷构建超时和测试编译/预期错误保留，不回填。生产绑定仍缺真实 Skill provider。后续持续完成剩余实际验证、独立验收及 README；每个真实资源窗另等明确交接。
 
 ### 作者当前实际结果（2026-10-09）
 
@@ -145,4 +145,6 @@ SPEC 已由未参与其实现的 model_delivery 独立有限审查接受，无 m
 
 `TestProjectInitializationAuditFacts` 首轮由作者本人实际执行：session64065 outer exit0，Go 2.57s、26子例全部通过，完整72.323s。Go/driver实际Wait0，无adopted残留，owned descendants两空；1PG容器+1nonce network两ID双absent，私有凭据/CA私钥已删除（目录仅留安全owned.json），TCP两空、driver/binary inputs unchanged。原始安全日志：`output/ai/project-initialization-audit/pg/pg-bee9d7b19c6b4f80b22ac79400bbc0a5.log`。窗口已向root释放。
 
-本轮只证明真实 Project/Creation 状态/原key/owner/事务中的授权调用门槛及受控 delegate 契约，不能推成真Skill/Object发布。`TestProjectInitializationAuditTransactionBoundary`、`TestProjectInitializationAuditDelegation` 和未参与者独立产品/PG补集仍待实际运行；不标本卡完成，不用旧验收顶替。下一top保持同一四Go源、race binary与已独审supervisor，等root freshgrant。
+`TestProjectInitializationAuditTransactionBoundary` 首轮由作者本人实际执行：session45958 outer exit0，Go 2.63s、9子例全部通过，完整73.381s。覆盖无锁/SH/错Project锁、foreign/ended Tx、取消/关闭Store拒绝，并用两个真实PG连接证明 wrapper 返回后原EX仍阻塞SH/EX，直到调用方释放。Go/driver实际Wait0，无adopted残留，desc两空；两ID双absent、私密退休（目录仅owned.json）、TCP两空、inputs unchanged。原始安全日志：`output/ai/project-initialization-audit/pg/pg-1353338f9d774bc4bb30861b685d7424.log`。窗口已向root释放。
+
+以上只证明真实 Project/Creation 状态/原key/owner/事务中的授权调用门槛及受控 delegate 契约，不能推成真Skill/Object发布。`TestProjectInitializationAuditDelegation` 和未参与者独立产品/PG补集仍待实际运行；不标本卡完成，不用旧验收顶替。下一top保持同一四Go源、race binary与已独审supervisor，等root freshgrant。
