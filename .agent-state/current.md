@@ -62,3 +62,5 @@
 
 - c58e5652之后作者c32d1e与Runner独立fda84b均确认另一方法回归：candidate安装不可用／5s超时会抢先拒绝原normal Promise，不能保原45s内正常finished路径。root授权的一行修复只把candidate失败交回同一已登记normal Promise；不新调用finished／请求／预算，正常拒绝仍FAIL，candidate一旦ready后原end／owner门槛不绕过。10694→d21416实际0，adapter23／unhandled0，新增直接提取实际normal+completion初值的四控（unavailable、timeout、原normal拒绝、403不启candidate）；其余控制复用。当前authority＋adapter＋本文三路径冻结待保存和Runner复核。
 - Audit readiness2278f1只读确认两个旧exact top／正式Go函数／原env与继承PATH、四非法selector拒绝；现d8c binary与dist不重编／不重跑发现。两Audit只共享D27卡、binary/helpers/dist/owned_resources及其本域regression脚手架／Audit spec/client/schema，不读取Resolve case或nativeprobe。MinIO symlink被原frozen_inputs普通文件门槛拒绝的风险已报root，root负责转为同固定产物普通hardlink；未获实际窗口。
+
+- Runner对稳定81b606a9整体方法实现的限定独审已完成，无remaining must-fix：d0c1e7 actual0＝23 adapter＋6 beforePublish；9b69c7 actual0＝19真实controller/client/workspace/View/native与锁定PW转换（layout／transport为明确替身），均unhandled0；0f81f6独立四控actual0覆盖六原Promise之一未settle、close后returnedError、安全投影、candidate失败后原拒绝传播及candidate继续后早拒绝不能吞。原fda84b红→dfbadf绿保留，独审未改作者源。只接受离线实现就绪，真实新main authority／原054未通过，35073及49546缺口不回填。D27卡、源码、产物继续freeze，本文唯一记录增量待root安全保存。
