@@ -1,6 +1,6 @@
 # D27 Model UI：main 集成准备
 
-只读核对基线：正式 main `3cea6076bb01693ead2755826826d189626aa3aa`；Model 单点 cast 已保存于 `38fdae31`，候选为 `account-reference-cast.test`，SHA `54e2a068faeb06cb1fbe9759dbefc00d695475858eaa582dc09c9ba6e1bca1f4`。这是待执行清单：authority18 完整 FAIL，authority19 未执行，仍新 5/6、旧 14/14、独立 A/B 已接受；不宣布整卡或新 main 组合通过。root 负责创建正式 main 基线独立交付树、Git 与最终推广。
+只读核对基线：正式 main `3cea6076bb01693ead2755826826d189626aa3aa`；Model 单点 cast 已保存于 `38fdae31`，候选为 `account-reference-cast.test`，SHA `54e2a068faeb06cb1fbe9759dbefc00d695475858eaa582dc09c9ba6e1bca1f4`。这是待执行的 main 集成清单：authority18 完整 FAIL 保留；authority19 的52868已按原门槛完整PASS／全尾退出0，原冻结组合现新6/6、旧14/14、独立A/B已接受；不宣布整卡或新 main 组合通过。root 负责创建正式 main 基线独立交付树、Git 与最终推广。
 
 ## 精确差异与保留范围
 
@@ -42,7 +42,7 @@ main 的普通 Variables 后端已交付，当前活动树尚未包含以下增�
 
 ## 新组合验证条件与执行顺序
 
-1. 先等待 authority19 在原冻结 delivery11c／迁移≤22／原资产组合获得完整实际结果。候选编译、独审和推广都不能替代它，失败继续保留原门槛。
+1. authority19 已在原冻结 delivery11c／迁移≤22／原资产组合取得完整实际PASS（52868，Go39.54秒／outer128.596秒）；固定54e2，原0906与53f备份保留。前18轮失败仍保留。此项已满足继续 main 整合的原组合前置，不代替新 main 验证。
 2. root 创建 main3cea 的独立交付树后，只装上述五测试路径、三个限定恢复目录和必要文档。保留 main 的 migrations23／24、Variables／Work root 装配与 Audit 安全投影；不得复制旧 delivery 的 Go／schema／资产来模拟新 main。
 3. 调整新树执行路径后再预飞。当前四文件写死旧 `/workspace/agenteam-delivery`：recovery 的 `run-owned-top.py`、`fixture-go.py`，regression 的 `run-owned-regression.py`，independent 的 `run-independent.py`。新交付只能明确绑定 root 创建的新 Go 树；旧11c驱动／binary／证据继续原位保留。路径调整需原 exact selector／预算／七资源／实际 Wait 与输入同一控制，不能无意继续运行旧二进制。
 4. 新树重新 race 编译 account fixture、精确发现六新 top；如运行独立 A/B，按其原 overlay 再构建本版本。原54e候选只属于11c组合，不作为main二进制。native bundle 可从实际源重建；资产必须从新 main web 生成到新树自有输出，不能覆盖当前 Model 私有 dist 或其它任务 web/dist。
