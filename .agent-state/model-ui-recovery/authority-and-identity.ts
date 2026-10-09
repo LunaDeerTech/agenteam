@@ -1,7 +1,7 @@
-import { expect, test, type Locator, type Page, type Request, type Response, type TestInfo } from '../../tests/account-captcha-web/node_modules/@playwright/test/index.js';
+import { expect, test, type Locator, type CDPSession, type Page, type Request, type Response, type TestInfo } from '../../tests/account-captcha-web/node_modules/@playwright/test/index.js';
 import { createHash, randomUUID } from 'node:crypto';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import type { ConfigCredentialSnapshot as Snapshot } from './configuration-and-credential';
 
@@ -229,10 +229,102 @@ function resolveSnapshot(value: unknown): Record<string, boolean | number | stri
   return native;
 }
 
+type RestoreOwner = { userID: string; sessionID: string };
+type SessionBinding = { asset: string; export_name: string; entry: string };
+// Runs in the existing page. It observes the existing singleton and fetch;
+// it neither constructs a controller nor consumes a response body.
+async function installRestoreOwnerObservation({ binding, expected, slot, expiresAt }: { binding: SessionBinding; expected: RestoreOwner; slot: string; expiresAt: number }) {
+  const host = window as any;
+  const loaded = (path: string) => performance.getEntriesByName(new URL(path, location.origin).href).length > 0;
+  if (Date.now() > expiresAt || !loaded(binding.entry) || !loaded(binding.asset) || host.__authorityRestoreOwner) return false;
+  const module = await (new Function('path', 'return import(path)'))(binding.asset);
+  if (Date.now() > expiresAt || typeof module[binding.export_name] !== 'function') return false;
+  const auth = module[binding.export_name]();
+  if (auth !== module[binding.export_name]() || auth?.state?.phase !== 'authenticated' || auth.state.busy !== false || typeof auth.restore !== 'function') return false;
+  if (host.__projectModelsProbe.sessionBegin(slot, expiresAt, undefined, true) !== true) return false;
+  const originalFetch = window.fetch, originalRestore = auth.restore, base = performance.now();
+  let disposed = false, action = false, active = false, requestID: string | null = null;
+  let pendingObservations = 0, hooksRetired = false;
+  const facts = { action_calls: 0, restore_calls: 0, owned_restore_calls: 0, session_requests: 0, owned_session_requests: 0, response_headers: 0, restore_settled: false, restore_rejected: false, restore_threw: false, entry_authenticated: false, entry_not_busy: false, authenticated: false, not_busy: false, user_matches: false, session_matches: false, observer_failed: false };
+  const timing: Record<string, number | null> = { action: null, restore_enter: null, request: null, headers: null, restore_settled: null, state_sample: null };
+  const safe = (work: () => void) => { try { work(); } catch { facts.observer_failed = true; } };
+  const at = (key: string) => { timing[key] ??= performance.now() - base; };
+  const observe = (promise: Promise<unknown>, fulfilled: (value: any) => void, rejected: () => void) => {
+    pendingObservations++;
+    void promise.then(value => { if (!disposed) safe(() => fulfilled(value)); }, () => { if (!disposed) safe(rejected); })
+      .catch(() => { if (!disposed) facts.observer_failed = true; }).then(() => { pendingObservations--; });
+  };
+  const fetcher: typeof fetch = (...args) => {
+    const pending = Reflect.apply(originalFetch, window, args);
+    safe(() => {
+      const [input, init] = args, url = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url, location.origin);
+      const method = init?.method ?? (input instanceof Request ? input.method : 'GET');
+      if (url.origin !== location.origin || url.pathname !== '/api/v1/session' || url.search || method !== 'GET') return;
+      facts.session_requests++;
+      if (!active) return;
+      facts.owned_session_requests++; at('request');
+      observe(pending, response => { facts.response_headers++; at('headers'); if (facts.response_headers === 1 && response.status === 200) requestID = response.headers.get('X-Request-ID'); }, () => { facts.observer_failed = true; });
+    });
+    return pending;
+  };
+  const retireHooks = () => {
+    if (hooksRetired) return;
+    hooksRetired = true;
+    if (window.fetch === fetcher) window.fetch = originalFetch; else facts.observer_failed = true;
+    if (auth.restore === restore) auth.restore = originalRestore; else facts.observer_failed = true;
+  };
+  const restore = function(this: unknown, ...args: unknown[]) {
+    let owned = false;
+    safe(() => {
+      facts.restore_calls++;
+      owned = action;
+      if (!owned) return;
+      facts.owned_restore_calls++; at('restore_enter');
+      facts.entry_authenticated = auth.state.phase === 'authenticated'; facts.entry_not_busy = auth.state.busy === false;
+      active = true;
+    });
+    let pending: Promise<unknown>;
+    try { pending = Reflect.apply(originalRestore, this, args); }
+    catch (error) { if (owned) safe(() => { facts.restore_threw = true; active = false; retireHooks(); }); throw error; }
+    if (owned) safe(() => observe(pending, () => {
+      facts.restore_settled = true; at('restore_settled');
+      facts.authenticated = auth.state.phase === 'authenticated'; facts.not_busy = auth.state.busy === false;
+      facts.user_matches = auth.state.user?.id === expected.userID; facts.session_matches = auth.state.session?.id === expected.sessionID;
+      at('state_sample'); active = false; retireHooks();
+    }, () => { facts.restore_settled = true; facts.restore_rejected = true; at('restore_settled'); active = false; retireHooks(); }));
+    return pending;
+  };
+  window.fetch = fetcher; auth.restore = restore;
+  host.__authorityRestoreOwner = {
+    action(begin: boolean) { if (disposed) return; action = begin; if (begin) { facts.action_calls++; at('action'); } else if (facts.owned_restore_calls === 0) retireHooks(); },
+    finish(expectedID: string | null) {
+      retireHooks();
+      const requestMatch = !!requestID && requestID === expectedID;
+      const result = { ...facts, pending_observations: pendingObservations, request_id_match: requestMatch,
+        completion_upper_bound: requestMatch && facts.action_calls === 1 && facts.restore_calls === 1 && facts.owned_restore_calls === 1 && facts.session_requests === 1 && facts.owned_session_requests === 1 && facts.response_headers === 1 && facts.entry_authenticated && facts.entry_not_busy && facts.restore_settled && !facts.restore_rejected && !facts.restore_threw && !facts.observer_failed && facts.authenticated && facts.not_busy && facts.user_matches && facts.session_matches && pendingObservations === 0,
+        clock: 'browser-monotonic-observed-relative-to-install', timing: { ...timing } };
+      disposed = true; active = false; action = false; requestID = null; expected = { userID: '', sessionID: '' };
+      delete host.__authorityRestoreOwner;
+      return result;
+    },
+  };
+  return true;
+}
+function restoreOwnerProjection(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const row = value as Record<string, unknown>;
+  const counts = ['action_calls', 'restore_calls', 'owned_restore_calls', 'session_requests', 'owned_session_requests', 'response_headers', 'pending_observations'];
+  const flags = ['restore_settled', 'restore_rejected', 'restore_threw', 'entry_authenticated', 'entry_not_busy', 'authenticated', 'not_busy', 'user_matches', 'session_matches', 'observer_failed', 'request_id_match', 'completion_upper_bound'];
+  const stages = ['action', 'restore_enter', 'request', 'headers', 'restore_settled', 'state_sample'];
+  const times = row.timing as Record<string, unknown> | undefined;
+  if (Object.keys(row).length !== counts.length + flags.length + 2 || !counts.every(key => Number.isSafeInteger(row[key]) && Number(row[key]) >= 0) || !flags.every(key => typeof row[key] === 'boolean') || row.clock !== 'browser-monotonic-observed-relative-to-install' || !times || Object.keys(times).length !== stages.length || !stages.every(key => times[key] === null || typeof times[key] === 'number' && Number.isFinite(times[key]) && Number(times[key]) >= 0)) return null;
+  return { ...Object.fromEntries([...counts, ...flags].map(key => [key, row[key]])), clock: row.clock, timing: Object.fromEntries(stages.map(key => [key, times[key]])) };
+}
+
 type ResponseDiagnosticTarget = { kind: 'session' } | { kind: 'resolve'; username: string; project_name: string };
 // Both targets remain outside the Model operation whitelist. They share one
 // evaluate owner and sampler, observing only the original selected response.
-async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTarget, artifact: 'authority-resolve-diagnostic.json' | 'independent-b-session-diagnostic.json' | 'authority-session-response-diagnostic.json') {
+async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTarget, artifact: 'authority-resolve-diagnostic.json' | 'independent-b-session-diagnostic.json' | 'authority-session-response-diagnostic.json', restoreOwner?: RestoreOwner) {
   // All times below are Node observations relative to this invocation, not
   // browser EOF times or the beginning of Playwright's overall test budget.
   const timeOrigin = performance.now();
@@ -250,7 +342,15 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
   const pageClosed = () => { try { pageClose ??= mark(); } catch {} };
   const contextClosed = () => { try { contextClose ??= mark(); } catch {} };
   const context = page.context();
-  const slot = randomUUID(), expiresAt = Date.now() + 250;
+  let ownerBinding: SessionBinding | undefined;
+  if (restoreOwner) {
+    try {
+      const root = resolve(process.env.AGENTEAM_PROJECT_MODELS_WEB_DIST!, '../../../..');
+      const selector = await (new Function('path', 'return import(path)'))(join(root, '.agent-state/model-ui-recovery/session-controller-binding.mjs'));
+      ownerBinding = await selector.loginOwnerModule(root);
+    } catch { /* A missing/ambiguous singleton cannot supply a witness. */ }
+  }
+  const slot = randomUUID();
   const kind = target.kind;
   let active = false, selected: Response | undefined, requestID: string | null = null;
   let beforeAction = 0, afterAction = 0;
@@ -263,6 +363,33 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
     catch { return null; }
     finally { if (timer !== undefined) clearTimeout(timer); }
   };
+  let ownerCDP: CDPSession | undefined, ownerCDPReady = false, ownerStopped = false, ownerCapExceeded = false;
+  const ownerRows = new Map<string, { id: string | null; request: Mark; response: Mark | null; finished: Mark | null; failed: Mark | null; aborted: boolean; canceled: boolean }>();
+  const cdpSent = (event: any) => { try {
+    if (ownerStopped || event.request.url !== new URL('/api/v1/session', page.url()).href || event.request.method !== 'GET') return;
+    if (ownerRows.size >= 4 || ownerRows.has(event.requestId)) { ownerCapExceeded = true; return; }
+    ownerRows.set(event.requestId, { id: null, request: mark(), response: null, finished: null, failed: null, aborted: false, canceled: false });
+  } catch { ownerCapExceeded = true; } };
+  const cdpResponse = (event: any) => { try {
+    const row = ownerRows.get(event.requestId); if (!row || ownerStopped) return;
+    const values = Object.entries(event.response.headers).filter(([key]) => key.toLowerCase() === 'x-request-id');
+    row.id = values.length === 1 && typeof values[0]![1] === 'string' ? values[0]![1] : null; row.response = mark();
+  } catch { ownerCapExceeded = true; } };
+  const cdpFinished = (event: any) => { try { const row = ownerRows.get(event.requestId); if (row && !ownerStopped) row.finished ??= mark(); } catch {} };
+  const cdpFailed = (event: any) => { try { const row = ownerRows.get(event.requestId); if (row && !ownerStopped) { row.failed ??= mark(); row.aborted = event.errorText === 'net::ERR_ABORTED'; row.canceled = event.canceled === true; } } catch {} };
+  const ownerListeners = [['Network.requestWillBeSent', cdpSent], ['Network.responseReceived', cdpResponse], ['Network.loadingFinished', cdpFinished], ['Network.loadingFailed', cdpFailed]] as const;
+  if (restoreOwner) {
+    const deadline = Date.now() + 250;
+    await bounded(async () => {
+      const cdp = await context.newCDPSession(page); ownerCDP = cdp;
+      if (ownerStopped || Date.now() > deadline) { await cdp.detach(); return; }
+      for (const [name, listener] of ownerListeners) cdp.on(name, listener);
+      await cdp.send('Network.enable');
+      if (ownerStopped || Date.now() > deadline) { for (const [name, listener] of ownerListeners) cdp.off(name, listener); await cdp.detach(); return; }
+      ownerCDPReady = true;
+    });
+  }
+  const expiresAt = Date.now() + 250;
   const candidate = (request: Request) => {
     const url = new URL(request.url());
     return url.origin === new URL(page.url()).origin && url.pathname === (kind === 'session' ? '/api/v1/session' : '/api/v1/projects/resolve');
@@ -284,7 +411,7 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
   page.on('request', requested); page.on('requestfinished', completed); page.on('requestfailed', rejected);
   page.on('close', pageClosed); context.on('close', contextClosed);
   let beginning: Promise<unknown>;
-  try { beginning = resolveEvaluate(page, () => page.evaluate(({ slot, expiresAt, target }) => {
+  try { beginning = resolveEvaluate(page, () => restoreOwner && ownerBinding ? page.evaluate(installRestoreOwnerObservation, { binding: ownerBinding, expected: restoreOwner, slot, expiresAt }) : page.evaluate(({ slot, expiresAt, target }) => {
     const probe = (window as any).__projectModelsProbe;
     return target.kind === 'session' ? probe.sessionBegin(slot, expiresAt, undefined, true) : probe.resolveBegin(slot, expiresAt, { username: target.username, project_name: target.project_name });
   }, { slot, expiresAt, target })); }
@@ -316,20 +443,21 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
         const sampling = await sampler.stop();
         // A bounded join timeout does not retire the underlying evaluate.
         // Never overlap it with a second evaluate, including diagnostic end.
-        const value: unknown = sampling.sample_joined ? await bounded(() => resolveEvaluate(page, () => page.evaluate(({ slot, requestID, kind }) => {
+        const value: unknown = sampling.sample_joined ? await bounded(() => resolveEvaluate(page, () => page.evaluate(({ slot, requestID, kind, observeOwner }) => {
           const probe = (window as any).__projectModelsProbe;
           if (kind === 'resolve') return probe.resolveEnd(slot, requestID);
           const snapshot = probe.sessionSnapshot(slot, requestID);
           probe.sessionEnd(slot, requestID);
-          return snapshot;
-        }, { slot, requestID, kind }))) : null;
-        const final = resolveSnapshot(value);
+          return observeOwner ? { native: snapshot, owner: (window as any).__authorityRestoreOwner?.finish(requestID) ?? null } : snapshot;
+        }, { slot, requestID, kind, observeOwner: !!restoreOwner }))) : null;
+        const owner = restoreOwnerProjection(restoreOwner && value && typeof value === 'object' ? (value as any).owner : null);
+        const final = resolveSnapshot(restoreOwner && value && typeof value === 'object' ? (value as any).native : value);
         if (final !== null) { latest = final; latestID = requestID; snapshotSource = 'end'; }
-        if (!failure) return;
+        if (!failure && !restoreOwner) return;
         const native = latest;
         const request = selected?.request(), error = request?.failure()?.errorText;
         const pwFailure = error === undefined ? 'none' : error === 'net::ERR_ABORTED' ? 'aborted' : error === 'net::ERR_CONNECTION_RESET' ? 'reset' : error === 'net::ERR_CONNECTION_CLOSED' ? 'closed' : 'other';
-        writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, artifact), JSON.stringify({
+        const projection = {
           protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH,
           request_kind: kind,
           diagnostic: native === null ? 'unavailable' : 'captured', pw_candidates_before_action: beforeAction,
@@ -348,9 +476,27 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
             pw_failed_test_status: request ? failedTimes.get(request)?.test_status ?? 'unknown' : 'unknown',
             original_finished_wait_rejected: waitRejected, page_close_notification: pageClose,
             context_close_notification: contextClose, projection_recorded: mark() },
-        }), { mode: 0o600 });
+        };
+        if (failure) writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, artifact), JSON.stringify(projection), { mode: 0o600 });
+        if (restoreOwner) {
+          const matches = requestID ? [...ownerRows.values()].filter(row => row.id === requestID) : [];
+          const sameRequest = projection.snapshot_selected_bound && projection.pw_request_match && projection.pw_selected_target_match && projection.pw_status === 200 && beforeAction === 0 && afterAction === 1;
+          const cdpBound = ownerCDPReady && !ownerCapExceeded && ownerRows.size === 1 && matches.length === 1;
+          const cdp = cdpBound ? { request: matches[0]!.request, response: matches[0]!.response, finished: matches[0]!.finished, failed: matches[0]!.failed, aborted: matches[0]!.aborted, canceled: matches[0]!.canceled } : null;
+          writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-credential-session-consumption.json'), JSON.stringify({
+            ...projection, restore_owner: owner, cdp_ready: ownerCDPReady, cdp_candidates: ownerRows.size, cdp_cap_exceeded: ownerCapExceeded, cdp_selected_bound: cdpBound, cdp,
+            // This is a production consumption/publication completion bound,
+            // not a replacement for the original finished/JSON/identity gates.
+            consumption_publication_evidence_complete: sameRequest && cdpBound && final !== null && native?.eof_before_interruption === true && native.content_length_comparable === true && native.content_length_matches_eof === true && owner?.completion_upper_bound === true,
+          }), { mode: 0o600 });
+        }
       } catch { /* Missing diagnostic evidence must preserve the original error. */ }
-      finally { page.off('request', requested); page.off('requestfinished', completed); page.off('requestfailed', rejected); page.off('close', pageClosed); context.off('close', contextClosed); }
+      finally {
+        ownerStopped = true;
+        if (ownerCDP) { for (const [name, listener] of ownerListeners) ownerCDP.off(name, listener); await bounded(() => ownerCDP!.detach()); }
+        ownerRows.clear();
+        page.off('request', requested); page.off('requestfinished', completed); page.off('requestfailed', rejected); page.off('close', pageClosed); context.off('close', contextClosed);
+      }
     },
   };
 }
@@ -358,8 +504,8 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
 async function beginResolveDiagnostic(page: Page, project: Project) {
   return beginResponseDiagnostic(page, { kind: 'resolve', username: project.username, project_name: project.normalized_name }, 'authority-resolve-diagnostic.json');
 }
-export async function beginSessionResponseDiagnostic(page: Page, mode: 'independent-b' | 'authority' = 'independent-b') {
-  return beginResponseDiagnostic(page, { kind: 'session' }, mode === 'authority' ? 'authority-session-response-diagnostic.json' : 'independent-b-session-diagnostic.json');
+export async function beginSessionResponseDiagnostic(page: Page, mode: 'independent-b' | 'authority' = 'independent-b', restoreOwner?: RestoreOwner) {
+  return beginResponseDiagnostic(page, { kind: 'session' }, mode === 'authority' ? 'authority-session-response-diagnostic.json' : 'independent-b-session-diagnostic.json', restoreOwner);
 }
 
 // Session bodies remain private in this call. Only the formal safe identity is
@@ -373,8 +519,8 @@ async function sessionStage<T>(work: Promise<T>, code: SessionStageCode) {
     })]);
   } finally { if (timer !== undefined) clearTimeout(timer); }
 }
-async function sessionIdentity(page: Page, action: () => Promise<void>, step: (name: string) => void, wait: AuthorityAwait) {
-  const diagnostic = await wait('authority-session-identity-begin-session-diagnostic-005', () => beginSessionResponseDiagnostic(page, 'authority').catch(() => null));
+async function sessionIdentity(page: Page, action: () => Promise<void>, step: (name: string) => void, wait: AuthorityAwait, restoreOwner?: RestoreOwner) {
+  const diagnostic = await wait('authority-session-identity-begin-session-diagnostic-005', () => beginSessionResponseDiagnostic(page, 'authority', restoreOwner).catch(() => null));
   let diagnosticFailed = false;
   let selected: Request | undefined;
   const observation = { headers_seen: false, finished_event: false, failed_event: false };
@@ -419,7 +565,12 @@ async function sessionIdentity(page: Page, action: () => Promise<void>, step: (n
     });
   }
 }
-async function pageshow(page: Page, wait: AuthorityAwait) { await wait('authority-pageshow-evaluate-011', () => page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow')))); }
+async function pageshow(page: Page, wait: AuthorityAwait, observeOwner = false) { await wait('authority-pageshow-evaluate-011', () => observeOwner ? page.evaluate(() => {
+  const owner = (window as any).__authorityRestoreOwner;
+  try { owner?.action(true); } catch { /* Observation cannot replace pageshow. */ }
+  try { return dispatchEvent(new PageTransitionEvent('pageshow')); }
+  finally { try { owner?.action(false); } catch {} }
+}) : page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow')))); }
 async function privateLogin(page: Page, actor: Actor, wait: AuthorityAwait) {
   await wait('authority-private-login-to-be-visible-012', () => expect(page.locator('#login-email')).toBeVisible());
   try { await wait('authority-private-login-fill-013', () => page.locator('#login-email').fill(actor.email)); await wait('authority-private-login-fill-014', () => page.locator('#login-password').fill(actor.password)); }
@@ -767,7 +918,7 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   const credentialCommitted = await wait('authority-flow-snapshot-151', () => harness.snapshot('credential_recovery')); harness.durableDelta(credentialBefore, credentialCommitted, 0, 1);
   const credentialArchived = await wait('authority-flow-ipc-152', () => harness.ipc({ action: 'archive-recovery-project', args: { project: 'credential_recovery', expected_version: credentialCommitted.project.version } }));
   need(credentialArchived.project_id === projects.credential_recovery.id && credentialArchived.lifecycle === 'archived' && credentialArchived.fixture_only === true, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_INVALID');
-  const credentialSession = await wait('authority-flow-session-identity-153', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
+  const credentialSession = await wait('authority-flow-session-identity-153', () => sessionIdentity(page, () => pageshow(page, wait, true), harness.step, wait, { userID: ownerSession.userID, sessionID: ownerSession.sessionID }));
   need(credentialSession.sessionID === ownerSession.sessionID, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_SESSION_CHANGED');
   await wait('authority-flow-reread-154', () => reread(projects.credential_recovery)); credential = credentialDialog();
   await wait('authority-flow-to-be-disabled-155', () => expect(button(credential, '按原请求重放')).toBeDisabled()); await wait('authority-flow-to-be-disabled-156', () => expect(button(credential, '创建凭据')).toBeDisabled());

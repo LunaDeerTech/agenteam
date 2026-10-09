@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { lstat, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { build } from '../../web/node_modules/vite/dist/node/index.js';
 import { rolldown } from '../../web/node_modules/rolldown/dist/index.mjs';
+import { loginOwnerModule } from './session-controller-binding.mjs';
 
 const source = fileURLToPath(import.meta.url), root = resolve(dirname(source), '../..');
 const output = join(root, 'output/ai/model-ui-session-probe');
@@ -223,40 +224,6 @@ function installLoginActionConsumer(createAccountAPI) {
   };
 }
 
-// Resolve the actual already-loaded production singleton, never a separately
-// bundled controller. Ambiguous/missing exports fail before a browser starts.
-async function loginOwnerModule() {
-  const ts = createRequire(join(root, 'web/package.json'))('typescript');
-  const dist = join(root, 'output/ai/model-ui-recovery/dist'), matches = [];
-  const parse = (text) => ts.createSourceFile('asset.js', text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-  for (const file of (await readdir(join(dist, 'assets'))).filter(name => name.endsWith('.js')).sort()) {
-    const code = await readFile(join(dist, 'assets', file), 'utf8');
-    if (!code.includes('getSession') || !code.includes('restore:')) continue;
-    const ast = parse(code), functions = new Map(ast.statements.filter(ts.isFunctionDeclaration).filter(n => n.name).map(n => [n.name.text, n]));
-    for (const node of functions.values()) {
-      const statements = node.body?.statements;
-      if (node.parameters.length !== 0 || statements?.length !== 1 || !ts.isReturnStatement(statements[0])) continue;
-      const expression = statements[0].expression;
-      if (!expression || !ts.isBinaryExpression(expression) || expression.operatorToken.kind !== ts.SyntaxKind.QuestionQuestionEqualsToken || !ts.isIdentifier(expression.left) || !ts.isCallExpression(expression.right) || expression.right.arguments.length !== 0 || !ts.isIdentifier(expression.right.expression)) continue;
-      const factory = functions.get(expression.right.expression.text), returns = factory?.body?.statements.filter(ts.isReturnStatement);
-      if (returns?.length !== 1 || !returns[0].expression || !ts.isObjectLiteralExpression(returns[0].expression)) continue;
-      const keys = returns[0].expression.properties.map(p => p.name?.getText(ast));
-      if (!['state', 'personalContext', 'restore', 'login', 'logout', 'leave', 'restart', 'projects'].every(key => keys.includes(key))) continue;
-      const exports = ast.statements.filter(ts.isExportDeclaration).flatMap(n => n.exportClause && ts.isNamedExports(n.exportClause) ? [...n.exportClause.elements] : []).filter(n => (n.propertyName ?? n.name).text === node.name.text);
-      need(exports.length === 1, 'SESSION_PROBE_SINGLETON_EXPORT');
-      matches.push({ asset: '/assets/' + file, export_name: exports[0].name.text });
-    }
-  }
-  need(matches.length === 1, 'SESSION_PROBE_SINGLETON_UNIQUE');
-  const html = await readFile(join(dist, 'index.html'), 'utf8');
-  const scripts = [...html.matchAll(/<script\b[^>]*\bsrc="(\/assets\/[^"/]+\.js)"[^>]*>/g)];
-  need(scripts.length === 1, 'SESSION_PROBE_APP_ENTRY');
-  const entry = scripts[0][1], ast = parse(await readFile(join(dist, entry.slice(1)), 'utf8'));
-  const imports = ast.statements.filter(ts.isImportDeclaration).map(n => n.moduleSpecifier.text);
-  need(imports.filter(path => path === './' + basename(matches[0].asset)).length === 1, 'SESSION_PROBE_SINGLETON_LOADED');
-  return { ...matches[0], entry };
-}
-
 // This observes the real public controller and its existing fetch chain. The
 // production API stays private; a pre-restore snapshot bounds completion of
 // its full login refinement/identity/publish path, not their exact timestamps.
@@ -342,11 +309,11 @@ function installLoginOwnerObserver() {
 
 async function inputs(mode) {
   need(packageVersion === '1.56.1', 'SESSION_PROBE_PLAYWRIGHT_VERSION');
-  const files = [source, ...(['owned-fixture', 'owned-app', 'owned-login', 'owned-login-action', 'owned-login-owner'].includes(mode) ? [] : [join(dirname(source), 'run-session-consumption.py'), join(dirname(source), 'run-shared-components.py')]), join(root, 'web/src/api/account.ts'), join(root, 'web/src/api/client.ts'), join(root, 'web/package-lock.json'), join(root, 'tests/account-captcha-web/package-lock.json')];
+  const files = [source, join(dirname(source), 'session-controller-binding.mjs'), ...(['owned-fixture', 'owned-app', 'owned-login', 'owned-login-action', 'owned-login-owner'].includes(mode) ? [] : [join(dirname(source), 'run-session-consumption.py'), join(dirname(source), 'run-shared-components.py')]), join(root, 'web/src/api/account.ts'), join(root, 'web/src/api/client.ts'), join(root, 'web/package-lock.json'), join(root, 'tests/account-captcha-web/package-lock.json')];
   if (mode !== 'default') files.push(nativeSource, nativeBundlePath, ...['system-account', 'project-model-credentials', 'project-models'].map(name => join(root, `web/src/api/${name}.ts`)));
   if (['owned-fixture', 'owned-app', 'owned-login', 'owned-login-action', 'owned-login-owner'].includes(mode)) files.push(join(root, 'tests/account/project_owner_models_web_fixture_test.go'), join(root, 'tests/account/project_owner_models_web_test.go'), join(dirname(source), 'run-owned-top.py'));
   if (mode === 'owned-login-owner') {
-    const binding = await loginOwnerModule(), dist = join(root, 'output/ai/model-ui-recovery/dist');
+    const binding = await loginOwnerModule(root), dist = join(root, 'output/ai/model-ui-recovery/dist');
     files.push(join(dist, 'index.html'), join(dist, binding.entry.slice(1)), join(dist, binding.asset.slice(1)), ...['composables/useSession.ts', 'views/auth/LoginView.vue', 'router/auth.ts', 'App.vue'].map(name => join(root, 'web/src', name)));
   }
   return Object.fromEntries(await Promise.all(files.map(async (path) => [path, hash(await readFile(path))])));
@@ -372,7 +339,7 @@ async function prepare(mode) {
   const bundle = Buffer.from(chunks[0].code);
   need(JSON.stringify(before) === JSON.stringify(await inputs(mode)), 'SESSION_PROBE_INPUT_CHANGED');
   await writeFile(join(output, 'client.js'), bundle, { mode: 0o600 });
-  await writeFile(join(output, 'prepared.json'), JSON.stringify({ mode, inputs: before, bundle_sha256: hash(bundle), playwright: packageVersion, browser_version: '151.0.7922.173', ...(mode === 'owned-login-owner' ? { owner_module: await loginOwnerModule() } : {}), cases: casesFor(mode).length, network_started: false }), { mode: 0o600 });
+  await writeFile(join(output, 'prepared.json'), JSON.stringify({ mode, inputs: before, bundle_sha256: hash(bundle), playwright: packageVersion, browser_version: '151.0.7922.173', ...(mode === 'owned-login-owner' ? { owner_module: await loginOwnerModule(root) } : {}), cases: casesFor(mode).length, network_started: false }), { mode: 0o600 });
   console.log(JSON.stringify({ prepared: true, mode, cases: casesFor(mode).length, network_started: false }));
 }
 
@@ -759,7 +726,7 @@ async function worker(directory, mode, fixture = null) {
       browser = await chromium.connect(browserServer.wsEndpoint(), { timeout: 5000 });
       need(browser.version() === '151.0.7922.173', 'SESSION_PROBE_BROWSER_VERSION');
       if (mode === 'owned-login-owner') {
-        need(JSON.stringify(prepared.owner_module) === JSON.stringify(await loginOwnerModule()), 'SESSION_PROBE_SINGLETON_INPUT');
+        need(JSON.stringify(prepared.owner_module) === JSON.stringify(await loginOwnerModule(root)), 'SESSION_PROBE_SINGLETON_INPUT');
         await loginOwnerCase(browser, fixture, nativeBundle, bundle, prepared.owner_module, rows, next => { stage = next; });
         return;
       }
