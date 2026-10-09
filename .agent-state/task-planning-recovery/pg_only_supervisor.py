@@ -146,6 +146,7 @@ def observe_root_chain(directory, log, log_path, selector):
         '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': {'TestWorkOwnerHTTPProcessRoutingAndPersistence'},
         '^TestIndependentWorkOwnerRootConfirmationJoin$': {'TestIndependentWorkOwnerRootConfirmationJoin'},
         '^TestSkillObjectInitializationPublication$': {'TestSkillObjectInitializationPublication'},
+        '^TestSkillIndependentP2ConfirmationAndPackage$': {'TestSkillIndependentP2ConfirmationAndPackage'},
     }.get(selector, set())
     actual = set(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
@@ -381,7 +382,9 @@ def main():
     inputs = {str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest()
               for p in (args.driver, args.binary)}
     if adapter is not None:
-        inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
+        paths = (adapter.input_paths(args.binary, args.run)
+                 if args.run == '^TestSkillIndependentP2ConfirmationAndPackage$' else adapter.input_paths(args.binary))
+        inputs = {str(p): adapter.sha(p) for p in paths}
     baseline_times = {'started_ns': time.monotonic_ns()}
     baseline = tcp()
     baseline_times['ended_ns'] = time.monotonic_ns()

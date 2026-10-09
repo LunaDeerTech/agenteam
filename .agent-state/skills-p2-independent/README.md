@@ -15,4 +15,31 @@
 
 不重复已通过作者全矩阵。真实 PG COMMIT Unknown、迁移和 Stop 的已有原范围证据按卡复用；本补集不会扩大它们。未实现的 Cleanup/root、D05后段清理/00028、完整participant、Runtime join停项和foreign进程退休保持未验证。
 
-实际已验：`python3 .agent-state/skills-p2-independent/pure.py`（21592→238565 actual0，race 1.068s）执行前两行 2top/7sub；通过只说明真实 Skill/P1 代码在明确受控 Store/Project/Object 输入下的判据成立。后四行尚未编写完成、编译或实际运行；无真实 SQL、D05、harness 或全 P2 完成结论。
+实际已验：`python3 .agent-state/skills-p2-independent/pure.py`（21592→238565 actual0，race 1.068s）执行前两行 2top/7sub；通过只说明真实 Skill/P1 代码在明确受控 Store/Project/Object 输入下的判据成立。后四行源码已写全并离线 race 编译；独立候选 `output/ai/skills-p2-independent/skills-p2-independent-race-01.test` 为32,988,048B，session38872→43fd06编译及精确 list均actual0。发现一个 top 不证明四子已运行；无真实 SQL、D05、资源回收或全 P2 完成结论。
+
+既有 root driver/supervisor 仅增加 `^TestSkillIndependentP2ConfirmationAndPackage$`；该 selector 独有输入增量为 `tests/skills` 固定九个 Go 文件，覆盖新测试及完整编译包的复用 fixture。`python3 .agent-state/skills-p2-independent/harness-controls.py`（c223e6 actual0/42控）用实际 configuration、input_paths、原 supervisor main/manifest/observer，替换外部 child/Docker/TCP 边界检查正负尾；旧两工具去掉限定增量后逐字等于29b252c7。它不是实际 Docker/Wait/TCP 证明，仍需工具窄独审和 root fresh grant。
+
+离线候选构建使用如下固定环境（继承 PATH；原独占 cache，不另建 cache 副本）：
+
+```sh
+export PATH="/workspace/toolchains/go1.27.1/bin:$PATH"
+export AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go
+export GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2
+export GOFLAGS='-mod=readonly -p=1'
+export GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod
+export GOCACHE=/workspace/agenteam-project-variables-ui/output/ai/project-variables-ui/implementation/gocache
+export GOTMPDIR=/workspace/agenteam-skills-p2-independent/output/ai/skills-p2-independent/tmp
+```
+
+后续真实命令 cwd 为本树，保留上述环境并设置 `AGENTEAM_MINIO_BINARY=/workspace/agenteam-skills-p2-independent/output/ai/deps-minio/bin/minio`。MinIO 本树当前缺失，固定 SHA 为 `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`；只读身份验证后普通复制需 root 的空间窗口。每次真实启动须新授权、同 process fresh statvfs≥5GiB与新输出检查，不能依据本说明自动运行：
+
+```sh
+python3 .agent-state/task-planning-recovery/pg_only_supervisor.py \
+  --root-chain \
+  --driver /workspace/agenteam-skills-p2-independent/.agent-state/work-owner-http/root_chain_driver.py \
+  --binary /workspace/agenteam-skills-p2-independent/output/ai/skills-p2-independent/skills-p2-independent-race-01.test \
+  --run '^TestSkillIndependentP2ConfirmationAndPackage$' \
+  --output /workspace/agenteam-skills-p2-independent/output/ai/skills-p2-independent/p2-01
+```
+
+原三层 fixture 的七资源、Go6m/root540+60+3/TCP75、实际 Wait/reap、两次资源与private/runtime/desc/TCP/input尾保持，不新增清理者或延长预算。此次尚未启动此命令。

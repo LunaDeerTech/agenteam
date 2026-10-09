@@ -20,6 +20,7 @@ TARGETS = {
     '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': 'tests/process',
     '^TestIndependentWorkOwnerRootConfirmationJoin$': 'internal/central/app',
     '^TestSkillObjectInitializationPublication$': 'tests/skills',
+    '^TestSkillIndependentP2ConfirmationAndPackage$': 'tests/skills',
 }
 
 
@@ -28,7 +29,7 @@ def sha(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
-def input_paths(binary):
+def input_paths(binary, selector=None):
     # The process TestMain rebuilds cmd binaries, so freezing only the test
     # executable would be insufficient. Include production sources and all
     # three actual go:embed inputs; never consume Model's private harness.
@@ -45,6 +46,14 @@ def input_paths(binary):
                      if not p.name.endswith('_test.go'))
     paths.update((REPOSITORY / 'db/migrations').glob('*.go'))
     paths.update((REPOSITORY / 'db/migrations').glob('*.sql'))
+    if selector == '^TestSkillIndependentP2ConfirmationAndPackage$':
+        # Freeze the complete compiled package, including its actual fixtures.
+        for name in ('admission_unknown_test.go', 'commit_recovery_test.go',
+                     'fixture_test.go', 'initialization_test.go',
+                     'lifecycle_stop_test.go', 'migration_test.go',
+                     'object_publication_test.go', 'owner_read_test.go',
+                     'p2_independent_test.go'):
+            paths.add(REPOSITORY / 'tests/skills' / name)
     return sorted(paths)
 
 
