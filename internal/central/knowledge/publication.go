@@ -8,10 +8,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"hash"
 	"io"
 	"log/slog"
 	"math"
+	"strings"
 	"sync"
+	"unicode/utf8"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -249,6 +252,266 @@ func (w publicationWork) clone() publicationWork {
 }
 func equalProjectPointer(a, b *id.ProjectID) bool {
 	return a == nil && b == nil || a != nil && b != nil && *a == *b
+}
+
+// claimContentPublication establishes the durable work identity before source
+// resolution or preparation. Stop proof is obtained outside a transaction and
+// the complete original row is checked again under the second transaction's
+// full union. A nonzero work returned with Unknown still belongs to this call:
+// the caller must record its actual no-I/O retirement, never begin preparation.
+func (s *Service) claimContentPublication(ctx context.Context, input contentInput, intent contentIntent) (work publicationWork, replay *kc.DocumentRef, err error) {
+	if intent.record == nil || input.request.Source == nil {
+		return work, nil, internal(nil)
+	}
+	origin, err := input.request.Source.sourceProject()
+	if err != nil {
+		return work, nil, err
+	}
+	locks, err := publicationLocks(input.actor, intent.record, origin)
+	if err != nil {
+		return work, nil, err
+	}
+	identity, err := kc.CommandIdentity(input.project, input.name, input.meta.IdempotencyKey)
+	if err != nil {
+		return work, nil, portError(err)
+	}
+	cause, err := f.NewCommandsCause(identity)
+	if err != nil {
+		return work, nil, portError(err)
+	}
+	st := s.state()
+	var previous *publicationWork
+	read := func(ctx context.Context, tx f.Tx) (postgres.SQLExecutor, *commandRecord, error) {
+		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
+			return nil, nil, portError(err)
+		}
+		x, record, _, err := s.currentContentIntent(ctx, tx, input, intent)
+		if err != nil {
+			return nil, nil, err
+		}
+		if record.state == kc.Committed {
+			replay = record.receipt.Document
+		} else if origin != nil && *origin != input.project {
+			if _, err = s.readScope(ctx, tx, input.actor, *origin); err != nil {
+				return nil, nil, err
+			}
+		}
+		return x, record, nil
+	}
+	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		x, _, err := read(ctx, tx)
+		if err != nil || replay != nil {
+			return err
+		}
+		previous, err = loadPublicationWork(ctx, x, intent.record.id)
+		return err
+	})
+	if err = txError(result); err != nil || replay != nil {
+		return work, replay, err
+	}
+	proof, err := s.stoppedPublication(ctx, previous)
+	if err != nil {
+		return work, nil, err
+	}
+	result = st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		_, record, err := read(ctx, tx)
+		if err != nil || replay != nil {
+			return err
+		}
+		work, err = s.claimPublicationInTx(ctx, tx, input.actor, record, origin, previous, proof)
+		return err
+	})
+	return work, replay, txError(result)
+}
+
+// publicationReader validates text incrementally without retaining the body.
+// Read and Close have separate serialization so cancellation can interrupt a
+// blocked provider Read. Close returns the original result on every call; a
+// provider's ignored Close failure cannot become a false join in our runtime.
+type publicationReader struct {
+	source    io.ReadCloser
+	text      bool
+	readMu    sync.Mutex
+	hash      hash.Hash
+	length    int64
+	limit     int64
+	pending   [utf8.UTFMax]byte
+	used      int
+	terminal  error
+	closeOnce sync.Once
+	closeErr  error
+}
+
+func newPublicationReader(source io.ReadCloser, text bool, length int64) *publicationReader {
+	return &publicationReader{source: source, text: text, limit: length, hash: sha256.New()}
+}
+
+func (r *publicationReader) Format(w fmt.State, _ rune) {
+	_, _ = io.WriteString(w, "knowledge_publication_reader")
+}
+func (r *publicationReader) LogValue() slog.Value {
+	return slog.StringValue("knowledge_publication_reader")
+}
+
+func (r *publicationReader) Read(p []byte) (int, error) {
+	r.readMu.Lock()
+	defer r.readMu.Unlock()
+	if len(p) == 0 {
+		return 0, nil
+	}
+	if r.terminal != nil {
+		return 0, r.terminal
+	}
+	n, err := r.source.Read(p)
+	if n < 0 || n > len(p) {
+		r.terminal = internal(nil)
+		return 0, r.terminal
+	}
+	r.length += int64(n)
+	_, _ = r.hash.Write(p[:n])
+	if r.length > r.limit || r.text && !r.acceptUTF8(p[:n]) {
+		err = fault(f.InvalidArgument)
+	}
+	if err == io.EOF && (r.length != r.limit || r.used != 0) {
+		err = fault(f.InvalidArgument)
+	}
+	if err != nil {
+		r.terminal = err
+	}
+	return n, err
+}
+
+func (r *publicationReader) acceptUTF8(p []byte) bool {
+	for len(p) != 0 {
+		if r.used != 0 {
+			r.pending[r.used] = p[0]
+			r.used++
+			p = p[1:]
+			if !utf8.FullRune(r.pending[:r.used]) {
+				continue
+			}
+			value, size := utf8.DecodeRune(r.pending[:r.used])
+			if value == utf8.RuneError && size == 1 {
+				return false
+			}
+			r.used = 0
+			continue
+		}
+		if !utf8.FullRune(p) {
+			r.used = copy(r.pending[:], p)
+			break
+		}
+		value, size := utf8.DecodeRune(p)
+		if value == utf8.RuneError && size == 1 {
+			return false
+		}
+		p = p[size:]
+	}
+	return true
+}
+
+func (r *publicationReader) Close() error {
+	r.closeOnce.Do(func() { r.closeErr = r.source.Close() })
+	return r.closeErr
+}
+
+func (r *publicationReader) measured(payload oc.PreparedPayload, descriptor publicationSource) bool {
+	r.readMu.Lock()
+	defer r.readMu.Unlock()
+	if r.terminal != io.EOF || payload.Validate() != nil || descriptor.Length == nil || descriptor.SHA == nil {
+		return false
+	}
+	d := payload.Details()
+	return d.MediaType == descriptor.Media && d.Length == r.length && d.Length == int64(*descriptor.Length) &&
+		d.SHA256 == *descriptor.SHA && d.SHA256.String() == "sha256:"+hex.EncodeToString(r.hash.Sum(nil))
+}
+
+// prepareDirectPublication consumes only text/upload input after the caller's
+// confirmed work claim. Business files use the separate leased source path;
+// they are never silently reduced to a public ObjectID or unleased reader.
+func (s *Service) prepareDirectPublication(ctx context.Context, input contentInput, intent contentIntent, source kc.SourceInput, work publicationWork, retirement *publicationRetirement) (oc.PreparedPayload, error) {
+	if ctx == nil || retirement == nil || s.state() == nil || retirement.service != s || !retirement.work.equal(work) || intent.record == nil || work.command != intent.record.id || intent.record.document != input.document || intent.record.project != input.project || intent.record.digest != input.digest || intent.record.key != input.meta.IdempotencyKey || intent.record.user.String() != input.actor.Details().UserID || work.command.Validate() != nil || work.project != input.project || work.process != s.state().deps.Processes.CurrentProcess() || work.phase != "active" || input.request.Source == nil {
+		return oc.PreparedPayload{}, internal(nil)
+	}
+	retirement.mu.Lock()
+	joined := retirement.joined
+	retirement.mu.Unlock()
+	if joined {
+		return oc.PreparedPayload{}, fault(f.ResourceBusy)
+	}
+	if err := ctx.Err(); err != nil {
+		return oc.PreparedPayload{}, unavailable(err)
+	}
+	actual, err := describePublicationSource(source)
+	if err != nil {
+		return oc.PreparedPayload{}, err
+	}
+	expected := *input.request.Source
+	origin, err := expected.sourceProject()
+	if err != nil {
+		return oc.PreparedPayload{}, err
+	}
+	if !equalProjectPointer(origin, work.source) {
+		return oc.PreparedPayload{}, fault(f.ResourceBusy)
+	}
+	a, err := json.Marshal(actual)
+	if err != nil {
+		return oc.PreparedPayload{}, internal(err)
+	}
+	b, err := json.Marshal(expected)
+	if err != nil || !bytes.Equal(a, b) {
+		return oc.PreparedPayload{}, fault(f.IdempotencyKeyReused)
+	}
+	if actual.Kind == kc.InputBusinessFile {
+		return oc.PreparedPayload{}, fault(f.DependencyUnbound)
+	}
+	owner, err := oc.NewObjectOwner(oc.Knowledge, input.document.String(), input.project.String())
+	if err != nil {
+		return oc.PreparedPayload{}, portError(err)
+	}
+	details, err := source.Details()
+	if err != nil {
+		return oc.PreparedPayload{}, portError(err)
+	}
+	var body io.ReadCloser
+	if actual.Kind == kc.InputText {
+		body = io.NopCloser(strings.NewReader(*details.Text))
+	} else {
+		body, err = source.TakeUploadBody()
+		if err != nil {
+			return oc.PreparedPayload{}, portError(err)
+		}
+	}
+	kind, err := publicationMedia(actual.Media)
+	if err != nil {
+		return oc.PreparedPayload{}, err
+	}
+	reader := newPublicationReader(body, kind == kc.Text, int64(*actual.Length))
+	if err = retirement.own(reader.Close); err != nil {
+		return oc.PreparedPayload{}, err
+	}
+	prepared, prepareErr := s.state().deps.Uploads.PreparePayload(ctx, input.actor, owner, actual.Media, int64(*actual.Length), actual.SHA, reader)
+	// Even a misbehaving provider returning a handle with an error leaves an
+	// owned preparation to retire. Do not let later checks discard that handle.
+	if prepared.Validate() == nil {
+		if err = retirement.own(func() error { return s.state().deps.Uploads.DiscardPrepared(prepared) }); err != nil {
+			return oc.PreparedPayload{}, err
+		}
+	}
+	closeErr := reader.Close()
+	if prepareErr != nil {
+		return oc.PreparedPayload{}, portError(prepareErr)
+	}
+	if closeErr != nil {
+		return oc.PreparedPayload{}, portError(closeErr)
+	}
+	if err = ctx.Err(); err != nil {
+		return oc.PreparedPayload{}, unavailable(err)
+	}
+	if !reader.measured(prepared, actual) {
+		return oc.PreparedPayload{}, internal(nil)
+	}
+	return prepared, nil
 }
 
 // Only a successful real ProcessAuthority call can construct a stopped proof.
