@@ -208,3 +208,5 @@ Config只新增上述身份/登记参数与可选`AGENTEAM_RUNNER_CA_FILE`，已
 rev1独审发现payload闭集不完整及HTTP误列不存在Foundation Conflict，两项原结论保留；rev2仅补本卡§6/7的闭集表与§3既有码映射，原审者差异复审已接受；这不是产品运行接受。规格阶段作者自查完成正式来源/现Account/Audit/Runner D02依赖核对。根授权一次固定依赖准备，`go mod download github.com/gorilla/websocket@v1.5.3`实际exit0，使用本树任务缓存；不等于产品/协议构建或测试通过。当前未启动任何server/PG/browser，未实施migration；已落盘共享wire首片段，普通test/race/短时fuzz作者自测actual0，尚未独立实现验收。
 
 本卡7个文档链接（含fragment）及current链接作者自查通过；限定diff whitespace通过，新文件亦逐行核无尾空白。SPEC已接受（identity共享路径已获根授权）。按shared wire/identity/service、WSS与双rootconsumer推进，有限稳定片段交叉独审；真实资源/其余平台gate保持显式未验。
+
+本地identity首片段已实现pending/active身份、strict file、安全默认输出、FD相对权限验证、稳定排他锁及原子持久化；Linux实际文件与受控I/O失败race作者自测通过。首次文件权限反例因umask收紧测试创建mode而失败，已显式chmod恢复反例，原失败保留。尚无跨UID/真实进程Crash、macOS、登记或WSS结果，不能据此关闭完整credential/平台gate。
