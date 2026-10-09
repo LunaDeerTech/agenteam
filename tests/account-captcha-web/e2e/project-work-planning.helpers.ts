@@ -181,6 +181,7 @@ type Observed = {
 export function observe(page: Page) {
   const facts = new Map<string, Observed>();
   const tails: Promise<void>[] = [];
+  let observerErrors = 0;
   const failedRequests = new Set<Request>();
   page.on("requestfailed", (request) => {
     if (isWork(new URL(request.url()))) failedRequests.add(request);
@@ -213,13 +214,19 @@ export function observe(page: Page) {
         const error = await r.finished();
         fact.finished = error === null;
         fact.failed = error !== null;
-      })(),
+      })().catch(() => {
+        // Attach the rejection sink immediately, including when the case ends
+        // before verify. This records observation failure, never transport EOF.
+        observerErrors++;
+        fact.failed = true;
+      }),
     );
   });
   return {
     requests,
     async verify(expectedIncomplete = 0) {
       await Promise.all(tails);
+      expect(observerErrors).toBe(0);
       const checked = spawnSync(
         "python3",
         ["-c", schemaProgram, repository, evidence],

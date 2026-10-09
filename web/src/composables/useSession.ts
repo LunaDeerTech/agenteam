@@ -3887,7 +3887,12 @@ export function createSessionController(
       if (!value) return null
       const contextValid = !!workIntent && projectContext(workIntent)
       const available =
-        contextValid && !!workIntent?.payload.command && !owner && !pending && !personalIntent
+        contextValid &&
+        !!workIntent?.payload.command &&
+        !state.busy &&
+        !owner &&
+        !pending &&
+        !personalIntent
       return Object.freeze({
         ...value,
         contextValid,

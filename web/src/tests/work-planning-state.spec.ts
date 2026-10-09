@@ -210,6 +210,55 @@ async function fixture(options: { current?: boolean; state?: WorkTask['state'] }
 }
 
 describe('Work planning current objects and original intent', () => {
+  it('finishes a created Sprint route and its parent reads before enabling original lookup', async () => {
+    const f = await fixture()
+    await f.open()
+    let created: WorkSprint | null = null
+    let releaseRead: (() => void) | undefined
+    f.intercept(async (path, init) => {
+      if (path === `${f.base}/sprints` && init.method === 'POST') {
+        const input = JSON.parse(init.body as string).request
+        created = {
+          ...f.sprint,
+          id: input.sprint_id,
+          title: input.title,
+          description: input.description ?? '',
+        }
+        return response({
+          command: 'work.sprint.create',
+          changed: true,
+          milestone: null,
+          sprint: created,
+          event_id: id(20),
+        })
+      }
+      if (created && path === `${f.base}/sprints/${created.id}`) {
+        const value = created
+        return new Promise<Response>((resolve) => {
+          releaseRead = () => resolve(response(value))
+        })
+      }
+      return f.normal(path, init)
+    })
+    await f.work.beginCreate('sprint')
+    f.work.draft.title = 'Created Sprint'
+    await f.work.save()
+    await flushPromises()
+    expect(f.work.progress.value?.phase).toBe('confirmed')
+    expect(f.work.progress.value?.canLookup).toBe(false)
+    expect(f.work.blocked.value).toBe(true)
+    expect(releaseRead).toBeDefined()
+    releaseRead!()
+    await flushPromises()
+    await flushPromises()
+    expect(f.auth.workPlanning.progress?.phase).toBe('confirmed')
+    expect(f.work.detail.sprint?.title).toBe('Created Sprint')
+    expect(f.work.detail.milestone?.id).toBe(f.milestone().id)
+    expect(f.work.blocked.value).toBe(false)
+    expect(f.auth.workPlanning.progress?.canLookup).toBe(true)
+    expect(f.work.progress.value?.canLookup).toBe(true)
+  })
+
   it('invalidates an expired opaque cursor chain without silently falling back to page one', async () => {
     const f = await fixture()
     const rows = Array.from({ length: 50 }, (_, n) => ({
