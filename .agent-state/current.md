@@ -9,6 +9,13 @@
 - 下一步：原CommitRecovery已实际闭合；Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority、当前产品Stop和真实D05三子组合仍各自等待root单top fresh grant后实际执行。前四项用原两资源PG窗口，D05用原七资源窗口；资源、缓存继续唯一所有。root授权的Project精确Stop子能力已获下述有限独审；旧binary及对应产品基线单独保留，不将旧PG结果外推新产品。不spawn，root协调交叉审查。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
 
+## 本轮恢复保存与 Knowledge 独立风险审查
+
+- root 已保存当前 Stop PG 测试／卡／本文三路径到 `19353f4e766783cdaabd3068833c424f3a631985`；`70036` race-c、`f8911f` 单 top discovery 仅编译准备，12 子尚未实际。原 `39205` CommitRecovery 完整 PASS 只对应旧 frozen binary 产品组合，不外推到新增 Stop。下一当前 Stop PG 等 root 独占 fresh grant；原两资源 driver 无 MinIO/harness新依赖。
+- 已完成 Knowledge B02 15 生产源、00025 和四个共享 Project adapter 的独立风险审，详见 [完整报告](knowledge-b02-review/README.md)。暂不接受完整 B02：真实 D05 reader 取消后 Close 返回原错误导致 Knowledge call 不退役（P1）；RecoverCleanup 首 Pending 全局阻塞后续 Project（P2）。作者与 root 已收到，不改他域产品。
+- 离线实际源 overlay `61981` actual0/race1.042s，1 top/2 子；补调度控制 `99769` actual0/race1.023s，2 top/2 子。复现测试断言缺陷，不能写产品通过；没有 PG/socket/网络。完整 env、受控边界及精确受审源范围在报告及相邻必要 probe 保存；Knowledge 原 Runtime ready 输入仍待实际。
+- 新 review 目录四文件加本文共五路径可恢复冻结。源检查未发现其他授权／删除原子性 mustfix；原作者六组有限 PG 和后续五组／最小独立真实补集边界不变。当前本实例无测试／真实资源在途。
+
 ## 首个持久实现片段
 
 - 新 `internal/central/skill/{store,initialization_state,initialization_state_test}.go`：同Store接口、原Fault/UnknownAttempt及cause保留、原命令摘要、冻结builtin持久状态、精确Revision owner与真实Skill父锁；不是已可调用服务或成功initializer。
