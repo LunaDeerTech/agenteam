@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Offline input-closure controls; no driver, fixture or cmd is executed."""
 import copy
+import contextlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import types
 from unittest.mock import patch
 
 sys.dont_write_bytecode = True
@@ -43,6 +46,9 @@ reduced = source[:start] + source[end:]
 budget = '''    if crash_inputs is not None:
         started = crash_started
         driver_timeout = max(0, driver_timeout - (time.monotonic() - crash_started))
+        if driver_timeout <= 0:
+            print('STOP Runner crash build inputs exhausted original budget before driver start')
+            return 1
 '''
 check('one original-budget debit', reduced.count(budget) == 1)
 reduced = reduced.replace(budget, '')
@@ -59,6 +65,44 @@ check('one safe terminal comparison', reduced.count(new_tail) == 1)
 reduced = reduced.replace(new_tail, old_tail)
 check('all old supervisor bytes remain identical', reduced == before)
 check('only non-root exact B selector enables closure', source.count("if not args.root_chain and args.run == '^TestRunnerControlProcessCrashRecovery$':") == 1)
+
+# The original metadata may finish within the budget while baseline sampling
+# exhausts its last fraction. Execute the actual main up to the intercepted
+# Popen; none of these controls starts a driver or invokes real prctl/proc.
+for boundary in (123.0, 123.1):
+    namespace = {'__name__': 'offline_only', '__file__': str(supervisor)}
+    exec(compile(source, str(supervisor), 'exec'), namespace)
+    clock, launches = [0.0], []
+    class UnexpectedLaunch(BaseException):
+        pass
+    class Loader:
+        def exec_module(self, module):
+            def capture(*args):
+                clock[0] = 122.9
+                return {}
+            module.capture = capture
+    def tcp():
+        clock[0] = boundary
+        return set()
+    def launch(*args, **kwargs):
+        launches.append(True)
+        raise UnexpectedLaunch()
+    namespace.update(time=types.SimpleNamespace(monotonic=lambda: clock[0], monotonic_ns=lambda: int(clock[0] * 1e9)),
+                     tcp=tcp, ctypes=types.SimpleNamespace(CDLL=lambda *args, **kwargs: types.SimpleNamespace(prctl=lambda *args: 0)),
+                     importlib=types.SimpleNamespace(util=types.SimpleNamespace(spec_from_file_location=lambda *args: types.SimpleNamespace(loader=Loader()), module_from_spec=lambda *args: types.SimpleNamespace())),
+                     subprocess=types.SimpleNamespace(Popen=launch, STDOUT=subprocess.STDOUT, TimeoutExpired=subprocess.TimeoutExpired))
+    with tempfile.TemporaryDirectory(dir=HERE) as tmp:
+        root = Path(tmp)
+        driver, binary = root / 'driver', root / 'binary'
+        driver.write_bytes(b'owned driver')
+        binary.write_bytes(b'owned binary')
+        args = ['offline', '--driver', str(driver), '--binary', str(binary), '--run', subject.SELECTOR, '--output', str(root / 'out')]
+        with patch.object(sys, 'argv', args), contextlib.redirect_stdout(io.StringIO()):
+            try:
+                result = namespace['main']()
+            except UnexpectedLaunch:
+                result = 'unexpected-driver'
+        check('actual main starts no driver after baseline reaches ' + str(boundary), result == 1 and not launches)
 
 with tempfile.TemporaryDirectory(dir=HERE) as tmp:
     root = Path(tmp)

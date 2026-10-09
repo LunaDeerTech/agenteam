@@ -414,6 +414,9 @@ def main():
     if crash_inputs is not None:
         started = crash_started
         driver_timeout = max(0, driver_timeout - (time.monotonic() - crash_started))
+        if driver_timeout <= 0:
+            print('STOP Runner crash build inputs exhausted original budget before driver start')
+            return 1
     child = None
     code = 1
     interrupted = False
