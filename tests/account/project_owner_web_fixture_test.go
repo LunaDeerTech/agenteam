@@ -827,7 +827,11 @@ func writeProjectOwnerWebLost(w http.ResponseWriter, lost *projectOwnerWebLost) 
 	w.Header().Del("Transfer-Encoding")
 	w.Header().Set("Content-Length", strconv.Itoa(lost.length))
 	w.Header().Set("Connection", "close")
-	w.WriteHeader(http.StatusOK)
+	status := lost.status
+	if status == 0 {
+		status = http.StatusOK
+	}
+	w.WriteHeader(status)
 	written, writeErr := w.Write([]byte("{"))
 	flushErr := http.NewResponseController(w).Flush()
 	conn, _, hijackErr := w.(http.Hijacker).Hijack()
@@ -848,6 +852,7 @@ type projectOwnerWebLossObservation struct {
 type projectOwnerWebLost struct {
 	header  http.Header
 	length  int
+	status  int // Zero preserves the original committed-response 200 fixture.
 	observe func(projectOwnerWebLossObservation)
 }
 

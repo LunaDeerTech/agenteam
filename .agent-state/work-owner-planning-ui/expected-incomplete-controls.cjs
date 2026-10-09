@@ -48,7 +48,12 @@ const spec = (kind = "lost-milestone-update") => ({
     : { expectedVersion: "7", text: "specific original text" }),
 });
 function req(kind = "lost-milestone-update", changes = {}) {
-  const entity = kind === "lost-milestone-update" ? "milestones" : "tasks",
+  const entity = [
+      "lost-milestone-update",
+      "unforwarded-milestone-update",
+    ].includes(kind)
+      ? "milestones"
+      : "tasks",
     isCancel = kind === "canceled-task-read",
     isBlocker = kind === "lost-blocker-add";
   let body = isCancel
@@ -362,11 +367,146 @@ process.on("unhandledRejection", () => unhandled++);
       observed,
       emit,
       response,
+      ownedResponse(request, finished, changes = {}) {
+        let calls = 0;
+        const headers = {
+          "content-type": "application/problem+json",
+          "content-length": "4096",
+          connection: "close",
+          ...(changes.headers ?? {}),
+        };
+        const r = {
+          url: request.url,
+          request: () => request,
+          status: () => changes.status ?? 503,
+          headerValue: async () => headers["x-request-id"] ?? null,
+          allHeaders: async () => headers,
+          finished: () => {
+            calls++;
+            return finished;
+          },
+        };
+        emit("response", r);
+        return { calls: () => calls };
+      },
       writes,
       decoded,
       snapshot: () => c.failureSnapshots[0](),
     };
   }
+  function ownedCase(kind = "unforwarded-milestone-update") {
+    const e = observerEnv(),
+      ordinary = req();
+    e.emit("request", ordinary);
+    e.response(ordinary, Promise.resolve(null));
+    e.observed.declareIncomplete(spec(kind));
+    const q = req(kind);
+    e.emit("request", q);
+    return { e, q, ordinary };
+  }
+  await check(
+    "actual observer: exact unforwarded 503 is separate from upstream schema and waits for real same-request failed",
+    async () => {
+      const { e, q, ordinary } = ownedCase();
+      const r = e.ownedResponse(q, new Promise(() => {}));
+      await new Promise((r) => setImmediate(r));
+      const pending = e.observed.verify(1);
+      assert.equal(
+        await Promise.race([
+          pending.then(() => true),
+          new Promise((r) => setImmediate(() => r(false))),
+        ]),
+        false,
+      );
+      e.emit("requestfailed", q);
+      await pending;
+      assert.equal(r.calls(), 1);
+      assert.deepEqual(e.decoded, [ordinary]);
+      const result = e.writes.at(-1).body;
+      assert.equal(result.original_bodies, 1);
+      assert.equal(result.owned_unforwarded_truncations, 1);
+      assert.equal(result.failed_without_headers, 0);
+      assert.equal(result.expected_incomplete, 0);
+      const diagnostic = e.snapshot().requests[1];
+      assert.equal(diagnostic.request_id, null);
+      assert.equal(diagnostic.response_finished_at, null);
+      assert.notEqual(diagnostic.request_failed_at, null);
+    },
+  );
+  for (const [name, changes] of [
+    ["success status", { status: 200 }],
+    ["different error", { status: 502 }],
+    ["wrong content type", { headers: { "content-type": "application/json" } }],
+    ["different length", { headers: { "content-length": "1" } }],
+    ["different connection", { headers: { connection: "keep-alive" } }],
+    ["upstream identity", { headers: { "x-request-id": key } }],
+    ["empty upstream identity", { headers: { "x-request-id": "" } }],
+    ["transfer encoding", { headers: { "transfer-encoding": "chunked" } }],
+  ])
+    await check(
+      "actual observer: unforwarded headers reject " + name,
+      async () => {
+        const { e, q } = ownedCase();
+        e.ownedResponse(q, new Promise(() => {}), changes);
+        e.emit("requestfailed", q);
+        await assert.rejects(e.observed.verify(1));
+      },
+    );
+  await check(
+    "actual observer: ordinary lost response cannot borrow unforwarded 503 allowance",
+    async () => {
+      const { e, q } = ownedCase("lost-milestone-update");
+      e.ownedResponse(q, new Promise(() => {}));
+      e.emit("requestfailed", q);
+      await assert.rejects(e.observed.verify(1));
+    },
+  );
+  await check(
+    "actual observer: unforwarded missing response headers and real failed still reject",
+    async () => {
+      const { e, q } = ownedCase();
+      e.emit("requestfailed", q);
+      await assert.rejects(e.observed.verify(1));
+    },
+  );
+  await check(
+    "actual observer: unforwarded success finished is not failed",
+    async () => {
+      const { e, q } = ownedCase();
+      e.ownedResponse(q, Promise.resolve(null));
+      await assert.rejects(e.observed.verify(1));
+    },
+  );
+  await check(
+    "actual observer: unforwarded other Request failure never closes original",
+    async () => {
+      const { e, q } = ownedCase();
+      e.ownedResponse(q, Promise.resolve(Error("original-error")));
+      e.emit("requestfailed", req("unforwarded-milestone-update"));
+      await assert.rejects(e.observed.verify(1));
+    },
+  );
+  await check(
+    "actual observer: duplicate unforwarded response rejects",
+    async () => {
+      const { e, q } = ownedCase();
+      e.ownedResponse(q, new Promise(() => {}));
+      e.ownedResponse(q, new Promise(() => {}));
+      e.emit("requestfailed", q);
+      await assert.rejects(e.observed.verify(1));
+    },
+  );
+  await check(
+    "actual observer: page close never satisfies unforwarded failure",
+    async () => {
+      const { e, q } = ownedCase();
+      e.ownedResponse(q, new Promise(() => {}));
+      await new Promise((r) => setImmediate(r));
+      e.emit("close");
+      e.emit("requestfailed", q);
+      await assert.rejects(e.observed.verify(1));
+    },
+  );
   await check(
     "actual observer: declared failed settles incomplete, never finished",
     async () => {
@@ -544,7 +684,7 @@ process.on("unhandledRejection", () => unhandled++);
     unhandled,
   };
   fs.writeFileSync(
-    "output/ai/work-owner-planning-ui/implementation/expected-incomplete-controls.json",
+    "output/ai/work-owner-planning-ui/implementation/expected-incomplete-503-controls.json",
     JSON.stringify(result, null, 2) + "\n",
   );
   console.log(

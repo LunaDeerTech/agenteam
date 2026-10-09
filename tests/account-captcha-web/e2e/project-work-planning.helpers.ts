@@ -289,9 +289,11 @@ type Observed = {
   finished: boolean;
   failed: boolean;
 };
-// Only these four intentional faults may produce an expected incomplete Request.
+// Only these declared faults may produce an expected incomplete Request;
+// a case still admits at most four original Requests.
 type WorkIncompleteDeclaration = {
   kind:
+    | "unforwarded-milestone-update"
     | "lost-milestone-update"
     | "lost-task-update"
     | "lost-blocker-add"
@@ -309,6 +311,7 @@ function workIncompleteLedger() {
     body?: string;
     allowed: boolean;
     failed: boolean;
+    ownedResponse: boolean;
     failure: Promise<void>;
     settleFailure: () => void;
   };
@@ -319,8 +322,12 @@ function workIncompleteLedger() {
   function matches(slot: Slot, request: Request) {
     const spec = slot.spec,
       url = new URL(request.url());
-    const entity =
-      spec.kind === "lost-milestone-update" ? "milestones" : "tasks";
+    const entity = [
+      "lost-milestone-update",
+      "unforwarded-milestone-update",
+    ].includes(spec.kind)
+      ? "milestones"
+      : "tasks";
     const suffix = spec.kind === "lost-blocker-add" ? "/blockers" : "";
     if (
       url.search ||
@@ -379,6 +386,7 @@ function workIncompleteLedger() {
         slots.length >= 4 ||
         slots.some((slot) => !slot.failed) ||
         ![
+          "unforwarded-milestone-update",
           "lost-milestone-update",
           "lost-task-update",
           "lost-blocker-add",
@@ -400,6 +408,7 @@ function workIncompleteLedger() {
         spec: { ...spec },
         allowed: !cancel,
         failed: false,
+        ownedResponse: false,
         failure,
         settleFailure,
       };
@@ -451,6 +460,39 @@ function workIncompleteLedger() {
       ]);
     },
     expectedFailure,
+    unforwarded(request: Request) {
+      return slots.some(
+        (slot) =>
+          slot.request === request &&
+          slot.spec.kind === "unforwarded-milestone-update",
+      );
+    },
+    ownedUnforwardedResponse(
+      request: Request,
+      status: number,
+      headers: Record<string, string>,
+    ) {
+      const slot = slots.find(
+        (value) =>
+          value.request === request &&
+          value.spec.kind === "unforwarded-milestone-update",
+      );
+      if (
+        !slot ||
+        closed ||
+        !slot.allowed ||
+        slot.ownedResponse ||
+        status !== 503 ||
+        headers["content-type"] !== "application/problem+json" ||
+        headers["content-length"] !== "4096" ||
+        headers.connection !== "close" ||
+        "x-request-id" in headers ||
+        "transfer-encoding" in headers
+      )
+        return false;
+      slot.ownedResponse = true;
+      return true;
+    },
     declared(request: Request) {
       return slots.some((slot) => slot.request === request);
     },
@@ -464,6 +506,8 @@ function workIncompleteLedger() {
             slot.request &&
             slot.allowed &&
             slot.failed &&
+            (slot.spec.kind !== "unforwarded-milestone-update" ||
+              slot.ownedResponse) &&
             failedRequests.has(slot.request),
         ) &&
         [...failedRequests].every(expectedFailure)
@@ -537,6 +581,7 @@ export function observe(page: Page) {
     incompleteRequests.close();
   });
   const facts = new Map<string, Observed>();
+  const ownedTruncations = new Set<Request>();
   const tails: Promise<void>[] = [];
   let observerErrors = 0;
   const failedRequests = new Set<Request>();
@@ -583,9 +628,21 @@ export function observe(page: Page) {
       (async () => {
         const id = await r.headerValue("x-request-id");
         observed.request_id = id && uuid7.test(id) ? id : null;
-        if (!id || facts.has(id))
-          throw new Error("WORK_RESPONSE_IDENTITY_MISSING_OR_DUPLICATE");
-        facts.set(id, fact);
+        const owned = incompleteRequests.unforwarded(r.request());
+        if (owned) {
+          if (
+            !incompleteRequests.ownedUnforwardedResponse(
+              r.request(),
+              r.status(),
+              await r.allHeaders(),
+            )
+          )
+            throw new Error("WORK_OWNED_TRUNCATION_HEADERS_REJECTED");
+        } else {
+          if (!id || facts.has(id))
+            throw new Error("WORK_RESPONSE_IDENTITY_MISSING_OR_DUPLICATE");
+          facts.set(id, fact);
+        }
         const originalFinished = r.finished();
         let error: Error | null;
         if (incompleteRequests.declared(r.request())) {
@@ -609,6 +666,11 @@ export function observe(page: Page) {
         }
         fact.finished = error === null;
         fact.failed = error !== null;
+        if (owned) {
+          if (!fact.failed || !incompleteRequests.expectedFailure(r.request()))
+            throw new Error("WORK_OWNED_TRUNCATION_NOT_FAILED");
+          ownedTruncations.add(r.request());
+        }
       })().catch(() => {
         // Attach the rejection sink immediately, including when the case ends
         // before verify. This records observation failure, never transport EOF.
@@ -671,12 +733,14 @@ export function observe(page: Page) {
       }
       const failedWithoutHeaders = [...failedRequests].filter(
         (request) =>
+          !ownedTruncations.has(request) &&
           ![...facts.values()].some((fact) => fact.request === request),
       ).length;
       expect(
         decoded === facts.size &&
           decoded > 0 &&
-          incomplete + failedWithoutHeaders === expectedIncomplete,
+          incomplete + failedWithoutHeaders + ownedTruncations.size ===
+            expectedIncomplete,
       ).toBe(true);
       writeFileSync(
         join(evidence, "work-body-validation.json"),
@@ -684,6 +748,7 @@ export function observe(page: Page) {
           original_bodies: decoded,
           browser_complete: decoded - incomplete,
           expected_incomplete: incomplete,
+          owned_unforwarded_truncations: ownedTruncations.size,
           failed_without_headers: failedWithoutHeaders,
           all_schema_client_validated: true,
         }),

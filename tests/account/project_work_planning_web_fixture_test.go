@@ -666,13 +666,15 @@ type projectWorkCutWriter struct {
 	mode   string
 	trace  []string
 	conn   net.Conn
+	status int
 }
 
 func (w *projectWorkCutWriter) Header() http.Header { return w.header }
 func (w *projectWorkCutWriter) WriteHeader(code int) {
-	if code != http.StatusOK {
+	if code != http.StatusOK && code != http.StatusServiceUnavailable {
 		panic("unexpected cut status")
 	}
+	w.status = code
 	w.trace = append(w.trace, "status")
 }
 func (w *projectWorkCutWriter) Write(p []byte) (int, error) {
@@ -733,7 +735,7 @@ func TestProjectWorkLossCutObservation(t *testing.T) {
 			if mode != "hijack" {
 				want = append(want, "close")
 			}
-			if !reflect.DeepEqual(w.trace, want) || w.header.Get("Content-Length") != "123" || w.header.Get("Connection") != "close" || w.header.Get("Transfer-Encoding") != "" || lost.header.Get("Transfer-Encoding") != "chunked" {
+			if w.status != http.StatusOK || !reflect.DeepEqual(w.trace, want) || w.header.Get("Content-Length") != "123" || w.header.Get("Connection") != "close" || w.header.Get("Transfer-Encoding") != "" || lost.header.Get("Transfer-Encoding") != "chunked" {
 				t.Fatal("cut operation order or framing/default header isolation changed")
 			}
 			if mode == "default-nil" {

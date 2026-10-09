@@ -31,6 +31,7 @@ type projectWorkRecoveryStage struct {
 	FaultHits                                                 int64
 	FaultInstalled                                            bool
 	WireAttempts, ClosedAttempts                              int
+	TruncatedAttempts                                         int
 	Rejected                                                  bool
 	RejectionReason                                           projectWorkRecoveryRejection
 }
@@ -45,15 +46,18 @@ const (
 	projectWorkAttemptLimit  projectWorkRecoveryRejection = "attempt_limit"
 )
 
-func closeProjectWorkUnforwarded(w http.ResponseWriter) (bool, bool, error) {
-	conn, _, err := http.NewResponseController(w).Hijack()
-	if err != nil {
-		return false, false, errors.New("owned before-forward hijack failed")
+func truncateProjectWorkUnforwarded(w http.ResponseWriter) (projectOwnerWebLossObservation, error) {
+	var observed projectOwnerWebLossObservation
+	writeProjectOwnerWebLost(w, &projectOwnerWebLost{
+		header:  http.Header{"Content-Type": []string{"application/problem+json"}},
+		length:  4096,
+		status:  http.StatusServiceUnavailable,
+		observe: func(value projectOwnerWebLossObservation) { observed = value },
+	})
+	if observed.Written != 1 || !observed.WriteOK || !observed.FlushOK || !observed.HijackOK || !observed.CloseOK {
+		return observed, errors.New("owned before-forward truncation failed")
 	}
-	if err = conn.Close(); err != nil {
-		return true, false, errors.New("owned before-forward close failed")
-	}
-	return true, true, nil
+	return observed, nil
 }
 
 func (f *projectWorkPlanningWebFixture) recoveryStageSnapshot(project string) projectWorkRecoveryStage {
@@ -74,8 +78,8 @@ func projectWorkRecoveryStageMatches(stage *projectWorkRecoveryStage, o projectW
 }
 
 // This runs before the existing ReverseProxy receives the declared request.
-// A zero-response close is kept distinct from the completed-response truncation
-// fixture: no fabricated headers, receipt, successful status, or body is emitted.
+// Its non-success 503 is deliberately incomplete; it is not a service response,
+// a successful receipt or a synthetic not_observed result. Nothing is forwarded.
 func (f *projectWorkPlanningWebFixture) recoveryBeforeForward(w http.ResponseWriter, r *http.Request, o projectWorkPlanningWebObservation) (bool, error) {
 	f.guard.Lock()
 	stage := f.recoveryStages[o.ProjectID]
@@ -127,23 +131,26 @@ func (f *projectWorkPlanningWebFixture) recoveryBeforeForward(w http.ResponseWri
 			return false, errors.New("unforwarded original key already has a command")
 		}
 	}
-	hijacked, closed, closeErr := closeProjectWorkUnforwarded(w)
+	cut, cutErr := truncateProjectWorkUnforwarded(w)
 	f.guard.Lock()
-	stage.Hijacked = stage.Hijacked || hijacked
-	stage.Closed = stage.Closed || closed
-	if hijacked && closed && closeErr == nil {
+	stage.Hijacked = stage.Hijacked || cut.HijackOK
+	stage.Closed = stage.Closed || cut.CloseOK
+	if cut.HijackOK && cut.CloseOK {
 		stage.ClosedAttempts++
+	}
+	if cutErr == nil {
+		stage.TruncatedAttempts++
 	}
 	stage.NotForwarded = true
 	f.guard.Unlock()
-	if closeErr != nil {
-		return false, errors.New("owned before-forward close failed")
+	if cutErr != nil {
+		return false, cutErr
 	}
 	return false, nil
 }
 
 func projectWorkUnforwardedComplete(stage projectWorkRecoveryStage) bool {
-	return stage.Original != nil && stage.NotForwarded && stage.Hijacked && stage.Closed && !stage.Rejected && stage.WireAttempts >= 1 && stage.WireAttempts <= projectWorkUnforwardedAttemptLimit && stage.ClosedAttempts == stage.WireAttempts
+	return stage.Original != nil && stage.NotForwarded && stage.Hijacked && stage.Closed && !stage.Rejected && stage.WireAttempts >= 1 && stage.WireAttempts <= projectWorkUnforwardedAttemptLimit && stage.ClosedAttempts == stage.WireAttempts && stage.TruncatedAttempts == stage.WireAttempts
 }
 
 // Called only after stopProxy has joined. This projection contains no request
@@ -153,23 +160,24 @@ func (f *projectWorkPlanningWebFixture) writeRecoveryStageEvidence() {
 		return
 	}
 	type safeStage struct {
-		Kind            string                       `json:"kind"`
-		Bound           bool                         `json:"bound"`
-		WireAttempts    int                          `json:"wire_attempts"`
-		ClosedAttempts  int                          `json:"closed_attempts"`
-		Rejected        bool                         `json:"rejected"`
-		RejectionReason projectWorkRecoveryRejection `json:"rejection_reason"`
-		LookupObserved  bool                         `json:"lookup_observed"`
-		Completed       bool                         `json:"completed"`
-		FaultInstalled  bool                         `json:"fault_installed"`
-		FaultHits       int64                        `json:"fault_hits"`
+		Kind              string                       `json:"kind"`
+		Bound             bool                         `json:"bound"`
+		WireAttempts      int                          `json:"wire_attempts"`
+		ClosedAttempts    int                          `json:"closed_attempts"`
+		TruncatedAttempts int                          `json:"truncated_attempts"`
+		Rejected          bool                         `json:"rejected"`
+		RejectionReason   projectWorkRecoveryRejection `json:"rejection_reason"`
+		LookupObserved    bool                         `json:"lookup_observed"`
+		Completed         bool                         `json:"completed"`
+		FaultInstalled    bool                         `json:"fault_installed"`
+		FaultHits         int64                        `json:"fault_hits"`
 	}
 	stages := make([]safeStage, 0, 2)
 	f.guard.Lock()
 	for _, kind := range []string{"not-observed", "in-progress"} {
 		if seed, ok := f.seeds[kind]; ok {
 			if stage := f.recoveryStages[seed.ProjectID]; stage != nil {
-				stages = append(stages, safeStage{kind, stage.Original != nil, stage.WireAttempts, stage.ClosedAttempts, stage.Rejected, stage.RejectionReason, stage.LookupObserved, stage.Completed, stage.FaultInstalled, stage.FaultHits})
+				stages = append(stages, safeStage{kind, stage.Original != nil, stage.WireAttempts, stage.ClosedAttempts, stage.TruncatedAttempts, stage.Rejected, stage.RejectionReason, stage.LookupObserved, stage.Completed, stage.FaultInstalled, stage.FaultHits})
 			}
 		}
 	}
@@ -556,18 +564,23 @@ func assertProjectWorkRecoveryStages(t *testing.T, f *projectWorkPlanningWebFixt
 }
 
 func TestProjectWorkUnforwardedClose(t *testing.T) {
-	for _, mode := range []string{"success", "hijack", "close"} {
+	for _, mode := range []string{"success", "write", "short", "flush", "hijack", "close"} {
 		t.Run(mode, func(t *testing.T) {
 			local, peer := net.Pipe()
 			t.Cleanup(func() { _ = local.Close(); _ = peer.Close() })
 			w := &projectWorkCutWriter{header: make(http.Header), mode: mode, conn: local}
-			hijacked, closed, err := closeProjectWorkUnforwarded(w)
-			want := []string{"hijack"}
+			cut, err := truncateProjectWorkUnforwarded(w)
+			want := []string{"status", "write", "flush", "hijack"}
 			if mode != "hijack" {
 				want = append(want, "close")
 			}
-			if !reflect.DeepEqual(w.trace, want) || len(w.header) != 0 || hijacked != (mode != "hijack") || closed != (mode == "success") || (err == nil) != (mode == "success") {
-				t.Fatal("unforwarded close wrote response bytes, retried or lost actual returns")
+			written := 1
+			if mode == "write" || mode == "short" {
+				written = 0
+			}
+			wantCut := projectOwnerWebLossObservation{Written: written, WriteOK: mode != "write", FlushOK: mode != "flush", HijackOK: mode != "hijack", CloseOK: mode != "hijack" && mode != "close"}
+			if !reflect.DeepEqual(w.trace, want) || w.status != http.StatusServiceUnavailable || w.header.Get("Content-Type") != "application/problem+json" || w.header.Get("Content-Length") != "4096" || w.header.Get("Connection") != "close" || cut != wantCut || (err == nil) != (mode == "success") {
+				t.Fatal("unforwarded truncation changed its wire framing or ignored an actual return")
 			}
 		})
 	}
@@ -629,7 +642,7 @@ func TestProjectWorkNotObservedRepeatBoundary(t *testing.T) {
 	path := projectOwnerWebPath + "/" + project + "/milestones/" + target
 	body := []byte(`{"expected_version":"1","request":{"title":"original"}}`)
 	original := projectWorkPlanningWebObservation{Method: http.MethodPatch, RawPath: path, ProjectID: project, TargetID: target, Domain: "structure", Command: "work.milestone.update", Key: key, CSRF: sha256.Sum256([]byte(csrf)), Body: body}
-	stage := &projectWorkRecoveryStage{Kind: "not-observed", Project: project, Target: target, ExpectedVersion: "1", Text: "original", Original: &original, NotForwarded: true, Hijacked: true, Closed: true, WireAttempts: 1, ClosedAttempts: 1}
+	stage := &projectWorkRecoveryStage{Kind: "not-observed", Project: project, Target: target, ExpectedVersion: "1", Text: "original", Original: &original, NotForwarded: true, Hijacked: true, Closed: true, WireAttempts: 1, ClosedAttempts: 1, TruncatedAttempts: 1}
 	f := &projectWorkPlanningWebFixture{mode: "recovery", enabled: true, recoveryStages: map[string]*projectWorkRecoveryStage{project: stage}, records: []projectWorkPlanningWebObservation{original}}
 	owner := &projectOwnerWebFixture{work: f, authenticationWebFixture: &authenticationWebFixture{t: t}}
 	f.projectOwnerWebFixture = owner
@@ -645,8 +658,8 @@ func TestProjectWorkNotObservedRepeatBoundary(t *testing.T) {
 	if owner.observeRequest(w, request()) {
 		t.Fatal("same original wire attempt escaped the armed not_observed boundary")
 	}
-	if !reflect.DeepEqual(w.trace, []string{"hijack", "close"}) || len(w.header) != 0 {
-		t.Fatal("repeated original was not really closed without a response")
+	if !reflect.DeepEqual(w.trace, []string{"status", "write", "flush", "hijack", "close"}) || w.status != http.StatusServiceUnavailable || w.header.Get("Content-Type") != "application/problem+json" || w.header.Get("Content-Length") != "4096" {
+		t.Fatal("repeated original did not receive the exact non-success truncation")
 	}
 	if stage.WireAttempts != 2 || stage.ClosedAttempts != 2 || !projectWorkUnforwardedComplete(*stage) {
 		t.Fatal("actual repeated close was not counted")
@@ -672,7 +685,7 @@ func TestProjectWorkNotObservedBoundaryControls(t *testing.T) {
 	const target = "01900000-0000-7000-8000-000000000002"
 	original := projectWorkPlanningWebObservation{Method: http.MethodPatch, RawPath: projectOwnerWebPath + "/" + project + "/milestones/" + target, ProjectID: project, TargetID: target, Domain: "structure", Command: "work.milestone.update", Key: "original-key", CSRF: sha256.Sum256([]byte("original-session")), Body: []byte(`{"expected_version":"1","request":{"title":"original"}}`)}
 	newStage := func() *projectWorkRecoveryStage {
-		return &projectWorkRecoveryStage{Kind: "not-observed", Project: project, Target: target, ExpectedVersion: "1", Text: "original", Original: &original, NotForwarded: true, Hijacked: true, Closed: true, WireAttempts: 1, ClosedAttempts: 1}
+		return &projectWorkRecoveryStage{Kind: "not-observed", Project: project, Target: target, ExpectedVersion: "1", Text: "original", Original: &original, NotForwarded: true, Hijacked: true, Closed: true, WireAttempts: 1, ClosedAttempts: 1, TruncatedAttempts: 1}
 	}
 	for _, sample := range []struct {
 		name   string
@@ -739,12 +752,21 @@ func TestProjectWorkNotObservedBoundaryControls(t *testing.T) {
 				t.Fatal("bounded physical attempt did not really close")
 			}
 		}
-		stage = newStage()
-		f.recoveryStages[project] = stage
-		w := &projectWorkCutWriter{header: make(http.Header), mode: "hijack"}
-		proceed, err := f.recoveryBeforeForward(w, nil, original)
-		if proceed || err == nil || stage.WireAttempts != 2 || stage.ClosedAttempts != 1 || projectWorkUnforwardedComplete(*stage) {
-			t.Fatal("failed physical close was accepted as a completed barrier")
+		for _, mode := range []string{"write", "short", "flush", "hijack", "close"} {
+			stage = newStage()
+			f.recoveryStages[project] = stage
+			local, peer := net.Pipe()
+			w := &projectWorkCutWriter{header: make(http.Header), mode: mode, conn: local}
+			proceed, err := f.recoveryBeforeForward(w, nil, original)
+			_ = local.Close()
+			_ = peer.Close()
+			wantClosed := 2
+			if mode == "hijack" || mode == "close" {
+				wantClosed = 1
+			}
+			if proceed || err == nil || stage.WireAttempts != 2 || stage.ClosedAttempts != wantClosed || stage.TruncatedAttempts != 1 || projectWorkUnforwardedComplete(*stage) {
+				t.Fatal("failed physical truncation was accepted as a completed barrier", mode)
+			}
 		}
 	})
 	t.Run("other-target-read-and-lookup", func(t *testing.T) {
@@ -765,14 +787,14 @@ func TestProjectWorkNotObservedBoundaryControls(t *testing.T) {
 
 func TestProjectWorkRecoverySafeStageEvidence(t *testing.T) {
 	directory := t.TempDir()
-	f := &projectWorkPlanningWebFixture{mode: "recovery", projectOwnerWebFixture: &projectOwnerWebFixture{evidence: directory, authenticationWebFixture: &authenticationWebFixture{t: t}}, seeds: map[string]projectWorkPlanningWebSeed{"not-observed": {ProjectID: "private-project"}}, recoveryStages: map[string]*projectWorkRecoveryStage{"private-project": {Kind: "not-observed", Original: &projectWorkPlanningWebObservation{Key: "private-key", Body: []byte("private-body")}, WireAttempts: 2, ClosedAttempts: 2}}}
+	f := &projectWorkPlanningWebFixture{mode: "recovery", projectOwnerWebFixture: &projectOwnerWebFixture{evidence: directory, authenticationWebFixture: &authenticationWebFixture{t: t}}, seeds: map[string]projectWorkPlanningWebSeed{"not-observed": {ProjectID: "private-project"}}, recoveryStages: map[string]*projectWorkRecoveryStage{"private-project": {Kind: "not-observed", Original: &projectWorkPlanningWebObservation{Key: "private-key", Body: []byte("private-body")}, WireAttempts: 2, ClosedAttempts: 2, TruncatedAttempts: 2}}}
 	f.writeRecoveryStageEvidence()
 	raw, err := os.ReadFile(filepath.Join(directory, "work-recovery-stage-evidence.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	var got []map[string]any
-	want := []map[string]any{{"kind": "not-observed", "bound": true, "wire_attempts": float64(2), "closed_attempts": float64(2), "rejected": false, "rejection_reason": "", "lookup_observed": false, "completed": false, "fault_installed": false, "fault_hits": float64(0)}}
+	want := []map[string]any{{"kind": "not-observed", "bound": true, "wire_attempts": float64(2), "closed_attempts": float64(2), "truncated_attempts": float64(2), "rejected": false, "rejection_reason": "", "lookup_observed": false, "completed": false, "fault_installed": false, "fault_hits": float64(0)}}
 	if json.Unmarshal(raw, &got) != nil || !reflect.DeepEqual(got, want) || bytes.Contains(raw, []byte("private-")) {
 		t.Fatal("recovery evidence changed its closed projection")
 	}

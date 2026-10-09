@@ -548,7 +548,7 @@ test("[recovery] three committed lost responses retain original intent and histo
     ).toBe(true);
     if (stage === "not-observed") {
       seen.declareIncomplete({
-        kind: "lost-milestone-update",
+        kind: "unforwarded-milestone-update",
         projectID: seed.project_id,
         targetID: seed.milestone_id,
         expectedVersion: version,

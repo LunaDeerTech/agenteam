@@ -188,6 +188,114 @@ afterEach(async () => {
   vi.restoreAllMocks()
 })
 describe('Work Session Cookie ownership and original recovery', () => {
+  it('keeps a truncated unforwarded 503 uncertain until explicit original Lookup and replay', async () => {
+    const f = await fixture(),
+      command: WorkPlanningCommand = {
+        domain: 'structure',
+        projectID: project,
+        command: 'work.milestone.update',
+        targetID: target,
+        expected_version: '1',
+        request: { title: 'original' },
+      }
+    let pulls = 0
+    // Exact fixture framing, followed by a real stream read failure rather
+    // than a synthesized AccountFailure. No socket or browser is used here.
+    const body = new ReadableStream<Uint8Array>(
+      {
+        pull(controller) {
+          if (++pulls === 1) controller.enqueue(new TextEncoder().encode('{'))
+          else controller.error(new TypeError('controlled truncated body'))
+        },
+      },
+      // No prefetch: the production reader consumes the byte before its next
+      // actual read sees the incomplete-body error.
+      { highWaterMark: 0 },
+    )
+    f.setHandler(
+      async () =>
+        new Response(body, {
+          status: 503,
+          headers: {
+            'Content-Type': 'application/problem+json',
+            'Content-Length': '4096',
+            Connection: 'close',
+          },
+        }),
+    )
+    await expect(f.auth.workPlanning.start(command)).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+    expect(pulls).toBe(2)
+    expect(body.locked).toBe(false)
+    expect(f.auth.workPlanning.progress).toMatchObject({
+      phase: 'uncertain',
+      observation: 'none',
+      canLookup: true,
+      canReplay: true,
+    })
+    await flushPromises()
+    expect(f.sent).toHaveLength(1)
+    const original = f.sent[0]!
+    expect(original.path).toBe(`/api/v1/projects/${project}/milestones/${target}`)
+    expect(original.init.method).toBe('PATCH')
+    expect(original.init.credentials).toBe('same-origin')
+    expect(original.init.headers).toMatchObject({
+      'X-CSRF-Token': 'S'.repeat(43),
+      'Idempotency-Key': expect.any(String),
+    })
+    expect(JSON.parse(original.init.body as string)).toEqual({
+      expected_version: '1',
+      request: { title: 'original' },
+    })
+    f.setHandler(async () => response({ state: 'not_observed', result: null }))
+    await f.auth.workPlanning.checkOriginal()
+    expect(f.auth.workPlanning.progress).toMatchObject({
+      phase: 'uncertain',
+      observation: 'not_observed',
+      canReplay: true,
+    })
+    await flushPromises()
+    expect(f.sent).toHaveLength(2)
+    const lookup = f.sent[1]!
+    expect(lookup.path).toBe(`/api/v1/projects/${project}/structure-commands/lookup`)
+    expect(lookup.init.method).toBe('POST')
+    expect(lookup.init.headers).toEqual(original.init.headers)
+    expect(JSON.parse(lookup.init.body as string)).toEqual({
+      command: command.command,
+      target_id: target,
+      expected_version: '1',
+      request: { title: 'original' },
+    })
+    f.setHandler(async () =>
+      response({
+        ...wire(command),
+        milestone: { ...milestone, title: 'original', version: '2' },
+      }),
+    )
+    await f.auth.workPlanning.retryOriginal()
+    expect(f.sent).toHaveLength(3)
+    const replay = f.sent[2]!
+    expect(replay.path).toBe(original.path)
+    expect(replay.init.method).toBe(original.init.method)
+    expect(replay.init.body).toBe(original.init.body)
+    expect(replay.init.headers).toEqual(original.init.headers)
+    expect(f.auth.workPlanning.progress).toMatchObject({
+      phase: 'confirmed',
+      observation: 'committed',
+    })
+  })
+  it('distinguishes a complete 503 Problem from truncated bytes without discarding uncertainty', async () => {
+    const f = await fixture()
+    f.setHandler(async () => problem('DEPENDENCY_UNAVAILABLE', 503))
+    await expect(f.auth.workPlanning.start(commands[1]!)).rejects.toMatchObject({
+      kind: 'problem',
+      problem: { code: 'DEPENDENCY_UNAVAILABLE', commit_state: 'not_committed' },
+    })
+    expect(f.auth.workPlanning.progress).toMatchObject({ phase: 'uncertain', canReplay: true })
+    await flushPromises()
+    expect(f.sent).toHaveLength(1)
+  })
   it.each(commands)(
     'recovers the original $domain intent without replacing it with current state',
     async (original) => {
