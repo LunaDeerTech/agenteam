@@ -12,8 +12,9 @@
 ## 本轮恢复保存与 Knowledge 独立风险审查
 
 - root 已保存当前 Stop PG 测试／卡／本文三路径到 `19353f4e766783cdaabd3068833c424f3a631985`；此前 `70036` race-c、`f8911f` 单 top discovery 仅编译准备，随后12子已由96753实际验证。原 `39205` CommitRecovery 完整 PASS 只对应旧 frozen binary 产品组合，不外推到新增 Stop。本轮Stop使用原两资源 driver，无 MinIO/harness新依赖，结果见下。
-- 已完成 Knowledge B02 15 生产源、00025 和四个共享 Project adapter 的独立风险审，详见 [完整报告](knowledge-b02-review/README.md)。暂不接受完整 B02：真实 D05 reader 取消后 Close 返回原错误导致 Knowledge call 不退役（P1）；RecoverCleanup 首 Pending 全局阻塞后续 Project（P2）。作者与 root 已收到，不改他域产品。
-- 离线实际源 overlay `61981` actual0/race1.042s，1 top/2 子；补调度控制 `99769` actual0/race1.023s，2 top/2 子。复现测试断言缺陷，不能写产品通过；没有 PG/socket/网络。完整 env、受控边界及精确受审源范围在报告及相邻必要 probe 保存；Knowledge 原 Runtime56777随后真实第一子FAIL、后两子PASS，hostTCP尾FAIL保留；两mustfix作者返修已冻结交本实例复核，新分页SQL仍未PG。
+- 已完成 Knowledge B02 15 生产源、00025 和四个共享 Project adapter 的独立风险审，详见 [完整报告](knowledge-b02-review/README.md)。发现真实 D05 reader 取消后 Close 返回原错误导致 Knowledge call 不退役（P1）、RecoverCleanup 首 Pending 全局阻塞后续 Project（P2）；作者修复后，root 保存 `2287eca0` 的五源已获本实例独立有限接受。完整 B02 仍待当前真实补验，不改他域产品。
+- 原离线实际源 overlay `61981` actual0/race1.042s，1 top/2 子；补调度控制 `99769` actual0/race1.023s，2 top/2 子。原复现测试断言缺陷、文件保留；另增修复独验 `15866` actual0/race1.044s，4 top/7 子：真实 D05 Close／cancel／阻塞实际 join 与保错，65旧项32/32/1及新低/高项下轮公平、原 hard/Unknown cause/attempt、并发 Busy／取消后 actual callback 退出。初 `15786` probeFAIL 为 DeepEqual 比 opaque closure 的测试误判，改正式 Equal/Details 后通过，产品未改。完整 env、必要探针与边界在报告；没有 PG/socket/网络。
+- Knowledge 原 Runtime56777真实第一子FAIL、后两子PASS，hostTCP尾FAIL保留；修复不追改原结果。新分页SQL及当前新 Runtime/Cleanup 尚需真实窗口，新增 Cleanup 两真 reader 按 durable ID 判序的子例仅静核。作者59862 UUID顺序假设FAIL与修后49004 full race事实独立保留，不替代本实例结论。此次仅新增探针及报告／本文3路径冻结，旧桥和缺陷探针未改，无自有命令或资源在途。
 - 新 review 目录四文件加本文共五路径可恢复冻结。源检查未发现其他授权／删除原子性 mustfix；原作者六组有限 PG 和后续五组／最小独立真实补集边界不变。当前本实例无测试／真实资源在途。
 
 ## 当前 Stop PG 完整结果

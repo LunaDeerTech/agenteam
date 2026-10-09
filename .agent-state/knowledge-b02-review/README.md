@@ -4,7 +4,7 @@
 
 ## 结论
 
-**暂不接受完整 B02：P1 一项、P2 一项需收敛。** root 已接受两项实际源码复现为本域 mustfix 并授权作者定向修复。 授权／发布／树删除主链未发现其他 mustfix；不是完整测试矩阵或生产根接受。已真实通过的六组作者证据只按各自范围复用；Runtime、Unknown、Concurrency、CleanupUnknown、ProcessRecovery 的原准备输入仍须真实运行。Object Runtime 原停止项继续保留。
+**P1/P2 定向修复已获独立有限接受；完整 B02 仍待当前产品真实补验。** 下列两项是原始 mustfix，root 已授权作者修复；2026-10-09 对稳定五源的复核与实际控制见文末。授权／发布／树删除主链未发现其他 mustfix；不是完整测试矩阵或生产根接受。已真实通过的六组作者证据只按各自范围复用；Runtime 原实际失败仍保留，当前 Runtime/Cleanup 和其余准备组不能由离线结论替代。Object Runtime 原停止项继续保留。
 
 1. **P1：取消后的 canonical reader 会永久阻塞 Knowledge Drain。** `internal/central/knowledge/source.go:26` 的 `trackedRead.Close` 仅在底层 `Close()==nil` 时注销调用。真实 `internal/central/object/reader.go` 在取消后先执行关闭／release，再由 `Close` 等待 `monitorDone`，返回原 `context.Canceled`；重试仍返回该错误。故真正退出的 reader 永远留下 Knowledge call。离线控制调用真实 D05 私有 constructor（仅通过 overlay 增加导出桥）、真实 Knowledge `begin/Stop/trackedRead.Close/Drain`，内存 body 和受控 release：正常 Close 对照注销；取消回调实际返回、Close 实际 join 后仍保留 1 call，后续 Close 不改变。需要区分原读取错误与可靠资源退出事实，不能把任意非 nil Close 直接当作 join。原 `TestKnowledgeB02Runtime/stopped_canonical_reader_retires_after_actual_close` 应继续消费真实 PG/D05 输入确认，当前控制不是数据库 lease 证据。
 
@@ -54,3 +54,39 @@ env PATH=/workspace/toolchains/go1.27.1/bin:$PATH \
 ## 有限后续验证
 
 先由本域作者独立修复确认风险，再由本审查者只复验受影响边界；保持原 Runtime binary 与失败历史。按 B02 §7 已约定有限真实补集继续：内容／权限／事实覆盖 DOCX、raw length/SHA 正式 D05 拒绝、final 当前授权变化、伪 Audit/Event；树／引用覆盖正文 Update 与 Move 交错、preview 后成员移入移出、旧 upload revoked 后重附着及错误 cleanup cause。既有 Activity 末端失败证据复用，不复制每条 SQL 的同类回滚矩阵。五个已准备异常／恢复组的原实测完整尾与关键判据由独立者消费，不默认新建大矩阵。
+
+## P1/P2 修复独立复核（2026-10-09）
+
+对作者冻结并由 root 保存至 `2287eca0` 的限定五源 `internal/central/knowledge/{source.go,source_test.go,recovery.go,recovery_test.go,service.go}` 有限接受，无剩余 mustfix。本审查者未参与修复实现、未修改 Knowledge 产品；旧 `production_review_test.go` 缺陷复现保留，另增 `repair_verification_test.go` 消费真实当前源码。作者原测试 `59862` 因 UUIDv7 同毫秒顺序假设失败、后续改固定合法 UUIDv7 的 `49004` 全包 race 通过，均保留自身边界，不作为本实例独验。
+
+- P1：真实 D05 `newIntegrityReader`、取消 callback、monitor 和 Close 均执行；普通 Close、原 release 错误和原 cancellation 错误在同步 Close 返回后注销 Knowledge call，错误逐次保留、release 一次。另将真实 release callback 阻塞，Stop 与 Close 已进入仍不得完成 Drain；实际 callback/Close 返回后才能退出。只证明本地调用账本，内存 body／受控 release 不证明持久 lease 或 D05 全域 Runtime。泛型 SourceInput 与 publication retirement 的失败 Close 不 join 路径未修改，已有相关作者检查复用。
+- P2：实际公开 RecoverCleanup 与原 per-item cause 校验消费预声明页响应，页脚本核对每次原 `after/through`，不实现第二套恢复调度。65 个 Pending 旧项以 32/32/1 有界推进；下轮才纳入比原 after 更低及原 through 更高的两个新项，以 32/32/3 结束有限轮；旧 Pending 获得重试。hard、CommitUnknown 和 ResourceBusy+Unknown 均不被前项 Pending 掩盖，原 error、cleanup cause、transaction cause/attempt 保留，下一调用重试原失败项。并发扫描直接 Busy、不查询 SQL／偷取原 call；调用取消仍等待 Cleaner 实际返回，之后保留已推进游标。
+- 静核新聚合页最多 33 ID，`postgres.oneRow.Scan` 在扫描返回前 defer 关闭 Rows，Cleaner 在 Scan 返回后调用；新查询与真实 durable rows 的运行兼容性仍未 PG。新真实 Cleanup 子用例持有两实际 reader、读取持久 cleanup ID 顺序再关闭较后者，不依赖 UUID 分配时序；这里只读审查，未执行该组。
+
+独立控制 `15866` actual exit 0／race **1.044s**，**4 tops／7 subcases**，无 PG、Docker、socket 或网络。首次 `15786` actual exit 1：探针错误地用 `reflect.DeepEqual` 比较带 opaque closure 的 Cleanup Owner（所有三个错误子例误报）；改为正式 `Owner.Equal` 与 `TransactionCause.Details` 比较后，相关输入不变，通过上述一次复验。该失败不改写为产品反例，也不抹除。
+
+原 Runtime `56777` 第一子已真实复现 P1 并失败，后两子通过；该轮 host TCP 门槛亦 FAIL，原结果保持 FAIL。当前修复的 Runtime/Cleanup 须新 binary／精确 source 与独占窗口实测；离线结论不使原 binary、原 SQL 或全 B02 获得 PASS。
+
+修复独验入口（cwd `/workspace/agenteam-knowledge`）：
+
+```sh
+python3 - <<'PY'
+import json,pathlib
+root=pathlib.Path('/workspace/agenteam-knowledge')
+probe=pathlib.Path('/workspace/agenteam-skills/.agent-state/knowledge-b02-review')
+out=pathlib.Path('/workspace/agenteam-skills/output/ai/skills/knowledge-b02-review')
+out.mkdir(parents=True,exist_ok=True)
+(out/'repair-overlay.json').write_text(json.dumps({'Replace':{
+ str(root/'internal/central/knowledge/zz_independent_b02_repair_test.go'):str(probe/'repair_verification_test.go'),
+ str(root/'internal/central/object/zz_independent_b02_bridge.go'):str(probe/'object_reader_bridge.go'),
+}},indent=2)+'\n')
+PY
+env PATH=/workspace/toolchains/go1.27.1/bin:$PATH \
+ GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2 \
+ GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
+ GOCACHE=/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache \
+ GOTMPDIR=/workspace/agenteam-skills/output/ai/skills/compile/tmp \
+ /workspace/toolchains/go1.27.1/bin/go test -mod=readonly -p=1 -race \
+ -overlay=/workspace/agenteam-skills/output/ai/skills/knowledge-b02-review/repair-overlay.json \
+ ./internal/central/knowledge -run '^TestIndependentB02Repair' -count=1 -timeout=30s -v
+```
