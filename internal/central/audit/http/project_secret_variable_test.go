@@ -28,12 +28,26 @@ func TestProjectSecretVariableAuditWireAndSchema(t *testing.T) {
 			t.Fatal(change, err)
 		}
 		vectors = append(vectors, projectAuditSchemaVector{change, "ProjectAuditRecord", body, true})
+		if change == "update" {
+			for _, fields := range []string{`["description"]`, `["name"]`, `["value"]`, `["description","name"]`, `["description","value"]`, `["name","value"]`, `["description","name","value"]`} {
+				variant := tc
+				variant.metadata = `{"variable_id":"` + wireID + `","version":"2","changed_fields":` + fields + `}`
+				row := projectAuditTestRecord(t, variant, identity.Human, false)
+				encoded, err := projectAuditEncodeRecord(context.Background(), p, row.AuditID, row)
+				if err != nil {
+					t.Fatal("canonical field subset", err)
+				}
+				vectors = append(vectors, projectAuditSchemaVector{change + "/" + fields, "ProjectAuditRecord", encoded, true})
+			}
+		}
 		for name, modify := range map[string]func(map[string]any){
 			"unknown-action": func(v map[string]any) { v["action"] = "project.secret_variable.unknown" },
 			"value":          func(v map[string]any) { v["metadata"].(map[string]any)["value"] = "private-canary" },
 			"credential":     func(v map[string]any) { v["metadata"].(map[string]any)["credential_id"] = wireID },
 			"null":           func(v map[string]any) { v["metadata"] = nil },
 			"version":        func(v map[string]any) { v["metadata"].(map[string]any)["version"] = "0" },
+			"unordered":      func(v map[string]any) { v["metadata"].(map[string]any)["changed_fields"] = []string{"value", "name"} },
+			"duplicate":      func(v map[string]any) { v["metadata"].(map[string]any)["changed_fields"] = []string{"value", "value"} },
 			"associations":   func(v map[string]any) { v["associations"] = map[string]any{"request_id": wireID} },
 			"outcome":        func(v map[string]any) { v["outcome"] = "denied" },
 		} {

@@ -133,7 +133,7 @@ describe('Project Audit two closed current-project GETs', () => {
       expect((await api.list(project, { action }, signal())).items).toEqual([])
     for (const resource_kind of auditFilterResourceKinds)
       expect((await api.list(project, { resource_kind }, signal())).items).toEqual([])
-    expect(fetch).toHaveBeenCalledTimes(78)
+    expect(fetch).toHaveBeenCalledTimes(82)
   })
   it.each([
     null,

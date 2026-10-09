@@ -1,6 +1,6 @@
 # D10 Secret Variable Audit 合同与读端兼容
 
-状态：SPEC，实施中；基线正式main `8cb0a953`。来源是已有限独审的[Secret Owner rev2](d10-secret-variables-owner.md) §6/§6.2，A纯合同/Schema已交付。本结果只完成新增审计记录的严格表示、解析和现有读端兼容；SQL CHECK未扩展，因此不宣称新action已经能够持久写入。
+状态：SPEC已获独立有限接受，实现与作者离线验证已完成，待实现独审；基线正式main `8cb0a953`。来源是已有限独审的[Secret Owner rev2](d10-secret-variables-owner.md) §6/§6.2，A纯合同/Schema已交付。本结果只完成新增审计记录的严格表示、解析和现有读端兼容；SQL CHECK未扩展，因此不宣称新action已经能够持久写入。
 
 ## 1. 闭集与结果
 
@@ -14,7 +14,7 @@ Go `DecodeMetadata/NewEntry`→真实SQL row scanner→现Project Audit HTTP安�
 
 ## 2. 唯一写域
 
-`/root/knowledge`在独立树`ai/secret-variable-audit`拥有：
+Knowledge已交接，`/root/variables_ui`在独立树`ai/secret-variable-audit`独占接续以下范围：
 
 - 本卡与`.agent-state/current.md`。
 - 新`internal/central/audit/contract/projectsecretvariable.go`及测试；原`contract/types.go`、`contract/metadata.go`仅接闭集。
@@ -31,4 +31,6 @@ Go `DecodeMetadata/NewEntry`→真实SQL row scanner→现Project Audit HTTP安�
 3. 实际TS metadata/record/query parser正负控，旧普通/Project/Secret值Audit集合有限回归；类型检查和相关格式检查。复用只读node_modules，不npm网络，不起Vite/browser/socket。
 4. 离线Go小包race/vet、既有受影响读端合同测试。不存在PG写入/同Tx事实/Owner授权集成证明；不依假SQL provider通过扩大结论。根安排未参与者独审后才正式交付。
 
-没有新增产品决定；任何发现要求扩大既有事实权限或改变strict行为，先冻结该变化交独审。当前技术片段已实现并冻结交接，Go定向race/schema已过；TS整组仍有两项夹具/运行入口失败，详见current，不宣称完整结果已验收。
+没有新增产品决定；任何发现要求扩大既有事实权限或改变strict行为，先冻结该变化交独审。当前已接入三action的合同、row decoder、HTTP/OpenAPI与TS读兼容；Project Audit成功list/detail在识别action前检查原JSON重复成员，System record集合和普通变量事实权限保持原闭集。新Secret update Schema枚举七种有序字段子集；版本的非规范表示继续由原严格解析拒绝。实现尚待未参与者独审，不将离线读兼容写成真实持久能力。
+
+作者离线结果：Audit contract/读包race、六个既有HTTP纯读top、最终37项实际Go HTTP输出/标准Schema向量、277项Audit与相邻Model decoder测试、严格TS及三Go包vet通过。原始重复JSON成员与Schema逆序字段两个真实反例已修复并保留回归；未跑Native、PG或生产持久路径。恢复命令和实际终态见current。

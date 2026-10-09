@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { captureAuditQuery, parseProjectAuditRecord } from '../api/project-audit'
+import {
+  captureAuditQuery,
+  createProjectAuditAPI,
+  parseProjectAuditRecord,
+} from '../api/project-audit'
 import { parseSystemAuditRecord } from '../api/system-audit'
 
 const id = (n: number) => `01970000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
@@ -84,5 +88,87 @@ describe('Secret Variable Audit closed read compatibility', () => {
       ),
     ).toThrow()
     expect(() => captureAuditQuery({ action: 'project.secret_variable.unknown' })).toThrow()
+  })
+
+  it('rejects noncanonical Secret versions rather than accepting a numeric prefix', () => {
+    for (const change of ['create', 'update', 'delete'] as const) {
+      const row = record(change)
+      for (const version of ['1\n', '2\n', '2\r', '2\u2028', '02', '+2', '2.0', '2e0'])
+        expect(() =>
+          parseProjectAuditRecord({ ...row, metadata: { ...row.metadata, version } }, project),
+        ).toThrow('invalid-response')
+    }
+  })
+
+  it('rejects duplicate members in actual raw Secret detail and page responses', async () => {
+    const row = record('update'),
+      raw = JSON.stringify(row),
+      variants = [
+        raw.replace('"version":"2"', '"version":"1","version":"2"'),
+        raw.replace('"version":"2"', '"version":"1","vers\\u0069on":"2"'),
+        raw.replace('"action":', '"action":"project.secret_variable.delete","action":'),
+        raw.replace(
+          '"action":"project.secret_variable.update"',
+          '"action":"project.secret_variable.delete","action":"project.variable.update"',
+        ),
+        raw.replace('"metadata":', '"metadata":null,"metadata":'),
+        raw.replace('"changed_fields":', '"changed_fields":null,"changed_fields":'),
+      ]
+    for (const body of variants) {
+      const api = createProjectAuditAPI(
+        async (path) =>
+          new Response(path.endsWith('/audit') ? `{"items":[${body}],"next_cursor":null}` : body, {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }),
+      )
+      await expect(
+        api.get(project, row.audit_id, new AbortController().signal),
+      ).rejects.toMatchObject({
+        kind: 'invalid-response',
+      })
+      await expect(api.list(project, {}, new AbortController().signal)).rejects.toMatchObject({
+        kind: 'invalid-response',
+      })
+    }
+    const api = createProjectAuditAPI(
+      async () =>
+        new Response(`{"items":[],"items":[${raw}],"next_cursor":null}`, {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    )
+    await expect(api.list(project, {}, new AbortController().signal)).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+  })
+
+  it('decodes valid Secret raw detail and mixed-action pages with immutable safe metadata', async () => {
+    for (const change of ['create', 'update', 'delete'] as const) {
+      const row = record(change),
+        ordinary = { ...record('update'), audit_id: id(9), action: 'project.variable.update' },
+        api = createProjectAuditAPI(
+          async (path) =>
+            new Response(
+              JSON.stringify(
+                path.endsWith('/audit') ? { items: [row, ordinary], next_cursor: null } : row,
+              ),
+              { status: 200, headers: { 'Content-Type': 'application/json' } },
+            ),
+        )
+      const detail = await api.get(project, row.audit_id, new AbortController().signal),
+        page = await api.list(project, {}, new AbortController().signal)
+      expect(detail.metadata).toEqual(row.metadata)
+      expect(page.items.map((item) => item.action)).toEqual([row.action, ordinary.action])
+      expect([detail, detail.metadata, page, page.items].every(Object.isFrozen)).toBe(true)
+      expect(
+        'changed_fields' in detail.metadata && Object.isFrozen(detail.metadata.changed_fields),
+      ).toBe(true)
+      expect(Object.keys(detail.metadata).sort()).toEqual([
+        'changed_fields',
+        'variable_id',
+        'version',
+      ])
+    }
   })
 })

@@ -9283,17 +9283,34 @@
                 ]
               },
               "changed_fields": {
-                "type": "array",
-                "items": {
-                  "enum": [
+                "enum": [
+                  [
+                    "description"
+                  ],
+                  [
+                    "name"
+                  ],
+                  [
+                    "value"
+                  ],
+                  [
+                    "description",
+                    "name"
+                  ],
+                  [
+                    "description",
+                    "value"
+                  ],
+                  [
+                    "name",
+                    "value"
+                  ],
+                  [
                     "description",
                     "name",
                     "value"
                   ]
-                },
-                "minItems": 1,
-                "maxItems": 3,
-                "uniqueItems": true
+                ]
               }
             }
           },
