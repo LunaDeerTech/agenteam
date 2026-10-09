@@ -170,3 +170,5 @@
 
 - navigation首轮outer8838实际exit1/125.403s、Go52.10s，45s整体timedOut，step=navigation-login，仅1setup Provider sidecar无browser Model响应，未生成8图。directWait275095exit1/4adopted0/watchdogobserverjoin/7IDs双absent/descendants[]/TCP双空/input同一（owned-navigation-ff03e25b…）。原FAIL保留，Model作者已获两module局部分段step/5s诊断授权，不改总预算/产品/业务门槛；当前无真实资源运行。
 - T0b独立SPEC发现state/assignee事实未精确绑定pre/post与Digest unbound码优先歧义；作者限定6行已返修freeze，附§3两类Blocker已验事实同步，独立复核进行。无新Go源码授权。
+
+- T0b返修工程SPEC真正独立接受：两payload精确绑定与错误优先mustfix闭合，独立Python-B黄金350bytes同一、597行/18links/六selectors与拟paths检查0；首文档checker表格反引号假设FAIL保留。现已授task_transition_core_spec仅六新contract/test源，实际启动，离线热GOCACHE纯窗独占；未授旧shared/卡/ledger/Modeldelivery/Go依赖。Human-only history/typed16KiB envelope/纯多事实数据工厂，真实authority/graph/DB/producer门槛仍未实现。Model两诊断模块作者写中，有限独审已实际启动。
