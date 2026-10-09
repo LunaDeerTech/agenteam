@@ -26,7 +26,7 @@ func TestProjectStopMappingIncludesOldCleanupClaim(t *testing.T) {
 	if string(joined) == string(after) {
 		t.Fatal("join progress missing from mapping")
 	}
-	if stopBatchLimit != 100 || stopFanoutLimit <= stopBatchLimit {
-		t.Fatal("bounded scan lost independent fanout budget")
+	if stopBatchLimit != 32 {
+		t.Fatal("bounded primary scan budget changed")
 	}
 }

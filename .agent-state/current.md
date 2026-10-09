@@ -1,5 +1,9 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- 最新可恢复片段基于root已存 `c226b6dc`：`project_stop_store.go/project_lifecycle.go`与新`project_stop_batch.go`把五lane改为32个当前pending主ID、固定native指针及精确原work/command/Object/lease/transfer锁；删除原1001全历史投影和Object-wide native/grant/transfer更新。mapping摘要包含规范化后的完整原锁，新增锁会拒绝旧发现；同一个Process本轮仅ConfirmStopped一次。checkpoint仍需实际returned且origin Tx已退或精确死证；完整原projectStopPending不因cursor/诊断缺失变成allow。
+- 原Prepare/native未建立、IssueDownload/grant未建立可发现原work与原锁，但没有actual join成功推断；预期已建立的native缺失或Object/process关系不匹配保持pending。Stop新3纯top和旧mapping控制实际 `74235/df8487` race0/1.021s；跨metadata/bounded/Audit选择组 `33491/7dd3ce` race0/1.041s（随后只删除Stop test无用import/占位表达式，再运行74235）。全量当前schema查询、1000+历史、原预算及Unknown仍未真实验收；全链尚待通用Recover有限分派及SQL索引/集成矩阵。
+- `88804/0c653a`两包定向vet actual0（原env，`go vet -mod=readonly -p=1 ./internal/central/object ./internal/central/object/contract`）；`e3c911` diffcheck actual0，无编译或命令在途，无真实资源。此轮6路径freeze：本current、`object/{project_lifecycle.go,project_stop_store.go,project_stop_store_test.go,project_stop_batch.go,project_stop_batch_test.go}`。
+
 - 当前实施WIP基线 `bbb7324a`（首四路径已root保存）。新增 `object/metadata_cleanup.go`／`_test.go`：private native graph discovery/fingerprint、同live Tx只能消费一次跨表32删除预算、PUT互引三行包/旧attempt两行包/最后四anchor、原Native Deleted+Audit状态不变式、本地actual-ended与原Tx结束否认。`access.go/service.go`仅配套private batch/Tx记账；真实SQL、FK顺序与执行计划未跑。
 - 新 `object/bounded_cleanup.go`／`_test.go` 接入Skills精确Delete与Release：同批当前anchor＋最多31历史候选、保持原cause、有限Remaining溢出Busy、writer须io_closed、旧live cleanup claim不能覆盖。当前调用只在实际I/O返回且精确checkpoint known commit后取得私有finalize例外；`project_audit.go/project_audit_witness.go`消费同一private身份并重读终局，metadata仍要求完整returned/join，例外不可用来purge。
 - `project_work.go`仅增加当前canonical ProjectDeleted＋真实CleanupAuthority同Tx门禁的stop后新claim例外，以及该新Skills调用实际退休尾继承原caller预算；不松原maintenanceAdmission、不以cancel/map空作proof、不恢复Object Runtime join停项。`reference_cleanup.go`的Skills revoked replay只核当前anchor，保旧AbandonedAttempt原因；`references.go`普通inspect原行为保持、新调用诊断总32。
