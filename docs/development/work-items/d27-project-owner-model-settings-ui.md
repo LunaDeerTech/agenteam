@@ -60,6 +60,12 @@ authority 第二轮的真实 hit-test 证明：后激活的确认框虽然获得
 
 当前 `npm run check --prefix web` 完整通过：格式、60 个文件共 2632 个单元测试、类型及生产构建；首轮因现存依赖目录缺少锁定 `go-captcha-vue` 导致的失败保留，经 `npm ci --prefix web` 恢复后通过。真实组件浏览器浅色 8 项与深色补集 8 项分别通过，覆盖 Dialog/Drawer、390/1440 宽度、正常/减少动效、逆 DOM 激活、实际指针命中、Popover/模态叠加、移除重开、Tab/Escape 与焦点恢复；两轮 child 实际 wait=0，Vite close 已返回，worker 已退出。深色第一次选择器未命中产生的 0 tests setup FAIL 保留。六路径限定实现、完整工程检查与真实结果已获独立接受，不复用为 Project authority/navigation 的业务通过。
 
+### 0.3 确认关闭后的原焦点恢复
+
+共享层新增一次受保护的 DOM 更新后重试：正常关闭确认框时，若剩余模态内的原触发控件仍暂时 disabled，先保留既有合法兜底焦点，更新后再检查原节点与控件可用性。组件卸载／重开、层栈变化、页面或 panel 替换、用户自主移焦均使旧重试失效，不改变 Model 禁用策略或原焦点契约。技术范围仅 `useLayer.ts`、对应单元测试及真实组件 E2E；设计契约未变。
+
+最终版本完整 `npm run check --prefix web` 通过：格式、60 文件／2640 单测、类型及生产 build；其中共享组件单测 114／114，独立正反例 8 项通过。纠正测试专属 Enter 默认动作后，单代表场景与最终 21 项真实组件分别完整通过：Dialog／Drawer 的浅深色×390／1440×正常／减少动效共 16 项、2 个稳定启用对照，以及永久禁用 anchor、直接销毁、剩余模态／非 top 移除三项旧边界。最终 21 项无 skip／flaky／unexpected，direct 与四个 adopted child 实际 wait=0、Vite close、输入同一及两次子进程／监听空均已确认。该限定实现与最终结果已获独立接受；不以此替代 Project authority／navigation 或其余 D27 验收。首轮 18 个前置失败、外层缺失 Wait／close 及后续单例单复数解析 setup FAIL 保留，不回填为成功。
+
 ## 1. 完整结果与开工门槛
 
 本卡交付一个完整结果：当前 Human Owner 在 Project 设置中管理本 Project chat Providers/Models、Model-purpose Credential，并浏览安全的 System/Project 可用 chat 目录；所有写入具有明确结果、版本冲突和原请求恢复。两个菜单叶子遵守正式 project-settings §1/4：Providers 与可用模型。本 Project Models 的管理放在 Providers 叶子的内部“项目 Models”面板，不新增第三个设置叶子。

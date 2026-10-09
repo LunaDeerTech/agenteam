@@ -116,22 +116,26 @@ migration实际测试fresh、populated00022升级、re-run与失败回滚；原p
 
 ## 8. 验收与运行所有权
 
-作者先限定pure/race/vet及两入口build，再冻结输入交未参与实现实例独立审查和场景验证。Go固定 `/workspace/toolchains/go1.27.1/bin/go`，GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off/GOTELEMETRY=off、任务自有GOCACHE/GOTMPDIR、-p=2；pure命令每段≤45秒，长构建分段并记录实际Wait/exit。普通输出在output，必要probe入正式路径，不复制历史归档。
+作者先限定pure/race/vet及两入口build，再冻结输入交未参与实现实例独立审查和场景验证。Go固定 `/workspace/toolchains/go1.27.1/bin/go`，GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off/GOTELEMETRY=off、任务自有GOCACHE/GOTMPDIR、-p=2；pure命令每段≤45秒，独立离线编译≤180秒并记录实际Wait/exit，不能因此放宽真实PG driver的105秒预算。普通输出在output，必要probe入正式路径，不复制历史归档。
 
 | 真实顶层selector | 最低必须观察的结果 |
 | --- | --- |
-| TestTaskBlockerPersistence | fresh/populated升级、DDL局部失败回滚；正式Owner/Structure/TaskCreate→add两个分支→list三filter→resolve→重建lookup/replay，完整持久Task/Blocker/history/Outbox/Activity/receipt一致；最大文本和旧planning继续可用 |
-| TestTaskBlockerAuthority | 非Owner管理员、另Ownerwriter、session撤销、archive read/replay与newwrite拒绝、未初始化/deleting、跨Project/Task Blocker及relatedTask、缺外域端口、producer两stage/foreignTx/missinglock/typednil/坏持久JSON拒绝；真实权限竞争 |
-| TestTaskBlockerConcurrency | A→B→C与C→A真实图、resolved边消失、双向并发新边恰一胜；同key/异key同expected；planning update/reorder与Blocker争同version、Structure/Project archive的真实双赢家；current querycursor stale而rankgeneration不变；容量与错误不partial |
-| TestTaskBlockerUnknown | 准备/final COMMIT未转发和响应丢失、独立Lookup等待原writer、Unknown保Attempt/Cause、archivedcompleted确认、cancelledLookup无假空、Stop/Drain实际join及每边界注错全回滚 |
+| TestTaskBlockerPersistence | fresh/populated升级、DDL局部失败回滚；正式Owner/Structure/TaskCreate→add两个分支→list三filter→resolve→重建lookup/replay，完整持久Task/Blocker/history/Outbox/Activity/receipt一致；最大文本、容量、querycursor stale而rankgeneration不变及旧planning继续可用 |
+| TestTaskBlockerAuthority | 非Owner管理员、另Ownerwriter、Session撤销、archived Read与newwrite拒绝、跨Project/Task Blocker及relatedTask、缺外域端口、producer两stage/foreignTx/missinglock、坏持久JSON拒绝和Outbox/Activity失败回滚；typednil另由pure验证 |
+| TestTaskBlockerConcurrency | A→B→C与C→A真实图、resolved边消失、双向并发新边恰一胜；同key/异key同expected；Planning Update与Blocker争同version两顺序、真实Schedule gate；单赢家的query/history/Outbox恰一次 |
+| TestTaskBlockerUnknown | 准备/final COMMIT未转发和响应丢失、内建确认与显式Lookup独立等待原writer、确认超时保原Unknown/Attempt/Cause、cancelledLookup无假空、迟到Lookup/原key恢复及Stop/Drain实际join |
 | TestTaskBlockerInteroperability | 正式BeginArchive与UpdateSprint分别双向prepared/final锁竞争，当前未初始化与deleting门禁；仅证明归档入口accepted/archiving，不宣称生命周期cleanup完成 |
 | TestTaskBlockerAtomicity | add/resolve在Task、Blocker、query、history、Outbox、completedcommand、Activity各真实SQL写点注错，完整回滚与同key恢复；正确planned后像仅缺history时producer拒绝 |
+| TestIndependentTaskBlockerRuntimeA | 自有跨Project/异writer、双prepared图竞争、同key旧revision恢复、producer后像不足与准备后Session撤销；由未参与实现者本人执行 |
+| TestIndependentTaskBlockerRuntimeB | 自有回滚、旧Planning Update/Reorder竞争与sibling rank重算、四种原COMMIT Unknown、内建archived completed确认和确定rollback；由未参与实现者本人执行 |
+| TestTaskPlanningAtomicityAndEvents | 00023扩展旧TaskEvent表与Work dispatcher后，既有Task三个writer、旧producer门禁及原子提交保持 |
+| TestWorkStructureAtomicityAndProducer | Work dispatcher与Project gate新增精确triple后，既有Structure producer回退路径及原子提交保持 |
 
 正向Task全部由正式TaskCreate产生；图/容量大样本可以在真实首对象建立后使用明确测试fixture批量铺设同schema，只用于边界压力，不替代授权/基础创建正向。非backlog/assigned/terminal损坏或未来状态样本只能作拒绝负例，不能据此声称transition正向。相关Task done/cancelled仅验证不会被本卡自动处理，不声称已通过Task状态写服务。
 
 并发用真实callerTx PID、精确lock key/mode、granted=false和blocker握手；不得sleep猜竞态。必测旧planning及当前Project/Structure/Outbox必要回归，不能只测本服务自洽。独立验证至少一组自有Owner撤权/跨Project/graph竞争，一组自有Unknown/rollback与旧planning竞争，另全文审查本卡路径；作者测试不能称独立验收。
 
-真实PG-only fixture需root分配资源窗；当前Model树占用真实PG/browser/hostTCP，本卡仅pure/源码准备，未获资源不得运行。届时使用任务自有两IDdriver、精确selector、bounded进程预算及双次资源/runtime/TCP终态；不加载Object/MinIO/外网fixture，不碰现有devinfra，不扩大root已分配资源。输入/依赖未变复用已通过证据，失败保留并只复验影响项。
+真实PG-only fixture按root统一分配的单一资源窗运行；其他树占用真实PG/browser/hostTCP时，本卡仅进行离线工作，未获窗口不得启动。每轮使用任务自有两IDdriver、精确selector、bounded进程预算及双次资源/runtime/TCP终态；不加载Object/MinIO/外网fixture，不碰现有devinfra，不扩大root已分配资源。输入/依赖未变复用已通过证据，失败保留并只复验影响项。
 
 ## 9. 当前状态
 
