@@ -226,7 +226,10 @@ func validateBlockerGraph(ctx context.Context, s *blockerScope, add *c.TaskBlock
 	if nodes > taskProjectCap || unresolved > blockerProjectCap || maxPerTask > blockerTaskCap || history > blockerHistoryCap {
 		return fault(f.ResourceBusy)
 	}
-	if add != nil && (unresolved >= blockerProjectCap || target >= blockerTaskCap || history >= blockerHistoryCap) {
+	if add != nil && history >= blockerHistoryCap {
+		return field(f.ResourceBusy, "/blocker_id", "BLOCKER_HISTORY_LIMIT")
+	}
+	if add != nil && (unresolved >= blockerProjectCap || target >= blockerTaskCap) {
 		return fault(f.ResourceBusy)
 	}
 	live := make(map[c.TaskID]struct{}, int(nodes))

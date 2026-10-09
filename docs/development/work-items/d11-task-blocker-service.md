@@ -1,6 +1,6 @@
 # D11 B0-P：Human backlog Blocker 持久服务
 
-状态：工程规格已独立 SPEC 接受；实施与真实验收未完成。本卡是 [B0-C](d11-task-blocker-contracts.md) 两类契约的真实服务消费者，不表示 Task transition、完整 D11 或生产 root 已完成。迁移 `00023_task_blockers.sql` 由 root 分配给本卡，尚未创建。
+状态：工程规格已独立 SPEC 接受；真实服务实现候选已形成，整卡验收未完成。本卡是 [B0-C](d11-task-blocker-contracts.md) 两类契约的真实服务消费者，不表示 Task transition、完整 D11 或生产 root 已完成。迁移 `00023_task_blockers.sql` 已实现并随候选保存。
 
 ## 1. 完整结果与真实依赖
 
@@ -84,7 +84,7 @@ List：User SH、Project SH、Schedule SH、Task SH，Owner Read先于第一条W
 
 读取本Project所有unresolved rely_on边构图，对新增A→B检查B可达A（任意深度/多分支），resolved历史不入图；重复A→B可存在不同Blocker，不按边去重影响历史/容量。图查询任何错误/坏metadata/悬空跨Project事实不得当空图。Task节点≤65536，unresolved Blocker每Task≤256、Project≤262144，保留历史每Task≤4096；先count并有界stream，超过既定边界拒绝RESOURCE_BUSY，不用LIMIT截断证明无环。所有rows与错误路径实际Close/Err检查。
 
-本卡每命令一个add或resolve，因此最终计数可直接证明；resolve不因已达history上限而拒绝。单个新BlockerID全局占用为RESOURCE_BUSY固定`/blocker_id:TARGET_OCCUPIED`，即使属于其他Project也不泄露详情。resolve只接受目标Task所属Blocker；外Task/外Project/missing统一BLOCKER_NOT_FOUND。已解返回BLOCKER_ALREADY_RESOLVED。规范记录不可update type/metadata/description/created身份，仅更新一次resolution字段。
+本卡每命令一个add或resolve，因此最终计数可直接证明；resolve不因已达history上限而拒绝。新增达到4096保留记录上限时，沿Task transitions §4.2既定门槛返回RESOURCE_BUSY及唯一固定字段`/blocker_id:BLOCKER_HISTORY_LIMIT`；不能只返回无reason的泛化容量错误。单个新BlockerID全局占用为RESOURCE_BUSY固定`/blocker_id:TARGET_OCCUPIED`，即使属于其他Project也不泄露详情。resolve只接受目标Task所属Blocker；外Task/外Project/missing统一BLOCKER_NOT_FOUND。已解返回BLOCKER_ALREADY_RESOLVED。规范记录不可update type/metadata/description/created身份，仅更新一次resolution字段。
 
 本卡不写blocked状态。`blocked => unresolved exists`、最后Blocker防护与批量resolve+add/transfer留完整B0-P组合后继；若读到非backlog任务的新命令，先按§4范围门禁拒绝，不以未实现的最后保护函数冒称可操作blocked。本次Foundation新增已实际使用三code `BLOCKER_NOT_FOUND`、`BLOCKER_ALREADY_RESOLVED`、`TASK_DEPENDENCY_CYCLE`，Known/Safe保真；不提前新增当前无消费者的LAST_BLOCKER码。
 
@@ -133,4 +133,10 @@ migration实际测试fresh、populated00022升级、re-run与失败回滚；原p
 
 ## 9. 当前状态
 
-独立SPEC已接受本卡限定backlog子结果。首轮发现的两处文义缺陷（Activity同微秒/逐次更新承诺、同形UUID JSON的命令marker来源）已按真实端口修正§6并经差异复审；原首轮不接受事实保留。独立检查覆盖正式源码、链接及格式，没有运行Go/PG/browser或产品行为。当前实施与真实验收尚未完成，不代表完整B0-P组合/T1或D11完成。
+独立SPEC已接受本卡限定backlog子结果。首轮发现的两处文义缺陷（Activity同微秒/逐次更新承诺、同形UUID JSON的命令marker来源）已按真实端口修正§6并经差异复审；原首轮不接受事实保留。SPEC独审覆盖正式源码、链接及格式，没有运行Go/PG/browser或产品行为。当前实现与真实验收进展如下，不代表完整B0-P组合/T1或D11完成。
+
+实现候选、00023及四个真实测试top已进入正式路径。作者四包完整pure/race/vet及两入口build通过；三公开contract另经独立公开API pure/race接受，仅覆盖其限定类型能力，完整runtime独审与独立PG仍在准备。首个runtime纯计划roundtrip因误用只认旧planning triple的header helper失败，已补本域严格decoder并复验通过；初始缺固定依赖缓存、作者与独立probe自身编译/刺激错误均保留，不当产品行为PASS。
+
+首轮 `TestTaskBlockerPersistence` 整体FAIL：真实4096历史边界得到RESOURCE_BUSY但遗漏既定BLOCKER_HISTORY_LIMIT reason；此规则由§1所引transition契约继承，本轮将安全字段位置在§5明确。262144项目容量、已填充00022升级与重跑、DDL失败回滚及两类真实新增/解除/读取/重建重放四个子项本轮body通过，但不替代整top通过。Go、driver与外层实际退出1；两任务资源、runtime及host TCP均完成双次清空，冻结输入未变。该首次失败保留。
+
+history错误字段已作单分支最小修复，定向六分支pure/race通过；恰4096的resolve继续进入真实读取、history超限损坏事实及其它容量错误保持原行为。新增独立顶层 `TestTaskBlockerHistoryCapacityRegression` 复用原失败场景，供下一真实窗口仅复验相关路径；真实复验、其余三新top及独立A/B仍待完成，尚无完整服务接受结论。

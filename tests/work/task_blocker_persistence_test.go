@@ -349,6 +349,10 @@ func testTaskBlockerProjectCapacity(t *testing.T) {
 // Pressure rows are explicit test-owned canonical fixtures after a real
 // authorized creation. They exercise counters/stream bounds, not per-row
 // command authorization or a fabricated successful bulk-creation endpoint.
+func TestTaskBlockerHistoryCapacityRegression(t *testing.T) {
+	testTaskBlockerCapacity(t)
+}
+
 func testTaskBlockerCapacity(t *testing.T) {
 	f := newBlockerFixture(t)
 	a := f.human(t, "blocker-capacity", "user")
