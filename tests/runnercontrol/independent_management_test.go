@@ -129,11 +129,12 @@ func TestIndependentRunnerManagementLogoutOrder(t *testing.T) {
 					value, err := v.runner.Lookup(ctx, v.actor, originalKey, created)
 					return independentLookup{value, err}
 				})
-				// Lookup's earlier global gate must also actually wait; do not
-				// claim that both operations have simultaneously reached User.
-				global, err := f.SystemConfigLock("runner-management")
-				requireServiceOK(t, err, "independent global gate")
-				independentWaiters(t, admin, global.AdvisoryKey(), mutationPID, "ShareLock", 1)
+				// Canonical ordering acquires this target control gate before
+				// runner-management. Lookup must wait here on the original
+				// mutation, which is itself still blocked at the User gate.
+				control, err := f.SystemConfigLock("runner-control-" + created.Target().String())
+				requireServiceOK(t, err, "independent target control gate")
+				independentWaiters(t, admin, control.AdvisoryKey(), mutationPID, "ShareLock", 1)
 				barrier.release(t)
 				requireServiceOK(t, independentResult(t, logout), "actual Logout first")
 				mutated, looked := independentResult(t, mutation), independentResult(t, lookup)
