@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page, type Request } from '../../tests/account-captcha-web/node_modules/@playwright/test/index.js';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import type { AuthorityHarness } from './authority-and-identity';
 
@@ -64,7 +64,7 @@ function observer(page: Page, harness: NavigationHarness) {
 // Session bodies remain private in this call. Only the formal safe identity is
 // returned, never CSRF, cookies, login inputs, headers or their digests.
 async function sessionIdentity(page: Page, action: () => Promise<void>) {
-  const waiting = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/v1/session' && response.request().method() === 'GET' && response.status() === 200);
+  const waiting = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/v1/session' && response.request().method() === 'GET' && response.status() === 200, { timeout: 5_000 });
   const [response] = await Promise.all([waiting, action()]);
   need(await response.finished() === null, 'PROJECT_MODELS_NAVIGATION_SESSION_INCOMPLETE');
   try {
@@ -73,7 +73,19 @@ async function sessionIdentity(page: Page, action: () => Promise<void>) {
     return { userID: user.id, sessionID: session.id, role: user.role };
   } catch { throw new Error('PROJECT_MODELS_NAVIGATION_SESSION_INVALID'); }
 }
-async function pageshow(page: Page) { await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow'))); }
+async function pageshow(page: Page) {
+  const observation = await page.evaluate(async () => {
+    const safeState = () => {
+      const logout = [...document.querySelectorAll<HTMLButtonElement>('.account-actions button')].find((node) => node.querySelector('.button-label:not([aria-hidden="true"])')?.textContent?.trim() === '退出登录');
+      return { path_home: location.pathname === '/', path_login: location.pathname === '/login', document_visible: document.visibilityState === 'visible', logout_present: !!logout, logout_disabled: logout?.disabled === true };
+    };
+    const before = safeState();
+    dispatchEvent(new PageTransitionEvent('pageshow'));
+    await Promise.resolve();
+    return { before, after: safeState() };
+  });
+  writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'navigation-session-state.json'), JSON.stringify({ protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH, stage: 'initial-pageshow', observation }), { mode: 0o600 });
+}
 async function newProvider(page: Page, name: string) {
   await button(page, '创建 Provider').click();
   const dialog = page.getByRole('dialog').filter({ has: page.locator('#project-provider-form') });
@@ -109,9 +121,13 @@ export async function runNavigationAndLayouts(page: Page, harness: NavigationHar
   try {
     harness.step('navigation-login');
     await harness.loginOwner(page);
+    harness.step('navigation-login-complete');
     const identity = await sessionIdentity(page, () => pageshow(page));
+    harness.step('navigation-session-observed');
     need(identity.userID === owner.user_id && identity.role === 'admin', 'PROJECT_MODELS_NAVIGATION_ADMIN_OWNER_REQUIRED');
+    harness.step('navigation-open-begin');
     const initialPage = await observe('listProjectModelProviders', main.id, 'GET', 'model-providers', 200, () => harness.openProject(page, 'main', 'model-providers'), 'limit=25');
+    harness.step('navigation-open-completed');
     const initial = await harness.snapshot('main'), seed = initial.current.providers.find((row) => row.present);
     need(seed && Array.isArray(initialPage.items) && initialPage.items.length === 1 && object(initialPage.items[0]).id === seed.id, 'PROJECT_MODELS_NAVIGATION_SEED_MISSING');
     await expect(page.getByRole('navigation', { name: '项目导航', exact: true }).getByRole('link', { name: '项目设置', exact: true })).toHaveAttribute('aria-current', 'page');

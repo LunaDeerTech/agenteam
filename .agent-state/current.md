@@ -172,3 +172,5 @@
 - T0b独立SPEC发现state/assignee事实未精确绑定pre/post与Digest unbound码优先歧义；作者限定6行已返修freeze，附§3两类Blocker已验事实同步，独立复核进行。无新Go源码授权。
 
 - T0b返修工程SPEC真正独立接受：两payload精确绑定与错误优先mustfix闭合，独立Python-B黄金350bytes同一、597行/18links/六selectors与拟paths检查0；首文档checker表格反引号假设FAIL保留。现已授task_transition_core_spec仅六新contract/test源，实际启动，离线热GOCACHE纯窗独占；未授旧shared/卡/ledger/Modeldelivery/Go依赖。Human-only history/typed16KiB envelope/纯多事实数据工厂，真实authority/graph/DB/producer门槛仍未实现。Model两诊断模块作者写中，有限独审已实际启动。
+
+- 两Model诊断module已作者strictTS67077实际Wait exit0并freeze，仅分段step/局部5s等待与真实失败hit-test固定布尔数字、navigation pageshow前后安全状态；不forceclick/改DOM/扩预算/改产品或原业务断言。限定diff已交独审，原两FAIL原因未知；root待接受后authority第二真实窗。旧14精确源均在，静态二进制符号存在不冒discovery；delivery cwd缺锁定browser deps及globaldist，完整driver设计仍只读调查。

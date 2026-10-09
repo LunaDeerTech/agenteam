@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page } from '../../tests/account-captcha-web/node_modules/@playwright/test/index.js';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ConfigCredentialSnapshot as Snapshot } from './configuration-and-credential';
 
@@ -110,10 +110,40 @@ async function newProvider(page: Page, name: string) {
   await dialog.getByRole('textbox', { name: 'Base URL', exact: true }).fill('https://model-ui.invalid/v1');
   return dialog;
 }
-async function discardProvider(page: Page, dialog: Locator) {
-  await button(dialog, '取消').click();
+async function discardClick(page: Page, target: Locator, stage: 'cancel' | 'confirm') {
+  try { await target.click({ timeout: 5_000 }); }
+  catch {
+    // Observe only this real failure. No DOM text, titles, field values or
+    // computed-style strings leave the browser, and no hit target is modified.
+    let observation: unknown = null;
+    try {
+      observation = await page.evaluate((stage) => {
+        const overlays = [...document.querySelectorAll<HTMLElement>('.ui-overlay')].filter((node) => node.getClientRects().length > 0);
+        const panels = overlays.map((node) => node.querySelector<HTMLElement>('[role="dialog"]'));
+        const index = panels.findIndex((panel) => panel && (stage === 'cancel' ? !!panel.querySelector('#project-provider-form') : panel.querySelector('h2')?.textContent?.trim() === '放弃当前表单修改？'));
+        const panel = panels[index];
+        const wanted = panel ? [...panel.querySelectorAll<HTMLButtonElement>('button')].find((node) => node.querySelector('.button-label:not([aria-hidden="true"])')?.textContent?.trim() === (stage === 'cancel' ? '取消' : '放弃修改')) : undefined;
+        const rect = wanted?.getBoundingClientRect();
+        const hit = rect && rect.width > 0 && rect.height > 0 ? document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2) : null;
+        return {
+          overlay_count: overlays.length,
+          overlays: overlays.slice(0, 8).map((node, at) => { const z = Number.parseInt(getComputedStyle(node).zIndex, 10); return { index: at, z_index: Number.isFinite(z) ? z : null, panel_inert: panels[at]?.inert === true, panel_aria_hidden: panels[at]?.getAttribute('aria-hidden') === 'true' }; }),
+          target_overlay_index: index, target_found: !!wanted, target_disabled: wanted?.disabled === true,
+          target_visible: !!rect && rect.width > 0 && rect.height > 0, target_inert: !!wanted?.closest('[inert]'),
+          center_hits_target: !!hit && !!wanted && (hit === wanted || wanted.contains(hit)),
+          center_hits_overlay: !!hit?.closest('.ui-overlay'), hit_overlay_index: overlays.findIndex((node) => !!hit && (hit === node || node.contains(hit))),
+        };
+      }, stage);
+    } catch { /* A missing observation remains null, never a synthetic fact. */ }
+    writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-discard-hit.json'), JSON.stringify({ protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH, stage, observation }), { mode: 0o600 });
+    throw new Error('PROJECT_MODELS_AUTHORITY_DISCARD_CLICK_FAILED');
+  }
+}
+async function discardProvider(page: Page, dialog: Locator, step: (name: string) => void) {
+  await discardClick(page, button(dialog, '取消'), 'cancel');
   const confirmation = page.getByRole('dialog', { name: '放弃当前表单修改？', exact: true });
-  await button(confirmation, '放弃修改').click(); await expect(dialog).toBeHidden();
+  await expect(confirmation).toBeVisible(); step('authority-discard-confirm-visible');
+  await discardClick(page, button(confirmation, '放弃修改'), 'confirm'); await expect(dialog).toBeHidden();
 }
 
 export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarness) {
@@ -197,13 +227,16 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   const sameSession = await restoredSession;
   need(sameSession.sessionID === ownerSession.sessionID && sameSession.userID === ownerSession.userID && sameSession.role === 'user', 'PROJECT_MODELS_AUTHORITY_SAME_SESSION_CHANGED');
   await harness.control(sessionArm, (state) => state.joined === true);
+  harness.step('authority-checking-restored');
   await reread(projects.main);
+  harness.step('authority-owner-reread-complete');
   dialog = providerDialog();
   await expect(dialog.getByRole('textbox', { name: 'Provider 名称', exact: true })).toHaveValue('Models Same Session Draft');
   await expect(dialog.getByRole('textbox', { name: 'Base URL', exact: true })).toHaveValue('https://model-ui.invalid/v1');
   harness.durableDelta(initial, await harness.snapshot('main'), 0, 0);
+  harness.step('authority-draft-verified');
   checks.same_session_checking = true;
-  await discardProvider(page, dialog);
+  await discardProvider(page, dialog, harness.step);
 
   harness.step('authority-read-owner-tail');
   const heldArm = await harness.arm('getProjectModelProvider', 'main', seed.id, 'after_complete_hold');
