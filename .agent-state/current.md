@@ -52,6 +52,8 @@
 
 ## 最新运行边界
 
-- Task观察器修复已保存推送285797c4；最新作者11selector binary和独立j78 A/B均race-c/list exit0，独立20技术路径全文静审闭合，无已证实未修must-fix。新Migration在codec修后实际全终态PASS；Concurrency首轮FAIL不回填，其修后重跑及剩余9作者top、独立A/B待执行。四旧Project/Outbox有效结果保持。
+- Task观察器修复已保存推送285797c4；最新作者11selector binary和独立j78 A/B均race-c/list exit0，独立20技术路径全文静审闭合，无已证实未修must-fix。新Migration在codec修后实际全终态PASS；Concurrency首轮FAIL不回填；修后body5.01s、完整outer17189 exit0/70.125s，Go80762/driver80273 Wait0，两ID/runtime/TCP双空且input不变（pg-32a87df43…）。剩余9作者top、独立A/B待执行。四旧Project/Outbox有效结果保持。
 - Model首个 recovery 完整case已写入，含cut/disconnect→lookup→original replay、deletedProvider replay、第四origin effect hold、同响应body schema/native client/EOF及最终counter比较；delivery account race-c/vet、6pure、TS strict与recovery discovery实际exit0。最终URL及当前Project真实GET EOF同步已补。另5browser case仍未实现；六Go selector不等于六browser通过。可恢复自有输入含native-client-probe.ts、build-native-client-probe.mjs、validate-same-body.py、fixture-go.py、run-owned-top.py。固定PG16镜像16e62164…已真实拉取。
 - 首Model recovery基于5534607b实际启动，owned-recovery-769015dc…在fixture-go adapter reject处exit1，尚未进入business/browser。实际terminal65.6s、directWait/watchdogjoin/input不变、hostTCP两空；helper cleanup均返回，但driver resources.json未登记（resources0），不能称7ID独立退役验收。原setup FAIL保留，由原owner修adapter参数/失败资源记录后重跑；其它5browser未实现。Task待资源安全交还重跑Concurrency，期间不做额外host网络/Git推送污染TCP tail。
+
+- Model独立553静审发现两处harness must-fix：delete/credential断连仅joined不足以证明after_complete效果；final严格计数允许complete_eof0而schema/client1的矛盾观测。原owner补三旗/逐token观测/精确effect计数及结果admission，setup adapter另修真实descriptor字段和失败资源采集；不把上述证据缺口称产品故障。
