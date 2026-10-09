@@ -43,7 +43,7 @@ function close(reason: CloseReason) {
   open.value = false
   emit('close', reason)
 }
-useLayer(open, panel, close, false, anchor)
+const { zIndex } = useLayer(open, panel, close, false, anchor)
 function leave(el: Element) {
   ;(el as HTMLElement).inert = true
   el.setAttribute('aria-hidden', 'true')
@@ -81,7 +81,7 @@ function keydown(e: KeyboardEvent) {
         v-if="open"
         :id="id"
         ref="panel"
-        :style="floatingStyles"
+        :style="[floatingStyles, { zIndex }]"
         :role="role"
         :aria-label="label"
         tabindex="-1"

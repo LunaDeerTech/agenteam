@@ -1,12 +1,12 @@
 # D27 Project Owner 模型设置 UI — rev1＋菜单兼容补充
 
-状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 30 路径（29 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30 是旧 Audit 菜单期待兼容修正。四个 Go/浏览器 harness 文件和历史 scratch 输入在当前环境缺失，不能按旧“已安装／已启动”记录直接续跑。
+状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 30 路径（29 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30 是旧 Audit 菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮、read 第二轮、configuration 第三轮与 credential 首轮实际完整通过（4/6 新 top，含完整资源终态）。原 recovery 六次、read 首轮与 configuration 前两轮失败保留。其余两个新 top、14 个旧回归和独立 A/B 尚未完成；已恢复或注册的源码不代表真实场景通过。
 
 本卡保存产品规格、验收场景与恢复所需事实；团队调度、稳定输入、证据留存和 Git 交付统一遵循[团队流程](../agent-team/README.md)。旧逐轮 root grant、重复哈希表、README 最后另授和永久归档步骤不再作为日常流程。历史全文可从 `e55ad7d1` 的本卡及当时[任务台账](../agent-team/tasks.md)、[环境交接](../agent-team/recovery-2026-10-08-environment.md)文件历史定位，不改写原失败或未验证范围。
 
 ## 0. 固定依据、当前基线与交接状态
 
-本次只读核对仓库 Git 基线为 `e55ad7d1`，当前分支为 `work`。正式规格安装于 `7b8af244`，已接受的 rev1 语义完整保存在 §2–10；唯一精确端点附件为 [d27-project-owner-model-settings-ui-endpoints.json](d27-project-owner-model-settings-ui-endpoints.json)。附件来源状态不表示当前实施状态；本卡消费其 operation/method/path/target/query/effects 闭集，不建立第二套协议。
+当前从 `ai/product-continuation` 接续，已合入保存完整 Model 输入的 `da4953f5`；总体边界见[当前检查点](../../../.agent-state/current.md)。正式规格安装于 `7b8af244`，已接受的 rev1 语义完整保存在 §2–10；唯一精确端点附件为 [d27-project-owner-model-settings-ui-endpoints.json](d27-project-owner-model-settings-ui-endpoints.json)。附件来源状态不表示当前实施状态；本卡消费其 operation/method/path/target/query/effects 闭集，不建立第二套协议。
 
 | 已完成范围 | 可复用事实与限制 |
 | --- | --- |
@@ -14,17 +14,18 @@
 | 前端离线组合 | 历史完整单元 2626 PASS / 2 FAIL 为旧 Audit 菜单期待；#30 一行兼容后该文件 49/49 PASS。格式、类型、私有 build 及独立导航／焦点修复按各自版本组合接受，保留原失败，不宣称当前 HEAD 一次全量重跑。 |
 | 真实配置与凭据路径 | `modelsconfig03`、`modelscred01` 历史 actual PASS / fullSTOP；前两次配置 FAIL、Problem.instance 净化路径修复及其有限证据保留。 |
 | 恢复路径 | `modelsrecover01`、`modelsrecover02` 均 FAIL；后者缺最终 browser-result 与 durable facts，原 75s host TCP 观察未双清。后续有限窗口释放不能补写原 TCP 通过。 |
-| 未完成门槛 | recovery / read / authority / navigation 四个新 top、旧 14 回归及独立 A/B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
+| 当前恢复验收 | recovery 第七轮、read 第二轮、configuration 第三轮、credential 首轮完整通过，原各次失败保留。新 sharedLayer 修复改变模态层绘制顺序，尚待真实组件及受影响场景补验，不能将历史 PASS 直接写成新资产通过。 |
+| 未完成门槛 | authority / navigation 两个新 top、旧 14 回归及独立 A/B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
 
 两次恢复失败后的受控结论仅用于后续修复：正式 header/Flush 后零 body 断连已在受控 native fetch 比较中验证；旧分支一次 fetch 可能透明发出两次 POST 并读到完整 EOF。ReadPrivate 的 Lstat→Open→SameFile 与 JS atomic rename 存在源码可确定竞态；候选改为先 NOFOLLOW|NONBLOCK 打开，再以同一 fd 验证 regular/0600/size，保留原有界读取、清理与 Close，pure-file 受控 12 叶／17 RUN/PASS 已接受。原恢复轮未采得具体 error 类别，以上不能回填两次 business FAIL 的确切因果。早期受控 browser launch 失败及 TMP 后续清理同样保留，短根成功不证明原 launch 失败原因。
 
-**当前缺失输入：** §8 #24–27 四个 harness 路径均不存在，限定路径 Git 历史也无记录；仓库内按四个文件名与关键测试／helper 符号检查未找到源码副本，已有[规格验收档](../agent-team/project-model-settings-spec-verification.md)保存规格与元数据，不能直接恢复这四份实现；`/workspace/scratch` 存在但无直接子项，历史 `project-model-settings-ui/dist-ui01`、`dist-ui02`、`pmui`、`mdn02` 均不存在。旧 main fixture 修订、`modelsrecover03`（v06）准备和 private-v04 独立 fixture 只是历史交接状态，不能当作当前可执行源或运行结果。旧资源已退休／global 三资产已恢复是当时事实，本次只查源码和路径，没有核查当前进程、容器或资产。
+**实际恢复输入：** 以下未验输入位于活动 `ai/product-continuation` 分支，未随共享组件修复交付 `main`。§8 #24–27 四个 harness 和 `.agent-state/model-ui-recovery/` 的六场景模块、同 body 校验、资源 driver、必要脱敏失败输入，以及 `.agent-state/model-ui-regression/` 两个旧回归 helper 已从 Git 恢复。主线程已重建 `/workspace/agenteam-delivery`，固定正式 `11c16867` 与最后迁移 `00022`，并复制当前两份未完成整卡验收的 Model Go 测试源；新 binary 尚待编译，不能沿用旧 `dbf` 编译证据。`output/ai/model-ui-recovery/` 私有构建产物与固定 MinIO binary 仍需重建，不重新实现 harness。Go 1.27.1、固定 Chromium 151.0.7922.173 及其正式 SHA 已核实，锁定浏览器依赖已恢复，私有资产待 build。Docker 当前两容器属于既有 `agenteam-dev-infra`，不作为测试资源、不连接或清理；真实测试须另外创建并登记 owned fixture。
 
 下一步由本任务负责人组织：
 
-1. 找回或按 §8–10 重建缺失的两个 Go、两个 JS/TS harness 及必要私有运行输入；对照既有正式后端、已提交前端和上面的已接受窄修逐项核实，不猜测候选字节或恢复旧执行者名单。
+1. 从已恢复源码重建锁定依赖、隔离 Go binary/helpers、固定 MinIO、原生 client probe 与私有前端资产；核对固定镜像、资源归属与当前后端迁移闭包，不使用历史 scratch 路径代替实际文件。
 2. 以当前 Git 基线、限定 diff 和停止写入范围交审，完成受影响的格式、类型、编译、精确 selector discovery 与安全输入检查。原始日志放 `output/ai/<task>/`；涉及 Unix socket 时使用有界短外部目录，恢复前核实际工具、资产和资源所有者。
-3. 保持 §9 场景和预算，先完成恢复路径，再继续 read / authority / navigation、必要旧回归和独立 A/B。已有结果仅在相关输入／依赖可确认未变时复用；缺失输入无法证明同一版本时明确其限制。高风险恢复与权限场景须由未参与实现者独立验证。
+3. 保持 §9 场景和预算，先验证已有 sharedLayer 修复，再继续 authority / navigation、必要旧回归和独立 A/B。已有结果仅在相关输入／依赖可确认未变时复用；受新共享层行为影响的历史场景须补验。高风险恢复与权限场景须由未参与实现者独立验证。
 4. 负责人整合实现、必要测试、README 和简短台账，由主线程一次交付完整结果。不得以编译、受控 helper PASS、静态准备或旧实例 ACK 替代真实整卡验收。
 
 ### 0.1 T1 最小共享源码与实际签名
@@ -35,7 +36,13 @@
 - `createSessionController` 已在原 14 个默认依赖后追加第 15 项 `projectModelSettingsAPI`，公开本域封闭 facade；旧依赖次序保持，详见 §6.1。
 - `createProjectWorkspace` 仍公开只读 `currentReadContext`，含完整 identity、ProjectID、generation、readGeneration；`confirmLeave(target?: string)` 返回 `Promise<boolean>`。此读归属不能作为 Mutate 授权。
 - `App.vue` 已创建并 provide 唯一本域 controller，Logout 聚合确认已追加本域；路由、设置菜单和 ProjectNav 已包含两个合法后缀。保持既有 Owner/System/Selection/Summary 的独立 intent 与实际 owner 尾部约束。
-- 审查按上述入口及实际改动补读必要依赖；此静态核对没有执行产品测试，也不证明缺失 harness、私有 build 或运行资源已恢复。
+- 审查按上述入口及实际改动补读必要依赖；上述静态签名核对不替代 §0 的实际恢复状态或真实验收。
+
+### 0.2 共享浮层遮挡修复
+
+authority 第二轮的真实 hit-test 证明：后激活的确认框虽然获得焦点与模态所有权，其遮罩仍可能被 DOM 顺序较后的旧 Provider 遮罩覆盖。共享 `useLayer` 现按同一激活栈同步绘制顺序，`UiDialog` 整体遮罩与 `UiPopover` 绑定该层级，Drawer 继承 Dialog 行为；焦点、inert 与关闭策略保持原契约，设计规范同步说明。这是单独可交付的通用组件修复，不表示 D27 剩余场景已通过。
+
+当前 `npm run check --prefix web` 完整通过：格式、60 个文件共 2632 个单元测试、类型及生产构建；首轮因现存依赖目录缺少锁定 `go-captcha-vue` 导致的失败保留，经 `npm ci --prefix web` 恢复后通过。真实组件浏览器浅色 8 项与深色补集 8 项分别通过，覆盖 Dialog/Drawer、390/1440 宽度、正常/减少动效、逆 DOM 激活、实际指针命中、Popover/模态叠加、移除重开、Tab/Escape 与焦点恢复；两轮 child 实际 wait=0，Vite close 已返回，worker 已退出。深色第一次选择器未命中产生的 0 tests setup FAIL 保留。六路径限定实现、完整工程检查与真实结果已获独立接受，不复用为 Project authority/navigation 的业务通过。
 
 ## 1. 完整结果与开工门槛
 
@@ -52,7 +59,7 @@
 
 后端三卡已提供此UI所需全部公开协议，无新增迁移、公共contract、SQL或生产root修改理由。30个产品路径（29技术＋README）是同一设置结果的有限范围；不先做只有列表的界面卡。Provider与Credential是显式独立命令，Model共享这些稳定引用和当前Owner，不引入自动创建/补偿工作流。若实现确需额外共享路径，向直接负责人说明理由与影响；涉及跨任务所有权或公共契约时由主线程协调并修订范围。
 
-正式 SPEC、Audit 整卡和端点协议已接受；前端当前交付及缺失 harness 见 §0。负责人按依赖组织剩余实现和验证，指定文件、Go/cache、资产及测试资源的唯一所有者；跨任务窗口由主线程协调，不能占用其他任务资源。
+正式 SPEC、Audit 整卡和端点协议已接受；前端当前交付及恢复输入见 §0。负责人按依赖组织剩余实现和验证，指定文件、Go/cache、资产及测试资源的唯一所有者；跨任务窗口由主线程协调，不能占用其他任务资源。
 
 ## 2. 路由、布局与用户行为
 
@@ -296,7 +303,7 @@ UI内存跨checking恢复不扩大为跨新Session恢复；真正新Session/CSRF
 
 ## 8. 唯一产品写域与作者
 
-下表保留30个产品路径及原编号。25个web文件已提交，#24–27四个harness当前缺失，README #29需随后续实际验收结果同步。负责人按前端、Go harness、浏览器验证等完整子目标分派唯一写入者并整合；文档与相关实现同次交付，不再设置README末件许可。Git由主线程负责，共享资产／资源指定唯一所有者。范围不因此扩展到公共Ui／样式、HTTP/schema或生产后端。
+下表保留30个产品路径及原编号。25个web文件已提交，#24–27四个harness已恢复，README #29需随后续实际验收结果同步。负责人按前端、Go harness、浏览器验证等完整子目标分派唯一写入者并整合；文档与相关实现同次交付，不再设置README末件许可。Git由主线程负责，共享资产／资源指定唯一所有者。除 §0.2 已单独授权的共享浮层修复外，不扩展到公共 Ui／样式、HTTP/schema或生产后端。
 
 | # | 路径 | 最小作用 |
 | --- | --- | --- |
@@ -337,7 +344,7 @@ workspace仅消费公开currentReadContext/detail，不新增workspace写域。S
 
 ## 9. 必要验收与执行前提
 
-前端执行者按任务读取design/vue-development/vue-testing-best-practices；Go harness读取Go技能，独立验证者读取verification，真实browser再读取可用Playwright技能。先恢复§0缺失输入，以当前Git基线、限定diff和停止写入状态交审，记录实际工具、锁文件及必要依赖；不要沿用已缺失的scratch或未经核实的执行状态。
+前端执行者按任务读取design/vue-development/vue-testing-best-practices；Go harness读取Go技能，独立验证者读取verification，真实browser使用仓库测试工程技能。先核实 §0 的恢复输入，以当前Git基线、限定diff和停止写入状态交审，记录实际工具、锁文件及必要依赖；不要沿用已缺失的scratch或未经核实的执行状态。
 
 离线：新增两个API、state、App/router组合和#22/#23/#28；完整`npm run check --prefix web`及私有outDir生产build。Go两新源须完成精确integration/race compile/vet与six-top discovery，再在负责人安排的隔离资源中实际验证；编译/list不是业务通过。只核必要依赖与真正新增的运行时imports，不复制System/Audit依赖图或另生成全闭包manifest；已有检查在相关输入未变时复用。
 
@@ -735,7 +742,7 @@ Node独立保持native EOF/typed client/schema验证记录，final_result的coun
 
 无新增用户产品待决。本卡保留一个完整结果、30产品路径（29技术＋README）、17 HTTP operations＝6 GET＋9 mutation＋2 POST lookup、9 IPC、六新top＋14旧selector。UI不发布Audit/Event；配置与Secret事务事实仍由既有正式后端拥有，不加生产后端/SQL/迁移或Invocation适配。
 
-当前接续以§0为准，先恢复缺失harness，再按§9–10补齐验收。主线程负责全局约束、跨任务资源与Git交付；一级负责人自主拆分、整合和组织独立验证，下级可按收益继续委派，模型与运行时约束统一见[团队流程](../agent-team/README.md)。同一文件和共享资源只有一个写入者／所有者；范围内工程问题由直接负责人解决，跨任务契约、预算或产品含义变化才升级。
+当前接续以§0为准，从已恢复harness与必要构建产物按§9–10补齐验收。主线程负责全局约束、跨任务资源与Git交付；一级负责人自主拆分、整合和组织独立验证，下级可按收益继续委派，模型与运行时约束统一见[团队流程](../agent-team/README.md)。同一文件和共享资源只有一个写入者／所有者；范围内工程问题由直接负责人解决，跨任务契约、预算或产品含义变化才升级。
 
 前端遵[现有开发基础](../frontend/README.md)及[Project设置设计](../../frontend-design/layouts/project-settings.md)。稳定输入使用Git基线、限定diff及停止写入范围；原始日志与截图放`output/ai/<task>/`或必要短外部目录。相关检查输入未变时复用，修复后只重跑受影响检查，权限／恢复等高风险场景由未参与实现者独立验证。失败原件和未验证边界保留，命令与自有资源的结束状态必须实际确认。
 

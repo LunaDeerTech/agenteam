@@ -220,6 +220,111 @@ function recoverySurface(
   return wrapper
 }
 
+function reverseOrderSurface(component: typeof UiDialog | typeof UiDrawer) {
+  const wrapper = mount(
+    defineComponent({
+      components: { Surface: component, UiDialog, UiPopover },
+      setup: () => ({
+        lower: ref(false),
+        confirmation: ref(false),
+        popover: ref(false),
+        present: ref(true),
+      }),
+      template: `<button data-launch @click="lower = true">Open lower</button>
+        <UiDialog v-model:open="confirmation" title="Earlier confirmation">
+          <input data-confirmation-input data-autofocus />
+          <button data-remove-lower @click="popover = false; present = false">Remove lower</button>
+          <button data-reopen-lower @click="present = true; lower = true">Reopen lower</button>
+          <template #footer="{ close }"><button data-confirmation-close @click="close">Close confirmation</button></template>
+        </UiDialog>
+        <Surface v-if="present" v-model:open="lower" title="Later lower">
+          <button data-confirmation-launch @click="confirmation = true">Confirm</button>
+          <UiPopover v-model:open="popover" label="Layer actions" data-layer-anchor>
+            <button data-popover-confirm @click="confirmation = true">Confirm from popover</button>
+          </UiPopover>
+          <template #footer="{ close }"><button data-lower-close @click="close">Close lower</button></template>
+        </Surface>`,
+    }),
+    { attachTo: host },
+  )
+  mounted.push(wrapper)
+  return wrapper
+}
+
+function overlayFor(input: string) {
+  return document.querySelector(input)!.closest<HTMLElement>('.ui-overlay')!
+}
+
+describe.each([
+  ['dialog', UiDialog],
+  ['drawer', UiDrawer],
+] as const)('%s layer paint order', (_, component) => {
+  it('raises an earlier Teleport above the later lower modal, then restores and reopens it', async () => {
+    await open(reverseOrderSurface(component))
+    const launch = document.querySelector<HTMLButtonElement>('[data-confirmation-launch]')!
+    launch.focus()
+    launch.click()
+    await flushPromises()
+    const confirmation = overlayFor('[data-confirmation-input]')
+    const lower = overlayFor('[data-confirmation-launch]')
+    expect(confirmation.compareDocumentPosition(lower) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(
+      0,
+    )
+    expect(Number(confirmation.style.zIndex)).toBeGreaterThan(Number(lower.style.zIndex))
+    expect(lower.querySelector<HTMLElement>('[role="dialog"]')!.inert).toBe(true)
+    expect(confirmation.querySelector<HTMLElement>('[role="dialog"]')!.inert).toBe(false)
+    document.querySelector<HTMLButtonElement>('[data-confirmation-close]')!.click()
+    await nextTick()
+    expect(document.activeElement).toBe(launch)
+    expect(lower.querySelector<HTMLElement>('[role="dialog"]')!.inert).toBe(false)
+    launch.click()
+    await nextTick()
+    expect(Number(overlayFor('[data-confirmation-input]').style.zIndex)).toBeGreaterThan(
+      Number(lower.style.zIndex),
+    )
+    await escapeTop()
+    expect(document.activeElement).toBe(launch)
+  })
+
+  it('orders modal, popover and confirmation together and resynchronizes removal and reopen', async () => {
+    await open(reverseOrderSurface(component))
+    document.querySelector<HTMLButtonElement>('[data-layer-anchor]')!.click()
+    await flushPromises()
+    const popover = document.querySelector<HTMLElement>('.ui-popover')!
+    const lower = overlayFor('[data-confirmation-launch]')
+    const trigger = document.querySelector<HTMLButtonElement>('[data-popover-confirm]')!
+    trigger.focus()
+    trigger.click()
+    await nextTick()
+    const confirmation = overlayFor('[data-confirmation-input]')
+    expect(Number(popover.style.zIndex)).toBeGreaterThan(Number(lower.style.zIndex))
+    expect(Number(confirmation.style.zIndex)).toBeGreaterThan(Number(popover.style.zIndex))
+    expect(popover.inert).toBe(true)
+    await escapeTop()
+    expect(popover.inert).toBe(false)
+    expect(document.activeElement).toBe(trigger)
+    trigger.click()
+    await nextTick()
+    document.querySelector<HTMLButtonElement>('[data-remove-lower]')!.click()
+    await nextTick()
+    expect(lower.isConnected).toBe(false)
+    expect(popover.isConnected).toBe(false)
+    const current = overlayFor('[data-confirmation-input]')
+    expect(current.querySelector<HTMLElement>('[role="dialog"]')!.inert).toBe(false)
+    const reopen = document.querySelector<HTMLButtonElement>('[data-reopen-lower]')!
+    reopen.focus()
+    reopen.click()
+    await nextTick()
+    const reopened = overlayFor('[data-confirmation-launch]')
+    expect(Number(reopened.style.zIndex)).toBeGreaterThan(Number(current.style.zIndex))
+    expect(current.querySelector<HTMLElement>('[role="dialog"]')!.inert).toBe(true)
+    document.querySelector<HTMLButtonElement>('[data-lower-close]')!.click()
+    await nextTick()
+    expect(current.querySelector<HTMLElement>('[role="dialog"]')!.inert).toBe(false)
+    expect(document.activeElement).toBe(reopen)
+  })
+})
+
 async function openConfirmation(wrapper: VueWrapper) {
   await open(wrapper)
   const trigger = document.querySelector<HTMLElement>('[data-recovery-trigger]')!
