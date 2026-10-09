@@ -34,3 +34,12 @@
 - 新增 `internal/central/secret/contract/project_variable_plan.go`、`project_variable_plan_test.go`：两闭集stage/四producer/Prepared接口、安全observation/preparation、opaque issuer与精确原request（含Session）绑定、最低command/User/Project EX＋write-key SH＋CredentialRef EX锁。历史receipt basis不依赖仍活canonical，返回副本；纯Matches只证明签发和原绑定，不证明当前DB/权限/持锁。两contract包race97245→afbe81 actual0（1.048s/1.178s），f6d75d diffcheck0，尚无真实authority/Service实现。
 - `.agent-state/secret-variable-storage/project-variable-storage.draft.sql` 为明确非正式、未编号、未执行/未经Migrator的拟DDL：kind3 Project/48B、新用途Project-only、新D04 safe_id与receipt表/闭集结果/两个唯一约束/Project-id清理索引，无canonical/当前Credential FK及cascade，不扩旧consumer/legacyreceipt。2c1c9b diffcheck0。现树迁移≤24，必须等root整合真实连续前缀；不补空号、不借他域号、不把draft执行冒正式迁移。
 - 上述plan两源＋draft＋本文四路径freeze待root保存；下一片段可另新文件推进真实Service代码。正式main后继已交付SecretAudit纯读兼容e94077eb，本树仍8cb起点，尚未包含/验证该新main组合，按后继实际依赖装配，不声称重基已验。
+
+## 私有 prepared、读取阶段与真实加密准备（有限纯结果）
+
+- plan两源/draft/本文已root实际保存1b415158；此前92aca721/faca8b33/683bbf1均已保存，不再列待存。当前待保存技术恰七源：`project_variable_prepared{,_test}.go`、`service.go`、`project_variable_read{,_test}.go`、`project_variable_prepare{,_test}.go`，均在 `internal/central/secret/`。
+- 私有prepared：长度/presence版原意图内部摘要，不公开hash；同Service私有concrete/typed-nil/未知interface在任何方法前拒绝，别名共用mutex退休并清自有sealed缓冲。独立Python语义golden10f824；三top race8949→28c88f actual0，后加强活canary安全输出的唯一受影响top46230→60d6fb actual0。该初段直接构造包私有state，只证明守卫/编码/生命周期，未声称native签发。
+- 新读取阶段：构造时不可变ProjectVariables authority字段；原caller Tx内CheckPlan→Store.InTx→RequireHeld全锁→当前ReceiptRead→专用receipt与kind3 exact owner查询。Lookup不解密；异Ref需离锁重准备，已观察receipt丢失不可当absence。Match代码在D04内部打开两个kind3 digest常量时间比较，正向Match尚待专门控制。Lookup三top controlled race8082→cdbf1b actual0；末只删测试unused局部，ff3da9 diffcheck0。
+- 真实Prepare方法：绑定authority.CheckPlan后才control/nonce/seal，不二次Discover/不换candidate；新值真实kind1 AEAD、意图真实kind3 AEAD；历史已完成重放仅准备摘要比较，metadata-only不封新业务值；失败销毁D04自有候选，不销毁调用者Intent。三top race10260→734ad6 actual0，测试失败也释放mutex的强化仅重跑正向top13922→fa22d0 actual0。nonce Unknown不发布candidate、不复用range或重试。
+- Store/authority与已提交nonce-range在这些测试中均明确controlled；实际密码原语/私有Service方法不等于真实D10授权、PG SQL、初始化或Migrator验证。公开Apply、nativeAudit、rotation/Cleanup仍未实现/未接，不称producer完整。所有Go命令已actualWait，无PG/browser/socket/网络或在途编译。
+- 本文与上述七技术源共8路径统一freeze供root保存；后继新文件可独立推进，但不混入本片段验收。
