@@ -1,12 +1,12 @@
 # Skills 持久初始化服务恢复点
 
 - 树：`/workspace/agenteam-skills`，分支 `ai/skills-service`；基线正式 main `ca9f2d5d`。D08已正式交付，旧初始化树保持冻结，不再修改。
-- 当前：已完成Variables独验并返回D10作者；rev3 SPEC已获独立有限接受。本域四口initializer、OwnerReader、持久work和有界公平Recover均可构建，正在准备真实PG持久初始化/重读确认与原COMMIT恢复。尚无本域真实PG、D05对象或生产root结果。
+- 当前：已完成Variables独验并返回D10作者；rev3 SPEC已获独立有限接受。本域四口initializer、OwnerReader、持久work和有界公平Recover均可构建。作者真实PG的Persistence（60950）与PublicationRollback（58518）已完整PASS，均明确消费受控Object端口；真实D05对象组合仅完成编译准备，生产root仍未绑定。
 - 已保存SPEC片段：`docs/development/work-items/d10-skills-initialization.md`、`docs/development/work-items/d10-skills-initialization-design.md`、本文。已由root保存/push ea13186d，设计技术段继续freeze；未自行Git操作。
-- 当前可复用：实际D05 same-Store Object Audit checker；D08 original initialization四口、收敛口与初始化Audit wrapper。真实Skill exact映射provider/root尚未绑定，constructor非nil不证明真实组合。
-- 共享待协调：D05初始化Service closed shape/initiator；SkillRevision+ProjectDeleted release；Project CleanupPhase现unbound；本域active初始化与删除Audit分流；生产同participant要组合届时实际启用Variables等域。root现已授权本树D05三个已列窄补口及定向测试，须单独freeze独审；Project CleanupPhase/root仍未授写。Object runtime join停止项不恢复。
-- 迁移00027仅本域schema，尚未SQL执行。root已精确刷新00024到正式3cea6076，00025保持da16d95a、00026保持4174e160；三前序各域SQL事实可复用，不代表本树24..27组合已验。
-- 下一步：SPEC独审期间先实现无歧义本域Store/状态/四口及exact authority，受控delegate与真实PG/真实Object/生产root验收分开；共享差异报root，不用stub冒成功。资源/热cache/真实PG或MinIO需freshgrant；不spawn，root协调交叉审查。
+- 当前可复用：实际D05 same-Store Object Audit checker；D08 original initialization四口、收敛口与初始化Audit wrapper。本域Skill exact映射provider已实现，真实Object组合测试已接线但未动态；生产root未绑定，constructor非nil不证明真实组合。
+- 共享待协调：D05初始化Service closed shape/initiator及SkillRevision+ProjectDeleted release三个窄补口已完成并获有限独审，尚不证明真实清理；Project CleanupPhase现unbound，本域active初始化与删除Audit分流、生产同participant组合仍待。Project CleanupPhase/root仍未授写，Object runtime join停止项不恢复。
+- 迁移00027已随上述两次真实PG初始化fixture连续执行；单独升级、约束和DDL失败回滚矩阵仍未动态。root已精确刷新00024到正式3cea6076，00025保持da16d95a、00026保持4174e160；前序来源与各域证据不替代本域独立迁移验收。
+- 下一步：已准备CommitRecovery、Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority及真实D05三子组合，各自等待root单top fresh grant后实际执行。前四项用原两资源PG窗口，D05用原七资源窗口；资源、缓存继续唯一所有。暂不改生产service/runtime_work等已冻结输入，不spawn，root协调交叉审查。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
 
 ## 首个持久实现片段
@@ -103,3 +103,12 @@
 - 12 子项覆盖已发布但 Project 尚未初始化、active Owner 正向、跨 Owner/admin、Session 错配/缺失/撤销/过期后重验、未知 Skill/Project、archived 正向及 deleting 拒绝。正向按真实 Skill 表值精确比对 metadata；全部读取要求零额外 Object 操作。User/Session、completed Project/Creation 与生命周期状态是披露的测试规范种子，不声称 Login、Project.Create/归档/删除命令或真实 D05 流式读取通过。
 - 首编译 `7162c9` 因自有 `output/ai/skills/compile/tmp` 不存在而 setupFAIL，未启动 Go 编译；补齐该目录后 `98760` 离线 race-c actualexit0，产物 `output/ai/skills/compile/skill-pg-owner-read.test`，`33518` 精确唯一 top 发现 actual0。gofmt/diffcheck0，没有运行 SQL/socket；原 fixture、产品、PG driver/supervisor 和先前固定 binaries 均未改。
 - 该新源与主卡/本文三路径在可构建边界冻结供 checkpoint。下一实际仍由 root 单 top fresh grant，OwnerReader 准备不改变已有 Rollback/CommitRecovery/Migration/Admission 的未验事实或既定队列。
+
+## 发布回滚实际终态与真实对象组合准备
+
+- OwnerReader 三路径已保存并远端确认 `5e27c32d`。根随后 fresh grant 的 `^TestSkillInitializationPublicationRollback$` 仍消费固定原 `skill-pg-recovery.test`/PG driver，cwd `tests/skills`，开始实采可用 5,907,701,760 bytes，原两资源/105+15/123+3/TCP75。
+- `58518` 实际 outer exit0/69.153s，Go 1.86s；Go PID896030、driver PID895431 实际 Wait0，driver 10.442s。两精确 PG/network ID 两次 clean、desc 两次空、HOST_TCP 两次 delta_empty、inputs_unchanged=True、terminal0；自有目录仅 `owned.json`，private/runtime 不存在。原件 `output/ai/skills/pg/pg-f219db39a0504addb2c06c423a402ff5.log` 及同名目录。完整尾后已向根释放，没有续跑。此组证明受控 Object 发布失败后的真实本域 SQL 原子回滚/attempt 保留，不冒真实 D05 故障或独立验收。
+- 新 `tests/skills/object_publication_test.go` 将实际同 Store 的 Skill Authority/精确 mapping、D08 初始化 Audit wrapper、Object 私有 checker/Audit 和独立 Object Service 组合；三子要求真实 publication/reference/Audit 与原 ID 重放、真实 immutable package EOF/Close/reader lease/work、公开字段正确但缺私有 witness 时确实到达真实 checker 并拒绝。上游 Project/Creation/Human 仍是披露的测试事实，不冒 Login/Create/生命周期命令。
+- 初 69925 race-c actualexit1：fixture 错将 `*skill.Authority` 当成尚未实现的 `CleanupAuthority`。只移除这条无效绑定，Cleanup 继续原 DependencyUnbound，不补 allow/stub或产品；ProcessGuard 只持构造资源，未绑定 Runtime、不能证明旧进程停止。随后 8884 race-c actualexit0 至 `output/ai/skills/compile/skill-object-publication.test`，2c8c10 精确发现唯一 `TestSkillObjectInitializationPublication` actual0，gofmt/diffcheck0；该组合尚未实际运行。
+- 本域缓存 MinIO 从 Variables 已验缓存本地精确复制，SHA 为原固定 `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`，没有执行它。既有 `root_chain_driver.py` 和 `pg_only_supervisor.py` 各只新增 `^TestSkillObjectInitializationPublication$` → `tests/skills`/expected singleton。作者 d47937 actual0（反删两行全文原样、实际配置 1正4负、observer 尾5控）；未参与实现的 service_delivery 窄审 685fef actual0，无 mustfix，原 6m/七资源/Wait/预算均未变，不是业务独验。
+- 新测试、两 harness、主卡/本文共五路径再次 freeze 供恢复保存；无资源/编译在途。此前 CommitRecovery/Migration/Admission/OwnerReader 均仍未动态。生产 service/runtime_work 暂不变：后续精确 lifecycle participant 需要工作与原调用的 Project/取消关联及真实 CleanupPhase，不能拿当前技术尾替代业务停止授权，Object Runtime 停止项继续保留。
