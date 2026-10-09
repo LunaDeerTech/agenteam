@@ -30,6 +30,7 @@ type session struct {
 	state    *sessionState
 	hello    p.Hello
 	executor operationExecutor
+	onHello  func() error // immutable before run; owned by the original reader
 	wake     chan struct{}
 	mu       sync.Mutex
 	started  bool
@@ -137,7 +138,12 @@ func (s *session) receive(ctx context.Context, message p.Message) error {
 	default:
 	}
 	switch payload := message.Payload().(type) {
-	case p.HelloAck, p.HeartbeatAck:
+	case p.HelloAck:
+		if s.onHello != nil {
+			return s.onHello()
+		}
+		return nil
+	case p.HeartbeatAck:
 		return nil
 	case p.ProtocolError:
 		if payload.Fatal {
