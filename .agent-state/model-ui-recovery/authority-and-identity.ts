@@ -4,7 +4,8 @@ import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import type { ConfigCredentialSnapshot as Snapshot } from './configuration-and-credential';
-import { installResolvePublicationObservation, resolvePublicationProjection, type ResolvePublicationBinding } from './resolve-publication-observer';
+import { installResolvePublicationObservation, resolvePublicationProjection, type ResolvePublicationBinding, type ResolveRejectionExpected } from './resolve-publication-observer';
+import { resolveRejectionReady, acceptedResolveRejection, resolveFinishedLifetime } from './resolve-rejection-contract';
 
 type ProjectKey = 'main' | 'second' | 'other' | 'admin_owned' | 'archiving' | 'archived' | 'deleting' | 'pending' | 'config_recovery' | 'credential_recovery' | 'referenced';
 type Project = Readonly<{ id: string; username: string; normalized_name: string; owner_user_id: string; initialized: boolean; lifecycle: string }>;
@@ -32,7 +33,7 @@ export type AuthorityHarness = Readonly<{
   actualLoss(page: Page, control: Record<string, unknown>, maximumObservedBytes: 0 | 1): Promise<void>;
   counts(): Promise<Record<string, unknown>>;
   nativeFacts(page: Page): Promise<readonly NativeFact[]>;
-  finish(page: Page, checks: Record<string, boolean>): Promise<void>;
+  finish(page: Page, checks: Record<string, boolean>, beforePublish?: () => Promise<void>): Promise<void>;
   step(name: string): void;
 }>;
 const button = (scope: Page | Locator, name: string) => scope.getByRole('button', { name, exact: true });
@@ -207,12 +208,12 @@ function resolveSampler(page: Page, slot: string, requestID: () => string | null
   }
   return {
     start() { if (!started && !stopped) { started = true; sample(); } },
-    async stop() {
+    async stop(deadline?: number) {
       stopped = true;
       if (timer !== undefined) { clearTimeout(timer); timer = undefined; }
       const tail = pending;
       let joined = !tail, joinTimer: ReturnType<typeof setTimeout> | undefined;
-      try { if (tail) joined = await Promise.race([tail.then(() => true), new Promise<false>((resolve) => { joinTimer = setTimeout(() => resolve(false), 250); })]); }
+      try { if (tail) joined = await Promise.race([tail.then(() => true), new Promise<false>((resolve) => { joinTimer = setTimeout(() => resolve(false), deadline === undefined ? 250 : Math.max(0, Math.min(250, deadline - performance.now()))); })]); }
       finally { if (joinTimer !== undefined) clearTimeout(joinTimer); }
       return { samples, sample_settled: settled, sample_failed: failed, sample_joined: joined, sample_join_unavailable: !joined };
     },
@@ -381,7 +382,7 @@ function acceptedSessionConsumption(value: ConsumptionResult | null, expected: R
 type ResponseDiagnosticTarget = { kind: 'session' } | { kind: 'resolve'; username: string; project_name: string };
 // Both targets remain outside the Model operation whitelist. They share one
 // evaluate owner and sampler, observing only the original selected response.
-async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTarget, artifact: 'authority-resolve-diagnostic.json' | 'independent-b-session-diagnostic.json' | 'authority-session-response-diagnostic.json', restoreOwner?: RestoreOwner) {
+async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTarget, artifact: 'authority-resolve-diagnostic.json' | 'independent-b-session-diagnostic.json' | 'authority-session-response-diagnostic.json', restoreOwner?: RestoreOwner, rejection?: ResolveRejectionExpected) {
   // All times below are Node observations relative to this invocation, not
   // browser EOF times or the beginning of Playwright's overall test budget.
   const timeOrigin = performance.now();
@@ -415,6 +416,7 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
       resolveBinding = await selector.resolveOwnerModule(root);
     } catch { /* Public type/export binding unavailable: retain the original gate. */ }
   }
+  const schemas = rejection ? object(object(JSON.parse(readFileSync(join(resolve(process.env.AGENTEAM_PROJECT_MODELS_WEB_DIST!, '../../../..'), 'api/openapi/common.json'), 'utf8'))).components).schemas as Record<string, unknown> : undefined;
   const slot = randomUUID();
   const kind = target.kind;
   let active = false, selected: Response | undefined, requestID: string | null = null;
@@ -423,12 +425,13 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
   let latestOwner: Record<string, unknown> | null = null, progress: (() => void) | undefined;
   let latestResolve: Record<string, unknown> | null = null, latestResolveID: string | null = null;
   let resolveSource: 'unavailable' | 'sample' | 'end' = 'unavailable';
-  let finalResult: ConsumptionResult | null = null, finalized = false;
+  let finalResult: ConsumptionResult | null = null, finalized = false, resolveDeadline: number | undefined;
+  const responseHeaders = new Map<Response, number>();
   let snapshotSource: 'unavailable' | 'sample' | 'end' = 'unavailable';
   const targets: Request[] = [], finished = new Set<Request>(), failed = new Set<Request>();
   const bounded = async <T>(work: () => Promise<T>): Promise<T | null> => {
     let timer: ReturnType<typeof setTimeout> | undefined;
-    try { return await Promise.race([work(), new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), 250); })]); }
+    try { return await Promise.race([work(), new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), resolveDeadline === undefined ? 250 : Math.max(0, Math.min(250, resolveDeadline - performance.now()))); })]); }
     catch { return null; }
     finally { if (timer !== undefined) clearTimeout(timer); }
   };
@@ -477,10 +480,12 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
   } catch { /* Observation cannot interrupt the original request. */ } };
   const completed = (request: Request) => { try { if (candidate(request)) { finished.add(request); if (!finishedTimes.has(request)) finishedTimes.set(request, mark()); } } catch {} };
   const rejected = (request: Request) => { try { if (candidate(request)) { failed.add(request); if (!failedTimes.has(request)) failedTimes.set(request, { at: mark(), test_status: testStatus() }); } } catch {} };
+  const headersObserved = (response: Response) => { if (rejection && targetMatch(response.request()) && responseHeaders.size < 6) responseHeaders.set(response, performance.now()); };
+  if (rejection) page.on('response', headersObserved);
   page.on('request', requested); page.on('requestfinished', completed); page.on('requestfailed', rejected);
   page.on('close', pageClosed); context.on('close', contextClosed);
   let beginning: Promise<unknown>;
-  try { beginning = resolveEvaluate(page, () => restoreOwner && ownerBinding ? page.evaluate(installRestoreOwnerObservation, { binding: ownerBinding, expected: restoreOwner, slot, expiresAt }) : target.kind === 'resolve' && resolveBinding ? page.evaluate(installResolvePublicationObservation, { binding: resolveBinding, target, slot, expiresAt }) : page.evaluate(({ slot, expiresAt, target }) => {
+  try { beginning = resolveEvaluate(page, () => restoreOwner && ownerBinding ? page.evaluate(installRestoreOwnerObservation, { binding: ownerBinding, expected: restoreOwner, slot, expiresAt }) : target.kind === 'resolve' && resolveBinding ? page.evaluate(installResolvePublicationObservation, { binding: resolveBinding, target, slot, expiresAt, expected: rejection, schemas }) : page.evaluate(({ slot, expiresAt, target }) => {
     const probe = (window as any).__projectModelsProbe;
     return target.kind === 'session' ? probe.sessionBegin(slot, expiresAt, undefined, true) : probe.resolveBegin(slot, expiresAt, { username: target.username, project_name: target.project_name });
   }, { slot, expiresAt, target })); }
@@ -508,6 +513,7 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
     start() { active = true; try { actionStarted ??= mark(); } catch {} },
     select(response: Response) {
       selected = response;
+      if (rejection) resolveDeadline = (responseHeaders.get(response) ?? -Infinity) + 5_000;
       sampler.start();
       try { void response.headerValue('x-request-id').then((value) => { requestID = value; }, () => {}).catch(() => {}); } catch {}
     },
@@ -517,6 +523,24 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
       try { original = work(); } catch (error) { rejected(); throw error; }
       void original.then(() => {}, rejected).catch(() => {});
       return original;
+    },
+    async resolveReady(): Promise<'consumed'> {
+      need(rejection && resolveInstall === 'armed' && resolveDeadline !== undefined && Number.isFinite(resolveDeadline), 'PROJECT_MODELS_RESOLVE_CONSUMPTION_UNAVAILABLE');
+      while (!resolveRejectionReady(latest, latestResolve, rejection.status)) {
+        need(!finalized && performance.now() < resolveDeadline, 'PROJECT_MODELS_RESOLVE_CONSUMPTION_TIMEOUT');
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        try { await new Promise<void>(resolve => { progress = resolve; timer = setTimeout(resolve, Math.max(0, resolveDeadline! - performance.now())); }); }
+        finally { progress = undefined; if (timer !== undefined) clearTimeout(timer); }
+      }
+      need(performance.now() < resolveDeadline, 'PROJECT_MODELS_RESOLVE_CONSUMPTION_TIMEOUT');
+      return 'consumed';
+    },
+    async acceptResolve() {
+      need(rejection && resolveDeadline !== undefined, 'PROJECT_MODELS_RESOLVE_DECLARATION_MISSING');
+      const result = await this.finish(false);
+      const at = performance.now(), accepted = acceptedResolveRejection(result?.evidence, rejection.status, resolveDeadline, at);
+      if (result) writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-resolve-consumption-' + slot + '.json'), JSON.stringify({ ...result.evidence, consumption_publication_evidence_complete: accepted, consumer_gate: { accepted, within_header_deadline: at < resolveDeadline, observed_elapsed_ms: at - (resolveDeadline - 5_000) } }), { mode: 0o600 });
+      need(accepted, 'PROJECT_MODELS_RESOLVE_CONSUMPTION_INCOMPLETE');
     },
     async consume(deadline: number): Promise<SessionIdentity> {
       need(restoreOwner && ownerInstall === 'armed', 'PROJECT_MODELS_AUTHORITY_SESSION_CONSUMPTION_UNAVAILABLE');
@@ -543,20 +567,21 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
     },
     async finish(failure: boolean): Promise<ConsumptionResult | null> {
       if (finalized) return finalResult;
-      finalized = true;
+      finalized = true; progress?.();
       let projection: Record<string, unknown> | null = null, ownerEvidence: Record<string, unknown> | null = null;
       let identity: unknown = null, retired = false, resolveRetired = false;
       try {
-        const sampling = await sampler.stop();
+        const sampling = await sampler.stop(resolveDeadline);
         // A timed-out evaluate keeps its single-flight ownership; no second
         // read or end can overlap an original observation that has not joined.
-        const value: unknown = sampling.sample_joined ? await bounded(() => resolveEvaluate(page, () => page.evaluate(({ slot, requestID, kind, observeOwner, observeResolve }) => {
+        const value: unknown = sampling.sample_joined ? await bounded(() => resolveEvaluate(page, () => page.evaluate(({ slot, requestID, kind, observeOwner, observeResolve, strictResolve }) => {
           const probe = (window as any).__projectModelsProbe;
           if (kind === 'resolve') {
-            const native = probe.resolveEnd(slot, requestID);
+            const retirement = strictResolve ? probe.resolveRetire(slot, requestID) : null;
+            const native = strictResolve ? retirement?.native ?? null : probe.resolveEnd(slot, requestID);
             if (!observeResolve) return native;
-            const publication = (window as any).__authorityResolvePublication?.finish(requestID) ?? null;
-            return { native, resolve: publication, retired: native !== null && probe.resolveSnapshot(slot, requestID) === null && !(window as any).__authorityResolvePublication && publication?.hooks_retired === true && publication?.pending_observations === 0 };
+            const publication = (window as any).__authorityResolvePublication?.finish(requestID, strictResolve) ?? null;
+            return { native, resolve: publication, retired: native !== null && probe.resolveSnapshot(slot, requestID) === null && !(window as any).__authorityResolvePublication && publication?.hooks_retired === true && publication?.pending_observations === 0 && (!strictResolve || retirement?.hooks_retired === true) };
           }
           const snapshot = probe.sessionSnapshot(slot, requestID);
           const ended = probe.sessionEnd(slot, requestID);
@@ -565,7 +590,7 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
           const owner = observeOwner ? observer?.finish(requestID) ?? null : null;
           return observeOwner ? { native: ended !== null ? snapshot : null, owner, identity,
             retired: ended !== null && probe.sessionSnapshot(slot, requestID) === null && !(window as any).__authorityRestoreOwner } : snapshot;
-        }, { slot, requestID, kind, observeOwner: !!restoreOwner, observeResolve }))) : null;
+        }, { slot, requestID, kind, observeOwner: !!restoreOwner, observeResolve, strictResolve: !!rejection }))) : null;
         const owner = restoreOwnerProjection(restoreOwner && value && typeof value === 'object' ? (value as any).owner : null);
         identity = restoreOwner && value && typeof value === 'object' ? (value as any).identity : null;
         const final = resolveSnapshot((restoreOwner || observeResolve) && value && typeof value === 'object' ? (value as any).native : value);
@@ -611,9 +636,25 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
           }
           ownerStopped = true;
           if (ownerCDP) for (const [name, listener] of ownerListeners) ownerCDP.off(name, listener);
+          if (rejection) page.off('response', headersObserved);
           page.off('request', requested); page.off('requestfinished', completed); page.off('requestfailed', rejected); page.off('close', pageClosed); context.off('close', contextClosed);
           retired = detached;
         } catch { ownerStopped = true; retired = false; }
+      }
+      let resolveCountersStable = false;
+      if (rejection && projection) {
+        // This real evaluate starts only after the sampler/end and listener
+        // retirement. A late original operation mutates retained safe counters.
+        const tail = await bounded(() => resolveEvaluate(page, () => page.evaluate(({ slot, requestID }) => {
+          const probe = (window as any).__projectModelsProbe;
+          const native = probe.resolveRetirement(slot, requestID, true);
+          const publication = (window as any).__authorityResolveRetired?.snapshot(requestID, true) ?? null;
+          return { native, publication, retired: probe.resolveSnapshot(slot, requestID) === null && probe.resolveRetirement(slot, requestID) === null && !(window as any).__authorityResolvePublication && !(window as any).__authorityResolveRetired };
+        }, { slot, requestID }))) as any;
+        const lastNative = resolveSnapshot(tail?.native?.native), lastPublication = resolvePublicationProjection(tail?.publication);
+        resolveCountersStable = !!lastNative && !!lastPublication && tail?.native?.hooks_retired === true && tail?.retired === true && JSON.stringify(lastNative) === JSON.stringify(latest) && lastPublication.late_events === 0 && lastPublication.pending_observations === 0;
+        if (lastNative && lastPublication) { latest = lastNative; latestResolve = lastPublication; projection.native = lastNative; }
+        else resolveRetired = false;
       }
       // The detach await still belongs to this observation. Snapshot identity
       // and uniqueness only after its listeners retire, including late events.
@@ -643,6 +684,7 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
           projection.resolve_publication = latestResolve;
           projection.resolve_publication_selected_bound = !!request && targetMatch(request) && beforeAction === 0 && afterAction === 1 && targets.length === 1 && targets[0] === request && !!requestID && latestResolveID === requestID && latestResolve?.problem_request_id_matches === true && latestResolve.problem_instance_matches === true && latestResolve.resolve_calls === 1 && latestResolve.target_calls === 1 && latestResolve.problem_status === selected?.status() && latest?.request_id_match === true && latest.requests === 1;
           projection.resolve_publication_observers_retired = resolveRetired;
+          if (rejection) { projection.resolve_listeners_retired = retired; projection.resolve_final_counters_stable = resolveCountersStable; finalResult = { evidence: projection, identity: null }; }
         }
         try {
           if (failure) writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, artifact), JSON.stringify(projection), { mode: 0o600 });
@@ -666,8 +708,8 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
   };
 }
 
-async function beginResolveDiagnostic(page: Page, project: Project) {
-  return beginResponseDiagnostic(page, { kind: 'resolve', username: project.username, project_name: project.normalized_name }, 'authority-resolve-diagnostic.json');
+async function beginResolveDiagnostic(page: Page, project: Project, rejection?: ResolveRejectionExpected) {
+  return beginResponseDiagnostic(page, { kind: 'resolve', username: project.username, project_name: project.normalized_name }, 'authority-resolve-diagnostic.json', undefined, rejection);
 }
 export async function beginSessionResponseDiagnostic(page: Page, mode: 'independent-b' | 'authority' = 'independent-b', restoreOwner?: RestoreOwner) {
   return beginResponseDiagnostic(page, { kind: 'session' }, mode === 'authority' ? 'authority-session-response-diagnostic.json' : 'independent-b-session-diagnostic.json', restoreOwner);
@@ -850,6 +892,8 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   })) as Record<'owner' | 'other_owner' | 'other_admin', Actor>;
   need(projects.main.owner_user_id === actors.owner.user_id && projects.other.owner_user_id === actors.other_owner.user_id && projects.admin_owned.owner_user_id === actors.other_admin.user_id, 'PROJECT_MODELS_AUTHORITY_OWNERS_INVALID');
   const wait = authorityAwait(harness.step);
+  const resolveLifetime = resolveFinishedLifetime(page);
+  try {
   const checks: Record<string, boolean> = {}, observe = observer(page, harness, wait);
   const providerDialog = () => page.getByRole('dialog').filter({ has: page.locator('#project-provider-form') });
   const credentialDialog = () => page.getByRole('dialog').filter({ has: page.locator('#project-credential-form') });
@@ -916,21 +960,27 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
       // is the readiness witness, so do not require an underlying click.
     }, 'limit=25');
   }
-  async function denied(project: Project, foreign: boolean) {
+  async function denied(project: Project, foreign: boolean, identity: { userID: string; sessionID: string; role: string }) {
+    need(identity.role === 'user' || identity.role === 'admin', 'PROJECT_MODELS_RESOLVE_DECLARATION_MISSING');
+    const rejection: ResolveRejectionExpected = { ...identity, role: identity.role, status: foreign ? 404 : 409, code: foreign ? 'NOT_FOUND' : 'PROJECT_NOT_ACTIVE' };
     const before = await wait('authority-denied-native-facts-051', () => harness.nativeFacts(page)), beforeCounts = await wait('authority-denied-counts-052', () => harness.counts());
-    const diagnostic = await beginResolveDiagnostic(page, project);
+    const diagnostic = await beginResolveDiagnostic(page, project, rejection);
     let diagnosticFailed = false;
     try {
     const responsePromise = wait('authority-denied-resolve-headers', () => page.waitForResponse((response) => new URL(response.url()).pathname === '/api/v1/projects/resolve'));
     diagnostic.start();
     const [response] = await wait('authority-denied-all-053', () => Promise.all([responsePromise, wait('authority-denied-navigation-action', () => harness.navigate(page, route(project)))]));
     diagnostic.select(response);
-    need(await wait('authority-denied-finished-054', () => diagnostic.finishedWait(() => response.finished())) === null && (foreign ? [403, 404].includes(response.status()) : response.status() === 409), 'PROJECT_MODELS_AUTHORITY_OWNER_GATE_INVALID');
+    const originalFinished = resolveLifetime.register(diagnostic.finishedWait(() => response.finished()));
+    const normal = originalFinished.then(value => { need(value === null, 'PROJECT_MODELS_AUTHORITY_OWNER_GATE_INVALID'); return 'normal' as const; });
+    const completion = await wait('authority-denied-finished-054', () => response.status() === rejection.status ? Promise.race([normal, diagnostic.resolveReady()]) : normal);
+    need(foreign ? [403, 404].includes(response.status()) : response.status() === 409, 'PROJECT_MODELS_AUTHORITY_OWNER_GATE_INVALID');
     await wait('authority-denied-to-be-visible-055', () => expect(page.getByRole('heading', { name: foreign ? '项目不可用' : '项目信息读取失败', exact: true })).toBeVisible());
     await wait('authority-denied-to-have-count-056', () => expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0));
     await wait('authority-denied-to-have-count-057', () => expect(page.getByRole('dialog')).toHaveCount(0));
     need((await wait('authority-denied-native-facts-058', () => harness.nativeFacts(page))).length === before.length, 'PROJECT_MODELS_AUTHORITY_DENIED_MODEL_REQUEST');
     sameOperations(beforeCounts, await wait('authority-denied-counts-059', () => harness.counts()));
+    if (completion === 'consumed') await diagnostic.acceptResolve();
     } catch (error) { diagnosticFailed = true; throw error; }
     finally { await diagnostic.finish(diagnosticFailed); }
   }
@@ -1053,8 +1103,8 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
     await wait('authority-lifecycle-' + key + '-provider-disabled', () => expect(button(page, '创建 Provider')).toBeDisabled()); await wait('authority-lifecycle-' + key + '-credential-disabled', () => expect(button(page, '创建凭据')).toBeDisabled());
     await wait('authority-lifecycle-' + key + '-manage-enabled', () => expect(button(page, '管理凭据')).toBeEnabled());
   }
-  for (const key of ['deleting', 'pending'] as const) await wait('authority-lifecycle-' + key + '-denied', () => denied(projects[key], false));
-  await wait('authority-lifecycle-other-owner-denied', () => denied(projects.other, true)); await wait('authority-lifecycle-admin-owned-denied', () => denied(projects.admin_owned, true));
+  for (const key of ['deleting', 'pending'] as const) await wait('authority-lifecycle-' + key + '-denied', () => denied(projects[key], false, ownerSession));
+  await wait('authority-lifecycle-other-owner-denied', () => denied(projects.other, true, ownerSession)); await wait('authority-lifecycle-admin-owned-denied', () => denied(projects.admin_owned, true, ownerSession));
   checks.aux_lifecycle_gates = true;
 
   harness.step('authority-archived-configuration');
@@ -1185,13 +1235,13 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   await wait('authority-flow-private-login-215', () => privateLogin(page, actors.other_owner, wait));
   const otherSession = await wait('authority-flow-session-identity-216', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
   need(otherSession.userID === actors.other_owner.user_id && otherSession.role === 'user' && otherSession.sessionID !== newOwnerSession.sessionID, 'PROJECT_MODELS_AUTHORITY_OTHER_OWNER_INVALID');
-  await wait('authority-flow-denied-217', () => denied(projects.main, true));
+  await wait('authority-flow-denied-217', () => denied(projects.main, true, otherSession));
   await wait('authority-flow-open-218', () => open(projects.other)); await wait('authority-flow-to-be-enabled-219', () => expect(button(page, '创建 Provider')).toBeEnabled());
   await wait('authority-flow-click-220', () => button(page, '退出登录').click()); await wait('authority-flow-to-be-visible-221', () => expect(page.locator('#login-email')).toBeVisible());
   await wait('authority-flow-private-login-222', () => privateLogin(page, actors.other_admin, wait));
   const adminSession = await wait('authority-flow-session-identity-223', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
   need(adminSession.userID === actors.other_admin.user_id && adminSession.role === 'admin' && adminSession.sessionID !== otherSession.sessionID, 'PROJECT_MODELS_AUTHORITY_ADMIN_INVALID');
-  await wait('authority-flow-denied-224', () => denied(projects.main, true));
+  await wait('authority-flow-denied-224', () => denied(projects.main, true, adminSession));
   await wait('authority-flow-open-225', () => open(projects.admin_owned)); await wait('authority-flow-to-be-enabled-226', () => expect(button(page, '创建 Provider')).toBeEnabled());
   await wait('authority-flow-to-have-count-227', () => expect(page.getByLabel('原请求与历史观察', { exact: true })).toHaveCount(0));
   await wait('authority-flow-to-have-count-228', () => expect(page.getByRole('dialog')).toHaveCount(0));
@@ -1201,6 +1251,15 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   for (const [operation, expected] of [['createProjectModelProvider', 2], ['createProjectModelCredential', 1], ['lookupProjectModelCredential', 1], ['deleteProjectModel', 1]] as const) need(operationCount(finalCounts, operation) === expected, 'PROJECT_MODELS_AUTHORITY_OPERATION_COUNTS_INVALID');
   for (const operation of ['updateProjectModelProvider', 'deleteProjectModelProvider', 'createProjectModel', 'updateProjectModel', 'updateProjectModelCredential', 'deleteProjectModelCredential', 'lookupProjectModelConfiguration']) need(operationCount(finalCounts, operation) === 0, 'PROJECT_MODELS_AUTHORITY_IMPLICIT_WRITE');
   harness.step('authority-same-body-finish');
-  await wait('authority-flow-finish-230', () => harness.finish(page, checks));
+  await wait('authority-flow-finish-230', () => harness.finish(page, checks, async () => {
+    await resolveLifetime.closeAndJoin();
+    const lifecycle = resolveLifetime.facts();
+    need(lifecycle.registered === 6 && lifecycle.page_closed && lifecycle.all_original_promises_joined, 'PROJECT_MODELS_RESOLVE_FINISHED_JOIN_INCOMPLETE');
+    writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-resolve-finished-lifetime.json'), JSON.stringify(lifecycle), { mode: 0o600 });
+  }));
+  } catch (error) {
+    try { await resolveLifetime.closeAndJoin(); } catch { /* Preserve the first failure; no completion is published. */ }
+    throw error;
+  }
 }
 

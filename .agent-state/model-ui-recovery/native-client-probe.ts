@@ -14,8 +14,9 @@ function canonical(value: unknown): string {
   return JSON.stringify(value)
 }
 
-// Diagnostic-only Session/Resolve slots. They never retain bytes, parse a body, or
-// contributes to the Model operation facts or acceptance gates.
+// Session/Resolve slots never retain bytes or parse a body. Only the explicit
+// Session restore and six declared Resolve rejection methods consume them; the
+// separate Model operation facts and their original gates are unchanged.
 export function sessionDiagnostics(nativeFetch: typeof window.fetch, kind: 'session' | 'resolve' = 'session') {
   const initial = () => ({ requests: 0, readers: 0, read_calls: 0, read_settled: 0, read_rejected: 0, bytes: 0,
     reader_cancel_calls: 0, reader_cancel_settled: 0, reader_cancel_rejected: 0,
@@ -26,16 +27,17 @@ export function sessionDiagnostics(nativeFetch: typeof window.fetch, kind: 'sess
   const orders = () => ({ headers_order: 0, read_done_order: 0, read_rejected_order: 0, abort_order: 0, reader_cancel_order: 0, stream_cancel_order: 0, release_order: 0 });
   const lengths = () => ({ content_length: 0, content_length_present: false, content_length_valid: false, content_encoding_identity: false });
   type Slot = { id: string; expiresAt: number; facts: ReturnType<typeof initial>; requestID: string | null; signal: AbortSignal | null; detach: () => void;
-    target: Target | null; order: ReturnType<typeof orders>; lengths: ReturnType<typeof lengths>; extended: boolean; sequence: number; status: number; signalAbortedAtStart: boolean; timer?: ReturnType<typeof setTimeout> };
-  let current: Slot | undefined;
+    target: Target | null; order: ReturnType<typeof orders>; lengths: ReturnType<typeof lengths>; extended: boolean; restorers: (() => boolean)[]; sequence: number; status: number; signalAbortedAtStart: boolean; timer?: ReturnType<typeof setTimeout> };
+  let current: Slot | undefined, retired: Slot | undefined;
+  let retiredHooks = false;
   function close() { current?.detach(); if (current?.timer !== undefined) clearTimeout(current.timer); current = undefined }
   function begin(id: string, expiresAt: number, target?: Target, extended = kind === 'resolve') {
     // A timed-out evaluate may still execute later. Its original deadline and
     // caller-owned identity must survive that lost return value.
     if (typeof id !== 'string' || !id || id.length > 64 || !Number.isFinite(expiresAt) || Date.now() >= expiresAt) return false;
     if (kind === 'resolve' && (!target || typeof target.username !== 'string' || !/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])$/.test(target.username) || target.username.length < 3 || target.username.length > 32 || typeof target.project_name !== 'string' || !/^[a-z0-9._-]{1,64}$/.test(target.project_name) || ['.', '..'].includes(target.project_name))) return false;
-    close();
-    const slot: Slot = { id, expiresAt, facts: initial(), requestID: null, signal: null, detach: () => {}, target: kind === 'resolve' ? { ...target! } : null, order: orders(), lengths: lengths(), extended, sequence: 0, status: 0, signalAbortedAtStart: false };
+    close(); retired = undefined; retiredHooks = false;
+    const slot: Slot = { id, expiresAt, facts: initial(), requestID: null, signal: null, detach: () => {}, target: kind === 'resolve' ? { ...target! } : null, order: orders(), lengths: lengths(), extended, restorers: [], sequence: 0, status: 0, signalAbortedAtStart: false };
     current = slot;
     // The original case has a 45s budget. This only retires an abandoned
     // diagnostic slot; it never aborts, reads, or completes a real request.
@@ -44,7 +46,9 @@ export function sessionDiagnostics(nativeFetch: typeof window.fetch, kind: 'sess
   }
   function snapshot(id: string, expectedID: string | null, extended = kind === 'resolve') {
     if (!current || current.id !== id) return null;
-    const slot = current;
+    return slotSnapshot(current, expectedID, extended);
+  }
+  function slotSnapshot(slot: Slot, expectedID: string | null, extended: boolean) {
     const result = { ...slot.facts, request_id_match: slot.facts.requests === 1 && !!slot.requestID && slot.requestID === expectedID,
       signal_aborted: slot.signal?.aborted === true };
     // cancel() can make a later read resolve done without an upstream EOF.
@@ -62,13 +66,31 @@ export function sessionDiagnostics(nativeFetch: typeof window.fetch, kind: 'sess
     if (result !== null) close();
     return result;
   }
+  // Resolve-only retirement retains safe counters until a final post-detach
+  // read. It restores the exact own descriptors; outstanding native callbacks
+  // still refer to this slot and therefore cannot silently change an old copy.
+  function retire(id: string, expectedID: string | null) {
+    if (kind !== 'resolve' || !current || current.id !== id) return null;
+    retired = current;
+    retiredHooks = retired.restorers.reduceRight((ok, restore) => restore() && ok, true);
+    const native = snapshot(id, expectedID);
+    close();
+    return { native, hooks_retired: retiredHooks };
+  }
+  function retirement(id: string, expectedID: string | null, forget = false) {
+    if (kind !== 'resolve' || !retired || retired.id !== id) return null;
+    const result = { native: slotSnapshot(retired, expectedID, true), hooks_retired: retiredHooks };
+    if (forget) { retired = undefined; retiredHooks = false; }
+    return result;
+  }
   function fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> | undefined {
-    const slot = current;
+    const slot = current ?? (kind === 'resolve' ? retired : undefined);
     if (!slot) return;
     if (kind === 'session' && !slot.extended && slot.facts.requests === 0 && Date.now() >= slot.expiresAt) { close(); return }
     const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url, location.origin);
     const method = init?.method ?? (input instanceof Request ? input.method : 'GET');
     if (url.origin !== location.origin || url.pathname !== (kind === 'session' ? '/api/v1/session' : '/api/v1/projects/resolve') || method !== 'GET') return;
+    if (slot === retired) { slot.facts.requests++; return; } // Every late Resolve candidate, even another Project.
     if (kind === 'session' ? !!url.search : url.searchParams.size !== 2 || url.searchParams.getAll('username').length !== 1 || url.searchParams.getAll('project_name').length !== 1 || url.searchParams.get('username') !== slot.target?.username || url.searchParams.get('project_name') !== slot.target?.project_name) return;
     slot.facts.requests++;
     const pending = nativeFetch(input, init);
@@ -97,7 +119,20 @@ export function sessionDiagnostics(nativeFetch: typeof window.fetch, kind: 'sess
       }
       const stream = response.body;
       if (!stream) return;
+      const remember = (object: object, key: string) => {
+        if (kind !== 'resolve') return () => {};
+        const descriptor = Object.getOwnPropertyDescriptor(object, key);
+        return () => {
+          const installed = Object.getOwnPropertyDescriptor(object, key)?.value;
+          slot.restorers.push(() => {
+            if (Object.getOwnPropertyDescriptor(object, key)?.value !== installed) return false;
+            try { if (descriptor) Object.defineProperty(object, key, descriptor); else if (!Reflect.deleteProperty(object, key)) return false; return true; }
+            catch { return false; }
+          });
+        };
+      };
       const streamCancel = stream.cancel.bind(stream), getReader = stream.getReader.bind(stream);
+      const cancelInstalled = remember(stream, 'cancel'), readerInstalled = remember(stream, 'getReader');
       stream.cancel = (...args) => {
         slot.facts.stream_cancel_calls++; slot.facts.cancel_before_eof ||= !slot.facts.read_done;
         mark('stream_cancel_order');
@@ -107,12 +142,14 @@ export function sessionDiagnostics(nativeFetch: typeof window.fetch, kind: 'sess
         });
         return result;
       };
-      Object.defineProperty(stream, 'getReader', { value: (...args: unknown[]) => {
+      cancelInstalled();
+      Object.defineProperty(stream, 'getReader', { configurable: kind === 'resolve', value: (...args: unknown[]) => {
         slot.facts.readers++;
         let reader: ReadableStreamDefaultReader<Uint8Array>;
         try { reader = Reflect.apply(getReader, stream, args) }
         catch (error) { failed('get-reader-threw'); throw error }
         const read = reader.read.bind(reader), cancel = reader.cancel.bind(reader), release = reader.releaseLock.bind(reader);
+        const readInstalled = remember(reader, 'read'), cancelInstalled = remember(reader, 'cancel'), releaseInstalled = remember(reader, 'releaseLock');
         reader.read = (...args: unknown[]) => {
           slot.facts.read_calls++;
           const result = Reflect.apply(read, reader, args) as ReturnType<typeof read>;
@@ -138,12 +175,14 @@ export function sessionDiagnostics(nativeFetch: typeof window.fetch, kind: 'sess
           try { release(); slot.facts.release_successes++ }
           catch (error) { failed('release-threw'); throw error }
         };
+        readInstalled(); cancelInstalled(); releaseInstalled();
         return reader;
       } });
+      readerInstalled();
     }, () => failed('fetch-rejected'));
     return pending;
   }
-  return { begin, snapshot, end, close, fetch };
+  return { begin, snapshot, end, close, fetch, retire, retirement };
 }
 
 export function install() {
@@ -304,6 +343,7 @@ export function install() {
     facts: publicFacts, verify, sessionBegin: session.begin, sessionEnd: session.end,
     sessionSnapshot: (slot: string, expectedID: string | null) => session.snapshot(slot, expectedID, true),
     resolveBegin: resolve.begin, resolveSnapshot: resolve.snapshot, resolveEnd: resolve.end,
+    resolveRetire: resolve.retire, resolveRetirement: resolve.retirement,
     dispose() { session.close(); resolve.close(); for (const o of observations) { o.request.body = null; o.request.headers = new Headers(); for (const chunk of o.chunks) chunk.fill(0) }; observations.length = 0; disposed = true },
   } })
 }

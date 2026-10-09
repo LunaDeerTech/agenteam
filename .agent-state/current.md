@@ -45,3 +45,10 @@
 - 四诊断技术路径只修producer实例契约及控制。真实boundary＋Request-ID middleware Recorder→正式common.json→实际client/Session/Workspace/View/PW转换observer：旧61963红actual1，修后7462绿actual0（20＋7／unhandled0）；strictTS17807与原adapter9/source identity89705 actual0。Runner69969／6f595c独审通过，原054–059／预算／gate、生产源、account/helper/dist不变。这里只接受诊断窄修。
 - 另新增`resolve-rejection-owner-controls.cjs`与`resolve-rejection-method-proposal.md`供方法提案，不在Runner四源接受内。actual Session project-read四格51209 actual0：typed404/409都是cancel尾实际settle→公开busy=false→原Promise rejected；abandon／受控expiry先cancelled拒绝且busy仍true，尾释放后才busy=false。生产函数未替换，transport cancel Promise与expiry时钟明确为double，无资源／0unhandled。
 - 方法草案只覆盖六个现有预声明denied调用的409 PROJECT_NOT_ACTIVE／404 NOT_FOUND；403及其它请求保原finished路径。所有typed/current identity/DOM/layout/严格EOF/cancel/owner与有界end/退休条件列为必需，原055–059与完整root尾保留。尚未独审或实现，禁止据此改变原失败或重跑。冻结本次4诊断源、2提案源、本文与卡共8路径供root保存；尚无真实资源grant。
+
+## Resolve 六声明方法恢复中的 WIP（尚未独审／真实验收）
+
+- root 已接受 Runner 对方法草案的限定独审，并授权只实现六个原 denied tuple；另明确允许既有 Model spec 的 authority-only `beforePublish` 接缝，在原 verify/check/count/dispose 后实际 page.close 与登记的原 PW Promise join，成功后才发布 completed。其它 modes、产品／Go／共享 PG 脚手架不扩范围。
+- 环境恢复后实际 HEAD4b411392，10 个技术 WIP 已存在：authority/native/observer/boundary-controls/旧 adapter/spec 六修改，新增 rejection-contract、rejection-controls、rejection-adapter-controls、before-publish-controls 四源。恢复以这些实际字节为准，未从头覆盖。首版已含正式 schema 驱动的 Problem 验证、拒绝瞬间与最终身份/role/busy、原5s header deadline、退休后 native/owner 计数、原 PW Promise 登记与发布接缝；原055–059仍保留。
+- 忽略目录现有 rejection-controls/result.json 为19项/unhandled0，但恢复时尚未核齐每条实际工具终态，不据文件反推本轮命令成功。先前提到的35073在恢复后 write_stdin 返回 Unknown process id，其 actual terminal 缺失，保留未确认；当前可读进程未见本线这些检查仍活，不将不存在当PASS。旧明确确认的51209／Runner7519/87336/59271/51dfc2等方法边界继续保留。
+- 本次先冻结以上10源码与本文共11路径供root安全 WIP checkpoint。尚须完成首版源码复核、必要控制／TS／native bundle输入对应及 Runner 实现独审。没有真实资源授权；49546 FAIL与新main整体未完成不变。

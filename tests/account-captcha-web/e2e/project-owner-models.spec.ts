@@ -728,7 +728,7 @@ async function verifyBodies(page: Page) {
   writeFileSync(join(evidence, "native-browser-observations.json"), JSON.stringify(facts), { mode: 0o600 });
   return { attempts: facts.length, complete_eof: facts.filter((fact) => fact.eof).length, incomplete: facts.filter((fact) => !fact.eof).length, typed_client_ok: selected.length, schema_ok: selected.length };
 }
-async function finish(page: Page, mode: Mode, checks: Record<string, boolean>, layouts = 0) {
+async function finish(page: Page, mode: Mode, checks: Record<string, boolean>, layouts = 0, beforePublish?: () => Promise<void>) {
   const browser = await verifyBodies(page); checks.safe_schema_client = true;
   const card = readFileSync(join(repository, "docs/development/work-items/d27-project-owner-model-settings-ui.md"), "utf8");
   const contract = JSON.parse(card.split('```json\n{\n  "files":')[1]!.split("\n```")[0]!.replace(/^/, '{\n  "files":'));
@@ -736,8 +736,12 @@ async function finish(page: Page, mode: Mode, checks: Record<string, boolean>, l
   const server = await counts(); invariant(object(server.server).started === object(server.server).finished && object(server.controls).held === object(server.controls).held_joined, "PROJECT_MODELS_SERVER_TAIL_INCOMPLETE");
   const result = { protocol, input_hash: inputHash, completed: true, mode, checks, counts: { server, browser }, schema_bodies: browser.schema_ok, client_bodies: browser.typed_client_ok, layouts };
   const raw = JSON.stringify(result); invariant(Buffer.byteLength(raw) <= 65536, "PROJECT_MODELS_RESULT_TOO_LARGE");
+  if (beforePublish) {
+    await page.evaluate(() => (window as any).__projectModelsProbe.dispose());
+    await beforePublish();
+  }
   const file = join(directory, "project-models-result.json"); writeFileSync(file + ".tmp", raw, { mode: 0o600, flag: "wx" }); renameSync(file + ".tmp", file);
-  await page.evaluate(() => (window as any).__projectModelsProbe.dispose());
+  if (!beforePublish) await page.evaluate(() => (window as any).__projectModelsProbe.dispose());
 }
 test.beforeEach(async ({ page }) => {
   step("native-probe-installing");
@@ -750,7 +754,7 @@ test.afterEach(async ({}, info) => {
   // Never persist Playwright's message/stack/call log: fill diagnostics can
   // contain private values. Retain only closed categories and our own numeric
   // source locations so a failed actual run remains diagnosable.
-  const diagnosticSources = [fileURLToPath(import.meta.url), join(repository, ".agent-state/model-ui-recovery/read-and-pagination.ts"), join(repository, ".agent-state/model-ui-recovery/read-pagination-contract.ts"), join(repository, ".agent-state/model-ui-recovery/configuration-and-credential.ts"), join(repository, ".agent-state/model-ui-recovery/authority-and-identity.ts"), join(repository, ".agent-state/model-ui-recovery/navigation-and-layouts.ts"), join(repository, ".agent-state/model-ui-recovery/native-client-probe.ts")];
+  const diagnosticSources = [fileURLToPath(import.meta.url), join(repository, ".agent-state/model-ui-recovery/read-and-pagination.ts"), join(repository, ".agent-state/model-ui-recovery/read-pagination-contract.ts"), join(repository, ".agent-state/model-ui-recovery/configuration-and-credential.ts"), join(repository, ".agent-state/model-ui-recovery/authority-and-identity.ts"), join(repository, ".agent-state/model-ui-recovery/navigation-and-layouts.ts"), join(repository, ".agent-state/model-ui-recovery/native-client-probe.ts"), join(repository, ".agent-state/model-ui-recovery/resolve-rejection-contract.ts")];
   const publicCodes = new Set(diagnosticSources.flatMap((path) => [...readFileSync(path, "utf8").matchAll(/(["'])(PROJECT_MODELS_[A-Z_]+)\1/g)].map((match) => match[2])));
   const errors = info.errors.slice(0, 8).map((error) => {
     const message = error.message ?? "", stack = error.stack ?? "";
@@ -941,7 +945,7 @@ function authorityCaseHarness(material: Material): import("../../../.agent-state
     actualLoss,
     counts,
     nativeFacts,
-    finish: (page, checks) => finish(page, "authority", checks),
+    finish: (page, checks, beforePublish) => finish(page, "authority", checks, 0, beforePublish),
     step,
   };
 }

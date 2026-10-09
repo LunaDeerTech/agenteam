@@ -35,7 +35,7 @@ func main() {
  output := map[string]response{}
  boundary := &account.HTTPBoundary{}
  handler := httpapi.WithRequestID(nil, http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
-  for name, code := range map[string]foundation.Code{"404":foundation.NotFound, "409":foundation.InvalidState} {
+  for name, code := range map[string]foundation.Code{"404":foundation.NotFound, "409":foundation.ProjectNotActive} {
    recorder := httptest.NewRecorder()
    boundary.WriteProblem(recorder, r, foundation.NewFault(code, foundation.NotStarted))
    output[name] = response{recorder.Code, recorder.Header(), append(json.RawMessage(nil), recorder.Body.Bytes()...)}
@@ -90,7 +90,7 @@ def main():
         environment["AGENTEAM_RESOLVE_BOUNDARY_INPUT"] = str(data)
         # Run the actual transformed observer first so the old endpoint literal
         # produces a direct red control against the real boundary response.
-        for name in ("resolve-publication-observer-controls.cjs", "resolve-publication-controls.cjs"):
+        for name in ("resolve-publication-observer-controls.cjs", "resolve-publication-controls.cjs", "resolve-rejection-controls.cjs"):
             child = subprocess.run(["node", str(ROOT / ".agent-state/model-ui-recovery" / name)], cwd=ROOT, env=environment, check=False, timeout=60)
             assert child.returncode == 0, f"{name} actual_wait={child.returncode}"
     print(json.dumps({"actual_boundary": True, "formal_schema": True, "statuses": [404, 409], "schema_endpoint_path_valid": True,

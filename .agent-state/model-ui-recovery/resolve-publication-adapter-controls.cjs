@@ -23,6 +23,7 @@ function fixture(options = {}) {
   const response = { request: () => request, status: () => 404, headerValue: async () => id, finished: () => { finishedCalls++; return originalFinished; } };
   const publication = {
     resolve_calls: 1, target_calls: 1, fulfilled: 0, rejected: 1, synchronous_throws: 0, problem_status: 404, pending_observations: 0,
+    problem_schema_valid: true, problem_tuple_matches: true, rejection_authenticated: true, rejection_not_busy: true, rejection_identity_matches: true, rejection_role_matches: true, current_role_matches: true, late_events: 0,
     typed_problem: true, problem_instance_matches: true, entry_authenticated: true, entry_not_busy: true, entry_identity_matches: true,
     target_url_at_call: true, target_url_current: true, left_target: false, identity_current: true, authenticated: true, not_busy: true,
     old_error_heading_present: true, old_loading_dom_present: false, loading_dom_observed: true, error_dom_after_rejection: true,
@@ -89,14 +90,15 @@ async function test(name, run) { await run(); rows.push(name); }
   ]) await test(name + ' cannot claim same original response binding', async () => {
     const f = fixture(options), d = await f.begin(); await f.sample(d); f.original(d); if (late) f.page.emit('request', { ...f.request }); await d.finish(true); assert.equal(f.artifact().resolve_publication_selected_bound, false); await f.retired();
   });
-  await test('original denied flow including finished054 and postconditions remains byte-identical', () => {
+  await test('original Session gate and denied055–059 postconditions remain byte-identical', () => {
     const old = cp.execFileSync('git', ['show', 'ca3c73db:' + file], { cwd: root, encoding: 'utf8' });
     const oldTree = ts.createSourceFile('old.ts', old, ts.ScriptTarget.Latest, true);
-    assert.equal(declaration(ast, 'runAuthorityAndIdentity'), declaration(oldTree, 'runAuthorityAndIdentity'));
+    const post = value => value.slice(value.indexOf("    await wait('authority-denied-to-be-visible-055'"), value.indexOf("    sameOperations(beforeCounts, await wait('authority-denied-counts-059'") + "    sameOperations(beforeCounts, await wait('authority-denied-counts-059', () => harness.counts()));".length);
+    assert.equal(post(source), post(old));
     assert.equal(declaration(ast, 'sessionIdentity'), declaration(oldTree, 'sessionIdentity'));
   });
   await flush(); assert.equal(unhandled.length, 0); assert.equal(fs.readFileSync(root + '/' + file, 'utf8'), source);
   const output = root + '/output/ai/model-ui-recovery/resolve-publication-observer-controls'; fs.mkdirSync(output, { recursive: true });
-  const result = { passed: rows.length, cases: rows, actual_adapter_source: true, playwright_doubles: true, browser: false, network: false, original_finished_gate_unchanged: true, unhandled: 0 };
+  const result = { passed: rows.length, cases: rows, actual_adapter_source: true, playwright_doubles: true, browser: false, network: false, original_session_gate_and_resolve_postconditions_unchanged: true, unhandled: 0 };
   fs.writeFileSync(output + '/adapter-result.json', JSON.stringify(result, null, 2) + '\n'); console.log(JSON.stringify(result));
 })().catch(error => { console.error(error); process.exitCode = 1; });
