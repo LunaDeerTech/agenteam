@@ -6,11 +6,11 @@
 
 ## 当前恢复点与并行所有权
 
-Task Planning、B0-P限定Blocker服务、Work Owner HTTP/root及普通Variables Owner后端已正式交付main，当前main为`3cea6076`。六名负责人按阶段推进Model正式组合整合、Work UI、Variables UI、Skills、Runner与Knowledge，并交叉独审；独立worktree、唯一writer、共享资产/迁移与真实资源统一由root协调。原各轮FAIL及缺失材料保留在对应卡/current，不在本入口重复流水。当前迁移普通变量00024已正式，Knowledge00025/Runner00026/Skills00027归各线；00028仅Skills真正cleanup SPEC预留、无SQL实现授权，Secret尚无迁移号。
+Task Planning、B0-P限定Blocker服务、Work Owner HTTP/root及普通Variables Owner后端已正式交付main，D13固定语料＋离线评分工具也已独立交付，当前main为`b2a7d0ab`。六名负责人按阶段推进Model正式组合整合、Work UI、Variables UI、Skills、Runner与Knowledge，并交叉独审；独立worktree、唯一writer、共享资产/迁移与真实资源统一由root协调。原各轮FAIL及缺失材料保留在对应卡/current，不在本入口重复流水。当前迁移普通变量00024已正式，Knowledge00025/Runner00026/Skills00027归各线；00028仅Skills真正cleanup SPEC预留、无SQL实现授权，Secret尚无迁移号。
 
 最新接续：Model原冻结组合新6/6、旧14/14与独立A/B已完整接受；正式main新树`/workspace/agenteam-model-ui-delivery`的首authority49546仍整体FAIL，旧组合不能外推新装配。Knowledge Runtime、四组14子及修后Process50756作者真实完整PASS，最终独立补集待验。Work recovery06及Variables旧CRUD02仍为FAIL；Work限定普通消费方法已实施并冻结交独审，Variables CRUD03已作者真实完整PASS且全尾释放，仅接受本次CRUD/history范围，其他矩阵与独立验收待完成。Runner有限Native/Client通过，四top组合仍整体FAIL，Protocol清理夹具修后及A权限/凭据新源仅有限审查就绪。Skills本域Stop12及真实D05组合70196已作者完整PASS，迁移/当前权限等其余矩阵、独立补集、真正cleanup/root未闭合。原FAIL/独占/终态缺口保留，不盲重跑。
 
-新任务进入各自授权实施：`/workspace/agenteam-task-timeline`的四类Human Task只读contract/Reader及纯控已实现，作者真实PG矩阵写入中、零迁移；`/workspace/agenteam-search-benchmark`固定数据/evaluator已实现但独立语义审有mustfix，未跑候选backend/选型；`/workspace/agenteam-secret-variables` rev2下A纯合同WIP，无迁移号/持久服务。各树从main3cea开始，按正式接口、已验子能力及共享写域推进，不以纯控冒真实集成。
+新任务进入各自授权实施：`/workspace/agenteam-task-timeline`的四类Human Task只读contract/Reader及纯控已实现，作者真实PG矩阵写入中、零迁移；`/workspace/agenteam-secret-variables` rev2下A纯合同WIP，无迁移号/持久服务。各树从main3cea开始，按正式接口、已验子能力及共享写域推进，不以纯控冒真实集成。
 
 | 工作项 | 当前可证状态 | 接手时的下一步与完成边界 |
 | --- | --- | --- |
@@ -28,6 +28,7 @@ Task Planning、B0-P限定Blocker服务、Work Owner HTTP/root及普通Variables
 | [D09 Model System](../work-items/d09-model-system-token-usage.md) | **部分库与 HTTP 接受，模块未完成**。已有配置、Owner/Usage HTTP、Summary、Chat text 与 Embeddings/平台选择 Resolver 等限定成果。 | 生产 Resolution/Invocation 与 consumer 仍未绑定；OpenAI tools 独立动态验收停止，Jina/Image 来源缺口另列。不能把 wire、受控 fixture 或 UI 通过写成真实 Provider/生产调用完成。 |
 | [D10 Skills 初始化](../work-items/d10-skills-initialization.md) | **初始化库、限定PG及真实D05组合已有作者结果，整卡未接受**。`/workspace/agenteam-skills`已通过Persistence/Rollback/CommitRecovery、本域Project Stop12及真实D05组合70196；受控Object结果与真实组合分列，迁移00027。 | 迁移、Unknown/Owner当前权限与最终独立补集仍待；真正Cleanup rev2仅SPEC/00028预留，生产root/创建HTTP与全Project组合未绑定，Object join不解停。 |
 | [D12 Knowledge](../work-items/d12-knowledge-documents.md) | **B02服务线推进，整卡未接受**。`/workspace/agenteam-knowledge`两本域缺陷已修并获有限独审；当前Runtime、后继四组14子及修后Process50756真实通过且全尾齐，迁移00025。 | [B02卡](../work-items/d12-b02-knowledge-service.md)维护实际范围；Process原FAIL保留，修后真实结果不回填旧计数/未到边界；最终独立补集待验；HTTP/UI/D13/root与全Project生命周期未绑定。 |
+| [D13固定语料＋离线评分工具](https://github.com/LunaDeerTech/agenteam/blob/b2a7d0abef0b7ca0623c8e2a7c020658948848da/docs/development/work-items/d13-lexical-benchmark.md) | **独立子结果已接受并正式交付main（b2a7d0ab）**。lexical-v2语料语义返修获独立接受，评分工具独立128控通过；原语义/夹具FAIL保留，任务分支关闭。 | 只交付固定语料和可重复离线评分工具；没有三候选backend真实成绩、性能/具体版本许可或最终选型结论，不完成D13。 |
 
 D08–D28 各模块仍有未完成范围，E01 未开始；首个未完成模块编号为 D08，但只消费已接受子能力的其他完整结果可并行。Human Owner规划HTTP与对应默认root已限定绑定；完整Task状态/执行与UI、生产Skills/创建HTTP、Resolution/Invocation及D24仍未完整绑定；现有 `ready=false` / `/readyz` 503 的产品边界不因本次文档整理改变，隔离fixture中的真实root启动与局部测试不证明生产部署或全平台ready。
 

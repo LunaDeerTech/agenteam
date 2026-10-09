@@ -16,6 +16,8 @@
 - Work Owner规划HTTP及默认根 `f1c94ee5` 已原子提交并推送main，39路径经最终独立接受；限定已有initialized Project的当前Human Owner，不含创建、UI或完整D11。
 - 普通 Project Variables Owner 后端 `3cea6076bb01693ead2755826826d189626aa3aa` 已独立接受并正式推送main、远端精确核对及候选clean完成；含00024、六能力HTTP与默认根，限定已有初始化Project当前Human Owner的普通变量。此活动树尚未合入该main，不称Secret、Agent/Runner注入、UI、创建HTTP或完整D10完成。
 
+- D13固定原创语料＋可重复离线评分工具已独立接受并正式交付main `b2a7d0ab`；数据语义修复与评分工具分别独审通过，检索benchmark分支已关闭。范围见[正式卡](https://github.com/LunaDeerTech/agenteam/blob/b2a7d0abef0b7ca0623c8e2a7c020658948848da/docs/development/work-items/d13-lexical-benchmark.md)；没有实际候选backend、性能、许可或最终选型结论，不完成D13。
+
 ## 当前所有权与任务
 
 - 按当前用户要求，root负责统筹、规划、安排、汇报、验收决策与全部Git操作；实现、排查、测试及文档由子代理执行。本文件与全局台账已交接给 `/root/work_ui` 唯一写入，原实施实例停写；两领域专属卡仍由对应负责人维护。检查点明确列文件，未完成必要源码也应按可恢复片段保存并如实注明未编译或失败；保存不代表验收。
@@ -26,7 +28,7 @@
 - Skills：`/root/skills`拥有`/workspace/agenteam-skills`、`ai/skills-service`、迁移00027。Persistence/Rollback/CommitRecovery、本域Project Stop12及真实D05组合70196已有作者完整PASS；原受控Object结果与真实D05组合分别记。Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority和最终独立补集仍待；真正Cleanup rev2只到SPEC/00028预留，无SQL实现授权，生产root/创建HTTP未闭合，Object runtime join不解停。
 - Runner：`/root/runner`拥有`/workspace/agenteam-runner-control`、`ai/runner-control`、迁移00026。有限Native/Client作者通过；四top组合整体FAIL且全尾齐，三个top的通过不覆盖Protocol清理失败。物理Close join夹具修复已有限独审；A当前权限/凭据失效新源亦有限静审接受，均未冒真实新通过。下一按该卡有限候选、DeviceReader原尾失败及B/C门槛推进，不机械重复已通过组；完整D15未接受。
 - Knowledge：`/root/knowledge`拥有`/workspace/agenteam-knowledge`、`ai/knowledge-service`、迁移00025。两个本域缺陷修复获限定独审，Runtime、四组14子及修后Process50756已作者真实完整PASS/原尾齐；原Process及环境/终态FAIL保留。最终独立补集、HTTP/UI/D13/root与全Project生命周期未闭合，B02整卡未接受。
-- 新结果并行：Timeline `/workspace/agenteam-task-timeline`、`ai/task-timeline-reader`，SPEC有限独审后typed只读库与contract/Reader纯控已实现，作者真实PG矩阵正在写，零迁移且尚未PG验收；检索benchmark `/workspace/agenteam-search-benchmark`、`ai/search-benchmark`的数据/evaluator已实现，独立语义审发现mustfix，返修前不接受数据，未跑候选backend或真实选型；Secret `/workspace/agenteam-secret-variables`、`ai/secret-variables-owner` rev2下A纯合同WIP，无迁移号/持久服务。三树均正式main3cea基线，各自卡/current保存细节，不以SPEC或pure冒整卡通过。
+- 新结果并行：Timeline `/workspace/agenteam-task-timeline`、`ai/task-timeline-reader`，SPEC有限独审后typed只读库与contract/Reader纯控已实现，作者真实PG矩阵正在写，零迁移且尚未PG验收；Secret `/workspace/agenteam-secret-variables`、`ai/secret-variables-owner` rev2下A纯合同WIP，无迁移号/持久服务。两活动树均正式main3cea基线，各自卡/current保存细节，不以SPEC或pure冒整卡通过。
 - 全局迁移保持普通变量00024已正式、Knowledge00025/Runner00026/Skills00027各线所有；00028仅为Skills后续真正cleanup SPEC预留，尚无SQL实现授权，Secret不占号。
 - 上述新树基于正式main，各自current只记本任务；原树维持全局唯一台账。共享物理资源与真实窗口统一由root调度，源码仅在各自授予写域内实施。
 - 所有实例统一显式请求 Astra/Ultra；工具无service tier字段，实际Fast未确认。当前7席动态共享；已完成实例续派用followup_task，不用send_message冒启动。
