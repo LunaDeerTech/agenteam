@@ -155,8 +155,8 @@ export function install() {
           case 'provider.create': result = await api.createProvider(project, captured.input, options); break
           case 'provider.update': result = await api.updateProvider(project, captured.id, captured.expected_version, captured.input, options); break
           case 'provider.delete': result = await api.deleteProvider(project, captured.id, captured.expected_version, options); break
-          case 'model.create': result = await api.createModel(project, captured, captured.input, options); break
-          case 'model.update': result = await api.updateModel(project, captured, captured.expected_version, captured.input, options); break
+          case 'model.create': result = await api.createModel(project, { provider_id: captured.provider_id, protocol: captured.protocol }, captured.input, options); break
+          case 'model.update': result = await api.updateModel(project, { id: captured.id, provider_id: captured.provider_id, protocol: captured.protocol }, captured.expected_version, captured.input, options); break
           case 'model.delete': result = await api.deleteModel(project, captured.id, captured.expected_version, captured.replacement, options); break
         }
       }
