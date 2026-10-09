@@ -2237,6 +2237,49 @@ func decodeProjectModelsWebResult(raw []byte, mode, inputHash string) (projectMo
 	return result, nil
 }
 
+// A runner can fail before any test hook. Project only closed categories and
+// numeric locations in this spec from its private output; never persist a raw
+// message, call log, stack, input value, environment or command line.
+func projectModelsWebBrowserFailure(raw []byte, exitCode int, contextDone bool) map[string]any {
+	categories := []string{}
+	for _, item := range []struct{ marker, category string }{
+		{"browserType.launch", "browser-launch-reported"},
+		{"Target page, context or browser has been closed", "browser-closed-reported"},
+		{"worker process exited unexpectedly", "worker-exit-reported"},
+		{"No tests found", "no-tests-reported"},
+		{"SyntaxError:", "syntax-error-reported"},
+		{"ReferenceError:", "reference-error-reported"},
+		{"TypeError:", "type-error-reported"},
+		{"Cannot find module", "module-missing-reported"},
+		{"ENOENT", "file-missing-reported"},
+		{"EACCES", "file-permission-reported"},
+		{"ENOSPC", "storage-full-reported"},
+		{"Test timeout of", "test-timeout-reported"},
+		{"PROJECT_MODELS_PRIVATE_INPUT_REJECTED", "private-input-rejected"},
+		{"PROJECT_MODELS_NATIVE_BOUNDARY_FAILED", "native-boundary-rejected"},
+		{"OWNED_PROJECT_MODELS_FIXTURE_REQUIRED", "fixture-environment-rejected"},
+	} {
+		if bytes.Contains(raw, []byte(item.marker)) {
+			categories = append(categories, item.category)
+		}
+	}
+	locations := []map[string]int{}
+	seen := map[string]bool{}
+	for _, match := range regexp.MustCompile(`project-owner-models\.spec\.ts:([1-9][0-9]{0,5}):([1-9][0-9]{0,4})\b`).FindAllSubmatch(raw, 32) {
+		if seen[string(match[0])] {
+			continue
+		}
+		seen[string(match[0])] = true
+		line, _ := strconv.Atoi(string(match[1]))
+		column, _ := strconv.Atoi(string(match[2]))
+		locations = append(locations, map[string]int{"line": line, "column": column})
+		if len(locations) == 8 {
+			break
+		}
+	}
+	return map[string]any{"exit_code": exitCode, "context_done": contextDone, "reported_categories": categories, "spec_locations": locations}
+}
+
 func (f *projectModelsWebFixture) browserModels(ctx context.Context) projectModelsWebResult {
 	root := filepath.Clean(filepath.Join(f.webRoot, "../../../../tests/account-captcha-web"))
 	if _, err := os.Stat(filepath.Join(root, "project-owner-models.config.js")); err != nil {
@@ -2331,6 +2374,7 @@ wait:
 	}
 	clear(previous)
 	if runErr != nil {
+		f.safeEvidence("browser-runner-failure.json", projectModelsWebBrowserFailure(output.Bytes(), cmd.ProcessState.ExitCode(), browserCtx.Err() != nil))
 		f.t.Fatal("actual Project Models browser did not complete; private diagnostics suppressed")
 	}
 	raw, err := projectModelsWebReadPrivate(filepath.Join(f.directory, "project-models-result.json"), 65536)

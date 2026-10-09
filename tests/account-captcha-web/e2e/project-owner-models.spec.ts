@@ -707,8 +707,10 @@ async function finish(page: Page, mode: Mode, checks: Record<string, boolean>, l
   await page.evaluate(() => (window as any).__projectModelsProbe.dispose());
 }
 test.beforeEach(async ({ page }) => {
+  step("native-probe-installing");
   const source = readFileSync(join(repository, "output/ai/model-ui-recovery/client-probe/native-client-probe.js"), "utf8");
   await page.addInitScript({ content: source + "\nProjectModelsNativeProbe.install();" });
+  step("native-probe-installed");
 });
 test.afterEach(async ({}, info) => {
   if (info.status === "passed") return;
@@ -733,6 +735,7 @@ function step(name: string) {
 }
 
 test("[recovery] actual original configuration and credential requests", async ({ page }) => {
+  step("material-reading");
   const material = readProjectModelsMaterial(), checks: Record<string, boolean> = {};
   invariant(material.mode === "recovery", "PROJECT_MODELS_CASE_MISMATCH");
   step("login");

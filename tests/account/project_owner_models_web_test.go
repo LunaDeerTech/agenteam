@@ -20,6 +20,23 @@ import (
 	"time"
 )
 
+func TestProjectModelsWebBrowserFailureProjection(t *testing.T) {
+	private := "private-canary-key-value-cookie-never-exported"
+	raw := []byte("ReferenceError: " + private + "\n at /private/project-owner-models.spec.ts:713:22\n at /private/project-owner-models.spec.ts:713:22\n at unrelated.spec.ts:999:1\n TypeError: " + private)
+	value := projectModelsWebBrowserFailure(raw, 1, false)
+	encoded, err := json.Marshal(value)
+	if err != nil || bytes.Contains(encoded, []byte(private)) || bytes.Contains(encoded, []byte("/private")) || bytes.Contains(encoded, []byte("999")) {
+		t.Fatal("runner failure projection exported private diagnostics")
+	}
+	if string(encoded) != `{"context_done":false,"exit_code":1,"reported_categories":["reference-error-reported","type-error-reported"],"spec_locations":[{"column":22,"line":713}]}` {
+		t.Fatal("runner failure projection did not preserve closed categories and unique own location")
+	}
+	unknown, _ := json.Marshal(projectModelsWebBrowserFailure([]byte(private), -1, true))
+	if string(unknown) != `{"context_done":true,"exit_code":-1,"reported_categories":[],"spec_locations":[]}` {
+		t.Fatal("unknown runner diagnostic escaped closed projection")
+	}
+}
+
 func TestProjectModelsWebResultCounters(t *testing.T) {
 	checks, err := projectModelsWebChecks("recovery")
 	if err != nil {
