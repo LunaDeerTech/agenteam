@@ -492,3 +492,105 @@ func (s *Service) acquireBusinessPublicationLease(ctx context.Context, input con
 	}
 	return lease, replay, txError(result)
 }
+
+// closeBusinessPublicationLease releases the source through its real adapter
+// before clearing only this command's exact persisted lease. A failure/Unknown
+// is not permission to continue to the final canonical transaction.
+func (s *Service) closeBusinessPublicationLease(ctx context.Context, input contentInput, intent contentIntent, work publicationWork, source businessPublicationSource, lease oc.SourceLease, prepared oc.PreparedPayload) (*kc.DocumentRef, error) {
+	if ctx == nil || s.state() == nil || intent.record == nil || work.command != intent.record.id || lease.Validate() != nil {
+		return nil, internal(nil)
+	}
+	if err := source.validate(input); err != nil {
+		return nil, err
+	}
+	measured, err := measurementOf(prepared)
+	if err != nil || measured != source.measurement {
+		return nil, fault(f.ResourceBusy)
+	}
+	st := s.state()
+	if err = st.deps.SourceReads.CancelSourceLease(ctx, lease); err != nil {
+		return nil, portError(err)
+	}
+	locks, err := publicationLocks(input.actor, intent.record, work.source)
+	if err != nil {
+		return nil, err
+	}
+	identity, err := kc.CommandIdentity(input.project, input.name, input.meta.IdempotencyKey)
+	if err != nil {
+		return nil, portError(err)
+	}
+	cause, err := f.NewCommandsCause(identity)
+	if err != nil {
+		return nil, portError(err)
+	}
+	var replay *kc.DocumentRef
+	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		x, record, _, err := s.currentContentIntent(ctx, tx, input, intent)
+		if err != nil {
+			return err
+		}
+		if record.state == kc.Committed {
+			replay = record.receipt.Document
+			return nil
+		}
+		if err = requirePublicationWork(ctx, x, work); err != nil {
+			return err
+		}
+		publication, err := loadPublicationReservation(ctx, x, record)
+		if err != nil {
+			return err
+		}
+		if !publicationSourceEqual(publication.source, source.description) || publication.measurement != nil && *publication.measurement != measured {
+			return fault(f.ResourceBusy)
+		}
+		tag, err := x.Exec(ctx, `UPDATE agenteam_knowledge.publications SET source_lease_id=NULL
+ WHERE command_id=$1 AND source_lease_id=$2 AND phase IN ('planned','reserved','uploaded')`, record.id.String(), lease.ID().String())
+		if err != nil {
+			return unavailable(err)
+		}
+		if tag.RowsAffected() != 1 {
+			return fault(f.ResourceBusy)
+		}
+		return nil
+	})
+	return replay, txError(result)
+}
+
+// Direct sources have no resolver gate. Business sources must carry the exact
+// prior resolution, and acquire their final validation plan in the same union
+// as every target mutation; this never obtains a newer reference implicitly.
+func (s *Service) planPublicationSource(ctx context.Context, input contentInput, source *businessPublicationSource) (oc.AccessLockPlan, error) {
+	business := input.request.Source != nil && input.request.Source.Kind == kc.InputBusinessFile
+	if business != (source != nil) {
+		return oc.AccessLockPlan{}, fault(f.DependencyUnbound)
+	}
+	if source == nil {
+		return oc.AccessLockPlan{}, nil
+	}
+	if err := source.validate(input); err != nil {
+		return oc.AccessLockPlan{}, err
+	}
+	request, err := oc.NewSourceAccess(oc.AccessRequestDetails{Operation: oc.AcquireSourceAccess, Actor: input.actor, Source: source.resolved})
+	if err != nil {
+		return oc.AccessLockPlan{}, portError(err)
+	}
+	plan, err := s.state().deps.Objects.DiscoverAccess(ctx, request)
+	return plan, portError(err)
+}
+
+func (s *Service) validatePublicationSource(ctx context.Context, tx f.Tx, input contentInput, source *businessPublicationSource, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
+	business := input.request.Source != nil && input.request.Source.Kind == kc.InputBusinessFile
+	if business != (source != nil) {
+		return fault(f.DependencyUnbound)
+	}
+	if source == nil {
+		return nil
+	}
+	if err := source.validate(input); err != nil {
+		return err
+	}
+	return portError(s.state().deps.Sources.ValidateInTx(ctx, tx, input.actor, source.resolved, plan, locked))
+}

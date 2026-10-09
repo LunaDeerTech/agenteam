@@ -596,15 +596,27 @@ func storePublishedDocument(ctx context.Context, x postgres.SQLExecutor, input c
 // appends the event and commits the receipt/activity. A failed member rolls the
 // entire transaction back; physical commit Unknown keeps its original cause.
 func (s *Service) finishContentPublication(ctx context.Context, input contentInput, intent contentIntent, work publicationWork, prepared oc.PreparedPayload, attempt oc.UploadAttempt) (kc.DocumentRef, error) {
+	return s.finishContentPublicationFromSource(ctx, input, intent, work, prepared, attempt, nil)
+}
+
+func (s *Service) finishContentPublicationFromSource(ctx context.Context, input contentInput, intent contentIntent, work publicationWork, prepared oc.PreparedPayload, attempt oc.UploadAttempt, source *businessPublicationSource) (kc.DocumentRef, error) {
 	if intent.record == nil || input.request.Source == nil || work.command != intent.record.id || attempt.Validate() != nil {
 		return kc.DocumentRef{}, internal(nil)
 	}
-	if input.request.Source.Kind == kc.InputBusinessFile {
+	if (input.request.Source.Kind == kc.InputBusinessFile) != (source != nil) {
 		return kc.DocumentRef{}, fault(f.DependencyUnbound)
+	}
+	if source != nil {
+		if err := source.validate(input); err != nil {
+			return kc.DocumentRef{}, err
+		}
 	}
 	measured, err := measurementOf(prepared)
 	if err != nil {
 		return kc.DocumentRef{}, err
+	}
+	if source != nil && measured != source.measurement {
+		return kc.DocumentRef{}, fault(f.ResourceBusy)
 	}
 	st := s.state()
 	locks, err := publicationLocks(input.actor, intent.record, work.source)
@@ -693,6 +705,13 @@ func (s *Service) finishContentPublication(ctx context.Context, input contentInp
 		return kc.DocumentRef{}, portError(err)
 	}
 	plans := []oc.AccessLockPlan{publishPlan}
+	sourcePlan, err := s.planPublicationSource(ctx, input, source)
+	if err != nil {
+		return kc.DocumentRef{}, err
+	}
+	if source != nil {
+		plans = append(plans, sourcePlan)
+	}
 	var cleanupCause oc.ObjectCleanupCause
 	if cleanup != nil {
 		cleanupCause, err = cleanup.cause()
@@ -740,6 +759,9 @@ func (s *Service) finishContentPublication(ctx context.Context, input contentInp
 		}
 		if !publicationMatches(publication, input, measured, attempt) {
 			return fault(f.ResourceBusy)
+		}
+		if err = s.validatePublicationSource(ctx, tx, input, source, sourcePlan, locked); err != nil {
+			return err
 		}
 		now, err := dbNow(ctx, x)
 		if err != nil {
@@ -910,9 +932,24 @@ func (s *Service) finishTitleOrReuse(ctx context.Context, input contentInput, in
 	if err != nil {
 		return kc.DocumentRef{}, portError(err)
 	}
+	var source *businessPublicationSource
+	if reuse != nil {
+		source = reuse.source
+	}
+	sourcePlan, err := s.planPublicationSource(ctx, input, source)
+	if err != nil {
+		return kc.DocumentRef{}, err
+	}
 	var out kc.DocumentRef
 	result = st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
-		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
+		var locked oc.LockedAccess
+		if source != nil {
+			var err error
+			locked, err = st.deps.Objects.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{sourcePlan}, locks)
+			if err != nil {
+				return portError(err)
+			}
+		} else if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
 		}
 		x, record, current, err := s.currentContentIntent(ctx, tx, input, intent)
@@ -927,6 +964,9 @@ func (s *Service) finishTitleOrReuse(ctx context.Context, input contentInput, in
 			if err = validateContentReuse(ctx, x, input, record, current, reuse); err != nil {
 				return err
 			}
+		}
+		if err = s.validatePublicationSource(ctx, tx, input, source, sourcePlan, locked); err != nil {
+			return err
 		}
 		now, err := dbNow(ctx, x)
 		if err != nil {
@@ -971,6 +1011,7 @@ func (s *Service) finishTitleOrReuse(ctx context.Context, input contentInput, in
 // Object.Stat result. It is only a comparison witness; the final Tx still
 // checks current Owner, exact content version/pointer and original work.
 type contentReuse struct {
+	source   *businessPublicationSource
 	work     publicationWork
 	digest   f.Digest
 	object   oc.ObjectMeta
@@ -1062,6 +1103,17 @@ func validateContentReuse(ctx context.Context, x postgres.SQLExecutor, input con
 	if reuse == nil || current == nil || current.head.Active == nil || input.request.Source == nil || reuse.digest != input.digest || reuse.work.command != record.id || reuse.object.Validate() != nil || reuse.object.State != oc.Available || reuse.object.Scope.Details().Kind != id.ProjectScope || reuse.object.Scope.Details().ProjectID != input.project.String() || reuse.measured.validate() != nil || reuse.object.MediaType != reuse.measured.Media || reuse.object.ByteSize != reuse.measured.Length || reuse.object.SHA256 != reuse.measured.SHA || current.head.Active.ObjectID != reuse.object.ID || current.head.Active.MediaType != reuse.object.MediaType || current.upload != reuse.upload || current.head.Active.ContentVersion != reuse.version || current.head.Active.Title != reuse.title {
 		return fault(f.VersionConflict)
 	}
+	if (input.request.Source.Kind == kc.InputBusinessFile) != (reuse.source != nil) {
+		return fault(f.DependencyUnbound)
+	}
+	if reuse.source != nil {
+		if err := reuse.source.validate(input); err != nil {
+			return err
+		}
+		if reuse.source.measurement != reuse.measured {
+			return fault(f.ResourceBusy)
+		}
+	}
 	if err := requirePublicationWork(ctx, x, reuse.work); err != nil {
 		return err
 	}
@@ -1109,9 +1161,20 @@ func (s *Service) finishContentReuse(ctx context.Context, input contentInput, in
 		return kc.DocumentRef{}, portError(err)
 	}
 	st := s.state()
+	sourcePlan, err := s.planPublicationSource(ctx, input, reuse.source)
+	if err != nil {
+		return kc.DocumentRef{}, err
+	}
 	var out kc.DocumentRef
 	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
-		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
+		var locked oc.LockedAccess
+		if reuse.source != nil {
+			var err error
+			locked, err = st.deps.Objects.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{sourcePlan}, locks)
+			if err != nil {
+				return portError(err)
+			}
+		} else if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
 		}
 		x, record, current, err := s.currentContentIntent(ctx, tx, input, intent)
@@ -1123,6 +1186,9 @@ func (s *Service) finishContentReuse(ctx context.Context, input contentInput, in
 			return nil
 		}
 		if err = validateContentReuse(ctx, x, input, record, current, reuse); err != nil {
+			return err
+		}
+		if err = s.validatePublicationSource(ctx, tx, input, reuse.source, sourcePlan, locked); err != nil {
 			return err
 		}
 		out = *current.head.Active

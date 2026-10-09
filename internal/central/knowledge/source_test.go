@@ -180,10 +180,16 @@ func (s *businessLeaseStore) QueryRow(ctx context.Context, sql string, args ...a
 	return row
 }
 func (s *businessLeaseStore) Exec(_ context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
-	if !s.active || s.acquires != s.calls || !strings.Contains(sql, "SET source_lease_id=$2") || len(args) != 2 || args[0] != s.record.id.String() {
+	if !s.active || s.acquires != s.calls || len(args) != 2 || args[0] != s.record.id.String() {
 		return pgconn.CommandTag{}, errors.New("unexpected source lease checkpoint")
 	}
-	s.lease = args[1].(string)
+	if strings.Contains(sql, "SET source_lease_id=$2") {
+		s.lease = args[1].(string)
+	} else if strings.Contains(sql, "SET source_lease_id=NULL") && strings.Contains(sql, "source_lease_id=$2") && args[1] == s.lease {
+		s.lease = ""
+	} else {
+		return pgconn.CommandTag{}, errors.New("imprecise source lease checkpoint")
+	}
 	s.updates++
 	return pgconn.NewCommandTag("UPDATE 1"), nil
 }
@@ -278,7 +284,7 @@ func (p *businessLeasePort) CancelSourceLease(_ context.Context, lease oc.Source
 }
 
 func TestBusinessPublicationResolutionAndLeaseKeepExactSourceAndPhysicalCommit(t *testing.T) {
-	for _, mode := range []string{"valid", "unknown", "error with lease", "source stale", "owner revoked", "work drift", "wrong reference", "unsupported media", "resolve error", "cancel error"} {
+	for _, mode := range []string{"valid", "unknown", "error with lease", "source stale", "owner revoked", "work drift", "wrong reference", "unsupported media", "resolve error", "cancel error", "clear unknown", "clear work drift", "clear current gate", "clear cancel error", "clear prepared drift"} {
 		t.Run(mode, func(t *testing.T) {
 			origin, document := newID[id.Project](t), newID[kc.Document](t)
 			ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.KnowledgeFile, ProjectID: origin, DocumentID: document.String(), Revision: 3})
@@ -387,11 +393,87 @@ func TestBusinessPublicationResolutionAndLeaseKeepExactSourceAndPhysicalCommit(t
 			} else if err != nil {
 				t.Fatal(err)
 			}
+			wantCancels := 1
+			if mode == "valid" || strings.HasPrefix(mode, "clear ") {
+				m := bound.measurement
+				if mode == "clear prepared drift" {
+					m.SHA = ob.DigestBytes([]byte("changed"))
+				}
+				prepared, _ := oc.NewPreparedPayload(oc.PreparedDetails{ID: newID[oc.Payload](t), MediaType: m.Media, Length: int64(m.Length), SHA256: m.SHA})
+				switch mode {
+				case "clear unknown":
+					store.unknownAt = 2
+				case "clear work drift":
+					store.work.fence++
+				case "clear current gate":
+					gate.err = injected
+				case "clear cancel error":
+					port.cancelErr = injected
+				}
+				replayed, closeErr := s.closeBusinessPublicationLease(context.Background(), input, intent, work, bound, lease, prepared)
+				if replayed != nil {
+					t.Fatal("cleanup fabricated a committed receipt")
+				}
+				if mode == "valid" {
+					if closeErr != nil || store.lease != "" || store.updates != 2 {
+						t.Fatal("exact lease checkpoint failed", closeErr)
+					}
+				} else if closeErr == nil {
+					t.Fatal("invalid lease checkpoint accepted")
+				}
+				if mode == "clear unknown" {
+					var f commitFailure
+					if !errors.As(closeErr, &f) || f.result.AttemptID() != store.attempt || store.updates != 2 {
+						t.Fatal("clear Unknown lost original attempt", closeErr)
+					}
+				}
+				if mode != "valid" && mode != "clear unknown" && store.updates != 1 {
+					t.Fatal("failed release cleared persistent lease")
+				}
+				if mode == "clear cancel error" || mode == "clear prepared drift" {
+					if store.calls != 1 {
+						t.Fatal("failure reached cleanup SQL")
+					}
+				}
+				if mode != "clear prepared drift" {
+					wantCancels++
+				}
+				if mode == "valid" {
+					plan, planErr := s.planPublicationSource(context.Background(), input, &bound)
+					if planErr != nil {
+						t.Fatal(planErr)
+					}
+					locks, _ := publicationLocks(input.actor, intent.record, work.source)
+					result := store.WithinTx(context.Background(), store.cause, func(ctx context.Context, tx f.Tx) error {
+						locked, err := port.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, locks)
+						if err != nil {
+							return err
+						}
+						if err = s.validatePublicationSource(ctx, tx, input, &bound, plan, locked); err != nil {
+							return err
+						}
+						port.validateErr = injected
+						if err = s.validatePublicationSource(ctx, tx, input, &bound, plan, locked); !errors.Is(err, physicalCause) {
+							t.Fatal("stale final source cause lost", err)
+						}
+						return nil
+					})
+					if err = txError(result); err != nil {
+						t.Fatal(err)
+					}
+					if port.acquires != 1 || port.validates != 3 {
+						t.Fatal("final validation acquired a new lease or skipped resolver")
+					}
+					if _, err = s.planPublicationSource(context.Background(), input, nil); err == nil {
+						t.Fatal("missing final source witness accepted")
+					}
+				}
+			}
 			joinErr := retirement.join()
-			if port.cancels != 1 {
+			if port.cancels != wantCancels {
 				t.Fatal("returned lease was not actually retired")
 			}
-			if mode == "cancel error" {
+			if mode == "cancel error" || mode == "clear cancel error" {
 				if !errors.Is(joinErr, physicalCause) || len(s.state().calls) != 1 {
 					t.Fatal("failed source lease cancellation became join", joinErr)
 				}
