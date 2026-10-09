@@ -72,7 +72,10 @@ def absent(row):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--case", choices=TOPS, required=True)
+    parser.add_argument("--navigation-image", choices=("light-narrow-normal",))
     args = parser.parse_args()
+    if args.navigation_image is not None and args.case != "navigation":
+        parser.error("--navigation-image requires --case navigation")
     os.umask(0o077)
     available = next(int(row.split()[1]) * 1024 for row in Path("/proc/meminfo").read_text().splitlines() if row.startswith("MemAvailable:"))
     if available < 5 * 1024**3:
@@ -93,13 +96,16 @@ def main():
     inputs = {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in [*sources, *binaries, *formal, *assets]}
     for source in sources[:2]:
         assert source.read_bytes() == (DELIVERY / source.relative_to(ROOT)).read_bytes()
-    frozen_hash = hashlib.sha256(json.dumps(inputs, sort_keys=True).encode()).hexdigest()
-    (evidence / "inputs.json").write_text(json.dumps({"files": inputs, "input_hash": frozen_hash, "go_source_tree": str(DELIVERY), "production_dist": str(OUTPUT / "dist"), "host_mem_available": available, "memory_gate_is_not_cgroup_hard_limit": True}, indent=2))
+    frozen_input = inputs if args.navigation_image is None else {"files": inputs, "navigation_image": args.navigation_image}
+    frozen_hash = hashlib.sha256(json.dumps(frozen_input, sort_keys=True).encode()).hexdigest()
+    (evidence / "inputs.json").write_text(json.dumps({"files": inputs, "input_hash": frozen_hash, "navigation_image": args.navigation_image, "go_source_tree": str(DELIVERY), "production_dist": str(OUTPUT / "dist"), "host_mem_available": available, "memory_gate_is_not_cgroup_hard_limit": True}, indent=2))
     libc = ctypes.CDLL(None, use_errno=True)
     if libc.prctl(36, 1, 0, 0, 0) != 0:
         raise OSError(ctypes.get_errno(), "PR_SET_CHILD_SUBREAPER")
     env = {key: value for key, value in os.environ.items() if not key.startswith(("AGENTEAM_", "MODELS_"))}
     env.update({"AGENTEAM_GO": str(Path(__file__).with_name("fixture-go.py")), "MODELS_PRIVATE_ROOT": str(private), "MODELS_EXACT_SELECTOR": "^" + TOPS[args.case] + "$", "TMPDIR": str(private), "GOTOOLCHAIN": "local", "AGENTEAM_MINIO_BINARY": str(ROOT / "output/ai/deps-minio/bin/minio"), "AGENTEAM_AUTH_WEB_RUNTIME": str(runtime), "AGENTEAM_AUTH_WEB_IMAGES": str(evidence / "images"), "AGENTEAM_PROJECT_MODELS_WEB_DIST": str(OUTPUT / "dist"), "AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE": str(evidence), "AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH": frozen_hash})
+    if args.navigation_image is not None:
+        env["MODELS_NAVIGATION_IMAGE"] = args.navigation_image
     baseline = tcp()
     started = time.monotonic()
     stop = threading.Event()
@@ -220,7 +226,8 @@ def main():
             if not unchanged:
                 code = 1
             log.write(f"SUPERVISOR frozen_inputs_unchanged={unchanged} terminal={code}\n")
-            terminal = {"case": args.case, "selector": env["MODELS_EXACT_SELECTOR"], "exit": code, "elapsed_seconds": time.monotonic() - started, "direct_actual_wait": child.returncode is not None, "adopted_actual_waits": adopted, "watchdog_joined": not thread.is_alive(), "runtime_empty": runtime_empty, "private_removed": private_removed, "tcp_empty_observations": empty, "inputs_unchanged": unchanged, "resources": len(resources)}
+            navigation_captures = sum(path.is_file() for path in (evidence / "images").glob("navigation-*.png")) if args.case == "navigation" else 0
+            terminal = {"case": args.case, "selector": env["MODELS_EXACT_SELECTOR"], "navigation_image": args.navigation_image, "navigation_captures": navigation_captures, "exit": code, "elapsed_seconds": time.monotonic() - started, "direct_actual_wait": child.returncode is not None, "adopted_actual_waits": adopted, "watchdog_joined": not thread.is_alive(), "runtime_empty": runtime_empty, "private_removed": private_removed, "tcp_empty_observations": empty, "inputs_unchanged": unchanged, "resources": len(resources)}
             (evidence / "terminal.json").write_text(json.dumps(terminal, indent=2))
         finally:
             stop.set()

@@ -142,6 +142,8 @@ export async function runNavigationAndLayouts(page: Page, harness: NavigationHar
   need(uuid(selectionDraft.id) && typeof selectionDraft.name === 'string' && uuid(summaryDraft.id) && typeof summaryDraft.name === 'string' && object(selection.draft).purpose === 'memory', 'PROJECT_MODELS_NAVIGATION_SYSTEM_DRAFT_INVALID');
   const images = process.env.AGENTEAM_AUTH_WEB_IMAGES;
   need(typeof images === 'string' && isAbsolute(images), 'PROJECT_MODELS_NAVIGATION_IMAGES_REQUIRED');
+  const selectedImage = process.env.MODELS_NAVIGATION_IMAGE;
+  need(selectedImage === undefined || selectedImage === 'light-narrow-normal', 'PROJECT_MODELS_NAVIGATION_IMAGE_SELECTION_INVALID');
   const checks: Record<string, boolean> = {}, observe = observer(page, harness);
   const providerDialog = () => page.getByRole('dialog').filter({ has: page.locator('#project-provider-form') });
   const credentialDialog = () => page.getByRole('dialog').filter({ has: page.locator('#project-credential-form') });
@@ -344,7 +346,7 @@ export async function runNavigationAndLayouts(page: Page, harness: NavigationHar
     harness.step('navigation-layouts');
     await observe('listProjectModelProviders', main.id, 'GET', 'model-providers', 200, () => harness.openProject(page, 'main', 'model-providers'), 'limit=25');
     await observe('listProjectModels', main.id, 'GET', 'models', 200, () => button(page, '项目 Models（全部 Providers）').click(), 'limit=25');
-    let layouts = 0, drawerChecked = false, reducedChecked = 0;
+    let layouts = 0, captures = 0, drawerChecked = false, reducedChecked = 0;
     for (const colorScheme of ['light', 'dark'] as const) {
       for (const viewport of [{ width: 1440, height: 900, name: 'desktop' }, { width: 390, height: 844, name: 'narrow' }] as const) {
         for (const reducedMotion of ['no-preference', 'reduce'] as const) {
@@ -371,6 +373,9 @@ export async function runNavigationAndLayouts(page: Page, harness: NavigationHar
             await group.click(); await expect(group).toHaveAttribute('aria-expanded', 'true');
             await expect(drawer.getByRole('link', { name: 'Providers', exact: true })).toHaveAttribute('aria-current', 'page');
             await page.keyboard.press('Escape'); await expect(drawer).toBeHidden(); await expect(trigger).toBeFocused();
+            // beforeLeave hides the role immediately; the public overlay node
+            // remains until Vue finishes its real CSS leave transition.
+            await expect(page.locator('.ui-overlay.drawer-overlay')).toHaveCount(0);
             drawerChecked = true;
           }
           await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -387,15 +392,19 @@ export async function runNavigationAndLayouts(page: Page, harness: NavigationHar
           need(!layout.overflow && layout.reduced === (reducedMotion === 'reduce') && layout.dark === (colorScheme === 'dark'), 'PROJECT_MODELS_NAVIGATION_LAYOUT_INVALID');
           if (reducedMotion === 'reduce') { need(layout.allMotionZero, 'PROJECT_MODELS_NAVIGATION_REDUCED_MOTION_INVALID'); reducedChecked++; }
           const name = 'navigation-' + colorScheme + '-' + viewport.name + '-' + (reducedMotion === 'reduce' ? 'reduced' : 'normal') + '.png';
-          try { await page.screenshot({ path: join(images, name), fullPage: true, animations: 'allow' }); }
-          catch { throw new Error('PROJECT_MODELS_NAVIGATION_IMAGE_FAILED'); }
+          if (selectedImage === undefined || name === 'navigation-' + selectedImage + '.png') {
+            try { await page.screenshot({ path: join(images, name), fullPage: true, animations: 'allow' }); }
+            catch { throw new Error('PROJECT_MODELS_NAVIGATION_IMAGE_FAILED'); }
+            captures++;
+          }
           layouts++;
         }
       }
     }
-    need(layouts === 8 && drawerChecked && reducedChecked === 4, 'PROJECT_MODELS_NAVIGATION_LAYOUT_COVERAGE_INVALID');
-    // Captures and measured browser conditions are checked here. The eight
-    // original images still require actual image review before card acceptance.
+    need(layouts === 8 && drawerChecked && reducedChecked === 4 && captures === (selectedImage === undefined ? 8 : 1), 'PROJECT_MODELS_NAVIGATION_LAYOUT_COVERAGE_INVALID');
+    // All eight browser conditions still run for a selected-image recheck.
+    // Its one new capture combines with the separately accepted seven images;
+    // default runs capture all eight. Actual image review remains required.
     checks.keyboard_focus_drawer = checks.eight_layouts = checks.reduced_motion = checks.no_overflow = true;
     harness.step('navigation-no-debug');
     await harness.navigate(page, '/debug');
