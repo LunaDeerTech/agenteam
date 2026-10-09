@@ -1,0 +1,97 @@
+{
+  "source_run": "owned-authority-c48ecd54bb47464c88ae27f40ebfd8d6",
+  "terminal": {
+    "case": "authority",
+    "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+    "exit": 1,
+    "elapsed_seconds": 86.13002499699905,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 285550,
+        "status": 0
+      },
+      {
+        "pid": 285554,
+        "status": 0
+      },
+      {
+        "pid": 285553,
+        "status": 0
+      },
+      {
+        "pid": 285555,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "0297ec0d12149325e09719b00e44896b9ef3b5ca499f18f2f41cd11210b2fc7a",
+    "mode": "authority",
+    "status": "failed",
+    "errors": [
+      {
+        "category": "closed-harness-error",
+        "code": "PROJECT_MODELS_AUTHORITY_DISCARD_CLICK_FAILED",
+        "call": null,
+        "locations": [
+          {
+            "source": "authority-and-identity.ts",
+            "line": 139,
+            "column": 11
+          },
+          {
+            "source": "authority-and-identity.ts",
+            "line": 146,
+            "column": 3
+          },
+          {
+            "source": "authority-and-identity.ts",
+            "line": 239,
+            "column": 3
+          },
+          {
+            "source": "project-owner-models.spec.ts",
+            "line": 953,
+            "column": 3
+          }
+        ]
+      }
+    ]
+  },
+  "hit_test": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "0297ec0d12149325e09719b00e44896b9ef3b5ca499f18f2f41cd11210b2fc7a",
+    "stage": "confirm",
+    "observation": {
+      "overlay_count": 2,
+      "overlays": [
+        {
+          "index": 0,
+          "z_index": 100,
+          "panel_inert": false,
+          "panel_aria_hidden": false
+        },
+        {
+          "index": 1,
+          "z_index": 100,
+          "panel_inert": true,
+          "panel_aria_hidden": true
+        }
+      ],
+      "target_overlay_index": 0,
+      "target_found": true,
+      "target_disabled": false,
+      "target_visible": true,
+      "target_inert": false,
+      "center_hits_target": false,
+      "center_hits_overlay": true,
+      "hit_overlay_index": 1
+    }
+  }
+}
