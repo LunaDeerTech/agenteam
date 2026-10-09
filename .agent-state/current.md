@@ -4,7 +4,7 @@
 
 ## 当前片段
 
-两 exact top 为 `TestKnowledgeB02IndependentContent`、`TestKnowledgeB02IndependentTreeReference`，各三 direct 子组，selector `^TestKnowledgeB02Independent(Content|TreeReference)$`。race-c45237 actualexit0；9ccae9 discovery actual0 精确两 top；vet67704 actualexit0；gofmt 与 56e9b6 diffcheck actual0。候选 `output/ai/knowledge-independent/knowledge-independent-race.test` 为 36,862,944 B，绑定两新测试2578a9ef，工具冻结f285be16。首次真实89530整体FAIL、全部实际资源尾完整，见下节；当前无测试/资源执行在途。首 race-c91846 因 Content 未使用 oc import 编译 FAIL，移除后才通过，原结果保留。
+两 exact top 为 `TestKnowledgeB02IndependentContent`、`TestKnowledgeB02IndependentTreeReference`，各三 direct 子组，selector `^TestKnowledgeB02Independent(Content|TreeReference)$`。原race-c45237 actualexit0；9ccae9 discovery actual0 精确两 top；vet67704 actualexit0；gofmt 与 56e9b6 diffcheck actual0。原候选 `output/ai/knowledge-independent/knowledge-independent-race.test` 为 36,862,944 B，绑定两新测试2578a9ef，工具冻结f285be16。首次真实89530整体FAIL、全部实际资源尾完整，见下节；失败摘要已root保存b7798cd5。后续仅最后一子窄修的新candidate67286已离线编译，未PG、待未参与者窄审，见修复节；当前无执行在途。首 race-c91846 因 Content 未使用 oc import 编译 FAIL，移除后才通过，原结果保留。
 
 - Content：有效 DOCX ZIP 原字节/实际 canonical reader EOF+Close，声明短长长度和 SHA 错误不产生发布事实；真实 D05 Send 完成、real Outbox PrepareAppend 返回后，同 User EX 锁撤销上游 Session，final gate 必须拒绝，后继有效 Session 用新源恢复原 key；真实发布 Event 与 Delete Audit 正控，对公共合法 Event 缺原 command_event、精确公共 Audit 缺原 Tx 私有 witness 均拒绝。
 - TreeReference：真实正文替换上传后插入真实 Move，final/replay 不覆盖当前 parent；preview 成员真实移出/移入、count 同值但旧 scope 拒绝，fresh scope 只删当前成员；真实 PublishVerifiedInTx 返回的原 opaque receipt 在替换后不能 Consume/Attach 复活，精确 Cleanup cause 重放与 wrong operation/reason 对照。
@@ -18,6 +18,21 @@
 - Content三子全部PASS，top2.92s；TreeReference正文/parent竞争与同count成员交换两子PASS，top3.67s，但`revoked_original_receipt_cannot_reopen_reference`在239行`capture was not exact committed original upload`失败。只到Create、源Close和publicationFacts；尚未到原Consume/Attach、正文替换及被撤销upload、错cleanup cause、该子末尾joined检查。五个已过子不能认整补集接受。
 - Go PID1129999 actualWait1，driver PID1128018 actualWait1；outer89530由295e37取得actualexit1。04ccfd实读完整尾：七个精确ID各两次absent、private双absent、runtime双empty、owned descendants双[]、exact2tops/actual_test_wait真、HOST_TCP两次delta_empty、inputs_unchanged=True；supervisor100.984s terminal1。root已接受窗口释放，无自有live。原日志为`output/ai/knowledge-independent/pg/pg-0b6312f929ee40b88a378716c8dfd519.log`；忽略目录仅保留owned/request和已空runtime，不复制原日志入Git。
 - 只读源码定位：Knowledge `commands.go`先`storePublishedDocument`再`PublishVerifiedInTx`，`object_authority.go`因此返回ExistingOwner；D05 `upload.go`将这同一个原prospective upload转attached，按正式行为返回空Receipt。Knowledge随后已校验Put.Meta.ID与canonical一致；新测试错误地假设其仍返回可用原receipt。原239未分采两个布尔，不能回填其动态值；尚未改变产品或测试，也未把后继替换upload与原upload混同。下一步只核真实可达的原receipt获取方式，不通过SQL补造receipt/claim/witness，不把无法到达的前置改成通过。
+
+## 最后一子白盒前置修复（仅离线候选）
+
+root明确授权只读真实原uploads行，用公开`NewUploadReceipt`投影原持久身份；它不是声称API曾返回的receipt，也不插入/改写事实或私有witness。原D05 `LookupPut`在attached状态同样不返回receipt，不能用换Lookup掩盖原错误。依据D05设计§5和实际`references.go`，同owner/原稳定actor/creation cause/当前正式授权下，已canonical且未revoked的prospective上传可携原身份幂等Consume；bare Attach本来要求receipt而Forbidden，因此不能把原bare Attach拒绝当撤销证明。
+
+只改`tests/knowledge/b02_independent_tree_reference_test.go`最后一子，改名`revoked_persisted_public_receipt_identity_and_old_attachment`：
+
+- 正式Create A返回Object必须与canonical相同，且PutResult.Receipt显式为空。只读真实uploads与真实Create command相联的receipt_id/upload_id/object_id/creation_cause，核原User/Project/Document/command key/completed和prospective+attached+committed，再调用公开constructor投影。没有造新receipt ID或写SQL。
+- 先在实际完整Access plan/原Store Tx和Knowledge authority下成功Consume A，原同一canonical/reference/业务事实不增。A的bare Attach保持正式Forbidden，明确不将此当撤销正控。
+- 正式Update B为ExistingOwner，实际Attach B成功且不改事实；再用一次必要Update C真正撤销B，使随后旧A Consume和旧B Attach各自都有同一对象的撤销前正向。均需精确ResourceDeleted，不能用任意拒绝冒充撤销。
+- 保留原A的真实cleanup cause重放、错operation/reason拒绝及原上传精确绑定；两个旧对象references0/revoked/cleaning与单一cleanup事实不再变，最终C唯一canonical、三次发布各一次Audit/Event/command、实际source Close/current reader EOF+Close/lease与call Drain尾保持。
+
+67286（faf08c/c4755d）race-c actual0，新候选`output/ai/knowledge-independent/knowledge-independent-receipt-fixed-race.test`为36,877,449 B，旧45237未覆盖；3e4853 integration vet actual0。f4e507实际list精确两top，并核原Content三子和TreeReference前两子源码逐字未变、产品/迁移无diff。使用本页完整Go1.27.1/offline/readonly/独占cache env，构建命令仅将`-o`换新候选路径；3b2587 gofmt/diffcheck0。未执行任何修后PG，原89530五子证据只复用未变范围，整个独立补集仍未接受。
+
+本树工具仍只封闭原两top组合，没有暗加单top/子selector或skip。后续只补最后一子实际所需的精确工具映射由root另协调，原七资源/预算/全尾不放宽。当前仅最后一子源与本摘要两路径冻结供保存及未参与者窄审；没有自有live或真实资源。
 
 ## 固定离线命令
 

@@ -222,33 +222,62 @@ func TestKnowledgeB02IndependentTreeReference(t *testing.T) {
 		}
 		independentJoined(t, x, x.service, p)
 	})
-	t.Run("revoked_original_receipt_cannot_reopen_reference", func(t *testing.T) {
+	t.Run("revoked_persisted_public_receipt_identity_and_old_attachment", func(t *testing.T) {
 		actor := x.human(t)
 		p := x.project(t, actor, true)
 		capture := &independentPutCapture{Uploads: x.deps.Uploads}
 		s := publicationService(t, x, func(d *knowledge.Dependencies) { d.Uploads = capture })
 		raw := []byte("original receipt bytes")
 		input, body := independentUpload(t, "text/plain", raw, len(raw), independentDigest(raw))
-		original, err := s.CreateDocument(knowledgeContext(t), actor, treeMeta(t), kc.CreateRequest{ProjectID: p, DocumentID: treeID[kc.Document](t), Title: "receipt"}, input)
+		createMeta := treeMeta(t)
+		original, err := s.CreateDocument(knowledgeContext(t), actor, createMeta, kc.CreateRequest{ProjectID: p, DocumentID: treeID[kc.Document](t), Title: "receipt"}, input)
 		if err != nil || body.closes != 1 || len(capture.puts) != 1 {
-			t.Fatal("real original opaque receipt", err)
+			t.Fatal("real original publication", err)
 		}
 		publicationFacts(t, x, original, raw)
 		put := capture.puts[0]
-		if put.Meta.ID != original.ObjectID || put.Receipt.Validate() != nil {
-			t.Fatal("capture was not exact committed original upload")
+		if put.Meta.ID != original.ObjectID {
+			t.Fatal("capture was not exact committed original object")
+		}
+		if put.Receipt.Validate() == nil {
+			t.Fatal("Knowledge final publication must already attach the upload")
 		}
 		owner, err := oc.NewObjectOwner(oc.Knowledge, original.ID.String(), p.String())
 		if err != nil {
 			t.Fatal(err)
 		}
-		checkReference := func(operation oc.AccessOperation, want f.Code) {
+		// Knowledge inserts its canonical document before D05 publishes, so the
+		// returned PutResult has no receipt. Project only the public identity of
+		// the actual original row; this is not a receipt returned by that API.
+		// No upload, command, canonical, claim or private witness is written here.
+		var originalUpload, originalReceipt, creation, existence, disposition, state string
+		err = x.raw.QueryRow(knowledgeContext(t), `SELECT u.id::text,u.receipt_id::text,u.creation_cause,u.existence,u.disposition,u.state
+ FROM agenteam_object.uploads u JOIN agenteam_knowledge.commands c ON c.id::text=u.creation_cause
+ WHERE u.object_id=$1 AND u.owner_kind='knowledge' AND u.owner_id=$2 AND u.project_id=$3
+ AND c.project_id=u.project_id AND c.document_id=u.owner_id AND c.command_name='create'
+ AND c.command_key=$4 AND c.actor_user_id::text=$5 AND c.state='completed'`, original.ObjectID.String(), original.ID.String(), p.String(), createMeta.IdempotencyKey.String(), actor.Details().UserID).Scan(&originalUpload, &originalReceipt, &creation, &existence, &disposition, &state)
+		if err != nil || existence != string(oc.ProspectiveOwner) || disposition != "attached" || state != "committed" {
+			t.Fatal("exact real original attached upload required", err)
+		}
+		receiptID, err := f.ParseID[oc.Receipt](originalReceipt)
+		if err != nil {
+			t.Fatal(err)
+		}
+		uploadID, err := f.ParseID[oc.Upload](originalUpload)
+		if err != nil {
+			t.Fatal(err)
+		}
+		publicIdentity, err := oc.NewUploadReceipt(oc.ReceiptDetails{ID: receiptID, UploadID: uploadID, ObjectID: original.ObjectID, Owner: owner, CreationCause: creation})
+		if err != nil {
+			t.Fatal(err)
+		}
+		checkReference := func(operation oc.AccessOperation, object oc.ObjectID, want f.Code) {
 			t.Helper()
 			details := oc.AccessRequestDetails{Operation: operation, Actor: actor, Owner: owner, Intent: id.Mutate}
 			if operation == oc.ConsumeAccess {
-				details.Receipt = put.Receipt
+				details.Receipt = publicIdentity
 			} else {
-				details.ObjectID = original.ObjectID
+				details.ObjectID = object
 			}
 			request, err := oc.NewOwnerAccess(details)
 			if err != nil {
@@ -256,18 +285,18 @@ func TestKnowledgeB02IndependentTreeReference(t *testing.T) {
 			}
 			independentObjectTx(t, x, request, func(ctx context.Context, tx f.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
 				if operation == oc.ConsumeAccess {
-					_, err := x.deps.Objects.ConsumeUploadInTx(ctx, tx, actor, owner, put.Receipt, plan, locked)
+					_, err := x.deps.Objects.ConsumeUploadInTx(ctx, tx, actor, owner, publicIdentity, plan, locked)
 					return err
 				}
-				_, err := x.deps.Objects.AttachObjectInTx(ctx, tx, actor, owner, original.ObjectID, plan, locked)
+				_, err := x.deps.Objects.AttachObjectInTx(ctx, tx, actor, owner, object, plan, locked)
 				return err
 			}, want)
 		}
 		before, at := independentSnapshot(t, x, p), x.activity(t, actor)
-		checkReference(oc.ConsumeAccess, "")
+		checkReference(oc.ConsumeAccess, original.ObjectID, "")
 		// A prospective Create upload requires its original receipt even while
 		// active; bare Attach is already forbidden for that original upload.
-		checkReference(oc.AttachAccess, f.Forbidden)
+		checkReference(oc.AttachAccess, original.ObjectID, f.Forbidden)
 		if independentSnapshot(t, x, p) != before || !x.activity(t, actor).Equal(at) {
 			t.Fatal("active original receipt replay duplicated business facts")
 		}
@@ -280,36 +309,47 @@ func TestKnowledgeB02IndependentTreeReference(t *testing.T) {
 		publicationFacts(t, x, updated, next)
 		// The replacement was reserved for an existing owner. Its active bare
 		// Attach is the positive control for the later old-object rejection.
-		activeRequest, err := oc.NewOwnerAccess(oc.AccessRequestDetails{Operation: oc.AttachAccess, Actor: actor, Owner: owner, Intent: id.Mutate, ObjectID: updated.ObjectID})
-		if err != nil {
-			t.Fatal(err)
+		before, at = independentSnapshot(t, x, p), x.activity(t, actor)
+		checkReference(oc.AttachAccess, updated.ObjectID, "")
+		if independentSnapshot(t, x, p) != before || !x.activity(t, actor).Equal(at) {
+			t.Fatal("active existing-owner attachment replay changed facts")
 		}
-		independentObjectTx(t, x, activeRequest, func(ctx context.Context, tx f.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
-			_, err := x.deps.Objects.AttachObjectInTx(ctx, tx, actor, owner, updated.ObjectID, plan, locked)
-			return err
-		}, "")
+		// A bare Attach for the prospective Create was already forbidden. Retire
+		// the real existing-owner replacement too, so this exact old Object has
+		// a successful Attach control before its ResourceDeleted rejection.
+		latestBody := []byte("latest canonical after both old uploads revoked")
+		latestInput, latestSource := independentUpload(t, "text/plain", latestBody, len(latestBody), independentDigest(latestBody))
+		latest, err := s.UpdateDocument(knowledgeContext(t), actor, titleMeta(t, updated.ContentVersion), p, updated.ID, kc.UpdateRequest{ReplaceSource: true}, &latestInput)
+		if err != nil || latestSource.closes != 1 || len(capture.puts) != 3 || latest.ObjectID == updated.ObjectID || latest.ObjectID == original.ObjectID {
+			t.Fatal("real replacement of attach-positive upload", err)
+		}
+		publicationFacts(t, x, latest, latestBody)
 		retired := independentReleased(t, x, original.ObjectID)
 		if retired.references != 0 || retired.disposition != "revoked" || !retired.cleaning || retired.records != 1 || retired.operations < 1 {
 			t.Fatal("original publication was not actually revoked", retired)
 		}
-		var cleanupID, uploadID, reason string
-		if err := x.raw.QueryRow(knowledgeContext(t), `SELECT id,upload_id,reason FROM agenteam_knowledge.object_cleanup WHERE project_id=$1 AND document_id=$2 AND object_id=$3`, p.String(), original.ID.String(), original.ObjectID.String()).Scan(&cleanupID, &uploadID, &reason); err != nil || reason != string(oc.ReplacedObject) {
+		retiredAttachment := independentReleased(t, x, updated.ObjectID)
+		if retiredAttachment.references != 0 || retiredAttachment.disposition != "revoked" || !retiredAttachment.cleaning || retiredAttachment.records != 1 || retiredAttachment.operations < 1 {
+			t.Fatal("attach-positive upload was not actually revoked", retiredAttachment)
+		}
+		var cleanupID, cleanupUploadID, reason string
+		if err := x.raw.QueryRow(knowledgeContext(t), `SELECT id,upload_id,reason FROM agenteam_knowledge.object_cleanup WHERE project_id=$1 AND document_id=$2 AND object_id=$3`, p.String(), original.ID.String(), original.ObjectID.String()).Scan(&cleanupID, &cleanupUploadID, &reason); err != nil || reason != string(oc.ReplacedObject) || cleanupUploadID != originalUpload {
 			t.Fatal("actual original cleanup provenance", err)
 		}
 		op, err := f.ParseID[oc.CleanupOperation](cleanupID)
 		if err != nil {
 			t.Fatal(err)
 		}
-		upload, err := f.ParseID[oc.Upload](uploadID)
+		upload, err := f.ParseID[oc.Upload](cleanupUploadID)
 		if err != nil {
 			t.Fatal(err)
 		}
 		before, at = independentSnapshot(t, x, p), x.activity(t, actor)
-		if before != (independentFacts{documents: 1, canonical: 1, committedUploads: 2, audits: 2, events: 2, completed: 2}) {
-			t.Fatal("two actual publications required before negative controls")
+		if before != (independentFacts{documents: 1, canonical: 1, committedUploads: 3, audits: 3, events: 3, completed: 3}) {
+			t.Fatal("three actual publications required before negative controls")
 		}
-		checkReference(oc.ConsumeAccess, f.ResourceDeleted)
-		checkReference(oc.AttachAccess, f.ResourceDeleted)
+		checkReference(oc.ConsumeAccess, original.ObjectID, f.ResourceDeleted)
+		checkReference(oc.AttachAccess, updated.ObjectID, f.ResourceDeleted)
 		for _, variant := range []string{"original", "wrong_operation", "wrong_reason"} {
 			details := oc.CleanupDetails{OperationID: op, Owner: owner, Reason: oc.ReplacedObject}
 			want := f.Code("")
@@ -329,12 +369,12 @@ func TestKnowledgeB02IndependentTreeReference(t *testing.T) {
 			independentObjectTx(t, x, request, func(ctx context.Context, tx f.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
 				return x.deps.ReferenceCleanup.ReleaseForCleanupInTx(ctx, tx, cause, original.ObjectID, plan, locked)
 			}, want)
-			if independentReleased(t, x, original.ObjectID) != retired || independentSnapshot(t, x, p) != before || !x.activity(t, actor).Equal(at) {
+			if independentReleased(t, x, original.ObjectID) != retired || independentReleased(t, x, updated.ObjectID) != retiredAttachment || independentSnapshot(t, x, p) != before || !x.activity(t, actor).Equal(at) {
 				t.Fatal(variant, "changed original gate or current canonical facts")
 			}
 		}
-		titleSameDocument(t, updated, titleCurrent(t, x, actor, p, original.ID))
-		independentRead(t, x, actor, updated, next)
+		titleSameDocument(t, latest, titleCurrent(t, x, actor, p, original.ID))
+		independentRead(t, x, actor, latest, latestBody)
 		independentJoined(t, x, s, p)
 	})
 }
