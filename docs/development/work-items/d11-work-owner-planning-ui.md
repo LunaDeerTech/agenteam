@@ -204,6 +204,10 @@ Current Sprint 非空真实正例暂不可由正式生产接口形成：[Work St
 
 固定 Playwright 1.56.1 的 `_onRequestFailed` 仅发原 Request 失败事件，不结束 `Response._finishedPromise`；其 `finished()` 可能直到页面关闭才拒绝。仅对本轮**预先声明并精确绑定的四种截断**（`unforwarded-milestone-update`、`lost-milestone-update`、`lost-task-update`、`lost-blocker-add`），观察器不创建这个无必达 finished 操作，而由同一原 Request 在 page-close 前的实际 `requestfailed` 结束观察；实际 `requestfinished` 为反证。成功事件、事后声明、错原材料/Request、重复、缺 failed、仅关闭或关闭后 failed 均拒绝；关闭要结束本地事件等待并记录拒绝，不能留下活观察等待或把晚关闭当完成。该方法必须与原唯一产品 owner 实际尾后可用的公开 Lookup、原 Go Write/Flush/Hijack/Close 成功、零转发或真实 completed SQL、原历史/唯一事实及全部清理后验组合接受，不能单凭事件宣告业务通过。`canceled-task-read` 不纳入本次变更，五条普通响应及其它普通成功仍要求原 finished/同体/schema/client，无 native 诊断 fallback；cap4 与全部预算不变。
 
+普通 aborted 的下一轮只增加同原请求诊断：`project-work-planning.native.ts` 原 fetch/Response/reader/Promise 不变、不额外消费或HTTP；以唯一XID/method/public target/status关联原PW Request，持续250ms单flight采安全读/EOF/length/取消计数。`project-work-planning.publication.ts` 从原私有dist AST定位已加载Session单例，仅观察原公开方法Promise与独立DOM状态，重复原请求/跨文档/身份改变保持未绑定；已有DOM不冒新发布。finally及页面导航实际退役owned hooks；未返end或未join分支明确保留，page-close不能造完成。闭集字段/2MiB诊断只帮助定位，不替代普通finished/同体/schema/client、owner实际join或Go后验；无Go、binary14、dist、资源或预算调整。
+
+四截断方法经Skills未参与者离线限定接受：固定152eb964原57控加6负控共63、actual0/0unhandled，无mustfix，不包含随后native增量。native作者固定PW1.56.1实际transform和序列化后33控（66614）与严格TS96324、精确recovery发现67870 actual0；尚待整包独审和新freshgrant真实验证。受控原Promise/read/cancel、EOF早于取消、唯一绑定、挂起采样无重叠、导航与晚关闭、隐私投影及公开方法拒绝/退休均有负控；详情和命令见[诊断合同](../../../.agent-state/work-owner-planning-ui/recovery-native-diagnostic-proposal.md)。recovery05与其它原FAIL不回填。
+
 ### 8.3 独立与终态
 
 未参与实施者本人执行两个独立top：`TestIndependentProjectWorkPlanningWebRecovery`（三域真实原意图/历史与归档门禁）和 `TestIndependentProjectWorkPlanningWebAuthority`（身份/旧尾/切项目/聚合确认）。对应独立spec由独立作者编写，config仅接受这两个明确case及六作者case，不能任意执行目录。作者结果不冒独立动态。

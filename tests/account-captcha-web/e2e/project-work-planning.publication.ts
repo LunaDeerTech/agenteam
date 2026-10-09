@@ -254,164 +254,175 @@ export async function installWorkPublicationDiagnostic({
         row.detail_target_present = !!detail?.textContent?.includes(
           row.target_id,
         );
+        row.entry_detail_target_present ??= row.detail_target_present;
         row.recovery_confirmed = heading === "原命令已确认";
+        row.entry_recovery_confirmed ??= row.recovery_confirmed;
         row.recovery_uncertain = heading === "原命令结果不确定";
         row.replay_available = auth.workPlanning.progress?.canReplay === true;
         if (row.fulfilled && row.detail_target_present)
-          row.first_detail_after_fulfilled ??= at();
+          row.detail_observed_after_fulfilled_at ??= at();
         if (row.fulfilled && row.recovery_confirmed)
-          row.first_confirmed_after_fulfilled ??= at();
+          row.confirmed_observed_after_fulfilled_at ??= at();
         row.sample_at = at();
       }
     });
   };
-  for (const name of methods) {
-    const original = auth.workPlanning[name];
-    if (typeof original !== "function") return "facade-unavailable";
-    const wrapped = function (this: unknown, ...args: unknown[]) {
-      let row: any;
-      if (!retired)
-        safe(() => {
-          const selected = target(name, args);
-          if (!selected) return;
-          if (calls.length >= 256) {
-            overflow = true;
-            return;
-          }
-          row = {
-            call_id: calls.length + 1,
-            operation: name,
-            ...selected,
-            call_at: at(),
-            entry_identity_matches: sameIdentity(),
-            entry_not_busy: auth.state.busy === false,
-            fulfilled: 0,
-            rejected: 0,
-            synchronous_throws: 0,
-            native_requests: 0,
-            native_sequence: null,
-            result_kind: "unobserved",
-            settled_at: null,
-            first_detail_after_fulfilled: null,
-            first_confirmed_after_fulfilled: null,
-            active: true,
-          };
-          calls.push(row);
-        });
-      let promise: Promise<unknown>;
-      try {
-        promise = Reflect.apply(original, this, args);
-      } catch (error) {
-        if (row) {
-          row.synchronous_throws++;
-          row.active = false;
-        }
-        throw error;
-      }
-      if (row) {
-        pending++;
-        void promise
-          .then(
-            (value) => {
-              if (retired) return;
-              safe(() => {
-                row.fulfilled++;
-                row.active = false;
-                row.settled_at = at();
-                const result = value as any;
-                row.result_kind = name.startsWith("get")
-                  ? "typed-detail-returned"
-                  : name === "checkOriginal" &&
-                      result?.domain === "task" &&
-                      ["committed", "in_progress", "not_observed"].includes(
-                        result.value?.status,
-                      )
-                    ? result.value.status
-                    : name === "retryOriginal" && result?.domain === "structure"
-                      ? "typed-receipt-returned"
-                      : "other-returned";
-                sampleDOM();
-              });
-            },
-            () => {
-              if (!retired)
-                safe(() => {
-                  row.rejected++;
-                  row.active = false;
-                  row.settled_at = at();
-                  sampleDOM();
-                });
-            },
-          )
-          .catch(() => {
-            observerFailed = true;
-          })
-          .then(() => {
-            pending--;
-          });
-      }
-      return promise;
-    };
-    auth.workPlanning[name] = wrapped;
-    restores.push(() => {
-      if (auth.workPlanning[name] === wrapped)
-        auth.workPlanning[name] = original;
-      else observerFailed = true;
-    });
-  }
-  const observer = new MutationObserver(sampleDOM);
-  observer.observe(document.body, {
-    subtree: true,
-    childList: true,
-    characterData: true,
-    attributes: true,
-  });
-  const snapshot = () => {
-    sampleDOM();
-    return {
-      retired,
-      observer_failed: observerFailed,
-      overflow,
-      pending_observations: pending,
-      clock: "browser-monotonic-observed-relative-to-publication-install",
-      calls: calls.map((row) => ({ ...row })),
-    };
-  };
+  let observer: MutationObserver | undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   const retire = () => {
     if (retired) return;
     sampleDOM();
     retired = true;
-    observer.disconnect();
+    observer?.disconnect();
     clearTimeout(timer);
-    for (const restore of restores.splice(0)) restore();
+    for (const restore of restores.splice(0)) safe(restore);
   };
-  const timer = setTimeout(retire, Math.max(0, expiresAt - Date.now()));
-  host.__workPublicationDiagnostic = {
-    snapshot,
-    bindNative(method: string, path: string, sequence: number) {
-      if (retired) return null;
-      const matches = calls.filter(
-        (row) =>
-          row.active &&
-          row.method === method &&
-          row.path === path &&
-          row.entry_identity_matches &&
-          sameIdentity(),
-      );
-      if (matches.length !== 1) return null;
-      const row = matches[0]!;
-      row.native_requests++;
-      if (row.native_requests !== 1) {
-        row.native_sequence = null;
-        return null;
-      }
-      row.native_sequence = sequence;
-      return row.call_id;
-    },
-    finish() {
-      retire();
-      return snapshot();
-    },
-  };
-  return "installed";
+  try {
+    for (const name of methods) {
+      const original = auth.workPlanning[name];
+      if (typeof original !== "function") throw Error("facade-unavailable");
+      const wrapped = function (this: unknown, ...args: unknown[]) {
+        let row: any;
+        if (!retired)
+          safe(() => {
+            const selected = target(name, args);
+            if (!selected) return;
+            if (calls.length >= 256) {
+              overflow = true;
+              return;
+            }
+            row = {
+              call_id: calls.length + 1,
+              operation: name,
+              ...selected,
+              call_at: at(),
+              entry_identity_matches: sameIdentity(),
+              entry_not_busy: auth.state.busy === false,
+              fulfilled: 0,
+              rejected: 0,
+              synchronous_throws: 0,
+              native_requests: 0,
+              native_sequence: null,
+              result_kind: "unobserved",
+              settled_at: null,
+              detail_observed_after_fulfilled_at: null,
+              confirmed_observed_after_fulfilled_at: null,
+              active: true,
+            };
+            calls.push(row);
+            sampleDOM();
+          });
+        let promise: Promise<unknown>;
+        try {
+          promise = Reflect.apply(original, this, args);
+        } catch (error) {
+          if (row) {
+            row.synchronous_throws++;
+            row.active = false;
+          }
+          throw error;
+        }
+        if (row) {
+          pending++;
+          void promise
+            .then(
+              (value) => {
+                if (retired) return;
+                safe(() => {
+                  row.fulfilled++;
+                  row.active = false;
+                  row.settled_at = at();
+                  const result = value as any;
+                  row.result_kind = name.startsWith("get")
+                    ? "typed-detail-returned"
+                    : name === "checkOriginal" &&
+                        result?.domain === "task" &&
+                        ["committed", "in_progress", "not_observed"].includes(
+                          result.value?.status,
+                        )
+                      ? result.value.status
+                      : name === "retryOriginal" &&
+                          result?.domain === "structure"
+                        ? "typed-receipt-returned"
+                        : "other-returned";
+                  sampleDOM();
+                });
+              },
+              () => {
+                if (!retired)
+                  safe(() => {
+                    row.rejected++;
+                    row.active = false;
+                    row.settled_at = at();
+                    sampleDOM();
+                  });
+              },
+            )
+            .catch(() => {
+              observerFailed = true;
+            })
+            .then(() => {
+              pending--;
+            });
+        }
+        return promise;
+      };
+      auth.workPlanning[name] = wrapped;
+      restores.push(() => {
+        if (auth.workPlanning[name] === wrapped)
+          auth.workPlanning[name] = original;
+        else observerFailed = true;
+      });
+    }
+    observer = new MutationObserver(sampleDOM);
+    observer.observe(document.body, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+      attributes: true,
+    });
+    const snapshot = () => {
+      sampleDOM();
+      return {
+        retired,
+        observer_failed: observerFailed,
+        overflow,
+        pending_observations: pending,
+        clock: "browser-monotonic-observed-relative-to-publication-install",
+        calls: calls.map((row) => ({ ...row })),
+      };
+    };
+    timer = setTimeout(retire, Math.max(0, expiresAt - Date.now()));
+    host.__workPublicationDiagnostic = {
+      snapshot,
+      bindNative(method: string, path: string, sequence: number) {
+        if (retired) return null;
+        const matches = calls.filter(
+          (row) =>
+            row.active &&
+            row.method === method &&
+            row.path === path &&
+            row.entry_identity_matches &&
+            sameIdentity(),
+        );
+        if (matches.length !== 1) return null;
+        const row = matches[0]!;
+        row.native_requests++;
+        if (row.native_requests !== 1) {
+          row.native_sequence = null;
+          return null;
+        }
+        row.native_sequence = sequence;
+        return row.call_id;
+      },
+      finish() {
+        retire();
+        return snapshot();
+      },
+    };
+    return "installed";
+  } catch {
+    retire();
+    return "observer-unavailable";
+  }
 }

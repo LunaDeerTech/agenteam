@@ -2,6 +2,7 @@
 
 - 活动分支：`ai/work-owner-planning-ui`；当前隔离工作树 `/workspace/agenteam-work-ui`，正式基线 `f1c94ee520e8153e935fea7e7ed269e7e8b9adca`。所有 Git 写入、分支与工作树操作归 root。
 - 目标：已有初始化 Project 当前 Human Owner 的显式 `/tasks/explore` 规划界面，消费已正式交付的 21 项 Work HTTP 能力。普通 Task Kanban、状态流转、指派、Project 创建和生产 SPA 发布不在本卡范围。
+- 当前下一输入：recovery05仍完整FAIL。四个预声明截断仅按实际原Request失败事件结束观察的方法已独立限定接受（Skills63控/0unhandled，无mustfix）；普通原finished门槛不变。ordinary5同原Promise/Response/reader诊断已实施并冻结待整包独审：作者固定PW1.56.1实际transform后33纯控/0unhandled（66614）、strictTS96324及精确recovery发现67870均actual0；没有新真实运行或Go/dist重建。源码为两个新project-work-planning.native/publication.ts、spec/helper窄接线与native-diagnostic-controls.cjs；合同与控制命令见同目录recovery-native-diagnostic-proposal.md。初控微任务预期、环境切换丢completion及新增控制语法前置FAIL分别保留，不计动态或产品结论。
 - 正式规格：`docs/development/work-items/d11-work-owner-planning-ui.md`。rev1 已经独立 SPEC 审查接受并从原树冻结版本单向同步；后续规格只维护本树。产品已分两域实施；首批 API/transport、路由守卫与两个编辑组件可构建，限定作者纯控已过，尚无真实 UI 动态验收。
 - 唯一负责人：`/root/work_ui`，维护本分支恢复记录、卡片及页面实施；`blocker_implementation` 已交回全部 UI 写权，Variables 后端正式交付后已转 `/workspace/agenteam-project-variables-ui` 实施普通变量 Owner 管理界面；当前 UI 实施、fixture 与作者浏览器矩阵由负责人接管；`blocker_spec_review` 已完成四fixture有限静审并实际转 Runner SPEC 作者；后续独立审查/两动态场景由 root 在稳定边界轮转未参与者，不等待固定实例返场。
 - 共享产品仅 `web/src/api/client.ts`、`web/src/composables/useSession.ts`、`web/src/router/auth.ts`、`web/src/router/index.ts`、`web/src/App.vue`、`web/src/components/layout/ProjectNav.vue`。新专属源码/测试及 README 精确范围见卡；已授权测试共享接缝仅 `tests/account/project_owner_web_fixture_test.go` 的可选任务观察/config/IPC，默认行为及预算/资源退出保持。无新迁移/依赖/通用监督器。

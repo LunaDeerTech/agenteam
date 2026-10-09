@@ -14,7 +14,29 @@ const endpoint = `/api/v1/projects/${project}/tasks/${target}`;
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 let unhandled = 0;
 process.on("unhandledRejection", () => unhandled++);
+const lockedFunctions = new Map();
 function source(file, name) {
+  if (name.startsWith("installWork")) {
+    if (!lockedFunctions.has(file)) {
+      const root = path.resolve(
+        "tests/account-captcha-web/node_modules/playwright",
+      );
+      assert.equal(require(root + "/package.json").version, "1.56.1");
+      const { transformHook } = require(root + "/lib/transform/transform.js");
+      const code = transformHook(
+        fs.readFileSync(file, "utf8"),
+        path.resolve(file),
+      ).code;
+      const scope = vm.createContext({
+        exports: {},
+        require: (id) => (id.startsWith("./") ? {} : require(id)),
+      });
+      vm.runInContext(code, scope);
+      lockedFunctions.set(file, scope.exports);
+    }
+    // This is exactly the function Playwright serializes for addInitScript/evaluate.
+    return "this.subject=" + lockedFunctions.get(file)[name].toString() + ";";
+  }
   const text = fs.readFileSync(file, "utf8"),
     ast = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
   const node = ast.statements.find(
@@ -104,7 +126,7 @@ function native(options = {}) {
     return fetchPromise;
   };
   const window = { fetch };
-  const context = environment({ window });
+  const context = environment({ window, ...options.environment });
   vm.runInContext(source(nativePath, "installWorkNativeDiagnostic"), context);
   context.subject({ projects: [project], expiresAt: Date.now() + 45_000 });
   return {
@@ -333,10 +355,12 @@ async function consume(f) {
   async function publication(overrides = {}) {
     const identity = { userID: project, sessionID: target, epoch: 1 };
     let resolve,
+      reject,
       calls = 0,
       disconnected = false;
-    const promise = new Promise((r) => {
+    const promise = new Promise((r, j) => {
       resolve = r;
+      reject = j;
     });
     const auth = {
       state: { phase: "authenticated", busy: false },
@@ -354,6 +378,7 @@ async function consume(f) {
     ])
       auth.workPlanning[method] = function () {
         calls++;
+        if (overrides.originalThrows) throw overrides.originalThrows;
         return promise;
       };
     const original = auth.workPlanning.getTask;
@@ -388,6 +413,7 @@ async function consume(f) {
       auth,
       promise,
       resolve,
+      reject,
       original,
       calls: () => calls,
       disconnected: () => disconnected,
@@ -472,6 +498,121 @@ async function consume(f) {
       assert.equal(f.window.__workPublicationDiagnostic, undefined);
     },
   );
+
+  await check(
+    "public rejection and synchronous throw remain original and never become typed success",
+    async () => {
+      const f = await publication();
+      const p = f.auth.workPlanning.getTask(project, target),
+        failure = Error("PRIVATE-MATERIAL-SENTINEL");
+      assert.equal(p, f.promise);
+      f.reject(failure);
+      await assert.rejects(p, (error) => error === failure);
+      await tick();
+      const end = f.window.__workPublicationDiagnostic.finish();
+      assert.equal(end.calls[0].rejected, 1);
+      assert.equal(end.calls[0].fulfilled, 0);
+      assert(!JSON.stringify(end).includes("PRIVATE-MATERIAL-SENTINEL"));
+      const g = await publication({ originalThrows: failure });
+      assert.throws(
+        () => g.auth.workPlanning.getTask(project, target),
+        (error) => error === failure,
+      );
+      const thrown = g.window.__workPublicationDiagnostic.finish();
+      assert.equal(thrown.calls[0].synchronous_throws, 1);
+      assert.equal(thrown.pending_observations, 0);
+    },
+  );
+  await check(
+    "pre-existing DOM is recorded as observation rather than attributed publication",
+    async () => {
+      const f = await publication({
+        document: {
+          body: {},
+          querySelector: (selector) =>
+            selector.includes("当前读取内容")
+              ? { textContent: target + "PRIVATE-MATERIAL-SENTINEL" }
+              : { querySelector: () => ({ textContent: "原命令已确认" }) },
+        },
+      });
+      const p = f.auth.workPlanning.getTask(project, target);
+      f.resolve({ id: target });
+      await p;
+      await tick();
+      const end = f.window.__workPublicationDiagnostic.finish(),
+        row = end.calls[0];
+      assert.equal(row.entry_detail_target_present, true);
+      assert.equal(row.entry_recovery_confirmed, true);
+      assert.equal(row.detail_target_present, true);
+      assert(!JSON.stringify(end).includes("PRIVATE-MATERIAL-SENTINEL"));
+      assert.equal(row.first_detail_after_fulfilled, undefined);
+    },
+  );
+  await check(
+    "publication setup failure restores prior hooks and held original Promise stays explicit on retirement",
+    async () => {
+      const f = await publication({
+        MutationObserver: class {
+          observe() {
+            throw Error("setup");
+          }
+          disconnect() {}
+        },
+      });
+      assert.equal(f.status, "observer-unavailable");
+      assert.equal(f.auth.workPlanning.getTask, f.original);
+      const g = await publication();
+      const p = g.auth.workPlanning.getTask(project, target);
+      const end = g.window.__workPublicationDiagnostic.finish();
+      assert.equal(end.pending_observations, 1);
+      assert.equal(end.calls[0].fulfilled, 0);
+      g.resolve({ id: target });
+      await p;
+      await tick();
+      assert.equal(
+        g.window.__workPublicationDiagnostic.snapshot().calls[0].fulfilled,
+        0,
+      );
+    },
+  );
+  await check(
+    "absolute expiry restores hooks without canceling or consuming the original reader",
+    async () => {
+      let expire;
+      const f = native({
+        environment: {
+          setTimeout: (fn) => {
+            expire = fn;
+            return 1;
+          },
+          clearTimeout() {},
+        },
+      });
+      await f.window.fetch(endpoint);
+      const reader = f.stream.getReader();
+      expire();
+      const end = f.finish();
+      assert.equal(end.retired, true);
+      assert.equal(end.requests[0].read_calls, 0);
+      assert.equal(end.requests[0].reader_cancel_calls, 0);
+      assert.equal(f.window.fetch, f.fetch);
+      reader.releaseLock();
+    },
+  );
+  await check(
+    "read-only reader methods do not turn successful getReader into observer failure thrown to caller",
+    async () => {
+      const f = native();
+      Object.defineProperty(f.reader, "read", {
+        value: f.reader.read,
+        writable: false,
+        configurable: false,
+      });
+      await f.window.fetch(endpoint);
+      assert.equal(f.stream.getReader(), f.reader);
+      assert.equal(f.finish().observer_failed, true);
+    },
+  );
   const moduleCode = ts.transpileModule(
     fs.readFileSync(publicationPath, "utf8"),
     {
@@ -492,6 +633,303 @@ async function consume(f) {
           binding.entry.startsWith("/assets/") &&
           binding.export_name,
       );
+    },
+  );
+
+  // Exercise the actual Node event/sampler implementation without a browser or socket.
+  const { EventEmitter } = require("node:events");
+  function deferred() {
+    let resolve, reject;
+    const promise = new Promise((a, b) => {
+      resolve = a;
+      reject = b;
+    });
+    return { promise, resolve, reject };
+  }
+  async function nodeDiagnostic(options = {}) {
+    const page = new EventEmitter(),
+      contextEvents = new EventEmitter();
+    let writes = [],
+      evaluations = 0,
+      active = 0,
+      maximum = 0,
+      handlers = [];
+    const f = native();
+    await consume(f);
+    const nativeSnapshot = f.finish();
+    let snapshot = { native: nativeSnapshot, publication: null };
+    const timers = new Map();
+    let timerID = 0;
+    const set = (fn, delay) => {
+      const id = ++timerID;
+      timers.set(id, { fn, delay });
+      return id;
+    };
+    const clear = (id) => timers.delete(id);
+    page.context = () => contextEvents;
+    page.addInitScript = async () => {};
+    page.evaluate = async (fn) => {
+      evaluations++;
+      active++;
+      maximum = Math.max(maximum, active);
+      try {
+        if (handlers.length) return await handlers.shift()(fn);
+        return snapshot;
+      } finally {
+        active--;
+      }
+    };
+    if (options.hold) handlers.push(() => options.hold.promise);
+    const env = environment({
+      Buffer,
+      workSessionBinding: async () => ({}),
+      installWorkNativeDiagnostic() {},
+      installWorkPublicationDiagnostic() {},
+      writeFileSync: (_file, value) => writes.push(value),
+      join: path.join,
+      setTimeout: set,
+      clearTimeout: clear,
+    });
+    vm.runInContext(source(nativePath, "startWorkNativeDiagnostic"), env);
+    const diagnostic = await env.subject(page, {
+      projects: [project],
+      evidence: "unused",
+      repository: process.cwd(),
+      classify: () => null,
+    });
+    await tick();
+    const request = (id = requestID, route = endpoint) => {
+      const req = {
+        url: () => "http://127.0.0.1:1" + route,
+        method: () => "GET",
+      };
+      page.emit("request", req);
+      page.emit("response", {
+        request: () => req,
+        headers: () => ({ "x-request-id": id }),
+        status: () => 200,
+      });
+      return req;
+    };
+    return {
+      page,
+      contextEvents,
+      diagnostic,
+      request,
+      handlers,
+      snapshot,
+      replace(value) {
+        snapshot = value;
+      },
+      evaluations: () => evaluations,
+      maximum: () => maximum,
+      data: () => JSON.parse(writes.at(-1)),
+      writes: () => writes,
+      async fire() {
+        const next = timers.entries().next().value;
+        assert(next, "owned timer exists");
+        timers.delete(next[0]);
+        next[1].fn();
+        await tick();
+      },
+      timers: () => timers.size,
+      assertRetired() {
+        for (const name of [
+          "request",
+          "response",
+          "requestfailed",
+          "requestfinished",
+          "close",
+        ])
+          assert.equal(page.listenerCount(name), 0);
+        assert.equal(contextEvents.listenerCount("close"), 0);
+        assert.equal(timers.size, 0);
+      },
+    };
+  }
+  await check(
+    "same original Request binding and samples continue without waiting for ordinary finished",
+    async () => {
+      const f = await nodeDiagnostic();
+      const req = f.request();
+      f.page.emit("requestfailed", req);
+      await f.fire();
+      await f.fire();
+      assert(f.evaluations() >= 3);
+      await f.diagnostic.finish();
+      f.assertRetired();
+      const row = f.data().documents[0].native.requests[0];
+      assert.equal(row.bound_original_request, true);
+      assert.equal(row.content_length_matches_eof, true);
+      assert.equal(f.data().requests[0].finished_event_at, null);
+      assert.notEqual(f.data().requests[0].failed_at, null);
+      assert.equal(f.data().ordinary_finished_gate_unchanged, true);
+      assert.equal(f.maximum(), 1);
+    },
+  );
+  for (const variant of [
+    "missing-id",
+    "duplicate-pw-id",
+    "duplicate-native-id",
+    "wrong-target",
+    "duplicate-document-id",
+  ])
+    await check("native binding rejects " + variant, async () => {
+      const f = await nodeDiagnostic();
+      f.request(
+        variant === "missing-id" ? null : requestID,
+        variant === "wrong-target"
+          ? endpoint.replace("tasks", "sprints")
+          : endpoint,
+      );
+      if (variant === "duplicate-pw-id") f.request();
+      if (variant === "duplicate-native-id")
+        f.snapshot.native.requests.push({
+          ...f.snapshot.native.requests[0],
+          sequence: 2,
+        });
+      if (variant === "duplicate-document-id") {
+        await f.diagnostic.flush();
+        f.replace({
+          native: {
+            ...f.snapshot.native,
+            document_id: require("node:crypto").randomUUID(),
+          },
+          publication: null,
+        });
+      }
+      await f.diagnostic.finish();
+      f.assertRetired();
+      for (const doc of f.data().documents)
+        for (const row of doc.native.requests)
+          assert.equal(row.bound_original_request, false);
+    });
+  await check(
+    "hung evaluate never overlaps and late post-close completion cannot upgrade saved evidence",
+    async () => {
+      const held = deferred(),
+        f = await nodeDiagnostic({ hold: held });
+      assert.equal(f.evaluations(), 1);
+      assert.equal(f.timers(), 0);
+      const finish = f.diagnostic.finish();
+      await tick();
+      await f.fire();
+      await finish;
+      f.assertRetired();
+      assert.equal(f.data().sample_joined, false);
+      assert.equal(f.data().end_snapshot_observed, false);
+      const saved = f.writes().at(-1);
+      f.page.emit("close");
+      held.resolve(f.snapshot);
+      await tick();
+      assert.equal(f.maximum(), 1);
+      assert.equal(f.writes().at(-1), saved);
+      assert.equal(f.data().documents.length, 0);
+    },
+  );
+  await check(
+    "late end evaluate cannot upgrade missing end and page close precludes new end evaluation",
+    async () => {
+      const f = await nodeDiagnostic(),
+        held = deferred();
+      f.handlers.push(() => held.promise);
+      const finish = f.diagnostic.finish();
+      await tick();
+      await f.fire();
+      await finish;
+      f.assertRetired();
+      const saved = f.writes().at(-1);
+      assert.equal(f.data().end_snapshot_observed, false);
+      f.page.emit("close");
+      held.resolve(f.snapshot);
+      await tick();
+      assert.equal(f.writes().at(-1), saved);
+      const g = await nodeDiagnostic();
+      g.page.emit("close");
+      const before = g.evaluations();
+      await g.diagnostic.finish();
+      g.assertRetired();
+      assert.equal(g.evaluations(), before);
+      assert.equal(g.data().end_snapshot_observed, false);
+      assert.equal(g.data().page_closed, true);
+    },
+  );
+  await check(
+    "navigation obtains actual document hook retirement and keeps distinct document evidence",
+    async () => {
+      const f = await nodeDiagnostic();
+      f.request();
+      await f.diagnostic.flush();
+      assert.equal(f.data().documents[0].end_snapshot_observed, true);
+      f.replace({
+        native: {
+          ...f.snapshot.native,
+          document_id: require("node:crypto").randomUUID(),
+          requests: [],
+        },
+        publication: null,
+      });
+      await f.diagnostic.installPublication();
+      await f.fire();
+      await f.diagnostic.finish();
+      f.assertRetired();
+      assert.equal(f.data().documents.length, 2);
+      assert.equal(f.maximum(), 1);
+    },
+  );
+  await check(
+    "public call candidates bind only one native request in the same document",
+    async () => {
+      for (const count of [1, 2]) {
+        const f = await nodeDiagnostic();
+        f.request();
+        const row = f.snapshot.native.requests[0];
+        row.call_id = 1;
+        f.snapshot.publication = {
+          retired: true,
+          observer_failed: false,
+          overflow: false,
+          pending_observations: 0,
+          calls: [
+            {
+              call_id: 1,
+              native_requests: count,
+              native_sequence: count === 1 ? row.sequence : null,
+              method: "GET",
+              path: endpoint,
+              target_id: target,
+              operation: "getTask",
+              result_kind: "typed-detail-returned",
+              entry_identity_matches: true,
+            },
+          ],
+        };
+        await f.diagnostic.finish();
+        f.assertRetired();
+        assert.equal(
+          f.data().documents[0].native.requests[0].bound_public_call,
+          count === 1,
+        );
+      }
+    },
+  );
+  await check(
+    "closed projection drops secret extras and rejects unknown paths or string-valued counters",
+    async () => {
+      const f = await nodeDiagnostic();
+      f.snapshot.native.secret = "PRIVATE-MATERIAL-SENTINEL";
+      f.snapshot.native.requests[0].body = "PRIVATE-MATERIAL-SENTINEL";
+      await f.diagnostic.finish();
+      f.assertRetired();
+      assert(!f.writes().at(-1).includes("PRIVATE-MATERIAL-SENTINEL"));
+      for (const field of ["path", "bytes"]) {
+        const g = await nodeDiagnostic();
+        g.snapshot.native.requests[0][field] = "PRIVATE-MATERIAL-SENTINEL";
+        await g.diagnostic.finish();
+        g.assertRetired();
+        assert.equal(g.data().projection_rejected, 1);
+        assert(!g.writes().at(-1).includes("PRIVATE-MATERIAL-SENTINEL"));
+      }
     },
   );
   await tick();

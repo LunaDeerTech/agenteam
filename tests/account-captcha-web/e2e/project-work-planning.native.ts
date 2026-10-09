@@ -209,7 +209,13 @@ export function installWorkNativeDiagnostic(config: {
               row.cancel_before_eof ||= !row.read_done;
               mark("stream_cancel_order");
             }
-            const result = streamCancel(...args);
+            let result: ReturnType<typeof streamCancel>;
+            try {
+              result = streamCancel(...args);
+            } catch (error) {
+              if (!retired) fail("stream-cancel-threw");
+              throw error;
+            }
             observe(
               result,
               () => {
@@ -233,68 +239,80 @@ export function installWorkNativeDiagnostic(config: {
             if (!retired) fail("get-reader-threw");
             throw error;
           }
-          const read = reader.read.bind(reader),
-            cancel = reader.cancel.bind(reader),
-            release = reader.releaseLock.bind(reader);
-          replace(reader, "read", (...args: unknown[]) => {
-            if (!retired) row.read_calls++;
-            const result = Reflect.apply(read, reader, args) as ReturnType<
-              typeof read
-            >;
-            observe(
-              result,
-              (value) => {
-                row.read_settled++;
-                if (value.done) {
-                  row.read_done = true;
-                  mark("read_done_order");
-                } else row.bytes += value.value.byteLength;
-              },
-              () => {
-                row.read_settled++;
-                row.read_rejected++;
-                mark("read_rejected_order");
-                fail("read-rejected");
-              },
-            );
-            return result;
-          });
-          replace(
-            reader,
-            "cancel",
-            (...args: Parameters<typeof reader.cancel>) => {
-              if (!retired) {
-                row.reader_cancel_calls++;
-                row.cancel_before_eof ||= !row.read_done;
-                mark("reader_cancel_order");
+          safe(() => {
+            const read = reader.read.bind(reader),
+              cancel = reader.cancel.bind(reader),
+              release = reader.releaseLock.bind(reader);
+            replace(reader, "read", (...args: unknown[]) => {
+              if (!retired) row.read_calls++;
+              let result: ReturnType<typeof read>;
+              try {
+                result = Reflect.apply(read, reader, args);
+              } catch (error) {
+                if (!retired) fail("read-threw");
+                throw error;
               }
-              const result = cancel(...args);
               observe(
                 result,
-                () => {
-                  row.reader_cancel_settled++;
+                (value) => {
+                  row.read_settled++;
+                  if (value.done) {
+                    row.read_done = true;
+                    mark("read_done_order");
+                  } else row.bytes += value.value.byteLength;
                 },
                 () => {
-                  row.reader_cancel_settled++;
-                  row.reader_cancel_rejected++;
-                  fail("reader-cancel-rejected");
+                  row.read_settled++;
+                  row.read_rejected++;
+                  mark("read_rejected_order");
+                  fail("read-rejected");
                 },
               );
               return result;
-            },
-          );
-          replace(reader, "releaseLock", () => {
-            if (!retired) {
-              row.release_calls++;
-              mark("release_order");
-            }
-            try {
-              release();
-              if (!retired) row.release_successes++;
-            } catch (error) {
-              if (!retired) fail("release-threw");
-              throw error;
-            }
+            });
+            replace(
+              reader,
+              "cancel",
+              (...args: Parameters<typeof reader.cancel>) => {
+                if (!retired) {
+                  row.reader_cancel_calls++;
+                  row.cancel_before_eof ||= !row.read_done;
+                  mark("reader_cancel_order");
+                }
+                let result: ReturnType<typeof cancel>;
+                try {
+                  result = cancel(...args);
+                } catch (error) {
+                  if (!retired) fail("reader-cancel-threw");
+                  throw error;
+                }
+                observe(
+                  result,
+                  () => {
+                    row.reader_cancel_settled++;
+                  },
+                  () => {
+                    row.reader_cancel_settled++;
+                    row.reader_cancel_rejected++;
+                    fail("reader-cancel-rejected");
+                  },
+                );
+                return result;
+              },
+            );
+            replace(reader, "releaseLock", () => {
+              if (!retired) {
+                row.release_calls++;
+                mark("release_order");
+              }
+              try {
+                release();
+                if (!retired) row.release_successes++;
+              } catch (error) {
+                if (!retired) fail("release-threw");
+                throw error;
+              }
+            });
           });
           return reader;
         });
@@ -368,6 +386,7 @@ export async function startWorkNativeDiagnostic(
   const rows = new Map<PWRequest, any>(),
     documents = new Map<string, any>();
   let stopped = false,
+    paused = false,
     pending: Promise<void> | null = null,
     timer: ReturnType<typeof setTimeout> | undefined;
   let samples = 0,
@@ -375,15 +394,29 @@ export async function startWorkNativeDiagnostic(
     failed = 0,
     pageClosed = false,
     contextClosed = false,
-    overflow = false;
+    overflow = false,
+    projectionRejected = 0;
   const start = performance.now();
   const at = () => performance.now() - start;
-  const selected = (request: PWRequest) => {
-    const url = new URL(request.url());
-    return /^\/api\/v1\/projects\/[^/]+\/(milestones|sprints|tasks|structure-commands|task-commands)(?:\/|$)/.test(
-      url.pathname,
+  const uuid =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  const safePath = (path: unknown) => {
+    if (typeof path !== "string") return false;
+    const match =
+      /^\/api\/v1\/projects\/([^/]+)\/(milestones|sprints|tasks|structure-commands|task-commands)(?:\/([^/]+))?(?:\/(blockers|blocker-commands)(?:\/([^/]+))?)?$/.exec(
+        path,
+      );
+    return (
+      !!match &&
+      uuid.test(match[1]!) &&
+      config.projects.includes(match[1]!) &&
+      (!match[3] || uuid.test(match[3]) || match[3] === "lookup") &&
+      (!match[5] || uuid.test(match[5]) || match[5] === "lookup")
     );
   };
+  const selected = (request: PWRequest) =>
+    safePath(new URL(request.url()).pathname) &&
+    ["GET", "POST", "PATCH", "DELETE"].includes(request.method());
   const requested = (request: PWRequest) => {
     if (stopped || !selected(request)) return;
     if (rows.size >= 256) {
@@ -404,7 +437,7 @@ export async function startWorkNativeDiagnostic(
   };
   const responded = (response: any) => {
     const row = rows.get(response.request());
-    if (!row || stopped) return;
+    if (!row || stopped || pageClosed || contextClosed) return;
     const id = response.headers()["x-request-id"];
     row.request_id =
       typeof id === "string" &&
@@ -418,11 +451,12 @@ export async function startWorkNativeDiagnostic(
   };
   const requestFailed = (request: PWRequest) => {
     const row = rows.get(request);
-    if (row && !stopped) row.failed_at = at();
+    if (row && !stopped && !pageClosed && !contextClosed) row.failed_at = at();
   };
   const requestFinished = (request: PWRequest) => {
     const row = rows.get(request);
-    if (row && !stopped) row.finished_event_at = at();
+    if (row && !stopped && !pageClosed && !contextClosed)
+      row.finished_event_at = at();
   };
   const pageClose = () => {
     pageClosed = true;
@@ -436,13 +470,135 @@ export async function startWorkNativeDiagnostic(
   page.on("requestfinished", requestFinished);
   page.on("close", pageClose);
   page.context().on("close", contextClose);
-  function publish(value: any, source: "sample" | "end") {
-    const native = value?.native;
+  // Copy only this observer's closed scalar vocabulary; never persist page objects.
+  const scalar = (row: any, nums: string, bools: string) => {
+    const result: any = {};
+    for (const key of nums.split(" ")) {
+      if (row[key] === undefined || row[key] === null) continue;
+      if (
+        typeof row[key] !== "number" ||
+        !Number.isFinite(row[key]) ||
+        row[key] < 0 ||
+        row[key] > Number.MAX_SAFE_INTEGER
+      )
+        throw Error("number");
+      result[key] = row[key];
+    }
+    for (const key of bools.split(" ")) {
+      if (row[key] === undefined) continue;
+      if (typeof row[key] !== "boolean") throw Error("boolean");
+      result[key] = row[key];
+    }
+    return result;
+  };
+  const projectRow = (row: any, publication = false) => {
     if (
-      !native ||
-      typeof native.document_id !== "string" ||
-      !Array.isArray(native.requests) ||
-      native.requests.length > 256
+      !safePath(row.path) ||
+      !["GET", "POST", "PATCH", "DELETE"].includes(row.method)
+    )
+      throw Error("path");
+    const result = scalar(
+      row,
+      publication
+        ? "call_id call_at fulfilled rejected synchronous_throws native_requests native_sequence settled_at detail_observed_after_fulfilled_at confirmed_observed_after_fulfilled_at sample_at"
+        : "sequence call_id status readers read_calls read_settled read_rejected bytes reader_cancel_calls reader_cancel_settled reader_cancel_rejected stream_cancel_calls stream_cancel_settled stream_cancel_rejected release_calls release_successes abort_events headers_order read_done_order read_rejected_order abort_order reader_cancel_order stream_cancel_order release_order content_length",
+      publication
+        ? "entry_identity_matches entry_not_busy active identity_current authenticated not_busy detail_target_present entry_detail_target_present recovery_confirmed entry_recovery_confirmed recovery_uncertain replay_available"
+        : "has_query headers_seen read_done cancel_before_eof signal_aborted_at_start signal_aborted content_length_present content_length_valid content_encoding_identity eof_before_interruption length_comparable_before_binding length_matches_before_binding",
+    );
+    result.method = row.method;
+    result.path = row.path;
+    if (publication) {
+      if (
+        !uuid.test(row.target_id) ||
+        ![
+          "getMilestone",
+          "getTask",
+          "getSprint",
+          "checkOriginal",
+          "retryOriginal",
+        ].includes(row.operation) ||
+        ![
+          "unobserved",
+          "typed-detail-returned",
+          "typed-receipt-returned",
+          "committed",
+          "in_progress",
+          "not_observed",
+          "other-returned",
+        ].includes(row.result_kind)
+      )
+        throw Error("publication");
+      result.target_id = row.target_id;
+      result.operation = row.operation;
+      result.result_kind = row.result_kind;
+    } else {
+      if (row.request_id !== null && !uuid.test(row.request_id))
+        throw Error("request_id");
+      if (
+        ![
+          "none",
+          "fetch-threw",
+          "fetch-rejected",
+          "get-reader-threw",
+          "read-threw",
+          "read-rejected",
+          "stream-cancel-threw",
+          "stream-cancel-rejected",
+          "reader-cancel-threw",
+          "reader-cancel-rejected",
+          "release-threw",
+        ].includes(row.failure)
+      )
+        throw Error("failure");
+      result.request_id = row.request_id;
+      result.failure = row.failure;
+    }
+    return result;
+  };
+  function publish(value: any, source: "sample" | "end") {
+    let native: any,
+      publication: any = null;
+    try {
+      const raw = value?.native;
+      if (!raw) return;
+      if (
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+          raw.document_id,
+        ) ||
+        !Array.isArray(raw.requests) ||
+        raw.requests.length > 256
+      )
+        throw Error("document");
+      native = {
+        ...scalar(
+          raw,
+          "pending_observations",
+          "retired overflow observer_failed",
+        ),
+        document_id: raw.document_id,
+        requests: raw.requests.map((row: any) => projectRow(row)),
+      };
+      if (value.publication) {
+        const raw = value.publication;
+        if (!Array.isArray(raw.calls) || raw.calls.length > 256)
+          throw Error("calls");
+        publication = {
+          ...scalar(
+            raw,
+            "pending_observations",
+            "retired overflow observer_failed",
+          ),
+          calls: raw.calls.map((row: any) => projectRow(row, true)),
+        };
+      }
+    } catch {
+      projectionRejected++;
+      return;
+    }
+    if (
+      documents.get(native.document_id)?.source === "end" &&
+      source === "sample"
     )
       return;
     if (!documents.has(native.document_id) && documents.size >= 8) {
@@ -454,11 +610,11 @@ export async function startWorkNativeDiagnostic(
       observed_at: at(),
       before_page_close: !pageClosed && !contextClosed,
       native,
-      publication: value.publication ?? null,
+      publication,
     });
   }
   function sample() {
-    if (stopped || pending) return;
+    if (stopped || paused || pending) return;
     samples++;
     const work = page.evaluate(() => ({
       native: (window as any).__workNativeDiagnostic?.snapshot() ?? null,
@@ -469,7 +625,8 @@ export async function startWorkNativeDiagnostic(
       .then(
         (value) => {
           settled++;
-          if (!stopped) publish(value, "sample");
+          if (!stopped && !pageClosed && !contextClosed)
+            publish(value, "sample");
         },
         () => {
           settled++;
@@ -483,7 +640,7 @@ export async function startWorkNativeDiagnostic(
     void observed
       .then(() => {
         if (pending === observed) pending = null;
-        if (!stopped) timer = setTimeout(sample, 250);
+        if (!stopped && !paused) timer = setTimeout(sample, 250);
       })
       .catch(() => {});
   }
@@ -506,10 +663,19 @@ export async function startWorkNativeDiagnostic(
   function save(joined: boolean, endSeen: boolean) {
     const requests = [...rows].map(([request, row]) => ({
       ...row,
-      declaration: config.classify(request),
+      declaration: [
+        "unforwarded-milestone-update",
+        "lost-milestone-update",
+        "lost-task-update",
+        "lost-blocker-add",
+        "canceled-task-read",
+      ].includes(config.classify(request) ?? "")
+        ? config.classify(request)
+        : null,
     }));
     const observations = [...documents.values()].map((doc) => ({
       ...doc,
+      end_snapshot_observed: doc.source === "end",
       native: {
         ...doc.native,
         requests: doc.native.requests.map((native: any) => {
@@ -527,9 +693,30 @@ export async function startWorkNativeDiagnostic(
               (n: any) =>
                 native.request_id && n.request_id === native.request_id,
             );
-          const bound = matches.length === 1 && globalMatches.length === 1;
+          const bound =
+            matches.length === 1 &&
+            globalMatches.length === 1 &&
+            requests.filter(
+              (row) =>
+                native.request_id && row.request_id === native.request_id,
+            ).length === 1;
+          const calls = (doc.publication?.calls ?? []).filter(
+            (call: any) =>
+              call.call_id === native.call_id &&
+              call.native_requests === 1 &&
+              call.native_sequence === native.sequence &&
+              call.method === native.method &&
+              call.path === native.path &&
+              call.entry_identity_matches === true,
+          );
+          const callBound =
+            calls.length === 1 &&
+            doc.native.requests.filter(
+              (row: any) => row.call_id === native.call_id,
+            ).length === 1;
           return {
             ...native,
+            bound_public_call: bound && callBound,
             bound_original_request: bound,
             pw_sequence: bound ? matches[0]!.sequence : null,
             declaration: bound ? matches[0]!.declaration : null,
@@ -541,45 +728,90 @@ export async function startWorkNativeDiagnostic(
         }),
       },
     }));
+    const report = {
+      diagnostic_only: true,
+      ordinary_finished_gate_unchanged: true,
+      samples,
+      sample_settled: settled,
+      sample_failed: failed,
+      sample_joined: joined,
+      sample_join_unavailable: !joined,
+      end_snapshot_observed: endSeen,
+      page_closed: pageClosed,
+      context_closed: contextClosed,
+      overflow,
+      projection_rejected: projectionRejected,
+      node_clock: "monotonic-observed-relative-to-install",
+      requests,
+      documents: observations,
+    };
+    let json = JSON.stringify(report);
+    if (Buffer.byteLength(json) > 2 * 1024 * 1024)
+      json = JSON.stringify({
+        ...report,
+        overflow: true,
+        evidence_omitted: "byte-limit",
+        requests: [],
+        documents: [],
+      });
     writeFileSync(
       join(config.evidence, "work-native-consumption-diagnostic.json"),
-      JSON.stringify({
-        diagnostic_only: true,
-        ordinary_finished_gate_unchanged: true,
-        samples,
-        sample_settled: settled,
-        sample_failed: failed,
-        sample_joined: joined,
-        sample_join_unavailable: !joined,
-        end_snapshot_observed: endSeen,
-        page_closed: pageClosed,
-        context_closed: contextClosed,
-        overflow,
-        node_clock: "monotonic-observed-relative-to-install",
-        requests,
-        documents: observations,
-      }),
+      json,
       { mode: 0o600 },
     );
   }
   sample();
   return {
     async flush() {
-      if (timer) {
-        clearTimeout(timer);
-        timer = undefined;
+      paused = true;
+      if (timer) clearTimeout(timer);
+      let joined = !pending,
+        endSeen = false;
+      try {
+        if (pending) joined = await boundedJoin(pending);
+        if (joined && !pageClosed && !contextClosed) {
+          let active = true;
+          const work = page
+            .evaluate(() => ({
+              publication:
+                (window as any).__workPublicationDiagnostic?.finish() ?? null,
+              native: (window as any).__workNativeDiagnostic?.finish() ?? null,
+            }))
+            .then(
+              (value) => {
+                if (active && !pageClosed && !contextClosed) {
+                  publish(value, "end");
+                  endSeen = !!value.native;
+                }
+              },
+              () => {},
+            );
+          pending = work;
+          void work
+            .finally(() => {
+              if (pending === work) pending = null;
+            })
+            .catch(() => {});
+          joined = await boundedJoin(work);
+          active = false;
+        }
+      } finally {
+        save(joined, endSeen);
+        paused = false;
+        if (!stopped) timer = setTimeout(sample, 250);
       }
-      if (!pending) sample();
-      if (pending) await boundedJoin(pending);
-      save(false, false);
     },
     async installPublication() {
       if (stopped) return;
+      paused = true;
       if (timer) {
         clearTimeout(timer);
         timer = undefined;
       }
-      if (pending && !(await boundedJoin(pending))) return;
+      if (pending && !(await boundedJoin(pending))) {
+        paused = false;
+        return;
+      }
       if (timer) {
         clearTimeout(timer);
         timer = undefined;
@@ -599,10 +831,11 @@ export async function startWorkNativeDiagnostic(
           failed++;
         });
       pending = observed;
+      paused = false;
       void observed
         .then(() => {
           if (pending === observed) pending = null;
-          if (!stopped) timer = setTimeout(sample, 250);
+          if (!stopped && !paused) timer = setTimeout(sample, 250);
         })
         .catch(() => {});
       await boundedJoin(observed);
