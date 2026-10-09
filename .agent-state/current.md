@@ -1,6 +1,34 @@
 # D12 Knowledge B02 当前恢复点
 
-- 接续发现尚未完成的 tests-only ProcessGuard 前置：`tests/knowledge/b02_publication_test.go` 新增可选真实 Runtime／Guard fixture，但 `publicationProcessRuntime`／`knowledgeGuardProcess` 尚无定义，当前源码未闭合、未称可编译；该片段保留待补 `b02_process_test.go`，原 Cleanup／Runtime／PublicationCommitUnknown／Concurrency／CleanupCommitUnknown 五个 ready binary 均冻结未重编，既有结论仍绑定各自原输入。
+- 修正Cleanup99411已完整 PASS：`deleted_subtree_waits_for_actual_reader` 4.07s、`delete_final_transaction_rollback` 2.39s，两子全部通过，Go6.46s；Go934577／driver932488实际Wait0，外层actualexit0／supervisor106.388s，7精确ID双absent、private双absent／runtime双empty、desc双空、exact_tops／actual_test_wait=True、hostTCP双delta_empty及inputs_unchanged=True全齐。现场两PID不存在，run仅owned.json／request.json／空runtime，真实窗口已释放。原件 `output/ai/knowledge/pg/pg-54a84fc5001f41ab9ba1f25c4951c0ee.log`。本次确认持live reader删除只pending、真实Close后物理清理与归档收敛，以及final rollback保durable planned／InProgress并原key/token恢复一次、重放不增事实；不回填10056原未采state，也保留27247环境setupFAIL。作者累计六top二十sub真实通过，不等独立验收、Runtime／Unknown／Concurrency／Process或整B02完成。
+
+- 第二十九片段已补齐接续的 tests-only ProcessGuard 前置：新增 `tests/knowledge/b02_process_test.go`／单 top `TestKnowledgeB02ProcessRecovery`，配合 e04a9e5 已保存的可选 `publicationFixtureWithRuntime`，当前新源码已可构建。旧 child 真实 `NewRuntime.Initialize`／同 Store+host+spool claim 后，Knowledge work claim 确认提交才到 Prepare barrier；只由 D05 Service.Drain 释放目录锁，独立 bound Guard 保持活锁，不能将该关闭或 unbound Close 当死亡证明。新实例同 key 必须真实调用原 Guard 并 ResourceBusy／零新增 canonical、Object、Audit、Event、Activity 等事实；精确 owned SIGKILL+实际 Wait 后，原 ID death proof 才允许新 attempt/fence 恢复一次，原 receipt 重放不得再 Prepare/授权证明/写事实。private pipes 与0600输入、不输出 secret；全部产品源、生产 root 与 Object runtime join 停项不变。首离线编译因误选旧 modcache setupFAIL，未联网，改固定缓存后 race-c84252/55505通过，最终 race-c36066、单 top discovery及integration vet0eaf3f实际0；可选fixture剥新增branch的全文逆差异控制558303逐字 `c73054c3`。独立产物 `output/ai/knowledge/knowledge-process-race.test`，未配置新exact harness入口、未独审或真实执行。原 Cleanup／Runtime／PublicationCommitUnknown／Concurrency／CleanupCommitUnknown 五个 ready binary 均未重编，既有结论继续绑定各自原输入。
+
+- 修正Cleanup恢复首启27247是环境 SETUP FAIL（非业务执行）：fixture编译继承不到固定GOMODCACHE，GOPROXY=off报module lookup disabled；没有 owned.json／7ID／Go test PID，不能认资源退役或业务结论。driver931240实际Wait1、desc双空、runtime双empty、hostTCP双delta_empty、inputs_unchanged=True，outer1.498s；现场PID不存在、run仅request.json和空runtime，窗口已释放。原件 `output/ai/knowledge/pg/pg-81deeb2b83334679b2fe831db4e881b7.log`。随后freshgrant99411只补显式工具环境，修正Cleanup完整PASS及资源终态见本页最新结果；不回填此轮setupFAIL。
+
+- 后继 root-chain 真实运行须使用完整固定环境（仍须每组 freshgrant，`--run`／`--binary`仅依获授精确组变更）：先同一执行环境 `statvfs` 核可用空间 ≥5368709120B，否则 exit78；通过后执行下列修正Cleanup原命令。原6m test／540+60 supervisor／3s retire／75s TCP尾／7resources及全部实际Wait门槛不变，不能用缺环境后的编译失败当业务结果。
+
+```sh
+GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
+GOCACHE=/workspace/agenteam-knowledge/output/ai/knowledge/go-cache \
+GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off \
+AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go \
+AGENTEAM_MINIO_BINARY=/workspace/agenteam-knowledge/output/ai/deps-minio/bin/minio \
+PATH=/workspace/toolchains/go1.27.1/bin:$PATH \
+python3 - <<'PY'
+import os
+v = os.statvfs('/workspace/agenteam-knowledge')
+available = v.f_bavail * v.f_frsize
+print('available_bytes=' + str(available), flush=True)
+if available < 5368709120:
+    raise SystemExit(78)
+os.chdir('/workspace/agenteam-knowledge')
+os.execvp('python3', ['python3', '.agent-state/task-planning-recovery/pg_only_supervisor.py',
+    '--root-chain', '--driver', '/workspace/agenteam-knowledge/.agent-state/work-owner-http/root_chain_driver.py',
+    '--binary', '/workspace/agenteam-knowledge/output/ai/knowledge/knowledge-cleanup-race.test',
+    '--run', '^TestKnowledgeB02Cleanup$', '--output', '/workspace/agenteam-knowledge/output/ai/knowledge/pg'])
+PY
+```
 
 - 第二十八片段在原 `b02_unknown_test.go` 追加独立 `TestKnowledgeB02CleanupCommitUnknown` 两子（not_forwarded／committed_ack_lost），原发布Unknown六格及其旧binary不改。复用同一正式generic commitproxy、原同Store真实fixture和exact writer终局观察；仅匹配RecoveryCause owner=knowledge.cleanup／原cleanupID／空checkpointRef，原callback成功后实际SQL为completed且对应D05 Object已deleted才Arm。分别核真实checkpoint保留object或completed、原Store Unknown attempt/cause原样传到公开RecoverCleanup，后继恢复只一次Object删除Audit、无新Activity/Event、原Delete receipt不变。race-c88666、精确discovery恰1、integration vet60106 actual0，独立产物 `output/ai/knowledge/knowledge-cleanup-unknown-race.test`；原六格全文逆比较9355af通过（首控制多加一个换行setupFAIL后只修control）。两既有harness仅新selector +1/+1，作者335477实际0（两逆差异逐字9f9d3026、真实config1正4负、10target两表一致、无runtime创建），预算／7resources／实际Wait门槛不变。Skills独验5e23c6有限接受入口差异：全文逆差异、config1正4负及10target映射实际0；仅证明选择与原监督门槛保持，不替代两子业务真实验收。新top仍待真实窗口，不扩大旧六格。
 
