@@ -165,6 +165,49 @@ export async function beginSessionDiagnostic(page: Page, mode: 'authority' | 'na
   };
 }
 
+function resolveSampler(page: Page, slot: string, requestID: () => string | null, publish: (value: unknown, expectedID: string | null) => void) {
+  let stopped = false, started = false, timer: ReturnType<typeof setTimeout> | undefined;
+  let pending: Promise<void> | undefined, samples = 0, settled = 0, failed = 0;
+  const schedule = () => { if (!stopped) timer = setTimeout(sample, 250); };
+  function sample() {
+    timer = undefined;
+    if (stopped || pending) return;
+    const expectedID = requestID();
+    samples++;
+    let work: Promise<unknown>;
+    try { work = page.evaluate(({ slot, expectedID }) => (window as any).__projectModelsProbe.resolveSnapshot(slot, expectedID), { slot, expectedID }); }
+    catch { settled++; failed++; schedule(); return; }
+    const observed = work.then((value) => { settled++; if (!stopped) publish(value, expectedID); }, () => { settled++; failed++; }).catch(() => { failed++; });
+    pending = observed;
+    void observed.then(() => { if (pending === observed) pending = undefined; schedule(); }).catch(() => {});
+  }
+  return {
+    start() { if (!started && !stopped) { started = true; sample(); } },
+    async stop() {
+      stopped = true;
+      if (timer !== undefined) { clearTimeout(timer); timer = undefined; }
+      const tail = pending;
+      let joined = !tail, joinTimer: ReturnType<typeof setTimeout> | undefined;
+      try { if (tail) joined = await Promise.race([tail.then(() => true), new Promise<false>((resolve) => { joinTimer = setTimeout(() => resolve(false), 250); })]); }
+      finally { if (joinTimer !== undefined) clearTimeout(joinTimer); }
+      return { samples, sample_settled: settled, sample_failed: failed, sample_joined: joined, sample_join_unavailable: !joined };
+    },
+  };
+}
+
+function resolveSnapshot(value: unknown): Record<string, boolean | number | string> | null {
+  const counts = ['requests', 'readers', 'read_calls', 'read_settled', 'read_rejected', 'bytes', 'reader_cancel_calls', 'reader_cancel_settled', 'reader_cancel_rejected', 'stream_cancel_calls', 'stream_cancel_settled', 'stream_cancel_rejected', 'release_calls', 'release_successes', 'abort_events', 'status', 'headers_order', 'read_done_order', 'read_rejected_order', 'abort_order', 'reader_cancel_order', 'stream_cancel_order', 'release_order'];
+  const flags = ['headers_seen', 'status_ok', 'read_done', 'cancel_before_eof', 'request_id_match', 'signal_aborted', 'signal_aborted_at_start'];
+  const codes = ['none', 'fetch-rejected', 'get-reader-threw', 'read-rejected', 'reader-cancel-rejected', 'stream-cancel-rejected', 'release-threw', 'observer-error'];
+  let native: Record<string, boolean | number | string> | null = null;
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const row = value as Record<string, unknown>;
+    if (Object.keys(row).length === counts.length + flags.length + 1 && counts.every((key) => Number.isSafeInteger(row[key]) && Number(row[key]) >= 0) && Number(row.status) <= 599 && flags.every((key) => typeof row[key] === 'boolean') && typeof row.failure === 'string' && codes.includes(row.failure))
+      native = Object.fromEntries([...counts, ...flags, 'failure'].map((key) => [key, row[key] as boolean | number | string]));
+  }
+  return native;
+}
+
 // Resolve remains outside the Model operation whitelist. This observes the
 // original selected response without selecting a replacement or changing a gate.
 async function beginResolveDiagnostic(page: Page, project: Project) {
@@ -172,6 +215,12 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
   const target = { username: project.username, project_name: project.normalized_name };
   let active = false, selected: Response | undefined, requestID: string | null = null;
   let beforeAction = 0, afterAction = 0;
+  let latest: Record<string, boolean | number | string> | null = null, latestID: string | null = null;
+  let snapshotSource: 'unavailable' | 'sample' | 'end' = 'unavailable';
+  const sampler = resolveSampler(page, slot, () => requestID, (value, expectedID) => {
+    const safe = resolveSnapshot(value);
+    if (safe !== null) { latest = safe; latestID = expectedID; snapshotSource = 'sample'; }
+  });
   const targets: Request[] = [], finished = new Set<Request>(), failed = new Set<Request>();
   const bounded = async <T>(work: () => Promise<T>): Promise<T | null> => {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -202,21 +251,19 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
     start() { active = true; },
     select(response: Response) {
       selected = response;
+      sampler.start();
       try { void response.headerValue('x-request-id').then((value) => { requestID = value; }, () => {}).catch(() => {}); } catch {}
     },
     async finish(failure: boolean) {
       try {
-        const value: unknown = await bounded(() => page.evaluate(({ slot, requestID }) => (window as any).__projectModelsProbe.resolveEnd(slot, requestID), { slot, requestID }));
+        const sampling = await sampler.stop();
+        // A bounded join timeout does not retire the underlying evaluate.
+        // Never overlap it with a second evaluate, including diagnostic end.
+        const value: unknown = sampling.sample_joined ? await bounded(() => page.evaluate(({ slot, requestID }) => (window as any).__projectModelsProbe.resolveEnd(slot, requestID), { slot, requestID })) : null;
+        const final = resolveSnapshot(value);
+        if (final !== null) { latest = final; latestID = requestID; snapshotSource = 'end'; }
         if (!failure) return;
-        const counts = ['requests', 'readers', 'read_calls', 'read_settled', 'read_rejected', 'bytes', 'reader_cancel_calls', 'reader_cancel_settled', 'reader_cancel_rejected', 'stream_cancel_calls', 'stream_cancel_settled', 'stream_cancel_rejected', 'release_calls', 'release_successes', 'abort_events', 'status', 'headers_order', 'read_done_order', 'read_rejected_order', 'abort_order', 'reader_cancel_order', 'stream_cancel_order', 'release_order'];
-        const flags = ['headers_seen', 'status_ok', 'read_done', 'cancel_before_eof', 'request_id_match', 'signal_aborted', 'signal_aborted_at_start'];
-        const codes = ['none', 'fetch-rejected', 'get-reader-threw', 'read-rejected', 'reader-cancel-rejected', 'stream-cancel-rejected', 'release-threw', 'observer-error'];
-        let native: Record<string, boolean | number | string> | null = null;
-        if (value && typeof value === 'object' && !Array.isArray(value)) {
-          const row = value as Record<string, unknown>;
-          if (Object.keys(row).length === counts.length + flags.length + 1 && counts.every((key) => Number.isSafeInteger(row[key]) && Number(row[key]) >= 0) && Number(row.status) <= 599 && flags.every((key) => typeof row[key] === 'boolean') && typeof row.failure === 'string' && codes.includes(row.failure))
-            native = Object.fromEntries([...counts, ...flags, 'failure'].map((key) => [key, row[key] as boolean | number | string]));
-        }
+        const native = latest;
         const request = selected?.request(), error = request?.failure()?.errorText;
         const pwFailure = error === undefined ? 'none' : error === 'net::ERR_ABORTED' ? 'aborted' : error === 'net::ERR_CONNECTION_RESET' ? 'reset' : error === 'net::ERR_CONNECTION_CLOSED' ? 'closed' : 'other';
         writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-resolve-diagnostic.json'), JSON.stringify({
@@ -225,6 +272,9 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
           pw_candidates_after_action: afterAction, pw_target_requests: targets.length,
           pw_selected_target_match: !!request && targetMatch(request), pw_request_match: targets.length === 1 && targets[0] === request,
           pw_request_id_seen: !!requestID, pw_status: selected?.status() ?? null,
+          snapshot_source: snapshotSource, snapshot_selected_bound: !!request && targets.length === 1 && targets[0] === request && !!latestID && latestID === requestID && native?.request_id_match === true,
+          snapshot_native_terminal: native !== null && (native.read_done === true || Number(native.read_rejected) > 0 || native.failure === 'fetch-rejected'),
+          slot_end_observed: final !== null, ...sampling,
           pw_finished_event: !!request && finished.has(request), pw_failed_event: !!request && failed.has(request), pw_failure: pwFailure, native,
         }), { mode: 0o600 });
       } catch { /* Missing diagnostic evidence must preserve the original error. */ }

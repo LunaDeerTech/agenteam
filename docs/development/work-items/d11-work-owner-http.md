@@ -178,10 +178,13 @@ root已协调本树唯一写入 `internal/central/app/account.go`、`internal/ce
 | 根 | internal/central/app/account.go；新增 work_planning.go、work_planning_test.go、work_planning_process_test.go |
 | 真实跨层测试 | tests/work/work_owner_http_test.go；必要新HTTPfixture独占 tests/work/work_owner_http_fixture_test.go；tests/process/work_owner_http_test.go |
 | 可恢复独立输入 | .agent-state/work-owner-http/ 下必要probe/独立编译入口；复用现监督器，不复制产品镜像、旧日志或完整harness |
+| 真实根测试适配 | tests/testsupport/postgres/cmd/fixture/main.go及main_test.go的显式binary/cwd模式；现pg_only_supervisor.py的可选root链观察、.agent-state/work-owner-http/root_chain_driver.py及必要纯控制；原三层资源链仍唯一清理者 |
 
 无新迁移；必要OpenAPI为正式手写schema，不生成前端资产。新增OpenAPI必须与真实输出按Draft2020-12/FormatChecker/本地refs验证，所有对象additionalProperties:false，版本/ID/nullable/union/presence闭合，不以正则文本搜索代schema验证。
 
 PG/native HTTP/真实root资源必须等root分配独占窗口。Task Planning现有2ID PG-only driver用于分页/事务库PG，保持原105s与已编binary/精确selector；它不提供root/Object环境。真实默认root用 `tests/process/work_owner_http_test.go`，复用该包TestMain/launch/event/wait、databaseEnvironment和noCentralBackends；现 `scripts/test-objects.sh` 的既有Object→outbound→postgres资源链已包含tests/process，实际执行cmd/agenteam，无须因为tests/work不在硬编码清单而另造监督器。native测试复用既有Project native监听、EOF及actual-join范式。精确top/实际binary/argv/原预算与必要环境在编译冻结后、真实窗口前核对，零发现不能算通过。资源使用任务自有PG、现有真实Object启动依赖及确切ID，不连接dev infra；浏览器不是本卡必需。实际进程Wait、Rows/body/workerjoin、实际资源数量与TCP双尾须收齐，不能把后验clear补原终态；若现runner无法承载具体场景再协调最小适配，不预先扩大基础设施。
+
+根测试适配与已就绪HTTP PG并行期间，root批准仅为实际写入冲突恢复已接受的默认监督器到忽略目录：`git show 8071d2b4:.agent-state/task-planning-recovery/pg_only_supervisor.py > output/ai/work-owner-http/lead/pg_only_supervisor-accepted.py`。该可重建副本与原Git blob精确相同，HTTP PG继续原105s driver/90s子测试/123s外层及完整退休尾；新可选root模式不进入旧PG验收输入，不另保存持久镜像。
 
 ## 8. 一次对齐的验收矩阵
 
