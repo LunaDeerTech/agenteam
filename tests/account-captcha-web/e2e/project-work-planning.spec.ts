@@ -130,14 +130,31 @@ test("[read] actual Owner route, bounded pages, deep links and stale cursor", as
   await expect(page).toHaveURL(new RegExp("/tasks/explore$"));
   const pages = tree(page).locator('[aria-label="Milestone 分页"]');
   await expect(tree(page).getByRole("treeitem")).toHaveCount(50);
+  const listPath = `/api/v1/projects/${data.work.main!.project_id}/milestones`;
+  const firstNextRequest = page.waitForRequest(
+    (r) => r.method() === "GET" && new URL(r.url()).pathname === listPath,
+  );
   await button(pages, "下一页").click();
+  const originalCursorQuery = new URL((await firstNextRequest).url()).search;
+  expect(new URLSearchParams(originalCursorQuery).get("cursor")).toBeTruthy();
   await expect(pages).toContainText("第 2 页");
   await expect(tree(page).getByRole("treeitem")).toHaveCount(1);
   await expect(button(pages, "下一页")).toBeDisabled();
   await button(pages, "上一页").click();
   await expect(tree(page).getByRole("treeitem")).toHaveCount(50);
-  await ipc("update", { resource: "milestone", text: "页已变更" });
+  await ipc("reorder-read-page");
+  const staleResponse = page.waitForResponse((r) => {
+    const url = new URL(r.url());
+    return (
+      r.request().method() === "GET" &&
+      url.pathname === listPath &&
+      url.search === originalCursorQuery
+    );
+  });
   await button(pages, "下一页").click();
+  const stale = await staleResponse;
+  expect(stale.status()).toBe(409);
+  expect((await originalBody(stale)).code).toBe("CURSOR_STALE");
   await expect(
     tree(page).getByText("分页已失效，请明确从首页重新读取。", { exact: true }),
   ).toBeVisible();
@@ -159,7 +176,7 @@ test("[read] actual Owner route, bounded pages, deep links and stale cursor", as
     ),
   ).toBeVisible();
   await go(page, path(data, "main", "sprint"));
-  await button(tree(page), "展开页已变更").click();
+  await button(tree(page), "展开规划里程碑").click();
   await expect(button(tree(page), "展开规划 Sprint")).toBeEnabled();
   await button(tree(page), "展开规划 Sprint").click();
   await expect(button(page, "新建 Task")).toBeEnabled();

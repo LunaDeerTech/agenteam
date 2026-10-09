@@ -486,7 +486,60 @@ func (f *projectWorkPlanningWebFixture) ipc(ctx context.Context, r projectWorkPl
 	case "archive":
 		f.lifecycle(ctx, key, pc.Archived)
 		out["fact_only"] = true
+	case "reorder-read-page":
+		if f.mode != "read" || key != "main" || r.Resource != "" || r.Domain != "" || r.Target != "" || r.Text != nil || f.readCursorMutation != nil {
+			f.t.Fatal("read cursor stimulus must be the one exact external Milestone reorder")
+		}
+		listPath := projectOwnerWebPath + "/" + seed.ProjectID + "/milestones?limit=2"
+		before := httpItems(f.t, f.setup.setupRequest(ctx, f.ownerClient, http.MethodGet, listPath, nil, "", false, http.StatusOK))
+		if len(before) != 2 {
+			f.t.Fatal("read cursor stimulus requires two actual ordered Milestones")
+		}
+		first, firstOK := before[0].(map[string]any)
+		second, secondOK := before[1].(map[string]any)
+		if !firstOK || !secondOK || first["id"] != seed.MilestoneID || second["id"] == seed.MilestoneID {
+			f.t.Fatal("read cursor stimulus actual first two Milestones differ from its seed")
+		}
+		target := httpString(f.t, second, "id")
+		suffix := "milestones/" + target + "/reorder"
+		receipt := f.command(ctx, key, http.MethodPost, suffix, map[string]any{"expected_version": httpString(f.t, second, "version"), "request": map[string]any{"before_id": seed.MilestoneID}})
+		if receipt["changed"] != true || httpObject(f.t, receipt, "milestone")["id"] != target {
+			f.t.Fatal("read cursor stimulus did not change the actual Milestone order")
+		}
+		after := httpItems(f.t, f.setup.setupRequest(ctx, f.ownerClient, http.MethodGet, listPath, nil, "", false, http.StatusOK))
+		if len(after) != 2 {
+			f.t.Fatal("read cursor stimulus lost its actual ordered pair")
+		}
+		moved, movedOK := after[0].(map[string]any)
+		anchor, anchorOK := after[1].(map[string]any)
+		if !movedOK || !anchorOK || moved["id"] != target || anchor["id"] != seed.MilestoneID {
+			f.t.Fatal("read cursor stimulus actual re-read did not reverse the pair")
+		}
+		out["receipt"] = receipt
+
+		// The private preparation client has its own genuine Session/CSRF.
+		// Bind its returned receipt to the exact observed request/key; do not
+		// exempt arbitrary mutations or browser writes from the read-only gate.
+		for _, observed := range f.observations() {
+			if observed.Method != http.MethodPost || observed.Status != http.StatusOK || observed.Domain != "structure" || observed.Command != "work.milestone.reorder" || observed.ProjectID != seed.ProjectID || observed.TargetID != target || observed.RawPath != projectOwnerWebPath+"/"+seed.ProjectID+"/"+suffix || observed.Key == "" || observed.CSRF != sha256.Sum256([]byte(f.ownerCSRF)) {
+				continue
+			}
+			var sameBody map[string]any
+			if json.Unmarshal(observed.Response, &sameBody) != nil || !reflect.DeepEqual(sameBody, receipt) {
+				continue
+			}
+			if f.readCursorMutation != nil {
+				f.t.Fatal("external cursor stimulus matched more than one observed request")
+			}
+			f.readCursorMutation = &observed
+		}
+		if f.readCursorMutation == nil {
+			f.t.Fatal("external cursor stimulus has no exact original observed request")
+		}
 	case "update":
+		if f.mode == "read" {
+			f.t.Fatal("read cursor stimulus requires a real reorder, not a content update")
+		}
 		if r.Text == nil {
 			f.t.Fatal("owned Work update text required")
 		}
@@ -513,30 +566,6 @@ func (f *projectWorkPlanningWebFixture) ipc(ctx context.Context, r projectWorkPl
 		current := f.setup.setupRequest(ctx, f.ownerClient, http.MethodGet, projectOwnerWebPath+"/"+seed.ProjectID+"/"+suffix, nil, "", false, http.StatusOK)
 		receipt := f.command(ctx, key, http.MethodPatch, suffix, map[string]any{"expected_version": current["version"], "request": map[string]any{field: *r.Text}})
 		out["receipt"] = receipt
-		if f.mode == "read" {
-			if key != "main" || r.Resource != "milestone" || r.Target != "" || *r.Text != "页已变更" || f.readCursorMutation != nil {
-				f.t.Fatal("read cursor stimulus must be the one exact external Milestone update")
-			}
-			// The private preparation client has its own genuine Session/CSRF.
-			// Bind its returned receipt to the exact observed request/key; do not
-			// exempt arbitrary PATCHes or browser writes from the read-only gate.
-			for _, observed := range f.observations() {
-				if observed.Method != http.MethodPatch || observed.Status != http.StatusOK || observed.Domain != "structure" || observed.Command != "work.milestone.update" || observed.ProjectID != seed.ProjectID || observed.TargetID != seed.MilestoneID || observed.RawPath != projectOwnerWebPath+"/"+seed.ProjectID+"/"+suffix || observed.Key == "" || observed.CSRF != sha256.Sum256([]byte(f.ownerCSRF)) {
-					continue
-				}
-				var sameBody map[string]any
-				if json.Unmarshal(observed.Response, &sameBody) != nil || !reflect.DeepEqual(sameBody, receipt) {
-					continue
-				}
-				if f.readCursorMutation != nil {
-					f.t.Fatal("external cursor stimulus matched more than one observed request")
-				}
-				f.readCursorMutation = &observed
-			}
-			if f.readCursorMutation == nil {
-				f.t.Fatal("external cursor stimulus has no exact original observed request")
-			}
-		}
 	case "resolve":
 		target := r.Target
 		if _, err := foundation.ParseID[struct{}](target); err != nil {

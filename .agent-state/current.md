@@ -15,7 +15,7 @@
 - 六作者 Playwright 源与同体 schema/client helper 已落盘并严格TS通过，首个 planning 精确case离线发现 actual0、恰1项；这是可构建WIP，尚未动态接受。首轮先独立核规划9写、Plan/版本冲突/分组顺序；其它五case还需核完整卡矩阵，尤其撤销/过期、pending/deleting、旧名复用、Owner/Model确认链与in_progress/not_observed刺激，不能因源码已有case或结果布尔冒完成。两个独立场景尚无源，由root轮转未参与者。
 - 原root链仅本树两工具最小扩8个精确UI top、真实输入/私有dist、四owned路径和短ui目录；原三个root target/default预算保持。31作者纯控制通过，含旧配置逐项等价、未登记target、丢目标、目录碰撞、错误资产/case与预算；此控制用替身仅核selector判据，不冒资源退役。工具语法及19项独立有限控制通过，原配置/预算/实际Wait判据未见mustfix；未运行真实PG/browser/socket。
 - Current Sprint边界已按正式Structure契约与独审事实纠正：没有正式非null指针生产者，本轮真实无Current/planned typed选择；自动current/用户选择规则保留纯投影控制，非null真实正例待D11生命周期接通，不用SQL伪造、不称已验证。
-- 下一步：负责人完成Work失败同请求观察和read闭包后交有限独审，再按root窗口安排相应单组；planning前三轮原FAIL保留，其余矩阵继续；root轮转未参与者核完整组合并编写两个独立场景；正式真实验收前先闭合相应输入与原资源监督链，不伪造接口或成功布尔。既有停止项不变。最终正式交付排除本恢复文件，不将 WIP 当成 main 结果。
+- 下一步：read真实排序刺激修后已有限独审接受，binary08/原dist/同根链及新read-02输出待root fresh grant；expectedIncomplete仍单独ignored准备，不改变read成功gate；planning前三轮与read首轮原FAIL保留，其余矩阵继续；root轮转未参与者核完整组合并编写两个独立场景；正式真实验收前先闭合相应输入与原资源监督链，不伪造接口或成功布尔。既有停止项不变。最终正式交付排除本恢复文件，不将 WIP 当成 main 结果。
 
 - 首组planning有限独审发现三个排序均为no-op及成功后点击已移除按钮；作者另查得schema响应$ref未解引用、描述清空/Plan原文/第七读取刺激不足，均保留原WIP未验事实。统一修为三组真实双对象前移/移尾与同原响应重读顺序、changed/version校验；同体schema红控修后正负通过。Go后验逐key校验原receipt/Outbox/TaskEvent/最终对象与精确无额外事实；合法登录Session仅在User EX锁内回拨测试时钟以越过已有Activity节流，未手种身份或Work事实。当前窄复核待排，新race编译与TS实际通过；纯配置发现02因调用漏ENV失败，补齐后另记，未启动浏览器。其它五case的未闭合矩阵不因此接受。
 
@@ -34,3 +34,5 @@
 read有限独审发现原Go把用于真实cursor失效的IPC Milestone PATCH也误算为浏览器写入；已保留该静审FAIL并精确修正。仅唯一read/main/Milestone/固定文案IPC，按准备客户端独立真实Session的CSRF摘要、path/target/domain/command及完整返回receipt绑定实际观察中的原key/body；末端恰一条DeepEqual例外，其余非GET仍拒，pending/deleting零请求与零事实不变。两Go源码重新编译binary07（74093 actual0），未参与者窄复核接受，无剩余read静审mustfix。两PW失败诊断另获未参与者9项实际正反控制接受；这些仅限定输入就绪，不是浏览器PASS。read-01拟沿原工具/7资源链、45/120/6m/540+60使用binary07与原私有dist，须root fresh grant；binary06为返修前输入，不再用于本read验收。预期截断/取消场景的finished与incomplete观察边界仍待独立裁定，不借本read接受放行recovery/identity或完整UI。
 
 read首轮17720完整FAIL（Go27.25秒、outer132.718秒），初始50/51翻页与回首页已过，外部title PATCH后期望cursor失效的5秒提示断言失败；实际下一页GET200/1项且原finished已返。正式Structure §2.2只在结构/排序变化推进generation，标题更新不推进，本次刺激前提错误，待改为真实排序；更早回首页GET另见同Request aborted/finished pending，尚无browser EOF或原因，不与本断言混同。filters/pending/deleting及Go持久后验未到；actualWait、七资源/runtime/private/TCP双尾与inputsame齐，原FAIL保留。必要脱敏事实见 `.agent-state/work-owner-planning-ui/read-first-failure.json`；原log在output/ai/work-owner-planning-ui/pg/read-01.log。仅安排测试刺激窄修，不改产品generation或原gate。
+
+read刺激窄修已有限独审接受：仅read/main/一次且零额外参数的reorder IPC，正式前两条读→第二条移到第一条之前→changed真与实际重读反序；seed仍首页。唯一外部写豁免精确绑定该POST的准备Session CSRF摘要、目标、command、原key/body及完整receipt，末端整条DeepEqual恰一，其余写仍拒。PW绑定原opaque query并要求同原409/CURSOR_STALE完整body与失效提示，不改产品、成功finished/EOF或期限。race编译87055 actual0/binary08、strictTS91715 actual0、精确read list91030 actual0/恰1；首list48084误用环境变量名的setupFAIL保留。两源已冻结，read02使用新输出目录且须root fresh grant，尚无修后动态结论；expectedIncomplete仍为独立ignored准备。
