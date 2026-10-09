@@ -61,3 +61,11 @@
 - 这是D05既有私有实际return/lease/process验证之外的本域映射，不制造Service授权；维护回收不以已关闭active门禁阻塞原技术结账。新physical恢复、不可逆清理仍未绑定，继续拒绝；生产组合必须由同实例D05检InstanceID和私有生命周期证据。
 - 首轮28333 race actualexit1：原2top/15子PASS；新14子中8个正常准入前FAIL，实际测试executor将单列查询前缀误匹配本域完整row查询，未到目标行为。只收紧测试query匹配后30392 actualexit0/1.093s，新1top14子均过；原产品源不改，原失败保留。
 - 该3Go+主卡/本文5路径freeze供checkpoint。下一持久恢复按pass推进忙项，并只用精确旧Process终局+原锁/当前gate收敛，不代D08重开发布；尚无真实PG/对象/生命周期组合。
+
+## 持久恢复阶段与暂驻
+
+- 维护5路径已root保存/push0638ddc3。新增 `skill/{recovery,recovery_test}.go` 和00027 work recovery_pass/index：一次最多100条按持久pass轮转，忙/当前gate拒绝项也经明确技术调度commit移至队尾；不是重发初始化，绝不调用Reserve/Upload/Publish。
+- foreign实例必须ProcessAuthority精确旧ProcessID停止，随后实际取原command/Project/Skill完整锁以证明原Tx终局；同进程只信本实例私有returned记录，不按本地缺记录/TTL猜死亡。当前convergence gate/原Fault/Unknown保留，后续启动Service复用持久pass，不把已joined前仍未commit当成功。
+- 首95974及27820均actual setupFAIL：误用不存在id.NewService；改正式RegisterService.Actor后85824 race actual0/1.410s，3top14子（包括100忙head后新Service达到第101条、原gate/进程/fence/Unknown、坏候选/原取消预算）。随后8057完整skill/... race actual0：skill2.441s、contract1.311s；50111vet actual0，diffcheck0。00027仍未SQL执行。
+- 新3源+主卡/本文5路径freeze供root保存。当前Skills暂驻在可构建边界，转任Variables未参与产品实现的独验；本树无资源/命令在途，不改已冻源。
+- 仍缺真实完整能力：Skills00027及前序整链PG、实际D05/MinIO发布与私有witness正例/COMMIT ACK丢失；D05 Recover/清理planner、Project lifecycle/删除Audit外层与participant仍须继续实现，Project CleanupPhase尚unbound且root未绑定；Object Runtime停止项不解除。技术尾授权和controlled PASS都不能证明生产完整Skills服务。

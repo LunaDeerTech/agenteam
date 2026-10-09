@@ -96,12 +96,14 @@ CREATE TABLE agenteam_skill.work (
  kind text NOT NULL CHECK(kind IN ('initialization','package_reader')),
  phase text NOT NULL CHECK(phase IN ('running','joined','unknown')),
  fence bigint NOT NULL CHECK(fence>0),
+ recovery_pass bigint NOT NULL DEFAULT 0 CHECK(recovery_pass>=0),
  created_at timestamptz(6) NOT NULL,
  joined_at timestamptz(6),
  CHECK((phase='joined' AND joined_at IS NOT NULL AND joined_at>=created_at) OR (phase<>'joined' AND joined_at IS NULL)),
  FOREIGN KEY(project_id,skill_id) REFERENCES agenteam_skill.initializations(project_id,skill_id) DEFERRABLE INITIALLY DEFERRED
 );
 CREATE INDEX skill_work_live_project ON agenteam_skill.work(project_id,id) WHERE phase<>'joined';
+CREATE INDEX skill_work_recovery ON agenteam_skill.work(recovery_pass,id) WHERE phase<>'joined';
 CREATE TABLE agenteam_skill.cleanup (
  id agenteam_skill.safe_id PRIMARY KEY,
  project_id agenteam_skill.safe_id NOT NULL,
