@@ -126,6 +126,10 @@ def observe_root_chain(directory, log, log_path, selector):
         '^TestWorkOwnerRootActual(Command|Reader)Join$': {'TestWorkOwnerRootActualCommandJoin', 'TestWorkOwnerRootActualReaderJoin'},
         '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': {'TestWorkOwnerHTTPProcessRoutingAndPersistence'},
         '^TestIndependentWorkOwnerRootConfirmationJoin$': {'TestIndependentWorkOwnerRootConfirmationJoin'},
+        '^TestProjectVariablesRootActualCallJoin$': {'TestProjectVariablesRootActualCallJoin'},
+        '^TestProjectVariablesHTTPProcessRoutingAndPersistence$': {'TestProjectVariablesHTTPProcessRoutingAndPersistence'},
+        '^TestIndependentProjectVariablesProcessConfirmationExit$': {'TestIndependentProjectVariablesProcessConfirmationExit'},
+        '^TestIndependentProjectVariablesRootConfirmationForce$': {'TestIndependentProjectVariablesRootConfirmationForce'},
     }.get(selector, set())
     actual = set(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
