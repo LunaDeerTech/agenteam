@@ -133,6 +133,20 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 
 真实验收除业务矩阵，还必须在同fixture执行 `EXPLAIN (ANALYZE, BUFFERS)`：本Object空集、65及1001+已cleaned/joined/retired历史带末尾活项、只有其它Project大量数据、本Project大量终局Object而无active lease；分别核gate两支、5lane、metadata四历史阶段、完整pending及最早cause。父DELETE须实际在回滚事务执行并观测FK trigger时间，包含Upload、attempt、transfer、lease、Object的全部原入边（含已由unique/PK覆盖的其它领域入边）；不能只EXPLAIN SELECT。首次合法PUT三行包与最后四anchors的原DEFERRABLE约束须真实提交验证。原2s剩余budget内不能完成时保留Pending/原错误，不临时扩时或把查询超时作完成。若真实计划指出某索引冗余或仍有全局扫，再按实际计划调整，不能以本候选表宣称优化已验收。
 
+### 7.2 有限成本矩阵与首业务窗口的分离
+
+首业务候选只运行完整metadata/最后Unknown两top，不等全部成本场景。其通过也不关闭本节。已编的history观察器记录**实际Service发出的SQL和首次参数**，原方法实际返回后才独立EXPLAIN；保留首轮nil游标，不能用最后空页替换。其现有停止后观察只能证明仍保留1001终局历史时的空pending范围，不能冒称取消前的活reader计划；物理返回后的gate计划同样不能冒称未清理候选的计划。新增状态须在变化前留实测，且不得在原业务2s内部插入额外观察查询改变时序。
+
+| 有限组 | 计划执行时必须仍在场的代表性事实 | 查询与边界 |
+| --- | --- | --- |
+| 本Object历史 | 原65旧attempt、1001已join work/已release lease仍在；另独立保留末尾pending候选或native活项 | 两pending候选集合、完整physical/metadata pending；真实退休行为另测，SQL状态不替代实际I/O |
+| Project范围 | 本Project1025终局Object且无活lease；另一Project1025 Object及10001条历史；缺失Project/Object的范围查询时其它数据不删除 | 五lane＋完整Stop pending，Archive/Delete各自相关分支；first/after页分别保参数 |
+| metadata各阶段 | 每一类真实待删历史尚未删到空；PUT包含原staging/cleanup/transfer完整互引包 | transfer→lease→work→旧attempt阶段的首批；每批实际32总额及FK顺序仍由业务测试判定 |
+| FK入边 | 外Project/外Object子表历史保留；被删目标本身合法无引用 | 在独立回滚事务实际DELETE并SET CONSTRAINTS检查deferred边；逐父表记录trigger耗时和buffers对应查询，不能只看父PK扫描 |
+| Skills共享索引 | 本Project1001 joined＋少量live，以及只有其它Project历史；最后initialization前本Project work全空 | 正式SPEC joined扫描与完整FK反查分别测，Project前缀是否足够由计划决定，不先增加重复partial |
+
+`.agent-state/object-metadata-cleanup/scale-fixture.sql` 是隔离的新成本数据库草稿，当前仅准备Object/Upload/attempt/cleanup/reader/work的代表性基数，**未执行／未SQL验证**。为合法CHECK/FK形状而插入的终局和标记Audit行只能用于SQL成本，禁止传入Service充作物理完成证明；实际业务组仍由真正调用产生native/Audit/退休事实。计划查询继续取实际Service观察器，草稿不另抄一套实现SELECT。transfer、download、Skills及所有FK完整入边仍需各自合法fixture，空表不抵充其成本接受。此草稿和本节不改变已冻结首业务二进制的输入来源。
+
 
 错误遵循现有Fault/CommitResult：输入/结果形状错误InvalidArgument；缺正式provider为DependencyUnbound；当前authority/owner/cause不符Forbidden或原Project gate错误；plan/native映射变化ResourceBusy且整Tx NotCommitted；合法仍活关系为Pending，超过有限完整诊断上限为Pending＋ResourceBusy。已持久的矛盾关系保持安全DependencyUnavailable/InvalidState，不暴露原Locator/SQL/正文。任何Unknown保留原error、cause和attempt；InTx返回Completed本身仍不是CommitResult，不能据它提前删其它事务中的父表。
 
