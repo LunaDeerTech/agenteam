@@ -508,6 +508,7 @@ func (v *projectVariablesWebFixture) safeFailure() {
 			Uncertain bool `json:"uncertain"`
 			Dialog    bool `json:"dialog"`
 		} `json:"dom"`
+		Network *variableWebNetworkFailure `json:"network"`
 	}
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
@@ -520,7 +521,110 @@ func (v *projectVariablesWebFixture) safeFailure() {
 	sourceOK := value.Source == "spec" || value.Source == "helpers" || value.Source == "unknown"
 	if statusOK && sourceOK && value.Line >= 0 && value.Line <= 4000 {
 		v.owner.t.Logf("Variables browser safe failure status=%s source=%s line=%d dom_observed=%t variables=%t editor=%t close=%t history=%t confirmed=%t uncertain=%t dialog=%t", value.Status, value.Source, value.Line, value.DOM.Observed, value.DOM.Variables, value.DOM.Editor, value.DOM.Close, value.DOM.History, value.DOM.Confirmed, value.DOM.Uncertain, value.DOM.Dialog)
+		if n := value.Network; n != nil && n.valid() {
+			v.owner.t.Logf("Variables browser safe network reason=%s index=%d method=%s route=%s received=%t status=%d finished=%t failed=%t expected=%s total=%d completed=%d incomplete=%d", n.Reason, n.Index, n.Method, n.Route, n.Received, n.Status, n.Finished, n.Failed, n.Expected, n.Total, n.Completed, n.Incomplete)
+			if native := n.Native; native != nil && native.valid() {
+				// The typed projection contains no URL, ID, headers, body or exception text.
+				safe, err := json.Marshal(native)
+				if err == nil {
+					v.owner.t.Logf("Variables browser safe native=%s", safe)
+				}
+			}
+		}
 	}
+}
+
+type variableWebNetworkFailure struct {
+	Reason     string                       `json:"reason"`
+	Index      int                          `json:"index"`
+	Method     string                       `json:"method"`
+	Route      string                       `json:"route"`
+	Received   bool                         `json:"received"`
+	Status     int                          `json:"status"`
+	Finished   bool                         `json:"finished"`
+	Failed     bool                         `json:"failed"`
+	Expected   string                       `json:"expected"`
+	Total      int                          `json:"total"`
+	Completed  int                          `json:"completed"`
+	Incomplete int                          `json:"incomplete"`
+	Native     *variableWebNativeDiagnostic `json:"native"`
+}
+
+type variableWebNativeDiagnostic struct {
+	Binding               string                  `json:"binding"`
+	SampleCount           int                     `json:"sample_count"`
+	SampleSettled         int                     `json:"sample_settled"`
+	SampleFailed          int                     `json:"sample_failed"`
+	SampleJoined          bool                    `json:"sample_joined"`
+	HooksRetired          bool                    `json:"hooks_retired"`
+	EOFBeforeInterruption bool                    `json:"eof_before_interruption"`
+	LengthComparable      bool                    `json:"length_comparable"`
+	LengthMatches         bool                    `json:"length_matches"`
+	Facts                 *variableWebNativeFacts `json:"facts"`
+}
+
+type variableWebNativeFacts struct {
+	Readers                 int64  `json:"readers"`
+	ReadCalls               int64  `json:"read_calls"`
+	ReadSettled             int64  `json:"read_settled"`
+	ReadRejected            int64  `json:"read_rejected"`
+	Bytes                   int64  `json:"bytes"`
+	ReaderCancelCalls       int64  `json:"reader_cancel_calls"`
+	ReaderCancelSettled     int64  `json:"reader_cancel_settled"`
+	ReaderCancelRejected    int64  `json:"reader_cancel_rejected"`
+	StreamCancelCalls       int64  `json:"stream_cancel_calls"`
+	StreamCancelSettled     int64  `json:"stream_cancel_settled"`
+	StreamCancelRejected    int64  `json:"stream_cancel_rejected"`
+	ReleaseCalls            int64  `json:"release_calls"`
+	ReleaseSuccesses        int64  `json:"release_successes"`
+	AbortEvents             int64  `json:"abort_events"`
+	HeadersOrder            int64  `json:"headers_order"`
+	ReadDoneOrder           int64  `json:"read_done_order"`
+	ReadRejectedOrder       int64  `json:"read_rejected_order"`
+	AbortOrder              int64  `json:"abort_order"`
+	ReaderCancelOrder       int64  `json:"reader_cancel_order"`
+	StreamCancelOrder       int64  `json:"stream_cancel_order"`
+	ReleaseOrder            int64  `json:"release_order"`
+	ContentLength           int64  `json:"content_length"`
+	ContentLengthPresent    bool   `json:"content_length_present"`
+	ContentLengthValid      bool   `json:"content_length_valid"`
+	ContentEncodingIdentity bool   `json:"content_encoding_identity"`
+	ReadDone                bool   `json:"read_done"`
+	CancelBeforeEOF         bool   `json:"cancel_before_eof"`
+	SignalAbortedAtStart    bool   `json:"signal_aborted_at_start"`
+	Failure                 string `json:"failure"`
+}
+
+func (n variableWebNativeDiagnostic) valid() bool {
+	bindings := map[string]bool{"unobserved": true, "document-unavailable": true, "missing-id": true, "ambiguous": true, "mismatch": true, "bound": true}
+	if !bindings[n.Binding] || n.SampleCount < 0 || n.SampleCount > 4096 || n.SampleSettled < 0 || n.SampleSettled > n.SampleCount || n.SampleFailed < 0 || n.SampleFailed > n.SampleCount {
+		return false
+	}
+	if n.Facts == nil {
+		return n.Binding != "bound" && !n.EOFBeforeInterruption && !n.LengthComparable && !n.LengthMatches
+	}
+	f := n.Facts
+	if n.Binding != "bound" {
+		return false
+	}
+	failures := map[string]bool{"none": true, "fetch-rejected": true, "observer-error": true, "get-reader-threw": true, "read-threw": true, "read-rejected": true, "reader-cancel-threw": true, "reader-cancel-rejected": true, "stream-cancel-threw": true, "stream-cancel-rejected": true, "release-threw": true}
+	if !failures[f.Failure] || f.Bytes < 0 || f.Bytes > 1<<30 || f.ContentLength < 0 || f.ContentLength > 1<<53-1 {
+		return false
+	}
+	for _, value := range []int64{f.Readers, f.ReadCalls, f.ReadSettled, f.ReadRejected, f.ReaderCancelCalls, f.ReaderCancelSettled, f.ReaderCancelRejected, f.StreamCancelCalls, f.StreamCancelSettled, f.StreamCancelRejected, f.ReleaseCalls, f.ReleaseSuccesses, f.AbortEvents, f.HeadersOrder, f.ReadDoneOrder, f.ReadRejectedOrder, f.AbortOrder, f.ReaderCancelOrder, f.StreamCancelOrder, f.ReleaseOrder} {
+		if value < 0 || value > 1<<20 {
+			return false
+		}
+	}
+	return true
+}
+
+func (n variableWebNetworkFailure) valid() bool {
+	reasons := map[string]bool{"none": true, "cut-binding": true, "duplicate-response": true, "unexpected-failed": true, "duplicate-failed": true, "failed-after-finished": true, "unexpected-finished": true, "duplicate-finished": true, "finished-after-failed": true, "missing-response": true, "finished-tail": true}
+	methods := map[string]bool{"GET": true, "POST": true, "PATCH": true, "DELETE": true, "other": true}
+	routes := map[string]bool{"list": true, "detail": true, "create": true, "update": true, "delete": true, "lookup": true, "other": true}
+	expected := map[string]bool{"none": true, "cut": true, "cancel": true}
+	return reasons[n.Reason] && methods[n.Method] && routes[n.Route] && expected[n.Expected] && n.Total >= 0 && n.Total <= 4096 && n.Index >= 0 && n.Index <= n.Total && n.Completed >= 0 && n.Completed <= n.Total && n.Incomplete >= 0 && n.Incomplete <= n.Total && (n.Status == 0 || n.Status >= 100 && n.Status <= 599)
 }
 
 // Independent SQL postconditions use each actual original key and the complete

@@ -17,6 +17,11 @@ import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import {
+  emptyNativeDiagnostic,
+  installVariableNativeDiagnostic,
+  nativeConsumption,
+} from "./project-variables.native";
 import { AccountFailure, uuid7 } from "../../../web/src/api/client";
 import {
   createProjectVariablesAPI,
@@ -174,6 +179,7 @@ export function checkpoint() {
 // may contain user values and remains private; no DOM text or input is copied.
 export async function recordFailure(page: Page, info: TestInfo) {
   if (info.status === info.expectedStatus) return;
+  await networkRetire.get(page)?.();
   const location = info.errors
     .map((error) => error.stack ?? "")
     .join("\n")
@@ -224,6 +230,7 @@ export async function recordFailure(page: Page, info: TestInfo) {
       source: location?.[1] ?? "unknown",
       line: Number(location?.[2] ?? 0),
       dom,
+      network: networkObservations.get(page)?.() ?? emptyNetworkDiagnostic(),
     }),
     { mode: 0o600 },
   );
@@ -234,6 +241,7 @@ export function protect(page: Page) {
   page.on("pageerror", () => pageErrors++);
   return {
     async install() {
+      await page.addInitScript(installVariableNativeDiagnostic);
       await page.addInitScript(() => {
         (window as any).__variableUnhandled = 0;
         window.addEventListener("unhandledrejection", () => {
@@ -263,15 +271,89 @@ type Declaration = {
   target: string | null;
   consumed: boolean;
 };
+type NetworkReason =
+  | "none"
+  | "cut-binding"
+  | "duplicate-response"
+  | "unexpected-failed"
+  | "duplicate-failed"
+  | "failed-after-finished"
+  | "unexpected-finished"
+  | "duplicate-finished"
+  | "finished-after-failed"
+  | "missing-response"
+  | "finished-tail";
+const emptyNetworkDiagnostic = () => ({
+  reason: "none" as NetworkReason,
+  index: 0,
+  method: "other",
+  route: "other",
+  received: false,
+  status: 0,
+  finished: false,
+  failed: false,
+  expected: "none",
+  total: 0,
+  completed: 0,
+  incomplete: 0,
+  native: emptyNativeDiagnostic(),
+});
+const networkRetire = new WeakMap<Page, () => Promise<void>>();
+const networkObservations = new WeakMap<
+  Page,
+  () => ReturnType<typeof emptyNetworkDiagnostic>
+>();
 export function observe(page: Page) {
+  const native = nativeConsumption(page);
+  networkRetire.set(page, native.stop);
   const entries: Entry[] = [],
     declarations: Declaration[] = [],
     tails: Promise<void>[] = [];
   let error = false;
-  const add = (task: Promise<void>) => {
+  let firstFailure: { reason: NetworkReason; entry: Entry } | undefined;
+  const fail = (reason: NetworkReason, entry: Entry) => {
+    error = true;
+    firstFailure ??= { reason, entry };
+  };
+  networkObservations.set(page, () => {
+    const e = firstFailure?.entry;
+    const method = e?.method ?? "other";
+    const parts = e?.url.pathname.split("/") ?? [];
+    const route = e?.url.pathname.endsWith("/commands/lookup")
+      ? "lookup"
+      : method === "GET"
+        ? parts.length === 6
+          ? "list"
+          : "detail"
+        : method === "POST"
+          ? "create"
+          : method === "PATCH"
+            ? "update"
+            : method === "DELETE"
+              ? "delete"
+              : "other";
+    return {
+      reason: firstFailure?.reason ?? "none",
+      index: e ? entries.indexOf(e) + 1 : 0,
+      method: ["GET", "POST", "PATCH", "DELETE"].includes(method)
+        ? method
+        : "other",
+      route,
+      received: !!e?.response,
+      status: e?.response?.status() ?? 0,
+      finished: e?.finished ?? false,
+      failed: e?.failed ?? false,
+      expected: e?.expected ?? "none",
+      total: entries.length,
+      completed: entries.filter((e) => e.finished).length,
+      incomplete: entries.filter((e) => e.failed).length,
+      native: native.snapshot(e?.request),
+    };
+  });
+  const add = (task: Promise<void>, entry: Entry) => {
     tails.push(
       task.catch(() => {
-        error = true;
+        fail("finished-tail", entry);
       }),
     );
   };
@@ -281,6 +363,7 @@ export function observe(page: Page) {
     );
   page.on("request", (request) => {
     if (!selected(request)) return;
+    native.request(request);
     const e: Entry = {
       request,
       method: request.method(),
@@ -305,7 +388,7 @@ export function observe(page: Page) {
         !uuid7.test(target ?? "") ||
         (d.target !== null && target !== d.target)
       ) {
-        error = true;
+        fail("cut-binding", e);
       } else {
         d.consumed = true;
         e.expected = "cut";
@@ -316,28 +399,35 @@ export function observe(page: Page) {
   page.on("response", (response) => {
     const e = entries.find((e) => e.request === response.request());
     if (e) {
-      if (e.response) error = true;
+      native.response(response);
+      if (e.response) fail("duplicate-response", e);
       e.response = response;
     }
   });
   page.on("requestfailed", (request) => {
     const e = entries.find((e) => e.request === request);
     if (e) {
-      if (e.failed || e.finished || !e.expected) error = true;
+      if (e.failed) fail("duplicate-failed", e);
+      if (e.finished) fail("failed-after-finished", e);
+      if (!e.expected) fail("unexpected-failed", e);
       e.failed = true;
     }
   });
   page.on("requestfinished", (request) => {
     const e = entries.find((e) => e.request === request);
     if (e) {
-      if (e.failed || e.finished || e.expected) error = true;
+      if (e.failed) fail("finished-after-failed", e);
+      if (e.finished) fail("duplicate-finished", e);
+      if (e.expected) fail("unexpected-finished", e);
       e.finished = true;
       add(
         (async () => {
+          if (!e.response) fail("missing-response", e);
           expect(
             e.response !== undefined && (await e.response.finished()) === null,
           ).toBe(true);
         })(),
+        e,
       );
     }
   });
@@ -361,25 +451,29 @@ export function observe(page: Page) {
     cut,
     cancel,
     async finish(options: { allowNoSuccess?: boolean } = {}) {
-      await expect
-        .poll(() => entries.every((e) => e.finished || e.failed), {
-          timeout: 4000,
-        })
-        .toBe(true);
-      await Promise.all(tails);
-      expect(
-        !error && declarations.every((d) => d.consumed) && entries.length > 0,
-      ).toBe(true);
-      for (const e of entries)
+      try {
+        await expect
+          .poll(() => entries.every((e) => e.finished || e.failed), {
+            timeout: 4000,
+          })
+          .toBe(true);
+        await Promise.all(tails);
         expect(
-          e.expected ? e.failed && !e.finished : e.finished && !e.failed,
+          !error && declarations.every((d) => d.consumed) && entries.length > 0,
         ).toBe(true);
-      await validateOriginalBodies(entries, options.allowNoSuccess ?? false);
-      return {
-        requests: entries.length,
-        completed: entries.filter((e) => e.finished).length,
-        expected_incomplete: entries.filter((e) => e.failed).length,
-      };
+        for (const e of entries)
+          expect(
+            e.expected ? e.failed && !e.finished : e.finished && !e.failed,
+          ).toBe(true);
+        await validateOriginalBodies(entries, options.allowNoSuccess ?? false);
+        return {
+          requests: entries.length,
+          completed: entries.filter((e) => e.finished).length,
+          expected_incomplete: entries.filter((e) => e.failed).length,
+        };
+      } finally {
+        await native.stop();
+      }
     },
   };
 }
