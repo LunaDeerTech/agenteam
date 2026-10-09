@@ -28,6 +28,8 @@
 3. 保持 §9 场景和预算，先验证已有 sharedLayer 修复，再继续 authority / navigation、必要旧回归和独立 A/B。已有结果仅在相关输入／依赖可确认未变时复用；受新共享层行为影响的历史场景须补验。高风险恢复与权限场景须由未参与实现者独立验证。
 4. 负责人整合实现、必要测试、README 和简短台账，由主线程一次交付完整结果。不得以编译、受控 helper PASS、静态准备或旧实例 ACK 替代真实整卡验收。
 
+本次恢复后的 authority 第三轮仍 FAIL：已通过原共享遮罩阻挡点及归档后的配置原请求重放，随后在切换到凭据恢复 Project 时等待新的 Provider 列表读取超时；停在 `authority-archived-credential`，没有完成凭据归档场景。闭合脱敏诊断保存在 [authority-credential-navigation-failure.json](../../../.agent-state/model-ui-recovery/authority-credential-navigation-failure.json)，尚不能仅据超时确定产品或 harness 原因。Go 24.57 秒，外层实际 exit=1／110.53 秒；direct child 与四个 adopted child 均实际 wait，watchdog／observer join、七个资源双 absent、子进程空、TCP 双空及输入未变均已核实。本轮失败不回填前两轮因果，也不改变 4/6 边界。
+
 ### 0.1 T1 最小共享源码与实际签名
 
 以下为当前已提交接入点的最小核对，不再复制实施前源码哈希表或过期行号：
