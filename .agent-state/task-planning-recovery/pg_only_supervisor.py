@@ -357,6 +357,78 @@ def descendants(root):
     return result - {root}
 
 
+def p2_process_identity(pid):
+    # Do not retain comm, argv, environment or application values.
+    raw = Path(f'/proc/{pid}/stat').read_text()
+    fields = raw.rsplit(')', 1)[1].split()
+    if int(raw.split('(', 1)[0]) != pid:
+        raise ValueError('process identity mismatch')
+    value = {'pid': pid, 'ppid': int(fields[1]), 'state': fields[0],
+             'start_ticks': int(fields[19])}
+    if (value['ppid'] <= 0 or value['start_ticks'] <= 0
+            or len(value['state']) != 1 or value['state'] not in 'RSDZTWtXxKIP'):
+        raise ValueError('invalid process identity')
+    return value
+
+
+def p2_executable_basename(pid):
+    # A zombie usually has no exe link. Missing/unknown names remain null;
+    # executable display is diagnostic, never the descendant authority proof.
+    try:
+        name = Path(os.readlink(f'/proc/{pid}/exe')).name.removesuffix(' (deleted)')
+    except OSError:
+        return None
+    return name if name in {'go', 'sh', 'bash', 'dash', 'fixture', 'minio', 'docker',
+                           'skills-p2-independent-race-01.test', 'python3', 'python3.11'} else None
+
+
+def reap_p2_exited(log, driver_waited):
+    # Reuse the finite UI pre-reap mechanism, but bind each wait to a stable
+    # owned PID/starttime/parent. No sleep, retry or additional waiting budget.
+    if not driver_waited:
+        log.write('P2 prereap driver_waited=False\n')
+        return False
+    parent = os.getpid()
+    try:
+        owned = sorted(descendants(parent))
+    except (OSError, ValueError):
+        log.write('P2 prereap owned_snapshot=False\n')
+        return False
+    success = True
+    for pid in owned:
+        before = None
+        basename = None
+        stable = False
+        try:
+            before = p2_process_identity(pid)
+            basename = p2_executable_basename(pid)
+            stable = before == p2_process_identity(pid)
+        except (OSError, ValueError, IndexError):
+            pass
+        sample = before or {'pid': pid, 'ppid': None, 'state': None, 'start_ticks': None}
+        log.write('P2 descendant_before_reap ' + json.dumps(
+            {**sample, 'exe_basename': basename, 'identity_stable': stable}, sort_keys=True) + '\n')
+        if not stable or before['ppid'] != parent or before['state'] != 'Z':
+            success = False
+            log.write(f'P2 prereap pid={pid} eligible=False\n')
+            continue
+        try:
+            waited, status = os.waitpid(pid, os.WNOHANG)
+        except ChildProcessError:
+            success = False
+            log.write(f'P2 prereap pid={pid} outcome=not_child\n')
+            continue
+        except OSError:
+            success = False
+            log.write(f'P2 prereap pid={pid} outcome=wait_error\n')
+            continue
+        accepted = waited == pid and status == 0
+        log.write(f'SUPERVISOR p2_adopted_actual_wait requested_pid={pid} pid={waited} status={status} accepted={accepted}\n')
+        if not accepted:
+            success = False
+    return success
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--driver', required=True, type=Path)
@@ -432,6 +504,10 @@ def main():
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
             else:
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
+            if args.root_chain and args.run == '^TestSkillIndependentP2ConfirmationAndPackage$':
+                if not reap_p2_exited(log, child.returncode is not None):
+                    code = 1
+                    log.write('STOP P2 owned descendant retirement unconfirmed\n')
             survivors = descendants(os.getpid())
             if survivors:
                 code = 1

@@ -1,0 +1,15 @@
+--- PASS: TestSkillIndependentP2ConfirmationAndPackage (2.32s)
+    --- PASS: TestSkillIndependentP2ConfirmationAndPackage/same_store_confirmation_and_private_plan (0.03s)
+    --- PASS: TestSkillIndependentP2ConfirmationAndPackage/original_plan_rechecks_current_project_gate (0.02s)
+    --- PASS: TestSkillIndependentP2ConfirmationAndPackage/owner_package_current_session_and_foreign_denials (0.05s)
+    --- PASS: TestSkillIndependentP2ConfirmationAndPackage/original_d05_read_close_returns_and_skill_accounting (0.08s)
+D03 explicit test actual_wait pid=1288214 code=0 selector=^TestSkillIndependentP2ConfirmationAndPackage$
+SUPERVISOR actual_driver_wait pid=1286224 actual=True code=0
+STOP owned descendants survived driver: [1286231]
+SUPERVISOR adopted_actual_wait pid=1286231 status=0
+OWNED runtime_observation=1 descendants=[]
+OWNED runtime_observation=2 descendants=[]
+ROOT exact_tops=True actual_test_wait=True
+HOST_TCP delta_empty_observation=1
+HOST_TCP delta_empty_observation=2
+SUPERVISOR inputs_unchanged=True terminal=1 elapsed=96.347s

@@ -66,6 +66,14 @@ source = source[:start] + source[end:]
 check('driver inverse byte equal', source == baseline(DRIVER))
 source = SUPERVISOR.read_text().replace(
     "        '" + SELECTOR + "': {'" + TOP + "'},\n", '', 1)
+start = source.index('def p2_process_identity(pid):\n')
+end = source.index('def main():\n', start)
+source = source[:start] + source[end:]
+source = source.replace(
+    "            if args.root_chain and args.run == '" + SELECTOR + "':\n"
+    "                if not reap_p2_exited(log, child.returncode is not None):\n"
+    "                    code = 1\n"
+    "                    log.write('STOP P2 owned descendant retirement unconfirmed\\n')\n", '', 1)
 source = source.replace(
     "        paths = (adapter.input_paths(args.binary, args.run)\n"
     "                 if args.run == '" + SELECTOR + "' else adapter.input_paths(args.binary))\n"

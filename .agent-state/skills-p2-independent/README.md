@@ -15,9 +15,11 @@
 
 不重复已通过作者全矩阵。真实 PG COMMIT Unknown、迁移和 Stop 的已有原范围证据按卡复用；本补集不会扩大它们。未实现的 Cleanup/root、D05后段清理/00028、完整participant、Runtime join停项和foreign进程退休保持未验证。
 
-实际已验：`python3 .agent-state/skills-p2-independent/pure.py`（21592→238565 actual0，race 1.068s）执行前两行 2top/7sub；通过只说明真实 Skill/P1 代码在明确受控 Store/Project/Object 输入下的判据成立。后四行源码已写全并离线 race 编译；独立候选 `output/ai/skills-p2-independent/skills-p2-independent-race-01.test` 为32,988,048B，session38872→43fd06编译及精确 list均actual0。发现一个 top 不证明四子已运行；无真实 SQL、D05、资源回收或全 P2 完成结论。
+实际纯控：`python3 .agent-state/skills-p2-independent/pure.py`（21592→238565 actual0，race 1.068s）执行前两行2top/7sub；通过只说明真实Skill/P1代码在明确受控Store/Project/Object输入下的判据成立。独立候选 `output/ai/skills-p2-independent/skills-p2-independent-race-01.test` 为32,988,048B，session38872→43fd06离线race编译及精确list均actual0。
 
-既有 root driver/supervisor 仅增加 `^TestSkillIndependentP2ConfirmationAndPackage$`；该 selector 独有输入增量为 `tests/skills` 固定九个 Go 文件，覆盖新测试及完整编译包的复用 fixture。`python3 .agent-state/skills-p2-independent/harness-controls.py`（c223e6 actual0/42控）用实际 configuration、input_paths、原 supervisor main/manifest/observer，替换外部 child/Docker/TCP 边界检查正负尾；旧两工具去掉限定增量后逐字等于29b252c7。它不是实际 Docker/Wait/TCP 证明，仍需工具窄独审和 root fresh grant。
+后四行随后在fresh独占七资源窗口实际运行：P2-01 Go业务top及4sub均PASS（2.32s），证实本矩阵有限范围的真实Skill/D05/SQL关系。整轮仍**FAIL**：原driver Wait0后监督记录owned PID1286231存活STOP，随后才actualWait0；没有该时点state/ppid/命令快照，不能推Z或回填成功。7ID/private/runtime/desc/TCP双尾及输入不变最终均齐，session39104→3d1e80 outer实际exit1，窗口释放。15行必要原件见 `p2-01-failure.txt`；不会因业务PASS声称完整P2、production root、MinIO网络阻塞、foreignguard或Cleanup通过，不自动重试。
+
+既有 root driver/supervisor 仅增加 `^TestSkillIndependentP2ConfirmationAndPackage$`；该 selector 独有输入增量为 `tests/skills` 固定九个 Go 文件，覆盖新测试及完整编译包的复用 fixture。`python3 .agent-state/skills-p2-independent/harness-controls.py`（c223e6 actual0/42控）用实际 configuration、input_paths、原 supervisor main/manifest/observer，替换外部 child/Docker/TCP 边界检查正负尾；旧两工具去掉限定增量后逐字等于29b252c7。Skills未参与该接缝实现者aea89f重取42控并有限接受；这不替代实际Docker/Wait/TCP证明或其自有Skills产品独验。
 
 离线候选构建使用如下固定环境（继承 PATH；原独占 cache，不另建 cache 副本）：
 
@@ -31,7 +33,7 @@ export GOCACHE=/workspace/agenteam-project-variables-ui/output/ai/project-variab
 export GOTMPDIR=/workspace/agenteam-skills-p2-independent/output/ai/skills-p2-independent/tmp
 ```
 
-后续真实命令 cwd 为本树，保留上述环境并设置 `AGENTEAM_MINIO_BINARY=/workspace/agenteam-skills-p2-independent/output/ai/deps-minio/bin/minio`。MinIO 本树当前缺失，固定 SHA 为 `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`；只读身份验证后普通复制需 root 的空间窗口。每次真实启动须新授权、同 process fresh statvfs≥5GiB与新输出检查，不能依据本说明自动运行：
+P2-01原真实命令cwd为本树，保留上述Go环境并设置 `AGENTEAM_MINIO_BINARY=/workspace/agenteam-skills-p2-independent/output/ai/deps-minio/bin/minio`。root已普通复制，固定SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`，原启动同process再次核实。实际TMPDIR/GOTMPDIR指向本树 `output/ai/skills-p2-independent/runtime-env-01/tmp`，XDG三目录同属该私有父目录，原driver随后将fixture TMP覆盖到原owned runtime。每次真实启动须新授权、同process fresh statvfs≥5GiB及新输出检查；下列p2-01已用，不可依据本说明自动复用：
 
 ```sh
 python3 .agent-state/task-planning-recovery/pg_only_supervisor.py \
@@ -42,4 +44,6 @@ python3 .agent-state/task-planning-recovery/pg_only_supervisor.py \
   --output /workspace/agenteam-skills-p2-independent/output/ai/skills-p2-independent/p2-01
 ```
 
-原三层 fixture 的七资源、Go6m/root540+60+3/TCP75、实际 Wait/reap、两次资源与private/runtime/desc/TCP/input尾保持，不新增清理者或延长预算。此次尚未启动此命令。
+原三层 fixture 的七资源、Go6m/root540+60+3/TCP75、实际 Wait/reap、两次资源与private/runtime/desc/TCP/input尾保持，不新增清理者或延长预算。此次整轮失败按原门保留；后继必须新输出和fresh grant。
+
+原01之后的监督改动只适用于上述exact P2 root入口：原driver实际Wait后，在原失败判断点取得本任务owned descendant集合，对每个PID前后两次读取pid/starttime/ppid/state，父进程必须当前subreaper。安全exe只输出固定常见basename或null；Z缺exe不伪造，也不以名字授权。只有一致的owned Z且 `waitpid(精确PID,WNOHANG)` 实际同PID/status0才能接受；任何live/未知/消失/身份变化/未waitable/非0/ECHILD/部分失败或新PID都保失败并继续原清理尾，不加sleep、重试或预算。持久 `reaper-controls.py` 38eb3e actual0/64控和受影响 `harness-controls.py` 8b7e64 actual0/42控通过，后者保旧generic/非P2全文逆差异与完整受控尾。片段已冻结交Runner窄独审，尚无新真实运行；不会据此改变原01的STOP、身份缺失或wholeFAIL。
