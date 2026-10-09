@@ -30,6 +30,8 @@
 
 本次恢复后的 authority 第三轮仍 FAIL：已通过原共享遮罩阻挡点及归档后的配置原请求重放，随后在切换到凭据恢复 Project 时等待新的 Provider 列表读取超时；停在 `authority-archived-credential`，没有完成凭据归档场景。闭合脱敏诊断保存在 [authority-credential-navigation-failure.json](../../../.agent-state/model-ui-recovery/authority-credential-navigation-failure.json)，尚不能仅据超时确定产品或 harness 原因。Go 24.57 秒，外层实际 exit=1／110.53 秒；direct child 与四个 adopted child 均实际 wait，watchdog／observer join、七个资源双 absent、子进程空、TCP 双空及输入未变均已核实。本轮失败不回填前两轮因果，也不改变 4/6 边界。
 
+navigation 第三轮同样 FAIL：本轮 Session 已观察到 headers 与 finished、没有 failed event，随后完成 Model 创建与 Models 列表；切到可用模型叶时超时，fixture 另报安全代理终态不完整。闭合脱敏诊断见 [navigation-directory-failure.json](../../../.agent-state/model-ui-recovery/navigation-directory-failure.json)。Go 16.30 秒，外层实际 exit=1／100.69 秒；direct/four adopted 实际 wait、watchdog/observer join、七资源双 absent、进程空、TCP 双空及输入未变全部完成。静态检查发现 navigation 复用的 System 草稿种子名称为 `Owner draft memory*`，与 Model 安全目录准入的 `Models ` 前缀不一致；待纯正反例与受影响真实场景验证，修复限定测试种子，不扩响应白名单。没有生成或验收八张布局图，原两轮 Session 失败原因不回填。
+
 ### 0.1 T1 最小共享源码与实际签名
 
 以下为当前已提交接入点的最小核对，不再复制实施前源码哈希表或过期行号：
