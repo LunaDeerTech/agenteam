@@ -811,7 +811,12 @@ async function createCredential(page: Page, key: Key) {
       metadata.version === "1",
     "INDEPENDENT_METADATA_VERSION",
   );
-  await expect(manage.locator("dl")).toContainText("1");
+  await expect(
+    manage
+      .locator("dt")
+      .filter({ hasText: /^已读版本$/ })
+      .locator("xpath=following-sibling::dd[1]"),
+  ).toHaveText("1");
   await expect(button(manage, "轮换凭据")).toBeDisabled();
   return { id: r.credential_id as string, dialog: manage };
 }
@@ -1201,6 +1206,67 @@ function step(value: string) {
   need(/^[a-z-]+$/.test(value), "INDEPENDENT_STEP");
   publish("independent-step.json", { case: selected, step: value });
 }
+function safeFailures(errors: readonly { message?: string; stack?: string }[]) {
+  // Playwright messages, stacks and call logs may contain fill values. Only
+  // known codes, fixed categories and positions in this frozen source escape.
+  try {
+    const source = join(
+      root,
+      ".agent-state/model-ui-independent/independent.spec.ts",
+    );
+    const text = readFileSync(source, "utf8"),
+      lines = text.split("\n"),
+      codes = new Set(
+        [...text.matchAll(/(["'])(INDEPENDENT_[A-Z_]+)\1/g)].map(
+          (match) => match[2],
+        ),
+      );
+    const escaped = source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+      frame = new RegExp(
+        `^\\s*at (?:[^()\\n]* \\()?(?:file:\\/\\/)?${escaped}:(\\d+):(\\d+)\\)?$`,
+      );
+    return errors.slice(0, 8).map((error) => {
+      const message = error.message ?? "",
+        candidate = /^(?:Error: )?(INDEPENDENT_[A-Z_]+)$/.exec(
+          message.trim(),
+        )?.[1],
+        code = candidate && codes.has(candidate) ? candidate : null;
+      const locations = (error.stack ?? "")
+        .split("\n")
+        .slice(0, 64)
+        .flatMap((line) => {
+          const match = frame.exec(line);
+          if (!match) return [];
+          const row = Number(match[1]),
+            column = Number(match[2]);
+          return Number.isSafeInteger(row) &&
+            row > 0 &&
+            row <= lines.length &&
+            Number.isSafeInteger(column) &&
+            column > 0 &&
+            column <= lines[row - 1]!.length + 1
+            ? [{ source: "independent.spec.ts", line: row, column }]
+            : [];
+        })
+        .slice(0, 8);
+      return {
+        category: code
+          ? "closed-harness-error"
+          : message.includes("strict mode violation")
+            ? "strict-locator"
+            : /timeout|timed out/i.test(message)
+              ? "timeout"
+              : message.includes("expect(")
+                ? "assertion"
+                : "other",
+        code,
+        locations,
+      };
+    });
+  } catch {
+    return [{ category: "unavailable", code: null, locations: [] }];
+  }
+}
 test.beforeEach(async ({ page }) => {
   const source = readFileSync(
     join(
@@ -1219,6 +1285,7 @@ test.afterEach(async ({}, info) => {
       case: selected,
       status: info.status,
       error_count: Math.min(info.errors.length, 8),
+      errors: safeFailures(info.errors),
     });
 });
 
