@@ -36,6 +36,8 @@ authority／navigation 四路径限定 harness 修复已独立接受：Project �
 
 authority 第四轮仍 FAIL：浏览器原 45 秒总预算在 `authority-same-session-checking` 耗尽，仅四个安全响应，尚未到上述 Project 切换修复点；现有观察不能区分响应结束、JSON 读取或控制释放等待。闭合原件见 [authority-session-fourth-failure.json](../../../.agent-state/model-ui-recovery/authority-session-fourth-failure.json)。Go 55.03 秒，外层实际 exit=1／143.10 秒（含原 TCP 尾部观察）；direct 与四个 adopted child 实际 wait、watchdog／observer join、七资源双 absent、子进程空、TCP 双空与输入未变均已完成。保留原 FAIL，下一步仅补有界分段诊断，不加请求或预算；navigation 种子修复可独立复验。
 
+navigation 第四轮已通过新的 Model 专属种子目录读取与 raw-return 检查，随后仍 FAIL：`navigation-draft-and-focus` 中 History 返回后选择“继续编辑”，名称值保留断言通过，但名称输入框恢复焦点的等待超时（模块第 231 行）；本轮未采实际 activeElement，不能先认定焦点去了哪里。闭合原件见 [navigation-focus-fourth-failure.json](../../../.agent-state/model-ui-recovery/navigation-focus-fourth-failure.json)。九个安全响应，尚无八张布局图；Go 19.47 秒、外层实际 exit=1／106.80 秒，direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、子进程空、TCP 双空和输入同一全部完成。authority 的局部 5 秒分段诊断另已 strict TS、自查与独立有限审查接受，仅可定位后续失败，不等于原请求或业务通过。
+
 ### 0.1 T1 最小共享源码与实际签名
 
 以下为当前已提交接入点的最小核对，不再复制实施前源码哈希表或过期行号：
