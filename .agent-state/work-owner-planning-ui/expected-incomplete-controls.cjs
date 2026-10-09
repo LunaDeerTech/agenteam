@@ -73,7 +73,7 @@ function req(kind = "lost-milestone-update", changes = {}) {
     url: `http://127.0.0.1:1/api/v1/projects/${project}/${entity}/${target}${isBlocker ? "/blockers" : ""}`,
     method: isCancel ? "GET" : isBlocker ? "POST" : "PATCH",
     body,
-    key,
+    key: require("node:crypto").randomUUID(),
     ...changes,
   };
   return {
@@ -92,6 +92,75 @@ process.on("unhandledRejection", () => unhandled++);
     await fn();
     controls.push(name);
   }
+  await check(
+    "actual crypto.randomUUID intent keys bind every declared mutation",
+    () => {
+      for (const kind of [
+        "unforwarded-milestone-update",
+        "lost-milestone-update",
+        "lost-task-update",
+        "lost-blocker-add",
+      ]) {
+        const l = ledger(),
+          originalKey = require("node:crypto").randomUUID(),
+          q = req(kind, { key: originalKey });
+        assert.equal(originalKey[14], "4");
+        l.declare(spec(kind));
+        l.request(q);
+        l.failed(q);
+        assert.equal(l.expectedFailure(q), true, kind + " must bind v4 key");
+      }
+    },
+  );
+  await check(
+    "Foundation intent key bounds stay distinct from resource IDs",
+    () => {
+      for (const value of ["a", "A._:/-09", "x".repeat(128)]) {
+        const l = ledger(),
+          q = req(undefined, { key: value });
+        l.declare(spec());
+        l.request(q);
+        l.failed(q);
+        assert.equal(l.verify(1, new Set([q])), true);
+      }
+      for (const value of [
+        "",
+        "x".repeat(129),
+        "invalid key",
+        "a\n",
+        "é",
+        "%",
+      ]) {
+        const l = ledger(),
+          q = req(undefined, { key: value });
+        l.declare(spec());
+        l.request(q);
+        l.failed(q);
+        assert.equal(l.verify(1, new Set([q])), false);
+      }
+      const resourceV4 = require("node:crypto").randomUUID();
+      for (const field of ["projectID", "targetID"]) {
+        const l = ledger();
+        assert.throws(() => l.declare({ ...spec(), [field]: resourceV4 }));
+      }
+      const l = ledger(),
+        q = req("lost-blocker-add", {
+          body: {
+            expected_version: "7",
+            request: {
+              blocker_id: resourceV4,
+              description: "specific original text",
+              type: "waiting_for_human",
+              metadata: {},
+            },
+          },
+        });
+      l.declare(spec("lost-blocker-add"));
+      l.request(q);
+      l.failed(q);
+      assert.equal(l.verify(1, new Set([q])), false);
+    },
+  );
   for (const kind of [
     "lost-milestone-update",
     "lost-task-update",
@@ -143,7 +212,7 @@ process.on("unhandledRejection", () => unhandled++);
         request: { title: "specific original text", description: "extra" },
       },
     },
-    { key: "wrong-key" },
+    { key: "invalid key" },
     { method: "POST" },
     {
       url: `http://127.0.0.1:1/api/v1/projects/${target}/milestones/${target}`,
@@ -431,6 +500,23 @@ process.on("unhandledRejection", () => unhandled++);
       assert.equal(diagnostic.request_id, null);
       assert.equal(diagnostic.response_finished_at, null);
       assert.notEqual(diagnostic.request_failed_at, null);
+    },
+  );
+  await check(
+    "actual observer: v4 unforwarded key retires its slot before the next declared loss",
+    async () => {
+      const { e, q } = ownedCase();
+      e.ownedResponse(q, new Promise(() => {}));
+      e.emit("requestfailed", q);
+      await new Promise((r) => setImmediate(r));
+      e.observed.declareIncomplete(spec("lost-milestone-update"));
+      const next = req("lost-milestone-update");
+      e.emit("request", next);
+      e.response(next, new Promise(() => {}));
+      e.emit("requestfailed", next);
+      await e.observed.verify(2);
+      assert.equal(e.writes.at(-1).body.owned_unforwarded_truncations, 1);
+      assert.equal(e.writes.at(-1).body.expected_incomplete, 1);
     },
   );
   for (const [name, changes] of [

@@ -342,7 +342,8 @@ function workIncompleteLedger() {
     )
       return false;
     const key = request.headers()["idempotency-key"];
-    if (!key || !uuid7.test(key)) return false;
+    // Intent keys use Foundation's scalar contract; UUIDv7 identifies resources.
+    if (!key || !/^[A-Za-z0-9._:\/-]{1,128}$/.test(key)) return false;
     try {
       const body = request.postDataJSON();
       if (
