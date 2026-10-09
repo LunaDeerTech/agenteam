@@ -125,6 +125,7 @@ def observe_root_chain(directory, log, log_path, selector):
     log.flush()
     output = log_path.read_text()
     expected = {
+        '^TestKnowledgeB02Independent(Content|TreeReference)$': {'TestKnowledgeB02IndependentContent', 'TestKnowledgeB02IndependentTreeReference'},
         '^TestWorkOwnerRootActual(Command|Reader)Join$': {'TestWorkOwnerRootActualCommandJoin', 'TestWorkOwnerRootActualReaderJoin'},
         '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': {'TestWorkOwnerHTTPProcessRoutingAndPersistence'},
         '^TestIndependentWorkOwnerRootConfirmationJoin$': {'TestIndependentWorkOwnerRootConfirmationJoin'},
@@ -139,6 +140,10 @@ def observe_root_chain(directory, log, log_path, selector):
         '^TestKnowledgeB02(Cleanup|CommitUnknown|Concurrency|CleanupCommitUnknown|ProcessRecovery)$': {'TestKnowledgeB02Cleanup', 'TestKnowledgeB02CommitUnknown', 'TestKnowledgeB02Concurrency', 'TestKnowledgeB02CleanupCommitUnknown', 'TestKnowledgeB02ProcessRecovery'},
     }.get(selector, set())
     actual = set(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
+    if selector == '^TestKnowledgeB02Independent(Content|TreeReference)$':
+        count = len(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
+        good = good and count == 2
+        log.write(f'KNOWLEDGE independent_exact_top_count={count == 2}\n')
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
     log.write(f'ROOT exact_tops={actual == expected} actual_test_wait={waited}\n')
