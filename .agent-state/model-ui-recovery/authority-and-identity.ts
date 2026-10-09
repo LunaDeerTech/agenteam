@@ -229,26 +229,32 @@ function resolveSnapshot(value: unknown): Record<string, boolean | number | stri
   return native;
 }
 
-type RestoreOwner = { userID: string; sessionID: string };
+type RestoreOwner = { userID: string; sessionID: string; stage?: 'same-session-checking' };
 type SessionBinding = { asset: string; export_name: string; entry: string };
 // Runs in the existing page. It observes the existing singleton and fetch;
 // it neither constructs a controller nor consumes a response body.
 async function installRestoreOwnerObservation({ binding, expected, slot, expiresAt }: { binding: SessionBinding; expected: RestoreOwner; slot: string; expiresAt: number }) {
   const host = window as any;
-  const loaded = (path: string) => performance.getEntriesByName(new URL(path, location.origin).href).length > 0;
-  if (Date.now() > expiresAt || !loaded(binding.entry) || !loaded(binding.asset) || host.__authorityRestoreOwner) return false;
-  const module = await (new Function('path', 'return import(path)'))(binding.asset);
-  if (Date.now() > expiresAt || typeof module[binding.export_name] !== 'function') return false;
+  const loaded = (path: string) => window.performance.getEntriesByName(new URL(path, location.origin).href).length > 0;
+  if (Date.now() > expiresAt) return 'expired';
+  if (!loaded(binding.entry) || !loaded(binding.asset)) return 'assets-unobserved';
+  if (host.__authorityRestoreOwner) return 'observer-present';
+  let module;
+  try { module = await (new Function('path', 'return import(path)'))(binding.asset); }
+  catch { return 'module-unavailable'; }
+  if (Date.now() > expiresAt) return 'expired';
+  if (typeof module[binding.export_name] !== 'function') return 'singleton-unavailable';
   const auth = module[binding.export_name]();
-  if (auth !== module[binding.export_name]() || auth?.state?.phase !== 'authenticated' || auth.state.busy !== false || typeof auth.restore !== 'function') return false;
-  if (host.__projectModelsProbe.sessionBegin(slot, expiresAt, undefined, true) !== true) return false;
-  const originalFetch = window.fetch, originalRestore = auth.restore, base = performance.now();
+  if (auth !== module[binding.export_name]() || typeof auth?.restore !== 'function') return 'singleton-unavailable';
+  if (auth.state?.phase !== 'authenticated' || auth.state.busy !== false) return 'owner-unready';
+  if (host.__projectModelsProbe?.sessionBegin(slot, expiresAt, undefined, true) !== true) return 'native-unavailable';
+  const originalFetch = window.fetch, originalRestore = auth.restore, base = window.performance.now();
   let disposed = false, action = false, active = false, requestID: string | null = null;
   let pendingObservations = 0, hooksRetired = false;
   const facts = { action_calls: 0, restore_calls: 0, owned_restore_calls: 0, session_requests: 0, owned_session_requests: 0, response_headers: 0, restore_settled: false, restore_rejected: false, restore_threw: false, entry_authenticated: false, entry_not_busy: false, authenticated: false, not_busy: false, user_matches: false, session_matches: false, observer_failed: false };
   const timing: Record<string, number | null> = { action: null, restore_enter: null, request: null, headers: null, restore_settled: null, state_sample: null };
   const safe = (work: () => void) => { try { work(); } catch { facts.observer_failed = true; } };
-  const at = (key: string) => { timing[key] ??= performance.now() - base; };
+  const at = (key: string) => { timing[key] ??= window.performance.now() - base; };
   const observe = (promise: Promise<unknown>, fulfilled: (value: any) => void, rejected: () => void) => {
     pendingObservations++;
     void promise.then(value => { if (!disposed) safe(() => fulfilled(value)); }, () => { if (!disposed) safe(rejected); })
@@ -423,7 +429,9 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
       if (safe.eof_before_interruption === true && safe.request_id_match === true && expectedID && expectedID === requestID && targets.length === 1 && targets[0] === selected?.request() && targetMatch(targets[0]!)) firstEOFSample ??= mark();
     }
   }, beginning, kind);
-  await bounded(() => beginning);
+  const beginResult = await bounded(() => beginning);
+  const ownerInstall = !ownerBinding ? 'binding-unavailable' : beginResult === true ? 'armed'
+    : typeof beginResult === 'string' && ['expired', 'assets-unobserved', 'observer-present', 'module-unavailable', 'singleton-unavailable', 'owner-unready', 'native-unavailable'].includes(beginResult) ? beginResult : 'unavailable';
   return {
     start() { active = true; try { actionStarted ??= mark(); } catch {} },
     select(response: Response) {
@@ -483,11 +491,12 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
           const sameRequest = projection.snapshot_selected_bound && projection.pw_request_match && projection.pw_selected_target_match && projection.pw_status === 200 && beforeAction === 0 && afterAction === 1;
           const cdpBound = ownerCDPReady && !ownerCapExceeded && ownerRows.size === 1 && matches.length === 1;
           const cdp = cdpBound ? { request: matches[0]!.request, response: matches[0]!.response, finished: matches[0]!.finished, failed: matches[0]!.failed, aborted: matches[0]!.aborted, canceled: matches[0]!.canceled } : null;
-          writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-credential-session-consumption.json'), JSON.stringify({
-            ...projection, restore_owner: owner, cdp_ready: ownerCDPReady, cdp_candidates: ownerRows.size, cdp_cap_exceeded: ownerCapExceeded, cdp_selected_bound: cdpBound, cdp,
+          const ownerArtifact = restoreOwner.stage === 'same-session-checking' ? 'authority-checking-session-consumption.json' : 'authority-credential-session-consumption.json';
+          writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, ownerArtifact), JSON.stringify({
+            ...projection, owner_install: ownerInstall, restore_owner: owner, cdp_ready: ownerCDPReady, cdp_candidates: ownerRows.size, cdp_cap_exceeded: ownerCapExceeded, cdp_selected_bound: cdpBound, cdp,
             // This is a production consumption/publication completion bound,
             // not a replacement for the original finished/JSON/identity gates.
-            consumption_publication_evidence_complete: sameRequest && cdpBound && final !== null && native?.eof_before_interruption === true && native.content_length_comparable === true && native.content_length_matches_eof === true && owner?.completion_upper_bound === true,
+            consumption_publication_evidence_complete: ownerInstall === 'armed' && sameRequest && cdpBound && final !== null && native?.eof_before_interruption === true && native.content_length_comparable === true && native.content_length_matches_eof === true && owner?.completion_upper_bound === true,
           }), { mode: 0o600 });
         }
       } catch { /* Missing diagnostic evidence must preserve the original error. */ }
@@ -780,7 +789,7 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   const sessionArm = sessionArmResult.arm_id;
   // Handle the concurrent observer immediately, then actually settle it on
   // every path, including a failed hold, UI assertion, or release.
-  const restoredSession = sessionIdentity(page, () => pageshow(page, wait), harness.step, wait).then(
+  const restoredSession = sessionIdentity(page, () => pageshow(page, wait, true), harness.step, wait, { userID: ownerSession.userID, sessionID: ownerSession.sessionID, stage: 'same-session-checking' }).then(
     (value) => ({ ok: true as const, value }), (error: unknown) => ({ ok: false as const, error }),
   );
   try {
