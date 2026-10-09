@@ -4,7 +4,20 @@
 
 ## 当前片段
 
-两 exact top 为 `TestKnowledgeB02IndependentContent`、`TestKnowledgeB02IndependentTreeReference`，各三 direct 子组，selector `^TestKnowledgeB02Independent(Content|TreeReference)$`。原race-c45237 actualexit0；9ccae9 discovery actual0 精确两 top；vet67704 actualexit0；gofmt 与 56e9b6 diffcheck actual0。原候选 `output/ai/knowledge-independent/knowledge-independent-race.test` 为 36,862,944 B，绑定两新测试2578a9ef，工具冻结f285be16。首次真实89530整体FAIL、全部实际资源尾完整，见下节；失败摘要已root保存b7798cd5。后续仅最后一子窄修的新candidate67286已离线编译，未PG、待未参与者窄审，见修复节；当前无执行在途。首 race-c91846 因 Content 未使用 oc import 编译 FAIL，移除后才通过，原结果保留。
+两 exact top 为 `TestKnowledgeB02IndependentContent`、`TestKnowledgeB02IndependentTreeReference`，各三 direct 子组，selector `^TestKnowledgeB02Independent(Content|TreeReference)$`。原race-c45237 actualexit0；9ccae9 discovery actual0 精确两 top；vet67704 actualexit0；gofmt 与 56e9b6 diffcheck actual0。原候选 `output/ai/knowledge-independent/knowledge-independent-race.test` 为 36,862,944 B，绑定两新测试2578a9ef，工具冻结f285be16。首次真实89530整体FAIL、全部实际资源尾完整，见下节；失败摘要已root保存b7798cd5。仅最后一子窄修的新candidate67286和精确末子映射已分别获Work有限独审，root保存90b2a035；随后62452在下层fixture发现处FAIL，业务未起，实际创建的四资源已双核退役，见下节。当前无执行在途。首 race-c91846 因 Content 未使用 oc import 编译 FAIL，移除后才通过，原结果保留。
+
+## 精确末子首次启动：62452 发现前置 FAIL，实际四资源已退役
+
+唯一freshgrant后，98a2a1同process实核available=5,681,254,400 B、67286候选36,877,449 B、固定MinIO SHA和Go1.27.1，继承PATH前置Go并使用下方完整offline/cache env。原root链完整启动，但下层`tests/testsupport/postgres/cmd/fixture/main.go`把完整父/子selector用于`-test.list`及顶层名匹配，输出`explicit fixture selector has no actual test top`。Go的`-list`只列顶层，故本轮没有PG或业务Go进程，原修复末子所有业务事实仍未实际验证；89530原五子证据没有扩大。
+
+51ce98取得outer62452 actualexit1；8a2064实读最终原日志：driver1164594 actualWait=True code1，desc两次[]、runtime两次empty、HOST_TCP两次delta_empty、inputs_unchanged=True，supervisor77.240s terminal1。七资源ownership record缺失，`exact_tops=False`、`actual_test_wait=False`均保留FAIL。原日志`output/ai/knowledge-independent/pg/pg-8def5a381e414673a66bbac7fc61ced7.log`，不能将未创建的PG三资源或未启动的业务Wait冒充完整七资源PASS。
+
+本轮实际只建D05/D04两container和两network。原链分别输出精确nonce清理完成；29282e/200241用这两nonce及已归属container的有界Docker事件恢复四个实际ID，并对每ID两次inspect确认absent，nonce标签资源查询为空；未作全局清理。下列精确资源记录用于恢复：
+
+- D05 container `0583a5fd14d87555dc0974168b3e3f87329757fc4f5f6e7f5dc642b1a7781d33`，network `42b1f3676ae170e0473b82874ec20ed314f282c3b53ebaaeb0b8c36cc3b0bb3a`。
+- D04 container `18a0ba8802cdac13fc138cfe2636b27efe09d24b77892ca353f63fd62a8a682d`，network `ef33edbc31d8ba2347003c4a7007200c534833f4411caca59a380aea76354cd9`。
+
+该后验只证明四个实际自有资源可安全交接，不回填原七资源门。root已接受窗口释放。下一步仅离线修发现入口，执行selector、原RUN/PASS父+目标子闭集、全部预算/资源门保持；需未参与者续审及新freshgrant，不自动重跑。先冻结本摘要保存原FAIL，技术输入尚未修改。
 
 - Content：有效 DOCX ZIP 原字节/实际 canonical reader EOF+Close，声明短长长度和 SHA 错误不产生发布事实；真实 D05 Send 完成、real Outbox PrepareAppend 返回后，同 User EX 锁撤销上游 Session，final gate 必须拒绝，后继有效 Session 用新源恢复原 key；真实发布 Event 与 Delete Audit 正控，对公共合法 Event 缺原 command_event、精确公共 Audit 缺原 Tx 私有 witness 均拒绝。
 - TreeReference：真实正文替换上传后插入真实 Move，final/replay 不覆盖当前 parent；preview 成员真实移出/移入、count 同值但旧 scope 拒绝，fresh scope 只删当前成员；最后一子原Publish返回Receipt假设已失败，修后改真实原行公开身份投影与两个各自正向的旧对象撤销、精确Cleanup cause重放及错cause对照，仍待实际。
