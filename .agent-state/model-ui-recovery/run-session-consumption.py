@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One fixed eight-case Session probe; requires the assigned local resource window."""
+"""Closed Session probe modes; requires the assigned local resource window."""
 import argparse
 import ctypes
 import hashlib
@@ -87,7 +87,9 @@ def retire_runtime(runtime, expected_identity, allowed):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--run', action='store_true', required=True)
-    parser.parse_args()
+    parser.add_argument('--mode', choices=('default', 'promise-boundary'), default='default')
+    args = parser.parse_args()
+    cases = 2 if args.mode == 'promise-boundary' else 8
     os.umask(0o077)
     assert OUTPUT.is_dir() and not OUTPUT.is_symlink()
     # Cross-task scheduling remains the responsible agent's job. These known
@@ -96,7 +98,7 @@ def main():
         assert not marker.exists() and not marker.is_symlink()
     prepared_path = OUTPUT / 'prepared.json'
     prepared = json.loads(prepared_path.read_text())
-    assert prepared['network_started'] is False and prepared['cases'] == 8
+    assert prepared['network_started'] is False and prepared['mode'] == args.mode and prepared['cases'] == cases
     assert prepared['playwright'] == '1.56.1' and prepared['browser_version'] == '151.0.7922.173'
     assert prepared['bundle_sha256'] == digest(OUTPUT / 'client.js')
     assert all(digest(Path(path)) == value for path, value in prepared['inputs'].items())
@@ -111,7 +113,7 @@ def main():
     marker = OUTPUT / 'active.json'
     write(marker, {'directory': str(directory), 'runtime': str(runtime), 'nonce': nonce, 'supervisor_pid': os.getpid()})
     marker_identity = (marker.stat().st_dev, marker.stat().st_ino)
-    facts = {'exit': 1, 'runtime': str(runtime), 'body_seconds': 30, 'cleanup_seconds': 15, 'direct_actual_wait': False,
+    facts = {'exit': 1, 'mode': args.mode, 'expected_cases': cases, 'runtime': str(runtime), 'body_seconds': 30, 'cleanup_seconds': 15, 'direct_actual_wait': False,
              'direct_exit': None, 'adopted_actual_waits': [], 'normal_adopted_settlement': False,
              'inputs_unchanged': False, 'retirement_complete': False}
     child = None
@@ -129,7 +131,7 @@ def main():
         prior_handlers[name] = signal.signal(name, interrupted)
     try:
         environment = dict(os.environ, SESSION_PROBE_SUPERVISED=nonce, TMPDIR=str(runtime), DEBUG='', PWDEBUG='')
-        child = subprocess.Popen(['node', str(SOURCE / 'session-consumption-probe.mjs'), '--worker', str(directory)], cwd=ROOT, env=environment, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        child = subprocess.Popen(['node', str(SOURCE / 'session-consumption-probe.mjs'), '--worker', str(directory), '--mode', args.mode], cwd=ROOT, env=environment, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
         facts['worker_pid'] = child.pid
         try:
             child.wait(timeout=max(.01, started + 30 - time.monotonic()))
@@ -167,10 +169,11 @@ def main():
                     assert isinstance(port, int) and 0 < port < 65536
                     ports.add(port)
             result = json.loads((directory / 'result.json').read_text())
+            assert result['mode'] == args.mode
             facts['worker_retirement_complete'] = result['retirement_complete'] is True
             facts['worker_failure'] = result['fail_code']
             facts['completed_cases'] = len(result['rows'])
-            facts['all_observers_joined'] = len(result['rows']) == 8 and all(row['observer_joined_after_close'] for row in result['rows'])
+            facts['all_observers_joined'] = len(result['rows']) == cases and all(row['observer_joined_after_close'] for row in result['rows'])
             facts['inputs_unchanged'] = all(digest(Path(path)) == value for path, value in frozen.items())
         except Exception:
             result = None

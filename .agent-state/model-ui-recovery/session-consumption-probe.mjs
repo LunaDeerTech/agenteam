@@ -8,6 +8,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lstat, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { build } from '../../web/node_modules/vite/dist/node/index.js';
+import { rolldown } from '../../web/node_modules/rolldown/dist/index.mjs';
 
 const source = fileURLToPath(import.meta.url), root = resolve(dirname(source), '../..');
 const output = join(root, 'output/ai/model-ui-session-probe');
@@ -17,6 +18,21 @@ const packageVersion = require('@playwright/test/package.json').version;
 const need = (value, code = 'SESSION_PROBE_INVARIANT') => { if (!value) throw new Error(code); };
 const json = async (path, value) => writeFile(path, JSON.stringify(value, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const nativeSource = join(root, '.agent-state/model-ui-recovery/native-client-probe.ts');
+const nativeBundlePath = join(root, 'output/ai/model-ui-recovery/client-probe/native-client-probe.js');
+function casesFor(mode) {
+  need(['default', 'promise-boundary'].includes(mode), 'SESSION_PROBE_MODE');
+  return mode === 'default'
+    ? ['length', 'chunked', 'truncated-json', 'disconnect'].flatMap(frame => ['native', 'account'].map(consumer => ({ frame, consumer })))
+    : ['original', 'derived'].map(promise_mode => ({ frame: 'length', consumer: 'account', promise_mode }));
+}
+function argumentsFor(values) {
+  const args = [...values], index = args.indexOf('--mode');
+  let mode = 'default';
+  if (index !== -1) { need(index === args.length - 2, 'SESSION_PROBE_ARGUMENTS'); mode = args[index + 1]; args.splice(index); }
+  casesFor(mode);
+  return { args, mode };
+}
 async function processIdentity(pid) {
   const raw = await readFile(`/proc/${pid}/stat`, 'utf8'), fields = raw.slice(raw.lastIndexOf(')') + 2).trim().split(/\s+/);
   return { pid, group: Number(fields[2]), start: fields[19] };
@@ -113,30 +129,79 @@ function installBrowser(createAccountAPI) {
   };
 }
 
-async function inputs() {
+// Both arms use the same installed native factory. Only the Promise returned
+// to the real account API differs; no reader/cancel implementation is copied.
+function installPromiseBoundary(createAccountAPI) {
+  window.runSessionPromiseBoundary = async (variant, expected) => {
+    const check = (value, code) => { if (!value) throw new Error(code); };
+    check(['original', 'derived'].includes(variant), 'SESSION_PROBE_PROMISE_MODE');
+    const probe = window.__projectModelsProbe, slot = 'session-promise-boundary';
+    check(probe?.sessionBegin(slot, Date.now() + 250, undefined, true) === true, 'SESSION_PROBE_NATIVE_ARM');
+    const nativeFetch = window.fetch.bind(window), abort = new AbortController();
+    let fetches = 0, returnedOriginal = false, decoded = false, identityEqual = false, outcome = 'pending', snapshot;
+    try {
+      const fetcher = (input, init) => {
+        check(input === '/api/v1/session' && init.method === 'GET', 'SESSION_PROBE_REQUEST_REJECTED');
+        fetches++;
+        const p = nativeFetch(input, init);
+        const returned = variant === 'original' ? p : p.then(response => response);
+        returnedOriginal = returned === p;
+        return returned;
+      };
+      const view = await createAccountAPI(fetcher).getSession(abort.signal);
+      decoded = true;
+      identityEqual = view.user.id === expected.user.id && view.session.id === expected.session.id && view.csrf_token === expected.csrf_token && view.user.display_name === expected.user.display_name;
+      outcome = 'success';
+    } catch (error) {
+      outcome = ['transport', 'invalid-response', 'cancelled'].includes(error?.kind) ? error.kind : 'rejected';
+    } finally {
+      try { snapshot = probe.sessionSnapshot(slot, expected.session.id); }
+      finally { probe.sessionEnd(slot, expected.session.id); }
+    }
+    const counts = ['requests', 'readers', 'bytes', 'read_rejected', 'reader_cancel_calls', 'reader_cancel_settled', 'reader_cancel_rejected', 'stream_cancel_calls', 'stream_cancel_settled', 'stream_cancel_rejected', 'release_calls', 'release_successes', 'abort_events', 'content_length'];
+    const flags = ['read_done', 'request_id_match', 'eof_before_interruption', 'content_length_present', 'content_length_valid', 'content_encoding_identity', 'content_length_comparable', 'content_length_matches_eof'];
+    check(snapshot && counts.every(key => Number.isSafeInteger(snapshot[key]) && snapshot[key] >= 0) && flags.every(key => typeof snapshot[key] === 'boolean'), 'SESSION_PROBE_NATIVE_SHAPE');
+    const native = Object.fromEntries([...counts, ...flags].map(key => [key, snapshot[key]]));
+    return { fetches, readers: native.readers, bytes: native.bytes, read_done: native.read_done, read_failed: native.read_rejected !== 0,
+      reader_cancel_calls: native.reader_cancel_calls, reader_cancel_settled: native.reader_cancel_settled,
+      stream_cancel_calls: native.stream_cancel_calls, stream_cancel_settled: native.stream_cancel_settled,
+      released: native.release_successes === 1, decoded, identity_equal: identityEqual, outcome,
+      arm_success: true, returned_original_promise: returnedOriginal, native };
+  };
+}
+
+async function inputs(mode) {
   need(packageVersion === '1.56.1', 'SESSION_PROBE_PLAYWRIGHT_VERSION');
   const files = [source, join(dirname(source), 'run-session-consumption.py'), join(dirname(source), 'run-shared-components.py'), join(root, 'web/src/api/account.ts'), join(root, 'web/src/api/client.ts'), join(root, 'web/package-lock.json'), join(root, 'tests/account-captcha-web/package-lock.json')];
+  if (mode === 'promise-boundary') files.push(nativeSource, nativeBundlePath, ...['system-account', 'project-model-credentials', 'project-models'].map(name => join(root, `web/src/api/${name}.ts`)));
   return Object.fromEntries(await Promise.all(files.map(async (path) => [path, hash(await readFile(path))])));
 }
-async function prepare() {
+async function prepare(mode) {
   await mkdir(output, { recursive: true, mode: 0o700 });
   need((await lstat(output)).isDirectory() && !(await lstat(output)).isSymbolicLink());
-  const before = await inputs();
+  const before = await inputs(mode);
+  if (mode === 'promise-boundary') {
+    const nativeBuild = await rolldown({ input: nativeSource });
+    try {
+      const { output: chunks } = await nativeBuild.generate({ format: 'iife', name: 'ProjectModelsNativeProbe' });
+      need(chunks.length === 1 && chunks[0].type === 'chunk' && chunks[0].moduleIds.every(path => Object.hasOwn(before, path)) && Buffer.from(chunks[0].code).equals(await readFile(nativeBundlePath)), 'SESSION_PROBE_NATIVE_PAIR');
+    } finally { await nativeBuild.close(); }
+  }
   const virtual = '\0independent-session-consumption', entry = join(output, 'virtual-session-entry.js');
   const result = await build({ configFile: false, root, logLevel: 'silent', plugins: [{
     name: 'independent-session-entry', enforce: 'pre', resolveId: (id) => id === entry ? virtual : undefined,
-    load: (id) => id === virtual ? `import { createAccountAPI } from ${JSON.stringify(join(root, 'web/src/api/account.ts'))};\n(${installBrowser.toString()})(createAccountAPI);` : undefined,
+    load: (id) => id === virtual ? `import { createAccountAPI } from ${JSON.stringify(join(root, 'web/src/api/account.ts'))};\n(${(mode === 'promise-boundary' ? installPromiseBoundary : installBrowser).toString()})(createAccountAPI);` : undefined,
   }], build: { write: false, minify: false, sourcemap: false, lib: { entry, name: 'SessionConsumption', formats: ['iife'] } } });
   const chunks = (Array.isArray(result) ? result : [result]).flatMap((row) => row.output);
   need(chunks.length === 1 && chunks[0].type === 'chunk');
   const bundle = Buffer.from(chunks[0].code);
-  need(JSON.stringify(before) === JSON.stringify(await inputs()), 'SESSION_PROBE_INPUT_CHANGED');
+  need(JSON.stringify(before) === JSON.stringify(await inputs(mode)), 'SESSION_PROBE_INPUT_CHANGED');
   await writeFile(join(output, 'client.js'), bundle, { mode: 0o600 });
-  await writeFile(join(output, 'prepared.json'), JSON.stringify({ inputs: before, bundle_sha256: hash(bundle), playwright: packageVersion, browser_version: '151.0.7922.173', cases: 8, network_started: false }), { mode: 0o600 });
-  console.log(JSON.stringify({ prepared: true, cases: 8, network_started: false }));
+  await writeFile(join(output, 'prepared.json'), JSON.stringify({ mode, inputs: before, bundle_sha256: hash(bundle), playwright: packageVersion, browser_version: '151.0.7922.173', cases: casesFor(mode).length, network_started: false }), { mode: 0o600 });
+  console.log(JSON.stringify({ prepared: true, mode, cases: casesFor(mode).length, network_started: false }));
 }
 
-async function worker(directory) {
+async function worker(directory, mode) {
   let stage = 'preflight', browserServer, browser, server, browserExit, socketCount = 0, current;
   const sockets = new Set(), rows = [], resources = { server_closed: false, browser_closed: false, browser_server_closed: false, browser_actual_wait: false, browser_exit_code: null, sockets_empty: false };
   let failCode = null, requestedStop;
@@ -144,10 +209,12 @@ async function worker(directory) {
   process.on('SIGTERM', requestedStop); process.on('SIGINT', requestedStop);
   try {
     const prepared = JSON.parse(await readFile(join(output, 'prepared.json'), 'utf8'));
+    need(prepared.mode === mode && prepared.cases === casesFor(mode).length, 'SESSION_PROBE_PREPARED_MODE');
     const marker = JSON.parse(await readFile(join(output, 'active.json'), 'utf8'));
     need(marker.directory === directory && marker.nonce === process.env.SESSION_PROBE_SUPERVISED && marker.supervisor_pid === process.ppid, 'SESSION_PROBE_SUPERVISOR_REQUIRED');
-    need(JSON.stringify(prepared.inputs) === JSON.stringify(await inputs()), 'SESSION_PROBE_INPUT_CHANGED');
+    need(JSON.stringify(prepared.inputs) === JSON.stringify(await inputs(mode)), 'SESSION_PROBE_INPUT_CHANGED');
     const bundle = await readFile(join(output, 'client.js')); need(hash(bundle) === prepared.bundle_sha256);
+    const nativeBundle = mode === 'promise-boundary' ? await readFile(nativeBundlePath) : null;
     const run = async () => {
       stage = 'server';
       server = createServer((request, response) => {
@@ -174,17 +241,21 @@ async function worker(directory) {
       await json(join(directory, 'browser-owned.json'), { ...await processIdentity(child.pid), port: Number(new URL(browserServer.wsEndpoint()).port) });
       browser = await chromium.connect(browserServer.wsEndpoint(), { timeout: 5000 });
       need(browser.version() === '151.0.7922.173', 'SESSION_PROBE_BROWSER_VERSION');
-      for (const frame of ['length', 'chunked', 'truncated-json', 'disconnect']) for (const consumer of ['native', 'account']) {
-        stage = `${frame}-${consumer}`;
-        const value = { user: { id: '01900000-0000-7000-8000-000000000001', email: 'probe@example.com', username: 'probe', display_name: randomBytes(12).toString('hex'), role: 'user', theme: 'system', version: '1', initial_password_suggestion: false },
+      let boundaryValue;
+      for (const { frame, consumer, promise_mode } of casesFor(mode)) {
+        stage = `${frame}-${consumer}${promise_mode ? '-' + promise_mode : ''}`;
+        const value = boundaryValue ?? { user: { id: '01900000-0000-7000-8000-000000000001', email: 'probe@example.com', username: 'probe', display_name: randomBytes(12).toString('hex'), role: 'user', theme: 'system', version: '1', initial_password_suggestion: false },
           session: { id: '01900000-0000-7000-8000-000000000002', issued_at: '2026-10-05T12:34:56.123456Z', absolute_expires_at: '2026-10-05T12:34:56.123456Z', idle_expires_at: '2026-10-05T12:34:56.123456Z' }, csrf_token: randomBytes(32).toString('base64url') };
+        if (mode === 'promise-boundary') boundaryValue = value;
         current = { frame, value, token: `r${rows.length + 1}`, body: Buffer.from(JSON.stringify(value)), requests: 0, server_finished: false, server_closed: false, cut_applied: false };
         const owned = current, context = await browser.newContext({ serviceWorkers: 'block' }), page = await context.newPage();
         let finishedObservation = Promise.resolve(), headersObservation = Promise.resolve();
-        const report = { frame, consumer, facts: null, events: null, server: null, observer_joined_after_close: false };
+        const report = { frame, consumer, ...(promise_mode ? { promise_mode } : {}), facts: null, events: null, server: null, observer_joined_after_close: false };
         rows.push(report);
         try {
-          await page.goto(origin, { waitUntil: 'load', timeout: 5000 }); await page.addScriptTag({ content: bundle.toString('utf8') });
+          await page.goto(origin, { waitUntil: 'load', timeout: 5000 });
+          if (nativeBundle) await page.addScriptTag({ content: nativeBundle.toString('utf8') + '\nProjectModelsNativeProbe.install();' });
+          await page.addScriptTag({ content: bundle.toString('utf8') });
           if (frame === 'disconnect') await page.exposeFunction('sessionProbeReadReady', () => {
             need(current === owned && owned.response && !owned.cut_applied, 'SESSION_PROBE_CUT_OWNERSHIP');
             owned.cut_applied = true; owned.response.destroy();
@@ -205,7 +276,7 @@ async function worker(directory) {
           cdp.on('Network.responseReceived', (event) => { if (event.requestId === cdpID) { const entry = Object.entries(event.response.headers).find(([name]) => name.toLowerCase() === 'x-session-probe'); events.cdp_headers_bound = entry?.[1] === owned.token; } });
           cdp.on('Network.loadingFinished', (event) => { if (event.requestId === cdpID) { events.cdp_finished = true; maybeDone(); } });
           cdp.on('Network.loadingFailed', (event) => { if (event.requestId === cdpID) { events.cdp_failed = true; events.cdp_canceled = event.canceled === true; events.cdp_aborted = event.errorText === 'net::ERR_ABORTED'; maybeDone(); } });
-          const facts = await bounded(page.evaluate(({ consumer, value, disconnect }) => window.runSessionConsumption(consumer, value, disconnect), { consumer, value, disconnect: frame === 'disconnect' }), 5000, 'SESSION_PROBE_CONSUMPTION_TIMEOUT');
+          const facts = await bounded(page.evaluate(({ consumer, value, disconnect, promise_mode }) => promise_mode ? window.runSessionPromiseBoundary(promise_mode, value) : window.runSessionConsumption(consumer, value, disconnect), { consumer, value, disconnect: frame === 'disconnect', promise_mode }), 5000, 'SESSION_PROBE_CONSUMPTION_TIMEOUT');
           await bounded(terminal, 2000, 'SESSION_PROBE_EVENTS_TIMEOUT');
           await bounded(headersObservation, 1000, 'SESSION_PROBE_HEADER_OBSERVATION');
           // An observation window, never a replacement EOF criterion or retry.
@@ -219,6 +290,7 @@ async function worker(directory) {
           if (frame === 'disconnect') need(owned.cut_applied && !facts.read_done && facts.read_failed && facts.bytes < owned.body.length && events.cdp_failed, 'SESSION_PROBE_DISCONNECT_NEGATIVE');
           if (consumer === 'native') need(facts.reader_cancel_calls === 0 && facts.stream_cancel_calls === 0, 'SESSION_PROBE_NATIVE_CANCEL');
           else need(facts.reader_cancel_calls === 1 && facts.reader_cancel_settled === 1 && facts.stream_cancel_calls === 1 && facts.stream_cancel_settled === 1, 'SESSION_PROBE_CLIENT_CANCEL');
+          if (promise_mode) need(facts.arm_success && facts.returned_original_promise === (promise_mode === 'original') && facts.native.requests === 1 && facts.native.request_id_match && facts.native.eof_before_interruption && facts.native.content_length_comparable && facts.native.content_length_matches_eof && facts.native.content_length === owned.body.length && facts.native.read_rejected === 0 && facts.native.abort_events === 0 && facts.native.reader_cancel_rejected === 0 && facts.native.stream_cancel_rejected === 0 && facts.native.release_calls === 1 && facts.native.release_successes === 1, 'SESSION_PROBE_NATIVE_BOUNDARY');
           await cdp.detach();
         } finally {
           try {
@@ -230,8 +302,8 @@ async function worker(directory) {
       }
     };
     await Promise.race([run(), stopped]);
-    need(rows.length === 8, 'SESSION_PROBE_CASE_COUNT');
-    need(JSON.stringify(prepared.inputs) === JSON.stringify(await inputs()), 'SESSION_PROBE_INPUT_CHANGED');
+    need(rows.length === casesFor(mode).length, 'SESSION_PROBE_CASE_COUNT');
+    need(JSON.stringify(prepared.inputs) === JSON.stringify(await inputs(mode)), 'SESSION_PROBE_INPUT_CHANGED');
   } catch (error) { failCode = /^SESSION_PROBE_[A-Z_]+$/.test(error?.message ?? '') ? error.message : 'SESSION_PROBE_FAILED'; }
   finally {
     process.off('SIGTERM', requestedStop); process.off('SIGINT', requestedStop);
@@ -241,15 +313,16 @@ async function worker(directory) {
     resources.sockets_empty = sockets.size === 0; resources.connections = socketCount;
     const retired = resources.server_closed && resources.browser_closed && resources.browser_server_closed && resources.browser_actual_wait && resources.sockets_empty;
     if (resources.browser_actual_wait && (resources.browser_exit_code !== 0 || resources.browser_signal !== null)) failCode ??= 'SESSION_PROBE_BROWSER_EXIT';
-    await json(join(directory, 'result.json'), { stage, fail_code: failCode, rows, resources, retirement_complete: retired });
+    await json(join(directory, 'result.json'), { mode, stage, fail_code: failCode, rows, resources, retirement_complete: retired });
     process.exitCode = failCode || !retired ? 1 : 0;
   }
 }
 
 try {
   process.umask(0o077);
-  if (process.argv.length === 3 && process.argv[2] === '--prepare') await prepare();
-  else if (process.argv.length === 4 && process.argv[2] === '--worker' && /^run-[0-9a-f]{16}$/.test(process.argv[3].slice(output.length + 1)) && dirname(process.argv[3]) === output) await worker(process.argv[3]);
+  const { args, mode } = argumentsFor(process.argv.slice(2));
+  if (args.length === 1 && args[0] === '--prepare') await prepare(mode);
+  else if (args.length === 2 && args[0] === '--worker' && /^run-[0-9a-f]{16}$/.test(args[1].slice(output.length + 1)) && dirname(args[1]) === output) await worker(args[1], mode);
   else throw new Error('SESSION_PROBE_ARGUMENTS');
 } catch (error) {
   // Preparation has no Session or running browser; compiler diagnostics are
