@@ -101,6 +101,50 @@ func TestIndependentSecretUntrustedErrorPaths(t *testing.T) {
 	}
 }
 
+func TestIndependentSecretAdditionalErrorPaths(t *testing.T) {
+	const marker = "independent-nested-member-canary"
+	deleted := receipt(t, p.SecretDeleteCommand, true).Fields().Deleted
+	changed := p.SecretVariableChanged{VariableID: rid[i.ProjectVariable](1), OperationID: rid[p.Operation](8), Change: p.Created, ChangedFields: []string{"created"}}
+	for name, value := range map[string]struct {
+		valid any
+		dst   json.Unmarshaler
+	}{"deleted": {deleted, &p.SecretVariableDeleted{}}, "event": {changed, &p.SecretVariableChanged{}}} {
+		t.Run(name, func(t *testing.T) {
+			raw := encoded(t, value.valid)
+			if value.dst.UnmarshalJSON(raw) != nil {
+				t.Fatal("positive decode")
+			}
+			for _, key := range []string{marker, marker + "/~0/value", strings.Repeat(marker, 32)} {
+				bad := append(append([]byte{}, raw[:len(raw)-1]...), []byte(","+string(encoded(t, key))+`:null}`)...)
+				err := value.dst.UnmarshalJSON(bad)
+				var fault *f.Fault
+				if !errors.As(err, &fault) || len(fault.FieldErrors) != 1 || fault.FieldErrors[0].Path != "" || bytes.Contains(encoded(t, fault), []byte(marker)) {
+					t.Fatal("unsafe event/tombstone error")
+				}
+				if !bytes.Equal(encoded(t, value.dst), raw) {
+					t.Fatal("failed decode changed destination")
+				}
+			}
+		})
+	}
+	var update p.SecretVariableUpdate
+	if update.UnmarshalJSON([]byte(`{"name":"ORIGINAL"}`)) != nil {
+		t.Fatal("positive update")
+	}
+	err := update.UnmarshalJSON([]byte(`{"name":null}`))
+	var fault *f.Fault
+	if !errors.As(err, &fault) || len(fault.FieldErrors) != 1 || fault.FieldErrors[0].Path != "/name" || *update.Fields().Name != "ORIGINAL" {
+		t.Fatal("known path or atomicity lost")
+	}
+	valid := encoded(t, receipt(t, p.SecretCreateCommand, true))
+	bad := bytes.Replace(valid, []byte(`"variable":{`), []byte(`"variable":{"`+marker+`":"ignored",`), 1)
+	var mutation p.SecretVariableMutation
+	err = mutation.UnmarshalJSON(bad)
+	if !errors.As(err, &fault) || bytes.Contains(encoded(t, fault), []byte(marker)) {
+		t.Fatal("nested error leakage")
+	}
+}
+
 func TestIndependentSecretMaterialAndPresence(t *testing.T) {
 	const canary = "isolated-synthetic-material-7"
 	m, _ := s.NewSecretMaterial([]byte(canary))
