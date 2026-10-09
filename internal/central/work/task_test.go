@@ -42,6 +42,15 @@ func TestTaskConstructorsRequireCompleteExactBindings(t *testing.T) {
 	}
 	var missingEvents *denialEvents
 	var missingActivity *denialActivity
+	var missingStore *denialStore
+	_, err := NewTask(missingStore, deps)
+	pureCode(t, err, f.DependencyUnbound)
+	_, err = NewTaskReader(missingStore, authority, structure, pureKeys(t))
+	pureCode(t, err, f.DependencyUnbound)
+	_, err = NewTaskReader(store, nil, structure, pureKeys(t))
+	pureCode(t, err, f.DependencyUnbound)
+	_, err = NewTaskReader(store, authority, nil, pureKeys(t))
+	pureCode(t, err, f.DependencyUnbound)
 	for name, change := range map[string]func(*TaskDependencies){
 		"authority":      func(d *TaskDependencies) { d.Authority = nil },
 		"structure":      func(d *TaskDependencies) { d.Structure = nil },
@@ -59,7 +68,7 @@ func TestTaskConstructorsRequireCompleteExactBindings(t *testing.T) {
 		})
 	}
 	other, otherAuthority, otherReader, _ := pureTaskPorts(t)
-	_, err := NewTask(other, deps)
+	_, err = NewTask(other, deps)
 	pureCode(t, err, f.DependencyUnbound)
 	_, err = NewTaskReader(store, otherAuthority, structure, pureKeys(t))
 	pureCode(t, err, f.DependencyUnbound)
@@ -397,7 +406,10 @@ func TestTaskPlanBindsIssuerSessionRevisionAndImmutableFacts(t *testing.T) {
 		"wrong-history":    func(r *taskRecord) { r.Plan.TaskEvent = []byte(`{}`) },
 		"event-id":         func(r *taskRecord) { id := pureID[event.EventIdentity](t, 100); r.EventID = &id },
 		"header":           func(r *taskRecord) { r.Plan.Header.AggregateType = "work.milestone" },
-		"input":            func(r *taskRecord) { r.Input.Create.Description = "another private text" },
+		"command-time": func(r *taskRecord) {
+			r.Created, _ = f.NewInstant(r.Plan.Header.OccurredAt.Time().Add(time.Second))
+		},
+		"input": func(r *taskRecord) { r.Input.Create.Description = "another private text" },
 	} {
 		t.Run(name, func(t *testing.T) {
 			record, actor, _ := pureTaskRecord(t)

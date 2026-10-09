@@ -144,6 +144,24 @@ func proxyTaskFixture(t *testing.T, base *taskFixture, commit bool) (*taskFixtur
 	store := &hookStore{fixtureStore: raw}
 	return assembleTask(t, base.db, raw, store, false), store, proxy
 }
+
+// Two one-shot frame proxies independently observe the original writer and its
+// subsequent read-only confirmation. Both are the accepted complete-frame
+// proxy and both register every listener/handler for actual cleanup join.
+func doubleProxyTaskFixture(t *testing.T, base *taskFixture) (*taskFixture, *hookStore, *commitProxy, *commitProxy) {
+	t.Helper()
+	writer := newCommitProxy(t, net.JoinHostPort("127.0.0.1", base.db.Fixture.Port), true)
+	confirmation := newCommitProxy(t, writer.listener.Addr().String(), true)
+	u, err := url.Parse(base.db.Fixture.URL(base.db.Name))
+	if err != nil {
+		t.Fatal(err)
+	}
+	u.Host = confirmation.listener.Addr().String()
+	raw := openStore(t, base.db.Config(t, map[string]string{"URL": u.String(), "TLS_MODE": "disable", "LOCK_TIMEOUT": "5s"}))
+	store := &hookStore{fixtureStore: raw}
+	return assembleTask(t, base.db, raw, store, false), store, writer, confirmation
+}
+
 func (f *taskFixture) task(t *testing.T, a identity.Actor, p c.ProjectID, s wc.SprintID, title string) wc.Task {
 	t.Helper()
 	r, err := f.tasks.CreateTask(ctxFor(t), a, meta(t, id[struct{}](t).String(), nil), p, wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: s, Title: title, Type: wc.TaskTypeTask, Priority: wc.TaskPriorityMedium})

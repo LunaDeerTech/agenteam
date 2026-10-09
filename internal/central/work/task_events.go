@@ -3,6 +3,7 @@ package work
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"slices"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	c "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
+	"github.com/jackc/pgx/v5"
 )
 
 const taskPurpose = "work.task-planning.append-v1"
@@ -72,6 +74,9 @@ func validateTaskRecord(r *taskRecord, a i.Actor) error {
 	t := out.Task
 	in := r.Input
 	if r.EventID == nil || r.TaskEventID == nil || !out.Changed || out.Validate() != nil || out.TaskEventID == nil || *out.TaskEventID != *r.TaskEventID || out.EventIDs[0] != *r.EventID || t.ID != in.Target || t.ProjectID != r.Project || p.Placement.Milestone != t.MilestoneID || p.Placement.Sprint != t.SprintID || (p.Placement.State != c.Planned && p.Placement.State != c.Current) || p.QueryGeneration < 1 {
+		return internal(nil)
+	}
+	if p.Header.OccurredAt.Time().Before(r.Created.Time()) {
 		return internal(nil)
 	}
 	if _, err = taskCounter(p.QueryGeneration); err != nil {
@@ -157,6 +162,18 @@ func validateTaskRecord(r *taskRecord, a i.Actor) error {
 		g := p.Groups[0]
 		if g.Group != groupForTask(t) || len(g.Before) > taskGroupCap || len(g.After) > taskGroupCap {
 			return internal(nil)
+		}
+		if in.Reorder != nil {
+			matched := false
+			for _, item := range g.Before {
+				if item.ID == in.Target.String() {
+					matched = item.Rank == p.Before.ManualRank
+					break
+				}
+			}
+			if !matched {
+				return internal(nil)
+			}
 		}
 		before := ""
 		if in.Reorder != nil && in.Reorder.BeforeID != nil {
@@ -458,6 +475,9 @@ func verifyTaskPostimage(ctx context.Context, x postgres.SQLExecutor, r *taskRec
 	var actor, payload []byte
 	var created time.Time
 	err = x.QueryRow(ctx, `SELECT id::text,project_id::text,task_id::text,task_version,type,actor,operation_id::text,correlation_id::text,payload,created_at FROM agenteam_work.task_events WHERE id=$1`, r.TaskEventID.String()).Scan(&id, &project, &task, &version, &kind, &actor, &operation, &correlation, &payload, &created)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return fault(f.Forbidden)
+	}
 	if err != nil {
 		return taskSQL(err)
 	}

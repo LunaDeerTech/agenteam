@@ -287,6 +287,91 @@ func TestTaskPlanningCommitUnknown(t *testing.T) {
 			}
 		})
 	}
+	t.Run("confirmation-real-commit-unknown-keeps-writer-cause", func(t *testing.T) {
+		f, store, writerProxy, confirmationProxy := doubleProxyTaskFixture(t, base)
+		current, err := base.taskReader.GetTask(ctxFor(t), a, p.ID, target.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		title := "confirmation also unknown"
+		cm := meta(t, "confirmation-also-unknown", &current.Version)
+		command := taskIdentity(t, p.ID, wc.TaskCommandUpdate, cm.IdempotencyKey)
+		var writerArmed atomic.Bool
+		var writerObserved atomic.Bool
+		var writerResult, confirmationResult foundation.CommitResult
+		var writerPID, confirmationPID int32
+		var writerOnce, confirmationOnce sync.Once
+		releaseWriter := func() { writerOnce.Do(func() { close(writerProxy.release) }) }
+		releaseConfirmation := func() { confirmationOnce.Do(func() { close(confirmationProxy.release) }) }
+		defer releaseWriter()
+		defer releaseConfirmation()
+		store.setAfter(func(ctx context.Context, tx foundation.Tx, cause foundation.TransactionCause) error {
+			if cause.Kind() != foundation.CommandsCause || cause.Details().Primary.Canonical() != command.Canonical() {
+				return nil
+			}
+			x, err := store.InTx(tx)
+			if err != nil {
+				return err
+			}
+			var completed bool
+			if err = x.QueryRow(ctx, `SELECT state='completed' FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3`, p.ID.String(), string(wc.TaskCommandUpdate), string(cm.IdempotencyKey)).Scan(&completed); err != nil {
+				return err
+			}
+			if !completed {
+				return nil
+			}
+			var pid int32
+			if err = x.QueryRow(ctx, `SELECT pg_backend_pid()`).Scan(&pid); err != nil {
+				return err
+			}
+			if writerArmed.CompareAndSwap(false, true) {
+				writerPID = pid
+				writerProxy.targetPID.Store(pid)
+			} else if writerObserved.Load() {
+				confirmationPID = pid
+				confirmationProxy.targetPID.Store(pid)
+			}
+			return nil
+		})
+		store.mu.Lock()
+		store.afterResult = func(cause foundation.TransactionCause, result foundation.CommitResult) {
+			if cause.Kind() != foundation.CommandsCause || cause.Details().Primary.Canonical() != command.Canonical() || result.State() != foundation.Unknown {
+				return
+			}
+			if writerObserved.CompareAndSwap(false, true) {
+				writerResult = result
+				releaseWriter()
+				await(t, writerProxy.completed)
+			} else {
+				confirmationResult = result
+			}
+		}
+		store.mu.Unlock()
+		beforeH, beforeE := base.taskCounts(t)
+		out, err := f.tasks.UpdateTask(ctxFor(t), a, cm, p.ID, target.ID, wc.TaskFieldsUpdate{Title: &title})
+		requireCode(t, err, foundation.CommitUnknown)
+		await(t, writerProxy.reached)
+		await(t, confirmationProxy.reached)
+		var fault *foundation.Fault
+		if writerPID <= 0 || confirmationPID <= 0 || writerPID == confirmationPID || writerProxy.backendPID.Load() != writerPID || confirmationProxy.backendPID.Load() != confirmationPID {
+			t.Fatal("two Unknowns did not use independent exact backend PIDs")
+		}
+		if writerResult.State() != foundation.Unknown || confirmationResult.State() != foundation.Unknown || writerResult.AttemptID() == confirmationResult.AttemptID() || !errors.As(err, &fault) || fault.CauseID != writerResult.AttemptID().String() || fault.CommitState != foundation.Unknown || out.Changed {
+			t.Fatal("confirmation Unknown replaced original writer proof", err)
+		}
+		releaseConfirmation()
+		await(t, confirmationProxy.completed)
+		resolved, err := base.tasks.UpdateTask(ctxFor(t), a, cm, p.ID, target.ID, wc.TaskFieldsUpdate{Title: &title})
+		if err != nil || resolved.Task.Title != title || resolved.Task.Version != current.Version+1 {
+			t.Fatal("explicit recovery after confirmation Unknown", err)
+		}
+		h, e := base.taskCounts(t)
+		if h != beforeH+1 || e != beforeE+1 {
+			t.Fatal("confirmation Unknown duplicated event", h, e)
+		}
+		t.Log("actual original and read-only confirmation COMMIT frames each held; original causal attempt retained", writerPID, confirmationPID)
+	})
+
 	t.Run("stop-joins-confirmation-not-proxy-writer", func(t *testing.T) {
 		f, store, proxy := proxyTaskFixture(t, base, true)
 		current, err := base.taskReader.GetTask(ctxFor(t), a, p.ID, target.ID)
@@ -582,6 +667,134 @@ func TestTaskPlanningConcurrencyAndRank(t *testing.T) {
 		}
 		one = out.Task
 	})
+	t.Run("four-object-low-high-density-and-priority-spectators", func(t *testing.T) {
+		for _, edge := range []string{"low", "high"} {
+			t.Run(edge, func(t *testing.T) {
+				sprint := f.sprint(t, a, p.ID, m.ID, "four "+edge)
+				items := make([]wc.Task, 4)
+				for i := range items {
+					items[i] = f.task(t, a, p.ID, sprint.ID, fmt.Sprintf("spectator %d", i))
+				}
+				seedTaskRanks(t, f, a, p.ID, sprint.ID, wc.TaskPriorityMedium, []wc.TaskID{items[0].ID, items[1].ID, items[2].ID, items[3].ID}, []string{"00000000000000000000000000000001", "00000000000000000000000000000002", "fffffffffffffffffffffffffffffffd", "fffffffffffffffffffffffffffffffe"})
+				for i := range items {
+					var err error
+					items[i], err = f.taskReader.GetTask(ctxFor(t), a, p.ID, items[i].ID)
+					if err != nil {
+						t.Fatal(err)
+					}
+				}
+				target, anchor := 3, 1
+				want := []int{0, 3, 1, 2}
+				if edge == "high" {
+					target, anchor = 0, 3
+					want = []int{1, 2, 0, 3}
+				}
+				g, q := f.generation(t, p.ID, sprint.ID, wc.TaskPriorityMedium)
+				beforeH, beforeE := f.taskCounts(t)
+				moved, err := second.ReorderTask(ctxFor(t), a, meta(t, "four-"+edge, &items[target].Version), p.ID, items[target].ID, wc.TaskReorder{BeforeID: &items[anchor].ID})
+				if err != nil {
+					t.Fatal(err)
+				}
+				afterG, afterQ := f.generation(t, p.ID, sprint.ID, wc.TaskPriorityMedium)
+				if afterG != g+1 || afterQ != q+1 {
+					t.Fatal("four-object generation increment", afterG, afterQ)
+				}
+				page, err := f.taskReader.ListTasks(ctxFor(t), a, p.ID, wc.TaskFilter{SprintID: &sprint.ID}, foundation.DefaultPageRequest())
+				if err != nil || len(page.Items) != 4 {
+					t.Fatal(err)
+				}
+				for i, item := range page.Items {
+					if item.ID != items[want[i]].ID {
+						t.Fatal("rebalance altered logical order")
+					}
+				}
+				for i, before := range items {
+					after, err := f.taskReader.GetTask(ctxFor(t), a, p.ID, before.ID)
+					if err != nil {
+						t.Fatal(err)
+					}
+					if i != target {
+						after.ManualRank = before.ManualRank
+						if string(jsonBytes(t, after)) != string(jsonBytes(t, before)) {
+							t.Fatal("four-object spectator business fields changed", i)
+						}
+					}
+				}
+				h, e := f.taskCounts(t)
+				if h != beforeH+1 || e != beforeE+1 || moved.Task.Version != items[target].Version+1 {
+					t.Fatal("rebalance produced spectator history")
+				}
+				// Target group is dense at the upper endpoint: moving priority must
+				// preserve every source/target spectator while rebalancing its tail.
+				high := wc.TaskPriorityHigh
+				dest := make([]wc.Task, 2)
+				for i := range dest {
+					out, err := second.CreateTask(ctxFor(t), a, meta(t, fmt.Sprintf("dest-%s-%d", edge, i), nil), p.ID, wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: sprint.ID, Title: "high spectator", Type: wc.TaskTypeBug, Priority: high, Description: "spectator description", Plan: "spectator plan"})
+					if err != nil {
+						t.Fatal(err)
+					}
+					dest[i] = out.Task
+				}
+				seedTaskRanks(t, f, a, p.ID, sprint.ID, high, []wc.TaskID{dest[0].ID, dest[1].ID}, []string{"fffffffffffffffffffffffffffffffd", "fffffffffffffffffffffffffffffffe"})
+				for i := range dest {
+					dest[i], err = f.taskReader.GetTask(ctxFor(t), a, p.ID, dest[i].ID)
+					if err != nil {
+						t.Fatal(err)
+					}
+				}
+				sourceGen, query := f.generation(t, p.ID, sprint.ID, wc.TaskPriorityMedium)
+				destGen, _ := f.generation(t, p.ID, sprint.ID, high)
+				changed, err := second.UpdateTask(ctxFor(t), a, meta(t, "four-priority-"+edge, &moved.Task.Version), p.ID, moved.Task.ID, wc.TaskFieldsUpdate{Priority: &high})
+				if err != nil {
+					t.Fatal(err)
+				}
+				sourceAfter, queryAfter := f.generation(t, p.ID, sprint.ID, wc.TaskPriorityMedium)
+				destAfter, _ := f.generation(t, p.ID, sprint.ID, high)
+				if sourceAfter != sourceGen+1 || destAfter != destGen+1 || queryAfter != query+1 {
+					t.Fatal("priority migration counted rebalance twice")
+				}
+				for _, before := range dest {
+					after, err := f.taskReader.GetTask(ctxFor(t), a, p.ID, before.ID)
+					if err != nil {
+						t.Fatal(err)
+					}
+					after.ManualRank = before.ManualRank
+					if string(jsonBytes(t, after)) != string(jsonBytes(t, before)) {
+						t.Fatal("priority destination spectator business fields changed")
+					}
+				}
+				f.ageSession(t, a)
+				var beforeActivity string
+				if err = f.raw.QueryRow(ctxFor(t), `SELECT last_activity_at::text FROM agenteam_account.sessions WHERE id=$1`, a.Details().SessionID).Scan(&beforeActivity); err != nil {
+					t.Fatal(err)
+				}
+				noopMeta := meta(t, "four-noop-"+edge, &changed.Task.Version)
+				noop, err := second.UpdateTask(ctxFor(t), a, noopMeta, p.ID, changed.Task.ID, wc.TaskFieldsUpdate{Priority: &high})
+				if err != nil || noop.Changed || string(jsonBytes(t, noop.Task)) != string(jsonBytes(t, changed.Task)) {
+					t.Fatal("no-op canonical", err)
+				}
+				var afterActivity string
+				if err = f.raw.QueryRow(ctxFor(t), `SELECT last_activity_at::text FROM agenteam_account.sessions WHERE id=$1`, a.Details().SessionID).Scan(&afterActivity); err != nil || afterActivity == beforeActivity {
+					t.Fatal("new no-op did not Touch Activity", err)
+				}
+				noopGen, noopQuery := f.generation(t, p.ID, sprint.ID, high)
+				if noopGen != destAfter || noopQuery != queryAfter {
+					t.Fatal("no-op changed generation")
+				}
+				f.ageSession(t, a)
+				stable := f.taskSnapshot(t, a)
+				again, err := second.UpdateTask(ctxFor(t), a, noopMeta, p.ID, changed.Task.ID, wc.TaskFieldsUpdate{Priority: &high})
+				if err != nil {
+					t.Fatal(err)
+				}
+				equalTaskMutation(t, noop, again)
+				if f.taskSnapshot(t, a) != stable {
+					t.Fatal("historical no-op replay touched Activity/facts")
+				}
+			})
+		}
+	})
+
 	t.Run("three-round-cap-does-not-swallow-forbidden", func(t *testing.T) {
 		var rounds atomic.Int32
 		capture := &capturingAppender{Appender: f.events}
@@ -742,5 +955,184 @@ func TestTaskPlanningMembership(t *testing.T) {
 			return err
 		})
 	}
+	t.Run("missing-or-foreign-sprint-and-insufficient-schedule", func(t *testing.T) {
+		foreignProject, _, _ := f.create(t, a, "membership foreign")
+		foreignMilestone := f.milestone(t, a, foreignProject.ID, "m")
+		foreignSprint := f.sprint(t, a, foreignProject.ID, foreignMilestone.ID, "s")
+		for _, target := range []wc.SprintID{id[c.Sprint](t), foreignSprint.ID} {
+			sprintKey, _ := foundation.AggregateLock(foundation.SprintAggregate, target.String())
+			requested := []foundation.LockRequest{{Key: user, Mode: foundation.Shared}, {Key: projectKey, Mode: foundation.Shared}, {Key: schedule, Mode: foundation.Exclusive}, {Key: sprintKey, Mode: foundation.Shared}}
+			result := f.store.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+				if err := f.store.AcquireAll(ctx, tx, requested); err != nil {
+					return err
+				}
+				yes, err := f.taskReader.HasTasksInSprintInTx(ctx, tx, a, p.ID, target)
+				if yes {
+					t.Error("invalid Sprint returned true")
+				}
+				return err
+			})
+			if result.State() != foundation.NotCommitted {
+				t.Fatal("invalid Sprint accepted")
+			}
+			requireCode(t, result.Fault(), foundation.TaskSprintInvalid)
+		}
+		weak := append([]foundation.LockRequest(nil), locks...)
+		for i := range weak {
+			if foundation.CompareLockKeys(weak[i].Key, schedule) == 0 {
+				weak[i].Mode = foundation.Shared
+			}
+		}
+		result := f.store.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+			if err := f.store.AcquireAll(ctx, tx, weak); err != nil {
+				return err
+			}
+			yes, err := f.taskReader.HasTasksInSprintInTx(ctx, tx, a, p.ID, s.ID)
+			if yes {
+				t.Error("Schedule SH returned true")
+			}
+			return err
+		})
+		if result.State() != foundation.NotCommitted {
+			t.Fatal("Schedule SH satisfied required EX")
+		}
+	})
+	t.Run("create-first-membership-real-shared-waiter", func(t *testing.T) {
+		sprint := f.sprint(t, a, p.ID, m.ID, "inverse")
+		writer, store := observedTaskFixture(t, f)
+		reader, readerStore := observedTaskFixture(t, f)
+		cm := meta(t, "inverse-create", nil)
+		command := taskIdentity(t, p.ID, wc.TaskCommandCreate, cm.IdempotencyKey)
+		reached, release := make(chan struct{}), make(chan struct{})
+		var once sync.Once
+		unlock := func() { once.Do(func() { close(release) }) }
+		defer unlock()
+		var backend atomic.Int32
+		var armed atomic.Bool
+		store.setAfter(func(ctx context.Context, tx foundation.Tx, cause foundation.TransactionCause) error {
+			if cause.Kind() != foundation.CommandsCause || cause.Details().Primary.Canonical() != command.Canonical() || armed.Load() {
+				return nil
+			}
+			x, err := store.InTx(tx)
+			if err != nil {
+				return err
+			}
+			var completed bool
+			if err = x.QueryRow(ctx, `SELECT state='completed' FROM agenteam_work.task_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3`, p.ID.String(), string(wc.TaskCommandCreate), string(cm.IdempotencyKey)).Scan(&completed); err != nil {
+				return err
+			}
+			if completed && armed.CompareAndSwap(false, true) {
+				var pid int32
+				if err = x.QueryRow(ctx, `SELECT pg_backend_pid()`).Scan(&pid); err != nil {
+					return err
+				}
+				backend.Store(pid)
+				close(reached)
+				select {
+				case <-release:
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			}
+			return nil
+		})
+		original := callTaskAsync(t, func(ctx context.Context) (wc.TaskMutation, error) {
+			return writer.tasks.CreateTask(ctx, a, cm, p.ID, wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: sprint.ID, Title: "inverse winner", Type: wc.TaskTypeTask, Priority: wc.TaskPriorityMedium})
+		})
+		await(t, reached)
+		observation := observeLock(readerStore, user, nil)
+		sprintKey, _ := foundation.AggregateLock(foundation.SprintAggregate, sprint.ID.String())
+		requested := []foundation.LockRequest{{Key: user, Mode: foundation.Shared}, {Key: projectKey, Mode: foundation.Shared}, {Key: schedule, Mode: foundation.Exclusive}, {Key: sprintKey, Mode: foundation.Shared}}
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		joined := make(chan struct{})
+		var result foundation.CommitResult
+		var yes bool
+		readCause := cause(t)
+		go func() {
+			defer close(joined)
+			result = reader.store.WithinTx(ctx, readCause, func(ctx context.Context, tx foundation.Tx) error {
+				if err := reader.store.AcquireAll(ctx, tx, requested); err != nil {
+					return err
+				}
+				var err error
+				yes, err = reader.taskReader.HasTasksInSprintInTx(ctx, tx, a, p.ID, sprint.ID)
+				return err
+			})
+		}()
+		t.Cleanup(func() { cancel(); unlock(); await(t, joined) })
+		var attempt lockAttempt
+		select {
+		case attempt = <-observation:
+		case <-time.After(5 * time.Second):
+			t.Fatal("membership caller did not reach actual AcquireAll")
+		}
+		waitTaskExactMode(t, f, attempt, foundation.Shared, backend.Load())
+		unlock()
+		created := joinTaskReply(t, original)
+		await(t, joined)
+		if created.err != nil || result.State() != foundation.Committed || !yes {
+			t.Fatal("membership failed to see committed winning create", created.err, result.Fault(), yes)
+		}
+	})
+
 	t.Log("membership false/true is only same-Tx occupancy, no DeleteSprint is invoked")
+}
+
+// A SharedLock waiter is observed from the membership caller's own Tx, with
+// its entire official key and the exact known writer as blocker.
+func waitTaskExactMode(t *testing.T, f *taskFixture, attempt lockAttempt, mode foundation.LockMode, blocker int32) {
+	t.Helper()
+	if attempt.BackendPID <= 0 || attempt.Request.Mode != mode || blocker <= 0 {
+		t.Fatal("invalid exact waiter premise")
+	}
+	name := "ShareLock"
+	if mode == foundation.Exclusive {
+		name = "ExclusiveLock"
+	}
+	conn := f.db.Connect(t)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	key := uint64(attempt.Request.Key.AdvisoryKey())
+	for {
+		var found bool
+		err := conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM pg_locks l JOIN pg_stat_activity a ON a.pid=l.pid WHERE a.datname=$1 AND l.locktype='advisory' AND l.classid::bigint=$2 AND l.objid::bigint=$3 AND l.objsubid=1 AND l.pid=$4 AND l.mode=$5 AND NOT l.granted AND $6=ANY(pg_blocking_pids(l.pid)))`, f.db.Name, int64(key>>32), int64(key&0xffffffff), attempt.BackendPID, name, blocker).Scan(&found)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if found {
+			t.Log("exact caller waiter", attempt.BackendPID, attempt.Request.Key.AdvisoryKey(), name, "blocker", blocker)
+			return
+		}
+		select {
+		case <-ctx.Done():
+			t.Fatal("exact shared waiter not observed")
+		case <-time.After(5 * time.Millisecond):
+		}
+	}
+}
+
+func seedTaskRanks(t *testing.T, f *taskFixture, a identity.Actor, p c.ProjectID, s wc.SprintID, priority wc.TaskPriority, ids []wc.TaskID, ranks []string) {
+	t.Helper()
+	if len(ids) != len(ranks) {
+		t.Fatal("rank fixture length")
+	}
+	schedule, _ := foundation.ProjectScheduleLock(p.String())
+	group, _ := foundation.RankGroupLock("work.task:" + p.String() + ":" + s.String() + ":backlog:" + string(priority))
+	f.tx(t, fixtureLocks(a, p, foundation.LockRequest{Key: schedule, Mode: foundation.Exclusive}, foundation.LockRequest{Key: group, Mode: foundation.Exclusive}), func(ctx context.Context, tx foundation.Tx, x postgres.SQLExecutor) error {
+		if _, err := f.projectAuthority.RequireOwnerInTx(ctx, tx, a, p, identity.Mutate); err != nil {
+			return err
+		}
+		for i, id := range ids {
+			if _, err := x.Exec(ctx, `UPDATE agenteam_work.tasks SET manual_rank=$2 WHERE id=$1`, id.String(), ranks[i]); err != nil {
+				return err
+			}
+		}
+		if _, err := x.Exec(ctx, `UPDATE agenteam_work.task_order_groups SET order_generation=order_generation+1 WHERE project_id=$1 AND sprint_id=$2 AND state='backlog' AND priority=$3`, p.String(), s.String(), string(priority)); err != nil {
+			return err
+		}
+		_, err := x.Exec(ctx, `UPDATE agenteam_work.task_query_generations SET query_generation=query_generation+1 WHERE project_id=$1`, p.String())
+		return err
+	})
+	t.Log("test-owned dense ranks preserved all business columns", len(ids), priority)
 }

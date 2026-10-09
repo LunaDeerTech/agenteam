@@ -248,7 +248,7 @@ func (r *TaskReader) ListTasks(ctx context.Context, actor i.Actor, project c.Pro
 		query := "SELECT " + taskColumns + " FROM agenteam_work.tasks WHERE " + strings.Join(where, " AND ") + " ORDER BY sprint_id,(" + taskStateOrderSQL + "),(" + taskPriorityOrderSQL + "),manual_rank COLLATE \"C\",id LIMIT " + bind(page.Limit+1)
 		rows, err := x.Query(ctx, query, args...)
 		if err != nil {
-			return unavailable(err)
+			return taskSQL(err)
 		}
 		defer rows.Close()
 		for rows.Next() {
@@ -262,7 +262,7 @@ func (r *TaskReader) ListTasks(ctx context.Context, actor i.Actor, project c.Pro
 			out.Items = append(out.Items, v.Clone())
 		}
 		if err = rows.Err(); err != nil {
-			return unavailable(err)
+			return taskSQL(err)
 		}
 		rows.Close()
 		if len(out.Items) > page.Limit {
@@ -316,7 +316,7 @@ func (r *TaskReader) HasTasksInSprintInTx(ctx context.Context, tx f.Tx, actor i.
 	}
 	var exists bool
 	if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_work.tasks WHERE project_id=$1 AND sprint_id=$2)`, project.String(), sprint.String()).Scan(&exists); err != nil {
-		return false, unavailable(err)
+		return false, taskSQL(err)
 	}
 	return exists, nil
 }

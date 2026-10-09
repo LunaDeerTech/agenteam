@@ -1,10 +1,10 @@
 # D11 Human Task 规划持久化
 
-当前状态：**规格完成，实施未恢复**。rev1 已通过完整独立 SPEC 审查（SOURCE_SPEC_STATIC_PASS，无必须修订项），规格交付于 `97439ffd`；见[规格验证记录](../agent-team/d11-task-planning-spec-verification.md)。尚无 Task 产品实现、迁移、编译、真实 PG 或完整 D11 验收结论。Structure 全18路径已在 `a64fb5e7` 交付，前置范围见[Structure 卡](d11-work-structure.md)和[验收记录](../agent-team/d11-work-structure-verification.md)。
+当前状态：**契约实现已恢复，规划服务正在验收，整卡未完成**。rev1 规格交付于 `97439ffd` 并通过当时独立 SPEC 审查；见[规格验证记录](../agent-team/d11-task-planning-spec-verification.md)。本次在 `ai/task-planning-recovery` 已恢复契约、服务、查询、迁移及必要测试输入并保存检查点；契约七路径经作者新 pure 与独立验证，服务/七新八旧 PG/独立 A/B 整卡门槛仍未全部通过。§2 日志投影的工程边界按本次独立实证纠正，历史规格结论不回填。Structure 全18路径已在 `a64fb5e7` 交付，前置范围见[Structure 卡](d11-work-structure.md)和[验收记录](../agent-team/d11-work-structure-verification.md)。
 
 恢复核对基线为 `e55ad7d1`：§7 的15个新增技术文件（含 `00022_task_planning.sql`）尚不存在，六个共享文件已存在不表示完成了 Task 修改。历史20技术路径 scratch 实施未提交；旧 `/workspace/scratch/d11-task-planning-backend-preparation01`、规格 scratch 与独立验证 scratch 已不可用，不将旧实例或候选视为仍在运行/可接手。独立 A/B 仅有计划，没有实际运行结论。
 
-下一步：以本规格和现有 Structure 实现为输入，由负责人重新安排 §7 的20技术路径实现及必要 README 更新；先核对当前共享文件差异、迁移 `00022` 的唯一所有权和隔离执行预算，再按 §8 完成自测与独立验证。既有 scratch 缺失不是产品实现已完成，也不要求恢复旧逐轮审批或证据包。
+下一步：基于已恢复正式源码继续补齐 §8 的实际场景、异常与竞争验收；迁移 `00022` 仍由 Task 负责人单写，真实执行使用任务所有的两 ID PG-only fixture，必要 driver/监督器保存于 `.agent-state/task-planning-recovery/`。服务库编译与检查点不代替整卡验收。既有 scratch 缺失不是产品实现已完成，也不要求恢复旧逐轮审批或证据包。
 
 协作、实例配置、资源协调与 Git 交付统一遵循[团队流程](../agent-team/README.md)：主线程统筹跨任务边界，负责人自主拆分、集成与安排独立验证。稳定输入使用 Git 基线、限定 diff 与停止写入状态，原始日志放 `output/ai/`，必要文档随实现同次交付；旧记录中的逐轮 root 批准、README 最后另授和永久归档步骤不再作为现行流程。真实资源退休、未决产品边界及原失败事实继续有效。
 
@@ -65,7 +65,9 @@ title 沿已验 Structure：1–256 Unicode scalar、≤1024 UTF-8 bytes、至�
 
 每 Task 排序组最多4096；每 Project 最多65536 Task（工程存储/查询界限）。新 create 或迁入已满目标组返回 RESOURCE_BUSY/GROUP_LIMIT，Project 上限用 PROJECT_TASK_LIMIT；不截断。历史 replay 不重验容量。List 沿 PageRequest 默认50、1–200，显式0/null拒绝，cursor≤8192B；最多 limit+1 条用于下一页。返回 `foundation.Page[Task]`，不新增 HTTP 封套；每 item 校验上述 Task cap，最大200项的完整序列化可达 `200×512KiB+16KiB`，**不得套单 DTO 512KiB cap 截断页**。本卡不声称现有通用 Page decoder 等价新严格 HTTP schema，也不承诺未测固定查询耗时。
 
-常规 fmt（包括 enclosing 值）、slog 和 error 只输出固定 `work_task`/安全 Fault 元数据；不输出正文、key、cursor、semantic原文、SQL/DB连接信息或原 error。显式 typed JSON 是授权业务结果/持久化通道，不把“安全 fmt”误作可任意日志打印 MarshalJSON。
+直接 Task DTO及其指针的 fmt Formatter、直接 slog LogValuer 只输出固定 `work_task`；error 只输出安全 Fault 元数据，不输出正文、key、cursor、semantic原文、SQL/DB连接信息或原 error。普通 fmt 的导出字段 wrapper、slice、map 组合可沿内层 Formatter 隐文，但不能外推到任意反射或 enclosing 日志：Go fmt 遍历未导出字段时会绕过 Formatter；slog JSONHandler 对外层 wrapper/slice/map 会通过 JSON 回退调用内层业务 MarshalJSON。显式 typed JSON 必须保留授权业务结果/持久化内容，因此不是安全日志投影。日志调用者必须显式使用固定标记或批准的安全元数据投影，禁止把 DTO 的未导出字段反射表示、任意 enclosing 值或业务 JSON 交给日志；不得以自动隐文代替调用处约束。本卡不新增 DTO 正文日志或生产装配，后续 HTTP/Tool/root 接入仍须验证其实际日志出口。
+
+rev1 的“所有 enclosing fmt/slog 自动隐文”表述已由独立实证纠正：两组原失败保留于可复跑输入 `.agent-state/task-planning-recovery/independent-contract-probe_test.go`、`independent-contract-run.py`；它们分别证明未导出字段反射与嵌套 slog JSON 回退，不能写成原测试通过。直接与支持的组合投影、业务 JSON 正文、Fault 私有 cause 和其余契约分别验证，不改 DTO 公共字段/编码或其他业务规则。
 
 ## 3. 精确公共口与读/membership
 
@@ -273,7 +275,7 @@ CurrentAccess允许同义历史completed但只验不可变command/event计划，
 
 ## 8. 验收门槛与预算
 
-实施/验收分别遵守[Go技能](../../../.agents/skills/agenteam-go-development/SKILL.md)、[verification技能](../../../.agents/skills/agenteam-verification/SKILL.md)及[团队规则](../agent-team/README.md)。本卡当前无动态结果；编译、发现、body、独立probe、资源退休分别记账，no-tests/Skip不是PASS，原失败和未到达分支不可覆盖。
+实施/验收分别遵守[Go技能](../../../.agents/skills/agenteam-go-development/SKILL.md)、[verification技能](../../../.agents/skills/agenteam-verification/SKILL.md)及[团队规则](../agent-team/README.md)。各实际结果按本次执行事实记录；编译、发现、body、独立probe、资源退休分别记账，no-tests/Skip不是PASS，原失败和未到达分支不可覆盖。
 
 ### 8.1 静态与纯/离线
 
