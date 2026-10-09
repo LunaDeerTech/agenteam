@@ -37,12 +37,19 @@ export function resolveFinishedLifetime(page: { close(): Promise<void>; isClosed
     },
     closeAndJoin() {
       return tail ??= (async () => {
+        // Observe already queued original settlements before initiating close;
+        // a rejection queued in this turn must not borrow the close marker.
+        await Promise.resolve();
         closing = true;
         await page.close(); closed = page.isClosed();
         if (!closed) throw new Error('PROJECT_MODELS_RESOLVE_PAGE_CLOSE_INCOMPLETE');
         await Promise.all(rows.map(row => row.joined));
         joined = rows.every(row => row.settled);
         if (!joined) throw new Error('PROJECT_MODELS_RESOLVE_FINISHED_JOIN_INCOMPLETE');
+        // The alternate consumer path may defer a pending PW observation, but
+        // must not swallow an unrelated failure that arrived before closing.
+        // Only a normal null result or the actual close retirement is allowed.
+        if (rows.some(row => row.result !== 'returned-null' && !(row.result === 'rejected' && row.afterClose))) throw new Error('PROJECT_MODELS_RESOLVE_FINISHED_UNEXPECTED_RESULT');
       })();
     },
     facts() { return { registered: rows.length, page_closed: closed, all_original_promises_joined: joined, outcomes: rows.map(({ settled, result, afterClose }) => ({ settled, result, after_close: afterClose })) }; },

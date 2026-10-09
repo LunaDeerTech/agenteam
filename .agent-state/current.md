@@ -52,3 +52,10 @@
 - 环境恢复后实际 HEAD4b411392，10 个技术 WIP 已存在：authority/native/observer/boundary-controls/旧 adapter/spec 六修改，新增 rejection-contract、rejection-controls、rejection-adapter-controls、before-publish-controls 四源。恢复以这些实际字节为准，未从头覆盖。首版已含正式 schema 驱动的 Problem 验证、拒绝瞬间与最终身份/role/busy、原5s header deadline、退休后 native/owner 计数、原 PW Promise 登记与发布接缝；原055–059仍保留。
 - 忽略目录现有 rejection-controls/result.json 为19项/unhandled0，但恢复时尚未核齐每条实际工具终态，不据文件反推本轮命令成功。先前提到的35073在恢复后 write_stdin 返回 Unknown process id，其 actual terminal 缺失，保留未确认；当前可读进程未见本线这些检查仍活，不将不存在当PASS。旧明确确认的51209／Runner7519/87336/59271/51dfc2等方法边界继续保留。
 - 本次先冻结以上10源码与本文共11路径供root安全 WIP checkpoint。尚须完成首版源码复核、必要控制／TS／native bundle输入对应及 Runner 实现独审。没有真实资源授权；49546 FAIL与新main整体未完成不变。
+
+## 首版离线终态与 PW 异常边界修正（待独审）
+
+- root已保存首版11源为e4f6cd31。恢复后78258→4aadb2实际0（adapter16／beforePublish6）、82441→ac447a严格TS0；82172→038b06真实Boundary两精确code经正式schema及实际产品链20+7+19／unhandled0。共享Session改动影响经62629→234461实际25+113控制0验证；原Session特殊方法不扩。
+- 9bb7ed实际沿原build配置write:false编译7modules，生成code逐字等于当前private native bundle；account d8c1a058／helper／应用dist不改。先前自有data-URL导入探针6de162因模块URL写法失败，未启动build；修探针后通过，不是产品缺陷。旧35073终态缺口保留。
+- 自读168f53实际确认两个负例：candidate已继续后原PW提前拒绝／returnedError会只记joined。root授权收紧；contract只允许正常null或实际close后观察到的拒绝，先让当轮已排队settlement被观察，不能借close标记。82862→5d9840实际0（adapter19，含两原红及queued-rejection；publish6），均无unhandled。新19产品控制的输出标签改为method implemented／real authority not run，不再沿旧diagnostic标签误示当前gate未改。
+- 本次仅三技术增量（rejection-contract／rejection-adapter-controls／rejection-controls）加方法文／卡／本文六路径冻结；其余e4f6cd31保持。Runner正作实现独审，结果未得；没有PG／browser／socket／网络授权，新main仍未完成。

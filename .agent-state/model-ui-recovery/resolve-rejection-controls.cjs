@@ -83,4 +83,5 @@ program = program.slice(0, start) + String.raw`
 ` + program.slice(end);
 change("'/output/ai/model-ui-recovery/resolve-publication-observer-controls'", "'/output/ai/model-ui-recovery/resolve-rejection-controls'");
 change('actual_playwright_transform: true, no_fetch_wrapper: true,', 'actual_playwright_transform: true, no_fetch_wrapper: true, layout_double: true, transport_tail_double: true,');
+change("new Function('require', '__dirname', source)(require, __dirname);", "replace('authority_gate_changed: false,', 'authority_method_implemented: true, real_authority_not_run: true,');\nnew Function('require', '__dirname', source)(require, __dirname);");
 new Function('require', '__dirname', program)(require, __dirname);

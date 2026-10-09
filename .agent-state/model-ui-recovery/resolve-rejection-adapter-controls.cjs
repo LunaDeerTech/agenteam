@@ -81,6 +81,16 @@ source = source.slice(0, begin) + String.raw`
     const failed = contract.exports.resolveFinishedLifetime({ isClosed:()=>false, close: async()=>{} }); failed.register(never); await assert.rejects(failed.closeAndJoin(), /PAGE_CLOSE/); assert.equal(failed.facts().all_original_promises_joined,false);
     const delayed = contract.exports.resolveFinishedLifetime({ isClosed:()=>closed, close:async()=>{closed=true;} }); delayed.register(original); let done=false; const joined=delayed.closeAndJoin().then(()=>{done=true;}); await flush(); assert.equal(done,false); assert.equal(delayed.facts().all_original_promises_joined,false); release(null); await joined; assert.equal(done,true);
   });
+  for (const mode of ['early-rejected', 'returned-error', 'queued-rejection']) await test('late original ' + mode + ' before close forbids completion', async () => {
+    let closed=false, settle;
+    const original=new Promise((resolve,reject)=>{ settle=()=>mode!=='returned-error'?reject(Error('controlled-private-failure')):resolve(Error('controlled-private-failure')); });
+    const lifetime=contract.exports.resolveFinishedLifetime({isClosed:()=>closed,close:async()=>{closed=true;}});
+    assert.equal(lifetime.register(original),original); settle(); if (mode !== 'queued-rejection') await flush();
+    await assert.rejects(lifetime.closeAndJoin(), /PROJECT_MODELS_RESOLVE_FINISHED_UNEXPECTED_RESULT/);
+    assert.equal(lifetime.facts().outcomes[0].after_close,false);
+    assert.equal(lifetime.facts().all_original_promises_joined,true);
+    assert.equal(JSON.stringify(lifetime.facts()).includes('controlled-private-failure'),false);
+  });
 ` + source.slice(end);
 replace("'/output/ai/model-ui-recovery/resolve-publication-observer-controls'", "'/output/ai/model-ui-recovery/resolve-rejection-adapter-controls'");
 replace('original_session_gate_and_resolve_postconditions_unchanged: true,', 'original_session_gate_and_resolve_postconditions_unchanged: true, controlled_target_close: true, actual_locked_pw_finished: true,');
