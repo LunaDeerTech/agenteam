@@ -34,7 +34,7 @@ func TestWorkStructureMigration(t *testing.T) {
 			if upgrade {
 				migrate(t, db, migrationPrefix(t, "00020"))
 			} else {
-				migrate(t, db)
+				migrate(t, db, migrationPrefix(t, "00021"))
 			}
 			raw := openStore(t, db.Config(t, nil))
 			fixture := assemble(t, db, raw, raw, true)
@@ -49,8 +49,8 @@ func TestWorkStructureMigration(t *testing.T) {
 				return v
 			}
 			before := snapshot()
-			migrate(t, db)
-			migrate(t, db)
+			migrate(t, db, migrationPrefix(t, "00021"))
+			migrate(t, db, migrationPrefix(t, "00021"))
 			if before != snapshot() {
 				t.Fatal("00021 changed existing Project/Account")
 			}

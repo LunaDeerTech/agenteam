@@ -19,3 +19,6 @@
 - 当前每轮任务的精确源码、环境启动、未完成项见远端活动分支current及[任务台账](../docs/development/agent-team/tasks.md)。Object join等既有停止项保留；E01未开始，不能声明最终覆盖率或试玩完成。
 
 - D10 C1六纯Agent契约实现与独验完成，必要6source/2probe/卡及README已纳正式交付候选。main只含已验Task七契约和本C1，不含00022/Taskruntime或未验Model harness。当前产品恢复继续在origin/ai/task-planning-recovery；C1未提供真实Agent创建/初始化/Owner授权，F1目录/Model引用/低层ToolID等依赖未绑定。
+
+- Task Planning运行库完成并接受，正式结果包含13新增/共享技术路径、8必要复跑驱动及独立输入与卡/README/台账；既有七契约继续复用。七新八旧PG、独立A/B及privatecodec按限定版本组合通过，所有实际Wait/精确两ID/owned runtime/TCP双清齐全。原测试夹具、私有codec与独立编排FAIL保留，原归档失败时间未捕获不回填。root最终候选race/vet/Central和Runner构建通过，integration race编译通过。尚无状态机/指派/执行/删除/生产Work绑定，完整D11和平台未完成。
+- 活动恢复继续在origin/ai/task-planning-recovery：Model第四native字节诊断已保存，仅recovery候选未通过，另五case/旧14/独立AB未齐；R1低层身份SPEC已独立接受但产品未实施。活动未验输入不纳入本次main结果；请按活动分支current接续。

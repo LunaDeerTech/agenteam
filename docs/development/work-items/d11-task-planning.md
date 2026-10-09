@@ -1,14 +1,23 @@
 # D11 Human Task 规划持久化
 
-当前状态：**契约实现已恢复，规划服务正在验收，整卡未完成**。rev1 规格交付于 `97439ffd` 并通过当时独立 SPEC 审查；见[规格验证记录](../agent-team/d11-task-planning-spec-verification.md)。本次在 `ai/task-planning-recovery` 已恢复契约、服务、查询、迁移及必要测试输入并保存检查点；契约七路径经作者新 pure 与独立验证，服务/七新八旧 PG/独立 A/B 整卡门槛仍未全部通过。§2 日志投影的工程边界按本次独立实证纠正，历史规格结论不回填。Structure 全18路径已在 `a64fb5e7` 交付，前置范围见[Structure 卡](d11-work-structure.md)和[验收记录](../agent-team/d11-work-structure-verification.md)。
+当前状态：**本卡规划库已实现并通过验收；完整 D11 尚未完成**。§7 的20个技术路径已恢复到正式目录，提供 Human Owner 的三个规划命令、Lookup、当前 Get/List、同 caller Tx membership、真实 TaskEvent/Outbox 与迁移 `00022`。契约子结果已先行交付，本次运行库与必要测试、文档共同收束；生产装配和后继能力仍以 §9 为界。Structure 前置范围见[Structure 卡](d11-work-structure.md)及其[验收记录](../agent-team/d11-work-structure-verification.md)，不改写其原接受组合或独立 B 外部工具终态缺口。
 
-恢复核对基线为 `e55ad7d1`：§7 的15个新增技术文件（含 `00022_task_planning.sql`）尚不存在，六个共享文件已存在不表示完成了 Task 修改。历史20技术路径 scratch 实施未提交；旧 `/workspace/scratch/d11-task-planning-backend-preparation01`、规格 scratch 与独立验证 scratch 已不可用，不将旧实例或候选视为仍在运行/可接手。独立 A/B 仅有计划，没有实际运行结论。
+| 验收范围 | 实际结果及输入边界 |
+| --- | --- |
+| 离线与构建 | 作者 Foundation、Work 及指定 Project 纯测试、race、vet，integration race 编译与精确发现，以及 Central/Runner 构建通过；编译和发现不代替下面的真实行为结果 |
+| 新 Task 与旧回归 | §8 的七新、八旧 PG selector 均逐个实际通过。旧 Structure Migration 保持其显式 `00021` 历史前缀；其余必要回归使用最新 `00022`，新 Migration 另验 fresh 与 populated `00021→00022` |
+| 独立验证 | 20个技术路径全文静审及最后测试差量复核通过；私有嵌套解码原负例、224项结构矩阵及10项 Unicode/EOF 等负例与合法对照通过；不同构造 A/B 均实际通过 |
+| 命令与资源终态 | 每轮 Go、driver 和外层工具均取得实际 Wait/exit；精确两 ID、owned runtime 与 host TCP delta 各两次为空，限定输入未变化。必要 driver、监督器和独立 probe 源保存于 `.agent-state/task-planning-recovery/`，可重建产物与原始日志不代替源文件 |
 
-下一步：基于已恢复正式源码继续补齐 §8 的实际场景、异常与竞争验收；迁移 `00022` 仍由 Task 负责人单写，真实执行使用任务所有的两 ID PG-only fixture，必要 driver/监督器保存于 `.agent-state/task-planning-recovery/`。服务库编译与检查点不代替整卡验收。既有 scratch 缺失不是产品实现已完成，也不要求恢复旧逐轮审批或证据包。
+这些结果是按受影响范围复用的固定输入组合，不声称当前 HEAD 在一次命令中重跑了全部内容。私有 codec 修复后重跑了相关 pure/独立矩阵及真实 Task 场景；后续并发观察器、Project 名称、分页 rank 和归档输入仅修测试，旧有效行为证据按实际调用关系复用。A/B 未调用最后修改的分页或归档 helper，独立者已核其调用关系与差量。
+
+原失败及其处置保留于[恢复记录](../../../.agent-state/current.md)和可复跑输入：私有计划大小写/重复键缺口已经修复；测试观察器、非法 Project 名、分页 rank 冲突及独立 A 编排问题分别修复后重跑。分页原冲突另以真实 `23505/tasks_group_rank_key`、NotCommitted 和完整回滚确证。归档原失败没有采到当时两时间值，不能回填为已捕获倒置；新测试用确定性的非法时间控制证明当前 Read 拒绝及回滚，再以同一时刻准备合法输入通过。独立 A 自身旧双时刻 SQL 未改，其已取得的实际 PASS 保留，不宣称该 probe 未来重跑已获得确定性时间修复。§2 两类 enclosing 日志原失败与工程保证修订亦保留。
+
+早期 `e55ad7d1` 核对时15个新增技术文件及旧 scratch 实施缺失，独立 A/B 当时仅有计划；本次从 `1b38f470` 在 `ai/task-planning-recovery` 恢复了正式源码、必要输入与实际验证，不冒称找回了旧 scratch 或旧实例。rev1 规格的历史结论见[规格验证记录](../agent-team/d11-task-planning-spec-verification.md)；它不替代本次实施验收。后继状态转换、指派、删除、生命周期、执行及生产绑定继续按 §9 推进。
 
 协作、实例配置、资源协调与 Git 交付统一遵循[团队流程](../agent-team/README.md)：主线程统筹跨任务边界，负责人自主拆分、集成与安排独立验证。稳定输入使用 Git 基线、限定 diff 与停止写入状态，原始日志放 `output/ai/`，必要文档随实现同次交付；旧记录中的逐轮 root 批准、README 最后另授和永久归档步骤不再作为现行流程。真实资源退休、未决产品边界及原失败事实继续有效。
 
-- 迁移：本卡唯一预留 `db/migrations/00022_task_planning.sql`，不修改旧迁移。
+- 迁移：本卡新增 `db/migrations/00022_task_planning.sql`，不修改旧迁移。
 - 唯一结果：Human Owner 在真实 Project/Sprint 中创建未指派 backlog Task，持久读/筛选分页、修改普通规划字段及同组顺序，保存必要 TaskEvent，并提供同 caller Tx 的真实 membership。不是完整 Task CRUD、状态机、指派、执行、删除或完整 D11。
 
 ## 1. 已定依据与真实依赖
@@ -259,7 +268,7 @@ CurrentAccess允许同义历史completed但只验不可变command/event计划，
 | 12 | `internal/central/project/work_event_authority.go` | 仅新Task三元闭集，旧purpose/issuer/两stage保持 |
 | 13 | `internal/central/foundation/fault.go` | 六Task code及Known，原code和安全机制保持 |
 | 14 | `internal/central/foundation/task_fault_test.go` | 新六码＋安全投影/Unwrap/未知码负例，不改旧scalar tests |
-| 15 | `db/migrations/00022_task_planning.sql` | 唯一预留、五表与既有Sprint复合unique，真实升级 |
+| 15 | `db/migrations/00022_task_planning.sql` | 本卡唯一迁移、五表与既有Sprint复合unique，真实升级 |
 | 16 | `tests/work/task_fixture_test.go` | 新private真实组合/故障和必要同Tx观察，复用已验PG/COMMIT proxy |
 | 17 | `tests/work/task_planning_test.go` | migration/planning/filter/authority/atomicity/events |
 | 18 | `tests/work/task_concurrency_test.go` | rank/并发/membership/Unknown真实断言 |
@@ -314,7 +323,7 @@ integration标签、无t.Parallel，每次只一个精确top，全部矩阵不�
 - A（`TestTaskPlanningIndependentAuthorityMembership`）：真实撤权/归档Tx持门槛，当前Execute与历史Lookup/Get的实际waiter，另一User/Project同key不混；membership持Schedule后create真实等待与反向赢家；同Tx重新观察及完成后事实，不用“fake空成员”。planned/completed归档边界与Session更新历史分别验。
 - B（`TestTaskPlanningIndependentCommitRank`）：另一种四对象密集rank和priority源/目标组几何，真实final COMMIT hold期间取消原Lookup、另一key rank/priority竞争；分别commit/rollback后核原writer因果、原receipt、两组全部spectator字段/代数、Project query代数、TaskEvent/Outbox恰一次及no-op/historical Activity差别。原更新大文本兼rank变化至少一次，防只验证作者的小文本向量。
 
-两 probe 使用隔离 scratch 与单虚拟 tests/work 目标，由验证负责人安排 source/overlay、离线检查、精确发现和既定资源预算；审查与集成前停止相关写入。最终验收记录实际输入及结果，不将作者 selfcheck 或本规格作者的 STATIC 自查称独立验收。
+两 probe 的必要源保存在 `.agent-state/task-planning-recovery/`，通过单虚拟 tests/work 目标的 overlay 编译；可重建 overlay、binary 与日志位于忽略的 `output/ai/task-planning-recovery/`。由验证负责人安排离线检查、精确发现和既定资源预算；审查与集成前停止相关写入。最终验收记录实际输入及结果，不将作者 selfcheck 或本规格作者的 STATIC 自查称独立验收。
 
 ### 8.4 实际运行与退休预算
 
@@ -337,10 +346,10 @@ launcher→driver→helper→Go每层actual Wait，reader/handler/monitor/watchd
 
 ## 10. 来源固定、自查与移交
 
-本规格的业务基线、依赖与接口以 §1–9 为准。当前恢复使用 `e55ad7d1` 与限定路径差异；历史源指纹和行政卡原文可从该提交的文件历史及[既有规格验证](../agent-team/d11-task-planning-spec-verification.md)恢复，不再复制来源 SHA 表或要求整图重建。历史验收中的哈希仅标识当时输入，不代表当前全部依赖已验收。
+本规格的业务基线、依赖与接口以 §1–9 为准。早期缺失核对使用 `e55ad7d1`，本次恢复实施从 `1b38f470` 及限定路径差异开始；历史源指纹和行政卡原文可从 Git 文件历史及[既有规格验证](../agent-team/d11-task-planning-spec-verification.md)恢复，不再复制来源 SHA 表或要求整图重建。历史验收中的哈希仅标识当时输入，不代表当前全部依赖已验收。
 
 按需核对的实现来源为 Structure 的 `contract/structure.go`、`service.go`、`reader.go`、`rank.go`、`events.go`，Project 的 `work_event_authority.go`，以及 Foundation/Outbox 的相关公共接口与 `00021` 迁移；产品依据见 §1。共享源变化按实际影响检查，不自动扩大写域。
 
 现有接口核定：`work.NewAuthority(Store,project.ProjectAuthority)`、`work.NewReader(Store,*Authority,cursor.Keyring)`；`Reader.ReadPlacementInTx(context.Context,foundation.Tx,identity.Actor,contract.ProjectID,contract.SprintID) (contract.Placement,error)`。Store 沿现有 WithinTx/InTx/AcquireAll/RequireHeldLocks，Activity 仍 TouchActivityInTx；不扩大外域接口。Structure18 已接受不等于 Task 依赖中的 Agent/Execution/Dispatch 已绑定。
 
-既有独立 SPEC 结论覆盖21拟实施路径、三个命令＋Lookup、两个当前读口＋同 Tx membership、七新/八旧 PG 与两个不同构造独验的设计要求；raw512 前置、独立 Page cap、同 Tx TaskEvent/Outbox、历史与新写门禁、真实 Unknown/U1、当前五表与历史 through21 兼容仍为实施门槛。规格审查和本次文档自查均不产生编译、测试或资源执行结论。
+既有独立 SPEC 结论覆盖21拟实施路径、三个命令＋Lookup、两个当前读口＋同 Tx membership、七新/八旧 PG 与两个不同构造独验的设计要求；raw512 前置、独立 Page cap、同 Tx TaskEvent/Outbox、历史与新写门禁、真实 Unknown/U1、当前五表与历史 through21 兼容均按本次实际实施验证。规格审查和文档自查本身不产生编译、测试或资源执行结论；本次实施结果及限制见页首。
