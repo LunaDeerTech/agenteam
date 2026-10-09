@@ -1,5 +1,7 @@
 # 当前工作：D15 Runner 身份与 Control Channel
 
+- Knowledge tree command HTTP f1a1bd45 实现有限独审接受，无must-fix。原4产品/Schema/helper与B02/Account契约静核；本人25660→6cc25b两独立pure top/9sub actualrace0/1.040s（首同process23:48:17.728837Z free5,771,194,368B），核原actor/project、同User新Session摘要/改User与意图拒同摘要、hidden Creator/Object、提交后Close失败零发布、原callback真正chan join且不提前清deadline。资产knowledge-tree-http-review/{risk_test.go,run-risk.py,implementation-review.md}；原服务端口/内存writer替身不代PG/native当前权限/Unknown/2s网络尾。本人无在途命令，旧失败不改。OS诊断7e4a已获Vars b1ad7a原60控及ca1a2f独立48控有限接受，原gate/预算/cleanup AST逆投影不变；其72236e为独验转换setupFAIL保留。新OS实际诊断仍未执行，原01不补。
+
 - OS失败诊断最小增量已冻结待Vars独审：`runner-os-signals.py`只复用原读取循环已经取得的PID/start_ticks身份检查、fd0 inode/flags、≤128 TID双syscall/wchan样本作闭集投影；不存指针、任意proc文字、stdin/token或环境，不增加proc操作/等待。原严格pipe_read/双样本/身份、5s初始见证、原信号/Wait/3s cleanup全部保持；仅失败且原cleanup实际返回后输出末样本，证据写错不覆盖原失败。新增`runner-os-diagnostic-controls.py`，a34185 actual0/60纯控涵盖安全解析、alias仍拒、权限/缺失/格式、128上限、晚成功拒绝及cleanup先行。无真实child/proc/socket。固定Go源码表明继承blocking fd的kindNewFile不自动进netpoll；当前kernel符号含anon_pipe_read/fifo_pipe_read只是方法候选，不能补OS01原缺失wchan。原29686 FAIL完整保留；后继诊断需新output/freshgrant，只采事实，不预称原gate会过。
 
 - 独立 Management harness 固定 e7742936 有限独审接受，无 must-fix：本人 fb57ee 原 25 控、81fe57 独立 14 控均 actual0，精确三 top/计数/重复/坏 UTF8 与原全尾保持；两工具逆投影逐字 1ce69576。新 driver 未 build、实际 guard 及三业务 top 未运行。持久资产 `.agent-state/runner-management-review/{entry-controls.py,review.md}`；无自有活动资源。原 OS01 FAIL 不变，root 已授权仅补失败安全快照，实际新轮仍需 fresh grant。
