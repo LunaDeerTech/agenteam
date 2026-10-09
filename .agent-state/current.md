@@ -22,6 +22,12 @@
 - 新资产 `.agent-state/secret-storage-intent-review/{intent_test.go,run.py,README.md}`。本人35587/21c8a0 actual0，四top race1.017s：活跃借用期间alias Destroy禁止新用但原回调须实际返回才清零、panic/clone隔离；12goroutine并发材料/副本与nested日志/JSON安全面；真实D10 Update/Delete、原字节与presence适配及坏输入拒绝；原Actor/Session/identity/expected copy、跨namespace/operation/Project/Service拒及旧Purpose不扩。首27188/744b02为独验误写不存在NewProjectScope的setupFAIL，修成正式InProject后通过。
 - 命令`python3 .agent-state/secret-storage-intent-review/run.py`，固定Go1.27.1/offline/readonly/独占Variables-independent GOCACHE及固定GOMODCACHE/GOTMPDIR均固化脚本；只做临时overlay，不写D04产品，不建新大cache或PG/socket/browser。SecretMaterial Destroy只清持有材料，无值Intent不是prepared退休令牌，不能外推actual callback join。四路径现冻结供root保存，无自有执行在途；Knowledge末子候选及工具仍冻结等待freshgrant。
 
+## D04 kind3 / Plan / Prepared / Read / Prepare 有限独审
+
+- 新冻结 `372d1e94` 的12技术源独立有限接受，无mustfix；旧Intent两源及35587结论复用。crypto3、plan2、service＋prepared/read/prepare6按实际源核用途/AAD、原issuer/Session binding、全锁/同Store liveTx/current gate、opaque native prepared与安全投影。后继Apply/newpurpose/nativeAudit/maintenance不纳范围，overlay排除新增活动Go并还原变动旧共享源到372d；未改D04产品。
+- 本人7872/530ae3 actual0，race1.048s，3top/10sub：真实Prepare加密后历史Match正向（新Session需新plan）、不同语义与失读/密文/kind/receipt/Project/payload替换拒；Match实际持锁中Destroy等待，原Unknown/cancel保错且不读历史，actual返回后清sealed buffers，caller材料保留；公共Match拒伪接口/包装/foreignService且其方法/authority/SQL零调用。新增单top10894/a02a8b actual0/race1.016s只补第一kind3已seal、第二nonceUnknown的nil候选/无重试或范围复用/caller材料保留。旧前三top未变不重跑。
+- 新资产 `.agent-state/secret-variable-storage-review/{stages_test.go,run.py,README.md}`；固定Go/offline/readonly/原独占cache入口与作者结果复用范围在README。controlled Store/authority/nonce不称实际D10授权/PG/提交；真实provider、正式连续DDL、Apply同Tx/privateAudit与rotation/Cleanup仍待。四路径freeze供root保存，无本人命令或真实资源在途。
+
 ## 三组 PG 首轮 4315：整体 FAIL，资源已退役
 
 - root fresh grant只允许原70036业务binary（32,895,591 B）/97198 combo driver（15,394,731 B）与literal `^TestSkill(Migration|InitializationAdmissionUnknown|OwnerMetadataCurrentAuthority)$`。cwd仍 `tests/skills`，完整固定env沿下节Stop命令，仅driver换 `output/ai/skills/compile/pg-only-skills-combo-driver`、selector换该literal；另显式AGENTEAM_GO和固定MinIO变量，继承PATH。exec同process freshstatvfs=5,492,891,648 bytes≥5GiB，原Go6m/driver105+15/supervisor123+3/TCP75/PG两资源不变。
