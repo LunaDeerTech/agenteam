@@ -9,13 +9,13 @@
 - 下一步：原CommitRecovery已实际闭合；Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority和真实D05三子组合仍各自等待root单top fresh grant后实际执行。前三项用原两资源PG窗口，D05用原七资源窗口；资源、缓存继续唯一所有。root授权的Project精确Stop子能力已获下述有限独审；旧binary及对应产品基线单独保留，不将旧PG结果外推新产品。不spawn，root协调交叉审查。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
 
-## 下一独立清理 SPEC（待未参与者审）
+## 下一独立清理 SPEC（rev2 待续审）
 
-- root授权推进精确CleanupAuthority/Project CleanupPhase工程规格，并仅预留全局00028给Skills后续必要升级。本轮在 [D10设计§16](../docs/development/work-items/d10-skills-initialization-design.md#16-下一独立结果skills-精确-project-cleanuprev1-spec) 与主卡写rev1可审片段，未写SQL/产品，未跨改Project/App/D04。00027不重写。
-- 最小数据变化去除cleanup到已发表skills的FK，保留原initialization exact Project/Skill/Revision/Object/Upload约束；当前D08 !initialized不得BeginDelete，reserved可存绝不等取消/清理授权。已initialized Project的合法遗留是原candidate实际closed后同Object/Upload重试、留下旧AbandonedAttempt payload/marker；原Creation与每个attempt映射须同Tx核实。
-- 明确root负责Project lifecycle_authority.go及测试的Skills-only CleanupPhase：同Store/liveTx/Project锁、当前Cleaning/domains、原Owner/action/operation/ProjectVersion、冻结manifest与依赖、全stop终局。Skills消费并补Cleanup/Release opaque plan、Claim/Checkpoint/Finalize exact父锁provider；同Tx gate+Release后实际预算内D05清理，原Unknown确认、已gated不重复Release、不重写旧D05 cause；ObjectDelete原Creation metadata＋真实Object witness。最终六表原子清空与当前gate下单调终态复核，不另留永久本域receipt；全participant/root/Object runtime join仍后继。
+- root授权推进精确CleanupAuthority/Project CleanupPhase工程规格并仅预留00028。原rev1三路径已保存 `e9e608f9`；Knowledge独审确认三mustfix：合法已initialized/published范围并不需要dropFK、历史work无界不能一Tx全删、删本域父表后D05 CleanupProject仍先取Maintenance plan会断链。原问题保留，未把rev1记接受。
+- 修订的 [D10设计§16 rev2](../docs/development/work-items/d10-skills-initialization-design.md#16-下一独立结果skills-精确-project-cleanuprev2-spec) 撤回dropFK，保留00027全部约束；合法遗留仍同一发表Skill的旧未发布candidate/AbandonedAttempt。work与非当前attempt在已知物理完成后每批≤32，并保当前attempt和所有核心行；Unknown保原cause/attempt，按真实剩余事实续进。00028只预留joined-work索引候选，现主键id/partial-live索引不覆盖按Project历史扫描，需大历史查询计划确认，未写DDL。
+- Project共享门禁仍由root指定owner补Skills-only当前CleanupPhase。另明确当前不存在的D05正式 `DeletedObjectMetadataPurger`＋唯一closed Access operation依赖：真实当前gate／opaque plan／同Store Tx／原Object与Upload anchor、私有物理完成及actualjoin前置，metadata历史每次≤32，最后Object/Upload与Skills核心同Tx清除。后序ProjectCleanup不再见此Object，避免无父映射Maintenance循环；缺口不能由root泛路由或DependencyUnbound假完成。Object既有gate/clean也须避免每次无界重扫已cleaned历史；root原则同意另建隔离D05实现，此实例不改Object/Project/App/D04产品或Runtime join。
 - Knowledge TCP诊断移植临时优先窄审已完成：f8fe7d actual0，增量逐字Runner57642926，逆除分别逐字Knowledge666169b6／Runner3e7fd3bd，driver未改、11exact三表相同、预算/Wait/resource/input/gate其余字节保持。只接受已审方法的精确移植，无资源运行，不回填原56777或54818终态；已回root/作者，不另复制控制源。
-- 本节三路径（主卡/设计/current）已由root保存 `e9e608f9`，Knowledge正作未参与设计者独审，技术段保持冻结。本域无执行／资源，不因等待而继续改已冻结SPEC。
+- Knowledge续审确认三原问题实质闭合为明确D05前置，另要求stopWriters同样纳入有界发现／原writer终局重验。§16.6.2与验收已补gate/stopWriters/clean/最后未完成检测全链、查询索引及历史后部尚活writer反例，仍保实际done／正式Guard证明。本次仅主卡/设计/current三路径再次freeze待最终有限结论；未实施Cleanup或SQL，无测试／真实资源在途。
 
 ## 本轮恢复保存与 Knowledge 独立风险审查
 
@@ -58,7 +58,7 @@ python3 .agent-state/skills-pg-combo/controls.py
 
 - `b09e76` actual0／28离线控制：运行实际新driver验证3个允许selector（组合＋两个旧单top）与6个宽／错序／缺项／多项拒例；允许项故意使用不存在parent，恰在Statfs失败退出，无资源创建。实际helper核正向／缺项／多项／重复／仅sub／无效UTF8／失读；实际supervisor main在受控已Wait child、空desc/tcp下跑正向、缺项、无效UTF8与旧单top四例，保实际Wait观察及完整双尾，未把控制当真实资源回收。两工具逆去唯一增量后全文逐字 `4442a356`，264020 syntax/gofmt/diffcheck actual0。
 - 未验范围仍是Migration 4直接子（其中30约束负例）、Admission work/reserve 2子、Owner 12子，7个独立DB顺序清理、两个proxy顺序实际join；只计划原105秒内一次有限组合尝试，未实跑、不保证静态耗时、不增预算。真实D05另走原七资源root-chain／同70036 binary／单独ObjectPublication三子，Cleanup unbound/noRuntime限制不变。已PASS的四top不重跑。
-- 两工具、必要 `.agent-state/skills-pg-combo/controls.py` 与本文4路径freeze，交Variables未参与者窄审；本实例无真实资源或命令在途。新的真实窗口仍需root fresh grant，当前Model19唯一窗不受影响。
+- 两工具／必要controls／本文4路径已由root保存 `c89aa120`。Variables未参与者窄审有限接受、无mustfix：8321c1原28控actual0；0a703d另以实际supervisor main验证driver exit2＋exact3top仍保2、读取OSError仍完整Wait[123]/desc双轮/TCP双空/input/terminal。两源逆投影逐字4442，无failfast；不是三业务PG通过。当前工具、controls和70036 binary保持该版本，只有本次SPEC三文档另改。新真实窗口仍需root fresh grant。
 
 ## 当前 Stop PG 完整结果
 
