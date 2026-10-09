@@ -3,6 +3,7 @@
 package process_test
 
 import (
+	"bufio"
 	"context"
 	"encoding/pem"
 	"errors"
@@ -44,6 +45,172 @@ type runnerFailureTransport struct {
 	release   chan struct{}
 	reachOnce sync.Once
 	freeOnce  sync.Once
+	mu        sync.Mutex
+	upgrades  []*runnerFailureUpgrade
+}
+
+// ReverseProxy returns on the first copier error and closes the backend in a
+// separate goroutine. Its handler return alone cannot retire either owner.
+type runnerFailureUpgrade struct {
+	mu                        sync.Mutex
+	streams                   [2]*runnerFailureStream
+	copiesStarted, copiesDone int
+	halfPending               int
+}
+
+type runnerFailureStream struct {
+	original io.ReadWriteCloser
+	owner    *runnerFailureUpgrade
+	closing  int
+	closed   bool
+}
+
+func (s *runnerFailureStream) Read(p []byte) (int, error)  { return s.original.Read(p) }
+func (s *runnerFailureStream) Write(p []byte) (int, error) { return s.original.Write(p) }
+func (s *runnerFailureStream) Close() error {
+	s.owner.mu.Lock()
+	s.closing++
+	s.owner.mu.Unlock()
+	err := s.original.Close()
+	s.owner.mu.Lock()
+	s.closing--
+	s.closed = true
+	s.owner.mu.Unlock()
+	return err
+}
+
+// Keep the original io.Copy dispatch: the inner copy sees both original
+// endpoints, including any ReaderFrom/WriterTo. Observe the whole copy, not
+// just its last Read.
+func (s *runnerFailureStream) WriteTo(w io.Writer) (int64, error) {
+	s.owner.mu.Lock()
+	s.owner.copiesStarted++
+	s.owner.mu.Unlock()
+	destination := w
+	switch target := w.(type) {
+	case *runnerFailureStream:
+		destination = target.original
+	case *runnerFailureHalfStream:
+		destination = target.original
+	case *runnerFailureConn:
+		destination = target.stream.original
+	case *runnerFailureHalfConn:
+		destination = target.stream.original
+	}
+	n, err := io.Copy(destination, s.original)
+	s.owner.mu.Lock()
+	s.owner.copiesDone++
+	if err == nil {
+		if _, ok := w.(interface{ CloseWrite() error }); ok {
+			// The original copier calls this after io.Copy returns. Register
+			// it before returning so that this scheduling gap cannot join.
+			s.owner.halfPending++
+		}
+	}
+	s.owner.mu.Unlock()
+	return n, err
+}
+
+type runnerFailureHalfStream struct {
+	*runnerFailureStream
+	half func() error
+}
+
+func (s *runnerFailureHalfStream) CloseWrite() error {
+	err := s.half()
+	s.owner.mu.Lock()
+	s.owner.halfPending--
+	s.owner.mu.Unlock()
+	return err
+}
+
+type runnerFailureConn struct {
+	net.Conn
+	stream *runnerFailureStream
+}
+
+func (c *runnerFailureConn) Read(p []byte) (int, error)         { return c.stream.Read(p) }
+func (c *runnerFailureConn) Write(p []byte) (int, error)        { return c.stream.Write(p) }
+func (c *runnerFailureConn) Close() error                       { return c.stream.Close() }
+func (c *runnerFailureConn) WriteTo(w io.Writer) (int64, error) { return c.stream.WriteTo(w) }
+
+type runnerFailureHalfConn struct {
+	*runnerFailureConn
+	half func() error
+}
+
+func (c *runnerFailureHalfConn) CloseWrite() error {
+	err := c.half()
+	c.stream.owner.mu.Lock()
+	c.stream.owner.halfPending--
+	c.stream.owner.mu.Unlock()
+	return err
+}
+
+type runnerFailureWriter struct {
+	http.ResponseWriter
+	upgrade *runnerFailureUpgrade
+}
+
+func (w *runnerFailureWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
+func (w *runnerFailureWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	c, rw, err := http.NewResponseController(w.ResponseWriter).Hijack()
+	if err != nil {
+		return c, rw, err
+	}
+	s := &runnerFailureStream{original: c, owner: w.upgrade}
+	w.upgrade.mu.Lock()
+	w.upgrade.streams[1] = s
+	w.upgrade.mu.Unlock()
+	wrapped := &runnerFailureConn{Conn: c, stream: s}
+	if half, ok := c.(interface{ CloseWrite() error }); ok {
+		return &runnerFailureHalfConn{runnerFailureConn: wrapped, half: half.CloseWrite}, rw, nil
+	}
+	return wrapped, rw, nil
+}
+
+func (v *runnerFailureTransport) observeUpgrade(w *runnerFailureWriter, response *http.Response) error {
+	if response.StatusCode != http.StatusSwitchingProtocols {
+		return nil
+	}
+	original, ok := response.Body.(io.ReadWriteCloser)
+	if !ok {
+		return errors.New("original upgrade body is not writable")
+	}
+	u := &runnerFailureUpgrade{}
+	s := &runnerFailureStream{original: original, owner: u}
+	u.streams[0] = s
+	w.upgrade = u
+	v.mu.Lock()
+	v.upgrades = append(v.upgrades, u)
+	v.mu.Unlock()
+	response.Body = s
+	if half, ok := original.(interface{ CloseWrite() error }); ok {
+		response.Body = &runnerFailureHalfStream{runnerFailureStream: s, half: half.CloseWrite}
+	}
+	return nil
+}
+
+func (v *runnerFailureTransport) upgradeRemainder() (owners, copies, closes, halves int) {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+	for _, u := range v.upgrades {
+		u.mu.Lock()
+		pending := u.copiesStarted != 2 || u.copiesDone != 2 || u.halfPending != 0
+		copies += 2 - u.copiesDone
+		halves += u.halfPending
+		for _, s := range u.streams {
+			if s == nil || !s.closed || s.closing != 0 {
+				pending = true
+				closes++
+			}
+		}
+		if pending {
+			owners++
+		}
+		u.mu.Unlock()
+	}
+	return
 }
 
 func (v *runnerFailureTransport) target(t *testing.T, address string) {
@@ -62,10 +229,14 @@ func (v *runnerFailureTransport) controlRetired(t *testing.T) {
 	defer cancel()
 	tick := time.NewTicker(10 * time.Millisecond)
 	defer tick.Stop()
-	for v.wss.Load() != 0 {
+	for {
+		owners, copies, closes, halves := v.upgradeRemainder()
+		if v.wss.Load() == 0 && owners == 0 {
+			return
+		}
 		select {
 		case <-ctx.Done():
-			t.Fatal("original default control transport has not joined")
+			t.Fatalf("original default control transport has not joined: handlers=%d owners=%d copies=%d closes=%d half_closes=%d", v.wss.Load(), owners, copies, closes, halves)
 		case <-tick.C:
 		}
 	}
@@ -104,14 +275,18 @@ func newRunnerFailureTransport(t *testing.T, address string) *runnerFailureTrans
 			v.wss.Add(1)
 			defer v.wss.Add(-1)
 		}
-		proxy.ServeHTTP(w, r)
+		observed := &runnerFailureWriter{ResponseWriter: w}
+		requestProxy := *proxy
+		requestProxy.ModifyResponse = func(response *http.Response) error { return v.observeUpgrade(observed, response) }
+		requestProxy.ServeHTTP(observed, r)
 	}))
 	t.Cleanup(func() {
 		v.unblock()
 		transport.CloseIdleConnections()
 		v.server.Close()
-		if v.requests.Load() != 0 || v.wss.Load() != 0 {
-			t.Error("original failure transport handlers have not returned")
+		owners, copies, closes, halves := v.upgradeRemainder()
+		if v.requests.Load() != 0 || v.wss.Load() != 0 || owners != 0 {
+			t.Errorf("original failure transport has not retired: requests=%d handlers=%d owners=%d copies=%d closes=%d half_closes=%d", v.requests.Load(), v.wss.Load(), owners, copies, closes, halves)
 		}
 	})
 	return v
@@ -302,7 +477,7 @@ CREATE TRIGGER test_c_retire_gate BEFORE DELETE ON agenteam_runner.connections F
 				t.Fatal("owned Central initial stop failed")
 			}
 			witness := central.db.Connect(t)
-			waitDatabaseFact(t, witness, `SELECT EXISTS(SELECT 1 FROM pg_stat_activity a JOIN pg_locks l ON l.pid=a.pid WHERE a.datname=current_database() AND a.application_name='agenteam' AND l.locktype='advisory' AND NOT l.granted AND l.classid=$1::oid AND l.objid=$2::oid AND l.objsubid=2 AND $3=ANY(pg_blocking_pids(a.pid)) AND a.query LIKE 'DELETE FROM agenteam_runner.connections%')`, keyA, keyB, int32(guard.PgConn().PID()))
+			waitDatabaseFact(t, witness, `SELECT EXISTS(SELECT 1 FROM pg_stat_activity a JOIN pg_locks l ON l.pid=a.pid WHERE a.datname=current_database() AND a.application_name='agenteam' AND l.locktype='advisory' AND l.mode='ExclusiveLock' AND NOT l.granted AND l.classid=$1::oid AND l.objid=$2::oid AND l.objsubid=2 AND $3=ANY(pg_blocking_pids(a.pid)) AND a.query LIKE 'DELETE FROM agenteam_runner.connections%')`, keyA, keyB, int32(guard.PgConn().PID()))
 			select {
 			case <-central.p.done:
 				t.Fatal("Central exited while its original retirement callback was held")
