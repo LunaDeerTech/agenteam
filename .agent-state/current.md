@@ -10,8 +10,8 @@
 ## 当前工作与所有权
 
 1. root 独占本文件、全局台账与 Git；当前没有丢弃或覆盖既有成果。下方历史记录是旧运行事实，不代表本次资源或实例仍存在。
-2. `/root/model_delivery` 接续 D27 未完成验收及既有 sharedLayer 修复，拥有 Model 专属 harness、相关任务卡及既有 sharedLayer 限定产品/测试/设计路径；先核必要依赖和旧输入，随后真实验证。六新场景历史已接受4项，authority/navigation、旧14与独立验收仍待完成；原 FAIL 保留，不重写为 PASS。
-3. `/root/service_delivery` 推进 B0-P Human backlog Blocker 持久化完整服务，先冻结规格并独立审查，预留迁移00023及限定Work/Project authority/Foundation fault写域；完整规格草稿已保存于 `docs/development/work-items/d11-task-blocker-service.md`，独立SPEC审查进行中、尚无实现/PG通过；不得绕过未验生产端口或既有停止项。T0a/B0-C/T0b 已正式交付，不重复实现或无变化验收。
+2. 共享浮层完整修复已正式提交 `0bb98f2a` 并推送 main，远端精确确认；16真实组件场景与2632单元/类型/build及独审通过。活动分支已正常整合该main提交。`/root/model_delivery` 接续 D27 未完成验收及既有 sharedLayer 修复，拥有 Model 专属 harness、相关任务卡及既有 sharedLayer 限定产品/测试/设计路径；先核必要依赖和旧输入，随后真实验证。六新场景历史已接受4项，authority/navigation、旧14与独立验收仍待完成；原 FAIL 保留，不重写为 PASS。
+3. `/root/service_delivery` 推进 B0-P Human backlog Blocker 持久化完整服务，先冻结规格并独立审查，预留迁移00023及限定Work/Project authority/Foundation fault写域；完整规格草稿已保存于 `docs/development/work-items/d11-task-blocker-service.md`，独立SPEC已接受，产品实施与真实测试准备中，尚无实现/PG通过；不得绕过未验生产端口或既有停止项。T0a/B0-C/T0b 已正式交付，不重复实现或无变化验收。
 4. Model 树协调任务自有 PG/browser/hostTCP 窗口，启动前通知 root；窗口中 root 不做 Git 网络操作，完整终态后保存。各树纯测试使用独立缓存；迁移与跨树公共契约由 root 协调。
 5. 已由 root 创建 `/workspace/agenteam-delivery`，固定正式 `11c16867`（最后迁移00022），只增加与原树相同的两 Model Go harness。Model 编译/验收使用此隔离输入，避免新00023混入；未重建产物及未执行场景保持未验证。
 6. 本次子代理显式请求 `gpt-6-astra / ultra`；工具未提供 service tier 字段，实际 Fast 生效未确认。实际全树容量7席，按就绪工作动态协调。
