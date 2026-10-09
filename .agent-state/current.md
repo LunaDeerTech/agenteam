@@ -27,3 +27,10 @@
 - 新加密片段仅 `internal/central/secret/envelope.go`、`storage.go`、`project_variable_envelope_test.go`：kind3仅Project、摘要32/密文48、AAD绑定kind/Project/receipt/payload；scan在int16→byte前闭集拒绝溢出。kind1/2格式保持，尚无新receipt SQL/producer/rotation/Cleanup接线，绝不称完整kind3存储已可用。
 - 原6 top受影响pure（3新kind3＋3旧envelope）race42255→f25143 actual0/1.058s；随后实际独立Python cryptography AESGCM固定公开fixture生成kind2/3两向量fe1e6f，已加入同测试文件。新增向量exact top原session68539→b24eff actual0/1.037s；只重跑新向量，不重复已过无变化矩阵。
 - 两Intent Go源仍92aca721冻结；Skills已反馈35587/21c8a0本人四top race实际0无mustfix（初744b02 probe误写API属独验setupFAIL，后改正式InProject）；该接受仅92aca721两纯源，不包含本新crypto/plan/producer。没有PG/socket/browser/网络，Go cache保持既有独占，拟DDL尚未落地，不占migration号。
+
+## Plan/Observation 合同与拟 DDL 可恢复片段
+
+- root已保存92aca721（Intent）、faca8b33（rev2）、683bbf1（CheckPlan＋crypto）；前5路径不再列待保存。CheckPlan单签名delta已获Runner46808f有限SPEC接受；Skills的Intent独审probe已在其树c04fbd96保存，不外推producer/权限/PG。
+- 新增 `internal/central/secret/contract/project_variable_plan.go`、`project_variable_plan_test.go`：两闭集stage/四producer/Prepared接口、安全observation/preparation、opaque issuer与精确原request（含Session）绑定、最低command/User/Project EX＋write-key SH＋CredentialRef EX锁。历史receipt basis不依赖仍活canonical，返回副本；纯Matches只证明签发和原绑定，不证明当前DB/权限/持锁。两contract包race97245→afbe81 actual0（1.048s/1.178s），f6d75d diffcheck0，尚无真实authority/Service实现。
+- `.agent-state/secret-variable-storage/project-variable-storage.draft.sql` 为明确非正式、未编号、未执行/未经Migrator的拟DDL：kind3 Project/48B、新用途Project-only、新D04 safe_id与receipt表/闭集结果/两个唯一约束/Project-id清理索引，无canonical/当前Credential FK及cascade，不扩旧consumer/legacyreceipt。2c1c9b diffcheck0。现树迁移≤24，必须等root整合真实连续前缀；不补空号、不借他域号、不把draft执行冒正式迁移。
+- 上述plan两源＋draft＋本文四路径freeze待root保存；下一片段可另新文件推进真实Service代码。正式main后继已交付SecretAudit纯读兼容e94077eb，本树仍8cb起点，尚未包含/验证该新main组合，按后继实际依赖装配，不声称重基已验。
