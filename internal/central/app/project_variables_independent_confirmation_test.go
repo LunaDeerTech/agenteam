@@ -119,6 +119,14 @@ func independentForceWait(t *testing.T, ch <-chan struct{}, stage string) {
 	}
 }
 
+func independentForceEarlyResult(failure error) (string, string) {
+	var fault *f.Fault
+	if errors.As(failure, &fault) && fault != nil && fault.Code.Known() {
+		return string(fault.Code), string(fault.CommitState.Safe())
+	}
+	return "unknown_type", "unknown"
+}
+
 func TestIndependentProjectVariablesRootConfirmationForce(t *testing.T) {
 	db := pgfixture.NewDatabase(t)
 	proxy, e := commitproxy.New(databaseTestContext(t), net.JoinHostPort("127.0.0.1", db.Fixture.Port))
@@ -188,11 +196,15 @@ func TestIndependentProjectVariablesRootConfirmationForce(t *testing.T) {
 	if e != nil {
 		t.Fatal("independent command request invalid")
 	}
+	meta := f.CommandMeta{RequestID: guardID[f.Request](t), IdempotencyKey: key}
+	if vc.ValidateCommandMeta(vc.CreateCommand, meta) != nil {
+		t.Fatal("independent command metadata invalid")
+	}
 	result := make(chan error, 1)
 	callJoined := make(chan struct{})
 	go func() {
 		defer close(callJoined)
-		_, e := variables.service.CreateVariable(context.Background(), actor, f.CommandMeta{IdempotencyKey: key}, project.ID, request)
+		_, e := variables.service.CreateVariable(context.Background(), actor, meta, project.ID, request)
 		result <- e
 	}()
 	t.Cleanup(func() {
@@ -201,7 +213,16 @@ func TestIndependentProjectVariablesRootConfirmationForce(t *testing.T) {
 		cancel()
 		independentForceWait(t, callJoined, "mutation callback cleanup")
 	})
-	independentForceWait(t, proxy.Reached(), "complete original COMMIT")
+	boundary := time.NewTimer(6 * time.Second)
+	defer boundary.Stop()
+	select {
+	case <-proxy.Reached():
+	case failure := <-result:
+		code, state := independentForceEarlyResult(failure)
+		t.Fatalf("independent command returned before COMMIT boundary: code=%s commit_state=%s", code, state)
+	case <-boundary.C:
+		t.Fatal("independent actual boundary unavailable", "complete original COMMIT")
+	}
 	var call independentConfirmationCall
 	select {
 	case call = <-store.entered:
