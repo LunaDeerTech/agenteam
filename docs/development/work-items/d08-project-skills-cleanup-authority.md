@@ -1,6 +1,6 @@
 # D08 Project 对 Skills 清理的当前授权
 
-状态：按正式 main `29dd4298` 已实现精确分支，作者限定 pure/race/vet 通过；产品与测试获有限离线独审，首个当前事实PG矩阵已完整通过，Tx/竞争两个PG仍待。规则来源为已接受的 Skills cleanup rev2 §16.3、§16.8（`ai/skills-initialization` 的 `d10-skills-initialization-design.md`），以及现有 [LifecycleAuthority](recovery-d08-lifecycle-authority.md) 与 [生命周期合同](../../../internal/central/project/contract/lifecycle.go)。
+状态：按正式 main `29dd4298` 已实现精确分支，作者限定 pure/race/vet 通过；产品与测试获有限离线独审，当前事实与Tx两个PG矩阵已完整通过，真实锁竞争PG仍待。规则来源为已接受的 Skills cleanup rev2 §16.3、§16.8（`ai/skills-initialization` 的 `d10-skills-initialization-design.md`），以及现有 [LifecycleAuthority](recovery-d08-lifecycle-authority.md) 与 [生命周期合同](../../../internal/central/project/contract/lifecycle.go)。
 
 ## 结果与范围
 
@@ -30,4 +30,6 @@
 
 Skills独立有限接受44702/c18c79：真实公开gate/严格loader/Rows方法配controlled Store共1top4sub race0，覆盖同ctx/Tx/SH、两轮Rows关闭与读取错误拒绝；原Stop/Inspect/Outbox/SQL逆差异不变。PG候选及3single发现、原driver编译已实际0；新增仅三exact入口的RUN/PASS闭集与纯控制待独立窄核，实际仍沿原2资源、105+15/123+3/TCP75，无自动实跑。
 
-当前真实矩阵：CurrentFacts首轮1top28sub全部PASS、业务4.59s，原Go/driver/outer实际Wait0，2资源双退役、private/runtime/desc双清、TCP双empty/input一致，supervisor72.057s（14793→b4694d）。仅本项作者PG结果；Transactions、CurrentFactsRemainLocked尚未运行，不将有限源码独审或受控initializer/phase/前驱声明当作真实Skills cleanup/生产registry已绑定。
+当前真实矩阵：CurrentFacts首轮1top28sub全部PASS、业务4.59s，原Go/driver/outer实际Wait0，2资源双退役、private/runtime/desc双清、TCP双empty/input一致，supervisor72.057s（14793→b4694d）。该轮仅本项作者PG结果，Transactions后继结果如下；CurrentFactsRemainLocked尚未运行，不将有限源码独审或受控initializer/phase/前驱声明当作真实Skills cleanup/生产registry已绑定。
+
+Transactions第2single也已完整PASS：1top4sub、业务1.79s，原Go/driver/outer实际Wait0、2资源/private/runtime/desc/TCP/input全尾齐，supervisor70.969s（86222→c6f0be）。覆盖原SH/EX caller Tx、不代补锁或开Tx、foreign/ended/取消和封闭actor/participant拒绝；第三真实SH阻塞Owner writer矩阵尚未运行。
