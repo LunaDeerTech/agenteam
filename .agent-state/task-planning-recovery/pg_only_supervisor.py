@@ -21,6 +21,23 @@ import time
 import uuid
 
 
+SKILL_PENDING_ACCEPTANCE_SELECTOR = '^TestSkill(Migration|InitializationAdmissionUnknown|OwnerMetadataCurrentAuthority)$'
+
+
+def observe_skill_pending_acceptance(log, log_path):
+    expected = {'TestSkillMigration', 'TestSkillInitializationAdmissionUnknown',
+                'TestSkillOwnerMetadataCurrentAuthority'}
+    log.flush()
+    try:
+        actual = re.findall(r'^=== RUN   (Test\w+)$', log_path.read_text(encoding='utf-8'), re.M)
+    except (OSError, UnicodeDecodeError):
+        log.write('SKILL pending_acceptance_exact_tops=False log_unreadable=True\n')
+        return False
+    good = len(actual) == len(expected) and set(actual) == expected
+    log.write(f'SKILL pending_acceptance_exact_tops={good} top_count={len(actual)}\n')
+    return good
+
+
 def budgets(root_chain):
     # Root: original Go test 360s + readiness 75s + fixture cleanup 55s +
     # build/scheduling allowance 50s. The separate 60s TERM grace allows the
@@ -269,6 +286,9 @@ def main():
                 log.write(f'OWNED runtime_observation={round} descendants={sorted(remaining)}\n')
                 if remaining: code = 1
             if args.root_chain and not observe_root_chain(directory, log, log_path, args.run):
+                code = 1
+            if (not args.root_chain and args.run == SKILL_PENDING_ACCEPTANCE_SELECTOR
+                    and not observe_skill_pending_acceptance(log, log_path)):
                 code = 1
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.

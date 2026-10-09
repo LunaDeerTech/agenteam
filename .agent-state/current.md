@@ -38,6 +38,28 @@
 - `retired` 不单独证明所有hooks还原，须看observer_failed；sample_joined不证明原native/public pending join。flush/finish为先已有pending≤250ms、再end≤250ms两个串行上界，原PW45／expect5／Go120／Go6m／root540+60+3+75未改；原普通finished/schema/client全部mandatory，无fallback。没有browser／PG／socket／网络，原05FAIL不变。
 - 新 `.agent-state/work-cut-review/native-controls.cjs`、该目录README、本文三路径freeze供root下个安全间隙保存；Cleanup SPEC两技术文档仍 `e9e608f9` 未改，无自有命令／真实资源在途。
 
+## 剩余三组 PG 的固定组合入口
+
+- root已保存上一节native独审3路径为 `4442a356`。随后只读核当前 `tests/skills`、Skills/Object/Project产品及迁移相对 `19353f4e` 无diff，Skills产品相对 `d0a16242` 无diff。现成70036 `skill-pg-stop.test`（32,895,591 B，Go1.27.1/race/integration）本就是完整测试包；`7321c7` 实际list发现尚未执行的Migration／AdmissionUnknown／OwnerMetadataCurrentAuthority／ObjectInitializationPublication四top，不需要新业务compile。旧migration/admission/owner/object四binary实际list分别4/5/6/7tops、均无Stop（5306 actual0）；其旧产品边界保持。
+- root授权的两工具增量仅允许新 literal `^TestSkill(Migration|InitializationAdmissionUnknown|OwnerMetadataCurrentAuthority)$`，原单top格式照旧；监督器对该唯一PG组合要求实际顶层集合正好3且无重复。无效UTF8／读取失败返回明确FAIL，仍继续driver已Wait后的desc双轮／TCP双空／input与terminal尾。未增failfast，Go6m／driver105+15／supervisor123+3／TCP75、两精确资源与原单top/root流程全不变。
+- 新小driver `output/ai/skills/compile/pg-only-skills-combo-driver`（15,394,731 B）97198 actual0；旧driver与全部测试binary未覆盖。完整离线命令：
+
+```sh
+# cwd: /workspace/agenteam-skills
+env GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2 \
+ GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
+ GOCACHE=/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache \
+ GOTMPDIR=/workspace/agenteam-skills/output/ai/skills/compile/tmp \
+ /workspace/toolchains/go1.27.1/bin/go build -mod=readonly -p=1 \
+ -o output/ai/skills/compile/pg-only-skills-combo-driver \
+ .agent-state/task-planning-recovery/pg_only_driver.go
+python3 .agent-state/skills-pg-combo/controls.py
+```
+
+- `b09e76` actual0／28离线控制：运行实际新driver验证3个允许selector（组合＋两个旧单top）与6个宽／错序／缺项／多项拒例；允许项故意使用不存在parent，恰在Statfs失败退出，无资源创建。实际helper核正向／缺项／多项／重复／仅sub／无效UTF8／失读；实际supervisor main在受控已Wait child、空desc/tcp下跑正向、缺项、无效UTF8与旧单top四例，保实际Wait观察及完整双尾，未把控制当真实资源回收。两工具逆去唯一增量后全文逐字 `4442a356`，264020 syntax/gofmt/diffcheck actual0。
+- 未验范围仍是Migration 4直接子（其中30约束负例）、Admission work/reserve 2子、Owner 12子，7个独立DB顺序清理、两个proxy顺序实际join；只计划原105秒内一次有限组合尝试，未实跑、不保证静态耗时、不增预算。真实D05另走原七资源root-chain／同70036 binary／单独ObjectPublication三子，Cleanup unbound/noRuntime限制不变。已PASS的四top不重跑。
+- 两工具、必要 `.agent-state/skills-pg-combo/controls.py` 与本文4路径freeze，交Variables未参与者窄审；本实例无真实资源或命令在途。新的真实窗口仍需root fresh grant，当前Model19唯一窗不受影响。
+
 ## 当前 Stop PG 完整结果
 
 - fresh grant 后第一工具同完整env采样可用5,707,370,496 bytes≥5,368,709,120，才exec原supervisor。`96753` 只跑 `^TestSkillLifecycleStopPersistence$`，Go5.32s、12子全PASS；Go986629与driver986046实际Wait0，driver15.375099071s、supervisor74.585s、outer actualexit0。
