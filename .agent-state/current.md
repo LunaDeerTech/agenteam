@@ -17,6 +17,12 @@
 - Knowledge 原 Runtime56777真实第一子FAIL、后两子PASS，hostTCP尾FAIL保留；修复不追改原结果。新分页SQL及当前新 Runtime/Cleanup 尚需真实窗口，新增 Cleanup 两真 reader 按 durable ID 判序的子例仅静核。作者59862 UUID顺序假设FAIL与修后49004 full race事实独立保留，不替代本实例结论。此次仅新增探针及报告／本文3路径冻结，旧桥和缺陷探针未改，无自有命令或资源在途。
 - 新 review 目录四文件加本文共五路径可恢复冻结。源检查未发现其他授权／删除原子性 mustfix；原作者六组有限 PG 和后续五组／最小独立真实补集边界不变。当前本实例无测试／真实资源在途。
 
+## Work 四条预声明截断方法独审
+
+- 环境恢复后本域 status clean；root 已远端保存 Stop 结果 `0a20321a` 与 Knowledge 修复独验 `0d9cf6b1`。没有重做本域实现或重跑真实资源；Knowledge 新 Runtime54818 由作者收原 session 全尾，在结果到达前不外推。
+- 对 Work 固定 `152eb964` 相对 `ae101b00` 的四条截断 helper 方法有限接受，无 mustfix。实际 `53260` exit0／63 控制／0 unhandled（原57＋本人6）：四类 failed 尾完成后再 success 仍拒且不启动 finished；普通 failure 无截断豁免、held-read 原 finished 晚拒仍失败，均调用原 finished 一次。依据与边界见 [独审记录](work-cut-review/README.md)，必要探针只读取固定 Git source、写 Skills 自有忽略 output；没有 Work 产品写入或 PG/browser/socket。
+- native 诊断与后续接线仍是作者 WIP，尚未交整包独审；原05整体FAIL和五条普通 aborted 的缺失证据保持。新 probe／README 加本文3路径冻结，当前无自有命令／资源在途；下一只在作者稳定冻结后继续 native 范围，不以本方法接受代替新技术整包或真实 UI。
+
 ## 当前 Stop PG 完整结果
 
 - fresh grant 后第一工具同完整env采样可用5,707,370,496 bytes≥5,368,709,120，才exec原supervisor。`96753` 只跑 `^TestSkillLifecycleStopPersistence$`，Go5.32s、12子全PASS；Go986629与driver986046实际Wait0，driver15.375099071s、supervisor74.585s、outer actualexit0。
