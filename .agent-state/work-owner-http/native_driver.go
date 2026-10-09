@@ -29,12 +29,16 @@ func variableNative(selector string) bool {
 	return false
 }
 
+func knowledgeNative(selector string) bool {
+	return selector == "^TestKnowledgeHTTPNative(Deadlines|KeepAliveAndClose|BackpressureAndDisconnect)$"
+}
+
 func run() int {
 	opts := flag.NewFlagSet("work-http-native", flag.ContinueOnError)
 	binary := opts.String("test-binary", "", "frozen native race binary")
 	selector := opts.String("run", "", "one exact native top")
 	directory := opts.String("directory", "", "new task-owned directory")
-	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || !filepath.IsAbs(*binary) || !filepath.IsAbs(*directory) || (!regexp.MustCompile(`^\^TestWorkHTTPNative(?:Deadlines|KeepaliveAndEOF|WriteCloseAndConfirmationTail)\$$`).MatchString(*selector) && !variableNative(*selector)) {
+	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || !filepath.IsAbs(*binary) || !filepath.IsAbs(*directory) || (!regexp.MustCompile(`^\^TestWorkHTTPNative(?:Deadlines|KeepaliveAndEOF|WriteCloseAndConfirmationTail)\$$`).MatchString(*selector) && !variableNative(*selector) && !knowledgeNative(*selector)) {
 		fmt.Fprintln(os.Stderr, "STOP exact native binary, selector and directory required")
 		return 1
 	}
@@ -56,6 +60,8 @@ func run() int {
 	nativeGate := "AGENTEAM_WORK_OWNER_HTTP_NATIVE"
 	if variableNative(*selector) {
 		nativeGate = "AGENTEAM_PROJECT_VARIABLE_HTTP_NATIVE"
+	} else if knowledgeNative(*selector) {
+		nativeGate = "AGENTEAM_KNOWLEDGE_HTTP_NATIVE"
 	}
 	// Copy inherited fixed toolchain/cache inputs, replacing only this task's
 	// explicit native gate and its fresh private temporary directory.

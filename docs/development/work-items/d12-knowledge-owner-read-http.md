@@ -37,3 +37,6 @@ children 的 parent_document_id 必须是字面 `null` 或规范 UUIDv7；不把
 有限矩阵：① pure严格路由/query/DTO/隐藏字段canary/坏尾项/安全Fault与schema、原I/O取消/短写/Close/实际callback；② native socket慢body/慢写/断连/HEAD/keepalive/原2s自然期限与实际尾；③真实同Store Account正式登录、当前Project Owner、B02真实服务的五API/非空分页树/删除tombstone、每页撤权与两种锁序、取消/真实读COMMIT Unknown零候选。公共内容变更用于产生业务事实，不复制B02全量发布矩阵。PG/native均另需root独占窗口；pure/编译不冒动态通过。未参与实现者独立核安全投影/权限与有价值负控后才交付该有限adapter。
 
 后继实际候选为四top封闭组 `TestKnowledgeOwnerReadHTTP{Metadata,CurrentAuthority,Transactions,CommitUnknown}`：真实Account正式身份、原B02同Store实际出版，Project初始化/Owner变化/合法Deleting仅明确上游SQL夹具。四top十四子覆盖上述权限/输出/事务矩阵；局部test-only回调只观察/阻塞原事务，不替换CommitResult/授权/SQL行。整个Go仍6m，单top包含fixture实际收尾120s；原七资源root链/全部实际Wait与双尾不变。运行时Schema helper/两JSON和当前Python解释器也进入input gate，候选/命令与实际限制见本树current。
+
+
+PG入口已获Runner 1f7561/d2262e有限独审接受，固定MinIO由root准备；尚无PG业务实际结果。native继续复用既有driver/supervisor，唯一三top六子闭集、原Go90s/driver105s/123+3/TCP75及全尾不变；97611e离线76控制通过，原PG控制5a3165通过，native入口独审/候选编译与真实运行待完成。有限交付收口只需：已验pure/Schema与独立安全投影/I/O风险控，加上当前四PG top十四子和native三top六子的实际完整终态；真实证据若指出缺陷，只补受影响范围。权限业务使用真实Account/B02同Store，native的局部authority/domain替身只证明传输，不冒完整App root或Runtime接入。

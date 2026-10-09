@@ -28,6 +28,28 @@ def budgets(root_chain):
     return (540, 60) if root_chain else (123, 3)
 
 
+KNOWLEDGE_NATIVE_SELECTOR = '^TestKnowledgeHTTPNative(Deadlines|KeepAliveAndClose|BackpressureAndDisconnect)$'
+
+
+def knowledge_native_exact(log_path):
+    groups = {
+        'TestKnowledgeHTTPNativeDeadlines': ('read-natural', 'earlier-parent'),
+        'TestKnowledgeHTTPNativeKeepAliveAndClose': ('cleared-deadline-keeps-real-connection', 'real-body-close-error-aborts-before-response'),
+        'TestKnowledgeHTTPNativeBackpressureAndDisconnect': ('summary-write-natural-deadline', 'disconnect-cancels-actual-library-tail'),
+    }
+    required = set(groups) | {parent + '/' + child for parent, children in groups.items() for child in children}
+    try:
+        output = log_path.read_text(encoding='utf-8')
+    except (OSError, UnicodeDecodeError):
+        return False
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([0-9]+(?:\.[0-9]+)?s\)$', output, re.M)
+    passed = [name for state, name in results if state == 'PASS']
+    return (len(runs) == len(required) and set(runs) == required
+            and len(results) == len(required) and len(passed) == len(required)
+            and set(passed) == required)
+
+
 def root_adapter(driver):
     expected = Path(__file__).resolve().parents[2] / '.agent-state/work-owner-http/root_chain_driver.py'
     if driver.resolve() != expected:
@@ -274,6 +296,12 @@ def main():
                 if remaining: code = 1
             if args.root_chain and not observe_root_chain(directory, log, log_path, args.run):
                 code = 1
+            if not args.root_chain and args.run == KNOWLEDGE_NATIVE_SELECTOR:
+                log.flush()
+                exact = knowledge_native_exact(log_path)
+                log.write(f'KNOWLEDGE_NATIVE exact_three_tops_six_children={exact}\n')
+                if not exact:
+                    code = 1
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75

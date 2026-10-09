@@ -27,6 +27,15 @@ def module(path, name):
 for path in (DRIVER, SUPERVISOR):
     source = (ROOT / path).read_text()
     ast.parse(source)
+    # Later native-only entry is independently reverse-checked against 391f0cb7.
+    # Remove only its exact added spans before checking the original PG delta.
+    if path == SUPERVISOR and 'KNOWLEDGE_NATIVE_SELECTOR = ' in source:
+        start = source.index('KNOWLEDGE_NATIVE_SELECTOR = ')
+        end = source.index('def root_adapter(driver):', start)
+        source = source[:start] + source[end:]
+        start = source.index('            if not args.root_chain and args.run == KNOWLEDGE_NATIVE_SELECTOR:')
+        end = source.index('            # The tail is a host delta', start)
+        source = source[:start] + source[end:]
     assert sum(SELECTOR in line for line in source.splitlines()) == 1
     before = subprocess.run(['git', 'show', BASE + ':' + path], cwd=ROOT, check=True, capture_output=True, text=True).stdout
     restored = ''.join(line for line in source.splitlines(keepends=True)
