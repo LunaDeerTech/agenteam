@@ -80,3 +80,6 @@
 
 - 独立Task A/B最终rromoyii组合完整PASS：A outer40886 exit0/69.414s（pg-c8c57e06…），B outer42492 exit0/84.273s（pg-63444268…）；bodyA2.64s/B18.24s，所有child/driver Wait0、两ID/runtime/TCP双空，22源末次changed=[]。20技术全文静审+privatecodec独立矩阵+A/B均通过，无已知未修产品阻断；作者余4新+4旧实际PG未齐，整卡不能接受。
 - D10 C1首3源core/reference/codec已gofmt并offline包编译exit0（no test files，只编译），稳定保存；3测试正在补齐，尚无实现行为/独立验收。D10原doc已补F1 ToolID层级BLOCKED/C1状态。Task transition最新草案把T0a无Blocker纯闭包与待B0-C的T0b明确拆开，358行peer修订冻结保存，独立SPEC读者须采用此最新输入。
+
+- Model第三轮32809 actualexit1：Go9.97s FAIL，未产生case step/afterEach诊断，具体早退出原因未定；完整terminal81.05s、directWait/4adoptedWait0/watchdog+resourceobserverjoin、7IDs/runtime/TCP双空/inputsame（owned-recovery-2920bc…）。原owner补Go对Node hook前错误的封闭安全类别/数值源位置投影，尚未冻结编译，不保存其活跃2Go差量，暂不第四业务run。
+- Agent C1六source与doc已全freeze保存，pure0.023s/准确4依赖pure及race（Agent1.217s）/vet实际exit0，gofmt/diff/10链接均通过；3产品source未为tests修改。待独立实现验收，不提供真实Agent或生产服务。Task transition时间列歧义已单行消除，全文分段SPEC独立接受仅解锁T0a登记纯闭包，后继真实前置保留。下一窗作者连续剩4新top，完成后安全保存/排程再4旧Structure。

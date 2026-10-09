@@ -175,7 +175,7 @@ TransferTaskInTx(ctx, caller_tx, actor, prepared)
 
 discovery 失效、准备到 final 失效共用最多3个规划轮次；仅本域可证明的适用性失效允许重新发现/生成更高 revision。原 expected_version/body/原caller BlockerID 不变；版本冲突立即返回，不偷偷更新 expected。PrepareAppend 的 Forbidden/依赖错误不吞掉改成重试。重规划替换拟事件 IDs 时保留旧 revision 可拒绝性；旧 AppendPlan 不能在新 revision 下使用。耗尽为 RESOURCE_BUSY，无业务成功。
 
-final 原子集合为：Task 指定 state/assignee/rank/version/updated_at、必要 spectator rank、source/target generation、Project query generation、Blocker mutations、全部真实 TaskEvent、唯一 typed Outbox、completed receipt、Human Account Activity。Human Activity 恰一次；Agent/S 不 touch 一个虚构 User。Task version/updated_at 在本次组合恰+1，无论产生多少 history；同一时刻用于 Task.updated_at、所有 history.created_at、Outbox.occurred_at、receipt.committed_at。Blocker 行同 Tx 使用同一正式 operation/actor/time。
+final 原子集合为：Task 指定 state/assignee/rank/version/updated_at、必要 spectator rank、source/target generation、Project query generation、Blocker mutations、全部真实 TaskEvent、唯一 typed Outbox、completed receipt、Human Account Activity。Human Activity 恰一次；Agent/S 不 touch 一个虚构 User。Task version/updated_at 在本次组合恰+1，无论产生多少 history；同一时刻用于 Task.updated_at、所有 history.created_at、Outbox.occurred_at，以及 §7 的 `task_transition_commands.committed_at` 持久列。该时刻不是 receipt wire 字段，`TaskTransitionMutation` 仍只有 §3 的三个字段。Blocker 行同 Tx 使用同一正式 operation/actor/time。
 
 writer 先将本次 canonical/history 写入未提交 Tx，供 Outbox producer 的 NewFact 真实重验；随后 Append、完成 receipt 和 Activity，任何参与者/触 Activity/提交前取消失败全部回滚。不允许仅返回组装的 events 而未实际插入 TaskEvent。独立 pure comment 未来可以不推进 Task version，但本次必填 comment 从属于实际 state change，使用同一新 version。
 
