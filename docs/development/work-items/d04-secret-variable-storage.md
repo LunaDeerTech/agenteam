@@ -1,6 +1,6 @@
 # D04 Project Secret Variable 存储 producer
 
-状态（2026-10-09）：D04 producer 与正式00029已实现；独审后的core3（17节点）和maintenance单top两次真实PG窗口均完整PASS，真实Unknown/并发未验，本卡尚未正式交付。工作树基线为正式 main `8cb0a95338dc417ff34be06c00086fbbc7159efa`。本卡落实已接受的 [D10 rev2](d10-secret-variables-owner.md) §4、§6，不改变 Secret Variable 的业务语义。D10 A 的五个 contract、三个测试及 schema 已正式交付；D10真实authority与Owner仍为后继范围。
+状态（2026-10-09）：D04 producer 与00029已实现；core3（17节点）、maintenance单top及write/nonce恢复四格（5节点）真实PG窗口均完整PASS，maintenance Unknown/并发六格未验，本卡尚未正式交付。正式main当前迁移仅至25，26–28在本树只是测试依赖；producer有限接受与00029正式SQL交付分开，后者须等待正式连续前缀。工作树基线为正式 main `8cb0a95338dc417ff34be06c00086fbbc7159efa`。本卡落实已接受的 [D10 rev2](d10-secret-variables-owner.md) §4、§6，不改变 Secret Variable 的业务语义。D10 A 的五个 contract、三个测试及 schema 已正式交付；D10真实authority与Owner仍为后继范围。
 
 ## 1. 范围、所有者与构造顺序
 
@@ -69,7 +69,7 @@ ReceiptRead 的当前 Session/Owner/Project gate 在读历史 receipt **之前**
 
 Prepare 在事务外分配 nonce 并密封必要材料，不写 durable planned row。发现已有历史 receipt 时只准备安全比较，不密封新的业务值。Match 在 D04 内解密原 32-byte 语义摘要并作 constant-time 比较；不对外暴露裸 SHA，身份-only Lookup 不证明语义相同。相同身份不同原语义返回 KeyReused；合法历史重放不得因 canonical 后来改变而变成新写。
 
-最终由 D10 开一个 Tx 并一次 AcquireAll 完整锁并集：原 command EX、User EX、Project EX、Secret write-key SH、涉及每个 CredentialRef aggregate EX 与既有协议要求的全部锁；D04 只 RequireHeldLocks，不临时补锁。顺序保持 D04 native 写值/专用 intent receipt/必要 Secret Audit → D10 canonical mapping/version/generation/history/completed → D10 Audit/Outbox/Activity。Apply 重验 issuer、当前权限、映射、purpose、version 和 reference/lease 约束。effect none 也写专用 receipt，但不伪造 Secret value 更新或 Secret Audit。
+最终由 D10 开一个 Tx 并一次 AcquireAll 完整锁并集：原 command EX、User EX、Project EX、Secret write-key SH、涉及每个 CredentialRef aggregate EX 与既有协议要求的全部锁；D04 只 RequireHeldLocks，不临时补锁。顺序保持 D04 native 写值/专用 intent receipt/必要 Secret Audit → D10 canonical mapping/version/generation/history及同Tx私有证明 → D10 Audit实际返回AuditID → D10完整completed → Outbox/Activity；D10证明与顺序窄修见其§6.2。Apply 重验 issuer、当前权限、映射、purpose、version 和 reference/lease 约束。effect none 也写专用 receipt，但不伪造 Secret value 更新或 Secret Audit。
 
 并发 create 的获胜映射若与事务外候选 Ref 不同，应退出事务、重发现并按 D10 原有限重准备规则处理；不在锁内加锁或无界重试。Unknown 保留原 attempt/cause/CommitResult，D04 不私自另开确认事务或重跑 callback；由 D10 按原一次、有界确认协议处理，不能把未提交/未知都变成成功。
 
@@ -110,3 +110,5 @@ SPEC 的 prepared/名称/表名三缺口及 CheckPlan 增量已分别获 Runner 
 core3首次真实PG在固定候选742/driver831上完成：原session48021→11fe77实际outer0，三top＋14sub共17节点PASS，Go/driver实际Wait0、精确两资源双退役、凭据退役、后代双空、TCP双空增量、输入未变全部齐备。该组证明本树连续Migrator含00029、D04四effect/历史幂等/current deny、真实目标回滚及九DDL负例；25–28依赖迁移成功不代表其业务或28执行计划验收。
 
 maintenance复用同候选/driver，原session3222→0a46e7实际outer0、69.661s完整尾；唯一top PASS2.51s，真实101历史receipt/删Credential后轮换与Retire/仅key2重启重放/100+1清理通过，原Wait、两资源/private/后代/TCP/input尾全部齐。D10权限来源仍为明示受控fixture，真实Unknown/并发和正式Owner未验。两原日志路径、资源身份和终态见[current](../../../.agent-state/current.md)；未重编或修改旧验收输入。
+
+write/nonce恢复首窗使用独立a7a7候选/8f1driver，原session76000→cc555a本人实际outer0，完整76.654s；原COMMIT before/after/pending及nonce ACK-loss四格、5精确节点PASS，实际Go/driver Wait、代理Close/wg与Store退役、两资源双退役/private/后代/TCP双空/input未变齐全。此证据保留真实Unknown/原Cause、目标COMMIT与nonce持久事实的界线；第二组maintenance Unknown/并发六格尚未启动，不扩为十格全过。当前D10仍为受控provider，正式Owner/HTTP与main连续迁移交付不在本次结论内。
