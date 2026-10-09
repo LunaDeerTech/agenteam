@@ -26,7 +26,7 @@
 | `db/migrations/00026_runner_control.sql` | 根预留；Runner 事实与 Audit 闭集增量，同一事务迁移 |
 | 本卡、`.agent-state/current.md` | 当前规格与短可恢复状态，不复制历史报告 |
 
-根已原则授权、仅本树使用的共享写域：`internal/runner/config/{config.go,config_test.go}`、`internal/runner/app/{app.go,app_test.go}`、`cmd/agenteam-runner/{main.go,main_test.go}`；`internal/central/app/account.go` 与新 `runner_control.go`、`runner_control_test.go`、`runner_control_process_test.go`；`internal/central/audit/contract/{types.go,metadata.go,runner.go,runner_test.go}`、`internal/central/audit/{service.go,query.go,runner_test.go}`；`go.mod/go.sum` 仅新增 `github.com/gorilla/websocket v1.5.3` 及必要依赖；新 `api/openapi/runner-control.json`，现 `docs/development/backend/README.md` 与新 `docs/development/backend/runner.md`。根已补充授权 `internal/central/identity/contract/{identity.go,runner_test.go}` 注册闭集 `runner-identity` ServiceName；只允许 System scope、同事务真实身份事件的 Audit authority，未知 service actor 仍默认拒绝。任何其它共享源不自动获权。
+根已原则授权、仅本树使用的共享写域：`internal/runner/config/{config.go,config_test.go}`、`internal/runner/app/{app.go,app_test.go}`、`cmd/agenteam-runner/{main.go,main_test.go}`；`internal/central/app/{account.go,security.go}`（保留原createSecurity五参默认语义、私有固定RunnerAuthority装配）与新 `runner_control.go`、`runner_control_test.go`、`runner_control_process_test.go`；`internal/central/audit/contract/{types.go,metadata.go,runner.go,runner_test.go}`、`internal/central/audit/{service.go,query.go,runner_test.go}`；`go.mod/go.sum` 仅新增 `github.com/gorilla/websocket v1.5.3` 及必要依赖；新 `api/openapi/runner-control.json`，现 `docs/development/backend/README.md` 与新 `docs/development/backend/runner.md`。根已补充授权 `internal/central/identity/contract/{identity.go,runner_test.go}` 注册闭集 `runner-identity` ServiceName；只允许 System scope、同事务真实身份事件的 Audit authority，未知 service actor 仍默认拒绝。任何其它共享源不自动获权。
 
 不修改 Foundation ID/锁/通用 Fault 或原迁移。Runner 事务用现有 CommandLock、SystemConfigLock、UserLock，预收集排序；本卡不新增全局锁 rank。现有 PG 真正拒绝迁移版本洞，00026 必须待根整合 00024/00025 后按完整连续源验证，不能填空迁移或改旧 checksum。SPEC/pure 阶段可以先行，真实 PG gate 不因编号预留而自动就绪。
 
@@ -84,7 +84,9 @@ WSS `/api/v1/runner/control`，subprotocol 精确 `agenteam.runner.v1`；凭据�
 
 跨 Central 进程不把内存 map 当全局真相：generation/current owner 存DB，每个新 request 的实际 write 前与每个会改变/发布事实的 inbound message 都核对应 generation。发送门在短事务持该 Runner 连接锁验证，真正 write 和该短事务共用≤5s上界，才允许新代际发布；不得持锁执行 operation。替换后旧 socket 最多在下一次≤1s代际观察中主动关闭；期间旧 inbound 不能发布，原 pending 可保守 unknown。各独立 registry 必须通过真实双实例竞争验收。仅支持当前进程所属连接的 dispatch；无跨 Central 的 RPC 转发，连接归别进程时返回 backend_unavailable 而非删除配置/伪造offline。此限制须出现在生产说明，不能宣称 HA dispatch。
 
-Central 启动不把旧 online 行直接当在线；lease超时/旧owner不存在时读取为offline。registry异常退出/重启不恢复旧request。身份撤销/re-enroll与接收/发送共用同代际门，撤销提交后不能用旧key创建新连接，旧连接不能发布成功；已发送的外部副作用不宣称回滚。管理员元数据version与高频heartbeat独立，heartbeat不造成每秒配置version冲突。
+online 是数据库当前连接的有界视图：必须存在当前 connection 行、已经完成 hello、credential_generation 与 connection_generation 均匹配 Runner，且原有30s lease尚未到期。已知连接退役、任一代际失效或lease到期则读为offline；连接属于其它仍有效owner时，不得仅凭本进程registry缺席读为offline。数据库无法确定这些事实时返回unavailable，不合成offline。incompatible仍沿下段独立规则优先投影。
+
+本次根明确批准的有限SPEC修订以以上持久事实/原30s租约替代旧稿“旧owner不存在即offline”的即时判定要求：现D01/D02没有跨进程owner即时死亡provider；未知crash/partition不能被当作已确证死亡，其保守online视图最多保留至最后一次续约的原lease到期。Central重启以新随机owner启动，不接管旧连接、不恢复旧request或跨owner dispatch；仍有效旧lease只影响读取视图，不能授予新进程旧RPC权限。此修订不新增全局HA/owner端口、不改变30s或迁移，也不声称旧稿即时判定已实现。身份撤销/re-enroll与接收/发送共用同代际门，撤销提交后不能用旧key创建新连接，旧连接不能发布成功；已发送的外部副作用不宣称回滚。管理员元数据version与高频heartbeat独立，heartbeat不造成每秒配置version冲突。
 
 只版本 major 不兼容或必需协议条件不满足记 incompatible；错签/普通断网/单项capability故障不冒版本不兼容。同 major不同minor允许 hello，以 `min(peer_minor,0)` 协商为本实现1.0；feature集合只能是双方明确支持的交集，不因minor更高接收未知字段或启用能力。
 
@@ -203,6 +205,7 @@ Runner实际入口为满足上述既定行为，根补授权仅本树`tests/proc
 | connection真实竞争 | hello前request、wrongmajor/高minor/未知必需字段；两个真实实例同时接同Runner，旧heartbeat/terminal/cleanup晚到不能覆盖；revoke后旧发布拒；物理socket全部join |
 | RPC真实wire+明确Runtime替身 | 多active交叉stream/terminal；未发送/局部write/已执行lostresponse；sameoperation不同request；deadline与cancel实际终态；blockedhandler使Force不得冒join；重连绝零自动重发 |
 | boundedness | 控制队列/字节/关联/dedupe边界满值±1；停consumer/慢reader/断写，heartbeat与terminal保留；持续背压明确收束；高频观察无goroutine增长，资源cap不冒业务调度策略 |
+| Reader在线视图 | 真实PG中当前hello/双代际/有效lease正例；foreign有效owner仍online，进程内map缺席不改状态；已知退役/代际失效/到期offline，DB不可读unavailable；真实native断连与重启覆盖未知crash在原30s内的保守视图、旧owner无dispatch/恢复权限，不以即时死亡证明作oracle |
 | heartbeat/reconnect | native定时器自然超时、ack错sequence/丢失/重复、其它帧不能续命；fulljitter有界/稳定reset；Stop中断睡眠/DNS/handshake；capability单失败不置incompatible |
 | 真实双cmd root | 管理创建→stdin登记→默认Runner Run→Central可读online→撤销/再登记→重复连接；graceful/第二信号/Force原deadline，7类owned callback/socket/process/文件锁/PG borrower实际join；不只编译/list |
 | 迁移/回归 | 连续源00023→26（含真实24/25）、重跑与DDLrollback、新旧Audit记录；原Account/Admin/启动失败/离线CLI/原Runner D02配置差异逐项明确，不扫无关全部矩阵 |
@@ -228,3 +231,5 @@ rev1独审发现payload闭集不完整及HTTP误列不存在Foundation Conflict�
 Central 管理契约/Reader/commands及typed Audit首片段已可构建，精确相关包作者race通过；当前Admin/事务原子性、登记与WSS真实服务尚待验证。一次递归包选择错误纳入既有Audit HTTP native测试并超时，未获当轮资源授权，原18858整体124保留；0B testlog不能证明具体top，遗留已退出Z缺原actualWait/监听清理证据。精确时间/归属和命令见current与必要事故JSON，不能把该轮当离线或资源通过；根确认同组non-Z=0后已恢复真正离线检查，新包先compile/list并核TestMain/init，后续仅核过的显式包/selector。
 
 Admin有限HTTP与设备登记/challenge/Audit producer已可构建，作者精确纯控通过。HTTP只Request/Recorder，设备只明确私有SQL executor，均不冒native/PG行为；设备首次测试类型名编译错误已修，原失败保留。Central认证代际/WSS/root尚待接线，现有真实迁移结果不代这些业务SQL或全D15验收。
+
+Central WSS/root生产装配及major不兼容持久标记已接入，新增标记只在已认证当前连接门内写入；作者精确纯控通过，尚无真实升级、nonce/heartbeat业务SQL或双实例运行结果。§5已由根明确修订为原30s持久lease有界在线视图，替代缺少provider的即时owner死亡判定；现Reader SQL按hello/双代际/lease投影，未依赖本地owner map，其真实正反与native门槛仍待验。

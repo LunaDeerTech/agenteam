@@ -21,6 +21,7 @@ type controlBackend interface {
 	controlAuthority
 	Authenticate(context.Context, p.Authentication) (service.Connection, error)
 	OwnConnection(context.Context, service.Connection, func(context.Context) error) error
+	RejectIncompatible(context.Context, service.Connection) error
 }
 
 type controlRegistry struct {
@@ -329,6 +330,7 @@ func (h *DeviceHandler) serveControl(w http.ResponseWriter, request *http.Reques
 			wire := newControlWire(controlNativeSocket{socket}, func(ctx context.Context, write func(context.Context) error) error {
 				return h.control.WithCurrentConnection(ctx, reservation, write)
 			})
+			wire.incompatible = func(ctx context.Context) error { return h.control.RejectIncompatible(ctx, reservation) }
 			session = newControlSession(wire, h.control, reservation, auth.RunnerID())
 			h.registry.install(session)
 			handed = true

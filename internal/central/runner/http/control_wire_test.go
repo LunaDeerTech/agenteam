@@ -268,3 +268,22 @@ func TestRunnerCentralWirePureDirectionAndDecode(t *testing.T) {
 		s.mu.Unlock()
 	}
 }
+
+func TestRunnerCentralWirePureCompatibilityClassification(t *testing.T) {
+	raw, _ := p.Encode(pureControlMessage(t, p.Heartbeat{Sequence: "1", RunnerTime: "2026-10-09T00:00:00Z"}))
+	major := []byte(strings.Replace(string(raw), `"major":1`, `"major":2`, 1))
+	for _, test := range []struct {
+		raw  []byte
+		want int
+	}{{major, 1}, {[]byte(`{"broken":true}`), 0}} {
+		s := newHeldControlSocket()
+		close(s.release)
+		w := newControlWire(s, pureControlGate)
+		marked := 0
+		w.incompatible = func(context.Context) error { marked++; return nil }
+		s.input <- test.raw
+		if e := w.run(context.Background(), func(context.Context, p.Message) error { t.Error("invalid major reached application"); return nil }); e == nil || marked != test.want {
+			t.Fatal("wrong classification or missing committed compatibility hook", e, marked)
+		}
+	}
+}

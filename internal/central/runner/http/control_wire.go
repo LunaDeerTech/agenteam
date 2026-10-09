@@ -65,14 +65,15 @@ func (s controlNativeSocket) close() error {
 type controlWriteGate func(context.Context, func(context.Context) error) error
 
 type controlWire struct {
-	socket controlSocket
-	queue  *controlQueue
-	gate   controlWriteGate
-	once   sync.Once
-	stopCh chan struct{}
-	done   chan struct{}
-	mu     sync.Mutex
-	active bool
+	socket       controlSocket
+	queue        *controlQueue
+	gate         controlWriteGate
+	incompatible func(context.Context) error
+	once         sync.Once
+	stopCh       chan struct{}
+	done         chan struct{}
+	mu           sync.Mutex
+	active       bool
 }
 
 func newControlWire(socket controlSocket, gate controlWriteGate) *controlWire {
@@ -175,6 +176,11 @@ func (w *controlWire) read(ctx context.Context, receive func(context.Context, p.
 			code := p.InvalidEnvelope
 			if errors.Is(e, p.ErrIncompatibleVersion) {
 				code = p.IncompatibleVersion
+				if w.incompatible != nil {
+					if rejected := w.incompatible(ctx); rejected != nil {
+						return rejected
+					}
+				}
 			}
 			w.report(ctx, code, "")
 			return errControlProtocol
