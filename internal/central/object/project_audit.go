@@ -170,6 +170,18 @@ func checkProjectObjectAudit(ctx context.Context, x postgres.SQLExecutor, w proj
 		if blocked {
 			return projectAuditDenied()
 		}
+		if p.boundedCleanup {
+			if u.owner.Details().Kind != oc.SkillRevision || u.disposition != "revoked" || len(p.cleanupWorkers) > oc.ObjectMetadataPurgeBatchLimit {
+				return projectAuditDenied()
+			}
+			blocked, err = boundedCleanupPending(ctx, x, u.object, p.cleanupWorkers)
+			if err != nil {
+				return err
+			}
+			if blocked {
+				return projectAuditDenied()
+			}
+		}
 		var cause string
 		if err = x.QueryRow(ctx, `SELECT operation_id::text FROM agenteam_object.cleanup_operations WHERE object_id=$1 ORDER BY created_at,id LIMIT 1`, u.object.String()).Scan(&cause); err != nil {
 			return unavailable(err)

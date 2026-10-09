@@ -68,6 +68,7 @@ type serviceState struct {
 	accessIssuer                 oc.AccessIssuer
 	accessMu                     sync.Mutex
 	accessTransactions           map[foundation.Tx]bool
+	metadataTransactions         map[foundation.Tx]bool
 	store                        Store
 	backend                      *Backend
 	transferBackend              *Backend
@@ -116,6 +117,7 @@ func New(store Store, backend *Backend, spool *Spool, audit ac.Appender, auth Au
 	state := &serviceState{store: store, backend: backend, spool: spool, audit: audit, auth: auth, registration: r, process: spool.state().process, operations: map[*operation]bool{}, prepared: map[oc.PayloadID]*preparation{}, writers: map[oc.AttemptID]*writer{}, closedAttempts: map[oc.AttemptID]bool{}, closedLeases: map[oc.LeaseID]oc.ObjectID{}, cleanupRequests: map[*cleanupRequest]bool{}, changed: make(chan struct{}), workerStop: make(chan struct{})}
 	state.accessIssuer = oc.NewAccessIssuer()
 	state.accessTransactions = make(map[foundation.Tx]bool)
+	state.metadataTransactions = make(map[foundation.Tx]bool)
 	state.projectWork = make(map[string]*projectWorkHandle)
 	return &Service{func() *serviceState { return state }}, nil
 }

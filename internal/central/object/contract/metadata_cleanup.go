@@ -10,9 +10,8 @@ import (
 // caller-owned transaction, including its final Object/Upload anchors.
 const ObjectMetadataPurgeBatchLimit = 32
 
-// PurgeDeletedObjectMetadataAccess is reserved for ObjectCleanupAccess. Its
-// AccessRequest/Service integration is required separately; this declaration
-// does not make an existing request or plan valid for the new operation.
+// PurgeDeletedObjectMetadataAccess belongs only to ObjectCleanupAccess with
+// SkillRevision/ProjectDeleted. A physical-cleanup plan is never a purge plan.
 const PurgeDeletedObjectMetadataAccess AccessOperation = "purge_deleted_object_metadata"
 
 // DeletedObjectMetadataPurger is an independently bound optional capability.
