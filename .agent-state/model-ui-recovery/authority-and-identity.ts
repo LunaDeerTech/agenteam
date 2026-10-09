@@ -1,7 +1,8 @@
-import { expect, type Locator, type Page, type Request, type Response } from '../../tests/account-captcha-web/node_modules/@playwright/test/index.js';
+import { expect, test, type Locator, type Page, type Request, type Response, type TestInfo } from '../../tests/account-captcha-web/node_modules/@playwright/test/index.js';
 import { createHash, randomUUID } from 'node:crypto';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { performance } from 'node:perf_hooks';
 import type { ConfigCredentialSnapshot as Snapshot } from './configuration-and-credential';
 
 type ProjectKey = 'main' | 'second' | 'other' | 'admin_owned' | 'archiving' | 'archived' | 'deleting' | 'pending' | 'config_recovery' | 'credential_recovery' | 'referenced';
@@ -228,6 +229,23 @@ function resolveSnapshot(value: unknown): Record<string, boolean | number | stri
 // Resolve remains outside the Model operation whitelist. This observes the
 // original selected response without selecting a replacement or changing a gate.
 async function beginResolveDiagnostic(page: Page, project: Project) {
+  // All times below are Node observations relative to this invocation, not
+  // browser EOF times or the beginning of Playwright's overall test budget.
+  const timeOrigin = performance.now();
+  let timeSequence = 0, info: TestInfo | undefined;
+  try { info = test.info(); } catch { /* Public test status can be unavailable. */ }
+  type Mark = Readonly<{ order: number; elapsed_ms: number }>;
+  const mark = (): Mark => ({ order: ++timeSequence, elapsed_ms: performance.now() - timeOrigin });
+  const testStatus = () => {
+    try { const status = info?.status; if (status && ['passed', 'failed', 'timedOut', 'skipped', 'interrupted'].includes(status)) return status; } catch {}
+    return 'unknown';
+  };
+  let actionStarted: Mark | null = null, firstEOFSample: Mark | null = null, waitRejected: Mark | null = null;
+  let pageClose: Mark | null = null, contextClose: Mark | null = null;
+  const finishedTimes = new Map<Request, Mark>(), failedTimes = new Map<Request, { at: Mark; test_status: string }>();
+  const pageClosed = () => { try { pageClose ??= mark(); } catch {} };
+  const contextClosed = () => { try { contextClose ??= mark(); } catch {} };
+  const context = page.context();
   const slot = randomUUID(), expiresAt = Date.now() + 250;
   const target = { username: project.username, project_name: project.normalized_name };
   let active = false, selected: Response | undefined, requestID: string | null = null;
@@ -256,23 +274,34 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
     if (active) { afterAction++; if (targetMatch(request)) targets.push(request); }
     else beforeAction++;
   } catch { /* Observation cannot interrupt the original request. */ } };
-  const completed = (request: Request) => { try { if (candidate(request)) finished.add(request); } catch {} };
-  const rejected = (request: Request) => { try { if (candidate(request)) failed.add(request); } catch {} };
+  const completed = (request: Request) => { try { if (candidate(request)) { finished.add(request); if (!finishedTimes.has(request)) finishedTimes.set(request, mark()); } } catch {} };
+  const rejected = (request: Request) => { try { if (candidate(request)) { failed.add(request); if (!failedTimes.has(request)) failedTimes.set(request, { at: mark(), test_status: testStatus() }); } } catch {} };
   page.on('request', requested); page.on('requestfinished', completed); page.on('requestfailed', rejected);
+  page.on('close', pageClosed); context.on('close', contextClosed);
   let beginning: Promise<unknown>;
   try { beginning = resolveEvaluate(page, () => page.evaluate(({ slot, expiresAt, target }) => (window as any).__projectModelsProbe.resolveBegin(slot, expiresAt, target), { slot, expiresAt, target })); }
   catch { beginning = Promise.resolve(null); }
   const sampler = resolveSampler(page, slot, () => requestID, (value, expectedID) => {
     const safe = resolveSnapshot(value);
-    if (safe !== null) { latest = safe; latestID = expectedID; snapshotSource = 'sample'; }
+    if (safe !== null) {
+      latest = safe; latestID = expectedID; snapshotSource = 'sample';
+      if (safe.read_done === true && safe.request_id_match === true && expectedID && expectedID === requestID && targets.length === 1 && targets[0] === selected?.request() && targetMatch(targets[0]!)) firstEOFSample ??= mark();
+    }
   }, beginning);
   await bounded(() => beginning);
   return {
-    start() { active = true; },
+    start() { active = true; try { actionStarted ??= mark(); } catch {} },
     select(response: Response) {
       selected = response;
       sampler.start();
       try { void response.headerValue('x-request-id').then((value) => { requestID = value; }, () => {}).catch(() => {}); } catch {}
+    },
+    finishedWait<T>(work: () => Promise<T>): Promise<T> {
+      const rejected = () => { try { waitRejected ??= mark(); } catch {} };
+      let original: Promise<T>;
+      try { original = work(); } catch (error) { rejected(); throw error; }
+      void original.then(() => {}, rejected).catch(() => {});
+      return original;
     },
     async finish(failure: boolean) {
       try {
@@ -296,9 +325,17 @@ async function beginResolveDiagnostic(page: Page, project: Project) {
           snapshot_native_terminal: native !== null && (native.read_done === true || Number(native.read_rejected) > 0 || native.failure === 'fetch-rejected'),
           slot_end_observed: final !== null, ...sampling,
           pw_finished_event: !!request && finished.has(request), pw_failed_event: !!request && failed.has(request), pw_failure: pwFailure, native,
+          // Null means not observed before this projection. A close notification
+          // is not evidence of when a close operation was initiated.
+          timing: { clock: 'node-performance', origin: 'resolve-diagnostic-begin', action_started: actionStarted,
+            first_bound_eof_sample: firstEOFSample, pw_finished: request ? finishedTimes.get(request) ?? null : null,
+            pw_failed: request ? failedTimes.get(request)?.at ?? null : null,
+            pw_failed_test_status: request ? failedTimes.get(request)?.test_status ?? 'unknown' : 'unknown',
+            original_finished_wait_rejected: waitRejected, page_close_notification: pageClose,
+            context_close_notification: contextClose, projection_recorded: mark() },
         }), { mode: 0o600 });
       } catch { /* Missing diagnostic evidence must preserve the original error. */ }
-      finally { page.off('request', requested); page.off('requestfinished', completed); page.off('requestfailed', rejected); }
+      finally { page.off('request', requested); page.off('requestfinished', completed); page.off('requestfailed', rejected); page.off('close', pageClosed); context.off('close', contextClosed); }
     },
   };
 }
@@ -520,7 +557,7 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
     diagnostic.start();
     const [response] = await wait('authority-denied-all-053', () => Promise.all([responsePromise, wait('authority-denied-navigation-action', () => harness.navigate(page, route(project)))]));
     diagnostic.select(response);
-    need(await wait('authority-denied-finished-054', () => response.finished()) === null && (foreign ? [403, 404].includes(response.status()) : response.status() === 409), 'PROJECT_MODELS_AUTHORITY_OWNER_GATE_INVALID');
+    need(await wait('authority-denied-finished-054', () => diagnostic.finishedWait(() => response.finished())) === null && (foreign ? [403, 404].includes(response.status()) : response.status() === 409), 'PROJECT_MODELS_AUTHORITY_OWNER_GATE_INVALID');
     await wait('authority-denied-to-be-visible-055', () => expect(page.getByRole('heading', { name: foreign ? '项目不可用' : '项目信息读取失败', exact: true })).toBeVisible());
     await wait('authority-denied-to-have-count-056', () => expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0));
     await wait('authority-denied-to-have-count-057', () => expect(page.getByRole('dialog')).toHaveCount(0));
