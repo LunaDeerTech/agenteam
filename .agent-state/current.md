@@ -167,3 +167,6 @@
 
 - authority首轮outer45036实际exit1/123.018s、Go53.78s，45s browser整体timedOut，step=authority-same-session-checking；仅5safe sidecars，未完成finish。directWait270285exit1/4adoptedWait0/watchdogobserverjoin、7IDs双absent/descendants[]/TCP双空/input同一（owned-authority-ca064d7d…）。原FAIL保留，作者只读定位恢复草稿与重新读取交互，尚不定因果/不改预算，D27仍4/6。
 - T0b工程SPEC仅流转卡新增§10.5共140行已作者freeze；其余原文不变，18本地链接及格式自查0。六新拟源未授权，350byte摘要仅Python规格演算；独立SPEC审查已实际开始，无Go/runtime/权限/发布成果。
+
+- navigation首轮outer8838实际exit1/125.403s、Go52.10s，45s整体timedOut，step=navigation-login，仅1setup Provider sidecar无browser Model响应，未生成8图。directWait275095exit1/4adopted0/watchdogobserverjoin/7IDs双absent/descendants[]/TCP双空/input同一（owned-navigation-ff03e25b…）。原FAIL保留，Model作者已获两module局部分段step/5s诊断授权，不改总预算/产品/业务门槛；当前无真实资源运行。
+- T0b独立SPEC发现state/assignee事实未精确绑定pre/post与Digest unbound码优先歧义；作者限定6行已返修freeze，附§3两类Blocker已验事实同步，独立复核进行。无新Go源码授权。

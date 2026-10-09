@@ -60,7 +60,7 @@ A 的一般写权限来自正式 Tool/Execution 授权，不凭 AgentID 存在�
 
 新增 `TaskTransitionCommandID`、`TaskBlockerID` 仅分别对应真实流转命令和 Blocker 身份，复用 Foundation typed UUIDv7；Agent、Task、TaskEvent、Project 等沿既有 marker。跨事件的 operation/correlation 使用流转命令身份；不把 transport RequestID 写成 operation。BlockerID 的唯一定义归 Blocker 契约子结果，本卡只引用，不能各造同名 marker。
 
-以下完整请求/接口是 §10 的 **T0b** 目标，须先有 B0-C 已接受且可编译的唯一 `TaskBlockerID/TaskBlockerCreate` 与 typed metadata 契约。当前不存在这些类型，不能把此片段称为可直接独立编译的 T0a 结果，也不能用重复 marker、`json.RawMessage` 或 `map[string]any` 临时填洞。T0a 只交付不引用 Blocker 请求/事实的状态边决策、角色判定和新 Position；纯决策的受控输入不证明任何运行依赖事实。
+以下完整请求/接口是 §10 的 **T0b** 目标，须先有 B0-C 已接受且可编译的唯一 `TaskBlockerID/TaskBlockerCreate` 与 typed metadata 契约。B0-C 的唯一类型及 rely_on、无引用 waiting_for_human 两类 metadata 已实现并独立接受，其余三类仍为 DEPENDENCY_UNBOUND；此片段仍属于 T0b，不属于 T0a，也不能用重复 marker、`json.RawMessage` 或 `map[string]any` 临时填洞。T0a 只交付不引用 Blocker 请求/事实的状态边决策、角色判定和新 Position；纯决策的受控输入不证明任何运行依赖事实。
 
 ```go
 type TaskTransitions interface {
@@ -416,11 +416,11 @@ func TaskTransferDigest(identity.Actor, foundation.CommandMeta,
     ProjectID, TaskID, TaskTransfer) (foundation.Digest, error)
 ```
 
-所有 wire key 沿 §3 精确 snake_case。TaskTransfer.Validate 只检查 canonical target、pointer/text、两数组数量、Blocker typed shape、ID 唯一与 add/resolve 不相交；不凭无 from/preimage 的请求判合法边，也不判当前 assignee/Blocker/占用。每数组0–16项、合计≤32；先核数量再逐项，重复和重叠即拒。MarshalJSON 在深复制上排序两个集合，始终输出 `add_blockers:[]`、`resolve_blocker_ids:[]`；Unmarshal 也规范为非 nil 空数组及 canonical ID 排序，assignee/comment 仍只在实际存在时输出。Clone 保留 Go 的 nil/presence 与顺序，不改输入；编码排序不能改 caller slice。评论严格执行 §3 的32768-byte/非空白/控制字符规则，正文不规范化。
+所有 wire key 沿 §3 精确 snake_case。TaskTransfer.Validate 只检查 canonical target、pointer/text、两数组数量、Blocker typed shape、ID 唯一与 add/resolve 不相交；不凭无 from/preimage 的请求判合法边，也不判当前 assignee/Blocker/占用。每数组0–16项、合计≤32；先核数量再逐项，重复和重叠即拒。所有已定义字段/集合的 shape 错误优先 INVALID_ARGUMENT；逐项遇到 B0-C 的 DEPENDENCY_UNBOUND 时保留该错误并继续检查其余已定义 shape，全部 shape 合法后才返回所保留的未绑定错误，不因数组排列改变两者优先级，也不检查未冻结 metadata 的业务语义。MarshalJSON 在深复制上排序两个集合，始终输出 `add_blockers:[]`、`resolve_blocker_ids:[]`；Unmarshal 也规范为非 nil 空数组及 canonical ID 排序，assignee/comment 仍只在实际存在时输出。Clone 保留 Go 的 nil/presence 与顺序，不改输入；编码排序不能改 caller slice。评论严格执行 §3 的32768-byte/非空白/控制字符规则，正文不规范化。
 
 Mutation 三字段 required/non-null，Task必须合法且version≥2，有序 TaskEventIDs 长1–35、均合法且严格递增，EventIDs 恰一个合法ID；没有 no-op 或单历史兼容分支。Lookup request四字段 required/non-null且command只能 transfer；Lookup两字段 required，committed 必须有完整receipt，in_progress/not_observed 必须显式null receipt。Lookup标量与历史读取规则仍按 §9，纯值不产生提交观察结果。
 
-**摘要闭集。** TaskTransitionIdentity 精确使用 §9 的 project namespace、单个 project owner ID与固定command。TaskTransferDigest 独立实现，禁止复用旧 planning 的 `taskCommandDigest`（其 format/target_id/actor_user_id不同）。纯参数/meta/请求失败先 `INVALID_ARGUMENT`，未构造Actor为 `UNAUTHENTICATED`；支持已构造 Human 与 AgentRun 的稳定主体编码，但只证明身份形状。AgentRun 的主体Project必须与参数Project一致，否则 `FORBIDDEN`；任意 Service均 `FORBIDDEN`，正式Service/cause摘要分支留给T3，不由当前Service注册推导权限。不得调用或放宽旧Human-only ValidateActor来假装已绑定Agent能力；后继服务仍按§4/§9重新证明当前权限，未绑定运行入口仍为DEPENDENCY_UNBOUND。
+**摘要闭集。** TaskTransitionIdentity 精确使用 §9 的 project namespace、单个 project owner ID与固定command。TaskTransferDigest 独立实现，禁止复用旧 planning 的 `taskCommandDigest`（其 format/target_id/actor_user_id不同）。错误顺序固定为：先检查Project/Task参数与CommandMeta（含必有ExpectedVersion），形状失败返回INVALID_ARGUMENT；再调用上述TaskTransfer.Validate，原样保留其Known Fault，已定义shape错误为INVALID_ARGUMENT，shape合法但含三类未绑定Blocker时为DEPENDENCY_UNBOUND，不能改码；仅请求验证成功后才检查Actor，未构造为UNAUTHENTICATED。支持已构造 Human 与 AgentRun 的稳定主体编码，但只证明身份形状。AgentRun 的主体Project必须与参数Project一致，否则 `FORBIDDEN`；任意 Service均 `FORBIDDEN`，正式Service/cause摘要分支留给T3，不由当前Service注册推导权限。不得调用或放宽旧Human-only ValidateActor来假装已绑定Agent能力；后继服务仍按§4/§9重新证明当前权限，未绑定运行入口仍为DEPENDENCY_UNBOUND。
 
 canonical-v1 对象精确七键为 §9 所列，`actor_subject` 的 Human 分支为 `{kind:"human",user_id}`，AgentRun为 `{kind:"agent_run",project_id,agent_id,execution_id}`；不含Session。`expected_version` 使用必有且合法的 foundation.Version 十进制字符串，meta.RequestID/IdempotencyKey 仍须通过形状验证但不进摘要。`request` 使用上述规范请求 JSON：省略的 assignee/comment 仍省略，两个集合展开空并排序；再由现有 cursor.CanonicalJSON 排key并 SHA-256，返回 `sha256:<64 lowercase hex>`。任何错误返回空 Digest，不产生计划或grant。静态黄金向量：Human user UUID `00000000-0000-7000-8000-000000000001`、project尾号002、task尾号003，expected=`"1"`，请求只有 target_state=todo及展开的两个空数组，规范对象350 bytes，摘要为 `sha256:ca26dbe5269b1cb0355ab2008a5ddbf2a3f5f33cfdf2f4ea6c1e8443ae9df657`；这只是字节规格，尚非Go实测。
 
@@ -497,7 +497,7 @@ TaskTransitioned采用§6.2全部required字段，只有assignee_change可null�
 
 NewTaskTransitionData是有界纯数据一致性工厂，不读取事实或自动生成ID/time。它要求合法before/after、同一Task/Project，before.Version<MaxInt64且after恰+1；除state/assignee/manual_rank/version/updated_at外所有Task字段精确不变，after.UpdatedAt=Header.OccurredAt且不早于before.UpdatedAt。Header的Project/aggregate/version匹配after；request目标、显式或保留assignee与after一致，四条必填comment和两条显式交接沿§2/§3检查。source/target分别匹配before/after的Sprint/state/priority；真实rank/邻居/代数关系仍不可由这些受控值证明。
 
-history必须恰好是本请求的完整事实序列：首条state；assignee仅当实际值变化时一条；resolve按请求ID排序且逐项ID相等、comment=null；add按请求ID排序且逐项ID/type相等；总comment仅当请求存在时一条且正文逐字节相等。无缺项/多项/重复/乱序；同ID显式交接没有assignee事件，仍保留state+comment。全体history必须同Project/Task/new version/Actor/operation/correlation/CreatedAt，IDs严格递增，时间等于Header；command ID/Actor从这批一致数据取值。工厂从核对后的history生成封套IDs与assignee_change，使用after深复制生成receipt、EventIDs恰Header.EventID，再经NewTaskTransitioned构造event值；失败返回零Mutation和零Event。传入的before/after/history仍可能是调用者编造值，纯检查不证明它们曾存在或写入；没有Blocker count、Grant、无占用bool、AppendPlan或伪持久完成结果。
+history必须恰好是本请求的完整事实序列：首条state，其payload.FromState/ToState必须分别等于before.State/after.State；assignee仅当实际值变化时一条，其payload.FromAgentID与before.AssigneeAgentID按nil/value精确相等，payload.ToAgentID与非nil after.AssigneeAgentID的值精确相等；resolve按请求ID排序且逐项ID相等、comment=null；add按请求ID排序且逐项ID/type相等；总comment仅当请求存在时一条且正文逐字节相等。无缺项/多项/重复/乱序；同ID显式交接没有assignee事件，仍保留state+comment。全体history必须同Project/Task/new version/Actor/operation/correlation/CreatedAt，IDs严格递增，时间等于Header；command ID/Actor从这批一致数据取值。工厂从核对后的history生成封套IDs与assignee_change，使用after深复制生成receipt、EventIDs恰Header.EventID，再经NewTaskTransitioned构造event值；失败返回零Mutation和零Event。传入的before/after/history仍可能是调用者编造值，纯检查不证明它们曾存在或写入；没有Blocker count、Grant、无占用bool、AppendPlan或伪持久完成结果。
 
 Register仅向caller提供的有效未Seal Catalog调用既有 `event.DefineEvent`，精确绑定WorkProducer、上述name/aggregate/version、`event.JSONCodec[TaskTransitioned]`及Validate；不自动Seal/注册旧事件，也不改变生产composition root。nil/zero/sealed/重复或冲突注册拒绝。Restore先查工厂与schema，再直接调用自有严格payload decoder，后走New；错误schema为SCHEMA_UNSUPPORTED。Decode先查同Catalog.Owns和WorkProducer，再event.DecodeEvent与Work Header/Position复核，成功返回深Clone，拒绝foreign/zero event。所有event生成/解码失败返回零值；其余数据不符为现有INVALID_ARGUMENT/NotStarted，B0-C缺类型保留DEPENDENCY_UNBOUND。
 
@@ -521,9 +521,9 @@ raw与完整marshal输出都执行这些上限。外层在任何canonicalize/标
 | top selector | 独立可判定的完整目标 |
 | --- | --- |
 | TestTaskTransferPresenceAndSets | 五字段presence/null闭集；七target shape；assignee/comment精确保留；16/17与32上限、重复/重叠；排序不改caller；两Blocker成功、三类unbound、外域reference拒绝；完整raw及嵌套item/metadata cap |
-| TestTaskTransferDigestAndLookup | 上述固定黄金摘要；每语义字段/expected/subject变化，Session/RequestID/key变化不变；集合排列与nil/[]等价、presence区分；非法meta/Actor/跨Project Agent/Service拒绝；Lookup状态/receipt/command闭集与最大receipt |
+| TestTaskTransferDigestAndLookup | 上述固定黄金摘要；每语义字段/expected/subject变化，Session/RequestID/key变化不变；集合排列与nil/[]等价、presence区分；非法meta/Actor/跨Project Agent/Service拒绝；非法meta+合法technical→INVALID_ARGUMENT，任一shape错误+合法technical不论排列均INVALID_ARGUMENT，合法technical+Human或零Actor均DEPENDENCY_UNBOUND，合法已绑定请求+零Actor→UNAUTHENTICATED；Lookup状态/receipt/command闭集与最大receipt |
 | TestTaskTransitionHistoryTypedFacts | 五分支恰一typed payload、十字段严格codec、Human-only Actor及reason=null、B0-C两类小payload；version/operation/correlation、comment字节与cap、失败原子/深Clone；Agent/System与旧type拒绝 |
-| TestTaskTransitionDataFactory | 完整多事实/同ID交接两事实；缺/多/乱序/重复/换type/ID/Actor/operation/time/version/Task字段/位置/Header全部拒绝；两必填assignee/四必填comment；MaxInt64边界、输入不变、零结果；不伪造当前授权/图事实 |
+| TestTaskTransitionDataFactory | 完整多事实/同ID交接两事实；缺/多/乱序/重复/换type/ID/Actor/operation/time/version/Task字段/位置/Header全部拒绝；before in_progress(A)→after in_review(B)却给另一合法H边backlog→cancelled或另一合法assignee对C→D分别拒绝，from-assignee的nil/value不符亦拒；两必填assignee/四必填comment；MaxInt64边界、输入不变、零结果；不伪造当前授权/图事实 |
 | TestTaskTransitionTypedEnvelopeFactory | 同catalog注册/New/Restore/Decode/Seal；foreign/zero/duplicate/wrongproducer/triple/header/sequence/自邻居拒绝；原raw16KiB/孤立surrogate先于canonicalize；canonical payload digest、clone隔离与受控并行；明确通用Catalog恢复的限制 |
 | TestTaskTransitionContractBoundsAndLegacy | 所有raw cap/cap+1与同时最坏合法文本/Blocker/receipt组合、直接日志/Fault保真、nilreceiver；旧planning请求/command/TaskEvent/Human/单历史Mutation/TaskChanged严格拒绝新增输入，旧正例及T0a/B0-C继续通过 |
 
