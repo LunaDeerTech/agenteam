@@ -1,0 +1,161 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-authority-6c49f7fc10e54f5ea7377a4991c35881",
+  "case": "authority",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority",
+  "actual_tool_session": 70287,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 55.65,
+  "terminal": {
+    "case": "authority",
+    "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+    "exit": 1,
+    "elapsed_seconds": 146.43537284400009,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 318209,
+        "status": 0
+      },
+      {
+        "pid": 318211,
+        "status": 0
+      },
+      {
+        "pid": 318214,
+        "status": 0
+      },
+      {
+        "pid": 318215,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-lifecycle-other-owner-denied-rejected-first-rejected-authority-denied-finished-054"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "fa013b7004ab9e98bbc3847fba4ab56a5b177646dde5054ea2cfcd4ae2789b29",
+    "mode": "authority",
+    "status": "timedOut",
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "call": null,
+        "locations": []
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [
+      "test-timeout-reported"
+    ],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      }
+    ]
+  },
+  "resolve_diagnostic": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "fa013b7004ab9e98bbc3847fba4ab56a5b177646dde5054ea2cfcd4ae2789b29",
+    "diagnostic": "captured",
+    "pw_candidates_before_action": 0,
+    "pw_candidates_after_action": 1,
+    "pw_target_requests": 1,
+    "pw_selected_target_match": true,
+    "pw_request_match": true,
+    "pw_request_id_seen": true,
+    "pw_status": 404,
+    "snapshot_source": "sample",
+    "snapshot_selected_bound": true,
+    "snapshot_native_terminal": true,
+    "slot_end_observed": false,
+    "samples": 147,
+    "sample_settled": 147,
+    "sample_failed": 0,
+    "sample_joined": true,
+    "sample_join_unavailable": false,
+    "pw_finished_event": false,
+    "pw_failed_event": true,
+    "pw_failure": "aborted",
+    "native": {
+      "requests": 1,
+      "readers": 1,
+      "read_calls": 2,
+      "read_settled": 2,
+      "read_rejected": 0,
+      "bytes": 246,
+      "reader_cancel_calls": 1,
+      "reader_cancel_settled": 1,
+      "reader_cancel_rejected": 0,
+      "stream_cancel_calls": 1,
+      "stream_cancel_settled": 1,
+      "stream_cancel_rejected": 0,
+      "release_calls": 1,
+      "release_successes": 1,
+      "abort_events": 0,
+      "status": 404,
+      "headers_order": 1,
+      "read_done_order": 2,
+      "read_rejected_order": 0,
+      "abort_order": 0,
+      "reader_cancel_order": 3,
+      "stream_cancel_order": 5,
+      "release_order": 4,
+      "headers_seen": true,
+      "status_ok": false,
+      "read_done": true,
+      "cancel_before_eof": false,
+      "request_id_match": true,
+      "signal_aborted": false,
+      "signal_aborted_at_start": false,
+      "failure": "none"
+    }
+  },
+  "safe_model_response_count": 13,
+  "retirement_observations": [
+    {
+      "observation": 1,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    },
+    {
+      "observation": 2,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    }
+  ],
+  "resource_observer_actual_join": true,
+  "post_terminal_owned_private_root_absent": true,
+  "observed_boundary": {
+    "lifecycle": "other-owner",
+    "pending_await": "authority-denied-finished-054",
+    "same_unique_intended_request_bound": true,
+    "native_eof_observed_in_bound_sample": true,
+    "post_finished_status_and_dom_gates_executed": false
+  },
+  "diagnostic_limits": {
+    "snapshot_is_post_context_close_final_state": false,
+    "resolve_content_length_recorded": false,
+    "resolve_server_handler_completion_recorded": false,
+    "playwright_failed_time_relative_to_case_timeout_or_close_recorded": false,
+    "problem_decode_recorded": false,
+    "raw_body_or_credentials_copied": false,
+    "no_retry": true,
+    "no_cross_run_cause_inferred": true
+  },
+  "followup": "First inspect available safe headers and logs for length, server completion and failure timing. Add only missing same-response observations; preserve original finished, body, identity and business gates."
+}
