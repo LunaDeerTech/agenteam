@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -18,6 +19,10 @@ import (
 	"syscall"
 	"testing"
 	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 )
 
 func TestProjectModelsWebBrowserFailureProjection(t *testing.T) {
@@ -421,6 +426,32 @@ func TestProjectModelsWebResponseAdmission(t *testing.T) {
 				if err := f.admitResponse(request, response, raw); err == nil {
 					t.Error("invalid or sensitive lookup union admitted")
 				}
+			}
+		})
+	}
+}
+
+func TestProjectModelsWebFormalProblemAdmission(t *testing.T) {
+	f := &projectModelsWebFixture{}
+	request := &projectModelsWebRequest{}
+	for _, code := range []foundation.Code{foundation.InvalidState, foundation.ResourceBusy, foundation.Forbidden, foundation.NotFound, foundation.ProjectNotActive, foundation.VersionConflict} {
+		t.Run(string(code), func(t *testing.T) {
+			upstreamRequest := httptest.NewRequest(http.MethodDelete, "http://127.0.0.1/api/v1/projects/01a11f14-be67-74a9-bcd9-fd6489273813/model-providers/01a11f14-c2d7-7b0c-a7d2-94680890d9b5", nil)
+			recorder := httptest.NewRecorder()
+			(&account.HTTPBoundary{}).WriteProblem(recorder, upstreamRequest, foundation.NewFault(code, foundation.NotStarted))
+			response := recorder.Result()
+			defer response.Body.Close()
+			response.Request = upstreamRequest
+			if err := f.admitResponse(request, response, recorder.Body.Bytes()); err != nil {
+				t.Fatal("formal standard Problem rejected", code)
+			}
+			leaked := httptest.NewRecorder()
+			httpapi.WriteProblem(leaked, upstreamRequest, foundation.NewFault(code, foundation.NotStarted))
+			leakedResponse := leaked.Result()
+			defer leakedResponse.Body.Close()
+			leakedResponse.Request = upstreamRequest
+			if err := f.admitResponse(request, leakedResponse, leaked.Body.Bytes()); err == nil {
+				t.Fatal("resource-path Problem bypassed fixed boundary projection", code)
 			}
 		})
 	}

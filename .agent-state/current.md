@@ -139,3 +139,6 @@
 - 下一B0-C只读调查：现Work没有Blocker契约/持久服务，可按已接受流转§4逐类冻结rely_on与无外域引用waiting_for_human小纯闭包；metadata/description限额及历史payload工程规格尚待接受，没有B0-C产品源或运行前置。
 
 - 配置/凭据case已真实接线（共享typed adapter直连原snapshot/receipt/delta/replay/control/native/finish）；两个mode各唯一discovery、strictTS实际0。限定diff独审接受，逆转接线精确回到read2 frozen spec、原configcred模块同一hash；diagnostic仅固定四source/closedcode与数值位置，不落rawmessage/stack。2case尚未真实运行，下一先configuration；所有Model glob freeze，复用已接受dbf/00022第七binary，B0-C仅独立卡SPEC写者可并行。
+
+- configuration首轮outer66381实际exit1/97.216s、Go27.43s，directWait230395 exit1/4adoptedWait0/watchdogobserverjoin/七ID双absent/TCP双空/input同一（owned-configuration-16df22…）。step delete-boundaries、helper88/274 timeout；49safe sidecars到occupied Provider GET200，未到最后409。独审源码发现真实Account boundary固定Problem.instance=/api/v1，与旧fixture硬比资源路径不一致。root direct httpapi formatter control先purePASS1.020s但绕过真实boundary；改真实boundary六code pure94182 actualexit1/0.021s确证准入缺陷（另一次unused import setupFAIL0tests保留）。最小只改fixture期望control为真实boundary并严格instance相等；6code正例+资源路径否定与全ProjectModelsWeb race66710实际0/1.072s，最新accepted dbf/00022 binary68486 race-c actual0，独验进行。原browserFAIL完整因果不回填。
+- B0-C两类纯契约194行新卡已冻结待独立SPEC，无源码授权；task_transition_core_spec仅本卡owner。model_acceptance_next已实际恢复且获2新authority/navigation模块唯一写域，当前无产品/主harness写权；执行资源窗前所有Modelglob必须停写。root仍独占Git/current/ledger和资源。

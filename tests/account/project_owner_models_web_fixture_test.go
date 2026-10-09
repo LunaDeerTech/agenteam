@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/app"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
@@ -1096,15 +1097,15 @@ func (f *projectModelsWebFixture) admitResponse(request *projectModelsWebRequest
 		var problem httpapi.Problem
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		decoder.DisallowUnknownFields()
-		if decoder.Decode(&problem) != nil || !problem.Code.Known() || problem.RequestID.String() != response.Header.Get("X-Request-ID") || problem.Instance != response.Request.URL.Path || len(problem.FieldErrors) != 0 {
+		if decoder.Decode(&problem) != nil || !problem.Code.Known() || problem.RequestID.String() != response.Header.Get("X-Request-ID") || len(problem.FieldErrors) != 0 {
 			return bad
 		}
 		// This formatter is an in-memory admission control. Evidence remains the
 		// original upstream bytes, never the control's re-encoded response.
 		control := httptest.NewRecorder()
-		httpapi.WriteProblem(control, response.Request, foundation.NewFault(problem.Code, problem.CommitState))
+		(&account.HTTPBoundary{}).WriteProblem(control, response.Request, foundation.NewFault(problem.Code, problem.CommitState))
 		var expected httpapi.Problem
-		if json.Unmarshal(control.Body.Bytes(), &expected) != nil || problem.Title != expected.Title || problem.Type != expected.Type || problem.Detail != expected.Detail || problem.Status != response.StatusCode || problem.Status != expected.Status || problem.CommitState != expected.CommitState || problem.RetryHint != expected.RetryHint {
+		if json.Unmarshal(control.Body.Bytes(), &expected) != nil || problem.Instance != expected.Instance || problem.Title != expected.Title || problem.Type != expected.Type || problem.Detail != expected.Detail || problem.Status != response.StatusCode || problem.Status != expected.Status || problem.CommitState != expected.CommitState || problem.RetryHint != expected.RetryHint {
 			return bad
 		}
 		for key := range actual {
