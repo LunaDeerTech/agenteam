@@ -27,6 +27,11 @@ import {
   variableAuthorityBinding,
   variableAuthorityProjection,
 } from "./project-variables.authority";
+import {
+  installVariableDetail,
+  variableDetailProjection,
+  variableDetailComplete,
+} from "./project-variables.detail";
 import { AccountFailure, uuid7 } from "../../../web/src/api/client";
 import {
   createProjectVariablesAPI,
@@ -238,6 +243,7 @@ export async function recordFailure(page: Page, info: TestInfo) {
       dom,
       network: networkObservations.get(page)?.() ?? emptyNetworkDiagnostic(),
       authority: authorityObservations.get(page)?.() ?? null,
+      detail: detailObservations.get(page)?.() ?? null,
     }),
     { mode: 0o600 },
   );
@@ -310,6 +316,7 @@ const authorityObservations = new WeakMap<
   Page,
   () => Record<string, unknown>
 >();
+const detailObservations = new WeakMap<Page, () => Record<string, unknown>>();
 const networkObservations = new WeakMap<
   Page,
   () => ReturnType<typeof emptyNetworkDiagnostic>
@@ -321,6 +328,44 @@ export function observe(page: Page) {
     declarations: Declaration[] = [],
     tails: Promise<void>[] = [];
   let error = false;
+  const failures: { reason: NetworkReason; entry: Entry }[] = [];
+  let detailEntry: Entry | undefined,
+    detailBytes = -1;
+  const detailFacts = {
+    installed: false,
+    joined: false,
+    request_bound: false,
+    private_bound: false,
+    native_retired: false,
+    equivalent_complete: false,
+    consumer: null as ReturnType<typeof variableDetailProjection>,
+  };
+  const detailComplete = (e: Entry) => {
+    const n = native.snapshot(e.request);
+    const complete =
+      e === detailEntry &&
+      e.method === "GET" &&
+      e.body === null &&
+      e.url.search === "" &&
+      e.response?.status() === 200 &&
+      e.response.request() === e.request &&
+      !e.expected &&
+      e.failed &&
+      !e.finished &&
+      entries.filter(
+        (other) =>
+          other.method === e.method && other.url.pathname === e.url.pathname,
+      ).length === 1 &&
+      detailFacts.installed &&
+      detailFacts.joined &&
+      detailFacts.request_bound &&
+      detailFacts.private_bound &&
+      detailFacts.native_retired &&
+      n.facts?.bytes === detailBytes &&
+      variableDetailComplete(detailFacts.consumer, n);
+    if (e === detailEntry) detailFacts.equivalent_complete = complete;
+    return complete;
+  };
   let firstFailure: { reason: NetworkReason; entry: Entry } | undefined;
   const diagnosticEntry = (e: Entry) => {
     const parts = e.url.pathname.split("/");
@@ -352,6 +397,7 @@ export function observe(page: Page) {
   };
   const fail = (reason: NetworkReason, entry: Entry) => {
     error = true;
+    failures.push({ reason, entry });
     firstFailure ??= { reason, entry };
   };
   networkObservations.set(page, () => {
@@ -495,6 +541,114 @@ export function observe(page: Page) {
     entries,
     cut,
     cancel,
+    async detail(data: Material) {
+      if (
+        process.env.AGENTEAM_PROJECT_VARIABLE_WEB_CASE !== "authority" ||
+        detailObservations.has(page)
+      )
+        throw new Error("VARIABLE_DETAIL_SCOPE");
+      const start = entries.length,
+        endpoint = `/api/v1/projects/${data.ids.main}/variables/${data.targets.main}`;
+      if (
+        entries.some((e) => e.method === "GET" && e.url.pathname === endpoint)
+      )
+        throw new Error("VARIABLE_DETAIL_ALREADY_READ");
+      detailObservations.set(page, () => detailFacts);
+      detailFacts.installed = await page.evaluate(installVariableDetail, {
+        binding: variableAuthorityBinding(repository, data.diagnostic_dist),
+        target: {
+          project: data.ids.main!,
+          variable: data.targets.main!,
+          route: path(data),
+        },
+      });
+      let finished: Promise<void> | undefined;
+      return {
+        finish() {
+          if (finished) return finished;
+          finished = (async () => {
+            const deadline = Date.now() + 250;
+            let timer: ReturnType<typeof setTimeout> | undefined;
+            const work = (async () => {
+              const result = { ...detailFacts };
+              const matches = entries
+                .slice(start)
+                .filter(
+                  (e) =>
+                    e.method === "GET" &&
+                    e.url.pathname === endpoint &&
+                    e.url.search === "",
+                );
+              const selected = matches.length === 1 ? matches[0] : undefined;
+              const xid = selected?.response?.headers()["x-request-id"] ?? "";
+              result.request_bound =
+                !!selected &&
+                selected.response?.request() === selected.request &&
+                uuid7.test(xid) &&
+                entries.filter(
+                  (e) => e.response?.headers()["x-request-id"] === xid,
+                ).length === 1;
+              let value: ProjectVariable | null = null,
+                bytes = -1;
+              if (result.request_bound && selected) {
+                try {
+                  const { record } = await originalResponse(selected);
+                  if (selected.body !== null || record.status !== 200)
+                    throw new Error("VARIABLE_DETAIL_BODY");
+                  const raw = Buffer.from(record.body_b64, "base64");
+                  value = await createProjectVariablesAPI(
+                    async () =>
+                      new Response(new Uint8Array(raw).buffer, {
+                        status: record.status,
+                        headers: {
+                          "Content-Type": record.content_type,
+                          "X-Request-ID": xid,
+                        },
+                      }),
+                  ).get(
+                    data.ids.main!,
+                    data.targets.main!,
+                    new AbortController().signal,
+                  );
+                  bytes = raw.length;
+                  result.private_bound = true;
+                } catch {
+                  result.private_bound = false;
+                }
+              }
+              try {
+                result.consumer = variableDetailProjection(
+                  await page.evaluate(
+                    (input) =>
+                      (window as any).__variableDetail?.finish(input) ?? null,
+                    { id: result.request_bound ? xid : null, value },
+                  ),
+                );
+              } catch {
+                result.consumer = null;
+              }
+              return { result, selected, bytes };
+            })().catch(() => null);
+            try {
+              const completed = await Promise.race([
+                work,
+                new Promise<null>((resolve) => {
+                  timer = setTimeout(() => resolve(null), 250);
+                }),
+              ]);
+              if (completed && Date.now() < deadline) {
+                Object.assign(detailFacts, completed.result, { joined: true });
+                detailEntry = completed.selected;
+                detailBytes = completed.bytes;
+              }
+            } finally {
+              if (timer) clearTimeout(timer);
+            }
+          })();
+          return finished;
+        },
+      };
+    },
     async authority(data: Material) {
       if (
         process.env.AGENTEAM_PROJECT_VARIABLE_WEB_CASE !== "authority" ||
@@ -528,6 +682,7 @@ export function observe(page: Page) {
         finish() {
           if (finished) return finished;
           finished = (async () => {
+            const deadline = Date.now() + 250;
             let timeout: ReturnType<typeof setTimeout> | undefined;
             const work = (async () => {
               const result = { ...facts };
@@ -582,7 +737,11 @@ export function observe(page: Page) {
                   timeout = setTimeout(() => resolve(null), 250);
                 }),
               ]);
-              if (result) Object.assign(facts, result, { joined: true });
+              if (result && Date.now() < deadline) {
+                Object.assign(facts, result, { joined: true });
+                if (detailObservations.has(page))
+                  detailFacts.native_retired = result.native_retired;
+              }
             } finally {
               if (timeout) clearTimeout(timeout);
             }
@@ -599,18 +758,37 @@ export function observe(page: Page) {
           })
           .toBe(true);
         await Promise.all(tails);
+        if (detailObservations.has(page)) await native.stop();
+        // Only the explicitly observed first authority detail GET may prove
+        // completion through its native consumer and fresh public adoption.
+        // Duplicate events/other errors keep the original ordinary failure.
         expect(
-          !error && declarations.every((d) => d.consumed) && entries.length > 0,
+          (!error ||
+            (failures.length > 0 &&
+              failures.every(
+                (f) =>
+                  f.reason === "unexpected-failed" && detailComplete(f.entry),
+              ))) &&
+            declarations.every((d) => d.consumed) &&
+            entries.length > 0,
         ).toBe(true);
         for (const e of entries)
           expect(
-            e.expected ? e.failed && !e.finished : e.finished && !e.failed,
+            e.expected
+              ? e.failed && !e.finished
+              : (e.finished && !e.failed) || detailComplete(e),
           ).toBe(true);
-        await validateOriginalBodies(entries, options.allowNoSuccess ?? false);
+        await validateOriginalBodies(
+          entries,
+          options.allowNoSuccess ?? false,
+          (e) => detailComplete(e),
+        );
         return {
           requests: entries.length,
           completed: entries.filter((e) => e.finished).length,
-          expected_incomplete: entries.filter((e) => e.failed).length,
+          expected_incomplete: entries.filter((e) => e.expected && e.failed)
+            .length,
+          equivalent_completed: entries.filter((e) => detailComplete(e)).length,
         };
       } finally {
         await native.stop();
@@ -697,6 +875,7 @@ async function originalResponse(e: Entry) {
 async function validateOriginalBodies(
   entries: Entry[],
   allowNoSuccess: boolean,
+  detailComplete: (entry: Entry) => boolean = () => false,
 ) {
   const vectors: { schema: string; raw: string }[] = [];
   let success = 0;
@@ -706,7 +885,8 @@ async function validateOriginalBodies(
     const response = e.response!;
     const { record, requestID } = await originalResponse(e);
     const raw = Buffer.from(record.body_b64, "base64");
-    if (!e.expected) expect((await response.body()).equals(raw)).toBe(true);
+    if (!e.expected && !detailComplete(e))
+      expect((await response.body()).equals(raw)).toBe(true);
     const c = e.method === "GET" ? null : command(e),
       isLookup = e.url.pathname.endsWith("/commands/lookup");
     const api = createProjectVariablesAPI(

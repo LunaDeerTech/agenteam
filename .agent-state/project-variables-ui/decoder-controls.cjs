@@ -110,6 +110,27 @@ async function main() {
     response: { headerValue: async (name) => name === 'x-request-id' ? requestID : 'application/problem+json', status: () => 404, body: async () => raw },
   }], true)
   assert.equal(decoderFetches, 7)
+  // The narrowly qualified GET still uses the exact private response and the
+  // actual client/schema; only PW's unavailable body() is replaced by the
+  // separately proven original native/public consumption chain.
+  const detailID = id(201), detailRaw = Buffer.from(JSON.stringify(full)), detailFile = path.join(directory, 'project-variables-response-7.json')
+  const detailRecord = { method: 'GET', path: pathname, query: '', status: 200, content_type: 'application/json', request_id: detailID,
+    request_b64: '', body_b64: detailRaw.toString('base64'), key: '', csrf_sha256: createHash('sha256').update('').digest('hex') }
+  fs.writeFileSync(detailFile, JSON.stringify(detailRecord), { mode: 0o600 })
+  let bodyReads = 0
+  const detail = { method: 'GET', url: new URL(pathname, 'http://offline.invalid'), body: null, request: { allHeaders: async () => ({}) },
+    response: { headerValue: async name => name === 'x-request-id' ? detailID : 'application/json', status: () => 200, body: async () => { bodyReads++; throw Error('unavailable original PW body') } } }
+  await validate([detail], false, entry => entry === detail)
+  assert.equal(bodyReads, 0)
+  await assert.rejects(validate([detail], false))
+  assert.equal(bodyReads, 1)
+  for (const changed of [JSON.stringify({ ...full, id: id(999) }), JSON.stringify(full).replace('"value":', '"value":"other","value":'), JSON.stringify({ ...full, unknown: true })]) {
+    fs.writeFileSync(detailFile, JSON.stringify({ ...detailRecord, body_b64: Buffer.from(changed).toString('base64') }), { mode: 0o600 })
+    await assert.rejects(validate([detail], false, entry => entry === detail))
+  }
+  fs.writeFileSync(detailFile, JSON.stringify(detailRecord), { mode: 0o600 })
+  assert.equal(bodyReads, 1)
+  console.log('qualified GET keeps actual raw strict decoder/schema; ordinary body gate and malformed-response rejection unchanged: PASS')
   for (const [schema, body] of [['#/components/schemas/VariableMutation', { ...created, undeclared: true }], ['./common.json#/components/schemas/Problem', { ...problem, status: '404' }]]) {
     const file = path.join(directory, 'invalid-schema.json')
     fs.writeFileSync(file, JSON.stringify([{ schema, raw: Buffer.from(JSON.stringify(body)).toString('base64') }]), { mode: 0o600 })

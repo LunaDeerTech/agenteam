@@ -481,7 +481,12 @@ test("[authority] current Human Owner, administrators and archived original oper
   await errors.install();
   checkpoint();
   await enter(page, data);
-  await select(page);
+  const detail = await network.detail(data);
+  try {
+    await select(page);
+  } finally {
+    await detail.finish();
+  }
   await field(page, "值").fill("prepared before archive");
   const authority = await network.authority(data);
   try {

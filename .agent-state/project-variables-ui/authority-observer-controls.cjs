@@ -35,7 +35,7 @@ let checks = 0
 let consumerSample
 async function adapter(options = {}) {
   const source = ts.createSourceFile('helper.ts', fs.readFileSync(path.join(root, 'tests/account-captcha-web/e2e/project-variables.helpers.ts'), 'utf8'), ts.ScriptTarget.Latest, true)
-  const names = new Set(['emptyNetworkDiagnostic', 'networkObservations', 'networkRetire', 'authorityObservations', 'observe', 'recordFailure', 'originalResponse'])
+  const names = new Set(['emptyNetworkDiagnostic', 'networkObservations', 'networkRetire', 'authorityObservations', 'detailObservations', 'observe', 'recordFailure', 'originalResponse'])
   const code = ts.transpileModule(source.statements.filter(n => ts.isFunctionDeclaration(n) && names.has(n.name?.text) || ts.isVariableStatement(n) && n.declarationList.declarations.some(d => names.has(d.name.getText(source)))).map(n => n.getText(source)).join('\n'), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText
   const body = JSON.stringify({ expected_version: '1', request: { value: 'prepared before archive' } }), csrf = 'S'.repeat(43), key = 'original-key'
   const record = { method: 'PATCH', path: endpoint, query: '', status: 409, content_type: 'application/problem+json', request_id: xid, request_b64: Buffer.from(body).toString('base64'), key, csrf_sha256: createHash('sha256').update(csrf).digest('hex') }

@@ -514,6 +514,7 @@ func (v *projectVariablesWebFixture) safeFailure() {
 		} `json:"dom"`
 		Network   *variableWebNetworkFailure      `json:"network"`
 		Authority *variableWebAuthorityDiagnostic `json:"authority"`
+		Detail    *variableWebDetailDiagnostic    `json:"detail"`
 	}
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
@@ -551,6 +552,11 @@ func (v *projectVariablesWebFixture) safeFailure() {
 		if authority := value.Authority; authority != nil && authority.valid() {
 			if safe, err := json.Marshal(authority); err == nil {
 				v.owner.t.Logf("Variables browser safe authority=%s", safe)
+			}
+		}
+		if detail := value.Detail; detail != nil && detail.valid() {
+			if safe, err := json.Marshal(detail); err == nil {
+				v.owner.t.Logf("Variables browser safe detail=%s", safe)
 			}
 		}
 	}
@@ -599,6 +605,53 @@ type variableWebAuthorityDiagnostic struct {
 	NativeRetired bool                          `json:"native_retired"`
 	Consumer      *variableWebAuthorityConsumer `json:"consumer"`
 }
+type variableWebDetailDiagnostic struct {
+	Installed          bool                       `json:"installed"`
+	Joined             bool                       `json:"joined"`
+	RequestBound       bool                       `json:"request_bound"`
+	PrivateBound       bool                       `json:"private_bound"`
+	NativeRetired      bool                       `json:"native_retired"`
+	EquivalentComplete bool                       `json:"equivalent_complete"`
+	Consumer           *variableWebDetailConsumer `json:"consumer"`
+}
+type variableWebDetailConsumer struct {
+	Calls                int  `json:"calls"`
+	TargetCalls          int  `json:"target_calls"`
+	Fulfilled            int  `json:"fulfilled"`
+	Rejected             int  `json:"rejected"`
+	SynchronousThrows    int  `json:"synchronous_throws"`
+	Pending              int  `json:"pending"`
+	NativeBefore         int  `json:"native_before"`
+	NativeAfter          int  `json:"native_after"`
+	EntryIdle            bool `json:"entry_idle"`
+	EntryAuthenticated   bool `json:"entry_authenticated"`
+	EntryEmpty           bool `json:"entry_empty"`
+	IdentityCurrent      bool `json:"identity_current"`
+	Authenticated        bool `json:"authenticated"`
+	OwnerIdle            bool `json:"owner_idle"`
+	DocumentMatches      bool `json:"document_matches"`
+	TargetRoute          bool `json:"target_route"`
+	NativeRequestMatches bool `json:"native_request_matches"`
+	BodyMatches          bool `json:"body_matches"`
+	FreshEditor          bool `json:"fresh_editor"`
+	Published            bool `json:"published"`
+	ObserverFailed       bool `json:"observer_failed"`
+	HooksRetired         bool `json:"hooks_retired"`
+}
+
+func (n variableWebDetailDiagnostic) valid() bool {
+	if n.Consumer == nil {
+		return true
+	}
+	c := n.Consumer
+	for _, count := range []int{c.Calls, c.TargetCalls, c.Fulfilled, c.Rejected, c.SynchronousThrows, c.Pending, c.NativeBefore, c.NativeAfter} {
+		if count < 0 || count > 4096 {
+			return false
+		}
+	}
+	return true
+}
+
 type variableWebAuthorityConsumer struct {
 	Calls                 int    `json:"calls"`
 	TargetCalls           int    `json:"target_calls"`

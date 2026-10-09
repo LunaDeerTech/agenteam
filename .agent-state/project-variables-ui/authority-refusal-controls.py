@@ -69,7 +69,19 @@ func verifyProjection(){
  for _,n:=range []variableWebIncomplete{{Index:0,Method:"PATCH",Route:"update",Expected:"none"},{Index:2,Method:"PATCH",Route:"update",Expected:"none"},{Index:1,Method:"PRIVATE",Route:"update",Expected:"none"},{Index:1,Method:"PATCH",Route:"PRIVATE",Expected:"none"},{Index:1,Method:"PATCH",Route:"update",Expected:"PRIVATE"},{Index:1,Method:"PATCH",Route:"update",Expected:"none",Finished:true}}{if n.valid(1){panic("incomplete projection")}}
  if !(variableWebIncomplete{Index:1,Method:"PATCH",Route:"update",Expected:"none",Status:409,Failed:true}).valid(1){panic("incomplete positive")}
 }
+func verifyDetailProjection(){
+ decode:=func(raw []byte)bool{var n variableWebDetailDiagnostic;d:=json.NewDecoder(bytes.NewReader(raw));d.DisallowUnknownFields();if d.Decode(&n)!=nil{return false};var tail any;if d.Decode(&tail)!=io.EOF{return false};return n.valid()}
+ original:=[]byte(`{"installed":true,"joined":true,"request_bound":true,"private_bound":true,"native_retired":true,"equivalent_complete":true,"consumer":{"calls":1,"target_calls":1,"fulfilled":1,"rejected":0,"synchronous_throws":0,"pending":0,"native_before":0,"native_after":1,"entry_idle":true,"entry_authenticated":true,"entry_empty":true,"identity_current":true,"authenticated":true,"owner_idle":true,"document_matches":true,"target_route":true,"native_request_matches":true,"body_matches":true,"fresh_editor":true,"published":true,"observer_failed":false,"hooks_retired":true}}`)
+ if !decode(original){panic("detail positive")}
+ count:=1
+ for _,key:=range []string{"calls","target_calls","fulfilled","rejected","synchronous_throws","pending","native_before","native_after"}{for _,v:=range []any{-1,4097,0.5,"1"}{var m map[string]any;json.Unmarshal(original,&m);m["consumer"].(map[string]any)[key]=v;raw,_:=json.Marshal(m);if decode(raw){panic("detail count "+key)};count++}}
+ for _,key:=range []string{"entry_idle","entry_authenticated","entry_empty","identity_current","authenticated","owner_idle","document_matches","target_route","native_request_matches","body_matches","fresh_editor","published","observer_failed","hooks_retired"}{var m map[string]any;json.Unmarshal(original,&m);m["consumer"].(map[string]any)[key]=1;raw,_:=json.Marshal(m);if decode(raw){panic("detail bool "+key)};count++}
+ for _,top:=range []bool{false,true}{var m map[string]any;json.Unmarshal(original,&m);if top{m["private"]="PRIVATE"}else{m["consumer"].(map[string]any)["private"]="PRIVATE"};raw,_:=json.Marshal(m);if decode(raw){panic("detail unknown")};count++}
+ if decode(append(append([]byte{},original...),[]byte("{}")...))||decode(original[:len(original)-1]){panic("detail EOF")};count+=2
+ fmt.Printf("actual detail closed Go projection: %d controls PASS\n",count)
+}
 func main(){
+ if len(os.Args)==2 && os.Args[1]=="--detail-only"{verifyDetailProjection();return}
  producerProblem=produceProblem();if len(os.Args)==2 && os.Args[1]=="--producer-only"{os.Stdout.Write(producerProblem);return}
  verifyProjection();cases:=0
  v,r,s,stopped:=makeFixture();v.verifyAuthorityRefusal(context.Background());if r.failed!=0||s.calls!=1||*stopped!=1||len(r.logs)!=1{panic("positive refusal")};cases++
@@ -107,8 +119,8 @@ func main(){
 }
 '''
 program = program.replace('func main(){', types + '\n' + method + '\nfunc main(){', 1)
-if sys.argv[1:] not in ([], ['--producer-only']):
-    raise SystemExit('usage: authority-refusal-controls.py [--producer-only]')
+if sys.argv[1:] not in ([], ['--producer-only'], ['--detail-only']):
+    raise SystemExit('usage: authority-refusal-controls.py [--producer-only|--detail-only]')
 output = root / 'output/ai/project-variables-ui/implementation'
 env = dict(os.environ, GOTOOLCHAIN='local', GOPROXY='off', GOSUMDB='off', GOTELEMETRY='off', GOMAXPROCS='2',
            GOMODCACHE='/workspace/agenteam/output/ai/model-ui-recovery/go-mod',
