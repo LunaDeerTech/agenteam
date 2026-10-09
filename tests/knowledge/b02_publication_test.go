@@ -335,3 +335,175 @@ func TestKnowledgeB02DirectPublication(t *testing.T) {
 		}
 	})
 }
+
+func publicationBusiness(t *testing.T, d kc.DocumentRef) kc.SourceInput {
+	t.Helper()
+	ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.KnowledgeFile, ProjectID: d.ProjectID, DocumentID: d.ID.String(), Revision: d.ContentVersion})
+	if err != nil {
+		t.Fatal(err)
+	}
+	source, err := kc.NewBusinessSource(ref)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return source
+}
+
+func publicationSeedContent(t *testing.T, x *ownerTreeFixture, actor id.Actor, p id.ProjectID, body string) kc.DocumentRef {
+	t.Helper()
+	d, err := x.service.CreateDocument(knowledgeContext(t), actor, treeMeta(t), kc.CreateRequest{ProjectID: p, DocumentID: treeID[kc.Document](t), Title: "source"}, publicationText(t, body))
+	if err != nil {
+		t.Fatal("real source creation", err)
+	}
+	return d
+}
+
+func publicationSourceRetired(t *testing.T, x *ownerTreeFixture, source oc.ObjectID, target id.ProjectID) {
+	t.Helper()
+	var total, active, checkpoints int
+	err := x.raw.QueryRow(knowledgeContext(t), `SELECT
+ (SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='source'),
+ (SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='source' AND state='active'),
+ (SELECT count(*) FROM agenteam_knowledge.publications WHERE project_id=$2 AND source_lease_id IS NOT NULL)`, source.String(), target.String()).Scan(&total, &active, &checkpoints)
+	if err != nil || total < 1 || active != 0 || checkpoints != 0 {
+		t.Fatal("actual source lease and checkpoint retirement", err)
+	}
+}
+
+func TestKnowledgeB02BusinessPublication(t *testing.T) {
+	x := newPublicationFixture(t)
+	t.Run("exact_revision_copy_and_replay", func(t *testing.T) {
+		actor := x.human(t)
+		origin, target := x.project(t, actor, true), x.project(t, actor, true)
+		original := publicationSeedContent(t, x, actor, origin, "original 世界")
+		req := kc.CreateRequest{ProjectID: target, DocumentID: treeID[kc.Document](t), Title: "copied"}
+		meta := treeMeta(t)
+		copy, err := x.service.CreateDocument(knowledgeContext(t), actor, meta, req, publicationBusiness(t, original))
+		if err != nil {
+			t.Fatal("public exact business copy", err)
+		}
+		if copy.ObjectID == original.ObjectID || copy.ProjectID != target || copy.ContentVersion != 1 {
+			t.Fatal("business copy did not own new canonical object")
+		}
+		publicationFacts(t, x, copy, []byte("original 世界"))
+		publicationRead(t, x, actor, copy, []byte("original 世界"))
+		publicationSourceRetired(t, x, original.ObjectID, target)
+		changed := publicationText(t, "new original")
+		newOriginal, err := x.service.UpdateDocument(knowledgeContext(t), actor, titleMeta(t, 1), origin, original.ID, kc.UpdateRequest{ReplaceSource: true}, &changed)
+		if err != nil || newOriginal.ContentVersion != 2 {
+			t.Fatal("actual source revision advance", err)
+		}
+		replay, err := x.service.CreateDocument(knowledgeContext(t), actor, meta, req, publicationBusiness(t, original))
+		if err != nil {
+			t.Fatal("completed receipt accessed stale source", err)
+		}
+		titleSameDocument(t, copy, replay)
+		req.DocumentID = treeID[kc.Document](t)
+		_, err = x.service.CreateDocument(knowledgeContext(t), actor, treeMeta(t), req, publicationBusiness(t, original))
+		treeCode(t, err, f.VersionConflict)
+		if a, e := publicationCount(t, x, target); a != 1 || e != 1 {
+			t.Fatal("stale source/new command produced canonical facts")
+		}
+	})
+	t.Run("reuse_title_and_replacement", func(t *testing.T) {
+		actor := x.human(t)
+		origin, target := x.project(t, actor, true), x.project(t, actor, true)
+		original := publicationSeedContent(t, x, actor, origin, "equal")
+		before := publicationSeedContent(t, x, actor, target, "equal")
+		source := publicationBusiness(t, original)
+		meta := titleMeta(t, 1)
+		request := kc.UpdateRequest{ReplaceSource: true}
+		at := x.activity(t, actor)
+		noop, err := x.service.UpdateDocument(knowledgeContext(t), actor, meta, target, before.ID, request, &source)
+		if err != nil {
+			t.Fatal("business no-op", err)
+		}
+		titleSameDocument(t, before, noop)
+		digest, err := kc.UpdateDigest(actor, meta, target, before.ID, request, &source)
+		if err != nil {
+			t.Fatal(err)
+		}
+		lookup, err := x.service.LookupCommand(knowledgeContext(t), actor, kc.LookupRequest{ProjectID: target, Command: kc.Update, Key: meta.IdempotencyKey, SemanticDigest: digest})
+		if err != nil || lookup.Receipt == nil || lookup.Receipt.Changed || lookup.State != kc.Committed {
+			t.Fatal("business no-op receipt", err)
+		}
+		if a, e := publicationCount(t, x, target); a != 1 || e != 1 || !x.activity(t, actor).Equal(at) {
+			t.Fatal("no-op published extra fact")
+		}
+		title := "same object new title"
+		source = publicationBusiness(t, original)
+		renamed, err := x.service.UpdateDocument(knowledgeContext(t), actor, titleMeta(t, 1), target, before.ID, kc.UpdateRequest{Title: &title, ReplaceSource: true}, &source)
+		if err != nil || renamed.ContentVersion != 2 || renamed.ObjectID != before.ObjectID || renamed.Title != title {
+			t.Fatal("source-backed title reuse", err)
+		}
+		if a, e := publicationCount(t, x, target); a != 1 || e != 2 {
+			t.Fatal("reuse uploaded another object or omitted content event")
+		}
+		publicationSourceRetired(t, x, original.ObjectID, target)
+		other := publicationSeedContent(t, x, actor, origin, "different body")
+		source = publicationBusiness(t, other)
+		after, err := x.service.UpdateDocument(knowledgeContext(t), actor, titleMeta(t, 2), target, before.ID, kc.UpdateRequest{ReplaceSource: true}, &source)
+		if err != nil || after.ContentVersion != 3 || after.ObjectID == before.ObjectID {
+			t.Fatal("business replacement with both source and cleanup plans", err)
+		}
+		publicationFacts(t, x, after, []byte("different body"))
+		publicationRead(t, x, actor, after, []byte("different body"))
+		publicationSourceRetired(t, x, other.ObjectID, target)
+		var refs int
+		if err = x.raw.QueryRow(knowledgeContext(t), `SELECT count(*) FROM agenteam_object.object_references WHERE object_id=$1`, before.ObjectID.String()).Scan(&refs); err != nil || refs != 0 {
+			t.Fatal("source plan displaced old reference cleanup plan", err)
+		}
+		if a, e := publicationCount(t, x, target); a != 2 || e != 3 {
+			t.Fatal("replacement canonical facts")
+		}
+	})
+	t.Run("source_revision_rechecked_in_final", func(t *testing.T) {
+		actor := x.human(t)
+		origin, target := x.project(t, actor, true), x.project(t, actor, true)
+		original := publicationSeedContent(t, x, actor, origin, "before final")
+		var hook *titleAfterPrepare
+		s := publicationService(t, x, func(d *knowledge.Dependencies) {
+			hook = &titleAfterPrepare{Appender: d.Outbox, after: func() {
+				source := publicationText(t, "changed between plan and final")
+				_, err := x.service.UpdateDocument(knowledgeContext(t), actor, titleMeta(t, 1), origin, original.ID, kc.UpdateRequest{ReplaceSource: true}, &source)
+				if err != nil {
+					t.Fatal("actual source mutation between plans and final", err)
+				}
+			}}
+			d.Outbox = hook
+		})
+		req := kc.CreateRequest{ProjectID: target, DocumentID: treeID[kc.Document](t), Title: "must stay absent"}
+		_, err := s.CreateDocument(knowledgeContext(t), actor, treeMeta(t), req, publicationBusiness(t, original))
+		treeCode(t, err, f.VersionConflict)
+		if hook.calls != 1 {
+			t.Fatal("source changed before the actual final planning boundary")
+		}
+		_, err = x.service.GetDocument(knowledgeContext(t), actor, target, req.DocumentID)
+		treeCode(t, err, f.NotFound)
+		if a, e := publicationCount(t, x, target); a != 0 || e != 0 {
+			t.Fatal("stale final source published canonical facts")
+		}
+		publicationSourceRetired(t, x, original.ObjectID, target)
+	})
+	t.Run("source_owner_and_archived_read", func(t *testing.T) {
+		actor, other := x.human(t), x.human(t)
+		origin, target, foreign := x.project(t, actor, true), x.project(t, actor, true), x.project(t, other, true)
+		unowned := publicationSeedContent(t, x, other, foreign, "private source")
+		req := kc.CreateRequest{ProjectID: target, DocumentID: treeID[kc.Document](t), Title: "owner gate"}
+		_, err := x.service.CreateDocument(knowledgeContext(t), actor, treeMeta(t), req, publicationBusiness(t, unowned))
+		treeCode(t, err, f.NotFound)
+		var leases int
+		if err = x.raw.QueryRow(knowledgeContext(t), `SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='source'`, unowned.ObjectID.String()).Scan(&leases); err != nil || leases != 0 {
+			t.Fatal("non-owner acquired source lease", err)
+		}
+		original := publicationSeedContent(t, x, actor, origin, "archived source")
+		x.archive(t, origin)
+		req.DocumentID = treeID[kc.Document](t)
+		copy, err := x.service.CreateDocument(knowledgeContext(t), actor, treeMeta(t), req, publicationBusiness(t, original))
+		if err != nil {
+			t.Fatal("archived current Owner source read", err)
+		}
+		publicationRead(t, x, actor, copy, []byte("archived source"))
+		publicationSourceRetired(t, x, original.ObjectID, target)
+	})
+}

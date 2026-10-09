@@ -713,6 +713,7 @@ func (s *Service) finishContentPublicationFromSource(ctx context.Context, input 
 		plans = append(plans, sourcePlan)
 	}
 	var cleanupCause oc.ObjectCleanupCause
+	var cleanupPlan oc.AccessLockPlan
 	if cleanup != nil {
 		cleanupCause, err = cleanup.cause()
 		if err != nil {
@@ -722,11 +723,11 @@ func (s *Service) finishContentPublicationFromSource(ctx context.Context, input 
 		if err != nil {
 			return kc.DocumentRef{}, internal(err)
 		}
-		plan, err := st.deps.Objects.DiscoverAccess(ctx, request)
+		cleanupPlan, err = st.deps.Objects.DiscoverAccess(ctx, request)
 		if err != nil {
 			return kc.DocumentRef{}, portError(err)
 		}
-		plans = append(plans, plan)
+		plans = append(plans, cleanupPlan)
 	}
 	eventPlan, err := st.deps.Outbox.PrepareAppend(ctx, input.actor, event)
 	if err != nil {
@@ -803,7 +804,7 @@ func (s *Service) finishContentPublicationFromSource(ctx context.Context, input 
 			if err = insertReplacementCleanup(ctx, x, cleanup); err != nil {
 				return err
 			}
-			if err = st.deps.ReferenceCleanup.ReleaseForCleanupInTx(ctx, tx, cleanupCause, cleanup.object, plans[1], locked); err != nil {
+			if err = st.deps.ReferenceCleanup.ReleaseForCleanupInTx(ctx, tx, cleanupCause, cleanup.object, cleanupPlan, locked); err != nil {
 				return portError(err)
 			}
 			tag, err := x.Exec(ctx, `UPDATE agenteam_knowledge.object_cleanup SET phase='object' WHERE id=$1 AND phase='reference'`, cleanup.id.String())
