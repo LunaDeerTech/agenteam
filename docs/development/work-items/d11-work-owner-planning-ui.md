@@ -228,3 +228,5 @@ rev1 已经未参与产品实现者独立接受。API、Session恢复与controll
 ### 修后planning第二轮（保留）
 
 修后planning第二轮仍整体FAIL：冻结7354334e、原binary05/私有新dist及原预算，98126实际exit1/126.236秒、Go23.36秒。已越过原Sprint恢复按钮门槛并完成Sprint更新/两次排序；随后Task新建表单内精确“创建”按钮不存在，原5秒disabled断言失败，Go持久后验未到。实际模板标签为“创建 Task”，此轮尚无最终UI接受；原finished观察器没有再产生未处理拒绝。direct actualWait1，四个adopted枚举时均Z并实际nonblocking Wait0、未STOP；七资源双absent、desc/runtime/private/TCP双清及输入同一齐，窗口已释放。新回收仅证明本轮正确执行，首轮FAIL/STOP不回填。原log在output/ai/work-owner-planning-ui/pg/planning-02.log；下一先修精确测试标签并复核剩余同组刺激，不改产品或放宽期限。
+
+第二轮定位修订仅两PW源：save显式区分structure/task并精确匹配对应form与“创建”/“创建 Task”；实际既有controller在提交时校验必选项而非预禁用，故测试改为未填提交→两字段错误且Task POST为0，仅填type→priority错误且POST仍0，最后显式priority后沿原创建/恢复链。未改产品、预算、EOF/schema或Go持久断言。严格TS69044及精确单planning发现43725均actual0；最初TS命令漏既有Node typeRoots/DOM.Iterable的setup失败保留。未参与本修订者核真实模板及6正反控制后有限接受；原binary05与私有dist不变，第三轮须新独立输出目录并等待root fresh grant。

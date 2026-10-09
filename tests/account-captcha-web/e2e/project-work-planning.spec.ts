@@ -221,7 +221,7 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
   await editor(page)
     .getByRole("textbox", { name: "描述", exact: true })
     .fill("真实待清空描述");
-  await save(page, true);
+  await save(page, "structure");
   await current(page, "浏览器 Milestone");
   await title(page).fill("修改 Milestone");
   await editor(page)
@@ -236,7 +236,7 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
   await go(page, path(data, "main", "milestone"));
   await button(page, "新建 Sprint").click();
   await title(page).fill("浏览器 Sprint");
-  await save(page, true);
+  await save(page, "structure");
   await current(page, "浏览器 Sprint");
   await title(page).fill("修改 Sprint");
   await save(page);
@@ -244,14 +244,38 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
   await go(page, path(data, "main", "sprint"));
   await button(page, "新建 Task").click();
   await title(page).fill("浏览器 Task");
-  await expect(button(editor(page), "创建")).toBeDisabled();
+  const createTask = button(editor(page), "创建 Task");
+  const taskPosts = () =>
+    seen.requests.filter(
+      (request) =>
+        request.method === "POST" &&
+        request.path === `/api/v1/projects/${data.work.main!.project_id}/tasks`,
+    );
+  // Required values are validated on explicit submission, before any command.
+  await expect(createTask).toBeEnabled();
+  await createTask.click();
+  await expect(
+    editor(page).getByText("请选择类型。", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    editor(page).getByText("请选择优先级。", { exact: true }),
+  ).toBeVisible();
+  expect(taskPosts()).toHaveLength(0);
   await choose(page, "Task 类型", "功能");
+  await createTask.click();
+  await expect(
+    editor(page).getByText("请选择类型。", { exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    editor(page).getByText("请选择优先级。", { exact: true }),
+  ).toBeVisible();
+  expect(taskPosts()).toHaveLength(0);
   await choose(page, "Task 优先级", "中");
   const plan = "  <script>literal</script>\n第二行 🧭  ";
   await editor(page)
     .getByRole("textbox", { name: "Plan", exact: true })
     .fill(plan);
-  await save(page, true);
+  await save(page, "task");
   await current(page, "浏览器 Task");
   await expect
     .poll(() => details(page).locator("p.raw").last().textContent())

@@ -107,12 +107,26 @@ export async function confirmed(page: Page) {
   ).toBeVisible();
   await expect(button(recovery(page), "查证原命令")).toBeEnabled();
 }
-export async function save(page: Page, creating = false) {
+export async function save(
+  page: Page,
+  creating: false | "structure" | "task" = false,
+) {
   const form = page.getByRole("form", {
-    name: /^(规划结构编辑|Task 规划编辑)$/,
+    name:
+      creating === "task"
+        ? "Task 规划编辑"
+        : creating === "structure"
+          ? "规划结构编辑"
+          : /^(规划结构编辑|Task 规划编辑)$/,
+    exact: true,
   });
   const action = form.getByRole("button", {
-    name: creating ? "创建" : "保存修改",
+    name:
+      creating === "task"
+        ? "创建 Task"
+        : creating === "structure"
+          ? "创建"
+          : "保存修改",
     exact: true,
   });
   await expect(action).toBeEnabled();
