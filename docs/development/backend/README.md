@@ -134,7 +134,7 @@ AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:8080 ./bin/agenteam
 
 System Model 路由使用同一 Account 安全边界，覆盖 `/api/v1/system/` 下 `model-providers`、`models`、`model-selection`、`model-commands`、`model-credentials`、`model-credential-commands` 六个精确路径根及其子路径，详情见 [System Model OpenAPI](../../../api/openapi/model-system.json)。配置写入、credential 写入及两类 lookup 均保持原当前授权、CSRF、幂等和 Unknown 规则；credential 写入与 Provider 绑定是两个独立命令。各 handler 继承原 request context，两条管理读口额外施加上述 3 秒预算，纳入同一 HTTP admission/drain 和 DB 最后关闭协议，不新增 Model runtime、后台调用或重复 middleware；force 有界退出不证明所有 writer 已 join 或回滚。
 
-日志用 `slog.JSONHandler` 写 stderr；stdout 仅输出 CLI 结果。正常日志包含 UTC 时间、level、service、event、随机进程 run_id。HTTP 另有 request_id、method、声明的 route、status、duration、bytes；未匹配路由用 `unknown_route`。数据库日志仅增加白名单阶段/错误码、五位 SQLSTATE 和迁移版本；安全日志仅输出 cursor_initializing/audit_initializing/secret_initializing/secret_maintenance_starting/secret_unavailable/outbound_initializing/object_initializing/object_available/object_unavailable/outbox_initializing/outbox_available/outbox_unavailable/initialized/failed 固定阶段。不记录原始错误、panic/堆栈、SQL/参数、DSN、证书路径、配置、body、query、Authorization、Cookie 或其他任意 header。原始 net/http 错误文本只投影为固定 `HTTP_SERVER_ERROR`。启动在实际 bind 后记录监听地址，Runner 明确 `unconnected`，不尝试连接、注册、认证或监听。
+日志用 `slog.JSONHandler` 写 stderr；stdout 仅输出 CLI 结果。正常日志包含 UTC 时间、level、service、event、随机进程 run_id。HTTP 另有 request_id、method、声明的 route、status、duration、bytes；未匹配路由用 `unknown_route`。数据库日志仅增加白名单阶段/错误码、五位 SQLSTATE 和迁移版本；安全日志仅输出 cursor_initializing/audit_initializing/secret_initializing/secret_maintenance_starting/secret_unavailable/outbound_initializing/object_initializing/object_available/object_unavailable/outbox_initializing/outbox_available/outbox_unavailable/initialized/failed 固定阶段。不记录原始错误、panic/堆栈、SQL/参数、DSN、证书路径、配置、body、query、Authorization、Cookie 或其他任意 header。原始 net/http 错误文本只投影为固定 `HTTP_SERVER_ERROR`。Central 在实际 bind 后记录监听地址。Runner 默认入口读取私有身份并发起 HTTPS challenge 与出站 WSS，`--enroll` 额外消费标准输入的一次登记材料；固定 `runner_connection` 日志只投影 `disconnected/connecting/connected/incompatible`。只有当前认证且 hello 完成的 `connected` 将连接/认证布尔设为 true，`ready` 仍为 false；离线 check-config 不连接或登记。
 
 受限 Account recovery log 是独立敏感渠道，不是上述普通日志：首次管理员密码只尝试写一次；SMTP 未配置时邀请/reset 链接可写入，配置后发送失败不改渠道。不得复制其正文到 stderr、Audit、诊断或报告；部署操作者管理读取、备份与保留权限。文件/目录安全检查、written/unknown 与真实 Close/join 语义见[账号邮件说明](accountmail.md#smtp-与日志)。
 
@@ -313,7 +313,7 @@ AGENTEAM_MINIO_BINARY=/task-owned/cache/minio \
 | 2 | 参数或配置拒绝 |
 | 1 | 初始化、监听、意外 Serve 错误、drain 超时或第二信号强关 |
 
-Runner 当前没有 RPC、子进程或长连接；第一次信号停止真实未连接进程即可。D15–D17 后续绑定其 Managed Process 和通道关闭顺序。HTTP hijack/WebSocket 不由 Server.Shutdown 自动等待；当前生产没有该连接，后续连接 owner 必须登记自身停止与关闭责任，不将当前 HTTP 测试当作未来长连接或持久恢复验收。
+Runner 默认入口已绑定 D15 Client；第一次信号停止新准入、取消重连与当前会话，并等待原 `Client.Run`、socket/worker 和回调实际返回，最后释放身份文件锁。第二信号或排空超时进入原有额外1秒 Force 尾，未返回的工作不能记为干净退出。Central 的 Runner owner 显式拥有已 hijack 的 WSS，并在 Account/DB 前停止和排空；`http.Server.Shutdown` 或 HTTP active 归零不能代替该 owner 的实际 join。当前 production operation registry 为空，D16 Managed Process、D17 Data Channel 与真实双 cmd 退出矩阵仍待各自验收，详见[Runner说明](runner.md)。
 
 ## D05 B01 对象库
 

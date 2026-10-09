@@ -1,6 +1,6 @@
 # Runner 身份与控制通道
 
-本分支按 [D15 规格](../work-items/d15-runner-control.md)实现 Runner 管理、一次性登记、Ed25519 设备身份和出站 WSS。当前源码已接 Central 与 Runner 默认入口；业务 PG、真实 TLS/WSS、双进程退出和完整平台矩阵仍待验收，不能将编译或纯测试视为可部署结论。共享 wire 与 Linux 身份文件已有局部验证，验收状态以规格卡为准。
+本分支按 [D15 规格](../work-items/d15-runner-control.md)实现 Runner 管理、一次性登记、Ed25519 设备身份和出站 WSS。当前源码已接 Central 与 Runner 默认入口；连续迁移和管理服务已有作者限定真实 PG 结果，真实 TLS/WSS、双进程退出、独立风险验证和完整平台矩阵仍待验收。共享 wire 与 Linux 身份文件已有局部验证，不能将这些结果视为完整 D15 或可部署结论，验收状态以规格卡为准。
 
 生产 operation registry 为空，hello 的 capability 列表相应为空。设备在线不代表可以执行命令、访问 Workspace 或使用 Data Channel；Agent Mount、D16 operation、D17 数据面和 D18 Tool Runtime 的真实绑定仍是独立集成门槛。整体 `ready=false` / `/readyz` 503 的既有限制不变。
 
@@ -66,3 +66,7 @@ Central 的 Runner owner 位于 Account/DB 之前停止，拥有升级后的 soc
 Runner 停止新请求、取消已接收请求及重连，再等待实际运行时、socket/worker退出，最后释放身份文件锁。当前D16/D17 owner为空只表示未绑定，不是其退出验证。局部状态日志仅使用固定状态和布尔值，不打印token、签名、私钥、raw public key或配置值。
 
 首期支持目标是Linux kernel≥5.15及macOS≥14，amd64/arm64；Windows明确不支持。目前仅有Linux局部文件/协议结果，macOS、跨UID、真实crash和其它CPU保持未验。业务PG测试使用实际Account Bootstrap/Login、同Store/Audit与隔离Postgres；native/真实双入口须分别取得资源窗口。开发中只运行已核实无网络的精确pure selector，禁止递归测试误纳native组。
+
+作者真实 `TestRunnerControlMigration` 与 `TestRunnerControlManagement` 已通过各自断言及实际 Wait、精确资源退役、runtime/descendants、TCP 和输入不变检查；前者限定连续迁移/约束，后者限定管理原意图、同 User 新 Session 与 Audit 原子性。`TestRunnerControlDeviceAndReader` 的设备/代际/自然 lease/闭池断言通过，但原 host TCP 尾有4行未清、外层退出1，整轮仍为失败；原 tuple 未保存，事后资源清空不能补写原归属或 PASS。
+
+`TestRunnerControlNativeGeneration`、`TestRunnerControlNativeClientLifecycle` 和 `TestRunnerControlDeviceCompetition` 已编译并精确发现，尚未实际执行。它们分别准备验证真实 TLS/WSS 与旧代际退役、真实 Client/身份锁及 Force 回调尾、真实双 Service 的 token/nonce 消费竞争；不覆盖全部 COMMIT Unknown、双 cmd、RPC/Runtime 或平台矩阵。
