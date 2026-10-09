@@ -152,11 +152,6 @@ func (s *Service) runContentCommand(ctx context.Context, input contentInput, sou
 	if source == nil {
 		return s.finishTitleContent(run, input, intent)
 	}
-	if input.request.Source.Kind == kc.InputBusinessFile {
-		// Lease-backed source preparation/final validation is a distinct
-		// composition; direct preparation must never open it without a lease.
-		return out, fault(f.DependencyUnbound)
-	}
 	var replay *kc.DocumentRef
 	work, replay, err = s.claimContentPublication(run, input, intent)
 	if work.command.Validate() == nil {
@@ -175,9 +170,37 @@ func (s *Service) runContentCommand(ctx context.Context, input contentInput, sou
 	if replay != nil {
 		return *replay, nil
 	}
-	prepared, err := s.prepareDirectPublication(run, input, intent, *source, work, retirement)
-	if err != nil {
-		return out, err
+	var prepared oc.PreparedPayload
+	var resolved *businessPublicationSource
+	if input.request.Source.Kind == kc.InputBusinessFile {
+		actual, resolveErr := s.resolveBusinessPublication(run, input, intent, *source, work, retirement)
+		if resolveErr != nil {
+			return out, resolveErr
+		}
+		resolved = &actual
+		lease, existing, leaseErr := s.acquireBusinessPublicationLease(run, input, intent, work, actual, retirement)
+		if leaseErr != nil {
+			return out, leaseErr
+		}
+		if existing != nil {
+			return *existing, nil
+		}
+		prepared, err = s.prepareBusinessPublication(run, input, intent, actual, work, lease, retirement)
+		if err != nil {
+			return out, err
+		}
+		existing, err = s.closeBusinessPublicationLease(run, input, intent, work, actual, lease, prepared)
+		if err != nil {
+			return out, err
+		}
+		if existing != nil {
+			return *existing, nil
+		}
+	} else {
+		prepared, err = s.prepareDirectPublication(run, input, intent, *source, work, retirement)
+		if err != nil {
+			return out, err
+		}
 	}
 	reuse, replay, err := s.inspectContentReuse(run, input, intent, work, prepared)
 	if err != nil {
@@ -187,6 +210,7 @@ func (s *Service) runContentCommand(ctx context.Context, input contentInput, sou
 		return *replay, nil
 	}
 	if reuse != nil {
+		reuse.source = resolved
 		return s.finishContentReuse(run, input, intent, reuse)
 	}
 	attempt, replay, err := s.reserveContentPublication(run, input, intent, work, prepared)
@@ -199,7 +223,7 @@ func (s *Service) runContentCommand(ctx context.Context, input contentInput, sou
 	if err = s.sendContentPublication(run, input, intent, work, prepared, attempt); err != nil {
 		return out, err
 	}
-	return s.finishContentPublication(run, input, intent, work, prepared, attempt)
+	return s.finishContentPublicationFromSource(run, input, intent, work, prepared, attempt, resolved)
 }
 
 func contentCompletionError(result kc.DocumentRef, cause error) error {
