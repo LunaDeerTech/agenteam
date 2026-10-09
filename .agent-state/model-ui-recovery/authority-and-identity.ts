@@ -66,18 +66,44 @@ function originalBody(fact: NativeFact, operation: string, projectID: string) {
   need(bytes.length === row.body_bytes && bytes.length === fact.bytes && bytes.length <= 8388608 && createHash('sha256').update(bytes).digest('hex') === row.body_sha256, 'PROJECT_MODELS_AUTHORITY_BODY_BYTES_INVALID');
   return object(JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)));
 }
-function observer(page: Page, harness: AuthorityHarness) {
+type AuthorityAwait = <T>(label: string, start: () => Promise<T>) => Promise<T>;
+function authorityAwait(step: (name: string) => void): AuthorityAwait {
+  let sequence = 0;
+  let firstRejected: string | undefined;
+  const pending = new Map<number, string>();
+  const publish = (label: string, state: 'started' | 'completed' | 'rejected') => {
+    // Labels are source literals (or the fixed lifecycle key union), never
+    // Project data. A late completion must retain the newest pending wait.
+    const labels = [...pending.values()], current = labels.at(-1);
+    const active = current && labels.length > 1 ? labels[0] + '-in-' + current : current;
+    const progress = active && state !== 'started' ? active + '-pending-after-' + label + '-' + state : (active ?? label) + '-' + state;
+    try { step(progress + (firstRejected ? '-first-rejected-' + firstRejected : '')); }
+    catch { /* Diagnostic I/O never changes the original action or error. */ }
+  };
+  return <T>(label: string, start: () => Promise<T>) => {
+    const sequenceID = ++sequence;
+    pending.set(sequenceID, label); publish(label, 'started');
+    const settled = (state: 'completed' | 'rejected') => { pending.delete(sequenceID); if (state === 'rejected') firstRejected ??= label; publish(label, state); };
+    let original: Promise<T>;
+    try { original = start(); }
+    catch (error) { settled('rejected'); throw error; }
+    // Observe a handled side branch and return the exact original Promise.
+    void original.then(() => settled('completed'), () => settled('rejected')).catch(() => {});
+    return original;
+  };
+}
+function observer(page: Page, harness: AuthorityHarness, wait: AuthorityAwait) {
   const tokens = new Set<string>();
   return async (operation: string, projectID: string, method: string, leaf: string, status: number, action: () => Promise<void>, query = '') => {
-    const before = await harness.nativeFacts(page), path = '/api/v1/projects/' + projectID + '/' + leaf;
-    await action();
+    const before = await wait('authority-observer-native-facts-001', () => harness.nativeFacts(page)), path = '/api/v1/projects/' + projectID + '/' + leaf;
+    await wait('authority-observer-action-002', () => action());
     let matches: readonly NativeFact[] = [];
-    await expect.poll(async () => {
-      const facts = await harness.nativeFacts(page);
+    await wait('authority-observer-to-be-003', () => expect.poll(async () => {
+      const facts = await wait('authority-observer-native-facts-004', () => harness.nativeFacts(page));
       need(facts.length >= before.length, 'PROJECT_MODELS_AUTHORITY_OBSERVATIONS_RESET');
       matches = facts.slice(before.length).filter((fact) => fact.method === method && fact.path === path);
       return matches.length === 1 && matches[0]!.status === status && matches[0]!.eof && matches[0]!.ended && matches[0]!.released;
-    }).toBe(true);
+    }).toBe(true));
     const fact = matches[0]!;
     need(fact.token !== null && /^r[0-9]{6}$/.test(fact.token) && !tokens.has(fact.token) && fact.query === query, 'PROJECT_MODELS_AUTHORITY_NATIVE_BINDING_INVALID');
     tokens.add(fact.token);
@@ -150,8 +176,8 @@ async function sessionStage<T>(work: Promise<T>, code: SessionStageCode) {
     })]);
   } finally { if (timer !== undefined) clearTimeout(timer); }
 }
-async function sessionIdentity(page: Page, action: () => Promise<void>, step: (name: string) => void) {
-  const diagnostic = await beginSessionDiagnostic(page, 'authority');
+async function sessionIdentity(page: Page, action: () => Promise<void>, step: (name: string) => void, wait: AuthorityAwait) {
+  const diagnostic = await wait('authority-session-identity-begin-session-diagnostic-005', () => beginSessionDiagnostic(page, 'authority'));
   let diagnosticFailed = false;
   let selected: Request | undefined;
   const observation = { headers_seen: false, finished_event: false, failed_event: false };
@@ -166,19 +192,19 @@ async function sessionIdentity(page: Page, action: () => Promise<void>, step: (n
       if (new URL(response.url()).pathname !== '/api/v1/session' || response.request().method() !== 'GET' || response.status() !== 200) return false;
       selected = response.request(); diagnostic.select(response); observation.headers_seen = true; publish(); return true;
     }, { timeout: 5_000 });
-    const [response] = await Promise.all([
+    const [response] = await wait('authority-session-identity-all-006', () => Promise.all([
       sessionStage(waiting, 'PROJECT_MODELS_AUTHORITY_SESSION_HEADERS_TIMEOUT'),
-      (async () => { await sessionStage(action(), 'PROJECT_MODELS_AUTHORITY_SESSION_ACTION_TIMEOUT'); step('authority-session-action-returned'); })(),
-    ]);
+      (async () => { await wait('authority-session-identity-session-stage-007', () => sessionStage(action(), 'PROJECT_MODELS_AUTHORITY_SESSION_ACTION_TIMEOUT')); step('authority-session-action-returned'); })(),
+    ]));
     step('authority-session-headers-observed');
-    try { need(await sessionStage(response.finished(), 'PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT') === null, 'PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE'); }
+    try { need(await wait('authority-session-identity-session-stage-008', () => sessionStage(response.finished(), 'PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT')) === null, 'PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE'); }
     catch (error) {
       if (error instanceof Error && error.message === 'PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT') throw error;
       throw new Error('PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE');
     }
     step('authority-session-finished');
     try {
-      const body = object(await sessionStage(response.json(), 'PROJECT_MODELS_AUTHORITY_SESSION_JSON_TIMEOUT')), user = object(body.user), session = object(body.session);
+      const body = object(await wait('authority-session-identity-session-stage-009', () => sessionStage(response.json(), 'PROJECT_MODELS_AUTHORITY_SESSION_JSON_TIMEOUT'))), user = object(body.user), session = object(body.session);
       need(uuid(user.id) && uuid(session.id) && (user.role === 'user' || user.role === 'admin'), 'PROJECT_MODELS_AUTHORITY_SESSION_INVALID');
       step('authority-session-json-validated');
       return { userID: user.id, sessionID: session.id, role: user.role };
@@ -188,31 +214,31 @@ async function sessionIdentity(page: Page, action: () => Promise<void>, step: (n
     }
   } catch (error) { diagnosticFailed = true; throw error; } finally {
     page.off('request', requested); page.off('requestfinished', finished); page.off('requestfailed', failed); publish();
-    await diagnostic.finish(diagnosticFailed);
+    await wait('authority-session-identity-finish-010', () => diagnostic.finish(diagnosticFailed));
   }
 }
-async function pageshow(page: Page) { await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow'))); }
-async function privateLogin(page: Page, actor: Actor) {
-  await expect(page.locator('#login-email')).toBeVisible();
-  try { await page.locator('#login-email').fill(actor.email); await page.locator('#login-password').fill(actor.password); }
+async function pageshow(page: Page, wait: AuthorityAwait) { await wait('authority-pageshow-evaluate-011', () => page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow')))); }
+async function privateLogin(page: Page, actor: Actor, wait: AuthorityAwait) {
+  await wait('authority-private-login-to-be-visible-012', () => expect(page.locator('#login-email')).toBeVisible());
+  try { await wait('authority-private-login-fill-013', () => page.locator('#login-email').fill(actor.email)); await wait('authority-private-login-fill-014', () => page.locator('#login-password').fill(actor.password)); }
   catch { throw new Error('PROJECT_MODELS_PRIVATE_LOGIN_INPUT_FAILED'); }
-  await button(page, '登录').click(); await expect(button(page, '退出登录')).toBeEnabled();
+  await wait('authority-private-login-click-015', () => button(page, '登录').click()); await wait('authority-private-login-to-be-enabled-016', () => expect(button(page, '退出登录')).toBeEnabled());
 }
-async function newProvider(page: Page, name: string) {
-  await button(page, '创建 Provider').click();
+async function newProvider(page: Page, name: string, wait: AuthorityAwait) {
+  await wait('authority-new-provider-click-017', () => button(page, '创建 Provider').click());
   const dialog = page.getByRole('dialog').filter({ has: page.locator('#project-provider-form') });
-  await dialog.getByRole('textbox', { name: 'Provider 名称', exact: true }).fill(name);
-  await dialog.getByRole('textbox', { name: 'Base URL', exact: true }).fill('https://model-ui.invalid/v1');
+  await wait('authority-new-provider-fill-018', () => dialog.getByRole('textbox', { name: 'Provider 名称', exact: true }).fill(name));
+  await wait('authority-new-provider-fill-019', () => dialog.getByRole('textbox', { name: 'Base URL', exact: true }).fill('https://model-ui.invalid/v1'));
   return dialog;
 }
-async function discardClick(page: Page, target: Locator, stage: 'cancel' | 'confirm') {
-  try { await target.click({ timeout: 5_000 }); }
+async function discardClick(page: Page, target: Locator, stage: 'cancel' | 'confirm', wait: AuthorityAwait) {
+  try { await wait('authority-discard-click-click-020', () => target.click({ timeout: 5_000 })); }
   catch {
     // Observe only this real failure. No DOM text, titles, field values or
     // computed-style strings leave the browser, and no hit target is modified.
     let observation: unknown = null;
     try {
-      observation = await page.evaluate((stage) => {
+      observation = await wait('authority-discard-click-evaluate-021', () => page.evaluate((stage) => {
         const overlays = [...document.querySelectorAll<HTMLElement>('.ui-overlay')].filter((node) => node.getClientRects().length > 0);
         const panels = overlays.map((node) => node.querySelector<HTMLElement>('[role="dialog"]'));
         const index = panels.findIndex((panel) => panel && (stage === 'cancel' ? !!panel.querySelector('#project-provider-form') : panel.querySelector('h2')?.textContent?.trim() === '放弃当前表单修改？'));
@@ -228,17 +254,17 @@ async function discardClick(page: Page, target: Locator, stage: 'cancel' | 'conf
           center_hits_target: !!hit && !!wanted && (hit === wanted || wanted.contains(hit)),
           center_hits_overlay: !!hit?.closest('.ui-overlay'), hit_overlay_index: overlays.findIndex((node) => !!hit && (hit === node || node.contains(hit))),
         };
-      }, stage);
+      }, stage));
     } catch { /* A missing observation remains null, never a synthetic fact. */ }
     writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-discard-hit.json'), JSON.stringify({ protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH, stage, observation }), { mode: 0o600 });
     throw new Error('PROJECT_MODELS_AUTHORITY_DISCARD_CLICK_FAILED');
   }
 }
-async function discardProvider(page: Page, dialog: Locator, step: (name: string) => void) {
-  await discardClick(page, button(dialog, '取消'), 'cancel');
+async function discardProvider(page: Page, dialog: Locator, step: (name: string) => void, wait: AuthorityAwait) {
+  await wait('authority-discard-provider-discard-click-022', () => discardClick(page, button(dialog, '取消'), 'cancel', wait));
   const confirmation = page.getByRole('dialog', { name: '放弃当前表单修改？', exact: true });
-  await expect(confirmation).toBeVisible(); step('authority-discard-confirm-visible');
-  await discardClick(page, button(confirmation, '放弃修改'), 'confirm'); await expect(dialog).toBeHidden();
+  await wait('authority-discard-provider-to-be-visible-023', () => expect(confirmation).toBeVisible()); step('authority-discard-confirm-visible');
+  await wait('authority-discard-provider-discard-click-024', () => discardClick(page, button(confirmation, '放弃修改'), 'confirm', wait)); await wait('authority-discard-provider-to-be-hidden-025', () => expect(dialog).toBeHidden());
 }
 
 // A failed navigation can still have the pushState URL while guards or Owner
@@ -293,27 +319,28 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
     return [key, row];
   })) as Record<'owner' | 'other_owner' | 'other_admin', Actor>;
   need(projects.main.owner_user_id === actors.owner.user_id && projects.other.owner_user_id === actors.other_owner.user_id && projects.admin_owned.owner_user_id === actors.other_admin.user_id, 'PROJECT_MODELS_AUTHORITY_OWNERS_INVALID');
-  const checks: Record<string, boolean> = {}, observe = observer(page, harness);
+  const wait = authorityAwait(harness.step);
+  const checks: Record<string, boolean> = {}, observe = observer(page, harness, wait);
   const providerDialog = () => page.getByRole('dialog').filter({ has: page.locator('#project-provider-form') });
   const credentialDialog = () => page.getByRole('dialog').filter({ has: page.locator('#project-credential-form') });
   async function leafReady(project: Project, before: readonly NativeFact[]) {
     const leaf = page.locator('section.project-providers');
-    await expect(leaf).toBeVisible();
+    await wait('authority-leaf-ready-to-be-visible-026', () => expect(leaf).toBeVisible());
     const reread = button(leaf, '重新读取项目');
     const freshRead = async () => {
-      const facts = await harness.nativeFacts(page);
+      const facts = await wait('authority-leaf-ready-native-facts-027', () => harness.nativeFacts(page));
       need(facts.length >= before.length, 'PROJECT_MODELS_AUTHORITY_OBSERVATIONS_RESET');
       return facts.slice(before.length).some((fact) => fact.method === 'GET' && fact.path === '/api/v1/projects/' + project.id + '/model-providers' && fact.status === 200 && fact.eof && fact.ended && fact.released);
     };
     // Owner revalidation can publish this gate after the leaf first appears.
     // Observe until the fresh read or the real gate exists, then click at most once.
-    await expect.poll(async () => await freshRead() || await reread.isVisible()).toBe(true);
-    if (!(await freshRead()) && await reread.isVisible()) { await expect(reread).toBeEnabled(); await reread.click(); await expect(reread).toBeHidden(); }
-    await expect(button(leaf, '刷新 Providers')).toBeEnabled();
+    await wait('authority-leaf-ready-to-be-028', () => expect.poll(async () => await wait('authority-leaf-ready-fresh-read-029', () => freshRead()) || await wait('authority-leaf-ready-is-visible-030', () => reread.isVisible())).toBe(true));
+    if (!(await wait('authority-leaf-ready-fresh-read-031', () => freshRead())) && await wait('authority-leaf-ready-is-visible-032', () => reread.isVisible())) { await wait('authority-leaf-ready-to-be-enabled-033', () => expect(reread).toBeEnabled()); await wait('authority-leaf-ready-click-034', () => reread.click()); await wait('authority-leaf-ready-to-be-hidden-035', () => expect(reread).toBeHidden()); }
+    await wait('authority-leaf-ready-to-be-enabled-036', () => expect(button(leaf, '刷新 Providers')).toBeEnabled());
   }
   async function open(project: Project, discard = false) {
-    const before = await harness.nativeFacts(page);
-    const diagnostic = await beginSessionDiagnostic(page, 'authority');
+    const before = await wait('authority-open-native-facts-037', () => harness.nativeFacts(page));
+    const diagnostic = await wait('authority-open-begin-session-diagnostic-038', () => beginSessionDiagnostic(page, 'authority'));
     let diagnosticFailed = false;
     const sessionResponse = (response: Response) => {
       try {
@@ -322,308 +349,308 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
       } catch { /* Diagnostic metadata cannot alter navigation. */ }
     };
     page.on('response', sessionResponse);
-    try { return await observe('listProjectModelProviders', project.id, 'GET', 'model-providers', 200, async () => {
-      await harness.navigate(page, route(project));
-      if (discard) await button(page.getByRole('dialog', { name: '离开项目模型设置？', exact: true }), '放弃并离开').click();
-      await expect.poll(() => new URL(page.url()).pathname).toBe(route(project));
+    try { return await wait('authority-open-observe-039', () => observe('listProjectModelProviders', project.id, 'GET', 'model-providers', 200, async () => {
+      await wait('authority-open-navigate-040', () => harness.navigate(page, route(project)));
+      if (discard) await wait('authority-open-click-041', () => button(page.getByRole('dialog', { name: '离开项目模型设置？', exact: true }), '放弃并离开').click());
+      await wait('authority-open-to-be-042', () => expect.poll(() => new URL(page.url()).pathname).toBe(route(project)));
       // pushState changes the URL before the router and Owner read publish the
       // destination. This public link is rendered from that Project's detail.
       const settings = page.getByRole('navigation', { name: '项目导航', exact: true }).getByRole('link', { name: '项目设置', exact: true });
-      await expect(settings).toHaveAttribute('href', '/' + project.username + '/' + project.normalized_name + '/settings/general');
-      await expect(settings).toHaveAttribute('aria-current', 'page');
-      await leafReady(project, before);
-    }, 'limit=25'); }
-    catch (error) { diagnosticFailed = true; await navigationFailure(page, project, Object.values(projects)); throw error; }
-    finally { page.off('response', sessionResponse); await diagnostic.finish(diagnosticFailed); }
+      await wait('authority-open-to-have-attribute-043', () => expect(settings).toHaveAttribute('href', '/' + project.username + '/' + project.normalized_name + '/settings/general'));
+      await wait('authority-open-to-have-attribute-044', () => expect(settings).toHaveAttribute('aria-current', 'page'));
+      await wait('authority-open-leaf-ready-045', () => leafReady(project, before));
+    }, 'limit=25')); }
+    catch (error) { diagnosticFailed = true; await wait('authority-open-navigation-failure-046', () => navigationFailure(page, project, Object.values(projects))); throw error; }
+    finally { page.off('response', sessionResponse); await wait('authority-open-finish-047', () => diagnostic.finish(diagnosticFailed)); }
   }
   async function reread(project: Project) {
     return observe('listProjectModelProviders', project.id, 'GET', 'model-providers', 200, async () => {
       const leaf = page.locator('section.project-providers');
-      await expect(button(leaf, '重新读取项目')).toBeVisible();
-      await button(leaf, '重新读取项目').click();
-      await expect(button(leaf, '重新读取项目')).toBeHidden();
+      await wait('authority-reread-to-be-visible-048', () => expect(button(leaf, '重新读取项目')).toBeVisible());
+      await wait('authority-reread-click-049', () => button(leaf, '重新读取项目').click());
+      await wait('authority-reread-to-be-hidden-050', () => expect(button(leaf, '重新读取项目')).toBeHidden());
       // A preserved modal can make underlying controls inert; native EOF below
       // is the readiness witness, so do not require an underlying click.
     }, 'limit=25');
   }
   async function denied(project: Project, foreign: boolean) {
-    const before = await harness.nativeFacts(page), beforeCounts = await harness.counts();
-    const responsePromise = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/v1/projects/resolve');
-    const [response] = await Promise.all([responsePromise, harness.navigate(page, route(project))]);
-    need(await response.finished() === null && (foreign ? [403, 404].includes(response.status()) : response.status() === 409), 'PROJECT_MODELS_AUTHORITY_OWNER_GATE_INVALID');
-    await expect(page.getByRole('heading', { name: foreign ? '项目不可用' : '项目信息读取失败', exact: true })).toBeVisible();
-    await expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0);
-    await expect(page.getByRole('dialog')).toHaveCount(0);
-    need((await harness.nativeFacts(page)).length === before.length, 'PROJECT_MODELS_AUTHORITY_DENIED_MODEL_REQUEST');
-    sameOperations(beforeCounts, await harness.counts());
+    const before = await wait('authority-denied-native-facts-051', () => harness.nativeFacts(page)), beforeCounts = await wait('authority-denied-counts-052', () => harness.counts());
+    const responsePromise = wait('authority-denied-resolve-headers', () => page.waitForResponse((response) => new URL(response.url()).pathname === '/api/v1/projects/resolve'));
+    const [response] = await wait('authority-denied-all-053', () => Promise.all([responsePromise, wait('authority-denied-navigation-action', () => harness.navigate(page, route(project)))]));
+    need(await wait('authority-denied-finished-054', () => response.finished()) === null && (foreign ? [403, 404].includes(response.status()) : response.status() === 409), 'PROJECT_MODELS_AUTHORITY_OWNER_GATE_INVALID');
+    await wait('authority-denied-to-be-visible-055', () => expect(page.getByRole('heading', { name: foreign ? '项目不可用' : '项目信息读取失败', exact: true })).toBeVisible());
+    await wait('authority-denied-to-have-count-056', () => expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0));
+    await wait('authority-denied-to-have-count-057', () => expect(page.getByRole('dialog')).toHaveCount(0));
+    need((await wait('authority-denied-native-facts-058', () => harness.nativeFacts(page))).length === before.length, 'PROJECT_MODELS_AUTHORITY_DENIED_MODEL_REQUEST');
+    sameOperations(beforeCounts, await wait('authority-denied-counts-059', () => harness.counts()));
   }
 
   harness.step('authority-login');
-  await harness.loginOwner(page);
-  const ownerSession = await sessionIdentity(page, () => pageshow(page), harness.step);
+  await wait('authority-flow-login-owner-060', () => harness.loginOwner(page));
+  const ownerSession = await wait('authority-flow-session-identity-061', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
   need(ownerSession.userID === actors.owner.user_id && ownerSession.role === 'user', 'PROJECT_MODELS_AUTHORITY_ORDINARY_OWNER_REQUIRED');
-  const first = await open(projects.main), initial = await harness.snapshot('main');
+  const first = await wait('authority-flow-open-062', () => open(projects.main)), initial = await wait('authority-flow-snapshot-063', () => harness.snapshot('main'));
   const seed = initial.current.providers.find((row) => row.present);
   need(seed && Array.isArray(first.items) && first.items.length === 1 && object(first.items[0]).id === seed.id, 'PROJECT_MODELS_AUTHORITY_SEED_MISSING');
-  await expect(button(page, '创建 Provider')).toBeEnabled();
+  await wait('authority-flow-to-be-enabled-064', () => expect(button(page, '创建 Provider')).toBeEnabled());
   checks.ordinary_owner = true;
 
   harness.step('authority-same-session-checking');
-  let dialog = await newProvider(page, 'Models Same Session Draft');
+  let dialog = await wait('authority-flow-new-provider-065', () => newProvider(page, 'Models Same Session Draft', wait));
   harness.step('authority-checking-draft-ready');
-  const checkingCounts = await sessionStage(harness.counts(), 'PROJECT_MODELS_AUTHORITY_CHECKING_COUNTS_TIMEOUT');
+  const checkingCounts = await wait('authority-flow-session-stage-066', () => sessionStage(harness.counts(), 'PROJECT_MODELS_AUTHORITY_CHECKING_COUNTS_TIMEOUT'));
   harness.step('authority-checking-counts-ready');
-  const checkingFacts = await sessionStage(harness.nativeFacts(page), 'PROJECT_MODELS_AUTHORITY_CHECKING_FACTS_TIMEOUT');
+  const checkingFacts = await wait('authority-flow-session-stage-067', () => sessionStage(harness.nativeFacts(page), 'PROJECT_MODELS_AUTHORITY_CHECKING_FACTS_TIMEOUT'));
   harness.step('authority-checking-arm-started');
-  const sessionArmResult = await sessionStage(harness.ipc({ action: 'arm', args: { operation: 'getCurrentSession', project: null, target_id: null, query: null, effect: 'before_dispatch_hold' } }), 'PROJECT_MODELS_AUTHORITY_CHECKING_ARM_TIMEOUT');
+  const sessionArmResult = await wait('authority-flow-session-stage-068', () => sessionStage(harness.ipc({ action: 'arm', args: { operation: 'getCurrentSession', project: null, target_id: null, query: null, effect: 'before_dispatch_hold' } }), 'PROJECT_MODELS_AUTHORITY_CHECKING_ARM_TIMEOUT'));
   need(typeof sessionArmResult.arm_id === 'string', 'PROJECT_MODELS_AUTHORITY_ARM_INVALID');
   const sessionArm = sessionArmResult.arm_id;
   // Handle the concurrent observer immediately, then actually settle it on
   // every path, including a failed hold, UI assertion, or release.
-  const restoredSession = sessionIdentity(page, () => pageshow(page), harness.step).then(
+  const restoredSession = sessionIdentity(page, () => pageshow(page, wait), harness.step, wait).then(
     (value) => ({ ok: true as const, value }), (error: unknown) => ({ ok: false as const, error }),
   );
   try {
     harness.step('authority-checking-hold-started');
-    const sessionHeld = await sessionStage(harness.control(sessionArm, (state) => state.held === true), 'PROJECT_MODELS_AUTHORITY_CHECKING_HOLD_TIMEOUT');
+    const sessionHeld = await wait('authority-flow-session-stage-069', () => sessionStage(harness.control(sessionArm, (state) => state.held === true), 'PROJECT_MODELS_AUTHORITY_CHECKING_HOLD_TIMEOUT'));
     harness.step('authority-checking-held');
     try {
-      await expect(page.getByRole('heading', { name: '正在确认会话', exact: true })).toBeVisible();
+      await wait('authority-flow-to-be-visible-070', () => expect(page.getByRole('heading', { name: '正在确认会话', exact: true })).toBeVisible());
       harness.step('authority-checking-heading-visible');
-      await expect(dialog).toBeHidden();
-      await expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0);
+      await wait('authority-flow-to-be-hidden-071', () => expect(dialog).toBeHidden());
+      await wait('authority-flow-to-have-count-072', () => expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0));
       harness.step('authority-checking-private-view-hidden');
-      need((await sessionStage(harness.nativeFacts(page), 'PROJECT_MODELS_AUTHORITY_CHECKING_FACTS_TIMEOUT')).length === checkingFacts.length, 'PROJECT_MODELS_AUTHORITY_CHECKING_MODEL_REQUEST');
-      sameOperations(checkingCounts, await sessionStage(harness.counts(), 'PROJECT_MODELS_AUTHORITY_CHECKING_COUNTS_TIMEOUT'));
+      need((await wait('authority-flow-session-stage-073', () => sessionStage(harness.nativeFacts(page), 'PROJECT_MODELS_AUTHORITY_CHECKING_FACTS_TIMEOUT'))).length === checkingFacts.length, 'PROJECT_MODELS_AUTHORITY_CHECKING_MODEL_REQUEST');
+      sameOperations(checkingCounts, await wait('authority-flow-session-stage-074', () => sessionStage(harness.counts(), 'PROJECT_MODELS_AUTHORITY_CHECKING_COUNTS_TIMEOUT')));
     } finally {
       harness.step('authority-checking-release-started');
-      await sessionStage(harness.ipc({ action: 'release', args: { arm_id: sessionArm, request_token: String(sessionHeld.request_token) } }), 'PROJECT_MODELS_AUTHORITY_CHECKING_RELEASE_TIMEOUT');
+      await wait('authority-flow-session-stage-075', () => sessionStage(harness.ipc({ action: 'release', args: { arm_id: sessionArm, request_token: String(sessionHeld.request_token) } }), 'PROJECT_MODELS_AUTHORITY_CHECKING_RELEASE_TIMEOUT'));
       harness.step('authority-checking-release-returned');
     }
-    const restored = await restoredSession;
+    const restored = await wait('authority-flow-restored-session-076', () => restoredSession);
     if (!restored.ok) throw restored.error;
     const sameSession = restored.value;
     need(sameSession.sessionID === ownerSession.sessionID && sameSession.userID === ownerSession.userID && sameSession.role === 'user', 'PROJECT_MODELS_AUTHORITY_SAME_SESSION_CHANGED');
     harness.step('authority-checking-join-started');
-    await sessionStage(harness.control(sessionArm, (state) => state.joined === true), 'PROJECT_MODELS_AUTHORITY_CHECKING_JOIN_TIMEOUT');
+    await wait('authority-flow-session-stage-077', () => sessionStage(harness.control(sessionArm, (state) => state.joined === true), 'PROJECT_MODELS_AUTHORITY_CHECKING_JOIN_TIMEOUT'));
     harness.step('authority-checking-joined');
-  } finally { await restoredSession; }
+  } finally { await wait('authority-flow-restored-session-078', () => restoredSession); }
   harness.step('authority-checking-restored');
-  await reread(projects.main);
+  await wait('authority-flow-reread-079', () => reread(projects.main));
   harness.step('authority-owner-reread-complete');
   dialog = providerDialog();
-  await expect(dialog.getByRole('textbox', { name: 'Provider 名称', exact: true })).toHaveValue('Models Same Session Draft');
-  await expect(dialog.getByRole('textbox', { name: 'Base URL', exact: true })).toHaveValue('https://model-ui.invalid/v1');
-  harness.durableDelta(initial, await harness.snapshot('main'), 0, 0);
+  await wait('authority-flow-to-have-value-080', () => expect(dialog.getByRole('textbox', { name: 'Provider 名称', exact: true })).toHaveValue('Models Same Session Draft'));
+  await wait('authority-flow-to-have-value-081', () => expect(dialog.getByRole('textbox', { name: 'Base URL', exact: true })).toHaveValue('https://model-ui.invalid/v1'));
+  harness.durableDelta(initial, await wait('authority-flow-snapshot-082', () => harness.snapshot('main')), 0, 0);
   harness.step('authority-draft-verified');
   checks.same_session_checking = true;
-  await discardProvider(page, dialog, harness.step);
+  await wait('authority-flow-discard-provider-083', () => discardProvider(page, dialog, harness.step, wait));
 
   harness.step('authority-read-owner-tail');
-  const heldArm = await harness.arm('getProjectModelProvider', 'main', seed.id, 'after_complete_hold');
-  const beforeHeld = await harness.counts(), originalPath = route(projects.main);
-  const heldBody = await observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 200, async () => {
-    await button(page, '读取 Provider ' + seed.id).click();
-    const held = await harness.control(heldArm, (state) => state.held === true && state.upstream_complete === true && state.safe_admitted === true);
+  const heldArm = await wait('authority-flow-arm-084', () => harness.arm('getProjectModelProvider', 'main', seed.id, 'after_complete_hold'));
+  const beforeHeld = await wait('authority-flow-counts-085', () => harness.counts()), originalPath = route(projects.main);
+  const heldBody = await wait('authority-flow-observe-086', () => observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 200, async () => {
+    await wait('authority-flow-click-087', () => button(page, '读取 Provider ' + seed.id).click());
+    const held = await wait('authority-flow-control-088', () => harness.control(heldArm, (state) => state.held === true && state.upstream_complete === true && state.safe_admitted === true));
     try {
-      need((await harness.nativeFacts(page)).some((fact) => fact.method === 'GET' && fact.path.endsWith('/model-providers/' + seed.id) && !fact.ended), 'PROJECT_MODELS_AUTHORITY_NATIVE_TAIL_MISSING');
-      await expect(button(providerDialog(), '取消')).toBeDisabled();
-      await expect(button(page, '退出登录')).toBeDisabled();
-      await harness.navigate(page, route(projects.second));
-      await expect.poll(() => new URL(page.url()).pathname).toBe(originalPath);
-      await pageshow(page);
-      const afterHeld = await harness.counts();
+      need((await wait('authority-flow-native-facts-089', () => harness.nativeFacts(page))).some((fact) => fact.method === 'GET' && fact.path.endsWith('/model-providers/' + seed.id) && !fact.ended), 'PROJECT_MODELS_AUTHORITY_NATIVE_TAIL_MISSING');
+      await wait('authority-flow-to-be-disabled-090', () => expect(button(providerDialog(), '取消')).toBeDisabled());
+      await wait('authority-flow-to-be-disabled-091', () => expect(button(page, '退出登录')).toBeDisabled());
+      await wait('authority-flow-navigate-092', () => harness.navigate(page, route(projects.second)));
+      await wait('authority-flow-to-be-093', () => expect.poll(() => new URL(page.url()).pathname).toBe(originalPath));
+      await wait('authority-flow-pageshow-094', () => pageshow(page, wait));
+      const afterHeld = await wait('authority-flow-counts-095', () => harness.counts());
       need(object(afterHeld.session).browser === object(beforeHeld.session).browser && operationCount(afterHeld, 'getProjectModelProvider') === operationCount(beforeHeld, 'getProjectModelProvider') + 1, 'PROJECT_MODELS_AUTHORITY_HELD_OWNER_BYPASSED');
       for (const entry of (beforeHeld.operations as unknown[]).map(object)) if (entry.operation !== 'getProjectModelProvider') need(operationCount(afterHeld, String(entry.operation)) === Number(entry.browser), 'PROJECT_MODELS_AUTHORITY_HELD_OWNER_BYPASSED');
     } finally {
-      await harness.ipc({ action: 'release', args: { arm_id: heldArm, request_token: String(held.request_token) } });
+      await wait('authority-flow-ipc-096', () => harness.ipc({ action: 'release', args: { arm_id: heldArm, request_token: String(held.request_token) } }));
     }
-  });
+  }));
   need(heldBody.id === seed.id, 'PROJECT_MODELS_AUTHORITY_HELD_TARGET_INVALID');
-  const joinedRead = await harness.control(heldArm, (state) => state.joined === true);
-  need((await harness.nativeFacts(page)).some((fact) => fact.token === joinedRead.request_token && fact.eof && fact.ended && fact.released), 'PROJECT_MODELS_AUTHORITY_HELD_RELEASE_MISSING');
-  await button(providerDialog(), '取消').click(); await expect(providerDialog()).toBeHidden();
-  await open(projects.second);
-  await expect(providerDialog()).toHaveCount(0);
-  await expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0);
+  const joinedRead = await wait('authority-flow-control-097', () => harness.control(heldArm, (state) => state.joined === true));
+  need((await wait('authority-flow-native-facts-098', () => harness.nativeFacts(page))).some((fact) => fact.token === joinedRead.request_token && fact.eof && fact.ended && fact.released), 'PROJECT_MODELS_AUTHORITY_HELD_RELEASE_MISSING');
+  await wait('authority-flow-click-099', () => button(providerDialog(), '取消').click()); await wait('authority-flow-to-be-hidden-100', () => expect(providerDialog()).toBeHidden());
+  await wait('authority-flow-open-101', () => open(projects.second));
+  await wait('authority-flow-to-have-count-102', () => expect(providerDialog()).toHaveCount(0));
+  await wait('authority-flow-to-have-count-103', () => expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0));
   // The UI explicitly blocks navigation while this owner is held. This is a
   // real transport-tail exclusion representative, not a fabricated late 401.
   checks.late_tail_isolation = true;
 
   harness.step('authority-project-name-reuse');
-  await open(projects.main);
-  dialog = await newProvider(page, 'Models Retired Project Draft');
-  await open(projects.second, true);
-  const renamed = await harness.ipc({ action: 'rename-reuse', args: { project: 'main' } });
+  await wait('authority-flow-open-104', () => open(projects.main));
+  dialog = await wait('authority-flow-new-provider-105', () => newProvider(page, 'Models Retired Project Draft', wait));
+  await wait('authority-flow-open-106', () => open(projects.second, true));
+  const renamed = await wait('authority-flow-ipc-107', () => harness.ipc({ action: 'rename-reuse', args: { project: 'main' } }));
   const oldNameReplacement = locator(renamed.replacement), originalRenamed = locator(renamed.renamed);
   need(originalRenamed.id === projects.main.id && oldNameReplacement.id !== originalRenamed.id && oldNameReplacement.normalized_name === projects.main.normalized_name, 'PROJECT_MODELS_AUTHORITY_RENAME_BINDING_INVALID');
-  const replacementPage = await open(oldNameReplacement);
+  const replacementPage = await wait('authority-flow-open-108', () => open(oldNameReplacement));
   need(Array.isArray(replacementPage.items) && replacementPage.items.length === 0, 'PROJECT_MODELS_AUTHORITY_REUSED_NAME_DATA_LEAK');
-  await expect(providerDialog()).toHaveCount(0);
-  await button(page, '创建 Provider').click();
-  await expect(providerDialog().getByRole('textbox', { name: 'Provider 名称', exact: true })).toHaveValue('');
-  await button(providerDialog(), '取消').click();
-  const renamedPage = await open(originalRenamed);
+  await wait('authority-flow-to-have-count-109', () => expect(providerDialog()).toHaveCount(0));
+  await wait('authority-flow-click-110', () => button(page, '创建 Provider').click());
+  await wait('authority-flow-to-have-value-111', () => expect(providerDialog().getByRole('textbox', { name: 'Provider 名称', exact: true })).toHaveValue(''));
+  await wait('authority-flow-click-112', () => button(providerDialog(), '取消').click());
+  const renamedPage = await wait('authority-flow-open-113', () => open(originalRenamed));
   need(Array.isArray(renamedPage.items) && renamedPage.items.length === 1 && object(renamedPage.items[0]).id === seed.id, 'PROJECT_MODELS_AUTHORITY_STABLE_ID_LOST');
   projects.main = originalRenamed;
   checks.cross_project_and_name_reuse = true;
 
   harness.step('authority-lifecycle-gates');
   for (const key of ['archiving', 'archived'] as const) {
-    const body = await open(projects[key]);
+    const body = await wait('authority-lifecycle-' + key + '-open', () => open(projects[key]));
     need(Array.isArray(body.items) && body.items.length === 0, 'PROJECT_MODELS_AUTHORITY_READONLY_LIST_INVALID');
-    await expect(page.getByText('项目当前为只读状态（' + key + '）。可以读取信息；原请求恢复遵循其各自的当前条件。', { exact: true })).toBeVisible();
-    await expect(button(page, '创建 Provider')).toBeDisabled(); await expect(button(page, '创建凭据')).toBeDisabled();
-    await expect(button(page, '管理凭据')).toBeEnabled();
+    await wait('authority-lifecycle-' + key + '-readonly-visible', () => expect(page.getByText('项目当前为只读状态（' + key + '）。可以读取信息；原请求恢复遵循其各自的当前条件。', { exact: true })).toBeVisible());
+    await wait('authority-lifecycle-' + key + '-provider-disabled', () => expect(button(page, '创建 Provider')).toBeDisabled()); await wait('authority-lifecycle-' + key + '-credential-disabled', () => expect(button(page, '创建凭据')).toBeDisabled());
+    await wait('authority-lifecycle-' + key + '-manage-enabled', () => expect(button(page, '管理凭据')).toBeEnabled());
   }
-  for (const key of ['deleting', 'pending'] as const) await denied(projects[key], false);
-  await denied(projects.other, true); await denied(projects.admin_owned, true);
+  for (const key of ['deleting', 'pending'] as const) await wait('authority-lifecycle-' + key + '-denied', () => denied(projects[key], false));
+  await wait('authority-lifecycle-other-owner-denied', () => denied(projects.other, true)); await wait('authority-lifecycle-admin-owned-denied', () => denied(projects.admin_owned, true));
   checks.aux_lifecycle_gates = true;
 
   harness.step('authority-archived-configuration');
-  await open(projects.config_recovery);
-  const configBefore = await harness.snapshot('config_recovery');
-  dialog = await newProvider(page, 'Models Archived Original Provider');
-  const configArm = await harness.arm('createProjectModelProvider', 'config_recovery', null, 'after_complete_cut');
-  await button(dialog, '保存 Provider').click(); await expect(dialog.getByText(/结果尚未确认/)).toBeVisible();
-  const configLost = await harness.control(configArm, (state) => state.joined === true);
-  await harness.actualLoss(page, configLost, 1);
-  const configCommitted = await harness.snapshot('config_recovery'); harness.durableDelta(configBefore, configCommitted, 1, 0);
+  await wait('authority-flow-open-122', () => open(projects.config_recovery));
+  const configBefore = await wait('authority-flow-snapshot-123', () => harness.snapshot('config_recovery'));
+  dialog = await wait('authority-flow-new-provider-124', () => newProvider(page, 'Models Archived Original Provider', wait));
+  const configArm = await wait('authority-flow-arm-125', () => harness.arm('createProjectModelProvider', 'config_recovery', null, 'after_complete_cut'));
+  await wait('authority-flow-click-126', () => button(dialog, '保存 Provider').click()); await wait('authority-flow-to-be-visible-127', () => expect(dialog.getByText(/结果尚未确认/)).toBeVisible());
+  const configLost = await wait('authority-flow-control-128', () => harness.control(configArm, (state) => state.joined === true));
+  await wait('authority-flow-actual-loss-129', () => harness.actualLoss(page, configLost, 1));
+  const configCommitted = await wait('authority-flow-snapshot-130', () => harness.snapshot('config_recovery')); harness.durableDelta(configBefore, configCommitted, 1, 0);
   const createdProvider = configCommitted.current.providers.find((row) => row.present);
   need(createdProvider, 'PROJECT_MODELS_AUTHORITY_COMMITTED_PROVIDER_MISSING');
-  const configArchived = await harness.ipc({ action: 'archive-recovery-project', args: { project: 'config_recovery', expected_version: configCommitted.project.version } });
+  const configArchived = await wait('authority-flow-ipc-131', () => harness.ipc({ action: 'archive-recovery-project', args: { project: 'config_recovery', expected_version: configCommitted.project.version } }));
   need(configArchived.project_id === projects.config_recovery.id && configArchived.lifecycle === 'archived' && configArchived.fixture_only === true, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_INVALID');
-  const archiveSession = await sessionIdentity(page, () => pageshow(page), harness.step);
+  const archiveSession = await wait('authority-flow-session-identity-132', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
   need(archiveSession.sessionID === ownerSession.sessionID, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_SESSION_CHANGED');
-  await reread(projects.config_recovery); dialog = providerDialog();
-  await expect(button(dialog, '保存 Provider')).toBeDisabled(); await expect(button(dialog, '按原请求重放')).toBeEnabled();
-  const configReplay = await observe('createProjectModelProvider', projects.config_recovery.id, 'POST', 'model-providers', 200, () => button(dialog, '按原请求重放').click());
+  await wait('authority-flow-reread-133', () => reread(projects.config_recovery)); dialog = providerDialog();
+  await wait('authority-flow-to-be-disabled-134', () => expect(button(dialog, '保存 Provider')).toBeDisabled()); await wait('authority-flow-to-be-enabled-135', () => expect(button(dialog, '按原请求重放')).toBeEnabled());
+  const configReplay = await wait('authority-flow-observe-136', () => observe('createProjectModelProvider', projects.config_recovery.id, 'POST', 'model-providers', 200, () => button(dialog, '按原请求重放').click()));
   need(configReplay.kind === 'provider.create' && configReplay.resource_id === createdProvider.id && configReplay.version === createdProvider.version && configReplay.affected_references === '0', 'PROJECT_MODELS_AUTHORITY_CONFIG_REPLAY_INVALID');
-  const receipt = await harness.strictReceipt(dialog);
+  const receipt = await wait('authority-flow-strict-receipt-137', () => harness.strictReceipt(dialog));
   need(Object.keys(receipt).length === Object.keys(configReplay).length && Object.keys(configReplay).every((key) => receipt[key] === configReplay[key]), 'PROJECT_MODELS_AUTHORITY_CONFIG_RECEIPT_INVALID');
-  const configAfter = await harness.snapshot('config_recovery'); harness.durableDelta(configCommitted, configAfter, 0, 0); harness.originalReplay(configAfter, String(configLost.origin_token));
+  const configAfter = await wait('authority-flow-snapshot-138', () => harness.snapshot('config_recovery')); harness.durableDelta(configCommitted, configAfter, 0, 0); harness.originalReplay(configAfter, String(configLost.origin_token));
   need(configAfter.project.lifecycle === 'archived' && configAfter.fixture_only.archive_recovery_applied, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_FACT_MISSING');
-  await button(dialog, '取消').click(); await expect(dialog).toBeHidden();
+  await wait('authority-flow-click-139', () => button(dialog, '取消').click()); await wait('authority-flow-to-be-hidden-140', () => expect(dialog).toBeHidden());
   checks.archived_config_original_replay = true;
 
   harness.step('authority-archived-credential');
-  await open(projects.credential_recovery);
-  const credentialBefore = await harness.snapshot('credential_recovery');
-  await button(page, '创建凭据').click();
-  let credential = credentialDialog(); await harness.fillCredential(credential);
-  const credentialArm = await harness.arm('createProjectModelCredential', 'credential_recovery', null, 'after_complete_disconnect');
-  await button(credential, '创建凭据').click(); await expect(credential.getByText(/结果尚未确认/)).toBeVisible();
-  need(await credential.getByLabel(/^新凭据材料(?:\s*\*)?$/).inputValue() === '', 'PROJECT_MODELS_AUTHORITY_PRIVATE_INPUT_NOT_CLEARED');
-  const credentialLost = await harness.control(credentialArm, (state) => state.joined === true); await harness.actualLoss(page, credentialLost, 0);
-  const credentialCommitted = await harness.snapshot('credential_recovery'); harness.durableDelta(credentialBefore, credentialCommitted, 0, 1);
-  const credentialArchived = await harness.ipc({ action: 'archive-recovery-project', args: { project: 'credential_recovery', expected_version: credentialCommitted.project.version } });
+  await wait('authority-flow-open-141', () => open(projects.credential_recovery));
+  const credentialBefore = await wait('authority-flow-snapshot-142', () => harness.snapshot('credential_recovery'));
+  await wait('authority-flow-click-143', () => button(page, '创建凭据').click());
+  let credential = credentialDialog(); await wait('authority-flow-fill-credential-144', () => harness.fillCredential(credential));
+  const credentialArm = await wait('authority-flow-arm-145', () => harness.arm('createProjectModelCredential', 'credential_recovery', null, 'after_complete_disconnect'));
+  await wait('authority-flow-click-146', () => button(credential, '创建凭据').click()); await wait('authority-flow-to-be-visible-147', () => expect(credential.getByText(/结果尚未确认/)).toBeVisible());
+  need(await wait('authority-flow-input-value-148', () => credential.getByLabel(/^新凭据材料(?:\s*\*)?$/).inputValue()) === '', 'PROJECT_MODELS_AUTHORITY_PRIVATE_INPUT_NOT_CLEARED');
+  const credentialLost = await wait('authority-flow-control-149', () => harness.control(credentialArm, (state) => state.joined === true)); await wait('authority-flow-actual-loss-150', () => harness.actualLoss(page, credentialLost, 0));
+  const credentialCommitted = await wait('authority-flow-snapshot-151', () => harness.snapshot('credential_recovery')); harness.durableDelta(credentialBefore, credentialCommitted, 0, 1);
+  const credentialArchived = await wait('authority-flow-ipc-152', () => harness.ipc({ action: 'archive-recovery-project', args: { project: 'credential_recovery', expected_version: credentialCommitted.project.version } }));
   need(credentialArchived.project_id === projects.credential_recovery.id && credentialArchived.lifecycle === 'archived' && credentialArchived.fixture_only === true, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_INVALID');
-  const credentialSession = await sessionIdentity(page, () => pageshow(page), harness.step);
+  const credentialSession = await wait('authority-flow-session-identity-153', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
   need(credentialSession.sessionID === ownerSession.sessionID, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_SESSION_CHANGED');
-  await reread(projects.credential_recovery); credential = credentialDialog();
-  await expect(button(credential, '按原请求重放')).toBeDisabled(); await expect(button(credential, '创建凭据')).toBeDisabled();
-  const lookupCounts = await harness.counts();
-  const lookup = await observe('lookupProjectModelCredential', projects.credential_recovery.id, 'POST', 'model-credential-commands/lookup', 200, () => button(credential, '查证原请求').click());
+  await wait('authority-flow-reread-154', () => reread(projects.credential_recovery)); credential = credentialDialog();
+  await wait('authority-flow-to-be-disabled-155', () => expect(button(credential, '按原请求重放')).toBeDisabled()); await wait('authority-flow-to-be-disabled-156', () => expect(button(credential, '创建凭据')).toBeDisabled());
+  const lookupCounts = await wait('authority-flow-counts-157', () => harness.counts());
+  const lookup = await wait('authority-flow-observe-158', () => observe('lookupProjectModelCredential', projects.credential_recovery.id, 'POST', 'model-credential-commands/lookup', 200, () => button(credential, '查证原请求').click()));
   need(lookup.observed === true && object(lookup.result).credential_id === credentialCommitted.current.credentials[0]?.credential_id, 'PROJECT_MODELS_AUTHORITY_CREDENTIAL_LOOKUP_INVALID');
-  await expect(credential.getByLabel('历史观察', { exact: true })).toBeVisible();
-  await expect(credential.getByText(/结果尚未确认/)).toBeVisible(); await expect(credential.getByLabel('严格执行回执', { exact: true })).toHaveCount(0);
-  await expect(button(credential, '按原请求重放')).toBeDisabled();
-  const credentialAfter = await harness.snapshot('credential_recovery'); harness.durableDelta(credentialCommitted, credentialAfter, 0, 0);
+  await wait('authority-flow-to-be-visible-159', () => expect(credential.getByLabel('历史观察', { exact: true })).toBeVisible());
+  await wait('authority-flow-to-be-visible-160', () => expect(credential.getByText(/结果尚未确认/)).toBeVisible()); await wait('authority-flow-to-have-count-161', () => expect(credential.getByLabel('严格执行回执', { exact: true })).toHaveCount(0));
+  await wait('authority-flow-to-be-disabled-162', () => expect(button(credential, '按原请求重放')).toBeDisabled());
+  const credentialAfter = await wait('authority-flow-snapshot-163', () => harness.snapshot('credential_recovery')); harness.durableDelta(credentialCommitted, credentialAfter, 0, 0);
   need(credentialAfter.project.lifecycle === 'archived' && credentialAfter.fixture_only.archive_recovery_applied && credentialAfter.origins.length === 1 && credentialAfter.origins[0]!.comparison_count === 0, 'PROJECT_MODELS_AUTHORITY_CREDENTIAL_REPLAY_OCCURRED');
-  const afterLookup = await harness.counts();
+  const afterLookup = await wait('authority-flow-counts-164', () => harness.counts());
   for (const row of (lookupCounts.operations as unknown[]).map(object)) need(operationCount(afterLookup, String(row.operation)) === Number(row.browser) + (row.operation === 'lookupProjectModelCredential' ? 1 : 0), 'PROJECT_MODELS_AUTHORITY_LOOKUP_SIDE_EFFECT');
-  await button(credential.locator('footer'), '关闭').click(); await expect(credential).toBeHidden();
+  await wait('authority-flow-click-165', () => button(credential.locator('footer'), '关闭').click()); await wait('authority-flow-to-be-hidden-166', () => expect(credential).toBeHidden());
   const pending = page.getByLabel('原请求与历史观察', { exact: true });
-  await expect(button(pending, '按原请求重放')).toBeDisabled();
-  await button(pending, '放弃本地追踪').click();
-  await button(page.getByRole('dialog', { name: '放弃本地原请求追踪？', exact: true }), '放弃追踪').click();
-  harness.durableDelta(credentialAfter, await harness.snapshot('credential_recovery'), 0, 0);
+  await wait('authority-flow-to-be-disabled-167', () => expect(button(pending, '按原请求重放')).toBeDisabled());
+  await wait('authority-flow-click-168', () => button(pending, '放弃本地追踪').click());
+  await wait('authority-flow-click-169', () => button(page.getByRole('dialog', { name: '放弃本地原请求追踪？', exact: true }), '放弃追踪').click());
+  harness.durableDelta(credentialAfter, await wait('authority-flow-snapshot-170', () => harness.snapshot('credential_recovery')), 0, 0);
   checks.archived_credential_lookup_only = true;
 
   harness.step('authority-reference-unbound');
-  await open(projects.referenced);
-  const referencedBefore = await harness.snapshot('referenced'), referencedModel = referencedBefore.current.models.find((row) => row.present);
+  await wait('authority-flow-open-171', () => open(projects.referenced));
+  const referencedBefore = await wait('authority-flow-snapshot-172', () => harness.snapshot('referenced')), referencedModel = referencedBefore.current.models.find((row) => row.present);
   need(referencedModel, 'PROJECT_MODELS_AUTHORITY_REFERENCE_TARGET_MISSING');
-  await observe('listProjectModels', projects.referenced.id, 'GET', 'models', 200, () => button(page, '项目 Models（全部 Providers）').click(), 'limit=25');
-  await observe('getProjectModel', projects.referenced.id, 'GET', 'models/' + referencedModel.id, 200, () => button(page, '读取 Model ' + referencedModel.id).click());
+  await wait('authority-flow-observe-173', () => observe('listProjectModels', projects.referenced.id, 'GET', 'models', 200, () => button(page, '项目 Models（全部 Providers）').click(), 'limit=25'));
+  await wait('authority-flow-observe-174', () => observe('getProjectModel', projects.referenced.id, 'GET', 'models/' + referencedModel.id, 200, () => button(page, '读取 Model ' + referencedModel.id).click()));
   const modelDialog = page.getByRole('dialog').filter({ has: page.locator('#project-model-form') });
-  await observe('listProjectAvailableChatModels', projects.referenced.id, 'GET', 'available-chat-models', 200, () => button(modelDialog, '删除 Model').click(), 'limit=25');
+  await wait('authority-flow-observe-175', () => observe('listProjectAvailableChatModels', projects.referenced.id, 'GET', 'available-chat-models', 200, () => button(modelDialog, '删除 Model').click(), 'limit=25'));
   const deletion = page.getByRole('dialog', { name: '删除 Model', exact: true });
-  await button(deletion, '删除替代').click(); await page.getByRole('option', { name: '无替代', exact: true }).click();
-  const refResult = await harness.ipc({ action: 'reference-fact', args: { project: 'referenced', state: 'present' } });
+  await wait('authority-flow-click-176', () => button(deletion, '删除替代').click()); await wait('authority-flow-click-177', () => page.getByRole('option', { name: '无替代', exact: true }).click());
+  const refResult = await wait('authority-flow-ipc-178', () => harness.ipc({ action: 'reference-fact', args: { project: 'referenced', state: 'present' } }));
   need(refResult.project_id === projects.referenced.id && refResult.model_id === referencedModel.id && refResult.reference_present === true && refResult.fixture_only === true, 'PROJECT_MODELS_AUTHORITY_REFERENCE_FACT_INVALID');
-  const referenced = await harness.snapshot('referenced');
+  const referenced = await wait('authority-flow-snapshot-179', () => harness.snapshot('referenced'));
   need(referenced.reference_presence.models.find((row) => row.id === referencedModel.id)?.present === true, 'PROJECT_MODELS_AUTHORITY_REFERENCE_FACT_MISSING');
-  const rejection = await observe('deleteProjectModel', projects.referenced.id, 'DELETE', 'models/' + referencedModel.id, 503, () => button(deletion, '确认删除').click());
+  const rejection = await wait('authority-flow-observe-180', () => observe('deleteProjectModel', projects.referenced.id, 'DELETE', 'models/' + referencedModel.id, 503, () => button(deletion, '确认删除').click()));
   need(rejection.code === 'DEPENDENCY_UNBOUND' && rejection.status === 503 && ['not_started', 'not_committed'].includes(String(rejection.commit_state)), 'PROJECT_MODELS_AUTHORITY_REFERENCE_REJECTION_INVALID');
-  await expect(deletion.getByText('仍被使用的模型暂不能在此删除。没有执行引用迁移。', { exact: true })).toBeVisible();
-  await expect(deletion.getByLabel('严格执行回执', { exact: true })).toHaveCount(0);
-  const rejected = await harness.snapshot('referenced'); harness.durableDelta(referenced, rejected, 0, 0);
+  await wait('authority-flow-to-be-visible-181', () => expect(deletion.getByText('仍被使用的模型暂不能在此删除。没有执行引用迁移。', { exact: true })).toBeVisible());
+  await wait('authority-flow-to-have-count-182', () => expect(deletion.getByLabel('严格执行回执', { exact: true })).toHaveCount(0));
+  const rejected = await wait('authority-flow-snapshot-183', () => harness.snapshot('referenced')); harness.durableDelta(referenced, rejected, 0, 0);
   need(rejected.current.models.find((row) => row.id === referencedModel.id)?.version === referencedModel.version && rejected.current.models.find((row) => row.id === referencedModel.id)?.present === true && rejected.reference_presence.models.find((row) => row.id === referencedModel.id)?.present === true, 'PROJECT_MODELS_AUTHORITY_REFERENCE_REWRITTEN');
-  await button(deletion, '取消').click(); await expect(deletion).toBeHidden();
-  await button(modelDialog, '取消').click(); await expect(modelDialog).toBeHidden();
-  const removed = await harness.ipc({ action: 'reference-fact', args: { project: 'referenced', state: 'absent' } });
+  await wait('authority-flow-click-184', () => button(deletion, '取消').click()); await wait('authority-flow-to-be-hidden-185', () => expect(deletion).toBeHidden());
+  await wait('authority-flow-click-186', () => button(modelDialog, '取消').click()); await wait('authority-flow-to-be-hidden-187', () => expect(modelDialog).toBeHidden());
+  const removed = await wait('authority-flow-ipc-188', () => harness.ipc({ action: 'reference-fact', args: { project: 'referenced', state: 'absent' } }));
   need(removed.reference_present === false && removed.fixture_only === true, 'PROJECT_MODELS_AUTHORITY_REFERENCE_CLEANUP_INVALID');
   checks.reference_unbound = true;
 
   harness.step('authority-current-revocation');
-  await open(projects.main);
-  await observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 200, () => button(page, '读取 Provider ' + seed.id).click());
-  dialog = providerDialog(); await dialog.getByRole('textbox', { name: 'Provider 名称', exact: true }).fill('Models Revoked Session Draft');
-  const beforeRevocation = await harness.snapshot('main');
-  const revoked = await harness.ipc({ action: 'logout', args: { session_id: ownerSession.sessionID } });
+  await wait('authority-flow-open-189', () => open(projects.main));
+  await wait('authority-flow-observe-190', () => observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 200, () => button(page, '读取 Provider ' + seed.id).click()));
+  dialog = providerDialog(); await wait('authority-flow-fill-191', () => dialog.getByRole('textbox', { name: 'Provider 名称', exact: true }).fill('Models Revoked Session Draft'));
+  const beforeRevocation = await wait('authority-flow-snapshot-192', () => harness.snapshot('main'));
+  const revoked = await wait('authority-flow-ipc-193', () => harness.ipc({ action: 'logout', args: { session_id: ownerSession.sessionID } }));
   need(revoked.session_id === ownerSession.sessionID && revoked.revoked === true, 'PROJECT_MODELS_AUTHORITY_REVOCATION_INVALID');
-  const deniedCurrent = await observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 401, () => button(dialog, '重新读取 Provider').click());
+  const deniedCurrent = await wait('authority-flow-observe-194', () => observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 401, () => button(dialog, '重新读取 Provider').click()));
   need(['SESSION_REVOKED', 'UNAUTHENTICATED'].includes(String(deniedCurrent.code)) && deniedCurrent.status === 401, 'PROJECT_MODELS_AUTHORITY_REVOCATION_RESPONSE_INVALID');
-  await expect(page.getByRole('heading', { name: '会话尚未确认', exact: true })).toBeVisible();
-  await expect(providerDialog()).toHaveCount(0);
-  await expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0);
-  harness.durableDelta(beforeRevocation, await harness.snapshot('main'), 0, 0);
+  await wait('authority-flow-to-be-visible-195', () => expect(page.getByRole('heading', { name: '会话尚未确认', exact: true })).toBeVisible());
+  await wait('authority-flow-to-have-count-196', () => expect(providerDialog()).toHaveCount(0));
+  await wait('authority-flow-to-have-count-197', () => expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0));
+  harness.durableDelta(beforeRevocation, await wait('authority-flow-snapshot-198', () => harness.snapshot('main')), 0, 0);
   checks.current_revocation = true;
 
   harness.step('authority-true-identity-change');
-  await button(page, '检查当前会话').click();
-  await expect(page.locator('#login-email')).toBeVisible();
+  await wait('authority-flow-click-199', () => button(page, '检查当前会话').click());
+  await wait('authority-flow-to-be-visible-200', () => expect(page.locator('#login-email')).toBeVisible());
   // Same-document form interactions preserve every earlier native observation.
   // Re-login as the same human still creates a genuinely different Session.
   // The live old-session draft here is Provider input. Credential tracking was
   // explicitly abandoned earlier; the later empty input is a fresh-form check.
-  await privateLogin(page, actors.owner);
-  const newOwnerSession = await sessionIdentity(page, () => pageshow(page), harness.step);
+  await wait('authority-flow-private-login-201', () => privateLogin(page, actors.owner, wait));
+  const newOwnerSession = await wait('authority-flow-session-identity-202', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
   need(newOwnerSession.userID === ownerSession.userID && newOwnerSession.sessionID !== ownerSession.sessionID && newOwnerSession.role === 'user', 'PROJECT_MODELS_AUTHORITY_NEW_SESSION_MISSING');
-  await open(projects.main);
-  await expect(providerDialog()).toHaveCount(0);
-  await expect(page.getByLabel('原请求与历史观察', { exact: true })).toHaveCount(0);
-  await expect(page.getByLabel('已创建凭据', { exact: true })).toHaveCount(0);
-  await observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 200, () => button(page, '读取 Provider ' + seed.id).click());
-  await expect(providerDialog().getByRole('textbox', { name: 'Provider 名称', exact: true })).toHaveValue('Models Seed Provider');
-  await button(providerDialog(), '取消').click();
-  await button(page, '创建凭据').click();
-  need(await credentialDialog().getByLabel(/^新凭据材料(?:\s*\*)?$/).inputValue() === '', 'PROJECT_MODELS_AUTHORITY_NEW_SESSION_MATERIAL_LEAK');
-  await button(credentialDialog().locator('footer'), '关闭').click();
+  await wait('authority-flow-open-203', () => open(projects.main));
+  await wait('authority-flow-to-have-count-204', () => expect(providerDialog()).toHaveCount(0));
+  await wait('authority-flow-to-have-count-205', () => expect(page.getByLabel('原请求与历史观察', { exact: true })).toHaveCount(0));
+  await wait('authority-flow-to-have-count-206', () => expect(page.getByLabel('已创建凭据', { exact: true })).toHaveCount(0));
+  await wait('authority-flow-observe-207', () => observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 200, () => button(page, '读取 Provider ' + seed.id).click()));
+  await wait('authority-flow-to-have-value-208', () => expect(providerDialog().getByRole('textbox', { name: 'Provider 名称', exact: true })).toHaveValue('Models Seed Provider'));
+  await wait('authority-flow-click-209', () => button(providerDialog(), '取消').click());
+  await wait('authority-flow-click-210', () => button(page, '创建凭据').click());
+  need(await wait('authority-flow-input-value-211', () => credentialDialog().getByLabel(/^新凭据材料(?:\s*\*)?$/).inputValue()) === '', 'PROJECT_MODELS_AUTHORITY_NEW_SESSION_MATERIAL_LEAK');
+  await wait('authority-flow-click-212', () => button(credentialDialog().locator('footer'), '关闭').click());
   checks.true_identity_change = true;
 
   harness.step('authority-other-owner-and-admin');
-  await button(page, '退出登录').click(); await expect(page.locator('#login-email')).toBeVisible();
-  await privateLogin(page, actors.other_owner);
-  const otherSession = await sessionIdentity(page, () => pageshow(page), harness.step);
+  await wait('authority-flow-click-213', () => button(page, '退出登录').click()); await wait('authority-flow-to-be-visible-214', () => expect(page.locator('#login-email')).toBeVisible());
+  await wait('authority-flow-private-login-215', () => privateLogin(page, actors.other_owner, wait));
+  const otherSession = await wait('authority-flow-session-identity-216', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
   need(otherSession.userID === actors.other_owner.user_id && otherSession.role === 'user' && otherSession.sessionID !== newOwnerSession.sessionID, 'PROJECT_MODELS_AUTHORITY_OTHER_OWNER_INVALID');
-  await denied(projects.main, true);
-  await open(projects.other); await expect(button(page, '创建 Provider')).toBeEnabled();
-  await button(page, '退出登录').click(); await expect(page.locator('#login-email')).toBeVisible();
-  await privateLogin(page, actors.other_admin);
-  const adminSession = await sessionIdentity(page, () => pageshow(page), harness.step);
+  await wait('authority-flow-denied-217', () => denied(projects.main, true));
+  await wait('authority-flow-open-218', () => open(projects.other)); await wait('authority-flow-to-be-enabled-219', () => expect(button(page, '创建 Provider')).toBeEnabled());
+  await wait('authority-flow-click-220', () => button(page, '退出登录').click()); await wait('authority-flow-to-be-visible-221', () => expect(page.locator('#login-email')).toBeVisible());
+  await wait('authority-flow-private-login-222', () => privateLogin(page, actors.other_admin, wait));
+  const adminSession = await wait('authority-flow-session-identity-223', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
   need(adminSession.userID === actors.other_admin.user_id && adminSession.role === 'admin' && adminSession.sessionID !== otherSession.sessionID, 'PROJECT_MODELS_AUTHORITY_ADMIN_INVALID');
-  await denied(projects.main, true);
-  await open(projects.admin_owned); await expect(button(page, '创建 Provider')).toBeEnabled();
-  await expect(page.getByLabel('原请求与历史观察', { exact: true })).toHaveCount(0);
-  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await wait('authority-flow-denied-224', () => denied(projects.main, true));
+  await wait('authority-flow-open-225', () => open(projects.admin_owned)); await wait('authority-flow-to-be-enabled-226', () => expect(button(page, '创建 Provider')).toBeEnabled());
+  await wait('authority-flow-to-have-count-227', () => expect(page.getByLabel('原请求与历史观察', { exact: true })).toHaveCount(0));
+  await wait('authority-flow-to-have-count-228', () => expect(page.getByRole('dialog')).toHaveCount(0));
   checks.admin_owner_only = checks.other_owner_and_admin_rejected = true;
-  const finalCounts = await harness.counts(), controls = object(finalCounts.controls);
+  const finalCounts = await wait('authority-flow-counts-229', () => harness.counts()), controls = object(finalCounts.controls);
   need(controls.armed === 4 && controls.claimed === 4 && controls.held === 2 && controls.held_joined === 2 && controls.cut === 1 && controls.disconnected === 1, 'PROJECT_MODELS_AUTHORITY_CONTROL_COUNTS_INVALID');
   for (const [operation, expected] of [['createProjectModelProvider', 2], ['createProjectModelCredential', 1], ['lookupProjectModelCredential', 1], ['deleteProjectModel', 1]] as const) need(operationCount(finalCounts, operation) === expected, 'PROJECT_MODELS_AUTHORITY_OPERATION_COUNTS_INVALID');
   for (const operation of ['updateProjectModelProvider', 'deleteProjectModelProvider', 'createProjectModel', 'updateProjectModel', 'updateProjectModelCredential', 'deleteProjectModelCredential', 'lookupProjectModelConfiguration']) need(operationCount(finalCounts, operation) === 0, 'PROJECT_MODELS_AUTHORITY_IMPLICIT_WRITE');
   harness.step('authority-same-body-finish');
-  await harness.finish(page, checks);
+  await wait('authority-flow-finish-230', () => harness.finish(page, checks));
 }
 
