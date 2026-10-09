@@ -20,6 +20,56 @@ TARGETS = {
     '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': 'tests/process',
     '^TestIndependentWorkOwnerRootConfirmationJoin$': 'internal/central/app',
 }
+UI_CASES = {
+    '^TestAccountProjectWorkPlanningWebReadAndNavigation$': 'read',
+    '^TestAccountProjectWorkPlanningWebStructureAndTasks$': 'planning',
+    '^TestAccountProjectWorkPlanningWebBlockers$': 'blockers',
+    '^TestAccountProjectWorkPlanningWebOriginalRecovery$': 'recovery',
+    '^TestAccountProjectWorkPlanningWebIdentityAndOwnership$': 'identity',
+    '^TestAccountProjectWorkPlanningWebLayouts$': 'layouts',
+    '^TestIndependentProjectWorkPlanningWebRecovery$': 'independent-recovery',
+    '^TestIndependentProjectWorkPlanningWebAuthority$': 'independent-authority',
+}
+TARGETS.update({selector: 'tests/account' for selector in UI_CASES})
+
+
+def ui_assets():
+    owned = REPOSITORY / 'output/ai/work-owner-planning-ui'
+    dist = Path(os.environ.get('AGENTEAM_PROJECT_OWNER_WEB_DIST', ''))
+    if (not dist.is_absolute() or dist.is_symlink()
+            or not dist.resolve().is_relative_to(owned.resolve())
+            or not (dist / 'index.html').is_file()):
+        raise ValueError('owned frozen Work UI dist required')
+    assets = list(dist.rglob('*'))
+    if any(p.is_symlink() for p in assets):
+        raise ValueError('Work UI assets must not alias another tree')
+    return sorted(p for p in assets if p.is_file())
+
+
+def ui_configuration(selector, directory):
+    case = UI_CASES[selector]
+    if os.environ.get('AGENTEAM_WORK_PLANNING_WEB_CASE') != case:
+        raise ValueError('exact Work UI case binding required')
+    runtime = directory / 'runtime'
+    if len(str(runtime)) > 45:
+        raise ValueError('owned browser runtime must meet original short-path bound')
+    ui_assets()
+    owned = (REPOSITORY / 'output/ai/work-owner-planning-ui').resolve()
+    values = {}
+    for key in ('AGENTEAM_PROJECT_OWNER_WEB_EVIDENCE', 'AGENTEAM_AUTH_WEB_IMAGES'):
+        path = Path(os.environ.get(key, ''))
+        if (not path.is_absolute() or path.exists() or path.is_symlink()
+                or not path.parent.is_dir() or not path.parent.resolve().is_relative_to(owned)):
+            raise ValueError('fresh absolute owned Work UI evidence/image paths required')
+        values[key] = str(path)
+    paths = list(values.values())
+    if paths[0] == paths[1] or any(Path(a).is_relative_to(Path(b)) for a, b in ((paths[0], paths[1]), (paths[1], paths[0]))):
+        raise ValueError('separate owned evidence and image directories required')
+    harness = REPOSITORY / 'tests/account-captcha-web'
+    spec = 'project-work-planning-independent.spec.ts' if case.startswith('independent-') else 'project-work-planning.spec.ts'
+    if not (harness / 'e2e' / spec).is_file():
+        raise ValueError('the selected real browser spec must exist')
+    return values
 
 
 def sha(path):
@@ -44,6 +94,14 @@ def input_paths(binary):
                      if not p.name.endswith('_test.go'))
     paths.update((REPOSITORY / 'db/migrations').glob('*.go'))
     paths.update((REPOSITORY / 'db/migrations').glob('*.sql'))
+    if os.environ.get('AGENTEAM_WORK_PLANNING_WEB_CASE') in UI_CASES.values():
+        paths.update(ui_assets())
+        paths.update((REPOSITORY / 'tests/account').glob('*.go'))
+        harness = REPOSITORY / 'tests/account-captcha-web'
+        paths.update((harness / 'e2e').glob('project-work-planning*.ts'))
+        paths.update(harness / name for name in ('project-work-planning.config.js', 'package.json', 'package-lock.json'))
+        paths.update(REPOSITORY / 'web/src/api' / name for name in ('work-planning.ts', 'client.ts', 'account.ts', 'system-account.ts'))
+        paths.update(REPOSITORY / 'api/openapi' / name for name in ('common.json', 'work-planning.json'))
     return sorted(paths)
 
 
@@ -55,10 +113,13 @@ def configuration(binary, selector, directory):
         raise ValueError('exact root target and fresh absolute directory required')
     if not GO.is_file() or sha(MINIO) != MINIO_SHA:
         raise ValueError('fixed Go and verified cached MinIO required')
-    return {'binary': str(binary.resolve()), 'selector': selector,
+    plan = {'binary': str(binary.resolve()), 'selector': selector,
             'cwd': str(REPOSITORY / TARGETS[selector]),
             'directory': str(directory), 'runtime': str(directory / 'runtime'),
             'test_timeout': '6m', 'resources': 7}
+    if selector in UI_CASES:
+        plan['ui'] = ui_configuration(selector, directory)
+    return plan
 
 
 def main():
@@ -95,6 +156,17 @@ def main():
                 'AGENTEAM_FIXTURE_TEST_CWD': plan['cwd'],
                 'AGENTEAM_FIXTURE_OWNED_RECORD': str(directory / 'owned.json'),
                 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime)})
+    if 'ui' in plan:
+        for path in plan['ui'].values():
+            Path(path).mkdir(mode=0o700)
+        # One input identity binds the fixture's safe-body sidecars to the same
+        # sources, binary and private assets already frozen by the supervisor.
+        digest = hashlib.sha256()
+        for path in input_paths(args.test_binary):
+            digest.update(str(path).encode() + b'\0' + sha(path).encode() + b'\n')
+        env.update(plan['ui'])
+        env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
+                    'AGENTEAM_PROJECT_OWNER_WEB_INPUT_HASH': digest.hexdigest()})
     os.chdir(REPOSITORY)
     # No child is started here: the original shell chain replaces this PID.
     # Its nested Go Cmd.Run and shell wait remain the actual child owners.

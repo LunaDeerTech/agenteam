@@ -3,6 +3,15 @@ import { computed } from 'vue'
 import { UiButton, UiField, UiInput, UiSelect, UiTextarea } from '../../components/ui'
 import { useProjectWorkPlanning } from '../../composables/useProjectWorkPlanning'
 const work = useProjectWorkPlanning()
+const stateLabels = {
+  backlog: '待规划',
+  todo: '待开始',
+  in_progress: '进行中',
+  in_review: '待评审',
+  blocked: '已阻塞',
+  done: '已完成',
+  cancelled: '已取消',
+}
 function cancelResolve() {
   work.blockerDraft.resolvingID = ''
   work.blockerDraft.resolution = ''
@@ -17,7 +26,10 @@ const targets = computed(() => [
   { value: '', label: '请选择本项目依赖任务', disabled: true },
   ...work.dependencyPage.items
     .filter((task) => task.id !== work.detail.task?.id)
-    .map((task) => ({ value: task.id, label: `${task.title} · ${task.id}` })),
+    .map((task) => ({
+      value: task.id,
+      label: `${task.title} · ${task.id} · ${stateLabels[task.state]}`,
+    })),
 ])
 const statuses = [
   { value: 'unresolved', label: '未解除' },
@@ -62,6 +74,21 @@ const types = [
             blocker.metadata.related_task_id
           }}</RouterLink>
         </p>
+        <template v-if="blocker.type === 'rely_on'">
+          <p v-if="work.relatedTasks.get(blocker.metadata.related_task_id)?.task">
+            {{ work.relatedTasks.get(blocker.metadata.related_task_id)!.task!.title }} ·
+            {{ stateLabels[work.relatedTasks.get(blocker.metadata.related_task_id)!.task!.state] }}
+          </p>
+          <p v-else class="muted">依赖任务的当前标题与状态尚未读取。</p>
+          <p v-if="work.relatedTasks.get(blocker.metadata.related_task_id)?.message" role="status">
+            {{ work.relatedTasks.get(blocker.metadata.related_task_id)!.message }}
+          </p>
+          <UiButton
+            :disabled="work.blocked.value || work.blockers.stale"
+            @click="work.loadRelatedTask(blocker.metadata.related_task_id)"
+            >读取依赖任务当前信息</UiButton
+          >
+        </template>
         <p class="muted">记录 ID：{{ blocker.id }} · 创建于 {{ blocker.created_at }}</p>
         <p v-if="blocker.resolved_at" class="raw">
           解除于 {{ blocker.resolved_at }} ·

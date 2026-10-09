@@ -911,7 +911,7 @@ func (f *projectOwnerWebFixture) controlResponse(response *http.Response) error 
 }
 
 func (f *projectOwnerWebFixture) saveResponse(response *http.Response, raw []byte) error {
-	// Only the five safe Project endpoints enter here; request bodies, queries,
+	// Only Project endpoints or explicitly delegated Work responses enter here; request bodies, queries,
 	// Cookies, CSRF and idempotency keys are deliberately absent from sidecars.
 	f.mu.Lock()
 	defer f.mu.Unlock()

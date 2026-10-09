@@ -111,7 +111,7 @@ Explore 基础入口沿正式布局：首次当前 Get 有 `current_sprint_id` �
 | Milestone | title/description/id/version/时间；创建、编辑、同 Project Milestone 组内排序，按需 Sprint 列表 |
 | Sprint | title/description/父 Milestone/state/正式起止元信息/version；创建 planned Sprint、编辑；同 Milestone 内排序，按需 Task 列表；不提供跨 Milestone 迁移 |
 | Task | title/description/type/priority/state/Plan、正式 parent/version/时间；创建未指派 backlog，编辑普通字段/Plan、同 Sprint/state/priority 组排序；不提供 state/assignee/parent 修改 |
-| Blocker | type/description/typed metadata/创建与解决事实；仅两类 add/resolve，分页 status 切换；依赖项以真实 Task 标题/ID/状态及详情跳转呈现 |
+| Blocker | type/description/typed metadata/创建与解决事实；仅两类 add/resolve，分页 status 切换；依赖项以真实 Task 标题/ID/状态及详情跳转呈现；候选页含三者，已有记录可显式逐条Get当前详情，尚未读/失败须明示，不批量扫描全图或猜测状态 |
 
 规划 Task 树默认查询 `state=backlog&assignee_agent_id=null`，可明确筛选 text/type/priority，筛选改变回首页。直接链接到其它合法 Task 仍按正式详情只读显示，并说明不在本卡可写范围；不解析 Agent 名称、不造不存在的 Agent 目录或执行状态。Sprint completed 禁止新 Task 与结构编辑，非 active Project 禁止新 mutation；这些仅是 UI 可用性，服务端结果始终是最终判据。
 
@@ -208,7 +208,7 @@ Current Sprint 非空真实正例暂不可由正式生产接口形成：[Work St
 
 先冻结并独审本SPEC；按 §2 分离客户端/Session接入与页面/真实fixture任务，共享文件唯一writer，Model活动修改不带入新树。编译/纯测闭合片段可保存WIP，但未通过真实矩阵与独立审查不得称界面完成。最终一份原子结果包含产品、测试、必要README及限定台账；本卡完成仍不代表完整D11/D27、生产部署或创建Project链完成。
 
-rev1 已经未参与产品实现者独立接受。API、Session恢复与controller已通过相应有限独立纯控制，页面组合已可构建；四fixture首段integration race编译通过，有限静审发现Lookup目标投影缺陷待修。尚无完整UI独审、全量前端检查或真实浏览器通过结论。Current Sprint验收事实纠正经原独验确认：正式非null生产者尚缺，保留上文后续真实集成gate。后续结果最小更新，复用上游与本卡新证据分开，原失败保留。
+rev1 已经未参与产品实现者独立接受。API、Session恢复与controller已通过相应有限独立纯控制，页面组合已可构建；四fixture有限静审所见Lookup目标投影缺陷已修，并有8组实际观察器纯/race对照通过；新race编译闭合。完整前端check实际通过（64文件2776单元、类型、production build），六作者PW与同体schema/client源已落盘/严格TS通过，但尚无完整UI独审或真实浏览器通过结论；planning先行有限审查，其他矩阵和独立两case不冒完成。Current Sprint验收事实纠正经原独验确认：正式非null生产者尚缺，保留上文后续真实集成gate。后续结果最小更新，复用上游与本卡新证据分开，原失败保留。
 
 ## 10. 已裁定的工程选择
 

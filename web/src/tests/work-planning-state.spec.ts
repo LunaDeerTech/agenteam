@@ -376,4 +376,42 @@ describe('Work planning current objects and original intent', () => {
     expect(query.has('type')).toBe(false)
     expect(query.has('assignee_agent_id')).toBe(false)
   })
+  it('reads a dependency through current authority and clears that detail when its page changes', async () => {
+    const f = await fixture()
+    await f.open(`/tasks/explore/tasks/${f.task.id}`)
+    const related = { ...f.task, id: id(42), title: 'Actual related task', state: 'done' as const }
+    f.intercept(async (path, init) => {
+      if (path.includes(`/tasks/${f.task.id}/blockers?`))
+        return response({
+          items: [
+            {
+              id: id(43),
+              project_id: f.task.project_id,
+              task_id: f.task.id,
+              type: 'rely_on',
+              metadata: { related_task_id: related.id },
+              description: '',
+              created_at: at,
+              created_by: { type: 'human', user_id: id(1), source: 'task_domain' },
+              resolved_at: null,
+              resolved_by: null,
+              resolution_comment: null,
+            },
+          ],
+        })
+      if (path === `${f.base}/tasks/${related.id}`) return response(related)
+      return f.normal(path, init)
+    })
+    await f.work.loadBlockers()
+    expect(f.work.relatedTasks.size).toBe(0)
+    await f.work.loadRelatedTask(related.id)
+    expect(f.work.relatedTasks.get(related.id)?.task?.title).toBe(related.title)
+    expect(f.work.relatedTasks.get(related.id)?.task?.state).toBe('done')
+    expect(f.work.detail.task?.id).toBe(f.task.id)
+    await f.work.loadBlockers()
+    expect(f.work.relatedTasks.size).toBe(0)
+    const count = f.fetcher.mock.calls.length
+    await f.work.loadRelatedTask(id(44))
+    expect(f.fetcher.mock.calls.length).toBe(count)
+  })
 })

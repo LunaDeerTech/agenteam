@@ -10,6 +10,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"sync"
 	"testing"
@@ -108,6 +109,21 @@ func newProjectWorkPlanningWebFixture(t *testing.T, ctx context.Context, mode st
 			f.command(ctx, "main", http.MethodPost, "milestones", map[string]any{"request": map[string]any{"milestone_id": id[struct{}](t).String(), "title": "分页里程碑"}})
 		}
 	}
+	if mode == "blockers" {
+		seed := f.seeds["main"]
+		version := "1"
+		for n := 0; n < 51; n++ {
+			blocker := id[struct{}](t).String()
+			if n == 0 {
+				blocker = seed.BlockerID
+			}
+			receipt := f.command(ctx, "main", http.MethodPost, "tasks/"+seed.TaskID+"/blockers", map[string]any{
+				"expected_version": version,
+				"request":          map[string]any{"blocker_id": blocker, "type": "waiting_for_human", "metadata": map[string]any{}, "description": "分页人工阻塞"},
+			})
+			version = httpString(t, httpObject(t, receipt, "task"), "version")
+		}
+	}
 	f.private("project-work-planning-material.json", map[string]any{"admin": f.admin, "owner": f.owner, "other": f.other, "ids": f.ids, "projects": f.initial, "work": f.seeds})
 	f.guard.Lock()
 	f.enabled = true
@@ -170,6 +186,7 @@ func (f *projectWorkPlanningWebFixture) observeRequest(w http.ResponseWriter, r 
 	if r.Method != http.MethodGet {
 		var body struct {
 			Command string                     `json:"command"`
+			Target  string                     `json:"target_id"`
 			Request map[string]json.RawMessage `json:"request"`
 		}
 		if json.Unmarshal(raw, &body) != nil {
@@ -178,6 +195,14 @@ func (f *projectWorkPlanningWebFixture) observeRequest(w http.ResponseWriter, r 
 		}
 		if strings.HasSuffix(r.URL.Path, "/lookup") {
 			obs.Command = body.Command
+			if obs.Domain != "blocker" {
+				obs.TargetID = body.Target
+				for _, kind := range []string{"milestone", "sprint", "task"} {
+					if body.Command == "work."+kind+".create" {
+						_ = json.Unmarshal(body.Request[kind+"_id"], &obs.TargetID)
+					}
+				}
+			}
 		} else if obs.Domain == "blocker" {
 			obs.Command = "work.task.blocker.add"
 			if strings.HasSuffix(r.URL.Path, "/resolve") {
@@ -210,6 +235,37 @@ func (f *projectWorkPlanningWebFixture) observeRequest(w http.ResponseWriter, r 
 	*r = *r.WithContext(context.WithValue(r.Context(), projectWorkPlanningWebRequestKey{}, index))
 	return true
 }
+
+func TestProjectWorkObservationLookupTargets(t *testing.T) {
+	const project = "01900000-0000-7000-8000-000000000001"
+	const target = "01900000-0000-7000-8000-000000000002"
+	const task = "01900000-0000-7000-8000-000000000003"
+	for _, example := range []struct{ domain, command, path, body, want string }{
+		{"structure", "work.milestone.create", "structure-commands/lookup", `{"command":"work.milestone.create","request":{"milestone_id":"` + target + `"}}`, target},
+		{"structure", "work.sprint.create", "structure-commands/lookup", `{"command":"work.sprint.create","request":{"sprint_id":"` + target + `"}}`, target},
+		{"structure", "work.milestone.update", "structure-commands/lookup", `{"command":"work.milestone.update","target_id":"` + target + `","expected_version":"2","request":{}}`, target},
+		{"structure", "work.sprint.reorder", "structure-commands/lookup", `{"command":"work.sprint.reorder","target_id":"` + target + `","expected_version":"2","request":{}}`, target},
+		{"task", "work.task.create", "task-commands/lookup", `{"command":"work.task.create","request":{"task_id":"` + target + `"}}`, target},
+		{"task", "work.task.update", "task-commands/lookup", `{"command":"work.task.update","target_id":"` + target + `","expected_version":"2","request":{}}`, target},
+		{"blocker", "work.task.blocker.add", "tasks/" + task + "/blocker-commands/lookup", `{"command":"work.task.blocker.add","request":{"blocker_id":"` + target + `"}}`, task},
+		{"blocker", "work.task.blocker.resolve", "tasks/" + task + "/blocker-commands/lookup", `{"command":"work.task.blocker.resolve","request":{"blocker_id":"` + target + `"}}`, task},
+	} {
+		t.Run(example.command, func(t *testing.T) {
+			f := &projectWorkPlanningWebFixture{}
+			r := httptest.NewRequest(http.MethodPost, projectOwnerWebPath+"/"+project+"/"+example.path, strings.NewReader(example.body))
+			if !f.observeRequest(httptest.NewRecorder(), r) {
+				t.Fatal("bounded local observation rejected")
+			}
+			got := f.observations()
+			if len(got) != 1 || got[0].Domain != example.domain || got[0].Command != example.command || got[0].TargetID != example.want || !bytes.Equal(got[0].Body, []byte(example.body)) {
+				t.Fatal("original Lookup target or immutable request projection lost")
+			}
+			if err := r.Body.Close(); err != nil {
+				t.Fatal("observed request body close failed")
+			}
+		})
+	}
+}
 func (f *projectWorkPlanningWebFixture) controlResponse(response *http.Response) error {
 	index, ok := response.Request.Context().Value(projectWorkPlanningWebRequestKey{}).(int)
 	if !ok {
@@ -222,6 +278,11 @@ func (f *projectWorkPlanningWebFixture) controlResponse(response *http.Response)
 		return errors.New("owned Work response incomplete")
 	}
 	response.Body = &projectOwnerWebBody{Reader: bytes.NewReader(raw), raw: raw}
+	// The existing safe-body writer stores this same completed response. No
+	// original request bytes or credentials enter its public evidence sidecar.
+	if err := f.saveResponse(response, raw); err != nil {
+		return err
+	}
 	f.guard.Lock()
 	if index < 0 || index >= len(f.records) || f.bytes+len(raw) > 32*1024*1024 {
 		f.guard.Unlock()

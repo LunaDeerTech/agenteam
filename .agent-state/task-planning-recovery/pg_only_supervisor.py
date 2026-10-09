@@ -20,6 +20,21 @@ import sys
 import time
 import uuid
 
+WORK_UI_TOPS = {
+    'TestAccountProjectWorkPlanningWebReadAndNavigation',
+    'TestAccountProjectWorkPlanningWebStructureAndTasks',
+    'TestAccountProjectWorkPlanningWebBlockers',
+    'TestAccountProjectWorkPlanningWebOriginalRecovery',
+    'TestAccountProjectWorkPlanningWebIdentityAndOwnership',
+    'TestAccountProjectWorkPlanningWebLayouts',
+    'TestIndependentProjectWorkPlanningWebRecovery',
+    'TestIndependentProjectWorkPlanningWebAuthority',
+}
+
+
+def work_ui_selector(selector):
+    return selector in {'^' + name + '$' for name in WORK_UI_TOPS}
+
 
 def budgets(root_chain):
     # Root: original Go test 360s + readiness 75s + fixture cleanup 55s +
@@ -127,6 +142,8 @@ def observe_root_chain(directory, log, log_path, selector):
         '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': {'TestWorkOwnerHTTPProcessRoutingAndPersistence'},
         '^TestIndependentWorkOwnerRootConfirmationJoin$': {'TestIndependentWorkOwnerRootConfirmationJoin'},
     }.get(selector, set())
+    if work_ui_selector(selector):
+        expected = {selector[1:-1]}
     actual = set(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
@@ -174,7 +191,7 @@ def main():
     if adapter is not None and args.run not in adapter.TARGETS:
         parser.error('root mode requires one exact Work root selector')
     args.output.mkdir(parents=True, exist_ok=True)
-    stem = 'pg-' + uuid.uuid4().hex
+    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.root_chain and work_ui_selector(args.run) else ('pg-' + uuid.uuid4().hex)
     directory = args.output.resolve() / stem
     log_path = args.output / (stem + '.log')
     # Adopt only this supervisor's own descendants, so any unexpected survivor

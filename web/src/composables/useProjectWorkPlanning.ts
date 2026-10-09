@@ -101,6 +101,9 @@ export function createProjectWorkPlanning(
   const sprints = shallowReactive(new Map<string, WorkPlanningPage<WorkSprintSummary>>())
   const tasks = shallowReactive(new Map<string, WorkPlanningPage<WorkTaskSummary>>())
   const blockers = page<WorkTaskBlocker>()
+  const relatedTasks = shallowReactive(
+    new Map<string, { task: WorkTask | null; message: string }>(),
+  )
   const blockerStatus = ref<'unresolved' | 'resolved' | 'all'>('unresolved')
   const filters = reactive<{
     text: string
@@ -313,7 +316,10 @@ export function createProjectWorkPlanning(
       message: '',
     })
     detailNeedsRead = false
-    if (oldTaskID !== value.task?.id || oldTaskVersion !== value.task?.version) clearPage(blockers)
+    if (oldTaskID !== value.task?.id || oldTaskVersion !== value.task?.version) {
+      clearPage(blockers)
+      relatedTasks.clear()
+    }
     const kind = address.value?.kind
     if (!kind || kind === 'explore' || editor.creating) return
     const object = value[kind]
@@ -352,6 +358,7 @@ export function createProjectWorkPlanning(
       task: null,
     })
     clearPage(blockers)
+    relatedTasks.clear()
   }
   function finishConfirmation(value: boolean) {
     confirmation.open = false
@@ -550,7 +557,8 @@ export function createProjectWorkPlanning(
   }
   function loadBlockers(direction: 'first' | 'next' | 'previous' = 'first') {
     const task = detail.task
-    if (!task) return
+    if (!task || blocked.value) return
+    relatedTasks.clear()
     const status = blockerStatus.value
     return loadPage(
       blockers,
@@ -561,6 +569,20 @@ export function createProjectWorkPlanning(
           ...(cursor ? { cursor } : {}),
         }),
       direction,
+    )
+  }
+  async function loadRelatedTask(id: string) {
+    if (
+      blocked.value ||
+      !blockers.items.some(
+        (item) => item.type === 'rely_on' && item.metadata.related_task_id === id,
+      )
+    )
+      return
+    await runRead(
+      (captured) => auth.workPlanning.getTask(captured.projectID, id),
+      (task) => relatedTasks.set(id, { task, message: '' }),
+      (error) => relatedTasks.set(id, { task: null, message: explanation(error) }),
     )
   }
   async function applyFilters() {
@@ -1260,6 +1282,8 @@ export function createProjectWorkPlanning(
     sprints,
     tasks,
     blockers,
+    relatedTasks,
+    loadRelatedTask,
     filters,
     blockerStatus,
     expanded,
