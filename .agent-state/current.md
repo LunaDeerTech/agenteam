@@ -29,7 +29,7 @@
 - 当前作者完整binary：`output/ai/task-blocker-service/implementation/work-blocker-complete-race.test`；driver：`output/ai/task-blocker-service/author/pg-only-driver`；使用已有 `.agent-state/task-planning-recovery/pg_only_supervisor.py`，精确一个selector、原105s及完整资源尾，output为`output/ai/task-blocker-service/pg`。日志/二进制可重建；必要源码在正式tests和`.agent-state/task-blocker-service/`。
 - 正式交付从 `/workspace/agenteam-blocker-delivery` 组装32个B0-P必要文件及候选台账的限定更新，未复制活动树的Model成果或全局文档。735个Go/test/embed输入及9个补充输入与已验来源逐字节一致，离线integration race编译、9个精确top发现与两入口build均实际通过；最终卡、台账与独立装配审查已完成。不提供Agent/执行/跨状态Blocker、HTTP、生产root或完整D11。
 
-- 后续 Work Owner HTTP/root rev2规格已在 `docs/development/work-items/d11-work-owner-http.md` 独立接受；分页首四源、九码Problem接缝与根生命周期库片段均可构建，限定pure/race通过，Problem另有vet与独立静审接受。HTTP/root接线已可构建：19个HTTP纯top/race/正式schema/vet及根接线限定pure/race/vet通过，native三top和真实root源码已race编译，但动态未验；无新迁移。新PG页测试首编译因不可比较LockKey失败，原失败保留；最小修复后作者与独立probe均race编译及精确发现通过。作者分页首PG整体FAIL/3子PASS，取消子测等待错误后阶段User EX，实际writer先受Schedule EX阻塞，正在仅修测试观测；Go/driver/外层实际退出与自有资源退役齐，原hostTCP尾1行delta失败保留，后验自有端口/PIDclear不补PASS。独立接受最小观测修复后，作者第二轮四子项完整PASS/73.761s且Go/driver/外层actual0、两自有ID/runtime/hostTCP双清/inputsame齐；独立页由未参与Work实现的Model负责人本人执行冻结probe三场景，完整PASS/72.463s，actualWait与两自有资源/runtime/TCP双尾齐，分页限定接受，原首FAIL不改。仅限定已有有效 Project Owner 的正式HTTP规划能力，规格由 `/root/service_delivery` 唯一维护。
+- 后续 Work Owner HTTP/root rev2规格已在 `docs/development/work-items/d11-work-owner-http.md` 独立接受；分页首四源、九码Problem接缝与根生命周期库片段均可构建，限定pure/race通过，Problem另有vet与独立静审接受。HTTP/root接线已可构建：19个HTTP纯top/race/正式schema/vet及根接线限定pure/race/vet通过，native三top和真实root源码已race编译；native Deadlines作者首轮完整PASS（自然2s读/Lookup、30s写与早parent），完整Wait/runtime/TCP尾齐，其余native与真实HTTP/root动态未验；无新迁移。新PG页测试首编译因不可比较LockKey失败，原失败保留；最小修复后作者与独立probe均race编译及精确发现通过。作者分页首PG整体FAIL/3子PASS，取消子测等待错误后阶段User EX，实际writer先受Schedule EX阻塞，正在仅修测试观测；Go/driver/外层实际退出与自有资源退役齐，原hostTCP尾1行delta失败保留，后验自有端口/PIDclear不补PASS。独立接受最小观测修复后，作者第二轮四子项完整PASS/73.761s且Go/driver/外层actual0、两自有ID/runtime/hostTCP双清/inputsame齐；独立页由未参与Work实现的Model负责人本人执行冻结probe三场景，完整PASS/72.463s，actualWait与两自有资源/runtime/TCP双尾齐，分页限定接受，原首FAIL不改。仅限定已有有效 Project Owner 的正式HTTP规划能力，规格由 `/root/service_delivery` 唯一维护。
 
 ## D27实际状态与下一步
 
@@ -48,7 +48,7 @@
 - 正式组件整合树 `/workspace/agenteam-shared-layer-delivery` 当前 `ai/shared-layer-delivery`，包含已推送main的两组件提交；不混入未验Model或B0-P产品。
 - 固定Chromium、锁定Playwright、PG/MinIO及helpers已恢复；可重建产物在output。既有dev infra不属于任务，不连接、不清理。
 - PG/browser/hostTCP只运行一个明确资源窗口。实际Go/driver/外层终态及资源尾结束前，不进行Git网络、下载或另一browser/socket测试；离线纯测试与无输入冲突写入可继续。每轮完整终态才交接，原失败不补写PASS。
-- 本次汇总时B0-P全部真实PG轮、Model已通过的五个旧case及authority第7轮均已完整释放窗口；Model独立A第二轮完整PASS，首轮FAIL保留。Model Audit第二轮与独立B、后端分页作者首轮现无活自有资源；B外层Wait缺口和分页原hostTCP尾FAIL保留。configuration新资产与作者分页第二轮已完整PASS/全尾释放；Model B2已完整FAIL并释放，后端独立分页借由Model负责人本人完整PASS/全尾释放；credential与recovery新资产也已完整PASS并释放。后端native入口独立有限静审接受，Deadlines精确轮已就绪待root交窗，尚无native动态PASS；后端继续离线推进真实HTTP/root输入。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
+- 本次汇总时B0-P全部真实PG轮、Model已通过的五个旧case及authority第7轮均已完整释放窗口；Model独立A第二轮完整PASS，首轮FAIL保留。Model Audit第二轮与独立B、后端分页作者首轮现无活自有资源；B外层Wait缺口和分页原hostTCP尾FAIL保留。configuration新资产与作者分页第二轮已完整PASS/全尾释放；Model B2已完整FAIL并释放，后端独立分页借由Model负责人本人完整PASS/全尾释放；credential与recovery新资产也已完整PASS并释放。后端native入口独立有限静审接受，Deadlines精确轮已完整PASS并释放（受控domain/auth的真实I/O期限，非真实授权/COMMIT证据）；后端继续离线推进真实HTTP/root输入。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
 
 ## 保留停止项与最终验收
 
