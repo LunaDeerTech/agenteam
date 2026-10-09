@@ -23,7 +23,8 @@ const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const nativeSource = join(root, '.agent-state/model-ui-recovery/native-client-probe.ts');
 const nativeBundlePath = join(root, 'output/ai/model-ui-recovery/client-probe/native-client-probe.js');
 function casesFor(mode) {
-  need(['default', 'promise-boundary', 'owned-fixture', 'owned-app', 'owned-login'].includes(mode), 'SESSION_PROBE_MODE');
+  need(['default', 'promise-boundary', 'owned-fixture', 'owned-app', 'owned-login', 'owned-login-action'].includes(mode), 'SESSION_PROBE_MODE');
+  if (mode === 'owned-login-action') return ['direct-account', 'pageshow'].map(action => ({ frame: 'browser-login-action', consumer: 'account', action }));
   if (mode === 'owned-login') return ['early', 'stable'].map(action => ({ frame: 'browser-login', consumer: 'account', action }));
   if (mode === 'owned-app') return ['direct-account', 'pageshow'].map(action => ({ frame: 'app', consumer: 'account', action }));
   if (mode === 'owned-fixture') return [{ frame: 'owned-fixture', consumer: 'account' }];
@@ -202,11 +203,30 @@ function installFixtureConsumer(createAccountAPI) {
   };
 }
 
+// A browser login creates a new Session. The existing Go response buffer checks
+// its exact User/Session/CSRF identity; no Session value crosses back to Node.
+function installLoginActionConsumer(createAccountAPI) {
+  window.runLoginSession = async (expectedUser) => {
+    let fetches = 0;
+    const fetcher = (input, init) => {
+      if (input !== '/api/v1/session' || init.method !== 'GET') throw new Error('SESSION_PROBE_REQUEST_REJECTED');
+      fetches++;
+      return window.fetch(input, init);
+    };
+    try {
+      const view = await createAccountAPI(fetcher).getSession(new AbortController().signal);
+      return { fetches, decoded: true, identity_equal: view.user.id === expectedUser && view.user.role === 'user', outcome: 'success' };
+    } catch {
+      return { fetches, decoded: false, identity_equal: false, outcome: 'client-rejected' };
+    }
+  };
+}
+
 async function inputs(mode) {
   need(packageVersion === '1.56.1', 'SESSION_PROBE_PLAYWRIGHT_VERSION');
-  const files = [source, ...(['owned-fixture', 'owned-app', 'owned-login'].includes(mode) ? [] : [join(dirname(source), 'run-session-consumption.py'), join(dirname(source), 'run-shared-components.py')]), join(root, 'web/src/api/account.ts'), join(root, 'web/src/api/client.ts'), join(root, 'web/package-lock.json'), join(root, 'tests/account-captcha-web/package-lock.json')];
+  const files = [source, ...(['owned-fixture', 'owned-app', 'owned-login', 'owned-login-action'].includes(mode) ? [] : [join(dirname(source), 'run-session-consumption.py'), join(dirname(source), 'run-shared-components.py')]), join(root, 'web/src/api/account.ts'), join(root, 'web/src/api/client.ts'), join(root, 'web/package-lock.json'), join(root, 'tests/account-captcha-web/package-lock.json')];
   if (mode !== 'default') files.push(nativeSource, nativeBundlePath, ...['system-account', 'project-model-credentials', 'project-models'].map(name => join(root, `web/src/api/${name}.ts`)));
-  if (['owned-fixture', 'owned-app', 'owned-login'].includes(mode)) files.push(join(root, 'tests/account/project_owner_models_web_fixture_test.go'), join(root, 'tests/account/project_owner_models_web_test.go'), join(dirname(source), 'run-owned-top.py'));
+  if (['owned-fixture', 'owned-app', 'owned-login', 'owned-login-action'].includes(mode)) files.push(join(root, 'tests/account/project_owner_models_web_fixture_test.go'), join(root, 'tests/account/project_owner_models_web_test.go'), join(dirname(source), 'run-owned-top.py'));
   return Object.fromEntries(await Promise.all(files.map(async (path) => [path, hash(await readFile(path))])));
 }
 async function prepare(mode) {
@@ -223,7 +243,7 @@ async function prepare(mode) {
   const virtual = '\0independent-session-consumption', entry = join(output, 'virtual-session-entry.js');
   const result = await build({ configFile: false, root, logLevel: 'silent', plugins: [{
     name: 'independent-session-entry', enforce: 'pre', resolveId: (id) => id === entry ? virtual : undefined,
-    load: (id) => id === virtual ? `import { createAccountAPI } from ${JSON.stringify(join(root, 'web/src/api/account.ts'))};\n(${(['owned-fixture', 'owned-app', 'owned-login'].includes(mode) ? installFixtureConsumer : mode === 'promise-boundary' ? installPromiseBoundary : installBrowser).toString()})(createAccountAPI);` : undefined,
+    load: (id) => id === virtual ? `import { createAccountAPI } from ${JSON.stringify(join(root, 'web/src/api/account.ts'))};\n(${(['owned-fixture', 'owned-app', 'owned-login', 'owned-login-action'].includes(mode) ? installFixtureConsumer : mode === 'promise-boundary' ? installPromiseBoundary : installBrowser).toString()})(createAccountAPI);${mode === 'owned-login-action' ? `\n(${installLoginActionConsumer.toString()})(createAccountAPI);` : ''}` : undefined,
   }], build: { write: false, minify: false, sourcemap: false, lib: { entry, name: 'SessionConsumption', formats: ['iife'] } } });
   const chunks = (Array.isArray(result) ? result : [result]).flatMap((row) => row.output);
   need(chunks.length === 1 && chunks[0].type === 'chunk');
@@ -328,10 +348,11 @@ async function appSessionCase(browser, fixture, nativeBundle, bundle, action, ro
 // Request timestamps are Node listener observations on one monotonic clock,
 // not browser send times. The selected response is the first real 200 Session
 // after arming the wait, including a request observed before the action.
-async function loginSessionCase(browser, fixture, nativeBundle, bundle, action, rows, step) {
-  need(action === 'early' || action === 'stable', 'SESSION_PROBE_LOGIN_ACTION');
+async function loginSessionCase(browser, fixture, nativeBundle, bundle, action, rows, step, compareAction = false) {
+  need(typeof compareAction === 'boolean' && (compareAction ? action === 'direct-account' || action === 'pageshow' : action === 'early' || action === 'stable'), 'SESSION_PROBE_LOGIN_ACTION');
   const context = await browser.newContext({ serviceWorkers: 'block' }), page = await context.newPage();
   const report = { frame: 'browser-login', consumer: 'account', action, requests: [], response_candidates: 0, selected_request_observed: false, selected_request_before_action: false, selected_request_after_action: false, native: null, events: { headers: false, finished: false, failed: false, response_finished: 'pending', pw_headers_bound: false, cdp_headers_bound: false, cdp_finished: false, cdp_failed: false, cdp_canceled: false, cdp_aborted: false }, application_ready: false, observer_joined_after_close: false, fail_code: null };
+  if (compareAction) Object.assign(report, { frame: 'browser-login-action', event_clock: 'node-monotonic-observed-relative-to-case', direct_client: null });
   rows.push(report);
   const events = report.events;
   const records = new Map(), cdpRecords = new Map(), base = performance.now(), observations = [];
@@ -345,11 +366,13 @@ async function loginSessionCase(browser, fixture, nativeBundle, bundle, action, 
     if (url.origin !== fixture.origin || !(url.pathname === '/api/v1' || url.pathname.startsWith('/api/v1/'))) return;
     if (records.size >= 10) { capExceeded = true; return; }
     const row = { kind: kindOf(request), observed_ms: performance.now() - base, status: null, finished: false, failed: false };
+    if (compareAction) Object.assign(row, { response_observed_ms: null, finished_observed_ms: null, failed_observed_ms: null });
     records.set(request, row); report.requests.push(row);
   };
   const responded = response => {
     const record = records.get(response.request());
     if (record) record.status = response.status();
+    if (compareAction && record && record.response_observed_ms === null) record.response_observed_ms = performance.now() - base;
     if (!armed || kindOf(response.request()) !== 'session' || response.status() !== 200) return;
     report.response_candidates++;
     if (selected) return;
@@ -358,16 +381,16 @@ async function loginSessionCase(browser, fixture, nativeBundle, bundle, action, 
     observations.push(finishedPromise.then(error => { events.response_finished = error === null ? 'complete' : 'error'; }, () => { events.response_finished = 'rejected'; }));
     responseResolve(response);
   };
-  const finished = request => { const row = records.get(request); if (row) row.finished = true; if (request === selected) events.finished = true; };
-  const failed = request => { const row = records.get(request); if (row) row.failed = true; if (request === selected) events.failed = true; };
+  const finished = request => { const row = records.get(request); if (row) { row.finished = true; if (compareAction && row.finished_observed_ms === null) row.finished_observed_ms = performance.now() - base; } if (request === selected) events.finished = true; };
+  const failed = request => { const row = records.get(request); if (row) { row.failed = true; if (compareAction && row.failed_observed_ms === null) row.failed_observed_ms = performance.now() - base; } if (request === selected) events.failed = true; };
   const sent = event => {
     if (event.request.url !== fixture.origin + '/api/v1/session' || event.request.method !== 'GET') return;
     if (cdpRecords.size >= 6) { capExceeded = true; return; }
-    cdpRecords.set(event.requestId, { token: null, finished: false, failed: false, canceled: false, aborted: false });
+    cdpRecords.set(event.requestId, { token: null, finished: false, failed: false, canceled: false, aborted: false, ...(compareAction ? { request_observed_ms: performance.now() - base, response_observed_ms: null, finished_observed_ms: null, failed_observed_ms: null } : {}) });
   };
-  const received = event => { const row = cdpRecords.get(event.requestId); if (row) row.token = Object.entries(event.response.headers).find(([name]) => name.toLowerCase() === 'x-request-id')?.[1] ?? null; };
-  const loaded = event => { const row = cdpRecords.get(event.requestId); if (row) row.finished = true; };
-  const lost = event => { const row = cdpRecords.get(event.requestId); if (row) { row.failed = true; row.canceled = event.canceled === true; row.aborted = event.errorText === 'net::ERR_ABORTED'; } };
+  const received = event => { const row = cdpRecords.get(event.requestId); if (row) { row.token = Object.entries(event.response.headers).find(([name]) => name.toLowerCase() === 'x-request-id')?.[1] ?? null; if (compareAction && row.response_observed_ms === null) row.response_observed_ms = performance.now() - base; } };
+  const loaded = event => { const row = cdpRecords.get(event.requestId); if (row) { row.finished = true; if (compareAction && row.finished_observed_ms === null) row.finished_observed_ms = performance.now() - base; } };
+  const lost = event => { const row = cdpRecords.get(event.requestId); if (row) { row.failed = true; row.canceled = event.canceled === true; row.aborted = event.errorText === 'net::ERR_ABORTED'; if (compareAction && row.failed_observed_ms === null) row.failed_observed_ms = performance.now() - base; } };
   const publish = () => {
     const record = records.get(selected);
     report.selected_request_observed = !!record;
@@ -380,6 +403,7 @@ async function loginSessionCase(browser, fixture, nativeBundle, bundle, action, 
     if (matches.length === 1) {
       const row = matches[0];
       Object.assign(events, { cdp_finished: row.finished, cdp_failed: row.failed, cdp_canceled: row.canceled, cdp_aborted: row.aborted });
+      if (compareAction) for (const field of ['request_observed_ms', 'response_observed_ms', 'finished_observed_ms', 'failed_observed_ms']) events['cdp_' + field] = row[field];
     }
     if (record) Object.assign(events, { finished: record.finished, failed: record.failed });
   };
@@ -400,9 +424,12 @@ async function loginSessionCase(browser, fixture, nativeBundle, bundle, action, 
     // decoding and identity checks. No response.json/clone/extra read or GET.
     need(await page.evaluate(() => window.__projectModelsProbe.sessionBegin('session-proxy', Date.now() + 250, undefined, true)) === true, 'SESSION_PROBE_NATIVE_ARM');
     armed = true;
-    step('login-' + action + '-pageshow');
+    step('login-' + action + (compareAction ? '-consume' : '-pageshow'));
     actionAt = performance.now() - base;
-    await bounded(page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow'))), 5000, 'SESSION_PROBE_CONSUMPTION_TIMEOUT');
+    if (compareAction && action === 'direct-account') {
+      report.direct_client = await bounded(page.evaluate(user => window.runLoginSession(user), fixture.login.user_id), 5000, 'SESSION_PROBE_CONSUMPTION_TIMEOUT');
+      need(report.direct_client.fetches === 1 && report.direct_client.decoded && report.direct_client.identity_equal && report.direct_client.outcome === 'success', 'SESSION_PROBE_CONSUMPTION');
+    } else await bounded(page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow'))), 5000, 'SESSION_PROBE_CONSUMPTION_TIMEOUT');
     await bounded(responseWaiting, 5000, 'SESSION_PROBE_RESPONSE_TIMEOUT');
     requestID = await bounded(selectedResponse.headerValue('x-request-id'), 1000, 'SESSION_PROBE_HEADER_OBSERVATION');
     events.pw_headers_bound = typeof requestID === 'string' && requestID.length > 0;
@@ -505,9 +532,9 @@ async function worker(directory, mode, fixture = null) {
       await json(join(directory, 'browser-owned.json'), { ...await processIdentity(child.pid), port: Number(new URL(browserServer.wsEndpoint()).port) });
       browser = await chromium.connect(browserServer.wsEndpoint(), { timeout: 5000 });
       need(browser.version() === '151.0.7922.173', 'SESSION_PROBE_BROWSER_VERSION');
-      if (mode === 'owned-login') {
+      if (mode === 'owned-login' || mode === 'owned-login-action') {
         for (const { action } of casesFor(mode)) {
-          try { await loginSessionCase(browser, fixture, nativeBundle, bundle, action, rows, next => { stage = next; }); }
+          try { await loginSessionCase(browser, fixture, nativeBundle, bundle, action, rows, next => { stage = next; }, mode === 'owned-login-action'); }
           catch (error) { failCode ??= /^SESSION_PROBE_[A-Z_]+$/.test(error?.message ?? '') ? error.message : 'SESSION_PROBE_FAILED'; }
         }
         return;
@@ -602,7 +629,7 @@ async function ownedFixture(directory, mode) {
   try { fixture = JSON.parse(raw.toString('utf8')); } finally { raw.fill(0); }
   const origin = new URL(fixture.origin);
   need(fixture.mode === mode && fixture.protocol === 'project-session-proxy.v1' && fixture.supervisor_pid === process.ppid && fixture.input_hash === process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH && /^[0-9a-f]{64}$/.test(fixture.input_hash) && origin.protocol === 'http:' && origin.hostname === '127.0.0.1' && !!origin.port && origin.origin === fixture.origin, 'SESSION_PROBE_FIXTURE_BINDING');
-  if (mode === 'owned-login') {
+  if (mode === 'owned-login' || mode === 'owned-login-action') {
     need(!Object.hasOwn(fixture, 'cookies') && !Object.hasOwn(fixture, 'expected') && fixture.login && Object.keys(fixture.login).sort().join() === 'email,password,user_id' && Object.values(fixture.login).every(value => typeof value === 'string' && value.length > 0 && value.length <= 1024), 'SESSION_PROBE_FIXTURE_LOGIN');
   } else {
   need(Array.isArray(fixture.cookies) && fixture.cookies.length > 0 && fixture.cookies.length <= 4 && fixture.cookies.every(cookie => Object.keys(cookie).length === 2 && typeof cookie.name === 'string' && typeof cookie.value === 'string'), 'SESSION_PROBE_FIXTURE_COOKIES');
@@ -610,15 +637,15 @@ async function ownedFixture(directory, mode) {
   }
   need(hash(await readFile(join(output, 'prepared.json'))) === fixture.prepared_hash && hash(await readFile(join(output, 'client.js'))) === fixture.client_hash, 'SESSION_PROBE_FIXTURE_INPUTS');
   try { await worker(directory, mode, fixture); }
-  finally { if (mode === 'owned-login') { fixture.login.email = ''; fixture.login.password = ''; } else { for (const cookie of fixture.cookies) cookie.value = ''; fixture.expected.csrf = ''; } }
+  finally { if (mode === 'owned-login' || mode === 'owned-login-action') { fixture.login.email = ''; fixture.login.password = ''; } else { for (const cookie of fixture.cookies) cookie.value = ''; fixture.expected.csrf = ''; } }
 }
 
 try {
   process.umask(0o077);
   const { args, mode } = argumentsFor(process.argv.slice(2));
   if (args.length === 1 && args[0] === '--prepare') await prepare(mode);
-  else if (args.length === 2 && args[0] === '--worker' && !['owned-fixture', 'owned-app', 'owned-login'].includes(mode) && /^run-[0-9a-f]{16}$/.test(args[1].slice(output.length + 1)) && dirname(args[1]) === output) await worker(args[1], mode);
-  else if (args.length === 2 && args[0] === '--owned-fixture' && ['owned-fixture', 'owned-app', 'owned-login'].includes(mode)) await ownedFixture(args[1], mode);
+  else if (args.length === 2 && args[0] === '--worker' && !['owned-fixture', 'owned-app', 'owned-login', 'owned-login-action'].includes(mode) && /^run-[0-9a-f]{16}$/.test(args[1].slice(output.length + 1)) && dirname(args[1]) === output) await worker(args[1], mode);
+  else if (args.length === 2 && args[0] === '--owned-fixture' && ['owned-fixture', 'owned-app', 'owned-login', 'owned-login-action'].includes(mode)) await ownedFixture(args[1], mode);
   else throw new Error('SESSION_PROBE_ARGUMENTS');
 } catch (error) {
   // Preparation has no Session or running browser; compiler diagnostics are

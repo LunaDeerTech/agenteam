@@ -27,6 +27,7 @@ TOPS = {
     "session-proxy-diagnostic": "TestAccountProjectOwnerModelsWebSessionProxyDiagnostic",
     "session-app-diagnostic": "TestAccountProjectOwnerModelsWebSessionAppDiagnostic",
     "browser-login-diagnostic": "TestAccountProjectOwnerModelsWebBrowserLoginDiagnostic",
+    "browser-login-action-diagnostic": "TestAccountProjectOwnerModelsWebBrowserLoginActionDiagnostic",
 }
 
 
@@ -96,11 +97,11 @@ def main():
     formal = [ROOT / "api/openapi" / name for name in ("common.json", "project-models.json", "project-model-credentials.json")]
     formal += [ROOT / "docs/development/work-items" / name for name in ("d27-project-owner-model-settings-ui.md", "d27-project-owner-model-settings-ui-endpoints.json")]
     assets = [path for path in (OUTPUT / "dist").rglob("*") if path.is_file()]
-    if args.case in ("session-proxy-diagnostic", "session-app-diagnostic", "browser-login-diagnostic"):
+    if args.case in ("session-proxy-diagnostic", "session-app-diagnostic", "browser-login-diagnostic", "browser-login-action-diagnostic"):
         sources = [*sources[:2], Path(__file__), Path(__file__).with_name("fixture-go.py"), Path(__file__).with_name("owned_resources.py")]
         probe = ROOT / "output/ai/model-ui-session-probe"
         prepared = json.loads((probe / "prepared.json").read_text())
-        probe_mode, probe_cases = {"session-proxy-diagnostic": ("owned-fixture", 1), "session-app-diagnostic": ("owned-app", 2), "browser-login-diagnostic": ("owned-login", 2)}[args.case]
+        probe_mode, probe_cases = {"session-proxy-diagnostic": ("owned-fixture", 1), "session-app-diagnostic": ("owned-app", 2), "browser-login-diagnostic": ("owned-login", 2), "browser-login-action-diagnostic": ("owned-login-action", 2)}[args.case]
         assert prepared["mode"] == probe_mode and prepared["cases"] == probe_cases and prepared["network_started"] is False
         assert hashlib.sha256((probe / "client.js").read_bytes()).hexdigest() == prepared["bundle_sha256"]
         assert all(hashlib.sha256(Path(path).read_bytes()).hexdigest() == value for path, value in prepared["inputs"].items())

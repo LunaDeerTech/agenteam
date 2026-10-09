@@ -2384,10 +2384,11 @@ func (f *projectModelsWebFixture) browserSessionProxyDiagnostic(ctx context.Cont
 }
 
 func (f *projectModelsWebFixture) browserSessionDiagnostic(ctx context.Context, mode string) {
+	loginMode := mode == "owned-login" || mode == "owned-login-action"
 	rows := 2
 	if mode == "owned-fixture" {
 		rows = 1
-	} else if mode != "owned-app" && mode != "owned-login" {
+	} else if mode != "owned-app" && !loginMode {
 		f.t.Fatal("Session diagnostic mode invalid")
 	}
 	root := filepath.Clean(filepath.Join(f.webRoot, "../../../.."))
@@ -2408,10 +2409,10 @@ func (f *projectModelsWebFixture) browserSessionDiagnostic(ctx context.Context, 
 	if !known || session.User != f.owner.UserID || session.CSRF != f.ownerCSRF || len(cookies) == 0 {
 		f.t.Fatal("Session diagnostic owned identity unavailable")
 	}
-	if mode == "owned-app" || mode == "owned-login" {
+	if mode == "owned-app" || loginMode {
 		f.mu.Lock()
 		f.sessionDiagnostic = &projectModelsWebSessionDiagnostic{Expected: session}
-		if mode == "owned-login" {
+		if loginMode {
 			f.sessionDiagnostic.LoginMode = true
 			f.sessionDiagnostic.Sessions = map[string]projectModelsWebSession{}
 		}
@@ -2438,7 +2439,7 @@ func (f *projectModelsWebFixture) browserSessionDiagnostic(ctx context.Context, 
 	privateName := "session-proxy-private.json"
 	descriptor := map[string]any{"protocol": "project-session-proxy.v1", "mode": mode, "supervisor_pid": os.Getpid(), "origin": f.origin, "input_hash": f.inputHash,
 		"prepared_hash": boundHash("prepared.json"), "client_hash": boundHash("client.js")}
-	if mode == "owned-login" {
+	if loginMode {
 		descriptor["login"] = map[string]string{"email": f.owner.Email, "password": f.owner.Password, "user_id": f.owner.UserID}
 	} else {
 		descriptor["cookies"] = cookies
