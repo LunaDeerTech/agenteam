@@ -2,15 +2,15 @@
 
 - 目标：从环境中断处恢复产品开发，完成 D01–D28 全部能力及 E01 平台内游戏复刻与真实试玩验收。
 - 状态：进行中；Task Planning 规划库、Agent C1、R1 纯身份已正式交付；完整 D11/D27、平台与 E01 未完成。
-- 当前分支：`ai/task-planning-recovery`，已合入正式 main `dbf4a5e0`。Task runtime=`0273a604`、Agent C1=`7f2bb211`、R1=`dbf4a5e0` 均正常推送并精确远端确认；`1b38f470` 是初始恢复基线。
+- 当前分支：`ai/task-planning-recovery`，已合入正式 main `ad8b1fb6`（T0a纯状态核心）。Task runtime=`0273a604`、Agent C1=`7f2bb211`、R1=`dbf4a5e0` 均正常推送并精确远端确认；`1b38f470` 是初始恢复基线。
 - 恢复核对：初始本地 `work` 为 `3add174d`、工作区干净；fetch 后保留并 fast-forward 远端三个协作流程提交。没有发现 `origin/ai/*` 活动任务分支，也无本地未推送独有提交。
 
 ## 当前工作与所有权
 
 1. Task Planning 本卡规划库已正式交付：20技术路径及README；七新八旧PG、独立A/B和pure/race/vet/build按限定组合接受，资源终态齐，原FAIL保留。状态/指派/执行/删除/HTTP/UI/生产Work仍未实现，完整D11未完成。
-2. D27 Model Settings：执行代理环境恢复后再次pending_init，已interrupt；root接管四测试harness、Model helpers与本卡状态。第七recovery完整PASS（schema/client13、全部Wait/join/7ID/TCP双清）；原六FAIL保留，六新仅1通过，其余5/14旧/独立AB待验。下一仅接线已预审read模块后真实运行；configcred/nav片段未实际验。
-3. T0a纯状态核心：原作者环境恢复后pending_init已interrupt，root接管精确2新Work contract源及本卡状态；SPEC独立接受，作者pure与root race/vet已通过，独立4top/9child race实际exit0，最终独审与正式交付待完成。无Blocker/Transfer/fullDigest/事实服务/迁移。R1三个identity marker已main，不代表真实目录或F1。
-4. root 独占current、globalledger与Git；真实PG/browser/hostTCP按完整终态串行资源ACK。Model执行只使用 `/workspace/agenteam-delivery` 的正式main dbf/accepted00022，两个untrackedGo与原树同份；原树新增T0a未验源不得复制到delivery。所有Model glob在实际run中冻结，其他原树纯代码不在其hash闭包。
+2. D27 Model Settings：执行代理环境恢复后再次pending_init，已interrupt；root接管四测试harness、Model helpers与本卡状态。第七recovery完整PASS（schema/client13、全部Wait/join/7ID/TCP双清）；原六recovery FAIL及read首轮FAIL保留；read第二轮完整PASS，configuration第三轮完整PASS，六新已3通过，其余3/14旧/独立AB待验。下一credential首轮；authority/nav完整模块已类型检查待独审/接线/真实运行。
+3. T0a纯状态核心：原作者环境恢复后pending_init已interrupt，root接管精确2新Work contract源及本卡状态；SPEC独立接受，作者pure与root race/vet已通过，独立4top/9child race实际exit0，最终独审通过并正式交付main ad8b1fb6。无Blocker/Transfer/fullDigest/事实服务/迁移。R1三个identity marker已main，不代表真实目录或F1。
+4. root 独占current、globalledger与Git；真实PG/browser/hostTCP按完整终态串行资源ACK。Model执行只使用 `/workspace/agenteam-delivery` 的正式main dbf/accepted00022，两个untrackedGo与原树同份；原树新增B0-C未验源不得复制到delivery；T0a已验但当前Model编译基线仍明确固定dbf。所有Model glob在实际run中冻结，其他原树纯代码不在其hash闭包。
 5. 旧 `/root/task_planning`、`/root/model_ui_recovery` 持续pending_init已interrupt并停权；新实例已实际启动接续，不按旧实例名单推断进程。所有必要source/probe随ai checkpoint保存，output日志/产物可重建。
 ## 环境实际核对
 
@@ -130,3 +130,31 @@
 
 - T0a独立最终接受：Go1.27.1离线race，4top/9child真实run/pass、882角色/current组合、严格codec/legacy/clone；session9346实际exit0/1.078s，无mustfix。root隔离候选contract/work race3.028/1.312s实际0，准备最终准确vet与两入口build及正常main交付。
 - read首轮outer70759实际exit1/92.544s、Go17.46s；directWait216527 exit1、4adoptedWait0、watchdog/observerjoin、七ID双absent/descendants[]、hostTCP两空、input同一（owned-read-b99f5314…）。闭合browser诊断timeout/spec649、870，step=read-available-pages；前Provider/Model分页及详情有safe200见证，available浏览器新请求未见safe sidecar，不先归因产品。独审继续检查navigation/native观察，原FAIL保留。
+
+- T0a纯状态核心正式main交付ad8b1fb68fe6ff19baef3819ec620573f6730729：8路径，仅2产品源/2独验probe/完整已接受流转SPEC及README/ledger/current；准确候选vet、Central与Runner build actual0，正常push实际0且ls-remote精确确认。完整Transfer/Agent事实/Blocker/Scheduler未实现。Model delivery仍固定已接受dbf/00022及原第七binary，当前不更新其编译闭包。
+
+- read首轮后的限定接线修复独审通过：仅openProject中在唯一真实leaf范围内处理可见“重新读取项目”门槛，点击并确认隐藏后保留原nativeEOF/create enabled，既有S2 real-router测试证明叶切换需要fresh Owner读。修前8行diff反向hash精确回到首轮inputs；按独审建议补隐藏确认1行。strictTS与read discovery实际0；一次discovery PRIVATE变量名错误setupFAIL0tests保留，正确AUTH_WEB_PRIVATE重跑通过。无产品变更/额外fetch/IPC，原FAIL因果不回填；下一第二read完整资源窗。
+
+- read第二轮完整PASS：outer9344实际exit0/92.574s、Go19.26s，browser completed=true/10checks真/schema-client各18/proxy_actual_join=true；directWait223878 exit0、4adoptedWait0、watchdog/observer实join、7IDs两次absent/descendants[]、TCP双空、input同一（owned-read-8ffb66d3…）。Providers26/Models26跨2Provider/available26混合scope、每页原始响应与新native token/有序DOM、显式首页恢复、第二Project隔离及credential metadata均完成，原read首轮FAIL保留。D27六新仅2/6；余4新、14旧及独立AB待验，整卡未完成。
+- 下一B0-C只读调查：现Work没有Blocker契约/持久服务，可按已接受流转§4逐类冻结rely_on与无外域引用waiting_for_human小纯闭包；metadata/description限额及历史payload工程规格尚待接受，没有B0-C产品源或运行前置。
+
+- 配置/凭据case已真实接线（共享typed adapter直连原snapshot/receipt/delta/replay/control/native/finish）；两个mode各唯一discovery、strictTS实际0。限定diff独审接受，逆转接线精确回到read2 frozen spec、原configcred模块同一hash；diagnostic仅固定四source/closedcode与数值位置，不落rawmessage/stack。2case尚未真实运行，下一先configuration；所有Model glob freeze，复用已接受dbf/00022第七binary，B0-C仅独立卡SPEC写者可并行。
+
+- configuration首轮outer66381实际exit1/97.216s、Go27.43s，directWait230395 exit1/4adoptedWait0/watchdogobserverjoin/七ID双absent/TCP双空/input同一（owned-configuration-16df22…）。step delete-boundaries、helper88/274 timeout；49safe sidecars到occupied Provider GET200，未到最后409。独审源码发现真实Account boundary固定Problem.instance=/api/v1，与旧fixture硬比资源路径不一致。root direct httpapi formatter control先purePASS1.020s但绕过真实boundary；改真实boundary六code pure94182 actualexit1/0.021s确证准入缺陷（另一次unused import setupFAIL0tests保留）。最小只改fixture期望control为真实boundary并严格instance相等；6code正例+资源路径否定与全ProjectModelsWeb race66710实际0/1.072s，最新accepted dbf/00022 binary68486 race-c actual0，独验进行。原browserFAIL完整因果不回填。
+- B0-C两类纯契约194行新卡已冻结待独立SPEC，无源码授权；task_transition_core_spec仅本卡owner。model_acceptance_next已实际恢复且获2新authority/navigation模块唯一写域，当前无产品/主harness写权；执行资源窗前所有Modelglob必须停写。root仍独占Git/current/ledger和资源。
+
+- B0-C194行工程SPEC真正独立接受，无mustfix；10本地链接/7未来selector与大小静算actual0，非Go codec实测。root授原作者仅task_blockers.go/_test.go两个新源，七selector/严格caps/两类pure，shared热GOCACHE独占交作者，Modeldelivery禁止未验Blocker；独审者随后另作实现验收。Model作者2module尚未落盘已ACK全部glob暂停，下一configuration资源输入可冻结，Model Problem独验自有cache中。
+
+- Model Problem独立可复跑probe/run已freeze并准备专属cache真实overlay race：8code×4commitstate真实middleware+boundary32正例、18坏body/5header反例、3top/31child强制run/pass门禁；尚未实际通过。必要源保存，root不会把未知结果标PASS。Model全部glob仍暂停；root已实际integration vet78417 exit0，两个Go原树/delivery同份，最新binary只含已接受dbf产品与准入测试修正。
+
+- Model Problem独验26715已准确actualexit0/1.040s，3top/31child全部run/pass，32真实boundary/middleware正例与18body/5header反例通过；2probe保持abcc冻结版本，无PG/network/browser。configuration第二outer72166实际exit1/94.764s、Go24.68s，direct244024Wait1/4adoptedWait0/joins/7ID双absent/descendants[]/TCP双空/input同一（owned-configuration-fbf2f79…）。全部13写/最终occupied409与持久/计数业务已走到finish，最终spec717原native客户端verify异常，未完成schema/client/result，不记PASS。
+- native复验静查完整command传createModel context、updateModel target，与真实client严格2/3字段shape不符；最小修仅构造精确provider_id/protocol或id/provider_id/protocol，不改body/请求数量/捕获事实/产品。native私有bundle实际build0、strictTS实际0，原第二FAIL完整因果不回填，独立真实client pure正反control进行。下一第三configuration待独验后执行；Model新authority/navigation仍仅内存、glob冻结。
+- B0-C两源码已作者freeze可构建：7selector实际发现0、wholecontract pure0.208/race3.156s（66786实际Wait0）/vet0，gofmt完成；455/713行只新源无旧schema/shared/migration。独立实现验收已派independent_review，自有probe/output、T0a独验热cache本窗独占转授，产品只读；产品尚未独验/main，不复制Modeldelivery。
+
+- Native context限定2行独验已接受：真实web client本地Vite bundle离线内存对照actualexit0/0.101s，双协议create/update共4旧完整command均invalid-input/fetch0，4精确context各fetch1且请求path/method/body/key/CSRF/receipt严格一致；source反向仅2行回到configuration2 input hash，无请求/响应门槛修改。新probe.mjs已freeze，独立同行只读复核完成；原第二browser因果不回填。下一第三configuration，所有Model输入再次冻结。
+- authority-and-identity.ts完整410行已落盘/严格TS实际exit0/0.871s并freeze，仅单新module，未注册/独审/真实browser；navigation仍只内存未落盘。已恢复真实启动Model作者，root保存可构建模块，不记casePASS。B0-C隔离候选root race正在完成，独验仍进行。
+
+- configuration第三完整PASS：outer27184实际exit0/95.307s、Go24.39s，browser completed=true/8checks真/schema-client各49/proxy_actual_join=true；directWait251442exit0、4adoptedWait0/watchdogobserverjoin、7IDs双absent/descendants[]、TCP两空/input同一（owned-configuration-8bb0d756…）。13条真实提交/最终occupiedProvider409无durable变化/双协议immutable与目录启停隔离及精确计数通过，原两FAIL保留，D27六新3/6。
+- navigation-and-layouts.ts完整364行已strictTS11848准确Wait exit0并freeze，type-only引用authority接口；未注册/浏览器/8图/视觉验收，非PASS。root保存完整可构建模块后credential首轮，所有Modelglob冻结。B0-C隔离root contract/work race3.351/1.367实际0，准确vet/Central与Runner build5799实际0；独立验收仍进行、正式未交付。
+
+- B0-C独立实现验收接受：10491 actualexit0，公开API pure0.018/race1.129s，各5top/4parallel child真实run/pass，无skip/timeout/input变化；nested lexical cap/错误优先/最坏escaping/atomic/clone/log/legacy全部通过。首次独立probe自身vet suspect-or setupFAIL0tests保留run-hykp8e_8，拆开断言后产品不改复跑过。必要2probe冻结；root候选race/vet/两build0，准备正式8路径交付，无未验Model代码混入。
