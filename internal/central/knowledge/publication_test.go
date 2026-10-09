@@ -1383,3 +1383,176 @@ func TestPublicationAttemptCollisionRejectsDifferentIdentity(t *testing.T) {
 		t.Fatal("wrong command consumed original proof")
 	}
 }
+
+type businessOpenPort struct {
+	oc.SourceReads
+	t      *testing.T
+	actor  id.Actor
+	lease  oc.SourceLease
+	reader *oc.ObjectReader
+	err    error
+	calls  int
+}
+
+func (p *businessOpenPort) OpenLeasedSource(_ context.Context, actor id.Actor, lease oc.SourceLease) (*oc.ObjectReader, error) {
+	p.calls++
+	if !actor.Equal(p.actor) || lease.ID() != p.lease.ID() {
+		p.t.Fatal("opening changed original actor/lease")
+	}
+	return p.reader, p.err
+}
+
+func TestBusinessPublicationPreparesExactLeasedBytesAndJoinsActualReader(t *testing.T) {
+	for _, mode := range []string{"valid", "pdf", "invalid utf8", "open error with reader", "wrong object", "wrong scope", "wrong version", "wrong digest", "range", "early prepare", "prepare error with handle", "close error", "wrong command", "cancelled"} {
+		t.Run(mode, func(t *testing.T) {
+			data := []byte("é中🙂\r\n")
+			media := kc.Markdown
+			if mode == "pdf" {
+				data, media = []byte{0xff, 0x00, 0x80}, kc.PDF
+			}
+			if mode == "invalid utf8" {
+				data = []byte{0xe4, 0xb8}
+			}
+			origin, document := newID[id.Project](t), newID[kc.Document](t)
+			ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.KnowledgeFile, ProjectID: origin, DocumentID: document.String(), Revision: 3})
+			if err != nil {
+				t.Fatal(err)
+			}
+			inputSource, err := kc.NewBusinessSource(ref)
+			if err != nil {
+				t.Fatal(err)
+			}
+			s, input, intent, work, retirement, upload := directPublicationFixture(t, inputSource)
+			defer retirement.done()
+			work.source = &origin
+			retirement.work = work.clone()
+			now, _ := f.NewInstant(time.Now())
+			scope, _ := id.InProject(origin)
+			meta := oc.ObjectMeta{ID: newID[oc.StoredObject](t), Scope: scope, MediaType: media, ByteSize: f.Progress(len(data)), SHA256: ob.DigestBytes(data), State: oc.Available, Version: 2, CreatedAt: now}
+			owner, _ := oc.NewObjectOwner(oc.Knowledge, document.String(), origin.String())
+			resolved, err := oc.NewResolvedSource(oc.ResolvedSourceDetails{Reference: ref, Owner: owner, Meta: meta, Revision: 3})
+			if err != nil {
+				t.Fatal(err)
+			}
+			bound := businessPublicationSource{resolved: resolved, description: *input.request.Source, measurement: publicationMeasurement{Media: media, Length: meta.ByteSize, SHA: meta.SHA256}}
+			actual := meta
+			switch mode {
+			case "wrong object":
+				actual.ID = newID[oc.StoredObject](t)
+			case "wrong scope":
+				actual.Scope, _ = id.InProject(newID[id.Project](t))
+			case "wrong version":
+				actual.Version++
+			case "wrong digest":
+				actual.SHA256 = ob.DigestBytes([]byte("different"))
+			}
+			body := &publicationChunkBody{data: data, stride: 1}
+			physical := errors.New("leased source physical failure")
+			if mode == "close error" {
+				body.closeErr = physical
+			}
+			var span *oc.ResolvedRange
+			if mode == "range" {
+				span = &oc.ResolvedRange{Offset: 0, Length: 1, Total: meta.ByteSize}
+			}
+			reader, err := oc.NewObjectReader(actual, span, body)
+			if err != nil {
+				t.Fatal(err)
+			}
+			lease, _ := oc.NewSourceLease(oc.NewSourceIssuer(), newID[oc.Lease](t))
+			port := &businessOpenPort{t: t, actor: input.actor, lease: lease, reader: reader}
+			if mode == "open error with reader" {
+				port.err = fault(f.DependencyUnavailable).WithCause(physical)
+			}
+			s.state().deps.SourceReads = port
+			path := filepath.Join(t.TempDir(), "business-spool")
+			spool, err := objectimpl.OpenSpool(path, newID[oc.Process](t))
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(func() {
+				if err := spool.Close(); err != nil {
+					t.Error(err)
+				}
+			})
+			fakeHandle := mode == "early prepare" || mode == "prepare error with handle"
+			upload.prepare = func(ctx context.Context, actor id.Actor, target oc.ObjectOwner, m string, n int64, digest *f.Digest, r io.ReadCloser) (oc.PreparedPayload, error) {
+				if !actor.Equal(input.actor) || target.Details().ID != input.document.String() || target.Details().ProjectID != input.project.String() || m != media || n != int64(len(data)) || digest == nil || *digest != meta.SHA256 {
+					t.Fatal("target measured arguments changed")
+				}
+				if fakeHandle {
+					if mode != "early prepare" {
+						if _, err := io.ReadAll(r); err != nil {
+							t.Fatal(err)
+						}
+					}
+					prepared, _ := oc.NewPreparedPayload(oc.PreparedDetails{ID: newID[oc.Payload](t), MediaType: media, Length: int64(len(data)), SHA256: meta.SHA256})
+					if mode == "prepare error with handle" {
+						return prepared, fault(f.DependencyUnavailable).WithCause(physical)
+					}
+					return prepared, nil
+				}
+				return spool.Prepare(ctx, m, n, digest, r)
+			}
+			if !fakeHandle {
+				upload.discard = spool.Discard
+			}
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			if mode == "cancelled" {
+				cancel()
+			}
+			if mode == "wrong command" {
+				intent.record.id = newID[command](t)
+			}
+			prepared, err := s.prepareBusinessPublication(ctx, input, intent, bound, work, lease, retirement)
+			positive := mode == "valid" || mode == "pdf"
+			if positive {
+				if err != nil || prepared.Validate() != nil {
+					t.Fatal("valid business preparation failed", err)
+				}
+			} else if err == nil {
+				t.Fatal("unsafe business preparation accepted")
+			}
+			if mode == "open error with reader" || mode == "prepare error with handle" || mode == "close error" {
+				if !errors.Is(err, physical) {
+					t.Fatal("original source error cause lost", err)
+				}
+			}
+			beforeOpen := mode == "wrong command" || mode == "cancelled"
+			beforePrepare := beforeOpen || mode == "open error with reader" || mode == "wrong object" || mode == "wrong scope" || mode == "wrong version" || mode == "wrong digest" || mode == "range"
+			if beforeOpen {
+				if port.calls != 0 {
+					t.Fatal("invalid operation opened source")
+				}
+			} else if port.calls != 1 {
+				t.Fatal("lease not opened exactly once")
+			}
+			if beforePrepare && (upload.calls != 0 || body.reads != 0) {
+				t.Fatal("invalid source reached bytes/preparation")
+			}
+			joinErr := retirement.join()
+			if mode == "close error" {
+				if !errors.Is(joinErr, physical) || len(s.state().calls) != 1 {
+					t.Fatal("failed reader Close became join", joinErr)
+				}
+			} else if joinErr != nil || len(s.state().calls) != 0 {
+				t.Fatal("actual reader did not join", joinErr)
+			}
+			wantClose := 1
+			if beforeOpen {
+				wantClose = 0
+			}
+			if body.closes != wantClose {
+				t.Fatal("reader Close count", body.closes, wantClose)
+			}
+			if (positive || fakeHandle) && upload.discards != 1 {
+				t.Fatal("prepared handle not discarded exactly once")
+			}
+			entries, err := os.ReadDir(path)
+			if err != nil || len(entries) != 1 || entries[0].Name() != ".object.lock" {
+				t.Fatal("owned source preparation remains", err)
+			}
+		})
+	}
+}

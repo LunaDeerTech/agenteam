@@ -514,6 +514,83 @@ func (s *Service) prepareDirectPublication(ctx context.Context, input contentInp
 	return prepared, nil
 }
 
+// prepareBusinessPublication opens only the opaque lease returned by the real
+// SourceReads adapter. That adapter independently confirms the originating
+// transaction before GET. The exact resolved object is checked again before
+// its bytes can reach the target preparation; every returned reader is owned,
+// including one returned together with an error.
+func (s *Service) prepareBusinessPublication(ctx context.Context, input contentInput, intent contentIntent, source businessPublicationSource, work publicationWork, lease oc.SourceLease, retirement *publicationRetirement) (oc.PreparedPayload, error) {
+	if ctx == nil || s.state() == nil || intent.record == nil || retirement == nil || retirement.service != s || !retirement.work.equal(work) || work.command != intent.record.id || intent.record.document != input.document || intent.record.project != input.project || intent.record.digest != input.digest || intent.record.key != input.meta.IdempotencyKey || intent.record.user.String() != input.actor.Details().UserID || work.project != input.project || work.process != s.state().deps.Processes.CurrentProcess() || work.phase != "active" || lease.Validate() != nil {
+		return oc.PreparedPayload{}, internal(nil)
+	}
+	if err := source.validate(input); err != nil {
+		return oc.PreparedPayload{}, err
+	}
+	origin, err := source.description.sourceProject()
+	if err != nil || !equalProjectPointer(origin, work.source) {
+		return oc.PreparedPayload{}, fault(f.ResourceBusy)
+	}
+	retirement.mu.Lock()
+	joined := retirement.joined
+	retirement.mu.Unlock()
+	if joined {
+		return oc.PreparedPayload{}, fault(f.ResourceBusy)
+	}
+	if err = ctx.Err(); err != nil {
+		return oc.PreparedPayload{}, unavailable(err)
+	}
+	owner, err := oc.NewObjectOwner(oc.Knowledge, input.document.String(), input.project.String())
+	if err != nil {
+		return oc.PreparedPayload{}, portError(err)
+	}
+	kind, err := publicationMedia(source.measurement.Media)
+	if err != nil {
+		return oc.PreparedPayload{}, err
+	}
+	opened, openErr := s.state().deps.SourceReads.OpenLeasedSource(ctx, input.actor, lease)
+	var reader *publicationReader
+	if opened != nil {
+		reader = newPublicationReader(opened, kind == kc.Text, int64(source.measurement.Length))
+		if err = retirement.own(reader.Close); err != nil {
+			return oc.PreparedPayload{}, err
+		}
+	}
+	if openErr != nil {
+		return oc.PreparedPayload{}, portError(openErr)
+	}
+	if opened == nil {
+		return oc.PreparedPayload{}, internal(nil)
+	}
+	actual, expected := opened.Meta(), source.resolved.Details().Meta
+	if actual.Validate() != nil || opened.Range() != nil || actual.ID != expected.ID || !actual.Scope.Equal(expected.Scope) || actual.MediaType != expected.MediaType || actual.ByteSize != expected.ByteSize || actual.SHA256 != expected.SHA256 || actual.State != expected.State || actual.Version != expected.Version || !actual.CreatedAt.Time().Equal(expected.CreatedAt.Time()) {
+		return oc.PreparedPayload{}, fault(f.ResourceBusy)
+	}
+	measured := source.measurement
+	prepared, prepareErr := s.state().deps.Uploads.PreparePayload(ctx, input.actor, owner, measured.Media, int64(measured.Length), &measured.SHA, reader)
+	if prepared.Validate() == nil {
+		if err = retirement.own(func() error { return s.state().deps.Uploads.DiscardPrepared(prepared) }); err != nil {
+			return oc.PreparedPayload{}, err
+		}
+	}
+	closeErr := reader.Close()
+	if prepareErr != nil {
+		return oc.PreparedPayload{}, portError(prepareErr)
+	}
+	if closeErr != nil {
+		return oc.PreparedPayload{}, portError(closeErr)
+	}
+	if err = ctx.Err(); err != nil {
+		return oc.PreparedPayload{}, unavailable(err)
+	}
+	// Measurement is a transient local description, never a rewritten durable
+	// source reference. It checks complete EOF, bytes and UTF-8 as on direct input.
+	descriptor := publicationSource{Media: measured.Media, Length: &measured.Length, SHA: &measured.SHA}
+	if !reader.measured(prepared, descriptor) {
+		return oc.PreparedPayload{}, internal(nil)
+	}
+	return prepared, nil
+}
+
 type publicationMeasurement struct {
 	Media  string     `json:"media"`
 	Length f.Progress `json:"length"`
