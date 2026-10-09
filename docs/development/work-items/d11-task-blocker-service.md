@@ -94,9 +94,9 @@ List：User SH、Project SH、Schedule SH、Task SH，Owner Read先于第一条W
 
 plan不复制整图或4096历史：保存targetTask pre/post、单Blocker pre/post、query generation、placement及确定history/event。final在Schedule EX重新读真实完整图，计算必须与本命令proposal一致。新增依赖链变化即使Task version未变，也须重新证明无环；不能仅比较targetversion。planned input≤512KiB、private plan≤4MiB，嵌套严格闭集覆盖所有对象/数组，不沿曾修复的私有decoder错误只校验顶层。
 
-final原子顺序可以局部决定，但同一Tx必须保存Task version+1/updated_at、Blocker、Project TaskQueryGeneration+1、新TaskEvent、Outbox、Activity、completedreceipt/committed_at。Task其它业务字段、rank及全部order generation不变。所有事实用同一DB微秒时刻，必须≥原Task.updated_at及Blocker.created_at；version/generation溢出安全INVALID_STATE/COUNTER_EXHAUSTED，不回绕。
+final原子顺序可以局部决定，但同一Tx必须保存Task version+1/updated_at、Blocker、Project TaskQueryGeneration+1、新TaskEvent、Outbox、Activity、completedreceipt/committed_at。Task其它业务字段、rank及全部order generation不变。Task.updated_at、本次Blocker created_at或resolved_at、TaskEvent.created_at、Outbox.occurred_at使用准备计划冻结的同一业务微秒时刻；它从真实DB取时并至少为原Task.updated_at、原Blocker.created_at及command.created_at，final重验计划后保持不变。command.created_at是首次准备持久时刻，completed的committed_at在final另取DB时刻并取不小于created_at/业务时刻的值；它记录final完成采样，不冒充物理COMMIT准确瞬间。Account Activity在final恰调用一次现有TouchActivityInTx，遵循该口自行取时与60秒节流，不保证同微秒或每次更新last_activity_at；历史replay不调用。version/generation溢出安全INVALID_STATE/COUNTER_EXHAUSTED，不回绕。
 
-新增 `TaskBlockerEvent` wire：`id,project_id,task_id,task_version,type,actor,operation_id,correlation_id,payload,created_at`；type仅blocker_added/blocker_resolved，operation/correlation使用本卡CommandID且相等，actor仅Human；payload分别复用B0-C两个小payload，不复制description/metadata。完整record≤16KiB。新事件decoder不接受旧planning type或transition operation identity；旧decoder保持拒绝blocker type。
+新增 `TaskBlockerEvent` wire：`id,project_id,task_id,task_version,type,actor,operation_id,correlation_id,payload,created_at`；type仅blocker_added/blocker_resolved，operation/correlation使用本卡CommandID且相等，actor仅Human；payload分别复用B0-C两个小payload，不复制description/metadata。完整record≤16KiB。新事件decoder不接受旧planning type；旧decoder保持拒绝blocker type。Foundation ID marker仅提供Go编译期类型区分，相同UUID及Human payload的JSON可与Transition历史分支同形，纯decoder只证明shape，不证明operation来源。实际来源由blocker_operation_id的本域command FK、producer issuer/purpose与同Tx command/history事实共同证明，不把仅可解码的历史当作写入授权。
 
 唯一新typed Outbox triple为 `(work.task_blockers_changed,work.task,1)`、producer work。payload精确 `operation_id,actor_user_id,task_event_id,blocker_id,change`，change=added/resolved；无正文/metadata/key或Blocker快照，cap16KiB。Header Project/Task/version≥2/occurred_at必须匹配真实同Tx后像，无AggregateSequence。`TaskBlockerEvents` factory采用现Catalog Register/New/Restore/Decode，strict raw边界与安全日志沿T0b已定实践。
 
@@ -133,4 +133,4 @@ migration实际测试fresh、populated00022升级、re-run与失败回滚；原p
 
 ## 9. 当前状态
 
-仅形成本工程规格，待独立SPEC；尚无新源码、迁移或测试通过结论。实施/真实验收缺口不得由本规格内容替代。
+首轮独立SPEC核实本卡backlog范围、真实端口、迁移/锁及文件闭包，发现两处必须修正文义：Activity真实端口不能保证同微秒/逐次更新；同形UUID JSON不能识别命令marker来源。已据实际端口修正§6，待差异复审；尚无新源码、迁移或测试通过结论。实施/真实验收缺口不得由本规格内容替代。
