@@ -35,6 +35,12 @@
 - 静核native witness只由实际Apply产生，同Store/Tx/原Request/完整锁/receipt与前后像重验，旧variant互斥；f2af63核旧Purpose/write/storage/error及原Project Audit保留。作者15128/21736/92922/5785未变范围复用，不新增同类全矩阵。实际D10 provider/Owner、00029/SQL/COMMIT Unknown、100/101 Cleanup、rotation/canary/Retire均仍待真实闭包；Runner另审DDL不替代本文。
 - 新资产 `.agent-state/secret-variable-storage-review/{increment_test.go,run_increment.py}`，复用既有postgres Rows桥，README已追加；连同本文四路径freeze供root下个安全窗口保存。新Go/原产品均未修改，无本人命令/真实资源在途；原Work08环境中断结果不外推。
 
+## Work recovery Project 根 GET 增量有限独审
+
+- 只读Work `03f9228e` 后冻结9scope，限定recovery三次Project根GET/noquery/200，有限离线接受、无must-fix。原Request/XID/native EOF+CL及同原sidecar/schema/typed API，真实Session owner尾与本次Workspace generation/readGeneration/accept/canonicalize另行闭合，最后三份不同Project在真实finish/end/首explicit退休/pending0/hooks无错后才进入原complete。旧Work/Blocker/产品/Go/dist/cap4/预算未变，08原FAIL及环境中断缺尾不回填。
+- 本人96791/4806f2 actual0，6差异控制/0unhandled：真实改名canonical阳性、显式adopt/directfacade不代无参Workspace刷新、两实际读取同XID拒绝、Workspace与Project facade hook冲突保替换且退休失败。首96940/48d000为自有two-read probe漏投影第二native的setupFAIL，补保真实两行后过，不是产品反例。087856核四旧AST/adapter两输入逆投影/产品零差异；首057bf0把schemaProgram常量当函数的静核setupFAIL保留。
+- 作者55/旧116/41与TS未变范围复用，不全矩阵重跑。新 `.agent-state/work-project-read-review/{controls.cjs,README.md}`＋本文3路径冻结供root保存；无本人live命令、PG/browser/socket/network或作者源写入。新实际仍由root fresh grant。
+
 ## D04 SQL 四 top 与 PG-only 入口有限独审
 
 - Apply/维护四路径已root保存eaad50fd。新只读范围为作者fde3ecb5两SQL测试＋17969f85 fixture；复用已接受Go/29DDL，不重做旧矩阵。实际调用为PG Migrator/Store/Secret/Audit/native checker，D10权限与mapping仍明确controlled；无TestMain/MinIO依赖，两资源PG-only可行，耗时须实际验证。
