@@ -158,6 +158,8 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ### 当前有限交付门槛
 
+修后Runtime54818已有三子业务PASS6.90s和Go998510／driver996487实际Wait0，原日志7ID/private/runtime/desc双尾已清、精确top/Wait匹配；但环境切换后工具session消失，`pg-62f545ac57a847159cb2d1996080fa98.log`止于exact_tops，缺HOST_TCP双观察、输入不变和supervisor/外层终态，**不记完整PASS**。恢复只读复核7精确ID/PID/runtime双清及三private目录不存在，root确认当前窗口释放，不回填失去的baseline或Wait。产品/测试/新binary仍冻结；下一同输入Runtime重跑只补这一明确验收缺口，原56777失败与TCP失败继续保留，公平Cleanup仍未实际运行。
+
 P1/P2五源修复已获原独立审查者Skills有限接受，无剩余mustfix。实际源overlay15866 race0／1.044s（4top7sub）覆盖真实D05取消与release-error的Close/monitor、阻塞release仍不得Drain，65项分32+32+1及高低新项下一轮，Hard/Unknown及ResourceBusy+Unknown的原cause/attempt，扫描并发Busy无SQL且实际join。独验首15786为probe对opaque closure用DeepEqual的误判，按正式Equal/Details修probe后过，产品未改。此结论没有PG/新分页SQL/修后Runtime或Cleanup真实接受，56777原FAIL与TCP缺尾不改。
 
 修后新整包独立binary已race-c77598／六精确top发现dd5fce／domain与integration vet53340实际0，未覆盖旧产物。首全包race59862因新测试误假定UUIDv7分配单调而FAIL；只修受控ID前置，真实新子也改为持两reader后读取实际cleanup排序选择保留项，产品不改。修后全Knowledge/... race49004实际0；原Cleanup两子逆差异da8223逐字89613dc5。此为可构建/纯控制，不等于P1/P2独审或新SQL/真实业务通过，下一真实仅安排修后Runtime与Cleanup受影响组及原未验异常组。
