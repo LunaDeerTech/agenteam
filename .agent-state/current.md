@@ -73,3 +73,7 @@
 - Model selector纯探针确认UiField真实markup在锁定Playwright算法中exact label=false而role accessible name=true；spec已改role/闭合password label regex，补安全细step和封闭failure类别/数字本spec定位，未保存敏感原message/stack，不回填第二次真实FAIL根因。TS strict/list与纯probe实际exit0，Go不变复用编译。
 
 - 独立A确定性返修仅自有A增加真实第二completedCreate身份用于历史Execute（Lookup/Get仍原对象），保留3个真实User门槛waiter/撤权零结果；rromoyii A/B新race-c/list actualexit0/Wait/hash一致，PG待重跑，旧7tes FAIL不回填。
+
+- Task修后Membership完整outer59200 exit0，body2.16s/driver7.97s，Go99177/driver98668 Wait0，两ID/runtime/TCP双空/input不变（pg-a620aba…）。作者剩4新+4旧Structure，独立rromoyii A/B待实际完成；原FAIL不回填。
+- root隔离候选树 /workspace/agenteam-task-delivery / ai/task-planning-delivery 从main cbd0edc1只复制13未交付Task技术源；offline -p2 Central/Runner build实际exit0，两产物真实存在，不commit/接受/runtime装配，不改Model所在delivery00021树。正式交付仍待完整PG/AB/README真实范围。
+- Task transitions完整rev0草案352行已冻结保存，尚待独立SPEC；D10 C1六纯contract范围已独立SPEC接受，F1的ToolID不得从层5向上导入Agent层4，owner补低层接缝责任/阻断。已派C1六路径纯实现，无服务/迁移或指派正向能力。
