@@ -18,6 +18,7 @@ import (
 	ob "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type contentRequest struct {
@@ -424,7 +425,7 @@ func (s *Service) currentContentIntent(ctx context.Context, tx f.Tx, input conte
 }
 
 func titleContentResult(input contentInput, intent contentIntent, current kc.DocumentRef, now f.Instant) (kc.DocumentRef, error) {
-	if input.name != kc.Update || input.request.Source != nil || input.request.Update == nil || input.request.Update.Title == nil || input.request.Expected == nil || current.Validate() != nil || current.Status != kc.Active || current.ProjectID != input.project || current.ID != input.document || now.Validate() != nil {
+	if input.name != kc.Update || input.request.Update == nil || input.request.Update.Title == nil || input.request.Expected == nil || current.Validate() != nil || current.Status != kc.Active || current.ProjectID != input.project || current.ID != input.document || now.Validate() != nil {
 		return kc.DocumentRef{}, internal(nil)
 	}
 	if current.ContentVersion != *input.request.Expected || current.ContentVersion == f.Version(math.MaxInt64) {
@@ -469,15 +470,374 @@ func completeContentCommand(ctx context.Context, x postgres.SQLExecutor, record 
 	return nil
 }
 
+// contentPublicationResult uses the final current tree position. The measured
+// object identity comes from the confirmed reservation, never request metadata.
+func contentPublicationResult(input contentInput, intent contentIntent, current *documentRow, measured publicationMeasurement, attempt oc.UploadAttempt, now f.Instant) (kc.DocumentRef, []kc.ContentChange, error) {
+	if intent.record == nil || input.request.Source == nil || measured.validate() != nil || attempt.Validate() != nil || now.Validate() != nil || intent.header.AggregateVersion == nil || intent.header.AggregateID.String() != input.document.String() || intent.header.Scope.ProjectID.String() != input.project.String() {
+		return kc.DocumentRef{}, nil, internal(nil)
+	}
+	kind, err := publicationMedia(measured.Media)
+	if err != nil {
+		return kc.DocumentRef{}, nil, err
+	}
+	var out kc.DocumentRef
+	changes := []kc.ContentChange{kc.SourceChanged}
+	if input.name == kc.Create {
+		if current != nil || input.request.Create == nil || *intent.header.AggregateVersion != 1 {
+			return out, nil, internal(nil)
+		}
+		user, err := f.ParseID[id.User](input.actor.Details().UserID)
+		if err != nil {
+			return out, nil, internal(err)
+		}
+		creator, err := kc.NewCreatorRef(kc.CreatorDetails{Kind: id.Human, UserID: user})
+		if err != nil {
+			return out, nil, internal(err)
+		}
+		if now.Time().Before(intent.record.created.Time()) {
+			now = intent.record.created
+		}
+		out = kc.DocumentRef{ID: input.document, ProjectID: input.project, Title: input.request.Create.Title, ContentVersion: 1, CreatedBy: creator, CreatedAt: now, UpdatedAt: now}
+		if p := input.request.Create.ParentDocumentID; p != nil {
+			copied := *p
+			out.ParentDocumentID = &copied
+		}
+		changes = []kc.ContentChange{kc.ContentCreated}
+	} else {
+		if input.name != kc.Update || current == nil || current.head.Active == nil || input.request.Update == nil || input.request.Expected == nil {
+			return out, nil, internal(nil)
+		}
+		out = *current.head.Active
+		if out.Validate() != nil || out.ID != input.document || out.ProjectID != input.project || out.ContentVersion != *input.request.Expected || out.ContentVersion == f.Version(math.MaxInt64) || *intent.header.AggregateVersion != out.ContentVersion+1 {
+			return kc.DocumentRef{}, nil, fault(f.VersionConflict)
+		}
+		if out.ObjectID == attempt.Details().ObjectID {
+			return kc.DocumentRef{}, nil, internal(nil)
+		}
+		if p := out.ParentDocumentID; p != nil {
+			copied := *p
+			out.ParentDocumentID = &copied
+		}
+		if title := input.request.Update.Title; title != nil && *title != out.Title {
+			out.Title = *title
+			changes = []kc.ContentChange{kc.TitleChanged, kc.SourceChanged}
+		}
+		out.ContentVersion++
+		if !now.Time().Before(out.UpdatedAt.Time()) {
+			out.UpdatedAt = now
+		}
+	}
+	out.SourceKind, out.MediaType, out.ObjectID = kind, measured.Media, attempt.Details().ObjectID
+	out.Status, out.IndexingStatus = kc.Active, kc.IndexPending
+	return out, changes, portError(out.Validate())
+}
+
+func publicationMatches(p publicationReservation, input contentInput, measured publicationMeasurement, attempt oc.UploadAttempt) bool {
+	return p.phase == "uploaded" && input.request.Source != nil && publicationSourceEqual(p.source, *input.request.Source) && p.measurement != nil && *p.measurement == measured && p.attempt.Validate() == nil && p.attempt.Details() == attempt.Details()
+}
+
+func replacementCleanup(record *commandRecord, old *documentRow) (*cleanupRecord, error) {
+	if old == nil {
+		return nil, nil
+	}
+	if record == nil || record.name != kc.Update || old.head.Active == nil || old.head.Active.ProjectID != record.project || old.head.Active.ID != record.document || old.upload.Validate() != nil {
+		return nil, internal(nil)
+	}
+	// One content command can replace only this one canonical object. Reuse its
+	// typed UUID as the fixed cleanup identity instead of minting per retry.
+	operation, err := f.ParseID[oc.CleanupOperation](record.id.String())
+	if err != nil {
+		return nil, internal(err)
+	}
+	return &cleanupRecord{id: operation, project: record.project, document: record.document, command: record.id, object: old.head.Active.ObjectID, upload: old.upload, reason: oc.ReplacedObject, phase: "reference"}, nil
+}
+
+func insertReplacementCleanup(ctx context.Context, x postgres.SQLExecutor, record *cleanupRecord) error {
+	_, err := x.Exec(ctx, `INSERT INTO agenteam_knowledge.object_cleanup(id,project_id,document_id,command_id,object_id,upload_id,reason,phase)
+ VALUES($1,$2,$3,$4,$5,$6,'replaced_object','reference') ON CONFLICT(id) DO NOTHING`, record.id.String(), record.project.String(), record.document.String(), record.command.String(), record.object.String(), record.upload.String())
+	if err != nil {
+		return unavailable(err)
+	}
+	actual, err := loadCleanup(ctx, x, record.id)
+	if err != nil {
+		return err
+	}
+	if actual == nil || *actual != *record {
+		return fault(f.ResourceBusy)
+	}
+	return nil
+}
+
+func storePublishedDocument(ctx context.Context, x postgres.SQLExecutor, input contentInput, document kc.DocumentRef, attempt oc.UploadAttempt) error {
+	var tag pgconn.CommandTag
+	var err error
+	if input.name == kc.Create {
+		var parent any
+		if document.ParentDocumentID != nil {
+			parent = document.ParentDocumentID.String()
+		}
+		tag, err = x.Exec(ctx, `INSERT INTO agenteam_knowledge.documents(id,project_id,parent_document_id,title,content_version,source_kind,media_type,current_object_id,current_upload_id,status,indexing_status,creator_user_id,created_at,updated_at)
+ VALUES($1,$2,$3,$4,1,$5,$6,$7,$8,'active','pending',$9,$10,$10) ON CONFLICT(id) DO NOTHING`, document.ID.String(), document.ProjectID.String(), parent, document.Title, string(document.SourceKind), document.MediaType, document.ObjectID.String(), attempt.Details().UploadID.String(), document.CreatedBy.Details().UserID.String(), document.CreatedAt.Time())
+	} else {
+		tag, err = x.Exec(ctx, `UPDATE agenteam_knowledge.documents SET title=$3,content_version=$4,source_kind=$5,media_type=$6,current_object_id=$7,current_upload_id=$8,indexing_status='pending',updated_at=$9
+ WHERE project_id=$1 AND id=$2 AND status='active' AND content_version=$10`, document.ProjectID.String(), document.ID.String(), document.Title, int64(document.ContentVersion), string(document.SourceKind), document.MediaType, document.ObjectID.String(), attempt.Details().UploadID.String(), document.UpdatedAt.Time(), int64(*input.request.Expected))
+	}
+	if err != nil {
+		return unavailable(err)
+	}
+	if tag.RowsAffected() != 1 {
+		return fault(f.VersionConflict)
+	}
+	return nil
+}
+
+// finishContentPublication prepares the fixed event outside the final Tx, then
+// atomically installs canonical metadata, publishes D05, retires the old gate,
+// appends the event and commits the receipt/activity. A failed member rolls the
+// entire transaction back; physical commit Unknown keeps its original cause.
+func (s *Service) finishContentPublication(ctx context.Context, input contentInput, intent contentIntent, work publicationWork, prepared oc.PreparedPayload, attempt oc.UploadAttempt) (kc.DocumentRef, error) {
+	if intent.record == nil || input.request.Source == nil || work.command != intent.record.id || attempt.Validate() != nil {
+		return kc.DocumentRef{}, internal(nil)
+	}
+	if input.request.Source.Kind == kc.InputBusinessFile {
+		return kc.DocumentRef{}, fault(f.DependencyUnbound)
+	}
+	measured, err := measurementOf(prepared)
+	if err != nil {
+		return kc.DocumentRef{}, err
+	}
+	st := s.state()
+	locks, err := publicationLocks(input.actor, intent.record, work.source)
+	if err != nil {
+		return kc.DocumentRef{}, err
+	}
+	identity, err := kc.CommandIdentity(input.project, input.name, input.meta.IdempotencyKey)
+	if err != nil {
+		return kc.DocumentRef{}, portError(err)
+	}
+	cause, err := f.NewCommandsCause(identity)
+	if err != nil {
+		return kc.DocumentRef{}, portError(err)
+	}
+	var event ev.Event
+	var replay *kc.DocumentRef
+	var cleanup *cleanupRecord
+	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		x, record, current, err := s.currentContentIntent(ctx, tx, input, intent)
+		if err != nil {
+			return err
+		}
+		if record.state == kc.Committed {
+			replay = record.receipt.Document
+			return nil
+		}
+		if err = requirePublicationWork(ctx, x, work); err != nil {
+			return err
+		}
+		publication, err := loadPublicationReservation(ctx, x, record)
+		if err != nil {
+			return err
+		}
+		if !publicationMatches(publication, input, measured, attempt) {
+			return fault(f.ResourceBusy)
+		}
+		document, changes, err := contentPublicationResult(input, intent, current, measured, attempt, intent.header.OccurredAt)
+		if err != nil {
+			return err
+		}
+		cleanup, err = replacementCleanup(record, current)
+		if err != nil {
+			return err
+		}
+		event, err = st.deps.Events.ContentChanged(intent.header, kc.ContentChangedPayload{DocumentID: input.document, ContentVersion: document.ContentVersion, Changes: changes, ObjectID: document.ObjectID})
+		if err != nil {
+			return portError(err)
+		}
+		header, err := event.HeaderJSON()
+		if err != nil {
+			return internal(err)
+		}
+		if _, err = x.Exec(ctx, `INSERT INTO agenteam_knowledge.command_events(id,project_id,command_id,document_id,header,payload,event_type)
+ VALUES($1,$2,$3,$4,$5::jsonb,$6::jsonb,$7) ON CONFLICT(id) DO NOTHING`, intent.header.EventID.String(), input.project.String(), record.id.String(), input.document.String(), header, event.PayloadBytes(), string(kc.ContentChangedEvent)); err != nil {
+			return unavailable(err)
+		}
+		stored, err := loadCommandEvent(ctx, x, intent.header.EventID)
+		if err != nil {
+			return err
+		}
+		if stored.command.id != record.id {
+			return fault(f.ResourceBusy)
+		}
+		_, _, _, err = eventBinding(input.actor, event.Summary(), stored)
+		return err
+	})
+	if err = txError(result); err != nil {
+		return kc.DocumentRef{}, err
+	}
+	if replay != nil {
+		return *replay, nil
+	}
+	owner, err := oc.NewObjectOwner(oc.Knowledge, input.document.String(), input.project.String())
+	if err != nil {
+		return kc.DocumentRef{}, internal(err)
+	}
+	request, err := oc.NewOwnerAccess(oc.AccessRequestDetails{Operation: oc.PublishAccess, Actor: input.actor, Owner: owner, Intent: id.Mutate, Attempt: attempt})
+	if err != nil {
+		return kc.DocumentRef{}, internal(err)
+	}
+	publishPlan, err := st.deps.Uploads.DiscoverAccess(ctx, request)
+	if err != nil {
+		return kc.DocumentRef{}, portError(err)
+	}
+	plans := []oc.AccessLockPlan{publishPlan}
+	var cleanupCause oc.ObjectCleanupCause
+	if cleanup != nil {
+		cleanupCause, err = cleanup.cause()
+		if err != nil {
+			return kc.DocumentRef{}, err
+		}
+		request, err := oc.NewCleanupReleaseAccess(oc.AccessRequestDetails{Operation: oc.ReleaseForCleanupAccess, Cleanup: cleanupCause, ObjectID: cleanup.object, UploadID: cleanup.upload})
+		if err != nil {
+			return kc.DocumentRef{}, internal(err)
+		}
+		plan, err := st.deps.Objects.DiscoverAccess(ctx, request)
+		if err != nil {
+			return kc.DocumentRef{}, portError(err)
+		}
+		plans = append(plans, plan)
+	}
+	eventPlan, err := st.deps.Outbox.PrepareAppend(ctx, input.actor, event)
+	if err != nil {
+		return kc.DocumentRef{}, portError(err)
+	}
+	locks, err = ob.NormalizeLocks(append(locks, eventPlan.Locks()...))
+	if err != nil {
+		return kc.DocumentRef{}, portError(err)
+	}
+	var out kc.DocumentRef
+	result = st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		locked, err := st.deps.Uploads.AcquireAccessPlansInTx(ctx, tx, plans, locks)
+		if err != nil {
+			return portError(err)
+		}
+		x, record, current, err := s.currentContentIntent(ctx, tx, input, intent)
+		if err != nil {
+			return err
+		}
+		if record.state == kc.Committed {
+			out = *record.receipt.Document
+			return nil
+		}
+		if err = requirePublicationWork(ctx, x, work); err != nil {
+			return err
+		}
+		publication, err := loadPublicationReservation(ctx, x, record)
+		if err != nil {
+			return err
+		}
+		if !publicationMatches(publication, input, measured, attempt) {
+			return fault(f.ResourceBusy)
+		}
+		now, err := dbNow(ctx, x)
+		if err != nil {
+			return err
+		}
+		var changes []kc.ContentChange
+		if now.Time().Before(record.created.Time()) {
+			now = record.created
+		}
+		out, changes, err = contentPublicationResult(input, intent, current, measured, attempt, now)
+		if err != nil {
+			return err
+		}
+		actualEvent, err := st.deps.Events.ContentChanged(intent.header, kc.ContentChangedPayload{DocumentID: input.document, ContentVersion: out.ContentVersion, Changes: changes, ObjectID: out.ObjectID})
+		if err != nil {
+			return portError(err)
+		}
+		if actualEvent.Summary().PayloadDigest != event.Summary().PayloadDigest {
+			return fault(f.ResourceBusy)
+		}
+		actualCleanup, err := replacementCleanup(record, current)
+		if err != nil {
+			return err
+		}
+		if (actualCleanup == nil) != (cleanup == nil) || actualCleanup != nil && *actualCleanup != *cleanup {
+			return fault(f.VersionConflict)
+		}
+		if err = storePublishedDocument(ctx, x, input, out, attempt); err != nil {
+			return err
+		}
+		put, err := st.deps.Uploads.PublishVerifiedInTx(ctx, tx, input.actor, owner, attempt, publishPlan, locked)
+		if err != nil {
+			return portError(err)
+		}
+		if put.Meta.Validate() != nil || put.Meta.ID != out.ObjectID || put.Meta.Scope.Details().Kind != id.ProjectScope || put.Meta.Scope.Details().ProjectID != out.ProjectID.String() || put.Meta.State != oc.Available || put.Meta.MediaType != measured.Media || put.Meta.ByteSize != measured.Length || put.Meta.SHA256 != measured.SHA {
+			return internal(nil)
+		}
+		if cleanup != nil {
+			if err = insertReplacementCleanup(ctx, x, cleanup); err != nil {
+				return err
+			}
+			if err = st.deps.ReferenceCleanup.ReleaseForCleanupInTx(ctx, tx, cleanupCause, cleanup.object, plans[1], locked); err != nil {
+				return portError(err)
+			}
+			tag, err := x.Exec(ctx, `UPDATE agenteam_knowledge.object_cleanup SET phase='object' WHERE id=$1 AND phase='reference'`, cleanup.id.String())
+			if err != nil {
+				return unavailable(err)
+			}
+			if tag.RowsAffected() != 1 {
+				return internal(nil)
+			}
+		}
+		receipt, err := st.deps.Outbox.AppendEventInTx(ctx, tx, input.actor, event, eventPlan)
+		if err != nil {
+			return portError(err)
+		}
+		if receipt.EventID != intent.header.EventID || receipt.Sequence.Validate() != nil {
+			return internal(nil)
+		}
+		raw, err := json.Marshal(put.Meta)
+		if err != nil {
+			return internal(err)
+		}
+		tag, err := x.Exec(ctx, `UPDATE agenteam_knowledge.publications SET object_meta=$2::jsonb,phase='published',source=NULL,source_lease_id=NULL WHERE command_id=$1 AND phase='uploaded'`, record.id.String(), raw)
+		if err != nil {
+			return unavailable(err)
+		}
+		if tag.RowsAffected() != 1 {
+			return fault(f.ResourceBusy)
+		}
+		if err = completeContentCommand(ctx, x, record, out, true, now); err != nil {
+			return err
+		}
+		return portError(st.deps.Activity.TouchActivityInTx(ctx, tx, input.actor))
+	})
+	if err = txError(result); err != nil {
+		return kc.DocumentRef{}, err
+	}
+	return out, nil
+}
+
 // finishTitleContent is the no-upload content path. Its fixed event is staged
 // before Outbox discovery; final metadata/event/receipt/activity share one Tx.
 // The enclosing command call owns admission and remains registered throughout.
 func (s *Service) finishTitleContent(ctx context.Context, input contentInput, intent contentIntent) (kc.DocumentRef, error) {
-	if input.request.Source != nil || input.name != kc.Update || intent.record == nil {
+	return s.finishTitleOrReuse(ctx, input, intent, nil)
+}
+
+func (s *Service) finishTitleOrReuse(ctx context.Context, input contentInput, intent contentIntent, reuse *contentReuse) (kc.DocumentRef, error) {
+	if (input.request.Source != nil) != (reuse != nil) || input.name != kc.Update || intent.record == nil {
 		return kc.DocumentRef{}, internal(nil)
 	}
 	st := s.state()
-	locks, err := publicationLocks(input.actor, intent.record, nil)
+	var sourceProject *id.ProjectID
+	if reuse != nil {
+		sourceProject = reuse.work.source
+	}
+	locks, err := publicationLocks(input.actor, intent.record, sourceProject)
 	if err != nil {
 		return kc.DocumentRef{}, err
 	}
@@ -502,6 +862,11 @@ func (s *Service) finishTitleContent(ctx context.Context, input contentInput, in
 		if record.state == kc.Committed {
 			replay = record.receipt.Document
 			return nil
+		}
+		if reuse != nil {
+			if err = validateContentReuse(ctx, x, input, record, current, reuse); err != nil {
+				return err
+			}
 		}
 		document, err := titleContentResult(input, intent, *current.head.Active, intent.header.OccurredAt)
 		if err != nil {
@@ -558,6 +923,11 @@ func (s *Service) finishTitleContent(ctx context.Context, input contentInput, in
 			out = *record.receipt.Document
 			return nil
 		}
+		if reuse != nil {
+			if err = validateContentReuse(ctx, x, input, record, current, reuse); err != nil {
+				return err
+			}
+		}
 		now, err := dbNow(ctx, x)
 		if err != nil {
 			return err
@@ -581,12 +951,194 @@ func (s *Service) finishTitleContent(ctx context.Context, input contentInput, in
 		if receipt.EventID != intent.header.EventID || receipt.Sequence.Validate() != nil {
 			return internal(nil)
 		}
+		if reuse != nil {
+			if err = cancelUnusedPublication(ctx, x, record); err != nil {
+				return err
+			}
+		}
 		if err = completeContentCommand(ctx, x, record, out, true, now); err != nil {
 			return err
 		}
 		return portError(st.deps.Activity.TouchActivityInTx(ctx, tx, input.actor))
 	})
 	if err := txError(result); err != nil {
+		return kc.DocumentRef{}, err
+	}
+	return out, nil
+}
+
+// contentReuse is minted from the measured prepared bytes and a real current
+// Object.Stat result. It is only a comparison witness; the final Tx still
+// checks current Owner, exact content version/pointer and original work.
+type contentReuse struct {
+	work     publicationWork
+	digest   f.Digest
+	object   oc.ObjectMeta
+	upload   oc.UploadID
+	version  f.Version
+	title    string
+	measured publicationMeasurement
+}
+
+func (s *Service) inspectContentReuse(ctx context.Context, input contentInput, intent contentIntent, work publicationWork, prepared oc.PreparedPayload) (*contentReuse, *kc.DocumentRef, error) {
+	if input.name != kc.Update {
+		return nil, nil, nil
+	}
+	measured, err := measurementOf(prepared)
+	if err != nil {
+		return nil, nil, err
+	}
+	locks, err := publicationLocks(input.actor, intent.record, work.source)
+	if err != nil {
+		return nil, nil, err
+	}
+	identity, err := kc.CommandIdentity(input.project, input.name, input.meta.IdempotencyKey)
+	if err != nil {
+		return nil, nil, portError(err)
+	}
+	cause, err := f.NewCommandsCause(identity)
+	if err != nil {
+		return nil, nil, portError(err)
+	}
+	st := s.state()
+	var current *documentRow
+	var publication publicationReservation
+	var replay *kc.DocumentRef
+	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		x, record, row, err := s.currentContentIntent(ctx, tx, input, intent)
+		if err != nil {
+			return err
+		}
+		if record.state == kc.Committed {
+			replay = record.receipt.Document
+			return nil
+		}
+		if err = requirePublicationWork(ctx, x, work); err != nil {
+			return err
+		}
+		publication, err = loadPublicationReservation(ctx, x, record)
+		if err != nil {
+			return err
+		}
+		current = row
+		return nil
+	})
+	if err = txError(result); err != nil {
+		return nil, nil, err
+	}
+	if replay != nil {
+		return nil, replay, nil
+	}
+	if current == nil || current.head.Active == nil {
+		return nil, nil, internal(nil)
+	}
+	owner, err := oc.NewObjectOwner(oc.Knowledge, input.document.String(), input.project.String())
+	if err != nil {
+		return nil, nil, internal(err)
+	}
+	actual, err := st.deps.Objects.StatObject(ctx, input.actor, owner, current.head.Active.ObjectID)
+	if err != nil {
+		return nil, nil, portError(err)
+	}
+	if actual.Validate() != nil || actual.State != oc.Available || actual.ID != current.head.Active.ObjectID || actual.Scope.Details().Kind != id.ProjectScope || actual.Scope.Details().ProjectID != input.project.String() || actual.MediaType != current.head.Active.MediaType {
+		return nil, nil, internal(nil)
+	}
+	if actual.MediaType != measured.Media || actual.ByteSize != measured.Length || actual.SHA256 != measured.SHA {
+		return nil, nil, nil
+	}
+	// The unchanged decision precedes reservation on every retry of this exact
+	// input. An already reserved equal replacement is inconsistent, not a
+	// reason to abandon a live D05 upload without retiring its durable gate.
+	if publication.phase != "planned" {
+		return nil, nil, fault(f.ResourceBusy)
+	}
+	return &contentReuse{work: work, digest: input.digest, object: actual, upload: current.upload, version: current.head.Active.ContentVersion, title: current.head.Active.Title, measured: measured}, nil, nil
+}
+
+func validateContentReuse(ctx context.Context, x postgres.SQLExecutor, input contentInput, record *commandRecord, current *documentRow, reuse *contentReuse) error {
+	if reuse == nil || current == nil || current.head.Active == nil || input.request.Source == nil || reuse.digest != input.digest || reuse.work.command != record.id || reuse.object.Validate() != nil || reuse.object.State != oc.Available || reuse.object.Scope.Details().Kind != id.ProjectScope || reuse.object.Scope.Details().ProjectID != input.project.String() || reuse.measured.validate() != nil || reuse.object.MediaType != reuse.measured.Media || reuse.object.ByteSize != reuse.measured.Length || reuse.object.SHA256 != reuse.measured.SHA || current.head.Active.ObjectID != reuse.object.ID || current.head.Active.MediaType != reuse.object.MediaType || current.upload != reuse.upload || current.head.Active.ContentVersion != reuse.version || current.head.Active.Title != reuse.title {
+		return fault(f.VersionConflict)
+	}
+	if err := requirePublicationWork(ctx, x, reuse.work); err != nil {
+		return err
+	}
+	publication, err := loadPublicationReservation(ctx, x, record)
+	if err != nil {
+		return err
+	}
+	if publication.phase != "planned" || !publicationSourceEqual(publication.source, *input.request.Source) {
+		return fault(f.ResourceBusy)
+	}
+	return nil
+}
+
+func cancelUnusedPublication(ctx context.Context, x postgres.SQLExecutor, record *commandRecord) error {
+	tag, err := x.Exec(ctx, `UPDATE agenteam_knowledge.publications SET phase='cancelled',source=NULL,source_lease_id=NULL
+ WHERE command_id=$1 AND phase='planned' AND object_id IS NULL AND source_lease_id IS NULL`, record.id.String())
+	if err != nil {
+		return unavailable(err)
+	}
+	if tag.RowsAffected() != 1 {
+		return fault(f.ResourceBusy)
+	}
+	return nil
+}
+
+func (s *Service) finishContentReuse(ctx context.Context, input contentInput, intent contentIntent, reuse *contentReuse) (kc.DocumentRef, error) {
+	if reuse == nil {
+		return kc.DocumentRef{}, internal(nil)
+	}
+	// An actual title change still uses the ordinary fixed event/final Tx. A
+	// source-equal no-op below neither changes the version nor touches Activity.
+	if title := input.request.Update.Title; title != nil && *title != reuse.title {
+		return s.finishTitleOrReuse(ctx, input, intent, reuse)
+	}
+	locks, err := publicationLocks(input.actor, intent.record, reuse.work.source)
+	if err != nil {
+		return kc.DocumentRef{}, err
+	}
+	identity, err := kc.CommandIdentity(input.project, input.name, input.meta.IdempotencyKey)
+	if err != nil {
+		return kc.DocumentRef{}, portError(err)
+	}
+	cause, err := f.NewCommandsCause(identity)
+	if err != nil {
+		return kc.DocumentRef{}, portError(err)
+	}
+	st := s.state()
+	var out kc.DocumentRef
+	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		x, record, current, err := s.currentContentIntent(ctx, tx, input, intent)
+		if err != nil {
+			return err
+		}
+		if record.state == kc.Committed {
+			out = *record.receipt.Document
+			return nil
+		}
+		if err = validateContentReuse(ctx, x, input, record, current, reuse); err != nil {
+			return err
+		}
+		out = *current.head.Active
+		now, err := dbNow(ctx, x)
+		if err != nil {
+			return err
+		}
+		if now.Time().Before(record.created.Time()) {
+			now = record.created
+		}
+		if err = cancelUnusedPublication(ctx, x, record); err != nil {
+			return err
+		}
+		return completeContentCommand(ctx, x, record, out, false, now)
+	})
+	if err = txError(result); err != nil {
 		return kc.DocumentRef{}, err
 	}
 	return out, nil

@@ -35,6 +35,299 @@ type publicationChunkBody struct {
 	closeErr                error
 }
 
+func TestPublicationMeasurementRequiresExactMeasuredWire(t *testing.T) {
+	m := publicationMeasurement{Media: kc.PlainText, Length: 0, SHA: ob.DigestBytes(nil)}
+	raw, err := json.Marshal(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := decodePublicationMeasurement(raw)
+	if err != nil || got != m {
+		t.Fatal("empty body measurement rejected", err)
+	}
+	for _, invalid := range [][]byte{
+		bytes.Replace(raw, []byte(`"length":"0",`), nil, 1),
+		bytes.Replace(raw, []byte(`"length":"0"`), []byte(`"length":null`), 1),
+		bytes.Replace(raw, []byte(`"length":"0"`), []byte(`"length":"0","length":"0"`), 1),
+		bytes.Replace(raw, []byte(`"length":"0"`), []byte(`"length":"1073741825"`), 1),
+		bytes.Replace(raw, []byte(kc.PlainText), []byte("application/octet-stream"), 1),
+		append(append([]byte{}, raw[:len(raw)-1]...), []byte(`,"payload":"forbidden"}`)...),
+		append(append([]byte{}, raw...), []byte(`{}`)...),
+		[]byte(`null`),
+	} {
+		if bytes.Equal(raw, invalid) {
+			t.Fatal("negative stimulus did not change input")
+		}
+		if _, err := decodePublicationMeasurement(invalid); err == nil {
+			t.Fatal("missing, ambiguous or unmeasured wire accepted")
+		}
+	}
+}
+
+type publicationReservationExecutor struct {
+	postgres.SQLExecutor
+	record                   *commandRecord
+	source, measurement      []byte
+	object, upload, attempt  *string
+	phase, project, document string
+}
+
+type publicationTransferStore struct {
+	publicationClaimStore
+	reservation        publicationReservationExecutor
+	updates, unknownAt int
+}
+
+func (s *publicationTransferStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
+	result := s.publicationClaimStore.WithinTx(ctx, cause, fn)
+	if result.State() == f.Committed && s.calls == s.unknownAt {
+		return f.UnknownResult(s.attempt, cause)
+	}
+	return result
+}
+func (s *publicationTransferStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
+	if _, err := s.publicationClaimStore.InTx(tx); err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+func (s *publicationTransferStore) QueryRow(ctx context.Context, sql string, args ...any) postgres.Row {
+	if strings.Contains(sql, "FROM agenteam_knowledge.publications") {
+		return s.reservation.QueryRow(ctx, sql, args...)
+	}
+	return s.publicationClaimStore.QueryRow(ctx, sql, args...)
+}
+func (s *publicationTransferStore) Exec(_ context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+	if !s.active || s.acquires != s.calls || len(args) == 0 || args[0] != s.record.id.String() {
+		return pgconn.CommandTag{}, errors.New("write outside original lock/command")
+	}
+	if strings.Contains(sql, "SET object_id=$2,upload_id=$3,attempt_id=$4") && len(args) == 5 {
+		object, upload, attempt := args[1].(string), args[2].(string), args[3].(string)
+		s.reservation.object, s.reservation.upload, s.reservation.attempt = &object, &upload, &attempt
+		s.reservation.measurement, s.reservation.phase = args[4].([]byte), "reserved"
+	} else if strings.Contains(sql, "SET phase='uploaded'") && len(args) == 1 {
+		s.reservation.phase = "uploaded"
+	} else {
+		return pgconn.CommandTag{}, errors.New("unexpected transfer checkpoint")
+	}
+	s.updates++
+	return pgconn.NewCommandTag("UPDATE 1"), nil
+}
+
+type publicationTransferPort struct {
+	oc.Uploads
+	t               *testing.T
+	store           *publicationTransferStore
+	input           contentInput
+	issuer          oc.AccessIssuer
+	request         oc.AccessRequest
+	attempt         oc.UploadAttempt
+	reserveErr      error
+	sendErr         error
+	wrongResult     bool
+	reserves, sends int
+}
+
+func (p *publicationTransferPort) DiscoverAccess(_ context.Context, request oc.AccessRequest) (oc.AccessLockPlan, error) {
+	if p.store.active {
+		p.t.Fatal("discovery ran inside transaction")
+	}
+	d := request.Details()
+	if d.Operation != oc.ReserveAccess || !d.Actor.Equal(p.input.actor) || d.Owner.Details().Kind != oc.Knowledge || d.Owner.Details().ID != p.input.document.String() || d.Owner.Details().ProjectID != p.input.project.String() || d.Command == nil || d.Command.IdempotencyKey != f.IdempotencyKey(p.store.record.id.String()) || d.Command.RequestID != p.input.meta.RequestID || d.Command.ExpectedVersion != nil {
+		p.t.Fatal("reserve discovery lost original owner/private command mapping")
+	}
+	p.request = request
+	key, _ := f.AggregateLock(f.ObjectAggregate, p.attempt.Details().ObjectID.String())
+	locks := []f.LockRequest{{Key: key, Mode: f.Exclusive}}
+	dependencies, err := oc.NewAccessDependencies(ob.DigestBytes([]byte("controlled exact object mapping")), locks)
+	if err != nil {
+		return oc.AccessLockPlan{}, err
+	}
+	return oc.NewAccessLockPlan(p.issuer, oc.AccessPlanDetails{Request: request, DependencyRequest: request, Dependencies: dependencies, DomainBinding: ob.DigestBytes([]byte("controlled original upload")), Objects: []oc.ObjectID{p.attempt.Details().ObjectID}, Locks: locks})
+}
+func (p *publicationTransferPort) AcquireAccessPlansInTx(ctx context.Context, tx f.Tx, plans []oc.AccessLockPlan, extra []f.LockRequest) (oc.LockedAccess, error) {
+	if len(plans) != 1 || !plans[0].Details().Request.Equal(p.request) {
+		p.t.Fatal("plan identity changed before acquire")
+	}
+	locked, err := oc.NewLockedAccess(p.issuer, tx, plans, extra)
+	if err != nil {
+		return locked, err
+	}
+	return locked, p.store.AcquireAll(ctx, tx, locked.Locks())
+}
+func (p *publicationTransferPort) ReserveUploadInTx(_ context.Context, tx f.Tx, actor id.Actor, owner oc.ObjectOwner, meta f.CommandMeta, prepared oc.PreparedPayload, plan oc.AccessLockPlan, locked oc.LockedAccess) (oc.UploadAttempt, error) {
+	p.reserves++
+	if !p.store.active || !locked.Matches(p.issuer, tx, plan, p.request) || !actor.Equal(p.input.actor) || !owner.Equal(p.request.Details().Owner) || meta.IdempotencyKey != f.IdempotencyKey(p.store.record.id.String()) || meta.ExpectedVersion != nil || prepared.Details() != p.request.Details().Prepared.Details() {
+		p.t.Fatal("reserve lost original Tx/plan/body/owner")
+	}
+	return p.attempt, p.reserveErr
+}
+func (p *publicationTransferPort) UploadPrepared(_ context.Context, actor id.Actor, owner oc.ObjectOwner, prepared oc.PreparedPayload, attempt oc.UploadAttempt) (oc.UploadAttempt, error) {
+	p.sends++
+	if p.store.active || !actor.Equal(p.input.actor) || !owner.Equal(p.request.Details().Owner) || prepared.Details() != p.request.Details().Prepared.Details() || attempt.Details() != p.attempt.Details() {
+		p.t.Fatal("send lost exact reservation or ran inside Tx")
+	}
+	if p.wrongResult {
+		d := p.attempt.Details()
+		d.ID = newID[oc.Attempt](p.t)
+		return oc.NewUploadAttempt(d)
+	}
+	return attempt, p.sendErr
+}
+
+func TestPublicationReserveAndSendKeepPhysicalCommitAndAttempt(t *testing.T) {
+	for _, mode := range []string{"complete", "reserve unknown", "reserve error", "send error", "send wrong attempt", "checkpoint unknown", "stale owner", "work drift", "measured drift"} {
+		t.Run(mode, func(t *testing.T) {
+			source, _ := kc.NewTextSource(kc.PlainText, "original")
+			s, input, intent, work, retirement, _ := directPublicationFixture(t, source)
+			defer retirement.done()
+			now, _ := f.NewInstant(time.Now())
+			intent.record.created = now
+			intent.header, _ = newContentHeader(input.project, input.document, 1, now)
+			request, _ := json.Marshal(input.request)
+			header, _ := json.Marshal(intent.header)
+			store := &publicationTransferStore{publicationClaimStore: publicationClaimStore{publicationCheckpointStore: publicationCheckpointStore{record: intent.record, work: work, attempt: newID[f.TransactionAttempt](t)}, request: request, header: header}}
+			rawSource, _ := json.Marshal(input.request.Source)
+			store.reservation = publicationReservationExecutor{record: intent.record, source: rawSource, project: input.project.String(), document: input.document.String(), phase: "planned"}
+			user, _ := f.ParseID[id.User](input.actor.Details().UserID)
+			grant, err := pc.NewProjectAccess(input.actor, pc.ProjectRef{ID: input.project, OwnerUserID: user, Name: "Current", NormalizedName: "current", Lifecycle: pc.Active, Version: 1, CreatedAt: now, UpdatedAt: now}, now)
+			if err != nil {
+				t.Fatal(err)
+			}
+			gate := &ownerGate{grant: grant}
+			s.state().store, s.state().deps.Projects = store, gate
+			attempt, _ := oc.NewUploadAttempt(oc.AttemptDetails{ID: newID[oc.Attempt](t), ObjectID: newID[oc.StoredObject](t), UploadID: newID[oc.Upload](t)})
+			port := &publicationTransferPort{t: t, store: store, input: input, issuer: oc.NewAccessIssuer(), attempt: attempt}
+			s.state().deps.Uploads = port
+			d := input.request.Source
+			prepared, _ := oc.NewPreparedPayload(oc.PreparedDetails{ID: newID[oc.Payload](t), MediaType: d.Media, Length: int64(*d.Length), SHA256: *d.SHA})
+			originalCause := errors.New("private transfer cause")
+			originalError := fault(f.DependencyUnavailable).WithCause(originalCause)
+			switch mode {
+			case "reserve unknown":
+				store.unknownAt = 1
+			case "reserve error":
+				port.reserveErr = originalError
+			case "stale owner":
+				gate.err = fault(f.NotFound)
+			case "work drift":
+				store.work.fence++
+			case "measured drift":
+				m := publicationMeasurement{Media: d.Media, Length: *d.Length, SHA: ob.DigestBytes([]byte("changed"))}
+				store.reservation.measurement, _ = json.Marshal(m)
+				a := attempt.Details()
+				object, upload, physical := a.ObjectID.String(), a.UploadID.String(), a.ID.String()
+				store.reservation.object, store.reservation.upload, store.reservation.attempt, store.reservation.phase = &object, &upload, &physical, "reserved"
+			}
+			got, replay, err := s.reserveContentPublication(context.Background(), input, intent, work, prepared)
+			if store.active || replay != nil {
+				t.Fatal("reserve leaked transaction/replay")
+			}
+			if mode == "reserve unknown" {
+				var unknown commitFailure
+				if !errors.As(err, &unknown) || unknown.result.AttemptID() != store.attempt || unknown.result.Cause().Details().Primary.Canonical() != store.cause.Details().Primary.Canonical() || got.Details() != attempt.Details() || port.sends != 0 {
+					t.Fatal("unknown reservation lost physical cause or sent payload", err)
+				}
+				return
+			}
+			if mode == "reserve error" || mode == "stale owner" || mode == "work drift" || mode == "measured drift" {
+				if err == nil || store.updates != 0 || mode != "reserve error" && port.reserves != 0 {
+					t.Fatal("denied reservation wrote later facts", err)
+				}
+				var actualFault *f.Fault
+				if mode == "reserve error" && (!errors.As(err, &actualFault) || actualFault.Code != originalError.Code || !errors.Is(err, originalCause)) {
+					t.Fatal("reserve transaction lost original Fault/cause")
+				}
+				return
+			}
+			if err != nil || got.Details() != attempt.Details() || store.updates != 1 || store.acquires != 1 {
+				t.Fatal("confirmed reservation failed", err)
+			}
+			if mode == "send error" {
+				port.sendErr = originalError
+			}
+			if mode == "send wrong attempt" {
+				port.wrongResult = true
+			}
+			if mode == "checkpoint unknown" {
+				store.unknownAt = 2
+			}
+			err = s.sendContentPublication(context.Background(), input, intent, work, prepared, got)
+			if mode == "send error" || mode == "send wrong attempt" {
+				if err == nil || store.calls != 1 || store.updates != 1 {
+					t.Fatal("failed/wrong upload reached SQL checkpoint", err)
+				}
+				if mode == "send error" && err != originalError {
+					t.Fatal("send Fault identity changed")
+				}
+			} else if mode == "checkpoint unknown" {
+				var unknown commitFailure
+				if !errors.As(err, &unknown) || unknown.result.AttemptID() != store.attempt || unknown.result.Cause().Details().Primary.Canonical() != store.cause.Details().Primary.Canonical() {
+					t.Fatal("checkpoint Unknown lost original physical cause", err)
+				}
+			} else if err != nil || store.reservation.phase != "uploaded" {
+				t.Fatal("confirmed send did not checkpoint", err)
+			}
+			if port.sends != 1 || store.active || store.calls != store.acquires {
+				t.Fatal("send repeated or transaction/lock lifecycle changed")
+			}
+		})
+	}
+}
+
+func (x *publicationReservationExecutor) QueryRow(_ context.Context, query string, args ...any) postgres.Row {
+	return publicationCheckpointRow(func(v ...any) error {
+		if !strings.Contains(query, "FROM agenteam_knowledge.publications WHERE command_id=$1") || len(args) != 1 || args[0] != x.record.id.String() {
+			return errors.New("unexpected publication selection")
+		}
+		*v[0].(*string), *v[1].(*string) = x.project, x.document
+		*v[2].(*[]byte), *v[3].(*[]byte) = x.source, x.measurement
+		*v[4].(**string), *v[5].(**string), *v[6].(**string), *v[7].(*string) = x.object, x.upload, x.attempt, x.phase
+		return nil
+	})
+}
+
+func TestPublicationReservationRejectsPartialOrForeignDurableFacts(t *testing.T) {
+	record := &commandRecord{id: newID[command](t), project: newID[id.Project](t), document: newID[kc.Document](t)}
+	source, _ := kc.NewTextSource(kc.PlainText, "original")
+	descriptor, _ := describePublicationSource(source)
+	rawSource, _ := json.Marshal(descriptor)
+	measurement := publicationMeasurement{Media: descriptor.Media, Length: *descriptor.Length, SHA: *descriptor.SHA}
+	rawMeasured, _ := json.Marshal(measurement)
+	objectID, uploadID, attemptID := newID[oc.StoredObject](t).String(), newID[oc.Upload](t).String(), newID[oc.Attempt](t).String()
+	x := publicationReservationExecutor{record: record, project: record.project.String(), document: record.document.String(), source: rawSource, phase: "planned"}
+	if got, err := loadPublicationReservation(context.Background(), &x, record); err != nil || got.measurement != nil || got.attempt.Validate() == nil {
+		t.Fatal("planned source fabricated measurement/reservation", err)
+	}
+	x.measurement, x.object, x.upload, x.attempt = rawMeasured, &objectID, &uploadID, &attemptID
+	for _, phase := range []string{"reserved", "uploaded"} {
+		x.phase = phase
+		got, err := loadPublicationReservation(context.Background(), &x, record)
+		if err != nil || got.measurement == nil || *got.measurement != measurement || got.attempt.Details().ID.String() != attemptID || got.attempt.Details().UploadID.String() != uploadID || got.attempt.Details().ObjectID.String() != objectID {
+			t.Fatal("exact reservation identity lost", err)
+		}
+	}
+	for name, change := range map[string]func(*publicationReservationExecutor){
+		"foreign project":          func(x *publicationReservationExecutor) { x.project = newID[id.Project](t).String() },
+		"wrong document":           func(x *publicationReservationExecutor) { x.document = newID[kc.Document](t).String() },
+		"missing object":           func(x *publicationReservationExecutor) { x.object = nil },
+		"missing upload":           func(x *publicationReservationExecutor) { x.upload = nil },
+		"missing attempt":          func(x *publicationReservationExecutor) { x.attempt = nil },
+		"missing measurement":      func(x *publicationReservationExecutor) { x.measurement = nil },
+		"missing source":           func(x *publicationReservationExecutor) { x.source = nil },
+		"planned with reservation": func(x *publicationReservationExecutor) { x.phase = "planned" },
+		"already published":        func(x *publicationReservationExecutor) { x.phase = "published" },
+	} {
+		t.Run(name, func(t *testing.T) {
+			other := x
+			change(&other)
+			if _, err := loadPublicationReservation(context.Background(), &other, record); err == nil {
+				t.Fatal("partial/foreign durable reservation accepted")
+			}
+		})
+	}
+}
+
 func (b *publicationChunkBody) Read(p []byte) (int, error) {
 	b.reads++
 	if b.position == len(b.data) {

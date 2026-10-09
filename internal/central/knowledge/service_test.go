@@ -14,7 +14,87 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	"github.com/jackc/pgx/v5"
 )
+
+type authorityCreationStore struct {
+	authorityStore
+	project     id.ProjectID
+	document    kc.DocumentID
+	creation    string
+	creationErr error
+}
+
+func (s *authorityCreationStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
+	if _, err := s.authorityStore.InTx(tx); err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+func (s *authorityCreationStore) QueryRow(ctx context.Context, sql string, args ...any) postgres.Row {
+	if strings.Contains(sql, "FROM agenteam_knowledge.commands") {
+		s.queries++
+		return publicationCheckpointRow(func(values ...any) error {
+			if !strings.Contains(sql, "command_name='create'") || len(args) != 2 || args[0] != s.project.String() || args[1] != s.document.String() {
+				return errors.New("unscoped creation fact")
+			}
+			if s.creationErr != nil {
+				return s.creationErr
+			}
+			*values[0].(*string) = s.creation
+			return nil
+		})
+	}
+	return s.authorityStore.QueryRow(ctx, sql, args...)
+}
+
+func TestCurrentObjectOwnerPreservesOriginalCreationCause(t *testing.T) {
+	_, actor, q := queryFixture(t)
+	user, _ := f.ParseID[id.User](actor.Details().UserID)
+	now, _ := f.NewInstant(time.Now())
+	project := pc.ProjectRef{ID: q.project, OwnerUserID: user, Name: "Current", NormalizedName: "current", Lifecycle: pc.Active, Version: 1, CreatedAt: now, UpdatedAt: now}
+	grant, err := pc.NewProjectAccess(actor, project, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	document := newID[kc.Document](t)
+	owner, err := oc.NewObjectOwner(oc.Knowledge, document.String(), q.project.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	store := &authorityCreationStore{authorityStore: authorityStore{tx: f.NewTx()}, project: q.project, document: document, creation: newID[command](t).String()}
+	title, kind, media, indexing := "current", "text", kc.PlainText, "pending"
+	object, upload, creator, at := newID[oc.StoredObject](t).String(), newID[oc.Upload](t).String(), user.String(), now.Time()
+	store.row = sourceRow{values: []any{document.String(), q.project.String(), (*string)(nil), &title, int64(3), &kind, &media, &object, &upload, "active", &indexing, &creator, &at, &at, (*time.Time)(nil)}}
+	gate := &ownerGate{grant: grant}
+	a, err := NewAuthority(store, gate)
+	if err != nil {
+		t.Fatal(err)
+	}
+	authorized, err := a.AuthorizeOwnerInTx(context.Background(), store.tx, actor, owner, id.Mutate)
+	if err != nil || authorized.Details().Existence != oc.ExistingOwner || authorized.Details().CreationCause != store.creation || authorized.Details().Version != 3 {
+		t.Fatal("current transition lost durable Create identity", err)
+	}
+	store.creationErr = pgx.ErrNoRows
+	authorized, err = a.AuthorizeOwnerInTx(context.Background(), store.tx, actor, owner, id.Read)
+	if err != nil || authorized.Details().CreationCause != "" {
+		t.Fatal("metadata without a Create command fabricated creation authorization", err)
+	}
+	store.creationErr = nil
+	store.creation = "not-a-command"
+	if _, err = a.AuthorizeOwnerInTx(context.Background(), store.tx, actor, owner, id.Read); err == nil {
+		t.Fatal("invalid stored cause accepted")
+	}
+	store.creationErr = errors.New("private query failure")
+	if _, err = a.AuthorizeOwnerInTx(context.Background(), store.tx, actor, owner, id.Read); err == nil {
+		t.Fatal("failed fact read became absence")
+	}
+	before := store.queries
+	gate.err = fault(f.Forbidden)
+	if _, err = a.AuthorizeOwnerInTx(context.Background(), store.tx, actor, owner, id.Read); err != gate.err || store.queries != before {
+		t.Fatal("denied Owner reached creation facts", err)
+	}
+}
 
 func TestConstructorAndZeroServiceFailClosed(t *testing.T) {
 	var typedNil *constructorStore

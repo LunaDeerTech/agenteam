@@ -1,5 +1,7 @@
 # D12 Knowledge B02 当前恢复点
 
+- 第十三内部片段四源已可构建：`object_authority.go/service_test.go/publication.go/publication_test.go`。current Owner 由真实原 Create command 保留 CreationCause；同 Tx 的 D05 reserve 保原 Knowledge command UUID／单次 union，发送只在 Tx 外并核精确 attempt，再写 uploaded 检查点；Unknown 保留物理提交 cause。strict measurement／持久 reservation 缺字段与错归属、当前 Owner／work／测量漂移、reserve/send/检查点错误控制及全领域 race65165、vet/diffcheck实际0。原78484误期待 CommitResult复制后 Fault 指针恒等 FAIL 已修为正式 code/cause 判据；未改产品。尚未独审／真实 SQL，public Create/Update未闭合。`commands.go/commands_test.go`后继最终发布事务正在实现，不在这四源已验范围。
+
 - 新追加的 Project Object Audit 分派五源已可构建：ObjectService 精确 complete／failed／delete、同 Store 活 Tx／Project SH／初始化与生命周期门禁、原 witness 委托，缺 provider／mapping／witness fail-closed。限定 race60546、Project vet／diffcheck 实际0；原测试编译／opaque 比较 FAIL 保留卡。未独审／未真实 D05 组合，Variables 相邻分派须最终合并保留；Transfer、初始化专用 Authority、普通 Owner Converge 和 Object runtime join 停止项不变。精确追加写域及矩阵见卡 §8。Knowledge 发布保留／发送与 original CreationCause 三源正在本域实施，尚未纳入此片段。
 
 - 工作树 `/workspace/agenteam-knowledge`，分支 `ai/knowledge-service`，正式基线 `f1c94ee5`。唯一作者 `/root/model_delivery`；Git／worktree 与真实资源窗口由 root 负责。

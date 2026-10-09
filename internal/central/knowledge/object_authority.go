@@ -156,7 +156,22 @@ func (a *Authority) AuthorizeOwnerInTx(ctx context.Context, tx f.Tx, actor id.Ac
 		if row.head.Active == nil {
 			return oc.OwnerAuthorization{}, fault(f.NotFound)
 		}
-		return oc.NewOwnerAuthorization(oc.OwnerAuthorizationDetails{Actor: actor, Owner: owner, Intent: intent, Existence: oc.ExistingOwner, Version: row.head.Active.ContentVersion})
+		// A Create's final transaction inserts the current document before D05
+		// publishes its reserved prospective upload. Preserve the exact original
+		// creation cause across that transition; current metadata alone cannot
+		// authorize a receipt created for some other prospective owner.
+		var creation string
+		err = x.QueryRow(ctx, `SELECT id::text FROM agenteam_knowledge.commands
+ WHERE project_id=$1 AND document_id=$2 AND command_name='create'`, p.String(), k.String()).Scan(&creation)
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return oc.OwnerAuthorization{}, unavailable(err)
+		}
+		if err == nil {
+			if _, err = f.ParseID[command](creation); err != nil {
+				return oc.OwnerAuthorization{}, internal(err)
+			}
+		}
+		return oc.NewOwnerAuthorization(oc.OwnerAuthorizationDetails{Actor: actor, Owner: owner, Intent: intent, Existence: oc.ExistingOwner, CreationCause: creation, Version: row.head.Active.ContentVersion})
 	}
 	var known *f.Fault
 	if !errors.As(err, &known) || known.Code != f.NotFound {

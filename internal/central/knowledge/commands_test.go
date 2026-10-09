@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"math"
+	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -16,7 +18,152 @@ import (
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	ob "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 )
+
+type contentReuseExecutor struct {
+	publicationReservationExecutor
+	work publicationWork
+}
+
+func (x *contentReuseExecutor) QueryRow(ctx context.Context, sql string, args ...any) postgres.Row {
+	if strings.Contains(sql, "FROM agenteam_knowledge.work_claims") {
+		store := publicationCheckpointStore{work: x.work}
+		return store.QueryRow(ctx, sql, args...)
+	}
+	return x.publicationReservationExecutor.QueryRow(ctx, sql, args...)
+}
+
+func TestMeasuredSourceReuseRequiresExactFinalCurrentState(t *testing.T) {
+	source, _ := kc.NewTextSource(kc.PlainText, "same")
+	_, input, intent, work, retirement, _ := directPublicationFixture(t, source)
+	defer retirement.done()
+	now, _ := f.NewInstant(time.Now())
+	intent.record.created = now
+	user, _ := f.ParseID[id.User](input.actor.Details().UserID)
+	creator, _ := kc.NewCreatorRef(kc.CreatorDetails{Kind: id.Human, UserID: user})
+	version := f.Version(4)
+	sameTitle := "Current title"
+	input, err := updateContentInput(input.actor, f.CommandMeta{RequestID: newID[f.Request](t), IdempotencyKey: "source-noop", ExpectedVersion: &version}, input.project, input.document, kc.UpdateRequest{Title: &sameTitle, ReplaceSource: true}, &source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	intent.record.name, intent.record.digest = kc.Update, input.digest
+	doc := kc.DocumentRef{ID: input.document, ProjectID: input.project, Title: sameTitle, ContentVersion: 4, SourceKind: kc.Text, MediaType: kc.PlainText, ObjectID: newID[oc.StoredObject](t), Status: kc.Active, IndexingStatus: kc.IndexReady, CreatedBy: creator, CreatedAt: now, UpdatedAt: now}
+	row := &documentRow{head: kc.DocumentHead{Active: &doc}, upload: newID[oc.Upload](t)}
+	scope, _ := id.InProject(input.project)
+	meta := oc.ObjectMeta{ID: doc.ObjectID, Scope: scope, MediaType: kc.PlainText, ByteSize: 4, SHA256: ob.DigestBytes([]byte("same")), State: oc.Available, Version: 1, CreatedAt: now}
+	reuse := contentReuse{work: work, digest: input.digest, object: meta, upload: row.upload, version: 4, title: sameTitle, measured: publicationMeasurement{Media: kc.PlainText, Length: 4, SHA: meta.SHA256}}
+	raw, _ := json.Marshal(input.request.Source)
+	x := &contentReuseExecutor{publicationReservationExecutor: publicationReservationExecutor{record: intent.record, project: input.project.String(), document: input.document.String(), source: raw, phase: "planned"}, work: work}
+	if err = validateContentReuse(context.Background(), x, input, intent.record, row, &reuse); err != nil {
+		t.Fatal("exact measured current source rejected", err)
+	}
+	for name, change := range map[string]func(*contentReuse){
+		"different actual digest":  func(p *contentReuse) { p.object.SHA256 = ob.DigestBytes([]byte("other")) },
+		"different actual length":  func(p *contentReuse) { p.object.ByteSize++ },
+		"different actual media":   func(p *contentReuse) { p.object.MediaType = kc.Markdown },
+		"different current object": func(p *contentReuse) { p.object.ID = newID[oc.StoredObject](t) },
+		"different upload":         func(p *contentReuse) { p.upload = newID[oc.Upload](t) },
+		"stale content":            func(p *contentReuse) { p.version++ },
+		"stale title":              func(p *contentReuse) { p.title = "Before title update" },
+		"different command input":  func(p *contentReuse) { p.digest = ob.DigestBytes([]byte("other input")) },
+		"stale work":               func(p *contentReuse) { p.work.fence++ },
+	} {
+		t.Run(name, func(t *testing.T) {
+			other := reuse
+			change(&other)
+			if err := validateContentReuse(context.Background(), x, input, intent.record, row, &other); err == nil {
+				t.Fatal("stale comparison witness accepted")
+			}
+		})
+	}
+	// A concurrent Move at the same content version remains valid and its
+	// current parent is retained; it does not manufacture a source change.
+	parent := newID[kc.Document](t)
+	doc.ParentDocumentID = &parent
+	if err = validateContentReuse(context.Background(), x, input, intent.record, row, &reuse); err != nil {
+		t.Fatal("Move invalidated unchanged content", err)
+	}
+	x.phase = "cancelled"
+	if err = validateContentReuse(context.Background(), x, input, intent.record, row, &reuse); err == nil {
+		t.Fatal("final reuse ignored durable publication state")
+	}
+}
+
+func TestContentPublicationFinalUsesCurrentTreeAndMeasuredReservation(t *testing.T) {
+	source, _ := kc.NewTextSource(kc.Markdown, "original")
+	_, input, intent, _, retirement, _ := directPublicationFixture(t, source)
+	defer retirement.done()
+	now, _ := f.NewInstant(time.Now())
+	before, _ := f.NewInstant(now.Time().Add(-time.Hour))
+	intent.record.created = before
+	intent.header, _ = newContentHeader(input.project, input.document, 1, before)
+	attempt, _ := oc.NewUploadAttempt(oc.AttemptDetails{ID: newID[oc.Attempt](t), ObjectID: newID[oc.StoredObject](t), UploadID: newID[oc.Upload](t)})
+	measured := publicationMeasurement{Media: kc.Markdown, Length: 8, SHA: ob.DigestBytes([]byte("original"))}
+	parent := newID[kc.Document](t)
+	input.request.Create.ParentDocumentID = &parent
+	created, changes, err := contentPublicationResult(input, intent, nil, measured, attempt, now)
+	if err != nil || created.ObjectID != attempt.Details().ObjectID || created.ContentVersion != 1 || created.SourceKind != kc.Text || created.MediaType != kc.Markdown || created.CreatedBy.Details().UserID.String() != input.actor.Details().UserID || created.CreatedAt != now || created.UpdatedAt != now || !reflect.DeepEqual(changes, []kc.ContentChange{kc.ContentCreated}) {
+		t.Fatal("create lost original actor/measured object or event", err)
+	}
+	if err := (kc.ContentChangedPayload{DocumentID: created.ID, ContentVersion: created.ContentVersion, ObjectID: created.ObjectID, Changes: changes}).Validate(); err != nil {
+		t.Fatal(err)
+	}
+	*created.ParentDocumentID = newID[kc.Document](t)
+	if *input.request.Create.ParentDocumentID != parent {
+		t.Fatal("final document aliases caller parent")
+	}
+
+	// A newer Move changes only the parent and updated_at. Publication must
+	// keep that current position, creator and creation instant.
+	current := created
+	current.ContentVersion = 4
+	current.CreatedAt = before
+	future, _ := f.NewInstant(now.Time().Add(time.Minute))
+	current.UpdatedAt = future
+	title := "Replacement"
+	expected := current.ContentVersion
+	input, err = updateContentInput(input.actor, f.CommandMeta{RequestID: newID[f.Request](t), IdempotencyKey: "replace-content", ExpectedVersion: &expected}, current.ProjectID, current.ID, kc.UpdateRequest{Title: &title, ReplaceSource: true}, &source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	intent.header, _ = newContentHeader(input.project, input.document, 5, now)
+	intent.record.name, intent.record.project, intent.record.document = kc.Update, input.project, input.document
+	old := &documentRow{head: kc.DocumentHead{Active: &current}, upload: newID[oc.Upload](t)}
+	newAttempt, _ := oc.NewUploadAttempt(oc.AttemptDetails{ID: newID[oc.Attempt](t), ObjectID: newID[oc.StoredObject](t), UploadID: newID[oc.Upload](t)})
+	updated, changes, err := contentPublicationResult(input, intent, old, measured, newAttempt, now)
+	if err != nil || updated.Title != title || updated.ContentVersion != 5 || *updated.ParentDocumentID != *current.ParentDocumentID || updated.CreatedAt != before || updated.CreatedBy.Details() != current.CreatedBy.Details() || updated.UpdatedAt != future || updated.ObjectID != newAttempt.Details().ObjectID || !reflect.DeepEqual(changes, []kc.ContentChange{kc.TitleChanged, kc.SourceChanged}) {
+		t.Fatal("update lost current tree/creator/clock or exact changes", err)
+	}
+	cleanup, err := replacementCleanup(intent.record, old)
+	if err != nil || cleanup.id.String() != intent.record.id.String() || cleanup.object != current.ObjectID || cleanup.upload != old.upload || cleanup.reason != oc.ReplacedObject {
+		t.Fatal("replacement cleanup lost original identity", err)
+	}
+	second, err := replacementCleanup(intent.record, old)
+	if err != nil || *cleanup != *second {
+		t.Fatal("retry minted another cleanup identity", err)
+	}
+	for name, change := range map[string]func(*kc.DocumentRef){
+		"stale content":         func(d *kc.DocumentRef) { d.ContentVersion++ },
+		"foreign Project":       func(d *kc.DocumentRef) { d.ProjectID = newID[id.Project](t) },
+		"wrong document":        func(d *kc.DocumentRef) { d.ID = newID[kc.Document](t) },
+		"same canonical object": func(d *kc.DocumentRef) { d.ObjectID = newAttempt.Details().ObjectID },
+	} {
+		t.Run(name, func(t *testing.T) {
+			d := current
+			change(&d)
+			if _, _, err := contentPublicationResult(input, intent, &documentRow{head: kc.DocumentHead{Active: &d}, upload: old.upload}, measured, newAttempt, now); err == nil {
+				t.Fatal("invalid final current state accepted")
+			}
+		})
+	}
+	unchangedTitle := current.Title
+	input.request.Update.Title = &unchangedTitle
+	if _, changes, err = contentPublicationResult(input, intent, old, measured, newAttempt, now); err != nil || !reflect.DeepEqual(changes, []kc.ContentChange{kc.SourceChanged}) {
+		t.Fatal("same title manufactured title event", err)
+	}
+}
 
 func TestTitleContentUsesCurrentTreeAndPreservesCanonicalSource(t *testing.T) {
 	_, actor, q := queryFixture(t)

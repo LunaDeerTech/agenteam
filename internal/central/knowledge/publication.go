@@ -514,6 +514,272 @@ func (s *Service) prepareDirectPublication(ctx context.Context, input contentInp
 	return prepared, nil
 }
 
+type publicationMeasurement struct {
+	Media  string     `json:"media"`
+	Length f.Progress `json:"length"`
+	SHA    f.Digest   `json:"sha256"`
+}
+
+func (m publicationMeasurement) validate() error {
+	if _, err := publicationMedia(m.Media); err != nil {
+		return internal(err)
+	}
+	if m.Length.Validate() != nil || int64(m.Length) > oc.MaxObjectSize || m.SHA.Validate() != nil {
+		return internal(nil)
+	}
+	return nil
+}
+func measurementOf(p oc.PreparedPayload) (publicationMeasurement, error) {
+	if p.Validate() != nil {
+		return publicationMeasurement{}, internal(nil)
+	}
+	d := p.Details()
+	m := publicationMeasurement{d.MediaType, f.Progress(d.Length), d.SHA256}
+	return m, m.validate()
+}
+func decodePublicationMeasurement(raw []byte) (publicationMeasurement, error) {
+	var out publicationMeasurement
+	if len(raw) == 0 || len(raw) > 4096 {
+		return out, internal(nil)
+	}
+	canonical, err := cursor.CanonicalJSON(raw)
+	if err != nil {
+		return out, internal(err)
+	}
+	var fields map[string]json.RawMessage
+	if err = json.Unmarshal(canonical, &fields); err != nil || len(fields) != 3 || fields["media"] == nil || fields["length"] == nil || fields["sha256"] == nil {
+		return out, internal(err)
+	}
+	d := json.NewDecoder(bytes.NewReader(canonical))
+	d.DisallowUnknownFields()
+	if err = d.Decode(&out); err != nil {
+		return out, internal(err)
+	}
+	if d.Decode(new(any)) != io.EOF {
+		return out, internal(nil)
+	}
+	return out, out.validate()
+}
+
+type publicationReservation struct {
+	phase       string
+	source      publicationSource
+	measurement *publicationMeasurement
+	attempt     oc.UploadAttempt
+}
+
+func loadPublicationReservation(ctx context.Context, x postgres.SQLExecutor, record *commandRecord) (publicationReservation, error) {
+	var out publicationReservation
+	var source, measurement []byte
+	var project, document string
+	var object, upload, attempt *string
+	err := x.QueryRow(ctx, `SELECT project_id::text,document_id::text,source,object_meta,object_id::text,upload_id::text,attempt_id::text,phase
+ FROM agenteam_knowledge.publications WHERE command_id=$1`, record.id.String()).Scan(&project, &document, &source, &measurement, &object, &upload, &attempt, &out.phase)
+	if err != nil {
+		return out, unavailable(err)
+	}
+	if project != record.project.String() || document != record.document.String() {
+		return out, internal(nil)
+	}
+	if out.source, err = decodePublicationSource(source); err != nil {
+		return out, err
+	}
+	switch out.phase {
+	case "planned":
+		if len(measurement) != 0 || object != nil || upload != nil || attempt != nil {
+			return out, internal(nil)
+		}
+	case "reserved", "uploaded":
+		if object == nil || upload == nil || attempt == nil {
+			return out, internal(nil)
+		}
+		var d oc.AttemptDetails
+		if d.ObjectID, err = f.ParseID[oc.StoredObject](*object); err != nil {
+			return out, internal(err)
+		}
+		if d.UploadID, err = f.ParseID[oc.Upload](*upload); err != nil {
+			return out, internal(err)
+		}
+		if d.ID, err = f.ParseID[oc.Attempt](*attempt); err != nil {
+			return out, internal(err)
+		}
+		if out.attempt, err = oc.NewUploadAttempt(d); err != nil {
+			return out, internal(err)
+		}
+		m, err := decodePublicationMeasurement(measurement)
+		if err != nil {
+			return out, err
+		}
+		out.measurement = &m
+	default:
+		return out, fault(f.ResourceBusy)
+	}
+	return out, nil
+}
+func publicationSourceEqual(a, b publicationSource) bool {
+	x, err := json.Marshal(a)
+	if err != nil {
+		return false
+	}
+	y, err := json.Marshal(b)
+	return err == nil && bytes.Equal(x, y)
+}
+
+// reserveContentPublication composes D05's reservation in the original domain
+// transaction. Its private D05 key is the durable Knowledge command UUID. The
+// caller may send only after this function returns a confirmed success.
+func (s *Service) reserveContentPublication(ctx context.Context, input contentInput, intent contentIntent, work publicationWork, prepared oc.PreparedPayload) (attempt oc.UploadAttempt, replay *kc.DocumentRef, err error) {
+	if intent.record == nil || work.command != intent.record.id || input.request.Source == nil {
+		return attempt, nil, internal(nil)
+	}
+	measured, err := measurementOf(prepared)
+	if err != nil {
+		return attempt, nil, err
+	}
+	owner, err := oc.NewObjectOwner(oc.Knowledge, input.document.String(), input.project.String())
+	if err != nil {
+		return attempt, nil, portError(err)
+	}
+	meta := f.CommandMeta{RequestID: input.meta.RequestID, IdempotencyKey: f.IdempotencyKey(intent.record.id.String())}
+	request, err := oc.NewOwnerAccess(oc.AccessRequestDetails{Operation: oc.ReserveAccess, Actor: input.actor, Owner: owner, Intent: id.Mutate, Command: &meta, Prepared: prepared})
+	if err != nil {
+		return attempt, nil, portError(err)
+	}
+	st := s.state()
+	plan, err := st.deps.Uploads.DiscoverAccess(ctx, request)
+	if err != nil {
+		return attempt, nil, portError(err)
+	}
+	locks, err := publicationLocks(input.actor, intent.record, work.source)
+	if err != nil {
+		return attempt, nil, err
+	}
+	identity, err := kc.CommandIdentity(input.project, input.name, input.meta.IdempotencyKey)
+	if err != nil {
+		return attempt, nil, portError(err)
+	}
+	cause, err := f.NewCommandsCause(identity)
+	if err != nil {
+		return attempt, nil, portError(err)
+	}
+	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		locked, err := st.deps.Uploads.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, locks)
+		if err != nil {
+			return portError(err)
+		}
+		x, record, _, err := s.currentContentIntent(ctx, tx, input, intent)
+		if err != nil {
+			return err
+		}
+		if record.state == kc.Committed {
+			replay = record.receipt.Document
+			return nil
+		}
+		if err = requirePublicationWork(ctx, x, work); err != nil {
+			return err
+		}
+		publication, err := loadPublicationReservation(ctx, x, record)
+		if err != nil {
+			return err
+		}
+		if !publicationSourceEqual(publication.source, *input.request.Source) || publication.measurement != nil && *publication.measurement != measured {
+			return fault(f.IdempotencyKeyReused)
+		}
+		attempt, err = st.deps.Uploads.ReserveUploadInTx(ctx, tx, input.actor, owner, meta, prepared, plan, locked)
+		if err != nil {
+			return portError(err)
+		}
+		if attempt.Validate() != nil {
+			return internal(nil)
+		}
+		d := attempt.Details()
+		if len(plan.Details().Objects) != 1 || plan.Details().Objects[0] != d.ObjectID {
+			return internal(nil)
+		}
+		raw, err := json.Marshal(measured)
+		if err != nil {
+			return internal(err)
+		}
+		tag, err := x.Exec(ctx, `UPDATE agenteam_knowledge.publications SET object_id=$2,upload_id=$3,attempt_id=$4,object_meta=$5::jsonb,phase='reserved'
+ WHERE command_id=$1 AND phase IN ('planned','reserved','uploaded')`, record.id.String(), d.ObjectID.String(), d.UploadID.String(), d.ID.String(), raw)
+		if err != nil {
+			return unavailable(err)
+		}
+		if tag.RowsAffected() != 1 {
+			return fault(f.ResourceBusy)
+		}
+		return nil
+	})
+	return attempt, replay, txError(result)
+}
+
+// sendContentPublication runs no I/O inside a transaction. The exact returned
+// physical attempt is checked before storing the uploaded checkpoint; neither
+// a nil error for a different attempt nor an unknown checkpoint is completion.
+func (s *Service) sendContentPublication(ctx context.Context, input contentInput, intent contentIntent, work publicationWork, prepared oc.PreparedPayload, attempt oc.UploadAttempt) error {
+	if intent.record == nil || work.command != intent.record.id || attempt.Validate() != nil {
+		return internal(nil)
+	}
+	measured, err := measurementOf(prepared)
+	if err != nil {
+		return err
+	}
+	owner, err := oc.NewObjectOwner(oc.Knowledge, input.document.String(), input.project.String())
+	if err != nil {
+		return portError(err)
+	}
+	st := s.state()
+	actual, err := st.deps.Uploads.UploadPrepared(ctx, input.actor, owner, prepared, attempt)
+	if err != nil {
+		return portError(err)
+	}
+	if actual.Validate() != nil || actual.Details() != attempt.Details() {
+		return internal(nil)
+	}
+	locks, err := publicationLocks(input.actor, intent.record, work.source)
+	if err != nil {
+		return err
+	}
+	identity, err := kc.CommandIdentity(input.project, input.name, input.meta.IdempotencyKey)
+	if err != nil {
+		return portError(err)
+	}
+	cause, err := f.NewCommandsCause(identity)
+	if err != nil {
+		return portError(err)
+	}
+	return txError(st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		x, record, _, err := s.currentContentIntent(ctx, tx, input, intent)
+		if err != nil {
+			return err
+		}
+		if record.state == kc.Committed {
+			return nil
+		}
+		if err = requirePublicationWork(ctx, x, work); err != nil {
+			return err
+		}
+		publication, err := loadPublicationReservation(ctx, x, record)
+		if err != nil {
+			return err
+		}
+		if publication.attempt.Validate() != nil || publication.attempt.Details() != attempt.Details() || publication.measurement == nil || *publication.measurement != measured {
+			return fault(f.ResourceBusy)
+		}
+		tag, err := x.Exec(ctx, `UPDATE agenteam_knowledge.publications SET phase='uploaded' WHERE command_id=$1 AND phase IN ('reserved','uploaded')`, record.id.String())
+		if err != nil {
+			return unavailable(err)
+		}
+		if tag.RowsAffected() != 1 {
+			return fault(f.ResourceBusy)
+		}
+		return nil
+	}))
+}
+
 // Only a successful real ProcessAuthority call can construct a stopped proof.
 // It is bound to the original persisted attempt/fence and rechecked in the
 // caller's transaction; clock age and a missing in-memory call are not proof.

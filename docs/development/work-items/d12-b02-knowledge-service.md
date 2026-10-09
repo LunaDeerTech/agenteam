@@ -158,6 +158,10 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ## 8. 本轮实际实施与验证
 
+第十三内部片段四源 `object_authority.go`／`service_test.go`／`publication.go`／`publication_test.go` 已可构建。ExistingOwner 从原 Create command 读取真实 CreationCause，供同 Tx canonical 行先落下、再消费原 prospective upload 的 D05 授权校核，原当前 Owner／锁／Tx 门槛不变。reserve 使用 Knowledge command UUID 的私有 D05 key，当前完整 intent／work／测量后在原同 Tx 保留精确 attempt；confirmed 才能继续发送，真实 I/O 在 Tx 外，返回不同 attempt 不进入 SQL，uploaded 检查点 Unknown 保留原物理提交 cause。持久测量严格三个字段，未采或缺失长度不能冒成零字节结果；reserved/uploaded 必须有完整 object/upload/attempt 与测量。
+
+新增实际源控制覆盖原 CreationCause／缺记录／损坏记录／当前 gate 拒绝、测量缺失／重复／null／额外字段、持久预留缺字段／错 Project／错文档、单次锁 union／同 Tx／私有 D05 key／Tx 外发送、stale-owner 受控拒绝、work/测量漂移、reserve Unknown、错误 attempt 及 checkpoint Unknown。纯65344通过；78484曾误要求经正式 CommitResult复制后 Fault 指针仍恒等，修为正式 code/cause 判据，随后全 Knowledge／contract race65165、当前 vet/diffcheck实际0。不修改 D03 错误语义，不冒真实权限／SQL／D05 组合；此片段未独审，最终原子发布、business-source及public Create/Update仍在实施。
+
 追加的 Project Object Audit 接缝沿 D08 正式 §9.2／§9.2.1，复用 `audit.ProjectFactAuthority` 与 `object.NewProjectAuditAuthority(Store)`，不新增公开 port。授权精确五源为 Project `audit_facts.go`、`object_audit_facts.go`、`object_audit_facts_test.go`、`audit_facts_test.go`、`knowledge_audit_test.go`，真实组合测试仍用本卡 `b02_audit_event_test.go`。构造复制并选择 Object provider；只分派 ObjectService 的 upload complete／failed／delete，严格核 Project／cause／resource／outcome／ordinal／空 associations。先要求同 Store 活 Tx 与 Project SH 并重读已初始化项目；complete 还须当前 Active Mutate，failed／delete 只在真实 Object 私有同 Tx witness 证明已有事实后收敛。当前 Human Owner 不从 metadata 重建，而由真实 Knowledge→Project 授权及 D05 publish 前检查链证明；普通 Owner Converge、Transfer、初始化专用授权、Object runtime join 停止项和生产 root 均不变。缺 provider／私有 witness／精确 mapping 拒绝，原 ctx／Tx／Entry／Key／Fault／Unknown 原样委托。
 
 该片段限定 race60546（前84176亦0）、Project vet 与 diffcheck 实际通过，包含旧 Secret／Knowledge 分派和 Initialization 控制、新状态矩阵、foreign／模拟 ended Tx／弱锁、原 Unknown、真实 D05 checker 无私有 witness 负控及 Transfer 仍 Unbound。首编 ordinal 类型／不可比较 LockKey／测试 Row 名错误和首次 opaque Actor 直接 DeepEqual 的测试误判均已修，保留原 FAIL，不改业务门槛。尚未独立接受或真实 D05／Account Owner／SQL 组合；本树没有 Variables 的相邻 Project 增量，最终合并需保留其精确分派并回归，当前不得称已验证 Variables 或真实 stale-owner 发布拒绝。
