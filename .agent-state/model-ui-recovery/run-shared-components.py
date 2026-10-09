@@ -109,7 +109,9 @@ def main():
         discovery_env = dict(environment, AGENTEAM_DIALOG_RUN_DIR=str(run / 'discovery'))
         discovery = subprocess.run(command + ['--list'], cwd=ROOT, env=discovery_env, capture_output=True, text=True, timeout=45)
         (evidence / 'discovery.log').write_text(discovery.stdout + discovery.stderr)
-        assert discovery.returncode == 0 and f'Total: {count} tests in 1 file' in discovery.stdout
+        facts.update(discovery_actual_wait=True, discovery_exit=discovery.returncode)
+        noun = 'test' if count == 1 else 'tests'
+        assert discovery.returncode == 0 and f'Total: {count} {noun} in 1 file' in discovery.stdout
         with (evidence / 'run.log').open('x') as log:
             child = subprocess.Popen(command, cwd=ROOT, env=environment, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             facts['pid'] = child.pid
