@@ -284,8 +284,8 @@ func fail(message string) int { fmt.Fprintln(os.Stderr, message); return 1 }
 // original object/outbound/PG resource chain and its default multi-package
 // invocation remain intact when these two environment variables are absent.
 type fixtureTestTarget struct {
-	binary, directory, filter string
-	pattern                   *regexp.Regexp
+	binary, directory, filter, listFilter string
+	pattern                               *regexp.Regexp
 }
 
 type ownedChainResource struct {
@@ -362,11 +362,18 @@ func selectedTestTarget(binary, directory, filter string) (*fixtureTestTarget, e
 	if err != nil || !cwd.IsDir() {
 		return nil, bad
 	}
-	pattern, err := regexp.Compile(filter)
+	listFilter := filter
+	// -test.list only discovers top-level tests. This one approved selector
+	// needs its exact parent here; keep the original full selector for -run.
+	// Do not split arbitrary Go regexps: slashes can occur in regexp syntax.
+	if filter == "^TestKnowledgeB02IndependentTreeReference$/^revoked_persisted_public_receipt_identity_and_old_attachment$" {
+		listFilter = "^TestKnowledgeB02IndependentTreeReference$"
+	}
+	pattern, err := regexp.Compile(listFilter)
 	if err != nil {
 		return nil, bad
 	}
-	return &fixtureTestTarget{binary, directory, filter, pattern}, nil
+	return &fixtureTestTarget{binary: binary, directory: directory, filter: filter, listFilter: listFilter, pattern: pattern}, nil
 }
 
 func (v *fixtureTestTarget) matchesListing(raw string) bool {
@@ -382,7 +389,7 @@ func (v *fixtureTestTarget) matchesListing(raw string) bool {
 func (v *fixtureTestTarget) command(ctx context.Context, list bool) *exec.Cmd {
 	args := []string{"-test.v", "-test.count=1", "-test.timeout=6m", "-test.run=" + v.filter}
 	if list {
-		args = []string{"-test.list=" + v.filter}
+		args = []string{"-test.list=" + v.listFilter}
 	}
 	cmd := exec.CommandContext(ctx, v.binary, args...)
 	cmd.Dir = v.directory

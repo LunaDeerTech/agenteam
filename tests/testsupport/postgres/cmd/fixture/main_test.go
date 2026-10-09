@@ -93,3 +93,47 @@ func TestExplicitFixtureTargetUsesExactBinaryCWDAndOriginalSixMinutes(t *testing
 		}
 	}
 }
+
+func TestExplicitFixtureTargetDiscoversOnlyApprovedSubtestParent(t *testing.T) {
+	dir := t.TempDir()
+	binary := filepath.Join(dir, "owned.test")
+	if err := os.WriteFile(binary, []byte("not executed by this pure test"), 0500); err != nil {
+		t.Fatal(err)
+	}
+	parent := "^TestKnowledgeB02IndependentTreeReference$"
+	child := "^revoked_persisted_public_receipt_identity_and_old_attachment$"
+	filter := parent + "/" + child
+	target, err := selectedTestTarget(binary, dir, filter)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, list := range []bool{false, true} {
+		cmd := target.command(context.Background(), list)
+		want := []string{binary, "-test.v", "-test.count=1", "-test.timeout=6m", "-test.run=" + filter}
+		if list {
+			want = []string{binary, "-test.list=" + parent}
+		}
+		if cmd.Path != binary || cmd.Dir != dir || !reflect.DeepEqual(cmd.Args, want) || cmd.SysProcAttr == nil || !cmd.SysProcAttr.Setpgid || cmd.Cancel == nil || cmd.WaitDelay != 3*time.Second {
+			t.Fatal("parent discovery altered original execution, ownership or budget")
+		}
+	}
+	if !target.matchesListing("TestKnowledgeB02IndependentTreeReference\n") {
+		t.Fatal("exact parent was not discovered")
+	}
+	for _, raw := range []string{"", "PASS\n", "TestKnowledgeB02IndependentContent\n", "TestKnowledgeB02IndependentTreeReferenceExtra\n", "TestKnowledgeB02IndependentTreeReference/revoked_persisted_public_receipt_identity_and_old_attachment\n", "=== RUN   TestKnowledgeB02IndependentTreeReference\n"} {
+		if target.matchesListing(raw) {
+			t.Fatalf("non-parent output accepted: %q", raw)
+		}
+	}
+	// No generic slash parsing: existing parent-only, union and unsupported
+	// hierarchical regexp selectors keep their original discovery arguments.
+	for _, unchanged := range []string{parent, "^TestKnowledgeB02Independent(Content|TreeReference)$", parent + "/^wrong_child$", parent + "/" + child + "/^extra$", "^TestExample[/]Name$", `^TestExample\/Name$`} {
+		value, err := selectedTestTarget(binary, dir, unchanged)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := value.command(context.Background(), true).Args; !reflect.DeepEqual(got, []string{binary, "-test.list=" + unchanged}) || value.filter != unchanged {
+			t.Fatalf("unapproved discovery selector changed: %q", unchanged)
+		}
+	}
+}

@@ -1,6 +1,6 @@
 # Knowledge B02 有限独立补集恢复点
 
-本树 `/workspace/agenteam-knowledge-independent`，`ai/knowledge-service-independent`，产品/原作者测试基线 `f3ce0c7a`。独立执行者 Skills 未参与 Knowledge 产品实现。本轮仅新增 `tests/knowledge/b02_independent_content_test.go`、`tests/knowledge/b02_independent_tree_reference_test.go` 和本摘要；不改产品、原 fixture或旧作者测试；后续root另授权本树唯一两top harness增量，范围见下节。前序作者记录保留在基线 Git 历史及 Knowledge 作者树，不将其作者 PASS 改写为独验。
+本树 `/workspace/agenteam-knowledge-independent`，`ai/knowledge-service-independent`，产品/原作者测试基线 `f3ce0c7a`。独立执行者 Skills 未参与 Knowledge 产品实现。原范围仅新增 `tests/knowledge/b02_independent_content_test.go`、`tests/knowledge/b02_independent_tree_reference_test.go` 和本摘要；不改产品或旧作者测试。后续root分别授权封闭harness映射及62452失败后的下层fixture发现窄修，范围见下节。前序作者记录保留在基线 Git 历史及 Knowledge 作者树，不将其作者 PASS 改写为独验。
 
 ## 当前片段
 
@@ -17,7 +17,15 @@
 - D05 container `0583a5fd14d87555dc0974168b3e3f87329757fc4f5f6e7f5dc642b1a7781d33`，network `42b1f3676ae170e0473b82874ec20ed314f282c3b53ebaaeb0b8c36cc3b0bb3a`。
 - D04 container `18a0ba8802cdac13fc138cfe2636b27efe09d24b77892ca353f63fd62a8a682d`，network `ef33edbc31d8ba2347003c4a7007200c534833f4411caca59a380aea76354cd9`。
 
-该后验只证明四个实际自有资源可安全交接，不回填原七资源门。root已接受窗口释放。下一步仅离线修发现入口，执行selector、原RUN/PASS父+目标子闭集、全部预算/资源门保持；需未参与者续审及新freshgrant，不自动重跑。先冻结本摘要保存原FAIL，技术输入尚未修改。
+该后验只证明四个实际自有资源可安全交接，不回填原七资源门。root已接受窗口释放，并保存原FAIL摘要为c4958587；随后才授权修改以下发现入口。执行selector、原RUN/PASS父+目标子闭集、全部预算/资源门保持；需未参与者续审及新freshgrant，不自动重跑。
+
+## 下层fixture发现窄修（离线通过，待独立续审）
+
+基线c4958587，仅改`tests/testsupport/postgres/cmd/fixture/main.go`、相邻`main_test.go`，新增`.agent-state/knowledge-independent/fixture-discovery-controls.py`及本摘要。`fixtureTestTarget`保留原执行filter，单独保存listFilter；**仅**已批准完整literal `^TestKnowledgeB02IndependentTreeReference$/^revoked_persisted_public_receipt_identity_and_old_attachment$`在发现时使用精确父top `^TestKnowledgeB02IndependentTreeReference$`。不Split一般Go regexp；其它parent-only、两top、字符类/转义含斜杠或未批准子selector都保持原发现参数和匹配行为。真正执行仍原完整selector、Go6m/Setpgid/Cancel/WaitDelay不变，Python两工具和实际日志恰一父+目标子RUN/PASS门无diff。
+
+运行`python3 .agent-state/knowledge-independent/fixture-discovery-controls.py`，11825由a13dcc取得actualexit0。脚本固定67286原36,877,449 B候选，在原tests/knowledge cwd真正执行四个`-test.list`：父top唯一阳性、完整slash零项阴性、错父零项阴性、旧两top恰二阳性，均实际退出0；零项只记发现拒绝，不记业务PASS。随后临时overlay把真实候选交给下层实际`selectedTestTarget`/`command(...,true)`/`matchesListing`，父发现真、错父/未批准子假三格均有真实Cmd.Output/ProcessState退出，且检查执行参数仍完整selector。该包原三个top与新增一个top一并通过，合计5top/3sub，race4.180s；所有调用仅-list，没有调用fixture run或业务-run，没有PG/socket/browser/MinIO资源。完整固定Go1.27.1、GOPROXY=off、GOSUMDB=off、GOTOOLCHAIN=local、readonlymod、继承PATH和独占GOCACHE/GOMODCACHE与下方命令一致，并固化在脚本。
+
+3125a6限定diff、cdc537 Python AST、f04a30 diffcheck均0；旧67286业务候选和两独立业务测试未改，未重编业务。上层映射先前Work095723九实际main控制只证明自身范围，没有覆盖此下层发现；该缺口由62452原失败和本次实际候选控制明确保留。四路径现停止写入，交Work受影响接缝窄审及root保存；无自有命令在途，不重新宣称七资源/末子业务通过。
 
 - Content：有效 DOCX ZIP 原字节/实际 canonical reader EOF+Close，声明短长长度和 SHA 错误不产生发布事实；真实 D05 Send 完成、real Outbox PrepareAppend 返回后，同 User EX 锁撤销上游 Session，final gate 必须拒绝，后继有效 Session 用新源恢复原 key；真实发布 Event 与 Delete Audit 正控，对公共合法 Event 缺原 command_event、精确公共 Audit 缺原 Tx 私有 witness 均拒绝。
 - TreeReference：真实正文替换上传后插入真实 Move，final/replay 不覆盖当前 parent；preview 成员真实移出/移入、count 同值但旧 scope 拒绝，fresh scope 只删当前成员；最后一子原Publish返回Receipt假设已失败，修后改真实原行公开身份投影与两个各自正向的旧对象撤销、精确Cleanup cause重放及错cause对照，仍待实际。
@@ -45,9 +53,9 @@ root明确授权只读真实原uploads行，用公开`NewUploadReceipt`投影原
 
 67286（faf08c/c4755d）race-c actual0，新候选`output/ai/knowledge-independent/knowledge-independent-receipt-fixed-race.test`为36,877,449 B，旧45237未覆盖；3e4853 integration vet actual0。f4e507实际list精确两top，并核原Content三子和TreeReference前两子源码逐字未变、产品/迁移无diff。使用本页完整Go1.27.1/offline/readonly/独占cache env，构建命令仅将`-o`换新候选路径；3b2587 gofmt/diffcheck0。未执行任何修后PG，原89530五子证据只复用未变范围，整个独立补集仍未接受。
 
-上述两路径已root保存87898d82，Work未参与者正做该业务test窄审；此时不再编辑业务测试。root随后仅授权本树工具追加实际末子exact映射，见下节，原七资源/预算/全尾不放宽。
+上述两路径已root保存87898d82，Work未参与者5541/e0d17d实际publicReceipt contract及静核有限接受：同一A Consume、B Attach各自阳性到C替换后旧对象拒绝，公开投影不冒API返回；初b8c1a7为独审probe类型拼写setupFAIL，修正后通过，不改业务产品。业务测试继续冻结。root随后仅授权本树工具追加实际末子exact映射，见下节，原七资源/预算/全尾不放宽。
 
-## 精确末子工具映射（离线待独审）
+## 精确末子工具映射（上层有限独审接受）
 
 实读当前测试名后，唯一新增literal为`^TestKnowledgeB02IndependentTreeReference$/^revoked_persisted_public_receipt_identity_and_old_attachment$`。brief中的`revoked_original_receipt`占位旧名不接受；原封闭两top组合和所有旧selector保持原字节与行为。只在原Python driver TARGETS增加tests/knowledge入口、supervisor expected增加单top，且仅对该新selector核日志：RUN集合和出现次数恰为一个父top与一个目标sub，终态也必须这两项各一次PASS。空parent、wrong/extra/duplicate子或top、缺任一PASS、SKIP/FAIL均拒，不能仅凭父PASS接受。仅新分支捕获OSError/UnicodeDecodeError返回FAIL，原main继续TCP/input/terminal尾。
 
@@ -55,7 +63,7 @@ root明确授权只读真实原uploads行，用公开`NewUploadReceipt`投影原
 
 复用67286候选36,877,449 B，不重编业务或driver（入口为Python）。后续真正末子运行沿下方完整root env/cwd/工具/output，只有`--binary`替换为`output/ai/knowledge-independent/knowledge-independent-receipt-fixed-race.test`，`--run`替换为上述literal；仍需freshgrant及同process freshstatvfs≥5368709120，Go6m/root540+60+3/TCP75/七精确资源与全部实际Wait尾不变。原89530五子证据只复用未变范围，不重复作者矩阵或暗加skip。
 
-当前freeze四路径：`.agent-state/work-owner-http/root_chain_driver.py`、`.agent-state/task-planning-recovery/pg_only_supervisor.py`、`.agent-state/knowledge-independent/selector-controls.py`及本摘要，交root保存及未参与者窄审。业务测试仍87898d82不变，无自有命令或真实资源在途。
+该四路径已root保存90b2a035。Work095723实际main九控有限接受，覆盖正例、invalidUTF8/OSError、零子、父SKIP、子FAIL、重复PASS、多子和缺Wait，原完整尾保持；初b2ab06/331a83是独审fakeChild使用不同append fd的setupFAIL，改同stdout fd后通过。该结论不覆盖后来62452实际暴露的下层发现接缝，也不认业务末子已执行。业务测试仍87898d82不变，无自有命令或真实资源在途。
 
 ## 固定离线命令
 
@@ -110,4 +118,4 @@ env -u AGENTEAM_PG_FIXTURE -u AGENTEAM_PG_UNSUPPORTED_FIXTURE \
 
 Knowledge P1/P2 原独立15866结论复用，不重复旧纯测。作者 Process50756完整 PASS（Go2.40s/test1079008 Wait0、driver1077003 Wait0、outer726572 exit0、7IDs14absent/private/runtime/desc/TCP/input全尾，原日志位于作者树 `output/ai/knowledge/pg/pg-d776f88b697049b1853a3f24616ca380.log`）；本人7f14ba实读原日志、2ec24f核实际测试源，原PID Guard busy、SIGKILL及真实Wait、旧claim保留而非graceful退休、Guard death后唯一新attempt/fence和canonical/replay事实已走到，无新已知缺口，不重复进程矩阵，不回填旧91700 FAIL。其它作者 10top35sub、先前 Runtime/Cleanup 结果仍绑定各自实际源与 binary，不称本补集 PASS。
 
-下一步：先保存89530失败和未到范围，再只修有真实源码证据的独立测试前置；后续实际补验需新grant，不自动重跑，不重复作者矩阵。Work新增Blocker普通完成方法独审另在Skills树进行，不回填Work07；此处不复制其报告。
+下一步：冻结发现窄修四路径，完成Work受影响接缝独审后再由root排唯一末子freshgrant；不自动重跑、不重复原五子或作者矩阵，不回填89530/62452。Work新增Blocker普通完成方法已在Skills树有限独审接受，不回填Work07；此处不复制其报告。
