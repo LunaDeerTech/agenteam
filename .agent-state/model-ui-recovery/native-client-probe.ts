@@ -16,7 +16,7 @@ function canonical(value: unknown): string {
 
 // Diagnostic-only Session/Resolve slots. They never retain bytes, parse a body, or
 // contributes to the Model operation facts or acceptance gates.
-function sessionDiagnostics(nativeFetch: typeof window.fetch, kind: 'session' | 'resolve' = 'session') {
+export function sessionDiagnostics(nativeFetch: typeof window.fetch, kind: 'session' | 'resolve' = 'session') {
   const initial = () => ({ requests: 0, readers: 0, read_calls: 0, read_settled: 0, read_rejected: 0, bytes: 0,
     reader_cancel_calls: 0, reader_cancel_settled: 0, reader_cancel_rejected: 0,
     stream_cancel_calls: 0, stream_cancel_settled: 0, stream_cancel_rejected: 0,

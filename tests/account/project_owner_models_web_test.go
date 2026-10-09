@@ -282,6 +282,33 @@ func TestAccountProjectOwnerModelsWebBrowserLoginActionDiagnostic(t *testing.T) 
 	f.safeEvidence("go-browser-login-action-diagnostic.json", map[string]any{"protocol": "project-session-proxy.v1", "input_hash": f.inputHash, "diagnostic_completed": true, "proxy_actual_join": joined, "browser_session_requests": sessions, "browser_model_requests": 0, "session_identity_matches": d.Matched, "new_sessions": d.NewSessions, "unauthenticated": d.Unauthenticated, "bootstrap": d.Bootstrap, "logins": d.Logins, "authority_business_pass": false})
 }
 
+func TestAccountProjectOwnerModelsWebBrowserLoginOwnerDiagnostic(t *testing.T) {
+	started := time.Now()
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	t.Cleanup(func() {
+		cancel()
+		if time.Since(started) > 120*time.Second {
+			t.Error("browser login owner diagnostic exceeded original top budget")
+		}
+	})
+	f := newProjectModelsWebFixture(t, ctx, "configuration")
+	f.browserSessionDiagnostic(ctx, "owned-login-owner")
+	f.stopProxy()
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	modelRequests := 0
+	for _, count := range f.modelCounts {
+		modelRequests += count.Browser
+	}
+	joined := f.modelServer.Started == f.modelServer.Finished && f.modelControls.Held == f.modelControls.HeldJoined && !f.modelFailure
+	d := f.sessionDiagnostic
+	sessions := f.modelSessionCounts["browser"]
+	if !joined || modelRequests != 0 || d == nil || sessions < 3 || sessions > 4 || d.Compared != 2 || d.Matched != d.Compared || d.Unauthenticated < 1 || d.Unauthenticated > 2 || sessions != d.Compared+d.Unauthenticated || d.Bootstrap != d.Unauthenticated || d.Logins != 1 || d.NewSessions != 1 {
+		t.Fatal("browser login owner diagnostic request, identity or callback ownership invalid")
+	}
+	f.safeEvidence("go-browser-login-owner-diagnostic.json", map[string]any{"protocol": "project-session-proxy.v1", "input_hash": f.inputHash, "diagnostic_completed": true, "proxy_actual_join": joined, "browser_session_requests": sessions, "browser_model_requests": 0, "session_identity_matches": d.Matched, "new_sessions": d.NewSessions, "unauthenticated": d.Unauthenticated, "bootstrap": d.Bootstrap, "logins": d.Logins, "authority_business_pass": false})
+}
+
 func TestProjectModelsWebLoginDiagnosticIdentity(t *testing.T) {
 	expected := projectModelsWebSession{ID: "setup-session", User: "owner", Cookie: "setup-cookie", CSRF: "setup-csrf"}
 	first := projectModelsWebSession{ID: "first-session", User: "owner", Cookie: "first-cookie", CSRF: "first-csrf"}

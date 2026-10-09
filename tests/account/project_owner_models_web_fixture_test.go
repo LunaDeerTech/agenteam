@@ -2384,9 +2384,9 @@ func (f *projectModelsWebFixture) browserSessionProxyDiagnostic(ctx context.Cont
 }
 
 func (f *projectModelsWebFixture) browserSessionDiagnostic(ctx context.Context, mode string) {
-	loginMode := mode == "owned-login" || mode == "owned-login-action"
+	loginMode := mode == "owned-login" || mode == "owned-login-action" || mode == "owned-login-owner"
 	rows := 2
-	if mode == "owned-fixture" {
+	if mode == "owned-fixture" || mode == "owned-login-owner" {
 		rows = 1
 	} else if mode != "owned-app" && !loginMode {
 		f.t.Fatal("Session diagnostic mode invalid")
