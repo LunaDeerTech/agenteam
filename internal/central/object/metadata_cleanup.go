@@ -203,7 +203,7 @@ func (s *Service) discoverMetadataBatch(ctx context.Context, e postgres.SQLExecu
 	}
 	// PUT staging and transfer form a deferred two-way edge. The private
 	// candidate remains until all transfer edges have been removed.
-	ids, err := metadataIDs(ctx, e, `SELECT id::text FROM agenteam_object.object_transfers WHERE object_id=$1 ORDER BY id LIMIT 32`, id.String())
+	ids, err := metadataIDs(ctx, e, `SELECT t.id::text FROM agenteam_object.object_transfers t WHERE t.object_id=$1 ORDER BY t.id LIMIT 32`, id.String())
 	if err != nil {
 		return batch, err
 	}
@@ -267,8 +267,8 @@ func (s *Service) discoverMetadataBatch(ctx context.Context, e postgres.SQLExecu
 		return batch, nil
 	}
 	for _, phase := range []struct{ table, query string }{
-		{"object_leases", `SELECT id::text FROM agenteam_object.object_leases WHERE object_id=$1 ORDER BY id LIMIT 32`},
-		{"project_work", `SELECT id::text FROM agenteam_object.project_work WHERE object_id=$1 ORDER BY id LIMIT 32`},
+		{"object_leases", `SELECT l.id::text FROM agenteam_object.object_leases l WHERE l.object_id=$1 ORDER BY l.id LIMIT 32`},
+		{"project_work", `SELECT w.id::text FROM agenteam_object.project_work w WHERE w.object_id=$1 ORDER BY w.id LIMIT 32`},
 	} {
 		ids, err = metadataIDs(ctx, e, phase.query, id.String())
 		if err != nil {
@@ -286,7 +286,7 @@ func (s *Service) discoverMetadataBatch(ctx context.Context, e postgres.SQLExecu
 			return batch, nil
 		}
 	}
-	ids, err = metadataIDs(ctx, e, `SELECT id::text FROM agenteam_object.upload_attempts WHERE object_id=$1 AND id<>$2 ORDER BY id LIMIT 16`, id.String(), u.attempt.String())
+	ids, err = metadataIDs(ctx, e, `SELECT a.id::text FROM agenteam_object.upload_attempts a WHERE a.object_id=$1 AND a.id<>$2 ORDER BY a.id LIMIT 16`, id.String(), u.attempt.String())
 	if err != nil {
 		return batch, err
 	}
@@ -329,7 +329,7 @@ func (s *Service) metadataPhysicalCompleted(ctx context.Context, e postgres.SQLE
 	var pending bool
 	err := e.QueryRow(ctx, `SELECT
  EXISTS(SELECT 1 FROM agenteam_object.object_references WHERE object_id=$1)
- OR EXISTS(SELECT 1 FROM agenteam_object.object_leases WHERE object_id=$1 AND state<>'released')
+	OR EXISTS(SELECT 1 FROM agenteam_object.object_leases WHERE object_id=$1 AND state='active')
  OR EXISTS(SELECT 1 FROM agenteam_object.upload_attempts WHERE object_id=$1 AND (phase<>'cleaned' OR NOT cleanup_gate OR (kind='private_candidate' AND NOT io_closed)))
  OR EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND phase<>'completed')
  OR EXISTS(SELECT 1 FROM agenteam_object.project_work WHERE object_id=$1 AND joined_at IS NULL)

@@ -1,5 +1,8 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- 基于9c4a2fd7新增正式路径`db/migrations/00028_cleanup_indexes.sql`，目前为22条待真实计划验证的索引候选；前序1..28连续、tx/Goose头、22索引名唯一且与前序无冲突，1e36bd静查通过，不是SQL执行/迁移验收。未编号draft已由正式候选取代并删除，旧26df655a保留其历史。
+- 索引配套3产品增量：bounded pending候选加入NOT cleanup_gate，与完整终局partial谓词一致；metadata四历史查询显式按原UUID列排序，避免同名text输出排序；lease完整pending沿既有active/released闭集用active条件；ReferenceCleanup注释补已接受Skills精确分支。51423/d6d9ca受影响Bounded/Metadata/ObjectProjectAudit定向race exit0/1.043s，34645/6a4892两Object包vet exit0；均原offlineenv，无命令在途。Variables独审固定26df655a主体，以上增量另交其复核，不能混作已审。
+
 - root已装配连续前序SQL，作者7ef673逐字核对：`00025_knowledge.sql=aaa408c8`、`00026_runner_control.sql=eea4ced0`、`00027_skills.sql=7cf7a58e`。它们只是本任务Migrator的稳定验收依赖装配，不表示Runner/Skills整模块或当前D05能力接受；正式28仍须真实计划/迁移/场景与独审。
 
 - 新3测试源片段：`tests/objects/project_audit_fixture_test.go`仅增加可选planner/cleanup构造口，nil保持原接线；`metadata_cleanup_fixture_test.go`用明确test-only当前Owner/Project/cause/Skill/phase SQL端口与真实held锁，复用真正Object service/Stop/backend/native ProjectAuditAuthority；`metadata_cleanup_test.go`首top准备65次真实Read/EOF/Close历史、原2s物理Delete、跨表32/同Tx重复拒绝整批回滚、最后4anchor与fixture父mapping一起回滚或提交。fixture不冒Skills/D08生产Cleanup实现，Skills最后5核心联动仍待真实消费者。

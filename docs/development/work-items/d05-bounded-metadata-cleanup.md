@@ -8,7 +8,7 @@
 
 第一 provider 只支持 initialized Project 的已发表 SkillRevision＋ProjectDeleted、原 Creation/Skill/Revision/Object/Upload 和同命令的旧 candidate。不加 Creation取消、其它Owner新purge权限、Runner退休、HTTP/生产root或自动删除永久marker。
 
-初始四路径及后继§8实现域均已获root授权。2026-10-09 root在Skills确认原占位无独立DDL后，将`00028_cleanup_indexes.sql`移交本任务为共享cleanup索引迁移唯一writer；不改FK/约束/列。root先将稳定00025/26/27精确装配到本树，才落正式28和使用完整Migrator。当前无PG/socket/browser/network授权。
+初始四路径及后继§8实现域均已获root授权。2026-10-09 root在Skills确认原占位无独立DDL后，将`00028_cleanup_indexes.sql`移交本任务为共享cleanup索引迁移唯一writer；不改FK/约束/列。root已将稳定00025/26/27精确装配到本树（分别aaa408c8/eea4ced0/7cf7a58e）；28已落正式路径为待真实计划核验的索引候选，尚未执行Migrator。当前无PG/socket/browser/network授权。
 
 ## 2. 实际缺口与必须成立的结果
 
@@ -98,11 +98,11 @@ Skills只有在D05物理调用实际返回、持久确认本域completed并完�
 
 还必须核DELETE的真实外键检查成本：目前references.upload_id、leases.attempt_id、transfers.upload_id/candidate_id/source_lease_id和attempts.object_id等子表查找没有对应首列索引。父行按ID删除也可能在FK trigger扫描全库；实现前将这些实际入边与已有unique/Object前缀索引对照，补必要最小子索引并实际EXPLAIN/BUFFERS触发成本。不能只验证SELECT再宣称整Tx有界，也不机械全建重复索引。
 
-root已明确移交**00028**给本任务，候选名`00028_cleanup_indexes.sql`，Skills不再独占该号。正式落库等待root先装配稳定00025/26/27，不以跳号29或空迁移绕连续前缀。尚无PG/EXPLAIN，以上是源码查询缺口证据，不是性能PASS。
+root已明确移交**00028**给本任务，候选名`00028_cleanup_indexes.sql`，Skills不再独占该号。稳定00025/26/27已逐字装配，正式路径28已连续落盘，不以跳号29或空迁移绕连续前缀。尚无PG/EXPLAIN，以上是源码查询缺口证据，不是性能PASS。
 
 ### 7.1 实现访问路径与待编号索引
 
-下表是针对实际SQL的候选 `CREATE INDEX … ON …` 主体，尚未写迁移。唯一编号现为root移交的00028，索引名仍随实际计划收敛；不修改历史约束、不增加级联/公开proof或填充业务假数据。同一个完整索引兼顾历史分页和FK入边，不因有另一partial索引就重复建同形完整索引。
+下表是针对实际SQL的候选 `CREATE INDEX … ON …` 主体，已写入`00028_cleanup_indexes.sql`但尚未实际执行/验收。唯一编号现为root移交的00028，索引名仍随实际计划收敛；不修改历史约束、不增加级联/公开proof或填充业务假数据。同一个完整索引兼顾历史分页和FK入边，不因有另一partial索引就重复建同形完整索引。
 
 | 表（`agenteam_object`，另注除外） | 索引列及谓词 | 实际用途 |
 | --- | --- | --- |

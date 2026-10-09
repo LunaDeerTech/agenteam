@@ -1,9 +1,10 @@
--- CANDIDATE FOR ROOT-ASSIGNED 00028. NOT A MIGRATION. NOT EXECUTED.
--- Root transferred Skills' former reservation to this shared cleanup task.
--- Wait for root to assemble stable 00025/26/27 before db/migrations placement.
--- These candidates follow d05-bounded-metadata-cleanup.md section 7.1.
--- Real EXPLAIN (ANALYZE, BUFFERS), FK-trigger cost, and budget evidence remain
--- required. No FK, lifecycle, receipt, or authority semantics are changed.
+-- agenteam:transaction tx
+-- +goose Up
+-- Shared bounded cleanup access paths (D05 provider and D10 Skills consumer).
+-- No lifecycle, FK, column, permission or join-proof semantics change here.
+-- The full Object prefixes serve bounded history and existing FK probes;
+-- partials exclude terminal history from native pending/Stop predicates.
+-- Native UUID columns, not their text projections, define batch order.
 
 CREATE INDEX attempts_object_history ON agenteam_object.upload_attempts(object_id,id);
 CREATE INDEX attempts_object_pending ON agenteam_object.upload_attempts(object_id,id)

@@ -57,7 +57,7 @@ func (s *Service) gateSkillObjectBatch(ctx context.Context, e postgres.SQLExecut
 	// required for post-Stop admission; unrelated old causes remain unchanged.
 	ids := []oc.AttemptID{u.attempt}
 	old, err := metadataIDs(ctx, e, `SELECT id::text FROM (
- (SELECT id FROM agenteam_object.upload_attempts WHERE object_id=$1 AND id<>$2 AND (phase<>'cleaned' OR (kind='private_candidate' AND NOT io_closed)) ORDER BY id LIMIT 31)
+ (SELECT id FROM agenteam_object.upload_attempts WHERE object_id=$1 AND id<>$2 AND (phase<>'cleaned' OR NOT cleanup_gate OR (kind='private_candidate' AND NOT io_closed)) ORDER BY id LIMIT 31)
  UNION
  (SELECT attempt_id AS id FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND attempt_id<>$2 AND phase<>'completed' ORDER BY attempt_id LIMIT 31)
 ) pending ORDER BY id LIMIT 31`, object.String(), u.attempt.String())
