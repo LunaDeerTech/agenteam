@@ -575,33 +575,47 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
         }
       } catch { /* Missing evidence never manufactures completion. */ }
       finally {
-        ownerStopped = true;
         try {
           let detached = !ownerCDP;
           if (ownerCDP) {
-            for (const [name, listener] of ownerListeners) ownerCDP.off(name, listener);
             detached = await bounded(() => ownerCDP!.detach().then(() => true)) === true;
           }
-          ownerRows.clear();
+          ownerStopped = true;
+          if (ownerCDP) for (const [name, listener] of ownerListeners) ownerCDP.off(name, listener);
           page.off('request', requested); page.off('requestfinished', completed); page.off('requestfailed', rejected); page.off('close', pageClosed); context.off('close', contextClosed);
           retired = detached;
-        } catch { retired = false; }
+        } catch { ownerStopped = true; retired = false; }
       }
-      // Refresh close/event facts after the actual observer tail. Safe output
-      // contains no identity values; that private projection is returned only.
+      // The detach await still belongs to this observation. Snapshot identity
+      // and uniqueness only after its listeners retire, including late events.
       if (projection) {
         const request = selected?.request();
+        projection.pw_candidates_before_action = beforeAction;
+        projection.pw_candidates_after_action = afterAction;
+        projection.pw_target_requests = targets.length;
+        projection.pw_selected_target_match = !!request && targetMatch(request);
+        projection.pw_request_match = targets.length === 1 && targets[0] === request;
+        projection.pw_request_id_seen = !!requestID;
+        projection.snapshot_selected_bound = !!request && targets.length === 1 && targets[0] === request && !!latestID && latestID === requestID && latest?.request_id_match === true;
         projection.pw_finished_event = !!request && finished.has(request);
         projection.pw_failed_event = !!request && failed.has(request);
+        const error = request?.failure()?.errorText;
+        projection.pw_failure = error === undefined ? 'none' : error === 'net::ERR_ABORTED' ? 'aborted' : error === 'net::ERR_CONNECTION_RESET' ? 'reset' : error === 'net::ERR_CONNECTION_CLOSED' ? 'closed' : 'other';
         const timing = projection.timing as Record<string, unknown>;
         timing.page_close_notification = pageClose; timing.context_close_notification = contextClose;
         timing.pw_finished = request ? finishedTimes.get(request) ?? null : null;
         timing.pw_failed = request ? failedTimes.get(request)?.at ?? null : null;
+        timing.pw_failed_test_status = request ? failedTimes.get(request)?.test_status ?? 'unknown' : 'unknown';
+        timing.original_finished_wait_rejected = waitRejected;
         timing.projection_recorded = mark();
         try {
           if (failure) writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, artifact), JSON.stringify(projection), { mode: 0o600 });
           if (restoreOwner && ownerEvidence) {
-            ownerEvidence = { ...ownerEvidence, ...projection, observers_retired: retired };
+            const matches = requestID ? [...ownerRows.values()].filter(row => row.id === requestID) : [];
+            const cdpBound = ownerCDPReady && !ownerCapExceeded && ownerRows.size === 1 && matches.length === 1;
+            const cdp = cdpBound ? { request: matches[0]!.request, response: matches[0]!.response, finished: matches[0]!.finished, failed: matches[0]!.failed, aborted: matches[0]!.aborted, canceled: matches[0]!.canceled } : null;
+            ownerEvidence = { ...ownerEvidence, ...projection, observers_retired: retired,
+              cdp_ready: ownerCDPReady, cdp_candidates: ownerRows.size, cdp_cap_exceeded: ownerCapExceeded, cdp_selected_bound: cdpBound, cdp };
             const ownerArtifact = restoreOwner.stage === 'same-session-checking' ? 'authority-checking-session-consumption.json' : 'authority-credential-session-consumption.json';
             finalResult = { evidence: ownerEvidence, identity };
             writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, ownerArtifact), JSON.stringify({ ...ownerEvidence,
@@ -610,6 +624,7 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
           }
         } catch { finalResult = null; }
       }
+      ownerRows.clear();
       return finalResult;
     },
   };

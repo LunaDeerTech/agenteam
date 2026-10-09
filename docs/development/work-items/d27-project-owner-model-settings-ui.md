@@ -476,13 +476,16 @@ workspace仅消费公开currentReadContext/detail，不新增workspace写域。S
 
 ## 9. 必要验收与执行前提
 
-**同 Session 恢复的有限方法修订（实施／新独审与实跑待完成）：** 基于第15轮同一失败请求的真实生产消费／发布见证，仅 authority 中已明确 arm 的 held008 与 credential153 两处采用下列联合证据。原响应头被选中后的5秒绝对期限不延长；其他 Session、Resolve、17个Model操作与45／120／75秒及资源门槛不变。原各轮FAIL不追溯变更。
+**同 Session 恢复的有限方法修订（已有限独审接受；下一真实authority就绪／未实跑）：** 基于第15轮同一失败请求的真实生产消费／发布见证，仅 authority 中已明确 arm 的 held008 与 credential153 两处采用下列联合证据。原响应头被选中后的5秒绝对期限不延长；其他 Session、Resolve、17个Model操作与45／120／75秒及资源门槛不变。原各轮FAIL不追溯变更。
 
 | 业务完成判据 | 浏览器事件终态观察 |
 | --- | --- |
 | 已加载唯一singleton的本次原pageshow→restore→Session，仅一个精确同源GET、无query，原Response／Request与native slot／owner／CDP按同一公开Request-ID绑定；严格EOF及合法identity Content-Length等字节，全部read／双cancel／release实际结算、零拒绝／abort；原restore结算时真实发布authenticated／not-busy及同User／Session、合法role，不能用fulfilled或旧缓存代替；单次动作、原Promise及所有观察器实际退役／无page或context关闭，均在同一5秒界内成立。 | 原selected Request的PW／CDP finished、failed／canceled与原finished Promise继续观察、独列，pending不能写成finished。它们不再是这两个已绑定恢复点唯一的业务完成oracle；未采终态明确未观察，不解释取消原因或冒传输完成。 |
 
 这两个分支不再另外等待可能永不完成的Playwright `response.json()`；身份／role必须来自同一真实生产typed client已完整验证并发布的owner安全投影，CSRF／Cookie／body不出浏览器。安装失败、重复／错响应、超时或等截止线、缺EOF／长度不适用、取消后done、任何清理失败／未join、旧身份／非法role、restore吞错／busy不退、页面关闭均拒绝；缺证据不得降级到另一请求或补默认。此变更不放宽真实完整响应／正式解码／业务后置断言，待新实现控制与独立复核后才安排一次新authority。
+
+方法控制已放入可恢复源码 [.agent-state/model-ui-recovery/session-consumer-owner.cjs](../../../.agent-state/model-ui-recovery/session-consumer-owner.cjs) 与 [session-consumer-adapter.cjs](../../../.agent-state/model-ui-recovery/session-consumer-adapter.cjs)，分别用仓库锁定依赖内存构建真实controller／client／native，以及提取当前observer／helper执行离线正反例；从仓库根分别运行 `node .agent-state/model-ui-recovery/session-consumer-owner.cjs` 与 `node .agent-state/model-ui-recovery/session-consumer-adapter.cjs`，只有忽略目录中的结果／缓存写入。首轮25＋107控制实际0后，独验发现detach在途第二请求被旧快照漏记（作者复现71168实际1）；已保留该红例，最小返修让请求与CDP监听覆盖实际退休后再冻结最终唯一性／绑定。返修原四控实际0，正式控制95331／68692分别25／113项实际0、unhandled0，严格TS56855实际0；先前36158仅typeRoots误指无Node类型的目录导致检查配置失败，改用既有web锁定类型后通过，没有安装依赖。返修经原独验7215实际0／6项有限接受：原四控加CDP-only第二请求与detach期selected失败，最终PW／CDP重复事实拒绝、等截止及关闭拒绝、原transport异常如实独列；无剩余mustfix，旧首审红保留。下一真实authority已就绪，仍须新独占窗并实际磁盘前置及完整资源尾，未把第15轮或任何旧FAIL升级。
+
 
 前端执行者按任务读取design/vue-development/vue-testing-best-practices；Go harness读取Go技能，独立验证者读取verification，真实browser使用仓库测试工程技能。先核实 §0 的恢复输入，以当前Git基线、限定diff和停止写入状态交审，记录实际工具、锁文件及必要依赖；不要沿用已缺失的scratch或未经核实的执行状态。
 
