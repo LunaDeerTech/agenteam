@@ -8,7 +8,7 @@
 ## 当前工作与所有权
 
 1. D11 Task Planning：恢复实施已形成可构建检查点；按[正式规格](../docs/development/work-items/d11-task-planning.md)恢复缺失实施。负责人负责卡中产品/测试路径、迁移 `00022` 和局部 README，安排唯一写者及自测；未参与实现者独立验证后才正式交付。两 ID PG-only harness 旧源同样缺失，必要重建输入保存在 `.agent-state/task-planning-recovery/`。
-2. D27 Model Settings：并行按[正式卡](../docs/development/work-items/d27-project-owner-model-settings-ui.md)重建四个缺失 Go/browser harness；此执行者仅写本卡四测试路径及 `.agent-state/model-ui-recovery/`，保留旧 FAIL，尚未运行业务或独立验收。
+2. D27 Model Settings：并行按[正式卡](../docs/development/work-items/d27-project-owner-model-settings-ui.md)重建四个缺失 Go/browser harness；此执行者仅写本卡四测试路径及 `.agent-state/model-ui-recovery/`，保留旧 FAIL，首个 recovery 浏览器业务已准备待实际运行，整卡尚未验收。
 3. root 独占当前检查点、全局台账与 Git。构建、迁移和真实测试资源按唯一写者与隔离 fixture 协调；必要源码随检查点保存，可再生日志在忽略的 `output/ai/`。
 
 ## 环境实际核对
@@ -46,6 +46,12 @@
 - Task私有计划闭集原FAIL已真实复现：placement.state改STATE、rank向量同时含Rank/rank仍被接受，见 `independent-runtime-private_test.go`；原offline race命令exit1、actualWait。没有冒称授权绕过。新PG已在启动前暂停，原owner仅在Task repository/events补完整嵌套strict解码及caps，20+pure负例PASS；独立原输入复验及224结构/10Unicode-EOF负例与正例实际race PASS、作者pure/vet PASS；新作者expanded-codec及新独立A-B binary已重编/精确发现exit0。旧binary不能当修后语义证据，原exit1不回填。
 - Model第四段：constructor、9IPC dispatcher、只读snapshot与浏览器子进程受控入口/六Go selectors已补入两Go源，delivery race-c与6个pure实际exit0；六浏览器business仍未通过。
 
-- 私有修复/新独立probe已冻结待恢复：Task repository/events/test三源，private-matrix及private-run。最新独立A-B binary为忽略output中的 `independent-runtime-build-e1y4nejg/independent-runtime.test`；七新四旧Structure与独立A-B PG尚待运行。
+- 私有修复/新独立probe已冻结待恢复：Task repository/events/test三源，private-matrix及private-run。最新独立A-B binary为忽略output中的 `independent-runtime-build-j78fjvr3/independent-runtime.test`；七新四旧Structure与独立A-B PG尚待运行。
 
 - expanded Concurrency首轮FAIL：same-key final hook未到，原Go/driver/outer均exit1且资源完整退役。原owner定位为测试观察器在Update发现阶段尚无command row时把ErrNoRows注成写错误；仅修并发测试观察为EXISTS/coalesce，真SQL错仍保留，4个handshake新增提前writer结果观察。新hooks binary race-c/精确11selector exit0，尚未实际重跑，不称产品并发缺陷或原PASS。
+
+## 最新运行边界
+
+- Task观察器修复已保存推送285797c4；最新作者11selector binary和独立j78 A/B均race-c/list exit0，独立20技术路径全文静审闭合，无已证实未修must-fix。新Migration在codec修后实际全终态PASS；Concurrency首轮FAIL不回填，其修后重跑及剩余9作者top、独立A/B待执行。四旧Project/Outbox有效结果保持。
+- Model首个 recovery 完整case已写入，含cut/disconnect→lookup→original replay、deletedProvider replay、第四origin effect hold、同响应body schema/native client/EOF及最终counter比较；delivery account race-c/vet、6pure、TS strict与recovery discovery实际exit0。最终URL及当前Project真实GET EOF同步已补。另5browser case仍未实现；六Go selector不等于六browser通过。可恢复自有输入含native-client-probe.ts、build-native-client-probe.mjs、validate-same-body.py、fixture-go.py、run-owned-top.py。固定PG16镜像16e62164…已真实拉取。
+- 首Model recovery拟先占独立7ID fixture窗口，Task尚无自有PG并等待明确资源交还；期间禁止额外host网络/Git推送污染TCP tail。独立审查者只读复核Model闭包，无业务启动。首case真实结果与资源终态未产生，不能声称通过。

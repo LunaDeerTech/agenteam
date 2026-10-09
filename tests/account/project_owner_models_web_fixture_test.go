@@ -67,6 +67,7 @@ type projectModelsWebFixture struct {
 	modelFailure       bool
 	modelSessions      map[string]projectModelsWebSession
 	modelOrigins       []*projectModelsWebOrigin
+	modelLastCounts    json.RawMessage
 	modelAux           map[string]map[string]any
 	modelReference     string
 }
@@ -301,6 +302,7 @@ func (f *projectModelsWebFixture) serveAPI(proxy http.Handler, w http.ResponseWr
 func (f *projectModelsWebFixture) hold(ctx context.Context, arm *projectModelsWebArm) bool {
 	f.mu.Lock()
 	arm.Held = true
+	arm.Applied = true
 	f.modelControls.Held++
 	f.mu.Unlock()
 	select {
@@ -1889,6 +1891,7 @@ func (f *projectModelsWebFixture) modelIPC(ctx context.Context, request projectM
 			sessions[key] = value
 		}
 		result = map[string]any{"operations": operations, "session": sessions, "server": f.modelServer, "controls": f.modelControls, "browser_eof": nil, "schema_bodies": nil, "client_bodies": nil}
+		f.modelLastCounts, _ = json.Marshal(result)
 		f.mu.Unlock()
 	case "snapshot":
 		snapshot, err := f.modelSnapshot(ctx, get("project"))
@@ -2327,6 +2330,80 @@ wait:
 	if err != nil {
 		f.t.Fatal("actual Project Models browser final evidence rejected")
 	}
+	if err := f.verifyModelBrowserEvidence(result); err != nil {
+		f.t.Fatal("actual Project Models browser body/counter evidence rejected")
+	}
 	f.safeEvidence("browser-result.json", result)
 	return result
+}
+
+func (f *projectModelsWebFixture) verifyModelBrowserEvidence(result projectModelsWebResult) error {
+	bad := errors.New("owned browser evidence mismatch")
+	var counts struct {
+		Server json.RawMessage `json:"server"`
+	}
+	var actual, expected any
+	if json.Unmarshal(result.Counts, &counts) != nil || json.Unmarshal(counts.Server, &actual) != nil || json.Unmarshal(f.modelLastCounts, &expected) != nil {
+		return bad
+	}
+	a, _ := json.Marshal(actual)
+	b, _ := json.Marshal(expected)
+	if !bytes.Equal(a, b) {
+		return bad
+	}
+	raw, err := projectModelsWebReadPrivate(filepath.Join(f.evidence, "same-body-input.json"), 65536)
+	if err != nil || projectModelsWebJSON(raw) != nil {
+		return bad
+	}
+	var rows []json.RawMessage
+	if json.Unmarshal(raw, &rows) != nil || len(rows) != result.SchemaBodies {
+		return bad
+	}
+	seen := map[string]bool{}
+	for _, raw := range rows {
+		fields, err := projectModelsWebObject(raw, "sidecar", "request_token", "browser_eof", "bytes", "sha256")
+		if err != nil {
+			return bad
+		}
+		name, _ := projectModelsWebString(fields["sidecar"])
+		token, _ := projectModelsWebString(fields["request_token"])
+		digest, _ := projectModelsWebString(fields["sha256"])
+		var n int
+		if !regexp.MustCompile(`^response-[0-9]{3}\.json$`).MatchString(name) || !projectModelsWebRequestToken.MatchString(token) || seen[token] || string(fields["browser_eof"]) != "true" || json.Unmarshal(fields["bytes"], &n) != nil || n < 1 || n > 8388608 {
+			return bad
+		}
+		seen[token] = true
+		metadata, err := projectModelsWebReadPrivate(filepath.Join(f.evidence, name), 65536)
+		if err != nil {
+			return bad
+		}
+		var sidecar struct {
+			Protocol, InputHash, Source, Token, SHA, BodyFile, Transfer, Stage string
+			Bytes                                                              int
+		}
+		var value map[string]json.RawMessage
+		if json.Unmarshal(metadata, &value) != nil {
+			return bad
+		}
+		sidecar.Protocol, _ = projectModelsWebString(value["protocol"])
+		sidecar.InputHash, _ = projectModelsWebString(value["input_hash"])
+		sidecar.Source, _ = projectModelsWebString(value["source"])
+		sidecar.Token, _ = projectModelsWebString(value["request_token"])
+		sidecar.SHA, _ = projectModelsWebString(value["body_sha256"])
+		sidecar.BodyFile, _ = projectModelsWebString(value["body_file"])
+		sidecar.Transfer, _ = projectModelsWebString(value["transfer_kind"])
+		sidecar.Stage, _ = projectModelsWebString(value["body_stage"])
+		if json.Unmarshal(value["body_bytes"], &sidecar.Bytes) != nil || sidecar.Protocol != projectModelsWebProtocol || sidecar.InputHash != f.inputHash || sidecar.Source != "browser" || sidecar.Token != token || sidecar.SHA != digest || sidecar.BodyFile != "body-"+digest+".json" || sidecar.Bytes != n || sidecar.Transfer != "forwarded" && sidecar.Transfer != "hold" || sidecar.Stage != "complete_formal_upstream" {
+			return bad
+		}
+		decoded, err := hex.DecodeString(digest)
+		if err != nil || len(decoded) != sha256.Size {
+			return bad
+		}
+		body, err := projectModelsWebReadPrivate(filepath.Join(f.evidence, sidecar.BodyFile), 8388608)
+		if err != nil || len(body) != n || fmt.Sprintf("%x", sha256.Sum256(body)) != digest {
+			return bad
+		}
+	}
+	return nil
 }

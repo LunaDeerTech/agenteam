@@ -1,22 +1,28 @@
-import { expect, type Locator, type Page } from "@playwright/test";
-import { randomBytes } from "node:crypto";
+import { test, expect, type Locator, type Page } from "@playwright/test";
+import { randomBytes, createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import {
   closeSync,
   constants,
   existsSync,
   fstatSync,
   openSync,
+  readFileSync,
+  readdirSync,
   readSync,
   renameSync,
   writeFileSync,
 } from "node:fs";
-import { join } from "node:path";
+import { join, resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Rebuilt from the formal project-owner-models.v1 contract. Runtime fixtures
 // supply all IDs and current facts; this module contains no business stubs.
 const protocol = "project-owner-models.v1";
 const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
 const inputHash = process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH!;
+const repository = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const evidence = process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!;
 const modes = [
   "configuration",
   "credential",
@@ -100,10 +106,10 @@ function exact(value: unknown, keys: readonly string[]) {
   );
   return result;
 }
-function privateJSON(name: string, limit: number): unknown {
+function privateJSON(name: string, limit: number, base = directory): unknown {
   invariant(/^[a-z0-9.-]+$/.test(name), "PROJECT_MODELS_PRIVATE_NAME_INVALID");
   const fd = openSync(
-    join(directory, name),
+    join(base, name),
     constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK,
   );
   const buffer = Buffer.alloc(limit + 1);
@@ -518,3 +524,283 @@ export async function fillProjectModelsCredential(scope: Page | Locator) {
     value = "";
   }
 }
+
+type OriginFact = {
+  origin_token: string; original_request_token: string; operation: string;
+  project_id: string; target_id: string | null; original_body_bytes: number;
+  history: { family: "configuration" | "credential"; committed_rows: string; receipt?: Record<string, unknown> | null; result?: Record<string, unknown> | null };
+  comparison_count: number; comparison: null | Record<string, unknown>;
+};
+type Snapshot = {
+  project: { project_id: string; version: string; initialized: boolean; lifecycle: string };
+  current: { providers: { id: string; present: boolean; version: string | null; credential_ref: string | null }[]; models: { id: string; present: boolean; version: string | null; provider_id: string | null }[]; credentials: { credential_id: string; metadata: null | { credential_id: string; purpose: string; version: string } }[] };
+  history: { configuration: Record<string, string>; credential: Record<string, string> };
+  reference_presence: { models: { id: string; present: boolean }[]; credentials: { credential_id: string; present: boolean }[] };
+  origins: OriginFact[];
+  fixture_only: { archive_recovery_applied: boolean; reference_fact_state: null | "present" | "absent"; rename_reuse_applied: boolean };
+};
+function validateSnapshot(value: unknown): Snapshot {
+  const v = exact(value, ["project", "current", "history", "reference_presence", "origins", "fixture_only"]);
+  const project = exact(v.project, ["project_id", "version", "initialized", "lifecycle"]);
+  invariant(uuid(project.project_id) && version(project.version) && typeof project.initialized === "boolean" && ["active", "archiving", "archived", "deleting"].includes(String(project.lifecycle)), "PROJECT_MODELS_SNAPSHOT_PROJECT_INVALID");
+  const current = exact(v.current, ["providers", "models", "credentials"]);
+  for (const family of ["providers", "models", "credentials"] as const) {
+    invariant(Array.isArray(current[family]), "PROJECT_MODELS_SNAPSHOT_ARRAY_INVALID");
+    let previous = "";
+    for (const entry of current[family] as unknown[]) {
+      const row = exact(entry, family === "providers" ? ["id", "present", "version", "credential_ref"] : family === "models" ? ["id", "present", "version", "provider_id"] : ["credential_id", "metadata"]);
+      const id = family === "credentials" ? row.credential_id : row.id;
+      invariant(uuid(id) && id > previous, "PROJECT_MODELS_SNAPSHOT_IDS_INVALID"); previous = id;
+      if (family === "credentials") {
+        if (row.metadata !== null) {
+          const metadata = exact(row.metadata, ["credential_id", "purpose", "version"]);
+          invariant(metadata.credential_id === id && metadata.purpose === "model" && version(metadata.version), "PROJECT_MODELS_SNAPSHOT_METADATA_INVALID");
+        }
+      } else {
+        const reference = family === "providers" ? row.credential_ref : row.provider_id;
+        invariant(typeof row.present === "boolean" && (row.present ? version(row.version) && (family === "models" ? uuid(reference) : reference === null || uuid(reference)) : row.version === null && reference === null), "PROJECT_MODELS_SNAPSHOT_CURRENT_INVALID");
+      }
+    }
+  }
+  const history = exact(v.history, ["configuration", "credential"]);
+  for (const family of ["configuration", "credential"] as const) {
+    const row = exact(history[family], family === "configuration" ? ["committed_commands", "audit_records", "events"] : ["committed_commands", "audit_records"]);
+    invariant(Object.values(row).every((n) => typeof n === "string" && /^(0|[1-9][0-9]*)$/.test(n)), "PROJECT_MODELS_SNAPSHOT_COUNTS_INVALID");
+  }
+  const references = exact(v.reference_presence, ["models", "credentials"]);
+  for (const family of ["models", "credentials"] as const) {
+    invariant(Array.isArray(references[family]), "PROJECT_MODELS_SNAPSHOT_REFERENCES_INVALID");
+    let previous = "";
+    for (const entry of references[family] as unknown[]) {
+      const key = family === "models" ? "id" : "credential_id", row = exact(entry, [key, "present"]);
+      invariant(uuid(row[key]) && String(row[key]) > previous && typeof row.present === "boolean", "PROJECT_MODELS_SNAPSHOT_REFERENCE_INVALID"); previous = String(row[key]);
+    }
+  }
+  invariant(Array.isArray(v.origins) && v.origins.length <= 4, "PROJECT_MODELS_SNAPSHOT_ORIGINS_INVALID");
+  const origins = new Set<string>();
+  for (const entry of v.origins) {
+    const row = exact(entry, ["origin_token", "original_request_token", "operation", "project_id", "target_id", "original_body_bytes", "history", "comparison_count", "comparison"]);
+    invariant(requestToken(row.origin_token) && row.origin_token === row.original_request_token && !origins.has(row.origin_token) && row.project_id === project.project_id && (row.target_id === null || uuid(row.target_id)) && count(row.original_body_bytes) && Number(row.original_body_bytes) > 0 && count(row.comparison_count), "PROJECT_MODELS_SNAPSHOT_ORIGIN_INVALID"); origins.add(row.origin_token);
+    const h = object(row.history), credential = h.family === "credential";
+    exact(h, ["family", "committed_rows", credential ? "result" : "receipt"]);
+    invariant((credential || h.family === "configuration") && ["0", "1"].includes(String(h.committed_rows)), "PROJECT_MODELS_SNAPSHOT_HISTORY_INVALID");
+    const receipt = h[credential ? "result" : "receipt"];
+    if (h.committed_rows === "0") invariant(receipt === null, "PROJECT_MODELS_SNAPSHOT_NO_RECEIPT_INVALID");
+    else {
+      const r = exact(receipt, credential ? ["credential_id", "purpose", "version", "deleted"] : ["kind", "resource_id", "version", "affected_references"]);
+      invariant(version(r.version) && (credential ? uuid(r.credential_id) && r.purpose === "model" && typeof r.deleted === "boolean" : uuid(r.resource_id) && /^(provider|model)\.(create|update|delete)$/.test(String(r.kind)) && r.affected_references === "0"), "PROJECT_MODELS_SNAPSHOT_RECEIPT_INVALID");
+    }
+    if (row.comparison === null) invariant(row.comparison_count === 0, "PROJECT_MODELS_SNAPSHOT_COMPARISON_MISSING");
+    else {
+      const c = exact(row.comparison, ["request_token", "body_equal", "key_equal", "target_equal", "identity_equal", "method_equal", "original_body_bytes", "replay_body_bytes"]);
+      invariant(Number(row.comparison_count) > 0 && requestToken(c.request_token) && ["body_equal", "key_equal", "target_equal", "identity_equal", "method_equal"].every((key) => typeof c[key] === "boolean") && count(c.original_body_bytes) && count(c.replay_body_bytes), "PROJECT_MODELS_SNAPSHOT_COMPARISON_INVALID");
+    }
+  }
+  const auxiliary = exact(v.fixture_only, ["archive_recovery_applied", "reference_fact_state", "rename_reuse_applied"]);
+  invariant(typeof auxiliary.archive_recovery_applied === "boolean" && typeof auxiliary.rename_reuse_applied === "boolean" && [null, "present", "absent"].includes(auxiliary.reference_fact_state as null), "PROJECT_MODELS_SNAPSHOT_AUXILIARY_INVALID");
+  return value as Snapshot;
+}
+async function snapshot(project: ProjectKey) { return validateSnapshot(await projectModelsIPC({ action: "snapshot", args: { project } })); }
+async function counts() {
+  const value = await projectModelsIPC({ action: "counts", args: {} });
+  exact(value, ["operations", "session", "server", "controls", "browser_eof", "schema_bodies", "client_bodies"]);
+  invariant(value.browser_eof === null && value.schema_bodies === null && value.client_bodies === null, "PROJECT_MODELS_COUNTS_OBSERVER_INVALID");
+  const attachment = JSON.parse(readFileSync(join(repository, "docs/development/work-items/d27-project-owner-model-settings-ui-endpoints.json"), "utf8"));
+  invariant(Array.isArray(value.operations) && value.operations.length === 17, "PROJECT_MODELS_COUNTS_OPERATIONS_INVALID");
+  value.operations.forEach((entry, index) => { const row = exact(entry, ["operation", "setup", "browser", "control", "upstream_complete", "handler_joined"]); invariant(row.operation === attachment.operations[index].operation && Object.entries(row).every(([key, n]) => key === "operation" || count(n)), "PROJECT_MODELS_COUNTS_ROW_INVALID"); });
+  for (const [key, members] of [["session", ["setup", "browser", "control"]], ["server", ["started", "finished"]], ["controls", ["armed", "claimed", "held", "held_joined", "cut", "disconnected"]]] as const) invariant(Object.values(exact(value[key], members)).every(count), "PROJECT_MODELS_COUNTS_VALUES_INVALID");
+  return value;
+}
+function operationCount(value: Record<string, unknown>, operation: string) {
+  return Number((value.operations as Record<string, unknown>[]).find((row) => row.operation === operation)!.browser);
+}
+async function arm(operation: string, project: ProjectKey, target_id: string | null, effect: string, query: string | null = null) {
+  const result = await projectModelsIPC({ action: "arm", args: { operation, project, target_id, effect, query } }); return String(result.arm_id);
+}
+async function control(id: string, ready: (value: Record<string, unknown>) => boolean) {
+  let value: Record<string, unknown> = {};
+  await expect.poll(async () => { value = await projectModelsIPC({ action: "control-state", args: { arm_id: id } }); return ready(value); }, { intervals: [30, 60, 100], timeout: 5_000 }).toBe(true);
+  return value;
+}
+async function navigate(page: Page, target: string) {
+  await page.evaluate((target) => {
+    const old = history.state as { position?: number } | null;
+    history.pushState({ ...old, back: location.pathname, current: target, forward: null, position: (old?.position ?? 0) + 1, replaced: false }, "", target);
+    dispatchEvent(new PopStateEvent("popstate", { state: history.state }));
+  }, target);
+}
+async function openProject(page: Page, material: Material, key: ProjectKey, suffix = "model-providers", discardPrepared = false) {
+  const project = material.projects[key]!;
+  await navigate(page, `/${project.username}/${project.normalized_name}/settings/${suffix}`);
+  if (discardPrepared) {
+    const confirmation = page.getByRole("dialog", { name: "离开项目模型设置？", exact: true });
+    await expect(confirmation).toBeVisible();
+    await button(confirmation, "放弃并离开").click();
+  }
+  await expect(page).toHaveURL(new URL(`/${project.username}/${project.normalized_name}/settings/${suffix}`, process.env.AGENTEAM_AUTH_WEB_ORIGIN!).href);
+  await expect(page.getByRole("heading", { name: suffix === "model-providers" ? "Providers" : "可用模型", level: 1, exact: true })).toBeVisible();
+  if (suffix === "model-providers") await expect(button(page, "创建 Provider")).toBeEnabled();
+  const endpoint = `/api/v1/projects/${project.id}/${suffix === "model-providers" ? "model-providers" : "available-chat-models"}`;
+  await expect.poll(async () => (await nativeFacts(page)).some((fact) => fact.path === endpoint && fact.method === "GET" && fact.eof && fact.ended)).toBe(true);
+}
+async function newProvider(page: Page, name: string) {
+  await button(page, "创建 Provider").click();
+  const dialog = page.getByRole("dialog").filter({ has: page.locator("#project-provider-form") });
+  await dialog.getByLabel("Provider 名称", { exact: true }).fill(name);
+  await dialog.getByLabel("Base URL", { exact: true }).fill("https://model-ui.invalid/v1");
+  return dialog;
+}
+async function strictReceipt(scope: Page | Locator): Promise<Record<string, unknown>> {
+  const receipt = scope.getByLabel("严格执行回执", { exact: true }); await expect(receipt).toBeVisible();
+  return object(JSON.parse((await receipt.textContent())!));
+}
+function durableDelta(before: Snapshot, after: Snapshot, configuration: number, credential: number) {
+  for (const family of ["configuration", "credential"] as const) for (const key of Object.keys(before.history[family])) {
+    invariant(BigInt(after.history[family][key]!) - BigInt(before.history[family][key]!) === BigInt(family === "configuration" ? configuration : credential), "PROJECT_MODELS_DURABLE_DELTA_INVALID");
+  }
+}
+function originalReplay(value: Snapshot, token: string) {
+  const origin = value.origins.find((o) => o.origin_token === token); invariant(origin && origin.history.committed_rows === "1" && origin.comparison_count === 1 && origin.comparison, "PROJECT_MODELS_ORIGINAL_HISTORY_INVALID");
+  invariant(["body_equal", "key_equal", "target_equal", "identity_equal", "method_equal"].every((key) => origin.comparison![key] === true) && origin.comparison.original_body_bytes === origin.comparison.replay_body_bytes && origin.comparison.original_body_bytes === origin.original_body_bytes, "PROJECT_MODELS_ORIGINAL_COMPARISON_INVALID");
+}
+type NativeFact = { token: string | null; method: string; path: string; query: string; status: number; eof: boolean; ended: boolean; cancelled: boolean; released: boolean; bytes: number; chunks: number[]; has_body: boolean; mutation_headers: boolean };
+async function nativeFacts(page: Page): Promise<NativeFact[]> { return page.evaluate(() => (window as any).__projectModelsProbe.facts()); }
+async function verifyBodies(page: Page) {
+  const facts = await nativeFacts(page); invariant(facts.length > 0 && facts.every((fact) => fact.ended), "PROJECT_MODELS_NATIVE_TAIL_INCOMPLETE");
+  const sidecars = readdirSync(evidence).filter((name) => /^response-\d+\.json$/.test(name)).map((name) => ({ name, value: object(privateJSON(name, 65536, evidence)) }));
+  const selected: Record<string, unknown>[] = [];
+  for (const fact of facts) {
+    if (!fact.eof) continue;
+    invariant(fact.released, "PROJECT_MODELS_NATIVE_READER_NOT_RELEASED");
+    const matches = sidecars.filter(({ value }) => value.request_token === fact.token && value.source === "browser"); invariant(matches.length === 1, "PROJECT_MODELS_BODY_CORRELATION_INVALID");
+    const { name, value } = matches[0]!;
+    exact(value, ["protocol", "sequence", "source_run", "input_hash", "source", "operation", "method", "endpoint", "query", "status", "content_type", "content_length", "request_id", "project_id", "resource_id", "request_token", "body_file", "body_sha256", "body_bytes", "transfer_kind", "body_stage"]);
+    invariant(value.protocol === protocol && value.input_hash === inputHash && value.body_stage === "complete_formal_upstream" && ["forwarded", "hold"].includes(String(value.transfer_kind)) && value.method === fact.method && value.endpoint === fact.path && value.query === fact.query && value.status === fact.status && value.body_bytes === fact.bytes && /^[0-9a-f]{64}$/.test(String(value.body_sha256)) && value.body_file === `body-${value.body_sha256}.json`, "PROJECT_MODELS_SAME_BODY_METADATA_INVALID");
+    const raw = readFileSync(join(evidence, String(value.body_file)));
+    invariant(raw.length === value.body_bytes && createHash("sha256").update(raw).digest("hex") === value.body_sha256, "PROJECT_MODELS_SAME_BODY_BYTES_INVALID");
+    const result = await page.evaluate((safe) => (window as any).__projectModelsProbe.verify(safe), { token: value.request_token, method: value.method, endpoint: value.endpoint, query: value.query, status: value.status, content_type: value.content_type, content_length: value.content_length, request_id: value.request_id, raw: [...raw] });
+    invariant(result.native_eof === true && result.typed_client_ok === true, "PROJECT_MODELS_NATIVE_CLIENT_FAILED");
+    selected.push({ sidecar: name, request_token: fact.token, browser_eof: true, bytes: raw.length, sha256: value.body_sha256 });
+  }
+  invariant(selected.length > 0, "PROJECT_MODELS_SAME_BODY_EMPTY");
+  writeFileSync(join(evidence, "same-body-input.json"), JSON.stringify(selected), { mode: 0o600 });
+  const child = spawnSync("python3", [join(repository, ".agent-state/model-ui-recovery/validate-same-body.py"), repository, evidence], { encoding: "utf8", timeout: 6_000, maxBuffer: 4096 });
+  writeFileSync(join(evidence, "schema-validation.json"), JSON.stringify({ status: child.status, signal: child.signal, failed_to_run: !!child.error, count: /^\d+\s*$/.test(child.stdout ?? "") ? Number(child.stdout) : null }), { mode: 0o600 });
+  invariant(child.status === 0 && Number(child.stdout) === selected.length, "PROJECT_MODELS_SAME_BODY_SCHEMA_FAILED");
+  writeFileSync(join(evidence, "native-browser-observations.json"), JSON.stringify(facts), { mode: 0o600 });
+  return { attempts: facts.length, complete_eof: facts.filter((fact) => fact.eof).length, incomplete: facts.filter((fact) => !fact.eof).length, typed_client_ok: selected.length, schema_ok: selected.length };
+}
+async function finish(page: Page, mode: Mode, checks: Record<string, boolean>, layouts = 0) {
+  const browser = await verifyBodies(page); checks.safe_schema_client = true;
+  const card = readFileSync(join(repository, "docs/development/work-items/d27-project-owner-model-settings-ui.md"), "utf8");
+  const contract = JSON.parse(card.split('```json\n{\n  "files":')[1]!.split("\n```")[0]!.replace(/^/, '{\n  "files":'));
+  exact(checks, contract.checks_by_mode[mode]); invariant(Object.values(checks).every((value) => value === true), "PROJECT_MODELS_REQUIRED_CHECK_MISSING");
+  const server = await counts(); invariant(object(server.server).started === object(server.server).finished && object(server.controls).held === object(server.controls).held_joined, "PROJECT_MODELS_SERVER_TAIL_INCOMPLETE");
+  const result = { protocol, input_hash: inputHash, completed: true, mode, checks, counts: { server, browser }, schema_bodies: browser.schema_ok, client_bodies: browser.typed_client_ok, layouts };
+  const raw = JSON.stringify(result); invariant(Buffer.byteLength(raw) <= 65536, "PROJECT_MODELS_RESULT_TOO_LARGE");
+  const file = join(directory, "project-models-result.json"); writeFileSync(file + ".tmp", raw, { mode: 0o600, flag: "wx" }); renameSync(file + ".tmp", file);
+  await page.evaluate(() => (window as any).__projectModelsProbe.dispose());
+}
+test.beforeEach(async ({ page }) => {
+  const source = readFileSync(join(repository, "output/ai/model-ui-recovery/client-probe/native-client-probe.js"), "utf8");
+  await page.addInitScript({ content: source + "\nProjectModelsNativeProbe.install();" });
+});
+
+function step(name: string) {
+  invariant(/^[a-z0-9-]+$/.test(name), "PROJECT_MODELS_STEP_INVALID");
+  writeFileSync(join(evidence, "browser-step.json"), JSON.stringify({ mode: process.env.AGENTEAM_PROJECT_MODELS_WEB_CASE, step: name }), { mode: 0o600 });
+}
+
+test("[recovery] actual original configuration and credential requests", async ({ page }) => {
+  const material = readProjectModelsMaterial(), checks: Record<string, boolean> = {};
+  invariant(material.mode === "recovery", "PROJECT_MODELS_CASE_MISMATCH");
+  step("login");
+  await loginProjectModels(page, material.actors.owner);
+  step("configuration-loss");
+  await openProject(page, material, "config_recovery");
+  const before = await snapshot("config_recovery");
+  let dialog = await newProvider(page, "Models Recovery Provider");
+  const createArm = await arm("createProjectModelProvider", "config_recovery", null, "after_complete_cut");
+  await button(dialog, "保存 Provider").click();
+  await expect(dialog.getByText(/结果尚未确认/)).toBeVisible();
+  const lostCreate = await control(createArm, (value) => value.joined === true);
+  invariant(lostCreate.upstream_complete && lostCreate.safe_admitted && lostCreate.effect_applied, "PROJECT_MODELS_CREATE_LOSS_NOT_OBSERVED");
+  const committed = await snapshot("config_recovery"); durableDelta(before, committed, 1, 0);
+  const providerID = committed.current.providers.find((row) => row.present)!.id;
+  const noImplicit = await counts();
+  await button(dialog, "查证原请求").click();
+  await expect(dialog.getByLabel("历史观察", { exact: true })).toBeVisible();
+  await expect(dialog.getByText(/结果尚未确认/)).toBeVisible();
+  await expect(dialog.getByLabel("严格执行回执", { exact: true })).toHaveCount(0);
+  invariant(operationCount(await counts(), "createProjectModelProvider") === operationCount(noImplicit, "createProjectModelProvider"), "PROJECT_MODELS_LOOKUP_WROTE");
+  durableDelta(committed, await snapshot("config_recovery"), 0, 0);
+  step("configuration-replay");
+  await button(dialog, "按原请求重放").click();
+  invariant((await strictReceipt(dialog)).resource_id === providerID, "PROJECT_MODELS_CREATE_RECEIPT_MISMATCH");
+  const replayed = await snapshot("config_recovery"); durableDelta(committed, replayed, 0, 0); originalReplay(replayed, String(lostCreate.origin_token));
+  checks.configuration_response_loss = checks.lookup_observation_only = true;
+  await button(dialog, "取消").click();
+  await expect(dialog).toBeHidden();
+  await button(page, "刷新 Providers").click();
+  await button(page, `读取 Provider ${providerID}`).click();
+  dialog = page.getByRole("dialog", { name: "Provider 详情与编辑", exact: true });
+  step("delete-loss");
+  await button(dialog, "删除 Provider").click();
+  const deletion = page.getByRole("dialog", { name: "删除 Provider", exact: true });
+  const deleteArm = await arm("deleteProjectModelProvider", "config_recovery", providerID, "after_complete_disconnect");
+  await button(deletion, "确认删除").click(); await expect(deletion.getByText(/结果尚未确认/)).toBeVisible();
+  const lostDelete = await control(deleteArm, (value) => value.joined === true);
+  const deleted = await snapshot("config_recovery"); durableDelta(replayed, deleted, 1, 0);
+  invariant(deleted.current.providers.find((row) => row.id === providerID)?.present === false, "PROJECT_MODELS_DELETED_CURRENT_STILL_PRESENT");
+  await button(deletion, "查证原请求").click(); await expect(deletion.getByLabel("历史观察", { exact: true })).toBeVisible();
+  await expect(deletion.getByText(/结果尚未确认/)).toBeVisible();
+  step("delete-replay");
+  await button(deletion, "按原请求重放").click(); await expect(deletion).toBeHidden();
+  invariant((await strictReceipt(page)).resource_id === providerID, "PROJECT_MODELS_DELETE_RECEIPT_MISMATCH");
+  const deleteReplay = await snapshot("config_recovery"); durableDelta(deleted, deleteReplay, 0, 0); originalReplay(deleteReplay, String(lostDelete.origin_token));
+  checks.deleted_target_original_delete = true;
+
+  step("credential-loss");
+  await openProject(page, material, "credential_recovery");
+  const credentialBefore = await snapshot("credential_recovery");
+  await button(page, "创建凭据").click();
+  const credential = page.getByRole("dialog").filter({ has: page.locator("#project-credential-form") });
+  await fillProjectModelsCredential(credential);
+  const credentialArm = await arm("createProjectModelCredential", "credential_recovery", null, "after_complete_disconnect");
+  await button(credential, "创建凭据").click(); await expect(credential.getByText(/结果尚未确认/)).toBeVisible();
+  invariant(await credential.getByLabel("新凭据材料", { exact: true }).inputValue() === "", "PROJECT_MODELS_MATERIAL_NOT_CLEARED");
+  const lostCredential = await control(credentialArm, (value) => value.joined === true);
+  const credentialCommitted = await snapshot("credential_recovery"); durableDelta(credentialBefore, credentialCommitted, 0, 1);
+  const credentialCounts = await counts();
+  await button(credential, "查证原请求").click(); await expect(credential.getByLabel("历史观察", { exact: true })).toBeVisible();
+  await expect(credential.getByText(/结果尚未确认/)).toBeVisible();
+  await expect(credential.getByLabel("严格执行回执", { exact: true })).toHaveCount(0);
+  invariant(operationCount(await counts(), "createProjectModelCredential") === operationCount(credentialCounts, "createProjectModelCredential"), "PROJECT_MODELS_CREDENTIAL_LOOKUP_WROTE");
+  step("credential-replay");
+  await button(credential, "按原请求重放").click();
+  const credentialReceipt = await strictReceipt(credential); invariant(credentialReceipt.credential_id === credentialCommitted.current.credentials[0]?.credential_id, "PROJECT_MODELS_CREDENTIAL_RECEIPT_MISMATCH");
+  const credentialReplayed = await snapshot("credential_recovery"); durableDelta(credentialCommitted, credentialReplayed, 0, 0); originalReplay(credentialReplayed, String(lostCredential.origin_token));
+  checks.credential_response_loss = checks.same_original_bytes_and_key = checks.unique_committed_facts = checks.no_implicit_writes_or_rekey = true;
+  await button(credential, "关闭").click(); await expect(credential).toBeHidden();
+
+  step("owner-tail");
+  await openProject(page, material, "main", "model-providers", true);
+  const mainBefore = await snapshot("main"), seedID = mainBefore.current.providers[0]!.id;
+  await button(page, `读取 Provider ${seedID}`).click();
+  dialog = page.getByRole("dialog", { name: "Provider 详情与编辑", exact: true });
+  await dialog.getByLabel("Provider 名称", { exact: true }).fill("Models Held Update");
+  const heldArm = await arm("updateProjectModelProvider", "main", seedID, "after_complete_hold");
+  await button(dialog, "保存 Provider").click();
+  const held = await control(heldArm, (value) => value.held === true && value.upstream_complete === true);
+  await expect(button(dialog, "取消")).toBeDisabled(); await expect(button(dialog, "按原请求重放")).toBeDisabled();
+  invariant((await nativeFacts(page)).some((fact) => fact.path.endsWith(seedID) && fact.method === "PUT" && !fact.ended), "PROJECT_MODELS_NATIVE_OWNER_TAIL_NOT_OBSERVED");
+  durableDelta(mainBefore, await snapshot("main"), 1, 0);
+  await projectModelsIPC({ action: "release", args: { arm_id: heldArm, request_token: String(held.request_token) } });
+  invariant((await strictReceipt(dialog)).resource_id === seedID, "PROJECT_MODELS_HELD_RECEIPT_MISMATCH");
+  await control(heldArm, (value) => value.joined === true);
+  invariant((await nativeFacts(page)).some((fact) => fact.token === held.request_token && fact.eof && fact.released && fact.ended), "PROJECT_MODELS_NATIVE_FINAL_RELEASE_MISSING");
+  checks.actual_owner_tail = true;
+  await button(dialog, "取消").click(); await expect(dialog).toBeHidden();
+  step("same-body-finish");
+  await finish(page, "recovery", checks);
+});
