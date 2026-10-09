@@ -11,6 +11,8 @@
 
 ## 作者 PG 矩阵源码准备
 
-- 新 `tests/knowledge/owner_tree_commands_{fixture,authority,transactions,unknown}_test.go` 与 `owner_tree_commands_test.go` 共5源已gofmt/差异检查；四top拟13sub，尚未编译/运行。Account构造由固定 `1ee8b7e3` 的测试fixture独立复制私有命名，生产只消费正式B02/Account，不import read HTTP。正式Bootstrap/Invitation/Redeem/Login/Logout；Project初始化与Owner变更为明确上游fixture，权限仍真实原锁/Store，不冒Project.Create/Skills初始化/Transfer API。文档与Object/Audit/Outbox均经原B02真实发布产生，没有手种command/receipt。
+- 新 `tests/knowledge/owner_tree_commands_{fixture,authority,transactions,unknown}_test.go` 与 `owner_tree_commands_test.go` 共5源已gofmt/差异检查；四top拟13sub，已离线race编译及精确发现，尚未运行。Account构造由固定 `1ee8b7e3` 的测试fixture独立复制私有命名，生产只消费正式B02/Account，不import read HTTP。正式Bootstrap/Invitation/Redeem/Login/Logout；Project初始化与Owner变更为明确上游fixture，权限仍真实原锁/Store，不冒Project.Create/Skills初始化/Transfer API。文档与Object/Audit/Outbox均经原B02真实发布产生，没有手种command/receipt。
 - 矩阵限定五POST的真实改名/移动/删除与Lookup、当前Owner/归档/Session、两个Owner锁顺序与同key两Session、实际取消退出，以及原完整COMMIT帧代理的未转发/已提交丢响应和已plan最终回滚的in_progress。SQL效果和安全HTTP投影分别核对；native deadline/connection不由这些capability recorder证明。未知/失败原事实不改写。
-- 该5源及本文freeze供checkpoint；一次必要integration离线race候选已向root报原Work cache/本树TMP/约37MB独立输出与fresh5GiB计划，尚未获启动ACK。不执行PG/native/socket，不改已独审产品/纯测试/Schema。
+- 该5源及本文已 `7fee6d3c` 保存。首同process UTC23:52:46.748858Z/5,560,705,024B 后原cache实际race-c `6269`→`75e170` actual0，candidate01=40,648,125B/SHA256 `6f9e06baf4437b899fdb373361e222b7793cca90f881830a1da9d0a69c88a226`；同命令实际-list恰四top、actual0。主机后采5,341,958,144B，低于门槛；TMP零子目录，无在途命令。后续native候选仍等待fresh恢复。不执行PG/native/socket，不改已独审产品/纯测试/Schema。
+
+- 新 `internal/central/knowledge/commandhttp/native_test.go` 源码已gofmt，integration tag＋显式native env门；3top/6sub拟验原生慢body/更早父deadline、正常keepalive、原Close失败、响应背压及断开取消原call。独占监听/连接/Serve/handler均要求原实际尾；Account/domain明确controlled，不能代真实身份/PG/defaultroot。尚未编译或运行，现与本文freeze供保存。PG7资源与native原105/123/TCP75闭集入口还需最小适配/控制与独审；不自动启动。
