@@ -1,6 +1,6 @@
 # D10 普通 Project Variables Owner 服务与 HTTP
 
-> 状态：SPEC 初稿，待独立契约审查；尚无本卡产品、迁移或测试实现。工作分支 `ai/project-variables`，正式基线 `f1c94ee5`。迁移 `00024` 由 root 为本卡预留。
+> 状态：SPEC 已获独立有限审查接受，按授权范围实施中，尚未产品验收。工作分支 `ai/project-variables`，正式基线 `f1c94ee5`。迁移 `00024` 由 root 为本卡独占预留。
 >
 > 完整结果：已有初始化 Project 的当前 Human Owner，可以经默认 Central HTTP 创建、读取、分页、更新及删除普通变量，以原意图 Lookup 与显式同 key 重放恢复响应丢失。本卡不是完整 D10、Agent F1、Secret 或执行环境注入交付。
 
@@ -16,7 +16,7 @@
 
 ## 2. 精确文件与接缝
 
-当前仅授权本卡与本树 `.agent-state/current.md`。下表是实施必要范围建议，须经负责人协调唯一写者才取得产品写权，不是本稿自行授权共享修改。
+下表精确实施范围已由 root 授予本树唯一实施者；独立验收路径仍由后续未参与实现者独占，不得扩至其他树或未列共享源。
 
 | 范围 | 路径与必要理由 |
 | --- | --- |
@@ -200,4 +200,6 @@ PG复用 `tests/testsupport/postgres`，HTTP真实Account/Project准备参考 `t
 
 ## 9. 当前状态与下一步
 
-完整初稿已完成有限独审，其余范围可接受；唯一待窄复核项已补：§2.1 明确通过现成 CommandMeta.ExpectedVersion 输入删除版本，严格校验 presence/值并与HTTP和摘要同源。共享写域待协调、SPEC尚未最终接受。现在仅两份文档，没有00024 SQL、新Go、schema或实际产品验证。下一步冻结差异作窄复核，接受后由负责人分派实现与独立验收，不提前修改公共接缝。
+SPEC 已获独立有限审查及版本输入差异复核接受，无未决 mustfix。§2.1 复用现成 CommandMeta.ExpectedVersion；初审“端口无法实现”的表述已纠正为本卡须明确单一版本来源，无新增版本参数。
+
+首个可构建片段为四契约、Audit 三 action 的契约/现有 HTTP/schema/客户端兼容及必要纯测试。Go 三包 pure、七个新 Go top 的 race、前端两文件99项及严格类型检查实际通过；Audit HTTP 使用正式 Draft2020-12 与本地 common 引用。首轮 Go 缺显式 schema Python 环境的 setup FAIL、旧前端 Project 关系测试误将新变量 action 纳入的1项 FAIL均保留，修正前置/测试分类后的限定复验通过。尚无变量持久服务、HTTP、默认根或真实 PG 验收；00024 和领域读路径正在后续片段实施，不把首片段当完整产品交付。

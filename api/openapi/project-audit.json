@@ -154,7 +154,10 @@
                 "smtp.delivery",
                 "smtp.delivery.retry",
                 "smtp.settings.update",
-                "smtp.test.request"
+                "smtp.test.request",
+                "project.variable.create",
+                "project.variable.update",
+                "project.variable.delete"
               ]
             },
             "description": "Generic closed Audit filter vocabulary. A legal System-only filter is accepted and yields an empty Project page; it does not authorize System output."
@@ -207,7 +210,8 @@
                 "session",
                 "smtp_settings",
                 "stored_object",
-                "user"
+                "user",
+                "project_variable"
               ]
             },
             "description": "Generic closed Audit filter vocabulary. A legal System-only filter is accepted and yields an empty Project page; it does not authorize System output."
@@ -795,7 +799,10 @@
                 "smtp.delivery",
                 "smtp.delivery.retry",
                 "smtp.settings.update",
-                "smtp.test.request"
+                "smtp.test.request",
+                "project.variable.create",
+                "project.variable.update",
+                "project.variable.delete"
               ]
             },
             "description": "Generic closed Audit filter vocabulary. A legal System-only filter is accepted and yields an empty Project page; it does not authorize System output."
@@ -848,7 +855,8 @@
                 "session",
                 "smtp_settings",
                 "stored_object",
-                "user"
+                "user",
+                "project_variable"
               ]
             },
             "description": "Generic closed Audit filter vocabulary. A legal System-only filter is accepted and yields an empty Project page; it does not authorize System output."
@@ -8775,6 +8783,15 @@
           },
           {
             "$ref": "#/components/schemas/KnowledgeDeleteSubtreeRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ProjectVariableCreateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ProjectVariableUpdateRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ProjectVariableDeleteRecord"
           }
         ]
       },
@@ -8810,6 +8827,293 @@
           "items",
           "next_cursor"
         ]
+      },
+      "ProjectVariableCreateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "project"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "project.variable.create"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "project_variable"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "variable_id",
+              "version",
+              "changed_fields"
+            ],
+            "properties": {
+              "variable_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "version": {
+                "const": "1"
+              },
+              "changed_fields": {
+                "const": [
+                  "created"
+                ]
+              }
+            }
+          },
+          "associations": {
+            "type": "object",
+            "additionalProperties": false,
+            "maxProperties": 0
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "project_id",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Closed Project-only safe projection. No Session IDs, payload text, secret bytes, settings bodies or historical authorization grant. Formal constructors and HTTP enforce equality across project/actor/resource/metadata IDs, canonical changed-field ordering and numeric relations not expressible by this portable schema. Metadata has at most 4096 encoded UTF-8 bytes; the complete 200-row page is bounded by 1048576 bytes without truncation."
+      },
+      "ProjectVariableUpdateRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "project"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "project.variable.update"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "project_variable"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "variable_id",
+              "version",
+              "changed_fields"
+            ],
+            "properties": {
+              "variable_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "version": {
+                "allOf": [
+                  {
+                    "$ref": "./common.json#/components/schemas/Version"
+                  },
+                  {
+                    "not": {
+                      "const": "1"
+                    }
+                  }
+                ]
+              },
+              "changed_fields": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "description",
+                    "name",
+                    "value"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 3,
+                "uniqueItems": true
+              }
+            }
+          },
+          "associations": {
+            "type": "object",
+            "additionalProperties": false,
+            "maxProperties": 0
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "project_id",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Closed Project-only safe projection. No Session IDs, payload text, secret bytes, settings bodies or historical authorization grant. Formal constructors and HTTP enforce equality across project/actor/resource/metadata IDs, canonical changed-field ordering and numeric relations not expressible by this portable schema. Metadata has at most 4096 encoded UTF-8 bytes; the complete 200-row page is bounded by 1048576 bytes without truncation."
+      },
+      "ProjectVariableDeleteRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "project"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "project.variable.delete"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "project_variable"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "variable_id",
+              "version",
+              "changed_fields"
+            ],
+            "properties": {
+              "variable_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "version": {
+                "allOf": [
+                  {
+                    "$ref": "./common.json#/components/schemas/Version"
+                  },
+                  {
+                    "not": {
+                      "const": "1"
+                    }
+                  }
+                ]
+              },
+              "changed_fields": {
+                "const": [
+                  "deleted"
+                ]
+              }
+            }
+          },
+          "associations": {
+            "type": "object",
+            "additionalProperties": false,
+            "maxProperties": 0
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "project_id",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Closed Project-only safe projection. No Session IDs, payload text, secret bytes, settings bodies or historical authorization grant. Formal constructors and HTTP enforce equality across project/actor/resource/metadata IDs, canonical changed-field ordering and numeric relations not expressible by this portable schema. Metadata has at most 4096 encoded UTF-8 bytes; the complete 200-row page is bounded by 1048576 bytes without truncation."
       }
     }
   }

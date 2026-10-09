@@ -207,6 +207,18 @@ const vectors: Record<string, Vector> = {
     },
     resource: resource('model_config'),
   },
+  'project.variable.create': {
+    metadata: { variable_id: id(6), version: '1', changed_fields: ['created'] },
+    resource: resource('project_variable'),
+  },
+  'project.variable.update': {
+    metadata: { variable_id: id(6), version: '2', changed_fields: ['description', 'value'] },
+    resource: resource('project_variable'),
+  },
+  'project.variable.delete': {
+    metadata: { variable_id: id(6), version: '3', changed_fields: ['deleted'] },
+    resource: resource('project_variable'),
+  },
   'knowledge.delete_subtree': {
     metadata: {
       project_id: project,
@@ -245,9 +257,9 @@ const accept = (value: unknown) => parseProjectAuditRecord(value, project)
 const reject = (value: unknown) => expect(() => accept(value)).toThrow('invalid-response')
 
 describe('Project Audit independent closed projection', () => {
-  it('covers all 31 formal actions and exactly fourteen resources', () => {
+  it('covers all 34 formal actions and exactly fifteen resources', () => {
     expect(projectAuditActions.slice().sort()).toEqual(Object.keys(vectors).sort())
-    expect(Object.keys(vectors)).toHaveLength(31)
+    expect(Object.keys(vectors)).toHaveLength(34)
     const schema: {
       components: { schemas: Record<string, { properties?: { action?: { const?: string } } }> }
     } = JSON.parse(
@@ -369,7 +381,9 @@ describe('Project Audit independent closed projection', () => {
       reject({ ...row('knowledge.delete_subtree'), associations: { [key]: id(8) } })
   })
   it('enforces Project creation/operation/transition/initiator and association relations', () => {
-    for (const action of Object.keys(vectors).filter((key) => key.startsWith('project.'))) {
+    for (const action of Object.keys(vectors).filter(
+      (key) => key.startsWith('project.') && !key.startsWith('project.variable.'),
+    )) {
       const base = row(action)
       reject({ ...base, metadata: { ...base.metadata, project_id: id(99) } })
       reject({ ...base, resource: resource('project', 99) })

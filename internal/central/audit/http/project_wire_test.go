@@ -225,6 +225,50 @@ type projectAuditSchemaVector struct {
 	Valid        bool
 }
 
+func TestProjectAuditVariableWire(t *testing.T) {
+	p, _ := foundation.ParseID[identity.Project](projectAuditWireID)
+	var vectors []projectAuditSchemaVector
+	for _, change := range []string{"create", "update", "delete"} {
+		version, fields := "2", `["description","value"]`
+		if change == "create" {
+			version, fields = "1", `["created"]`
+		}
+		if change == "delete" {
+			fields = `["deleted"]`
+		}
+		tc := typedCase{"project.variable." + change, "project_variable", `{"variable_id":"` + wireID + `","version":"` + version + `","changed_fields":` + fields + `}`, "", c.Success}
+		r := projectAuditTestRecord(t, tc, identity.Human, false)
+		body, err := projectAuditEncodeRecord(context.Background(), p, r.AuditID, r)
+		if err != nil {
+			t.Fatal(err)
+		}
+		vectors = append(vectors, projectAuditSchemaVector{change, "ProjectAuditRecord", body, true})
+		for name, mutate := range map[string]func(*c.SafeRecord){
+			"actor": func(v *c.SafeRecord) {
+				v.Actor.Kind = identity.Service
+				v.Actor.Service = identity.ProjectInitialization
+			},
+			"association": func(v *c.SafeRecord) { v.Associations.RequestID = wireID },
+			"outcome":     func(v *c.SafeRecord) { v.Outcome = c.Denied },
+			"resource":    func(v *c.SafeRecord) { v.Resource, _ = c.NewResource(c.ProjectVariableResource, projectAuditWireID) },
+		} {
+			bad := r
+			mutate(&bad)
+			if b, e := projectAuditEncodeRecord(context.Background(), p, bad.AuditID, bad); e == nil || len(b) != 0 {
+				t.Fatal(change, name, "accepted")
+			}
+		}
+		var wire map[string]any
+		if json.Unmarshal(body, &wire) != nil {
+			t.Fatal("wire")
+		}
+		wire["metadata"].(map[string]any)["value"] = "private-canary"
+		bad, _ := json.Marshal(wire)
+		vectors = append(vectors, projectAuditSchemaVector{change + "/value", "ProjectAuditRecord", bad, false})
+	}
+	projectAuditStandardSchema(t, vectors)
+}
+
 func projectAuditStandardSchema(t *testing.T, vectors []projectAuditSchemaVector) {
 	t.Helper()
 	python := os.Getenv("AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON")
