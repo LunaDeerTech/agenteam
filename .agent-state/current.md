@@ -114,3 +114,5 @@
 
 - Model第五root84332最终exit1/85.095s，Go16.01s，7IDs双absent/descendants[]、4adoptedWait0/directWait1/watchdogobserverjoin/TCP双空/source同一（owned-recovery-cb9429b…）。新actualLoss与真实Provider提交已通过，line776历史观察timeout，原safe sidecar只有setupcreate/browserlist/browsercreatecut，缺lookupsidecar；具体原request/proxy错误未采，不回填502。新model_acceptance_next已实际启动接管4harness/helpers，定位lookup内层Unmarshal复用外壳map缺陷，两unionpure实际FAIL后最小result=nil修复；修后pure race1.164s/vet/race-c/list/TS实际0。browser仅增lookupstep与真实servercount恰1，原恢复门槛不变，3source冻结待独审/第六实际run。
 - R1六声明/唯一性/依赖与独立external overlay已接受，3顶层6子例真实race Wait0；自有script子例门禁补强后重跑亦actual0，两probe冻结。root四包race/vet actual0，4必要doc与globalledger精确同步，149本地目标无缺，准备正式main纯结果；无资源目录、授权、引用保护或F1生产能力。
+
+- R1纯资源身份正式main交付dbf4a5e00ba5b799025a94e24526159790699e4b，正常push actual0与ls-remote精确确认；10路径仅2identity源/2独立probe/4必要doc与ledger/current，无Model未验输入。最终Central与Runner build实际0，C1/Task产品未改；完整F1和目录事实仍缺。deliverymain已FF到dbf4a5e0，迁移仍accepted00022；原Model两untrackedGo保持。活动分支合入main只解决rootcurrent恢复内容，无源码冲突。
