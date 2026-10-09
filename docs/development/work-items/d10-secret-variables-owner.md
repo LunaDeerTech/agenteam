@@ -1,6 +1,6 @@
 # D10 Secret Variables Owner 后端
 
-> 状态：工程 SPEC 草案 rev2，未独立审查、未实施。正式基线 main `3cea6076`。当前只写本文及分支 current，不占迁移号、不改产品。§4/§6 已提出专用 D04 端口、回执轮换/清理和真实事实证明方案；它们是本结果必须实现的前置，不能当作现有能力。实施授权及共享所有权仍见 §10。
+> 状态：工程 SPEC rev2 已获 Model 独立有限接受；A 纯合同、Schema及独立复验资产已正式交付 main `8cb0a953`。Owner Service/HTTP、D04提供方、SQL及生产组合尚未交付，不能将A视为整卡通过。原SPEC基线main `3cea6076`；§4/§6专用D04端口、回执轮换/清理和真实事实证明仍是后继前置。实施授权及共享所有权见§10。
 >
 > 拟完整结果：已初始化 Project 的当前 Human Owner，经默认 Central HTTP 创建 Secret Variable、读取安全元数据、分页、修改 name/description、覆盖 value、删除及恢复响应丢失。与普通变量共享业务 ID 和名称空间；明文不进入读取响应或持久命令。另落实 Agent F1 的资源侧目录/引用协议；真实 Agent canonical/引用适配由 F1 完成，不以测试 owner 代替。
 

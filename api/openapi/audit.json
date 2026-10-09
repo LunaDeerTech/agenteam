@@ -146,7 +146,10 @@
                 "smtp.delivery",
                 "smtp.delivery.retry",
                 "smtp.settings.update",
-                "smtp.test.request"
+                "smtp.test.request",
+                "project.secret_variable.create",
+                "project.secret_variable.update",
+                "project.secret_variable.delete"
               ]
             },
             "description": "Existing Filter input set; legal Project-only values remain accepted and may yield an empty System page. Nonempty actor_id with service actor_kind is invalid."
@@ -199,7 +202,8 @@
                 "session",
                 "smtp_settings",
                 "stored_object",
-                "user"
+                "user",
+                "project_variable"
               ]
             },
             "description": "Existing Filter input set; legal Project-only values remain accepted and may yield an empty System page. Nonempty actor_id with service actor_kind is invalid."

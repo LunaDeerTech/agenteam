@@ -43,7 +43,7 @@ const (
 )
 
 func (a Action) Valid() bool {
-	if AccountAction(a) || ProjectAction(a) || ModelAction(a) || KnowledgeAction(a) || ProjectVariableAction(a) {
+	if AccountAction(a) || ProjectAction(a) || ModelAction(a) || KnowledgeAction(a) || ProjectVariableAction(a) || ProjectSecretVariableAction(a) {
 		return true
 	}
 	switch a {
@@ -203,6 +203,11 @@ func NewEntry(f EntryFields) (Entry, error) {
 			return Entry{}, err
 		}
 	}
+	if ProjectSecretVariableAction(f.Action) {
+		if err := validateProjectSecretVariableEntry(f); err != nil {
+			return Entry{}, err
+		}
+	}
 	if KnowledgeAction(f.Action) {
 		if err := validateKnowledgeEntry(f); err != nil {
 			return Entry{}, err
@@ -304,6 +309,9 @@ func (p Producer) Valid() bool {
 	return p == ProjectVariableProducer || p == KnowledgeProducer || p == ModelProducer || p == ProjectProducer || p == AccountProducer || p == AccountMailProducer || p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer || p == OutboxProducer
 }
 func ProducerFor(action Action) Producer {
+	if ProjectSecretVariableAction(action) {
+		return ProjectVariableProducer
+	}
 	if ProjectVariableAction(action) {
 		return ProjectVariableProducer
 	}

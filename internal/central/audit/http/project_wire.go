@@ -63,7 +63,8 @@ func projectAuditSummary(action c.Action) (string, bool) {
 		c.ProjectDeleteAccepted, c.ProjectLifecycleRetry,
 		c.ProviderCreate, c.ProviderUpdate, c.ProviderDelete,
 		c.ModelCreate, c.ModelUpdate, c.ModelDelete, c.KnowledgeDeleteSubtree,
-		c.ProjectVariableCreate, c.ProjectVariableUpdate, c.ProjectVariableDelete:
+		c.ProjectVariableCreate, c.ProjectVariableUpdate, c.ProjectVariableDelete,
+		c.ProjectSecretVariableCreate, c.ProjectSecretVariableUpdate, c.ProjectSecretVariableDelete:
 		return "Audit event", true
 	}
 	return "", false
@@ -124,6 +125,10 @@ func projectAuditProjection(project identity.ProjectID, record c.SafeRecord) (pr
 // HTTP rechecks the clipped safe projection without fabricating a Session ID.
 func projectAuditRelations(record c.SafeRecord, metadata c.Metadata, project identity.ProjectID) bool {
 	r, a, links := record.Resource.Details(), record.Actor, record.Associations
+	if c.ProjectSecretVariableAction(record.Action) {
+		m, err := metadata.ProjectSecretVariableFields()
+		return err == nil && a.Kind == identity.Human && record.Outcome == c.Success && r.Kind == c.ProjectVariableResource && r.ID == m.VariableID && links == (c.Associations{})
+	}
 	if c.ProjectVariableAction(record.Action) {
 		m, err := metadata.ProjectVariableFields()
 		return err == nil && a.Kind == identity.Human && record.Outcome == c.Success && r.Kind == c.ProjectVariableResource && r.ID == m.VariableID && links == (c.Associations{})

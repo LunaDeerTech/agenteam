@@ -124,16 +124,16 @@ describe('Project Audit two closed current-project GETs', () => {
       await pending
     }
   })
-  it('retains all 53 action and 25 resource filters including valid System-only empty results', async () => {
-    expect(auditFilterActions).toHaveLength(53)
-    expect(auditFilterResourceKinds).toHaveLength(25)
+  it('retains all 56 action and 26 resource filters including valid System-only empty results', async () => {
+    expect(auditFilterActions).toHaveLength(56)
+    expect(auditFilterResourceKinds).toHaveLength(26)
     const fetch = vi.fn<Fetch>(async () => json(page([]))),
       api = createProjectAuditAPI(fetch)
     for (const action of auditFilterActions)
       expect((await api.list(project, { action }, signal())).items).toEqual([])
     for (const resource_kind of auditFilterResourceKinds)
       expect((await api.list(project, { resource_kind }, signal())).items).toEqual([])
-    expect(fetch).toHaveBeenCalledTimes(78)
+    expect(fetch).toHaveBeenCalledTimes(82)
   })
   it.each([
     null,

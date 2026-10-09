@@ -229,6 +229,7 @@ function problem(value: unknown, status: number, requestID: string | null): Prob
 // numeric token widths as metadata, never raw bodies. Go compacts RawMessage
 // and HTML-escapes strings; those injected escapes give a necessary lower
 // bound on the original bytes, not proof of the unavailable stored spelling.
+// Project Audit reuses the token walk for duplicate-member rejection.
 const projectModelJSONSizes = new WeakMap<object, number>()
 function projectModelJSON(text: string): unknown {
   const value: unknown = JSON.parse(text)
@@ -353,6 +354,7 @@ async function readJSON(
   signal: AbortSignal,
   maximum = 600_000,
   preserveProjectModelJSON = false,
+  checkProjectAuditMembers = false,
 ): Promise<unknown> {
   const reader = response.body?.getReader()
   if (!reader) throw new AccountFailure('invalid-response')
@@ -376,7 +378,11 @@ async function readJSON(
       text += decoder.decode(value, { stream: true })
     }
     text += decoder.decode()
-    return preserveProjectModelJSON ? projectModelJSON(text) : (JSON.parse(text) as unknown)
+    // Audit pages can mix actions. Check member identity before any action
+    // discriminator can be replaced by a later duplicate JSON member.
+    return preserveProjectModelJSON || checkProjectAuditMembers
+      ? projectModelJSON(text)
+      : (JSON.parse(text) as unknown)
   } finally {
     signal.removeEventListener('abort', abort)
     await cancel()
@@ -638,6 +644,9 @@ export const auditFilterActions = [
   'model.delete',
   'model.selection.update',
   'knowledge.delete_subtree',
+  'project.secret_variable.create',
+  'project.secret_variable.update',
+  'project.secret_variable.delete',
 ] as const
 export const auditFilterResourceKinds = [
   'secret',
@@ -665,6 +674,7 @@ export const auditFilterResourceKinds = [
   'model_config',
   'model_selection',
   'knowledge_document',
+  'project_variable',
 ] as const
 export const auditFilterFields = [
   'from',
@@ -1354,6 +1364,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                       ? 1024 * 1024
                       : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
+          success && (endpoint === 'listProjectAudit' || endpoint === 'getProjectAudit'),
         )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
