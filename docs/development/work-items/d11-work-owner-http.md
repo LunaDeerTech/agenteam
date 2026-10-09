@@ -1,6 +1,6 @@
 # D11 Owner Work Planning HTTP 与默认生产根
 
-修订：rev2，2026-10-09，**已修正rev1独审四项，待差异复审；尚未实施或验收**。
+修订：rev2，2026-10-09，**SPEC已独立接受，分页及错误投影实施中；HTTP/root尚未完成或动态验收**。
 
 ## 1. 完整结果与真实前置
 
@@ -199,4 +199,4 @@ PG/native HTTP/真实root资源必须等root分配独占窗口。Task Planning�
 
 ## 9. 当前可证状态
 
-已按正式计划及实际构造/授权/根接缝确认依赖就绪，root授予上述写域。rev1独审暂不接受：遗漏九码Problem映射、混淆graceful/forced退出、详情query及framing边界不全、自然期限/EOF验收不够明确；rev2逐项修正并采用现process harness，等待差异复审。没有新产品代码、迁移或本卡动态通过结论。全局进度与实际资源窗口由任务台账/分支记录维护，本卡不复制逐轮聊天、日志或全树哈希。
+已按正式计划及实际构造/授权/根接缝确认依赖就绪，root授予上述写域。rev1独审暂不接受：遗漏九码Problem映射、混淆graceful/forced退出、详情query及framing边界不全、自然期限/EOF验收不够明确；rev2逐项修正并采用现process harness，已获独立差异审查接受，无剩余must-fix。分页四源已可构建且限定pure通过；九码Problem/schema与输出测试已落盘，限定pure/race及原错误/schema回归通过。HTTP/root尚未完成，没有本卡动态通过结论。全局进度与实际资源窗口由任务台账/分支记录维护，本卡不复制逐轮聊天、日志或全树哈希。

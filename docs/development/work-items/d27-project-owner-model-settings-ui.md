@@ -1,6 +1,6 @@
 # D27 Project Owner 模型设置 UI — rev1＋菜单兼容补充
 
-状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 30 路径（29 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30 是旧 Audit 菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮、read 第二轮、configuration 第三轮与 credential 首轮实际完整通过（4/6 新 top，含完整资源终态）。原 recovery 六次、read 首轮与 configuration 前两轮失败保留。其余两个新 top、旧回归余下 10 项和独立 A/B 尚未完成；旧 Owner 三项及 Audit 权限／恢复一项已完整通过，已恢复或注册的其他源码不代表真实场景通过。
+状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 31 路径（30 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30–31 是旧 Audit 单元／真实浏览器菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮、read 第二轮、configuration 第三轮与 credential 首轮实际完整通过（4/6 新 top，含完整资源终态）。原 recovery 六次、read 首轮与 configuration 前两轮失败保留。其余两个新 top、旧回归余下 10 项和独立 B 尚未完成；独立 A 第二轮已完整通过；旧 Owner 三项及 Audit 权限／恢复一项已完整通过，已恢复或注册的其他源码不代表真实场景通过。
 
 本卡保存产品规格、验收场景与恢复所需事实；团队调度、稳定输入、证据留存和 Git 交付统一遵循[团队流程](../agent-team/README.md)。旧逐轮 root grant、重复哈希表、README 最后另授和永久归档步骤不再作为日常流程。历史全文可从 `e55ad7d1` 的本卡及当时[任务台账](../agent-team/tasks.md)、[环境交接](../agent-team/recovery-2026-10-08-environment.md)文件历史定位，不改写原失败或未验证范围。
 
@@ -15,7 +15,7 @@
 | 真实配置与凭据路径 | `modelsconfig03`、`modelscred01` 历史 actual PASS / fullSTOP；前两次配置 FAIL、Problem.instance 净化路径修复及其有限证据保留。 |
 | 恢复路径 | `modelsrecover01`、`modelsrecover02` 均 FAIL；后者缺最终 browser-result 与 durable facts，原 75s host TCP 观察未双清。后续有限窗口释放不能补写原 TCP 通过。 |
 | 当前恢复验收 | recovery 第七轮、read 第二轮、configuration 第三轮、credential 首轮完整通过，原各次失败保留。sharedLayer 修复及真实组件已按 §0.2 接受；受影响业务场景仍待补验，不能将历史 PASS 直接写成新资产通过。 |
-| 未完成门槛 | authority / navigation 两个新 top、旧 14 回归中的余下 10 项及独立 A/B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
+| 未完成门槛 | authority / navigation 两个新 top、旧 14 回归中的余下 10 项及独立 B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
 
 两次恢复失败后的受控结论仅用于后续修复：正式 header/Flush 后零 body 断连已在受控 native fetch 比较中验证；旧分支一次 fetch 可能透明发出两次 POST 并读到完整 EOF。ReadPrivate 的 Lstat→Open→SameFile 与 JS atomic rename 存在源码可确定竞态；候选改为先 NOFOLLOW|NONBLOCK 打开，再以同一 fd 验证 regular/0600/size，保留原有界读取、清理与 Close，pure-file 受控 12 叶／17 RUN/PASS 已接受。原恢复轮未采得具体 error 类别，以上不能回填两次 business FAIL 的确切因果。早期受控 browser launch 失败及 TMP 后续清理同样保留，短根成功不证明原 launch 失败原因。
 
@@ -47,6 +47,10 @@ navigation 第五轮使用 §0.3 已接受修复的新私有资产，仍在初�
 authority 第六轮使用已独审的新诊断，本轮 Session 原 finished／JSON／身份门槛通过，但不证明旧间歇失败已修复。已完成归档配置原请求重放，随后切到凭据恢复 Project 时 FAIL：URL 等待已过，公开 Project 设置链接的目标 href 尚未发布（模块第 282 行）；17 个安全响应，尚未开始凭据归档场景，没有 Session 失败诊断产物。必要事实见 [authority-navigation-sixth-failure.json](../../../.agent-state/model-ui-recovery/authority-navigation-sixth-failure.json)。Go 25.15 秒、外层实际 exit=1／114.59 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空及输入同一均完成。下一步核实真实导航确认或当前 Owner 发布条件，区分产品缺陷与测试前置遗漏，保持原断言与预算。
 
 独立 A 已由独验者本人首次实际执行，整体 FAIL：停在凭据轮换阶段，仅四个安全响应，最后为 metadata GET 200；原失败投影只有错误数量，没有保留具体断言，不能认定确切根因。必要安全事实见 [independent-a-first-failure.json](../../../.agent-state/model-ui-independent/independent-a-first-failure.json)。Go 13.26 秒、外层实际 exit=1／107.38 秒；direct／四 adopted 实际 wait、Node／proxy／body／service／root join、七资源双 absent、runtime 与临时目录移除、TCP 双空、输入同一及两个 marker 移除全部完成。离线源码确认该构造会同时展示 metadata 与未绑定候选两个 `dl`，而测试使用单元素选择器；只修语义定位并补闭合错误投影，仍需正反控制及独审，不将此候选回填为原 FAIL 的已知原因。
+
+独立 A 第二轮已由独验者本人完整通过：只修“已读版本”的语义定位并补闭合错误投影，作者与独立正反控制、strict TS 均通过；该修复不确定首轮缺失断言的根因。原未知／原请求组合五项检查全部为 true，八份完整响应完成同 body／schema／正式客户端校验，另两次预期断流被正确识别。Go 18.18 秒、外层实际 exit=0／106.16 秒；direct／四 adopted 实际 wait=0、Node／proxy／body／service／root join、七资源双 absent、runtime 与临时目录移除、TCP 双空、输入同一及两个 marker 移除全部完成。消费当轮已冻结的 common Problem.code 既有 Work 错误码补充；B 尚未执行，原 A 首轮 FAIL 保留。
+
+旧 `audit-navigation` 首轮整体 FAIL，原 driver 已保留具体断言：`settingsCurrent` 期待的设置分组仅有“项目资料／安全记录”，实际还包含本卡正式新增的“模型与 Provider”（E2E 第 1542 行，调用第 1715 行）。这是旧浏览器测试期待遗漏；§8 #31 同一数组的兼容修正已通过 strict TS／格式检查及有限独审，所有其他导航断言保留，仍须真实复验。必要安全事实见 [audit-navigation-first-failure.json](../../../.agent-state/model-ui-regression/audit-navigation-first-failure.json)。Go 15.65 秒、外层实际 exit=1／106.58 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空、输入同一及 marker 移除均完成，零布局图。旧回归仍为 4／14，不把该 FAIL 改写为兼容后通过。
 
 旧回归现为 **4／14 完整通过**。下表四组均用 `run-owned-regression.py --group` 的原精确 selector 与当前私有资产执行，外层实际 exit=0；direct／四 adopted 实际 wait=0、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空、输入同一及 marker 移除全部确认。四组均使用专属 Owner／Audit 私有资产入口，无全局资产租约，也不消费 Session 诊断源码或 bundle；不据此替代剩余 10 项。
 
@@ -98,7 +102,7 @@ authority 第二轮的真实 hit-test 证明：后激活的确认框虽然获得
 | 既有 System/账号前端基础 | frontend README 对应完整验收；复用唯一Cookie owner、Ui/Dialog/SettingsShell、严格标量/Instant等纯工具 | 不复用System端点、admin谓词、按Provider分页或Impact状态机 |
 | Audit UI 完整22接受 | [完整验收](../agent-team/project-owner-audit-ui-verification.md)已接受；共享接入点按§0.1与当前限定 diff 核对 | 有限版本组合，不声称所有producer或当前HEAD一次全新全测 |
 
-后端三卡已提供此UI所需全部公开协议，无新增迁移、公共contract、SQL或生产root修改理由。30个产品路径（29技术＋README）是同一设置结果的有限范围；不先做只有列表的界面卡。Provider与Credential是显式独立命令，Model共享这些稳定引用和当前Owner，不引入自动创建/补偿工作流。若实现确需额外共享路径，向直接负责人说明理由与影响；涉及跨任务所有权或公共契约时由主线程协调并修订范围。
+后端三卡已提供此UI所需全部公开协议，无新增迁移、公共contract、SQL或生产root修改理由。31个产品路径（30技术＋README）是同一设置结果的有限范围；不先做只有列表的界面卡。Provider与Credential是显式独立命令，Model共享这些稳定引用和当前Owner，不引入自动创建/补偿工作流。若实现确需额外共享路径，向直接负责人说明理由与影响；涉及跨任务所有权或公共契约时由主线程协调并修订范围。
 
 正式 SPEC、Audit 整卡和端点协议已接受；前端当前交付及恢复输入见 §0。负责人按依赖组织剩余实现和验证，指定文件、Go/cache、资产及测试资源的唯一所有者；跨任务窗口由主线程协调，不能占用其他任务资源。
 
@@ -344,7 +348,7 @@ UI内存跨checking恢复不扩大为跨新Session恢复；真正新Session/CSRF
 
 ## 8. 唯一产品写域与作者
 
-下表保留30个产品路径及原编号。25个web文件已提交，#24–27四个harness已恢复，README #29需随后续实际验收结果同步。负责人按前端、Go harness、浏览器验证等完整子目标分派唯一写入者并整合；文档与相关实现同次交付，不再设置README末件许可。Git由主线程负责，共享资产／资源指定唯一所有者。除 §0.2 已单独授权的共享浮层修复外，不扩展到公共 Ui／样式、HTTP/schema或生产后端。
+下表保留31个产品路径及原编号。25个web文件已提交，#24–27四个harness已恢复，README #29需随后续实际验收结果同步。负责人按前端、Go harness、浏览器验证等完整子目标分派唯一写入者并整合；文档与相关实现同次交付，不再设置README末件许可。Git由主线程负责，共享资产／资源指定唯一所有者。除 §0.2 已单独授权的共享浮层修复外，不扩展到公共 Ui／样式、HTTP/schema或生产后端。
 
 | # | 路径 | 最小作用 |
 | --- | --- | --- |
@@ -378,8 +382,9 @@ UI内存跨checking恢复不扩大为跨新Session恢复；真正新Session/CSRF
 | 28 | web/src/tests/session.spec.ts | 本域与旧mutator单owner/安全错误隔离兼容 |
 | 29 | docs/development/frontend/README.md | 随实现及验收同步能力、边界和真实命令 |
 | 30 | web/src/tests/project-audit.spec.ts | 旧 Audit 设置菜单期待仅追加模型与 Provider，保留其余断言 |
+| 31 | tests/account-captcha-web/e2e/project-owner-audit.spec.ts | 同一旧 Audit 菜单期待的真实浏览器兼容修正，保留全部导航断言 |
 
-workspace仅消费公开currentReadContext/detail，不新增workspace写域。System API/composables只读，纯类型/标量工具能原样复用才引用，不能导出System callback或调用其HTTP。默认不改ProjectGeneral/ProjectWorkspaceView、原account TestMain、test-objects/security/postgres脚本、旧browser spec、公共fixture、schema/contract/store/root/迁移/锁文件。若实际旧测试只有菜单期待变化，限#23；其它必要修改先交直接负责人评估，跨范围变化由主线程协调。
+workspace仅消费公开currentReadContext/detail，不新增workspace写域。System API/composables只读，纯类型/标量工具能原样复用才引用，不能导出System callback或调用其HTTP。默认不改ProjectGeneral/ProjectWorkspaceView、原account TestMain、test-objects/security/postgres脚本、除#31外的旧browser spec、公共fixture、schema/contract/store/root/迁移/锁文件。旧测试菜单期待兼容仅限#23、#30与#31；其它必要修改先交直接负责人评估，跨范围变化由主线程协调。
 
 菜单兼容补充已交付：#30仅在原设置菜单组的期待数组追加“模型与 Provider”，保留其余断言及安全／权限边界。旧完整单元2626 PASS／2 FAIL与修后该文件49/49 PASS按版本组合保留；此结果只支持菜单兼容，不代替剩余真实验收。
 
@@ -441,7 +446,7 @@ Owner三轮用`AGENTEAM_PROJECT_OWNER_WEB_DIST`；Audit两轮用`AGENTEAM_PROJEC
 
 ## 10. 私有 harness 协议与精确 DTO
 
-协议仍为 `project-owner-models.v1`。本节完整组合已审 T3 rev2 的精确字段，补足原 rev1 抽象描述；没有第18业务操作或第10IPC；产品范围以§8的30路径为准。下列 typed 代码是规格，不是 TypeScript/Go 实现或已编译 schema。
+协议仍为 `project-owner-models.v1`。本节完整组合已审 T3 rev2 的精确字段，补足原 rev1 抽象描述；没有第18业务操作或第10IPC；产品范围以§8的31路径为准。下列 typed 代码是规格，不是 TypeScript/Go 实现或已编译 schema。
 
 所有下述对象均恰含所列字段，必需 nullable 用显式 null，不用缺字段；重复/未知键、第二个JSON值、坏UTF8及非法 union 拒绝。`ID`=正式小写 UUIDv7；`Version`=1..MaxInt64 的 canonical decimal string；`DBCount`=0..MaxInt64 decimal string；`Count`=非负安全整数。配置 expected 可到 MaxInt64，凭据 expected 只到 MaxInt64−1，沿正式写 DTO。Token 是本 case Go 登记器按序产生的 `r000001`/`a0001`；与 input_hash 一起解释，重启/另一case无效，不取自 key、body 或任何digest。
 
@@ -574,7 +579,7 @@ Node独立保持native EOF/typed client/schema验证记录，final_result的coun
 
 ### 10.4 文件、取证、成功键与原预算的闭集
 
-下列对象保留rev1中未被精确DTO补充替换的运行契约；是静态规格数据，不证明driver已恢复。私有路径是现已缺失的历史候选，恢复时使用`output/ai/<task>/`或有界短外部目录并记录实际路径；产品路径以§8的30项为准。`final_result.counts` 使用本节10.3的明确形状，不能再采用旧 counts 描述冒充浏览器观察。原 material/expected/system、各action粗略result描述与旧pending状态不在此重复，已由10.1–10.3和§0明确替换。
+下列对象保留rev1中未被精确DTO补充替换的运行契约；是静态规格数据，不证明driver已恢复。私有路径是现已缺失的历史候选，恢复时使用`output/ai/<task>/`或有界短外部目录并记录实际路径；产品路径以§8的31项为准。`final_result.counts` 使用本节10.3的明确形状，不能再采用旧 counts 描述冒充浏览器观察。原 material/expected/system、各action粗略result描述与旧pending状态不在此重复，已由10.1–10.3和§0明确替换。
 
 ```json
 {
@@ -781,7 +786,7 @@ Node独立保持native EOF/typed client/schema验证记录，final_result的coun
 
 ## 11. 正式化、唯一写权与交付
 
-无新增用户产品待决。本卡保留一个完整结果、30产品路径（29技术＋README）、17 HTTP operations＝6 GET＋9 mutation＋2 POST lookup、9 IPC、六新top＋14旧selector。UI不发布Audit/Event；配置与Secret事务事实仍由既有正式后端拥有，不加生产后端/SQL/迁移或Invocation适配。
+无新增用户产品待决。本卡保留一个完整结果、31产品路径（30技术＋README）、17 HTTP operations＝6 GET＋9 mutation＋2 POST lookup、9 IPC、六新top＋14旧selector。UI不发布Audit/Event；配置与Secret事务事实仍由既有正式后端拥有，不加生产后端/SQL/迁移或Invocation适配。
 
 当前接续以§0为准，从已恢复harness与必要构建产物按§9–10补齐验收。主线程负责全局约束、跨任务资源与Git交付；一级负责人自主拆分、整合和组织独立验证，下级可按收益继续委派，模型与运行时约束统一见[团队流程](../agent-team/README.md)。同一文件和共享资源只有一个写入者／所有者；范围内工程问题由直接负责人解决，跨任务契约、预算或产品含义变化才升级。
 

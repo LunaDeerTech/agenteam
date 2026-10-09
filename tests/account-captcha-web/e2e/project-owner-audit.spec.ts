@@ -1539,7 +1539,7 @@ async function settingsCurrent(
   ).not.toHaveAttribute("aria-current", "page");
   expect(
     await menu.locator(".settings-group-toggle").allTextContents(),
-  ).toEqual(["项目资料", "安全记录"]);
+  ).toEqual(["项目资料", "安全记录", "模型与 Provider"]);
 }
 async function noOverflow(page: Page) {
   const dimensions = await page.evaluate(() => ({
