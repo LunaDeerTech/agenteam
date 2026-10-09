@@ -1,0 +1,63 @@
+# Work ordinary response completion — bounded method proposal
+
+Status: proposed only, not implemented or accepted. Input: Work `d3322e3e`; recovery06 session91642 whole FAIL, actual exit1 and all original resource tails complete. The unchanged failure is in `recovery-sixth-failure.json`. This document requests an independent method decision before any ordinary gate change. No product/Go/binary/dist/budget change or new real run is proposed here.
+
+## 1. Requirement and current implementation
+
+The Work card §5 requires the one actual Cookie-operation owner to remain held through fetch/body/cancel completion. §6 requires fatal UTF-8, actual EOF, strict JSON/typed parsing, the original reader cancellation/release and outer body cancellation before the request returns. §8.2 requires the same original method/path/query/identity/status/body for schema/client evidence and the original Go/SQL postconditions. Those are outcome requirements.
+
+The current card §8.2 also explicitly says ordinary success still requires original `finished` and forbids a native diagnostic fallback. That is an accepted method constraint, not permission for the author to silently substitute another signal. This proposal would revise only that constraint for the closed candidate class below, preserving all outcome requirements. Until independent acceptance and root's narrow implementation grant, `seen.verify`, `originalBody`, ordinary finished and held-read gates stay byte-for-byte unchanged.
+
+Fixed PW1.56.1 `_onRequestFailed` emits requestfailed but does not resolve `Response._finishedPromise`; `finished()` may reject only after page close. Skills already independently proved that API behavior. Recovery06 now provides seven actual ordinary original-response EOF witnesses alongside earlier PW failed events and pending finished. This demonstrates that PW finished is not a complete signal for the observed client consumption; it does **not** prove why Chromium reported aborted, that every failed request completed, or that existing consumers/schema/owners passed. The count change from 9 to 7 is not a causal argument.
+
+## 2. Exact observed mapping and missing evidence
+
+All seven rows have one valid XID, exact method/path/status and document binding, no query, HTTP200, native done:true, valid identity Content-Length equal to observed bytes and EOF before reader/stream cancel. Original native failure is none, read/cancel calls settled, release succeeded, no signal abort observed. Original PW finished event is absent and failed is actual before page close. Failure JSON retains the original PW and helper clocks separately from document-local browser order.
+
+| PW sequence | Original endpoint | Native bytes/CL | Public original promise | Document end |
+| --- | --- | --- | --- | --- |
+| 12 | POST structure-commands/lookup | 37 | absent: current adapter only binds task-domain checkOriginal | observed |
+| 18 | GET milestone | 314 | getMilestone fulfilled, uniquely bound | observed |
+| 35 | GET task | 513 | getTask fulfilled, uniquely bound | observed |
+| 40 | GET milestone | 304 | getMilestone fulfilled, uniquely bound | observed |
+| 47 | GET sprint | 435 | getSprint fulfilled, uniquely bound | observed |
+| 60 | GET milestone | 304 | getMilestone fulfilled, uniquely bound | **missing** |
+| 65 | GET task | 505 | getTask fulfilled, uniquely bound | **missing** |
+
+Six facade fulfillments and sampled current identity/not_busy are recorded facts; they have not yet been independently proved to be the exact operation's actual owner release. Entry DOM flags show some detail already existed; no new publication may be inferred from those flags. Final document source is sample, pending0 but retiredfalse; it is not a final hook-restoration or join witness. The four declared truncations remain separate and cannot qualify for ordinary completion.
+
+## 3. Proposed closed alternative, with no aggregate fallback
+
+Candidate scope is **recovery only**, HTTP200/no-query detail GET of Milestone/Task/Sprint or Structure/Task checkOriginal Lookup, with the public method observer installed before the original invocation. Initial reads before attachment, list/other query, mutation, Problem, held read, predeclared truncation and unknown endpoints retain their original method. Candidate identity is fixed at original request/response association, never selected after observing a failure. A missing or ambiguous consumer retains failure; do not bypass it with another successful request or a later retry.
+
+For an ordinary candidate to satisfy completion after actual PW requestfailed, require all of:
+
+1. Exactly one original PW Request/Response and native fetch in exactly one document agree on unique canonical XID, exact method/path/query/status, expected current project/user/session/epoch. Original failed happened before page close and is the closed `aborted` reason; there is no successful PW finished counterevent. Wrong, missing, duplicate or cross-document identity rejects.
+2. Native original fetch/reader has actual done:true before any abort/cancel/rejection, exact valid Content-Length under identity encoding, bytes equal CL, no read rejection or aborted signal. All observed reads, reader and stream cancels actually settled successfully, original lock release succeeded exactly once. No pending callbacks, overflow or observer failure. Cancel-induced done, incomplete bytes, compressed/unknown/mismatched length, absent cancel tail or restoration failure rejects.
+3. The one original production facade invocation is uniquely bound to exactly this native fetch, returns a strictly typed result normally, remains in the same current identity/context, and demonstrably settles **after** the actual request and owner release. A visible timeout/abandon rejection, mere busy=false, another operation succeeding or any sampled DOM is insufficient. The production bridge described below must have independent source and actual-source controls before it can support this conclusion.
+4. Actual native/public end snapshots from that document, after the original callbacks have settled, show pending0, retiredtrue, observer_failedfalse and no late mutation; Node sampler/listeners have actually ended. Missing end, lost evaluate, pageclose, expiry, or only last sample rejects. `sample_joined` alone is insufficient.
+5. The existing unique original proxy response sidecar matches XID/method/path/status; its declared SHA matches the same original raw file. The unchanged formal schema and `decodeOriginal` client replay validate that original body, query, request projection and endpoint. Native EOF is extra evidence that the browser consumed the bound ordinary response; neither length alone nor typed fulfillment replaces this schema/client gate. The ordinary proxy path is the original byte-preserving pass-through; declared cuts are excluded. No reread, Response.clone, new HTTP, or body capture is introduced.
+6. All existing recovery UI assertions, historical receipt/current distinction, Lookup/SQL/Go uniqueness, actual server/process owners and seven-resource cleanup still pass. Public publication remains a separate assertion: pre-existing DOM is not new publication. Parent Milestone/Sprint reads used to assemble a Task are not falsely labeled separately displayed details.
+
+The four-declared cap remains four; an ordinary response meeting this alternative is a separately recorded completed consumer despite PW aborted, not a fifth expected truncation. Every observed failed request must belong to exactly one explicit category; no broad failed-ignore path. Repeated/extra facts, lost/incomplete ordinary bytes and any missing required predicate still fail the whole run.
+
+## 4. Production-owner bridge to validate, not assume
+
+Work source `useSession.ts` runAuthorized creates one `actual`, awaits the original Work API operation, checks current identity, catches failure, and runs finally (clear timer, clear own abandon, release owner/state.busy) before `actual.then(resolveVisible,rejectVisible)`. For Work read/lookup the command argument is undefined, so the password-only early success branch does not apply. Timer and abandon only reject the visible promise. `readWork` returns that visible promise; checkOriginal then strictly parses and publishes its own result before returning.
+
+Thus normal fulfillment of the uniquely bound original Work facade promise appears capable of witnessing actual owner release **when** the exact production source/dist path and no early-success branch are independently checked. This is a proposed source-backed bridge, not a runtime private-owner counter currently collected. Validate with the real Session + real Work API/transport under controlled original streams: hold reader/outer-body cancel after EOF and prove the original visible promise remains pending and owner busy; reject/abandon visibly and prove actual owner remains held until the original tail; then settle the original tail and observe one release. Wrong/new identity, a superseding owner, late rejection and late pageclose must never qualify. Do not call another HTTP action to probe owner availability, expose private owner state, or alter production methods.
+
+Model19 is not a precedent for this Work ordinary method: its Session restore uses a different Promise.race path and its actual Session examples finished normally. Only the reusable original-Promise observation pattern is borrowed.
+
+## 5. Minimum missing observation and lifecycle work if accepted
+
+- Extend the existing public checkOriginal matcher to Structure as well as Task using the already public original progress domain/project/target and the exact original method/path. Keep original Promise/receiver/arguments and call count. Record only a closed typed Lookup result kind/state plus identity; never save key/body/CSRF/receipt material. A Structure result with wrong domain/state or duplicate native requests must stay unbound/rejected.
+- Take an actual final document end snapshot **after all existing sequential UI operations but before entering the final network verify**; keep the existing navigation end handling. This avoids making required end evidence depend on a case-timeout close. It retires observation, not product work: if original callbacks are still pending or either 250ms sampler/end wait is unavailable, reject and keep that fact; no polling extension or false join. Preserve the accepted two sequential ≤250ms diagnostic waits and overall budgets.
+- For only these pre-identified candidate ordinary requests, use the actual original PW event lifecycle as the initial terminal discriminator. If requestfinished occurs, original `finished()` can be awaited after that mandatory event and must be null. If requestfailed occurs, evaluate the full alternative against completed observations. Do **not** create a known-never-settling `finished()` promise and abandon it in a race. Page/context close ends local event waits with rejection; missing events/evidence fail. All local event waiters and wrappers must be actually retired, with handled late branches unable to change the decision.
+- Keep `originalBody` and its three existing callers unchanged at first: recovery06's seven affected requests are background responses reaching final `seen.verify`, not those originalBody consumption gates. Any newly affected call site is outside this narrow proposal and must remain a failure until separately justified.
+
+## 6. Necessary controls and decision boundary
+
+Before any real rerun, independently verify actual-source owner bridge above; locked PW actual failed leaves finished pending, while the new event observer never calls that pending method and retires all its own waits. Positive requires the entire conjunction; single-field negatives include EOF-after-cancel, mismatch/missing CL, wrong/duplicate XID or document/query/status, hidden/current identity change, typed reject/early visible rejection, held reader/stream cancel, missing end/restore failure, changed DOM already present, wrong Lookup domain, only pageclose, late counterevents and unchanged original schema failure. Verify ordinary fallback cannot include any of the four cuts/held-read or wrong endpoint, and declared cap and original final Go/SQL checks are unchanged.
+
+This is a method proposal only. Skills decides equivalence and must-fix gaps without implementing it. Root grants exact source changes only after that result. recovery06, recovery05 and all prior FAIL records remain unchanged; no author or independent real acceptance is claimed and no same-input blind rerun is scheduled.
