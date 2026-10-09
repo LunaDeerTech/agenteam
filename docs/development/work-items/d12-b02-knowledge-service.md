@@ -158,6 +158,8 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ### 当前有限交付门槛
 
+针对P2只在既有Cleanup top追加两Project真实子例：首精确live reader不阻塞后项物理删除，连续恢复保持一次Object Audit，Close后首项才完成；原两子及selector不改。该增量当前仅源码准备，拟用新的修后独立binary，不算真实PASS，也不增加泛化harness入口。
+
 两项本域返修当前仅作者离线通过：typed canonical ObjectReader 的同步 Close 返回是本域流调用实际结束边界，返回的原读取/取消/释放错误仍原样上交；不将本域注销当 D05 lease 已释放或全域 join，也不改变 generic SourceInput/publication 的失败退休要求。RecoverCleanup 每次最多32项，固定一轮的最高持久ID与内存轮转位置，Pending不阻止同批独立项，hard/Unknown保持原结果并停原项，轮末重开新的有限上界；不新增worker、TTL或预算，内存游标不是完成证明。五源定向作者race13078实际0（9top11sub）；独审和新SQL/真实组合复验仍待，旧预编输入不覆盖。
 
 整体独审现有两项 mustfix，均由未参与实现的 Skills 作者用实际源码 offline overlay 复现（61981／99769 race0），不把复现 PASS 当产品通过：canonical `trackedRead.Close` 在真实 D05 Close 已实际 join 但保留取消错误时永不注销本域 call；`RecoverCleanup` 每次从首条开始且首 Pending 立即返回，使其他 Project 长期饥饿。root 已授权本域定向修复；Object runtime join 停项及全域停止责任不变。独立原件在 Skills 树 `.agent-state/knowledge-b02-review/`，源/契约/限制俱全。

@@ -137,6 +137,80 @@ func TestKnowledgeB02Cleanup(t *testing.T) {
 		}
 		publicationRead(t, x, actor, outside, []byte("outside bytes"))
 	})
+	t.Run("pending_reader_does_not_starve_another_project", func(t *testing.T) {
+		x := newPublicationFixture(t)
+		actor := x.human(t)
+		firstProject, laterProject := x.project(t, actor, true), x.project(t, actor, true)
+		first := publicationSeedContent(t, x, actor, firstProject, strings.Repeat("p", 2*oc.StreamBufferSize+1))
+		later := publicationSeedContent(t, x, actor, laterProject, "independent later cleanup")
+		reader, err := x.service.OpenCanonical(knowledgeContext(t), actor, firstProject, first.ID, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		closed := false
+		defer func() {
+			if !closed {
+				if err := reader.Close(); err != nil {
+					t.Error("held reader Close", err)
+				}
+			}
+		}()
+		var lease string
+		if err = x.raw.QueryRow(knowledgeContext(t), `SELECT id::text FROM agenteam_object.object_leases
+ WHERE object_id=$1 AND owner_kind='reader' AND state='active'`, first.ObjectID.String()).Scan(&lease); err != nil {
+			t.Fatal("first cleanup lacks an actual active reader", err)
+		}
+		for _, document := range []kc.DocumentRef{first, later} {
+			preview, err := x.service.PrepareDeleteSubtree(knowledgeContext(t), actor, document.ProjectID, document.ID)
+			if err != nil || len(preview.Nodes) != 1 {
+				t.Fatal("exact single-document delete", err)
+			}
+			result, err := x.service.DeleteSubtree(knowledgeContext(t), actor, treeMeta(t), document.ProjectID, document.ID, preview.Confirmation)
+			if err != nil || !result.CleanupPending || len(result.DeletedIDs) != 1 {
+				t.Fatal("real independent pending cleanup", err)
+			}
+		}
+		var ordered bool
+		if err = x.raw.QueryRow(knowledgeContext(t), `SELECT a.id<b.id FROM agenteam_knowledge.object_cleanup a,
+ agenteam_knowledge.object_cleanup b WHERE a.object_id=$1 AND b.object_id=$2`, first.ObjectID.String(), later.ObjectID.String()).Scan(&ordered); err != nil || !ordered {
+			t.Fatal("held-reader cleanup must precede the other project", err)
+		}
+		beforeActivity := x.activity(t, actor)
+		beforeFirstEvents, beforeLaterEvents := titleEventCount(t, x, firstProject), titleEventCount(t, x, laterProject)
+		for range 2 {
+			treeCode(t, x.service.RecoverCleanup(knowledgeContext(t)), f.ResourceBusy)
+			if d, deleted, pending := recoveryDeleteFacts(t, x, firstProject); d != 1 || deleted != 0 || pending != 1 {
+				t.Fatal("held first reader was falsely retired")
+			}
+			if d, deleted, pending := recoveryDeleteFacts(t, x, laterProject); d != 1 || deleted != 1 || pending != 0 {
+				t.Fatal("first Pending starved another project or repeated deletion")
+			}
+			var active bool
+			if err = x.raw.QueryRow(knowledgeContext(t), `SELECT state='active' FROM agenteam_object.object_leases
+ WHERE id=$1 AND object_id=$2 AND owner_kind='reader'`, lease, first.ObjectID.String()).Scan(&active); err != nil || !active {
+				t.Fatal("first reader stopped being an actual blocker", err)
+			}
+			var deleted bool
+			if err = x.raw.QueryRow(knowledgeContext(t), `SELECT state='deleted' FROM agenteam_object.objects WHERE id=$1`, later.ObjectID.String()).Scan(&deleted); err != nil || !deleted {
+				t.Fatal("later cleanup did not really delete its object", err)
+			}
+		}
+		if err = reader.Close(); err != nil {
+			t.Fatal("actual first reader Close", err)
+		}
+		closed = true
+		if err = x.service.RecoverCleanup(knowledgeContext(t)); err != nil {
+			t.Fatal("first cleanup did not converge after actual Close", err)
+		}
+		for _, project := range []id.ProjectID{firstProject, laterProject} {
+			if d, deleted, pending := recoveryDeleteFacts(t, x, project); d != 1 || deleted != 1 || pending != 0 {
+				t.Fatal("final exact cleanup facts are not once-only")
+			}
+		}
+		if !x.activity(t, actor).Equal(beforeActivity) || titleEventCount(t, x, firstProject) != beforeFirstEvents || titleEventCount(t, x, laterProject) != beforeLaterEvents {
+			t.Fatal("technical cleanup emitted user Activity or configuration events")
+		}
+	})
 	t.Run("delete_final_transaction_rollback", func(t *testing.T) {
 		x := newPublicationFixture(t)
 		actor := x.human(t)
