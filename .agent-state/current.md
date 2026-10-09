@@ -96,3 +96,10 @@
 - 新 `tests/skills/admission_unknown_test.go` 定义 `TestSkillInitializationAdmissionUnknown` 的 work／reserve 两子项。测试 Store 转发器仅在原 callback 成功后的同一真实 Tx 读取精确本域阶段与 work，按原 backend PID arm 正式完整帧代理；真实 `WithinTx` 的 ctx/Tx/cause/CommitResult 原样保留，不注入假的 Unknown。
 - 要求 work 登记 Unknown 时没有 prepare，Reserve Unknown 时仅 prepare/reserve/discard、没有 Upload/Publish；原帧释放前后的真实可见行分别核对。释放后只 Inspect 原 command 的 Pending 及实际 Drain 记账，不自动续写；原 physical Attempt/Cause/Unknown 值必须保持。Object 端口受控，不冒真实 D05。原 fixture/产品/先前 binaries 均未改。
 - 97930 独立 race-c actualexit0 至 `output/ai/skills/compile/skill-pg-admission.test`，c293f4 精确发现唯一 top actual0，gofmt/diffcheck0；没有执行该 PG/socket 场景。新源码与主卡/本文三路径冻结供恢复保存；资源仍按单 top fresh grant，原两资源/预算不变。
+
+## Owner 元数据当前权限准备
+
+- 前段 admission Unknown 三路径已 root 保存并远端确认 `0fb43308`。现在新增 `tests/skills/owner_read_test.go`，唯一 top `TestSkillOwnerMetadataCurrentAuthority`；真实 Account.Initialize 注册与原 fixture 相同的测试 keyring，原 Account/Project Authority/Skill Service 验证每次 List/Get 的当前 Session、Owner 与 Project 状态。
+- 12 子项覆盖已发布但 Project 尚未初始化、active Owner 正向、跨 Owner/admin、Session 错配/缺失/撤销/过期后重验、未知 Skill/Project、archived 正向及 deleting 拒绝。正向按真实 Skill 表值精确比对 metadata；全部读取要求零额外 Object 操作。User/Session、completed Project/Creation 与生命周期状态是披露的测试规范种子，不声称 Login、Project.Create/归档/删除命令或真实 D05 流式读取通过。
+- 首编译 `7162c9` 因自有 `output/ai/skills/compile/tmp` 不存在而 setupFAIL，未启动 Go 编译；补齐该目录后 `98760` 离线 race-c actualexit0，产物 `output/ai/skills/compile/skill-pg-owner-read.test`，`33518` 精确唯一 top 发现 actual0。gofmt/diffcheck0，没有运行 SQL/socket；原 fixture、产品、PG driver/supervisor 和先前固定 binaries 均未改。
+- 该新源与主卡/本文三路径在可构建边界冻结供 checkpoint。下一实际仍由 root 单 top fresh grant，OwnerReader 准备不改变已有 Rollback/CommitRecovery/Migration/Admission 的未验事实或既定队列。

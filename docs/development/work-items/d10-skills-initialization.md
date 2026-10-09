@@ -36,6 +36,7 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 - 单独 `TestSkillMigration` 已实现 fresh/repeat、保旧 Account/Audit 事实与原约束的 00026→27 升级、六表合法图及 30 个 CHECK/FK 拒例、整 schema 故障回滚和原 checksum 恢复；35384 race-c、a4373e 精确发现 actual0。独立迁移 binary 与原初始化 binary 分开，尚未运行 SQL，不将前序各域验收或编译充作 00027 的真实结果。
 - 首个作者真实 PG top `TestSkillInitializationPersistence` 已完整 PASS（60950，Go 2.51s、outer 72.659s）：本域持久发布、重建 Service 后原 ID 重读/同命令重放、同 Tx 确认，以及缺锁/ended Tx/外来私有 issuer 拒绝。Go/driver 实际 Wait0、两资源双清、runtime/私有文件、desc/TCP 双尾与输入不变全部闭合，root 已有限接受。真实 Project Authority 与受控 Object 的分界保持；不证明 Project.Create/Human、D05 私有 witness/MinIO、生产 root 或独立验收。该轮连续迁移已实际执行，另外三个 top（发布回滚、COMMIT 恢复、独立迁移矩阵）仍未动态。
 - `TestSkillInitializationAdmissionUnknown` 另补 work 登记／Reserve 原 COMMIT 未确认时不得开始 physical 的两场景：使用真实 Store/Tx/原结果和正式完整帧代理，只有测试观察转发器，不替换 CommitResult；释放后原可见事实／只读 Pending／实际 work 结账与原 Unknown provenance 分开验证。97930 race-c、c293f4 精确发现 actual0，未运行 PG；受控 Object 边界不变，先前已冻结测试与产品没有修改。
+- 新 `TestSkillOwnerMetadataCurrentAuthority` 准备真实 PG 的 List/Get 当前权限矩阵：真实 Account.Initialize 注册测试 keyring，既有 Account/Project Authority 消费测试 User/Session；发布后未初始化 Project、跨 Owner/admin、Session 错配/缺失/撤销/过期、未知 Skill/Project、归档可读与删除拒绝共 12 子项，正向结果比对持久元数据且每次零 Object 操作。98760 race-c 与 33518 精确发现 actual0；初次编译因自有 GOTMPDIR 缺失未启动，补目录后构建。未执行 PG；Project/Creation completed 和生命周期状态是明示的规范测试前置，不是 Login、Project.Create、归档/删除命令或 D05 读流验收。只有新测试源，产品/原 fixture/既有 binaries 均未改。
 
 ## 验收与当前证据
 
