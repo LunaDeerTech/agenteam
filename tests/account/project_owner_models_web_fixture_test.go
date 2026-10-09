@@ -865,6 +865,59 @@ func projectModelsWebIPCFailure(action string, sequence int, failure any) map[st
 	}
 }
 
+// This diagnostic observes only the existing auxiliary reference transaction.
+// It never serializes a Fault, driver error, SQL, arguments or cause identity.
+func projectModelsWebReferenceFailure(stage string, result foundation.CommitResult, ctxErr error) map[string]any {
+	switch stage {
+	case "enter_tx", "in_tx", "mutate", "verify", "mismatch", "after_callback":
+	default:
+		stage = "unavailable"
+	}
+	contextClass := func(err error) string {
+		switch {
+		case err == nil:
+			return "none"
+		case errors.Is(err, context.DeadlineExceeded):
+			return "deadline_exceeded"
+		case errors.Is(err, context.Canceled):
+			return "canceled"
+		default:
+			return "other"
+		}
+	}
+	fault := result.Fault()
+	var faultErr error
+	if fault != nil {
+		faultErr = fault
+	}
+	code, sqlState := "unavailable", ""
+	var database *postgres.Error
+	if errors.As(faultErr, &database) && database != nil {
+		switch database.Code() {
+		case postgres.InvalidConfiguration, postgres.EnvironmentRejected, postgres.ConnectionFailed,
+			postgres.AdmissionStopped, postgres.DrainTimeout, postgres.InvalidTransaction,
+			postgres.TransactionExpired, postgres.TransactionConcurrentUse, postgres.TransactionRowsOpen,
+			postgres.TransactionNested, postgres.TransactionControlForbidden, postgres.SQLFailed,
+			postgres.TransactionBeginFailed, postgres.TransactionCommitFailed:
+			code = string(database.Code())
+		}
+		sqlState = projectModelsWebSQLState(database.SQLState())
+	}
+	return map[string]any{"stage": stage, "commit_state": string(result.State()), "database_code": code, "sqlstate": sqlState, "context": contextClass(ctxErr), "fault_context": contextClass(faultErr)}
+}
+
+func projectModelsWebSQLState(value string) string {
+	if len(value) != 5 {
+		return ""
+	}
+	for _, c := range value {
+		if !(c >= '0' && c <= '9' || c >= 'A' && c <= 'Z') {
+			return ""
+		}
+	}
+	return value
+}
+
 func decodeProjectModelsWebIPC(raw []byte, inputHash string, next int) (projectModelsWebIPC, string) {
 	var out projectModelsWebIPC
 	if len(raw) > 8192 {
@@ -2173,11 +2226,14 @@ func (f *projectModelsWebFixture) modelIPC(ctx context.Context, request projectM
 		if model == "" || f.modelReference == "" {
 			return fail("unknown_target")
 		}
+		stage := "enter_tx"
 		committed := f.store.WithinTx(ctx, cause(f.t), func(ctx context.Context, tx foundation.Tx) error {
+			stage = "in_tx"
 			x, err := f.store.InTx(tx)
 			if err != nil {
 				return err
 			}
+			stage = "mutate"
 			if get("state") == "present" {
 				_, err = x.Exec(ctx, `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,project_id,model_id,owner_version) SELECT 'agent',$1,'agent_model',$2,m.id,1 FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE m.id=$3 AND p.scope='project' AND p.project_id=$2 ON CONFLICT DO NOTHING`, f.modelReference, project, model)
 			} else {
@@ -2186,16 +2242,22 @@ func (f *projectModelsWebFixture) modelIPC(ctx context.Context, request projectM
 			if err != nil {
 				return err
 			}
+			stage = "verify"
 			var present bool
 			if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_model.references WHERE owner_kind='agent' AND owner_id=$1 AND role='agent_model' AND project_id=$2 AND model_id=$3)`, f.modelReference, project, model).Scan(&present); err != nil {
 				return err
 			}
 			if present != (get("state") == "present") {
+				stage = "mismatch"
 				return errors.New("owned reference auxiliary fact mismatch")
 			}
+			stage = "after_callback"
 			return nil
 		})
 		if committed.State() != foundation.Committed || ctx.Err() != nil {
+			diagnostic := projectModelsWebReferenceFailure(stage, committed, ctx.Err())
+			diagnostic["action"], diagnostic["sequence"] = request.Action, request.Sequence
+			f.safeEvidence("reference-fact-failure.json", diagnostic)
 			return fail("fixture_failed")
 		}
 		f.modelAux["referenced"]["reference_fact_state"] = get("state")

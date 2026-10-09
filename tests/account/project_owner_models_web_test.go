@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -23,7 +24,61 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/jackc/pgx/v5/pgconn"
 )
+
+func TestProjectModelsWebReferenceFailureProjection(t *testing.T) {
+	private := "private-canary-sql-args-target-cause-never-exported"
+	_, databaseErr := postgres.LoadConfig(nil, nil) // Actual error type, without I/O.
+	failure := func(err error) foundation.CommitResult {
+		fault := foundation.NewFault(foundation.InternalError, foundation.NotCommitted).WithCause(err)
+		fault.FieldErrors = []foundation.FieldError{{Path: "/" + private, Code: private}}
+		return foundation.NotCommittedResult(fault)
+	}
+	for _, test := range []struct {
+		name, stage, wantStage, state, database, ctx, faultContext string
+		result                                                     foundation.CommitResult
+		ctxErr                                                     error
+	}{
+		{"actual-postgres", "enter_tx", "enter_tx", "not_committed", "DATABASE_CONFIGURATION_INVALID", "none", "other", failure(fmt.Errorf("%s: %w", private, databaseErr)), nil},
+		{"raw-driver", "mutate", "mutate", "not_committed", "unavailable", "none", "other", failure(&pgconn.PgError{Code: "23503", Message: private, Detail: private, TableName: private}), nil},
+		{"raw-error", "verify", "verify", "not_committed", "unavailable", "none", "other", failure(errors.New(private)), nil},
+		{"mismatch", "mismatch", "mismatch", "not_committed", "unavailable", "none", "other", failure(errors.New("owned reference auxiliary fact mismatch")), nil},
+		{"fault-canceled", "after_callback", "after_callback", "not_committed", "unavailable", "none", "canceled", failure(fmt.Errorf("%s: %w", private, context.Canceled)), nil},
+		{"fault-deadline", "mutate", "mutate", "not_committed", "unavailable", "none", "deadline_exceeded", failure(fmt.Errorf("%s: %w", private, context.DeadlineExceeded)), nil},
+		{"outer-canceled-after-commit", "after_callback", "after_callback", "committed", "unavailable", "canceled", "none", foundation.CommittedResult(), context.Canceled},
+		{"outer-deadline-after-commit", "after_callback", "after_callback", "committed", "unavailable", "deadline_exceeded", "none", foundation.CommittedResult(), fmt.Errorf("%s: %w", private, context.DeadlineExceeded)},
+		{"unknown-no-fault", "after_callback", "after_callback", "unknown", "unavailable", "none", "none", foundation.CommitResult{}, nil},
+		{"invalid-stage", private, "unavailable", "unknown", "unavailable", "other", "none", foundation.CommitResult{}, errors.New(private)},
+		{"typed-nil-postgres", "in_tx", "in_tx", "not_committed", "unavailable", "none", "other", failure((*postgres.Error)(nil)), nil},
+		{"joined-database-canceled", "in_tx", "in_tx", "not_committed", "DATABASE_CONFIGURATION_INVALID", "none", "canceled", failure(errors.Join(databaseErr, context.Canceled)), nil},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			value := projectModelsWebReferenceFailure(test.stage, test.result, test.ctxErr)
+			if len(value) != 6 || value["stage"] != test.wantStage || value["commit_state"] != test.state || value["database_code"] != test.database || value["sqlstate"] != "" || value["context"] != test.ctx || value["fault_context"] != test.faultContext {
+				t.Fatal("reference transaction projection changed its actual closed facts")
+			}
+			encoded, err := json.Marshal(value)
+			if err != nil || bytes.Contains(encoded, []byte(private)) || bytes.Contains(encoded, []byte("23503")) || bytes.Contains(encoded, []byte("DATABASE_URL")) {
+				t.Fatal("private or raw driver diagnostics escaped the reference projection")
+			}
+		})
+	}
+}
+
+func TestProjectModelsWebReferenceSQLState(t *testing.T) {
+	for _, value := range []string{"42P08", "23503", "57014", "40001"} {
+		if projectModelsWebSQLState(value) != value {
+			t.Fatal("valid SQLSTATE removed from its safe projection")
+		}
+	}
+	for _, value := range []string{"", "42p08", "1234", "123456", "42P08 private-canary", "42\n08", "42\x0008", "éABC", "42P0_"} {
+		if projectModelsWebSQLState(value) != "" {
+			t.Fatal("invalid SQLSTATE escaped its closed alphabet and length")
+		}
+	}
+}
 
 func TestProjectModelsWebIPCFailureProjection(t *testing.T) {
 	for _, code := range []string{"invalid_envelope", "invalid_sequence", "invalid_action", "invalid_arguments", "unknown_target", "arm_busy", "token_mismatch", "not_ready", "budget_exhausted", "fixture_failed"} {
