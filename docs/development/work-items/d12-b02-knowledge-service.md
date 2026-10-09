@@ -158,6 +158,8 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ### 当前有限交付门槛
 
+P1/P2五源修复已获原独立审查者Skills有限接受，无剩余mustfix。实际源overlay15866 race0／1.044s（4top7sub）覆盖真实D05取消与release-error的Close/monitor、阻塞release仍不得Drain，65项分32+32+1及高低新项下一轮，Hard/Unknown及ResourceBusy+Unknown的原cause/attempt，扫描并发Busy无SQL且实际join。独验首15786为probe对opaque closure用DeepEqual的误判，按正式Equal/Details修probe后过，产品未改。此结论没有PG/新分页SQL/修后Runtime或Cleanup真实接受，56777原FAIL与TCP缺尾不改。
+
 修后新整包独立binary已race-c77598／六精确top发现dd5fce／domain与integration vet53340实际0，未覆盖旧产物。首全包race59862因新测试误假定UUIDv7分配单调而FAIL；只修受控ID前置，真实新子也改为持两reader后读取实际cleanup排序选择保留项，产品不改。修后全Knowledge/... race49004实际0；原Cleanup两子逆差异da8223逐字89613dc5。此为可构建/纯控制，不等于P1/P2独审或新SQL/真实业务通过，下一真实仅安排修后Runtime与Cleanup受影响组及原未验异常组。
 
 针对P2只在既有Cleanup top追加两Project真实子例：首精确live reader不阻塞后项物理删除，连续恢复保持一次Object Audit，Close后首项才完成；原两子及selector不改。该增量当前仅源码准备，拟用新的修后独立binary，不算真实PASS，也不增加泛化harness入口。
