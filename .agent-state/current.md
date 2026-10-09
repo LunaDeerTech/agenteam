@@ -5,9 +5,18 @@
 - 已保存SPEC片段：`docs/development/work-items/d10-skills-initialization.md`、`docs/development/work-items/d10-skills-initialization-design.md`、本文。已由root保存/push ea13186d，设计技术段继续freeze；未自行Git操作。
 - 当前可复用：实际D05 same-Store Object Audit checker；D08 original initialization四口、收敛口与初始化Audit wrapper。本域Skill exact映射provider已实现，真实Object组合测试已接线但未动态；生产root未绑定，constructor非nil不证明真实组合。
 - 共享待协调：D05初始化Service closed shape/initiator及SkillRevision+ProjectDeleted release三个窄补口已完成并获有限独审，尚不证明真实清理；Project CleanupPhase现unbound，本域active初始化与删除Audit分流、生产同participant组合仍待。Project CleanupPhase/root仍未授写，Object runtime join停止项不恢复。
-- 迁移00027已随上述初始化及当前Stop的真实PG fixture连续执行；单独升级、约束和DDL失败回滚矩阵仍未动态。root已精确刷新00024到正式3cea6076，00025保持da16d95a、00026保持4174e160；前序来源与各域证据不替代本域独立迁移验收。
-- 下一步：原CommitRecovery及当前真实D05发布三子已实际闭合；Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority仍待root fresh grant后沿已独审exact三top组合、原两资源PG105秒实际执行。资源、缓存继续唯一所有。root授权的Project精确Stop子能力已获下述有限独审；旧binary及对应产品基线单独保留，不将旧PG结果外推新产品。不spawn，root协调交叉审查。Cleanup rev2只到规格接受，D05新口与Project当前CleanupPhase须先独立交付。
+- 迁移00027已随上述初始化及当前Stop的真实PG fixture连续执行；单独升级、约束和DDL失败回滚矩阵在4315已实际业务PASS，但同轮TCP门失败，不能认whole接受。root已精确刷新00024到正式3cea6076，00025保持da16d95a、00026保持4174e160；前序来源与各域证据不替代本域独立迁移验收。
+- 下一步：原CommitRecovery及当前真实D05发布三子已实际闭合；已审exact三top组合4315已实际整体FAIL，见下节；先修有源码证据的两tests-only夹具问题，再交独审和申请受影响组，不能自动重跑或回填旧结果。资源、缓存继续唯一所有。root授权的Project精确Stop子能力已获下述有限独审；旧binary及对应产品基线单独保留，不将旧PG结果外推新产品。不spawn，root协调交叉审查。Cleanup rev2只到规格接受，D05新口与Project当前CleanupPhase须先独立交付。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
+
+## 三组 PG 首轮 4315：整体 FAIL，资源已退役
+
+- root fresh grant只允许原70036业务binary（32,895,591 B）/97198 combo driver（15,394,731 B）与literal `^TestSkill(Migration|InitializationAdmissionUnknown|OwnerMetadataCurrentAuthority)$`。cwd仍 `tests/skills`，完整固定env沿下节Stop命令，仅driver换 `output/ai/skills/compile/pg-only-skills-combo-driver`、selector换该literal；另显式AGENTEAM_GO和固定MinIO变量，继承PATH。exec同process freshstatvfs=5,492,891,648 bytes≥5GiB，原Go6m/driver105+15/supervisor123+3/TCP75/PG两资源不变。
+- AdmissionUnknown两个子（work/reserve）都在原 `admission_unknown_test.go:116` 聚合断言失败，top4.74s；后续物理步数、原COMMIT释放/恢复断言未到。Migration四直接子及30个约束负例业务PASS10.73s。Owner前11/12子PASS，最后deleting在 `owner_read_test.go:133` 夹具事务提交 `not_committed INTERNAL_ERROR` 失败，未到该子公开读门禁。保no-failfast顺序执行所有三top，不能把整体失败写为全矩阵接受。
+- Go1094297 actualWait1，driver1093624 actualWait1/28.387966254s；outer4315 actualexit1，supervisor104.158s。nonce `00c9837e44f994fa2e3e3718668f927a` 对应container `e417cc92b910d0baa370e908f7fbf586f83331ee56c3aa8a9a7cfd0c41f10d3d`、network `7a46a29329bdecc27cdd2c2f5ea381273543b2475ede605aa927c2106f57445a` 两次clean；desc双[]，exacttop_count3/inputs_unchanged=True。**原TCP gate FAIL**：`STOP host TCP delta tail not empty: 1 rows`；旧监督器未保存baseline/delta行，不能归因或以后验空改PASS。
+- actual终态后只读2d735a：两个精确Docker ID再次inspect明确不存在，原Go/driver PID双absent，run只owned.json，fixture/env/certs/runtime无路径/无symlink。现态5232ca无原PG端口33005；另有58998→8080 TIME_WAIT/inode0及59006→8080 ESTABLISHED/inode2491163，后者当前PID848/comm codex/ppid0。这不是原baseline/delta，不推断原失败行归属。自有执行与资源已全部退役并向root归还窗口；TCP原证据缺口与整体FAIL保留。
+- 原件 `output/ai/skills/pg/pg-50d4ed0b91ef46a381a43b229a68f010.log` 与同名owned目录。70036原binary不覆盖。原业务输入没有变化，后续候选必须独立命名。
+- 两项静态已证夹具错误：Admission将 `CauseDetails` 用reflect.DeepEqual比较，其Primary为含非nil闭包的CommandIdentity，连自身都不DeepEqual；须逐正式语义字段/Primary.Canonical与有序Related比较，保持原Unknown/attempt/原cause/空结果/原writer全部门槛，不打印私有key。原聚合断言没有逐字段记录，不能声称旧轮其它条件已过。Owner deleting写随机current_lifecycle_operation_id但未创建该operation，违反00013正式projects_operation_fk；须建立最小正式有效生命周期fixture前置，不关闭FK或冒真实BeginDelete。root授权这两个tests-only窄修；本文冻结时尚未写修复、未重编或再PG。
 
 ## 下一独立清理 SPEC（rev2 有限接受，尚未实施）
 

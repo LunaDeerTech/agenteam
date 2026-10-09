@@ -46,6 +46,12 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 - 当前产品Stop作者真实PG `96753` 完整PASS：沿70036 binary／d0a16242产品＋19353f4e测试，12子Go5.32s；同env首采5,707,370,496 bytes满足5GiB后exec，Go986629与driver986046实际Wait0，driver15.375s／supervisor74.585s、outeractual0。两精确PG资源双退役、desc/runtime/private及TCP双尾、inputs_unchanged全齐，现场run仅owned.json且两PID不存在后归还窗口。实证当前Project LifecycleAuthority/原cause与phase/participant/Owner、真实父锁、archive/delete持有调用实际join、原Stop COMMIT Unknown不取消及后继已知提交取消；仍为规范Project/lifecycle种子和受控Object/Process，不称D05/foreign死亡/整participant/root通过。原件与完整env/cwd见 `.agent-state/current.md`；原初始化三组旧产品结论不扩大。
 - 当前70036 binary的真实 `TestSkillObjectInitializationPublication` 作者组合 `70196` 完整PASS：唯一top/3子Go2.85s，exec同进程fresh可用5,912,387,584 bytes通过5GiB，Go1.27.1与原MinIO SHA核定后沿七资源原chain执行。测试1069251／driver1067176实际Wait0，outer actual0、supervisor102.059s；七精确资源与三private双退役、runtime/desc/TCP双尾及inputs_unchanged全齐。实证真实Skill→Object→Project/Audit私有witness、MinIO canonical publication、重建Skill service原ID零重复重放、原包完整EOF与Close后reader/lease/work终局，公开字段完整仍不能伪造private witness。Project/Creation/Human为规范种子，不是真实Create/Login；ProcessGuard仅构造且未绑定Runtime，Cleanup/Purger/root仍unbound，不证明foreign进程停止或完整participant。当前产品来源d0a16242、测试组合19353f4e；原69925编译失败与旧8884准备binary不重写。准确命令及原日志定位见恢复点。
 
+## 剩余三组首轮实际失败
+
+固定70036/97198及唯一三top selector的4315整体FAIL，原Go6m/PG105+15/supervisor123+3/TCP75未变。Migration四直接子与30约束负例业务PASS10.73s；AdmissionUnknown两个子在原116聚合断言FAIL4.74s；Owner前11子PASS、最后deleting在夹具事务提交失败2.44s，公开门禁未到。原测试1094297/driver1093624实际Wait1，两精确资源双clean、desc双空、input不变、outeractual1已收；**原TCP差集1行超过尾，未保存具体行，whole接受不成立**。后验两ID明确absent、PID/private/runtime均退役，只证明可释放本域资源，不回填TCP或业务FAIL。
+
+静核两tests-only问题：CauseDetails.Primary含CommandIdentity非nil函数，reflect.DeepEqual会错误拒绝同原cause；deleting夹具缺生命周期operation父行而违反正式FK。root已授权保留原Unknown全部条件并改正式语义比较、补合法生命周期fixture前置，修复/独审/实际复验尚未完成；不改生产或关约束。原聚合断言缺逐条件观测保持缺口，不能补认。原日志、PID/nonce和完整命令边界见恢复点；其它旧组完整PASS保持各自原输入，不扩大本轮接受。
+
 ## 生命周期后续依赖与责任
 
 上述Stop两口不构成完整`ProjectLifecycleParticipant`。本域下一段负责精确CleanupAuthority、同cause关闭serving与Release、预算内物理删除、删除Audit外层及所有实际terminal后的本域清理；必须消费真实D08 CleanupPhase准入，不能拿active初始化授权或技术退休权替代。
