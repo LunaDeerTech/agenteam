@@ -14,12 +14,102 @@ function canonical(value: unknown): string {
   return JSON.stringify(value)
 }
 
+// Diagnostic-only Session slot. It never retains bytes, parses a body, or
+// contributes to the Model operation facts or acceptance gates.
+function sessionDiagnostics(nativeFetch: typeof window.fetch) {
+  const initial = () => ({ requests: 0, readers: 0, read_calls: 0, read_settled: 0, read_rejected: 0, bytes: 0,
+    reader_cancel_calls: 0, reader_cancel_settled: 0, reader_cancel_rejected: 0,
+    stream_cancel_calls: 0, stream_cancel_settled: 0, stream_cancel_rejected: 0,
+    release_calls: 0, release_successes: 0, abort_events: 0, headers_seen: false,
+    status_ok: false, read_done: false, cancel_before_eof: false, failure: 'none' });
+  type Slot = { id: number; facts: ReturnType<typeof initial>; requestID: string | null; signal: AbortSignal | null; detach: () => void };
+  let serial = 0, current: Slot | undefined;
+  function close() { current?.detach(); current = undefined }
+  function begin() { close(); current = { id: ++serial, facts: initial(), requestID: null, signal: null, detach: () => {} }; return serial }
+  function end(id: number | null, expectedID: string | null) {
+    if (!current || current.id !== id) return null;
+    const slot = current;
+    const result = { ...slot.facts, request_id_match: slot.facts.requests === 1 && !!slot.requestID && slot.requestID === expectedID,
+      signal_aborted: slot.signal?.aborted === true };
+    close(); return result;
+  }
+  function fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> | undefined {
+    const slot = current;
+    if (!slot) return;
+    const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url, location.origin);
+    const method = init?.method ?? (input instanceof Request ? input.method : 'GET');
+    if (url.origin !== location.origin || url.pathname !== '/api/v1/session' || url.search || method !== 'GET') return;
+    slot.facts.requests++;
+    const pending = nativeFetch(input, init);
+    if (slot.facts.requests !== 1) return pending;
+    slot.signal = init?.signal ?? (input instanceof Request ? input.signal : null);
+    const abort = () => { slot.facts.abort_events++ };
+    slot.signal?.addEventListener('abort', abort, { once: true });
+    slot.detach = () => slot.signal?.removeEventListener('abort', abort);
+    const failed = (code: string) => { if (slot.facts.failure === 'none') slot.facts.failure = code };
+    function observe<T>(work: Promise<T>, done: (value: T) => void, rejected: () => void) {
+      // The client receives the original Promise. Both branches and any
+      // diagnostic callback failure are handled on this separate branch.
+      void work.then(done, rejected).catch(() => failed('observer-error'));
+    }
+    observe(pending, (response) => {
+      slot.facts.headers_seen = true; slot.facts.status_ok = response.status === 200;
+      slot.requestID = response.headers.get('X-Request-ID');
+      const stream = response.body;
+      if (!stream) return;
+      const streamCancel = stream.cancel.bind(stream), getReader = stream.getReader.bind(stream);
+      stream.cancel = (...args) => {
+        slot.facts.stream_cancel_calls++; slot.facts.cancel_before_eof ||= !slot.facts.read_done;
+        const result = streamCancel(...args);
+        observe(result, () => { slot.facts.stream_cancel_settled++ }, () => {
+          slot.facts.stream_cancel_settled++; slot.facts.stream_cancel_rejected++; failed('stream-cancel-rejected');
+        });
+        return result;
+      };
+      Object.defineProperty(stream, 'getReader', { value: (...args: unknown[]) => {
+        slot.facts.readers++;
+        let reader: ReadableStreamDefaultReader<Uint8Array>;
+        try { reader = Reflect.apply(getReader, stream, args) }
+        catch (error) { failed('get-reader-threw'); throw error }
+        const read = reader.read.bind(reader), cancel = reader.cancel.bind(reader), release = reader.releaseLock.bind(reader);
+        reader.read = (...args: unknown[]) => {
+          slot.facts.read_calls++;
+          const result = Reflect.apply(read, reader, args) as ReturnType<typeof read>;
+          observe(result, (value) => {
+            slot.facts.read_settled++;
+            if (value.done) slot.facts.read_done = true;
+            else slot.facts.bytes += value.value.byteLength;
+          }, () => { slot.facts.read_settled++; slot.facts.read_rejected++; failed('read-rejected') });
+          return result;
+        };
+        reader.cancel = (...args) => {
+          slot.facts.reader_cancel_calls++; slot.facts.cancel_before_eof ||= !slot.facts.read_done;
+          const result = cancel(...args);
+          observe(result, () => { slot.facts.reader_cancel_settled++ }, () => {
+            slot.facts.reader_cancel_settled++; slot.facts.reader_cancel_rejected++; failed('reader-cancel-rejected');
+          });
+          return result;
+        };
+        reader.releaseLock = () => {
+          slot.facts.release_calls++;
+          try { release(); slot.facts.release_successes++ }
+          catch (error) { failed('release-threw'); throw error }
+        };
+        return reader;
+      } });
+    }, () => failed('fetch-rejected'));
+    return pending;
+  }
+  return { begin, end, close, fetch };
+}
+
 export function install() {
   const nativeFetch = window.fetch.bind(window)
+  const session = sessionDiagnostics(nativeFetch)
   const observations: Observation[] = []
   let disposed = false
   const projectPath = /^\/api\/v1\/projects\/([0-9a-f-]{36})\/(model-providers|models|available-chat-models|model-credentials|model-commands\/lookup|model-credential-commands\/lookup)(?:\/([0-9a-f-]{36}))?$/
-  window.fetch = async (input, init) => {
+  const projectFetch: typeof window.fetch = async (input, init) => {
     const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url, location.origin)
     if (url.origin !== location.origin || !projectPath.test(url.pathname)) return nativeFetch(input, init)
     need(!disposed && typeof input === 'string' && init && (!init.body || typeof init.body === 'string'))
@@ -58,6 +148,7 @@ export function install() {
       return response
     } catch (error) { entry.ended = true; throw error }
   }
+  window.fetch = (input, init) => session.fetch(input, init) ?? projectFetch(input, init)
 
   function publicFacts() {
     return observations.map((o) => ({ token: o.token, method: o.request.method, path: o.request.path, query: o.request.query, status: o.status,
@@ -166,7 +257,7 @@ export function install() {
     return { native_eof: true, typed_client_ok: true }
   }
   Object.defineProperty(window, '__projectModelsProbe', { value: {
-    facts: publicFacts, verify,
-    dispose() { for (const o of observations) { o.request.body = null; o.request.headers = new Headers(); for (const chunk of o.chunks) chunk.fill(0) }; observations.length = 0; disposed = true },
+    facts: publicFacts, verify, sessionBegin: session.begin, sessionEnd: session.end,
+    dispose() { session.close(); for (const o of observations) { o.request.body = null; o.request.headers = new Headers(); for (const chunk of o.chunks) chunk.fill(0) }; observations.length = 0; disposed = true },
   } })
 }

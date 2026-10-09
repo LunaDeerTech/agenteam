@@ -161,4 +161,6 @@ history错误字段已作单分支最小修复，定向六分支pure/race通过�
 
 `TestTaskBlockerAtomicity` 完整race PASS，十六个子项body 7.00秒；Go/driver/外层实际退出0并完成两资源/runtime/host TCP双清，输入未变。七个真实SQL写点×add/resolve均以AFTER ROW及不可回滚sequence证明实际命中，所有业务事实回滚、原planned保留、同key恢复及重放不重复；正确Task/Blocker/query后像仅删除history时，两分支producer均拒绝并回滚。
 
-独立runtime全文STATIC除上述已修history字段未发现新增must-fix；自有A/B probe与构建脚本已落入 `.agent-state/task-blocker-service/` 并完成上述独立真实验收。逐条验收覆盖核对发现的缺口已集中补入两个新top、Concurrency异key同版本及B内部确认。作者Concurrency两处首次User SH观察误用旧EX专用helper，已在运行前修为本地精确mode检查并经独立差异接受，未把此未运行的测试错误当产品FAIL。三个补充作者测试源已联合race编译通过、精确发现七个作者top和两个必要旧回归top，另经独立STATIC接受并完成上述真实验收。两个必要既有服务回归仍待运行，尚无完整服务接受结论。
+`TestTaskPlanningAtomicityAndEvents` 在包含00023与新dispatcher的冻结产品上完整race PASS，body 6.27秒；Go/driver/外层实际退出0、两资源/runtime/host TCP双清、输入未变。既有Task创建/更新/排序的历史、producer门禁及原子回滚仍可用。
+
+独立runtime全文STATIC除上述已修history字段未发现新增must-fix；自有A/B probe与构建脚本已落入 `.agent-state/task-blocker-service/` 并完成上述独立真实验收。逐条验收覆盖核对发现的缺口已集中补入两个新top、Concurrency异key同版本及B内部确认。作者Concurrency两处首次User SH观察误用旧EX专用helper，已在运行前修为本地精确mode检查并经独立差异接受，未把此未运行的测试错误当产品FAIL。三个补充作者测试源已联合race编译通过、精确发现七个作者top和两个必要旧回归top，另经独立STATIC接受并完成上述真实验收。仅余必要旧Structure回归及最终独立收束，尚无完整服务接受结论。

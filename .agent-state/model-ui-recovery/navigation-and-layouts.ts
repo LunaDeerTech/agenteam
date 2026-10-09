@@ -2,7 +2,7 @@ import { expect, type Locator, type Page, type Request } from '../../tests/accou
 import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join } from 'node:path';
-import type { AuthorityHarness } from './authority-and-identity';
+import { beginSessionDiagnostic, type AuthorityHarness } from './authority-and-identity';
 
 type NativeFact = Readonly<{ token: string | null; method: string; path: string; query: string; status: number; eof: boolean; ended: boolean; released: boolean; bytes: number }>;
 type Project = Readonly<{ id: string; username: string; normalized_name: string; owner_user_id: string; initialized: boolean; lifecycle: string }>;
@@ -72,6 +72,8 @@ async function sessionStage<T>(work: Promise<T>, code: 'PROJECT_MODELS_NAVIGATIO
   } finally { if (timer !== undefined) clearTimeout(timer); }
 }
 async function sessionIdentity(page: Page, action: () => Promise<void>, step: (name: string) => void) {
+  const diagnostic = await beginSessionDiagnostic(page, 'navigation');
+  let diagnosticFailed = false;
   let selected: Request | undefined;
   const observation = { headers_seen: false, finished_event: false, failed_event: false };
   const publish = () => writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'navigation-session-events.json'), JSON.stringify({ protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH, observation }), { mode: 0o600 });
@@ -82,7 +84,7 @@ async function sessionIdentity(page: Page, action: () => Promise<void>, step: (n
     publish();
     const waiting = page.waitForResponse((response) => {
       if (new URL(response.url()).pathname !== '/api/v1/session' || response.request().method() !== 'GET' || response.status() !== 200) return false;
-      selected = response.request(); observation.headers_seen = true; publish(); return true;
+      selected = response.request(); diagnostic.select(response); observation.headers_seen = true; publish(); return true;
     }, { timeout: 5_000 });
     const [response] = await Promise.all([waiting, (async () => { await action(); step('navigation-session-action-returned'); })()]);
     step('navigation-session-headers-observed');
@@ -101,8 +103,9 @@ async function sessionIdentity(page: Page, action: () => Promise<void>, step: (n
       if (error instanceof Error && error.message === 'PROJECT_MODELS_NAVIGATION_SESSION_JSON_TIMEOUT') throw error;
       throw new Error('PROJECT_MODELS_NAVIGATION_SESSION_INVALID');
     }
-  } finally {
+  } catch (error) { diagnosticFailed = true; throw error; } finally {
     page.off('requestfinished', finished); page.off('requestfailed', failed); publish();
+    await diagnostic.finish(diagnosticFailed);
   }
 }
 async function pageshow(page: Page) {

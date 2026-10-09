@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page, type Request } from '../../tests/account-captcha-web/node_modules/@playwright/test/index.js';
+import { expect, type Locator, type Page, type Request, type Response } from '../../tests/account-captcha-web/node_modules/@playwright/test/index.js';
 import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -84,6 +84,56 @@ function observer(page: Page, harness: AuthorityHarness) {
     return originalBody(fact, operation, projectID);
   };
 }
+// Diagnostic failures must never replace the existing Session result. No
+// response body, request headers, IDs or raw error strings enter this artifact.
+export async function beginSessionDiagnostic(page: Page, mode: 'authority' | 'navigation') {
+  let slot: number | null = null, selected: Request | undefined, requestID: string | null = null;
+  const requests: Request[] = [];
+  const bounded = async <T>(work: Promise<T>): Promise<T | null> => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try { return await Promise.race([work, new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), 250); })]); }
+    catch { return null; }
+    finally { if (timer !== undefined) clearTimeout(timer); }
+  };
+  const requested = (request: Request) => {
+    const url = new URL(request.url());
+    if (url.origin === new URL(page.url()).origin && url.pathname === '/api/v1/session' && !url.search && request.method() === 'GET') requests.push(request);
+  };
+  page.on('request', requested);
+  slot = await bounded(page.evaluate(() => (window as any).__projectModelsProbe.sessionBegin() as number));
+  return {
+    select(response: Response) {
+      selected = response.request();
+      void response.headerValue('x-request-id').then((value) => { requestID = value; }, () => {}).catch(() => {});
+    },
+    async finish(failed: boolean) {
+      try {
+        const value: unknown = await bounded(page.evaluate(({ slot, requestID }) => (window as any).__projectModelsProbe.sessionEnd(slot, requestID), { slot, requestID }));
+        if (!failed) return;
+        const counts = ['requests', 'readers', 'read_calls', 'read_settled', 'read_rejected', 'bytes', 'reader_cancel_calls', 'reader_cancel_settled', 'reader_cancel_rejected', 'stream_cancel_calls', 'stream_cancel_settled', 'stream_cancel_rejected', 'release_calls', 'release_successes', 'abort_events'];
+        const flags = ['headers_seen', 'status_ok', 'read_done', 'cancel_before_eof', 'request_id_match', 'signal_aborted'];
+        const codes = ['none', 'fetch-rejected', 'get-reader-threw', 'read-rejected', 'reader-cancel-rejected', 'stream-cancel-rejected', 'release-threw', 'observer-error'];
+        let native: Record<string, boolean | number | string> | null = null;
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          const row = value as Record<string, unknown>;
+          if (Object.keys(row).length === counts.length + flags.length + 1 && counts.every((key) => Number.isSafeInteger(row[key]) && Number(row[key]) >= 0) && flags.every((key) => typeof row[key] === 'boolean') && typeof row.failure === 'string' && codes.includes(row.failure)) {
+            native = Object.fromEntries([...counts, ...flags, 'failure'].map((key) => [key, row[key] as boolean | number | string]));
+          }
+        }
+        const error = selected?.failure()?.errorText;
+        const pwFailure = error === undefined ? 'none' : error === 'net::ERR_ABORTED' ? 'aborted' : error === 'net::ERR_CONNECTION_RESET' ? 'reset' : error === 'net::ERR_CONNECTION_CLOSED' ? 'closed' : 'other';
+        writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, `${mode}-session-native-diagnostic.json`), JSON.stringify({
+          protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH,
+          diagnostic: native === null ? 'unavailable' : 'captured', pw_requests: requests.length,
+          pw_request_match: requests.length === 1 && requests[0] === selected, pw_request_id_seen: !!requestID,
+          pw_failure: pwFailure, native,
+        }), { mode: 0o600 });
+      } catch { /* A missing diagnostic cannot alter the original gate. */ }
+      finally { page.off('request', requested); }
+    },
+  };
+}
+
 // Session bodies remain private in this call. Only the formal safe identity is
 // returned, never CSRF, cookies, login inputs, headers or their digests.
 type SessionStageCode = `PROJECT_MODELS_AUTHORITY_${'SESSION_ACTION' | 'SESSION_HEADERS' | 'SESSION_FINISH' | 'SESSION_JSON' | 'CHECKING_COUNTS' | 'CHECKING_FACTS' | 'CHECKING_ARM' | 'CHECKING_HOLD' | 'CHECKING_RELEASE' | 'CHECKING_JOIN'}_TIMEOUT`;
@@ -96,6 +146,8 @@ async function sessionStage<T>(work: Promise<T>, code: SessionStageCode) {
   } finally { if (timer !== undefined) clearTimeout(timer); }
 }
 async function sessionIdentity(page: Page, action: () => Promise<void>, step: (name: string) => void) {
+  const diagnostic = await beginSessionDiagnostic(page, 'authority');
+  let diagnosticFailed = false;
   let selected: Request | undefined;
   const observation = { headers_seen: false, finished_event: false, failed_event: false };
   const publish = () => writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-session-events.json'), JSON.stringify({ protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH, observation }), { mode: 0o600 });
@@ -107,7 +159,7 @@ async function sessionIdentity(page: Page, action: () => Promise<void>, step: (n
     publish(); step('authority-session-action-started');
     const waiting = page.waitForResponse((response) => {
       if (new URL(response.url()).pathname !== '/api/v1/session' || response.request().method() !== 'GET' || response.status() !== 200) return false;
-      selected = response.request(); observation.headers_seen = true; publish(); return true;
+      selected = response.request(); diagnostic.select(response); observation.headers_seen = true; publish(); return true;
     }, { timeout: 5_000 });
     const [response] = await Promise.all([
       sessionStage(waiting, 'PROJECT_MODELS_AUTHORITY_SESSION_HEADERS_TIMEOUT'),
@@ -129,8 +181,9 @@ async function sessionIdentity(page: Page, action: () => Promise<void>, step: (n
       if (error instanceof Error && error.message === 'PROJECT_MODELS_AUTHORITY_SESSION_JSON_TIMEOUT') throw error;
       throw new Error('PROJECT_MODELS_AUTHORITY_SESSION_INVALID');
     }
-  } finally {
+  } catch (error) { diagnosticFailed = true; throw error; } finally {
     page.off('request', requested); page.off('requestfinished', finished); page.off('requestfailed', failed); publish();
+    await diagnostic.finish(diagnosticFailed);
   }
 }
 async function pageshow(page: Page) { await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow'))); }

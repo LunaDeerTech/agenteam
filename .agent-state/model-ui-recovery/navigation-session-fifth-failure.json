@@ -1,0 +1,100 @@
+{
+  "browser_step": {
+    "mode": "navigation",
+    "step": "navigation-session-headers-observed"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "bd930e8fc79fdf5835b5bcaff9a0740c498ef266d4b71ccceb9b1d15c43eebaa",
+    "mode": "navigation",
+    "status": "failed",
+    "errors": [
+      {
+        "category": "closed-harness-error",
+        "code": "PROJECT_MODELS_NAVIGATION_SESSION_FINISH_TIMEOUT",
+        "call": null,
+        "locations": [
+          {
+            "source": "navigation-and-layouts.ts",
+            "line": 70,
+            "column": 39
+          }
+        ]
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 868
+      }
+    ]
+  },
+  "session_events": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "bd930e8fc79fdf5835b5bcaff9a0740c498ef266d4b71ccceb9b1d15c43eebaa",
+    "observation": {
+      "headers_seen": true,
+      "finished_event": false,
+      "failed_event": true
+    }
+  },
+  "session_state": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "bd930e8fc79fdf5835b5bcaff9a0740c498ef266d4b71ccceb9b1d15c43eebaa",
+    "stage": "initial-pageshow",
+    "observation": {
+      "before": {
+        "path_home": true,
+        "path_login": false,
+        "document_visible": true,
+        "logout_present": true,
+        "logout_disabled": false
+      },
+      "after": {
+        "path_home": true,
+        "path_login": false,
+        "document_visible": true,
+        "logout_present": true,
+        "logout_disabled": true
+      }
+    }
+  },
+  "safe_response_count": 1,
+  "layout_images": 0,
+  "actual_terminal": {
+    "case": "navigation",
+    "selector": "^TestAccountProjectOwnerModelsWebNavigationAndLayouts$",
+    "exit": 1,
+    "elapsed_seconds": 106.90762927100059,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 142410,
+        "status": 0
+      },
+      {
+        "pid": 142413,
+        "status": 0
+      },
+      {
+        "pid": 142415,
+        "status": 0
+      },
+      {
+        "pid": 142416,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "outer_session": 48201,
+  "go_top_seconds": 14.64
+}
