@@ -64,3 +64,9 @@
 - Audit readiness2278f1只读确认两个旧exact top／正式Go函数／原env与继承PATH、四非法selector拒绝；现d8c binary与dist不重编／不重跑发现。两Audit只共享D27卡、binary/helpers/dist/owned_resources及其本域regression脚手架／Audit spec/client/schema，不读取Resolve case或nativeprobe。MinIO symlink被原frozen_inputs普通文件门槛拒绝的风险已报root，root负责转为同固定产物普通hardlink；未获实际窗口。
 
 - Runner对稳定81b606a9整体方法实现的限定独审已完成，无remaining must-fix：d0c1e7 actual0＝23 adapter＋6 beforePublish；9b69c7 actual0＝19真实controller/client/workspace/View/native与锁定PW转换（layout／transport为明确替身），均unhandled0；0f81f6独立四控actual0覆盖六原Promise之一未settle、close后returnedError、安全投影、candidate失败后原拒绝传播及candidate继续后早拒绝不能吞。原fda84b红→dfbadf绿保留，独审未改作者源。只接受离线实现就绪，真实新main authority／原054未通过，35073及49546缺口不回填。D27卡、源码、产物继续freeze，本文唯一记录增量待root安全保存。
+
+## 新 main AuditAuthority 完整结果
+
+- 原 group audit-authority，exact TestAccountProjectOwnerAuditWebAuthorityAndRecovery；首exec同进程 fresh5,837,934,592B，固定 d8c1a058/本树资产与原45/120/75、7资源门槛。nonce07b38cc403ad406186ea3dba1b232371；body PASS32.48s。
+- 本人原62616的 ee71a4 实际 outer exit0；terminal elapsed118.606s，directWait0/四adoptedWait0/全部join/7ID两次absent/runtime/private清/TCP双空/input同一/retirementtrue（0e339a只读）。root跨agentUnknown不冒原终态；实际窗口已释放，无第二group。
+- D27卡同步有限结果；本次只冻结卡与本文两记录待root保存。AuditNavigation与新Resolve authority尚未实跑；49546FAIL和整卡未完成保留。D04新树的SPEC/纯合同工作不改变本树冻结源码或验收产物。
