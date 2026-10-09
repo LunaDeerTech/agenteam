@@ -17,7 +17,8 @@
 6. 本轮 Model authority 第三轮实际 FAIL：已越过旧遮挡与 sameSession，后在第二恢复 Project 的 GET 观察等待超时。Go24.57s、外层110.529s实际exit1；全部Wait/join、7ID双absent、descendants空、TCP双空、输入不变。原失败保留，Model负责人排查同步/诊断，不先认定产品故障。
 7. Model navigation 第三轮实际FAIL且完整资源终态已确认，安全输入在 `.agent-state/model-ui-recovery/navigation-directory-failure.json`；测试种子名与现有严格目录准入不匹配，限定修复中。独立A/B四源已完整可构建保存于 `.agent-state/model-ui-independent/`，仅编译/类型/发现通过，真实独立场景尚未运行；主harness修后须重编。
 8. B0-P三新纯contract源（record/commands/events）已形成可构建片段，固定Go离线限定包编译exit0；尚未证明新业务行为。服务五源、00023、Work/Project事件接线、Foundation错误码、三contract测试和四PG测试已可构建保存；三包限定编译及新contract五组pure通过，integration编译/四top发现通过，首冷cache45s exit124保留。未运行真实PG，runtime新pure测试/独立验证仍进行，尚未正式交付。
-9. 本次子代理显式请求 `gpt-6-astra / ultra`；工具未提供 service tier 字段，实际 Fast 生效未确认。实际全树容量7席，按就绪工作动态协调。
+9. B0-P首轮Persistence完整实际FAIL（外层39861 exit1/126.666s、Go/driver Wait1）：历史4096新增返回RESOURCE_BUSY但缺BLOCKER_HISTORY_LIMIT reason；其它真实操作/升级/回滚/Project容量子项body通过不替代整top。两资源ID双clean、runtime/TCP双空、输入不变，现已释放窗口并返修限定错误字段。四包作者pure/race及三contract独立pure/race通过；完整runtime独审与其余PG尚未完成。
+10. 本次子代理显式请求 `gpt-6-astra / ultra`；工具未提供 service tier 字段，实际 Fast 生效未确认。实际全树容量7席，按就绪工作动态协调。
 
 ## 环境实际核对
 
