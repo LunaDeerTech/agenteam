@@ -1,6 +1,6 @@
 # D11 Owner Work Planning HTTP 与默认生产根
 
-修订：rev1，2026-10-09，**规格初稿，待独立审查；尚未实施或验收**。
+修订：rev2，2026-10-09，**已修正rev1独审四项，待差异复审；尚未实施或验收**。
 
 ## 1. 完整结果与真实前置
 
@@ -69,7 +69,7 @@ Lookup 是当前 Read，但 unsafe POST 仍需 CSRF。不执行 command、不自
 
 ## 3. 查询、投影与有界分页
 
-所有 GET/HEAD 禁止正文，包括伪造 Content-Length=0 后实际出现的字节；不用无界 drain。mutation/Lookup 禁止 query 与 ForceQuery。列表 query 总原文上限 32 KiB，cursor 解码后 ≤8192 B；重复 key、重复 decoded key、未知 key、空值、非法百分号/UTF-8/NUL、`;`、无 `=` 和裸 `?` 拒绝。不 trim/合并查询值。
+所有 GET/HEAD 禁止实际 Request.Body 可见的实体正文，包括声明 Content-Length=0 但所给 Body 仍有字节的适配器；最多探测一个字节，不用无界 drain。native net/http 已将CL=0之后的线路字节按连接framing解释，handler不得读取底层连接来吞掉下一条pipelined请求。详情GET/HEAD、mutation及Lookup均禁止非空RawQuery与ForceQuery。列表 query 总原文上限 32 KiB，cursor 解码后 ≤8192 B；重复 key、重复 decoded key、未知 key、空值、非法百分号/UTF-8/NUL、`;`、无 `=` 和裸 `?` 拒绝。不 trim/合并查询值。
 
 列表统一 `limit` 省略为50，显式必须 canonical 十进制1..200；`cursor` 省略为首屏。Milestone 只接受 limit/cursor；Sprint 额外恰一个必须的 milestone_id；Task 额外允许原 `state,priority,type,milestone_id,sprint_id,text,assignee_agent_id`。Task assignee 省略为不限，值 `null` 为未指派，否则为 canonical AgentID；不接受空串/其它 sentinel。text 沿原 ValidateTitle 和原查询语义，不写新的全文搜索。Blocker 额外允许 `status`，省略明确展开 unresolved，显式仅 unresolved/resolved/all；展开后的 status 参与 cursor 绑定。
 
@@ -123,7 +123,23 @@ add/resolve及真实 Task字段/业务排序改变都会推进Task.version，因
 
 不得在调用库前加Project Mutate预检查，破坏Read→原回执→新变更门禁顺序。两阶段计划之间的撤权/归档与同key旧revision竞态沿原行为：Blocker首次并发调用可能 FORBIDDEN，但可用当前权限下Lookup/原意图重放恢复，不能把所有首次调用强改成成功。
 
-错误沿 Foundation Fault/Account Problem：400输入、401认证、403CSRF/Forbidden、404不可见目标/未知路由、405方法、409版本/状态/幂等/依赖环/光标失效等原映射、413原文超限、415media、503依赖/最终Unknown；精确code/reason/commit_state以公共映射为准，不把所有取消/PG错误归到一个码。保留原 `/blocker_id:BLOCKER_HISTORY_LIMIT` 等字段信息。底层已经写入成功而输出校验失败时仍不得宣称 NotCommitted；按§5的保守Unknown/abort处理。
+错误沿 Foundation Fault/Account Problem：400输入、401认证、403CSRF/Forbidden、404不可见目标/未知路由、405方法、409版本/状态/幂等/依赖环/光标失效、413原文超限、415media、503依赖/最终Unknown；不把所有取消/PG错误归到一个码。保留原 `/blocker_id:BLOCKER_HISTORY_LIMIT` 等字段信息及真实commit_state。底层已经返回成功而mutation结果校验失败时直接abort，不生成NotStarted/NotCommitted Problem；read/Lookup坏投影可返回DependencyUnavailable，不能伪造receipt或改成not_observed。
+
+rev1独审发现 Foundation 的以下九码已 Known，但公共 `httpapi.problemKinds` 与 `common.json` 尚未登记，不能直接接入。本卡补最小映射，保持原领域Fault和安全投影规则：
+
+| Code | HTTP / title | 固定默认detail |
+| --- | --- | --- |
+| TASK_NOT_FOUND | 404 / Task not found | The requested task was not found. |
+| TASK_VERSION_CONFLICT | 409 / Task version conflict | The task changed. Read it again before retrying. |
+| TASK_STATE_INVALID | 409 / Task state invalid | The task state does not permit this action. |
+| TASK_ASSIGNEE_REQUIRED | 409 / Task assignee required | This action requires an assigned agent. |
+| TASK_SPRINT_INVALID | 409 / Task sprint invalid | The task sprint does not permit this action. |
+| TASK_TERMINAL_IMMUTABLE | 409 / Task terminal immutable | A terminal task cannot be changed. |
+| BLOCKER_NOT_FOUND | 404 / Blocker not found | The requested blocker was not found. |
+| BLOCKER_ALREADY_RESOLVED | 409 / Blocker already resolved | The blocker is already resolved. |
+| TASK_DEPENDENCY_CYCLE | 409 / Task dependency cycle | The task dependency would create a cycle. |
+
+TaskVersionConflict在没有合法显式hint时默认`reread`；其它八码不新增默认重试提示，沿现有合法hint透传。CommitUnknown仍强制`lookup`。沿原SafeMessage、合法FieldErrors、四种CommitState、RequestID/HEAD/无cause规则，不格式化err.Error。未知非Known code本来经Code.Safe映射INTERNAL_ERROR/500，本卡保持该回退；九码补齐后没有新增Known缺映射分支，不为未来假设增加通用registry或改旧异常语义。九码逐项投影与schema验证及原unknown-code回归是必要验收。
 
 已知资源的不支持方法返回405与精确Allow；GET资源也支持HEAD、无正文。未知canonical路由404；非canonical path/RawPath沿Account既有400，不redirect、不做path.Clean后路由。dispatcher只认本卡明确子资源，不抢Owner/Model/Usage/Audit/Project update及原commands/lookup。
 
@@ -131,7 +147,7 @@ add/resolve及真实 Task字段/业务排序改变都会推进Task.version，因
 
 沿已验 [Project Owner HTTP](d08-project-owner-update-http.md)的同一总预算原则：read/Lookup总2s，mutation总30s，从认证前开始并继承更早parent deadline。私有Work I/O adapter持有原body和native Read/WriteDeadline、Flush能力；解wrap最多64层，无能力或循环则abort，不另建通用HTTP框架。对应能力在任何认证/业务前解析。
 
-预算覆盖认证、body读取、库调用、完整编码、body真实Close、全部写入/Flush、取消回调join和清deadline；只Close一次原body，不把MaxBytesReader当另一个资源。拒绝请求也不能以提前Problem绕过body/回调所有权。超时、取消、short write、Flush/Close失败或意外panic走 `http.ErrAbortHandler`，原外层Recover不得再写无界替代Problem。没有为逃脱阻塞而遗弃的goroutine。正式1MiB/5MiB响应完整编码并通过校验后才写200、`application/json`、`Cache-Control:no-store`和准确Content-Length；HEAD无body，仍完成安全头/Flush。
+预算覆盖认证、body读取、库调用、完整编码、body真实Close、全部写入/Flush、取消回调join和清deadline；只Close一次原body，不把MaxBytesReader当另一个资源。拒绝请求也不能以提前Problem绕过body/回调所有权。成功清deadline前必须已完成body Close、停用未启动回调并实际join已启动回调；clear-deadline失败同样abort。超时、取消、short write、Flush/Close失败或意外panic走 `http.ErrAbortHandler`，原外层Recover不得再写无界替代Problem。没有为逃脱阻塞而遗弃的goroutine。正式1MiB/5MiB响应完整编码并通过校验后才写200、`application/json`、`Cache-Control:no-store`和准确Content-Length；HEAD无body，仍完成安全头/Flush。
 
 领域自有提交确认可能在原ctx取消后继续其已定3s上限；同步请求仍须拥有并等其实际返回。该tail不延长HTTP发布期限。超时后不得把未知结果伪写成NotStarted/NotCommitted或200。库返回带Unknown的原Fault时保留Cause/Attempt内部链，wire只呈公共Problem；业务已经完成但输出无效/无法完整发布，客户端仍按原意图Lookup恢复，不能声称HTTP错误撤销了提交。
 
@@ -141,45 +157,46 @@ add/resolve及真实 Task字段/业务排序改变都会推进Task.version，因
 
 默认根使用现同Store的 Project Authority 创建一个Work Authority，在同一Catalog注册 RegisterWorkEvents/RegisterTaskEvents/RegisterTaskBlockerEvents。构造Outbox之前绑定 `Producers[WorkProducer]` 到该确切Authority；沿Project现有精确四事件gate，不放大到任意work前缀。
 
-构造一个Structure Reader，再构造Structure/Task/Blocker三个命令Service、Task Reader和新Blocker Reader；使用同一真实Account Authority作为Activity、同一个Outbox Appender及现CursorKeyring。HTTP公开构造只接受这些具体服务/Reader及真实Account HTTPBoundary；私有测试接口可替身验证坏投影，但默认根不得安装fixture或空端口。构造只做绑定，不增加初始化/后台恢复，不接通缺失Skills、Lifecycle、Resolution或Invocation。
+构造一个Structure Reader，再构造Structure/Task/Blocker三个命令Service、Task Reader和新Blocker Reader；使用同一真实Account Authority作为Activity、同一个Outbox Appender及现CursorKeyring。HTTP公开构造为 `workhttp.NewHTTPHandler(bindings Bindings,boundary *account.HTTPBoundary) (http.Handler,error)`；Bindings恰六个具体指针字段 Structure、StructureReader、Tasks、TaskReader、Blockers、BlockerReader，分别对应上述六对象，任一nil拒绝。`HandlesPath(path string) bool`只分发本卡明确资源形状；Actor、原Request和URL不重建。私有测试接口可替身验证坏投影，但默认根不得安装fixture或空端口。构造只做绑定，不增加初始化/后台恢复，不接通缺失Skills、Lifecycle、Resolution或Invocation。
 
 新增Work bundle纳入 `accountAssembly.works()`，排在Account core/Activity退休前。StopAdmission先对三个Service全部Stop；Drain先Stop全部，再在原剩余ctx内逐个等待真实Drain。只有三者实际完成且partial construction结束才Joined；首个错误不允许Force漏取消后两个。Work没有Project式Force，bundle Force也必须实际调用所有Stop并尝试全部Drain，不能虚构方法或另给期限。
 
-构造部分成功、install遇stop/Force、之后构造失败的每个路径都由原assembly持有已建Service并停止/等待；不得在local变量里遗失已建实例。纯Reader由现根HTTP active计数与真实HTTP join保护，三个命令Drain不能代替读取Rows/body/取消回调退出。原root仍在HTTP、Account/Work与Outbox真实join后才退ObjectGuard与DB。本卡验证新增Work阻塞对顺序的影响，不改Object停止实现或宣称旧Object join缺陷修复。
+构造部分成功、install遇stop/Force、之后构造失败的每个路径都由原assembly持有已建Service并停止/等待；不得在local变量里遗失已建实例。纯Reader由现根HTTP active计数与真实HTTP join保护，三个命令Drain不能代替读取Rows/body/取消回调退出。正常graceful路径在HTTP、Account/Work与Outbox真实join后才正常退休ObjectGuard/DB；Force路径沿原共享截止时间启动全部取消，期限耗尽仍必须走既有DB.ForceClose以打断底层调用。未join会阻止guard正常退休，但不能把DB强关永远卡在未join上，也不能把DB强关或进程退出写成Work已实际join。保留原退出失败/未join事实。本卡验证新增Work阻塞对既定顺序的影响，不改Object停止实现或宣称旧Object join缺陷修复。
 
 ## 7. 文件、实例与资源所有权
 
-root已协调本树唯一写入 `internal/central/app/account.go`、`docs/development/backend/README.md`、`api/openapi/work-planning.json`；不改通用router、依赖锁文件、Model生产服务或Model/D27 harness输入。规格写者为service_delivery，实施实例blocker_implementation，独立SPEC及高风险动态验证为未参与实现的blocker_spec_review；具体实现文件可在本树串行交接，同一时刻只有一个写者。
+root已协调本树唯一写入 `internal/central/app/account.go`、`internal/central/httpapi/problem.go`、`api/openapi/common.json`、`docs/development/backend/README.md`、`api/openapi/work-planning.json`；不改通用router、依赖锁文件、Model生产服务或Model/D27 harness输入。公共common.json可能进入另一树动态输入闭包，写入须遵守root当轮freeze窗口；其已验旧schema行为保持。规格写者为service_delivery，实施实例blocker_implementation，独立SPEC及高风险动态验证为未参与实现的blocker_spec_review；具体实现文件可在本树串行交接，同一时刻只有一个写者。
 
 | 范围 | 必要路径 |
 | --- | --- |
 | 正式规格与用户/开发入口 | 本卡；docs/development/backend/README.md；api/openapi/work-planning.json |
 | 分页 | internal/central/work/blocker_page.go、blocker_page_test.go；internal/central/work/contract/task_blocker_query.go、task_blocker_query_test.go |
 | HTTP | internal/central/work/http/handler.go、read.go、commands.go、wire.go、io.go 及对应_test.go；native边界独立 native_test.go |
+| 最小公共错误接缝 | internal/central/httpapi/problem.go；新 work_problem_test.go；api/openapi/common.json仅补九个code |
 | 根 | internal/central/app/account.go；新增 work_planning.go、work_planning_test.go、work_planning_process_test.go |
-| 真实跨层测试 | tests/work/work_owner_http_test.go；必要新HTTPfixture独占 tests/work/work_owner_http_fixture_test.go |
-| 可恢复独立/资源输入 | .agent-state/work-owner-http/ 下必要probe、任务自有driver/supervisor；不复制产品镜像或旧日志 |
+| 真实跨层测试 | tests/work/work_owner_http_test.go；必要新HTTPfixture独占 tests/work/work_owner_http_fixture_test.go；tests/process/work_owner_http_test.go |
+| 可恢复独立输入 | .agent-state/work-owner-http/ 下必要probe/独立编译入口；复用现监督器，不复制产品镜像、旧日志或完整harness |
 
 无新迁移；必要OpenAPI为正式手写schema，不生成前端资产。新增OpenAPI必须与真实输出按Draft2020-12/FormatChecker/本地refs验证，所有对象additionalProperties:false，版本/ID/nullable/union/presence闭合，不以正则文本搜索代schema验证。
 
-PG/native HTTP/真实root资源必须等root分配独占窗口。现Task Planning的2ID PG-only driver可用于独立分页库PG，但没有root/Object资源环境，不能冒根验收。现标准postgres helper硬编码test包列表，不含tests/work；必须显式采用实际包含新top的已编binary/任务自有driver接缝，防止run过滤到零测试。新root fixture使用任务自有PG、现有真实Object启动依赖及确切资源ID，不连接dev infra；浏览器不是本卡必需。原预算、实际进程Wait、Rows/body/workerjoin、七/两资源等实际数量与TCP双尾按选定driver明确记录，不能把后验clear补原终态。
+PG/native HTTP/真实root资源必须等root分配独占窗口。Task Planning现有2ID PG-only driver用于分页/事务库PG，保持原105s与已编binary/精确selector；它不提供root/Object环境。真实默认root用 `tests/process/work_owner_http_test.go`，复用该包TestMain/launch/event/wait、databaseEnvironment和noCentralBackends；现 `scripts/test-objects.sh` 的既有Object→outbound→postgres资源链已包含tests/process，实际执行cmd/agenteam，无须因为tests/work不在硬编码清单而另造监督器。native测试复用既有Project native监听、EOF及actual-join范式。精确top/实际binary/argv/原预算与必要环境在编译冻结后、真实窗口前核对，零发现不能算通过。资源使用任务自有PG、现有真实Object启动依赖及确切ID，不连接dev infra；浏览器不是本卡必需。实际进程Wait、Rows/body/workerjoin、实际资源数量与TCP双尾须收齐，不能把后验clear补原终态；若现runner无法承载具体场景再协调最小适配，不预先扩大基础设施。
 
 ## 8. 一次对齐的验收矩阵
 
 | 门槛 | 必须证明的外部/持久事实 |
 | --- | --- |
 | SPEC/公开接口 | 本卡独立接受后才实施；三组Lookup原意图可在首次发送前保存；所有route/enum/presence/nullable和预算闭合 |
-| pure wire/schema | 全21能力、合法最大escaping、摘要满页和单详情、错误union/目标/filter、重复/未知/null/media/query/headers/path、Allow/HEAD、无数据日志；真实body通过schema正反验证 |
+| pure wire/schema | 全21能力、合法最大escaping、摘要满页和单详情、错误union/目标/filter、重复/未知/null/media/query/headers/path、Allow/HEAD、无数据日志；九码逐项及原unknown-code映射；真实body通过schema正反验证 |
 | 真实分页 | 当前Owner且同Tx Task.version；相同created_at tie-break、首/中/尾/空页、不跳漏、换limit、status/scope/Owner签名隔离、add/resolve与Task update使cursor失效、同User换Session、撤权/归档/删除门禁、Rows取消真实退出 |
 | 真实HTTP闭环 | Bootstrap/邀请/兑换/Login得到真实cookie/CSRF；已有Project经真实服务加test-only Skills receipt准备，不冒创建HTTP；21能力使用同根实际服务，读取同一持久Task/Blocker与历史/Outbox/receipt/Activity，无第二写入 |
 | 权限/生命周期 | 未登录/撤销Session/停用User、异Owner管理员、跨Project父子；HTTP预认证后、prepare后安排撤权/归档真实竞争；archived Read/Lookup/完成replay通过，新写/未完成planned拒绝，pending/deleting拒绝 |
 | 三域恢复 | 各一实际首次完整响应丢失后原body/key/target/version查证；当前内容已变化仍返回历史receipt，同User新Session可查；改义冲突、writer在途不假not_observed、COMMIT forwarded/unforwarded的Unknown与明确恢复；无自动重发 |
-| native连接 | 同fd slow read/write、body Close、Flush/短写、unsupported deadline/wrapper cycle、更早parent cancel、库确认tail；实际EOF/abort、callback/body退出，不能靠httptest recorder或response事件代替 |
-| root 生命周期 | 默认根真实路由/cookie、唯一Catalog与Workproducer；命令/确认/纯Reader分别被hold时Stop/Force先取消且实际join才退Activity/guard/DB，partial install/晚构造不遗失实例；原Account/Project/Model路由代表回归 |
+| native连接 | 自然2s读/Lookup和自然30s写代表，不以short-parent/PG1s lock_timeout替代；另验更早parent。slow read/write、body Close、Flush/短写、unsupported deadline/wrapper cycle、确认tail、clear失败；同连接在上次deadline已过去后下一次完整请求成功。成功实际底层EOF+完整Content-Length，失败为可判定abort/不完整响应；LimitReader恰读满不证明EOF，body/callback须真join，不能靠Recorder或response事件代替 |
+| root 生命周期 | 默认根真实路由/cookie、唯一Catalog与Workproducer；命令/确认/纯Reader分别被hold时Stop先取消，graceful实际join后正常退Activity/guard/DB；Force沿原共享期限/DB.ForceClose且不冒已join，partial install/晚构造不遗失实例；原Account/Project/Model路由代表回归 |
 | 独立验收 | 未参与实现者设计并亲自执行有判别力的权限/分页/恢复/退出动态场景；作者自测不能代替。输入变化只补受影响验证，保留所有初始失败 |
 
 先覆盖完整矩阵再按资源分组，不在每轮结束后不断补造同类top。不重复B0-P内部全图/容量/14处SQL回滚等未改逻辑的全套动态验收；新增分页、HTTP、根接线及相关旧路由/退出链必须有自己的证据。必要静态检查为受影响包pure/race/vet、集成binary真实编译/精确top发现、两入口build与限定diff-check。完整结果的一次原子交付包含实现、测试、schema、卡和最小台账更新。
 
 ## 9. 当前可证状态
 
-已按正式计划及实际构造/授权/根接缝确认依赖就绪，root授予上述写域；规格初稿等待独审。没有新产品代码、迁移或本卡动态通过结论。全局进度与实际资源窗口由任务台账/分支记录维护，本卡不复制逐轮聊天、日志或全树哈希。
+已按正式计划及实际构造/授权/根接缝确认依赖就绪，root授予上述写域。rev1独审暂不接受：遗漏九码Problem映射、混淆graceful/forced退出、详情query及framing边界不全、自然期限/EOF验收不够明确；rev2逐项修正并采用现process harness，等待差异复审。没有新产品代码、迁移或本卡动态通过结论。全局进度与实际资源窗口由任务台账/分支记录维护，本卡不复制逐轮聊天、日志或全树哈希。
