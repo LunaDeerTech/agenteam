@@ -977,18 +977,21 @@ async function archive(
   ).toBeVisible();
   // Restoring the pending modal makes the page behind it inert. Inspect its
   // disabled controls explicitly without requiring a background interaction.
+  const backgroundButtons = page
+    .locator('section.project-providers [aria-label="项目模型操作"]')
+    .getByRole("button", { includeHidden: true });
   await expect(
-    page.getByRole("button", {
-      name: "创建 Provider",
-      exact: true,
-      includeHidden: true,
+    backgroundButtons.filter({
+      has: page
+        .locator('.button-label:not([aria-hidden="true"])')
+        .filter({ hasText: /^创建 Provider$/ }),
     }),
   ).toBeDisabled();
   await expect(
-    page.getByRole("button", {
-      name: "创建凭据",
-      exact: true,
-      includeHidden: true,
+    backgroundButtons.filter({
+      has: page
+        .locator('.button-label:not([aria-hidden="true"])')
+        .filter({ hasText: /^创建凭据$/ }),
     }),
   ).toBeDisabled();
   const after = await snapshot(key);
