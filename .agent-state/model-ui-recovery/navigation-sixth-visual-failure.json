@@ -1,0 +1,95 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-navigation-c3981cb4d92f48d3bbc070106b0f2196",
+  "case": "navigation",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case navigation",
+  "actual_tool_session": 61523,
+  "actual_command_exit": 0,
+  "actual_go_top_seconds": 26.74,
+  "terminal": {
+    "case": "navigation",
+    "selector": "^TestAccountProjectOwnerModelsWebNavigationAndLayouts$",
+    "exit": 0,
+    "elapsed_seconds": 116.08844768999916,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 392736,
+        "status": 0
+      },
+      {
+        "pid": 392739,
+        "status": 0
+      },
+      {
+        "pid": 392741,
+        "status": 0
+      },
+      {
+        "pid": 392742,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "browser_checks": {
+    "default_general_and_audit": true,
+    "draft_pending_partial_guard": true,
+    "eight_layouts": true,
+    "keyboard_focus_drawer": true,
+    "no_debug": true,
+    "no_overflow": true,
+    "private_input_cleared": true,
+    "raw_return_rejection": true,
+    "reduced_motion": true,
+    "safe_schema_client": true,
+    "selection_summary_separate_intents": true,
+    "two_suffixes": true
+  },
+  "browser_counts": {
+    "attempts": 15,
+    "complete_eof": 14,
+    "incomplete": 1,
+    "typed_client_ok": 14,
+    "schema_ok": 14
+  },
+  "layouts_captured": 8,
+  "server_counts": {
+    "started": 113,
+    "finished": 113
+  },
+  "retirement_observations": [
+    {
+      "observation": 1,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    },
+    {
+      "observation": 2,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    }
+  ],
+  "resource_observer_actual_join": true,
+  "post_terminal_owned_private_root_absent": true,
+  "independent_visual_review": {
+    "all_eight_original_images_viewed": true,
+    "acceptable_visible_layouts": 7,
+    "unaccepted_source_image": "navigation-light-narrow-normal.png",
+    "preserved_image": "navigation-sixth-light-narrow-normal.png",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "observation": "A translucent Project settings drawer and overlay remain drawn over the Providers page; this is not a stable post-close layout capture.",
+    "runtime_focus_and_drawer_assertions_passed": true,
+    "interpretation": "The original image is consistent with the still-drawing 120ms exit transition after aria-hidden/inert and focus restoration. A persistent product obstruction or focus defect was not established.",
+    "navigation_visual_acceptance_complete": false
+  },
+  "followup": "Observe actual visual exit completion without fixed sleep or product animation changes, then recapture only the affected light/narrow/normal layout using real user actions. Reuse the other seven original images within their visible scope; keep the original visual limitation and earlier navigation failures."
+}

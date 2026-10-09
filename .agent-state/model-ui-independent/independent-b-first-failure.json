@@ -1,0 +1,174 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-b-6b8aa40f3fbe468e9cb8cd89eca5ecbe",
+  "case": "b",
+  "command": "python3 /workspace/agenteam/.agent-state/model-ui-independent/run-independent.py --case b",
+  "actual_tool_session": 51228,
+  "actual_outer_command_exit": null,
+  "outer_actual_wait_obtained": false,
+  "outer_tool_failure": {
+    "category": "exec_transport_disconnected",
+    "followup": "pong_timeout_then_unknown_session",
+    "missing_outer_terminal_not_inferred_from_driver_file": true
+  },
+  "actual_go_top_seconds": 19.25,
+  "persistent_supervisor_terminal": {
+    "started": true,
+    "retirement_complete": true,
+    "direct_actual_wait": true,
+    "direct_exit": 1,
+    "adopted_actual_waits": [
+      {
+        "pid": 231155,
+        "status": 0
+      },
+      {
+        "pid": 231157,
+        "status": 0
+      },
+      {
+        "pid": 231160,
+        "status": 0
+      },
+      {
+        "pid": 231161,
+        "status": 0
+      }
+    ],
+    "adopted_wait_complete": true,
+    "watchdog_joined": true,
+    "observer_joined": true,
+    "top_within_120_seconds": true,
+    "resources": 7,
+    "resource_shape_valid": true,
+    "exact_absent_observations": 2,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "exact_top_pass": false,
+    "elapsed_seconds": 108.39002931800133,
+    "inputs_unchanged": true,
+    "case": "b",
+    "selector": "^TestIndependentProjectModelsWebCurrentAuthorityArchivedRecovery$",
+    "exit": 1,
+    "assets_exclusively_private": true
+  },
+  "browser_failure": {
+    "case": "b",
+    "status": "failed",
+    "error_count": 1,
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "locations": [
+          {
+            "source": "independent.spec.ts",
+            "line": 986,
+            "column": 5
+          },
+          {
+            "source": "independent.spec.ts",
+            "line": 1377,
+            "column": 3
+          }
+        ]
+      }
+    ]
+  },
+  "browser_step": {
+    "case": "b",
+    "step": "credential-rotation-archive"
+  },
+  "browser_exit": {
+    "context_done": false,
+    "exit_code": 1
+  },
+  "safe_responses": [
+    {
+      "sequence": 1,
+      "source": "setup",
+      "operation": "createProjectModelProvider",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "sequence": 2,
+      "source": "setup",
+      "operation": "createProjectModelProvider",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "sequence": 3,
+      "source": "setup",
+      "operation": "createProjectModel",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "sequence": 4,
+      "source": "browser",
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "sequence": 5,
+      "source": "browser",
+      "operation": "createProjectModelCredential",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "sequence": 6,
+      "source": "browser",
+      "operation": "getProjectModelCredentialMetadata",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "sequence": 7,
+      "source": "browser",
+      "operation": "updateProjectModelCredential",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "sequence": 8,
+      "source": "browser",
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "status": 200
+    }
+  ],
+  "safe_source_attribution": {
+    "test_source": ".agent-state/model-ui-independent/independent.spec.ts",
+    "helper": "archive",
+    "assertion_line": 986,
+    "call_line": 1377,
+    "assertion": "Create Provider exact-name button including hidden matches must be disabled",
+    "preceding_assertions_passed": [
+      "same Session identity",
+      "archived read-only message visible"
+    ],
+    "exact_product_or_locator_cause_established": false,
+    "not_a_session_finished_failure": true,
+    "stable_assertion": "archive_background_create_provider_disabled",
+    "test_source_matches_original_run_input": true,
+    "later_create_credential_disabled_assertion_reached": false
+  },
+  "post_transport_recovery_observation": {
+    "independent_active_marker_absent": true,
+    "regression_active_marker_absent": true,
+    "owned_nonce_private_root_absent": true,
+    "actual_resource_window_released": true,
+    "original_outer_wait_gap_preserved": true
+  },
+  "diagnostic_limits": {
+    "no_raw_error_or_private_output_copied": true,
+    "no_retry": true,
+    "original_business_failure_preserved": true,
+    "persistent_child_waits_do_not_replace_missing_outer_tool_wait": true
+  }
+}

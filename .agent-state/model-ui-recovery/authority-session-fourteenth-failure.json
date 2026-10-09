@@ -1,0 +1,178 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-authority-7089cccc8c034ac791a576b83c7794c0",
+  "case": "authority",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority",
+  "actual_tool_session": 91906,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 25.45,
+  "terminal": {
+    "exit": 1,
+    "elapsed_seconds": 144.50262450700393,
+    "direct_actual_wait": true,
+    "watchdog_joined": true,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7,
+    "adopted_actual_wait_statuses": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "resource_observer_actual_join": true,
+    "retirement_observations": [
+      {
+        "observation": 1,
+        "exact_absent_count": 7,
+        "descendant_count": 0
+      },
+      {
+        "observation": 2,
+        "exact_absent_count": 7,
+        "descendant_count": 0
+      }
+    ]
+  },
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-flow-restored-session-078-completed-first-rejected-authority-session-identity-session-stage-008"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "cd28bd45683c1705c0912ccc6696e5b7bc372549a79b8dd673323bc4c49a6bb2",
+    "mode": "authority",
+    "status": "failed",
+    "errors": [
+      {
+        "category": "closed-harness-error",
+        "code": "PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT",
+        "call": null,
+        "locations": [
+          {
+            "source": "authority-and-identity.ts",
+            "line": 518,
+            "column": 39
+          }
+        ]
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      }
+    ]
+  },
+  "session_response_diagnostic": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "cd28bd45683c1705c0912ccc6696e5b7bc372549a79b8dd673323bc4c49a6bb2",
+    "request_kind": "session",
+    "diagnostic": "captured",
+    "pw_candidates_before_action": 0,
+    "pw_candidates_after_action": 1,
+    "pw_target_requests": 1,
+    "pw_selected_target_match": true,
+    "pw_request_match": true,
+    "pw_request_id_seen": true,
+    "pw_status": 200,
+    "snapshot_source": "end",
+    "snapshot_selected_bound": true,
+    "snapshot_native_terminal": true,
+    "slot_end_observed": true,
+    "samples": 20,
+    "sample_settled": 20,
+    "sample_failed": 0,
+    "sample_joined": true,
+    "sample_join_unavailable": false,
+    "pw_finished_event": false,
+    "pw_failed_event": true,
+    "pw_failure": "aborted",
+    "native": {
+      "requests": 1,
+      "readers": 1,
+      "read_calls": 2,
+      "read_settled": 2,
+      "read_rejected": 0,
+      "bytes": 483,
+      "reader_cancel_calls": 1,
+      "reader_cancel_settled": 1,
+      "reader_cancel_rejected": 0,
+      "stream_cancel_calls": 1,
+      "stream_cancel_settled": 1,
+      "stream_cancel_rejected": 0,
+      "release_calls": 1,
+      "release_successes": 1,
+      "abort_events": 0,
+      "status": 200,
+      "headers_order": 1,
+      "read_done_order": 2,
+      "read_rejected_order": 0,
+      "abort_order": 0,
+      "reader_cancel_order": 3,
+      "stream_cancel_order": 5,
+      "release_order": 4,
+      "content_length": 483,
+      "headers_seen": true,
+      "status_ok": true,
+      "read_done": true,
+      "cancel_before_eof": false,
+      "request_id_match": true,
+      "signal_aborted": false,
+      "signal_aborted_at_start": false,
+      "content_length_present": true,
+      "content_length_valid": true,
+      "content_encoding_identity": true,
+      "content_length_comparable": true,
+      "content_length_matches_eof": true,
+      "eof_before_interruption": true,
+      "failure": "none"
+    },
+    "timing": {
+      "clock": "node-performance",
+      "origin": "session-diagnostic-begin",
+      "action_started": {
+        "order": 1,
+        "elapsed_ms": 21.836605999999847
+      },
+      "first_bound_eof_sample": {
+        "order": 3,
+        "elapsed_ms": 698.6096830000001
+      },
+      "pw_finished": null,
+      "pw_failed": {
+        "order": 2,
+        "elapsed_ms": 435.67374299999983
+      },
+      "pw_failed_test_status": "passed",
+      "original_finished_wait_rejected": null,
+      "page_close_notification": null,
+      "context_close_notification": null,
+      "projection_recorded": {
+        "order": 4,
+        "elapsed_ms": 5438.8726259999985
+      }
+    }
+  },
+  "observed_boundary": {
+    "initial_session_stage_061_passed": true,
+    "same_session_checking_restore_failed": true,
+    "credential_session_stage_153_reached": false,
+    "private_reference_stage_178_reached": false,
+    "ipc_failure_artifact_present": false
+  },
+  "limitations": [
+    "Native EOF, exact identity Content-Length and successful cancel/release do not prove this production Session decoded or published.",
+    "The failing held/released Session did not enable the stage-153 restore-owner witness; no production completion witness was collected.",
+    "PW failure was observed before the five-second timeout, with no page/context close notification. EOF sample time is not actual EOF time.",
+    "PW failed plus pending finished is one event-path limitation, not two independent transport failures.",
+    "Original finished gate and all prior failures remain unchanged; no cross-run causal claim."
+  ]
+}

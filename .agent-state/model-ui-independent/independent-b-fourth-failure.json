@@ -1,0 +1,149 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-b-794cb22257f9449b80be57e88a711f89",
+  "case": "b",
+  "command": "python3 .agent-state/model-ui-independent/run-independent.py --case b",
+  "actual_tool_session": 81370,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 21.52,
+  "terminal": {
+    "started": true,
+    "retirement_complete": true,
+    "direct_actual_wait": true,
+    "direct_exit": 1,
+    "adopted_actual_waits": [
+      {
+        "pid": 310494,
+        "status": 0
+      },
+      {
+        "pid": 310496,
+        "status": 0
+      },
+      {
+        "pid": 310499,
+        "status": 0
+      },
+      {
+        "pid": 310500,
+        "status": 0
+      }
+    ],
+    "adopted_wait_complete": true,
+    "watchdog_joined": true,
+    "observer_joined": true,
+    "top_within_120_seconds": true,
+    "resources": 7,
+    "resource_shape_valid": true,
+    "exact_absent_observations": 2,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "exact_top_pass": false,
+    "elapsed_seconds": 111.82592728599957,
+    "inputs_unchanged": true,
+    "case": "b",
+    "selector": "^TestIndependentProjectModelsWebCurrentAuthorityArchivedRecovery$",
+    "exit": 1,
+    "assets_exclusively_private": true
+  },
+  "browser_step": {
+    "case": "b",
+    "step": "independent-b-case-b-open-project-dm-rejected-first-rejected-independent-b-open-project-to-be-aa"
+  },
+  "browser_failure": {
+    "case": "b",
+    "status": "failed",
+    "error_count": 1,
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "locations": []
+      }
+    ]
+  },
+  "browser_exit": {
+    "context_done": false,
+    "exit_code": 1
+  },
+  "navigation_dom": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "9dc95b8c218a34fe3dd396da831a3188ecb7fdb828a3a3b5a70ac0fc836b18b5",
+    "observation": {
+      "url_is_target": true,
+      "nav_count": 1,
+      "settings_count": 1,
+      "settings_target": false,
+      "settings_other_known": true,
+      "settings_current": true,
+      "nav_visible": true,
+      "nav_inert": true,
+      "model_leave_confirmation": false,
+      "owner_leave_confirmation": true,
+      "session_checking": false,
+      "session_unconfirmed": false,
+      "owner_checking": false,
+      "owner_loading": false,
+      "owner_read_error": false,
+      "owner_unavailable": false,
+      "owner_reread": {
+        "count": 0,
+        "visible": false,
+        "enabled": false,
+        "inert": false,
+        "aria_hidden": false
+      },
+      "model_leaf_visible": true,
+      "model_reread": {
+        "count": 0,
+        "visible": false,
+        "enabled": false,
+        "inert": false,
+        "aria_hidden": false
+      },
+      "logout": {
+        "count": 1,
+        "visible": true,
+        "enabled": true,
+        "inert": true,
+        "aria_hidden": false
+      }
+    }
+  },
+  "safe_response_count": 9,
+  "observed_boundary": {
+    "assertion": "config_recovery_public_target_or_model_leave_confirmation",
+    "owner_leave_confirmation_title": "放弃项目修改？",
+    "model_leave_confirmation_title": "离开项目模型设置？",
+    "target_owner_published": false,
+    "configuration_provider_create_started": false,
+    "reason_for_owner_unsaved_state_recorded": false
+  },
+  "retirement_observations": [
+    {
+      "observation": 1,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    },
+    {
+      "observation": 2,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    }
+  ],
+  "post_terminal_observations": {
+    "owned_private_root_absent": true,
+    "independent_active_marker_absent": true,
+    "regression_active_marker_absent": true
+  },
+  "input_boundary": "This run consumed the new native probe and bundle on the independently reviewed unarmed Resolve path. It does not validate Resolve diagnostic sampling.",
+  "diagnostic_limits": {
+    "raw_body_or_credentials_copied": false,
+    "no_retry": true,
+    "no_root_cause_inferred": true,
+    "no_prior_run_dom_reconstructed": true,
+    "prior_failures_and_first_outer_wait_gap_preserved": true
+  },
+  "followup": "Trace the existing Owner unsaved-state lifecycle and original discard intent; do not click arbitrary confirmation dialogs or infer the missing B3 DOM."
+}

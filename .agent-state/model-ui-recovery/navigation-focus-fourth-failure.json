@@ -1,0 +1,56 @@
+{
+  "browser_step": {
+    "mode": "navigation",
+    "step": "navigation-draft-and-focus"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "4b9ffc26700f40c368eefae3bd495a6aa0e8b8707a16390cfe645e583d2a2968",
+    "mode": "navigation",
+    "status": "failed",
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "call": null,
+        "locations": [
+          {
+            "source": "navigation-and-layouts.ts",
+            "line": 231,
+            "column": 95
+          },
+          {
+            "source": "project-owner-models.spec.ts",
+            "line": 960,
+            "column": 3
+          }
+        ]
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 868
+      },
+      {
+        "column": 3,
+        "line": 960
+      }
+    ]
+  },
+  "session_events": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "4b9ffc26700f40c368eefae3bd495a6aa0e8b8707a16390cfe645e583d2a2968",
+    "observation": {
+      "headers_seen": true,
+      "finished_event": true,
+      "failed_event": false
+    }
+  },
+  "safe_response_count": 9
+}

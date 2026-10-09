@@ -1,0 +1,203 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-authority-99023802065342859a0b1e27b4e9be8c",
+  "case": "authority",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority",
+  "actual_tool_session": 82063,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 56.64,
+  "terminal": {
+    "case": "authority",
+    "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+    "exit": 1,
+    "elapsed_seconds": 146.76128212299955,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 213241,
+        "status": 0
+      },
+      {
+        "pid": 213244,
+        "status": 0
+      },
+      {
+        "pid": 213246,
+        "status": 0
+      },
+      {
+        "pid": 213247,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-lifecycle-gates"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "fd226c28934395f8c63431963ced11e317faf477b316f751d64b8e26ead45a18",
+    "mode": "authority",
+    "status": "timedOut",
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "call": null,
+        "locations": []
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [
+      "test-timeout-reported"
+    ],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      },
+      {
+        "column": 3,
+        "line": 953
+      }
+    ]
+  },
+  "session_events": {
+    "headers_seen": true,
+    "finished_event": true,
+    "failed_event": false
+  },
+  "safe_responses": [
+    {
+      "sequence": 1,
+      "source": "setup",
+      "operation": "createProjectModelProvider",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "sequence": 2,
+      "source": "setup",
+      "operation": "createProjectModelProvider",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "sequence": 3,
+      "source": "setup",
+      "operation": "createProjectModel",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "sequence": 4,
+      "source": "browser",
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "sequence": 5,
+      "source": "browser",
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "sequence": 6,
+      "source": "browser",
+      "operation": "getProjectModelProvider",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "sequence": 7,
+      "source": "browser",
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "sequence": 8,
+      "source": "browser",
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "sequence": 9,
+      "source": "browser",
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "sequence": 10,
+      "source": "browser",
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "sequence": 11,
+      "source": "browser",
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "sequence": 12,
+      "source": "browser",
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "sequence": 13,
+      "source": "browser",
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "status": 200
+    }
+  ],
+  "retirement_observations": [
+    {
+      "observation": 1,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    },
+    {
+      "observation": 2,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    }
+  ],
+  "resource_observer_actual_join": true,
+  "post_terminal_observation": {
+    "owned_nonce_private_root_absent": true,
+    "resource_window_released": true
+  },
+  "diagnostic_limits": {
+    "exact_await_substep_recorded": false,
+    "navigation_dom_diagnostic_present": false,
+    "native_session_failure_diagnostic_present": false,
+    "pre_removal_runtime_empty_separately_recorded": false,
+    "original_failed_exit_does_not_prove_pre_removal_runtime_empty": true,
+    "screenshots": 0,
+    "raw_body_or_credentials_copied": false,
+    "no_retry": true,
+    "no_cause_inferred_from_timeout": true
+  },
+  "followup": {
+    "authority_observation": "stable existing await start/completion steps; preserve all business/request/budget semantics",
+    "supervisor_observation": "report existing cleanup predicates separately; do not retrospectively fill this run"
+  }
+}

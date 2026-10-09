@@ -1,0 +1,99 @@
+{
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-archived-credential"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "5f35a8a29dfb8fb0652478795cf7521414dad1bcce71033f3f791dbd6a7e15da",
+    "mode": "authority",
+    "status": "failed",
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "call": null,
+        "locations": [
+          {
+            "source": "authority-and-identity.ts",
+            "line": 282,
+            "column": 30
+          },
+          {
+            "source": "authority-and-identity.ts",
+            "line": 73,
+            "column": 5
+          },
+          {
+            "source": "authority-and-identity.ts",
+            "line": 458,
+            "column": 3
+          },
+          {
+            "source": "project-owner-models.spec.ts",
+            "line": 953,
+            "column": 3
+          }
+        ]
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      },
+      {
+        "column": 3,
+        "line": 953
+      }
+    ]
+  },
+  "session_events": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "5f35a8a29dfb8fb0652478795cf7521414dad1bcce71033f3f791dbd6a7e15da",
+    "observation": {
+      "headers_seen": true,
+      "finished_event": true,
+      "failed_event": false
+    }
+  },
+  "safe_response_count": 17,
+  "session_failure_native_diagnostic_present": false,
+  "actual_terminal": {
+    "case": "authority",
+    "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+    "exit": 1,
+    "elapsed_seconds": 114.59021383899926,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 167311,
+        "status": 0
+      },
+      {
+        "pid": 167314,
+        "status": 0
+      },
+      {
+        "pid": 167316,
+        "status": 0
+      },
+      {
+        "pid": 167317,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "outer_session": 36186,
+  "go_top_seconds": 25.15,
+  "prior_session_failure_cause_proven": false
+}

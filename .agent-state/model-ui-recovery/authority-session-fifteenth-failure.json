@@ -1,0 +1,228 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-authority-f1d23a12825747999872846c61a444a6",
+  "case": "authority",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority",
+  "actual_tool_session": 18977,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 23.53,
+  "disk_preflight": {
+    "utc": "2026-10-09T16:44:36.360754+00:00",
+    "available_bytes": 5800804352,
+    "minimum_bytes": 5368709120,
+    "passed": true
+  },
+  "terminal": {
+    "exit": 1,
+    "elapsed_seconds": 118.27950354300265,
+    "direct_actual_wait": true,
+    "watchdog_joined": true,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7,
+    "adopted_actual_wait_statuses": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "resource_observer_actual_join": true,
+    "retirement_observations": [
+      {
+        "observation": 1,
+        "exact_absent_count": 7,
+        "descendant_count": 0
+      },
+      {
+        "observation": 2,
+        "exact_absent_count": 7,
+        "descendant_count": 0
+      }
+    ]
+  },
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-flow-restored-session-078-completed-first-rejected-authority-session-identity-session-stage-008"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "8d6f04b4ca423972c2a7354f44a329ce01f35f71a93a5a354792d7c702b4b1c0",
+    "mode": "authority",
+    "status": "failed",
+    "errors": [
+      {
+        "category": "closed-harness-error",
+        "code": "PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT",
+        "call": null,
+        "locations": [
+          {
+            "source": "authority-and-identity.ts",
+            "line": 527,
+            "column": 39
+          }
+        ]
+      }
+    ]
+  },
+  "same_request_consumption_diagnostic": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "8d6f04b4ca423972c2a7354f44a329ce01f35f71a93a5a354792d7c702b4b1c0",
+    "request_kind": "session",
+    "diagnostic": "captured",
+    "pw_candidates_before_action": 0,
+    "pw_candidates_after_action": 1,
+    "pw_target_requests": 1,
+    "pw_selected_target_match": true,
+    "pw_request_match": true,
+    "pw_request_id_seen": true,
+    "pw_status": 200,
+    "snapshot_source": "end",
+    "snapshot_selected_bound": true,
+    "snapshot_native_terminal": true,
+    "slot_end_observed": true,
+    "samples": 20,
+    "sample_settled": 20,
+    "sample_failed": 0,
+    "sample_joined": true,
+    "sample_join_unavailable": false,
+    "pw_finished_event": false,
+    "pw_failed_event": true,
+    "pw_failure": "aborted",
+    "native": {
+      "requests": 1,
+      "readers": 1,
+      "read_calls": 2,
+      "read_settled": 2,
+      "read_rejected": 0,
+      "bytes": 483,
+      "reader_cancel_calls": 1,
+      "reader_cancel_settled": 1,
+      "reader_cancel_rejected": 0,
+      "stream_cancel_calls": 1,
+      "stream_cancel_settled": 1,
+      "stream_cancel_rejected": 0,
+      "release_calls": 1,
+      "release_successes": 1,
+      "abort_events": 0,
+      "status": 200,
+      "headers_order": 1,
+      "read_done_order": 2,
+      "read_rejected_order": 0,
+      "abort_order": 0,
+      "reader_cancel_order": 3,
+      "stream_cancel_order": 5,
+      "release_order": 4,
+      "content_length": 483,
+      "headers_seen": true,
+      "status_ok": true,
+      "read_done": true,
+      "cancel_before_eof": false,
+      "request_id_match": true,
+      "signal_aborted": false,
+      "signal_aborted_at_start": false,
+      "content_length_present": true,
+      "content_length_valid": true,
+      "content_encoding_identity": true,
+      "content_length_comparable": true,
+      "content_length_matches_eof": true,
+      "eof_before_interruption": true,
+      "failure": "none"
+    },
+    "timing": {
+      "clock": "node-performance",
+      "origin": "session-diagnostic-begin",
+      "action_started": {
+        "order": 1,
+        "elapsed_ms": 732.863355
+      },
+      "first_bound_eof_sample": {
+        "order": 6,
+        "elapsed_ms": 1439.7478199999996
+      },
+      "pw_finished": null,
+      "pw_failed": {
+        "order": 4,
+        "elapsed_ms": 1184.932847
+      },
+      "pw_failed_test_status": "passed",
+      "original_finished_wait_rejected": null,
+      "page_close_notification": null,
+      "context_close_notification": null,
+      "projection_recorded": {
+        "order": 7,
+        "elapsed_ms": 6184.160186
+      }
+    },
+    "owner_install": "armed",
+    "restore_owner": {
+      "action_calls": 1,
+      "restore_calls": 1,
+      "owned_restore_calls": 1,
+      "session_requests": 1,
+      "owned_session_requests": 1,
+      "response_headers": 1,
+      "pending_observations": 0,
+      "restore_settled": true,
+      "restore_rejected": false,
+      "restore_threw": false,
+      "entry_authenticated": true,
+      "entry_not_busy": true,
+      "authenticated": true,
+      "not_busy": true,
+      "user_matches": true,
+      "session_matches": true,
+      "observer_failed": false,
+      "request_id_match": true,
+      "completion_upper_bound": true,
+      "clock": "browser-monotonic-observed-relative-to-install",
+      "timing": {
+        "action": 5.100000001490116,
+        "restore_enter": 5.199999995529652,
+        "request": 13.5,
+        "headers": 443.8999999985099,
+        "restore_settled": 453.5,
+        "state_sample": 453.5
+      }
+    },
+    "cdp_ready": true,
+    "cdp_candidates": 1,
+    "cdp_cap_exceeded": false,
+    "cdp_selected_bound": true,
+    "cdp": {
+      "request": {
+        "order": 2,
+        "elapsed_ms": 752.5176179999999
+      },
+      "response": {
+        "order": 3,
+        "elapsed_ms": 1179.6041960000002
+      },
+      "finished": null,
+      "failed": {
+        "order": 5,
+        "elapsed_ms": 1185.553562
+      },
+      "aborted": true,
+      "canceled": true
+    },
+    "consumption_publication_evidence_complete": true
+  },
+  "observed_boundary": {
+    "initial_session_stage_061_passed": true,
+    "held_released_session_finished_stage_008_failed": true,
+    "credential_session_stage_153_reached": false,
+    "private_reference_stage_178_reached": false,
+    "authority_business_pass": false
+  },
+  "limitations": [
+    "The original five-second finished gate failed; this observation does not rewrite any prior failure or accept the full authority case.",
+    "This unique original request has complete native consumption and the actual production restore completion/publication upper-bound witness. Later authority business assertions were not executed.",
+    "Native done precedes reader cancel, release and stream cancel; no read rejection or signal abort was observed. This does not identify why Chromium reported cancellation or establish physical transport/server EOF.",
+    "Node event observations and browser restore observations use different monotonic origins; their numeric values do not establish cross-clock ordering.",
+    "First bound EOF sampling and restore settlement are observation/completion bounds, not exact parsing, publication or EOF timestamps.",
+    "The public TestInfo status passed at requestfailed time is a current default status, not this case final result.",
+    "No method replacement is implemented or accepted by this failure record."
+  ]
+}

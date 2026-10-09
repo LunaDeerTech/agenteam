@@ -1,0 +1,120 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-authority-10c1ea59e4444d75ab6833dbc26bf22a",
+  "case": "authority",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority",
+  "actual_tool_session": 27797,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 55.72,
+  "terminal": {
+    "case": "authority",
+    "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+    "exit": 1,
+    "elapsed_seconds": 146.17329745299867,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 280478,
+        "status": 0
+      },
+      {
+        "pid": 280481,
+        "status": 0
+      },
+      {
+        "pid": 280483,
+        "status": 0
+      },
+      {
+        "pid": 280484,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-lifecycle-deleting-denied-rejected-first-rejected-authority-denied-finished-054"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "0b46f609ab763b59979984dbc49de6dc18c06af345870695d9ee2af57a98700c",
+    "mode": "authority",
+    "status": "timedOut",
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "call": null,
+        "locations": []
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [
+      "test-timeout-reported"
+    ],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      }
+    ]
+  },
+  "session_events_not_resolve_events": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "0b46f609ab763b59979984dbc49de6dc18c06af345870695d9ee2af57a98700c",
+    "observation": {
+      "headers_seen": true,
+      "finished_event": true,
+      "failed_event": false
+    }
+  },
+  "safe_model_response_summary": {
+    "total": 13,
+    "setup": 3,
+    "browser": 10,
+    "resolve_response_count": 0
+  },
+  "retirement_observations": [
+    {
+      "observation": 1,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    },
+    {
+      "observation": 2,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    }
+  ],
+  "resource_observer_actual_join": true,
+  "post_terminal_owned_private_root_absent": true,
+  "observed_boundary": {
+    "lifecycle": "deleting",
+    "pending_await": "authority-denied-finished-054",
+    "headers_wait_and_navigation_returned": true,
+    "original_finished_wait_normally_returned_before_timeout": false,
+    "subsequent_409_gate_executed": false,
+    "subsequent_error_dom_gate_executed": false
+  },
+  "diagnostic_limits": {
+    "resolve_wait_matches_pathname_only": true,
+    "intended_unique_request_binding_recorded": false,
+    "resolve_upstream_body_completion_recorded": false,
+    "resolve_native_client_eof_or_failure_recorded": false,
+    "resolve_playwright_finished_or_failed_events_recorded": false,
+    "model_and_session_evidence_cannot_substitute_resolve": true,
+    "raw_body_or_credentials_copied": false,
+    "no_retry": true,
+    "no_root_cause_inferred": true
+  },
+  "next": "Observe the same original Resolve request and response using bounded safe metadata and client read/cancel counters; preserve original requests, completion gates and budgets."
+}

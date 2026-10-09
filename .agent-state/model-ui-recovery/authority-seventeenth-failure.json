@@ -1,0 +1,413 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-authority-a606d410dea4453993a0739e2b60468c",
+  "case": "authority",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority",
+  "actual_tool_session": 50200,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 28.43,
+  "disk_preflight": {
+    "utc": "2026-10-09T18:28:45.992395+00:00",
+    "available_bytes": 6022684672,
+    "minimum_bytes": 5368709120,
+    "passed": true
+  },
+  "diagnostic_revision": "2c48c30ac70b4d5a77fbcfdf19f331a2a4083063",
+  "fixed_binary_sha256": "53f87fb548e6c9f60f8c9a5aeb9d143905b2d0884441be23ed4468d0dfb27aea",
+  "terminal": {
+    "case": "authority",
+    "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+    "navigation_image": null,
+    "navigation_captures": 0,
+    "exit": 1,
+    "elapsed_seconds": 126.28329978200054,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 962153,
+        "status": 0
+      },
+      {
+        "pid": 962158,
+        "status": 0
+      },
+      {
+        "pid": 962123,
+        "status": 9
+      },
+      {
+        "pid": 962136,
+        "status": 0
+      },
+      {
+        "pid": 962155,
+        "status": 0
+      },
+      {
+        "pid": 962156,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "node_actual_wait_observed": true,
+  "resource_observer_actual_join": true,
+  "root_proxy_handlers_preparation_join_observed": true,
+  "retirement_observations": [
+    {
+      "observation": 1,
+      "exact_absent_count": 7,
+      "descendant_count": 0
+    },
+    {
+      "observation": 2,
+      "exact_absent_count": 7,
+      "descendant_count": 0
+    }
+  ],
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-flow-ipc-178-started"
+  },
+  "browser_runner_failure": {
+    "context_done": true,
+    "exit_code": -1,
+    "reported_categories": [],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      }
+    ]
+  },
+  "ipc_failure": {
+    "action": "reference-fact",
+    "error": "fixture_failed",
+    "sequence": 42
+  },
+  "held_session_consumption": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "b75c9763e8c35b9c25fd8f1f23bbed41f7408d972104b0ce940e192edf1aa7d5",
+    "request_kind": "session",
+    "diagnostic": "captured",
+    "pw_candidates_before_action": 0,
+    "pw_candidates_after_action": 1,
+    "pw_target_requests": 1,
+    "pw_selected_target_match": true,
+    "pw_request_match": true,
+    "pw_request_id_seen": true,
+    "pw_status": 200,
+    "snapshot_source": "end",
+    "snapshot_selected_bound": true,
+    "snapshot_native_terminal": true,
+    "slot_end_observed": true,
+    "samples": 2,
+    "sample_settled": 2,
+    "sample_failed": 0,
+    "sample_joined": true,
+    "sample_join_unavailable": false,
+    "pw_finished_event": true,
+    "pw_failed_event": false,
+    "pw_failure": "none",
+    "native": {
+      "requests": 1,
+      "readers": 1,
+      "read_calls": 2,
+      "read_settled": 2,
+      "read_rejected": 0,
+      "bytes": 483,
+      "reader_cancel_calls": 1,
+      "reader_cancel_settled": 1,
+      "reader_cancel_rejected": 0,
+      "stream_cancel_calls": 1,
+      "stream_cancel_settled": 1,
+      "stream_cancel_rejected": 0,
+      "release_calls": 1,
+      "release_successes": 1,
+      "abort_events": 0,
+      "status": 200,
+      "headers_order": 1,
+      "read_done_order": 2,
+      "read_rejected_order": 0,
+      "abort_order": 0,
+      "reader_cancel_order": 3,
+      "stream_cancel_order": 5,
+      "release_order": 4,
+      "content_length": 483,
+      "headers_seen": true,
+      "status_ok": true,
+      "read_done": true,
+      "cancel_before_eof": false,
+      "request_id_match": true,
+      "signal_aborted": false,
+      "signal_aborted_at_start": false,
+      "content_length_present": true,
+      "content_length_valid": true,
+      "content_encoding_identity": true,
+      "content_length_comparable": true,
+      "content_length_matches_eof": true,
+      "eof_before_interruption": true,
+      "failure": "none"
+    },
+    "timing": {
+      "clock": "node-performance",
+      "origin": "session-diagnostic-begin",
+      "action_started": {
+        "order": 1,
+        "elapsed_ms": 730.2429710000001
+      },
+      "first_bound_eof_sample": {
+        "order": 6,
+        "elapsed_ms": 1306.801399
+      },
+      "pw_finished": {
+        "order": 4,
+        "elapsed_ms": 1048.9550669999999
+      },
+      "pw_failed": null,
+      "pw_failed_test_status": "unknown",
+      "original_finished_wait_rejected": null,
+      "page_close_notification": null,
+      "context_close_notification": null,
+      "projection_recorded": {
+        "order": 8,
+        "elapsed_ms": 1312.7851410000003
+      }
+    },
+    "owner_install": "armed",
+    "restore_owner": {
+      "action_calls": 1,
+      "restore_calls": 1,
+      "owned_restore_calls": 1,
+      "session_requests": 1,
+      "owned_session_requests": 1,
+      "response_headers": 1,
+      "pending_observations": 0,
+      "restore_settled": true,
+      "restore_rejected": false,
+      "restore_threw": false,
+      "entry_authenticated": true,
+      "entry_not_busy": true,
+      "entry_user_matches": true,
+      "entry_session_matches": true,
+      "authenticated": true,
+      "not_busy": true,
+      "user_matches": true,
+      "session_matches": true,
+      "role_valid": true,
+      "observer_failed": false,
+      "request_id_match": true,
+      "completion_upper_bound": true,
+      "hooks_retired": true,
+      "published_role": "user",
+      "clock": "browser-monotonic-observed-relative-to-install",
+      "timing": {
+        "action": 5.700000002980232,
+        "restore_enter": 5.9000000059604645,
+        "request": 14.5,
+        "headers": 308.1000000014901,
+        "restore_settled": 317.90000000596046,
+        "state_sample": 317.90000000596046
+      }
+    },
+    "browser_observers_retired": true,
+    "cdp_ready": true,
+    "cdp_candidates": 1,
+    "cdp_cap_exceeded": false,
+    "cdp_selected_bound": true,
+    "cdp": {
+      "request": {
+        "order": 2,
+        "elapsed_ms": 752.1472309999999
+      },
+      "response": {
+        "order": 3,
+        "elapsed_ms": 1042.9857270000002
+      },
+      "finished": {
+        "order": 5,
+        "elapsed_ms": 1050.0441120000005
+      },
+      "failed": null,
+      "aborted": false,
+      "canceled": false
+    },
+    "observers_retired": true,
+    "consumption_publication_evidence_complete": true,
+    "consumer_gate": {
+      "accepted": true,
+      "within_header_deadline": true,
+      "observed_elapsed_ms": 276.7757389999997
+    }
+  },
+  "credential_session_consumption": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "b75c9763e8c35b9c25fd8f1f23bbed41f7408d972104b0ce940e192edf1aa7d5",
+    "request_kind": "session",
+    "diagnostic": "captured",
+    "pw_candidates_before_action": 0,
+    "pw_candidates_after_action": 1,
+    "pw_target_requests": 1,
+    "pw_selected_target_match": true,
+    "pw_request_match": true,
+    "pw_request_id_seen": true,
+    "pw_status": 200,
+    "snapshot_source": "end",
+    "snapshot_selected_bound": true,
+    "snapshot_native_terminal": true,
+    "slot_end_observed": true,
+    "samples": 2,
+    "sample_settled": 2,
+    "sample_failed": 0,
+    "sample_joined": true,
+    "sample_join_unavailable": false,
+    "pw_finished_event": true,
+    "pw_failed_event": false,
+    "pw_failure": "none",
+    "native": {
+      "requests": 1,
+      "readers": 1,
+      "read_calls": 2,
+      "read_settled": 2,
+      "read_rejected": 0,
+      "bytes": 483,
+      "reader_cancel_calls": 1,
+      "reader_cancel_settled": 1,
+      "reader_cancel_rejected": 0,
+      "stream_cancel_calls": 1,
+      "stream_cancel_settled": 1,
+      "stream_cancel_rejected": 0,
+      "release_calls": 1,
+      "release_successes": 1,
+      "abort_events": 0,
+      "status": 200,
+      "headers_order": 1,
+      "read_done_order": 2,
+      "read_rejected_order": 0,
+      "abort_order": 0,
+      "reader_cancel_order": 3,
+      "stream_cancel_order": 5,
+      "release_order": 4,
+      "content_length": 483,
+      "headers_seen": true,
+      "status_ok": true,
+      "read_done": true,
+      "cancel_before_eof": false,
+      "request_id_match": true,
+      "signal_aborted": false,
+      "signal_aborted_at_start": false,
+      "content_length_present": true,
+      "content_length_valid": true,
+      "content_encoding_identity": true,
+      "content_length_comparable": true,
+      "content_length_matches_eof": true,
+      "eof_before_interruption": true,
+      "failure": "none"
+    },
+    "timing": {
+      "clock": "node-performance",
+      "origin": "session-diagnostic-begin",
+      "action_started": {
+        "order": 1,
+        "elapsed_ms": 190.80776999999944
+      },
+      "first_bound_eof_sample": {
+        "order": 6,
+        "elapsed_ms": 487.91127699999925
+      },
+      "pw_finished": {
+        "order": 5,
+        "elapsed_ms": 229.84308099999907
+      },
+      "pw_failed": null,
+      "pw_failed_test_status": "unknown",
+      "original_finished_wait_rejected": null,
+      "page_close_notification": null,
+      "context_close_notification": null,
+      "projection_recorded": {
+        "order": 8,
+        "elapsed_ms": 494.8045980000006
+      }
+    },
+    "owner_install": "armed",
+    "restore_owner": {
+      "action_calls": 1,
+      "restore_calls": 1,
+      "owned_restore_calls": 1,
+      "session_requests": 1,
+      "owned_session_requests": 1,
+      "response_headers": 1,
+      "pending_observations": 0,
+      "restore_settled": true,
+      "restore_rejected": false,
+      "restore_threw": false,
+      "entry_authenticated": true,
+      "entry_not_busy": true,
+      "entry_user_matches": true,
+      "entry_session_matches": true,
+      "authenticated": true,
+      "not_busy": true,
+      "user_matches": true,
+      "session_matches": true,
+      "role_valid": true,
+      "observer_failed": false,
+      "request_id_match": true,
+      "completion_upper_bound": true,
+      "hooks_retired": true,
+      "published_role": "user",
+      "clock": "browser-monotonic-observed-relative-to-install",
+      "timing": {
+        "action": 4.300000004470348,
+        "restore_enter": 4.4000000059604645,
+        "request": 7.300000004470348,
+        "headers": 31.5,
+        "restore_settled": 37.20000000298023,
+        "state_sample": 37.20000000298023
+      }
+    },
+    "browser_observers_retired": true,
+    "cdp_ready": true,
+    "cdp_candidates": 1,
+    "cdp_cap_exceeded": false,
+    "cdp_selected_bound": true,
+    "cdp": {
+      "request": {
+        "order": 2,
+        "elapsed_ms": 204.27204899999924
+      },
+      "response": {
+        "order": 3,
+        "elapsed_ms": 223.79923600000075
+      },
+      "finished": {
+        "order": 4,
+        "elapsed_ms": 229.75787599999967
+      },
+      "failed": null,
+      "aborted": false,
+      "canceled": false
+    },
+    "observers_retired": true,
+    "consumption_publication_evidence_complete": true,
+    "consumer_gate": {
+      "accepted": true,
+      "within_header_deadline": true,
+      "observed_elapsed_ms": 271.6150809999999
+    }
+  },
+  "safe_response_count": 26,
+  "resolve_failure_diagnostic_present": false,
+  "limits": [
+    "The original Resolve finished054 and its 055–059 postconditions were passed in this run before reaching the original reference-fact IPC178. There is no new failed-Resolve typed/publication artifact; no exceptional Resolve path or expanded gate is accepted.",
+    "Both explicitly armed Session consumer gates were accepted within their original five-second header deadlines. Both selected responses also had normal Playwright finished events; this is not a real aborted-PW success case.",
+    "The new closed IPC diagnostic identifies reference-fact sequence 42 with fixture_failed. It does not expose the underlying database or transaction error and does not prove the model reference fact was installed.",
+    "The reference snapshot179, real DELETE/DEPENDENCY_UNBOUND assertions180–188, current Session revocation and later authority assertions were not reached. Full authority remains failed.",
+    "Adopted status9 is recorded as the actual wait status; no cause is inferred. Full owned resource and tool terminal facts do not change the business failure.",
+    "The first interim inspection looked only at the evidence root; browser artifacts are under the named top directory. This saved record uses that actual directory, which contains 26 safe responses."
+  ]
+}

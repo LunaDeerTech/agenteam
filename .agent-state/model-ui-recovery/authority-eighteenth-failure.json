@@ -1,0 +1,151 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-authority-0a70c5b4ba774a8caaee2918f73f8ea8",
+  "case": "authority",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority",
+  "actual_tool_session": 57414,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 37.6,
+  "disk_preflight": {
+    "utc": "2026-10-09T19:12:17.550340+00:00",
+    "available_bytes": 5868613632,
+    "minimum_bytes": 5368709120,
+    "passed": true
+  },
+  "diagnostic_revision": "880e25ed4f00c69920eec0b7f4cb7f506e045d2e",
+  "fixed_binary_sha256": "09066f3bb036e580a1c3a5344e2122fc097ed2ec649edfdf0ba1c5f79a13d5a9",
+  "delivery_head": "11c168677da52a7805510f8a7e34c6388f0abdab",
+  "migration_max": 22,
+  "terminal": {
+    "case": "authority",
+    "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+    "navigation_image": null,
+    "navigation_captures": 0,
+    "exit": 1,
+    "elapsed_seconds": 132.98068631699425,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 1009796,
+        "status": 0
+      },
+      {
+        "pid": 1009798,
+        "status": 0
+      },
+      {
+        "pid": 1009780,
+        "status": 0
+      },
+      {
+        "pid": 1009762,
+        "status": 9
+      },
+      {
+        "pid": 1009801,
+        "status": 0
+      },
+      {
+        "pid": 1009802,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "node_actual_wait_observed": true,
+  "resource_observer_actual_join": true,
+  "root_proxy_handlers_preparation_join_observed": true,
+  "retirement_observations": [
+    {
+      "observation": 1,
+      "exact_absent_count": 7,
+      "descendant_count": 0
+    },
+    {
+      "observation": 2,
+      "exact_absent_count": 7,
+      "descendant_count": 0
+    }
+  ],
+  "safe_response_count": 26,
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-flow-ipc-178-started"
+  },
+  "browser_runner_failure": {
+    "context_done": true,
+    "exit_code": -1,
+    "reported_categories": [],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      }
+    ]
+  },
+  "ipc_failure": {
+    "action": "reference-fact",
+    "error": "fixture_failed",
+    "sequence": 44
+  },
+  "reference_fact_failure": {
+    "action": "reference-fact",
+    "commit_state": "not_committed",
+    "context": "none",
+    "database_code": "DATABASE_SQL_FAILED",
+    "fault_context": "other",
+    "sequence": 44,
+    "sqlstate": "42P08",
+    "stage": "mutate"
+  },
+  "session_consumption": {
+    "held008": {
+      "consumer_gate": {
+        "accepted": true,
+        "within_header_deadline": true,
+        "observed_elapsed_ms": 325.69094700000005
+      },
+      "pw_finished_event": true,
+      "pw_failed_event": false,
+      "pw_failure": "none",
+      "snapshot_source": "end",
+      "snapshot_selected_bound": true,
+      "snapshot_native_terminal": true,
+      "slot_end_observed": true,
+      "sample_joined": true,
+      "browser_observers_retired": true,
+      "observers_retired": true,
+      "consumption_publication_evidence_complete": true
+    },
+    "credential153": {
+      "consumer_gate": {
+        "accepted": true,
+        "within_header_deadline": true,
+        "observed_elapsed_ms": 293.88241800000105
+      },
+      "pw_finished_event": true,
+      "pw_failed_event": false,
+      "pw_failure": "none",
+      "snapshot_source": "end",
+      "snapshot_selected_bound": true,
+      "snapshot_native_terminal": true,
+      "slot_end_observed": true,
+      "sample_joined": true,
+      "browser_observers_retired": true,
+      "observers_retired": true,
+      "consumption_publication_evidence_complete": true
+    }
+  },
+  "boundaries": [
+    "This run reached original reference-fact IPC178 after original Resolve finished054 and its 055-059 postconditions. No exceptional Resolve diagnosis or new gate is accepted.",
+    "The current auxiliary reference mutation returned actual DATABASE_SQL_FAILED / SQLSTATE42P08 and not_committed, with outer context none. This is new authority18 evidence, not retrospective proof of authority17 or earlier causes.",
+    "Reference snapshot179 and real DELETE/DEPENDENCY_UNBOUND180-188 and later revocation assertions were not reached. Full authority remains failed.",
+    "Both accepted Session observations were normally PW finished; neither is an aborted-PW acceptance example.",
+    "Adopted status9 is preserved without a cause inference. Actual full cleanup does not change the business failure."
+  ]
+}

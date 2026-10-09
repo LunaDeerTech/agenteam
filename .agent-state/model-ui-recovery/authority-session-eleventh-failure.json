@@ -1,0 +1,171 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-authority-b2c29db5a2dd4013bde002b201eaef94",
+  "case": "authority",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority",
+  "actual_tool_session": 90045,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 18.34,
+  "terminal": {
+    "case": "authority",
+    "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+    "navigation_image": null,
+    "navigation_captures": 0,
+    "exit": 1,
+    "elapsed_seconds": 129.6245244849997,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 411829,
+        "status": 0
+      },
+      {
+        "pid": 411831,
+        "status": 0
+      },
+      {
+        "pid": 411833,
+        "status": 0
+      },
+      {
+        "pid": 411834,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 0,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-flow-session-identity-061-rejected-first-rejected-authority-session-identity-session-stage-008"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "9c8cbebf09d2d1faac5325c4a8f352557af2a45315540ebc12532b49faa8d3b7",
+    "mode": "authority",
+    "status": "failed",
+    "errors": [
+      {
+        "category": "closed-harness-error",
+        "code": "PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT",
+        "call": null,
+        "locations": [
+          {
+            "source": "authority-and-identity.ts",
+            "line": 372,
+            "column": 39
+          }
+        ]
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      }
+    ]
+  },
+  "session_events": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "9c8cbebf09d2d1faac5325c4a8f352557af2a45315540ebc12532b49faa8d3b7",
+    "observation": {
+      "headers_seen": true,
+      "finished_event": false,
+      "failed_event": true
+    }
+  },
+  "session_native_diagnostic": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "9c8cbebf09d2d1faac5325c4a8f352557af2a45315540ebc12532b49faa8d3b7",
+    "diagnostic": "captured",
+    "pw_requests": 1,
+    "pw_request_match": true,
+    "pw_request_id_seen": true,
+    "pw_failure": "aborted",
+    "native": {
+      "requests": 1,
+      "readers": 1,
+      "read_calls": 2,
+      "read_settled": 2,
+      "read_rejected": 0,
+      "bytes": 483,
+      "reader_cancel_calls": 1,
+      "reader_cancel_settled": 1,
+      "reader_cancel_rejected": 0,
+      "stream_cancel_calls": 1,
+      "stream_cancel_settled": 1,
+      "stream_cancel_rejected": 0,
+      "release_calls": 1,
+      "release_successes": 1,
+      "abort_events": 0,
+      "headers_seen": true,
+      "status_ok": true,
+      "read_done": true,
+      "cancel_before_eof": false,
+      "request_id_match": true,
+      "signal_aborted": false,
+      "failure": "none"
+    }
+  },
+  "safe_model_response_count": 3,
+  "retirement_observations": [
+    {
+      "observation": 1,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    },
+    {
+      "observation": 2,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    }
+  ],
+  "resource_observer_actual_join": true,
+  "tcp_tail": {
+    "empty_observations": 0,
+    "remaining_delta_rows": 1,
+    "delta_tuple_recorded": false,
+    "owner_of_delta_proven": false,
+    "original_tail_passed": false
+  },
+  "post_terminal_owned_state": {
+    "recorded_pids": [
+      409874,
+      411829,
+      411831,
+      411833,
+      411834
+    ],
+    "all_recorded_pids_absent": true,
+    "exact_private_root_absent": true,
+    "current_tcp_states": {
+      "tcp": {
+        "LISTEN": 4,
+        "ESTABLISHED": 1
+      },
+      "tcp6": {}
+    },
+    "global_tcp_empty_claimed": false,
+    "does_not_replace_original_tcp_tail": true
+  },
+  "observed_boundary": {
+    "pending_gate": "original Session response.finished 5-second wait",
+    "same_request_and_native_request_id_match": true,
+    "both_archived_owner_transition_repairs_reached": false,
+    "content_length_or_transport_completeness_recorded": false,
+    "monotonic_failure_timing_recorded": false,
+    "original_requestfailed_listener_removed_before_diagnostic_finally_wait": true,
+    "failure_event_after_helper_return_teardown_inferred": false,
+    "no_prior_intermittent_cause_inferred": true
+  },
+  "followup": "Reuse the already reviewed shared Session diagnostic adapter for the existing authority session helper, binding the original response and preserving its 5-second finished, JSON and identity gates. Do not repeat this case with unchanged observations; preserve both the business failure and the failed global TCP tail."
+}

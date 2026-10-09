@@ -1,0 +1,92 @@
+{
+  "browser_step": {
+    "mode": "navigation",
+    "step": "navigation-model-panel"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "212583cbeb2b649ff87bd3be90433a26c50619c3cb78618833793f76155966b8",
+    "mode": "navigation",
+    "status": "failed",
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "call": null,
+        "locations": [
+          {
+            "source": "project-owner-models.spec.ts",
+            "line": 661,
+            "column": 3
+          },
+          {
+            "source": "navigation-and-layouts.ts",
+            "line": 50,
+            "column": 5
+          },
+          {
+            "source": "navigation-and-layouts.ts",
+            "line": 182,
+            "column": 23
+          },
+          {
+            "source": "project-owner-models.spec.ts",
+            "line": 960,
+            "column": 3
+          }
+        ]
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 868
+      },
+      {
+        "column": 3,
+        "line": 661
+      },
+      {
+        "column": 3,
+        "line": 960
+      }
+    ]
+  },
+  "navigation_session_events": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "212583cbeb2b649ff87bd3be90433a26c50619c3cb78618833793f76155966b8",
+    "observation": {
+      "headers_seen": true,
+      "finished_event": true,
+      "failed_event": false
+    }
+  },
+  "navigation_session_state": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "212583cbeb2b649ff87bd3be90433a26c50619c3cb78618833793f76155966b8",
+    "stage": "initial-pageshow",
+    "observation": {
+      "before": {
+        "path_home": true,
+        "path_login": false,
+        "document_visible": true,
+        "logout_present": true,
+        "logout_disabled": false
+      },
+      "after": {
+        "path_home": true,
+        "path_login": false,
+        "document_visible": true,
+        "logout_present": true,
+        "logout_disabled": true
+      }
+    }
+  },
+  "safe_response_count": 5,
+  "fixture_final_state_incomplete": true
+}

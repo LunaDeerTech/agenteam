@@ -1,0 +1,240 @@
+{
+  "protocol": "project-model-browser-login-failure.v1",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case browser-login-diagnostic",
+  "selector": "^TestAccountProjectOwnerModelsWebBrowserLoginDiagnostic$",
+  "source_checkpoint": "014498e2",
+  "outer_actual_session": 91050,
+  "outer_actual_exit": 1,
+  "outer_elapsed_seconds": 110.04747700900043,
+  "go_elapsed_seconds": 17.02,
+  "mode": "owned-login",
+  "failure": "SESSION_PROBE_FINISH_TIMEOUT",
+  "rows": [
+    {
+      "frame": "browser-login",
+      "consumer": "account",
+      "action": "early",
+      "requests": [
+        {
+          "kind": "session",
+          "observed_ms": 346.871627,
+          "status": 401,
+          "finished": true,
+          "failed": false
+        },
+        {
+          "kind": "bootstrap",
+          "observed_ms": 378.48561399999994,
+          "status": 200,
+          "finished": true,
+          "failed": false
+        },
+        {
+          "kind": "login",
+          "observed_ms": 692.527533,
+          "status": 200,
+          "finished": true,
+          "failed": false
+        },
+        {
+          "kind": "session",
+          "observed_ms": 1195.940075,
+          "status": 200,
+          "finished": false,
+          "failed": true
+        },
+        {
+          "kind": "session",
+          "observed_ms": 1235.665587,
+          "status": 200,
+          "finished": true,
+          "failed": false
+        },
+        {
+          "kind": "session",
+          "observed_ms": 1602.445967,
+          "status": 200,
+          "finished": false,
+          "failed": true
+        }
+      ],
+      "response_candidates": 1,
+      "selected_request_observed": true,
+      "selected_request_before_action": false,
+      "selected_request_after_action": true,
+      "native": {
+        "requests": 1,
+        "readers": 1,
+        "bytes": 483,
+        "read_rejected": 0,
+        "reader_cancel_calls": 1,
+        "reader_cancel_settled": 1,
+        "reader_cancel_rejected": 0,
+        "stream_cancel_calls": 1,
+        "stream_cancel_settled": 1,
+        "stream_cancel_rejected": 0,
+        "release_calls": 1,
+        "release_successes": 1,
+        "abort_events": 0,
+        "content_length": 483,
+        "read_done": true,
+        "request_id_match": true,
+        "eof_before_interruption": true,
+        "content_length_present": true,
+        "content_length_valid": true,
+        "content_encoding_identity": true,
+        "content_length_comparable": true,
+        "content_length_matches_eof": true
+      },
+      "events": {
+        "headers": true,
+        "finished": false,
+        "failed": true,
+        "response_finished": "pending",
+        "pw_headers_bound": true,
+        "cdp_headers_bound": true,
+        "cdp_finished": false,
+        "cdp_failed": true,
+        "cdp_canceled": true,
+        "cdp_aborted": true
+      },
+      "application_ready": false,
+      "observer_joined_after_close": true,
+      "fail_code": "SESSION_PROBE_FINISH_TIMEOUT",
+      "action_observed_ms": 1588.1765249999999,
+      "request_cap_exceeded": false
+    },
+    {
+      "frame": "browser-login",
+      "consumer": "account",
+      "action": "stable",
+      "requests": [
+        {
+          "kind": "session",
+          "observed_ms": 179.83207400000083,
+          "status": 401,
+          "finished": false,
+          "failed": true
+        },
+        {
+          "kind": "bootstrap",
+          "observed_ms": 189.76762399999916,
+          "status": 200,
+          "finished": true,
+          "failed": false
+        },
+        {
+          "kind": "login",
+          "observed_ms": 438.1177080000007,
+          "status": 200,
+          "finished": true,
+          "failed": false
+        },
+        {
+          "kind": "session",
+          "observed_ms": 1223.1601519999995,
+          "status": 200,
+          "finished": true,
+          "failed": false
+        },
+        {
+          "kind": "session",
+          "observed_ms": 1252.3469200000009,
+          "status": 200,
+          "finished": true,
+          "failed": false
+        },
+        {
+          "kind": "session",
+          "observed_ms": 1371.3775309999992,
+          "status": 200,
+          "finished": true,
+          "failed": false
+        }
+      ],
+      "response_candidates": 1,
+      "selected_request_observed": true,
+      "selected_request_before_action": false,
+      "selected_request_after_action": true,
+      "native": {
+        "requests": 1,
+        "readers": 1,
+        "bytes": 483,
+        "read_rejected": 0,
+        "reader_cancel_calls": 1,
+        "reader_cancel_settled": 1,
+        "reader_cancel_rejected": 0,
+        "stream_cancel_calls": 1,
+        "stream_cancel_settled": 1,
+        "stream_cancel_rejected": 0,
+        "release_calls": 1,
+        "release_successes": 1,
+        "abort_events": 0,
+        "content_length": 483,
+        "read_done": true,
+        "request_id_match": true,
+        "eof_before_interruption": true,
+        "content_length_present": true,
+        "content_length_valid": true,
+        "content_encoding_identity": true,
+        "content_length_comparable": true,
+        "content_length_matches_eof": true
+      },
+      "events": {
+        "headers": true,
+        "finished": true,
+        "failed": false,
+        "response_finished": "complete",
+        "pw_headers_bound": true,
+        "cdp_headers_bound": true,
+        "cdp_finished": true,
+        "cdp_failed": false,
+        "cdp_canceled": false,
+        "cdp_aborted": false
+      },
+      "application_ready": true,
+      "observer_joined_after_close": true,
+      "fail_code": null,
+      "action_observed_ms": 1358.9105609999997,
+      "request_cap_exceeded": false
+    }
+  ],
+  "identity_counts": {
+    "bootstrap": 2,
+    "compared": 6,
+    "logins": 2,
+    "matched": 6,
+    "new_sessions": 2,
+    "unauthenticated": 2
+  },
+  "retirement": {
+    "direct_actual_wait": true,
+    "direct_exit": 1,
+    "adopted_actual_statuses": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "browser_actual_wait": true,
+    "browser_exit_code": 0,
+    "node_retirement_complete": true,
+    "watchdog_joined": true,
+    "resource_observer_joined": true,
+    "proxy_and_root_joined": true,
+    "resources_absent_each_observation": 7,
+    "absence_observations": 2,
+    "descendant_empty_observations": 2,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true
+  },
+  "limits": [
+    "Request observed_ms and action_observed_ms share a Node monotonic clock within each fresh context; they are not physical send/EOF times. Equal clock values imply neither before nor after.",
+    "Exact failure/finished event times and actual native EOF time were not collected. Snapshot precedes context close and observer completion is joined afterward.",
+    "early selected request was observed after its action, so this row does not support selecting an earlier in-flight Session.",
+    "stable completed once; this comparison neither establishes a product defect nor fixes authority. It does not explain authority12 step153."
+  ],
+  "authority_business_pass": false
+}

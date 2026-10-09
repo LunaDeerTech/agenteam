@@ -1,0 +1,34 @@
+{
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-same-session-checking"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "026dfdce7e9bca8f0876662ce8272edd436543a39742dad143f9ac2cf184971c",
+    "mode": "authority",
+    "status": "timedOut",
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "call": null,
+        "locations": []
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [
+      "test-timeout-reported"
+    ],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      }
+    ]
+  },
+  "safe_response_count": 4
+}

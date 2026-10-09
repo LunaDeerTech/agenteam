@@ -164,6 +164,34 @@ sh scripts/test-objects.sh -run '^(TestAccountProjectOwnerAuditWebNavigationAndL
 
 该页面和私有测试服务器不等于 Central 生产 SPA 托管、发布或生产直链回退接受；独立原body校验不等于完整生产调用链可用。生产 Resolution/Invocations、D24、ready503与三项停止边界沿上节保持，完整 D27/E01不因本卡交付而完成。
 
+## Project Owner 模型设置
+
+[Project Owner 模型设置工作项](../work-items/d27-project-owner-model-settings-ui.md)提供 `/:username/:project_name/settings/model-providers` 与 `settings/available-models` 两个设置叶子。当前 Human Owner 可管理本 Project 的 Provider、Model 和私有凭据；管理员身份不越过 Project Owner 检查。可用模型目录只显示七个安全字段，不承诺生产模型调用可用，也不提供 Project 对系统统一 Meeting Summary 选择的覆盖。
+
+17 个封闭 HTTP 操作涵盖配置读取／写入／Lookup，以及凭据 metadata／创建／轮换／删除／Lookup。凭据材料只作本次写入，页面不回显、持久缓存或自动复制；配置保存与凭据命令分别执行。结果不确定时保留本域原 intent，Lookup 和明确重试沿原参数、key 与版本恢复，不生成替代命令。归档后的配置原请求重放与凭据仅 Lookup 的差异、当前身份撤销、跨 Project 及迟到尾部隔离均按正式契约处理。
+
+Model 状态与既有域共用 Session 的唯一 Cookie 请求 owner，由 App 创建并提供唯一 controller。实际 fetch／body／取消尾部退休之前不释放 owner；原请求完整 EOF、正式 schema／client 与当前身份共同决定发布。离页确认、草稿保留、Dialog／Popover 的激活顺序与焦点恢复保持共享组件行为，不新增第二套浮层协议。
+
+原冻结组合的六个作者 top、十四个必要旧回归和独立 A/B 已按输入未变范围组合接受；最后 authority19 补齐当前权限、归档及引用阻断路径，完整实际退出和资源／TCP 尾部已验证。历史失败、分版本组合和布局图的可见视口范围见工作项，不能称所有检查在同一新 binary 上重跑。正式 main3cea 的整合目前已完成离线准备，受 Variables Audit 投影与新 root 装配影响的真实补验仍待执行，暂不宣布本卡正式交付。
+
+新交付树按已锁定依赖构建自有 `output/ai/model-ui-recovery/dist`、native client probe、account race binary 与四个 fixture helper；不使用其它任务的 dist。针对性前端检查入口为：
+
+```sh
+npm run test:unit --prefix web -- src/tests/project-audit-client.spec.ts src/tests/project-audit-metadata.spec.ts src/tests/project-audit.spec.ts
+npm run type-check --prefix web
+node .agent-state/model-ui-recovery/build-native-client-probe.mjs
+```
+
+真实入口由任务 driver 持有固定工具、七个自有资源、私有目录及冻结输入；只能在 fresh 磁盘≥5GiB与独占窗口满足后逐组执行。当前 main 集成计划的精确入口如下，列出命令不表示已实际通过：
+
+```sh
+python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority
+python3 .agent-state/model-ui-regression/run-owned-regression.py --group audit-authority
+python3 .agent-state/model-ui-regression/run-owned-regression.py --group audit-navigation
+```
+
+原45秒浏览器／5秒局部断言、单worker／零retry、120秒top含清理／6分钟包／75秒TCP观察及实际Wait、七资源和进程双退役不变。私有服务托管前端资产不等于 Central 生产 SPA 部署；生产 Resolution／Invocation、D24与既有停止项不因这些配置页面通过而完成。
+
 ## 本人设置
 
 `/settings` 进入资料页；三个叶子均要求当前本人 Session。普通用户和管理员使用相同本人页面，不提供管理员代改入口。

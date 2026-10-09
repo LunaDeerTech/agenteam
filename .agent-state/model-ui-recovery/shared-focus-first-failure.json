@@ -1,0 +1,34 @@
+{
+  "run": "shared-focus-first",
+  "outer_actual_exit": 1,
+  "requested_cases": 21,
+  "observed_new_case_failures": 18,
+  "failure_before_target_restore": true,
+  "trace_facts_each_failed_case": {
+    "continue_focusin": 1,
+    "continue_click": 1,
+    "continue_pointerdown": 0,
+    "automation_actions": [
+      "launch.click",
+      "keyboardPress Enter"
+    ],
+    "later_automation_continue_click_executed": false
+  },
+  "keyboard_phase_unobserved": true,
+  "supervisor_failure": {
+    "whole_run_limit_seconds": 120,
+    "interrupted_during_case_number": 20,
+    "adopted_wait_incomplete": true,
+    "vite_close_incomplete": true,
+    "final_browser_report_unavailable": true
+  },
+  "current_resource_boundary": {
+    "running_owned_processes": 0,
+    "owned_listening_ports": 0,
+    "exited_unreaped_pid": 115611,
+    "state": "Z",
+    "parent_pid": 1,
+    "original_wait_not_reconstructed": true
+  },
+  "next": "cancel default only for the dedicated Enter handler; retain all user actions and focus assertions; validate one representative case before the full 21"
+}

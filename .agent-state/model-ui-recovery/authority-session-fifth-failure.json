@@ -1,0 +1,47 @@
+{
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-checking-release-returned"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "9866c9ec466962c57c072ef9025965aff3b60890f7d268e2266e48d4f9fcdae8",
+    "mode": "authority",
+    "status": "failed",
+    "errors": [
+      {
+        "category": "closed-harness-error",
+        "code": "PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT",
+        "call": null,
+        "locations": [
+          {
+            "source": "authority-and-identity.ts",
+            "line": 94,
+            "column": 39
+          }
+        ]
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      }
+    ]
+  },
+  "session_events": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "9866c9ec466962c57c072ef9025965aff3b60890f7d268e2266e48d4f9fcdae8",
+    "observation": {
+      "headers_seen": true,
+      "finished_event": false,
+      "failed_event": true
+    }
+  },
+  "safe_response_count": 4
+}

@@ -1,0 +1,194 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-authority-255f49c9ae7e48ebb5f99e784214cade",
+  "case": "authority",
+  "command": "python3 .agent-state/model-ui-recovery/run-owned-top.py --case authority",
+  "actual_tool_session": 91400,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 27.85,
+  "terminal": {
+    "case": "authority",
+    "selector": "^TestAccountProjectOwnerModelsWebAuthorityAndIdentity$",
+    "navigation_image": null,
+    "navigation_captures": 0,
+    "exit": 1,
+    "elapsed_seconds": 118.60093636300007,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 425424,
+        "status": 0
+      },
+      {
+        "pid": 425427,
+        "status": 0
+      },
+      {
+        "pid": 425429,
+        "status": 0
+      },
+      {
+        "pid": 425430,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "browser_step": {
+    "mode": "authority",
+    "step": "authority-flow-session-identity-153-rejected-first-rejected-authority-session-identity-session-stage-008"
+  },
+  "browser_failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "2f2f5db816feddfc102fefdfac57022e2045bbb946fd4d0decd31eb1e7a4f22c",
+    "mode": "authority",
+    "status": "failed",
+    "errors": [
+      {
+        "category": "closed-harness-error",
+        "code": "PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT",
+        "call": null,
+        "locations": [
+          {
+            "source": "authority-and-identity.ts",
+            "line": 372,
+            "column": 39
+          }
+        ]
+      }
+    ]
+  },
+  "browser_runner_failure": {
+    "context_done": false,
+    "exit_code": 1,
+    "reported_categories": [],
+    "spec_locations": [
+      {
+        "column": 1,
+        "line": 860
+      }
+    ]
+  },
+  "session_response_diagnostic": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "2f2f5db816feddfc102fefdfac57022e2045bbb946fd4d0decd31eb1e7a4f22c",
+    "request_kind": "session",
+    "diagnostic": "captured",
+    "pw_candidates_before_action": 0,
+    "pw_candidates_after_action": 1,
+    "pw_target_requests": 1,
+    "pw_selected_target_match": true,
+    "pw_request_match": true,
+    "pw_request_id_seen": true,
+    "pw_status": 200,
+    "snapshot_source": "end",
+    "snapshot_selected_bound": true,
+    "snapshot_native_terminal": true,
+    "slot_end_observed": true,
+    "samples": 20,
+    "sample_settled": 20,
+    "sample_failed": 0,
+    "sample_joined": true,
+    "sample_join_unavailable": false,
+    "pw_finished_event": false,
+    "pw_failed_event": true,
+    "pw_failure": "aborted",
+    "native": {
+      "requests": 1,
+      "readers": 1,
+      "read_calls": 2,
+      "read_settled": 2,
+      "read_rejected": 0,
+      "bytes": 483,
+      "reader_cancel_calls": 1,
+      "reader_cancel_settled": 1,
+      "reader_cancel_rejected": 0,
+      "stream_cancel_calls": 1,
+      "stream_cancel_settled": 1,
+      "stream_cancel_rejected": 0,
+      "release_calls": 1,
+      "release_successes": 1,
+      "abort_events": 0,
+      "status": 200,
+      "headers_order": 1,
+      "read_done_order": 2,
+      "read_rejected_order": 0,
+      "abort_order": 0,
+      "reader_cancel_order": 3,
+      "stream_cancel_order": 5,
+      "release_order": 4,
+      "content_length": 483,
+      "headers_seen": true,
+      "status_ok": true,
+      "read_done": true,
+      "cancel_before_eof": false,
+      "request_id_match": true,
+      "signal_aborted": false,
+      "signal_aborted_at_start": false,
+      "content_length_present": true,
+      "content_length_valid": true,
+      "content_encoding_identity": true,
+      "content_length_comparable": true,
+      "content_length_matches_eof": true,
+      "eof_before_interruption": true,
+      "failure": "none"
+    },
+    "timing": {
+      "clock": "node-performance",
+      "origin": "session-diagnostic-begin",
+      "action_started": {
+        "order": 1,
+        "elapsed_ms": 10.061369999999442
+      },
+      "first_bound_eof_sample": {
+        "order": 3,
+        "elapsed_ms": 361.3470359999992
+      },
+      "pw_finished": null,
+      "pw_failed": {
+        "order": 2,
+        "elapsed_ms": 96.71547699999974
+      },
+      "pw_failed_test_status": "passed",
+      "original_finished_wait_rejected": null,
+      "page_close_notification": null,
+      "context_close_notification": null,
+      "projection_recorded": {
+        "order": 4,
+        "elapsed_ms": 5102.089611000001
+      }
+    }
+  },
+  "safe_model_response_count": 19,
+  "retirement_observations": [
+    {
+      "observation": 1,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    },
+    {
+      "observation": 2,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    }
+  ],
+  "resource_observer_actual_join": true,
+  "post_terminal_owned_private_root_absent": true,
+  "observed_boundary": {
+    "first_archived_owner_transition_passed_this_run": true,
+    "second_archived_owner_transition_reached": false,
+    "failure_stage": "credential archive Session refresh, original 5-second response.finished wait",
+    "unique_original_response_and_request_id_bound": true,
+    "client_read_matches_valid_identity_content_length": true,
+    "pw_failed_observed_before_5_second_wait_ended": true,
+    "first_bound_eof_sample_is_actual_eof_timestamp": false,
+    "server_handler_completion_or_physical_tcp_eof_proven": false,
+    "root_cause_proven": false
+  },
+  "followup": "Inspect the existing formal client, Session refresh and native wrapper against the controlled Session probe. Define the smallest discriminating control before another real authority run; preserve the original finished, JSON and identity gates and all earlier failures."
+}

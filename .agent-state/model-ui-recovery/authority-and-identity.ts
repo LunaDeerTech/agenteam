@@ -1,0 +1,1206 @@
+import { expect, test, type Locator, type CDPSession, type Page, type Request, type Response, type TestInfo } from '../../tests/account-captcha-web/node_modules/@playwright/test/index.js';
+import { createHash, randomUUID } from 'node:crypto';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { performance } from 'node:perf_hooks';
+import type { ConfigCredentialSnapshot as Snapshot } from './configuration-and-credential';
+import { installResolvePublicationObservation, resolvePublicationProjection, type ResolvePublicationBinding } from './resolve-publication-observer';
+
+type ProjectKey = 'main' | 'second' | 'other' | 'admin_owned' | 'archiving' | 'archived' | 'deleting' | 'pending' | 'config_recovery' | 'credential_recovery' | 'referenced';
+type Project = Readonly<{ id: string; username: string; normalized_name: string; owner_user_id: string; initialized: boolean; lifecycle: string }>;
+type Actor = Readonly<{ email: string; password: string; user_id: string }>;
+type NativeFact = Readonly<{ token: string | null; method: string; path: string; query: string; status: number; eof: boolean; ended: boolean; released: boolean; bytes: number }>;
+type IPC =
+  | { action: 'arm'; args: { operation: string; project: ProjectKey | null; target_id: string | null; query: string | null; effect: string } }
+  | { action: 'release'; args: { arm_id: string; request_token: string } }
+  | { action: 'logout'; args: { session_id: string } }
+  | { action: 'rename-reuse'; args: { project: 'main' } }
+  | { action: 'archive-recovery-project'; args: { project: 'config_recovery' | 'credential_recovery'; expected_version: string } }
+  | { action: 'reference-fact'; args: { project: 'referenced'; state: 'present' | 'absent' } };
+export type AuthorityHarness = Readonly<{
+  material: unknown;
+  loginOwner(page: Page): Promise<void>;
+  navigate(page: Page, target: string): Promise<void>;
+  fillCredential(scope: Locator): Promise<void>;
+  ipc(request: IPC): Promise<Record<string, unknown>>;
+  snapshot(project: ProjectKey): Promise<Snapshot>;
+  strictReceipt(scope: Page | Locator): Promise<Record<string, unknown>>;
+  durableDelta(before: Snapshot, after: Snapshot, configuration: number, credential: number): void;
+  originalReplay(value: Snapshot, token: string): void;
+  arm(operation: string, project: ProjectKey, target: string | null, effect: string, query?: string | null): Promise<string>;
+  control(id: string, ready: (value: Record<string, unknown>) => boolean): Promise<Record<string, unknown>>;
+  actualLoss(page: Page, control: Record<string, unknown>, maximumObservedBytes: 0 | 1): Promise<void>;
+  counts(): Promise<Record<string, unknown>>;
+  nativeFacts(page: Page): Promise<readonly NativeFact[]>;
+  finish(page: Page, checks: Record<string, boolean>): Promise<void>;
+  step(name: string): void;
+}>;
+const button = (scope: Page | Locator, name: string) => scope.getByRole('button', { name, exact: true });
+function need(value: unknown, code: string): asserts value { if (!value) throw new Error(code); }
+function object(value: unknown): Record<string, unknown> {
+  need(value !== null && typeof value === 'object' && !Array.isArray(value), 'PROJECT_MODELS_AUTHORITY_OBJECT_INVALID');
+  return value as Record<string, unknown>;
+}
+function uuid(value: unknown): value is string { return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value); }
+function locator(value: unknown): Project {
+  const row = object(value);
+  need(uuid(row.id) && uuid(row.owner_user_id) && typeof row.username === 'string' && typeof row.normalized_name === 'string' && typeof row.initialized === 'boolean' && typeof row.lifecycle === 'string', 'PROJECT_MODELS_AUTHORITY_PROJECT_INVALID');
+  return row as unknown as Project;
+}
+const route = (project: Project) => '/' + project.username + '/' + project.normalized_name + '/settings/model-providers';
+function operationCount(value: Record<string, unknown>, operation: string) {
+  need(Array.isArray(value.operations), 'PROJECT_MODELS_AUTHORITY_COUNTS_INVALID');
+  const rows = value.operations.map(object).filter((row) => row.operation === operation);
+  need(rows.length === 1 && Number.isSafeInteger(rows[0]!.browser), 'PROJECT_MODELS_AUTHORITY_COUNTS_INVALID');
+  return Number(rows[0]!.browser);
+}
+function sameOperations(before: Record<string, unknown>, after: Record<string, unknown>) {
+  need(Array.isArray(before.operations), 'PROJECT_MODELS_AUTHORITY_COUNTS_INVALID');
+  for (const row of before.operations.map(object)) need(operationCount(before, String(row.operation)) === operationCount(after, String(row.operation)), 'PROJECT_MODELS_AUTHORITY_UNEXPECTED_OPERATION');
+}
+function originalBody(fact: NativeFact, operation: string, projectID: string) {
+  const directory = process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!;
+  const rows = readdirSync(directory).filter((name) => /^response-\d+\.json$/.test(name)).map((name) => object(JSON.parse(readFileSync(join(directory, name), 'utf8')))).filter((row) => row.source === 'browser' && row.request_token === fact.token);
+  need(rows.length === 1, 'PROJECT_MODELS_AUTHORITY_BODY_MISSING');
+  const row = rows[0]!;
+  need(row.protocol === 'project-owner-models.v1' && row.input_hash === process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH && row.operation === operation && row.project_id === projectID && row.method === fact.method && row.endpoint === fact.path && row.query === fact.query && row.status === fact.status && row.body_stage === 'complete_formal_upstream' && /^[0-9a-f]{64}$/.test(String(row.body_sha256)) && row.body_file === 'body-' + row.body_sha256 + '.json', 'PROJECT_MODELS_AUTHORITY_BODY_BINDING_INVALID');
+  const bytes = readFileSync(join(directory, String(row.body_file)));
+  need(bytes.length === row.body_bytes && bytes.length === fact.bytes && bytes.length <= 8388608 && createHash('sha256').update(bytes).digest('hex') === row.body_sha256, 'PROJECT_MODELS_AUTHORITY_BODY_BYTES_INVALID');
+  return object(JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)));
+}
+type AuthorityAwait = <T>(label: string, start: () => Promise<T>) => Promise<T>;
+function authorityAwait(step: (name: string) => void): AuthorityAwait {
+  let sequence = 0;
+  let firstRejected: string | undefined;
+  const pending = new Map<number, string>();
+  const publish = (label: string, state: 'started' | 'completed' | 'rejected') => {
+    // Labels are source literals (or the fixed lifecycle key union), never
+    // Project data. A late completion must retain the newest pending wait.
+    const labels = [...pending.values()], current = labels.at(-1);
+    const active = current && labels.length > 1 ? labels[0] + '-in-' + current : current;
+    const progress = active && state !== 'started' ? active + '-pending-after-' + label + '-' + state : (active ?? label) + '-' + state;
+    try { step(progress + (firstRejected ? '-first-rejected-' + firstRejected : '')); }
+    catch { /* Diagnostic I/O never changes the original action or error. */ }
+  };
+  return <T>(label: string, start: () => Promise<T>) => {
+    const sequenceID = ++sequence;
+    pending.set(sequenceID, label); publish(label, 'started');
+    const settled = (state: 'completed' | 'rejected') => { pending.delete(sequenceID); if (state === 'rejected') firstRejected ??= label; publish(label, state); };
+    let original: Promise<T>;
+    try { original = start(); }
+    catch (error) { settled('rejected'); throw error; }
+    // Observe a handled side branch and return the exact original Promise.
+    void original.then(() => settled('completed'), () => settled('rejected')).catch(() => {});
+    return original;
+  };
+}
+function observer(page: Page, harness: AuthorityHarness, wait: AuthorityAwait) {
+  const tokens = new Set<string>();
+  return async (operation: string, projectID: string, method: string, leaf: string, status: number, action: () => Promise<void>, query = '') => {
+    const before = await wait('authority-observer-native-facts-001', () => harness.nativeFacts(page)), path = '/api/v1/projects/' + projectID + '/' + leaf;
+    await wait('authority-observer-action-002', () => action());
+    let matches: readonly NativeFact[] = [];
+    await wait('authority-observer-to-be-003', () => expect.poll(async () => {
+      const facts = await wait('authority-observer-native-facts-004', () => harness.nativeFacts(page));
+      need(facts.length >= before.length, 'PROJECT_MODELS_AUTHORITY_OBSERVATIONS_RESET');
+      matches = facts.slice(before.length).filter((fact) => fact.method === method && fact.path === path);
+      return matches.length === 1 && matches[0]!.status === status && matches[0]!.eof && matches[0]!.ended && matches[0]!.released;
+    }).toBe(true));
+    const fact = matches[0]!;
+    need(fact.token !== null && /^r[0-9]{6}$/.test(fact.token) && !tokens.has(fact.token) && fact.query === query, 'PROJECT_MODELS_AUTHORITY_NATIVE_BINDING_INVALID');
+    tokens.add(fact.token);
+    return originalBody(fact, operation, projectID);
+  };
+}
+// Diagnostic failures must never replace the existing Session result. No
+// response body, request headers, IDs or raw error strings enter this artifact.
+export async function beginSessionDiagnostic(page: Page, mode: 'authority' | 'navigation') {
+  const slot = randomUUID(), expiresAt = Date.now() + 250;
+  let selected: Request | undefined, requestID: string | null = null;
+  const requests: Request[] = [];
+  const bounded = async <T>(work: () => Promise<T>): Promise<T | null> => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try { return await Promise.race([work(), new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), 250); })]); }
+    catch { return null; }
+    finally { if (timer !== undefined) clearTimeout(timer); }
+  };
+  const requested = (request: Request) => {
+    try {
+      const url = new URL(request.url());
+      if (url.origin === new URL(page.url()).origin && url.pathname === '/api/v1/session' && !url.search && request.method() === 'GET') requests.push(request);
+    } catch { /* Diagnostic metadata cannot interrupt a real request. */ }
+  };
+  page.on('request', requested);
+  await bounded(() => page.evaluate(({ slot, expiresAt }) => (window as any).__projectModelsProbe.sessionBegin(slot, expiresAt) as boolean, { slot, expiresAt }));
+  return {
+    select(response: Response) {
+      try {
+        selected = response.request();
+        void response.headerValue('x-request-id').then((value) => { requestID = value; }, () => {}).catch(() => {});
+      } catch { /* Only the diagnostic binding becomes unavailable. */ }
+    },
+    async finish(failed: boolean) {
+      try {
+        const value: unknown = await bounded(() => page.evaluate(({ slot, requestID }) => (window as any).__projectModelsProbe.sessionEnd(slot, requestID), { slot, requestID }));
+        if (!failed) return;
+        const counts = ['requests', 'readers', 'read_calls', 'read_settled', 'read_rejected', 'bytes', 'reader_cancel_calls', 'reader_cancel_settled', 'reader_cancel_rejected', 'stream_cancel_calls', 'stream_cancel_settled', 'stream_cancel_rejected', 'release_calls', 'release_successes', 'abort_events'];
+        const flags = ['headers_seen', 'status_ok', 'read_done', 'cancel_before_eof', 'request_id_match', 'signal_aborted'];
+        const codes = ['none', 'fetch-rejected', 'get-reader-threw', 'read-rejected', 'reader-cancel-rejected', 'stream-cancel-rejected', 'release-threw', 'observer-error'];
+        let native: Record<string, boolean | number | string> | null = null;
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          const row = value as Record<string, unknown>;
+          if (Object.keys(row).length === counts.length + flags.length + 1 && counts.every((key) => Number.isSafeInteger(row[key]) && Number(row[key]) >= 0) && flags.every((key) => typeof row[key] === 'boolean') && typeof row.failure === 'string' && codes.includes(row.failure)) {
+            native = Object.fromEntries([...counts, ...flags, 'failure'].map((key) => [key, row[key] as boolean | number | string]));
+          }
+        }
+        const error = selected?.failure()?.errorText;
+        const pwFailure = error === undefined ? 'none' : error === 'net::ERR_ABORTED' ? 'aborted' : error === 'net::ERR_CONNECTION_RESET' ? 'reset' : error === 'net::ERR_CONNECTION_CLOSED' ? 'closed' : 'other';
+        writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, `${mode}-session-native-diagnostic.json`), JSON.stringify({
+          protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH,
+          diagnostic: native === null ? 'unavailable' : 'captured', pw_requests: requests.length,
+          pw_request_match: requests.length === 1 && requests[0] === selected, pw_request_id_seen: !!requestID,
+          pw_failure: pwFailure, native,
+        }), { mode: 0o600 });
+      } catch { /* A missing diagnostic cannot alter the original gate. */ }
+      finally { page.off('request', requested); }
+    },
+  };
+}
+
+const resolveEvaluations = new WeakMap<Page, Promise<unknown>>();
+function resolveEvaluate(page: Page, work: () => Promise<unknown>): Promise<unknown> {
+  const prior = resolveEvaluations.get(page);
+  // A timed-out begin/end still owns its real evaluate. Join that original
+  // work without treating its result as the newly requested observation.
+  if (prior) return prior.then(() => null, () => null);
+  const original = work();
+  resolveEvaluations.set(page, original);
+  const clear = () => { if (resolveEvaluations.get(page) === original) resolveEvaluations.delete(page); };
+  void original.then(clear, clear);
+  return original;
+}
+function resolveSampler(page: Page, slot: string, requestID: () => string | null, publish: (value: unknown, expectedID: string | null) => void, initial?: Promise<unknown>, kind: 'session' | 'resolve' = 'resolve', observeOwner = false, observeResolve = false) {
+  let stopped = false, started = false, timer: ReturnType<typeof setTimeout> | undefined;
+  let pending: Promise<void> | undefined, samples = 0, settled = 0, failed = 0;
+  const schedule = () => { if (!stopped) timer = setTimeout(sample, 250); };
+  function sample() {
+    timer = undefined;
+    if (stopped || pending) return;
+    const expectedID = requestID();
+    samples++;
+    let work: Promise<unknown>;
+    try { work = resolveEvaluate(page, () => page.evaluate(({ slot, expectedID, kind, observeOwner, observeResolve }) => {
+      const probe = (window as any).__projectModelsProbe;
+      const native = kind === 'session' ? probe.sessionSnapshot(slot, expectedID) : probe.resolveSnapshot(slot, expectedID);
+      if (observeResolve) return { native, resolve: (window as any).__authorityResolvePublication?.snapshot(expectedID) ?? null };
+      return observeOwner ? { native, owner: (window as any).__authorityRestoreOwner?.snapshot(expectedID) ?? null } : native;
+    }, { slot, expectedID, kind, observeOwner, observeResolve })); }
+    catch { settled++; failed++; schedule(); return; }
+    const observed = work.then((value) => { settled++; if (!stopped) publish(value, expectedID); }, () => { settled++; failed++; }).catch(() => { failed++; });
+    pending = observed;
+    void observed.then(() => { if (pending === observed) pending = undefined; schedule(); }).catch(() => {});
+  }
+  if (initial) {
+    const joined = initial.then(() => {}, () => {});
+    pending = joined;
+    void joined.then(() => { if (pending === joined) pending = undefined; if (started && !stopped) sample(); }).catch(() => {});
+  }
+  return {
+    start() { if (!started && !stopped) { started = true; sample(); } },
+    async stop() {
+      stopped = true;
+      if (timer !== undefined) { clearTimeout(timer); timer = undefined; }
+      const tail = pending;
+      let joined = !tail, joinTimer: ReturnType<typeof setTimeout> | undefined;
+      try { if (tail) joined = await Promise.race([tail.then(() => true), new Promise<false>((resolve) => { joinTimer = setTimeout(() => resolve(false), 250); })]); }
+      finally { if (joinTimer !== undefined) clearTimeout(joinTimer); }
+      return { samples, sample_settled: settled, sample_failed: failed, sample_joined: joined, sample_join_unavailable: !joined };
+    },
+  };
+}
+
+function resolveSnapshot(value: unknown): Record<string, boolean | number | string> | null {
+  const counts = ['requests', 'readers', 'read_calls', 'read_settled', 'read_rejected', 'bytes', 'reader_cancel_calls', 'reader_cancel_settled', 'reader_cancel_rejected', 'stream_cancel_calls', 'stream_cancel_settled', 'stream_cancel_rejected', 'release_calls', 'release_successes', 'abort_events', 'status', 'headers_order', 'read_done_order', 'read_rejected_order', 'abort_order', 'reader_cancel_order', 'stream_cancel_order', 'release_order', 'content_length'];
+  const flags = ['headers_seen', 'status_ok', 'read_done', 'cancel_before_eof', 'request_id_match', 'signal_aborted', 'signal_aborted_at_start', 'content_length_present', 'content_length_valid', 'content_encoding_identity', 'content_length_comparable', 'content_length_matches_eof', 'eof_before_interruption'];
+  const codes = ['none', 'fetch-rejected', 'get-reader-threw', 'read-rejected', 'reader-cancel-rejected', 'stream-cancel-rejected', 'release-threw', 'observer-error'];
+  let native: Record<string, boolean | number | string> | null = null;
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const row = value as Record<string, unknown>;
+    if (Object.keys(row).length === counts.length + flags.length + 1 && counts.every((key) => Number.isSafeInteger(row[key]) && Number(row[key]) >= 0) && Number(row.status) <= 599 && flags.every((key) => typeof row[key] === 'boolean') && typeof row.failure === 'string' && codes.includes(row.failure))
+      native = Object.fromEntries([...counts, ...flags, 'failure'].map((key) => [key, row[key] as boolean | number | string]));
+  }
+  return native;
+}
+
+type RestoreOwner = { userID: string; sessionID: string; stage?: 'same-session-checking' };
+type SessionIdentity = { userID: string; sessionID: string; role: 'user' | 'admin' };
+type SessionBinding = { asset: string; export_name: string; entry: string };
+// Runs in the existing page. It observes the existing singleton and fetch;
+// it neither constructs a controller nor consumes a response body.
+async function installRestoreOwnerObservation({ binding, expected, slot, expiresAt }: { binding: SessionBinding; expected: RestoreOwner; slot: string; expiresAt: number }) {
+  const host = window as any;
+  const loaded = (path: string) => window.performance.getEntriesByName(new URL(path, location.origin).href).length > 0;
+  if (Date.now() > expiresAt) return 'expired';
+  if (!loaded(binding.entry) || !loaded(binding.asset)) return 'assets-unobserved';
+  if (host.__authorityRestoreOwner) return 'observer-present';
+  let module;
+  try { module = await (new Function('path', 'return import(path)'))(binding.asset); }
+  catch { return 'module-unavailable'; }
+  if (Date.now() > expiresAt) return 'expired';
+  if (typeof module[binding.export_name] !== 'function') return 'singleton-unavailable';
+  const auth = module[binding.export_name]();
+  if (auth !== module[binding.export_name]() || typeof auth?.restore !== 'function') return 'singleton-unavailable';
+  if (auth.state?.phase !== 'authenticated' || auth.state.busy !== false) return 'owner-unready';
+  if (host.__projectModelsProbe?.sessionBegin(slot, expiresAt, undefined, true) !== true) return 'native-unavailable';
+  const originalFetch = window.fetch, originalRestore = auth.restore, base = window.performance.now();
+  let disposed = false, action = false, active = false, requestID: string | null = null;
+  let pendingObservations = 0, hooksRetired = false;
+  let publishedIdentity: SessionIdentity | null = null;
+  const facts = { action_calls: 0, restore_calls: 0, owned_restore_calls: 0, session_requests: 0, owned_session_requests: 0, response_headers: 0, restore_settled: false, restore_rejected: false, restore_threw: false, entry_authenticated: false, entry_not_busy: false, entry_user_matches: false, entry_session_matches: false, authenticated: false, not_busy: false, user_matches: false, session_matches: false, role_valid: false, observer_failed: false };
+  const timing: Record<string, number | null> = { action: null, restore_enter: null, request: null, headers: null, restore_settled: null, state_sample: null };
+  const safe = (work: () => void) => { try { work(); } catch { facts.observer_failed = true; } };
+  const at = (key: string) => { timing[key] ??= window.performance.now() - base; };
+  const observe = (promise: Promise<unknown>, fulfilled: (value: any) => void, rejected: () => void) => {
+    pendingObservations++;
+    void promise.then(value => { if (!disposed) safe(() => fulfilled(value)); }, () => { if (!disposed) safe(rejected); })
+      .catch(() => { if (!disposed) facts.observer_failed = true; }).then(() => { pendingObservations--; });
+  };
+  const fetcher: typeof fetch = (...args) => {
+    const pending = Reflect.apply(originalFetch, window, args);
+    safe(() => {
+      const [input, init] = args, url = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url, location.origin);
+      const method = init?.method ?? (input instanceof Request ? input.method : 'GET');
+      if (url.origin !== location.origin || url.pathname !== '/api/v1/session' || url.search || method !== 'GET') return;
+      facts.session_requests++;
+      if (!active) return;
+      facts.owned_session_requests++; at('request');
+      observe(pending, response => { facts.response_headers++; at('headers'); if (facts.response_headers === 1 && response.status === 200) requestID = response.headers.get('X-Request-ID'); }, () => { facts.observer_failed = true; });
+    });
+    return pending;
+  };
+  const retireHooks = () => {
+    if (hooksRetired) return;
+    hooksRetired = true;
+    if (window.fetch === fetcher) window.fetch = originalFetch; else facts.observer_failed = true;
+    if (auth.restore === restore) auth.restore = originalRestore; else facts.observer_failed = true;
+  };
+  const restore = function(this: unknown, ...args: unknown[]) {
+    let owned = false;
+    safe(() => {
+      facts.restore_calls++;
+      owned = action;
+      if (!owned) return;
+      facts.owned_restore_calls++; at('restore_enter');
+      facts.entry_authenticated = auth.state.phase === 'authenticated'; facts.entry_not_busy = auth.state.busy === false;
+      facts.entry_user_matches = auth.state.user?.id === expected.userID; facts.entry_session_matches = auth.state.session?.id === expected.sessionID;
+      active = true;
+    });
+    let pending: Promise<unknown>;
+    try { pending = Reflect.apply(originalRestore, this, args); }
+    catch (error) { if (owned) safe(() => { facts.restore_threw = true; active = false; retireHooks(); }); throw error; }
+    if (owned) safe(() => observe(pending, () => {
+      facts.restore_settled = true; at('restore_settled');
+      facts.authenticated = auth.state.phase === 'authenticated'; facts.not_busy = auth.state.busy === false;
+      facts.user_matches = auth.state.user?.id === expected.userID; facts.session_matches = auth.state.session?.id === expected.sessionID;
+      const role = auth.state.user?.role;
+      facts.role_valid = role === 'user' || role === 'admin';
+      if (facts.role_valid) publishedIdentity = { userID: auth.state.user?.id, sessionID: auth.state.session?.id, role };
+      at('state_sample'); active = false; retireHooks();
+    }, () => { facts.restore_settled = true; facts.restore_rejected = true; at('restore_settled'); active = false; retireHooks(); }));
+    return pending;
+  };
+  const snapshot = (expectedID: string | null) => {
+    const requestMatch = !!requestID && requestID === expectedID;
+    return { ...facts, pending_observations: pendingObservations, request_id_match: requestMatch, hooks_retired: hooksRetired,
+      published_role: publishedIdentity?.role ?? null,
+      completion_upper_bound: requestMatch && facts.action_calls === 1 && facts.restore_calls === 1 && facts.owned_restore_calls === 1 && facts.session_requests === 1 && facts.owned_session_requests === 1 && facts.response_headers === 1 && facts.entry_authenticated && facts.entry_not_busy && facts.entry_user_matches && facts.entry_session_matches && facts.restore_settled && !facts.restore_rejected && !facts.restore_threw && !facts.observer_failed && facts.authenticated && facts.not_busy && facts.user_matches && facts.session_matches && facts.role_valid && pendingObservations === 0 && hooksRetired,
+      clock: 'browser-monotonic-observed-relative-to-install', timing: { ...timing } };
+  };
+  window.fetch = fetcher; auth.restore = restore;
+  host.__authorityRestoreOwner = {
+    action(begin: boolean) { if (disposed) return; action = begin; if (begin) { facts.action_calls++; at('action'); } else if (facts.owned_restore_calls === 0) retireHooks(); },
+    snapshot(expectedID: string | null) { return disposed ? null : snapshot(expectedID); },
+    identity() { return disposed || !publishedIdentity ? null : { ...publishedIdentity }; },
+    finish(expectedID: string | null) {
+      retireHooks();
+      const result = snapshot(expectedID);
+      disposed = true; active = false; action = false; requestID = null; expected = { userID: '', sessionID: '' };
+      publishedIdentity = null;
+      delete host.__authorityRestoreOwner;
+      return result;
+    },
+  };
+  return true;
+}
+function restoreOwnerProjection(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const row = value as Record<string, unknown>;
+  const counts = ['action_calls', 'restore_calls', 'owned_restore_calls', 'session_requests', 'owned_session_requests', 'response_headers', 'pending_observations'];
+  const flags = ['restore_settled', 'restore_rejected', 'restore_threw', 'entry_authenticated', 'entry_not_busy', 'entry_user_matches', 'entry_session_matches', 'authenticated', 'not_busy', 'user_matches', 'session_matches', 'role_valid', 'observer_failed', 'request_id_match', 'completion_upper_bound', 'hooks_retired'];
+  const stages = ['action', 'restore_enter', 'request', 'headers', 'restore_settled', 'state_sample'];
+  const times = row.timing as Record<string, unknown> | undefined;
+  if (Object.keys(row).length !== counts.length + flags.length + 3 || !counts.every(key => Number.isSafeInteger(row[key]) && Number(row[key]) >= 0) || !flags.every(key => typeof row[key] === 'boolean') || ![null, 'user', 'admin'].includes(row.published_role as any) || row.clock !== 'browser-monotonic-observed-relative-to-install' || !times || Object.keys(times).length !== stages.length || !stages.every(key => times[key] === null || typeof times[key] === 'number' && Number.isFinite(times[key]) && Number(times[key]) >= 0)) return null;
+  return { ...Object.fromEntries([...counts, ...flags, 'published_role'].map(key => [key, row[key]])), clock: row.clock, timing: Object.fromEntries(stages.map(key => [key, times[key]])) };
+}
+
+function consumedNative(native: Record<string, unknown> | null): boolean {
+  if (!native) return false;
+  const one = ['requests', 'readers', 'reader_cancel_calls', 'reader_cancel_settled', 'stream_cancel_calls', 'stream_cancel_settled', 'release_calls', 'release_successes'];
+  const zero = ['read_rejected', 'reader_cancel_rejected', 'stream_cancel_rejected', 'abort_events', 'read_rejected_order', 'abort_order'];
+  const yes = ['headers_seen', 'status_ok', 'read_done', 'request_id_match', 'content_length_present', 'content_length_valid', 'content_encoding_identity', 'content_length_comparable', 'content_length_matches_eof', 'eof_before_interruption'];
+  return one.every(key => native[key] === 1) && zero.every(key => native[key] === 0) && yes.every(key => native[key] === true) &&
+    native.failure === 'none' && native.status === 200 && native.cancel_before_eof === false && native.signal_aborted === false && native.signal_aborted_at_start === false &&
+    Number.isSafeInteger(native.read_calls) && Number(native.read_calls) > 0 && native.read_calls === native.read_settled &&
+    Number.isSafeInteger(native.bytes) && Number(native.bytes) > 0 && native.bytes === native.content_length &&
+    Number(native.headers_order) > 0 && Number(native.headers_order) < Number(native.read_done_order) &&
+    Number(native.read_done_order) < Number(native.reader_cancel_order) && Number(native.reader_cancel_order) < Number(native.release_order) && Number(native.release_order) < Number(native.stream_cancel_order);
+}
+function consumedOwner(owner: Record<string, unknown> | null): boolean {
+  if (!owner) return false;
+  const one = ['action_calls', 'restore_calls', 'owned_restore_calls', 'session_requests', 'owned_session_requests', 'response_headers'];
+  const yes = ['restore_settled', 'entry_authenticated', 'entry_not_busy', 'entry_user_matches', 'entry_session_matches', 'authenticated', 'not_busy', 'user_matches', 'session_matches', 'role_valid', 'request_id_match', 'hooks_retired'];
+  return one.every(key => owner[key] === 1) && yes.every(key => owner[key] === true) && owner.pending_observations === 0 &&
+    owner.restore_rejected === false && owner.restore_threw === false && owner.observer_failed === false && (owner.published_role === 'user' || owner.published_role === 'admin');
+}
+type ConsumptionResult = { evidence: Record<string, unknown>; identity: unknown };
+function acceptedSessionConsumption(value: ConsumptionResult | null, expected: RestoreOwner, deadline: number, now: number): SessionIdentity | null {
+  if (!value || !Number.isFinite(deadline) || !Number.isFinite(now) || now >= deadline) return null;
+  const e = value.evidence, native = resolveSnapshot(e.native), owner = restoreOwnerProjection(e.restore_owner);
+  const identity = value.identity as Partial<SessionIdentity> | null;
+  const timing = e.timing as Record<string, unknown> | null;
+  if (!consumedNative(native) || !consumedOwner(owner) || !identity || Object.keys(identity).length !== 3 || !uuid(identity.userID) || !uuid(identity.sessionID) ||
+    identity.userID !== expected.userID || identity.sessionID !== expected.sessionID || (identity.role !== 'user' && identity.role !== 'admin') || identity.role !== owner!.published_role ||
+    e.owner_install !== 'armed' || e.pw_candidates_before_action !== 0 || e.pw_candidates_after_action !== 1 || e.pw_target_requests !== 1 || e.pw_status !== 200 ||
+    e.pw_selected_target_match !== true || e.pw_request_match !== true || e.pw_request_id_seen !== true || e.snapshot_source !== 'end' || e.snapshot_selected_bound !== true || e.slot_end_observed !== true ||
+    e.sample_joined !== true || e.sample_join_unavailable !== false || e.sample_failed !== 0 || !Number.isSafeInteger(e.samples) || Number(e.samples) < 1 || e.samples !== e.sample_settled ||
+    e.cdp_ready !== true || e.cdp_candidates !== 1 || e.cdp_cap_exceeded !== false || e.cdp_selected_bound !== true || e.observers_retired !== true || e.browser_observers_retired !== true ||
+    !timing || timing.page_close_notification !== null || timing.context_close_notification !== null) return null;
+  return { userID: identity.userID, sessionID: identity.sessionID, role: identity.role };
+}
+
+type ResponseDiagnosticTarget = { kind: 'session' } | { kind: 'resolve'; username: string; project_name: string };
+// Both targets remain outside the Model operation whitelist. They share one
+// evaluate owner and sampler, observing only the original selected response.
+async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTarget, artifact: 'authority-resolve-diagnostic.json' | 'independent-b-session-diagnostic.json' | 'authority-session-response-diagnostic.json', restoreOwner?: RestoreOwner) {
+  // All times below are Node observations relative to this invocation, not
+  // browser EOF times or the beginning of Playwright's overall test budget.
+  const timeOrigin = performance.now();
+  let timeSequence = 0, info: TestInfo | undefined;
+  try { info = test.info(); } catch { /* Public test status can be unavailable. */ }
+  type Mark = Readonly<{ order: number; elapsed_ms: number }>;
+  const mark = (): Mark => ({ order: ++timeSequence, elapsed_ms: performance.now() - timeOrigin });
+  const testStatus = () => {
+    try { const status = info?.status; if (status && ['passed', 'failed', 'timedOut', 'skipped', 'interrupted'].includes(status)) return status; } catch {}
+    return 'unknown';
+  };
+  let actionStarted: Mark | null = null, firstEOFSample: Mark | null = null, waitRejected: Mark | null = null;
+  let pageClose: Mark | null = null, contextClose: Mark | null = null;
+  const finishedTimes = new Map<Request, Mark>(), failedTimes = new Map<Request, { at: Mark; test_status: string }>();
+  const pageClosed = () => { try { pageClose ??= mark(); } catch {} };
+  const contextClosed = () => { try { contextClose ??= mark(); } catch {} };
+  const context = page.context();
+  let ownerBinding: SessionBinding | undefined;
+  let resolveBinding: ResolvePublicationBinding | undefined;
+  if (restoreOwner) {
+    try {
+      const root = resolve(process.env.AGENTEAM_PROJECT_MODELS_WEB_DIST!, '../../../..');
+      const selector = await (new Function('path', 'return import(path)'))(join(root, '.agent-state/model-ui-recovery/session-controller-binding.mjs'));
+      ownerBinding = await selector.loginOwnerModule(root);
+    } catch { /* A missing/ambiguous singleton cannot supply a witness. */ }
+  }
+  if (target.kind === 'resolve') {
+    try {
+      const root = resolve(process.env.AGENTEAM_PROJECT_MODELS_WEB_DIST!, '../../../..');
+      const selector = await (new Function('path', 'return import(path)'))(join(root, '.agent-state/model-ui-recovery/session-controller-binding.mjs'));
+      resolveBinding = await selector.resolveOwnerModule(root);
+    } catch { /* Public type/export binding unavailable: retain the original gate. */ }
+  }
+  const slot = randomUUID();
+  const kind = target.kind;
+  let active = false, selected: Response | undefined, requestID: string | null = null;
+  let beforeAction = 0, afterAction = 0;
+  let latest: Record<string, boolean | number | string> | null = null, latestID: string | null = null;
+  let latestOwner: Record<string, unknown> | null = null, progress: (() => void) | undefined;
+  let latestResolve: Record<string, unknown> | null = null, latestResolveID: string | null = null;
+  let resolveSource: 'unavailable' | 'sample' | 'end' = 'unavailable';
+  let finalResult: ConsumptionResult | null = null, finalized = false;
+  let snapshotSource: 'unavailable' | 'sample' | 'end' = 'unavailable';
+  const targets: Request[] = [], finished = new Set<Request>(), failed = new Set<Request>();
+  const bounded = async <T>(work: () => Promise<T>): Promise<T | null> => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try { return await Promise.race([work(), new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), 250); })]); }
+    catch { return null; }
+    finally { if (timer !== undefined) clearTimeout(timer); }
+  };
+  let ownerCDP: CDPSession | undefined, ownerCDPReady = false, ownerStopped = false, ownerCapExceeded = false;
+  const ownerRows = new Map<string, { id: string | null; request: Mark; response: Mark | null; finished: Mark | null; failed: Mark | null; aborted: boolean; canceled: boolean }>();
+  const cdpSent = (event: any) => { try {
+    if (ownerStopped || event.request.url !== new URL('/api/v1/session', page.url()).href || event.request.method !== 'GET') return;
+    if (ownerRows.size >= 4 || ownerRows.has(event.requestId)) { ownerCapExceeded = true; return; }
+    ownerRows.set(event.requestId, { id: null, request: mark(), response: null, finished: null, failed: null, aborted: false, canceled: false });
+  } catch { ownerCapExceeded = true; } };
+  const cdpResponse = (event: any) => { try {
+    const row = ownerRows.get(event.requestId); if (!row || ownerStopped) return;
+    const values = Object.entries(event.response.headers).filter(([key]) => key.toLowerCase() === 'x-request-id');
+    row.id = values.length === 1 && typeof values[0]![1] === 'string' ? values[0]![1] : null; row.response = mark();
+  } catch { ownerCapExceeded = true; } };
+  const cdpFinished = (event: any) => { try { const row = ownerRows.get(event.requestId); if (row && !ownerStopped) row.finished ??= mark(); } catch {} };
+  const cdpFailed = (event: any) => { try { const row = ownerRows.get(event.requestId); if (row && !ownerStopped) { row.failed ??= mark(); row.aborted = event.errorText === 'net::ERR_ABORTED'; row.canceled = event.canceled === true; } } catch {} };
+  const ownerListeners = [['Network.requestWillBeSent', cdpSent], ['Network.responseReceived', cdpResponse], ['Network.loadingFinished', cdpFinished], ['Network.loadingFailed', cdpFailed]] as const;
+  if (restoreOwner) {
+    const deadline = Date.now() + 250;
+    await bounded(async () => {
+      const cdp = await context.newCDPSession(page); ownerCDP = cdp;
+      if (ownerStopped || Date.now() > deadline) { await cdp.detach(); return; }
+      for (const [name, listener] of ownerListeners) cdp.on(name, listener);
+      await cdp.send('Network.enable');
+      if (ownerStopped || Date.now() > deadline) { for (const [name, listener] of ownerListeners) cdp.off(name, listener); await cdp.detach(); return; }
+      ownerCDPReady = true;
+    });
+  }
+  const expiresAt = Date.now() + 250;
+  const candidate = (request: Request) => {
+    const url = new URL(request.url());
+    return url.origin === new URL(page.url()).origin && url.pathname === (kind === 'session' ? '/api/v1/session' : '/api/v1/projects/resolve');
+  };
+  const targetMatch = (request: Request) => {
+    const query = new URL(request.url()).searchParams;
+    if (target.kind === 'session') return candidate(request) && request.method() === 'GET' && !new URL(request.url()).search;
+    return candidate(request) && request.method() === 'GET' && query.size === 2 &&
+      query.getAll('username').length === 1 && query.getAll('project_name').length === 1 &&
+      query.get('username') === target.username && query.get('project_name') === target.project_name;
+  };
+  const requested = (request: Request) => { try {
+    if (!candidate(request)) return;
+    if (active) { afterAction++; if (targetMatch(request)) targets.push(request); }
+    else beforeAction++;
+  } catch { /* Observation cannot interrupt the original request. */ } };
+  const completed = (request: Request) => { try { if (candidate(request)) { finished.add(request); if (!finishedTimes.has(request)) finishedTimes.set(request, mark()); } } catch {} };
+  const rejected = (request: Request) => { try { if (candidate(request)) { failed.add(request); if (!failedTimes.has(request)) failedTimes.set(request, { at: mark(), test_status: testStatus() }); } } catch {} };
+  page.on('request', requested); page.on('requestfinished', completed); page.on('requestfailed', rejected);
+  page.on('close', pageClosed); context.on('close', contextClosed);
+  let beginning: Promise<unknown>;
+  try { beginning = resolveEvaluate(page, () => restoreOwner && ownerBinding ? page.evaluate(installRestoreOwnerObservation, { binding: ownerBinding, expected: restoreOwner, slot, expiresAt }) : target.kind === 'resolve' && resolveBinding ? page.evaluate(installResolvePublicationObservation, { binding: resolveBinding, target, slot, expiresAt }) : page.evaluate(({ slot, expiresAt, target }) => {
+    const probe = (window as any).__projectModelsProbe;
+    return target.kind === 'session' ? probe.sessionBegin(slot, expiresAt, undefined, true) : probe.resolveBegin(slot, expiresAt, { username: target.username, project_name: target.project_name });
+  }, { slot, expiresAt, target })); }
+  catch { beginning = Promise.resolve(null); }
+  const observeResolve = target.kind === 'resolve' && !!resolveBinding;
+  const sampler = resolveSampler(page, slot, () => requestID, (value, expectedID) => {
+    const safe = resolveSnapshot((restoreOwner || observeResolve) && value && typeof value === 'object' ? (value as any).native : value);
+    if (restoreOwner) latestOwner = restoreOwnerProjection(value && typeof value === 'object' ? (value as any).owner : null);
+    if (observeResolve) {
+      const publication = resolvePublicationProjection(value && typeof value === 'object' ? (value as any).resolve : null);
+      if (publication) { latestResolve = publication; latestResolveID = expectedID; resolveSource = 'sample'; }
+    }
+    if (safe !== null) {
+      latest = safe; latestID = expectedID; snapshotSource = 'sample';
+      if (safe.eof_before_interruption === true && safe.request_id_match === true && expectedID && expectedID === requestID && targets.length === 1 && targets[0] === selected?.request() && targetMatch(targets[0]!)) firstEOFSample ??= mark();
+    }
+    progress?.();
+  }, beginning, kind, !!restoreOwner, observeResolve);
+  const beginResult = await bounded(() => beginning);
+  const ownerInstall = !ownerBinding ? 'binding-unavailable' : beginResult === true ? 'armed'
+    : typeof beginResult === 'string' && ['expired', 'assets-unobserved', 'observer-present', 'module-unavailable', 'singleton-unavailable', 'owner-unready', 'native-unavailable'].includes(beginResult) ? beginResult : 'unavailable';
+  const resolveInstall = !resolveBinding ? 'binding-unavailable' : beginResult === true ? 'armed'
+    : typeof beginResult === 'string' && ['expired', 'assets-unobserved', 'observer-present', 'module-unavailable', 'singleton-unavailable', 'failure-type-unavailable', 'owner-unready', 'native-unavailable'].includes(beginResult) ? beginResult : 'unavailable';
+  return {
+    start() { active = true; try { actionStarted ??= mark(); } catch {} },
+    select(response: Response) {
+      selected = response;
+      sampler.start();
+      try { void response.headerValue('x-request-id').then((value) => { requestID = value; }, () => {}).catch(() => {}); } catch {}
+    },
+    finishedWait<T>(work: () => Promise<T>): Promise<T> {
+      const rejected = () => { try { waitRejected ??= mark(); } catch {} };
+      let original: Promise<T>;
+      try { original = work(); } catch (error) { rejected(); throw error; }
+      void original.then(() => {}, rejected).catch(() => {});
+      return original;
+    },
+    async consume(deadline: number): Promise<SessionIdentity> {
+      need(restoreOwner && ownerInstall === 'armed', 'PROJECT_MODELS_AUTHORITY_SESSION_CONSUMPTION_UNAVAILABLE');
+      while (!consumedNative(latest) || !consumedOwner(latestOwner)) {
+        need(performance.now() < deadline, 'PROJECT_MODELS_AUTHORITY_SESSION_CONSUMPTION_TIMEOUT');
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        try { await new Promise<void>((resolve) => { progress = resolve; timer = setTimeout(resolve, Math.max(0, deadline - performance.now())); }); }
+        finally { progress = undefined; if (timer !== undefined) clearTimeout(timer); }
+      }
+      // End is the final bound snapshot; sampler join and CDP detach are part
+      // of this same deadline, not a new allowance after the five seconds.
+      const result = await this.finish(false);
+      const checkedAt = performance.now();
+      const identity = acceptedSessionConsumption(result, restoreOwner, deadline, checkedAt);
+      if (result) {
+        const ownerArtifact = restoreOwner.stage === 'same-session-checking' ? 'authority-checking-session-consumption.json' : 'authority-credential-session-consumption.json';
+        writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, ownerArtifact), JSON.stringify({ ...result.evidence,
+          consumption_publication_evidence_complete: identity !== null,
+          consumer_gate: { accepted: identity !== null, within_header_deadline: checkedAt < deadline, observed_elapsed_ms: checkedAt - (deadline - 5_000) },
+        }), { mode: 0o600 });
+      }
+      need(identity, 'PROJECT_MODELS_AUTHORITY_SESSION_CONSUMPTION_INCOMPLETE');
+      return identity;
+    },
+    async finish(failure: boolean): Promise<ConsumptionResult | null> {
+      if (finalized) return finalResult;
+      finalized = true;
+      let projection: Record<string, unknown> | null = null, ownerEvidence: Record<string, unknown> | null = null;
+      let identity: unknown = null, retired = false, resolveRetired = false;
+      try {
+        const sampling = await sampler.stop();
+        // A timed-out evaluate keeps its single-flight ownership; no second
+        // read or end can overlap an original observation that has not joined.
+        const value: unknown = sampling.sample_joined ? await bounded(() => resolveEvaluate(page, () => page.evaluate(({ slot, requestID, kind, observeOwner, observeResolve }) => {
+          const probe = (window as any).__projectModelsProbe;
+          if (kind === 'resolve') {
+            const native = probe.resolveEnd(slot, requestID);
+            if (!observeResolve) return native;
+            const publication = (window as any).__authorityResolvePublication?.finish(requestID) ?? null;
+            return { native, resolve: publication, retired: native !== null && probe.resolveSnapshot(slot, requestID) === null && !(window as any).__authorityResolvePublication && publication?.hooks_retired === true && publication?.pending_observations === 0 };
+          }
+          const snapshot = probe.sessionSnapshot(slot, requestID);
+          const ended = probe.sessionEnd(slot, requestID);
+          const observer = (window as any).__authorityRestoreOwner;
+          const identity = observeOwner ? observer?.identity() ?? null : null;
+          const owner = observeOwner ? observer?.finish(requestID) ?? null : null;
+          return observeOwner ? { native: ended !== null ? snapshot : null, owner, identity,
+            retired: ended !== null && probe.sessionSnapshot(slot, requestID) === null && !(window as any).__authorityRestoreOwner } : snapshot;
+        }, { slot, requestID, kind, observeOwner: !!restoreOwner, observeResolve }))) : null;
+        const owner = restoreOwnerProjection(restoreOwner && value && typeof value === 'object' ? (value as any).owner : null);
+        identity = restoreOwner && value && typeof value === 'object' ? (value as any).identity : null;
+        const final = resolveSnapshot((restoreOwner || observeResolve) && value && typeof value === 'object' ? (value as any).native : value);
+        if (final !== null) { latest = final; latestID = requestID; snapshotSource = 'end'; }
+        if (observeResolve) {
+          const publication = resolvePublicationProjection(value && typeof value === 'object' ? (value as any).resolve : null);
+          if (publication) { latestResolve = publication; latestResolveID = requestID; resolveSource = 'end'; }
+          resolveRetired = !!value && typeof value === 'object' && (value as any).retired === true;
+        }
+        const native = latest;
+        const request = selected?.request(), error = request?.failure()?.errorText;
+        const pwFailure = error === undefined ? 'none' : error === 'net::ERR_ABORTED' ? 'aborted' : error === 'net::ERR_CONNECTION_RESET' ? 'reset' : error === 'net::ERR_CONNECTION_CLOSED' ? 'closed' : 'other';
+        projection = {
+          protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH,
+          request_kind: kind,
+          diagnostic: native === null ? 'unavailable' : 'captured', pw_candidates_before_action: beforeAction,
+          pw_candidates_after_action: afterAction, pw_target_requests: targets.length,
+          pw_selected_target_match: !!request && targetMatch(request), pw_request_match: targets.length === 1 && targets[0] === request,
+          pw_request_id_seen: !!requestID, pw_status: selected?.status() ?? null,
+          snapshot_source: snapshotSource, snapshot_selected_bound: !!request && targets.length === 1 && targets[0] === request && !!latestID && latestID === requestID && native?.request_id_match === true,
+          snapshot_native_terminal: native !== null && (native.read_done === true || Number(native.read_rejected) > 0 || native.failure === 'fetch-rejected'),
+          slot_end_observed: final !== null, ...sampling,
+          pw_finished_event: !!request && finished.has(request), pw_failed_event: !!request && failed.has(request), pw_failure: pwFailure, native,
+          timing: { clock: 'node-performance', origin: kind === 'session' ? 'session-diagnostic-begin' : 'resolve-diagnostic-begin', action_started: actionStarted,
+            first_bound_eof_sample: firstEOFSample, pw_finished: request ? finishedTimes.get(request) ?? null : null,
+            pw_failed: request ? failedTimes.get(request)?.at ?? null : null,
+            pw_failed_test_status: request ? failedTimes.get(request)?.test_status ?? 'unknown' : 'unknown',
+            original_finished_wait_rejected: waitRejected, page_close_notification: pageClose,
+            context_close_notification: contextClose, projection_recorded: mark() },
+        };
+        if (restoreOwner) {
+          const matches = requestID ? [...ownerRows.values()].filter(row => row.id === requestID) : [];
+          const cdpBound = ownerCDPReady && !ownerCapExceeded && ownerRows.size === 1 && matches.length === 1;
+          const cdp = cdpBound ? { request: matches[0]!.request, response: matches[0]!.response, finished: matches[0]!.finished, failed: matches[0]!.failed, aborted: matches[0]!.aborted, canceled: matches[0]!.canceled } : null;
+          ownerEvidence = { ...projection, owner_install: ownerInstall, restore_owner: owner, browser_observers_retired: !!value && typeof value === 'object' && (value as any).retired === true, cdp_ready: ownerCDPReady, cdp_candidates: ownerRows.size, cdp_cap_exceeded: ownerCapExceeded, cdp_selected_bound: cdpBound, cdp };
+        }
+      } catch { /* Missing evidence never manufactures completion. */ }
+      finally {
+        try {
+          let detached = !ownerCDP;
+          if (ownerCDP) {
+            detached = await bounded(() => ownerCDP!.detach().then(() => true)) === true;
+          }
+          ownerStopped = true;
+          if (ownerCDP) for (const [name, listener] of ownerListeners) ownerCDP.off(name, listener);
+          page.off('request', requested); page.off('requestfinished', completed); page.off('requestfailed', rejected); page.off('close', pageClosed); context.off('close', contextClosed);
+          retired = detached;
+        } catch { ownerStopped = true; retired = false; }
+      }
+      // The detach await still belongs to this observation. Snapshot identity
+      // and uniqueness only after its listeners retire, including late events.
+      if (projection) {
+        const request = selected?.request();
+        projection.pw_candidates_before_action = beforeAction;
+        projection.pw_candidates_after_action = afterAction;
+        projection.pw_target_requests = targets.length;
+        projection.pw_selected_target_match = !!request && targetMatch(request);
+        projection.pw_request_match = targets.length === 1 && targets[0] === request;
+        projection.pw_request_id_seen = !!requestID;
+        projection.snapshot_selected_bound = !!request && targets.length === 1 && targets[0] === request && !!latestID && latestID === requestID && latest?.request_id_match === true;
+        projection.pw_finished_event = !!request && finished.has(request);
+        projection.pw_failed_event = !!request && failed.has(request);
+        const error = request?.failure()?.errorText;
+        projection.pw_failure = error === undefined ? 'none' : error === 'net::ERR_ABORTED' ? 'aborted' : error === 'net::ERR_CONNECTION_RESET' ? 'reset' : error === 'net::ERR_CONNECTION_CLOSED' ? 'closed' : 'other';
+        const timing = projection.timing as Record<string, unknown>;
+        timing.page_close_notification = pageClose; timing.context_close_notification = contextClose;
+        timing.pw_finished = request ? finishedTimes.get(request) ?? null : null;
+        timing.pw_failed = request ? failedTimes.get(request)?.at ?? null : null;
+        timing.pw_failed_test_status = request ? failedTimes.get(request)?.test_status ?? 'unknown' : 'unknown';
+        timing.original_finished_wait_rejected = waitRejected;
+        timing.projection_recorded = mark();
+        if (target.kind === 'resolve') {
+          projection.resolve_publication_install = resolveInstall;
+          projection.resolve_publication_source = resolveSource;
+          projection.resolve_publication = latestResolve;
+          projection.resolve_publication_selected_bound = !!request && targetMatch(request) && beforeAction === 0 && afterAction === 1 && targets.length === 1 && targets[0] === request && !!requestID && latestResolveID === requestID && latestResolve?.problem_request_id_matches === true && latestResolve.problem_instance_matches === true && latestResolve.resolve_calls === 1 && latestResolve.target_calls === 1 && latestResolve.problem_status === selected?.status() && latest?.request_id_match === true && latest.requests === 1;
+          projection.resolve_publication_observers_retired = resolveRetired;
+        }
+        try {
+          if (failure) writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, artifact), JSON.stringify(projection), { mode: 0o600 });
+          if (restoreOwner && ownerEvidence) {
+            const matches = requestID ? [...ownerRows.values()].filter(row => row.id === requestID) : [];
+            const cdpBound = ownerCDPReady && !ownerCapExceeded && ownerRows.size === 1 && matches.length === 1;
+            const cdp = cdpBound ? { request: matches[0]!.request, response: matches[0]!.response, finished: matches[0]!.finished, failed: matches[0]!.failed, aborted: matches[0]!.aborted, canceled: matches[0]!.canceled } : null;
+            ownerEvidence = { ...ownerEvidence, ...projection, observers_retired: retired,
+              cdp_ready: ownerCDPReady, cdp_candidates: ownerRows.size, cdp_cap_exceeded: ownerCapExceeded, cdp_selected_bound: cdpBound, cdp };
+            const ownerArtifact = restoreOwner.stage === 'same-session-checking' ? 'authority-checking-session-consumption.json' : 'authority-credential-session-consumption.json';
+            finalResult = { evidence: ownerEvidence, identity };
+            writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, ownerArtifact), JSON.stringify({ ...ownerEvidence,
+              consumption_publication_evidence_complete: acceptedSessionConsumption(finalResult, restoreOwner, Number.MAX_VALUE, performance.now()) !== null,
+            }), { mode: 0o600 });
+          }
+        } catch { finalResult = null; }
+      }
+      ownerRows.clear();
+      return finalResult;
+    },
+  };
+}
+
+async function beginResolveDiagnostic(page: Page, project: Project) {
+  return beginResponseDiagnostic(page, { kind: 'resolve', username: project.username, project_name: project.normalized_name }, 'authority-resolve-diagnostic.json');
+}
+export async function beginSessionResponseDiagnostic(page: Page, mode: 'independent-b' | 'authority' = 'independent-b', restoreOwner?: RestoreOwner) {
+  return beginResponseDiagnostic(page, { kind: 'session' }, mode === 'authority' ? 'authority-session-response-diagnostic.json' : 'independent-b-session-diagnostic.json', restoreOwner);
+}
+
+// Session bodies remain private in this call. Only the formal safe identity is
+// returned, never CSRF, cookies, login inputs, headers or their digests.
+type SessionStageCode = `PROJECT_MODELS_AUTHORITY_${'SESSION_ACTION' | 'SESSION_HEADERS' | 'SESSION_FINISH' | 'SESSION_JSON' | 'CHECKING_COUNTS' | 'CHECKING_FACTS' | 'CHECKING_ARM' | 'CHECKING_HOLD' | 'CHECKING_RELEASE' | 'CHECKING_JOIN'}_TIMEOUT`;
+async function sessionStage<T>(work: Promise<T>, code: SessionStageCode) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([work, new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(() => reject(new Error(code)), 5_000);
+    })]);
+  } finally { if (timer !== undefined) clearTimeout(timer); }
+}
+async function sessionIdentity(page: Page, action: () => Promise<void>, step: (name: string) => void, wait: AuthorityAwait, restoreOwner?: RestoreOwner) {
+  const diagnostic = await wait('authority-session-identity-begin-session-diagnostic-005', () => beginSessionResponseDiagnostic(page, 'authority', restoreOwner).catch(() => null));
+  let diagnosticFailed = false;
+  let selected: Request | undefined;
+  let headerDeadline: number | undefined;
+  const observation = { headers_seen: false, finished_event: false, failed_event: false };
+  const publish = () => writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-session-events.json'), JSON.stringify({ protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH, observation }), { mode: 0o600 });
+  const requested = (request: Request) => { if (new URL(request.url()).pathname === '/api/v1/session' && request.method() === 'GET') step('authority-session-request-observed'); };
+  const finished = (request: Request) => { if (request === selected) { observation.finished_event = true; publish(); } };
+  const failed = (request: Request) => { if (request === selected) { observation.failed_event = true; publish(); } };
+  page.on('request', requested); page.on('requestfinished', finished); page.on('requestfailed', failed);
+  try {
+    publish(); step('authority-session-action-started');
+    const waiting = page.waitForResponse((response) => {
+      if (new URL(response.url()).pathname !== '/api/v1/session' || response.request().method() !== 'GET' || response.status() !== 200) return false;
+      if (restoreOwner) headerDeadline = performance.now() + 5_000;
+      selected = response.request();
+      try { diagnostic?.select(response); } catch { /* Diagnostic binding cannot replace the selected response. */ }
+      observation.headers_seen = true; publish(); return true;
+    }, { timeout: 5_000 });
+    try { diagnostic?.start(); } catch { /* Diagnostic timing cannot interrupt the original action. */ }
+    const [response] = await wait('authority-session-identity-all-006', () => Promise.all([
+      sessionStage(waiting, 'PROJECT_MODELS_AUTHORITY_SESSION_HEADERS_TIMEOUT'),
+      (async () => { await wait('authority-session-identity-session-stage-007', () => sessionStage(action(), 'PROJECT_MODELS_AUTHORITY_SESSION_ACTION_TIMEOUT')); step('authority-session-action-returned'); })(),
+    ]));
+    step('authority-session-headers-observed');
+    if (restoreOwner) {
+      need(diagnostic && headerDeadline !== undefined, 'PROJECT_MODELS_AUTHORITY_SESSION_CONSUMPTION_UNAVAILABLE');
+      // Observe the exact original PW Promise once, without making its event
+      // mapping the consumption oracle or starting a second body read.
+      try { void diagnostic.finishedWait(() => response.finished()).catch(() => {}); }
+      catch { throw new Error('PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE'); }
+      const identity = await wait('authority-session-identity-consumption-008', () => diagnostic.consume(headerDeadline!));
+      step('authority-session-consumption-validated');
+      return identity;
+    }
+    try { need(await wait('authority-session-identity-session-stage-008', () => sessionStage(diagnostic ? diagnostic.finishedWait(() => response.finished()) : response.finished(), 'PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT')) === null, 'PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE'); }
+    catch (error) {
+      if (error instanceof Error && error.message === 'PROJECT_MODELS_AUTHORITY_SESSION_FINISH_TIMEOUT') throw error;
+      throw new Error('PROJECT_MODELS_AUTHORITY_SESSION_INCOMPLETE');
+    }
+    step('authority-session-finished');
+    try {
+      const body = object(await wait('authority-session-identity-session-stage-009', () => sessionStage(response.json(), 'PROJECT_MODELS_AUTHORITY_SESSION_JSON_TIMEOUT'))), user = object(body.user), session = object(body.session);
+      need(uuid(user.id) && uuid(session.id) && (user.role === 'user' || user.role === 'admin'), 'PROJECT_MODELS_AUTHORITY_SESSION_INVALID');
+      step('authority-session-json-validated');
+      return { userID: user.id, sessionID: session.id, role: user.role };
+    } catch (error) {
+      if (error instanceof Error && error.message === 'PROJECT_MODELS_AUTHORITY_SESSION_JSON_TIMEOUT') throw error;
+      throw new Error('PROJECT_MODELS_AUTHORITY_SESSION_INVALID');
+    }
+  } catch (error) { diagnosticFailed = true; throw error; } finally {
+    page.off('request', requested); page.off('requestfinished', finished); page.off('requestfailed', failed); publish();
+    if (diagnostic) await wait('authority-session-identity-finish-010', async () => {
+      try { await diagnostic.finish(diagnosticFailed); } catch { /* Missing diagnostics must preserve the original Session result. */ }
+    });
+  }
+}
+async function pageshow(page: Page, wait: AuthorityAwait, observeOwner = false) { await wait('authority-pageshow-evaluate-011', () => observeOwner ? page.evaluate(() => {
+  const owner = (window as any).__authorityRestoreOwner;
+  try { owner?.action(true); } catch { /* Observation cannot replace pageshow. */ }
+  try { return dispatchEvent(new PageTransitionEvent('pageshow')); }
+  finally { try { owner?.action(false); } catch {} }
+}) : page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow')))); }
+async function privateLogin(page: Page, actor: Actor, wait: AuthorityAwait) {
+  await wait('authority-private-login-to-be-visible-012', () => expect(page.locator('#login-email')).toBeVisible());
+  try { await wait('authority-private-login-fill-013', () => page.locator('#login-email').fill(actor.email)); await wait('authority-private-login-fill-014', () => page.locator('#login-password').fill(actor.password)); }
+  catch { throw new Error('PROJECT_MODELS_PRIVATE_LOGIN_INPUT_FAILED'); }
+  await wait('authority-private-login-click-015', () => button(page, '登录').click()); await wait('authority-private-login-to-be-enabled-016', () => expect(button(page, '退出登录')).toBeEnabled());
+}
+async function newProvider(page: Page, name: string, wait: AuthorityAwait) {
+  await wait('authority-new-provider-click-017', () => button(page, '创建 Provider').click());
+  const dialog = page.getByRole('dialog').filter({ has: page.locator('#project-provider-form') });
+  await wait('authority-new-provider-fill-018', () => dialog.getByRole('textbox', { name: 'Provider 名称', exact: true }).fill(name));
+  await wait('authority-new-provider-fill-019', () => dialog.getByRole('textbox', { name: 'Base URL', exact: true }).fill('https://model-ui.invalid/v1'));
+  return dialog;
+}
+async function discardClick(page: Page, target: Locator, stage: 'cancel' | 'confirm', wait: AuthorityAwait) {
+  try { await wait('authority-discard-click-click-020', () => target.click({ timeout: 5_000 })); }
+  catch {
+    // Observe only this real failure. No DOM text, titles, field values or
+    // computed-style strings leave the browser, and no hit target is modified.
+    let observation: unknown = null;
+    try {
+      observation = await wait('authority-discard-click-evaluate-021', () => page.evaluate((stage) => {
+        const overlays = [...document.querySelectorAll<HTMLElement>('.ui-overlay')].filter((node) => node.getClientRects().length > 0);
+        const panels = overlays.map((node) => node.querySelector<HTMLElement>('[role="dialog"]'));
+        const index = panels.findIndex((panel) => panel && (stage === 'cancel' ? !!panel.querySelector('#project-provider-form') : panel.querySelector('h2')?.textContent?.trim() === '放弃当前表单修改？'));
+        const panel = panels[index];
+        const wanted = panel ? [...panel.querySelectorAll<HTMLButtonElement>('button')].find((node) => node.querySelector('.button-label:not([aria-hidden="true"])')?.textContent?.trim() === (stage === 'cancel' ? '取消' : '放弃修改')) : undefined;
+        const rect = wanted?.getBoundingClientRect();
+        const hit = rect && rect.width > 0 && rect.height > 0 ? document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2) : null;
+        return {
+          overlay_count: overlays.length,
+          overlays: overlays.slice(0, 8).map((node, at) => { const z = Number.parseInt(getComputedStyle(node).zIndex, 10); return { index: at, z_index: Number.isFinite(z) ? z : null, panel_inert: panels[at]?.inert === true, panel_aria_hidden: panels[at]?.getAttribute('aria-hidden') === 'true' }; }),
+          target_overlay_index: index, target_found: !!wanted, target_disabled: wanted?.disabled === true,
+          target_visible: !!rect && rect.width > 0 && rect.height > 0, target_inert: !!wanted?.closest('[inert]'),
+          center_hits_target: !!hit && !!wanted && (hit === wanted || wanted.contains(hit)),
+          center_hits_overlay: !!hit?.closest('.ui-overlay'), hit_overlay_index: overlays.findIndex((node) => !!hit && (hit === node || node.contains(hit))),
+        };
+      }, stage));
+    } catch { /* A missing observation remains null, never a synthetic fact. */ }
+    writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-discard-hit.json'), JSON.stringify({ protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH, stage, observation }), { mode: 0o600 });
+    throw new Error('PROJECT_MODELS_AUTHORITY_DISCARD_CLICK_FAILED');
+  }
+}
+async function discardProvider(page: Page, dialog: Locator, step: (name: string) => void, wait: AuthorityAwait) {
+  await wait('authority-discard-provider-discard-click-022', () => discardClick(page, button(dialog, '取消'), 'cancel', wait));
+  const confirmation = page.getByRole('dialog', { name: '放弃当前表单修改？', exact: true });
+  await wait('authority-discard-provider-to-be-visible-023', () => expect(confirmation).toBeVisible()); step('authority-discard-confirm-visible');
+  await wait('authority-discard-provider-discard-click-024', () => discardClick(page, button(confirmation, '放弃修改'), 'confirm', wait)); await wait('authority-discard-provider-to-be-hidden-025', () => expect(dialog).toBeHidden());
+}
+
+// A failed navigation can still have the pushState URL while guards or Owner
+// publication are pending. Inspect public DOM only; never export its text/URLs.
+async function navigationFailure(page: Page, project: Project, projects: readonly Project[]) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const observation = await Promise.race([
+      page.evaluate(({ target, settings, knownSettings }) => {
+        const visible = (node: Element | null | undefined): boolean => !!node && node.isConnected && node.getClientRects().length > 0 && !['hidden', 'collapse'].includes(getComputedStyle(node).visibility);
+        const text = (node: Element) => node.textContent?.trim();
+        const buttons = (scope: ParentNode | null, label: string) => [...(scope?.querySelectorAll<HTMLButtonElement>('button') ?? [])].filter((node) => text(node.querySelector('.button-label:not([aria-hidden="true"])') ?? node) === label);
+        const buttonState = (nodes: HTMLButtonElement[]) => ({ count: nodes.length, visible: nodes.some(visible), enabled: nodes.some((node) => visible(node) && !node.disabled), inert: nodes.some((node) => !!node.closest('[inert]')), aria_hidden: nodes.some((node) => !!node.closest('[aria-hidden="true"]')) });
+        const state = (scope: string, title: string) => [...document.querySelectorAll(scope + ' .ui-state')].some((node) => visible(node) && [...(node.querySelector('h3')?.childNodes ?? [])].filter((child) => child.nodeType === Node.TEXT_NODE).map((child) => child.textContent).join('').trim() === title);
+        const dialogs = [...document.querySelectorAll('[role="dialog"]')];
+        const confirmation = (title: string) => dialogs.some((node) => visible(node) && node.querySelector('h2')?.textContent?.trim() === title);
+        const navs = [...document.querySelectorAll('nav[aria-label="项目导航"]')];
+        const links = navs.flatMap((node) => [...node.querySelectorAll('a')].filter((link) => text(link) === '项目设置'));
+        const workspace = document.querySelector('.project-workspace');
+        const leaf = workspace?.querySelector('section.project-providers');
+        return {
+          url_is_target: location.pathname === target,
+          nav_count: navs.length, settings_count: links.length,
+          settings_target: links.some((node) => node.getAttribute('href') === settings),
+          settings_other_known: links.some((node) => node.getAttribute('href') !== settings && knownSettings.includes(node.getAttribute('href') ?? '')),
+          settings_current: links.some((node) => node.getAttribute('aria-current') === 'page'),
+          nav_visible: navs.some(visible), nav_inert: navs.some((node) => !!node.closest('[inert]')),
+          model_leave_confirmation: confirmation('离开项目模型设置？'), owner_leave_confirmation: confirmation('放弃项目修改？'),
+          session_checking: state('.session-check', '正在确认会话'), session_unconfirmed: state('.session-check', '会话尚未确认'),
+          owner_checking: state('.project-workspace', '正在确认项目访问身份'), owner_loading: state('.project-workspace', '正在读取项目'),
+          owner_read_error: state('.project-workspace', '项目信息读取失败'), owner_unavailable: state('.project-workspace', '项目不可用'),
+          owner_reread: buttonState(buttons(workspace?.querySelector('.workspace-actions') ?? null, '重新读取项目')),
+          model_leaf_visible: visible(leaf), model_reread: buttonState(buttons(leaf ?? null, '重新读取项目')),
+          logout: buttonState(buttons(document.querySelector('.account-actions'), '退出登录')),
+        };
+      }, { target: route(project), settings: '/' + project.username + '/' + project.normalized_name + '/settings/general', knownSettings: projects.map((value) => '/' + value.username + '/' + value.normalized_name + '/settings/general') }),
+      new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), 250); }),
+    ]);
+    writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, 'authority-navigation-dom.json'), JSON.stringify({ protocol: 'project-owner-models.v1', input_hash: process.env.AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH, observation }), { mode: 0o600 });
+  } catch { /* A missing diagnostic never replaces the original failure. */ }
+  finally { if (timer !== undefined) clearTimeout(timer); }
+}
+
+export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarness) {
+  const material = object(harness.material), rawProjects = object(material.projects), rawActors = object(material.actors);
+  const keys: ProjectKey[] = ['main', 'second', 'other', 'admin_owned', 'archiving', 'archived', 'deleting', 'pending', 'config_recovery', 'credential_recovery', 'referenced'];
+  need(material.mode === 'authority' && material.system === null && Object.keys(rawProjects).length === keys.length, 'PROJECT_MODELS_AUTHORITY_MATERIAL_INVALID');
+  const projects = Object.fromEntries(keys.map((key) => [key, locator(rawProjects[key])])) as Record<ProjectKey, Project>;
+  const actors = Object.fromEntries(['owner', 'other_owner', 'other_admin'].map((key) => {
+    const row = object(rawActors[key]);
+    need(uuid(row.user_id) && typeof row.email === 'string' && typeof row.password === 'string', 'PROJECT_MODELS_AUTHORITY_ACTOR_INVALID');
+    return [key, row];
+  })) as Record<'owner' | 'other_owner' | 'other_admin', Actor>;
+  need(projects.main.owner_user_id === actors.owner.user_id && projects.other.owner_user_id === actors.other_owner.user_id && projects.admin_owned.owner_user_id === actors.other_admin.user_id, 'PROJECT_MODELS_AUTHORITY_OWNERS_INVALID');
+  const wait = authorityAwait(harness.step);
+  const checks: Record<string, boolean> = {}, observe = observer(page, harness, wait);
+  const providerDialog = () => page.getByRole('dialog').filter({ has: page.locator('#project-provider-form') });
+  const credentialDialog = () => page.getByRole('dialog').filter({ has: page.locator('#project-credential-form') });
+  async function leafReady(project: Project, before: readonly NativeFact[]) {
+    const leaf = page.locator('section.project-providers');
+    await wait('authority-leaf-ready-to-be-visible-026', () => expect(leaf).toBeVisible());
+    const reread = button(leaf, '重新读取项目');
+    const freshRead = async () => {
+      const facts = await wait('authority-leaf-ready-native-facts-027', () => harness.nativeFacts(page));
+      need(facts.length >= before.length, 'PROJECT_MODELS_AUTHORITY_OBSERVATIONS_RESET');
+      return facts.slice(before.length).some((fact) => fact.method === 'GET' && fact.path === '/api/v1/projects/' + project.id + '/model-providers' && fact.status === 200 && fact.eof && fact.ended && fact.released);
+    };
+    // Owner revalidation can publish this gate after the leaf first appears.
+    // Observe until the fresh read or the real gate exists, then click at most once.
+    await wait('authority-leaf-ready-to-be-028', () => expect.poll(async () => await wait('authority-leaf-ready-fresh-read-029', () => freshRead()) || await wait('authority-leaf-ready-is-visible-030', () => reread.isVisible())).toBe(true));
+    if (!(await wait('authority-leaf-ready-fresh-read-031', () => freshRead())) && await wait('authority-leaf-ready-is-visible-032', () => reread.isVisible())) { await wait('authority-leaf-ready-to-be-enabled-033', () => expect(reread).toBeEnabled()); await wait('authority-leaf-ready-click-034', () => reread.click()); await wait('authority-leaf-ready-to-be-hidden-035', () => expect(reread).toBeHidden()); }
+    await wait('authority-leaf-ready-to-be-enabled-036', () => expect(button(leaf, '刷新 Providers')).toBeEnabled());
+  }
+  async function open(project: Project, discard = false, archivedOwner: 'config_recovery' | 'credential_recovery' | null = null) {
+    if (archivedOwner !== null) {
+      need(!discard && ((archivedOwner === 'config_recovery' && project === projects.credential_recovery && checks.archived_config_original_replay === true) || (archivedOwner === 'credential_recovery' && project === projects.referenced && checks.archived_credential_lookup_only === true)), 'PROJECT_MODELS_AUTHORITY_ARCHIVED_OWNER_TRANSITION');
+      const source = projects[archivedOwner];
+      await wait('authority-open-archived-owner-source', () => expect(page.getByRole('navigation', { name: '项目导航', exact: true }).getByRole('link', { name: '项目设置', exact: true })).toHaveAttribute('href', '/' + source.username + '/' + source.normalized_name + '/settings/general'));
+    }
+    const before = await wait('authority-open-native-facts-037', () => harness.nativeFacts(page));
+    const diagnostic = await wait('authority-open-begin-session-diagnostic-038', () => beginSessionDiagnostic(page, 'authority'));
+    let diagnosticFailed = false;
+    const sessionResponse = (response: Response) => {
+      try {
+        const url = new URL(response.url());
+        if (url.origin === new URL(page.url()).origin && url.pathname === '/api/v1/session' && !url.search && response.request().method() === 'GET' && response.status() === 200) diagnostic.select(response);
+      } catch { /* Diagnostic metadata cannot alter navigation. */ }
+    };
+    page.on('response', sessionResponse);
+    try { return await wait('authority-open-observe-039', () => observe('listProjectModelProviders', project.id, 'GET', 'model-providers', 200, async () => {
+      await wait('authority-open-navigate-040', () => harness.navigate(page, route(project)));
+      if (archivedOwner !== null) {
+        const confirmation = page.getByRole('dialog', { name: '放弃项目修改？', exact: true });
+        await wait('authority-open-archived-owner-visible', () => expect(confirmation).toBeVisible());
+        const published = await wait('authority-open-archived-owner-target-unpublished', () => page.getByRole('navigation', { name: '项目导航', exact: true }).getByRole('link', { name: '项目设置', exact: true }).evaluateAll((links, href) => links.some((link) => link.getAttribute('href') === href), '/' + project.username + '/' + project.normalized_name + '/settings/general'));
+        need(!published, 'PROJECT_MODELS_AUTHORITY_OWNER_LEAVE_ALREADY_PUBLISHED');
+        await wait('authority-open-archived-owner-confirm', () => button(confirmation, '放弃并离开').click());
+        await wait('authority-open-archived-owner-hidden', () => expect(confirmation).toBeHidden());
+      }
+      if (discard) await wait('authority-open-click-041', () => button(page.getByRole('dialog', { name: '离开项目模型设置？', exact: true }), '放弃并离开').click());
+      await wait('authority-open-to-be-042', () => expect.poll(() => new URL(page.url()).pathname).toBe(route(project)));
+      // pushState changes the URL before the router and Owner read publish the
+      // destination. This public link is rendered from that Project's detail.
+      const settings = page.getByRole('navigation', { name: '项目导航', exact: true }).getByRole('link', { name: '项目设置', exact: true });
+      await wait('authority-open-to-have-attribute-043', () => expect(settings).toHaveAttribute('href', '/' + project.username + '/' + project.normalized_name + '/settings/general'));
+      await wait('authority-open-to-have-attribute-044', () => expect(settings).toHaveAttribute('aria-current', 'page'));
+      await wait('authority-open-leaf-ready-045', () => leafReady(project, before));
+    }, 'limit=25')); }
+    catch (error) { diagnosticFailed = true; await wait('authority-open-navigation-failure-046', () => navigationFailure(page, project, Object.values(projects))); throw error; }
+    finally { page.off('response', sessionResponse); await wait('authority-open-finish-047', () => diagnostic.finish(diagnosticFailed)); }
+  }
+  async function reread(project: Project) {
+    return observe('listProjectModelProviders', project.id, 'GET', 'model-providers', 200, async () => {
+      const leaf = page.locator('section.project-providers');
+      await wait('authority-reread-to-be-visible-048', () => expect(button(leaf, '重新读取项目')).toBeVisible());
+      await wait('authority-reread-click-049', () => button(leaf, '重新读取项目').click());
+      await wait('authority-reread-to-be-hidden-050', () => expect(button(leaf, '重新读取项目')).toBeHidden());
+      // A preserved modal can make underlying controls inert; native EOF below
+      // is the readiness witness, so do not require an underlying click.
+    }, 'limit=25');
+  }
+  async function denied(project: Project, foreign: boolean) {
+    const before = await wait('authority-denied-native-facts-051', () => harness.nativeFacts(page)), beforeCounts = await wait('authority-denied-counts-052', () => harness.counts());
+    const diagnostic = await beginResolveDiagnostic(page, project);
+    let diagnosticFailed = false;
+    try {
+    const responsePromise = wait('authority-denied-resolve-headers', () => page.waitForResponse((response) => new URL(response.url()).pathname === '/api/v1/projects/resolve'));
+    diagnostic.start();
+    const [response] = await wait('authority-denied-all-053', () => Promise.all([responsePromise, wait('authority-denied-navigation-action', () => harness.navigate(page, route(project)))]));
+    diagnostic.select(response);
+    need(await wait('authority-denied-finished-054', () => diagnostic.finishedWait(() => response.finished())) === null && (foreign ? [403, 404].includes(response.status()) : response.status() === 409), 'PROJECT_MODELS_AUTHORITY_OWNER_GATE_INVALID');
+    await wait('authority-denied-to-be-visible-055', () => expect(page.getByRole('heading', { name: foreign ? '项目不可用' : '项目信息读取失败', exact: true })).toBeVisible());
+    await wait('authority-denied-to-have-count-056', () => expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0));
+    await wait('authority-denied-to-have-count-057', () => expect(page.getByRole('dialog')).toHaveCount(0));
+    need((await wait('authority-denied-native-facts-058', () => harness.nativeFacts(page))).length === before.length, 'PROJECT_MODELS_AUTHORITY_DENIED_MODEL_REQUEST');
+    sameOperations(beforeCounts, await wait('authority-denied-counts-059', () => harness.counts()));
+    } catch (error) { diagnosticFailed = true; throw error; }
+    finally { await diagnostic.finish(diagnosticFailed); }
+  }
+
+  harness.step('authority-login');
+  await wait('authority-flow-login-owner-060', () => harness.loginOwner(page));
+  const ownerSession = await wait('authority-flow-session-identity-061', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
+  need(ownerSession.userID === actors.owner.user_id && ownerSession.role === 'user', 'PROJECT_MODELS_AUTHORITY_ORDINARY_OWNER_REQUIRED');
+  const first = await wait('authority-flow-open-062', () => open(projects.main)), initial = await wait('authority-flow-snapshot-063', () => harness.snapshot('main'));
+  const seed = initial.current.providers.find((row) => row.present);
+  need(seed && Array.isArray(first.items) && first.items.length === 1 && object(first.items[0]).id === seed.id, 'PROJECT_MODELS_AUTHORITY_SEED_MISSING');
+  await wait('authority-flow-to-be-enabled-064', () => expect(button(page, '创建 Provider')).toBeEnabled());
+  checks.ordinary_owner = true;
+
+  harness.step('authority-same-session-checking');
+  let dialog = await wait('authority-flow-new-provider-065', () => newProvider(page, 'Models Same Session Draft', wait));
+  harness.step('authority-checking-draft-ready');
+  const checkingCounts = await wait('authority-flow-session-stage-066', () => sessionStage(harness.counts(), 'PROJECT_MODELS_AUTHORITY_CHECKING_COUNTS_TIMEOUT'));
+  harness.step('authority-checking-counts-ready');
+  const checkingFacts = await wait('authority-flow-session-stage-067', () => sessionStage(harness.nativeFacts(page), 'PROJECT_MODELS_AUTHORITY_CHECKING_FACTS_TIMEOUT'));
+  harness.step('authority-checking-arm-started');
+  const sessionArmResult = await wait('authority-flow-session-stage-068', () => sessionStage(harness.ipc({ action: 'arm', args: { operation: 'getCurrentSession', project: null, target_id: null, query: null, effect: 'before_dispatch_hold' } }), 'PROJECT_MODELS_AUTHORITY_CHECKING_ARM_TIMEOUT'));
+  need(typeof sessionArmResult.arm_id === 'string', 'PROJECT_MODELS_AUTHORITY_ARM_INVALID');
+  const sessionArm = sessionArmResult.arm_id;
+  // Handle the concurrent observer immediately, then actually settle it on
+  // every path, including a failed hold, UI assertion, or release.
+  const restoredSession = sessionIdentity(page, () => pageshow(page, wait, true), harness.step, wait, { userID: ownerSession.userID, sessionID: ownerSession.sessionID, stage: 'same-session-checking' }).then(
+    (value) => ({ ok: true as const, value }), (error: unknown) => ({ ok: false as const, error }),
+  );
+  try {
+    harness.step('authority-checking-hold-started');
+    const sessionHeld = await wait('authority-flow-session-stage-069', () => sessionStage(harness.control(sessionArm, (state) => state.held === true), 'PROJECT_MODELS_AUTHORITY_CHECKING_HOLD_TIMEOUT'));
+    harness.step('authority-checking-held');
+    try {
+      await wait('authority-flow-to-be-visible-070', () => expect(page.getByRole('heading', { name: '正在确认会话', exact: true })).toBeVisible());
+      harness.step('authority-checking-heading-visible');
+      await wait('authority-flow-to-be-hidden-071', () => expect(dialog).toBeHidden());
+      await wait('authority-flow-to-have-count-072', () => expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0));
+      harness.step('authority-checking-private-view-hidden');
+      need((await wait('authority-flow-session-stage-073', () => sessionStage(harness.nativeFacts(page), 'PROJECT_MODELS_AUTHORITY_CHECKING_FACTS_TIMEOUT'))).length === checkingFacts.length, 'PROJECT_MODELS_AUTHORITY_CHECKING_MODEL_REQUEST');
+      sameOperations(checkingCounts, await wait('authority-flow-session-stage-074', () => sessionStage(harness.counts(), 'PROJECT_MODELS_AUTHORITY_CHECKING_COUNTS_TIMEOUT')));
+    } finally {
+      harness.step('authority-checking-release-started');
+      await wait('authority-flow-session-stage-075', () => sessionStage(harness.ipc({ action: 'release', args: { arm_id: sessionArm, request_token: String(sessionHeld.request_token) } }), 'PROJECT_MODELS_AUTHORITY_CHECKING_RELEASE_TIMEOUT'));
+      harness.step('authority-checking-release-returned');
+    }
+    const restored = await wait('authority-flow-restored-session-076', () => restoredSession);
+    if (!restored.ok) throw restored.error;
+    const sameSession = restored.value;
+    need(sameSession.sessionID === ownerSession.sessionID && sameSession.userID === ownerSession.userID && sameSession.role === 'user', 'PROJECT_MODELS_AUTHORITY_SAME_SESSION_CHANGED');
+    harness.step('authority-checking-join-started');
+    await wait('authority-flow-session-stage-077', () => sessionStage(harness.control(sessionArm, (state) => state.joined === true), 'PROJECT_MODELS_AUTHORITY_CHECKING_JOIN_TIMEOUT'));
+    harness.step('authority-checking-joined');
+  } finally { await wait('authority-flow-restored-session-078', () => restoredSession); }
+  harness.step('authority-checking-restored');
+  await wait('authority-flow-reread-079', () => reread(projects.main));
+  harness.step('authority-owner-reread-complete');
+  dialog = providerDialog();
+  await wait('authority-flow-to-have-value-080', () => expect(dialog.getByRole('textbox', { name: 'Provider 名称', exact: true })).toHaveValue('Models Same Session Draft'));
+  await wait('authority-flow-to-have-value-081', () => expect(dialog.getByRole('textbox', { name: 'Base URL', exact: true })).toHaveValue('https://model-ui.invalid/v1'));
+  harness.durableDelta(initial, await wait('authority-flow-snapshot-082', () => harness.snapshot('main')), 0, 0);
+  harness.step('authority-draft-verified');
+  checks.same_session_checking = true;
+  await wait('authority-flow-discard-provider-083', () => discardProvider(page, dialog, harness.step, wait));
+
+  harness.step('authority-read-owner-tail');
+  const heldArm = await wait('authority-flow-arm-084', () => harness.arm('getProjectModelProvider', 'main', seed.id, 'after_complete_hold'));
+  const beforeHeld = await wait('authority-flow-counts-085', () => harness.counts()), originalPath = route(projects.main);
+  const heldBody = await wait('authority-flow-observe-086', () => observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 200, async () => {
+    await wait('authority-flow-click-087', () => button(page, '读取 Provider ' + seed.id).click());
+    const held = await wait('authority-flow-control-088', () => harness.control(heldArm, (state) => state.held === true && state.upstream_complete === true && state.safe_admitted === true));
+    try {
+      need((await wait('authority-flow-native-facts-089', () => harness.nativeFacts(page))).some((fact) => fact.method === 'GET' && fact.path.endsWith('/model-providers/' + seed.id) && !fact.ended), 'PROJECT_MODELS_AUTHORITY_NATIVE_TAIL_MISSING');
+      await wait('authority-flow-to-be-disabled-090', () => expect(button(providerDialog(), '取消')).toBeDisabled());
+      await wait('authority-flow-to-be-disabled-091', () => expect(button(page, '退出登录')).toBeDisabled());
+      await wait('authority-flow-navigate-092', () => harness.navigate(page, route(projects.second)));
+      await wait('authority-flow-to-be-093', () => expect.poll(() => new URL(page.url()).pathname).toBe(originalPath));
+      await wait('authority-flow-pageshow-094', () => pageshow(page, wait));
+      const afterHeld = await wait('authority-flow-counts-095', () => harness.counts());
+      need(object(afterHeld.session).browser === object(beforeHeld.session).browser && operationCount(afterHeld, 'getProjectModelProvider') === operationCount(beforeHeld, 'getProjectModelProvider') + 1, 'PROJECT_MODELS_AUTHORITY_HELD_OWNER_BYPASSED');
+      for (const entry of (beforeHeld.operations as unknown[]).map(object)) if (entry.operation !== 'getProjectModelProvider') need(operationCount(afterHeld, String(entry.operation)) === Number(entry.browser), 'PROJECT_MODELS_AUTHORITY_HELD_OWNER_BYPASSED');
+    } finally {
+      await wait('authority-flow-ipc-096', () => harness.ipc({ action: 'release', args: { arm_id: heldArm, request_token: String(held.request_token) } }));
+    }
+  }));
+  need(heldBody.id === seed.id, 'PROJECT_MODELS_AUTHORITY_HELD_TARGET_INVALID');
+  const joinedRead = await wait('authority-flow-control-097', () => harness.control(heldArm, (state) => state.joined === true));
+  need((await wait('authority-flow-native-facts-098', () => harness.nativeFacts(page))).some((fact) => fact.token === joinedRead.request_token && fact.eof && fact.ended && fact.released), 'PROJECT_MODELS_AUTHORITY_HELD_RELEASE_MISSING');
+  await wait('authority-flow-click-099', () => button(providerDialog(), '取消').click()); await wait('authority-flow-to-be-hidden-100', () => expect(providerDialog()).toBeHidden());
+  await wait('authority-flow-open-101', () => open(projects.second));
+  await wait('authority-flow-to-have-count-102', () => expect(providerDialog()).toHaveCount(0));
+  await wait('authority-flow-to-have-count-103', () => expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0));
+  // The UI explicitly blocks navigation while this owner is held. This is a
+  // real transport-tail exclusion representative, not a fabricated late 401.
+  checks.late_tail_isolation = true;
+
+  harness.step('authority-project-name-reuse');
+  await wait('authority-flow-open-104', () => open(projects.main));
+  dialog = await wait('authority-flow-new-provider-105', () => newProvider(page, 'Models Retired Project Draft', wait));
+  await wait('authority-flow-open-106', () => open(projects.second, true));
+  const renamed = await wait('authority-flow-ipc-107', () => harness.ipc({ action: 'rename-reuse', args: { project: 'main' } }));
+  const oldNameReplacement = locator(renamed.replacement), originalRenamed = locator(renamed.renamed);
+  need(originalRenamed.id === projects.main.id && oldNameReplacement.id !== originalRenamed.id && oldNameReplacement.normalized_name === projects.main.normalized_name, 'PROJECT_MODELS_AUTHORITY_RENAME_BINDING_INVALID');
+  const replacementPage = await wait('authority-flow-open-108', () => open(oldNameReplacement));
+  need(Array.isArray(replacementPage.items) && replacementPage.items.length === 0, 'PROJECT_MODELS_AUTHORITY_REUSED_NAME_DATA_LEAK');
+  await wait('authority-flow-to-have-count-109', () => expect(providerDialog()).toHaveCount(0));
+  await wait('authority-flow-click-110', () => button(page, '创建 Provider').click());
+  await wait('authority-flow-to-have-value-111', () => expect(providerDialog().getByRole('textbox', { name: 'Provider 名称', exact: true })).toHaveValue(''));
+  await wait('authority-flow-click-112', () => button(providerDialog(), '取消').click());
+  const renamedPage = await wait('authority-flow-open-113', () => open(originalRenamed));
+  need(Array.isArray(renamedPage.items) && renamedPage.items.length === 1 && object(renamedPage.items[0]).id === seed.id, 'PROJECT_MODELS_AUTHORITY_STABLE_ID_LOST');
+  projects.main = originalRenamed;
+  checks.cross_project_and_name_reuse = true;
+
+  harness.step('authority-lifecycle-gates');
+  for (const key of ['archiving', 'archived'] as const) {
+    const body = await wait('authority-lifecycle-' + key + '-open', () => open(projects[key]));
+    need(Array.isArray(body.items) && body.items.length === 0, 'PROJECT_MODELS_AUTHORITY_READONLY_LIST_INVALID');
+    await wait('authority-lifecycle-' + key + '-readonly-visible', () => expect(page.getByText('项目当前为只读状态（' + key + '）。可以读取信息；原请求恢复遵循其各自的当前条件。', { exact: true })).toBeVisible());
+    await wait('authority-lifecycle-' + key + '-provider-disabled', () => expect(button(page, '创建 Provider')).toBeDisabled()); await wait('authority-lifecycle-' + key + '-credential-disabled', () => expect(button(page, '创建凭据')).toBeDisabled());
+    await wait('authority-lifecycle-' + key + '-manage-enabled', () => expect(button(page, '管理凭据')).toBeEnabled());
+  }
+  for (const key of ['deleting', 'pending'] as const) await wait('authority-lifecycle-' + key + '-denied', () => denied(projects[key], false));
+  await wait('authority-lifecycle-other-owner-denied', () => denied(projects.other, true)); await wait('authority-lifecycle-admin-owned-denied', () => denied(projects.admin_owned, true));
+  checks.aux_lifecycle_gates = true;
+
+  harness.step('authority-archived-configuration');
+  await wait('authority-flow-open-122', () => open(projects.config_recovery));
+  const configBefore = await wait('authority-flow-snapshot-123', () => harness.snapshot('config_recovery'));
+  dialog = await wait('authority-flow-new-provider-124', () => newProvider(page, 'Models Archived Original Provider', wait));
+  const configArm = await wait('authority-flow-arm-125', () => harness.arm('createProjectModelProvider', 'config_recovery', null, 'after_complete_cut'));
+  await wait('authority-flow-click-126', () => button(dialog, '保存 Provider').click()); await wait('authority-flow-to-be-visible-127', () => expect(dialog.getByText(/结果尚未确认/)).toBeVisible());
+  const configLost = await wait('authority-flow-control-128', () => harness.control(configArm, (state) => state.joined === true));
+  await wait('authority-flow-actual-loss-129', () => harness.actualLoss(page, configLost, 1));
+  const configCommitted = await wait('authority-flow-snapshot-130', () => harness.snapshot('config_recovery')); harness.durableDelta(configBefore, configCommitted, 1, 0);
+  const createdProvider = configCommitted.current.providers.find((row) => row.present);
+  need(createdProvider, 'PROJECT_MODELS_AUTHORITY_COMMITTED_PROVIDER_MISSING');
+  const configArchived = await wait('authority-flow-ipc-131', () => harness.ipc({ action: 'archive-recovery-project', args: { project: 'config_recovery', expected_version: configCommitted.project.version } }));
+  need(configArchived.project_id === projects.config_recovery.id && configArchived.lifecycle === 'archived' && configArchived.fixture_only === true, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_INVALID');
+  const archiveSession = await wait('authority-flow-session-identity-132', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
+  need(archiveSession.sessionID === ownerSession.sessionID, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_SESSION_CHANGED');
+  await wait('authority-flow-reread-133', () => reread(projects.config_recovery)); dialog = providerDialog();
+  await wait('authority-flow-to-be-disabled-134', () => expect(button(dialog, '保存 Provider')).toBeDisabled()); await wait('authority-flow-to-be-enabled-135', () => expect(button(dialog, '按原请求重放')).toBeEnabled());
+  const configReplay = await wait('authority-flow-observe-136', () => observe('createProjectModelProvider', projects.config_recovery.id, 'POST', 'model-providers', 200, () => button(dialog, '按原请求重放').click()));
+  need(configReplay.kind === 'provider.create' && configReplay.resource_id === createdProvider.id && configReplay.version === createdProvider.version && configReplay.affected_references === '0', 'PROJECT_MODELS_AUTHORITY_CONFIG_REPLAY_INVALID');
+  const receipt = await wait('authority-flow-strict-receipt-137', () => harness.strictReceipt(dialog));
+  need(Object.keys(receipt).length === Object.keys(configReplay).length && Object.keys(configReplay).every((key) => receipt[key] === configReplay[key]), 'PROJECT_MODELS_AUTHORITY_CONFIG_RECEIPT_INVALID');
+  const configAfter = await wait('authority-flow-snapshot-138', () => harness.snapshot('config_recovery')); harness.durableDelta(configCommitted, configAfter, 0, 0); harness.originalReplay(configAfter, String(configLost.origin_token));
+  need(configAfter.project.lifecycle === 'archived' && configAfter.fixture_only.archive_recovery_applied, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_FACT_MISSING');
+  await wait('authority-flow-click-139', () => button(dialog, '取消').click()); await wait('authority-flow-to-be-hidden-140', () => expect(dialog).toBeHidden());
+  checks.archived_config_original_replay = true;
+
+  harness.step('authority-archived-credential');
+  await wait('authority-flow-open-141', () => open(projects.credential_recovery, false, 'config_recovery'));
+  const credentialBefore = await wait('authority-flow-snapshot-142', () => harness.snapshot('credential_recovery'));
+  await wait('authority-flow-click-143', () => button(page, '创建凭据').click());
+  let credential = credentialDialog(); await wait('authority-flow-fill-credential-144', () => harness.fillCredential(credential));
+  const credentialArm = await wait('authority-flow-arm-145', () => harness.arm('createProjectModelCredential', 'credential_recovery', null, 'after_complete_disconnect'));
+  await wait('authority-flow-click-146', () => button(credential, '创建凭据').click()); await wait('authority-flow-to-be-visible-147', () => expect(credential.getByText(/结果尚未确认/)).toBeVisible());
+  need(await wait('authority-flow-input-value-148', () => credential.getByLabel(/^新凭据材料(?:\s*\*)?$/).inputValue()) === '', 'PROJECT_MODELS_AUTHORITY_PRIVATE_INPUT_NOT_CLEARED');
+  const credentialLost = await wait('authority-flow-control-149', () => harness.control(credentialArm, (state) => state.joined === true)); await wait('authority-flow-actual-loss-150', () => harness.actualLoss(page, credentialLost, 0));
+  const credentialCommitted = await wait('authority-flow-snapshot-151', () => harness.snapshot('credential_recovery')); harness.durableDelta(credentialBefore, credentialCommitted, 0, 1);
+  const credentialArchived = await wait('authority-flow-ipc-152', () => harness.ipc({ action: 'archive-recovery-project', args: { project: 'credential_recovery', expected_version: credentialCommitted.project.version } }));
+  need(credentialArchived.project_id === projects.credential_recovery.id && credentialArchived.lifecycle === 'archived' && credentialArchived.fixture_only === true, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_INVALID');
+  const credentialSession = await wait('authority-flow-session-identity-153', () => sessionIdentity(page, () => pageshow(page, wait, true), harness.step, wait, { userID: ownerSession.userID, sessionID: ownerSession.sessionID }));
+  need(credentialSession.sessionID === ownerSession.sessionID, 'PROJECT_MODELS_AUTHORITY_ARCHIVE_SESSION_CHANGED');
+  await wait('authority-flow-reread-154', () => reread(projects.credential_recovery)); credential = credentialDialog();
+  await wait('authority-flow-to-be-disabled-155', () => expect(button(credential, '按原请求重放')).toBeDisabled()); await wait('authority-flow-to-be-disabled-156', () => expect(button(credential, '创建凭据')).toBeDisabled());
+  const lookupCounts = await wait('authority-flow-counts-157', () => harness.counts());
+  const lookup = await wait('authority-flow-observe-158', () => observe('lookupProjectModelCredential', projects.credential_recovery.id, 'POST', 'model-credential-commands/lookup', 200, () => button(credential, '查证原请求').click()));
+  need(lookup.observed === true && object(lookup.result).credential_id === credentialCommitted.current.credentials[0]?.credential_id, 'PROJECT_MODELS_AUTHORITY_CREDENTIAL_LOOKUP_INVALID');
+  await wait('authority-flow-to-be-visible-159', () => expect(credential.getByLabel('历史观察', { exact: true })).toBeVisible());
+  await wait('authority-flow-to-be-visible-160', () => expect(credential.getByText(/结果尚未确认/)).toBeVisible()); await wait('authority-flow-to-have-count-161', () => expect(credential.getByLabel('严格执行回执', { exact: true })).toHaveCount(0));
+  await wait('authority-flow-to-be-disabled-162', () => expect(button(credential, '按原请求重放')).toBeDisabled());
+  const credentialAfter = await wait('authority-flow-snapshot-163', () => harness.snapshot('credential_recovery')); harness.durableDelta(credentialCommitted, credentialAfter, 0, 0);
+  need(credentialAfter.project.lifecycle === 'archived' && credentialAfter.fixture_only.archive_recovery_applied && credentialAfter.origins.length === 1 && credentialAfter.origins[0]!.comparison_count === 0, 'PROJECT_MODELS_AUTHORITY_CREDENTIAL_REPLAY_OCCURRED');
+  const afterLookup = await wait('authority-flow-counts-164', () => harness.counts());
+  for (const row of (lookupCounts.operations as unknown[]).map(object)) need(operationCount(afterLookup, String(row.operation)) === Number(row.browser) + (row.operation === 'lookupProjectModelCredential' ? 1 : 0), 'PROJECT_MODELS_AUTHORITY_LOOKUP_SIDE_EFFECT');
+  await wait('authority-flow-click-165', () => button(credential.locator('footer'), '关闭').click()); await wait('authority-flow-to-be-hidden-166', () => expect(credential).toBeHidden());
+  const pending = page.getByLabel('原请求与历史观察', { exact: true });
+  await wait('authority-flow-to-be-disabled-167', () => expect(button(pending, '按原请求重放')).toBeDisabled());
+  await wait('authority-flow-click-168', () => button(pending, '放弃本地追踪').click());
+  await wait('authority-flow-click-169', () => button(page.getByRole('dialog', { name: '放弃本地原请求追踪？', exact: true }), '放弃追踪').click());
+  harness.durableDelta(credentialAfter, await wait('authority-flow-snapshot-170', () => harness.snapshot('credential_recovery')), 0, 0);
+  checks.archived_credential_lookup_only = true;
+
+  harness.step('authority-reference-unbound');
+  await wait('authority-flow-open-171', () => open(projects.referenced, false, 'credential_recovery'));
+  const referencedBefore = await wait('authority-flow-snapshot-172', () => harness.snapshot('referenced')), referencedModel = referencedBefore.current.models.find((row) => row.present);
+  need(referencedModel, 'PROJECT_MODELS_AUTHORITY_REFERENCE_TARGET_MISSING');
+  await wait('authority-flow-observe-173', () => observe('listProjectModels', projects.referenced.id, 'GET', 'models', 200, () => button(page, '项目 Models（全部 Providers）').click(), 'limit=25'));
+  await wait('authority-flow-observe-174', () => observe('getProjectModel', projects.referenced.id, 'GET', 'models/' + referencedModel.id, 200, () => button(page, '读取 Model ' + referencedModel.id).click()));
+  const modelDialog = page.getByRole('dialog').filter({ has: page.locator('#project-model-form') });
+  await wait('authority-flow-observe-175', () => observe('listProjectAvailableChatModels', projects.referenced.id, 'GET', 'available-chat-models', 200, () => button(modelDialog, '删除 Model').click(), 'limit=25'));
+  const deletion = page.getByRole('dialog', { name: '删除 Model', exact: true });
+  await wait('authority-flow-click-176', () => button(deletion, '删除替代').click()); await wait('authority-flow-click-177', () => page.getByRole('option', { name: '无替代', exact: true }).click());
+  const refResult = await wait('authority-flow-ipc-178', () => harness.ipc({ action: 'reference-fact', args: { project: 'referenced', state: 'present' } }));
+  need(refResult.project_id === projects.referenced.id && refResult.model_id === referencedModel.id && refResult.reference_present === true && refResult.fixture_only === true, 'PROJECT_MODELS_AUTHORITY_REFERENCE_FACT_INVALID');
+  const referenced = await wait('authority-flow-snapshot-179', () => harness.snapshot('referenced'));
+  need(referenced.reference_presence.models.find((row) => row.id === referencedModel.id)?.present === true, 'PROJECT_MODELS_AUTHORITY_REFERENCE_FACT_MISSING');
+  const rejection = await wait('authority-flow-observe-180', () => observe('deleteProjectModel', projects.referenced.id, 'DELETE', 'models/' + referencedModel.id, 503, () => button(deletion, '确认删除').click()));
+  need(rejection.code === 'DEPENDENCY_UNBOUND' && rejection.status === 503 && ['not_started', 'not_committed'].includes(String(rejection.commit_state)), 'PROJECT_MODELS_AUTHORITY_REFERENCE_REJECTION_INVALID');
+  await wait('authority-flow-to-be-visible-181', () => expect(deletion.getByText('仍被使用的模型暂不能在此删除。没有执行引用迁移。', { exact: true })).toBeVisible());
+  await wait('authority-flow-to-have-count-182', () => expect(deletion.getByLabel('严格执行回执', { exact: true })).toHaveCount(0));
+  const rejected = await wait('authority-flow-snapshot-183', () => harness.snapshot('referenced')); harness.durableDelta(referenced, rejected, 0, 0);
+  need(rejected.current.models.find((row) => row.id === referencedModel.id)?.version === referencedModel.version && rejected.current.models.find((row) => row.id === referencedModel.id)?.present === true && rejected.reference_presence.models.find((row) => row.id === referencedModel.id)?.present === true, 'PROJECT_MODELS_AUTHORITY_REFERENCE_REWRITTEN');
+  await wait('authority-flow-click-184', () => button(deletion, '取消').click()); await wait('authority-flow-to-be-hidden-185', () => expect(deletion).toBeHidden());
+  await wait('authority-flow-click-186', () => button(modelDialog, '取消').click()); await wait('authority-flow-to-be-hidden-187', () => expect(modelDialog).toBeHidden());
+  const removed = await wait('authority-flow-ipc-188', () => harness.ipc({ action: 'reference-fact', args: { project: 'referenced', state: 'absent' } }));
+  need(removed.reference_present === false && removed.fixture_only === true, 'PROJECT_MODELS_AUTHORITY_REFERENCE_CLEANUP_INVALID');
+  checks.reference_unbound = true;
+
+  harness.step('authority-current-revocation');
+  await wait('authority-flow-open-189', () => open(projects.main));
+  await wait('authority-flow-observe-190', () => observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 200, () => button(page, '读取 Provider ' + seed.id).click()));
+  dialog = providerDialog(); await wait('authority-flow-fill-191', () => dialog.getByRole('textbox', { name: 'Provider 名称', exact: true }).fill('Models Revoked Session Draft'));
+  const beforeRevocation = await wait('authority-flow-snapshot-192', () => harness.snapshot('main'));
+  const revoked = await wait('authority-flow-ipc-193', () => harness.ipc({ action: 'logout', args: { session_id: ownerSession.sessionID } }));
+  need(revoked.session_id === ownerSession.sessionID && revoked.revoked === true, 'PROJECT_MODELS_AUTHORITY_REVOCATION_INVALID');
+  const deniedCurrent = await wait('authority-flow-observe-194', () => observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 401, () => button(dialog, '重新读取 Provider').click()));
+  need(['SESSION_REVOKED', 'UNAUTHENTICATED'].includes(String(deniedCurrent.code)) && deniedCurrent.status === 401, 'PROJECT_MODELS_AUTHORITY_REVOCATION_RESPONSE_INVALID');
+  await wait('authority-flow-to-be-visible-195', () => expect(page.getByRole('heading', { name: '会话尚未确认', exact: true })).toBeVisible());
+  await wait('authority-flow-to-have-count-196', () => expect(providerDialog()).toHaveCount(0));
+  await wait('authority-flow-to-have-count-197', () => expect(page.getByRole('list', { name: 'Providers 列表', exact: true })).toHaveCount(0));
+  harness.durableDelta(beforeRevocation, await wait('authority-flow-snapshot-198', () => harness.snapshot('main')), 0, 0);
+  checks.current_revocation = true;
+
+  harness.step('authority-true-identity-change');
+  await wait('authority-flow-click-199', () => button(page, '检查当前会话').click());
+  await wait('authority-flow-to-be-visible-200', () => expect(page.locator('#login-email')).toBeVisible());
+  // Same-document form interactions preserve every earlier native observation.
+  // Re-login as the same human still creates a genuinely different Session.
+  // The live old-session draft here is Provider input. Credential tracking was
+  // explicitly abandoned earlier; the later empty input is a fresh-form check.
+  await wait('authority-flow-private-login-201', () => privateLogin(page, actors.owner, wait));
+  const newOwnerSession = await wait('authority-flow-session-identity-202', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
+  need(newOwnerSession.userID === ownerSession.userID && newOwnerSession.sessionID !== ownerSession.sessionID && newOwnerSession.role === 'user', 'PROJECT_MODELS_AUTHORITY_NEW_SESSION_MISSING');
+  await wait('authority-flow-open-203', () => open(projects.main));
+  await wait('authority-flow-to-have-count-204', () => expect(providerDialog()).toHaveCount(0));
+  await wait('authority-flow-to-have-count-205', () => expect(page.getByLabel('原请求与历史观察', { exact: true })).toHaveCount(0));
+  await wait('authority-flow-to-have-count-206', () => expect(page.getByLabel('已创建凭据', { exact: true })).toHaveCount(0));
+  await wait('authority-flow-observe-207', () => observe('getProjectModelProvider', projects.main.id, 'GET', 'model-providers/' + seed.id, 200, () => button(page, '读取 Provider ' + seed.id).click()));
+  await wait('authority-flow-to-have-value-208', () => expect(providerDialog().getByRole('textbox', { name: 'Provider 名称', exact: true })).toHaveValue('Models Seed Provider'));
+  await wait('authority-flow-click-209', () => button(providerDialog(), '取消').click());
+  await wait('authority-flow-click-210', () => button(page, '创建凭据').click());
+  need(await wait('authority-flow-input-value-211', () => credentialDialog().getByLabel(/^新凭据材料(?:\s*\*)?$/).inputValue()) === '', 'PROJECT_MODELS_AUTHORITY_NEW_SESSION_MATERIAL_LEAK');
+  await wait('authority-flow-click-212', () => button(credentialDialog().locator('footer'), '关闭').click());
+  checks.true_identity_change = true;
+
+  harness.step('authority-other-owner-and-admin');
+  await wait('authority-flow-click-213', () => button(page, '退出登录').click()); await wait('authority-flow-to-be-visible-214', () => expect(page.locator('#login-email')).toBeVisible());
+  await wait('authority-flow-private-login-215', () => privateLogin(page, actors.other_owner, wait));
+  const otherSession = await wait('authority-flow-session-identity-216', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
+  need(otherSession.userID === actors.other_owner.user_id && otherSession.role === 'user' && otherSession.sessionID !== newOwnerSession.sessionID, 'PROJECT_MODELS_AUTHORITY_OTHER_OWNER_INVALID');
+  await wait('authority-flow-denied-217', () => denied(projects.main, true));
+  await wait('authority-flow-open-218', () => open(projects.other)); await wait('authority-flow-to-be-enabled-219', () => expect(button(page, '创建 Provider')).toBeEnabled());
+  await wait('authority-flow-click-220', () => button(page, '退出登录').click()); await wait('authority-flow-to-be-visible-221', () => expect(page.locator('#login-email')).toBeVisible());
+  await wait('authority-flow-private-login-222', () => privateLogin(page, actors.other_admin, wait));
+  const adminSession = await wait('authority-flow-session-identity-223', () => sessionIdentity(page, () => pageshow(page, wait), harness.step, wait));
+  need(adminSession.userID === actors.other_admin.user_id && adminSession.role === 'admin' && adminSession.sessionID !== otherSession.sessionID, 'PROJECT_MODELS_AUTHORITY_ADMIN_INVALID');
+  await wait('authority-flow-denied-224', () => denied(projects.main, true));
+  await wait('authority-flow-open-225', () => open(projects.admin_owned)); await wait('authority-flow-to-be-enabled-226', () => expect(button(page, '创建 Provider')).toBeEnabled());
+  await wait('authority-flow-to-have-count-227', () => expect(page.getByLabel('原请求与历史观察', { exact: true })).toHaveCount(0));
+  await wait('authority-flow-to-have-count-228', () => expect(page.getByRole('dialog')).toHaveCount(0));
+  checks.admin_owner_only = checks.other_owner_and_admin_rejected = true;
+  const finalCounts = await wait('authority-flow-counts-229', () => harness.counts()), controls = object(finalCounts.controls);
+  need(controls.armed === 4 && controls.claimed === 4 && controls.held === 2 && controls.held_joined === 2 && controls.cut === 1 && controls.disconnected === 1, 'PROJECT_MODELS_AUTHORITY_CONTROL_COUNTS_INVALID');
+  for (const [operation, expected] of [['createProjectModelProvider', 2], ['createProjectModelCredential', 1], ['lookupProjectModelCredential', 1], ['deleteProjectModel', 1]] as const) need(operationCount(finalCounts, operation) === expected, 'PROJECT_MODELS_AUTHORITY_OPERATION_COUNTS_INVALID');
+  for (const operation of ['updateProjectModelProvider', 'deleteProjectModelProvider', 'createProjectModel', 'updateProjectModel', 'updateProjectModelCredential', 'deleteProjectModelCredential', 'lookupProjectModelConfiguration']) need(operationCount(finalCounts, operation) === 0, 'PROJECT_MODELS_AUTHORITY_IMPLICIT_WRITE');
+  harness.step('authority-same-body-finish');
+  await wait('authority-flow-finish-230', () => harness.finish(page, checks));
+}
+

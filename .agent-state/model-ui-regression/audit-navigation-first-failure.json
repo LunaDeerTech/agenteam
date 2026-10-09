@@ -1,0 +1,86 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-audit-navigation-a2480271af3541b6abbf4fcc5a351ee5",
+  "group": "audit-navigation",
+  "command": "python3 .agent-state/model-ui-regression/run-owned-regression.py --group audit-navigation",
+  "actual_tool_session": 46206,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 15.65,
+  "terminal": {
+    "started": true,
+    "retirement_complete": true,
+    "direct_actual_wait": true,
+    "direct_exit": 1,
+    "adopted_actual_waits": [
+      {
+        "pid": 189974,
+        "status": 0
+      },
+      {
+        "pid": 189977,
+        "status": 0
+      },
+      {
+        "pid": 189979,
+        "status": 0
+      },
+      {
+        "pid": 189980,
+        "status": 0
+      }
+    ],
+    "adopted_wait_complete": true,
+    "watchdog_joined": true,
+    "observer_joined": true,
+    "top_within_120_seconds": true,
+    "resources": 7,
+    "resource_shape_valid": true,
+    "exact_absent_observations": 2,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "exact_top_pass": false,
+    "elapsed_seconds": 106.57831091199932,
+    "inputs_unchanged": true,
+    "group": "audit-navigation",
+    "selector": "^TestAccountProjectOwnerAuditWebNavigationAndLayouts$",
+    "exit": 1,
+    "assets_restored": true,
+    "asset_lease_required": false
+  },
+  "browser_failure": {
+    "classification": "stale_expected_settings_group_labels",
+    "test_source": "tests/account-captcha-web/e2e/project-owner-audit.spec.ts",
+    "helper": "settingsCurrent",
+    "assertion_line": 1542,
+    "call_line": 1715,
+    "assertion": "exact settings group label array",
+    "expected": [
+      "项目资料",
+      "安全记录"
+    ],
+    "received": [
+      "项目资料",
+      "安全记录",
+      "模型与 Provider"
+    ],
+    "exact_assertion_retained_by_original_driver": true,
+    "screenshots": 0
+  },
+  "post_terminal_observation": {
+    "active_marker_absent": true,
+    "owned_nonce_runtime_absent": true,
+    "resource_window_released": true
+  },
+  "diagnostic_limits": {
+    "public_static_labels_only": true,
+    "private_body_or_credentials_copied": false,
+    "original_failure_preserved": true,
+    "no_retry": true
+  },
+  "followup": {
+    "scope": "same E2E expected array only; retain every other navigation assertion",
+    "contract": "Project settings includes the Model and Provider group; equivalent web unit expectation already updated",
+    "repair_status": "authorized; offline implementation and independent review pending"
+  }
+}

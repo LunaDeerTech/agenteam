@@ -1,0 +1,107 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-b-04413f16e8ad467fa20517e50004bd58",
+  "case": "b",
+  "command": "python3 .agent-state/model-ui-independent/run-independent.py --case b",
+  "actual_tool_session": 74191,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 54.53,
+  "terminal": {
+    "started": true,
+    "retirement_complete": true,
+    "direct_actual_wait": true,
+    "direct_exit": 1,
+    "adopted_actual_waits": [
+      {
+        "pid": 338105,
+        "status": 0
+      },
+      {
+        "pid": 338107,
+        "status": 0
+      },
+      {
+        "pid": 338110,
+        "status": 0
+      },
+      {
+        "pid": 338111,
+        "status": 0
+      }
+    ],
+    "adopted_wait_complete": true,
+    "watchdog_joined": true,
+    "observer_joined": true,
+    "top_within_120_seconds": true,
+    "resources": 7,
+    "resource_shape_valid": true,
+    "exact_absent_observations": 2,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "exact_top_pass": false,
+    "elapsed_seconds": 141.77530198299974,
+    "inputs_unchanged": true,
+    "case": "b",
+    "selector": "^TestIndependentProjectModelsWebCurrentAuthorityArchivedRecovery$",
+    "exit": 1,
+    "assets_exclusively_private": true
+  },
+  "browser_step": {
+    "case": "b",
+    "step": "independent-b-case-b-session-cv-rejected-first-rejected-independent-b-session-finished-x"
+  },
+  "browser_failure": {
+    "case": "b",
+    "status": "timedOut",
+    "error_count": 1,
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "locations": []
+      }
+    ]
+  },
+  "browser_exit": {
+    "context_done": false,
+    "exit_code": 1
+  },
+  "safe_response_count": 3,
+  "observed_boundary": {
+    "pending_await": "independent-b-session-finished-x",
+    "pageshow_action_returned": true,
+    "selected_get_session_200_headers_seen": true,
+    "original_finished_wait_normally_returned_before_timeout": false,
+    "session_json_and_identity_assertions_executed": false,
+    "archive_or_owner_leave_repair_reached": false
+  },
+  "retirement_observations": [
+    {
+      "observation": 1,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    },
+    {
+      "observation": 2,
+      "exact_absent_count": 7,
+      "descendants_empty": true
+    }
+  ],
+  "post_terminal_observations": {
+    "owned_private_root_absent": true,
+    "independent_active_marker_absent": true,
+    "regression_active_marker_absent": true
+  },
+  "diagnostic_limits": {
+    "same_unique_session_request_and_native_response_binding_recorded": false,
+    "session_native_eof_read_failure_abort_cancel_recorded": false,
+    "session_playwright_finished_failed_timing_recorded": false,
+    "raw_body_or_credentials_copied": false,
+    "no_retry": true,
+    "no_cross_run_cause_inferred": true,
+    "owner_leave_repair_dynamic_effect_unverified": true,
+    "prior_failures_and_first_outer_wait_gap_preserved": true
+  },
+  "followup": "Reuse the accepted bounded single-flight response observer for this original Session request and monotonic event timing; preserve original requests, finished, JSON, identity and case budgets."
+}
