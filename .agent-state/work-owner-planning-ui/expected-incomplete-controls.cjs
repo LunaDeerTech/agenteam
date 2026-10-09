@@ -322,7 +322,7 @@ process.on("unhandledRejection", () => unhandled++);
     assert.throws(() => l.declare(spec()));
     assert.equal(l.verify(3, new Set()), false);
   });
-  function observerEnv() {
+  function observerEnv(options = {}) {
     const callbacks = {},
       files = new Map(),
       metaNames = [],
@@ -347,14 +347,14 @@ process.on("unhandledRejection", () => unhandled++);
       workBodyAwaits: new WeakMap(),
       failureSnapshots: [],
       workDiagnosticTarget: () => ({}),
-      safeWorkFailure: () => "controlled-failure",
+      safeWorkFailure: () => options.reason ?? "controlled-failure",
       evidence: "/owned",
       repository: "/repo",
       schemaProgram: "unchanged-schema",
       join: require("path").join,
       expect: (value) => ({ toBe: (want) => assert.equal(value, want) }),
       spawnSync: () => ({
-        status: 0,
+        status: options.schemaStatus ?? 0,
         stdout: String(metaNames.length),
         stderr: "",
         signal: null,
@@ -369,6 +369,9 @@ process.on("unhandledRejection", () => unhandled++);
       },
       createHash: require("crypto").createHash,
       decodeOriginal: async (fact, meta, raw) => {
+        options.duringDecode?.();
+        if (options.decodeReject)
+          throw Error("controlled strict client rejection");
         assert.equal(meta.endpoint, fact.url.pathname);
         assert.equal(meta.method, fact.request.method());
         assert.equal(hash(raw), meta.body_sha256);
@@ -380,7 +383,11 @@ process.on("unhandledRejection", () => unhandled++);
       .filter(
         (n) =>
           ts.isFunctionDeclaration(n) &&
-          ["workIncompleteLedger", "observe"].includes(n.name?.text),
+          [
+            "workIncompleteLedger",
+            "workOrdinaryCompletionEvents",
+            "observe",
+          ].includes(n.name?.text),
       )
       .map((n) => n.getText(tree).replace(/^export /, ""));
     vm.runInContext(
@@ -392,12 +399,16 @@ process.on("unhandledRejection", () => unhandled++);
       }).outputText,
       c,
     );
+    const context = new (require("node:events").EventEmitter)();
     const page = {
+      context: () => context,
       on: (name, fn) => {
         (callbacks[name] ??= []).push(fn);
       },
     };
-    const observed = c.make(page),
+    const observed = c.make(page, {
+        ordinaryCompletion: options.ordinaryCompletion,
+      }),
       emit = (name, item) => {
         for (const fn of callbacks[name] ?? []) fn(item);
       };
@@ -434,6 +445,7 @@ process.on("unhandledRejection", () => unhandled++);
     }
     return {
       observed,
+      context,
       emit,
       response,
       ownedResponse(request, finished, changes = {}) {
@@ -883,6 +895,215 @@ process.on("unhandledRejection", () => unhandled++);
             .getText(t);
         assert.equal(pick(ast), pick(tree));
       }
+    },
+  );
+  for (const [method, endpoint] of [
+    ["GET", `milestones/${target}`],
+    ["GET", `sprints/${target}`],
+    ["GET", `tasks/${target}`],
+    ["POST", "structure-commands/lookup"],
+    ["POST", "task-commands/lookup"],
+  ])
+    await check(
+      "ordinary original event with full witness is separately complete: " +
+        endpoint,
+      async () => {
+        const q = req("canceled-task-read", {
+          method,
+          url: `http://127.0.0.1:1/api/v1/projects/${project}/${endpoint}`,
+        });
+        let witnessed = 0;
+        const e = observerEnv({
+          reason: "aborted",
+          ordinaryCompletion: (request, id) => {
+            assert.equal(request, q);
+            assert.match(id, /^019/);
+            witnessed++;
+            return true;
+          },
+        });
+        e.emit("request", q);
+        const r = e.response(q, new Promise(() => {}));
+        e.emit("requestfailed", q);
+        await e.observed.verify(0);
+        assert.equal(r.calls(), 0);
+        assert(witnessed >= 2);
+        assert.equal(
+          e.writes.at(-1).body.original_native_complete_with_pw_failed,
+          1,
+        );
+        assert.equal(e.writes.at(-1).body.expected_incomplete, 0);
+        assert.equal(e.context.listenerCount("close"), 0);
+      },
+    );
+  await check(
+    "ordinary locked PW actual failed leaves finished pending without starting it in observer",
+    async () => {
+      const root = require("path").resolve(
+        "tests/account-captcha-web/node_modules/playwright-core",
+      );
+      const { BrowserContext } = require(
+          root + "/lib/client/browserContext.js",
+        ),
+        { Response } = require(root + "/lib/client/network.js"),
+        { ManualPromise, LongStandingScope } = require(
+          root + "/lib/utils/isomorphic/manualPromise.js",
+        );
+      assert.equal(require(root + "/package.json").version, "1.56.1");
+      const q = req("canceled-task-read"),
+        closed = new LongStandingScope();
+      q._targetClosedScope = () => closed;
+      q._setResponseEndTiming = () => {};
+      const native = {
+          request: () => q,
+          _finishedPromise: new ManualPromise(),
+        },
+        original = Response.prototype.finished.call(native),
+        joined = original.then(
+          () => "finished",
+          () => "closed",
+        );
+      const e = observerEnv({
+        reason: "aborted",
+        ordinaryCompletion: () => true,
+      });
+      e.emit("request", q);
+      const r = e.response(q, original);
+      try {
+        BrowserContext.prototype._onRequestFailed.call(
+          { emit() {} },
+          q,
+          1,
+          "net::ERR_ABORTED",
+          { emit: e.emit },
+        );
+        assert.equal(
+          await Promise.race([
+            joined,
+            new Promise((r) => setImmediate(() => r("pending"))),
+          ]),
+          "pending",
+        );
+        await e.observed.verify(0);
+        assert.equal(r.calls(), 0);
+      } finally {
+        closed.close(Error("owned test closure"));
+        assert.equal(await joined, "closed");
+      }
+    },
+  );
+  await check(
+    "ordinary normal event still requires actual original finished null",
+    async () => {
+      const e = observerEnv({
+          ordinaryCompletion: () => {
+            throw Error("native branch not expected");
+          },
+        }),
+        q = req("canceled-task-read");
+      e.emit("request", q);
+      const r = e.response(q, Promise.resolve(null));
+      await new Promise((r) => setImmediate(r));
+      assert.equal(r.calls(), 0);
+      e.emit("requestfinished", q);
+      await e.observed.verify(0);
+      assert.equal(r.calls(), 1);
+    },
+  );
+  for (const condition of [
+    "unproven",
+    "wrong-reason",
+    "no-event",
+    "page-close",
+    "context-close",
+    "late-failed",
+    "late-finished",
+    "duplicate-failed",
+    "schema",
+    "client",
+  ])
+    await check("ordinary alternative rejects " + condition, async () => {
+      const e = observerEnv({
+          reason:
+            condition === "wrong-reason" ? "connection-closed" : "aborted",
+          ordinaryCompletion: () => condition !== "unproven",
+          schemaStatus: condition === "schema" ? 1 : 0,
+          decodeReject: condition === "client",
+        }),
+        q = req("canceled-task-read");
+      e.emit("request", q);
+      const r = e.response(q, new Promise(() => {}));
+      if (condition === "late-failed") e.emit("close");
+      if (condition !== "no-event") e.emit("requestfailed", q);
+      if (condition === "page-close") e.emit("close");
+      if (condition === "context-close") e.context.emit("close");
+      if (condition === "late-finished") e.emit("requestfinished", q);
+      if (condition === "duplicate-failed") e.emit("requestfailed", q);
+      await assert.rejects(e.observed.verify(0));
+      assert.equal(r.calls(), 0);
+      assert.equal(e.context.listenerCount("close"), 0);
+    });
+  for (const [method, endpoint] of [
+    ["PATCH", `milestones/${target}`],
+    ["GET", `tasks/${target}?limit=1`],
+    ["GET", "tasks"],
+    ["POST", `tasks/${target}/blocker-commands/lookup`],
+  ])
+    await check(
+      "ordinary alternative cannot include other endpoint: " +
+        method +
+        endpoint,
+      async () => {
+        const e = observerEnv({
+            reason: "aborted",
+            ordinaryCompletion: () => {
+              throw Error("not eligible");
+            },
+          }),
+          q = req("canceled-task-read", {
+            method,
+            url: `http://127.0.0.1:1/api/v1/projects/${project}/${endpoint}`,
+          });
+        e.emit("request", q);
+        const r = e.response(q, Promise.resolve(null));
+        e.emit("requestfailed", q);
+        await assert.rejects(e.observed.verify(0));
+        assert.equal(r.calls(), 1);
+      },
+    );
+  await check(
+    "ordinary alternative never borrows held-read declaration",
+    async () => {
+      const e = observerEnv({
+          reason: "aborted",
+          ordinaryCompletion: () => {
+            throw Error("not eligible");
+          },
+        }),
+        q = req("canceled-task-read"),
+        slot = e.observed.declareIncomplete(spec("canceled-task-read"));
+      e.emit("request", q);
+      slot.authorizeCancellation();
+      const r = e.response(q, Promise.resolve(null));
+      e.emit("requestfailed", q);
+      await assert.rejects(e.observed.verify(1));
+      assert.equal(r.calls(), 1);
+    },
+  );
+  await check(
+    "ordinary late counterevent during original client verification still rejects",
+    async () => {
+      const q = req("canceled-task-read"),
+        e = observerEnv({
+          reason: "aborted",
+          ordinaryCompletion: () => true,
+          duringDecode: () => e.emit("requestfinished", q),
+        });
+      e.emit("request", q);
+      const r = e.response(q, new Promise(() => {}));
+      e.emit("requestfailed", q);
+      await assert.rejects(e.observed.verify(0));
+      assert.equal(r.calls(), 0);
     },
   );
   await new Promise((r) => setImmediate(r));

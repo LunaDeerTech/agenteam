@@ -551,9 +551,96 @@ function workIncompleteLedger() {
   };
 }
 
-export function observe(page: Page) {
+// Installed at the original request event, before its response or failure.
+// Only the recovery case opts into this closed endpoint set.
+export function workOrdinaryCompletionEvents() {
+  type Terminal = "finished" | "failed" | "closed";
+  const rows = new Map<
+    Request,
+    {
+      terminal: Terminal | null;
+      finished: number;
+      failed: number;
+      release?: (terminal: Terminal) => void;
+    }
+  >();
+  let sealed = false;
+  const signal = (request: Request, terminal: Terminal) => {
+    const row = rows.get(request);
+    if (!row) return;
+    if (terminal === "finished") row.finished++;
+    if (terminal === "failed") row.failed++;
+    if (row.terminal === null) {
+      row.terminal = terminal;
+      row.release?.(terminal);
+      row.release = undefined;
+    }
+  };
+  const seal = () => {
+    sealed = true;
+    for (const request of rows.keys()) signal(request, "closed");
+  };
+  return {
+    request(request: Request) {
+      if (sealed || rows.has(request)) return;
+      const url = new URL(request.url());
+      const parts = url.pathname.split("/");
+      if (
+        url.search ||
+        parts.length !== 7 ||
+        parts.slice(0, 4).join("/") !== "/api/v1/projects" ||
+        !uuid7.test(parts[4]!) ||
+        !(
+          (request.method() === "GET" &&
+            ["milestones", "sprints", "tasks"].includes(parts[5]!) &&
+            uuid7.test(parts[6]!)) ||
+          (request.method() === "POST" &&
+            ["structure-commands", "task-commands"].includes(parts[5]!) &&
+            parts[6] === "lookup")
+        )
+      )
+        return;
+      rows.set(request, { terminal: null, finished: 0, failed: 0 });
+    },
+    selected: (request: Request) => rows.has(request),
+    failed: (request: Request) => signal(request, "failed"),
+    finished: (request: Request) => signal(request, "finished"),
+    terminal(request: Request): Promise<Terminal> {
+      const row = rows.get(request);
+      if (!row || row.release) return Promise.resolve("closed");
+      if (row.terminal !== null) return Promise.resolve(row.terminal);
+      return new Promise((resolve) => {
+        row.release = resolve;
+      });
+    },
+    failedOnly(request: Request) {
+      const row = rows.get(request);
+      return (
+        row?.terminal === "failed" && row.failed === 1 && row.finished === 0
+      );
+    },
+    seal,
+    pending: () => [...rows.values()].filter((row) => row.release).length,
+  };
+}
+
+export function observe(
+  page: Page,
+  options: {
+    ordinaryCompletion?: (request: Request, requestID: string) => boolean;
+  } = {},
+) {
   const startedAt = performance.now();
   const incompleteRequests = workIncompleteLedger();
+  const ordinaryEvents = workOrdinaryCompletionEvents();
+  const nativeComplete = new Set<Request>();
+  const pendingNative = new Set<Request>();
+  let ordinaryClosed = false;
+  const closeOrdinary = () => {
+    ordinaryClosed = true;
+    ordinaryEvents.seal();
+  };
+  page.context().on("close", closeOrdinary);
   type Timing = {
     request: Request;
     response?: Response;
@@ -614,6 +701,7 @@ export function observe(page: Page) {
   page.on("close", () => {
     closedAt = now();
     incompleteRequests.close();
+    closeOrdinary();
   });
   const facts = new Map<string, Observed>();
   const ownedTruncations = new Set<Request>();
@@ -623,7 +711,12 @@ export function observe(page: Page) {
   page.on("requestfailed", (request) => {
     if (isWork(new URL(request.url()))) {
       failedRequests.add(request);
-      incompleteRequests.failed(request);
+      if (
+        !ordinaryEvents.selected(request) ||
+        incompleteRequests.declared(request)
+      )
+        incompleteRequests.failed(request);
+      ordinaryEvents.failed(request);
       const value = timing(request);
       value.request_failed_at = now();
       value.failure_reason = safeWorkFailure(request);
@@ -640,12 +733,14 @@ export function observe(page: Page) {
       requests.push({ method: r.method(), path: url.pathname });
       timing(r).request_at = now();
       incompleteRequests.request(r);
+      if (options.ordinaryCompletion) ordinaryEvents.request(r);
     }
   });
   page.on("requestfinished", (request) => {
     if (isWork(new URL(request.url()))) {
       timing(request).request_finished_at = now();
       incompleteRequests.finished(request);
+      ordinaryEvents.finished(request);
     }
   });
   page.on("response", (r) => {
@@ -701,6 +796,19 @@ export function observe(page: Page) {
               },
             ),
           );
+        } else if (ordinaryEvents.selected(r.request()) && r.status() === 200) {
+          const terminal = await ordinaryEvents.terminal(r.request());
+          if (terminal === "closed")
+            throw new Error("WORK_ORDINARY_EVENT_MISSING");
+          if (terminal === "failed") {
+            // No Response.finished() is created for known failed requests.
+            // This remains a failure unless verify proves the whole method.
+            pendingNative.add(r.request());
+            error = new Error("WORK_ORDINARY_CONSUMPTION_UNPROVEN");
+          } else {
+            error = await r.finished();
+            observed.response_finished_at = now();
+          }
         } else {
           error = await r.finished();
           observed.response_finished_at = now();
@@ -726,77 +834,132 @@ export function observe(page: Page) {
     declareIncomplete: incompleteRequests.declare,
     declarationKind: incompleteRequests.declarationKind,
     async verify(expectedIncomplete = 0) {
-      await Promise.all(tails);
-      expect(observerErrors).toBe(0);
-      expect(
-        incompleteRequests.verify(expectedIncomplete, failedRequests),
-      ).toBe(true);
-      const checked = spawnSync(
-        "python3",
-        ["-c", schemaProgram, repository, evidence],
-        { encoding: "utf8", timeout: 6000, maxBuffer: 4096 },
-      );
-      writeFileSync(
-        join(evidence, "work-schema-validation.json"),
-        JSON.stringify({
-          status: checked.status,
-          signal: checked.signal,
-          stdout: checked.stdout,
-          stderr: checked.stderr,
-          failed_to_run: !!checked.error,
-        }),
-        { mode: 0o600 },
-      );
-      expect(checked.status === 0 && /^\d+\s*$/.test(checked.stdout)).toBe(
-        true,
-      );
-      let decoded = 0,
-        incomplete = 0;
-      for (const name of readdirSync(evidence).filter((name) =>
-        /^response-\d+\.json$/.test(name),
-      )) {
-        const meta = JSON.parse(readFileSync(join(evidence, name), "utf8"));
-        const fact = facts.get(meta.request_id);
-        if (!fact) continue;
+      // The caller must already have taken actual diagnostic end snapshots.
+      // Missing original events retire as failure, never as an abandoned wait.
+      ordinaryEvents.seal();
+      try {
+        await Promise.all(tails);
+        expect(observerErrors).toBe(0);
+        expect(ordinaryEvents.pending()).toBe(0);
+        for (const request of pendingNative) {
+          const observed = timings.get(request);
+          expect(
+            closedAt === null &&
+              !ordinaryClosed &&
+              !truncated &&
+              !incompleteRequests.declared(request) &&
+              ordinaryEvents.failedOnly(request) &&
+              observed?.failure_reason === "aborted" &&
+              observed.request_failed_at !== null &&
+              observed.request_finished_at === null &&
+              observed.response_finished_at === null &&
+              observed.observer_rejected_at === null &&
+              observed.response?.request() === request &&
+              options.ordinaryCompletion?.(request, observed.request_id!) ===
+                true,
+          ).toBe(true);
+          const fact = observed?.request_id && facts.get(observed.request_id);
+          expect(
+            !!fact && fact.request === request && fact.failed && !fact.finished,
+          ).toBe(true);
+          if (fact) {
+            fact.finished = true;
+            fact.failed = false;
+          }
+          nativeComplete.add(request);
+        }
         expect(
-          meta.endpoint === fact.url.pathname &&
-            meta.method === fact.request.method() &&
-            meta.status === fact.status,
-        ).toBe(true);
-        expect(meta.body_file === `body-${meta.body_sha256}.json`).toBe(true);
-        const raw = readFileSync(join(evidence, meta.body_file));
-        expect(
-          createHash("sha256").update(raw).digest("hex") === meta.body_sha256,
-        ).toBe(true);
-        expect(fact.finished !== fact.failed).toBe(true);
-        if (fact.failed) incomplete++;
-        await decodeOriginal(fact, meta, raw);
-        decoded++;
-      }
-      const failedWithoutHeaders = [...failedRequests].filter(
-        (request) =>
-          !ownedTruncations.has(request) &&
-          ![...facts.values()].some((fact) => fact.request === request),
-      ).length;
-      expect(
-        decoded === facts.size &&
-          decoded > 0 &&
-          incomplete + failedWithoutHeaders + ownedTruncations.size ===
+          incompleteRequests.verify(
             expectedIncomplete,
-      ).toBe(true);
-      writeFileSync(
-        join(evidence, "work-body-validation.json"),
-        JSON.stringify({
-          original_bodies: decoded,
-          browser_complete: decoded - incomplete,
-          expected_incomplete: incomplete,
-          owned_unforwarded_truncations: ownedTruncations.size,
-          failed_without_headers: failedWithoutHeaders,
-          all_schema_client_validated: true,
-        }),
-        { mode: 0o600 },
-      );
-      return { original_bodies: decoded, expected_incomplete: incomplete };
+            new Set(
+              [...failedRequests].filter(
+                (request) => !nativeComplete.has(request),
+              ),
+            ),
+          ),
+        ).toBe(true);
+        const checked = spawnSync(
+          "python3",
+          ["-c", schemaProgram, repository, evidence],
+          { encoding: "utf8", timeout: 6000, maxBuffer: 4096 },
+        );
+        writeFileSync(
+          join(evidence, "work-schema-validation.json"),
+          JSON.stringify({
+            status: checked.status,
+            signal: checked.signal,
+            stdout: checked.stdout,
+            stderr: checked.stderr,
+            failed_to_run: !!checked.error,
+          }),
+          { mode: 0o600 },
+        );
+        expect(checked.status === 0 && /^\d+\s*$/.test(checked.stdout)).toBe(
+          true,
+        );
+        let decoded = 0,
+          incomplete = 0;
+        for (const name of readdirSync(evidence).filter((name) =>
+          /^response-\d+\.json$/.test(name),
+        )) {
+          const meta = JSON.parse(readFileSync(join(evidence, name), "utf8"));
+          const fact = facts.get(meta.request_id);
+          if (!fact) continue;
+          expect(
+            meta.endpoint === fact.url.pathname &&
+              meta.method === fact.request.method() &&
+              meta.status === fact.status,
+          ).toBe(true);
+          expect(meta.body_file === `body-${meta.body_sha256}.json`).toBe(true);
+          const raw = readFileSync(join(evidence, meta.body_file));
+          expect(
+            createHash("sha256").update(raw).digest("hex") === meta.body_sha256,
+          ).toBe(true);
+          expect(fact.finished !== fact.failed).toBe(true);
+          if (fact.failed) incomplete++;
+          await decodeOriginal(fact, meta, raw);
+          decoded++;
+        }
+        const failedWithoutHeaders = [...failedRequests].filter(
+          (request) =>
+            !ownedTruncations.has(request) &&
+            ![...facts.values()].some((fact) => fact.request === request),
+        ).length;
+        expect(
+          decoded === facts.size &&
+            decoded > 0 &&
+            incomplete + failedWithoutHeaders + ownedTruncations.size ===
+              expectedIncomplete,
+        ).toBe(true);
+        expect(
+          [...nativeComplete].every(
+            (request) =>
+              !ordinaryClosed &&
+              ordinaryEvents.failedOnly(request) &&
+              options.ordinaryCompletion?.(
+                request,
+                timings.get(request)!.request_id!,
+              ) === true,
+          ),
+        ).toBe(true);
+        writeFileSync(
+          join(evidence, "work-body-validation.json"),
+          JSON.stringify({
+            original_bodies: decoded,
+            browser_complete: decoded - incomplete,
+            original_native_complete_with_pw_failed: nativeComplete.size,
+            expected_incomplete: incomplete,
+            owned_unforwarded_truncations: ownedTruncations.size,
+            failed_without_headers: failedWithoutHeaders,
+            all_schema_client_validated: true,
+          }),
+          { mode: 0o600 },
+        );
+        return { original_bodies: decoded, expected_incomplete: incomplete };
+      } finally {
+        ordinaryEvents.seal();
+        page.context().off("close", closeOrdinary);
+      }
     },
   };
 }

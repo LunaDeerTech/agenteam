@@ -798,12 +798,15 @@ async function consume(f) {
       setTimeout: set,
       clearTimeout: clear,
     });
+    vm.runInContext(source(nativePath, "workOrdinaryConsumption"), env);
+    env.workOrdinaryConsumption = env.subject;
     vm.runInContext(source(nativePath, "startWorkNativeDiagnostic"), env);
     const diagnostic = await env.subject(page, {
       projects: [project],
       evidence: "unused",
       repository: process.cwd(),
       classify: () => null,
+      ordinaryCompletion: options.ordinaryCompletion,
     });
     await tick();
     const request = (id = requestID, route = endpoint) => {
@@ -1040,6 +1043,57 @@ async function consume(f) {
         assert.equal(g.data().projection_rejected, 1);
         assert(!g.writes().at(-1).includes("PRIVATE-MATERIAL-SENTINEL"));
       }
+    },
+  );
+  await check(
+    "completion API requires exact original Request and actual final end",
+    async () => {
+      const f = await nodeDiagnostic({ ordinaryCompletion: true }),
+        request = f.request();
+      const row = f.snapshot.native.requests[0];
+      row.call_id = 1;
+      f.snapshot.publication = {
+        retired: true,
+        retirement_reason: "explicit",
+        pending_at_retirement: 0,
+        observer_failed: false,
+        overflow: false,
+        pending_observations: 0,
+        calls: [
+          {
+            call_id: 1,
+            call_at: 0,
+            settled_at: 1,
+            sample_at: 2,
+            native_requests: 1,
+            native_sequence: row.sequence,
+            method: "GET",
+            path: endpoint,
+            target_id: target,
+            operation: "getTask",
+            result_kind: "typed-detail-returned",
+            entry_identity_matches: true,
+            entry_not_busy: true,
+            identity_current: true,
+            authenticated: true,
+            not_busy: true,
+            fulfilled: 1,
+            rejected: 0,
+            synchronous_throws: 0,
+            active: false,
+          },
+        ],
+      };
+      f.page.emit("requestfailed", request);
+      assert.equal(f.diagnostic.consumed(request, requestID), false);
+      await f.diagnostic.finish();
+      f.assertRetired();
+      assert.equal(f.diagnostic.consumed(request, requestID), true);
+      assert.equal(f.diagnostic.consumed({ ...request }, requestID), false);
+      assert.equal(f.diagnostic.consumed(request, target), false);
+      const saved = JSON.stringify(f.data());
+      await f.diagnostic.finish();
+      assert.equal(JSON.stringify(f.data()), saved);
     },
   );
   await tick();

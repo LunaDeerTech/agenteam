@@ -530,9 +530,14 @@ test("[blockers] two kinds, real dependency cycle refusal, resolution and stale 
 test("[recovery] three committed lost responses retain original intent and historical receipts", async ({
   page,
 }) => {
+  let diagnostic: Awaited<ReturnType<typeof startWorkNativeDiagnostic>>;
   const data = material(),
-    seen = observe(page);
-  const diagnostic = await startWorkNativeDiagnostic(page, {
+    seen = observe(page, {
+      ordinaryCompletion: (request, requestID) =>
+        diagnostic.consumed(request, requestID),
+    });
+  diagnostic = await startWorkNativeDiagnostic(page, {
+    ordinaryCompletion: true,
     projects: Object.values(data.work).map((seed) => seed.project_id),
     evidence,
     repository,
@@ -713,6 +718,7 @@ test("[recovery] three committed lost responses retain original intent and histo
       if (await page.getByRole("dialog").count()) await discard(page);
       await expect(recovery(page)).toHaveCount(0);
     }
+    await diagnostic.finish();
     complete({
       three_domains: true,
       lookup_original: true,

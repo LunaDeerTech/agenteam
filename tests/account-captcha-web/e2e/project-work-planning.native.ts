@@ -377,6 +377,190 @@ export function installWorkNativeDiagnostic(config: {
   };
 }
 
+// This is only the native/public half of the recovery completion method.
+// The caller still proves original PW events and the unchanged same-body,
+// schema/client, UI, SQL and resource tails. No persisted report is read back.
+export function workOrdinaryConsumption(
+  report: any,
+  sequence: number,
+  requestID: string,
+): boolean {
+  const uuid =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  const count = (n: unknown) =>
+    typeof n === "number" && Number.isSafeInteger(n) && n > 0;
+  const retired = (observer: any) =>
+    observer?.retired === true &&
+    observer.retirement_reason === "explicit" &&
+    observer.pending_at_retirement === 0 &&
+    observer.pending_observations === 0 &&
+    observer.observer_failed === false &&
+    observer.overflow === false;
+  if (
+    !report ||
+    report.observation_finished !== true ||
+    report.ordinary_finished_gate_unchanged !== false ||
+    report.sample_joined !== true ||
+    report.sample_join_unavailable !== false ||
+    report.end_snapshot_observed !== true ||
+    report.page_closed !== false ||
+    report.context_closed !== false ||
+    report.overflow !== false ||
+    report.projection_rejected !== 0 ||
+    !count(sequence) ||
+    !uuid.test(requestID) ||
+    !Array.isArray(report.requests) ||
+    !Array.isArray(report.documents)
+  )
+    return false;
+  const requests = report.requests.filter(
+    (r: any) => r.sequence === sequence || r.request_id === requestID,
+  );
+  if (requests.length !== 1) return false;
+  const pw = requests[0];
+  if (
+    pw.sequence !== sequence ||
+    pw.request_id !== requestID ||
+    pw.status !== 200 ||
+    pw.declaration !== null ||
+    pw.failed_at === null ||
+    !Number.isFinite(pw.failed_at) ||
+    pw.finished_event_at !== null ||
+    !Number.isFinite(pw.request_at) ||
+    !Number.isFinite(pw.response_at) ||
+    pw.request_at > pw.response_at ||
+    pw.response_at > pw.failed_at
+  )
+    return false;
+  const parts = typeof pw.path === "string" ? pw.path.split("/") : [];
+  const detail =
+    pw.method === "GET" &&
+    ["milestones", "sprints", "tasks"].includes(parts[5]) &&
+    uuid.test(parts[6]);
+  const lookup =
+    pw.method === "POST" &&
+    ["structure-commands", "task-commands"].includes(parts[5]) &&
+    parts[6] === "lookup";
+  if (
+    parts.length !== 7 ||
+    parts.slice(0, 4).join("/") !== "/api/v1/projects" ||
+    !uuid.test(parts[4]) ||
+    !(detail || lookup)
+  )
+    return false;
+  const matches = report.documents.flatMap((doc: any) =>
+      (doc.native?.requests ?? [])
+        .filter((n: any) => n.request_id === requestID)
+        .map((native: any) => ({ doc, native })),
+    ),
+    pair = matches[0];
+  if (matches.length !== 1 || !pair) return false;
+  const { doc, native: n } = pair;
+  if (
+    doc.source !== "end" ||
+    doc.end_snapshot_observed !== true ||
+    doc.before_page_close !== true ||
+    !retired(doc.native) ||
+    !retired(doc.publication) ||
+    n.bound_original_request !== true ||
+    n.bound_public_call !== true ||
+    n.pw_sequence !== sequence ||
+    n.declaration !== null ||
+    n.method !== pw.method ||
+    n.path !== pw.path ||
+    n.status !== 200 ||
+    n.has_query !== false ||
+    !count(n.sequence) ||
+    !count(n.call_id) ||
+    n.headers_seen !== true ||
+    n.failure !== "none" ||
+    n.readers !== 1 ||
+    !count(n.read_calls) ||
+    n.read_settled !== n.read_calls ||
+    n.read_rejected !== 0 ||
+    n.read_done !== true ||
+    n.eof_before_interruption !== true ||
+    n.cancel_before_eof !== false ||
+    n.signal_aborted_at_start !== false ||
+    n.signal_aborted !== false ||
+    n.abort_events !== 0 ||
+    n.abort_order !== 0 ||
+    n.read_rejected_order !== 0 ||
+    n.content_length_present !== true ||
+    n.content_length_valid !== true ||
+    n.content_encoding_identity !== true ||
+    n.content_length_comparable !== true ||
+    n.content_length_matches_eof !== true ||
+    !count(n.bytes) ||
+    n.bytes !== n.content_length ||
+    n.reader_cancel_calls !== 1 ||
+    n.reader_cancel_settled !== 1 ||
+    n.reader_cancel_rejected !== 0 ||
+    n.stream_cancel_calls !== 1 ||
+    n.stream_cancel_settled !== 1 ||
+    n.stream_cancel_rejected !== 0 ||
+    n.release_calls !== 1 ||
+    n.release_successes !== 1 ||
+    ![
+      n.headers_order,
+      n.read_done_order,
+      n.reader_cancel_order,
+      n.release_order,
+      n.stream_cancel_order,
+    ].every(count) ||
+    !(
+      n.headers_order < n.read_done_order &&
+      n.read_done_order < n.reader_cancel_order &&
+      n.reader_cancel_order < n.release_order &&
+      n.release_order < n.stream_cancel_order
+    )
+  )
+    return false;
+  const calls = doc.publication.calls.filter(
+      (c: any) => c.call_id === n.call_id,
+    ),
+    call = calls[0];
+  if (
+    calls.length !== 1 ||
+    doc.native.requests.filter((v: any) => v.call_id === n.call_id).length !==
+      1 ||
+    !call ||
+    call.method !== pw.method ||
+    call.path !== pw.path ||
+    call.native_requests !== 1 ||
+    call.native_sequence !== n.sequence ||
+    !uuid.test(call.target_id) ||
+    call.entry_identity_matches !== true ||
+    call.entry_not_busy !== true ||
+    call.identity_current !== true ||
+    call.authenticated !== true ||
+    call.not_busy !== true ||
+    call.fulfilled !== 1 ||
+    call.rejected !== 0 ||
+    call.synchronous_throws !== 0 ||
+    call.active !== false ||
+    !Number.isFinite(call.call_at) ||
+    !Number.isFinite(call.settled_at) ||
+    !Number.isFinite(call.sample_at) ||
+    call.call_at > call.settled_at ||
+    call.settled_at > call.sample_at
+  )
+    return false;
+  return detail
+    ? call.operation ===
+        (
+          {
+            milestones: "getMilestone",
+            sprints: "getSprint",
+            tasks: "getTask",
+          } as Record<string, string>
+        )[parts[5]] &&
+        call.target_id === parts[6] &&
+        call.result_kind === "typed-detail-returned"
+    : call.operation === "checkOriginal" &&
+        ["committed", "in_progress", "not_observed"].includes(call.result_kind);
+}
+
 export async function startWorkNativeDiagnostic(
   page: Page,
   config: {
@@ -384,6 +568,7 @@ export async function startWorkNativeDiagnostic(
     evidence: string;
     repository: string;
     classify: (request: PWRequest) => string | null;
+    ordinaryCompletion?: boolean;
   },
 ) {
   const expiresAt = Date.now() + 45_000;
@@ -394,6 +579,7 @@ export async function startWorkNativeDiagnostic(
   });
   const rows = new Map<PWRequest, any>(),
     documents = new Map<string, any>();
+  let finalReport: any = null;
   let stopped = false,
     paused = false,
     pending: Promise<void> | null = null,
@@ -748,8 +934,9 @@ export async function startWorkNativeDiagnostic(
       },
     }));
     const report = {
-      diagnostic_only: true,
-      ordinary_finished_gate_unchanged: true,
+      diagnostic_only: !config.ordinaryCompletion,
+      ordinary_finished_gate_unchanged: !config.ordinaryCompletion,
+      observation_finished: stopped,
       samples,
       sample_settled: settled,
       sample_failed: failed,
@@ -773,6 +960,7 @@ export async function startWorkNativeDiagnostic(
         requests: [],
         documents: [],
       });
+    finalReport = JSON.parse(json);
     writeFileSync(
       join(config.evidence, "work-native-consumption-diagnostic.json"),
       json,
@@ -781,6 +969,16 @@ export async function startWorkNativeDiagnostic(
   }
   sample();
   return {
+    consumed(request: PWRequest, requestID: string) {
+      const row = rows.get(request);
+      return (
+        config.ordinaryCompletion === true &&
+        stopped &&
+        !!row &&
+        row.request_id === requestID &&
+        workOrdinaryConsumption(finalReport, row.sequence, requestID)
+      );
+    },
     async flush() {
       paused = true;
       if (timer) clearTimeout(timer);
