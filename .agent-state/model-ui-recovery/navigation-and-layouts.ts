@@ -304,14 +304,14 @@ export async function runNavigationAndLayouts(page: Page, harness: NavigationHar
     await button(summarySection, '编辑会议 Summary').click();
     const summaryEditor = page.getByRole('form', { name: '会议 Summary 编辑', exact: true });
     await button(summaryEditor, '选择会议 Summary Model').click();
-    const summaryProvider = summaryEditor.locator('.choices > li').filter({ has: page.locator('strong', { hasText: /^Owner draft memory Provider$/ }) });
+    const summaryProvider = summaryEditor.locator('.choices > li').filter({ has: page.locator('strong', { hasText: /^Models draft memory Provider$/ }) });
     await button(summaryProvider, '查看此 Provider 的 Models').click();
     const summaryCandidate = summaryEditor.locator('.choices > li').filter({ has: page.locator('strong', { hasText: new RegExp('^' + String(summaryDraft.name).replace(/[.*+?^$()|[\]\\]/g, '\\$&') + '$') }) });
     await expect(button(summaryCandidate, '选择此会议 Summary Model')).toBeEnabled(); await button(summaryCandidate, '选择此会议 Summary Model').click();
     await expect(summaryEditor.getByText('草稿 Model：' + summaryDraft.name, { exact: true })).toBeVisible();
     await button(page, '编辑用途').click();
     const selectionEditor = page.getByRole('dialog', { name: '配置平台模型用途', exact: true });
-    await button(selectionEditor, '选择 Memory').click(); await button(selectionEditor, '浏览 Owner draft memory Provider').click();
+    await button(selectionEditor, '选择 Memory').click(); await button(selectionEditor, '浏览 Models draft memory Provider').click();
     await expect(button(selectionEditor, '选择 ' + selectionDraft.name)).toBeEnabled(); await button(selectionEditor, '选择 ' + selectionDraft.name).click();
     const purposes = selectionEditor.getByRole('list', { name: '四项用途草稿', exact: true });
     await expect(purposes.getByText(String(selectionDraft.id), { exact: true })).toBeVisible();

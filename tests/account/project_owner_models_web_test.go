@@ -456,3 +456,50 @@ func TestProjectModelsWebFormalProblemAdmission(t *testing.T) {
 		})
 	}
 }
+
+func TestProjectModelsWebNavigationAvailableAdmission(t *testing.T) {
+	modelID, providerID := "01900000-0000-7000-8000-000000000001", "01900000-0000-7000-8000-000000000002"
+	f := &projectModelsWebFixture{}
+	request := &projectModelsWebRequest{Operation: &projectModelsWebOperation{Operation: "listProjectAvailableChatModels"}}
+	for _, tc := range []struct {
+		name   string
+		change func(map[string]any)
+		accept bool
+	}{
+		{"memory", func(map[string]any) {}, true},
+		{"memory-replacement", func(v map[string]any) { v["name"] = projectModelsWebSystemDraftName("memory_replacement") }, true},
+		{"legacy-owner-model", func(v map[string]any) { v["name"] = "Owner draft memory" }, false},
+		{"legacy-owner-provider", func(v map[string]any) { v["provider_name"] = "Owner draft memory Provider" }, false},
+		{"legacy-owner-pair", func(v map[string]any) {
+			v["name"], v["provider_name"] = "Owner draft memory_replacement", "Owner draft memory Provider"
+		}, false},
+		{"unregistered-name", func(v map[string]any) { v["name"] = "private-canary" }, false},
+		{"extra-value", func(v map[string]any) { v["value"] = "private-canary" }, false},
+		{"missing-field", func(v map[string]any) { delete(v, "provider_name") }, false},
+		{"invalid-model-id", func(v map[string]any) { v["id"] = "private-canary" }, false},
+		{"invalid-provider-id", func(v map[string]any) { v["provider_id"] = "private-canary" }, false},
+		{"invalid-version", func(v map[string]any) { v["version"] = "0" }, false},
+		{"extra-system-scope", func(v map[string]any) { v["scope"].(map[string]any)["project_id"] = modelID }, false},
+		{"extra-capability", func(v map[string]any) { v["capabilities"].(map[string]any)["value"] = "private-canary" }, false},
+		{"unsafe-capability-value", func(v map[string]any) {
+			v["capabilities"].(map[string]any)["reasoning_efforts"] = []string{"private-canary"}
+		}, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			value := map[string]any{
+				"id": modelID, "provider_id": providerID, "scope": map[string]any{"kind": "system"},
+				"name": projectModelsWebSystemDraftName("memory"), "provider_name": projectModelsWebSystemDraftName("memory") + " Provider", "version": "1",
+				"capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{"text"}, "context_length": nil, "max_output": nil},
+			}
+			tc.change(value)
+			raw, err := json.Marshal(value)
+			if err != nil {
+				t.Fatal("pure directory fixture encoding failed")
+			}
+			got, err := f.admitResource(request, raw)
+			if (err == nil) != tc.accept || tc.accept && got != modelID {
+				t.Fatal("navigation seed directory admission disagreed")
+			}
+		})
+	}
+}

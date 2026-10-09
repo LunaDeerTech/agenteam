@@ -1622,7 +1622,7 @@ func newProjectModelsWebFixture(t *testing.T, ctx context.Context, mode string) 
 	}
 	var system any
 	if mode == "navigation" {
-		prepared := f.prepareSystemDrafts(ctx)
+		prepared := f.prepareModelSystemDrafts(ctx)
 		ids, names := prepared["ids"].(map[string]string), prepared["names"].(map[string]string)
 		system = map[string]any{"selection": map[string]any{"initial": prepared["selection"], "draft": map[string]any{"purpose": "memory", "model": map[string]any{"id": ids["memory_replacement"], "name": names["memory_replacement"]}}}, "summary": map[string]any{"initial": prepared["summary"], "draft": map[string]any{"model": map[string]any{"id": ids["summary_1"], "name": names["summary_1"]}}}}
 	}
@@ -1632,6 +1632,34 @@ func newProjectModelsWebFixture(t *testing.T, ctx context.Context, mode string) 
 	}
 	f.private("project-models-material.json", map[string]any{"protocol": projectModelsWebProtocol, "input_hash": f.inputHash, "mode": mode, "actors": map[string]any{"owner": f.owner, "other_owner": f.other, "other_admin": f.admin}, "projects": projects, "expected": expected, "system": system})
 	return f
+}
+
+func projectModelsWebSystemDraftName(role string) string { return "Models draft " + role }
+
+// Model navigation keeps the existing four-purpose Selection and Summary
+// fixture relationships while owning its public, safe directory names.
+func (f *projectModelsWebFixture) prepareModelSystemDrafts(ctx context.Context) map[string]any {
+	m := &modelsWebFixture{authenticationWebFixture: f.authenticationWebFixture, setup: f.setup, admin: f.admin.personalWebCredential, adminClient: f.adminClient, csrf: f.adminCSRF, ids: map[string]string{}}
+	names := map[string]string{}
+	for _, role := range []struct{ name, protocol, kind string }{{"embedding", "openai-embeddings", "embedding"}, {"memory", "openai-chat-completions", "chat"}, {"reranker", "jina-rerank", "reranker"}, {"image", "openai-images-generations", "image_generation"}} {
+		provider := m.createProvider(ctx, projectModelsWebSystemDraftName(role.name)+" Provider", role.protocol, "https://provider.invalid/v1", true)
+		m.ids[role.name+"_provider"] = provider
+		for _, suffix := range []string{"", "_replacement"} {
+			key := role.name + suffix
+			name := projectModelsWebSystemDraftName(key)
+			m.ids[key] = m.createModel(ctx, provider, modelsWebInput(name, role.kind))
+			names[key] = name
+		}
+	}
+	m.selection(ctx, "initial", "")
+	summary := m.request(ctx, http.MethodGet, summaryWebPath, nil, http.StatusOK)
+	m.request(ctx, http.MethodPut, summaryWebPath, map[string]any{"id": summary["id"], "expected_version": summary["version"], "model": m.ids["memory"]}, http.StatusOK)
+	selection := m.request(ctx, http.MethodGet, selectionWebPath, nil, http.StatusOK)
+	summary = m.request(ctx, http.MethodGet, summaryWebPath, nil, http.StatusOK)
+	m.ids["summary_0"], m.ids["summary_1"] = m.ids["memory"], m.ids["memory_replacement"]
+	names["summary_0"], names["summary_1"] = names["memory"], names["memory_replacement"]
+	m.csrf, m.admin.Password = "", ""
+	return map[string]any{"ids": m.ids, "names": names, "selector_id": selection["id"], "summary_id": summary["id"], "selection": selection, "summary": summary}
 }
 
 func (f *projectModelsWebFixture) modelSnapshot(ctx context.Context, key string) (map[string]any, error) {

@@ -160,19 +160,33 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   const checks: Record<string, boolean> = {}, observe = observer(page, harness);
   const providerDialog = () => page.getByRole('dialog').filter({ has: page.locator('#project-provider-form') });
   const credentialDialog = () => page.getByRole('dialog').filter({ has: page.locator('#project-credential-form') });
-  async function leafReady() {
+  async function leafReady(project: Project, before: readonly NativeFact[]) {
     const leaf = page.locator('section.project-providers');
     await expect(leaf).toBeVisible();
     const reread = button(leaf, '重新读取项目');
-    if (await reread.isVisible()) { await expect(reread).toBeEnabled(); await reread.click(); await expect(reread).toBeHidden(); }
+    const freshRead = async () => {
+      const facts = await harness.nativeFacts(page);
+      need(facts.length >= before.length, 'PROJECT_MODELS_AUTHORITY_OBSERVATIONS_RESET');
+      return facts.slice(before.length).some((fact) => fact.method === 'GET' && fact.path === '/api/v1/projects/' + project.id + '/model-providers' && fact.status === 200 && fact.eof && fact.ended && fact.released);
+    };
+    // Owner revalidation can publish this gate after the leaf first appears.
+    // Observe until the fresh read or the real gate exists, then click at most once.
+    await expect.poll(async () => await freshRead() || await reread.isVisible()).toBe(true);
+    if (!(await freshRead()) && await reread.isVisible()) { await expect(reread).toBeEnabled(); await reread.click(); await expect(reread).toBeHidden(); }
     await expect(button(leaf, '刷新 Providers')).toBeEnabled();
   }
   async function open(project: Project, discard = false) {
+    const before = await harness.nativeFacts(page);
     return observe('listProjectModelProviders', project.id, 'GET', 'model-providers', 200, async () => {
       await harness.navigate(page, route(project));
       if (discard) await button(page.getByRole('dialog', { name: '离开项目模型设置？', exact: true }), '放弃并离开').click();
       await expect.poll(() => new URL(page.url()).pathname).toBe(route(project));
-      await leafReady();
+      // pushState changes the URL before the router and Owner read publish the
+      // destination. This public link is rendered from that Project's detail.
+      const settings = page.getByRole('navigation', { name: '项目导航', exact: true }).getByRole('link', { name: '项目设置', exact: true });
+      await expect(settings).toHaveAttribute('href', '/' + project.username + '/' + project.normalized_name + '/settings/general');
+      await expect(settings).toHaveAttribute('aria-current', 'page');
+      await leafReady(project, before);
     }, 'limit=25');
   }
   async function reread(project: Project) {
