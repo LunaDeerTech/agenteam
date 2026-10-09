@@ -1,5 +1,7 @@
 # Knowledge Owner 只读 HTTP
 
+- 新 owner_read_http_test.go/owner_read_http_transactions_test.go 已形成未编译WIP四top十四子：Metadata4、CurrentAuthority5、Transactions3、CommitUnknown2。真实Service造文档/树/删除，五路GET/HEAD/本地Schema、literal与cursor绑定、零读事实、Account正式logout、同Tx User SH/EX两顺序/currentOwner、实际原SELECT relation等待取消/Tx退出、complete-frame两Unknown零候选；合法Deleting夹具保manifest/participants/原FK，不冒BeginDelete。gofmt/diffcheck328df1通过，尚未编译或业务执行。复用原B02 proxy/native资源仅在将来root窗口；本轮仍无socket/PG/编译。fixture已root保存1ee8b7e3，当前待存两新matrix+本current，HTTP包输入继续b6635c27冻结。
+
 - 新 tests/knowledge/owner_read_http_fixture_test.go 为可恢复集成WIP：复用B02真实同Store publication/Object，另绑定实际Account Bootstrap/Invitation/Redeem/Login及原私有recoverylog生命周期；不调用旧SQL human/session。Project初始化明确为原上游SQL fixture，不冒Project.Create/Skills验收。仅gofmt 977338通过，尚未编译/PG运行；矩阵源码继续准备，已有HTTP生产/native/schema保持b6635c27冻结。当前没有命令或资源在途，因磁盘协调继续暂停新编译。
 
 - Runner增量独审发现并实际abcfdd复现HEAD Schema错误：5×8错误状态仍声明Problem body，但真实handler/Account HEAD不写body。限定修复knowledge-owner.json的40个HEAD error refs＋专用bodyless HeadProblem，GET/200/全部DTO不变；本域schema-controls补45个HEAD状态的无content/原表示header检查。作者后继Python控制实际通过，原20 DTO标准Schema证据沿字节不变复用，不重编Go。Runner本人原红控cc7bba actual0，五HEAD全响应resolved content=0、GET/通用Problem/HEAD200/DTO保持原样，有限复审接受；原失败不回填。
