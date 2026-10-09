@@ -26,3 +26,12 @@
 - 真实 fixture 只复用正式 Project/Creation seed、两个 postgres.Store/原 migrator；受控 delegate 明示不是 Skills provider，原key通过原Project gate检查；真实Object checker只做无private witness的拒绝。包括真实持锁/poison、caller rollback、同Tx provider查询错误与三action四状态。
 - 自查已在运行PG前修正两测试构造：反向Creation矛盾在原deferred FK的caller Tx内到达gate并回滚，不冒 schema错误为gate拒绝；archiving/archived/deleting用已完成Project与真实本域lifecycle输入，保持DDL原约束。不改产品或schema。
 - 当前四Go源/SPEC/current阶段freeze供root保存；full project/contract pure session83500 actualexit0（0.114s/0.023s）；下一补 race/vet、integration race构建及最小PG资源命令，真实PG未授权未运行。
+
+## 离线验证与PG监督接缝（2026-10-09）
+
+- root已保存首批46116076、四源完整阶段5945abf0并实际push（根交接事实，本人无Git）。四新Go产品/测试源继续保持该输入。
+- full project/contract vet66720 exit0；默认冷cache race5087/24901均45s exit124，无race body结果。根授热cache短窗和仅编译120s上限后，pure race-c13272 exit0；两个pure-race binary6000均PASS/actual0（各原40s body/45s外界）；integration race-c79680 exit0，`project-race.test`精确list新3top实际0。pg-only-driver build99427 actual0。热Go cache已向root释放。
+- 真实候选只1 PG17固定镜像容器+1nonce network，不需要MinIO/PG16/Object Runtime。复用原 `.agent-state/task-planning-recovery/pg_only_driver.go` 与其 supervisor；命令传本树output的driver/project-race.test，每次只一个精确top，原driver105+cleanup15、supervisor123+3/TCP75/5GiB。
+- 根唯一新增写权：本树原 `pg_only_supervisor.py`，仅把non-root异常direct/adopted收尾置原3s绝对deadline；TERM最多1s，SIGKILL directWait与adopted共享余量。direct尚未wait不得generic waitpid抢reap，pending显式FAIL/actual=false，不能写joined。旧root-chain/正常两ID/原TCP尾不变。
+- 本地进程控制源在ignored `output/ai/project-initialization-audit/supervisor-controls/check.py`；v1六控34175 exit0/实际owned desc空，原日志保留，其中exited-adopted parent被过短测试启动预算截到，故v2明确让其自然exit0、忽略TERM正控实际-9。v2结果另见result-v2.json及*-v2.log，不覆盖原件；无socket/network/PG。
+- 下一：监督器单源freeze交未参与者窄审；root freshgrant后先实际新Facts top，完整资源尾后再按调度其余两top；产品独立静/PG补集仍待root分配。本卡仍不是产品接受，未来真Skill+Object组合/HTTP/root均未绑定。

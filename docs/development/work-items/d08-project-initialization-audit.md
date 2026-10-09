@@ -98,7 +98,7 @@ ObjectDelete 不是任意对象删除许可；失败收敛不能发起新的 Res
 | tests/project/initialization_audit_fixture_test.go | 私有测试装配；复用现真实 PG/Store/本域 Creation fixture，不造 Skill 完成 |
 | tests/project/initialization_audit_test.go | 真实 Tx/锁/Project 事实、受控 provider 调用与真实 Object 缺 witness 拒绝 |
 
-本卡与本树 `.agent-state/current.md` 记录可恢复状态；完整验收后只对 `docs/development/backend/README.md` 写实际可用范围和复现命令。无迁移、无依赖锁变化；00024 已由 ProjectVariables 预留，本卡不申请编号。不得修改旧 Authority/成功 gate/convergence/scanner/audit_facts、Audit/Identity contract、Skill、Object、app/root、HTTP/UI、共享 fixture 或停止源。确需共享口时先报具体缺口，不在局部文件绕开。
+本卡与本树 `.agent-state/current.md` 记录可恢复状态；完整验收后只对 `docs/development/backend/README.md` 写实际可用范围和复现命令。无迁移、无依赖锁变化；00024 已由 ProjectVariables 预留，本卡不申请编号。不得修改旧 Authority/成功 gate/convergence/scanner/audit_facts、Audit/Identity contract、Skill、Object、app/root、HTTP/UI、共享 fixture 或停止源。root 后补唯一资源接缝授权：本树既有 `.agent-state/task-planning-recovery/pg_only_supervisor.py` 的 non-root 异常 direct/adopted Wait 有界化；不复制框架、不改旧 root-chain 语义、原工作/收尾/TCP 预算不扩，作者本地进程控制后须未参与者窄审。确需共享口时先报具体缺口，不在局部文件绕开。
 
 交付需：本 SPEC 独立接受；实际实现及作者离线检查；下述完整 PG；未参与实现者独立审查与风险补集真实验收；README 末件准确。任何中间编译/受控绿例不能标整卡完成。当前 SPEC 对上游组合端口的前提不是一份虚构可运行 Skills 绑定。
 

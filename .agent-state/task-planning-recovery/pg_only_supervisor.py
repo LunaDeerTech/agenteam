@@ -202,12 +202,17 @@ def main():
             child = subprocess.Popen([str(args.driver.resolve()), '--test-binary',
                 str(args.binary.resolve()), '--run', args.run, '--directory', str(directory)],
                 stdout=log, stderr=subprocess.STDOUT)
+            nonroot_reap_deadline = None
             try:
                 code = child.wait(timeout=driver_timeout)
             except subprocess.TimeoutExpired:
+                if not args.root_chain:
+                    # Share the existing three-second retirement allowance
+                    # between TERM, direct SIGKILL wait and adopted waits.
+                    nonroot_reap_deadline = time.monotonic() + term_grace
                 child.terminate()
                 try:
-                    code = child.wait(timeout=term_grace)
+                    code = child.wait(timeout=term_grace if args.root_chain else min(1, term_grace / 3))
                 except subprocess.TimeoutExpired:
                     child.kill()
                     if args.root_chain:
@@ -216,13 +221,16 @@ def main():
                         except subprocess.TimeoutExpired:
                             log.write('STOP root driver still not waited after bounded SIGKILL tail\n')
                     else:
-                        code = child.wait()
+                        try:
+                            code = child.wait(timeout=max(0, nonroot_reap_deadline - time.monotonic()))
+                        except subprocess.TimeoutExpired:
+                            log.write('STOP driver still not waited within retirement deadline\n')
                 code = 1
                 log.write('STOP driver exceeded runtime budget\n')
             if args.root_chain:
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
             else:
-                log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} code={code}\n')
+                log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
             survivors = descendants(os.getpid())
             if survivors:
                 code = 1
@@ -230,14 +238,23 @@ def main():
                 for pid in survivors:
                     try: os.kill(pid, signal.SIGKILL)
                     except ProcessLookupError: pass
-            reap_deadline = time.monotonic() + 5 if args.root_chain else None
+            reap_deadline = (time.monotonic() + 5 if args.root_chain else
+                             nonroot_reap_deadline if nonroot_reap_deadline is not None else
+                             time.monotonic() + term_grace)
             while True:
+                if not args.root_chain and child.returncode is None:
+                    # Popen still owns the direct child. Do not steal its
+                    # eventual status with generic waitpid and claim a join.
+                    code = 1
+                    log.write('STOP direct wait incomplete; adopted wait not claimed\n')
+                    break
                 try:
-                    pid, status = os.waitpid(-1, os.WNOHANG if args.root_chain else 0)
+                    pid, status = os.waitpid(-1, os.WNOHANG)
                     if pid == 0:
                         if time.monotonic() >= reap_deadline:
                             code = 1
-                            log.write('STOP owned root descendants not joined within bounded reap tail\n')
+                            kind = 'root ' if args.root_chain else ''
+                            log.write(f'STOP owned {kind}descendants not joined within bounded reap tail\n')
                             break
                         time.sleep(.02)
                         continue
