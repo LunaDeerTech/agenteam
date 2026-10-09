@@ -128,6 +128,9 @@ def observe_root_chain(directory, log, log_path, selector):
         '^TestIndependentWorkOwnerRootConfirmationJoin$': {'TestIndependentWorkOwnerRootConfirmationJoin'},
         '^TestKnowledgeB02DirectPublication$': {'TestKnowledgeB02DirectPublication'},
         '^TestKnowledgeB02BusinessPublication$': {'TestKnowledgeB02BusinessPublication'},
+        '^TestKnowledgeB02Cleanup$': {'TestKnowledgeB02Cleanup'},
+        '^TestKnowledgeB02Runtime$': {'TestKnowledgeB02Runtime'},
+        '^TestKnowledgeB02CommitUnknown$': {'TestKnowledgeB02CommitUnknown'},
     }.get(selector, set())
     actual = set(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
