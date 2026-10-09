@@ -54,6 +54,12 @@ export function string(value: unknown, minimum: number, maximum: number): string
 }
 
 const endpoints = {
+  listProjectVariables: ['GET', '/api/v1/projects/{project_id}/variables', 200],
+  getProjectVariable: ['GET', '/api/v1/projects/{project_id}/variables/{target}', 200],
+  createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
+  updateProjectVariable: ['PATCH', '/api/v1/projects/{project_id}/variables/{target}', 200],
+  deleteProjectVariable: ['DELETE', '/api/v1/projects/{project_id}/variables/{target}', 200],
+  lookupProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables/commands/lookup', 200],
   listOwnerProjects: ['GET', '/api/v1/projects', 200],
   getOwnerProject: ['GET', '/api/v1/projects/{id}', 200],
   resolveOwnerProject: ['GET', '/api/v1/projects/resolve', 200],
@@ -348,11 +354,69 @@ export function projectModelJSONBytes(value: unknown): number {
   return Infinity
 }
 
+// Variables has a closed, shallow wire shape. Inspect raw member spelling before
+// ordinary JSON.parse can silently replace an earlier member; no other domain
+// opts into this additional validation.
+function variableJSON(text: string): unknown {
+  const value: unknown = JSON.parse(text)
+  let position = 0
+  const whitespace = () => {
+    while (/[ \t\r\n]/.test(text[position] ?? '\0')) position++
+  }
+  const quoted = () => {
+    const start = position++
+    while (position < text.length) {
+      const ch = text[position++]
+      if (ch === '"') return JSON.parse(text.slice(start, position)) as string
+      if (ch === '\\') position++
+    }
+    throw new AccountFailure('invalid-response')
+  }
+  const visit = (depth: number): void => {
+    if (depth > 64) throw new AccountFailure('invalid-response')
+    whitespace()
+    const marker = text[position]
+    if (marker === '"') {
+      quoted()
+      return
+    }
+    if (marker !== '{' && marker !== '[') {
+      while (position < text.length && !/[,}\]\s]/.test(text[position]!)) position++
+      return
+    }
+    const object = marker === '{',
+      close = object ? '}' : ']'
+    const seen = new Set<string>()
+    position++
+    whitespace()
+    if (text[position] === close) {
+      position++
+      return
+    }
+    for (;;) {
+      if (object) {
+        const key = quoted()
+        if (seen.has(key)) throw new AccountFailure('invalid-response')
+        seen.add(key)
+        whitespace()
+        position++
+      }
+      visit(depth + 1)
+      whitespace()
+      if (text[position++] === close) return
+      whitespace()
+    }
+  }
+  visit(0)
+  return value
+}
+
 async function readJSON(
   response: Response,
   signal: AbortSignal,
   maximum = 600_000,
   preserveProjectModelJSON = false,
+  strictVariableJSON = false,
 ): Promise<unknown> {
   const reader = response.body?.getReader()
   if (!reader) throw new AccountFailure('invalid-response')
@@ -376,7 +440,11 @@ async function readJSON(
       text += decoder.decode(value, { stream: true })
     }
     text += decoder.decode()
-    return preserveProjectModelJSON ? projectModelJSON(text) : (JSON.parse(text) as unknown)
+    return strictVariableJSON
+      ? variableJSON(text)
+      : preserveProjectModelJSON
+        ? projectModelJSON(text)
+        : (JSON.parse(text) as unknown)
   } finally {
     signal.removeEventListener('abort', abort)
     await cancel()
@@ -818,6 +886,31 @@ type ProjectModelOptions<E extends ProjectModelEndpoint> = E extends
         }
       : { signal: AbortSignal; projectID: string; body: unknown; csrf: string; key: string }
 
+const projectVariableEndpoints = [
+  'listProjectVariables',
+  'getProjectVariable',
+  'createProjectVariable',
+  'updateProjectVariable',
+  'deleteProjectVariable',
+  'lookupProjectVariable',
+] as const
+type ProjectVariableEndpoint = (typeof projectVariableEndpoints)[number]
+type ProjectVariableWireQuery = Readonly<{ limit: number; cursor?: string }>
+type ProjectVariableOptions<E extends ProjectVariableEndpoint> = E extends 'listProjectVariables'
+  ? { signal: AbortSignal; projectID: string; variables: ProjectVariableWireQuery }
+  : E extends 'getProjectVariable'
+    ? { signal: AbortSignal; projectID: string; target: string }
+    : E extends 'updateProjectVariable' | 'deleteProjectVariable'
+      ? {
+          signal: AbortSignal
+          projectID: string
+          target: string
+          body: unknown
+          csrf: string
+          key: string
+        }
+      : { signal: AbortSignal; projectID: string; body: unknown; csrf: string; key: string }
+
 type ProjectEndpoint =
   | 'listOwnerProjects'
   | 'getOwnerProject'
@@ -842,6 +935,11 @@ const projectEndpoints: readonly ProjectEndpoint[] = [
 ]
 
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends ProjectVariableEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: ProjectVariableOptions<E>,
+  ): Promise<T>
   function request<T, E extends ProjectModelEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -922,6 +1020,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     endpoint: Exclude<
       keyof typeof endpoints,
       | ProjectEndpoint
+      | ProjectVariableEndpoint
       | ProjectAuditEndpoint
       | ProjectModelEndpoint
       | 'systemUsers'
@@ -952,6 +1051,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       audit?: AuditWireQuery
       projects?: ProjectWireQuery
       projectModels?: ProjectModelWireQuery
+      variables?: ProjectVariableWireQuery
       projectAddress?: ProjectWireAddress
       projectID?: string
       target?: string
@@ -960,7 +1060,60 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if ((projectModelEndpoints as readonly string[]).includes(endpoint)) {
+    const variableEndpoint = (projectVariableEndpoints as readonly string[]).includes(endpoint)
+    if (variableEndpoint) {
+      try {
+        const target = basePath.includes('{target}'),
+          list = endpoint === 'listProjectVariables'
+        shape(options, [
+          'signal',
+          'projectID',
+          ...(target ? ['target'] : []),
+          ...(list ? ['variables'] : []),
+          ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
+        ])
+        const projectID = string(options.projectID, 36, 36)
+        if (!uuid7.test(projectID)) throw new Error()
+        path = basePath.replace('{project_id}', projectID)
+        if (target) {
+          const id = string(options.target, 36, 36)
+          if (!uuid7.test(id)) throw new Error()
+          path = path.replace('{target}', id)
+        }
+        if (list) {
+          const q = shape(options.variables, ['limit'], ['cursor'])
+          if (
+            typeof q.limit !== 'number' ||
+            !Number.isInteger(q.limit) ||
+            q.limit < 1 ||
+            q.limit > 100
+          )
+            throw new Error()
+          const query = new URLSearchParams({ limit: String(q.limit) })
+          if (Object.hasOwn(q, 'cursor')) {
+            const cursor = string(q.cursor, 1, 8192)
+            if (
+              cursor.includes('\0') ||
+              new TextEncoder().encode(cursor).byteLength > 8192 ||
+              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(cursor)
+            )
+              throw new Error()
+            query.set('cursor', cursor)
+          }
+          const encoded = query.toString()
+          if (new TextEncoder().encode(encoded).byteLength > 32768) throw new Error()
+          path += '?' + encoded
+        }
+        if (
+          method !== 'GET' &&
+          (!/^[A-Za-z0-9_-]{43}$/.test(string(options.csrf, 43, 43)) ||
+            !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128)))
+        )
+          throw new Error()
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if ((projectModelEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const target = basePath.includes('{target}')
         const list =
@@ -1249,26 +1402,29 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['Content-Type'] = options.avatar.mediaType
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
-      const maximum = (projectConfigurationWrites as readonly string[]).includes(endpoint)
+      const maximum = variableEndpoint
         ? 1048576
-        : endpoint === 'createProjectModelCredential' || endpoint === 'updateProjectModelCredential'
-          ? 409600
-          : endpoint === 'deleteProjectModelCredential' ||
-              endpoint === 'lookupProjectModelCredential'
-            ? 1024
-            : endpoint === 'updateOwnerProject'
-              ? 64 * 1024
-              : endpoint === 'lookupOwnerProject'
-                ? 1024
-                : endpoint === 'updateOutboundPolicy'
-                  ? 1024 * 1024
-                  : endpoint === 'createModelCredential'
-                    ? 512 * 1024
-                    : endpoint === 'createProvider' ||
-                        endpoint === 'updateProvider' ||
-                        endpoint === 'updateSMTPSettings'
-                      ? 32 * 1024
-                      : 16 * 1024
+        : (projectConfigurationWrites as readonly string[]).includes(endpoint)
+          ? 1048576
+          : endpoint === 'createProjectModelCredential' ||
+              endpoint === 'updateProjectModelCredential'
+            ? 409600
+            : endpoint === 'deleteProjectModelCredential' ||
+                endpoint === 'lookupProjectModelCredential'
+              ? 1024
+              : endpoint === 'updateOwnerProject'
+                ? 64 * 1024
+                : endpoint === 'lookupOwnerProject'
+                  ? 1024
+                  : endpoint === 'updateOutboundPolicy'
+                    ? 1024 * 1024
+                    : endpoint === 'createModelCredential'
+                      ? 512 * 1024
+                      : endpoint === 'createProvider' ||
+                          endpoint === 'updateProvider' ||
+                          endpoint === 'updateSMTPSettings'
+                        ? 32 * 1024
+                        : 16 * 1024
       try {
         body = JSON.stringify(options.body)
       } catch {
@@ -1334,26 +1490,31 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         value = await readJSON(
           response,
           options.signal,
-          (projectModelEndpoints as readonly string[]).includes(endpoint) && success
-            ? (projectModelReads as readonly string[]).includes(endpoint)
-              ? 8388608
-              : 1024
-            : endpoint === 'listOwnerProjects' && success
+          variableEndpoint && success
+            ? endpoint === 'listProjectVariables'
               ? 5 * 1024 * 1024
-              : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
-                ? 64 * 1024
-                : endpoint === 'getSystemRuntimeInformation' && success
-                  ? 16 * 1024
-                  : endpoint === 'listProviders' && success
-                    ? 2 * 1024 * 1024
-                    : (endpoint === 'listSystemAudit' ||
-                          endpoint === 'getSystemAudit' ||
-                          endpoint === 'listProjectAudit' ||
-                          endpoint === 'getProjectAudit') &&
-                        success
-                      ? 1024 * 1024
-                      : 600_000,
+              : 1024 * 1024
+            : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
+              ? (projectModelReads as readonly string[]).includes(endpoint)
+                ? 8388608
+                : 1024
+              : endpoint === 'listOwnerProjects' && success
+                ? 5 * 1024 * 1024
+                : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
+                  ? 64 * 1024
+                  : endpoint === 'getSystemRuntimeInformation' && success
+                    ? 16 * 1024
+                    : endpoint === 'listProviders' && success
+                      ? 2 * 1024 * 1024
+                      : (endpoint === 'listSystemAudit' ||
+                            endpoint === 'getSystemAudit' ||
+                            endpoint === 'listProjectAudit' ||
+                            endpoint === 'getProjectAudit') &&
+                          success
+                        ? 1024 * 1024
+                        : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
+          variableEndpoint,
         )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
