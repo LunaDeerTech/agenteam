@@ -44,6 +44,8 @@ Session 原生消费的固定八项对照已实际执行：完整 Content-Length
 
 navigation 第五轮使用 §0.3 已接受修复的新私有资产，仍在初始 Session 的 `finished()` 5 秒观察处 FAIL：headers／failed 已见、finished 未见；pageshow 前退出登录按钮可用，事件后进入禁用状态。仅一个安全响应、零布局图，尚未到焦点场景，不能据此评判该共享修复的业务效果。闭合安全事实见 [navigation-session-fifth-failure.json](../../../.agent-state/model-ui-recovery/navigation-session-fifth-failure.json)。Go 14.64 秒、外层实际 exit=1／106.91 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、进程空、临时目录移除、TCP 双空及输入同一均完成。下一次运行前统一补 authority／navigation 两个 Session helper 的同响应原生读取、取消与 abort 安全观测；不在观测未变时重复完整场景，不改原 finished／EOF／身份门槛。
 
+authority 第六轮使用已独审的新诊断，本轮 Session 原 finished／JSON／身份门槛通过，但不证明旧间歇失败已修复。已完成归档配置原请求重放，随后切到凭据恢复 Project 时 FAIL：URL 等待已过，公开 Project 设置链接的目标 href 尚未发布（模块第 282 行）；17 个安全响应，尚未开始凭据归档场景，没有 Session 失败诊断产物。必要事实见 [authority-navigation-sixth-failure.json](../../../.agent-state/model-ui-recovery/authority-navigation-sixth-failure.json)。Go 25.15 秒、外层实际 exit=1／114.59 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空及输入同一均完成。下一步核实真实导航确认或当前 Owner 发布条件，区分产品缺陷与测试前置遗漏，保持原断言与预算。
+
 旧回归现为 **2／14 完整通过**。下表两组均用 `run-owned-regression.py --group` 的原精确 selector 与当前私有资产执行，外层实际 exit=0；direct／四 adopted 实际 wait=0、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空、输入同一及 marker 移除全部确认。两组均为独立 Owner 私有资产入口，无全局资产租约，也不消费 Session 诊断源码或 bundle；不据此替代剩余 12 项。
 
 | 已通过旧组 | Go top 秒 | 外层完整秒 |
@@ -51,7 +53,7 @@ navigation 第五轮使用 §0.3 已接受修复的新私有资产，仍在初�
 | `owner-edit` | 18.64 | 111.29 |
 | `owner-recovery` | 14.56 | 100.34 |
 
-Session 诊断首版的迟到初始化清理缺陷已独立复现；限定返修的类型／私有构建、作者 34 项与独立 20 项离线控制通过，已获有限独审接受。两个 Session helper 共享同响应安全计数，区分 EOF／读拒绝／abort／EOF 前取消与 EOF 后清理；公开 Request ID 仅在浏览器内比较，缺失或迟到不能解释为同响应，原 finished／JSON／身份门槛保留。新诊断仍待真实运行，不改变 authority／navigation 原 FAIL。
+Session 诊断首版的迟到初始化清理缺陷已独立复现；限定返修的类型／私有构建、作者 34 项与独立 20 项离线控制通过，已获有限独审接受。两个 Session helper 共享同响应安全计数，区分 EOF／读拒绝／abort／EOF 前取消与 EOF 后清理；公开 Request ID 仅在浏览器内比较，缺失或迟到不能解释为同响应，原 finished／JSON／身份门槛保留。已用于 authority 第六轮；该轮 Session 未失败，尚无真实失败的原生诊断可用于解释旧因果，不改变各轮原 FAIL。
 
 另一个精确组件正反例已作者与独立者各自实跑：原 trigger 始终可用时通过，确认期间 disabled、同 tick 关闭确认并解除 disabled 时失败；原节点最终已 connected／enabled／非 inert／保值，实际焦点在下层关闭按钮。它证明共享层的局部恢复时序缺口，不回填 navigation 第四轮未采集的 activeElement；后继共享修复及其适用验证仍在进行，§0.2 已接受结论保持绑定原版本。
 
