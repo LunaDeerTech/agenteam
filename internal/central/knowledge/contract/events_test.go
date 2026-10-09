@@ -18,6 +18,9 @@ func TestTypedEventsAreCanonicalFactsWithoutBodyOrMove(t *testing.T) {
 	d := doc(10)
 	catalog := event.NewCatalog()
 	events := must(k.RegisterKnowledgeEvents(catalog))
+	if (k.KnowledgeEvents{}).Valid() || !events.Valid() {
+		t.Fatal("event registration validity")
+	}
 	if len(catalog.Schemas()) != 2 {
 		t.Fatal("unexpected event family")
 	}
@@ -42,6 +45,9 @@ func TestTypedEventsAreCanonicalFactsWithoutBodyOrMove(t *testing.T) {
 		}
 	}
 	requireOK(t, catalog.Seal())
+	if !events.Valid() {
+		t.Fatal("sealing invalidated registered event types")
+	}
 	_, e := k.RegisterKnowledgeEvents(catalog)
 	requireError(t, e)
 	emptySealed := event.NewCatalog()

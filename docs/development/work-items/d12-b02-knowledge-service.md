@@ -1,8 +1,18 @@
 # D12 B02：完整 Human canonical 内容与文档树服务
 
-状态：rev1 已经独立静态审查并获主线程采纳。D12 B01 纯契约已在 `914fd849ae7fa020bef8076e4f8075a8215274c1` 验收、提交并推送；该提交也是本卡固定接口输入。当前仅本卡与两份 D12 文档归位、§3 C1 cursor.Text 已完成作者局部自测、等待另一实例独立验收；Knowledge 新领域29路径、C2/C3/C4、共享fixture和迁移仍待各自明确交接。B02业务尚未实现验收，未分配迁移号。
+状态（2026-10-09）：**按已接受 rev1 契约开始 B02 实现，尚未验收。** 独立树 `ai/knowledge-service` 从正式 `f1c94ee5` 开工；B01 的 12 个纯契约文件、C1 `cursor.Text`、C2 Knowledge Audit 闭集、C3 精确 ReferenceCleanup 已在基线中存在。§4 的 29 个服务／测试路径无可恢复旧实现，本轮由唯一作者实现；首批服务构造、调用登记／取消与 Drain、严格 canonical 行读取和当前事实口已可构建，完整 Documents／发布／树变更尚未闭合；本域迁移独占 `00025_knowledge.sql`，`00024` 为另一树 ProjectVariables、`00026` 为 Runner control，不能按本树当前最高编号重排。
 
-依据：[D12 主卡](d12-knowledge-documents.md)、[D12 规格](d12-knowledge-documents-design.md) §3–7；这些链接便于定位，审查正文以冻结候选 `/tmp/agenteam-d12-b02-card-3oix0e9s/inputs.json` 的固定 Git blob 为准，不消费活动文件。B01 独立报告 `/tmp/agenteam-d12-b01-verify-49kvfiqa/report.md` SHA `b95a4e96a583b3e72097d027f9e372d3f7dc5b58d1a031ed5634d08fc5b6523e`。
+依据：[D12 主卡](d12-knowledge-documents.md)、[D12 规格](d12-knowledge-documents-design.md) §3–7 及本卡已接受 rev1。旧 `/tmp` 候选／报告路径仅是历史定位，不是本轮必需输入；当前实际 B01 源码与正式规格是恢复依据。代码、SQL 与受控依赖测试可先行；完整业务接受仍需真实 Owner／Object／Audit／Outbox 组合、并发恢复与资源退出证据，不能把测试替身当生产授权。Object runtime join 等原停止项保持，当前不改 Object 实现、App root 或公共 fixture。
+
+### 当前集成接缝
+
+- 经 root 授权，B01 `contract/events.go`／`events_test.go` 仅补向后兼容的 `KnowledgeEvents.Valid() bool`：零值 false、真实 Catalog 注册后 true，封存 Catalog 不使已注册类型失效。它只支持构造拒绝缺失依赖，不是事件事实或权限。未改编码／闭集，待未参与者窄审。
+
+- C1/C2/C3 已有实际源码，保留只读，不重复实现。D05 的 `NewProjectAuditAuthority` 已存在；它的存在不等于 Project 已接入 Object producer，也不证明本轮 Object runtime 组合已接受。
+- Project 外域 Audit 路由实际位于 `project/audit_facts.go`，当前仅接纳 Secret、Object 仍明确 `DEPENDENCY_UNBOUND`；Knowledge 的 C4 路由尚缺。§3 C4 中的旧路径推定须在真正接线前更正并另取共享写域，不能依历史文件名直接修改。
+- Project Outbox 现有 `project/events.go` 已接 Model／Work 专口，但没有 Knowledge 或通用 Human gate；历史 `outbox_authority.go` 候选不是现存输入。B02 自有 producer 依正式 `outbox/contract` 实现，生产组合前补齐真实 Project gate；不安装 allow adapter。
+- 本域 `Documents`、树 mutation、canonical read/fact 与对象所有权／清理适配器按 B01 端口实现。D13、HTTP、受控下载 URL、全 Project participant 仍属后继；本轮不以它们未就绪阻止本域代码开工，也不把它们称作已绑定。
+
 
 ## 1. 推荐结果与完成边界
 
@@ -19,12 +29,12 @@
 | Human 当前身份/Owner | 已验 `pc.ProjectAuthority.RequireOwnerInTx`，同活 Tx 核 User/Project 锁、当前 Session/Owner、初始化及 gate | 直接消费；禁止查 account/project 私表，禁止用纯 `CheckOwnerGate` 代权限。正常 Read/Mutate 无 D09 前置。 |
 | Session 活动 | 真实 account Authority 已提供 `TouchActivityInTx` | 自有窄结构接口，只有首次成功变更同 Tx 调用，预先 User EX；完成重放不 Touch。 |
 | D05 对象与源 | `oc.Objects`/`Uploads`/`SourceResolver`/`SourceReads` 形状已验；Knowledge 所属适配器缺失 | 新 Knowledge 实现真实所属事实；D05 继续拥有 MinIO、upload/reader/lease/writer。源 resolver 前工作登记/stop 的实际增强由 A 实施且未验，集成必须绑定其已验版本。 |
-| ReferenceCleanup | `object/contract/access.go` 只接受 Avatar；`object/reference_cleanup.go` SQL 只删 Avatar | §3 的两个逻辑旧源及一个接口注释窄扩，V核兼容后再接续。A不写 reference_cleanup.go；contract/access.go 已验 d2f46d6，但 A 以其为固定输入，root 须排定交接、通知 A。无需改 A 活动 object/access.go。 |
-| Object Audit 事实 | D08 §9.2/C0 `audit.ProjectFactAuthority` 已定；D05 真实 Object checker 仍未验/未交付 | 必须消费 D05 自己的同 Tx 真实见证与 upload/attempt/cleanup事实。Knowledge command/cause 不能证明 D05 成功/失败；不得实现 allow checker。属于 D08/A 后段实现依赖，不是本卡偷偷扩大 D05 源码。 |
-| Knowledge 删除 Audit | action/resource/producer/metadata 闭集尚无；D08 P `AuditFacts` 当前只收 Secret/Object | §3 闭集+Knowledge 自有事实 checker；P冻结后 root 交接 `project/authority.go` 与 `project/audit_authority.go`，限定接纳 KnowledgeProducer。B 当前拥有 Audit types/metadata/service，必须等其冻结，不能并写。 |
+| ReferenceCleanup | 现有 C3 已接受 Avatar／Knowledge 精确分支 | C3 已交付，消费现有精确 Knowledge cause 分支；本轮不改 Object 实现。 |
+| Object Audit 事实 | D08 §9.2/C0 `audit.ProjectFactAuthority` 与 D05 `NewProjectAuditAuthority` 均有实际源；Project 路由仍未绑定 | 必须消费 D05 自己的同 Tx 真实见证与 upload/attempt/cleanup事实。Knowledge command/cause 不能证明 D05 成功/失败；不得实现 allow checker。属于 D08/A 后段实现依赖，不是本卡偷偷扩大 D05 源码。 |
+| Knowledge 删除 Audit | C2 action/resource/producer/metadata 闭集已在基线；Project AuditFacts 仅 Secret 可注册 | §3 闭集+Knowledge 自有事实 checker；P冻结后 root 交接 `project/authority.go` 与 `project/audit_authority.go`，限定接纳 KnowledgeProducer。B 当前拥有 Audit types/metadata/service，必须等其冻结，不能并写。 |
 | Knowledge Outbox | B01 typed events 已验；固定 `project/events.go:272/293` 仅接受 producer=project | 依赖 P 正在实现的 `project/outbox_authority.go` 通用 Human gate 独立验收：完整 summary/stage/private issuer、CurrentAccess=Read/NewFact=Mutate、User/Project union。不新建临时 Project adapter；Knowledge只实现自己的 `ob.ProducerAuthority`。 |
-| 分页 | cursor只有 instant/uuid/integer | §3 增 text scalar；不改签名格式/改用伪 integer，不靠全量取回后内存分页。 |
-| 迁移/资源 | 00014归A；00015是B候选；均非本卡可占资源 | [DDL草案](/tmp/agenteam-d12-b02-card-3oix0e9s/knowledge-schema.draft.sql) 无编号，仅本域结构和Audit增量契约。root在前序冻结/验收、约束合并后另授唯一后续号和 PG/MinIO 窗口。 |
+| 分页 | cursor.Text 已交付，与原 instant/uuid/integer 共存 | 直接消费 C1；不改签名格式、不以伪 integer 或全量内存分页替代。 |
+| 迁移/资源 | 00001–00023 已正式存在；本卡独占 00025，00024／00026 属并行树 | 旧临时 DDL 不作现存输入；按 §6 实现 00025 并核前序 Audit CHECK 增量。真实迁移等待连续前序就绪和独占 PG／MinIO 窗口。 |
 | Project生命周期 | D08 P、A stop与Knowledge participant未联合验收 | 本库具备真实本域工作登记/取消/join/恢复；后续 B03 绑定 exact lifecycle cause、required manifest、source_project_id join和删除顺序。不能把 B02 通过写成项目全域停止/清理通过，生产根继续未绑定。 |
 
 因此可以先派同一完整 B02 作者写新 Knowledge 主体、纯测试和集成准备；共同口按下表先冻结再消费。未满足的真实上游是后段验收门槛，不是停止所有新文件开发的全局门槛。依赖版本在真实验证前固定；不从 A/B/P 活动源码拼编译输入。
@@ -139,3 +149,9 @@ Audit草案只冻结新五字段闭集和需要合并的既有约束名；不生
 - fresh schema、前序有数据升级、DDL失败全回滚；global ID/parent FK/tombstone/闭集约束，旧Account/Project/Object/Artifact与B新增AuditCHECK保留。
 
 作者实际完整组及独立风险probe分列执行者/断言来源，保原红及固定输入；阶段准备或compile-only不能称B02通过。无HTTP/root、D13、Agent destructive、全Project lifecycle验收声明。交付固定版本、实际命令/原日志、结论/限制与精确提交路径即可，不复制全树/大索引。候选已完成独立静态审查并获采纳，报告 `/tmp/agenteam-d12-b02-review-acect8x7/report.md` SHA `df2fdea872d0e755449c8b966abdbe8962285d1b76e781f3ea7dd422bf2a86a8`；这不替代实现与真实业务验收。正式卡的路径和状态归位不更改未编号 DDL，原草案 SHA `fe3ed8d6084dced33618e2a7d565492424c1f061bbc5cb54f40d93c5331ca217`。
+
+## 8. 本轮实际实施与验证
+
+首批 `service.go`、`repository.go`、`runtime.go`、`read.go` 与两项相邻测试已落盘；`GetDocument`／`ReadAncestors`／`ReadCurrentInTx` 通过同 Store 活 Tx、完整已有锁和真实 Project port 后才查询本域，取消不能代替实际 Drain。Unknown 保留原物理 attempt／cause，安全格式不泄露 command key。当前只是完整 B02 的中间片段，没有生产 stub、完整 Documents 实现、迁移或真实业务接受。
+
+Go 1.27.1、`GOPROXY=off GOSUMDB=off`、独占 GOCACHE、只读既有固定 modcache 下，`go test -p 2 ./internal/central/knowledge/...` 实际通过。首编曾因 Object marker 名误写失败，改为正式 `StoredObject`；随后测试 fixture 使用非法非 UUID owner 导致 `INVALID_TRANSACTION_CAUSE`，修为正式 typed UUID 后通过。当前 pure 只覆盖构造、真实调用返回前不能 Drain、多个调用退出、Unknown 私有因果与已有 B01；SQL／权限／并发和对象组合还未真实执行，不冒充已验。
