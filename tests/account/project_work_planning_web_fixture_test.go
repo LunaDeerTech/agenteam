@@ -53,6 +53,8 @@ type projectWorkPlanningWebFixture struct {
 	readCanceled            bool
 	planningBaseline        map[string]any
 	recoveryBaselines       map[string]map[string]any
+	recoveryStages          map[string]*projectWorkRecoveryStage
+	changedMeaning          map[string]*projectWorkPlanningWebObservation
 	identityFacts           projectWorkIdentityFacts
 	activitySession         string
 	activityBefore          time.Time
@@ -77,7 +79,7 @@ func newProjectWorkPlanningWebFixture(t *testing.T, ctx context.Context, mode st
 	if !projectWorkPlanningWebCases[mode] {
 		t.Fatal("closed Work browser case required")
 	}
-	f := &projectWorkPlanningWebFixture{ctx: ctx, mode: mode, seeds: map[string]projectWorkPlanningWebSeed{}, lost: map[string]projectWorkPlanningWebObservation{}}
+	f := &projectWorkPlanningWebFixture{ctx: ctx, mode: mode, seeds: map[string]projectWorkPlanningWebSeed{}, lost: map[string]projectWorkPlanningWebObservation{}, recoveryStages: map[string]*projectWorkRecoveryStage{}, changedMeaning: map[string]*projectWorkPlanningWebObservation{}}
 	if mode == "read" {
 		f.pendingProject = id[identity.Project](t)
 	}
@@ -99,6 +101,18 @@ func newProjectWorkPlanningWebFixture(t *testing.T, ctx context.Context, mode st
 			clear(v.StoredReceipt)
 			delete(f.lost, k)
 		}
+		for key, stage := range f.recoveryStages {
+			if stage.Original != nil {
+				clear(stage.Original.Body)
+				stage.Original.Key = ""
+			}
+			delete(f.recoveryStages, key)
+		}
+		for key, changed := range f.changedMeaning {
+			clear(changed.Body)
+			changed.Key = ""
+			delete(f.changedMeaning, key)
+		}
 		f.records = nil
 	})
 	// Every seed below crosses the default root's formal Work HTTP and current
@@ -106,6 +120,9 @@ func newProjectWorkPlanningWebFixture(t *testing.T, ctx context.Context, mode st
 	keys := []string{"main", "duplicate"}
 	if mode == "recovery" || mode == "independent-recovery" {
 		keys = []string{"structure", "task", "blocker"}
+	}
+	if mode == "recovery" {
+		keys = append(keys, "not-observed", "in-progress")
 	}
 	for _, key := range keys {
 		if f.ids[key] == "" {
@@ -259,9 +276,9 @@ func (f *projectWorkPlanningWebFixture) observeRequest(w http.ResponseWriter, r 
 		}
 	}
 	f.guard.Lock()
-	defer f.guard.Unlock()
 	if len(f.records) >= 256 || f.bytes+len(raw) > 32*1024*1024 {
 		clear(obs.Body)
+		f.guard.Unlock()
 		http.Error(w, "owned Work observation bound reached", http.StatusServiceUnavailable)
 		return false
 	}
@@ -269,7 +286,14 @@ func (f *projectWorkPlanningWebFixture) observeRequest(w http.ResponseWriter, r 
 	f.records = append(f.records, obs)
 	f.bytes += len(raw)
 	*r = *r.WithContext(context.WithValue(r.Context(), projectWorkPlanningWebRequestKey{}, index))
-	return true
+	f.guard.Unlock()
+	proceed, err := f.recoveryBeforeForward(w, r, obs)
+	if err != nil {
+		f.t.Error("owned recovery before-forward stimulus failed")
+		http.Error(w, "owned recovery stimulus unavailable", http.StatusServiceUnavailable)
+		return false
+	}
+	return proceed
 }
 
 func TestProjectWorkObservationLookupTargets(t *testing.T) {
@@ -335,7 +359,7 @@ func (f *projectWorkPlanningWebFixture) controlResponse(response *http.Response)
 		hold.started = true
 	}
 	drop := obs.Method != http.MethodGet && !strings.HasSuffix(obs.RawPath, "/lookup") && response.StatusCode == http.StatusOK && f.lossProject == obs.ProjectID && f.lossDomain == obs.Domain
-	if original, found := f.lost[obs.Domain]; found && original.Key == obs.Key && obs.Method != http.MethodGet && !strings.HasSuffix(obs.RawPath, "/lookup") {
+	if original, found := f.lost[obs.Domain]; found && original.Key == obs.Key && response.StatusCode == http.StatusOK && bytes.Equal(original.Body, obs.Body) && obs.Method != http.MethodGet && !strings.HasSuffix(obs.RawPath, "/lookup") {
 		f.replayed++
 	}
 	f.guard.Unlock()
@@ -447,6 +471,8 @@ func (f *projectWorkPlanningWebFixture) ipc(ctx context.Context, r projectWorkPl
 	}
 	out := map[string]any{"sequence": r.Sequence}
 	switch r.Action {
+	case "arm-recovery-stage", "observe-recovery-stage", "complete-planned-original", "reject-changed-meaning":
+		return f.recoveryIPC(ctx, r)
 	case "identity-revoked", "identity-expire", "identity-rename", "identity-reuse-name":
 		return f.identityIPC(ctx, r)
 	case "age-activity":

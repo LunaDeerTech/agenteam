@@ -63,6 +63,9 @@ const reorderOptions = computed(() => [
         <h1 id="work-planning-title" tabindex="-1">任务规划</h1>
         <p class="muted">按 Milestone、Sprint 和 Task 组织计划。</p>
       </div>
+      <UiButton :disabled="work.blocked.value" @click="work.refreshProject()"
+        >刷新项目信息</UiButton
+      >
       <UiButton
         class="tree-toggle"
         :disabled="work.blocked.value"

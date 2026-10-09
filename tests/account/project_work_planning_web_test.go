@@ -4,6 +4,7 @@ package account_test
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"reflect"
 	"strings"
@@ -229,8 +230,9 @@ func TestAccountProjectWorkPlanningWebBlockers(t *testing.T) {
 	runProjectWorkPlanningWeb(t, "blockers", "two_types", "resolve", "cycle", "status", "cursor", "state_unchanged")
 }
 func TestAccountProjectWorkPlanningWebOriginalRecovery(t *testing.T) {
-	f := runProjectWorkPlanningWeb(t, "recovery", "three_domains", "lookup_original", "same_replay", "history", "archive", "unique_facts")
+	f := runProjectWorkPlanningWeb(t, "recovery", "three_domains", "lookup_original", "same_replay", "history", "archive", "unique_facts", "in_progress", "not_observed", "meaning_conflict")
 	assertProjectWorkOriginalRecovery(t, f)
+	assertProjectWorkRecoveryStages(t, f)
 }
 func TestAccountProjectWorkPlanningWebIdentityAndOwnership(t *testing.T) {
 	f := runProjectWorkPlanningWeb(t, "identity", "logout", "revocation", "owner", "checking", "new_session", "late_read", "confirmations", "expiry", "canonical_identity", "reused_name", "model_guard")
@@ -288,9 +290,13 @@ func assertProjectWorkOriginalRecovery(t *testing.T, f *projectWorkPlanningWebFi
 		if json.Unmarshal(original.Body, &source) != nil {
 			t.Fatal("private original request invalid")
 		}
-		lookup, mutation := 0, 0
+		lookup, mutation, meaningConflict := 0, 0, 0
 		for _, observed := range f.observations() {
 			if observed.Key != original.Key {
+				continue
+			}
+			if f.mode == "recovery" && projectWorkChangedMeaningMatches(original, observed, domain, sha256.Sum256([]byte(f.ownerCSRF))) {
+				meaningConflict++
 				continue
 			}
 			if observed.ProjectID != original.ProjectID || observed.Domain != domain || observed.Command != original.Command || observed.TargetID != original.TargetID || observed.CSRF != original.CSRF {
@@ -320,6 +326,9 @@ func assertProjectWorkOriginalRecovery(t *testing.T, f *projectWorkPlanningWebFi
 				}
 				mutation++
 			}
+		}
+		if f.mode == "recovery" && meaningConflict != 1 {
+			t.Fatal("exactly one closed changed-meaning rejection required")
 		}
 		if lookup != 2 || mutation != 2 {
 			t.Fatal("exact original lookup/replay attempt count mismatch")

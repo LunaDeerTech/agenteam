@@ -338,7 +338,8 @@ async function productionPage(path = home + '/tasks/explore/milestones/' + id) {
         'X-Request-ID': id.replace('000010', '000099'),
       },
     })
-  const fetcher = vi.fn<Fetch>(async (url, init) => {
+  let intercept: Fetch | undefined
+  const normal: Fetch = async (url, init) => {
     if (url === '/api/v1/session')
       return json({
         user: {
@@ -367,6 +368,7 @@ async function productionPage(path = home + '/tasks/explore/milestones/' + id) {
         delivery_channel: 'backend_log',
       })
     if (url.startsWith('/api/v1/projects/resolve?') || url === base) return json(project)
+    if (url.startsWith('/api/v1/projects?')) return json({ items: [] })
     if (url.startsWith(base + '/milestones?')) {
       const { description: _description, ...summary } = milestone
       return json({ items: [summary] })
@@ -390,7 +392,10 @@ async function productionPage(path = home + '/tasks/explore/milestones/' + id) {
       })
     }
     throw new Error('Unexpected production-page fixture request')
-  })
+  }
+  const fetcher = vi.fn<Fetch>((url, init) =>
+    intercept ? intercept(url, init) : normal(url, init),
+  )
   const auth = createSessionController(
     createAccountAPI(fetcher),
     undefined,
@@ -424,7 +429,19 @@ async function productionPage(path = home + '/tasks/explore/milestones/' + id) {
   })
   await flushPromises()
   await flushPromises()
-  return { wrapper, router, auth, fetcher }
+  return {
+    wrapper,
+    router,
+    auth,
+    fetcher,
+    project,
+    base,
+    json,
+    normal,
+    intercept(value: Fetch) {
+      intercept = value
+    },
+  }
 }
 function publicButton(label: string) {
   const button = [...document.querySelectorAll<HTMLButtonElement>('button')].find((value) => {
@@ -436,6 +453,106 @@ function publicButton(label: string) {
   return button
 }
 describe('Work production App and router composition', () => {
+  it('explicitly refreshes the same Project ID and preserves the Work draft and cancelable Owner guard', async () => {
+    const f = await productionPage()
+    await f.wrapper.find('input[name="work-structure-title"]').setValue('Keep through rename')
+    Object.assign(f.project, { name: 'Renamed', normalized_name: 'renamed', version: '2' })
+    window.dispatchEvent(new Event('pageshow'))
+    await flushPromises()
+    await flushPromises()
+    expect(f.router.currentRoute.value.path).toBe(home + '/tasks/explore/milestones/' + id)
+    const before = f.fetcher.mock.calls.length
+    publicButton('刷新项目信息').click()
+    await flushPromises()
+    await flushPromises()
+    expect(f.router.currentRoute.value.path).toBe('/owner/renamed/tasks/explore/milestones/' + id)
+    expect(f.fetcher.mock.calls.slice(before).filter(([url]) => url === f.base)).toHaveLength(1)
+    expect(f.fetcher.mock.calls.slice(before).some(([url]) => url.includes('/resolve?'))).toBe(
+      false,
+    )
+    expect(
+      f.wrapper.find<HTMLInputElement>('input[name="work-structure-title"]').element.value,
+    ).toBe('Keep through rename')
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    const leaving = f.router.push('/owner/renamed/settings/general')
+    await flushPromises()
+    expect(document.body.textContent).toContain('放弃项目修改？')
+    publicButton('继续编辑').click()
+    await leaving
+    await flushPromises()
+    expect(f.router.currentRoute.value.path).toBe('/owner/renamed/tasks/explore/milestones/' + id)
+    expect(
+      f.wrapper.find<HTMLInputElement>('input[name="work-structure-title"]').element.value,
+    ).toBe('Keep through rename')
+    expect(f.fetcher.mock.calls.some(([, init]) => init.method === 'PATCH')).toBe(false)
+  })
+  it('does not publish Work data or issue child reads after explicit Project refresh loses authority', async () => {
+    const f = await productionPage()
+    await f.wrapper.find('input[name="work-structure-title"]').setValue('Private Work input')
+    f.intercept(async (url, init) =>
+      url === f.base
+        ? new Response(
+            JSON.stringify({
+              type: 'urn:agenteam:problem:not-found',
+              title: 'Not found',
+              detail: '',
+              instance: f.base,
+              status: 404,
+              code: 'NOT_FOUND',
+              commit_state: 'not_started',
+              request_id: id.replace('000010', '000099'),
+            }),
+            {
+              status: 404,
+              headers: {
+                'Content-Type': 'application/problem+json',
+                'X-Request-ID': id.replace('000010', '000099'),
+              },
+            },
+          )
+        : f.normal(url, init),
+    )
+    const before = f.fetcher.mock.calls.length
+    publicButton('刷新项目信息').click()
+    await flushPromises()
+    await flushPromises()
+    expect(document.body.textContent).toContain('项目不可用')
+    expect(f.wrapper.find('#work-planning-title').exists()).toBe(false)
+    expect(document.body.textContent).not.toContain('Private Work input')
+    expect(f.fetcher.mock.calls.slice(before).map(([url]) => url)).toEqual([f.base])
+  })
+  it('retires a pending explicit Project refresh on navigation and rejects its late publication', async () => {
+    const f = await productionPage()
+    let signal: AbortSignal | null | undefined
+    let finish: (() => void) | undefined
+    f.intercept(async (url, init) => {
+      if (url === f.base) {
+        signal = init.signal
+        return new Promise<Response>((resolve) => {
+          finish = () =>
+            resolve(f.json({ ...f.project, name: 'Late', normalized_name: 'late', version: '2' }))
+        })
+      }
+      return f.normal(url, init)
+    })
+    publicButton('刷新项目信息').click()
+    await flushPromises()
+    expect(finish).toBeDefined()
+    expect(document.body.textContent).toContain('正在读取项目')
+    await f.router.push('/projects')
+    await flushPromises()
+    expect(signal?.aborted).toBe(true)
+    const before = f.fetcher.mock.calls.length
+    finish!()
+    await flushPromises()
+    await flushPromises()
+    expect(f.router.currentRoute.value.path).toBe('/projects')
+    expect(f.wrapper.find('#work-planning-title').exists()).toBe(false)
+    expect(document.body.textContent).not.toContain('Late')
+    expect(f.fetcher.mock.calls.slice(before).some(([url]) => url.startsWith(f.base + '/'))).toBe(
+      false,
+    )
+  })
   it('renders the explicit planning entry and saves through the actual Session facade', async () => {
     const f = await productionPage()
     expect(f.wrapper.find('nav[aria-label="项目导航"] a[aria-current="page"]').text()).toBe(

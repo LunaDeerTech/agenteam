@@ -133,6 +133,10 @@ export function createProjectWorkPlanning(
   const blocked = computed(
     () => !visible.value || auth.state.busy || reading.value || confirmation.open,
   )
+  async function refreshProject() {
+    if (blocked.value || workspace.blocked.value) return
+    await workspace.readCurrent()
+  }
   const readOnly = computed(
     () => !context.value || workspace.detail.project?.lifecycle !== 'active',
   )
@@ -1246,6 +1250,7 @@ export function createProjectWorkPlanning(
   }
   return {
     visible,
+    refreshProject,
     draft,
     editor,
     changed,

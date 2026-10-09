@@ -102,6 +102,8 @@ Explore 基础入口沿正式布局：首次当前 Get 有 `current_sprint_id` �
 
 同 Project 的对象切换也要保护本域未保存草稿；切 Milestone 清原 Sprint/Task 选择，切 Sprint 清原 Task。选中对象不可见/已失效时清敏感详情并给父级/重新选择入口。Project 改名/username 变化沿现 stable-ID Get/canonicalize；仅在当前真实同 ID/同对象的规范路径替换时保留本域状态，不把新名称 Resolve 到的新 ID 当旧对象。Project Get 失败/失权后不沿历史导航继续发子请求。
 
+Work 页提供显式“刷新项目信息”，在当前 Work/Owner 读取与身份门禁允许时调用已有 Owner `readCurrent()`；它按已绑定稳定 ID 真正 Get，再沿既有 canonicalize 更新名称地址，保留同 ID Work 草稿。点击不表示放弃编辑，也不生成写命令；读取失败/失权沿 Owner 原错误界面处理，不能继续用旧资格发 Work 请求。读取被导航/身份退役取消后，迟到结果不得恢复旧项目。Session checking 恢复本身不等于 Owner 已重读，不增加隐式刷新、自动重试或共享 Owner 默认行为；浏览器改名验收必须通过此公开动作。
+
 ## 4. 页面行为与可写范围
 
 桌面为规划树与详情；窄屏树用覆盖侧栏，选择后收起，保留项目身份和可返回的树按钮。只展示已绑定操作，状态文案为中文，canonical enum 仅是 wire。共用 [Ui 接口](../frontend/components.md)及[主题/交互规范](../../frontend-design/styles/README.md)，不导入 Debug。
@@ -258,3 +260,7 @@ identity首轮65559完整FAIL（3a1b2da9/binary11，Go15.57秒、outer140.395秒
 logout测试刺激已按正式wire最小修正（单spec +4/-1）：一次私有UUID幂等key与data:{}，保留原CSRF/Origin/Session；直接断言实际整数204，不采错误体。作者实际源4控通过（旧缺key/body反例及400/503拒绝），strictTS87600、精确identity发现5656均actual0/恰1；Go输入/binary11不变，不重编。未参与者核正式wire及实际源3项正反控制后有限接受；原65559实际状态码仍未知。
 
 identity第二轮39077仍完整FAIL（3cdb9df2/binary11，Go32.33秒、outer143.723秒）：正式logout204与撤销SQL、新Session、held读跨Project导航、other Owner/admin拒绝已顺序通过；同ID真实Project改名后pageshow Session200/同Session已返，但规范URL的原5秒断言仍见旧名owner-main。Owner当前项目发布/该时DOM未采，暂不推产品或测试原因。后续Owner/Work/Model护栏、旧名复用、expiry、最终observer及Go持久后验未到。原Work安全观察另保留一条普通Task GET aborted/finished未返，与已声明held取消分开，不借expectedIncomplete放行。directWait1、四Z→actualWait0无STOP、各服务join及七资源/desc/runtime/private/TCP双尾与inputsame齐，窗口已释放；必要事实见 `.agent-state/work-owner-planning-ui/identity-second-failure.json`，普通原log在output/ai/work-owner-planning-ui/pg/identity-02.log。首轮未知注销状态与其它旧FAIL均保留；不盲重跑或放宽期限。
+
+显式项目刷新与完整恢复刺激已可构建，待有限独审和真实验收。§4新增公开“刷新项目信息”只复用既有Owner readCurrent，同ID规范化保Work草稿；共享Owner/Session无改动。实际App/路由组合原3红例缺入口，修后4文件116控制通过（58369）；首404刺激漏正式X-Request-ID的纯控FAIL单列保留。前端类型/build71743实际0、私有dist已更新，identity只经新公开按钮取得真实项目后再要求规范URL。recovery归档观察也使用这个动作，不再把pageshow误作OwnerGet。
+
+§8.2的recovery两非终态与三域改义现已落测试源：原请求未转发前真实close、final Outbox精确故障/真实planned与回滚/移除后同User原请求私有续写均保留实际SQL和公开Lookup门槛；闭集IPC、私有与浏览器Session区分、原key/完整语义、503错误形态及四个精确单次操作后验拒绝放宽。新增测试对象只在原私有DB生命周期内创建，失败仍由原七资源链退休；没有业务/command/history/Outbox结果造数。原三域成功截断与历史receipt/归档同义重放继续验证，并只允许各一次精确改义409反例。纯/race七top5329实际0/1.031秒；PW strictTS74271、identity发现25259/recovery发现47387各1项均实际0；binary12完整race编译20975实际0，两真实top发现齐。纯测试与编译不证明真实planned/回滚、截断或新UI通过，待未参与者有限审查后逐个freshgrant运行，原预算不变。

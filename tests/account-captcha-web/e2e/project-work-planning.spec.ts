@@ -48,6 +48,21 @@ async function discard(page: Page) {
   await button(dialog, "放弃本地修改").click();
   await expect(dialog).toHaveCount(0);
 }
+async function refreshProject(page: Page, projectID: string) {
+  const [value] = await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        response.request().method() === "GET" &&
+        new URL(response.url()).pathname === `/api/v1/projects/${projectID}`,
+    ),
+    button(page, "刷新项目信息").click(),
+  ]);
+  expect(value.status()).toBe(200);
+  expect(await value.finished()).toBeNull();
+  const current = await value.json();
+  expect(current.id).toBe(projectID);
+  return current;
+}
 async function realOrdering(
   page: Page,
   peer: string,
@@ -514,10 +529,91 @@ test("[recovery] three committed lost responses retain original intent and histo
 }) => {
   const data = material(),
     seen = observe(page);
-  for (const [index, domain] of ["structure", "task", "blocker"].entries()) {
+  for (const [index, stage] of (
+    ["not-observed", "in-progress"] as const
+  ).entries()) {
+    if (!index) await enter(page, data, "milestone", stage);
+    else await go(page, path(data, stage, "milestone"));
+    const seed = data.work[stage]!;
+    await current(page, seed.milestone_id);
+    const armed = await ipc("arm-recovery-stage", { project: stage });
+    const version = await details(page)
+      .locator("dt")
+      .filter({ hasText: /^当前版本$/ })
+      .locator("+ dd")
+      .innerText();
+    expect(
+      version === armed.expected_version &&
+        armed.title === "恢复状态原命令 " + stage,
+    ).toBe(true);
+    if (stage === "not-observed") {
+      seen.declareIncomplete({
+        kind: "lost-milestone-update",
+        projectID: seed.project_id,
+        targetID: seed.milestone_id,
+        expectedVersion: version,
+        text: armed.title,
+      });
+    }
+    await title(page).fill(armed.title);
+    await button(editor(page), "保存修改").click();
+    await expect(
+      recovery(page).getByRole("heading", {
+        name: "原命令结果不确定",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await button(recovery(page), "查证原命令").click();
+    const stateMessage =
+      stage === "in-progress"
+        ? "本次查证仍在处理中；不会自动轮询或重放。"
+        : "本次未观察到原命令，不代表从未提交或已经回滚。";
+    await expect(recovery(page)).toContainText(stateMessage);
+    await expect(
+      recovery(page).getByRole("heading", {
+        name: "原命令结果不确定",
+        exact: true,
+      }),
+    ).toBeVisible();
+    const durable = await ipc("observe-recovery-stage", { project: stage });
+    expect(durable.state === stage.replaceAll("-", "_")).toBe(true);
+    if (stage === "in-progress") {
+      await expect(button(recovery(page), "按原请求重放")).toBeDisabled();
+      const before = seen.requests.filter(
+        (request) =>
+          request.method !== "GET" && !request.path.endsWith("/lookup"),
+      ).length;
+      await ipc("complete-planned-original", { project: stage });
+      // External continuation cannot publish UI success on its own or cause
+      // the browser to replay/poll. A fresh explicit original Lookup is needed.
+      await expect(recovery(page)).toContainText(stateMessage);
+      await expect(
+        recovery(page).getByRole("heading", {
+          name: "原命令结果不确定",
+          exact: true,
+        }),
+      ).toBeVisible();
+      expect(
+        seen.requests.filter(
+          (request) =>
+            request.method !== "GET" && !request.path.endsWith("/lookup"),
+        ).length === before,
+      ).toBe(true);
+    } else {
+      await expect(button(recovery(page), "按原请求重放")).toBeEnabled();
+      await button(recovery(page), "按原请求重放").click();
+      await confirmed(page);
+    }
+    await button(recovery(page), "查证原命令").click();
+    await confirmed(page);
+    await expect(recovery(page)).toContainText(armed.title);
+    await button(recovery(page), "放弃本地追踪").click();
+    await discard(page);
+    await expect(recovery(page)).toHaveCount(0);
+  }
+  for (const domain of ["structure", "task", "blocker"]) {
     const kind = domain === "structure" ? "milestone" : "task";
-    if (!index) await enter(page, data, kind, domain);
-    else await go(page, path(data, domain, kind));
+    await go(page, path(data, domain, kind));
     const seed = data.work[domain]!;
     await current(page, seed[`${kind}_id`]);
     await ipc("arm-loss", { project: domain, domain });
@@ -581,12 +677,14 @@ test("[recovery] three committed lost responses retain original intent and histo
         .textContent();
       await ipc("resolve", { project: domain, target: id, text: "后继解除" });
     }
+    expect(
+      (await ipc("reject-changed-meaning", { project: domain })).rejected,
+    ).toBe(true);
     await ipc("archive", { project: domain });
-    // Requalification through the existing App event re-reads Session/Owner,
-    // retaining the same identity's immutable original intent.
-    await page.evaluate(() =>
-      window.dispatchEvent(new PageTransitionEvent("pageshow")),
-    );
+    // The public stable-ID Project refresh, not a Session-only pageshow,
+    // obtains the real archived state while retaining the original Work intent.
+    const archived = await refreshProject(page, seed.project_id);
+    expect(archived.lifecycle).toBe("archived");
     await expect(
       page.getByText("项目已归档，当前内容只读。", { exact: true }),
     ).toBeVisible();
@@ -606,7 +704,10 @@ test("[recovery] three committed lost responses retain original intent and histo
     history: true,
     archive: true,
     unique_facts: true,
-    bodies: await seen.verify(3),
+    in_progress: true,
+    not_observed: true,
+    meaning_conflict: true,
+    bodies: await seen.verify(4),
   });
 });
 
@@ -737,6 +838,8 @@ test("[identity] dirty guards, same Session checking, revocation and old read is
   data.projects.main!.name = renamed.project.name;
   const renamedSession = await requalify(200);
   expect(renamedSession.session.id === nextSession.session.id).toBe(true);
+  const currentProject = await refreshProject(page, data.work.main!.project_id);
+  expect(currentProject.name).toBe(renamed.project.name);
   await expect(page).toHaveURL(
     new URL(path(data, "main", "task"), page.url()).href,
   );
