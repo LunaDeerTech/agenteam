@@ -1,5 +1,6 @@
 # 当前执行检查点
 
+- D10 Secret 顺序 SPEC 窄独审完成：固定870b50309af4909cc61915eac482e0543b617d8e相对b2c87c4f，仅原卡§4.1/§6.1/§6.2；对照正式A receipt与Audit先authorize后生成/返回ID的代码，有限接受无must-fix。真实D10 canonical/history后同Store/活同Tx私有mutation witness→Audit→含真实AuditID completed→Outbox完整事实的门闭合，当前Owner/Session/锁、普通分支/no-op/replay/Unknown不放宽，公开A/Audit合同无需变更。最小可恢复结论见 `.agent-state/secret-variable-order-review/review.md`；只读静审，未改作者产品/冻结输入，未执行PG/socket或将D04作者实测纳入本结论。
 - binary09 已离线就绪：固定2a603a3d诊断源沿原Go1.27.1/local/off/GOENVoff/GOWORKoff/只读modcache/Vars独占cache与tmp，以`-race -tags=integration -p=1 -vet=off -c ./tests/account`生成独立 `output/ai/project-variables-ui/implementation/variables-web-race-09.test`（57,681,300B）。session5620→ac8696编译与六精确top list均actual0；首同process UTC2026-10-09T23:22:34.768939Z、available5,597,347,840B≥5GiB、新09absent已flush，编后available5,408,407,552B（主机差188,940,288B，不当cache独占精确增量）。只发现六top、未执行测试；08与dist03（67files/958,138B）保留未重建。没有新真实窗口或在途命令，原Authority03 wholeFAIL与各未验矩阵不变。下一实际候选用09/dist03并另取fresh输出与grant，不用08代新Go投影。
 - 首次GET/detail 14scope已获Skills独立有限接受（85150/5ca8ba actual0）：五差异控核错XID/晚DOM不得补认、hook无法还原仍拒且缓存wrapper原语义、failed后finished仍保拒、第三参数委托但不入候选；旧consumer10/observer116/Go51/严格TS按未变范围复用，不重跑全组。只属离线方法接受，不回填Authority03。
 
