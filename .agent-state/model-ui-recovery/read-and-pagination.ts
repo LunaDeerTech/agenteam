@@ -207,8 +207,10 @@ export async function runReadAndPagination(page: Page, harness: ReadCaseHarness)
     const refreshWitness = await availableRead(pageQuery(), () => button(page, '刷新可用模型').click());
     const refreshedPage = await orderedPage(page.getByRole('list', { name: '可用模型目录', exact: true }), 'data-model-id', refreshWitness), refreshed = refreshedPage.ids;
     await directoryRows(page, refreshedPage.rows, pagination.available);
-    need(refreshed.every((value, index) => value === available.first[index]), 'PROJECT_MODELS_READ_EXPLICIT_REFRESH_CHANGED');
+    need(refreshed.length === 25 && refreshed.length === available.first.length && refreshedPage.cursor !== null && refreshed.every((value, index) => value === available.first[index]), 'PROJECT_MODELS_READ_EXPLICIT_REFRESH_CHANGED');
+    await expect(page.getByLabel('可用模型分页', { exact: true }).getByText('第 1 页', { exact: true })).toBeVisible();
     await expect(button(page, '上一页可用模型')).toBeDisabled();
+    await expect(button(page, '下一页可用模型')).toBeEnabled();
     need(operationCount(await harness.counts(), 'listProjectAvailableChatModels') === operationCount(beforeRefresh, 'listProjectAvailableChatModels') + 1, 'PROJECT_MODELS_READ_REFRESH_REQUEST_COUNT_INVALID');
     checks.explicit_page_recovery = true;
 
@@ -217,7 +219,10 @@ export async function runReadAndPagination(page: Page, harness: ReadCaseHarness)
     need(Array.isArray(secondProviders.body.items) && secondProviders.body.items.length === 0 && secondProviders.body.next_cursor === null, 'PROJECT_MODELS_READ_SECOND_PROJECT_BODY_INVALID');
     await expect(page.getByText('本页没有 Provider。可以在当前可编辑项目中创建 Provider。', { exact: true })).toBeVisible();
     const returnProviders = await providersRead(pageQuery(), () => harness.openProject(page, 'main', 'model-providers'));
-    await orderedPage(page.getByRole('list', { name: 'Providers 列表', exact: true }), 'data-provider-id', returnProviders);
+    const returnedProviders = await orderedPage(page.getByRole('list', { name: 'Providers 列表', exact: true }), 'data-provider-id', returnProviders);
+    need(returnedProviders.ids.length === 25 && returnedProviders.ids.length === providers.first.length && returnedProviders.cursor !== null && returnedProviders.ids.every((value, index) => value === providers.first[index]), 'PROJECT_MODELS_READ_RETURN_PROJECT_PAGE_CHANGED');
+    await expect(page.getByLabel('Providers 分页', { exact: true }).getByText('第 1 页', { exact: true })).toBeVisible();
+    await expect(button(page, '上一页 Providers')).toBeDisabled(); await expect(button(page, '下一页 Providers')).toBeEnabled();
     await button(page, '创建凭据').click();
     dialog = page.getByRole('dialog').filter({ has: page.locator('#project-credential-form') });
     await harness.fillCredential(dialog);
