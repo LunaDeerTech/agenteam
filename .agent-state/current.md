@@ -41,6 +41,12 @@
 - 本人96791/4806f2 actual0，6差异控制/0unhandled：真实改名canonical阳性、显式adopt/directfacade不代无参Workspace刷新、两实际读取同XID拒绝、Workspace与Project facade hook冲突保替换且退休失败。首96940/48d000为自有two-read probe漏投影第二native的setupFAIL，补保真实两行后过，不是产品反例。087856核四旧AST/adapter两输入逆投影/产品零差异；首057bf0把schemaProgram常量当函数的静核setupFAIL保留。
 - 作者55/旧116/41与TS未变范围复用，不全矩阵重跑。新 `.agent-state/work-project-read-review/{controls.cjs,README.md}`＋本文3路径冻结供root保存；无本人live命令、PG/browser/socket/network或作者源写入。新实际仍由root fresh grant。
 
+## D04 SQL recovery 方法独立有限审查
+
+- 前 Work GET 三路径已root保存/push `ece8121a`。本次只读D04 `sql-recovery-followup.md`（自述基线9ae2e0ab）与实际 Postgres/Secret/两 COMMIT-frame proxy 源，限定方法可实施；四top/十格为 final Unknown三、nonce一、maintenance三、实际锁竞争三。不启动任何PG/socket/被测child，不改作者提案/生产/现742候选，也没有用controlled Store伪造Unknown或重做旧纯控。
+- 新 `.agent-state/secret-storage-recovery-review/README.md` 给出各格最小到达证据和拒例：真实Apply/nativeAudit后目标COMMIT、nonce high-water/rotation持久tuple，原Attempt/cause仅断实际暴露接口；exact backend/database/required advisory blocker；API返回、服务端COMMIT、原全锁join、测试goroutine与proxy/Store退休分列。需澄清nonce阈值只覆盖后继新payload、计数按真实producer基线；原合法历史行不作错误阈值要求。
+- 结论只接受方法可实施性，不接受尚无测试/新入口或真实结果。D10 authority仍controlled，100/101旧矩阵、cross-epoch/rewrap-Cleanup并发和Owner/HTTP恢复未重复或扩认。本文及新README两路径freeze供root下安全窗口保存；无本人live进程或资源。
+
 ## D04 SQL 四 top 与 PG-only 入口有限独审
 
 - Apply/维护四路径已root保存eaad50fd。新只读范围为作者fde3ecb5两SQL测试＋17969f85 fixture；复用已接受Go/29DDL，不重做旧矩阵。实际调用为PG Migrator/Store/Secret/Audit/native checker，D10权限与mapping仍明确controlled；无TestMain/MinIO依赖，两资源PG-only可行，耗时须实际验证。
