@@ -194,7 +194,7 @@ Service统一跟踪读/写/Lookup/确认。Stop禁止新admission并取消全部
 
 PG复用 `tests/testsupport/postgres`，HTTP真实Account/Project准备参考 `tests/work/work_owner_http_fixture_test.go`，不得直接消费该包私有helper；完整帧代理参考 `tests/work/task_concurrency_test.go`。必要跨包窄helper另报写域，不复制监督器。
 
-默认root复用现 `scripts/test-objects.sh`→outbound→postgres七资源链、显式预编binary/cwd/selector、已验root_chain_driver/pg_only_supervisor。扩精确selector闭集须取得工具唯一写权。库层沿105s driver/90s test；root沿原每包6m与有界外层清理，不静默加时、不编造ID或缺manifest的退休。每轮实际子进程Wait、确认/回调join、自有ID/nonce标签、runtime及hostTCP双尾分别记录，root统一排资源窗。SPEC阶段不运行网络测试。
+默认root复用现 `scripts/test-objects.sh`→outbound→postgres七资源链、显式预编binary/cwd/selector、已验root_chain_driver/pg_only_supervisor。扩精确selector闭集须取得工具唯一写权。库层复用原driver实际配置：Go `-test.timeout=6m`，但受driver整体105s context约束，另15s cleanup，supervisor123s+3s退役及75s TCP尾；不因Go标志放宽真实窗口。此前卡中90s test是未运行前的文义错误，已按实际原源码纠正。root沿原每包6m与有界外层清理，不静默加时、不编造ID或缺manifest的退休。每轮实际子进程Wait、确认/回调join、自有ID/nonce标签、runtime及hostTCP双尾分别记录，root统一排资源窗。SPEC阶段不运行网络测试。
 
 作者pure/race/vet、integration race-c/精确发现、两入口build与真实PG/native/root分别记结果，编译不是动态PASS。原FAIL保留、修后只跑影响范围；Model/UI/WIP不进正式候选。本卡完成也仅是普通Variable Owner后端，Agent F1、Secret、完整D10仍未完成。
 

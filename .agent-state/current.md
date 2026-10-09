@@ -9,3 +9,5 @@
 - 全局产品状态见[任务台账](../docs/development/agent-team/tasks.md)。本文件只作分支恢复。当前HTTP/root限定片段可保存，继续尚未完成的集成验收源码；Git 写入、分支、真实资源窗均由 root 处理。
 
 - 首批 PG fixture/persistence 源已 freeze：四 top 的 `variable-persistence-race-02.test` 离线 race-c/精确发现通过，待根授权首 Persistence 真 PG。原 fixture 首 compile FAIL保留。00024原遗漏00013 Project Audit guard与新动作的兼容已精确修复，并获发现者有限独审；非SQL动态通过。根导入正式ca9f2d5d有界supervisor，其他测试工具不改；下一先核真实SQL，再继续权限/竞争/恢复/native/root剩余源码。
+
+- 首PG预算按已正式接受原driver实际配置：Go标志6m、driver整体105s context+15s cleanup、supervisor123s+3s退役+75s TCP尾。此前计划90s不是实际运行事实，根已纠正文义，未改harness或增加预算；原driver本树离线build87715实际0，尚待首轮授权。
