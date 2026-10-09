@@ -25,6 +25,7 @@ TOPS = {
     "authority": "TestAccountProjectOwnerModelsWebAuthorityAndIdentity",
     "navigation": "TestAccountProjectOwnerModelsWebNavigationAndLayouts",
     "session-proxy-diagnostic": "TestAccountProjectOwnerModelsWebSessionProxyDiagnostic",
+    "session-app-diagnostic": "TestAccountProjectOwnerModelsWebSessionAppDiagnostic",
 }
 
 
@@ -94,11 +95,12 @@ def main():
     formal = [ROOT / "api/openapi" / name for name in ("common.json", "project-models.json", "project-model-credentials.json")]
     formal += [ROOT / "docs/development/work-items" / name for name in ("d27-project-owner-model-settings-ui.md", "d27-project-owner-model-settings-ui-endpoints.json")]
     assets = [path for path in (OUTPUT / "dist").rglob("*") if path.is_file()]
-    if args.case == "session-proxy-diagnostic":
+    if args.case in ("session-proxy-diagnostic", "session-app-diagnostic"):
         sources = [*sources[:2], Path(__file__), Path(__file__).with_name("fixture-go.py"), Path(__file__).with_name("owned_resources.py")]
         probe = ROOT / "output/ai/model-ui-session-probe"
         prepared = json.loads((probe / "prepared.json").read_text())
-        assert prepared["mode"] == "owned-fixture" and prepared["cases"] == 1 and prepared["network_started"] is False
+        probe_mode, probe_cases = ("owned-app", 2) if args.case == "session-app-diagnostic" else ("owned-fixture", 1)
+        assert prepared["mode"] == probe_mode and prepared["cases"] == probe_cases and prepared["network_started"] is False
         assert hashlib.sha256((probe / "client.js").read_bytes()).hexdigest() == prepared["bundle_sha256"]
         assert all(hashlib.sha256(Path(path).read_bytes()).hexdigest() == value for path, value in prepared["inputs"].items())
         assets += [probe / "prepared.json", probe / "client.js", *map(Path, prepared["inputs"])]

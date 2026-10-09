@@ -71,6 +71,20 @@ type projectModelsWebFixture struct {
 	modelLastCounts    json.RawMessage
 	modelAux           map[string]map[string]any
 	modelReference     string
+	sessionDiagnostic  *projectModelsWebSessionDiagnostic
+}
+
+// Enabled only by the independent App diagnostic; no Session body leaves Go.
+type projectModelsWebSessionDiagnostic struct {
+	Expected          projectModelsWebSession
+	Compared, Matched int
+}
+
+func (d *projectModelsWebSessionDiagnostic) observe(value projectModelsWebSession) {
+	d.Compared++
+	if value == d.Expected {
+		d.Matched++
+	}
 }
 
 type projectModelsWebOperationCounts struct {
@@ -340,6 +354,9 @@ func (f *projectModelsWebFixture) observeResponse(response *http.Response) error
 				cookie := response.Request.Header.Get("Cookie")
 				f.mu.Lock()
 				f.modelSessions[cookie] = projectModelsWebSession{ID: value.Session.ID, User: value.User.ID, CSRF: value.CSRF, Cookie: cookie}
+				if request.Source == "browser" && f.sessionDiagnostic != nil {
+					f.sessionDiagnostic.observe(f.modelSessions[cookie])
+				}
 				if request.Source == "browser" {
 					f.registry.Sessions[value.Session.ID] = true
 				}
@@ -2314,7 +2331,14 @@ func projectModelsWebBrowserFailure(raw []byte, exitCode int, contextDone bool) 
 
 // This independent diagnostic never enters the six business result decoders.
 // The existing root/proxy owns HTTP; the Node worker owns only its browser.
-func (f *projectModelsWebFixture) browserSessionProxyDiagnostic(ctx context.Context) {
+func (f *projectModelsWebFixture) browserSessionProxyDiagnostic(ctx context.Context, app ...bool) {
+	mode, rows := "owned-fixture", 1
+	if len(app) > 1 || len(app) == 1 && !app[0] {
+		f.t.Fatal("Session diagnostic mode invalid")
+	}
+	if len(app) == 1 {
+		mode, rows = "owned-app", 2
+	}
 	root := filepath.Clean(filepath.Join(f.webRoot, "../../../.."))
 	probeOutput := filepath.Join(root, "output/ai/model-ui-session-probe")
 	endpoint, err := url.Parse(f.origin + "/api/v1/session")
@@ -2333,6 +2357,18 @@ func (f *projectModelsWebFixture) browserSessionProxyDiagnostic(ctx context.Cont
 	if !known || session.User != f.owner.UserID || session.CSRF != f.ownerCSRF || len(cookies) == 0 {
 		f.t.Fatal("Session diagnostic owned identity unavailable")
 	}
+	if mode == "owned-app" {
+		f.mu.Lock()
+		f.sessionDiagnostic = &projectModelsWebSessionDiagnostic{Expected: session}
+		f.mu.Unlock()
+		defer func() {
+			f.mu.Lock()
+			f.sessionDiagnostic.Expected = projectModelsWebSession{}
+			facts := map[string]int{"compared": f.sessionDiagnostic.Compared, "matched": f.sessionDiagnostic.Matched}
+			f.mu.Unlock()
+			f.safeEvidence("session-buffer-identity.json", facts)
+		}()
+	}
 	boundHash := func(name string) string {
 		raw, err := os.ReadFile(filepath.Join(probeOutput, name))
 		if err != nil {
@@ -2341,13 +2377,13 @@ func (f *projectModelsWebFixture) browserSessionProxyDiagnostic(ctx context.Cont
 		return fmt.Sprintf("%x", sha256.Sum256(raw))
 	}
 	privateName := "session-proxy-private.json"
-	f.private(privateName, map[string]any{"protocol": "project-session-proxy.v1", "supervisor_pid": os.Getpid(), "origin": f.origin, "input_hash": f.inputHash, "cookies": cookies,
+	f.private(privateName, map[string]any{"protocol": "project-session-proxy.v1", "mode": mode, "supervisor_pid": os.Getpid(), "origin": f.origin, "input_hash": f.inputHash, "cookies": cookies,
 		"expected": map[string]string{"user_id": session.User, "session_id": session.ID, "csrf": session.CSRF}, "prepared_hash": boundHash("prepared.json"), "client_hash": boundHash("client.js")})
 	for _, cookie := range cookies {
 		cookie["value"] = ""
 	}
 	session = projectModelsWebSession{}
-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, ".agent-state/model-ui-recovery/session-consumption-probe.mjs"), "--owned-fixture", f.evidence, "--mode", "owned-fixture")
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, ".agent-state/model-ui-recovery/session-consumption-probe.mjs"), "--owned-fixture", f.evidence, "--mode", mode)
 	cmd.Dir = root
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
@@ -2405,8 +2441,13 @@ func (f *projectModelsWebFixture) browserSessionProxyDiagnostic(ctx context.Cont
 			Joined bool `json:"observer_joined_after_close"`
 		} `json:"rows"`
 	}
-	if json.Unmarshal(raw, &result) != nil || result.Mode != "owned-fixture" || result.Failure != nil || !result.Retired || len(result.Rows) != 1 || !result.Rows[0].Joined {
+	if json.Unmarshal(raw, &result) != nil || result.Mode != mode || result.Failure != nil || !result.Retired || len(result.Rows) != rows {
 		f.t.Fatal("Session diagnostic completion or browser retirement missing")
+	}
+	for _, row := range result.Rows {
+		if !row.Joined {
+			f.t.Fatal("Session diagnostic observer join missing")
+		}
 	}
 }
 

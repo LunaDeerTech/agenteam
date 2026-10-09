@@ -203,6 +203,54 @@ func TestAccountProjectOwnerModelsWebSessionProxyDiagnostic(t *testing.T) {
 	f.safeEvidence("go-session-proxy-diagnostic.json", map[string]any{"protocol": "project-session-proxy.v1", "input_hash": f.inputHash, "diagnostic_completed": true, "proxy_actual_join": joined, "browser_session_requests": 1, "browser_model_requests": 0, "authority_business_pass": false})
 }
 
+func TestAccountProjectOwnerModelsWebSessionAppDiagnostic(t *testing.T) {
+	started := time.Now()
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	t.Cleanup(func() {
+		cancel()
+		if time.Since(started) > 120*time.Second {
+			t.Error("Session App diagnostic exceeded original top budget")
+		}
+	})
+	f := newProjectModelsWebFixture(t, ctx, "configuration")
+	f.browserSessionProxyDiagnostic(ctx, true)
+	f.stopProxy()
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	modelRequests := 0
+	for _, count := range f.modelCounts {
+		modelRequests += count.Browser
+	}
+	joined := f.modelServer.Started == f.modelServer.Finished && f.modelControls.Held == f.modelControls.HeldJoined && !f.modelFailure
+	if !joined || f.modelSessionCounts["browser"] != 4 || modelRequests != 0 || f.sessionDiagnostic == nil || f.sessionDiagnostic.Compared != 4 || f.sessionDiagnostic.Matched != 4 {
+		t.Fatal("App Session diagnostic request, identity or callback ownership invalid")
+	}
+	f.safeEvidence("go-session-app-diagnostic.json", map[string]any{"protocol": "project-session-proxy.v1", "input_hash": f.inputHash, "diagnostic_completed": true, "proxy_actual_join": joined, "browser_session_requests": 4, "browser_model_requests": 0, "session_identity_matches": 4, "authority_business_pass": false})
+}
+
+func TestProjectModelsWebSessionDiagnosticIdentity(t *testing.T) {
+	expected := projectModelsWebSession{ID: "session-canary", User: "user-canary", Cookie: "cookie-canary", CSRF: "csrf-canary"}
+	for _, test := range []struct {
+		name    string
+		value   projectModelsWebSession
+		matches int
+	}{
+		{"same", expected, 1}, {"missing", projectModelsWebSession{}, 0},
+		{"other-session", projectModelsWebSession{ID: "other", User: expected.User, Cookie: expected.Cookie, CSRF: expected.CSRF}, 0},
+		{"other-user", projectModelsWebSession{ID: expected.ID, User: "other", Cookie: expected.Cookie, CSRF: expected.CSRF}, 0},
+		{"other-cookie", projectModelsWebSession{ID: expected.ID, User: expected.User, Cookie: "other", CSRF: expected.CSRF}, 0},
+		{"other-csrf", projectModelsWebSession{ID: expected.ID, User: expected.User, Cookie: expected.Cookie, CSRF: "other"}, 0},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			d := projectModelsWebSessionDiagnostic{Expected: expected}
+			d.observe(test.value)
+			if d.Compared != 1 || d.Matched != test.matches {
+				t.Fatal("Session diagnostic accepted another identity")
+			}
+		})
+	}
+}
+
 func TestProjectModelsWebPrivateInput(t *testing.T) {
 	directory := t.TempDir()
 	path := filepath.Join(directory, "input.json")
