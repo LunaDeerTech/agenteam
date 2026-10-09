@@ -16,6 +16,7 @@ import (
 	"testing"
 	"time"
 
+	ev "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/knowledge"
@@ -325,6 +326,25 @@ func processFacts(t *testing.T, x *ownerTreeFixture, p id.ProjectID) [9]int {
 	return counts
 }
 
+// The original intent persists its fixed event header in commands.plan.
+// command_events is staged only after the real payload has been prepared and
+// uploaded, so the pre-Prepare barrier must still have zero such rows.
+func processEventPlan(t *testing.T, x *ownerTreeFixture, p id.ProjectID, key f.IdempotencyKey, document kc.DocumentID) string {
+	t.Helper()
+	var raw string
+	err := x.raw.QueryRow(knowledgeContext(t), `SELECT plan::text FROM agenteam_knowledge.commands
+ WHERE project_id=$1 AND command_name='create' AND command_key=$2 AND document_id=$3
+ AND state='planned' AND receipt IS NULL`, p.String(), string(key), document.String()).Scan(&raw)
+	if err != nil {
+		t.Fatal("original planned command header unavailable")
+	}
+	header, err := ev.DecodeHeader([]byte(raw))
+	if err != nil || header.EventType != kc.ContentChangedEvent || header.SchemaVersion != 1 || header.AggregateType != kc.KnowledgeAggregate || header.AggregateID.String() != document.String() || header.AggregateVersion == nil || *header.AggregateVersion != 1 || header.AggregateSequence != nil || header.Scope.Kind != ev.ProjectScope || header.Scope.ProjectID.String() != p.String() {
+		t.Fatal("original planned command header does not match the exact creation")
+	}
+	return raw
+}
+
 type processObservedGuard struct {
 	ob.ProcessAuthority
 	checked   []ob.ProcessID
@@ -370,10 +390,11 @@ func TestKnowledgeB02ProcessRecovery(t *testing.T) {
 	if counts := processFacts(t, x, p); counts != [9]int{} || !x.activity(t, actor).Equal(activity) {
 		t.Fatal("blocked child produced publication facts or Activity")
 	}
-	commands, plannedEvents := x.count(t, p)
-	if commands != 1 || plannedEvents != 1 {
-		t.Fatal("original command plan was not persisted exactly once")
+	commands, stagedEvents := x.count(t, p)
+	if commands != 1 || stagedEvents != 0 {
+		t.Fatalf("original command planning counts: commands=%d staged_events=%d", commands, stagedEvents)
 	}
+	eventPlan := processEventPlan(t, x, p, input.Meta.IdempotencyKey, input.Request.DocumentID)
 	current := x.deps.Processes.CurrentProcess()
 	runtime := &publicationProcessRuntime{spool: input.Spool, bucket: bucket}
 	publicationFixtureWithRuntime(t, x, runtime)
@@ -401,8 +422,11 @@ func TestKnowledgeB02ProcessRecovery(t *testing.T) {
 	if prepares != 0 || len(guard.checked) != 1 || guard.checked[0] != old || len(guard.confirmed) != 0 || processWork(t, x, p, input.Meta.IdempotencyKey) != before || processFacts(t, x, p) != [9]int{} || !x.activity(t, actor).Equal(activity) {
 		t.Fatal("live exact Guard allowed work takeover or publication side effects")
 	}
-	if commands, plannedEvents := x.count(t, p); commands != 1 || plannedEvents != 1 {
-		t.Fatal("live-child retry duplicated command planning facts")
+	if commands, stagedEvents := x.count(t, p); commands != 1 || stagedEvents != 0 {
+		t.Fatalf("live-child retry planning counts: commands=%d staged_events=%d", commands, stagedEvents)
+	}
+	if processEventPlan(t, x, p, input.Meta.IdempotencyKey, input.Request.DocumentID) != eventPlan {
+		t.Fatal("live-child retry changed the original fixed event header")
 	}
 	digest, err := kc.CreateDigest(actor, input.Meta, input.Request, publicationText(t, processBody))
 	if err != nil {
