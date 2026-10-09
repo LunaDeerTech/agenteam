@@ -1,11 +1,11 @@
 # Skills 持久初始化服务恢复点
 
 - 树：`/workspace/agenteam-skills`，分支 `ai/skills-service`；基线正式 main `ca9f2d5d`。D08已正式交付，旧初始化树保持冻结，不再修改。
-- 当前：D10 rev3 SPEC经Variables作者有限独审/root接受；本域Store/repository/Authority/服务owner与观察/确认三口已形成可构建片段，既有P1不变；初始化写入四口与Owner元数据读取已可构建，读流/跨进程恢复仍在实现，尚无真实PG或对象结果。
+- 当前：已完成Variables独验并返回D10作者；rev3 SPEC已获独立有限接受。本域四口initializer、OwnerReader、持久work和有界公平Recover均可构建，正在准备真实PG持久初始化/重读确认与原COMMIT恢复。尚无本域真实PG、D05对象或生产root结果。
 - 已保存SPEC片段：`docs/development/work-items/d10-skills-initialization.md`、`docs/development/work-items/d10-skills-initialization-design.md`、本文。已由root保存/push ea13186d，设计技术段继续freeze；未自行Git操作。
 - 当前可复用：实际D05 same-Store Object Audit checker；D08 original initialization四口、收敛口与初始化Audit wrapper。真实Skill exact映射provider/root尚未绑定，constructor非nil不证明真实组合。
 - 共享待协调：D05初始化Service closed shape/initiator；SkillRevision+ProjectDeleted release；Project CleanupPhase现unbound；本域active初始化与删除Audit分流；生产同participant要组合届时实际启用Variables等域。root现已授权本树D05三个已列窄补口及定向测试，须单独freeze独审；Project CleanupPhase/root仍未授写。Object runtime join停止项不恢复。
-- 迁移预留00027，仅本域schema。root集成24/25/26准确前缀前不做真实迁移。
+- 迁移00027仅本域schema，尚未SQL执行。root已精确刷新00024到正式3cea6076，00025保持da16d95a、00026保持4174e160；三前序各域SQL事实可复用，不代表本树24..27组合已验。
 - 下一步：SPEC独审期间先实现无歧义本域Store/状态/四口及exact authority，受控delegate与真实PG/真实Object/生产root验收分开；共享差异报root，不用stub冒成功。资源/热cache/真实PG或MinIO需freshgrant；不spawn，root协调交叉审查。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
 
@@ -69,3 +69,10 @@
 - 首95974及27820均actual setupFAIL：误用不存在id.NewService；改正式RegisterService.Actor后85824 race actual0/1.410s，3top14子（包括100忙head后新Service达到第101条、原gate/进程/fence/Unknown、坏候选/原取消预算）。随后8057完整skill/... race actual0：skill2.441s、contract1.311s；50111vet actual0，diffcheck0。00027仍未SQL执行。
 - 新3源+主卡/本文5路径freeze供root保存。当前Skills暂驻在可构建边界，转任Variables未参与产品实现的独验；本树无资源/命令在途，不改已冻源。
 - 仍缺真实完整能力：Skills00027及前序整链PG、实际D05/MinIO发布与私有witness正例/COMMIT ACK丢失；D05 Recover/清理planner、Project lifecycle/删除Audit外层与participant仍须继续实现，Project CleanupPhase尚unbound且root未绑定；Object Runtime停止项不解除。技术尾授权和controlled PASS都不能证明生产完整Skills服务。
+
+## 恢复Skills与首个PG验收片段
+
+- 新 `tests/skills/{fixture,initialization}_test.go`：连续真实迁移、真实Store/锁/ProjectAuthority与Skill四口；覆盖持久发布、重建Service后同原ID观察/重放、私有issuer/完整锁/ended Tx确认拒绝、发布失败的原子回滚与保留attempt。Project/Creation是明确的测试规范事实，不是Project.Create/真实Human会话验收；外部Object是受控端口，但本域AccessPlanner与OwnerAuthorization仍调用真实Skill+Project实现，不冒D05/private witness正例。
+- 离线Go1.27.1/p1/GOMAXPROCS2/GOPROXYoff、独占原Variables独验GOCACHE：`go test -mod=readonly -p=1 -race -tags=integration -c -o output/ai/skills/compile/skill-pg.test ./tests/skills`，26616 actualexit0；2732a4实际精确发现 `TestSkillInitializationPersistence`/`TestSkillInitializationPublicationRollback` 两top。只编译/发现，没有执行PG或网络。
+- root额外精确导入正式3cea6076的 `.agent-state/project-variables-independent/commitproxy/{proxy,proxy_test}.go`，后继原完整COMMIT帧恢复直接复用它；不得修改此已验helper或另造proxy/监督框架。前序00024变更随本批保存，25/26逐字旧稳定源，不制造变更。
+- 本批两新Go+主卡/本文+上述两proxy+00024共7路径可构建freeze交root；无编译/资源在途。下一另新增COMMIT恢复测试接线，真实105+15/123+3/75窗口仍须freshgrant；现有PG两top未动态。D05/生命周期/生产root未闭合与Object停止项原样保留。
