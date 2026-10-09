@@ -31,10 +31,10 @@
 
 ## D27实际状态与下一步
 
-- 六新case历史接受4项（recovery/read/configuration/credential）；authority/navigation仍FAIL。共享层两次产品修复后，受影响recovery/configuration/credential须用新资产补验；read只有单层，核相关输入/依赖无变化后可复用。旧14的owner-edit与owner-recovery已完整PASS并完成实际退出、七资源/runtime/hostTCP双清及输入一致检查，现已过2项；余12项待验；独立A已获本轮真实资源窗，结果尚待终态，B仍待验。
+- 六新case历史接受4项（recovery/read/configuration/credential）；authority/navigation仍FAIL。共享层两次产品修复后，受影响recovery/configuration/credential须用新资产补验；read只有单层，核相关输入/依赖无变化后可复用。旧14的owner-edit与owner-recovery已完整PASS并完成实际退出、七资源/runtime/hostTCP双清及输入一致检查，现已过2项；余12项待验；独立A首轮完整FAIL并完成资源清理，停在credential-rotation，具体原因待定位；B仍待验。
 - 最新authority第6完整FAIL并完成全部资源清理：本轮Session finished/JSON身份检查通过，归档配置原重放及credential_recovery URL切换通过，但公开ProjectNav未发布settings目标链接，尚未进入credential归档。第5轮Session headers已见、finished未见、failed已见的原FAIL保留，本轮不证明旧间歇失败已修复；不得放宽原finished/EOF/身份门槛。
 - 最新navigation第5使用新资产后完整FAIL：初始Session等待报 `SESSION_FINISH_TIMEOUT`，headers/failed已见、finished未见，尚未进入焦点场景。实际进程退出、七个自有资源/runtime/hostTCP双清及输入不变均已确认；第4轮焦点FAIL保留，本轮不能判定共享焦点修复的业务效果。
-- 精确失败输入在 `.agent-state/model-ui-recovery/*failure.json`；完整主harness为两Model Go、config/spec及该目录case模块。独立A/B四源在`.agent-state/model-ui-independent/`，已编译/类型/发现并随新Go夹具复编；A本轮已获真实资源窗但结果未定，B尚未真实执行。
+- 精确失败输入在 `.agent-state/model-ui-recovery/*failure.json`；完整主harness为两Model Go、config/spec及该目录case模块。独立A/B四源在`.agent-state/model-ui-independent/`，已编译/类型/发现并随新Go夹具复编；A首轮已真实执行并完整FAIL，B尚未真实执行。
 - 新组件固定1/21监督器 `run-shared-components.py` 已有有界实际Wait/descendants/listener处理；单例及21矩阵当前完整PASS。最初临时runner留下已退出孤儿zombie PID115611/PPID1，无活测试进程/监听，原actualWait/Viteclose无法补回；不杀PID1，不称原清理PASS。
 - Session消费探针 `session-consumption-probe.mjs` 与 `run-session-consumption.py` 已保存，真实8case已运行：完整length/chunked的native/正式client均EOF与解码成功且PW/CDPfinished；断连无EOF/failed，缺字节JSON有EOF但解码拒绝，不支持“正常EOF后cancel导致假failed”猜测。80128原外层exit1仅因任务临时目录的Chromium regular0600残留使runtime-empty未过；所有实际Wait/close/desc/listener齐。root随后精确清理残留与同身份marker，只形成后验current-clear，原FAIL不改。runner收尾修复已通过13项作者及33项独立纯控制，尚未重新真实执行；新请求读取诊断首版被独立12纯控制发现迟到begin漏槽/listener缺陷，两源最小返修已过严格类型/bundle检查与20项独立纯控制，有限审查接受；authority第6轮已有上述真实结果，navigation尚未用新诊断复验。保持finished/EOF/身份门槛，先取得可区分原因的新观测，再运行有意义的诊断，不重复观测未变的完整case。
 - Model私有dist已同步本次2640全检查构建的64文件，与web/dist逐字节同一。后续业务用该新资产，旧PASS不等于新资产通过。
@@ -46,7 +46,7 @@
 - 正式组件整合树 `/workspace/agenteam-shared-layer-delivery` 当前 `ai/shared-layer-delivery`，包含已推送main的两组件提交；不混入未验Model或B0-P产品。
 - 固定Chromium、锁定Playwright、PG/MinIO及helpers已恢复；可重建产物在output。既有dev infra不属于任务，不连接、不清理。
 - PG/browser/hostTCP只运行一个明确资源窗口。实际Go/driver/外层终态及资源尾结束前，不进行Git网络、下载或另一browser/socket测试；离线纯测试与无输入冲突写入可继续。每轮完整终态才交接，原失败不补写PASS。
-- 本次汇总时B0-P全部真实PG轮、Model owner-recovery与authority第6轮均已完整释放窗口；root已将下一真实窗口交给Model独立A，结果未定。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
+- 本次汇总时B0-P全部真实PG轮、Model owner-recovery与authority第6轮均已完整释放窗口；Model独立A首轮亦已完整终态FAIL并完成资源清理，下一窗口由root协调。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
 
 ## 保留停止项与最终验收
 

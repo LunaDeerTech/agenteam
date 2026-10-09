@@ -1,0 +1,122 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-a-355ef7a0a5ae4fada06ba6c19d33b105",
+  "input_hash": "e994068ead663e41c4561a080200f2628935b7d7d22bab0b1fcc78c522fea213",
+  "case": "a",
+  "command": "python3 /workspace/agenteam/.agent-state/model-ui-independent/run-independent.py --case a",
+  "actual_tool_session": 54124,
+  "actual_command_exit": 1,
+  "actual_go_top_seconds": 13.26,
+  "terminal": {
+    "started": true,
+    "retirement_complete": true,
+    "direct_actual_wait": true,
+    "direct_exit": 1,
+    "adopted_actual_waits": [
+      {
+        "pid": 173279,
+        "status": 0
+      },
+      {
+        "pid": 173282,
+        "status": 0
+      },
+      {
+        "pid": 173284,
+        "status": 0
+      },
+      {
+        "pid": 173285,
+        "status": 0
+      }
+    ],
+    "adopted_wait_complete": true,
+    "watchdog_joined": true,
+    "observer_joined": true,
+    "top_within_120_seconds": true,
+    "resources": 7,
+    "resource_shape_valid": true,
+    "exact_absent_observations": 2,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "exact_top_pass": false,
+    "elapsed_seconds": 107.38228539200009,
+    "inputs_unchanged": true,
+    "case": "a",
+    "selector": "^TestIndependentProjectModelsWebUnknownOriginalCombination$",
+    "exit": 1,
+    "assets_exclusively_private": true
+  },
+  "browser_step": {
+    "case": "a",
+    "step": "credential-rotation"
+  },
+  "browser_exit": {
+    "context_done": false,
+    "exit_code": 1
+  },
+  "browser_failure": {
+    "case": "a",
+    "status": "failed",
+    "error_count": 1
+  },
+  "safe_responses": [
+    {
+      "sequence": 1,
+      "source": "setup",
+      "operation": "createProjectModelProvider",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "sequence": 2,
+      "source": "browser",
+      "operation": "listProjectModelProviders",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "sequence": 3,
+      "source": "browser",
+      "operation": "createProjectModelCredential",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "sequence": 4,
+      "source": "browser",
+      "operation": "getProjectModelCredentialMetadata",
+      "method": "GET",
+      "status": 200
+    }
+  ],
+  "post_terminal_observation": {
+    "regression_active_marker_absent": true,
+    "independent_active_marker_absent": true,
+    "owned_nonce_runtime_absent": true,
+    "resource_window_released": true
+  },
+  "diagnostic_limits": {
+    "exact_browser_assertion_recorded": false,
+    "browser_error_category": "unavailable",
+    "private_output_cleared_by_existing_go_finally": true,
+    "no_private_output_copied": true,
+    "no_retry": true,
+    "no_product_failure_inferred": true
+  },
+  "offline_followup": {
+    "classification": "harness_locator_ambiguity_candidate_not_actual_error_attribution",
+    "test_source": ".agent-state/model-ui-independent/independent.spec.ts",
+    "test_line": 814,
+    "assertion": "await expect(manage.locator(\"dl\")).toContainText(\"1\")",
+    "product_source": "web/src/views/projects/ProjectModelCredentialEditor.vue",
+    "conditions": [
+      "credential.metadata renders a definition list",
+      "preparedCredential renders another definition list inside the same dialog",
+      "create -> close -> manage -> read retains preparedCredential"
+    ],
+    "actual_evidence_consistent_with_candidate": "last admitted response is getProjectModelCredentialMetadata 200; no admitted credential rotation response",
+    "required_distinction": "source analysis identifies an ambiguous selector; original run did not retain the exact Playwright error and is not retrospectively classified as this assertion failure"
+  }
+}

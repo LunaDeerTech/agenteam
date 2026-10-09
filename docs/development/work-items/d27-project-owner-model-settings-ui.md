@@ -1,6 +1,6 @@
 # D27 Project Owner 模型设置 UI — rev1＋菜单兼容补充
 
-状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 30 路径（29 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30 是旧 Audit 菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮、read 第二轮、configuration 第三轮与 credential 首轮实际完整通过（4/6 新 top，含完整资源终态）。原 recovery 六次、read 首轮与 configuration 前两轮失败保留。其余两个新 top、旧回归余下 12 项和独立 A/B 尚未完成；旧 Owner 编辑／重命名与原请求恢复两项已完整通过，已恢复或注册的其他源码不代表真实场景通过。
+状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 30 路径（29 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30 是旧 Audit 菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮、read 第二轮、configuration 第三轮与 credential 首轮实际完整通过（4/6 新 top，含完整资源终态）。原 recovery 六次、read 首轮与 configuration 前两轮失败保留。其余两个新 top、旧回归余下 11 项和独立 A/B 尚未完成；旧 Owner 编辑／重命名、原请求恢复与身份／归属三项已完整通过，已恢复或注册的其他源码不代表真实场景通过。
 
 本卡保存产品规格、验收场景与恢复所需事实；团队调度、稳定输入、证据留存和 Git 交付统一遵循[团队流程](../agent-team/README.md)。旧逐轮 root grant、重复哈希表、README 最后另授和永久归档步骤不再作为日常流程。历史全文可从 `e55ad7d1` 的本卡及当时[任务台账](../agent-team/tasks.md)、[环境交接](../agent-team/recovery-2026-10-08-environment.md)文件历史定位，不改写原失败或未验证范围。
 
@@ -15,7 +15,7 @@
 | 真实配置与凭据路径 | `modelsconfig03`、`modelscred01` 历史 actual PASS / fullSTOP；前两次配置 FAIL、Problem.instance 净化路径修复及其有限证据保留。 |
 | 恢复路径 | `modelsrecover01`、`modelsrecover02` 均 FAIL；后者缺最终 browser-result 与 durable facts，原 75s host TCP 观察未双清。后续有限窗口释放不能补写原 TCP 通过。 |
 | 当前恢复验收 | recovery 第七轮、read 第二轮、configuration 第三轮、credential 首轮完整通过，原各次失败保留。sharedLayer 修复及真实组件已按 §0.2 接受；受影响业务场景仍待补验，不能将历史 PASS 直接写成新资产通过。 |
-| 未完成门槛 | authority / navigation 两个新 top、旧 14 回归中的余下 12 项及独立 A/B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
+| 未完成门槛 | authority / navigation 两个新 top、旧 14 回归中的余下 11 项及独立 A/B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
 
 两次恢复失败后的受控结论仅用于后续修复：正式 header/Flush 后零 body 断连已在受控 native fetch 比较中验证；旧分支一次 fetch 可能透明发出两次 POST 并读到完整 EOF。ReadPrivate 的 Lstat→Open→SameFile 与 JS atomic rename 存在源码可确定竞态；候选改为先 NOFOLLOW|NONBLOCK 打开，再以同一 fd 验证 regular/0600/size，保留原有界读取、清理与 Close，pure-file 受控 12 叶／17 RUN/PASS 已接受。原恢复轮未采得具体 error 类别，以上不能回填两次 business FAIL 的确切因果。早期受控 browser launch 失败及 TMP 后续清理同样保留，短根成功不证明原 launch 失败原因。
 
@@ -46,12 +46,15 @@ navigation 第五轮使用 §0.3 已接受修复的新私有资产，仍在初�
 
 authority 第六轮使用已独审的新诊断，本轮 Session 原 finished／JSON／身份门槛通过，但不证明旧间歇失败已修复。已完成归档配置原请求重放，随后切到凭据恢复 Project 时 FAIL：URL 等待已过，公开 Project 设置链接的目标 href 尚未发布（模块第 282 行）；17 个安全响应，尚未开始凭据归档场景，没有 Session 失败诊断产物。必要事实见 [authority-navigation-sixth-failure.json](../../../.agent-state/model-ui-recovery/authority-navigation-sixth-failure.json)。Go 25.15 秒、外层实际 exit=1／114.59 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空及输入同一均完成。下一步核实真实导航确认或当前 Owner 发布条件，区分产品缺陷与测试前置遗漏，保持原断言与预算。
 
-旧回归现为 **2／14 完整通过**。下表两组均用 `run-owned-regression.py --group` 的原精确 selector 与当前私有资产执行，外层实际 exit=0；direct／四 adopted 实际 wait=0、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空、输入同一及 marker 移除全部确认。两组均为独立 Owner 私有资产入口，无全局资产租约，也不消费 Session 诊断源码或 bundle；不据此替代剩余 12 项。
+独立 A 已由独验者本人首次实际执行，整体 FAIL：停在凭据轮换阶段，仅四个安全响应，最后为 metadata GET 200；原失败投影只有错误数量，没有保留具体断言，不能认定确切根因。必要安全事实见 [independent-a-first-failure.json](../../../.agent-state/model-ui-independent/independent-a-first-failure.json)。Go 13.26 秒、外层实际 exit=1／107.38 秒；direct／四 adopted 实际 wait、Node／proxy／body／service／root join、七资源双 absent、runtime 与临时目录移除、TCP 双空、输入同一及两个 marker 移除全部完成。离线源码确认该构造会同时展示 metadata 与未绑定候选两个 `dl`，而测试使用单元素选择器；只修语义定位并补闭合错误投影，仍需正反控制及独审，不将此候选回填为原 FAIL 的已知原因。
+
+旧回归现为 **3／14 完整通过**。下表三组均用 `run-owned-regression.py --group` 的原精确 selector 与当前私有资产执行，外层实际 exit=0；direct／四 adopted 实际 wait=0、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空、输入同一及 marker 移除全部确认。三组均为独立 Owner 私有资产入口，无全局资产租约，也不消费 Session 诊断源码或 bundle；不据此替代剩余 11 项。
 
 | 已通过旧组 | Go top 秒 | 外层完整秒 |
 | --- | ---: | ---: |
 | `owner-edit` | 18.64 | 111.29 |
 | `owner-recovery` | 14.56 | 100.34 |
+| `owner-identity` | 19.58 | 105.55 |
 
 Session 诊断首版的迟到初始化清理缺陷已独立复现；限定返修的类型／私有构建、作者 34 项与独立 20 项离线控制通过，已获有限独审接受。两个 Session helper 共享同响应安全计数，区分 EOF／读拒绝／abort／EOF 前取消与 EOF 后清理；公开 Request ID 仅在浏览器内比较，缺失或迟到不能解释为同响应，原 finished／JSON／身份门槛保留。已用于 authority 第六轮；该轮 Session 未失败，尚无真实失败的原生诊断可用于解释旧因果，不改变各轮原 FAIL。
 
