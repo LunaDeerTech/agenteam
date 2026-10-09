@@ -53,6 +53,7 @@ type projectWorkPlanningWebFixture struct {
 	readCanceled            bool
 	planningBaseline        map[string]any
 	recoveryBaselines       map[string]map[string]any
+	identityFacts           projectWorkIdentityFacts
 	activitySession         string
 	activityBefore          time.Time
 	guard                   sync.Mutex
@@ -446,6 +447,8 @@ func (f *projectWorkPlanningWebFixture) ipc(ctx context.Context, r projectWorkPl
 	}
 	out := map[string]any{"sequence": r.Sequence}
 	switch r.Action {
+	case "identity-revoked", "identity-expire", "identity-rename", "identity-reuse-name":
+		return f.identityIPC(ctx, r)
 	case "age-activity":
 		if f.mode != "planning" || f.activitySession != "" {
 			f.t.Fatal("owned planning Activity stimulus unavailable")

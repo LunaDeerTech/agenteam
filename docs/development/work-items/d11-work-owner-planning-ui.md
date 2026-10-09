@@ -196,6 +196,8 @@ Current Sprint 非空真实正例暂不可由正式生产接口形成：[Work St
 
 响应观察绑定同一原请求 method/path/query/身份/状态及完整body；schema与client验证同一实际body，不能另GET一份代第一次回复。断连区分真实已提交/未提交/Unknown，持久后验须有同原key事实及无重复写。只在fixture拥有的响应/帧边界注入故障，不fake Storeterminal冒真实COMMIT；复用已验故障设施，不复制Model私有harness或重新造监督器。
 
+`in_progress` 的唯一额外刺激限定本轮私有 PG：对精确 Project/target/原 command/key 的最终 Outbox 写入施加 owned SQL 故障。原命令必须由默认根自己提交真实 planned，最终事务实际回滚；以 SQL 和正式 Lookup 双核 planned/in_progress 及零新增业务/History/Outbox事实，不种或改这些结果行。移除故障后，私有真实客户端以同 User/原 key/原 body 外部续写，UI 只再次明确 Lookup；界面在 in_progress 时仍禁重放、不自动轮询。若实际服务收敛到别的状态，本刺激失败，不伪造 planned。`not_observed` 仅对预先精确绑定的原请求在 owned proxy 未转发前断连，并核同 key 不存在；改义反例沿正式 HTTP 返回409，核原 receipt/业务及计数不变。二者均不豁免普通成功 finished/同体门槛，不扩大生产接口、资源链或预算。
+
 ### 8.3 独立与终态
 
 未参与实施者本人执行两个独立top：`TestIndependentProjectWorkPlanningWebRecovery`（三域真实原意图/历史与归档门禁）和 `TestIndependentProjectWorkPlanningWebAuthority`（身份/旧尾/切项目/聚合确认）。对应独立spec由独立作者编写，config仅接受这两个明确case及六作者case，不能任意执行目录。作者结果不冒独立动态。
@@ -245,4 +247,6 @@ read刺激窄修已有限独审接受：仅read/main/一次且零额外参数的
 
 read第二轮85803仍整体FAIL（51b46c8f/binary08，Go66.38秒、outer197.276秒）：真实外部reorder/重读反序、原cursor409与失效提示已过；第三次filterRead（bug/medium，期望0项）停原response.finished直到45秒。对应原Request在约6796ms已aborted、原finished在约44731ms失败快照仍pending，page-close未见；同原上游GET200/items0不证明浏览器EOF/解码/状态发布。前两筛选通过，后续筛选/Project门禁及Go持久后验未到。directWait1、四Z→actualWait0、七资源/desc/runtime/private双尾齐且inputsame，但hostTCP尾另有1行未知tuple差异FAIL；当前六已登记PID均absent/owned runtime空，只证明current-clear，不回填原TCP结果。必要原件 `.agent-state/work-owner-planning-ui/read-second-failure.json`，普通原log output/ai/work-owner-planning-ui/pg/read-02.log；不盲重跑，不放宽成功finished或改写旧FAIL。
 
-expectedIncomplete独立增量已可构建，尚未独审/真实运行：只预声明三类原意图截断写与一条held Task GET，绑定同一原Request/目标/版本/精确语义、原key/body；只有其真实requestfailed可收束预期不完整，缺终态/未声明/错意图/重复/仅page-close均拒。普通成功仍原finished/null，originalBody/schema/decoder逐源未变。原Owner截断设施仅增加nil默认无副作用回调，实际一字节Write/Flush/Hijack/Close返回逐项留在Work私有观察；Go核三域同key历史receipt/Lookup/显式重放、原operation历史/Outbox、真实seed计数增量与后继当前值分离，held读要求真实context取消及finish。实际helper/consumer 27纯控制通过且0unhandled，Go两纯top的15子对照race通过（9918 actual0），strictTS89349 actual0；最终race binary10已编译，原binary08仅证明read02输入。仅加强已有committed-loss与held取消场景，in_progress/not_observed/改义恢复及完整身份矩阵仍未闭合；不把源码或纯控写成真实case通过，下一须独立有限审查和root新窗口。
+expectedIncomplete独立增量已获有限独审接受，尚未真实运行：只预声明三类原意图截断写与一条held Task GET，绑定同一原Request/目标/版本/精确语义、原key/body；只有其真实requestfailed可收束预期不完整，缺终态/未声明/错意图/重复/仅page-close均拒。普通成功仍原finished/null，originalBody/schema/decoder逐源未变。原Owner截断设施仅增加nil默认无副作用回调，实际一字节Write/Flush/Hijack/Close返回逐项留在Work私有观察；Go核三域同key历史receipt/Lookup/显式重放、原operation历史/Outbox、真实seed计数增量与后继当前值分离，held读要求真实context取消及finish。实际helper/consumer 27纯控制通过且0unhandled，Go两纯top的15子对照race通过（9918 actual0），strictTS89349 actual0；最终race binary10已编译，原binary08仅证明read02输入。仅加强已有committed-loss与held取消场景，in_progress/not_observed/改义恢复及完整身份矩阵仍未闭合；未参与本轮实现者本人复核33项Node控制（含6新增负控、0unhandled）及Go两top15子race通过，无mustfix；不把源码或纯控写成真实case通过，下一真实运行仍须root新窗口。
+
+身份矩阵补充已可构建、尚未独审/真实运行：新增封闭IPC仅接受本fixture真实浏览器Owner Session，核注销并在User EX锁内按精确前像回拨过期时间；Project改名与旧名新ID复用都走正式服务，不种Work事实。公开UI核同identity checking、同ID改名保草稿、Owner→Work分段取消、Model原返回导航确认及零写、他人Owner/admin零Work请求、真实过期后清草稿/新Session。strictTS94089与精确identity发现98996均actual0；Go闭集输入纯/race18662 actual0（1.020秒）、binary11 race-c18697 actual0。首次编译46465因SessionID已是string却调用String失败，原日志保留，修正后通过。默认成功finished及原held-read唯一取消刺激不变；恢复真实planned/not_observed/改义另按§8.2最小接缝补齐，未预写动态结论。

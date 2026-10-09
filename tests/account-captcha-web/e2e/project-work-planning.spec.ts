@@ -615,22 +615,57 @@ test("[identity] dirty guards, same Session checking, revocation and old read is
 }) => {
   const data = material(),
     seen = observe(page);
+  const projectNav = page.getByRole("navigation", {
+    name: "项目导航",
+    exact: true,
+  });
+  const workDialog = () =>
+    page.getByRole("dialog", { name: "放弃任务规划修改？", exact: true });
+  const ownerDialog = () =>
+    page.getByRole("dialog", { name: "放弃项目修改？", exact: true });
+  async function requalify(status: number) {
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.request().method() === "GET" &&
+          new URL(response.url()).pathname === "/api/v1/session",
+      ),
+      page.evaluate(() =>
+        window.dispatchEvent(new PageTransitionEvent("pageshow")),
+      ),
+    ]);
+    expect(response.status()).toBe(status);
+    expect(await response.finished()).toBeNull();
+    return response.json();
+  }
+  let modelWrites = 0;
+  page.on("request", (request) => {
+    const endpoint = new URL(request.url()).pathname;
+    if (
+      request.method() !== "GET" &&
+      endpoint.startsWith(`/api/v1/projects/${data.work.main!.project_id}/`) &&
+      /\/(?:model-providers|models|model-credentials|available-models)(?:\/|$)/.test(
+        endpoint,
+      )
+    )
+      modelWrites++;
+  });
   await enter(page, data, "task");
   await title(page).fill("仅当前身份的草稿");
   await button(page, "退出登录").click();
-  const dialog = page.getByRole("dialog");
+  const dialog = workDialog();
   await expect(dialog).toBeVisible();
   await button(dialog, "继续编辑").click();
   await expect(title(page)).toHaveValue("仅当前身份的草稿");
-  await page.evaluate(() =>
-    window.dispatchEvent(new PageTransitionEvent("pageshow")),
-  );
+  const checkedSession = await requalify(200);
+  await current(page, data.work.main!.task_id);
   await expect(title(page)).toHaveValue("仅当前身份的草稿");
   // Logout in this same genuine cookie jar revokes the original Session. The
   // public application still owns a draft until its next actual Session read.
   const sessionResponse = await page.request.get("/api/v1/session");
   expect(sessionResponse.status() === 200).toBe(true);
   const originalSession = await sessionResponse.json();
+  expect(checkedSession.session.id === originalSession.session.id).toBe(true);
   const revoked = await page.request.post("/api/v1/sessions/logout", {
     headers: {
       "X-CSRF-Token": originalSession.csrf_token,
@@ -639,6 +674,10 @@ test("[identity] dirty guards, same Session checking, revocation and old read is
     },
   });
   expect(revoked.status() === 204).toBe(true);
+  expect(
+    (await ipc("identity-revoked", { target: originalSession.session.id }))
+      .revoked,
+  ).toBe(true);
   await page.evaluate(() =>
     window.dispatchEvent(new PageTransitionEvent("pageshow")),
   );
@@ -667,19 +706,152 @@ test("[identity] dirty guards, same Session checking, revocation and old read is
   await ipc("release-read");
   await ready(page, data.work.duplicate!.task_id);
   await expect(details(page)).not.toContainText(data.work.main!.task_id);
-  const deniedContext = await browser.newContext();
-  try {
-    const denied = await deniedContext.newPage(),
-      observation = observe(denied);
-    await denied.goto(path(data, "main", "task"));
-    await login(denied, data.admin);
-    await expect(
-      denied.getByRole("heading", { name: "项目不可用", exact: true }),
-    ).toBeVisible();
-    expect(observation.requests.length === 0).toBe(true);
-  } finally {
-    await deniedContext.close();
+  for (const credential of [data.other, data.admin]) {
+    const deniedContext = await browser.newContext();
+    try {
+      const denied = await deniedContext.newPage(),
+        observation = observe(denied);
+      await denied.goto(path(data, "main", "task"));
+      await login(denied, credential);
+      await expect(
+        denied.getByRole("heading", { name: "项目不可用", exact: true }),
+      ).toBeVisible();
+      expect(observation.requests.length === 0).toBe(true);
+    } finally {
+      await deniedContext.close();
+    }
   }
+
+  // A genuine same-ID Project rename canonicalizes the current route without
+  // destroying Work's draft. Owner's independently observed version conflict
+  // must be acknowledged before Work's own, separately cancelable guard.
+  await go(page, path(data, "main", "task"));
+  await current(page, data.work.main!.task_id);
+  await title(page).fill("同项目改名后保留的任务草稿");
+  const oldHome = path(data);
+  const renamed = await ipc("identity-rename");
+  expect(renamed.project.id === data.work.main!.project_id).toBe(true);
+  data.projects.main!.name = renamed.project.name;
+  const renamedSession = await requalify(200);
+  expect(renamedSession.session.id === nextSession.session.id).toBe(true);
+  await expect(page).toHaveURL(
+    new URL(path(data, "main", "task"), page.url()).href,
+  );
+  await current(page, data.work.main!.task_id);
+  await expect(title(page)).toHaveValue("同项目改名后保留的任务草稿");
+  await projectNav.getByRole("link", { name: "项目设置", exact: true }).click();
+  await expect(ownerDialog()).toBeVisible();
+  await expect(workDialog()).toHaveCount(0);
+  await button(ownerDialog(), "继续编辑").click();
+  await expect(title(page)).toHaveValue("同项目改名后保留的任务草稿");
+  await projectNav.getByRole("link", { name: "项目设置", exact: true }).click();
+  await button(ownerDialog(), "放弃并离开").click();
+  await expect(workDialog()).toBeVisible();
+  await button(workDialog(), "继续编辑").click();
+  await expect(title(page)).toHaveValue("同项目改名后保留的任务草稿");
+  await projectNav.getByRole("link", { name: "项目设置", exact: true }).click();
+  await expect(ownerDialog()).toHaveCount(0);
+  await button(workDialog(), "放弃并离开").click();
+  const ownerForm = page.getByRole("form", {
+    name: "项目基本信息",
+    exact: true,
+  });
+  await expect(ownerForm).toBeVisible();
+  await ownerForm
+    .getByLabel("项目描述", { exact: true })
+    .fill("仅 Owner 的未保存输入");
+  await projectNav.getByRole("link", { name: "任务规划", exact: true }).click();
+  await button(ownerDialog(), "继续编辑").click();
+  await expect(ownerForm.getByLabel("项目描述", { exact: true })).toHaveValue(
+    "仅 Owner 的未保存输入",
+  );
+  await expect(workDialog()).toHaveCount(0);
+  await projectNav.getByRole("link", { name: "任务规划", exact: true }).click();
+  await button(ownerDialog(), "放弃并离开").click();
+  await ready(page);
+  await expect(title(page)).toHaveCount(0);
+  await expect(recovery(page)).toHaveCount(0);
+
+  // Real browser back traverses the installed Model guard; no controller
+  // property or hidden button is invoked through page.evaluate.
+  await projectNav.getByRole("link", { name: "项目设置", exact: true }).click();
+  await expect(ownerForm).toBeVisible();
+  await page.getByRole("link", { name: "Providers", exact: true }).click();
+  const modelActions = page.locator('[aria-label="项目模型操作"]');
+  await button(modelActions, "创建 Provider").click();
+  const provider = page.getByRole("dialog", {
+    name: "创建 Provider",
+    exact: true,
+  });
+  await provider
+    .getByLabel("Provider 名称", { exact: true })
+    .fill("仅 Model 的未保存输入");
+  await page.evaluate(() => window.history.back());
+  const modelDialog = page.getByRole("dialog", {
+    name: "离开项目模型设置？",
+    exact: true,
+  });
+  await expect(modelDialog).toBeVisible();
+  await button(modelDialog, "继续编辑").click();
+  await expect(
+    provider.getByLabel("Provider 名称", { exact: true }),
+  ).toHaveValue("仅 Model 的未保存输入");
+  await expect(workDialog()).toHaveCount(0);
+  await expect(ownerDialog()).toHaveCount(0);
+  await expect(page).toHaveURL(/\/settings\/model-providers$/);
+  await page.evaluate(() => window.history.back());
+  await button(modelDialog, "放弃并离开").click();
+  await expect(ownerForm).toBeVisible();
+  await expect(provider).toHaveCount(0);
+  expect(modelWrites === 0).toBe(true);
+  await projectNav.getByRole("link", { name: "任务规划", exact: true }).click();
+  await ready(page);
+
+  const reused = await ipc("identity-reuse-name");
+  expect(reused.project.id !== data.work.main!.project_id).toBe(true);
+  const reusedStart = seen.requests.length;
+  await page.goto(oldHome);
+  await ready(page);
+  await expect(
+    projectNav.getByRole("link", { name: "项目设置", exact: true }),
+  ).toHaveAttribute(
+    "href",
+    oldHome.replace(/\/tasks\/explore$/, "/settings/general"),
+  );
+  await expect(details(page)).toHaveCount(0);
+  await expect(title(page)).toHaveCount(0);
+  await expect(recovery(page)).toHaveCount(0);
+  const replacementRequests = seen.requests.slice(reusedStart);
+  expect(
+    replacementRequests.length > 0 &&
+      replacementRequests.every(
+        (request) =>
+          request.method === "GET" &&
+          request.path.startsWith(`/api/v1/projects/${reused.project.id}/`),
+      ),
+  ).toBe(true);
+
+  // Backdate only this genuinely issued browser Session via the existing
+  // Account expiry fixture. The next production Session read must expire it.
+  await go(page, path(data, "main", "task"));
+  await current(page, data.work.main!.task_id);
+  await title(page).fill("过期时必须清除的任务草稿");
+  expect(
+    (await ipc("identity-expire", { target: nextSession.session.id })).expired,
+  ).toBe(true);
+  await requalify(401);
+  await expect(page.locator("#login-email")).toBeVisible();
+  await expect(title(page)).toHaveCount(0);
+  await expect(recovery(page)).toHaveCount(0);
+  await login(page, data.owner);
+  await go(page, path(data, "main", "task"));
+  await current(page, data.work.main!.task_id);
+  await expect(title(page)).toHaveValue("规划任务");
+  const freshSession = await (await page.request.get("/api/v1/session")).json();
+  expect(
+    freshSession.session.id !== nextSession.session.id &&
+      freshSession.session.id !== originalSession.session.id,
+  ).toBe(true);
   await button(page, "退出登录").click();
   await expect(page.locator("#login-email")).toBeVisible();
   complete({
@@ -690,6 +862,10 @@ test("[identity] dirty guards, same Session checking, revocation and old read is
     new_session: true,
     late_read: true,
     confirmations: true,
+    expiry: true,
+    canonical_identity: true,
+    reused_name: true,
+    model_guard: true,
     bodies: await seen.verify(1),
   });
 });

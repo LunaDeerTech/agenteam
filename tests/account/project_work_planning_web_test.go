@@ -233,7 +233,8 @@ func TestAccountProjectWorkPlanningWebOriginalRecovery(t *testing.T) {
 	assertProjectWorkOriginalRecovery(t, f)
 }
 func TestAccountProjectWorkPlanningWebIdentityAndOwnership(t *testing.T) {
-	f := runProjectWorkPlanningWeb(t, "identity", "logout", "revocation", "owner", "checking", "new_session", "late_read", "confirmations")
+	f := runProjectWorkPlanningWeb(t, "identity", "logout", "revocation", "owner", "checking", "new_session", "late_read", "confirmations", "expiry", "canonical_identity", "reused_name", "model_guard")
+	assertProjectWorkIdentityFacts(t, f)
 	f.guard.Lock()
 	defer f.guard.Unlock()
 	if f.hold == nil || f.hold.path != projectOwnerWebPath+"/"+f.seeds["main"].ProjectID+"/tasks/"+f.seeds["main"].TaskID || !f.hold.started || !f.hold.finished || !f.readCanceled {
