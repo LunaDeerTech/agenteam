@@ -64,3 +64,10 @@
 - 维护5路径已root保存e0fb80df，Apply/维护全部Go源freeze给Skills后继独审。此前372d1e94十二技术源已获Skills有限接受，无mustfix；其实际Prepare→Match/退休/错误与第二nonceUnknown四独立top已保存其树9071db4a，不外推本后继Apply/PG/真实D10权限。
 - root db4b48实际装入四原源：`00025_knowledge.sql`来自main29dd4298，`00026_runner_control.sql`来自eea4ced0，`00027_skills.sql`来自7cf7a58e，`00028_cleanup_indexes.sql`来自eda849dc；本人d1a577只读核四文件和连续prefix均在。本线不改这四源。28仅测试候选，未PG/EXPLAIN；不存在空占位或绕过Migrator的验证。
 - 本文/卡/draft注释已与该实际状态对齐；加上述4 SQL共7路径freeze供root保存。draft DDL语句未改、正式29尚未创建或执行。root授权随后落本域`00029_project_variable_receipts.sql`及有限真实SQL/事务测试准备，真实资源另需fresh grant；真实D10权限与Owner结果仍独立缺口。
+
+## 00029 与 SQL fixture 恢复检查点（WIP，未编译/未实跑）
+
+- 连续依赖/文档7路径已root保存e9fb256f。环境恢复后07440a实际核HEAD与仅两未保存源码：`db/migrations/00029_project_variable_receipts.sql`（66行）、`tests/security/secret_variable_storage_fixture_test.go`（217行）；原Go实现/独审输入保持冻结。保留现有片段继续，不从旧视图覆盖重写。
+- 正式29按root授权落为连续迁移输入，实际逐语句比较与原冻结draft一致，仅加事务/Up标头；未执行Migrator/PG，25–28原字节未改。fixture复用实际Migrator/Store/Secret/Audit/native Secret事实checker，D10映射与stage仍明确test-only controlled端口、当前Session/Project取audit_fixture；Discover显式unbound，无生产D10权限或Owner完成结论。
+- 新增fixture尚未伴随实际test top，未获得编译/发现/真实测试终态。恢复段只读/文档，无PG/socket/network；没有借旧资源或未知session补成功。上述两源码与本文共3路径WIP freeze供root保存，后继实际test文件可另行推进。
+- 只读核实际Foundation入口后发现fixture拼写`NewCommandCause`，按root允许在保存前窄修为正式`NewCommandsCause`；该处已改，仍未编译WIP，不据静态修字称通过。更新后相同3路径重新freeze，无生产Go差异。
