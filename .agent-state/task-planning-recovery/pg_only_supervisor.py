@@ -28,6 +28,61 @@ def budgets(root_chain):
     return (540, 60) if root_chain else (123, 3)
 
 
+TREE_COMMAND_PG = '^TestKnowledgeTreeCommandHTTP(Mutations|Authority|Transactions|Unknown)$'
+TREE_COMMAND_NATIVE = '^TestTreeCommandsHTTPNative(ReadDeadlines|KeepAliveAndClose|WriteAndDisconnect)$'
+TREE_COMMAND_GROUPS = {
+    TREE_COMMAND_PG: {
+        'TestKnowledgeTreeCommandHTTPMutations': ('rename_replay_noop_original_lookup', 'move_root_expected_parent_cycle_and_replay', 'preview_stale_scope_delete_and_rotated_key_replay'),
+        'TestKnowledgeTreeCommandHTTPAuthority': ('actual_boundary_nonowner_and_admin_no_bypass', 'archive_new_write_denied_but_original_receipt_readable', 'actual_logout_old_cookie_rejected_new_session_original_key'),
+        'TestKnowledgeTreeCommandHTTPTransactions': ('command_first', 'owner_writer_first', 'cancelled_original_transaction_returns_before_http_tail', 'same_key_two_real_sessions_one_completed_receipt'),
+        'TestKnowledgeTreeCommandHTTPUnknown': ('not_forwarded', 'committed_ack_lost', 'original_final_rollback_exposes_in_progress_not_a_receipt'),
+    },
+    TREE_COMMAND_NATIVE: {
+        'TestTreeCommandsHTTPNativeReadDeadlines': ('original_two_seconds', 'earlier_parent'),
+        'TestTreeCommandsHTTPNativeKeepAliveAndClose': ('normal_deadlines_cleared_for_original_connection', 'original_body_close_error_no_response'),
+        'TestTreeCommandsHTTPNativeWriteAndDisconnect': ('original_write_backpressure_deadline', 'disconnect_cancels_original_call_before_handler_tail'),
+    },
+}
+
+
+def tree_command_inputs():
+    root = Path(__file__).resolve().parents[2]
+    paths = {Path(__file__).resolve(), root / '.agent-state/work-owner-http/root_chain_driver.py',
+             root / '.agent-state/work-owner-http/native_driver.go',
+             root / '.agent-state/knowledge-tree-http/check-schema.py',
+             root / 'api/openapi/knowledge-tree-commands.json', root / 'api/openapi/common.json'}
+    paths.update((root / 'internal/central/knowledge/commandhttp').glob('*.go'))
+    paths.update((root / 'tests/knowledge').glob('*.go'))
+    paths.update((root / '.agent-state/project-variables-independent/commitproxy').glob('*.go'))
+    return sorted(paths)
+
+
+def tree_commands_exact(path, selector):
+    try:
+        output = path.read_text()
+    except (OSError, UnicodeError):
+        return False
+    groups = TREE_COMMAND_GROUPS[selector]
+    expected = set(groups) | {parent + '/' + child for parent, children in groups.items() for child in children}
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    passes = re.findall(r'^\s*--- PASS: (\S+) \(', output, re.M)
+    return (len(runs) == len(expected) and set(runs) == expected
+            and len(passes) == len(expected) and set(passes) == expected
+            and re.search(r'^(?:FAIL(?:\s|$)|\s*--- (?:FAIL|SKIP):)', output, re.M) is None)
+
+
+def tree_commands_root(directory, log, path, selector):
+    # A malformed original log remains failure but must not skip the existing
+    # actual Wait/reap, resource, TCP, or final input observations.
+    try:
+        observed = observe_root_chain(directory, log, path, selector)
+    except (OSError, UnicodeError):
+        observed = False
+    exact = tree_commands_exact(path, selector)
+    log.write(f'ROOT tree_commands_exact={exact}\n')
+    return observed and exact
+
+
 def root_adapter(driver):
     expected = Path(__file__).resolve().parents[2] / '.agent-state/work-owner-http/root_chain_driver.py'
     if driver.resolve() != expected:
@@ -123,6 +178,7 @@ def observe_root_chain(directory, log, log_path, selector):
     log.flush()
     output = log_path.read_text()
     expected = {
+        TREE_COMMAND_PG: set(TREE_COMMAND_GROUPS[TREE_COMMAND_PG]),
         '^TestWorkOwnerRootActual(Command|Reader)Join$': {'TestWorkOwnerRootActualCommandJoin', 'TestWorkOwnerRootActualReaderJoin'},
         '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': {'TestWorkOwnerHTTPProcessRoutingAndPersistence'},
         '^TestIndependentWorkOwnerRootConfirmationJoin$': {'TestIndependentWorkOwnerRootConfirmationJoin'},
@@ -190,6 +246,8 @@ def main():
               for p in (args.driver, args.binary)}
     if adapter is not None:
         inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
+    if args.run in TREE_COMMAND_GROUPS:
+        inputs.update({str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in tree_command_inputs()})
     baseline = tcp()
     started = time.monotonic()
     child = None
@@ -271,8 +329,13 @@ def main():
                 remaining = descendants(os.getpid())
                 log.write(f'OWNED runtime_observation={round} descendants={sorted(remaining)}\n')
                 if remaining: code = 1
-            if args.root_chain and not observe_root_chain(directory, log, log_path, args.run):
+            if args.root_chain and not (tree_commands_root(directory, log, log_path, args.run)
+                    if args.run == TREE_COMMAND_PG else observe_root_chain(directory, log, log_path, args.run)):
                 code = 1
+            if not args.root_chain and args.run == TREE_COMMAND_NATIVE:
+                exact = tree_commands_exact(log_path, args.run)
+                log.write(f'NATIVE tree_commands_exact={exact}\n')
+                if not exact: code = 1
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75
