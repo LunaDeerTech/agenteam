@@ -158,6 +158,8 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ## 8. 本轮实际实施与验证
 
+作者首轮 DirectPublication12869 已完整 PASS：三个子项 create_read_replay_noop、replace_and_current_owner、final_transaction_rollback 均通过，Go2.94s，supervisor108.615s／外层 actualexit0；Go815307 与原链 driver813448 实际 Wait0，7个精确资源 ID 双次退役，desc 双空、私有目录双 absent／runtime 双 empty，exact_tops／actual_test_wait=True，hostTCP 双 delta_empty、inputs_unchanged=True。现场已核两PID不存在、runtime空，run目录仅 owned.json／request.json／runtime，窗口已释放。原件 `output/ai/knowledge/pg/pg-4826df79aa8d4497b3238c83ddd3ee14.log`。本轮在57fcf5d7生产闭包上实证公开文本创建／真实GET与Close／重放和no-op、PDF上传替换与旧引用退休／Owner和归档门禁，以及最终Activity注入失败后canonical、D05发布、Audit、Outbox、receipt同Tx回滚；不是独立验收、业务来源、SQL Unknown、物理Object清理或D05 runtime join接受。消费闭包本轮已解除冻结，后继source变更不冒同输入重验；继续business-source公开组合。
+
 第二十片段准备单 top `^TestKnowledgeB02DirectPublication$`，新源 `tests/knowledge/b02_publication_test.go`。只预置自有 Account/Project 上游事实；Knowledge、真实 D05 backend/spool、Project 的 Knowledge/Object 私有 Audit checker、真实 Audit 与 Outbox 共用同一 Store，未使用成功授权替身。三子 create_read_replay_noop、replace_and_current_owner、final_transaction_rollback，目标为文本创建／实际 GET/Close／重放与 no-op、PDF 替换与旧引用退休／当前 Owner/归档门禁，以及末端真实 Activity 后注入错误证明 canonical/Object 发布/Audit/Outbox/receipt 全回滚。Process death 口仍 Unbound，未消费 SourceReads 不代替 business-source 真实验收；不声称 SQL Unknown、D05 runtime join 或物理清理完成。
 
 原两 harness 经 root 追加授权：`.agent-state/work-owner-http/root_chain_driver.py` 和 `.agent-state/task-planning-recovery/pg_only_supervisor.py` 各只增一个精确 selector 的 cwd／expected singleton；已保存 7a3e453b，有限独审65885d实际12控接受，原缺本树MinIO的94a7bb setupFAIL保留。原 Work 默认与未知输入拒绝、6m test／540+60 supervisor／75TCP／5GiB／原7资源链不变；未来主干合并必须同时保留 Variables 后继 targets，不整文件覆盖。
