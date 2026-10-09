@@ -50,6 +50,7 @@ type Service struct{ data func() *serviceState }
 type serviceState struct {
 	authority *Authority
 	audit     ac.Appender
+	owner     f.ID[connectionOwner]
 	mu        sync.Mutex
 	stopped   bool
 	calls     map[*call]struct{}
@@ -61,7 +62,11 @@ func New(authority *Authority, audit ac.Appender) (*Service, error) {
 	if authority.state() == nil || nilPort(audit) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	state := &serviceState{authority: authority, audit: audit, calls: map[*call]struct{}{}, changed: make(chan struct{})}
+	owner, e := f.NewID[connectionOwner]()
+	if e != nil {
+		return nil, unavailable(e)
+	}
+	state := &serviceState{authority: authority, audit: audit, owner: owner, calls: map[*call]struct{}{}, changed: make(chan struct{})}
 	return &Service{data: func() *serviceState { return state }}, nil
 }
 func (s *Service) state() *serviceState {
