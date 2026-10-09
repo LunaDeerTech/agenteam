@@ -17,7 +17,9 @@
 
 实际纯控：`python3 .agent-state/skills-p2-independent/pure.py`（21592→238565 actual0，race 1.068s）执行前两行2top/7sub；通过只说明真实Skill/P1代码在明确受控Store/Project/Object输入下的判据成立。独立候选 `output/ai/skills-p2-independent/skills-p2-independent-race-01.test` 为32,988,048B，session38872→43fd06离线race编译及精确list均actual0。
 
-后四行随后在fresh独占七资源窗口实际运行：P2-01 Go业务top及4sub均PASS（2.32s），证实本矩阵有限范围的真实Skill/D05/SQL关系。整轮仍**FAIL**：原driver Wait0后监督记录owned PID1286231存活STOP，随后才actualWait0；没有该时点state/ppid/命令快照，不能推Z或回填成功。7ID/private/runtime/desc/TCP双尾及输入不变最终均齐，session39104→3d1e80 outer实际exit1，窗口释放。15行必要原件见 `p2-01-failure.txt`；不会因业务PASS声称完整P2、production root、MinIO网络阻塞、foreignguard或Cleanup通过，不自动重试。
+本有限补集最新结果为P2-02 **whole PASS**：session69242→a45a4e outer实际exit0，Go1top/4sub全部PASS（3.26s），监督95.582s。原判断点双stat证实owned PID1310763/ppid1310754/start_ticks6065597/stateZ，exe不可读明确null；精确WNOHANG同PID/status0后，Go/driver原Wait0、七ID/private/runtime/desc双尾、TCP双delta_empty及输入不变全部齐，无STOP，窗口释放。有限结论涵盖表中两纯控和后四行真实Skill/D05/SQL接缝，不扩大上游seed、nilRuntime、网络hold、foreign或清理边界。
+
+此前后四行在fresh独占七资源窗口实际运行：P2-01 Go业务top及4sub均PASS（2.32s），证实本矩阵有限范围的真实Skill/D05/SQL关系。整轮仍**FAIL**：原driver Wait0后监督记录owned PID1286231存活STOP，随后才actualWait0；没有该时点state/ppid/命令快照，不能推Z或回填成功。7ID/private/runtime/desc/TCP双尾及输入不变最终均齐，session39104→3d1e80 outer实际exit1，窗口释放。15行必要原件见 `p2-01-failure.txt`；不会因业务PASS声称完整P2、production root、MinIO网络阻塞、foreignguard或Cleanup通过，不自动重试。
 
 既有 root driver/supervisor 仅增加 `^TestSkillIndependentP2ConfirmationAndPackage$`；该 selector 独有输入增量为 `tests/skills` 固定九个 Go 文件，覆盖新测试及完整编译包的复用 fixture。`python3 .agent-state/skills-p2-independent/harness-controls.py`（c223e6 actual0/42控）用实际 configuration、input_paths、原 supervisor main/manifest/observer，替换外部 child/Docker/TCP 边界检查正负尾；旧两工具去掉限定增量后逐字等于29b252c7。Skills未参与该接缝实现者aea89f重取42控并有限接受；这不替代实际Docker/Wait/TCP证明或其自有Skills产品独验。
 
@@ -44,6 +46,6 @@ python3 .agent-state/task-planning-recovery/pg_only_supervisor.py \
   --output /workspace/agenteam-skills-p2-independent/output/ai/skills-p2-independent/p2-01
 ```
 
-原三层 fixture 的七资源、Go6m/root540+60+3/TCP75、实际 Wait/reap、两次资源与private/runtime/desc/TCP/input尾保持，不新增清理者或延长预算。此次整轮失败按原门保留；后继必须新输出和fresh grant。
+原三层 fixture 的七资源、Go6m/root540+60+3/TCP75、实际 Wait/reap、两次资源与private/runtime/desc/TCP/input尾保持，不新增清理者或延长预算。原P2-01整轮失败按原门保留；P2-02使用独立新输出和fresh grant，后继仍不得复用已用目录。
 
-原01之后的监督改动只适用于上述exact P2 root入口：原driver实际Wait后，在原失败判断点取得本任务owned descendant集合，对每个PID前后两次读取pid/starttime/ppid/state，父进程必须当前subreaper。安全exe只输出固定常见basename或null；Z缺exe不伪造，也不以名字授权。只有一致的owned Z且 `waitpid(精确PID,WNOHANG)` 实际同PID/status0才能接受；任何live/未知/消失/身份变化/未waitable/非0/ECHILD/部分失败或新PID都保失败并继续原清理尾，不加sleep、重试或预算。持久 `reaper-controls.py` 38eb3e actual0/64控和受影响 `harness-controls.py` 8b7e64 actual0/42控通过，后者保旧generic/非P2全文逆差异与完整受控尾。片段已冻结交Runner窄独审，尚无新真实运行；不会据此改变原01的STOP、身份缺失或wholeFAIL。
+原01之后的监督改动只适用于上述exact P2 root入口：原driver实际Wait后，在原失败判断点取得本任务owned descendant集合，对每个PID前后两次读取pid/starttime/ppid/state，父进程必须当前subreaper。安全exe只输出固定常见basename或null；Z缺exe不伪造，也不以名字授权。只有一致的owned Z且 `waitpid(精确PID,WNOHANG)` 实际同PID/status0才能接受；任何live/未知/消失/身份变化/未waitable/非0/ECHILD/部分失败或新PID都保失败并继续原清理尾，不加sleep、重试或预算。持久 `reaper-controls.py` 38eb3e actual0/64控和受影响 `harness-controls.py` 8b7e64 actual0/42控通过，后者保旧generic/非P2全文逆差异与完整受控尾。Runner独立有限接受（64/42控66751f/66b3ad及额外12控3d6ede actual0），随后P2-02完整真实结果见上。不会据此改变原01的STOP、身份缺失或wholeFAIL。
