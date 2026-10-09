@@ -15,7 +15,7 @@
 
 ## 当前所有权与任务
 
-- root 独占本文件、全局台账、迁移编号协调与全部Git操作。代理只写各自授权范围；检查点明确列文件，未验但可构建片段应保存，不提交未闭合无法构建源码。
+- 按当前用户要求，root负责统筹、规划、安排、汇报、验收决策与全部Git操作；实现、排查、测试及文档由子代理执行。本轮本文件与全局台账由 `/root/service_delivery/blocker_implementation` 唯一写入，两领域专属卡仍由对应负责人维护。检查点明确列文件，未验但可构建片段应保存，不提交未闭合无法构建源码。
 - `/root/model_delivery` 接续 D27 Model Settings、专属测试夹具/恢复脚本及必要共享组件返修；其 `recover_harness` 实施，`independent_acceptance` 独验。共享焦点已正式交付，后续新产品修改仍按风险独验。
 - `/root/service_delivery` 负责 B0-P Human未指派backlog Blocker持久服务；`blocker_implementation` 与其分配测试路径，`blocker_spec_review` 独立审查/亲自执行A/B。唯一迁移为 `00023_task_blockers.sql`；完整范围及接口见 `docs/development/work-items/d11-task-blocker-service.md`。
 - 所有实例统一显式请求 Astra/Ultra；工具无service tier字段，实际Fast未确认。当前7席动态共享；已完成实例续派用followup_task，不用send_message冒启动。
@@ -24,19 +24,19 @@
 
 - 完整产品/00023/作者测试/独立probe均可构建且已保存。四包pure/race/vet、两入口build、作者integration race编译/精确发现、独立公开契约pure/race及runtime静态接受通过。
 - 首Persistence整体FAIL保留：history=4096新增缺BLOCKER_HISTORY_LIMIT字段；其它正常操作/历史恢复、00022已填充升级重跑/DDL回滚、Project大容量子项body通过。唯一字段修复已独审，并以HistoryCapacityRegression真实完整PASS复验，不把原整轮改PASS。
-- 作者Authority、Unknown、Concurrency真实完整PASS；独立A/B由未参与实现者本人执行并完整PASS。全部这些轮均有实际Go/driver/外层退出、两自有资源/runtime/hostTCP双清、输入不变。
-- **仍待3项真实门槛**：`TestTaskBlockerAtomicity`、`TestTaskPlanningAtomicityAndEvents`、`TestWorkStructureAtomicityAndProducer`。全部当前已编译/发现、固定输入就绪，不重复编译或重跑无影响检查。Interop已完整PASS（96788 exit0/72.722s），包含真实归档进入/UpdateSprint双顺序及两门禁，不代表归档cleanup完成。下一轮安排Atomicity，必须等当前Session探针窗口完整结束再启动。
+- 作者Authority、Unknown、Concurrency、Interop与Atomicity真实完整PASS；独立A/B由未参与实现者本人执行并完整PASS。全部这些轮均有实际Go/driver/外层退出、两自有资源/runtime/hostTCP双清、输入不变。Interop覆盖真实BeginArchive/UpdateSprint双顺序及未初始化/deleting门禁，仅证明生命周期接受；Atomicity的16子项覆盖add/resolve七处真实SQL故障回滚及缺历史producer拒绝。
+- **仍待2项真实门槛**：`TestTaskPlanningAtomicityAndEvents`、`TestWorkStructureAtomicityAndProducer`。两项均已编译/发现、固定输入就绪，沿原105秒预算等待root协调资源窗；不重复编译或重跑无影响检查。Atomicity已完整退出并释放窗口，尚无整卡接受结论。
 - 当前作者完整binary：`output/ai/task-blocker-service/implementation/work-blocker-complete-race.test`；driver：`output/ai/task-blocker-service/author/pg-only-driver`；使用已有 `.agent-state/task-planning-recovery/pg_only_supervisor.py`，精确一个selector、原105s及完整资源尾，output为`output/ai/task-blocker-service/pg`。日志/二进制可重建；必要源码在正式tests和`.agent-state/task-blocker-service/`。
-- 不提供Agent/执行/跨状态Blocker、HTTP、生产root或完整D11。剩余4动态通过并最终独验闭合后，整理为一个完整原子正式提交并推送main。
+- 不提供Agent/执行/跨状态Blocker、HTTP、生产root或完整D11。剩余两项回归通过并最终独验闭合后，整理为一个完整原子正式提交并推送main。
 
 ## D27实际状态与下一步
 
 - 六新case历史接受4项（recovery/read/configuration/credential）；authority/navigation仍FAIL。共享层两次产品修复后，受影响recovery/configuration/credential须用新资产补验；read只有单层，核相关输入/依赖无变化后可复用。旧14与独立A/B真实仍未完成。
 - 最新authority第5完整FAIL：Session headers已见、finished未见、failed已见。需核真实account客户端同一body EOF/cancel与Playwright/CDP事件差异；不能去掉EOF门槛、重发GET或凭CDP事件猜根因。各轮Model业务测试均已完成自有资源清理。
-- 最新navigation第4在继续编辑后焦点断言FAIL，原值保留。共享焦点局部正反例已证实并完成正式修复，但不回填原navigation因果；下一需新资产真实复验。
+- 最新navigation第4在继续编辑后焦点断言FAIL，原值保留。共享焦点局部正反例已证实并完成正式修复，但不回填原navigation因果；第5轮准备使用新资产真实复验，尚未执行。
 - 精确失败输入在 `.agent-state/model-ui-recovery/*failure.json`；完整主harness为两Model Go、config/spec及该目录case模块。独立A/B四源在`.agent-state/model-ui-independent/`，已编译/类型/发现并随新Go夹具复编，**尚未真实执行**。
 - 新组件固定1/21监督器 `run-shared-components.py` 已有有界实际Wait/descendants/listener处理；单例及21矩阵当前完整PASS。最初临时runner留下已退出孤儿zombie PID115611/PPID1，无活测试进程/监听，原actualWait/Viteclose无法补回；不杀PID1，不称原清理PASS。
-- Session消费探针 `session-consumption-probe.mjs` 已有保存基线；最新去除重复监督、复用组件清理的返修及新增 `run-session-consumption.py` 已闭合冻结并保存，node/Python语法与8input离线准备通过；使用固定30+15秒总界的任务自有worker执行。真实8case已运行：完整length/chunked的native/正式client均EOF与解码成功且PW/CDPfinished；断连无EOF/failed，缺字节JSON有EOF但解码拒绝，不支持“正常EOF后cancel导致假failed”猜测。80128原外层exit1仅runtime-empty未过；所有实际Wait/close/desc/listener齐。root接管后精确核已登记PID和owned监听均不存在，删除唯一任务自有regular0600 Chromium残留及空目录/同身份marker，另写post-cleanup记录；原terminal逐字事实保持FAIL，后验current-clear不回填原通过。下一沿同响应安全读取/abort诊断定位主authority，不放宽EOF门槛。
+- Session消费探针 `session-consumption-probe.mjs` 与 `run-session-consumption.py` 已保存，真实8case已运行：完整length/chunked的native/正式client均EOF与解码成功且PW/CDPfinished；断连无EOF/failed，缺字节JSON有EOF但解码拒绝，不支持“正常EOF后cancel导致假failed”猜测。80128原外层exit1仅因任务临时目录的Chromium regular0600残留使runtime-empty未过；所有实际Wait/close/desc/listener齐。root随后精确清理残留与同身份marker，只形成后验current-clear，原FAIL不改。下一沿同一请求的原reader做安全计数/abort诊断定位authority；方案尚未写入，不放宽finished/EOF门槛。
 - Model私有dist已同步本次2640全检查构建的64文件，与web/dist逐字节同一。后续业务用该新资产，旧PASS不等于新资产通过。
 
 ## 环境与共享资源
@@ -46,7 +46,7 @@
 - 正式组件整合树 `/workspace/agenteam-shared-layer-delivery` 当前 `ai/shared-layer-delivery`，包含已推送main的两组件提交；不混入未验Model或B0-P产品。
 - 固定Chromium、锁定Playwright、PG/MinIO及helpers已恢复；可重建产物在output。既有dev infra不属于任务，不连接、不清理。
 - PG/browser/hostTCP只运行一个明确资源窗口。实际Go/driver/外层终态及资源尾结束前，不进行Git网络、下载或另一browser/socket测试；离线纯测试与无输入冲突写入可继续。每轮完整终态才交接，原失败不补写PASS。
-- 当前所有上一轮实际资源均已释放；root正在最终Git保存，完成后交B0-P Atomicity；Session8实际资源已由root核清。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
+- 本次汇总时B0-P Atomicity已完整释放窗口，Model没有活动进程或资源窗；下一轮由root协调Model navigation复验与两项Work回归的顺序。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
 
 ## 保留停止项与最终验收
 

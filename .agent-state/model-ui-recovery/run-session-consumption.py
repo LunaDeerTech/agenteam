@@ -7,8 +7,10 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import secrets
 import signal
+import stat
 import subprocess
 import sys
 import time
@@ -33,6 +35,55 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def retire_runtime(runtime, expected_identity, allowed):
+    """Remove only the observed Chromium singleton residue, after real joins.
+
+    No contents are read. Unknown entries, aliases, or changed identities remain
+    for explicit inspection. All unlink/rmdir operations stay relative to the
+    opened owned directory and its fixed /tmp parent, with no recursive removal.
+    """
+    if not allowed or runtime.parent != Path('/tmp') or re.fullmatch(r'ms-[0-9a-f]{12}', runtime.name) is None:
+        return None
+    parent_fd = runtime_fd = None
+    try:
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+        parent_fd = os.open('/tmp', flags)
+        runtime_fd = os.open(runtime.name, flags, dir_fd=parent_fd)
+        directory = os.fstat(runtime_fd)
+        if (directory.st_dev, directory.st_ino) != expected_identity or directory.st_uid != os.getuid() or stat.S_IMODE(directory.st_mode) != 0o700:
+            return None
+        names = os.listdir(runtime_fd)
+        if len(names) > 1:
+            return None
+        if names:
+            name = names[0]
+            if re.fullmatch(r'\.org\.chromium\.Chromium\.[A-Za-z0-9]{6}', name) is None:
+                return None
+            fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC, dir_fd=runtime_fd)
+            try:
+                opened = os.fstat(fd)
+                if not stat.S_ISREG(opened.st_mode) or stat.S_IMODE(opened.st_mode) != 0o600 or opened.st_uid != os.getuid() or opened.st_nlink != 1:
+                    return None
+                current = os.stat(name, dir_fd=runtime_fd, follow_symlinks=False)
+                if (current.st_dev, current.st_ino) != (opened.st_dev, opened.st_ino):
+                    return None
+                os.unlink(name, dir_fd=runtime_fd)
+            finally:
+                os.close(fd)
+        current_directory = os.stat(runtime.name, dir_fd=parent_fd, follow_symlinks=False)
+        if (current_directory.st_dev, current_directory.st_ino) != expected_identity:
+            return None
+        os.rmdir(runtime.name, dir_fd=parent_fd)
+        return len(names)
+    except OSError:
+        return None
+    finally:
+        if runtime_fd is not None:
+            os.close(runtime_fd)
+        if parent_fd is not None:
+            os.close(parent_fd)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--run', action='store_true', required=True)
@@ -55,6 +106,8 @@ def main():
     directory.mkdir(mode=0o700)
     runtime = Path('/tmp') / ('ms-' + nonce[:12])
     runtime.mkdir(mode=0o700)
+    runtime_stat = runtime.lstat()
+    runtime_identity = (runtime_stat.st_dev, runtime_stat.st_ino)
     marker = OUTPUT / 'active.json'
     write(marker, {'directory': str(directory), 'runtime': str(runtime), 'nonce': nonce, 'supervisor_pid': os.getpid()})
     marker_identity = (marker.stat().st_dev, marker.stat().st_ino)
@@ -123,11 +176,16 @@ def main():
             result = None
             facts.setdefault('failure', 'SESSION_PROBE_TERMINAL_INCOMPLETE')
         facts['retirement_observations'] = [{'descendants': owned.descendants(), 'owned_listeners': owned.listening(ports)} for _ in range(2)]
-        try:
-            runtime.rmdir()
-            facts['runtime_empty'] = True
-        except OSError:
-            facts['runtime_empty'] = False
+        safe_runtime_cleanup = bool(child is not None and facts['direct_actual_wait'] and facts['direct_exit'] == 0
+                                    and facts['normal_adopted_settlement'] and all(row['status'] == 0 for row in facts['adopted_actual_waits'])
+                                    and facts.get('worker_retirement_complete') and facts.get('all_observers_joined')
+                                    and facts['inputs_unchanged'] and facts.get('worker_failure') is None and 'failure' not in facts
+                                    and all(not row['descendants'] and not row['owned_listeners'] for row in facts['retirement_observations']))
+        removed = retire_runtime(runtime, runtime_identity, safe_runtime_cleanup)
+        facts['runtime_empty'] = removed is not None
+        facts['runtime_residue_removed'] = removed
+        if removed is None:
+            facts.setdefault('failure', 'SESSION_PROBE_RUNTIME_NOT_RETIRED')
         facts['retirement_complete'] = bool(child is not None and facts['direct_actual_wait'] and facts.get('worker_retirement_complete') and facts['runtime_empty'] and all(not row['descendants'] and not row['owned_listeners'] for row in facts['retirement_observations']))
         facts['exit'] = 0 if facts['retirement_complete'] and facts['normal_adopted_settlement'] and facts['direct_exit'] == 0 and facts['inputs_unchanged'] and facts.get('all_observers_joined') and facts.get('worker_failure') is None and 'failure' not in facts else 1
         if facts['retirement_complete']:
