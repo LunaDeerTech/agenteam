@@ -2176,7 +2176,7 @@ func decodeProjectModelsWebResult(raw []byte, mode, inputHash string) (projectMo
 		}
 		observed[key] = n
 	}
-	if observed["typed_client_ok"] != result.ClientBodies || observed["schema_ok"] != result.SchemaBodies || observed["complete_eof"] > observed["attempts"] || observed["incomplete"]+observed["complete_eof"] != observed["attempts"] {
+	if observed["typed_client_ok"] != result.ClientBodies || observed["schema_ok"] != result.SchemaBodies || observed["complete_eof"] != observed["typed_client_ok"] || observed["complete_eof"] != observed["schema_ok"] || observed["complete_eof"] > observed["attempts"] || observed["incomplete"]+observed["complete_eof"] != observed["attempts"] {
 		return result, bad
 	}
 	server, err := projectModelsWebObject(counts["server"], "operations", "session", "server", "controls", "browser_eof", "schema_bodies", "client_bodies")
@@ -2192,9 +2192,21 @@ func decodeProjectModelsWebResult(raw []byte, mode, inputHash string) (projectMo
 	if json.Unmarshal(server["operations"], &rows) != nil || len(rows) != 17 {
 		return result, bad
 	}
-	for _, raw := range rows {
+	attachment, err := os.ReadFile("../../docs/development/work-items/d27-project-owner-model-settings-ui-endpoints.json")
+	if err != nil {
+		return result, bad
+	}
+	operations, err := projectModelsWebLoadOperations(attachment)
+	if err != nil {
+		return result, bad
+	}
+	for index, raw := range rows {
 		fields, err := projectModelsWebObject(raw, "operation", "setup", "browser", "control", "upstream_complete", "handler_joined")
 		if err != nil {
+			return result, bad
+		}
+		operation, ok := projectModelsWebString(fields["operation"])
+		if !ok || operation != operations[index].Operation {
 			return result, bad
 		}
 		for key, raw := range fields {
@@ -2340,7 +2352,12 @@ wait:
 func (f *projectModelsWebFixture) verifyModelBrowserEvidence(result projectModelsWebResult) error {
 	bad := errors.New("owned browser evidence mismatch")
 	var counts struct {
-		Server json.RawMessage `json:"server"`
+		Server  json.RawMessage `json:"server"`
+		Browser struct {
+			Attempts   int `json:"attempts"`
+			EOF        int `json:"complete_eof"`
+			Incomplete int `json:"incomplete"`
+		} `json:"browser"`
 	}
 	var actual, expected any
 	if json.Unmarshal(result.Counts, &counts) != nil || json.Unmarshal(counts.Server, &actual) != nil || json.Unmarshal(f.modelLastCounts, &expected) != nil {
@@ -2349,6 +2366,71 @@ func (f *projectModelsWebFixture) verifyModelBrowserEvidence(result projectModel
 	a, _ := json.Marshal(actual)
 	b, _ := json.Marshal(expected)
 	if !bytes.Equal(a, b) {
+		return bad
+	}
+	native, err := projectModelsWebReadPrivate(filepath.Join(f.evidence, "native-browser-observations.json"), 1048576)
+	if err != nil || projectModelsWebJSON(native) != nil {
+		return bad
+	}
+	var observations []json.RawMessage
+	if json.Unmarshal(native, &observations) != nil || len(observations) != counts.Browser.Attempts {
+		return bad
+	}
+	eof := map[string]map[string]json.RawMessage{}
+	tokens := map[string]bool{}
+	incomplete := 0
+	for _, raw := range observations {
+		fields, err := projectModelsWebObject(raw, "token", "method", "path", "query", "status", "eof", "ended", "cancelled", "released", "bytes", "chunks", "has_body", "mutation_headers")
+		if err != nil || string(fields["ended"]) != "true" {
+			return bad
+		}
+		for _, key := range []string{"eof", "cancelled", "released", "has_body", "mutation_headers"} {
+			if string(fields[key]) != "true" && string(fields[key]) != "false" {
+				return bad
+			}
+		}
+		method, ok := projectModelsWebString(fields["method"])
+		path, pathOK := projectModelsWebString(fields["path"])
+		query, queryOK := projectModelsWebString(fields["query"])
+		if !ok || !pathOK || !queryOK {
+			return bad
+		}
+		_, _, operation := f.match(&http.Request{Method: method, URL: &url.URL{Path: path, RawQuery: query}})
+		if operation == nil {
+			return bad
+		}
+		var size, status int
+		var chunks []int
+		if string(fields["bytes"]) == "null" || string(fields["status"]) == "null" || string(fields["chunks"]) == "null" || json.Unmarshal(fields["bytes"], &size) != nil || size < 0 || size > 8388608 || json.Unmarshal(fields["status"], &status) != nil || status < 0 || status > 599 || json.Unmarshal(fields["chunks"], &chunks) != nil {
+			return bad
+		}
+		total := 0
+		for _, chunk := range chunks {
+			if chunk < 0 || chunk > 8388608 {
+				return bad
+			}
+			total += chunk
+		}
+		if total != size {
+			return bad
+		}
+		token, _ := projectModelsWebString(fields["token"])
+		if string(fields["token"]) != "null" {
+			if !projectModelsWebRequestToken.MatchString(token) || tokens[token] {
+				return bad
+			}
+			tokens[token] = true
+		}
+		if string(fields["eof"]) == "true" {
+			if token == "" || string(fields["released"]) != "true" || size == 0 {
+				return bad
+			}
+			eof[token] = fields
+		} else {
+			incomplete++
+		}
+	}
+	if len(eof) != counts.Browser.EOF || len(eof) != result.SchemaBodies || incomplete != counts.Browser.Incomplete {
 		return bad
 	}
 	raw, err := projectModelsWebReadPrivate(filepath.Join(f.evidence, "same-body-input.json"), 65536)
@@ -2373,6 +2455,10 @@ func (f *projectModelsWebFixture) verifyModelBrowserEvidence(result projectModel
 			return bad
 		}
 		seen[token] = true
+		fact := eof[token]
+		if fact == nil || !bytes.Equal(fields["bytes"], fact["bytes"]) {
+			return bad
+		}
 		metadata, err := projectModelsWebReadPrivate(filepath.Join(f.evidence, name), 65536)
 		if err != nil {
 			return bad
@@ -2384,6 +2470,20 @@ func (f *projectModelsWebFixture) verifyModelBrowserEvidence(result projectModel
 		var value map[string]json.RawMessage
 		if json.Unmarshal(metadata, &value) != nil {
 			return bad
+		}
+		for sidecarKey, factKey := range map[string]string{"method": "method", "endpoint": "path", "query": "query", "status": "status"} {
+			if sidecarKey == "status" {
+				var left, right int
+				if json.Unmarshal(value[sidecarKey], &left) != nil || json.Unmarshal(fact[factKey], &right) != nil || left != right {
+					return bad
+				}
+			} else {
+				left, leftOK := projectModelsWebString(value[sidecarKey])
+				right, rightOK := projectModelsWebString(fact[factKey])
+				if !leftOK || !rightOK || left != right {
+					return bad
+				}
+			}
 		}
 		sidecar.Protocol, _ = projectModelsWebString(value["protocol"])
 		sidecar.InputHash, _ = projectModelsWebString(value["input_hash"])

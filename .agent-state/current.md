@@ -62,3 +62,5 @@
 - 后继规格纯文档：d11-task-transitions.md前三节草案已可恢复，§4–13待续，未接受/未实施；d10-agent-configuration.md首三节已冻结保存；同样仅rev0草案，端口/锁/Model引用/验收待续，未接受或实施。Model返修进行中尚未冻结。
 
 - 独立A/B原作者已按现NormalizeName最小修3处Project Name空格→连字符，2probe源冻结保存，rq9 offline race-c/list exit0。但作者Membership测试随后发现同因非法Project Name（task_concurrency_test.go966），原body1.69s/full terminal1/66.786s、两ID/runtime/TCP双空/input不变；原FAIL保留。作者将只修新测试中的非法Project创建输入，之后作者及独立binary重编/list再冻结，不以rq9冒最终闭包通过。
+
+- Model返修稳定片段：descriptor按真实Object/Outbound UpperCamel与PG snake_case分别严格解析，新owned_resources.py在正常/失败路径记录实际资源ID；两断连逐token complete/safe/applied/native未EOF与精确cut/disconnected计数已补，Go final严格EOF/client/schema和native token/body witness一致性已补。delivery race-c/vet、8pure、TS strict/list、collector闭集/文件18checks及纯4container+3network去重发布实际PASS；两Go源root/delivery逐字节一致。原setup FAIL仍保留，新business尚未运行，独立复核进行中。

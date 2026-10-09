@@ -12,6 +12,7 @@ import sys
 import threading
 import time
 import uuid
+from owned_resources import collect, merge, publish
 
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "output/ai/model-ui-recovery"
@@ -75,7 +76,7 @@ def main():
     os.umask(0o077)
     available = next(int(row.split()[1]) * 1024 for row in Path("/proc/meminfo").read_text().splitlines() if row.startswith("MemAvailable:"))
     if available < 5 * 1024**3:
-        raise RuntimeError("fresh five GiB memory gate failed")
+        raise RuntimeError("fresh host MemAvailable five GiB gate failed")
     nonce = uuid.uuid4().hex
     evidence = OUTPUT / ("owned-" + args.case + "-" + nonce)
     evidence.mkdir(mode=0o700)
@@ -93,7 +94,7 @@ def main():
     for source in sources[:2]:
         assert source.read_bytes() == (DELIVERY / source.relative_to(ROOT)).read_bytes()
     frozen_hash = hashlib.sha256(json.dumps(inputs, sort_keys=True).encode()).hexdigest()
-    (evidence / "inputs.json").write_text(json.dumps({"files": inputs, "input_hash": frozen_hash, "go_source_tree": str(DELIVERY), "production_dist": str(OUTPUT / "dist"), "mem_available": available}, indent=2))
+    (evidence / "inputs.json").write_text(json.dumps({"files": inputs, "input_hash": frozen_hash, "go_source_tree": str(DELIVERY), "production_dist": str(OUTPUT / "dist"), "host_mem_available": available, "memory_gate_is_not_cgroup_hard_limit": True}, indent=2))
     libc = ctypes.CDLL(None, use_errno=True)
     if libc.prctl(36, 1, 0, 0, 0) != 0:
         raise OSError(ctypes.get_errno(), "PR_SET_CHILD_SUBREAPER")
@@ -106,6 +107,8 @@ def main():
     child = None
     code = 1
     adopted = []
+    registered = {}
+    capture_failed = threading.Event()
     old = {}
     with (evidence / "runtime.log").open("x", buffering=1) as log:
         def watchdog():
@@ -120,9 +123,20 @@ def main():
         for sig in (signal.SIGTERM, signal.SIGINT):
             old[sig] = signal.signal(sig, interrupt)
         thread = threading.Thread(target=watchdog, name="models-owned-watchdog")
+        def capture():
+            try:
+                while True:
+                    if merge(registered, collect(private)):
+                        publish(evidence / "resources.json", registered)
+                    if stop.wait(.03):
+                        break
+            except Exception:
+                capture_failed.set()
+        capture_thread = threading.Thread(target=capture, name="models-owned-resource-observer")
         try:
             child = subprocess.Popen([str(helpers[0]), "-run", env["MODELS_EXACT_SELECTOR"]], cwd=DELIVERY, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             thread.start()
+            capture_thread.start()
             try:
                 code = child.wait(timeout=160)
             except subprocess.TimeoutExpired:
@@ -135,7 +149,9 @@ def main():
                 code = child.wait()
             stop.set()
             thread.join()
+            capture_thread.join()
             log.write(f"SUPERVISOR direct_actual_wait={child.pid} exit={code} watchdog_joined={not thread.is_alive()}\n")
+            log.write(f"SUPERVISOR resource_observer_actual_join={not capture_thread.is_alive()}\n")
             survivors = descendants(os.getpid())
             if survivors:
                 # Chromium can legitimately leave exited adopted grandchildren;
@@ -158,7 +174,13 @@ def main():
             if expired.is_set() or time.monotonic() - started > 120:
                 code = 1
             resources_path = evidence / "resources.json"
-            resources = json.loads(resources_path.read_bytes()) if resources_path.exists() else []
+            adapter = evidence / "adapter-resources.json"
+            if adapter.exists():
+                merge(registered, json.loads(adapter.read_bytes()))
+                publish(resources_path, registered)
+            resources = list(registered.values())
+            if capture_failed.is_set():
+                code = 1
             if len(resources) != 7:
                 code = 1
             for observation in (1, 2):
@@ -202,6 +224,8 @@ def main():
             stop.set()
             if thread.ident is not None:
                 thread.join()
+            if capture_thread.ident is not None:
+                capture_thread.join()
             for sig, handler in old.items():
                 signal.signal(sig, handler)
     print(json.dumps({"evidence": str(evidence), "exit": code}), flush=True)

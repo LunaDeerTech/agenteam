@@ -5,7 +5,9 @@ package account_test
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
@@ -17,6 +19,102 @@ import (
 	"testing"
 	"time"
 )
+
+func TestProjectModelsWebResultCounters(t *testing.T) {
+	checks, err := projectModelsWebChecks("recovery")
+	if err != nil {
+		t.Fatal(err)
+	}
+	confirmed := map[string]bool{}
+	for _, name := range checks {
+		confirmed[name] = true
+	}
+	operations := []any{}
+	attachment, err := os.ReadFile("../../docs/development/work-items/d27-project-owner-model-settings-ui-endpoints.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	declared, err := projectModelsWebLoadOperations(attachment)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, operation := range declared {
+		operations = append(operations, map[string]any{"operation": operation.Operation, "setup": 0, "browser": 0, "control": 0, "upstream_complete": 0, "handler_joined": 0})
+	}
+	server := map[string]any{"operations": operations, "session": map[string]int{"setup": 0, "browser": 0, "control": 0}, "server": map[string]int{"started": 0, "finished": 0}, "controls": map[string]int{"armed": 0, "claimed": 0, "held": 0, "held_joined": 0, "cut": 0, "disconnected": 0}, "browser_eof": nil, "schema_bodies": nil, "client_bodies": nil}
+	for _, test := range []struct {
+		name                                     string
+		attempts, eof, incomplete, typed, schema int
+		valid                                    bool
+	}{
+		{"consistent", 1, 1, 0, 1, 1, true}, {"zero-attempts-with-typed-body", 0, 0, 0, 1, 1, false}, {"unverified-complete-body", 2, 2, 0, 1, 1, false}, {"missing-complete-eof", 2, 0, 2, 1, 1, false}, {"impossible-attempt-decomposition", 2, 1, 0, 1, 1, false}, {"schema-count-differs", 1, 1, 0, 1, 0, false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			browser := map[string]int{"attempts": test.attempts, "complete_eof": test.eof, "incomplete": test.incomplete, "typed_client_ok": test.typed, "schema_ok": test.schema}
+			raw, _ := json.Marshal(map[string]any{"protocol": projectModelsWebProtocol, "input_hash": "pure-boundary", "completed": true, "mode": "recovery", "checks": confirmed, "counts": map[string]any{"server": server, "browser": browser}, "schema_bodies": 1, "client_bodies": 1, "layouts": 0})
+			_, err := decodeProjectModelsWebResult(raw, "recovery", "pure-boundary")
+			if (err == nil) != test.valid {
+				t.Fatal("final count boundary admitted an impossible observation")
+			}
+		})
+	}
+}
+
+func TestProjectModelsWebNativeWitness(t *testing.T) {
+	project := "018f1234-5678-7abc-8def-123456789abc"
+	op := projectModelsWebOperation{Operation: "listProjectModelProviders", Method: "GET", Path: "/model-providers", Family: "read", Query: "page"}
+	f := &projectModelsWebFixture{projectOwnerAuditWebFixture: &projectOwnerAuditWebFixture{projectOwnerWebFixture: &projectOwnerWebFixture{authenticationWebFixture: &authenticationWebFixture{t: t}, evidence: t.TempDir(), inputHash: strings.Repeat("0", 64)}}, registry: projectModelsWebRegistry{Projects: map[string]string{"main": project}, Operations: []projectModelsWebOperation{op}}, modelLastCounts: json.RawMessage(`{}`)}
+	path := "/api/v1/projects/" + project + "/model-providers"
+	// '&' has different JSON escaping in Go and Node. Correlation compares its
+	// value, while response evidence and body hash keep the original bytes.
+	query := "cursor=opaque-fixture-cursor&limit=25"
+	body := []byte(`{"items":[],"next_cursor":null}`)
+	request := &projectModelsWebRequest{Token: "r000001", Source: "browser", Project: "main", Operation: &op}
+	response := &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"application/json"}, "Content-Length": []string{fmt.Sprint(len(body))}, "X-Request-Id": []string{project}}, Request: &http.Request{Method: "GET", URL: &url.URL{Path: path, RawQuery: query}}}
+	if err := f.saveModelResponse(request, response, body); err != nil {
+		t.Fatal(err)
+	}
+	write := func(name string, value any) {
+		t.Helper()
+		raw, _ := json.Marshal(value)
+		if err := os.WriteFile(filepath.Join(f.evidence, name), raw, 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write("same-body-input.json", []any{map[string]any{"sidecar": "response-001.json", "request_token": "r000001", "browser_eof": true, "bytes": len(body), "sha256": fmt.Sprintf("%x", sha256.Sum256(body))}})
+	counts := json.RawMessage(`{"server":{},"browser":{"attempts":1,"complete_eof":1,"incomplete":0}}`)
+	result := projectModelsWebResult{Counts: counts, SchemaBodies: 1, ClientBodies: 1}
+	fact := func() map[string]any {
+		return map[string]any{"token": "r000001", "method": "GET", "path": path, "query": query, "status": 200, "eof": true, "ended": true, "cancelled": false, "released": true, "bytes": len(body), "chunks": []int{len(body)}, "has_body": false, "mutation_headers": false}
+	}
+	write("native-browser-observations.json", []any{fact()})
+	if err := f.verifyModelBrowserEvidence(result); err != nil {
+		t.Fatal("consistent pure native witness rejected")
+	}
+	for _, key := range []string{"token", "eof", "released", "status", "bytes"} {
+		t.Run(key, func(t *testing.T) {
+			v := fact()
+			switch key {
+			case "token":
+				v[key] = "r000002"
+			case "eof", "released":
+				v[key] = false
+			case "status":
+				v[key] = 201
+			case "bytes":
+				v[key] = len(body) + 1
+			}
+			write("native-browser-observations.json", []any{v})
+			if f.verifyModelBrowserEvidence(result) == nil {
+				t.Fatal("mismatched native witness accepted")
+			}
+		})
+	}
+	write("native-browser-observations.json", []any{})
+	if f.verifyModelBrowserEvidence(result) == nil {
+		t.Fatal("missing native witness accepted")
+	}
+}
 
 func runProjectModelsWeb(t *testing.T, mode string) {
 	t.Helper()

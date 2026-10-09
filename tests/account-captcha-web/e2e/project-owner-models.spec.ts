@@ -665,6 +665,11 @@ function originalReplay(value: Snapshot, token: string) {
 }
 type NativeFact = { token: string | null; method: string; path: string; query: string; status: number; eof: boolean; ended: boolean; cancelled: boolean; released: boolean; bytes: number; chunks: number[]; has_body: boolean; mutation_headers: boolean };
 async function nativeFacts(page: Page): Promise<NativeFact[]> { return page.evaluate(() => (window as any).__projectModelsProbe.facts()); }
+async function actualLoss(page: Page, control: Record<string, unknown>, expectedBytes: number) {
+  invariant(control.joined === true && control.upstream_complete === true && control.safe_admitted === true && control.effect_applied === true && requestToken(control.request_token), "PROJECT_MODELS_CONTROLLED_LOSS_NOT_APPLIED");
+  const matches = (await nativeFacts(page)).filter((fact) => fact.token === control.request_token);
+  invariant(matches.length === 1 && matches[0]!.ended && !matches[0]!.eof && matches[0]!.status === 200 && matches[0]!.bytes === expectedBytes, "PROJECT_MODELS_CONTROLLED_NATIVE_LOSS_NOT_OBSERVED");
+}
 async function verifyBodies(page: Page) {
   const facts = await nativeFacts(page); invariant(facts.length > 0 && facts.every((fact) => fact.ended), "PROJECT_MODELS_NATIVE_TAIL_INCOMPLETE");
   const sidecars = readdirSync(evidence).filter((name) => /^response-\d+\.json$/.test(name)).map((name) => ({ name, value: object(privateJSON(name, 65536, evidence)) }));
@@ -724,7 +729,7 @@ test("[recovery] actual original configuration and credential requests", async (
   await button(dialog, "保存 Provider").click();
   await expect(dialog.getByText(/结果尚未确认/)).toBeVisible();
   const lostCreate = await control(createArm, (value) => value.joined === true);
-  invariant(lostCreate.upstream_complete && lostCreate.safe_admitted && lostCreate.effect_applied, "PROJECT_MODELS_CREATE_LOSS_NOT_OBSERVED");
+  await actualLoss(page, lostCreate, 1);
   const committed = await snapshot("config_recovery"); durableDelta(before, committed, 1, 0);
   const providerID = committed.current.providers.find((row) => row.present)!.id;
   const noImplicit = await counts();
@@ -750,6 +755,7 @@ test("[recovery] actual original configuration and credential requests", async (
   const deleteArm = await arm("deleteProjectModelProvider", "config_recovery", providerID, "after_complete_disconnect");
   await button(deletion, "确认删除").click(); await expect(deletion.getByText(/结果尚未确认/)).toBeVisible();
   const lostDelete = await control(deleteArm, (value) => value.joined === true);
+  await actualLoss(page, lostDelete, 0);
   const deleted = await snapshot("config_recovery"); durableDelta(replayed, deleted, 1, 0);
   invariant(deleted.current.providers.find((row) => row.id === providerID)?.present === false, "PROJECT_MODELS_DELETED_CURRENT_STILL_PRESENT");
   await button(deletion, "查证原请求").click(); await expect(deletion.getByLabel("历史观察", { exact: true })).toBeVisible();
@@ -770,6 +776,7 @@ test("[recovery] actual original configuration and credential requests", async (
   await button(credential, "创建凭据").click(); await expect(credential.getByText(/结果尚未确认/)).toBeVisible();
   invariant(await credential.getByLabel("新凭据材料", { exact: true }).inputValue() === "", "PROJECT_MODELS_MATERIAL_NOT_CLEARED");
   const lostCredential = await control(credentialArm, (value) => value.joined === true);
+  await actualLoss(page, lostCredential, 0);
   const credentialCommitted = await snapshot("credential_recovery"); durableDelta(credentialBefore, credentialCommitted, 0, 1);
   const credentialCounts = await counts();
   await button(credential, "查证原请求").click(); await expect(credential.getByLabel("历史观察", { exact: true })).toBeVisible();
@@ -801,6 +808,10 @@ test("[recovery] actual original configuration and credential requests", async (
   invariant((await nativeFacts(page)).some((fact) => fact.token === held.request_token && fact.eof && fact.released && fact.ended), "PROJECT_MODELS_NATIVE_FINAL_RELEASE_MISSING");
   checks.actual_owner_tail = true;
   await button(dialog, "取消").click(); await expect(dialog).toBeHidden();
+  const finalCounts = await counts();
+  const finalControls = object(finalCounts.controls);
+  invariant(finalControls.armed === 4 && finalControls.claimed === 4 && finalControls.held === 1 && finalControls.held_joined === 1 && finalControls.cut === 1 && finalControls.disconnected === 2, "PROJECT_MODELS_CONTROLLED_RECOVERY_COUNTS_INVALID");
+  for (const [operation, expected] of [["createProjectModelProvider", 2], ["deleteProjectModelProvider", 2], ["createProjectModelCredential", 2], ["updateProjectModelProvider", 1], ["lookupProjectModelConfiguration", 2], ["lookupProjectModelCredential", 1]] as const) invariant(operationCount(finalCounts, operation) === expected, "PROJECT_MODELS_RECOVERY_OPERATION_COUNT_INVALID");
   step("same-body-finish");
   await finish(page, "recovery", checks);
 });
