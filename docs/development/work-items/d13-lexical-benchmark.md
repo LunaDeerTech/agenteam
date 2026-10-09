@@ -1,6 +1,6 @@
 # D13 中英混合文档 Lexical Benchmark
 
-修订：rev1。状态：SPEC 已获 Skills 独立有限接受；七个数据/工具/测试/README文件已完成作者检查并冻结，尚无实现/语义独验或候选后端结果。下文技术边界保持已审 rev1。
+修订：SPEC rev1，数据lexical-v2。状态：本卡“固定语料＋可重复离线评分工具”已完成作者检查及独立语义、评分实现验收，无剩余must-fix。三真实后端、性能、许可证核验与最终选型仍未完成，不完成整个D13。下文技术边界保持已审rev1。
 
 ## 1. 独立结果与正式依据
 
@@ -14,7 +14,7 @@
 
 基线为正式 main `3cea6076`，独占工作树 `/workspace/agenteam-search-benchmark`，分支 `ai/search-benchmark`。已核对本基线没有既有 corpus、query/qrels 或 lexical benchmark 实现；`go.mod` 没有上述搜索扩展依赖。已存在 Knowledge 纯契约不证明服务或检索已运行。本卡不消费其他活动分支的未验实现。
 
-当前仅授权本卡及 `.agent-state/current.md`。SPEC 固定并窄审后，实施范围限定为以下新文件，根目录和既有业务源不变：
+SPEC 固定并窄审后，实施范围限定为以下七个新文件，根目录和既有业务源不变：
 
 | 文件 | 作用 |
 | --- | --- |
@@ -27,6 +27,8 @@
 | `tests/search-benchmark/README.md` | 命令、运行格式、解释范围、候选与许可状态 |
 
 可重建导出、测试输出和运行结果放 `output/ai/search-benchmark/`。必要语料、qrels、工具与反例必须在上述跟踪路径，不能只有临时文件或文字摘要。Git 写操作仍由 root 完成。
+
+另按必要交付范围保留本卡、分支检查点、台账中本结果的单行，以及未参与实现的Model所持有的[独立评分控制](../../../.agent-state/search-benchmark-review/evaluator-controls.py)；不复制其他活动分支状态。
 
 ## 3. 固定语料和 Query
 
@@ -78,7 +80,7 @@ dev 可以用于候选配置探索；最终 test 配置必须先冻结。看过 
 
 JSON/JSONL 使用闭合字段，拒绝重复 JSON member、未知字段、非法 UTF-8、非有限数值、布尔冒整数、尾随第二个 JSON 值、重复 ID、缺 query、未知 source、错误 dataset revision、无效 split/family 与不完整 qrels。单输入文件最多 2 MiB，单行最多 64 KiB；先有界读取再解码。纯评分失败退出非零，不写貌似成功的部分报告。
 
-命令合同如下；本修订只规定命令，尚未实现或运行：
+命令如下；实际验证范围见第9节：
 
 ```sh
 python3 scripts/search-benchmark.py validate --data tests/search-benchmark/data
@@ -132,12 +134,14 @@ SPEC 窄审固定边界后才能写数据与工具。完成本卡要求：固定
 
 ## 9. 当前实施证据
 
-七个新文件已落盘。原始四数据文件表达32文档/64section、64有答案+8无答案及全部4608等级；作者在无任何检索结果的情况下依据语义判断，补充相邻材料的背景/部分支持并将跨名称的相近意图置于同一split。结构计数通过不代表全量语义或隐藏同族已获独立接受。
+七个新文件已落盘。四数据文件表达32文档/64section、64有答案+8无答案及全部4608等级；作者在无任何检索结果的情况下依据语义判断，补充相邻材料的背景/部分支持并将跨名称的相近意图置于同一split。结构计数不作为全量语义或隐藏同族的接受依据。
 
 标准库工具在Python3.12.14实际运行：validate与export通过；17个测试方法包含手算graded指标、相关分母/截断、完整CLI宏平均与无答案隔离、严格JSON/ID/grade/family反例、新输出失败清理及同输入逐字评分重放，最终actual0。普通文件读取使用POSIX nonblocking打开并校验regular file，拒绝在输入FIFO上阻塞；没有启动检索器、数据库或额外网络。详见[运行说明](../../../tests/search-benchmark/README.md)及本分支检查点中的实际命令和日志。
 
-测试构造的运行文件是评分控制，版本明确标记为非backend执行，不构成候选成绩。独立审查还需重新手算并执行CLI、核全部query/source判断及family边界；三真实候选/性能/许可证/hybrid对照仍未验证。
+测试构造的运行文件是评分控制，版本明确标记为非backend执行，不构成候选成绩。独立审查分别重新手算并执行CLI、核全部query/source判断及family边界；三真实候选/性能/许可证/hybrid对照仍未验证。
 
-独立首轮语义审指出：通用query不能被作者intent暗限于Cedar/Flint，存在跨文档支持漏标；相邻Harbor/Moss/Page直接条件及少量背景分级不一致；启动时一次加载的同义问题跨split。现以lexical-v2返修，query正文不改，补真实字面相关grade与理由，q09的充分答案按字面升为3；合并相关同族并按整体意图调整q47/q55的split，各类4/4及所有数量不变。原v1及首次问题保留，返修仍待独立复核。
+独立首轮语义审指出：通用query不能被作者intent暗限于Cedar/Flint，存在跨文档支持漏标；相邻Harbor/Moss/Page直接条件及少量背景分级不一致；启动时一次加载的同义问题跨split。lexical-v2保持query正文，修正19处grade/理由和q09 intent，q09的充分答案按字面升为3；合并相关同族并按整体意图调整q47/q55的split，各类4/4及所有数量不变。原v1及首次问题保留。Knowledge在原全部64×72语义扫描基础上逐项复核这些变化、背景/必要/充分等级及隐藏同族修正，977906 actual0，有限接受且无剩余must-fix；没有用检索结果或validator推导语义。
 
-评分代码已获Model限定独审接受：独立手算与真实CLI共128项检查actual0，未使用作者函数计算期望，范围不含数据语义或backend执行。v2只使测试控制的dataset revision从固定数据读取，不修改评分器或黄金期望；该窄变化和修后数据组合仍需复核。
+评分代码获Model限定独审接受：独立手算与真实CLI共128项检查74159b actual0，未使用作者函数计算期望，范围不含数据语义或backend执行。v2只使测试控制的dataset revision从固定数据读取，不修改评分器或黄金期望；最后版本窄复核563bcf actual0确认q01/q02、数量/分母及手算前提保持，复用原128控。独审首次误把q02当zh的夹具FAIL已按实际en纠正，不是evaluator缺陷。
+
+作者修后17个测试方法、实际validate/export及逐项内容/数量比较通过；必要独验控制源码已保留，可用 `PYTHONDONTWRITEBYTECODE=1 python3 .agent-state/search-benchmark-review/evaluator-controls.py` 在独占ignored输出目录复验。最终只归位来源判断状态与必要文档，语料正文、query、grade、family及评分器均保持已验输入。此完整独立结果可以供后续候选运行消费，不能据此填入任何backend实测分数或选型结论。

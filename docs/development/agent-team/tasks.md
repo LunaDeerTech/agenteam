@@ -24,6 +24,7 @@
 | [D09 Model System](../work-items/d09-model-system-token-usage.md) | **部分库与 HTTP 接受，模块未完成**。已有配置、Owner/Usage HTTP、Summary、Chat text 与 Embeddings/平台选择 Resolver 等限定成果。 | 生产 Resolution/Invocation 与 consumer 仍未绑定；OpenAI tools 独立动态验收停止，Jina/Image 来源缺口另列。不能把 wire、受控 fixture 或 UI 通过写成真实 Provider/生产调用完成。 |
 | [D10 Skills 初始化](../work-items/d10-skills-initialization.md) | **P1 已交付，真实服务/绑定未完成**。builtin/不可变包 `8872110` 与 Project 初始化收敛 `39ebd57e` 可复用。 | 真实 Skill 服务、PG/Object 发布、D08 创建/生命周期与 Agent/Tool/Runner 绑定待实现或验收；Object join 阻塞相关真实组合。旧卡“ProjectFactAuthority 不存在”的时点描述已被 Object Audit/初始化收敛前置取代，接手应核现有接口。 |
 | [D12 Knowledge](../work-items/d12-knowledge-documents.md) | **纯契约/共享补口接受，B02 主体未恢复**。B01 `914fd84`、C1 `71dc176`、C2 `f401c15`、C3 `231a384` 已交付；当前仅12个 Knowledge contract 文件。 | 按[B02完整服务卡](../work-items/d12-b02-knowledge-service.md)恢复 Human canonical 内容/树服务，核现有 Owner/Object/Audit/Outbox 接口；原29路径主体和未编号 SQL 草案不可当现存实现。迁移须核当前全局序列，D13 不阻止 canonical 新领域准备，但真实组合依赖仍须满足。 |
+| [D13 固定语料与离线评分工具](../work-items/d13-lexical-benchmark.md) | **独立子结果已实现并完成限定验收，D13未完成**。lexical-v2含32篇原创文档/64section、64有答案+8无答案query及4608显式相关性判断；标准库validate/export/score、可重复指标与独立手算控制已完成。 | 三真实lexical backend、索引/查询性能、扩展/字典版本与许可、固定dense leg的hybrid RRF及最终选型仍未验证；不接Knowledge服务、生产索引、embedding或新增正式依赖。后继复用固定数据或明确的新修订，不能把离线准备当D13整体完成。 |
 
 D08–D28 各模块仍有未完成范围，E01 未开始；首个未完成模块编号为 D08，但只消费已接受子能力的其他完整结果可并行。Task/Work HTTP、UI/App/生产 root，生产 Skills/创建 HTTP、Resolution/Invocation 及 D24 均未完整绑定；现有 `ready=false` / `/readyz` 503 的产品边界不因本次文档整理改变，隔离fixture中的真实root启动与局部测试不证明生产部署或全平台ready。
 

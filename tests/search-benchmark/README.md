@@ -2,7 +2,7 @@
 
 这是固定原创数据与评分工具，尚无候选后端实测。它不依赖 Knowledge 服务，不连接数据库、不建立索引、不调用 embedding 或安装依赖。正式范围见 [D13 benchmark 工作项](../../docs/development/work-items/d13-lexical-benchmark.md)。
 
-数据为 `lexical-v2`：32 篇虚构文档、64 个固定 section、64 个有答案 query 和 8 个无答案 query，以及 4608 个显式相关性等级。作者依据文档语义先写判断，未运行检索器或从候选结果生成 qrels。独立首轮发现通用问题漏标和同族跨split，已按原query字面补全支持及调整family，**返修语义复核尚待完成**；校验命令只证明结构，不证明语义质量。原`lexical-v1`保留在Git历史，旧导出/评分不能冒充新修订。
+数据为 `lexical-v2`：32 篇虚构文档、64 个固定 section、64 个有答案 query 和 8 个无答案 query，以及 4608 个显式相关性等级。作者依据文档语义先写判断，未运行检索器或从候选结果生成 qrels。独立首轮发现通用问题漏标和同族跨split，已按原query字面补全支持及调整family；Knowledge的全量语义审与返修复核、Model的评分实现独验均已有限接受，无剩余must-fix。校验命令自身仍只证明结构，不证明语义质量。原`lexical-v1`保留在Git历史，旧导出/评分不能冒充新修订。
 
 ## 运行
 
@@ -34,7 +34,7 @@ python3 scripts/search-benchmark.py score --data tests/search-benchmark/data --r
 
 `queries.jsonl` 中 `family_id` 表示同一检索意图，包括语言和格式变体。一个family整体属于dev或test，不能看test后再调候选参数而继续声称固定测试。上传验证、未知提交意图、原子替换、分页与历史回执的相近问题已作保守合组。v2另把q35/39/47的启动时一次加载归到同一dev族，q43/55/63的配置不承载实时业务事实归到同一test族；q47与q55交换split，path仍各4条。所有query正文保持v1字面，未收窄问题来排除正例。family标签并不能自动证明没有隐藏同族，独立审查仍要逐项找跨组语义重叠。
 
-有答案的8个主类别各8条，每类dev/test各4条；无答案另4/4。qrels对每条query的全部64个source都显式给0、1、2或3，没有遗漏即视为0的约定。0是不相关，1是有用背景，2是直接必要支持，3是充分回答。非零项有理由，词相似但不相关的材料另留反例理由；作者已记录相邻运行/配置/错误之间部分支持的区别，仍待独立全量复核。
+有答案的8个主类别各8条，每类dev/test各4条；无答案另4/4。qrels对每条query的全部64个source都显式给0、1、2或3，没有遗漏即视为0的约定。0是不相关，1是有用背景，2是直接必要支持，3是充分回答。非零项有理由，词相似但不相关的材料另留反例理由；相邻运行/配置/错误的支持等级及同族划分已按独立语义审的原问题返修并复核。
 
 任何语义更改都需要新的数据修订，旧结果不能混用。公开的本地数据不是保密盲测；候选不接收答案文件的流程隔离也不等于秘密测试集。合成小集合不能代表真实用户分布或大规模检索性能。
 
@@ -65,6 +65,8 @@ Recall@1/5/10/20与MRR@20把grade≥2视为相关；nDCG@1/5/10/20的增益是`2
 报告标记`imported_run`：格式合法不能证明它来自真实后端。可选测量也标记`reported_measurements`，不能用评分进程耗时当查询延迟。无测量则明确`not_measured`及null；合法已知零保留零。latency只按同一cold/warm模式汇总实际样本，用nearest-rank计算p50/p95，同时保留逐query样本数；不把冷、热延迟混成一个百分位。缺失query的测量不补零。
 
 测试用手写排名向量，只证明评分：例如grade为3、2、1、0而排名为1级、2级、3级、0级时，MRR是1/2，Recall@1是0，nDCG@1是1/7。完整CLI控制只给q01一个已明确手算的排名、其余有答案query显式空，核宏平均分母和无答案隔离；另测同分、K截断、缺少正例、错误输入、实际export无标签、输出失败与逐字重放。测试版本标记`evaluator-control-not-a-backend-run`，控制产物不登记为候选成绩。
+
+未参与实现的Model另用独立手算期望执行128项公开CLI/严格输入/导出/确定性/百分位检查，并对v2版本绑定作限定复核；未用作者函数重算expected。[独立控制源码](../../.agent-state/search-benchmark-review/evaluator-controls.py)可用 `PYTHONDONTWRITEBYTECODE=1 python3 .agent-state/search-benchmark-review/evaluator-controls.py` 复验，输出只进入ignored的 `output/ai/search-benchmark-review/evaluator`。作者17组方法与这些独立控制均不是候选检索运行。
 
 ## 后端与来源边界
 
