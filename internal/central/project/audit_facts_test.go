@@ -39,7 +39,8 @@ func TestAuditFactsConstructionClosedAndCopied(t *testing.T) {
 	}{
 		{"nil", ac.SecretProducer, nil, foundation.DependencyUnbound},
 		{"typed-nil", ac.SecretProducer, typedNil, foundation.DependencyUnbound},
-		{"object-reserved", ac.ObjectProducer, checker, foundation.DependencyUnbound},
+		{"object-nil", ac.ObjectProducer, nil, foundation.DependencyUnbound},
+		{"object-typed-nil", ac.ObjectProducer, typedNil, foundation.DependencyUnbound},
 		{"project", ac.ProjectProducer, checker, foundation.InvalidArgument},
 		{"artifact", ac.ArtifactProducer, checker, foundation.InvalidArgument},
 		{"account", ac.AccountProducer, checker, foundation.InvalidArgument},
@@ -260,4 +261,47 @@ func TestProjectVariableAuditFactsCurrentGateAndExactDispatch(t *testing.T) {
 	f.sessionErr = nil
 	delete(f.a.state().auditFacts, ac.ProjectVariableProducer)
 	hasCode(t, f.a.checkDomainAuditInTx(context.Background(), f.store.tx, entry, key), foundation.DependencyUnbound)
+}
+
+func TestSecretVariableAuditReadShapeDoesNotAuthorizeProjectFacts(t *testing.T) {
+	f := newAuditGateFixture(t, nil)
+	calls := 0
+	checker := auditFactFunc(func(context.Context, foundation.Tx, ac.Entry, ac.AppendKey) error {
+		calls++
+		return nil
+	})
+	a, err := NewAuthority(f.store, AuthorityDependencies{
+		Sessions: f.a.state().sessions,
+		AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{
+			ac.SecretProducer: checker, ac.ProjectVariableProducer: checker,
+			ac.KnowledgeProducer: checker, ac.ObjectProducer: checker,
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	scope, _ := identity.InProject(f.project)
+	variable := testID[identity.ProjectVariable](t)
+	resource, _ := ac.NewResource(ac.ProjectVariableResource, variable.String())
+	key, _ := ac.NewAppendKey(ac.ProjectVariableProducer, string(digest([]byte("canonical Secret command"))), 0)
+	for _, action := range []ac.Action{ac.ProjectSecretVariableCreate, ac.ProjectSecretVariableUpdate, ac.ProjectSecretVariableDelete} {
+		version, fields := foundation.Version(2), []string{"value"}
+		if action == ac.ProjectSecretVariableCreate {
+			version, fields = 1, []string{"created"}
+		} else if action == ac.ProjectSecretVariableDelete {
+			fields = []string{"deleted"}
+		}
+		metadata, err := ac.ProjectSecretVariableMetadata(action, ac.ProjectSecretVariableMetadataFields{VariableID: variable.String(), Version: version, ChangedFields: fields})
+		if err != nil {
+			t.Fatal(err)
+		}
+		entry, err := ac.NewEntry(ac.EntryFields{Scope: scope, Actor: f.actor, Action: action, Outcome: ac.Success, Resource: resource, Metadata: metadata})
+		if err != nil {
+			t.Fatal(err)
+		}
+		hasCode(t, a.CheckAppendInTx(context.Background(), f.store.tx, entry, key), foundation.Forbidden)
+	}
+	if calls != 0 {
+		t.Fatal("read-compatible Secret metadata reached a fact authority")
+	}
 }
