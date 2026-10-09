@@ -37,3 +37,11 @@
 - 同请求409，native EOF262=CL，2read、2cancel均settled且release成功；PW在动作后约47.9ms aborted，原finished直到pageclose约36.46s后才拒。实际typed Problem、Request-ID相等、当前身份及loading→error DOM已采，但problem_instance_matches=false、selected_bound=false，slot end／hooks退休未观察，不接受新Resolve gate。held008原Session联合gate通过271.657ms且PW正常finished，非异常路径正例。
 - direct1058181／Node、四adopted实际Wait（均0），watchdog／resource observer／root／proxy handlers／prepService join；七ID双absent、desc双空、runtime空/private removed、TCP双空、inputs同一全部齐。窗口已释放。最小必要记录在`.agent-state/model-ui-recovery/main-authority-first-failure.json`，原件留原output目录。
 - 只读核实后再决定有意义增量；不改finished门槛，不盲重跑，尚未运行两ProjectAudit真实top。当前无新真实资源grant。
+
+
+## 后继限定诊断与未接受方法提案
+
+- root已在78a94f33保存上述三个FAIL记录。实际typed constructor成功；instance false来自observer额外endpoint literal与正式Account安全`/api/v1`不一致，不能据此推产品错误。slot/end缺失另因denied只在原finished拒绝后的finally收尾；实际pageclose先于该拒绝，142已join samples不证明browser owner/final hooks退役。
+- 四诊断技术路径只修producer实例契约及控制。真实boundary＋Request-ID middleware Recorder→正式common.json→实际client/Session/Workspace/View/PW转换observer：旧61963红actual1，修后7462绿actual0（20＋7／unhandled0）；strictTS17807与原adapter9/source identity89705 actual0。Runner69969／6f595c独审通过，原054–059／预算／gate、生产源、account/helper/dist不变。这里只接受诊断窄修。
+- 另新增`resolve-rejection-owner-controls.cjs`与`resolve-rejection-method-proposal.md`供方法提案，不在Runner四源接受内。actual Session project-read四格51209 actual0：typed404/409都是cancel尾实际settle→公开busy=false→原Promise rejected；abandon／受控expiry先cancelled拒绝且busy仍true，尾释放后才busy=false。生产函数未替换，transport cancel Promise与expiry时钟明确为double，无资源／0unhandled。
+- 方法草案只覆盖六个现有预声明denied调用的409 PROJECT_NOT_ACTIVE／404 NOT_FOUND；403及其它请求保原finished路径。所有typed/current identity/DOM/layout/严格EOF/cancel/owner与有界end/退休条件列为必需，原055–059与完整root尾保留。尚未独审或实现，禁止据此改变原失败或重跑。冻结本次4诊断源、2提案源、本文与卡共8路径供root保存；尚无真实资源grant。
