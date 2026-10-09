@@ -2,7 +2,7 @@
 
 - 活动分支：`ai/work-owner-planning-ui`；当前隔离工作树 `/workspace/agenteam-work-ui`，正式基线 `f1c94ee520e8153e935fea7e7ed269e7e8b9adca`。所有 Git 写入、分支与工作树操作归 root。
 - 目标：已有初始化 Project 当前 Human Owner 的显式 `/tasks/explore` 规划界面，消费已正式交付的 21 项 Work HTTP 能力。普通 Task Kanban、状态流转、指派、Project 创建和生产 SPA 发布不在本卡范围。
-- 当前结果：recovery07（0ad6e5b6/binary14/原dist，63574）完整FAIL，Go58.68秒、outer151.531秒。45秒界最终seen.verify首observerErrors=1；普通候选联合核验循环、最终schema/client/complete/Go持久后验未到。71请求中4声明cut与9普通aborted分开；8普通属于已授候选，唯一额外普通POST tasks/id/blocker-commands/lookup不在闭集，保留原finished等待。本轮不能把8条候选或四cut升级动态接受。actualWait/reap、七精确ID双退役、runtime/private/desc/TCP双尾与inputsame全齐，资源已释放；原件`.agent-state/work-owner-planning-ui/recovery-seventh-failure.json`，06及旧FAIL不回填。
+- 当前结果：recovery08（3e64c6f3/ff12技术、binary14/原dist，原session12016）业务FAIL59.18秒；45秒止于spec707归档后refreshProject的原Project GET `finished()`，未读该JSON，未到最终Work联合/schema/client/Go后验。环境切换后原handle丢失，原Go actualWait1与Node/proxy/body/preparation/root join可从原log核实，但driver/outer实际Wait、原reap/七ID双尾/TCP/input缺失，永久保留。恢复仅按manifest原label/nonce清除残余D05两资源，七ID恢复双absent、3private/runtime双清、MinIO无live；四orphan为PPID1 Z且waitpid ECHILD，不补原PASS。root已结束本轮窗口，无新真实授权；必要安全原件`.agent-state/work-owner-planning-ui/recovery-eighth-failure.json`，普通log继续ignored。
 - 0ad普通方法整包已获Skills未参与者有限独验接受：本人真实Session竞争新增4控加原98共102/0unhandled，helper80/native41通过，原同体/schema/client/ledger AST保持；这些是技术输入接受，07未取得整组业务接受。原测试既有Blocker Lookup窄补ff12b21a已获Skills未参与者有限接受：ded763新增20消费者控、c95b1a六helper差异控通过，068d5f原消费AST保持；其它端点/四cut/held/Go/binary14/dist/预算不变。
 - 正式规格：`docs/development/work-items/d11-work-owner-planning-ui.md`。rev1 已经独立 SPEC 审查接受并从原树冻结版本单向同步；后续规格只维护本树。产品已分两域实施；首批 API/transport、路由守卫与两个编辑组件可构建，限定作者纯控已过，尚无真实 UI 动态验收。
 - 唯一负责人：`/root/work_ui`，维护本分支恢复记录、卡片及页面实施；`blocker_implementation` 已交回全部 UI 写权，Variables 后端正式交付后已转 `/workspace/agenteam-project-variables-ui` 实施普通变量 Owner 管理界面；当前 UI 实施、fixture 与作者浏览器矩阵由负责人接管；`blocker_spec_review` 已完成四fixture有限静审并实际转 Runner SPEC 作者；后续独立审查/两动态场景由 root 在稳定边界轮转未参与者，不等待固定实例返场。
@@ -17,7 +17,7 @@
 - 六作者 Playwright 源与同体 schema/client helper 已落盘并严格TS通过，首个 planning 精确case离线发现 actual0、恰1项；这是可构建WIP，尚未动态接受。首轮先独立核规划9写、Plan/版本冲突/分组顺序；其它五case还需核完整卡矩阵，尤其撤销/过期、pending/deleting、旧名复用、Owner/Model确认链与in_progress/not_observed刺激，不能因源码已有case或结果布尔冒完成。两个独立场景尚无源，由root轮转未参与者。
 - 原root链仅本树两工具最小扩8个精确UI top、真实输入/私有dist、四owned路径和短ui目录；原三个root target/default预算保持。31作者纯控制通过，含旧配置逐项等价、未登记target、丢目标、目录碰撞、错误资产/case与预算；此控制用替身仅核selector判据，不冒资源退役。工具语法及19项独立有限控制通过，原配置/预算/实际Wait判据未见mustfix；未运行真实PG/browser/socket。
 - Current Sprint边界已按正式Structure契约与独审事实纠正：没有正式非null指针生产者，本轮真实无Current/planned typed选择；自动current/用户选择规则保留纯投影控制，非null真实正例待D11生命周期接通，不用SQL伪造、不称已验证。
-- 下一步：07原FAIL已保存；Blocker Lookup单端点五技术源增量已完成并独审接受，recovery08复用binary14/私有dist及原预算，待root新fresh grant；不盲重跑。既有方法见`.agent-state/work-owner-planning-ui/recovery-ordinary-completion-proposal.md`。后继真实轮仍需fresh grant及首执行≥5GiB，binary14/私有dist/cap4/原预算保持；本树无在途测试或资源。
+- 下一步：08原业务FAIL及终态缺口已保存安全投影，先只读核spec707 Project refresh等待门；没有该原响应EOF/失败原因/typed owner证据就不归因或扩大方法。既有Work/Blocker限定方法、binary14/私有dist/cap4与预算保持冻结；后继真实轮另需fresh grant，不自动重跑。
 
 - 首组planning有限独审发现三个排序均为no-op及成功后点击已移除按钮；作者另查得schema响应$ref未解引用、描述清空/Plan原文/第七读取刺激不足，均保留原WIP未验事实。统一修为三组真实双对象前移/移尾与同原响应重读顺序、changed/version校验；同体schema红控修后正负通过。Go后验逐key校验原receipt/Outbox/TaskEvent/最终对象与精确无额外事实；合法登录Session仅在User EX锁内回拨测试时钟以越过已有Activity节流，未手种身份或Work事实。当前窄复核待排，新race编译与TS实际通过；纯配置发现02因调用漏ENV失败，补齐后另记，未启动浏览器。其它五case的未闭合矩阵不因此接受。
 
