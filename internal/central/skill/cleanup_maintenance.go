@@ -66,7 +66,7 @@ func (m cleanupMaintenanceMapping) dependencies(request oc.AccessRequest) (oc.Ac
 		Parent                              f.Digest
 		Cleanup, Operation, OriginalProcess string
 		Version                             f.Version
-	}{base.Digest(), m.cleanup.id.String(), m.cleanup.cause.OperationID.String(), m.process.String(), m.cleanup.cause.ProjectVersion})
+	}{base.Mapping(), m.cleanup.id.String(), m.cleanup.cause.OperationID.String(), m.process.String(), m.cleanup.cause.ProjectVersion})
 	if err != nil {
 		return oc.AccessDependencies{}, unavailable(err)
 	}

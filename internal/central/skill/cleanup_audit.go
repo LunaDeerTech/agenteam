@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
+	"log/slog"
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -13,10 +16,10 @@ import (
 )
 
 // LifecycleAuditAuthority is an immutable outer route for exact Skills Object
-// deletion. Its embedded delegate keeps all other ordinary/initialization
+// deletion. Its private delegate keeps all other ordinary/initialization
 // append, lookup, project-read and Audit-cleanup behavior unchanged.
 type LifecycleAuditAuthority struct {
-	ac.ProjectAuthority
+	delegate  ac.ProjectAuthority
 	authority *Authority
 	objects   ac.ProjectFactAuthority
 }
@@ -25,11 +28,41 @@ func NewLifecycleAuditAuthority(delegate ac.ProjectAuthority, authority *Authori
 	if nilPort(delegate) || authority.state() == nil || nilPort(objects) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	return &LifecycleAuditAuthority{ProjectAuthority: delegate, authority: authority, objects: objects}, nil
+	return &LifecycleAuditAuthority{delegate: delegate, authority: authority, objects: objects}, nil
+}
+
+func (LifecycleAuditAuthority) Format(w fmt.State, _ rune) {
+	_, _ = io.WriteString(w, "skill_lifecycle_audit")
+}
+func (LifecycleAuditAuthority) MarshalJSON() ([]byte, error) {
+	return []byte(`"skill_lifecycle_audit"`), nil
+}
+func (*LifecycleAuditAuthority) UnmarshalJSON([]byte) error { return invalid() }
+func (LifecycleAuditAuthority) LogValue() slog.Value {
+	return slog.StringValue("skill_lifecycle_audit")
+}
+
+func (a *LifecycleAuditAuthority) AuthorizeProject(ctx context.Context, tx f.Tx, actor id.Actor, project id.ProjectID, intent id.AccessIntent) (id.AccessGrant, error) {
+	if a == nil || nilPort(a.delegate) {
+		return id.AccessGrant{}, fault(f.DependencyUnbound)
+	}
+	return a.delegate.AuthorizeProject(ctx, tx, actor, project, intent)
+}
+func (a *LifecycleAuditAuthority) CheckServiceLookup(ctx context.Context, actor id.Actor, scope id.Scope, key ac.AppendKey) error {
+	if a == nil || nilPort(a.delegate) {
+		return fault(f.DependencyUnbound)
+	}
+	return a.delegate.CheckServiceLookup(ctx, actor, scope, key)
+}
+func (a *LifecycleAuditAuthority) CheckCleanupInTx(ctx context.Context, tx f.Tx, actor id.Actor, cause ac.LifecycleCause, project id.ProjectID) error {
+	if a == nil || nilPort(a.delegate) {
+		return fault(f.DependencyUnbound)
+	}
+	return a.delegate.CheckCleanupInTx(ctx, tx, actor, cause, project)
 }
 
 func (a *LifecycleAuditAuthority) CheckAppendInTx(ctx context.Context, tx f.Tx, entry ac.Entry, key ac.AppendKey) error {
-	if a == nil || nilPort(a.ProjectAuthority) || a.authority.state() == nil || nilPort(a.objects) {
+	if a == nil || nilPort(a.delegate) || a.authority.state() == nil || nilPort(a.objects) {
 		return fault(f.DependencyUnbound)
 	}
 	if entry.Validate() != nil || key.Validate() != nil || !tx.Valid() {
@@ -37,14 +70,14 @@ func (a *LifecycleAuditAuthority) CheckAppendInTx(ctx context.Context, tx f.Tx, 
 	}
 	e, k := entry.Fields(), key.Details()
 	if e.Action != ac.ObjectDelete || k.Producer != ac.ObjectProducer {
-		return a.ProjectAuthority.CheckAppendInTx(ctx, tx, entry, key)
+		return a.delegate.CheckAppendInTx(ctx, tx, entry, key)
 	}
 	var meta skillAuditMetadata
 	if err := json.Unmarshal(e.Metadata.JSON(), &meta); err != nil {
 		return unavailable(err)
 	}
 	if meta.InitiatorKind != id.Service {
-		return a.ProjectAuthority.CheckAppendInTx(ctx, tx, entry, key)
+		return a.delegate.CheckAppendInTx(ctx, tx, entry, key)
 	}
 	object, err := f.ParseID[oc.StoredObject](e.Resource.Details().ID)
 	if err != nil {
@@ -62,7 +95,7 @@ func (a *LifecycleAuditAuthority) CheckAppendInTx(ctx context.Context, tx f.Tx, 
 	project, err := cleanupProjectForObject(ctx, x, object)
 	if err != nil {
 		if known, ok := err.(*f.Fault); ok && known.Code == f.DependencyUnbound {
-			return a.ProjectAuthority.CheckAppendInTx(ctx, tx, entry, key)
+			return a.delegate.CheckAppendInTx(ctx, tx, entry, key)
 		}
 		return err
 	}
@@ -71,7 +104,7 @@ func (a *LifecycleAuditAuthority) CheckAppendInTx(ctx context.Context, tx f.Tx, 
 		return err
 	}
 	if c == nil {
-		return a.ProjectAuthority.CheckAppendInTx(ctx, tx, entry, key)
+		return a.delegate.CheckAppendInTx(ctx, tx, entry, key)
 	}
 	r, err := loadInitialization(ctx, x, project)
 	if err != nil {

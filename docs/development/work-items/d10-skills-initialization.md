@@ -4,6 +4,12 @@
 
 依据：[开发计划](../development-plan.md)、[Skills 架构](../../architecture/agent-skills.md)、[D01 资源/Skills 契约](d01-contracts/resources-skills.md)、[本工作项规格](d10-skills-initialization-design.md)。S01 候选基线 `71dc17671631632bb26e251ad8491e74092ac975`，原主卡 SHA `a258ed11366946529082e885b5ec1e74d033687d1aec60d69000691862811b88`；独立结论 `/tmp/agenteam-d10-s01-review-4r1gg40i/report.md` SHA `49381427440c1f2a09219361e8a1b902ecb8c0db1d1700a35350050f6136f990` 无新增硬阻断，只采纳规格，不证明真实链路。
 
+## 当前独立 Cleanup 库实现（WIP）
+
+本清理树基于正式Project `ce65714a`，按精确来源承接P2与D05有界子能力；原P2有限交付与本结果分开。已实现§16的真实本域CleanupAuthority/三类opaque plan、精确维护/Audit外层、原子gate/serving与Release、原预算physical调用、32历史推进、两域最后anchor同Tx和Unknown恢复。`Service.Cleanup`仅报告Skills本域，未增加Name代替完整组合。
+
+作者7top/21子受控边界race通过，全skill两包race及vet通过；真实native checker无witness负控在内。真实PG/SQL/COMMIT与D05组合尚未验证，新产品未独审；Object28规模/成本、生产root、完整participant及Runtime停项保持。源码来源、原测试编译失败与准确命令在本树current，首实现不是整D10接受。
+
 ## 已交付 P1
 
 固定实现基线 `f401c15a5187690889eaea9ba9672ca8bdc85460`。新11路径：`internal/central/skill/contract/{types,package,read}.go` 及3对应测试，`internal/central/skill/{builtin,package}.go` 及2对应测试，`internal/central/skill/builtin/add-skills/v1/SKILL.md`。另仅本文及配套规格归位，共13路径；不改旧域、go.mod/go.sum、迁移、fixture、app或共享授权口。

@@ -192,9 +192,9 @@ func cleanupDependencies(r initializationRow, request oc.AccessRequest) (oc.Acce
 		Kind                                                                   oc.AccessKind
 		Operation                                                              oc.AccessOperation
 		Cleanup, RequestUpload, Instance, RequestedAttempt, Worker, Checkpoint string
-		Fence                                                                  f.Version
+		Fence                                                                  int64
 		Reason                                                                 oc.CleanupReason
-	}{r.request.ProjectID.String(), r.request.CreationID.String(), string(r.request.InitializationKey), r.skill.String(), r.revision.String(), r.object.String(), r.upload.String(), r.attempt.String(), r.semantic, d.Kind, d.Operation, c.OperationID.String(), d.UploadID.String(), d.InstanceID.String(), d.AttemptID.String(), d.WorkerID.String(), d.CleanupID.String(), d.Fence, c.Reason})
+	}{r.request.ProjectID.String(), r.request.CreationID.String(), string(r.request.InitializationKey), r.skill.String(), r.revision.String(), r.object.String(), r.upload.String(), r.attempt.String(), r.semantic, d.Kind, d.Operation, c.OperationID.String(), d.UploadID.String(), d.InstanceID.String(), d.AttemptID.String(), d.WorkerID.String(), d.CleanupID.String(), int64(d.Fence), c.Reason})
 	if err != nil {
 		return oc.AccessDependencies{}, unavailable(err)
 	}

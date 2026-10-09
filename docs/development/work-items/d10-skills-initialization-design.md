@@ -194,6 +194,8 @@ D08 active-only 初始化 Audit 分支保持原样。新本域生命周期 Audit
 
 本节是 Stop 子能力已真实 PG 通过后的下一工程规格。Knowledge 未参与设计的续审已有限接受（704bee，无剩余本修订 mustfix），root 保存为1e8b5c67；尚未实施或动态验证。Knowledge 对 rev1 确认三处问题：合法已发表范围不需要删除 FK、历史 work 不能无界全删、先删父映射会阻断后序 D05 维护。rev2 撤回 drop FK，规定有限批次，并明确新增 D05 正式元数据清理能力作为不可省略的上游依赖。不授本实例跨写 Project、Object、App、D04 产品；root 已原则同意另立 D05 独立实现，不以 DependencyUnbound 充作本卡完成。D05 仍须另行冻结实际可执行规格、查询／索引与退休证明，并完成独审及真实组合，不能以本节设计接受替代。全局 **00028** 原为 Skills 占位，现由 root 正式移交 D05/Knowledge 唯一写者，作为共享 cleanup 索引迁移；本域没有必须独占该号的 DDL，不写 SQL 或修改原 FK/列/约束。生产完整 participant、后台调度与共享 ProcessGuard 仍由 root 组合；Object Runtime join 停项不恢复。
 
+**实施进展（2026-10-09）**：独立清理树已以正式`ce65714a`承接真实Project门禁与D05`b37f9a49`有界provider（首46857有限组），完整本域库首实现已落地并通过作者7top21子pure/race及包vet。以下“当前unbound/不存在”是rev2制定时的依赖缺口记录；本树已提供实际消费代码，仍待真实SameStore清理组合和独立验收，不能据已有上游有限组推完整链通过。00028迁移/规模/EXPLAIN与Runtime停止项保持各自未验边界。
+
 ### 16.1 可交付结果与授权范围
 
 实现本域 `Cleanup(ctx, ProjectLifecycle actor, LifecycleCause, Project ScopeRef, *CleanupCheckpoint)`、`oc.CleanupAuthority` 的 exact SkillRevision 分支，以及同一 Authority 的 cleanup access planner／必要维护分支。没有通用 Skill 删除、Creation 取消、按目录扫描删除或 Project 全域 Object 清理入口。现有 Stop/initializer/OwnerReader 的正式语义不变。
