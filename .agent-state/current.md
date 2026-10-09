@@ -1,5 +1,9 @@
 # D12 Knowledge B02 当前恢复点
 
+- 下一真实 PG 组 `^TestKnowledgeB02TitleContent$` 已离线就绪，binary `output/ai/knowledge/knowledge-title-content-race.test`。新增 `tests/knowledge/b02_audit_event_test.go` 四子验证公开 title-only：变更／同命令重放／no-op／归档门禁；真实 Activity 最后失败后的 canonical／Outbox／receipt／Activity 回滚及固定事件重试；真实 Move 插入准备与 final 之间；foreign／错版本／final 撤销 Session。Account→Project→Knowledge producer→Outbox 使用同一真实 Store，未用 Object/Audit 成功替身，未消费端口仍调用即失败。
+- 原 OwnerTree fixture 仅暴露既有 Dependencies 供新组合复用，原四子未删改；新组首 race-c25575 因测试误写 Lookup／Creator 字段名 FAIL，已修为正式 LookupCommand／CreatedBy.Details，另静核 SQL 使用实际 completed 状态。最终 race-c24829 actual0、精确发现恰一个 top及 integration vet19054 actual0；尚未真实执行。新 binary 导入全部 Knowledge 生产 Go，当前保持该闭包与两个测试源冻结，至实际运行全尾后再恢复实现。
+- freshgrant 后命令：`python3 .agent-state/task-planning-recovery/pg_only_supervisor.py --driver /workspace/agenteam-knowledge/output/ai/knowledge/pg-only-driver --binary /workspace/agenteam-knowledge/output/ai/knowledge/knowledge-title-content-race.test --run '^TestKnowledgeB02TitleContent$' --output /workspace/agenteam-knowledge/output/ai/knowledge/pg`。沿原 driver/ca9 supervisor及105+15／123+3／75 TCP／5GiB，不因四子新增改变预算；目前未获本组真实窗，不启动 PG／socket。
+
 - 第十三至十五内部片段已可构建。最终发布组合包含 canonical／真实 D05 Publish／旧引用清理／Outbox／receipt／Activity 同 Tx，精确内容相同可复用旧 Object；当前 parent 保留。第十四全领域 race99838、vet2640 实际0。公开 Create/Update 已接 direct text/upload 与 title-only，完整接口编译成立；business-source 仍明确 Unbound，不能称完整 Documents。
 - 公开调用保持登记直到输入 Close／prepared Discard 实际返回及本域 join 检查点终态，失败关闭不冒退休；已知 canonical 提交后清理失败保留 Committed 语义。全领域 race3616、最终 teardown 修正后的限定 race10017、vet20406 实际0。尚未独审／真实 content SQL／D05 组合；下一准备真实 Account→Project→Knowledge→Outbox 的 title-only PG 小组，不使用 Object 成功替身。源 `service.go/runtime_test.go` 与本记录／卡为本次可恢复片段。
 - 第十三的 current Owner 原 CreationCause、原 command UUID 的同 Tx reserve／Tx 外 send 与 uploaded 检查点已保存；race65165／vet0 与原78484控制误判保留卡。第十四 final／reuse 当前为内部受控组合证据，不能替代真实 SQL、Object 或 Unknown 恢复验收。

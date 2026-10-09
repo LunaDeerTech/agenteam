@@ -158,6 +158,8 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ## 8. 本轮实际实施与验证
 
+公开 title-only 的最小真实 PG 小组已准备，`tests/knowledge/b02_audit_event_test.go` 的 `TestKnowledgeB02TitleContent` 四子覆盖变更／固定事件与 receipt／原命令及 no-op／归档重放，真实 Activity 成功写入后注入失败导致同 Tx canonical／Outbox／receipt／Activity 全回滚并用原事件重试，准备与 final 之间实际 Move 不丢 parent，以及初始 foreign／错版本与 final Session 撤销。Outbox 使用真实 Account、Project、Knowledge producer 和同 Store；没有 Object I/O、Audit 或 dispatcher 的假成功声明。`b02_owner_tree_test.go` 仅暴露原 Dependencies，原四项断言不改；本次是新的编译闭包，旧 OwnerTree32137 证据不升级为本版重验。首 race-c25575 的测试 Lookup／Creator 字段误写 FAIL 后已按实际公开接口修正，SQL 末端状态亦核为 completed；最终 race-c24829、精确 discovery／vet19054 actual0。尚未真实运行；精确命令、固定原预算和冻结边界见 current。本组通过也只证明公开标题路径，不能替代业务来源、D05 内容发布／cleanup、真实 Unknown 或完整 B02。
+
 Project Object Audit 五源随后获未参与者有限独审接受，无 mustfix；本人独立 overlay race19224 actual0（3 子）验证同 Tx 生命周期／初始化重读、真实 Object checker 对无私有 witness 的四个合法 action/ordinal 组合拒绝，以及错 cause/ordinal/Service/foreign/受控 ended Tx 不委托。原 ctx/key/Unknown 引用原因保留。该树没有 Variables 分派，不冒其回归；此为静审与受控实际源结果，不证明真实 D05 正向／PG／stale Owner 联合授权或 Object runtime join。
 
 第十四片段 `commands.go`／`commands_test.go` 已组合最终发布：最终完整锁下重读当前 Owner／work／版本，写 canonical 后在原 Tx 消费 D05 Publish 私有 witness，再关闭旧引用、写精确 cleanup、Outbox、receipt 和 Activity；固定事件与清理 identity 可重放，旧 parent 不被内容更新覆盖。真实 Stat 的 MIME／长度／SHA 相同才允许复用原 Object，最终仍重核原指针／work／版本；纯标题变化保留 source，不变内容不增加版本／事件／Activity。全领域 race99838、vet2640／diffcheck 实际0。控制仅证明结果形状、绑定与拒绝，实际 final SQL／D05／Outbox 联合事务及恢复尚未执行，不称完整发布通过。

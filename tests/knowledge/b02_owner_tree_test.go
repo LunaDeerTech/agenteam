@@ -53,6 +53,7 @@ func (treeProcess) ConfirmStopped(context.Context, ob.ProcessID) error {
 type ownerTreeFixture struct {
 	raw     *postgres.Store
 	service *knowledge.Service
+	deps    knowledge.Dependencies
 }
 
 func treeID[T any](t *testing.T) f.ID[T] {
@@ -126,7 +127,8 @@ func newOwnerTreeFixture(t *testing.T) *ownerTreeFixture {
 	if e != nil {
 		t.Fatal(e)
 	}
-	service, e := knowledge.New(raw, knowledge.Dependencies{Projects: projects, Activity: accounts, Objects: treeObjects{}, Uploads: treeUploads{}, Sources: treeSources{}, SourceReads: treeReads{}, ReferenceCleanup: treeReferences{}, ObjectCleanup: treeCleaner{}, Audit: treeAudit{}, Outbox: treeOutbox{}, Events: events, Processes: treeProcess{treeID[ob.Process](t)}, Cursors: cursors, Confirmations: confirmations})
+	deps := knowledge.Dependencies{Projects: projects, Activity: accounts, Objects: treeObjects{}, Uploads: treeUploads{}, Sources: treeSources{}, SourceReads: treeReads{}, ReferenceCleanup: treeReferences{}, ObjectCleanup: treeCleaner{}, Audit: treeAudit{}, Outbox: treeOutbox{}, Events: events, Processes: treeProcess{treeID[ob.Process](t)}, Cursors: cursors, Confirmations: confirmations}
+	service, e := knowledge.New(raw, deps)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -138,7 +140,7 @@ func newOwnerTreeFixture(t *testing.T) *ownerTreeFixture {
 			t.Error(e)
 		}
 	})
-	return &ownerTreeFixture{raw: raw, service: service}
+	return &ownerTreeFixture{raw: raw, service: service, deps: deps}
 }
 func (x *ownerTreeFixture) exec(t *testing.T, sql string, args ...any) {
 	t.Helper()
