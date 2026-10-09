@@ -1,5 +1,7 @@
 # 2026-10-07 环境恢复交接
 
+> 历史记录：以下“当前”“已恢复”、实例名、临时路径、授权窗口和资源状态均指记录当时，不代表本次环境。继续开发先读[当前台账](tasks.md)与[团队流程](README.md)，只在追溯具体失败或依赖来源时读取本页；不重建旧哈希清单、归档或逐轮审批。
+
 ## 当前接续：Summary S2 完整接受，D08 只读 HTTP 实施中
 
 [S2验收归档](system-meeting-summary-settings-verification.md)已随 `e1a5eb92` 接受推送（含S2/S3卡页首），含双README的完整32路径范围/31实际改动产品 `4e615c7d` 亦已接受推送，root核两次远端一致。S1/S3/Usage接受保持。S2所有task-owned资源均实际wait/清理闭合，8个browser参与者结束后原资产已恢复；原失败、目录size/ctime例外及新增64个daemon/PID1 shim非owned未wait限制沿档保留，不称全机清零。

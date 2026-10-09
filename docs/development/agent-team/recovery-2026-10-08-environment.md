@@ -1,381 +1,85 @@
-# 2026-10-08 环境恢复与当前交接
+# 环境恢复与开发接续
 
-最新接续（2026-10-08，Work 交付 a64fb5e7 已推送且远端核同）：D11 Work Structure 的全部 18 路径已获 root 组合接受（最终 `74c3fbbe`，README `b6b5b281`，独审 `bd2c4037`）；原技术17 receipt `/workspace/scratch/d11-work-structure-root-grants/technical-acceptance01.json` SHA `3cfd72ff`，17 当前源逐一与 accepted-sources `d08d1589` 核同。六新 PG 按版本组合通过：前五保留原版本，U1 的 Lookup 取消窄修后 Unknown02 11/11；五旧回归全部通过（独审 `6f3bcbd0`），独立 A/B 实际断言通过（独审 `abaeb0f9`）。原 Unknown01 FAIL/disposition `1c498f2e` 保留，不冒当前源一次全量重跑。
+本页保留原路径供旧链接使用，记录接续时的输入缺口。**全局产品状态在[任务台账](tasks.md)，任务分支的最小恢复状态在[分支记录](../../../.agent-state/current.md)**；长期模块门槛见[开发计划](../development-plan.md)，自动保存与新设备操作见[团队流程](README.md#自动保存与跨设备恢复)。以下 2026-10-09 环境核对基于 `e55ad7d1`，当时初始工作树干净，仅查看 Git、必要路径、配置与工具版本，没有恢复产品执行或运行测试。
 
-独立 B 原 inner `10430a8e` / outer `f5294d84` 已完成监督器实际 Wait、2 IDs 双清、432 输入同及 watcher join；环境恢复后外部工具 session20487 为 Unknown process，未取得工具 terminal/exit。root 有限只读 current-clear `681d24f5` 核原 PID/start 与原资源双不存在，未重跑测试，不补写原工具终态、不推断机器重启；共享窗口已收回。README #18 已按预期旧值精确安装（记录 `544ba023`），永久全18验证档 `9628cd5e` / evidence `2d0ef252` 已 STOP 并由 root 核接受；Work 13 技术改动、README/归档与三台账已独立交付，Model 未验四路径未混入。Task rev1正式规格 `6f1fb857` 已获完整独立SPEC接受（`06ebfcb0`，无必修）；最终单头行政卡 `361c4dff` 可逆，永久SPEC档 `eceb0eb5` / evidence `e2b201af` 已STOP并由root全文读核7refs/9内嵌原件/42521B与精确逆变换接受。21拟路径=20技术＋README、7新/8旧PG＋独立2，plan/Structure最小接受头保持。fixture_recovery已ACK实际开始scratch20技术实施，先六源；只必要scratch gofmt≤45s获授，main/00022安装、Go编译测试/资源/README未授。独立A/B PLAN `36ea2ba9` 已root全文读接受仅计划；实际User/Schedule/Rank首阻塞键分列，不冒probe或功能通过。
+旧逐轮资源授权、代理 ACK、进程 ID 和清理结论是历史事实，不证明当前实例在运行、资源可用、旧权限仍适用或机器曾重启。后续只在当前任务范围内安排完整结果，不复刻逐轮 root 批准、全树哈希或永久证据包。
 
-Model Settings 新配置 modelsconfig03 与凭据 modelscred01 actual PASS/fullSTOP，独审 `12d6a195` / `cbe9ce7e` 接受；Problem.instance 修复与原配置失败保持。modelsrecover01 原 FAIL/fullSTOP：result `cf62fe40`、manifest `1d09892e`、诊断 `1ba1b887`；未有原 native/DOM/final facts，不确称原失败因果。candidate04 fixture `d6a58b36` 仅先发送正式 header/Flush 再零 body 断连，以下受控验证通过后已安装为v05 main fixture。候选/受控 native probe/runner STATIC `2705f624` / `c5891ee2` / `7eeaac58` 已接受；root 单次 grant `1242ee43` 的 controlled compare01 实际 FAIL（meta `7d18fec8` / manifest `0db39d0b`）：9.368519s、browser launch 未完成、两模式 HTTP 请求均零，未验证断连协议，原具体 launch 错误未采集。direct＋4 adopted actual Wait、owned 双空、961 输入同；原 TMP 空目录残留使 retirement=false，另件 late-cleanup `e236bd83` 精确清除并核原件不变，窗口已归还。原 TMP 长路径有 Unix socket 容量风险，但不是原失败确因。同字节 `955d7dd3` 迁短根 `/workspace/scratch/mdn02` 后，root grant `9c6528c6` 实际 compare01 PASS/full retirement（meta `ddf78723`、manifest `ce7af118`，4.737466s，969 输入同、direct＋4 adopted actual Wait、owned/TMP 双空）。旧分支一次 native fetch 实发两 POST 并完整 EOF，候选一次 POST 且正式头 Flush/0B，native reader TypeError/无 EOF，受控透明重试已复现；不回填旧 business FAIL 因果。candidate 唯一 fixture 后置 gofmt-l `d0a930bc` 亦实际 PASS/零差量；独审 `043ed256` 获 root 接受；原 business disposition `01267858` 固定原失败/guard，backend 仅获 main fixture `788019aa`→`d6a58b36` 精确安装与 v05 false 差量准备。author v05 false `1c8ca21b` / 独审 `44f9c2e0` 与 root actual sourcecheck04 `9e4f99c4`（exit0/1.178408s/1261同）接受。modelsrecover02 grant `3da864dd` 实际 FAIL（工具30996 exit1、top18.95s/direct72.004s，result `e71c470d` / manifest `f188e3cb`，124原件）；direct＋6 adopted（含1个−9）/watchdog/7ID/owned-runtime-browser双清、1261同，forced0。原 host TCP75s未双空，overall FAIL不改；root后续仅核原末两socket，一条现已消失、另一条属原baseline codex PID842/start688，有限窗口释放 `38f258b3` 与当前观察 `9df5e66e` 不补原host clear。新诊断 `2cc7bfa8`：Credential断连→lookup→显式原create，后续Model DELETE cut/lookup/replay及held read已到；native17/EOF14/预期loss3，schema14，最终browser-result/final durable缺失。最早明确失败为IPC ReadPrivate generic rejection；JS atomic rename 与 Go Lstat→Open→SameFile有源码确定竞态，但本轮具体error类别未采集。candidate05唯一helper `5272be8e` / freeze `347aaa06` 已SOURCE STOP；先NOFOLLOW|NONBLOCK打开再同fd核regular/0600/size，原BoundRead/clear/Close保持。gofmt-l `d08037b5`、源独审 `a7f95f86`、pure-file probe `6ff409f0`/runner `39e6d1ac` 均已接受。root单grant `06ad1363` 亲跑read01 actual PASS/fullSTOP（工具23111 exit0，meta `3c136b9f` / raw `b2ea8df0`）：12叶/17RUN与PASS、top0.01/pkg1.021/total8.913912s，directWait1/adopted0/observed5分列，owned2空/TMP空/944输入同/synchronousowner实际返回。独审 `4b999754` 已root全文读核接受受控原helper误拒绝/新fd快照与安全拒绝，不回填原recover02具体errno。root disposition `6f023731` 保原v05 FAIL/TCP FAIL/guard，只授backend main d6a→5272精确安装及exact8e99的v06 false差量准备（新恢复名modelsrecover03）；未授新Go/Node/filegate/资源，不改JS/预算/driver/TCP/global资产。独立私有 fixture `8f38a478` / source独审 `e1913872` / false-v03 `57f44cf2` / metadata独审 `74e997e9` 与 root actual indsource02 `6275f92f`（exit0/1.278888s/1265同）已准备接受；A/B尚无业务资源，旧private编译仅3547，不冒8f38已执行。
+## 先确定实际输入
 
-Model 余新 recovery/read/authority/navigation、旧14与独立 A/B 尚未完成；private v04唯一ReadPrivate差量 `a560e106` / freeze `2a9939eb` 与独审 `22c45dbe` 已root接受SOURCE，逆还原8f38、与formal5272仍仅原config差异；verification_worker已ACK仅exactbb78的driver-v04 false必要重绑，未运行A/B，不拿作者带hook受控binary冒private实际。原3 global assets 保持恢复，产品前端25源/私有64资产的旧版本证据复用而非重跑。Task/HTTP/UI/App/production Work root、production Resolution/Invocation/D24 未绑定，ready503；两整模块及 D08–D28/E01 未完成、E01 未开始。Object runtime join、OpenAI tools 独立验收、SPA concurrent-publication 三停止及 Jina/Image 来源阻塞保持；以下为历史时点。
+新设备先按团队流程 fetch origin，检查 `ai/*` 与所选分支的 `.agent-state/current.md`。能定位当前任务就自动接续；只有多个候选无法判断时才合并问一次。已有 dirty 改动先保存，不直接切换或覆盖。再在仓库根核对必要输入，检查结果不另建重复报告：
 
-当前接续（2026-10-08，main1133152f不变）：modelsconfig02单grant a65a8d2a已实际FAIL/fullSTOP（工具66400 exit1），resultbe1cb650/raw544d20d4/manifestb9d671ee/85原件，top16.21s；direct61.750s＋6adopted/watchdogjoin、7ID与owned/runtime/browser双清、TCP39.388941双清、1255输入同。独审f0a64ab7/6bdb7290/f4109361已root全文读核22refs接受仅FAIL＋退休；94是观察，4非ownedshim不wait，1adopted Node exit−9保留。32sidecars=setup11＋browser21/27去重body仅完整上游200，native/schema/client仍null、图0、无finalfacts。原modelsconfig01 FAIL及两代guards保持。
+```sh
+git branch --show-current
+git status --short
+git log -5 --oneline
+# 将路径限定为接手任务的实际范围。
+git diff e55ad7d1 -- docs/development/work-items/d11-task-planning.md
+```
 
-只读故障定位a1fae180/2e6ce786/c308eac2已root读核18refs：首次含Model Provider DELETE browser1/joined1但complete0、无正文；确定STATIC缺口是Go projectModelsProblem要求instance==具体q.Path，而正式account.HTTPBoundary固定净化'/api/v1'。不能补称旧轮实收409或具体browser首assert。backend已授只scratch唯一严格常量修＋真实Boundary受控RED/GREEN探针准备，无main写/Go/资源；JS014a与独立helper ebf3无同根缺陷。v03完整false ad538a97/69399f4c、独审4cb262a4及root sourcecheck02 4a2fd26b保持历史版本，后继须按源差量重绑。
+读台账目标行，再读对应正式卡和必要上游接口。工作区有其他改动时保留并确认文件所有者；旧报告中的固定版本组合只在对应输入仍适用时复用，不自动声明当前 HEAD 全测。阶段规格、STATIC、编译、PLAN、受控探针与真实业务验收要分别记录。
 
-独立Model A/B offline01 0da16a30/8dfd2b9b已root读核有限PASS：最终format0.875/TS1.871、race-c8.453/vet0.920/exact2list1.266，wait/owned双空/TMP空；首formatFAIL与Node缓存晚清保留。最终私有JS7a8e9335/3893c94f/ebf3e889仅格式，binaryaaff70a9未执行测试体。verification正只准备两selector/overlay必要driver和false元数据；其复制Go fixture仍旧48154eff，未来同根一行须另组合，不擅改JS/图/运行。global原3恢复5b79d63d保持。
+## 本次实际观察
 
-D11已实际三轮PASS/fullSTOP：Migration12RUN/top4.77s（innerbee8fb56/outer3b67b9ba、独审fe572abc已root接受）；Persistence7RUN/top11.60s（innerbfbefd90/outer2dd13aa3、工具4115 exit0、round20.292756/outer80.538685/TCP59.447861），独审08ef01fd/58224425/2fb9e53c已root读核24refs接受，205项分页/同Tx placement/非法事实有限语义；Authority7RUN/top2.48s（inner60178c22/outerf93f8dbb、工具84871 exit0、round11.477715/outer70.752539/TCP58.443772），root已读两终局、architecture正在固定原件独核。每轮2不同ID、actualwait/watchdogjoin/owned-runtime双空/430输入同，adopted0及各1非ownedshim不wait。现唯一workatomicity01单grant41696f4d由fixture实际运行（session13774），预算/拓扑不变；不Git/换源/后继自动运行。
+以下是本次环境的有限观察，不是长期固定机器配置；只检查列出的位置，没有全盘搜索或完整依赖验收。
 
-D11独立probe原SOURCE7fd6与STATIC FAIL42471cde保留；prepare02 e62d83a8/sourceb29368ec仅AB1合法rank归一+原DTO Validate，独审e25ecc07/f6bcf2e9/4f0dc7c9已root读核20refs接受源组合，原业务/物理rank断言保持。runtime仅准备复用962/28的小overlay离线runner，尚未格式/Go或资源，不因排版占住已ready实际窗。Task候选、三停止/Jina/Image/生产未绑定/整卡及E01未完成边界保持。以下为原时点历史，以上替代其待审/未启动状态。
+| 对象 | 实际观察 | 接手含义 |
+| --- | --- | --- |
+| Git | `e55ad7d1` 包含 `a64fb5e7` Structure 与 `97439ffd` Task规格；初始干净 | 后续以实际分支/差异为准，不自动切换 `main`。 |
+| Go | `/workspace/toolchains/go1.27.1/bin/go` 存在，`go version` 为 `go1.27.1 linux/amd64` | 可作为 `AGENTEAM_GO`；未编译或运行产品测试。 |
+| Node/npm | PATH 中 Node `v24.19.0`、npm `11.9.0` | 工具存在不表示项目依赖完整。 |
+| web依赖 | `web/node_modules` 存在；Vue `3.5.43`、Vitest `4.1.11` 的包文件可读，但 `web/node_modules/go-captcha-vue` 缺失 | 不沿旧恢复报告称当前安装完整；按目标检查锁定依赖，只补实际缺项。 |
+| 浏览器harness依赖 | `tests/account-captcha-web/package.json`/锁存在，锁定 `@playwright/test=1.56.1`；该目录 `node_modules` 不存在 | 需恢复锁定依赖并核浏览器可用性，不能以全局 Playwright 替代；本次未启动浏览器。 |
+| MinIO | 旧测试注入路径 `/workspace/scratch/fixture-recovery-new/bin/minio` 缺失；onboarding 的 `/workspace/agenteam-onboarding/infra/minio --version` 为 `RELEASE.2025-09-07T16-13-09Z` / commit `01ce918d8279…` | 它不符合[后端指南](../backend/README.md)要求的 `RELEASE.2025-10-15T17-29-55Z` / `9e49d5e7…`，不能直接当测试固定二进制。取得正确产物后沿产品已有完整性要求验证。 |
+| Docker/数据库 | Docker CLI 路径存在，PATH 无 `psql` | 未探测 daemon、镜像、现有容器或数据库；不据 CLI 存在认定测试环境就绪，不连接既有基础设施。 |
+| scratch | `/workspace/scratch` 存在但直接子项为空 | 历史候选、driver、运行日志、私有 build 和资源文件不可直接续用；空目录不证明历史进程曾正常退出。 |
 
-环境通知接续（2026-10-08 18:27 UTC附近）：starting→ready后root核HEAD仍0d06fd69、API freeze733d57及5源字节相同。旧实例消息懒恢复为pending_init，root明确followup续启5个原任务后均实际ACK；不据此推断机器重启或进程actualwait。frontend确认Session仍8095ffbd/新controller未落盘、原API检查已有终局；backend两候选89102d22/b18f50bc和原gofmt0.011621715s终局保留，无重跑。API独验当时仅initial-inputs/client.delta、无Node执行原件，故动态仍未验，现开始首次补集。architecture与fixture仅完成D11源读/设计、尚无新卡/prep落盘，现按原所有权续进。没有丢失结果被补造成PASS，无新Go/cache/业务资源授权。
+旧依赖恢复报告只解释当时安装过程，见[2026-10-08记录](environment-test-dependencies-2026-10-08.md)。不自动执行 onboarding 的安装/服务脚本，它包含旧版本及资源操作。纯文档接续不下载依赖、不启动 Docker/PG/MinIO。
 
-当前推进（2026-10-08）：main/origin已核同1133152f015bd4730635e81f6742a284f22291d8，本批Model Settings页面17web＋菜单行政卡＋三协调文档共21路径已提交/push；此前D11四contract锚c3b1ee72。D11四contract子块c3b1ee72、Model Settings API5 b0ee596d/state5 17589540与D11正式卡/永久SPEC档476f6b27均已提交/push。Project Owner Audit UI 完整22路径已交付（技术75411e27、最终档3d9eeeae），Embedding Resolver完整九路径c36717c2已交付；原FAIL、版本组合与证据限制沿永久档保留。Model Settings UI正式规格7b8af244（卡7cb91a5d/附件6c85）及SPEC档30f3a238已接受，原rev1 29路径后按必要旧菜单兼容新增#30，当前30路径/17操作/9IPC/6新14旧，整卡与真实浏览器尚未验收。
+## 缺失源码与恢复范围
 
-Model Settings 当前：正式卡原7cb91a5d、菜单兼容行政补充c558f603/端点6c85；当前30路径=原29+#30旧Audit测试，29技术+README#29末件；17操作/9IPC/6新14旧不变。API5 b0ee596d与state5 17589540已推核；API独审bf5d8755的37不同构造、state独审33a9f99c的13及fd23a158的S1四场景限定组合已接受。原API G1/G2、confirmed同步消费者S1的FAIL/修后证据均沿各报告保留。
+- **Model Settings UI：** 当前25个已提交 web 源存在；下列4个验收 harness 路径缺失，无对应 Git 路径历史，也未在限定的 docs/tests 中找到源码副本。现有[规格记录](project-model-settings-spec-verification.md)证明工程契约，不包含可直接恢复的 Go/JS/TS 实现。后续按[正式卡](../work-items/d27-project-owner-model-settings-ui.md)及端点附件重建必要输入，保留原业务 FAIL 与未验范围。
+- **Task planning：** [正式规格](../work-items/d11-task-planning.md)已接受，但15个新增技术路径（包括 `00022_task_planning.sql`）都不存在；6个已有共享/README文件不是新实现证据。旧 `/workspace/scratch/d11-task-planning-backend-preparation01` 等候选无法取得，后续基于现有 Structure 和规格重新实施，不宣称继续旧代理或已保存半成品。
+- **Work Structure：** 18路径存在，限定技术域与 `a64fb5e7` 无差异，可消费已接受结果。原技术接受 receipt 的 scratch 路径缺失，但[永久报告](d11-work-structure-verification.md)保留组合接受及独立B外部工具终态缺口，不必为补历史文件重跑全卡。
+- **其他前沿：** Skill 当前为 builtin/纯包，Knowledge 当前只有 contract；按台账相应行及正式规格恢复。旧 D08/D10/D12 卡的阶段派工和旧迁移号码不是本次分工，先核当前接缝与全局迁移序列。
 
-前端25web（原24＋旧Audit菜单兼容）现全部STOP。App七源ui-v1 5d465a7c/805f9049与最终S2三源state-v4-s2-navigation 4b1caccd/273f6839组合独审0c5eddc5、eac7f78a、37458076已root全文读核必要refs/main9接受：controller b3427df4/stateTest39670c40/UItestb1fa2332。私密草稿退休与Owner读取门槛分开，同身份checking后、跨两叶子及General往返均须新当前Owner Get；不要求自动Get，不改Session/Workspace。独立3/3实际PASS3.569451s、161输入同/actualwait/watcherjoin/owned双空。原ui-v1两FAIL、v3导航产品FAIL及两个探针前提FAIL原位保留；作者11修复场景/最终171/三根TS8.438s/format0.752s有限复用。
+Model缺失路径：
 
-七Vue v02 a66062ff（仅ProvidersView a1975290/DeleteDialog2c47f262变化，五源复用）完整STATIC旧ec13277b＋差量及focus05独审09cf5ece/50c0af6b/a7d80845已root全文读核40必要refs/main7接受：原取消/两删除及新增上层dialog/卸载五例实际PASS2.938256s、70输入同/directwait/owned与ECHILD双空。成功删除仅适当时聚焦当前标题，不覆盖新层或后继页面。原focus01–03前提失败、01退休补证及04实际D1失败全保留；限定jsdom/固定旧c8c2隔离，不冒浏览器证据。最终25web/build-v02已STOP5ccd154f/report85c51b95：整web format6.942s、原fullunit2626PASS/2FAIL仅旧Audit菜单期待未含新group；root授#30唯一一行补正后49/49 PASS4.377s，wholeweb type10.225s/privateVite1.094s通过，各actualwait/watcherjoin/input同/owned双空。root读核36refs及实际64files/917686B、四品牌SVG与public/docs原字节同，assetsffbbca7d，dist-ui02仅私有资产；原build01 582604da旧64/917073B不作新源输入。兼容两源e8f32b78/40c930db（test45d25b6d/cardc558f603）root读diff核22refs，独审83c4ee79/a97272e8/ce6521c6已root全文读核34必要refs接受，仅菜单一行/行政三处，原fullunit与定点138交集仅test变化；原整unit FAIL与Python封件误扫全卡数字表FAIL保留，不重跑全套或49。JS2 browser-v1已STOP5eecadf6/report09576dda（configcbc98f6d/specde23aa0e，format0.717/strictTS1.788通过，imports83be2917/tools4f6b0cc7）；root读报告核41refs。完整分域独审业务ba4fa3d3/57bcb02c/ad4ecfd0与低层9fe759c0/bf341258/3e7f701f已root全文读各核38refs接受仅STATIC必修B1跨叶漏显式当前Get、L1 schema17 operation名不符及Problem default遗漏、L2 Rolldown本地优先native路径错一层。最终browser-v2已STOP fceaeb98/reportc779a15d，configcbc98f6d/spec224ab96d，仅上述三项窄修；format0.775s、strictTS1.826s、embedded Python syntax0.131s通过，actualwait/watcherjoin/owned双空/input同。业务差量独审090c829c/cf7e189c/b9dbc0ea及低层e878a19b/8233f311/44680544已root全文读核26/38必要refs接受完整STATIC组合；17实际HTTP方法/模板与schema映射校正，Problem default保留，仍未实际schema/bridge/list/browser。恢复前type01 FAIL/type02旧源PASS、初次恢复spec来源未证及全部静态FAIL均保留。
+```text
+tests/account/project_owner_models_web_fixture_test.go
+tests/account/project_owner_models_web_test.go
+tests/account-captcha-web/project-owner-models.config.js
+tests/account-captcha-web/e2e/project-owner-models.spec.ts
+```
 
-Go2 candidate02 113c5243固定48154eff/38f16cda，完整STATIC c4d6c28e与原six-top discovery保持；当前Project/00021依赖下offline02 fc8890c3/9abcbc54已root全文读核12refs：account race-c9.832350s/vet1.206754s，913/63前后同/directwait各1/owned双空/TMP空，新binary733d0996未单独执行，旧ee40不回写。Project只新增同包authority与00021 embed，原delta1c72误称导入Work contract已撤回，Work库/PG3不机械加入Model图。
+`/workspace/scratch/mdn02`、`project-model-settings-ui/dist-ui01`、`dist-ui02`、`pmui` 及 Work原技术receipt均不在本次环境。重建源和新私有构建属于后续产品任务；不从旧 hash 文本、通过声明或测试二进制臆造原件。
 
-Model完整false-v02 99821821/4b3b3c7e、binding63128b6c/Go差量49c0cb3d与独审1010117f/6056196a/32ddc646已root全文读核39refs接受；driver8e99bbd7仅native优先路径lstat差量，完整组合3c05＋d074接受。root sourcecheck01 actualexit0/1.263879s，receipt29ce6777，1254显式hash/66sets、355external/4bundles/private64与native缺失门槛同；仅direct wait/自身身份双absent不冒全树。原false/coord101f/19fd和所有静态失败保持。
+## 恢复开发时的最小检查
 
-首真实modelsconfig01（单grant4ca2d0a8）原FAIL已完整STOP：result6ef6f225、manifest ae0e5b86/raw8c927e92；top16.90s、direct83.413s/actualexit1，7 IDs双absent/direct＋4adopted/watchdogjoin/owned-runtime-browser双空/TCP28.321251双清、1254输入同、forced0/monitor0。112仅observed，4非ownedshim未wait。独核754ac56b/1db5ef80/78203906已root全文读核24refs接受原FAIL/退役分列：54原件508750B；14safe response=setup11＋browser list/create/get Provider3，42/42proxyjoin，上游完整200不能冒nativeEOF/schema/client，三者原null、0DOM/PNG/最终facts。只读源码确认CONFIG-LOCATOR-01：edit协议为readonly textbox，JS却要求disabled button；不能回填原具体首失败因果。
+先读当前任务授权，确认唯一文件写者、共享迁移/缓存/资产及真实测试资源的使用顺序。以下版本/依赖检查可按目标选择；它们不启动产品服务，也不安装依赖：
 
-唯一#27修订browser-v3 94b36ed3/spec014a2ff3（131310B）单hunk改精确textbox协议值＋readOnly=true，逆还原224ab96d；最终format0.777892/strictTS1.777560 PASS，原format换行FAIL保留。独审7f3792ae/63c0ae69/99683b17已root全文读核38refs接受与旧JS完整STATIC组合。config/25web/Go2/build/17ops9IPC61keys不变；root disposition4376cd68仅允许新v03元数据准备，backend已ACK，新driver须exact8e99、仅spec入口/必要版本引用变化，原v02 FAIL/guards不改，无Go/gate/资源或自动retry。
+```sh
+/workspace/toolchains/go1.27.1/bin/go version
+node --version
+npm --version
+npm ls --prefix web --depth=0
+npm ls --prefix tests/account-captcha-web --depth=0
+```
 
-独立Model A/B原PLAN a821ea1b、overlay提案849a3098/Go SOURCE e01ecb64及独审122ff778保持。完整私有JS准备02 report4f563ad7/manifest3166c2a6（config0e26186e/specb0255b58/helperf81c7c0a）与独审a98a9634/e49813a1/f9c9ca76已root全文读核33/38refs接受SOURCE STATIC：A update＋rotate恢复、B null Model delete＋公开解绑后Credential delete的归档差异，各8独立checks，不冒作者61键。抽取低层片段未受v3单hunk影响，仍NOT RUNTIME READY。verification_worker已ACK当前唯一必要离线Go/cache/Node窗，允许私有入口纯格式并保原失败、精确TS/overlay compile-vet/two-name list；test body/资源未授。README#29/global资产交换仍未授，global原3恢复5b79d63d保持；新六/旧14及整卡未完成。
+本次实际运行了前三条版本命令；两条 `npm ls` 是接手示例，未在本次运行。若缺包，在后续依赖恢复范围内按现有锁补齐；不要默认删除并重装完整缓存树。Go脚本设 `AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go` 且使用 `GOTOOLCHAIN=local`，避免隐式换工具链。
 
-D11 当前：正式卡812490b6（语义c07c7112）/永久SPEC6734a650/6054e3de已476f6b27交付；18路径（17技术＋README）与唯一00021不变。四contract最终760a9a13（485ddab3/dc97433b/3db5751b/b0e28df3）已c3b1ee72提交/push核同，C1/C2原STATIC缺陷与修复独审1ef0802d保留。作者contract-offline7e358170 race2.776s/vet0.208s及独立pure b9f2a1aa/13ab6b96/7a08b143的41实际RUN/PASS、1.687s/37绑定/6sets/actualwait与owned/ECHILD双空已root读核有限接受。
+实现恢复后按任务卡选有意义的自测、必要浏览器/真实依赖检查和独立验证，命令入口见[后端指南](../backend/README.md)与[前端指南](../frontend/README.md)。已有输入未变时复用证据；缺失或重建部分验证其受影响行为，不为文档整理重跑全套。必要源、harness、probe 保存到正式仓库或 `.agent-state/<task>/`，不能只留 scratch；可由 Git、锁文件和命令再生的原始输出仍放忽略的 `output/ai/<task>/`，其余恢复必需材料必须入 Git。
 
-library十源v02 5ff15386/d1134ed4与完整STATIC组合d88c7258/727b8a91/769c89c1已root接受；L1权限持锁前读WorkSQL、L2原CommitResult Attempt/Cause丢失的v01报告a1a9c35a原FAIL保留。最终十源现已main安装STOP，library-offline01 1705f2db/79989dd4、安装d355e64d、依赖delta1c72ce83已root读核：work/project精确pure race11.794753s、vet2.270061s实际PASS，474绑定/155repo/16sets同、actualwait/observerjoin/owned双空/TMP空。00021只embed，未执行迁移/SQL；十源尚未提交，不据pure称PG或整卡通过。
+Object runtime join、OpenAI tools独立验收、SPA concurrent-publication及Jina/Image来源保持台账所列停止。环境恢复和工具可用不是自动解停信号；原FAIL、缺失外部terminal/exit、未知业务因果均不得补写成PASS。
 
-PG3原v01 STATIC P1–P3与失败原件保留；v02 6c1f2edd/581dad10的两个源最小修订经独审c1cc6507/c6dee1ee/a5b125be，root全文读核22必要refs接受SOURCE STATIC。三源已按安装前absent检查进入main，合计109502B；pg-offline01 freeze0880df9a/review59ad76d7完整FAIL/STOP，root读核23小件：一次限定metadata138选择行/962绑定/28sets，首compile1.579687s实际exit1，fixture:506含func的LockKey不可用!=，未生成binary；actualwait/observerjoin/owned双空/TMP空，vet/list/body未运行。最终pg-v03 a1fe8c40仅foundation.CompareLockKeys(request.Key, key) != 0单行+31B，fixturefa437258，main同步；独审9aee1ae2/ab154c36/6621d2c1已root读核19refs接受与原P1–P3完整STATIC组合。offline02 650bac44/review52a028cc/stope2badf9c已root全文读核39refs：复用962/28必要hash差量，compile2.409041s/vet1.055340s/new6list1.064197s/旧Project3list3.928845s/Outbox2list1.923024s全部actualexit0、wait/observerjoin/owned双空/TMP空/input同；11名exact集合/数量/无重复无body。最初Python误要求列名顺序的exit1保原，最小集合修正未重跑实际六名。Go/cache已归还，原14库/卡不动，真实SQL/Docker未授。
+## 查询历史而不复制归档
 
-PG-only driver-v01 D1原FAIL c4bd5c44保留；v02 c369b962/helperf5b6eaa7只诊断2s父ctx＋WaitDelay1s真实Wait及日志落private evidence，driver721226a6/launchaa2b6ab4原字节。独审f33e88f6/df66d68d/dbfbc3bb已root全文读核21refs接受完整组合。helper-offline01 ab0a4695/review0fcaefdc/stopeed686f6已root读核24refs：metadata0.156898/build0.756292/vet0.305210s实际PASS、965/30、actualwait/owned双空/TMP空；binary43c2c06d仅同inode hardlink至固定driver路径，无大件复制。
+旧逐轮日志仍可由基线读取，原验收证据目录未删除。按具体失败或任务定位即可，不默认加载全部：
 
-完整false final-inputs-v01 c8e159fe/6695de92、readiness40c38b28/closuree7f3baba已STOP；独审785ee4f2/7567b49c/d626d142已root全文读核27refs接受必要绑定。两原TSV投影明确不是新Go JSON，346 local/30sets＋104external groups608文件、81runtime、17源（3pure verification-only），只PG17 container＋network两ID。root另制接受readiness9507f89c/双false af1d58aa，亲filegate01 actualexit0/0.288133s PASS430显式hash/30sets＋104external，同digest/missing&changes空，receiptc3b5c9d；无host/资源。
+```sh
+git show e55ad7d1:docs/development/agent-team/recovery-2026-10-08-environment.md
+git show e55ad7d1:docs/development/agent-team/tasks.md
+git show e55ad7d1:docs/development/development-plan.md
+git log --oneline -- docs/development/work-items/d27-project-owner-model-settings-ui.md
+```
 
-首真实workmigration01单grantded1f632已actualPASS/fullSTOP：innerbee8fb56/outer3b67b9ba、工具54212 actualexit0，top4.77s/12RUN12PASS，helper9.614s、round含cleanup10.928425s/outer71.227228s；两IDs双absent、actualouter+innerwait/watchdogjoin/owned-runtime双空、TCP59.471708s双清、430/30＋104输入同，adopted0；1非owned PID1 shim不wait/不处置。root已读两终局，architecture正只读原件独核；其余5新/5旧/独立A-B仍待，不借Migration接受整卡。原105＋15全轮120/pkg360/TCP尾75/fresh5GiB保持。窗口已释放给Model A/B必要离线；README#18未授。
-
-独立D11 A/B c0ab5341/74ab69e4仍只PLAN：真实gate先后/archived历史、真实final COMMIT持锁与两种gap1排序几何；未跑probe。Task前沿bbd109bd/6f106cdb已深化为单一Human未指派backlog规划候选rev02 6b5dd72e/5fda1a76，root全文读原稿及单句修订并核6refs接受候选：原始含重复union先≤512再Normalize，原错误candidate01保留；TaskEvent/typed producer、Fault已知码及精确边界仍待正式工程冻结。待Structure整卡接受再正式SPEC/占号。Human未指派backlog规划与真实membership方向不以空适配器补D10/occupancy/删除历史；Task、lifecycle/清理/生产后继未绑定，整卡与D11整体未完成。
-
-Image源码获取仍BLOCKED并已交付0d06fd69：永久报告b56a8daf/manifest2e888439，root核25新原件55446B与4生成件；旧直连DNS失败e08e32cb、新标准代理CONNECT403/curl56 ae9db5d5各首1attempt/其余4raw未请求，无GitHub应用响应/四Image字段仍unknown。不重试、不换通道、不据环境通知重新授权。Object runtime join、OpenAI tools独立验收、SPA concurrent-publication三停止及Jina保持；生产Skills/创建HTTP/Resolution/Invocations/D24未绑，ready503，完整D08–D28与E01未完。
-
-root只读元数据更正（2026-10-08）：独立read首检查误把handoff.inputs统计dict当refs list，先后触发list/dict拼接与int索引TypeError，均在只读helper内exit1、无源码/原结果改写或动态执行；随后按实际对象递归提取4必要引用并核SHA成功，原60实体不机械重扫。
-
-Model提交格式补正（2026-10-08）：root首次git diff --cached --check实际exit2、helper仅预期12而assert exit1，未commit；raw3c75e6d2完整保留。原6 patch/diff实际60诊断＝12尾白＋48 context空格后tab，fixture仅format695e69e9/checksbc199d48/manifest77f327db补精确line-kind，原456实体及报告/README/计划卡不改。root核三JSON与实际集合后再提交，非产品/技术重跑；当前全部资源空。
-
-## 当前提交窗：旧认证两组已全 STOP
-
-Model完整九路径与最终文档已root接受，当前提交README/永久档/plan/card及三协调文档；HEAD仍055c，后继commit另记。Audit新导航及逐图视觉有限接受；oldauthlife01/result978f与oldauthrevoke01/cc142均actual0/7ID与owned-runtime双清，全资源已归还。独立final04纯gate3ff96a86/1185已接受，四实际仍未授。后续旧8/独4/最终21源/README#21待；global新59/794499B与原3backup保持。三停止/Jina/生产/E01不变。
-
-## 当前：九路径 Model 已接受；Audit 旧回归接续
-
-main055c727b已push核同；28dc为Model六PG，055c为Audit两源修复。Model最终九路径39890564/f1e86e15已root读核接受，README8df，fixture仅永久档/plan/卡顶部归位。Audit新build2be773aa及exchange02新59/794499B已接受并保持，原3backup未动；v04/1181 sourcecheck05实际PASS1.249s。auditnav02 result0d2e063e实际PASS/fullSTOP，13checks/17schema-client/8PNG，独核与逐图视觉进行，原nav01FAIL不补。backend唯一oldauthlife01/session4466资源窗，topPASS6.68s但整轮未终局；不Git/push/换资产，不自动后继。独立final04/1185 false元数据接受，runtime仅原wrapper纯filegate，4实际轮未授。完整Audit/生产/E01仍未完，三停止/Jina保持，详台账。
-
-## 当前：Model 八技术接受，Audit 新构建准备
-
-HEAD159995ed已push核同。Model七作者＋独立A/B实际PASS/fullSTOP；最终八技术ab14ab6b/799c837f已root通读核固定原件接受，六PG待提交。fixture正永久归档且已获README#9末件安装，完整九路径待独验。Audit两源View3bb842a2/test480b2cfb窄修独核9b0453ea/root接受，最终49/49实际通过；原nav01 FAIL/原DOM缺口保留。frontend唯一private build-v02/dist-ui02进行，backend仅exact06cf新v04 false准备，root disposition0006fb3e授权范围仅准备；待新build STOP接受后root换global资产、filegate及单轮导航。Go/cache/业务资源全空，旧59及原3backup保持，构建期间不Git/换资产。原失败guard、三停止/Jina/生产/完整项目与E01未完不变。详最新台账。
-
-## 当前：独立 Model A 接续；Audit View 两源受控返修
-
-HEAD159995ed已push核同；作者Model新五＋旧两全部实际PASS/fullSTOP，旧两独核中，root单grant9bb67e63仅交runtime `ind-model-a01/ind-a`独占Go/cache/业务资源，B未授。旧Summary整组三top+退休123.345860s真实保留，各top120不变，末nonowned6单列。Audit authority02 result2b26772c与独核6dce1378已root接受；nav01原FAIL/完整退休独核cb849ce6已读核，PNG0，第二直达有上游200但browser EOF未证。frontend当前仅#10 View/#14 App测试受控RED→窄修，原大写失败/同gate小写成功已报告，候选与GREEN待验；不改a91d browser/其它源/59，不跑实际Audit。原失败guard/缺DOM不回填；独立Audit final03仅false准备、因产品返修后续build需重绑定，无filegate/资源。root不Git/push/换资产，原3backup保持。两README与模型设置下一卡仅scratch，详细refs在最新台账；三停止/Jina/生产/E01不变。
-
-## 当前checkpoint：Model新五轮已STOP，Audit authority02可单轮接续
-
-当前所有Go/cache/资源已退役，无活跃业务命令。Model v03 Selection/Atomicity/Authorization/Replay/Unknown五轮均实际PASS、35不同资源双清；Replay原outer119.967490s与Unknown118.145440s保持，原FAIL/cleanupfalse不回填。Atomicity462a545e/Authorization2b93e811独审已root读核；Replay/Unknown独审活跃，旧两组与独立A/B未授。Audit spec source-v03 a91d/eaef与末件de56已接受，v03 exact06cf false准备及sourcecheck04工具actualexit0/1179输入同已核；原authority01失败完整保留。root仅三协调文档checkpoint，之后才单授auditauthority02。59资产/原3backup保持，末reader全退役仍需root恢复；三停止/Jina/生产/整卡/E01未完不变，详细原件与后继见最新台账。
-
-## 当前：Model 两后续通过，Audit 会话断言修正待安装
-
-Model Atomicity top7.23s/15RUN完整PASS退休，root核inner d6e4ecec/outer ef278284，独审活跃；Authorization grant249dee99/session14946 top8.99s/55RUN PASS、inner bf3261bd/outer930bf4cf完整accepted/actualwait0已root读，等执行者工具STOP窗口交回后才另授replay。Audit read02独审0f4b0ccc已root有限接受；authority01原FAIL完整退役92原件，最小spec提案a7e360c8正封独审，原16a3未改。Model independent final02离线metadata及一次纯filegate999输入/0.591s已核，A/B未执行。下一模型设置UI只scratch草案及独审有限接受，T1–T4未满足。root暂不Git/push/换资产，固定59与原3backup保持，详最新台账；原FAIL/cleanupfalse、三停止/Jina/生产/E01未完不变。
-
-## 当前：Model原子性实际在途；两轮已通过，Audit权限测试前提待补
-
-fixture唯一实际资源/Go-cache owner，embedatomicity01/new-atomicity grantf2c79cf8、session59285已启动，尚无终局。此前Model embedselect02原成功与退休经独审1adbd48b/root接受；Audit read02 result7a59020c整轮PASS，19schema/client/9checks与完整退休已root读核、独审进行。Audit authority01原topFAIL在401后立刻期待login，固定既有失效流程是unavailable＋显式检查会话；frontend只读提案，未改产品，原e2c5078a已完整退休STOP，原DOM缺失不补造。新JS未安装，原所有FAIL/cleanupfalse和独立恢复保持。Model源已c433/compile02 d0dac/共享880a，exactdriver与两包预算保持；root不Git/push/换资产，59/原3backup保持。具体当前refs及下一动作见最新台账，三停止/Jina/生产/E01未完不变。
-
-## 当前：两首轮原FAIL已停止，测试前提正在窄修
-
-Audit首轮auditread01原FAIL及全退休经dcc9e426/root接受，source-v02唯一spec16a3/freezea2a13a51修正联合错误首字段focus，作者format/strictTS和独审5164ee52通过，真实新read未跑。root disposition3c202afa只准新exactdriver准备，v02false骨架不可执行。Model首轮embedselect01的noSecretRead全库计数5导致topFAIL；inner原double_cleanup=false因本轮临时go-build残留，原完整wait/7ID/owned/TCP双清后另授精确恢复，runtime再双空，原件不回填。fixture仅scratch consumer=model范围修正，runtime独立归因/退休核查中，后继资源未授。全部Go/cache与业务资源窗归还；59资产与原3backup仍保持，末reader后root恢复。详细refs和原失败见最新台账，三停止/Jina/生产/E01边界不变。
-
-## 当前：实际资源尚未启动
-
-Model作者14名list与独立A/B格式/race-c/vet/2名list都PASS/STOP，A/B最终组合82f2568f已root接受STATIC/offline。作者七轮driver v01仅G1/G2失败，fixture只新v02修入口/outer历史和Go-only retain/remove loader，等待独审；资源未授。共享Go层909/63，无web资产，Model486实际为463Go+20迁移SQL+弱密码JSON+2锁。Audit完整prepared6073/falseffc已STOP，filegate01在Popen前环境接口缺失FAIL/0child；仅runner修后02真实1.626s PASS/1176hash/66sets/355外部组/4bundles/private及global59同，独审进行。所有Go/cache窗已交回，任何body/真实资源仍未运行。原3完整backup与global59固定准备窗保持，root最终恢复；精确refs与原失败见最新台账。
-
-## 最新：真实运行前最后门槛
-
-Model六PG完整STATIC da648d4f已root接受，无必修；作者七轮driver只prepared正独审，实际闭包/精确14名发现未完。独立A/B只scratch准备，所有测试body/资源仍未执行。Audit固定binary精确13名列举PASS1.178s、actualwait/双空，Go/cache窗口已交回。59资产准备窗及原3backup保持；先Model、后Audit串行实际资源，尚未授首轮。详情和原件指纹见最新台账。
-
-## 当前固定资产准备窗口
-
-global web/dist现为已验59/794400B；原3完整备份`/workspace/scratch/project-audit-ui-assets/exchange01/original-dist`，exchange8750fcfd逐bytes核对，private59未变。root唯一交换owner；所有最终readers退役后必须恢复原3。现在只有driver/input准备，未开真实资源/Go窗口。JS2最终1a1a35b4＋独审f04af9bc已root读核接受离线阶段，真实正文/browser/八图仍待；具体refs见最新台账。后续不能把Model旧486或旧Owner955/1165作当前完整输入；原四图未含web/dist，59仅浏览器运行时输入，root准备时Model embed假设已更正。
-
-## 审计409声明交付；集成验证准备
-
-额外单JSON维护已root低影响审查并精确安装STOP：Project Audit两端点GET/HEAD四处既有409，新b5158110/安装90de11dd；15原件、681refs与精确复原核对，未做全OpenAPI meta/真实409验证。frontend最后两JS绑定新schema检查中。D1受控1top/5组实际PASS9.537s、911inputs同/实际wait/双空，原件284da213和独审79e7b09c已root读核限定接受；不代表真实资源通过。Model六PG源首编译/vetPASS、486inputs同、全STOP，完整STATIC中。Audit作者/独立及Model真实driver只准备，所有Go/cache已释放，业务资源及全局dist窗口未开。web17已68173290推核同；原3/private59、三停止/Jina、生产和完整模块/E01边界保持。精确来源见本批台账。
-
-## Audit前端离线源码接受
-
-web17经原STATIC/受控与最终离线280fa718接受：17固定源、59私有产物与4官方SVG核同；原fullunit失败＋定点旧20版本组合保留，不fresh重跑。额外旧test f41fbee3、Model双源fa4bc123均已push核同；本次交剩余12 web源。JS等单OpenAPI四处409补正，Go03四offline通过/overlay02 prepared通过但动态未跑；fixture独占Model六新PG源安装/包编译窗口，无测试body或真实资源。globaldist原3、三停止/Jina、生产与完整模块/E01边界保持。
-
-## Embedding纯阶段交付；Audit离线组合收口
-
-Model卡#1/#2已root按最终独审0c31f9d6接受，policy c8ccd095/pure dd1e60b7，最新24＋原50/race/vet与独立三补集组合通过；测试断言缺口及独立首FAIL保。六PG仅scratch，真实PG/整卡/生产未验。Audit17web受控组合通过，privatebuild作者通过待根核；旧SystemAudit全App img断言与品牌冲突的额外单test已20PASS独审，单独维护。Go03四offline PASS全退役，D1 overlay O1仅UUIDv7 scratch修；OpenAPI既有409遗漏仅scratch补正。尚无真实资源/globaldist窗口，三停止/Jina及生产/E01边界不变。
-
-## Embedding rev3接受；Audit页面修复独验
-
-Embedding卡f6535ef6/独审0095e4ce已root读核接受，仅原错误优先序三行澄清；原rev2小档4cdf94f9已推核同。两Model源STATIC已接受，fixture获精确安装/离线pure-race-vet窗口，尚待实际结果；PG6继续scratch。Audit七源0a37aaca修复真实App非法query被丢后误读，作者119/type/format通过，独审活跃；state20限定组合保留、整体接受待D1闭合，API5已提交。frontend只写两JS，Go D1只源修/封候选，真实资源窗口关闭。三停止/Jina、原dist3/53stage与生产/E01边界不扩。
-
-## 12:25 UTC：客户端已交付，后端两个限定修订
-
-Audit API五源b0714899已推远端核同，state受控独验与剩余页面/JS并行。Go完整STATIC仅hold joined过早D1，原candidate02保留，作者窄修实际outer handler终局；尚无真实资源。Embedding rev2规格小档15实体已root核接受，当前卡rev3仅澄清既有canonical lease的有ref Agent mismatch先Forbidden与无refsemantic冲突区别，不改store/resolver。policy/pure仅scratch STATIC无必修、实际Go未验，PG6继续scratch。全局dist原3/旧53stage、三停止/Jina、生产未绑/ready503与完整模块/E01边界保持。
-
-## Audit API接受；两个后继阶段独审
-
-root正式接受API五源1a2bcdf4＋独审5669b67d的STATIC/受控组合，独立71、新86/旧102/type/format通过，原FAIL与时点边界保持。本次只交五API源；state六源c730a2e8已作者285/type/format通过，独审活跃，frontend仅余8源活跃。Go两源candidate02已安装离线通过，完整STATIC尚未结束且初识joined计数问题；无真实资源。Embedding SPEC小档15原件已root核；policy/pure仅scratch-v2独审，PG6作者继续scratch。全局dist原3/53stage保持，三停止/Jina与生产/E01边界不变。
-
-## 12:06 UTC：第二条规格接受与Audit离线阶段
-
-Embedding rev2卡67d37252经原完整审＋D1/D2最终组合0badabfd接受，root核原件；8技术＋README9，fixture拟唯一作者，先scratch实施，Go共享源暂不变。Audit五API已冻结1a2bcdf4，作者86/type/format及原102通过，首3FAIL保持，verification正独审；frontend仅后继Session/page活跃。backend已ACK安装两新Go并跑必要≤45s offline compile/vet/build，不binary/list/业务资源；architecture独审准备STOP等可编译输入。旧全局dist原3及53stage保持，实际资源窗口无开放，未运行真实Audit新top。三停止/Jina及生产未绑/ready503/E01未开始不变。
-
-## Audit实施与下一后端规格并行
-
-5320a187已push核同；前端19技术唯一writer实际开始，允许必要≤45s Node/private build；Go两源仅backend scratch，IPC v01未闭合，所有业务资源/全局dist窗口关闭。独立API/实际验收计划封存等候冻结，旧driver需要必要selectors/ENV差量后才能执行。规格永久档15原件133979B及卡Gitblob已root核同，31原diff尾白保持，原FAIL不改。architecture已ACK仅写新的platform.embedding Resolver规格，两个Knowledge/Memory purpose，生产consumer/serving/维度/Invocation仍未绑；不重开Jina取证或原三停止。详情与来源见同批台账。
-
-## 11:38 UTC：Audit UI规格恢复与接受
-
-用户要求继续完成项目；main5684993d起点唯一候选Audit UI rev2已停止写入。root接受卡12022902与独审dc7d9c60（rev1全文＋D1差量/最终组合）：21技术＋README共22，ProjectNav精确当前项缺口关闭。frontend/backend已实际ACK只读准备；实施、检查和真实资源待明确交接，README末件未授。全局web/dist仍原3，旧53stage保留，没有活跃测试资源窗口。规格永久档由独立doc角色准备；架构角色仅只读识别下一真实依赖已满足的后端能力。原FAIL、三停止、生产未绑定/ready503与D08–D28/E01未完成保持。详情及指纹见同批任务台账；不据规格通过宣称产品接受。
-
-final24格式终局（2026-10-08）：完整原Git诊断实数12＝10尾白＋README.patch:111和v2-to-v3.patch:7两EOF空行。root第一次helper遇首EOF提前assert，后次集合比较失败才完整枚举第二EOF，两helper exit1均未后续commit；Git本身exit2，原失败输出保持。fixture仅三JSON再补STOP manifest13d5c5cb，原bytes/report/两header不变，当前登记已完整。只按精确12原例外核后交付，其余生成文件零异常；不产品/技术重跑。
-
-final24归档格式补正（2026-10-08）：root首stage检查另识别原README.patch第111行new blank line at EOF，脚本assert退出后未继续commit；同该行原尾白已登记。fixture仅format/checks/manifest三JSON补EOF例外STOP（manifest0f378888），原patch306dc83f/所有原件/报告/两docheader不改；实际11diagnostics=10尾白+1EOF原样保，root核更新manifest/hash通过，接着仅restage元数据/三根再核提交。Audit rev1正式独审正进行，D1当前设置叶选中态需追加既有ProjectNav，原卡保持，产品未写。
-
-Owner验后文档归位（2026-10-08）：fixture STOP完成plan/原卡两顶部及final24小永久档，report e9be5e2d/map52cdb814/manifest d35a0824；root核12原件58857B/source与archive全bytes/SHA、所有manifest/ref、两insert去除精确还原HEAD历史（1086/999B）。两patch10处原上下文空白按行保留。全24原独审14d9d717与末件0a939a7f已推保持。下一Project Owner Audit UI rev1卡efeadf1b已作者STOP/freeze144efac2，runtime已ACK正式完整SPEC静审；21白名单实施未授。只有新卡独审后再移交共享client/Session/router等，三停止/生产/完整D27与E01边界保持。
-
-Owner工作区完整24卡接受（2026-10-08）：九轮永久档f9fb58d11fae0d7a3d813b8933333e4b40d43bbd已push核远端同，raw27例外逐line保。root通读最终独审14d9d717及result e4a02fb8/24row a8e19c17并核SHA，原23技术一次匹配、#22 b71fcd01文档与新唯一链接闭合，无必修；接受rev2.1全24路径的既有版本组合（非最新HEAD一次全套fresh），原FAIL与v3/v5/old2+14/ind9原53/品牌另版界限保持。本卡List/Get/Resolve/Update/lookup/Session/导航/页面/privateharness完整结果可作为下一卡依赖，完整D27/D26/生产/三停止仍未完。root仅交#22+三根；Audit UI当前仅backend新规格写、实施尚未授，runtime准备STOP待正式卡。
-
-独立九轮永久档接受（2026-10-08）：fixture STOP报告6f2f3a1e、map b369f3e2、manifest86d31d95；root实核479逻辑原件逐source/archive bytes/SHA及10 Gitblob来源，385新增4705177B/18原位复用、429run完整，原正式4942c4de/65ID/117schema50client/8原图有限结果保持。生成报告/map/checks/format绑定通过；204原JSON无末LF与9raw27尾空白保。root初查误取checks.json（实际archive-checks.json）产生只读FileNotFoundError，已正确取名核通过、无后续Git误执行。#22 v3 b71fcd01停写，最终24 STATIC与唯一一次23源核已通过，独审仅补新永久链接末件；下一Audit UI卡backend唯一规格写，runtime仅准备STOP。品牌f2f65e72已推，完整D27/生产/三停止不扩。
-
-持续目标恢复（2026-10-08）：品牌已f2f65e725b738f8cd46cdf662af2fb2a97bdf17c推送并ls-remote核同、worktree clean起点；独立品牌短报告7e74e440已STOP。frontend现唯一#22 docs/development/frontend/README.md安装原已审v1+v2及九轮限定接受末段；verification仅最终24组合准备，不读活跃文档。fixture仅独立九轮已封原件永久小档；backend仅只读定位下个真实依赖满足的完整能力，不写/资源。Owner23与实际9根接受，#22最终24尚待，原3已恢复/53stage保留。三停止不重试、生产/完整D08–28/E01仍未完。
-
-当前品牌交付接受（2026-10-08）：用户f10ba4a8官方资产已用于根README（6c46681b）、导航和四auth入口及浅深SVG favicon。网页12实际安装/type PASS/4既有文件81项PASS/私有生产build PASS；独立同源build1.122s PASS，5位置×3宽×2主题30实际状态、键盘/外观preview-cancel/reduced-motion、四SVG服务原bytes与head媒体通过，33原截图逐看核心及邻近布局未见缺陷，root另看手机登录/桌面深色导航。深色README helper小favicon样例可见性未作全通过、不称原生tab或远端GitHub/生产hosting；states.width=144是logo宽覆盖同名字段，真实viewport由截图/overflow/elapsed保留，原件未改。实际browser轮88.668s<180、所有owned实际wait/两空/端口两空/input同、STOP；browser observations SHA5d4cb233与result f757f310，作者freeze ddef293a，独立证据/workspace/scratch/branding-independent-v1。九docs/logos与f10原bytes保持。仅品牌有限交付，Owner独立9限定接受但#22/完整D27/生产/三停止保持，下一原任务不借品牌结论。
-
-当前品牌自测（2026-10-08）：网页12原候选安装停写，ddef293a封存；type9.533s PASS、4既有文件81项PASS、private Vite1.013s PASS及产物核对PASS，root已核12/candidate/所有sealed证据SHA与九logos=原f10 bytes。verification_worker已ACK正式按70d1开始独立build/private preview受控展示，类型与已有测试复用，不触global dist/原3/stage53。根README已push6c46681b，独立Owner9限定接受/资源已退役；#22/完整D27/生产/三停止边界不扩。
-
-当前品牌接入（2026-10-08）：Owner独立A3+B6九轮本人actual PASS/全STOP正式报告4942c4de已root通读限定接受，65ID退役/117schema/50client/自有8图逐看；原3恢复d22c8a58、53留stage，资源窗口关闭。根README官方浅深picture已push6c46681b；frontend唯一网页12路径已安装原候选，正在固定输入type/受影响已有小组/private outDir build，未借旧9品牌验收。品牌独立展示方案70d1仅PLAN，待作者STOP后另执行；#22开发README仍scratch v2预审，完整Owner/生产/三停止保持。
-
-## 最新独立窗口：B5邮件代表，#22文案修正
-
-独立B2/B3/B4本人fullPASS/退出退役，前7实际49ID互异；rootB5 SMTP only truef6bfb6a6授并ACK亲跑，B6未授，same53/原3backup保，active不push/network/换资产。品牌根README6c46681b已交/网页12不动，展示方案70d1仅PLAN；#22 frontendREADME预审唯一冲突说明文案必修，source23不改、frontend仅scratchv2句子拆分原v1保。精确refs见[台账](tasks.md)，完整Owner/生产/三停止保持。
-
-## 最新进度：品牌README已推，B2尾部
-
-根README217byte officialpicture小commit6c46681b已push核同，root精确fragment还原原bytes通过（初次空行定位假设失败原输出保）；九源/网页12保持。ind B2唯一亲跑truef95acb01，gate同/browser8.6/top12.71PASS但outer尚尾部、B3未授。品牌后续展示验证/#22开发README仅scratch方案，无现实type/build/browser；53/原3backup保持、active不push/network/换资产，精确refs见[台账](tasks.md)，完整Owner/生产/三停止保持。
-
-## 最新限定并行：B1窗口，品牌根README先交
-
-ind A3本人fullPASS/STOP346d58d8/schema17/client11，root另B1 true6a43f6cb亲跑授/ACK，当前topPASS尚尾部未整轮。root确认根README不在fixed input/set，另授fixture仅已审217byte品牌picture文本先交，不网页/source/图片/资源/Git；网页12路径仍待消费结束。#22实际docs/development/frontend/README.md不同根README，必要基线保护保持。active不push/network/换资产，53/原3backup intact；精确refs见[台账](tasks.md)，完整Owner/生产/三停止保持。
-
-## 最新窗口：独立A3与README末件scratch
-
-旧14永久档push核adcb48be，root前A2退休间交付后单轮A3 true8e051062正式亲跑，ind ACK开始；53/原3backup保持，active不push/network/换资产、B1未授。frontend仅scratch README22必要片段准备，不写尚未完成A-B/full声明，品牌13候选STATIC有限接受仍不安装。精确refs见[台账](tasks.md)，完整Owner/生产/三停止保持。
-
-## 最新归档与独立进度
-
-old14永久391逻辑原件/258指纹/2Git refs root实核，原raw14份43尾空白保、归档工具三初稿失败留；有限作者14+旧2组合非A-B。独立A2整轮PASS/fullySTOP short17eb7f9f、schema19/client7/7ID，A3 true8e051062仅制备未执行，当前无资源；root先push小档再授A3。53/原3backup保持，品牌scratchSTATIC已有限接受未安装；精确refs见[台账](tasks.md)，完整Owner/生产/三停止保持。
-
-## 最新增量：品牌STATIC通过，独立A2窗口
-
-品牌13scratch候选独审0ed8258c有限PASS/STOP，未安装/type/build/browser，README22后只重放picture。独立A1本人整轮PASS/full退役，schema46/client16/short0a93cca6接受；root另A2 new-edit true d989260f，ind-runtime ACK实际开始，先原inputgate，下一轮未授。53/原3backup保持，活跃不push/network/换资产；old14仅sealed永久归档，精确refs见[台账](tasks.md)，完整Owner/生产/三停止保持。
-
-## 最新独立窗口：A1单轮授权
-
-old14正式独核f23c6c6d限定作者14结果接受，窄修档push核7410e866；旧14永久档仅sealed成组归档进行。root原3恢复后另preflight0安装固定53，新原3backup original-dist-indab01，exchangeb6a04986。独立runtime仅A1 new-read truece3e87e0正式亲跑授，first1165gate先过，后轮另grant/FAIL先全退役STOP。root活跃不push/network/换资产，末reader退休恢复原3；品牌candidate只静态未安装/完整Owner未验，精确refs见[台账](tasks.md)，生产/三停止保持。
-
-## 最新终局：旧14作者全退役，原资产恢复
-
-作者14真实轮全PASS与全退休STOP；root末reader0核原53/原3SHA后两rename恢复exact原3、保stage53，restore e54f10da。当前无资源窗口，后6与整批固定原件独核已续派，实际A-B未授。窄修48永久档可交付，品牌13scratch候选独审待安装；精确refs见[台账](tasks.md)，完整Owner/生产/三停止保持。
-
-## 最新进度：品牌候选STOP待静态，旧域前12退休
-
-品牌13候选scratch封存f5ec671e，文本格式PASS/四SVG原bytes/17仓库inputs同；未安装或type/build/browser，独审进行，README22后只重放顶部picture。old14前12作者实际PASS/各退休，正第13outbound，原53/原3backup保持；root已通读sealed4–8有限独核8de9ebad及ind false061863b0准备，均非独立实际。活跃不push/network/换资产，末reader退休恢复原3；精确refs见[台账](tasks.md)，原目标/完整Owner/品牌交付/生产/三停止保持。
-
-## 最新进度：品牌候选仅scratch，旧域前8退休
-
-品牌13路径候选仅scratch准备，未安装仓库、不改活跃固定输入/资产；用户九源原bytes保持。old14前8作者actualPASS/全退休，现第9summarynav；root通读接受personal3限定原件复核，ind仅sealed后续审查不实际A-B。53/原3backup保持，活跃不push/network/换资产；精确refs见[台账](tasks.md)，完整Owner/品牌交付/生产/三停止边界保持。
-
-## 最新并行进度：品牌只读plan与旧域验收
-
-品牌plan b172ca6c已STOP，五圆圈a+空favicon定位，后续13路径原SVG/README picture/AppBrand/保持标题主题aria导航；未实施，排Owner验收收口后。old14首5实际PASS退役、models第6进行；personal3原件独核e1808d3c有限PASS，48逻辑窄修永久档root已核、待全窗退休提交。53/原3backup intact，root活跃不push/network/换资产，实际A-B/README22/full未验；精确refs见[台账](tasks.md)，原目标/生产/三停止保持。
-
-## 最新用户增量：品牌接入排队，旧域原冻结继续
-
-用户明确要求将f10ba4a8 docs/logos九资产接到README/前端icon/logo/title；资产已完整保留，frontend只读规划，实际接入在当前Owner卡收口后，不改活跃源码/53。old14 profile02/theme整轮PASS并退役，正password；ind A-B false final05 rebind061863b0已STOP无实跑，作者全退役后逐轮授。root窗口原3backup intact，活跃不push/network/换资产，末reader退役恢复，精确refs见[台账](tasks.md)，原目标/生产/三停止保持。
-
-## 最新实际窗口：OLD14_BATCH01已授
-
-final05 prepared核通过后root true2c261920授backend原预算条件串行oldprofile02→13，固定53/原3backup original-dist-old14batch01 intact。root活跃不push/network/换资产，失败全退休STOP，末reader全退役root恢复原3；100仍计划未实际。ind仅自有A-B false最终输入rebind，无资源或新check，真实14/A-B/README22/full未接受。精确refs/所有权见[台账](tasks.md)，生产与三停止保持。
-
-## 最新准备接受：final05 PREPARED PASS
-
-final05一personal TS差量/原文件门禁独审PREPARED PASS/STOP b3b24a3b，false62da72e/0pending/14groups与auth2有限组合条件核合；原Go/UI/Project/工具锁/图集合保。53准备window/原3backup original-dist-old14batch01保持，资源尚未授，下一步root唯一truecopy条件串行14，末reader退役恢复。原profileFAIL/实际A-B/README22/full未接受；精确refs见[台账](tasks.md)，生产与三停止保持。
-
-## 最新准备：80ec窄修推送，53文件准备窗口
-
-单legacy窄修80ec2ab3已push核同；root复用53，原3完整backup original-dist-old14batch01。backend只final05一TS闭包delta/一次filegate/rootfalse无业务资源，真old14/A-B/README22/full待prepared及另授；窄修永久有限档另归档，不读当前资产或新活跃输入。精确refs/边界见[台账](tasks.md)，末reader退役root须恢复原3，生产与三停止保持。
-
-## 最新限定交付：旧profile JSON取证修正静态通过
-
-额外单legacy测试两hunk sourcea0fede已独审STATIC+固定类型原件PASS/STOP，原helper/全部断言/预算保；原格式例外171→172（hunk169）与v1/v3失败保留，不称真实profilePASS。root小块交付后将装53准备窗口、仅授final05一legacy源差量/一次filegate，实际old14/A-B/README22/full待后继；当前原3restore/资源未授。精确refs与限制见[台账](tasks.md)，生产与三停止保持。
-
-## 最新永久档：旧16首批失败与窄修待验
-
-[old16首批永久报告](project-owner-ui-recovered-old16batch01-verification.md)104逻辑/65指纹/48Git root核同，原2PASS/1FAIL/13未跑和3轮退役/无body证据缺口保持。额外单legacy补丁2处已落地，唯一格式提示在原helper169旧行；无关formatter改动已恢复，原格式FAIL/输出保留，v3仅显式TS检查待交。old14计划限定STATIC PASS但source/final05 pending，无资源；原3已恢复，A-B/README22/full未验。精确计数和授权见[台账](tasks.md)，生产与三停止保持。
-
-## 最新窄修：旧profile取证额外单测试路径
-
-root明确授personal-settings.spec.ts仅PATCH/me400闭集target+duplicate调用复用既有原native响应观察器，不变状态/字段/UI/facts/预算；24卡接受不扩大，原FAIL/无body证据缺口保持。作者有限format/type后独核STOP，资源未授、原3已restore；old16后13/真正A-B/README22/full未验。精确边界见[台账](tasks.md)，生产与三停止保持。
-
-## 最新归档：三新成功原件永久核验
-
-[nextnew01永久报告](project-owner-ui-recovered-nextnew01-verification.md)207逻辑原件/164指纹/42Git已root核合，8图逐映射7原PNG实体，schema52/client27及视觉/退役范围明确。旧16第3FAIL/后13未跑待归因，原3恢复无资源；独立实际A/B/README22/完整D27未接受。精确计数/原格式例外见[台账](tasks.md)，生产与三停止保持。
-
-## 最新终局：旧16第三轮FAIL，原资产恢复
-
-旧域首批2PASS/1FAIL/13NOT_RUN，第3个人资料测试在读取400正文时Protocol error，待固定原件独核归因。三轮actualwait/21ID/ownedruntimeTCP双清完成，root原3已精确恢复，53回stage，无当前资源。独立A/B仅自有false准备，01记录器技术FAIL保留/02有限文件准备PASS待封；完整D27/README22未接受。精确原件/限制见[台账](tasks.md)，生产与三停止保持。
-
-## 最新资源窗口：旧16已授条件串行
-
-旧16准备独核PASS/STOP后root安装固定53测试资产，原3完整backup original-dist-old16batch01；唯一truecopy332a391e授权backend逐原top串行，任一失败退役后全批STOP。root活跃期不push/network/换资产，全reader退役后恢复原3。独立A/B仅自有false输入准备，尚未执行；旧16结果、README22/完整D27未接受。精确refs/预算/所有权见[台账](tasks.md)，三停止与生产边界保持。
-
-## 最新接续：三轮正式独核STOP，旧16准备复核
-
-nextnew01三轮固定原件、8图可见区域与实际退役正式有限PASS；原3资产已恢复，无窗口。三成功轮永久小档正在归档，旧16清单仅准备独审、尚未跑；独立实际A/B/README22/完整D27仍待执行。远端九个docs/logos新增完整保留，edit03档安全rebase/push后main/remote7aa19f75核同，运行源码和测试资产不变。精确SHA/计数/范围见[台账](tasks.md)，生产与三停止保持。
-
-## 最新接续：五新作者真实PASS、旧域与独立A/B待跑
-
-[edit03成功永久档](project-owner-ui-recovered-edit03-verification.md)80逻辑原件/42Git核同。nextnew三轮全部PASS实际退役，21ID不重/ownedruntimeTCP双清/input同、12非ownedshim单列；原3已恢复，无资源窗口。recovery/identity独核PASS、layout8图可见区域已逐看但正式终局报告进行，非完整D27；旧16仅准备、独立A/B与README未验。精确输入和限制见[台账](tasks.md)。
-
-## 最新接续：edit03作者实际PASS退役、edit02永久失败档
-
-[edit02失败/窄修永久档](project-owner-ui-recovered-edit02-verification.md)104逻辑原件/43Git核同。edit03作者整轮PASS（top12.10s/browser5.7s/command57.939s），schema19/client resolve1 get6尾验及actualwait/7IDs/owned/runtime/TCP双清完成，短manifest与独立终局复核待交。root已恢复原3 SHA，测试53保留，无当前资源/窗口；未接受完整卡，后继未授。精确范围见[台账](tasks.md)。
-
-## 最新接续：v5窄修接受、edit03准备
-
-v5仅#21身份facts helper+ready一替换独审PASS，strict/id及其它行为保持，不代表真实edit完整通过。final04固定一源delta/filegate已STOP，独立prepared进行，资源未授；测试53窗口与原3完整backup original-dist-edit03保持。精确输入及失败保留见[台账](tasks.md)。
-
-## 最新接续：edit02失败退役、v5身份定位窄修
-
-edit02实际FAIL在显式重读后的ready facts strict2，独立首要归因仅测试身份scope必修；正式原件/退役报告与永久档进行。原3资产已恢复、测试53保留，无当前资源/窗口。仅#21 v5精确身份定义项filter返修已授，v04 exactdriver scratch准备，后继资源未授；精确输入/执行范围见[台账](tasks.md)，原失败与全卡/生产边界保持。
-
-## 最新接续：edit01永久原件、edit02输入准备接受
-
-[edit01失败/窄修永久档](project-owner-ui-recovered-edit01-verification.md)原92逻辑refs/43Git核同；final03固定delta/filegate与独立PREPARED PASS已STOP，false原件保留，下一步仅root唯一edit02授权copy执行。测试53和原3 backup original-dist-edit02保持，完成reader退役后恢复；仍无真实edit02结论。精确SHA和未验范围见[台账](tasks.md)。
-
-## 最新接续：browser-v4窄修与edit02准备
-
-仅#21七处名称定位改用精确role helper，语义/format/type/list独审限定PASS，产品19/Go04/#20不变，不宣称edit/layouts真实通过。root相同53资产复用并保原3于original-dist-edit02，真实资源未启；backend仅final03小delta/filegate准备，待独审后另授权。精确输入和失败保留见[台账](tasks.md)。
-
-## 最新接续：read02永久成功档、edit01失败全停
-
-read02永久档见[限定验收](project-owner-ui-recovered-read02-verification.md)，root核124原件/116指纹/38Git一致，原字节不改。edit01唯一new-edit实际FAIL，45秒预算在精确“项目名称”标签fill超时；作者已STOP并交40原件，独立负责人续派归因与实际退役复核。实际全链96.558秒、7ID/owned/runtime/TCP双清与input一致；root已恢复原3file，测试53保存test-dist-ui-v1，无活动reader或资产窗口。原失败不重写，不提前归因或重试；本次状态和精确SHA见[台账](tasks.md)。完整D27及后继未接受，原三停止和生产未绑定保持。
-
-
-## 2026-10-08：Owner 读取浏览器harness四路径限定接受
-
-Go candidate04 #18–19 与 browser-v3 #20–21 四路径已正式独立限定接受，原STATIC/离线和read02实际读取/owned退役证据全同，无未关闭必修；本批仅四新测试源及协调记录，19前端产品源不改。独验负责人正式冻结 `/workspace/scratch/owner-ui-runtime-verification/read02-result-review/review.md` SHA `9274ffee79b67ca6a962f7caf27c5d2623ad2ce06c2e109b99ed6b91d2ac2a00`，111固定原件、46sidecar/39body逐SHA同，实际schema46和公开client list6/resolve3/get3/problem4按原X-Request-ID/真实URL参数复核；setup001–028及IPC042GET/043PATCH不计browser。dot036→037、settings038→039实际HTML/DOM/同稳定ID与原body通过。
-
-实际read02 command59.722s、top15.36s/browser8s、direct与4adopted actualwait、watchdog join、7ID逐两absent、owned/runtime双空及TCP全态delta双清（40.377s补充尾观测）、源与运行输入前后同。4新增daemon PID1 shim非owned/未wait单列，不称全机清零。root已在全部reader退役后恢复原globaldist3file及SHA，测试53保留可复用；当前无资源/asset替换。原read01 FAIL与窄测试返修保持，永久档629bf2d0已推送核同，不能改写成PASS。
-
-这是作者实际读取轮的独立证据复核与harness小块接受，**独立实际A/B、其余4新/16旧、视觉/焦点/Unknown三态尚未接受**；五case源码存在不代表均已执行。私有Skills初始化/终态归档准备不证明生产Skills绑定或生命周期runtime完成。短报告/必要成功小原件后续另档，不因排版拖延已验四源提交；产品以本节及四源同批Git历史定位，root立即推送并核远端。
-
-下一步：复用相同19产品源、Go04与browser-v3/实际闭包，按已验读取前置仅授new-edit一轮；成功并退役后再依次recovery/identity/layouts与旧16/独立A-B，失败先退役并保原件后限定修复。README22/完整D27仍未接受，完整D08–D28/E01未完成、E01未开始、生产未绑定/ready503及三停止保持；以下条目为历史时点。
-
-
-## 2026-10-08：重建read01永久失败档与read02实际终局
-
-[read01失败与退役永久记录](project-owner-ui-recovered-read01-verification.md)及必要小原件已冻结，root核111逻辑原件source/archive SHA/字节、34固定Gitblob及111证据指纹/JSON/链接一致。原FAIL保留，独立task-owned退役接受；70原格式例外保留，其中只有raw.log十行尾空格是Git实际诊断，其余69为原JSON无末换行。4未提交Go04/browser-v2小源副本仅复现输入，不冒充产品接受，不复制完整树/依赖/资产/私有material。
-
-read02作者实际整轮PASS/STOP（command59.722s、top15.36s、browser8s），7资源逐ID双absent、actualwait4adopted/watchdogjoin、owned/runtime与TCP delta双清、输入同；4新daemon PID1 shim非owned另列。46sidecar/39body及46 schema、browser同body list6/resolve3/get3/problem4和dot036–039原件已交独核，setup28GET不算browser。独立终局审查仍进行，尚不据作者结论接受4path测试harness或完整卡。
-
-read02全部reader退役后root已实际恢复原web/dist3file及SHA，`/workspace/scratch/owner-ui-assets/restore-after-read02.json`固定，测试53file保存 `test-dist-ui-v1`可复用。无后继资源/资产交换，源Go04/browser-v3/UI19停写；下一步独核read02后交付已验读取小块，再按实际前置安排edit/recovery/identity/layouts及旧16/独立A-B。D08–D28/E01/生产未绑定/ready503与三停止均保持；以下原条为历史时点。
-
-
-## 2026-10-08：真实read01失败退役与限定测试返修
-
-重建的真实read01实际FAIL（全链114.299s，新top17.21s，browser exit1），原93件固定交接 `/workspace/scratch/owner-ui-backend/read01-handoff.json` SHA `21085e942b887d083b3b9e0e88e3766e4d03245fad8c211acb116f50b27b2200`。独立正式FAIL/退役审查 `/workspace/scratch/owner-ui-runtime-verification/read01-review/review.md` SHA `91bd78d6763577fc1d6626bd737b634900ac9b2c822b7f9aacc74cd3232e995c`：实际direct wait、4 adopted wait、watchdog join、7资源逐ID两次absent、owned/runtime双空、TCP全态delta双清及输入同；4新增daemon PID1 shim非owned、未wait另列，历史僵尸未碰。
-
-失败是browser-v2 #21:465对deleting要求固定“项目不可用”标题过强；正式Owner Resolve返回409/PROJECT_NOT_ACTIVE零候选符合D09原typed error及D27§56。产品read-error分支为源码推导，没有本轮DOM原件；第466零form断言、dot/nonowner/name reuse、schema/client与截图均未执行，不能标PASS。35sidecar/34safe body原件保留。仅浏览器read断言返修到v3，匹配既有read-error并绑定真实409/body/requestID及零Project Get/写/内容入口；19产品源、Go04/API/协议不变，旧v1/v2完整保留。
-
-read01全部reader退役后，root实际恢复原web/dist3file及SHA，`restore-after-read01.json`固定。第二次临时测试交换再安装同ui-v1的53file，原3file完整保留 `/workspace/scratch/owner-ui-assets/original-dist-read02`，记录 `exchange-read02.json`，root仍须在后继reader全部退役后恢复。当前真实read02未启动。
-
-新scratch driver-v02 exact复用已验bb666f55字节，不改代码且保留v01失败；final02仅browser-v3差量，955repo/66sets/1165固定hash、171Python/20schema闭包同，filegate0/1.238s通过。独立read02 readiness STATIC/PREPARED PASS，报告SHA `91bac0cefb614708d567bb5c9696f986bd5f1bbc2183e9247ae17e37c6cb5f52`，final freeze仍false、只允许root另授new-read一轮，任何失败先完全退役再停，不自动retry。必要read01永久失败小档由独验负责人另冻，不混入v3/v02。
-
-前端子能力产品088f4d34/归档83d6dd88已推远端一致，完整D27/真实新5旧16及视觉未接受。Go18–19与browser20–21仍未提交，固定Go04及browser-v3副本保留。完整D08–D28/E01未完成、E01未开始、生产未绑定/ready503与三停止保持；以下条目为历史时点。
-
-
-## 2026-10-08：ui-v1 产品推送与真实浏览器前置修订
-
-前端产品 `088f4d3490db4d86781090f0602299901c5f3247` 已提交推送，root实际核远端main同；独立STATIC/受控29项与作者2077/type/build/format接受保持，完整D27及真实动态尚未接受。[永久controlled验收及小原件](project-owner-workspace-ui-controlled-verification.md)已冻结；root逐项核55逻辑原件source/archive SHA/字节、37固定Gitblob、48证据指纹及JSON/链接均一致，7原格式例外明确登记并保留。产品19源没有后继变更；本批纯归档不重跑业务。
-
-测试资产临时独占交换已实际完成：原 `web/dist` 3file普通目录完整保留在 `/workspace/scratch/owner-ui-assets/original-dist`，当前 `web/dist` 53file逐SHA同 `ui-v1/assets.json`；记录 `/workspace/scratch/owner-ui-assets/exchange-ui-v1.json`。这仅为私有测试资产，root须在全部真实reader退役后恢复原目录，当前尚未启动资源。独占前作者均ACK无reader/writer；只读预检初次把自身shell脚本文字误列为潜在reader，`reader-preflight02.json`已排除自身祖先/脚本解释器，未停止任何进程。
-
-资源driver-v01正式冻结含启动取证/monitor异常的owner finally退役与固定PID+starttime修复，独审继续；file-only门禁实际980固定输入/两处53资产同，JS闭包pending正确拒绝，不称业务失败或资源PASS。browser-v1五case源码及离线通过已冻结，但独审发现J1：JS要求ack不存在的ok字段，而Go04返回sequence及安全操作结果。仅续派JS窄修为browser-v2，旧原件/Go协议保持，后台final输入绑定暂停待新manifest，真实首read未授。之后需final实际TS/Python闭包绑定与独审，首new-read实际PASS和完全退役后才允许后继。
-
-生产未绑定/ready503、完整D08–D28/E01未完成、E01未开始与三历史停止均保持。此条是当前进度，以下条目保留各原时点。
-
-
-## 2026-10-08：Owner 工作区前端受控子能力接受
-
-D27 rev2.1 的 `ui-v1` 完整19前端固定输入通过独立STATIC与真实Session/controller受控补集；本批15源实际改动、4源沿用已接受客户端字节。Project列表、稳定ID详情、基本信息编辑、冲突fresh Get后显式采用、unknown原请求恢复、App聚合确认及路由接入可作为前端子能力交付。Session继续唯一持有Cookie owner，14旧mutator与Project双向互斥，Project/System权限状态隔离；管理员统一Meeting Summary规则不变。
-
-独立终局 `/workspace/scratch/owner-ui-verification/ui-v1/review.md` SHA `00e1dcdf4a31318eb579c306028820f8f7c3ba728d1415dbf9b809410462f7ab`、`result.json` SHA `aa77e590295b7c50e7416c8f3b3d3f5cc4db50db2d7cb1ea16045d30b1811ae1` 为PASS且无未关闭必修。实际run02 29/29、2.006s、direct actual wait0、无adopted、owned两扫空，52运行输入前后同；37源码绑定含完整19freeze。原run01 28/29是独立探针缺旧Selection activeRoute上下文，仅修探针、产品零改，原件保留。作者52文件2077/2077、type/build及19源格式三轮输入各180项核一致，原失败保持；复用API258、不重跑整包。53项独有dist静态核同、无Debug，不代表生产SPA接受。
-
-root核19当前字节、限定差异及终局；产品以本节与15源同批Git历史定位，提交后立即推送并核远端。必要永久小原件由独验负责人后续另档，不因归档排版延迟已验源码交付。前端19源无活动写入/命令；#20–21 browser脚本另在离线准备，#18–19 Go candidate04仅STATIC/compile与独立68路由检查通过，资源driver清理异常路径正在修复。真实资源和原web/dist交换尚未启动，第一轮仅new-read，待固定JS/driver审查/资产门禁就绪后由root安排。
-
-这是前端STATIC＋受控接受，完整D27、新5/旧16真实top、视觉/键盘/焦点/窄屏、真实HTTP同body schema/client、真实PG三态恢复尚未验收。生产Skills/root/创建HTTP/Resolution/Invocations/D24仍未绑定、ready503，D08–D28/E01未完成、E01未开始，三历史停止保持。Jina有界调研失败/准备永久档 `a985cf27` 已推送核同，零官方字段事实、不冻结实施卡。
-
-
-## 2026-10-08：客户端小块永久独验归档
-
-[Owner UI 客户端与安全返回验收](project-owner-ui-client-verification.md)及必要小原件已冻结。root逐项复核68逻辑原件与实际source／archive SHA和字节、产品 `7dbd42a3`／固定基线的10个Git输入与链接，范围与258项限定结论一致；纯归档不重复业务测试。原格式/旧期待失败和原JSON无末换行保持。产品已推送并核远端一致，后继auth导航集成不回写api-v1输入。
-
-当前六Vue页面源码与类型/格式自测已冻结，尚待App/router/controller组合独验和实际浏览器。Go candidate03仅后继管理员项目/Summary fixture窄差量，独立STATIC已启动，离线compile/vet/build/list正在推进；未启真实PG/browser。依赖恢复 `20d45a72` 已推送核远端一致，实际路径见恢复报告。完整平台与E01未完成，E01未开始，三停止边界保持。
-
-## 2026-10-08：固定验收依赖恢复与永久原件
-
-[依赖恢复报告](environment-test-dependencies-2026-10-08.md)与99个小证据文件已由作者自查、root 核原97项字节／JSON／当前锁输入和相对链接。精确 MinIO SHA/release/commit、PG17/PG16 固定 digest、Node 锁依赖和根 Go 31 项 Sum/GoModSum已恢复；39组实际命令保留5个原失败，backend原graph失败另列。未启动测试容器、数据库、listener或浏览器，不标记业务接受。root 实际 Git 检查仅三个原 raw 的 trailing tab／末尾空行，已逐字节核同原件并在报告精确登记，不改写历史字节。
-
-MinIO 注入 `AGENTEAM_MINIO_BINARY=/workspace/scratch/fixture-recovery-new/bin/minio`，Go cache `/workspace/go/pkg/mod`；独占安装窗口全部归还，执行者已停止写入。后续Go actual graph已通过，首race编译触45s边界保留，缓存有明确进展后按同预算重试；该后续产品检查不回写依赖恢复为业务通过。Owner UI controller/六页面/Go harness仍未整卡验收，真实资源窗尚未启动。产品客户端 `7dbd42a3` 已推送核远端一致；相关记录和依赖报告按各自提交历史定位，完整平台与E01及三停止边界保持。
-
-## 2026-10-08：恢复快照与远端增量核对
-
-本次环境初始检出 `work` / `2cf00e06`，工作树干净；`/workspace/scratch` 和 `/tmp` 未包含此前 UI candidate04、Go harness 或其运行目录。旧记录和已归档原件保留，但不得把失落的未提交源码或未归档运行证据声称为已恢复。
-
-实际 `git ls-remote origin refs/heads/main` / `git fetch origin main` 发现远端为 `ff396a4e`，比快照新增已接受产品 `39ebd57e` 与归档 `ff396a4e`；`git rev-list --left-right --count HEAD...FETCH_HEAD` 为 `0 2`。新建本地 `main` 后 `git merge --ff-only origin/main` 安全快进，旧 `work` 保留；`git push origin main` 返回 `Everything up-to-date`，随后核远端仍为 `ff396a4e`。无强推、回退或覆盖他人改动。
-
-首个已定规格可执行工作为 [D27 Owner 工作区 UI rev2.1](../work-items/d27-project-owner-workspace-ui.md)。新 frontend_worker 已实际 ACK，唯一持有卡内 21 个前端/JS 技术路径（含 #24）；新 backend_worker 已实际 ACK，唯一持有 #18–19 两个 Go harness/test 新路径；新 verification_worker 已实际 ACK，负责固定输入独立验收；新 fixture_recovery 已实际 ACK，仅恢复固定测试依赖。均使用仓库要求的 `gpt-6-astra / max`，子实例不再委派。root 唯一维护本次台账、恢复入口与 Git 交付。前端、Go 仅获必要离线检查和自有构建输出；真实 PG/browser 与旧 web/dist 资产交换尚未启动，资源窗口由 root 在实际图与工具就绪后统一安排。
-
-当前阶段为重新实现与依赖恢复，未获新 UI 技术或产品 PASS。依赖已接受的 Owner Read/Update/Resolve、Audit 与初始化收敛库；生产 Skills/root、创建 HTTP、Resolution/Invocations/D24 仍未绑定，ready503、完整 D08–D28/E01 未完成，E01 未开始。三项历史安全机制停止保持；此处不恢复或改派被终止的原动作，不以 UI harness 代替生产 SPA 发布验收。
-
-下一步：冻结并独验最小客户端/路由完整结果，按小块构建检查后提交推送；恢复真实测试依赖与同源 harness，按 rev2.1 验收五新 top、16 旧 top 和独立风险补集；每轮保留实际失败、输入与 owned 退役证据。初始化收敛库已有固定验收按相关输入一致性复用，不机械重跑整包。
-
-当前增量（2026-10-08，初始化收敛库接受）：Project 初始化收敛授权库完整6路径（5技术＋README）已接受，产品 `39ebd57e` 已推送且 root 核远端一致；6真实PG／40子例、42不同资源ID与24非owned未wait shim（449→473、轮间无额外）沿原表归档，owned资源实际wait双清，原STATIC／格式／工具失败保留。新gate无写、原成功gate不变；生产Skills/root与创建HTTP未绑定，完整D08/D10未完成。 [验收与原始证据](project-initialization-convergence-verification.md)。
-
-Owner工作区UI candidate04仅#21 locator修订离线通过；真实read01 Outbox setup失败、read02 label失败均保留并已独核退出，尚无browser top PASS；正在按已接受 `39ebd57e` 重新绑定Go依赖，旧16／独立A-B未跑、asset未交换、前端README未授，UI产品未接受。
-
-管理员统一Meeting Summary initial/update（含首轮标题），Project不override或复制初值，compaction／Execution Summary不变；production Resolution/Invocations/D24未绑定、ready503、D08–D28/E01未完、E01未开始与Object runtime join／OpenAI tools独立验收／SPA并发发布三停止保持。以下历史原字节保留。
-
-## 后继固定状态：初始化收敛必要前置与UI未验边界
-
-[Project初始化收敛授权规格](project-initialization-convergence-spec-verification.md)完整rev1及正式末件STATIC已接受，规格 `b01b08d4` 已推送并核远端一致；root仅授5技术scratch实施，不安装仓库、不Go/资源，README未授、产品未接受。D10旧ProjectFactAuthority缺失说明已过时，但真实Skills/root仍受停止的Object runtime join依赖阻挡，新gate仅必要前置，不开放创建HTTP或发布。
-
-Audit完整16产品 `4089d131`／归档 `3ce7ec33` 接受保持。Owner工作区UI candidate02完整23技术STATIC与有限离线组合通过，产品未接受；实际5新＋16旧真实top、布局/视觉及资源尚未运行，README #22仍未授。管理员统一会议Summary initial/update含首标题，Project不override/复制初值，compaction/Execution Summary不变。production Resolution/Invocations/D24未绑定、ready503、D08–D28/E01未完、E01未开始与Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持；以下历史原文保留。
-
-## 后继固定状态：Audit完整接受与UI图交接
-
-[Project Owner Audit HTTP](project-owner-audit-http-verification.md)完整16路径已接受，产品 `4089d131` 已推送且root核远端一致。原失败和版本组合保留；3native、12实际PG的actualwait/双清已完成，原表实核84不同资源ID和48新增非owned、未wait的daemon shim，轮间另1git单列，不称全机清零。final14 cursor报告误句由final16明确纠正，原件保留。
-
-Owner工作区UI rev2.1规格 `5c152e9a` 已接受；frontend02的21前端路径静态组合通过，产品未接受。接受的Audit实际图已正式交接，Go #18–19现已授安装及必要45s离线，作者已实际ACK并开始该Go阶段，当前尚无Go执行结论；真实browser/PG/webdist及README #22仍待另授。用户再次确认既定管理员统一会议Summary初始/更新含首轮标题规则，无新增决定；Project不override/复制初值，compaction/Execution Summary不改。production Resolution/Invocations/D24未绑定、ready503、D08–D28/E01未完、E01未开始及三停止保持；以下旧记录保留历史时点。
-
-以下是此前环境恢复时点原文，阶段性“未接受/待wire03”不覆盖上述后继结论。
-
-本页记录 UI 规格归档时的固定协调时点。连接/执行环境恢复后，root 核 HEAD 与远端同为 `8cf81b44a93fce53ac3f5a218bfc9569e193eeb7`，原 11 份 Audit 源保留；五实例（documentation、UI 作者/独审、Audit 作者/独审）均已实际 ACK，上下文保留。root 仍观察到历史 PID1 shim/git Z，属非 owned；不据此断言机器重启、全机清零或旧 PID 消失等于 actual wait。各执行者须自行重核后续工具及资源基线。
-
-[Owner 工作区 UI 规格](project-owner-workspace-ui-spec-verification.md)完整 STATIC 接受。fixture_recovery 已 ACK 并开始 #1–17/#20–21/#23 共 20 个 web/JS 路径，必要 Node ≤45s 与唯一 Vite outDir 已授；#18–19 Go 仅 scratch、#22 README、真实 browser/PG/webdist 资产窗口未授。summary_verification 已 ACK 独立 scratch 准备，prep02 仅 prepared，无执行结论。恢复前 UI 作者仅只读、无仓库改动/Node 命令，UI 独审仅 ACK、无命令。UI 产品未接受，生产 SPA 发布仍停止。
-
-Audit 的 usage_verification 继续 #1–14 与必要 ≤45s 离线；恢复时 #12–14 已完整草拟，随后安装，format01 缺路径 actual2 工具失败保留，format02 actual0。作者核原 app-run01 终局 actual0/0.885s、directwait=true、双 owned 空和输入同，五生产 hash 同；此为原结果核对，不补写旧 session 的 wait。next_frontier 恢复独审，恢复前只读 actual0、无 probe。wire02 三 schema 修正静态闭合；#6 三个极值 mapping 已修、#8 不变，wire03 待运行/独审。本页不追逐后续微阶段；Audit 产品未接受，#15–16 文档及 native/PG 未授。
-
-配置写入完整 15 路径产品 `cc850b22`／归档 `b91cb89f` 及既有 Summary/Owner 读写/Model 读与凭据/Usage 接受保持。管理员统一会议 Summary initial/update 含首轮标题，Project 不 override 或复制初值，compaction/Execution Summary 不改。production Resolution/Invocations 与 D24 未绑定，ready503、D08–D28/E01 未完、E01 未开始；Object runtime join、OpenAI tools 独立验证、SPA concurrent-publication 三停止不变。本次归档没有业务或资源执行。
+全局产品变化更新台账；任务目标、分支、精确路径、完成/未完、实际检查、失败限制、下一步和依赖恢复写入 `.agent-state/current.md`，本页不追加逐轮进度。主线程早建 `ai/<task>`，每个有意义结果、下级交付、长检查前、暂停或回用户前都自动 checkpoint；有改动时至多5分钟后的下一个安全边界，由下级停止相关写入并交出可恢复片段，主线程批次 wip commit 并 push 到 origin 同名分支，不等验收或提醒。保存不称 PASS，正式验收后的完整结果交付 `main`；具体命令以[团队流程](README.md#自动保存与跨设备恢复)为准。推送失败须明确尚未远端保存，保留本地提交并重试，不 force push 或覆盖他人工作。自动保存不会找回本页列出的缺失源码，也不改变原 FAIL 或停止边界。

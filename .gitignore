@@ -17,6 +17,8 @@ Thumbs.db
 /build/
 /dist/
 /coverage/
+__pycache__/
+*.pyc
 
 # 本地配置与敏感文件；保留示例配置
 .env
@@ -29,7 +31,8 @@ Thumbs.db
 /.playwright-cli/
 /output/playwright/
 
-# 本地 AI 工作流日志、临时计划与验证证据
+# 可重新生成的 AI 日志、临时计划与验证输出
+# 跨设备必需的源码/harness放正式路径；交接状态与必要材料放 .agent-state/ 并提交
 /output/ai/
 # 旧证据目录仅保留已有跟踪文件；新原始证据使用 output/ai/
 /docs/development/agent-team/evidence/

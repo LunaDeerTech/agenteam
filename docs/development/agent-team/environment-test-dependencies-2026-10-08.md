@@ -1,5 +1,7 @@
 # 2026-10-08 测试依赖恢复
 
+> 历史记录：以下“当前”“已恢复”、实例名、临时路径、授权窗口和资源状态均指记录当时，不代表本次环境。继续开发先读[当前台账](tasks.md)与[团队流程](README.md)，只在追溯具体失败或依赖来源时读取本页；不重建旧哈希清单、归档或逐轮审批。
+
 固定依赖已再次恢复。MinIO 二进制 SHA 与现有 fixture 契约精确一致，两个 PostgreSQL 固定 digest 可供本机 Docker 使用，锁定 Node 依赖已补齐。首阶段完整数值见[恢复结果](environment-test-dependencies-2026-10-08-evidence/evidence/recovery-result.json)。本次只执行依赖下载、构建、安装及版本/指纹检查，未启动容器、数据库连接、listener、浏览器会话或产品测试；不构成 Owner 工作区 UI 或其他业务验收，不解除既有三项停止。
 
 本轮从 root 恢复记录所列 `ff396a4e` 基线继续；恢复执行者未运行 Git，实际相关输入以[首次指纹](environment-test-dependencies-2026-10-08-evidence/evidence/source-inputs.raw)、[前端锁指纹](environment-test-dependencies-2026-10-08-evidence/evidence/node-inputs.raw)绑定，并与[结束指纹](environment-test-dependencies-2026-10-08-evidence/evidence/preserved-inputs.raw)、[安装后指纹](environment-test-dependencies-2026-10-08-evidence/evidence/node-inputs-after.raw)逐字节核对一致。[2026-10-07 原恢复档](environment-test-dependencies-2026-10-07.md)及其原始失败保持不变。

@@ -1,10 +1,14 @@
 # D11 Human Task 规划持久化
 
-当前SPEC接受补充（2026-10-08）：root已接受rev1完整独立SPEC，独审`06ebfcb0`为SOURCE_SPEC_STATIC_PASS且无必修，见[永久SPEC验证](../agent-team/d11-task-planning-spec-verification.md)。root另授fixture_recovery仅在自有scratch推进20技术路径，当前先六源；main安装、Go编译/测试、真实资源及README #21仍未授。以下初始阶段条目保留原时点，§1–10工程正文不变；规格接受不代表Task产品或完整D11验收，后续实施和执行窗口由root另授。
+当前状态：**规格完成，实施未恢复**。rev1 已通过完整独立 SPEC 审查（SOURCE_SPEC_STATIC_PASS，无必须修订项），规格交付于 `97439ffd`；见[规格验证记录](../agent-team/d11-task-planning-spec-verification.md)。尚无 Task 产品实现、迁移、编译、真实 PG 或完整 D11 验收结论。Structure 全18路径已在 `a64fb5e7` 交付，前置范围见[Structure 卡](d11-work-structure.md)和[验收记录](../agent-team/d11-work-structure-verification.md)。
 
-- 修订：rev1，完整工程规格候选；尚未独立 SPEC 接受，未授业务实施、安装、编译或资源。唯一规格 writer 为 architecture_worker；业务唯一 writer 及独立验证者由 root 在接受后移交。
-- 稳定前置：Milestone/Sprint Structure 全18路径已按明确版本组合接受并交付 `a64fb5e783373255a4b0ae7936e5685f25f458c6`，root 已核 origin/main 同；见[永久验收及全18补充](../agent-team/d11-work-structure-verification.md)。不是上游模块整体完成或本卡已经通过。
-- root 唯一预留 `db/migrations/00022_task_planning.sql`。本卡只冻结该号码和内容，不授权写迁移源码，不修改旧迁移。
+恢复核对基线为 `e55ad7d1`：§7 的15个新增技术文件（含 `00022_task_planning.sql`）尚不存在，六个共享文件已存在不表示完成了 Task 修改。历史20技术路径 scratch 实施未提交；旧 `/workspace/scratch/d11-task-planning-backend-preparation01`、规格 scratch 与独立验证 scratch 已不可用，不将旧实例或候选视为仍在运行/可接手。独立 A/B 仅有计划，没有实际运行结论。
+
+下一步：以本规格和现有 Structure 实现为输入，由负责人重新安排 §7 的20技术路径实现及必要 README 更新；先核对当前共享文件差异、迁移 `00022` 的唯一所有权和隔离执行预算，再按 §8 完成自测与独立验证。既有 scratch 缺失不是产品实现已完成，也不要求恢复旧逐轮审批或证据包。
+
+协作、实例配置、资源协调与 Git 交付统一遵循[团队流程](../agent-team/README.md)：主线程统筹跨任务边界，负责人自主拆分、集成与安排独立验证。稳定输入使用 Git 基线、限定 diff 与停止写入状态，原始日志放 `output/ai/`，必要文档随实现同次交付；旧记录中的逐轮 root 批准、README 最后另授和永久归档步骤不再作为现行流程。真实资源退休、未决产品边界及原失败事实继续有效。
+
+- 迁移：本卡唯一预留 `db/migrations/00022_task_planning.sql`，不修改旧迁移。
 - 唯一结果：Human Owner 在真实 Project/Sprint 中创建未指派 backlog Task，持久读/筛选分页、修改普通规划字段及同组顺序，保存必要 TaskEvent，并提供同 caller Tx 的真实 membership。不是完整 Task CRUD、状态机、指派、执行、删除或完整 D11。
 
 ## 1. 已定依据与真实依赖
@@ -18,10 +22,10 @@
 | [Timeline §4–8/15–18](../../architecture/project-work-management/task-event-timeline.md) | task_created/fields_updated、Human actor、operation、append-only、同 Tx | 不提供 comment、完整 Timeline/context、运行日志投影 |
 | [Sprint §17–18](../../architecture/project-work-management/sprint-lifecycle.md) | planned/current 可创建；completed membership 冻结 | 不实现 Start/Complete/rollover/DeleteSprint，不把 membership bool 当完整 Task 清单 |
 | [D01 Foundation](d01-contracts/foundation.md)、[Work 端口](d01-contracts/domain-lifecycle.md#work-命令与占用端口)、[D03](d03-postgresql-foundation.md) | typed ID/Version/CommandMeta/Fault、同 Store 活 Tx、全锁 union、强一致 membership/排序 | 不新增锁类别、SQL 驱动、泛型 UnitOfWork 或 fake occupancy |
-| [Structure 卡](d11-work-structure.md)及其全18永久验收 | `work.NewAuthority/NewReader`、真实 `ReadPlacementInTx`、rank 纯算法、U1取消边界、两旧事件/Project gate | 本卡新增 Task canonical、Task producer 和 membership；旧接口不是 Task 已绑定证据 |
+| [Structure 卡](d11-work-structure.md)及其全18验收记录 | `work.NewAuthority/NewReader`、真实 `ReadPlacementInTx`、rank 纯算法、U1取消边界、两旧事件/Project gate | 本卡新增 Task canonical、Task producer 和 membership；旧接口不是 Task 已绑定证据 |
 | [D08 Owner](d08-project-owner.md)、[D06 Outbox](d06-transactional-outbox.md#d06最终采纳与后续绑定) | 当前 Human Session/Owner/Project Read/Mutate、Account Activity、typed PrepareAppend/AppendEventInTx | 只消费已有真能力；测试持久 Account/Session 与 Skill receipt 不冒正式 Login/生产 Skills/创建 HTTP |
 
-基线候选 rev02 `6b5dd72e`（单句 raw512 修正记录 `c6298c80`）只作方向来源；本卡以下内容冻结全部待定工程项，不能继续把“建议”当实现自由选项。Structure 的原接受组合及 B 外部工具 terminal 缺口保留，不复活 Object runtime join、OpenAI tools 独验、SPA 并发发布或 Image/Jina 停止线。
+早期候选只作历史方向来源；本卡以下内容冻结工程项，不能继续把“建议”当实现自由选项。Structure 的原接受组合及 B 外部工具 terminal 缺口保留，不复活 Object runtime join、OpenAI tools 独验、SPA 并发发布或 Image/Jina 停止线。
 
 ## 2. 类型、presence、安全编码与规模
 
@@ -207,7 +211,7 @@ TaskEvent record闭集：`id,project_id,task_id,task_version,type,actor,operatio
 | type | payload（所有键必有，null只限下述位置） |
 | --- | --- |
 | task_created | `{initial_state:"backlog",milestone_id,sprint_id,type:TaskType,priority:TaskPriority}`，不复制title/description/plan或执行信息 |
-| fields_updated | `{changed_fields:[TaskChangedField],type_change:null|{from:TaskType,to:TaskType},priority_change:null|{from:TaskPriority,to:TaskPriority},position:null|TaskPosition}` |
+| fields_updated | `{changed_fields:[TaskChangedField],type_change:null\|{from:TaskType,to:TaskType},priority_change:null\|{from:TaskPriority,to:TaskPriority},position:null\|TaskPosition}` |
 
 TaskChangedField闭集 `description,manual_rank,plan,priority,title,type`，数组严格按上述词法序升序、无重复/非空。普通Update仅含值真正变化的title/description/type/priority/plan，不把presence相同值算变化；type_change恰在type变化时存在且from≠to，priority同理。无priority变化的普通Update position=null；priority改变position为新组最终安全位置。Reorder的TaskEvent仅changed_fields=[manual_rank]、两个change=null、position非null；不记raw rank值。Plan按普通fields_updated，不造plan_updated事件。
 
@@ -235,7 +239,7 @@ CurrentAccess允许同义历史completed但只验不可变command/event计划，
 
 ## 7. 精确写域、兼容与交接
 
-下表是本规格拟实施的**21路径闭集（20技术＋README末件）**；当前只写本卡，不授下表业务写入。每项由root指定的同一业务writer负责，独审实例不得参与实现。必要新增原因已对应上文，不为将来模块预铺文件。
+下表是本规格的**21路径闭集（20技术＋必要 README）**。负责人安排文件唯一所有者与局部集成；独立验证者不得参与实现。必要新增原因已对应上文，不为将来模块预铺文件。
 
 | # | 路径 | 本卡唯一责任 |
 | --- | --- | --- |
@@ -259,23 +263,23 @@ CurrentAccess允许同义历史completed但只验不可变command/event计划，
 | 18 | `tests/work/task_concurrency_test.go` | rank/并发/membership/Unknown真实断言 |
 | 19 | `tests/work/fixture_test.go` | 只将newDatabase的schema-wide硬5表改为核原5个命名表各存在；不得吞migration error或改真实authority/COMMIT helpers |
 | 20 | `tests/work/structure_test.go` | 仅TestWorkStructureMigration正常分支显式through00021；保旧fresh/populated00020→21、恰五表、DDL失败/约束全部断言 |
-| 21 | `docs/development/backend/README.md` | 技术接受后root单独移交文档末件，不先写完成 |
+| 21 | `docs/development/backend/README.md` | 随实现同步实际能力、验收结果与未绑定边界，同次交付 |
 
 #19 仍先实际migrate最新schema再核原五表，不把5改成“≥5”就放弃命名身份；原错误不吞。#20历史迁移测试准确锁定其要证明的00021，不能按最大migration变化偷改旧事实；Task新Migration必须独验当前fresh/populated00021→22并证明旧表数据/约束保持。其余Structure真实回归使用current最新migration，因此不能只跑历史prefix来回避00022兼容。
 
 新的Task fixture必须在同一catalog Seal前装Project＋旧两Work＋新Task事件、同一真实Work Authority producer；旧assemble仍只装原两Work也应可工作，不为它强填Task依赖。可在新task_fixture中按已验组合重建必要小装配，复用真实Account/Project/持久test-only Skill helpers；不改旧assemble/TestMain/脚本或引入“已停Object”的假实现。
 
-没有 Structure contract/service/reader/rank/repository、project/events.go、D01设计、HTTP/OpenAPI/前端/App、go.mod/sum、外域SQL、生产Audit/handler、公共测试支持脚本的隐含写权。共享Foundation/Project/migrations/Work以及tests/work编译集合会改变Model UI固定输入；即使目录不同也不得在其资源/Go窗口安装。本卡可先独立scratch候选，main安装/闭包必要差量重绑/Go/cache/资源由root串行移交。超表路径须先给必要原因/最小替代并由root明确调整，不能自行加通用层。
+没有 Structure contract/service/reader/rank/repository、project/events.go、D01设计、HTTP/OpenAPI/前端/App、go.mod/sum、外域SQL、生产Audit/handler、公共测试支持脚本的隐含写权。共享 Foundation/Project/migrations/Work 和 tests/work 编译集合可能影响其它任务；负责人核对实际活动输入、Go/cache 与资源所有权，冲突时串行受影响部分。超表路径先给必要原因与最小替代，公共契约或跨任务范围变化按团队流程升级，不能自行加通用层。
 
 ## 8. 验收门槛与预算
 
-实施/验收分别遵守[Go技能](../../../.agents/skills/agenteam-go-development/SKILL.md)、[verification技能](../../../.agents/skills/agenteam-verification/SKILL.md)及[团队规则](../agent-team/README.md)。本规格无动态结果；编译、发现、body、独立probe、资源退休分别记账，no-tests/Skip不是PASS，原失败和未到达分支不可覆盖。
+实施/验收分别遵守[Go技能](../../../.agents/skills/agenteam-go-development/SKILL.md)、[verification技能](../../../.agents/skills/agenteam-verification/SKILL.md)及[团队规则](../agent-team/README.md)。本卡当前无动态结果；编译、发现、body、独立probe、资源退休分别记账，no-tests/Skip不是PASS，原失败和未到达分支不可覆盖。
 
 ### 8.1 静态与纯/离线
 
 逐项审21路径及旧两分派差量；纯测试覆盖全部字段边界/孤立surrogate/大小写/重复key/null/presence、两个同时满额大文本的最坏escaping与lookup cap、未知state/type/priority/typedID、两种assignee空值语义、safe fmt/JSON cause、三个摘要每字段变化与Session/Request排除、Clone、防旧rank覆盖、query排序/筛选digest、typed schema闭集、constructor nil/typednil/Store绑定、计划issuer/revision/ctx/Stop真join。新六Fault码不能被Safe静默降为INTERNAL_ERROR，旧码行为仍需实际回归。
 
-经root单授的每个离线命令≤45s，`GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off`，真实Wait/child/watchdog/owned双空；source/工具/配置输入固定。适用 `go test -race -count=1 ./internal/central/foundation ./internal/central/work/...`、`go vet ./internal/central/foundation ./internal/central/work/... ./internal/central/project`，以及下列旧Project pure精确selector；integration只race-c编译tests/work，再在generated testmain/init闭包确认后root另授精确-list。可复用已验helper本体，selector扩展与Task/旧输入图必须单独封；不以旧binary/hash冒当前已编译。
+每个离线命令≤45s，`GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off`，真实Wait/child/watchdog/owned双空；以 Git 基线、限定差异及必要工具/配置确定稳定输入。适用 `go test -race -count=1 ./internal/central/foundation ./internal/central/work/...`、`go vet ./internal/central/foundation ./internal/central/work/... ./internal/central/project`，以及下列旧Project pure精确selector；integration只race-c编译tests/work，在确认 generated testmain/init 可安全执行后精确 -list。已验 helper 及检查仅在相关输入和依赖未变时复用；selector 扩展、Task 新源或迁移变化须核对影响，旧 binary 不证明当前源已编译。
 
 旧Project pure selector：`^(TestOwnerAuthorityOrdersLockSessionAndFacts|TestForeignOwnerAndUninitializedRowsAreNotGrants|TestMissingOrdinaryProjectDoesNotExposeTombstone|TestEventFactUsesTypedCanonicalPayload|TestAppendPlanBindsCurrentSession|TestModelProjectEventUsesSameCompletePlanForReadAndMutate|TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose)$`。Foundation旧pure全包和Work旧pure全包是现共享入口回归；不调用整仓脚本。
 
@@ -308,13 +312,13 @@ integration标签、无t.Parallel，每次只一个精确top，全部矩阵不�
 - A（`TestTaskPlanningIndependentAuthorityMembership`）：真实撤权/归档Tx持门槛，当前Execute与历史Lookup/Get的实际waiter，另一User/Project同key不混；membership持Schedule后create真实等待与反向赢家；同Tx重新观察及完成后事实，不用“fake空成员”。planned/completed归档边界与Session更新历史分别验。
 - B（`TestTaskPlanningIndependentCommitRank`）：另一种四对象密集rank和priority源/目标组几何，真实final COMMIT hold期间取消原Lookup、另一key rank/priority竞争；分别commit/rollback后核原writer因果、原receipt、两组全部spectator字段/代数、Project query代数、TaskEvent/Outbox恰一次及no-op/historical Activity差别。原更新大文本兼rank变化至少一次，防只验证作者的小文本向量。
 
-两probe仅scratch单虚拟tests/work目标，经root单授source/overlay/离线/精确发现/资源，各层STOP后才消费。最终验收按固定源版本和原件组合记录，不将作者selfcheck或本规格作者的STATIC自查称独立验收。
+两 probe 使用隔离 scratch 与单虚拟 tests/work 目标，由验证负责人安排 source/overlay、离线检查、精确发现和既定资源预算；审查与集成前停止相关写入。最终验收记录实际输入及结果，不将作者 selfcheck 或本规格作者的 STATIC 自查称独立验收。
 
 ### 8.4 实际运行与退休预算
 
-沿已验Structure **PG-only两ID** fixture基准，冻结一个network＋一个container及其精确端口/目录/child/COMMIT proxy/listener清单；不为凑旧七ID基准启动MinIO/browser/Node，扩资源需root另授。每top120s含setup/body/cleanup，执行105s＋cleanup reserve15s，Go package hard timeout≤6m；启动前fresh可用磁盘≥5GiB，**不是内存上限**。owned/resource cleanup后补充host TCP delta尾部两次清空观察≤75s，不是整个运行总暴露窗口或全短连接所有权证明。
+沿已验Structure **PG-only两ID** fixture基准，冻结一个network＋一个container及其精确端口/目录/child/COMMIT proxy/listener清单；不为凑旧七ID基准启动MinIO/browser/Node，扩资源须先确认跨任务预算与所有权。每top120s含setup/body/cleanup，执行105s＋cleanup reserve15s，Go package hard timeout≤6m；启动前fresh可用磁盘≥5GiB，**不是内存上限**。owned/resource cleanup后补充host TCP delta尾部两次清空观察≤75s，不是整个运行总暴露窗口或全短连接所有权证明。
 
-launcher→driver→helper→Go每层actual Wait，reader/handler/monitor/watchdog/goroutine真实join；固定两ID两次exact不存在、owned/runtime双空、输入前后一致、历史ID不重用、失败disposition不改写。non-owned daemon shim只观察、不冒wait；工具外层terminal与落盘监督器Wait单列，环境通知不补造exit。冻结false/prepared不授资源，root必须另给每轮精确grant。卡片/source/static/compile/list都不能替代真正body或退休。
+launcher→driver→helper→Go每层actual Wait，reader/handler/monitor/watchdog/goroutine真实join；固定两ID两次exact不存在、owned/runtime双空、输入前后一致、历史ID不重用、失败disposition不改写。non-owned daemon shim只观察、不冒wait；工具外层terminal与落盘监督器Wait单列，环境通知不补造exit。计划或 prepared 状态不表示资源已运行；运行前确认隔离资源、唯一所有权与执行预算。卡片/source/static/compile/list都不能替代真正body或退休。
 
 ## 9. 后继未绑定责任与完成门槛
 
@@ -327,43 +331,14 @@ launcher→driver→helper→Go每层actual Wait，reader/handler/monitor/watchd
 | Work清理 | 没有Project lifecycle participant，整个Work数据/命令正文/事件与引用的合法停止清理后继负责，不造empty Inspect/no-op Cleanup |
 | 完整Timeline/context/Tool/HTTP/UI/root | 本卡仅必要TaskEvent持久与库口；无comments、执行context/运行日志、前端或生产Task服务/consumer；ready503不变，D11/平台/E01未完成 |
 
-完成须精确20技术源全文独审、必需离线、七新＋八旧实际、独立A/B和所有实际退休/失败处置通过；再由root移交README #21，独核文档与真实范围，最终固定21路径版本组合及永久证据。root负责三协调页/计划后续状态/Git，本文行政header更新不提前标本Task卡接受。发现未冻公共接缝或实施无法满足cap/锁/原子性须先交具体差量，不改变用户业务规则以“做出可运行”代替。
+完成须20技术源全文独审、必需离线检查、七新＋八旧实际 PG、独立 A/B 和所有实际退休/失败处置通过；README 同步实际范围并随实现交付。输入及相关依赖未变的有效检查可复用，不因整理文档重跑产品测试。主线程负责最终 Git 交付，本卡规格接受不提前标为 Task 产品接受。发现公共接缝缺口，或实施无法满足 cap/锁/原子性，须报告具体差量，不改变用户业务规则以“做出可运行”代替。
 
 ## 10. 来源固定、自查与移交
 
-本规格只作工程冻结；来源采用当前已接受Structure公共实现与必要正式规则的精确指纹。下表固定必要来源；不是Go依赖图或全部上游已验声明。本文的设计自查不是独立SPEC审查，待root和未参与实现者完整核后才可给唯一writer实施授权。
+本规格的业务基线、依赖与接口以 §1–9 为准。当前恢复使用 `e55ad7d1` 与限定路径差异；历史源指纹和行政卡原文可从该提交的文件历史及[既有规格验证](../agent-team/d11-task-planning-spec-verification.md)恢复，不再复制来源 SHA 表或要求整图重建。历史验收中的哈希仅标识当时输入，不代表当前全部依赖已验收。
 
-读取基线为root报告已交付的 `a64fb5e783373255a4b0ae7936e5685f25f458c6`。本作者未运行Git；以下对必要当前文件做静态字节指纹，与已验源身份核对。本次给Structure卡增加的当前接受header可以逐字移除恢复下表原812490b6，不改变该规格业务正文。
+按需核对的实现来源为 Structure 的 `contract/structure.go`、`service.go`、`reader.go`、`rank.go`、`events.go`，Project 的 `work_event_authority.go`，以及 Foundation/Outbox 的相关公共接口与 `00021` 迁移；产品依据见 §1。共享源变化按实际影响检查，不自动扩大写域。
 
-| 固定来源（仓库相对路径） | bytes | SHA-256 |
-| --- | ---: | --- |
-| `docs/architecture/project-work-management/task-domain-model.md` | 14768 | `6cec22a2d2022613c518dac5054c76c4151e6a2272b9a815206c183d5c376624` |
-| `docs/architecture/project-work-management/task-state-machine.md` | 13518 | `33a78a2d321c54e26181c11461967fc1215051ac4d4a78f9af03c97c7a0366c8` |
-| `docs/architecture/project-work-management/task-event-timeline.md` | 10133 | `c6ed1e30e4fab1b203096542e30677a470dfe062f0f06c663ad1445a3ef372a8` |
-| `docs/architecture/project-work-management/sprint-lifecycle.md` | 15564 | `8286667a16cbdebef8e26a12c853d20e6d8f578fbd3353748d70151c3ce68e31` |
-| `docs/development/work-items/d01-contracts/foundation.md` | 17854 | `8761c3d2871c5a8121b31de978fd96530466eafd3cae9a2a3c1a5267827edc60` |
-| `docs/development/work-items/d01-contracts/domain-lifecycle.md` | 19526 | `0119faf85081fa60719f10a73a5483343021bd34f26da1be06af79fce1317c71` |
-| `docs/development/work-items/d11-work-structure.md` | 60230 | `812490b67b956469e274eecfde851eb084e47648fe0e3944eb5668fa8961c27f` |
-| `docs/development/agent-team/d11-work-structure-verification.md` | 12595 | `9628cd5ea675adc8777440842055b4996a9ae162ad120a502fafa8a5ac37707a` |
-| `internal/central/work/contract/structure.go` | 30084 | `485ddab3e8f53313ff1d886eff3c815c88a1f5b469d0fbd508801bbef81d8d39` |
-| `internal/central/work/contract/events.go` | 10590 | `3db5751b8fa349755c6fa80b385f48829a5ff7adf5186847278813c635490ae9` |
-| `internal/central/work/service.go` | 3559 | `244d368c4eceec23506f28356144a1c327ddf059d09352225960f934a3c3ae3b` |
-| `internal/central/work/reader.go` | 11714 | `e33e75cc10fd73eb718cf7b856b776904f24c2b797bddbacf3275940bb5191ad` |
-| `internal/central/work/structure.go` | 33511 | `5e8202d24084f2360687c8e898ab718aa5505a3d8f439abf090b97036f3eefdf` |
-| `internal/central/work/repository.go` | 24060 | `9a19e48423883cd8cc85015e5ace1ba0b1a890ebc1fb2bc14d84f156383afbf2` |
-| `internal/central/work/rank.go` | 4259 | `dab61abaff9e0309cc59ac33f52432c5480a344fd6013ee14269a68bacafcce8` |
-| `internal/central/work/events.go` | 10263 | `b98bb27b72ba9b483c6d4428c06ce3bb9aa7b6064b3386f1984c9bb308a1f3d5` |
-| `internal/central/project/work_event_authority.go` | 3296 | `9317a994514d12be5e8f1c10ede34dc82da65453c7f23d82b73d09b13aa83b79` |
-| `internal/central/project/events.go` | 12568 | `dad67f6379891cd75cd2ba3122d269f62fe47a1933cde9d96d80c989e0f836ef` |
-| `internal/central/foundation/fault.go` | 5460 | `94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de` |
-| `internal/central/foundation/lock.go` | 5196 | `5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384` |
-| `internal/central/foundation/page.go` | 1860 | `3be782a4c61729a5a2b13e195e5653ad1070e883765035b5cbb1f4f9e85c3c52` |
-| `internal/central/cursor/cursor.go` | 6023 | `c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f` |
-| `internal/central/outbox/contract/authority.go` | 11951 | `1c78ac9f0e8c9ff996e9b9048f65d1f8d7bc005989d1021b2e5e13c2f721f5a0` |
-| `db/migrations/00021_work_structure.sql` | 5127 | `a7c541546af5bf7892abeebee1a46089683ebea7a81e5951403752ee50d392ad` |
-| `tests/work/fixture_test.go` | 37961 | `fa437258e76de68065cf90ccb234d34e20d78b4a0fa0430c6e5e45b9a424585c` |
-| `tests/work/structure_test.go` | 39046 | `86c051609e14294a9989d264ecbcb41e9eca3024e6d380c015ee34b0b42a8dfa` |
+现有接口核定：`work.NewAuthority(Store,project.ProjectAuthority)`、`work.NewReader(Store,*Authority,cursor.Keyring)`；`Reader.ReadPlacementInTx(context.Context,foundation.Tx,identity.Actor,contract.ProjectID,contract.SprintID) (contract.Placement,error)`。Store 沿现有 WithinTx/InTx/AcquireAll/RequireHeldLocks，Activity 仍 TouchActivityInTx；不扩大外域接口。Structure18 已接受不等于 Task 依赖中的 Agent/Execution/Dispatch 已绑定。
 
-现有接口核定：`work.NewAuthority(Store,project.ProjectAuthority)`、`work.NewReader(Store,*Authority,cursor.Keyring)`；`Reader.ReadPlacementInTx(context.Context,foundation.Tx,identity.Actor,contract.ProjectID,contract.SprintID) (contract.Placement,error)`。Store沿现有WithinTx/InTx/AcquireAll/RequireHeldLocks，Activity仍TouchActivityInTx；不扩大外域接口。根确认当前全部Structure18已接受不等于Task依赖中的Agent/Execution/Dispatch已绑定。
-
-作者静态自查：21拟实施路径为20技术＋README；三个命令＋Lookup、两个当前读口＋同Tx membership；七新/八旧PG＋两个不同构造独验；raw512前置、独立Page cap、同Tx TaskEvent/Outbox、历史与新写门禁、真实Unknown/U1、当前五表与历史through21兼容均在本文自含。来源及两处行政header差量另有停止原件；未执行Go/Node/编译/测试/资源，不把作者自查替代完整独立SPEC接受。
+既有独立 SPEC 结论覆盖21拟实施路径、三个命令＋Lookup、两个当前读口＋同 Tx membership、七新/八旧 PG 与两个不同构造独验的设计要求；raw512 前置、独立 Page cap、同 Tx TaskEvent/Outbox、历史与新写门禁、真实 Unknown/U1、当前五表与历史 through21 兼容仍为实施门槛。规格审查和本次文档自查均不产生编译、测试或资源执行结论。

@@ -1,12 +1,14 @@
 # D11 Work Milestone / Sprint 结构库
 
-当前接受补充（2026-10-08）：本卡全部18路径已按固定版本组合获得root正式接受并交付 `a64fb5e783373255a4b0ae7936e5685f25f458c6`，root已核origin/main一致；见[永久验收及全18补充](../agent-team/d11-work-structure-verification.md)。原失败/U1修复、各轮源版本、独立B外部工具terminal缺口与原监督器Wait/root当前清零证据分别保留；不是完整D11或生产Work。以下SPEC阶段及初始授权叙述保留原时点，当前接受状态以本补充和永久验收为准。
+当前状态：本卡全部18路径已按明确版本组合接受并在 `a64fb5e7` 交付，包含技术实现、`00021` 迁移和必要 README；见[验收记录](../agent-team/d11-work-structure-verification.md)。规格 rev1＋D1 的独立审查见[规格验证记录](../agent-team/d11-work-structure-spec-verification.md)。恢复基线 `e55ad7d1` 中这18条路径均存在，当前源码仍提供六个结构命令、Reader/placement 与两类 Work 事件门禁。
 
-- 修订：rev1＋D1；阶段：完整独立 SPEC 静审及唯一 D1 差量/最终组合已通过，root 已接受。见[永久 SPEC 验证记录](../agent-team/d11-work-structure-spec-verification.md)。这是规格接受，不是产品实现、编译或真实 PG 验收通过。
-- 来源锚：root 恢复后确认 `main@0d06fd69`；技术依据另按 §10 的必要文件 SHA 固定，不声称整个 HEAD 或上游模块已经验收。
-- 唯一规格 writer：architecture_worker；唯一业务作者：fixture_recovery。root 已移交 #1–17 仅在作者 scratch 形成完整实施候选，尚未授权 main 安装、Go/Node 或资源执行；#18 README 末件未授。产品独审由 root 指定未参与实现的实例；backend_worker 继续 Model Settings UI 两个 Go harness，不共享本卡写域。
-- root 仅为本卡预留全局迁移 `db/migrations/00021_work_structure.sql`；当前连续迁移到 00020。预留不是已实施，不修改旧迁移。
-- 交付：Human Owner 的真实 Milestone/Sprint 层级、读/分页、创建、title/description 更新、人工重排、版本、幂等/Unknown、typed Outbox 事件及 Project 精确事件门禁。不是完整 CRUD、Task、Sprint lifecycle、D11 整体或生产 Work。
+验收事实保持原边界：接受的是原五新轮与 U1 修复后结果的版本组合，不是当前 HEAD 一次全套测试。原 `workunknown01` 为11 RUN / 8 PASS / 3 FAIL；U1 修复后的真实 Unknown 轮通过。独立 B 外部工具 session20487 的 terminal/exit 未取得；监督器实际 Wait、资源退休及后续有限 current-clear 不能补写该工具终态。完整失败、修复和结果见既有验收记录，本次不重跑产品测试。
+
+下一步：本结构子能力可供[Task 规划卡](d11-task-planning.md)消费；Task canonical/membership、Sprint lifecycle 等后继仍按 §7 真实绑定。本卡完成不表示完整 D11 或生产 Work 已完成。
+
+协作、实例配置、资源协调与 Git 交付统一遵循[团队流程](../agent-team/README.md)：主线程统筹跨任务边界，负责人自主拆分、集成与安排独立验证。稳定输入使用 Git 基线、限定 diff 与停止写入状态，原始日志放 `output/ai/`，必要文档随实现同次交付；旧逐轮批准、执行者名单、README 最后另授和永久归档要求不再驱动新任务。真实资源退休和未决产品边界继续有效。
+
+交付范围：Human Owner 的真实 Milestone/Sprint 层级、读/分页、创建、title/description 更新、人工重排、版本、幂等/Unknown、typed Outbox 事件及 Project 精确事件门禁。不是完整 CRUD、Task、Sprint lifecycle、D11 整体或生产 Work。
 
 ## 1. 依据、已验依赖与范围
 
@@ -15,11 +17,11 @@
 | 直接依赖 | 正式接受依据 | 本卡实际消费与边界 |
 | --- | --- | --- |
 | D03 Store、活 Tx、锁、迁移 | [D03 已完成](d03-postgresql-foundation.md)及[基础契约](d01-contracts/foundation.md) | 同一个 Store 的 WithinTx/InTx/AcquireAll/RequireHeldLocks；不是新数据库入口 |
-| 当前 Human Session、Owner、Project gate | [D08 B01/B02](d08-project-owner.md)：B01 `199554b`，B02 `6319d03`，B02 最终报告 SHA `9ab034850a899ec58a9099e09f5b98f8d1c412bfc9172ed736f32e81c4e4f228` | 真实 RequireOwnerInTx；当前 Session/Owner/initialized/lifecycle 逐次校验；不宣称 D08/D10 全完成 |
-| D06 typed Event/同 Tx Outbox | [D06 最终接受](d06-transactional-outbox.md#d06最终采纳与后续绑定)，报告 SHA `3a9d1b7c1df941086d56ce9bcb00411007ba8c3f974c25e099fb9857f8998626` | PrepareAppend/AppendEventInTx、opaque issuer、CurrentAccess/NewFact；不新增 dispatcher/handler |
+| 当前 Human Session、Owner、Project gate | [D08 B01/B02](d08-project-owner.md) | 真实 RequireOwnerInTx；当前 Session/Owner/initialized/lifecycle 逐次校验；不宣称 D08/D10 全完成 |
+| D06 typed Event/同 Tx Outbox | [D06 最终接受](d06-transactional-outbox.md#d06最终采纳与后续绑定) | PrepareAppend/AppendEventInTx、opaque issuer、CurrentAccess/NewFact；不新增 dispatcher/handler |
 | 分页及安全标量 | [D01 foundation](d01-contracts/foundation.md)，现有 foundation/cursor | UUIDv7、Version、CommandMeta、canonical-v1、HMAC cursor；签名不是授权 |
 | 正向初始化 fixture | D08 B02 明示隔离 initializer 与真实 Project Create/confirmation 已验 | 测试专属持久 Account/Session 输入经真实 Authority 校验，Project 服务＋持久 test-only Skill receipt；不冒正式登录、真实 Skills、创建 HTTP 或 Object runtime |
-| Work 事实与 Project 事件准入 | 当前不存在 Work canonical；Project events.go 仅 Project/Model | **本卡新增并真实验收**：Work canonical/command producer 与精确 Project Work gate，不能把现有接口声明视为已绑定 |
+| Work 事实与 Project 事件准入 | 本卡前置尚无 Work canonical/Project Work gate；本卡交付后已存在 | **本卡新增并真实验收**：Work canonical/command producer 与精确 Project Work gate，不能把现有接口声明视为已绑定 |
 
 D11 整体依赖 D10 的 Agent/Skill 能力仍未齐。本卡只消费已验 Human 子能力；没有 assignee、Agent Tool、Execution、SDK/模型调用依赖。三停止（Object runtime join repair、OpenAI tools 独立验收、SPA concurrent publication）、Jina 与 Image 来源的停止状态不在本卡恢复范围。
 
@@ -243,36 +245,36 @@ created 的 changed_fields 恰 `[description,manual_rank,title]`；updated 为�
 
 Project gate 的 issuer 为该 Project Authority 实例自有 projectIssuer，purpose=`project.work-structure.append-v1`；binding 固定完整 ActorDetails/Event Summary/Project/两阶段 `[CurrentAccess,NewFact]` 与规范 User SH＋Project SH 锁。Discover 只为 CurrentAccess 生成计划；Validate 两阶段复用同计划，先 same Store/活 Tx/完整持锁与 exact issuer/binding/opaque/locks，CurrentAccess 调 RequireOwnerInTx(Read)，NewFact 调 Mutate。它只证明 Project gate，Work command/canonical 另由 producer 证明，不读取 Work 私表。
 
-保留 Project/Model/Lifecycle 原分支和错误门禁；新代码可 import Work contract 常量但不 import Work 实现，防依赖环。Outbox、identity、foundation、Audit 公共接口均不需要改；若实现发现不能使用现有签名，先交具体原因和精确路径给 root，不自行增契约。
+保留 Project/Model/Lifecycle 原分支和错误门禁；新代码可 import Work contract 常量但不 import Work 实现，防依赖环。Outbox、identity、foundation、Audit 公共接口均不需要改；若实现发现不能使用现有签名，先向负责人说明具体原因和路径，公共契约变化按团队流程升级。
 
 ## 6. 精确产品写域与共享交接
 
-下表为已接受 SPEC 的 **18 路径闭集（17 技术＋README 末件）**。root 已移交 fixture_recovery 的当前范围仅为 #1–17 的 scratch 完整实施候选；main 安装、Go/Node/资源和 #18 README 仍未授。规格作者没有产品写权；原候选 18 路径保持，未扩大接口或文件范围。
+下表为已交付的 **18 路径闭集（17技术＋必要 README）**，说明本卡实现责任。后续改动由负责人安排文件唯一所有者、局部集成与独立验证；此表不扩大接口或文件范围。
 
-| # | 路径 | 唯一业务作者/责任 |
+| # | 路径 | 实现责任 |
 | --- | --- | --- |
-| 1 | `internal/central/work/contract/structure.go` | fixture_recovery：DTO、pure validation/digest/接口 |
-| 2 | `internal/central/work/contract/structure_test.go` | 同上：类型/错误/编码/摘要 |
-| 3 | `internal/central/work/contract/events.go` | 同上：两个 typed schema |
-| 4 | `internal/central/work/contract/events_test.go` | 同上：payload/闭集/安全编码 |
-| 5 | `internal/central/work/service.go` | 同上：构造、依赖、调用 Stop/Drain |
-| 6 | `internal/central/work/structure.go` | 同上：六命令/Lookup/Unknown |
-| 7 | `internal/central/work/rank.go` | 同上：rank/重排/内部 rebalance |
-| 8 | `internal/central/work/reader.go` | 同上：四读/placement/cursor |
-| 9 | `internal/central/work/repository.go` | 同上：本域持久化、Store、闭集错误辅助 |
-| 10 | `internal/central/work/events.go` | 同上：真实 Work producer |
-| 11 | `internal/central/work/structure_test.go` | 同上：rank/plan/停止/公共边界 pure tests；可通过公开 Project gate 做必要无资源组合 |
-| 12 | `internal/central/project/work_event_authority.go` | 同上：新精确 Work gate |
-| 13 | `internal/central/project/events.go` | 同上：仅两个 dispatcher 分支，原 Project/Model/Lifecycle 保持 |
-| 14 | `db/migrations/00021_work_structure.sql` | 同上：root 唯一预留迁移，五表/局部约束 |
-| 15 | `tests/work/fixture_test.go` | 同上：integration 标签，真实 Authority/PG/Outbox 组合及有界真实 PG commit proxy；私有辅助不另改共享 helper |
-| 16 | `tests/work/structure_test.go` | 同上：migration/persistence/authority/atomicity integration |
-| 17 | `tests/work/structure_concurrency_test.go` | 同上：并发/rank/Unknown integration |
-| 18 | `docs/development/backend/README.md` | 技术接受后 root 单独移交末件 |
+| 1 | `internal/central/work/contract/structure.go` | DTO、pure validation/digest/接口 |
+| 2 | `internal/central/work/contract/structure_test.go` | 类型/错误/编码/摘要 |
+| 3 | `internal/central/work/contract/events.go` | 两个 typed schema |
+| 4 | `internal/central/work/contract/events_test.go` | payload/闭集/安全编码 |
+| 5 | `internal/central/work/service.go` | 构造、依赖、调用 Stop/Drain |
+| 6 | `internal/central/work/structure.go` | 六命令/Lookup/Unknown |
+| 7 | `internal/central/work/rank.go` | rank/重排/内部 rebalance |
+| 8 | `internal/central/work/reader.go` | 四读/placement/cursor |
+| 9 | `internal/central/work/repository.go` | 本域持久化、Store、闭集错误辅助 |
+| 10 | `internal/central/work/events.go` | 真实 Work producer |
+| 11 | `internal/central/work/structure_test.go` | rank/plan/停止/公共边界 pure tests；可通过公开 Project gate 做必要无资源组合 |
+| 12 | `internal/central/project/work_event_authority.go` | 新精确 Work gate |
+| 13 | `internal/central/project/events.go` | 仅两个 dispatcher 分支，原 Project/Model/Lifecycle 保持 |
+| 14 | `db/migrations/00021_work_structure.sql` | 本卡唯一迁移，五表/局部约束 |
+| 15 | `tests/work/fixture_test.go` | integration 标签，真实 Authority/PG/Outbox 组合及有界真实 PG commit proxy；私有辅助不另改共享 helper |
+| 16 | `tests/work/structure_test.go` | migration/persistence/authority/atomicity integration |
+| 17 | `tests/work/structure_concurrency_test.go` | 并发/rank/Unknown integration |
+| 18 | `docs/development/backend/README.md` | 同步实际能力、验收结果与未绑定边界，已随实现交付 |
 
-没有 HTTP/OpenAPI/前端/生产 root、App、Work Audit、全局锁枚举、公共脚本、go.mod/sum、旧测试/helper、Project pointer writer 的隐含授权。新增 probe 可在独验 scratch 与单虚拟 test target overlay 中经 root 单授，不能直接落未授权仓库路径。
+没有 HTTP/OpenAPI/前端/生产 root、App、Work Audit、全局锁枚举、公共脚本、go.mod/sum、旧测试/helper、Project pointer writer 的隐含授权。独立 probe 可使用隔离 scratch 与单虚拟 test target overlay，由验证负责人安排；新增仓库路径须先明确所有权和必要范围。
 
-Project events.go、全局迁移嵌入输入/最终 Go 图、Go/cache、数据库 fixture 和 README 均是共享点。Model Settings UI 的 active Go/PG/browser 窗内不得安装本卡 #12–14 或改变它们依赖的输入。可以在互不冲突的 scratch 准备；安装顺序、最小 fingerprint 差量重绑和所有资源窗由 root 唯一调度。两个任务不能把目录不同当作 Go/cache/迁移独立。
+Project events.go、全局迁移、Go/cache、数据库 fixture 和 README 均是共享点。负责人核对实际活动输入与所有权；存在共享输入或资源冲突时，串行受影响部分，跨任务冲突由主线程协调。目录不同不代表 Go/cache/迁移独立，不从历史活动窗口推定当前仍有任务运行。
 
 ## 7. 后继真实绑定责任
 
@@ -289,13 +291,13 @@ Project events.go、全局迁移嵌入输入/最终 Go 图、Go/cache、数据�
 
 ## 8. 验收矩阵与实际执行边界
 
-实施者读 [Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)，验证者读 [verification 技能](../../../.agents/skills/agenteam-verification/SKILL.md)；角色/升级/证据规则复用[团队流程](../agent-team/README.md)。本卡列的是将来门槛，当前未运行编译、测试、PG 或资源。
+实施者读 [Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)，验证者读 [verification 技能](../../../.agents/skills/agenteam-verification/SKILL.md)；角色/升级/证据规则复用[团队流程](../agent-team/README.md)。以下保留完整验收门槛；已接受的实际结果与版本限制见页首和既有验收记录。新改动按影响复用或补充验证，不将门槛本身当作测试结果。
 
 ### 8.1 pure/STATIC 与离线
 
 必须覆盖：全部 DTO 精确边界/非法 UTF-8 与 surrogate/版本0和溢出/UUIDv4/patch presence/响应 union/安全 fmt；六摘要的字段变化、新 Request/新 Session 相同语义、raw 正文区别、target/Project/actor 隔离；固定 rank midpoint/组界限/rebalance 保序/no-op/completed 维护边界；cursor shape 与 generation；typed catalog/两个 payload 的替代拒绝；plan 私有 issuer/拷贝/新旧 Session/各 bound 字段；nil/typed-nil/foreign Tx/缺锁/反向锁/内部补锁拒绝和 Stop/Drain 真实终局。
 
-受 root 单授离线窗口时，先对 #1–13/#15–17 的确定 Go 文件 gofmt；`GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off`，Go/cache 唯一 owner。适用命令：`go test -race -count=1 ./internal/central/work/...`；`go vet ./internal/central/work/... ./internal/central/project`；仅编译 `go test -race -tags=integration -c ./tests/work -o <task-private-binary>`；以及下列精确 Project pure 回归。每个命令外层 hard deadline≤45s，输出/child tree 实际 wait/join，不能以 timeout wrapper 退出推断内部退出。不调用全库脚本/网络/自动安装；超过预算先封失败交 root，不悄悄增时或拆掉必需场景。
+执行离线检查时，先对 #1–13/#15–17 的确定 Go 文件 gofmt；`GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off`，Go/cache 唯一 owner。适用命令：`go test -race -count=1 ./internal/central/work/...`；`go vet ./internal/central/work/... ./internal/central/project`；仅编译 `go test -race -tags=integration -c ./tests/work -o <task-private-binary>`；以及下列精确 Project pure 回归。每个命令外层 hard deadline≤45s，输出/child tree 实际 wait/join，不能以 timeout wrapper 退出推断内部退出。不调用全库脚本/网络/自动安装；超过预算保留失败并向负责人报告，不悄悄增时或拆掉必需场景。
 
 Project pure 精确 selector：
 
@@ -303,7 +305,7 @@ Project pure 精确 selector：
 ^(TestOwnerAuthorityOrdersLockSessionAndFacts|TestForeignOwnerAndUninitializedRowsAreNotGrants|TestMissingOrdinaryProjectDoesNotExposeTombstone|TestEventFactUsesTypedCanonicalPayload|TestAppendPlanBindsCurrentSession|TestModelProjectEventUsesSameCompletePlanForReadAndMutate|TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose)$
 ```
 
-它们保护唯一旧写源两处分派的 Owner/Project/Model 原行为；不是 Work 真实 producer 验收。须核实际发现名/执行数，no-tests/Skip 不计 PASS。需要精确 `-list` 时另按已编译 binary、generated testmain/init/TestMain 闭包确认可安全发现后 root 单授，不能把编译误称 test body 已过。
+它们保护唯一旧写源两处分派的 Owner/Project/Model 原行为；不是 Work 真实 producer 验收。须核实际发现名/执行数，no-tests/Skip 不计 PASS。需要精确 `-list` 时另按已编译 binary、generated testmain/init/TestMain 闭包确认可安全发现后执行，不能把编译误称 test body 已过。
 
 ### 8.2 六个新真实 PG top
 
@@ -329,56 +331,35 @@ Project pure 精确 selector：
 - `./tests/project`：`^TestProjectB02OwnerPortRequiresCallerTransactionLocks$`、`^TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp$`、`^TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal$`。保护原 Project gate、原 producer/原子性和当前身份/历史结果顺序。
 - `./tests/outbox`：`^TestOutboxAtomicAppendCurrentAuthorityAndReplay$`、`^TestOutboxMissingLocksPoisonAndMappingChangeRollsBack$`。保护共享 Outbox 双阶段/完整锁与历史投影。其 fixture 的受控 producer 不替代本卡新 Work 真实 producer；未知提交的真实门槛由新 top 达成。
 
-原结果若确实绑定未变源/依赖且适用可由独验明确复用，不能把不同 migration 图/唯一 Project dispatcher 改动默认视为无影响。独验至少另用 **两个不同构造** 的私有 PG probe（root 另授 overlay/资源），不复制作者 helper/断言冒独立性：
+原结果若确实绑定未变源/依赖且适用可由独验明确复用，不能把不同 migration 图/唯一 Project dispatcher 改动默认视为无影响。独验至少另用 **两个不同构造** 的私有 PG probe（由验证负责人安排隔离 overlay 与既定资源预算），不复制作者 helper/断言冒独立性：
 
 1. A：先开启真实 Account 撤权或 Project 归档事务并持精确 gate，让另 Service 的 prepared/final/历史 lookup 成为可见 waiter；提交撤权后必须拒绝，反顺序已开始短 Tx 可先提交。核四类 durable 事实零额外变化，fresh Session/另一 Project 隔离；不以 stub authority 或只换测试名代替。
 2. B：原 final writer 在实际 COMMIT frame 上被隔离；另一连接尝试原 identity lookup 与另 key 的 rank 操作，证明未在旧 writer 未终局时生成第二计划/事件。分别 commit/rollback 后验证原回执 bytes、当前 sibling order/generation、旁观业务版本及 no-op/重放无重复；至少再用不同密集 rank 几何触发一次自动 rebalance，防只验证作者选的 midpoint 向量。
 
-两个代表之外，独验完整静审全部18路径/授权与恢复矩阵，对作者实际原件逐项结论。作者自测、独立 probe 和最终组合证据分别记录；原失败/未达分支不回写为通过。只有整卡门槛通过后才移交 README #18，最后独核其与真实范围一致；不抢先标记 D11 已完成。
+两个代表之外，独验完整静审全部18路径/授权与恢复矩阵，对作者实际原件逐项结论。作者自测、独立 probe 和最终组合证据分别记录；原失败/未达分支不回写为通过。README #18 随实现同步并核对实际范围，同次交付；不抢先标记 D11 已完成。
 
 ### 8.4 资源和时间基准
 
-实际命令/参数/ENV/依赖闭包由实施/独验在本卡下准备并封 STOP，root 授唯一窗口后才执行；本规格没有启动资源。保原基准：离线每命令≤45s；每新/旧 PG top **120s 含 setup/body/cleanup**；Go package hard timeout≤6m；启动前 fresh 可用磁盘≥5GiB；owned/resource cleanup 后的补充 host TCP delta 尾部两次清空观察总限≤75s（不证明完整短连接轨迹或 tuple ownership）；原七资源 ID 管理上限/退役方法适用。PG-only 不为凑七个 ID 启动 MinIO/browser/Node，实际需要的容器/network/目录/端口/代理/child 列精确有限清单；若沿原七 ID fixture，就七项全部入两次不存在证据；新增或超出需 root 明授，不自动扩大。
+运行前由负责人明确实际命令、必要参数/环境、隔离资源唯一所有权与执行预算；以 Git 基线和限定 diff 确认稳定输入。保原基准：离线每命令≤45s；每新/旧 PG top **120s 含 setup/body/cleanup**；Go package hard timeout≤6m；启动前 fresh 可用磁盘≥5GiB；owned/resource cleanup 后的补充 host TCP delta 尾部两次清空观察总限≤75s（不证明完整短连接轨迹或 tuple ownership）；原七资源 ID 管理上限/退役方法适用。PG-only 不为凑七个 ID 启动 MinIO/browser/Node，实际需要的容器/network/目录/端口/代理/child 列精确有限清单；若沿原七 ID fixture，就七项全部入两次不存在证据；新增或超出须先确认跨任务预算与所有权，不自动扩大。
 
-输入固定到实际最小 Go 闭包/迁移/工具与 helper，按源变化做差量，不机械沿用旧903/486等数量，不复制大图。绑定 Go local toolchain、race 与 build tags；浏览器/Node/web/dist/schema 不属于本库输入。安装 #12–14 后按当前闭包重新绑定离线 binary与后续各轮，不能拿安装前编译结论覆盖新迁移。
+按变更影响核对 Go 源、迁移、工具与 helper，使用 local toolchain、race 与 build tags；不默认重建全依赖图或重复计算指纹。浏览器/Node/web/dist/schema 不属于本库输入。涉及 #12–14 或相关依赖变化时，核对并重跑受影响的编译/测试，不能拿旧编译结论覆盖新迁移；未变且适用的结果可复用。
 
-finally 先停止 admission/取消，实际 join Work/PG proxy 的 handler/serve/forward goroutine、store Rows/Tx，完整关闭监听/owned连接；wrapper 对 direct/adopted/watchdog 各记录实际 wait，不把 status观察或 SIGKILL发送当 wait。核 owned runtime清单及 declared resource IDs/容器/network/端口的两次退役与输入前后同；daemon/PID1 shim 非 owned 另列，不 wait、不声称全机清零。cleanup 失败即本轮失败/STOP，保 raw/metadata，不串到下一轮或自动重试；若失败无新证据交 root 处理。资源窗内不 Git/换共享输入/开其它 Go/cache/业务资源。
+finally 先停止 admission/取消，实际 join Work/PG proxy 的 handler/serve/forward goroutine、store Rows/Tx，完整关闭监听/owned连接；wrapper 对 direct/adopted/watchdog 各记录实际 wait，不把 status观察或 SIGKILL发送当 wait。核 owned runtime清单及 declared resource IDs/容器/network/端口的两次退役与输入前后同；daemon/PID1 shim 非 owned 另列，不 wait、不声称全机清零。cleanup 失败即本轮失败/STOP，保 raw/metadata，不串到下一轮或自动重试；若失败无新证据向负责人报告。资源窗内不 Git/换共享输入/开其它 Go/cache/业务资源。
 
 ## 9. 接受条件、未绑定清单与升级
 
-当前：root 已接受完整独立 SPEC（rev1 全文＋唯一 D1 修订的最终组合），并将 #1–17 仅 scratch 实施移交 fixture_recovery；00021 仅预留。main 安装、共享 Project/migration 窗、Go/Node/真实资源和具体执行计划/selector/input freeze 仍须 root 单独移交并与 Model Settings 活动输入分离；#18 README 未授。尚无产品实现或动态验收通过结论。
+当前18路径交付状态与历史验收限制见页首。原 SPEC 阶段的 scratch、迁移预留和逐轮执行许可已成为历史，不能据此把已交付的 Structure 实现改回“尚未实现”，也不能把旧实例记作当前活动代理。
 
-完成时必须能证明：真实层级/版本/rank/分页；当前权限→receipt→新写优先序；sameStore/liveTx/完整锁；跨 actor/project 幂等/Unknown；typed producer＋Project closed gate＋canonical facts/receipt/Event/Activity 原子性；必要旧兼容和不同构造独验；所有 owned 实际退役；README末件准确。不以“接口有了”“库可编译”“prepared PASS”或一个 top 通过替代整卡。
+完成时必须能证明：真实层级/版本/rank/分页；当前权限→receipt→新写优先序；sameStore/liveTx/完整锁；跨 actor/project 幂等/Unknown；typed producer＋Project closed gate＋canonical facts/receipt/Event/Activity 原子性；必要旧兼容和不同构造独验；所有 owned 实际退役；必要 README 准确。不以“接口有了”“库可编译”“prepared PASS”或一个 top 通过替代整卡。
 
-Task membership、Sprint 删除正向、Milestone 删除、跨 Milestone move、Task/TaskEvent/context、Execution/Dispatch、Sprint lifecycle/pointer writer、Work lifecycle participant、Tool/HTTP/UI/App/root 与生产 ready 均仍未绑定/未提供，后继责任见 §7。若发现 Task 事实是当前非破坏性结构命令的实际必要条件，应以具体触发/接口/来源报 root，不能注入 empty 绕过。需要公共新锁类型、跨域直接 SQL、新 producer/Audit/HTTP、额外产品字段/limit或本闭集外路径，先停止受影响部分列精确差量，不能因本卡“结构”名称获得宽泛域写权。
+Task membership、Sprint 删除正向、Milestone 删除、跨 Milestone move、Task/TaskEvent/context、Execution/Dispatch、Sprint lifecycle/pointer writer、Work lifecycle participant、Tool/HTTP/UI/App/root 与生产 ready 均仍未绑定/未提供，后继责任见 §7。若发现 Task 事实是当前非破坏性结构命令的实际必要条件，应以具体触发/接口/来源向负责人报告，不能注入 empty 绕过。需要公共新锁类型、跨域直接 SQL、新 producer/Audit/HTTP、额外产品字段/limit或本闭集外路径，先停止受影响部分列精确差量，不能因本卡“结构”名称获得宽泛域写权。
 
 ## 10. 最小静态输入与 SPEC 封存
 
-本卡采用下列必要共享源码指纹及声明签名，配套来源清单/作者静态自查由规格交接 freeze 固定。它不是完整 Go dependency graph、不是当前全源通过证据。历史正式接受依据在 §1；更早有界候选 `28034095f87c68dff09a88fc37e5ce7e10e7817cac07e24259617c9715876c68` 仅为方向来源，其未填工程项由本 rev1 明确冻结。
+本卡业务契约与验收矩阵以 §1–9 为准。历史 SPEC 来源指纹和行政卡原文可从 `e55ad7d1` 的文件历史及[规格验证记录](../agent-team/d11-work-structure-spec-verification.md)恢复；既有失败与产品验收原件继续保留，不新增来源镜像、manifest 或重复 SHA 表。后续审查以当前 Git 基线、限定 diff 和停止写入状态确定输入。
 
-| 必要共享输入 | bytes | SHA-256 | 签名/影响 |
-| --- | --- | --- | --- |
-| `internal/central/project/authority.go` | 9818 | `a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321` | RequireOwnerInTx/current：当前 Session、Owner、Read/Mutate |
-| `internal/central/project/contract/lifecycle.go` | 29744 | `5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6` | CheckOwnerGate/CheckOwnerActorKind/ProjectAuthority |
-| `internal/central/project/contract/types.go` | 12125 | `7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1` | 既有 SprintID、ProjectRef.CurrentSprintID |
-| `internal/central/project/events.go` | 12341 | `4f97a16b6b9176f58c5ce05d22253664d602556a066a7c2ecec5f0995398d52d` | 唯一旧产品写域；Project/Model/Lifecycle 精确分派 |
-| `internal/central/project/external_event_authority.go` | 3243 | `d7d43050ca99e20dd221564ad3a3a12c018f9dd0505e6ad68e287e8cd353a519` | 已验 Model gate 绑定模式；不更改 |
-| `internal/central/project/repository.go` | 16349 | `f89d5b582b79cb31434d70c03be43a99ac1b66261591850d141263c2af44ed55` | Store 五个方法及安全错误 |
-| `internal/central/account/session.go` | 4862 | `4df72697b0e66dd372be859099e7d813960d36402ca540c2a01576ff68adb0e5` | TouchActivityInTx：User EX、同 Tx、当前 Session |
-| `internal/central/foundation/id.go` | 3120 | `40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54` | UUIDv7/CommandMeta |
-| `internal/central/foundation/fault.go` | 5460 | `94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de` | closed Code/安全 Fault |
-| `internal/central/foundation/lock.go` | 5196 | `5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384` | 全局锁枚举、RankGroup、SprintAggregate |
-| `internal/central/postgres/transaction.go` | 9811 | `aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3` | 同 Store/活 Tx/EX满足SH/缺锁poison |
-| `internal/central/outbox/contract/append.go` | 2344 | `4367c1e4a02fa3062da31d6d0305b5b74ed704cc434b3f0c53509e170d8be93f` | Appender/opaque AppendPlan |
-| `internal/central/outbox/contract/authority.go` | 11951 | `1c78ac9f0e8c9ff996e9b9048f65d1f8d7bc005989d1021b2e5e13c2f721f5a0` | ProducerAuthority/ProjectAuthority/Stages/NormalizeLocks512 |
-| `internal/central/outbox/append.go` | 8131 | `39242c8c5c1b4596c8e11bbff8f494d66b7b838abcf76667b27f872fde2c3706` | PrepareAppend完整锁与Append两阶段实际顺序 |
-| `internal/central/outbox/service.go` | 8014 | `3fdfd1d2565a30984b9c912bd2e5a1a128c4d0496128005b245f194e0690e507` | producer映射与catalog Seal |
-| `internal/central/event/contract/event.go` | 5820 | `0f1934a31b04706bead116552775c0b4e824dd6f3fc593f3a32808f3e22436ea` | typed Event/Header/Summary |
-| `internal/central/event/contract/catalog.go` | 6395 | `55a5b24a36eec5409385a72f9be342d568eb8ca4651921bed4b25a13b2eb8742` | DefineEvent与sealed catalog |
-| `internal/central/cursor/cursor.go` | 6023 | `c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f` | Scope/digest/order/position/generation签名 |
-| `internal/central/cursor/canonical.go` | 3484 | `1c3a9cab07b385301f27126f4794bf4439e1a97022a3d630013b598d3a7a5836` | canonical-v1 |
-| `db/migrations/embed.go` | 146 | `ec8dfa638b97c1456b5d04e536b319c5d7d4f8faea755c194796ea69be1ad578` | 全局SQL嵌入自动包含新编号 |
+必要共享来源按需读取：Project Authority/lifecycle/types/events、Account Session Activity、Foundation ID/Fault/Lock、PostgreSQL Tx、Outbox append/authority/service、Event catalog 与 Cursor；全局 SQL 嵌入在 `db/migrations/embed.go`。这些公共接口仍是只读依赖，不能从来源列表获得改动权限。
 
-实际复用签名：`pc.ProjectAuthority.RequireOwnerInTx(context.Context, foundation.Tx, identity.Actor, ProjectID, identity.AccessIntent) (ProjectAccess,error)`；`oc.ProducerAuthority.DiscoverAppend(...event.Summary)`/`ValidateAppendInTx(...,Dependencies,Stage)`；`oc.Appender.PrepareAppend(...event.Event)`/`AppendEventInTx(...foundation.Tx,...AppendPlan)`；Project-owned `Discover(ProjectRequest)`/`ValidateInTx(...ProjectRequest,Dependencies)`；Account `TouchActivityInTx(context.Context,foundation.Tx,identity.Actor) error`。Store/Lock/Cursor 精确使用 §3 的现有接口，不预授改动这些只读源。
+实际复用签名：`pc.ProjectAuthority.RequireOwnerInTx(context.Context, foundation.Tx, identity.Actor, ProjectID, identity.AccessIntent) (ProjectAccess,error)`；`oc.ProducerAuthority.DiscoverAppend(...event.Summary)`/`ValidateAppendInTx(...,Dependencies,Stage)`；`oc.Appender.PrepareAppend(...event.Event)`/`AppendEventInTx(...foundation.Tx,...AppendPlan)`；Project-owned `Discover(ProjectRequest)`/`ValidateInTx(...ProjectRequest,Dependencies)`；Account `TouchActivityInTx(context.Context,foundation.Tx,identity.Actor) error`。Store/Lock/Cursor 精确使用 §3 的现有接口。
 
-SPEC 作者仅做文档结构/闭集/本地链接/字段与权限优先序/来源 SHA 自查，无 Go/Node/PG/网络/Git/产品执行。完整 rev1 独审原 FAIL `fdd314b3`、唯一 D1 差量及最终组合 PASS `febcf667` 均保留；root 已接受 rev1＋D1，产品验收与执行授权保持上述后继边界。原候选/失败/来源字节原样保存，行政末件封存后 STOP。
+历史 SPEC 过程的完整 rev1 独审原 FAIL、唯一 D1 差量及最终组合 PASS 均保留在既有记录；规格作者静态自查不构成独立产品验收。产品接受、U1 修复和独立 B 缺口以页首及[验收记录](../agent-team/d11-work-structure-verification.md)为准，不因本次文档整理改写。

@@ -1,5 +1,7 @@
 # 2026-10-05 固定测试依赖恢复
 
+> 历史记录：以下“当前”“已恢复”、实例名、临时路径、授权窗口和资源状态均指记录当时，不代表本次环境。继续开发先读[当前台账](tasks.md)与[团队流程](README.md)，只在追溯具体失败或依赖来源时读取本页；不重建旧哈希清单、归档或逐轮审批。
+
 本轮在 `main@8872110099c84cf0600bb5b62cdcd6c0c6c843e3` 的固定输入上恢复依赖。两个 PostgreSQL 镜像、仓库既有 Go 依赖和精确 MinIO 二进制均已就绪；没有启动容器、网络、数据库或对象服务，本记录不构成真实集成验收。
 
 依据为 [D05 研究第 2 节](../work-items/d05-object-storage-research.md#2-校验和与构建复现)、[PostgreSQL fixture](../../../tests/testsupport/postgres/fixture.go) 和 [对象 fixture](../../../tests/testsupport/objectstore/fixture.go)。实际命令、环境与工作目录见 [commands.json](evidence/dependency-recovery/commands.json)，结果和输入指纹见 [results.json](evidence/dependency-recovery/results.json)，关键原始输出见 [checks.log](evidence/dependency-recovery/checks.log)。

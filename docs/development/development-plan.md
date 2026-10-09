@@ -1,128 +1,30 @@
 # agenteam 开发计划
 
-当前完成记录（2026-10-08，D11 Work Structure）：[结构卡](work-items/d11-work-structure.md)全部18路径已按固定版本组合获得root正式接受，并交付 `a64fb5e783373255a4b0ae7936e5685f25f458c6`，root已核origin/main一致；见[永久验收及全18补充](agent-team/d11-work-structure-verification.md)。原失败/U1修复、各轮源版本及独立B外部工具terminal缺口保留；不是一次当前HEAD全测或完整D11，Task/Agent/执行/生命周期等未绑定责任不变。以下既有记录保留原时点。
+本计划保存长期模块依赖、实现范围与完成门槛，全局产品状态见[任务台账](agent-team/tasks.md)，当前任务分支接续见[恢复状态](../../.agent-state/current.md)。恢复时只读目标模块和必要依赖，不把checkpoint保存或历史阶段 PASS 当作完整模块完成。
 
-当前完成记录（2026-10-08，Project Owner Audit UI rev2）：[本卡](work-items/d27-project-owner-audit-ui.md)全部 22 路径已按固定版本组合独验并获 root 正式接受，最终报告 `442ad780` 无未关闭必修。技术锚为 `75411e27d0f2f5b998ae9a88e31fc9befa431095`，README 末件为 `5fba4510`；见[永久验收](agent-team/project-owner-audit-ui-verification.md)。新 Audit 53 份完整 EOF／schema／client 与旧 Owner 的 response-event 关联重放分别记账，原失败与版本边界保留；不代表完整 D27、生产或 E01，原三停止及 Jina 边界不变。以下既有记录按原时点保留。
-
-当前完成记录（2026-10-08，平台 Embedding current-selection Resolver）：[本卡](work-items/d09-platform-embedding-resolution.md)完整九路径已按固定版本组合通过独验并获 root 正式接受。policy/pure 固定 `fa4bc1238ea1ee167af9948dda74a11da90ccda3`，六 PG 固定 `28dc84cf0cbec0188bbc4b9577d16bcabf0de2b7`，README 末件为 `8dfab520`；[永久验收报告](agent-team/platform-embedding-resolution-verification.md)保存七轮作者成功、独立 A/B、原失败与恢复及最终九路径独审 `39890564`。这是本卡限定组合完成，非当前 HEAD 单次全测、生产接入或完整 D09/D13/D14；生产 consumer、serving、Invocation、默认 root 与原三停止边界保持。以下既有记录按原时点保留。
-
-当前完成记录（2026-10-08，Owner工作区UI rev2.1）：[本卡](work-items/d27-project-owner-workspace-ui.md)全24路径已按明确版本组合完成并获root正式接受，含23技术路径与#22前端README；最终独审14d9d717无未关闭必修，文档末件0a939a7f12a607708e40796ac0bfae61592e7099已推送并由root核远端一致。[最终24验收与小原件](agent-team/project-owner-workspace-ui-final24-verification.md)固定API7db／UI088f／Go04及browser-v3→v5、作者新5与旧2＋14、独立本人A3＋B6九轮的既有组合。独立九轮使用原固定53资产；后续品牌另版接受，不表示当前HEAD的一次全套重新执行。
-
-本次完成的是Owner入口、工作区和基本信息编辑卡，不代表完整D27／D26、Project创建／生命周期或生产SPA托管／发布完成。production Resolution/Invocations、D24未绑定，ready503及Object runtime join／OpenAI tools独立验收／Central SPA concurrent-publication三停止保持。以下旧状态及历史字节保留其原时点，不覆盖原失败或缺失证据。
-
-当前基线（2026-10-08，初始化收敛库接受）：Project 初始化收敛授权库完整6路径（5技术＋README）已接受，产品 `39ebd57e` 已推送且 root 核远端一致；6真实PG／40子例、42不同资源ID与24非owned未wait shim（449→473、轮间无额外）沿原表归档，owned资源实际wait双清，原STATIC／格式／工具失败保留。新gate无写、原成功gate不变；生产Skills/root与创建HTTP未绑定，完整D08/D10未完成。 [验收与原始证据](agent-team/project-initialization-convergence-verification.md)。
-
-Owner工作区UI candidate04仅#21 locator修订离线通过；真实read01 Outbox setup失败、read02 label失败均保留并已独核退出，尚无browser top PASS；正在按已接受 `39ebd57e` 重新绑定Go依赖，旧16／独立A-B未跑、asset未交换、前端README未授，UI产品未接受。
-
-管理员统一Meeting Summary initial/update（含首轮标题），Project不override或复制初值，compaction／Execution Summary不变；production Resolution/Invocations/D24未绑定、ready503、D08–D28/E01未完、E01未开始与Object runtime join／OpenAI tools独立验收／SPA并发发布三停止保持。以下历史原字节保留。
-
-本计划用于指导后续 AI 从基础契约开始，按真实依赖完成 agenteam 的正式开发。推进单位是职责明确的模块；每个模块先设计数据结构、接口和状态规则，再实现、调试和验收，最后接入其他模块。没有未满足依赖的模块和完整结果任务允许并行，不以模块编号规定全局串行。不以提前出现可操作界面作为早期交付目标。
-
-计划依据是[当前架构](../architecture/README.md)、[前端设计](../frontend-design/README.md)和[仓库结构](repository-structure.md)。它规定开发顺序和验收要求，不替代架构专题，也不把尚未确定的实现选择写成既定事实。`docs/draft.md` 仅作历史参考。
-
-AT-0005 已逐项确认审计方向；正式文档归位和验收见[同步任务卡](work-items/d00-decision-sync.md)，逐项责任见[审计处置映射](work-items/d00-baseline-audit-report.md#7-at-0005-决策处置映射)。下列开工门槛落实已确认规则的具体规格，不重复把已选方案列为产品待选，也不代表 D01 或产品模块已经验收。
+依据：[当前架构](../architecture/README.md)、[前端设计](../frontend-design/README.md)和[仓库结构](repository-structure.md)。具体业务规则归架构，工程接口归工作项；本计划不复制另一套规则，`docs/draft.md` 只作历史参考。
 
 ## 当前基线与计划范围
 
-2026-10-08 当前增量：[Project初始化收敛授权规格](agent-team/project-initialization-convergence-spec-verification.md)完整rev1及正式末件STATIC已接受，规格 `b01b08d4` 已推送并核远端一致；root仅授5技术scratch实施，不安装仓库、不Go/资源，README未授、产品未接受。D10旧ProjectFactAuthority缺失说明已过时，但真实Skills/root仍受停止的Object runtime join依赖阻挡，新gate仅必要前置，不开放创建HTTP或发布。
+2026-10-09 接续整理基于 `e55ad7d1`：已包含 Work Structure 实现 `a64fb5e7`、Task planning 规格 `97439ffd` 与新协作流程。本次仅整理文档，不新增产品通过结论。D00–D07 的既有接受范围与后发现的 Object 缺陷分开记录；D08–D28 仍有未完成范围，E01 尚未开始。
 
-Audit完整16产品 `4089d131`／归档 `3ce7ec33` 接受保持。Owner工作区UI candidate02完整23技术STATIC与有限离线组合通过，产品未接受；实际5新＋16旧真实top、布局/视觉及资源尚未运行，README #22仍未授。管理员统一会议Summary initial/update含首标题，Project不override/复制初值，compaction/Execution Summary不变。production Resolution/Invocations/D24未绑定、ready503、D08–D28/E01未完、E01未开始与Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持；以下历史原文保留。
+AT-0005 已确认的产品决定不重新列为待选，正式来源见[决定归位](work-items/d00-decision-sync.md)及[审计处置映射](work-items/d00-baseline-audit-report.md#7-at-0005-决策处置映射)。D01–D28/E01 是长期开发目标；用户已持续授权后续开发的checkpoint与常规源码commit/push，保存不等待验收或逐次提醒。该授权不包含部署、force push或覆盖他人工作，也不解除既有产品停止项。
 
-2026-10-08 当前增量：[Project Owner Audit HTTP](agent-team/project-owner-audit-http-verification.md)完整16路径已接受，产品 `4089d131` 已推送且root核远端一致。原失败和版本组合保留；3native、12实际PG的actualwait/双清已完成，原表实核84不同资源ID和48新增非owned、未wait的daemon shim，轮间另1git单列，不称全机清零。final14 cursor报告误句由final16明确纠正，原件保留。
-
-Owner工作区UI rev2.1规格 `5c152e9a` 已接受；frontend02的21前端路径静态组合通过，产品未接受。接受的Audit实际图已正式交接，Go #18–19现已授安装及必要45s离线，作者已实际ACK并开始该Go阶段，当前尚无Go执行结论；真实browser/PG/webdist及README #22仍待另授。用户再次确认既定管理员统一会议Summary初始/更新含首轮标题规则，无新增决定；Project不override/复制初值，compaction/Execution Summary不改。production Resolution/Invocations/D24未绑定、ready503、D08–D28/E01未完、E01未开始及三停止保持；以下旧记录保留历史时点。
-
-2026-10-08 当前增量：[Owner 工作区 UI 规格](agent-team/project-owner-workspace-ui-spec-verification.md)完整 rev1＋rev2 B1＋正式末件 STATIC 接受，`8cf81b44` 已推送并由 root 核远端一致。fixture_recovery 与 summary_verification 均已实际 ACK：作者开始 #1–17/#20–21/#23 共 20 个 web/JS 路径，必要 Node ≤45s/唯一 Vite outDir 已授；独审仅 scratch 准备。Go #18–19 仅 scratch，README #22、真实 browser/PG/webdist 未授，UI 产品未接受。
-
-[2026-10-08 恢复记录](agent-team/recovery-2026-10-08-environment.md)固定五实例 ACK 与原 Audit 输入保留；Audit #12–14 已安装、format02 通过，原 app-run01 终局已核，原工具失败保留；wire03 待验，产品未接受，#15–16 文档/native/PG 未授。恢复不等于机器重启或历史进程 actual wait。配置写入 `cc850b22`／归档 `b91cb89f` 及其他已接受能力保持。
-
-管理员统一会议 Summary initial/update 含首轮标题，Project 不 override/复制初值，compaction/Execution Summary 不改。production Resolution/Invocations/D24 未绑定，ready503、D08–D28/E01 未完、E01 未开始及 Object runtime join/OpenAI tools 独立验证/SPA concurrent-publication 三停止不变；以下历史原文保留。
-
-2026-10-07 当前增量：[Project Model配置写入HTTP](agent-team/project-model-configuration-write-http-verification.md)完整15路径（14技术＋README）已接受，产品 `cc850b22` 已推送且root核远端一致。版本组合与原失败保留：5实际native（含作者首红）、11实际PG每轮7资源actualwait/双清，实表核77不同ID；44新增daemon/PID1 shim非owned、未wait，不称全机清零。本卡22原body与旧域13分列，全部任务窗口已归还。
-
-[Project Owner Audit规格](agent-team/project-owner-audit-http-spec-verification.md) `9eb167e4`／归档 `210bd733` 已接受。以 `cc850b22` 为基线，root正式移交 `account.go`；usage_verification已ACK并开始唯一#1–14技术实施，必要45s离线已授，当前尚无执行结论。next_frontier已ACK，仅独立scratch准备；Audit #15–16文档末件与native/PG未授，产品未接受。
-
-既有Summary/Owner读写/Model读与凭据/Usage接受保持；系统管理员统一会议Summary initial/update含首轮标题，Project不override/复制初值，compaction/Execution Summary不改。production Resolution/Invocations与D24未绑定，ready503、D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止不变。以下旧记录保持其历史范围。
-
-2026-10-07 当前增量：[Project Model credentials HTTP](agent-team/project-model-credentials-http-verification.md)完整23路径已接受，产品 `e4b1b891` 已推送且root核远端一致；实际修改22项（21技术＋README，1技术项不变）。原失败与版本组合保留，3native/14listeners的direct3＋adopted3实际wait及9PG每轮7资源双清已完成，63个不同资源ID沿原实表；新增36个daemon/PID1 shim仍非owned、未wait，不称全机清零。
-
-[Project Model配置写入规格](agent-team/project-model-configuration-write-http-spec-verification.md) `f2ab9c4c`／归档 `1afe0756` 已接受。以 `e4b1b891` 为基线，fixture_recovery已ACK并开始#1–14唯一技术实施，必要offline45s已授、暂无运行结果；summary_verification已ACK，仅独立scratch准备。三根只读，README15与真实native/PG未授，配置写入产品未接受。
-
-Summary/Owner-read/Update/Usage及Model Owner read既有接受保持；系统管理员统一会议Summary initial/update含首轮标题，Project不override/复制初值，compaction/Execution Summary不改。production Resolution/Invocations与D24未绑定，ready503、D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止不变；以下保留历史原字节。
-
-2026-10-07 当前增量：[D09 Model Owner只读HTTP](agent-team/project-model-owner-read-http-verification.md)完整14路径（含README末件）已接受，产品 `a0b012ce` 已推送且root核远端一致。原失败与版本组合保留，native共5实际轮、PG共10轮各7项资源actual wait/双清；40个daemon/PID1 shim和同期2个git仍非owned、未wait，不称全机清零。
-
-[Project Model credentials规格](agent-team/project-model-credentials-http-spec-verification.md) `9a2a9a1a`／归档 `b498c0bc` 已接受。以 `a0b012ce` 为基线，root已正式交接 `account.go`、`project_usage.go`、`security.go` 三根；next_frontier已ACK并开始#1–22技术实施，首冻#1–4 Secret Project lookup。必要offline已授、暂无结果，真实native/PG及README23未授；usage_verification已ACK，仅独立scratch准备，凭据产品未接受。
-
-Summary/Owner-read/Update/Usage既有接受与系统管理员统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则保持。production Resolution/Invocations与D24未绑定，ready503、D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止不变；以下保留历史原字节。
-
-2026-10-07 当前增量（阶段冻结）：[Owner Update HTTP](agent-team/project-owner-update-http-verification.md)完整19路径接受保持，产品 `61bed1fc`、归档 `c839f965` 已推送且root核远端一致。[D09 Model Owner只读HTTP](work-items/d09-project-model-owner-read-http.md)当前13技术源未提交、产品未验收；production03/candidate02限定STATIC、作者版本组合offline及独立controlled离线检查通过。
-
-作者native keepalive/slowbody通过，writeclose原首红保留；candidate03仅修订native阶段观测和测试父期限，race compile及独立定点STATIC通过。native-v03 writeclose随后完整通过1top/9sub/9listener，实际观察GET Write与HEAD Flush socket timeout；direct/adopted actual wait均0，owned PID/全TCP含TIME_WAIT双空、输入一致。作者PG new-projection01已实际启动，五轮尚无整体结论，独立runtime尚未接力，README14未授。[Project Owner Model credentials规格](work-items/d09-project-model-credentials-http.md)已含正式归位末件完整限定STATIC接受，规格提交 `9a2a9a1a` 已推送且root核远端一致；仍仅规格接受，实施须等待当前Model Owner read完整产品接受及共享根正式移交。
-
-Summary/Owner-read/Usage既有接受、系统管理员统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则保持。production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止不变。此为本次协调冻结的阶段记录，以下历史原字节保留。
-
-2026-10-07 当前增量：[Project Owner Update HTTP](agent-team/project-owner-update-http-verification.md)完整19路径（含后端README末件）已接受，产品 `61bed1fc` 已推送、root核远端一致；版本组合、原失败与八轮PG实际wait/每轮七资源双清沿档保留。32个新增daemon/PID1 shim非owned未wait，轮间另1个git Z及forced root不证明内部全部join的限制单列，不称全机清零。
-
-[D09 Project Model Owner只读规格](agent-team/project-model-owner-read-http-spec-verification.md) `f68c5c95` /归档 `70974605` 已接受；沿基线 `61bed1fc` 正式交接 `account.go`，`fixture_recovery` 已实际ACK并开始#1–13技术实施。必要offline已授、尚无Go结果；`summary_verification` 已ACK仅独立准备，native/PG资源与README14末件未授，D09产品未接受。
-
-Owner-read、Summary S1/S2/S3及Usage既有接受保持。系统管理员统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则不改；production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
-
-2026-10-07 当前增量：[D09 Project Model Owner只读HTTP rev2规格](agent-team/project-model-owner-read-http-spec-verification.md) `f68c5c95` 与归档 `70974605` 已完整限定STATIC接受并推送、root核远端一致；仅规格接受，13技术路径实施未授权，须D08 Update完整产品接受后正式交接 `account.go`。
-
-[D08 Update](work-items/d08-project-owner-update-http.md) candidate06的18技术源未提交、未接受。作者受影响离线检查按版本组合通过，三轮native共3顶层/7子测/8 listeners通过；direct/adopted各3实际wait exit0，owned进程/端口含TIME_WAIT双空。独立HTTP06离线1顶层/11嵌套节点（9叶）通过，所有原失败保留。作者五轮串行PG验证已启动，尚无整窗结论；独立A/B已获条件资源授权但尚未执行，须作者五轮全部实际清理释放并由root转达后才可启动；#19 README末件未授。
-
-Owner-read、Summary S1/S2/S3及Usage既有接受保持。系统管理员统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则不改；production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
-
-2026-10-07 当前增量：[Project Owner Update HTTP规格](agent-team/project-owner-update-http-spec-verification.md)已完整限定独立STATIC接受；规格 `03d1c107`、归档 `221ec4ba` 均已推送且root核远端一致。基线 `901eb546` 上，`next_frontier` 已实际ACK并开始#1–18技术实施，先strict wire/handler；#19 README末件未授。必要离线窗口整体已授，但尚无Go结果；native/PG资源未授。`usage_verification` 已ACK，独立product-prep仅scratch计划，Update产品尚未接受。
-
-[Owner只读HTTP](agent-team/project-owner-read-http-verification.md)产品 `901eb546` /归档 `a10586e9`、Summary S1/S2/S3及Usage接受保持；只读归档的九个PG轮、原失败和新增36个daemon/PID1 shim非owned未wait限制不变。系统统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则保持；production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
-
-2026-10-07 当前增量：[Project Owner只读HTTP](agent-team/project-owner-read-http-verification.md)完整17路径（含后端README末件）已接受；产品 `901eb546`、归档 `a10586e9` 均已推送且root核远端一致。所有task-owned命令/资源已停止；九个PG轮的原失败、actualwait/七资源双清及新增36个daemon/PID1 shim非owned未wait限制沿档保留。
-
-下一项Project Owner Update HTTP工程规格由 `next_frontier` 实际ACK并开始起草，`usage_verification` 已ACK仅只读独立准备，固定基线 `901eb546`；尚未冻结/完整STATIC，未授权业务实施或资源。Summary S1/S2/S3及Usage接受保持；系统统一会议initial/update含首轮标题、Project不override/复制初值和compaction/Execution Summary规则不变。production Resolution/Invocations与D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
-
-2026-10-07 当前增量：[Summary S2](agent-team/system-meeting-summary-settings-verification.md)含双README的完整32路径范围/31实际改动已接受，产品 `4e615c7d`、归档及S2/S3卡页首 `e1a5eb92` 均已推送且root核远端一致。S1/S3/Usage接受保持；S2所有task-owned资源实际wait/清理闭合、原资产已恢复，原失败及新增64个daemon/PID1 shim非owned未wait限制见归档，不称全机清零。
-
-[D08 Project Owner只读HTTP规格](agent-team/project-owner-read-http-spec-verification.md) `ac33ea15` /归档 `d5a21f63` 已接受。`next_frontier` 已实际ACK并开始#1–16实施，先Reader#1–3，沿产品基线 `4e615c7d` 正式交接 `internal/central/app/account.go`；必要离线依赖图/pure/race/vet/schema/build已授，但尚无实际执行结果、native/PG资源未授。`usage_verification` 已ACK，仅独立计划准备，D08产品未接受。系统统一会议initial/update含首轮标题、Project不override/复制初值及compaction/Execution Summary规则不改；production Resolution/Invocations、D24未绑定，ready503、完整D08–D28/E01未完、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
-
-2026-10-07 当前增量：[Summary S3](agent-team/system-meeting-summary-resolution-verification.md)完整17路径产品 `baa6ffac7bdf87dea6f052704e509d7b547e9886` 与归档 `77965be16feeb22d8c1b8301a047d95e3b15e8eb` 已接受并推送，root 已核远端一致。[S2](work-items/d09-system-meeting-summary-settings.md)仍未接受：backend03仅测试纠错已独审PASS、三项native通过，PG恢复联验中；前端/browser16路径已冻结、离线PASS，browser尚未运行，独立S2离线准备PASS。S1/Usage接受保持；S3仅库，生产Resolution/Invocations及D24真实生成未绑定。系统管理员统一initial/update含首轮标题、Project不override/复制初值及既定compaction/Execution Summary边界不改。ready503、完整D08–D28/E01未完成、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下历史原字节保留。
-
-2026-10-07 当前增量：[Summary S2规格](agent-team/system-meeting-summary-settings-spec-verification.md) `0b13445e` 与 [S3规格/归档](agent-team/system-meeting-summary-resolution-spec-verification.md) `bd94a184` / `31c76610` 已接受并推送。S3 `next_frontier` 16路径、S2后端 `fixture_recovery` #1–13及前端/browser `usage_backend` #14–29均已实际ACK、开始源编辑/格式/准备；S3四contract封闭包离线Go list/pure及race compile/run/vet窗口已单独授权并实际进行、尚未接受；S2 Go、S3 model/app/integration/runtime执行、真实资源及README末件仍未授，共享实际依赖图共同freeze要求不变。S2/S3产品未接受，D24消费未绑定；S1/Usage既有限定接受、系统统一模型决定、Invocations=nil、ready503、完整D08–D28/E01未完成与E01未开始保持，Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止不变。以下历史原文保留。
-
-2026-10-07 当前增量：[系统会议 Summary S1](agent-team/system-meeting-summary-selection-verification.md)技术与后端README末件均已独立通过，root 已采纳完整产品，29个变更路径已提交推送 `c210d249600d98871513c56fb9a8fff7c50a4c34` 并确认远端一致。35技术路径范围含4个已接受契约和3个未改旧测试，不记为35个新增文件。独立系统selector、显式初始化、当前管理员读写/原命令查证、双owner原子替换、旧binary回执升级及既有HTTP/client第八组兼容已接受；作者新6/旧12、独立A/B和两份真实body的公开client/schema联验通过，原失败与生产plan/receipt修复记录保留。六真实轮各7资源实际wait、owned链双清；新增24个daemon侧PID1 shimZ累计48，非task owned且未wait，不外推全机零残留。[Usage HTTP根装配](agent-team/project-usage-read-http-root-verification.md)的既有接受保持。S2/S3分别由 `recovery_docs` / `usage_backend` 准备静态规格，均尚无业务实施授权；新Summary GET/PUT/UI/default root初始化、S3 Resolver及D24生成仍未绑定。统一initial/update含首轮标题、项目不override/复制初值、不猜默认模型的规则不变。生产Invocations=nil、ready503、完整D08–D28/E01未完成、E01未开始及Object runtime join/OpenAI tools独立验证/SPA concurrent-publication三停止保持。以下原时点记录原文保留。
-
-2026-10-07 当前增量：[Project Owner Usage HTTP 根装配](agent-team/project-usage-read-http-root-verification.md)已完整限定接受 A/B/native/C/D，覆盖默认 root 与真实 PG 读事务；C 七路径及 backend README 已提交推送 `03a4a0b87b21c9d3583c01dc3d543bb4ee31ea05`、远端一致。版本组合与原失败、owned 清理及 daemon 未 wait 限制见归档，不外推全机清零。root 已恢复[会议 Summary S1](work-items/d09-system-meeting-summary-selection.md)：`next_frontier` 负责后端 31 路径范围（含四份已接受契约），`usage_backend` 唯一负责前端四兼容路径；仅授权实施和离线准备，尚未授权资源，完整 S1 未验收，S2/S3 尚未授权。系统管理员统一选择 initial/update（含首轮标题）模型、Project 消费且不 override/复制初值的规则保持。生产 Invocations 仍为 nil，ready503、完整 D08/D09/E01 未完成、E01 未开始及 Object runtime join/OpenAI tools 独立验证/SPA concurrent-publication 三停止不变；以下原时点记录保留。
-
-2026-10-07 当前状态：[Usage HTTP 阶段 A](agent-team/project-usage-read-http-stage-a-verification.md)五路径已在 `ba7ce729` 接受，B 已受控接受并提交推送 `e7304512`、远端一致；C 七路径作者已实际 ACK、离线实施已启动，尚无 root/native/PG 验收。用户已确认系统管理员统一配置会议 Rolling Summary initial/update（含首轮标题）的模型，Project 消费系统选择、不 override 或复制创建初值；[正式规格](work-items/d09-system-meeting-summary-selection.md)及设计已在 `9ff1292d` 接受，[四源纯契约](agent-team/system-meeting-summary-contract-verification.md)已在 `e6cb70bd` 接受，完整 S1 持久化/事务/删除/HTTP-client 及后继 S2/S3/Meeting 消费仍未验收。下列历史时点原文保留；完整 D08–D28/E01 未完成、E01 未开始、ready503 与 Object runtime join、OpenAI tools 独立验证、SPA concurrent-publication 三停止不变。
-
-2026-10-07 下一可执行前沿：[Project Owner Usage只读HTTP](work-items/d09-project-usage-read-http.md)规格已独立STATIC通过并获采纳，固定4ae02e5，来源见[规格归档](agent-team/project-usage-read-http-spec-verification.md)。沿既定名称resolve/稳定ID职责接入三个GET/HEAD读资源；A五路径私有实施已获授权并实际开始，仅RequireHuman/query/DTO/schema与纯测编写，尚无Go/Node/schema执行、资源或产品验收。生产Invocations仍为nil，不以此交付Runtime Facts、Project初始化、UI、Execution Summary或完整D08/D09，模块门槛与三停止事项保持。
-
-2026-10-07 当前增量：D09 [OpenAI Embeddings float wire](work-items/d09-openai-embeddings-wire.md)已按[验证归档](agent-team/openai-embeddings-wire-verification.md)独立接受，十六路径产品提交推送 `2debfdde347d8c9262ab83d3fe5e18e947a983e1`、远端一致。固定c142十五技术源加README末件，914依赖无漂移；六真实轮按版本组合通过，不冒主树动态重跑。原容量指标失败、启动闭包阻断及辅助原件缺口保留。本结果不完成D09或绑定Nonchat/InvocationID/Usage/root，不改变模块顺序、Summary待决、ready503、E01未开始及三停止任务。
-
-2026-10-07 当前增量：D27 [System 运行信息只读 UI](work-items/d27-system-runtime-information-ui.md)已按[验收记录](agent-team/system-runtime-information-ui-verification.md)独立接受，35 路径产品提交推送 `e1f8cefbeaf3203c4e0388f9ea9dbf11e2e2959b`、远端一致。它只读取 Central 缓存观测并提供显式重读/取消，不新增探测、写口、自动轮询或 ready 成功。原两真实失败与各阶段/分版本证据保留；本结果不改变下述模块顺序和完整门槛。D08–D28/E01 整体仍未完成，E01 未开始，Summary 待决与三项停止任务保持，当前后继以团队台账为准。
-
-规划日期：2026-10-03。计划制定时核对基线为 `fe5b833`，环境检出分支为 `work`、工作区干净；D00 已由主线程建立 `main`，后续工作沿用该分支，当前提交与进度以任务台账和 Git 为准。恢复开发时核对真实分支与基线，由主线程处理环境差异，不让子 agent 自行切换分支或创建 worktree。
-
-已存在的成果：Vue 3、TypeScript、Vite、路由与应用壳、公共组件、主题、开发专用 Debug 展示，以及主线程统筹的开发团队和项目技能。后端已完成 D02 B01 的根 Go module、基础标量、HTTP 边界和公共 schema；Central/Runner 独立入口、配置与生命周期也已完成 D02 验收；D03 数据库迁移、事务锁及 Central 数据库启动/健康/关闭已完成验收；后续 D04–D06 基础和 D07 账户/System HTTP、Profile/Avatar、SMTP/受限日志及正式根装配也已通过适用验收，B37 已提交 `022dcea`，操作文档已独立核准，D07 当前范围已完成，关闭文档已提交推送 `0ed8085`。已有前端成果应复用，D26/D27 产品页面仍待实现，不把 Debug 演示状态当成业务实现。
-
-范围覆盖现有架构文档规定的第一阶段：单 Central、多 Runner、PostgreSQL/pgvector、MinIO、账号与项目、工作管理、模型、Agent、Knowledge/Memory、统一工具、治理、MCP、执行、调度、会议、实时与 Inbox，以及正式前端和部署。Dashboard 仅保留设计规定的容器；全局搜索业务范围未定，不纳入已确定功能验收。首版不新增 Redis、多 Central、微服务、公开注册、项目成员矩阵、跨项目检索或 Runner OS sandbox。
-
-本轮用户已明确授权持续完成 D01–D28 的全部能力，按独立可验证的小块及时提交、同步 `main` 并推送。最终交付还必须通过 D28 之后的 **E01 平台实战与游戏复刻验收**：使用实际运行的 agenteam 组织 Agent 协作开发 Minecraft 或 Terraria 的复刻，达到所选原版参考版本完整内容的加权覆盖率至少 50%，覆盖核心玩法与主要系统，保留平台任务、协作、执行、审核和产物证据，并实际试玩、修复暴露的平台问题。决定来源、冻结规则与可复现验收算法见 [E01 工作项](work-items/platform-game-acceptance.md)；当前游戏、参考版本与完整清单尚未选择或冻结。
+原计划中的逐轮进度可用 `git show e55ad7d1:docs/development/development-plan.md` 查询；已有验收报告与原失败保留在原处，不新增归档副本。环境缺失输入和恢复命令见[接续说明](agent-team/recovery-2026-10-08-environment.md)。
 
 ## 推进规则
 
 1. **先定契约，再写实现。** 跨模块边界先统一；当前模块的字段、函数签名、命令、查询、错误、事务和验收场景必须在开工前明确。
-2. **按真实依赖并行，模块分别完整验收。** 不再限制一个活动模块；共同正式契约稳定、所需前置能力已有验收证据、文件与迁移及共享资源所有权明确的模块和完整结果任务可并行。独立可验证的小块通过验收后及时提交到 `main` 并推送，模块仍按实际状态登记；不能因为小块已提交或正常路径可运行就跳过异常、并发、幂等和恢复设计，未完成卡保留在所属工作项内。
+2. **按真实依赖并行，模块分别完整验收。** 不再限制一个活动模块；共同正式契约稳定、所需前置能力已有验收证据、文件与迁移及共享资源所有权明确的模块和完整结果任务可并行。未完片段主动保存到 `ai/<task>`；正式验收结果才交付 `main`，模块按实际状态登记，不能因为已提交或正常路径可运行就跳过异常、并发、幂等和恢复设计。
 3. **模块完整与产品集成分开验收。** 模块按真实存储及协议契约完成自己的职责；依赖未来模块的地方使用明确端口。后续只增加适配器、注册和集成验证，不回头补此前遗漏的核心逻辑。
 4. **设计冻结的是边界，不是全部未来代码。** 不提前创建所有空包、万能 Service 或整套空 handler。模块开工时再落实内部包结构和 SQL，遵守全局迁移序列。
 5. **核对任务实际需要的依赖。** 只消费上游已验收子能力的完整结果任务可在上游模块整体完成前开工，但须记录具体能力、验收证据、正式契约修订和后续集成责任；所需能力未实现时不能以接口声明代替满足依赖。相邻模块只使用已确认的服务接口、事件或 read model，不直接修改对方数据表。不能为了运行演示引入临时旁路。
 6. **验收以证据为准。** 状态机、权限、数据库竞争、外部协议和重启恢复使用适当的行为测试。假实现仅用于隔离测试，不作为生产交付。
-7. **修改设计须同步影响。** 主线程先记录原因、受影响模块、兼容与迁移方案，更新架构和任务卡，再实施变更。工程选择由主线程在授权范围内决定；产品含义未定、实质范围变更或必须获得用户授权时才请求用户决策。
+7. **修改设计须同步影响。** 相应负责人记录原因、受影响模块、兼容与迁移方案，更新正式来源和任务再实施；跨子目标契约由主线程协调。范围内工程选择由负责人处理，只有产品含义未定、实质范围变更或需用户授权时才交回用户。
 
 ## 每个模块的开工与完成标准
 
-每个工作项首先建立模块规格，存入后续新增的 `docs/development/work-items/`，文件使用本计划工作项编号和 kebab-case 名称。详细业务规则继续归位到 `docs/architecture/`，规格引用它们，避免形成第二套规则。
+每个工作项首先明确模块规格，维护在 `docs/development/work-items/`，文件使用本计划工作项编号和 kebab-case 名称。详细业务规则继续归位到 `docs/architecture/`，规格引用它们，避免形成第二套规则。
 
 模块规格必须包含：
 
@@ -141,7 +43,7 @@ Owner-read、Summary S1/S2/S3及Usage既有接受保持。系统管理员统一�
 
 ## 依赖顺序与循环依赖处理
 
-下表是模块依赖图和规划优先级，不是全局串行队列。依赖栏表示完整模块集成需要的直接前置工作项，传递依赖同样须核对。模块中的完整结果任务可按上文规则只消费已有验收证据的稳定子能力，明确其余能力的真实绑定和验收责任；尚未满足的依赖仍阻止相关实现或集成通过。所有实现工作项还共同依赖 D00 与 D01。
+下表是模块依赖图和规划优先级，不是全局串行队列。依赖栏表示完整模块集成需要的直接前置工作项；对影响结论的必要间接依赖按风险核对，不为每次任务建立全树闭包或重复清单。模块中的完整结果任务可按上文规则只消费已有验收证据的稳定子能力，明确其余能力的真实绑定和验收责任；尚未满足的依赖仍阻止相关实现或集成通过。所有实现工作项还共同依赖 D00 与 D01。
 
 | 阶段 | 工作项 | 目标 | 直接依赖 |
 | --- | --- | --- | --- |
@@ -273,7 +175,7 @@ D00–D28 的模块职责、实际依赖与完成门槛保持不变；编号先�
 
 实现：幂等初始化邮箱 `admin@mail.com`、username `admin`，邀请注册时设置全站唯一 username；登录退出、固定 24 小时邀请过期/撤销/原子兑换、密码修改与统一恢复、SMTP 配置/测试/重发、无 SMTP 的受控后台日志投递、用户名/显示名/头像/账号主题偏好。初始密码日志丢失也走普通忘记密码；有效重置链接重发不延时，普通改密换发当前会话并撤销其他，重置撤销全部。无 SMTP 不阻断 ready，配置后投递失败不改为日志渠道。
 
-验收：重启不覆盖密码；并发邀请与兑换；撤销/过期竞态；reset 单次消费；公开响应不泄漏邮箱存在性；退出后的 HTTP/WS 身份失效；凭据不回显；个人偏好与 Debug 分离。 D07 完成当前后端事实、HTTP 与正式端口；D25 负责 WS 撤销消费者，D26 负责账号/Profile 客户端，D27 负责 System 页面。当前业务与测试门槛已由验收负责人按 T01–T14 核通过，最后源码为 `022dcea`；操作文档已独立核准，D07 当前范围已完成，关闭文档已提交推送 `0ed8085`，见[D07 当前进度](work-items/d07-account-session-smtp.md#当前进度)。
+验收：重启不覆盖密码；并发邀请与兑换；撤销/过期竞态；reset 单次消费；公开响应不泄漏邮箱存在性；退出后的 HTTP/WS 身份失效；凭据不回显；个人偏好与 Debug 分离。 D07 完成当前后端事实、HTTP 与正式端口；D25 负责 WS 撤销消费者，D26 负责账号/Profile 客户端，D27 负责 System 页面。交付进度与历史组合验收限制见[D07 当前进度](work-items/d07-account-session-smtp.md#当前进度)和[任务台账](agent-team/tasks.md)。
 
 ### D08 Project 与 Owner
 
@@ -311,7 +213,7 @@ Tool/Mount 引用通过 D01 的目录端口验证，D15/D18/D20 接入真实目�
 
 依据：[Task Domain](../architecture/project-work-management/task-domain-model.md)、[状态机](../architecture/project-work-management/task-state-machine.md)、[Blocker](../architecture/project-work-management/task-blocker-dependency.md)、[Timeline](../architecture/project-work-management/task-event-timeline.md)、[Sprint](../architecture/project-work-management/sprint-lifecycle.md)。
 
-连续任务卡顺序：Milestone/Sprint 结构 → Task canonical/查询/rank → 状态转换与 reviewer → Blocker/依赖图 → Sprint lifecycle → TaskEvent 与 context/query 接口 → 综合验收。
+连续任务卡顺序：Milestone/Sprint 结构 → Task canonical/查询/rank → 状态转换与 reviewer → Blocker/依赖图 → Sprint lifecycle → 完整 Timeline/context/query 接口 → 综合验收。必要 TaskEvent 从首次 mutation 就同事务保存，不能因完整 Timeline 卡在后面而延后必需历史。当前 Structure 与 Task planning 的完成边界见[任务台账](agent-team/tasks.md)。
 
 实现强制层级、唯一 Current Sprint、expected_version、业务幂等 replay（与传输 request_id 分离）、终态不可变、审核交接、blocker 原子转换、依赖循环检测、Sprint rollover、事件同事务写入和 Kanban/Explore read model。纯 rank 重整不推进业务 version/TaskEvent，真实重排正常推进；与 D23 的 Busy claim 补偿协调逻辑位置，不能写回失效旧 rank。执行占用和 pending dispatch 保护通过固定端口实现。
 
@@ -453,7 +355,7 @@ Execution succeeded 不等于 Task done；Loop 不直接写项目领域表。执
 
 内部顺序：Session/participant/message/reference → Turn/contribution → sequential/parallel/queue/interrupt → Trigger provider 与 Executor binding → Decision/Approval waiting → retry/regenerate/finalize/summary → Timeline 来源接口 → 综合验收。注册 Meeting Tool 与模型引用替换适配器。
 
-实现 proposed/active/archive、无独立 MeetingProposal、结构化 inline reference 与 mention、文件/Task/Knowledge 引用、Contribution Execution 幂等、Agent busy/waiting_for_agent、Decision answer/skip、统一审批引用、首轮标题和四字段 summary 原子提交、后续 rolling summary、archive/delete。
+实现 proposed/active/archive、无独立 MeetingProposal、结构化 inline reference 与 mention、文件/Task/Knowledge 引用、Contribution Execution 幂等、Agent busy/waiting_for_agent、Decision answer/skip、统一审批引用、首轮标题和四字段 summary 原子提交、后续 rolling summary、archive/delete。系统管理员统一选择 Meeting Summary initial/update 模型，包含首轮标题；Project 不 override 或复制初值，compaction 与 Execution Summary 沿各自正式规则。
 
 验收：mention 不自动等于参与编排；sequential 可见前序结果，parallel 固定 references/summary/有效消息 generation，不复制全部引用正文；queue/interrupt、忙 Agent、等待恢复、取消/retry/regenerate。Summary 幂等包含实际有序输入版本，不能仅用末条 ID；历史回复成功替换后显示待更新，等下一正常 Turn finalize，不额外刷新/重开历史 finalize。摘要失败有限重试后仍 finalizing、queued 等待；首轮标题/摘要原子提交，之后不重写标题。
 
@@ -516,7 +418,7 @@ Meeting archive 仅组织/可见性，不套用 Project 停止策略；hard dele
 | Runner/Central/Provider/MinIO/PostgreSQL 故障注入 | 明确失败或可解释恢复，不丢事实、不盲重试 |
 | Project 归档/恢复/永久删除；Meeting/文档/Agent/MCP/Model 删除与引用替换 | 停止边界、名称释放、历史投影、索引/对象/Runner 资源清理符合各领域契约 |
 
-部署验收使用授权的测试环境。本轮 `main` 同步与推送已有用户明确授权；发布或其他实际部署按对应用户授权执行。
+部署验收使用当前任务授权的测试环境；推送、发布和实际部署分别按其已有明确授权执行，不从历史其他任务自动继承授权。
 
 门槛：所有前置模块通过、Tool/页面/事件覆盖映射无缺口、未完成端口真实绑定、适用数据库/协议/前端/端到端验收通过、无未说明的高影响故障或恢复缺口。记录可选设备/Provider 的实际验证范围，不把未测能力说成已验收。
 
@@ -532,34 +434,20 @@ E01 完成还要求平台任务、Agent 协作、Execution、审核、代码与�
 
 ## AI 如何执行和恢复
 
-沿用[主线程统筹的开发团队](agent-team/README.md)：主线程专注用户沟通、工程决定、拆解调度、返修协调、最终整合与提交；测试计划、证据分析、故障归因和独立验收由专门验收负责人承担。六种角色按需使用，全部保持 `gpt-6-astra / max`，子 agent 不再委派。并行度由真实依赖、稳定正式契约及文件、迁移和共享资源所有权决定，不设单活动模块或常态两个、最多三个子任务的限制。当前工具提供含主线程在内的 7 个总席位，按实际可用席位调度，简单任务一个执行者。
+协作规则以[团队流程](agent-team/README.md)为准：主线程统筹目标、跨子目标边界与最终交付；一级负责人自主拆分、验证和集成，二级及更深代理按收益执行。所有层级使用 `gpt-6-astra / ultra`，Fast 配置与实际生效限制按流程说明；共享运行时席位并保留执行空间，不为凑层级拆分。
 
-每次恢复先读取 `AGENTS.md`、本计划、[台账](agent-team/tasks.md)、各活动工作项规格与实际 Git 差异。计划编号 D00–D28 表示模块及规划优先级，E01 表示其后的最终实战验收，团队台账 AT 编号表示实际执行记录，三者关联，不互相替代。
+1. 新设备先fetch `origin`，按用户当前目标及远端 `ai/*` 的 `.agent-state/current.md` 接续活动任务分支；dirty先保存，不覆盖。再读台账目标行和正式规格，只核必要前置与限定差异，步骤见[跨设备恢复](agent-team/README.md#自动保存与跨设备恢复)。
+2. 负责人确定完整结果、文件/迁移/资源唯一所有者、自测与独立验证安排。任务消息引用正式来源即可，不为每个代理建立持久卡片。
+3. 必要未完源码、harness、probe和不可再生输入保存在正式路径或 `.agent-state/<task>/`，不能只放scratch；实现、测试和必要文档随进度保存。范围内返修由直接负责人组织，跨子目标冲突再报主线程，高风险关键场景仍须独立验证。
+4. 停止受审范围写入后，用 Git 基线、限定 diff 与实际命令确认结果；相关输入未变时复用既有证据，只重跑受影响检查。可再生日志放 `output/ai/`；分支恢复状态记录目标、必要路径、检查与失败限制、下一步和依赖恢复，台账只同步全局产品状态。
+5. 按团队流程在成果、下级交付、长检查前、暂停/回复前及有改动约5分钟后的安全边界，由主线程自动WIP commit并push工作分支，不等待验收或用户提醒。push失败保本地并明确未远端保存，后续重试；正式验收后整理代码、测试与必要文档交付 `main`，需要时squash WIP，不为补哈希或回填本提交编号另开 docs 收尾。
 
-执行步骤：
-
-1. 找到尚未完成且真实依赖已满足的工作项或完整结果任务，优先处理关键依赖，并核对各自的直接及传递依赖证据；不能凭上一会话的口头总结宣布通过。
-2. 主线程安排模块规格并关闭影响该项的未决接口，采纳设计或调研角色的建议。使用[任务模板](agent-team/task-template.md)按完整结果拆分，引用共享规则和接口，维护跨任务依赖、授权文件、全局迁移及共享资源唯一所有权和状态。
-3. 按需下发可执行任务，执行者完成实现、自测与局部文档同步；在授权范围内自主排查，缺少决定、越出范围或无新证据的阻塞交回主线程。必要返修仍属于当前模块，单卡完成不代表整个模块完成。
-4. 在交付范围停止写入或形成精确冻结副本后按风险验证：低影响调整由作者自查加主线程审查；业务变更由专门验收负责人安排为独立审查范围，由未参与相应实现的实例分析证据和失败，高风险关键场景必须独立验证。需要多个验证实例时由主线程分派。主线程核对实际 diff、关键边界、集成及验收结论；输入及依赖未变的通过检查可复用，相关修改后重跑受影响检查。
-5. 相关写入全部停止且当前独立可验证的小块通过验收后，主线程更新台账、提交到 `main` 并及时推送。记录规格路径/修订、卡片进度、实际检查及稳定输入证据、限制、未完成端口绑定、阻塞、提交定位、推送结果、未提交文件和下一步。小块提交不代表模块完成；完整模块通过门槛后才标记“已完成”，其他依赖已满足的任务可继续并行；发现上游 bug 先返修上游，不在下游复制补丁。
-
-状态使用“待开始 / 设计中 / 实现中 / 验收中 / 阻塞 / 已完成”。只有通过门槛才标记已完成；各模块和任务分别记录阶段、依赖与所有权，不以并行开工改写未完成事实。本轮 D01–D28 和 E01 的持续推进及独立可验证小块的 `main` 提交、同步与推送已有用户授权，满足依赖后连续推进，不逐模块或逐卡重复确认；尚未落实的游戏版本与完整清单在 E01 正式执行前形成并冻结，不把当前空缺写成已定选择。用户调整需求或调度所有权变化时，保留改动、暂停受影响步骤，更新规格和修订号后重新下发；无依赖的任务可继续。中途交接先确认子 agent 与命令停止写入，并同步台账，不依赖聊天中的完成声明。
-
-检查命令必须随工程初始化确定。后端建立后至少有对应范围的 Go test/vet/build；并发与恢复模块使用 race 和真实数据库测试。前端使用现有 npm 脚本。纯文档变更只检查链接、内容一致性和 `git diff --check`，不声称产品行为通过。
-
-后续可给 AI 的启动指令：
-
-> 按 docs/development/development-plan.md 持续完成 D01–D28，再通过 E01 平台实战与游戏复刻验收。先读取 AGENTS.md、团队台账、活动工作项规格和实际仓库状态，从真实依赖已满足的未完成任务恢复。由主线程专注产品沟通、规格协调、调度和最终整合；先定正式契约与验收，再按真实依赖和文件、迁移、资源唯一所有权安排独立模块或完整结果任务并行，最多使用当前工具含主线程在内的 7 个总席位。全部代理使用 gpt-6-astra/max，子 agent 不再委派。执行者自测，专门验收负责人分析测试证据与故障并独立验证，稳定输入的检查证据可复用；各模块完成门槛不降低。保留已有前端基础，不用临时 stub 或演示数据充当正式实现。独立可验证的小块验收后同步证据、台账、main 提交并及时推送，沿用已有用户授权；E01 先冻结完整分母和权重，再通过平台实际组织游戏开发、试玩、计分与平台返修。未决产品规则和实质范围问题由主线程处理。
+状态使用“待开始 / 设计中 / 实现中 / 验收中 / 阻塞 / 已完成”。单卡或子能力完成不等于模块完成；未运行和缺失原件保持未验证。检查按实际工程与风险选择，工作流文档变更只检查链接、一致性和 `git diff --check`，不运行无关产品测试。
 
 ## 当前启动点
 
-计划制定时 D00–D28 尚未执行，规划阅读不等于 D00 完整审计。当前 D00 已按 [规格](work-items/d00-baseline-audit.md)完成审计、独立验收与主线程审查，交付和验证边界见 [审计报告](work-items/d00-baseline-audit-report.md)及 [任务台账 AT-0004](agent-team/tasks.md#at-0004d00-设计与实现基线核对)。AT-0005 已完成 P01–P25、C01–C08 的决定归位、独立文档验收及开发门槛同步；讨论中的历史待定状态不再作为重问依据。D01 已按[规格](work-items/d01-cross-module-contracts.md)完成[跨模块契约](work-items/d01-contracts/README.md)、W01–W43 接口走查与独立验收；该阶段尚未实现生产端口，后续绑定见各模块记录。D02 已按[规格](work-items/d02-engineering-foundation.md)完成 B01 基础与 HTTP、B02 配置/入口/生命周期，实现及真实进程独立验收通过。D03 已按[规格](work-items/d03-postgresql-foundation.md)完成 B01 数据库/事务锁/迁移与 B02 入口集成，真实PG17.8/vector0.8.1、进程取消/健康/关闭及独立验收通过。D04 已按[规格](work-items/d04-security-foundation.md)完成 B01 Audit/cursor、B02 Secret/轮换和 B03 受控出站/入口，真实PG/网络/进程完整检查及独立验收通过。D05 已按[主卡](work-items/d05-object-storage-artifact.md)与设计修订6完成B01对象可靠存储、B02 Artifact/浏览器下载、B03 Runner单对象传输及Central对象初始化/恢复/健康/停机，完整真实PG/MinIO/TLS/进程无过滤兼容、独立风险探针与原缺陷复验均通过，root审查采纳。D06 已按[主卡](work-items/d06-transactional-outbox.md)修订2/设计修订5完成持久事件、可运行投递/恢复、当前授权重投/诊断、Project生命周期与Central共享ProcessGuard组合，B01/B02及必要上游返修经独立审查、原缺陷复验和单次无过滤兼容通过。D07 当前范围已完成，首个未完成项为 **D08 Project 与 Owner**。[D07主卡](work-items/d07-account-session-smtp.md)修订2已采纳B03所依设计修订6与B04补充rev7（含持久投递端口、准入及恢复闭环），B01身份与安全基础及必要D03取消归因修复已通过独立原探针、check-go和包级串行无过滤12包完整验收；默认并行历史超时/初始化错误及未定根因保留，不反推为负载已证。B02邀请、恢复与挑战已通过独立核心审查、真实挑战/浏览器、修后check-go及61项三组穷尽补验，结合原无过滤其余11包通过采纳组合兼容；原Account累计6m超时、57014及历史浏览器失败证据保留，不称单次无过滤全绿或唯一根因已知。B03持久SMTP投递已按冻结rev6及补遗独立采纳，精确64源提交推送`ffa65f0`；原R01/R02真实红以同字节probe闭环，修后A24/B32/Mail31/原五及旧372十一包各一次通过，保原race/每包6m与断言，no-tests不算兼容。21外层nonce及owned资源清零、V全停；原历史红/分组组合限制保留，不声称一次无过滤全绿。B04正式设计rev7及后续最小补口已归位（该阶段补口提交`8566ea5`），C0契约两源`06346b8`、A1头像/profile纯块八源`59b38c8`、配置与测试环境五源`0f2b9ee`、B1纯HTTP十一源`e8941e8`均已采纳并提交推送；A1真实PNG初红及B1/config准备与实现失败均保留，具体证据及限制见[D07纯块记录](work-items/d07-account-session-smtp.md#b04纯块采纳与后段候选并行)。独立V另对已提交`e8941e8`只读快照的Central/Runner各构建一次通过，没有执行产物或启动服务。00012 `61b4df4`、CAPTCHA 两源 `b9b0b86` 与 A2 Profile/Avatar/Runtime 27 源 `da5caab` 均已独立验收并提交。B37 最后精确 37 源已独立采纳并提交推送 `022dcea`，真实 Account/Profile/Avatar/System HTTP、SMTP/Mail/受限日志与唯一 `account.mail-enqueue` 根装配已成立。验收负责人 T01–T14 关闭核对 `/tmp/agenteam-d07-close-gates-evpk9gwi/gate-map.md`（SHA `e6a31ef1ac305bc6694843d2fa0391c8e1197ca4037b3073162d09f278fefef0`）确认当前业务/测试无未闭合门槛；本次十二文档/样例已归位，通过作者格式、链接及字段自查和验收负责人独立核准；D07 当前范围已完成，关闭文档已提交推送 `0ed8085`。完整 check-go、旧域完整包与受影响补验、Account95 穷尽分组、Mail31/library67、真实 app/Sink 及最后899/900交集和正常双 binary 的实际证据见[D07 终局记录](work-items/d07-account-session-smtp.md#b04-终局采纳与文档关闭)。legacy18 原 8 PASS/3 FAIL 永久保留；两个历史 SMTP setup/D05 签发准备原因未知，后验通过不反推原因。process29 PASS/exact3 清零、内核 outer exit0 可恢复，但原 owner wait 未观察、observer SIGKILL9，不能称原 runner joined；CAPTCHA 原随机样本未保存，固定 SDK 机制修复不能唯一回溯原样本。这是批准的组合兼容，不称一次单体全绿。B03 原566及各阶段冻结输入仍各自成立，D09 C0 后续纯契约提交不混入 B37 证据。当前 identity/System/avatar 已绑定，Project/Runner 和未来领域生产 provider 仍按后续责任模块接入；D25 WS、D26/D27 页面与 ready503 是明确后续边界，不作 D07 缺口。D08–D28/E01尚未完成。
+全局待办见[台账当前恢复点](agent-team/tasks.md#当前恢复点与并行所有权)，正在进行的任务先接续远端工作分支及其 `.agent-state/current.md`。Task planning 与 Model Settings UI 的既有缺失源码仍须重建，本次自动保存规则不能复原未曾保存的字节。D08/D10/D12 及生产绑定仍有待完范围，Object/tools/SPA/Jina/Image 的既有停止不因环境恢复或文档更新解除。
 
-[D08主卡](work-items/d08-project-owner.md)与[设计rev2](work-items/d08-project-owner-design.md)已通过独立规格审查，初次归位提交`08d119d`；B01正式契约/纯规则库已验并提交推送`199554b`，原Retry联合型与completed-delete输出反例闭环记录保留。B02七个纯契约/角色/Audit结果提交`769ec8c`，其余21源、00013与fixture接缝已在固定`da5caab`（含已验A2/00012）上通过独立验收并提交推送`6319d03`。首轮三红与四文件窄修证据保留；修后唯一完整Project组及原字节独立1主6子probe在race/count1/每包6m下通过，Project95.075s，实际20业务主例，其他包no-tests不计兼容。报告与指纹见[D08 B02记录](work-items/d08-project-owner.md#b02-独立验收与提交)。B03 C0 四源 `16595ad` 与 00014 独立迁移两源 `30f5c29` 已验；A/P 主体仍未整体采纳。A 的原 nullable 问题已窄修，但 next23 的 Transfer 收敛后段仍红；P 原 11 项及新增 4 项边界按明确组合局部通过，实际 P+D/Object checker 尚未验。Object fact checker 新三文件及一个旧 hook 由 P 独占实施，不算已绑定。先前各轮原始失败、局部通过和所有权交接保留在[任务台账](agent-team/tasks.md#b03-当前局部验证与所有权)。D08 完整生命周期、HTTP/app 和 D10 生产初始化仍未完成；资源仅由 acceptance 明确交接。
+后续明确恢复开发时可使用：
 
-E01 当前为待开始，仅完成最终目标与验收规则的持久记录。D01 已完成静态契约验收，D02–D06 已完整验收，D07 当前业务、测试与文档门槛均通过，当前范围已完成；D09 C0 `e6e94c4` 与 B01-K System 配置 `26622bc`/`543511c` 已验，不代表完整 D09 完成。其他真实依赖已满足的任务可按本计划并行调度，不改变各模块未完成状态。新增 E01 不构成游戏开工、版本选择、清单冻结或任何产品能力已通过验收的证据。
-
-[D09主卡](work-items/d09-model-system-token-usage.md)与[设计](work-items/d09-model-system-token-usage-design.md)初次归位为 `43b8886`，C0 已验 `e6e94c4`。[B01-K System 配置](work-items/d09-b01-system-configuration.md)已完整独立验收：Audit 六源 `26622bc`、System 二十九源（含 00015）`543511c` 已推送，作者 12 个真实顶层及独立 CredentialRef 跨 scope/receipt 后 Session 撤销 1 个顶层通过。00015 沿已验 00014 `30f5c29` 完成连续迁移与旧 Audit 兼容；原红与证据边界见 B01-K 卡。Project 分支、Resolver/Usage、Provider 调用、根 HTTP 不在该完成范围，D09 模块未完成。
-
-[D12主卡](work-items/d12-knowledge-documents.md)、[设计](work-items/d12-knowledge-documents-design.md)与 B01 十二源已验 `914fd84`；正式 [B02 实施卡](work-items/d12-b02-knowledge-service.md)及 C1 cursor.Text 已验 `71dc176`，C2 Knowledge Audit 闭集已验 `f401c15`，C3 五路径共享清理已独立验收并提交 `231a384`。C3 首轮 fixture 四红及修后四项/旧六项组合记录保留，不称单次全绿。Knowledge 主体由 `parallel_plan` 实施；真实 Knowledge 授权、事务、对象 lease、A/P 与 Object checker 组合仍待完成，D13 不作为 canonical 写的全局前置。D12 模块未完成。D10 S01 的真实 builtin/包载体纯块由 V 完成作者验证、待独立验收，生产初始化仍须真实 D08/D05 与生命周期组合。当前所有权见[任务台账摘要](agent-team/tasks.md#当前恢复点与并行所有权)。
+> 先fetch并按用户目标接续远端ai任务分支，读AGENTS.md、.agent-state/current.md和台账目标行。一级负责人自主拆分、整合与验证，逐级汇报；必要中间成果主动commit/push，不等待用户提醒，保存与验收分开。保持已有停止、原失败和未绑定边界，正式验收后整合完整结果到main；E01仍须在平台完成后冻结游戏版本与完整分母，通过真实平台协作、试玩及复算验收。
