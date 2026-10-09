@@ -1,14 +1,11 @@
-# 当前分支：普通 Project Variables Owner 后端
+# Project Variables 独立风险验收恢复点
 
-- 工作树 `/workspace/agenteam-project-variables`，分支 `ai/project-variables`，正式基线 `f1c94ee5`；root 负责 Git 与真实资源窗口。
-- 唯一规格：[普通 Project Variables Owner 服务与 HTTP](../docs/development/work-items/d10-project-variables-owner-http.md) 已独立有限接受，卡 §2 写域已授权。迁移00024独占；不预消费 Knowledge00025/Runner00026，精确前序复制由root协调。
-- 目标仅已有 initialized Project 当前 Human Owner 的普通变量CRUD、有界分页/expected_version、原key Lookup/重放、正式HTTP/defaultroot退出。复用Account/Project/Store/Audit/Outbox/cursor；排除Secret、白名单、Agent F1/Runtime注入、UI、Project创建及完整生命周期参与者，不称完整D10。
-- 产品三阶段已保存：契约/Audit与三前端兼容；00024/领域事务/分页/事实Authority与Project分派；六能力HTTP/OpenAPI/defaultroot装配。相应pure/race/vet、前端99控/严格类型和两入口build实际通过。HTTP/root15源另经独立静审+7项实际纯控接受。原失败及修复边界见卡 §9；无整体产品验收。
-- 00024曾遗漏旧Project Audit guard与新三动作兼容，已精确保留旧谓词并增合法tuple，独立窄审接受；正式ca9有界supervisor由root导入。首 Persistence 完整真实PASS：CRUD/no-op/delete/历史恢复、Audit/Outbox，所有Wait/自有资源/desc/TCP双尾闭合并释放窗口，不能外推其它top。
-- 核心四源/四契约有限独审提出唯一 Create foreign-ID 分类缺口；作者先红控、最小修、领域race通过，独立差异复核接受。仅Create查Project marker及INSERT主键并发兜底改NOT_FOUND，同Project ID_CONFLICT和普通错误分类不变。真实双Project竞争尚未运行。
-- 集成12个top已形成。存储三top首轮整体真实FAIL保留：PaginationAndLimits完整PASS；Migration升级/重跑/旧Work事实子例通过，故障恢复子例因测试换checksum触发MIGRATION_HISTORY_DIVERGED；Atomicity的21个注错子例均在Activity时间前置失败，未触业务注错，缺history producer子例通过。原Activity错误未采SQLSTATE，不回填。全轮实际Wait/两资源/desc/runtime/hostTCP双尾及输入不变均已闭合，窗口已释放。
-- 仅修测试前置：迁移固定原source/checksum，补测试依赖后同源重试并核journal/Goose；Activity同时合法回拨issued_at/last_activity_at。产品/00024不变。修后 `variable-matrix-race-06.test` race-c及精确2top发现实际0；第05 string/Digest编译FAIL保留。根授权driver唯一再增精确两top字符串，18作者/10独立实际源输入控通过，两测试前置修复及driver增量获独立有限接受。修后Migration与Atomicity已完整真实PASS（12.08s/8.97s），21个AFTER ROW注错实际触达；Go/driver实际Wait、两资源/desc/runtime/TCP双尾和输入不变均闭合。原整FAIL与独立分页PASS保留。下一当前Owner/跨Project/撤销等Authority，复用matrix06与原单top入口；仍Go标志6m、driver整体105s+15s cleanup、supervisor123s+3s退役+75s TCP尾，未获freshgrant不运行。
-- 当前无在途真实资源。产物位于 `output/ai/project-variables/implementation/`，真实首轮日志在 `output/ai/project-variables/pg/`。卡/current与本卡产品由本实例唯一写；独立probe归未参与者。全局状态见[任务台账](../docs/development/agent-team/tasks.md)，不复制UI/Model流水。
+- 独立树 `/workspace/agenteam-project-variables-independent`，分支 `ai/project-variables-independent`，输入基线 `fc6ffd9e5ac3d77850cf723a23d5b8aa8df25877`。本人未参与Variables产品实现，曾有限独审其HTTP/root，不把该静审或作者动态当成本轮独验。
+- 唯一新增写域：tests/projectvariable/independent_*、internal/central/app/project_variables_independent_*、tests/process/project_variables_independent_*、必要.agent-state/project-variables-independent/新源码与本文；产品/作者测试/原工具只读。Git及全局真实资源由root；当前仅离线，禁止未经freshgrant启动PG/socket/root。
+- 依据正式D10 Project Variables卡§8。独立风险：真实Account拒绝先于body解码；同User新Session与当前撤权；原create/update/delete intent在后续改删及同名新UUID之后仍绑定原receipt；真实完整COMMIT丢回应且确认阶段撤权仍Unknown，自己读原持久事实；默认root真正确认期间Stop/Force/实际Tx及callback退出，真实进程原intent/退出补集。
+- 首个源码 `tests/projectvariable/independent_acceptance_test.go` 使用现真实fixture/完整帧proxy作基础设施，独立oracle和直接SQL自己书写。不以作者success字段判断，不把httptest-only称为真实root。
+- 暂无本轮动态PASS，源码正离线编译准备。独占output/cache位于output/ai/project-variables-independent；GOMODCACHE共享只读，Go1.27.1/p1/GOMAXPROCS2/GOPROXYoff/GOSUMDBoff。真实root精确selector待实现后报root最小接线，复用既有监督器及原预算，不能另造资源退出框架。
+- Skills树停在新恢复3源+card/current可构建freeze，已向root报全部实际race/vet及未验Object/PG/lifecycle门槛；本阶段不写Skills。
 
-- 新默认root两源 `internal/central/app/project_variables_process_test.go`、`tests/process/project_variables_http_test.go` 可构建freeze：app race-c85715/list1实际0；process最终race-c36258、list52726及其真实TestMain两cmd离线build实际0。私有binary分别 `variable-app-race-01.test`、`variable-process-race-02.test`。均未运行top/监听器。
-- 根已授权 `.agent-state/work-owner-http/root_chain_driver.py` 仅增加上述两精确selector→现app/process目录，旧三目标/全部资源链与预算不动。作者5旧新正+5非法负及实际input binding纯控通过，source其余逐字相同；首次控制脚本错误cwd的setup失败保留，纠正后独立执行通过，不涉及产品。固定SHA MinIO只读复制进本树ignored路径。该工具与两新根测试已保存；root两映射及native三selector/env增量另获独立有限纯控接受，旧路径/预算/退出不变。native3top与默认root两top尚未动态运行，全部其它权限/竞争/恢复top仍待真实验收。
+- 首独立PG/HTTP源码已可构建freeze：`tests/projectvariable/independent_acceptance_test.go`。72046 `go test -race -mod=readonly -p=1 -tags=integration -c` actualexit0，独立binary `output/ai/project-variables-independent/independent-pg.test`；实际精确list唯一 `TestIndependentProjectVariableHTTPIntentAndCommit`，0行为执行。源码两风险子项：当前Account优先与历史intent/直接SQL；完整COMMIT帧真实提交后在确认拿锁前撤权，原Unknown不冒成功，再新Session原Lookup/显式重放直查一份事实。当前尚未获真实窗口，不能记PASS。
+- 下一真实root确认退出改用精确实际cmd+完整帧代理+PG advisory屏障定位writer/confirmation，原生命周期过程由进程真实Wait证明；避免复制一套root或生产装配。需要新独立process top闭合selector后由root增既有root adapter。独立本域两路径freeze交root，继续新process/proxy源码。
