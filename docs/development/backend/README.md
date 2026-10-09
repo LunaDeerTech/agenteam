@@ -396,6 +396,14 @@ Human 重投先验证当前 Session/Owner 或 SystemAdmin，历史 receipt 也�
 
 六个纯契约文件已通过作者及独立验证，准确依赖的 pure、race、vet 均通过。当前没有 Agent 服务、数据库迁移、PG 验收或生产绑定；`WorkReferences` 只约定同 Store 活 caller Tx、完整锁与当前 Owner 授权责任，没有默认成功实现。F1 真实配置和当前事实能力仍等待 Model 引用校验与替换、默认 Skills、资源目录及引用保护；三类 ID 的低层位置已由 R1 闭合；真实目录 DTO 与窄适配端口仍须由所属模块冻结，不能复制 marker 或向上依赖 Tool contract 来绕过。
 
+## D10 普通 Project Variables Owner 服务与 HTTP
+
+[普通变量工作项](../work-items/d10-project-variables-owner-http.md)已实现并独立接受普通变量服务、迁移 `00024`、HTTP 和默认根接线。接口见 [Project Variables OpenAPI](../../../api/openapi/project-variables.json)：`GET/HEAD /api/v1/projects/{project_id}/variables` 读取摘要页，`GET/HEAD /variables/{variable_id}` 读取完整值，`POST /variables`、`PATCH/DELETE /variables/{variable_id}` 创建、更新、删除，`POST /variables/commands/lookup` 使用原 key 与原请求查询历史回执；后几项路径同样带上述 Project 前缀。只允许已有 initialized Project 的当前 Human Owner；管理员没有跨 Owner 权限，归档可读及重放已完成命令，新写被拒绝。
+
+变量 ID 为 UUIDv7，与未来 Secret 变量共享身份和命名空间。名称区分大小写，保留 AGENTEAM 及 AGENTEAM_ 前缀；值不是秘密存储，不提供 Agent 或运行环境注入。更新/删除必须保留原 expected_version，no-op 不改变量、分页代数、历史、Audit、Outbox 或 Activity。删除保留不可复用 ID 的墓碑与原命令回执，释放名称。真实变更把对象、查询代数、历史、安全 Audit/Outbox、Activity 和 receipt 放在同一最终事务；普通值不进入 Audit/Outbox 和诊断日志。Unknown 只进行有界只读确认，`not_observed` 或当前 GET 不能证明原请求未提交，不自动重发。
+
+列表按名称 C 序与 ID 使用 SQL keyset，默认50、最多100，摘要不含值；签名 cursor 绑定当前 Owner、Project 与查询代数，真实变更使旧页过期。请求、detail/变更/Lookup 成功响应上限1MiB，摘要页5MiB；读/Lookup 总预算2秒，变更30秒，涵盖实际认证/I/O。统一 Service owner 管理读、写、Lookup 和确认尾，Stop/Drain/Force 不以取消代替实际 join。库/HTTP、native传输、默认根与独立风险补集已按明确版本组合完成真实验收，实际Wait与资源尾闭合；原失败和范围限制见工作项，不声称单次HEAD全量通过。此能力不完成 Agent F1、Secret 变量或完整D10，也不解除默认根既有停止项。
+
 ## D11 Milestone / Sprint 结构库
 
 `internal/central/work` 已提供当前 Human Owner 的 Milestone / Sprint 创建、元数据更新与手工重排，六个命令为 `CreateMilestone`、`UpdateMilestone`、`ReorderMilestone` 及对应的三个 Sprint 命令。Reader 提供两个对象各自的 Get/List、每页当前授权与稳定 cursor；`ReadPlacementInTx` 在调用者真实 Tx 内返回同 Project 的 Sprint 及其真实 Milestone。迁移 `00021` 建立五张结构、排序组与命令表。placement 只证明结构关系，不证明 Task membership、占用或写权限；类型、分页与使用前提见 [D11 结构库规格](../work-items/d11-work-structure.md)。

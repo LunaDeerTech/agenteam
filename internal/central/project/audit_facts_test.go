@@ -214,3 +214,50 @@ func TestAuditFactsServiceResolveAndMissingProvider(t *testing.T) {
 	var zero *Authority
 	hasCode(t, zero.CheckAppendInTx(context.Background(), f.store.tx, entry, key), foundation.DependencyUnbound)
 }
+
+func TestProjectVariableAuditFactsCurrentGateAndExactDispatch(t *testing.T) {
+	f := newAuditGateFixture(t, nil)
+	scope, _ := identity.InProject(f.project)
+	variable := testID[identity.ProjectVariable](t)
+	resource, _ := ac.NewResource(ac.ProjectVariableResource, variable.String())
+	metadata, _ := ac.ProjectVariableMetadata(ac.ProjectVariableCreate, ac.ProjectVariableMetadataFields{VariableID: variable.String(), Version: 1, ChangedFields: []string{"created"}})
+	entry, e := ac.NewEntry(ac.EntryFields{Scope: scope, Actor: f.actor, Action: ac.ProjectVariableCreate, Outcome: ac.Success, Resource: resource, Metadata: metadata})
+	if e != nil {
+		t.Fatal(e)
+	}
+	key, e := ac.NewAppendKey(ac.ProjectVariableProducer, string(digest([]byte("canonical command"))), 0)
+	if e != nil {
+		t.Fatal(e)
+	}
+	witness := errors.New("independent domain fact refusal")
+	calls := 0
+	f.a.state().auditFacts[ac.ProjectVariableProducer] = auditFactFunc(func(_ context.Context, tx foundation.Tx, got ac.Entry, k ac.AppendKey) error {
+		calls++
+		if tx != f.store.tx || !got.Fields().Actor.Equal(entry.Fields().Actor) || k.Details() != key.Details() {
+			t.Fatal("different caller fact")
+		}
+		return witness
+	})
+	if e = f.a.checkDomainAuditInTx(context.Background(), f.store.tx, entry, key); !errors.Is(e, witness) {
+		t.Fatal("domain refusal hidden", e)
+	}
+	if calls != 1 {
+		t.Fatal("not dispatched")
+	}
+	for _, phase := range []c.Lifecycle{c.Archiving, c.Archived, c.Deleting} {
+		f.lifecycle = phase
+		hasCode(t, f.a.checkDomainAuditInTx(context.Background(), f.store.tx, entry, key), foundation.ProjectNotActive)
+	}
+	if calls != 1 {
+		t.Fatal("fact checker bypassed lifecycle")
+	}
+	f.lifecycle = c.Active
+	f.sessionErr = fault(foundation.SessionRevoked)
+	hasCode(t, f.a.checkDomainAuditInTx(context.Background(), f.store.tx, entry, key), foundation.SessionRevoked)
+	if calls != 1 {
+		t.Fatal("fact checker bypassed Session")
+	}
+	f.sessionErr = nil
+	delete(f.a.state().auditFacts, ac.ProjectVariableProducer)
+	hasCode(t, f.a.checkDomainAuditInTx(context.Background(), f.store.tx, entry, key), foundation.DependencyUnbound)
+}
