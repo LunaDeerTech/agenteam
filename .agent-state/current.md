@@ -25,7 +25,7 @@
 - 完整产品/00023/作者测试/独立probe均可构建且已保存。四包pure/race/vet、两入口build、作者integration race编译/精确发现、独立公开契约pure/race及runtime静态接受通过。
 - 首Persistence整体FAIL保留：history=4096新增缺BLOCKER_HISTORY_LIMIT字段；其它正常操作/历史恢复、00022已填充升级重跑/DDL回滚、Project大容量子项body通过。唯一字段修复已独审，并以HistoryCapacityRegression真实完整PASS复验，不把原整轮改PASS。
 - 作者Authority、Unknown、Concurrency真实完整PASS；独立A/B由未参与实现者本人执行并完整PASS。全部这些轮均有实际Go/driver/外层退出、两自有资源/runtime/hostTCP双清、输入不变。
-- **仍待4项真实门槛**：`TestTaskBlockerInteroperability`、`TestTaskBlockerAtomicity`、`TestTaskPlanningAtomicityAndEvents`、`TestWorkStructureAtomicityAndProducer`。全部当前已编译/发现、固定输入就绪，不重复编译或重跑无影响检查。最近下一轮安排Interop，必须等root结束Git网络窗再启动。
+- **仍待3项真实门槛**：`TestTaskBlockerAtomicity`、`TestTaskPlanningAtomicityAndEvents`、`TestWorkStructureAtomicityAndProducer`。全部当前已编译/发现、固定输入就绪，不重复编译或重跑无影响检查。Interop已完整PASS（96788 exit0/72.722s），包含真实归档进入/UpdateSprint双顺序及两门禁，不代表归档cleanup完成。下一轮安排Atomicity，必须等当前Session探针窗口完整结束再启动。
 - 当前作者完整binary：`output/ai/task-blocker-service/implementation/work-blocker-complete-race.test`；driver：`output/ai/task-blocker-service/author/pg-only-driver`；使用已有 `.agent-state/task-planning-recovery/pg_only_supervisor.py`，精确一个selector、原105s及完整资源尾，output为`output/ai/task-blocker-service/pg`。日志/二进制可重建；必要源码在正式tests和`.agent-state/task-blocker-service/`。
 - 不提供Agent/执行/跨状态Blocker、HTTP、生产root或完整D11。剩余4动态通过并最终独验闭合后，整理为一个完整原子正式提交并推送main。
 
@@ -46,7 +46,7 @@
 - 正式组件整合树 `/workspace/agenteam-shared-layer-delivery` 当前 `ai/shared-layer-delivery`，包含已推送main的两组件提交；不混入未验Model或B0-P产品。
 - 固定Chromium、锁定Playwright、PG/MinIO及helpers已恢复；可重建产物在output。既有dev infra不属于任务，不连接、不清理。
 - PG/browser/hostTCP只运行一个明确资源窗口。实际Go/driver/外层终态及资源尾结束前，不进行Git网络、下载或另一browser/socket测试；离线纯测试与无输入冲突写入可继续。每轮完整终态才交接，原失败不补写PASS。
-- 当前所有上一轮实际资源均已释放；root正在最终Git保存，完成后可交B0-P Interop。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
+- 当前所有上一轮实际资源均已释放；root正在最终Git保存，完成后先交Session8短探针，再B0-P Atomicity。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
 
 ## 保留停止项与最终验收
 
