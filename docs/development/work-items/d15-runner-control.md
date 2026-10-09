@@ -228,10 +228,10 @@ rev1独审发现payload闭集不完整及HTTP误列不存在Foundation Conflict�
 
 最小`TestRunnerControlMigration`三个真实子项通过：连续23→24→25→26、重跑保旧Audit、六表credential/history/代际FK与完整DDL失败回滚。原Go/driver/outer实际Wait均0，精确两资源、runtime及TCP双尾完整，输入未变。其SQL刺激只验schema，不冒认证service或typed Audit授权。沿跟踪driver实际Go6m、总105s，outer123s及完整资源尾；未重复运行其它业务矩阵。§4登记成功响应为消费时发现的缺失shape最小补全，已获独立有限复审接受，双端实现仍不代真实网络验收。
 
-Central 管理契约/Reader/commands及typed Audit首片段已可构建，精确相关包作者race通过；当前Admin/事务原子性、登记与WSS真实服务尚待验证。一次递归包选择错误纳入既有Audit HTTP native测试并超时，未获当轮资源授权，原18858整体124保留；0B testlog不能证明具体top，遗留已退出Z缺原actualWait/监听清理证据。精确时间/归属和命令见current与必要事故JSON，不能把该轮当离线或资源通过；根确认同组non-Z=0后已恢复真正离线检查，新包先compile/list并核TestMain/init，后续仅核过的显式包/selector。
+Central 管理契约/Reader/commands及typed Audit首片段已可构建，精确相关包作者race通过；Management真实PG的限定通过见下段，普通User/降权/权限竞争、真实COMMIT Unknown、登记与WSS仍待验证。一次递归包选择错误纳入既有Audit HTTP native测试并超时，未获当轮资源授权，原18858整体124保留；0B testlog不能证明具体top，遗留已退出Z缺原actualWait/监听清理证据。精确时间/归属和命令见current与必要事故JSON，不能把该轮当离线或资源通过；根确认同组non-Z=0后已恢复真正离线检查，新包先compile/list并核TestMain/init，后续仅核过的显式包/selector。
 
 Admin有限HTTP与设备登记/challenge/Audit producer已可构建，作者精确纯控通过。HTTP只Request/Recorder，设备只明确私有SQL executor，均不冒native/PG行为；设备首次测试类型名编译错误已修，原失败保留。Central认证代际/WSS/root尚待接线，现有真实迁移结果不代这些业务SQL或全D15验收。
 
 Central WSS/root生产装配及major不兼容持久标记已接入，新增标记只在已认证当前连接门内写入；作者精确纯控通过，尚无真实升级、nonce/heartbeat业务SQL或双实例运行结果。§5已由根明确修订为原30s持久lease有界在线视图，替代缺少provider的即时owner死亡判定；现Reader SQL按hello/双代际/lease投影，未依赖本地owner map，其真实正反与native门槛仍待验。
 
-首批真实业务验收源`TestRunnerControlManagement`与`TestRunnerControlDeviceAndReader`已可构建、精确发现，尚未运行。前者使用真实Account Bootstrap/Login、同Store typed Audit、原intent/同User新Session及AFTER ROW异常证明原子回滚；后者消费真实登记/挑战/签名/hello/双Service代际/退役与自然30s lease，闭池负例不得返回offline。两组分窗沿原PG-only预算，不含WSS/双cmd/native结果。DB错误映射仅两个已知admission码；作者首次纯控误将配置错误也期望Unavailable且Unknown刺激runID非法，原72615失败保留，不能当closed-DB实际反例。修后精确四pure tops通过；真实闭池仍由后续PG组验证。
+首批业务源已可构建、精确发现。作者本人`TestRunnerControlManagement`首次真实PG四个子项通过：真实Account Bootstrap/Login与同Store typed Audit，原intent/一次性材料/精确历史receipt、metadata及凭据事实、同User新Session恢复、实际AFTER ROW Audit异常与五表原子回滚。Go/driver/外层实际Wait均0，两精确资源、runtime/TCP双尾及输入不变齐全，窗口已释放；这不代普通User/降权/权限竞争、真实COMMIT Unknown或独立验收。`TestRunnerControlDeviceAndReader`尚未运行，覆盖计划为真实登记/挑战/签名/hello/双Service代际/退役与自然30s lease，闭池负例不得返回offline。两组分窗沿原PG-only预算，不含WSS/双cmd/native结果。DB错误映射仅两个已知admission码；作者首次纯控误将配置错误也期望Unavailable且Unknown刺激runID非法，原72615失败保留，不能当closed-DB实际反例。修后精确四pure tops通过；真实闭池仍由后续PG组验证。
