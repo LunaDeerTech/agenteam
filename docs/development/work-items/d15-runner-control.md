@@ -218,3 +218,5 @@ rev1独审发现payload闭集不完整及HTTP误列不存在Foundation Conflict�
 认证header与nonce严格解析、固定签名字节/Ed25519黄金向量、pending身份恢复签名已实现，protocol/identity两包作者race通过；无DB nonce消费/时窗、TLS或真实WSS验证。本地算法向量不代独立实现验收。
 
 00026六表/Audit增量已落盘并获独立有限静审；原同generation清key重绑及enrolled_at改写缺陷已最小修复，尚无DDL执行结果。根精确导入修后00024与00025作为前序消费，不转移两域先main交付责任；组合1..26真实迁移仍待验。私有gorilla wire adapter/有界队列/取消后的实际reader、writer、callback join作者race通过，无生产session/root或native网络结果。
+
+最小`TestRunnerControlMigration`已离线race编译/精确发现，覆盖连续23→24→25→26、重跑保旧Audit、六表credential/history/代际FK与完整DDL失败回滚。其SQL刺激只验schema，不冒认证service或typed Audit授权。私有driver沿既有PG-only工具编译；根导入已接受bounded supervisor。跟踪driver实际Go6m、总105s，outer123s及完整资源尾不变；等待fresh grant，不把编译当真实迁移通过。
