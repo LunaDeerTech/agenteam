@@ -1,6 +1,6 @@
 # D11 Task Blocker B0-C 纯契约工程规格
 
-> 状态：工程规格已独立接受；两文件纯契约实现已授权并进行中，产品与运行验收尚未完成。
+> 状态：**B0-C 两类纯契约已实现并独立验收**；真实 Blocker 持久、依赖图、授权与运行集成尚未完成。
 >
 > 上游：[Task transition 工程规格](d11-task-transitions.md) §4.2、§6.1、§10–13；[Task Blocker / Dependency](../../architecture/project-work-management/task-blocker-dependency.md)、[Task Timeline](../../architecture/project-work-management/task-event-timeline.md)。T0a 状态规则与新 Position 已交付；本卡只闭合两类 Blocker 纯类型，不表示 B0-P、T0b 或运行服务完成。
 
@@ -192,3 +192,9 @@ T1/T2/T3 仍须 Agent当前事实、真实 Actor/Tool授权、occupancy/pending�
 后续实施使用仓库指定 Go 1.27.1、任务独占 GOCACHE/GOTMPDIR，`GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off`；最小作者命令为 `go test -p=2 -count=1 ./internal/central/work/contract`、同包 `go test -race -p=2 -count=1`、`go vet -p=2`。先实际发现上述七个 selector，独立验证至少用受控公开 API 输入复跑三类unbound/union混入/嵌套cap/失败atomic/旧schema等否定的 pure/race；所有命令确认实际 Wait/退出后记录结果，UnknownProcess 不推PASS。无必要PG、浏览器或联网依赖。
 
 本次 SPEC 自查仅本地链接/anchor、字段/API/错误及大小算式一致性、Markdown格式和限定文件范围；不把静态Python大小演算当Go codec实测，不把作者自查当独立SPEC接受。交付暂停本文写入后由主线程保存并安排独审；源码、产品与真实集成仍未执行。
+
+## 9. 实施与验收结果
+
+两文件纯实现已冻结。作者七个 selector 实际发现，整包 pure0.208s、race3.156s（工具session66786实际Wait退出0）及准确vet通过；独立公开API overlay 的 pure0.018s、race1.129s均实际退出0（session10491），各5顶层和4并行子测试实际run/pass，无skip或timeout。独验覆盖两类typed union、三类未绑定与shape优先、完整及嵌套lexical raw cap、UTF-8/重复键/EOF、最坏HTML转义精确长度、失败原子性/零值、Clone/并发/限定日志和旧schema隔离。首次独立probe自身vet表达式编译FAIL保留；修正探针后重跑通过，产品未因该FAIL修改。
+
+root隔离正式候选的contract/work race3.351/1.367s、准确vet与Central/Runner两入口build均实际退出0。必要独立复跑输入：[probe_test.go](../../../.agent-state/task-blocker-contract-recovery/probe_test.go)、[run.sh](../../../.agent-state/task-blocker-contract-recovery/run.sh)。本结果没有运行PG或声明B0-P/graph/authority/外域引用能力；T0b仅可消费已接受两类，完整流转与平台仍待后继实施。

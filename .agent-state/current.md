@@ -156,3 +156,5 @@
 
 - configuration第三完整PASS：outer27184实际exit0/95.307s、Go24.39s，browser completed=true/8checks真/schema-client各49/proxy_actual_join=true；directWait251442exit0、4adoptedWait0/watchdogobserverjoin、7IDs双absent/descendants[]、TCP两空/input同一（owned-configuration-8bb0d756…）。13条真实提交/最终occupiedProvider409无durable变化/双协议immutable与目录启停隔离及精确计数通过，原两FAIL保留，D27六新3/6。
 - navigation-and-layouts.ts完整364行已strictTS11848准确Wait exit0并freeze，type-only引用authority接口；未注册/浏览器/8图/视觉验收，非PASS。root保存完整可构建模块后credential首轮，所有Modelglob冻结。B0-C隔离root contract/work race3.351/1.367实际0，准确vet/Central与Runner build5799实际0；独立验收仍进行、正式未交付。
+
+- B0-C独立实现验收接受：10491 actualexit0，公开API pure0.018/race1.129s，各5top/4parallel child真实run/pass，无skip/timeout/input变化；nested lexical cap/错误优先/最坏escaping/atomic/clone/log/legacy全部通过。首次独立probe自身vet suspect-or setupFAIL0tests保留run-hykp8e_8，拆开断言后产品不改复跑过。必要2probe冻结；root候选race/vet/两build0，准备正式8路径交付，无未验Model代码混入。

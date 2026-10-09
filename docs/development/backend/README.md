@@ -404,3 +404,7 @@ Task 删除、完整 Timeline/context、Sprint lifecycle、Blocker/reviewer、�
 ## D11 Task 纯状态核心
 
 [流转工作项](../work-items/d11-task-transitions.md)的 T0a 已实现并独立验收。`contract.CheckTaskTransitionRule` 检查输入、49状态对及六角色规则；`TaskTransitionPosition` 提供独立严格六字段codec、8KiB边界、邻居校验和Clone。旧backlog-only Position与规划命令闭集保持原行为。作者/root race/vet与独立4顶层9子测试实际通过；本结果只提供纯契约，真实权限、当前Agent/Blocker、执行占用、流转事务和生产装配仍待实现。
+
+## D11 Blocker 两类纯契约
+
+[B0-C工作项](../work-items/d11-task-blocker-contracts.md)已实现并独立验收唯一 `TaskBlockerID`、`rely_on` 与无引用 `waiting_for_human` typed metadata、Create及小历史payload。严格codec校验三层原始大小和闭集、Clone与直接安全日志；五枚举识别中其余三类完整对象返回未绑定。作者pure/race/vet、独立公开API pure/race以及隔离候选Work race/vet/两入口build实际通过。旧TaskEvent与规划schema保持原闭集，真实图、当前归属、权限、持久Blocker和完整Transfer尚未提供。
