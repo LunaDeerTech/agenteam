@@ -1,10 +1,12 @@
 # D05 bounded metadata cleanup 当前检查点
 
-- **首批业务离线 ready，尚无真实窗口／未运行**：基于 `b44f46cd` 测试＋当前新 migration 测试源码，产品仍 `eda849dc`，候选 `output/ai/object-metadata-cleanup/metadata-cleanup-race.test`（37180277B），race-c `46329/d8e8b8` actual0。`89992/1f41ef` 精确 list 恰 `TestObjectMetadataCleanupBoundedHistoryAndFinalTransaction` 与 `TestObjectMetadataCleanupFinalCommitUnknown`；唯一入口为 `^TestObjectMetadataCleanup(BoundedHistoryAndFinalTransaction|FinalCommitUnknown)$`，不运行1001历史/EXPLAIN/migration/pure top。前者保65真实reader历史/32总额/同Tx重复拒绝回滚/最后4＋fixture父mapping一起提交或回滚；后者保未转发和服务端已提交丢响应两种真实Unknown/原cause/新发现恢复。仍非Skills最后5核心组合。
+- **首批业务 `46857` 完整PASS**：本轮基于技术 `6c120e42`（产品 `eda849dc`、测试 `b44f46cd`＋已编migration源），复用 `metadata-cleanup-race.test` 37180277B。首同process UTC `2026-10-09T22:37:47.751662+00:00`，available6050856960B≥5GiB；Go1.27.1、继承NodePATH、固定MinIO及原absent输出父目录齐后才exec。两top分别3.77s、3.85s，Unknown两子各1.93s；Go1256650 actual_wait0、driver1254861 actualWait0、本人outer `eedb1d` actualexit0。`5c1400` 按原owned.json逐项确认7ID两轮14absent、private/runtime/desc双清、HOST_TCP双delta_empty、exact_tops/actual_test_wait=True、inputs_unchanged=True／terminal0、无STOP；supervisor98.961s。末UTC22:39:46.130854、available6044618752B，窗口完整释放。日志 `output/ai/object-metadata-cleanup/pg/pg-b7c4c3204c6f4699aa4d69553b988a81.log`，无命令在途。
+- 本轮通过范围：65真实reader历史、32总额、同Tx重复拒绝整批回滚、最后4＋明确fixture父mapping一起提交或回滚；未转发和服务端已提交丢响应两种最终Unknown／原cause／新发现恢复／native Audit唯一。真实fresh fixture Migrator已执行当前嵌入SQL；专用migration3子、65旧attempt／1001历史、PUT跨source、执行计划／FK成本及Skills真实最后5核心仍未运行／未闭合，不外推root或Runtime停项。
+- 本轮冻结候选来源：`output/ai/object-metadata-cleanup/metadata-cleanup-race.test`，race-c `46329/d8e8b8` actual0；`89992/1f41ef` 精确 list 恰两top。唯一入口为 `^TestObjectMetadataCleanup(BoundedHistoryAndFinalTransaction|FinalCommitUnknown)$`，不选择history/EXPLAIN/migration/pure top。Runner对固定6c输入独立有限接受（227b4b／root保存b95），两工具与两业务必要风险无mustfix；只读独审不冒本轮动态证据。
 - 两既有root tools仅各新增这一闭合selector映射，逆去一行逐字 `b44f46cd`（`d9a12b` actual）：8键一致、config1正5拒、9 observer正负格各14次资源观察全部过。原6m／540+60+3／TCP75／7resources／actualWait／双尾／input门槛未改。本树supervisor保留基线TCP gate，尚未移入其它树的诊断增量。既有root_chain_test 7纯控首 `069460` 中nonroot timeout期待旧`[123,3]`而实际原实现`[123,1]`失败；原实现TERM分1s并与adopted wait共享3s。仅在内存将该旧控制期待改为`[123,1]`，`634459` 7控全过；未修改旧控制文件或监督器流程，失败不回填。
 - 固定MinIO沿旧Knowledge已经冻结/验SHA的同文件硬链接到本树 `output/ai/deps-minio/bin/minio`，未下载或另复制大缓存；driver实际config再次核固定SHA。Go/cache仍下列固定环境。候选全包源码包括新 `metadata_cleanup_migration_test.go`：fresh／populated27／末DDL依赖缺失后原字节重试3子，核实际journal/Goose、22候选index状态、旧数据与checks/FK/列/旧indexes不变。它仅 `85164/c56b3c` 空selector编译 actual0/0.007s；未实际迁移或成本验收，首业务selector不包含它。
 
-首批业务完整复现命令（**必须root另授fresh独占窗口后才运行**；首同进程可用空间不足5GiB则exit78不启动）：
+首批业务实际命令记录（输出父`pg`现已使用；**后继复现必须root另授fresh窗口与未用输出父目录，不直接重跑本命令**；首同进程空间不足5GiB则exit78不启动）：
 
 ```sh
 GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \

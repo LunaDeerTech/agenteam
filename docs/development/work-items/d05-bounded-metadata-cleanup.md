@@ -1,6 +1,6 @@
 # D05 有界收敛与单对象元数据清理
 
-状态：rev1设计已获Variables独立有限接受（f4c64f）及Skills消费兼容核，当前Service/SQL实现WIP；已有有界metadata/物理恢复/Stop源码与有限纯控，尚未真实PG/backend/预算验收。正式基线 main `b2a7d0ab`。本结果解开 initialized Skills Cleanup 的具体上游缺口，不恢复 Object Runtime join 停项，不代表完整 D05/Skills participant。
+状态：rev1设计、Service/SQL主体及三个配套增量已获Variables独立有限接受（f4c64f、46327/e70e7a），Skills已核消费契约兼容。首批metadata／最终Unknown两top于46857真实PG/MinIO完整PASS：65真实reader历史、跨表32与同Tx重复回滚、最后4＋fixture父mapping原子性、两种真实COMMIT Unknown恢复/native Audit唯一；原Wait/7资源/TCP/input完整尾通过，详见当前检查点。历史规模／索引成本／专用迁移／PUT跨source／真实Skills最后5核心仍未闭合。正式基线 main `b2a7d0ab`；本结果不恢复 Object Runtime join 停项，不代表完整 D05/Skills participant或生产root接入。
 
 ## 1. 来源与范围
 
@@ -8,7 +8,7 @@
 
 第一 provider 只支持 initialized Project 的已发表 SkillRevision＋ProjectDeleted、原 Creation/Skill/Revision/Object/Upload 和同命令的旧 candidate。不加 Creation取消、其它Owner新purge权限、Runner退休、HTTP/生产root或自动删除永久marker。
 
-初始四路径及后继§8实现域均已获root授权。2026-10-09 root在Skills确认原占位无独立DDL后，将`00028_cleanup_indexes.sql`移交本任务为共享cleanup索引迁移唯一writer；不改FK/约束/列。root已将稳定00025/26/27精确装配到本树（分别aaa408c8/eea4ced0/7cf7a58e）；28已落正式路径为待真实计划核验的索引候选，尚未执行Migrator。当前无PG/socket/browser/network授权。
+初始四路径及后继§8实现域均已获root授权。2026-10-09 root在Skills确认原占位无独立DDL后，将`00028_cleanup_indexes.sql`移交本任务为共享cleanup索引迁移唯一writer；不改FK/约束/列。root已将稳定00025/26/27精确装配到本树（分别aaa408c8/eea4ced0/7cf7a58e）；28为待计划核验的22索引候选，已随首批真实fresh业务fixture执行Migrator，旧库升级／失败回滚／原字节重试专用矩阵和成本仍未验。首批独占窗口已完整释放，后继真实资源仍需root另授。
 
 ## 2. 实际缺口与必须成立的结果
 
