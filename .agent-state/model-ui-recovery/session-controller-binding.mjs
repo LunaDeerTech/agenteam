@@ -37,3 +37,35 @@ export async function loginOwnerModule(root) {
   return { ...matches[0], entry };
 }
 
+// Resolve diagnostics need the exact publicly exported production failure type.
+// Inspect the same already-loaded module; never hard-code a minified identifier.
+export async function resolveOwnerModule(root) {
+  const binding = await loginOwnerModule(root);
+  const ts = createRequire(join(root, 'web/package.json'))('typescript');
+  const code = await readFile(join(root, 'output/ai/model-ui-recovery/dist', binding.asset.slice(1)), 'utf8');
+  const ast = ts.createSourceFile('asset.js', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const classes = [];
+  for (const statement of ast.statements) {
+    if (ts.isClassDeclaration(statement) && statement.name) classes.push({ name: statement.name.text, node: statement });
+    if (ts.isVariableStatement(statement)) for (const declaration of statement.declarationList.declarations) {
+      if (ts.isIdentifier(declaration.name) && declaration.initializer && ts.isClassExpression(declaration.initializer)) classes.push({ name: declaration.name.text, node: declaration.initializer });
+    }
+  }
+  const matches = classes.filter(({ node }) => {
+    if (!node.heritageClauses?.some(clause => clause.token === ts.SyntaxKind.ExtendsKeyword && clause.types.length === 1 && clause.types[0].expression.getText(ast) === 'Error')) return false;
+    const constructor = node.members.find(ts.isConstructorDeclaration);
+    if (!constructor || constructor.parameters.length !== 2 || !constructor.parameters.every(p => ts.isIdentifier(p.name))) return false;
+    const assigned = new Map();
+    const visit = (child) => {
+      if (ts.isBinaryExpression(child) && child.operatorToken.kind === ts.SyntaxKind.EqualsToken && ts.isPropertyAccessExpression(child.left) && child.left.expression.kind === ts.SyntaxKind.ThisKeyword) assigned.set(child.left.name.text, child.right);
+      ts.forEachChild(child, visit);
+    };
+    visit(constructor);
+    return assigned.get('kind')?.getText(ast) === constructor.parameters[0].name.text && assigned.get('problem')?.getText(ast) === constructor.parameters[1].name.text && assigned.has('name') && ts.isStringLiteralLike(assigned.get('name')) && assigned.get('name').text === 'AccountFailure';
+  });
+  need(matches.length === 1, 'RESOLVE_PROBE_FAILURE_TYPE_UNIQUE');
+  const exports = ast.statements.filter(ts.isExportDeclaration).flatMap(n => n.exportClause && ts.isNamedExports(n.exportClause) ? [...n.exportClause.elements] : []).filter(n => (n.propertyName ?? n.name).text === matches[0].name);
+  need(exports.length === 1, 'RESOLVE_PROBE_FAILURE_TYPE_EXPORT');
+  return { ...binding, failure_export_name: exports[0].name.text };
+}
+

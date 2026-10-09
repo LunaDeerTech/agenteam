@@ -4,6 +4,7 @@ import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import type { ConfigCredentialSnapshot as Snapshot } from './configuration-and-credential';
+import { installResolvePublicationObservation, resolvePublicationProjection, type ResolvePublicationBinding } from './resolve-publication-observer';
 
 type ProjectKey = 'main' | 'second' | 'other' | 'admin_owned' | 'archiving' | 'archived' | 'deleting' | 'pending' | 'config_recovery' | 'credential_recovery' | 'referenced';
 type Project = Readonly<{ id: string; username: string; normalized_name: string; owner_user_id: string; initialized: boolean; lifecycle: string }>;
@@ -178,7 +179,7 @@ function resolveEvaluate(page: Page, work: () => Promise<unknown>): Promise<unkn
   void original.then(clear, clear);
   return original;
 }
-function resolveSampler(page: Page, slot: string, requestID: () => string | null, publish: (value: unknown, expectedID: string | null) => void, initial?: Promise<unknown>, kind: 'session' | 'resolve' = 'resolve', observeOwner = false) {
+function resolveSampler(page: Page, slot: string, requestID: () => string | null, publish: (value: unknown, expectedID: string | null) => void, initial?: Promise<unknown>, kind: 'session' | 'resolve' = 'resolve', observeOwner = false, observeResolve = false) {
   let stopped = false, started = false, timer: ReturnType<typeof setTimeout> | undefined;
   let pending: Promise<void> | undefined, samples = 0, settled = 0, failed = 0;
   const schedule = () => { if (!stopped) timer = setTimeout(sample, 250); };
@@ -188,11 +189,12 @@ function resolveSampler(page: Page, slot: string, requestID: () => string | null
     const expectedID = requestID();
     samples++;
     let work: Promise<unknown>;
-    try { work = resolveEvaluate(page, () => page.evaluate(({ slot, expectedID, kind, observeOwner }) => {
+    try { work = resolveEvaluate(page, () => page.evaluate(({ slot, expectedID, kind, observeOwner, observeResolve }) => {
       const probe = (window as any).__projectModelsProbe;
       const native = kind === 'session' ? probe.sessionSnapshot(slot, expectedID) : probe.resolveSnapshot(slot, expectedID);
+      if (observeResolve) return { native, resolve: (window as any).__authorityResolvePublication?.snapshot(expectedID) ?? null };
       return observeOwner ? { native, owner: (window as any).__authorityRestoreOwner?.snapshot(expectedID) ?? null } : native;
-    }, { slot, expectedID, kind, observeOwner })); }
+    }, { slot, expectedID, kind, observeOwner, observeResolve })); }
     catch { settled++; failed++; schedule(); return; }
     const observed = work.then((value) => { settled++; if (!stopped) publish(value, expectedID); }, () => { settled++; failed++; }).catch(() => { failed++; });
     pending = observed;
@@ -398,6 +400,7 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
   const contextClosed = () => { try { contextClose ??= mark(); } catch {} };
   const context = page.context();
   let ownerBinding: SessionBinding | undefined;
+  let resolveBinding: ResolvePublicationBinding | undefined;
   if (restoreOwner) {
     try {
       const root = resolve(process.env.AGENTEAM_PROJECT_MODELS_WEB_DIST!, '../../../..');
@@ -405,12 +408,21 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
       ownerBinding = await selector.loginOwnerModule(root);
     } catch { /* A missing/ambiguous singleton cannot supply a witness. */ }
   }
+  if (target.kind === 'resolve') {
+    try {
+      const root = resolve(process.env.AGENTEAM_PROJECT_MODELS_WEB_DIST!, '../../../..');
+      const selector = await (new Function('path', 'return import(path)'))(join(root, '.agent-state/model-ui-recovery/session-controller-binding.mjs'));
+      resolveBinding = await selector.resolveOwnerModule(root);
+    } catch { /* Public type/export binding unavailable: retain the original gate. */ }
+  }
   const slot = randomUUID();
   const kind = target.kind;
   let active = false, selected: Response | undefined, requestID: string | null = null;
   let beforeAction = 0, afterAction = 0;
   let latest: Record<string, boolean | number | string> | null = null, latestID: string | null = null;
   let latestOwner: Record<string, unknown> | null = null, progress: (() => void) | undefined;
+  let latestResolve: Record<string, unknown> | null = null, latestResolveID: string | null = null;
+  let resolveSource: 'unavailable' | 'sample' | 'end' = 'unavailable';
   let finalResult: ConsumptionResult | null = null, finalized = false;
   let snapshotSource: 'unavailable' | 'sample' | 'end' = 'unavailable';
   const targets: Request[] = [], finished = new Set<Request>(), failed = new Set<Request>();
@@ -468,23 +480,30 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
   page.on('request', requested); page.on('requestfinished', completed); page.on('requestfailed', rejected);
   page.on('close', pageClosed); context.on('close', contextClosed);
   let beginning: Promise<unknown>;
-  try { beginning = resolveEvaluate(page, () => restoreOwner && ownerBinding ? page.evaluate(installRestoreOwnerObservation, { binding: ownerBinding, expected: restoreOwner, slot, expiresAt }) : page.evaluate(({ slot, expiresAt, target }) => {
+  try { beginning = resolveEvaluate(page, () => restoreOwner && ownerBinding ? page.evaluate(installRestoreOwnerObservation, { binding: ownerBinding, expected: restoreOwner, slot, expiresAt }) : target.kind === 'resolve' && resolveBinding ? page.evaluate(installResolvePublicationObservation, { binding: resolveBinding, target, slot, expiresAt }) : page.evaluate(({ slot, expiresAt, target }) => {
     const probe = (window as any).__projectModelsProbe;
     return target.kind === 'session' ? probe.sessionBegin(slot, expiresAt, undefined, true) : probe.resolveBegin(slot, expiresAt, { username: target.username, project_name: target.project_name });
   }, { slot, expiresAt, target })); }
   catch { beginning = Promise.resolve(null); }
+  const observeResolve = target.kind === 'resolve' && !!resolveBinding;
   const sampler = resolveSampler(page, slot, () => requestID, (value, expectedID) => {
-    const safe = resolveSnapshot(restoreOwner && value && typeof value === 'object' ? (value as any).native : value);
+    const safe = resolveSnapshot((restoreOwner || observeResolve) && value && typeof value === 'object' ? (value as any).native : value);
     if (restoreOwner) latestOwner = restoreOwnerProjection(value && typeof value === 'object' ? (value as any).owner : null);
+    if (observeResolve) {
+      const publication = resolvePublicationProjection(value && typeof value === 'object' ? (value as any).resolve : null);
+      if (publication) { latestResolve = publication; latestResolveID = expectedID; resolveSource = 'sample'; }
+    }
     if (safe !== null) {
       latest = safe; latestID = expectedID; snapshotSource = 'sample';
       if (safe.eof_before_interruption === true && safe.request_id_match === true && expectedID && expectedID === requestID && targets.length === 1 && targets[0] === selected?.request() && targetMatch(targets[0]!)) firstEOFSample ??= mark();
     }
     progress?.();
-  }, beginning, kind, !!restoreOwner);
+  }, beginning, kind, !!restoreOwner, observeResolve);
   const beginResult = await bounded(() => beginning);
   const ownerInstall = !ownerBinding ? 'binding-unavailable' : beginResult === true ? 'armed'
     : typeof beginResult === 'string' && ['expired', 'assets-unobserved', 'observer-present', 'module-unavailable', 'singleton-unavailable', 'owner-unready', 'native-unavailable'].includes(beginResult) ? beginResult : 'unavailable';
+  const resolveInstall = !resolveBinding ? 'binding-unavailable' : beginResult === true ? 'armed'
+    : typeof beginResult === 'string' && ['expired', 'assets-unobserved', 'observer-present', 'module-unavailable', 'singleton-unavailable', 'failure-type-unavailable', 'owner-unready', 'native-unavailable'].includes(beginResult) ? beginResult : 'unavailable';
   return {
     start() { active = true; try { actionStarted ??= mark(); } catch {} },
     select(response: Response) {
@@ -526,14 +545,19 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
       if (finalized) return finalResult;
       finalized = true;
       let projection: Record<string, unknown> | null = null, ownerEvidence: Record<string, unknown> | null = null;
-      let identity: unknown = null, retired = false;
+      let identity: unknown = null, retired = false, resolveRetired = false;
       try {
         const sampling = await sampler.stop();
         // A timed-out evaluate keeps its single-flight ownership; no second
         // read or end can overlap an original observation that has not joined.
-        const value: unknown = sampling.sample_joined ? await bounded(() => resolveEvaluate(page, () => page.evaluate(({ slot, requestID, kind, observeOwner }) => {
+        const value: unknown = sampling.sample_joined ? await bounded(() => resolveEvaluate(page, () => page.evaluate(({ slot, requestID, kind, observeOwner, observeResolve }) => {
           const probe = (window as any).__projectModelsProbe;
-          if (kind === 'resolve') return probe.resolveEnd(slot, requestID);
+          if (kind === 'resolve') {
+            const native = probe.resolveEnd(slot, requestID);
+            if (!observeResolve) return native;
+            const publication = (window as any).__authorityResolvePublication?.finish(requestID) ?? null;
+            return { native, resolve: publication, retired: native !== null && probe.resolveSnapshot(slot, requestID) === null && !(window as any).__authorityResolvePublication && publication?.hooks_retired === true && publication?.pending_observations === 0 };
+          }
           const snapshot = probe.sessionSnapshot(slot, requestID);
           const ended = probe.sessionEnd(slot, requestID);
           const observer = (window as any).__authorityRestoreOwner;
@@ -541,11 +565,16 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
           const owner = observeOwner ? observer?.finish(requestID) ?? null : null;
           return observeOwner ? { native: ended !== null ? snapshot : null, owner, identity,
             retired: ended !== null && probe.sessionSnapshot(slot, requestID) === null && !(window as any).__authorityRestoreOwner } : snapshot;
-        }, { slot, requestID, kind, observeOwner: !!restoreOwner }))) : null;
+        }, { slot, requestID, kind, observeOwner: !!restoreOwner, observeResolve }))) : null;
         const owner = restoreOwnerProjection(restoreOwner && value && typeof value === 'object' ? (value as any).owner : null);
         identity = restoreOwner && value && typeof value === 'object' ? (value as any).identity : null;
-        const final = resolveSnapshot(restoreOwner && value && typeof value === 'object' ? (value as any).native : value);
+        const final = resolveSnapshot((restoreOwner || observeResolve) && value && typeof value === 'object' ? (value as any).native : value);
         if (final !== null) { latest = final; latestID = requestID; snapshotSource = 'end'; }
+        if (observeResolve) {
+          const publication = resolvePublicationProjection(value && typeof value === 'object' ? (value as any).resolve : null);
+          if (publication) { latestResolve = publication; latestResolveID = requestID; resolveSource = 'end'; }
+          resolveRetired = !!value && typeof value === 'object' && (value as any).retired === true;
+        }
         const native = latest;
         const request = selected?.request(), error = request?.failure()?.errorText;
         const pwFailure = error === undefined ? 'none' : error === 'net::ERR_ABORTED' ? 'aborted' : error === 'net::ERR_CONNECTION_RESET' ? 'reset' : error === 'net::ERR_CONNECTION_CLOSED' ? 'closed' : 'other';
@@ -608,6 +637,13 @@ async function beginResponseDiagnostic(page: Page, target: ResponseDiagnosticTar
         timing.pw_failed_test_status = request ? failedTimes.get(request)?.test_status ?? 'unknown' : 'unknown';
         timing.original_finished_wait_rejected = waitRejected;
         timing.projection_recorded = mark();
+        if (target.kind === 'resolve') {
+          projection.resolve_publication_install = resolveInstall;
+          projection.resolve_publication_source = resolveSource;
+          projection.resolve_publication = latestResolve;
+          projection.resolve_publication_selected_bound = !!request && targetMatch(request) && beforeAction === 0 && afterAction === 1 && targets.length === 1 && targets[0] === request && !!requestID && latestResolveID === requestID && latestResolve?.problem_request_id_matches === true && latestResolve.problem_instance_matches === true && latestResolve.resolve_calls === 1 && latestResolve.target_calls === 1 && latestResolve.problem_status === selected?.status() && latest?.request_id_match === true && latest.requests === 1;
+          projection.resolve_publication_observers_retired = resolveRetired;
+        }
         try {
           if (failure) writeFileSync(join(process.env.AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE!, artifact), JSON.stringify(projection), { mode: 0o600 });
           if (restoreOwner && ownerEvidence) {
