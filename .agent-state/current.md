@@ -25,3 +25,7 @@
 
 - 下一真实业务组 `^TestKnowledgeB02OwnerTree$` 四子输入在 `tests/knowledge/b02_owner_tree_test.go`，最终 race-c78547、exact discovery/vet79200 实际0，未运行。真实 Account/Project/Activity 同 Store；预置自有事实不称创建 API，未调用外域为调用即失败的测试口，Process death 口 Unbound，不证明对象/发布/join。四子核 Owner门禁、Move/重放/防环、分页路径、同Tx回滚与 endedTx。该 binary 导入全部 Knowledge Go，输入冻结至本轮全尾。
 - freshgrant 后准确命令：`python3 .agent-state/task-planning-recovery/pg_only_supervisor.py --driver /workspace/agenteam-knowledge/output/ai/knowledge/pg-only-driver --binary /workspace/agenteam-knowledge/output/ai/knowledge/knowledge-owner-tree-race.test --run '^TestKnowledgeB02OwnerTree$' --output /workspace/agenteam-knowledge/output/ai/knowledge/pg`。复用已接受 driver/ca9 supervisor，PG17 单容器+nonce网、105s work+15s cleanup／123s supervisor+3s retire／75s TCP尾／5GiB 原门槛不变；完整 actualWait/资源与TCP双尾后才释放。root 队列为 Variables 修后存储三top→本组→UI首次read；尚未获得本组实际启动授权。
+
+- OwnerTree 首轮9063已完整 FAIL/资源释放：Go2.88s、driver15.918s、outer77.036s；两个归档后读取/lookup步骤 DependencyUnavailable，分页路径与caller rollback/endedTx两子PASS。Go/driver actualWait1、精确2ID双退役、desc双空、TCP双delta空、inputs一致，目录仅owned.json。日志 `output/ai/knowledge/pg/pg-695d95ccfa5442f981d6be8c3658a387.log`。
+- 已查明并最小修正测试归档事实：helper原来 archived_at 晚于未更新的 updated_at，违背正式 ProjectRef；现在同statement_timestamp同步两字段且version+1，不动产品/四子门槛。原组合负／修后正的正式validator控制84556 actual0；修后原路径binary race-c83775 actual0、精确discovery通过，真实复验待freshgrant。全Knowledge生产Go仍保持原冻结输入，沿上一精确命令与预算，不自动追加top。
+- title-only内部第十一片段已获未参与实现者有限独审接受；只证明该内部接线，完整Update/外层runtime/真实Outbox仍待验。

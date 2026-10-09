@@ -226,7 +226,10 @@ func (x *ownerTreeFixture) count(t *testing.T, project id.ProjectID) (int, int) 
 	return commands, events
 }
 func (x *ownerTreeFixture) archive(t *testing.T, project id.ProjectID) {
-	x.exec(t, `UPDATE agenteam_project.projects SET lifecycle='archived',archived_at=clock_timestamp() WHERE id=$1`, project.String())
+	// A completed archive advances the Project version and both timestamps.
+	// ProjectRef rejects archived_at after updated_at even for read-only access.
+	x.exec(t, `UPDATE agenteam_project.projects SET lifecycle='archived',version=version+1,
+ archived_at=statement_timestamp(),updated_at=statement_timestamp() WHERE id=$1`, project.String())
 }
 
 func TestKnowledgeB02OwnerTree(t *testing.T) {
