@@ -21,7 +21,8 @@ export function installVariableNativeDiagnostic() {
   const originalFetch = window.fetch;
   const records: any[] = [],
     restorers: (() => void)[] = [];
-  let retired = false;
+  let retired = false,
+    hooksRetired = false;
   const documentID = crypto.randomUUID();
   const uuid =
     "[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}";
@@ -32,14 +33,21 @@ export function installVariableNativeDiagnostic() {
     if (retired) return;
     retired = true;
     clearTimeout(timer);
+    hooksRetired = true;
     for (const restore of restorers.reverse()) {
       try {
         restore();
       } catch {
-        /* unavailable */
+        hooksRetired = false;
       }
     }
-    if (window.fetch === fetcher) window.fetch = originalFetch;
+    if (window.fetch === fetcher) {
+      try {
+        window.fetch = originalFetch;
+      } catch {
+        hooksRetired = false;
+      }
+    }
   }
   function fetcher(
     this: unknown,
@@ -325,7 +333,7 @@ export function installVariableNativeDiagnostic() {
       if (end) retire();
       return {
         document: documentID,
-        retired,
+        retired: hooksRetired,
         records: records.map((record) => ({
           ...record,
           facts: { ...record.facts },
@@ -363,11 +371,23 @@ export function nativeConsumption(page: Page) {
     if (stopped || pending) return pending;
     const startedEpoch = epoch;
     count++;
-    const work = page.evaluate(
-      (end) =>
-        (window as any).__variableNativeDiagnostic?.snapshot(end) ?? null,
-      end,
-    );
+    let work: Promise<any>;
+    try {
+      work = page.evaluate(
+        (end) =>
+          (window as any).__variableNativeDiagnostic?.snapshot(end) ?? null,
+        end,
+      );
+    } catch {
+      settled++;
+      failed++;
+      if (!stopping)
+        timer = setTimeout(() => {
+          timer = undefined;
+          launch();
+        }, 250);
+      return Promise.resolve();
+    }
     const branch = work
       .then(
         (value) => {

@@ -616,7 +616,14 @@ func (n variableWebNativeDiagnostic) valid() bool {
 			return false
 		}
 	}
-	return true
+	eof := f.ReadDone && f.ReadDoneOrder > 0 && !f.CancelBeforeEOF && !f.SignalAbortedAtStart
+	for _, order := range []int64{f.AbortOrder, f.ReadRejectedOrder, f.ReaderCancelOrder, f.StreamCancelOrder} {
+		if order != 0 && order <= f.ReadDoneOrder {
+			eof = false
+		}
+	}
+	comparable := eof && f.ContentLengthValid && f.ContentEncodingIdentity
+	return n.EOFBeforeInterruption == eof && n.LengthComparable == comparable && n.LengthMatches == (comparable && f.ContentLength == f.Bytes)
 }
 
 func (n variableWebNetworkFailure) valid() bool {

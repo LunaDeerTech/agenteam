@@ -134,3 +134,5 @@ CRUD02前的离线实际helper控制发现合成CSRF占位不满足正式43字�
 CRUD02随后获新独占窗口并执行，whole FAIL：Go20.86s/browser exit1，闭集投影定位crud step6、helpers:372的网络事件复合error gate；原body/schema与SQL后验尚未到达，不能据末段页面状态声称CRUD通过。原布尔合并了非预期失败、重复事件和finished尾异常，具体原因仍缺测量；拟仅补闭集诊断，不放宽gate。所有层actualWait、本次owned Z先采State再wait0、7资源/private/runtime/desc及TCP双尾齐，监督器122.100s terminal1和输入不变已确认，窗口释放。首两次原FAIL保留，下一真实重跑仍需fresh授权。
 
 诊断首源码已接入：闭集网络事件分类及原请求native消费计数，旁观原fetch/read/cancel Promise，不clone/tee/额外read/HTTP；按唯一XID+method/原path/query/status/同document关联，EOF须早于取消/abort/read拒绝，CL仅identity编码且合法时可比。单flight采样与有界退休只提供诊断，不以native EOF证明UI发布，不替代普通finished/body/schema/client/SQL gate。生产/dist未改，Go只新增typed安全输出，driver只追加确切native源输入；strictTS已过，行为控制/新测试binary及窄独审仍待完成。
+
+诊断离线行为控制已通过：实际helper事件正反、锁定PW变换/序列化后的native原Promise语义、唯一原请求绑定、EOF/取消顺序与CL、单flight/导航/退休/迟到及Go安全解码正反。Node同步evaluate throw和未能恢复owned hook均标不可用，不冒join或退休。最终strictTS、binary06 race编译和六入口发现通过；六UI输入只新增确切native源且非UI默认不变。原dist02复用，本次尚待独立窄审；普通网络gate没有放宽，CRUD03尚未获授权或执行。
