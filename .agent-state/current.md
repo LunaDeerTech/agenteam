@@ -7,3 +7,5 @@
 - 首片段四契约及 Audit contract/HTTP/schema/三前端兼容已闭合：Go pure/race、前端99项与严格类型检查实际通过。首轮 schema 环境 setup FAIL 和旧测试分类1FAIL保留，限定复验通过；无真实 PG/native/browser/网络运行，无整体产品验收。产物在 `output/ai/project-variables/implementation/`。
 - 第二片段00024、领域六能力/Stop-Drain/原意图/事实Authority及Project精确分派已可构建，窄pure/race/vet实际0；completed缺receipt负控原FAIL已限修复验，SQL仅静态核约束增量。00024/Project精确分派已独立有限静审接受，未冒PG验收。第三片段HTTP/OpenAPI/defaultroot装配及调用join已闭合，正式schema pure、限定race/vet与两个入口build实际通过；原HTTP诊断canary测试分类FAIL保留并修后复验。接下来写真实Account/Project前置的持久化、权限、竞争、恢复与native/root验收，尚无实际PG/native/root结果。卡与本文件及卡§2产品唯一 writer 为 `service_delivery/blocker_implementation`，已获 root 授权；独立 probe 后续另派。UI 已交回 service_delivery，不在此树复制其 WIP 或 Model 流水。
 - 全局产品状态见[任务台账](../docs/development/agent-team/tasks.md)。本文件只作分支恢复。当前HTTP/root限定片段可保存，继续尚未完成的集成验收源码；Git 写入、分支、真实资源窗均由 root 处理。
+
+- 首批 PG fixture/persistence 源已 freeze：四 top 的 `variable-persistence-race-02.test` 离线 race-c/精确发现通过，待根授权首 Persistence 真 PG。原 fixture 首 compile FAIL保留。00024原遗漏00013 Project Audit guard与新动作的兼容已精确修复，并获发现者有限独审；非SQL动态通过。根导入正式ca9f2d5d有界supervisor，其他测试工具不改；下一先核真实SQL，再继续权限/竞争/恢复/native/root剩余源码。

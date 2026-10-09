@@ -121,6 +121,25 @@ ALTER TABLE agenteam_audit.audit_records ADD CONSTRAINT audit_records_check2 CHE
  OR (resource_kind IN ('project','project_operation','project_creation') AND resource_id IS NOT NULL)
  OR (resource_kind IN ('model_provider','model_config','model_selection','project_variable') AND resource_id IS NOT NULL));
 
+-- The original Project guard reserves every project.* action. Preserve its
+-- entire predicate and admit only the three separate Variable action tuples.
+-- The independent projectvariable_contract below still validates their facts.
+-- +goose StatementBegin
+DO $projectvariable_guard$
+DECLARE original_guard text;
+BEGIN
+ SELECT pg_get_expr(conbin,conrelid) INTO STRICT original_guard
+ FROM pg_constraint
+ WHERE conrelid='agenteam_audit.audit_records'::regclass
+   AND conname='audit_records_project_contract' AND contype='c';
+ ALTER TABLE agenteam_audit.audit_records DROP CONSTRAINT audit_records_project_contract;
+ EXECUTE 'ALTER TABLE agenteam_audit.audit_records ADD CONSTRAINT audit_records_project_contract CHECK (('
+  || original_guard || ') OR (producer=''projectvariable'' AND resource_kind=''project_variable'' AND action IN '
+  || '(''project.variable.create'',''project.variable.update'',''project.variable.delete'')))';
+END;
+$projectvariable_guard$;
+-- +goose StatementEnd
+
 ALTER TABLE agenteam_audit.audit_records ADD CONSTRAINT audit_records_projectvariable_contract CHECK((
  (producer<>'projectvariable' AND action NOT IN ('project.variable.create','project.variable.update','project.variable.delete') AND resource_kind<>'project_variable')
  OR (producer='projectvariable' AND scope='project' AND actor_kind='human' AND outcome='success' AND ordinal=0
