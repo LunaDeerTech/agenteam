@@ -16,4 +16,11 @@
 - 新`projectvariable/secret_records.go`只定义无材料/无裸semantic摘要/无Session的内部completed记录、闭集结果与两域版本/原command/presence对应验证，显式逐字段比较D04安全observation；不用其固定JSON标记判断相等。Lookup适配保当前完整Actor/Session，历史identity只按稳定User匹配；它不是权限provider或实际D04观察。
 - 新`secret_records_test.go`三top覆盖五effect/presence、跨Project/target/User/key/未观察及结果时间拒绝，schema合法但不相等的opaque observation，换Session绑定与固定fmt/JSON/slog输出。a81bbe同进程fresh5828571136后，Go1.27.1原cache/offline/-p1定向race原session37317→3c0795 actual0（1.019s）；没有TestMain/PG/socket。目标为`^TestSecretOwner(StoredRecordsFiveEffectsAndCrossBindings|ObservationEqualityUsesActualFields|RecordLookupSessionSeparationAndSafeFormatting)$`。
 - `.agent-state/secret-variable-owner-service/owner-storage.draft.sql`为00030必要草案，未置正式migration/未PG：共享type互斥payload、completed-only安全command、Secret history/generation/本域引用记录及exact新Audit guards。history→command FK延迟同Txcommit检查，使真实Audit返回ID后才complete；保旧跨type名称唯一及Project/ordinary/其它Audit predicates，不改前序SQL。
-- 本文、卡、新SQL草案及record两Go共5paths freeze；1df33e限定gofmt/diffcheck0，所有实际工具终态。Store扫描/真实D04authority/Owner服务/事实路由/SQL与完整验收均未实现或执行，不外推本纯片段。
+- 首5paths已root保存fc162052；1df33e限定gofmt/diffcheck0，原实际工具终态。Owner服务/事实路由/SQL与完整验收仍未完成，不外推本纯片段。
+
+## 安全repository与D04 authority接缝
+
+- 新`secret_repository.go`实现Secret目录/安全completed扫描与原observation重建、completed插入和独立generation读取；严格区分Variable与Credential版本、回执Event/Audit列和安全DTO，未知/损坏记录拒绝。没有直接读取D04表或材料。
+- 新`secret_write_authority.go`不可变绑定同Store与真实Project端口；Discover在原command/User/Project锁与当前Owner Read后才看历史，新写再检查Mutate与当前前像。CheckPlan仅私有issuer/完整原Actor(Session)/request纯验真；CheckInTx不另开Tx/补锁，完整锁和当前门先行，历史ReceiptRead不借写权限，NewWrite不接受已有completed。合法新create候选不同导致历史锁变化时只发私有reprepare标记，后续Owner不得用于Unknown重试。
+- 新`secret_authority_test.go`三top定向race：repository损坏列、私有/foreign计划与换Session、原锁/当前权限先于SQL、历史路径与发现Unknown。控制Store/Project/Rows明确为替身，不证明真实Session/SQL。首d859a3因测试API/不可比LockKey编译失败；修后57d02b与9d2dba分别发现测试非法key刺激和列下标错误，已修测试。最终711af2同进程fresh5650407424，原session49584→5e447a actual0（1.079s）；无活命令/实际资源。
+- 当前3新Go＋本文4paths冻结供root checkpoint。后续Owner服务、canonical/history/finalTx与真实facts/SQL仍待实现验收；D04/29/前缀和app/HTTP均未改。
