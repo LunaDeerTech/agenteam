@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"math"
+	"strings"
 	"testing"
 	"time"
 
@@ -516,6 +517,91 @@ func TestTaskReorderPlanRequiresExactTargetPreimageRank(t *testing.T) {
 	r.Plan.Groups[0].Before[0].Rank = "00000000000000000000000000000001"
 	if validateTaskRecord(r, actor) == nil {
 		t.Fatal("forged target preimage rank accepted")
+	}
+}
+
+func TestTaskPrivatePlansRejectNestedAliasesMissingKeysAndNull(t *testing.T) {
+	r, actor, _ := pureTaskRecord(t)
+	raw, err := json.Marshal(r.Plan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decode := func(raw []byte) error {
+		plan, err := decodePrivate[taskPlan](raw, taskPlanCap, taskPlanFields)
+		if err != nil {
+			return err
+		}
+		copy := *r
+		copy.Plan = &plan
+		return validateTaskRecord(&copy, actor)
+	}
+	if err = decode(raw); err != nil {
+		t.Fatal("canonical private plan rejected", err)
+	}
+	for name, transform := range map[string]func(string) string{
+		"placement-case": func(s string) string { return strings.Replace(s, `"state":"planned"`, `"STATE":"planned"`, 1) },
+		"placement-alias": func(s string) string {
+			return strings.Replace(s, `"state":"planned"`, `"state":"planned","STATE":"planned"`, 1)
+		},
+		"placement-missing": func(s string) string { return strings.Replace(s, `,"state":"planned"`, "", 1) },
+		"placement-null":    func(s string) string { return strings.Replace(s, `"state":"planned"`, `"state":null`, 1) },
+		"placement-unknown": func(s string) string {
+			return strings.Replace(s, `"state":"planned"`, `"state":"planned","extra":true`, 1)
+		},
+		"group-case":               func(s string) string { return strings.Replace(s, `"group":`, `"GROUP":`, 1) },
+		"group-alias":              func(s string) string { return strings.Replace(s, `"generation":1`, `"generation":1,"Generation":1`, 1) },
+		"group-missing-generation": func(s string) string { return strings.Replace(s, `,"generation":1`, "", 1) },
+		"group-null-before":        func(s string) string { return strings.Replace(s, `"before":[]`, `"before":null`, 1) },
+		"rank-id-case":             func(s string) string { return strings.Replace(s, `"ID":`, `"id":`, 1) },
+		"rank-case":                func(s string) string { return strings.Replace(s, `"Rank":`, `"rank":`, 1) },
+		"rank-alias": func(s string) string {
+			return strings.Replace(s, `"Rank":"7fffffffffffffffffffffffffffffff"`, `"Rank":"7fffffffffffffffffffffffffffffff","rank":"7fffffffffffffffffffffffffffffff"`, 1)
+		},
+		"rank-missing": func(s string) string { return strings.Replace(s, `,"Rank":"7fffffffffffffffffffffffffffffff"`, "", 1) },
+		"rank-null": func(s string) string {
+			return strings.Replace(s, `"Rank":"7fffffffffffffffffffffffffffffff"`, `"Rank":null`, 1)
+		},
+		"rank-duplicate": func(s string) string {
+			return strings.Replace(s, `"Rank":"7fffffffffffffffffffffffffffffff"`, `"Rank":"7fffffffffffffffffffffffffffffff","Rank":"7fffffffffffffffffffffffffffffff"`, 1)
+		},
+		"rank-surrogate": func(s string) string {
+			return strings.Replace(s, `"Rank":"7fffffffffffffffffffffffffffffff"`, `"Rank":"\ud800"`, 1)
+		},
+		"header-case":       func(s string) string { return strings.Replace(s, `"event_type":`, `"EVENT_TYPE":`, 1) },
+		"header-scope-case": func(s string) string { return strings.Replace(s, `"scope":`, `"SCOPE":`, 1) },
+	} {
+		t.Run(name, func(t *testing.T) {
+			changed := transform(string(raw))
+			if changed == string(raw) {
+				t.Fatal("test did not alter private wire")
+			}
+			if decode([]byte(changed)) == nil {
+				t.Fatal("noncanonical nested private plan accepted")
+			}
+		})
+	}
+}
+
+func TestTaskPrivateInputAndOpaqueStayStrict(t *testing.T) {
+	r, _, _ := pureTaskRecord(t)
+	raw, err := json.Marshal(r.Input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, changed := range []string{strings.Replace(string(raw), `"command":`, `"COMMAND":`, 1), strings.Replace(string(raw), `"title":"private title"`, `"title":"private title","TITLE":"private title"`, 1), strings.Replace(string(raw), `"title":"private title"`, `"title":"\ud800"`, 1)} {
+		if _, err := decodePrivate[taskInput]([]byte(changed), taskRequestCap, taskInputFields); err == nil {
+			t.Fatal("noncanonical private input accepted")
+		}
+	}
+	opaque := taskOpaque{Kind: "task_planning", CommandID: r.ID, Revision: 1, TaskEventID: *r.TaskEventID}
+	raw, err = json.Marshal(opaque)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, changed := range []string{strings.Replace(string(raw), `"kind":`, `"KIND":`, 1), strings.Replace(string(raw), `"plan_revision":"1"`, `"plan_revision":"1","Plan_Revision":"1"`, 1), strings.Replace(string(raw), `"kind":"task_planning"`, `"kind":null`, 1)} {
+		if _, err := decodePrivate[taskOpaque]([]byte(changed), 16384, []string{"kind", "command_id", "plan_revision", "task_event_id"}); err == nil {
+			t.Fatal("noncanonical opaque accepted")
+		}
 	}
 }
 

@@ -502,3 +502,19 @@ func verifyTaskPostimage(ctx context.Context, x postgres.SQLExecutor, r *taskRec
 	}
 	return nil
 }
+
+func (v *taskOpaque) UnmarshalJSON(raw []byte) error {
+	if _, err := taskPrivateObject(raw, 16384, []string{"kind", "command_id", "plan_revision", "task_event_id"}, nil); err != nil {
+		return err
+	}
+	type wire taskOpaque
+	var next wire
+	if err := json.Unmarshal(raw, &next); err != nil {
+		return internal(err)
+	}
+	if next.Kind != "task_planning" || next.CommandID.Validate() != nil || next.Revision.Validate() != nil || next.TaskEventID.Validate() != nil {
+		return internal(nil)
+	}
+	*v = taskOpaque(next)
+	return nil
+}

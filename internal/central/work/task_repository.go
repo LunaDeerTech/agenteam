@@ -1,6 +1,7 @@
 package work
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -8,7 +9,12 @@ import (
 	"io"
 	"log/slog"
 	"math"
+	"slices"
+	"strconv"
 	"time"
+	"unicode/utf8"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -336,13 +342,6 @@ func scanTaskCommand(row interface{ Scan(...any) error }) (*taskRecord, error) {
 		if e != nil {
 			return nil, e
 		}
-		var shape map[string]json.RawMessage
-		if json.Unmarshal(plan, &shape) != nil {
-			return nil, internal(nil)
-		}
-		if p.Header, e = event.DecodeHeader(shape["header"]); e != nil {
-			return nil, internal(e)
-		}
 		v.Plan = &p
 	}
 	if te != nil {
@@ -506,4 +505,239 @@ func applyTaskPlan(ctx context.Context, x postgres.SQLExecutor, r *taskRecord) e
 		return err
 	}
 	return taskAffected(x.Exec(ctx, `INSERT INTO agenteam_work.task_events(id,project_id,task_id,task_version,type,actor,operation_id,correlation_id,payload,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`, history.ID.String(), history.ProjectID.String(), history.TaskID.String(), int64(history.TaskVersion), string(history.Type), actor, history.OperationID.String(), history.CorrelationID.String(), []byte(history.Payload), history.CreatedAt.Time()))
+}
+
+// These codecs belong only to Task's persisted schema. In particular, the
+// shared Structure rankItem keeps its existing codec: Task decodes its vectors
+// through an explicit wire shape whose exact keys match rankItem's serializer.
+// Every object is checked before encoding/json can accept case aliases or turn
+// a missing/null field into a useful zero value.
+func taskPrivateObject(raw []byte, limit int, fields, nullable []string) (map[string]json.RawMessage, error) {
+	if len(raw) == 0 || len(raw) > limit || !utf8.Valid(raw) {
+		return nil, internal(nil)
+	}
+	// CanonicalJSON rejects duplicate decoded keys, malformed JSON, trailing
+	// values and noncanonical numeric scalars, but encoding/json repairs lone
+	// UTF-16 surrogates. Check the original escapes before that can happen.
+	inString := false
+	for n := 0; n < len(raw); n++ {
+		if raw[n] == '"' {
+			inString = !inString
+			continue
+		}
+		if !inString || raw[n] != '\\' {
+			continue
+		}
+		n++
+		if n >= len(raw) {
+			return nil, internal(nil)
+		}
+		if raw[n] != 'u' {
+			continue
+		}
+		if n+4 >= len(raw) {
+			return nil, internal(nil)
+		}
+		code, err := strconv.ParseUint(string(raw[n+1:n+5]), 16, 16)
+		if err != nil {
+			return nil, internal(nil)
+		}
+		n += 4
+		if code >= 0xdc00 && code <= 0xdfff {
+			return nil, internal(nil)
+		}
+		if code >= 0xd800 && code <= 0xdbff {
+			if n+6 >= len(raw) || raw[n+1] != '\\' || raw[n+2] != 'u' {
+				return nil, internal(nil)
+			}
+			low, err := strconv.ParseUint(string(raw[n+3:n+7]), 16, 16)
+			if err != nil || low < 0xdc00 || low > 0xdfff {
+				return nil, internal(nil)
+			}
+			n += 6
+		}
+	}
+	if _, err := cursor.CanonicalJSON(raw); err != nil {
+		return nil, internal(err)
+	}
+	var object map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &object); err != nil || object == nil || len(object) != len(fields) {
+		return nil, internal(err)
+	}
+	for key, value := range object {
+		if !slices.Contains(fields, key) || bytes.Equal(bytes.TrimSpace(value), []byte("null")) && !slices.Contains(nullable, key) {
+			return nil, internal(nil)
+		}
+	}
+	return object, nil
+}
+
+func (v *taskInput) UnmarshalJSON(raw []byte) error {
+	if _, err := taskPrivateObject(raw, taskRequestCap, taskInputFields, []string{"expected_version", "create", "update", "reorder"}); err != nil {
+		return err
+	}
+	type wire taskInput
+	var next wire
+	if err := json.Unmarshal(raw, &next); err != nil {
+		return internal(err)
+	}
+	if next.Command.Validate() != nil || next.Project.Validate() != nil || next.Target.Validate() != nil || next.User.Validate() != nil {
+		return internal(nil)
+	}
+	switch next.Command {
+	case taskCreate:
+		if next.Expected != nil || next.Create == nil || next.Update != nil || next.Reorder != nil || next.Create.TaskID != next.Target {
+			return internal(nil)
+		}
+	case taskUpdate:
+		if next.Expected == nil || next.Expected.Validate() != nil || next.Create != nil || next.Update == nil || next.Reorder != nil {
+			return internal(nil)
+		}
+	case taskReorder:
+		if next.Expected == nil || next.Expected.Validate() != nil || next.Create != nil || next.Update != nil || next.Reorder == nil || next.Reorder.BeforeID != nil && *next.Reorder.BeforeID == next.Target {
+			return internal(nil)
+		}
+	default:
+		return internal(nil)
+	}
+	*v = taskInput(next)
+	return nil
+}
+
+func (v *taskPlacement) UnmarshalJSON(raw []byte) error {
+	if _, err := taskPrivateObject(raw, taskPlanCap, []string{"milestone_id", "sprint_id", "state"}, nil); err != nil {
+		return err
+	}
+	type wire taskPlacement
+	var next wire
+	if err := json.Unmarshal(raw, &next); err != nil {
+		return internal(err)
+	}
+	if next.Milestone.Validate() != nil || next.Sprint.Validate() != nil || (next.State != c.Planned && next.State != c.Current) {
+		return internal(nil)
+	}
+	*v = taskPlacement(next)
+	return nil
+}
+
+func (v *taskGroup) UnmarshalJSON(raw []byte) error {
+	if _, err := taskPrivateObject(raw, taskPlanCap, []string{"sprint_id", "state", "priority"}, nil); err != nil {
+		return err
+	}
+	type wire taskGroup
+	var next wire
+	if err := json.Unmarshal(raw, &next); err != nil {
+		return internal(err)
+	}
+	if next.Sprint.Validate() != nil || next.State.Validate() != nil || next.Priority.Validate() != nil {
+		return internal(nil)
+	}
+	*v = taskGroup(next)
+	return nil
+}
+
+func decodeTaskRankVector(raw []byte) ([]rankItem, error) {
+	// The containing strict object has already checked raw JSON, escapes and
+	// duplicate keys. Decode each element independently to reject null objects,
+	// aliases, missing fields and unknown keys without changing shared rankItem.
+	var items []json.RawMessage
+	if len(raw) == 0 || len(raw) > taskPlanCap {
+		return nil, internal(nil)
+	}
+	if err := json.Unmarshal(raw, &items); err != nil || items == nil || len(items) > taskGroupCap {
+		return nil, internal(err)
+	}
+	out := make([]rankItem, 0, len(items))
+	seen := make(map[string]bool, len(items))
+	for _, item := range items {
+		if _, err := taskPrivateObject(item, taskPlanCap, []string{"ID", "Rank"}, nil); err != nil {
+			return nil, err
+		}
+		var row rankItem
+		if err := json.Unmarshal(item, &row); err != nil {
+			return nil, internal(err)
+		}
+		if _, err := f.ParseID[c.Task](row.ID); err != nil || c.ValidateRank(row.Rank) != nil || seen[row.ID] || len(out) > 0 && out[len(out)-1].Rank >= row.Rank {
+			return nil, internal(err)
+		}
+		seen[row.ID] = true
+		out = append(out, row)
+	}
+	return out, nil
+}
+
+func (v *taskGroupPlan) UnmarshalJSON(raw []byte) error {
+	object, err := taskPrivateObject(raw, taskPlanCap, []string{"group", "before", "after", "generation"}, nil)
+	if err != nil {
+		return err
+	}
+	var next taskGroupPlan
+	if err = json.Unmarshal(object["group"], &next.Group); err != nil {
+		return internal(err)
+	}
+	if err = json.Unmarshal(object["generation"], &next.Generation); err != nil || next.Generation < 1 {
+		return internal(err)
+	}
+	if next.Before, err = decodeTaskRankVector(object["before"]); err != nil {
+		return err
+	}
+	if next.After, err = decodeTaskRankVector(object["after"]); err != nil {
+		return err
+	}
+	*v = next
+	return nil
+}
+
+func decodeTaskPlanHeader(raw []byte) (event.Header, error) {
+	object, err := taskPrivateObject(raw, taskPlanCap, []string{"event_id", "event_type", "schema_version", "occurred_at", "scope", "aggregate_type", "aggregate_id", "aggregate_version"}, nil)
+	if err != nil {
+		return event.Header{}, err
+	}
+	if _, err = taskPrivateObject(object["scope"], taskPlanCap, []string{"kind", "project_id"}, nil); err != nil {
+		return event.Header{}, err
+	}
+	h, err := event.DecodeHeader(raw)
+	if err != nil || h.EventType != c.TaskChangedName || h.AggregateType != c.TaskAggregate || h.SchemaVersion != c.TaskSchemaVersion || h.Scope.Kind != event.ProjectScope || h.AggregateVersion == nil || h.AggregateSequence != nil {
+		return event.Header{}, internal(err)
+	}
+	return h, nil
+}
+
+func (v *taskPlan) UnmarshalJSON(raw []byte) error {
+	object, err := taskPrivateObject(raw, taskPlanCap, taskPlanFields, []string{"before"})
+	if err != nil {
+		return err
+	}
+	// Header is intentionally raw here: event.Header has a distinct explicit
+	// DecodeHeader boundary, and a plain nested struct would bypass that boundary.
+	var next struct {
+		Before          *c.Task         `json:"before"`
+		After           c.TaskMutation  `json:"after"`
+		Placement       taskPlacement   `json:"placement"`
+		Groups          []taskGroupPlan `json:"groups"`
+		QueryGeneration int64           `json:"query_generation"`
+		TaskEvent       json.RawMessage `json:"task_event"`
+		Header          json.RawMessage `json:"header"`
+		Payload         json.RawMessage `json:"payload"`
+	}
+	if err = json.Unmarshal(raw, &next); err != nil {
+		return internal(err)
+	}
+	if !next.After.Changed || next.Groups == nil || len(next.Groups) > 2 || next.QueryGeneration < 1 {
+		return internal(nil)
+	}
+	header, err := decodeTaskPlanHeader(object["header"])
+	if err != nil {
+		return err
+	}
+	var history c.TaskEvent
+	if err = history.UnmarshalJSON(next.TaskEvent); err != nil {
+		return internal(err)
+	}
+	var payload c.TaskChanged
+	if err = payload.UnmarshalJSON(next.Payload); err != nil {
+		return internal(err)
+	}
+	*v = taskPlan{Before: next.Before, After: next.After, Placement: next.Placement, Groups: next.Groups, QueryGeneration: next.QueryGeneration, TaskEvent: bytes.Clone(next.TaskEvent), Header: header, Payload: bytes.Clone(next.Payload)}
+	return nil
 }

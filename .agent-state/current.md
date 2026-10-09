@@ -43,5 +43,7 @@
 
 ## 本轮独立发现与返修
 
-- Task私有计划闭集原FAIL已真实复现：placement.state改STATE、rank向量同时含Rank/rank仍被接受，见 `independent-runtime-private_test.go`；原offline race命令exit1、actualWait。没有冒称授权绕过。新PG已在启动前暂停，原owner仅在Task repository/events补完整嵌套strict解码及caps，20+pure负例PASS；独立原输入复验/最新A-B和作者binary重编译仍待结果，不回填旧FAIL。
+- Task私有计划闭集原FAIL已真实复现：placement.state改STATE、rank向量同时含Rank/rank仍被接受，见 `independent-runtime-private_test.go`；原offline race命令exit1、actualWait。没有冒称授权绕过。新PG已在启动前暂停，原owner仅在Task repository/events补完整嵌套strict解码及caps，20+pure负例PASS；独立原输入复验及224结构/10Unicode-EOF负例与正例实际race PASS、作者pure/vet PASS；新作者expanded-codec及新独立A-B binary已重编/精确发现exit0。旧binary不能当修后语义证据，原exit1不回填。
 - Model第四段：constructor、9IPC dispatcher、只读snapshot与浏览器子进程受控入口/六Go selectors已补入两Go源，delivery race-c与6个pure实际exit0；六浏览器business仍未通过。
+
+- 私有修复/新独立probe已冻结待恢复：Task repository/events/test三源，private-matrix及private-run。最新独立A-B binary为忽略output中的 `independent-runtime-build-e1y4nejg/independent-runtime.test`；七新四旧Structure与独立A-B PG尚待运行。
