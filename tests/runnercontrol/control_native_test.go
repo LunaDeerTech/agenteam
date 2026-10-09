@@ -34,18 +34,19 @@ import (
 // every accepted connection (including hijacks), and every handler return.
 // HTTP Shutdown alone is not evidence that the Runner WSS owner has joined.
 type runnerNativeServer struct {
-	service   *service.Service
-	server    *http.Server
-	listener  net.Listener
-	served    chan error
-	origin    string
-	security  *tls.Config
-	transport *http.Transport
-	http      *http.Client
-	handlers  sync.WaitGroup
-	controls  atomic.Int64
-	mu        sync.Mutex
-	conns     map[*runnerNativeConn]struct{}
+	service     *service.Service
+	server      *http.Server
+	listener    net.Listener
+	served      chan error
+	origin      string
+	security    *tls.Config
+	transport   *http.Transport
+	http        *http.Client
+	handlers    sync.WaitGroup
+	controls    atomic.Int64
+	mu          sync.Mutex
+	conns       map[*runnerNativeConn]struct{}
+	connections *runnerNativeConnections
 }
 
 type runnerNativeListener struct {
@@ -58,27 +59,18 @@ func (l runnerNativeListener) Accept() (net.Conn, error) {
 	if e != nil {
 		return nil, e
 	}
-	owned := &runnerNativeConn{Conn: c, owner: l.owner}
-	l.owner.mu.Lock()
-	l.owner.conns[owned] = struct{}{}
-	l.owner.mu.Unlock()
-	return owned, nil
+	return l.owner.nativeConnections().track(c), nil
 }
 
-type runnerNativeConn struct {
-	net.Conn
-	owner *runnerNativeServer
-	once  sync.Once
-}
-
-func (c *runnerNativeConn) Close() error {
-	e := c.Conn.Close()
-	c.once.Do(func() {
-		c.owner.mu.Lock()
-		delete(c.owner.conns, c)
-		c.owner.mu.Unlock()
-	})
-	return e
+// The response-loss fixture also owns this same accepted-connection map. Keep
+// its existing fields and point the close observer at that map, never a copy.
+func (v *runnerNativeServer) nativeConnections() *runnerNativeConnections {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+	if v.connections == nil {
+		v.connections = &runnerNativeConnections{mu: &v.mu, conns: v.conns, changed: make(chan struct{})}
+	}
+	return v.connections
 }
 
 func newRunnerNativeServer(t *testing.T, service *service.Service) *runnerNativeServer {
@@ -99,9 +91,10 @@ func newRunnerNativeServer(t *testing.T, service *service.Service) *runnerNative
 	listener, e := net.Listen("tcp4", "127.0.0.1:0")
 	requireServiceOK(t, e, "owned native listener")
 	v := &runnerNativeServer{service: service, listener: listener, served: make(chan error, 1), origin: "https://" + listener.Addr().String(), security: &tls.Config{MinVersion: tls.VersionTLS12, RootCAs: roots}, conns: make(map[*runnerNativeConn]struct{})}
+	v.nativeConnections()
 	v.transport = &http.Transport{Proxy: nil, TLSClientConfig: v.security.Clone(), DisableCompression: true, TLSHandshakeTimeout: 3 * time.Second, ResponseHeaderTimeout: 3 * time.Second, MaxConnsPerHost: 4}
 	v.http = &http.Client{Transport: v.transport, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
-	v.server = &http.Server{ErrorLog: log.New(io.Discard, "", 0), Handler: httpapi.WithRequestID(nil, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	v.server = &http.Server{ConnState: v.connections.observeState, ErrorLog: log.New(io.Discard, "", 0), Handler: httpapi.WithRequestID(nil, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		v.handlers.Add(1)
 		defer v.handlers.Done()
 		if r.URL.Path == "/api/v1/runner/control" {
@@ -121,10 +114,10 @@ func newRunnerNativeServer(t *testing.T, service *service.Service) *runnerNative
 		cancel()
 		v.transport.CloseIdleConnections()
 		shutdown, finishShutdown := context.WithTimeout(context.Background(), 3*time.Second)
+		defer finishShutdown()
 		if e := v.server.Shutdown(shutdown); e != nil {
 			t.Error("native HTTP callbacks did not join before cleanup")
 		}
-		finishShutdown()
 		_ = v.server.Close()
 		_ = v.listener.Close()
 		select {
@@ -135,15 +128,16 @@ func newRunnerNativeServer(t *testing.T, service *service.Service) *runnerNative
 		case <-time.After(3 * time.Second):
 			t.Error("owned native Serve return is missing")
 		}
-		v.mu.Lock()
-		left := make([]*runnerNativeConn, 0, len(v.conns))
-		for c := range v.conns {
-			left = append(left, c)
+		if e := v.connections.wait(shutdown); e != nil {
+			t.Error("native physical connections did not join within original HTTP shutdown context")
 		}
-		v.mu.Unlock()
+		left, states := v.connections.remainder()
 		// Failure cleanup only: it cannot turn a missing owner join into PASS.
 		if len(left) != 0 {
 			t.Errorf("native owner left %d connections after actual Drain", len(left))
+			for _, state := range states {
+				t.Errorf("native connection remainder state=%s close_inflight=%d", state.state, state.inflight)
+			}
 			for _, c := range left {
 				_ = c.Close()
 			}
