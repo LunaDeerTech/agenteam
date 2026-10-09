@@ -1,5 +1,7 @@
 # 当前执行检查点
 
+当前持续开发分支为 `ai/product-continuation`；恢复时须显式查询远端 `ai/*`（本地 fetch 可能只跟踪 main）。本提交仅正式交付已独立验收的共享浮层遮挡修复，D27与Blocker服务未完成成果保存在活动任务分支。下方为原恢复历史，最新调度以活动分支检查点为准。
+
 - 目标：从环境中断处恢复产品开发，完成 D01–D28 全部能力及 E01 平台内游戏复刻与真实试玩验收。
 - 状态：进行中；Task Planning 规划库、Agent C1、R1 纯身份已正式交付；完整 D11/D27、平台与 E01 未完成。
 - 当前分支：`ai/product-continuation`；恢复基线为远端 `ai/task-planning-recovery` 的 `da4953f5`，包含正式 main `11c16867`（T0b）、`70b16f06`（B0-C）及未验 Model/sharedLayer 成果。正式交付范围以任务台账为准。
