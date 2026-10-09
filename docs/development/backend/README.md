@@ -363,11 +363,15 @@ Human 重投先验证当前 Session/Owner 或 SystemAdmin，历史 receipt 也�
 
 授权诊断库逐次验证当前权限；System 与 Project 独立，Summary 来自同一 SQL snapshot，固定 5m/1h/24h 窗口，旧积压不被窗口裁掉。分页只裁 Items，统计使用精确十进制标量，已知与未知延迟分开，最多 128 个 handler/type 与 20 条固定安全理由，共用 2s 上限；不返回 payload/原 error。生产根在同一 catalog Seal 前注册 Account 事件及 `model.configuration_changed`、`model.embedding_selection_changed` 两类 Model 事件，producer 绑定各自真实 Authority。唯一生产 handler 仍为 `account.mail-enqueue`，并保留真实 Session/System 授权；handler 只在原 Tx 建立邮件任务，实际投递由 Mail Runtime 完成。Model 事件随原配置命令同 Tx 持久追加，没有 Model 订阅或 deliveries，不伪造已消费。通用 Outbox 管理 HTTP、Project 生命周期 provider 与其它消费者仍未绑定，`ready=false`，没有默认允许身份或自动历史 replay。接口和验收边界见 [D06 实施规格](../work-items/d06-transactional-outbox-design.md)。
 
+## D01 资源身份纯契约
+
+[R1](../work-items/d01-resource-identities.md)在 `identity/contract` 提供唯一 `ToolID`、`MountID`、`ProjectVariableID`，复用 Foundation UUIDv7；普通与 Secret 变量共享变量身份，凭据身份仍独立。准确四依赖包 race/vet 与独立外部消费 probe 全部实际通过，可用 `.agent-state/resource-identity-recovery/run.sh` 重建验证。该结果没有 Registry、Mount/Variables 目录、授权、初始化或引用写入，完整 Agent F1 仍待真实前置。
+
 ## D10 Agent 核心契约
 
 `internal/central/agent/contract` 已实现 [Agent 配置工作项](../work-items/d10-agent-configuration.md)的 C1：17 字段 `AgentCore`、三字段 `AgentRef`、审批策略和配置删除门禁枚举，以及 `WorkReferences` 接口声明。复用现有 Identity、Model 和 Foundation 类型，提供严格 JSON、完整输入大小限制、Unicode 校验、Clone 与直接 fmt/slog 安全投影。`AgentCore` 尚不含 Tool、Mount、SecretVariable 引用，不是完整 AgentConfig；合法 DTO 不证明 Agent 存在、已初始化、可指派或空闲。
 
-六个纯契约文件已通过作者及独立验证，准确依赖的 pure、race、vet 均通过。当前没有 Agent 服务、数据库迁移、PG 验收或生产绑定；`WorkReferences` 只约定同 Store 活 caller Tx、完整锁与当前 Owner 授权责任，没有默认成功实现。F1 真实配置和当前事实能力仍等待 Model 引用校验与替换、默认 Skills、资源目录及引用保护；Tool 身份的契约依赖层级也须由所属模块闭合，不能复制 marker 或向上依赖 Tool contract 来绕过。
+六个纯契约文件已通过作者及独立验证，准确依赖的 pure、race、vet 均通过。当前没有 Agent 服务、数据库迁移、PG 验收或生产绑定；`WorkReferences` 只约定同 Store 活 caller Tx、完整锁与当前 Owner 授权责任，没有默认成功实现。F1 真实配置和当前事实能力仍等待 Model 引用校验与替换、默认 Skills、资源目录及引用保护；三类 ID 的低层位置已由 R1 闭合；真实目录 DTO 与窄适配端口仍须由所属模块冻结，不能复制 marker 或向上依赖 Tool contract 来绕过。
 
 ## D11 Milestone / Sprint 结构库
 

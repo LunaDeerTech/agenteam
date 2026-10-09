@@ -18,7 +18,7 @@
 | Skills | [初始化卡](d10-skills-initialization.md) P1 的不可变包/builtin 材料、纯 contract 已验；Project 初始化收敛前置另已验 | **真实 Skill 发布、Agent 默认分配及 AssignmentRuntimeSink 未实现/未绑定**。材料存在不等于保护技能已发布或新 Agent 已初始化 |
 | Tool / MCP 目录 | 架构与 D01 稳定 Tool 引用、Core Tool、MCP scope 规则 | **未实现所需真实目录/原子引用保护**。默认 install-skill 的普通 Builtin Tool 身份也须由正式 Registry 返回 |
 | Runner / Mount 目录 | 逻辑 Mount/workspace、offline 与有效引用分离的规则 | **仅设计契约**；不得用 Runner 在线布尔值、任意路径或空目录替代同 Project/Agent 引用校验 |
-| Secret / 项目变量 | D04 Secret 加密、凭据/lease 等限定能力已交付 | **项目 SecretVariable 业务目录及 Agent 白名单引用口未实现**；`CredentialRef` 不能冒充 `SecretVariableID` |
+| Secret / 项目变量 | D04 Secret 加密、凭据/lease 等限定能力已交付 | **项目 SecretVariable 业务目录及 Agent 白名单引用口未实现**；`CredentialRef` 不能冒充 `identity.ProjectVariableID` 或证明其为 Secret |
 | Task / Work | Structure 已验；Task Planning 契约已验，runtime 当前仍在验收 | 本卡不将 Task runtime 候选算已接受。assignee/reviewer 当前引用及状态转换是后继 Work 的事实责任 |
 | Execution / Dispatch / Meeting / Memory / Governance | D01 端口与架构责任存在 | **实际 Agent slot、活动/历史占用、运行 snapshot、Memory namespace 清理等未绑定**；不实现 Agent 删除或把这些域报成无引用 |
 | Outbox / Audit | 已有 typed planned Append、同 Tx 与当前 Project gate 等前置 | Agent 自己的 typed producer/Audit 业务类型仍须正式实现与验收；合法 event DTO 不构成 producer 权限 |
@@ -41,7 +41,7 @@ C1 需要闭合其实际类型的 presence、当前事实错误顺序、锁要�
 
 F1 开工前必须已有可供组合的 Model 配置验证与 Agent 引用写入/替换、保护 Skill 默认分配、普通 Tool Registry 的 install-skill 身份、所支持 Capability 的真实目录及其引用保护。Agent constructor 不接受缺口端口，不能以“本次传空数组”为由注册假的全域目录。某类配置若拟另分结果，必须先收窄受支持命令/DTO与本卡验收范围并再经 SPEC 审查，不能实现时静默丢字段。
 
-**F1 BLOCKED：ToolID canonical 层级尚未闭合。** `agent/contract` 属层 4，不能 import 层 5 的 `tool/contract`；Tool 反而可以依赖 Agent 契约。未来完整配置所需 ToolID 的 canonical 类型位置必须由相关 owner 正式协调解决，不能向上 import、复制 marker 或以字符串占位。C1 的 AgentCore 排除三类引用数组，不涉及这个尚未接受的完整配置依赖。
+**F1 仍 BLOCKED；ID 位置接缝已由 [R1](d01-resource-identities.md)闭合。** `identity.ToolID/MountID/ProjectVariableID` 的唯一 marker 位于层 1，完整配置可向下依赖；`agent/contract` 仍不能 import 层 5 的 ToolCatalog/ToolSpec。真实窄目录投影、同 Tx 引用保护及其余前置尚未闭合，不能把三个 ID 声明当 F1 已就绪。C1 的 AgentCore 排除三类引用数组，保持原样。
 
 默认 Add Skills 启用、install-skill 默认启用且允许显式禁用属于既定产品规则。新 Agent 的配置事实与默认分配必须原子可证明，已有 Project initialized 只证明 Project 初始化，不证明该 Agent 已获得默认能力。缺保护技能、缺 Registry 或初始化错误时，创建失败且无可供 Work 指派的 active Agent。
 
@@ -60,7 +60,7 @@ AgentConfig {
   description, instructions, inject_agents_md: bool,
   model_ref: ModelID, reasoning_effort: string|null,
   allowed_tool_ids: ToolID[], allowed_mount_ids: MountID[],
-  allowed_secret_variable_ids: SecretVariableID[],
+  allowed_secret_variable_ids: ProjectVariableID[],
   approval_policy: default|auto|allow, approval_model_ref: ModelID|null,
   lifecycle: active|deleting,
   version: Version, created_at: Instant, updated_at: Instant
@@ -86,7 +86,7 @@ Skill assignments 是独立权威集合，不伪造 `skills:[]` 到 AgentConfig�
 
 名称语法与 `account/contract/profile.go` 一致；创建/改名的保留字按 `account/validation.go` 当前已定集合：`api,assets,auth,login,logout,invite,reset,settings,system,personal,diagnostics,livez,readyz,debug,support,root,admin`。Agent 单独执行纯校验，不调用 Account 实现、共用 User 占用表或引入 bootstrap admin 例外；允许与任意合法普通 User 同名。大小写仅在规范化名/路由消除，正文不归一。
 
-外域引用不得混淆：D01 ToolSpec 的 `tool_id` 是 UUIDv7 数据库身份，`stable_key` 才是 `builtin:<name>` / `runner:<name>` / `mcp:<config_id>:<remote_name>` 字符串；Agent 的 `allowed_tool_ids` 保存前者，不把后者塞进 UUID 解析器。Tool 的具体 Go marker 尚不存在，由 Tool contract owner 定义。Mount 与 SecretVariable 只已有逻辑业务身份设计，没有本卡可直接引用的 canonical Go 类型；由各 owner 冻结 typed UUIDv7 标量、scope 与目录后才能补完整 AgentConfig，不使用原始宿主路径、RunnerID、Secret CredentialRef 或字符串占位来代替。C1只依赖已存在的 identity/Model/Foundation。
+外域引用不得混淆：D01 ToolSpec 的 `tool_id` 是 UUIDv7 数据库身份，`stable_key` 才是 `builtin:<name>` / `runner:<name>` / `mcp:<config_id>:<remote_name>` 字符串；Agent 的 `allowed_tool_ids` 保存前者，不把后者塞进 UUID 解析器。R1 已在 identity 层唯一定义 Tool、Mount、ProjectVariable 的 canonical UUIDv7 类型。上文 ToolID/MountID/ProjectVariableID 均指这些 alias，普通与 Secret 变量共享稳定变量身份；白名单仍须由真实目录验证当前同 Project 且 type=secret。各 owner 的 scope、目录及引用保护仍须冻结并实现后才能补完整 AgentConfig，不使用原始宿主路径、RunnerID、Secret CredentialRef 或字符串占位来代替。C1只依赖已存在的 identity/Model/Foundation。
 
 全体对象包括嵌套 Capability、私有持久 request/plan、历史 payload，逐层拒绝未知 key、大小写别名、重复 key、null 越界、缺必有字段、非法 UTF-8、孤立 surrogate、尾随值、错误标量类型。不能只用 `DisallowUnknownFields` 或 canonical-v1 代替 schema。请求/单个 Agent/单 receipt cap 建议512KiB，Lookup request16KiB，safe history/typed event payload16KiB，私有计划4MiB。每个 codec 检查其方法实际收到的完整 raw；标准 `json.Unmarshal` 裁外层空白的行为单独测试。正文最坏 escaping 与三类共256项引用合计仍须经实测证明低于 cap。
 

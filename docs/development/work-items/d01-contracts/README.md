@@ -60,6 +60,8 @@
 | 6 | `execution/contract` | 0–5；包含通用 Trigger/Wait/Occupancy/SkillIngress/Runtime 端口，不能 import Work/Meeting/View 实现 |
 | 7 | `work/contract`、`scheduler/contract`、`meeting/contract`、`governance/contract`、`view/contract` | 0–6；同层以低层中立端口及组合根适配，不互引实现 |
 
+[R1 低层资源身份](../d01-resource-identities.md)已在层 1 `identity/contract` 唯一定义 `ToolID`、`MountID`、`ProjectVariableID` 的 marker 与 Foundation alias。业务事实仍由 Tool、Mount 和 Variables owner 维护；Secret 变量沿同一变量身份，CredentialID 保持独立。ID 声明不提供目录、授权或引用保护，不允许 Agent 向上导入 ToolCatalog，RunnerProtocol 仍不 import Central。
+
 `ProjectLifecycleParticipant` 放在 project contract，使用 `ScopeRef/StopReport/CleanupReport`，不返回 Execution、Meeting 实体。`WorkOccupancy` 放在 execution contract，仅接受稳定 Project/Task/Sprint ID 与调用方已验证的 Task 集；不 import Work。`PendingDispatchReader` 同在 execution contract，返回 Dispatch ID 与状态投影，不 import Scheduler。`TriggerContextProvider` 和 `WaitFactProvider` 同样由 execution contract 定义；Work/Meeting/Governance 实现接口，不要求 Executor 引用其实现。
 
 `SkillAssignmentIngress` 放在 execution contract；Skill/Agent service 不直接依赖 Executor service。D10 服务内部定义接收固定 change DTO 的窄出口，由组合根适配为 D22 ingress；D22 的当前分配验证回调使用 skill contract。skill contract 自有 `SkillExecutionBindings` 窄查询接口，D22 提供适配实现以解析固定 binding；不让 Skill import execution contract。这样的运行时双向调用不等于代码环：两个实现不导入对方，转换器位于 Central 组合根。调用的事务/锁约束仍必须遵守，不用接口化掩盖递归调用。
