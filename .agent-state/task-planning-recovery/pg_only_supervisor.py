@@ -7,9 +7,11 @@ Example: python3 .agent-state/task-planning-recovery/pg_only_supervisor.py \
 The output directory is reusable; each run/nonce directory must be new.
 """
 import argparse
+from collections import deque
 import ctypes
 import hashlib
 import importlib.util
+from itertools import islice
 import json
 import os
 from pathlib import Path
@@ -151,6 +153,182 @@ def tcp():
     return rows
 
 
+def tcp_rows_evidence(rows, limit=4096):
+    # Evidence limits never apply to the original set used by the TCP gate.
+    ordered = sorted(rows)
+    return {'count': len(rows), 'truncated': len(rows) > limit,
+            'rows': [dict(zip(('family', 'local', 'remote', 'state', 'inode'), row))
+                     for row in ordered[:limit]]}
+
+
+def tcp_process_identity(path):
+    fields = (path / 'stat').read_text().rsplit(')', 1)[1].split()
+    # Exclude comm, argv, environment, maps and every application value.
+    return {'pid': int(path.name), 'state': fields[0], 'ppid': int(fields[1]),
+            'pgid': int(fields[2]), 'sid': int(fields[3]),
+            'start_ticks': int(fields[19])}
+
+
+def tcp_executable_identity(path, deadline):
+    link = path / 'exe'
+    try:
+        if time.monotonic() >= deadline:
+            return None
+        target = os.readlink(link)
+        if time.monotonic() >= deadline:
+            return None
+        stat = link.stat()
+        if time.monotonic() >= deadline:
+            return None
+        return {'path': target, 'device': stat.st_dev, 'inode': stat.st_ino}
+    except (OSError, ValueError):
+        return None
+
+
+def tcp_entries_before_deadline(entries, deadline):
+    while time.monotonic() < deadline:
+        try:
+            entry = next(entries)
+        except StopIteration:
+            return
+        if time.monotonic() >= deadline:
+            return
+        yield entry
+
+
+def tcp_owner_evidence(rows, deadline):
+    # No owner is inferred from a port, process name, absent fd or inode zero.
+    # A match means only that this stable PID held this inode during this scan;
+    # its observation time is distinct from the preceding TCP sample.
+    result = {'complete': False, 'reason': 'budget', 'processes': 0, 'fds': 0,
+              'unreadable': 0, 'vanished': 0, 'unstable': 0,
+              'input_rows': len(rows), 'rows_truncated': len(rows) > 4096,
+              'inode_zero_considered_rows': 0, 'matches': []}
+    if time.monotonic() >= deadline:
+        return result
+    considered = list(islice(rows, 4096))
+    inodes = {row[4] for row in considered if row[4] != '0'}
+    result['inode_zero_considered_rows'] = sum(row[4] == '0' for row in considered)
+    if time.monotonic() >= deadline:
+        return result
+    if not inodes:
+        result.update(complete=not result['rows_truncated'], reason='no_nonzero_inode')
+        return result
+    if time.monotonic() >= deadline:
+        return result
+    try:
+        with os.scandir('/proc') as processes:
+            for entry in tcp_entries_before_deadline(processes, deadline):
+                if time.monotonic() >= deadline:
+                    return result
+                if not entry.name.isdecimal():
+                    continue
+                if result['processes'] >= 2048:
+                    result['reason'] = 'limit'
+                    return result
+                result['processes'] += 1
+                path = Path(entry.path)
+                try:
+                    before = tcp_process_identity(path)
+                    if time.monotonic() >= deadline:
+                        return result
+                    with os.scandir(path / 'fd') as descriptors:
+                        for descriptor in tcp_entries_before_deadline(descriptors, deadline):
+                            if time.monotonic() >= deadline:
+                                return result
+                            if result['fds'] >= 8192 or len(result['matches']) >= 256:
+                                result['reason'] = 'limit'
+                                return result
+                            result['fds'] += 1
+                            try:
+                                link = os.readlink(descriptor.path)
+                                if time.monotonic() >= deadline:
+                                    return result
+                                match = re.fullmatch(r'socket:\[([0-9]+)\]', link)
+                                if match is None or match[1] not in inodes:
+                                    continue
+                                executable = tcp_executable_identity(path, deadline)
+                                if time.monotonic() >= deadline:
+                                    return result
+                                if executable is None:
+                                    result['unreadable'] += 1
+                                    continue
+                                after = tcp_process_identity(path)
+                                if time.monotonic() >= deadline:
+                                    return result
+                                second_link = os.readlink(descriptor.path)
+                                if time.monotonic() >= deadline:
+                                    return result
+                                second_executable = tcp_executable_identity(path, deadline)
+                                if time.monotonic() >= deadline:
+                                    return result
+                                if second_executable is None:
+                                    result['unreadable'] += 1
+                                    continue
+                                if (before['start_ticks'] != after['start_ticks']
+                                        or second_link != link
+                                        or second_executable != executable):
+                                    result['unstable'] += 1
+                                    continue
+                                if time.monotonic() >= deadline:
+                                    return result
+                                result['matches'].append({**after, 'fd': int(descriptor.name),
+                                    'socket_inode': match[1], 'executable': executable,
+                                    'observed_ns': time.monotonic_ns()})
+                            except (FileNotFoundError, ProcessLookupError):
+                                result['vanished'] += 1
+                            except (OSError, ValueError, IndexError):
+                                result['unreadable'] += 1
+                except (FileNotFoundError, ProcessLookupError):
+                    result['vanished'] += 1
+                except (OSError, ValueError, IndexError):
+                    result['unreadable'] += 1
+    except OSError:
+        result['reason'] = 'proc_unavailable'
+        return result
+    if time.monotonic() >= deadline:
+        return result
+    complete = (result['unreadable'] == 0 and result['vanished'] == 0
+                and result['unstable'] == 0 and not result['rows_truncated'])
+    result.update(complete=complete, reason='scanned' if complete else 'partial')
+    return result
+
+
+def tcp_evidence_pause(sample, tail_deadline):
+    # Pay observation work from the existing 100ms inter-sample pause. Never
+    # add a scan after the original tail deadline or wait for an owner to appear.
+    pause_end = time.monotonic() + .1
+    scan_end = min(pause_end, tail_deadline, time.monotonic() + .02)
+    sample['owners'] = tcp_owner_evidence(sample['delta'], scan_end)
+    remaining = pause_end - time.monotonic()
+    if remaining > 0:
+        time.sleep(remaining)
+
+
+def save_tcp_failure(log_path, selector, baseline, baseline_times, samples, reread, log):
+    def projection(sample):
+        return {'started_ns': sample['started_ns'], 'ended_ns': sample['ended_ns'],
+                'rows': tcp_rows_evidence(sample['rows']),
+                'delta': tcp_rows_evidence(sample['delta']),
+                'owners': sample.get('owners', {'complete': False, 'reason': 'not_scanned'})}
+    value = {'version': 1, 'selector': selector, 'gate_unchanged': True,
+             'owner_semantics': 'same-inode-fd-observed-later-no-ownership-classification',
+             'baseline': {**tcp_rows_evidence(baseline), **baseline_times},
+             'last_two_loop_samples': [projection(sample) for sample in samples],
+             'failure_reread': projection(reread)}
+    path = log_path.with_suffix('.tcp-tail-failure.json')
+    try:
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, 'w') as stream:
+            os.fchmod(stream.fileno(), 0o600)
+            json.dump(value, stream, sort_keys=True)
+            stream.write('\n')
+        log.write('HOST_TCP failure_evidence_saved=True\n')
+    except (OSError, ValueError, TypeError):
+        # This path is entered only after the original gate has already failed.
+        log.write('HOST_TCP failure_evidence_saved=False\n')
+
+
 def descendants(root):
     parents = {}
     for stat in Path('/proc').glob('[0-9]*/stat'):
@@ -194,7 +372,9 @@ def main():
               for p in (args.driver, args.binary)}
     if adapter is not None:
         inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
+    baseline_times = {'started_ns': time.monotonic_ns()}
     baseline = tcp()
+    baseline_times['ended_ns'] = time.monotonic_ns()
     started = time.monotonic()
     child = None
     code = 1
@@ -281,17 +461,29 @@ def main():
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75
             empty = 0
+            tcp_samples = deque(maxlen=2)
             while time.monotonic() < tail_deadline and empty < 2:
-                delta = tcp() - baseline
+                sampled_at = time.monotonic_ns()
+                rows = tcp()
+                delta = rows - baseline
+                sample = {'started_ns': sampled_at, 'ended_ns': time.monotonic_ns(),
+                          'rows': rows, 'delta': delta}
+                tcp_samples.append(sample)
                 if not delta:
                     empty += 1
                     log.write(f'HOST_TCP delta_empty_observation={empty}\n')
                 else:
                     empty = 0
-                if empty < 2: time.sleep(.1)
+                if empty < 2: tcp_evidence_pause(sample, tail_deadline)
             if empty != 2:
                 code = 1
-                log.write(f'STOP host TCP delta tail not empty: {len(tcp() - baseline)} rows\n')
+                sampled_at = time.monotonic_ns()
+                rows = tcp()
+                failure_delta = rows - baseline
+                reread = {'started_ns': sampled_at, 'ended_ns': time.monotonic_ns(),
+                          'rows': rows, 'delta': failure_delta}
+                log.write(f'STOP host TCP delta tail not empty: {len(failure_delta)} rows\n')
+                save_tcp_failure(log_path, args.run, baseline, baseline_times, tcp_samples, reread, log)
             same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
                        for p, digest in inputs.items())
             if not same: code = 1

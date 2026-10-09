@@ -1,5 +1,25 @@
 # D12 Knowledge B02 当前恢复点
 
+- 后继Runtime取证准备：仅向 `.agent-state/task-planning-recovery/pg_only_supervisor.py` 精确移植 Runner `3e7fd3bd→57642926` 已独立接受的TCP诊断增量。失败时以0600/exclusive文件保存原baseline、末两loop样本、原失败reread与有界PID/fd/executable观察；扫描付原100ms间隔内至多20ms，证据限额不截断gate输入，任何归属观察不豁免tuple。原75s、双空观察、退出码、Wait／7ID／runtime／input gate不变，不回填56777 TCP归因或54818缺失终态。作者1cda6c复用原Runner18项纯控制全部PASS（含目录枚举跨deadline及缺executable两项修复负控），逆去增量逐字等于知识树666169b6；e7e9ac核增量逐字等同Runner、原driver一字未改、11exact映射闭合、原两档预算、Runtime配置1正4错selector负例均PASS，未建runtime/启动资源。首76646d因控制装入独立dict导致unittest未发现用例，exit5／0tests仅setupFAIL，改用实际globals后通过，不冒业务证据。当前supervisor与本current冻结交root保存，待未参与者窄审；产品/测试/77598 binary保持2287eca0技术组合，后继仍须freshgrant。原控制源已在Runner提交内，可用以下纯离线命令复现（仅调整本树路径、原知识baseline与临时输出位置）：
+
+```sh
+python3 -B - <<'PY'
+import subprocess
+path = '.agent-state/runner-control/tcp-evidence-controls.py'
+code = subprocess.run(['git', 'show', '57642926:' + path], check=True,
+                      capture_output=True, text=True).stdout
+changes = {
+    "ROOT = Path(__file__).resolve().parents[2]": "ROOT = Path('/workspace/agenteam-knowledge')",
+    "BASELINE = '3e7fd3bd7aaa661c35ca96b68a103c789118548e'": "BASELINE = '666169b6'",
+    "parent = ROOT / 'output/ai/runner-control'": "parent = ROOT / 'output/ai/knowledge'",
+}
+for before, after in changes.items():
+    assert code.count(before) == 1
+    code = code.replace(before, after)
+exec(compile(code, path, 'exec'), globals())
+PY
+```
+
 - 修后Runtime54818在环境切换中丢失工具session：恢复首poll明确`Unknown process id 54818`，没有重启测试。精确日志 `output/ai/knowledge/pg/pg-62f545ac57a847159cb2d1996080fa98.log`／同名run的request绑定新 `knowledge-recovery-fixed-race.test` 与 `^TestKnowledgeB02Runtime$`。三子业务PASS共6.90s（canonical取消后Close/Drain2.48s、实际委托Close2.16s、未开源lease后继退休2.25s），Go998510／driver996487实际Wait0；原日志已写7ID/private/runtime/desc双尾、exact_tops与actual_test_wait=True。**缺HOST_TCP双观察、inputs_unchanged、supervisor terminal及外层实际退出结果，不记完整PASS。** 恢复后1bac30只读7精确ID/PID/runtime双清、cb843e三private目录不存在且Git干净0fd7b533，没有匹配活supervisor；root据当前自有资源清零确认窗口释放，不回填原终态或baseline。复现仍用下方完整env/statvfs/新binary/Runtime命令，须freshgrant，仅为补明确证据缺口重跑；P1/P2产品/测试/binary一字未变，下一由root先排Model18再本组，公平Cleanup仍待独立窗口。
 - Skills 对冻结P1/P2五源修复独立有限接受，无剩余mustfix：实际源码overlay15866 race0／1.044s（4top7sub），真实D05 constructor/cancel/monitor/Close覆盖normal、release-error、cancel、阻塞release不得提前Drain；65项32+32+1及高低新项下一轮、固定after/through；Hard/Unknown/ResourceBusy+Unknown保原error/cause/attempt；并发扫描Busy不SQL且实际join。独验首15786因其probe用DeepEqual比较opaque closure误判，改正式Owner.Equal/Cause.Details后通过，产品未改；不回填该FAIL。新有界分页SQL、修后Runtime/Cleanup真实组合仍未PG，原56777与TCP gate FAIL保持。作者产品和新binary未变，当前仅需真实复验，不再扩泛化测试。
 - 当前修后独立产物已可构建：`output/ai/knowledge/knowledge-recovery-fixed-race.test`，race-c77598 actual0；dd5fce精确发现Runtime／Cleanup／CommitUnknown／Concurrency／CleanupCommitUnknown／ProcessRecovery六top，当前domain+integration vet53340 actual0。产品输入为89613dc5三生产源修复，测试包含下面的UUID前置修正与两Project新子；现源码冻结待Skills独验，不是PG/修后真实PASS。此单binary供6个精确组复用，原六binary全部保留原组合；下一实际优先修后Runtime3／Cleanup3，其余四组仍待初次当前组合实测。
