@@ -10,7 +10,8 @@
 - 新control私有FIFO队列含32条/256KiB控制保留、已租借writer仍计容量、实际release前不清buffer；`outbox.go/outbox_test.go`作者race14933实际0，尚未接WebSocket consumer。
 - `00026_runner_control.sql`六表/Audit增量及卡§3/8持久代际、metadata细化已获独立有限接受。首审发现同代际清key后重绑及既有enrolled_at可改写，仅增两条拒绝谓词；最终独审6个定向控制及7组Audit闭集核通过，原缺陷保留。作者12个布尔/元组控制为SQLite共同子集（首次漏business_changed绑定的setup错误已纠正）；均无PostgreSQL语法/迁移结果，本树前序待根精确同步。前序00024旧project guard冲突已由原作者修复并窄审接受。
 - 私有gorilla wire adapter及双worker实际join已实现，control作者race71687实际exit0：取消后原writer/callback未返回时不能报joined，原buffer保留到writer实际返回。尚未接生产hello/session/root，无native socket运行证据。
-- 根已精确导入前序`00024_project_variables.sql`（334f86d0修后）与`00025_knowledge.sql`（da16d95a）；两域先main责任仍归原owner，Runner只消费依赖。当前树1..26连续组合SQL尚未运行；下一阶段准备最小迁移实际top并继续设备control。
+- 根已精确导入前序`00024_project_variables.sql`（334f86d0修后）与`00025_knowledge.sql`（da16d95a）；两域先main责任仍归原owner，Runner只消费依赖。当前树1..26连续组合SQL已由下述最小top实际运行。
 - 最小`tests/runnercontrol/migration_test.go`已freeze；race-c98020实际0、精确发现`TestRunnerControlMigration`恰1。首次独占依赖cache缺pgx/goose的setup FAIL保留，根授权只读共享cache后编译闭合。测试只证明DDL/约束，SQL造约束刺激不代当前Admin/typed producer。私有`output/ai/runner-control/pg-only-driver`沿原跟踪driver编译14378实际0；supervisor由根精确导入已接受ca9 bounded版本。实际跟踪driver参数为Go6m、driver总105s，outer123s与完整尾不变；旧口述90s不符此源码，不作本轮预算证据。
-- 唯一待grant命令（cwd本树）：`python3 .agent-state/task-planning-recovery/pg_only_supervisor.py --driver /workspace/agenteam-runner-control/output/ai/runner-control/pg-only-driver --binary /workspace/agenteam-runner-control/output/ai/runner-control/runnercontrol-migration-race.test --run '^TestRunnerControlMigration$' --output /workspace/agenteam-runner-control/output/ai/runner-control/pg`。尚未启动PG；精确两资源/Go-driver-outer实际Wait/runtime/TCP双尾与固定输入齐后才结论。
+- 本人沿上述原工具实际运行唯一`TestRunnerControlMigration`，外层22736 actual0，三子body9.98s，Go628693/driver628035实际Wait0；精确2ID双退役、runtime双空/TCP双delta空、inputs_unchanged齐，sup80.401s。原件`output/ai/runner-control/pg/pg-d5b237f4f6154e6881d07348ed1ce069.log`；资源已完整释放。限定作者schema/DDL结果，不冒Admin/service/typed producer/完整D15。
+- §4新增登记已知200响应精确shape供独立窄审，接受前不接生产。control session新源继续作者离线开发，尚无生产Run/root或nativeWSS结果。
 - 本范围无PG/server/browser/TCP或后台命令；真实资源须fresh grant。Linux/macOS及D10/D16/D17/D18集成gate保持未验。

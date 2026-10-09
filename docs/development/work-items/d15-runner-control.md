@@ -68,6 +68,8 @@ token 为 crypto/rand 32 B，wire 是无 padding base64url（43字节），TTL 1
 
 `POST /api/v1/runner/enroll` 的闭集正文为 `{runner_id,token,public_key,root_path,os,arch}`；key 为 Ed25519 32 B 无 padding base64url。先界定合法长度再查受保护行，root_path 必须与管理员固定值逐字相同。短事务在完整管理/该 Runner 连接锁下检 token/current generation/未消费/期限，一次原子消费+绑定 key/enrolled_at+identity_event+Audit。并发只有一方消费；无效凭据统一安全401，不披露 Runner 是否存在。事务 rollback 后 token 可再用；Unknown 不假称没消费。
 
+登记只有已知 committed 才返回 HTTP 200/application/json，响应精确必填 `{runner_id,version,credential_generation,enrolled_at,public_key_fingerprint}`：ID为原Runner UUIDv7；version是2..MaxInt64、credential_generation是1..MaxInt64的canonical十进制字符串；enrolled_at是本次绑定持久事实的Instant；fingerprint是本次公钥SHA-256的`sha256:`加64小写hex。禁止其它字段/null/raw key/token；沿严格JSON和32KiB上界，完整EOF后才解释。客户端必须核原runner_id及自己pending公钥指纹，失败保留pending，不假称激活。响应投影来自本次同Tx绑定postimage，不在提交后另读更晚版本拼接。Unknown沿既有CommitUnknown Problem，不能200或猜定未消费；已消费token的重复登记仍安全401，无秘密或历史成功重放。原响应丢失后的同key challenge/connect恢复规则不变。
+
 本地首次 `--enroll` 从标准输入读取恰一个 token（≤128 B，允许末尾一个 LF），不得 CLI argv/env 放 token。`AGENTEAM_RUNNER_IDENTITY_FILE` 指向绝对私有路径；未有身份时同时要求 `AGENTEAM_RUNNER_CENTRAL_URL`、`AGENTEAM_RUNNER_ID`、`AGENTEAM_RUNNER_ROOT_PATH`。Runner 在发 enrollment 前将新 Ed25519 seed 与公共配置作为 `pending` 身份原子持久化；这是防止 Central 已绑定而本地无 key 的恢复准备，不代表已完成登记。已知成功后改成 `active`；响应丢失时用已持有 key 走真实 challenge/connect，身份被接受即可收敛为 active，不复用 token 自动重绑。鉴权仍失败则保留 pending、安全退出，需管理员显式新登记材料。重登记不得覆盖仍在运行的实例或误恢复已废弃 key。
 
 文件 schema v1：state(pending/active)、central_url、runner_id、root_path、private_seed；≤8192 B、strict JSON、安全 Formatter/LogValue。身份文件的直接父目录必须同有效 UID 所有、0700，文件0600、regular、nlink=1；各祖先目录仅允许当前UID或root所有且不可由其它用户写。拒 symlink（各路径段）/错误owner/越权mode/非regular；沿已打开的directory FD逐段 no-follow 验证和写入，不能用先Lstat后跟随路径的TOCTOU实现。新临时文件同目录 O_EXCL/no-follow 0600→写全→file fsync→原子 rename→directory fsync；失败不得截断旧可恢复文件。只处理本任务文件，安全清除本次未提交临时文件；不承诺磁盘/Go内存不可恢复擦除。进程持同目录专用 `identity-file-name.lock`（同安全owner/mode、不得随身份rename换inode）的OS排他锁直到最终 join 后释放，防两个 Runner 同时改 key/争连接。Unix实现用既有 x/sys；Windows 构建明确不支持，不能退回弱文件权限。`--check-config` 只离线验证/读取文件，绝无网络，输出 scope=d15 且 connected/authenticated/ready 均 false；实际 Run 不能仅因配置通过就报 ready。
@@ -217,6 +219,6 @@ rev1独审发现payload闭集不完整及HTTP误列不存在Foundation Conflict�
 
 认证header与nonce严格解析、固定签名字节/Ed25519黄金向量、pending身份恢复签名已实现，protocol/identity两包作者race通过；无DB nonce消费/时窗、TLS或真实WSS验证。本地算法向量不代独立实现验收。
 
-00026六表/Audit增量已落盘并获独立有限静审；原同generation清key重绑及enrolled_at改写缺陷已最小修复，尚无DDL执行结果。根精确导入修后00024与00025作为前序消费，不转移两域先main交付责任；组合1..26真实迁移仍待验。私有gorilla wire adapter/有界队列/取消后的实际reader、writer、callback join作者race通过，无生产session/root或native网络结果。
+00026六表/Audit增量已落盘并获独立有限静审；原同generation清key重绑及enrolled_at改写缺陷已最小修复。根精确导入修后00024与00025作为前序消费，不转移两域先main交付责任；组合1..26真实迁移作者限定通过。私有gorilla wire adapter/有界队列/取消后的实际reader、writer、callback join作者race通过，无生产session/root或native网络结果。
 
-最小`TestRunnerControlMigration`已离线race编译/精确发现，覆盖连续23→24→25→26、重跑保旧Audit、六表credential/history/代际FK与完整DDL失败回滚。其SQL刺激只验schema，不冒认证service或typed Audit授权。私有driver沿既有PG-only工具编译；根导入已接受bounded supervisor。跟踪driver实际Go6m、总105s，outer123s及完整资源尾不变；等待fresh grant，不把编译当真实迁移通过。
+最小`TestRunnerControlMigration`三个真实子项通过：连续23→24→25→26、重跑保旧Audit、六表credential/history/代际FK与完整DDL失败回滚。原Go/driver/outer实际Wait均0，精确两资源、runtime及TCP双尾完整，输入未变。其SQL刺激只验schema，不冒认证service或typed Audit授权。沿跟踪driver实际Go6m、总105s，outer123s及完整资源尾；未重复运行其它业务矩阵。§4登记成功响应为消费时发现的缺失shape最小补全，独审接受前不接入生产。
