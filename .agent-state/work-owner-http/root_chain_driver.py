@@ -21,6 +21,7 @@ TARGETS = {
     '^TestIndependentWorkOwnerRootConfirmationJoin$': 'internal/central/app',
     '^TestProjectVariablesRootActualCallJoin$': 'internal/central/app',
     '^TestProjectVariablesHTTPProcessRoutingAndPersistence$': 'tests/process',
+    '^TestIndependentProjectVariablesProcessConfirmationExit$': 'tests/process',
 }
 
 

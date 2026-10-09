@@ -165,6 +165,8 @@ type variableIDExecutor struct {
 	postgres.SQLExecutor
 	project     string
 	insertError error
+	insertTag   pgconn.CommandTag
+	statements  *[]string
 }
 
 func (x variableIDExecutor) QueryRow(_ context.Context, sql string, _ ...any) postgres.Row {
@@ -182,8 +184,27 @@ func (x variableIDExecutor) QueryRow(_ context.Context, sql string, _ ...any) po
 		return nil
 	})
 }
-func (x variableIDExecutor) Exec(context.Context, string, ...any) (pgconn.CommandTag, error) {
-	return pgconn.CommandTag{}, x.insertError
+func (x variableIDExecutor) Exec(_ context.Context, query string, _ ...any) (pgconn.CommandTag, error) {
+	if x.statements != nil {
+		*x.statements = append(*x.statements, query)
+	}
+	return x.insertTag, x.insertError
+}
+
+func TestVariableCreateConcurrentIDZeroRowsStopsFacts(t *testing.T) {
+	r, _ := runtimeRecord(t)
+	var statements []string
+	err := applyPlan(context.Background(), variableIDExecutor{insertTag: pgconn.NewCommandTag("INSERT 0 0"), statements: &statements}, r)
+	code(t, err, f.NotFound)
+	if len(statements) != 1 || !strings.Contains(statements[0], "ON CONFLICT ON CONSTRAINT variables_pkey DO NOTHING") {
+		t.Fatal("ID conflict must be a precise non-failing insert with no later generation/history write")
+	}
+	statements = nil
+	err = applyPlan(context.Background(), variableIDExecutor{insertTag: pgconn.NewCommandTag("INSERT 0 2"), statements: &statements}, r)
+	code(t, err, f.InternalError)
+	if len(statements) != 1 {
+		t.Fatal("invalid row count wrote later facts")
+	}
 }
 func TestVariableCreateForeignIDClassification(t *testing.T) {
 	r, _ := runtimeRecord(t)
@@ -195,13 +216,13 @@ func TestVariableCreateForeignIDClassification(t *testing.T) {
 		t.Fatal("same Project ID classification changed")
 	}
 }
-func TestVariableCreateConcurrentIDClassification(t *testing.T) {
+func TestVariableCreateUnexpectedSQLFailureClassification(t *testing.T) {
 	r, _ := runtimeRecord(t)
 	for _, tc := range []struct {
 		constraint, state string
 		want              f.Code
 	}{
-		{"variables_pkey", "23505", f.NotFound},
+		{"variables_pkey", "23505", f.ResourceBusy},
 		{"variables_live_name", "23505", f.ResourceBusy},
 		{"another_unique", "23505", f.DependencyUnavailable},
 		{"variables_pkey", "23514", f.DependencyUnavailable},

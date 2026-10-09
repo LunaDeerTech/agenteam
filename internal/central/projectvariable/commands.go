@@ -397,9 +397,15 @@ func applyPlan(ctx context.Context, x postgres.SQLExecutor, r *commandRecord) er
 	p := r.Plan
 	v := p.After.Fields()
 	if r.Command == c.CreateCommand {
-		tag, e := x.Exec(ctx, `INSERT INTO agenteam_projectvariable.variables(id,project_id,type,name,description,value,version,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`, v.ID.String(), v.ProjectID.String(), v.Type, v.Name, v.Description, v.Value, int64(v.Version), v.CreatedAt.Time(), v.UpdatedAt.Time())
+		// A different Project may win this globally unique ID after our precheck.
+		// Do not raise SQL 23505: Store correctly preserves a poisoned transaction
+		// ahead of a later domain classification. Other constraints still fail.
+		tag, e := x.Exec(ctx, `INSERT INTO agenteam_projectvariable.variables(id,project_id,type,name,description,value,version,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT ON CONSTRAINT variables_pkey DO NOTHING`, v.ID.String(), v.ProjectID.String(), v.Type, v.Name, v.Description, v.Value, int64(v.Version), v.CreatedAt.Time(), v.UpdatedAt.Time())
 		if e != nil {
-			return createInsertFailure(e)
+			return unavailable(e)
+		}
+		if tag.RowsAffected() == 0 {
+			return fault(f.NotFound)
 		}
 		if e = affected(tag, nil); e != nil {
 			return e
