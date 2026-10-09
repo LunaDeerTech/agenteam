@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/netip"
@@ -542,4 +543,288 @@ func (v *workOwnerHTTPFixture) serve(r *http.Request) (result workOwnerHTTPRespo
 }
 func workOwnerHTTPPath(project pc.ProjectID, suffix string) string {
 	return "/api/v1/projects/" + project.String() + suffix
+}
+
+// All consumers, including Account authentication, use this same physical
+// proxy Store. The proxy stays transparent throughout real account setup.
+func newWorkOwnerHTTPProxyFixture(t *testing.T, forwarded bool) (*workOwnerHTTPFixture, *commitProxy) {
+	t.Helper()
+	db := newDatabase(t)
+	proxy := newCommitProxy(t, net.JoinHostPort("127.0.0.1", db.Fixture.Port), forwarded)
+	u, err := url.Parse(db.Fixture.URL(db.Name))
+	if err != nil {
+		t.Fatal(err)
+	}
+	u.Host = proxy.listener.Addr().String()
+	raw := openStore(t, db.Config(t, map[string]string{"URL": u.String(), "TLS_MODE": "disable", "LOCK_TIMEOUT": "5s"}))
+	return assembleWorkOwnerHTTPFixture(t, db, raw, &hookStore{fixtureStore: raw}), proxy
+}
+
+// Rebind only real Work services, preserving the same Store, Authority,
+// Catalog, appender and HTTP Account boundary. The wrapper observes actual
+// PrepareAppend; it supplies no authorization or successful business result.
+func (v *workOwnerHTTPFixture) bindAppender(t *testing.T, appender oc.Appender) {
+	t.Helper()
+	h, err := workhttp.NewHTTPHandler(workhttp.Bindings{
+		Structure: v.newService(t, appender, v.accounts), StructureReader: v.reader,
+		Tasks: v.newTaskService(t, appender, v.accounts), TaskReader: v.taskReader,
+		Blockers: v.newBlockerService(t, appender, v.accounts), BlockerReader: v.blockerReader,
+	}, v.boundary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	v.handler = httpapi.Handler(slog.New(slog.NewJSONHandler(v.logs, nil)), h)
+}
+
+// Restore the original instances owned by the parent fixture, rather than
+// retaining an instrumented service whose subtest cleanup has stopped it.
+func (v *workOwnerHTTPFixture) restoreHandler(t *testing.T) {
+	t.Helper()
+	h, err := workhttp.NewHTTPHandler(workhttp.Bindings{Structure: v.service, StructureReader: v.reader, Tasks: v.tasks, TaskReader: v.taskReader, Blockers: v.blockers, BlockerReader: v.blockerReader}, v.boundary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	v.handler = httpapi.Handler(slog.New(slog.NewJSONHandler(v.logs, nil)), h)
+}
+
+// Immutable original intent, assembled BEFORE its first send. There is no
+// lookup-derived target/version, and no automatic HTTP retry in this helper.
+type workOwnerHTTPIntent struct {
+	domain, command, method, path, lookupPath, body, lookupBody, table string
+	key                                                                f.IdempotencyKey
+	identity                                                           f.CommandIdentity
+	project                                                            pc.ProjectID
+	milestone                                                          wc.Milestone
+	task                                                               wc.Task
+	blocker                                                            wc.TaskBlockerCreate
+}
+
+func (v *workOwnerHTTPFixture) intent(t *testing.T, domain string, project pc.ProjectID) workOwnerHTTPIntent {
+	t.Helper()
+	a := v.ownerBrowser.actor
+	m := v.milestone(t, a, project, "before milestone")
+	s := v.sprint(t, a, project, m.ID, "before sprint")
+	task := v.task(t, a, project, s.ID, "before task")
+	i := workOwnerHTTPIntent{domain: domain, project: project, key: f.IdempotencyKey(id[struct{}](t).String()), milestone: m, task: task}
+	request := any(wc.UpdateFields{Title: workOwnerHTTPString("private changed milestone")})
+	version, target := m.Version, m.ID.String()
+	switch domain {
+	case "structure":
+		i.command, i.method, i.table = string(wc.MilestoneUpdate), "PATCH", "structure_commands"
+		i.path, i.lookupPath = "/milestones/"+target, "/structure-commands/lookup"
+	case "task":
+		i.command, i.method, i.table = string(wc.TaskCommandUpdate), "PATCH", "task_commands"
+		i.path, i.lookupPath = "/tasks/"+task.ID.String(), "/task-commands/lookup"
+		version, target = task.Version, task.ID.String()
+		request = wc.TaskFieldsUpdate{Title: workOwnerHTTPString("private changed task")}
+	case "blocker":
+		i.command, i.method, i.table = string(wc.TaskBlockerCommandAdd), "POST", "task_blocker_commands"
+		i.path, i.lookupPath = "/tasks/"+task.ID.String()+"/blockers", "/tasks/"+task.ID.String()+"/blocker-commands/lookup"
+		version = task.Version
+		i.blocker = blockerWaiting(t, "private changed blocker")
+		request = i.blocker
+	default:
+		t.Fatal("invalid HTTP test domain")
+	}
+	body := map[string]any{"expected_version": version, "request": request}
+	i.body = string(jsonBytes(t, body))
+	body["command"] = i.command
+	if domain != "blocker" {
+		body["target_id"] = target
+	}
+	i.lookupBody = string(jsonBytes(t, body))
+	i.path, i.lookupPath = workOwnerHTTPPath(project, i.path), workOwnerHTTPPath(project, i.lookupPath)
+	var err error
+	i.identity, err = f.NewCommandIdentity("project", []string{project.String()}, i.command, i.key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return i
+}
+func workOwnerHTTPString(v string) *string { return &v }
+func (v *workOwnerHTTPFixture) send(t *testing.T, b workOwnerHTTPBrowser, i workOwnerHTTPIntent) workOwnerHTTPResponse {
+	t.Helper()
+	return v.request(t, b, i.method, i.path, i.body, i.key)
+}
+func (v *workOwnerHTTPFixture) lookup(t *testing.T, b workOwnerHTTPBrowser, i workOwnerHTTPIntent) workOwnerHTTPResponse {
+	t.Helper()
+	return v.request(t, b, "POST", i.lookupPath, i.lookupBody, i.key)
+}
+func workOwnerHTTPRequireOK(t *testing.T, r workOwnerHTTPResponse) {
+	t.Helper()
+	if r.aborted || r.status != http.StatusOK || !json.Valid(r.body) {
+		t.Fatalf("HTTP result status=%d aborted=%t", r.status, r.aborted)
+	}
+}
+func workOwnerHTTPRequireProblem(t *testing.T, r workOwnerHTTPResponse, code f.Code) httpapi.Problem {
+	t.Helper()
+	var p httpapi.Problem
+	if r.aborted || json.Unmarshal(r.body, &p) != nil || p.Code != code || p.Status != r.status || p.RequestID.Validate() != nil {
+		t.Fatalf("HTTP problem wanted=%s status=%d aborted=%t code=%s", code, r.status, r.aborted, p.Code)
+	}
+	return p
+}
+func workOwnerHTTPReceipt(t *testing.T, i workOwnerHTTPIntent, r workOwnerHTTPResponse, lookup bool) []byte {
+	t.Helper()
+	workOwnerHTTPRequireOK(t, r)
+	switch i.domain {
+	case "structure":
+		var value wc.StructureMutation
+		if lookup {
+			var q wc.CommandLookup
+			if json.Unmarshal(r.body, &q) != nil || q.Validate() != nil || q.State != wc.LookupCommitted || q.Result == nil {
+				t.Fatal("structure historical lookup")
+			}
+			value = *q.Result
+		} else if json.Unmarshal(r.body, &value) != nil || value.Validate() != nil {
+			t.Fatal("structure mutation wire")
+		}
+		return jsonBytes(t, value)
+	case "task":
+		var value wc.TaskMutation
+		if lookup {
+			var q wc.TaskCommandLookup
+			if json.Unmarshal(r.body, &q) != nil || q.Validate() != nil || q.Status != wc.LookupCommitted || q.Receipt == nil {
+				t.Fatal("task historical lookup")
+			}
+			value = *q.Receipt
+		} else if json.Unmarshal(r.body, &value) != nil || value.Validate() != nil {
+			t.Fatal("task mutation wire")
+		}
+		return jsonBytes(t, value)
+	default:
+		var value wc.TaskBlockerMutation
+		if lookup {
+			var q wc.TaskBlockerCommandLookup
+			if json.Unmarshal(r.body, &q) != nil || q.Validate() != nil || q.Status != wc.LookupCommitted || q.Receipt == nil {
+				t.Fatal("blocker historical lookup")
+			}
+			value = *q.Receipt
+		} else if json.Unmarshal(r.body, &value) != nil || value.Validate() != nil {
+			t.Fatal("blocker mutation wire")
+		}
+		return jsonBytes(t, value)
+	}
+}
+func workOwnerHTTPLookupState(t *testing.T, i workOwnerHTTPIntent, r workOwnerHTTPResponse, want wc.LookupState) {
+	t.Helper()
+	workOwnerHTTPRequireOK(t, r)
+	var status wc.LookupState
+	switch i.domain {
+	case "structure":
+		var q wc.CommandLookup
+		if json.Unmarshal(r.body, &q) != nil || q.Validate() != nil {
+			t.Fatal("structure lookup wire")
+		}
+		status = q.State
+	case "task":
+		var q wc.TaskCommandLookup
+		if json.Unmarshal(r.body, &q) != nil || q.Validate() != nil {
+			t.Fatal("task lookup wire")
+		}
+		status = q.Status
+	default:
+		var q wc.TaskBlockerCommandLookup
+		if json.Unmarshal(r.body, &q) != nil || q.Validate() != nil {
+			t.Fatal("blocker lookup wire")
+		}
+		status = q.Status
+	}
+	if status != want {
+		t.Fatalf("lookup state=%s want=%s", status, want)
+	}
+}
+
+// Work facts only: Account logout/login and Project lifecycle commands are
+// deliberately excluded, while every Work receipt/history/event is included.
+func (v *workOwnerHTTPFixture) httpSnapshot(t *testing.T) string {
+	t.Helper()
+	var result string
+	err := v.raw.QueryRow(ctxFor(t), `SELECT jsonb_build_object(
+ 'milestones',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY id),'[]') FROM agenteam_work.milestones t),
+ 'sprints',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY id),'[]') FROM agenteam_work.sprints t),
+ 'tasks',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY id),'[]') FROM agenteam_work.tasks t),
+ 'blockers',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY id),'[]') FROM agenteam_work.task_blockers t),
+ 'history',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY id),'[]') FROM agenteam_work.task_events t),
+ 'structure_receipts',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY id),'[]') FROM agenteam_work.structure_commands t WHERE state='completed'),
+ 'task_receipts',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY id),'[]') FROM agenteam_work.task_commands t WHERE state='completed'),
+ 'blocker_receipts',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY id),'[]') FROM agenteam_work.task_blocker_commands t WHERE state='completed'),
+ 'events',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY id),'[]') FROM agenteam_outbox.events t WHERE producer='work'),
+ 'activity',(SELECT coalesce(jsonb_agg(jsonb_build_object('id',id,'last_activity_at',last_activity_at) ORDER BY id),'[]') FROM agenteam_account.sessions WHERE user_id=$1))::text`, v.ownerBrowser.actor.Details().UserID).Scan(&result)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return result
+}
+func (v *workOwnerHTTPFixture) commandState(t *testing.T, i workOwnerHTTPIntent) string {
+	t.Helper()
+	var state string
+	// table is a closed internal domain switch above, never caller input.
+	err := v.raw.QueryRow(ctxFor(t), `SELECT coalesce((SELECT state FROM agenteam_work.`+i.table+` WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3),'')`, i.project.String(), i.command, string(i.key)).Scan(&state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return state
+}
+
+// This body barrier is reached after actual cookie/CSRF preauthentication,
+// before a Work command reads its original JSON. Close always frees Read.
+type workOwnerHTTPGatedBody struct {
+	io.Reader
+	gate *blockerInteropGate
+	ctx  context.Context
+}
+
+func (b *workOwnerHTTPGatedBody) Read(p []byte) (int, error) {
+	if err := b.gate.wait(b.ctx); err != nil {
+		return 0, err
+	}
+	return b.Reader.Read(p)
+}
+func (b *workOwnerHTTPGatedBody) Close() error { b.gate.free(); return nil }
+
+func workOwnerHTTPAsync(t *testing.T, v *workOwnerHTTPFixture, r *http.Request) <-chan workOwnerHTTPResponse {
+	t.Helper()
+	ctx, cancel := context.WithCancel(r.Context())
+	out := make(chan workOwnerHTTPResponse, 1)
+	joined := make(chan struct{})
+	go func() { defer close(joined); out <- v.serve(r.WithContext(ctx)) }()
+	t.Cleanup(func() { cancel(); await(t, joined) })
+	return out
+}
+func workOwnerHTTPAwait(t *testing.T, out <-chan workOwnerHTTPResponse) workOwnerHTTPResponse {
+	t.Helper()
+	select {
+	case r := <-out:
+		return r
+	case <-time.After(8 * time.Second):
+		t.Fatal("HTTP caller failed to join")
+	}
+	return workOwnerHTTPResponse{}
+}
+
+type workOwnerHTTPLostWriter struct {
+	*workOwnerHTTPRecorder
+	writes int
+}
+
+func (w *workOwnerHTTPLostWriter) Write([]byte) (int, error) { w.writes++; return 0, io.ErrClosedPipe }
+func (v *workOwnerHTTPFixture) loseResponse(t *testing.T, i workOwnerHTTPIntent) {
+	t.Helper()
+	w := &workOwnerHTTPLostWriter{workOwnerHTTPRecorder: &workOwnerHTTPRecorder{httptest.NewRecorder()}}
+	aborted := false
+	func() {
+		defer func() {
+			if p := recover(); p != nil {
+				if p != http.ErrAbortHandler {
+					panic(p)
+				}
+				aborted = true
+			}
+		}()
+		v.handler.ServeHTTP(w, workOwnerHTTPRequest(ctxFor(t), v.ownerBrowser, i.method, i.path, i.body, i.key))
+	}()
+	if !aborted || w.writes != 1 || w.Body.Len() != 0 || w.Code != http.StatusOK {
+		t.Fatal("actual committed response was not lost at its sole write")
+	}
 }

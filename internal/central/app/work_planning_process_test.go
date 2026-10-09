@@ -4,7 +4,9 @@ package app
 
 import (
 	"context"
+	"io"
 	"log/slog"
+	"net/http"
 	"os"
 	"strings"
 	"sync"
@@ -25,6 +27,7 @@ import (
 type workRootHeldCall struct {
 	pid       int32
 	cancelled <-chan struct{}
+	returned  <-chan struct{}
 }
 
 // This port holds only explicitly selected calls after a real BEGIN and a real
@@ -37,14 +40,25 @@ type workRootHeldStore struct {
 	releaseOnce sync.Once
 	force       chan bool
 	forceOnce   sync.Once
+	holdReaders bool
+	dbStopped   chan struct{}
+	stopOnce    sync.Once
 }
 
 func (s *workRootHeldStore) unhold() { s.releaseOnce.Do(func() { close(s.release) }) }
 func (s *workRootHeldStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
 	hold := cause.Kind() == foundation.CommandsCause && strings.HasPrefix(string(cause.Details().Primary.Key()), "work-root-held-")
+	if s.holdReaders && cause.Kind() == foundation.RecoveryCause {
+		switch cause.Details().Owner {
+		case "work.read", "work.task.read", "work.task-blockers.page":
+			hold = true
+		}
+	}
 	if !hold {
 		return s.Store.WithinTx(ctx, cause, fn)
 	}
+	returned := make(chan struct{})
+	defer close(returned)
 	return s.Store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
 		x, err := s.Store.InTx(tx)
 		if err != nil {
@@ -54,14 +68,186 @@ func (s *workRootHeldStore) WithinTx(ctx context.Context, cause foundation.Trans
 		if err = x.QueryRow(ctx, "SELECT pg_backend_pid()").Scan(&pid); err != nil {
 			return err
 		}
-		s.entered <- workRootHeldCall{pid, ctx.Done()}
+		s.entered <- workRootHeldCall{pid, ctx.Done(), returned}
 		<-s.release
 		return fn(ctx, tx)
 	})
 }
+func (s *workRootHeldStore) StopAdmission() {
+	if s.dbStopped != nil {
+		s.stopOnce.Do(func() { close(s.dbStopped) })
+	}
+	s.Store.StopAdmission()
+}
 func (s *workRootHeldStore) ForceClose(ctx context.Context) error {
 	s.forceOnce.Do(func() { s.force <- ctx.Err() != nil })
 	return s.Store.ForceClose(ctx)
+}
+
+// Readers have no command-service admission token. Their actual HTTP handler
+// owns the transaction until return, so root must retain the guard/database
+// while Shutdown is still waiting for them. Canonical absent IDs isolate this
+// ownership assertion; positive Project/Task behavior has separate real tests.
+func TestWorkOwnerRootActualReaderJoin(t *testing.T) {
+	for _, forced := range []bool{false, true} {
+		t.Run(map[bool]string{false: "graceful-three-http-readers", true: "force-keeps-original-deadline"}[forced], func(t *testing.T) {
+			budget := "5s"
+			if forced {
+				budget = "1s"
+			}
+			held := &workRootHeldStore{entered: make(chan workRootHeldCall, 3), release: make(chan struct{}), force: make(chan bool, 1), holdReaders: true, dbStopped: make(chan struct{})}
+			root := newModelRootApp(t, budget, func(root *modelRootApp, deps *dependencies) {
+				deps.open = func(ctx context.Context, cfg postgres.Config) (database, error) {
+					raw, err := postgres.Open(ctx, cfg)
+					if err != nil {
+						return nil, err
+					}
+					held.Store, root.store.Store = raw, raw
+					return held, nil
+				}
+			})
+			// This cleanup runs before the reused root fixture's actual run join.
+			t.Cleanup(held.unhold)
+			address := root.address(t)
+			login, err := fixtureAccountLoginResponse(databaseTestContext(t), root.cfg, root.core)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var cookie string
+			err = login.UseCookie(func(raw []byte) error { cookie = string(raw); return nil })
+			closed := login.Close(databaseTestContext(t))
+			if err != nil || closed != nil || cookie == "" {
+				t.Fatal("real login cookie unavailable")
+			}
+			transport := &http.Transport{Proxy: nil, MaxConnsPerHost: 3}
+			t.Cleanup(transport.CloseIdleConnections)
+			client := &http.Client{Transport: transport, Timeout: 8 * time.Second}
+			base := "/api/v1/projects/" + guardID[identity.Project](t).String()
+			paths := []string{base + "/milestones", base + "/tasks", base + "/tasks/" + guardID[wc.Task](t).String() + "/blockers"}
+			completed := make(chan error, len(paths))
+			for _, path := range paths {
+				request, err := http.NewRequest(http.MethodGet, address+path, nil)
+				if err != nil {
+					t.Fatal(err)
+				}
+				request.Host = "localhost:8080"
+				request.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: cookie})
+				go func() {
+					response, err := client.Do(request)
+					if response != nil {
+						_, readErr := io.Copy(io.Discard, response.Body)
+						closeErr := response.Body.Close()
+						if err == nil {
+							err = readErr
+						}
+						if err == nil {
+							err = closeErr
+						}
+					}
+					completed <- err
+				}()
+			}
+			var calls []workRootHeldCall
+			for range paths {
+				select {
+				case call := <-held.entered:
+					calls = append(calls, call)
+				case err := <-completed:
+					t.Fatal("reader returned before real transaction hold", err)
+				case <-time.After(3 * time.Second):
+					t.Fatal("real authenticated HTTP reader did not reach its transaction")
+				}
+			}
+			admin := root.db.Connect(t)
+			for _, call := range calls {
+				var active bool
+				if err := admin.QueryRow(databaseTestContext(t), "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND pid=$1 AND xact_start IS NOT NULL)", call.pid).Scan(&active); err != nil || !active {
+					t.Fatal("reader hold did not own a real transaction", err)
+				}
+			}
+			root.signals <- syscall.SIGTERM
+			root.logs.wait(t, func(event map[string]any) bool { return event["phase"] == "stopping" })
+			if forced {
+				select {
+				case <-root.done:
+				case <-time.After(4 * time.Second):
+					t.Fatal("root renewed the forced reader shutdown budget")
+				}
+				if root.err == nil {
+					t.Fatal("forced root claimed graceful reader join")
+				}
+				select {
+				case expired := <-held.force:
+					if !expired {
+						t.Fatal("forced reader DB received a new deadline")
+					}
+				default:
+					t.Fatal("held reader prevented required DB ForceClose")
+				}
+			} else {
+				// The original Work read deadlines cancel actual socket requests,
+				// but cancellation does not release these held Store callbacks.
+				for _, call := range calls {
+					select {
+					case <-call.cancelled:
+					case <-time.After(3 * time.Second):
+						t.Fatal("real reader deadline did not cancel")
+					}
+				}
+				select {
+				case <-held.dbStopped:
+					t.Fatal("database admission retired before HTTP reader join")
+				case <-root.done:
+					t.Fatal("root finished while reader callbacks remained held")
+				default:
+				}
+			}
+			held.unhold()
+			for _, call := range calls {
+				select {
+				case <-call.returned:
+				case <-time.After(3 * time.Second):
+					t.Fatal("released reader transaction did not actually return")
+				}
+			}
+			for range paths {
+				select {
+				case <-completed:
+				case <-time.After(3 * time.Second):
+					t.Fatal("actual reader HTTP client did not join")
+				}
+			}
+			select {
+			case <-root.done:
+			case <-time.After(6 * time.Second):
+				t.Fatal("released readers did not let root finish")
+			}
+			if !forced && root.err != nil {
+				t.Fatal("graceful reader shutdown failed", root.err)
+			}
+			deadline := time.NewTimer(3 * time.Second)
+			defer deadline.Stop()
+			tick := time.NewTicker(5 * time.Millisecond)
+			defer tick.Stop()
+			for {
+				root.owned.mu.Lock()
+				active := root.owned.httpActive
+				root.owned.mu.Unlock()
+				if active == 0 {
+					break
+				}
+				select {
+				case <-deadline.C:
+					t.Fatal("root retained an actual HTTP handler after release")
+				case <-tick.C:
+				}
+			}
+			var absent bool
+			if err := admin.QueryRow(databaseTestContext(t), "SELECT NOT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND application_name='agenteam')").Scan(&absent); err != nil || !absent {
+				t.Fatal("root retained real reader database borrowers", err)
+			}
+		})
+	}
 }
 
 type workRootAccountDrain struct {
