@@ -1,8 +1,8 @@
 # D11 Task transition 与 reviewer 工程规格
 
-> 状态：工程草案，尚未接受；本文没有授权产品实现，也不是运行验收结果。
+> 状态：工程规格已独立接受；**T0a 纯状态核心已实现并独立验收**。仅两个新 contract 源提供状态边/角色决策与严格 TaskTransitionPosition；完整流转服务、T0b 与运行前置仍未完成。
 >
-> 前置：[Task planning](d11-task-planning.md) 的契约子结果已交付，运行服务整卡仍在验收。本卡运行服务开工须以该整卡通过为前提；下述新增纯契约、状态决策及兼容方案可以分别审查，不因整个 Agent/Executor 尚未实现而全部停工。
+> 前置：[Task planning](d11-task-planning.md) 的规划库已正式交付并独立验收。本卡运行服务还须满足 §13 的真实 Agent/Blocker/执行前置；下述新增纯契约、状态决策及兼容方案可以分别审查，不因整个 Agent/Executor 尚未实现而全部停工。
 >
 > 业务依据：[D01 领域生命周期](d01-contracts/domain-lifecycle.md)、[Task 状态机](../../architecture/project-work-management/task-state-machine.md)、[Task 领域模型](../../architecture/project-work-management/task-domain-model.md)、[Task Timeline](../../architecture/project-work-management/task-event-timeline.md)、[Blocker / Dependency](../../architecture/project-work-management/task-blocker-dependency.md)、[Agent 管理](../../architecture/agent-management.md)。跨域身份、幂等和事务以 [D01 基础契约](d01-contracts/foundation.md)、[Execution / Scheduler](d01-contracts/execution-orchestration.md) 为准。
 
@@ -10,7 +10,7 @@
 
 提供统一 `TransferTask`，把合法 state 变化、显式 assignee/reviewer 交接、必要 comment、允许的 Blocker 变更、rank、TaskEvent、Outbox 和完成回执原子提交。reviewer 就是 `in_review` 的当前 `Task.AssigneeAgentID`，不建立第二个 reviewer 列或独立批准状态机。
 
-现有 Task planning 只成功写入未指派 backlog。其 `Task` 已能严格解码七种 state 和持久 assignee，这不证明存在 Agent/Blocker/Execution 服务，也不授权现有 Create/Update/Reorder 写这些状态。规划验收中的直接 SQL future-state fixture 只验证读取、约束与否定边界，不能作为本卡的分配或转换正向证据。当前 Agent 只有 `identity.AgentID` marker，没有可供 Work 使用的当前 Agent 领域实现。
+现有 Task planning 只成功写入未指派 backlog。其 `Task` 已能严格解码七种 state 和持久 assignee，这不证明存在 Agent/Blocker/Execution 服务，也不授权现有 Create/Update/Reorder 写这些状态。规划验收中的直接 SQL future-state fixture 只验证读取、约束与否定边界，不能作为本卡的分配或转换正向证据。当前 Agent 已有 C1 纯核心契约及 `identity.AgentID` marker，仍没有可供 Work 使用的当前 Agent 事实服务。
 
 兼容边界固定如下：
 
@@ -449,3 +449,9 @@ Actor/调度绑定增加真实 `TestTaskTransitionsAgentReviewerAuthority`、`Te
 D10当前Agent事实与Work引用保护是明确责任依赖，不是产品未决；同Project、当前存在/初始化/删除门禁及真实锁/引用检查已经固定，不能推迟为任意stub。规划整卡、D10真实服务和必要Blocker/运行provider完成前，T1/T2/T3不报完成。T0a或类型已闭合的T0b等正式子结果可以按各自边界独立交付；接受本规格也仅代表工程设计就绪，不代表迁移、服务、HTTP/Tool、Scheduler、Agent授权或真实PG矩阵已执行。
 
 本文只新增这张规格卡，不修改原状态机、planning/TaskPosition、产品或测试源；若独立SPEC审查确认需要调整业务来源、已有契约或跨域卡，由对应唯一作者在另一个明确范围中处理。交付记录以实际代码/测试和团队任务台账为准，不在本文追加逐轮运行日志。
+
+### T0a 实施与验收结果
+
+已实现 `internal/central/work/contract/task_transition_rules.go` 及相邻测试。作者 pure、root contract race（2.931s）、准确 vet 与六个新增 selector 发现实际退出0；独立公开API overlay 使用 Go1.27.1、离线 `-race -p=2`，4顶层/9子测试全部实际运行通过（1.078s，工具session9346实际exit0）。独立 oracle 检查49状态对×6角色×3当前assignee，共882组合，以及错误优先、8KiB原始输入、失败receiver保留、并行Clone和旧Position/schema隔离。两产品源与独立探针均冻结，未修改旧契约或迁移。
+
+可复跑独立验收：[probe_test.go](../../../.agent-state/task-transition-core-recovery/probe_test.go)、[run.sh](../../../.agent-state/task-transition-core-recovery/run.sh)。以上只证明纯类型与决策；没有运行PG/Agent事实/Blocker/Executor/Scheduler，也没有授权或提交能力。完整Transfer与§13前置继续待实现。
