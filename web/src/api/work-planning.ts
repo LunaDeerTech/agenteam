@@ -703,7 +703,11 @@ function matchFields(
     'sprint_id',
     'milestone_id',
   ])
-    if (Object.hasOwn(r, key))
+    if (
+      Object.hasOwn(r, key) &&
+      !(command.command === 'work.milestone.create' && key === 'milestone_id') &&
+      !(command.command === 'work.sprint.create' && key === 'sprint_id')
+    )
       requireValue((record as unknown as Record<string, unknown>)[key] === r[key])
   if (command.command.endsWith('.create')) {
     requireValue(record.description === (r.description ?? ''))

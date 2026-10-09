@@ -1,5 +1,46 @@
 import { readonly, shallowReactive } from 'vue'
 import {
+  createWorkPlanningAPI,
+  captureWorkPlanningCommand,
+  captureWorkPlanningQuery,
+  parseWorkPlanningReceipt,
+  parseWorkPlanningObservation,
+  workPlanningBody,
+  workPlanningLookup,
+  workPlanningTarget,
+  type WorkPlanningAPI,
+  type WorkPlanningCommand,
+  type WorkPlanningReceipt,
+  type WorkPlanningObservation,
+  type WorkMilestoneQuery,
+  type WorkSprintQuery,
+  type WorkTaskQuery,
+  type WorkTaskBlockerQuery,
+} from '../api/work-planning'
+type WorkAction = 'work-read' | 'work-write' | 'work-lookup'
+type WorkIntent = {
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+  payload: { command: WorkPlanningCommand | null; body: string | null }
+  uncertain: boolean
+  keyConflict: boolean
+}
+export type WorkPlanningProgress = Readonly<{
+  domain: WorkPlanningCommand['domain']
+  command: WorkPlanningCommand['command']
+  projectID: string
+  targetID: string
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
+  receipt: WorkPlanningReceipt | null
+  failure: AccountFailure | null
+  contextValid: boolean
+  canLookup: boolean
+  canReplay: boolean
+}>
+
+import {
   createAccountAPI,
   type AccountAPI,
   type Challenge,
@@ -471,6 +512,7 @@ type Action =
   | ProjectAction
   | ProjectAuditAction
   | ProjectModelAction
+  | WorkAction
 interface Operation {
   generation: number
   kind: Action
@@ -581,6 +623,7 @@ export function createSessionController(
   projectAPI: ProjectOwnerAPI = createProjectOwnerAPI(),
   projectAuditAPI: ProjectAuditAPI = createProjectAuditAPI(),
   projectModelSettingsAPI: ProjectModelSettingsAPI = createProjectModelSettingsAPI(),
+  workPlanningAPI: WorkPlanningAPI = createWorkPlanningAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -647,6 +690,16 @@ export function createSessionController(
     materialInvalid: boolean
     materialRevision: number
   }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
+  const workRevisions: Record<WorkAction, number> = {
+    'work-read': 0,
+    'work-write': 0,
+    'work-lookup': 0,
+  }
+  const isWorkAction = (kind: Action): kind is WorkAction => Object.hasOwn(workRevisions, kind)
+  let workIntent: WorkIntent | null = null
+  const workState = shallowReactive<{
+    progress: Omit<WorkPlanningProgress, 'contextValid' | 'canLookup' | 'canReplay'> | null
+  }>({ progress: null })
   const projectRevisions: Record<ProjectAction, number> = {
     'project-read': 0,
     'project-update': 0,
@@ -816,10 +869,12 @@ export function createSessionController(
   function clearIdentity(invalidate = true) {
     clearProjectAuditRead()
     clearProjectModelReads()
+    clearWorkRead()
     state.user = null
     state.session = null
     if (invalidate) {
       clearProjectModelState()
+      clearWorkState()
       clearProjectState()
       clearInvitationState()
       clearProviderState()
@@ -884,6 +939,7 @@ export function createSessionController(
       (!sessionCSRF || sessionCSRF === view.csrf_token)
     if (!same) {
       clearProjectModelState()
+      clearWorkState()
       clearProjectState()
       ++personalRevision
       personalContext.identity = Object.freeze({
@@ -1394,41 +1450,44 @@ export function createSessionController(
       | OutboundPolicyAction
       | ProjectAction
       | ProjectAuditAction
-      | ProjectModelAction = 'personal',
+      | ProjectModelAction
+      | WorkAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
-      isProjectModelAction(kind)
-        ? projectModelRevisions[kind]
-        : isProjectAuditAction(kind)
-          ? projectAuditRevision
-          : isProjectAction(kind)
-            ? projectRevisions[kind]
-            : kind === 'system'
-              ? systemRevision
-              : kind === 'audit-read'
-                ? auditRevision
-                : kind === 'runtime-information-read'
-                  ? runtimeInformationRevision
-                  : kind === 'invitation-read'
-                    ? invitationReadRevision
-                    : kind === 'invitation-write'
-                      ? invitationRevision
-                      : kind === 'personal'
-                        ? personalRevision
-                        : isModelAction(kind)
-                          ? modelRevisions[kind]
-                          : isSelectionAction(kind)
-                            ? selectionRevisions[kind]
-                            : isAccountSecurityAction(kind)
-                              ? accountSecurityRevisions[kind]
-                              : isSMTPAction(kind)
-                                ? smtpRevisions[kind]
-                                : isSMTPDeliveryAction(kind)
-                                  ? smtpDeliveryRevisions[kind]
-                                  : isOutboundPolicyAction(kind)
-                                    ? outboundRevisions[kind]
-                                    : providerRevisions[kind]
+      isWorkAction(kind)
+        ? workRevisions[kind]
+        : isProjectModelAction(kind)
+          ? projectModelRevisions[kind]
+          : isProjectAuditAction(kind)
+            ? projectAuditRevision
+            : isProjectAction(kind)
+              ? projectRevisions[kind]
+              : kind === 'system'
+                ? systemRevision
+                : kind === 'audit-read'
+                  ? auditRevision
+                  : kind === 'runtime-information-read'
+                    ? runtimeInformationRevision
+                    : kind === 'invitation-read'
+                      ? invitationReadRevision
+                      : kind === 'invitation-write'
+                        ? invitationRevision
+                        : kind === 'personal'
+                          ? personalRevision
+                          : isModelAction(kind)
+                            ? modelRevisions[kind]
+                            : isSelectionAction(kind)
+                              ? selectionRevisions[kind]
+                              : isAccountSecurityAction(kind)
+                                ? accountSecurityRevisions[kind]
+                                : isSMTPAction(kind)
+                                  ? smtpRevisions[kind]
+                                  : isSMTPDeliveryAction(kind)
+                                    ? smtpDeliveryRevisions[kind]
+                                    : isOutboundPolicyAction(kind)
+                                      ? outboundRevisions[kind]
+                                      : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1443,7 +1502,10 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (isProjectAction(kind) || isProjectAuditAction(kind) || isProjectModelAction(kind)
+        (isWorkAction(kind) ||
+        isProjectAction(kind) ||
+        isProjectAuditAction(kind) ||
+        isProjectModelAction(kind)
           ? state.phase === 'authenticated' &&
             personalContext.phase === 'current' &&
             state.user?.id === identity.userID &&
@@ -1507,15 +1569,17 @@ export function createSessionController(
         return result
       })
       .catch((error: unknown) => {
-        const e = isProjectModelAction(kind)
-          ? projectModelFailure(kind, current, error)
-          : isProjectAuditAction(kind)
-            ? projectAuditFailure(current, error)
-            : isProjectAction(kind)
-              ? projectFailure(identity, op, error)
-              : kind !== 'personal'
-                ? systemFailure(identity, op, current, error)
-                : personalFailure(identity, error)
+        const e = isWorkAction(kind)
+          ? workFailure(current, error)
+          : isProjectModelAction(kind)
+            ? projectModelFailure(kind, current, error)
+            : isProjectAuditAction(kind)
+              ? projectAuditFailure(current, error)
+              : isProjectAction(kind)
+                ? projectFailure(identity, op, error)
+                : kind !== 'personal'
+                  ? systemFailure(identity, op, current, error)
+                  : personalFailure(identity, error)
         if (command && personalIntent === command) {
           if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
             command.checked = false
@@ -3587,6 +3651,410 @@ export function createSessionController(
       return performSMTPDelivery(smtpDeliveryIntent)
     },
   }
+  function clearWorkRead() {
+    ++workRevisions['work-read']
+    if (owner?.kind === 'work-read') owner.abandon?.()
+  }
+  function clearWorkState() {
+    clearWorkRead()
+    ++workRevisions['work-write']
+    ++workRevisions['work-lookup']
+    if (workIntent) {
+      workIntent.payload.command = null
+      workIntent.payload.body = null
+    }
+    workIntent = null
+    workState.progress = null
+    if (owner && isWorkAction(owner.kind)) owner.abandon?.()
+  }
+  function workFailure(current: () => boolean, error: unknown): AccountFailure {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    if (
+      current() &&
+      (unavailableSession(e) || (e.problem?.status === 403 && e.problem.code === 'CSRF_FAILED'))
+    ) {
+      clearIdentity()
+      clearBrowser()
+      state.phase = 'unavailable'
+      state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
+    }
+    return e
+  }
+  function knownWorkRejection(e: AccountFailure): boolean {
+    const p = e.problem
+    if (!p || !['not_started', 'not_committed'].includes(p.commit_state)) return false
+    return (
+      (p.status === 400 && p.code === 'INVALID_ARGUMENT') ||
+      (p.status === 413 && p.code === 'PAYLOAD_TOO_LARGE') ||
+      (p.status === 415 && p.code === 'UNSUPPORTED_MEDIA_TYPE') ||
+      (p.status === 409 &&
+        [
+          'VERSION_CONFLICT',
+          'INVALID_STATE',
+          'RESOURCE_BUSY',
+          'PROJECT_NOT_ACTIVE',
+          'CURSOR_STALE',
+        ].includes(p.code)) ||
+      (p.status === 401 && ['UNAUTHENTICATED', 'SESSION_REVOKED'].includes(p.code)) ||
+      (p.status === 403 && ['FORBIDDEN', 'CSRF_FAILED', 'ORIGIN_DENIED'].includes(p.code)) ||
+      (p.status === 404 && p.code === 'NOT_FOUND') ||
+      (p.status === 503 && p.code === 'DEPENDENCY_UNBOUND')
+    )
+  }
+  function publishWork(
+    command: WorkPlanningCommand,
+    phase: WorkPlanningProgress['phase'],
+    receipt: WorkPlanningReceipt | null = null,
+    failure: AccountFailure | null = null,
+    observation: WorkPlanningProgress['observation'] = 'none',
+  ) {
+    workState.progress = Object.freeze({
+      domain: command.domain,
+      command: command.command,
+      projectID: command.projectID,
+      targetID: workPlanningTarget(command),
+      phase,
+      receipt,
+      failure,
+      observation,
+    })
+  }
+  async function executeWork(
+    command: WorkPlanningCommand,
+    original: WorkIntent,
+    signal: AbortSignal,
+  ): Promise<WorkPlanningReceipt> {
+    const options = { signal, csrf: original.csrf, key: original.key }
+    let value: unknown
+    const project = command.projectID
+    // Keep each typed command closed; no caller endpoint, namespace, or key dispatch.
+    switch (command.command) {
+      case 'work.milestone.create':
+        value = await workPlanningAPI.createMilestone(
+          project,
+          { request: command.request },
+          options,
+        )
+        break
+      case 'work.milestone.update':
+        value = await workPlanningAPI.updateMilestone(
+          project,
+          command.targetID,
+          { expected_version: command.expected_version, request: command.request },
+          options,
+        )
+        break
+      case 'work.milestone.reorder':
+        value = await workPlanningAPI.reorderMilestone(
+          project,
+          command.targetID,
+          { expected_version: command.expected_version, request: command.request },
+          options,
+        )
+        break
+      case 'work.sprint.create':
+        value = await workPlanningAPI.createSprint(project, { request: command.request }, options)
+        break
+      case 'work.sprint.update':
+        value = await workPlanningAPI.updateSprint(
+          project,
+          command.targetID,
+          { expected_version: command.expected_version, request: command.request },
+          options,
+        )
+        break
+      case 'work.sprint.reorder':
+        value = await workPlanningAPI.reorderSprint(
+          project,
+          command.targetID,
+          { expected_version: command.expected_version, request: command.request },
+          options,
+        )
+        break
+      case 'work.task.create':
+        value = await workPlanningAPI.createTask(project, { request: command.request }, options)
+        break
+      case 'work.task.update':
+        value = await workPlanningAPI.updateTask(
+          project,
+          command.targetID,
+          { expected_version: command.expected_version, request: command.request },
+          options,
+        )
+        break
+      case 'work.task.reorder':
+        value = await workPlanningAPI.reorderTask(
+          project,
+          command.targetID,
+          { expected_version: command.expected_version, request: command.request },
+          options,
+        )
+        break
+      case 'work.task.blocker.add':
+        value = await workPlanningAPI.addTaskBlocker(
+          project,
+          command.taskID,
+          { expected_version: command.expected_version, request: command.request },
+          options,
+        )
+        break
+      case 'work.task.blocker.resolve':
+        value = await workPlanningAPI.resolveTaskBlocker(
+          project,
+          command.taskID,
+          { expected_version: command.expected_version, request: command.request },
+          options,
+        )
+        break
+    }
+    return parseWorkPlanningReceipt(value, command)
+  }
+  function performWork(original: WorkIntent): Promise<WorkPlanningReceipt> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    const command = original.payload.command,
+      revision = workRevisions['work-write']
+    if (!command || original !== workIntent || !projectContext(original) || original.keyConflict)
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const live = () =>
+      original === workIntent &&
+      revision === workRevisions['work-write'] &&
+      projectContext(original)
+    let dispatched = false
+    publishWork(command, 'submitting')
+    return runAuthorized(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live() || original.payload.command !== command)
+          throw new AccountFailure('cancelled')
+        if (JSON.stringify(workPlanningBody(command)) !== original.payload.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        return executeWork(command, original, op.abort.signal)
+      },
+      undefined,
+      'work-write',
+    ).then(
+      (receipt) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        original.uncertain = false
+        publishWork(command, 'confirmed', receipt, null, 'committed')
+        return receipt
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          original === workIntent &&
+          revision === workRevisions['work-write'] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          original.keyConflict ||=
+            e.problem?.status === 409 && e.problem.code === 'IDEMPOTENCY_KEY_REUSED'
+          original.uncertain ||= original.keyConflict || (dispatched && !knownWorkRejection(e))
+          publishWork(command, original.uncertain ? 'uncertain' : 'rejected', null, e)
+        }
+        throw e
+      },
+    )
+  }
+  function readWork<T>(capture: () => (signal: AbortSignal) => Promise<T>): Promise<T> {
+    try {
+      const identity = personalIdentity(),
+        work = capture()
+      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, 'work-read')
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  function workReadID(value: string): string {
+    if (typeof value !== 'string' || !uuid7.test(value)) throw new AccountFailure('invalid-input')
+    return value
+  }
+  const workPlanning = {
+    get progress(): WorkPlanningProgress | null {
+      const value = workState.progress
+      if (!value) return null
+      const contextValid = !!workIntent && projectContext(workIntent)
+      const available =
+        contextValid && !!workIntent?.payload.command && !owner && !pending && !personalIntent
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canLookup: available && !workIntent!.keyConflict,
+        canReplay:
+          available &&
+          !workIntent!.keyConflict &&
+          value.observation !== 'in_progress' &&
+          (workIntent!.uncertain || value.phase === 'confirmed'),
+      })
+    },
+    listMilestones(projectID: string, query: WorkMilestoneQuery) {
+      return readWork(() => {
+        const project = workReadID(projectID),
+          q = Object.freeze({ ...query })
+        captureWorkPlanningQuery('milestone', q)
+        return (signal) => workPlanningAPI.listMilestones(project, q, signal)
+      })
+    },
+    getMilestone(projectID: string, targetID: string) {
+      return readWork(() => {
+        const project = workReadID(projectID),
+          target = workReadID(targetID)
+        return (signal) => workPlanningAPI.getMilestone(project, target, signal)
+      })
+    },
+    listSprints(projectID: string, query: WorkSprintQuery) {
+      return readWork(() => {
+        const project = workReadID(projectID),
+          q = Object.freeze({ ...query })
+        captureWorkPlanningQuery('sprint', q)
+        return (signal) => workPlanningAPI.listSprints(project, q, signal)
+      })
+    },
+    getSprint(projectID: string, targetID: string) {
+      return readWork(() => {
+        const project = workReadID(projectID),
+          target = workReadID(targetID)
+        return (signal) => workPlanningAPI.getSprint(project, target, signal)
+      })
+    },
+    listTasks(projectID: string, query: WorkTaskQuery) {
+      return readWork(() => {
+        const project = workReadID(projectID),
+          q = Object.freeze({ ...query })
+        captureWorkPlanningQuery('task', q)
+        return (signal) => workPlanningAPI.listTasks(project, q, signal)
+      })
+    },
+    getTask(projectID: string, targetID: string) {
+      return readWork(() => {
+        const project = workReadID(projectID),
+          target = workReadID(targetID)
+        return (signal) => workPlanningAPI.getTask(project, target, signal)
+      })
+    },
+    listTaskBlockers(projectID: string, taskID: string, query: WorkTaskBlockerQuery) {
+      return readWork(() => {
+        const project = workReadID(projectID),
+          task = workReadID(taskID),
+          q = Object.freeze({ ...query })
+        captureWorkPlanningQuery('blocker', q)
+        return (signal) => workPlanningAPI.listTaskBlockers(project, task, q, signal)
+      })
+    },
+    start(value: WorkPlanningCommand): Promise<WorkPlanningReceipt> {
+      try {
+        const identity = personalIdentity()
+        if (pending || personalIntent || (workIntent && workState.progress?.phase !== 'confirmed'))
+          throw new AccountFailure('busy')
+        const command = captureWorkPlanningCommand(value)
+        if (workIntent) {
+          workIntent.payload.command = null
+          workIntent.payload.body = null
+        }
+        const original: WorkIntent = {
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+          payload: { command, body: JSON.stringify(workPlanningBody(command)) },
+          uncertain: false,
+          keyConflict: false,
+        }
+        workIntent = original
+        return performWork(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    checkOriginal(): Promise<WorkPlanningObservation> {
+      if (!workIntent || !workPlanning.progress?.canLookup)
+        return Promise.reject(new AccountFailure(owner ? 'busy' : 'invalid-input'))
+      const original = workIntent,
+        command = original.payload.command!,
+        revision = workRevisions['work-lookup']
+      const live = () =>
+        workIntent === original &&
+        revision === workRevisions['work-lookup'] &&
+        projectContext(original)
+      return runAuthorized(
+        original.identity,
+        async (op, current) => {
+          if (
+            !current() ||
+            !live() ||
+            JSON.stringify(workPlanningBody(command)) !== original.payload.body
+          )
+            throw new AccountFailure('cancelled')
+          const options = { signal: op.abort.signal, csrf: original.csrf, key: original.key }
+          const value =
+            command.domain === 'structure'
+              ? await workPlanningAPI.lookupStructureCommand(
+                  command.projectID,
+                  workPlanningLookup(command),
+                  options,
+                )
+              : command.domain === 'task'
+                ? await workPlanningAPI.lookupTaskCommand(
+                    command.projectID,
+                    workPlanningLookup(command),
+                    options,
+                  )
+                : await workPlanningAPI.lookupTaskBlockerCommand(
+                    command.projectID,
+                    command.taskID,
+                    workPlanningLookup(command),
+                    options,
+                  )
+          return parseWorkPlanningObservation(value, command)
+        },
+        undefined,
+        'work-lookup',
+      ).then(
+        (result) => {
+          if (!live() || !workState.progress) throw new AccountFailure('cancelled')
+          const observation =
+            result.domain === 'structure' ? result.value.state : result.value.status
+          if (observation === 'committed') {
+            let receipt: WorkPlanningReceipt
+            if (result.domain === 'structure' && result.value.state === 'committed')
+              receipt = { domain: 'structure', value: result.value.result }
+            else if (result.domain === 'task' && result.value.status === 'committed')
+              receipt = { domain: 'task', value: result.value.receipt }
+            else if (result.domain === 'blocker' && result.value.status === 'committed')
+              receipt = { domain: 'blocker', value: result.value.receipt }
+            else throw new AccountFailure('invalid-response')
+            original.uncertain = false
+            publishWork(command, 'confirmed', Object.freeze(receipt), null, 'committed')
+          } else
+            workState.progress = Object.freeze({
+              ...workState.progress,
+              observation,
+              failure: null,
+            })
+          return result
+        },
+        (error: unknown) => {
+          const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+          if (live() && workState.progress) {
+            original.keyConflict ||=
+              e.problem?.status === 409 && e.problem.code === 'IDEMPOTENCY_KEY_REUSED'
+            workState.progress = Object.freeze({
+              ...workState.progress,
+              observation: 'failed',
+              failure: e,
+            })
+          }
+          throw e
+        },
+      )
+    },
+    retryOriginal(): Promise<WorkPlanningReceipt> {
+      if (!workIntent || !workPlanning.progress?.canReplay)
+        return Promise.reject(new AccountFailure(owner ? 'busy' : 'invalid-input'))
+      return performWork(workIntent)
+    },
+    abandonRead: clearWorkRead,
+    abandon: clearWorkState,
+  }
   function projectContext(original: Pick<ProjectIntent, 'identity' | 'csrf'>) {
     return (
       sameIdentity(original.identity, personalContext.identity) &&
@@ -5260,6 +5728,7 @@ export function createSessionController(
     projects,
     projectAudit,
     projectModelSettings,
+    workPlanning,
     personal,
     system,
     entry,
