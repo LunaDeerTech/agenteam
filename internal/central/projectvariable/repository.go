@@ -74,6 +74,17 @@ func unavailable(err error) error {
 	}
 	return fault(f.DependencyUnavailable).WithCause(privateFailure{func() error { return err }})
 }
+
+// Different Projects may concurrently reserve the same caller-generated ID.
+// Same-Project writers are serialized and classified by checkPreimage above.
+// Keep this fallback local to INSERT; other statements retain their own errors.
+func createInsertFailure(err error) error {
+	var pg *pgconn.PgError
+	if errors.As(err, &pg) && pg.Code == "23505" && pg.ConstraintName == "variables_pkey" {
+		return fault(f.NotFound)
+	}
+	return unavailable(err)
+}
 func portError(err error) error {
 	if err == nil {
 		return nil

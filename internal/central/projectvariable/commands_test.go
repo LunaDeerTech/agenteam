@@ -1,6 +1,7 @@
 package projectvariable
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,7 +13,9 @@ import (
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	c "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -151,4 +154,63 @@ func TestVariableStorageDiagnosticsNeverPublishUserData(t *testing.T) {
 		}
 	}
 	code(t, unavailable(&pgconn.PgError{Code: "23505", ConstraintName: "variables_live_name", Detail: "value-canary"}), f.ResourceBusy)
+}
+
+// This SQL boundary control checks the returned classification, not a real PG race.
+type variableIDRow func(...any) error
+
+func (r variableIDRow) Scan(dest ...any) error { return r(dest...) }
+
+type variableIDExecutor struct {
+	postgres.SQLExecutor
+	project     string
+	insertError error
+}
+
+func (x variableIDExecutor) QueryRow(_ context.Context, sql string, _ ...any) postgres.Row {
+	return variableIDRow(func(dest ...any) error {
+		switch {
+		case strings.Contains(sql, "SELECT project_id FROM agenteam_projectvariable.variables WHERE id="):
+			*dest[0].(*string) = x.project
+		case strings.Contains(sql, "SELECT count(*)"), strings.Contains(sql, "SELECT COALESCE"):
+			*dest[0].(*int64) = 1
+		case strings.Contains(sql, "SELECT EXISTS"):
+			*dest[0].(*bool) = false
+		default:
+			return pgx.ErrNoRows
+		}
+		return nil
+	})
+}
+func (x variableIDExecutor) Exec(context.Context, string, ...any) (pgconn.CommandTag, error) {
+	return pgconn.CommandTag{}, x.insertError
+}
+func TestVariableCreateForeignIDClassification(t *testing.T) {
+	r, _ := runtimeRecord(t)
+	code(t, checkPreimage(context.Background(), variableIDExecutor{project: testID[i.Project](200).String()}, r), f.NotFound)
+	same := checkPreimage(context.Background(), variableIDExecutor{project: r.Project.String()}, r)
+	code(t, same, f.ResourceBusy)
+	var detail *f.Fault
+	if !errors.As(same, &detail) || len(detail.FieldErrors) != 1 || detail.FieldErrors[0].Path != "/variable_id" || detail.FieldErrors[0].Code != "ID_CONFLICT" {
+		t.Fatal("same Project ID classification changed")
+	}
+}
+func TestVariableCreateConcurrentIDClassification(t *testing.T) {
+	r, _ := runtimeRecord(t)
+	for _, tc := range []struct {
+		constraint, state string
+		want              f.Code
+	}{
+		{"variables_pkey", "23505", f.NotFound},
+		{"variables_live_name", "23505", f.ResourceBusy},
+		{"another_unique", "23505", f.DependencyUnavailable},
+		{"variables_pkey", "23514", f.DependencyUnavailable},
+	} {
+		t.Run(tc.constraint+tc.state, func(t *testing.T) {
+			e := &pgconn.PgError{Code: tc.state, ConstraintName: tc.constraint, Detail: "private-canary"}
+			code(t, applyPlan(context.Background(), variableIDExecutor{insertError: e}, r), tc.want)
+		})
+	}
+	// The ordinary storage classifier is not weakened for other commands.
+	code(t, unavailable(&pgconn.PgError{Code: "23505", ConstraintName: "variables_pkey"}), f.ResourceBusy)
 }

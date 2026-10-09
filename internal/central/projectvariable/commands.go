@@ -13,6 +13,7 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	c "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
+	"github.com/jackc/pgx/v5"
 )
 
 func (s *Service) CreateVariable(ctx context.Context, a i.Actor, m f.CommandMeta, p c.ProjectID, in c.VariableCreate) (c.VariableMutation, error) {
@@ -341,14 +342,19 @@ func checkPreimage(ctx context.Context, x postgres.SQLExecutor, r *commandRecord
 		return internal(nil)
 	}
 	p := r.Plan
-	current, deleted, e := loadVariable(ctx, x, r.Project, r.Target, true)
 	if r.Command == c.CreateCommand {
+		// IDs are globally non-reusable. Only read the owning Project marker;
+		// a caller must never receive another Project's object or ID conflict.
+		var project string
+		e := x.QueryRow(ctx, `SELECT project_id FROM agenteam_projectvariable.variables WHERE id=$1`, r.Target.String()).Scan(&project)
 		if e == nil {
+			if project != r.Project.String() {
+				return fault(f.NotFound)
+			}
 			return field(f.ResourceBusy, "/variable_id", "ID_CONFLICT")
 		}
-		var fault *f.Fault
-		if !errors.As(e, &fault) || fault.Code != f.NotFound {
-			return e
+		if !errors.Is(e, pgx.ErrNoRows) {
+			return unavailable(e)
 		}
 		var count int64
 		if e = x.QueryRow(ctx, `SELECT count(*) FROM agenteam_projectvariable.variables WHERE project_id=$1 AND deleted_at IS NULL`, r.Project.String()).Scan(&count); e != nil {
@@ -358,6 +364,7 @@ func checkPreimage(ctx context.Context, x postgres.SQLExecutor, r *commandRecord
 			return field(f.ResourceBusy, "/variable_id", "PROJECT_VARIABLE_LIMIT")
 		}
 	} else {
+		current, deleted, e := loadVariable(ctx, x, r.Project, r.Target, true)
 		if e != nil {
 			return e
 		}
@@ -370,7 +377,7 @@ func checkPreimage(ctx context.Context, x postgres.SQLExecutor, r *commandRecord
 	}
 	if !p.Deleted {
 		var exists bool
-		if e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_projectvariable.variables WHERE project_id=$1 AND name=$2 AND id<>$3 AND deleted_at IS NULL)`, r.Project.String(), p.After.Fields().Name, r.Target.String()).Scan(&exists); e != nil {
+		if e := x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_projectvariable.variables WHERE project_id=$1 AND name=$2 AND id<>$3 AND deleted_at IS NULL)`, r.Project.String(), p.After.Fields().Name, r.Target.String()).Scan(&exists); e != nil {
 			return unavailable(e)
 		}
 		if exists {
@@ -390,7 +397,11 @@ func applyPlan(ctx context.Context, x postgres.SQLExecutor, r *commandRecord) er
 	p := r.Plan
 	v := p.After.Fields()
 	if r.Command == c.CreateCommand {
-		if e := affected(x.Exec(ctx, `INSERT INTO agenteam_projectvariable.variables(id,project_id,type,name,description,value,version,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`, v.ID.String(), v.ProjectID.String(), v.Type, v.Name, v.Description, v.Value, int64(v.Version), v.CreatedAt.Time(), v.UpdatedAt.Time())); e != nil {
+		tag, e := x.Exec(ctx, `INSERT INTO agenteam_projectvariable.variables(id,project_id,type,name,description,value,version,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`, v.ID.String(), v.ProjectID.String(), v.Type, v.Name, v.Description, v.Value, int64(v.Version), v.CreatedAt.Time(), v.UpdatedAt.Time())
+		if e != nil {
+			return createInsertFailure(e)
+		}
+		if e = affected(tag, nil); e != nil {
 			return e
 		}
 	} else {

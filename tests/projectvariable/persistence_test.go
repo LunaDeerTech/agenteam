@@ -17,10 +17,13 @@ import (
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	vc "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/work"
+	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
 	"github.com/jackc/pgx/v5/pgconn"
 )
@@ -307,18 +310,53 @@ func TestProjectVariableMigration(t *testing.T) {
 		raw := openStore(t, db.Config(t, nil))
 		// Setup uses only main's Account/Project storage before 00024 is installed.
 		v := assembleVariableHTTPFixture(t, db, raw, &hookStore{fixtureStore: raw})
+		// Existing Work facts are produced by the formal service at 00023,
+		// with its own typed catalog and the same real Store/Project authority.
+		catalog := event.NewCatalog()
+		we, e := wc.RegisterWorkEvents(catalog)
+		if e != nil {
+			t.Fatal(e)
+		}
+		wa, e := work.NewAuthority(v.tracked, v.projectAuthority)
+		if e != nil {
+			t.Fatal(e)
+		}
+		journal, e := outbox.New(v.tracked, catalog, outbox.Authorizations{Producers: map[event.StableName]oc.ProducerAuthority{wc.WorkProducer: wa}, Sessions: v.accounts, System: v.accounts, Projects: v.projectAuthority, Audit: v.audit, Cursors: v.keys, Processes: fixtureProcess{id[oc.Process](t)}})
+		if e != nil {
+			t.Fatal(e)
+		}
+		legacy, e := work.New(v.tracked, work.Dependencies{Authority: wa, Events: journal, WorkEvents: we, Activity: v.accounts})
+		if e != nil {
+			t.Fatal(e)
+		}
+		t.Cleanup(func() {
+			legacy.Stop()
+			if e := legacy.Drain(ctxFor(t)); e != nil {
+				t.Error("old Work calls did not join", e)
+			}
+		})
+		legacyMeta := meta(t, "before-variable-migration", nil)
+		legacyInput := wc.CreateMilestoneRequest{MilestoneID: id[wc.Milestone](t), Title: "Existing Work", Description: "unchanged"}
+		legacyReceipt, e := legacy.CreateMilestone(ctxFor(t), v.ownerBrowser.actor, legacyMeta, v.project.ID, legacyInput)
+		if e != nil {
+			t.Fatal("formal old Work create", e)
+		}
 		var before string
-		if e := raw.QueryRow(ctxFor(t), `SELECT jsonb_build_object('project',(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$1),'audit',(SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM agenteam_audit.audit_records a))::text`, v.project.ID.String()).Scan(&before); e != nil {
+		if e := raw.QueryRow(ctxFor(t), `SELECT jsonb_build_object('project',(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$1),'audit',(SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM agenteam_audit.audit_records a),'milestones',(SELECT jsonb_agg(to_jsonb(m) ORDER BY id) FROM agenteam_work.milestones m),'work_commands',(SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_work.structure_commands c),'work_groups',(SELECT jsonb_agg(to_jsonb(g) ORDER BY project_id) FROM agenteam_work.milestone_order_groups g),'work_events',(SELECT jsonb_agg(to_jsonb(e) ORDER BY id) FROM agenteam_outbox.events e WHERE producer='work'))::text`, v.project.ID.String()).Scan(&before); e != nil {
 			t.Fatal(e)
 		}
 		migrate(t, db)
 		migrate(t, db)
 		var after string
-		if e := raw.QueryRow(ctxFor(t), `SELECT jsonb_build_object('project',(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$1),'audit',(SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM agenteam_audit.audit_records a))::text`, v.project.ID.String()).Scan(&after); e != nil {
+		if e := raw.QueryRow(ctxFor(t), `SELECT jsonb_build_object('project',(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$1),'audit',(SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM agenteam_audit.audit_records a),'milestones',(SELECT jsonb_agg(to_jsonb(m) ORDER BY id) FROM agenteam_work.milestones m),'work_commands',(SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_work.structure_commands c),'work_groups',(SELECT jsonb_agg(to_jsonb(g) ORDER BY project_id) FROM agenteam_work.milestone_order_groups g),'work_events',(SELECT jsonb_agg(to_jsonb(e) ORDER BY id) FROM agenteam_outbox.events e WHERE producer='work'))::text`, v.project.ID.String()).Scan(&after); e != nil {
 			t.Fatal(e)
 		}
 		if before != after {
-			t.Fatal("upgrade rewrote main Project/Audit facts")
+			t.Fatal("upgrade rewrote main Project/Audit/Work facts")
+		}
+		legacyReplay, e := legacy.CreateMilestone(ctxFor(t), v.ownerBrowser.actor, legacyMeta, v.project.ID, legacyInput)
+		if e != nil || string(jsonBytes(t, legacyReceipt)) != string(jsonBytes(t, legacyReplay)) {
+			t.Fatal("upgraded old Work original receipt", e)
 		}
 		created := v.createVariable(t, "Upgraded", "available")
 		version := created.Fields().Version

@@ -1,15 +1,11 @@
 # 当前分支：普通 Project Variables Owner 后端
 
-- 分支 `ai/project-variables`，工作树 `/workspace/agenteam-project-variables`，正式基线 `f1c94ee5`；root 创建并负责 Git 保存与交付。
-- 唯一 SPEC：[普通 Project Variables Owner 服务与 HTTP](../docs/development/work-items/d10-project-variables-owner-http.md) 已获独立有限审查接受。删除版本复用现成 CommandMeta.ExpectedVersion 单源，原初审“端口无法实现”表述已纠正。迁移 `00024` 独占，不预消费后继 Knowledge 00025 / Runner 00026。
-- 目标为已有 initialized Project 当前 Human Owner 的普通变量 CRUD、有界分页、expected_version、原 key Lookup/显式重放、正式 HTTP 与默认根退出。复用 main 的 Account、Project、Store、Audit、Outbox/cursor，不依赖新 Skills、Model UI 或 Object 业务能力。
-- 排除 Secret/白名单、Agent F1/Prompt/Runtime/Runner 注入、UI、Project 创建及完整生命周期参与者。不宣称完整 D10 或 Agent F1 完成，不解除其他模块既有停止项。
-- 首片段四契约及 Audit contract/HTTP/schema/三前端兼容已闭合：Go pure/race、前端99项与严格类型检查实际通过。首轮 schema 环境 setup FAIL 和旧测试分类1FAIL保留，限定复验通过；无真实 PG/native/browser/网络运行，无整体产品验收。产物在 `output/ai/project-variables/implementation/`。
-- 第二片段00024、领域六能力/Stop-Drain/原意图/事实Authority及Project精确分派已可构建，窄pure/race/vet实际0；completed缺receipt负控原FAIL已限修复验，SQL仅静态核约束增量。00024/Project精确分派已独立有限静审接受，未冒PG验收。第三片段HTTP/OpenAPI/defaultroot装配及调用join已闭合，正式schema pure、限定race/vet与两个入口build实际通过；原HTTP诊断canary测试分类FAIL保留并修后复验。接下来写真实Account/Project前置的持久化、权限、竞争、恢复与native/root验收，尚无实际PG/native/root结果。卡与本文件及卡§2产品唯一 writer 为 `service_delivery/blocker_implementation`，已获 root 授权；独立 probe 后续另派。UI 已交回 service_delivery，不在此树复制其 WIP 或 Model 流水。
-- 全局产品状态见[任务台账](../docs/development/agent-team/tasks.md)。本文件只作分支恢复。当前HTTP/root限定片段可保存，继续尚未完成的集成验收源码；Git 写入、分支、真实资源窗均由 root 处理。
-
-- 首批 PG fixture/persistence 源已 freeze：四 top 的 `variable-persistence-race-02.test` 离线 race-c/精确发现通过，待根授权首 Persistence 真 PG。原 fixture 首 compile FAIL保留。00024原遗漏00013 Project Audit guard与新动作的兼容已精确修复，并获发现者有限独审；非SQL动态通过。根导入正式ca9f2d5d有界supervisor，其他测试工具不改；下一先核真实SQL，再继续权限/竞争/恢复/native/root剩余源码。
-
-- 首PG预算按已正式接受原driver实际配置：Go标志6m、driver整体105s context+15s cleanup、supervisor123s+3s退役+75s TCP尾。此前计划90s不是实际运行事实，根已纠正文义，未改harness或增加预算；原driver本树离线build87715实际0，尚待首轮授权。
-
-- 首 Persistence 已完整真实PASS并向root释放资源：CRUD/Audit/Outbox/no-op/delete/历史恢复范围，所有实际Wait及自有资源/desc/TCP双尾闭合、输入不变。HTTP/root15源另获独立静审+7纯控接受；Migration/Authority/Unknown/native/root仍待，不冒整卡完成。新native_test.go已有离线race-c/3top发现，仅待授权未执行；下一恢复Authority与其余集成源码。
+- 工作树 `/workspace/agenteam-project-variables`，分支 `ai/project-variables`，正式基线 `f1c94ee5`；root 负责 Git 与真实资源窗口。
+- 唯一规格：[普通 Project Variables Owner 服务与 HTTP](../docs/development/work-items/d10-project-variables-owner-http.md) 已独立有限接受，卡 §2 写域已授权。迁移00024独占；不预消费 Knowledge00025/Runner00026，精确前序复制由root协调。
+- 目标仅已有 initialized Project 当前 Human Owner 的普通变量CRUD、有界分页/expected_version、原key Lookup/重放、正式HTTP/defaultroot退出。复用Account/Project/Store/Audit/Outbox/cursor；排除Secret、白名单、Agent F1/Runtime注入、UI、Project创建及完整生命周期参与者，不称完整D10。
+- 产品三阶段已保存：契约/Audit与三前端兼容；00024/领域事务/分页/事实Authority与Project分派；六能力HTTP/OpenAPI/defaultroot装配。相应pure/race/vet、前端99控/严格类型和两入口build实际通过。HTTP/root15源另经独立静审+7项实际纯控接受。原失败及修复边界见卡 §9；无整体产品验收。
+- 00024曾遗漏旧Project Audit guard与新三动作兼容，已精确保留旧谓词并增合法tuple，独立窄审接受；正式ca9有界supervisor由root导入。首 Persistence 完整真实PASS：CRUD/no-op/delete/历史恢复、Audit/Outbox，所有Wait/自有资源/desc/TCP双尾闭合并释放窗口，不能外推其它top。
+- 核心四源/四契约有限独审提出唯一 Create foreign-ID 分类缺口；作者先红控、最小修、领域race通过，独立差异复核接受。仅Create查Project marker及INSERT主键并发兜底改NOT_FOUND，同Project ID_CONFLICT和普通错误分类不变。真实双Project竞争尚未运行。
+- 集成12个top已形成，Authority/Concurrency/HTTP/Recovery四新文件和Migration旧Work前置待最终冻结保存；首 Persistence函数不改。当前 `variable-matrix-race-04.test` 最终离线race-c 70333实际exit0，精确三top及全12top发现通过。native3top已race-c/发现且保存，尚未执行；默认root/独立验收仍待建设/排窗。
+- 下一组合精确 `^TestProjectVariable(Migration|PaginationAndLimits|Atomicity)$`，独立数据库顺序执行。原driver仅增加这一常量例外，15作者/10独立输入控接受；新私有 `pg-only-driver-storage-02` 已build。Go标志6m，受driver整体105s+15s cleanup、supervisor123s+3s退役+75s TCP尾约束；不扩大预算，不在freshgrant前运行。
+- 当前无在途真实资源。产物位于 `output/ai/project-variables/implementation/`，真实首轮日志在 `output/ai/project-variables/pg/`。卡/current与本卡产品由本实例唯一写；独立probe归未参与者。全局状态见[任务台账](../docs/development/agent-team/tasks.md)，不复制UI/Model流水。
