@@ -20,6 +20,7 @@ TARGETS = {
     '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': 'tests/process',
     '^TestIndependentWorkOwnerRootConfirmationJoin$': 'internal/central/app',
     '^TestKnowledgeB02DirectPublication$': 'tests/knowledge',
+    '^TestKnowledgeB02BusinessPublication$': 'tests/knowledge',
 }
 
 
