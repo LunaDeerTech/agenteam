@@ -1,6 +1,6 @@
 # D27 Project Owner 模型设置 UI — rev1＋菜单兼容补充
 
-状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 31 路径（30 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30–31 是旧 Audit 单元／真实浏览器菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮、read 第二轮、configuration 第三轮与 credential 首轮实际完整通过（4/6 新 top，含完整资源终态）；configuration／credential／recovery 又已在新共享资产上完整补验，其余资产影响边界见 §0。原 recovery 六次、read 首轮与 configuration 前两轮失败保留。其余两个新 top、旧回归余下 5 项和独立 B 尚未完成；独立 A 第二轮已完整通过；旧 Owner 三项、Audit 权限／恢复与导航两项、Summary 恢复／权限导航两项、Account Session 生命周期及个人主题／受保护导航均已完整通过，已恢复或注册的其他源码不代表真实场景通过。
+状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 31 路径（30 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30–31 是旧 Audit 单元／真实浏览器菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮、read 第二轮、configuration 第三轮与 credential 首轮实际完整通过（4/6 新 top，含完整资源终态）；configuration／credential／recovery 又已在新共享资产上完整补验，其余资产影响边界见 §0。原 recovery 六次、read 首轮与 configuration 前两轮失败保留。其余两个新 top 与旧回归余下 5 项尚未完成；独立 A 第二轮、B 第六轮均已完整通过；旧 Owner 三项、Audit 权限／恢复与导航两项、Summary 恢复／权限导航两项、Account Session 生命周期及个人主题／受保护导航均已完整通过，已恢复或注册的其他源码不代表真实场景通过。
 
 本卡保存产品规格、验收场景与恢复所需事实；团队调度、稳定输入、证据留存和 Git 交付统一遵循[团队流程](../agent-team/README.md)。旧逐轮 root grant、重复哈希表、README 最后另授和永久归档步骤不再作为日常流程。历史全文可从 `e55ad7d1` 的本卡及当时[任务台账](../agent-team/tasks.md)、[环境交接](../agent-team/recovery-2026-10-08-environment.md)文件历史定位，不改写原失败或未验证范围。
 
@@ -15,7 +15,7 @@
 | 真实配置与凭据路径 | `modelsconfig03`、`modelscred01` 历史 actual PASS / fullSTOP；前两次配置 FAIL、Problem.instance 净化路径修复及其有限证据保留。 |
 | 恢复路径 | `modelsrecover01`、`modelsrecover02` 均 FAIL；后者缺最终 browser-result 与 durable facts，原 75s host TCP 观察未双清。后续有限窗口释放不能补写原 TCP 通过。 |
 | 当前恢复验收 | recovery 第七轮、read 第二轮、configuration 第三轮、credential 首轮完整通过，原各次失败保留。sharedLayer 修复及真实组件已按 §0.2–0.3 接受，configuration／credential／recovery 的新资产补验已完成；read 仅按限定历史证据复用，其余门槛仍未完成。 |
-| 未完成门槛 | authority / navigation 两个新 top、旧 14 回归中的余下 5 项及独立 B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
+| 未完成门槛 | authority / navigation 两个新 top、旧 14 回归中的余下 5 项尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
 
 两次恢复失败后的受控结论仅用于后续修复：正式 header/Flush 后零 body 断连已在受控 native fetch 比较中验证；旧分支一次 fetch 可能透明发出两次 POST 并读到完整 EOF。ReadPrivate 的 Lstat→Open→SameFile 与 JS atomic rename 存在源码可确定竞态；候选改为先 NOFOLLOW|NONBLOCK 打开，再以同一 fd 验证 regular/0600/size，保留原有界读取、清理与 Close，pure-file 受控 12 叶／17 RUN/PASS 已接受。原恢复轮未采得具体 error 类别，以上不能回填两次 business FAIL 的确切因果。早期受控 browser launch 失败及 TMP 后续清理同样保留，短根成功不证明原 launch 失败原因。
 
@@ -66,7 +66,9 @@ authority 第九轮以已独立接受的 Resolve 同响应观测复验仍 FAIL�
 
 独立 B 对两处明确归档重读转场的 Owner 确认已做限定修正并获跨树独审：默认其他 open 不处理 Owner 提示，精确标题／按钮与目标未发布门槛保留，Model 确认独立处理，未更改 Owner 产品契约。第五轮尚未到该修复点便整体 FAIL：原 45 秒预算停在初始 Session `response.finished()`，稳定 firstRejected 为 `independent-b-session-finished-x`；pageshow 已返回并收到匹配 GET Session 的 200 头，JSON／身份门槛未执行，只有三份 setup 安全响应。必要事实见 [independent-b-fifth-failure.json](../../../.agent-state/model-ui-independent/independent-b-fifth-failure.json)。Go 54.53 秒、外层实际 Wait／exit=1／141.78 秒（原主体／清理预算内，另含 TCP 尾）；direct／四 adopted 实际 wait、所有 join、七资源双 absent、descendant 双空、runtime-empty／private-removed、TCP 双空、输入同一与 marker／临时目录移除均齐。尚无该 Session 的唯一请求／原生响应绑定、读取取消或 PW 事件时序，不能推定原因，也不能判定两 Owner 确认修复的真实效果；下一次 B 前复用已有同响应有界观察器，不在观测未变时重复完整轮。
 
-供后继 authority／独立 B 使用的共享同响应观察器已获有限独审接受：保留原 Promise、请求、预算及 finished／JSON／身份门槛，仅关联唯一响应的安全长度和单调事件时序。独审真实流反例发现取消后再次 read 也会返回 `done:true`，限定返修保留原 `read_done`，新增严格的中断前完成判据供长度比较及首次 EOF 采样；作者 47＋48 项控制及独立 6 项组合复验通过，原四源的另 6 项独立组合控制复用。真正完成后的正常清理仍为正例；旧 Session 投影及 A 路径保持，尚未以此完成新的 authority／B 真实业务验收。
+供后继 authority／独立 B 使用的共享同响应观察器已获有限独审接受：保留原 Promise、请求、预算及 finished／JSON／身份门槛，仅关联唯一响应的安全长度和单调事件时序。独审真实流反例发现取消后再次 read 也会返回 `done:true`，限定返修保留原 `read_done`，新增严格的中断前完成判据供长度比较及首次 EOF 采样；作者 47＋48 项控制及独立 6 项组合复验通过，原四源的另 6 项独立组合控制复用。真正完成后的正常清理仍为正例；旧 Session 投影及 A 路径保持，authority 尚未使用该组合通过真实业务验收，独立 B 后继结果见下。
+
+独立 B 第六轮由未参与产品实现的验收者本人执行并完整通过：原 45 秒预算、请求与业务门槛保持；两处明确 Owner 确认、凭据归档后仅 lookup、Provider 归档后的原 Execute 以及当前 Session 撤销拒绝均完成，五项检查全为 true。17 次浏览器尝试中 15 份完整响应通过 EOF／schema／正式客户端，另两次预期不完整响应符合原判据；61 个 server 请求全部结束且 proxy 实际 join。Go 20.97 秒、外层实际 Wait／exit=0／109.64 秒；direct／四 adopted 实际 wait=0、全部 join、七资源双 absent、descendant 双空、runtime-empty／private-removed、TCP 双空、89 项输入同一及两个 marker／精确临时目录移除均确认。独立 B 限定验收接受；此前五轮 FAIL 与首轮外层 Wait 缺口保留，本次成功不证明旧 Session 间歇超时的原因或其已被修复。
 
 旧 `audit-navigation` 首轮整体 FAIL，原 driver 已保留具体断言：`settingsCurrent` 期待的设置分组仅有“项目资料／安全记录”，实际还包含本卡正式新增的“模型与 Provider”（E2E 第 1542 行，调用第 1715 行）。这是旧浏览器测试期待遗漏；§8 #31 同一数组的兼容修正已通过 strict TS／格式检查及有限独审，所有其他导航断言保留；后继真实复验结果另记如下。必要安全事实见 [audit-navigation-first-failure.json](../../../.agent-state/model-ui-regression/audit-navigation-first-failure.json)。Go 15.65 秒、外层实际 exit=1／106.58 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空、输入同一及 marker 移除均完成，零布局图。本首轮不计入通过，不把该 FAIL 改写为兼容后通过。
 
