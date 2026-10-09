@@ -29,6 +29,7 @@ def budgets(root_chain):
 
 
 SKILLS_CLEANUP_TOPS = {
+    '^TestProjectSkillsCleanupIndependentRevalidation$': 'TestProjectSkillsCleanupIndependentRevalidation',
     '^TestProjectSkillsCleanupCurrentFacts$': 'TestProjectSkillsCleanupCurrentFacts',
     '^TestProjectSkillsCleanupTransactions$': 'TestProjectSkillsCleanupTransactions',
     '^TestProjectSkillsCleanupCurrentFactsRemainLocked$': 'TestProjectSkillsCleanupCurrentFactsRemainLocked',
@@ -43,6 +44,17 @@ def skills_cleanup_exact_top(log_path, selector):
         output = log_path.read_text(encoding='utf-8')
     except (OSError, UnicodeDecodeError):
         return False
+    if selector == '^TestProjectSkillsCleanupIndependentRevalidation$':
+        required = {expected, *(expected + '/' + name for name in (
+            'progress_revoked_and_restored_in_original_tx',
+            'owner_reread_after_prior_grant',
+            'cancelled_original_call_cannot_reuse_prior_grant'))}
+        runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+        results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+        passed = [name for state, name in results if state == 'PASS']
+        return (len(runs) == len(required) and set(runs) == required
+                and len(results) == len(required) and len(passed) == len(required)
+                and set(passed) == required)
     runs = re.findall(r'^=== RUN   (Test\w+)$', output, re.M)
     passes = re.findall(r'^--- PASS: (Test\w+) \([0-9]+(?:\.[0-9]+)?s\)$', output, re.M)
     refused = re.search(r'^\s*--- (?:FAIL|SKIP): ', output, re.M) is not None
