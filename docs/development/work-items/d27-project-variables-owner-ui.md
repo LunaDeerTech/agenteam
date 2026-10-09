@@ -138,3 +138,5 @@ CRUD02随后获新独占窗口并执行，whole FAIL：Go20.86s/browser exit1，
 诊断离线行为控制已通过：实际helper事件正反、锁定PW变换/序列化后的native原Promise语义、唯一原请求绑定、EOF/取消顺序与CL、单flight/导航/退休/迟到及Go安全解码正反。Node同步evaluate throw和未能恢复owned hook均标不可用，不冒join或退休。最终strictTS、binary06 race编译和六入口发现通过；六UI输入只新增确切native源且非UI默认不变。原dist02复用，本次尚待独立窄审；普通网络gate没有放宽，CRUD03尚未获授权或执行。
 
 独审阶段又确证诊断缺陷：late PW事件能升级退休观察，冻结reader上的诊断安装能让原getReader新增throw。已分别加退休门禁及非侵入安装异常处理，并以observer-error阻止不完整观测推EOF/CL；原红及修后JS定向反控保留。生产/dist02/普通gate不动；Go安全派生条件受影响，须待磁盘恢复后新binary07及Go控制，本次尚未整体验收或真实重跑。
+
+Runner补尾发现缓存旧wrapper在退休后可重装hook，已为全部缓存入口增加退休后原方法纯委托，保this/args/原Promise/throw且不更新观察；实际红绿和最终strictTS通过。更新的Go投影正反已由Runner实际独立通过，此次cached返修不改Go；binary07仍待磁盘允许后编译，本次诊断尚待最后窄审，无新真实执行。

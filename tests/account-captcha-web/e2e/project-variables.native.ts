@@ -56,6 +56,7 @@ export function installVariableNativeDiagnostic() {
     const pending = Reflect.apply(originalFetch, this, args) as ReturnType<
       typeof fetch
     >;
+    if (retired) return pending;
     try {
       const [input, init] = args;
       const url = new URL(
@@ -207,6 +208,7 @@ export function installVariableNativeDiagnostic() {
               this: typeof stream,
               ...values: Parameters<typeof stream.cancel>
             ) {
+              if (retired) return Reflect.apply(streamCancel, this, values);
               facts.stream_cancel_calls++;
               facts.cancel_before_eof ||= !facts.read_done;
               mark("stream_cancel_order");
@@ -235,6 +237,7 @@ export function installVariableNativeDiagnostic() {
             stream,
             "getReader",
             function (this: typeof stream, ...values: unknown[]) {
+              if (retired) return Reflect.apply(getReader, this, values);
               facts.readers++;
               let reader: ReadableStreamDefaultReader<Uint8Array>;
               try {
@@ -258,6 +261,7 @@ export function installVariableNativeDiagnostic() {
                 reader,
                 "read",
                 function (this: typeof reader, ...values: unknown[]) {
+                  if (retired) return Reflect.apply(read, this, values);
                   facts.read_calls++;
                   let result: ReturnType<typeof read>;
                   try {
@@ -293,6 +297,7 @@ export function installVariableNativeDiagnostic() {
                   this: typeof reader,
                   ...values: Parameters<typeof cancel>
                 ) {
+                  if (retired) return Reflect.apply(cancel, this, values);
                   facts.reader_cancel_calls++;
                   facts.cancel_before_eof ||= !facts.read_done;
                   mark("reader_cancel_order");
@@ -318,6 +323,7 @@ export function installVariableNativeDiagnostic() {
                 },
               );
               wrap(reader, "releaseLock", function (this: typeof reader) {
+                if (retired) return Reflect.apply(release, this, []);
                 facts.release_calls++;
                 mark("release_order");
                 try {

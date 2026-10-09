@@ -33,18 +33,19 @@ function moduleWith(clock) {
 async function browser(options = {}) {
   const clock = scheduler(), module = moduleWith(clock), pending = deferred(), signal = new AbortController()
   const counts = { fetch: 0, read: 0, readerCancel: 0, streamCancel: 0, release: 0 }
+  const calls = []
   const readValues = options.readValues ?? [{ done: false, value: new Uint8Array([1, 2, 3]) }, { done: true }]
   const reads = readValues.map((value) => Promise.resolve(value))
   const readerCancel = deferred(), streamCancel = deferred()
   const reader = {
-    read() { const at = counts.read++; if (options.readThrow) throw options.readThrow; return reads[at] },
-    cancel() { counts.readerCancel++; if (options.cancelThrow) throw options.cancelThrow; return readerCancel.promise },
-    releaseLock() { counts.release++; if (options.releaseThrow) throw options.releaseThrow },
+    read(...args) { calls.push(['read', this, args]); const at = counts.read++; if (options.readThrow) throw options.readThrow; return reads[at] },
+    cancel(...args) { calls.push(['cancel', this, args]); counts.readerCancel++; if (options.cancelThrow) throw options.cancelThrow; return readerCancel.promise },
+    releaseLock(...args) { calls.push(['release', this, args]); counts.release++; if (options.releaseThrow) throw options.releaseThrow },
   }
-  const stream = { getReader() { if (options.readerThrow) throw options.readerThrow; return reader }, cancel() { counts.streamCancel++; if (options.streamCancelThrow) throw options.streamCancelThrow; return streamCancel.promise } }
+  const stream = { getReader(...args) { calls.push(['getReader', this, args]); if (options.readerThrow) throw options.readerThrow; return reader }, cancel(...args) { calls.push(['streamCancel', this, args]); counts.streamCancel++; if (options.streamCancelThrow) throw options.streamCancelThrow; return streamCancel.promise } }
   const original = { getReader: stream.getReader, read: reader.read, cancel: reader.cancel, streamCancel: stream.cancel, release: reader.releaseLock }
   const response = { status: 200, headers: new Headers({ 'X-Request-ID': requestID, 'Content-Length': options.length ?? '3', ...(options.encoding ? { 'Content-Encoding': options.encoding } : {}) }), body: stream }
-  const window = { fetch() { counts.fetch++; if (options.fetchThrow) throw options.fetchThrow; return pending.promise } }
+  const window = { fetch(...args) { calls.push(['fetch', this, args]); counts.fetch++; if (options.fetchThrow) throw options.fetchThrow; return pending.promise } }
   const originalFetch = window.fetch
   const context = vm.createContext({ window, location: { origin: 'http://offline.invalid' }, crypto: webcrypto, URL, Request, setTimeout: clock.setTimeout, clearTimeout: clock.clearTimeout })
   vm.runInContext(await evaluationScript(null, module.installVariableNativeDiagnostic), context)
@@ -52,7 +53,7 @@ async function browser(options = {}) {
   assert.equal(fetchPromise, pending.promise)
   pending.resolve(response); await pending.promise; await flush()
   const snapshot = (end = false) => JSON.parse(JSON.stringify(window.__variableNativeDiagnostic.snapshot(end)))
-  return { clock, module, context, window, originalFetch, original, counts, reader, stream, reads, signal, readerCancel, streamCancel, snapshot }
+  return { clock, module, context, window, originalFetch, original, counts, calls, reader, stream, reads, signal, readerCancel, streamCancel, snapshot }
 }
 async function completed(options = {}) {
   const b = await browser(options)
@@ -131,6 +132,38 @@ async function installerFailureControl() {
   getters.snapshot(true)
   console.log('frozen/partial/getter installation preserves original return/Promise; incomplete observation never proves EOF or hook retirement: PASS')
 }
+async function cachedRetirementControl() {
+  const b = await browser(), cachedFetch = b.window.fetch, cachedGetReader = b.stream.getReader, cachedStreamCancel = b.stream.cancel
+  const reader = b.stream.getReader(), cachedRead = reader.read, cachedCancel = reader.cancel, cachedRelease = reader.releaseLock
+  const before = JSON.stringify(b.snapshot(true))
+  const from = b.calls.length
+  assert.equal(Reflect.apply(cachedGetReader, b.stream, []), reader)
+  assert.equal(reader.read, b.original.read)
+  assert.equal(reader.cancel, b.original.cancel)
+  assert.equal(reader.releaseLock, b.original.release)
+  const read = Reflect.apply(cachedRead, reader, []); assert.equal(read, b.reads[0]); await read
+  const cancel = Reflect.apply(cachedCancel, reader, ['NATIVE_PRIVATE_CANARY']); assert.equal(cancel, b.readerCancel.promise); b.readerCancel.resolve(); await cancel
+  assert.equal(Reflect.apply(cachedRelease, reader, []), undefined)
+  const stream = Reflect.apply(cachedStreamCancel, b.stream, ['NATIVE_PRIVATE_CANARY']); assert.equal(stream, b.streamCancel.promise); b.streamCancel.resolve(); await stream
+  let inspected = 0
+  const input = { get url() { inspected++; return pathname } }
+  const fetch = Reflect.apply(cachedFetch, b.window, [input]); await fetch
+  assert.equal(inspected, 0)
+  await flush()
+  assert.equal(JSON.stringify(b.snapshot()), before)
+  assert.deepEqual(b.counts, { fetch: 2, read: 1, readerCancel: 1, streamCancel: 1, release: 1 })
+  const expectedCalls = [['getReader', b.stream, []], ['read', reader, []], ['cancel', reader, ['NATIVE_PRIVATE_CANARY']], ['release', reader, []], ['streamCancel', b.stream, ['NATIVE_PRIVATE_CANARY']], ['fetch', b.window, [input]]]
+  assert.equal(b.calls.length - from, expectedCalls.length)
+  b.calls.slice(from).forEach((call, index) => { assert.equal(call[0], expectedCalls[index][0]); assert.equal(call[1], expectedCalls[index][1]); assert.deepEqual(call[2], expectedCalls[index][2]) })
+  for (const [field, name] of [['readThrow', 'read'], ['cancelThrow', 'cancel'], ['releaseThrow', 'releaseLock'], ['streamCancelThrow', 'cancel'], ['readerThrow', 'getReader']]) {
+    const error = new Error('NATIVE_PRIVATE_CANARY'), x = await browser({ [field]: error })
+    const receiver = field === 'streamCancelThrow' || field === 'readerThrow' ? x.stream : x.stream.getReader()
+    const callback = receiver[name], snapshot = JSON.stringify(x.snapshot(true))
+    assert.throws(() => Reflect.apply(callback, receiver, []), (caught) => caught === error)
+    assert.equal(JSON.stringify(x.snapshot()), snapshot)
+  }
+  console.log('cached retired fetch/getReader/read/cancel/release delegate exactly once and never observe or reinstall: PASS')
+}
 function goProjectionControl(native) {
   const fixture = fs.readFileSync(path.join(root, 'tests/account/project_variables_web_fixture_test.go'), 'utf8')
   const types = fixture.slice(fixture.indexOf('type variableWebNetworkFailure struct'), fixture.indexOf('// Independent SQL postconditions'))
@@ -181,6 +214,7 @@ async function main() {
   const b = await completed(), snap = b.snapshot()
   if (process.argv.includes('--late-only')) { await lateEventsControl(snap); b.snapshot(true); return }
   if (process.argv.includes('--installer-only')) { b.snapshot(true); await installerFailureControl(); return }
+  if (process.argv.includes('--cached-only')) { b.snapshot(true); await cachedRetirementControl(); return }
   assert.deepEqual(b.counts, { fetch: 1, read: 2, readerCancel: 1, streamCancel: 1, release: 1 })
   let result = await bind(snap)
   assert(result.eof_before_interruption && result.length_comparable && result.length_matches && result.hooks_retired)
@@ -253,5 +287,6 @@ async function main() {
   console.log('samples continue while an independent finished promise is pending; no unhandled observer rejections: PASS')
   await lateEventsControl(snap)
   await installerFailureControl()
+  await cachedRetirementControl()
 }
 main().catch((error) => { console.error(error); process.exitCode = 1 })
