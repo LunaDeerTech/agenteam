@@ -1,6 +1,7 @@
 package knowledge
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"testing"
@@ -15,6 +16,60 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	ob "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 )
+
+func TestContentIntentCopiesExactRequestWithoutRetainingBody(t *testing.T) {
+	_, actor, q := queryFixture(t)
+	parent := newID[kc.Document](t)
+	originalParent := parent
+	meta := f.CommandMeta{RequestID: newID[f.Request](t), IdempotencyKey: "original-content-command"}
+	source, err := kc.NewTextSource("text/plain", "private-content-intent-canary")
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := kc.CreateRequest{ProjectID: q.project, DocumentID: newID[kc.Document](t), ParentDocumentID: &parent, Title: "Name"}
+	input, err := createContentInput(actor, meta, request, source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	parent = newID[kc.Document](t)
+	if *input.request.Create.ParentDocumentID != originalParent {
+		t.Fatal("caller changed captured parent after digest")
+	}
+	raw, err := json.Marshal(input.request)
+	if err != nil || bytes.Contains(raw, []byte("private-content-intent-canary")) {
+		t.Fatal("body entered persistent command request", err)
+	}
+	if _, err = decodeContentRequest(raw); err != nil {
+		t.Fatal(err)
+	}
+	for _, bad := range [][]byte{
+		bytes.Replace(raw, []byte(`"format":1`), []byte(`"format":1,"format":1`), 1),
+		append(append([]byte{}, raw[:len(raw)-1]...), []byte(`,"expected_version":"2"}`)...),
+		append(append([]byte{}, raw[:len(raw)-1]...), []byte(`,"body":"forbidden"}`)...),
+	} {
+		if _, err = decodeContentRequest(bad); err == nil {
+			t.Fatal("corrupt intent shape accepted")
+		}
+	}
+	title := "Updated"
+	expected := f.Version(4)
+	meta.ExpectedVersion = &expected
+	update, err := updateContentInput(actor, meta, q.project, request.DocumentID, kc.UpdateRequest{Title: &title}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	title = "Caller changed title"
+	expected = 5
+	if *update.request.Update.Title != "Updated" || *update.request.Expected != 4 || *update.meta.ExpectedVersion != 4 {
+		t.Fatal("caller mutated captured expected version or title")
+	}
+	if _, err = updateContentInput(actor, meta, q.project, request.DocumentID, kc.UpdateRequest{ReplaceSource: true}, nil); err == nil {
+		t.Fatal("replacement without source accepted")
+	}
+	if _, err = updateContentInput(actor, meta, q.project, request.DocumentID, kc.UpdateRequest{Title: &title}, &source); err == nil {
+		t.Fatal("unrequested source replacement accepted")
+	}
+}
 
 func TestDeleteAuditMatchesFormalKeyAndRequiresExactPrivateWitness(t *testing.T) {
 	_, actor, q := queryFixture(t)

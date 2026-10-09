@@ -131,7 +131,7 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 草案包括 `documents`、`commands`、`command_events`、`publications`、`work_claims`、`object_cleanup` 六张本域表，没有D13 job或DocumentVersion/parent历史表。commands/events/publications/work只是事务和恢复技术事实，receipt只存正式安全metadata，正文和原upload reader从不写入JSON。pending publication临时请求metadata在canonical终局/安全取消后清除；保留command identity/安全receipt及完成event校验所需既有事实。单Document删除保minimal tombstone和原command replay能力；Project永久删除须B03清所有本域表，不留文档历史。
 
-Audit草案只冻结新五字段闭集和需要合并的既有约束名；不生成覆盖A/B未来DDL的最终ALTER列表。正式迁移在A00014与B00015状态确定后重放合并真实前序，fresh/populated升级/失败回滚和旧Audit闭集兼容都必须验收。当前SQL不带migration ordinal、不归位、不执行，不能称已验证schema。
+正式迁移为 `00025_knowledge.sql`，在真实 00001–00024 前序上保留旧 Audit CHECK 表达式并增量接纳本域闭集；Variables 的 00024 由原作者提供，Runner 后继 00026 必须保留 Knowledge 00025 增量。作者 fresh/populated 升级/末端失败回滚与约束三子已实际通过，见 §8；仍需独立风险验证及完整领域业务 SQL 验收，不把迁移通过扩写为 B02 完成。
 
 ## 7. 有意义的验收与交付
 
@@ -175,3 +175,7 @@ Go 1.27.1、`GOPROXY=off GOSUMDB=off`、独占 GOCACHE、只读既有固定 modc
 第八片段 `publication.go`／`publication_test.go` 已实现精确持久来源描述和工作 claim 内部口：正文/上传 reader 不入 JSON，读取描述不触发 I/O，原 BusinessFile／receipt/revision 与 source Project 保留；claim 绑定 Process/attempt/fence，只有已 joined 或真实 `ConfirmStopped(exactProcess)` 证据才允许接管，最终持久 fence 必须重验。纯控／race 5290 与 vet 实际通过，包括 live process 拒绝、旧 proof 漂移拒绝及跨 Project 初始锁 union。该片段尚未接通 Create/Update、实际上传、发布与回收全部阶段，不构成完整 Documents 或真实恢复结论。
 
 首个真实 SQL 输入已准备为 `tests/knowledge/b02_fixture_test.go`／`b02_migration_test.go` 的单 top `TestKnowledgeB02Migration`，只复用现 task-owned PG fixture。三项分别覆盖 fresh、含前序 Variables/Audit 真实行升级与旧约束保留、末端失败回滚及同 checksum 恢复；另核九关联字段拒绝、最小 tombstone、全局 ID 与跨 Project parent FK。当前只编译/discovery，未执行数据库。上游 00024 的 `project.%` 排他 guard 缺口已由 Variables 作者修复并获独审，root 精确同步其冻结版后，本树重编 embed；不把已知前序缺陷当本域首次 SQL 结果。所用既有 PG-only driver 与正式 D08 有界 Wait supervisor 的可恢复来源及原预算见本树 current，不另造 fixture。
+
+第九片段 `commands.go`／`commands_test.go` 补持久 content intent 内部流程：使用 B01 原语义摘要、快照 caller 的 parent/title/expected version 指针；当前身份后先认完成 receipt，新工作才核 Mutate/版本/父节点/全局文档 ID 占用和来源 Project，再保留固定 event header 与无正文 source 描述。title-only 真 no-op 只落安全 receipt，不伪造活动或事件；没有将该内部流程冒充已接通的上传／完整 Documents。首编暴露 import 补丁位置与旧 Event API 名误用，改回实际 `EventIdentity`／`DecodeHeader` 形状后 pure 64236、新增实际源控制和 race 31012 实际通过；最终前片段 race/vet 44212 亦已结束通过。content SQL 与最终发布仍待后续实际集成。
+
+首轮迁移真实验证由本域作者执行，单 top 的 fresh、populated_upgrade、rollback 三子均 PASS：外层 88917 actual exit0（84.216s），Go 12.97s、driver 25.586s。Go/driver 实际 Wait0，精确 PG container/network 双退役、两次后代为空、runtime 仅 owned.json、host TCP 两次 delta_empty、冻结输入一致全部满足，窗口已释放。沿用上述 race-c15644 与原 driver/supervisor，无门槛或预算变更；原始日志为 `output/ai/knowledge/pg/pg-fdeeabd18252457fbadd478f314a2caa.log`。该轮证明冻结 00024→00025 的 schema/约束、有数据升级及失败回滚／原 checksum 恢复；不证明本域 content/Move/Delete 实际 SQL、当前权限、Object/Audit/Outbox 联合事实、独立验收或完整 Documents。其余未验边界继续保留。
