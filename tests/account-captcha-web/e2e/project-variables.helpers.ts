@@ -410,17 +410,21 @@ import sys,json,pathlib,base64
 from jsonschema import Draft202012Validator
 from referencing import Registry,Resource
 from referencing.jsonschema import DRAFT202012
+from urllib.parse import urljoin
 base=pathlib.Path(sys.argv[1])/'api/openapi'
 registry=Registry()
 for path in base.glob('*.json'):
  registry=registry.with_resource(path.as_uri(),Resource.from_contents(json.loads(path.read_text()),default_specification=DRAFT202012))
-doc=json.loads((base/'project-variables.json').read_text()); count=0
+count=0
 for item in json.loads(pathlib.Path(sys.argv[2]).read_text()):
- schema={'$id':(base/'project-variables.json').as_uri(),'$ref':item['schema']}
+ schema={'$ref':urljoin((base/'project-variables.json').as_uri(),item['schema'])}
  Draft202012Validator(schema,registry=registry).validate(json.loads(base64.b64decode(item['raw'])))
  count+=1
 print(count)
 `;
+// Only the in-memory decoder fetcher consumes this transport placeholder.
+// Original browser key/CSRF identity is checked separately before decoding.
+const decoderCSRF = "D".repeat(43);
 async function validateOriginalBodies(
   entries: Entry[],
   allowNoSuccess: boolean,
@@ -504,12 +508,12 @@ async function validateOriginalBodies(
           );
         else await api.get(project, e.url.pathname.split("/").at(-1)!, signal);
       } else if (isLookup)
-        await api.lookup(c!, "private-csrf", "private-key", signal);
+        await api.lookup(c!, decoderCSRF, "private-key", signal);
       else if (c!.kind === "create")
         await api.create(
           project,
           c!.request as any,
-          "private-csrf",
+          decoderCSRF,
           "private-key",
           signal,
         );
@@ -519,7 +523,7 @@ async function validateOriginalBodies(
           c!.targetID,
           c!.expectedVersion,
           c!.request,
-          "private-csrf",
+          decoderCSRF,
           "private-key",
           signal,
         );
@@ -528,7 +532,7 @@ async function validateOriginalBodies(
           project,
           c!.targetID,
           c!.expectedVersion,
-          "private-csrf",
+          decoderCSRF,
           "private-key",
           signal,
         );
