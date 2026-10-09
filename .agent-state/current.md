@@ -1,5 +1,7 @@
 # 当前工作：D15 Runner 身份与 Control Channel
 
+- 独立 Management harness 固定 e7742936 有限独审接受，无 must-fix：本人 fb57ee 原 25 控、81fe57 独立 14 控均 actual0，精确三 top/计数/重复/坏 UTF8 与原全尾保持；两工具逆投影逐字 1ce69576。新 driver 未 build、实际 guard 及三业务 top 未运行。持久资产 `.agent-state/runner-management-review/{entry-controls.py,review.md}`；无自有活动资源。原 OS01 FAIL 不变，root 已授权仅补失败安全快照，实际新轮仍需 fresh grant。
+
 - 默认Runner OS探针首轮actual FAIL且已释放：首sameprocess UTC2026-10-09T23:32:41Z available6,105,567,232B，固定cmd/SHA沿下项，fresh `os-signals-01`，session29686→ecba67 actualouter1。仅eof首格/PID1323863/start_ticks6119304/pipeinode3042207，公共starting可见；原5s未取得初始阻塞读见证，`initial_read_not_observed`，未发TERM/INT、未执行其余两格。原finally killed=true、actual_waited=true、parent_pipe_ends_closed=true；5cf3ec核精确/proc/PID当前不存在，失败目录仅events.jsonl与eof/identity.json.lock，无identity.json，按原约定保留不删除。原Wait数值状态未写，不能补造；无自有活资源，无socket/TCP双空宣称。原证据没有未匹配的syscall/wchan安全快照，不能归因阻塞未成立或观测条件差异；不自动重跑、不升级OS行为结论。原脚本/cmd/Default/C/独立树均未改，后继仅允许另批有限诊断和新grant，详情runner-os-signals.md。
 
 - 正式26后继真实入口只读预飞已完成，尚无本轮grant/启动。OS：沿下列已构建默认cmd/SHA，`python3 -B .agent-state/runner-control/runner-os-signals.py --binary /workspace/agenteam-runner-control/output/ai/runner-control/agenteam-runner-os-probe-01 --sha256 7f1c32bb97b91365570ba440adffd69605cb4a29ab724ac7922b8647f3015a78 --output /workspace/agenteam-runner-control/output/ai/runner-control/os-signals-01`；输出71c447确认未用。仅自有child/pipe/proc/文件锁，无socket/PG，三格仍未实际。
