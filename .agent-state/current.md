@@ -9,6 +9,12 @@
 - 下一步：本域上述有限初始化/Stop/当前D05及三top真实组已闭合各自范围，生产root/完整participant未完成。Cleanup rev2只到规格接受，D05新口与Project当前CleanupPhase须先独立交付。另在独立Knowledge树89530整体FAIL已完整尾释放，按授权只修其公开receipt投影前置；Work新增Blocker端点窄审已有限接受。无自动真实重跑，旧binary及产品基线保持，不spawn，由root协调资源和交叉审查。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
 
+## D04 纯 Request / Intent 独立有限审查
+
+- root授权只读 `/workspace/agenteam-secret-variable-storage` 92aca721 的 `internal/central/secret/contract/project_variable.go` 与相邻测试，依据faca8b33 rev2 SPEC；未参与其设计/实现，未纳Model活动prepared/stage新源。两冻结源及相关原契约逐字不变，作者57406/477472两包race复用。结论有限接受，无本范围mustfix，不认producer/SQL/当前授权/私有Audit通过。
+- 新资产 `.agent-state/secret-storage-intent-review/{intent_test.go,run.py,README.md}`。本人35587/21c8a0 actual0，四top race1.017s：活跃借用期间alias Destroy禁止新用但原回调须实际返回才清零、panic/clone隔离；12goroutine并发材料/副本与nested日志/JSON安全面；真实D10 Update/Delete、原字节与presence适配及坏输入拒绝；原Actor/Session/identity/expected copy、跨namespace/operation/Project/Service拒及旧Purpose不扩。首27188/744b02为独验误写不存在NewProjectScope的setupFAIL，修成正式InProject后通过。
+- 命令`python3 .agent-state/secret-storage-intent-review/run.py`，固定Go1.27.1/offline/readonly/独占Variables-independent GOCACHE及固定GOMODCACHE/GOTMPDIR均固化脚本；只做临时overlay，不写D04产品，不建新大cache或PG/socket/browser。SecretMaterial Destroy只清持有材料，无值Intent不是prepared退休令牌，不能外推actual callback join。四路径现冻结供root保存，无自有执行在途；Knowledge末子候选及工具仍冻结等待freshgrant。
+
 ## 三组 PG 首轮 4315：整体 FAIL，资源已退役
 
 - root fresh grant只允许原70036业务binary（32,895,591 B）/97198 combo driver（15,394,731 B）与literal `^TestSkill(Migration|InitializationAdmissionUnknown|OwnerMetadataCurrentAuthority)$`。cwd仍 `tests/skills`，完整固定env沿下节Stop命令，仅driver换 `output/ai/skills/compile/pg-only-skills-combo-driver`、selector换该literal；另显式AGENTEAM_GO和固定MinIO变量，继承PATH。exec同process freshstatvfs=5,492,891,648 bytes≥5GiB，原Go6m/driver105+15/supervisor123+3/TCP75/PG两资源不变。
