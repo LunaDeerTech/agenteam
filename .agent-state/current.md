@@ -10,7 +10,7 @@
 1. Task Planning 本卡规划库已正式交付：20技术路径及README；七新八旧PG、独立A/B和pure/race/vet/build按限定组合接受，资源终态齐，原FAIL保留。状态/指派/执行/删除/HTTP/UI/生产Work仍未实现，完整D11未完成。
 2. D27 Model Settings：执行代理环境恢复后再次pending_init，已interrupt；root接管四测试harness、Model helpers与本卡状态。第七recovery完整PASS（schema/client13、全部Wait/join/7ID/TCP双清）；原六recovery FAIL及read首轮FAIL保留；read第二轮完整PASS，六新已2通过，其余4/14旧/独立AB待验。下一接线config/credential真实模块，authority/nav尚未完整实现。
 3. T0a纯状态核心：原作者环境恢复后pending_init已interrupt，root接管精确2新Work contract源及本卡状态；SPEC独立接受，作者pure与root race/vet已通过，独立4top/9child race实际exit0，最终独审通过并正式交付main ad8b1fb6。无Blocker/Transfer/fullDigest/事实服务/迁移。R1三个identity marker已main，不代表真实目录或F1。
-4. root 独占current、globalledger与Git；真实PG/browser/hostTCP按完整终态串行资源ACK。Model执行只使用 `/workspace/agenteam-delivery` 的正式main dbf/accepted00022，两个untrackedGo与原树同份；原树新增T0a未验源不得复制到delivery。所有Model glob在实际run中冻结，其他原树纯代码不在其hash闭包。
+4. root 独占current、globalledger与Git；真实PG/browser/hostTCP按完整终态串行资源ACK。Model执行只使用 `/workspace/agenteam-delivery` 的正式main dbf/accepted00022，两个untrackedGo与原树同份；原树新增B0-C未验源不得复制到delivery；T0a已验但当前Model编译基线仍明确固定dbf。所有Model glob在实际run中冻结，其他原树纯代码不在其hash闭包。
 5. 旧 `/root/task_planning`、`/root/model_ui_recovery` 持续pending_init已interrupt并停权；新实例已实际启动接续，不按旧实例名单推断进程。所有必要source/probe随ai checkpoint保存，output日志/产物可重建。
 ## 环境实际核对
 
@@ -144,3 +144,5 @@
 - B0-C两类纯契约194行新卡已冻结待独立SPEC，无源码授权；task_transition_core_spec仅本卡owner。model_acceptance_next已实际恢复且获2新authority/navigation模块唯一写域，当前无产品/主harness写权；执行资源窗前所有Modelglob必须停写。root仍独占Git/current/ledger和资源。
 
 - B0-C194行工程SPEC真正独立接受，无mustfix；10本地链接/7未来selector与大小静算actual0，非Go codec实测。root授原作者仅task_blockers.go/_test.go两个新源，七selector/严格caps/两类pure，shared热GOCACHE独占交作者，Modeldelivery禁止未验Blocker；独审者随后另作实现验收。Model作者2module尚未落盘已ACK全部glob暂停，下一configuration资源输入可冻结，Model Problem独验自有cache中。
+
+- Model Problem独立可复跑probe/run已freeze并准备专属cache真实overlay race：8code×4commitstate真实middleware+boundary32正例、18坏body/5header反例、3top/31child强制run/pass门禁；尚未实际通过。必要源保存，root不会把未知结果标PASS。Model全部glob仍暂停；root已实际integration vet78417 exit0，两个Go原树/delivery同份，最新binary只含已接受dbf产品与准入测试修正。
