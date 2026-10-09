@@ -19,3 +19,10 @@
 - 实际离线命令：`GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod GOMAXPROCS=2 timeout 45s /workspace/toolchains/go1.27.1/bin/go test -mod=readonly -p=1 ./internal/central/project -run '^TestInitializationAuditAuthority' -count=1 -timeout=40s`，session 20939 实际 exit0 / 包 0.015s，三个新 pure top 完成。只读取现有第三方依赖缓存，未读取或改旧 Model 源。
 - 原失败：默认 GOMODCACHE 缺 pgx/goose，GOPROXY=off 直接 exit1；改用已有依赖缓存的冷 `go build` session 67939 触45s上限 exit124。新测试第一次编译 session75254 exit1（三个测试符号名误用），修正后 session47037 exit1（非匹配 producer 原行为为 Forbidden，测试误期 Unbound），已按原 Authority 对照纠正；产品未为测试改 gate。
 - 当前结果仅作者 pure，未 full project/race/vet/真实 PG/独立实现接受；不得宣称本卡完成。
+
+## 四新源可构建阶段（2026-10-09）
+
+- 已补 `tests/project/initialization_audit_fixture_test.go` 与 `initialization_audit_test.go`。普通 integration 编译 session37494 exit0；按真实 schema 修正测试构造后 session56940 exit0；精确 list 实际3top，未执行body。
+- 真实 fixture 只复用正式 Project/Creation seed、两个 postgres.Store/原 migrator；受控 delegate 明示不是 Skills provider，原key通过原Project gate检查；真实Object checker只做无private witness的拒绝。包括真实持锁/poison、caller rollback、同Tx provider查询错误与三action四状态。
+- 自查已在运行PG前修正两测试构造：反向Creation矛盾在原deferred FK的caller Tx内到达gate并回滚，不冒 schema错误为gate拒绝；archiving/archived/deleting用已完成Project与真实本域lifecycle输入，保持DDL原约束。不改产品或schema。
+- 当前四Go源/SPEC/current阶段freeze供root保存；full project/contract pure session83500 actualexit0（0.114s/0.023s）；下一补 race/vet、integration race构建及最小PG资源命令，真实PG未授权未运行。
