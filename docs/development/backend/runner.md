@@ -1,6 +1,6 @@
 # Runner 身份与控制通道
 
-本分支按 [D15 规格](../work-items/d15-runner-control.md)实现 Runner 管理、一次性登记、Ed25519 设备身份和出站 WSS。当前源码已接 Central 与 Runner 默认入口；连续迁移、管理服务和一组 TLS/WSS 代际场景已有作者限定真实结果，真实 Client、双进程退出、独立风险验证和完整平台矩阵仍待验收。共享 wire 与 Linux 身份文件已有局部验证，不能将这些结果视为完整 D15 或可部署结论，验收状态以规格卡为准。
+本分支按 [D15 规格](../work-items/d15-runner-control.md)实现 Runner 管理、一次性登记、Ed25519 设备身份和出站 WSS。当前源码已接 Central 与 Runner 默认入口；连续迁移、管理服务、TLS/WSS 代际与公开 Client 生命周期已有作者限定真实结果；默认双进程退出、独立风险验证和完整平台矩阵仍待验收。共享 wire 与 Linux 身份文件已有局部验证，不能将这些结果视为完整 D15 或可部署结论，验收状态以规格卡为准。
 
 生产 operation registry 为空，hello 的 capability 列表相应为空。设备在线不代表可以执行命令、访问 Workspace 或使用 Data Channel；Agent Mount、D16 operation、D17 数据面和 D18 Tool Runtime 的真实绑定仍是独立集成门槛。整体 `ready=false` / `/readyz` 503 的既有限制不变。
 
@@ -69,4 +69,4 @@ Runner 停止新请求、取消已接收请求及重连，再等待实际运行�
 
 作者真实 `TestRunnerControlMigration` 与 `TestRunnerControlManagement` 已通过各自断言及实际 Wait、精确资源退役、runtime/descendants、TCP 和输入不变检查；前者限定连续迁移/约束，后者限定管理原意图、同 User 新 Session 与 Audit 原子性。`TestRunnerControlDeviceAndReader` 的设备/代际/自然 lease/闭池断言通过，但原 host TCP 尾有4行未清、外层退出1，整轮仍为失败；原 tuple 未保存，事后资源清空不能补写原归属或 PASS。
 
-作者本人 `TestRunnerControlNativeGeneration` 已在独占窗口实际通过坏 CA/错 hostname、原设备登记/token重放、Origin/nonce拒绝、hello/heartbeat、双 Service 替代旧连接及撤销退役，并完成实际 Wait、资源/runtime/TCP双尾及输入不变检查。`TestRunnerControlNativeClientLifecycle`、`TestRunnerControlDeviceCompetition` 和 `TestRunnerControlNativeProtocolRejection` 仅编译并精确发现，分别待验证真实 Client/身份锁与 Force 回调尾、token/nonce消费竞争及严格协议拒绝。当前结果不覆盖全部 COMMIT Unknown、双 cmd、RPC/Runtime 或平台矩阵。
+作者本人 `TestRunnerControlNativeGeneration` 已在独占窗口实际通过坏 CA/错 hostname、原设备登记/token重放、Origin/nonce拒绝、hello/heartbeat、双 Service 替代旧连接及撤销退役，并完成实际 Wait、资源/runtime/TCP双尾及输入不变检查。`TestRunnerControlNativeClientLifecycle` 后继完整通过真实登记、原10s heartbeat、无token/config重启原key与held回调下Force/身份锁/原Run返回边界，Go/driver/outer实际退出及双资源/runtime/TCP尾齐全。`TestRunnerControlDeviceCompetition`、`TestRunnerControlNativeProtocolRejection`、`TestRunnerControlNativeDeadlines`、`TestRunnerControlNativeIdentityRecovery` 与默认双cmd组仅编译并精确发现，分别待真实验证。当前结果不覆盖全部 COMMIT Unknown、双 cmd、RPC/Runtime 或平台矩阵。
