@@ -35,6 +35,16 @@ func (s *Service) InitializeProjectSkills(ctx context.Context, actor id.Actor, r
 	if result.State != pc.InitializationResultPending {
 		return result, nil
 	}
+	work, err := s.registerInitializationWork(ctx, actor, row)
+	if err != nil {
+		return out, err
+	}
+	defer func() {
+		if e := s.finishOwnedWork(ctx, work); err == nil && e != nil {
+			out = pc.InitializationResult{}
+			err = e
+		}
+	}()
 	state := s.state()
 	owner, err := row.owner()
 	if err != nil {

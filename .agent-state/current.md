@@ -1,7 +1,7 @@
 # Skills 持久初始化服务恢复点
 
 - 树：`/workspace/agenteam-skills`，分支 `ai/skills-service`；基线正式 main `ca9f2d5d`。D08已正式交付，旧初始化树保持冻结，不再修改。
-- 当前：D10 rev3 SPEC经Variables作者有限独审/root接受；本域Store/repository/Authority/服务owner与观察/确认三口已形成可构建片段，既有P1不变；完整初始化写入/OwnerReader/恢复仍在实现，尚无真实PG或对象结果。
+- 当前：D10 rev3 SPEC经Variables作者有限独审/root接受；本域Store/repository/Authority/服务owner与观察/确认三口已形成可构建片段，既有P1不变；初始化写入四口与Owner元数据读取已可构建，读流/跨进程恢复仍在实现，尚无真实PG或对象结果。
 - 已保存SPEC片段：`docs/development/work-items/d10-skills-initialization.md`、`docs/development/work-items/d10-skills-initialization-design.md`、本文。已由root保存/push ea13186d，设计技术段继续freeze；未自行Git操作。
 - 当前可复用：实际D05 same-Store Object Audit checker；D08 original initialization四口、收敛口与初始化Audit wrapper。真实Skill exact映射provider/root尚未绑定，constructor非nil不证明真实组合。
 - 共享待协调：D05初始化Service closed shape/initiator；SkillRevision+ProjectDeleted release；Project CleanupPhase现unbound；本域active初始化与删除Audit分流；生产同participant要组合届时实际启用Variables等域。root现已授权本树D05三个已列窄补口及定向测试，须单独freeze独审；Project CleanupPhase/root仍未授写。Object runtime join停止项不恢复。
@@ -39,3 +39,11 @@
 - 新 `internal/central/skill/{initialization_write,initialization_write_test}.go` 已实现正式 Initialize 与四口编译断言：原冻结命令规划 → 实际builtin payload准备 → 同Tx Reserve+精确attempt映射 → 已知commit后UploadPrepared → 同Tx不可见Skill/真实ObjectPublish/Revision/初始化完成。Known重放不再physical；无scope/完整metadata匹配或仍prospective receipt则整个Publish Tx失败。
 - 作者60171 `go test -race -mod=readonly -p=1 ./internal/central/skill -run '^TestInitializationWriterCommitBeforePhysicalAndAtomicPublication$' -count=1 -timeout=45s -v` actualexit0/1.174s，1top/11子：正常与重放、Plan/Reserve/Publish各Unknown、physical/revoke/publish失败、foreign Object/receipt、真实Discard后才释放本地call。端口用明确controlled事务/Object替身，不是真实PG/D05。
 - 新源编译22189 actual0，原观察/确认相关纯控0。当前四口编译闭合不代表完整服务：持久work/recovery/生命周期和真实Skill Object/Audit授权、OwnerReader尚需接入；无Production root或真实对象声明。新2源+主卡/current4路径freeze供checkpoint后继续authority/runtime，不改此前D05七源。
+
+## 精确授权、Owner读取与持久工作阶段
+
+- root已实际保存/push e6edd3c7：初始化写入、Object exact authority、初始化Audit facts及对应测试。Object授权只开放原Service初始化变体和Human当前Owner读，Agent/维护/生命周期未绑定分支仍拒；Audit provider同Tx精确映射后仅委托一次原ctx/Entry/key，constructor不能机器证明真实Skill+Object组合。作者Object authority2top/15子race99651 actual0；Audit1top/13子race56098 actual0，包括真实Object checker缺私有witness拒绝。尚无真实PG/MinIO。
+- 新 `skill/{read,read_test}.go` 实现ListSkills/GetSkill：每次真实端口当前Owner/Session/Project门禁、完整父锁、已发布immutable关系；未初始化不伪装空列表。首轮95559因测试Project名称含空格setupFAIL，修fixture后96465 race actual0/1.100s，1top/10子。OpenPackage仍待实现，不声明完整OwnerReader。
+- 新 `skill/{work_repository,work_repository_test,runtime_work}.go` 和service/initializer接线：physical前同Tx持久登记原process/父关系/唯一work；只有实际Discard与调用返回后才技术结账，cancel/Stop/Unknown不得提前Joined；Drain沿调用者原ctx，不借新预算。原注册Unknown用原command锁串行判定，未确认尾保留本地owner。跨进程恢复/真实生命周期仍待实现。
+- work片段首轮36292错误引用不存在sc.Skill、随后534f15测试unused import均setupFAIL，修后65428 race actual0/1.072s（1top/10子）。集成81715 race actual0/1.355s：5top/23子，含writer13子、work10子和实际阻塞Discard后取消/原预算/持久join控制。精确selector `^Test(InitializationWriter|SkillInitializationWork|SkillService|SkillWork)`，Go/p1/offline/cache同前；无socket/PG。
+- 本批read2、work3、service及writer2、本文/主卡共10路径freeze交root。设计技术段、D05七源保持冻结。下一继续OpenPackage、维护授权/跨进程恢复；局部controlled端口PASS不替代实际Object/PG或生产绑定。

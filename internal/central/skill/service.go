@@ -47,6 +47,7 @@ type serviceState struct {
 	confirmation    pc.InitializationPlanIssuer
 	mu              sync.Mutex
 	calls           map[*serviceCall]struct{}
+	work            map[skillWorkID]*ownedWork
 	initializations int
 	stopped         bool
 	changed         chan struct{}
@@ -61,7 +62,7 @@ func New(d Dependencies) (*Service, error) {
 	if e != nil {
 		return nil, e
 	}
-	state := &serviceState{authority: d.Authority, objects: d.Objects, processes: d.Processes, process: d.ProcessID, bundle: d.Bundle, frozen: frozen, confirmation: pc.NewInitializationPlanIssuer(), calls: map[*serviceCall]struct{}{}, changed: make(chan struct{})}
+	state := &serviceState{authority: d.Authority, objects: d.Objects, processes: d.Processes, process: d.ProcessID, bundle: d.Bundle, frozen: frozen, confirmation: pc.NewInitializationPlanIssuer(), calls: map[*serviceCall]struct{}{}, work: map[skillWorkID]*ownedWork{}, changed: make(chan struct{})}
 	return &Service{func() *serviceState { return state }}, nil
 }
 func (s *Service) state() *serviceState {
@@ -148,11 +149,25 @@ func (s *Service) Drain(ctx context.Context) error {
 	s.Stop()
 	for {
 		state.mu.Lock()
-		empty := len(state.calls) == 0
+		empty := len(state.calls) == 0 && len(state.work) == 0
+		ready := make([]*ownedWork, 0, len(state.work))
+		for _, work := range state.work {
+			if work.returned {
+				ready = append(ready, work)
+			}
+		}
 		changed := state.changed
 		state.mu.Unlock()
 		if empty {
 			return nil
+		}
+		for _, work := range ready {
+			if e := s.retireOwnedWork(ctx, work); e != nil {
+				return e
+			}
+		}
+		if len(ready) > 0 {
+			continue
 		}
 		select {
 		case <-changed:
@@ -168,5 +183,5 @@ func (s *Service) Joined() bool {
 	}
 	state.mu.Lock()
 	defer state.mu.Unlock()
-	return state.stopped && len(state.calls) == 0
+	return state.stopped && len(state.calls) == 0 && len(state.work) == 0
 }

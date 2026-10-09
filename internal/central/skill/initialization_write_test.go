@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 	"testing"
+	"time"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -13,6 +14,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -22,6 +24,17 @@ type initializationWriteStore struct {
 	*initializationReadStore
 	unknownAt                       int
 	skillInserted, revisionInserted bool
+	work                            map[string][]any
+}
+
+func (s *initializationWriteStore) QueryRow(ctx context.Context, query string, args ...any) postgres.Row {
+	if strings.Contains(query, "FROM agenteam_skill.work") {
+		if v, ok := s.work[args[0].(string)]; ok {
+			return skillRowValues{values: v}
+		}
+		return skillRowValues{err: pgx.ErrNoRows}
+	}
+	return s.initializationReadStore.QueryRow(ctx, query, args...)
 }
 
 func (s *initializationWriteStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
@@ -32,10 +45,15 @@ func (s *initializationWriteStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
 }
 func (s *initializationWriteStore) WithinTx(ctx context.Context, cause f.TransactionCause, work func(context.Context, f.Tx) error) f.CommitResult {
 	before := append([]any(nil), s.row.values...)
+	workBefore := map[string][]any{}
+	for id, v := range s.work {
+		workBefore[id] = append([]any(nil), v...)
+	}
 	skill, revision := s.skillInserted, s.revisionInserted
 	s.unknown = s.txs+1 == s.unknownAt
 	r := s.initializationReadStore.WithinTx(ctx, cause, work)
 	if r.State() == f.NotCommitted {
+		s.work = workBefore
 		s.row.values = before
 		s.skillInserted = skill
 		s.revisionInserted = revision
@@ -47,6 +65,19 @@ func (s *initializationWriteStore) Exec(_ context.Context, query string, args ..
 		return pgconn.CommandTag{}, errors.New("SQL outside live transaction")
 	}
 	switch {
+	case strings.HasPrefix(query, "INSERT INTO agenteam_skill.work"):
+		if s.work == nil {
+			s.work = map[string][]any{}
+		}
+		s.work[args[0].(string)] = []any{args[0], args[1], args[2], args[3], args[4], "running", int64(1), args[5], (*time.Time)(nil)}
+	case strings.HasPrefix(query, "UPDATE agenteam_skill.work SET phase='joined'"):
+		v := s.work[args[0].(string)]
+		if len(v) != 9 || v[3] != args[1] || v[6] != args[2] {
+			return pgconn.CommandTag{}, errors.New("wrong work owner")
+		}
+		v[5] = "joined"
+		at := v[7].(time.Time)
+		v[8] = &at
 	case strings.HasPrefix(query, "INSERT INTO agenteam_skill.object_attempts"):
 		if len(args) != 8 || args[7] != stateID[oc.Process](50).String() {
 			return pgconn.CommandTag{}, errors.New("attempt process/mapping changed")
@@ -78,14 +109,15 @@ func (s *initializationWriteStore) Exec(_ context.Context, query string, args ..
 
 type initializationObjects struct {
 	ObjectPorts
-	t        *testing.T
-	store    *initializationWriteStore
-	projects *initializationReadProjects
-	issuer   oc.AccessIssuer
-	row      initializationRow
-	steps    []string
-	fail     string
-	sentinel error
+	t                              *testing.T
+	store                          *initializationWriteStore
+	projects                       *initializationReadProjects
+	issuer                         oc.AccessIssuer
+	row                            initializationRow
+	steps                          []string
+	fail                           string
+	sentinel                       error
+	discardStarted, discardRelease chan struct{}
 }
 
 func (o *initializationObjects) PreparePayload(_ context.Context, _ id.Actor, _ oc.ObjectOwner, media string, size int64, digest *f.Digest, body io.ReadCloser) (oc.PreparedPayload, error) {
@@ -102,6 +134,10 @@ func (o *initializationObjects) PreparePayload(_ context.Context, _ id.Actor, _ 
 }
 func (o *initializationObjects) DiscardPrepared(oc.PreparedPayload) error {
 	o.steps = append(o.steps, "discard")
+	if o.discardStarted != nil {
+		close(o.discardStarted)
+		<-o.discardRelease
+	}
 	if o.fail == "discard" {
 		return o.sentinel
 	}
@@ -141,7 +177,7 @@ func (o *initializationObjects) ReserveUploadInTx(_ context.Context, tx f.Tx, ac
 }
 func (o *initializationObjects) UploadPrepared(_ context.Context, _ id.Actor, _ oc.ObjectOwner, _ oc.PreparedPayload, a oc.UploadAttempt) (oc.UploadAttempt, error) {
 	o.steps = append(o.steps, "physical")
-	if o.store.live || o.store.txs != 2 || o.store.row.values[14] != "reserved" {
+	if o.store.live || o.store.txs != 3 || o.store.row.values[14] != "reserved" {
 		o.t.Fatal("physical work before known reservation commit")
 	}
 	if o.fail == "physical" {
@@ -172,7 +208,7 @@ func (o *initializationObjects) PublishVerifiedInTx(_ context.Context, tx f.Tx, 
 	return result, nil
 }
 func TestInitializationWriterCommitBeforePhysicalAndAtomicPublication(t *testing.T) {
-	for _, name := range []string{"success", "replay", "plan_unknown", "reserve_unknown", "publish_unknown", "physical", "revoke", "publish", "foreign_object", "prospective_receipt", "discard"} {
+	for _, name := range []string{"success", "replay", "plan_unknown", "work_unknown", "reserve_unknown", "publish_unknown", "retirement_unknown", "physical", "revoke", "publish", "foreign_object", "prospective_receipt", "discard"} {
 		t.Run(name, func(t *testing.T) {
 			s, read, projects, actor, request := readFixture(t)
 			store := &initializationWriteStore{initializationReadStore: read}
@@ -186,9 +222,13 @@ func TestInitializationWriterCommitBeforePhysicalAndAtomicPublication(t *testing
 			case "plan_unknown":
 				store.unknownAt = 1
 			case "reserve_unknown":
+				store.unknownAt = 3
+			case "work_unknown":
 				store.unknownAt = 2
 			case "publish_unknown":
-				store.unknownAt = 3
+				store.unknownAt = 4
+			case "retirement_unknown":
+				store.unknownAt = 5
 			}
 			out, e := s.InitializeProjectSkills(context.Background(), actor, request)
 			trace := strings.Join(o.steps, ",")
@@ -201,7 +241,7 @@ func TestInitializationWriterCommitBeforePhysicalAndAtomicPublication(t *testing
 				if e != nil || out.State != pc.InitializationCompleted || trace != "" {
 					t.Fatal("replayed physical work", e, trace)
 				}
-			case "plan_unknown", "reserve_unknown", "publish_unknown":
+			case "plan_unknown", "work_unknown", "reserve_unknown", "publish_unknown", "retirement_unknown":
 				if e == nil || out.State != "" {
 					t.Fatal("unknown became completion")
 				}
@@ -212,7 +252,7 @@ func TestInitializationWriterCommitBeforePhysicalAndAtomicPublication(t *testing
 				if name == "reserve_unknown" {
 					want = "prepare,reserve,discard"
 				}
-				if name == "publish_unknown" {
+				if name == "publish_unknown" || name == "retirement_unknown" {
 					want = "prepare,reserve,physical,publish,discard"
 				}
 				if trace != want {
@@ -232,9 +272,59 @@ func TestInitializationWriterCommitBeforePhysicalAndAtomicPublication(t *testing
 				}
 			}
 			s.Stop()
+			if name == "work_unknown" || name == "retirement_unknown" {
+				if s.Joined() {
+					t.Fatal("durable Unknown erased")
+				}
+				if e = s.Drain(context.Background()); e != nil {
+					t.Fatal("original serialized work could not retire", e)
+				}
+			}
 			if !s.Joined() {
 				t.Fatal("local calls not actually retired")
 			}
 		})
+	}
+}
+
+func TestSkillInitializationWorkWaitsForDiscardAndOriginalBudget(t *testing.T) {
+	s, read, projects, actor, request := readFixture(t)
+	read.row.values = stateValues(t)
+	store := &initializationWriteStore{initializationReadStore: read}
+	s.state().authority.state().store = store
+	o := &initializationObjects{t: t, store: store, projects: projects, issuer: oc.NewAccessIssuer(), row: stateRow(t), discardStarted: make(chan struct{}), discardRelease: make(chan struct{})}
+	s.state().objects = o
+	done := make(chan error, 1)
+	go func() { _, e := s.InitializeProjectSkills(context.Background(), actor, request); done <- e }()
+	select {
+	case <-o.discardStarted:
+	case <-time.After(time.Second):
+		t.Fatal("did not reach actual discard")
+	}
+	s.Stop()
+	if s.Joined() {
+		t.Fatal("cancel called actual discard joined")
+	}
+	expired, cancel := context.WithCancel(context.Background())
+	cancel()
+	if e := s.Drain(expired); !errors.Is(e, context.Canceled) {
+		t.Fatal("original drain budget replaced", e)
+	}
+	close(o.discardRelease)
+	select {
+	case e := <-done:
+		if e == nil {
+			t.Fatal("cancelled accounting tail became clean success")
+		}
+	case <-time.After(time.Second):
+		t.Fatal("call did not finish")
+	}
+	if s.Joined() {
+		t.Fatal("cancelled DB tail silently removed durable work")
+	}
+	ctx, stop := context.WithTimeout(context.Background(), time.Second)
+	defer stop()
+	if e := s.Drain(ctx); e != nil || !s.Joined() {
+		t.Fatal("actual returned local work could not retire", e)
 	}
 }
