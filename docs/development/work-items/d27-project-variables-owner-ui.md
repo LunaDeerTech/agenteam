@@ -129,4 +129,6 @@ SPEC rev1已获独立窄审接受，无mustfix；这不是产品或动态验收�
 
 首真实 CRUD01 whole FAIL，安全标记只到crud step2，PW具体失败行/DOM未保留，不回填根因。所有资源/进程/TCP实际尾已结束，旧adopted STOP保留。后续组件红控另确证了Variables replay getter的busy响应式依赖缺失：原owner持有期间的短路可让页面在当前GET完成后继续禁用重放；已先捕获reactive busy，原授权/串行/实际I/O尾不变。修后相关67纯控/strictTS通过，binary05与dist02已构建；CRUD脚本明确断言删除重放关闭详情，安全失败投影只含源码位置与布尔DOM。按root授权复用已有UI有限WNOHANG预reap，先采PID State并实际Wait0才通过，live/new/notwaitable/nonzero仍保留原失败gate；离线正负控通过，产品与harness增量分别获有限独审接受。整卡未接受，后续真实重跑仍需fresh窗口；恢复负例的真实补集与最终共享接缝组合验收保留。
 
-CRUD02尚未启动：离线实际helper控制发现合成CSRF占位不满足正式43字符要求，以及Schema包装复用文档$id导致局部引用错误。两项仅修测试helper，使用合法合成token与绝对正式Schema引用，原请求六项身份绑定不变。实际helper/API/Schema红绿与原请求绑定、非法Schema负控已通过，browser strictTS通过；新增Problem反例最初fixture code错误的FAIL保留。binary05/dist02及产品未改，本轮helper和持久decoder控制正在窄独审；下一真实窗口须重新授权。
+CRUD02前的离线实际helper控制发现合成CSRF占位不满足正式43字符要求，以及Schema包装复用文档$id导致局部引用错误。两项仅修测试helper，使用合法合成token与绝对正式Schema引用，原请求六项身份绑定不变。实际helper/API/Schema红绿与原请求绑定、非法Schema负控已通过，browser strictTS通过，Runner窄独审有限接受；新增Problem反例最初fixture code错误的FAIL保留。binary05/dist02及产品未改。
+
+CRUD02随后获新独占窗口并执行，whole FAIL：Go20.86s/browser exit1，闭集投影定位crud step6、helpers:372的网络事件复合error gate；原body/schema与SQL后验尚未到达，不能据末段页面状态声称CRUD通过。原布尔合并了非预期失败、重复事件和finished尾异常，具体原因仍缺测量；拟仅补闭集诊断，不放宽gate。所有层actualWait、本次owned Z先采State再wait0、7资源/private/runtime/desc及TCP双尾齐，监督器122.100s terminal1和输入不变已确认，窗口释放。首两次原FAIL保留，下一真实重跑仍需fresh授权。
