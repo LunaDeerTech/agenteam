@@ -23,13 +23,13 @@ env = os.environ.copy()
 env.update(GOTOOLCHAIN="local", GOPROXY="off", GOSUMDB="off", GOTELEMETRY="off",
            GOMODCACHE=str(ROOT / "output/ai/model-ui-recovery/go-mod"),
            GOCACHE=str(CACHE), GOTMPDIR=str(OUT / "tmp"))
-binary = OUT / "independent-pager-race.test"
-command = ["/workspace/toolchains/go1.27.1/bin/go", "test", "-tags=integration",
-           "-race", "-p=2", "-overlay=" + str(overlay), "-c", "-o", str(binary),
-           "./tests/work"]
 number = 1
 while (OUT / f"pager-build-{number}.log").exists():
     number += 1
+binary = OUT / f"independent-pager-race-{number}.test"
+command = ["/workspace/toolchains/go1.27.1/bin/go", "test", "-tags=integration",
+           "-race", "-p=2", "-overlay=" + str(overlay), "-c", "-o", str(binary),
+           "./tests/work"]
 log_path = OUT / f"pager-build-{number}.log"
 with log_path.open("w") as log:
     proc = subprocess.Popen(command, cwd=ROOT, env=env, stdout=log,
@@ -43,7 +43,7 @@ with log_path.open("w") as log:
         os.killpg(proc.pid, signal.SIGKILL)
         code = proc.wait()
     log.write(f"\nactualWait={code} timedOut={timed_out}\n")
-print(f"build actualWait={code} timedOut={timed_out}", flush=True)
+print(f"build actualWait={code} timedOut={timed_out} binary={binary}", flush=True)
 if code != 0 or timed_out:
     print(log_path.read_text()[-12000:], flush=True)
     sys.exit(124 if timed_out else code)

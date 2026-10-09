@@ -3,6 +3,9 @@ package app
 import (
 	"context"
 	"errors"
+	"net/http"
+	"net/http/httptest"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -210,6 +213,130 @@ func TestWorkPlanningForceAttemptsEveryDrainWithOriginalContext(t *testing.T) {
 	for _, child := range []*workDrainObserver{first, second, third} {
 		if !child.stopped || child.seen != ctx {
 			t.Fatal("force skipped a child or gave it a new shutdown budget")
+		}
+	}
+}
+
+func TestWorkPlanningRootOrderingAndLateInstall(t *testing.T) {
+	for _, force := range []bool{false, true} {
+		t.Run(map[bool]string{false: "drain", true: "force"}[force], func(t *testing.T) {
+			planning, projects, mail, core := &b04Work{}, &b04Work{}, &b04Work{}, &b04Work{}
+			a := &accountAssembly{planning: planning, projects: projects, mail: mail, core: core}
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			defer cancel()
+			var order []string
+			for _, entry := range []struct {
+				name  string
+				calls *b04Work
+			}{
+				{"work", planning}, {"project", projects}, {"mail", mail}, {"account", core},
+			} {
+				join := func(got context.Context) error {
+					if got != ctx || !planning.stopped.Load() || !projects.stopped.Load() || !mail.stopped.Load() || !core.stopped.Load() {
+						t.Fatal("provider wait preceded global admission stop or renewed budget")
+					}
+					order = append(order, entry.name)
+					entry.calls.joined.Store(true)
+					return nil
+				}
+				entry.calls.drain, entry.calls.force = join, join
+			}
+			var err error
+			if force {
+				err = a.Force(ctx)
+			} else {
+				err = a.Drain(ctx)
+			}
+			if err != nil || !a.Joined() || !slices.Equal(order, []string{"work", "project", "mail", "account"}) {
+				t.Fatal("Work retired after its Activity dependency", order, err)
+			}
+		})
+	}
+	t.Run("work-not-joined-preserves-activity", func(t *testing.T) {
+		planning := &b04Work{drain: func(context.Context) error { return context.DeadlineExceeded }}
+		core := &b04Work{drain: func(context.Context) error { t.Fatal("retired Activity while Work is owned"); return nil }}
+		a := &accountAssembly{planning: planning, core: core}
+		if err := a.Drain(context.Background()); !errors.Is(err, context.DeadlineExceeded) || a.Joined() {
+			t.Fatal("unfinished Work disappeared", err)
+		}
+	})
+	t.Run("force-before-work-install", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		a := &accountAssembly{constructing: true}
+		if err := a.Force(ctx); err != nil {
+			t.Fatal(err)
+		}
+		first, second, third := &workDrainObserver{err: ctx.Err()}, &workDrainObserver{err: ctx.Err()}, &workDrainObserver{err: ctx.Err()}
+		planning := &workPlanningAssembly{commands: []workCommandCalls{first, second, third}}
+		if a.install(context.Background(), func() { a.planning = planning }) {
+			t.Fatal("late Work installation reopened admission")
+		}
+		a.constructionDone()
+		for _, child := range []*workDrainObserver{first, second, third} {
+			if !child.stopped || child.seen != ctx {
+				t.Fatal("late Work escaped original expired Force")
+			}
+		}
+		if a.Joined() {
+			t.Fatal("failed concrete drain treated as join")
+		}
+	})
+	t.Run("partial-sink-retained", func(t *testing.T) {
+		planning, sink := &b04Work{}, &b04Work{}
+		a := &accountAssembly{planning: planning, sink: sink}
+		calls := a.works()
+		if len(calls) != 2 || calls[0] != planning || calls[1] != sink {
+			t.Fatal("Work hid partial Account sink")
+		}
+	})
+}
+
+func TestWorkPlanningRootRouteOwnership(t *testing.T) {
+	const p = "/api/v1/projects/01900000-0000-7000-8000-000000000001"
+	const id = "01900000-0000-7000-8000-000000000002"
+	var cases []struct {
+		path  string
+		owned bool
+	}
+	for _, path := range []string{
+		"/milestones", "/milestones/" + id, "/milestones/" + id + "/reorder",
+		"/sprints", "/sprints/" + id, "/sprints/" + id + "/reorder", "/structure-commands/lookup",
+		"/tasks", "/tasks/" + id, "/tasks/" + id + "/reorder", "/task-commands/lookup",
+		"/tasks/" + id + "/blockers", "/tasks/" + id + "/blockers/resolve", "/tasks/" + id + "/blocker-commands/lookup",
+	} {
+		cases = append(cases, struct {
+			path  string
+			owned bool
+		}{p + path, true})
+	}
+	for _, path := range []string{
+		p, p + "/", p + "/commands/lookup", p + "/archive", p + "/models", p + "/model-selection", p + "/model-credentials", p + "/audit", p + "/usage", p + "/milestones/" + id + "/extra", "/api/v1/projects/resolve", "/api/v1/auth/session", "/api/v1/system/models",
+	} {
+		cases = append(cases, struct {
+			path  string
+			owned bool
+		}{path, false})
+	}
+	for _, tc := range cases {
+		for _, method := range []string{"GET", "HEAD", "POST", "PATCH", "DELETE"} {
+			r := httptest.NewRequest(method, tc.path+"?untouched=private", strings.NewReader("body"))
+			body, u := r.Body, r.URL
+			calls := 0
+			child := func(owned bool) http.Handler {
+				return http.HandlerFunc(func(w http.ResponseWriter, got *http.Request) {
+					calls++
+					if got != r || got.Body != body || got.URL != u || tc.owned != owned {
+						t.Fatal("routing changed request or stole another domain", method, tc.path)
+					}
+					w.WriteHeader(http.StatusNoContent)
+				})
+			}
+			w := httptest.NewRecorder()
+			workPlanningRoutes(child(false), child(true)).ServeHTTP(w, r)
+			if calls != 1 || w.Code != http.StatusNoContent {
+				t.Fatal("multiple or missing handlers")
+			}
 		}
 	}
 }

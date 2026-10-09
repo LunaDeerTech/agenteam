@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"net/http"
 	"sync"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
@@ -13,6 +14,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	"github.com/LunaDeerTech/agenteam/internal/central/work"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
+	workhttp "github.com/LunaDeerTech/agenteam/internal/central/work/http"
 )
 
 type workPlanningEvents struct {
@@ -148,6 +150,31 @@ func (b *workPlanningAssembly) Joined() bool {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	return b.stopped && b.joined
+}
+
+func workPlanningHandler(b *workPlanningAssembly, core *account.Service, origin string) (http.Handler, error) {
+	if b == nil {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	boundary, err := account.NewHTTPBoundary(core, origin)
+	if err != nil {
+		return nil, err
+	}
+	return workhttp.NewHTTPHandler(workhttp.Bindings{
+		Structure: b.structure, StructureReader: b.structureReader,
+		Tasks: b.tasks, TaskReader: b.taskReader,
+		Blockers: b.blockers, BlockerReader: b.blockerReader,
+	}, boundary)
+}
+
+func workPlanningRoutes(existing, planning http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if workhttp.HandlesPath(r.URL.Path) {
+			planning.ServeHTTP(w, r)
+			return
+		}
+		existing.ServeHTTP(w, r)
+	})
 }
 
 var _ accountWork = (*workPlanningAssembly)(nil)

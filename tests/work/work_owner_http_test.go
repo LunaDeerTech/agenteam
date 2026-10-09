@@ -197,10 +197,12 @@ func TestWorkOwnerBlockerPage(t *testing.T) {
 		writer, hook := observedBlockerFixture(t, f)
 		attempts := make(chan lockAttempt, 1)
 		var once sync.Once
-		user, _ := foundation.UserLock(a.Details().UserID)
+		// Discovery takes Schedule EX before the later User EX mutation Tx.
+		// The pager holds Schedule SH while owning its actual Rows.
+		schedule, _ := foundation.ProjectScheduleLock(p.ID.String())
 		hook.beforeLocks = func(ctx context.Context, tx foundation.Tx, locks []foundation.LockRequest) error {
 			for _, lock := range locks {
-				if foundation.CompareLockKeys(lock.Key, user) == 0 && lock.Mode == foundation.Exclusive {
+				if foundation.CompareLockKeys(lock.Key, schedule) == 0 && lock.Mode == foundation.Exclusive {
 					x, e := hook.fixtureStore.InTx(tx)
 					if e != nil {
 						return e
@@ -219,7 +221,21 @@ func TestWorkOwnerBlockerPage(t *testing.T) {
 		writes := callBlockerAsync(t, func(ctx context.Context) (wc.TaskBlockerMutation, error) {
 			return writer.blockers.AddTaskBlocker(ctx, a, command, p.ID, target.ID, request)
 		})
-		attempt := awaitBlockerLockAttempt(t, attempts, foundation.Exclusive)
+		var attempt lockAttempt
+		select {
+		case attempt = <-attempts:
+			if attempt.BackendPID <= 0 || attempt.Request.Mode != foundation.Exclusive || foundation.CompareLockKeys(attempt.Request.Key, schedule) != 0 {
+				t.Fatal("writer did not request its real Schedule EX")
+			}
+		case early := <-writes:
+			var fault *foundation.Fault
+			if errors.As(early.err, &fault) {
+				t.Fatal("writer returned before Schedule observation", fault)
+			}
+			t.Fatal("writer returned before Schedule observation without a domain Fault")
+		case <-time.After(5 * time.Second):
+			t.Fatal("writer Schedule EX was not observed")
+		}
 		waitExactLock(t, f.db, attempt, false, readerPID)
 		cancel()
 		select {

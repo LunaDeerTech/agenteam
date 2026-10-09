@@ -1,0 +1,5622 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Project Owner Work Planning",
+    "version": "0.1.0",
+    "description": "Owner-only planning for an existing initialized Project. Real Account cookie, Host/Origin/Fetch-Metadata and CSRF boundaries apply; an administrator has no cross-Owner bypass. Read/Lookup/completed replay remain available when archived; new mutations require active. Pending initialization/deleting are rejected. Project creation, real Skills initialization, Task transitions/assignment, Agent execution and UI are not provided. Query is bounded to 32768 raw bytes and rejects unknown, duplicate decoded, empty, malformed UTF-8/percent/NUL, semicolon, no-equals and bare-question-mark forms. Success bodies are completely validated before publication: detail/mutation/Lookup 1 MiB, list 5 MiB. Byte caps, Unicode classifications, ordering, cross-field identity/time/version rules and duplicate JSON keys are enforced by the original Go contracts and HTTP decoder in addition to this schema. Native timeout/short write/Close/Flush/clear failure aborts; it does not prove a command was not committed. Persist the original body, path, generated IDs and Idempotency-Key before sending, then explicitly Lookup after a lost response."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/milestones": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "workOwnerMilestonePageGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/MilestoneSummaryPage"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. Only documented strict query keys; no request entity.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          }
+        ]
+      },
+      "head": {
+        "operationId": "workOwnerMilestonePageHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same authorization, read, validation and encoding as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. Only documented strict query keys; no request entity. HEAD suppresses both success and Problem bodies.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "workOwnerMilestoneCreate",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StructureMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MilestoneCreateBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/milestones/{milestone_id}": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "milestone_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "workOwnerMilestoneGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Milestone"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. No request entity."
+      },
+      "head": {
+        "operationId": "workOwnerMilestoneHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same authorization, read, validation and encoding as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. No request entity. HEAD suppresses both success and Problem bodies."
+      },
+      "patch": {
+        "operationId": "workOwnerMilestoneUpdate",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StructureMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MilestoneUpdateBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/milestones/{milestone_id}/reorder": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "milestone_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerMilestoneReorder",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StructureMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MilestoneReorderBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/sprints": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "workOwnerSprintPageGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SprintSummaryPage"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. Only documented strict query keys; no request entity.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "milestone_id",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ]
+      },
+      "head": {
+        "operationId": "workOwnerSprintPageHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same authorization, read, validation and encoding as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. Only documented strict query keys; no request entity. HEAD suppresses both success and Problem bodies.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "milestone_id",
+            "in": "query",
+            "required": true,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "workOwnerSprintCreate",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StructureMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SprintCreateBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/sprints/{sprint_id}": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "sprint_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "workOwnerSprintGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Sprint"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. No request entity."
+      },
+      "head": {
+        "operationId": "workOwnerSprintHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same authorization, read, validation and encoding as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. No request entity. HEAD suppresses both success and Problem bodies."
+      },
+      "patch": {
+        "operationId": "workOwnerSprintUpdate",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StructureMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SprintUpdateBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/sprints/{sprint_id}/reorder": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "sprint_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerSprintReorder",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StructureMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SprintReorderBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "workOwnerTaskPageGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TaskSummaryPage"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. Only documented strict query keys; no request entity.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskState"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskPriority"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskType"
+            }
+          },
+          {
+            "name": "text",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "#/components/schemas/Title"
+            }
+          },
+          {
+            "name": "milestone_id",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "name": "sprint_id",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "name": "assignee_agent_id",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                {
+                  "const": "null"
+                }
+              ],
+              "description": "Absent means no assignee filter; literal null means unassigned, otherwise canonical Agent ID."
+            }
+          }
+        ]
+      },
+      "head": {
+        "operationId": "workOwnerTaskPageHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same authorization, read, validation and encoding as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. Only documented strict query keys; no request entity. HEAD suppresses both success and Problem bodies.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskState"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskPriority"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskType"
+            }
+          },
+          {
+            "name": "text",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "#/components/schemas/Title"
+            }
+          },
+          {
+            "name": "milestone_id",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "name": "sprint_id",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "name": "assignee_agent_id",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                {
+                  "const": "null"
+                }
+              ],
+              "description": "Absent means no assignee filter; literal null means unassigned, otherwise canonical Agent ID."
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "workOwnerTaskCreate",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TaskMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskCreateBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "workOwnerTaskGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Task"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. No request entity."
+      },
+      "head": {
+        "operationId": "workOwnerTaskHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same authorization, read, validation and encoding as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. No request entity. HEAD suppresses both success and Problem bodies."
+      },
+      "patch": {
+        "operationId": "workOwnerTaskUpdate",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TaskMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, PATCH"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdateBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/reorder": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerTaskReorder",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TaskMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskReorderBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/structure-commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerStructureLookup",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StructureLookup"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StructureLookupRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/task-commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerTaskLookup",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TaskLookup"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskLookupRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/blocker-commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerBlockerLookup",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/BlockerLookup"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlockerLookupRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/blockers": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "workOwnerBlockerPageGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TaskBlockerPage"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. Only documented strict query keys; no request entity.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unresolved",
+                "resolved",
+                "all"
+              ],
+              "default": "unresolved"
+            }
+          }
+        ]
+      },
+      "head": {
+        "operationId": "workOwnerBlockerPageHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same authorization, read, validation and encoding as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. Only documented strict query keys; no request entity. HEAD suppresses both success and Problem bodies.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unresolved",
+                "resolved",
+                "all"
+              ],
+              "default": "unresolved"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "workOwnerBlockerAdd",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/BlockerMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD, POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlockerAddBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/blockers/resolve": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerBlockerResolve",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/BlockerMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlockerResolveBody"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account Session; configured loopback HTTP uses agenteam_local_session. No caller Actor or bearer bypass."
+      }
+    },
+    "parameters": {
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "$ref": "./common.json#/components/schemas/IdempotencyKey"
+        },
+        "description": "Exactly one original key, unchanged and not trimmed; duplicate header values rejected, including identical ones."
+      },
+      "CSRF": {
+        "name": "X-CSRF-Token",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": "Actual current Account Session CSRF token; POST Lookup is unsafe and also requires it."
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 50
+        },
+        "description": "Canonical decimal only, no leading zeros."
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "required": false,
+        "allowEmptyValue": false,
+        "schema": {
+          "$ref": "#/components/schemas/Cursor"
+        }
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Safe shared Problem with original commit_state and lawful hint, never error text or a candidate receipt. Failed publication after a successful mutation aborts the connection instead of asserting rollback.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Milestone": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Milestone"
+            }
+          }
+        }
+      },
+      "Sprint": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Sprint"
+            }
+          }
+        }
+      },
+      "Task": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Task"
+            }
+          }
+        }
+      },
+      "StructureMutation": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/StructureMutation"
+            }
+          }
+        }
+      },
+      "TaskMutation": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TaskMutation"
+            }
+          }
+        }
+      },
+      "BlockerMutation": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BlockerMutation"
+            }
+          }
+        }
+      },
+      "StructureLookup": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/StructureLookup"
+            }
+          }
+        }
+      },
+      "TaskLookup": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TaskLookup"
+            }
+          }
+        }
+      },
+      "BlockerLookup": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BlockerLookup"
+            }
+          }
+        }
+      },
+      "MilestoneSummaryPage": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/MilestoneSummaryPage"
+            }
+          }
+        }
+      },
+      "SprintSummaryPage": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SprintSummaryPage"
+            }
+          }
+        }
+      },
+      "TaskSummaryPage": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TaskSummaryPage"
+            }
+          }
+        }
+      },
+      "TaskBlockerPage": {
+        "description": "Fully validated current read or historical command result. No partial response is a success.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TaskBlockerPage"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Title": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "not": {
+          "pattern": "[\\u0000-\\u001f\\u007f-\\u009f]"
+        },
+        "description": "At most 1024 UTF-8 bytes and 256 Unicode scalar values, at least one non-Unicode-whitespace character; no Cc controls. No trimming or normalization.",
+        "allOf": [
+          {
+            "not": {
+              "pattern": "^[\\u0009-\\u000d\\u0020\\u0085\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]*$"
+            }
+          }
+        ]
+      },
+      "Description": {
+        "type": "string",
+        "maxLength": 32768,
+        "not": {
+          "pattern": "[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f]"
+        },
+        "description": "At most 32768 UTF-8 bytes; Cc controls other than tab, LF and CR are forbidden. Omitted create values become empty strings."
+      },
+      "Plan": {
+        "type": "string",
+        "maxLength": 32768,
+        "not": {
+          "pattern": "[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f]"
+        },
+        "description": "At most 32768 UTF-8 bytes; same control-character rules as Description. Omitted create value becomes empty string."
+      },
+      "Rank": {
+        "type": "string",
+        "minLength": 32,
+        "maxLength": 32,
+        "pattern": "^[0-9a-f]{32}$",
+        "not": {
+          "enum": [
+            "00000000000000000000000000000000",
+            "ffffffffffffffffffffffffffffffff"
+          ]
+        },
+        "description": "Server assigned rank; caller input never accepts this field."
+      },
+      "Cursor": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8192,
+        "description": "Opaque signed continuation, at most 8192 UTF-8 bytes. Invalid or stale cursors never become first-page requests. Limit is not bound."
+      },
+      "TaskType": {
+        "type": "string",
+        "enum": [
+          "feature",
+          "bug",
+          "task",
+          "spike",
+          "chore"
+        ]
+      },
+      "TaskPriority": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ]
+      },
+      "TaskState": {
+        "type": "string",
+        "enum": [
+          "backlog",
+          "todo",
+          "in_progress",
+          "in_review",
+          "blocked",
+          "done",
+          "cancelled"
+        ]
+      },
+      "SprintState": {
+        "type": "string",
+        "enum": [
+          "planned",
+          "current",
+          "completed"
+        ]
+      },
+      "ActorHistory": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "user_id"
+            ],
+            "properties": {
+              "kind": {
+                "const": "human"
+              },
+              "user_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "project_id",
+              "agent_id",
+              "execution_id"
+            ],
+            "properties": {
+              "kind": {
+                "const": "agent_run"
+              },
+              "project_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "agent_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "execution_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "service_name",
+              "cause_ref",
+              "project_id"
+            ],
+            "properties": {
+              "kind": {
+                "const": "service"
+              },
+              "service_name": {
+                "type": "string",
+                "enum": [
+                  "secret",
+                  "secret-maintenance",
+                  "outbound",
+                  "object",
+                  "object-maintenance",
+                  "project-lifecycle",
+                  "project-initialization",
+                  "outbox-delivery",
+                  "account-bootstrap",
+                  "account-auth",
+                  "account-maintenance",
+                  "account-mail",
+                  "model-runtime"
+                ]
+              },
+              "cause_ref": {
+                "oneOf": [
+                  {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  {
+                    "$ref": "./common.json#/components/schemas/Digest"
+                  }
+                ]
+              },
+              "project_id": {
+                "oneOf": [
+                  {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "description": "Validated historical actor, never a current authorization. Service name/cause_ref must meet the original identity registry; scoped actors must match this Project. Session is never exposed."
+      },
+      "TaskEventActor": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "user_id",
+          "source"
+        ],
+        "properties": {
+          "type": {
+            "const": "human"
+          },
+          "user_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "source": {
+            "const": "task_domain"
+          }
+        }
+      },
+      "MilestoneSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "title",
+          "manual_rank",
+          "version",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "manual_rank": {
+            "$ref": "#/components/schemas/Rank"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        }
+      },
+      "Milestone": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "title",
+          "manual_rank",
+          "version",
+          "created_at",
+          "updated_at",
+          "description"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "manual_rank": {
+            "$ref": "#/components/schemas/Rank"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          }
+        }
+      },
+      "SprintSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "title",
+          "manual_rank",
+          "version",
+          "created_at",
+          "updated_at",
+          "milestone_id",
+          "state"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "manual_rank": {
+            "$ref": "#/components/schemas/Rank"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "milestone_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "state": {
+            "$ref": "#/components/schemas/SprintState"
+          }
+        }
+      },
+      "Sprint": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "title",
+          "manual_rank",
+          "version",
+          "created_at",
+          "updated_at",
+          "milestone_id",
+          "state",
+          "description",
+          "started_at",
+          "started_by",
+          "completed_at",
+          "completed_by"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "manual_rank": {
+            "$ref": "#/components/schemas/Rank"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "milestone_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "state": {
+            "$ref": "#/components/schemas/SprintState"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          },
+          "started_at": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "started_by": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ActorHistory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "completed_at": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "completed_by": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ActorHistory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "oneOf": [
+              {
+                "properties": {
+                  "state": {
+                    "const": "planned"
+                  },
+                  "started_at": {
+                    "type": "null"
+                  },
+                  "started_by": {
+                    "type": "null"
+                  },
+                  "completed_at": {
+                    "type": "null"
+                  },
+                  "completed_by": {
+                    "type": "null"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "state": {
+                    "const": "current"
+                  },
+                  "started_at": {
+                    "$ref": "./common.json#/components/schemas/Instant"
+                  },
+                  "started_by": {
+                    "$ref": "#/components/schemas/ActorHistory"
+                  },
+                  "completed_at": {
+                    "type": "null"
+                  },
+                  "completed_by": {
+                    "type": "null"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "state": {
+                    "const": "completed"
+                  },
+                  "started_at": {
+                    "$ref": "./common.json#/components/schemas/Instant"
+                  },
+                  "started_by": {
+                    "$ref": "#/components/schemas/ActorHistory"
+                  },
+                  "completed_at": {
+                    "$ref": "./common.json#/components/schemas/Instant"
+                  },
+                  "completed_by": {
+                    "$ref": "#/components/schemas/ActorHistory"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "description": "Original lifecycle and timestamp ordering are validated. This API does not start or complete Sprints."
+      },
+      "TaskSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "title",
+          "manual_rank",
+          "version",
+          "created_at",
+          "updated_at",
+          "milestone_id",
+          "sprint_id",
+          "type",
+          "priority",
+          "state",
+          "assignee_agent_id"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "manual_rank": {
+            "$ref": "#/components/schemas/Rank"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "milestone_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "sprint_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TaskType"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/TaskPriority"
+          },
+          "state": {
+            "$ref": "#/components/schemas/TaskState"
+          },
+          "assignee_agent_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "enum": [
+                    "todo",
+                    "in_progress",
+                    "in_review"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "assignee_agent_id": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Task": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "title",
+          "manual_rank",
+          "version",
+          "created_at",
+          "updated_at",
+          "milestone_id",
+          "sprint_id",
+          "type",
+          "priority",
+          "state",
+          "assignee_agent_id",
+          "description",
+          "plan"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "manual_rank": {
+            "$ref": "#/components/schemas/Rank"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "milestone_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "sprint_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TaskType"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/TaskPriority"
+          },
+          "state": {
+            "$ref": "#/components/schemas/TaskState"
+          },
+          "assignee_agent_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          }
+        },
+        "description": "Full current or historical Task. Reading an assigned or non-backlog Task does not enable mutation of that state. Parent IDs and times are validated by the service and HTTP projection.",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "enum": [
+                    "todo",
+                    "in_progress",
+                    "in_review"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "assignee_agent_id": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "BlockerDescription": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 1024,
+        "not": {
+          "pattern": "[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f]"
+        },
+        "description": "At most 1024 UTF-8 bytes, including empty or whitespace-only text; tab/LF/CR allowed, other Cc controls rejected."
+      },
+      "ResolutionComment": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1024,
+        "not": {
+          "pattern": "[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f]"
+        },
+        "description": "When not null, at most 1024 UTF-8 bytes and at least one non-Unicode-whitespace character; empty or whitespace-only strings are invalid. Same Cc control rules as Description.",
+        "allOf": [
+          {
+            "not": {
+              "pattern": "^[\\u0009-\\u000d\\u0020\\u0085\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]*$"
+            }
+          }
+        ]
+      },
+      "TaskBlocker": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "project_id",
+              "task_id",
+              "type",
+              "description",
+              "metadata",
+              "created_at",
+              "created_by",
+              "resolved_at",
+              "resolved_by",
+              "resolution_comment"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "project_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "task_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "type": {
+                "const": "rely_on"
+              },
+              "description": {
+                "$ref": "#/components/schemas/BlockerDescription"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "related_task_id"
+                ],
+                "properties": {
+                  "related_task_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                }
+              },
+              "created_at": {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              "created_by": {
+                "$ref": "#/components/schemas/TaskEventActor"
+              },
+              "resolved_at": {
+                "oneOf": [
+                  {
+                    "$ref": "./common.json#/components/schemas/Instant"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "resolved_by": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/TaskEventActor"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "resolution_comment": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ResolutionComment"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "allOf": [
+              {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "resolved_at": {
+                        "type": "null"
+                      },
+                      "resolved_by": {
+                        "type": "null"
+                      },
+                      "resolution_comment": {
+                        "type": "null"
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "resolved_at": {
+                        "$ref": "./common.json#/components/schemas/Instant"
+                      },
+                      "resolved_by": {
+                        "$ref": "#/components/schemas/TaskEventActor"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "project_id",
+              "task_id",
+              "type",
+              "description",
+              "metadata",
+              "created_at",
+              "created_by",
+              "resolved_at",
+              "resolved_by",
+              "resolution_comment"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "project_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "task_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "type": {
+                "const": "waiting_for_human"
+              },
+              "description": {
+                "$ref": "#/components/schemas/BlockerDescription"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {}
+              },
+              "created_at": {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              "created_by": {
+                "$ref": "#/components/schemas/TaskEventActor"
+              },
+              "resolved_at": {
+                "oneOf": [
+                  {
+                    "$ref": "./common.json#/components/schemas/Instant"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "resolved_by": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/TaskEventActor"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "resolution_comment": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ResolutionComment"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "allOf": [
+              {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "resolved_at": {
+                        "type": "null"
+                      },
+                      "resolved_by": {
+                        "type": "null"
+                      },
+                      "resolution_comment": {
+                        "type": "null"
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "resolved_at": {
+                        "$ref": "./common.json#/components/schemas/Instant"
+                      },
+                      "resolved_by": {
+                        "$ref": "#/components/schemas/TaskEventActor"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "description": "Only the two currently supported Blocker metadata variants. Resolved time is no earlier than creation; maximum encoded record is 16 KiB."
+      },
+      "BlockerAddRequest": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "blocker_id",
+              "type",
+              "description",
+              "metadata"
+            ],
+            "properties": {
+              "blocker_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "type": {
+                "const": "rely_on"
+              },
+              "description": {
+                "$ref": "#/components/schemas/BlockerDescription"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "related_task_id"
+                ],
+                "properties": {
+                  "related_task_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "blocker_id",
+              "type",
+              "description",
+              "metadata"
+            ],
+            "properties": {
+              "blocker_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "type": {
+                "const": "waiting_for_human"
+              },
+              "description": {
+                "$ref": "#/components/schemas/BlockerDescription"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {}
+              }
+            }
+          }
+        ],
+        "description": "Original DTO cap 8 KiB. Other known future Blocker kinds are not enabled and return DEPENDENCY_UNBOUND."
+      },
+      "BlockerResolveRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "blocker_id",
+          "resolution_comment"
+        ],
+        "properties": {
+          "blocker_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "resolution_comment": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ResolutionComment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "MilestoneCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "milestone_id",
+          "title"
+        ],
+        "properties": {
+          "milestone_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          }
+        }
+      },
+      "SprintCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sprint_id",
+          "milestone_id",
+          "title"
+        ],
+        "properties": {
+          "sprint_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "milestone_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          }
+        }
+      },
+      "StructureUpdateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          }
+        },
+        "minProperties": 1
+      },
+      "MilestoneReorderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "before_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        "description": "Omission means the group tail. Explicit null is invalid; self-anchor is invalid."
+      },
+      "SprintReorderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "milestone_id"
+        ],
+        "properties": {
+          "milestone_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "before_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        "description": "Explicit destination Milestone; before_id omission means group tail. Moving a Sprint with Tasks follows the original Structure rules."
+      },
+      "TaskCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "task_id",
+          "sprint_id",
+          "title",
+          "type",
+          "priority"
+        ],
+        "properties": {
+          "task_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "sprint_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TaskType"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/TaskPriority"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          },
+          "initial_state": {
+            "$ref": "#/components/schemas/TaskState"
+          },
+          "assignee_agent_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        "description": "Description/plan default to empty; omitted initial_state means backlog. Valid DTO inputs for another initial state or an assignee reach the original explicit business rejection; this HTTP does not silently ignore them. Task planning creates only unassigned backlog Tasks."
+      },
+      "TaskUpdateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TaskType"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/TaskPriority"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          }
+        },
+        "minProperties": 1
+      },
+      "TaskReorderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "before_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        "description": "Only current group ordering; omitted before_id means tail. No new parent/state/priority/assignee input."
+      },
+      "MilestoneCreateBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "request"
+        ],
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/MilestoneCreateRequest"
+          }
+        }
+      },
+      "MilestoneUpdateBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/StructureUpdateRequest"
+          }
+        }
+      },
+      "MilestoneReorderBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/MilestoneReorderRequest"
+          }
+        }
+      },
+      "SprintCreateBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "request"
+        ],
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/SprintCreateRequest"
+          }
+        }
+      },
+      "SprintUpdateBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/StructureUpdateRequest"
+          }
+        }
+      },
+      "SprintReorderBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/SprintReorderRequest"
+          }
+        }
+      },
+      "TaskCreateBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "request"
+        ],
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/TaskCreateRequest"
+          }
+        }
+      },
+      "TaskUpdateBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/TaskUpdateRequest"
+          }
+        }
+      },
+      "TaskReorderBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/TaskReorderRequest"
+          }
+        }
+      },
+      "BlockerAddBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/BlockerAddRequest"
+          }
+        }
+      },
+      "BlockerResolveBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/BlockerResolveRequest"
+          }
+        }
+      },
+      "StructureLookupRequest": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "const": "work.milestone.create"
+              },
+              "request": {
+                "$ref": "#/components/schemas/MilestoneCreateRequest"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "target_id",
+              "command",
+              "expected_version",
+              "request"
+            ],
+            "properties": {
+              "target_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "command": {
+                "const": "work.milestone.update"
+              },
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "request": {
+                "$ref": "#/components/schemas/StructureUpdateRequest"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "target_id",
+              "command",
+              "expected_version",
+              "request"
+            ],
+            "properties": {
+              "target_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "command": {
+                "const": "work.milestone.reorder"
+              },
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "request": {
+                "$ref": "#/components/schemas/MilestoneReorderRequest"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "const": "work.sprint.create"
+              },
+              "request": {
+                "$ref": "#/components/schemas/SprintCreateRequest"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "target_id",
+              "command",
+              "expected_version",
+              "request"
+            ],
+            "properties": {
+              "target_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "command": {
+                "const": "work.sprint.update"
+              },
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "request": {
+                "$ref": "#/components/schemas/StructureUpdateRequest"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "target_id",
+              "command",
+              "expected_version",
+              "request"
+            ],
+            "properties": {
+              "target_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "command": {
+                "const": "work.sprint.reorder"
+              },
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "request": {
+                "$ref": "#/components/schemas/SprintReorderRequest"
+              }
+            }
+          }
+        ],
+        "description": "Saved original intent, available before the first send. Use the original Idempotency-Key. RequestID is fresh but not part of the semantic digest. No caller digest, namespace or current Get reconstruction."
+      },
+      "TaskLookupRequest": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "const": "work.task.create"
+              },
+              "request": {
+                "$ref": "#/components/schemas/TaskCreateRequest"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "target_id",
+              "command",
+              "expected_version",
+              "request"
+            ],
+            "properties": {
+              "target_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "command": {
+                "const": "work.task.update"
+              },
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "request": {
+                "$ref": "#/components/schemas/TaskUpdateRequest"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "target_id",
+              "command",
+              "expected_version",
+              "request"
+            ],
+            "properties": {
+              "target_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "command": {
+                "const": "work.task.reorder"
+              },
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "request": {
+                "$ref": "#/components/schemas/TaskReorderRequest"
+              }
+            }
+          }
+        ],
+        "description": "Saved original intent, available before the first send. Use the original Idempotency-Key. RequestID is fresh but not part of the semantic digest. No caller digest, namespace or current Get reconstruction."
+      },
+      "BlockerLookupRequest": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "expected_version",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "const": "work.task.blocker.add"
+              },
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "request": {
+                "$ref": "#/components/schemas/BlockerAddRequest"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "expected_version",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "const": "work.task.blocker.resolve"
+              },
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "request": {
+                "$ref": "#/components/schemas/BlockerResolveRequest"
+              }
+            }
+          }
+        ],
+        "description": "Saved original intent, available before the first send. Use the original Idempotency-Key. RequestID is fresh but not part of the semantic digest. No caller digest, namespace or current Get reconstruction."
+      },
+      "StructureMutation": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "changed",
+              "milestone",
+              "sprint",
+              "event_id"
+            ],
+            "properties": {
+              "command": {
+                "type": "string",
+                "enum": [
+                  "work.milestone.create",
+                  "work.milestone.update",
+                  "work.milestone.reorder"
+                ]
+              },
+              "changed": {
+                "const": true
+              },
+              "milestone": {
+                "$ref": "#/components/schemas/Milestone"
+              },
+              "sprint": {
+                "type": "null"
+              },
+              "event_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "changed",
+              "milestone",
+              "sprint",
+              "event_id"
+            ],
+            "properties": {
+              "command": {
+                "type": "string",
+                "enum": [
+                  "work.milestone.update",
+                  "work.milestone.reorder"
+                ]
+              },
+              "changed": {
+                "const": false
+              },
+              "milestone": {
+                "$ref": "#/components/schemas/Milestone"
+              },
+              "sprint": {
+                "type": "null"
+              },
+              "event_id": {
+                "type": "null"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "changed",
+              "milestone",
+              "sprint",
+              "event_id"
+            ],
+            "properties": {
+              "command": {
+                "type": "string",
+                "enum": [
+                  "work.sprint.create",
+                  "work.sprint.update",
+                  "work.sprint.reorder"
+                ]
+              },
+              "changed": {
+                "const": true
+              },
+              "milestone": {
+                "type": "null"
+              },
+              "sprint": {
+                "$ref": "#/components/schemas/Sprint"
+              },
+              "event_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "changed",
+              "milestone",
+              "sprint",
+              "event_id"
+            ],
+            "properties": {
+              "command": {
+                "type": "string",
+                "enum": [
+                  "work.sprint.update",
+                  "work.sprint.reorder"
+                ]
+              },
+              "changed": {
+                "const": false
+              },
+              "milestone": {
+                "type": "null"
+              },
+              "sprint": {
+                "$ref": "#/components/schemas/Sprint"
+              },
+              "event_id": {
+                "type": "null"
+              }
+            }
+          }
+        ]
+      },
+      "TaskMutation": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "task",
+              "changed",
+              "task_event_id",
+              "event_ids"
+            ],
+            "properties": {
+              "task": {
+                "$ref": "#/components/schemas/Task"
+              },
+              "changed": {
+                "const": true
+              },
+              "task_event_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "event_ids": {
+                "type": "array",
+                "items": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "task",
+              "changed",
+              "task_event_id",
+              "event_ids"
+            ],
+            "properties": {
+              "task": {
+                "$ref": "#/components/schemas/Task"
+              },
+              "changed": {
+                "const": false
+              },
+              "task_event_id": {
+                "type": "null"
+              },
+              "event_ids": {
+                "type": "array",
+                "items": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "minItems": 0,
+                "maxItems": 0
+              }
+            }
+          }
+        ]
+      },
+      "BlockerMutation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "task",
+          "blocker",
+          "task_event_id",
+          "event_ids"
+        ],
+        "properties": {
+          "task": {
+            "$ref": "#/components/schemas/Task"
+          },
+          "blocker": {
+            "$ref": "#/components/schemas/TaskBlocker"
+          },
+          "task_event_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "event_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "./common.json#/components/schemas/ID"
+            },
+            "minItems": 1,
+            "maxItems": 1
+          }
+        },
+        "description": "Task version is expected_version + 1, with matching Project/Task and update time. No private command plan, key, digest or Session fields."
+      },
+      "StructureLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "result"
+            ],
+            "properties": {
+              "state": {
+                "const": "committed"
+              },
+              "result": {
+                "$ref": "#/components/schemas/StructureMutation"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "result"
+            ],
+            "properties": {
+              "state": {
+                "type": "string",
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              },
+              "result": {
+                "type": "null"
+              }
+            }
+          }
+        ],
+        "description": "Historical committed receipt, never reconstructed from current fields. Neither not_observed nor in_progress authorizes automatic resubmission."
+      },
+      "TaskLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "const": "committed"
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/TaskMutation"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              },
+              "receipt": {
+                "type": "null"
+              }
+            }
+          }
+        ],
+        "description": "Historical committed receipt, never reconstructed from current fields. Neither not_observed nor in_progress authorizes automatic resubmission."
+      },
+      "BlockerLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "const": "committed"
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/BlockerMutation"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              },
+              "receipt": {
+                "type": "null"
+              }
+            }
+          }
+        ],
+        "description": "Historical committed receipt, never reconstructed from current fields. Neither not_observed nor in_progress authorizes automatic resubmission."
+      },
+      "MilestoneSummaryPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MilestoneSummary"
+            },
+            "maxItems": 200
+          },
+          "next_cursor": {
+            "$ref": "#/components/schemas/Cursor"
+          }
+        },
+        "description": "Complete validated page, at most 5 MiB; items never null, no next_cursor when exhausted. Each summary or Blocker is bounded to 16 KiB. No description/plan fields in summaries."
+      },
+      "SprintSummaryPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SprintSummary"
+            },
+            "maxItems": 200
+          },
+          "next_cursor": {
+            "$ref": "#/components/schemas/Cursor"
+          }
+        },
+        "description": "Complete validated page, at most 5 MiB; items never null, no next_cursor when exhausted. Each summary or Blocker is bounded to 16 KiB. No description/plan fields in summaries."
+      },
+      "TaskSummaryPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskSummary"
+            },
+            "maxItems": 200
+          },
+          "next_cursor": {
+            "$ref": "#/components/schemas/Cursor"
+          }
+        },
+        "description": "Complete validated page, at most 5 MiB; items never null, no next_cursor when exhausted. Each summary or Blocker is bounded to 16 KiB. No description/plan fields in summaries."
+      },
+      "TaskBlockerPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskBlocker"
+            },
+            "maxItems": 200
+          },
+          "next_cursor": {
+            "$ref": "#/components/schemas/Cursor"
+          }
+        },
+        "description": "Complete validated page, at most 5 MiB; items never null, no next_cursor when exhausted. Each summary or Blocker is bounded to 16 KiB. No description/plan fields in summaries."
+      }
+    }
+  }
+}
