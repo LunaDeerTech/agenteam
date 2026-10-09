@@ -1,0 +1,115 @@
+# D27 普通 Project Variables Owner 管理界面
+
+状态：rev1 规格草稿，待独立审查，尚无产品实现。正式依赖 main `3cea6076` 的[普通变量服务与 HTTP](d10-project-variables-owner-http.md)已接受；本卡不代表完整 D10/D27 或平台 ready。
+
+## 1. 完整结果
+
+已有 initialized Project 的当前 Human Owner 可从项目设置进入 `/:username/:project_name/settings/variables`，分页浏览普通变量、读取完整值、创建、编辑、删除，以及在响应丢失后查询和显式重放原操作。管理员没有 Owner 旁路。
+
+不含 Secret、Agent 白名单、运行环境注入、模板解释、Project 创建/生命周期、自动重试、批量导入导出、名称搜索和公开历史浏览。没有跨 Session 的 UI 恢复承诺；草稿、值、原 key/body/CSRF 不写 local/session storage、URL、日志或公开浏览器证据。普通值不渲染 HTML、不执行 shell/URL，不提供 Secret 安全承诺。生产 SPA 停止项保持。
+
+依据：[项目设置布局](../../frontend-design/layouts/project-settings.md)、[工作台](../../frontend-design/layouts/project-workspace.md)、[变量架构](../../architecture/project-work-management/project-environment-variables.md)、[前端工程](../frontend/README.md)、[正式 Schema](../../../api/openapi/project-variables.json)。
+
+## 2. 文件与精确接缝
+
+本分支 `ai/project-variables-owner-ui`，工作树 `/workspace/agenteam-project-variables-ui`。新增独占：
+
+- `web/src/api/project-variables.ts`：严格 DTO、输入捕获、六 HTTP 调用及原意图/回执一致性。
+- `web/src/composables/useProjectVariables.ts`：分页、详情、草稿、历史命令/当前观察分离及离开确认。
+- `web/src/views/projects/ProjectVariablesView.vue`、`ProjectVariableEditor.vue`：目录、完整值表单及删除/离开确认。
+- `web/src/tests/project-variables-client.spec.ts`、`project-variables-session.spec.ts`、`project-variables-state.spec.ts`、`project-variables.spec.ts`。
+- 本卡及本树 `.agent-state/current.md`。全局台账由 root 统筹。
+
+root 已授本树以下七共享路径的本域最小增量：
+
+| 路径 | 必要变化与边界 |
+| --- | --- |
+| `web/src/api/client.ts` | 六精确端点/query、本域1MiB/5MiB与重复JSON检查；旧域默认上限/行为不变，不开放任意URL/调用者上限 |
+| `web/src/composables/useSession.ts` | 末位Variables API依赖、独立action/revision/私有intent facade；唯一runAuthorized，不导出CSRF、不新增Cookie队列、不改变旧Session默认 |
+| `web/src/router/auth.ts` | 精确suffix/safeReturn与本域navigation owner；原Owner→Model保持，后续合Work时为Owner→Model→Work→Variables |
+| `web/src/router/index.ts` | 单一settings/variables懒加载leaf，不改Project默认入口 |
+| `web/src/App.vue` | App级provide/路由通知/dispose/logout和本域确认；constructor新依赖追加末位，不破坏原调用 |
+| `web/src/views/projects/ProjectSettingsView.vue` | 既定“变量与 Secret”组仅提供已实现Variables子项，不放Secret空入口；保留现菜单 |
+| `docs/development/frontend/README.md` | 限定能力、路由、恢复及未包含范围 |
+
+`useProjectWorkspace.ts`、`ProjectWorkspaceView.vue`、`ProjectNav.vue` 只读复用。root最终逐差异整合，不用本树旧基线覆盖WorkUI/Model增量。
+
+浏览器拟新增 `tests/account/project_variables_web_test.go`、`project_variables_web_fixture_test.go`，`tests/account-captcha-web/project-variables.config.js`、`e2e/project-variables.spec.ts`、`e2e/project-variables.helpers.ts`。既有 `tests/account/project_owner_web_fixture_test.go` 的Variables-only可选观察/config/IPC seam另报root授予，nil默认Owner行为原样，不依赖Work WIP类型。runner精确selector扩展另报工具写权，不复制监督器。独立probe由未参与者持有。
+
+## 3. API/Session 接口
+
+API导出 `ProjectVariable`、`ProjectVariableSummary`、`ProjectVariablePage`、`ProjectVariableQuery`、`ProjectVariableCreate`、`ProjectVariableUpdate`、`ProjectVariableCommand`、`ProjectVariableReceipt`、`ProjectVariableLookup`、`ProjectVariablesAPI`；对象/摘要字段完全沿正式Schema，摘要不得伪造value。`newProjectVariableID()` 用当前毫秒及安全随机生成canonical UUIDv7，不能用randomUUID的v4替代。版本只canonical十进制字符串，比较用BigInt，不转浮点；时间严格校验正式Instant和先后关系。
+
+命令闭集：create `{kind:'create',projectID,request}`；update `{kind:'update',projectID,targetID,expectedVersion,request}`；delete `{kind:'delete',projectID,targetID,expectedVersion}`。create request自带提前生成variable_id；update只含确实修改的presence字段且至少一项；delete不带request。捕获深拷贝/冻结，拒未知/null/非法Unicode，不trim/归一用户文本。
+
+低层API：`list(projectID,query,signal)`、`get(projectID,targetID,signal)`、`create(projectID,request,csrf,key,signal)`、`update(projectID,targetID,expectedVersion,request,csrf,key,signal)`、`delete(projectID,targetID,expectedVersion,csrf,key,signal)`、`lookup(command,csrf,key,signal)`。signal必传；Lookup组装正式三variant，不直接序列化内部kind/projectID。
+
+页面仅消费 `auth.projectVariables`：`list`、`get`、`start(command)`、`lookupOriginal()`、`replayOriginal()`、`abandonReads()`、`abandonPending()`、`editRejected()`和只读progress；无signal/CSRF/key参数。progress含projectID/kind/targetID、phase(submitting/uncertain/rejected/confirmed)、receipt、observation(none/committed/in_progress/not_observed/failed)、lookingUp/contextValid/keyConflict/canReplayOriginal，不暴露key/CSRF/原body。
+
+所有Cookie调用仍唯一runAuthorized。30s逻辑期限/页面取消可结束可见等待，实际fetch/body read/cancel全结束前仍占owner，不允许下一Cookie请求重叠。私有CSRF只在Session内部取得。POST Lookup用原key及原当前Session材料。完整EOF、UTF-8、Content-Type、严格DTO、Project/target/command/原version和字段匹配缺一不可确认。响应JSON重复member（含转义后同名）拒绝；坏末项不得发布半页。
+
+严格限定本域：request/detail/mutation/Lookup 1MiB，summary list 5MiB；错误体沿原小额上限。合法最坏JSON escaping按真实完整表示验，不把已有600k默认套在新域，也不扩大其他域。
+
+## 4. 页面与字段
+
+保留双导航/SettingsShell，标题Variables，普通变量说明、新建按钮、摘要表。列表列名称、描述、版本/更新时间、“查看”；仅选中后Get完整值，不批量加载value。默认固定50项，保持服务端 `(name COLLATE C ASC,id ASC)` 排序，不按locale重排。上一页保存opaque cursor栈，下一页仅在next_cursor存在时可用；显示当前页，不伪造总页数，不使用需要total的UiPagination。
+
+完整页须同Project/type、ID唯一、严格排序、next_cursor存在时满页。CURSOR_INVALID/STALE保留旧观察并标旧，提供明确“从第一页重新读取”，不自动跳页。mutation后旧cursor可能失效，明确重读；当前Get或名称相同不确认原命令。同名新UUID不继承旧详情/草稿。
+
+选摘要后Get成功才显示完整值和编辑原版本；摘要不充当前像。页外对象不新增路由或猜页位置：命令结果可以按原稳定ID重新读取当前对象；删除后显示当前不存在，与历史receipt分开。切换对象先处理dirty/未决intent。读失败保留草稿，不以旧详情解锁新保存。
+
+| 输入 | 正式规则 |
+| --- | --- |
+| name | ASCII `[A-Za-z_][A-Za-z0-9_]{0,127}`，不trim/折叠；ASCII不区分大小写等于AGENTEAM或以AGENTEAM_开头拒绝 |
+| description | 必须字符串，可空，≤4096 UTF-8 B；禁NUL与除TAB/LF/CR外Cc；逐字保存 |
+| value | 必须字符串，可空，≤32768 UTF-8 B；禁NUL及非法Unicode，其余逐字保存，不解释内容 |
+| version | 原Get版本，canonical正int64十进制字符串；创建不带版本，更新/删除必带 |
+
+字节数不能用HTML maxlength/UTF-16长度替代。type固定variable，不提供Secret选择。新建预生成UUIDv7；提交前固化key/request presence/body/target/version，发送后材料不可变。未变化禁保存；版本冲突保草稿，必须显式重读并选择采用当前值或保留输入重新审阅，不自动合并/换版本/换key。
+
+删除确认展示名称、稳定ID、原版本及“从当前目录移除；历史操作回执仍可能保留旧值”。不承诺擦除、Agent引用清理或运行环境变化。只有合法delete receipt成功；404/列表消失/Get不存在不能代替原成功。新key删除已删目标仍拒绝，同key历史成功原样返回。
+
+采用既有UiInput/UiTextarea/UiTable/UiButton/UiState/UiDialog及tokens。成功在触发按钮，不加底部toast；错误留字段/区域。窄屏单列、长值局部滚动。对话框可取消、标题/说明关联，键盘焦点限制与恢复；删除后原触发消失时使用既有fallbackFocus到仍存标题，不抢其他浮层焦点。取消/关闭策略显式控制，不丢dirty。
+
+## 5. 当前身份、权限与离开
+
+仅当Owner `currentReadContext` 非空、Project稳定ID与Session/Owner/generation/readGeneration匹配才请求子资源；getter非空不等于active，另核当前detail.project.lifecycle。initialized active允许新写；archiving/archived只读、Lookup及完成原意图重放；pending/deleting拒绝。每HTTP仍后端重新授权，管理员无旁路。
+
+结果发布同时检查本域revision、完整identity(userID/sessionID/CSRF epoch)、Project稳定ID和上下文代次。同identity checking隐藏内容/取消读但保草稿和intent；真实Session/CSRF epoch或User改变立即销毁私有材料。同身份恢复须重新取得当前Owner Get才能操作。迟到旧结果不能复活视图/确认命令。改名canonicalize复用稳定ID并保合法suffix，旧名被另一个Project占用不继承草稿。
+
+只接受精确 `/settings/variables`，raw route拒query/hash/编码绕过/额外suffix；safeReturn同闭集，合法点号Project名可直达。直接GET、浏览器导航、刷新和菜单点击均走正式Resolve→Get门禁。
+
+controller放App生命周期，临时页面卸载不丢同身份内存。导航/切Project/logout先确认本域dirty/未决intent，取消留原页并恢复焦点。原Owner→Model（后续Work）→Variables顺序保持；各域只清自身，不承诺后域取消可复原前域已明确放弃的草稿。放弃提示只清本地材料、不撤销服务器操作；实际I/O尾未结束仍占唯一owner。
+
+## 6. 原意图恢复
+
+私有intent保存完整User/Session/CSRF epoch、Project/command/target、expected_version presence和值、request presence和字节、原key。无自动重放/轮询。transport/缺EOF/响应校验失败、COMMIT_UNKNOWN或unknown commit_state均保uncertain。
+
+“查询原操作”只有Lookup committed且历史receipt严格匹配原intent才confirmed；not_observed/in_progress/查询失败/当前拒绝均不证明原未提交。GET同值或已删不确认。用户明确“重放原操作”才发原key/body/target/version，服务端receipt-first决定历史成功或当前拒绝。unknown粘性；已confirmed历史receipt不能因后继Lookup/replay拒绝或断流倒退/丢失。
+
+首次明确not_started/not_committed且正式闭集业务拒绝可标rejected，不能仅凭HTTP4xx/409。IDEMPOTENCY_KEY_REUSED禁止重放，不清旧unknown或历史成功。字段错误只展示已知path/code，不回显任意服务端文本。只有从未unknown的明确拒绝才可editRejected修改后新提交；否则必须先明确放弃本地材料。
+
+仅内存恢复：真正Session变化或刷新/关闭页面会失去原材料，明确提示此限制；不改变后端同User新Session可恢复的契约，不增浏览器持久化或可泄漏日志。
+
+## 7. 验收矩阵
+
+| 层 | 必须区分正确与错误行为 |
+| --- | --- |
+| API | 六精确method/path/query/key/CSRF；正式Schema正反；UUIDv7/int64/时间/UTF-8边界；重复member/坏末项/乱序/非满next/错scope/伪receipt；合法最大表示；EOF及cancel实际join、旧域不变 |
+| Session | 唯一owner与逻辑超时后实际尾；捕获后源输入突变无效；三命令原Lookup/replay；明确拒绝/unknown粘性/confirmed后失败；checking及真实身份/CSRF变化、迟到结果 |
+| 状态/组件 | Owner上下文与lifecycle分离；cursor前后/显式过期重置；摘要无值/按需详情；CRUD/空值/presence/冲突保稿；离开/logout取消/焦点；同名不同ID隔离 |
+| 真实read/layouts | 正式no-tag根/Account登录/Project前置；点号Project名直接GET/导航/刷新；真实分页/只读/错误；浅深色、宽屏/390px、键盘/缩放/减少动效/长值 |
+| 真实CRUD | 六HTTP、实际schema/client解码；真实变化/no-op/同名新UUID/delete及历史receipt；独立连接核command/history/Audit/Outbox，不只数200 |
+| 真实recovery | 三域命令各一次已完成后真实截断；uncertain→原Lookup/显式replay；后继修改不改历史；not_observed/in_progress/改义/错版本不确认、无第二事实 |
+| 真实identity/authority | 同身份checking保稿；真实logout/revoke/newSession清内存；非Owner管理员/跨Project拒绝；prepare后归档拒绝及历史重放；held读取消/原ctx/handler实际退出 |
+| 独立 | 未参与者自行验证权限/历史意图/断流取消和持久事实，不用作者success布尔作oracle |
+
+作者case建议闭集read/crud/recovery/identity/authority/layouts，独立补集由验收者选。复用Owner fixture进程内默认no-tag `app.Run(...)`、真实Account/Project、私有生产资产托管和原Node actualWait/7资源链，不宣称独立cmd。持久test Skills仅作已有Project前置，不能证明真实Skills/创建HTTP；归档fixture明确是门禁输入，不冒完整生命周期。
+
+故障预先绑定原Request/method/domain/project/target/key/body，先有后端完整Body+Close与同keycompleted，再真实截断。浏览器预期不完整仅接受该精确已登记请求故障，普通成功仍要求finished/完整EOF/schema/client。held GET须有真实started/release/ctx取消/handler返回，不用sleep或buffer完成冒join。不复制Model私有harness。非法route零变量读取，API/缺失asset不得回退SPA。
+
+预算沿既有Owner每Go top120s、Playwright45s、expect5s、workers1/retries0及原有界清理；root freshgrant独占真实窗口。dist构建/私有资产另协调，不能改他树dist。当前零socket/PG/browser执行。原FAIL和缺失测量保留，修后只验影响范围，编译/发现不是动态PASS。
+
+## 8. 当前实施状态
+
+先本卡/current冻结短审；API+Session及判别力纯控、controller/view/路由消费、真实fixture和适用回归，最后独立验收。每片段可构建保存，WIP不当整卡完成。Vue与测试技能已读；新树尚无node_modules，准备比较同lock并恢复私有离线依赖，未执行产品测试。页面/工程选择待root与独审核准，不增加用户未定决定。
