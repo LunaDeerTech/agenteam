@@ -224,3 +224,7 @@ rev1 已经未参与产品实现者独立接受。API、Session恢复与controll
 首轮原45秒case/120秒Go/6分钟包预算不变，Go24.23秒失败、外层实际exit1/165.537秒。Milestone创建/编辑、前移/移尾及对应重读已执行；创建Sprint后原命令确认标题可见，但“查证原命令”仍disabled超过原5秒。服务端Sprint POST及随后Get有200同体，尚未定位持续禁用原因，不将前置响应称为完整UI或持久后验通过。case结束时观察器的response.finished另抛Test ended，需实际收束；原监督器因driver后4个descendant记STOP，之后4个实际Wait0。Node/proxy/root/driver实际退出、七资源双absent、desc/runtime/private/TCP双清及输入同一齐，原整体FAIL保留。后续只定位并修受影响边界，完整矩阵仍未接受。
 
 随后定向纯控制复现页面availability缓存缺陷：当前读结束时实际Cookie owner已释放，页面computed仍保留此前canLookup=false。仅新Work getter显式依赖既有state.busy，继续检查owner/pending后红→绿，64个Work/Session兼容控制通过，真实复验待运行。观察器对原finished失败立即收束并仍拒绝验证；监督器仅UI分支先观测state及actual nonblocking Wait已退出子，非0拒绝，再保持原活descendant与资源门槛，11个控制通过；预回收初版无界循环经独审拒绝后改为入口descendant快照有限次数；修后实际owner/响应式、观察Promise与UI-only回收/default对照均获有限独立接受。完整前端2777单元、类型与build通过；真实同组复验仍待，不回填首轮。
+
+### 修后planning第二轮（保留）
+
+修后planning第二轮仍整体FAIL：冻结7354334e、原binary05/私有新dist及原预算，98126实际exit1/126.236秒、Go23.36秒。已越过原Sprint恢复按钮门槛并完成Sprint更新/两次排序；随后Task新建表单内精确“创建”按钮不存在，原5秒disabled断言失败，Go持久后验未到。实际模板标签为“创建 Task”，此轮尚无最终UI接受；原finished观察器没有再产生未处理拒绝。direct actualWait1，四个adopted枚举时均Z并实际nonblocking Wait0、未STOP；七资源双absent、desc/runtime/private/TCP双清及输入同一齐，窗口已释放。新回收仅证明本轮正确执行，首轮FAIL/STOP不回填。原log在output/ai/work-owner-planning-ui/pg/planning-02.log；下一先修精确测试标签并复核剩余同组刺激，不改产品或放宽期限。
