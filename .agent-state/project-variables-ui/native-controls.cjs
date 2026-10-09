@@ -90,6 +90,47 @@ async function bind(snapshot, mutate = () => {}, expected = 'bound') {
   assert(!JSON.stringify(result).includes(requestID))
   return result
 }
+async function lateEventsControl(snapshot) {
+  for (const responseBeforeStop of [false, true]) {
+    const clock = scheduler(), page = fakePage(clock, snapshot), adapter = moduleWith(clock).nativeConsumption(page)
+    const request = { url: () => 'http://offline.invalid' + pathname, method: () => 'GET' }
+    const response = { request: () => request, headers: () => ({ 'x-request-id': requestID }), status: () => 200 }
+    adapter.request(request)
+    if (responseBeforeStop) adapter.response(response)
+    await flush(); await adapter.stop()
+    const before = JSON.stringify(adapter.snapshot(request))
+    adapter.response(response)
+    assert.equal(JSON.stringify(adapter.snapshot(request)), before)
+    const late = { ...request }; adapter.request(late); adapter.response({ ...response, request: () => late })
+    assert.equal(JSON.stringify(adapter.snapshot(request)), before)
+    assert.equal(adapter.snapshot(late).binding, 'unobserved')
+  }
+  console.log('late PW request/response cannot bind, upgrade or invalidate a retired snapshot: PASS')
+}
+async function installerFailureControl() {
+  const frozen = await browser(); Object.freeze(frozen.reader)
+  assert.equal(frozen.stream.getReader(), frozen.reader)
+  assert.equal(frozen.snapshot().records[0].facts.failure, 'observer-error')
+  frozen.snapshot(true)
+  const partial = await browser()
+  Object.defineProperty(partial.reader, 'cancel', { writable: false, configurable: false })
+  assert.equal(partial.stream.getReader(), partial.reader)
+  for (const expected of partial.reads) { const pending = partial.reader.read(); assert.equal(pending, expected); await pending }
+  await flush()
+  const bound = await bind(partial.snapshot())
+  assert.equal(bound.facts.read_done, true)
+  assert.equal(bound.facts.failure, 'observer-error')
+  assert.equal(bound.eof_before_interruption, false)
+  assert.equal(bound.length_comparable, false)
+  Object.defineProperty(partial.reader, 'read', { writable: false, configurable: false })
+  assert.equal(partial.snapshot(true).retired, false)
+  const getters = await browser(), originalError = new Error('NATIVE_PRIVATE_CANARY')
+  Object.defineProperty(getters.reader, 'read', { get() { throw originalError }, configurable: true })
+  assert.equal(getters.stream.getReader(), getters.reader)
+  assert.equal(getters.snapshot().records[0].facts.failure, 'observer-error')
+  getters.snapshot(true)
+  console.log('frozen/partial/getter installation preserves original return/Promise; incomplete observation never proves EOF or hook retirement: PASS')
+}
 function goProjectionControl(native) {
   const fixture = fs.readFileSync(path.join(root, 'tests/account/project_variables_web_fixture_test.go'), 'utf8')
   const types = fixture.slice(fixture.indexOf('type variableWebNetworkFailure struct'), fixture.indexOf('// Independent SQL postconditions'))
@@ -102,6 +143,7 @@ func check(raw []byte) bool { var n variableWebNetworkFailure; d:=json.NewDecode
 func main(){
  original:=[]byte(${JSON.stringify(JSON.stringify(accepted))})
  if !check(original){panic("positive projection")}
+ var incomplete map[string]any;json.Unmarshal(original,&incomplete);ni:=incomplete["native"].(map[string]any);ni["facts"].(map[string]any)["failure"]="observer-error";ni["eof_before_interruption"]=false;ni["length_comparable"]=false;ni["length_matches"]=false;iraw,_:=json.Marshal(incomplete);if !check(iraw){panic("incomplete observation projection")}
  changes:=[]func(map[string]any){
   func(m map[string]any){m["body"]="CANARY"},
   func(m map[string]any){m["reason"]="CANARY"},
@@ -113,6 +155,7 @@ func main(){
   func(m map[string]any){m["native"].(map[string]any)["sample_count"]=-1},
   func(m map[string]any){m["native"].(map[string]any)["facts"]=nil},
   func(m map[string]any){m["native"].(map[string]any)["facts"].(map[string]any)["failure"]="CANARY"},
+  func(m map[string]any){m["native"].(map[string]any)["facts"].(map[string]any)["failure"]="observer-error"},
   func(m map[string]any){m["native"].(map[string]any)["facts"].(map[string]any)["body"]="CANARY"},
   func(m map[string]any){m["native"].(map[string]any)["facts"].(map[string]any)["bytes"]=-1},
   func(m map[string]any){m["native"].(map[string]any)["facts"].(map[string]any)["read_done_order"]=1048577},
@@ -136,10 +179,13 @@ async function main() {
   const unhandled = []
   process.on('unhandledRejection', (error) => unhandled.push(error))
   const b = await completed(), snap = b.snapshot()
+  if (process.argv.includes('--late-only')) { await lateEventsControl(snap); b.snapshot(true); return }
+  if (process.argv.includes('--installer-only')) { b.snapshot(true); await installerFailureControl(); return }
   assert.deepEqual(b.counts, { fetch: 1, read: 2, readerCancel: 1, streamCancel: 1, release: 1 })
   let result = await bind(snap)
   assert(result.eof_before_interruption && result.length_comparable && result.length_matches && result.hooks_retired)
-  goProjectionControl(result)
+  if (!process.argv.includes('--js-only')) goProjectionControl(result)
+  if (process.argv.includes('--go-only')) { b.snapshot(true); return }
   b.snapshot(true)
   assert.equal(b.window.fetch, b.originalFetch); assert.equal(b.reader.read, b.original.read); assert.equal(b.stream.getReader, b.original.getReader)
   console.log('locked PW init serialization; original fetch/read/cancel Promise identity, EOF and restoration: PASS')
@@ -205,5 +251,7 @@ async function main() {
   finished.resolve(null); await finished.promise; await continued.stop(); assert.equal(continueClock.timers.size, 0)
   await new Promise(setImmediate); assert.equal(unhandled.length, 0)
   console.log('samples continue while an independent finished promise is pending; no unhandled observer rejections: PASS')
+  await lateEventsControl(snap)
+  await installerFailureControl()
 }
 main().catch((error) => { console.error(error); process.exitCode = 1 })

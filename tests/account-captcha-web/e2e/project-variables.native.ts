@@ -158,21 +158,27 @@ export function installVariableNativeDiagnostic() {
             },
           )
           .catch(() => {
-            if (!retired) failed("observer-error");
+            if (!retired) facts.failure = "observer-error";
           });
       }
       function wrap(object: any, key: string, replacement: any) {
-        const descriptor = Object.getOwnPropertyDescriptor(object, key);
-        Object.defineProperty(object, key, {
-          configurable: true,
-          writable: true,
-          value: replacement,
-        });
-        restorers.push(() => {
-          if (object[key] !== replacement) return;
-          if (descriptor) Object.defineProperty(object, key, descriptor);
-          else delete object[key];
-        });
+        try {
+          const descriptor = Object.getOwnPropertyDescriptor(object, key);
+          Object.defineProperty(object, key, {
+            configurable: true,
+            writable: true,
+            value: replacement,
+          });
+          restorers.push(() => {
+            if (object[key] !== replacement) return;
+            if (descriptor) Object.defineProperty(object, key, descriptor);
+            else delete object[key];
+          });
+        } catch {
+          // Installation is diagnostic-only. Preserve an already successful
+          // original getReader(), even if its reader cannot be instrumented.
+          facts.failure = "observer-error";
+        }
       }
       observe(
         pending,
@@ -237,9 +243,17 @@ export function installVariableNativeDiagnostic() {
                 failed("get-reader-threw");
                 throw error;
               }
-              const read = reader.read,
-                cancel = reader.cancel,
+              let read: typeof reader.read,
+                cancel: typeof reader.cancel,
+                release: typeof reader.releaseLock;
+              try {
+                read = reader.read;
+                cancel = reader.cancel;
                 release = reader.releaseLock;
+              } catch {
+                facts.failure = "observer-error";
+                return reader;
+              }
               wrap(
                 reader,
                 "read",
@@ -456,6 +470,7 @@ export function nativeConsumption(page: Page) {
   }
   return {
     request(request: Request) {
+      if (stopped) return;
       const url = new URL(request.url());
       if (observed.size < 4096)
         observed.set(request, {
@@ -467,6 +482,7 @@ export function nativeConsumption(page: Page) {
         });
     },
     response(response: Response) {
+      if (stopped) return;
       const row = observed.get(response.request());
       if (row) {
         row.response = response;
@@ -512,6 +528,7 @@ export function nativeConsumption(page: Page) {
         return { ...result, binding: "mismatch" };
       const f = matched.facts;
       const eof =
+        f.failure !== "observer-error" &&
         f.read_done &&
         !f.cancel_before_eof &&
         !f.signal_aborted_at_start &&

@@ -616,7 +616,7 @@ func (n variableWebNativeDiagnostic) valid() bool {
 			return false
 		}
 	}
-	eof := f.ReadDone && f.ReadDoneOrder > 0 && !f.CancelBeforeEOF && !f.SignalAbortedAtStart
+	eof := f.Failure != "observer-error" && f.ReadDone && f.ReadDoneOrder > 0 && !f.CancelBeforeEOF && !f.SignalAbortedAtStart
 	for _, order := range []int64{f.AbortOrder, f.ReadRejectedOrder, f.ReaderCancelOrder, f.StreamCancelOrder} {
 		if order != 0 && order <= f.ReadDoneOrder {
 			eof = false
