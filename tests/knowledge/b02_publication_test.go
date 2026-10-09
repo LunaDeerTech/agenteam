@@ -41,6 +41,12 @@ func newPublicationFixture(t *testing.T) *ownerTreeFixture {
 }
 
 func publicationFixtureFromTree(t *testing.T, x *ownerTreeFixture) *ownerTreeFixture {
+	return publicationFixtureWithRuntime(t, x, nil)
+}
+
+// The nil option retains the original Service-only fixture. Process recovery
+// alone supplies a shared spool/bucket and binds the real D05 Runtime/guard.
+func publicationFixtureWithRuntime(t *testing.T, x *ownerTreeFixture, runtime *publicationProcessRuntime) *ownerTreeFixture {
 	t.Helper()
 	accounts := x.deps.Activity.(*account.Authority)
 	knowledgeFacts, err := knowledge.NewProjectAuditAuthority(x.raw)
@@ -80,8 +86,12 @@ func publicationFixtureFromTree(t *testing.T, x *ownerTreeFixture) *ownerTreeFix
 		t.Fatal(err)
 	}
 	bucket := "d05-" + remote.Nonce[:12] + "-" + suffix
-	if err = s3.MakeBucket(knowledgeContext(t), bucket, minio.MakeBucketOptions{Region: "us-east-1"}); err != nil {
-		t.Fatal("owned bucket creation failed")
+	if runtime != nil && runtime.bucket != "" {
+		bucket = runtime.bucket
+	} else {
+		if err = s3.MakeBucket(knowledgeContext(t), bucket, minio.MakeBucketOptions{Region: "us-east-1"}); err != nil {
+			t.Fatal("owned bucket creation failed")
+		}
 	}
 	values := map[string]string{"ENDPOINT": remote.Endpoint(), "BUCKET": bucket, "ACCESS_KEY": remote.AccessKey, "SECRET_KEY": remote.SecretKey, "TLS_MODE": "verify-full", "CA_FILE": remote.CAFile}
 	config, err := object.LoadStorageConfig(func(name string) (string, bool) {
@@ -99,28 +109,50 @@ func publicationFixtureFromTree(t *testing.T, x *ownerTreeFixture) *ownerTreeFix
 	if err != nil {
 		t.Fatal(err)
 	}
-	spool, err := object.OpenSpool(filepath.Join(t.TempDir(), "spool"), process)
+	spoolPath := ""
+	if runtime != nil {
+		spoolPath = runtime.spool
+	} else {
+		spoolPath = filepath.Join(t.TempDir(), "spool")
+	}
+	spool, err := object.OpenSpool(spoolPath, process)
 	if err != nil {
 		_ = backend.Close()
 		t.Fatal(err)
 	}
-	objects, err := object.New(x.raw, backend, spool, auditing, object.Authorizations{Planner: authority, Resources: authority, Read: authority, Gate: authority, Cleanup: authority})
+	authorizations := object.Authorizations{Planner: authority, Resources: authority, Read: authority, Gate: authority, Cleanup: authority}
+	if runtime != nil {
+		runtime.bucket = bucket
+		runtime.guard, err = object.OpenProcessGuard(spool, process)
+		if err != nil {
+			_ = spool.Close()
+			_ = backend.Close()
+			t.Fatal("owned ProcessGuard construction", err)
+		}
+		authorizations.Processes = runtime.guard
+		x.deps.Processes = knowledgeGuardProcess{x.deps.Processes.CurrentProcess(), runtime.guard}
+	}
+	objects, err := object.New(x.raw, backend, spool, auditing, authorizations)
 	if err != nil {
 		_ = spool.Close()
 		_ = backend.Close()
 		t.Fatal(err)
 	}
-	t.Cleanup(func() {
-		objects.StopAdmission()
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-		defer cancel()
-		if err := objects.Drain(ctx); err != nil {
-			_ = objects.Force(ctx)
-			t.Error("Object actual drain", err)
+	if runtime != nil {
+		runtime.initialize(t, objects, config)
+	} else {
+		t.Cleanup(func() {
+			objects.StopAdmission()
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			defer cancel()
+			if err := objects.Drain(ctx); err != nil {
+				_ = objects.Force(ctx)
+				t.Error("Object actual drain", err)
+			}
+		})
+		if err = objects.Initialize(knowledgeContext(t)); err != nil {
+			t.Fatal("Object initialization", err)
 		}
-	})
-	if err = objects.Initialize(knowledgeContext(t)); err != nil {
-		t.Fatal("Object initialization", err)
 	}
 	sources, err := knowledge.NewSourceResolver(x.raw, authority, objects)
 	if err != nil {
