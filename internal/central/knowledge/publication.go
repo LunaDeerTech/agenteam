@@ -798,7 +798,7 @@ func (s *Service) stoppedPublication(ctx context.Context, old *publicationWork) 
 	if old.process == s.state().deps.Processes.CurrentProcess() {
 		st := s.state()
 		st.mu.Lock()
-		joined, ok := st.joinedPublications[old.command]
+		joined, ok := st.joinedPublications[old.attempt]
 		st.mu.Unlock()
 		if !ok || !joined.equal(*old) {
 			return nil, fault(f.ResourceBusy)
@@ -981,14 +981,16 @@ func (r *publicationRetirement) join() error {
 	st := r.service.state()
 	st.mu.Lock()
 	if st.joinedPublications == nil {
-		st.joinedPublications = make(map[f.ID[command]]publicationWork)
+		st.joinedPublications = make(map[f.ID[publicationAttempt]]publicationWork)
 	}
-	// Preserve the newest locally joined attempt. An old finalizer cannot
-	// overwrite a newer fence that has already completed independently.
-	old, exists := st.joinedPublications[r.work.command]
-	if !exists || old.fence < r.work.fence || old.equal(r.work) {
-		st.joinedPublications[r.work.command] = r.work
+	// A failed/Unknown claim can be absent, so its next physical attempt may
+	// start at the same fence. Keep exact attempt identities independently;
+	// neither a late old finalizer nor equal fences can replace another proof.
+	if old, exists := st.joinedPublications[r.work.attempt]; exists && !old.equal(r.work) {
+		st.mu.Unlock()
+		return internal(nil)
 	}
+	st.joinedPublications[r.work.attempt] = r.work
 	st.mu.Unlock()
 	r.joined = true
 	r.resources = nil
@@ -1005,7 +1007,7 @@ func (s *Service) checkpointPublicationJoin(ctx context.Context, actor id.Actor,
 		return fault(f.DependencyUnbound)
 	}
 	st.mu.Lock()
-	joined, ok := st.joinedPublications[work.command]
+	joined, ok := st.joinedPublications[work.attempt]
 	st.mu.Unlock()
 	if !ok || !joined.equal(work) || record == nil || record.id != work.command || record.project != work.project {
 		return fault(f.ResourceBusy)
@@ -1068,8 +1070,8 @@ func (s *Service) checkpointPublicationJoin(ctx context.Context, actor id.Actor,
 		return err
 	}
 	st.mu.Lock()
-	if current, ok := st.joinedPublications[work.command]; ok && current.equal(work) {
-		delete(st.joinedPublications, work.command)
+	if current, ok := st.joinedPublications[work.attempt]; ok && current.equal(work) {
+		delete(st.joinedPublications, work.attempt)
 	}
 	st.mu.Unlock()
 	return nil

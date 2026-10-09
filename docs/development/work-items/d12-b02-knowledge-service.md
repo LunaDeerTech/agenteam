@@ -158,6 +158,10 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ## 8. 本轮实际实施与验证
 
+作者公开 TitleContent98064 四子完整 PASS：Go2.44s、driver15.208s、outer74.861s actual0；Go751688／driver751026 实际 Wait0，精确 PG container/network 双退役、desc 两次为空、hostTCP 双 delta_empty、inputs_unchanged=True，owned 目录现场仅0600 owned.json，真实窗口已释放。日志 `output/ai/knowledge/pg/pg-0cbb0132059c4b24a93e0b8e507e0098.log`。本轮实证公开 title-only／真实 Account→Project→Knowledge producer→Outbox／固定 receipt与事件／final Activity 后全回滚／Move 阶段交错及撤销门禁；不替代完整正文发布、business-source lease、真实 D05／cleanup、SQL Unknown 或独立风险验收。
+
+恢复机制后继纯控制73279发现 mustfix：原 claim 实际缺行时，下一物理 attempt 可仍从 fence1 起步，原按 command 保存单一 join 证明会拒绝同 fence 新 attempt 的实际退休。正向已存在 prior-row/fence递增通过，缺行控制返回 RESOURCE_BUSY；这是内存机制反例，未执行真实 COMMIT Unknown。ignored 最小候选按 attempt 独立保存并继续校核完整 command/project/process/source/fence，限定 race33319／40821 实际0，物理生产源在本次Title窗口保持未改；后续落正式源／独审后才计返修接受。
+
 公开 title-only 的最小真实 PG 小组已准备，`tests/knowledge/b02_audit_event_test.go` 的 `TestKnowledgeB02TitleContent` 四子覆盖变更／固定事件与 receipt／原命令及 no-op／归档重放，真实 Activity 成功写入后注入失败导致同 Tx canonical／Outbox／receipt／Activity 全回滚并用原事件重试，准备与 final 之间实际 Move 不丢 parent，以及初始 foreign／错版本与 final Session 撤销。Outbox 使用真实 Account、Project、Knowledge producer 和同 Store；没有 Object I/O、Audit 或 dispatcher 的假成功声明。`b02_owner_tree_test.go` 仅暴露原 Dependencies，原四项断言不改；本次是新的编译闭包，旧 OwnerTree32137 证据不升级为本版重验。首 race-c25575 的测试 Lookup／Creator 字段误写 FAIL 后已按实际公开接口修正，SQL 末端状态亦核为 completed；最终 race-c24829、精确 discovery／vet19054 actual0。尚未真实运行；精确命令、固定原预算和冻结边界见 current。本组通过也只证明公开标题路径，不能替代业务来源、D05 内容发布／cleanup、真实 Unknown 或完整 B02。
 
 Project Object Audit 五源随后获未参与者有限独审接受，无 mustfix；本人独立 overlay race19224 actual0（3 子）验证同 Tx 生命周期／初始化重读、真实 Object checker 对无私有 witness 的四个合法 action/ordinal 组合拒绝，以及错 cause/ordinal/Service/foreign/受控 ended Tx 不委托。原 ctx/key/Unknown 引用原因保留。该树没有 Variables 分派，不冒其回归；此为静审与受控实际源结果，不证明真实 D05 正向／PG／stale Owner 联合授权或 Object runtime join。

@@ -1262,10 +1262,124 @@ func TestPublicationJoinCheckpointKeepsProofAcrossUnknownAndChecksOriginalComman
 	if err = s.checkpointPublicationJoin(context.Background(), actor, record, work); err != nil || store.updates != 1 {
 		t.Fatal("committed checkpoint could not be safely confirmed", err)
 	}
-	if _, exists := s.state().joinedPublications[work.command]; exists {
+	if _, exists := s.state().joinedPublications[work.attempt]; exists {
 		t.Fatal("confirmed durable join retained unnecessary memory proof")
 	}
 	if _, err = nextPublicationWork(record, nil, work.process, &store.work, nil); err != nil {
 		t.Fatal("durable joined attempt could not be retried", err)
+	}
+}
+
+func TestPublicationUnknownAbsentSameFenceControl(t *testing.T) {
+	for _, absent := range []bool{false, true} {
+		name := "confirmed_prior_row"
+		if absent {
+			name = "unknown_prior_claim_absent"
+		}
+		t.Run(name, func(t *testing.T) {
+			s, record, first, done := retirementFixture(t)
+			prior, err := s.publicationRetirement(first, done)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err = prior.join(); err != nil {
+				t.Fatal(err)
+			}
+			previous := first.clone()
+			previous.phase = "joined"
+			old := &previous
+			if absent {
+				old = nil
+			}
+			// This is the distinct in-memory result of a next claim after SQL has
+			// confirmed no prior durable row; it is not a PG Unknown simulation.
+			second, err := nextPublicationWork(record, nil, first.process, old, nil)
+			if err != nil || second.attempt == first.attempt {
+				t.Fatal("fresh attempt", err)
+			}
+			if absent && second.fence != first.fence {
+				t.Fatal("absent claim should use initial fence")
+			}
+			retirement, err := s.publicationRetirement(second, func() {})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err = retirement.join(); err != nil {
+				t.Fatal(err)
+			}
+			proof, err := s.stoppedPublication(context.Background(), &second)
+			if err != nil || proof == nil || !proof.original.equal(second) {
+				t.Fatal("actual second retirement lost its exact proof", err)
+			}
+		})
+	}
+}
+
+func TestPublicationSameFenceCheckpointCannotDeleteOtherProof(t *testing.T) {
+	s, record, first, done := retirementFixture(t)
+	_, actor, _ := queryFixture(t)
+	record.user, _ = f.ParseID[id.User](actor.Details().UserID)
+	record.name, record.key, record.digest = kc.Create, "same-fence-checkpoint", ob.DigestBytes([]byte("intent"))
+	record.created, _ = f.NewInstant(time.Now())
+	a, err := s.publicationRetirement(first, done)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = a.join(); err != nil {
+		t.Fatal(err)
+	}
+	second, err := nextPublicationWork(record, nil, first.process, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := s.publicationRetirement(second, func() {})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = b.join(); err != nil {
+		t.Fatal(err)
+	}
+	store := &publicationCheckpointStore{record: record, work: second}
+	s.state().store = store
+	if err = s.checkpointPublicationJoin(context.Background(), actor, record, first); err == nil || store.updates != 0 {
+		t.Fatal("old attempt checkpoint altered newer durable work", err)
+	}
+	if proof, err := s.stoppedPublication(context.Background(), &second); err != nil || proof == nil || !proof.original.equal(second) {
+		t.Fatal("old checkpoint erased new local proof", err)
+	}
+	if err = s.checkpointPublicationJoin(context.Background(), actor, record, second); err != nil || store.updates != 1 {
+		t.Fatal("new proof cannot project its exact durable work", err)
+	}
+	if proof, err := s.stoppedPublication(context.Background(), &second); err == nil || proof != nil {
+		t.Fatal("confirmed projection retained unnecessary new local proof")
+	}
+	if proof, err := s.stoppedPublication(context.Background(), &first); err != nil || proof == nil || !proof.original.equal(first) {
+		t.Fatal("new checkpoint incorrectly erased different attempt", err)
+	}
+}
+func TestPublicationAttemptCollisionRejectsDifferentIdentity(t *testing.T) {
+	s, _, first, done := retirementFixture(t)
+	a, err := s.publicationRetirement(first, done)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = a.join(); err != nil {
+		t.Fatal(err)
+	}
+	wrong := first.clone()
+	wrong.command = newID[command](t)
+	called := false
+	b, err := s.publicationRetirement(wrong, func() { called = true })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = b.join(); err == nil || called {
+		t.Fatal("same attempt different command replaced proof or retired call", err)
+	}
+	if proof, err := s.stoppedPublication(context.Background(), &first); err != nil || proof == nil || !proof.original.equal(first) {
+		t.Fatal("collision destroyed original proof", err)
+	}
+	if proof, err := s.stoppedPublication(context.Background(), &wrong); err == nil || proof != nil {
+		t.Fatal("wrong command consumed original proof")
 	}
 }
