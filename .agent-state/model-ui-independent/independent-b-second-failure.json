@@ -1,0 +1,130 @@
+{
+  "protocol": "project-owner-models.v1",
+  "source_run": "owned-b-82067b410be5463fa41c5a2012aff71e",
+  "case": "b",
+  "command": "python3 /workspace/agenteam/.agent-state/model-ui-independent/run-independent.py --case b",
+  "actual_tool_session": 13929,
+  "actual_outer_command_exit": 1,
+  "outer_actual_wait_obtained": true,
+  "actual_go_top_seconds": 55.96,
+  "terminal": {
+    "started": true,
+    "retirement_complete": true,
+    "direct_actual_wait": true,
+    "direct_exit": 1,
+    "adopted_actual_waits": [
+      {
+        "pid": 251451,
+        "status": 0
+      },
+      {
+        "pid": 251453,
+        "status": 0
+      },
+      {
+        "pid": 251456,
+        "status": 0
+      },
+      {
+        "pid": 251457,
+        "status": 0
+      }
+    ],
+    "adopted_wait_complete": true,
+    "watchdog_joined": true,
+    "observer_joined": true,
+    "top_within_120_seconds": true,
+    "resources": 7,
+    "resource_shape_valid": true,
+    "exact_absent_observations": 2,
+    "runtime_empty": true,
+    "private_removed": true,
+    "tcp_empty_observations": 2,
+    "exact_top_pass": false,
+    "elapsed_seconds": 142.337207898001,
+    "inputs_unchanged": true,
+    "case": "b",
+    "selector": "^TestIndependentProjectModelsWebCurrentAuthorityArchivedRecovery$",
+    "exit": 1,
+    "assets_exclusively_private": true
+  },
+  "browser_failure": {
+    "case": "b",
+    "status": "timedOut",
+    "error_count": 1,
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "locations": []
+      }
+    ]
+  },
+  "browser_step": {
+    "case": "b",
+    "step": "login"
+  },
+  "browser_exit": {
+    "context_done": false,
+    "exit_code": 1
+  },
+  "safe_responses": [
+    {
+      "sequence": 1,
+      "source": "setup",
+      "operation": "createProjectModelProvider",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "sequence": 2,
+      "source": "setup",
+      "operation": "createProjectModelProvider",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "sequence": 3,
+      "source": "setup",
+      "operation": "createProjectModel",
+      "method": "POST",
+      "status": 200
+    }
+  ],
+  "diagnostic_limits": {
+    "last_step_is_coarse": true,
+    "last_step_covers": [
+      "login",
+      "initial_session",
+      "initial_project_navigation"
+    ],
+    "exact_await_substep_recorded": false,
+    "archive_locator_repair_reached": false,
+    "no_login_or_session_specific_cause_inferred": true,
+    "no_raw_body_or_credentials_copied": true,
+    "no_retry": true
+  },
+  "post_terminal_observation": {
+    "independent_active_marker_absent": true,
+    "regression_active_marker_absent": true,
+    "owned_nonce_private_root_absent": true,
+    "resource_window_released": true
+  },
+  "limited_resource_observation": {
+    "time_scope": "post-B2 only; no per-run start baseline",
+    "cpu_quota_cores": 4,
+    "memory_limit_gib": 16,
+    "memory_current_bytes": 3362910208,
+    "oom_events": 0,
+    "oom_kill_events": 0,
+    "one_five_fifteen_minute_load": [
+      0.33,
+      0.7,
+      0.75
+    ],
+    "observed_live_compiler_or_browser_processes": 0,
+    "cumulative_throttling_not_attributed_to_run": true,
+    "historical_cpu_or_scheduler_cause_established": false
+  },
+  "followup": "add stable existing await start/completion observations; preserve original Promise, requests, gates and budgets"
+}

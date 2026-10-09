@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"net/http"
 	"net/url"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -51,7 +52,7 @@ func parseQuery(r *http.Request, kind resource) (query, error) {
 			if _, exists := values[key]; exists {
 				return q, invalidInput()
 			}
-			if key != "limit" && key != "cursor" && !(kind == sprints && key == "milestone_id") && !(kind == blockers && key == "status") && !(kind == tasks && strings.Contains("|state|priority|type|milestone_id|sprint_id|text|assignee_agent_id|", "|"+key+"|")) {
+			if key != "limit" && key != "cursor" && !(kind == sprints && key == "milestone_id") && !(kind == blockers && key == "status") && !(kind == tasks && slices.Contains([]string{"state", "priority", "type", "milestone_id", "sprint_id", "text", "assignee_agent_id"}, key)) {
 				return q, invalidInput()
 			}
 			values[key] = value

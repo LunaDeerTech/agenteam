@@ -1,6 +1,6 @@
 # D11 Owner Work Planning HTTP 与默认生产根
 
-修订：rev2，2026-10-09，**SPEC已独立接受，分页及错误投影实施中；HTTP/root尚未完成或动态验收**。
+修订：rev2，2026-10-09，**SPEC已独立接受，分页作者及独立动态已通过；HTTP/root接线可构建，完整动态验收尚未完成**。
 
 ## 1. 完整结果与真实前置
 
@@ -199,4 +199,4 @@ PG/native HTTP/真实root资源必须等root分配独占窗口。Task Planning�
 
 ## 9. 当前可证状态
 
-已按正式计划及实际构造/授权/根接缝确认依赖就绪，root授予上述写域。rev1独审暂不接受：遗漏九码Problem映射、混淆graceful/forced退出、详情query及framing边界不全、自然期限/EOF验收不够明确；rev2逐项修正并采用现process harness，已获独立差异审查接受，无剩余must-fix。分页四源及作者真实PG测试已闭合，限定pure/race/vet与integration race编译、精确一个top发现通过；独立分页产品静审无must-fix，三个独立动态场景的probe也已race编译并精确发现。作者与独立首编译因作者测试直接比较含func的LockKey失败，原失败保留；修复仅改为正式CompareLockKeys。九码Problem/schema已通过限定pure/race/vet及原错误/schema回归，独立差异静审接受。根生命周期库片段限定pure/race通过，尚未接入account/root路由。HTTP实施进行中；作者分页首轮整体FAIL（4子项中3PASS）：取消子项在Reader持Schedule SH时等待writer后阶段User EX，实际writer先等待discovery Schedule EX，因而5s内未到观测点；仅修测试锁观测及提前返回诊断，预算和产品不变。该轮Go实际退出1/9.52s、driver实际退出1/17.15s，外层实际退出1/92.472s且输入不变；两自有ID双退役/runtime双空齐，但hostTCP原尾仍1行delta，原尾FAIL保留。随后仅现场核到该轮端口/PID无存活，不将后验clear补原PASS。观测最小修复已独立差异接受；作者第二轮四子项完整PASS（Go4.54s、driver14.006s、外层73.761s，均实际退出0），两自有ID/runtime/hostTCP双清及输入不变齐。此结果不改首轮两个FAIL。独立分页尚未动态执行，没有本卡HTTP或默认根动态通过结论。全局进度与实际资源窗口由任务台账/分支记录维护，本卡不复制逐轮聊天、日志或全树哈希。
+已按正式计划及实际构造/授权/根接缝确认依赖就绪，root授予上述写域。rev1独审暂不接受：遗漏九码Problem映射、混淆graceful/forced退出、详情query及framing边界不全、自然期限/EOF验收不够明确；rev2逐项修正并采用现process harness，已获独立差异审查接受，无剩余must-fix。分页四源及作者真实PG测试已闭合，限定pure/race/vet与integration race编译、精确一个top发现通过；独立分页产品静审无must-fix，三个独立动态场景的probe也已race编译并精确发现。作者与独立首编译因作者测试直接比较含func的LockKey失败，原失败保留；修复仅改为正式CompareLockKeys。九码Problem/schema已通过限定pure/race/vet及原错误/schema回归，独立差异静审接受。根生命周期库片段限定pure/race通过，尚未接入account/root路由。HTTP实施进行中；作者分页首轮整体FAIL（4子项中3PASS）：取消子项在Reader持Schedule SH时等待writer后阶段User EX，实际writer先等待discovery Schedule EX，因而5s内未到观测点；仅修测试锁观测及提前返回诊断，预算和产品不变。该轮Go实际退出1/9.52s、driver实际退出1/17.15s，外层实际退出1/92.472s且输入不变；两自有ID双退役/runtime双空齐，但hostTCP原尾仍1行delta，原尾FAIL保留。随后仅现场核到该轮端口/PID无存活，不将后验clear补原PASS。观测最小修复已独立差异接受；作者第二轮四子项完整PASS（Go4.54s、driver14.006s、外层73.761s，均实际退出0），两自有ID/runtime/hostTCP双清及输入不变齐。此结果不改首轮两个FAIL。未参与Work实现的Model负责人本人执行冻结的独立分页三场景，完整PASS（Go4.55s、外层72.463s），实际Go/driver/外层Wait、两精确资源双退役、runtime/hostTCP双空及输入不变齐；分页子能力据作者复验及独立运行限定接受。HTTP五产品源与默认根接线已可构建，19个HTTP pure top的race、正式编码schema与vet通过，根接线限定pure/race/vet通过；自然期限native三top已编译/发现但未运行。HTTP额外两个输入缺口（组合query键、空Content-Encoding）先有真实负控失败，最小修后通过，原失败保留。公开schema已独立有限接受；真实cmd根21能力基线和根三命令持有真实PG Tx的graceful/force测试均仅race编译完成，后者精确发现一个top。仍没有本卡HTTP/native或默认根动态通过结论。全局进度与实际资源窗口由任务台账/分支记录维护，本卡不复制逐轮聊天、日志或全树哈希。

@@ -40,6 +40,11 @@ func decodeIntent(w http.ResponseWriter, r *http.Request, route route) (intent, 
 	if r.URL.RawQuery != "" || r.URL.ForceQuery {
 		return out, invalidInput()
 	}
+	for name := range r.Header {
+		if strings.EqualFold(name, "Content-Encoding") {
+			return out, f.NewFault(f.UnsupportedMediaType, f.NotStarted)
+		}
+	}
 	key, err := commandKey(r)
 	if err != nil {
 		return out, err

@@ -273,9 +273,11 @@ async function ipc(action: string, args: Row): Promise<Row> {
   );
   publish("project-models-ipc.json", envelope, directory);
   const name = `project-models-ack-${sequence}.json`;
-  await expect
-    .poll(() => existsSync(join(directory, name)), { timeout: 8000 })
-    .toBe(true);
+  await wait("independent-b-ipc-to-be-a", () =>
+    expect
+      .poll(() => existsSync(join(directory, name)), { timeout: 8000 })
+      .toBe(true),
+  );
   const ack = exact(privateJSON(name), [
     "protocol",
     "input_hash",
@@ -297,14 +299,19 @@ async function ipc(action: string, args: Row): Promise<Row> {
   return row(ack.result);
 }
 async function snapshot(key: Key) {
-  const v = exact(await ipc("snapshot", { project: key }), [
-    "project",
-    "current",
-    "history",
-    "reference_presence",
-    "origins",
-    "fixture_only",
-  ]);
+  const v = exact(
+    await wait("independent-b-snapshot-ipc-b", () =>
+      ipc("snapshot", { project: key }),
+    ),
+    [
+      "project",
+      "current",
+      "history",
+      "reference_presence",
+      "origins",
+      "fixture_only",
+    ],
+  );
   const p = exact(v.project, [
     "project_id",
     "version",
@@ -442,15 +449,18 @@ function origin(
   return receipt;
 }
 async function counts() {
-  const v = exact(await ipc("counts", {}), [
-    "operations",
-    "session",
-    "server",
-    "controls",
-    "browser_eof",
-    "schema_bodies",
-    "client_bodies",
-  ]);
+  const v = exact(
+    await wait("independent-b-counts-ipc-c", () => ipc("counts", {})),
+    [
+      "operations",
+      "session",
+      "server",
+      "controls",
+      "browser_eof",
+      "schema_bodies",
+      "client_bodies",
+    ],
+  );
   const attachment = JSON.parse(
     readFileSync(
       join(
@@ -515,13 +525,15 @@ async function arm(
   effect: "after_complete_cut" | "after_complete_disconnect",
 ) {
   const v = exact(
-    await ipc("arm", {
-      operation,
-      project,
-      target_id: target,
-      query: null,
-      effect,
-    }),
+    await wait("independent-b-arm-ipc-d", () =>
+      ipc("arm", {
+        operation,
+        project,
+        target_id: target,
+        query: null,
+        effect,
+      }),
+    ),
     ["arm_id", "state"],
   );
   need(/^a[0-9]{4}$/.test(v.arm_id) && v.state === "armed", "INDEPENDENT_ARM");
@@ -529,26 +541,33 @@ async function arm(
 }
 async function lostControl(armID: string) {
   let v: Row = {};
-  await expect
-    .poll(
-      async () => {
-        v = exact(await ipc("control-state", { arm_id: armID }), [
-          "arm_id",
-          "request_token",
-          "origin_token",
-          "state",
-          "held",
-          "release_requested",
-          "upstream_complete",
-          "safe_admitted",
-          "effect_applied",
-          "joined",
-        ]);
-        return v.joined === true;
-      },
-      { intervals: [30, 60, 100] },
-    )
-    .toBe(true);
+  await wait("independent-b-lost-control-to-be-e", () =>
+    expect
+      .poll(
+        async () => {
+          v = exact(
+            await wait("independent-b-lost-control-ipc-f", () =>
+              ipc("control-state", { arm_id: armID }),
+            ),
+            [
+              "arm_id",
+              "request_token",
+              "origin_token",
+              "state",
+              "held",
+              "release_requested",
+              "upstream_complete",
+              "safe_admitted",
+              "effect_applied",
+              "joined",
+            ],
+          );
+          return v.joined === true;
+        },
+        { intervals: [30, 60, 100] },
+      )
+      .toBe(true),
+  );
   need(
     v.arm_id === armID &&
       token(v.request_token) &&
@@ -573,19 +592,23 @@ async function responseBody(
   status: number,
 ) {
   let matches: Fact[] = [];
-  await expect
-    .poll(async () => {
-      matches = (await native(page))
-        .slice(start)
-        .filter((f) => f.method === method && f.path === path);
-      return (
-        matches.length === 1 &&
-        matches[0]!.eof &&
-        matches[0]!.ended &&
-        matches[0]!.released
-      );
-    })
-    .toBe(true);
+  await wait("independent-b-response-body-to-be-g", () =>
+    expect
+      .poll(async () => {
+        matches = (
+          await wait("independent-b-response-body-native-h", () => native(page))
+        )
+          .slice(start)
+          .filter((f) => f.method === method && f.path === path);
+        return (
+          matches.length === 1 &&
+          matches[0]!.eof &&
+          matches[0]!.ended &&
+          matches[0]!.released
+        );
+      })
+      .toBe(true),
+  );
   const fact = matches[0]!;
   need(
     fact.status === status && token(fact.token),
@@ -622,14 +645,16 @@ async function responseBody(
 }
 async function loss(page: Page, control: Row, maximum: 0 | 1) {
   let facts: Fact[] = [];
-  await expect
-    .poll(async () => {
-      facts = (await native(page)).filter(
-        (f) => f.token === control.request_token,
-      );
-      return facts.length === 1 && facts[0]!.ended;
-    })
-    .toBe(true);
+  await wait("independent-b-loss-to-be-i", () =>
+    expect
+      .poll(async () => {
+        facts = (
+          await wait("independent-b-loss-native-j", () => native(page))
+        ).filter((f) => f.token === control.request_token);
+        return facts.length === 1 && facts[0]!.ended;
+      })
+      .toBe(true),
+  );
   const f = facts[0]!;
   need(
     f.status === 200 &&
@@ -649,8 +674,16 @@ async function loss(page: Page, control: Row, maximum: 0 | 1) {
 }
 async function receipt(scope: Page | Locator) {
   const element = scope.getByLabel("严格执行回执", { exact: true });
-  await expect(element).toBeVisible();
-  return row(JSON.parse((await element.textContent())!));
+  await wait("independent-b-receipt-to-be-visible-k", () =>
+    expect(element).toBeVisible(),
+  );
+  return row(
+    JSON.parse(
+      (await wait("independent-b-receipt-text-content-l", () =>
+        element.textContent(),
+      ))!,
+    ),
+  );
 }
 function sameReceipt(actual: Row, expected: Row) {
   exact(actual, Object.keys(expected));
@@ -664,7 +697,9 @@ async function fillSecret(scope: Locator) {
   let secret = bytes.toString("base64url");
   bytes.fill(0);
   try {
-    await scope.getByLabel(/^新凭据材料(?:\s*\*)?$/).fill(secret);
+    await wait("independent-b-fill-secret-fill-m", () =>
+      scope.getByLabel(/^新凭据材料(?:\s*\*)?$/).fill(secret),
+    );
   } catch {
     throw new Error("INDEPENDENT_PRIVATE_INPUT");
   } finally {
@@ -673,20 +708,35 @@ async function fillSecret(scope: Locator) {
 }
 async function secretCleared(scope: Locator) {
   const input = scope.getByLabel(/^新凭据材料(?:\s*\*)?$/);
-  need((await input.inputValue()) === "", "INDEPENDENT_MATERIAL_RETAINED");
-  await expect(input).toHaveAttribute("type", "password");
+  need(
+    (await wait("independent-b-secret-cleared-input-value-n", () =>
+      input.inputValue(),
+    )) === "",
+    "INDEPENDENT_MATERIAL_RETAINED",
+  );
+  await wait("independent-b-secret-cleared-to-have-attribute-o", () =>
+    expect(input).toHaveAttribute("type", "password"),
+  );
 }
 async function login(page: Page, m: Row) {
-  await page.goto("/login");
-  await expect(page.locator("#login-email")).toBeVisible();
+  await wait("independent-b-login-goto-p", () => page.goto("/login"));
+  await wait("independent-b-login-to-be-visible-q", () =>
+    expect(page.locator("#login-email")).toBeVisible(),
+  );
   try {
-    await page.locator("#login-email").fill(m.actors.owner.email);
-    await page.locator("#login-password").fill(m.actors.owner.password);
+    await wait("independent-b-login-fill-r", () =>
+      page.locator("#login-email").fill(m.actors.owner.email),
+    );
+    await wait("independent-b-login-fill-s", () =>
+      page.locator("#login-password").fill(m.actors.owner.password),
+    );
   } catch {
     throw new Error("INDEPENDENT_PRIVATE_LOGIN");
   }
-  await button(page, "登录").click();
-  await expect(button(page, "退出登录")).toBeEnabled();
+  await wait("independent-b-login-click-t", () => button(page, "登录").click());
+  await wait("independent-b-login-to-be-enabled-u", () =>
+    expect(button(page, "退出登录")).toBeEnabled(),
+  );
 }
 async function session(page: Page) {
   const waiting = page.waitForResponse(
@@ -695,11 +745,20 @@ async function session(page: Page) {
       r.request().method() === "GET" &&
       r.status() === 200,
   );
-  await page.evaluate(() => dispatchEvent(new PageTransitionEvent("pageshow")));
-  const response = await waiting;
-  need((await response.finished()) === null, "INDEPENDENT_SESSION_EOF");
+  await wait("independent-b-session-evaluate-v", () =>
+    page.evaluate(() => dispatchEvent(new PageTransitionEvent("pageshow"))),
+  );
+  const response = await wait("independent-b-session-waiting-w", () => waiting);
+  need(
+    (await wait("independent-b-session-finished-x", () =>
+      response.finished(),
+    )) === null,
+    "INDEPENDENT_SESSION_EOF",
+  );
   try {
-    const body = row(await response.json());
+    const body = row(
+      await wait("independent-b-session-json-y", () => response.json()),
+    );
     need(
       id(body.user.id) && id(body.session.id) && body.user.role === "user",
       "INDEPENDENT_ORDINARY_OWNER",
@@ -717,65 +776,99 @@ async function openProject(
 ) {
   const p = m.projects[key],
     target = `/${p.username}/${p.normalized_name}/settings/model-providers`;
-  await page.evaluate((target) => {
-    const old = history.state;
-    history.pushState(
-      {
-        ...old,
-        back: location.pathname,
-        current: target,
-        forward: null,
-        position: (old?.position ?? 0) + 1,
-        replaced: false,
-      },
-      "",
-      target,
-    );
-    dispatchEvent(new PopStateEvent("popstate", { state: history.state }));
-  }, target);
+  await wait("independent-b-open-project-evaluate-z", () =>
+    page.evaluate((target) => {
+      const old = history.state;
+      history.pushState(
+        {
+          ...old,
+          back: location.pathname,
+          current: target,
+          forward: null,
+          position: (old?.position ?? 0) + 1,
+          replaced: false,
+        },
+        "",
+        target,
+      );
+      dispatchEvent(new PopStateEvent("popstate", { state: history.state }));
+    }, target),
+  );
   const confirm = page.getByRole("dialog", {
     name: "离开项目模型设置？",
     exact: true,
   });
   if (discardPrepared) {
-    await expect
-      .poll(
-        async () =>
-          (await confirm.isVisible()) ||
-          new URL(page.url()).pathname === target,
+    await wait("independent-b-open-project-to-be-aa", () =>
+      expect
+        .poll(
+          async () =>
+            (await wait("independent-b-open-project-is-visible-ab", () =>
+              confirm.isVisible(),
+            )) || new URL(page.url()).pathname === target,
+        )
+        .toBe(true),
+    );
+    if (
+      await wait("independent-b-open-project-is-visible-ac", () =>
+        confirm.isVisible(),
       )
-      .toBe(true);
-    if (await confirm.isVisible()) await button(confirm, "放弃并离开").click();
+    )
+      await wait("independent-b-open-project-click-ad", () =>
+        button(confirm, "放弃并离开").click(),
+      );
   }
-  await expect(page).toHaveURL(
-    new URL(target, process.env.AGENTEAM_AUTH_WEB_ORIGIN!).href,
+  await wait("independent-b-open-project-to-have-url-ae", () =>
+    expect(page).toHaveURL(
+      new URL(target, process.env.AGENTEAM_AUTH_WEB_ORIGIN!).href,
+    ),
   );
-  await expect(
-    page.getByRole("heading", { name: "Providers", level: 1, exact: true }),
-  ).toBeVisible();
+  await wait("independent-b-open-project-to-be-visible-af", () =>
+    expect(
+      page.getByRole("heading", { name: "Providers", level: 1, exact: true }),
+    ).toBeVisible(),
+  );
   const reread = button(
     page.locator("section.project-providers"),
     "重新读取项目",
   );
-  if (await reread.isVisible()) {
-    await reread.click();
-    await expect(reread).toBeHidden();
+  if (
+    await wait("independent-b-open-project-is-visible-ag", () =>
+      reread.isVisible(),
+    )
+  ) {
+    await wait("independent-b-open-project-click-ah", () => reread.click());
+    await wait("independent-b-open-project-to-be-hidden-ai", () =>
+      expect(reread).toBeHidden(),
+    );
   }
-  await expect(button(page, "创建 Provider")).toBeEnabled();
+  await wait("independent-b-open-project-to-be-enabled-aj", () =>
+    expect(button(page, "创建 Provider")).toBeEnabled(),
+  );
 }
 async function createCredential(page: Page, key: Key) {
-  const before = await snapshot(key),
-    beforeCounts = await counts();
-  await button(page, "创建凭据").click();
+  const before = await wait("independent-b-create-credential-snapshot-ak", () =>
+      snapshot(key),
+    ),
+    beforeCounts = await wait("independent-b-create-credential-counts-al", () =>
+      counts(),
+    );
+  await wait("independent-b-create-credential-click-am", () =>
+    button(page, "创建凭据").click(),
+  );
   const dialog = credentialDialog(page);
-  await fillSecret(dialog);
-  await button(dialog, "创建凭据").click();
-  const r = exact(await receipt(dialog), [
-    "credential_id",
-    "purpose",
-    "version",
-    "deleted",
-  ]);
+  await wait("independent-b-create-credential-fill-secret-an", () =>
+    fillSecret(dialog),
+  );
+  await wait("independent-b-create-credential-click-ao", () =>
+    button(dialog, "创建凭据").click(),
+  );
+  const r = exact(
+    await wait("independent-b-create-credential-receipt-ap", () =>
+      receipt(dialog),
+    ),
+    ["credential_id", "purpose", "version", "deleted"],
+  );
   need(
     id(r.credential_id) &&
       r.purpose === "model" &&
@@ -783,25 +876,52 @@ async function createCredential(page: Page, key: Key) {
       r.deleted === false,
     "INDEPENDENT_CREDENTIAL_CREATE",
   );
-  await secretCleared(dialog);
-  delta(before, await snapshot(key), 0, 1);
-  onlyDelta(beforeCounts, await counts(), { createProjectModelCredential: 1 });
-  await button(dialog.locator("footer"), "关闭").click();
-  await expect(dialog).toBeHidden();
-  await button(page, "管理凭据").click();
+  await wait("independent-b-create-credential-secret-cleared-aq", () =>
+    secretCleared(dialog),
+  );
+  delta(
+    before,
+    await wait("independent-b-create-credential-snapshot-ar", () =>
+      snapshot(key),
+    ),
+    0,
+    1,
+  );
+  onlyDelta(
+    beforeCounts,
+    await wait("independent-b-create-credential-counts-as", () => counts()),
+    { createProjectModelCredential: 1 },
+  );
+  await wait("independent-b-create-credential-click-at", () =>
+    button(dialog.locator("footer"), "关闭").click(),
+  );
+  await wait("independent-b-create-credential-to-be-hidden-au", () =>
+    expect(dialog).toBeHidden(),
+  );
+  await wait("independent-b-create-credential-click-av", () =>
+    button(page, "管理凭据").click(),
+  );
   const manage = credentialDialog(page);
-  await manage
-    .getByRole("textbox", { name: /^Credential ID(?:\s*\*)?$/ })
-    .fill(r.credential_id);
-  const beforeMetadata = (await native(page)).length;
-  await button(manage, "读取凭据信息").click();
+  await wait("independent-b-create-credential-fill-aw", () =>
+    manage
+      .getByRole("textbox", { name: /^Credential ID(?:\s*\*)?$/ })
+      .fill(r.credential_id),
+  );
+  const beforeMetadata = (
+    await wait("independent-b-create-credential-native-ax", () => native(page))
+  ).length;
+  await wait("independent-b-create-credential-click-ay", () =>
+    button(manage, "读取凭据信息").click(),
+  );
   const metadata = exact(
-    await responseBody(
-      page,
-      beforeMetadata,
-      "GET",
-      `/api/v1/projects/${before.project.project_id}/model-credentials/${r.credential_id}`,
-      200,
+    await wait("independent-b-create-credential-response-body-az", () =>
+      responseBody(
+        page,
+        beforeMetadata,
+        "GET",
+        `/api/v1/projects/${before.project.project_id}/model-credentials/${r.credential_id}`,
+        200,
+      ),
     ),
     ["credential_id", "purpose", "version"],
   );
@@ -811,13 +931,17 @@ async function createCredential(page: Page, key: Key) {
       metadata.version === "1",
     "INDEPENDENT_METADATA_VERSION",
   );
-  await expect(
-    manage
-      .locator("dt")
-      .filter({ hasText: /^已读版本$/ })
-      .locator("xpath=following-sibling::dd[1]"),
-  ).toHaveText("1");
-  await expect(button(manage, "轮换凭据")).toBeDisabled();
+  await wait("independent-b-create-credential-to-have-text-ba", () =>
+    expect(
+      manage
+        .locator("dt")
+        .filter({ hasText: /^已读版本$/ })
+        .locator("xpath=following-sibling::dd[1]"),
+    ).toHaveText("1"),
+  );
+  await wait("independent-b-create-credential-to-be-disabled-bb", () =>
+    expect(button(manage, "轮换凭据")).toBeDisabled(),
+  );
   return { id: r.credential_id as string, dialog: manage };
 }
 async function rotateUnknown(
@@ -826,20 +950,31 @@ async function rotateUnknown(
   id: string,
   dialog: Locator,
 ) {
-  const before = await snapshot(key);
-  await fillSecret(dialog);
-  const a = await arm(
-    "updateProjectModelCredential",
-    key,
-    id,
-    "after_complete_cut",
+  const before = await wait("independent-b-rotate-unknown-snapshot-bc", () =>
+    snapshot(key),
   );
-  await button(dialog, "轮换凭据").click();
-  await expect(dialog.getByText(/结果尚未确认/)).toBeVisible();
-  await secretCleared(dialog);
-  const lost = await lostControl(a);
-  await loss(page, lost, 1);
-  const committed = await snapshot(key);
+  await wait("independent-b-rotate-unknown-fill-secret-bd", () =>
+    fillSecret(dialog),
+  );
+  const a = await wait("independent-b-rotate-unknown-arm-be", () =>
+    arm("updateProjectModelCredential", key, id, "after_complete_cut"),
+  );
+  await wait("independent-b-rotate-unknown-click-bf", () =>
+    button(dialog, "轮换凭据").click(),
+  );
+  await wait("independent-b-rotate-unknown-to-be-visible-bg", () =>
+    expect(dialog.getByText(/结果尚未确认/)).toBeVisible(),
+  );
+  await wait("independent-b-rotate-unknown-secret-cleared-bh", () =>
+    secretCleared(dialog),
+  );
+  const lost = await wait("independent-b-rotate-unknown-lost-control-bi", () =>
+    lostControl(a),
+  );
+  await wait("independent-b-rotate-unknown-loss-bj", () => loss(page, lost, 1));
+  const committed = await wait("independent-b-rotate-unknown-snapshot-bk", () =>
+    snapshot(key),
+  );
   delta(before, committed, 0, 1);
   need(
     committed.current.credentials.find((r: Row) => r.credential_id === id)
@@ -862,21 +997,35 @@ async function lookupOnly(
   key: Key,
   family: "credential" | "configuration",
 ) {
-  const before = await snapshot(key),
-    beforeCounts = await counts();
-  const nativeStart = (await native(page)).length;
-  await button(dialog, "查证原请求").click();
-  await expect(dialog.getByLabel("历史观察", { exact: true })).toBeVisible();
-  await expect(dialog.getByText(/结果尚未确认/)).toBeVisible();
-  await expect(dialog.getByLabel("严格执行回执", { exact: true })).toHaveCount(
-    0,
+  const before = await wait("independent-b-lookup-only-snapshot-bl", () =>
+      snapshot(key),
+    ),
+    beforeCounts = await wait("independent-b-lookup-only-counts-bm", () =>
+      counts(),
+    );
+  const nativeStart = (
+    await wait("independent-b-lookup-only-native-bn", () => native(page))
+  ).length;
+  await wait("independent-b-lookup-only-click-bo", () =>
+    button(dialog, "查证原请求").click(),
   );
-  const body = await responseBody(
-    page,
-    nativeStart,
-    "POST",
-    `/api/v1/projects/${before.project.project_id}/${family === "credential" ? "model-credential-commands" : "model-commands"}/lookup`,
-    200,
+  await wait("independent-b-lookup-only-to-be-visible-bp", () =>
+    expect(dialog.getByLabel("历史观察", { exact: true })).toBeVisible(),
+  );
+  await wait("independent-b-lookup-only-to-be-visible-bq", () =>
+    expect(dialog.getByText(/结果尚未确认/)).toBeVisible(),
+  );
+  await wait("independent-b-lookup-only-to-have-count-br", () =>
+    expect(dialog.getByLabel("严格执行回执", { exact: true })).toHaveCount(0),
+  );
+  const body = await wait("independent-b-lookup-only-response-body-bs", () =>
+    responseBody(
+      page,
+      nativeStart,
+      "POST",
+      `/api/v1/projects/${before.project.project_id}/${family === "credential" ? "model-credential-commands" : "model-commands"}/lookup`,
+      200,
+    ),
   );
   exact(
     body,
@@ -896,32 +1045,59 @@ async function lookupOnly(
       pendingOrigins[0].history[family === "credential" ? "result" : "receipt"],
     ),
   );
-  onlyDelta(beforeCounts, await counts(), {
-    [family === "credential"
-      ? "lookupProjectModelCredential"
-      : "lookupProjectModelConfiguration"]: 1,
-  });
-  delta(before, await snapshot(key), 0, 0);
+  onlyDelta(
+    beforeCounts,
+    await wait("independent-b-lookup-only-counts-bt", () => counts()),
+    {
+      [family === "credential"
+        ? "lookupProjectModelCredential"
+        : "lookupProjectModelConfiguration"]: 1,
+    },
+  );
+  delta(
+    before,
+    await wait("independent-b-lookup-only-snapshot-bu", () => snapshot(key)),
+    0,
+    0,
+  );
 }
 async function updateUnknown(page: Page, key: Key, provider: string) {
-  await button(page, `读取 Provider ${provider}`).click();
+  await wait("independent-b-update-unknown-click-bv", () =>
+    button(page, `读取 Provider ${provider}`).click(),
+  );
   const dialog = providerDialog(page);
-  await expect(dialog).toBeVisible();
-  await dialog
-    .getByRole("textbox", { name: "Provider 名称", exact: true })
-    .fill("Models Independent Updated Provider");
-  const before = await snapshot(key),
-    a = await arm(
-      "updateProjectModelProvider",
-      key,
-      provider,
-      "after_complete_disconnect",
+  await wait("independent-b-update-unknown-to-be-visible-bw", () =>
+    expect(dialog).toBeVisible(),
+  );
+  await wait("independent-b-update-unknown-fill-bx", () =>
+    dialog
+      .getByRole("textbox", { name: "Provider 名称", exact: true })
+      .fill("Models Independent Updated Provider"),
+  );
+  const before = await wait("independent-b-update-unknown-snapshot-by", () =>
+      snapshot(key),
+    ),
+    a = await wait("independent-b-update-unknown-arm-bz", () =>
+      arm(
+        "updateProjectModelProvider",
+        key,
+        provider,
+        "after_complete_disconnect",
+      ),
     );
-  await button(dialog, "保存 Provider").click();
-  await expect(dialog.getByText(/结果尚未确认/)).toBeVisible();
-  const lost = await lostControl(a);
-  await loss(page, lost, 0);
-  const committed = await snapshot(key);
+  await wait("independent-b-update-unknown-click-ca", () =>
+    button(dialog, "保存 Provider").click(),
+  );
+  await wait("independent-b-update-unknown-to-be-visible-cb", () =>
+    expect(dialog.getByText(/结果尚未确认/)).toBeVisible(),
+  );
+  const lost = await wait("independent-b-update-unknown-lost-control-cc", () =>
+    lostControl(a),
+  );
+  await wait("independent-b-update-unknown-loss-cd", () => loss(page, lost, 0));
+  const committed = await wait("independent-b-update-unknown-snapshot-ce", () =>
+    snapshot(key),
+  );
   delta(before, committed, 1, 0);
   need(
     committed.current.providers.find((r: Row) => r.id === provider)?.version ===
@@ -945,10 +1121,12 @@ async function archive(
   ownerSession: string,
 ) {
   const result = exact(
-    await ipc("archive-recovery-project", {
-      project: key,
-      expected_version: committed.project.version,
-    }),
+    await wait("independent-b-archive-ipc-cf", () =>
+      ipc("archive-recovery-project", {
+        project: key,
+        expected_version: committed.project.version,
+      }),
+    ),
     ["project_id", "initialized", "lifecycle", "fixture_only"],
   );
   need(
@@ -959,42 +1137,55 @@ async function archive(
     "INDEPENDENT_AUX_ARCHIVE",
   );
   need(
-    (await session(page)).session === ownerSession,
+    (await wait("independent-b-archive-session-cg", () => session(page)))
+      .session === ownerSession,
     "INDEPENDENT_ARCHIVE_IDENTITY_CHANGED",
   );
   const reread = button(
     page.locator("section.project-providers"),
     "重新读取项目",
   );
-  await expect(reread).toBeVisible();
-  await reread.click();
-  await expect(reread).toBeHidden();
-  await expect(
-    page.getByText(
-      "项目当前为只读状态（archived）。可以读取信息；原请求恢复遵循其各自的当前条件。",
-      { exact: true },
-    ),
-  ).toBeVisible();
+  await wait("independent-b-archive-to-be-visible-ch", () =>
+    expect(reread).toBeVisible(),
+  );
+  await wait("independent-b-archive-click-ci", () => reread.click());
+  await wait("independent-b-archive-to-be-hidden-cj", () =>
+    expect(reread).toBeHidden(),
+  );
+  await wait("independent-b-archive-to-be-visible-ck", () =>
+    expect(
+      page.getByText(
+        "项目当前为只读状态（archived）。可以读取信息；原请求恢复遵循其各自的当前条件。",
+        { exact: true },
+      ),
+    ).toBeVisible(),
+  );
   // Restoring the pending modal makes the page behind it inert. Inspect its
   // disabled controls explicitly without requiring a background interaction.
   const backgroundButtons = page
     .locator('section.project-providers [aria-label="项目模型操作"]')
     .getByRole("button", { includeHidden: true });
-  await expect(
-    backgroundButtons.filter({
-      has: page
-        .locator('.button-label:not([aria-hidden="true"])')
-        .filter({ hasText: /^创建 Provider$/ }),
-    }),
-  ).toBeDisabled();
-  await expect(
-    backgroundButtons.filter({
-      has: page
-        .locator('.button-label:not([aria-hidden="true"])')
-        .filter({ hasText: /^创建凭据$/ }),
-    }),
-  ).toBeDisabled();
-  const after = await snapshot(key);
+  await wait("independent-b-archive-to-be-disabled-cl", () =>
+    expect(
+      backgroundButtons.filter({
+        has: page
+          .locator('.button-label:not([aria-hidden="true"])')
+          .filter({ hasText: /^创建 Provider$/ }),
+      }),
+    ).toBeDisabled(),
+  );
+  await wait("independent-b-archive-to-be-disabled-cm", () =>
+    expect(
+      backgroundButtons.filter({
+        has: page
+          .locator('.button-label:not([aria-hidden="true"])')
+          .filter({ hasText: /^创建凭据$/ }),
+      }),
+    ).toBeDisabled(),
+  );
+  const after = await wait("independent-b-archive-snapshot-cn", () =>
+    snapshot(key),
+  );
   delta(committed, after, 0, 0);
   need(
     after.project.lifecycle === "archived" &&
@@ -1003,7 +1194,9 @@ async function archive(
   );
 }
 async function verifyBodies(page: Page) {
-  const facts = await native(page);
+  const facts = await wait("independent-b-verify-bodies-native-co", () =>
+    native(page),
+  );
   need(
     facts.length > 0 && facts.length <= 512 && facts.every((f) => f.ended),
     "INDEPENDENT_NATIVE_TAIL",
@@ -1065,19 +1258,21 @@ async function verifyBodies(page: Page) {
         createHash("sha256").update(raw).digest("hex") === v.body_sha256,
       "INDEPENDENT_BODY_BYTES",
     );
-    const result = await page.evaluate(
-      (safe) => (window as any).__projectModelsProbe.verify(safe),
-      {
-        token: v.request_token,
-        method: v.method,
-        endpoint: v.endpoint,
-        query: v.query,
-        status: v.status,
-        content_type: v.content_type,
-        content_length: v.content_length,
-        request_id: v.request_id,
-        raw: [...raw],
-      },
+    const result = await wait("independent-b-verify-bodies-evaluate-cp", () =>
+      page.evaluate(
+        (safe) => (window as any).__projectModelsProbe.verify(safe),
+        {
+          token: v.request_token,
+          method: v.method,
+          endpoint: v.endpoint,
+          query: v.query,
+          status: v.status,
+          content_type: v.content_type,
+          content_length: v.content_length,
+          request_id: v.request_id,
+          raw: [...raw],
+        },
+      ),
     );
     need(
       result.native_eof === true && result.typed_client_ok === true,
@@ -1138,14 +1333,16 @@ const required: Record<string, string[]> = {
   ],
 };
 async function finish(page: Page, checks: Record<string, boolean>) {
-  const browser = await verifyBodies(page);
+  const browser = await wait("independent-b-finish-verify-bodies-cq", () =>
+    verifyBodies(page),
+  );
   checks.safe_schema_client = true;
   exact(checks, required[selected]!);
   need(
     Object.values(checks).every((v) => v === true),
     "INDEPENDENT_CHECKS",
   );
-  const server = await counts();
+  const server = await wait("independent-b-finish-counts-cr", () => counts());
   need(
     server.server.started === server.server.finished &&
       server.controls.held === server.controls.held_joined,
@@ -1203,12 +1400,68 @@ async function finish(page: Page, checks: Record<string, boolean>) {
     },
     directory,
   );
-  await page.evaluate(() => (window as any).__projectModelsProbe.dispose());
+  await wait("independent-b-finish-evaluate-cs", () =>
+    page.evaluate(() => (window as any).__projectModelsProbe.dispose()),
+  );
 }
 function step(value: string) {
   need(/^[a-z-]+$/.test(value), "INDEPENDENT_STEP");
   publish("independent-step.json", { case: selected, step: value });
 }
+// B-only diagnostic observations preserve the original Promise and action.
+// A returns start() directly, without a side branch or diagnostic write.
+function independentAwait(enabled: boolean, write: (name: string) => void) {
+  if (!enabled)
+    return <T>(_label: string, start: () => Promise<T>): Promise<T> => start();
+  let sequence = 0;
+  let firstRejected: string | undefined;
+  const pending = new Map<number, string>();
+  const record = (
+    label: string,
+    state: "started" | "completed" | "rejected",
+  ) => {
+    const labels = [...pending.values()],
+      current = labels.at(-1);
+    const active =
+      current && labels.length > 1 ? labels[0] + "-in-" + current : current;
+    const progress =
+      active && state !== "started"
+        ? active + "-pending-after-" + label + "-" + state
+        : (active ?? label) + "-" + state;
+    try {
+      write(
+        progress + (firstRejected ? "-first-rejected-" + firstRejected : ""),
+      );
+    } catch {
+      /* Diagnostic I/O cannot replace the original action or error. */
+    }
+  };
+  return <T>(label: string, start: () => Promise<T>): Promise<T> => {
+    const sequenceID = ++sequence;
+    pending.set(sequenceID, label);
+    record(label, "started");
+    const settled = (state: "completed" | "rejected") => {
+      pending.delete(sequenceID);
+      if (state === "rejected") firstRejected ??= label;
+      record(label, state);
+    };
+    let original: Promise<T>;
+    try {
+      original = start();
+    } catch (error) {
+      settled("rejected");
+      throw error;
+    }
+    void original
+      .then(
+        () => settled("completed"),
+        () => settled("rejected"),
+      )
+      .catch(() => {});
+    return original;
+  };
+}
+const wait = independentAwait(selected === "b", step);
 function safeFailures(errors: readonly { message?: string; stack?: string }[]) {
   // Playwright messages, stacks and call logs may contain fill values. Only
   // known codes, fixed categories and positions in this frozen source escape.
@@ -1278,9 +1531,11 @@ test.beforeEach(async ({ page }) => {
     ),
     "utf8",
   );
-  await page.addInitScript({
-    content: source + "\nProjectModelsNativeProbe.install();",
-  });
+  await wait("independent-b-setup-add-init-script-ct", () =>
+    page.addInitScript({
+      content: source + "\nProjectModelsNativeProbe.install();",
+    }),
+  );
 });
 test.afterEach(async ({}, info) => {
   if (info.status !== "passed")
@@ -1365,29 +1620,43 @@ test("[independent-b] archived rotation stays observation-only while config repl
   const m = material(),
     checks: Record<string, boolean> = {};
   step("login");
-  await login(page, m);
-  const owner = await session(page);
+  await wait("independent-b-case-b-login-cu", () => login(page, m));
+  const owner = await wait("independent-b-case-b-session-cv", () =>
+    session(page),
+  );
   need(owner.user === m.actors.owner.user_id, "INDEPENDENT_OWNER_ID");
-  await openProject(page, m, "credential_recovery");
+  await wait("independent-b-case-b-open-project-cw", () =>
+    openProject(page, m, "credential_recovery"),
+  );
   step("credential-rotation-archive");
-  const credential = await createCredential(page, "credential_recovery");
-  const rotated = await rotateUnknown(
-    page,
-    "credential_recovery",
-    credential.id,
-    credential.dialog,
+  const credential = await wait(
+    "independent-b-case-b-create-credential-cx",
+    () => createCredential(page, "credential_recovery"),
   );
-  await archive(page, "credential_recovery", rotated.committed, owner.session);
+  const rotated = await wait("independent-b-case-b-rotate-unknown-cy", () =>
+    rotateUnknown(
+      page,
+      "credential_recovery",
+      credential.id,
+      credential.dialog,
+    ),
+  );
+  await wait("independent-b-case-b-archive-cz", () =>
+    archive(page, "credential_recovery", rotated.committed, owner.session),
+  );
   const archivedCredential = credentialDialog(page);
-  await expect(button(archivedCredential, "按原请求重放")).toBeDisabled();
-  await expect(button(archivedCredential, "轮换凭据")).toBeDisabled();
-  await lookupOnly(
-    page,
-    archivedCredential,
-    "credential_recovery",
-    "credential",
+  await wait("independent-b-case-b-to-be-disabled-da", () =>
+    expect(button(archivedCredential, "按原请求重放")).toBeDisabled(),
   );
-  const lookup = await snapshot("credential_recovery");
+  await wait("independent-b-case-b-to-be-disabled-db", () =>
+    expect(button(archivedCredential, "轮换凭据")).toBeDisabled(),
+  );
+  await wait("independent-b-case-b-lookup-only-dc", () =>
+    lookupOnly(page, archivedCredential, "credential_recovery", "credential"),
+  );
+  const lookup = await wait("independent-b-case-b-snapshot-dd", () =>
+    snapshot("credential_recovery"),
+  );
   origin(
     lookup,
     rotated.lost,
@@ -1397,53 +1666,104 @@ test("[independent-b] archived rotation stays observation-only while config repl
     false,
   );
   delta(rotated.committed, lookup, 0, 0);
-  await secretCleared(archivedCredential);
-  await expect(button(archivedCredential, "按原请求重放")).toBeDisabled();
+  await wait("independent-b-case-b-secret-cleared-de", () =>
+    secretCleared(archivedCredential),
+  );
+  await wait("independent-b-case-b-to-be-disabled-df", () =>
+    expect(button(archivedCredential, "按原请求重放")).toBeDisabled(),
+  );
   checks.archived_credential_rotation_lookup_only = true;
-  await button(archivedCredential.locator("footer"), "关闭").click();
-  await expect(archivedCredential).toBeHidden();
+  await wait("independent-b-case-b-click-dg", () =>
+    button(archivedCredential.locator("footer"), "关闭").click(),
+  );
+  await wait("independent-b-case-b-to-be-hidden-dh", () =>
+    expect(archivedCredential).toBeHidden(),
+  );
   const pending = page.getByLabel("原请求与历史观察", { exact: true });
-  await expect(button(pending, "按原请求重放")).toBeDisabled();
-  await button(pending, "放弃本地追踪").click();
-  await button(
-    page.getByRole("dialog", { name: "放弃本地原请求追踪？", exact: true }),
-    "放弃追踪",
-  ).click();
-  delta(lookup, await snapshot("credential_recovery"), 0, 0);
+  await wait("independent-b-case-b-to-be-disabled-di", () =>
+    expect(button(pending, "按原请求重放")).toBeDisabled(),
+  );
+  await wait("independent-b-case-b-click-dj", () =>
+    button(pending, "放弃本地追踪").click(),
+  );
+  await wait("independent-b-case-b-click-dk", () =>
+    button(
+      page.getByRole("dialog", { name: "放弃本地原请求追踪？", exact: true }),
+      "放弃追踪",
+    ).click(),
+  );
+  delta(
+    lookup,
+    await wait("independent-b-case-b-snapshot-dl", () =>
+      snapshot("credential_recovery"),
+    ),
+    0,
+    0,
+  );
   step("provider-update-archive");
-  await openProject(page, m, "config_recovery", true);
-  await button(page, "创建 Provider").click();
+  await wait("independent-b-case-b-open-project-dm", () =>
+    openProject(page, m, "config_recovery", true),
+  );
+  await wait("independent-b-case-b-click-dn", () =>
+    button(page, "创建 Provider").click(),
+  );
   let dialog = providerDialog(page);
-  await dialog
-    .getByRole("textbox", { name: "Provider 名称", exact: true })
-    .fill("Models Independent Provider");
-  await dialog
-    .getByRole("textbox", { name: "Base URL", exact: true })
-    .fill("https://model-ui.invalid/v1");
-  await button(dialog, "保存 Provider").click();
-  const created = await receipt(dialog);
+  await wait("independent-b-case-b-fill-do", () =>
+    dialog
+      .getByRole("textbox", { name: "Provider 名称", exact: true })
+      .fill("Models Independent Provider"),
+  );
+  await wait("independent-b-case-b-fill-dp", () =>
+    dialog
+      .getByRole("textbox", { name: "Base URL", exact: true })
+      .fill("https://model-ui.invalid/v1"),
+  );
+  await wait("independent-b-case-b-click-dq", () =>
+    button(dialog, "保存 Provider").click(),
+  );
+  const created = await wait("independent-b-case-b-receipt-dr", () =>
+    receipt(dialog),
+  );
   need(
     created.kind === "provider.create" &&
       id(created.resource_id) &&
       created.version === "1",
     "INDEPENDENT_PROVIDER_CREATED",
   );
-  await button(dialog, "取消").click();
-  await expect(dialog).toBeHidden();
-  await button(page, "刷新 Providers").click();
-  const updated = await updateUnknown(
-    page,
-    "config_recovery",
-    created.resource_id,
+  await wait("independent-b-case-b-click-ds", () =>
+    button(dialog, "取消").click(),
   );
-  await archive(page, "config_recovery", updated.committed, owner.session);
+  await wait("independent-b-case-b-to-be-hidden-dt", () =>
+    expect(dialog).toBeHidden(),
+  );
+  await wait("independent-b-case-b-click-du", () =>
+    button(page, "刷新 Providers").click(),
+  );
+  const updated = await wait("independent-b-case-b-update-unknown-dv", () =>
+    updateUnknown(page, "config_recovery", created.resource_id),
+  );
+  await wait("independent-b-case-b-archive-dw", () =>
+    archive(page, "config_recovery", updated.committed, owner.session),
+  );
   dialog = providerDialog(page);
-  await expect(button(dialog, "保存 Provider")).toBeDisabled();
-  await expect(button(dialog, "按原请求重放")).toBeEnabled();
-  await lookupOnly(page, dialog, "config_recovery", "configuration");
-  await button(dialog, "按原请求重放").click();
-  const executed = await receipt(dialog),
-    configAfter = await snapshot("config_recovery");
+  await wait("independent-b-case-b-to-be-disabled-dx", () =>
+    expect(button(dialog, "保存 Provider")).toBeDisabled(),
+  );
+  await wait("independent-b-case-b-to-be-enabled-dy", () =>
+    expect(button(dialog, "按原请求重放")).toBeEnabled(),
+  );
+  await wait("independent-b-case-b-lookup-only-dz", () =>
+    lookupOnly(page, dialog, "config_recovery", "configuration"),
+  );
+  await wait("independent-b-case-b-click-ea", () =>
+    button(dialog, "按原请求重放").click(),
+  );
+  const executed = await wait("independent-b-case-b-receipt-eb", () =>
+      receipt(dialog),
+    ),
+    configAfter = await wait("independent-b-case-b-snapshot-ec", () =>
+      snapshot("config_recovery"),
+    );
   delta(updated.committed, configAfter, 0, 0);
   sameReceipt(
     executed,
@@ -1462,55 +1782,86 @@ test("[independent-b] archived rotation stays observation-only while config repl
   );
   checks.archived_provider_update_original =
     checks.exact_original_and_unique_history = true;
-  await button(dialog, "取消").click();
-  await expect(dialog).toBeHidden();
+  await wait("independent-b-case-b-click-ed", () =>
+    button(dialog, "取消").click(),
+  );
+  await wait("independent-b-case-b-to-be-hidden-ee", () =>
+    expect(dialog).toBeHidden(),
+  );
   step("current-revocation");
-  await openProject(page, m, "main");
+  await wait("independent-b-case-b-open-project-ef", () =>
+    openProject(page, m, "main"),
+  );
   const seed = m.expected.projects.main.providers[0]?.id;
   need(id(seed), "INDEPENDENT_SEED_PROVIDER");
-  await button(page, `读取 Provider ${seed}`).click();
+  await wait("independent-b-case-b-click-eg", () =>
+    button(page, `读取 Provider ${seed}`).click(),
+  );
   dialog = providerDialog(page);
-  const before = await snapshot("main");
-  const revoked = exact(await ipc("logout", { session_id: owner.session }), [
-    "session_id",
-    "revoked",
-  ]);
+  const before = await wait("independent-b-case-b-snapshot-eh", () =>
+    snapshot("main"),
+  );
+  const revoked = exact(
+    await wait("independent-b-case-b-ipc-ei", () =>
+      ipc("logout", { session_id: owner.session }),
+    ),
+    ["session_id", "revoked"],
+  );
   need(
     revoked.session_id === owner.session && revoked.revoked === true,
     "INDEPENDENT_REVOKED",
   );
-  const previous = (await native(page)).length;
-  await button(dialog, "重新读取 Provider").click();
-  await expect(
-    page.getByRole("heading", { name: "会话尚未确认", exact: true }),
-  ).toBeVisible();
-  await expect(dialog).toHaveCount(0);
-  await expect(
-    page.getByRole("list", { name: "Providers 列表", exact: true }),
-  ).toHaveCount(0);
-  await expect
-    .poll(async () =>
-      (await native(page))
-        .slice(previous)
-        .some(
-          (f) =>
-            f.path ===
-              `/api/v1/projects/${m.projects.main.id}/model-providers/${seed}` &&
-            f.method === "GET" &&
-            f.status === 401 &&
-            f.eof &&
-            f.ended &&
-            f.released,
-        ),
-    )
-    .toBe(true);
-  delta(before, await snapshot("main"), 0, 0);
-  const deniedBody = await responseBody(
-    page,
-    previous,
-    "GET",
-    `/api/v1/projects/${m.projects.main.id}/model-providers/${seed}`,
-    401,
+  const previous = (
+    await wait("independent-b-case-b-native-ej", () => native(page))
+  ).length;
+  await wait("independent-b-case-b-click-ek", () =>
+    button(dialog, "重新读取 Provider").click(),
+  );
+  await wait("independent-b-case-b-to-be-visible-el", () =>
+    expect(
+      page.getByRole("heading", { name: "会话尚未确认", exact: true }),
+    ).toBeVisible(),
+  );
+  await wait("independent-b-case-b-to-have-count-em", () =>
+    expect(dialog).toHaveCount(0),
+  );
+  await wait("independent-b-case-b-to-have-count-en", () =>
+    expect(
+      page.getByRole("list", { name: "Providers 列表", exact: true }),
+    ).toHaveCount(0),
+  );
+  await wait("independent-b-case-b-to-be-eo", () =>
+    expect
+      .poll(async () =>
+        (await wait("independent-b-case-b-native-ep", () => native(page)))
+          .slice(previous)
+          .some(
+            (f) =>
+              f.path ===
+                `/api/v1/projects/${m.projects.main.id}/model-providers/${seed}` &&
+              f.method === "GET" &&
+              f.status === 401 &&
+              f.eof &&
+              f.ended &&
+              f.released,
+          ),
+      )
+      .toBe(true),
+  );
+  delta(
+    before,
+    await wait("independent-b-case-b-snapshot-eq", () => snapshot("main")),
+    0,
+    0,
+  );
+  const deniedBody = await wait("independent-b-case-b-response-body-er", () =>
+    responseBody(
+      page,
+      previous,
+      "GET",
+      `/api/v1/projects/${m.projects.main.id}/model-providers/${seed}`,
+      401,
+    ),
   );
   need(
     deniedBody.status === 401 &&
@@ -1519,5 +1870,5 @@ test("[independent-b] archived rotation stays observation-only while config repl
   );
   checks.current_revoked_session_denied = true;
   step("same-body");
-  await finish(page, checks);
+  await wait("independent-b-case-b-finish-es", () => finish(page, checks));
 });
