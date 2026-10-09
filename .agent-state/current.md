@@ -164,3 +164,6 @@
 - authority单处401路径mustfix已作者修正并strictTS0.943s/独审有限复核接受；先真实未确认态与保护区撤离，再检查当前会话至anonymous/login，不冒自动跳转。scope限held-tail阻止切页/newSession清Providerdirty，Credential此前已放弃不可冒仍待决清除。navigation预集成静核无mustfix；System仅双未保存草稿取消/隔离，8图尚未生成目视。2module待真实接线/验收，所有Modelglob冻结，下一authority。
 
 - authority/navigation主spec真实接线经精确d3ab38d0导出diff独立只读接受，无mustfix；typed原helpers、两真实Page/mode与固定诊断投影不改业务。strictTS实际0，authority/navigation各唯一selector discovery实际0；navigation首次缺AUTH_WEB_IMAGES的setupFAIL0tests保留，补正确绝对目录后重跑通过。尚非真实browser/8图验收；下一root唯一authority资源窗，全部Modelglob冻结。
+
+- authority首轮outer45036实际exit1/123.018s、Go53.78s，45s browser整体timedOut，step=authority-same-session-checking；仅5safe sidecars，未完成finish。directWait270285exit1/4adoptedWait0/watchdogobserverjoin、7IDs双absent/descendants[]/TCP双空/input同一（owned-authority-ca064d7d…）。原FAIL保留，作者只读定位恢复草稿与重新读取交互，尚不定因果/不改预算，D27仍4/6。
+- T0b工程SPEC仅流转卡新增§10.5共140行已作者freeze；其余原文不变，18本地链接及格式自查0。六新拟源未授权，350byte摘要仅Python规格演算；独立SPEC审查已实际开始，无Go/runtime/权限/发布成果。
