@@ -51,6 +51,9 @@ const (
 	TaskAssigneeRequired    Code = "TASK_ASSIGNEE_REQUIRED"
 	TaskSprintInvalid       Code = "TASK_SPRINT_INVALID"
 	TaskTerminalImmutable   Code = "TASK_TERMINAL_IMMUTABLE"
+	BlockerNotFound         Code = "BLOCKER_NOT_FOUND"
+	BlockerAlreadyResolved  Code = "BLOCKER_ALREADY_RESOLVED"
+	TaskDependencyCycle     Code = "TASK_DEPENDENCY_CYCLE"
 )
 
 func (c Code) Known() bool {
@@ -61,7 +64,7 @@ func (c Code) Known() bool {
 		ProjectNotActive, ConfirmationStale, SchemaUnsupported, CapabilityUnsupported,
 		RateLimited, DependencyUnbound, DependencyUnavailable, CommitUnknown, InternalError,
 		PayloadTooLarge, UnsupportedMediaType, ShuttingDown, ObjectPayloadMissing,
-		ObjectIntegrityMismatch, RangeNotSatisfiable, TaskNotFound, TaskVersionConflict, TaskStateInvalid, TaskAssigneeRequired, TaskSprintInvalid, TaskTerminalImmutable:
+		ObjectIntegrityMismatch, RangeNotSatisfiable, TaskNotFound, TaskVersionConflict, TaskStateInvalid, TaskAssigneeRequired, TaskSprintInvalid, TaskTerminalImmutable, BlockerNotFound, BlockerAlreadyResolved, TaskDependencyCycle:
 		return true
 	}
 	return false
