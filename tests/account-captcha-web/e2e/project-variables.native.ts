@@ -480,7 +480,14 @@ export function nativeConsumption(page: Page) {
     // The preceding branch may have scheduled a timer; preserve single flight.
     if (timer) clearTimeout(timer);
     const ended = await bound(launch(true));
-    return ended && before === epoch && samples.get(before)?.retired === true;
+    return (
+      ended &&
+      Date.now() < deadline &&
+      !stopping &&
+      !stopped &&
+      before === epoch &&
+      samples.get(before)?.retired === true
+    );
   }
   function stop() {
     if (stopPromise) return stopPromise;

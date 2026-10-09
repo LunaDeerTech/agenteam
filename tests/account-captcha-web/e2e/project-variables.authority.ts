@@ -419,7 +419,8 @@ export async function installVariableAuthority({
               ].includes(problem.commit_state)
                 ? problem.commit_state
                 : "other";
-              facts.instance_matches = problem.instance === endpoint;
+              // Account HTTPBoundary projects all private paths to this public root.
+              facts.instance_matches = problem.instance === "/api/v1";
               if (
                 /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
                   problem.request_id,

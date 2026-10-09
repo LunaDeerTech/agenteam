@@ -1,5 +1,6 @@
 # 当前执行检查点
 
+- 当前诊断独审返修：Runner以真实Account HTTPBoundary+WithRequestID+Recorder发现instance实际为`/api/v1`，0ab5b239新诊断错误比较完整endpoint（9577c4/a2ca92红）；另原endDocument在evaluate微任务晚于250ms时仍报退休（b76fa3红）。仅authority.ts和Go fixture对齐正式instance投影，原request完整path另行绑定不变；native.ts只在返回成功前重验原绝对deadline与stopping/stopped，不刷新预算。两个持久控制现在消费真实Boundary原JSON/XID，并拒绝未投影endpoint；作者实际旧判据红68033→10febd、75409→8953d0，原期限250ms红77178→686432均保留。修后Go原方法31项/strict投影24337→b01c1a actual0，锁定PW序列化/actual helper 41控62858→ecf028 actual0（含249/250/251ms及stop），browser strictTS28542→12477c actual0；所有命令已terminal，无真实资源。五技术源+本两docs冻结交Runner复验，生产/dist03/ordinary gate未改，binary08未编，原Authority02 wholeFAIL与后续未验矩阵保持。
 - 目标：普通 Project Variables Owner 管理界面；已有 initialized Project 当前 Human Owner 经正式六 HTTP 完成列表/分页/创建/编辑/删除及原 intent 查询/显式重放。
 - 状态：进行中，SPEC rev1已获独立窄审接受；API/client首片段已可构建并有定向纯控，Session首片段已可构建；controller/页面与路由已可构建并有纯控；真实fixture及动态验收尚未完成。正式来源：[工作项](../docs/development/work-items/d27-project-variables-owner-ui.md)。
 - 分支：`ai/project-variables-owner-ui`；工作树 `/workspace/agenteam-project-variables-ui`；正式基线 main `3cea6076bb01693ead2755826826d189626aa3aa`。此前普通变量后端已交付，不重做其库/HTTP/迁移。

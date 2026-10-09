@@ -5,6 +5,7 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm')
 const { EventEmitter } = require('node:events')
 const { createHash } = require('node:crypto')
+const { execFileSync } = require('node:child_process')
 const root = path.resolve(__dirname, '../..')
 process.env.PWTEST_CACHE_DIR = path.join(root, 'output/ai/project-variables-ui/implementation/pw-authority-offline-cache')
 const { transformHook } = require(path.join(root, 'tests/account-captcha-web/node_modules/playwright/lib/transform/transform.js'))
@@ -22,9 +23,12 @@ const binding = moduleSource.variableAuthorityBinding(root, path.join(root, 'out
 assert(binding.asset && binding.singleton && binding.failure && binding.entry)
 assert.throws(() => moduleSource.variableAuthorityBinding(root, '/tmp/unowned-dist'))
 const id = n => '01970000-0000-7000-8000-' + String(n).padStart(12, '0')
-const target = { project: id(1), variable: id(2), version: '1', value: 'PRIVATE_DIAGNOSTIC_CANARY', route: '/owner/project/settings/variables' }
+const target = { project: id(10), variable: id(20), version: '1', value: 'PRIVATE_DIAGNOSTIC_CANARY', route: '/owner/project/settings/variables' }
 const endpoint = `/api/v1/projects/${target.project}/variables/${target.variable}`
-const xid = id(90), identity = { userID: id(3), sessionID: id(4), epoch: 1 }
+// This is the actual Account boundary's original JSON, with no server/socket.
+const producerProblem = JSON.parse(execFileSync('python3', [path.join(__dirname, 'authority-refusal-controls.py'), '--producer-only'], { encoding: 'utf8', timeout: 50000 }))
+assert.equal(producerProblem.instance, '/api/v1')
+const xid = producerProblem.request_id, identity = { userID: id(3), sessionID: id(4), epoch: 1 }
 const flush = async () => { for (let i = 0; i < 12; i++) await Promise.resolve() }
 function deferred() { let resolve, reject; const promise = new Promise((a, b) => { resolve = a; reject = b }); return { promise, resolve, reject } }
 let checks = 0
@@ -94,7 +98,7 @@ async function fixture(options = {}) {
   })
   const installed = await vm.runInContext(await evaluationScript(null, moduleSource.installVariableAuthority, { binding, target }), context)
   const command = { kind: 'update', projectID: target.project, targetID: target.variable, expectedVersion: '1', request: { value: target.value } }
-  const problem = { status: 409, code: 'PROJECT_NOT_ACTIVE', commit_state: 'not_committed', instance: endpoint, request_id: xid }
+  const problem = { ...producerProblem }
   const complete = async (changes = {}) => {
     native.records.push({ method: 'PATCH', path: endpoint, query: '', status: 409, request_id: xid })
     auth.projectVariables.progress = { projectID: target.project, targetID: target.variable, kind: 'update', phase: 'rejected', receipt: null }
@@ -104,6 +108,22 @@ async function fixture(options = {}) {
 }
 async function run(name, work) { await work(); checks++; console.log(name + ': PASS') }
 async function main() {
+  for (const [elapsed, expected] of [[249, true], [250, false], [251, false]]) await run('original retirement deadline: ' + elapsed, async () => {
+    const page = new EventEmitter(), frame = {}; page.mainFrame = () => frame
+    let clock = 1000; const originalNow = Date.now; Date.now = () => clock
+    page.evaluate = async (_fn, end) => { if (end) clock = 1000 + elapsed; return { document: 'same', retired: !!end, records: [] } }
+    const observation = nativeSource.nativeConsumption(page)
+    try { await flush(); assert.equal(await observation.endDocument(), expected) }
+    finally { Date.now = originalNow; await observation.stop() }
+  })
+  await run('stop during original retirement cannot report success', async () => {
+    const page = new EventEmitter(), frame = {}, held = deferred(); page.mainFrame = () => frame
+    page.evaluate = async (_fn, end) => end ? held.promise : { document: 'same', retired: false, records: [] }
+    const observation = nativeSource.nativeConsumption(page); await flush()
+    const ending = observation.endDocument(); await flush(); const stopping = observation.stop()
+    held.resolve({ document: 'same', retired: true, records: [] })
+    assert.equal(await ending, false); await stopping
+  })
   await run('actual dist AST singleton and exported failure binding', async () => {})
   await run('original Promise, receiver, args, typed refusal and actual retirement', async () => {
     const x = await fixture(); assert.equal(x.installed, true)
@@ -127,7 +147,7 @@ async function main() {
   })
   for (const [name, change, field, expected] of [
     ['wrong code', { code: 'INVALID_STATE' }, 'code', 'other'], ['unknown commit', { commit_state: 'unknown' }, 'commit_state', 'unknown'],
-    ['wrong instance', { instance: '/unrelated' }, 'instance_matches', false], ['wrong XID', { request_id: id(91) }, 'problem_request_matches', false],
+    ['wrong instance', { instance: '/unrelated' }, 'instance_matches', false], ['unprojected endpoint instance', { instance: endpoint }, 'instance_matches', false], ['wrong XID', { request_id: id(91) }, 'problem_request_matches', false],
   ]) await run(name, async () => { const x = await fixture(); x.auth.projectVariables.start(x.command); await x.complete(change); assert.equal(x.host.__variableAuthority.finish(xid)[field], expected); x.dom.window.close() })
   for (const [name, mutate, field] of [
     ['duplicate native XID', x => x.native.records.push({ ...x.native.records[0] }), 'native_request_matches'],

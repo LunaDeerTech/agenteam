@@ -761,7 +761,7 @@ func (v *projectVariablesWebFixture) verifyAuthorityRefusal(ctx context.Context)
 	var tail any
 	if a.Command != "project.variable.update" || a.Key == "" || a.Query != "" || a.Path != "/api/v1/projects/"+project+"/variables/"+target ||
 		!a.EOF || !a.Closed || a.Status != http.StatusConflict || decoder.Decode(&problem) != nil || decoder.Decode(&tail) != io.EOF ||
-		problem.Status != http.StatusConflict || problem.Code != f.ProjectNotActive || problem.Instance != a.Path ||
+		problem.Status != http.StatusConflict || problem.Code != f.ProjectNotActive || problem.Instance != "/api/v1" ||
 		problem.RequestID.Validate() != nil || problem.RequestID.String() != a.RequestID ||
 		(problem.CommitState != f.NotStarted && problem.CommitState != f.NotCommitted) {
 		t.Error("Variables authority refusal original response binding was not verified")

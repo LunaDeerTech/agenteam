@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 import subprocess
 import tempfile
+import sys
 
 root = Path(__file__).resolve().parents[2]
 source = (root / 'tests/account/project_variables_web_fixture_test.go').read_text()
@@ -16,7 +17,8 @@ types = source[source.index('type variableWebNetworkFailure struct'):source.inde
 top = (root / 'tests/account/project_variables_web_test.go').read_text()
 assert top.index('defer fixture.verifyAuthorityRefusal(ctx)') < top.index('result := fixture.owner.browser(ctx)')
 program = r'''package main
-import("bytes";"context";"encoding/json";"fmt";"io";"net/http";"runtime";"strings";"sync"
+import("bytes";"context";"encoding/json";"fmt";"io";"net/http";"net/http/httptest";"os";"runtime";"strings";"sync"
+"github.com/LunaDeerTech/agenteam/internal/central/account"
 f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 "github.com/LunaDeerTech/agenteam/internal/central/httpapi")
 type report struct { failed int; logs []string }
@@ -36,11 +38,23 @@ type variableWebAttempt struct {Index int;Method,Path,Query,Project,Target,Comma
 type projectVariablesWebFixture struct{mode string;owner *owner;mu sync.Mutex;attempts []*variableWebAttempt;targets map[string]string;initial map[string]any;setupFacts map[string][2]int}
 const project="01970000-0000-7000-8000-000000000010"
 const target="01970000-0000-7000-8000-000000000020"
-const requestID="01970000-0000-7000-8000-000000000090"
+var requestID string
+var producerProblem []byte
 const endpoint="/api/v1/projects/"+project+"/variables/"+target
+func produceProblem() []byte {
+ r:=httptest.NewRequest(http.MethodPatch,"http://offline.invalid"+endpoint,nil)
+ recorder:=httptest.NewRecorder()
+ httpapi.WithRequestID(nil,http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){
+  (&account.HTTPBoundary{}).WriteProblem(w,r,f.NewFault(f.ProjectNotActive,f.NotCommitted))
+ })).ServeHTTP(recorder,r)
+ var problem httpapi.Problem
+ if json.Unmarshal(recorder.Body.Bytes(),&problem)!=nil || recorder.Code!=409 || problem.Instance!="/api/v1" || problem.Code!=f.ProjectNotActive || problem.CommitState!=f.NotCommitted || problem.RequestID.Validate()!=nil || problem.RequestID.String()!=recorder.Header().Get("X-Request-ID"){panic("actual producer contract")}
+ requestID=problem.RequestID.String()
+ return bytes.Clone(recorder.Body.Bytes())
+}
 func makeFixture()(*projectVariablesWebFixture,*report,*fakeStore,*int){
  stopped:=new(int);r:=&report{};s:=&fakeStore{values:[6]int{0,1,1,1,1,1},key:"original-private-key"}
- raw,_:=json.Marshal(map[string]any{"type":"urn:agenteam:problem:project-not-active","title":"Project not active","status":409,"detail":"The project is not active.","instance":endpoint,"request_id":requestID,"code":"PROJECT_NOT_ACTIVE","commit_state":"not_committed"})
+ raw:=bytes.Clone(producerProblem)
  a:=&variableWebAttempt{Index:1,Method:"PATCH",Path:endpoint,Project:project,Target:target,Command:"project.variable.update",Key:s.key,RequestID:requestID,Body:[]byte(`{"expected_version":"1","request":{"value":"prepared before archive"}}`),Receipt:raw,Status:409,EOF:true,Closed:true}
  v:=&projectVariablesWebFixture{mode:"authority",owner:&owner{t:r,ids:map[string]string{"main":project},store:s,stopProxy:func(){*stopped++}},attempts:[]*variableWebAttempt{a},targets:map[string]string{"main":target},initial:map[string]any{"main":map[string]any{"name":"CUSTOM_VALUE","description":"seed description","value":"seed value","version":"1"}},setupFacts:map[string][2]int{project:{1,1}}}
  return v,r,s,stopped
@@ -56,6 +70,7 @@ func verifyProjection(){
  if !(variableWebIncomplete{Index:1,Method:"PATCH",Route:"update",Expected:"none",Status:409,Failed:true}).valid(1){panic("incomplete positive")}
 }
 func main(){
+ producerProblem=produceProblem();if len(os.Args)==2 && os.Args[1]=="--producer-only"{os.Stdout.Write(producerProblem);return}
  verifyProjection();cases:=0
  v,r,s,stopped:=makeFixture();v.verifyAuthorityRefusal(context.Background());if r.failed!=0||s.calls!=1||*stopped!=1||len(r.logs)!=1{panic("positive refusal")};cases++
  changes:=[]func(*projectVariablesWebFixture){
@@ -70,6 +85,7 @@ func main(){
  func(v *projectVariablesWebFixture){modifyProblem(v.attempts[0],"code","INVALID_STATE")},
  func(v *projectVariablesWebFixture){modifyProblem(v.attempts[0],"commit_state","unknown")},
  func(v *projectVariablesWebFixture){modifyProblem(v.attempts[0],"instance","/different")},
+ func(v *projectVariablesWebFixture){modifyProblem(v.attempts[0],"instance",endpoint)},
  func(v *projectVariablesWebFixture){modifyProblem(v.attempts[0],"request_id",project)},
  func(v *projectVariablesWebFixture){modifyProblem(v.attempts[0],"private","PRIVATE")},
  func(v *projectVariablesWebFixture){v.attempts[0].Receipt=append(v.attempts[0].Receipt,[]byte("{}")...)},
@@ -91,6 +107,8 @@ func main(){
 }
 '''
 program = program.replace('func main(){', types + '\n' + method + '\nfunc main(){', 1)
+if sys.argv[1:] not in ([], ['--producer-only']):
+    raise SystemExit('usage: authority-refusal-controls.py [--producer-only]')
 output = root / 'output/ai/project-variables-ui/implementation'
 env = dict(os.environ, GOTOOLCHAIN='local', GOPROXY='off', GOSUMDB='off', GOTELEMETRY='off', GOMAXPROCS='2',
            GOMODCACHE='/workspace/agenteam/output/ai/model-ui-recovery/go-mod',
@@ -98,6 +116,6 @@ env = dict(os.environ, GOTOOLCHAIN='local', GOPROXY='off', GOSUMDB='off', GOTELE
 with tempfile.TemporaryDirectory(prefix='authority-refusal-', dir=output) as temporary:
     path = Path(temporary) / 'main.go'
     path.write_text(program)
-    result = subprocess.run(['/workspace/toolchains/go1.27.1/bin/go', 'run', '-mod=readonly', '-p=1', str(path)],
+    result = subprocess.run(['/workspace/toolchains/go1.27.1/bin/go', 'run', '-mod=readonly', '-p=1', str(path), *sys.argv[1:]],
                             cwd=root, env=env, timeout=45, check=False)
     raise SystemExit(result.returncode)
