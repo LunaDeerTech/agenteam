@@ -1,6 +1,6 @@
 # D04 Project Secret Variable 存储 producer
 
-状态（2026-10-09）：D04 producer 与正式00029已实现；独审后的core3真实PG首窗完整PASS（17节点），maintenance与真实Unknown/并发未验，本卡尚未正式交付。工作树基线为正式 main `8cb0a95338dc417ff34be06c00086fbbc7159efa`。本卡落实已接受的 [D10 rev2](d10-secret-variables-owner.md) §4、§6，不改变 Secret Variable 的业务语义。D10 A 的五个 contract、三个测试及 schema 已正式交付；D10真实authority与Owner仍为后继范围。
+状态（2026-10-09）：D04 producer 与正式00029已实现；独审后的core3（17节点）和maintenance单top两次真实PG窗口均完整PASS，真实Unknown/并发未验，本卡尚未正式交付。工作树基线为正式 main `8cb0a95338dc417ff34be06c00086fbbc7159efa`。本卡落实已接受的 [D10 rev2](d10-secret-variables-owner.md) §4、§6，不改变 Secret Variable 的业务语义。D10 A 的五个 contract、三个测试及 schema 已正式交付；D10真实authority与Owner仍为后继范围。
 
 ## 1. 范围、所有者与构造顺序
 
@@ -103,8 +103,10 @@ SPEC 的 prepared/名称/表名三缺口及 CheckPlan 增量已分别获 Runner 
 
 作者完整 Secret implementation/contract 两包纯 race 已实际通过（5785→713106）。新的纯测试调用实际 Service/AEAD/native facts checker，Store/当前 authority/Append transport/commit 是明确受控端口，不能据此宣称真实 D10 权限、PostgreSQL SQL/原子回滚、100/101 cleanup 或 Unknown 数据库结果。具体可复跑入口和已核有限范围保存在 [current](../../../.agent-state/current.md)。
 
-仍缺真实 D10 authority provider 与 Owner final-Tx、maintenance与真实Unknown/并发矩阵；本树基线8cb未自动包含后继SecretAudit读兼容主线。不得以production stub或纯回调越过这些依赖，本卡尚不能正式交付。
+仍缺真实 D10 authority provider 与 Owner final-Tx、真实Unknown/并发矩阵；本树基线8cb未自动包含后继SecretAudit读兼容主线。不得以production stub或纯回调越过这些依赖，本卡尚不能正式交付。
 
 ## 7. 已验有限结果
 
-core3首次真实PG在固定候选742/driver831上完成：原session48021→11fe77实际outer0，三top＋14sub共17节点PASS，Go/driver实际Wait0、精确两资源双退役、凭据退役、后代双空、TCP双空增量、输入未变全部齐备。该组证明本树连续Migrator含00029、D04四effect/历史幂等/current deny、真实目标回滚及九DDL负例；25–28依赖迁移成功不代表其业务或28执行计划验收。D10权限来源仍为明示受控fixture，101历史receipt轮换/100+1清理与Unknown/并发未运行。唯一原日志路径、资源身份和终态见[current](../../../.agent-state/current.md)的core3结果；未重编或修改验收输入。
+core3首次真实PG在固定候选742/driver831上完成：原session48021→11fe77实际outer0，三top＋14sub共17节点PASS，Go/driver实际Wait0、精确两资源双退役、凭据退役、后代双空、TCP双空增量、输入未变全部齐备。该组证明本树连续Migrator含00029、D04四effect/历史幂等/current deny、真实目标回滚及九DDL负例；25–28依赖迁移成功不代表其业务或28执行计划验收。
+
+maintenance复用同候选/driver，原session3222→0a46e7实际outer0、69.661s完整尾；唯一top PASS2.51s，真实101历史receipt/删Credential后轮换与Retire/仅key2重启重放/100+1清理通过，原Wait、两资源/private/后代/TCP/input尾全部齐。D10权限来源仍为明示受控fixture，真实Unknown/并发和正式Owner未验。两原日志路径、资源身份和终态见[current](../../../.agent-state/current.md)；未重编或修改旧验收输入。
