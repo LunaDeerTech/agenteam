@@ -15,7 +15,7 @@
 - 六作者 Playwright 源与同体 schema/client helper 已落盘并严格TS通过，首个 planning 精确case离线发现 actual0、恰1项；这是可构建WIP，尚未动态接受。首轮先独立核规划9写、Plan/版本冲突/分组顺序；其它五case还需核完整卡矩阵，尤其撤销/过期、pending/deleting、旧名复用、Owner/Model确认链与in_progress/not_observed刺激，不能因源码已有case或结果布尔冒完成。两个独立场景尚无源，由root轮转未参与者。
 - 原root链仅本树两工具最小扩8个精确UI top、真实输入/私有dist、四owned路径和短ui目录；原三个root target/default预算保持。31作者纯控制通过，含旧配置逐项等价、未登记target、丢目标、目录碰撞、错误资产/case与预算；此控制用替身仅核selector判据，不冒资源退役。工具语法及19项独立有限控制通过，原配置/预算/实际Wait判据未见mustfix；未运行真实PG/browser/socket。
 - Current Sprint边界已按正式Structure契约与独审事实纠正：没有正式非null指针生产者，本轮真实无Current/planned typed选择；自动current/用户选择规则保留纯投影控制，非null真实正例待D11生命周期接通，不用SQL伪造、不称已验证。
-- 下一步：recovery04因本轮显式PATH遗漏Node而在浏览器启动前整体FAIL，全尾已齐；保留继承PATH并仅前置Go的离线定位通过，未改技术源。幂等key窄修已获独立48控制有限接受，尚无修后动态结果；binary14与私有dist保持。下一轮须root新fresh grant，首执行仍实采≥5GiB；普通finished、cap4及全部预算不变。最终交付排除本恢复文件。
+- 下一步：recovery05已越过key声明阻塞及所有顺序UI恢复步骤，但最终observer在45秒总界失败，最终Go后验未到；全尾已齐。新增证据为5条普通aborted/原finished未返，先离线核同原请求边界，不扩大截断例外或盲重跑；binary14、私有dist、普通finished、cap4及全部预算保持。任何新真实轮须root新fresh grant及首执行实采≥5GiB。最终交付排除本恢复文件。
 
 - 首组planning有限独审发现三个排序均为no-op及成功后点击已移除按钮；作者另查得schema响应$ref未解引用、描述清空/Plan原文/第七读取刺激不足，均保留原WIP未验事实。统一修为三组真实双对象前移/移尾与同原响应重读顺序、changed/version校验；同体schema红控修后正负通过。Go后验逐key校验原receipt/Outbox/TaskEvent/最终对象与精确无额外事实；合法登录Session仅在User EX锁内回拨测试时钟以越过已有Activity节流，未手种身份或Work事实。当前窄复核待排，新race编译与TS实际通过；纯配置发现02因调用漏ENV失败，补齐后另记，未启动浏览器。其它五case的未闭合矩阵不因此接受。
 
@@ -73,3 +73,5 @@ identity第二轮39077仍完整FAIL（3cdb9df2/binary11，Go32.33秒、outer143.
 - 幂等key窄修随后经Model未参与者有限接受，无mustfix：原45控及新增ASCII单字节全集、第二Request/关闭后failed、精确headers与原failed退休slot三控actual0，共48控/0unhandled。只接受输入修正，不改recovery03动态结论。
 
 - recovery04（37095，ae101b00技术/binary14）仍整体FAIL：Go10.69秒、outer111.417秒，fixture在启动Node前报locked Project browser runner could not start，尚无浏览器或key修正动态结果。本轮执行者显式PATH遗漏实际Node目录；离线4892b7确认旧PATH无法解析node，保留继承PATH并前置Go能执行Node v24.19.0/actual0。首执行磁盘6225076224、exec前再次6185058304 bytes均过5GiB；Go955958/driver953888实际Wait1，无浏览器adopted子、无STOP，proxy/body/preparation/root实际join，七资源/desc/runtime/private/TCP双尾与inputsame齐，窗口已释放。原失败见`.agent-state/work-owner-planning-ui/recovery-fourth-failure.json`；仅纠正下一执行环境，不改源、不放宽门槛、不自动复跑。
+
+- recovery05（63642，b48c1a7e文档/ae101b00技术、binary14）仍整体FAIL：Go59.82秒、outer155.707秒，原45秒总界止于最终seen.verify/observerErrors期望0实际9。两非终态局部SQL/Lookup链与三域历史、精确改义拒绝、归档后Lookup/同义重放已顺序走完；最终incomplete/schema/client验证、complete报告及Go持久后验未到，不能宣告业务接受。约44846ms安全快照共71请求，62有原finished返回；4条已声明截断为content-length-mismatch，另5普通请求为aborted（Milestone PATCH、Task Lookup/GET、两个Sprint GET），这9条原finished未返且当时未见page-close/observer rejection。5条普通请求均匹配上游完整200同body证据，仍不证明浏览器EOF或生产解码/发布；超时后的errors9与较早快照边界分开保留。首执行保继承PATH并前置Go，Node实核v24.19.0、磁盘5852405760 bytes通过；Go/driver实际Wait1、四Z→actualWait0无STOP、Node/proxy/body/preparation/root join与七资源/desc/runtime/private/TCP双尾及inputsame齐。必要事实在`.agent-state/work-owner-planning-ui/recovery-fifth-failure.json`，原log output/ai/work-owner-planning-ui/pg/recovery-05.log；不放宽普通finished或把已越过key阻塞写成最终接受。

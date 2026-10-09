@@ -1,0 +1,310 @@
+{
+  "case": "recovery-05",
+  "input_checkpoint": "b48c1a7e",
+  "technical_checkpoint": "ae101b00",
+  "binary": "work-ui-account-race-14.test",
+  "selector": "^TestAccountProjectWorkPlanningWebOriginalRecovery$",
+  "actual_session": 63642,
+  "actual_exit": 1,
+  "go_seconds": 59.82,
+  "supervisor_seconds": 155.707,
+  "preflight": {
+    "inherited_path_preserved": true,
+    "go_bin_prefixed": true,
+    "node_version": "v24.19.0",
+    "fresh_disk_sample_before_exec": true,
+    "available_bytes": 5852405760,
+    "required_bytes": 5368709120,
+    "gate": "PASS"
+  },
+  "failure": {
+    "stage": "final observer verify after all sequential recovery UI operations",
+    "error": "45000ms case timeout; observerErrors expected 0, received 9 after waiting response tails",
+    "source": "project-work-planning.helpers.ts:689",
+    "caller": "project-work-planning.spec.ts:710",
+    "browser_complete_report_written": false,
+    "final_same_body_schema_client_verification_reached": false,
+    "final_go_durable_assertions_reached": false
+  },
+  "safe_stage_projection": [
+    {
+      "kind": "not-observed",
+      "bound": true,
+      "wire_attempts": 1,
+      "closed_attempts": 1,
+      "truncated_attempts": 1,
+      "rejected": false,
+      "rejection_reason": "",
+      "lookup_observed": true,
+      "completed": false,
+      "fault_installed": false,
+      "fault_hits": 0
+    },
+    {
+      "kind": "in-progress",
+      "bound": true,
+      "wire_attempts": 0,
+      "closed_attempts": 0,
+      "truncated_attempts": 0,
+      "rejected": false,
+      "rejection_reason": "",
+      "lookup_observed": true,
+      "completed": true,
+      "fault_installed": false,
+      "fault_hits": 1
+    }
+  ],
+  "reached": [
+    "not_observed unforwarded truncation with public Lookup, local SQL/current/fact checks and explicit original replay",
+    "in_progress final-Outbox failure with public Lookup, local SQL/current/fact checks, private original continuation and committed Lookup",
+    "three declared committed-loss domains with historical receipt/current distinction, exact changed-meaning rejection, archive refresh, Lookup and explicit same-meaning replay",
+    "final observer verify entry"
+  ],
+  "not_reached": [
+    "final observer expected-incomplete verification",
+    "final same-body/schema/client verification",
+    "browser complete report",
+    "final Go durable uniqueness and stage assertions"
+  ],
+  "work_observation": {
+    "status": "timedOut",
+    "boundary": "Node observation snapshot at afterEach; not a final post-close state",
+    "browser_native_eof_observed": false,
+    "observers": [
+      {
+        "snapshot_at": 44846.092,
+        "page_closed_at": null,
+        "truncated": false,
+        "requests": [
+          {
+            "method": "PATCH",
+            "project_id": "01a121f1-ea7c-7bbd-8e2b-340dabfde780",
+            "target_id": "01a121f1-eab4-786c-8988-ef4b6eb69b8b",
+            "endpoint": "milestones/id",
+            "request_id": null,
+            "request_at": 1806.46,
+            "response_at": 1812.472,
+            "request_failed_at": 1813.379,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "content-length-mismatch",
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "PATCH",
+            "project_id": "01a121f1-e435-7662-abb2-4a7a8a340f00",
+            "target_id": "01a121f1-e48d-77fa-b286-91a36acc7f81",
+            "endpoint": "milestones/id",
+            "request_id": "01a121f2-0cd1-7ddc-8b0e-6fc0a8d7662f",
+            "request_at": 4537.836,
+            "response_at": 4610.505,
+            "request_failed_at": 4611.49,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "content-length-mismatch",
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "PATCH",
+            "project_id": "01a121f1-e435-7662-abb2-4a7a8a340f00",
+            "target_id": "01a121f1-e48d-77fa-b286-91a36acc7f81",
+            "endpoint": "milestones/id",
+            "request_id": "01a121f2-1098-73d7-ba2c-b872f13f8407",
+            "request_at": 5504.583,
+            "response_at": 5528.622,
+            "request_failed_at": 5532.345,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "aborted",
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "PATCH",
+            "project_id": "01a121f1-e663-7697-8077-c21b9e28ddda",
+            "target_id": "01a121f1-e698-7a42-bba9-d7d95b34520c",
+            "endpoint": "tasks/id",
+            "request_id": "01a121f2-1425-737e-b3d5-f13c79869616",
+            "request_at": 6415.639,
+            "response_at": 6543.162,
+            "request_failed_at": 6543.568,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "content-length-mismatch",
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "POST",
+            "endpoint": "task-commands/lookup",
+            "project_id": "01a121f1-e663-7697-8077-c21b9e28ddda",
+            "request_id": "01a121f2-188e-7528-9489-b37c3899249f",
+            "request_at": 7541.028,
+            "response_at": 7572.361,
+            "request_failed_at": 7579.626,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "aborted",
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a121f1-e663-7697-8077-c21b9e28ddda",
+            "target_id": "01a121f1-e698-7a42-bba9-d7d95b34520c",
+            "endpoint": "tasks/id",
+            "request_id": "01a121f2-18b7-78e0-ad7a-2e10be3ae747",
+            "request_at": 7579.697,
+            "response_at": 7593.044,
+            "request_failed_at": 7596.629,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "aborted",
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a121f1-e663-7697-8077-c21b9e28ddda",
+            "target_id": "01a121f1-e698-7e0c-b886-31a431365089",
+            "endpoint": "sprints/id",
+            "request_id": "01a121f2-18c7-7800-8343-863b0b513d50",
+            "request_at": 7596.814,
+            "response_at": 7610.935,
+            "request_failed_at": 7614.672,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "aborted",
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "POST",
+            "project_id": "01a121f1-e873-7112-8471-bc578dc872c6",
+            "target_id": "01a121f1-e8b2-7ae0-a228-757eb8b28656",
+            "endpoint": "tasks/id/blockers",
+            "request_id": "01a121f2-1e08-748d-a023-57b7ba140f4e",
+            "request_at": 8944.302,
+            "response_at": 9080.769,
+            "request_failed_at": 9082.625,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "content-length-mismatch",
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a121f1-e873-7112-8471-bc578dc872c6",
+            "target_id": "01a121f1-e8b2-78fc-8586-4375bf833b10",
+            "endpoint": "sprints/id",
+            "request_id": "01a121f2-2199-713e-ae5e-e69948b4319e",
+            "request_at": 9854.178,
+            "response_at": 9866.144,
+            "request_failed_at": 9868.588,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "aborted",
+            "response_same_request_object": true,
+            "original_body_await": null
+          }
+        ],
+        "total_request_count": 71,
+        "observed_response_finished_count": 62,
+        "selection": "Only requests with an actual failed event or observer rejection are retained below; original ignored snapshot has all 71 requests."
+      }
+    ]
+  },
+  "ordinary_failed_upstream_response_metadata": [
+    {
+      "request_id": "01a121f2-1098-73d7-ba2c-b872f13f8407",
+      "method": "PATCH",
+      "endpoint": "/api/v1/projects/01a121f1-e435-7662-abb2-4a7a8a340f00/milestones/01a121f1-e48d-77fa-b286-91a36acc7f81",
+      "status": 200,
+      "content_type": "application/json",
+      "body_sha256": "fbca836cee8520990479bb04873c5f66bc7aa72b861e91d2f0a132bef8a3a901"
+    },
+    {
+      "request_id": "01a121f2-188e-7528-9489-b37c3899249f",
+      "method": "POST",
+      "endpoint": "/api/v1/projects/01a121f1-e663-7697-8077-c21b9e28ddda/task-commands/lookup",
+      "status": 200,
+      "content_type": "application/json",
+      "body_sha256": "76eb7f47a52d9c08319e57eb15252b9612f690091b97909b0c06d4771ba6f0d3"
+    },
+    {
+      "request_id": "01a121f2-18b7-78e0-ad7a-2e10be3ae747",
+      "method": "GET",
+      "endpoint": "/api/v1/projects/01a121f1-e663-7697-8077-c21b9e28ddda/tasks/01a121f1-e698-7a42-bba9-d7d95b34520c",
+      "status": 200,
+      "content_type": "application/json",
+      "body_sha256": "f3dde7ccbd3dc8ae5bd7457504822279632208b582e1ad20ec49027eb91d3379"
+    },
+    {
+      "request_id": "01a121f2-18c7-7800-8343-863b0b513d50",
+      "method": "GET",
+      "endpoint": "/api/v1/projects/01a121f1-e663-7697-8077-c21b9e28ddda/sprints/01a121f1-e698-7e0c-b886-31a431365089",
+      "status": 200,
+      "content_type": "application/json",
+      "body_sha256": "5e2a8dfb22cccd9bd069ee088e1673390ea231fc3a54eb5fad03b81c917ec4e5"
+    },
+    {
+      "request_id": "01a121f2-2199-713e-ae5e-e69948b4319e",
+      "method": "GET",
+      "endpoint": "/api/v1/projects/01a121f1-e873-7112-8471-bc578dc872c6/sprints/01a121f1-e8b2-78fc-8586-4375bf833b10",
+      "status": 200,
+      "content_type": "application/json",
+      "body_sha256": "58e313b2c599c3fc516d3266967ef399fbc6663342df80745ec3ad729806117a"
+    }
+  ],
+  "terminal": {
+    "go_pid": 968993,
+    "go_actual_wait": true,
+    "go_exit": 1,
+    "driver_pid": 967060,
+    "driver_actual_wait": true,
+    "driver_exit": 1,
+    "adopted_observed_states": [
+      "Z",
+      "Z",
+      "Z",
+      "Z"
+    ],
+    "adopted_actual_wait": {
+      "969257": 0,
+      "969260": 0,
+      "969261": 0,
+      "969263": 0
+    },
+    "supervisor_stop_sent": false,
+    "node_proxy_preparation_root_join": true,
+    "seven_resource_ids_two_observations_absent": true,
+    "descendants_two_observations_empty": true,
+    "runtime_two_observations_empty": true,
+    "private_two_observations_absent": true,
+    "host_tcp_two_delta_empty": true,
+    "inputs_unchanged": true,
+    "exact_tops": true,
+    "actual_test_wait": true
+  },
+  "limits": [
+    "Whole run FAIL; sequential UI and local IPC checks do not replace final observer, schema/client or Go durable assertions.",
+    "Snapshot at approximately 44846ms has four declared content-length-mismatch requests and five ordinary aborted requests, with no original response.finished return for these nine and no page-close event yet.",
+    "The five ordinary failed requests are a Milestone PATCH, Task Lookup, Task GET and two Sprint GETs. Matching full upstream 200 evidence does not prove browser native EOF, Content-Length completion or client decode/publication.",
+    "The final observerErrors=9 is reported after the timeout; the earlier afterEach snapshot has no observer_rejected_at for these nine. Do not conflate their capture boundaries or infer individual rejection timing.",
+    "The key-binding fix was exercised past the prior declaration blocker, but expected-incomplete final verification was not reached. No broader incomplete exemption is accepted.",
+    "Original recovery01/02/03/04 failures and all unchanged gates remain preserved."
+  ],
+  "ordinary_log": "output/ai/work-owner-planning-ui/pg/recovery-05.log"
+}
