@@ -1,5 +1,13 @@
 # 团队任务台账
 
+## 当前工作流（2026-10-09）
+
+AI 工作流按用户要求调整为主线程统筹、一级负责人拆解与整合、二级及更深代理按需执行。各层统一 `gpt-6-astra / ultra`，Fast Mode 的配置与生效限制见[团队流程](README.md#运行时配置与实例)。日常验证使用 Git 基线与限定差异，原始日志写入忽略的 `output/ai/`，必要文档随成果一次提交；不再为哈希、逐轮报告或归档追加提交。
+
+本轮只修改 AI 规则、角色配置与相关技能，不推进下方产品工作项。7 个 TOML 的解析与字段核对、本机 CLI 严格配置解析、相关 Markdown 链接/fragment 和忽略规则检查通过；未运行无关产品测试。当前 CLI 因项目未受信任而未自动加载，协作接口也没有 Fast 参数，实际服务档位不作通过声明；显式启动方式见团队流程。提交通过本节的 Git 文件历史定位，不回填自身哈希。后续在对应任务更新简短当前状态，历史记录按标题定位读取，不把历史哈希清单、逐轮授权及永久归档做法当作现行流程。
+
+## 产品工作项历史与接续
+
 最新接续（2026-10-08，Work 交付 a64fb5e7 已推送且远端核同）：D11 Work Structure 的全部 18 路径已获 root 组合接受（最终 `74c3fbbe`，README `b6b5b281`，独审 `bd2c4037`）；原技术17 receipt `/workspace/scratch/d11-work-structure-root-grants/technical-acceptance01.json` SHA `3cfd72ff`，17 当前源逐一与 accepted-sources `d08d1589` 核同。六新 PG 按版本组合通过：前五保留原版本，U1 的 Lookup 取消窄修后 Unknown02 11/11；五旧回归全部通过（独审 `6f3bcbd0`），独立 A/B 实际断言通过（独审 `abaeb0f9`）。原 Unknown01 FAIL/disposition `1c498f2e` 保留，不冒当前源一次全量重跑。
 
 独立 B 原 inner `10430a8e` / outer `f5294d84` 已完成监督器实际 Wait、2 IDs 双清、432 输入同及 watcher join；环境恢复后外部工具 session20487 为 Unknown process，未取得工具 terminal/exit。root 有限只读 current-clear `681d24f5` 核原 PID/start 与原资源双不存在，未重跑测试，不补写原工具终态、不推断机器重启；共享窗口已收回。README #18 已按预期旧值精确安装（记录 `544ba023`），永久全18验证档 `9628cd5e` / evidence `2d0ef252` 已 STOP 并由 root 核接受；Work 13 技术改动、README/归档与三台账已独立交付，Model 未验四路径未混入。Task rev1正式规格 `6f1fb857` 已获完整独立SPEC接受（`06ebfcb0`，无必修）；最终单头行政卡 `361c4dff` 可逆，永久SPEC档 `eceb0eb5` / evidence `e2b201af` 已STOP并由root全文读核7refs/9内嵌原件/42521B与精确逆变换接受。21拟路径=20技术＋README、7新/8旧PG＋独立2，plan/Structure最小接受头保持。fixture_recovery已ACK实际开始scratch20技术实施，先六源；只必要scratch gofmt≤45s获授，main/00022安装、Go编译测试/资源/README未授。独立A/B PLAN `36ea2ba9` 已root全文读接受仅计划；实际User/Schedule/Rank首阻塞键分列，不冒probe或功能通过。

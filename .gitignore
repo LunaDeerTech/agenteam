@@ -28,3 +28,9 @@ Thumbs.db
 # 本地浏览器验证产物
 /.playwright-cli/
 /output/playwright/
+
+# 本地 AI 工作流日志、临时计划与验证证据
+/output/ai/
+# 旧证据目录仅保留已有跟踪文件；新原始证据使用 output/ai/
+/docs/development/agent-team/evidence/
+/docs/development/agent-team/*-evidence/

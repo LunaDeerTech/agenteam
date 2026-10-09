@@ -1,9 +1,14 @@
+# 项目默认值用于实际加载此配置的新会话；显式会话参数可覆盖。
 model = "gpt-6-astra"
 model_reasoning_effort = "ultra"
+# 模型目录中的 Fast 模式。
 service_tier = "priority"
 
 [agents]
 enabled = true
+# CLI 配置上限；所有层级共享运行工具实际提供的总席位。
 max_concurrent_threads_per_session = 20
+# V1 的可调委派深度上限；V2 忽略此项，不要求建立固定层数。
+max_depth = 6
 default_subagent_model = "gpt-6-astra"
 default_subagent_reasoning_effort = "ultra"
