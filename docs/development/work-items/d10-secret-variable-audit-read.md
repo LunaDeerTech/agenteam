@@ -1,6 +1,6 @@
 # D10 Secret Variable Audit 合同与读端兼容
 
-状态：SPEC已获独立有限接受，实现与作者离线验证已完成，待实现独审；基线正式main `8cb0a953`。来源是已有限独审的[Secret Owner rev2](d10-secret-variables-owner.md) §6/§6.2，A纯合同/Schema已交付。本结果只完成新增审计记录的严格表示、解析和现有读端兼容；SQL CHECK未扩展，因此不宣称新action已经能够持久写入。
+状态：本限定结果已实现并获独立接受；基线正式main `8cb0a953`。来源是已有限独审的[Secret Owner rev2](d10-secret-variables-owner.md) §6/§6.2，A纯合同/Schema已交付。本结果只完成新增审计记录的严格表示、解析和现有读端兼容；SQL CHECK未扩展，因此不宣称新action已经能够持久写入。
 
 ## 1. 闭集与结果
 
@@ -31,6 +31,8 @@ Knowledge已交接，`/root/variables_ui`在独立树`ai/secret-variable-audit`�
 3. 实际TS metadata/record/query parser正负控，旧普通/Project/Secret值Audit集合有限回归；类型检查和相关格式检查。复用只读node_modules，不npm网络，不起Vite/browser/socket。
 4. 离线Go小包race/vet、既有受影响读端合同测试。不存在PG写入/同Tx事实/Owner授权集成证明；不依假SQL provider通过扩大结论。根安排未参与者独审后才正式交付。
 
-没有新增产品决定；任何发现要求扩大既有事实权限或改变strict行为，先冻结该变化交独审。当前已接入三action的合同、row decoder、HTTP/OpenAPI与TS读兼容；Project Audit成功list/detail在识别action前检查原JSON重复成员，System record集合和普通变量事实权限保持原闭集。新Secret update Schema枚举七种有序字段子集；版本的非规范表示继续由原严格解析拒绝。实现尚待未参与者独审，不将离线读兼容写成真实持久能力。
+没有新增产品决定；任何发现要求扩大既有事实权限或改变strict行为，先冻结该变化交独审。当前已接入三action的合同、row decoder、HTTP/OpenAPI与TS读兼容；Project Audit成功list/detail在识别action前检查原JSON重复成员，System record集合和普通变量事实权限保持原闭集。新Secret update Schema枚举七种有序字段子集；版本的非规范表示继续由原严格解析拒绝。实现已获未参与者独立有限接受，不将离线读兼容写成真实持久能力。
 
 作者离线结果：Audit contract/读包race、六个既有HTTP纯读top、最终37项实际Go HTTP输出/标准Schema向量、277项Audit与相邻Model decoder测试、严格TS及三Go包vet通过。原始重复JSON成员与Schema逆序字段两个真实反例已修复并保留回归；未跑Native、PG或生产持久路径。恢复命令和实际终态见current。
+
+独立接受范围：36组Entry/metadata跨action组合仅六个原配对通过，System只接受共享filter而拒三种新record；实际row/HTTP与37项标准Schema向量通过。真实API/transport七项控制确认合法与重复键响应均等待原reader/outer取消尾，reader等待期间abort拒绝；与8cb实际普通Audit对照，parse后outer尾期间的晚abort沿旧语义等待后返回，不把该既有行为另作本次缺陷。仅纯合同/读兼容接受，无SQL写入、D04值Audit或Project事实/root证明。
