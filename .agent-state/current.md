@@ -36,7 +36,7 @@
 - 最新navigation第4在继续编辑后焦点断言FAIL，原值保留。共享焦点局部正反例已证实并完成正式修复，但不回填原navigation因果；下一需新资产真实复验。
 - 精确失败输入在 `.agent-state/model-ui-recovery/*failure.json`；完整主harness为两Model Go、config/spec及该目录case模块。独立A/B四源在`.agent-state/model-ui-independent/`，已编译/类型/发现并随新Go夹具复编，**尚未真实执行**。
 - 新组件固定1/21监督器 `run-shared-components.py` 已有有界实际Wait/descendants/listener处理；单例及21矩阵当前完整PASS。最初临时runner留下已退出孤儿zombie PID115611/PPID1，无活测试进程/监听，原actualWait/Viteclose无法补回；不杀PID1，不称原清理PASS。
-- Session消费探针 `session-consumption-probe.mjs` 已有保存基线；最新去除重复监督、复用组件清理的返修及新增 `run-session-consumption.py` 已闭合冻结并保存，node/Python语法与8input离线准备通过；使用固定30+15秒总界的任务自有worker执行。真实8case尚未运行，不阻塞已接受组件交付。
+- Session消费探针 `session-consumption-probe.mjs` 已有保存基线；最新去除重复监督、复用组件清理的返修及新增 `run-session-consumption.py` 已闭合冻结并保存，node/Python语法与8input离线准备通过；使用固定30+15秒总界的任务自有worker执行。真实8case已运行：完整length/chunked的native/正式client均EOF与解码成功且PW/CDPfinished；断连无EOF/failed，缺字节JSON有EOF但解码拒绝，不支持“正常EOF后cancel导致假failed”猜测。80128原外层exit1仅runtime-empty未过；所有实际Wait/close/desc/listener齐。root接管后精确核已登记PID和owned监听均不存在，删除唯一任务自有regular0600 Chromium残留及空目录/同身份marker，另写post-cleanup记录；原terminal逐字事实保持FAIL，后验current-clear不回填原通过。下一沿同响应安全读取/abort诊断定位主authority，不放宽EOF门槛。
 - Model私有dist已同步本次2640全检查构建的64文件，与web/dist逐字节同一。后续业务用该新资产，旧PASS不等于新资产通过。
 
 ## 环境与共享资源
@@ -46,7 +46,7 @@
 - 正式组件整合树 `/workspace/agenteam-shared-layer-delivery` 当前 `ai/shared-layer-delivery`，包含已推送main的两组件提交；不混入未验Model或B0-P产品。
 - 固定Chromium、锁定Playwright、PG/MinIO及helpers已恢复；可重建产物在output。既有dev infra不属于任务，不连接、不清理。
 - PG/browser/hostTCP只运行一个明确资源窗口。实际Go/driver/外层终态及资源尾结束前，不进行Git网络、下载或另一browser/socket测试；离线纯测试与无输入冲突写入可继续。每轮完整终态才交接，原失败不补写PASS。
-- 当前所有上一轮实际资源均已释放；root正在最终Git保存，完成后先交Session8短探针，再B0-P Atomicity。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
+- 当前所有上一轮实际资源均已释放；root正在最终Git保存，完成后交B0-P Atomicity；Session8实际资源已由root核清。源、binary、fixture实际冻结范围按各driver确定，不把旧binary称作新增测试通过。
 
 ## 保留停止项与最终验收
 
