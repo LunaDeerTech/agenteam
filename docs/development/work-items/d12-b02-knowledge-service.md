@@ -6,11 +6,11 @@
 
 ### 当前集成接缝
 
-- 经 root 授权，B01 `contract/events.go`／`events_test.go` 仅补向后兼容的 `KnowledgeEvents.Valid() bool`：零值 false、真实 Catalog 注册后 true，封存 Catalog 不使已注册类型失效。它只支持构造拒绝缺失依赖，不是事件事实或权限。未改编码／闭集，待未参与者窄审。
+- 经 root 授权，B01 `contract/events.go`／`events_test.go` 仅补向后兼容的 `KnowledgeEvents.Valid() bool`：零值 false、真实 Catalog 注册后 true，封存 Catalog 不使已注册类型失效。它只支持构造拒绝缺失依赖，不是事件事实或权限。未改编码／闭集，已获未参与者有限独审接受。
 
 - C1/C2/C3 已有实际源码，保留只读，不重复实现。D05 的 `NewProjectAuditAuthority` 已存在；它的存在不等于 Project 已接入 Object producer，也不证明本轮 Object runtime 组合已接受。
-- Project 外域 Audit 路由实际位于 `project/audit_facts.go`，当前仅接纳 Secret、Object 仍明确 `DEPENDENCY_UNBOUND`；Knowledge 的 C4 路由尚缺。§3 C4 中的旧路径推定须在真正接线前更正并另取共享写域，不能依历史文件名直接修改。
-- Project Outbox 现有 `project/events.go` 已接 Model／Work 专口，但没有 Knowledge 或通用 Human gate；历史 `outbox_authority.go` 候选不是现存输入。B02 自有 producer 依正式 `outbox/contract` 实现，生产组合前补齐真实 Project gate；不安装 allow adapter。
+- Project 外域 Audit 路由实际位于 `project/audit_facts.go`，原基线仅接納 Secret、Object 明确 `DEPENDENCY_UNBOUND`；root 已授 §3 C4 五技术路径，现开始补 Knowledge，公开接口不变。Variables 并行树在同两个既有文件另增独立分支，最终由 root 按限定差异合并，保留两域与全部旧路由，禁止整文件覆盖。
+- Project Outbox 原 `project/events.go` 已接 Model／Work 专口，本轮只增精确 Knowledge gate，不新造任意 Human producer 的通用放行。历史 `outbox_authority.go` 候选不是现存输入。B02 自有 producer 独立证明真实命令/当前事实；gate 仅证明当前 Project 权限，两者消费同一 Tx。
 - 本域 `Documents`、树 mutation、canonical read/fact 与对象所有权／清理适配器按 B01 端口实现。D13、HTTP、受控下载 URL、全 Project participant 仍属后继；本轮不以它们未就绪阻止本域代码开工，也不把它们称作已绑定。
 
 
@@ -31,8 +31,8 @@
 | D05 对象与源 | `oc.Objects`/`Uploads`/`SourceResolver`/`SourceReads` 形状已验；Knowledge 所属适配器缺失 | 新 Knowledge 实现真实所属事实；D05 继续拥有 MinIO、upload/reader/lease/writer。源 resolver 前工作登记/stop 的实际增强由 A 实施且未验，集成必须绑定其已验版本。 |
 | ReferenceCleanup | 现有 C3 已接受 Avatar／Knowledge 精确分支 | C3 已交付，消费现有精确 Knowledge cause 分支；本轮不改 Object 实现。 |
 | Object Audit 事实 | D08 §9.2/C0 `audit.ProjectFactAuthority` 与 D05 `NewProjectAuditAuthority` 均有实际源；Project 路由仍未绑定 | 必须消费 D05 自己的同 Tx 真实见证与 upload/attempt/cleanup事实。Knowledge command/cause 不能证明 D05 成功/失败；不得实现 allow checker。属于 D08/A 后段实现依赖，不是本卡偷偷扩大 D05 源码。 |
-| Knowledge 删除 Audit | C2 action/resource/producer/metadata 闭集已在基线；Project AuditFacts 仅 Secret 可注册 | §3 闭集+Knowledge 自有事实 checker；P冻结后 root 交接 `project/authority.go` 与 `project/audit_authority.go`，限定接纳 KnowledgeProducer。B 当前拥有 Audit types/metadata/service，必须等其冻结，不能并写。 |
-| Knowledge Outbox | B01 typed events 已验；固定 `project/events.go:272/293` 仅接受 producer=project | 依赖 P 正在实现的 `project/outbox_authority.go` 通用 Human gate 独立验收：完整 summary/stage/private issuer、CurrentAccess=Read/NewFact=Mutate、User/Project union。不新建临时 Project adapter；Knowledge只实现自己的 `ob.ProducerAuthority`。 |
+| Knowledge 删除 Audit | C2 闭集及 `AuthorityDependencies.AuditFacts` 已存在；实际注册/外域分派位于 `project/audit_facts.go` | 按已授 C4 只增加 KnowledgeProducer，当前 Owner Mutate 后原样委托本域私有见证 checker。缺 provider 仍 Unbound；不改 Audit service/公共接口。 |
+| Knowledge Outbox | B01 typed events 与正式 Outbox Project/Producer ports 已存在；Project 基线已接 Model/Work | `project/events.go` 增精确 Knowledge 分派，新 `knowledge_event_authority.go` 绑定完整 Actor/Session/summary、私有 issuer/双 stage、User/Project SH。CurrentAccess=Read、NewFact=Mutate；另由本域 ProducerAuthority 核真实事实。默认生产未安装本域 producer，仍未绑定。 |
 | 分页 | cursor.Text 已交付，与原 instant/uuid/integer 共存 | 直接消费 C1；不改签名格式、不以伪 integer 或全量内存分页替代。 |
 | 迁移/资源 | 00001–00023 已正式存在；本卡独占 00025，00024／00026 属并行树 | 旧临时 DDL 不作现存输入；按 §6 实现 00025 并核前序 Audit CHECK 增量。真实迁移等待连续前序就绪和独占 PG／MinIO 窗口。 |
 | Project生命周期 | D08 P、A stop与Knowledge participant未联合验收 | 本库具备真实本域工作登记/取消/join/恢复；后续 B03 绑定 exact lifecycle cause、required manifest、source_project_id join和删除顺序。不能把 B02 通过写成项目全域停止/清理通过，生产根继续未绑定。 |
@@ -63,7 +63,13 @@ func (Metadata) KnowledgeFields() (KnowledgeMetadataFields, error)
 
 **C3 Knowledge irreversibly release，旧3+新2。** 旧 `internal/central/object/contract/access.go` 的 CleanupReleaseAccess：保留 Avatar+ReplacedObject/CancelledUpload 原分支；仅另加 Knowledge（必须含Project）+ReplacedObject/CancelledUpload/OwnerDeleted。旧 `internal/central/object/reference_cleanup.go` 将硬编码 Avatar owner/partition 改为经验证 cause 的精确 kind/id/partition 参数；保留真实 upload/object/owner/cause检查、canonical/reserved撤引用、upload disposition=revoked、gateObject及幂等原因匹配。旧 `internal/central/object/contract/reference_cleanup.go` 只同步 Avatar-only 注释为明确两个闭集，签名不改。新 `internal/central/object/contract/knowledge_cleanup_test.go` 和 `tests/objects/knowledge_cleanup_test.go`。无新D05表、无扩大其他owner，不能只删 Avatar 检查或用普通 ReleaseObjectInTx 代替 publication gate。
 
-**C4 P接续，旧2+新1，必须等P冻结并另授权。** P已定 `AuthorityDependencies.AuditFacts map[audit.Producer]audit.ProjectFactAuthority` 与 `NewAuthority(store Store,d AuthorityDependencies)`。旧 `internal/central/project/authority.go` 仅把允许注册的闭集增加 KnowledgeProducer并拒nil；旧 `project/audit_authority.go` 的外域路由增 KnowledgeDeleteSubtree/Human当前Owner/当前Mutate/ProjectAudit屏障校验，再调用配置的Knowledge checker；新 `project/knowledge_audit_test.go`。已有 Secret/Object 路由、服务权限、Audit清理屏障不放宽。generic Human Outbox gate沿P已定工作，不另改旧 events.go/外域表。V审卡确认此闭口，执行前仍核P最终文件是否正是这两个，不能猜新增修改范围。
+**C4 Project 接续，旧2+新3，已获 root 精确授权。** 只改 `internal/central/project/audit_facts.go` 与 `events.go`；新增同目录 `knowledge_event_authority.go`、`knowledge_audit_test.go`、`knowledge_event_authority_test.go`。公开 `AuthorityDependencies.AuditFacts`、`NewAuthority`、Audit/Outbox port 均不变，不动 Audit/Outbox service、app、Object 或公共 fixture。
+
+Audit 注册闭集追加 KnowledgeProducer，拒 nil/typed-nil 并复制选择 map；Project scope/ProducerFor 精确匹配后，只接纳 KnowledgeDeleteSubtree/Human/success/knowledge_document/ordinal0/全空 associations。先由真实 `RequireOwnerInTx(..., Mutate)` 校验当前身份、Owner、初始化/生命周期及已有 User/Project SH，再将原 ctx/Tx/Entry/AppendKey 交给 Knowledge provider；保留私有 witness 和原 Fault/Unknown。Project SH 与 lifecycle 所需 Project EX 同一锁序串行；不新造名义 Audit 屏障，也不把此口冒称完整 Audit cleanup。缺 provider 仍 DependencyUnbound，Object 既有未绑定不改变。
+
+Outbox 仅接 `knowledge.content_changed|knowledge.deleted`、producer=knowledge、schema1、aggregate=knowledge_document、有效 version 且无 sequence、Human/匹配 Project 的闭集。无 I/O 的 Discover 只接受 CurrentAccess，返回 User SH/Project SH 与 Project 私有 issuer/purpose；绑定完整 Actor（含 Session）、完整 summary/payload digest、Project 及固定双 stage。Validate 在原 Store 活 Tx 核 exact binding/purpose/锁集与实际 held locks，再分别使用 Read/Mutate；不新开事务或晚取锁。原 Outbox 还必须调用本域 ProducerAuthority，不能以 Project gate 代替 Knowledge 命令/当前事实。构造不证明任意 opaque provider 的 Store 身份；生产和真实验收须显式同 Store 组装，双方对同一活 Tx 分别拒 foreign/ended Tx，本域再核私有 witness/issuer。默认 root 尚未绑定 Knowledge provider，当前 C4 纯控/静审不称真实组合通过。
+
+Variables 作者在独立树拥有同两文件的相邻增量；早期 provider/consumer 对齐已确认无冲突，稳定后交叉独审。最终由 root 精确合并保留两域分派，不能复制整文件覆盖另一域。
 
 **D1 验收接线，旧1，等共享fixture交接。** `tests/testsupport/postgres/cmd/fixture/main.go` 只在既有package参数追加 `./tests/knowledge/...`；不改fixture安全/生命周期/cleanup逻辑，不改公共测试库。正式迁移是另一待编号新路径；除本轮 C1 外，上述都需root明确授权，不在新领域29路径里自动取得写权。B当前可能消费固定driver，交接后固定新输入再跑本块，不能漂移其运行中的组。
 
@@ -179,3 +185,5 @@ Go 1.27.1、`GOPROXY=off GOSUMDB=off`、独占 GOCACHE、只读既有固定 modc
 第九片段 `commands.go`／`commands_test.go` 补持久 content intent 内部流程：使用 B01 原语义摘要、快照 caller 的 parent/title/expected version 指针；当前身份后先认完成 receipt，新工作才核 Mutate/版本/父节点/全局文档 ID 占用和来源 Project，再保留固定 event header 与无正文 source 描述。title-only 真 no-op 只落安全 receipt，不伪造活动或事件；没有将该内部流程冒充已接通的上传／完整 Documents。首编暴露 import 补丁位置与旧 Event API 名误用，改回实际 `EventIdentity`／`DecodeHeader` 形状后 pure 64236、新增实际源控制和 race 31012 实际通过；最终前片段 race/vet 44212 亦已结束通过。content SQL 与最终发布仍待后续实际集成。
 
 首轮迁移真实验证由本域作者执行，单 top 的 fresh、populated_upgrade、rollback 三子均 PASS：外层 88917 actual exit0（84.216s），Go 12.97s、driver 25.586s。Go/driver 实际 Wait0，精确 PG container/network 双退役、两次后代为空、runtime 仅 owned.json、host TCP 两次 delta_empty、冻结输入一致全部满足，窗口已释放。沿用上述 race-c15644 与原 driver/supervisor，无门槛或预算变更；原始日志为 `output/ai/knowledge/pg/pg-fdeeabd18252457fbadd478f314a2caa.log`。该轮证明冻结 00024→00025 的 schema/约束、有数据升级及失败回滚／原 checksum 恢复；不证明本域 content/Move/Delete 实际 SQL、当前权限、Object/Audit/Outbox 联合事实、独立验收或完整 Documents。其余未验边界继续保留。
+
+C4 五技术路径已可构建：Project Audit 的 Knowledge 闭集／原 witness 委托以及 Outbox 精确双事件／双 stage 当前 gate 已接入，未改公开接口或安装生产 root。新增作者控制覆盖缺失/typed-nil provider、map 拷贝、当前初始化/生命周期/撤销 Session、foreign Tx/缺锁、原 Unknown/cause/ctx 保留，及完整 Actor/summary/issuer/purpose/锁集、双事件与非法闭集。首轮 58386 中一个无版本 stimulus 已被公共 Header constructor 拒绝，测试误期待进入消费者，修正为承认该拒绝；同轮广泛 `project/...` 既有 HTTP schema 测试因未提供固定解释器失败，保留该环境前置结果。限定实际修改包 `go test -race -p 2 ./internal/central/project ./internal/central/project/contract` 36007 actual0，随后相同包 vet/diffcheck actual0；没有重试或扩大业务预算。以上是受控 Project 接线作者证据，不是 Knowledge 事实或真实同 Store 联合 PG，待 Variables 作者未参与的有限独审及后续业务集成。

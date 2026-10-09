@@ -2,8 +2,8 @@
 
 - 工作树 `/workspace/agenteam-knowledge`，分支 `ai/knowledge-service`，正式基线 `f1c94ee5`。唯一作者 `/root/model_delivery`；Git／worktree 与真实资源窗口由 root 负责。
 - 按 [B02 正式卡](../docs/development/work-items/d12-b02-knowledge-service.md) 已接受 rev1 实现完整 Human canonical 内容与文档树库；不是 HTTP／UI／D13／Project 全域 lifecycle 交付。
-- 唯一写域：卡 §4 的 29 个新领域／测试路径、`db/migrations/00025_knowledge.sql`、该卡、本文件及必要 `docs/development/backend/README.md`。另授 B01 `contract/events.go`／`events_test.go` 仅补 Valid()；Object、Project 共享口及公共 fixture 不在写域。
-- 已核 B01 12 源与 C1/C2/C3 存在；29 源未有旧实现。Project Knowledge Audit 与 Outbox gate 尚缺，先按正式端口实现本域，真实组合前接入；不以替身宣称授权或完整业务接受。
+- 唯一写域：卡 §4 的 29 个新领域／测试路径、`db/migrations/00025_knowledge.sql`、该卡、本文件及必要 `docs/development/backend/README.md`。另授 B01 `contract/events.go`／`events_test.go` 仅补 Valid()；追加 C4 精确共享写域为 Project 的 audit_facts.go/events.go 及三个 knowledge 专属新文件，见正式卡 §3；Object、其他共享口及公共 fixture 不在写域。
+- 已核 B01 12 源与 C1/C2/C3 存在；29 源未有旧实现。Project Knowledge Audit 与 Outbox gate 的 C4 已获授权，按原 port 精确接入中，尚未真实组合；不以替身宣称授权或完整业务接受。
 - `00024` 由 ProjectVariables 占用、`00026` 由 Runner control 占用。00025 不越过未就绪连续前序运行；当前无本树 PG／browser／socket 或后台资源。
 - Object runtime join 等既有停止项不恢复。阶段源码可构建后冻结并交 root 检查点，随后交未参与者审查。已有 service/repository/runtime/read、query/source/commands、00025 六表和 Audit 增量、subtree preview/Move 同Tx/standalone写入。第四片段 Object Authority/精确 cleanup checker/KnowledgeFile exact revision resolver 已可构建；实际限定 race 14355 与 vet 通过。原编译／fixture 前置 FAIL 在卡保留。这些早期纯控不证明真实授权或业务 SQL；迁移首轮的后续实际结论见下，完整 Documents／内容发布恢复与外域组合仍未齐。
 - 第五片段 Audit/Event fact adapters 已可构建，限定 race 4255/vet 实际通过；原命令 Audit key、exact Store/Tx 私有 witness、当前 receipt/tombstone 与 event producer 私有 issuer/Session/gates 已有本域检查。尚未接实际内容/删除执行链，C4/generic Project Outbox 仍未绑定，整体未验。下一实现出版意图/测量/保留原 cause 的发布恢复以及完整 Delete。
@@ -16,3 +16,5 @@
 - 第九片段 content intent 内部口已落盘，caller 请求快照／无正文持久描述／固定事件 identity／全局 ID 锁／receipt-first 与新工作当前权限次序可构建；pure 64236、race 31012 通过，SQL 未验，Create/Update 仍未公开接通。首编 FAIL 与修正留卡，后续接真实 measured reserve/send/publish 及 work 实际 join。
 
 - 作者首轮 `TestKnowledgeB02Migration` 三子 fresh/populated_upgrade/rollback 全部 PASS：88917 actual exit0，Go 12.97s、driver 25.586s、supervisor 84.216s；Go/driver 实际 Wait0，精确 container/network 双退役、desc 双空、runtime 仅 owned.json、host TCP 双空及 inputs_unchanged 全齐，真实窗口已释放。日志 `output/ai/knowledge/pg/pg-fdeeabd18252457fbadd478f314a2caa.log`。仅接受本轮迁移／约束／升级回滚作者结果，不替代独立 PG、content SQL、真实 Owner/Object/Audit/Outbox 组合或完整 B02 验收。下一继续实际发布链，并补齐 Project 共享 gate 后再安排相关业务 PG。
+
+- C4 五技术源已可构建 freeze：Project Audit Knowledge 精确委托及 Outbox 双事件 gate；限定 Project/contract race 36007、vet/diffcheck 实际0。58386 的无版本测试前置误判和既有 HTTP schema interpreter 缺失 FAIL 保留卡；未修改产品门槛。Variables 作者已确认其相邻增量可并存，将对稳定五源有限独审；真实 Knowledge/Audit/Outbox 同 Store 组合仍未验，生产未绑。
