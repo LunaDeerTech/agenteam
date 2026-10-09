@@ -4,6 +4,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -132,31 +133,44 @@ func TestProjectVariablesRootActualCallJoin(t *testing.T) {
 			if e != nil {
 				t.Fatal(e)
 			}
-			completed := make(chan error, 4)
+			version := foundation.Version(1)
+			deleteMeta := foundation.CommandMeta{RequestID: guardID[foundation.Request](t), IdempotencyKey: "variable-root-held-delete", ExpectedVersion: &version}
+			if err := deleteMeta.Validate(); err != nil {
+				t.Fatal("invalid Delete command test prerequisite")
+			}
+			type callResult struct {
+				name string
+				err  error
+			}
+			completed := make(chan callResult, 4)
 			go func() {
 				_, e := variables.service.GetVariable(context.Background(), actor, projectID, target)
-				completed <- e
+				completed <- callResult{"get", e}
 			}()
 			go func() {
 				_, e := variables.service.ListVariables(context.Background(), actor, projectID, foundation.DefaultPageRequest())
-				completed <- e
+				completed <- callResult{"list", e}
 			}()
 			go func() {
 				_, e := variables.service.LookupVariableCommand(context.Background(), actor, query)
-				completed <- e
+				completed <- callResult{"lookup", e}
 			}()
 			go func() {
-				version := foundation.Version(1)
-				_, e := variables.service.DeleteVariable(context.Background(), actor, foundation.CommandMeta{IdempotencyKey: "variable-root-held-delete", ExpectedVersion: &version}, projectID, target)
-				completed <- e
+				_, e := variables.service.DeleteVariable(context.Background(), actor, deleteMeta, projectID, target)
+				completed <- callResult{"delete", e}
 			}()
 			var calls []workRootHeldCall
 			for range 4 {
 				select {
 				case call := <-store.entered:
 					calls = append(calls, call)
-				case err := <-completed:
-					t.Fatal("actual Variable call returned before transaction hold", err)
+				case result := <-completed:
+					code := "unavailable"
+					var fault *foundation.Fault
+					if errors.As(result.err, &fault) && fault.Code.Known() {
+						code = string(fault.Code)
+					}
+					t.Fatal("actual Variable call returned before transaction hold", result.name, code)
 				case <-time.After(5 * time.Second):
 					t.Fatal("actual Variable transaction admission missing")
 				}
@@ -188,8 +202,8 @@ func TestProjectVariablesRootActualCallJoin(t *testing.T) {
 				store.unhold()
 				for range 4 {
 					select {
-					case err := <-completed:
-						if err == nil {
+					case result := <-completed:
+						if result.err == nil {
 							t.Error("cancelled Variable callback reported success")
 						}
 					case <-time.After(3 * time.Second):
@@ -242,8 +256,8 @@ func TestProjectVariablesRootActualCallJoin(t *testing.T) {
 				store.unhold()
 				for range 4 {
 					select {
-					case err := <-completed:
-						if err == nil {
+					case result := <-completed:
+						if result.err == nil {
 							t.Error("forced Variable callback reported success")
 						}
 					case <-time.After(3 * time.Second):
