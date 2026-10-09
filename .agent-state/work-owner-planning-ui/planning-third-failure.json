@@ -1,0 +1,78 @@
+{
+  "case": "planning",
+  "technical_base": "bea8ad29",
+  "binary": "work-ui-account-race-05.test",
+  "selector": "^TestAccountProjectWorkPlanningWebStructureAndTasks$",
+  "result": "FAIL",
+  "go_seconds": 58.81,
+  "outer_session": 74490,
+  "outer_exit": 1,
+  "outer_seconds": 167.494,
+  "failure": {
+    "await": "originalBody(response): response.finished()",
+    "step": "first milestone reorder before peer",
+    "location": "project-work-planning.spec.ts:235 -> realOrdering:82 -> move:72 -> helpers.ts:166",
+    "case_budget_ms": 45000,
+    "task_creation_repair_reached": false,
+    "go_durable_assertions_reached": false
+  },
+  "upstream_response": {
+    "metadata": {
+      "body_file": "body-c31664a6f8db3961f29ad8db80271b9dd1827574bd8161e0f5663fba36dd4b23.json",
+      "body_sha256": "c31664a6f8db3961f29ad8db80271b9dd1827574bd8161e0f5663fba36dd4b23",
+      "content_type": "application/json",
+      "endpoint": "/api/v1/projects/01a120e4-f275-7de7-afc1-4e796200078d/milestones/01a120e5-0dd2-7455-b4ef-fa5f08e59437/reorder",
+      "input_hash": "d10c44d576122260f3aa153c08b3f2eb657692a13f86c5bfa890ba09524db168",
+      "method": "POST",
+      "project_id": "",
+      "request_id": "01a120e5-1530-7e7f-8c09-c0d2f00cf099",
+      "source_run": "TestAccountProjectWorkPlanningWebStructureAndTasks",
+      "status": 200
+    },
+    "body_utf8": "{\"command\":\"work.milestone.reorder\",\"changed\":true,\"milestone\":{\"id\":\"01a120e5-0dd2-7455-b4ef-fa5f08e59437\",\"project_id\":\"01a120e4-f275-7de7-afc1-4e796200078d\",\"title\":\"修改 Milestone\",\"description\":\"\",\"manual_rank\":\"3fffffffffffffffffffffffffffffff\",\"version\":\"3\",\"created_at\":\"2026-10-09T13:40:44.674666Z\",\"updated_at\":\"2026-10-09T13:40:46.557261Z\"},\"sprint\":null,\"event_id\":\"01a120e5-155d-72ee-a1a5-816ce9e1d5dc\"}",
+    "body_bytes": 418,
+    "original_hash_verified": true,
+    "observed_boundary": "Go proxy controlResponse io.ReadAll and Close of original upstream body, before downstream forwarding"
+  },
+  "following_get": {
+    "method": "GET",
+    "endpoint": "/api/v1/projects/01a120e4-f275-7de7-afc1-4e796200078d/milestones/01a120e5-0dd2-7455-b4ef-fa5f08e59437",
+    "status": 200,
+    "request_id": "01a120e5-1601-72f7-98c3-0ed7a3448e97",
+    "version": "3"
+  },
+  "missing_evidence": [
+    "Playwright response Request ID value was read but not persisted",
+    "browser native reader completion and Content-Length",
+    "Playwright requestfailed and CDP response/loading event times",
+    "downstream proxy write completion and browser connection cause"
+  ],
+  "terminal": {
+    "direct_actual_wait": 1,
+    "adopted_count": 4,
+    "adopted_states_before_wait": [
+      "Z",
+      "Z",
+      "Z",
+      "Z"
+    ],
+    "adopted_actual_wait": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "owned_resource_count": 7,
+    "exact_resources_double_absent": true,
+    "descendants_double_empty": true,
+    "runtime_double_empty": true,
+    "private_double_absent": true,
+    "host_tcp_double_empty": true,
+    "inputs_unchanged": true
+  },
+  "limits": [
+    "Upstream complete body and following GET do not establish browser EOF or finished.",
+    "No common cause with Model or production fault is established.",
+    "Original 01/02 FAIL and first STOP remain unchanged."
+  ]
+}
