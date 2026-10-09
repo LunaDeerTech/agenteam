@@ -158,6 +158,10 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ### 当前有限交付门槛
 
+五top组合91700整体FAIL，窗口完整释放：精确selector `^TestKnowledgeB02(Cleanup|CommitUnknown|Concurrency|CleanupCommitUnknown|ProcessRecovery)$`，使用89b970d3两harness与原77598 candidate，组合映射经Model038551独立有限接受（两全文逆差异、8错selector拒、41observer控制；没有实测业务外推）。启动statvfs5702197248B；Concurrency3 PASS6.68s、修后Cleanup3 PASS10.67s（两Project公平子3.91s）、PublicationUnknown6 PASS16.45s、CleanupUnknown2 PASS5.46s。ProcessRecovery在2.40s于b02_process_test.go:375计划计数断言FAIL，尚未到same-key活guard拒绝／SIGKILL后恢复，不能称Process通过。Go1028097／driver1026096实际Wait1，outer a6b3b4 actualexit1／supervisor134.495s terminal1；e2bffa核7ID两轮14absent、private/runtime/desc双尾、TCP双delta_empty、exact_tops／actual_test_wait、inputs_unchanged全齐且无STOP；终态statvfs5699268608B。日志 `output/ai/knowledge/pg/pg-04554d791ca64ac680bc6498b1ccc816.log`。四组14子仅按各自真实断言有限接受，不改组合FAIL；P2当前SQL及公平清理已有真实证据，作者去重累计10top35sub，Process仍未接受。
+
+Process首fail窄查：x.count第二值是command_events，prepareContentIntent在Prepare前只保存commands.plan固定header与planned publication；command_events到finishContentPublication阶段才形成。测试两处误expect第二值=1，拟改为0并核原plan/header不变及安全计数诊断。原91700未打印具体两个计数，不能回填当时值；此前确切planned/active work、零九项publication事实和Activity不变断言已通过。当前仅静核，未改产品/测试，后半Process待修正测试候选和freshgrant；不重跑无关已过四组。
+
 修后Runtime57974已完整PASS：当前2287eca0产品/测试＋race-c77598 `knowledge-recovery-fixed-race.test`，TCP仅移植34206ea4诊断增量且经Skills f8fe7d有限独审，gate/预算不变。首statvfs5867839488B；三子7.82s（2.73／2.68／2.42s），Go1017066／driver1015085实际Wait0，outer c34712实际exit0，supervisor104.995s／terminal0。7ID/private/runtime/desc双尾、exact_tops／actual_test_wait、HOST_TCP双delta_empty、inputs_unchanged全部齐，29ade3复核无STOP；日志 `output/ai/knowledge/pg/pg-0a7b9115f922479997dc166ee227af3b.log`。窗口已释放，只接受修后Knowledge Runtime三子，不扩为Object全域停止或整个B02。
 
 修后Runtime54818已有三子业务PASS6.90s和Go998510／driver996487实际Wait0，原日志7ID/private/runtime/desc双尾已清、精确top/Wait匹配；但环境切换后工具session消失，`pg-62f545ac57a847159cb2d1996080fa98.log`止于exact_tops，缺HOST_TCP双观察、输入不变和supervisor/外层终态，**不记完整PASS**。恢复只读复核7精确ID/PID/runtime双清及三private目录不存在，root确认当前窗口释放，不回填失去的baseline或Wait。产品/测试/新binary保持冻结；后续57974同输入新一轮完整通过不回填54818旧终态，原56777失败与TCP失败继续保留，公平Cleanup仍未实际运行。
@@ -174,9 +178,9 @@ P1/P2五源修复已获原独立审查者Skills有限接受，无剩余mustfix�
 
 原未修 Runtime 三子随后实际56777整体FAIL（Go14.81s）：canonical Stop/Close 子已观察精确reader lease released和Close原context.Canceled，最后Knowledge Drain超时；后两子实际Close barrier和取消后源lease后继退休通过。Go/driver实际Wait1、7ID/private/runtime/desc双尾及input gate齐，但hostTCP75s尾仍2行，无双delta_empty，外层exit1；不记完整窗口通过。终态后当前ESTABLISHED行归codex PID848，原baseline未持久，不能回填原delta归属或改写TCP失败。原binary与三子输入保留，不把未来修后源冒作本轮通过。
 
-B02可单独交付的是§1的完整Human canonical／树服务库及真实适配器；当前累计七个作者top／二十三子按各自固定输入真实通过；原Cleanup两子保留旧输入证明，P2改后仍须当前三子补验。后继按下列有限闭包收敛，不继续追加无已知缺口的作者测试组：
+B02可单独交付的是§1的完整Human canonical／树服务库及真实适配器；当前去重累计十个作者top／三十五子按各自固定输入真实通过，包含P2修后Cleanup三子；91700组合整体FAIL与Process未验后半保持。后继按下列有限闭包收敛，不继续追加无已知缺口的作者测试组：
 
-1. **余下五组真实尾**：受影响Cleanup三子、Publication CommitUnknown六子、Concurrency三子、Cleanup CommitUnknown两子、ProcessRecovery一个top，各消费其已记录输入／独占窗口，全部实际Wait与资源尾齐；遇失败只修相关原因并复验受影响组。Process精确入口已获Work测试独审与Skills harness窄审接受，仍未真实执行。此五组是已承诺异常／竞争／恢复门槛，不能由编译或入口审查替代。
+1. **余下Process真实闭环**：四组已在91700有限通过且全尾齐，保留各自固定输入证据；Process前置计数断言失败，后半尚未执行。先按正式阶段修测试并独审，再用新Process候选单top实际复验活guard、精确SIGKILL/Wait、same-command恢复及幂等终态。原测试/入口独审不能代替动态通过，不重复已过四组。
 2. **完整库独立风险审查及有限补集**：Skills已核十五生产源／00025／四Project适配器并发现P1/P2，修复已获有限复核接受；整体最终独立结论仍须结合当前真实组与以下有限风险补集。由未参与实现者核当前权限→原command→完整锁→真实外域事实→最终同Tx→资源退休链，复用已有迁移、B01／分页及作者固定输入证据。独立真实补集按两类组织，避免重做全矩阵：内容／权限／事实类补DOCX与raw length/SHA拒绝的正式D05组合、最终当前授权变化及伪Knowledge Audit/Event事实拒绝；树／引用类补正文Update与Move交错不覆parent、preview后成员移入/移出导致旧scope拒绝、旧upload revoked后不能重新Attach及错cleanup cause拒绝。已有Activity终点失败已证明整Tx的Audit/Event回滚，不为每条SQL复制同类故障。Unknown与真实Process接管由独立者审查完整原生实测及关键判据，发现未覆盖风险才给精确最小反例，不预设新增泛化harness或更多生产功能。
 3. **同一最终输入整合**：root保留Project `audit_facts.go/events.go`中的Variables／其它已交付相邻分派，以正式00024→00025及后继全局迁移顺序整合；不能整文件覆盖，也不改写已执行迁移。合并后只对实际改变的共享分派／构造及其直接回归运行检查；没有相关差异的已通过binary／场景继续复用，若生产闭包改变则明确重编和受影响复验。最终整理完整库原子交付与简短台账，不能以分支checkpoint当main已交付。
 
