@@ -517,7 +517,7 @@ export async function fillProjectModelsCredential(scope: Page | Locator) {
   let value = bytes.toString("base64url");
   bytes.fill(0);
   try {
-    await scope.getByLabel("新凭据材料", { exact: true }).fill(value);
+    await scope.getByLabel(/^新凭据材料(?:\s*\*)?$/).fill(value);
   } catch {
     throw new Error("PROJECT_MODELS_PRIVATE_CREDENTIAL_INPUT_FAILED");
   } finally {
@@ -646,8 +646,8 @@ async function openProject(page: Page, material: Material, key: ProjectKey, suff
 async function newProvider(page: Page, name: string) {
   await button(page, "创建 Provider").click();
   const dialog = page.getByRole("dialog").filter({ has: page.locator("#project-provider-form") });
-  await dialog.getByLabel("Provider 名称", { exact: true }).fill(name);
-  await dialog.getByLabel("Base URL", { exact: true }).fill("https://model-ui.invalid/v1");
+  await dialog.getByRole("textbox", { name: "Provider 名称", exact: true }).fill(name);
+  await dialog.getByRole("textbox", { name: "Base URL", exact: true }).fill("https://model-ui.invalid/v1");
   return dialog;
 }
 async function strictReceipt(scope: Page | Locator): Promise<Record<string, unknown>> {
@@ -710,6 +710,22 @@ test.beforeEach(async ({ page }) => {
   const source = readFileSync(join(repository, "output/ai/model-ui-recovery/client-probe/native-client-probe.js"), "utf8");
   await page.addInitScript({ content: source + "\nProjectModelsNativeProbe.install();" });
 });
+test.afterEach(async ({}, info) => {
+  if (info.status === "passed") return;
+  // Never persist Playwright's message/stack/call log: fill diagnostics can
+  // contain private values. Retain only closed categories and our own numeric
+  // source locations so a failed actual run remains diagnosable.
+  const publicCodes = new Set([...readFileSync(fileURLToPath(import.meta.url), "utf8").matchAll(/"(PROJECT_MODELS_[A-Z_]+)"/g)].map((match) => match[1]));
+  const errors = info.errors.slice(0, 8).map((error) => {
+    const message = error.message ?? "", stack = error.stack ?? "";
+    const candidate = /\b(PROJECT_MODELS_[A-Z_]+)\b/.exec(message)?.[1];
+    const code = candidate && publicCodes.has(candidate) ? candidate : null;
+    const call = /\b(locator\.(?:fill|click|inputValue)|page\.goto|expect\.poll)\b/.exec(message)?.[1] ?? null;
+    const locations = [...stack.matchAll(/project-owner-models\.spec\.ts:(\d+):(\d+)/g)].slice(0, 8).map((match) => ({ line: Number(match[1]), column: Number(match[2]) }));
+    return { category: code ? "closed-harness-error" : /timeout|timed out/i.test(message) ? "timeout" : message.includes("expect(") ? "assertion" : "other", code, call, locations };
+  });
+  writeFileSync(join(evidence, "browser-failure.json"), JSON.stringify({ protocol, input_hash: inputHash, mode: process.env.AGENTEAM_PROJECT_MODELS_WEB_CASE, status: info.status, errors }), { mode: 0o600 });
+});
 
 function step(name: string) {
   invariant(/^[a-z0-9-]+$/.test(name), "PROJECT_MODELS_STEP_INVALID");
@@ -723,9 +739,13 @@ test("[recovery] actual original configuration and credential requests", async (
   await loginProjectModels(page, material.actors.owner);
   step("configuration-loss");
   await openProject(page, material, "config_recovery");
+  step("configuration-opened");
   const before = await snapshot("config_recovery");
+  step("configuration-snapshot-read");
   let dialog = await newProvider(page, "Models Recovery Provider");
+  step("configuration-form-filled");
   const createArm = await arm("createProjectModelProvider", "config_recovery", null, "after_complete_cut");
+  step("configuration-loss-armed");
   await button(dialog, "保存 Provider").click();
   await expect(dialog.getByText(/结果尚未确认/)).toBeVisible();
   const lostCreate = await control(createArm, (value) => value.joined === true);
@@ -774,7 +794,7 @@ test("[recovery] actual original configuration and credential requests", async (
   await fillProjectModelsCredential(credential);
   const credentialArm = await arm("createProjectModelCredential", "credential_recovery", null, "after_complete_disconnect");
   await button(credential, "创建凭据").click(); await expect(credential.getByText(/结果尚未确认/)).toBeVisible();
-  invariant(await credential.getByLabel("新凭据材料", { exact: true }).inputValue() === "", "PROJECT_MODELS_MATERIAL_NOT_CLEARED");
+  invariant(await credential.getByLabel(/^新凭据材料(?:\s*\*)?$/).inputValue() === "", "PROJECT_MODELS_MATERIAL_NOT_CLEARED");
   const lostCredential = await control(credentialArm, (value) => value.joined === true);
   await actualLoss(page, lostCredential, 0);
   const credentialCommitted = await snapshot("credential_recovery"); durableDelta(credentialBefore, credentialCommitted, 0, 1);
@@ -795,7 +815,7 @@ test("[recovery] actual original configuration and credential requests", async (
   const mainBefore = await snapshot("main"), seedID = mainBefore.current.providers[0]!.id;
   await button(page, `读取 Provider ${seedID}`).click();
   dialog = page.getByRole("dialog", { name: "Provider 详情与编辑", exact: true });
-  await dialog.getByLabel("Provider 名称", { exact: true }).fill("Models Held Update");
+  await dialog.getByRole("textbox", { name: "Provider 名称", exact: true }).fill("Models Held Update");
   const heldArm = await arm("updateProjectModelProvider", "main", seedID, "after_complete_hold");
   await button(dialog, "保存 Provider").click();
   const held = await control(heldArm, (value) => value.held === true && value.upstream_complete === true);

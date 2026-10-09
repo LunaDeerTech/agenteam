@@ -67,3 +67,7 @@
 
 - 作者Membership唯一非法Project名称已修为membership-foreign，work-expanded-names.test race-c/11list actualexit0；独立最终7teshm0n A/B重新race-c/list exit0/Wait/inputsame，仍尚无修后独立PG。仅修测试输入，生产runtime不变。
 - Model第二轮0dad9真实recovery RUN，browser configuration-loss未完成（仅Providers GET200，无mutation），Go body53.27s FAIL/工具26607 exit1，root/handler实际join；driver123.934s含TCPtail，4adoptedWait0/directWait1/watchdog+observerjoin、真实7IDs两次absent/runtime/TCP两空/inputsame。原FAIL保留，不能未定位就称产品原因。原owner补安全failure location/细step再定位。独立两mustfix静态闭合、resource35pure实际PASS，必要可复跑source保存在independent-resource-probe.py。下一资源窗交Task最新7tes独立A/B。
+
+- 最新独立A第二次7tes原FAIL是revocation首writer User锁等待未到，归档与membership双向子项PASS；outer14779 actualexit1/72.732s、child/driver Wait1、两ID/runtime/TCP双空/inputsame，B未启动。静态可确认Execute与Lookup同CommandEX不可能同时到User门槛；原轮未采Command holder PID，不回填谁先取得。独立owner仅自有A添加第二个真实完成Create身份用于历史Execute，Lookup/Get仍首身份，以同一User撤权对3真实waiter独立观察，修后重编待验。
+- D10 Agent完整rev0草案239行已冻结保存，C1为AgentCore/Ref六纯路径，可消费现identity/Model/Foundation；F1真实事实依Model引用/目录初始化等未绑定，不称完整Agent实施或Task指派可用。Task transitions规格仍待完整闭合/独审。
+- Model selector纯探针确认UiField真实markup在锁定Playwright算法中exact label=false而role accessible name=true；spec已改role/闭合password label regex，补安全细step和封闭failure类别/数字本spec定位，未保存敏感原message/stack，不回填第二次真实FAIL根因。TS strict/list与纯probe实际exit0，Go不变复用编译。
