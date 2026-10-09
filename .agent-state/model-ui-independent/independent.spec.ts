@@ -768,6 +768,126 @@ async function session(page: Page) {
     throw new Error("INDEPENDENT_SESSION_SHAPE");
   }
 }
+async function navigationFailure(
+  page: Page,
+  target: string,
+  settingsTarget: string,
+  knownSettings: readonly string[],
+) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const observation = await Promise.race([
+      page.evaluate(
+        ({ target, settings, knownSettings }) => {
+          const visible = (node: Element | null | undefined): boolean =>
+            !!node &&
+            node.isConnected &&
+            node.getClientRects().length > 0 &&
+            !["hidden", "collapse"].includes(getComputedStyle(node).visibility);
+          const text = (node: Element) => node.textContent?.trim();
+          const buttons = (scope: ParentNode | null, label: string) =>
+            [
+              ...(scope?.querySelectorAll<HTMLButtonElement>("button") ?? []),
+            ].filter(
+              (node) =>
+                text(
+                  node.querySelector(
+                    '.button-label:not([aria-hidden="true"])',
+                  ) ?? node,
+                ) === label,
+            );
+          const buttonState = (nodes: HTMLButtonElement[]) => ({
+            count: nodes.length,
+            visible: nodes.some(visible),
+            enabled: nodes.some((node) => visible(node) && !node.disabled),
+            inert: nodes.some((node) => !!node.closest("[inert]")),
+            aria_hidden: nodes.some(
+              (node) => !!node.closest('[aria-hidden="true"]'),
+            ),
+          });
+          const state = (scope: string, title: string) =>
+            [...document.querySelectorAll(scope + " .ui-state")].some(
+              (node) =>
+                visible(node) &&
+                [...(node.querySelector("h3")?.childNodes ?? [])]
+                  .filter((child) => child.nodeType === Node.TEXT_NODE)
+                  .map((child) => child.textContent)
+                  .join("")
+                  .trim() === title,
+            );
+          const dialogs = [...document.querySelectorAll('[role="dialog"]')];
+          const confirmation = (title: string) =>
+            dialogs.some(
+              (node) =>
+                visible(node) &&
+                node.querySelector("h2")?.textContent?.trim() === title,
+            );
+          const navs = [
+            ...document.querySelectorAll('nav[aria-label="项目导航"]'),
+          ];
+          const links = navs.flatMap((node) =>
+            [...node.querySelectorAll("a")].filter(
+              (link) => text(link) === "项目设置",
+            ),
+          );
+          const workspace = document.querySelector(".project-workspace");
+          const leaf = workspace?.querySelector("section.project-providers");
+          return {
+            url_is_target: location.pathname === target,
+            nav_count: navs.length,
+            settings_count: links.length,
+            settings_target: links.some(
+              (node) => node.getAttribute("href") === settings,
+            ),
+            settings_other_known: links.some(
+              (node) =>
+                node.getAttribute("href") !== settings &&
+                knownSettings.includes(node.getAttribute("href") ?? ""),
+            ),
+            settings_current: links.some(
+              (node) => node.getAttribute("aria-current") === "page",
+            ),
+            nav_visible: navs.some(visible),
+            nav_inert: navs.some((node) => !!node.closest("[inert]")),
+            model_leave_confirmation: confirmation("离开项目模型设置？"),
+            owner_leave_confirmation: confirmation("放弃项目修改？"),
+            session_checking: state(".session-check", "正在确认会话"),
+            session_unconfirmed: state(".session-check", "会话尚未确认"),
+            owner_checking: state(".project-workspace", "正在确认项目访问身份"),
+            owner_loading: state(".project-workspace", "正在读取项目"),
+            owner_read_error: state(".project-workspace", "项目信息读取失败"),
+            owner_unavailable: state(".project-workspace", "项目不可用"),
+            owner_reread: buttonState(
+              buttons(
+                workspace?.querySelector(".workspace-actions") ?? null,
+                "重新读取项目",
+              ),
+            ),
+            model_leaf_visible: visible(leaf),
+            model_reread: buttonState(buttons(leaf ?? null, "重新读取项目")),
+            logout: buttonState(
+              buttons(document.querySelector(".account-actions"), "退出登录"),
+            ),
+          };
+        },
+        { target, settings: settingsTarget, knownSettings },
+      ),
+      new Promise<null>((resolve) => {
+        timer = setTimeout(() => resolve(null), 250);
+      }),
+    ]);
+    publish("independent-navigation-dom.json", {
+      protocol,
+      input_hash: inputHash,
+      observation,
+    });
+  } catch {
+    /* A missing diagnostic never replaces the original failure. */
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
+}
+
 async function openProject(
   page: Page,
   m: Row,
@@ -776,75 +896,114 @@ async function openProject(
 ) {
   const p = m.projects[key],
     target = `/${p.username}/${p.normalized_name}/settings/model-providers`;
-  await wait("independent-b-open-project-evaluate-z", () =>
-    page.evaluate((target) => {
-      const old = history.state;
-      history.pushState(
-        {
-          ...old,
-          back: location.pathname,
-          current: target,
-          forward: null,
-          position: (old?.position ?? 0) + 1,
-          replaced: false,
-        },
-        "",
-        target,
+  const settingsTarget = `/${p.username}/${p.normalized_name}/settings/general`;
+  const settings = page
+    .getByRole("navigation", { name: "项目导航", exact: true })
+    .getByRole("link", { name: "项目设置", exact: true });
+  const targetPublished = () =>
+    settings.evaluateAll(
+      (links, href) =>
+        links.length === 1 &&
+        links[0]!.getAttribute("href") === href &&
+        links[0]!.getAttribute("aria-current") === "page",
+      settingsTarget,
+    );
+  try {
+    await wait("independent-b-open-project-evaluate-z", () =>
+      page.evaluate((target) => {
+        const old = history.state;
+        history.pushState(
+          {
+            ...old,
+            back: location.pathname,
+            current: target,
+            forward: null,
+            position: (old?.position ?? 0) + 1,
+            replaced: false,
+          },
+          "",
+          target,
+        );
+        dispatchEvent(new PopStateEvent("popstate", { state: history.state }));
+      }, target),
+    );
+    const confirm = page.getByRole("dialog", {
+      name: "离开项目模型设置？",
+      exact: true,
+    });
+    if (discardPrepared) {
+      await wait("independent-b-open-project-to-be-aa", () =>
+        expect
+          .poll(
+            async () =>
+              (await wait("independent-b-open-project-is-visible-ab", () =>
+                confirm.isVisible(),
+              )) ||
+              (await wait("independent-b-open-project-target-published", () =>
+                targetPublished(),
+              )),
+          )
+          .toBe(true),
       );
-      dispatchEvent(new PopStateEvent("popstate", { state: history.state }));
-    }, target),
-  );
-  const confirm = page.getByRole("dialog", {
-    name: "离开项目模型设置？",
-    exact: true,
-  });
-  if (discardPrepared) {
-    await wait("independent-b-open-project-to-be-aa", () =>
-      expect
-        .poll(
-          async () =>
-            (await wait("independent-b-open-project-is-visible-ab", () =>
-              confirm.isVisible(),
-            )) || new URL(page.url()).pathname === target,
+      if (
+        await wait("independent-b-open-project-is-visible-ac", () =>
+          confirm.isVisible(),
         )
-        .toBe(true),
+      )
+        await wait("independent-b-open-project-click-ad", () =>
+          button(confirm, "放弃并离开").click(),
+        );
+    }
+    await wait("independent-b-open-project-to-have-url-ae", () =>
+      expect(page).toHaveURL(
+        new URL(target, process.env.AGENTEAM_AUTH_WEB_ORIGIN!).href,
+      ),
+    );
+    if (selected === "b") {
+      await wait("independent-b-open-project-settings-target", () =>
+        expect(settings).toHaveAttribute("href", settingsTarget),
+      );
+      await wait("independent-b-open-project-settings-current", () =>
+        expect(settings).toHaveAttribute("aria-current", "page"),
+      );
+    }
+    await wait("independent-b-open-project-to-be-visible-af", () =>
+      expect(
+        page.getByRole("heading", { name: "Providers", level: 1, exact: true }),
+      ).toBeVisible(),
+    );
+    const reread = button(
+      page.locator("section.project-providers"),
+      "重新读取项目",
     );
     if (
-      await wait("independent-b-open-project-is-visible-ac", () =>
-        confirm.isVisible(),
+      await wait("independent-b-open-project-is-visible-ag", () =>
+        reread.isVisible(),
       )
-    )
-      await wait("independent-b-open-project-click-ad", () =>
-        button(confirm, "放弃并离开").click(),
+    ) {
+      await wait("independent-b-open-project-click-ah", () => reread.click());
+      await wait("independent-b-open-project-to-be-hidden-ai", () =>
+        expect(reread).toBeHidden(),
       );
-  }
-  await wait("independent-b-open-project-to-have-url-ae", () =>
-    expect(page).toHaveURL(
-      new URL(target, process.env.AGENTEAM_AUTH_WEB_ORIGIN!).href,
-    ),
-  );
-  await wait("independent-b-open-project-to-be-visible-af", () =>
-    expect(
-      page.getByRole("heading", { name: "Providers", level: 1, exact: true }),
-    ).toBeVisible(),
-  );
-  const reread = button(
-    page.locator("section.project-providers"),
-    "重新读取项目",
-  );
-  if (
-    await wait("independent-b-open-project-is-visible-ag", () =>
-      reread.isVisible(),
-    )
-  ) {
-    await wait("independent-b-open-project-click-ah", () => reread.click());
-    await wait("independent-b-open-project-to-be-hidden-ai", () =>
-      expect(reread).toBeHidden(),
+    }
+    await wait("independent-b-open-project-to-be-enabled-aj", () =>
+      expect(button(page, "创建 Provider")).toBeEnabled(),
     );
+  } catch (error) {
+    if (selected === "b")
+      await wait("independent-b-open-project-failure-dom", () =>
+        navigationFailure(
+          page,
+          target,
+          settingsTarget,
+          Object.values(m.projects as Record<string, Row>).map(
+            (project) =>
+              `/${project.username}/${project.normalized_name}/settings/general`,
+          ),
+        ),
+      );
+    throw error;
   }
-  await wait("independent-b-open-project-to-be-enabled-aj", () =>
-    expect(button(page, "创建 Provider")).toBeEnabled(),
-  );
 }
 async function createCredential(page: Page, key: Key) {
   const before = await wait("independent-b-create-credential-snapshot-ak", () =>
