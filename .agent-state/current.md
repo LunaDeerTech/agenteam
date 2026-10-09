@@ -1,8 +1,10 @@
 # D12 Knowledge B02 当前恢复点
 
-- 第十三内部片段四源已可构建：`object_authority.go/service_test.go/publication.go/publication_test.go`。current Owner 由真实原 Create command 保留 CreationCause；同 Tx 的 D05 reserve 保原 Knowledge command UUID／单次 union，发送只在 Tx 外并核精确 attempt，再写 uploaded 检查点；Unknown 保留物理提交 cause。strict measurement／持久 reservation 缺字段与错归属、当前 Owner／work／测量漂移、reserve/send/检查点错误控制及全领域 race65165、vet/diffcheck实际0。原78484误期待 CommitResult复制后 Fault 指针恒等 FAIL 已修为正式 code/cause 判据；未改产品。尚未独审／真实 SQL，public Create/Update未闭合。`commands.go/commands_test.go`后继最终发布事务正在实现，不在这四源已验范围。
+- 第十三至十五内部片段已可构建。最终发布组合包含 canonical／真实 D05 Publish／旧引用清理／Outbox／receipt／Activity 同 Tx，精确内容相同可复用旧 Object；当前 parent 保留。第十四全领域 race99838、vet2640 实际0。公开 Create/Update 已接 direct text/upload 与 title-only，完整接口编译成立；business-source 仍明确 Unbound，不能称完整 Documents。
+- 公开调用保持登记直到输入 Close／prepared Discard 实际返回及本域 join 检查点终态，失败关闭不冒退休；已知 canonical 提交后清理失败保留 Committed 语义。全领域 race3616、最终 teardown 修正后的限定 race10017、vet20406 实际0。尚未独审／真实 content SQL／D05 组合；下一准备真实 Account→Project→Knowledge→Outbox 的 title-only PG 小组，不使用 Object 成功替身。源 `service.go/runtime_test.go` 与本记录／卡为本次可恢复片段。
+- 第十三的 current Owner 原 CreationCause、原 command UUID 的同 Tx reserve／Tx 外 send 与 uploaded 检查点已保存；race65165／vet0 与原78484控制误判保留卡。第十四 final／reuse 当前为内部受控组合证据，不能替代真实 SQL、Object 或 Unknown 恢复验收。
 
-- 新追加的 Project Object Audit 分派五源已可构建：ObjectService 精确 complete／failed／delete、同 Store 活 Tx／Project SH／初始化与生命周期门禁、原 witness 委托，缺 provider／mapping／witness fail-closed。限定 race60546、Project vet／diffcheck 实际0；原测试编译／opaque 比较 FAIL 保留卡。未独审／未真实 D05 组合，Variables 相邻分派须最终合并保留；Transfer、初始化专用 Authority、普通 Owner Converge 和 Object runtime join 停止项不变。精确追加写域及矩阵见卡 §8。Knowledge 发布保留／发送与 original CreationCause 三源正在本域实施，尚未纳入此片段。
+- 新追加的 Project Object Audit 分派五源已可构建：ObjectService 精确 complete／failed／delete、同 Store 活 Tx／Project SH／初始化与生命周期门禁、原 witness 委托，缺 provider／mapping／witness fail-closed。限定 race60546、Project vet／diffcheck 实际0；原测试编译／opaque 比较 FAIL 保留卡。已获未参与者有限独审接受（实际独立 overlay race19224），未真实 D05 组合，Variables 相邻分派须最终合并保留；Transfer、初始化专用 Authority、普通 Owner Converge 和 Object runtime join 停止项不变。精确追加写域及矩阵见卡 §8。Knowledge 后续内容片段与此 Project 独审范围分开，真实 D05 同 Store witness 仍待联合验收。
 
 - 工作树 `/workspace/agenteam-knowledge`，分支 `ai/knowledge-service`，正式基线 `f1c94ee5`。唯一作者 `/root/model_delivery`；Git／worktree 与真实资源窗口由 root 负责。
 - 按 [B02 正式卡](../docs/development/work-items/d12-b02-knowledge-service.md) 已接受 rev1 实现完整 Human canonical 内容与文档树库；不是 HTTP／UI／D13／Project 全域 lifecycle 交付。

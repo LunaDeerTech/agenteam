@@ -3,6 +3,8 @@ package knowledge
 import (
 	"context"
 	"errors"
+	"io"
+	"sync"
 	"testing"
 	"time"
 
@@ -10,7 +12,104 @@ import (
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	ob "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 )
+
+type contentCloseBody struct {
+	started, release chan struct{}
+	closes, reads    int
+	err              error
+}
+
+func (b *contentCloseBody) Read([]byte) (int, error) { b.reads++; return 0, io.EOF }
+func (b *contentCloseBody) Close() error {
+	b.closes++
+	if b.started != nil {
+		close(b.started)
+		<-b.release
+	}
+	return b.err
+}
+
+func TestPublicContentRejectsWithoutReadingAndOwnsActualClose(t *testing.T) {
+	_, actor, query := queryFixture(t)
+	request := kc.CreateRequest{ProjectID: query.project, DocumentID: newID[kc.Document](t), Title: "Original"}
+	meta := f.CommandMeta{RequestID: newID[f.Request](t), IdempotencyKey: "original-content"}
+	for _, mode := range []string{"invalid", "stopped", "plan rejected", "close failed"} {
+		t.Run(mode, func(t *testing.T) {
+			body := &contentCloseBody{}
+			if mode == "close failed" {
+				body.err = errors.New("actual close failed")
+			}
+			source, err := kc.NewUploadSource(kc.PlainText, 0, ob.DigestBytes(nil), body)
+			if err != nil {
+				t.Fatal(err)
+			}
+			store := &cleanupCommitStore{commit: f.NotCommittedResult(fault(f.Forbidden))}
+			st := &serviceState{store: store, calls: make(map[*call]struct{}), changed: make(chan struct{}), stopped: mode == "stopped"}
+			service := &Service{data: func() *serviceState { return st }}
+			actual := request
+			if mode == "invalid" {
+				actual.Title = ""
+			}
+			_, err = service.CreateDocument(context.Background(), actor, meta, actual, source)
+			if err == nil || body.reads != 0 || body.closes != 1 {
+				t.Fatal("rejection read input or omitted actual close", err)
+			}
+			if (mode == "invalid" || mode == "stopped") && store.commits != 0 {
+				t.Fatal("invalid/new stopped admission opened SQL")
+			}
+			ctx, cancel := context.WithCancel(context.Background())
+			cancel()
+			err = service.Drain(ctx)
+			if mode == "close failed" {
+				if !errors.Is(err, context.Canceled) || len(st.calls) != 1 {
+					t.Fatal("failed owned close was declared joined", err)
+				}
+			} else if err != nil || len(st.calls) != 0 {
+				t.Fatal("fully closed rejected operation was retained", err)
+			}
+		})
+	}
+}
+
+func TestPublicContentDrainWaitsForActualSourceClose(t *testing.T) {
+	_, actor, query := queryFixture(t)
+	body := &contentCloseBody{started: make(chan struct{}), release: make(chan struct{})}
+	source, _ := kc.NewUploadSource(kc.PlainText, 0, ob.DigestBytes(nil), body)
+	store := &cleanupCommitStore{commit: f.NotCommittedResult(fault(f.Forbidden))}
+	st := &serviceState{store: store, calls: make(map[*call]struct{}), changed: make(chan struct{})}
+	service := &Service{data: func() *serviceState { return st }}
+	finished := make(chan error, 1)
+	joined := make(chan struct{})
+	var release sync.Once
+	meta := f.CommandMeta{RequestID: newID[f.Request](t), IdempotencyKey: "blocked-close"}
+	request := kc.CreateRequest{ProjectID: query.project, DocumentID: newID[kc.Document](t), Title: "Original"}
+	go func() {
+		defer close(joined)
+		_, err := service.CreateDocument(context.Background(), actor, meta, request, source)
+		finished <- err
+	}()
+	defer func() { release.Do(func() { close(body.release) }); <-joined }()
+	select {
+	case <-body.started:
+	case <-time.After(time.Second):
+		t.Fatal("source close was not reached")
+	}
+	service.Stop()
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := service.Drain(ctx); !errors.Is(err, context.Canceled) {
+		t.Fatal("cancellation replaced actual close join", err)
+	}
+	release.Do(func() { close(body.release) })
+	if err := <-finished; err == nil {
+		t.Fatal("lost original plan rejection")
+	}
+	if err := service.Drain(context.Background()); err != nil || body.closes != 1 || body.reads != 0 {
+		t.Fatal("actual return did not release admission", err)
+	}
+}
 
 type cleanupProbe struct {
 	oc.Cleaner

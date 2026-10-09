@@ -158,6 +158,12 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ## 8. 本轮实际实施与验证
 
+Project Object Audit 五源随后获未参与者有限独审接受，无 mustfix；本人独立 overlay race19224 actual0（3 子）验证同 Tx 生命周期／初始化重读、真实 Object checker 对无私有 witness 的四个合法 action/ordinal 组合拒绝，以及错 cause/ordinal/Service/foreign/受控 ended Tx 不委托。原 ctx/key/Unknown 引用原因保留。该树没有 Variables 分派，不冒其回归；此为静审与受控实际源结果，不证明真实 D05 正向／PG／stale Owner 联合授权或 Object runtime join。
+
+第十四片段 `commands.go`／`commands_test.go` 已组合最终发布：最终完整锁下重读当前 Owner／work／版本，写 canonical 后在原 Tx 消费 D05 Publish 私有 witness，再关闭旧引用、写精确 cleanup、Outbox、receipt 和 Activity；固定事件与清理 identity 可重放，旧 parent 不被内容更新覆盖。真实 Stat 的 MIME／长度／SHA 相同才允许复用原 Object，最终仍重核原指针／work／版本；纯标题变化保留 source，不变内容不增加版本／事件／Activity。全领域 race99838、vet2640／diffcheck 实际0。控制仅证明结果形状、绑定与拒绝，实际 final SQL／D05／Outbox 联合事务及恢复尚未执行，不称完整发布通过。
+
+第十五片段 `service.go`／`runtime_test.go` 接通公开 Create／Update 的 direct text/upload 与 title-only 编排，并完成 `Documents` 接口编译。调用从准备到实际输入 Close／prepared Discard／本域 join 检查点返回始终登记；阻塞或失败的 Close 不被 cancel／Stop 冒充为退休。canonical 已确证提交后清理失败保持 Committed 语义。作者全领域 race3616 actual0，随后仅收紧测试无条件释放／实际 join 的 teardown，限定 race10017 actual0；当前 vet20406／diffcheck0。公开拒绝／shutdown 控制验证不读输入、准确 Close 次数、阻塞 Close 时 Drain 不提前结束；尚无公开成功 SQL 或真实 D05 组合。business-source lease/final revalidation 仍显式 Unbound，接口编译不代表完整 Documents；Object runtime join 停止项不变。下一实际 PG 优先验证不触 Object I/O 的公开 title-only、真实 Outbox 与 Activity 同事务路径。
+
 第十三内部片段四源 `object_authority.go`／`service_test.go`／`publication.go`／`publication_test.go` 已可构建。ExistingOwner 从原 Create command 读取真实 CreationCause，供同 Tx canonical 行先落下、再消费原 prospective upload 的 D05 授权校核，原当前 Owner／锁／Tx 门槛不变。reserve 使用 Knowledge command UUID 的私有 D05 key，当前完整 intent／work／测量后在原同 Tx 保留精确 attempt；confirmed 才能继续发送，真实 I/O 在 Tx 外，返回不同 attempt 不进入 SQL，uploaded 检查点 Unknown 保留原物理提交 cause。持久测量严格三个字段，未采或缺失长度不能冒成零字节结果；reserved/uploaded 必须有完整 object/upload/attempt 与测量。
 
 新增实际源控制覆盖原 CreationCause／缺记录／损坏记录／当前 gate 拒绝、测量缺失／重复／null／额外字段、持久预留缺字段／错 Project／错文档、单次锁 union／同 Tx／私有 D05 key／Tx 外发送、stale-owner 受控拒绝、work/测量漂移、reserve Unknown、错误 attempt 及 checkpoint Unknown。纯65344通过；78484曾误要求经正式 CommitResult复制后 Fault 指针仍恒等，修为正式 code/cause 判据，随后全 Knowledge／contract race65165、当前 vet/diffcheck实际0。不修改 D03 错误语义，不冒真实权限／SQL／D05 组合；此片段未独审，最终原子发布、business-source及public Create/Update仍在实施。
