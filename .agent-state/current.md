@@ -179,3 +179,6 @@
 - 两module诊断限定独审已通过，独立AST实际exit0/0.152s，字段闭集/最多8overlay/真实click与pageshow/无DOM改写或force；原业务门槛保留。旧14两个新regression helper写域已独立授Model作者子负责人，原Go/TS/config/Modeldriver不动，执行资源仍root独占。
 
 - T0b六新文件已完整落盘并编译selector发现实际session22217 Wait exit0/六名全在，作者源freeze进入pure/race/vet；首次新测试引用不存在旧DecodeTaskEvent编译FAIL保留，仅新测试改为旧Unmarshal后通过。当前保存可构建未验片段，不宣称T0b实现已接受；作者热cache检查中，独立公开APIprobe仅自有源准备未运行。
+
+- T0b六源最终完整freeze，35最大facts/两32768Task文本/32768最坏escapedcomment/16最大add+16resolve跨data factory/envelope/lookup组合已补齐；最终pure92733Wait0/1.720s、race75738Wait0/24.292s、vet/list/gofmt实际0。作者热cache准确释放，转授独立公开APIprobe真正验证，尚不main交付。
+- navigation第二outer11756实际exit1/125.233s，directWait/4adopted0/joins/7IDs双absent/descendants[]/TCP2空/input同一；step login-complete、真实pageshow安全投影为home/visible/logout可用→logout disabled，最终仍45s整体timeout，尚未证明卡在headers/EOF/json。脱敏原件navigation-session-failure.json保存；已授权同module最小分段与有界EOF诊断。sharedLayer作者获5精确产品/test路径离线实现，assets未build/未改；独立review已实际启动，原main5paths稳定baseline导出。

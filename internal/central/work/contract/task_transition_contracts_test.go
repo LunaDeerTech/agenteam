@@ -340,6 +340,45 @@ func TestTaskTransitionContractBoundsAndLegacy(t *testing.T) {
 		receipt.TaskEventIDs = append(receipt.TaskEventIDs, testID[TaskEvent](t, 200+n))
 	}
 	lookup := TaskTransitionLookup{Status: LookupCommitted, Receipt: &receipt}
+	// Combine the largest legitimate values through the data factory as well
+	// as each codec: state + assignee + 16 resolves + 16 adds + one comment.
+	x := transitionDataFixture(t, false)
+	x.before.Title, x.after.Title = receipt.Task.Title, receipt.Task.Title
+	x.before.Description, x.after.Description = receipt.Task.Description, receipt.Task.Description
+	x.before.Plan, x.after.Plan = receipt.Task.Plan, receipt.Task.Plan
+	x.request.AddBlockers, x.request.ResolveBlockerIDs = r.Clone().AddBlockers, slices.Clone(r.ResolveBlockerIDs)
+	x.request.Comment = &comment
+	x.history = x.history[:2]
+	for _, id := range x.request.ResolveBlockerIDs {
+		x.history = append(x.history, TaskTransitionEvent{Type: TaskTransitionBlockerResolved,
+			Payload: TaskTransitionFactPayload{BlockerResolved: &TaskBlockerResolvedPayload{BlockerID: id, BlockerType: TaskBlockerRelyOn}}})
+	}
+	for _, item := range x.request.AddBlockers {
+		x.history = append(x.history, TaskTransitionEvent{Type: TaskTransitionBlockerAdded,
+			Payload: TaskTransitionFactPayload{BlockerAdded: &TaskBlockerAddedPayload{BlockerID: item.BlockerID, BlockerType: item.Type}}})
+	}
+	x.history = append(x.history, TaskTransitionEvent{Type: TaskTransitionComment,
+		Payload: TaskTransitionFactPayload{Comment: &TaskCommentPayload{Body: comment}}})
+	for n := range x.history {
+		x.history[n].ID = testID[TaskEvent](t, 300+n)
+		x.history[n].ProjectID, x.history[n].TaskID, x.history[n].TaskVersion = x.after.ProjectID, x.after.ID, x.after.Version
+		x.history[n].Actor, x.history[n].OperationID, x.history[n].CorrelationID = x.history[0].Actor, x.history[0].OperationID, x.history[0].CorrelationID
+		x.history[n].CreatedAt = x.h.OccurredAt
+		if _, err := DecodeTaskTransitionEvent(taskRaw(t, x.history[n])); err != nil {
+			t.Fatal("maximum combined history codec", err)
+		}
+	}
+	_, factory := transitionFactoryFixture(t)
+	combined, envelope, err := x.build(factory)
+	if err != nil || len(combined.TaskEventIDs) != 35 || len(combined.EventIDs) != 1 {
+		t.Fatal("maximum combined data factory", err)
+	}
+	if _, err := factory.DecodeTaskTransitioned(envelope); err != nil {
+		t.Fatal("maximum combined envelope", err)
+	}
+	if _, err := DecodeTaskTransitionLookup(taskRaw(t, TaskTransitionLookup{Status: LookupCommitted, Receipt: &combined})); err != nil {
+		t.Fatal("maximum combined lookup", err)
+	}
 	for _, tc := range []struct {
 		name   string
 		value  any

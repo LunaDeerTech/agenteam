@@ -1,0 +1,67 @@
+{
+  "source_run": "owned-navigation-0db365ef4c0641f9822afd8e78ddcc59",
+  "terminal": {
+    "case": "navigation",
+    "selector": "^TestAccountProjectOwnerModelsWebNavigationAndLayouts$",
+    "exit": 1,
+    "elapsed_seconds": 125.23349277700072,
+    "direct_actual_wait": true,
+    "adopted_actual_waits": [
+      {
+        "pid": 290053,
+        "status": 0
+      },
+      {
+        "pid": 290057,
+        "status": 0
+      },
+      {
+        "pid": 290056,
+        "status": 0
+      },
+      {
+        "pid": 290058,
+        "status": 0
+      }
+    ],
+    "watchdog_joined": true,
+    "tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "resources": 7
+  },
+  "failure": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "0297ec0d12149325e09719b00e44896b9ef3b5ca499f18f2f41cd11210b2fc7a",
+    "mode": "navigation",
+    "status": "timedOut",
+    "errors": [
+      {
+        "category": "timeout",
+        "code": null,
+        "call": null,
+        "locations": []
+      }
+    ]
+  },
+  "session_state": {
+    "protocol": "project-owner-models.v1",
+    "input_hash": "0297ec0d12149325e09719b00e44896b9ef3b5ca499f18f2f41cd11210b2fc7a",
+    "stage": "initial-pageshow",
+    "observation": {
+      "before": {
+        "path_home": true,
+        "path_login": false,
+        "document_visible": true,
+        "logout_present": true,
+        "logout_disabled": false
+      },
+      "after": {
+        "path_home": true,
+        "path_login": false,
+        "document_visible": true,
+        "logout_present": true,
+        "logout_disabled": true
+      }
+    }
+  }
+}
