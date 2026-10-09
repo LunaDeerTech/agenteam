@@ -59,6 +59,8 @@
 - 前 Work GET 三路径已root保存/push `ece8121a`。本次只读D04 `sql-recovery-followup.md`（自述基线9ae2e0ab）与实际 Postgres/Secret/两 COMMIT-frame proxy 源，限定方法可实施；四top/十格为 final Unknown三、nonce一、maintenance三、实际锁竞争三。不启动任何PG/socket/被测child，不改作者提案/生产/现742候选，也没有用controlled Store伪造Unknown或重做旧纯控。
 - 新 `.agent-state/secret-storage-recovery-review/README.md` 给出各格最小到达证据和拒例：真实Apply/nativeAudit后目标COMMIT、nonce high-water/rotation持久tuple，原Attempt/cause仅断实际暴露接口；exact backend/database/required advisory blocker；API返回、服务端COMMIT、原全锁join、测试goroutine与proxy/Store退休分列。需澄清nonce阈值只覆盖后继新payload、计数按真实producer基线；原合法历史行不作错误阈值要求。
 - 结论只接受方法可实施性，不接受尚无测试/新入口或真实结果。D10 authority仍controlled，100/101旧矩阵、cross-epoch/rewrap-Cleanup并发和Owner/HTTP恢复未重复或扩认。本文及新README两路径freeze供root下安全窗口保存；无本人live进程或资源。
+- 后继 `7ff214a8` 加 maintenance 的五个 recovery 测试已完成独立静审，有限源码接受、无 must-fix；4top/10格已核实际 Store/COMMIT-frame proxy、目标 native Audit/nonce/wrapping 到达、原 backend/精确锁竞争、Lookup/显式恢复及真正 callback/proxy/Store 尾。nonce 后继两 payload 与真实 Create/Delete 两 receipt 边界均落实，post-barrier StopAdmission 不会伪装 pre-gate Unknown。完整细节追加在原README，已直接交Model/root；没有Go编译或PG/socket/child实测，fixture早先43492的编译不外推新全源，plain net.Dial/wg未返必须仍记失败/缺尾。
+- Project review四路径已root保存4e30ba15，P2 harness报告已dcaafa3e。随后Project `9c60199f` 后三single-top supervisor增量/controls本人91627/d3ced9 actual0（6 tests/3.224s），含冻结candidate只-list三次、坏UTF8/OSError仍完整受控尾、RUN/PASS各恰一和FAIL/SKIP拒、原tools逆投影。有限入口接受已交Work，非三PG业务通过；报告归原Project review README。本轮两个README及本文3路径freeze，无自有live/真实资源。
 
 ## D04 SQL 四 top 与 PG-only 入口有限独审
 

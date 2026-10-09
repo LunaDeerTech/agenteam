@@ -39,3 +39,17 @@
 - Session 撤销/当前 Project gate 的负例应在已有真实 receipt 后调用专用接口，确认确切 Forbidden/current gate；把它和历史不存在、缺锁、错误 issuer 引起的拒绝分开。不能据此称正式 D10 provider 已集成。
 
 上述是本方法接受后实现必须兑现的判据，不新增审批流程。新源、实际 helper/proxy 输入闭包、精确 selector 与预算沿原流程核定；当前 `742fb20b…4457380b` core/maintenance 候选、原 driver 和其既定实际窗口全部保持。PG 容器/网络仍可只有两项，但新增 loopback socket/goroutine 由本测试自有并严格退休。cross-epoch publication、rewrap 与 Cleanup 并发、真正 D10 Owner/HTTP 恢复未纳入这十格。
+
+## 冻结五个 recovery 测试源码的独立静审
+
+后继结论：对作者 `7ff214a8` 加已冻结 maintenance 新源的五文件，有限源码接受，无本范围 must-fix。精确文件为 `tests/security/secret_variable_storage_recovery_fixture_test.go`、`secret_variable_storage_recovery_test.go`、`secret_variable_storage_recovery_nonce_test.go`、`secret_variable_storage_recovery_concurrency_test.go`、`secret_variable_storage_recovery_maintenance_test.go`。作者仅早先 fixture 阶段 `43492/8ea827` 编译实际0；本次四 top 完整新源尚未编译或 PG。本人未启 Go、proxy、socket、PG、browser 或被测 child；没有用 mock 重写这些待验 SQL。原 core/maintenance 两窗口的实际接受仍只属于原输入。
+
+实际静核闭包：
+
+- final Unknown 三格代理在 Initialize、Prepare/nonce 全返回后才 armed。callback 原 Tx 中验证 actual Apply、kind1/3 ownership 与 native Audit，随后原 COMMIT frame barrier 才可能满足；before/after 的可见行数与 pending 的原 Unknown/Attempt/Command cause 分列。pending 原 PID 来自同 Tx connection，在释放 server COMMIT 前用精确原锁阻塞证据确认事务仍活；服务端 completed、全部原锁再取得、原调用返回各有独立等待。Lookup/Match、当前 Session 拒绝、显式同 prepared 重放均在原 writer 全锁 join 后，比较原 receipt/Ref 与最终唯一事实。
+- nonce 新 binding 初始化沿真实 `registerAndVerify` 复用已有 canary，不预占本 Service 的 nonce cache；arm 后 high-water 必须实际前进1024且业务零增量，nil candidate+精确公开 Unknown 才符合目标。相同 Service 后继必须再确认一个新范围，实际发布的 value/digest 两个 wrap counter 均在后继范围且不同；没有要求旧 canary/历史行也大于本轮阈值。公开方法没有 AttemptID，不伪造此证据。
+- 三个竞争格 A/B 使用独立 Store/Secret/private issuer，prepared 不跨 Service。A 在原 Tx 内实际写 native facts/Audit 后才持有 callback，B 在同一原 Tx 取得 PID 后进入正式完整锁。`secretRecoveryFirstConflict` 按正式规范化 union 查首个冲突，实际 SQL 校验两 PID、DB、advisory key 高低位/objsubid、mode、granted 和 `pg_blocking_pids`，不写死为 Command。释放后两个原 goroutine 必须返回，分别核 replay/KeyReused/VersionConflict、赢家实际 payload/计数及只一次 native Audit。stale 格外部 VariableVersion=7 与 CredentialVersion=1明确分开；实际 value-present Update 会增 CredentialVersion，即使值字节与原值相同。
+- 维护三格由真实 Create/Delete 留下两个 receipt，再读取精确 kind3 payload 集合，不手种历史或凭空要求只有一条。rotation 初始化与 PrepareRewrap 预热在 arm 前，barrier 必须同时见两原 tuple 仅 wrapping/master/revision 改变及 processed=2；预热不冒实际批次。只有这个证明之后才可 StopAdmission，阻断后续 refresh/journal，不能用 pre-gate 失败伪装 Unknown。重建服务后 processed/封装不重做。cleanup barrier 真实删除后，首调用只能空 report+Unknown；empty 数据仍重新检查错 operation/active 拒绝，最后原 current deleting gate 才允许显式 Completed。
+- 所有新增 flight 的 done 在原函数返回后关闭；retire 会释放 barrier、取消原 ctx、实际 proxy Close/wg、等待自有 flight，再取得 ForceClose 返回；成功路径也显式调用 retire。Rows 快照有实际 Close/Err。原 late proxy 关闭入口使用同一个 once、两端连接和原 wg，不另造“完成”标记。普通 proxy 的 `net.Dial` 与 wg 没有独立超时，仍是已披露的失败尾限制：如其不返必须保留 FAIL/缺尾，不能用外层 kill 或“现在无连接”回填 joined；本静审不宣称已证明所有故障下限时退休。
+
+仍待实际的是五源整组编译、真实 SQL/锁与10格行为、原预算耗时、原 goroutine/proxy/Store 及 PG 两资源/TCP/input全尾。后继工具输入必须包含五新文件和实际复用的 `audit_proxy_test.go`、`outbound_reload_test.go`，精确 selector/count 与原门槛另核；不得复用旧742作为新 recovery 证据。D10当前权限、mapping/discovery 仍 controlled，生产 Owner/final Tx 接线、cross-epoch 与 maintenance 并发不扩认。本次无需增加虚构 SQL 控制套件或重复已过 Go/29DDL/100+1；结论已直接交 Model/root。

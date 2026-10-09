@@ -36,3 +36,15 @@ python3 .agent-state/project-skills-cleanup-review/run.py
 Store/pgx.Rows 是明确 controlled facts；实际 public authority、strict decoder 和 postgres.Rows wrapper 在跑，不称真实 PG/真实锁或SQL解析。复用本树既有只读 `knowledge-b02-review/postgres_rows_bridge.go`，overlay不写作者树。首同process statvfs=5,649,293,312B后才执行，固定Go1.27.1/local/off/readonly/-p1，GOMODCACHE与独占 Variables-independent GOCACHE/GOTMPDIR 完整固化在run.py，非Work/VarsUI当前缓存，不建新cache。生产source运行前核415e、返回后逐字未变；无资源或子程序在途。
 
 冻结四路径：本文、`authority_test.go`、`run.py`、本树 current。待真实闭包仍为新3top与原PG完整尾，不外推Skills本域Cleanup、D05物理清理/last anchors、生产 registry/root或完整 Project 删除。
+
+## 三个 single-top 入口窄审
+
+root 已保存上述四路径 `4e30ba15`。后继独立窄核作者 `9c60199f` 后唯一 supervisor 增量与新 `selector-controls.py`，有限离线接受，无 must-fix；原 Go driver 不变。只有三个批准 literal 会在原 reap 后、TCP 尾前校验日志：实际 RUN/PASS 父 top 各恰一，任何父/子 FAIL 或 SKIP 拒绝。UTF-8 解码错误与 OSError 返回 false，使本轮失败但不跳过后续 TCP/input/terminal。
+
+本人命令（cwd `/workspace/agenteam-project-skills-cleanup`）：
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 .agent-state/project-skills-cleanup/selector-controls.py
+```
+
+`91627/d3ced9` actual exit0，6 tests/3.224s：三个真实冻结 race candidate 的 exact `-test.list`、日志正负矩阵、literal 闭集、原 main 的失败日志/旧入口与完整受控尾、逆去增量后 supervisor/driver 逐字 `9c60199f`。过程只有只读 binary listing；main 的 Popen/Wait/reap/desc/TCP 为明确 doubles，无 PG/socket/真实驱动。继承 Go6m、PG driver105+15、supervisor123+3 与 TCP75 原预算，不凭这次 pure 控制接受三业务 top。原两新测试现在已由作者编入65468候选，仅发现而未 PG；早先“未编译”是当时状态，不回填当时结论。
