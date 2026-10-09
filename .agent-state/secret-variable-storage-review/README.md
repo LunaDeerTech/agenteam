@@ -67,13 +67,33 @@ python3 .agent-state/secret-variable-storage-review/run_increment.py
 
 后继真实闭包仍是 D10 provider/Owner final-Tx 与当前权限、连续00029迁移/SQL约束和原子回滚、原COMMIT Unknown确认、专用 receipt 并发与历史 deleted Credential、实际 rotation/head rescan/CAS/canary/Retire、100/101 Cleanup 与同 Project 完整尾。Runner 独审00029是另一范围；此处既不提前接受DDL，也不把controlled 100/101计数或原Unknown分类控制当真实数据库结论。
 
-## SQL 候选与 owned 入口审查（进行中）
+## SQL 候选与 owned 入口有限接受（业务未执行）
 
 只读作者 `fde3ecb5` 两 SQL 测试文件及 `17969f85` 的 fixture。四 top 的真实边界是 Migrator/Postgres Store、Secret AEAD/receipt、Audit 服务与 native checker；D10 的 plan mapping/version 和当前授权仍由 `audit_fixture` 的测试端口提供，Discover 明确 unbound。原调用树不含 TestMain、MinIO 或出站 fixture，PG-only 两资源是适用的有限入口；实际耗时和完整尾尚未执行。
 
-首轮源码审查提出两项测试 must-fix，作者已接受，尚待冻结返修：
+首轮源码审查提出两项测试 must-fix，作者已接受并完成最小返修：
 
 1. `AtomicAuditAndOwnerRollback` 只查 NotCommitted/count/version，未断言目标 hook 确实到达或精确错误来源；`fixture.apply` 又主动清空所有未提交 observation，因此这个 invalid-result 断言不能证明本体拒绝路径。需要区分提前失败与实际 native 写/Audit 后的故障，并在回滚后检查旧 canonical/payload 精确身份与内容。
 2. 原 `audit-wrong-payload-kind` 只把 kind3 改成 kind2；合法 kind3 下错误 owner_id 的跨行关联由 native checker 而非 DDL 保证，尚缺该真实可存输入的拒绝与回滚证据。需要证明注入 SQL 确实成功，不能把 SQL CHECK 拒绝计为 native 拒绝。
 
-其它有限场景的路径已静核：四 effect/删除后历史重放与 KeyReused、新 Session 后当前拒绝；实际 producer 产生101条历史 receipt、删除 Credential 后轮换、移除旧 key 后重新初始化/原 receipt 重放、100+1 Cleanup；九个精确 SQLSTATE 约束负例。当前只是测试设计审查，不是业务 PASS；00029 静态审查由 Runner 负责。作者原27,842,774-byte候选只有编译/列举结果，返修需新候选，旧结果不外推。owned 入口待作者稳定后另审原预算、精确集合与实际 Wait/资源/输入尾，不创建通用 harness。
+返修只改 `secret_variable_storage_test.go` 的 Atomic top：owner-tail 使用同 Tx executor 实读此次新 canonical、receipt 与 native Audit 已落，再返回带唯一 cause 的故障；Audit before 实读 native 写到位，再分别去掉 private witness、修改 kind 或保 kind3 修改 owner_id。篡改必须成功影响一行，并重新读取原 receipt 对应 payload 确認目标值；真实 checker 次数、精确错误链和 hook 次数均有断言。回滚后用独立当前读取对照旧 payload ID、purpose/version、ciphertext/data nonce/wrapped DEK/wrap nonce/master/revision，结合 receipt/payload/Audit 数量，不能再仅靠 helper 清零或任意提前失败通过。`7bad5e` 核 Replay top、原 fixture/maintenance 文件及全部产品/DDL 保持原字节。
+
+返修新增精确错误码断言一度把 missing-lock 的提交结果写成 DependencyUnavailable。本人 `32793/f30506` actual0、race **1.020s**，调用实际 `RequireHeldLocks` 与 `rejected`，证明原 `postgres.LockNotHeld` 会 poison transaction，原 poison 投影是 NotCommitted/InternalError 并保 cause；WithinTx 源码优先原 poison，不能用 callback 的 Secret 包装结果代替。作者只改该期望为 InternalError 并加注释，保 LockNotHeld cause、零 hook/checker；新 race 编译 `57950/b929ba` 与两个精确 selector discovery `96441/8b4a0e` actual0。此控制没有打开 DB，既不执行真实 WithinTx，也不代实际回滚验证。原错误预期/旧候选不回填。
+
+其它有限场景的路径已静核：四 effect/删除后历史重放与 KeyReused、新 Session 后当前拒绝；实际 producer 产生101条历史 receipt、删除 Credential 后轮换、移除旧 key 后重新初始化/原 receipt 重放、100+1 Cleanup；九个精确 SQLSTATE 约束负例。**冻结的测试及精确入口有限接受，无剩余本范围 must-fix；这不是业务 PASS。** 00029 静态审查由 Runner 负责。当前新候选 `secret-variable-storage-sql-reviewed.test` 为27,867,046 bytes，作者已记录实际编译与身份；原27,842,774-byte候选只有编译/列举证据。
+
+owned 入口相对 `fde3ecb5` 只增闭集 core3 与 maintenance1，原单 top/root 控制流和 driver 字节可逆投影保持。core 要求3 top＋5 rollback＋9约束的全部17个 RUN/PASS 恰一次；维护要求唯一 top，额外/漏项/重复/FAIL/SKIP 不接受。固定两产物及本域依赖输入前后比较，读取失败安全失败。只用原PG两个资源，Go6m、driver105+15、supervisor123+3、TCP75不变；实际资源删除/双观测和业务 Wait 仍由原 Go driver 执行，不新增通用 harness。
+
+本人 `35834/55bb7e` 实际执行作者50项离线控制；另 `79504/016f03` 8项独立 actual-main 控实际0：core/maintenance 正向、坏UTF8、日志OSError、漏PASS、重PASS、原driver exit2及末次输入读取失败。注入的是明确受控 Popen/TCP/OS 边界，不创建进程或资源；真实 supervisor main/parser/hash继续执行，核调用原 wait(123)、desc两观测、TCP两空、输入及terminal尾全到达，原2仍2。没有把控制里的空资源或替身 wait 当真实 PG 收尾。
+
+上述入口控制执行时使用修正 missing-lock 错误码前的 `b8231f34` 业务候选；最后只改该断言和注释，driver/supervisor/控制未变，因此复用这两组入口结果。新的 `742fb20b` 候选由作者重新编译/发现，本人 `28f41c` 实核该两行与27,867,046-byte产物；没有声称已执行新业务。
+
+```sh
+# cwd: /workspace/agenteam-skills；固定离线 Go/cache 与前文相同
+PYTHONDONTWRITEBYTECODE=1 python3 .agent-state/secret-variable-storage-review/sql_fault.py
+PYTHONDONTWRITEBYTECODE=1 python3 .agent-state/secret-variable-storage-review/sql_entry.py
+# 作者入口控制（cwd 切到 /workspace/agenteam-secret-variable-storage）
+PYTHONDONTWRITEBYTECODE=1 python3 .agent-state/task-planning-recovery/secret-storage-entry-controls.py
+```
+
+仍待 root fresh grant 下的两组实际 SQL/AEAD/Audit/回滚/轮换/清理与完整 owned 尾。D10 生产 provider/Owner final-Tx、真实 COMMIT Unknown/并发 create/锁竞争不在这四组覆盖内，不据有限 SQL 测试设计接受扩大结论。

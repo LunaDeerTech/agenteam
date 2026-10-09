@@ -35,10 +35,12 @@
 - 静核native witness只由实际Apply产生，同Store/Tx/原Request/完整锁/receipt与前后像重验，旧variant互斥；f2af63核旧Purpose/write/storage/error及原Project Audit保留。作者15128/21736/92922/5785未变范围复用，不新增同类全矩阵。实际D10 provider/Owner、00029/SQL/COMMIT Unknown、100/101 Cleanup、rotation/canary/Retire均仍待真实闭包；Runner另审DDL不替代本文。
 - 新资产 `.agent-state/secret-variable-storage-review/{increment_test.go,run_increment.py}`，复用既有postgres Rows桥，README已追加；连同本文四路径freeze供root下个安全窗口保存。新Go/原产品均未修改，无本人命令/真实资源在途；原Work08环境中断结果不外推。
 
-## D04 SQL 四 top 与 PG-only 入口独审（进行中）
+## D04 SQL 四 top 与 PG-only 入口有限独审
 
 - Apply/维护四路径已root保存eaad50fd。新只读范围为作者fde3ecb5两SQL测试＋17969f85 fixture；复用已接受Go/29DDL，不重做旧矩阵。实际调用为PG Migrator/Store/Secret/Audit/native checker，D10权限与mapping仍明确controlled；无TestMain/MinIO依赖，两资源PG-only可行，耗时须实际验证。
-- 首轮发现两项测试must-fix并获作者确认：回滚负例缺目标hook到达/精确Fault及payload前后像，apply helper主动清零不代本体拒绝证据；合法kind3错owner_id的真实SQL/native拒绝与rollback尚缺。仅作者tests/fixture最小返修，旧候选编译/list不外推，新候选/精确入口待freeze后续审。详见原review README；无PG/socket/network、未改作者源或启动业务。
+- 首轮两测试must-fix已最小返修并核闭合：同Tx观察native写/Audit到达、精确Fault/唯一cause/hook计数，合法kind3错owner_id实际SQL修改和重读后真实checker拒绝；回滚后旧canonical/payload全封装前后像及计数保持。返修新增missing-lock错误码曾误要DependencyUnavailable，本人32793/f30506实际RequireHeldLocks/rejected控制race1.020s证明原poison优先得到InternalError+LockNotHeld；作者已只修该期望，新race候选57950/b929ba与两精确list96441/8b4a0e actual0。7bad5e核其余Replay/fixture/maintenance/产品/DDL未改，旧候选与错误预期不回填。
+- 入口有限接受，无剩余本范围must-fix：core3恰17 RUN/PASS（5 rollback/9约束），maintenance1；原PG2资源、Go6m/105+15/123+3/TCP75及旧流程不变。本人55bb7e作者50控、016f03独立8 actual-main控actual0，坏UTF8/OSError/漏重PASS/driver2/input失败仍完成原受控Wait/desc/TCP/input/terminal；明确无实际子进程/资源，不冒PG尾。新candidate为27,867,046B，真实四top尚未运行，D10当前Owner/finalTx、COMMIT Unknown/并发仍不在此闭包。
+- 新资产为原review目录 `sql_entry.py`、`sql_fault.py`，README与本文准确记录范围/命令；四路径停止写入供root保存。本人所有命令actualterminal、无PG/socket/network，未改作者源码。两组后继实际仍需root fresh grant。
 
 ## 三组 PG 首轮 4315：整体 FAIL，资源已退役
 
