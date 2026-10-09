@@ -25,7 +25,8 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 ## P2 当前可恢复阶段
 
 - rev3 SPEC 已获未参与实现的 Variables 作者有限独审接受。首 Store/命令/冻结包状态与3top/9子作者pure通过，只证明本域局部状态，不是初始化服务成功。
-- D05三个精确补口已按root授权落盘待独审：初始化Service形状/Creation initiator、SkillRevision+ProjectDeleted release；原Runtime和Release实现未改。作者相关pure、Object contract完整race、原reservation函数定向race均actual0；真实Object/PG和生产装配未跑。
+- D05三个精确补口已按root授权落盘并获未参与者有限独审接受：初始化Service形状/Creation initiator、SkillRevision+ProjectDeleted release；原Runtime和Release实现未改。作者相关pure、Object contract完整race、原reservation函数定向race均actual0；独立实际overlay2top/6子通过；真实Object/PG和生产装配未跑。
+- 本域 repository/Authority 与有界 service owner 已形成可构建片段，作者累计7top离线race通过；观察/发现确认/同Tx确认三口新增2top共20子有效，覆盖当前门禁、原Unknown、私有issuer、活Tx/完整锁、发布关系损坏与serving关闭。首轮门禁Fault身份失败已修复并保留恢复记录。这些是受控端口证据；完整Initialize写入、OwnerReader及恢复仍在实施，尚未PG。
 - 00024/25/26已由root按各域冻结来源导入本树，00027草案尚未PG；前序26没有本轮真实迁移通过结论。继续实现真实本域服务/四口与读流，不扩大P1或上述pure的结论。
 
 ## 验收与当前证据
