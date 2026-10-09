@@ -1,0 +1,118 @@
+{
+  "case": "identity-02",
+  "input_checkpoint": "3cdb9df20b8845292a01c3cf0aaec3e857b1dd0a",
+  "binary": "work-ui-account-race-11.test",
+  "selector": "^TestAccountProjectWorkPlanningWebIdentityAndOwnership$",
+  "actual_session": 39077,
+  "actual_exit": 1,
+  "go_seconds": 32.33,
+  "supervisor_seconds": 143.723,
+  "failure": {
+    "source": "tests/account-captcha-web/e2e/project-work-planning.spec.ts:740",
+    "operation": "same-ID Project rename then pageshow Session requalification",
+    "assertion": "canonical Project-name URL",
+    "timeout_ms": 5000,
+    "expected_project_name": "work.identity-renamed",
+    "observed_project_name": "owner-main",
+    "owner_publication_or_dom_snapshot_captured": false
+  },
+  "reached": [
+    "initial Work draft and logout guard cancellation",
+    "same-identity Session check and retained Work draft",
+    "formal logout204 and actual revoked Session SQL check",
+    "new genuine Session",
+    "held Task read and cross-Project navigation",
+    "other Owner and admin unavailable with zero Work requests",
+    "actual same-ID Project rename",
+    "pageshow Session200 and same Session identity"
+  ],
+  "not_reached": [
+    "renamed-route and retained-draft postassertions",
+    "Owner-to-Work and Model navigation guard matrix",
+    "old-name new-Project reuse",
+    "actual Session expiry",
+    "final observer.verify",
+    "final Go persistent assertions"
+  ],
+  "original_work_observation": {
+    "boundary": "Node observation snapshot at afterEach; not a final post-close state",
+    "browser_native_eof_observed": false,
+    "observer_request_counts": [
+      23,
+      0,
+      0
+    ],
+    "request_failed_observations": [
+      {
+        "method": "GET",
+        "project_id": "01a12156-26d7-70c6-95fb-fb178c963458",
+        "target_id": "01a12156-2a2a-7b26-875c-40e55ea650e8",
+        "endpoint": "tasks/id",
+        "request_id": null,
+        "request_at": 4165.315,
+        "response_at": null,
+        "request_failed_at": 4310.052,
+        "request_finished_at": null,
+        "response_finished_at": null,
+        "observer_rejected_at": null,
+        "failure_reason": "aborted",
+        "response_same_request_object": null,
+        "original_body_await": null
+      },
+      {
+        "method": "GET",
+        "project_id": "01a12156-26d7-70c6-95fb-fb178c963458",
+        "target_id": "01a12156-2a2a-7b26-875c-40e55ea650e8",
+        "endpoint": "tasks/id",
+        "request_id": "01a12156-5ec8-71f8-a554-7681adf924d9",
+        "request_at": 8196.684,
+        "response_at": 8214.219,
+        "request_failed_at": 8219.144,
+        "request_finished_at": null,
+        "response_finished_at": null,
+        "observer_rejected_at": null,
+        "failure_reason": "aborted",
+        "response_same_request_object": true,
+        "original_body_await": null
+      }
+    ],
+    "limits": [
+      "first failed Task GET belongs to the declared held-read navigation stimulus; final end-of-case verification was not reached",
+      "second ordinary Task GET failed observation is preserved separately and is not explained by the expected-incomplete branch",
+      "no same-response client decoding/publication or browser native EOF was observed"
+    ]
+  },
+  "terminal": {
+    "driver_actual_wait": true,
+    "driver_exit": 1,
+    "go_actual_wait": true,
+    "go_exit": 1,
+    "adopted_actual_wait": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "adopted_observed_states": [
+      "Z",
+      "Z",
+      "Z",
+      "Z"
+    ],
+    "stop_sent": false,
+    "node_proxy_preparation_root_join": true,
+    "seven_resource_ids_two_observations_absent": true,
+    "descendants_two_observations_empty": true,
+    "runtime_two_observations_empty": true,
+    "private_two_observations_absent": true,
+    "host_tcp_two_delta_empty": true,
+    "inputs_unchanged": true
+  },
+  "limits": [
+    "sequentially reached checks are partial facts, not complete identity acceptance",
+    "original identity-01 actual logout status remains unknown",
+    "no timeout or success finished gate was changed",
+    "no product or test root cause is inferred solely from the old URL"
+  ],
+  "ordinary_log": "output/ai/work-owner-planning-ui/pg/identity-02.log"
+}
