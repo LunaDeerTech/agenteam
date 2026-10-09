@@ -247,18 +247,25 @@ func TestVariableHTTPNativeKeepAliveAndClose(t *testing.T) {
 			t.Fatal("did not reuse exact connection")
 		}
 	})
-	t.Run("real-body-close-error-aborts-before-library", func(t *testing.T) {
+	t.Run("real-body-close-error-aborts-before-response", func(t *testing.T) {
 		h, _, ports := testHandler()
 		var closes, eof atomic.Int32
+		var callsAtClose atomic.Int32
 		address, results, _ := nativeListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			r.Body = nativeBody{ReadCloser: r.Body, closes: &closes, eof: &eof, beforeClose: func() error { return errors.New("private close diagnostic") }}
+			r.Body = nativeBody{ReadCloser: r.Body, closes: &closes, eof: &eof, beforeClose: func() error {
+				callsAtClose.Store(int32(ports.calls))
+				return errors.New("private close diagnostic")
+			}}
 			h.ServeHTTP(w, r)
 		}), false)
 		conn := nativeDial(t, address)
 		nativeSend(t, conn, address, "GET", "/variables", "", true)
 		raw, err := io.ReadAll(conn)
-		if err != nil || len(raw) != 0 || !nativeTerminal(t, results).aborted || closes.Load() != 1 || ports.calls != 0 {
-			t.Fatal("Close did not abort and join", err, len(raw), closes.Load())
+		terminal := nativeTerminal(t, results)
+		// The read and encoding precede Close. A failed original-body Close
+		// must suppress publication, not retroactively undo the library read.
+		if err != nil || len(raw) != 0 || !terminal.aborted || eof.Load() != 1 || closes.Load() != 1 || callsAtClose.Load() != 1 || ports.calls != 1 {
+			t.Fatal("Close did not abort and join", err != nil, len(raw), terminal.aborted, eof.Load(), closes.Load(), callsAtClose.Load(), ports.calls)
 		}
 	})
 }
