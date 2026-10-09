@@ -311,6 +311,7 @@ function workIncompleteLedger() {
     body?: string;
     allowed: boolean;
     failed: boolean;
+    succeeded: boolean;
     ownedResponse: boolean;
     failure: Promise<void>;
     settleFailure: () => void;
@@ -409,6 +410,7 @@ function workIncompleteLedger() {
         spec: { ...spec },
         allowed: !cancel,
         failed: false,
+        succeeded: false,
         ownedResponse: false,
         failure,
         settleFailure,
@@ -443,12 +445,37 @@ function workIncompleteLedger() {
         errors++;
         return;
       }
-      if (closed || !slot.allowed || slot.failed) errors++;
+      if (closed || !slot.allowed || slot.failed || slot.succeeded) errors++;
       slot.failed = true;
+      slot.settleFailure();
+    },
+    finished(request: Request) {
+      const slot = slots.find((value) => value.request === request);
+      if (!slot || slot.spec.kind === "canceled-task-read") return;
+      errors++;
+      slot.succeeded = true;
       slot.settleFailure();
     },
     close() {
       closed = true;
+      // End our event wait without creating a transport-finished operation.
+      for (const slot of slots)
+        if (slot.spec.kind !== "canceled-task-read") slot.settleFailure();
+    },
+    truncation(request: Request) {
+      return slots.some(
+        (slot) =>
+          slot.request === request && slot.spec.kind !== "canceled-task-read",
+      );
+    },
+    async truncationTerminal(request: Request) {
+      const slot = slots.find((value) => value.request === request);
+      if (!slot || slot.spec.kind === "canceled-task-read")
+        throw new Error("WORK_TRUNCATION_NOT_DECLARED");
+      await slot.failure;
+      if (closed || !slot.allowed || !slot.failed || slot.succeeded)
+        throw new Error("WORK_TRUNCATION_NOT_ACTUAL_FAILED");
+      return new Error("WORK_DECLARED_INCOMPLETE");
     },
     terminal(request: Request, originalFinished: Promise<Error | null>) {
       const slot = slots.find((value) => value.request === request);
@@ -507,6 +534,7 @@ function workIncompleteLedger() {
             slot.request &&
             slot.allowed &&
             slot.failed &&
+            !slot.succeeded &&
             (slot.spec.kind !== "unforwarded-milestone-update" ||
               slot.ownedResponse) &&
             failedRequests.has(slot.request),
@@ -609,8 +637,10 @@ export function observe(page: Page) {
     }
   });
   page.on("requestfinished", (request) => {
-    if (isWork(new URL(request.url())))
+    if (isWork(new URL(request.url()))) {
       timing(request).request_finished_at = now();
+      incompleteRequests.finished(request);
+    }
   });
   page.on("response", (r) => {
     const url = new URL(r.url());
@@ -644,9 +674,13 @@ export function observe(page: Page) {
             throw new Error("WORK_RESPONSE_IDENTITY_MISSING_OR_DUPLICATE");
           facts.set(id, fact);
         }
-        const originalFinished = r.finished();
         let error: Error | null;
-        if (incompleteRequests.declared(r.request())) {
+        if (incompleteRequests.truncation(r.request())) {
+          // PW1.56.1 requestfailed does not settle Response.finished(). Only
+          // these four predeclared cuts use the original Request event tail.
+          error = await incompleteRequests.truncationTerminal(r.request());
+        } else if (incompleteRequests.declared(r.request())) {
+          const originalFinished = r.finished();
           error = await incompleteRequests.terminal(
             r.request(),
             originalFinished.then(
@@ -662,7 +696,7 @@ export function observe(page: Page) {
             ),
           );
         } else {
-          error = await originalFinished;
+          error = await r.finished();
           observed.response_finished_at = now();
         }
         fact.finished = error === null;

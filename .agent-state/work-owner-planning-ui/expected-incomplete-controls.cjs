@@ -473,6 +473,69 @@ process.on("unhandledRejection", () => unhandled++);
     e.emit("request", q);
     return { e, q, ordinary };
   }
+  for (const kind of [
+    "unforwarded-milestone-update",
+    "lost-milestone-update",
+    "lost-task-update",
+    "lost-blocker-add",
+  ])
+    await check(
+      "locked PW failed event leaves finished pending; declared observer never starts that operation: " +
+        kind,
+      async () => {
+        const root = require("path").resolve(
+          "tests/account-captcha-web/node_modules/playwright-core",
+        );
+        assert.equal(require(root + "/package.json").version, "1.56.1");
+        const { BrowserContext } = require(
+          root + "/lib/client/browserContext.js",
+        );
+        const { Response } = require(root + "/lib/client/network.js");
+        const { ManualPromise, LongStandingScope } = require(
+          root + "/lib/utils/isomorphic/manualPromise.js",
+        );
+        const { e, q } = ownedCase(kind);
+        const closed = new LongStandingScope();
+        q._targetClosedScope = () => closed;
+        q._setResponseEndTiming = () => {};
+        const native = {
+          request: () => q,
+          _finishedPromise: new ManualPromise(),
+        };
+        const original = Response.prototype.finished.call(native);
+        const joined = original.then(
+          () => "finished",
+          () => "closed",
+        );
+        const response =
+          kind === "unforwarded-milestone-update"
+            ? e.ownedResponse(q, original)
+            : e.response(q, original);
+        try {
+          await new Promise((r) => setImmediate(r));
+          BrowserContext.prototype._onRequestFailed.call(
+            { emit() {} },
+            q,
+            1,
+            "net::ERR_CONTENT_LENGTH_MISMATCH",
+            { emit: e.emit },
+          );
+          assert.equal(
+            await Promise.race([
+              joined,
+              new Promise((r) => setImmediate(() => r("pending"))),
+            ]),
+            "pending",
+          );
+          await e.observed.verify(1);
+          assert.equal(response.calls(), 0);
+          assert.equal(e.snapshot().requests[1].response_finished_at, null);
+        } finally {
+          closed.close(Error("test page closed"));
+          assert.equal(await joined, "closed");
+        }
+      },
+    );
   await check(
     "actual observer: exact unforwarded 503 is separate from upstream schema and waits for real same-request failed",
     async () => {
@@ -489,7 +552,7 @@ process.on("unhandledRejection", () => unhandled++);
       );
       e.emit("requestfailed", q);
       await pending;
-      assert.equal(r.calls(), 1);
+      assert.equal(r.calls(), 0);
       assert.deepEqual(e.decoded, [ordinary]);
       const result = e.writes.at(-1).body;
       assert.equal(result.original_bodies, 1);
@@ -502,6 +565,56 @@ process.on("unhandledRejection", () => unhandled++);
       assert.notEqual(diagnostic.request_failed_at, null);
     },
   );
+  for (const kind of [
+    "unforwarded-milestone-update",
+    "lost-milestone-update",
+    "lost-task-update",
+    "lost-blocker-add",
+  ]) {
+    await check(
+      "actual observer: successful event then failed is rejected: " + kind,
+      async () => {
+        const { e, q } = ownedCase(kind);
+        const r =
+          kind === "unforwarded-milestone-update"
+            ? e.ownedResponse(q, Promise.resolve(null))
+            : e.response(q, Promise.resolve(null));
+        e.emit("requestfinished", q);
+        e.emit("requestfailed", q);
+        await assert.rejects(e.observed.verify(1));
+        assert.equal(r.calls(), 0);
+      },
+    );
+    await check(
+      "actual observer: close settles missing-failed observation as rejected: " +
+        kind,
+      async () => {
+        const { e, q } = ownedCase(kind);
+        const r =
+          kind === "unforwarded-milestone-update"
+            ? e.ownedResponse(q, new Promise(() => {}))
+            : e.response(q, new Promise(() => {}));
+        const pending = e.observed.verify(1);
+        const joined = pending.then(
+          () => "accepted",
+          () => "rejected",
+        );
+        await new Promise((resolve) => setImmediate(resolve));
+        assert.equal(
+          await Promise.race([
+            joined,
+            new Promise((resolve) => setImmediate(() => resolve("pending"))),
+          ]),
+          "pending",
+        );
+        e.emit("close");
+        assert.equal(await joined, "rejected");
+        e.emit("requestfailed", q);
+        await assert.rejects(e.observed.verify(1));
+        assert.equal(r.calls(), 0);
+      },
+    );
+  }
   await check(
     "actual observer: v4 unforwarded key retires its slot before the next declared loss",
     async () => {
@@ -560,6 +673,7 @@ process.on("unhandledRejection", () => unhandled++);
     async () => {
       const { e, q } = ownedCase();
       e.ownedResponse(q, Promise.resolve(null));
+      e.emit("requestfinished", q);
       await assert.rejects(e.observed.verify(1));
     },
   );
@@ -569,6 +683,7 @@ process.on("unhandledRejection", () => unhandled++);
       const { e, q } = ownedCase();
       e.ownedResponse(q, Promise.resolve(Error("original-error")));
       e.emit("requestfailed", req("unforwarded-milestone-update"));
+      e.emit("close");
       await assert.rejects(e.observed.verify(1));
     },
   );
@@ -604,7 +719,7 @@ process.on("unhandledRejection", () => unhandled++);
       await new Promise((r) => setImmediate(r));
       e.emit("requestfailed", q);
       await e.observed.verify(1);
-      assert.equal(r.calls(), 1);
+      assert.equal(r.calls(), 0);
       assert.equal(e.snapshot().requests[0].response_finished_at, null);
       assert.equal(e.decoded[0], q);
       assert.equal(e.writes.at(-1).body.expected_incomplete, 1);
@@ -616,7 +731,13 @@ process.on("unhandledRejection", () => unhandled++);
       const e = observerEnv(),
         q = req();
       e.emit("request", q);
-      e.response(q, new Promise(() => {}));
+      let finish;
+      e.response(
+        q,
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+      );
       e.emit("requestfailed", q);
       const verify = e.observed.verify().then(
         () => true,
@@ -629,6 +750,8 @@ process.on("unhandledRejection", () => unhandled++);
         ]),
         false,
       );
+      finish(null);
+      await verify;
     },
   );
   await check(
@@ -639,6 +762,7 @@ process.on("unhandledRejection", () => unhandled++);
       const q = req();
       e.emit("request", q);
       e.response(q, Promise.resolve(null));
+      e.emit("requestfinished", q);
       await assert.rejects(e.observed.verify(1));
     },
   );
@@ -660,12 +784,13 @@ process.on("unhandledRejection", () => unhandled++);
     },
   );
   await check(
-    "actual observer: original finished rejection before verify remains failure",
+    "actual observer: held read original finished rejection before verify remains failure",
     async () => {
       const e = observerEnv();
-      e.observed.declareIncomplete(spec());
-      const q = req();
+      const handle = e.observed.declareIncomplete(spec("canceled-task-read"));
+      const q = req("canceled-task-read");
       e.emit("request", q);
+      handle.authorizeCancellation();
       let reject;
       const late = new Promise((_, r) => (reject = r));
       e.response(q, late);
