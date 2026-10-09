@@ -1,6 +1,6 @@
 # D12 Human Owner Knowledge metadata 与文档树 HTTP
 
-状态：adapter生产源/Schema已落并获Runner有限源码与两个独立pure风险控接受；唯一HEAD Schema must-fix已原红转绿。作者纯控与标准Schema已有实际证据，四PG top十四子已race编译/精确发现（尚未执行）；native三个top已独立race候选编译/精确发现，driver也已编译；均未真实执行。真实PG/native与整结果验收仍未完成。基线正式 main `29dd429881783595e5a1304b86af5bfb56ec80b2`。只交付可独立构造的五类只读 HTTP adapter，不接生产 root，不修改 B02/SQL，不包含正文、下载 URL、D13、UI 或 Project lifecycle/Runtime 停止项。依据 [B02 服务](d12-b02-knowledge-service.md)、[D12 规格](d12-knowledge-documents-design.md) §3/6 与既有 Owner HTTP/Account boundary。
+状态：adapter生产源/Schema已落并获Runner有限源码与两个独立pure风险控接受；唯一HEAD Schema must-fix已原红转绿。作者纯控与标准Schema已有实际证据，四PG top十四子已实际整轮通过；native三个top已独立race候选编译/精确发现，driver也已编译；均未真实执行。native实际与整结果验收仍未完成。基线正式 main `29dd429881783595e5a1304b86af5bfb56ec80b2`。只交付可独立构造的五类只读 HTTP adapter，不接生产 root，不修改 B02/SQL，不包含正文、下载 URL、D13、UI 或 Project lifecycle/Runtime 停止项。依据 [B02 服务](d12-b02-knowledge-service.md)、[D12 规格](d12-knowledge-documents-design.md) §3/6 与既有 Owner HTTP/Account boundary。
 
 ## API 与真实依赖
 
@@ -39,4 +39,7 @@ children 的 parent_document_id 必须是字面 `null` 或规范 UUIDv7；不把
 后继实际候选为四top封闭组 `TestKnowledgeOwnerReadHTTP{Metadata,CurrentAuthority,Transactions,CommitUnknown}`：真实Account正式身份、原B02同Store实际出版，Project初始化/Owner变化/合法Deleting仅明确上游SQL夹具。四top十四子覆盖上述权限/输出/事务矩阵；局部test-only回调只观察/阻塞原事务，不替换CommitResult/授权/SQL行。整个Go仍6m，单top包含fixture实际收尾120s；原七资源root链/全部实际Wait与双尾不变。运行时Schema helper/两JSON和当前Python解释器也进入input gate，候选/命令与实际限制见本树current。
 
 
-PG入口已获Runner 1f7561/d2262e有限独审接受，固定MinIO由root准备；尚无PG业务实际结果。native继续复用既有driver/supervisor，唯一三top六子闭集、原Go90s/driver105s/123+3/TCP75及全尾不变；97611e离线76控制通过，原PG控制5a3165通过，native入口已获Runner addbbc/0cbac4/edb28c有限独审接受；60658/04e2a4原环境定向race-c＋driver build＋恰三top发现实际exit0、body=0，产物18,847,132B和4,857,127B，原PG候选保持。PG/native真实运行仍待完成。有限交付收口只需：已验pure/Schema与独立安全投影/I/O风险控，加上当前四PG top十四子和native三top六子的实际完整终态；真实证据若指出缺陷，只补受影响范围。权限业务使用真实Account/B02同Store，native的局部authority/domain替身只证明传输，不冒完整App root或Runtime接入。
+PG入口已获Runner 1f7561/d2262e有限独审接受，固定MinIO由root准备；现已有下述完整实际结果。native继续复用既有driver/supervisor，唯一三top六子闭集、原Go90s/driver105s/123+3/TCP75及全尾不变；97611e离线76控制通过，原PG控制5a3165通过，native入口已获Runner addbbc/0cbac4/edb28c有限独审接受；60658/04e2a4原环境定向race-c＋driver build＋恰三top发现实际exit0、body=0，产物18,847,132B和4,857,127B，原PG候选保持。native真实运行仍待完成。有限交付收口只需：已验pure/Schema与独立安全投影/I/O风险控，加上当前四PG top十四子和native三top六子的实际完整终态；真实证据若指出缺陷，只补受影响范围。权限业务使用真实Account/B02同Store，native的局部authority/domain替身只证明传输，不冒完整App root或Runtime接入。
+
+
+PG首轮75649/8181d0完整actualexit0，be9604核原证据：四top十四子全PASS（Metadata6.31s/Authority5.71s/Transactions16.14s/Unknown10.38s）；原Go/driver/outer实际Wait0、七ID双absent、三private/runtime/desc双清、TCP双delta_empty与542inputsame齐，supervisor129.994s。当前Account/B02同Store业务及实际读COMMIT Unknown边界已有实证；上游Project SQL fixture的范围保持。环境切换前旧grant本人未启动，取消后本轮重新fresh grant，不存在旧缺口补PASS。原精确命令、日志与输入见current；下一只补native三top六子真实门，不重复已过PG/pure，不增加product root/Runtime范围。
