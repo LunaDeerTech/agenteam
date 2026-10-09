@@ -65,8 +65,6 @@ Vue 测试任务补充 [vue-testing-best-practices](../../../.agents/skills/vue-
 
 仓库按用户要求设置项目全局 100 个子 agent 并发值，不设置角色单例或永久子树配额。主线程协调跨树容量，各级负责人根据当前运行时可用名额和 CPU、内存、PostgreSQL 连接、Docker、浏览器等实际承载协商使用、借用与回收；阶段结束后及时报告已释放容量，独立验证需要时及时调整实现并发。不要让等待下级的负责人占满执行容量；无空位时由合适的现有实例推进，待实际释放再补位，不能反复创建撞限。
 
-2026-10-09 当前会话观测到工具全树共享 7 个总席位，含主线程和所有层级子 agent；这是本会话运行时限制，不能据仓库配置宣称已经解除，也不把它固化为后续设备或会话的上限。不通过另开会话规避系统限额。每次按实际容量调度，简单任务不为用满名额拆卡。
-
 例如主线程可同时派两个 `backend_worker`，分别负责互不重叠的 Central 与 Runner 子目标，另派一个 `frontend_worker`；某个 backend 负责人有可独占的数据子目标时继续派 `data_worker`，同时完成自己的接口或集成工作。任一子目标结束后，核实资源和运行时名额实际释放，就接入下一个就绪实现或独立验证；这些角色及层数按任务调整，不预留固定比例的空闲席位。
 
 主线程维护跨子目标依赖与所有权，各级负责人维护自己的直接下级任务和局部所有权；使用现有卡片或简短派工消息即可，不重复建立全树任务索引、永久锁表或新增批准环节。并行下发前确认：
@@ -103,13 +101,13 @@ Vue 测试任务补充 [vue-testing-best-practices](../../../.agents/skills/vue-
 
 [项目配置](../../../.codex/config.toml)与[十一个角色文件](../../../.codex/agents/)统一要求各层实例使用 `gpt-6-astra`、`model_reasoning_effort = "ultra"`，Fast Mode 对应 `service_tier = "priority"`。角色身份按 TOML 的 `name` 字段识别，检查时枚举实际文件。所有层级继承权限和 sandbox，均可在授权范围内按需要继续委派，不自动换模型，不修改全局 trust。
 
-项目按用户要求将 `agents.max_concurrent_threads_per_session` 从 20 提高到 100，表示全树子线程并发配置值，不含主线程。新 CLI 加载项目配置时请求该值，实际可用名额仍受运行时、服务和机器承载限制；不能把 100 的配置值当作已实测容量，也不能热改当前 API 会话的 7 个总席位。`agents.max_depth = 6` 是可调整的递归深度上限，不要求任务拆满六层；该字段只对当前 V1 多代理运行时有效，V2 会忽略它，切换运行时须重新核实支持情况。
+项目按用户要求将 `agents.max_concurrent_threads_per_session` 从 20 提高到 100，表示全树子线程并发配置值，不含主线程。新 CLI 加载项目配置时请求该值，实际可用名额仍受运行时、服务和机器承载限制。`agents.max_depth = 6` 是可调整的递归深度上限，不要求任务拆满六层；该字段只对当前 V1 多代理运行时有效，V2 会忽略它，切换运行时须重新核实支持情况。
 
 创建实例时使用自包含任务卡，显式指定 `gpt-6-astra`、`ultra`；支持 `fork_turns` 的接口设为 `none`。工具未提供自定义角色时，可用普通实例附上角色指令和必读技能；模型不可用则报告阻塞，不降低模型或思考强度。
 
 Fast Mode 的配置目标、CLI 支持与实例实际服务档位须分别核实。`spawn_agent` 接口没有 Fast/service tier 参数时，只能显式指定其支持的模型与思考强度；不能据此声称当前所有实例已启用 Fast。项目配置是否加载还受运行时版本、trust 及会话覆盖影响；配置变更不自动切换当前会话，未实测的加载或继承行为须保留限制。
 
-本机 CLI 0.159.0-alpha.3 的模型目录将 `priority` 标为 Fast、列出 `gpt-6-astra` 支持 `ultra`，`fast_mode` 功能为开启；字段解析已验证角色 `service_tier` 和 V1 `agents.max_depth`。官方文档和加载器支持从 `.codex/agents/*.toml` 按 `name` 自动发现角色，无需维护另一份同名注册表；本轮未在本机实测目录发现后的角色调用。当前项目因未受信任而禁用项目配置，实际 `config/read` 未取得项目模型和 agent 设置；仓库技能仍可被 `skills/list` 发现。技能发现成功不证明角色配置已加载，本次不修改全局 trust。
+本机 CLI 0.159.0-alpha.3 的模型目录将 `priority` 标为 Fast、列出 `gpt-6-astra` 支持 `ultra`，`fast_mode` 功能为开启；字段解析已验证角色 `service_tier` 和 V1 `agents.max_depth`。官方文档和加载器支持从 `.codex/agents/*.toml` 按 `name` 自动发现角色，无需维护另一份同名注册表。
 
 仓库提供 Python 3.11+ 的[团队启动工具](../../../scripts/ai-team.py)，要求 POSIX 进程组（Linux、macOS 或 WSL），当前不支持原生 Windows。本轮只在 Linux 实测。从仓库根使用：
 
