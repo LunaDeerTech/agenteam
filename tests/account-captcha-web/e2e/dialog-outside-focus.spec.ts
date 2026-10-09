@@ -64,7 +64,13 @@ const ConfirmationEditor = defineComponent({
         'data-testid': 'blocked-editor-input', 'data-autofocus': '',
         value: editorDraft.value, disabled: disableEditor && confirmation.value,
         onInput: (event: Event) => { editorDraft.value = (event.target as HTMLInputElement).value },
-        onKeydown: (event: KeyboardEvent) => { if (event.key === 'Enter') confirmation.value = true },
+        onKeydown: (event: KeyboardEvent) => {
+          if (event.key !== 'Enter') return
+          // This shortcut owns Enter; its default activation must not reach
+          // the confirmation button that receives focus during this gesture.
+          event.preventDefault()
+          confirmation.value = true
+        },
       }),
       h('input', { 'data-testid': 'editor-later-input' }),
     ],

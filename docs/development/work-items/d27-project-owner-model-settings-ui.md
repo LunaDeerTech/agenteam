@@ -42,6 +42,8 @@ authority 第五轮有界诊断再次 FAIL，明确停在 Session `finished()` �
 
 另一个精确组件正反例已作者与独立者各自实跑：原 trigger 始终可用时通过，确认期间 disabled、同 tick 关闭确认并解除 disabled 时失败；原节点最终已 connected／enabled／非 inert／保值，实际焦点在下层关闭按钮。它证明共享层的局部恢复时序缺口，不回填 navigation 第四轮未采集的 activeElement；后继共享修复及其适用验证仍在进行，§0.2 已接受结论保持绑定原版本。
 
+共享焦点后继修复的 114 项单测、独立 8 项正反例及完整前端 2640 项／类型／build 通过，但首轮真实组件未通过：18 个新用例都在打开确认框后的前置焦点断言失败，trace 证明确认按钮先聚焦、随后收到无指针点击，自动化尚未执行其后显式点击；不能精确指称未采集的键盘阶段。另有外层监督错误：临时附加的 120 秒整轮上限截断第 20 项，并漏收 adopted 实际 wait，末个 Vite close 也未证明。当前已无自有运行进程或监听端口，PID 115611 仅为 PPID 1 的已退出 zombie；不能补写原 Wait／close 或称该轮完整退役通过。必要事实见 [shared-focus-first-failure.json](../../../.agent-state/model-ui-recovery/shared-focus-first-failure.json)。只修该测试专属 Enter handler 的默认行为，保留全部焦点断言；新固定选集监督器按原每项 45 秒预算计总长并实际收取 adopted 终态，先复验单个代表前置场景，尚不正式接受共享修复。
+
 ### 0.1 T1 最小共享源码与实际签名
 
 以下为当前已提交接入点的最小核对，不再复制实施前源码哈希表或过期行号：
