@@ -244,7 +244,7 @@ func TestProjectVariableAuthority(t *testing.T) {
 			path, err = pc.NormalizeProjectPath(route.Username, project.Name)
 			return err
 		})
-		if _, e = v.projects.BeginDeleteProject(ctxFor(t), a, meta(t, "delete-project", &project.Version), project.ID, pc.DeleteProjectRequest{NormalizedCurrentPath: path}); e != nil {
+		if _, e = v.projects.BeginDeleteProject(ctxFor(t), a, meta(t, "delete-project", &project.Version), project.ID, pc.DeleteProjectRequest{NormalizedCurrentPath: path, Permanent: true}); e != nil {
 			t.Fatal("real BeginDeleteProject", e)
 		}
 		before := v.snapshot(t)
@@ -271,7 +271,8 @@ func TestProjectVariableAuthority(t *testing.T) {
 			return e
 		})
 		_, e = v.service.GetVariable(ctxFor(t), expired.actor, p, target.ID)
-		requireCode(t, e, f.SessionRevoked)
+		// Account distinguishes an expired current-session check from explicit revocation.
+		requireCode(t, e, f.Unauthenticated)
 	})
 	t.Run("private-record-corruption-fails-closed", func(t *testing.T) {
 		var plan []byte

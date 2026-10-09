@@ -217,3 +217,6 @@ SPEC 已获独立有限审查及版本输入差异复核接受，无未决 mustf
 
 
 默认根验收两源已离线闭合：app top 保留正式根装配、真实 Account Actor 与四个实际 BEGIN/PID 的 Get/List/Delete/Lookup，在 graceful/Force 下核取消、原共享 DB context/deadline、未提前 Joined 及真实返回后 join；它不把 absent Project 上的退出屏障冒成成功业务事实。process top 消费实际 cmd、正式 Cookie/CSRF、六能力和双HEAD、三原意图历史恢复、ProjectAudit三安全动作及旧相邻路由；另三命令各在真实 TCP 收到成功响应头/首字节后关闭而未观察完整正文/EOF，再由新真实Session原Lookup/显式同key重放核持久事实。此传输刺激与库HTTP的 ResponseWriter失败控制分开。两源race-c/精确发现与process TestMain两入口build实际通过，尚无native/defaultroot动态结论。原root链adapter仅增两个闭合selector→已有cwd，固定MinIO缓存按原SHA复用；作者纯输入控制通过；root两精确映射及native三精确selector/env增量已获独立有限控制接受，未扩大原资源/预算/退出语义，实际native/root窗口仍待。
+
+
+Authority首轮完整真实FAIL（9.58s），Go/driver实际Wait、两资源/desc/runtime/TCP双尾及输入不变均闭合。当前Owner/跨Project（含Create全局ID）、新Session与原version、Owner失权、归档读与历史重放、私有记录损坏拒绝共五子通过；pending/deleting子例停于缺少正式Delete永久确认的测试请求，撤销/过期子例中正式Logout拒绝已过，过期实际UNAUTHENTICATED与错误测试预期SESSION_REVOKED不符。依据Project DeleteProjectRequest.Validate和Account loadCurrentSession的既有契约，仅补Permanent=true及过期精确预期；保留真实撤销码、原权限断言及原整体FAIL，不改产品。修后编译/独审与动态结果另记，不外推剩余竞争、HTTP、Unknown或native/root。
