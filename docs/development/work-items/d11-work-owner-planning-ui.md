@@ -183,12 +183,14 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 
 | 精确作者 top / case | 必须区分的结果 |
 | --- | --- |
-| `TestAccountProjectWorkPlanningWebReadAndNavigation` / `read` | 实际Owner Get门槛、50/51分页、父子与typed深链/页外对象；四route（含点号Project名）实际直接GET/浏览器导航与刷新，非法Work路径由Vue拒绝且零Work读取，资产/API不降为SPA；默认Current/无Current、筛选/失效cursor、无权限/pending/deleting与原路径保留 |
+| `TestAccountProjectWorkPlanningWebReadAndNavigation` / `read` | 实际Owner Get门槛、50/51分页、父子与typed深链/页外对象；四route（含点号Project名）实际直接GET/浏览器导航与刷新，非法Work路径由Vue拒绝且零Work读取，资产/API不降为SPA；真实无Current与planned显式选择、筛选/失效cursor、无权限/pending/deleting与原路径保留 |
 | `TestAccountProjectWorkPlanningWebStructureAndTasks` / `planning` | 六Structure与三Task mutation、七读取的真实消费者；字段/清空/Plan/同组排序、priority组改变、错误父/版本冲突，持久对象/版本/必要历史/Outbox/Activity一致且无额外命令 |
 | `TestAccountProjectWorkPlanningWebBlockers` / `blockers` | 两类add/resolve、真实依赖环拒绝、status分页/Taskversion使cursor失效、resolved历史、错误目标与不擅自变Task状态 |
 | `TestAccountProjectWorkPlanningWebOriginalRecovery` / `recovery` | 三域各实际写后响应丢失，保存原意图Lookup/显式同义重放、历史receipt与新当前值、改义冲突、无第二事实；in_progress/not_observed不可假成功，归档读/历史恢复vs新写拒绝 |
 | `TestAccountProjectWorkPlanningWebIdentityAndOwnership` / `identity` | 正式Logout/撤销/过期、其它Owner与管理员、checking/新Session、迟到尾与Cookie owner实际join、跨Project/旧名复用、Owner/Model/Work既有确认链互不清理 |
 | `TestAccountProjectWorkPlanningWebLayouts` / `layouts` | 浅深两主题×四宽度8组合，键盘/焦点/窄屏树/长文/readonly/empty/error，reduced motion及生产无Debug |
+
+Current Sprint 非空真实正例暂不可由正式生产接口形成：[Work Structure](d11-work-structure.md)明确排除 start/complete/rollover，现有 planned Sprint 创建不设置 Project current pointer。本卡不以直接 SQL 伪造 Work 事实；本轮真实覆盖无Current与planned typed选择。§4自动读取非null指针及保留用户选择的规则保留，并有合法投影纯控制；非null真实正例是D11 Sprint生命周期接通后的待集成gate，未验证，不作为本卡规划能力已验证范围。
 
 每个 Playwright case 原45s、expect5s、workers1/retries0；每Go top沿原120s含全部Cleanup/join，包6m。不通过加时/批次重试掩盖失败；若单case完整矩阵实际无法有界完成，先拆同目标的精确case与资源归属，回报负责人修规格，不延长产品期限或跳清理。
 
@@ -206,7 +208,7 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 
 先冻结并独审本SPEC；按 §2 分离客户端/Session接入与页面/真实fixture任务，共享文件唯一writer，Model活动修改不带入新树。编译/纯测闭合片段可保存WIP，但未通过真实矩阵与独立审查不得称界面完成。最终一份原子结果包含产品、测试、必要README及限定台账；本卡完成仍不代表完整D11/D27、生产部署或创建Project链完成。
 
-rev1 已经未参与产品实现者独立接受；接下来按两个唯一文件域实施，尚无本卡产品、纯测、构建、PG或浏览器通过结论。后续接受结果在本节最小更新，复用的上游证据与本卡新证据分开，不覆盖原失败。
+rev1 已经未参与产品实现者独立接受。API、Session恢复与controller已通过相应有限独立纯控制，页面组合已可构建；四fixture首段integration race编译通过，有限静审发现Lookup目标投影缺陷待修。尚无完整UI独审、全量前端检查或真实浏览器通过结论。Current Sprint验收事实纠正经原独验确认：正式非null生产者尚缺，保留上文后续真实集成gate。后续结果最小更新，复用上游与本卡新证据分开，原失败保留。
 
 ## 10. 已裁定的工程选择
 
