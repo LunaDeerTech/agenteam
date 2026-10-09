@@ -326,4 +326,173 @@ func TestIndependentTaskBlockerRuntimeB(t *testing.T) {
 			})
 		}
 	}
+	t.Run("internal_confirmation_committed_under_archived_read", func(t *testing.T) {
+		ibKnownUnknownConfirmation(t, base, e, a, true)
+	})
+	t.Run("internal_confirmation_preparation_rolled_back", func(t *testing.T) {
+		ibKnownUnknownConfirmation(t, base, e, a, false)
+	})
+}
+
+// Keep the real Store's Unknown result at its return boundary while the owned
+// COMMIT proxy finishes and an independent Command EX lookup proves the result.
+// Only then may the service start its own single confirmation transaction.
+func ibKnownUnknownConfirmation(t *testing.T, base *taskFixture, e *ibEnv, a i.Actor, committed bool) {
+	t.Helper()
+	p, _, _ := base.create(t, a, fmt.Sprintf("independent-known-%t", committed))
+	m := base.milestone(t, a, p.ID, "m")
+	s := base.sprint(t, a, p.ID, m.ID, "s")
+	target := base.task(t, a, p.ID, s.ID, "confirm-target")
+	proxied, hook, proxy := proxyTaskFixture(t, base, committed)
+	pe := ibAttach(t, proxied)
+	req := ibWait(t)
+	cmd := meta(t, id[struct{}](t).String(), &target.Version)
+	lookup := ibLookup(t, a, cmd, p.ID, target.ID, req)
+	identity, err := wc.TaskBlockerCommandIdentity(p.ID, wc.TaskBlockerCommandAdd, cmd.IdempotencyKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	key, err := f.CommandLock(identity)
+	if err != nil {
+		t.Fatal(err)
+	}
+	phase := "planned"
+	if committed {
+		phase = "completed"
+	}
+	var armed, observed atomic.Bool
+	var backend atomic.Int32
+	hook.setAfter(func(ctx context.Context, tx f.Tx, cause f.TransactionCause) error {
+		if cause.Kind() != f.CommandsCause || cause.Details().Primary.Canonical() != identity.Canonical() || armed.Load() {
+			return nil
+		}
+		x, err := hook.InTx(tx)
+		if err != nil {
+			return err
+		}
+		var state string
+		if err = x.QueryRow(ctx, `SELECT coalesce((SELECT state FROM agenteam_work.task_blocker_commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3),'')`, p.ID.String(), string(wc.TaskBlockerCommandAdd), string(cmd.IdempotencyKey)).Scan(&state); err != nil {
+			return err
+		}
+		if state == phase && armed.CompareAndSwap(false, true) {
+			var pid int32
+			if err = x.QueryRow(ctx, `SELECT pg_backend_pid()`).Scan(&pid); err != nil {
+				return err
+			}
+			backend.Store(pid)
+			proxy.targetPID.Store(pid)
+		}
+		return nil
+	})
+	held, resume, free := ibGate(t)
+	defer free()
+	physical := make(chan f.CommitResult, 1)
+	confirmationResults := make(chan f.CommitResult, 1)
+	var confirmations atomic.Int32
+	attempts := observeLock(hook, key, observed.Load)
+	hook.mu.Lock()
+	hook.afterResult = func(cause f.TransactionCause, result f.CommitResult) {
+		if cause.Kind() != f.CommandsCause || cause.Details().Primary.Canonical() != identity.Canonical() {
+			return
+		}
+		if result.State() == f.Unknown && observed.CompareAndSwap(false, true) {
+			physical <- result
+			close(held)
+			<-resume // Every test exit opens this owned barrier before async cleanup.
+			return
+		}
+		if observed.Load() {
+			confirmations.Add(1)
+			select {
+			case confirmationResults <- result:
+			default:
+			}
+		}
+	}
+	hook.mu.Unlock()
+	var releaseOnce sync.Once
+	releaseProxy := func() { releaseOnce.Do(func() { close(proxy.release) }) }
+	defer releaseProxy()
+	t.Cleanup(releaseProxy)
+	before := ibSnapshot(t, base, a)
+	pending := ibAsync(t, func(ctx context.Context) (wc.TaskBlockerMutation, error) {
+		return pe.service.AddTaskBlocker(ctx, a, cmd, p.ID, target.ID, req)
+	})
+	ibStage(t, held, pending)
+	proof := <-physical
+	if proof.State() != f.Unknown || proof.AttemptID().Validate() != nil || proof.Cause().Kind() != f.CommandsCause || proof.Cause().Details().Primary.Canonical() != identity.Canonical() {
+		t.Fatal("held result is not the original physical command Unknown")
+	}
+	await(t, proxy.reached)
+	if backend.Load() <= 0 || proxy.backendPID.Load() != backend.Load() {
+		t.Fatal("known-outcome COMMIT proxy did not bind the original backend")
+	}
+	if ibSnapshot(t, base, a) != before {
+		t.Fatal("held original COMMIT prematurely published business facts")
+	}
+	releaseProxy()
+	await(t, proxy.completed)
+	// For rollback the proxy has closed the server connection. This real EX
+	// lookup additionally waits for PostgreSQL itself to finish that transaction;
+	// socket closure alone is never treated as proof of rollback completion.
+	known, err := e.service.LookupTaskBlockerCommand(ctxFor(t), a, lookup)
+	if err != nil {
+		t.Fatal("independent serialization after original COMMIT", err)
+	}
+	if committed {
+		if known.Status != wc.LookupCommitted || known.Receipt == nil || known.Receipt.Task.Version != target.Version+1 || known.Receipt.Blocker.ID != req.BlockerID {
+			t.Fatal("forwarded COMMIT has no exact durable receipt")
+		}
+		ibFact(t, e, a, *known.Receipt)
+		// Explicit canonical negative input, with its own timestamp/Read checks.
+		// This does not execute or claim Project lifecycle participant completion.
+		taskSeedArchivedProject(t, base, a, p.ID)
+		project, err := base.projects.GetProject(ctxFor(t), a, p.ID)
+		if err != nil || string(project.Lifecycle) != "archived" {
+			t.Fatal("confirmation premise is not an authorized archived Project", err)
+		}
+	} else if known.Status != wc.LookupNotObserved || known.Receipt != nil || ibSnapshot(t, base, a) != before {
+		t.Fatal("unforwarded prepare COMMIT was not proved absent")
+	}
+	settled := ibSnapshot(t, base, a)
+	if confirmations.Load() != 0 {
+		t.Fatal("internal confirmation ran before its deterministic barrier opened")
+	}
+	free()
+	got := ibJoin(t, pending)
+	attempt := awaitLockAttempt(t, attempts)
+	if attempt.BackendPID == backend.Load() || f.CompareLockKeys(attempt.Request.Key, key) != 0 || confirmations.Load() != 1 {
+		t.Fatal("confirmation did not use exactly one independent original-key Tx")
+	}
+	select {
+	case result := <-confirmationResults:
+		if result.State() != f.Committed {
+			t.Fatal("confirmation did not physically commit its authorized read", result.State(), result.Fault())
+		}
+	default:
+		t.Fatal("confirmation physical transaction result missing")
+	}
+	if committed {
+		if got.err != nil {
+			t.Fatal("internal archived Read failed to recover committed receipt", got.err)
+		}
+		ibEqual(t, *known.Receipt, got.value)
+		ibFact(t, e, a, got.value)
+	} else {
+		requireCode(t, got.err, f.DependencyUnavailable)
+		var fault *f.Fault
+		if !errors.As(got.err, &fault) || fault.CommitState != f.NotCommitted || fault.RetryHint != "retry_same_key" || fault.CauseID != proof.AttemptID().String() || errors.Unwrap(got.err) == nil || errors.Unwrap(got.err).Error() != string(f.CommitUnknown) || got.value.Task.ID.Validate() == nil {
+			t.Fatal("known rollback lost original Unknown provenance or retry semantics", got.err)
+		}
+	}
+	if ibSnapshot(t, base, a) != settled {
+		t.Fatal("internal read confirmation repeated facts or Activity")
+	}
+	if !committed {
+		recovered, err := e.service.AddTaskBlocker(ctxFor(t), a, cmd, p.ID, target.ID, req)
+		if err != nil || recovered.Task.Version != target.Version+1 || recovered.Blocker.ID != req.BlockerID {
+			t.Fatal("retry_same_key did not recover the original request once", err)
+		}
+		ibFact(t, e, a, recovered)
+	}
 }

@@ -53,6 +53,20 @@ func awaitBlockerStage(t *testing.T, reached <-chan struct{}, reply <-chan block
 	}
 }
 
+func awaitBlockerLockAttempt(t *testing.T, observed <-chan lockAttempt, mode foundation.LockMode) lockAttempt {
+	t.Helper()
+	select {
+	case attempt := <-observed:
+		if attempt.BackendPID <= 0 || attempt.Request.Mode != mode {
+			t.Fatal("caller did not request the expected real lock mode", attempt, mode)
+		}
+		return attempt
+	case <-time.After(5 * time.Second):
+		t.Fatal("actual Blocker caller Tx did not reach AcquireAll")
+	}
+	return lockAttempt{}
+}
+
 func observedBlockerFixture(t *testing.T, base *blockerFixture) (*blockerFixture, *hookStore) {
 	t.Helper()
 	tf, store := observedTaskFixture(t, base.taskFixture)
@@ -161,7 +175,7 @@ func TestTaskBlockerConcurrency(t *testing.T) {
 		second := callBlockerAsync(t, func(ctx context.Context) (wc.TaskBlockerMutation, error) {
 			return competitor.blockers.AddTaskBlocker(ctx, a, meta(t, "opposite-b", &two.Version), p.ID, two.ID, blockerDependency(t, one.ID))
 		})
-		attempt := awaitLockAttempt(t, waiter)
+		attempt := awaitBlockerLockAttempt(t, waiter, foundation.Shared)
 		waitTaskExactMode(t, f.taskFixture, attempt, foundation.Shared, pid.Load())
 		release()
 		x, y := joinBlockerReply(t, first), joinBlockerReply(t, second)
@@ -172,6 +186,63 @@ func TestTaskBlockerConcurrency(t *testing.T) {
 		rows, err := f.blockers.ListTaskBlockers(ctxFor(t), a, p.ID, two.ID, wc.TaskBlockersAll)
 		if err != nil || len(rows) != 0 {
 			t.Fatal("losing edge persisted", err)
+		}
+	})
+	t.Run("different-keys-same-task-version", func(t *testing.T) {
+		target := f.task(t, a, p.ID, s.ID, "same-version")
+		writer, store := observedBlockerFixture(t, f)
+		competitor, competitorStore := observedBlockerFixture(t, f)
+		ready, proceed := make(chan struct{}), make(chan struct{})
+		var once sync.Once
+		unpark := func() { once.Do(func() { close(proceed) }) }
+		defer unpark()
+		app := &capturingAppender{Appender: competitor.blockerOutbox, after: func(ctx context.Context, _ identity.Actor, _ event.Event, _ oc.AppendPlan) error {
+			close(ready)
+			select {
+			case <-proceed:
+				return nil
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}}
+		competitor.blockers = competitor.newBlockerService(t, app, competitor.accounts)
+		loserRequest := blockerWaiting(t, "same version loser")
+		second := callBlockerAsync(t, func(ctx context.Context) (wc.TaskBlockerMutation, error) {
+			return competitor.blockers.AddTaskBlocker(ctx, a, meta(t, "same-version-second", &target.Version), p.ID, target.ID, loserRequest)
+		})
+		awaitBlockerStage(t, ready, second)
+		var beforeGeneration int64
+		if err := f.raw.QueryRow(ctxFor(t), `SELECT query_generation FROM agenteam_work.task_query_generations WHERE project_id=$1`, p.ID.String()).Scan(&beforeGeneration); err != nil {
+			t.Fatal(err)
+		}
+		cm := meta(t, "same-version-first", &target.Version)
+		reached, pid, release := holdBlockerFinal(t, store, p.ID, wc.TaskBlockerCommandAdd, cm.IdempotencyKey)
+		first := callBlockerAsync(t, func(ctx context.Context) (wc.TaskBlockerMutation, error) {
+			return writer.blockers.AddTaskBlocker(ctx, a, cm, p.ID, target.ID, blockerWaiting(t, "same version winner"))
+		})
+		awaitBlockerStage(t, reached, first)
+		user, _ := foundation.UserLock(a.Details().UserID)
+		waiter := observeLock(competitorStore, user, nil)
+		unpark()
+		attempt := awaitBlockerLockAttempt(t, waiter, foundation.Exclusive)
+		waitExactLock(t, f.db, attempt, false, pid.Load())
+		release()
+		x, y := joinBlockerReply(t, first), joinBlockerReply(t, second)
+		if x.err != nil || x.result.Task.Version != target.Version+1 || x.result.Task.ManualRank != target.ManualRank {
+			t.Fatal("first real final did not commit one unchanged-rank version", x.err)
+		}
+		requireCode(t, y.err, foundation.TaskVersionConflict)
+		rows, err := f.blockers.ListTaskBlockers(ctxFor(t), a, p.ID, target.ID, wc.TaskBlockersAll)
+		if err != nil || len(rows) != 1 || rows[0].ID != x.result.Blocker.ID || rows[0].ID == loserRequest.BlockerID {
+			t.Fatal("same-version loser persisted a Blocker", err)
+		}
+		var generation, history, outbox, completed int64
+		if err = f.raw.QueryRow(ctxFor(t), `SELECT
+ (SELECT query_generation FROM agenteam_work.task_query_generations WHERE project_id=$1),
+ (SELECT count(*) FROM agenteam_work.task_events WHERE task_id=$2 AND blocker_operation_id IS NOT NULL),
+ (SELECT count(*) FROM agenteam_outbox.events WHERE aggregate_id=$2 AND event_type='work.task_blockers_changed'),
+ (SELECT count(*) FROM agenteam_work.task_blocker_commands WHERE project_id=$1 AND idempotency_key IN ('same-version-first','same-version-second') AND state='completed')`, p.ID.String(), target.ID.String()).Scan(&generation, &history, &outbox, &completed); err != nil || generation != beforeGeneration+1 || history != 1 || outbox != 1 || completed != 1 {
+			t.Fatal("same-version race did not commit exactly one fact set", generation, history, outbox, completed, err)
 		}
 	})
 	t.Run("same-key-exact-command-waiter", func(t *testing.T) {
@@ -222,7 +293,7 @@ func TestTaskBlockerConcurrency(t *testing.T) {
 		second := callTaskAsync(t, func(ctx context.Context) (wc.TaskMutation, error) {
 			return planner.tasks.UpdateTask(ctx, a, meta(t, "planning-old-version", &target.Version), p.ID, target.ID, wc.TaskFieldsUpdate{Title: &title})
 		})
-		waitTaskExactMode(t, f.taskFixture, awaitLockAttempt(t, waiter), foundation.Shared, pid.Load())
+		waitTaskExactMode(t, f.taskFixture, awaitBlockerLockAttempt(t, waiter, foundation.Shared), foundation.Shared, pid.Load())
 		release()
 		x, y := joinBlockerReply(t, first), joinTaskReply(t, second)
 		if x.err != nil {

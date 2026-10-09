@@ -21,7 +21,7 @@ Human Owner 可对正式 Task Planning 创建的、未指派的 backlog Task 新
 - 新服务源码及对应 `_test.go`：`internal/central/work/blocker_service.go`、`blocker_repository.go`、`blocker_commands.go`、`blocker_reader.go`、`blocker_events.go`。
 - 既有接线最小修改：`internal/central/work/events.go`、`internal/central/project/work_event_authority.go`及二者对应测试；`internal/central/foundation/fault.go`及对应测试。Work `Authority`沿原 issuer 分流新精确 triple。
 - 新迁移：`db/migrations/00023_task_blockers.sql`。
-- 新真实测试：`tests/work/task_blocker_persistence_test.go`、`task_blocker_authority_test.go`、`task_blocker_concurrency_test.go`、`task_blocker_unknown_test.go`。共享旧 fixture不改；必要本卡fixture helper在这些文件内。
+- 新真实测试：`tests/work/task_blocker_persistence_test.go`、`task_blocker_authority_test.go`、`task_blocker_concurrency_test.go`、`task_blocker_unknown_test.go`、`task_blocker_interop_test.go`、`task_blocker_atomicity_test.go`。共享旧 fixture不改；必要本卡fixture helper在这些文件内。
 - 独立验证输入：`.agent-state/task-blocker-service/`下独立验证者自己的可执行 probe；普通构建/log放 `output/ai/task-blocker-service/`。
 
 不修改旧 Task Planning/Transition/B0-C DTO、旧 TaskEvent type/decoder、旧 planning command闭集及生产装配。新服务复用同包已接受 Store/Authority/Reader及typed scalar/strict helper；不复制事务驱动、Foundation ID marker、User/Project权限规则。相关旧边界若必须改动先说明真实影响，不直接扩域。
@@ -124,6 +124,8 @@ migration实际测试fresh、populated00022升级、re-run与失败回滚；原p
 | TestTaskBlockerAuthority | 非Owner管理员、另Ownerwriter、session撤销、archive read/replay与newwrite拒绝、未初始化/deleting、跨Project/Task Blocker及relatedTask、缺外域端口、producer两stage/foreignTx/missinglock/typednil/坏持久JSON拒绝；真实权限竞争 |
 | TestTaskBlockerConcurrency | A→B→C与C→A真实图、resolved边消失、双向并发新边恰一胜；同key/异key同expected；planning update/reorder与Blocker争同version、Structure/Project archive的真实双赢家；current querycursor stale而rankgeneration不变；容量与错误不partial |
 | TestTaskBlockerUnknown | 准备/final COMMIT未转发和响应丢失、独立Lookup等待原writer、Unknown保Attempt/Cause、archivedcompleted确认、cancelledLookup无假空、Stop/Drain实际join及每边界注错全回滚 |
+| TestTaskBlockerInteroperability | 正式BeginArchive与UpdateSprint分别双向prepared/final锁竞争，当前未初始化与deleting门禁；仅证明归档入口accepted/archiving，不宣称生命周期cleanup完成 |
+| TestTaskBlockerAtomicity | add/resolve在Task、Blocker、query、history、Outbox、completedcommand、Activity各真实SQL写点注错，完整回滚与同key恢复；正确planned后像仅缺history时producer拒绝 |
 
 正向Task全部由正式TaskCreate产生；图/容量大样本可以在真实首对象建立后使用明确测试fixture批量铺设同schema，只用于边界压力，不替代授权/基础创建正向。非backlog/assigned/terminal损坏或未来状态样本只能作拒绝负例，不能据此声称transition正向。相关Task done/cancelled仅验证不会被本卡自动处理，不声称已通过Task状态写服务。
 
@@ -139,6 +141,10 @@ migration实际测试fresh、populated00022升级、re-run与失败回滚；原p
 
 首轮 `TestTaskBlockerPersistence` 整体FAIL：真实4096历史边界得到RESOURCE_BUSY但遗漏既定BLOCKER_HISTORY_LIMIT reason；此规则由§1所引transition契约继承，本轮将安全字段位置在§5明确。262144项目容量、已填充00022升级与重跑、DDL失败回滚及两类真实新增/解除/读取/重建重放四个子项本轮body通过，但不替代整top通过。Go、driver与外层实际退出1；两任务资源、runtime及host TCP均完成双次清空，冻结输入未变。该首次失败保留。
 
-history错误字段已作单分支最小修复，定向六分支pure/race通过，并经独立STATIC限定接受；恰4096的resolve继续进入真实读取、history超限损坏事实及其它容量错误保持原行为。独立顶层 `TestTaskBlockerHistoryCapacityRegression` 复用原失败场景，已在固定输入下真实race通过（body 6.89秒），覆盖4096历史与256未解除容量；Go、driver与外层均实际退出0，两任务资源、runtime及host TCP均双次清空，输入未变。首轮Persistence整体FAIL仍保留，已通过的四个无关子项未重复运行。
+history错误字段已作单分支最小修复，定向六分支pure/race通过，并经独立STATIC限定接受；恰4096的resolve继续进入真实读取、history超限损坏事实及其它容量错误保持原行为。定向顶层 `TestTaskBlockerHistoryCapacityRegression` 复用原失败场景，已在固定输入下真实race通过（body 6.89秒），覆盖4096历史与256未解除容量；Go、driver与外层均实际退出0，两任务资源、runtime及host TCP均双次清空，输入未变。首轮Persistence整体FAIL仍保留，已通过的四个无关子项未重复运行。
 
-独立runtime全文STATIC除上述已修history字段未发现新增must-fix；自有A/B probe与构建脚本已落入 `.agent-state/task-blocker-service/`，离线race编译及精确top发现通过，尚未运行真实PG。其余三新top、独立A/B和必要既有服务回归仍待完成，尚无完整服务接受结论。
+`TestTaskBlockerAuthority` 在同一冻结产品基线上完整race PASS，六个子项body 3.39秒，Go、driver及外层实际退出0，两资源/runtime/host TCP双次清空。它证明已写的权限、隔离、回滚和归档历史读取场景；新增未初始化/deleting明确负向归Interop后续验收，不冒充已覆盖。
+
+`TestTaskBlockerUnknown` 在同一冻结产品基线上完整race PASS，body 15.69秒；四种planned/completed×COMMIT转发/未转发组合均实际观察独立Command锁等待，确认超时保原Unknown、取消Lookup无假空、迟到Lookup/原key恢复与Stop/Drain均通过。Go、driver和外层实际退出0，两资源/runtime/host TCP双次清空；该旧输入不含后续B补充的内部确认成功/确定回滚分支。
+
+独立runtime全文STATIC除上述已修history字段未发现新增must-fix；自有A/B probe与构建脚本已落入 `.agent-state/task-blocker-service/`。第一版离线race编译及精确top发现通过；B追加内部Unknown确认成功/确定回滚后，新版独立overlay race编译和A/B精确发现也已实际退出0，尚未运行真实PG。逐条验收覆盖核对发现的缺口已集中补入上述两个新top、Concurrency异key同版本及B内部确认。作者Concurrency两处首次User SH观察误用旧EX专用helper，已在运行前修为本地精确mode检查并经独立差异接受，未把此未运行的测试错误当产品FAIL。三个补充作者测试源已联合race编译通过、精确发现七个作者top和两个必要旧回归top，另经独立STATIC接受，尚未真实执行。其余真实top、独立A/B和必要既有服务回归仍待完成，尚无完整服务接受结论。
