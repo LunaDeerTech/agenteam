@@ -6,7 +6,7 @@
 
 ## 0. 固定依据、当前基线与交接状态
 
-本次只读核对仓库 Git 基线为 `e55ad7d1`，当前分支为 `work`。正式规格安装于 `7b8af244`，已接受的 rev1 语义完整保存在 §2–10；唯一精确端点附件为 [d27-project-owner-model-settings-ui-endpoints.json](d27-project-owner-model-settings-ui-endpoints.json)。附件来源状态不表示当前实施状态；本卡消费其 operation/method/path/target/query/effects 闭集，不建立第二套协议。
+当前从 `ai/product-continuation` 接续，已合入保存完整 Model 输入的 `da4953f5`；总体边界见[当前检查点](../../../.agent-state/current.md)。正式规格安装于 `7b8af244`，已接受的 rev1 语义完整保存在 §2–10；唯一精确端点附件为 [d27-project-owner-model-settings-ui-endpoints.json](d27-project-owner-model-settings-ui-endpoints.json)。附件来源状态不表示当前实施状态；本卡消费其 operation/method/path/target/query/effects 闭集，不建立第二套协议。
 
 | 已完成范围 | 可复用事实与限制 |
 | --- | --- |
@@ -14,17 +14,18 @@
 | 前端离线组合 | 历史完整单元 2626 PASS / 2 FAIL 为旧 Audit 菜单期待；#30 一行兼容后该文件 49/49 PASS。格式、类型、私有 build 及独立导航／焦点修复按各自版本组合接受，保留原失败，不宣称当前 HEAD 一次全量重跑。 |
 | 真实配置与凭据路径 | `modelsconfig03`、`modelscred01` 历史 actual PASS / fullSTOP；前两次配置 FAIL、Problem.instance 净化路径修复及其有限证据保留。 |
 | 恢复路径 | `modelsrecover01`、`modelsrecover02` 均 FAIL；后者缺最终 browser-result 与 durable facts，原 75s host TCP 观察未双清。后续有限窗口释放不能补写原 TCP 通过。 |
-| 未完成门槛 | recovery / read / authority / navigation 四个新 top、旧 14 回归及独立 A/B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
+| 当前恢复验收 | recovery 第七轮、read 第二轮、configuration 第三轮、credential 首轮完整通过，原各次失败保留。新 sharedLayer 修复改变模态层绘制顺序，尚待真实组件及受影响场景补验，不能将历史 PASS 直接写成新资产通过。 |
+| 未完成门槛 | authority / navigation 两个新 top、旧 14 回归及独立 A/B 尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
 
 两次恢复失败后的受控结论仅用于后续修复：正式 header/Flush 后零 body 断连已在受控 native fetch 比较中验证；旧分支一次 fetch 可能透明发出两次 POST 并读到完整 EOF。ReadPrivate 的 Lstat→Open→SameFile 与 JS atomic rename 存在源码可确定竞态；候选改为先 NOFOLLOW|NONBLOCK 打开，再以同一 fd 验证 regular/0600/size，保留原有界读取、清理与 Close，pure-file 受控 12 叶／17 RUN/PASS 已接受。原恢复轮未采得具体 error 类别，以上不能回填两次 business FAIL 的确切因果。早期受控 browser launch 失败及 TMP 后续清理同样保留，短根成功不证明原 launch 失败原因。
 
-**当前缺失输入：** §8 #24–27 四个 harness 路径均不存在，限定路径 Git 历史也无记录；仓库内按四个文件名与关键测试／helper 符号检查未找到源码副本，已有[规格验收档](../agent-team/project-model-settings-spec-verification.md)保存规格与元数据，不能直接恢复这四份实现；`/workspace/scratch` 存在但无直接子项，历史 `project-model-settings-ui/dist-ui01`、`dist-ui02`、`pmui`、`mdn02` 均不存在。旧 main fixture 修订、`modelsrecover03`（v06）准备和 private-v04 独立 fixture 只是历史交接状态，不能当作当前可执行源或运行结果。旧资源已退休／global 三资产已恢复是当时事实，本次只查源码和路径，没有核查当前进程、容器或资产。
+**实际恢复输入：** §8 #24–27 四个 harness 和 `.agent-state/model-ui-recovery/` 的六场景模块、同 body 校验、资源 driver、必要脱敏失败输入，以及 `.agent-state/model-ui-regression/` 两个旧回归 helper 已从 Git 恢复。主线程已重建 `/workspace/agenteam-delivery`，固定正式 `11c16867` 与最后迁移 `00022`，并复制当前两份未完成整卡验收的 Model Go 测试源；新 binary 尚待编译，不能沿用旧 `dbf` 编译证据。`output/ai/model-ui-recovery/` 私有构建产物与固定 MinIO binary 仍需重建，不重新实现 harness。Go 1.27.1、固定 Chromium 151.0.7922.173 及其正式 SHA 已核实，锁定浏览器依赖已恢复，私有资产待 build。Docker 当前两容器属于既有 `agenteam-dev-infra`，不作为测试资源、不连接或清理；真实测试须另外创建并登记 owned fixture。
 
 下一步由本任务负责人组织：
 
-1. 找回或按 §8–10 重建缺失的两个 Go、两个 JS/TS harness 及必要私有运行输入；对照既有正式后端、已提交前端和上面的已接受窄修逐项核实，不猜测候选字节或恢复旧执行者名单。
+1. 从已恢复源码重建锁定依赖、隔离 Go binary/helpers、固定 MinIO、原生 client probe 与私有前端资产；核对固定镜像、资源归属与当前后端迁移闭包，不使用历史 scratch 路径代替实际文件。
 2. 以当前 Git 基线、限定 diff 和停止写入范围交审，完成受影响的格式、类型、编译、精确 selector discovery 与安全输入检查。原始日志放 `output/ai/<task>/`；涉及 Unix socket 时使用有界短外部目录，恢复前核实际工具、资产和资源所有者。
-3. 保持 §9 场景和预算，先完成恢复路径，再继续 read / authority / navigation、必要旧回归和独立 A/B。已有结果仅在相关输入／依赖可确认未变时复用；缺失输入无法证明同一版本时明确其限制。高风险恢复与权限场景须由未参与实现者独立验证。
+3. 保持 §9 场景和预算，先验证已有 sharedLayer 修复，再继续 authority / navigation、必要旧回归和独立 A/B。已有结果仅在相关输入／依赖可确认未变时复用；受新共享层行为影响的历史场景须补验。高风险恢复与权限场景须由未参与实现者独立验证。
 4. 负责人整合实现、必要测试、README 和简短台账，由主线程一次交付完整结果。不得以编译、受控 helper PASS、静态准备或旧实例 ACK 替代真实整卡验收。
 
 ### 0.1 T1 最小共享源码与实际签名
