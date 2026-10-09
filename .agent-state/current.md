@@ -1,26 +1,29 @@
 # 当前执行检查点
 
 - 目标：从环境中断处恢复产品开发，完成 D01–D28 全部能力及 E01 平台内游戏复刻与真实试玩验收。
-- 状态：进行中；产品恢复实施尚未验收，不能视为 D11/D27 或全平台完成。
-- 当前分支：`ai/task-planning-recovery`，恢复基线为远端 `main` 的 `1b38f470`。
+- 状态：进行中；Task Planning 规划库、Agent C1、R1 纯身份已正式交付；完整 D11/D27、平台与 E01 未完成。
+- 当前分支：`ai/task-planning-recovery`，已合入正式 main `dbf4a5e0`。Task runtime=`0273a604`、Agent C1=`7f2bb211`、R1=`dbf4a5e0` 均正常推送并精确远端确认；`1b38f470` 是初始恢复基线。
 - 恢复核对：初始本地 `work` 为 `3add174d`、工作区干净；fetch 后保留并 fast-forward 远端三个协作流程提交。没有发现 `origin/ai/*` 活动任务分支，也无本地未推送独有提交。
 
 ## 当前工作与所有权
 
-1. D11 Task Planning：恢复实施已形成可构建检查点；按[正式规格](../docs/development/work-items/d11-task-planning.md)恢复缺失实施。负责人负责卡中产品/测试路径、迁移 `00022` 和局部 README，安排唯一写者及自测；未参与实现者独立验证后才正式交付。两 ID PG-only harness 旧源同样缺失，必要重建输入保存在 `.agent-state/task-planning-recovery/`。
-2. D27 Model Settings：并行按[正式卡](../docs/development/work-items/d27-project-owner-model-settings-ui.md)重建四个缺失 Go/browser harness；此执行者仅写本卡四测试路径及 `.agent-state/model-ui-recovery/`，保留旧 FAIL，首个 recovery 浏览器业务已准备待实际运行，整卡尚未验收。
-3. root 独占当前检查点、全局台账与 Git。构建、迁移和真实测试资源按唯一写者与隔离 fixture 协调；必要源码随检查点保存，可再生日志在忽略的 `output/ai/`。
-
+1. Task Planning 本卡规划库已正式交付：20技术路径及README；七新八旧PG、独立A/B和pure/race/vet/build按限定组合接受，资源终态齐，原FAIL保留。状态/指派/执行/删除/HTTP/UI/生产Work仍未实现，完整D11未完成。
+2. D27 Model Settings：执行代理环境恢复后再次pending_init，已interrupt；root接管四测试harness、Model helpers与本卡状态。第七recovery完整PASS（schema/client13、全部Wait/join/7ID/TCP双清）；原六FAIL保留，六新仅1通过，其余5/14旧/独立AB待验。下一仅接线已预审read模块后真实运行；configcred/nav片段未实际验。
+3. T0a纯状态核心：原作者环境恢复后pending_init已interrupt，root接管精确2新Work contract源及本卡状态；SPEC独立接受，作者pure与root race/vet已通过，独立4top/9child race实际exit0，最终独审与正式交付待完成。无Blocker/Transfer/fullDigest/事实服务/迁移。R1三个identity marker已main，不代表真实目录或F1。
+4. root 独占current、globalledger与Git；真实PG/browser/hostTCP按完整终态串行资源ACK。Model执行只使用 `/workspace/agenteam-delivery` 的正式main dbf/accepted00022，两个untrackedGo与原树同份；原树新增T0a未验源不得复制到delivery。所有Model glob在实际run中冻结，其他原树纯代码不在其hash闭包。
+5. 旧 `/root/task_planning`、`/root/model_ui_recovery` 持续pending_init已interrupt并停权；新实例已实际启动接续，不按旧实例名单推断进程。所有必要source/probe随ai checkpoint保存，output日志/产物可重建。
 ## 环境实际核对
 
 - Go：`/workspace/toolchains/go1.27.1/bin/go`，实际版本 `go1.27.1 linux/amd64`。
 - Docker server：`28.4.0`；工作盘可用约 30 GiB。
-- 已成功取得测试固定 PG 镜像 `pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc`；尚未启动任务 fixture，镜像存在不代表业务验证。
+- 已成功取得测试固定 PG 镜像 `pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc`；本轮隔离Task/Model fixture已实际验证并清理，现有dev infra不属于任务。
 - 现有 `scripts/test-postgres.sh` 默认会转 Object 套件，公共 PG fixture 会含 PG16 且未列 tests/work，不能直接当 Task 两 ID 测试 driver。
 - MinIO：已按正式固定来源与 Go/CGO0/trimpath/版本 flags 构建 `output/ai/deps-minio/bin/minio`，version 与 commit 正确，SHA256 `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8` 与测试契约一致；二进制可重建，不纳入 Git。
 - web/harness 均已按各自锁恢复依赖；本域4单元文件354测试实际PASS（8.25s）。浏览器 executable `/usr/bin/chromium` 存在，首个 data: 页面探针被 policy 拒绝（原exit1保留），后续 owned loopback HTTP 探针实际exit0，Playwright1.56.1/Chromium151.0.7922.173，browser/server Close均返回；不归因为业务失败。
 
-## 未完成与后续
+## 历史恢复与原 FAIL
+
+以下保留当时事实与原失败；当前状态和执行安排以上面的所有权与最新记录为准。
 
 - Task DTO/typed event/六Fault/Project闭集4源已形成可构建片段：作者离线 contract+Foundation 旧pure实际exit0；Task新pure测试待补。Project追加离线检查首因固定依赖缺失FAIL，准确 go mod download 后三包实际PASS；Task runtime/reader/迁移/PG测试源已恢复到正式路径：work pure实际PASS、integration race-c及私有driver build实际exit0，七新top矩阵仍需补齐且尚未运行PG，不是整卡验收。
 - Model harness首段3源已形成：同fd私有读取/严格JSON/IPC闭合和case配置；作者限定两个Go源race测试exit0，独立复核已完成，绑定 `02e3daaf`：四race测试、private/JSON边界及13个Node配置检查PASS；8个非法typed/union IPC参数仍获空错误真实复现，独立probe保留预期exit1；decode当前仅envelope/action键闭合，后续原语已补值类型/union与登记Project/target/cursor/effect校验，作者5场景race PASS；独立旧FAIL仍绑定02e3daaf，不回填。浏览器spec类型检查/private Vite build PASS，但尚无六业务case。完整后端fixture与业务仍未实现。
@@ -122,3 +125,5 @@
 - T0a工程闭包仅Task transition卡§10追加93行已freeze，原15边表/其它章节逐字保留；具体2拟source/6纯角色/49错误顺序/Position codec-cap/6组pure验收已自查，无Go源码/Grant/事实provider。待独立SPEC接受后才授权实现；当前无T0a产品代码。
 
 - Model第七完整PASS：owner outer8917 actualexit0/82.776s，Go13.89s、browser completed=true/schema-client各13/proxy_actual_join=true；directWait189608 exit0、4adoptedWait0/watchdogobserver实join、7IDs双absent/descendants[]、hostTCP双空/input同一（owned-recovery-eb34d011…）。原6FAIL保留，不回填旧DOM/Map根因；这是6新case中的1，尚余5新/14旧/独立AB。model_acceptance_next/worker当前源码freeze，全资源归root安全窗；下一read仅注册已预审真实模块后strictTS/list并实际run。T0a工程93行已独立SPEC接受，root已授task_transition_core_spec精确2新Go源及本卡实施状态，纯边/role/Position闭包无服务迁移；独立代码验收仍待后续，禁止Model delivery树变更。
+
+- 环境恢复后root收回pending执行代理写权。read真实Page接线已独立静审接受，无mustfix；createRequire CJS边界、固定read finish与闭合afterEach诊断通过。read/recovery各1真实selector discovery actual0，strictTS用web typeRoots actual0（首次缺node类型setupFAIL保留）。T0a root contract race2.931s、准确vet与6selector发现actual0；独立新probe4top/9child真实race exit0、未skip、无PG/network，2probe冻结。当前保存可构建恢复片段，下一仅read真实资源窗；不视作read casePASS。

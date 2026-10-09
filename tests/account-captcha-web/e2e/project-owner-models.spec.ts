@@ -15,6 +15,11 @@ import {
 } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
+
+// Recovery helpers live outside this harness's type=module package. Use the
+// Node CommonJS boundary while keeping the real exported function's TS type.
+const { runReadAndPagination } = createRequire(import.meta.url)("../../../.agent-state/model-ui-recovery/read-and-pagination") as typeof import("../../../.agent-state/model-ui-recovery/read-and-pagination");
 
 // Rebuilt from the formal project-owner-models.v1 contract. Runtime fixtures
 // supply all IDs and current facts; this module contains no business stubs.
@@ -733,7 +738,8 @@ test.afterEach(async ({}, info) => {
   // Never persist Playwright's message/stack/call log: fill diagnostics can
   // contain private values. Retain only closed categories and our own numeric
   // source locations so a failed actual run remains diagnosable.
-  const publicCodes = new Set([...readFileSync(fileURLToPath(import.meta.url), "utf8").matchAll(/"(PROJECT_MODELS_[A-Z_]+)"/g)].map((match) => match[1]));
+  const diagnosticSources = [fileURLToPath(import.meta.url), join(repository, ".agent-state/model-ui-recovery/read-and-pagination.ts"), join(repository, ".agent-state/model-ui-recovery/read-pagination-contract.ts")];
+  const publicCodes = new Set(diagnosticSources.flatMap((path) => [...readFileSync(path, "utf8").matchAll(/(["'])(PROJECT_MODELS_[A-Z_]+)\1/g)].map((match) => match[2])));
   const errors = info.errors.slice(0, 8).map((error) => {
     const message = error.message ?? "", stack = error.stack ?? "";
     const candidate = /\b(PROJECT_MODELS_[A-Z_]+)\b/.exec(message)?.[1];
@@ -855,4 +861,20 @@ test("[recovery] actual original configuration and credential requests", async (
   for (const [operation, expected] of [["createProjectModelProvider", 2], ["deleteProjectModelProvider", 2], ["createProjectModelCredential", 2], ["updateProjectModelProvider", 1], ["lookupProjectModelConfiguration", 2], ["lookupProjectModelCredential", 1]] as const) invariant(operationCount(finalCounts, operation) === expected, "PROJECT_MODELS_RECOVERY_OPERATION_COUNT_INVALID");
   step("same-body-finish");
   await finish(page, "recovery", checks);
+});
+
+test("[read] actual project model reads and cursor pagination", async ({ page }) => {
+  step("material-reading");
+  const material = readProjectModelsMaterial();
+  invariant(material.mode === "read", "PROJECT_MODELS_CASE_MISMATCH");
+  await runReadAndPagination(page, {
+    material,
+    loginOwner: (page) => loginProjectModels(page, material.actors.owner),
+    openProject: (page, project, leaf, discardPrepared) => openProject(page, material, project, leaf, discardPrepared),
+    fillCredential: fillProjectModelsCredential,
+    nativeFacts,
+    counts,
+    finish: (page, checks) => finish(page, "read", checks),
+    step,
+  });
 });
