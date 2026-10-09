@@ -158,24 +158,26 @@ func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*
 
 ### 当前有限交付门槛
 
-修后Runtime54818已有三子业务PASS6.90s和Go998510／driver996487实际Wait0，原日志7ID/private/runtime/desc双尾已清、精确top/Wait匹配；但环境切换后工具session消失，`pg-62f545ac57a847159cb2d1996080fa98.log`止于exact_tops，缺HOST_TCP双观察、输入不变和supervisor/外层终态，**不记完整PASS**。恢复只读复核7精确ID/PID/runtime双清及三private目录不存在，root确认当前窗口释放，不回填失去的baseline或Wait。产品/测试/新binary仍冻结；下一同输入Runtime重跑只补这一明确验收缺口，原56777失败与TCP失败继续保留，公平Cleanup仍未实际运行。
+修后Runtime57974已完整PASS：当前2287eca0产品/测试＋race-c77598 `knowledge-recovery-fixed-race.test`，TCP仅移植34206ea4诊断增量且经Skills f8fe7d有限独审，gate/预算不变。首statvfs5867839488B；三子7.82s（2.73／2.68／2.42s），Go1017066／driver1015085实际Wait0，outer c34712实际exit0，supervisor104.995s／terminal0。7ID/private/runtime/desc双尾、exact_tops／actual_test_wait、HOST_TCP双delta_empty、inputs_unchanged全部齐，29ade3复核无STOP；日志 `output/ai/knowledge/pg/pg-0a7b9115f922479997dc166ee227af3b.log`。窗口已释放，只接受修后Knowledge Runtime三子，不扩为Object全域停止或整个B02。
 
-P1/P2五源修复已获原独立审查者Skills有限接受，无剩余mustfix。实际源overlay15866 race0／1.044s（4top7sub）覆盖真实D05取消与release-error的Close/monitor、阻塞release仍不得Drain，65项分32+32+1及高低新项下一轮，Hard/Unknown及ResourceBusy+Unknown的原cause/attempt，扫描并发Busy无SQL且实际join。独验首15786为probe对opaque closure用DeepEqual的误判，按正式Equal/Details修probe后过，产品未改。此结论没有PG/新分页SQL/修后Runtime或Cleanup真实接受，56777原FAIL与TCP缺尾不改。
+修后Runtime54818已有三子业务PASS6.90s和Go998510／driver996487实际Wait0，原日志7ID/private/runtime/desc双尾已清、精确top/Wait匹配；但环境切换后工具session消失，`pg-62f545ac57a847159cb2d1996080fa98.log`止于exact_tops，缺HOST_TCP双观察、输入不变和supervisor/外层终态，**不记完整PASS**。恢复只读复核7精确ID/PID/runtime双清及三private目录不存在，root确认当前窗口释放，不回填失去的baseline或Wait。产品/测试/新binary保持冻结；后续57974同输入新一轮完整通过不回填54818旧终态，原56777失败与TCP失败继续保留，公平Cleanup仍未实际运行。
 
-修后新整包独立binary已race-c77598／六精确top发现dd5fce／domain与integration vet53340实际0，未覆盖旧产物。首全包race59862因新测试误假定UUIDv7分配单调而FAIL；只修受控ID前置，真实新子也改为持两reader后读取实际cleanup排序选择保留项，产品不改。修后全Knowledge/... race49004实际0；原Cleanup两子逆差异da8223逐字89613dc5。此为可构建/纯控制，不等于P1/P2独审或新SQL/真实业务通过，下一真实仅安排修后Runtime与Cleanup受影响组及原未验异常组。
+P1/P2五源修复已获原独立审查者Skills有限接受，无剩余mustfix。实际源overlay15866 race0／1.044s（4top7sub）覆盖真实D05取消与release-error的Close/monitor、阻塞release仍不得Drain，65项分32+32+1及高低新项下一轮，Hard/Unknown及ResourceBusy+Unknown的原cause/attempt，扫描并发Busy无SQL且实际join。独验首15786为probe对opaque closure用DeepEqual的误判，按正式Equal/Details修probe后过，产品未改。此独审结论本身不含PG；修后Runtime已由57974完整通过，新分页SQL/Cleanup仍待实际，56777原FAIL与TCP缺尾不改。
 
-针对P2只在既有Cleanup top追加两Project真实子例：首精确live reader不阻塞后项物理删除，连续恢复保持一次Object Audit，Close后首项才完成；原两子及selector不改。该增量当前仅源码准备，拟用新的修后独立binary，不算真实PASS，也不增加泛化harness入口。
+修后新整包独立binary已race-c77598／六精确top发现dd5fce／domain与integration vet53340实际0，未覆盖旧产物。首全包race59862因新测试误假定UUIDv7分配单调而FAIL；只修受控ID前置，真实新子也改为持两reader后读取实际cleanup排序选择保留项，产品不改。修后全Knowledge/... race49004实际0；原Cleanup两子逆差异da8223逐字89613dc5。这些构建/纯控制本身不是业务证明；P1/P2另经Skills15866有限独验、Runtime另经57974真实通过，下一安排Cleanup受影响组及原未验异常组。
 
-两项本域返修当前仅作者离线通过：typed canonical ObjectReader 的同步 Close 返回是本域流调用实际结束边界，返回的原读取/取消/释放错误仍原样上交；不将本域注销当 D05 lease 已释放或全域 join，也不改变 generic SourceInput/publication 的失败退休要求。RecoverCleanup 每次最多32项，固定一轮的最高持久ID与内存轮转位置，Pending不阻止同批独立项，hard/Unknown保持原结果并停原项，轮末重开新的有限上界；不新增worker、TTL或预算，内存游标不是完成证明。五源定向作者race13078实际0（9top11sub）；独审和新SQL/真实组合复验仍待，旧预编输入不覆盖。
+针对P2只在既有Cleanup top追加两Project真实子例：首精确live reader不阻塞后项物理删除，连续恢复保持一次Object Audit，Close后首项才完成；原两子及selector不改。该增量已编入77598修后独立binary，仍未真实运行，也不增加泛化harness入口。
 
-整体独审现有两项 mustfix，均由未参与实现的 Skills 作者用实际源码 offline overlay 复现（61981／99769 race0），不把复现 PASS 当产品通过：canonical `trackedRead.Close` 在真实 D05 Close 已实际 join 但保留取消错误时永不注销本域 call；`RecoverCleanup` 每次从首条开始且首 Pending 立即返回，使其他 Project 长期饥饿。root 已授权本域定向修复；Object runtime join 停项及全域停止责任不变。独立原件在 Skills 树 `.agent-state/knowledge-b02-review/`，源/契约/限制俱全。
+两项本域返修的技术边界：typed canonical ObjectReader 的同步 Close 返回是本域流调用实际结束边界，返回的原读取/取消/释放错误仍原样上交；不将本域注销当 D05 lease 已释放或全域 join，也不改变 generic SourceInput/publication 的失败退休要求。RecoverCleanup 每次最多32项，固定一轮的最高持久ID与内存轮转位置，Pending不阻止同批独立项，hard/Unknown保持原结果并停原项，轮末重开新的有限上界；不新增worker、TTL或预算，内存游标不是完成证明。五源定向作者race13078实际0（9top11sub）；Skills15866已有限独审接受，Runtime57974已实际补验，新SQL/Cleanup仍待；旧预编输入不覆盖。
+
+整体独审曾发现两项 mustfix，均由未参与实现的 Skills 作者用实际源码 offline overlay 复现（61981／99769 race0），不把复现 PASS 当产品通过：canonical `trackedRead.Close` 在真实 D05 Close 已实际 join 但保留取消错误时永不注销本域 call；`RecoverCleanup` 每次从首条开始且首 Pending 立即返回，使其他 Project 长期饥饿。root 已授权本域定向修复；Object runtime join 停项及全域停止责任不变。独立原件在 Skills 树 `.agent-state/knowledge-b02-review/`，源/契约/限制俱全。
 
 原未修 Runtime 三子随后实际56777整体FAIL（Go14.81s）：canonical Stop/Close 子已观察精确reader lease released和Close原context.Canceled，最后Knowledge Drain超时；后两子实际Close barrier和取消后源lease后继退休通过。Go/driver实际Wait1、7ID/private/runtime/desc双尾及input gate齐，但hostTCP75s尾仍2行，无双delta_empty，外层exit1；不记完整窗口通过。终态后当前ESTABLISHED行归codex PID848，原baseline未持久，不能回填原delta归属或改写TCP失败。原binary与三子输入保留，不把未来修后源冒作本轮通过。
 
-B02可单独交付的是§1的完整Human canonical／树服务库及真实适配器；当前六个作者top／二十子真实通过。后继按下列有限闭包收敛，不继续追加无已知缺口的作者测试组：
+B02可单独交付的是§1的完整Human canonical／树服务库及真实适配器；当前累计七个作者top／二十三子按各自固定输入真实通过；原Cleanup两子保留旧输入证明，P2改后仍须当前三子补验。后继按下列有限闭包收敛，不继续追加无已知缺口的作者测试组：
 
-1. **现成五组真实尾**：Runtime三子、Publication CommitUnknown六子、Concurrency三子、Cleanup CommitUnknown两子、ProcessRecovery一个top，各消费其已记录输入／独占窗口，全部实际Wait与资源尾齐；遇失败只修相关原因并复验受影响组。Process精确入口已获Work测试独审与Skills harness窄审接受，仍未真实执行。此五组是已承诺异常／竞争／恢复门槛，不能由编译或入口审查替代。
-2. **完整库独立风险审查及有限补集**：此前只有共享C4、部分publication／join等片段独审，尚无覆盖最终十五生产源／00025／实际适配器的整体独立结论。由未参与实现者核当前权限→原command→完整锁→真实外域事实→最终同Tx→资源退休链，复用已有迁移、B01／分页及作者固定输入证据。独立真实补集按两类组织，避免重做全矩阵：内容／权限／事实类补DOCX与raw length/SHA拒绝的正式D05组合、最终当前授权变化及伪Knowledge Audit/Event事实拒绝；树／引用类补正文Update与Move交错不覆parent、preview后成员移入/移出导致旧scope拒绝、旧upload revoked后不能重新Attach及错cleanup cause拒绝。已有Activity终点失败已证明整Tx的Audit/Event回滚，不为每条SQL复制同类故障。Unknown与真实Process接管由独立者审查完整原生实测及关键判据，发现未覆盖风险才给精确最小反例，不预设新增泛化harness或更多生产功能。
+1. **余下五组真实尾**：受影响Cleanup三子、Publication CommitUnknown六子、Concurrency三子、Cleanup CommitUnknown两子、ProcessRecovery一个top，各消费其已记录输入／独占窗口，全部实际Wait与资源尾齐；遇失败只修相关原因并复验受影响组。Process精确入口已获Work测试独审与Skills harness窄审接受，仍未真实执行。此五组是已承诺异常／竞争／恢复门槛，不能由编译或入口审查替代。
+2. **完整库独立风险审查及有限补集**：Skills已核十五生产源／00025／四Project适配器并发现P1/P2，修复已获有限复核接受；整体最终独立结论仍须结合当前真实组与以下有限风险补集。由未参与实现者核当前权限→原command→完整锁→真实外域事实→最终同Tx→资源退休链，复用已有迁移、B01／分页及作者固定输入证据。独立真实补集按两类组织，避免重做全矩阵：内容／权限／事实类补DOCX与raw length/SHA拒绝的正式D05组合、最终当前授权变化及伪Knowledge Audit/Event事实拒绝；树／引用类补正文Update与Move交错不覆parent、preview后成员移入/移出导致旧scope拒绝、旧upload revoked后不能重新Attach及错cleanup cause拒绝。已有Activity终点失败已证明整Tx的Audit/Event回滚，不为每条SQL复制同类故障。Unknown与真实Process接管由独立者审查完整原生实测及关键判据，发现未覆盖风险才给精确最小反例，不预设新增泛化harness或更多生产功能。
 3. **同一最终输入整合**：root保留Project `audit_facts.go/events.go`中的Variables／其它已交付相邻分派，以正式00024→00025及后继全局迁移顺序整合；不能整文件覆盖，也不改写已执行迁移。合并后只对实际改变的共享分派／构造及其直接回归运行检查；没有相关差异的已通过binary／场景继续复用，若生产闭包改变则明确重编和受影响复验。最终整理完整库原子交付与简短台账，不能以分支checkpoint当main已交付。
 
 B02当前不需要新增正式port：现有Account/Project、Object/SourceReads/ReferenceCleanup/Cleaner、Audit、Outbox、ProcessAuthority均已有注入口和测试组合。KnowledgeFile真实来源已验；UploadedObject／Artifact等只消费各自已绑定正式provider，未绑定分支保持明确拒绝，不把本域resolver包装成外域成功。HTTP／UI／下载URL、D13、生产root和B03全Project participant属于已排除的后继范围；其缺失不阻塞这个库交付，也不能在交付时声称已绑定。Object runtime join停项、共享guard至多域实际join／DB最后、Project lifecycle cleanup／source_project join留待B03及上游正式组合，不在B02中偷偷解停或造成功stub。
