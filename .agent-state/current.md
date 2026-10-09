@@ -1,5 +1,35 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- **首批业务离线 ready，尚无真实窗口／未运行**：基于 `b44f46cd` 测试＋当前新 migration 测试源码，产品仍 `eda849dc`，候选 `output/ai/object-metadata-cleanup/metadata-cleanup-race.test`（37180277B），race-c `46329/d8e8b8` actual0。`89992/1f41ef` 精确 list 恰 `TestObjectMetadataCleanupBoundedHistoryAndFinalTransaction` 与 `TestObjectMetadataCleanupFinalCommitUnknown`；唯一入口为 `^TestObjectMetadataCleanup(BoundedHistoryAndFinalTransaction|FinalCommitUnknown)$`，不运行1001历史/EXPLAIN/migration/pure top。前者保65真实reader历史/32总额/同Tx重复拒绝回滚/最后4＋fixture父mapping一起提交或回滚；后者保未转发和服务端已提交丢响应两种真实Unknown/原cause/新发现恢复。仍非Skills最后5核心组合。
+- 两既有root tools仅各新增这一闭合selector映射，逆去一行逐字 `b44f46cd`（`d9a12b` actual）：8键一致、config1正5拒、9 observer正负格各14次资源观察全部过。原6m／540+60+3／TCP75／7resources／actualWait／双尾／input门槛未改。本树supervisor保留基线TCP gate，尚未移入其它树的诊断增量。既有root_chain_test 7纯控首 `069460` 中nonroot timeout期待旧`[123,3]`而实际原实现`[123,1]`失败；原实现TERM分1s并与adopted wait共享3s。仅在内存将该旧控制期待改为`[123,1]`，`634459` 7控全过；未修改旧控制文件或监督器流程，失败不回填。
+- 固定MinIO沿旧Knowledge已经冻结/验SHA的同文件硬链接到本树 `output/ai/deps-minio/bin/minio`，未下载或另复制大缓存；driver实际config再次核固定SHA。Go/cache仍下列固定环境。候选全包源码包括新 `metadata_cleanup_migration_test.go`：fresh／populated27／末DDL依赖缺失后原字节重试3子，核实际journal/Goose、22候选index状态、旧数据与checks/FK/列/旧indexes不变。它仅 `85164/c56b3c` 空selector编译 actual0/0.007s；未实际迁移或成本验收，首业务selector不包含它。
+
+首批业务完整复现命令（**必须root另授fresh独占窗口后才运行**；首同进程可用空间不足5GiB则exit78不启动）：
+
+```sh
+GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
+GOCACHE=/workspace/agenteam-knowledge/output/ai/knowledge/go-cache \
+GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2 \
+AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go \
+AGENTEAM_MINIO_BINARY=/workspace/agenteam-object-metadata-cleanup/output/ai/deps-minio/bin/minio \
+PATH=/workspace/toolchains/go1.27.1/bin:$PATH \
+python3 - <<'PY'
+import os
+root = '/workspace/agenteam-object-metadata-cleanup'
+v = os.statvfs(root)
+available = v.f_bavail * v.f_frsize
+print('available_bytes=' + str(available), flush=True)
+if available < 5368709120:
+    raise SystemExit(78)
+os.chdir(root)
+os.execvp('python3', ['python3', '.agent-state/task-planning-recovery/pg_only_supervisor.py',
+    '--root-chain', '--driver', root + '/.agent-state/work-owner-http/root_chain_driver.py',
+    '--binary', root + '/output/ai/object-metadata-cleanup/metadata-cleanup-race.test',
+    '--run', '^TestObjectMetadataCleanup(BoundedHistoryAndFinalTransaction|FinalCommitUnknown)$',
+    '--output', root + '/output/ai/object-metadata-cleanup/pg'])
+PY
+```
+
 - `e8592a4f` 已保存恢复前3 tests；恢复后实际 `8d9c06` 空 selector 编译 exit0（cached/no tests to run），没有调用 fixture。后续仅测试增量：每次 Stop 显式原2s、原3s总收敛限额不加长；1001历史后的 reader Close 仅接受 nil/原取消，核原 GET handler 返回及1002条 reader work 全退休；Unknown 原cause resume补父行 exact-delete/消失断言。
 - 新 `tests/objects/metadata_cleanup_plan_test.go` 只观察真实 Service 发出的固定 bounded SELECT，保原 Store/live Tx、首调用nil cursor和数组副本；EXPLAIN 在业务方法实际返回后以独立2s执行，不占用或延长业务预算。已接入历史用例的 Stop-work/full-pending、physical-gate/full-pending，输出实际 JSON 供索引审查。当前没有真实计划；其余三Stop lane、大量其它Project、metadata各阶段、父DELETE全部FK trigger与PUT包仍是剩余矩阵，不能把查询 LIMIT 或 JSON 输出当成本接受。
 - 新观察器 pure control `43787/b166ba`（启动c930ce）原offlineenv执行 `go test -mod=readonly -p=1 -tags=integration -race -count=1 -run '^TestObjectMetadataCleanupPlanCapture$' ./tests/objects` actual0/1.015s；含全包集成编译，但唯一执行是无资源的SQL捕获反例，未PG/MinIO/socket。`97251/1e42cc` 原env `go vet -mod=readonly -p=1 -tags=integration ./tests/objects` actual0；源码diffcheck `bb666b` exit0。没有旧会话缺口补认。
