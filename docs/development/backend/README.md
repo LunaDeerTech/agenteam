@@ -400,3 +400,7 @@ Task 命令采用独立的持久两阶段计划，在同一最终事务提交 ca
 每轮使用 `.agent-state/task-planning-recovery/` 中可恢复的两 ID PG-only driver、监督器与独立 probe，Go/driver/外层工具实际 Wait 完成，精确两 ID、owned runtime 和 host TCP delta 各两次为空；没有启动包含停止项的整套脚本。私有嵌套解码原缺陷、测试夹具及独立编排原失败均保留，修后范围和归档时间诊断的限制见工作项。直接 DTO 安全日志投影与业务 JSON 的边界沿该卡 §2，不能把任意嵌套 JSON 当日志净化。
 
 Task 删除、完整 Timeline/context、Sprint lifecycle、Blocker/reviewer、状态转换与指派、Execution/Dispatch、Work 清理、Tool/HTTP/UI 及生产 root 绑定仍未提供。测试专用的未来 state/assignee、归档、Session 与 Skill receipt 事实不代替真实 Agent、生命周期、登录或 Skills 生产链；本结果不完成 D11 或平台，也不改变 ready503 和既有停止项。
+
+## D11 Task 纯状态核心
+
+[流转工作项](../work-items/d11-task-transitions.md)的 T0a 已实现并独立验收。`contract.CheckTaskTransitionRule` 检查输入、49状态对及六角色规则；`TaskTransitionPosition` 提供独立严格六字段codec、8KiB边界、邻居校验和Clone。旧backlog-only Position与规划命令闭集保持原行为。作者/root race/vet与独立4顶层9子测试实际通过；本结果只提供纯契约，真实权限、当前Agent/Blocker、执行占用、流转事务和生产装配仍待实现。
