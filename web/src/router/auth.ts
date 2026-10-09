@@ -45,11 +45,15 @@ export function projectRoute(value: unknown): {
     | '/settings/audit'
     | '/settings/model-providers'
     | '/settings/available-models'
+    | '/tasks/explore'
+    | `/tasks/explore/milestones/${string}`
+    | `/tasks/explore/sprints/${string}`
+    | `/tasks/explore/tasks/${string}`
   path: string
 } | null {
   if (typeof value !== 'string' || /[%\\?#]/.test(value)) return null
   const match =
-    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|model-providers|available-models))?)?$/.exec(
+    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/(?:settings(?:\/(?:general|audit|model-providers|available-models))?|tasks\/explore(?:\/(?:milestones|sprints|tasks)\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?))?$/.exec(
       value,
     )
   if (!match) return null
@@ -59,6 +63,22 @@ export function projectRoute(value: unknown): {
     return null
   const suffix = (match[3] ?? '') as NonNullable<ReturnType<typeof projectRoute>>['suffix']
   return { username, project_name, suffix, path: `/${username}/${project_name}${suffix}` }
+}
+export function workPlanningRoute(value: unknown): {
+  home: string
+  path: string
+  kind: 'explore' | 'milestone' | 'sprint' | 'task'
+  id: string | null
+} | null {
+  const project = projectRoute(value)
+  if (!project || !project.suffix.startsWith('/tasks/explore')) return null
+  const home = `/${project.username}/${project.project_name}`
+  if (project.suffix === '/tasks/explore')
+    return { home, path: project.path, kind: 'explore', id: null }
+  const [, , , collection, id] = project.suffix.split('/')
+  const kind =
+    collection === 'milestones' ? 'milestone' : collection === 'sprints' ? 'sprint' : 'task'
+  return { home, path: project.path, kind, id: id! }
 }
 export function safeReturnTarget(value: unknown): string {
   if (typeof value === 'string' && (returnTargets as readonly string[]).includes(value))
@@ -145,6 +165,26 @@ export function installProjectModelSettingsNavigation(
   }
 }
 
+const projectWorkNavigation = new WeakMap<
+  Router,
+  {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  }
+>()
+export function installProjectWorkPlanningNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  projectWorkNavigation.set(router, owner)
+  return () => {
+    if (projectWorkNavigation.get(router) === owner) projectWorkNavigation.delete(router)
+  }
+}
+
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   router.beforeEach(async (to, from) => {
     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
@@ -162,6 +202,11 @@ export function installAuthentication(router: Router, auth: SessionController = 
     if (
       to.fullPath !== from.fullPath &&
       !((await projectModelNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
+    )
+      return false
+    if (
+      to.fullPath !== from.fullPath &&
+      !((await projectWorkNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
     )
       return false
     // Ask before Session revalidation can temporarily unmount the dirty page.
@@ -239,6 +284,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
   router.afterEach((to, from, failure) => {
     if (!failure) projectNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) projectModelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+    if (!failure) projectWorkNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) outboundPolicyNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) smtpNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)

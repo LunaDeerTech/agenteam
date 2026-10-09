@@ -54,6 +54,40 @@ export function string(value: unknown, minimum: number, maximum: number): string
 }
 
 const endpoints = {
+  workListMilestones: ['GET', '/api/v1/projects/{project_id}/milestones', 200],
+  workGetMilestone: ['GET', '/api/v1/projects/{project_id}/milestones/{target}', 200],
+  workCreateMilestone: ['POST', '/api/v1/projects/{project_id}/milestones', 200],
+  workUpdateMilestone: ['PATCH', '/api/v1/projects/{project_id}/milestones/{target}', 200],
+  workReorderMilestone: ['POST', '/api/v1/projects/{project_id}/milestones/{target}/reorder', 200],
+  workListSprints: ['GET', '/api/v1/projects/{project_id}/sprints', 200],
+  workGetSprint: ['GET', '/api/v1/projects/{project_id}/sprints/{target}', 200],
+  workCreateSprint: ['POST', '/api/v1/projects/{project_id}/sprints', 200],
+  workUpdateSprint: ['PATCH', '/api/v1/projects/{project_id}/sprints/{target}', 200],
+  workReorderSprint: ['POST', '/api/v1/projects/{project_id}/sprints/{target}/reorder', 200],
+  workListTasks: ['GET', '/api/v1/projects/{project_id}/tasks', 200],
+  workGetTask: ['GET', '/api/v1/projects/{project_id}/tasks/{target}', 200],
+  workCreateTask: ['POST', '/api/v1/projects/{project_id}/tasks', 200],
+  workUpdateTask: ['PATCH', '/api/v1/projects/{project_id}/tasks/{target}', 200],
+  workReorderTask: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/reorder', 200],
+  workListTaskBlockers: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/blockers', 200],
+  workAddTaskBlocker: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/blockers', 200],
+  workResolveTaskBlocker: [
+    'POST',
+    '/api/v1/projects/{project_id}/tasks/{target}/blockers/resolve',
+    200,
+  ],
+  workLookupStructureCommand: [
+    'POST',
+    '/api/v1/projects/{project_id}/structure-commands/lookup',
+    200,
+  ],
+  workLookupTaskCommand: ['POST', '/api/v1/projects/{project_id}/task-commands/lookup', 200],
+  workLookupTaskBlockerCommand: [
+    'POST',
+    '/api/v1/projects/{project_id}/tasks/{target}/blocker-commands/lookup',
+    200,
+  ],
+
   listOwnerProjects: ['GET', '/api/v1/projects', 200],
   getOwnerProject: ['GET', '/api/v1/projects/{id}', 200],
   resolveOwnerProject: ['GET', '/api/v1/projects/resolve', 200],
@@ -841,7 +875,47 @@ const projectEndpoints: readonly ProjectEndpoint[] = [
   'lookupOwnerProject',
 ]
 
+const workEndpoints = [
+  'workListMilestones',
+  'workGetMilestone',
+  'workCreateMilestone',
+  'workUpdateMilestone',
+  'workReorderMilestone',
+  'workListSprints',
+  'workGetSprint',
+  'workCreateSprint',
+  'workUpdateSprint',
+  'workReorderSprint',
+  'workListTasks',
+  'workGetTask',
+  'workCreateTask',
+  'workUpdateTask',
+  'workReorderTask',
+  'workListTaskBlockers',
+  'workAddTaskBlocker',
+  'workResolveTaskBlocker',
+  'workLookupStructureCommand',
+  'workLookupTaskCommand',
+  'workLookupTaskBlockerCommand',
+] as const
+type WorkEndpoint = (typeof workEndpoints)[number]
+// This closed transport family cannot accept caller URLs or arbitrary headers.
+type WorkOptions = {
+  signal: AbortSignal
+  projectID: string
+  target?: string
+  workQuery?: Readonly<Record<string, string>>
+  body?: unknown
+  csrf?: string
+  key?: string
+}
+
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T>(
+    endpoint: WorkEndpoint,
+    parse: (value: unknown) => T,
+    options: WorkOptions,
+  ): Promise<T>
   function request<T, E extends ProjectModelEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -921,6 +995,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
   function request<T>(
     endpoint: Exclude<
       keyof typeof endpoints,
+      | WorkEndpoint
       | ProjectEndpoint
       | ProjectAuditEndpoint
       | ProjectModelEndpoint
@@ -953,6 +1028,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       projects?: ProjectWireQuery
       projectModels?: ProjectModelWireQuery
       projectAddress?: ProjectWireAddress
+      workQuery?: Readonly<Record<string, string>>
       projectID?: string
       target?: string
     },
@@ -960,7 +1036,108 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if ((projectModelEndpoints as readonly string[]).includes(endpoint)) {
+    const isWork = (workEndpoints as readonly string[]).includes(endpoint)
+    if (isWork) {
+      try {
+        const target = basePath.includes('{target}')
+        const list = endpoint.startsWith('workList')
+        shape(options, [
+          'signal',
+          'projectID',
+          ...(target ? ['target'] : []),
+          ...(list ? ['workQuery'] : []),
+          ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
+        ])
+        if (!uuid7.test(string(options.projectID, 36, 36))) throw new Error()
+        path = basePath.replace('{project_id}', options.projectID!)
+        if (target) {
+          if (!uuid7.test(string(options.target, 36, 36))) throw new Error()
+          path = path.replace('{target}', options.target!)
+        }
+        if (list) {
+          const keys =
+            endpoint === 'workListSprints'
+              ? ['milestone_id']
+              : endpoint === 'workListTasks'
+                ? [
+                    'state',
+                    'priority',
+                    'type',
+                    'text',
+                    'milestone_id',
+                    'sprint_id',
+                    'assignee_agent_id',
+                  ]
+                : endpoint === 'workListTaskBlockers'
+                  ? ['status']
+                  : []
+          const query = shape(
+            options.workQuery,
+            endpoint === 'workListSprints' ? ['milestone_id'] : [],
+            ['limit', 'cursor', ...keys],
+          )
+          const params = new URLSearchParams()
+          for (const [key, raw] of Object.entries(query)) {
+            const value = string(raw, 1, 8192)
+            if (
+              new TextEncoder().encode(value).byteLength > 8192 ||
+              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(
+                value,
+              ) ||
+              value.includes('\0')
+            )
+              throw new Error()
+            if (key === 'limit' && (!/^[1-9][0-9]{0,2}$/.test(value) || Number(value) > 200))
+              throw new Error()
+            if (
+              key.endsWith('_id') &&
+              !(key === 'assignee_agent_id' && value === 'null') &&
+              !uuid7.test(value)
+            )
+              throw new Error()
+            if (
+              key === 'state' &&
+              ![
+                'backlog',
+                'todo',
+                'in_progress',
+                'in_review',
+                'blocked',
+                'done',
+                'cancelled',
+              ].includes(value)
+            )
+              throw new Error()
+            if (key === 'priority' && !['low', 'medium', 'high', 'critical'].includes(value))
+              throw new Error()
+            if (key === 'type' && !['feature', 'bug', 'task', 'spike', 'chore'].includes(value))
+              throw new Error()
+            if (key === 'status' && !['unresolved', 'resolved', 'all'].includes(value))
+              throw new Error()
+            if (
+              key === 'text' &&
+              ([...value].length > 256 ||
+                new TextEncoder().encode(value).byteLength > 1024 ||
+                /[\u0000-\u001f\u007f-\u009f]/u.test(value) ||
+                /^\p{White_Space}*$/u.test(value))
+            )
+              throw new Error()
+            params.set(key, value)
+          }
+          const queryText = params.toString()
+          if (new TextEncoder().encode(queryText).byteLength > 32768) throw new Error()
+          if (queryText) path += '?' + queryText
+        }
+        if (
+          method !== 'GET' &&
+          (!/^[A-Za-z0-9_-]{43}$/.test(string(options.csrf, 43, 43)) ||
+            !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128)))
+        )
+          throw new Error()
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if ((projectModelEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const target = basePath.includes('{target}')
         const list =
@@ -1249,26 +1426,29 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['Content-Type'] = options.avatar.mediaType
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
-      const maximum = (projectConfigurationWrites as readonly string[]).includes(endpoint)
-        ? 1048576
-        : endpoint === 'createProjectModelCredential' || endpoint === 'updateProjectModelCredential'
-          ? 409600
-          : endpoint === 'deleteProjectModelCredential' ||
-              endpoint === 'lookupProjectModelCredential'
-            ? 1024
-            : endpoint === 'updateOwnerProject'
-              ? 64 * 1024
-              : endpoint === 'lookupOwnerProject'
-                ? 1024
-                : endpoint === 'updateOutboundPolicy'
-                  ? 1024 * 1024
-                  : endpoint === 'createModelCredential'
-                    ? 512 * 1024
-                    : endpoint === 'createProvider' ||
-                        endpoint === 'updateProvider' ||
-                        endpoint === 'updateSMTPSettings'
-                      ? 32 * 1024
-                      : 16 * 1024
+      const maximum = isWork
+        ? 1024 * 1024
+        : (projectConfigurationWrites as readonly string[]).includes(endpoint)
+          ? 1048576
+          : endpoint === 'createProjectModelCredential' ||
+              endpoint === 'updateProjectModelCredential'
+            ? 409600
+            : endpoint === 'deleteProjectModelCredential' ||
+                endpoint === 'lookupProjectModelCredential'
+              ? 1024
+              : endpoint === 'updateOwnerProject'
+                ? 64 * 1024
+                : endpoint === 'lookupOwnerProject'
+                  ? 1024
+                  : endpoint === 'updateOutboundPolicy'
+                    ? 1024 * 1024
+                    : endpoint === 'createModelCredential'
+                      ? 512 * 1024
+                      : endpoint === 'createProvider' ||
+                          endpoint === 'updateProvider' ||
+                          endpoint === 'updateSMTPSettings'
+                        ? 32 * 1024
+                        : 16 * 1024
       try {
         body = JSON.stringify(options.body)
       } catch {
@@ -1334,25 +1514,29 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         value = await readJSON(
           response,
           options.signal,
-          (projectModelEndpoints as readonly string[]).includes(endpoint) && success
-            ? (projectModelReads as readonly string[]).includes(endpoint)
-              ? 8388608
-              : 1024
-            : endpoint === 'listOwnerProjects' && success
+          isWork && success
+            ? endpoint.startsWith('workList')
               ? 5 * 1024 * 1024
-              : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
-                ? 64 * 1024
-                : endpoint === 'getSystemRuntimeInformation' && success
-                  ? 16 * 1024
-                  : endpoint === 'listProviders' && success
-                    ? 2 * 1024 * 1024
-                    : (endpoint === 'listSystemAudit' ||
-                          endpoint === 'getSystemAudit' ||
-                          endpoint === 'listProjectAudit' ||
-                          endpoint === 'getProjectAudit') &&
-                        success
-                      ? 1024 * 1024
-                      : 600_000,
+              : 1024 * 1024
+            : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
+              ? (projectModelReads as readonly string[]).includes(endpoint)
+                ? 8388608
+                : 1024
+              : endpoint === 'listOwnerProjects' && success
+                ? 5 * 1024 * 1024
+                : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
+                  ? 64 * 1024
+                  : endpoint === 'getSystemRuntimeInformation' && success
+                    ? 16 * 1024
+                    : endpoint === 'listProviders' && success
+                      ? 2 * 1024 * 1024
+                      : (endpoint === 'listSystemAudit' ||
+                            endpoint === 'getSystemAudit' ||
+                            endpoint === 'listProjectAudit' ||
+                            endpoint === 'getProjectAudit') &&
+                          success
+                        ? 1024 * 1024
+                        : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
         )
       } catch {
