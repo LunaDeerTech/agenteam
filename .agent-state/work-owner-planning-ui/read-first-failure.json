@@ -1,0 +1,173 @@
+{
+  "case": "read",
+  "technical_base": "f5ee5e38b2dde9e36f35b49ad04373e18316381a",
+  "binary": "work-ui-account-race-07.test",
+  "selector": "^TestAccountProjectWorkPlanningWebReadAndNavigation$",
+  "result": "FAIL",
+  "go_seconds": 27.25,
+  "outer_session": 17720,
+  "outer_exit": 1,
+  "outer_seconds": 132.718,
+  "failure": {
+    "step": "next page after external milestone title update",
+    "location": "project-work-planning.spec.ts:143",
+    "expectation": "stale cursor prompt visible",
+    "expect_budget_ms": 5000,
+    "case_budget_ms": 45000,
+    "go_durable_assertions_reached": false,
+    "filters_and_project_gates_reached": false
+  },
+  "formal_rule": "d11-work-structure.md section 2.2: title/description update does not advance order_generation; actual create/reorder/rank changes do.",
+  "response_summaries": [
+    {
+      "sequence": 10,
+      "method": "GET",
+      "endpoint": "/api/v1/projects/01a1210b-04af-7398-a7c5-eebb09d3ed95/milestones",
+      "status": 200,
+      "request_id": "01a1210b-35e6-7dea-9896-b603ab534450",
+      "items": 50,
+      "has_next_cursor": true
+    },
+    {
+      "sequence": 11,
+      "method": "GET",
+      "endpoint": "/api/v1/projects/01a1210b-04af-7398-a7c5-eebb09d3ed95/milestones",
+      "status": 200,
+      "request_id": "01a1210b-36fa-7bda-ae31-1b5c4609003a",
+      "items": 1,
+      "has_next_cursor": false
+    },
+    {
+      "sequence": 12,
+      "method": "GET",
+      "endpoint": "/api/v1/projects/01a1210b-04af-7398-a7c5-eebb09d3ed95/milestones",
+      "status": 200,
+      "request_id": "01a1210b-375d-7fce-a983-20797ea30436",
+      "items": 50,
+      "has_next_cursor": true
+    },
+    {
+      "sequence": 14,
+      "method": "PATCH",
+      "endpoint": "/api/v1/projects/01a1210b-04af-7398-a7c5-eebb09d3ed95/milestones/01a1210b-07ad-7bf5-91bf-f4bd32370b27",
+      "status": 200,
+      "request_id": "01a1210b-37f9-78db-a1ab-e19711c712fe",
+      "command": "work.milestone.update",
+      "changed": true,
+      "version": "2"
+    },
+    {
+      "sequence": 15,
+      "method": "GET",
+      "endpoint": "/api/v1/projects/01a1210b-04af-7398-a7c5-eebb09d3ed95/milestones",
+      "status": 200,
+      "request_id": "01a1210b-3974-79cd-ae3e-9f292c898761",
+      "items": 1,
+      "has_next_cursor": false
+    }
+  ],
+  "terminal": {
+    "direct_actual_wait": 1,
+    "adopted_count": 4,
+    "adopted_states_before_wait": [
+      "Z",
+      "Z",
+      "Z",
+      "Z"
+    ],
+    "adopted_actual_wait": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "stop_used": false,
+    "owned_resource_count": 7,
+    "exact_resources_double_absent": true,
+    "descendants_double_empty": true,
+    "runtime_double_empty": true,
+    "private_double_absent": true,
+    "host_tcp_double_empty": true,
+    "inputs_unchanged": true
+  },
+  "limits": [
+    "Final next-page response finished successfully; the title stimulus cannot make this cursor stale by contract.",
+    "Earlier previous-page requestfailed aborted and finished pending is distinct; browser native EOF was not observed.",
+    "No product fault, shared Model cause, or later read checks are established.",
+    "Original planning FAILs and first STOP remain unchanged."
+  ],
+  "same_request_failure_observation": {
+    "status": "failed",
+    "boundary": "Node observation snapshot at afterEach; not a final post-close state",
+    "browser_native_eof_observed": false,
+    "observers": [
+      {
+        "snapshot_at": 7281.844,
+        "page_closed_at": null,
+        "truncated": false,
+        "requests": [
+          {
+            "method": "GET",
+            "endpoint": "milestones",
+            "project_id": "01a1210b-04af-7398-a7c5-eebb09d3ed95",
+            "request_id": "01a1210b-35e6-7dea-9896-b603ab534450",
+            "request_at": 1356.937,
+            "response_at": 1383.313,
+            "request_failed_at": null,
+            "request_finished_at": 1418.541,
+            "response_finished_at": 1418.567,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "endpoint": "milestones",
+            "project_id": "01a1210b-04af-7398-a7c5-eebb09d3ed95",
+            "request_id": "01a1210b-36fa-7bda-ae31-1b5c4609003a",
+            "request_at": 1641.332,
+            "response_at": 1663.559,
+            "request_failed_at": null,
+            "request_finished_at": 1673.047,
+            "response_finished_at": 1673.068,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "endpoint": "milestones",
+            "project_id": "01a1210b-04af-7398-a7c5-eebb09d3ed95",
+            "request_id": "01a1210b-375d-7fce-a983-20797ea30436",
+            "request_at": 1734.813,
+            "response_at": 1758.212,
+            "request_failed_at": 1776.764,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "aborted",
+            "response_same_request_object": true,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "endpoint": "milestones",
+            "project_id": "01a1210b-04af-7398-a7c5-eebb09d3ed95",
+            "request_id": "01a1210b-3974-79cd-ae3e-9f292c898761",
+            "request_at": 2271.502,
+            "response_at": 2279.187,
+            "request_failed_at": null,
+            "request_finished_at": 2293.501,
+            "response_finished_at": 2293.646,
+            "observer_rejected_at": null,
+            "failure_reason": null,
+            "response_same_request_object": true,
+            "original_body_await": null
+          }
+        ]
+      }
+    ]
+  }
+}
