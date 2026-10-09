@@ -1,6 +1,6 @@
 # D10 Secret Variable Human Owner 库
 
-状态：实施已授权，基线正式main `ce65714a`；当前只完成承接和范围冻结，尚无本库实现/动态验收。唯一实施者为本分支 `ai/secret-variable-owner-service`；root拥有Git和共享资源调度。
+状态：实施已授权，基线正式main `ce65714a`；安全持久记录首片段三top定向race已通过，00030仅SQL草案；真实authority/Owner事务库及数据库验收未完成。唯一实施者为本分支 `ai/secret-variable-owner-service`；root拥有Git和共享资源调度。
 
 本工作项落实[Secret Variables rev2](d10-secret-variables-owner.md)中的库级子结果，直接复用[已验D04 producer](d04-secret-variable-storage.md)、A纯合同和e940 Audit严格读合同。业务规则、字段/安全输出、预算与原意图定义以rev2为准；本文只固定本次实施和验收边界，不另造产品契约。
 
@@ -22,7 +22,7 @@ root从b724e397精确承接D04的16 production、9 pure tests、00029和D04/D10�
 
 ## 3. 持久数据与安全恢复
 
-00030唯一归本线；先在 `.agent-state/secret-variable-owner-service/` 保存必要DDL草案，待root确认连续输入后落正式migration。扩现variables的type和互斥payload约束，活Secret一对一Credential映射，保跨type活name unique与不可变身份。Secret行只存安全metadata/内部Ref及独立Credential version，不存材料或密文。
+00030唯一归本线；[必要DDL草案](../../../.agent-state/secret-variable-owner-service/owner-storage.draft.sql)待root确认连续输入后落正式migration。扩现variables的type和互斥payload约束，活Secret一对一Credential映射，保跨type活name unique与不可变身份。Secret行只存安全metadata/内部Ref及独立Credential version，不存材料或密文。
 
 新增completed-only secret_commands、Secret history/generation和本域引用记录；不得复用普通request.value/semantic_digest/receipt.value，也不持久Secret planned。D04受保护receipt提供原语义比较，D10只保存恢复所必需的安全身份/presence和安全结果。外部Variable expected与内部Credential version不能合并。
 
