@@ -6,7 +6,8 @@
 - 可复用边界：原P2产品d0a16242→eaad50fd逐字未变，作者60950/58518/39205、96753、70196、61543各有限组完整PASS。P2独立02 69242/a45a4e wholePASS（2pure7sub＋真实1top4sub），01 wholeFAIL及旧4315不回填。上述没有验证本轮新Cleanup产品。
 - Project当前CleanupPhase已正式ce657交付：作者3PGtop32sub＋本人独立76329/d17c95三子完整PASS，受控initializer/phase与真实权限/锁/同Tx重读边界明确；不是完整Skills/D05/root。
 - D05消费基线b37（产品eda849dc）：46857/eedb1d首两top完整PASS，真实65reader/跨表32/最后四anchor与明确fixture-parent同Tx、两类COMMIT Unknown/native Audit。其65旧attempt/1001历史、PUT跨source、00028专用升级/回滚与EXPLAIN/FK成本、真实Skill最后五核心仍待验；28当前22索引候选只作连续测试依赖，不称正式交付。
-- 当前处于源码实现准备；没有本轮Go编译/测试/PG/MinIO/socket，没有自有命令或资源在途。D04当前唯一真实窗口，大编译与实际资源未授权。完成第一个稳定产品片段即freeze交root保存；现装配输入不把旧binary PASS外推新产品。
+- 恢复后的第一个产品WIP片段：新增 `cleanup_repository.go`（真实本域映射/关闭serving/32历史与最后五核心SQL）、`cleanup_authority.go`（exact CleanupAuthority及三种plan）、`cleanup_maintenance.go`（Claim/Checkpoint/Finalize父映射）、`cleanup_audit.go`（原ObjectDelete私有checker外层），旧 `object_authority.go/object_maintenance.go` 仅闭集dispatch。当前缺 Service.Cleanup 编排/实际call注册/原budget/完整Unknown与checkpoint及对应测试，故不能称Cleanup可用；新源尚未编译或运行。
+- 环境恢复核对 `bd2318`：HEAD ba1470d6，正是2旧modified＋4新Go；本人无已提交在途session，实际/proc未见参数指向本树的进程。此事实不回填任何过去未知terminal。本次仅gofmt/差异检查，不启Go编译/PG/MinIO/socket；Object/SQL/Project不改。第一个WIP六Go＋本文freeze交root保存，继承P2/D05 PASS不外推本轮新产品。
 
 ## 后续固定离线环境
 

@@ -111,6 +111,9 @@ func (m maintenanceMapping) dependencies() (oc.AccessDependencies, error) {
 }
 
 func (a *Authority) discoverMaintenance(ctx context.Context, request oc.AccessRequest) (oc.AccessDependencies, error) {
+	if cleanupMaintenanceOperation(request.Details().Operation) {
+		return a.discoverCleanupMaintenance(ctx, request)
+	}
 	m, e := loadMaintenanceMapping(ctx, a.state().store, request)
 	if e != nil {
 		return oc.AccessDependencies{}, e
@@ -118,6 +121,9 @@ func (a *Authority) discoverMaintenance(ctx context.Context, request oc.AccessRe
 	return m.dependencies()
 }
 func (a *Authority) validateMaintenance(ctx context.Context, tx f.Tx, request oc.AccessRequest, expected oc.AccessDependencies) error {
+	if cleanupMaintenanceOperation(request.Details().Operation) {
+		return a.validateCleanupMaintenance(ctx, tx, request, expected)
+	}
 	x, e := a.state().store.InTx(tx)
 	if e != nil {
 		return portError(e)
