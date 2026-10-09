@@ -2,6 +2,7 @@ package projectvariable
 
 import (
 	"context"
+	"errors"
 	"reflect"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -10,6 +11,7 @@ import (
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	c "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+	"github.com/jackc/pgx/v5"
 )
 
 // SecretWriteAuthority is constructed after the real Project authority and
@@ -120,7 +122,7 @@ func (a *SecretWriteAuthority) Discover(ctx context.Context, request sc.ProjectV
 		}
 		basis = sc.ProjectVariableWriteBasisFields{Request: request, Receipt: sc.ProjectVariableWriteNotObserved()}
 		if r.Kind == sc.Create {
-			if err = secretRequireUnusedID(ctx, x, r.VariableID); err != nil {
+			if err = secretRequireUnusedID(ctx, x, r.ProjectID, r.VariableID); err != nil {
 				return err
 			}
 			credential, err := f.NewID[sc.Credential]()
@@ -158,15 +160,19 @@ func (a *SecretWriteAuthority) Discover(ctx context.Context, request sc.ProjectV
 	return plan, portError(err)
 }
 
-func secretRequireUnusedID(ctx context.Context, x postgres.SQLExecutor, id c.VariableID) error {
-	var exists bool
-	if err := x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_projectvariable.variables WHERE id=$1)`, id.String()).Scan(&exists); err != nil {
+func secretRequireUnusedID(ctx context.Context, x postgres.SQLExecutor, project c.ProjectID, id c.VariableID) error {
+	var owner string
+	err := x.QueryRow(ctx, `SELECT project_id::text FROM agenteam_projectvariable.variables WHERE id=$1`, id.String()).Scan(&owner)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil
+	}
+	if err != nil {
 		return unavailable(err)
 	}
-	if exists {
-		return field(f.ResourceBusy, "/variable_id", "ID_CONFLICT")
+	if owner != project.String() {
+		return fault(f.NotFound)
 	}
-	return nil
+	return field(f.ResourceBusy, "/variable_id", "ID_CONFLICT")
 }
 
 // CheckPlan is strictly private-issuer/original-binding validation. It performs
@@ -246,7 +252,7 @@ func (a *SecretWriteAuthority) CheckInTx(ctx context.Context, tx f.Tx, request s
 		return err
 	}
 	if r.Kind == sc.Create {
-		return secretRequireUnusedID(ctx, x, r.VariableID)
+		return secretRequireUnusedID(ctx, x, r.ProjectID, r.VariableID)
 	}
 	before, err := loadSecretVariable(ctx, x, r.ProjectID, r.VariableID, false)
 	if err != nil {

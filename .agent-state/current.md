@@ -30,4 +30,12 @@
 - 新`secret_service.go`固定注入同Store facts/write authority、同一Project authority、D04/Audit/Outbox/Activity/cursor；本库Stop仅取消自己的原调用与confirmation，Drain等实际done，不关闭共享依赖。新`secret_plan.go`从A材料callback产生独立D04 Intent，不经明文string/JSON/digest；safe metadata计划区别显式value覆盖、metadata-only/no-op、Variable与Credential版本，计划自身固定安全输出。
 - 新`secret_plan_test.go`三top（语义含5子格）58156d fresh5598535680→原42864→a77c71 actual0/race1.021s：显式value/metadata/no-op/max版本、caller材料和Intent销毁隔离、原Session、Stop取消不冒Drain完成。构造/计划片段不代表Commands已实现。
 - 新`secret_reader.go`首版Get/List/Lookup：类型隔离、当前Owner先于SQL、独立cursor/generation；无历史Lookup仅当前Read及原command锁，不要求Mutate/当前target；有历史再同原锁D04 Lookup并逐字段核真实observation与D10完整receipt。identity-only Lookup不代写重放的原意图Match。
-- `secret_reader_test.go`三个定向控制已写，尚未编译：e9d9e7同进程fresh5336195072低于5GiB，实际exit1停在预飞，没有启动Go。已限定gofmt/diffcheck，无资源。当前5新Go＋本文6paths冻结供root保存；后继写命令/finalTx/facts/实际Rows与SQL仍待完成。旧D04/Model产物冻结，磁盘回收仅向root提供可替代旧candidate的精确只读信息，未自行删除。
+- `secret_reader_test.go`三个定向控制已写，尚未编译：e9d9e7同进程fresh5336195072低于5GiB，实际exit1停在预飞，没有启动Go。已限定gofmt/diffcheck，无资源。本阶段5新Go＋本文6paths已在ce713687保存；实际Rows与SQL仍待验。旧D04/Model产物冻结，磁盘回收仅向root提供可替代旧candidate的精确只读信息，未自行删除。
+
+## 单final Tx源码首版（已编译，业务未验）
+
+- 新`secret_commands.go`实现A三写入口的原Intent准备、短只读发现/Match、无durable planned的Outbox准备、完整union锁及一次final Tx；真实D04 Apply→D10后像/history→私有Audit见证→实际AuditID→completed→Outbox/Activity。replay/no-op分支不发新D10 Audit/Event/Activity；原Unknown保留一次3s确认且复用原prepared Match，不能用identity-only Lookup认领他方异语义完成，Stop仍跟踪确认实际返回。private reprepare仅NotCommitted且最多一次。
+- 新`secret_mutation.go`负责共享名称/Secret容量/本域引用/独立generation检查、精确D04 preparation与实际observation各字段/effect/两域版本、同Tx canonical/history写及后像重读；新`secret_facts.go`区分prepare discovery与sameStore/liveTx mutation见证，Outbox NewFact必须完整completed及真实Audit返回ID。事实实现尚未接旧Authority/Project两个闭集路由，不能称可用成品。
+- 自查将`secret_write_authority.go`创建ID预检从全局EXISTS改为仅取所属Project：本Project重复Busy，跨ProjectNotFound，沿普通API隐私行为；`secret_authority_test.go`补对应闭集负控。两源较54c的小差异尚未重跑。
+- root精确回收五个有完整保留备份的旧Model重复candidate后恢复空间；53c304同进程fresh5742374912→原session11787→1d767a actual0/race1.028s：先前未跑读层三个top＋受跨Project ID修正影响的authority一个top，共4top。新commands/facts/mutation也参与实际编译无错，但其写事务业务控制与真实SQL未运行，不能把读层通过外推写功能。
+- 本轮5技术路径＋本文6paths重新冻结：commands/facts/mutation三新源及authority两差异。限定gofmt/diffcheck0，全部自有工具终态；root在Runner OS03实际窗口后保存。后继exact事实路由/普通type兼容和独立新测试文件可继续，冻结源不竞写；无PG/socket/network，D04/29/前缀/app/HTTP不变。

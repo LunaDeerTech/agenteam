@@ -72,6 +72,7 @@ type secretAuthorityStore struct {
 	record                *secretCommandRecord
 	queries, transactions int
 	used                  bool
+	foreignID             bool
 	unknown               bool
 }
 
@@ -126,8 +127,14 @@ func (s *secretAuthorityStore) QueryRow(_ context.Context, query string, _ ...an
 	if strings.Contains(query, "FROM agenteam_projectvariable.secret_commands") {
 		return secretControlCommand(s.record)
 	}
-	if strings.HasPrefix(query, "SELECT EXISTS") {
-		return secretControlRow{values: []any{s.used}}
+	if strings.HasPrefix(query, "SELECT project_id::text") {
+		if s.foreignID {
+			return secretControlRow{values: []any{testID[i.Project](92).String()}}
+		}
+		if s.used {
+			return secretControlRow{values: []any{testID[i.Project](2).String()}}
+		}
+		return secretControlRow{err: pgx.ErrNoRows}
 	}
 	return secretControlRow{err: errors.New("unexpected controlled SQL")}
 }
@@ -228,6 +235,9 @@ func TestSecretOwnerAuthorityPrivatePlanAndCurrentStages(t *testing.T) {
 	s.used = true
 	code(t, a.CheckInTx(context.Background(), s.tx, request, plan, sc.ProjectVariableNewWrite), f.ResourceBusy)
 	s.used = false
+	s.foreignID = true
+	code(t, a.CheckInTx(context.Background(), s.tx, request, plan, sc.ProjectVariableNewWrite), f.NotFound)
+	s.foreignID = false
 	s.locks = nil
 	before = s.queries
 	code(t, a.CheckInTx(context.Background(), s.tx, request, plan, sc.ProjectVariableReceiptRead), f.Forbidden)
