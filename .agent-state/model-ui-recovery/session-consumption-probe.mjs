@@ -372,7 +372,7 @@ async function loginSessionCase(browser, fixture, nativeBundle, bundle, action, 
     const record = records.get(selected);
     report.selected_request_observed = !!record;
     report.selected_request_before_action = !!record && actionAt !== undefined && record.observed_ms < actionAt;
-    report.selected_request_after_action = !!record && actionAt !== undefined && record.observed_ms >= actionAt;
+    report.selected_request_after_action = !!record && actionAt !== undefined && record.observed_ms > actionAt;
     report.action_observed_ms = actionAt ?? null;
     report.request_cap_exceeded = capExceeded;
     const matches = requestID ? [...cdpRecords.values()].filter(row => row.token === requestID) : [];
