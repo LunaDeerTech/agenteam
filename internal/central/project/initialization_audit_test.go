@@ -281,13 +281,66 @@ func TestInitializationAuditAuthorityFacts(t *testing.T) {
 func TestInitializationAuditAuthorityDelegation(t *testing.T) {
 	for _, kind := range []identity.ActorKind{identity.Human, identity.AgentRun} {
 		t.Run(string(kind), func(t *testing.T) {
-			f := newInitializationAuditFixture(t, audit.ObjectUploadComplete, func(_ *audit.EntryFields, m *audit.ObjectMetadataFields, _ *audit.AppendKeyDetails) {
-				m.InitiatorKind = kind
-				if kind == identity.AgentRun {
-					m.InitiatorExecutionID = testID[struct{}](t).String()
-				}
+			// Non-initialization metadata delegates to the ordinary Object
+			// gate, which now checks the current initialized Project under SH.
+			f := newAuditGateFixture(t, nil)
+			entry, key := objectAuditEntry(t, f, audit.ObjectUploadComplete, 0)
+			fields := entry.Fields()
+			metadata := audit.ObjectMetadataFields{ObjectID: fields.Resource.Details().ID, InitiatorKind: kind, InitiatorID: testID[struct{}](t).String(), MediaType: "text/plain", ByteSize: 3, Phase: audit.PublishedPhase}
+			if kind == identity.AgentRun {
+				metadata.InitiatorExecutionID = testID[struct{}](t).String()
+			}
+			var err error
+			fields.Metadata, err = audit.ObjectMetadata(audit.ObjectUploadComplete, metadata)
+			if err != nil {
+				t.Fatal(err)
+			}
+			entry, err = audit.NewEntry(fields)
+			if err != nil {
+				t.Fatal(err)
+			}
+			initializationCalls := 0
+			initialization := auditFactFunc(func(context.Context, foundation.Tx, audit.Entry, audit.AppendKey) error {
+				initializationCalls++
+				return nil
 			})
-			f.check(t, foundation.DependencyUnbound)
+			gate, err := NewInitializationAuditAuthority(f.a, initialization)
+			if err != nil {
+				t.Fatal(err)
+			}
+			type witness struct{}
+			ctx := context.WithValue(context.Background(), witness{}, "original Object witness")
+			hasCode(t, gate.CheckAppendInTx(ctx, f.store.tx, entry, key), foundation.DependencyUnbound)
+			if !reflect.DeepEqual(f.order, []string{"locks", "executor", "query"}) || len(f.store.locks) != 1 || f.store.locks[0].Mode != foundation.Shared || foundation.CompareLockKeys(f.store.locks[0].Key, projectLock(f.project, foundation.Shared).Key) != 0 {
+				t.Fatal("ordinary delegate skipped its current Project SH gate", f.order)
+			}
+			calls := 0
+			refusal := fault(foundation.Forbidden)
+			ordinary := withObjectFacts(t, f, auditFactFunc(func(got context.Context, tx foundation.Tx, actual audit.Entry, actualKey audit.AppendKey) error {
+				calls++
+				if got != ctx || tx != f.store.tx || !actual.Fields().Actor.Equal(entry.Fields().Actor) || !reflect.DeepEqual(actual.Fields().Metadata.JSON(), entry.Fields().Metadata.JSON()) || actualKey.Details() != key.Details() {
+					t.Fatal("ordinary delegate changed its original witness/Tx/entry/key")
+				}
+				return refusal
+			}))
+			gate, err = NewInitializationAuditAuthority(ordinary, initialization)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := gate.CheckAppendInTx(ctx, f.store.tx, entry, key); got != refusal || calls != 1 {
+				t.Fatal("ordinary fact refusal changed", got, calls)
+			}
+			f.lifecycle = c.Archived
+			hasCode(t, gate.CheckAppendInTx(ctx, f.store.tx, entry, key), foundation.ProjectNotActive)
+			f.lifecycle, f.initialized = c.Active, false
+			hasCode(t, gate.CheckAppendInTx(ctx, f.store.tx, entry, key), foundation.ProjectNotActive)
+			f.initialized = true
+			hasCode(t, gate.CheckAppendInTx(ctx, foundation.NewTx(), entry, key), foundation.DependencyUnavailable)
+			f.store.lockErr = errors.New("missing ordinary Project SH")
+			hasCode(t, gate.CheckAppendInTx(ctx, f.store.tx, entry, key), foundation.DependencyUnavailable)
+			if calls != 1 || initializationCalls != 0 {
+				t.Fatal("ordinary denial reached a fact provider or borrowed initialization facts", calls, initializationCalls)
+			}
 		})
 	}
 	t.Run("ordinary-producer", func(t *testing.T) {
