@@ -1,6 +1,6 @@
 # D08 Project 初始化 Audit 授权库（rev0）
 
-2026-10-09。状态：**SPEC 待独立审查；尚未实施、编译或运行真实资源。** 工作树 `/workspace/agenteam-project-initialization`，分支 `ai/project-initialization`，交接基线为正式 main `f1c94ee5`。本卡只交付可独立验证的初始化专用授权库，不表示完整 D08 创建 HTTP、Skills 发布或 Object Runtime 已可用。
+2026-10-09。状态：**SPEC 已获 model_delivery 独立有限审查接受（无 must-fix）；实现与作者验证进行中，真实 PG 尚未执行。** 工作树 `/workspace/agenteam-project-initialization`，分支 `ai/project-initialization`，交接基线为正式 main `f1c94ee5`。本卡只交付可独立验证的初始化专用授权库，不表示完整 D08 创建 HTTP、Skills 发布或 Object Runtime 已可用。
 
 ## 1. 目标、依据与当前缺口
 
@@ -137,4 +137,4 @@ ObjectDelete 不是任意对象删除许可；失败收敛不能发起新的 Res
 
 ## 7. 恢复与当前状态
 
-当前只读核完正式端口/私有 witness/Project facts 与缺 Skill provider 边界；只写本 SPEC 和本树 current。未执行 Go、PG、browser、网络或 Git，没有产品/测试实现，也没有真实验收 PASS。SPEC 冻结后交父或 root 指定独审者；审查中不边读边改同一输入。通过后持续完成本卡四新源、实际验证及 README，真实资源另等明确交窗。
+SPEC 已由未参与其实现的 model_delivery 独立有限审查接受，无 must-fix，root 已授权四新 Go 源持续实施。当前 wrapper 与纯测试已落盘；作者离线检查和后续真实 PG 的实际结果分别记录在本树 current，不把中间编译或纯测试当产品独立验收。原首次依赖缓存缺失、冷构建超时和测试编译/预期错误保留，不回填。尚未运行 PG/browser/网络或执行 Git，生产绑定仍缺真实 Skill provider。后续持续完成四新源、实际验证及 README；真实资源另等明确交窗。
