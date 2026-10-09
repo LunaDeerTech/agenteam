@@ -71,3 +71,10 @@
 - 正式29按root授权落为连续迁移输入，实际逐语句比较与原冻结draft一致，仅加事务/Up标头；未执行Migrator/PG，25–28原字节未改。fixture复用实际Migrator/Store/Secret/Audit/native Secret事实checker，D10映射与stage仍明确test-only controlled端口、当前Session/Project取audit_fixture；Discover显式unbound，无生产D10权限或Owner完成结论。
 - 新增fixture尚未伴随实际test top，未获得编译/发现/真实测试终态。恢复段只读/文档，无PG/socket/network；没有借旧资源或未知session补成功。上述两源码与本文共3路径WIP freeze供root保存，后继实际test文件可另行推进。
 - 只读核实际Foundation入口后发现fixture拼写`NewCommandCause`，按root允许在保存前窄修为正式`NewCommandsCause`；该处已改，仍未编译WIP，不据静态修字称通过。更新后相同3路径重新freeze，无生产Go差异。
+
+## SQL 四 top 离线候选就绪（业务未执行）
+
+- 正式29/fixture/本文已root保存17969f85，前序SQL与生产Go继续冻结给Runner/Skills独审。新增两源`tests/security/secret_variable_storage_test.go`、`secret_variable_storage_maintenance_test.go`：实际D04四effect/删除后历史与新Session重放/KeyReused/current deny；实际Secret Audit拒绝与后置Owner错误的数据库原子回滚；101个kind3、原Credential已删的轮换/无旧key启动/100+1清理；真实safe_id/用途/kind3/结果/两个唯一约束SQLSTATE负控。fixture权限/映射仍明确受控，未实现正式D10 Owner；测试中的后置Owner错误不冒真实Owner调用。
+- 本轮只做离线编译/发现：Go1.27.1原离线env、既有独占Model GOCACHE/只读GoMod/private tmp，`go test -race -tags integration -c -o output/ai/secret-variable-storage/secret-variable-storage-sql.test ./tests/security`原session5200→d4760a actual0；开始available6444412928。随后固定二进制`-test.list '^TestSecretVariableStorageSQL(ReplayAndEffects|AtomicAuditAndOwnerRollback|RotationDeletedOwnerAndCleanup|ClosedConstraints)$'` f503e7 actual0，恰4top；没有TestMain/业务执行/PG/socket/网络。
+- 候选27,842,774 bytes，SHA256 `a587afca936a5d1b6fa246f039482eaecc89cc61d9cee131a2d1f90a455b6b2e`（e63322，diffcheck0）。实际SQL、正式Migrator、PG Unknown/并发/原子性、四top业务及所有资源尾均未验，不把编译发现当通过；启动仍需root fresh grant和完整owned监督。
+- 本文＋两新测试共3路径freeze供root下一安全checkpoint。当前无在途命令；不覆盖原Model产物或授予D04正式交付。
