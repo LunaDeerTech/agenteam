@@ -116,7 +116,7 @@ function credentialReceipt(body: Record<string, unknown>, deleted: boolean, reso
   need(uuid(body.credential_id) && body.purpose === 'model' && version(body.version) && body.deleted === deleted && (resource === undefined || body.credential_id === resource) && (expectedVersion === undefined || body.version === expectedVersion), 'PROJECT_MODELS_LIFECYCLE_CREDENTIAL_RECEIPT_INVALID');
   return { id: body.credential_id, version: body.version };
 }
-async function closeEditor(dialog: Locator, name = '取消') { await button(dialog, name).click(); await expect(dialog).toBeHidden(); }
+async function closeEditor(dialog: Locator, name = '取消') { await button(name === '关闭' ? dialog.locator('footer') : dialog, name).click(); await expect(dialog).toBeHidden(); }
 async function providerDraft(page: Page, name: string, protocol = 'openai-chat-completions') {
   await button(page, '创建 Provider').click();
   const dialog = page.getByRole('dialog').filter({ has: page.locator('#project-provider-form') });

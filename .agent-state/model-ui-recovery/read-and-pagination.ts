@@ -235,7 +235,7 @@ export async function runReadAndPagination(page: Page, harness: ReadCaseHarness)
     await expect(button(dialog, '删除凭据')).toBeEnabled();
     const metadata = exact(metadataWitness.body, ['credential_id', 'purpose', 'version']);
     need(metadata.credential_id === created.credential_id && metadata.purpose === 'model' && metadata.version === created.version, 'PROJECT_MODELS_READ_METADATA_MISMATCH');
-    await button(dialog, '关闭').click(); await expect(dialog).toBeHidden();
+    await button(dialog.locator('footer'), '关闭').click(); await expect(dialog).toBeHidden();
     checks.metadata_no_material = true;
 
     const facts = await harness.nativeFacts(page);

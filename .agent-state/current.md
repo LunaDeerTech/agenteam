@@ -117,3 +117,6 @@
 
 - R1纯资源身份正式main交付dbf4a5e00ba5b799025a94e24526159790699e4b，正常push actual0与ls-remote精确确认；10路径仅2identity源/2独立probe/4必要doc与ledger/current，无Model未验输入。最终Central与Runner build实际0，C1/Task产品未改；完整F1和目录事实仍缺。deliverymain已FF到dbf4a5e0，迁移仍accepted00022；原Model两untrackedGo保持。活动分支合入main只解决rootcurrent恢复内容，无源码冲突。
 - Model lookup片段已获真正独立静审/pure接受：delivery外部overlay race3top/6child全部run/pass、1.022s/actualWait0，正向两union与闭集/敏感字段/响应绑定/raw字节/不造current均通过；首次旧modulecache setupFAIL0tests保留，改正确离线cache后重跑过。第五原FAIL不回填因果，此不代替第六真实run。独立2probe冻结，热cache已归还。新configcred单TS完整module经4项已知静态错最小修正后strictTS actual0并freeze，尚未注册/浏览器验证；所有Modelglob停止写入，准备重编新accepted dbf/00022后第六recovery。
+
+- Model第六owner32662最终exit1/81.906s、Go12.34s，directWait181799/4adoptedWait0、watchdogobserver实join、7IDs双absent/descendants[]、TCP双空/input同一（owned-recovery-944414c…）。业务前进到三lookup200、配置/已删Provider/凭据原回放，14safe sidecars；最终schema/client/result未到达，不冒recovery通过。新closedFAIL spec832关闭locator；纯锁定算法证同dialog header/footer关闭匹配2、footer1，不回填原DOM。最小scope修spec/read/configcred和现labelprobe，strictTS/list/probe actual0并freeze；独立重跑probe0/0.360s与有限diff接受，保pureDOM/jsdom样式限制，原static FAIL与六真实FAIL保留。Go/accepted基线/二进制未变，下一第七真实recovery待资源ACK。
+- T0a工程闭包仅Task transition卡§10追加93行已freeze，原15边表/其它章节逐字保留；具体2拟source/6纯角色/49错误顺序/Position codec-cap/6组pure验收已自查，无Go源码/Grant/事实provider。待独立SPEC接受后才授权实现；当前无T0a产品代码。

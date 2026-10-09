@@ -296,6 +296,99 @@ U1和取消沿已验规划规则：请求取消且明确未开始/已回滚，�
 
 T0a、B0-C、A0 可按各自真实前置并行安排；B0-C类型闭合后，T0b与B0-P可以分别推进。T1所需代码可以拆有意义的可构建库结果，但不能把缺provider的运行构造器验收当作transition正向。D10独立C1纯契约即使已接受或交付，也不是A0的当前Agent事实/引用保护运行能力。确有不需要Agent/Blocker/执行能力的局部业务路径，必须逐项证明其真实前置和引用/占用边界后独立定scope；不能以一个nil adapter开启整个服务。具体文件闭集、shared gate/fault/迁移唯一作者由实施卡接受时登记，本纯规格不赋予任何代码写权。
 
+### 10.1 T0a 文件闭集与冻结 Go API
+
+T0a 后续实现拟新增且仅新增 `internal/central/work/contract/task_transition_rules.go`、`internal/central/work/contract/task_transition_rules_test.go`。此段接受后仍须由主线程明确授予这两个文件写域；本轮只补本文，不实现源码。开工先确认路径及下列导出名未被其他任务占用，冲突交主线程协调，不另造近义 API。复用现有 [TaskState/TaskID](../../../internal/central/work/contract/task.go)、[Foundation Fault](../../../internal/central/foundation/fault.go)、[identity.AgentID](../../../internal/central/identity/contract/identity.go)；不新建 ID marker，不 import Agent/Work service 或数据库实现。已有 [AgentRef/WorkReferences](../../../internal/central/agent/contract/reference.go) 仅作为事实责任依据，T0a 不消费或实现该端口。
+
+以下声明属于 `work/contract`；`identity` 指既有 `identity/contract`，`fmt`、`slog` 指标准库。角色是非 wire 枚举，下面的整数值不注册为 HTTP/Tool 字段；输入只供受控 Go 调用，不是 TaskTransfer DTO。
+
+```go
+type TaskTransitionRole uint8
+
+const (
+    TaskTransitionHumanOwner TaskTransitionRole = iota + 1
+    TaskTransitionAgentRun
+    TaskTransitionSystemBlock
+    TaskTransitionSchedulerClaim
+    TaskTransitionAgentBusyCompensation
+    TaskTransitionSchedulerReconcile
+)
+
+type TaskTransitionRuleInput struct {
+    FromState TaskState
+    ToState TaskState
+    Role TaskTransitionRole
+    ActorAgentID identity.AgentID
+    CurrentAssigneeAgentID *identity.AgentID
+}
+
+func CheckTaskTransitionRule(in TaskTransitionRuleInput) error
+func (TaskTransitionRuleInput) Format(fmt.State, rune)
+func (TaskTransitionRuleInput) LogValue() slog.Value
+
+type TaskTransitionPosition struct {
+    SprintID SprintID `json:"sprint_id"`
+    State TaskState `json:"state"`
+    Priority TaskPriority `json:"priority"`
+    PreviousID *TaskID `json:"previous_id"`
+    NextID *TaskID `json:"next_id"`
+    OrderGeneration int64 `json:"-"`
+}
+
+func (TaskTransitionPosition) Validate() error
+func (TaskTransitionPosition) ValidateTarget(TaskID) error
+func (TaskTransitionPosition) Clone() TaskTransitionPosition
+func (TaskTransitionPosition) MarshalJSON() ([]byte, error)
+func (*TaskTransitionPosition) UnmarshalJSON([]byte) error
+func DecodeTaskTransitionPosition([]byte) (TaskTransitionPosition, error)
+func (TaskTransitionPosition) Format(fmt.State, rune)
+func (TaskTransitionPosition) LogValue() slog.Value
+```
+
+判定函数只读输入、无外部调用或全局可变状态，返回 nil 只表示该 state pair 对所给角色满足纯边规则；不返回 grant、prepared plan 或可用于提交的凭证。`TaskTransitionRuleInput` 不实现业务 JSON codec，不得作为公共 decoder 目标；不提供 `identity.Actor`/`ActorKind`/ServiceName 到 role 的转换器、通用 Service role 或可直接指定的 Reviewer role。两个 struct 的直接 Format/LogValue 均为固定 `work_task_transition`，容器日志限制沿 §11。
+
+### 10.2 受控角色输入、49 组合与错误优先
+
+角色权限完全引用 §2 的 15 边表，不增加边：HumanOwner 对应 H；AgentRun 对应 A，在 `in_review→done/todo/blocked` 上还必须 `CurrentAssigneeAgentID != nil` 且与 `ActorAgentID` 相等，才满足 R。其他 A 边不比较 assignee，避免将一般 Tool 授权缩成“仅本人任务”。SystemBlock 仅对应 `todo/in_progress/in_review→blocked` 的限定 S；SchedulerClaim 仅 `todo→in_progress`；AgentBusyCompensation 仅 `in_progress→todo`；SchedulerReconcile 仅 `blocked→todo`。这四种专用角色相互不继承，也不因某条边与 H/A 重叠而继承 H/A 的其余边；Human、Agent 即使知道目标 state 也不能取得 claim 或 Busy 边。
+
+`ActorAgentID` 在 AgentRun 时必须是合法非零既有 typed ID，其他五种角色必须是该类型零值；`CurrentAssigneeAgentID` 可 nil，非 nil 必须合法非零。nil 只表达此纯输入未提供 assignee，不能证明数据库当前没有 assignee；本函数不验证完整 Task aggregate，因此 nil reviewer 只会使 Agent 的 R 边拒绝，不在其他角色上补造 Task 事实。H/S 等角色仍须由调用服务保证真实 preimage 有效；当前持久 active Task 缺 assignee 属损坏，不能把纯输入 nil 规则用于修复或跳过读取。
+
+未来调用者必须先通过各自真实当前端口，再从本次事实形成角色与 reviewer 输入：H 来自当前 Session/Project Owner，A 来自 §4.3 的当前 TaskRunAuthority，current-assignee 来自同 Tx 当前 Task preimage。旧 grant、已验形状的 AgentRef、旧 Dispatch/Execution 捕获的 AgentID、同 Project 身份及 `NewAgentRun` 都不能替代这些事实。专用内部角色必须由正式 cause/claim/ClaimGuard/调度组合口形成；任意 `identity.Service` 无法因角色名称或注册成功获得权限，也不能被映射为 H。T0a 只测受控值下的规则，不声称已经阻止真实权限撤销、旧 reviewer 或伪造 Service 调用；这些运行否定由 T1/T2/T3 真实 adapter 验收。
+
+`CheckTaskTransitionRule` 的错误顺序固定如下，所有错误为现有 `foundation.Fault` 且 `CommitState=NotStarted`，不增加 Foundation code：
+
+1. 按 FromState、ToState、Role、ActorAgentID、CurrentAssigneeAgentID 顺序验证上述 shape；任何未知 state、零值/未知 role 或不合规则的 ID 返回 `INVALID_ARGUMENT`。字段路径依次为 `/from_state`、`/to_state`、`/role`、`/actor_agent_id`、`/current_assignee_agent_id`，字段 code 固定 `INVALID_TASK_TRANSITION_INPUT`，不附输入值。
+2. shape 合法且 from 是 done/cancelled 时，全部 14 对返回 `TASK_TERMINAL_IMMUTABLE`，包括两个 terminal 自循环；terminal 优先于“未列边”和角色拒绝。
+3. 其他 from 的未列 pair 返回 `INVALID_STATE`，共 20 对，包括五个非 terminal 自循环；不能返回旧 planning 专用的 `TASK_STATE_INVALID`。
+4. 其余 15 对按上述角色判定；角色不匹配或 Agent 的 R 比较失败返回 `FORBIDDEN`，匹配返回 nil。此三种业务拒绝仅输出 code/state，不附 caller 值或 cause。
+
+这里的 shape→terminal→边→角色是纯函数局部顺序，不改 §9 服务的 Actor/当前权限、历史 replay、Task version、Sprint、terminal 等顺序。真实服务中同义 completed replay 不再调用此函数。assignee/comment presence、当前 Agent、Blocker 结果、occupancy、slot、Dispatch、rank、版本/代数、容量及事务均不进入 T0a 输入；不得增加 `Authorized`、`HasUnresolved`、`AgentValid`、`NoOccupancy` 等布尔值或任意 metadata 来伪装这些已满足。
+
+### 10.3 新 Position 的严格边界与旧 schema 隔离
+
+新 Position 是 §6.2 的独立值类型，不是旧 [TaskPosition](../../../internal/central/work/contract/task_events.go) alias、嵌入或放宽开关。Validate 接受全部七个 canonical state、既有四 priority、合法非零 SprintID、`1..MaxInt64` 的 OrderGeneration；previous/next 可 nil，非 nil 必须是合法非零 TaskID，两个非 nil 邻居不可相同。ValidateTarget 先 Validate，再拒绝零/非法 target 或任一邻居等于 target。全部 shape/邻居错误沿 `INVALID_ARGUMENT/NotStarted`；Validate 使用固定 `/position:INVALID_POSITION`，ValidateTarget 的新增拒绝使用 `/position:SELF_NEIGHBOR`。它们不证明邻居存在、同组或当前 generation；真实组读取、普通 target 必须尾部、source/target 与事件相符仍属于后继组合。
+
+wire 精确六个 required 字段 `sprint_id,state,priority,previous_id,next_id,order_generation`；只有 previous/next 可显式 null，省略仍拒绝。generation 通过现有 `foundation.Version` 编解码为 canonical 十进制字符串；拒绝 JSON number、0、负数、前导零、正号、指数、小数及 MaxInt64+1。复用现有严格 object helper，拒绝 unknown/duplicate/case-variant key、非法 UTF-8/孤立 surrogate、尾随值、非对象/null 及非法 ID。Validate、MarshalJSON、UnmarshalJSON 的 shape 判定一致；成功后才替换 decoder receiver，失败保留旧值，nil receiver 返回安全错误不 panic。DecodeTaskTransitionPosition 直接调用自有 codec，任何错误返回零值及错误。
+
+复用 `MaxTaskHistoryPayloadBytes=8KiB` 作为单个 Position 的 raw 和 marshal 输出 cap；Decode 与直接 UnmarshalJSON 按整个传入 raw 计数，包括外空白。恰 cap 的合法空白填充可接受，cap+1 拒绝；标准 `json.Unmarshal` 会裁外空白，不能用它证明整个请求 cap。Clone 分别复制两个非 nil 邻居指针，修改副本不影响原值。Position JSON 保留合法业务值，fmt/slog 固定标记不改变 JSON。
+
+旧 TaskPosition 的 Validate/Marshal/Unmarshal 仍只接受 backlog；新 Position 的非 backlog JSON 交给旧类型仍拒绝。保持 `task.go`、`task_events.go`、Foundation/identity 及现有测试源不变，不放宽旧 TaskCreate/FieldsUpdate/Reorder/CommandName/Mutation/Event/TaskChanged 的字段、type 或 history cardinality。T0a 不引入 TaskTransitionCommandID、TaskBlockerID/Create、TaskTransfer、摘要、typed event factory、Service registration、DB/迁移或服务构造器；T0b 仍须等 B0-C 的唯一 typed metadata 闭合，T1 仍须真实当前 Agent/Blocker/occupancy/Task 事实。
+
+### 10.4 T0a 最小验收与独立否定
+
+下列 selector 固定在新增 test 文件；预期值直接按 §2 手写，不用被测判定生成 oracle，也不复制整张 49 行表到另一份文档。作者先自测，未参与设计/实现的实例再独立核对角色升级、错误优先与旧 codec 否定，使用停止写入的两个源文件及必要既有依赖；作者的静态自查不称独立 SPEC 或产品验收。
+
+| top selector | 必须实际证明 |
+| --- | --- |
+| `TestTaskTransitionRulesMatrix` | 7×7 对全部六角色；14 terminal、20 非法 pair、15 合法 pair 精确分组；Agent 在三条 R 边分别匹配/不匹配/nil，其他 A 边不同 assignee 仍按表允许；不存在第二条 done 入口 |
+| `TestTaskTransitionRulesInputAndPrecedence` | 未知/大小写 state，role 0/7/255，AgentID 缺少、非 Agent 混入 AgentID、非 nil 零 current-assignee；shape 与 terminal 冲突、terminal 与角色冲突、非法边与角色冲突分别取得固定优先码；Fault Known/Safe/NotStarted，无输入值泄露 |
+| `TestTaskTransitionRulesInternalRoles` | H/A 的 claim、Busy 全拒；SystemBlock 不能 claim/reconcile/cancel，三个 Scheduler/Busy 专角色不能互用或取得一般写权限；静态确认无 Actor/Service 转换器、授权布尔输入或提交能力，真实身份/provider 证明仍未执行 |
+| `TestTaskTransitionPositionStrictCodec` | 七 state/四 priority、generation 1/MaxInt64、零/非法 ID、全部缺/null/duplicate/unknown/case key、损坏 UTF-8/surrogate/尾值、generation 非 canonical、raw cap/cap+1、marshal 非法值拒绝、失败不改 receiver/nil receiver |
+| `TestTaskTransitionPositionNeighborsAndClone` | 空/单边/双边邻居、重复/自身邻居、非法 target；两指针独立深拷贝；直接 Format/LogValue 固定投影；并行重复纯判定/codec 使用独立或只读输入，无共享可变状态 |
+| `TestTaskTransitionLegacyIsolation` | 新 Position 六个非 backlog state 全部被旧 Validate/Marshal/Unmarshal 拒绝；旧 TaskCreate/FieldsUpdate/Reorder 不接受 transition 字段，CommandName 不接受 transfer，旧 Mutation/Event/TaskChanged 不接受新多历史/type/position 字段；既有 backlog 正例继续有效 |
+
+在后续获得源码及工具链资源授权后，使用仓库要求的 Go 1.27.1 与任务自有临时 GOCACHE/GOTMPDIR：`go test -count=1 ./internal/central/work/contract`、`go test -race -count=1 ./internal/central/work/contract`、`go vet ./internal/central/work/contract`；以 `GOTOOLCHAIN=local` 和实际选定二进制运行，不联网补依赖或占共享缓存。独立实例至少实际复跑上述新增 selector 的 pure/race 负例并检查限定 diff，记录准确命令/退出；本次文档只检查本地链接、anchor、限定差异与格式，不运行 Go/PG/network。两文件闭包若必须改 shared helper、Foundation 或旧 schema 才能通过，先升级所有权与规格，不越界补丁。
+
 ## 11. 上限、持久编码与安全投影
 
 新增单request≤512KiB，单mutation/lookup receipt≤512KiB，lookup request≤16KiB，typed `TaskTransitioned` payload≤16KiB；comment payload≤256KiB、comment record≤272KiB，其他history payload≤8KiB/record≤16KiB，actor≤1KiB，私有plan≤4MiB。cap检查自有codec实际收到的整个raw及marshal完整输出，不把标准json.Unmarshal裁掉的外空白算作已测覆盖。Task自身沿原512KiB，不用新较小结果cap限制其满额description/plan。

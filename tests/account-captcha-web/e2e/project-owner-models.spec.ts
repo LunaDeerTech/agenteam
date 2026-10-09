@@ -829,7 +829,7 @@ test("[recovery] actual original configuration and credential requests", async (
   const credentialReceipt = await strictReceipt(credential); invariant(credentialReceipt.credential_id === credentialCommitted.current.credentials[0]?.credential_id, "PROJECT_MODELS_CREDENTIAL_RECEIPT_MISMATCH");
   const credentialReplayed = await snapshot("credential_recovery"); durableDelta(credentialCommitted, credentialReplayed, 0, 0); originalReplay(credentialReplayed, String(lostCredential.origin_token));
   checks.credential_response_loss = checks.same_original_bytes_and_key = checks.unique_committed_facts = checks.no_implicit_writes_or_rekey = true;
-  await button(credential, "关闭").click(); await expect(credential).toBeHidden();
+  await button(credential.locator("footer"), "关闭").click(); await expect(credential).toBeHidden();
 
   step("owner-tail");
   await openProject(page, material, "main", "model-providers", true);
