@@ -1,5 +1,11 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- 迁移归属更新：root已在Skills确认原占位无独立DDL后，将00028移交本人为共享cleanup索引唯一writer，候选`00028_cleanup_indexes.sql`。root尚待装配稳定00025/26/27，当前仅`.agent-state/object-metadata-cleanup/indexes-draft.sql`可恢复候选（未执行/未真实计划），不先写正式迁移或跳号。卡§7.1包括Skills joined work查询及initializations→work完整FK反查，首候选完整Project/id索引兼顾两者，最终按实际EXPLAIN删减。
+- Stop lane1/lane4查询细化已落：reserved Upload直接给原Object主ID；pending native与active external lease两组各限32后按原transfer主ID合并。9893/a7b97a Stop定向race exit0/1.021s，限编译及既有pure，不证明SQL计划；cursor/fullpending/权限/actualWait不改。当前7路径稳定冻结，无命令在途。
+
+- 在已保存 `6a1b4fd8` 后闭合通用 `cleanObject` 的本scope分派：只从真实 committed/revoked SkillRevision current attempt 读 canonical ProjectDeleted，缺失/损坏 anchor 不回退全历史；进入原当前 CleanupAuthority/同Tx门禁。独立子operation保原caller预算并实际结束本批，不把Recovery父operation的后续对象尾当本批join。gate历史查询按两类pending索引集合各最多31再合并，避免逐条扫描cleaned前缀。
+- 新两纯top覆盖原cause/锚点损坏/其它Owner不入、unbound当前planner无history SQL，以及parent/child独立实际done、deadline相同、取消拒绝和原初始化私有admission。`36218/e7268f` 所选Bounded/StoppedSkill/Metadata/ObjectProjectAudit实际race exit0/1.042s；未PG/实际SQL计划，原env命令为 `go test -mod=readonly -p=1 -race -count=1 -run '^(TestBoundedCleanup|TestStoppedSkillCleanup|TestMetadataPurge|TestObjectProjectAudit)' ./internal/central/object`。当前无命令在途。
+
 - 最新可恢复片段基于root已存 `c226b6dc`：`project_stop_store.go/project_lifecycle.go`与新`project_stop_batch.go`把五lane改为32个当前pending主ID、固定native指针及精确原work/command/Object/lease/transfer锁；删除原1001全历史投影和Object-wide native/grant/transfer更新。mapping摘要包含规范化后的完整原锁，新增锁会拒绝旧发现；同一个Process本轮仅ConfirmStopped一次。checkpoint仍需实际returned且origin Tx已退或精确死证；完整原projectStopPending不因cursor/诊断缺失变成allow。
 - 原Prepare/native未建立、IssueDownload/grant未建立可发现原work与原锁，但没有actual join成功推断；预期已建立的native缺失或Object/process关系不匹配保持pending。Stop新3纯top和旧mapping控制实际 `74235/df8487` race0/1.021s；跨metadata/bounded/Audit选择组 `33491/7dd3ce` race0/1.041s（随后只删除Stop test无用import/占位表达式，再运行74235）。全量当前schema查询、1000+历史、原预算及Unknown仍未真实验收；全链尚待通用Recover有限分派及SQL索引/集成矩阵。
 - `88804/0c653a`两包定向vet actual0（原env，`go vet -mod=readonly -p=1 ./internal/central/object ./internal/central/object/contract`）；`e3c911` diffcheck actual0，无编译或命令在途，无真实资源。此轮6路径freeze：本current、`object/{project_lifecycle.go,project_stop_store.go,project_stop_store_test.go,project_stop_batch.go,project_stop_batch_test.go}`。

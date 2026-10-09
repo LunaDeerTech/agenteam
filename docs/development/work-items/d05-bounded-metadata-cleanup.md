@@ -1,6 +1,6 @@
 # D05 有界收敛与单对象元数据清理
 
-状态：rev1 SPEC 与纯合同，待独立设计审查；尚未实现 Service/SQL。正式基线 main `b2a7d0ab`。本结果解开 initialized Skills Cleanup 的具体上游缺口，不恢复 Object Runtime join 停项，不代表完整 D05/Skills participant。
+状态：rev1设计已获Variables独立有限接受（f4c64f）及Skills消费兼容核，当前Service/SQL实现WIP；已有有界metadata/物理恢复/Stop源码与有限纯控，尚未真实PG/backend/预算验收。正式基线 main `b2a7d0ab`。本结果解开 initialized Skills Cleanup 的具体上游缺口，不恢复 Object Runtime join 停项，不代表完整 D05/Skills participant。
 
 ## 1. 来源与范围
 
@@ -8,7 +8,7 @@
 
 第一 provider 只支持 initialized Project 的已发表 SkillRevision＋ProjectDeleted、原 Creation/Skill/Revision/Object/Upload 和同命令的旧 candidate。不加 Creation取消、其它Owner新purge权限、Runner退休、HTTP/生产root或自动删除永久marker。
 
-初始写域仅本卡、current、新 `object/contract/metadata_cleanup.go` 及测试。下面列的旧源需设计独审后接写权；没有 SQL 迁移号，00028仍仅为Skills预留。无PG/socket/browser/network授权。
+初始四路径及后继§8实现域均已获root授权。2026-10-09 root在Skills确认原占位无独立DDL后，将`00028_cleanup_indexes.sql`移交本任务为共享cleanup索引迁移唯一writer；不改FK/约束/列。root先将稳定00025/26/27精确装配到本树，才落正式28和使用完整Migrator。当前无PG/socket/browser/network授权。
 
 ## 2. 实际缺口与必须成立的结果
 
@@ -98,13 +98,47 @@ Skills只有在D05物理调用实际返回、持久确认本域completed并完�
 
 还必须核DELETE的真实外键检查成本：目前references.upload_id、leases.attempt_id、transfers.upload_id/candidate_id/source_lease_id和attempts.object_id等子表查找没有对应首列索引。父行按ID删除也可能在FK trigger扫描全库；实现前将这些实际入边与已有unique/Object前缀索引对照，补必要最小子索引并实际EXPLAIN/BUFFERS触发成本。不能只验证SELECT再宣称整Tx有界，也不机械全建重复索引。
 
-需要由root分配**新的唯一迁移号**后才可写SQL；不碰Skills00028和历史迁移。本轮尚无PG/EXPLAIN，以上是源码查询缺口证据，不是性能PASS。
+root已明确移交**00028**给本任务，候选名`00028_cleanup_indexes.sql`，Skills不再独占该号。正式落库等待root先装配稳定00025/26/27，不以跳号29或空迁移绕连续前缀。尚无PG/EXPLAIN，以上是源码查询缺口证据，不是性能PASS。
+
+### 7.1 实现访问路径与待编号索引
+
+下表是针对实际SQL的候选 `CREATE INDEX … ON …` 主体，尚未写迁移。唯一编号现为root移交的00028，索引名仍随实际计划收敛；不修改历史约束、不增加级联/公开proof或填充业务假数据。同一个完整索引兼顾历史分页和FK入边，不因有另一partial索引就重复建同形完整索引。
+
+| 表（`agenteam_object`，另注除外） | 索引列及谓词 | 实际用途 |
+| --- | --- | --- |
+| upload_attempts | `(object_id,id)` | 每批16个历史attempt及Object删除入边 |
+| upload_attempts | `(object_id,id) WHERE phase<>'cleaned' OR NOT cleanup_gate OR (kind='private_candidate' AND NOT io_closed)` | 当前32物理候选、完整终局；cleaned不等于writer关闭 |
+| upload_attempts | `(transfer_id) WHERE transfer_id IS NOT NULL` | 删除transfer时的staging反向FK检查 |
+| uploads | `(current_attempt_id) WHERE current_attempt_id IS NOT NULL` | 删除非current attempt时的反向FK检查；current最后先置NULL |
+| uploads | `(project_id,object_id) WHERE disposition='reserved'` | Stop lane1直接取本Project reserved Object ID和完整pending |
+| cleanup_operations | `(object_id,created_at,id)` | 原最早cause不变的native Audit、Object删除入边 |
+| cleanup_operations | `(object_id,attempt_id) WHERE phase<>'completed'` | gate的第二个有限候选集合与完整pending |
+| object_references | `(upload_id) WHERE upload_id IS NOT NULL` | 删除Upload的反向FK检查；Object方向已有PK |
+| object_leases | `(object_id,id)` | 每批32个released历史；Object方向虽已有unique但不能按id有序取小批 |
+| object_leases | `(attempt_id) WHERE attempt_id IS NOT NULL` | 删除attempt的反向FK检查 |
+| project_work | `(object_id,id)` | 每批32个已joined历史 |
+| project_work | `(object_id,id) WHERE joined_at IS NULL` | 本Object真实未退休检测与旧cleanup claim否认 |
+| project_work | `(project_id,id) WHERE joined_at IS NULL` | Stop lane0跳过已joined历史 |
+| object_transfers | `(object_id,id)` | 每批32个历史transfer及Object删除入边 |
+| object_transfers | `(object_id,id) WHERE revoked_at IS NULL OR retirement_evidence IS NULL` | metadata/物理完整pending |
+| object_transfers | `(project_id,id) WHERE revoked_at IS NULL OR retirement_evidence IS NULL` | Stop lane4原native未终局分支 |
+| object_transfers | `(upload_id) WHERE upload_id IS NOT NULL`、`(candidate_id) WHERE candidate_id IS NOT NULL`、`(source_lease_id) WHERE source_lease_id IS NOT NULL` | 三条原FK反向检查；staging_id/lease_id已有unique，不重复建 |
+| objects | `(project_id,id)` | Stop本Project native join；原state/cleanup_pass前缀不能提供此id顺序 |
+| agenteam_download.grants | `(project_id,id) WHERE NOT revoked` | Stop lane3跳过已revoked历史 |
+| agenteam_skill.work | `(project_id,id)`（完整索引候选） | §16.5 joined历史按Project/id取33，以及initializations删除时`(project_id,skill_id)`入边反查的Project前缀；现两个partial索引均排除joined |
+
+Skills候选基于消费SPEC而非已实现查询：`WHERE project_id=$1 AND phase='joined' ORDER BY id LIMIT 33`，原FK为`(project_id,skill_id)→initializations(project_id,skill_id)`。先以一个完整`(project_id,id)`候选同时承担两访问路径，保留现live/recovery partial。若真实计划表明同Project大量live work使joined查询过滤成本不能满足预算，再评估增加joined partial；不机械同时建两条重复用途索引，也不宣称完整Project前缀已经性能通过。最后删除initialization前本Project work应全空，FK probe仍须实际证明不会扫描其他Project历史。
+
+gate从两个各最多31个pending集合合并后再取31，current anchor另占1；不能使用“所有attempt逐行相关查cleanup”的旧查询。Stop lane1用reserved Upload直接发现原Object主ID；lane4按原native pending与真实active external lease两支各最多32再合并原transfer主ID。后者active支从本Project Object/active lease开始，沿已有transfer.lease_id unique取原transfer，避免扫描已终局transfer历史；没有把lease缺失当inactive。其余lane/原after/完整pending不放松。Project native join仍须在真实计划中证明使用Project范围与现active/Object索引，SQL的LIMIT本身不证明索引/预算合格。
+
+真实验收除业务矩阵，还必须在同fixture执行 `EXPLAIN (ANALYZE, BUFFERS)`：本Object空集、65及1001+已cleaned/joined/retired历史带末尾活项、只有其它Project大量数据、本Project大量终局Object而无active lease；分别核gate两支、5lane、metadata四历史阶段、完整pending及最早cause。父DELETE须实际在回滚事务执行并观测FK trigger时间，包含Upload、attempt、transfer、lease、Object的全部原入边（含已由unique/PK覆盖的其它领域入边）；不能只EXPLAIN SELECT。首次合法PUT三行包与最后四anchors的原DEFERRABLE约束须真实提交验证。原2s剩余budget内不能完成时保留Pending/原错误，不临时扩时或把查询超时作完成。若真实计划指出某索引冗余或仍有全局扫，再按实际计划调整，不能以本候选表宣称优化已验收。
+
 
 错误遵循现有Fault/CommitResult：输入/结果形状错误InvalidArgument；缺正式provider为DependencyUnbound；当前authority/owner/cause不符Forbidden或原Project gate错误；plan/native映射变化ResourceBusy且整Tx NotCommitted；合法仍活关系为Pending，超过有限完整诊断上限为Pending＋ResourceBusy。已持久的矛盾关系保持安全DependencyUnavailable/InvalidState，不暴露原Locator/SQL/正文。任何Unknown保留原error、cause和attempt；InTx返回Completed本身仍不是CommitResult，不能据它提前删其它事务中的父表。
 
 ## 8. 旧源最小预计写域与验收
 
-设计独审后：`contract/access.go`闭集；`access.go`真实binding与同Tx一次purge消费、`service.go`仅相应私有access事务记录类型；`cleanup.go`＋新bounded SQL helper；`reference_cleanup.go`仅Skills canonical cause重放；必要`references.go`仅新私有有限诊断helper；`project_work.go`精确cleanup准入；`project_stop_store.go`及必要`project_lifecycle.go`投影分页；新`object/metadata_cleanup.go`；必要`project_audit.go`仅终局查询。各相邻tests及最小`tests/objects`组合，均先获明确写权。Skills独占其planner/CleanupAuthority/六表/participant，Project独占CleanupPhase，root负责immutable routes/迁移/组合，Object不读Skills私表。
+已获rev1独审及root授权的实现域：`contract/access.go`闭集；`access.go`真实binding与同Tx一次purge消费、`service.go`仅相应私有access事务记录类型；`cleanup.go`＋新bounded SQL helper；`reference_cleanup.go`仅Skills canonical cause重放；必要`references.go`仅新私有有限诊断helper；`project_work.go`精确cleanup准入；`project_stop_store.go`及必要`project_lifecycle.go`投影分页；新`object/metadata_cleanup.go`；必要`project_audit.go`仅终局查询。各相邻tests及最小`tests/objects`组合，均先获明确写权。Skills独占其planner/CleanupAuthority/六表/participant，Project独占CleanupPhase，root负责immutable routes/迁移/组合，Object不读Skills私表。
 
 有限验收：纯result/Access闭集与同issuer/Store/liveTx/锁反例；原子gate两种真实Unknown和旧cause；65以上历史及超过1000投影、末尾活writer、32总额/原2s/服务重建；实际reader/callback阻塞尾及foreign guard；FK关联包/跨source保护、分批cancel/Unknown、最后两域一起保留或消失；最终Skills父映射已清后真实CleanupProject无旧维护，Audit恰一次且fake witness拒。旧受影响Avatar/Knowledge/transfer/Stop有限回归。
 

@@ -56,7 +56,11 @@ func (s *Service) gateSkillObjectBatch(ctx context.Context, e postgres.SQLExecut
 	// Always include the original published anchor. Its canonical cause is
 	// required for post-Stop admission; unrelated old causes remain unchanged.
 	ids := []oc.AttemptID{u.attempt}
-	old, err := metadataIDs(ctx, e, `SELECT a.id::text FROM agenteam_object.upload_attempts a WHERE a.object_id=$1 AND a.id<>$2 AND (a.phase<>'cleaned' OR (a.kind='private_candidate' AND NOT a.io_closed) OR EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations c WHERE c.attempt_id=a.id AND c.phase<>'completed')) ORDER BY a.id LIMIT 31`, object.String(), u.attempt.String())
+	old, err := metadataIDs(ctx, e, `SELECT id::text FROM (
+ (SELECT id FROM agenteam_object.upload_attempts WHERE object_id=$1 AND id<>$2 AND (phase<>'cleaned' OR (kind='private_candidate' AND NOT io_closed)) ORDER BY id LIMIT 31)
+ UNION
+ (SELECT attempt_id AS id FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND attempt_id<>$2 AND phase<>'completed' ORDER BY attempt_id LIMIT 31)
+) pending ORDER BY id LIMIT 31`, object.String(), u.attempt.String())
 	if err != nil {
 		return nil, err
 	}
@@ -81,11 +85,50 @@ func (s *Service) gateSkillObjectBatch(ctx context.Context, e postgres.SQLExecut
 	return ids, nil
 }
 
+func (s *Service) beginBoundedCleanup(ctx context.Context) (*operation, func(), error) {
+	// Retain the caller's original remaining budget for the operation's actual
+	// work-retirement tail too. Always own a separate lifetime when called from
+	// Recovery: reusing its parent would defer this batch's join until all other
+	// objects have run, and would discard this original-budget context value.
+	budget := context.WithValue(ctx, boundedCleanupBudgetKey{}, ctx)
+	if parent, _ := ctx.Value(operationKey{}).(*operation); parent != nil && parent.service == s {
+		return s.childOperation(budget)
+	}
+	return s.begin(budget)
+}
+
+// canonicalSkillCleanup only chooses the bounded recovery path. It grants no
+// permission: deleteSkillObject re-discovers the original union and checks the
+// current CleanupAuthority in the caller's Store/Tx before every change.
+func canonicalSkillCleanup(ctx context.Context, e postgres.SQLExecutor, object oc.ObjectID) (oc.ObjectCleanupCause, bool, error) {
+	u, found, err := scanUpload(e.QueryRow(ctx, `SELECT `+uploadColumns+` FROM agenteam_object.uploads WHERE object_id=$1`, object.String()))
+	if err != nil || !found {
+		return oc.ObjectCleanupCause{}, false, err
+	}
+	if u.owner.Details().Kind != oc.SkillRevision || u.state != "committed" || u.disposition != "revoked" {
+		return oc.ObjectCleanupCause{}, false, nil
+	}
+	if u.attempt.Validate() != nil {
+		return oc.ObjectCleanupCause{}, true, unavailable(nil)
+	}
+	var raw string
+	err = e.QueryRow(ctx, `SELECT c.operation_id::text FROM agenteam_object.cleanup_operations c JOIN agenteam_object.upload_attempts a ON a.id=c.attempt_id JOIN agenteam_object.objects o ON o.id=c.object_id WHERE c.object_id=$1 AND c.attempt_id=$2 AND c.reason='project_deleted' AND a.upload_id=$3 AND a.object_id=$1 AND a.cleanup_gate AND o.cleaning`, object.String(), u.attempt.String(), u.id.String()).Scan(&raw)
+	if err != nil {
+		// Missing/corrupt canonical anchors must not fall back to the old
+		// all-history recovery path or borrow an older attempt's cause.
+		return oc.ObjectCleanupCause{}, true, unavailable(err)
+	}
+	id, err := foundation.ParseID[oc.CleanupOperation](raw)
+	if err != nil {
+		return oc.ObjectCleanupCause{}, true, unavailable(err)
+	}
+	cause, err := oc.NewObjectCleanupCause(oc.CleanupDetails{OperationID: id, Owner: u.owner, Reason: oc.ProjectDeleted})
+	return cause, true, unavailableIf(err)
+}
+
 func (s *Service) deleteSkillObject(ctx context.Context, cause oc.ObjectCleanupCause, id oc.ObjectID) (oc.CleanupResult, error) {
 	out := oc.CleanupResult{State: oc.CleanupPending, OperationID: cause.Details().OperationID}
-	// Retain the caller's original remaining budget for the operation's actual
-	// work-retirement tail too. The operation cancel itself is not that budget.
-	op, finish, err := s.begin(context.WithValue(ctx, boundedCleanupBudgetKey{}, ctx))
+	op, finish, err := s.beginBoundedCleanup(ctx)
 	if err != nil {
 		return out, err
 	}

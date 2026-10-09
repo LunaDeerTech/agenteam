@@ -35,13 +35,21 @@ func (s *Service) projectStopFacts(ctx context.Context, x postgres.SQLExecutor, 
 	key, _ := foundation.ProjectLock(b.project)
 	b.facts.locks = append(b.facts.locks, foundation.LockRequest{Key: key, Mode: foundation.Exclusive})
 	queries := []string{
-		`SELECT r.id::text FROM agenteam_object.project_work r WHERE r.project_id=$1 AND r.joined_at IS NULL AND ($3 OR r.kind IN ('preparation','transfer_put','verification','cleanup'))`,
-		`SELECT r.id::text FROM agenteam_object.objects r WHERE r.project_id=$1 AND EXISTS(SELECT 1 FROM agenteam_object.uploads u WHERE u.object_id=r.id AND u.disposition='reserved') AND ($3 OR NOT $3)`,
-		`SELECT r.id::text FROM agenteam_object.object_leases r JOIN agenteam_object.objects o ON o.id=r.object_id LEFT JOIN agenteam_object.object_transfers t ON t.lease_id=r.id WHERE o.project_id=$1 AND r.state='active' AND ($3 OR r.owner_kind='writer' OR r.owner_kind='transfer' AND t.direction='put')`,
-		`SELECT r.id::text FROM agenteam_download.grants r WHERE r.project_id=$1 AND $3 AND NOT r.revoked`,
-		`SELECT r.id::text FROM agenteam_object.object_transfers r WHERE r.project_id=$1 AND ($3 OR r.direction='put') AND (r.revoked_at IS NULL OR r.retirement_evidence IS NULL OR EXISTS(SELECT 1 FROM agenteam_object.object_leases l WHERE l.id=r.lease_id AND l.state='active'))`,
+		`SELECT r.id::text FROM agenteam_object.project_work r WHERE r.project_id=$1 AND r.joined_at IS NULL AND ($3 OR r.kind IN ('preparation','transfer_put','verification','cleanup')) AND ($2::uuid IS NULL OR r.id>$2) ORDER BY r.id LIMIT 32`,
+		`SELECT r.object_id::text FROM agenteam_object.uploads r WHERE r.project_id=$1 AND r.disposition='reserved' AND ($3 OR NOT $3) AND ($2::uuid IS NULL OR r.object_id>$2) ORDER BY r.object_id LIMIT 32`,
+		`SELECT r.id::text FROM agenteam_object.objects o JOIN agenteam_object.object_leases r ON r.object_id=o.id LEFT JOIN agenteam_object.object_transfers t ON t.lease_id=r.id WHERE o.project_id=$1 AND r.state='active' AND ($3 OR r.owner_kind='writer' OR r.owner_kind='transfer' AND t.direction='put') AND ($2::uuid IS NULL OR r.id>$2) ORDER BY r.id LIMIT 32`,
+		`SELECT r.id::text FROM agenteam_download.grants r WHERE r.project_id=$1 AND $3 AND NOT r.revoked AND ($2::uuid IS NULL OR r.id>$2) ORDER BY r.id LIMIT 32`,
+		// Two current native sets, each independently bounded. A correlated OR
+		// against every terminal transfer would defeat the pending index. The
+		// external-lease arm starts at this Project's active native leases and
+		// follows the existing unique transfer.lease_id edge.
+		`SELECT id::text FROM (
+ (SELECT r.id FROM agenteam_object.object_transfers r WHERE r.project_id=$1 AND ($3 OR r.direction='put') AND (r.revoked_at IS NULL OR r.retirement_evidence IS NULL) AND ($2::uuid IS NULL OR r.id>$2) ORDER BY r.id LIMIT 32)
+ UNION
+ (SELECT t.id FROM agenteam_object.objects o JOIN agenteam_object.object_leases l ON l.object_id=o.id JOIN agenteam_object.object_transfers t ON t.lease_id=l.id WHERE o.project_id=$1 AND t.project_id=$1 AND l.state='active' AND ($3 OR t.direction='put') AND ($2::uuid IS NULL OR t.id>$2) ORDER BY t.id LIMIT 32)
+) pending ORDER BY id LIMIT 32`,
 	}
-	ids, err := queryStopIDs(ctx, x, queries[lane]+` AND ($2::uuid IS NULL OR r.id>$2) ORDER BY r.id LIMIT 32`, b.project, null(after), d.Action == oc.ProjectStopDelete)
+	ids, err := queryStopIDs(ctx, x, queries[lane], b.project, null(after), d.Action == oc.ProjectStopDelete)
 	if err != nil {
 		return b.facts, err
 	}

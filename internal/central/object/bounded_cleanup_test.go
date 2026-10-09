@@ -5,12 +5,111 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/jackc/pgx/v5"
 )
+
+func TestBoundedCleanupRecoveryOwnsLifetimeAndOriginalBudget(t *testing.T) {
+	state := &serviceState{initialized: true, operations: map[*operation]bool{}, changed: make(chan struct{})}
+	s := &Service{data: func() *serviceState { return state }}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	parent, done, err := s.begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer done()
+	child, finish, err := s.beginBoundedCleanup(parent.ctx)
+	if err != nil || child == parent || child.ctx.Value(boundedCleanupBudgetKey{}) != parent.ctx {
+		t.Fatal("recovery reused its parent or lost the caller budget", err)
+	}
+	before, _ := parent.ctx.Deadline()
+	after, _ := child.ctx.Deadline()
+	if after != before || len(state.operations) != 2 {
+		t.Fatal("batch extended the original budget or escaped operation accounting")
+	}
+	finish()
+	select {
+	case <-child.done:
+	default:
+		t.Fatal("batch did not actually finish")
+	}
+	if parent.ctx.Err() != nil || len(state.operations) != 1 || !state.operations[parent] {
+		t.Fatal("batch completion cancelled or removed the recovery parent")
+	}
+	expired, stop := context.WithCancel(parent.ctx)
+	stop()
+	if _, _, err := s.beginBoundedCleanup(expired); err == nil || len(state.operations) != 1 {
+		t.Fatal("cancelled caller reused an admitted parent")
+	}
+	// The existing private startup parent remains the sole way to pass startup
+	// admission to a child. This does not make ordinary unready calls admissible.
+	state.initialized, parent.initializing = false, true
+	child, finish, err = s.beginBoundedCleanup(parent.ctx)
+	if err != nil || !child.initializing {
+		t.Fatal("startup recovery lost its original private admission", err)
+	}
+	finish()
+	if _, _, err := s.beginBoundedCleanup(ctx); err == nil {
+		t.Fatal("an unrelated caller borrowed startup admission")
+	}
+}
+
+func TestBoundedCleanupRecoveryRequiresOriginalCanonicalAnchor(t *testing.T) {
+	v := newAuditPublishFixture(t)
+	originalOwner := v.u.owner
+	owner, _ := oc.NewObjectOwner(oc.SkillRevision, originalOwner.Details().ID, originalOwner.Details().ProjectID)
+	v.u.owner, v.u.state, v.u.disposition = owner, "committed", "revoked"
+	canonical := auditID[oc.CleanupOperation](t)
+	oldRows := v.store.row
+	missing, corrupt, canonicalReads := false, false, 0
+	v.store.row = func(query string, args ...any) postgres.Row {
+		if strings.HasPrefix(query, "SELECT c.operation_id::text") {
+			canonicalReads++
+			if args[0] != v.u.object.String() || args[1] != v.u.attempt.String() || args[2] != v.u.id.String() {
+				t.Fatal("recovery selected another attempt's cause")
+			}
+			if missing {
+				return auditTestRow(func(...any) error { return pgx.ErrNoRows })
+			}
+			if corrupt {
+				return auditValues("not-a-native-operation-id")
+			}
+			return auditValues(canonical.String())
+		}
+		return oldRows(query, args...)
+	}
+	ctx := context.Background()
+	cause, bounded, err := canonicalSkillCleanup(ctx, v.store, v.u.object)
+	if err != nil || !bounded || cause.Details().OperationID != canonical || !cause.Details().Owner.Equal(owner) || cause.Details().Reason != oc.ProjectDeleted {
+		t.Fatal("canonical recovery cause changed", err)
+	}
+	state := &serviceState{store: v.store, initialized: true, operations: map[*operation]bool{}, changed: make(chan struct{})}
+	s := &Service{data: func() *serviceState { return state }}
+	// An unbound current planner must reject the real bounded entry before
+	// history enumeration (the embedded Query is deliberately unbound).
+	result, err := s.cleanObject(ctx, v.u.object)
+	auditCode(t, err, foundation.DependencyUnbound)
+	if result != oc.CleanupPending || len(state.operations) != 0 {
+		t.Fatal("lookup became permission or left a recovery lifetime")
+	}
+	for _, absent := range []bool{true, false} {
+		missing, corrupt = absent, !absent
+		if _, bounded, err = canonicalSkillCleanup(ctx, v.store, v.u.object); !bounded || err == nil {
+			t.Fatal("missing/corrupt anchor selected unbounded fallback")
+		}
+	}
+	missing, corrupt = false, false
+	v.u.owner = originalOwner
+	before := canonicalReads
+	if _, bounded, err = canonicalSkillCleanup(ctx, v.store, v.u.object); bounded || err != nil || canonicalReads != before {
+		t.Fatal("another Owner entered the Skills-only recovery path", err)
+	}
+}
 
 func TestBoundedCleanupExpiredBudgetDoesNotStartFreshJoin(t *testing.T) {
 	budget, cancel := context.WithCancel(context.Background())

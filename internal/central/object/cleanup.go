@@ -418,6 +418,14 @@ func (s *Service) cleanupIOContext(parent context.Context) (context.Context, con
 	return context.WithTimeout(context.WithoutCancel(parent), 15*time.Second)
 }
 func (s *Service) cleanObject(ctx context.Context, object oc.ObjectID) (oc.CleanupState, error) {
+	cause, bounded, err := canonicalSkillCleanup(ctx, s.state().store, object)
+	if err != nil {
+		return oc.CleanupPending, err
+	}
+	if bounded {
+		out, err := s.deleteSkillObject(ctx, cause, object)
+		return out.State, err
+	}
 	ids, err := attemptIDs(ctx, s.state().store, object)
 	if err != nil {
 		return oc.CleanupPending, err
