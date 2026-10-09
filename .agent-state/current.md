@@ -100,3 +100,7 @@
 
 - Model第四轮99747 actualexit1，全终态83.44s/Go8.69s，7ID双absent、全部Wait/join、descendants/TCP双空/input同一。原controlled-loss-a0001实际native唯一r000032/status200/ended/非EOF/cancelled/released，三控制旗均真；bytes=0/chunks=[]是旧exact1唯一失败，不能把server cut字节等同reader交付。spec冻结仅cut改max1（disconnect仍0），新增cancel/release，保留其余严格门槛；TS/list/diff实际0，待独立复核及第五真实run，原FAIL保留。
 - Task Authority仅2测试源冻结并编译race-c/list实际0，新增私有归档helper：观察旧双clock关系、不回填原FAIL；真实确定性+1µs非法输入须Read DependencyUnavailable/NotCommitted/整行回滚，合法同一materialized时刻再Read/Ref.Validate校验。产品/DDL/shared旧helper不变，Authority与Atomicity待真实运行。D01三资源低层身份草案首57行冻结，仅SPEC未接受未实施，后半验收/责任章节待续。
+
+- 09755383已正常push保存两fixture修正与R1首SPEC；独立只读复核Model native边界/Task私有helper实际exit0接受，业务断言及旧fixture定义逐字保留。原独立A/B不调用新helper可复用已实际PASS，不能称旧binary含新helper；独立A自身双clock未来重跑稳定性未修。root隔离task-delivery同步最新3test，13技术源逐字同一，准确Go带race integration -c实际exit0。
+- Task新Authority最终PASS body7.58s，Go142262/driver141749 Wait0、outer39953 exit0/71.273s、两ID/runtime/TCP双空/input同一（pg-1caa930…）。本轮旧双clock两次关系false；确定性+1µs坏输入真实拒绝且整行回滚，合法singlemoment真实读取通过，不回填原FAIL时间。新Atomicity最终PASS body4.21s，Go144049/driver143546 Wait0、outer28188 exit0、两ID/runtime/TCP双空/input同一（pg-2278a46…）；七新top按限定版本组合均有实际完整PASS，不冒当前HEAD单轮全套。下一四旧Structure正在顺序验证，尚未正式runtime交付。
+- 旧StructureMigration最终PASS：body5.16s、Go145714/driver145192 Wait0、outer12737 exit0/70.880s，两ID/runtime/TCP双空/input同一（pg-df34498…）；已在该top全退后暂停保存，余旧Paging/Atomicity/Unknown待继续。R1完整128行仅SPEC冻结待独审，未产品实施；Model第四原636B安全闭集诊断输入已原样保存在controlled-loss-zero-byte.json，保留expected_bytes=1与实际bytes=0，仅原FAIL证据，非新成功。
