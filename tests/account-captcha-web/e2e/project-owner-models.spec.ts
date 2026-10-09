@@ -21,6 +21,8 @@ import { createRequire } from "node:module";
 // Node CommonJS boundary while keeping the real exported function's TS type.
 const { runReadAndPagination } = createRequire(import.meta.url)("../../../.agent-state/model-ui-recovery/read-and-pagination") as typeof import("../../../.agent-state/model-ui-recovery/read-and-pagination");
 const { runConfigurationLifecycle, runCredentialLifecycle } = createRequire(import.meta.url)("../../../.agent-state/model-ui-recovery/configuration-and-credential") as typeof import("../../../.agent-state/model-ui-recovery/configuration-and-credential");
+const { runAuthorityAndIdentity } = createRequire(import.meta.url)("../../../.agent-state/model-ui-recovery/authority-and-identity") as typeof import("../../../.agent-state/model-ui-recovery/authority-and-identity");
+const { runNavigationAndLayouts } = createRequire(import.meta.url)("../../../.agent-state/model-ui-recovery/navigation-and-layouts") as typeof import("../../../.agent-state/model-ui-recovery/navigation-and-layouts");
 
 // Rebuilt from the formal project-owner-models.v1 contract. Runtime fixtures
 // supply all IDs and current facts; this module contains no business stubs.
@@ -748,14 +750,14 @@ test.afterEach(async ({}, info) => {
   // Never persist Playwright's message/stack/call log: fill diagnostics can
   // contain private values. Retain only closed categories and our own numeric
   // source locations so a failed actual run remains diagnosable.
-  const diagnosticSources = [fileURLToPath(import.meta.url), join(repository, ".agent-state/model-ui-recovery/read-and-pagination.ts"), join(repository, ".agent-state/model-ui-recovery/read-pagination-contract.ts"), join(repository, ".agent-state/model-ui-recovery/configuration-and-credential.ts")];
+  const diagnosticSources = [fileURLToPath(import.meta.url), join(repository, ".agent-state/model-ui-recovery/read-and-pagination.ts"), join(repository, ".agent-state/model-ui-recovery/read-pagination-contract.ts"), join(repository, ".agent-state/model-ui-recovery/configuration-and-credential.ts"), join(repository, ".agent-state/model-ui-recovery/authority-and-identity.ts"), join(repository, ".agent-state/model-ui-recovery/navigation-and-layouts.ts"), join(repository, ".agent-state/model-ui-recovery/native-client-probe.ts")];
   const publicCodes = new Set(diagnosticSources.flatMap((path) => [...readFileSync(path, "utf8").matchAll(/(["'])(PROJECT_MODELS_[A-Z_]+)\1/g)].map((match) => match[2])));
   const errors = info.errors.slice(0, 8).map((error) => {
     const message = error.message ?? "", stack = error.stack ?? "";
     const candidate = /\b(PROJECT_MODELS_[A-Z_]+)\b/.exec(message)?.[1];
     const code = candidate && publicCodes.has(candidate) ? candidate : null;
     const call = /\b(locator\.(?:fill|click|inputValue)|page\.goto|expect\.poll)\b/.exec(message)?.[1] ?? null;
-    const locations = [...stack.matchAll(/(project-owner-models\.spec\.ts|read-and-pagination\.ts|read-pagination-contract\.ts|configuration-and-credential\.ts):(\d+):(\d+)/g)].slice(0, 8).map((match) => ({ source: match[1], line: Number(match[2]), column: Number(match[3]) }));
+    const locations = [...stack.matchAll(/(project-owner-models\.spec\.ts|read-and-pagination\.ts|read-pagination-contract\.ts|configuration-and-credential\.ts|authority-and-identity\.ts|navigation-and-layouts\.ts):(\d+):(\d+)/g)].slice(0, 8).map((match) => ({ source: match[1], line: Number(match[2]), column: Number(match[3]) }));
     return { category: code ? "closed-harness-error" : /timeout|timed out/i.test(message) ? "timeout" : message.includes("expect(") ? "assertion" : "other", code, call, locations };
   });
   writeFileSync(join(evidence, "browser-failure.json"), JSON.stringify({ protocol, input_hash: inputHash, mode: process.env.AGENTEAM_PROJECT_MODELS_WEB_CASE, status: info.status, errors }), { mode: 0o600 });
@@ -921,4 +923,56 @@ test("[credential] actual project model credential lifecycle", async ({ page }) 
   const material = readProjectModelsMaterial();
   invariant(material.mode === "credential", "PROJECT_MODELS_CASE_MISMATCH");
   await runCredentialLifecycle(page, configurationCredentialHarness(material));
+});
+
+function authorityCaseHarness(material: Material): import("../../../.agent-state/model-ui-recovery/authority-and-identity").AuthorityHarness {
+  return {
+    material,
+    loginOwner: (page) => loginProjectModels(page, material.actors.owner),
+    navigate,
+    fillCredential: fillProjectModelsCredential,
+    ipc: (request) => projectModelsIPC(request),
+    snapshot,
+    strictReceipt,
+    durableDelta,
+    originalReplay,
+    arm,
+    control,
+    actualLoss,
+    counts,
+    nativeFacts,
+    finish: (page, checks) => finish(page, "authority", checks),
+    step,
+  };
+}
+
+test("[authority] actual project model authority and identity boundaries", async ({ page }) => {
+  step("material-reading");
+  const material = readProjectModelsMaterial();
+  invariant(material.mode === "authority", "PROJECT_MODELS_CASE_MISMATCH");
+  await runAuthorityAndIdentity(page, authorityCaseHarness(material));
+});
+
+test("[navigation] actual project model navigation and layouts", async ({ page }) => {
+  step("material-reading");
+  const material = readProjectModelsMaterial();
+  invariant(material.mode === "navigation", "PROJECT_MODELS_CASE_MISMATCH");
+  await runNavigationAndLayouts(page, {
+    material,
+    loginOwner: (page) => loginProjectModels(page, material.actors.owner),
+    navigate,
+    fillCredential: fillProjectModelsCredential,
+    snapshot,
+    strictReceipt,
+    durableDelta,
+    originalReplay,
+    arm,
+    control,
+    actualLoss,
+    counts,
+    nativeFacts,
+    step,
+    openProject: (page, project, leaf, discardPrepared) => openProject(page, material, project, leaf, discardPrepared),
+    finish: (page, checks, layouts) => finish(page, "navigation", checks, layouts),
+  });
 });

@@ -162,3 +162,5 @@
 - credential首轮完整PASS：outer76819actualexit0/93.998s、Go20.69s，browser completed=true/9checks真/schema-client各15/proxyjoin；directWait258194exit0、4adoptedWait0/watchdogobserverjoin、七ID双absent/descendants[]、TCP两空/input同一（owned-credential-fc349554…）。create/metadata/rotation/引用409/显式解绑删除及partial Provider loss原请求回放均通过，D27六新4/6。
 - B0-C已正式main交付70b16f0654c8d71561b9dda36d32a51153e1776f，正常pushactual0/ls-remote精确确认；8路径仅2source/2probe/SPEC/README/ledger/current，132链接及4source同一检查0，不含未验Model代码。恢复分支合并仅全局台账D27较新进度冲突，保留root较新行；未推送本地合并的残留标记已实际清除并amend，最终diff无冲突标记，其余成果保留，无force。
 - authority单处401路径mustfix已作者修正并strictTS0.943s/独审有限复核接受；先真实未确认态与保护区撤离，再检查当前会话至anonymous/login，不冒自动跳转。scope限held-tail阻止切页/newSession清Providerdirty，Credential此前已放弃不可冒仍待决清除。navigation预集成静核无mustfix；System仅双未保存草稿取消/隔离，8图尚未生成目视。2module待真实接线/验收，所有Modelglob冻结，下一authority。
+
+- authority/navigation主spec真实接线经精确d3ab38d0导出diff独立只读接受，无mustfix；typed原helpers、两真实Page/mode与固定诊断投影不改业务。strictTS实际0，authority/navigation各唯一selector discovery实际0；navigation首次缺AUTH_WEB_IMAGES的setupFAIL0tests保留，补正确绝对目录后重跑通过。尚非真实browser/8图验收；下一root唯一authority资源窗，全部Modelglob冻结。
