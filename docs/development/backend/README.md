@@ -381,14 +381,18 @@ Human 重投先验证当前 Session/Owner 或 SystemAdmin，历史 receipt 也�
 
 17 条技术路径的固定版本组合已获接受：作者六个新 PG 顶层、五个旧 Project/Outbox 回归及独立 A/B 均实际通过。前五个新轮保留原版本；原 Unknown 轮的 Lookup 取消断言失败经 U1 窄修后重跑通过，旧五轮与独立 A/B 消费修后版本，不能称当前源码的一次全套运行。Unknown 使用真实 PG COMMIT frame 代理与独立连接等候，测试专属 Session、归档事实和 Skill receipt 不代替生产登录、Archive 或 Skill 链。原失败保留；独立 B 的监督器内 driver/helper/Go 实际 Wait 与资源退休齐全，但环境恢复后外部工具 session 的 terminal/exit 未取得，另有有限只读清零补证，不回填该工具终态。详见 [D11 结构库验证](../agent-team/d11-work-structure-verification.md)。
 
-Structure 本身不提供 Task canonical/membership、删除、Sprint start/complete/rollover、跨 Milestone 移动或 Project current_sprint pointer 写入；Task 规划的恢复状态见下文。Execution/Dispatch 占用 adapter 与 Work 生命周期清理仍待后继真实绑定，不能以空集合或 no-op 替代。Tool、HTTP/UI、App/生产 root 未装配 Work 服务，不新增生产 handler，也不改变 ready503。该结果不完成整个 D11 或平台；Object runtime join、OpenAI tools 独立验收、SPA 并发发布三项停止及 Jina/Image 来源阻塞保持。
+Structure 本身不提供 Task canonical/membership、删除、Sprint start/complete/rollover、跨 Milestone 移动或 Project current_sprint pointer 写入；Task 规划库另见下文。Execution/Dispatch 占用 adapter 与 Work 生命周期清理仍待后继真实绑定，不能以空集合或 no-op 替代。Tool、HTTP/UI、App/生产 root 未装配 Work 服务，不新增生产 handler，也不改变 ready503。该结果不完成整个 D11 或平台；Object runtime join、OpenAI tools 独立验收、SPA 并发发布三项停止及 Jina/Image 来源阻塞保持。
 
 ## D11 Human Task 规划库
 
-[Task Planning 工作项](../work-items/d11-task-planning.md)的实施已恢复，仍在作者验证阶段，尚未完成真实 PG 矩阵与独立 A/B 验收。`work.NewTask` 提供 Human Owner 的 `CreateTask`、`UpdateTask`、`ReorderTask` 与 `LookupTaskCommand`；仅允许未指派 backlog 的新写。`work.NewTaskReader` 提供当前授权的 Get/List 和 caller 同 Tx 的真实 `HasTasksInSprintInTx`。构造要求同一 Store、同一 Work Authority 及 Structure Reader，必要 Outbox、TaskEvents 与 Activity 全部绑定。
+[Task Planning 工作项](../work-items/d11-task-planning.md)的规划库已实现并通过本卡验收。`work.NewTask` 提供 Human Owner 的 `CreateTask`、`UpdateTask`、`ReorderTask` 与 `LookupTaskCommand`；仅允许未指派 backlog 的新写。`work.NewTaskReader` 提供当前授权的 Get/List 和 caller 同 Tx 的真实 `HasTasksInSprintInTx`。构造要求同一 Store、同一 Work Authority 及 Structure Reader，必要 Outbox、TaskEvents 与 Activity 全部绑定。
 
 迁移 `00022` 新增 Task、Task 排序组、Project 查询代数、Task 命令及 TaskEvent 五表，并通过同项目复合 Sprint 外键保持 parent 一致。创建时由实际 Sprint placement 推导 Milestone；七种 canonical state 与已有 assignee 可读取，但状态转换、指派与 Agent 合法性不属于本卡。List 使用固定 Sprint/state/priority/rank/ID 总序和七个单值过滤，assignee 的省略、null 和 AgentID 分别表示不过滤、未指派和精确持久值；文本按区分大小写的字面 substring 匹配各字段。
 
 Task 命令采用独立的持久两阶段计划，在同一最终事务提交 canonical、必要 rank 维护、组和 Project 查询代数、append-only TaskEvent、`work.task_changed`、原回执及 Account Activity。新事件须在 catalog Seal 前通过 `RegisterTaskEvents` 注册，并由原 Work producer 和 Project 精确事件门禁复核真实计划与历史。no-op 不产生历史或事件，历史 replay 不再 Touch；Lookup 和 Unknown 保留原 command identity、writer Attempt/Cause 与真实提交边界。`TaskService.Stop/Drain` 等待本实例真实调用退出，组合方仍须等待独立 Reader、Store 和协议代理。
 
-Task DTO、typed schema、六个 Fault 与 Work 纯测试已有作者通过结果，integration 七个新 top 已完成 race 编译；编译不代表真实数据库验收。测试使用 `.agent-state/task-planning-recovery/` 中恢复的两 ID PG-only driver 与监督器，不调用包含停止项的整套脚本。Task 删除、完整 Timeline/context、Sprint lifecycle、Blocker/reviewer、Execution/Dispatch、Work 清理、Tool/HTTP/UI 及生产 root 绑定仍未提供；该恢复结果不完成 D11 或平台。
+作者 pure、race、vet、integration 编译及精确发现、Central/Runner 构建通过；20个技术路径全文独审及最后测试差量复核通过。七个新 Task PG top、八个指定旧 Project/Outbox/Structure 回归和独立不同构造 A/B 均实际通过。旧 Structure Migration 保持显式 `00021` 历史前缀，其余必要回归使用最新 `00022`。这些是按相关输入未变复用的有效版本组合，不声称当前 HEAD 一次全套执行，也不把编译或测试准备当业务通过。
+
+每轮使用 `.agent-state/task-planning-recovery/` 中可恢复的两 ID PG-only driver、监督器与独立 probe，Go/driver/外层工具实际 Wait 完成，精确两 ID、owned runtime 和 host TCP delta 各两次为空；没有启动包含停止项的整套脚本。私有嵌套解码原缺陷、测试夹具及独立编排原失败均保留，修后范围和归档时间诊断的限制见工作项。直接 DTO 安全日志投影与业务 JSON 的边界沿该卡 §2，不能把任意嵌套 JSON 当日志净化。
+
+Task 删除、完整 Timeline/context、Sprint lifecycle、Blocker/reviewer、状态转换与指派、Execution/Dispatch、Work 清理、Tool/HTTP/UI 及生产 root 绑定仍未提供。测试专用的未来 state/assignee、归档、Session 与 Skill receipt 事实不代替真实 Agent、生命周期、登录或 Skills 生产链；本结果不完成 D11 或平台，也不改变 ready503 和既有停止项。
