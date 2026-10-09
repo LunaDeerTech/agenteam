@@ -64,7 +64,10 @@ func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, caus
 		if _, err = e.Exec(ctx, `WITH removed AS (DELETE FROM agenteam_secret.secret_command_receipts WHERE id IN (SELECT id FROM agenteam_secret.secret_command_receipts WHERE scope='project' AND project_id=$1 ORDER BY id LIMIT 100) RETURNING digest_payload_id) DELETE FROM agenteam_secret.secret_payloads WHERE payload_id IN (SELECT digest_payload_id FROM removed)`, project.String()); err != nil {
 			return unavailable(err)
 		}
-		if err = e.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_secret.secret_payloads WHERE scope='project' AND project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_secret.secrets WHERE scope='project' AND project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_secret.secret_command_receipts WHERE scope='project' AND project_id=$1)`, project.String()).Scan(&report.Completed); err != nil {
+		if err = cleanupProjectVariableReceipts(ctx, e, project); err != nil {
+			return err
+		}
+		if err = e.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_secret.secret_payloads WHERE scope='project' AND project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_secret.secrets WHERE scope='project' AND project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_secret.secret_command_receipts WHERE scope='project' AND project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_secret.project_variable_receipts WHERE project_id=$1)`, project.String()).Scan(&report.Completed); err != nil {
 			return unavailable(err)
 		}
 		return nil

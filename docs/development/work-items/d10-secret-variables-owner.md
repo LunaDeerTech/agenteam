@@ -1,6 +1,6 @@
 # D10 Secret Variables Owner 后端
 
-> 状态：工程 SPEC rev2 已获 Model 独立有限接受；A 纯合同、Schema及独立复验资产已正式交付 main `8cb0a953`。Owner Service/HTTP、D04提供方、SQL及生产组合尚未交付，不能将A视为整卡通过。原SPEC基线main `3cea6076`；§4/§6专用D04端口、回执轮换/清理和真实事实证明仍是后继前置。实施授权及共享所有权见§10。
+> 状态：工程 SPEC 草案 rev2，未独立审查、未实施。正式基线 main `3cea6076`。当前只写本文及分支 current，不占迁移号、不改产品。§4/§6 已提出专用 D04 端口、回执轮换/清理和真实事实证明方案；它们是本结果必须实现的前置，不能当作现有能力。实施授权及共享所有权仍见 §10。
 >
 > 拟完整结果：已初始化 Project 的当前 Human Owner，经默认 Central HTTP 创建 Secret Variable、读取安全元数据、分页、修改 name/description、覆盖 value、删除及恢复响应丢失。与普通变量共享业务 ID 和名称空间；明文不进入读取响应或持久命令。另落实 Agent F1 的资源侧目录/引用协议；真实 Agent canonical/引用适配由 F1 完成，不以测试 owner 代替。
 
@@ -77,7 +77,7 @@ Unknown保原writer Attempt/Cause/CommitResult，不重跑callback。最多一�
 | ApplyProjectVariableWriteInTx(ctx, tx, prepared) → observation | 再核NewWrite证明和D04自身scope/purpose/版本/epoch/ref/lease；同物理Tx写值和加密intent回执。只接受已完整预取锁的候选，拒foreign/ended Tx或漂移。metadata-only/no-op也落完整intent proof，Credential version保持 |
 | LookupProjectVariableWriteInTx(ctx, tx, request, plan) → observation | identity-only、当前ReceiptRead授权及同Tx安全观察；不需原value，不等于验证caller原semantic。只能连同D10完整receipt恢复安全结果；不使用generic Model Lookup |
 
-D04 Apply与D10 canonical顺序固定：完整union及两域当前前像校验 → D04值/intent回执及适用Audit → D10 canonical/映射/版本/generation、history与completed receipt → D10 Audit/Outbox/Activity → 同一commit。D04证明器查自己所属D10表的原前像，不以尚未存在的postimage循环授权；最后两域结果精确相合。所有失败回滚同一业务Tx。并发同key在准备期间获胜时，先匹配真实原receipt；新create候选Ref与原Ref不同需要另锁时退出Tx后重新发现，最多一次准备重试，不能锁内补锁、重base expected或重放Unknown callback。
+D04 Apply与D10 canonical顺序固定：完整union及两域当前前像校验 → D04值/intent回执及适用Audit → D10 canonical/映射/版本/generation与history、同Tx私有mutation witness → 真实D10 Audit → 含其实际AuditID的D10 completed receipt → Outbox/Activity → 同一commit。D10 Audit的实际ID由现AppendInTx在授权检查后生成并返回，不能预造ID、用空ID冒完整receipt或为此前置循环增加持久planned行；其事实证明见§6.2。D04证明器查自己所属D10表的原前像，不以尚未存在的postimage循环授权；最后两域结果精确相合。所有失败回滚同一业务Tx。并发同key在准备期间获胜时，先匹配真实原receipt；新create候选Ref与原Ref不同需要另锁时退出Tx后重新发现，最多一次准备重试，不能锁内补锁、重base expected或重放Unknown callback。
 
 ### 4.2 持久回执、信封和轮换
 
@@ -131,7 +131,7 @@ final union至少外层及必要D04 command EX、User EX、secret-write-key SH�
 
 D10实际命令准备在读权限/前像和D04准备完成后，为非no-op生成安全event及**包私有call-local discovery witness**，再调用现Outbox.PrepareAppend。witness绑定同Store、Authority私有issuer、当前Actor、原CommandIdentity、Project/Variable、operation ID、目标version、原安全前像、exact Event Summary及D04候选receipt ID/Ref、完整command/Project/Credential锁。只在本域真实准备函数签发，私有context key或同等不可伪造的内部能力传递；不导出任意DTO→witness工厂，不含材料/值摘要，不持久化。DiscoverAppend校验本witness后用本authority自己的PlanIssuer生成Dependencies；binding只含上述安全身份、Summary及锁。copy/重放其他Project、Session、event或command均不匹配。缺witness的公开Outbox调用拒绝。
 
-最终AppendEventInTx仍走真实Outbox两stage及Project事实gate。CurrentAccess核本issuer/Actor/summary/完整锁和当前Session/Owner；NewFact读取**当前caller Tx中**的Secret canonical或墓碑、history、secret_commands completed row与其安全结果，核原operation/event/目标version/变化字段及exact D04 receipt observation相合。D10已完成行只在同一未提交Tx内暂可见，后续任何Audit/Outbox失败整笔回滚；不能只凭prepared witness充作已提交事实。无跨事务planned command，也无以allow替代CurrentAccess。no-op/replay不准备或Append新event；重启后的响应恢复读正式completed事实，不试图恢复call-local plan。
+最终AppendEventInTx仍走真实Outbox两stage及Project事实gate。CurrentAccess核本issuer/Actor/summary/完整锁和当前Session/Owner；NewFact读取**当前caller Tx中**的Secret canonical或墓碑、history、secret_commands completed row与其安全结果，核原operation/event/目标version/变化字段、真实D10 Audit返回的AuditID及exact D04 receipt observation相合。此时D10 Audit已实际写入，completed行只在同一未提交Tx内暂可见；后续Outbox/Activity或commit失败仍整笔回滚或保原Unknown，不降低为只核mutation witness。不能只凭prepared witness充作已提交事实。无跨事务planned command，也无以allow替代CurrentAccess。no-op/replay不准备或Append新event；重启后的响应恢复读正式completed事实，不试图恢复call-local plan。
 
 Project的producer事实路由必须把新event/action导向同一个真实ProjectVariable Authority，Outbox Catalog、Project allowlist同步扩闭集。此私有准备分支是D10 Authority新增责任，现普通adapter与Outbox本身不能冒称已具备。
 
@@ -141,7 +141,11 @@ Project的producer事实路由必须把新event/action导向同一个真实Proje
 
 D04 ProjectAuditAuthority精确区分legacy/new/resolution三种互斥分支。新分支验证闭集外层identity、原producer=secret/ordinal0及command因果、所需持锁、专用receipt的原Project/Variable/稳定User/effect/result、kind3信封owner和payload关系，以及当下Credential canonical/value payload或delete缺行。create version=1，replace/delete恰前Credential version+1，purpose固定ProjectVariable；safe Audit metadata仍是原secret.create/update/delete的真实值变化语义。receipt effect=none绝不签发值Mutation witness，不伪造secret.update。任何public构造器、伪receipt ID、移植context到foreign Tx、错Session、旧witness改Entry均拒绝。
 
-D10自己的Audit通过本域secret_commands/history和canonical证明精确Variable变化及原命令，使用同一外层identity但producer=projectvariable，故与D04的Audit去重键区分。两域Audit均由当前Project事实路由先重验Owner/gate，D04存储证明器只负责自己的事实；不新增“Service拥有任意Project写权”。identity-only Lookup、metadata-only D04路径和no-op不产生Secret Resolve/Mutation审计。已归档历史写重放只返回原receipt，不补发任何Audit/Event。
+D10自己的Audit使用新Secret闭集分支：只在实际D04 Apply返回且D10 canonical/映射/版本/generation与history已在原Tx成功写入后，由本域实际命令函数签发包私有mutation witness，再调用现Audit.AppendInTx。witness绑定同Store、同一个活Tx、Authority私有issuer、当前完整Actor（含Session）、原CommandIdentity及其cause、Project/Variable、operation ID、目标version、exact Entry/AppendKey和该次D04实际返回的receipt observation；不含材料或值摘要，不导出任意DTO→witness工厂，也不以公开Observation构造器、prepared或§6.1 discovery witness代替实际Apply结果。
+
+Project事实路由先按完整持锁、当前Session/Owner与Mutate gate检查，再调用本域Secret事实checker。checker核上述私有绑定、原command因果和所需完整持锁，并重新读取**本Tx**真实canonical或墓碑及history，精确匹配操作、目标version、字段变化与D04原receipt/Ref/effect/result；不能只接受witness形状。此阶段不要求尚未获得AuditID的completed receipt；只有AppendInTx实际成功返回有效AuditID之后才写完整completed，随后Outbox NewFact仍按§6.1核完整持久事实。错Store/已结束或foreign Tx/错Session/cause/Entry/Key、只有准备或未写真实后像均拒绝；后续任一步失败全部同Tx回滚，Unknown保原Attempt/Cause而不重跑callback。原普通ProjectVariable Audit/Outbox分支逐义保持，不能宽化旧predicate接纳新Secret事实。
+
+D10 Audit使用同一外层identity但producer=projectvariable，故与D04的Audit去重键区分；D04存储证明器只负责自己的事实，不新增“Service拥有任意Project写权”。no-op/replay不签发D10 mutation witness、不新增Audit/Event/Activity；metadata真实变化仍有D10 Audit，metadata-only D04路径不产生Secret值Mutation审计。identity-only Lookup不产生Secret Resolve/Mutation审计，已归档历史写重放只返回原receipt。此顺序不改变A安全receipt合同或现Audit公开API。
 
 SQL CHECK、Audit contract、Project事实路由、HTTP/OpenAPI及现客户端decoder必须同步严格扩闭集，旧Audit仍可读；不宽松接受未知action。Activity仅真实变化，无no-op/replay增量。
 

@@ -47,6 +47,9 @@ func (a *ProjectAuditAuthority) CheckProjectAuditInTx(ctx context.Context, tx fo
 	if f.Action != ac.SecretCreate && f.Action != ac.SecretUpdate && f.Action != ac.SecretDelete && f.Action != ac.SecretResolve {
 		return projectAuditDenied()
 	}
+	if raw := ctx.Value(projectVariableAuditWitnessKey{}); raw != nil {
+		return a.checkProjectVariableAudit(ctx, tx, entry, key, raw)
+	}
 	w, ok := ctx.Value(projectAuditWitnessKey{}).(projectAuditWitness)
 	store := a.data()
 	if !ok || !sameProjectAuditStore(store, w.store) || w.tx != tx || !sameProjectAuditEntry(w.entry, entry) || w.key.Validate() != nil || w.key.Details() != k {
