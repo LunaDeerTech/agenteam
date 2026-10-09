@@ -15,7 +15,7 @@
 - 最小数据变化去除cleanup到已发表skills的FK，保留原initialization exact Project/Skill/Revision/Object/Upload约束；当前D08 !initialized不得BeginDelete，reserved可存绝不等取消/清理授权。已initialized Project的合法遗留是原candidate实际closed后同Object/Upload重试、留下旧AbandonedAttempt payload/marker；原Creation与每个attempt映射须同Tx核实。
 - 明确root负责Project lifecycle_authority.go及测试的Skills-only CleanupPhase：同Store/liveTx/Project锁、当前Cleaning/domains、原Owner/action/operation/ProjectVersion、冻结manifest与依赖、全stop终局。Skills消费并补Cleanup/Release opaque plan、Claim/Checkpoint/Finalize exact父锁provider；同Tx gate+Release后实际预算内D05清理，原Unknown确认、已gated不重复Release、不重写旧D05 cause；ObjectDelete原Creation metadata＋真实Object witness。最终六表原子清空与当前gate下单调终态复核，不另留永久本域receipt；全participant/root/Object runtime join仍后继。
 - Knowledge TCP诊断移植临时优先窄审已完成：f8fe7d actual0，增量逐字Runner57642926，逆除分别逐字Knowledge666169b6／Runner3e7fd3bd，driver未改、11exact三表相同、预算/Wait/resource/input/gate其余字节保持。只接受已审方法的精确移植，无资源运行，不回填原56777或54818终态；已回root/作者，不另复制控制源。
-- 本节三路径（主卡/设计/current）freeze供root保存并交Knowledge未参与设计者独审。Work native作者刚交稳定整包71076b59，按root优先级接其独审；本域无执行／资源，不因等待它而继续改已冻结SPEC。
+- 本节三路径（主卡/设计/current）已由root保存 `e9e608f9`，Knowledge正作未参与设计者独审，技术段保持冻结。本域无执行／资源，不因等待而继续改已冻结SPEC。
 
 ## 本轮恢复保存与 Knowledge 独立风险审查
 
@@ -29,7 +29,14 @@
 
 - 环境恢复后本域 status clean；root 已远端保存 Stop 结果 `0a20321a` 与 Knowledge 修复独验 `0d9cf6b1`。没有重做本域实现或重跑真实资源；Knowledge 新 Runtime54818 由作者收原 session 全尾，在结果到达前不外推。
 - 对 Work 固定 `152eb964` 相对 `ae101b00` 的四条截断 helper 方法有限接受，无 mustfix。实际 `53260` exit0／63 控制／0 unhandled（原57＋本人6）：四类 failed 尾完成后再 success 仍拒且不启动 finished；普通 failure 无截断豁免、held-read 原 finished 晚拒仍失败，均调用原 finished 一次。依据与边界见 [独审记录](work-cut-review/README.md)，必要探针只读取固定 Git source、写 Skills 自有忽略 output；没有 Work 产品写入或 PG/browser/socket。
-- native 诊断与后续接线仍是作者 WIP，尚未交整包独审；原05整体FAIL和五条普通 aborted 的缺失证据保持。新 probe／README 加本文3路径冻结，当前无自有命令／资源在途；下一只在作者稳定冻结后继续 native 范围，不以本方法接受代替新技术整包或真实 UI。
+- 该次检查时 native 仍为作者 WIP，后续稳定整包独审见下节；原05整体FAIL和五条普通 aborted 的缺失证据保持，不以方法接受代替真实 UI。
+
+## Work native 整包独立复核
+
+- Work `d3322e3e` 相对方法基线 `152eb964` 的 helper/spec/native/publication/作者controls 五技术范围有限接受，无mustfix。AST `dd8eb0` actual0确认原三消费函数及198个验收调用／顺序不变；原 Request唯一XID、public候选二次唯一门禁、私密闭集投影、原Promise／body／reader、导航与单flight有界观察均核过。详见 [后续独审记录](work-cut-review/README.md#后续-native-整包独审)，没有改Work产品。
+- 最终独立 `16351` actual0／41控／0unhandled（作者33+本人8）：cancel原Promise／一次调用／保错、sync read throw、退休后旧wrapper不升级、end拒绝不变end witness、实际locked PW async evaluate同步内错转拒绝、finish已stopped但listener尚在时late原PW事件不绑定／不成EOF，以及实际不可扩展ReadableStream reader仍原成功且诊断失败显式。中间71581／38与86592／40 actual0；本人96237注入未定义变量FAIL保留，修后16351通过，不是产品反例。
+- `retired` 不单独证明所有hooks还原，须看observer_failed；sample_joined不证明原native/public pending join。flush/finish为先已有pending≤250ms、再end≤250ms两个串行上界，原PW45／expect5／Go120／Go6m／root540+60+3+75未改；原普通finished/schema/client全部mandatory，无fallback。没有browser／PG／socket／网络，原05FAIL不变。
+- 新 `.agent-state/work-cut-review/native-controls.cjs`、该目录README、本文三路径freeze供root下个安全间隙保存；Cleanup SPEC两技术文档仍 `e9e608f9` 未改，无自有命令／真实资源在途。
 
 ## 当前 Stop PG 完整结果
 
