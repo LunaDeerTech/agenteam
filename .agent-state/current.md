@@ -1,28 +1,27 @@
 # 当前执行检查点
 
-- 任务：调研公开 AI 开发团队实践，增强本项目的角色、技能和可用启动配置。
-- 状态：已完成；配置、技能、工具与文档已验收，正式交付目标为 `main`，推送结果以实际远端为准。
-- 任务分支：`ai/strengthen-agent-team`，保留为检查点历史，不再作为活动产品任务。
+- 任务：各层优先并行、同角色多实例，将项目子代理并发设置提高到 100，并保持冲突可控。
+- 状态：已完成；配置、工具和规则已验收，正式交付目标为 `main`，推送结果以实际远端为准。
+- 任务分支：`ai/parallel-agent-scheduling`，保留为检查点历史，不再作为活动任务。
 
 ## 交付结果
 
-- `.codex/agents/` 共 11 种角色：保留原六种，新增 `delivery_lead`、`data_worker`、`security_reviewer`、`test_worker`、`platform_worker`。全部使用 `gpt-6-astra / ultra / priority` 配置。
-- `.agents/skills/` 共 10 个项目技能和原有 Vue 社区技能；新增子树交付、数据库、安全、测试工程、运行时排障方法，增强 Go/Vue/verification 的操作方法与分流。
-- [团队流程](../docs/development/agent-team/README.md)、任务模板和技能来源说明已同步；11 种角色按需选择，当前运行时全树仍共 7 席，不要求全部角色或固定审批链。
-- [设计依据](../docs/development/agent-team/team-design.md)保存 OpenAI、Anthropic、OpenHands、SWE-agent 一手来源与采用边界，不复制外部框架或技能包。
-- `scripts/ai-team.py` 提供 `check`、`start --dry-run`、`start -- PROMPT`；测试位于 `scripts/tests/test_ai_team.py`。启动显式加载本次 CLI 配置，不修改全局 trust、权限或 sandbox。
+- `.codex/config.toml` 的 `agents.max_concurrent_threads_per_session` 从 20 提高到 100，计全树并发子线程，不含主线程；深度设置与 Astra/Ultra/priority 保持。
+- `AGENTS.md`、11 角色、子树交付技能、团队 README/任务模板/设计依据统一为各层优先并行：发现已就绪结果即分派，可重复创建同角色实例，容量可用时滚动补派，不等待整个批次。
+- 不另设角色单例或永久子树配额。唯一文件写者、写权交接、共享迁移/锁文件/资产/缓存/端口/数据库/fixture 所有权保留；能隔离则隔离，只串行冲突部分，独立验收仍针对稳定输入。
+- `scripts/ai-team.py` 的 `check`、`start` 新增 `--max-agents N` 单次正整数覆盖；不传则使用仓库 100。报告配置来源、请求值和读回值，并明确实际可用席位未测量。
 
-## 实际验证与边界
+## 验证与边界
 
-- 15 项工具测试通过；真实 CLI `check` 确认 8 项显式有效设置、11 个角色映射及 11 个启用的仓库技能。
-- 独立审查发现父进程退出而子进程持有管道时可能卡在收尾，已修复并独立复验 app-server 和 version 两种退出边界；相关进程和 reader 实际结束，自有临时资源已清理。
-- 角色 TOML、变更技能元信息、角色/技能映射、格式及跨 831 份 Markdown 的 369 个相关链接/锚点检查通过。
-- 工具要求 Python 3.11+ 与 POSIX 进程组（Linux/macOS/WSL），当前不支持原生 Windows；本轮只在 Linux 实测。
-- 默认项目配置在本机仍因未信任而禁用；显式启动覆盖已验证。目录角色发现与同文件去重依据官方文档/加载器，本轮未运行真实角色实例或验证请求级 Fast 服务档位；未启动模型任务。
-- 未修改产品实现、运行 Go/Vue/真实基础设施产品测试或解除历史停止项。产品状态仍见[任务台账](../docs/development/agent-team/tasks.md)。
+- 20 项工具测试通过；覆盖省略、继承、仓库值、单次覆盖、非法值拒绝和原有行为。额外边界审查验证参数安全、只读 RPC、正确覆盖和错误配置阻止启动。
+- 真实 CLI `check` 读回 `source=repo`、`requested_spawned_threads=100`、`observed_config_value=100`；11 角色映射和 11 仓库技能保持有效。没有创建 100 个模型实例，实际席位仍为 `not_measured`。
+- 11 角色 TOML、模型字段、技能元信息/引用、相关文档链接/标题和限定差异格式检查通过。已通过的进程收尾检查按未变输入复用。
+- 当前宿主工具报告全树 7 个总席位（主线程加最多 6 个子代理），仓库修改不能热改它。新 CLI 加载配置会请求 100，仍可能受服务、V2 专用配置和运行环境限制，不通过另开会话规避当前限制。
+- CLI 字段没有合法无限值；省略整个仓库字段会回退本机/后端默认，可能更小。本次按用户要求明确配置 100。
+- 未修改产品代码、运行产品测试、修改全局 trust 或降低模型；产品状态仍见[任务台账](../docs/development/agent-team/tasks.md)。
 
 ## 后续接续
 
-1. 本团队增强任务已完成，不重复实施。新任务先按[跨设备说明](README.md)恢复对应活动分支，或从 `main` 开始新的 `ai/<task>` 分支并更新此文件。
-2. 新 CLI 会话可从仓库根运行 `python3 scripts/ai-team.py start -- '接续当前任务，先读取 .agent-state/current.md'`，启动时自动预检；仅诊断使用 `check`。已有 API 会话按工具实际支持字段及团队流程派工。
-3. 修改启动工具时运行 `python3 -B -m unittest discover -s scripts/tests -p 'test_ai_team.py'`；相关输入未变时复用已有结论。原自动保存工具未修改，无需重跑其测试。
+1. 本并行调度任务已完成，不重复实施。新开发任务按[团队流程](../docs/development/agent-team/README.md)尽可能并行派发，按[跨设备说明](README.md)自动保存必要文件。
+2. 新 CLI 会话使用 `python3 scripts/ai-team.py start`，默认请求仓库的 100；需要只读核对时使用 `check`，单次另选容量用 `--max-agents N`。已有 API 会话沿实际工具容量派工。
+3. 修改启动工具时运行 `python3 -B -m unittest discover -s scripts/tests -p 'test_ai_team.py'`；未修改的自动检查点工具无需重测。

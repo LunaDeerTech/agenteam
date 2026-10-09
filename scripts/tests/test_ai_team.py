@@ -31,7 +31,7 @@ class TeamTests(unittest.TestCase):
         (self.root / ".agents/skills/example/SKILL.md").write_text("---\nname: example\ndescription: Test skill\n---\n")
         (self.root / ".codex/config.toml").write_text(
             'model="gpt-6-astra"\nmodel_reasoning_effort="ultra"\nservice_tier="priority"\n'
-            '[agents]\nenabled=true\nmax_concurrent_threads_per_session=20\nmax_depth=6\n'
+            '[agents]\nenabled=true\nmax_depth=6\n'
             'default_subagent_model="gpt-6-astra"\ndefault_subagent_reasoning_effort="ultra"\n'
         )
         self.role = self.root / ".codex/agents/example.toml"
@@ -76,6 +76,8 @@ if MODE == "wrong_setting":
     config["service_tier"] = None
 if MODE == "invalid_agents":
     config["agents"] = ["unsupported shape"]
+if MODE == "inherited_limit":
+    config["agents"]["max_concurrent_threads_per_session"] = 9
 if MODE == "diagnostic":
     print("failed to deserialize agent role file: sensitive test detail", file=sys.stderr, flush=True)
 for line in sys.stdin:
@@ -115,6 +117,54 @@ for line in sys.stdin:
         self.assertNotIn("secret", json.dumps(result))
         methods = [json.loads(line)["method"] for line in self.log.read_text().splitlines()]
         self.assertEqual(methods, ["initialize", "initialized", "config/read", "skills/list"])
+
+    def test_omitted_concurrency_does_not_send_override_or_claim_unlimited(self):
+        settings, roles = TEAM.configuration(self.root)
+        self.assertNotIn(TEAM.CONCURRENCY_KEY, settings)
+        self.assertFalse(any(TEAM.CONCURRENCY_KEY in argument for argument in TEAM.overrides(settings, roles)))
+        report = self.inspect()
+        self.assertEqual(report["concurrency"]["source"], "runtime-default")
+        self.assertIsNone(report["concurrency"]["requested_spawned_threads"])
+        self.assertEqual(report["concurrency"]["actual_available_slots"], "not_measured")
+
+    def test_omitted_concurrency_reports_inherited_configuration_separately(self):
+        report = self.inspect("inherited_limit")
+        self.assertEqual(report["concurrency"]["source"], "runtime-default")
+        self.assertIsNone(report["concurrency"]["requested_spawned_threads"])
+        self.assertEqual(report["concurrency"]["observed_config_value"], 9)
+
+    def test_repository_concurrency_remains_optional_and_validated(self):
+        path = self.root / ".codex/config.toml"
+        original = path.read_text()
+        path.write_text(original + 'max_concurrent_threads_per_session=12\n')
+        self.assertEqual(self.inspect()["concurrency"]["source"], "repo")
+        for invalid in ("0", "-1", "true"):
+            with self.subTest(invalid=invalid):
+                path.write_text(original + f'max_concurrent_threads_per_session={invalid}\n')
+                with self.assertRaisesRegex(TEAM.TeamError, "positive integer"):
+                    TEAM.configuration(self.root)
+
+    def test_explicit_concurrency_reaches_check_and_start_argv(self):
+        with mock.patch.object(TEAM, "ROOT", self.root), mock.patch.object(TEAM, "find_codex", return_value=self.fake_cli()):
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(TEAM.main(["check", "--max-agents", "32"]), 0)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["concurrency"]["source"], "explicit")
+            self.assertEqual(report["concurrency"]["requested_spawned_threads"], 32)
+            self.assertEqual(report["concurrency"]["observed_config_value"], 32)
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(TEAM.main(["start", "--max-agents", "32", "--dry-run"]), 0)
+            self.assertIn(f"{TEAM.CONCURRENCY_KEY}=32", shlex.split(output.getvalue()))
+
+    def test_cli_concurrency_rejects_zero_negative_and_noninteger_values(self):
+        for command in ("check", "start"):
+            for value in ("0", "-1", "unlimited", "1.5"):
+                with self.subTest(command=command, value=value), contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit) as caught:
+                        TEAM.main([command, "--max-agents", value])
+                    self.assertEqual(caught.exception.code, 2)
 
     def test_rejects_missing_cli(self):
         with mock.patch.object(TEAM.shutil, "which", return_value=None):

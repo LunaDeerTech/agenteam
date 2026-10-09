@@ -6,8 +6,8 @@ service_tier = "priority"
 
 [agents]
 enabled = true
-# CLI 配置上限；所有层级共享运行工具实际提供的总席位。
-max_concurrent_threads_per_session = 20
+# 每会话最多 100 个并发子线程（不含主线程）；实际服务/运行时限制另算。
+max_concurrent_threads_per_session = 100
 # V1 的可调委派深度上限；V2 忽略此项，不要求建立固定层数。
 max_depth = 6
 default_subagent_model = "gpt-6-astra"

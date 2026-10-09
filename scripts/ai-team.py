@@ -27,6 +27,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TIMEOUT = 8
 CLOSE_TIMEOUT = 2
 TARGET = {"model": "gpt-6-astra", "model_reasoning_effort": "ultra", "service_tier": "priority"}
+CONCURRENCY_KEY = "agents.max_concurrent_threads_per_session"
 
 
 class TeamError(Exception):
@@ -58,12 +59,17 @@ def configuration(root: Path) -> tuple[dict, dict[str, Path]]:
     }
     if any(agents.get(key) != value for key, value in expected_defaults.items()):
         raise TeamError("Subagent defaults must be gpt-6-astra / ultra.")
-    for key in ("max_concurrent_threads_per_session", "max_depth"):
+    for key in ("max_depth",):
         if type(agents.get(key)) is not int or agents[key] < 1:
             raise TeamError(f"agents.{key} must be a positive integer.")
+    concurrency = agents.get("max_concurrent_threads_per_session")
+    if "max_concurrent_threads_per_session" in agents and (type(concurrency) is not int or concurrency < 1):
+        raise TeamError("agents.max_concurrent_threads_per_session must be a positive integer when specified.")
     settings = dict(TARGET)
-    for key in ("enabled", "max_concurrent_threads_per_session", "max_depth", *expected_defaults):
+    for key in ("enabled", "max_depth", *expected_defaults):
         settings[f"agents.{key}"] = agents[key]
+    if concurrency is not None:
+        settings[CONCURRENCY_KEY] = concurrency
     roles = {}
     for path in sorted((root / ".codex/agents").rglob("*.toml")):
         role = read_toml(path)
@@ -245,7 +251,7 @@ class AppServer:
         self.process.stderr.close()
 
 
-def inspect_cli(root: Path, codex: str, settings: dict, roles: dict[str, Path]) -> dict:
+def inspect_cli(root: Path, codex: str, settings: dict, roles: dict[str, Path], concurrency_source: str | None = None) -> dict:
     version = cli_version(codex)
     server = AppServer([codex, "--strict-config", "app-server", "--stdio", *overrides(settings, roles)], root)
     try:
@@ -300,22 +306,45 @@ def inspect_cli(root: Path, codex: str, settings: dict, roles: dict[str, Path]) 
     return {"cli_version": version, "project_config_layer": project_state,
             "effective_settings": settings, "explicit_role_mappings": sorted(roles),
             "enabled_project_skills": [discovered[str(path)]["name"] for path in expected_skills],
+            "concurrency": {"source": concurrency_source or ("repo" if CONCURRENCY_KEY in settings else "runtime-default"),
+                            "requested_spawned_threads": settings.get(CONCURRENCY_KEY),
+                            "observed_config_value": effective_agents.get("max_concurrent_threads_per_session"),
+                            "actual_available_slots": "not_measured"},
             "limits": ["Role mappings and configuration were read; no agent instance was started.",
                        "Directory auto-discovery and actual request-level Fast service were not tested.",
+                       "Omitting the concurrency setting inherits runtime configuration/backend defaults, not unlimited capacity.",
+                       "The configured count excludes the primary. A V2-specific setting or service limit may take precedence or be lower.",
                        "max_depth applies to V1; V2 ignores it. Configured concurrency does not add runtime slots."]}
+
+
+def positive_agent_count(value: str) -> int:
+    try:
+        count = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("--max-agents requires a positive integer.") from exc
+    if count < 1:
+        raise argparse.ArgumentTypeError("--max-agents requires a positive integer.")
+    return count
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("check", help="Read effective CLI configuration and discover skills without model requests.")
+    check = commands.add_parser("check", help="Read effective CLI configuration and discover skills without model requests.")
     start = commands.add_parser("start", help="Start Codex with explicit repository team settings.")
+    for command_parser in (check, start):
+        command_parser.add_argument("--max-agents", type=positive_agent_count, metavar="N",
+                                    help="Override concurrent spawned threads for this invocation; excludes the primary. Omit to inherit runtime defaults.")
     start.add_argument("--dry-run", action="store_true", help="Only print the invocation; do not launch Codex.")
     start.add_argument("prompt", nargs=argparse.REMAINDER, help="Optional prompt, after --.")
     args = parser.parse_args(argv)
     try:
         require_process_groups()
         settings, roles = configuration(ROOT)
+        concurrency_source = "repo" if CONCURRENCY_KEY in settings else "runtime-default"
+        if args.max_agents is not None:
+            settings[CONCURRENCY_KEY] = args.max_agents
+            concurrency_source = "explicit"
         codex = find_codex()
         command = [codex, "--strict-config", "-C", str(ROOT), *overrides(settings, roles)]
         if args.command == "start":
@@ -325,7 +354,7 @@ def main(argv: list[str] | None = None) -> int:
             if args.dry_run:
                 print(shlex.join(command))
                 return 0
-        report = inspect_cli(ROOT, codex, settings, roles)
+        report = inspect_cli(ROOT, codex, settings, roles, concurrency_source)
         print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
         if args.command == "start":
             os.execv(codex, command)
