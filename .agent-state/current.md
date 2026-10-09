@@ -4,12 +4,20 @@
 
 ## 当前片段
 
-两 exact top 为 `TestKnowledgeB02IndependentContent`、`TestKnowledgeB02IndependentTreeReference`，各三 direct 子组，候选 selector `^TestKnowledgeB02Independent(Content|TreeReference)$`。当前已完成两新源候选：race-c45237 actualexit0；9ccae9 discovery actual0 精确两 top；vet67704 actualexit0；gofmt 与 56e9b6 diffcheck actual0，实际仅本三路径 dirty。新候选 `output/ai/knowledge-independent/knowledge-independent-race.test` 为 36,862,944 B。尚未实际 PG；本树唯一两top harness映射已离线准备，见下节，无测试/资源执行在途。首 race-c91846 因 Content 未使用 oc import 编译 FAIL，原结果保留，移除后才通过；未执行任何用例。
+两 exact top 为 `TestKnowledgeB02IndependentContent`、`TestKnowledgeB02IndependentTreeReference`，各三 direct 子组，selector `^TestKnowledgeB02Independent(Content|TreeReference)$`。race-c45237 actualexit0；9ccae9 discovery actual0 精确两 top；vet67704 actualexit0；gofmt 与 56e9b6 diffcheck actual0。候选 `output/ai/knowledge-independent/knowledge-independent-race.test` 为 36,862,944 B，绑定两新测试2578a9ef，工具冻结f285be16。首次真实89530整体FAIL、全部实际资源尾完整，见下节；当前无测试/资源执行在途。首 race-c91846 因 Content 未使用 oc import 编译 FAIL，移除后才通过，原结果保留。
 
 - Content：有效 DOCX ZIP 原字节/实际 canonical reader EOF+Close，声明短长长度和 SHA 错误不产生发布事实；真实 D05 Send 完成、real Outbox PrepareAppend 返回后，同 User EX 锁撤销上游 Session，final gate 必须拒绝，后继有效 Session 用新源恢复原 key；真实发布 Event 与 Delete Audit 正控，对公共合法 Event 缺原 command_event、精确公共 Audit 缺原 Tx 私有 witness 均拒绝。
 - TreeReference：真实正文替换上传后插入真实 Move，final/replay 不覆盖当前 parent；preview 成员真实移出/移入、count 同值但旧 scope 拒绝，fresh scope 只删当前成员；真实 PublishVerifiedInTx 返回的原 opaque receipt 在替换后不能 Consume/Attach 复活，精确 Cleanup cause 重放与 wrong operation/reason 对照。
 - 正向 canonical/reference/upload/Audit/Event/command facts 来自真实 Knowledge+Object+Audit+Outbox API。直接 SQL 仅读取事实，以及明确上游 Account/Project seeds 与持 User 锁 Session 撤销刺激；不造 canonical、claim、receipt、cleanup authority 或 private witness。复用已审 `newPublicationFixture(nil Runtime)` 同 Store 组合，来源实读/Close、原 calls Drain、reader lease/work active 零均检查；不声称 Runtime/ProcessGuard/Project Create/真实 Login。
-- 允许失败后的 planned command、上传/退休记录保留，检查的是无新增已发布事实，不用总库零行否认正式恢复账本。普通 source.Close 收尾不替代原业务结果。Create prospective upload 在有效时 bare Attach 原已 Forbidden；原 receipt Consume 是正控，正文替换的 ExistingOwner active upload 是 Attach 正控，替换后原 upload 两入口都应 ResourceDeleted。
+- 允许失败后的 planned command、上传/退休记录保留，检查的是无新增已发布事实，不用总库零行否认正式恢复账本。普通 source.Close 收尾不替代原业务结果。最后一子原计划以 Create 原 receipt Consume 和正文替换的 ExistingOwner active Attach 为正控，再拒绝被撤销旧 upload；89530暴露其把 Publish 返回结果当作有效 receipt 的前置假设错误，后续正负例均未到，不能认该计划已实现有效验证。
+
+## 首次真实结果：89530 整体 FAIL，完整尾已释放
+
+恢复期间几次 queued grant 均在启动前撤销，没有真实 exec；只读恢复18c819确认无本树PG目录、无自有live。收到新的明确grant后，首actualexec456209在同process检查 available=5,566,189,568 B、候选大小、固定MinIO SHA、Go1.27.1和完整offline/readonly env，再exec下方原root入口。没有重编或改运行输入；沿用Go6m/root540+60+3/TCP75/七资源。
+
+- Content三子全部PASS，top2.92s；TreeReference正文/parent竞争与同count成员交换两子PASS，top3.67s，但`revoked_original_receipt_cannot_reopen_reference`在239行`capture was not exact committed original upload`失败。只到Create、源Close和publicationFacts；尚未到原Consume/Attach、正文替换及被撤销upload、错cleanup cause、该子末尾joined检查。五个已过子不能认整补集接受。
+- Go PID1129999 actualWait1，driver PID1128018 actualWait1；outer89530由295e37取得actualexit1。04ccfd实读完整尾：七个精确ID各两次absent、private双absent、runtime双empty、owned descendants双[]、exact2tops/actual_test_wait真、HOST_TCP两次delta_empty、inputs_unchanged=True；supervisor100.984s terminal1。root已接受窗口释放，无自有live。原日志为`output/ai/knowledge-independent/pg/pg-0b6312f929ee40b88a378716c8dfd519.log`；忽略目录仅保留owned/request和已空runtime，不复制原日志入Git。
+- 只读源码定位：Knowledge `commands.go`先`storePublishedDocument`再`PublishVerifiedInTx`，`object_authority.go`因此返回ExistingOwner；D05 `upload.go`将这同一个原prospective upload转attached，按正式行为返回空Receipt。Knowledge随后已校验Put.Meta.ID与canonical一致；新测试错误地假设其仍返回可用原receipt。原239未分采两个布尔，不能回填其动态值；尚未改变产品或测试，也未把后继替换upload与原upload混同。下一步只核真实可达的原receipt获取方式，不通过SQL补造receipt/claim/witness，不把无法到达的前置改成通过。
 
 ## 固定离线命令
 
@@ -27,11 +35,13 @@ GOTMPDIR=/workspace/agenteam-knowledge-independent/output/ai/knowledge-independe
 
 当前没有 PG/browser/socket/Git 网络授权；唯一真实窗口归 root 调度。本树 candidate 后续应只增加上述唯一封闭两 top 映射并独立窄审，真实执行仍需 fresh grant、原 Go6m/root540+60+3/TCP75/7 精确资源/actual Wait/全部尾；不依据 offline compile 认六组实际通过。
 
-## 唯一两 top harness 映射（离线 ready，待独审）
+## 唯一两 top harness 映射（有限独审接受）
 
 root保存两新test/current为2578a9ef；其后授权仅本独立树工具增量，作者Knowledge树未动。原 `root_chain_driver.py` TARGETS新增 literal `^TestKnowledgeB02Independent(Content|TreeReference)$` → tests/knowledge；supervisor expected新增同两top，并只对该新selector要求实际顶层出现次数恰2，拒绝重复，旧selector不变。没有开放各独立单top、通配、错序、缺项或更多top，没有failfast。Go6m/root540+60+3/默认123+3/TCP75/七精确资源、实际Wait、双private/runtime/desc、闭集TCP诊断及input门不变。
 
 `python3 .agent-state/knowledge-independent/selector-controls.py` 125bd3 actual0/32控：逆除必要增量两工具全文逐字2578a9ef、所有selector两表相同、原预算；实际configuration正向+五个拒例均不创建runtime；实际observe_root_chain在受控精确owned manifest下1正5负（缺项/多项/重复/缺actualWait/错selectorWait），每格14次资源观测与双private/runtime完整，未把mock资源当真实回收。新test binary36,862,944 B保持45237原编译输入，不重编。
+
+Runner未参与者独审e060b4原32控与9b3408六补控actual0，反序/子RUN正向及重复、absent=false、Wait PID0、private/runtime残留负例全部符合原门槛，每格14次观察/第二尾可达；两工具逆投影逐字2578a9ef。仅接受封闭映射，不代表业务两top通过。四路径随后由root保存f285be16。
 
 独立树初始无MinIO cache；只建立忽略路径 `output/ai/deps-minio/bin/minio` → `/workspace/agenteam-skills/output/ai/deps-minio/bin/minio` 本地只读复用链接，没有复制大文件或下载。1d0cbb实际SHA核为 `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`，actualconfiguration再次读取该固定身份通过。它是二进制缓存入口，不是fixture/runtime资源，真实启动前仍检查固定身份。
 
@@ -42,7 +52,7 @@ root保存两新test/current为2578a9ef；其后授权仅本独立树工具增�
 env -u AGENTEAM_PG_FIXTURE -u AGENTEAM_PG_UNSUPPORTED_FIXTURE \
  -u AGENTEAM_OBJECT_FIXTURE -u AGENTEAM_OUTBOUND_FIXTURE \
  PATH=/workspace/toolchains/go1.27.1/bin:$PATH \
- GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2 \
+ GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2 GOFLAGS=-mod=readonly \
  GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
  GOCACHE=/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache \
  GOTMPDIR=/workspace/agenteam-knowledge-independent/output/ai/knowledge-independent/tmp \
@@ -56,10 +66,10 @@ env -u AGENTEAM_PG_FIXTURE -u AGENTEAM_PG_UNSUPPORTED_FIXTURE \
  --output /workspace/agenteam-knowledge-independent/output/ai/knowledge-independent/pg
 ```
 
-当前冻结4路径交root保存与未参与者Model/Runner窄审：两工具、`.agent-state/knowledge-independent/selector-controls.py`、本摘要；两业务新源保持2578a9ef不变。独审工具不替代六组PG或新业务独立结论。
+工具与两业务新源继续保持f285be16/2578a9ef，不修写运行输入；本次先冻结本摘要供root保存失败和实际缺项。
 
 ## 复用与未扩大边界
 
-Knowledge P1/P2 原独立15866结论复用，不重复旧纯测。作者 Process50756 已报告完整 PASS（Go2.40s/test1079008 Wait0、driver1077003 Wait0、outer726572 exit0、7IDs14absent/private/runtime/desc/TCP/input全尾，原日志位于作者树 `output/ai/knowledge/pg/pg-d776f88b697049b1853a3f24616ca380.log`）；本独验尚未复核该日志，不重复新进程矩阵，也不回填旧91700 FAIL。其它作者 10top35sub、先前 Runtime/Cleanup 结果仍绑定各自实际源与 binary，不称本补集 PASS。
+Knowledge P1/P2 原独立15866结论复用，不重复旧纯测。作者 Process50756完整 PASS（Go2.40s/test1079008 Wait0、driver1077003 Wait0、outer726572 exit0、7IDs14absent/private/runtime/desc/TCP/input全尾，原日志位于作者树 `output/ai/knowledge/pg/pg-d776f88b697049b1853a3f24616ca380.log`）；本人7f14ba实读原日志、2ec24f核实际测试源，原PID Guard busy、SIGKILL及真实Wait、旧claim保留而非graceful退休、Guard death后唯一新attempt/fence和canonical/replay事实已走到，无新已知缺口，不重复进程矩阵，不回填旧91700 FAIL。其它作者 10top35sub、先前 Runtime/Cleanup 结果仍绑定各自实际源与 binary，不称本补集 PASS。
 
-下一步：两新源已保存2578a9ef，唯一两top工具4scope冻结等待独审/checkpoint，之后root滚动排本独立补集。Work普通完成方法已在Skills树完成102/80/41控制并获有限独审接受，不回填06；此处不复制其报告。
+下一步：先保存89530失败和未到范围，再只修有真实源码证据的独立测试前置；后续实际补验需新grant，不自动重跑，不重复作者矩阵。Work新增Blocker普通完成方法独审另在Skills树进行，不回填Work07；此处不复制其报告。
