@@ -40,3 +40,8 @@
 
 - Model第三段：真实app.Run私有root/handler join、17端点登记、single-arm hold/cut/disconnect、安全响应/消费tap/原请求比较/Session登记已写入 fixture 源；delivery最新account integrationrace-c与5pure原语top实际exit0。constructor/9IPC dispatcher/同Txsnapshot及六浏览器业务尚未闭合，不宣称这些通过。
 - Task四个必要旧Project/Outbox selector全部实际body/监督器/外层terminal/资源终态PASS。七新top矩阵作者已扩完整源码，expanded race-c到新独占二进制exit0，最新Work pure由root race运行PASS1.234s；扩展版七新与四旧Structure尚待实际运行，不把早反馈沿用为最新输入通过。PG期间只在每top完整终态后做短Git保存窗，避免辅助hostTCP delta受推送连接污染。
+
+## 本轮独立发现与返修
+
+- Task私有计划闭集原FAIL已真实复现：placement.state改STATE、rank向量同时含Rank/rank仍被接受，见 `independent-runtime-private_test.go`；原offline race命令exit1、actualWait。没有冒称授权绕过。新PG已在启动前暂停，原owner仅在Task repository/events补完整嵌套strict解码及caps，20+pure负例PASS；独立原输入复验/最新A-B和作者binary重编译仍待结果，不回填旧FAIL。
+- Model第四段：constructor、9IPC dispatcher、只读snapshot与浏览器子进程受控入口/六Go selectors已补入两Go源，delivery race-c与6个pure实际exit0；六浏览器business仍未通过。

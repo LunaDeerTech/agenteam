@@ -12,8 +12,12 @@ import (
 	"fmt"
 	"github.com/LunaDeerTech/agenteam/internal/central/app"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
 	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
 	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
@@ -26,8 +30,10 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -61,6 +67,8 @@ type projectModelsWebFixture struct {
 	modelFailure       bool
 	modelSessions      map[string]projectModelsWebSession
 	modelOrigins       []*projectModelsWebOrigin
+	modelAux           map[string]map[string]any
+	modelReference     string
 }
 
 type projectModelsWebOperationCounts struct {
@@ -1430,4 +1438,895 @@ func (f *projectModelsWebFixture) saveModelResponse(request *projectModelsWebReq
 		return err
 	}
 	return os.WriteFile(filepath.Join(f.evidence, fmt.Sprintf("response-%03d.json", f.responseSequence)), encoded, 0600)
+}
+
+func projectModelsWebProjectKeys(mode string) []string {
+	switch mode {
+	case "configuration", "credential":
+		return []string{"main"}
+	case "recovery":
+		return []string{"main", "config_recovery", "credential_recovery"}
+	case "read", "navigation":
+		return []string{"main", "second"}
+	case "authority":
+		return []string{"main", "second", "other", "admin_owned", "archiving", "archived", "deleting", "pending", "config_recovery", "credential_recovery", "referenced"}
+	}
+	return nil
+}
+
+func newProjectModelsWebFixture(t *testing.T, ctx context.Context, mode string) *projectModelsWebFixture {
+	t.Helper()
+	keys := projectModelsWebProjectKeys(mode)
+	if keys == nil {
+		t.Fatal("unknown Project Models browser mode")
+	}
+	raw, err := os.ReadFile("../../docs/development/work-items/d27-project-owner-model-settings-ui-endpoints.json")
+	if err != nil {
+		t.Fatal("formal Project Models endpoint attachment unavailable")
+	}
+	operations, err := projectModelsWebLoadOperations(raw)
+	if err != nil {
+		t.Fatal("formal Project Models endpoint attachment invalid")
+	}
+	base := &projectOwnerWebFixture{mode: mode, ids: map[string]string{}, initial: map[string]any{}}
+	f := &projectModelsWebFixture{
+		projectOwnerAuditWebFixture: &projectOwnerAuditWebFixture{projectOwnerWebFixture: base},
+		registry:                    projectModelsWebRegistry{Operations: operations, Projects: base.ids, Targets: map[string]map[string]map[string]bool{}, Cursors: map[string]map[string]map[string]bool{}, Sessions: map[string]bool{}},
+		modelCounts:                 map[string]*projectModelsWebOperationCounts{}, modelSessionCounts: map[string]int{"setup": 0, "browser": 0, "control": 0}, modelSessions: map[string]projectModelsWebSession{}, modelAux: map[string]map[string]any{},
+	}
+	for _, op := range operations {
+		f.modelCounts[op.Operation] = &projectModelsWebOperationCounts{Operation: op.Operation}
+	}
+	cfg := f.startRoot(t, ctx)
+	f.setup = &personalWebFixture{authenticationWebFixture: f.authenticationWebFixture}
+	f.admin = projectOwnerWebCredential{personalWebCredential: personalWebCredential{Email: f.entry.Email, Password: f.entry.Password, UserID: f.entry.ID}}
+	var session map[string]any
+	f.adminClient, session = f.login(ctx, f.admin.personalWebCredential)
+	f.admin.Username = httpString(t, httpObject(t, session, "user"), "username")
+	f.adminCSRF, f.adminActor = httpString(t, session, "csrf_token"), f.actor(session)
+	f.other = projectOwnerWebCredential{personalWebCredential: f.setup.inviteMember(ctx, f.adminClient, f.adminCSRF, "models-other@example.com", "models-other"), Username: "models-other"}
+	_, session = f.login(ctx, f.other.personalWebCredential)
+	f.otherActor = f.actor(session)
+	if mode == "navigation" {
+		f.owner, f.ownerClient, f.ownerCSRF, f.ownerActor = f.admin, f.adminClient, f.adminCSRF, f.adminActor
+	} else {
+		f.owner = projectOwnerWebCredential{personalWebCredential: f.setup.inviteMember(ctx, f.adminClient, f.adminCSRF, "models-owner@example.com", "models-owner"), Username: "models-owner"}
+		f.ownerClient, session = f.login(ctx, f.owner.personalWebCredential)
+		f.ownerCSRF, f.ownerActor = httpString(t, session, "csrf_token"), f.actor(session)
+		if httpObject(t, session, "user")["role"] != "user" {
+			t.Fatal("ordinary Project Model Owner was not prepared")
+		}
+	}
+	f.projectOwnerAuditWebFixture.prepareService(ctx, cfg)
+	t.Cleanup(func() {
+		f.stopProxy()
+		f.mu.Lock()
+		defer f.mu.Unlock()
+		if f.modelServer.Started != f.modelServer.Finished || f.modelControls.Held != f.modelControls.HeldJoined || f.modelFailure {
+			t.Error("Project Models proxy final state incomplete")
+		}
+		for _, origin := range f.modelOrigins {
+			origin.Original.Tap.clear()
+			origin.Original.Key = ""
+		}
+		clear(f.modelSessions)
+		f.admin.Password, f.owner.Password, f.other.Password, f.adminCSRF, f.ownerCSRF = "", "", "", "", ""
+	})
+	for _, key := range keys {
+		actor := f.ownerActor
+		if key == "other" {
+			actor = f.otherActor
+		}
+		if key == "admin_owned" {
+			actor = f.adminActor
+		}
+		var projectID string
+		if key == "pending" {
+			pending, err := f.projects.CreateProject(ctx, actor, foundation.CommandMeta{RequestID: id[foundation.Request](t), IdempotencyKey: foundation.IdempotencyKey(id[struct{}](t).String())}, pc.CreateProjectRequest{ProjectID: f.skills.pending, Name: "models-pending"})
+			if err != nil || pending.State != pc.CreationPending {
+				t.Fatal("formal Project Models pending preparation failed")
+			}
+			projectID = f.skills.pending.String()
+		} else {
+			projectID = f.create(ctx, actor, "models-"+strings.ReplaceAll(key, "_", "-")).ID.String()
+		}
+		f.mu.Lock()
+		f.ids[key] = projectID
+		f.mu.Unlock()
+		f.modelAux[key] = map[string]any{"archive_recovery_applied": false, "reference_fact_state": nil, "rename_reuse_applied": false}
+	}
+	projects, seedProjects := map[string]any{}, map[string]any{}
+	for _, key := range keys {
+		seedProjects[key] = map[string]any{"providers": []any{}, "models": []any{}, "credentials": []any{}}
+	}
+	createProvider := func(key, name string, enabled bool) map[string]any {
+		client, csrf := f.ownerClient, f.ownerCSRF
+		if key == "admin_owned" {
+			client, csrf = f.adminClient, f.adminCSRF
+		}
+		receipt := f.setup.setupRequest(ctx, client, http.MethodPost, "/api/v1/projects/"+f.ids[key]+"/model-providers", map[string]any{"input": map[string]any{"name": name, "protocol": "openai-chat-completions", "base_url": "https://model-ui.invalid/v1", "enabled": enabled, "credential_ref": nil, "options": map[string]any{}}}, csrf, true, 200)
+		return map[string]any{"id": receipt["resource_id"], "project_id": f.ids[key], "name": name, "protocol": "openai-chat-completions", "version": receipt["version"], "credential_ref": nil}
+	}
+	createModel := func(key, provider, name, native string, enabled bool) map[string]any {
+		input := modelsWebInput(name, "chat")
+		input["provider_model_id"], input["enabled"] = native, enabled
+		receipt := f.setup.setupRequest(ctx, f.ownerClient, http.MethodPost, "/api/v1/projects/"+f.ids[key]+"/models", map[string]any{"provider_id": provider, "input": input}, f.ownerCSRF, true, 200)
+		return map[string]any{"id": receipt["resource_id"], "project_id": f.ids[key], "provider_id": provider, "name": name, "version": receipt["version"]}
+	}
+	var pagination map[string]any
+	if mode == "read" {
+		providers, models := []any{}, []any{}
+		providerIDs, modelIDs := []string{}, []string{}
+		for n := 0; n < 26; n++ {
+			p := createProvider("main", fmt.Sprintf("Models Provider %02d", n), n != 25)
+			providers = append(providers, p)
+			providerIDs = append(providerIDs, p["id"].(string))
+		}
+		for n := 0; n < 26; n++ {
+			m := createModel("main", providerIDs[n%2], fmt.Sprintf("Models Chat %02d", n), fmt.Sprintf("models-fixture-%02d", n), n != 25)
+			models = append(models, m)
+			modelIDs = append(modelIDs, m["id"].(string))
+		}
+		system := &modelsWebFixture{authenticationWebFixture: f.authenticationWebFixture, setup: f.setup, admin: f.admin.personalWebCredential, adminClient: f.adminClient, csrf: f.adminCSRF, ids: map[string]string{}}
+		providerID := system.createProvider(ctx, "Models System Provider", "openai-chat-completions", "https://model-ui.invalid/v1", true)
+		input := modelsWebInput("Models System Chat", "chat")
+		input["provider_model_id"] = "models-fixture-system"
+		system.createModel(ctx, providerID, input)
+		directory := f.setup.setupRequest(ctx, f.ownerClient, http.MethodGet, "/api/v1/projects/"+f.ids["main"]+"/available-chat-models?limit=100", nil, "", false, 200)
+		available := []any{}
+		for _, item := range directory["items"].([]any) {
+			row := item.(map[string]any)
+			available = append(available, map[string]any{"id": row["id"], "provider_id": row["provider_id"], "scope": row["scope"], "name": row["name"], "provider_name": row["provider_name"], "version": row["version"]})
+		}
+		if len(available) != 26 {
+			t.Fatal("real mixed Project/System directory count differs from fixture contract")
+		}
+		sort.Strings(providerIDs)
+		sort.Strings(modelIDs)
+		seedProjects["main"] = map[string]any{"providers": providers, "models": models, "credentials": []any{}}
+		pagination = map[string]any{"provider_ids": providerIDs, "model_ids": modelIDs, "available": available}
+	} else {
+		for _, key := range []string{"main", "referenced"} {
+			if f.ids[key] == "" {
+				continue
+			}
+			p := createProvider(key, "Models Seed Provider", true)
+			seedProjects[key] = map[string]any{"providers": []any{p}, "models": []any{}, "credentials": []any{}}
+			if key == "referenced" {
+				m := createModel(key, p["id"].(string), "Models Referenced Chat", "models-fixture-referenced", true)
+				seedProjects[key].(map[string]any)["models"] = []any{m}
+				f.modelReference = id[struct{}](t).String()
+			}
+		}
+	}
+	if mode == "authority" {
+		f.lifecycle(ctx, "archiving", pc.Archiving)
+		f.lifecycle(ctx, "archived", pc.Archived)
+		f.lifecycle(ctx, "deleting", pc.Deleting)
+	}
+	for _, key := range keys {
+		projects[key] = f.locator(ctx, key)
+		seeds := seedProjects[key].(map[string]any)
+		for _, family := range []string{"providers", "models", "credentials"} {
+			rows := seeds[family].([]any)
+			sort.Slice(rows, func(i, j int) bool {
+				return rows[i].(map[string]any)["id"].(string) < rows[j].(map[string]any)["id"].(string)
+			})
+		}
+	}
+	var system any
+	if mode == "navigation" {
+		prepared := f.prepareSystemDrafts(ctx)
+		ids, names := prepared["ids"].(map[string]string), prepared["names"].(map[string]string)
+		system = map[string]any{"selection": map[string]any{"initial": prepared["selection"], "draft": map[string]any{"purpose": "memory", "model": map[string]any{"id": ids["memory_replacement"], "name": names["memory_replacement"]}}}, "summary": map[string]any{"initial": prepared["summary"], "draft": map[string]any{"model": map[string]any{"id": ids["summary_1"], "name": names["summary_1"]}}}}
+	}
+	expected := map[string]any{"projects": seedProjects}
+	if pagination != nil {
+		expected["pagination"] = pagination
+	}
+	f.private("project-models-material.json", map[string]any{"protocol": projectModelsWebProtocol, "input_hash": f.inputHash, "mode": mode, "actors": map[string]any{"owner": f.owner, "other_owner": f.other, "other_admin": f.admin}, "projects": projects, "expected": expected, "system": system})
+	return f
+}
+
+func (f *projectModelsWebFixture) modelSnapshot(ctx context.Context, key string) (map[string]any, error) {
+	f.mu.Lock()
+	project := f.registry.Projects[key]
+	ids := map[string][]string{"provider": {}, "model": {}, "credential": {}}
+	for family, values := range f.registry.Targets[key] {
+		for id := range values {
+			ids[family] = append(ids[family], id)
+		}
+		sort.Strings(ids[family])
+	}
+	origins := append([]*projectModelsWebOrigin(nil), f.modelOrigins...)
+	aux := map[string]any{}
+	for name, value := range f.modelAux[key] {
+		aux[name] = value
+	}
+	f.mu.Unlock()
+	if project == "" {
+		return nil, errors.New("owned snapshot target missing")
+	}
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+	run, err := foundation.NewID[struct{}]()
+	if err != nil {
+		return nil, err
+	}
+	cause, err := foundation.NewRecoveryCause("project-model-ui-fixture", run.String(), "")
+	if err != nil {
+		return nil, err
+	}
+	var result map[string]any
+	commit := f.store.WithinTxOptions(ctx, cause, postgres.TxOptions{Isolation: postgres.Serializable}, func(ctx context.Context, tx foundation.Tx) error {
+		x, err := f.store.InTx(tx)
+		if err != nil {
+			return err
+		}
+		if _, err = x.Exec(ctx, `SET TRANSACTION READ ONLY`); err != nil {
+			return err
+		}
+		var version, lifecycle string
+		var initialized bool
+		if err = x.QueryRow(ctx, `SELECT version::text,lifecycle,initialized_at IS NOT NULL FROM agenteam_project.projects WHERE id=$1`, project).Scan(&version, &lifecycle, &initialized); err != nil {
+			return err
+		}
+		providers, models, credentials := []any{}, []any{}, []any{}
+		modelReferences, credentialReferences := []any{}, []any{}
+		for _, id := range ids["provider"] {
+			var version, credential string
+			err = x.QueryRow(ctx, `SELECT coalesce((SELECT version::text FROM agenteam_model.providers WHERE scope='project' AND project_id=$1 AND id=$2),''),coalesce((SELECT credential_id::text FROM agenteam_model.providers WHERE scope='project' AND project_id=$1 AND id=$2),'')`, project, id).Scan(&version, &credential)
+			if err != nil {
+				return err
+			}
+			var v, c any
+			if version != "" {
+				v = version
+			}
+			if credential != "" {
+				c = credential
+			}
+			providers = append(providers, map[string]any{"id": id, "present": version != "", "version": v, "credential_ref": c})
+		}
+		for _, id := range ids["model"] {
+			var version, provider string
+			var reference bool
+			err = x.QueryRow(ctx, `SELECT coalesce((SELECT m.version::text FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='project' AND p.project_id=$1 AND m.id=$2),''),coalesce((SELECT m.provider_id::text FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='project' AND p.project_id=$1 AND m.id=$2),''),EXISTS(SELECT 1 FROM agenteam_model.references WHERE project_id=$1 AND model_id=$2)`, project, id).Scan(&version, &provider, &reference)
+			if err != nil {
+				return err
+			}
+			var v, p any
+			if version != "" {
+				v, p = version, provider
+			}
+			models = append(models, map[string]any{"id": id, "present": version != "", "version": v, "provider_id": p})
+			modelReferences = append(modelReferences, map[string]any{"id": id, "present": reference})
+		}
+		for _, id := range ids["credential"] {
+			var version string
+			var reference bool
+			err = x.QueryRow(ctx, `SELECT coalesce((SELECT version::text FROM agenteam_secret.secrets WHERE scope='project' AND project_id=$1 AND id=$2 AND purpose='model'),''),EXISTS(SELECT 1 FROM agenteam_secret.secret_references WHERE scope='project' AND project_id=$1 AND credential_id=$2)`, project, id).Scan(&version, &reference)
+			if err != nil {
+				return err
+			}
+			var metadata any
+			if version != "" {
+				metadata = map[string]any{"credential_id": id, "purpose": "model", "version": version}
+			}
+			credentials = append(credentials, map[string]any{"credential_id": id, "metadata": metadata})
+			credentialReferences = append(credentialReferences, map[string]any{"credential_id": id, "present": reference})
+		}
+		historyConfig, historyCredential := map[string]any{}, map[string]any{}
+		queries := []struct {
+			output   map[string]any
+			key, sql string
+		}{
+			{historyConfig, "committed_commands", `SELECT count(*)::text FROM agenteam_model.commands WHERE scope='project' AND project_id=$1 AND phase='committed'`},
+			{historyConfig, "audit_records", `SELECT count(*)::text FROM agenteam_audit.audit_records WHERE scope='project' AND project_id=$1 AND producer='model'`},
+			{historyConfig, "events", `SELECT count(*)::text FROM agenteam_outbox.events WHERE scope='project' AND project_id=$1 AND producer='model'`},
+			{historyCredential, "committed_commands", `SELECT count(*)::text FROM agenteam_secret.secret_command_receipts WHERE scope='project' AND project_id=$1`},
+			{historyCredential, "audit_records", `SELECT count(*)::text FROM agenteam_audit.audit_records WHERE scope='project' AND project_id=$1 AND producer='secret'`},
+		}
+		for _, query := range queries {
+			var count string
+			if err = x.QueryRow(ctx, query.sql, project).Scan(&count); err != nil {
+				return err
+			}
+			query.output[query.key] = count
+		}
+		originFacts := []any{}
+		for _, origin := range origins {
+			original := origin.Original
+			if original.Project != key {
+				continue
+			}
+			body, complete := original.Tap.captured()
+			size := len(body)
+			clear(body)
+			if !complete || original.User == "" {
+				return errors.New("owned original request identity incomplete")
+			}
+			namespace, kind, family := "model.project", projectModelsWebKind(original.Operation.Operation), "configuration"
+			if strings.Contains(original.Operation.Operation, "Credential") {
+				namespace, family = "secret", "credential"
+			}
+			identity, err := foundation.NewCommandIdentity(namespace, []string{project, original.User}, kind, foundation.IdempotencyKey(original.Key))
+			if err != nil {
+				return err
+			}
+			history := map[string]any{"family": family, "committed_rows": "0"}
+			if family == "configuration" {
+				history["receipt"] = nil
+				var raw []byte
+				if err = x.QueryRow(ctx, `SELECT coalesce((SELECT safe_receipt::text FROM agenteam_model.commands WHERE scope='project' AND project_id=$1 AND phase='committed' AND command_identity=$2),'null')`, project, identity.Canonical()).Scan(&raw); err != nil {
+					return err
+				}
+				if string(raw) != "null" {
+					fields, err := projectModelsWebObject(raw, "kind", "resource_id", "version", "affected_references")
+					if err != nil {
+						return err
+					}
+					actualKind, _ := projectModelsWebString(fields["kind"])
+					resource, _ := projectModelsWebString(fields["resource_id"])
+					affected, _ := projectModelsWebString(fields["affected_references"])
+					if actualKind != kind || !projectModelsWebID.MatchString(resource) || affected != "0" || !projectModelsWebVersion(fields["version"]) {
+						return errors.New("owned configuration history invalid")
+					}
+					var receipt any
+					if json.Unmarshal(raw, &receipt) != nil {
+						return errors.New("owned configuration history invalid")
+					}
+					history["committed_rows"], history["receipt"] = "1", receipt
+				}
+			} else {
+				history["result"] = nil
+				digest, err := cursor.Digest([]byte(identity.Canonical()))
+				if err != nil {
+					return err
+				}
+				var raw []byte
+				if err = x.QueryRow(ctx, `SELECT coalesce((SELECT jsonb_build_object('credential_id',credential_id::text,'purpose',purpose,'version',result_version::text,'deleted',deleted)::text FROM agenteam_secret.secret_command_receipts WHERE scope='project' AND project_id=$1 AND command_digest=$2),'null')`, project, string(digest)).Scan(&raw); err != nil {
+					return err
+				}
+				if string(raw) != "null" {
+					fields, err := projectModelsWebObject(raw, "credential_id", "purpose", "version", "deleted")
+					if err != nil {
+						return err
+					}
+					resource, _ := projectModelsWebString(fields["credential_id"])
+					purpose, _ := projectModelsWebString(fields["purpose"])
+					if !projectModelsWebID.MatchString(resource) || purpose != "model" || !projectModelsWebVersion(fields["version"]) || (string(fields["deleted"]) == "true") != (kind == "delete") {
+						return errors.New("owned Credential history invalid")
+					}
+					var receipt any
+					if json.Unmarshal(raw, &receipt) != nil {
+						return errors.New("owned Credential history invalid")
+					}
+					history["committed_rows"], history["result"] = "1", receipt
+				}
+			}
+			var target any
+			if original.Target != "" {
+				target = original.Target
+			}
+			f.mu.Lock()
+			comparisonCount := origin.ComparisonCount
+			var comparison any
+			if origin.Comparison != nil {
+				copy := map[string]any{}
+				for k, v := range origin.Comparison {
+					copy[k] = v
+				}
+				comparison = copy
+			}
+			f.mu.Unlock()
+			originFacts = append(originFacts, map[string]any{"origin_token": original.Token, "original_request_token": original.Token, "operation": original.Operation.Operation, "project_id": project, "target_id": target, "original_body_bytes": size, "history": history, "comparison_count": comparisonCount, "comparison": comparison})
+		}
+		result = map[string]any{"project": map[string]any{"project_id": project, "version": version, "initialized": initialized, "lifecycle": lifecycle}, "current": map[string]any{"providers": providers, "models": models, "credentials": credentials}, "history": map[string]any{"configuration": historyConfig, "credential": historyCredential}, "reference_presence": map[string]any{"models": modelReferences, "credentials": credentialReferences}, "origins": originFacts, "fixture_only": aux}
+		return nil
+	})
+	if commit.State() != foundation.Committed || ctx.Err() != nil {
+		return nil, errors.New("owned snapshot transaction did not commit within its budget")
+	}
+	return result, nil
+}
+
+func (f *projectModelsWebFixture) modelControlState(arm *projectModelsWebArm) map[string]any {
+	state := "armed"
+	var token, origin any
+	if arm.Request != nil {
+		token = arm.Request.Token
+		state = "claimed"
+		if arm.Request.Origin != nil {
+			origin = arm.Request.Origin.Original.Token
+		}
+	}
+	if arm.Complete {
+		state = "upstream_complete"
+	}
+	if arm.Released {
+		state = "released"
+	}
+	if arm.Joined {
+		state = "joined"
+	}
+	return map[string]any{"arm_id": arm.ID, "request_token": token, "origin_token": origin, "state": state, "held": arm.Held, "release_requested": arm.Released, "upstream_complete": arm.Complete, "safe_admitted": arm.Safe, "effect_applied": arm.Applied, "joined": arm.Joined}
+}
+
+func (f *projectModelsWebFixture) modelIPC(ctx context.Context, request projectModelsWebIPC) map[string]any {
+	reply := map[string]any{"protocol": projectModelsWebProtocol, "input_hash": f.inputHash, "sequence": request.Sequence, "action": request.Action, "ok": false, "result": nil, "error": nil}
+	fail := func(code string) map[string]any {
+		f.mu.Lock()
+		f.modelFailure = true
+		f.mu.Unlock()
+		reply["error"] = code
+		return reply
+	}
+	f.mu.Lock()
+	code := f.registry.admit(request)
+	f.mu.Unlock()
+	if code != "" {
+		return fail(code)
+	}
+	if ctx.Err() != nil {
+		return fail("budget_exhausted")
+	}
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(request.Args, &fields) != nil {
+		return fail("invalid_arguments")
+	}
+	get := func(name string) string { value, _ := projectModelsWebString(fields[name]); return value }
+	var result any
+	switch request.Action {
+	case "counts":
+		f.mu.Lock()
+		operations := []projectModelsWebOperationCounts{}
+		for _, op := range f.registry.Operations {
+			operations = append(operations, *f.modelCounts[op.Operation])
+		}
+		sessions := map[string]int{}
+		for key, value := range f.modelSessionCounts {
+			sessions[key] = value
+		}
+		result = map[string]any{"operations": operations, "session": sessions, "server": f.modelServer, "controls": f.modelControls, "browser_eof": nil, "schema_bodies": nil, "client_bodies": nil}
+		f.mu.Unlock()
+	case "snapshot":
+		snapshot, err := f.modelSnapshot(ctx, get("project"))
+		if err != nil {
+			return fail("fixture_failed")
+		}
+		result = snapshot
+	case "arm":
+		f.mu.Lock()
+		for _, arm := range f.modelArms {
+			if !arm.Joined {
+				f.mu.Unlock()
+				return fail("arm_busy")
+			}
+		}
+		for _, origin := range f.modelOrigins {
+			if origin.Original.Project == get("project") && origin.Original.Target == get("target_id") && origin.Original.Operation.Operation == get("operation") {
+				f.mu.Unlock()
+				return fail("invalid_arguments")
+			}
+		}
+		mutation := false
+		for _, op := range f.registry.Operations {
+			if op.Operation == get("operation") {
+				mutation = op.Family == "mutation"
+			}
+		}
+		if mutation && len(f.modelOrigins) >= 4 {
+			f.mu.Unlock()
+			return fail("invalid_arguments")
+		}
+		arm := &projectModelsWebArm{ID: fmt.Sprintf("a%04d", len(f.modelArms)+1), Operation: get("operation"), Project: get("project"), Target: get("target_id"), Query: get("query"), Effect: get("effect"), Release: make(chan struct{})}
+		f.modelArms = append(f.modelArms, arm)
+		f.modelControls.Armed++
+		result = map[string]any{"arm_id": arm.ID, "state": "armed"}
+		f.mu.Unlock()
+	case "control-state", "release":
+		f.mu.Lock()
+		var selected *projectModelsWebArm
+		for _, arm := range f.modelArms {
+			if arm.ID == get("arm_id") {
+				selected = arm
+				break
+			}
+		}
+		if selected == nil {
+			f.mu.Unlock()
+			return fail("token_mismatch")
+		}
+		if request.Action == "control-state" {
+			result = f.modelControlState(selected)
+		} else {
+			if selected.Request == nil || !selected.Held {
+				f.mu.Unlock()
+				return fail("not_ready")
+			}
+			if selected.Request.Token != get("request_token") {
+				f.mu.Unlock()
+				return fail("token_mismatch")
+			}
+			selected.Released = true
+			selected.ReleaseOnce.Do(func() { close(selected.Release) })
+			result = map[string]any{"arm_id": selected.ID, "request_token": selected.Request.Token, "release_requested": true}
+		}
+		f.mu.Unlock()
+	case "logout":
+		var session projectModelsWebSession
+		f.mu.Lock()
+		for _, candidate := range f.modelSessions {
+			if candidate.ID == get("session_id") {
+				session = candidate
+				break
+			}
+		}
+		f.mu.Unlock()
+		if session.Cookie == "" {
+			return fail("unknown_target")
+		}
+		r, err := http.NewRequestWithContext(ctx, http.MethodPost, f.origin+"/api/v1/sessions/logout", strings.NewReader(`{}`))
+		if err != nil {
+			return fail("fixture_failed")
+		}
+		r.Header.Set("Cookie", session.Cookie)
+		r.Header.Set("Origin", f.origin)
+		r.Header.Set("Sec-Fetch-Site", "same-origin")
+		r.Header.Set("Content-Type", "application/json")
+		r.Header.Set("X-CSRF-Token", session.CSRF)
+		r.Header.Set("Idempotency-Key", id[struct{}](f.t).String())
+		transport := &http.Transport{Proxy: nil}
+		defer transport.CloseIdleConnections()
+		response, err := (&http.Client{Transport: transport, Timeout: 8 * time.Second}).Do(r)
+		if err != nil {
+			return fail("fixture_failed")
+		}
+		raw, readErr := io.ReadAll(io.LimitReader(response.Body, 1))
+		closed := response.Body.Close()
+		clear(raw)
+		if response.StatusCode != 204 || readErr != nil || closed != nil || len(raw) != 0 {
+			return fail("fixture_failed")
+		}
+		var revoked bool
+		if f.store.QueryRow(ctx, `SELECT revoked_at IS NOT NULL AND revoked_reason='logout' FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2`, session.ID, session.User).Scan(&revoked) != nil || !revoked {
+			return fail("fixture_failed")
+		}
+		result = map[string]any{"session_id": session.ID, "revoked": true}
+	case "archive-recovery-project":
+		projectKey := get("project")
+		target, err := foundation.ParseID[identity.Project](f.ids[projectKey])
+		if err != nil {
+			return fail("unknown_target")
+		}
+		parsed, err := strconv.ParseInt(get("expected_version"), 10, 64)
+		if err != nil {
+			return fail("invalid_arguments")
+		}
+		expected := foundation.Version(parsed)
+		op, err := f.projects.BeginArchive(ctx, f.ownerActor, foundation.CommandMeta{RequestID: id[foundation.Request](f.t), IdempotencyKey: foundation.IdempotencyKey(id[struct{}](f.t).String()), ExpectedVersion: &expected}, target)
+		if err != nil {
+			return fail("fixture_failed")
+		}
+		committed := f.store.WithinTx(ctx, cause(f.t), func(ctx context.Context, tx foundation.Tx) error {
+			lock, _ := foundation.ProjectLock(target.String())
+			if err := f.store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: lock, Mode: foundation.Exclusive}}); err != nil {
+				return err
+			}
+			x, err := f.store.InTx(tx)
+			if err != nil {
+				return err
+			}
+			var at time.Time
+			if err = x.QueryRow(ctx, `SELECT clock_timestamp()`).Scan(&at); err != nil {
+				return err
+			}
+			if _, err = x.Exec(ctx, `UPDATE agenteam_project.lifecycle_participants SET stop_state='stopped' WHERE operation_id=$1`, op.ID.String()); err != nil {
+				return err
+			}
+			if _, err = x.Exec(ctx, `UPDATE agenteam_project.lifecycle_operations SET state='completed',completed_project_version=project_version+1,completed_at=$2,updated_at=$2,version=version+1 WHERE id=$1 AND project_id=$3`, op.ID.String(), at, target.String()); err != nil {
+				return err
+			}
+			tag, err := x.Exec(ctx, `UPDATE agenteam_project.projects SET lifecycle='archived',archived_at=$2,updated_at=$2,version=version+1 WHERE id=$1 AND lifecycle='archiving' AND current_lifecycle_operation_id=$3 AND initialized_at IS NOT NULL`, target.String(), at, op.ID.String())
+			if err != nil {
+				return err
+			}
+			if tag.RowsAffected() != 1 {
+				return errors.New("owned archive auxiliary fact mismatch")
+			}
+			return nil
+		})
+		if committed.State() != foundation.Committed || ctx.Err() != nil {
+			return fail("fixture_failed")
+		}
+		f.modelAux[projectKey]["archive_recovery_applied"] = true
+		result = map[string]any{"project_id": target.String(), "initialized": true, "lifecycle": "archived", "fixture_only": true}
+	case "reference-fact":
+		project := f.ids["referenced"]
+		f.mu.Lock()
+		var model string
+		for id := range f.registry.Targets["referenced"]["model"] {
+			if model != "" {
+				f.mu.Unlock()
+				return fail("unknown_target")
+			}
+			model = id
+		}
+		f.mu.Unlock()
+		if model == "" || f.modelReference == "" {
+			return fail("unknown_target")
+		}
+		committed := f.store.WithinTx(ctx, cause(f.t), func(ctx context.Context, tx foundation.Tx) error {
+			x, err := f.store.InTx(tx)
+			if err != nil {
+				return err
+			}
+			if get("state") == "present" {
+				_, err = x.Exec(ctx, `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,project_id,model_id,owner_version) SELECT 'agent',$1,'agent_model',$2,m.id,1 FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE m.id=$3 AND p.scope='project' AND p.project_id=$2 ON CONFLICT DO NOTHING`, f.modelReference, project, model)
+			} else {
+				_, err = x.Exec(ctx, `DELETE FROM agenteam_model.references WHERE owner_kind='agent' AND owner_id=$1 AND role='agent_model' AND project_id=$2 AND model_id=$3`, f.modelReference, project, model)
+			}
+			if err != nil {
+				return err
+			}
+			var present bool
+			if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_model.references WHERE owner_kind='agent' AND owner_id=$1 AND role='agent_model' AND project_id=$2 AND model_id=$3)`, f.modelReference, project, model).Scan(&present); err != nil {
+				return err
+			}
+			if present != (get("state") == "present") {
+				return errors.New("owned reference auxiliary fact mismatch")
+			}
+			return nil
+		})
+		if committed.State() != foundation.Committed || ctx.Err() != nil {
+			return fail("fixture_failed")
+		}
+		f.modelAux["referenced"]["reference_fact_state"] = get("state")
+		result = map[string]any{"project_id": project, "model_id": model, "reference_present": get("state") == "present", "fixture_only": true}
+	case "rename-reuse":
+		current := f.setup.setupRequest(ctx, f.ownerClient, http.MethodGet, "/api/v1/projects/"+f.ids["main"], nil, "", false, 200)
+		oldName := httpString(f.t, current, "name")
+		f.setup.setupRequest(ctx, f.ownerClient, http.MethodPatch, "/api/v1/projects/"+f.ids["main"], map[string]any{"expected_version": current["version"], "name": "models-renamed-main"}, f.ownerCSRF, true, 200)
+		replacement := f.create(ctx, f.ownerActor, oldName)
+		f.mu.Lock()
+		f.ids["reused"] = replacement.ID.String()
+		f.mu.Unlock()
+		f.modelAux["main"]["rename_reuse_applied"] = true
+		result = map[string]any{"renamed": f.locator(ctx, "main"), "replacement": f.locator(ctx, "reused")}
+	default:
+		return fail("invalid_action")
+	}
+	encoded, err := json.Marshal(result)
+	if err != nil || len(encoded) > 64000 {
+		return fail("fixture_failed")
+	}
+	reply["ok"], reply["result"] = true, result
+	return reply
+}
+
+type projectModelsWebResult struct {
+	Protocol     string          `json:"protocol"`
+	InputHash    string          `json:"input_hash"`
+	Completed    bool            `json:"completed"`
+	Mode         string          `json:"mode"`
+	Checks       map[string]bool `json:"checks"`
+	Counts       json.RawMessage `json:"counts"`
+	SchemaBodies int             `json:"schema_bodies"`
+	ClientBodies int             `json:"client_bodies"`
+	Layouts      int             `json:"layouts"`
+}
+
+func projectModelsWebChecks(mode string) ([]string, error) {
+	raw, err := os.ReadFile("../../docs/development/work-items/d27-project-owner-model-settings-ui.md")
+	if err != nil {
+		return nil, err
+	}
+	_, body, ok := strings.Cut(string(raw), "```json\n{\n  \"files\":")
+	if !ok {
+		return nil, errors.New("formal browser result contract unavailable")
+	}
+	body, _, ok = strings.Cut("{\n  \"files\":"+body, "\n```")
+	if !ok {
+		return nil, errors.New("formal browser result contract invalid")
+	}
+	var contract struct {
+		Checks map[string][]string `json:"checks_by_mode"`
+	}
+	if json.Unmarshal([]byte(body), &contract) != nil || len(contract.Checks[mode]) == 0 {
+		return nil, errors.New("formal browser mode contract invalid")
+	}
+	return contract.Checks[mode], nil
+}
+
+func decodeProjectModelsWebResult(raw []byte, mode, inputHash string) (projectModelsWebResult, error) {
+	var result projectModelsWebResult
+	bad := errors.New("owned Project Models final evidence invalid")
+	if _, err := projectModelsWebObject(raw, "protocol", "input_hash", "completed", "mode", "checks", "counts", "schema_bodies", "client_bodies", "layouts"); err != nil || json.Unmarshal(raw, &result) != nil || result.Protocol != projectModelsWebProtocol || result.InputHash != inputHash || !result.Completed || result.Mode != mode {
+		return result, bad
+	}
+	checks, err := projectModelsWebChecks(mode)
+	if err != nil || len(result.Checks) != len(checks) {
+		return result, bad
+	}
+	for _, key := range checks {
+		if !result.Checks[key] {
+			return result, bad
+		}
+	}
+	if result.SchemaBodies <= 0 || result.SchemaBodies > 512 || result.ClientBodies != result.SchemaBodies || mode == "navigation" && result.Layouts != 8 || mode != "navigation" && result.Layouts != 0 {
+		return result, bad
+	}
+	counts, err := projectModelsWebObject(result.Counts, "server", "browser")
+	if err != nil {
+		return result, bad
+	}
+	browser, err := projectModelsWebObject(counts["browser"], "attempts", "complete_eof", "typed_client_ok", "schema_ok", "incomplete")
+	if err != nil {
+		return result, bad
+	}
+	observed := map[string]int{}
+	for key, raw := range browser {
+		var n int
+		if json.Unmarshal(raw, &n) != nil || string(raw) == "null" || n < 0 || n > 512 {
+			return result, bad
+		}
+		observed[key] = n
+	}
+	if observed["typed_client_ok"] != result.ClientBodies || observed["schema_ok"] != result.SchemaBodies || observed["complete_eof"] > observed["attempts"] || observed["incomplete"]+observed["complete_eof"] != observed["attempts"] {
+		return result, bad
+	}
+	server, err := projectModelsWebObject(counts["server"], "operations", "session", "server", "controls", "browser_eof", "schema_bodies", "client_bodies")
+	if err != nil {
+		return result, bad
+	}
+	for _, key := range []string{"browser_eof", "schema_bodies", "client_bodies"} {
+		if string(server[key]) != "null" {
+			return result, bad
+		}
+	}
+	var rows []json.RawMessage
+	if json.Unmarshal(server["operations"], &rows) != nil || len(rows) != 17 {
+		return result, bad
+	}
+	for _, raw := range rows {
+		fields, err := projectModelsWebObject(raw, "operation", "setup", "browser", "control", "upstream_complete", "handler_joined")
+		if err != nil {
+			return result, bad
+		}
+		for key, raw := range fields {
+			if key == "operation" {
+				continue
+			}
+			var n int
+			if json.Unmarshal(raw, &n) != nil || string(raw) == "null" || n < 0 {
+				return result, bad
+			}
+		}
+	}
+	for _, entry := range []struct {
+		key    string
+		fields []string
+	}{{"session", []string{"setup", "browser", "control"}}, {"server", []string{"started", "finished"}}, {"controls", []string{"armed", "claimed", "held", "held_joined", "cut", "disconnected"}}} {
+		fields, err := projectModelsWebObject(server[entry.key], entry.fields...)
+		if err != nil {
+			return result, bad
+		}
+		for _, raw := range fields {
+			var n int
+			if json.Unmarshal(raw, &n) != nil || string(raw) == "null" || n < 0 {
+				return result, bad
+			}
+		}
+	}
+	return result, nil
+}
+
+func (f *projectModelsWebFixture) browserModels(ctx context.Context) projectModelsWebResult {
+	root := filepath.Clean(filepath.Join(f.webRoot, "../../../../tests/account-captcha-web"))
+	if _, err := os.Stat(filepath.Join(root, "project-owner-models.config.js")); err != nil {
+		f.t.Fatal("owned Project Models browser source unavailable beside private build")
+	}
+	browserCtx, stop := context.WithCancel(ctx)
+	defer stop()
+	cmd := exec.CommandContext(browserCtx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "project-owner-models.config.js"))
+	cmd.Dir = root
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	cmd.WaitDelay = time.Second
+	for _, entry := range os.Environ() {
+		key, _, _ := strings.Cut(entry, "=")
+		if key != "TMPDIR" && key != "DEBUG" && key != "PWDEBUG" && !strings.HasPrefix(key, "AGENTEAM_") {
+			cmd.Env = append(cmd.Env, entry)
+		}
+	}
+	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "AGENTEAM_PROJECT_MODELS_WEB_CASE="+f.mode, "AGENTEAM_PROJECT_MODELS_WEB_DIST="+f.webRoot, "AGENTEAM_PROJECT_MODELS_WEB_EVIDENCE="+f.evidence, "AGENTEAM_PROJECT_MODELS_WEB_INPUT_HASH="+f.inputHash, "PLAYWRIGHT_NO_COPY_PROMPT=1")
+	if f.mode == "navigation" {
+		images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES")
+		if !filepath.IsAbs(images) {
+			f.t.Fatal("owned navigation images directory required")
+		}
+		cmd.Env = append(cmd.Env, "AGENTEAM_AUTH_WEB_IMAGES="+images)
+	}
+	// Playwright diagnostics may include user input on future failure paths.
+	// Keep them private in memory; only closed result/exit facts are published.
+	var output bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &output, &output
+	f.mu.Lock()
+	f.browserActive = true
+	f.mu.Unlock()
+	if err := cmd.Start(); err != nil {
+		f.t.Fatal("owned Project Models browser runner could not start")
+	}
+	done := make(chan error, 1)
+	joined := false
+	defer func() {
+		f.releaseAll()
+		if !joined {
+			_ = cmd.Cancel()
+			<-done
+		}
+		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		clear(output.Bytes())
+		cmd.Env = nil
+		f.t.Log("Project Models Node direct child actually waited; outer driver owns adopted descendants")
+	}()
+	go func() { done <- cmd.Wait() }()
+	ticker := time.NewTicker(15 * time.Millisecond)
+	defer ticker.Stop()
+	sequence := 0
+	var previous []byte
+	var runErr error
+wait:
+	for {
+		select {
+		case runErr = <-done:
+			joined = true
+			break wait
+		case <-ticker.C:
+			raw, err := projectModelsWebReadPrivate(filepath.Join(f.directory, "project-models-ipc.json"), 8192)
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			if err != nil {
+				f.t.Fatal("owned Project Models IPC private read rejected")
+			}
+			if bytes.Equal(previous, raw) {
+				clear(raw)
+				continue
+			}
+			request, code := decodeProjectModelsWebIPC(raw, f.inputHash, sequence+1)
+			if code != "" {
+				clear(raw)
+				f.t.Fatal("owned Project Models IPC envelope rejected")
+			}
+			clear(previous)
+			previous = raw
+			sequence = request.Sequence
+			ack := f.modelIPC(ctx, request)
+			encoded, err := json.Marshal(ack)
+			if err != nil || len(encoded) > 65536 {
+				f.t.Fatal("owned Project Models IPC acknowledgement rejected")
+			}
+			f.private("project-models-ack-"+strconv.Itoa(sequence)+".json", ack)
+			if ack["ok"] != true {
+				stop()
+			}
+		}
+	}
+	clear(previous)
+	if runErr != nil {
+		f.t.Fatal("actual Project Models browser did not complete; private diagnostics suppressed")
+	}
+	raw, err := projectModelsWebReadPrivate(filepath.Join(f.directory, "project-models-result.json"), 65536)
+	if err != nil {
+		f.t.Fatal("actual Project Models browser final evidence unavailable")
+	}
+	defer clear(raw)
+	result, err := decodeProjectModelsWebResult(raw, f.mode, f.inputHash)
+	if err != nil {
+		f.t.Fatal("actual Project Models browser final evidence rejected")
+	}
+	f.safeEvidence("browser-result.json", result)
+	return result
 }

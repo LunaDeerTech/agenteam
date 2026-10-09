@@ -4,7 +4,10 @@ package account_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -12,7 +15,47 @@ import (
 	"sync"
 	"syscall"
 	"testing"
+	"time"
 )
+
+func runProjectModelsWeb(t *testing.T, mode string) {
+	t.Helper()
+	started := time.Now()
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	t.Cleanup(func() {
+		cancel()
+		if time.Since(started) > 120*time.Second {
+			t.Error("Project Models top exceeded 120 seconds including actual cleanup")
+		}
+	})
+	f := newProjectModelsWebFixture(t, ctx, mode)
+	result := f.browserModels(ctx)
+	f.stopProxy()
+	f.mu.Lock()
+	retired := f.modelServer.Started == f.modelServer.Finished && f.modelControls.Held == f.modelControls.HeldJoined && !f.modelFailure
+	f.mu.Unlock()
+	if !retired {
+		t.Fatal("Project Models proxy callbacks did not actually retire")
+	}
+	f.safeEvidence("go-facts.json", map[string]any{"protocol": projectModelsWebProtocol, "input_hash": f.inputHash, "mode": mode, "proxy_actual_join": retired, "browser_result": result, "auxiliary_skills_and_lifecycle_only": true})
+}
+
+func TestAccountProjectOwnerModelsWebConfigurationLifecycle(t *testing.T) {
+	runProjectModelsWeb(t, "configuration")
+}
+func TestAccountProjectOwnerModelsWebCredentialLifecycle(t *testing.T) {
+	runProjectModelsWeb(t, "credential")
+}
+func TestAccountProjectOwnerModelsWebOriginalRecovery(t *testing.T) {
+	runProjectModelsWeb(t, "recovery")
+}
+func TestAccountProjectOwnerModelsWebReadAndPagination(t *testing.T) { runProjectModelsWeb(t, "read") }
+func TestAccountProjectOwnerModelsWebAuthorityAndIdentity(t *testing.T) {
+	runProjectModelsWeb(t, "authority")
+}
+func TestAccountProjectOwnerModelsWebNavigationAndLayouts(t *testing.T) {
+	runProjectModelsWeb(t, "navigation")
+}
 
 func TestProjectModelsWebPrivateInput(t *testing.T) {
 	directory := t.TempDir()
@@ -194,6 +237,46 @@ func TestProjectModelsWebRegistryAdmission(t *testing.T) {
 	} {
 		if code := registry.admit(request); code == "" {
 			t.Fatal("unregistered target, query, or effect admitted")
+		}
+	}
+}
+
+func TestProjectModelsWebResponseAdmission(t *testing.T) {
+	project := "01900000-0000-7000-8000-000000000001"
+	resource := "01900000-0000-7000-8000-000000000002"
+	f := &projectModelsWebFixture{projectOwnerAuditWebFixture: &projectOwnerAuditWebFixture{projectOwnerWebFixture: &projectOwnerWebFixture{}}, registry: projectModelsWebRegistry{Projects: map[string]string{"main": project}, Targets: map[string]map[string]map[string]bool{}}}
+	request := &projectModelsWebRequest{Project: "main", Operation: &projectModelsWebOperation{Operation: "createProjectModelProvider", Family: "mutation"}}
+	response := &http.Response{StatusCode: 200, Header: http.Header{"Cache-Control": {"no-store"}, "Content-Type": {"application/json"}, "X-Request-Id": {"01900000-0000-7000-8000-000000000003"}}, Request: &http.Request{Method: "POST", URL: &url.URL{Path: "/api/v1/projects/" + project + "/model-providers"}}}
+	valid := `{"kind":"provider.create","resource_id":"` + resource + `","version":"1","affected_references":"0"}`
+	if err := f.admitResponse(request, response, []byte(valid)); err != nil {
+		t.Fatal("formal safe receipt rejected")
+	}
+	if !f.registry.Targets["main"]["provider"][resource] {
+		t.Fatal("safe create did not register its real target")
+	}
+	for _, raw := range []string{
+		strings.Replace(valid, `"version":"1"`, `"version":"2"`, 1),
+		strings.Replace(valid, `"affected_references":"0"`, `"affected_references":"1"`, 1),
+		strings.Replace(valid, `"provider.create"`, `"model.create"`, 1),
+		strings.TrimSuffix(valid, "}") + `,"value":"private-canary"}`,
+		strings.Replace(valid, resource, "private-canary", 1),
+	} {
+		if err := f.admitResponse(request, response, []byte(raw)); err == nil {
+			t.Fatal("invalid or sensitive receipt admitted")
+		}
+	}
+	request.Operation = &projectModelsWebOperation{Operation: "createProjectModelCredential", Family: "mutation"}
+	credential := `{"credential_id":"` + resource + `","purpose":"model","version":"1","deleted":false}`
+	if err := f.admitResponse(request, response, []byte(credential)); err != nil {
+		t.Fatal("formal safe credential result rejected")
+	}
+	for _, raw := range []string{
+		strings.Replace(credential, `"purpose":"model"`, `"purpose":"smtp"`, 1),
+		strings.Replace(credential, `"deleted":false`, `"deleted":true`, 1),
+		strings.TrimSuffix(credential, "}") + `,"value":"private-canary"}`,
+	} {
+		if err := f.admitResponse(request, response, []byte(raw)); err == nil {
+			t.Fatal("invalid or sensitive credential result admitted")
 		}
 	}
 }
