@@ -31,4 +31,4 @@
 - 完整真实矩阵仍缺：现有recovery源只含三命令completed后cut及原Lookup/replay/history；not_observed/in_progress/改义错版本还需真实负例（已有Session纯控不替代），必要新增exacttop经窄审而不加45s预算。其余真实场景/独立动态接受、Work/Model共享接缝最终组合仍待完成。
 - Git及真实资源归root；源在本树正式路径，输出 `output/ai/project-variables-ui/`。冻结后等保存ACK再重开，不把checkpoint称为验收。
 
-- root另派本实例独立只读审Secret A纯合同：输入 `/workspace/agenteam-secret-variables` 7c2fb954，未参与实现；新独占probe `.agent-state/secret-variables-contract-review/independent_test.go` 已写但尚未编译/执行，待本次Authority尾结束后继续。不得把接口/纯控冒D04、SQL或Owner HTTP真实接受；作者源不写，probe可恢复保存。
+- root另派本实例独立只读审Secret A纯合同：输入 `/workspace/agenteam-secret-variables` 7c2fb954，未参与实现；独占可恢复probe `.agent-state/secret-variables-contract-review/{independent_test.go,run.py}`，后者默认实际本地Draft202012 Schema控制，`--go`用overlay给只读作者package添加独立external test，固定Go1.27.1/off及本树cache，无真实资源。28456→6bc29f actual1独立证实六decoder未知member原文进入公开Fault.Path；Schema3738f6/90ef90 actual1证实Name接受尾LF。两must-fix已交Knowledge作者，本人不改其源。初轮plan alias控制误用reflect.DeepEqual比较闭包LockKey而FAIL，改为公开CompareLockKeys后四组材料/presence/receipt/identity/authority锁与绑定/event来源隔离35659→9cf442 actual0；不是产品返修。当前probe保留两实际红，待作者修后窄复核。不得把接口/纯控冒D04、SQL或Owner HTTP真实接受；无在途命令。
