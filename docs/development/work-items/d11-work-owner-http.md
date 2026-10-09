@@ -1,6 +1,6 @@
 # D11 Owner Work Planning HTTP 与默认生产根
 
-修订：rev2，2026-10-09，**SPEC与限定技术已独立接受，规定动态矩阵已通过，候选装配最终确认中**。
+修订：rev2，2026-10-09，**SPEC与限定技术已独立接受，规定动态矩阵已通过，候选装配已独立确认**。
 
 ## 1. 完整结果与真实前置
 
@@ -228,4 +228,4 @@ PG/native HTTP/真实root资源必须等root分配独占窗口。Task Planning�
 
 Owner转移、最终archived状态与测试用Skills receipt只是明确的持久fixture输入，不证明对应生产流程或D10服务。作者IntentRecovery首次丢响应使用受控Write失败，真正网络cut由独立HTTP证明。native的受控domain/auth与confirmation-tail不替代真实授权、COMMIT或默认根；flush/clear错误证明server abort及EOF，不能声称撤回此前可能发送的完整200。Reader客户端调用返回也不单独充当完整EOF证据。
 
-交付候选只含本卡38个必要文件与main基线上一条Work HTTP台账更新，不携带Model WIP或全局current。两个正式入口build、Work/app/process集成race编译及必要精确发现通过；62个本地包、775个实际Go/embed/module输入与活动已验闭包一致，外部依赖身份相同。受影响Reader测试同步后仅补候选app编译，独立probe自身编译与候选字节一致性另核，未重复无变化的产品矩阵。最终文件装配与文档差异由独立角色确认后交root原子提交。
+交付候选只含本卡38个必要文件与main基线上一条Work HTTP台账更新，不携带Model WIP或全局current。两个正式入口build、Work/app/process集成race编译及必要精确发现通过；62个本地包、775个实际Go/embed/module输入与活动已验闭包一致，外部依赖身份相同。受影响Reader测试同步后仅补候选app编译，独立probe自身编译与候选字节一致性另核，未重复无变化的产品矩阵。最终文件装配与文档差异已由独立角色确认，交root原子提交。
