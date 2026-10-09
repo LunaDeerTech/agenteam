@@ -535,10 +535,10 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
     if (!(await wait('authority-leaf-ready-fresh-read-031', () => freshRead())) && await wait('authority-leaf-ready-is-visible-032', () => reread.isVisible())) { await wait('authority-leaf-ready-to-be-enabled-033', () => expect(reread).toBeEnabled()); await wait('authority-leaf-ready-click-034', () => reread.click()); await wait('authority-leaf-ready-to-be-hidden-035', () => expect(reread).toBeHidden()); }
     await wait('authority-leaf-ready-to-be-enabled-036', () => expect(button(leaf, '刷新 Providers')).toBeEnabled());
   }
-  async function open(project: Project, discard = false, archivedOwner: 'config_recovery' | null = null) {
+  async function open(project: Project, discard = false, archivedOwner: 'config_recovery' | 'credential_recovery' | null = null) {
     if (archivedOwner !== null) {
-      need(archivedOwner === 'config_recovery' && project === projects.credential_recovery && !discard && checks.archived_config_original_replay === true, 'PROJECT_MODELS_AUTHORITY_ARCHIVED_OWNER_TRANSITION');
-      const source = projects.config_recovery;
+      need(!discard && ((archivedOwner === 'config_recovery' && project === projects.credential_recovery && checks.archived_config_original_replay === true) || (archivedOwner === 'credential_recovery' && project === projects.referenced && checks.archived_credential_lookup_only === true)), 'PROJECT_MODELS_AUTHORITY_ARCHIVED_OWNER_TRANSITION');
+      const source = projects[archivedOwner];
       await wait('authority-open-archived-owner-source', () => expect(page.getByRole('navigation', { name: '项目导航', exact: true }).getByRole('link', { name: '项目设置', exact: true })).toHaveAttribute('href', '/' + source.username + '/' + source.normalized_name + '/settings/general'));
     }
     const before = await wait('authority-open-native-facts-037', () => harness.nativeFacts(page));
@@ -785,7 +785,7 @@ export async function runAuthorityAndIdentity(page: Page, harness: AuthorityHarn
   checks.archived_credential_lookup_only = true;
 
   harness.step('authority-reference-unbound');
-  await wait('authority-flow-open-171', () => open(projects.referenced));
+  await wait('authority-flow-open-171', () => open(projects.referenced, false, 'credential_recovery'));
   const referencedBefore = await wait('authority-flow-snapshot-172', () => harness.snapshot('referenced')), referencedModel = referencedBefore.current.models.find((row) => row.present);
   need(referencedModel, 'PROJECT_MODELS_AUTHORITY_REFERENCE_TARGET_MISSING');
   await wait('authority-flow-observe-173', () => observe('listProjectModels', projects.referenced.id, 'GET', 'models', 200, () => button(page, '项目 Models（全部 Providers）').click(), 'limit=25'));
