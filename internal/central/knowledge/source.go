@@ -328,3 +328,167 @@ func (r *SourceResolver) ValidateInTx(ctx context.Context, tx f.Tx, actor id.Act
 }
 
 var _ oc.SourceResolver = (*SourceResolver)(nil)
+
+// businessPublicationSource binds one exact reference to its real resolver
+// result. It is not permission to read bytes; only a confirmed SourceReads
+// lease may do that. The final canonical transaction must revalidate it.
+type businessPublicationSource struct {
+	resolved    oc.ResolvedSource
+	description publicationSource
+	measurement publicationMeasurement
+}
+
+func checkBusinessResolution(expected publicationSource, resolved oc.ResolvedSource) (publicationMeasurement, error) {
+	if expected.validate() != nil || expected.Kind != kc.InputBusinessFile || resolved.Validate() != nil {
+		return publicationMeasurement{}, internal(nil)
+	}
+	d := resolved.Details()
+	actual, err := kc.NewBusinessSource(d.Reference)
+	if err != nil {
+		return publicationMeasurement{}, internal(err)
+	}
+	description, err := describePublicationSource(actual)
+	if err != nil || !publicationSourceEqual(expected, description) {
+		return publicationMeasurement{}, fault(f.ResourceBusy)
+	}
+	if _, err = publicationMedia(d.Meta.MediaType); err != nil {
+		return publicationMeasurement{}, err
+	}
+	measurement := publicationMeasurement{Media: d.Meta.MediaType, Length: d.Meta.ByteSize, SHA: d.Meta.SHA256}
+	if err = measurement.validate(); err != nil {
+		return publicationMeasurement{}, err
+	}
+	return measurement, nil
+}
+
+func (s *Service) resolveBusinessPublication(ctx context.Context, input contentInput, intent contentIntent, source kc.SourceInput, work publicationWork, retirement *publicationRetirement) (businessPublicationSource, error) {
+	if ctx == nil || s.state() == nil || retirement == nil || retirement.service != s || !retirement.work.equal(work) || intent.record == nil || intent.record.id != work.command || intent.record.project != input.project || intent.record.document != input.document || intent.record.digest != input.digest || intent.record.key != input.meta.IdempotencyKey || intent.record.user.String() != input.actor.Details().UserID || work.project != input.project || work.process != s.state().deps.Processes.CurrentProcess() || work.phase != "active" || input.request.Source == nil || input.request.Source.Kind != kc.InputBusinessFile {
+		return businessPublicationSource{}, internal(nil)
+	}
+	retirement.mu.Lock()
+	joined := retirement.joined
+	retirement.mu.Unlock()
+	if joined {
+		return businessPublicationSource{}, fault(f.ResourceBusy)
+	}
+	if err := ctx.Err(); err != nil {
+		return businessPublicationSource{}, unavailable(err)
+	}
+	actual, err := describePublicationSource(source)
+	if err != nil || !publicationSourceEqual(actual, *input.request.Source) {
+		return businessPublicationSource{}, fault(f.IdempotencyKeyReused)
+	}
+	origin, err := actual.sourceProject()
+	if err != nil || !equalProjectPointer(origin, work.source) {
+		return businessPublicationSource{}, fault(f.ResourceBusy)
+	}
+	ref, err := actual.Business.reference()
+	if err != nil {
+		return businessPublicationSource{}, err
+	}
+	resolved, err := s.state().deps.Sources.Resolve(ctx, input.actor, ref)
+	if err != nil {
+		return businessPublicationSource{}, portError(err)
+	}
+	measurement, err := checkBusinessResolution(actual, resolved)
+	if err != nil {
+		return businessPublicationSource{}, err
+	}
+	return businessPublicationSource{resolved: resolved, description: actual, measurement: measurement}, nil
+}
+
+func (source businessPublicationSource) validate(input contentInput) error {
+	if input.request.Source == nil || !publicationSourceEqual(source.description, *input.request.Source) {
+		return fault(f.ResourceBusy)
+	}
+	measurement, err := checkBusinessResolution(source.description, source.resolved)
+	if err != nil || measurement != source.measurement {
+		return fault(f.ResourceBusy)
+	}
+	return nil
+}
+
+// A returned handle is kept even if the transaction reports Unknown or the
+// provider also reports an error. Retirement must cancel it outside its origin
+// transaction. No OpenLeasedSource or external I/O is performed by this stage.
+func (s *Service) acquireBusinessPublicationLease(ctx context.Context, input contentInput, intent contentIntent, work publicationWork, source businessPublicationSource, retirement *publicationRetirement) (lease oc.SourceLease, replay *kc.DocumentRef, err error) {
+	if ctx == nil || s.state() == nil || intent.record == nil || work.command != intent.record.id || retirement == nil || retirement.service != s || !retirement.work.equal(work) {
+		return lease, nil, internal(nil)
+	}
+	if err = source.validate(input); err != nil {
+		return lease, nil, err
+	}
+	st := s.state()
+	request, err := oc.NewSourceAccess(oc.AccessRequestDetails{Operation: oc.AcquireSourceAccess, Actor: input.actor, Source: source.resolved})
+	if err != nil {
+		return lease, nil, portError(err)
+	}
+	plan, err := st.deps.Objects.DiscoverAccess(ctx, request)
+	if err != nil {
+		return lease, nil, portError(err)
+	}
+	locks, err := publicationLocks(input.actor, intent.record, work.source)
+	if err != nil {
+		return lease, nil, err
+	}
+	identity, err := kc.CommandIdentity(input.project, input.name, input.meta.IdempotencyKey)
+	if err != nil {
+		return lease, nil, portError(err)
+	}
+	cause, err := f.NewCommandsCause(identity)
+	if err != nil {
+		return lease, nil, portError(err)
+	}
+	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		locked, err := st.deps.Objects.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, locks)
+		if err != nil {
+			return portError(err)
+		}
+		x, record, _, err := s.currentContentIntent(ctx, tx, input, intent)
+		if err != nil {
+			return err
+		}
+		if record.state == kc.Committed {
+			replay = record.receipt.Document
+			return nil
+		}
+		if err = requirePublicationWork(ctx, x, work); err != nil {
+			return err
+		}
+		publication, err := loadPublicationReservation(ctx, x, record)
+		if err != nil {
+			return err
+		}
+		if !publicationSourceEqual(publication.source, source.description) || publication.measurement != nil && *publication.measurement != source.measurement {
+			return fault(f.ResourceBusy)
+		}
+		if err = st.deps.Sources.ValidateInTx(ctx, tx, input.actor, source.resolved, plan, locked); err != nil {
+			return portError(err)
+		}
+		lease, err = st.deps.SourceReads.AcquireSourceInTx(ctx, tx, input.actor, source.resolved, plan, locked)
+		if err != nil {
+			return portError(err)
+		}
+		if lease.Validate() != nil {
+			return internal(nil)
+		}
+		tag, err := x.Exec(ctx, `UPDATE agenteam_knowledge.publications SET source_lease_id=$2
+ WHERE command_id=$1 AND phase IN ('planned','reserved','uploaded')`, record.id.String(), lease.ID().String())
+		if err != nil {
+			return unavailable(err)
+		}
+		if tag.RowsAffected() != 1 {
+			return fault(f.ResourceBusy)
+		}
+		return nil
+	})
+	if lease.Validate() == nil {
+		// The handle cannot be reconstructed from a persisted UUID. Its issuer
+		// and actual originating Tx stay owned by the real SourceReads port.
+		owned := lease
+		if ownErr := retirement.own(func() error { return portError(st.deps.SourceReads.CancelSourceLease(ctx, owned)) }); ownErr != nil {
+			return lease, replay, ownErr
+		}
+	}
+	return lease, replay, txError(result)
+}
