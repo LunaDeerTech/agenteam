@@ -139,4 +139,4 @@ CRUD02随后获新独占窗口并执行，whole FAIL：Go20.86s/browser exit1，
 
 独审阶段又确证诊断缺陷：late PW事件能升级退休观察，冻结reader上的诊断安装能让原getReader新增throw。已分别加退休门禁及非侵入安装异常处理，并以observer-error阻止不完整观测推EOF/CL；原红及修后JS定向反控保留。生产/dist02/普通gate不动；Go安全派生条件受影响，须待磁盘恢复后新binary07及Go控制，本次尚未整体验收或真实重跑。
 
-Runner补尾发现缓存旧wrapper在退休后可重装hook，已为全部缓存入口增加退休后原方法纯委托，保this/args/原Promise/throw且不更新观察；实际红绿和最终strictTS通过。更新的Go投影正反已由Runner实际独立通过，此次cached返修不改Go；binary07仍待磁盘允许后编译，本次诊断尚待最后窄审，无新真实执行。
+Runner补尾发现缓存旧wrapper在退休后可重装hook，已为全部缓存入口增加退休后原方法纯委托，保this/args/原Promise/throw且不更新观察；实际红绿和最终strictTS通过。更新的Go投影正反已由Runner实际独立通过，此次cached返修不改Go；Runner最终退休控制复审接受且无剩余must-fix，仅接受本次离线诊断准备。磁盘恢复后新binary07 race编译与六精确入口发现均actualWait0，原dist02复用；新CRUD03仍须另获fresh真实窗口，没有新动态PASS，原CRUD02 wholeFAIL不变。
