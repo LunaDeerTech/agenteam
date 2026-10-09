@@ -174,17 +174,24 @@ func (w *wire) read(ctx context.Context, receive func(context.Context, p.Message
 		clear(raw)
 		if err != nil {
 			if errors.Is(err, p.ErrIncompatibleVersion) {
+				w.report(ctx, p.IncompatibleVersion, "")
 				return p.ErrIncompatibleVersion
 			}
+			w.report(ctx, p.InvalidEnvelope, "")
 			return ErrProtocol
 		}
 		if message.AllowedFrom(p.Central) != nil {
+			w.report(ctx, p.UnsupportedMessage, message.Header().MessageID)
 			return ErrProtocol
 		}
 		if err = ctx.Err(); err != nil {
 			return err
 		}
 		if err = receive(ctx, message); err != nil {
+			var failure protocolFailure
+			if errors.As(err, &failure) {
+				w.report(ctx, failure.code, message.Header().MessageID)
+			}
 			return err
 		}
 	}
@@ -196,9 +203,31 @@ func (w *wire) write(ctx context.Context) error {
 			return err
 		}
 		err = w.socket.write(frame.wire)
-		w.queue.release(frame)
+		w.queue.release(frame, err)
 		if err != nil {
 			return err
 		}
+	}
+}
+
+// Fatal protocol diagnostics use the same FIFO and native writer as every
+// other application frame. Allow at most the original close-handshake budget
+// to write this safe diagnostic, then abort and actually join both workers.
+// A queued frame or expired wait is never reported as a completed write.
+func (w *wire) report(ctx context.Context, code p.ProtocolCode, offending p.ID) {
+	message, err := newMessage(p.ProtocolError{Code: code, SafeMessage: code.SafeMessage(), OffendingMessageID: offending, Fatal: true}, "", "")
+	if err != nil {
+		return
+	}
+	done, err := w.queue.enqueue(message, true)
+	if err != nil {
+		return
+	}
+	timer := time.NewTimer(time.Second)
+	defer timer.Stop()
+	select {
+	case <-done:
+	case <-ctx.Done():
+	case <-timer.C:
 	}
 }

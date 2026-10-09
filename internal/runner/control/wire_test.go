@@ -151,6 +151,7 @@ func TestWireRejectsInvalidInboundAndWrongDirection(t *testing.T) {
 	}
 	for _, raw := range [][]byte{[]byte(`{"secret":"CANARY"}`), wireWrong} {
 		s := testSocket()
+		close(s.writeRelease)
 		w := wireWithSocket(s)
 		s.readInput <- raw
 		done := make(chan error, 1)
@@ -166,5 +167,42 @@ func TestWireRejectsInvalidInboundAndWrongDirection(t *testing.T) {
 			t.Fatal("invalid wire owner leaked")
 		}
 		await(t, s.closed)
+		s.mu.Lock()
+		if len(s.writes) != 1 {
+			t.Fatal("fatal diagnostic was not actually written")
+		}
+		diagnostic, err := p.Decode(s.writes[0])
+		s.mu.Unlock()
+		if err != nil {
+			t.Fatal(err)
+		}
+		failure, ok := diagnostic.Payload().(p.ProtocolError)
+		if !ok || !failure.Fatal {
+			t.Fatal("wrong fatal protocol diagnostic")
+		}
+	}
+}
+
+func TestWireFatalDiagnosticTimeoutStillWaitsForWriter(t *testing.T) {
+	s := testSocket()
+	w := wireWithSocket(s)
+	s.readInput <- []byte(`{"invalid":true}`)
+	done := make(chan error, 1)
+	go func() { done <- w.run(context.Background(), func(context.Context, p.Message) error { return nil }) }()
+	await(t, s.writeEntered)
+	select {
+	case <-s.closed:
+	case <-time.After(2 * time.Second):
+		t.Fatal("fatal diagnostic exceeded close budget")
+	}
+	notJoined(t, w)
+	close(s.writeRelease)
+	select {
+	case err := <-done:
+		if err != ErrProtocol {
+			t.Fatal(err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("original diagnostic writer did not join")
 	}
 }

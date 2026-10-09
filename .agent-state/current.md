@@ -13,5 +13,6 @@
 - 根已精确导入前序`00024_project_variables.sql`（334f86d0修后）与`00025_knowledge.sql`（da16d95a）；两域先main责任仍归原owner，Runner只消费依赖。当前树1..26连续组合SQL已由下述最小top实际运行。
 - 最小`tests/runnercontrol/migration_test.go`已freeze；race-c98020实际0、精确发现`TestRunnerControlMigration`恰1。首次独占依赖cache缺pgx/goose的setup FAIL保留，根授权只读共享cache后编译闭合。测试只证明DDL/约束，SQL造约束刺激不代当前Admin/typed producer。私有`output/ai/runner-control/pg-only-driver`沿原跟踪driver编译14378实际0；supervisor由根精确导入已接受ca9 bounded版本。实际跟踪driver参数为Go6m、driver总105s，outer123s与完整尾不变；旧口述90s不符此源码，不作本轮预算证据。
 - 本人沿上述原工具实际运行唯一`TestRunnerControlMigration`，外层22736 actual0，三子body9.98s，Go628693/driver628035实际Wait0；精确2ID双退役、runtime双空/TCP双delta空、inputs_unchanged齐，sup80.401s。原件`output/ai/runner-control/pg/pg-d5b237f4f6154e6881d07348ed1ce069.log`；资源已完整释放。限定作者schema/DDL结果，不冒Admin/service/typed producer/完整D15。
-- §4新增登记已知200响应精确shape供独立窄审，接受前不接生产。control session新源继续作者离线开发，尚无生产Run/root或nativeWSS结果。
+- §4登记已知200五字段响应已获原审者有限差异接受，双端可按该固定shape实施；不代网络验证。
+- control会话新片段`session.go/session_state.go/session_test.go`及原队列/wire的有界fatal诊断写出已闭合；最新作者race17034 actual0（14.111s）、vet实际0。含hello/heartbeat自然timer、4096/8192关联限额、原deadline、未知执行结果、mask/stream终态顺序、原runtime回调未返不得join；纯channel端点不是nativeWSS。生产操作仍未绑定，默认空注册明确unsupported。下一阶段接identity/challenge/严格TLS client及Central真实service，不把此私有端口当完整生产消费者。
 - 本范围无PG/server/browser/TCP或后台命令；真实资源须fresh grant。Linux/macOS及D10/D16/D17/D18集成gate保持未验。

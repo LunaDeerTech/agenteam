@@ -31,24 +31,37 @@ type outbox struct {
 type outbound struct {
 	wire []byte
 	data bool
+	done chan error
 }
 
 func newOutbox() *outbox { return &outbox{wake: make(chan struct{}, 1)} }
 func (q *outbox) push(message p.Message) error {
+	_, err := q.enqueue(message, false)
+	return err
+}
+func (q *outbox) enqueue(message p.Message, observe bool) (<-chan error, error) {
 	if message.AllowedFrom(p.Runner) != nil {
-		return ErrProtocol
+		return nil, ErrProtocol
 	}
 	raw, err := p.Encode(message)
 	if err != nil {
-		return ErrProtocol
+		return nil, ErrProtocol
 	}
-	return q.pushEncoded(raw, message.Type() == p.StreamType)
+	var done chan error
+	if observe {
+		done = make(chan error, 1)
+	}
+	return done, q.admit(&outbound{wire: raw, data: message.Type() == p.StreamType, done: done})
 }
 
 // raw ownership is transferred even on rejection. No caller may retain it.
 func (q *outbox) pushEncoded(raw []byte, data bool) error {
+	return q.admit(&outbound{wire: raw, data: data})
+}
+func (q *outbox) admit(frame *outbound) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
+	raw, data := frame.wire, frame.data
 	if q.closed {
 		clear(raw)
 		return ErrClosed
@@ -61,7 +74,7 @@ func (q *outbox) pushEncoded(raw []byte, data bool) error {
 		clear(raw)
 		return ErrBackpressure
 	}
-	q.frames = append(q.frames, &outbound{wire: raw, data: data})
+	q.frames = append(q.frames, frame)
 	q.bytes += len(raw)
 	if data {
 		q.dataCount++
@@ -105,7 +118,7 @@ func (q *outbox) acquire(ctx context.Context) (*outbound, error) {
 		}
 	}
 }
-func (q *outbox) release(frame *outbound) {
+func (q *outbox) release(frame *outbound, result error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	if frame == nil || q.active != frame {
@@ -119,6 +132,7 @@ func (q *outbox) release(frame *outbound) {
 	}
 	clear(frame.wire)
 	frame.wire = nil
+	frame.finish(result)
 	q.frames[0] = nil
 	q.frames = q.frames[1:]
 	q.signal()
@@ -144,8 +158,16 @@ func (q *outbox) close() {
 		}
 		clear(frame.wire)
 		frame.wire = nil
+		frame.finish(ErrClosed)
 	}
 	clear(q.frames[start:])
 	q.frames = q.frames[:start]
 	q.signal()
+}
+func (frame *outbound) finish(result error) {
+	if frame.done != nil {
+		frame.done <- result
+		close(frame.done)
+		frame.done = nil
+	}
 }

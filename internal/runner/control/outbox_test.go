@@ -48,7 +48,7 @@ func TestOutboxControlReserveAndOrder(t *testing.T) {
 				t.Fatal("second writer admitted")
 			}
 		}
-		q.release(frame)
+		q.release(frame, nil)
 	}
 	if q.bytes != 0 || q.dataCount != 0 || q.dataBytes != 0 {
 		t.Fatal("accounting did not retire frames")
@@ -82,7 +82,7 @@ func TestOutboxByteCapacityAndWriterOwnership(t *testing.T) {
 	if len(frame.wire) != p.MaxMessageBytes || frame.wire[0] != 1 || q.bytes != p.MaxMessageBytes {
 		t.Fatal("close pretended native writer released buffer")
 	}
-	q.release(frame)
+	q.release(frame, nil)
 	if q.bytes != 0 || len(q.frames) != 0 {
 		t.Fatal("leased buffer not retired")
 	}
