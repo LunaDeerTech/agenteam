@@ -23,7 +23,8 @@
 ## 未完成与后续
 
 - Task DTO/typed event/六Fault/Project闭集4源已形成可构建片段：作者离线 contract+Foundation 旧pure实际exit0；Task新pure测试待补。Project追加离线检查首因固定依赖缺失FAIL，准确 go mod download 后三包实际PASS；Task runtime/reader/迁移/PG测试源已恢复到正式路径：work pure实际PASS、integration race-c及私有driver build实际exit0，七新top矩阵仍需补齐且尚未运行PG，不是整卡验收。
-- Model harness首段3源已形成：同fd私有读取/严格JSON/IPC闭合和case配置；作者限定两个Go源race测试exit0，独立复核已完成，绑定 `02e3daaf`：四race测试、private/JSON边界及13个Node配置检查PASS；8个非法typed/union IPC参数仍获空错误真实复现，独立probe保留预期exit1；decode当前仅envelope/action键闭合，值类型/union与登记授权还需补齐，不能当完整IPC admission；完整后端fixture与浏览器业务仍未实现。
+- Model harness首段3源已形成：同fd私有读取/严格JSON/IPC闭合和case配置；作者限定两个Go源race测试exit0，独立复核已完成，绑定 `02e3daaf`：四race测试、private/JSON边界及13个Node配置检查PASS；8个非法typed/union IPC参数仍获空错误真实复现，独立probe保留预期exit1；decode当前仅envelope/action键闭合，后续原语已补值类型/union与登记Project/target/cursor/effect校验，作者5场景race PASS；独立旧FAIL仍绑定02e3daaf，不回填。浏览器spec类型检查/private Vite build PASS，但尚无六业务case。完整后端fixture与业务仍未实现。
+- account/app间接嵌入全部 migrations 的依赖已核实：原工作树含未验00022的account race-c仅记非正式编译，不执行该binary。D27后续验收在交付worktree的旧已验00021基线上构建两个同份测试源；运行前逐源核一致，不称当前wholeHEAD验收。
 - 当前尚无新整卡产品测试通过结论。Contract7路径新pure已PASS并交独审；Go fmt 未导出 enclosing 字段绕过 Formatter 的边界正在独立实证，尚不声明任意enclosing安全。
 - Task两IDdriver/监督器源码已恢复：`.agent-state/task-planning-recovery/pg_only_driver.go` 和 `pg_only_supervisor.py`；具体启动/选择器依该driver当前说明，尚未执行PG。阶段源码完成后先作者自测、冻结限定输入，再按风险安排独立验证；每个完整结果及时交付 main 并普通 push、核实远端。
 - Model UI 原恢复 FAIL、Work Structure 原 Unknown01 FAIL 与独立 B 外部工具终态缺口保留，不回填历史。

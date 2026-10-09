@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"syscall"
@@ -133,9 +134,66 @@ func TestProjectModelsWebIPCEnvelope(t *testing.T) {
 		{"counts", nil, 1, "invalid_arguments"},
 		{"counts", map[string]any{"sql": "forbidden"}, 1, "invalid_arguments"},
 		{"release", map[string]any{"arm_id": "a0001"}, 1, "invalid_arguments"},
+		{"snapshot", map[string]any{"project": nil}, 1, "invalid_arguments"},
+		{"snapshot", map[string]any{"project": 3}, 1, "invalid_arguments"},
+		{"snapshot", map[string]any{"project": "unregistered"}, 1, "invalid_arguments"},
+		{"reference-fact", map[string]any{"project": "referenced", "state": "invalid"}, 1, "invalid_arguments"},
+		{"archive-recovery-project", map[string]any{"project": "main", "expected_version": "1"}, 1, "invalid_arguments"},
+		{"archive-recovery-project", map[string]any{"project": "config_recovery", "expected_version": "9223372036854775808"}, 1, "invalid_arguments"},
+		{"release", map[string]any{"arm_id": "a0000", "request_token": "r000001"}, 1, "invalid_arguments"},
 	} {
 		if _, code := decodeProjectModelsWebIPC(makeRaw(test.action, test.args, test.sequence), input, 1); code != test.code {
 			t.Fatalf("invalid request classification: got %s want %s", code, test.code)
+		}
+	}
+}
+
+func TestProjectModelsWebRegistryAdmission(t *testing.T) {
+	_, file, _, _ := runtime.Caller(0)
+	raw, err := os.ReadFile(filepath.Join(filepath.Dir(file), "../../docs/development/work-items/d27-project-owner-model-settings-ui-endpoints.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	operations, err := projectModelsWebLoadOperations(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	provider := "01900000-0000-7000-8000-000000000001"
+	registry := projectModelsWebRegistry{
+		Operations: operations,
+		Projects:   map[string]string{"main": "01900000-0000-7000-8000-000000000002"},
+		Targets:    map[string]map[string]map[string]bool{"main": {"provider": {provider: true}}},
+		Cursors:    map[string]map[string]map[string]bool{"main": {"listProjectModelProviders": {"registered_cursor": true}}},
+	}
+	arm := func(operation string, target, query any, effect string) projectModelsWebIPC {
+		raw, err := json.Marshal(map[string]any{"operation": operation, "project": "main", "target_id": target, "query": query, "effect": effect})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return projectModelsWebIPC{Action: "arm", Args: raw}
+	}
+	for _, request := range []projectModelsWebIPC{
+		arm("listProjectModelProviders", nil, "limit=25", "before_dispatch_hold"),
+		arm("listProjectModelProviders", nil, "cursor=registered_cursor&limit=25", "after_complete_hold"),
+		arm("deleteProjectModelProvider", provider, nil, "after_complete_disconnect"),
+	} {
+		if code := registry.admit(request); code != "" {
+			t.Fatalf("registered endpoint rejected: %s", code)
+		}
+	}
+	for _, request := range []projectModelsWebIPC{
+		arm("listProjectModels", nil, "provider_id="+provider, "before_dispatch_hold"),
+		arm("listProjectModels", nil, "limit=025", "before_dispatch_hold"),
+		arm("listProjectModels", nil, "limit=25&limit=50", "before_dispatch_hold"),
+		arm("listProjectModels", nil, "cursor=unregistered", "before_dispatch_hold"),
+		arm("listProjectModelProviders", nil, "limit=25&cursor=registered_cursor", "before_dispatch_hold"),
+		arm("getProjectModel", provider, nil, "after_complete_hold"),
+		arm("deleteProjectModelProvider", provider, nil, "before_dispatch_hold"),
+		arm("lookupProjectModelConfiguration", nil, nil, "after_complete_disconnect"),
+		arm("getCurrentSession", nil, nil, "before_dispatch_hold"),
+	} {
+		if code := registry.admit(request); code == "" {
+			t.Fatal("unregistered target, query, or effect admitted")
 		}
 	}
 }
