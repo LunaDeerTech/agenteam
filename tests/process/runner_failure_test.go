@@ -231,6 +231,9 @@ func (v *runnerFailureTransport) controlRetired(t *testing.T) {
 	defer tick.Stop()
 	for {
 		owners, copies, closes, halves := v.upgradeRemainder()
+		if deadline, ok := ctx.Deadline(); ctx.Err() != nil || ok && !time.Now().Before(deadline) {
+			t.Fatalf("original default control transport has not joined within its deadline: handlers=%d owners=%d copies=%d closes=%d half_closes=%d", v.wss.Load(), owners, copies, closes, halves)
+		}
 		if v.wss.Load() == 0 && owners == 0 {
 			return
 		}
