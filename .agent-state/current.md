@@ -34,3 +34,8 @@
 - Model独立可复跑probe：`.agent-state/model-ui-recovery/independent-probe.py`；审查输入固定02e3daaf，未来新输入须另验。
 - 当前保存必须遵守用户“不提交无法构建的中间状态”：仅保存独立闭合、可构建的明确片段，未闭合源码保留工作区待依赖完成。
 - 工具全树当前 7 席位；子实例显式 Astra/Ultra，priority 实际生效未确认。不因配置 100 推断当前容量。
+
+## 当前可恢复片段
+
+- Model第三段：真实app.Run私有root/handler join、17端点登记、single-arm hold/cut/disconnect、安全响应/消费tap/原请求比较/Session登记已写入 fixture 源；delivery最新account integrationrace-c与5pure原语top实际exit0。constructor/9IPC dispatcher/同Txsnapshot及六浏览器业务尚未闭合，不宣称这些通过。
+- Task四个旧Project/Outbox回归顺序执行；首个OwnerPort body1.06s与所有监督器/外层/资源终态PASS，其余待执行。PG期间只在每top完整终态后做短Git保存窗，避免辅助hostTCP delta受推送连接污染。
