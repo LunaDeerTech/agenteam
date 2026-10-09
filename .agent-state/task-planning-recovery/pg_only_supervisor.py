@@ -31,7 +31,7 @@ def observe_runner_native_safety(log_path, log):
                 'TestRunnerControlNativeDeadlines', 'TestRunnerControlNativeIdentityRecovery'}
     try:
         actual = re.findall(r'^=== RUN   (Test\w+)$', log_path.read_text(), re.M)
-    except OSError:
+    except (OSError, UnicodeDecodeError):
         log.write('RUNNER native_safety_exact_tops=False log_unreadable=True\n')
         return False
     good = len(actual) == len(expected) and set(actual) == expected
