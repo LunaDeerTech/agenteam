@@ -1,5 +1,10 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- `e8592a4f` 已保存恢复前3 tests；恢复后实际 `8d9c06` 空 selector 编译 exit0（cached/no tests to run），没有调用 fixture。后续仅测试增量：每次 Stop 显式原2s、原3s总收敛限额不加长；1001历史后的 reader Close 仅接受 nil/原取消，核原 GET handler 返回及1002条 reader work 全退休；Unknown 原cause resume补父行 exact-delete/消失断言。
+- 新 `tests/objects/metadata_cleanup_plan_test.go` 只观察真实 Service 发出的固定 bounded SELECT，保原 Store/live Tx、首调用nil cursor和数组副本；EXPLAIN 在业务方法实际返回后以独立2s执行，不占用或延长业务预算。已接入历史用例的 Stop-work/full-pending、physical-gate/full-pending，输出实际 JSON 供索引审查。当前没有真实计划；其余三Stop lane、大量其它Project、metadata各阶段、父DELETE全部FK trigger与PUT包仍是剩余矩阵，不能把查询 LIMIT 或 JSON 输出当成本接受。
+- 新观察器 pure control `43787/b166ba`（启动c930ce）原offlineenv执行 `go test -mod=readonly -p=1 -tags=integration -race -count=1 -run '^TestObjectMetadataCleanupPlanCapture$' ./tests/objects` actual0/1.015s；含全包集成编译，但唯一执行是无资源的SQL捕获反例，未PG/MinIO/socket。`97251/1e42cc` 原env `go vet -mod=readonly -p=1 -tags=integration ./tests/objects` actual0；源码diffcheck `bb666b` exit0。没有旧会话缺口补认。
+- Variables 对固定26df主体＋eda三产品增量独立有限接受：`46327/e70e7a` 实际Service＋显式Store 5top24sub及狭义例外控制通过，无本轮剩余mustfix。此为纯控/源码接受，非真实SQL/FK/rollback/预算证据；新28与当前活动集成测试不在其结论内，Skills最后核心消费端仍未实现。
+
 - 环境恢复后实际核对 HEAD `eda849dc`，保留现存三个测试增量：`tests/objects/metadata_cleanup_fixture_test.go` 提取可选真实 Store/backend 构造；新 `metadata_cleanup_unknown_test.go` 准备最后四 anchors 与 fixture 父行同 Tx 的两种真实 COMMIT 丢响应；新 `metadata_cleanup_history_test.go` 准备65个真实失败候选及1001个真实已关闭 reader 后的活 reader/Stop/原 cause 重放。它们不是伪造 native joined/cleaned 的 SQL 成功夹具，仍使用明确 test-only 跨域门禁，不能代表 Skills 消费者实现。
 - 该三个测试与本 current 现冻结供 root 保存。Unknown 片段在恢复前 `38461/3c598e` 仅执行原 offlineenv 的 `go test -mod=readonly -p=1 -tags=integration -run '^$' ./tests/objects`，actual0/0.008s；本次恢复未取得 history 新增后的编译或任何实际业务终态，故当前全源码组合仍是待检查 WIP。没有补跑真实资源或把缺失工具会话补为 PASS；Work08 原窗口的恢复由其 owner 负责。
 - 接续先离线核这三个用例的实际生命周期/预算并编译，随后补32跨表与真实 Unknown、1001历史及22候选索引的 EXPLAIN/父 DELETE FK 计划矩阵。D05 当前没有真实 PG/MinIO、迁移28、执行计划或 Skills 最后同 Tx 组合验收；本轮无自有真实资源和在途命令。下面记录保留各历史阶段当时事实，当前范围以上述新状态为准。

@@ -169,11 +169,20 @@ func TestObjectMetadataCleanupFinalCommitUnknown(t *testing.T) {
 					if err != nil {
 						return err
 					}
-					_, err = e.Exec(ctx, `DELETE FROM object_fixture.metadata_cleanup WHERE object_id=$1`, object.String())
-					return err
+					tag, err := e.Exec(ctx, `DELETE FROM object_fixture.metadata_cleanup WHERE object_id=$1`, object.String())
+					if err != nil {
+						return err
+					}
+					if tag.RowsAffected() != 1 {
+						return fault(foundation.InvalidState)
+					}
+					return nil
 				})
 				if r.State() != foundation.Committed || metadataRows(t, base, object) != 0 {
 					t.Fatal("original final cause did not recover", r.Fault())
+				}
+				if err := base.store.QueryRow(contextFor(t), `SELECT EXISTS(SELECT 1 FROM object_fixture.metadata_cleanup WHERE object_id=$1)`, object.String()).Scan(&parent); err != nil || parent {
+					t.Fatal("known resume left the parent mapping behind", err)
 				}
 			}
 			if objectAuditCount(t, base, ac.ObjectDelete) != 1 {

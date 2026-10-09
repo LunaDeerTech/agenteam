@@ -7,8 +7,10 @@ import (
 	"encoding/json"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/jackc/pgx/v5"
@@ -128,6 +130,31 @@ func newMetadataCleanupFixture(t *testing.T) (*objectAuditFixture, *objectStopAu
 	return metadataCleanupFixtureOn(t, newFixture(t, false), objectAuditOptions{})
 }
 
+func metadataStopUntilSettled(t *testing.T, f *objectAuditFixture, actor identity.Actor, cause oc.ProjectStopCause) {
+	t.Helper()
+	// Retain the fixture's 3s total convergence limit and cap every individual
+	// public call at the original D08 2s budget, including its actual return tail.
+	total, end := context.WithTimeout(contextFor(t), 3*time.Second)
+	defer end()
+	for range 40 {
+		ctx, cancel := context.WithTimeout(total, 2*time.Second)
+		report, err := f.service.RequestProjectStop(ctx, actor, cause)
+		cancel()
+		if err == nil && report.Details().State == oc.ProjectStopped {
+			return
+		}
+		if err != nil && codeOf(err) != foundation.ResourceBusy {
+			t.Fatal("bounded Stop failed", err)
+		}
+		select {
+		case <-total.Done():
+			t.Fatal("bounded Stop did not converge", report.Details().State)
+		case <-time.After(5 * time.Millisecond):
+		}
+	}
+	t.Fatal("bounded Stop exhausted the fixture's existing round limit")
+}
+
 func metadataCleanupFixtureOn(t *testing.T, original *fixture, options objectAuditOptions) (*objectAuditFixture, *objectStopAuthority) {
 	t.Helper()
 	copyFixture := *original
@@ -152,7 +179,7 @@ func metadataCleanupFixtureOn(t *testing.T, original *fixture, options objectAud
 func metadataCleanupCause(t *testing.T, f *objectAuditFixture, object oc.ObjectID) oc.ObjectCleanupCause {
 	t.Helper()
 	actor, stopped := activateObjectStop(t, f.fixture, oc.ProjectStopDelete)
-	stopUntilSettled(t, f.service, actor, stopped)
+	metadataStopUntilSettled(t, f, actor, stopped)
 	operation, err := foundation.ParseID[oc.CleanupOperation](stopped.Details().OperationID.String())
 	if err != nil {
 		t.Fatal(err)

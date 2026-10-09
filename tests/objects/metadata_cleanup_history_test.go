@@ -4,6 +4,7 @@ package objects_test
 
 import (
 	"context"
+	"errors"
 	"io"
 	"strings"
 	"testing"
@@ -23,7 +24,8 @@ func TestObjectMetadataCleanupOldAttemptsAndStopHistory(t *testing.T) {
 	proxy.cancel()
 	proxy.ctx, proxy.cancel = context.WithTimeout(context.Background(), 5*time.Minute)
 	cfg := auditStorageConfig(t, base, proxy.server.URL)
-	f, _ := metadataCleanupFixtureOn(t, base, objectAuditOptions{config: &cfg})
+	plans := &metadataPlanStore{Store: base.store}
+	f, _ := metadataCleanupFixtureOn(t, base, objectAuditOptions{config: &cfg, store: plans})
 	body := strings.Repeat("x", 2*oc.StreamBufferSize+64)
 	cmd := command(t, "actual-old-candidates")
 	var object oc.ObjectID
@@ -97,11 +99,25 @@ func TestObjectMetadataCleanupOldAttemptsAndStopHistory(t *testing.T) {
 		t.Fatal("bounded first Stop", err)
 	}
 	proxy.release()
-	_ = reader.Close() // Preserve any cancellation error; completion is checked below.
-	stopUntilSettled(t, f.service, actor, stop)
+	if err := reader.Close(); err != nil && !errors.Is(err, context.Canceled) {
+		t.Fatal("late reader Close returned an unrelated failure", err)
+	}
+	select {
+	case <-proxy.finished:
+	case <-time.After(2 * time.Second):
+		t.Fatal("original held GET handler did not actually return")
+	}
+	metadataStopUntilSettled(t, f, actor, stop)
 	if err := f.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND state='active'`, object.String()).Scan(&live); err != nil || live != 0 {
 		t.Fatal("Stop skipped an active native lease", err, live)
 	}
+	if projectWorkCount(t, f.fixture, "reader", true) != 1002 || projectWorkCount(t, f.fixture, "reader", false) != 0 {
+		t.Fatal("1001 history readers plus the late reader did not actually retire")
+	}
+	// EXPLAIN observes genuine histories after Stop actually returned; it does
+	// not supply stop/cleanup permission or extend the business call's budget.
+	f.sql(t, `ANALYZE agenteam_object.upload_attempts; ANALYZE agenteam_object.cleanup_operations; ANALYZE agenteam_object.object_leases; ANALYZE agenteam_object.project_work`)
+	plans.explain(t, "1001-history-stop-returned", "stop-work", "stop-full-pending")
 	operation, err := foundation.ParseID[oc.CleanupOperation](stop.Details().OperationID.String())
 	if err != nil {
 		t.Fatal(err)
@@ -128,4 +144,5 @@ func TestObjectMetadataCleanupOldAttemptsAndStopHistory(t *testing.T) {
 	if objectAuditCount(t, f.fixture, ac.ObjectDelete) != 1 {
 		t.Fatal("canonical delete did not append exactly one native Audit")
 	}
+	plans.explain(t, "65-attempts-1001-readers-physical-returned", "gate-two-pending-sets", "physical-full-pending")
 }
