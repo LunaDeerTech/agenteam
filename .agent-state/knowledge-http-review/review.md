@@ -49,4 +49,6 @@ B02五API/权限撤销/读COMMIT Unknown及原生慢I/O仍需以后独占窗口�
 
 发现并返修一项schema must-fix：原5条HEAD的8种error都引用带content的Problem，实际Account HEAD不写body。独立 `head-schema.py` 原样执行abcfdd actual1明确40处；作者仅改专用无body HeadProblem后，cc7bba actual0全部清零。实际比较35b62908：GET/通用Problem/HEAD200/全部DTO schemas保持；90e24c另核10个唯一operation及GET/HEAD同身份/query与bodyless安全表示headers。原红保留，不是产品HTTP故障。
 
-已准备 `risk_test.go` 与 `run-risk.py` 两个独立pure top，尚未执行：真实handler的AgentRun字段/foreign creator拒绝、坏末项不得发布首项；原Body.Close与AfterFunc分别持有，需在实际原finish函数阻塞channel的栈证据上确认body退役后仍等callback，非用sleep或即时select猜测。采用只读overlay排除作者尚未稳定的native/schema tests，固定Go/local/off/本树独占cache，只选两个新top；当前仅gofmt/AST解析与diffcheck0，等根缓存协调后才运行。权限和domain均明确复用作者private doubles，不替真实Account/PG验收。
+`risk_test.go` 与 `run-risk.py` 两个独立pure top已在根缓存协调后实际执行：真实handler的AgentRun字段/foreign creator拒绝、坏末项不得发布首项；原Body.Close与AfterFunc分别持有，需在实际原finish函数阻塞channel的栈证据上确认body退役后仍等callback，非用sleep或即时select猜测。采用只读overlay排除作者尚未稳定的native/schema tests，固定Go/local/off/本树独占cache，只选两个新top；75434→0db8c1 actualrace0，Go包耗时1.023s；首同进程UTC2026-10-09T23:06:08.805785Z可用5,993,074,688B，178048核实际终态后overlay临时目录为空、自有cache增加76,869,632B，23:07:06全局可用5,865,771,008B。没有TestMain/PG/native/浏览器/OS子项，未写作者源或作者cache。权限和domain均明确复用作者private doubles，不替真实Account/PG验收。
+
+当前有限独审结论：冻结生产Go及修后Schema无剩余must-fix。原abcfdd HEAD schema缺陷、作者6157错误cause_id测试预期与修后67777真实终态分别保留。独立控制只证明安全投影和原取消/Close/callback接线；真实Account当前Owner/权限锁序/PG读COMMIT Unknown、自然socket期限与keepalive等动态门仍待后继验证，不能据private ports直接交付生产root。
