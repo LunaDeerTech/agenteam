@@ -108,7 +108,7 @@ class RemoveStorageExtension(ast.NodeTransformer):
         return self.generic_visit(node)
 
     def visit_Assign(self, node):
-        if any(isinstance(target, ast.Name) and (target.id.startswith('SECRET_STORAGE_') or target.id == 'secret_storage') for target in node.targets):
+        if any(isinstance(target, ast.Name) and (target.id.startswith('SECRET_STORAGE_') or target.id in ('secret_storage', 'secret_recovery')) for target in node.targets):
             return None
         return self.generic_visit(node)
 
@@ -128,7 +128,9 @@ class RemoveStorageExtension(ast.NodeTransformer):
 require(ast.dump(RemoveStorageExtension().visit(ast.parse(source)), include_attributes=False)
         == ast.dump(ast.parse(old_supervisor), include_attributes=False))
 old_driver = subprocess.run(['git', 'show', baseline + ':.agent-state/task-planning-recovery/pg_only_driver.go'], cwd=ROOT, capture_output=True, text=True, check=True).stdout
-inverse = re.sub(r'^const secretVariableStorage(?:Core|Maintenance)Selector = `[^`]+`\n', '', driver_source, flags=re.M)
+inverse = re.sub(r'^const secretVariableStorage(?:Core|Maintenance|RecoveryWrite|RecoveryState)Selector = `[^`]+`\n', '', driver_source, flags=re.M)
+for suffix in ('Write', 'State'):
+    inverse = inverse.replace(' && *selector != secretVariableStorageRecovery' + suffix + 'Selector', '')
 inverse = inverse.replace('\tif strings.Contains(*selector, "SecretVariableStorage") && *selector != secretVariableStorageCoreSelector && *selector != secretVariableStorageMaintenanceSelector {\n\t\treturn fail("Secret storage requires an exact core or maintenance group")\n\t}\n', '')
 inverse = inverse.replace(' && *selector != secretVariableStorageCoreSelector', '')
 require(inverse == old_driver)

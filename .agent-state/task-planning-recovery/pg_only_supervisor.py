@@ -24,6 +24,23 @@ import uuid
 
 SECRET_STORAGE_CORE = '^TestSecretVariableStorageSQL(ReplayAndEffects|AtomicAuditAndOwnerRollback|ClosedConstraints)$'
 SECRET_STORAGE_MAINTENANCE = '^TestSecretVariableStorageSQLRotationDeletedOwnerAndCleanup$'
+SECRET_STORAGE_RECOVERY_WRITE = '^TestSecretVariableStorageSQL(CommitUnknown|NonceUnknown)$'
+SECRET_STORAGE_RECOVERY_STATE = '^TestSecretVariableStorageSQL(MaintenanceUnknown|Concurrency)$'
+SECRET_STORAGE_RECOVERY_CASES = {
+    SECRET_STORAGE_RECOVERY_WRITE: {
+        'TestSecretVariableStorageSQLCommitUnknown',
+        *('TestSecretVariableStorageSQLCommitUnknown/' + name for name in ('before', 'after', 'pending')),
+        'TestSecretVariableStorageSQLNonceUnknown',
+    },
+    SECRET_STORAGE_RECOVERY_STATE: {
+        'TestSecretVariableStorageSQLMaintenanceUnknown',
+        *('TestSecretVariableStorageSQLMaintenanceUnknown/' + name for name in
+          ('rotation-refresh', 'rotation-no-refresh', 'cleanup')),
+        'TestSecretVariableStorageSQLConcurrency',
+        *('TestSecretVariableStorageSQLConcurrency/' + name for name in
+          ('same-intent', 'changed-value', 'stale-credential-version')),
+    },
+}
 SECRET_STORAGE_CASES = {
     SECRET_STORAGE_CORE: {
         'TestSecretVariableStorageSQLReplayAndEffects',
@@ -41,13 +58,15 @@ SECRET_STORAGE_CASES = {
 }
 
 
-def secret_storage_inputs(driver, binary):
+def secret_storage_inputs(driver, binary, recovery=False):
     # Precompiled test and driver; no TestMain rebuild or Go metadata process.
     # Freeze the selected storage/fixture/migration sources as well as the two
     # executable artifacts. This is scoped input evidence, not a whole-repo hash.
     root = Path(__file__).resolve().parents[2]
     output = root / 'output/ai/secret-variable-storage'
-    if (driver != output / 'pg-only-driver' or binary != output / 'secret-variable-storage-sql-reviewed.test'):
+    expected_driver = output / ('pg-only-recovery-driver' if recovery else 'pg-only-driver')
+    expected_binary = output / ('secret-variable-storage-recovery.test' if recovery else 'secret-variable-storage-sql-reviewed.test')
+    if driver != expected_driver or binary != expected_binary:
         raise ValueError('exact Secret storage artifacts required')
     paths = {driver, binary, Path(__file__).resolve(), root / 'go.mod', root / 'go.sum',
              root / '.agent-state/task-planning-recovery/pg_only_driver.go'}
@@ -55,6 +74,14 @@ def secret_storage_inputs(driver, binary):
                  'secret_variable_storage_maintenance_test.go', 'audit_common_test.go',
                  'secret_common_test.go', 'secret_project_audit_fixture_test.go', 'secret_rotation_test.go'):
         paths.add(root / 'tests/security' / name)
+    if recovery:
+        for name in ('secret_variable_storage_recovery_fixture_test.go',
+                     'secret_variable_storage_recovery_test.go',
+                     'secret_variable_storage_recovery_nonce_test.go',
+                     'secret_variable_storage_recovery_concurrency_test.go',
+                     'secret_variable_storage_recovery_maintenance_test.go',
+                     'audit_proxy_test.go', 'outbound_reload_test.go'):
+            paths.add(root / 'tests/security' / name)
     for name in ('secret', 'audit', 'foundation', 'postgres', 'cursor',
                  'identity/contract', 'projectvariable/contract'):
         paths.update(p for p in (root / 'internal/central' / name).rglob('*.go')
@@ -69,7 +96,7 @@ def secret_storage_inputs(driver, binary):
 
 
 def observe_secret_storage(log_path, log, selector):
-    expected = SECRET_STORAGE_CASES[selector]
+    expected = (SECRET_STORAGE_CASES | SECRET_STORAGE_RECOVERY_CASES)[selector]
     try:
         raw = log_path.read_text()
     except (OSError, UnicodeDecodeError):
@@ -237,11 +264,12 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
-    if 'SecretVariableStorage' in args.run and (args.root_chain or args.run not in SECRET_STORAGE_CASES):
+    if 'SecretVariableStorage' in args.run and (args.root_chain or args.run not in (SECRET_STORAGE_CASES | SECRET_STORAGE_RECOVERY_CASES)):
         parser.error('Secret storage requires one exact PG-only core or maintenance group')
     driver_timeout, term_grace = budgets(args.root_chain)
     adapter = root_adapter(args.driver) if args.root_chain else None
-    secret_storage = not args.root_chain and args.run in SECRET_STORAGE_CASES
+    secret_recovery = not args.root_chain and args.run in SECRET_STORAGE_RECOVERY_CASES
+    secret_storage = not args.root_chain and (args.run in SECRET_STORAGE_CASES or secret_recovery)
     if adapter is not None and args.run not in adapter.TARGETS:
         parser.error('root mode requires one exact Work root selector')
     args.output.mkdir(parents=True, exist_ok=True)
@@ -259,7 +287,7 @@ def main():
         inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
     if secret_storage:
         inputs = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
-                  for p in secret_storage_inputs(args.driver, args.binary)}
+                  for p in secret_storage_inputs(args.driver, args.binary, secret_recovery)}
     baseline = tcp()
     started = time.monotonic()
     child = None
@@ -364,7 +392,7 @@ def main():
                 try:
                     same = (all(hashlib.sha256(Path(p).read_bytes()).hexdigest() == digest
                                 for p, digest in inputs.items())
-                            and set(inputs) == {str(p) for p in secret_storage_inputs(args.driver, args.binary)})
+                            and set(inputs) == {str(p) for p in secret_storage_inputs(args.driver, args.binary, secret_recovery)})
                 except (OSError, ValueError):
                     same = False
             else:
