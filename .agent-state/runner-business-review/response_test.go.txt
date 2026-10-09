@@ -1,0 +1,174 @@
+package review
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"errors"
+	"github.com/LunaDeerTech/agenteam/internal/runner/identity"
+	p "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
+	"io"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"os"
+	"path/filepath"
+	"sync/atomic"
+	"testing"
+	"time"
+)
+
+// ORIGINAL_IDENTITY
+var errRunnerCrashHeld = errors.New("owned crash response held")
+
+func installOriginal(proxy *httputil.ReverseProxy, path string, committed bool, hold func(context.Context, bool)) {
+	// ORIGINAL_CALLBACK
+}
+
+type roundTrip func(*http.Request) (*http.Response, error)
+
+func (f roundTrip) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
+
+type responseBody struct {
+	io.Reader
+	closes     atomic.Int32
+	closeError error
+}
+
+func (b *responseBody) Close() error { b.closes.Add(1); return b.closeError }
+
+type failRead struct{}
+
+func (failRead) Read([]byte) (int, error) { return 0, io.ErrUnexpectedEOF }
+
+type writer struct {
+	header http.Header
+	writes atomic.Int32
+}
+
+func (w *writer) Header() http.Header         { return w.header }
+func (w *writer) WriteHeader(int)             { w.writes.Add(1) }
+func (w *writer) Write(b []byte) (int, error) { w.writes.Add(1); return len(b), nil }
+
+func TestOriginalCrashResponseCheckpoint(t *testing.T) {
+	dir, e := os.MkdirTemp(os.Getenv("REVIEW_PRIVATE"), "owned-")
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer os.RemoveAll(dir)
+	file := filepath.Join(dir, "identity.json")
+	stored, e := identity.NewPending(identity.Configuration{CentralURL: "https://owned.invalid", RunnerID: p.ID("01970000-0000-7000-8000-000000000001"), RootPath: "/srv"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	locked, e := identity.Open(file)
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer locked.Close()
+	if e = locked.Save(stored); e != nil {
+		t.Fatal(e)
+	}
+	public, e := stored.PublicKey()
+	if e != nil {
+		t.Fatal(e)
+	}
+	response, e := p.NewEnrollmentResponse(stored.Configuration().RunnerID, "2", "1", "2026-10-09T12:00:00Z", p.PublicKeyFingerprint(public))
+	if e != nil {
+		t.Fatal(e)
+	}
+	original, e := p.EncodeEnrollmentResponse(response)
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, name := range []string{"complete", "not-committed", "status", "length", "missing-length", "short-json", "wrong-runner", "wrong-version", "wrong-fingerprint", "read-error", "close-error", "oversize"} {
+		t.Run(name, func(t *testing.T) {
+			raw := append([]byte(nil), original...)
+			status := http.StatusOK
+			length := int64(len(raw))
+			committed := true
+			switch name {
+			case "not-committed":
+				committed = false
+			case "status":
+				status = 503
+			case "length":
+				length++
+			case "missing-length":
+				length = -1
+			case "short-json":
+				raw = raw[:len(raw)-1]
+				length = int64(len(raw))
+			case "wrong-runner":
+				raw = bytes.Replace(raw, []byte("000000000001"), []byte("000000000002"), 1)
+			case "wrong-version":
+				raw = bytes.Replace(raw, []byte(`"version":"2"`), []byte(`"version":"3"`), 1)
+			case "wrong-fingerprint":
+				raw = bytes.Replace(raw, []byte(p.PublicKeyFingerprint(public)), []byte("sha256:"+string(bytes.Repeat([]byte{'0'}, 64))), 1)
+			case "oversize":
+				raw = bytes.Repeat([]byte{'x'}, p.MaxDeviceBodyBytes+1)
+				length = int64(len(raw))
+			}
+			body := &responseBody{Reader: bytes.NewReader(raw)}
+			if name == "read-error" {
+				body.Reader = io.MultiReader(bytes.NewReader(raw), failRead{})
+			}
+			if name == "close-error" {
+				body.closeError = errors.New("controlled Close error")
+			}
+			origin, _ := url.Parse("https://owned.invalid")
+			proxy := httputil.NewSingleHostReverseProxy(origin)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			checkpoint := make(chan bool, 1)
+			done := make(chan struct{})
+			var errorsSeen atomic.Int32
+			installOriginal(proxy, file, committed, func(ctx context.Context, known bool) { checkpoint <- known; <-ctx.Done() })
+			proxy.Transport = roundTrip(func(r *http.Request) (*http.Response, error) {
+				return &http.Response{StatusCode: status, ContentLength: length, Header: make(http.Header), Body: body, Request: r}, nil
+			})
+			proxy.ErrorHandler = func(_ http.ResponseWriter, _ *http.Request, e error) {
+				if !errors.Is(e, errRunnerCrashHeld) {
+					t.Error("unexpected proxy error")
+				}
+				errorsSeen.Add(1)
+			}
+			request, _ := http.NewRequestWithContext(ctx, http.MethodPost, "https://owned.invalid/api/v1/runner/enroll", nil)
+			output := &writer{header: make(http.Header)}
+			go func() { defer close(done); proxy.ServeHTTP(output, request) }()
+			defer func() {
+				cancel()
+				select {
+				case <-done:
+				case <-time.After(time.Second):
+					t.Error("original proxy did not return")
+				}
+			}()
+			select {
+			case known := <-checkpoint:
+				if known != (name == "complete") {
+					t.Errorf("complete=%v for %s", known, name)
+				}
+				if output.writes.Load() != 0 || body.closes.Load() != 1 {
+					t.Error("checkpoint before zero-write/actual body Close")
+				}
+			case <-time.After(time.Second):
+				t.Fatal("no checkpoint")
+			}
+			select {
+			case <-done:
+				t.Fatal("hold returned early")
+			default:
+			}
+			cancel()
+			select {
+			case <-done:
+			case <-time.After(time.Second):
+				t.Fatal("cancel did not actually join")
+			}
+			if output.writes.Load() != 0 || errorsSeen.Load() != 1 {
+				t.Fatal("held error fabricated a response")
+			}
+		})
+	}
+}
