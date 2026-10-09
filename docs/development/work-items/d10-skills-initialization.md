@@ -1,6 +1,6 @@
 # D10：Skills 初始化与不可变内容
 
-状态：rev3，2026-10-09，P2 持久初始化服务 SPEC 已获未参与实现者有限独立接受，持续实施。P1 纯契约与真实 builtin 的既有提交及[独立验收](../agent-team/d10-p1-recovery-verification.md)不变。当前基线正式 main `ca9f2d5d` 已包含 D08 初始化 Audit 授权库；P2 受控 Object 边界下的真实 PG 持久初始化、发布回滚与原 COMMIT 恢复三个作者 top 已通过。后增Project精确Stop已获有限独审，其真实PG及D05组合均只完成编译准备。完整服务验收、D05真实发布/清理和生产root仍未闭合。本文不代表 D10 完成。
+状态：rev3，2026-10-09，P2 持久初始化服务 SPEC 已获未参与实现者有限独立接受，持续实施。P1 纯契约与真实 builtin 的既有提交及[独立验收](../agent-team/d10-p1-recovery-verification.md)不变。当前基线正式 main `ca9f2d5d` 已包含 D08 初始化 Audit 授权库；P2 受控 Object 边界下的真实 PG 持久初始化、发布回滚与原 COMMIT 恢复三个作者 top 已通过。后增Project精确Stop已获有限独审，当前产品真实PG12子完整PASS；D05组合仍只完成编译准备。完整服务验收、D05真实发布/清理和生产root仍未闭合。本文不代表 D10 完成。
 
 依据：[开发计划](../development-plan.md)、[Skills 架构](../../architecture/agent-skills.md)、[D01 资源/Skills 契约](d01-contracts/resources-skills.md)、[本工作项规格](d10-skills-initialization-design.md)。S01 候选基线 `71dc17671631632bb26e251ad8491e74092ac975`，原主卡 SHA `a258ed11366946529082e885b5ec1e74d033687d1aec60d69000691862811b88`；独立结论 `/tmp/agenteam-d10-s01-review-4r1gg40i/report.md` SHA `49381427440c1f2a09219361e8a1b902ecb8c0db1d1700a35350050f6136f990` 无新增硬阻断，只采纳规格，不证明真实链路。
 
@@ -42,6 +42,8 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 - 本域Project精确Stop子能力已实现并获未参与者有限独审接受：原初始化/包读取从准入关联稳定work ID，RequestStop同Store完整锁下消费现有StopPhase门禁、明确commit后才取消原call；Archive保合法reader，Delete包含reader。Inspect只按本实例实际返回或foreign精确停止+原Tx锁终局结账，不把取消/Close/空本地map当Stopped；原Unknown与100项之外Pending保持。最终4top/21子作者定向race、完整 `skill/...` race与vet通过；Knowledge作者对 `d0a16242` 六源独立overlay62067实际4top/2子race通过，覆盖锁失败、call未end、proof后identity漂移和原Unknown。全部仍用受控Store/Project/Process，不是PG/生命周期/根停止验收。原五个integration binaries和来源产品checkpoint `5291515f` 保留，新产品须另验。
 - 第三个原产品作者真实PG top `TestSkillInitializationCommitRecovery` 完整PASS（39205，Go3.88s、outer73.143s）：真实原COMMIT完整帧hold、原Unknown、释放后提交及proxy实际join，原key只读恢复与重建Service同ID零physical重放。Go/driver实际Wait0、两资源双退役、private/runtime及desc/TCP双尾、inputs_unchanged全闭合后释放窗口。此证据消费旧 `skill-pg-recovery.test`/`5291515f` 前产品，Object仍受控，不外推后增Stop、真实D05或root。
 - 当前Stop另有独立 `TestSkillLifecycleStopPersistence` 12子源码准备，消费真实Project LifecycleAuthority/同Store锁/真实work SQL，并以原完整帧proxy验证Stop COMMIT未确认不得取消。覆盖当前phase/cause/participant/Owner拒例、archive/delete原held Discard的实际join和独立真实父锁竞争；Project/Creation/lifecycle明示规范种子，Object/Process受控。70036 race-c与f8911f唯一top发现actual0，独立 `skill-pg-stop.test` 使用 `d0a16242` 产品+新测试；尚未执行PG/socket，旧binaries及harness未改。
+
+- 当前产品Stop作者真实PG `96753` 完整PASS：沿70036 binary／d0a16242产品＋19353f4e测试，12子Go5.32s；同env首采5,707,370,496 bytes满足5GiB后exec，Go986629与driver986046实际Wait0，driver15.375s／supervisor74.585s、outeractual0。两精确PG资源双退役、desc/runtime/private及TCP双尾、inputs_unchanged全齐，现场run仅owned.json且两PID不存在后归还窗口。实证当前Project LifecycleAuthority/原cause与phase/participant/Owner、真实父锁、archive/delete持有调用实际join、原Stop COMMIT Unknown不取消及后继已知提交取消；仍为规范Project/lifecycle种子和受控Object/Process，不称D05/foreign死亡/整participant/root通过。原件与完整env/cwd见 `.agent-state/current.md`；原初始化三组旧产品结论不扩大。
 
 ## 生命周期后续依赖与责任
 

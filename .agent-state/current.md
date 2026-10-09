@@ -1,20 +1,42 @@
 # Skills 持久初始化服务恢复点
 
 - 树：`/workspace/agenteam-skills`，分支 `ai/skills-service`；基线正式 main `ca9f2d5d`。D08已正式交付，旧初始化树保持冻结，不再修改。
-- 当前：已完成Variables独验并返回D10作者；rev3 SPEC已获独立有限接受。本域四口initializer、OwnerReader、持久work和有界公平Recover均可构建。原产品作者真实PG的Persistence（60950）、PublicationRollback（58518）与CommitRecovery（39205）已完整PASS，均明确消费受控Object端口；后增Project精确Stop已获有限独审、独立PG测试仅编译准备。真实D05对象组合仅完成编译准备，生产root仍未绑定。
+- 当前：已完成Variables独验并返回D10作者；rev3 SPEC已获独立有限接受。本域四口initializer、OwnerReader、持久work和有界公平Recover均可构建。原产品作者真实PG的Persistence（60950）、PublicationRollback（58518）与CommitRecovery（39205）已完整PASS，均明确消费受控Object端口；后增Project精确Stop已获有限独审，当前产品PG12子（96753）完整PASS。真实D05对象组合仅完成编译准备，生产root仍未绑定。
 - 已保存SPEC片段：`docs/development/work-items/d10-skills-initialization.md`、`docs/development/work-items/d10-skills-initialization-design.md`、本文。已由root保存/push ea13186d，设计技术段继续freeze；未自行Git操作。
 - 当前可复用：实际D05 same-Store Object Audit checker；D08 original initialization四口、收敛口与初始化Audit wrapper。本域Skill exact映射provider已实现，真实Object组合测试已接线但未动态；生产root未绑定，constructor非nil不证明真实组合。
 - 共享待协调：D05初始化Service closed shape/initiator及SkillRevision+ProjectDeleted release三个窄补口已完成并获有限独审，尚不证明真实清理；Project CleanupPhase现unbound，本域active初始化与删除Audit分流、生产同participant组合仍待。Project CleanupPhase/root仍未授写，Object runtime join停止项不恢复。
-- 迁移00027已随上述三次真实PG初始化fixture连续执行；单独升级、约束和DDL失败回滚矩阵仍未动态。root已精确刷新00024到正式3cea6076，00025保持da16d95a、00026保持4174e160；前序来源与各域证据不替代本域独立迁移验收。
-- 下一步：原CommitRecovery已实际闭合；Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority、当前产品Stop和真实D05三子组合仍各自等待root单top fresh grant后实际执行。前四项用原两资源PG窗口，D05用原七资源窗口；资源、缓存继续唯一所有。root授权的Project精确Stop子能力已获下述有限独审；旧binary及对应产品基线单独保留，不将旧PG结果外推新产品。不spawn，root协调交叉审查。
+- 迁移00027已随上述初始化及当前Stop的真实PG fixture连续执行；单独升级、约束和DDL失败回滚矩阵仍未动态。root已精确刷新00024到正式3cea6076，00025保持da16d95a、00026保持4174e160；前序来源与各域证据不替代本域独立迁移验收。
+- 下一步：原CommitRecovery已实际闭合；Migration、AdmissionUnknown、OwnerMetadataCurrentAuthority和真实D05三子组合仍各自等待root单top fresh grant后实际执行。前三项用原两资源PG窗口，D05用原七资源窗口；资源、缓存继续唯一所有。root授权的Project精确Stop子能力已获下述有限独审；旧binary及对应产品基线单独保留，不将旧PG结果外推新产品。不spawn，root协调交叉审查。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
 
 ## 本轮恢复保存与 Knowledge 独立风险审查
 
-- root 已保存当前 Stop PG 测试／卡／本文三路径到 `19353f4e766783cdaabd3068833c424f3a631985`；`70036` race-c、`f8911f` 单 top discovery 仅编译准备，12 子尚未实际。原 `39205` CommitRecovery 完整 PASS 只对应旧 frozen binary 产品组合，不外推到新增 Stop。下一当前 Stop PG 等 root 独占 fresh grant；原两资源 driver 无 MinIO/harness新依赖。
+- root 已保存当前 Stop PG 测试／卡／本文三路径到 `19353f4e766783cdaabd3068833c424f3a631985`；此前 `70036` race-c、`f8911f` 单 top discovery 仅编译准备，随后12子已由96753实际验证。原 `39205` CommitRecovery 完整 PASS 只对应旧 frozen binary 产品组合，不外推到新增 Stop。本轮Stop使用原两资源 driver，无 MinIO/harness新依赖，结果见下。
 - 已完成 Knowledge B02 15 生产源、00025 和四个共享 Project adapter 的独立风险审，详见 [完整报告](knowledge-b02-review/README.md)。暂不接受完整 B02：真实 D05 reader 取消后 Close 返回原错误导致 Knowledge call 不退役（P1）；RecoverCleanup 首 Pending 全局阻塞后续 Project（P2）。作者与 root 已收到，不改他域产品。
-- 离线实际源 overlay `61981` actual0/race1.042s，1 top/2 子；补调度控制 `99769` actual0/race1.023s，2 top/2 子。复现测试断言缺陷，不能写产品通过；没有 PG/socket/网络。完整 env、受控边界及精确受审源范围在报告及相邻必要 probe 保存；Knowledge 原 Runtime ready 输入仍待实际。
+- 离线实际源 overlay `61981` actual0/race1.042s，1 top/2 子；补调度控制 `99769` actual0/race1.023s，2 top/2 子。复现测试断言缺陷，不能写产品通过；没有 PG/socket/网络。完整 env、受控边界及精确受审源范围在报告及相邻必要 probe 保存；Knowledge 原 Runtime56777随后真实第一子FAIL、后两子PASS，hostTCP尾FAIL保留；两mustfix作者返修已冻结交本实例复核，新分页SQL仍未PG。
 - 新 review 目录四文件加本文共五路径可恢复冻结。源检查未发现其他授权／删除原子性 mustfix；原作者六组有限 PG 和后续五组／最小独立真实补集边界不变。当前本实例无测试／真实资源在途。
+
+## 当前 Stop PG 完整结果
+
+- fresh grant 后第一工具同完整env采样可用5,707,370,496 bytes≥5,368,709,120，才exec原supervisor。`96753` 只跑 `^TestSkillLifecycleStopPersistence$`，Go5.32s、12子全PASS；Go986629与driver986046实际Wait0，driver15.375099071s、supervisor74.585s、outer actualexit0。
+- PG container `abd75e868fca3a9b85455b45fd5d5b9979a29cea834b25a6c020df4f21c65c2b`、network `c47b4eb492932b0d1f0b663b81b4979ffd5bc81e40e8d531a0cc9d2f9abaea69`、nonce `b1e88e7e604635298362a94a485645bb` 原两资源双clean；desc双[]、HOST_TCP双delta_empty、inputs_unchanged=True/terminal0齐。现场两PID absent，run仅owned.json，fixture/env/证书/runtime皆absent无symlink。原件 `output/ai/skills/pg/pg-93953cff7f174f49937d089f7b5c6c1c.log` 与同名目录；已向root归还唯一窗口，不自动续跑。
+- 消费70036独立binary（32,895,591 bytes），产品=d0a16242六源＋19353f4e新测试；当前真实same-Store Project LifecycleAuthority、phase/cause/participant/Owner门禁、archive/delete原held Discard实际call退出、父锁竞争、原Stop COMMIT Unknown与不取消/后继明确取消均验证。Object/Process仍受控，Project/Creation/lifecycle是披露的规范种子；不证明真实D05/foreign进程死亡、Create/BeginArchive/Delete、完整participant/root。
+- cwd固定 `/workspace/agenteam-skills/tests/skills`；沿原Go6m/driver105+15/supervisor123+3/TCP75，不变更预算。实际env/argv如下（已运行，不自动重跑；任何新真实top仍须root新grant）：
+
+```sh
+env -u AGENTEAM_PG_FIXTURE -u AGENTEAM_PG_UNSUPPORTED_FIXTURE \
+ -u AGENTEAM_OBJECT_FIXTURE -u AGENTEAM_OUTBOUND_FIXTURE \
+ PATH=/workspace/toolchains/go1.27.1/bin:$PATH \
+ GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2 \
+ GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
+ GOCACHE=/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache \
+ GOTMPDIR=/workspace/agenteam-skills/output/ai/skills/compile/tmp \
+ python3 /workspace/agenteam-skills/.agent-state/task-planning-recovery/pg_only_supervisor.py \
+ --driver /workspace/agenteam-skills/output/ai/skills/compile/pg-only-driver \
+ --binary /workspace/agenteam-skills/output/ai/skills/compile/skill-pg-stop.test \
+ --run '^TestSkillLifecycleStopPersistence$' \
+ --output /workspace/agenteam-skills/output/ai/skills/pg
+```
 
 ## 首个持久实现片段
 
