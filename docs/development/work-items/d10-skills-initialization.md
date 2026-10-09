@@ -56,6 +56,8 @@ P2 首片段已新增Store/原命令与冻结包状态校验、对应pure测试�
 
 监督器同轮仅移植已审Runner57642926的有限TCP诊断，原整集差集/两次空/75s/Wait/资源门全不变，最多20ms诊断从原100ms间隔支出。固定18控制b663df actual0、Work未参与者7e8dc1窄审接受；首临时目录不存在的control setupERROR保留。只提供后继精确失败样本及受限owner观察，不归因或回填4315，不等测试夹具或业务接受。详源/命令与六路径freeze见恢复点。
 
+两fixture随后由Knowledge未参与者37ed09实际41个Foundation控制与正式同Tx lifecycle/FK源核有限接受。原三top修后79510候选在新61543真实窗口完整PASS：AdmissionUnknown2子4.44s、Migration4直接子含30约束9.55s、Owner12子2.03s。Go1138755/driver1138198实际Wait0，driver24.406s、supervisor84.760s、outeractual0；两精确资源双clean、private/runtime/desc、TCP双空及input不变全部齐。当前产品仍d0a16242，仅a5ebdd97两tests修复；不把规范Session/Project/lifecycle seed当真实Login/Create/BeginDelete，也不将受控Object此组当真实D05或完整participant/root。原4315全部失败与缺项保持；命令、原日志和资源定位在[恢复点](../../../.agent-state/current.md#修后原三-top61543-完整-pass)。
+
 ## 生命周期后续依赖与责任
 
 上述Stop两口不构成完整`ProjectLifecycleParticipant`。本域下一段负责精确CleanupAuthority、同cause关闭serving与Release、预算内物理删除、删除Audit外层及所有实际terminal后的本域清理；必须消费真实D08 CleanupPhase准入，不能拿active初始化授权或技术退休权替代。

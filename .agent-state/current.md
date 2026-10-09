@@ -5,8 +5,8 @@
 - 已保存SPEC片段：`docs/development/work-items/d10-skills-initialization.md`、`docs/development/work-items/d10-skills-initialization-design.md`、本文。已由root保存/push ea13186d，设计技术段继续freeze；未自行Git操作。
 - 当前可复用：实际D05 same-Store Object Audit checker；D08 original initialization四口、收敛口与初始化Audit wrapper。本域Skill exact映射provider已实现，真实Object组合测试已接线但未动态；生产root未绑定，constructor非nil不证明真实组合。
 - 共享待协调：D05初始化Service closed shape/initiator及SkillRevision+ProjectDeleted release三个窄补口已完成并获有限独审，尚不证明真实清理；Project CleanupPhase现unbound，本域active初始化与删除Audit分流、生产同participant组合仍待。Project CleanupPhase/root仍未授写，Object runtime join停止项不恢复。
-- 迁移00027已随上述初始化及当前Stop的真实PG fixture连续执行；单独升级、约束和DDL失败回滚矩阵在4315已实际业务PASS，但同轮TCP门失败，不能认whole接受。root已精确刷新00024到正式3cea6076，00025保持da16d95a、00026保持4174e160；前序来源与各域证据不替代本域独立迁移验收。
-- 下一步：原CommitRecovery及当前真实D05发布三子已实际闭合；已审exact三top组合4315已实际整体FAIL，见下节；先修有源码证据的两tests-only夹具问题，再交独审和申请受影响组，不能自动重跑或回填旧结果。资源、缓存继续唯一所有。root授权的Project精确Stop子能力已获下述有限独审；旧binary及对应产品基线单独保留，不将旧PG结果外推新产品。不spawn，root协调交叉审查。Cleanup rev2只到规格接受，D05新口与Project当前CleanupPhase须先独立交付。
+- 迁移00027已随上述初始化及当前Stop的真实PG fixture连续执行；原4315迁移业务PASS但whole FAIL保留。两fixture窄修后，61543当前三top组合完整PASS，含升级、约束、DDL失败回滚、AdmissionUnknown两子和Owner十二子，见下节。root已精确刷新00024到正式3cea6076，00025保持da16d95a、00026保持4174e160；前序来源与各域证据不替代本域独立迁移验收。
+- 下一步：本域上述有限初始化/Stop/当前D05及三top真实组已闭合各自范围，生产root/完整participant未完成。Cleanup rev2只到规格接受，D05新口与Project当前CleanupPhase须先独立交付。另在独立Knowledge树89530整体FAIL已完整尾释放，按授权只修其公开receipt投影前置；Work新增Blocker端点窄审已有限接受。无自动真实重跑，旧binary及产品基线保持，不spawn，由root协调资源和交叉审查。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
 
 ## 三组 PG 首轮 4315：整体 FAIL，资源已退役
@@ -18,7 +18,7 @@
 - 原件 `output/ai/skills/pg/pg-50d4ed0b91ef46a381a43b229a68f010.log` 与同名owned目录。70036原binary不覆盖。原业务输入没有变化，后续候选必须独立命名。
 - 两项静态已证夹具错误：Admission将 `CauseDetails` 用reflect.DeepEqual比较，其Primary为含非nil闭包的CommandIdentity，连自身都不DeepEqual；须逐正式语义字段/Primary.Canonical与有序Related比较，保持原Unknown/attempt/原cause/空结果/原writer全部门槛，不打印私有key。原聚合断言没有逐字段记录，不能声称旧轮其它条件已过。Owner deleting写随机current_lifecycle_operation_id但未创建该operation，违反00013正式projects_operation_fk；须建立最小正式有效生命周期fixture前置，不关闭FK或冒真实BeginDelete。root授权这两个tests-only窄修；本文冻结时尚未写修复、未重编或再PG。
 
-## 4315 后两夹具修复与安全 TCP 诊断（离线 ready）
+## 4315 后两夹具修复与安全 TCP 诊断
 
 - 基线9e3fc022后只修 `tests/skills/admission_unknown_test.go` 与 `owner_read_test.go`。前者用验证过的Cause及全部正式语义字段比较：Primary.Canonical、有序Related、Kind以及Job/Delivery/Recovery全部标量，不用opaque JSON或DeepEqual；原Unknown state、原attempt、空result、writer PID等一律保留，聚合失败另列八个安全布尔值，不输出key/cause/ID。`repair-controls.py cause` 从实际新helper抽取并链接真实Foundation，8ceba1 actual0/14控含原DeepEqual自身恒false、同identity不同构造为true及所有改变/相关顺序/错误kind/无效cause拒绝。不是旧轮未采字段通过的证据。
 - Owner deleting用 `seedReaderDeletingProject`：同UserEX+ProjectEX Tx读取现有archived/initialized/current Owner/version，写正式accepted Delete operation（project_version=current+1）、真实RequiredManifest与digest及required participant，再精确旧version更新Project到deleting并引用同operation。保留正式FK、rows1、原currentOwner公开读拒绝；仍是披露的上游生命周期fixture，不是实际BeginDelete。复用原已验Stop fixture的纯manifest构造，不改原Stop测试或产品。
@@ -27,6 +27,13 @@
 - `python3 .agent-state/skills-pg-combo/repair-controls.py tcp` b663df原18控实际0（从已保存Git blob复用原控制，仅当前树、原Skills基线8e7afde8、临时输出目录切到本树）；逆除TCP增量后整supervisor逐字原版。首780c74中17控过，1控临时parent目录不存在setupERROR；只修控制输出路径后18过，原失败保持。Work未参与者7e8dc1独立18控及7函数逐字核后有限接受TCP移植无mustfix；不评cause/fixture或Skills PG，不回填4315原TCP失败。
 - 6路径全部冻结供root checkpoint：两test、supervisor、`.agent-state/skills-pg-combo/repair-controls.py`、本页、D10主卡。无执行/资源在途。Work方法整包独审3scope已root保存9e3fc022，当前授权仅离线；Knowledge独立两top候选2578a9ef仍待封闭工具映射，随后推进。
 
+## 修后原三 top：61543 完整 PASS
+
+- 两tests-only修复已root保存a5ebdd97。Knowledge未参与者37ed09 actual0：两文件逆投影逐字9e3fc022、真实Foundation语义41控、同Tx/UserEX/ProjectEX/Owner/version/accepted Delete/manifest/participants及FK静核有限接受；其首b73fab临时main错误cwd为自身setupFAIL，不是产品反例。未改生产；原4315失败及未采字段不回填。
+- 79510候选32,903,693 B保持，8967f3只list实际发现原Migration/InitializationAdmissionUnknown/OwnerMetadataCurrentAuthority恰三top。新freshgrant后首exec b94b1b在同process核available=5,419,413,504 B≥5 GiB、原97198 driver15,394,731 B、Go1.27.1、固定MinIO及完整offline/readonly env才exec。cwd=`tests/skills`，沿下节Stop命令，仅binary换`skill-pg-admission-owner-fixed.test`、driver换`pg-only-skills-combo-driver`、selector换原literal；另显式`GOFLAGS=-mod=readonly`、`AGENTEAM_GO`和固定`AGENTEAM_MINIO_BINARY`，GOTMPDIR仍`output/ai/skills/compile/tmp`，继承PATH。原Go6m/105+15/123+3/TCP75/两资源/no-failfast不变。
+- AdmissionUnknown4.44s两子、Migration9.55s四direct含30约束、Owner2.03s十二子全部PASS。Go1138755实际Wait0，driver1138198 actualWait0/24.40642665s；outer61543由517c30确认actualexit0。c8adce核两ID双clean、desc双[]、exact3tops、HOST_TCP双delta_empty、inputs_unchanged=True，supervisor84.760s terminal0；现场两PID absent、run仅owned.json，fixture.env/certs/runtime均absent且无symlink。资源窗口完整释放，没有其它自有live。
+- 原件`output/ai/skills/pg/pg-b5a3e2c5a4d3407ca2d0e31187e67dba.log`与同名owned目录，nonce b31314bc453fb193a7d7c6707a9b3976；container 2dd932de142be20cd7fc93fc9316139d9561cbac402fa850b8171ca25608e0c5、network b27e1d3a7a72cac73a5da8e744180018edd2dc22c38de18f34cc465881980064。绑定当前d0a产品/a5测试修复，不重跑或外推旧产品；上游Human/Session/Project/生命周期是披露的规范seed、Object/Process受控，不称Login/Create/BeginDelete、真实D05此组、完整participant/root或独立动态验收。
+
 ## 下一独立清理 SPEC（rev2 有限接受，尚未实施）
 
 - root授权推进精确CleanupAuthority/Project CleanupPhase工程规格并仅预留00028。原rev1三路径已保存 `e9e608f9`；Knowledge独审确认三mustfix：合法已initialized/published范围并不需要dropFK、历史work无界不能一Tx全删、删本域父表后D05 CleanupProject仍先取Maintenance plan会断链。原问题保留，未把rev1记接受。
@@ -34,8 +41,11 @@
 - Project共享门禁仍由root指定owner补Skills-only当前CleanupPhase。另明确当前不存在的D05正式 `DeletedObjectMetadataPurger`＋唯一closed Access operation依赖：真实当前gate／opaque plan／同Store Tx／原Object与Upload anchor、私有物理完成及actualjoin前置，metadata历史每次≤32，最后Object/Upload与Skills核心同Tx清除。后序ProjectCleanup不再见此Object，避免无父映射Maintenance循环；缺口不能由root泛路由或DependencyUnbound假完成。Object既有gate/clean也须避免每次无界重扫已cleaned历史；root原则同意另建隔离D05实现，此实例不改Object/Project/App/D04产品或Runtime join。
 - Knowledge TCP诊断移植临时优先窄审已完成：f8fe7d actual0，增量逐字Runner57642926，逆除分别逐字Knowledge666169b6／Runner3e7fd3bd，driver未改、11exact三表相同、预算/Wait/resource/input/gate其余字节保持。只接受已审方法的精确移植，无资源运行，不回填原56777或54818终态；已回root/作者，不另复制控制源。
 - Knowledge续审确认三原问题实质闭合为明确D05前置，另要求stopWriters同样纳入有界发现／原writer终局重验。§16.6.2与验收补齐gate/stopWriters/clean/最后未完成检测全链、查询索引及历史后部尚活writer反例后，704bee独审有限接受、无本修订mustfix；root已保存三docs为1e8b5c67。仍保实际done／正式Guard证明；D05实际可执行SPEC／索引／退休证明、产品独审和真实组合是未实现前置。本次只回填限定结论，未实施Cleanup或SQL。
+- D05上游作者核正式`backend/object-runtime.md`及D05设计后确认zero_marker首版永久保留；本次只校正§16.6“marker删除”措辞为payload清除、空marker核实及实际lease/work终局，不要求自动删marker，不解除Runtime停项。消费端仍exact ProjectDeleted/SkillRevision及同union Tx最后anchor；既有accepted Release分支整合与project_stops下当前cause窄许可由其上游SPEC负责，未跨改产品。
 
 ## 后续 Work 方法与 Timeline SPEC 独审
+
+- 新Work `24ffd0ba..ff12b21a` 单Blocker Lookup五技术范围有限离线接受，无mustfix。本人ded763实际20控0/0unhandled，仅作者新增18Blocker差异及两独立真实Session/API/transport Resolve控制：held outercancel仍独占owner/第二facade busy不发HTTP，放尾后严格committed才完成；返回未resolved receipt拒绝。helper c95b1a六差异actual0，新增精确POST正例knownfailed不调用finished，GET/query/extra/非法Task/其它blockers路径仍拒并沿原finished。068d5f实核三消费AST逐字24ffd、五源冻结与产品/spec无diff。原102/80/41未变范围复用，无新browser/PG/SQL；07整体FAIL不回填。必要proof为`work-cut-review/blocker-controls.cjs`（owner/helper模式），说明在同目录README，Work树全程只读。
 
 - 最新Work `5a49197a..0ad6e5b6` 普通方法整包独审有限接受无mustfix；仅offline技术，不回填06/05失败、不冒新浏览器/七资源结果。本人67453实际102控0/0unhandled（原98＋4真实Session held reader/stream时第二facade busy且不发HTTP，原尾释放后唯一typed成功）；helper4497/80、native13536/41实际0。6b8451 actual AST核originalBody/decodeOriginal/schemaProgram/四截断ledger逐字原版、5处originalBody调用不变、产品/Go sidecar无diff。独立proof为 `.agent-state/work-cut-review/ordinary-controls.cjs`，命令/边界见同目录README；首native8cd8b0 cwd缺TS setupFAIL保留后纠正。已回root及作者，新实际仍freshgrant；此3scope已root保存9e3fc022；Skills两个fixture修复与TCP诊断最新范围见上节。
 

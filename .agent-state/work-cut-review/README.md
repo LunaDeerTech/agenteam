@@ -72,3 +72,19 @@ node .agent-state/work-owner-planning-ui/native-diagnostic-controls.cjs
 接受的因果边界：recovery原Request起点选定的无query200详情GET或Structure/TaskLookup，actual failed/closed/finished先判；known failed从未调用不必达finished。正常finished仍实际await原finished为null，其它端点、声明cut、held-read及originalBody保持原路径。备选证据联合唯一Request/XID/document/public调用、EOF早于cancel、identity编码CL实际等长、两cancel成功及release、原typed正常fulfillment及同当前identity、真实Session actual.catch.finally在visible正常成功前释放的源码桥、两观察器explicit首次退休/pending-at-retirement0/未过期限/实际hooks还原、Node实际end/evaluate返回和原body SHA/schema/client。首次expiry或pending不能由晚finish升级；晚counterevent在原decode后再查，缺end或pageclose不接受。显式retired只表示停观察，仍须observer_failedfalse与这些实际尾。
 
 预算仍两个串行最多250ms观察等待，全部在原PW45/expect5/Go120/Go6m/root540+60+3/TCP75内；未增budget、未白名单忽略failed、未第二次HTTP补证、未抓原body或私有owner。生成报告是闭集安全字段，本方法不依据落盘报告反读授权。真实下一轮仍由root统一freshgrant。
+
+## Blocker Lookup 单端点增量限定接受
+
+只审 Work `24ffd0ba..ff12b21a` 五技术路径：helper/native/publication 三TS与expected-incomplete/ordinary-consumer-owner 两CJS。有限离线接受，无mustfix；原recovery07整体FAIL及完整资源尾不回填，未运行新browser/PG/socket/网络。Work作者树全程只读，原整包102/80/41未变范围复用，不重复全矩阵。
+
+新增范围严格为无query、HTTP200、UUIDv7 Project/Task的POST `/api/v1/projects/{project}/tasks/{task}/blocker-commands/lookup`。原Request起点闭集、knownfailed不创建finished、全部native/public/Node end/真实退休联合条件不变；额外要求path Task与public target相等。公开观察仅原`checkOriginal`的blocker三状态，实际Session分支仍`runAuthorized(original.identity, work, undefined, 'work-lookup')`，经原API/transport及按原命令严格receipt解析、owner finally和current-intent复核后才正常fulfill。没有更换facade/owner桥；mutate、错误method/query/path和其它端点保持原finished。
+
+必要探针 [blocker-controls.cjs](blocker-controls.cjs) 只在内存筛选作者新增18个Blocker控制，再增加两项使用实际Session/API/transport的Blocker Resolve控制，生产源码与实际locked PW1.56.1 installer照常加载。ded763 actual0/20控/0unhandled：Resolve原outer cancel held时可见Promise仍pending、原owner busy、第二实际facade无新HTTP；只在放开原尾后正常committed才成为证据。若Resolve返回未resolved的原receipt则严格解析拒绝，即使实际EOF和取消已完成仍不能认完成。另c95b1a actual0/6差异helper控制：新增精确POST正向knownfailed不调用finished，GET/query/extra/非法Task/其它blockers路径均拒且保原finished调用。控制过滤只减少重复旧检查，不替换任何待测方法。
+
+```sh
+# cwd /workspace/agenteam-work-ui；输出仅Skills忽略目录或stdout
+node /workspace/agenteam-skills/.agent-state/work-cut-review/blocker-controls.cjs owner
+node /workspace/agenteam-skills/.agent-state/work-cut-review/blocker-controls.cjs helper
+```
+
+068d5f实际AST核originalBody/decodeOriginal/schemaProgram逐字24ffd，五技术源与ff12b21a零diff，产品web/src/internal、go.mod/go.sum和spec无增量。作者strictTS81593、格式34490与native62015/41的未变范围复用；这不是新真实UI/Go/SQL/资源组接受，下一实际轮仍需root fresh grant。
