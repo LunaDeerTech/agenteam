@@ -963,7 +963,7 @@ func TestTaskPlanningMembership(t *testing.T) {
 		})
 	}
 	t.Run("missing-or-foreign-sprint-and-insufficient-schedule", func(t *testing.T) {
-		foreignProject, _, _ := f.create(t, a, "membership foreign")
+		foreignProject, _, _ := f.create(t, a, "membership-foreign")
 		foreignMilestone := f.milestone(t, a, foreignProject.ID, "m")
 		foreignSprint := f.sprint(t, a, foreignProject.ID, foreignMilestone.ID, "s")
 		for _, target := range []wc.SprintID{id[c.Sprint](t), foreignSprint.ID} {

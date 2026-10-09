@@ -46,7 +46,7 @@
 - Task私有计划闭集原FAIL已真实复现：placement.state改STATE、rank向量同时含Rank/rank仍被接受，见 `independent-runtime-private_test.go`；原offline race命令exit1、actualWait。没有冒称授权绕过。新PG已在启动前暂停，原owner仅在Task repository/events补完整嵌套strict解码及caps，20+pure负例PASS；独立原输入复验及224结构/10Unicode-EOF负例与正例实际race PASS、作者pure/vet PASS；新作者expanded-codec及新独立A-B binary已重编/精确发现exit0。旧binary不能当修后语义证据，原exit1不回填。
 - Model第四段：constructor、9IPC dispatcher、只读snapshot与浏览器子进程受控入口/六Go selectors已补入两Go源，delivery race-c与6个pure实际exit0；六浏览器business仍未通过。
 
-- 私有修复/新独立probe已冻结待恢复：Task repository/events/test三源，private-matrix及private-run。最新独立A-B binary为忽略output中的 `independent-runtime-build-j78fjvr3/independent-runtime.test`；七新四旧Structure与独立A-B PG尚待运行。
+- 私有修复/新独立probe已冻结待恢复：Task repository/events/test三源，private-matrix及private-run。最新独立A-B binary为忽略output中的 `independent-runtime-build-7teshm0n/independent-runtime.test`；七新四旧Structure与独立A-B PG尚待运行。
 
 - expanded Concurrency首轮FAIL：same-key final hook未到，原Go/driver/outer均exit1且资源完整退役。原owner定位为测试观察器在Update发现阶段尚无command row时把ErrNoRows注成写错误；仅修并发测试观察为EXISTS/coalesce，真SQL错仍保留，4个handshake新增提前writer结果观察。新hooks binary race-c/精确11selector exit0，尚未实际重跑，不称产品并发缺陷或原PASS。
 
@@ -64,3 +64,6 @@
 - 独立A/B原作者已按现NormalizeName最小修3处Project Name空格→连字符，2probe源冻结保存，rq9 offline race-c/list exit0。但作者Membership测试随后发现同因非法Project Name（task_concurrency_test.go966），原body1.69s/full terminal1/66.786s、两ID/runtime/TCP双空/input不变；原FAIL保留。作者将只修新测试中的非法Project创建输入，之后作者及独立binary重编/list再冻结，不以rq9冒最终闭包通过。
 
 - Model返修稳定片段：descriptor按真实Object/Outbound UpperCamel与PG snake_case分别严格解析，新owned_resources.py在正常/失败路径记录实际资源ID；两断连逐token complete/safe/applied/native未EOF与精确cut/disconnected计数已补，Go final严格EOF/client/schema和native token/body witness一致性已补。delivery race-c/vet、8pure、TS strict/list、collector闭集/文件18checks及纯4container+3network去重发布实际PASS；两Go源root/delivery逐字节一致。原setup FAIL仍保留，新business尚未运行，独立复核进行中。
+
+- 作者Membership唯一非法Project名称已修为membership-foreign，work-expanded-names.test race-c/11list actualexit0；独立最终7teshm0n A/B重新race-c/list exit0/Wait/inputsame，仍尚无修后独立PG。仅修测试输入，生产runtime不变。
+- Model第二轮0dad9真实recovery RUN，browser configuration-loss未完成（仅Providers GET200，无mutation），Go body53.27s FAIL/工具26607 exit1，root/handler实际join；driver123.934s含TCPtail，4adoptedWait0/directWait1/watchdog+observerjoin、真实7IDs两次absent/runtime/TCP两空/inputsame。原FAIL保留，不能未定位就称产品原因。原owner补安全failure location/细step再定位。独立两mustfix静态闭合、resource35pure实际PASS，必要可复跑source保存在independent-resource-probe.py。下一资源窗交Task最新7tes独立A/B。
