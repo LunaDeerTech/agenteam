@@ -20,3 +20,8 @@
 - C4 五技术源已可构建 freeze：Project Audit Knowledge 精确委托及 Outbox 双事件 gate；限定 Project/contract race 36007、vet/diffcheck 实际0。58386 的无版本测试前置误判和既有 HTTP schema interpreter 缺失 FAIL 保留卡；未修改产品门槛。Variables 作者已确认相邻增量可并存，并以本人实际源控制 63234 对稳定五源有限独审接受；真实 Knowledge/Audit/Outbox 同 Store 组合仍未验，生产未绑。
 
 - 第十片段 publication 实际资源退休／原 attempt-fence 同进程 joined 证明／本域持久 join 检查点已可构建。Close 阻塞/失败保持调用登记；Unknown 保留原物理 cause 与实际 join 证明，不以取消当退役。新增 race 67327（前80177亦0）、vet/diffcheck 通过；业务 SQL/真实 Object 仍未验，完整 Create/Update measured reserve/send/publish 继续实现。
+
+- 第十一片段 title-only final 内部事务已可构建，race52260/vet/diffcheck0：最终重读当前 parent/版本，文档/Event/receipt/Activity 同 Tx；完整 Create/Update 尚未接通，SQL 未验。下一准备 Owner/tree/Move/Lookup 最小业务 PG 单 top，使用真实 Account→Project 权限与同 Store，不把未调用 Object 等 fail-closed 测试端口称为真实外域绑定。
+
+- 下一真实业务组 `^TestKnowledgeB02OwnerTree$` 四子输入在 `tests/knowledge/b02_owner_tree_test.go`，最终 race-c78547、exact discovery/vet79200 实际0，未运行。真实 Account/Project/Activity 同 Store；预置自有事实不称创建 API，未调用外域为调用即失败的测试口，Process death 口 Unbound，不证明对象/发布/join。四子核 Owner门禁、Move/重放/防环、分页路径、同Tx回滚与 endedTx。该 binary 导入全部 Knowledge Go，输入冻结至本轮全尾。
+- freshgrant 后准确命令：`python3 .agent-state/task-planning-recovery/pg_only_supervisor.py --driver /workspace/agenteam-knowledge/output/ai/knowledge/pg-only-driver --binary /workspace/agenteam-knowledge/output/ai/knowledge/knowledge-owner-tree-race.test --run '^TestKnowledgeB02OwnerTree$' --output /workspace/agenteam-knowledge/output/ai/knowledge/pg`。复用已接受 driver/ca9 supervisor，PG17 单容器+nonce网、105s work+15s cleanup／123s supervisor+3s retire／75s TCP尾／5GiB 原门槛不变；完整 actualWait/资源与TCP双尾后才释放。root 队列为 Variables 修后存储三top→本组→UI首次read；尚未获得本组实际启动授权。

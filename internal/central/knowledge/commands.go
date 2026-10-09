@@ -343,6 +343,255 @@ func (s *Service) prepareContentIntent(ctx context.Context, input contentInput) 
 	return out, nil
 }
 
+// currentContentIntent checks the same original intent under the caller's
+// complete union. Completed receipts precede new-work gates and source checks.
+func (s *Service) currentContentIntent(ctx context.Context, tx f.Tx, input contentInput, intent contentIntent) (postgres.SQLExecutor, *commandRecord, *documentRow, error) {
+	x, err := s.readScope(ctx, tx, input.actor, input.project)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	record, err := loadCommand(ctx, x, input.project, input.name, input.meta.IdempotencyKey)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	if record == nil || intent.record == nil || record.id != intent.record.id {
+		return nil, nil, nil, fault(f.ResourceBusy)
+	}
+	if record.user.String() != input.actor.Details().UserID || record.digest != input.digest || record.document != input.document {
+		return nil, nil, nil, fault(f.IdempotencyKeyReused)
+	}
+	if record.state == kc.Committed {
+		return x, record, nil, nil
+	}
+	grant, err := s.state().deps.Projects.RequireOwnerInTx(ctx, tx, input.actor, input.project, id.Mutate)
+	if err != nil {
+		return nil, nil, nil, portError(err)
+	}
+	if !grant.Matches(input.actor, input.project) {
+		return nil, nil, nil, internal(nil)
+	}
+	var request, header []byte
+	if err = x.QueryRow(ctx, `SELECT request,plan FROM agenteam_knowledge.commands WHERE project_id=$1 AND id=$2`, input.project.String(), record.id.String()).Scan(&request, &header); err != nil {
+		return nil, nil, nil, unavailable(err)
+	}
+	wanted, err := json.Marshal(input.request)
+	if err != nil {
+		return nil, nil, nil, internal(err)
+	}
+	actualRequest, err := cursor.CanonicalJSON(request)
+	if err != nil {
+		return nil, nil, nil, internal(err)
+	}
+	wantedRequest, err := cursor.CanonicalJSON(wanted)
+	if err != nil || !bytes.Equal(actualRequest, wantedRequest) {
+		return nil, nil, nil, fault(f.ResourceBusy)
+	}
+	actualHeader, err := ev.DecodeHeader(header)
+	if err != nil {
+		return nil, nil, nil, internal(err)
+	}
+	a, err := json.Marshal(actualHeader)
+	if err != nil {
+		return nil, nil, nil, internal(err)
+	}
+	b, err := json.Marshal(intent.header)
+	if err != nil || !bytes.Equal(a, b) {
+		return nil, nil, nil, fault(f.ResourceBusy)
+	}
+	if input.name == kc.Create {
+		if parent := input.request.Create.ParentDocumentID; parent != nil {
+			current, err := loadDocument(ctx, x, input.project, *parent)
+			if err != nil {
+				return nil, nil, nil, err
+			}
+			if current.head.Active == nil {
+				return nil, nil, nil, fault(f.NotFound)
+			}
+		}
+		return x, record, nil, nil
+	}
+	current, err := loadDocument(ctx, x, input.project, input.document)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	if current.head.Active == nil {
+		return nil, nil, nil, fault(f.NotFound)
+	}
+	if input.request.Expected == nil || current.head.Active.ContentVersion != *input.request.Expected {
+		return nil, nil, nil, fault(f.VersionConflict)
+	}
+	return x, record, current, nil
+}
+
+func titleContentResult(input contentInput, intent contentIntent, current kc.DocumentRef, now f.Instant) (kc.DocumentRef, error) {
+	if input.name != kc.Update || input.request.Source != nil || input.request.Update == nil || input.request.Update.Title == nil || input.request.Expected == nil || current.Validate() != nil || current.Status != kc.Active || current.ProjectID != input.project || current.ID != input.document || now.Validate() != nil {
+		return kc.DocumentRef{}, internal(nil)
+	}
+	if current.ContentVersion != *input.request.Expected || current.ContentVersion == f.Version(math.MaxInt64) {
+		return kc.DocumentRef{}, fault(f.VersionConflict)
+	}
+	if intent.header.AggregateVersion == nil || *intent.header.AggregateVersion != current.ContentVersion+1 || intent.header.AggregateID.String() != current.ID.String() || intent.header.Scope.ProjectID.String() != current.ProjectID.String() || *input.request.Update.Title == current.Title {
+		return kc.DocumentRef{}, fault(f.ResourceBusy)
+	}
+	// Copy the current row, not the pre-discovery parent. Move deliberately
+	// preserves content_version and may have committed since preparation.
+	out := current
+	if current.ParentDocumentID != nil {
+		parent := *current.ParentDocumentID
+		out.ParentDocumentID = &parent
+	}
+	out.Title = *input.request.Update.Title
+	out.ContentVersion++
+	out.IndexingStatus = kc.IndexPending
+	if !now.Time().Before(out.UpdatedAt.Time()) {
+		out.UpdatedAt = now
+	}
+	return out, portError(out.Validate())
+}
+
+func completeContentCommand(ctx context.Context, x postgres.SQLExecutor, record *commandRecord, document kc.DocumentRef, changed bool, at f.Instant) error {
+	receipt := kc.MutationReceipt{Command: record.name, Document: &document, Changed: changed}
+	if err := receiptForCommand(receipt, record); err != nil {
+		return err
+	}
+	raw, err := json.Marshal(receipt)
+	if err != nil {
+		return internal(err)
+	}
+	tag, err := x.Exec(ctx, `UPDATE agenteam_knowledge.commands SET state='completed',receipt=$3::jsonb,request=NULL,plan=NULL,committed_at=$4
+ WHERE project_id=$1 AND id=$2 AND state='planned'`, record.project.String(), record.id.String(), raw, at.Time())
+	if err != nil {
+		return unavailable(err)
+	}
+	if tag.RowsAffected() != 1 {
+		return fault(f.ResourceBusy)
+	}
+	return nil
+}
+
+// finishTitleContent is the no-upload content path. Its fixed event is staged
+// before Outbox discovery; final metadata/event/receipt/activity share one Tx.
+// The enclosing command call owns admission and remains registered throughout.
+func (s *Service) finishTitleContent(ctx context.Context, input contentInput, intent contentIntent) (kc.DocumentRef, error) {
+	if input.request.Source != nil || input.name != kc.Update || intent.record == nil {
+		return kc.DocumentRef{}, internal(nil)
+	}
+	st := s.state()
+	locks, err := publicationLocks(input.actor, intent.record, nil)
+	if err != nil {
+		return kc.DocumentRef{}, err
+	}
+	identity, err := kc.CommandIdentity(input.project, input.name, input.meta.IdempotencyKey)
+	if err != nil {
+		return kc.DocumentRef{}, portError(err)
+	}
+	cause, err := f.NewCommandsCause(identity)
+	if err != nil {
+		return kc.DocumentRef{}, portError(err)
+	}
+	var event ev.Event
+	var replay *kc.DocumentRef
+	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		x, record, current, err := s.currentContentIntent(ctx, tx, input, intent)
+		if err != nil {
+			return err
+		}
+		if record.state == kc.Committed {
+			replay = record.receipt.Document
+			return nil
+		}
+		document, err := titleContentResult(input, intent, *current.head.Active, intent.header.OccurredAt)
+		if err != nil {
+			return err
+		}
+		event, err = st.deps.Events.ContentChanged(intent.header, kc.ContentChangedPayload{DocumentID: input.document, ContentVersion: document.ContentVersion, Changes: []kc.ContentChange{kc.TitleChanged}, ObjectID: document.ObjectID})
+		if err != nil {
+			return portError(err)
+		}
+		header, err := event.HeaderJSON()
+		if err != nil {
+			return internal(err)
+		}
+		if _, err = x.Exec(ctx, `INSERT INTO agenteam_knowledge.command_events(id,project_id,command_id,document_id,header,payload,event_type)
+ VALUES($1,$2,$3,$4,$5::jsonb,$6::jsonb,$7) ON CONFLICT(id) DO NOTHING`, intent.header.EventID.String(), input.project.String(), record.id.String(), input.document.String(), header, event.PayloadBytes(), string(kc.ContentChangedEvent)); err != nil {
+			return unavailable(err)
+		}
+		// A retry accepts only the same original fixed event, not an arbitrary
+		// row whose event ID happens to collide.
+		stored, err := loadCommandEvent(ctx, x, intent.header.EventID)
+		if err != nil {
+			return err
+		}
+		if stored.command.id != record.id {
+			return fault(f.ResourceBusy)
+		}
+		_, _, _, err = eventBinding(input.actor, event.Summary(), stored)
+		return err
+	})
+	if err := txError(result); err != nil {
+		return kc.DocumentRef{}, err
+	}
+	if replay != nil {
+		return *replay, nil
+	}
+	plan, err := st.deps.Outbox.PrepareAppend(ctx, input.actor, event)
+	if err != nil {
+		return kc.DocumentRef{}, portError(err)
+	}
+	locks, err = ob.NormalizeLocks(append(locks, plan.Locks()...))
+	if err != nil {
+		return kc.DocumentRef{}, portError(err)
+	}
+	var out kc.DocumentRef
+	result = st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		x, record, current, err := s.currentContentIntent(ctx, tx, input, intent)
+		if err != nil {
+			return err
+		}
+		if record.state == kc.Committed {
+			out = *record.receipt.Document
+			return nil
+		}
+		now, err := dbNow(ctx, x)
+		if err != nil {
+			return err
+		}
+		out, err = titleContentResult(input, intent, *current.head.Active, now)
+		if err != nil {
+			return err
+		}
+		tag, err := x.Exec(ctx, `UPDATE agenteam_knowledge.documents SET title=$3,content_version=$4,indexing_status='pending',updated_at=$5
+ WHERE project_id=$1 AND id=$2 AND status='active' AND content_version=$6`, input.project.String(), input.document.String(), out.Title, int64(out.ContentVersion), out.UpdatedAt.Time(), int64(*input.request.Expected))
+		if err != nil {
+			return unavailable(err)
+		}
+		if tag.RowsAffected() != 1 {
+			return fault(f.VersionConflict)
+		}
+		receipt, err := st.deps.Outbox.AppendEventInTx(ctx, tx, input.actor, event, plan)
+		if err != nil {
+			return portError(err)
+		}
+		if receipt.EventID != intent.header.EventID || receipt.Sequence.Validate() != nil {
+			return internal(nil)
+		}
+		if err = completeContentCommand(ctx, x, record, out, true, now); err != nil {
+			return err
+		}
+		return portError(st.deps.Activity.TouchActivityInTx(ctx, tx, input.actor))
+	})
+	if err := txError(result); err != nil {
+		return kc.DocumentRef{}, err
+	}
+	return out, nil
+}
+
 type command struct{}
 type commandRecord struct {
 	id        f.ID[command]

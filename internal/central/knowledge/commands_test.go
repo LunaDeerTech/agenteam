@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"math"
 	"testing"
 	"time"
 
@@ -16,6 +17,63 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	ob "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 )
+
+func TestTitleContentUsesCurrentTreeAndPreservesCanonicalSource(t *testing.T) {
+	_, actor, q := queryFixture(t)
+	user, _ := f.ParseID[id.User](actor.Details().UserID)
+	creator, err := kc.NewCreatorRef(kc.CreatorDetails{Kind: id.Human, UserID: user})
+	if err != nil {
+		t.Fatal(err)
+	}
+	created, _ := f.NewInstant(time.Now().Add(-time.Hour))
+	updated, _ := f.NewInstant(created.Time().Add(time.Minute))
+	parent, oldParent := newID[kc.Document](t), newID[kc.Document](t)
+	current := kc.DocumentRef{ID: newID[kc.Document](t), ProjectID: q.project, ParentDocumentID: &parent,
+		Title: "Original", ContentVersion: 4, SourceKind: kc.Text, MediaType: kc.Markdown,
+		ObjectID: newID[oc.StoredObject](t), Status: kc.Active, IndexingStatus: kc.IndexPending,
+		CreatedBy: creator, CreatedAt: created, UpdatedAt: updated}
+	if err = current.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	title, expected := "New title", current.ContentVersion
+	input, err := updateContentInput(actor, f.CommandMeta{RequestID: newID[f.Request](t), IdempotencyKey: "title", ExpectedVersion: &expected}, q.project, current.ID, kc.UpdateRequest{Title: &title}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	header, err := newContentHeader(q.project, current.ID, 5, created)
+	if err != nil {
+		t.Fatal(err)
+	}
+	stale := current
+	stale.ParentDocumentID = &oldParent
+	intent := contentIntent{header: header, current: &documentRow{head: kc.DocumentHead{Active: &stale}}}
+	out, err := titleContentResult(input, intent, current, created)
+	if err != nil || out.Title != title || out.ContentVersion != 5 || *out.ParentDocumentID != parent || out.UpdatedAt != updated {
+		t.Fatal("title finalization lost newer Move/current timestamp", err)
+	}
+	if out.ObjectID != current.ObjectID || out.MediaType != current.MediaType || out.SourceKind != current.SourceKind || out.CreatedBy.Details() != current.CreatedBy.Details() || out.CreatedAt != current.CreatedAt {
+		t.Fatal("title-only update replaced canonical source or creator")
+	}
+	*out.ParentDocumentID = oldParent
+	if *current.ParentDocumentID != parent || current.Title != "Original" || current.ContentVersion != 4 {
+		t.Fatal("result aliases or mutates current row")
+	}
+	for name, alter := range map[string]func(*kc.DocumentRef){
+		"stale version":      func(d *kc.DocumentRef) { d.ContentVersion++ },
+		"version overflow":   func(d *kc.DocumentRef) { d.ContentVersion = f.Version(math.MaxInt64) },
+		"foreign project":    func(d *kc.DocumentRef) { d.ProjectID = newID[id.Project](t) },
+		"wrong document":     func(d *kc.DocumentRef) { d.ID = newID[kc.Document](t) },
+		"already same title": func(d *kc.DocumentRef) { d.Title = title },
+	} {
+		t.Run(name, func(t *testing.T) {
+			changed := current
+			alter(&changed)
+			if _, err := titleContentResult(input, intent, changed, updated); err == nil {
+				t.Fatal("stale final input accepted")
+			}
+		})
+	}
+}
 
 func TestContentIntentCopiesExactRequestWithoutRetainingBody(t *testing.T) {
 	_, actor, q := queryFixture(t)
