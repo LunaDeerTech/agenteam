@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 )
 
@@ -30,6 +31,7 @@ type variableWebAttempt struct {
 	Body, Receipt                                      []byte
 	CSRF                                               [32]byte
 	Status                                             int
+	RequestID                                          string
 	EOF, Closed                                        bool
 	Cut                                                *variableWebCut
 }
@@ -77,7 +79,8 @@ func newProjectVariablesWebFixture(t *testing.T, ctx context.Context, mode strin
 	owner := newProjectOwnerWebFixtureWithVariables(t, ctx, "variables-"+mode, v)
 	v.owner = owner
 	owner.private("project-variables-material.json", map[string]any{"owner": owner.owner, "admin": owner.admin, "other": owner.other,
-		"ids": owner.ids, "projects": owner.initial, "variables": v.initial, "targets": v.targets})
+		"ids": owner.ids, "projects": owner.initial, "variables": v.initial, "targets": v.targets,
+		"diagnostic_dist": os.Getenv("AGENTEAM_PROJECT_OWNER_WEB_DIST")})
 	t.Cleanup(func() {
 		v.releaseRead()
 		owner.stopProxy()
@@ -308,6 +311,7 @@ func (v *projectVariablesWebFixture) controlResponse(response *http.Response) er
 	}
 	a := v.attempts[index-1]
 	a.Status = response.StatusCode
+	a.RequestID = response.Header.Get("X-Request-ID")
 	a.EOF = true
 	a.Closed = true
 	a.Receipt = append([]byte(nil), raw...)
@@ -508,7 +512,8 @@ func (v *projectVariablesWebFixture) safeFailure() {
 			Uncertain bool `json:"uncertain"`
 			Dialog    bool `json:"dialog"`
 		} `json:"dom"`
-		Network *variableWebNetworkFailure `json:"network"`
+		Network   *variableWebNetworkFailure      `json:"network"`
+		Authority *variableWebAuthorityDiagnostic `json:"authority"`
 	}
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
@@ -530,24 +535,113 @@ func (v *projectVariablesWebFixture) safeFailure() {
 					v.owner.t.Logf("Variables browser safe native=%s", safe)
 				}
 			}
+			if len(n.IncompleteEntries) <= 192 {
+				for _, entry := range n.IncompleteEntries {
+					if !entry.valid(n.Total) {
+						continue
+					}
+					safe, err := json.Marshal(entry)
+					if err == nil {
+						v.owner.t.Logf("Variables browser safe incomplete=%s", safe)
+					}
+				}
+				v.owner.t.Logf("Variables browser safe incomplete rows=%d truncated=%t", len(n.IncompleteEntries), n.IncompleteTruncated)
+			}
+		}
+		if authority := value.Authority; authority != nil && authority.valid() {
+			if safe, err := json.Marshal(authority); err == nil {
+				v.owner.t.Logf("Variables browser safe authority=%s", safe)
+			}
 		}
 	}
 }
 
 type variableWebNetworkFailure struct {
-	Reason     string                       `json:"reason"`
-	Index      int                          `json:"index"`
-	Method     string                       `json:"method"`
-	Route      string                       `json:"route"`
-	Received   bool                         `json:"received"`
-	Status     int                          `json:"status"`
-	Finished   bool                         `json:"finished"`
-	Failed     bool                         `json:"failed"`
-	Expected   string                       `json:"expected"`
-	Total      int                          `json:"total"`
-	Completed  int                          `json:"completed"`
-	Incomplete int                          `json:"incomplete"`
-	Native     *variableWebNativeDiagnostic `json:"native"`
+	Reason              string                       `json:"reason"`
+	Index               int                          `json:"index"`
+	Method              string                       `json:"method"`
+	Route               string                       `json:"route"`
+	Received            bool                         `json:"received"`
+	Status              int                          `json:"status"`
+	Finished            bool                         `json:"finished"`
+	Failed              bool                         `json:"failed"`
+	Expected            string                       `json:"expected"`
+	Total               int                          `json:"total"`
+	Completed           int                          `json:"completed"`
+	Incomplete          int                          `json:"incomplete"`
+	Native              *variableWebNativeDiagnostic `json:"native"`
+	IncompleteEntries   []variableWebIncomplete      `json:"incomplete_entries"`
+	IncompleteTruncated bool                         `json:"incomplete_truncated"`
+}
+
+type variableWebIncomplete struct {
+	Index    int                          `json:"index"`
+	Method   string                       `json:"method"`
+	Route    string                       `json:"route"`
+	Received bool                         `json:"received"`
+	Status   int                          `json:"status"`
+	Finished bool                         `json:"finished"`
+	Failed   bool                         `json:"failed"`
+	Expected string                       `json:"expected"`
+	Native   *variableWebNativeDiagnostic `json:"native"`
+}
+
+func (n variableWebIncomplete) valid(total int) bool {
+	base := variableWebNetworkFailure{Reason: "none", Index: n.Index, Method: n.Method, Route: n.Route, Status: n.Status, Expected: n.Expected, Total: total}
+	return n.Index > 0 && base.valid() && (!n.Finished || n.Failed) && (n.Native == nil || n.Native.valid())
+}
+
+type variableWebAuthorityDiagnostic struct {
+	Installed     bool                          `json:"installed"`
+	Joined        bool                          `json:"joined"`
+	RequestBound  bool                          `json:"request_bound"`
+	PrivateBound  bool                          `json:"private_bound"`
+	NativeRetired bool                          `json:"native_retired"`
+	Consumer      *variableWebAuthorityConsumer `json:"consumer"`
+}
+type variableWebAuthorityConsumer struct {
+	Calls                 int    `json:"calls"`
+	TargetCalls           int    `json:"target_calls"`
+	Fulfilled             int    `json:"fulfilled"`
+	Rejected              int    `json:"rejected"`
+	SynchronousThrows     int    `json:"synchronous_throws"`
+	Status                int    `json:"status"`
+	NativeBefore          int    `json:"native_before"`
+	NativeAfter           int    `json:"native_after"`
+	Pending               int    `json:"pending"`
+	TypedProblem          bool   `json:"typed_problem"`
+	InstanceMatches       bool   `json:"instance_matches"`
+	EntryAuthenticated    bool   `json:"entry_authenticated"`
+	EntryIdle             bool   `json:"entry_idle"`
+	EntryIdentity         bool   `json:"entry_identity"`
+	IdentityCurrent       bool   `json:"identity_current"`
+	Authenticated         bool   `json:"authenticated"`
+	OwnerIdle             bool   `json:"owner_idle"`
+	ProgressRejected      bool   `json:"progress_rejected"`
+	ReceiptAbsent         bool   `json:"receipt_absent"`
+	DraftMatches          bool   `json:"draft_matches"`
+	DocumentMatches       bool   `json:"document_matches"`
+	TargetRoute           bool   `json:"target_route"`
+	NativeRequestMatches  bool   `json:"native_request_matches"`
+	ProblemRequestMatches bool   `json:"problem_request_matches"`
+	ObserverFailed        bool   `json:"observer_failed"`
+	HooksRetired          bool   `json:"hooks_retired"`
+	Code                  string `json:"code"`
+	CommitState           string `json:"commit_state"`
+}
+
+func (n variableWebAuthorityDiagnostic) valid() bool {
+	if n.Consumer == nil {
+		return true
+	}
+	c := n.Consumer
+	for _, count := range []int{c.Calls, c.TargetCalls, c.Fulfilled, c.Rejected, c.SynchronousThrows, c.Status, c.NativeBefore, c.NativeAfter, c.Pending} {
+		if count < 0 || count > 4096 {
+			return false
+		}
+	}
+	return c.Status <= 599 && (c.Code == "none" || c.Code == "PROJECT_NOT_ACTIVE" || c.Code == "other") &&
+		(c.CommitState == "none" || c.CommitState == "not_started" || c.CommitState == "not_committed" || c.CommitState == "unknown" || c.CommitState == "other")
 }
 
 type variableWebNativeDiagnostic struct {
@@ -632,6 +726,80 @@ func (n variableWebNetworkFailure) valid() bool {
 	routes := map[string]bool{"list": true, "detail": true, "create": true, "update": true, "delete": true, "lookup": true, "other": true}
 	expected := map[string]bool{"none": true, "cut": true, "cancel": true}
 	return reasons[n.Reason] && methods[n.Method] && routes[n.Route] && expected[n.Expected] && n.Total >= 0 && n.Total <= 4096 && n.Index >= 0 && n.Index <= n.Total && n.Completed >= 0 && n.Completed <= n.Total && n.Incomplete >= 0 && n.Incomplete <= n.Total && (n.Status == 0 || n.Status >= 100 && n.Status <= 599)
+}
+
+// Runs on both browser success and failure, within the original context budget.
+// Only the actually dispatched first authority mutation is considered; no
+// counts from unexecuted later projects or scenarios are treated as verified.
+func (v *projectVariablesWebFixture) verifyAuthorityRefusal(ctx context.Context) {
+	if v.mode != "authority" {
+		return
+	}
+	v.owner.stopProxy()
+	v.mu.Lock()
+	defer v.mu.Unlock()
+	t := v.owner.t
+	project, target := v.owner.ids["main"], v.targets["main"]
+	var selected []*variableWebAttempt
+	for _, a := range v.attempts {
+		if a.Project == project && a.Target == target && a.Method == http.MethodPatch {
+			selected = append(selected, a)
+		}
+	}
+	if len(selected) == 0 {
+		t.Log("Variables authority refusal postcondition not observed: no original mutation was dispatched")
+		return
+	}
+	if len(selected) != 1 {
+		t.Error("Variables authority refusal original mutation was not unique")
+		return
+	}
+	a := selected[0]
+	var problem httpapi.Problem
+	decoder := json.NewDecoder(bytes.NewReader(a.Receipt))
+	decoder.DisallowUnknownFields()
+	var tail any
+	if a.Command != "project.variable.update" || a.Key == "" || a.Query != "" || a.Path != "/api/v1/projects/"+project+"/variables/"+target ||
+		!a.EOF || !a.Closed || a.Status != http.StatusConflict || decoder.Decode(&problem) != nil || decoder.Decode(&tail) != io.EOF ||
+		problem.Status != http.StatusConflict || problem.Code != f.ProjectNotActive || problem.Instance != a.Path ||
+		problem.RequestID.Validate() != nil || problem.RequestID.String() != a.RequestID ||
+		(problem.CommitState != f.NotStarted && problem.CommitState != f.NotCommitted) {
+		t.Error("Variables authority refusal original response binding was not verified")
+		return
+	}
+	for _, other := range v.attempts {
+		if other != a && (other.RequestID == a.RequestID || other.Project == a.Project && other.Key == a.Key) {
+			t.Error("Variables authority refusal original identity was ambiguous")
+			return
+		}
+	}
+	initial, ok := v.initial["main"].(map[string]any)
+	if !ok {
+		t.Error("Variables authority refusal seed preimage unavailable")
+		return
+	}
+	expected, err := json.Marshal(map[string]any{"expected_version": initial["version"], "request": map[string]any{"value": "prepared before archive"}})
+	if err != nil || !bytes.Equal(expected, a.Body) {
+		clear(expected)
+		t.Error("Variables authority refusal original mutation body changed")
+		return
+	}
+	clear(expected)
+	var keyRows, unchanged, commands, history, audits, events int
+	err = v.owner.store.QueryRow(ctx, `SELECT
+		(SELECT count(*) FROM agenteam_projectvariable.commands WHERE project_id=$1 AND idempotency_key=$3),
+		(SELECT count(*) FROM agenteam_projectvariable.variables WHERE project_id=$1 AND id=$2 AND name=$4 AND description=$5 AND value=$6 AND version=$7::bigint AND deleted_at IS NULL),
+		(SELECT count(*) FROM agenteam_projectvariable.commands WHERE project_id=$1),
+		(SELECT count(*) FROM agenteam_projectvariable.history WHERE project_id=$1),
+		(SELECT count(*) FROM agenteam_audit.audit_records WHERE project_id=$1 AND producer='projectvariable'),
+		(SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$1 AND producer='projectvariable')`,
+		project, target, a.Key, initial["name"], initial["description"], initial["value"], initial["version"]).Scan(&keyRows, &unchanged, &commands, &history, &audits, &events)
+	seed := v.setupFacts[project]
+	if err != nil || keyRows != 0 || unchanged != 1 || commands != seed[0] || history != seed[1] || audits != seed[1] || events != seed[1] {
+		t.Error("Variables authority refusal original key or affected project facts changed")
+		return
+	}
+	t.Log("Variables authority refusal original key has zero command rows; original target and affected project seed facts unchanged; this does not verify the remaining browser matrix")
 }
 
 // Independent SQL postconditions use each actual original key and the complete

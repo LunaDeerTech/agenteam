@@ -444,6 +444,44 @@ export function nativeConsumption(page: Page) {
   }
   launch();
   let stopPromise: Promise<void> | undefined;
+  // Capture and retire this actual document before the authority test reloads.
+  // Keep the Node sampler alive so the next document has its own observations.
+  async function endDocument() {
+    if (stopping || stopped) return false;
+    if (timer) clearTimeout(timer);
+    const before = epoch;
+    const deadline = Date.now() + 250;
+    const bound = async (work: Promise<void> | undefined) => {
+      if (!work) return true;
+      let timeout: ReturnType<typeof setTimeout> | undefined;
+      try {
+        return await Promise.race([
+          work.then(() => true),
+          new Promise<false>((resolve) => {
+            timeout = setTimeout(
+              () => resolve(false),
+              Math.max(0, deadline - Date.now()),
+            );
+          }),
+        ]);
+      } finally {
+        if (timeout) clearTimeout(timeout);
+      }
+    };
+    const first = await bound(pending);
+    if (
+      !first ||
+      Date.now() >= deadline ||
+      before !== epoch ||
+      stopping ||
+      stopped
+    )
+      return false;
+    // The preceding branch may have scheduled a timer; preserve single flight.
+    if (timer) clearTimeout(timer);
+    const ended = await bound(launch(true));
+    return ended && before === epoch && samples.get(before)?.retired === true;
+  }
   function stop() {
     if (stopPromise) return stopPromise;
     stopping = true;
@@ -496,6 +534,7 @@ export function nativeConsumption(page: Page) {
       }
     },
     stop,
+    endDocument,
     snapshot(request?: Request) {
       const result = {
         ...emptyNativeDiagnostic(),

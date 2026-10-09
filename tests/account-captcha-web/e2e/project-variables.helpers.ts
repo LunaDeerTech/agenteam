@@ -22,6 +22,11 @@ import {
   installVariableNativeDiagnostic,
   nativeConsumption,
 } from "./project-variables.native";
+import {
+  installVariableAuthority,
+  variableAuthorityBinding,
+  variableAuthorityProjection,
+} from "./project-variables.authority";
 import { AccountFailure, uuid7 } from "../../../web/src/api/client";
 import {
   createProjectVariablesAPI,
@@ -45,6 +50,7 @@ export type Material = {
   projects: Record<string, { normalized_name: string; id: string }>;
   variables: Record<string, ProjectVariable>;
   targets: Record<string, string>;
+  diagnostic_dist: string;
 };
 export const material = (): Material =>
   JSON.parse(
@@ -231,6 +237,7 @@ export async function recordFailure(page: Page, info: TestInfo) {
       line: Number(location?.[2] ?? 0),
       dom,
       network: networkObservations.get(page)?.() ?? emptyNetworkDiagnostic(),
+      authority: authorityObservations.get(page)?.() ?? null,
     }),
     { mode: 0o600 },
   );
@@ -299,6 +306,10 @@ const emptyNetworkDiagnostic = () => ({
   native: emptyNativeDiagnostic(),
 });
 const networkRetire = new WeakMap<Page, () => Promise<void>>();
+const authorityObservations = new WeakMap<
+  Page,
+  () => Record<string, unknown>
+>();
 const networkObservations = new WeakMap<
   Page,
   () => ReturnType<typeof emptyNetworkDiagnostic>
@@ -311,6 +322,34 @@ export function observe(page: Page) {
     tails: Promise<void>[] = [];
   let error = false;
   let firstFailure: { reason: NetworkReason; entry: Entry } | undefined;
+  const diagnosticEntry = (e: Entry) => {
+    const parts = e.url.pathname.split("/");
+    return {
+      index: entries.indexOf(e) + 1,
+      method: ["GET", "POST", "PATCH", "DELETE"].includes(e.method)
+        ? e.method
+        : "other",
+      route: e.url.pathname.endsWith("/commands/lookup")
+        ? "lookup"
+        : e.method === "GET"
+          ? parts.length === 6
+            ? "list"
+            : "detail"
+          : e.method === "POST"
+            ? "create"
+            : e.method === "PATCH"
+              ? "update"
+              : e.method === "DELETE"
+                ? "delete"
+                : "other",
+      received: !!e.response,
+      status: e.response?.status() ?? 0,
+      finished: e.finished,
+      failed: e.failed,
+      expected: e.expected ?? "none",
+      native: native.snapshot(e.request),
+    };
+  };
   const fail = (reason: NetworkReason, entry: Entry) => {
     error = true;
     firstFailure ??= { reason, entry };
@@ -348,6 +387,12 @@ export function observe(page: Page) {
       completed: entries.filter((e) => e.finished).length,
       incomplete: entries.filter((e) => e.failed).length,
       native: native.snapshot(e?.request),
+      incomplete_entries: entries
+        .filter((e) => !e.finished || e.failed)
+        .slice(0, 192)
+        .map(diagnosticEntry),
+      incomplete_truncated:
+        entries.filter((e) => !e.finished || e.failed).length > 192,
     };
   });
   const add = (task: Promise<void>, entry: Entry) => {
@@ -450,6 +495,102 @@ export function observe(page: Page) {
     entries,
     cut,
     cancel,
+    async authority(data: Material) {
+      if (
+        process.env.AGENTEAM_PROJECT_VARIABLE_WEB_CASE !== "authority" ||
+        authorityObservations.has(page)
+      )
+        throw new Error("VARIABLE_AUTHORITY_SCOPE");
+      const start = entries.length,
+        endpoint = `/api/v1/projects/${data.ids.main}/variables/${data.targets.main}`;
+      const target = {
+        project: data.ids.main!,
+        variable: data.targets.main!,
+        version: data.variables.main!.version,
+        value: "prepared before archive",
+        route: path(data),
+      };
+      const facts = {
+        installed: false,
+        joined: false,
+        request_bound: false,
+        private_bound: false,
+        native_retired: false,
+        consumer: null as ReturnType<typeof variableAuthorityProjection>,
+      };
+      authorityObservations.set(page, () => facts);
+      facts.installed = await page.evaluate(installVariableAuthority, {
+        binding: variableAuthorityBinding(repository, data.diagnostic_dist),
+        target,
+      });
+      let finished: Promise<void> | undefined;
+      return {
+        finish() {
+          if (finished) return finished;
+          finished = (async () => {
+            let timeout: ReturnType<typeof setTimeout> | undefined;
+            const work = (async () => {
+              const result = { ...facts };
+              const matches = entries
+                .slice(start)
+                .filter(
+                  (e) =>
+                    e.method === "PATCH" &&
+                    e.url.pathname === endpoint &&
+                    e.url.search === "",
+                );
+              const selected = matches.length === 1 ? matches[0] : undefined;
+              const xid = selected?.response?.headers()["x-request-id"] ?? "";
+              result.request_bound =
+                !!selected &&
+                selected.response?.request() === selected.request &&
+                uuid7.test(xid) &&
+                entries.filter(
+                  (e) => e.response?.headers()["x-request-id"] === xid,
+                ).length === 1;
+              if (result.request_bound && selected) {
+                try {
+                  await originalResponse(selected);
+                  result.private_bound =
+                    selected.body ===
+                    JSON.stringify({
+                      expected_version: target.version,
+                      request: { value: target.value },
+                    });
+                } catch {
+                  result.private_bound = false;
+                }
+              }
+              try {
+                result.consumer = variableAuthorityProjection(
+                  await page.evaluate(
+                    (id) =>
+                      (window as any).__variableAuthority?.finish(id) ?? null,
+                    result.request_bound ? xid : null,
+                  ),
+                );
+              } catch {
+                result.consumer = null;
+              }
+              result.native_retired = await native.endDocument();
+              return result;
+            })().catch(() => null);
+            try {
+              const result = await Promise.race([
+                work,
+                new Promise<null>((resolve) => {
+                  timeout = setTimeout(() => resolve(null), 250);
+                }),
+              ]);
+              if (result) Object.assign(facts, result, { joined: true });
+            } finally {
+              if (timeout) clearTimeout(timeout);
+            }
+          })();
+          return finished;
+        },
+      };
+    },
     async finish(options: { allowNoSuccess?: boolean } = {}) {
       try {
         await expect
@@ -519,43 +660,51 @@ print(count)
 // Only the in-memory decoder fetcher consumes this transport placeholder.
 // Original browser key/CSRF identity is checked separately before decoding.
 const decoderCSRF = "D".repeat(43);
+// Shared identity checks only. Diagnostic callers never read or consume the
+// browser response body, and this does not replace the ordinary finished gate.
+async function originalResponse(e: Entry) {
+  expect(e.response !== undefined).toBe(true);
+  const response = e.response!,
+    requestID = await response.headerValue("x-request-id");
+  expect(uuid7.test(requestID ?? "")).toBe(true);
+  const records = readdirSync(directory)
+    .filter((n) => /^project-variables-response-\d+\.json$/.test(n))
+    .map((n) => JSON.parse(readFileSync(join(directory, n), "utf8")));
+  const matches = records.filter((r) => r.request_id === requestID);
+  expect(matches.length === 1).toBe(true);
+  const record = matches[0],
+    headers = await e.request.allHeaders();
+  expect(
+    record.method === e.method &&
+      record.path === e.url.pathname &&
+      record.query === e.url.search.slice(1) &&
+      record.status === response.status() &&
+      record.content_type === (await response.headerValue("content-type")),
+  ).toBe(true);
+  expect(
+    Buffer.from(record.request_b64, "base64").toString("utf8") ===
+      (e.body ?? ""),
+  ).toBe(true);
+  expect(
+    record.key === (headers["idempotency-key"] ?? "") &&
+      record.csrf_sha256 ===
+        createHash("sha256")
+          .update(headers["x-csrf-token"] ?? "")
+          .digest("hex"),
+  ).toBe(true);
+  return { record, requestID: requestID! };
+}
 async function validateOriginalBodies(
   entries: Entry[],
   allowNoSuccess: boolean,
 ) {
-  const records = readdirSync(directory)
-    .filter((n) => /^project-variables-response-\d+\.json$/.test(n))
-    .map((n) => JSON.parse(readFileSync(join(directory, n), "utf8")));
   const vectors: { schema: string; raw: string }[] = [];
   let success = 0;
   for (const e of entries) {
     if (e.expected === "cancel") continue;
     expect(e.response !== undefined).toBe(true);
     const response = e.response!;
-    const requestID = await response.headerValue("x-request-id");
-    expect(uuid7.test(requestID ?? "")).toBe(true);
-    const matches = records.filter((r) => r.request_id === requestID);
-    expect(matches.length === 1).toBe(true);
-    const record = matches[0];
-    expect(
-      record.method === e.method &&
-        record.path === e.url.pathname &&
-        record.query === e.url.search.slice(1) &&
-        record.status === response.status() &&
-        record.content_type === (await response.headerValue("content-type")),
-    ).toBe(true);
-    expect(
-      Buffer.from(record.request_b64, "base64").toString("utf8") ===
-        (e.body ?? ""),
-    ).toBe(true);
-    const headers = await e.request.allHeaders();
-    expect(
-      record.key === (headers["idempotency-key"] ?? "") &&
-        record.csrf_sha256 ===
-          createHash("sha256")
-            .update(headers["x-csrf-token"] ?? "")
-            .digest("hex"),
-    ).toBe(true);
+    const { record, requestID } = await originalResponse(e);
     const raw = Buffer.from(record.body_b64, "base64");
     if (!e.expected) expect((await response.body()).equals(raw)).toBe(true);
     const c = e.method === "GET" ? null : command(e),

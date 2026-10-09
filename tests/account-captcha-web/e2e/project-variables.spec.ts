@@ -483,10 +483,15 @@ test("[authority] current Human Owner, administrators and archived original oper
   await enter(page, data);
   await select(page);
   await field(page, "值").fill("prepared before archive");
-  await ipc("archive");
-  await button(page, "保存修改").click();
-  await expect(history(page)).toContainText("本次请求被明确拒绝");
-  await expect(field(page, "值")).toHaveValue("prepared before archive");
+  const authority = await network.authority(data);
+  try {
+    await ipc("archive");
+    await button(page, "保存修改").click();
+    await expect(history(page)).toContainText("本次请求被明确拒绝");
+    await expect(field(page, "值")).toHaveValue("prepared before archive");
+  } finally {
+    await authority.finish();
+  }
   await endTracking(page);
   await button(page, "关闭详情").click();
   const discard = page.getByRole("dialog", {

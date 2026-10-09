@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, '../..')
 const ts = require(path.join(root, 'web/node_modules/typescript'))
 const { expect } = require(path.join(root, 'tests/account-captcha-web/node_modules/@playwright/test'))
 const source = ts.createSourceFile('helpers.ts', fs.readFileSync(path.join(root, 'tests/account-captcha-web/e2e/project-variables.helpers.ts'), 'utf8'), ts.ScriptTarget.ES2022, true)
-const names = new Set(['emptyNetworkDiagnostic', 'networkObservations', 'networkRetire', 'observe', 'recordFailure'])
+const names = new Set(['emptyNetworkDiagnostic', 'networkObservations', 'networkRetire', 'authorityObservations', 'observe', 'recordFailure'])
 const code = ts.transpileModule(source.statements.filter((n) => (ts.isFunctionDeclaration(n) && names.has(n.name?.text)) || (ts.isVariableStatement(n) && n.declarationList.declarations.some((d) => names.has(d.name.getText(source))))).map((n) => n.getText(source)).join('\n'), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText
 const client = {}
 new Function('exports', ts.transpileModule(fs.readFileSync(path.join(root, 'web/src/api/client.ts'), 'utf8'), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText)(client)

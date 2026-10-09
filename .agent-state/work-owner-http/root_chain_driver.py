@@ -103,7 +103,7 @@ def input_paths(binary, selector=None):
         paths.update(harness / name for name in
                      ('package.json', 'package-lock.json', 'project-variables.config.js',
                       'e2e/project-variables.spec.ts', 'e2e/project-variables.helpers.ts',
-                      'e2e/project-variables.native.ts'))
+                      'e2e/project-variables.native.ts', 'e2e/project-variables.authority.ts'))
         # The strict browser validator builds a registry from this actual directory.
         paths.update((REPOSITORY / 'api/openapi').glob('*.json'))
     return sorted(paths)

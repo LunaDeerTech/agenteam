@@ -166,7 +166,7 @@ async function cachedRetirementControl() {
 }
 function goProjectionControl(native) {
   const fixture = fs.readFileSync(path.join(root, 'tests/account/project_variables_web_fixture_test.go'), 'utf8')
-  const types = fixture.slice(fixture.indexOf('type variableWebNetworkFailure struct'), fixture.indexOf('// Independent SQL postconditions'))
+  const types = fixture.slice(fixture.indexOf('type variableWebNetworkFailure struct'), fixture.indexOf('// Runs on both browser success'))
   assert(types.includes('func (n variableWebNativeDiagnostic) valid() bool'))
   const accepted = { reason: 'unexpected-failed', index: 1, method: 'GET', route: 'detail', received: true, status: 200, finished: false, failed: true, expected: 'none', total: 1, completed: 0, incomplete: 1, native }
   const program = `package main

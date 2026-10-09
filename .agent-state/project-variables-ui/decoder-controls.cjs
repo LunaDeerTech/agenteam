@@ -28,7 +28,7 @@ const client = moduleSource('client')
 const variables = moduleSource('project-variables')
 const helperPath = path.join(root, 'tests/account-captcha-web/e2e/project-variables.helpers.ts')
 const source = ts.createSourceFile(helperPath, fs.readFileSync(helperPath, 'utf8'), ts.ScriptTarget.ES2022, true)
-const wanted = new Set(['command', 'schemaProgram', 'decoderCSRF', 'validateOriginalBodies'])
+const wanted = new Set(['command', 'schemaProgram', 'decoderCSRF', 'originalResponse', 'validateOriginalBodies'])
 const chunks = source.statements.filter((node) =>
   (ts.isFunctionDeclaration(node) && wanted.has(node.name?.text)) ||
   (ts.isVariableStatement(node) && node.declarationList.declarations.some((d) => wanted.has(d.name.getText(source)))),

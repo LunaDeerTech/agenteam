@@ -19,6 +19,9 @@ func runProjectVariablesWeb(t *testing.T, mode string, required ...string) {
 		}
 	})
 	fixture := newProjectVariablesWebFixture(t, ctx, mode)
+	// This limited postcondition also runs when the browser calls Fatal. It
+	// cannot turn a failed browser or unexecuted matrix into a successful test.
+	defer fixture.verifyAuthorityRefusal(ctx)
 	result := fixture.owner.browser(ctx)
 	for _, key := range required {
 		if result[key] != true {
