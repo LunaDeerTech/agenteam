@@ -53,7 +53,7 @@ func TestTaskPlanningIndependentCommitRank(t *testing.T) {
 			name = "commit"
 		}
 		t.Run(name, func(t *testing.T) {
-			project, _, _ := base.create(t, owner, "independent geometry "+name)
+			project, _, _ := base.create(t, owner, "independent-geometry-"+name)
 			milestone := base.milestone(t, owner, project.ID, "independent rank milestone")
 			sprint := base.sprint(t, owner, project.ID, milestone.ID, "independent rank sprint")
 			var before [4]wc.Task

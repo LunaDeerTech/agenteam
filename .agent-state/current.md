@@ -59,4 +59,6 @@
 - Model独立553静审发现两处harness must-fix：delete/credential断连仅joined不足以证明after_complete效果；final严格计数允许complete_eof0而schema/client1的矛盾观测。原owner补三旗/逐token观测/精确effect计数及结果admission，setup adapter另修真实descriptor字段和失败资源采集；不把上述证据缺口称产品故障。
 
 - 独立Task A首PG原FAIL：基线Project create INVALID_ARGUMENT，尚未进入Task authority/membership场景；session98105实际exit1，driver/Go Wait1，两ID/runtime/TCP双空、input不变（pg-31ed606…）。独立作者核输入规范后最小修probe，B暂不启动，不能当产品故障或独立PASS。
-- 后继规格纯文档：d11-task-transitions.md前三节草案已可恢复，§4–13待续，未接受/未实施；d10-agent-configuration.md另一唯一作者起草中，尚未冻结，本次不保存该文件。Model返修进行中尚未冻结。
+- 后继规格纯文档：d11-task-transitions.md前三节草案已可恢复，§4–13待续，未接受/未实施；d10-agent-configuration.md首三节已冻结保存；同样仅rev0草案，端口/锁/Model引用/验收待续，未接受或实施。Model返修进行中尚未冻结。
+
+- 独立A/B原作者已按现NormalizeName最小修3处Project Name空格→连字符，2probe源冻结保存，rq9 offline race-c/list exit0。但作者Membership测试随后发现同因非法Project Name（task_concurrency_test.go966），原body1.69s/full terminal1/66.786s、两ID/runtime/TCP双空/input不变；原FAIL保留。作者将只修新测试中的非法Project创建输入，之后作者及独立binary重编/list再冻结，不以rq9冒最终闭包通过。

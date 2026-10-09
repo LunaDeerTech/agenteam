@@ -170,7 +170,7 @@ func TestTaskPlanningIndependentAuthorityMembership(t *testing.T) {
 	base := newTaskFixture(t)
 	owner := base.human(t, "independent-owner-a", "user")
 	other := base.human(t, "independent-owner-b", "user")
-	p, _, _ := base.create(t, owner, "independent authority")
+	p, _, _ := base.create(t, owner, "independent-authority")
 	milestone := base.milestone(t, owner, p.ID, "independent m")
 	sprint := base.sprint(t, owner, p.ID, milestone.ID, "independent s")
 	create := wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: sprint.ID, Title: "independent original", Type: wc.TaskTypeSpike, Priority: wc.TaskPriorityCritical}
@@ -225,7 +225,7 @@ func TestTaskPlanningIndependentAuthorityMembership(t *testing.T) {
 	}
 
 	// Distinct real Owner/Project receives an independent identity for the same key.
-	otherProject, _, _ := base.create(t, other, "independent other")
+	otherProject, _, _ := base.create(t, other, "independent-other")
 	otherMilestone := base.milestone(t, other, otherProject.ID, "m")
 	otherSprint := base.sprint(t, other, otherProject.ID, otherMilestone.ID, "s")
 	otherRequest := create
