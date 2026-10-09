@@ -41,6 +41,7 @@ type Service struct{ data func() *serviceState }
 type serviceState struct {
 	store   Store
 	deps    Dependencies
+	issuer  kc.MutationIssuer
 	mu      sync.Mutex
 	stopped bool
 	calls   map[*call]struct{}
@@ -63,7 +64,7 @@ func New(store Store, deps Dependencies) (*Service, error) {
 	if deps.Cursors.Validate() != nil || deps.Confirmations.Validate() != nil {
 		return nil, fault(f.InvalidArgument)
 	}
-	st := &serviceState{store: store, deps: deps, calls: make(map[*call]struct{}), changed: make(chan struct{})}
+	st := &serviceState{store: store, deps: deps, issuer: kc.NewMutationIssuer(), calls: make(map[*call]struct{}), changed: make(chan struct{})}
 	return &Service{data: func() *serviceState { return st }}, nil
 }
 

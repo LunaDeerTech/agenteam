@@ -110,6 +110,27 @@ func loadCommand(ctx context.Context, x postgres.SQLExecutor, project id.Project
  FROM agenteam_knowledge.commands WHERE project_id=$1 AND command_name=$2 AND command_key=$3`, project.String(), string(name), string(key)))
 }
 
+func insertCompletedCommand(ctx context.Context, x postgres.SQLExecutor, actor id.Actor, project id.ProjectID, document kc.DocumentID, name kc.CommandName, key f.IdempotencyKey, semantic f.Digest, receipt kc.MutationReceipt, now f.Instant) error {
+	if receipt.Validate() != nil || receipt.Command != name || semantic.Validate() != nil || now.Validate() != nil {
+		return internal(nil)
+	}
+	raw, err := json.Marshal(receipt)
+	if err != nil {
+		return internal(err)
+	}
+	if len(raw) > 4<<20 {
+		return fault(f.ResourceBusy)
+	}
+	operation, err := f.NewID[command]()
+	if err != nil {
+		return unavailable(err)
+	}
+	_, err = x.Exec(ctx, `INSERT INTO agenteam_knowledge.commands
+ (id,project_id,document_id,actor_user_id,command_name,command_key,semantic_digest,state,receipt,created_at,committed_at)
+ VALUES($1,$2,$3,$4,$5,$6,$7,'completed',$8,$9,$9)`, operation.String(), project.String(), document.String(), actor.Details().UserID, string(name), string(key), semantic.String(), raw, now.Time())
+	return portError(err)
+}
+
 func (s *Service) LookupCommand(ctx context.Context, actor id.Actor, request kc.LookupRequest) (kc.CommandLookup, error) {
 	if err := readInput(ctx, actor, request.ProjectID); err != nil {
 		return kc.CommandLookup{}, err
