@@ -210,3 +210,5 @@ rev1独审发现payload闭集不完整及HTTP误列不存在Foundation Conflict�
 本卡7个文档链接（含fragment）及current链接作者自查通过；限定diff whitespace通过，新文件亦逐行核无尾空白。SPEC已接受（identity共享路径已获根授权）。按shared wire/identity/service、WSS与双rootconsumer推进，有限稳定片段交叉独审；真实资源/其余平台gate保持显式未验。
 
 本地identity首片段已实现pending/active身份、strict file、安全默认输出、FD相对权限验证、稳定排他锁及原子持久化；Linux实际文件与受控I/O失败race作者自测通过。首次文件权限反例因umask收紧测试创建mode而失败，已显式chmod恢复反例，原失败保留。尚无跨UID/真实进程Crash、macOS、登记或WSS结果，不能据此关闭完整credential/平台gate。
+
+认证header与nonce严格解析、固定签名字节/Ed25519黄金向量、pending身份恢复签名已实现，protocol/identity两包作者race通过；无DB nonce消费/时窗、TLS或真实WSS验证。本地算法向量不代独立实现验收。
