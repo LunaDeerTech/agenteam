@@ -1,6 +1,6 @@
 # D08 Project 对 Skills 清理的当前授权
 
-状态：按正式 main `29dd4298` 开始实现；尚未独立审查或真实 PG 验收。规则来源为已接受的 Skills cleanup rev2 §16.3、§16.8（`ai/skills-initialization` 的 `d10-skills-initialization-design.md`），以及现有 [LifecycleAuthority](recovery-d08-lifecycle-authority.md) 与 [生命周期合同](../../../internal/central/project/contract/lifecycle.go)。
+状态：按正式 main `29dd4298` 已实现精确分支，作者限定 pure/race/vet 通过；独立审查进行，真实 PG 尚未验收。规则来源为已接受的 Skills cleanup rev2 §16.3、§16.8（`ai/skills-initialization` 的 `d10-skills-initialization-design.md`），以及现有 [LifecycleAuthority](recovery-d08-lifecycle-authority.md) 与 [生命周期合同](../../../internal/central/project/contract/lifecycle.go)。
 
 ## 结果与范围
 
@@ -25,3 +25,5 @@
 相邻 pure 覆盖精确 dispatch、非法 actor/cause、状态及依赖矩阵；正式 PG 复用原 Account/Project Service、BeginDelete 与真实 Store。进入 Cleaning/参与者完成由明确测试拥有的阶段 fixture 提供，不能声称生产推进已实现。核 required/pending 两阳性、SH/EX、同原 Tx/锁，错 Owner/pointer/版本、未知兼容版本与 manifest 漂移、缺/多 participant、停止未齐、依赖未完成、Failed 尚未 Retry、各不可逆屏障、未 initialized、foreign/ended Tx、漏锁以及原 Stop/Inspect 回归。授权查询无持久变化；取消及返回后的原 Tx 必须实际结束。
 
 先固定 Go1.27.1/local/off，复用原 Work 独占缓存及只读 modcache，进行受影响 pure/race/vet；真实 PG 和候选集成编译另按资源调度，不启动浏览器/Object backend。作者与未参与者结论分列，编译/pure 不替代真实授权矩阵。原 Object Runtime join、E01 等停止项不变。
+
+作者当前检查：固定 Go1.27.1/off/-p1、原缓存，新增两 pure top 与原 LifecycleAuthority 构造兼容共3top/19sub race实际0（89499→0cff7b，1.024s），同包vet实际0（65938→750b69）。三PG测试源码已落盘，包含原SH阻塞Owner writer的实际pg_locks等待判据与两个caller Tx实际返回，但尚未编译/运行；不将这些刺激设计记作真实通过。
