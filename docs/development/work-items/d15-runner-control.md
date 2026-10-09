@@ -1,6 +1,6 @@
 # D15 Runner 身份与 Control Channel
 
-状态：rev1 规格冻结待独立审查；仅规格与依赖准备，未实施、未运行身份/控制通道。
+状态：rev2 两项独审缺陷修正后冻结待差异复审；仅规格与依赖准备，未实施、未运行身份/控制通道。
 
 ## 1. 结果、依据与边界
 
@@ -58,7 +58,7 @@ PATCH值与当前事实完全相同是已知no-op：保存public命令回执，v
 
 token 为 crypto/rand 32 B，wire 是无 padding base64url（43字节），TTL 10分钟，DB UTC 判时；只存 SHA-256，常量时间比较。首次已知 committed 响应可带 `{enrollment_token,expires_at}`，重复/Lookup 仅返回相同 public receipt 与 `token_available:false`，不再生成或重放秘密；lost response/Unknown 后管理员先原意图 Lookup，再以新显式 enrollment 命令签发，不能把重试当成新 token。任何 prepared public receipt 不得提前发布；Unknown 保留原 Attempt/Cause，不自动写重试，当前已授权 Lookup 用同命令事实确认。注册命令不要求 token 明文可恢复。
 
-所有 HTTP JSON 对象闭集、拒未知/重复（含 escaped key）/别名/null/尾随内容/非法 UTF-8/surrogate；总 body≤32 KiB、depth≤16，列表响应≤2 MiB；Content-Encoding 只要出现就拒，JSON charset 只 UTF-8。GET/HEAD 禁实际 body；path canonical、无 RawPath/ForceQuery，query 只各入口明确字段且不重复。HTTP 管理/设备有限请求使用原生2s读/30s写上界、ctx cancellation 与实际 body/Tx/handler join；后续 keepalive 不继承旧 deadline。错误复用正式 Problem 安全投影，只有已存在的通用 code（InvalidArgument/Unauthenticated/Forbidden/NotFound/Conflict/ResourceBusy/DependencyUnavailable），不扩大未知 code 回退。写成功后 projection/write失败 abort，不伪造 not_committed。
+所有 HTTP JSON 对象闭集、拒未知/重复（含 escaped key）/别名/null/尾随内容/非法 UTF-8/surrogate；总 body≤32 KiB、depth≤16，列表响应≤2 MiB；Content-Encoding 只要出现就拒，JSON charset 只 UTF-8。GET/HEAD 禁实际 body；path canonical、无 RawPath/ForceQuery，query 只各入口明确字段且不重复。HTTP 管理/设备有限请求使用原生2s读/30s写上界、ctx cancellation 与实际 body/Tx/handler join；后续 keepalive 不继承旧 deadline。错误复用正式 Problem 安全投影，仅复用Foundation已有码，不新增`Conflict`：expected_version不匹配为`VersionConflict`，同command/key异意图为`IdempotencyKeyReused`，当前状态不容许为`InvalidState`；其它输入、身份、容量、依赖和Unknown分别沿`InvalidArgument`、`Unauthenticated`、`Forbidden`、`NotFound`、`ResourceBusy`、`RateLimited`、`DependencyUnbound`、`DependencyUnavailable`、`CommitUnknown`。不扩大未知code回退；下述Runner wire `CONFLICT`属于独立协议错误码，不是Foundation枚举。写成功后 projection/write失败 abort，不伪造 not_committed。
 
 ## 4. 登记、认证与本地身份
 
@@ -101,7 +101,25 @@ Envelope 精确 `{protocol_version:{major:1,minor:0},type,message_id,request_id?
 
 这些是传输/内存保护上限，不是 Runner 独立的业务并发调度。满表/满队列时尚未开始写的 request 明确 not_sent；一旦尝试写或入wire后的异常，未收到合法terminal则 unknown。不能为了给heartbeat让路静默丢terminal/stream；terminal必须排在同request已接纳stream之后，不能被优先队列提前越过；持续满队列使连接失败并统一收束pending。关闭/替换/Force能打断阻塞producer与writer，禁止goroutine无界缓冲。单连接寿命到达message去重容量时可主动重连，但必须先停止admission，已有pending按真实terminal/unknown处理，不能重放。
 
-关联规则冻结：hello/hello_ack/heartbeat/heartbeat_ack/runner_status/protocol_error无request_id/operation_id；request/response/cancel/stream两ID都必须有且与payload一致；data_channel三种message两ID同有或同无，有时与payload一致。`cancel`只有request_id/operation_id/reason；`stream`只有request_id/operation_id/stream/sequence/data/timestamp；`runner_status`只有headless/capabilities；`protocol_error`只有code/safe_message/offending_message_id?/fatal。协议error code闭集 `INVALID_ENVELOPE`、`INCOMPATIBLE_VERSION`、`HELLO_ORDER`、`CORRELATION_INVALID`、`DUPLICATE_MESSAGE`、`UNSUPPORTED_MESSAGE`、`RESOURCE_EXHAUSTED`；输出固定文案且不回显raw输入。D17三payload按正式Control Protocol §17字段和data-channel架构严格解码（ID/时间同本卡，size为canonical非负十进制字符串）；当前不启用data-channel feature，合法形状也明确UNSUPPORTED_MESSAGE，不能回复ready。
+关联规则冻结：hello/hello_ack/heartbeat/heartbeat_ack/runner_status/protocol_error无request_id/operation_id；request/response/cancel/stream两ID都必须有且与payload一致；data_channel三种message两ID同有或同无，有时与payload一致。`cancel`只有request_id/operation_id/reason；`stream`只有request_id/operation_id/stream/sequence/data/timestamp；`runner_status`只有headless/capabilities；`protocol_error`只有code/safe_message/offending_message_id?/fatal。协议error code闭集 `INVALID_ENVELOPE`、`INCOMPATIBLE_VERSION`、`HELLO_ORDER`、`CORRELATION_INVALID`、`DUPLICATE_MESSAGE`、`UNSUPPORTED_MESSAGE`、`RESOURCE_EXHAUSTED`；输出固定文案且不回显raw输入。13种payload字段闭集如下；`?`表示省略合法、显式null仍拒绝，其余字段必须出现。字段取值限制继承本节/§7；表中别名与未列字段一概拒绝，不以任意map扩展。
+
+| type / 方向 | payload完整字段 |
+| --- | --- |
+| hello / Runner→Central | runner_id, runner_version, protocol_version, os, arch, headless, capabilities, feature_flags |
+| hello_ack / Central→Runner | accepted, negotiated_protocol_version, heartbeat_interval_ms, heartbeat_timeout_ms, enabled_features |
+| heartbeat / Runner→Central | sequence, runner_time；本版无health扩展 |
+| heartbeat_ack / Central→Runner | sequence；值精确回显已接受heartbeat的sequence，无server_time/配置/其它字段 |
+| request / Central→Runner | request_id, operation_id, execution_id, project_id, agent_id, mount, operation_name, operation_revision, deadline?, environment?, idempotency_key?, payload（§7） |
+| response / Runner→Central | request_id, operation_id, outcome, code?, safe_message?, payload?；四variant精确presence见§7 |
+| cancel / Central→Runner | request_id, operation_id, reason |
+| stream / Runner→Central | request_id, operation_id, stream, sequence, data, timestamp |
+| runner_status / Runner→Central | headless, capabilities |
+| data_channel_open / Central→Runner | channel_id, request_id?, operation_id?, direction, purpose, size?, media_type?, checksum?, expires_at, one_time_credential |
+| data_channel_ready / Runner→Central | channel_id, request_id?, operation_id?；无ready bool、endpoint、URL或credential |
+| data_channel_close / 两方向 | channel_id, request_id?, operation_id?, status, transferred_size, checksum?, error? |
+| protocol_error / 两方向 | code, safe_message, offending_message_id?, fatal |
+
+D17三帧这里只冻结control metadata的可判定shape，不启用传输：channel_id按本卡UUIDv7；可选request/operation同有或同无，并与Envelope一致。direction闭集runner_to_central/central_to_runner/bidirectional_stream；purpose是1..64B的`[a-z][a-z0-9_.-]*`标识，具体已启用用途由D17决定；size/transferred_size为0..MaxInt64的canonical十进制字符串；media_type为≤255B ASCII无参数`type/subtype`；checksum为`sha256:`加64个小写hex；expires_at沿本卡Instant；one_time_credential为32随机B的无padding base64url，仅作为秘密wire字段、不输出日志。close.status闭集completed/failed/cancelled/expired：completed禁止error、checksum可选；其余禁止checksum、必须error。error精确`{code,safe_message}`，failed只允许TRANSFER_FAILED或DATA_CHANNEL_FAILED，cancelled只CANCELLED，expired只TIMEOUT；文案沿§7表。当前未启用data-channel feature，合法形状也明确UNSUPPORTED_MESSAGE，不能回复ready；D17未来启用不改变本卡对当前未绑定的拒绝行为。
 
 hello首帧精确 runner_id/runner_version/protocol_version/os/arch/headless/capabilities/feature_flags。runner_version为构建安全版本串≤64B；os闭集linux/darwin、arch闭集amd64/arm64、能力/flags各≤32个唯一≤64B稳定名。当前空能力是合法且诚实的在线身份节点；未注册/探测失败不宣称支持。hello_ack精确 accepted、negotiated_protocol_version、heartbeat_interval_ms、heartbeat_timeout_ms、enabled_features；1.0默认 interval=10000、timeout=30000，Central只可选择interval 1000..30000且timeout在3×interval..120000内，Runner严格校验。拒绝不进入active。后续runner_status只发布实际变化的headless/capabilities快照，不改凭据/业务授权。
 
@@ -119,7 +137,35 @@ Runner operation port是 `Execute(ctx,Request,StreamSink) (Terminal,error)`、Ca
 
 Central每次技术Attempt生成新request_id/message_id，业务operation_id由上游给定且重试不变。调用者cancel只请求Runner取消，不直接把已发送请求归为cancelled。request未尝试write可返回not_sent；attempted write后无合法terminal为unknown（哪怕只有局部帧发出），必须上交Runtime而非自动重发。收到terminal后再断线保留known结果。重复terminal、错operation关联、未请求的response、terminal后stream为fatal；只能影响当前代际，不能污染新连接。
 
-Terminal闭集success/failure/cancelled/unknown，code/safe_message/payload presence按variant；safe_message是端点固定英文文案，不透传backend error；failure/cancelled必须由实际runtime证明，cancel ack不是terminal。未知副作用必须unknown。stream按request+stream独立sequence，terminal封口；发送前调用真实masking port，未绑定secret masking时带敏感environment的operation不得开始，不能默认原文透传。D15无命令输出生产者，Secret masking真实集成保留D16 gate。
+Terminal四variant都必须有request_id/operation_id/outcome；其它字段由下表决定，不靠zero value忽略非法presence。可选payload若出现必须是非null JSON对象，具体operation schema再验证；D15无生产operation成功payload。
+
+| outcome | code | safe_message | payload |
+| --- | --- | --- | --- |
+| success | 禁止出现 | 禁止出现 | 可省略；出现时按operation result schema |
+| failure | 必须，取下表除CANCELLED外任一项 | 必须，恰为该code对应固定文案 | 禁止出现 |
+| cancelled | 必须，CANCELLED或TIMEOUT | 必须，恰为该code对应固定文案 | 禁止出现 |
+| unknown | 禁止出现 | 必须，恰`Operation outcome is unknown.` | 禁止出现 |
+
+Runner code与安全文案是协议闭集，不接受任意backend错误字符串；大小写、标点逐字一致。TIMEOUT只有已知期限导致确定失败/取消时可用于failure/cancelled，副作用未确认必须unknown。
+
+| Runner code | safe_message |
+| --- | --- |
+| INVALID_REQUEST | `Invalid request.` |
+| UNSUPPORTED_OPERATION | `Operation is unsupported.` |
+| NOT_FOUND | `Resource was not found.` |
+| CONFLICT | `Resource conflict.` |
+| WORKSPACE_NOT_FOUND | `Workspace was not found.` |
+| PATH_OUTSIDE_WORKSPACE | `Path is outside the workspace.` |
+| PROCESS_NOT_FOUND | `Process was not found.` |
+| PROCESS_ALREADY_EXITED | `Process has already exited.` |
+| TIMEOUT | `Operation timed out.` |
+| CANCELLED | `Operation was cancelled.` |
+| TRANSFER_FAILED | `Transfer failed.` |
+| DATA_CHANNEL_FAILED | `Data channel failed.` |
+| CAPABILITY_UNAVAILABLE | `Capability is unavailable.` |
+| INTERNAL_ERROR | `Internal error.` |
+
+failure/cancelled必须由实际runtime证明，cancel ack不是terminal。未知副作用必须unknown。stream按request+stream独立sequence，terminal封口；发送前调用真实masking port，未绑定secret masking时带敏感environment的operation不得开始，不能默认原文透传。D15无命令输出生产者，Secret masking真实集成保留D16 gate。
 
 可选deadline是原absoluteInstant，不给所有operation补统一业务timeout；期限已过不开始，尚未到建立子ctx；重试不刷新。cancel闭集`caller_cancelled`/`deadline_exceeded`/`connection_closed`/`runner_stopping`，关联request/operation；同时成功与取消依实际terminal为准。断线取消该连接下active RPC并等待其runtime退出；不将“发出cancel”当副作用已撤回。没有持久RPC journal、旧连接查询或自动结果恢复。
 
@@ -159,6 +205,6 @@ Config只新增上述身份/登记参数与可选`AGENTEAM_RUNNER_CA_FILE`，已
 
 ## 10. 当前状态与下一步
 
-rev1作者自查只完成正式来源/现Account/Audit/Runner D02依赖核对。根授权一次固定依赖准备，`go mod download github.com/gorilla/websocket@v1.5.3`实际exit0，使用本树任务缓存；不等于产品/协议构建或测试通过。当前未启动任何server/PG/browser，未实施migration或产品。
+rev1独审发现payload闭集不完整及HTTP误列不存在Foundation Conflict，两项原结论保留；rev2仅补本卡§6/7的闭集表与§3既有码映射，待原审者差异复审。作者自查只完成正式来源/现Account/Audit/Runner D02依赖核对。根授权一次固定依赖准备，`go mod download github.com/gorilla/websocket@v1.5.3`实际exit0，使用本树任务缓存；不等于产品/协议构建或测试通过。当前未启动任何server/PG/browser，未实施migration或产品。
 
 本卡7个文档链接（含fragment）及current链接作者自查通过；限定diff whitespace通过，新文件亦逐行核无尾空白。卡/current现冻结供未参与设计的验证者SPEC审查（identity共享路径已获根授权）。通过后先shared wire/identity/service，再WSS与双rootconsumer，按有限稳定片段交叉独审；真实资源/其余平台gate保持显式未验。
