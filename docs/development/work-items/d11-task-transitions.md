@@ -391,7 +391,7 @@ wire 精确六个 required 字段 `sprint_id,state,priority,previous_id,next_id,
 
 ### 10.5 T0b 完整纯契约的工程闭包
 
-**范围与文件。** T0a 与 [B0-C 两类 Blocker 契约](d11-task-blocker-contracts.md) 已实现并分别独立接受，现可冻结 T0b 的纯 Go 结果；本段仍只授权工程规格。后续拟新增且仅新增 `internal/central/work/contract/task_transition_contracts.go`、`task_transition_history.go`、`task_transition_events.go` 及各自同名 `_test.go`，共六文件；源码开工须另授写域，名称冲突先协调。不改既有 Task/T0a/B0-C/identity/Foundation/event/Outbox/Project 源或测试，不新增依赖、迁移、服务构造器、真实 producer/gate 注册。完整请求及数据结果仅支持 B0-C 已验两类 metadata，其余三类保持 `DEPENDENCY_UNBOUND`；带引用 waiting_for_human 保持 B0-C 的严格拒绝，不作降级。
+**范围与文件。** T0a 与 [B0-C 两类 Blocker 契约](d11-task-blocker-contracts.md) 已实现并分别独立接受，现可冻结 T0b 的纯 Go 结果；六文件纯结果已实现并独立验收，实施结果见文末；此段不授予运行服务能力。后续拟新增且仅新增 `internal/central/work/contract/task_transition_contracts.go`、`task_transition_history.go`、`task_transition_events.go` 及各自同名 `_test.go`，共六文件；源码开工须另授写域，名称冲突先协调。不改既有 Task/T0a/B0-C/identity/Foundation/event/Outbox/Project 源或测试，不新增依赖、迁移、服务构造器、真实 producer/gate 注册。完整请求及数据结果仅支持 B0-C 已验两类 metadata，其余三类保持 `DEPENDENCY_UNBOUND`；带引用 waiting_for_human 保持 B0-C 的严格拒绝，不作降级。
 
 **请求、回执与命令。** 采用 §3 的 TaskTransfer、TaskTransitionMutation、TaskTransitions 接口原字段/签名；接口只有声明，无成功实现。`identity`、`foundation`、`event` 指现有 contract 包，新增 API 为：
 
@@ -594,4 +594,12 @@ D10当前Agent事实与Work引用保护是明确责任依赖，不是产品未�
 
 已实现 `internal/central/work/contract/task_transition_rules.go` 及相邻测试。作者 pure、root contract race（2.931s）、准确 vet 与六个新增 selector 发现实际退出0；独立公开API overlay 使用 Go1.27.1、离线 `-race -p=2`，4顶层/9子测试全部实际运行通过（1.078s，工具session9346实际exit0）。独立 oracle 检查49状态对×6角色×3当前assignee，共882组合，以及错误优先、8KiB原始输入、失败receiver保留、并行Clone和旧Position/schema隔离。两产品源与独立探针均冻结，未修改旧契约或迁移。
 
-可复跑独立验收：[probe_test.go](../../../.agent-state/task-transition-core-recovery/probe_test.go)、[run.sh](../../../.agent-state/task-transition-core-recovery/run.sh)。以上只证明纯类型与决策；没有运行PG/Agent事实/Blocker/Executor/Scheduler，也没有授权或提交能力。完整Transfer与§13前置继续待实现。
+可复跑独立验收：[probe_test.go](../../../.agent-state/task-transition-core-recovery/probe_test.go)、[run.sh](../../../.agent-state/task-transition-core-recovery/run.sh)。以上只证明纯类型与决策；没有运行PG/Agent事实/Blocker/Executor/Scheduler，也没有授权或提交能力。完整Transfer纯契约已由T0b补齐；§13真实前置继续待实现。
+
+### T0b 实施与验收结果
+
+已实现§10.5限定的六个contract/test文件，覆盖完整请求与命令摘要、Human typed历史、严格封套和纯多事实数据工厂。作者最终整包pure、race、vet及六selector发现实际退出0；最大35事实、两类Blocker及最坏文本组合通过。首次新测试使用不存在的旧API导致编译失败，只修新测试后复验通过，原失败不作成功记录。
+
+独立公开API验收使用Go1.27.1离线overlay，pure/race各6顶层、34子测试实际运行通过，vet实际退出0（外层工具session82636）。它另行构造固定摘要、前后状态/assignee逐值反例、最大组合、嵌套原始raw容量、foreign factory、Clone/日志及旧schema否定，不使用作者helper计算期望。可复跑：[probe_test.go](../../../.agent-state/task-transition-recovery/t0b-independent/probe_test.go)、[run.sh](../../../.agent-state/task-transition-recovery/t0b-independent/run.sh)。
+
+本结果只消费B0-C已接受两类metadata，历史仅Human分支；AgentRun摘要只验证稳定主体形状。纯数据工厂不证明真实Task/Blocker/邻居或授权事实，不写DB、不发布event、不提供Grant，生产gate仍未绑定新triple。通用Catalog.Restore原字节局限保留；自有Restore先严格检查raw。T1/T2/T3与完整D11仍未完成。

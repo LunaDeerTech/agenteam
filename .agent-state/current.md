@@ -185,3 +185,6 @@
 
 - sharedLayer五精确产品/test路径+nav诊断module最终作者freeze；VueTS83504Wait0/componentTS43145Wait0/navTS74937Wait0/Prettier0。Vitest首轮104/106新例过早读nextTick inert，仅测试flushPromises修正，77191实际Wait0/106/106；原FAIL保留。产品仅既有layers栈同步绘制rank+Dialog整overlay/Popover浮层绑定，Drawer继承，原focus/inert/close策略保持。root仅规范67同步CSSfallback与注册stack排序；真实8component浏览器仍未执行，新assets尚未build。限定两个diff交独审，先nav有限诊断后真实第三诊断/共享UI资源；其余未验源不混main。
 - navmodule仅真实Session action/header/finished/json分段与5s可清理timer，3布尔exactRequest事件finallyoff，无第二GET/no成功或join伪造。旧14两个新helper作者离线selfcheck中，尚未freeze。独立T0b准确热cache=/home/agent/.cache/go-build已实际转授，旧outputcache未使用；root不并行Go检查。
+
+- T0b正式main交付11c168677da52a7805510f8a7e34c6388f0abdab，正常pushactual0且ls-remote精确确认。12paths仅六新产品/test、两独验probe与四必要docs；独验82636 actual0各6top34child，root70b隔离contract/work race23.745/1.343s、准确vet及Central/Runner build74308Wait0。无未验Model来源、无DB/authority/producer绑定，D11未完成。
+- 旧14两个regressionhelper已作者freeze/pycompile及临时纯selfcheck0；不含实际discovery/业务或独验，独立恢复评审已实际启动。初始global dist缺失failclosed，4/3资源链/原120s+75s/资产身份恢复闭集；源必要保存。sharedLayer+规范及navEOF分段有限独审通过（AST0.133/0.117s），真实component待root资源窗；assets未build。
