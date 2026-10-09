@@ -1,6 +1,6 @@
 # D27 Project Owner 模型设置 UI — rev1＋菜单兼容补充
 
-状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 31 路径（30 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30–31 是旧 Audit 单元／真实浏览器菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮、read 第二轮、configuration 第三轮与 credential 首轮实际完整通过（4/6 新 top，含完整资源终态）；configuration／credential／recovery 又已在新共享资产上完整补验，其余资产影响边界见 §0。原 recovery 六次、read 首轮与 configuration 前两轮失败保留。其余两个新 top 与旧回归余下 3 项尚未完成；独立 A 第二轮、B 第六轮均已完整通过；旧 Owner 三项、Audit 权限／恢复与导航两项、Summary 恢复／权限导航两项、Account Session 生命周期、个人主题／受保护导航及 System Provider／Model 恢复均已完整通过，已恢复或注册的其他源码不代表真实场景通过。
+状态（2026-10-09）：**25 个前端文件已提交，整卡验收未完成。** 当前范围为 31 路径（30 技术＋README），17 HTTP operations、9 IPC、6 个新 top 与 14 个旧回归不变；原 #1–29 编号保留，#30–31 是旧 Audit 单元／真实浏览器菜单期待兼容修正。四个 Go/浏览器 harness 与必要恢复输入已重建；当前恢复验收 recovery 第七轮、read 第二轮、configuration 第三轮与 credential 首轮实际完整通过（四项均含完整资源终态）；configuration／credential／recovery 又已在新共享资产上完整补验，navigation 的第六轮完整业务与后继单格补图组合亦已接受，现为 5/6 新 top；其余资产影响边界见 §0。原 recovery 六次、read 首轮与 configuration 前两轮失败保留。authority 新 top 与旧回归余下 2 项尚未完成；独立 A 第二轮、B 第六轮均已完整通过；旧 Owner 三项、Audit 权限／恢复与导航两项、Summary 恢复／权限导航两项、Account Session 生命周期、个人主题／受保护导航及 System Provider／Model／Selection 恢复均已完整通过，已恢复或注册的其他源码不代表真实场景通过。
 
 本卡保存产品规格、验收场景与恢复所需事实；团队调度、稳定输入、证据留存和 Git 交付统一遵循[团队流程](../agent-team/README.md)。旧逐轮 root grant、重复哈希表、README 最后另授和永久归档步骤不再作为日常流程。历史全文可从 `e55ad7d1` 的本卡及当时[任务台账](../agent-team/tasks.md)、[环境交接](../agent-team/recovery-2026-10-08-environment.md)文件历史定位，不改写原失败或未验证范围。
 
@@ -14,8 +14,8 @@
 | 前端离线组合 | 历史完整单元 2626 PASS / 2 FAIL 为旧 Audit 菜单期待；#30 一行兼容后该文件 49/49 PASS。格式、类型、私有 build 及独立导航／焦点修复按各自版本组合接受，保留原失败，不宣称当前 HEAD 一次全量重跑。 |
 | 真实配置与凭据路径 | `modelsconfig03`、`modelscred01` 历史 actual PASS / fullSTOP；前两次配置 FAIL、Problem.instance 净化路径修复及其有限证据保留。 |
 | 恢复路径 | `modelsrecover01`、`modelsrecover02` 均 FAIL；后者缺最终 browser-result 与 durable facts，原 75s host TCP 观察未双清。后续有限窗口释放不能补写原 TCP 通过。 |
-| 当前恢复验收 | recovery 第七轮、read 第二轮、configuration 第三轮、credential 首轮完整通过，原各次失败保留。sharedLayer 修复及真实组件已按 §0.2–0.3 接受，configuration／credential／recovery 的新资产补验已完成；read 仅按限定历史证据复用，其余门槛仍未完成。 |
-| 未完成门槛 | authority / navigation 两个新 top、旧 14 回归中的余下 3 项尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
+| 当前恢复验收 | recovery 第七轮、read 第二轮、configuration 第三轮、credential 首轮完整通过，原各次失败保留。sharedLayer 修复及真实组件已按 §0.2–0.3 接受，configuration／credential／recovery 的新资产补验已完成；read 仅按限定历史证据复用；navigation 的完整业务与单格补图组合已接受，authority 与旧回归剩余门槛未完成。 |
+| 未完成门槛 | authority 新 top、旧 14 回归中的余下 2 项尚未完成；README 尚无本卡整体验收结论。D27、生产 Resolution / Invocation / D24 及 E01 不因前端提交完成。 |
 
 两次恢复失败后的受控结论仅用于后续修复：正式 header/Flush 后零 body 断连已在受控 native fetch 比较中验证；旧分支一次 fetch 可能透明发出两次 POST 并读到完整 EOF。ReadPrivate 的 Lstat→Open→SameFile 与 JS atomic rename 存在源码可确定竞态；候选改为先 NOFOLLOW|NONBLOCK 打开，再以同一 fd 验证 regular/0600/size，保留原有界读取、清理与 Close，pure-file 受控 12 叶／17 RUN/PASS 已接受。原恢复轮未采得具体 error 类别，以上不能回填两次 business FAIL 的确切因果。早期受控 browser launch 失败及 TMP 后续清理同样保留，短根成功不证明原 launch 失败原因。
 
@@ -46,6 +46,8 @@ navigation 第五轮使用 §0.3 已接受修复的新私有资产，仍在初�
 
 navigation 第六轮的业务与进程完整通过：12 项检查全为 true，15 次尝试中 14 份完整响应通过 EOF／schema／正式客户端、一次预期不完整响应符合判据；113 个 server 请求全部结束，焦点恢复、Tab／ShiftTab 限域、Drawer 键盘展开／Escape 回焦、减少动效与无溢出断言均通过。Go 26.74 秒、外层实际 Wait／exit=0／116.09 秒；direct／四 adopted 实际 wait、全部 join、七资源双 absent、descendant 双空、runtime-empty／private-removed、TCP 双空、输入同一与精确临时目录移除均齐。但视觉验收尚未闭合：独验者本人逐张看过浅深×1440／390×正常／减少动效的八张图，七张可有限复用，`navigation-light-narrow-normal.png` 仍显示半透明退出抽屉覆盖页面。图像与 beforeLeave 已设 inert／aria-hidden、120ms 退出动画仍绘制相容，未证明产品持续遮挡；不能将该格标为稳定布局通过。必要事实及该原图见 [navigation-sixth-visual-failure.json](../../../.agent-state/model-ui-recovery/navigation-sixth-visual-failure.json)。下一步只补实际退出完成后的该格图证，不改动画、不固定 sleep；原第四／第五轮 FAIL 保留，本轮成功不解释旧 Session 超时原因。
 
+navigation 后继单格补验使用原 driver 的 `--case navigation --navigation-image light-narrow-normal`：保留全部导航业务、8 格 DOM／媒体／溢出及 4 格减少动效门槛，仅生成指定的一张图；截图前等公开 Drawer overlay 实际从 DOM 移除，不改产品动画或固定等待时间。默认 8 图与指定 1 图的输入绑定、实际捕获数及退出等待均已通过作者和独立控制。该轮 12 项业务检查、14 份完整响应及原预期断连通过，Go 24.36 秒、外层实际 exit=0／113.63 秒，所有 actual Wait／join、七资源双 absent、descendant 双空、runtime／private／TCP 双清、输入同一与精确临时目录移除齐。独验者本人目视新 390×844 图：退出遮罩已消失，无叠透或横向遮挡；与第六轮已接受的七张图组成八格证据，navigation 限定完整接受，不称本轮重新生成八图。原失败图及此前失败保留，静图不替代动效过程或视口外内容验证。
+
 authority 第六轮使用已独审的新诊断，本轮 Session 原 finished／JSON／身份门槛通过，但不证明旧间歇失败已修复。已完成归档配置原请求重放，随后切到凭据恢复 Project 时 FAIL：URL 等待已过，公开 Project 设置链接的目标 href 尚未发布（模块第 282 行）；17 个安全响应，尚未开始凭据归档场景，没有 Session 失败诊断产物。必要事实见 [authority-navigation-sixth-failure.json](../../../.agent-state/model-ui-recovery/authority-navigation-sixth-failure.json)。Go 25.15 秒、外层实际 exit=1／114.59 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空及输入同一均完成。下一步核实真实导航确认或当前 Owner 发布条件，区分产品缺陷与测试前置遗漏，保持原断言与预算。
 
 authority 第七轮整体仍 FAIL：原 45 秒用例预算在 `authority-lifecycle-gates` 耗尽，本轮显式 Session headers／finished 已见且 failed 未见，仅 13 个安全响应，尚未进入归档配置场景；没有新的导航 DOM 或原生 Session 失败产物。当前错误投影只保留 timeout 与通用入口，确切等待子步骤未记录，不能据不同停点猜测根因。必要事实见 [authority-lifecycle-seventh-failure.json](../../../.agent-state/model-ui-recovery/authority-lifecycle-seventh-failure.json)。Go 56.64 秒、外层实际 exit=1／146.76 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、descendant 双空、临时目录实际移除、TCP 双空与输入同一均完成。原 main driver 没有单独记录删除前 runtime-empty 谓词，失败退出不能证明该谓词通过；目录移除后当前资源清空不回填原观察。下一版只补既有 await 的稳定开始／完成步骤及既有清理谓词的安全输出，保留业务门槛、请求与预算，独审后再有意义复验。
@@ -56,7 +58,11 @@ authority 第九轮以已独立接受的 Resolve 同响应观测复验仍 FAIL�
 
 authority 第十轮整体仍 FAIL，但该轮已越过此前 Resolve 完成等待，停在配置恢复 Project 归档重放后转往凭据恢复 Project 的 `authority-open-to-have-attribute-043`。新增公开 DOM 明确：URL 指向目标，设置链接仍指向旧已知 Project、导航 inert，Owner“放弃项目修改？”可见而 Model 确认不可见；Session／Owner checking、loading、read-error 与 unavailable 均未见。目标 Owner 尚未发布，后续凭据业务未开始；这证实本轮精确转场有 Owner 确认前置，不能回填第六轮未采 DOM 或证明旧 finished 间歇原因已修。仅计划按 §5.2 保留产品版本冲突契约，为这一明确归档重读转场增加真实用户确认，其他 open 默认不确认，原目标发布与完整响应门槛不变。必要事实见 [authority-navigation-tenth-failure.json](../../../.agent-state/model-ui-recovery/authority-navigation-tenth-failure.json)。Go 25.95 秒、外层实际 Wait／exit=1／116.48 秒，17 份安全响应；direct／四 adopted 实际 wait、全部 join、七资源双 absent、descendant 双空、runtime-empty／private-removed、TCP 双空、输入同一及精确临时目录移除均齐。
 
-authority 后继测试前置已限定为两处显式归档转场并获独审：配置恢复→凭据恢复、凭据恢复→引用场景，各须此前对应归档重放／仅 lookup 全部检查已完成、公开旧导航匹配源 Project、目标尚未发布及唯一精确 Owner 确认，再执行原目标发布与完整响应门槛。第二处由真实归档版本、`readCurrent(adopt=false)` 与 Owner 先于 Model 的路由规则预先确认需要，未捏造它曾实际 FAIL；默认其他 open 不自动确认。两分支严格类型与作者 30 项实际源码控制通过，跨树独验分别追加 8 项控制通过；首轮独立控制因 VM 缺 URL 的 setup FAIL 保留，修正仅在临时控制中。产品、请求、原预算与其余断言不变，两处组合尚待真实复验。
+authority 后继测试前置已限定为两处显式归档转场并获独审：配置恢复→凭据恢复、凭据恢复→引用场景，各须此前对应归档重放／仅 lookup 全部检查已完成、公开旧导航匹配源 Project、目标尚未发布及唯一精确 Owner 确认，再执行原目标发布与完整响应门槛。第二处由真实归档版本、`readCurrent(adopt=false)` 与 Owner 先于 Model 的路由规则预先确认需要，未捏造它曾实际 FAIL；默认其他 open 不自动确认。两分支严格类型与作者 30 项实际源码控制通过，跨树独验分别追加 8 项控制通过；首轮独立控制因 VM 缺 URL 的 setup FAIL 保留，修正仅在临时控制中。产品、请求、原预算与其余断言不变，首处已在第十二轮越过，第二处仍未实际验收。
+
+authority 第十一轮在原初始 Session `response.finished()` 5 秒门槛 FAIL，尚未到两处归档转场。唯一请求／Request-ID 绑定，原生两次 read 均返回、483 字节、`read_done=true` 且 `cancel_before_eof=false`、读取拒绝／abort 为零，PW 见 aborted 而未 finished；旧 helper 未采长度或单调事件时序，不能据此推传输原因。必要原件见 [authority-session-eleventh-failure.json](../../../.agent-state/model-ui-recovery/authority-session-eleventh-failure.json)。Go 18.34 秒、外层 actual exit=1／129.62 秒；实际 Wait／join、七资源双 absent、descendant 双空、runtime-empty／private-removed及输入同一均齐，但原 75 秒 TCP 尾有一行差异、零次空观察，tuple 未保留，归属未知。后验已登记 PID 与精确临时目录全部不存在，只说明当前自有资源已退役，不补原 TCP PASS。
+
+authority 第十二轮复用已独审的详细 Session adapter，原 5 秒／JSON／身份门槛不变；实际越过首个配置归档转场后，仍在凭据归档后的 Session 刷新 FAIL，第二转场未到。最终 slot end 与唯一原响应绑定均已采得：有效 identity Content-Length=483，客户端读取 483 字节且严格中断前完成，顺序 done→reader cancel→release→stream cancel，读取拒绝／abort 为零。Node 观测中 action≈10ms、PW aborted≈97ms、首次已绑定完成采样≈361ms、失败投影≈5102ms，未见 finished 或 page／context close 通知；采样时刻不是真实 EOF 时间，不证明服务端完成或物理 TCP EOF。该轮排除了“只有正常测试 teardown 之后才首次看到 failed”的解释，未确定根因，不能盲目重复。必要事实见 [authority-session-twelfth-failure.json](../../../.agent-state/model-ui-recovery/authority-session-twelfth-failure.json)。Go 27.85 秒、外层 actual exit=1／118.60 秒；direct 实际 wait／exit=1、四 adopted 实际 wait=0、全部 join、七资源双 absent、descendant 双空、runtime／private／TCP 双清及输入同一均齐，不回填第十一轮 TCP 尾失败。
 
 独立 A 已由独验者本人首次实际执行，整体 FAIL：停在凭据轮换阶段，仅四个安全响应，最后为 metadata GET 200；原失败投影只有错误数量，没有保留具体断言，不能认定确切根因。必要安全事实见 [independent-a-first-failure.json](../../../.agent-state/model-ui-independent/independent-a-first-failure.json)。Go 13.26 秒、外层实际 exit=1／107.38 秒；direct／四 adopted 实际 wait、Node／proxy／body／service／root join、七资源双 absent、runtime 与临时目录移除、TCP 双空、输入同一及两个 marker 移除全部完成。离线源码确认该构造会同时展示 metadata 与未绑定候选两个 `dl`，而测试使用单元素选择器；只修语义定位并补闭合错误投影，仍需正反控制及独审，不将此候选回填为原 FAIL 的已知原因。
 
@@ -78,7 +84,7 @@ authority 后继测试前置已限定为两处显式归档转场并获独审：�
 
 旧 `audit-navigation` 首轮整体 FAIL，原 driver 已保留具体断言：`settingsCurrent` 期待的设置分组仅有“项目资料／安全记录”，实际还包含本卡正式新增的“模型与 Provider”（E2E 第 1542 行，调用第 1715 行）。这是旧浏览器测试期待遗漏；§8 #31 同一数组的兼容修正已通过 strict TS／格式检查及有限独审，所有其他导航断言保留；后继真实复验结果另记如下。必要安全事实见 [audit-navigation-first-failure.json](../../../.agent-state/model-ui-regression/audit-navigation-first-failure.json)。Go 15.65 秒、外层实际 exit=1／106.58 秒；direct／四 adopted 实际 wait、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空、输入同一及 marker 移除均完成，零布局图。本首轮不计入通过，不把该 FAIL 改写为兼容后通过。
 
-旧回归现为 **11／14 完整通过**。下表十一组均用 `run-owned-regression.py --group` 的原精确 selector 与当前私有资产执行，外层实际 exit=0；direct／四 adopted 实际 wait=0、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空、输入同一及 marker 移除全部确认。前七组使用专属 Owner／Audit／Summary 私有资产入口，无全局资产租约；`auth-lifecycle`、`personal-theme`、`provider-recovery` 与 `model-recovery` 使用受监督的全局资产租约，原 `web/dist` 已实际恢复且该轮完整退役后才释放。十一组均不消费新 Session 诊断源码或 bundle，不据此替代剩余 3 项。
+旧回归现为 **12／14 完整通过**。下表十二组均用 `run-owned-regression.py --group` 的原精确 selector 与当前私有资产执行，外层实际 exit=0；direct／四 adopted 实际 wait=0、watchdog／observer join、七资源双 absent、临时目录移除、TCP 双空、输入同一及 marker 移除全部确认。前七组使用专属 Owner／Audit／Summary 私有资产入口，无全局资产租约；`auth-lifecycle`、`personal-theme`、`provider-recovery`、`model-recovery` 与 `selection-recovery` 使用受监督的全局资产租约，原 `web/dist` 已实际恢复且该轮完整退役后才释放。十二组均不消费新 Session 诊断源码或 bundle，不据此替代剩余 `system-audit-authority` 与 `auth-revocation` 两项。
 
 | 已通过旧组 | Go top 秒 | 外层完整秒 |
 | --- | ---: | ---: |
@@ -93,10 +99,11 @@ authority 后继测试前置已限定为两处显式归档转场并获独审：�
 | `personal-theme` | 19.02 | 107.04 |
 | `provider-recovery` | 16.47 | 105.27 |
 | `model-recovery` | 16.90 | 107.62 |
+| `selection-recovery` | 13.88 | 103.21 |
 
 旧 Audit 导航第二轮的八张原始图已由独验者逐张目视：浅深各 390／768／1024／1440×900，可见范围无新增分组遮挡、文字交叠或横向布局溢出；三个较宽视口的新 Model 分组及两叶完整可读。390 为栏目菜单关闭的单列详情，只有菜单入口可见，不能据该图声称窄屏展开菜单已目视验收；滚动视口也不代表整页覆盖。浏览器断言、完整命令／资源终态及上述限定图审均已通过，不扩展为 Model 页面、原生缩放或 BFcache 的验证。其菜单期待单行兼容不更改产品行为，首轮确切数组差异及原 FAIL 保留。
 
-configuration、credential 与 recovery 均已在 §0.3 新共享资产上完成补验，下表全部业务检查为 true，列出的原响应均完成 EOF／同 body／schema／正式客户端校验。三轮外层实际 exit=0、direct／四 adopted 实际 wait=0、所有服务与 watchdog／observer join、七资源双 absent、descendant 双空、TCP 双空及输入同一均齐；新 driver 分别记录删除前 `runtime_empty=true` 与删除后 `private_removed=true`，精确临时目录现场不存在。该观测改动已独立接受，不回填 authority 第七轮缺失谓词。受新共享资产影响的三项均已补验；authority／navigation 及其余旧回归／独立 B 的未完成边界不变。
+configuration、credential 与 recovery 均已在 §0.3 新共享资产上完成补验，下表全部业务检查为 true，列出的原响应均完成 EOF／同 body／schema／正式客户端校验。三轮外层实际 exit=0、direct／四 adopted 实际 wait=0、所有服务与 watchdog／observer join、七资源双 absent、descendant 双空、TCP 双空及输入同一均齐；新 driver 分别记录删除前 `runtime_empty=true` 与删除后 `private_removed=true`，精确临时目录现场不存在。该观测改动已独立接受，不回填 authority 第七轮缺失谓词。受新共享资产影响的三项均已补验；authority 与旧回归剩余两项仍未完成；navigation 及独立 A／B 的后继接受范围见上文。
 
 | 新资产补验 | 业务检查 | 同 body／schema／client 份数 | Go top 秒 | 外层完整秒 |
 | --- | ---: | ---: | ---: | ---: |
