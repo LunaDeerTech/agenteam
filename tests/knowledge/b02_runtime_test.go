@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -82,6 +83,61 @@ func runtimeSourceLeaseCounts(t *testing.T, x *ownerTreeFixture, object oc.Objec
 // ownership against real D05. They provide neither a ProcessGuard death proof
 // nor transport COMMIT Unknown or global Object runtime-join acceptance.
 func TestKnowledgeB02Runtime(t *testing.T) {
+	t.Run("stopped_canonical_reader_retires_after_actual_close", func(t *testing.T) {
+		x := newPublicationFixture(t)
+		actor := x.human(t)
+		document := publicationSeedContent(t, x, actor, x.project(t, actor, true), strings.Repeat("r", 2*oc.StreamBufferSize+1))
+		reader, err := x.service.OpenCanonical(knowledgeContext(t), actor, document.ProjectID, document.ID, nil)
+		if err != nil {
+			t.Fatal("actual large canonical Open", err)
+		}
+		closed := false
+		defer func() {
+			if !closed {
+				_ = reader.Close()
+			}
+		}()
+		var lease string
+		if err = x.raw.QueryRow(knowledgeContext(t), `SELECT id::text FROM agenteam_object.object_leases
+ WHERE object_id=$1 AND owner_kind='reader' AND state='active'`, document.ObjectID.String()).Scan(&lease); err != nil {
+			t.Fatal("missing actual live canonical reader lease", err)
+		}
+		x.service.Stop()
+		// Observe the real cancellation callback's durable release before Close,
+		// so a lucky Close-before-cancel ordering cannot conceal this boundary.
+		// Release alone is not join: actual Close and Drain are still required.
+		ctx, cancel := context.WithTimeout(knowledgeContext(t), 5*time.Second)
+		defer cancel()
+		tick := time.NewTicker(10 * time.Millisecond)
+		defer tick.Stop()
+		for {
+			var released bool
+			if err = x.raw.QueryRow(ctx, `SELECT state='released' FROM agenteam_object.object_leases
+ WHERE id=$1 AND object_id=$2 AND owner_kind='reader'`, lease, document.ObjectID.String()).Scan(&released); err != nil {
+				t.Fatal("real reader cancellation release", err)
+			}
+			if released {
+				break
+			}
+			select {
+			case <-tick.C:
+			case <-ctx.Done():
+				t.Fatal("real reader cancellation did not release its exact lease")
+			}
+		}
+		closeErr := reader.Close()
+		closed = true
+		if !errors.Is(closeErr, context.Canceled) {
+			t.Fatal("actual Close did not preserve the observed cancellation", closeErr)
+		}
+		drainCtx, drainCancel := context.WithTimeout(knowledgeContext(t), 5*time.Second)
+		defer drainCancel()
+		if err = x.service.Drain(drainCtx); err != nil {
+			t.Fatal("canonical call remained registered after actual Close and exact lease release", err)
+		}
+		// Non-nil Close is not itself a join decision. The accepted result needs
+		// all three observations above, and still says nothing about crash/Force.
+	})
 	t.Run("stop_waits_for_actual_delegated_close", func(t *testing.T) {
 		x := newPublicationFixture(t)
 		actor := x.human(t)
