@@ -1,6 +1,6 @@
 # 默认 Runner OS 信号最小可行性探针
 
-状态：只有源码与静态检查；**未启动子进程，未证明该环境的阻塞读假设**。正式 C 源码、候选及两工具映射未修改。本探针不能代替已准备的 C 三子、DefaultProcesses 或独立验证。
+状态：探针只有源码与静态检查；默认 Runner cmd 已独立离线构建，**未启动探针子进程，未证明该环境的阻塞读假设**。正式 C 源码、候选及两工具映射未修改。C 已另获真实完整通过，本探针不与其混跑，也不能代替 DefaultProcesses 或独立验证。
 
 ## 固定入口与依据
 
@@ -27,9 +27,11 @@
 
 每格正常收尾要求 stdout/stderr 实际 EOF、空 stdout、actual Wait、原 PID 消失、相同 lock inode 可独占取得、父 pipe 全关闭；随后只删除本格自己新建的空身份 lock 和目录。无后台 copier/thread。失败路径先对仍未 reap 的自有直接 child SIGKILL、3s 内 actual Wait，再关父 pipe；不碰任意 PID、共享资源或失败目录。清理超时保留 FAIL/缺失尾，不能以 kill 请求代替实际 Wait。任何一格失败后不启动下一格。
 
-## 后继执行准备（尚未执行）
+## 后继执行准备（cmd 已构建，探针尚未执行）
 
 在明确独占窗口前，不执行此脚本的 main。先由原固定离线环境单独构建原 cmd 至新私有 output 文件，并记录真实 build Wait 与 SHA；不复用测试 binary 冒默认 cmd。沿已有本树 GOCACHE、只读 GOMODCACHE、Go1.27.1/local/off、保留原 PATH。构建不修改正式源码或 C 输入。
+
+本轮 root 授权的离线构建已完成：同进程 UTC2026-10-09T23:21:48.358993Z 可用5,644,451,840B，执行固定Go `build -mod=readonly -p=1 -o output/ai/runner-control/agenteam-runner-os-probe-01 ./cmd/agenteam-runner`，原缓存/local/off、保留PATH，无tags/race/ldflags/hooks。49073→09d6d6 actual exit0；产物11,090,755B，SHA256 `7f1c32bb97b91365570ba440adffd69605cb4a29ab724ac7922b8647f3015a78`。d51328只读 `go version -m` 确认为真实cmd、Go1.27.1、linux/amd64、VCS4eb69445且modified=false；23:22:02全局可用5,633,101,824B。编译并未执行该程序或验证三格假设。
 
 实际命令形状：
 
