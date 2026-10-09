@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"syscall"
 	"testing"
@@ -63,7 +64,7 @@ func independentProxyRoot(t *testing.T) (*modelSystemBinary, *commitproxy.Proxy)
 	env := databaseEnvironment(t, db, "AGENTEAM_CENTRAL_PUBLIC_ORIGIN=http://localhost:8080")
 	env = independentProcessEnv(env, "AGENTEAM_CENTRAL_DATABASE_URL", u.String())
 	env = independentProcessEnv(env, "AGENTEAM_CENTRAL_DATABASE_TLS_MODE", "disable")
-	env = independentProcessEnv(env, "AGENTEAM_CENTRAL_DATABASE_CA_FILE", "")
+	env = slices.DeleteFunc(env, func(entry string) bool { return strings.HasPrefix(entry, "AGENTEAM_CENTRAL_DATABASE_CA_FILE=") })
 	env = independentProcessEnv(env, "AGENTEAM_CENTRAL_DATABASE_LOCK_TIMEOUT", "5s")
 	v := &modelSystemBinary{db: db, env: env, client: &http.Client{Timeout: 8 * time.Second}, cookies: map[string]*http.Cookie{}}
 	for _, entry := range env {

@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -136,7 +137,8 @@ func TestIndependentProjectVariablesRootConfirmationForce(t *testing.T) {
 		t.Fatal("owned database URL malformed")
 	}
 	address.Host = proxy.Address()
-	cfg := guardConfiguration(t, append(guardEnvironment(t, db), "AGENTEAM_CENTRAL_DATABASE_URL="+address.String(), "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable", "AGENTEAM_CENTRAL_DATABASE_CA_FILE=", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=1s"))
+	env := slices.DeleteFunc(guardEnvironment(t, db), func(entry string) bool { return strings.HasPrefix(entry, "AGENTEAM_CENTRAL_DATABASE_CA_FILE=") })
+	cfg := guardConfiguration(t, append(env, "AGENTEAM_CENTRAL_DATABASE_URL="+address.String(), "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=1s"))
 	key := f.IdempotencyKey("independent-force-" + guardID[f.Request](t).String())
 	var store *independentConfirmationStore
 	var owner *resources
