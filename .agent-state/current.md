@@ -1,8 +1,10 @@
 # Knowledge 文档树管理命令 HTTP 接续
 
 - 工作树 `/workspace/agenteam-knowledge-tree-http`，分支 `ai/knowledge-owner-tree-http`，正式基线 `ce65714aac6eb4995a43fc427a2c77e6497470a7`。唯一负责人 `/root/work_ui`；Git/真实资源调度归 root。
-- [SPEC rev1](../docs/development/work-items/d12-knowledge-owner-tree-http.md)已获 Runner 未参与者有限接受。首批四个 commandhttp 产品源（handler/input/wire/io）已落盘，尚未编译或行为验证；不能记接受。范围为 title-only Update、Move、PrepareDeleteSubtree、DeleteSubtree 与原意图 Lookup 的独立 HTTP adapter。
+- [SPEC rev1](../docs/development/work-items/d12-knowledge-owner-tree-http.md)已获 Runner 未参与者有限接受。四个 commandhttp 产品源（handler/input/wire/io）、四个相邻纯测试与独立 OpenAPI 已实现；作者 pure/race 10 top、86 sub 与标准 Schema 33 向量通过，同包 vet 通过。尚无 native/PG 或实现独立接受。范围为 title-only Update、Move、PrepareDeleteSubtree、DeleteSubtree 与原意图 Lookup 的独立 HTTP adapter。
 - 已与 Knowledge read HTTP 负责人确认路由无交叠；新 `internal/central/knowledge/commandhttp` 独立构造、IO/DTO/Schema，不依赖或修改其未验 read 实现。只消费正式 B02/Account；不改领域产品/迁移/共享 root，不含上传、正文或生产生命周期绑定。
-- 唯一新增写域见卡 §6；首批四个产品源与本 current 已 freeze 交 root 保存；其余新测试/Schema可独立接续。root已批准原Work缓存上的定向pure/race/vet，首次同进程fresh磁盘≥5GiB才启动；不新增GB cache，不启动 PG/browser/socket。
+- 唯一新增写域见卡 §6；四个产品源已由 `3a063234` 保存；本轮新增四个纯测试、Schema/checker及卡/current冻结交 root 保存。root已批准原Work缓存上的定向pure/race/vet，首次同进程fresh磁盘≥5GiB才启动；不新增GB cache，不启动 PG/browser/socket。
+- 有限实际结果：pure 第二次实际启动 `19023` / `29d4f9` exit 0（3.543s）；首次 marker 类型名 `oc.Object` 编译失败 `63e42e` exit 1 已以正式 `oc.StoredObject` 修复，后续磁盘不足 `ee2f6f` exit 78 未启动 Go，均不回填。标准 Schema `2cb198` 33 向量无失败；同包 vet `75741` / `85896b` actual 0。没有本域在途命令。
+- 可复现纯输入：Go `/workspace/toolchains/go1.27.1/bin/go`，保留继承 PATH；`GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOFLAGS='-mod=readonly -p=1' GOMAXPROCS=2`；`GOCACHE=/workspace/agenteam-work-ui/output/ai/work-owner-planning-ui/implementation/gocache`，`GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod`，本树 `output/ai/knowledge-tree-http/tmp` 同设 TMPDIR/GOTMPDIR；`AGENTEAM_TREE_HTTP_SCHEMA_VECTORS` 为本树 `output/ai/knowledge-tree-http/schema-vectors.json`。原命令 `go test -race -count=1 -timeout=60s -v ./internal/central/knowledge/commandhttp`、`go vet ./internal/central/knowledge/commandhttp`；Schema `python3 .agent-state/knowledge-tree-http/check-schema.py output/ai/knowledge-tree-http/schema-vectors.json`。日志仍 ignored，不复制材料进 Git。
 - 后续顺序：有限 pure/标准 Schema验证及返修、作者 native/真实 PG 与独立风险补集。全部真实命令须原 Wait 与资源尾齐，旧 B02 与本实例 Work/Timeline 的结果不能代本任务验收。
 - 原 Work UI/Timeline 技术输入继续冻结；Work09 未获本次运行授权，不能因新树存在而改其输入或重开旧失败轮。

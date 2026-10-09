@@ -1,6 +1,6 @@
 # D12 Human Owner 文档树管理命令 HTTP
 
-状态：SPEC rev1，待未参与者独审；尚无实现、编译或动态验收。基线为正式 main `ce65714aac6eb4995a43fc427a2c77e6497470a7`，直接消费已经交付的 [B02 Service](d12-b02-knowledge-service.md)、[文档合同](d12-knowledge-documents-design.md)与 Account HTTP boundary。结果是已有文档的改名、移动、删除范围确认与删除，以及原命令结果查证；不含创建、替换正文、上传、正文读取、下载、UI 或生产 root。
+状态：SPEC rev1 已获 Runner 未参与者有限接受；HTTP 产品、相邻 pure 与安全 Schema 已实现。作者 pure/race 10 top、86 sub、标准 Schema 33 向量及同包 vet 通过；native/PG 与实现独审仍未完成。基线为正式 main `ce65714aac6eb4995a43fc427a2c77e6497470a7`，直接消费已经交付的 [B02 Service](d12-b02-knowledge-service.md)、[文档合同](d12-knowledge-documents-design.md)与 Account HTTP boundary。结果是已有文档的改名、移动、删除范围确认与删除，以及原命令结果查证；不含创建、替换正文、上传、正文读取、下载、UI 或生产 root。
 
 ## 1. 独立包与装配
 
@@ -65,4 +65,4 @@ Lookup 必须同时检查正式 union、原 command、目标、Project 与相应
 3. 真实 PG/服务：正式 Account 登录、Project Owner 与 B02 构造/内容产生；验证 rename/noop/version、move/root/expected parent、防环及同 key 异义，preview 后真实改变子树使旧确认失效，delete 原子安全输出、token 到期或 key轮换后完成重放、Lookup 三态。原 SQL/event/audit/Activity 最终事实与公开响应分开核；无手种 command/receipt。
 4. 当前身份和 Unknown：真实 Session 撤销/Owner 两锁序、归档新写与原重放、同 key 两调用；实际 COMMIT ack 丢失与未提交两方向后同意图 Lookup，不把本次读的 Unknown 当作原命令确定状态。取消/锁等待必须走实际原服务和 Tx 尾。没有纯控代 PG 的结论。
 
-固定 Go1.27.1/local/offline，复用原自有 cache；当前磁盘协调只允许写源，不编译。SPEC 独审后才实施；编译、native/PG 分别在就绪时按 root 统一资源窗口推进。已有 B02 固定矩阵复用，只跑新 adapter 受影响风险；未参与者完成适用独立审查与动态补集后才交付本有限能力。原四停止项、完整 D12/D08 及 Work09/Timeline 未验状态均保持。
+固定 Go1.27.1/local/offline，复用原自有 cache；作者 pure 编译及验证已完成，首次测试类型名编译失败与一次磁盘不足未启动事实保留在 current。后继集成候选、native/PG 分别在就绪时按 root 统一资源窗口推进。已有 B02 固定矩阵复用，只跑新 adapter 受影响风险；未参与者完成适用独立审查与动态补集后才交付本有限能力。原四停止项、完整 D12/D08 及 Work09/Timeline 未验状态均保持。
