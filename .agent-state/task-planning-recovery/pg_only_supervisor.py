@@ -245,13 +245,20 @@ SCHEDULER_LAUNCH_CASES = frozenset({
     'TestSchedulerLaunch/created-association-and-replay',
     'TestSchedulerLaunch/association-failure-lookup-recovery',
 })
+SCHEDULER_BUSY_ROOT = '^TestSchedulerBusyCompensation$'
+SCHEDULER_BUSY_CASES = frozenset({
+    'TestSchedulerBusyCompensation',
+    'TestSchedulerBusyCompensation/rollback-restore-and-replay',
+    'TestSchedulerBusyCompensation/preserve-user-update',
+})
 METADATA_GROUPS = {METADATA_ROOT: METADATA_CASES, SCHEMA_ROOT: SCHEMA_CASES,
                    RUNTIME_SCHEMA_ROOT: RUNTIME_SCHEMA_CASES,
                    PREPARATION_ROOT: PREPARATION_CASES,
                    AGENT_CREATE_ROOT: AGENT_CREATE_CASES,
                    TASK_HUMAN_ROOT: TASK_HUMAN_CASES,
                    SCHEDULER_CLAIM_ROOT: SCHEDULER_CLAIM_CASES,
-                   SCHEDULER_LAUNCH_ROOT: SCHEDULER_LAUNCH_CASES}
+                   SCHEDULER_LAUNCH_ROOT: SCHEDULER_LAUNCH_CASES,
+                   SCHEDULER_BUSY_ROOT: SCHEDULER_BUSY_CASES}
 
 
 def metadata_results(output, selector=METADATA_ROOT):
@@ -702,6 +709,7 @@ def observe_root_chain(directory, log, log_path, selector):
         TASK_HUMAN_ROOT: {'TestTaskTransitionHuman'},
         SCHEDULER_CLAIM_ROOT: {'TestSchedulerClaim'},
         SCHEDULER_LAUNCH_ROOT: {'TestSchedulerLaunch'},
+        SCHEDULER_BUSY_ROOT: {'TestSchedulerBusyCompensation'},
         GUARD_ROOT: {'TestProjectLifecycleStopBatchRealGuard'},
         MODEL_RUNTIME: {'TestModelTextRuntimePersistentWire'},
         PARSER_PG: {'TestKnowledgePlainTextParserIntegration'},
@@ -772,6 +780,17 @@ def tcp():
             fields = line.split()
             rows.add((name, fields[1], fields[2], fields[3], fields[9]))
     return rows
+
+
+def tcp_failure_sample(delta, phase):
+    """Project only the last existing observation; never poll or infer ownership."""
+    if phase not in ('supervisor', 'outer'):
+        raise ValueError('exact TCP failure phase required')
+    rows = sorted(delta)
+    return {'phase': phase, 'utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+            'total': len(rows), 'truncated': len(rows) > 32,
+            'rows': [dict(zip(('family', 'localhex', 'remotehex', 'state', 'inode'), row))
+                     for row in rows[:32]]}
 
 
 def descendants(root):
@@ -1011,7 +1030,7 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
-    if any(name in args.run for name in ('AgentConfigurationMetadata', 'AgentConfigurationSchema', 'AgentRuntimeSchema', 'ExecutionPreparation', 'AgentConfigurationCreate', 'TaskTransitionHuman', 'SchedulerClaim', 'SchedulerLaunch')) and (args.run not in METADATA_GROUPS or not args.root_chain):
+    if any(name in args.run for name in ('AgentConfigurationMetadata', 'AgentConfigurationSchema', 'AgentRuntimeSchema', 'ExecutionPreparation', 'AgentConfigurationCreate', 'TaskTransitionHuman', 'SchedulerClaim', 'SchedulerLaunch', 'SchedulerBusyCompensation')) and (args.run not in METADATA_GROUPS or not args.root_chain):
         parser.error('configuration metadata requires one exact original root-chain entry')
     if 'ProjectLifecycleStopBatchRealGuard' in args.run and (args.run != GUARD_ROOT or not args.root_chain):
         parser.error('lifecycle guard requires one exact original root-chain entry')
@@ -1200,7 +1219,7 @@ def main():
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75
-            empty = 0
+            empty, delta = 0, set()
             while time.monotonic() < tail_deadline and empty < 2:
                 delta = tcp() - baseline
                 if not delta:
@@ -1211,7 +1230,11 @@ def main():
                 if empty < 2: time.sleep(.1)
             if empty != 2:
                 code = 1
-                log.write(f'STOP host TCP delta tail not empty: {len(tcp() - baseline)} rows\n')
+                log.write(f'STOP host TCP delta tail not empty: {len(delta)} rows\n')
+                sample = tcp_failure_sample(delta, 'supervisor')
+                log.write('HOST_TCP failure_sample=' + json.dumps(sample, sort_keys=True) + '\n')
+                # stdout is retained in the task's existing private supervisor.log.
+                print(json.dumps({'host_tcp_failure': sample}, sort_keys=True), flush=True)
             if secret_http_selected:
                 try:
                     same = secret_http_inputs(args.driver, args.binary, args.run) == inputs

@@ -1,0 +1,73 @@
+{
+  "outer_pid": 1012093,
+  "started_utc": "2026-10-10T17:48:24Z",
+  "source_ref": "281fc3cb",
+  "input_hash": "68fc11f5810e17aac2489a12df3b4b923066078f2b5f9668a2d419a84b300562",
+  "launcher_sha256": "64be9987558198c9d0c244b3e26d847f65ba3771b9cb71dfb1a0fbae96c21739",
+  "command_sha256": "438a5bb1059dd30f3580b9229ddcda2f5c0345b4005f62b645c81d3aa93a1ee8",
+  "launch_input_sha256": "ad49deb13f034b8d1e355a336cc9b2bf1ef60da599ae000d85851503d726beb9",
+  "selector": "^TestSchedulerLaunch$",
+  "whole_pass": false,
+  "preflight": [
+    {
+      "label": "agenteam.d03.fixture",
+      "kind": "containers",
+      "pid": 1012096,
+      "actual_wait": 0,
+      "id_count": 0
+    },
+    {
+      "label": "agenteam.d03.fixture",
+      "kind": "networks",
+      "pid": 1012103,
+      "actual_wait": 0,
+      "id_count": 0
+    },
+    {
+      "label": "agenteam.d04.networkfixture",
+      "kind": "containers",
+      "pid": 1012110,
+      "actual_wait": 0,
+      "id_count": 0
+    },
+    {
+      "label": "agenteam.d04.networkfixture",
+      "kind": "networks",
+      "pid": 1012117,
+      "actual_wait": 0,
+      "id_count": 0
+    },
+    {
+      "label": "agenteam.d05.objectfixture",
+      "kind": "containers",
+      "pid": 1012124,
+      "actual_wait": 0,
+      "id_count": 0
+    },
+    {
+      "label": "agenteam.d05.objectfixture",
+      "kind": "networks",
+      "pid": 1012131,
+      "actual_wait": 0,
+      "id_count": 0
+    }
+  ],
+  "fresh_available_bytes": 5413068800,
+  "removed_environment_absent": true,
+  "docker_path": "/usr/local/bin/docker",
+  "inputs_before_count": 1411,
+  "supervisor_pid": 1012138,
+  "supervisor_actual_wait": 1,
+  "outer_survivors_after_wait": [],
+  "outer_adopted_actual_waits": [],
+  "outer_descendant_observations": [
+    [],
+    []
+  ],
+  "outer_tcp_empty_observations": 0,
+  "outer_tcp_last_delta_count": 1,
+  "inputs_after_count": 1411,
+  "inputs_unchanged": true,
+  "exit_code": 1,
+  "finished_utc": "2026-10-10T17:52:04Z"
+}

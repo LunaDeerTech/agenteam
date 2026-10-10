@@ -237,6 +237,166 @@ RUNTIME_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS
                                                                 "'AgentConfigurationSchema', "
                                                                 "'AgentRuntimeSchema')) and")]}
 
+BUSY_SELECTOR = '^TestSchedulerBusyCompensation$'
+BUSY_TOP = 'TestSchedulerBusyCompensation'
+BUSY_CASES = frozenset({BUSY_TOP, BUSY_TOP + '/rollback-restore-and-replay',
+                        BUSY_TOP + '/preserve-user-update'})
+BUSY_BASE = {'.agent-state/task-planning-recovery/pg_only_supervisor.py': '08438b8c554e776fa086e6ee8d587e2312c1ad510d8b56287b95b5365a304f46',
+ '.agent-state/work-owner-http/root_chain_driver.py': '7a1e41b382523cb4b9a1f3514016ddae3890b317ce45e1318eda80a418a4f9d7'}
+BUSY_HUNKS = {'.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {METADATA_ROOT: '
+                                                                'METADATA_CASES, SCHEMA_ROOT: '
+                                                                'SCHEMA_CASES,\n',
+                                                                'SCHEDULER_BUSY_ROOT = '
+                                                                "'^TestSchedulerBusyCompensation$'\n"
+                                                                'SCHEDULER_BUSY_CASES = '
+                                                                'frozenset({\n'
+                                                                '    '
+                                                                "'TestSchedulerBusyCompensation',\n"
+                                                                '    '
+                                                                "'TestSchedulerBusyCompensation/rollback-restore-and-replay',\n"
+                                                                '    '
+                                                                "'TestSchedulerBusyCompensation/preserve-user-update',\n"
+                                                                '})\n'
+                                                                'METADATA_GROUPS = {METADATA_ROOT: '
+                                                                'METADATA_CASES, SCHEMA_ROOT: '
+                                                                'SCHEMA_CASES,\n'),
+                                                               ('SCHEDULER_LAUNCH_ROOT: '
+                                                                'SCHEDULER_LAUNCH_CASES}',
+                                                                'SCHEDULER_LAUNCH_ROOT: '
+                                                                'SCHEDULER_LAUNCH_CASES,\n'
+                                                                '                   '
+                                                                'SCHEDULER_BUSY_ROOT: '
+                                                                'SCHEDULER_BUSY_CASES}'),
+                                                               ('        SCHEDULER_LAUNCH_ROOT: '
+                                                                "{'TestSchedulerLaunch'},\n",
+                                                                '        SCHEDULER_LAUNCH_ROOT: '
+                                                                "{'TestSchedulerLaunch'},\n"
+                                                                '        SCHEDULER_BUSY_ROOT: '
+                                                                "{'TestSchedulerBusyCompensation'},\n"),
+                                                               ("'SchedulerClaim', "
+                                                                "'SchedulerLaunch')) and",
+                                                                "'SchedulerClaim', "
+                                                                "'SchedulerLaunch', "
+                                                                "'SchedulerBusyCompensation')) "
+                                                                'and'),
+                                                               ('def descendants(root):\n',
+                                                                'def tcp_failure_sample(delta, '
+                                                                'phase):\n'
+                                                                '    """Project only the last '
+                                                                'existing observation; never poll '
+                                                                'or infer ownership."""\n'
+                                                                '    if phase not in '
+                                                                "('supervisor', 'outer'):\n"
+                                                                "        raise ValueError('exact "
+                                                                "TCP failure phase required')\n"
+                                                                '    rows = sorted(delta)\n'
+                                                                "    return {'phase': phase, "
+                                                                "'utc': "
+                                                                "time.strftime('%Y-%m-%dT%H:%M:%SZ', "
+                                                                'time.gmtime()),\n'
+                                                                "            'total': len(rows), "
+                                                                "'truncated': len(rows) > 32,\n"
+                                                                "            'rows': "
+                                                                "[dict(zip(('family', 'localhex', "
+                                                                "'remotehex', 'state', 'inode'), "
+                                                                'row))\n'
+                                                                '                     for row in '
+                                                                'rows[:32]]}\n'
+                                                                '\n'
+                                                                '\n'
+                                                                'def descendants(root):\n'),
+                                                               ('            tail_deadline = '
+                                                                'time.monotonic() + 75\n'
+                                                                '            empty = 0\n',
+                                                                '            tail_deadline = '
+                                                                'time.monotonic() + 75\n'
+                                                                '            empty, delta = 0, '
+                                                                'set()\n'),
+                                                               ("                log.write(f'STOP "
+                                                                'host TCP delta tail not empty: '
+                                                                '{len(tcp() - baseline)} '
+                                                                "rows\\n')\n",
+                                                                "                log.write(f'STOP "
+                                                                'host TCP delta tail not empty: '
+                                                                "{len(delta)} rows\\n')\n"
+                                                                '                sample = '
+                                                                'tcp_failure_sample(delta, '
+                                                                "'supervisor')\n"
+                                                                '                '
+                                                                "log.write('HOST_TCP "
+                                                                "failure_sample=' + "
+                                                                'json.dumps(sample, '
+                                                                "sort_keys=True) + '\\n')\n"
+                                                                '                # stdout is '
+                                                                "retained in the task's existing "
+                                                                'private supervisor.log.\n'
+                                                                '                '
+                                                                "print(json.dumps({'host_tcp_failure': "
+                                                                'sample}, sort_keys=True), '
+                                                                'flush=True)\n')],
+ '.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS = {\n',
+                                                        'TARGETS = {\n'
+                                                        "    '^TestSchedulerBusyCompensation$': "
+                                                        "'tests/projectvariable',\n"),
+                                                       ('    if selector == '
+                                                        "'^TestSchedulerLaunch$':\n",
+                                                        '    if selector == '
+                                                        "'^TestSchedulerBusyCompensation$':\n"
+                                                        '        paths.add(REPOSITORY / '
+                                                        "'tests/projectvariable/scheduler_busy_compensation_test.go')\n"
+                                                        '    elif selector == '
+                                                        "'^TestSchedulerLaunch$':\n"),
+                                                       ('    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', "
+                                                        "'^TestSchedulerLaunch$'):\n",
+                                                        '    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', "
+                                                        "'^TestSchedulerLaunch$', "
+                                                        "'^TestSchedulerBusyCompensation$'):\n"),
+                                                       ('    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', "
+                                                        "'^TestSchedulerLaunch$'):\n",
+                                                        '    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', "
+                                                        "'^TestSchedulerLaunch$', "
+                                                        "'^TestSchedulerBusyCompensation$'):\n")]}
+
+def busy_projection(name, source):
+    if "'^TestSchedulerBusyCompensation$'" not in source:
+        return source
+    for before, after in reversed(BUSY_HUNKS[name]):
+        if source.count(after) != 1:
+            raise ValueError('unknown or ambiguous Scheduler Busy data')
+        source = source.replace(after, before, 1)
+    if hashlib.sha256(source.encode()).hexdigest() != BUSY_BASE[name]:
+        raise ValueError('unknown Scheduler Busy baseline')
+    return source
+
+
 LAUNCH_SELECTOR = '^TestSchedulerLaunch$'
 LAUNCH_TOP = 'TestSchedulerLaunch'
 LAUNCH_CASES = frozenset({LAUNCH_TOP, LAUNCH_TOP + '/created-association-and-replay',
@@ -315,6 +475,7 @@ LAUNCH_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS 
                                                                 "'SchedulerLaunch')) and")]}
 
 def launch_projection(name, source):
+    source = busy_projection(name, source)
     if "'^TestSchedulerLaunch$'" not in source:
         return source
     for before, after in reversed(LAUNCH_HUNKS[name]):
@@ -762,7 +923,7 @@ class SchemaEntryControls(unittest.TestCase):
         baseline = {'__file__': str(ROOT / DRIVER), '__name__': 'schema_baseline'}
         exec(compile(inverse(DRIVER, (ROOT / DRIVER).read_text()), DRIVER, 'exec'), baseline)
         self.assertEqual(self.driver.TARGETS[SELECTOR], 'tests/projectvariable')
-        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR, PREPARATION_SELECTOR, CREATE_SELECTOR, TASK_SELECTOR, CLAIM_SELECTOR, LAUNCH_SELECTOR)}, baseline['TARGETS'])
+        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR, PREPARATION_SELECTOR, CREATE_SELECTOR, TASK_SELECTOR, CLAIM_SELECTOR, LAUNCH_SELECTOR, BUSY_SELECTOR)}, baseline['TARGETS'])
         self.assertEqual(self.sup.budgets(True), (540, 60))
         self.assertEqual(self.sup.budgets(False), (123, 3))
         for path, constant in (
@@ -823,7 +984,8 @@ class SchemaEntryControls(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='agent-schema-inputs-') as tmp:
             root = Path(tmp).resolve()
             names = ('candidate.test', 'production.go',
-                     ('tests/projectvariable/scheduler_launch_test.go' if SELECTOR == LAUNCH_SELECTOR
+                     ('tests/projectvariable/scheduler_busy_compensation_test.go' if SELECTOR == BUSY_SELECTOR
+                      else 'tests/projectvariable/scheduler_launch_test.go' if SELECTOR == LAUNCH_SELECTOR
                       else 'tests/projectvariable/scheduler_claim_test.go' if SELECTOR == CLAIM_SELECTOR
                       else 'tests/projectvariable/task_transition_scheduler_test.go' if SELECTOR == TASK_SELECTOR
                       else 'tests/projectvariable/agent_configuration_create_test.go' if SELECTOR == CREATE_SELECTOR
@@ -1011,7 +1173,7 @@ class SchemaEntryControls(unittest.TestCase):
         self.assertEqual(self.driver.TARGETS[LAUNCH_SELECTOR], 'tests/projectvariable')
         self.assertEqual(self.sup.METADATA_GROUPS[LAUNCH_SELECTOR], LAUNCH_CASES)
         for name, pairs in LAUNCH_HUNKS.items():
-            source = (ROOT / name).read_text()
+            source = busy_projection(name, (ROOT / name).read_text())
             self.assertEqual(hashlib.sha256(launch_projection(name, source).encode()).hexdigest(), LAUNCH_BASE[name])
             for old, new in pairs:
                 self.assertEqual(source.count(new), 1)
@@ -1026,6 +1188,44 @@ class SchemaEntryControls(unittest.TestCase):
             self.test_actual_schema_inputs_reenumerate_runtime_sources()
             self.test_actual_observer_keeps_original_resource_tails()
             self.test_actual_driver_fixed_environment_before_original_exec()
+
+    def test_scheduler_busy_reuses_the_original_family(self):
+        self.assertEqual(self.driver.TARGETS[BUSY_SELECTOR], 'tests/projectvariable')
+        self.assertEqual(self.sup.METADATA_GROUPS[BUSY_SELECTOR], BUSY_CASES)
+        for name, pairs in BUSY_HUNKS.items():
+            source = (ROOT / name).read_text()
+            self.assertEqual(hashlib.sha256(busy_projection(name, source).encode()).hexdigest(), BUSY_BASE[name])
+            for old, new in pairs:
+                self.assertEqual(source.count(new), 1)
+                for bad in (source.replace(new, old, 1), source + new, source + '\n# unknown\n'):
+                    with self.assertRaises(ValueError):
+                        inverse(name, bad)
+        with patch.dict(globals(), SELECTOR=BUSY_SELECTOR, TOP=BUSY_TOP, CASES=BUSY_CASES), \
+                patch.object(self.sup, 'SCHEMA_ROOT', BUSY_SELECTOR), \
+                patch.object(self.sup, 'SCHEMA_CASES', BUSY_CASES):
+            self.test_exact_three_subcases_and_original_wait()
+            self.test_actual_main_requires_exact_root_mode()
+            self.test_actual_schema_inputs_reenumerate_runtime_sources()
+            self.test_actual_observer_keeps_original_resource_tails()
+            self.test_actual_driver_fixed_environment_before_original_exec()
+
+    def test_busy_tcp_failure_uses_only_the_last_bounded_snapshot(self):
+        rows = {('tcp', '%08X:AAAA' % index, '0100007F:BBBB', '06', str(index))
+                for index in range(35)}
+        before = rows.copy()
+        with patch.object(self.sup, 'tcp', side_effect=AssertionError('must not poll')):
+            for phase in ('supervisor', 'outer'):
+                sample = self.sup.tcp_failure_sample(rows, phase)
+                self.assertEqual((sample['phase'], sample['total'], sample['truncated']), (phase, 35, True))
+                self.assertEqual(len(sample['rows']), 32)
+                self.assertEqual([tuple(row[k] for k in ('family', 'localhex', 'remotehex', 'state', 'inode'))
+                                  for row in sample['rows']], sorted(rows)[:32])
+                self.assertRegex(sample['utc'], r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$')
+            empty = self.sup.tcp_failure_sample(set(), 'outer')
+            self.assertEqual((empty['total'], empty['truncated'], empty['rows']), (0, False, []))
+            with self.assertRaises(ValueError):
+                self.sup.tcp_failure_sample(rows, 'unknown')
+        self.assertEqual(rows, before)
 
     def test_actual_driver_fixed_environment_before_original_exec(self):
         class OriginalExecBoundary(Exception):
