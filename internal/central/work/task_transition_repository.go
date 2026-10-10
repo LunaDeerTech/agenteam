@@ -59,17 +59,18 @@ func (in transitionInput) locks(key f.IdempotencyKey, before c.Task) ([]f.LockRe
 }
 
 type transitionPlan struct {
-	Before          c.Task                   `json:"before"`
-	After           c.TaskTransitionMutation `json:"after"`
-	Placement       taskPlacement            `json:"placement"`
-	Agent           agentc.AgentRef          `json:"agent"`
-	Groups          []taskGroupPlan          `json:"groups"`
-	QueryGeneration int64                    `json:"query_generation"`
-	History         []c.TaskTransitionEvent  `json:"history"`
-	Source          c.TaskTransitionPosition `json:"source"`
-	Target          c.TaskTransitionPosition `json:"target"`
-	Header          event.Header             `json:"header"`
-	Payload         json.RawMessage          `json:"payload"`
+	Resolutions     []transitionBlockerResolution `json:"blocker_resolutions,omitempty"`
+	Before          c.Task                        `json:"before"`
+	After           c.TaskTransitionMutation      `json:"after"`
+	Placement       taskPlacement                 `json:"placement"`
+	Agent           agentc.AgentRef               `json:"agent"`
+	Groups          []taskGroupPlan               `json:"groups"`
+	QueryGeneration int64                         `json:"query_generation"`
+	History         []c.TaskTransitionEvent       `json:"history"`
+	Source          c.TaskTransitionPosition      `json:"source"`
+	Target          c.TaskTransitionPosition      `json:"target"`
+	Header          event.Header                  `json:"header"`
+	Payload         json.RawMessage               `json:"payload"`
 }
 type transitionRecord struct {
 	ID        c.TaskTransitionCommandID
@@ -107,7 +108,15 @@ func (v *transitionInput) UnmarshalJSON(raw []byte) error {
 	return nil
 }
 func (v *transitionPlan) UnmarshalJSON(raw []byte) error {
-	if _, err := taskPrivateObject(raw, taskPlanCap, []string{"before", "after", "placement", "agent", "groups", "query_generation", "history", "source", "target", "header", "payload"}, nil); err != nil {
+	var shape map[string]json.RawMessage
+	if len(raw) > taskPlanCap || json.Unmarshal(raw, &shape) != nil {
+		return internal(nil)
+	}
+	fields := []string{"before", "after", "placement", "agent", "groups", "query_generation", "history", "source", "target", "header", "payload"}
+	if _, ok := shape["blocker_resolutions"]; ok {
+		fields = append(fields, "blocker_resolutions")
+	}
+	if _, err := taskPrivateObject(raw, taskPlanCap, fields, nil); err != nil {
 		return err
 	}
 	type wire transitionPlan
@@ -116,6 +125,9 @@ func (v *transitionPlan) UnmarshalJSON(raw []byte) error {
 		return internal(err)
 	}
 	if next.Before.Validate() != nil || next.After.Validate() != nil || next.Agent.Validate() != nil || next.Source.Validate() != nil || next.Target.Validate() != nil || next.Header.Validate() != nil || len(next.Groups) != 2 || len(next.History) < 1 || len(next.History) > 35 || next.QueryGeneration < 1 {
+		return internal(nil)
+	}
+	if _, ok := shape["blocker_resolutions"]; ok && (len(next.Resolutions) == 0 || len(next.Resolutions) > 16) {
 		return internal(nil)
 	}
 	*v = transitionPlan(next)
@@ -210,6 +222,9 @@ func completeTransition(ctx context.Context, x postgres.SQLExecutor, r *transiti
 }
 
 func applyTransition(ctx context.Context, x postgres.SQLExecutor, r *transitionRecord) error {
+	if err := applyTransitionResolutions(ctx, x, r); err != nil {
+		return err
+	}
 	t := r.Plan.After.Task
 	if t.AssigneeAgentID == nil {
 		return internal(nil)
