@@ -32,8 +32,9 @@ type Bindings struct {
 	Blockers        *work.BlockerService
 	BlockerReader   *work.BlockerReader
 	// Optional for compatibility with the original planning-only assembly.
-	// Recognized transition routes fail closed when this service is absent.
-	Transitions *work.TaskTransitionService
+	// Recognized transition/lifecycle routes fail closed when their service is absent.
+	Transitions     *work.TaskTransitionService
+	SprintLifecycle *work.SprintLifecycleService
 }
 
 type accountBoundary interface {
@@ -50,6 +51,7 @@ type handler struct {
 	blockerReader   c.TaskBlockerPageReader
 	boundary        accountBoundary
 	transitions     c.TaskTransitions
+	sprintLifecycle c.SprintLifecycleCommands
 }
 
 func NewHTTPHandler(b Bindings, boundary *account.HTTPBoundary) (http.Handler, error) {
@@ -61,6 +63,9 @@ func NewHTTPHandler(b Bindings, boundary *account.HTTPBoundary) (http.Handler, e
 		blockerReader: b.BlockerReader, boundary: boundary}
 	if b.Transitions != nil {
 		h.transitions = b.Transitions
+	}
+	if b.SprintLifecycle != nil {
+		h.sprintLifecycle = b.SprintLifecycle
 	}
 	return h, nil
 }
@@ -85,6 +90,8 @@ const (
 	blockerLookup
 	taskTransfer
 	taskTransitionLookup
+	sprintStart
+	sprintLifecycleLookup
 )
 
 type route struct {
@@ -127,6 +134,8 @@ func parseRoute(path string) route {
 			r.kind = sprint
 		case parts[3] == "reorder":
 			r.kind = sprintReorder
+		case parts[3] == "start":
+			r.kind = sprintStart
 		}
 	case "tasks":
 		switch {
@@ -156,6 +165,11 @@ func parseRoute(path string) route {
 			r.kind = taskTransitionLookup
 			r.target = ""
 		}
+	case "sprint-lifecycle-commands":
+		if len(parts) == 3 && parts[2] == "lookup" {
+			r.kind = sprintLifecycleLookup
+			r.target = ""
+		}
 	}
 	return r
 }
@@ -177,7 +191,7 @@ func resourceRoute(path string) route {
 	return parseRoute(path)
 }
 func (r route) lookup() bool {
-	return r.kind == structureLookup || r.kind == taskLookup || r.kind == blockerLookup || r.kind == taskTransitionLookup
+	return r.kind == structureLookup || r.kind == taskLookup || r.kind == blockerLookup || r.kind == taskTransitionLookup || r.kind == sprintLifecycleLookup
 }
 func (r route) allow() string {
 	switch r.kind {
@@ -185,12 +199,18 @@ func (r route) allow() string {
 		return "GET, HEAD, POST"
 	case milestone, sprint, task:
 		return "GET, HEAD, PATCH"
-	case milestoneReorder, sprintReorder, taskReorder, structureLookup, taskLookup, blockerResolve, blockerLookup, taskTransfer, taskTransitionLookup:
+	case milestoneReorder, sprintReorder, taskReorder, structureLookup, taskLookup, blockerResolve, blockerLookup, taskTransfer, taskTransitionLookup, sprintStart, sprintLifecycleLookup:
 		return "POST"
 	}
 	return ""
 }
 func (r route) pattern() string {
+	if r.kind == sprintStart {
+		return projectPrefix + "{project_id}/sprints/{sprint_id}/start"
+	}
+	if r.kind == sprintLifecycleLookup {
+		return projectPrefix + "{project_id}/sprint-lifecycle-commands/lookup"
+	}
 	if r.kind == taskTransfer {
 		return projectPrefix + "{project_id}/tasks/{task_id}/transfer"
 	}
@@ -290,6 +310,9 @@ func (h *handler) execute(w http.ResponseWriter, r *http.Request, route route) (
 	}
 	if route.kind == taskTransfer || route.kind == taskTransitionLookup {
 		return h.transitionCommand(w, r, a, p, route)
+	}
+	if route.kind == sprintStart || route.kind == sprintLifecycleLookup {
+		return h.sprintLifecycleCommand(w, r, a, p, route)
 	}
 	return h.command(w, r, a, p, route)
 }
