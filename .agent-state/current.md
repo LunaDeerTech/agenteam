@@ -1,5 +1,47 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- **统一成本新候选已离线就绪**：82986/d13617→99d949 actualexit0，UTC2026-10-10T01:21:49.992556+00:00 fresh5389246464B≥5GiB，fixedGo1.27.1/local/offline/readonly/-p1/原Knowledge独占cache/继承PATH/300s总限；`go test -mod=readonly -p=1 -tags=integration -race -c -o output/ai/object-metadata-cleanup/metadata-cleanup-remaining-cost-race.test ./tests/objects` actual0，随后 `-test.run=^$ -test.list='^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans|LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans|OldAttemptsAndStopHistory)$'` 恰七top actual0。未执行任何业务/fixture/socket。候选**37456516B／SHA256 563b093b573a2f98badf6a4e07b3f994c1fd92932b9036676c464da2ea43590a**，构建源码d1e8fee6。末01:22:00.117545 available5317812224B低门，停止后继build，不归因单缓存。
+- 6ef7e1只读核365b2729→d1e8fee6全部Go/mod/SQL差异仅三个新成本Go和配套SQL，原三cost/top/helper/product/28未改；新整包已发现原三cost和history，可替旧5c7c成本候选，已向root确认其37312361B/nlink1可退休，本人未删。history08eee6仍保留供既定历史单组；旧37180277B候选root已573cfd精确退休，原首业务/迁移日志和SHA/失败/源码仍保留。下文旧路径命令仅历史记录，不作为新轮启动入口。
+- 六成本来源均有限静审接受，pending唯一原子shape返修Runner e0e2fb/b194bd接受、无剩余mustfix；后组三top新入口Work fd74fc接受（六SQL篡改main尾均拒绝）。两scope真实SQL/EXPLAIN都未run；不把可编/list或有限审查升级索引成本PASS。现controls没有`--artifacts`模式，本次不重跑已通过pure。
+- 下一成本执行统一使用新候选，两个精确组合仍分开：原三组`^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$`配`pg-cost01`，后三组如下配`pg-remaining-cost01`。8259ca核两父目录均absent（history的pg-history01亦absent），fresh grant时仍必须重核。当前没有资源授权或在途命令；完整可复制后组三组入口如下，不能自动运行或扩大selector：
+
+```sh
+GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
+GOCACHE=/workspace/agenteam-knowledge/output/ai/knowledge/go-cache \
+GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2 \
+AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go \
+AGENTEAM_MINIO_BINARY=/workspace/agenteam-object-metadata-cleanup/output/ai/deps-minio/bin/minio \
+PATH=/workspace/toolchains/go1.27.1/bin:$PATH \
+python3 - <<'PYRUN'
+import datetime, hashlib, os, pathlib, subprocess
+root = pathlib.Path('/workspace/agenteam-object-metadata-cleanup')
+binary = root / 'output/ai/object-metadata-cleanup/metadata-cleanup-remaining-cost-race.test'
+output = root / 'output/ai/object-metadata-cleanup/pg-remaining-cost01'
+v = os.statvfs(root)
+available = v.f_bavail * v.f_frsize
+print('UTC=' + datetime.datetime.now(datetime.timezone.utc).isoformat() + ' available_bytes=' + str(available), flush=True)
+if available < 5368709120:
+    raise SystemExit(78)
+if output.exists() or output.is_symlink():
+    raise SystemExit('fresh output parent required')
+with binary.open('rb') as stream:
+    digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+if binary.stat().st_size != 37456516 or digest != '563b093b573a2f98badf6a4e07b3f994c1fd92932b9036676c464da2ea43590a':
+    raise SystemExit('frozen candidate identity mismatch')
+version = subprocess.run(['/workspace/toolchains/go1.27.1/bin/go', 'version'], check=True, capture_output=True, text=True, timeout=10).stdout
+if not version.startswith('go version go1.27.1 '):
+    raise SystemExit('fixed Go mismatch')
+print(version.strip(), flush=True)
+os.chdir(root)
+os.execvp('python3', ['python3', '.agent-state/task-planning-recovery/pg_only_supervisor.py',
+    '--root-chain', '--driver', str(root / '.agent-state/work-owner-http/root_chain_driver.py'),
+    '--binary', str(binary),
+    '--run', '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans)$',
+    '--output', str(output)])
+PYRUN
+```
+
+
 - pending/cause首形状被Runner发现原current仍published/ungated却已有gated cleanup的不可达组合；按真实 `gateAttempt` 原子规则窄修current为cleanup_gate=true／abandoned，两个非终局恰满足每command≤2/global64，当前closed且不late的首次ProjectDeleted采用delete mode；原65history/worker/fence/cause排序和生产源码不改。当前只静态修正，待Runner差异复核，不将旧形状称合法或PG通过。
 
 - 最后一项已知查询来源缺口现有新完整source `metadata_cleanup_pending_cost_test.go`／内嵌 `testdata/metadata_cleanup_pending_cost.sql`：沿原observer仅追加原finalization最早cause SQL捕获，不造行/替权限；真实小Service触发原Delete，另一成本库才保65cleaned旧attempt＋1closed abandoned applying＋已gated/abandoned current。核原31+31 gate union去重、physical pending、原Stop applying worker/fence（joined错fence仍pending、精确fence才停止SQL pending而物理仍未完成），同时测 `ORDER BY created_at,id LIMIT 1`原cause/缺失范围，较小current cleanup ID含不同的较晚ProjectDeleted cause使错排序可辨。原历史/外域数据全在场，SQL join/markedAudit绝不是native/权限证明；4543dc仅gofmt/diffcheck0，未编译/SQL/计划，待独立方法审。
