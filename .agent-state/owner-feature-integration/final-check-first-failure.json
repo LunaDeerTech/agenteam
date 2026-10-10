@@ -1,0 +1,85 @@
+{
+  "source": "649e6ad3",
+  "command": [
+    "sh",
+    "scripts/check-go.sh"
+  ],
+  "outer_pid": 183918,
+  "started_utc": "2026-10-10T04:22:09Z",
+  "fresh_free_bytes": 12435464192,
+  "native_gates": "unset",
+  "integration_business": false,
+  "schema_python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "script_pid": 183919,
+  "tool_session": 83115,
+  "tool_terminal_chunk": "f2412d",
+  "outer_actual_exit": 1,
+  "script_actual_wait": 1,
+  "whole_result": "FAIL",
+  "completed_stage": "go test ./...",
+  "unreached_stages": [
+    "go vet ./...",
+    "go vet -tags=integration ./...",
+    "go test -race ./...",
+    "sh scripts/build-go.sh"
+  ],
+  "failed_packages": [
+    "github.com/LunaDeerTech/agenteam/cmd/agenteam",
+    "github.com/LunaDeerTech/agenteam/docs/development/agent-team/platform-embedding-resolution-verification-evidence/originals",
+    "github.com/LunaDeerTech/agenteam/docs/development/agent-team/project-owner-audit-http-verification-evidence/originals/independent/http-controlled01",
+    "github.com/LunaDeerTech/agenteam/docs/development/agent-team/project-owner-audit-http-verification-evidence/originals/independent/query-controlled01",
+    "github.com/LunaDeerTech/agenteam/docs/development/agent-team/project-owner-update-http-verification-evidence/originals/independent/http01",
+    "github.com/LunaDeerTech/agenteam/internal/central/app",
+    "github.com/LunaDeerTech/agenteam/internal/central/audit/http",
+    "github.com/LunaDeerTech/agenteam/internal/central/model",
+    "github.com/LunaDeerTech/agenteam/internal/central/project/http",
+    "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/http",
+    "github.com/LunaDeerTech/agenteam/internal/central/work/http"
+  ],
+  "passed_packages": 60,
+  "failure_classes": {
+    "existing_archived_overlays": "four docs packages compile as standalone although probes require original target package; 13 tracked archival .go files unchanged from base",
+    "missing_schema_environment": [
+      "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON",
+      "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON",
+      "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON",
+      "AGENTEAM_PROJECT_MODEL_CONFIGURATION_SCHEMA_PYTHON",
+      "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON",
+      "AGENTEAM_PROJECT_VARIABLE_SCHEMA_PYTHON",
+      "AGENTEAM_WORK_HTTP_SCHEMA_PYTHON"
+    ],
+    "required_config_fixture": "cmd/agenteam TestCheckConfigAndUnsupportedCompiledRepair main_test.go:57 pure D05 configuration check failed",
+    "construction_graph_fixture": "app TestAuditRootPureSameInstanceConstructionGraph audit_http_test.go:129 incomplete singleton graph 0 1 1 1"
+  },
+  "original_tail": {
+    "script_wait_line": "SUPERVISOR actual_driver_wait pid=183919 actual=True code=1",
+    "descendants_observations": [
+      [],
+      []
+    ],
+    "runtime_empty_observations": [
+      true,
+      true
+    ],
+    "tcp_empty_observations": [
+      true,
+      true
+    ],
+    "tcp_budget_seconds": 75,
+    "diagnostic_end": {
+      "elapsed": 218.964817,
+      "kind": "diagnostic_end",
+      "last_delta": [],
+      "last_delta_count": 0,
+      "last_original_sample": {
+        "elapsed": 218.96465,
+        "sample": 539,
+        "utc_ns": 1791606348467217582
+      },
+      "samples": 539
+    }
+  },
+  "metadata_wrapper_failure": "After both original TCP empty samples and successful diagnostic finish, metadata formatting called loop variable round (int) as a function; TypeError. The original result.json has no terminal field. This record summarizes original log/tool facts; it does not rewrite that artifact or upgrade FAIL.",
+  "summary_parser_first_attempt": "Whitespace regex crossed line boundaries and package-count assertion rejected; line-based FAIL-tab selection then established exactly 11 failed packages. No product/test/source changes or resource work.",
+  "resource_disposition": "original task script and descendants retired; owned runtime empty; original TCP two empty samples; window returned to root; no posthoc samples"
+}
