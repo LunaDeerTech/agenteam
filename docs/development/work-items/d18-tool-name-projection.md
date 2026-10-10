@@ -111,3 +111,16 @@ SPEC 独立关系审后再实施。限定本包 pure/race/vet 一轮及源码静
 固定源码 `814ceb4d` 的两个包已各执行一次 `go test -count=1 -timeout=60s -v`、`go test -race -count=1 -timeout=60s -v` 与 `go vet`：共 8 个 top，unit 为 0.003/0.004s，race 为 1.057/1.030s，vet 通过。固定 Go1.27.1、离线只读模块缓存和独立构建缓存；三阶段启动前 fresh 均大于 5 GiB，私有 telemetry off，Go 实际 Wait 均为 0、原进程组消失、临时目录各两次为空，outer 最终为 0。原记录在 `output/ai/d18-tool-name-projection/checks-01/`，没有源码返修或自动重跑。
 
 这些结果仅验本批纯引用与名称表，不证明真实 Registry、Snapshot/Provider 联调、授权、Mount 或完整 D18；未运行 PG/socket/模型调用。
+
+## 10. Registry 配置前置：实施中
+
+本批基线为 `728cd45a`，独立树 `ai/tool-registry`；Registry owner 独占 `00033_tool_registry.sql`，Agent owner 独占其前缀 `00032`。此前名称表与 SpecRef 算法不变。本节是有限 metadata/目录/引用实现，不是执行器、Tool Runtime 或完整 F1 接入。
+
+- `agenteam_tool.identities` 持久化唯一 `stable_key → ToolID`；只有首次真实注册在原事务中生成 UUIDv7。解析不产生身份。同定义继续使用已有 revision，定义变化追加不可变 revision。注销只移除 current registration，保留 stable identity、历史定义及 Agent capability 引用。
+- 首批只支持代码绑定的 Builtin source。构造时固定 `stable_key → BuiltinSource`，source 在原 caller Tx 返回 canonical definition、精确 `BuiltinBinding{handler_id,contract_revision}`、`ScopeResolverID`、`RiskClassifierID`、ordinary/core 分类，并检查这三个实际领域绑定。调用者不能提交任意 schema/handler 自证注册；数据库行、非空接口或标量 UUID 均不能替代当前 source 与真实 binding 检查。没有安装服务的 production `install-skill` 保持 `DEPENDENCY_UNBOUND`，不 seed、不注册空 handler；metadata 测试替身不作为真实 Backend 验收。
+- Definition 采用严格有界 JSON 编码，保留所有 schema 关键字和数值，不宣称 JSON Schema 验证或 Provider 支持。名称上限 128 UTF-8 字节、description 8192 字节、单 schema 48 KiB、完整编码 128 KiB、嵌套深度 32；重复 JSON key/额外值/非法 UTF-8 拒绝，schema 允许 object 或 boolean。对象键排序；数值拼写保留，等值但不同拼写可保守形成新 revision。注册数据无 credential、endpoint、运行健康或重试字段。
+- 复用 `SystemConfigLock("tool-registry")`：注册/注销 EX，目录及引用维护 SH。Agent 最终事务完整 union 仍含原 Command EX、User EX、Project gate、Agent EX 及所有 requested ToolSpec SH；Registry `RequireHeldLocks` 只验证已持锁，不晚加锁或另起写事务。目录查询使用 User/Project SH 是最低读模式，不降低 Agent writer 的 EX。
+- 消费者接口归 `agent/contract`，只依赖 identity/Foundation；`tool/registry.Configuration` 实现它，Agent 不反向 import ToolSpec。创建先将 `install_skill_enabled` 展开为 bool，目录解析正式默认 ID 后冻结排序后的 resolved IDs，再冻结最终 postimage 和引用计划。false 仍须解析真实默认 ID 并拒绝显式包含的矛盾；缺 source 不转换为空目录成功。最终事务重验目录与原 source，包括 false 对应的默认项。
+- 引用计划绑定原 Registry 实例、完整 Actor、CommandIdentity、plan revision、expected/result config version 及 before/after 全集。先由 Agent canonical writer 写 postimage 并安装私有 same-Tx witness，再由 Registry 调 owner 的 `CheckToolReferenceOwnerAppliedInTx`；新行存在或 public DTO 不构成授权。Registry 比较自己持久的 preimage/version 后替换本域 refs，合法空集也必须核 owner/witness 并保存 owner 版本行。失败由外层回滚；Unknown 保留原物理 attempt/cause，不自动重跑 callback。
+
+当前源码首稿与必要纯控已落，格式检查通过；尚未编译、运行 Go、验证 00033 迁移、真实 Backend 或 Agent 联调。Agent 新 consumer contract 由 root 同步冻结来源后才可编译；00033 真实迁移需组合连续 00032。后继先限定正常/失败基础检查，再真实 PG 核稳定身份、immutable history、注册/引用共享门、同 Tx witness/rollback；不扩大旧 NameTable 或停止中的 tools 矩阵。
