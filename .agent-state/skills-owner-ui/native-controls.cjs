@@ -47,10 +47,12 @@ async function scenario({
   terminal = "finished",
   duplicate = false,
   hold = "",
+  pwHold = "",
   wrongIdentity = false,
   voidResult = false,
 } = {}) {
-  const blocker = deferred();
+  const blocker = deferred(),
+    pwBlocker = deferred();
   let nativeFetchPromise, originalPublicPromise;
   const stream = new ReadableStream({
     start(c) {
@@ -174,10 +176,15 @@ async function scenario({
   const pw = {
     request: () => request,
     status: () => 200,
-    headerValue: async () => xid,
+    headerValue: async () => {
+      if (pwHold === "header") await pwBlocker.promise;
+      return xid;
+    },
     finished: () => {
       finishedCalls++;
-      return Promise.resolve(null);
+      return pwHold === "finished"
+        ? pwBlocker.promise.then(() => null)
+        : Promise.resolve(null);
     },
   };
   page.emit("request", request);
@@ -190,15 +197,27 @@ async function scenario({
   page.emit("response", pw);
   page.emit("request" + terminal, request);
   if (duplicate) page.emit("request" + terminal, request);
-  let terminalReport;
+  let terminalReport,
+    firstExplicit = null;
   if (hold) {
     // Wait for the actual controlled call to be pending. Retire it at that
     // point; a later release joins the operation but cannot rescue success.
     for (let i = 0; i < 20; i++) await Promise.resolve();
     const finish = observer.finish();
+    if (pwHold)
+      assert.equal(observer.finish(), finish, "one original finish Promise");
     for (let i = 0; i < 20; i++) await Promise.resolve();
+    firstExplicit = {
+      native: box.__skillNative.snapshot().retired,
+      publication: box.__skillPublication.snapshot().retired,
+    };
     blocker.resolve();
     await publicPromise;
+    // Keep the original PW operation held while the original public/native
+    // work actually settles. The first seal must already have happened.
+    while (box.__skillNative.snapshot().pending !== 0)
+      await new Promise(setImmediate);
+    pwBlocker.resolve();
     terminalReport = await finish;
   } else {
     await publicPromise;
@@ -231,6 +250,7 @@ async function scenario({
     terminal === "finished" &&
       !duplicate &&
       !hold &&
+      !pwHold &&
       !wrongIdentity &&
       !voidResult,
   );
@@ -246,6 +266,23 @@ async function scenario({
     0,
     "original Session observation tail joined",
   );
+  if (pwHold) {
+    assert.equal(Object.isFrozen(report.pw_first), true);
+    assert.equal(Object.isFrozen(report.pw_first.requests[0]), true);
+    assert.deepEqual(
+      firstExplicit,
+      { native: true, publication: true },
+      "first explicit must precede PW join",
+    );
+    assert.equal(report.pw_first.pending, 1);
+    assert.equal(report.pw_first.ready, false);
+    assert.equal(report.requests[0].at_finish_ready, false);
+    assert.equal(
+      report.pw_failed,
+      true,
+      "late Node/native completion cannot rescue first retirement",
+    );
+  }
   cases++;
 }
 (async () => {
@@ -256,6 +293,8 @@ async function scenario({
   await scenario({ hold: "outer" });
   await scenario({ wrongIdentity: true });
   await scenario({ voidResult: true });
+  await scenario({ hold: "reader", pwHold: "header" });
+  await scenario({ hold: "reader", pwHold: "finished" });
   await new Promise(setImmediate);
   assert.equal(unhandled, 0);
   console.log(

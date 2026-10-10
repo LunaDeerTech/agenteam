@@ -509,6 +509,7 @@ export function skillOriginalCompleted(
     /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
       n.request_id,
     ) &&
+    pw.at_finish_ready === true &&
     pw.request_count === 1 &&
     pw.response_count === 1 &&
     pw.request_valid === true &&
@@ -589,8 +590,14 @@ export async function observeSkills(
     tails = new Set<Promise<void>>();
   let failed = false,
     closed = false,
-    sealed = false,
-    report: any;
+    sealed = false;
+  let pageFinish: Promise<{ native: any; publication: any }> | undefined,
+    finishPromise: Promise<any> | undefined;
+  let firstNode: Readonly<{
+    pending: number;
+    ready: boolean;
+    requests: readonly Readonly<Record<string, any>>[];
+  }> | null = null;
   const selected = (request: Request) =>
     new URL(request.url()).pathname.startsWith(prefix);
   const valid = (request: Request) => {
@@ -702,7 +709,12 @@ export async function observeSkills(
     }
     const r = slot.row;
     r.response_count++;
-    if (r.response_count !== 1 || closed || Date.now() >= config.expiresAt) {
+    if (
+      r.response_count !== 1 ||
+      sealed ||
+      closed ||
+      Date.now() >= config.expiresAt
+    ) {
       invalidate(r);
       return;
     }
@@ -768,6 +780,7 @@ export async function observeSkills(
   const snapshot = async () => ({
     pw_failed: failed,
     pw_pending: tails.size,
+    pw_first: firstNode,
     requests: [...slots.values()].map((s) => ({ ...s.row })),
     ...(await page.evaluate(() => {
       const h = window as any;
@@ -781,12 +794,16 @@ export async function observeSkills(
     close();
     // Closing the actual page releases original protocol operations. Join them;
     // closing never counts as a successful response or observer retirement.
-    if (!page.isClosed()) await page.close({ runBeforeUnload: false });
-    await Promise.all([...tails]);
-    detach();
+    try {
+      if (!page.isClosed()) await page.close({ runBeforeUnload: false });
+    } finally {
+      await Promise.allSettled([...tails, ...(pageFinish ? [pageFinish] : [])]);
+      detach();
+    }
     return {
       pw_failed: failed,
       pw_pending: tails.size,
+      pw_first: firstNode,
       requests: [...slots.values()].map((s) => ({ ...s.row })),
     };
   };
@@ -827,31 +844,73 @@ export async function observeSkills(
         s.publication?.pending === 0
       );
     },
-    async finish() {
-      if (report) return report;
+    finish() {
+      if (finishPromise) return finishPromise;
       sealed = true;
-      await Promise.all([
-        ...tails,
-        ...[...slots.values()].map((s) => s.terminal),
-      ]);
-      const result = await page.evaluate(async () => {
+      // Freeze qualification at the first explicit call, before any await.
+      // Later protocol/native settlement joins ownership, never eligibility.
+      for (const { row } of slots.values()) {
+        row.at_finish_ready =
+          row.request_valid &&
+          row.events_valid &&
+          row.request_count === 1 &&
+          row.response_count === 1 &&
+          row.terminal === "finished" &&
+          row.finished_count === 1 &&
+          row.failed_count === 0 &&
+          row.finished_calls === 1 &&
+          row.finished_null === true &&
+          row.tail_joined === true;
+      }
+      firstNode = Object.freeze({
+        pending: tails.size,
+        ready:
+          !failed &&
+          !closed &&
+          !page.isClosed() &&
+          Date.now() < config.expiresAt &&
+          tails.size === 0 &&
+          slots.size > 0 &&
+          [...slots.values()].every((s) => s.row.at_finish_ready),
+        requests: Object.freeze(
+          [...slots.values()].map((s) => Object.freeze({ ...s.row })),
+        ),
+      });
+      if (!firstNode.ready) invalidate();
+      // Start both original seals in one page task before joining PW tails.
+      // Keep this exact Promise owned even if evaluate rejects or abort wins.
+      pageFinish = page.evaluate(async () => {
         const h = window as any;
         const n = h.__skillNative.finish(),
           p = h.__skillPublication.finish();
         return { native: await n, publication: await p };
       });
-      if (closed || page.isClosed() || Date.now() >= config.expiresAt)
-        invalidate();
-      report = {
-        ...result,
-        pw_failed: failed,
-        pw_pending: tails.size,
-        requests: [...slots.values()].map((s) => ({ ...s.row })),
-      };
-      closed = true;
-      clearTimeout(timer);
-      detach();
-      return report;
+      finishPromise = (async () => {
+        const [pageResult] = await Promise.allSettled([
+          pageFinish!,
+          ...tails,
+          ...[...slots.values()].map((s) => s.terminal),
+        ]);
+        if (closed || page.isClosed() || Date.now() >= config.expiresAt)
+          invalidate();
+        if (pageResult!.status !== "fulfilled") {
+          close();
+          detach();
+          throw Error("SKILL_FIRST_RETIREMENT_FAILED");
+        }
+        const report = {
+          ...pageResult!.value,
+          pw_failed: failed,
+          pw_pending: tails.size,
+          pw_first: firstNode,
+          requests: [...slots.values()].map((s) => ({ ...s.row })),
+        };
+        closed = true;
+        clearTimeout(timer);
+        detach();
+        return report;
+      })();
+      return finishPromise;
     },
   };
 }
