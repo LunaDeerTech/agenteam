@@ -82,6 +82,15 @@ func TestSecretVariableOwnerAtomicFacts(t *testing.T) {
 	patch := secretUpdateInput(t, vc.SecretVariableUpdateFields{Value: &material})
 	for _, stage := range []string{"after-d10-audit", "after-outbox", "after-activity", "owner-tail"} {
 		t.Run(stage, func(t *testing.T) {
+			activityDue := stage == "after-activity" || stage == "owner-tail"
+			if activityDue {
+				// Owned timing fact makes the real Account 60s throttle due,
+				// preserving last_activity_at >= issued_at and the live Session.
+				changed, err := v.raw.Exec(ctxFor(t), `UPDATE agenteam_account.sessions SET issued_at=LEAST(issued_at,clock_timestamp()-interval '3 minutes'),last_activity_at=clock_timestamp()-interval '2 minutes' WHERE id=$1`, a.Details().SessionID)
+				if err != nil || changed.RowsAffected() != 1 {
+					t.Fatal("Activity timing fixture did not update the original Session", err)
+				}
+			}
 			baseline := v.secretSnapshot(t)
 			var activityBefore, activityAfter string
 			if err := v.raw.QueryRow(ctxFor(t), `SELECT last_activity_at::text FROM agenteam_account.sessions WHERE id=$1`, a.Details().SessionID).Scan(&activityBefore); err != nil {
@@ -119,6 +128,15 @@ func TestSecretVariableOwnerAtomicFacts(t *testing.T) {
 				}
 				if vv != 2 || cv != 2 || history != 2 || d04 != 2 || audits != 2 || native != 2 || completed != wantCompleted || events != wantEvents {
 					return fmt.Errorf("target stage lacks actual same-Tx facts: %d/%d/%d/%d/%d/%d/%d/%d", vv, cv, history, d04, audits, native, completed, events)
+				}
+				if activityDue {
+					var touched bool
+					if err = x.QueryRow(ctx, `SELECT last_activity_at > $2::timestamptz FROM agenteam_account.sessions WHERE id=$1`, a.Details().SessionID, activityBefore).Scan(&touched); err != nil {
+						return err
+					}
+					if !touched {
+						return errors.New("target stage lacks an actual same-Tx Activity update")
+					}
 				}
 				reached++
 				return failure

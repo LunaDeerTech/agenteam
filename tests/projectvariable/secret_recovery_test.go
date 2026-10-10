@@ -158,6 +158,11 @@ func TestSecretVariableOwnerCommitRecovery(t *testing.T) {
 				await(t, proxy.completed)
 			}
 			if mode == "stop-confirms-actual-join" {
+				select {
+				case early := <-writer:
+					t.Fatal("original writer returned before Stop canceled the pending confirmation", early.err)
+				default:
+				}
 				remote.owner.Stop()
 			}
 			result := secretReply(t, writer)
@@ -182,6 +187,9 @@ func TestSecretVariableOwnerCommitRecovery(t *testing.T) {
 				}
 			}
 			remote.owner.Stop()
+			// This real-PG case joins the returned call. The negative assertion
+			// that Drain cannot pass while a canceled callback remains held is
+			// covered separately by the controlled confirmation test.
 			joined, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 			err = remote.owner.Drain(joined)
 			cancel()

@@ -31,6 +31,10 @@ const variableStorageRepairSelector = `^TestProjectVariable(Migration|Atomicity)
 const variableAuthoritySelector = `^TestProjectVariable(Authority|FinalAuthorityCompetition)$`
 const variableHTTPSelector = `^TestProjectVariableHTTP(AuthorityAndPersistence|IntentRecovery)$`
 const variableJoinSelector = `^TestProjectVariable(UnknownStopJoin|ReadCancellationJoin)$`
+const secretOwnerReadSelector = `^TestSecretVariableOwner(Persistence|CurrentAuthority)$`
+const secretOwnerAtomicSelector = `^TestSecretVariableOwner(AtomicFacts|Concurrency)$`
+const secretOwnerRecoverySelector = `^TestSecretVariableOwnerCommitRecovery$`
+const secretOwnerMigrationSelector = `^TestSecretVariableOwnerMigration$`
 
 func main()             { os.Exit(run()) }
 func fail(s string) int { fmt.Fprintln(os.Stderr, s); return 1 }
@@ -39,8 +43,11 @@ func run() (code int) {
 	binary := opts.String("test-binary", "", "precompiled race integration executable")
 	selector := opts.String("run", "", "one exact anchored top-level selector")
 	directory := opts.String("directory", "", "new private task-owned run directory")
-	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || *binary == "" || *directory == "" || (!regexp.MustCompile(`^\^Test[A-Za-z0-9]+\$$`).MatchString(*selector) && *selector != variableStorageSelector && *selector != variableStorageRepairSelector && *selector != variableAuthoritySelector && *selector != variableHTTPSelector && *selector != variableJoinSelector) {
+	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || *binary == "" || *directory == "" || (!regexp.MustCompile(`^\^Test[A-Za-z0-9]+\$$`).MatchString(*selector) && *selector != variableStorageSelector && *selector != variableStorageRepairSelector && *selector != variableAuthoritySelector && *selector != variableHTTPSelector && *selector != variableJoinSelector && *selector != secretOwnerReadSelector && *selector != secretOwnerAtomicSelector) {
 		return fail("exact binary, directory and one anchored top are required")
+	}
+	if strings.Contains(*selector, "SecretVariableOwner") && *selector != secretOwnerReadSelector && *selector != secretOwnerAtomicSelector && *selector != secretOwnerRecoverySelector && *selector != secretOwnerMigrationSelector {
+		return fail("Secret Owner requires one exact PG-only group")
 	}
 	start := time.Now()
 	var disk syscall.Statfs_t

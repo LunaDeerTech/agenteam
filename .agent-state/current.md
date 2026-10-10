@@ -57,4 +57,14 @@
 - 新`tests/projectvariable/secret_authority_test.go`准备当前Owner/admin/跨Project及占用ID/Agent unbound/Logout、真实Outbox Prepare后真实BeginArchive再final拒绝、archiving/archived原历史重放。复用旧明确披露的archived行fixture，不冒完整生命周期；精确快照含D04保护payload与两域receipt，排除合法nonce预留。Fields测试API修后，bc6838 fresh5472124928→原41440→8b8e5c actual0，integration实际编译并仅精确list两top `TestSecretVariableOwner(CurrentAuthority|Persistence)`，没有执行业务/PG。
 - 新`secret_atomicity_test.go`四格在真实D10 Audit/Outbox/Activity成功后或完整callback尾注入精确Fault，先核同原Tx实际两域version/history/receipt/native及D10 Audit/completed/event，再核原NotCommitted/cause与完整快照/Activity回滚，避免提前失败假绿。105239 fresh5466411008→原94059→3a10e2 actual0，新增AtomicFacts与前两组仅compile/list通过，无PG。
 - 新`secret_concurrency_test.go`四格准备同key同/异材料、同expected更新/删除、ordinary与Secret同名；原final事实到达后持有事务，双方实际backendPID/本DB/首个排序冲突key/mode/pg_blocking_pids绑定，清理先release再cancel/join。新`secret_recovery_test.go`四格准备COMMIT未转发/转发后/超过一次3s确认/Stop退出；复用原完整帧proxy、目标完整事实与PID、实际Store Unknown、独立确认锁等待和原proxy wg清理，未造CommitResult。
-- 后两组源码gofmt/diffcheck0，尚未编译：3eb024 fresh5172736000低于5GiB，实际exit1停预飞，未启动Go。当前五业务top的源码已齐，但全部业务/SQL未执行，00030及迁移验证仍待准备/独审；production/shared routes/D04/前缀未变。全部命令实际终态，无自有真实资源。
+- 后两组源码gofmt/diffcheck0，尚未编译：3eb024 fresh5172736000低于5GiB，实际exit1停预飞，未启动Go。当前五业务top的源码已齐，仍全部业务/SQL未执行；production/shared routes/D04/前缀未变。全部命令实际终态，无自有真实资源。
+- 新`secret_migration_test.go`只用正式Migrator，准备空库/repeat、00029普通存量与原receipt升级保留、新Secret真实写、五个精确CHECK及实际deferred history FK拒绝回滚；约束刺激先满足原immutable version trigger，避免旧门提前失败冒新门证明。2fa567 gofmt/diffcheck0，未编译/PG，00030仍草案，未绕过Migrator执行。
+- Variables对eaf209f5的生产9源/SQL草案有限静审无确认must-fix，独立记录归审者树；这是继续真实组合准备的输入接受，不代SQL/事务/物理Unknown验收。库卡已列五业务+迁移精确top与有限fixture边界；root保存稳定片段、协调测试依赖前缀及后继窗口。
+
+## 正式00030候选与四组PG入口准备（未执行SQL）
+
+- root已保存五业务tests/current于26db9680，生产有限静审记录91e843a7；授权00030仅沿已审draft加正式transaction/Up头落`db/migrations/00030_project_secret_variables.sql`。DDL正文未变，26–29仍仅WIP测试前缀，不能据文件连续称正式main交付。
+- Variables方法审发现Activity原60s throttle可能空更新：仅`secret_atomicity_test.go`两末stage预置合法原Session时间且恰1行，再在同liveTx核实际last_activity_at增加后才原fault/reached，外部精确回滚保持；Recovery Stop前拒原writer已返回，本PG格的Drain仅join原call，取消后held-callback负向仍复用59616a受控pure。两delta 5e2fd7有限独审接受，未PG。
+- b9dc4c同进程fresh5770895360→原90576→957099 actual0，race编译并只list精确六top：Persistence、CurrentAuthority、AtomicFacts、Concurrency、CommitRecovery、Migration；没有执行任何业务、PG或socket。先前3eb024门槛阻止的未编译状态由本次构建闭合，不回填旧结果。
+- 两既有PG工具仅新增Owner四闭集组：`^TestSecretVariableOwner(Persistence|CurrentAuthority)$`、`^TestSecretVariableOwner(AtomicFacts|Concurrency)$`、`^TestSecretVariableOwnerCommitRecovery$`、`^TestSecretVariableOwnerMigration$`。完整RUN/PASS节点分别6/10/5/9；固定独立artifact pair、实际包helpers/原proxy/生产依赖及embedded密码表/迁移输入前后观察。原Go6m、105+15、123+3、TCP75和2资源逻辑未改；新增入口尚待离线控制/独审和固定candidate构建，不可实际启动。
+- f2bc1e实际diffcheck0；新00030/迁移测试、两测试修正、两入口源和本域两docs为可恢复片段。无活工具/自有资源；Skills唯一真实窗口期间仅离线工作，root保存后继续新controls。
