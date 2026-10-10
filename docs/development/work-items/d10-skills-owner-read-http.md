@@ -62,3 +62,11 @@ Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/d
 整改后的 `TestKnowledgeSkillsDefaultRootComposition` 原单 top/零 sub 完整 PASS：先证默认 Create 返回 `DEPENDENCY_UNBOUND`/`not_committed`，13 项 Project/Skill/Object/Audit/Event 事实为零；再由显式 test-only Project 服务使用同 Store、原 Audit、真实 Skill/Object 端口建立读取数据，并实际 Stop/Drain/Joined。它不替换默认服务、不以 SQL 写 ready。随后才验证默认 Skills 目录、Knowledge 正文 GET/HEAD、Avatar 维护与原进程退出。用例 7.39s，Go243371/driver241594/outer241447 均实际 Wait0，七资源/private/runtime/desc/TCP 双尾和 inputs 一致齐，总111.577s。该结果接受既有数据的默认读取组合，不接受生产初始化或完整 participant。
 
 后继 Skills UI 应消费本卡八字段和安全 Problem，覆盖当前 Session/Owner、未初始化及归档/Deleting 状态；不附带包正文、安装、分配或 Agent 能力。本批没有 Skills UI，Object Runtime join 等原停止项保持。
+
+## Human Owner 普通安装与分页发现：后继实现中
+
+本节是后继加法候选，前述两路读取的历史接受范围不变。旧 collection GET/HEAD 仍只返回 builtin，普通技能发现另用 `GET/HEAD /api/v1/projects/{project_id}/skills/catalog`。分页默认25、范围1–100，SkillID升序 keyset 和 limit+1 查询；游标绑定当前 User/Project/view/limit/order，每页原事务重新授权并确认提交，不承诺跨页快照。目录只返回已 published 且 serving 的原八字段 metadata，不以空目录制造初始化成功。
+
+`POST /api/v1/projects/{project_id}/skills` 与 `POST .../skills/commands/lookup` 复用同一个真实 `Skill.Service.Install/LookupInstall`。输入为单一 Idempotency-Key 和严格 `request{skill_id,mode:create,source{kind:text_files,files[{path,utf8_text}]}}`；1 MiB HTTP 限额与原文本包/路径/SKILL.md规则同时生效。Actor 只能由 Account 当前浏览器 Session 产生，两 POST 均走原 Origin/CSRF；不接调用方 Actor、AgentRun、宿主路径或 URL。成功仅三字段 `skill_id/revision/version`。Lookup 必须原 key/完整原 intent；Unknown 不自动重发，NotFound 不当作回滚证明。
+
+旧读2s总预算不变，新写/lookup30s继承更早截止期，覆盖 body、包构造、原服务事务/Object 与 HTTP close/flush/join。根路由只追加精确请求分派，catalog/lookup 在泛详情之前；同Service构造分页 facade、复用现 cursor keyring，无新增配置、迁移或生命周期绑定。当前仅源码与针对性测试已落盘，格式/JSON静态检查完成，尚未 Go 或真实 HTTP 联调；记录见 [后继适配说明](../../../.agent-state/skill-install-owner-http/README.md)。生产 Project initializer、完整 F1、AgentRun、Registry callable Backend、分配/更新/Runner 来源、包流及既有 STOP 不由本片解除。

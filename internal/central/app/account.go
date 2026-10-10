@@ -589,6 +589,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	skillManagement, err := skillManagementHandler(skills, cfg.CursorKeyring(), core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
 	if !accounts.install(ctx, func() {
 		accounts.handler = projectAuditRoutes(projectCredentialsRoutes(projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler), credentialHandler), projectAudit)
 		accounts.handler = workPlanningRoutes(accounts.handler, planningHandler)
@@ -596,6 +600,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		accounts.handler = projectSecretVariablesRoutes(accounts.handler, secretVariableHandler)
 		accounts.handler = runnerControlRoutes(accounts.handler, runnerAdmin, runnerDevice)
 		accounts.handler = knowledgeSkillRoutes(accounts.handler, knowledgeReads, knowledgeCommands, knowledgeContent, skillReads)
+		accounts.handler = skillManagementRoutes(accounts.handler, skillManagement)
 	}) {
 		return context.Canceled
 	}
