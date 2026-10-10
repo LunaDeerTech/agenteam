@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestSchedulerRetryBinding$': frozenset({
+        'TestSchedulerRetryBinding',
+        'TestSchedulerRetryBinding/config-bound-claim-and-real-lock-timeout',
+        'TestSchedulerRetryBinding/legacy-null-policy-stays-unbound',
+    }),
     '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': frozenset({
         'TestTaskTechnicalResolutionHTTP',
         'TestTaskTechnicalResolutionHTTP/resolve-to-todo-lookup-replay',
@@ -1051,7 +1056,7 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
-    if any(name in args.run for name in ('AgentConfigurationMetadata', 'AgentConfigurationSchema', 'AgentRuntimeSchema', 'ExecutionPreparation', 'AgentConfigurationCreate', 'TaskTransitionHuman', 'SchedulerClaim', 'SchedulerLaunch', 'SchedulerBusyCompensation', 'SchedulerPendingVisit', 'TaskHumanHTTP', 'SprintStartHTTP', 'TaskTechnicalResolutionHTTP', 'TaskTechnicalResolutionAtomic')) and (args.run not in METADATA_GROUPS or not args.root_chain):
+    if any(name in args.run for name in ('AgentConfigurationMetadata', 'AgentConfigurationSchema', 'AgentRuntimeSchema', 'ExecutionPreparation', 'AgentConfigurationCreate', 'TaskTransitionHuman', 'SchedulerClaim', 'SchedulerLaunch', 'SchedulerBusyCompensation', 'SchedulerPendingVisit', 'TaskHumanHTTP', 'SprintStartHTTP', 'TaskTechnicalResolutionHTTP', 'TaskTechnicalResolutionAtomic', 'SchedulerRetryBinding')) and (args.run not in METADATA_GROUPS or not args.root_chain):
         parser.error('System configuration requires one exact original root-chain profile')
     if 'TestSkillInstallation' in args.run and (args.run not in METADATA_GROUPS or not args.root_chain):
         parser.error('Skill installation requires one exact original root-chain profile')
