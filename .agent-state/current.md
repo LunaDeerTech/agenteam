@@ -18,6 +18,13 @@
 - Problem标准Schema两源窄补相对 `e0c51c21` 经本人 `347178` 静核有限接受：七类正例由原ServeHTTP经真实Account Problem projector生成，原Unknown保unknown/private cause不投影；四个变异负例为cause_id、坏request_id、query instance与非法commit_state。Python仅允许既有两DTO名及精确Problem，后者转本地正式common.json，不开放外部Schema检索。`9d70a3`只读作者原60512日志，确认唯一StandardSchema top PASS/0skip、32控/18HEAD；未重跑Go/旧入口或动态测试。原21控和后继32控分开保留，PG/native仍待实际。
 - 原温热GOCACHE `/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache` 已交Runner独占，本人无Go在途或排队；Cleanup新history仍仅静态接受等待后继构建授权。root已精确退休正式P2旧独立候选及两个旧PG driver共63,777,606B，保源码/日志/旧FAIL/Cleanup候选，历史命令产物可按原固定源重建。
 
+## Knowledge Content HTTP 新 PG 方法有限静审
+
+- 前一 StandardSchema 结论已由 root 保存 `7b44814e`。本次只读 `/workspace/agenteam-knowledge-content-http` 的 `e3145974` authority 测试与冻结 reader/transactions 两新源，共三top/十子，有限静态方法接受，无确认 must-fix；未改作者源、未Go/PG/socket，也未重复已由Work接受的产品、HTTP/typed纯控或旧Metadata四子。全PG四top/十四子仍未编译、未运行，不以本审升级动态结果。
+- 实际Account Login/Logout与当前Owner读取路径闭合；归档、Deleting、OwnerA→B使用原同Store/User与Project锁内披露的合法上游SQL事实，不冒Archive/BeginDelete/OwnerTransfer API。reader两格在真实D05返回且SQL active lease=1后才变更，原当前再读须404/409、Read0/Close1/lease0；第三格先真实EOF和D05同步Close，再只持有外层consumer Close，原2s到期时HTTP仍未返、Drain不得成功，释放后须原goroutine实际退出且零响应体。它不是MinIO阻塞、foreign guard或全局Runtime join证明。
+- COMMIT代理只在首个真实 `knowledge.read` 成功callback后以原backend PID Arm，故Unknown在Object打开前；原Store Unknown/attempt/cause、Tx失效与服务端COMMIT或终止回滚/HeldJoined分列，fresh GET明确不作旧读确认。relation取消先实观察原PID/currentDB/精确holder的blocking关系，取消后先取HTTP实际返回、原NotCommitted与Tx失效，再释放writer并核原提交尾。各hold优先release、原请求和writer实际join及Service/Store/proxy退出顺序已静核。
+- 事实快照复用commands/events/Audit/Outbox计数与全部Session activity；本审只认这些前后事实，不称全库逐行不变或专门越过60s节流的Activity刺激。本人只读记录 `d13332`、`9fc478` 与后继实际源核对，未新增控制框架或运行被测进程。结论已直接交Vars/root；仅本文新增本节，停止写入供下一checkpoint。
+
 ## B02 当前 main 装配独立有限接受
 
 - 对 `/workspace/agenteam-knowledge-delivery` main `e94077eb`＋root44来源及Work冻结四共享Project Go源，未参与实现者有限接受、无mustfix。44路径逐字固定作者 `aaa408c8` / 独立 `924d5627`；共享Audit/events逆去新增路由后逐字main，原初始化wrapper/相邻权限源未改。初始化测试差异仅两普通委托子例；作者首837326整体FAIL与修后64574 Project race0分别保留，不把原EX-only fixture误报当产品缺陷。
