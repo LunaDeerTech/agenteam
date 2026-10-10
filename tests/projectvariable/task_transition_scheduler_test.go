@@ -129,7 +129,7 @@ func assertTaskTransitionUpgrade43(t *testing.T) {
 	migrate(t, db, migrationPrefix(t, "00040"))
 	raw := openStore(t, db.Config(t, nil))
 	v := assembleVariableHTTPFixture(t, db, raw, &hookStore{fixtureStore: raw})
-	name, description := "Legacy scheduler upgrade", "Existing Project fields and their original facts survive migration43"
+	name, description := "legacy-scheduler-upgrade", "Existing Project fields and their original facts survive migration43"
 	updated, err := v.projects.UpdateProject(ctxFor(t), v.ownerBrowser.actor,
 		meta(t, "legacy-project-update", &v.project.Version), v.project.ID,
 		pc.UpdateProjectRequest{Name: &name, Description: &description})
