@@ -160,13 +160,10 @@ export async function installWorkPublicationDiagnostic({
 }: {
   binding: WorkSessionBinding;
   expiresAt: number;
-  planningPolicy?: "first-milestone-reorder";
+  planningPolicy?: "planning-reorders";
 }) {
   const host = window as any;
-  if (
-    planningPolicy !== undefined &&
-    planningPolicy !== "first-milestone-reorder"
-  )
+  if (planningPolicy !== undefined && planningPolicy !== "planning-reorders")
     return "unknown-scope";
   if (Date.now() >= expiresAt) return "expired";
   if (host.__workPublicationDiagnostic) return "already-installed";
@@ -201,7 +198,14 @@ export async function installWorkPublicationDiagnostic({
     policy: "not-observed-milestone" | "historical-task";
     anchor?: { row: any; published: any; value: any };
   } | null = null;
-  let firstStart: any = null;
+  let firstStart: any = null,
+    planningInvalid = false;
+  const planningStarts: any[] = [],
+    startEntries = new WeakMap<object, any>();
+  const planningPayload = (spec: any) => ({
+    ...(spec.kind === "sprint" ? { milestone_id: spec.milestoneID } : {}),
+    ...(!spec.tail ? { before_id: spec.peerID } : {}),
+  });
   const methods = [
     ...(planningPolicy ? ["start"] : []),
     "getMilestone",
@@ -274,9 +278,10 @@ export async function installWorkPublicationDiagnostic({
   };
   const target = (name: string, args: unknown[]) => {
     if (name === "start") {
-      if (!firstStart) return null;
+      if (!firstStart || firstStart.ended) return null;
       if (firstStart.used) {
         firstStart.invalid = true;
+        planningInvalid = true;
         return null;
       }
       firstStart.used = true;
@@ -289,18 +294,20 @@ export async function installWorkPublicationDiagnostic({
         !!value &&
         Object.keys(value).sort().join() ===
           "command,domain,expected_version,projectID,request,targetID" &&
-        value.domain === "structure" &&
-        value.command === "work.milestone.reorder" &&
+        value.domain === (spec.kind === "task" ? "task" : "structure") &&
+        value.command === `work.${spec.kind}.reorder` &&
         value.projectID === spec.projectID &&
         value.targetID === spec.targetID &&
         value.expected_version === spec.expectedVersion &&
         !!value.request &&
-        Object.keys(value.request).join() === "before_id" &&
-        value.request.before_id === spec.beforeID;
-      if (!firstStart.inputMatches) firstStart.invalid = true;
+        JSON.stringify(value.request) === JSON.stringify(planningPayload(spec));
+      if (!firstStart.inputMatches) {
+        firstStart.invalid = true;
+        planningInvalid = true;
+      }
       return {
         method: "POST",
-        path: `/api/v1/projects/${spec.projectID}/milestones/${spec.targetID}/reorder`,
+        path: `/api/v1/projects/${spec.projectID}/${spec.kind}s/${spec.targetID}/reorder`,
         target_id: spec.targetID,
       };
     }
@@ -379,7 +386,8 @@ export async function installWorkPublicationDiagnostic({
       const heading = recovery?.querySelector("h2,h3")?.textContent?.trim();
       for (const row of calls) {
         if (row.operation === "start")
-          row.start_unique = firstStart?.invalid === false;
+          row.start_unique =
+            !planningInvalid && startEntries.get(row)?.invalid === false;
         row.identity_current = sameIdentity();
         row.authenticated = auth.state.phase === "authenticated";
         row.not_busy = auth.state.busy === false;
@@ -407,10 +415,11 @@ export async function installWorkPublicationDiagnostic({
     retirementReason = Date.now() >= expiresAt ? "expired" : reason;
     pendingAtRetirement = pending;
     retired = true;
-    if (firstStart) {
-      firstStart.native = null;
-      firstStart.input = null;
-      firstStart.entryReceipt = null;
+    for (const entry of planningStarts) {
+      entry.native = null;
+      entry.input = null;
+      entry.entryReceipt = null;
+      entry.receipt = null;
     }
     observer?.disconnect();
     clearTimeout(timer);
@@ -531,6 +540,8 @@ export async function installWorkPublicationDiagnostic({
             };
             if (name === "start") {
               firstStart.row = row;
+              startEntries.set(row, firstStart);
+              row.reorder_slot = firstStart.spec.slot;
               row.start_input_matches = firstStart.inputMatches === true;
               row.start_material_bound = false;
               row.start_receipt_published = false;
@@ -618,30 +629,56 @@ export async function installWorkPublicationDiagnostic({
                     row.result_target_matches = result?.id === row.target_id;
                   }
                   if (name === "start") {
-                    const progress = auth.workPlanning.progress,
-                      spec = firstStart.spec;
+                    const entry = startEntries.get(row),
+                      progress = auth.workPlanning.progress,
+                      spec = entry.spec;
+                    const object = result?.value?.[spec.kind];
+                    const typed =
+                      spec.kind === "task"
+                        ? result?.domain === "task" &&
+                          object?.state === "backlog" &&
+                          object?.priority === "high" &&
+                          object?.assignee_agent_id === null &&
+                          object.sprint_id === spec.sprintID &&
+                          object.milestone_id === spec.milestoneID &&
+                          uuid.test(result.value.task_event_id) &&
+                          Array.isArray(result.value.event_ids) &&
+                          result.value.event_ids.length === 1 &&
+                          uuid.test(result.value.event_ids[0])
+                        : result?.domain === "structure" &&
+                          result.value.command ===
+                            `work.${spec.kind}.reorder` &&
+                          result.value[
+                            spec.kind === "milestone" ? "sprint" : "milestone"
+                          ] === null &&
+                          uuid.test(result.value.event_id) &&
+                          (spec.kind !== "sprint" ||
+                            object?.milestone_id === spec.milestoneID);
                     row.start_receipt_published =
-                      firstStart.row === row &&
-                      firstStart.invalid === false &&
+                      !planningInvalid &&
+                      entry.invalid === false &&
+                      !entry.ended &&
                       sameIdentity() &&
                       progress?.contextValid === true &&
                       progress.phase === "confirmed" &&
                       progress.observation === "committed" &&
-                      progress.domain === "structure" &&
-                      progress.command === "work.milestone.reorder" &&
+                      progress.domain ===
+                        (spec.kind === "task" ? "task" : "structure") &&
+                      progress.command === `work.${spec.kind}.reorder` &&
                       progress.projectID === spec.projectID &&
                       progress.targetID === spec.targetID &&
                       progress.receipt === result &&
-                      result !== firstStart.entryReceipt &&
-                      result?.domain === "structure" &&
-                      result.value?.command === "work.milestone.reorder" &&
+                      result !== entry.entryReceipt &&
+                      typed &&
                       result.value.changed === true &&
-                      result.value.milestone?.id === spec.targetID &&
-                      result.value.milestone.project_id === spec.projectID &&
-                      result.value.milestone.version ===
+                      object?.id === spec.targetID &&
+                      object.project_id === spec.projectID &&
+                      object.version ===
                         String(BigInt(spec.expectedVersion) + 1n) &&
-                      result.value.sprint === null &&
-                      uuid.test(result.value.event_id);
+                      !planningStarts.some(
+                        (other) => other !== entry && other.receipt === result,
+                      );
+                    if (row.start_receipt_published) entry.receipt = result;
                   }
                   if (name === "retryOriginal") {
                     const progress = auth.workPlanning.progress;
@@ -823,35 +860,92 @@ export async function installWorkPublicationDiagnostic({
         armedReplay = { policy, anchor };
         return true;
       },
-      armFirstMilestoneReorder(spec: any) {
+      armPlanningReorder(spec: any) {
+        const previous = planningStarts.at(-1),
+          index = planningStarts.length;
         if (
           !planningPolicy ||
           retired ||
-          firstStart ||
+          planningInvalid ||
+          index >= 2 ||
+          (firstStart && !firstStart.ended) ||
           !sameIdentity() ||
           auth.state.busy ||
+          Date.now() >= expiresAt ||
           !spec ||
           Object.keys(spec).sort().join() !==
-            "beforeID,expectedVersion,projectID,targetID" ||
-          ![spec.projectID, spec.targetID, spec.beforeID].every((v) =>
+            "expectedVersion,kind,milestoneID,peerID,projectID,slot,sprintID,tail,targetID" ||
+          !Number.isInteger(spec.slot) ||
+          spec.slot < 1 ||
+          spec.slot > 6 ||
+          spec.kind !==
+            ["milestone", "sprint", "task"][Math.floor((spec.slot - 1) / 2)] ||
+          spec.tail !== (index === 1) ||
+          spec.slot % 2 !== (index === 0 ? 1 : 0) ||
+          ![spec.projectID, spec.targetID, spec.peerID].every((v) =>
             uuid.test(v),
           ) ||
-          spec.targetID === spec.beforeID ||
-          !/^[1-9][0-9]{0,18}$/.test(spec.expectedVersion)
-        )
+          spec.targetID === spec.peerID ||
+          !/^[1-9][0-9]{0,18}$/.test(spec.expectedVersion) ||
+          (spec.kind === "milestone"
+            ? spec.milestoneID !== null || spec.sprintID !== null
+            : !uuid.test(spec.milestoneID) ||
+              (spec.kind === "sprint"
+                ? spec.sprintID !== null
+                : !uuid.test(spec.sprintID))) ||
+          (previous &&
+            (spec.slot !== previous.spec.slot + 1 ||
+              [
+                "projectID",
+                "kind",
+                "targetID",
+                "peerID",
+                "milestoneID",
+                "sprintID",
+              ].some((key) => spec[key] !== previous.spec[key]) ||
+              BigInt(spec.expectedVersion) !==
+                BigInt(previous.spec.expectedVersion) + 1n))
+        ) {
+          planningInvalid = true;
           return false;
+        }
         firstStart = {
           spec: Object.freeze({ ...spec }),
           used: false,
           invalid: false,
           nativeSeen: false,
+          ended: false,
         };
+        planningStarts.push(firstStart);
+        return true;
+      },
+      endPlanningReorder(slot: number) {
+        if (
+          !firstStart ||
+          firstStart.spec.slot !== slot ||
+          firstStart.ended ||
+          retired ||
+          Date.now() >= expiresAt ||
+          planningInvalid ||
+          !firstStart.bound ||
+          firstStart.row?.active !== false ||
+          firstStart.row?.start_receipt_published !== true
+        ) {
+          planningInvalid = true;
+          return false;
+        }
+        firstStart.ended = true;
+        firstStart.native = null;
+        firstStart.input = null;
+        firstStart.entryReceipt = null;
         return true;
       },
       selectStartFetch(method: string, path: string, material: any) {
-        if (!firstStart || retired || method === "GET") return false;
+        if (!firstStart || firstStart.ended || retired || method === "GET")
+          return false;
         if (firstStart.nativeSeen) {
           firstStart.invalid = true;
+          planningInvalid = true;
           return false;
         }
         firstStart.nativeSeen = true;
@@ -863,7 +957,7 @@ export async function installWorkPublicationDiagnostic({
           firstStart.invalid ||
           method !== "POST" ||
           path !==
-            `/api/v1/projects/${spec.projectID}/milestones/${spec.targetID}/reorder` ||
+            `/api/v1/projects/${spec.projectID}/${spec.kind}s/${spec.targetID}/reorder` ||
           material?.origin !== location.origin ||
           material?.hasQuery !== false ||
           !material?.key ||
@@ -871,10 +965,11 @@ export async function installWorkPublicationDiagnostic({
           material.body !==
             JSON.stringify({
               expected_version: spec.expectedVersion,
-              request: { before_id: spec.beforeID },
+              request: planningPayload(spec),
             })
         ) {
           firstStart.invalid = true;
+          planningInvalid = true;
           return false;
         }
         firstStart.native = material; // Private closure only; never in a snapshot.
@@ -892,10 +987,18 @@ export async function installWorkPublicationDiagnostic({
           !firstStart.row ||
           !spec ||
           Object.keys(spec).sort().join() !==
-            "beforeID,expectedVersion,projectID,targetID" ||
-          !["projectID", "targetID", "expectedVersion", "beforeID"].every(
-            (key) => firstStart.spec[key] === spec[key],
-          )
+            "expectedVersion,kind,milestoneID,peerID,projectID,slot,sprintID,tail,targetID" ||
+          ![
+            "slot",
+            "kind",
+            "tail",
+            "projectID",
+            "targetID",
+            "expectedVersion",
+            "peerID",
+            "milestoneID",
+            "sprintID",
+          ].every((key) => firstStart.spec[key] === spec[key])
         )
           return false;
         firstStart.bound = true;
@@ -906,7 +1009,10 @@ export async function installWorkPublicationDiagnostic({
           native.csrf === material?.csrf &&
           material?.origin === native.origin;
         firstStart.row.start_material_bound = matches;
-        if (!matches) firstStart.invalid = true;
+        if (!matches) {
+          firstStart.invalid = true;
+          planningInvalid = true;
+        }
         return matches;
       },
       bindNative(method: string, path: string, sequence: number) {

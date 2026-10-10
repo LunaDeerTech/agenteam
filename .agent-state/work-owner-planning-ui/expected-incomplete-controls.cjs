@@ -151,6 +151,11 @@ process.on("unhandledRejection", () => unhandled++);
 (async () => {
   const controls = [];
   async function check(name, fn) {
+    if (
+      process.env.WORK_PLANNING_ONLY === "1" &&
+      !/^(planning |default originalBody)/.test(name)
+    )
+      return;
     await fn();
     controls.push(name);
   }
@@ -454,7 +459,7 @@ process.on("unhandledRejection", () => unhandled++);
           ts.isFunctionDeclaration(n) &&
           [
             "workIncompleteLedger",
-            "workFirstMilestoneReorder",
+            "workPlanningReorders",
             "capturedOriginalBody",
             "originalBody",
             "markWorkBodyAwait",
@@ -483,7 +488,7 @@ process.on("unhandledRejection", () => unhandled++);
     };
     const observed = c.make(page, {
         ordinaryCompletion: options.ordinaryCompletion,
-        firstMilestoneReorder: options.firstMilestoneReorder,
+        planningReorders: options.planningReorders,
       }),
       emit = (name, item) => {
         for (const fn of callbacks[name] ?? []) fn(item);
@@ -977,86 +982,143 @@ process.on("unhandledRejection", () => unhandled++);
       }
     },
   );
-  const planningInput = {
+  const planningInput = (slot = 1) => ({
+    slot,
+    kind: ["milestone", "sprint", "task"][Math.floor((slot - 1) / 2)],
+    tail: slot % 2 === 0,
     projectID: project,
     targetID: target,
-    expectedVersion: "7",
-    beforeID: key,
-  };
-  const planningRequest = (changes = {}) =>
-    req("lost-milestone-update", {
+    expectedVersion: slot % 2 === 0 ? "8" : "7",
+    peerID: key,
+    milestoneID: slot > 2 ? key : null,
+    sprintID: slot > 4 ? project : null,
+  });
+  const planningRequest = (slot = 1, changes = {}) => {
+    const input = planningInput(slot);
+    return req("lost-milestone-update", {
       method: "POST",
-      url: `http://127.0.0.1:1/api/v1/projects/${project}/milestones/${target}/reorder`,
-      body: { expected_version: "7", request: { before_id: key } },
+      url: `http://127.0.0.1:1/api/v1/projects/${project}/${input.kind}s/${target}/reorder`,
+      body: {
+        expected_version: input.expectedVersion,
+        request: {
+          ...(input.kind === "sprint" ? { milestone_id: key } : {}),
+          ...(!input.tail ? { before_id: key } : {}),
+        },
+      },
       ...changes,
     });
+  };
+  const planningEnvironment = (options = {}) =>
+    observerEnv({
+      reason: "aborted",
+      ...options,
+      planningReorders: {
+        bind: async () => true,
+        complete: () => true,
+        ...options.planningReorders,
+      },
+    });
+  async function planningSlot(e, slot, terminal = "failed", changes = {}) {
+    const scope = e.observed.planningReorders,
+      request = planningRequest(slot, changes);
+    scope.arm(planningInput(slot));
+    e.emit("request", request);
+    const response = e.response(
+      request,
+      terminal === "finished" ? Promise.resolve(null) : new Promise(() => {}),
+    );
+    const body = scope.body(response.original);
+    e.emit(
+      terminal === "finished" ? "requestfinished" : "requestfailed",
+      request,
+    );
+    await body;
+    scope.endSlot(request);
+    assert.equal(response.calls(), terminal === "finished" ? 1 : 0);
+    return request;
+  }
   for (const terminal of ["finished", "failed"])
     await check(
-      "planning original observe and body share one original terminal/finished: " +
+      "planning six originals share terminal and exactly one normal finished: " +
         terminal,
       async () => {
-        const request = planningRequest();
-        let bound = 0;
-        const e = observerEnv({
-          reason: "aborted",
-          firstMilestoneReorder: {
-            bind: async (q, input, headers) => {
-              assert.equal(q, request);
-              assert.equal(input.beforeID, key);
-              assert.equal(headers.origin, new URL(q.url()).origin);
-              bound++;
-              return true;
+        let binds = 0;
+        const e = planningEnvironment({
+            planningReorders: {
+              bind: async (q, input, headers) => {
+                assert.equal(input.slot, ++binds);
+                assert.equal(headers.origin, new URL(q.url()).origin);
+                return true;
+              },
             },
-            complete: (q) => q === request,
-          },
-        });
-        const scope = e.observed.firstMilestoneReorder;
-        scope.arm(planningInput);
-        e.emit("request", request);
-        const r = e.response(
-          request,
-          terminal === "finished"
-            ? Promise.resolve(null)
-            : new Promise(() => {}),
-        );
-        const body = scope.body(r.original);
-        e.emit(
-          terminal === "finished" ? "requestfinished" : "requestfailed",
-          request,
-        );
-        await body;
-        scope.end();
+          }),
+          scope = e.observed.planningReorders;
+        for (let slot = 1; slot <= 6; slot++)
+          await planningSlot(e, slot, terminal);
+        scope.close();
         await e.observed.verify();
-        assert.equal(bound, 1);
-        assert.equal(r.calls(), terminal === "finished" ? 1 : 0);
+        assert.equal(binds, 6);
         assert.equal(scope.verify(), true);
       },
     );
-  for (const change of [
-    { body: { expected_version: "8", request: { before_id: key } } },
-    { body: { expected_version: "7", request: { before_id: target } } },
-    {
-      url: `http://127.0.0.1:1/api/v1/projects/${project}/milestones/${key}/reorder`,
-    },
-    { method: "PATCH" },
+  for (const [label, slot, change] of [
+    [
+      "version",
+      1,
+      { body: { expected_version: "8", request: { before_id: key } } },
+    ],
+    [
+      "peer",
+      1,
+      { body: { expected_version: "7", request: { before_id: target } } },
+    ],
+    [
+      "wrong target",
+      1,
+      {
+        url: `http://127.0.0.1:1/api/v1/projects/${project}/milestones/${key}/reorder`,
+      },
+    ],
+    ["method", 1, { method: "PATCH" }],
+    [
+      "tail null",
+      2,
+      { body: { expected_version: "8", request: { before_id: null } } },
+    ],
+    [
+      "sprint parent",
+      3,
+      {
+        body: {
+          expected_version: "7",
+          request: { milestone_id: target, before_id: key },
+        },
+      },
+    ],
+    [
+      "sprint tail omitted parent",
+      4,
+      { body: { expected_version: "8", request: {} } },
+    ],
+    [
+      "task tail null",
+      6,
+      { body: { expected_version: "8", request: { before_id: null } } },
+    ],
   ])
     await check(
-      "planning wrong first mutation occupies slot " + Object.keys(change),
+      "planning wrong first mutation occupies fixed slot: " + label,
       async () => {
-        const e = observerEnv({
-            firstMilestoneReorder: {
-              bind: async () => true,
-              complete: () => true,
-            },
-          }),
-          scope = e.observed.firstMilestoneReorder;
-        scope.arm(planningInput);
-        const wrong = planningRequest(change),
-          later = planningRequest();
+        const e = planningEnvironment(),
+          scope = e.observed.planningReorders;
+        for (let i = 1; i < slot; i++) await planningSlot(e, i);
+        scope.arm(planningInput(slot));
+        const wrong = planningRequest(slot, change),
+          later = planningRequest(slot);
         e.emit("request", wrong);
         e.emit("request", later);
         await drainHeaders();
-        scope.end();
+        scope.close();
         assert.equal(scope.selected(wrong), true);
         assert.equal(scope.selected(later), false);
         assert.equal(scope.verify(), false);
@@ -1068,61 +1130,204 @@ process.on("unhandledRejection", () => unhandled++);
     "late",
     "unconsumed",
     "non-aborted",
+    "old-key",
   ])
-    await check("planning original pair rejects " + failure, async () => {
+    await check("planning whole conjunction rejects " + failure, async () => {
       let release;
-      const held = new Promise((r) => {
-        release = r;
-      });
-      const request = planningRequest();
-      const e = observerEnv({
+      const held = new Promise((r) => (release = r));
+      const e = planningEnvironment({
           reason: failure === "non-aborted" ? "connection-closed" : "aborted",
-          firstMilestoneReorder: {
+          planningReorders: {
             bind: async () =>
               failure === "late" ? await held : failure !== "material",
             complete: () => failure !== "unconsumed",
           },
         }),
-        scope = e.observed.firstMilestoneReorder;
-      scope.arm(planningInput);
+        scope = e.observed.planningReorders;
+      const request = planningRequest(1, { key: "same-key" });
+      scope.arm(planningInput(1));
       e.emit("request", request);
-      const response = e.response(request, new Promise(() => {}));
-      const body = scope.body(response.original);
-      const rejected = failure === "unconsumed" ? null : assert.rejects(body);
+      const response = e.response(request, new Promise(() => {})),
+        body = scope.body(response.original);
+      const rejected = ["unconsumed", "old-key"].includes(failure)
+        ? null
+        : assert.rejects(body);
       e.emit("requestfailed", request);
       if (failure === "duplicate") e.emit("request", planningRequest());
       if (failure === "late") {
         await drainHeaders();
-        scope.end();
+        scope.close();
         release(true);
       }
       if (rejected) await rejected;
-      else await body;
-      scope.end();
+      else {
+        await body;
+        scope.endSlot(request);
+      }
+      if (failure === "old-key")
+        await assert.rejects(planningSlot(e, 2, "failed", { key: "same-key" }));
+      if (failure === "unconsumed")
+        for (let i = 2; i <= 6; i++) await planningSlot(e, i);
+      scope.close();
       await assert.rejects(e.observed.verify());
       assert.equal(response.calls(), 0);
     });
+  for (const bad of [
+    { slot: 2 },
+    { kind: "task" },
+    { tail: true },
+    { peerID: target },
+    { milestoneID: key },
+  ])
+    await check(
+      "planning wrong arm permanently occupies sequence: " + Object.keys(bad),
+      async () => {
+        const e = planningEnvironment(),
+          scope = e.observed.planningReorders;
+        assert.throws(() => scope.arm({ ...planningInput(), ...bad }));
+        assert.throws(() => scope.arm(planningInput()));
+        scope.close();
+        assert.equal(scope.verify(), false);
+      },
+    );
+  await check("planning missing final slot cannot close complete", async () => {
+    const e = planningEnvironment(),
+      scope = e.observed.planningReorders;
+    for (let i = 1; i <= 5; i++) await planningSlot(e, i);
+    scope.close();
+    await assert.rejects(e.observed.verify());
+  });
   await check(
-    "planning policy does not admit ordinary detail GET or other reorder",
+    "planning actual PW header Promise registers before start, joins after controlled close",
     async () => {
-      const e = observerEnv({
-          firstMilestoneReorder: {
-            bind: async () => true,
-            complete: () => true,
-          },
-        }),
-        scope = e.observed.firstMilestoneReorder;
-      const q = req("canceled-task-read"),
+      let scope,
+        owned = 0;
+      const q = planningRequest(),
+        r = rawRequest(
+          "lost-milestone-update",
+          { url: q.url(), method: q.method(), body: q.postDataJSON() },
+          { omitOrigin: true, onCall: () => assert.equal(owned, 1) },
+        );
+      const f = tree.statements.find(
+        (n) =>
+          ts.isFunctionDeclaration(n) &&
+          n.name?.text === "workPlanningReorders",
+      );
+      const c = vm.createContext({
+        URL,
+        Promise,
+        Set,
+        Map,
+        Object,
+        Date,
+        Error,
+        uuid7:
+          /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+      });
+      vm.runInContext(
+        ts.transpileModule(
+          f.getText(tree) + ";this.make=workPlanningReorders;",
+          { compilerOptions: { target: ts.ScriptTarget.ES2024 } },
+        ).outputText,
+        c,
+      );
+      const tails = [];
+      scope = c.make(
+        (t) => {
+          tails.push(t);
+          owned++;
+        },
+        async () => true,
+      );
+      scope.arm(planningInput());
+      scope.request(r.request);
+      scope.close();
+      assert.equal(scope.evidence(r.request).joined, false);
+      r.release();
+      await Promise.all(tails);
+      assert.equal(r.calls(), 1);
+      assert.equal(scope.evidence(r.request).joined, true);
+      assert.equal(scope.verify(), false);
+    },
+  );
+  await check(
+    "planning policy leaves default GET finished and rejects unarmed reorder",
+    async () => {
+      const e = planningEnvironment(),
+        scope = e.observed.planningReorders,
+        q = req("canceled-task-read"),
         r = e.response(q, Promise.resolve(null));
       e.emit("requestfinished", q);
       await drainHeaders();
       assert.equal(r.calls(), 1);
       assert.equal(scope.selected(q), false);
-      assert.throws(() => scope.arm({ ...planningInput, beforeID: target }));
       const wrong = planningRequest();
       e.emit("request", wrong);
-      scope.arm(planningInput);
+      scope.arm(planningInput());
       assert.equal(scope.selected(wrong), false);
+      scope.close();
+    },
+  );
+  await check(
+    "planning verify seals original material admission including decoder-stage new reorder",
+    async () => {
+      let e;
+      e = planningEnvironment({
+        duringDecode: () => e.emit("request", planningRequest(1)),
+      });
+      for (let i = 1; i <= 6; i++) await planningSlot(e, i);
+      e.observed.planningReorders.close();
+      await assert.rejects(e.observed.verify());
+      assert.equal(e.observed.planningReorders.verify(), false);
+    },
+  );
+  await check(
+    "planning untouched Recovery R13 ledger decoder and default body AST",
+    () => {
+      const print = ts.createPrinter(),
+        oldText = require("node:child_process").execFileSync(
+          "git",
+          [
+            "show",
+            "68d146f9:tests/account-captcha-web/e2e/project-work-planning.helpers.ts",
+          ],
+          { encoding: "utf8" },
+        );
+      const old = ts.createSourceFile(
+        "old.ts",
+        oldText,
+        ts.ScriptTarget.Latest,
+        true,
+      );
+      const pick = (ast, name) =>
+        ast.statements.find(
+          (n) => ts.isFunctionDeclaration(n) && n.name?.text === name,
+        );
+      for (const name of [
+        "workIncompleteLedger",
+        "decodeOriginal",
+        "originalBody",
+        "capturedOriginalBody",
+      ])
+        assert.equal(
+          print.printNode(ts.EmitHint.Unspecified, pick(old, name), old),
+          print.printNode(ts.EmitHint.Unspecified, pick(tree, name), tree),
+        );
+      const specPath =
+          "tests/account-captcha-web/e2e/project-work-planning.spec.ts",
+        previous = require("node:child_process").execFileSync(
+          "git",
+          ["show", "68d146f9:" + specPath],
+          { encoding: "utf8" },
+        ),
+        current = fs.readFileSync(specPath, "utf8");
+      const recovery = (text) =>
+        text.slice(
+          text.indexOf('test("[recovery]'),
+          text.indexOf('test("[identity]'),
+        );
+      assert(recovery(previous).length > 1000);
+      assert.equal(recovery(previous), recovery(current));
     },
   );
   await check(
@@ -2109,7 +2314,9 @@ process.on("unhandledRejection", () => unhandled++);
     unhandled,
   };
   fs.writeFileSync(
-    "output/ai/work-owner-planning-ui/implementation/expected-incomplete-503-controls.json",
+    process.env.WORK_PLANNING_ONLY === "1"
+      ? "output/ai/work-owner-planning-ui/implementation/planning-helper-controls.json"
+      : "output/ai/work-owner-planning-ui/implementation/expected-incomplete-503-controls.json",
     JSON.stringify(result, null, 2) + "\n",
   );
   console.log(

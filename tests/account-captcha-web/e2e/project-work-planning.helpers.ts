@@ -1108,194 +1108,313 @@ function workIncompleteLedger(
   };
 }
 
-export type FirstMilestoneReorder = {
+export type PlanningReorder = {
+  slot: number;
+  kind: "milestone" | "sprint" | "task";
+  tail: boolean;
   projectID: string;
   targetID: string;
   expectedVersion: string;
-  beforeID: string;
+  peerID: string;
+  milestoneID: string | null;
+  sprintID: string | null;
 };
-// One planning click only. It shares the existing event ledger and tail owner;
-// it never participates in Recovery's original replay/header ledger.
-function workFirstMilestoneReorder(
+// Six original planning clicks, in fixed order. Each owns independent intent
+// material and actual operations; Recovery's replay/header ledger is untouched.
+function workPlanningReorders(
   ownTail: (tail: Promise<void>) => void,
   bind: (
     request: Request,
-    input: FirstMilestoneReorder,
+    input: PlanningReorder,
     headers: Record<string, string>,
   ) => Promise<boolean>,
 ) {
-  let input: FirstMilestoneReorder | null = null,
-    request: Request | null = null;
-  let event: Promise<"finished" | "failed" | "closed"> | null = null;
-  let finished: Promise<Error | null> | null = null,
-    material: Promise<void> | null = null;
-  let invalid = false,
-    ended = false,
-    joined = false,
-    bound = false;
-  let failedCount = 0,
-    finishedCount = 0,
-    aborted = false,
-    finishedNull = false;
+  type Slot = {
+    input: PlanningReorder;
+    request: Request | null;
+    event: Promise<"finished" | "failed" | "closed"> | null;
+    finished: Promise<Error | null> | null;
+    material: Promise<void> | null;
+    invalid: boolean;
+    ended: boolean;
+    joined: boolean;
+    bound: boolean;
+    failedCount: number;
+    finishedCount: number;
+    aborted: boolean;
+    finishedNull: boolean;
+  };
+  const slots: Slot[] = [],
+    keys = new Set<string>();
+  let active: Slot | null = null,
+    closed = false,
+    sealed = false,
+    invalid = false;
   const expiresAt = Date.now() + 45_000;
-  const live = () => !ended && Date.now() < expiresAt;
+  const live = (slot: Slot) =>
+    !closed &&
+    !slot.ended &&
+    !slot.invalid &&
+    !invalid &&
+    Date.now() < expiresAt;
+  const fail = (slot?: Slot) => {
+    invalid = true;
+    if (slot) slot.invalid = true;
+  };
+  const find = (request: Request) =>
+    slots.find((slot) => slot.request === request);
+  const payload = (v: PlanningReorder) => ({
+    ...(v.kind === "sprint" ? { milestone_id: v.milestoneID } : {}),
+    ...(!v.tail ? { before_id: v.peerID } : {}),
+  });
+  const finishedFor = (response: Response) => {
+    const slot = find(response.request());
+    if (!slot || slot.failedCount || slot.finishedCount !== 1)
+      throw Error("WORK_REORDER_FINISHED");
+    if (!slot.finished)
+      slot.finished = response.finished().then((result) => {
+        slot.finishedNull = result === null;
+        return result;
+      });
+    return slot.finished;
+  };
   return {
-    arm(value: FirstMilestoneReorder) {
+    arm(value: PlanningReorder) {
+      const index = slots.length,
+        previous = slots[index - 1];
       if (
-        !live() ||
-        input ||
+        closed ||
+        invalid ||
+        active ||
+        index >= 6 ||
+        Date.now() >= expiresAt ||
         Object.keys(value).sort().join() !==
-          "beforeID,expectedVersion,projectID,targetID" ||
-        ![value.projectID, value.targetID, value.beforeID].every((v) =>
+          "expectedVersion,kind,milestoneID,peerID,projectID,slot,sprintID,tail,targetID" ||
+        value.slot !== index + 1 ||
+        value.kind !== ["milestone", "sprint", "task"][Math.floor(index / 2)] ||
+        value.tail !== (index % 2 === 1) ||
+        ![value.projectID, value.targetID, value.peerID].every((v) =>
           uuid7.test(v),
         ) ||
-        value.targetID === value.beforeID ||
-        !/^[1-9][0-9]{0,18}$/.test(value.expectedVersion)
-      )
-        throw Error("WORK_FIRST_REORDER_ARM_REJECTED");
-      input = Object.freeze({ ...value });
+        value.targetID === value.peerID ||
+        !/^[1-9][0-9]{0,18}$/.test(value.expectedVersion) ||
+        (value.kind === "milestone"
+          ? value.milestoneID !== null || value.sprintID !== null
+          : !uuid7.test(value.milestoneID!) ||
+            (value.kind === "sprint"
+              ? value.sprintID !== null
+              : !uuid7.test(value.sprintID!))) ||
+        (index > 0 && slots[0]!.input.projectID !== value.projectID) ||
+        (value.tail &&
+          (!previous ||
+            !previous.ended ||
+            ["projectID", "targetID", "peerID", "milestoneID", "sprintID"].some(
+              (key) => (previous.input as any)[key] !== (value as any)[key],
+            ) ||
+            BigInt(value.expectedVersion) !==
+              BigInt(previous.input.expectedVersion) + 1n))
+      ) {
+        fail();
+        throw Error("WORK_REORDER_ARM_REJECTED");
+      }
+      active = {
+        input: Object.freeze({ ...value }),
+        request: null,
+        event: null,
+        finished: null,
+        material: null,
+        invalid: false,
+        ended: false,
+        joined: false,
+        bound: false,
+        failedCount: 0,
+        finishedCount: 0,
+        aborted: false,
+        finishedNull: false,
+      };
+      slots.push(active);
     },
     request(value: Request) {
-      if (!input || ended || value.method() === "GET") return;
-      if (request) {
-        invalid = true;
+      if (sealed) {
+        const url = new URL(value.url());
+        if (
+          value.method() !== "GET" &&
+          slots.some(
+            (s) =>
+              url.pathname ===
+              `/api/v1/projects/${s.input.projectID}/${s.input.kind}s/${s.input.targetID}/reorder`,
+          )
+        )
+          fail();
         return;
       }
-      request = value; // Wrong first mutation still occupies this single slot.
+      const slot = active;
+      if (!slot || closed || value.method() === "GET") return;
+      if (slot.request || find(value)) {
+        fail(slot);
+        return;
+      }
+      slot.request = value; // A wrong first mutation still occupies this slot.
       try {
         const url = new URL(value.url()),
-          body = value.postDataJSON();
-        invalid ||=
-          !live() ||
+          body = value.postDataJSON(),
+          v = slot.input;
+        if (
+          !live(slot) ||
           value.method() !== "POST" ||
           !!url.search ||
           url.pathname !==
-            `/api/v1/projects/${input.projectID}/milestones/${input.targetID}/reorder` ||
+            `/api/v1/projects/${v.projectID}/${v.kind}s/${v.targetID}/reorder` ||
           Object.keys(body).sort().join() !== "expected_version,request" ||
-          body.expected_version !== input.expectedVersion ||
-          Object.keys(body.request).join() !== "before_id" ||
-          body.request.before_id !== input.beforeID;
+          body.expected_version !== v.expectedVersion ||
+          JSON.stringify(body.request) !== JSON.stringify(payload(v))
+        )
+          fail(slot);
       } catch {
-        invalid = true;
+        fail(slot);
       }
       let resolve!: () => void;
-      material = new Promise<void>((r) => {
+      slot.material = new Promise<void>((r) => {
         resolve = r;
       });
-      ownTail(material); // Register before the one original allHeaders call.
+      ownTail(slot.material);
       let headers: Promise<Record<string, string>>;
       try {
         headers = value.allHeaders();
       } catch {
-        headers = Promise.reject(Error("WORK_FIRST_REORDER_HEADERS"));
+        headers = Promise.reject(Error("WORK_REORDER_HEADERS"));
       }
       void headers
         .then(async (h) => {
+          const key = h["idempotency-key"];
           if (
-            !live() ||
-            invalid ||
-            !h["idempotency-key"] ||
-            !/^[A-Za-z0-9._:\/-]{1,128}$/.test(h["idempotency-key"]) ||
+            !live(slot) ||
+            !key ||
+            !/^[A-Za-z0-9._:\/-]{1,128}$/.test(key) ||
+            keys.has(key) ||
             !h["x-csrf-token"] ||
             h.origin !== new URL(value.url()).origin
           ) {
-            invalid = true;
+            fail(slot);
             return;
           }
-          const accepted = await bind(value, input!, h);
-          if (!live() || invalid || accepted !== true) invalid = true;
-          else bound = true;
+          keys.add(key);
+          const accepted = await bind(value, slot.input, h);
+          if (!live(slot) || accepted !== true) fail(slot);
+          else slot.bound = true;
         })
         .catch(() => {
-          invalid = true;
+          fail(slot);
         })
         .then(() => {
-          joined = true;
+          slot.joined = true;
           resolve();
         });
     },
-    selected: (value: Request) => request === value,
+    selected: (value: Request) => !!find(value),
     register(
       value: Request,
       terminal: () => Promise<"finished" | "failed" | "closed">,
     ) {
-      if (request !== value || event) {
-        invalid = true;
+      const slot = find(value);
+      if (!slot || slot.event) {
+        fail(slot);
         return;
       }
-      event = terminal();
+      slot.event = terminal();
     },
     failed(value: Request) {
-      if (value === request) {
-        failedCount++;
-        aborted = safeWorkFailure(value) === "aborted";
+      const slot = find(value);
+      if (slot) {
+        slot.failedCount++;
+        slot.aborted = safeWorkFailure(value) === "aborted";
       }
     },
     finished(value: Request) {
-      if (value === request) finishedCount++;
+      const slot = find(value);
+      if (slot) slot.finishedCount++;
     },
     terminal(value: Request) {
-      if (value !== request || !event) throw Error("WORK_FIRST_REORDER_EVENT");
-      return event;
+      const slot = find(value);
+      if (!slot?.event) throw Error("WORK_REORDER_EVENT");
+      return slot.event;
     },
-    responseFinished(response: Response) {
-      if (response.request() !== request || failedCount || finishedCount !== 1)
-        throw Error("WORK_FIRST_REORDER_FINISHED");
-      if (!finished)
-        finished = response.finished().then((result) => {
-          finishedNull = result === null;
-          return result;
-        });
-      return finished;
-    },
+    responseFinished: finishedFor,
     async body(response: Response) {
-      if (
-        response.request() !== request ||
-        response.status() !== 200 ||
-        !live() ||
-        !event
-      )
-        throw Error("WORK_FIRST_REORDER_RESPONSE");
-      const terminal = await event;
+      const slot = find(response.request());
+      if (!slot || response.status() !== 200 || !live(slot) || !slot.event)
+        throw Error("WORK_REORDER_RESPONSE");
+      const terminal = await slot.event;
       if (terminal === "finished")
-        expect(await this.responseFinished(response)).toBeNull();
+        expect(await finishedFor(response)).toBeNull();
       else if (
         terminal !== "failed" ||
-        failedCount !== 1 ||
-        finishedCount !== 0 ||
-        !aborted ||
-        finished
+        slot.failedCount !== 1 ||
+        slot.finishedCount !== 0 ||
+        !slot.aborted ||
+        slot.finished
       )
-        throw Error("WORK_FIRST_REORDER_TERMINAL");
-      await material;
-      if (!live() || invalid || !joined || !bound)
-        throw Error("WORK_FIRST_REORDER_MATERIAL");
+        throw Error("WORK_REORDER_TERMINAL");
+      await slot.material;
+      if (!live(slot) || !slot.joined || !slot.bound)
+        throw Error("WORK_REORDER_MATERIAL");
       return capturedOriginalBody(
         response,
         await response.headerValue("x-request-id"),
       );
     },
-    end() {
-      if (ended) return;
-      if (!joined || !bound || Date.now() >= expiresAt) invalid = true;
-      ended = true;
+    endSlot(value: Request) {
+      const slot = find(value);
+      if (
+        !slot ||
+        slot !== active ||
+        !live(slot) ||
+        !slot.joined ||
+        !slot.bound
+      ) {
+        fail(slot);
+        throw Error("WORK_REORDER_END");
+      }
+      slot.ended = true;
+      active = null;
+    },
+    seal() {
+      sealed = true;
+      if (!closed) {
+        fail(active ?? undefined);
+        closed = true;
+      }
+    },
+    close() {
+      if (closed) return;
+      if (active || slots.length !== 6 || Date.now() >= expiresAt)
+        fail(active ?? undefined);
+      closed = true;
     },
     evidence(value: Request) {
-      if (value !== request || !input) return null;
+      const slot = find(value);
+      if (!slot) return null;
       return {
-        ...input,
-        bound,
-        joined,
-        invalid,
-        ended,
-        failedCount,
-        finishedCount,
-        aborted,
-        finishedStarted: !!finished,
-        finishedNull,
+        ...slot.input,
+        bound: slot.bound,
+        joined: slot.joined,
+        invalid: invalid || slot.invalid,
+        ended: slot.ended,
+        failedCount: slot.failedCount,
+        finishedCount: slot.finishedCount,
+        aborted: slot.aborted,
+        finishedStarted: !!slot.finished,
+        finishedNull: slot.finishedNull,
       };
     },
-    verify: () => !!input && !!request && ended && !invalid && joined && bound,
+    verify: () =>
+      closed &&
+      !invalid &&
+      slots.length === 6 &&
+      keys.size === 6 &&
+      slots.every(
+        (s) => !!s.request && s.ended && !s.invalid && s.joined && s.bound,
+      ),
   };
 }
 
@@ -1305,7 +1424,7 @@ function workFirstMilestoneReorder(
 export function workOrdinaryCompletionEvents(
   replayCandidate?: (request: Request) => boolean,
   planning?: {
-    policy: "first-milestone-reorder";
+    policy: "planning-reorders";
     selected: (request: Request) => boolean;
   },
 ) {
@@ -1339,7 +1458,7 @@ export function workOrdinaryCompletionEvents(
     request(request: Request) {
       if (sealed || rows.has(request)) return;
       if (planning) {
-        if (planning.policy !== "first-milestone-reorder")
+        if (planning.policy !== "planning-reorders")
           throw Error("WORK_ORDINARY_POLICY");
         if (planning.selected(request))
           rows.set(request, { terminal: null, finished: 0, failed: 0 });
@@ -1401,10 +1520,10 @@ export function observe(
   page: Page,
   options: {
     ordinaryCompletion?: (request: Request, requestID: string) => boolean;
-    firstMilestoneReorder?: {
+    planningReorders?: {
       bind: (
         request: Request,
-        input: FirstMilestoneReorder,
+        input: PlanningReorder,
         headers: Record<string, string>,
       ) => Promise<boolean>;
       complete: (request: Request, requestID: string) => boolean;
@@ -1428,23 +1547,23 @@ export function observe(
       });
     },
   );
-  const firstReorder = options.firstMilestoneReorder
-    ? workFirstMilestoneReorder(
+  const firstReorder = options.planningReorders
+    ? workPlanningReorders(
         (tail) => tails.push(tail),
-        options.firstMilestoneReorder.bind,
+        options.planningReorders.bind,
       )
     : null;
   const ordinaryEvents = workOrdinaryCompletionEvents(
     incompleteRequests.replayCandidate,
     firstReorder
-      ? { policy: "first-milestone-reorder", selected: firstReorder.selected }
+      ? { policy: "planning-reorders", selected: firstReorder.selected }
       : undefined,
   );
   const nativeComplete = new Set<Request>();
   const pendingNative = new Set<Request>();
   let ordinaryClosed = false;
   const closeOrdinary = () => {
-    firstReorder?.end();
+    firstReorder?.close();
     ordinaryClosed = true;
     incompleteRequests.close();
     ordinaryEvents.seal();
@@ -1522,7 +1641,7 @@ export function observe(
     };
     if (seal) {
       incompleteRequests.close();
-      firstReorder?.end();
+      firstReorder?.close();
     }
     return snapshot;
   });
@@ -1711,12 +1830,13 @@ export function observe(
     finishOriginalReplay: incompleteRequests.finishOriginalReplay,
     replayEvidence: incompleteRequests.replayEvidence,
     endReplayObservation: incompleteRequests.close,
-    firstMilestoneReorder: firstReorder,
+    planningReorders: firstReorder,
     async verify(expectedIncomplete = 0) {
       // The caller must already have taken actual diagnostic end snapshots.
       // Missing original events retire as failure, never as an abandoned wait.
       ordinaryEvents.seal();
       incompleteRequests.sealHeaders();
+      firstReorder?.seal();
       try {
         await Promise.all(tails);
         expect(incompleteRequests.headersComplete()).toBe(true);
@@ -1737,7 +1857,7 @@ export function observe(
               observed.observer_rejected_at === null &&
               observed.response?.request() === request &&
               (firstReorder?.selected(request)
-                ? options.firstMilestoneReorder!.complete(
+                ? options.planningReorders!.complete(
                     request,
                     observed.request_id!,
                   )
@@ -1825,7 +1945,7 @@ export function observe(
               !ordinaryClosed &&
               ordinaryEvents.failedOnly(request) &&
               (firstReorder?.selected(request)
-                ? options.firstMilestoneReorder!.complete(
+                ? options.planningReorders!.complete(
                     request,
                     timings.get(request)!.request_id!,
                   )

@@ -13,19 +13,27 @@ const id = (n) => `01900000-0000-7000-8000-${String(n).padStart(12, "0")}`;
 const project = id(10),
   target = id(11),
   at = "2026-10-09T10:00:00.000000Z";
-const planningSpec = {
+const planningSpec = (slot = 1) => ({
+  slot,
+  kind: ["milestone", "sprint", "task"][Math.floor((slot - 1) / 2)],
+  tail: slot % 2 === 0,
   projectID: project,
   targetID: target,
-  expectedVersion: "1",
-  beforeID: id(12),
-};
-const planningCommand = () => ({
-  domain: "structure",
-  projectID: project,
-  command: "work.milestone.reorder",
-  targetID: target,
-  expected_version: "1",
-  request: { before_id: id(12) },
+  expectedVersion: slot % 2 === 0 ? "2" : "1",
+  peerID: id(14),
+  milestoneID: slot > 2 ? id(12) : null,
+  sprintID: slot > 4 ? id(13) : null,
+});
+const planningCommand = (spec = planningSpec()) => ({
+  domain: spec.kind === "task" ? "task" : "structure",
+  projectID: spec.projectID,
+  command: `work.${spec.kind}.reorder`,
+  targetID: spec.targetID,
+  expected_version: spec.expectedVersion,
+  request: {
+    ...(spec.kind === "sprint" ? { milestone_id: spec.milestoneID } : {}),
+    ...(!spec.tail ? { before_id: spec.peerID } : {}),
+  },
 });
 const session = {
   user: {
@@ -145,7 +153,7 @@ function installer(file, name) {
   let positiveReport, blockerReport, planningReport;
   function reportOf(e) {
     const requests = e.native.requests.map((n, i) => ({
-      sequence: i + 1,
+      sequence: e.planning ? e.specs[i].slot : i + 1,
       request_id: n.request_id,
       method: n.method,
       path: n.path,
@@ -172,8 +180,9 @@ function installer(file, name) {
       finished_event_at: n.request_id === id(98) ? 2 : null,
       ...(e.planning
         ? {
-            first_milestone_reorder: {
-              ...planningSpec,
+            planning_document_id: e.native.document_id,
+            planning_reorder: {
+              ...e.specs[i],
               bound: true,
               joined: true,
               invalid: false,
@@ -198,7 +207,7 @@ function installer(file, name) {
         context_closed: false,
         overflow: false,
         projection_rejected: 0,
-        ...(e.planning ? { planning_policy: "first-milestone-reorder" } : {}),
+        ...(e.planning ? { planning_policy: "planning-reorders" } : {}),
         requests,
         documents: [
           {
@@ -211,7 +220,7 @@ function installer(file, name) {
                 ...n,
                 bound_original_request: true,
                 bound_public_call: true,
-                pw_sequence: i + 1,
+                pw_sequence: e.planning ? e.specs[i].slot : i + 1,
                 declaration: null,
                 content_length_comparable: n.length_comparable_before_binding,
                 content_length_matches_eof: n.length_matches_before_binding,
@@ -233,10 +242,20 @@ function installer(file, name) {
   };
   const passed = [];
   async function check(name, fn) {
-    await fn();
+    if (process.env.WORK_PLANNING_ONLY === "1" && !name.startsWith("planning "))
+      return;
+    try {
+      await fn();
+    } catch (error) {
+      console.error("CONTROL_FAILED", name);
+      throw error;
+    }
     passed.push(name);
   }
   async function setup(kind = "milestone", options = {}) {
+    let plan = planningSpec(options.slot ?? 1);
+    const specs = [],
+      startPromises = new Set();
     const dom = new JSDOM("<body></body>", {
         url: "https://owned.invalid",
         runScripts: "outside-only",
@@ -283,7 +302,7 @@ function installer(file, name) {
       streamEntered = deferred();
     const endpoint =
       kind === "planning"
-        ? `/api/v1/projects/${project}/milestones/${target}/reorder`
+        ? `/api/v1/projects/${project}/${plan.kind}s/${target}/reorder`
         : kind === "lookup-blocker"
           ? `/api/v1/projects/${project}/tasks/${target}/blocker-commands/lookup`
           : ["structure", "lookup-task", "lookup-blocker"].includes(kind)
@@ -344,7 +363,7 @@ function installer(file, name) {
         };
         if (options.wrongMaterial)
           material[options.wrongMaterial] = "wrong-private-material";
-        w.__workPublicationDiagnostic.bindFirstRequest(planningSpec, material);
+        w.__workPublicationDiagnostic.bindFirstRequest(plan, material);
       }
       if (kind === "replay" && init.method === "GET" && options.successorHeld)
         return successorHold.promise.then(
@@ -399,20 +418,39 @@ function installer(file, name) {
               sprint: null,
               event_id: id(20),
             };
-      if (kind === "planning")
+      if (kind === "planning") {
+        const entity = {
+          ...(plan.kind === "milestone"
+            ? milestone
+            : plan.kind === "sprint"
+              ? sprint
+              : task),
+          version: options.wrongVersion
+            ? "4"
+            : String(BigInt(plan.expectedVersion) + 1n),
+          ...(plan.kind === "task"
+            ? { priority: options.wrongPriority ? "medium" : "high" }
+            : {}),
+          ...(options.wrongTarget ? { id: id(15) } : {}),
+          ...(options.wrongParent ? { milestone_id: id(16) } : {}),
+        };
         value = options.voidReceipt
           ? null
-          : {
-              command: "work.milestone.reorder",
-              changed: !options.unchanged,
-              milestone: {
-                ...milestone,
-                version: options.wrongVersion ? "3" : "2",
-                ...(options.wrongTarget ? { id: id(15) } : {}),
-              },
-              sprint: null,
-              event_id: id(20),
-            };
+          : plan.kind === "task"
+            ? {
+                task: entity,
+                changed: !options.unchanged,
+                task_event_id: id(20 + plan.slot),
+                event_ids: [id(40 + plan.slot)],
+              }
+            : {
+                command: `work.${plan.kind}.reorder`,
+                changed: !options.unchanged,
+                milestone: plan.kind === "milestone" ? entity : null,
+                sprint: plan.kind === "sprint" ? entity : null,
+                event_id: id(20 + plan.slot),
+              };
+      }
       if (kind === "replay-task") {
         value = options.voidReceipt
           ? null
@@ -510,7 +548,7 @@ function installer(file, name) {
           headers: {
             "Content-Type": "application/json",
             "Content-Length": String(bytes.length),
-            "X-Request-ID": id(100),
+            "X-Request-ID": id(kind === "planning" ? 100 + plan.slot : 100),
           },
         }),
       );
@@ -595,6 +633,34 @@ function installer(file, name) {
       auth.workPlanning.start = (...args) =>
         original(...args).then((value) => structuredClone(value));
     }
+    const actualPlanningTails = [];
+    if (kind === "planning" && (options.oldPromise || options.oldReceipt)) {
+      const original = auth.workPlanning.start;
+      let oldPromise, oldReceipt;
+      auth.workPlanning.start = (...args) => {
+        const actual = original(...args);
+        actualPlanningTails.push(
+          actual.then(
+            () => {},
+            () => {},
+          ),
+        );
+        const result =
+          options.oldPromise && oldPromise
+            ? oldPromise
+            : options.oldReceipt && oldReceipt
+              ? actual.then(() => oldReceipt)
+              : actual;
+        oldPromise ??= actual;
+        void actual.then(
+          (value) => {
+            oldReceipt ??= value;
+          },
+          () => {},
+        );
+        return result;
+      };
+    }
     let originalStartPromise;
     if (kind === "planning") {
       const original = auth.workPlanning.start;
@@ -610,9 +676,7 @@ function installer(file, name) {
     w.installNative({
       projects: [project],
       expiresAt: Date.now() + 45000,
-      ...(kind === "planning"
-        ? { planningPolicy: "first-milestone-reorder" }
-        : {}),
+      ...(kind === "planning" ? { planningPolicy: "planning-reorders" } : {}),
     });
     w.Function = function () {
       return async () => ({ singleton: () => auth });
@@ -625,15 +689,13 @@ function installer(file, name) {
           export_name: "singleton",
         },
         expiresAt: Date.now() + 45000,
-        ...(kind === "planning"
-          ? { planningPolicy: "first-milestone-reorder" }
-          : {}),
+        ...(kind === "planning" ? { planningPolicy: "planning-reorders" } : {}),
       }),
       "installed",
     );
     if (kind === "planning" && !options.skipArm)
       assert.equal(
-        w.__workPublicationDiagnostic.armFirstMilestoneReorder(planningSpec),
+        w.__workPublicationDiagnostic.armPlanningReorder(plan),
         true,
       );
     if (kind === "replay-task") {
@@ -657,7 +719,7 @@ function installer(file, name) {
       const result =
         kind === "planning"
           ? auth.workPlanning.start({
-              ...planningCommand(),
+              ...planningCommand(plan),
               ...options.command,
             })
           : ["replay", "replay-task"].includes(kind)
@@ -671,12 +733,20 @@ function installer(file, name) {
                       ? "getSprint"
                       : "getTask"
                 ](project, target);
-      if (kind === "planning")
+      if (kind === "planning") {
+        assert.equal(
+          startPromises.has(result),
+          false,
+          "each slot owns a new original Promise",
+        );
+        startPromises.add(result);
+        specs.push({ ...plan });
         assert.equal(
           result,
           originalStartPromise,
           "public wrapper must return the exact original start Promise",
         );
+      }
       void result.then(
         () => {
           settled = true;
@@ -691,6 +761,7 @@ function installer(file, name) {
     };
     const finish = () => ({
       planning: kind === "planning",
+      specs: specs.map((v) => ({ ...v })),
       originalReplayBound,
       replayPolicy:
         kind === "replay-task" ? "historical-task" : "not-observed-milestone",
@@ -702,6 +773,16 @@ function installer(file, name) {
       w,
       endpoint,
       call,
+      plan: () => ({ ...plan }),
+      joinActual: () => Promise.all(actualPlanningTails),
+      expire: () => {
+        w.Date.now = () => Date.now() + 46000;
+      },
+      end: () => w.__workPublicationDiagnostic.endPlanningReorder(plan.slot),
+      next() {
+        plan = planningSpec(plan.slot + 1);
+        return w.__workPublicationDiagnostic.armPlanningReorder(plan);
+      },
       readerEntered,
       streamEntered,
       releaseSuccessor: () => successorHold.resolve(),
@@ -735,7 +816,6 @@ function installer(file, name) {
     "lookup-task",
     "lookup-blocker",
     "replay",
-    "planning",
   ])
     await check(
       "actual " +
@@ -770,19 +850,12 @@ function installer(file, name) {
           assert.equal(accepts(e), true);
           if (kind === "milestone") positiveReport = reportOf(e);
           if (kind === "lookup-blocker") blockerReport = reportOf(e);
-          if (kind === "planning") planningReport = reportOf(e);
         } finally {
           await x.cleanup();
         }
       },
     );
-  for (const kind of [
-    "milestone",
-    "structure",
-    "lookup-blocker",
-    "replay",
-    "planning",
-  ])
+  for (const kind of ["milestone", "structure", "lookup-blocker", "replay"])
     for (const held of ["reader", "stream"])
       await check(
         "actual " +
@@ -825,7 +898,7 @@ function installer(file, name) {
           }
         },
       );
-  for (const kind of ["milestone", "lookup-blocker", "replay", "planning"])
+  for (const kind of ["milestone", "lookup-blocker", "replay"])
     for (const ending of ["abandon", "timer", "identity"])
       await check(
         "actual early " +
@@ -840,7 +913,7 @@ function installer(file, name) {
             await x.streamEntered.promise;
             await drain();
             if (ending === "abandon") {
-              if (["lookup-blocker", "replay", "planning"].includes(kind))
+              if (["lookup-blocker", "replay"].includes(kind))
                 x.auth.workPlanning.abandon();
               else x.auth.workPlanning.abandonRead();
             } else if (ending === "timer") x.timer();
@@ -897,6 +970,94 @@ function installer(file, name) {
         },
       );
 
+  const joinedPlanningReport = (parts) => ({
+    ...parts[parts.length - 1],
+    planning_joins_complete: true,
+    planning_document_joins: parts.map((p) => ({
+      document_id: p.documents[0].native.document_id,
+      joined: true,
+      end_seen: true,
+    })),
+    requests: parts.flatMap((p) => p.requests),
+    documents: parts.flatMap((p) => p.documents),
+  });
+  const planningAccepts = (report) =>
+    report.requests.length === 6 &&
+    report.requests.every((r) =>
+      judge(report, r.sequence, r.request_id, false, true),
+    );
+  const planningParts = [];
+  for (const slot of [1, 3, 5])
+    await check(
+      "planning actual " +
+        planningSpec(slot).kind +
+        " before/tail original Promise and typed receipts",
+      async () => {
+        const x = await setup("planning", { slot });
+        const receipts = [];
+        try {
+          for (let turn = 0; turn < 2; turn++) {
+            const receipt = await x.call();
+            await drain();
+            assert.equal(receipt, x.auth.workPlanning.progress.receipt);
+            assert(!receipts.includes(receipt));
+            receipts.push(receipt);
+            assert.equal(x.auth.state.busy, false);
+            assert.equal(x.end(), true);
+            if (!turn) assert.equal(x.next(), true);
+          }
+          const evidence = x.finish();
+          assert.equal(evidence.public.calls.length, 2);
+          assert.equal(evidence.native.retirement_reason, "explicit");
+          assert.equal(evidence.public.retirement_reason, "explicit");
+          assert.equal(evidence.native.pending_at_retirement, 0);
+          assert.equal(evidence.public.pending_at_retirement, 0);
+          for (const call of evidence.public.calls) {
+            assert.equal(call.start_receipt_published, true);
+            assert.equal(call.start_material_bound, true);
+          }
+          assert(!JSON.stringify(evidence).includes("private-material-canary"));
+          planningParts.push(reportOf(evidence));
+        } finally {
+          await x.cleanup();
+        }
+      },
+    );
+  await check(
+    "planning three independent documents retain six complete original consumers",
+    () => {
+      planningReport = joinedPlanningReport(planningParts);
+      assert.equal(planningAccepts(planningReport), true);
+      for (const row of planningReport.requests)
+        assert.equal(
+          judge(planningReport, row.sequence, row.request_id),
+          false,
+        );
+      const normal = structuredClone(planningReport);
+      for (const row of normal.requests) {
+        row.failed_at = null;
+        row.finished_event_at = 2;
+        Object.assign(row.planning_reorder, {
+          failedCount: 0,
+          finishedCount: 1,
+          finishedStarted: true,
+          finishedNull: true,
+        });
+      }
+      assert.equal(planningAccepts(normal), true);
+      assert.deepEqual(
+        planningReport.documents.map((d) =>
+          d.publication.calls.map((c) => c.call_id),
+        ),
+        [
+          [1, 2],
+          [1, 2],
+          [1, 2],
+        ],
+        "call IDs really reset across distinct documents",
+      );
+    },
+  );
   for (const [issue, options] of [
     ...[
       "voidReceipt",
@@ -911,29 +1072,77 @@ function installer(file, name) {
       "skipArm",
     ].map((name) => [name, { [name]: true }]),
     ...["key", "csrf", "origin", "body"].map((name) => [
-      "wrong native/PW " + name,
+      "wrong material " + name,
       { wrongMaterial: name },
     ]),
-    ["wrong before_id", { command: { request: { before_id: id(14) } } }],
-    ["wrong expected_version", { command: { expected_version: "2" } }],
+    ["wrong before", { command: { request: { before_id: id(15) } } }],
+    ["wrong version argument", { command: { expected_version: "2" } }],
+    ["Sprint wrong parent", { slot: 3, wrongParent: true }],
+    ["Task wrong parent", { slot: 5, wrongParent: true }],
+    ["Task wrong group", { slot: 5, wrongPriority: true }],
   ])
-    await check("actual first reorder rejects " + issue, async () => {
-      const x = await setup("planning", options);
-      try {
-        await x.call().catch(() => {});
-        await drain();
-        const evidence = x.finish();
-        assert.equal(accepts(evidence), false);
-        assert.equal(x.auth.state.busy, false);
-      } finally {
-        await x.cleanup();
-      }
-    });
+    await check(
+      "planning actual typed input or receipt rejects " + issue,
+      async () => {
+        const x = await setup("planning", options);
+        try {
+          await x.call().catch(() => {});
+          await drain();
+          assert.equal(x.end(), false);
+          const e = x.finish();
+          assert.equal(
+            e.public.calls.some(
+              (c) =>
+                c.start_receipt_published === true &&
+                c.start_material_bound === true &&
+                c.start_input_matches === true &&
+                c.start_unique === true,
+            ),
+            false,
+          );
+          assert.equal(x.auth.state.busy, false);
+        } finally {
+          await x.cleanup();
+        }
+      },
+    );
+  for (const slot of [1, 3, 5])
+    for (const tail of ["reader", "stream"])
+      await check(
+        "planning " +
+          planningSpec(slot).kind +
+          " held " +
+          tail +
+          " joins before first retirement",
+        async () => {
+          const x = await setup("planning", { slot, [tail + "Held"]: true });
+          try {
+            const promise = x.call();
+            await x[tail + "Entered"].promise;
+            await drain();
+            assert.equal(x.settled(), false);
+            assert.equal(x.auth.state.busy, true);
+            assert.equal(
+              x.w.__workPublicationDiagnostic.snapshot().calls[0]
+                .start_receipt_published,
+              false,
+            );
+            x[tail === "reader" ? "releaseReader" : "releaseStream"]();
+            await promise;
+            await drain();
+            assert.equal(x.end(), true);
+            const e = x.finish();
+            assert.equal(e.public.calls[0].start_receipt_published, true);
+            assert.equal(e.native.pending_at_retirement, 0);
+            assert.equal(e.public.pending_at_retirement, 0);
+          } finally {
+            await x.cleanup();
+          }
+        },
+      );
   for (const tail of ["reader", "stream"])
     await check(
-      "first reorder early retirement retains original " +
-        tail +
-        " pending and rejects late success",
+      "planning first retirement pending " + tail + " cannot upgrade late",
       async () => {
         const x = await setup("planning", { [tail + "Held"]: true });
         try {
@@ -941,88 +1150,280 @@ function installer(file, name) {
           await x[tail + "Entered"].promise;
           await drain();
           const early = x.finish();
-          assert.equal(accepts(early), false);
-          assert(early.native.pending_at_retirement > 0);
           assert(early.public.pending_at_retirement > 0);
+          assert(early.native.pending_at_retirement > 0);
           x[tail === "reader" ? "releaseReader" : "releaseStream"]();
           await promise;
           await drain();
-          assert.equal(accepts(x.finish()), false);
+          assert.equal(x.end(), false);
+          const late = x.finish();
+          assert(late.public.pending_at_retirement > 0);
+          assert(late.native.pending_at_retirement > 0);
         } finally {
           await x.cleanup();
         }
       },
     );
   await check(
-    "first wrong start occupies arm and later valid start cannot acquire proof",
+    "planning first wrong start occupies slot and cannot reselect",
     async () => {
       const x = await setup("planning", {
-        command: { request: { before_id: id(14) } },
+        command: { request: { before_id: id(15) } },
       });
       try {
         await x.call();
         await drain();
         await x.auth.workPlanning.start(planningCommand());
         await drain();
-        const evidence = x.finish();
-        assert.equal(accepts(evidence), false);
-        assert.equal(evidence.public.calls[0].start_unique, false);
-        assert.equal(evidence.public.calls[0].start_input_matches, false);
+        assert.equal(x.end(), false);
+        const e = x.finish();
+        assert.equal(e.public.calls[0].start_unique, false);
+        assert.equal(e.public.calls[0].start_input_matches, false);
       } finally {
         await x.cleanup();
       }
     },
   );
+  for (const fault of ["oldPromise", "oldReceipt"])
+    await check("planning second slot cannot reuse " + fault, async () => {
+      const x = await setup("planning", { [fault]: true });
+      try {
+        await x.call();
+        await drain();
+        assert.equal(x.end(), true);
+        assert.equal(x.next(), true);
+        await x.auth.workPlanning.start(planningCommand(x.plan()));
+        await x.joinActual();
+        await drain();
+        assert.equal(x.end(), false);
+        const e = x.finish();
+        assert.equal(e.public.calls[1].start_receipt_published, false);
+      } finally {
+        await x.cleanup();
+      }
+    });
+  for (const slot of [1, 3, 5])
+    await check(
+      "planning " +
+        planningSpec(slot).kind +
+        " tail null differs from original omitted field",
+      async () => {
+        const x = await setup("planning", { slot });
+        try {
+          await x.call();
+          await drain();
+          assert.equal(x.end(), true);
+          assert.equal(x.next(), true);
+          const command = planningCommand(x.plan());
+          command.request.before_id = null;
+          await x.auth.workPlanning.start(command).catch(() => {});
+          await drain();
+          assert.equal(x.end(), false);
+          const e = x.finish();
+          assert.equal(e.public.calls[1].start_input_matches, false);
+        } finally {
+          await x.cleanup();
+        }
+      },
+    );
   await check(
-    "first reorder closed policy accepts original finished and rejects unknown or ordinary selection",
-    () => {
-      const report = structuredClone(planningReport),
-        row = report.requests[0];
-      row.failed_at = null;
-      row.finished_event_at = 2;
-      Object.assign(row.first_milestone_reorder, {
-        failedCount: 0,
-        finishedCount: 1,
-        finishedStarted: true,
-        finishedNull: true,
-      });
-      assert.equal(judge(report, 1, id(100), false, true), true);
-      assert.equal(judge(report, 1, id(100)), false);
-      report.planning_policy = "unknown";
-      assert.equal(judge(report, 1, id(100), false, true), false);
-      assert.equal(judge(positiveReport, 1, id(100), false, true), false);
-      for (const mutate of [
-        (r) => {
-          r.requests[0].first_milestone_reorder.bound = false;
-        },
-        (r) => {
-          r.requests[0].first_milestone_reorder.joined = false;
-        },
-        (r) => {
-          r.requests[0].first_milestone_reorder.ended = false;
-        },
-        (r) => {
-          r.requests[0].first_milestone_reorder.invalid = true;
-        },
-        (r) => {
-          r.requests[0].first_milestone_reorder.aborted = false;
-        },
-        (r) => {
-          r.requests[0].first_milestone_reorder.finishedStarted = true;
-        },
-        (r) => {
-          r.documents[0].publication.calls[0].start_receipt_published = false;
-        },
-        (r) => {
-          r.documents[0].publication.calls[0].start_unique = false;
-        },
-      ]) {
-        const bad = structuredClone(planningReport);
-        mutate(bad);
-        assert.equal(judge(bad, 1, id(100), false, true), false);
+    "planning expiry while original outer held cannot accept late fulfillment",
+    async () => {
+      const x = await setup("planning", { streamHeld: true });
+      try {
+        const promise = x.call();
+        await x.streamEntered.promise;
+        x.expire();
+        const early = x.finish();
+        assert.notEqual(early.public.retirement_reason, "explicit");
+        x.releaseStream();
+        await promise;
+        await drain();
+        assert.equal(x.end(), false);
+        assert.equal(x.finish().public.calls[0].start_receipt_published, false);
+      } finally {
+        await x.cleanup();
       }
     },
   );
+  for (const [name, mutate] of [
+    ["missing first document", (r) => r.documents.shift()],
+    ["missing first join", (r) => r.planning_document_joins.shift()],
+    ["prior failed join", (r) => (r.planning_document_joins[0].joined = false)],
+    [
+      "prior missing end",
+      (r) => (r.planning_document_joins[0].end_seen = false),
+    ],
+    ["cumulative failure", (r) => (r.planning_joins_complete = false)],
+    [
+      "last document substitutes earlier",
+      (r) =>
+        (r.requests[0].planning_document_id =
+          r.planning_document_joins[2].document_id),
+    ],
+    [
+      "duplicate document",
+      (r) =>
+        (r.planning_document_joins[0].document_id =
+          r.planning_document_joins[1].document_id),
+    ],
+    [
+      "missing public reinstall",
+      (r) => (r.documents[1].publication.calls = []),
+    ],
+    [
+      "non explicit first retirement",
+      (r) => (r.documents[0].publication.retirement_reason = "expired"),
+    ],
+    [
+      "first pending at retirement",
+      (r) => (r.documents[0].native.pending_at_retirement = 1),
+    ],
+    [
+      "wrong call slot after reset",
+      (r) => (r.documents[1].publication.calls[0].reorder_slot = 1),
+    ],
+    [
+      "cross slot old XID",
+      (r) => (r.requests[5].request_id = r.requests[0].request_id),
+    ],
+    ["missing sixth slot", (r) => r.requests.pop()],
+    [
+      "unjoined material",
+      (r) => (r.requests[0].planning_reorder.joined = false),
+    ],
+    [
+      "wrong receipt publication",
+      (r) =>
+        (r.documents[0].publication.calls[0].start_receipt_published = false),
+    ],
+    ["unknown policy", (r) => (r.planning_policy = "unknown")],
+  ])
+    await check("planning six conjunction rejects " + name, () => {
+      const r = structuredClone(planningReport);
+      mutate(r);
+      assert.equal(planningAccepts(r), false);
+    });
+  for (const mode of [
+    "complete",
+    "missing-first-end",
+    "first-pending",
+    "first-non-explicit",
+    "first-unjoined",
+  ])
+    await check(
+      "planning actual Node three-document flush retains " + mode,
+      async () => {
+        const ts = require(root + "/web/node_modules/typescript"),
+          source = fs.readFileSync(
+            root +
+              "/tests/account-captcha-web/e2e/project-work-planning.native.ts",
+            "utf8",
+          );
+        const ast = ts.createSourceFile(
+            "native.ts",
+            source,
+            ts.ScriptTarget.Latest,
+            true,
+          ),
+          fn = ast.statements.find(
+            (n) =>
+              ts.isFunctionDeclaration(n) &&
+              n.name?.text === "startWorkNativeDiagnostic",
+          );
+        const outputs = [],
+          held = deferred(),
+          context = new (require("node:events").EventEmitter)();
+        let documentIndex = 0,
+          lateStarted = false,
+          lateJoined = false;
+        const docs = planningParts.map((p) => structuredClone(p.documents[0]));
+        if (mode === "first-pending")
+          docs[0].publication.pending_at_retirement = 1;
+        if (mode === "first-non-explicit")
+          docs[0].native.retirement_reason = "expired";
+        const page = new (require("node:events").EventEmitter)();
+        page.context = () => context;
+        page.addInitScript = async () => {};
+        page.evaluate = async (fn) => {
+          const d = docs[documentIndex];
+          if (fn.toString().includes(".finish()") && documentIndex === 0) {
+            if (mode === "missing-first-end")
+              return { native: null, publication: d.publication };
+            if (mode === "first-unjoined") {
+              lateStarted = true;
+              await held.promise;
+              lateJoined = true;
+            }
+          }
+          return { native: d.native, publication: d.publication };
+        };
+        const scope = vm.createContext({
+          Map,
+          Set,
+          WeakMap,
+          Promise,
+          Error,
+          Object,
+          Array,
+          URL,
+          Date,
+          Buffer,
+          performance,
+          setTimeout,
+          clearTimeout,
+          workSessionBinding: async () => ({}),
+          installWorkNativeDiagnostic: () => {},
+          installWorkPublicationDiagnostic: () => {},
+          join: path.join,
+          writeFileSync: (_name, value) => outputs.push(JSON.parse(value)),
+        });
+        vm.runInContext(
+          ts.transpileModule(
+            fn.getText(ast).replace(/^export /, "") +
+              ";this.start=startWorkNativeDiagnostic;",
+            { compilerOptions: { target: ts.ScriptTarget.ES2024 } },
+          ).outputText,
+          scope,
+        );
+        const diagnostic = await scope.start(page, {
+          projects: [project],
+          repository: root,
+          evidence: "/controlled",
+          classify: () => null,
+          planningPolicy: "planning-reorders",
+        });
+        try {
+          await drain();
+          for (let i = 0; i < 3; i++) {
+            documentIndex = i;
+            if (i < 2)
+              await diagnostic.flush().catch((error) => {
+                assert.notEqual(mode, "complete");
+                assert.equal(error.message, "WORK_REORDER_DOCUMENT_END");
+              });
+            else await diagnostic.finish();
+            if (mode === "first-unjoined" && i === 0) {
+              assert(lateStarted);
+              assert.equal(lateJoined, false);
+              held.resolve();
+              await drain();
+              assert.equal(lateJoined, true);
+            }
+          }
+          const result = outputs.at(-1);
+          assert.equal(result.planning_document_joins.length, 3);
+          assert.equal(result.sample_joined, true);
+          assert.equal(result.planning_joins_complete, mode === "complete");
+          if (mode === "first-unjoined")
+            assert.equal(result.planning_document_joins[0].joined, false);
+        } finally {
+          held.resolve();
+          await drain();
+          await diagnostic.finish();
+        }
+      },
+    );
   for (const issue of ["voidReceipt", "voidFulfillment", "badSchema"])
     await check("actual original replay rejects " + issue, async () => {
       const x = await setup("replay", { [issue]: true });

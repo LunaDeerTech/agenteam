@@ -3,6 +3,7 @@ import type {
   Request as PWRequest,
   Response as PWResponse,
 } from "@playwright/test";
+import type { PlanningReorder } from "./project-work-planning.helpers";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -16,7 +17,7 @@ export function installWorkNativeDiagnostic(config: {
   projects: string[];
   expiresAt: number;
   projectRefreshCompletion?: boolean;
-  planningPolicy?: "first-milestone-reorder";
+  planningPolicy?: "planning-reorders";
 }) {
   const host = window as any;
   if (host.__workNativeDiagnostic || Date.now() >= config.expiresAt) return;
@@ -106,7 +107,7 @@ export function installWorkNativeDiagnostic(config: {
       uuid.test(url.pathname.split("/")[4]!) &&
       config.projects.includes(url.pathname.split("/")[4]!);
     const firstReorder =
-      config.planningPolicy === "first-milestone-reorder" &&
+      config.planningPolicy === "planning-reorders" &&
       !retired &&
       host.__workPublicationDiagnostic?.selectStartFetch(method, url.pathname, {
         body: typeof init?.body === "string" ? init.body : null,
@@ -410,8 +411,35 @@ export function workOrdinaryConsumption(
   sequence: number,
   requestID: string,
   projectRefresh = false,
-  firstMilestoneReorder = false,
+  planningReorders = false,
 ): boolean {
+  if (planningReorders) {
+    const joins = report?.planning_document_joins,
+      rows = report?.requests?.filter((row: any) => row.planning_reorder);
+    if (
+      report?.planning_joins_complete !== true ||
+      !Array.isArray(joins) ||
+      joins.length !== 3 ||
+      !joins.every(
+        (j: any) =>
+          j.joined === true &&
+          j.end_seen === true &&
+          typeof j.document_id === "string" &&
+          j.document_id.length === 36,
+      ) ||
+      new Set(joins.map((j: any) => j.document_id)).size !== 3 ||
+      !Array.isArray(rows) ||
+      rows.length !== 6 ||
+      new Set(rows.map((r: any) => r.request_id)).size !== 6 ||
+      new Set(rows.map((r: any) => r.sequence)).size !== 6 ||
+      !rows.every(
+        (r: any, i: number) =>
+          r.planning_reorder.slot === i + 1 &&
+          r.planning_document_id === joins[Math.floor(i / 2)].document_id,
+      )
+    )
+      return false;
+  }
   function completed(
     sequence: number,
     requestID: string,
@@ -457,12 +485,12 @@ export function workOrdinaryConsumption(
       pw.declaration !== null ||
       !(
         ((projectRefresh ||
-          firstMilestoneReorder ||
+          planningReorders ||
           historyLookup?.finished === true) &&
           pw.failed_at === null &&
           Number.isFinite(pw.finished_event_at) &&
           (historyLookup?.finished === true ||
-            firstMilestoneReorder ||
+            planningReorders ||
             (pw.project_terminal === "finished" &&
               pw.project_failed_count === 0 &&
               pw.project_finished_count === 1))) ||
@@ -504,19 +532,26 @@ export function workOrdinaryConsumption(
       uuid.test(parts[6]) &&
       parts[7] === "blocker-commands" &&
       parts[8] === "lookup";
-    const planning = pw.first_milestone_reorder;
+    const planning = pw.planning_reorder;
     const firstReorder =
-      firstMilestoneReorder &&
-      report.planning_policy === "first-milestone-reorder" &&
+      planningReorders &&
+      report.planning_policy === "planning-reorders" &&
       parts.length === 8 &&
-      parts[5] === "milestones" &&
+      ["milestones", "sprints", "tasks"].includes(parts[5]) &&
       parts[7] === "reorder" &&
       pw.method === "POST" &&
       uuid.test(parts[6]) &&
       planning?.projectID === parts[4] &&
       planning.targetID === parts[6] &&
-      uuid.test(planning.beforeID) &&
-      planning.beforeID !== planning.targetID &&
+      uuid.test(planning.peerID) &&
+      planning.peerID !== planning.targetID &&
+      Number.isInteger(planning.slot) &&
+      planning.slot >= 1 &&
+      planning.slot <= 6 &&
+      planning.kind ===
+        ["milestone", "sprint", "task"][Math.floor((planning.slot - 1) / 2)] &&
+      parts[5] === planning.kind + "s" &&
+      planning.tail === (planning.slot % 2 === 0) &&
       /^[1-9][0-9]{0,18}$/.test(planning.expectedVersion) &&
       planning.bound === true &&
       planning.joined === true &&
@@ -556,7 +591,7 @@ export function workOrdinaryConsumption(
         ? lookup && parts[5] === "task-commands"
         : projectRefresh
           ? project
-          : firstMilestoneReorder
+          : planningReorders
             ? firstReorder
             : detail || lookup || blockerLookup || originalReplay)
     )
@@ -662,6 +697,8 @@ export function workOrdinaryConsumption(
     if (firstReorder)
       return (
         call.operation === "start" &&
+        call.reorder_slot === planning.slot &&
+        pw.planning_document_id === doc.native.document_id &&
         call.target_id === parts[6] &&
         call.result_kind === "typed-receipt-returned" &&
         call.start_input_matches === true &&
@@ -773,8 +810,8 @@ export async function startWorkNativeDiagnostic(
       lookup_finished: boolean;
     } | null;
     ordinaryCompletion?: boolean;
-    planningPolicy?: "first-milestone-reorder";
-    firstMilestoneReorderEvidence?: (
+    planningPolicy?: "planning-reorders";
+    planningReorderEvidence?: (
       request: PWRequest,
     ) => Record<string, unknown> | null;
     projectRefreshCompletion?: boolean;
@@ -782,7 +819,7 @@ export async function startWorkNativeDiagnostic(
 ) {
   if (
     config.planningPolicy !== undefined &&
-    config.planningPolicy !== "first-milestone-reorder"
+    config.planningPolicy !== "planning-reorders"
   )
     throw Error("WORK_PLANNING_POLICY");
   const expiresAt = Date.now() + 45_000;
@@ -798,6 +835,42 @@ export async function startWorkNativeDiagnostic(
   });
   const rows = new Map<PWRequest, any>(),
     documents = new Map<string, any>();
+  const planningDocumentJoins: {
+    document_id: string | null;
+    joined: boolean;
+    end_seen: boolean;
+  }[] = [];
+  let planningJoinsComplete = true;
+  const recordPlanningDocument = (
+    joined: boolean,
+    endSeen: boolean,
+    documentID: string | null,
+  ) => {
+    if (!config.planningPolicy) return;
+    const doc = documentID ? documents.get(documentID) : null;
+    const retired = (observer: any) =>
+      observer?.retired === true &&
+      observer.retirement_reason === "explicit" &&
+      observer.pending_at_retirement === 0 &&
+      observer.pending_observations === 0 &&
+      observer.observer_failed === false &&
+      observer.overflow === false;
+    planningJoinsComplete &&=
+      joined &&
+      endSeen &&
+      !!documentID &&
+      planningDocumentJoins.length < 3 &&
+      !planningDocumentJoins.some((d) => d.document_id === documentID) &&
+      doc?.source === "end" &&
+      doc.before_page_close === true &&
+      retired(doc.native) &&
+      retired(doc.publication);
+    planningDocumentJoins.push({
+      document_id: documentID,
+      joined,
+      end_seen: endSeen,
+    });
+  };
   const projectWaiters = new Map<PWRequest, () => void>();
   const projectProofs = new Map<
     PWRequest,
@@ -834,8 +907,10 @@ export async function startWorkNativeDiagnostic(
         config.projects.includes(path.split("/")[4]!)
       );
     if (
-      config.planningPolicy === "first-milestone-reorder" &&
-      /^\/api\/v1\/projects\/[^/]+\/milestones\/[^/]+\/reorder$/.test(path)
+      config.planningPolicy === "planning-reorders" &&
+      /^\/api\/v1\/projects\/[^/]+\/(?:milestones|sprints|tasks)\/[^/]+\/reorder$/.test(
+        path,
+      )
     )
       return (
         uuid.test(path.split("/")[4]!) &&
@@ -861,7 +936,7 @@ export async function startWorkNativeDiagnostic(
     if (stopped || !selected(request)) return;
     if (
       new URL(request.url()).pathname.endsWith("/reorder") &&
-      !config.firstMilestoneReorderEvidence?.(request)
+      !config.planningReorderEvidence?.(request)
     )
       return;
     if (rows.size >= 256) {
@@ -971,7 +1046,7 @@ export async function startWorkNativeDiagnostic(
     const result = scalar(
       row,
       publication
-        ? "history_lookup_call_id call_id call_at fulfilled rejected synchronous_throws native_requests native_sequence settled_at workspace_returned workspace_rejected workspace_settled_at detail_observed_after_fulfilled_at confirmed_observed_after_fulfilled_at sample_at"
+        ? "reorder_slot history_lookup_call_id call_id call_at fulfilled rejected synchronous_throws native_requests native_sequence settled_at workspace_returned workspace_rejected workspace_settled_at detail_observed_after_fulfilled_at confirmed_observed_after_fulfilled_at sample_at"
         : "sequence call_id status readers read_calls read_settled read_rejected bytes reader_cancel_calls reader_cancel_settled reader_cancel_rejected stream_cancel_calls stream_cancel_settled stream_cancel_rejected release_calls release_successes abort_events headers_order read_done_order read_rejected_order abort_order reader_cancel_order stream_cancel_order release_order content_length",
       publication
         ? "start_input_matches start_unique start_material_bound start_receipt_published history_receipt_published replay_from_history replay_from_not_observed replay_receipt_published workspace_published workspace_canonical result_target_matches entry_identity_matches entry_not_busy active identity_current authenticated not_busy detail_target_present entry_detail_target_present recovery_confirmed entry_recovery_confirmed recovery_uncertain replay_available"
@@ -1170,8 +1245,8 @@ export async function startWorkNativeDiagnostic(
         ...row,
         ...(config.planningPolicy
           ? {
-              first_milestone_reorder:
-                config.firstMilestoneReorderEvidence?.(request) ?? null,
+              planning_reorder:
+                config.planningReorderEvidence?.(request) ?? null,
             }
           : {}),
         ...(replay
@@ -1262,7 +1337,13 @@ export async function startWorkNativeDiagnostic(
         config.ordinaryCompletion || config.planningPolicy
       ),
       ...(config.planningPolicy
-        ? { planning_policy: config.planningPolicy }
+        ? {
+            planning_policy: config.planningPolicy,
+            planning_document_joins: planningDocumentJoins.map((v) => ({
+              ...v,
+            })),
+            planning_joins_complete: planningJoinsComplete,
+          }
         : {}),
       observation_finished: stopped,
       samples,
@@ -1297,41 +1378,33 @@ export async function startWorkNativeDiagnostic(
   }
   sample();
   return {
-    async armFirstMilestoneReorder(input: {
-      projectID: string;
-      targetID: string;
-      expectedVersion: string;
-      beforeID: string;
-    }) {
+    async armPlanningReorder(input: PlanningReorder) {
       if (
         !config.planningPolicy ||
+        !planningJoinsComplete ||
+        planningDocumentJoins.length !== Math.floor((input.slot - 1) / 2) ||
         stopped ||
         pageClosed ||
         contextClosed ||
         Date.now() >= expiresAt ||
         !(await page.evaluate(
           (value) =>
-            (
-              window as any
-            ).__workPublicationDiagnostic?.armFirstMilestoneReorder(value) ===
-            true,
+            (window as any).__workPublicationDiagnostic?.armPlanningReorder(
+              value,
+            ) === true,
           input,
         ))
       )
-        throw Error("WORK_FIRST_REORDER_PUBLIC_ARM");
+        throw Error("WORK_REORDER_PUBLIC_ARM");
     },
-    async bindFirstMilestoneReorder(
+    async bindPlanningReorder(
       request: PWRequest,
-      input: {
-        projectID: string;
-        targetID: string;
-        expectedVersion: string;
-        beforeID: string;
-      },
+      input: PlanningReorder,
       headers: Record<string, string>,
     ) {
       if (
         !config.planningPolicy ||
+        !planningJoinsComplete ||
         stopped ||
         pageClosed ||
         contextClosed ||
@@ -1340,11 +1413,18 @@ export async function startWorkNativeDiagnostic(
       )
         return false;
       const matched = await page.evaluate(
-        ({ input, material }) =>
-          (window as any).__workPublicationDiagnostic?.bindFirstRequest(
-            input,
-            material,
-          ) === true,
+        ({ input, material }) => {
+          const host = window as any;
+          return {
+            accepted:
+              host.__workPublicationDiagnostic?.bindFirstRequest(
+                input,
+                material,
+              ) === true,
+            documentID:
+              host.__workNativeDiagnostic?.snapshot()?.document_id ?? null,
+          };
+        },
         {
           input,
           material: {
@@ -1355,18 +1435,72 @@ export async function startWorkNativeDiagnostic(
           },
         },
       );
+      if (
+        matched.accepted !== true ||
+        typeof matched.documentID !== "string" ||
+        !/^[0-9a-f-]{36}$/.test(matched.documentID) ||
+        stopped ||
+        pageClosed ||
+        contextClosed ||
+        Date.now() >= expiresAt
+      )
+        return false;
+      const row = rows.get(request)!;
+      if (row.planning_document_id) return false;
+      row.planning_document_id = matched.documentID;
+      return true;
+    },
+    async endPlanningReorder(request: PWRequest) {
+      const row = rows.get(request),
+        proof = config.planningReorderEvidence?.(request);
+      if (
+        !config.planningPolicy ||
+        stopped ||
+        pageClosed ||
+        contextClosed ||
+        Date.now() >= expiresAt ||
+        !row?.planning_document_id ||
+        !proof ||
+        !(await page.evaluate(
+          ({ slot, documentID }) => {
+            const host = window as any;
+            return (
+              host.__workNativeDiagnostic?.snapshot()?.document_id ===
+                documentID &&
+              host.__workPublicationDiagnostic?.endPlanningReorder(slot) ===
+                true
+            );
+          },
+          { slot: proof.slot, documentID: row.planning_document_id },
+        ))
+      )
+        throw Error("WORK_REORDER_PUBLIC_END");
+    },
+    planningReordersComplete() {
+      const selected = [...rows.entries()].filter(([request]) =>
+        config.planningReorderEvidence?.(request),
+      );
       return (
-        matched &&
-        !stopped &&
-        !pageClosed &&
-        !contextClosed &&
-        Date.now() < expiresAt
+        !!config.planningPolicy &&
+        stopped &&
+        selected.length === 6 &&
+        selected.every(
+          ([, row]) =>
+            !!row.request_id &&
+            workOrdinaryConsumption(
+              finalReport,
+              row.sequence,
+              row.request_id,
+              false,
+              true,
+            ),
+        )
       );
     },
-    firstMilestoneReorderComplete(request: PWRequest, requestID: string) {
+    planningReorderComplete(request: PWRequest, requestID: string) {
       const row = rows.get(request);
       return (
-        config.planningPolicy === "first-milestone-reorder" &&
+        config.planningPolicy === "planning-reorders" &&
         stopped &&
         !!row &&
         row.request_id === requestID &&
@@ -1525,6 +1659,7 @@ export async function startWorkNativeDiagnostic(
       if (timer) clearTimeout(timer);
       let joined = !pending,
         endSeen = false;
+      let documentID: string | null = null;
       try {
         if (pending) joined = await boundedJoin(pending);
         if (joined && !pageClosed && !contextClosed) {
@@ -1540,6 +1675,10 @@ export async function startWorkNativeDiagnostic(
                 if (active && !pageClosed && !contextClosed) {
                   publish(value, "end");
                   endSeen = !!value.native;
+                  documentID =
+                    typeof value.native?.document_id === "string"
+                      ? value.native.document_id
+                      : null;
                 }
               },
               () => {},
@@ -1554,10 +1693,13 @@ export async function startWorkNativeDiagnostic(
           active = false;
         }
       } finally {
+        recordPlanningDocument(joined, endSeen, documentID);
         save(joined, endSeen);
         paused = false;
         if (!stopped) timer = setTimeout(sample, 250);
       }
+      if (config.planningPolicy && !planningJoinsComplete)
+        throw Error("WORK_REORDER_DOCUMENT_END");
     },
     async installPublication() {
       if (stopped) return;
@@ -1606,6 +1748,7 @@ export async function startWorkNativeDiagnostic(
       if (timer) clearTimeout(timer);
       let joined = !pending,
         endSeen = false;
+      let documentID: string | null = null;
       try {
         if (pending) joined = await boundedJoin(pending);
         if (joined && !pageClosed && !contextClosed) {
@@ -1621,6 +1764,10 @@ export async function startWorkNativeDiagnostic(
                 if (endActive && !pageClosed && !contextClosed) {
                   publish(value, "end");
                   endSeen = !!value.native;
+                  documentID =
+                    typeof value.native?.document_id === "string"
+                      ? value.native.document_id
+                      : null;
                 }
               },
               () => {},
@@ -1636,6 +1783,7 @@ export async function startWorkNativeDiagnostic(
         page.off("requestfinished", requestFinished);
         page.off("close", pageClose);
         page.context().off("close", contextClose);
+        recordPlanningDocument(joined, endSeen, documentID);
         save(joined, endSeen);
       }
     },

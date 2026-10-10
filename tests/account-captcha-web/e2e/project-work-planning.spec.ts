@@ -116,8 +116,7 @@ async function realOrdering(
       await button(page, "移到哪个对象之前").click();
       await page.getByRole("option").filter({ hasText: peer }).click();
     }
-    if (first && !tail) {
-      expect(kind).toBe("milestone");
+    if (first) {
       const expectedVersion = await details(page)
         .locator("dt")
         .filter({ hasText: /^当前版本$/ })
@@ -127,19 +126,24 @@ async function realOrdering(
         projectID: material().work.main!.project_id,
         targetID: selected,
         expectedVersion,
-        beforeID: peer,
+        slot:
+          ["milestone", "sprint", "task"].indexOf(kind) * 2 + (tail ? 2 : 1),
+        kind,
+        tail,
+        peerID: peer,
+        milestoneID:
+          kind === "milestone" ? null : material().work.main!.milestone_id,
+        sprintID: kind === "task" ? material().work.main!.sprint_id : null,
       };
-      await first.diagnostic.installPublication();
-      first.seen.firstMilestoneReorder!.arm(input);
-      await first.diagnostic.armFirstMilestoneReorder(input);
+      first.seen.planningReorders!.arm(input);
+      await first.diagnostic.armPlanningReorder(input);
     }
     await button(page, tail ? "移到组尾" : "移到所选对象之前").click();
     const response = await pending;
     expect(response.status()).toBe(200);
-    const body =
-      first && !tail
-        ? await first.seen.firstMilestoneReorder!.body(response)
-        : await originalBody(response);
+    const body = first
+      ? await first.seen.planningReorders!.body(response)
+      : await originalBody(response);
     const request = response.request().postDataJSON();
     expect(
       body.changed === true &&
@@ -147,15 +151,9 @@ async function realOrdering(
     ).toBe(true);
     await confirmed(page);
     await expect(button(page, "关闭排序")).toHaveCount(0);
-    if (first && !tail) {
-      first.seen.firstMilestoneReorder!.end();
-      await first.diagnostic.finish();
-      expect(
-        first.diagnostic.firstMilestoneReorderComplete(
-          response.request(),
-          (await response.headerValue("x-request-id"))!,
-        ),
-      ).toBe(true);
+    if (first) {
+      await first.diagnostic.endPlanningReorder(response.request());
+      first.seen.planningReorders!.endSlot(response.request());
     }
   }
   await open([peer, selected]);
@@ -402,10 +400,10 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
   const data = material();
   let diagnostic!: Awaited<ReturnType<typeof startWorkNativeDiagnostic>>;
   const seen = observe(page, {
-    firstMilestoneReorder: {
-      bind: (...args) => diagnostic.bindFirstMilestoneReorder(...args),
+    planningReorders: {
+      bind: (...args) => diagnostic.bindPlanningReorder(...args),
       complete: (request, id) =>
-        diagnostic.firstMilestoneReorderComplete(request, id),
+        diagnostic.planningReorderComplete(request, id),
     },
   });
   diagnostic = await startWorkNativeDiagnostic(page, {
@@ -413,11 +411,12 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
     evidence,
     repository,
     classify: seen.declarationKind,
-    planningPolicy: "first-milestone-reorder",
-    firstMilestoneReorderEvidence: seen.firstMilestoneReorder!.evidence,
+    planningPolicy: "planning-reorders",
+    planningReorderEvidence: seen.planningReorders!.evidence,
   });
   try {
     await enter(page, data);
+    await diagnostic.installPublication();
     const sessionResponse = await page.request.get("/api/v1/session");
     expect(sessionResponse.status()).toBe(200);
     const session = await sessionResponse.json();
@@ -442,15 +441,22 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
       seen,
       diagnostic,
     });
+    await diagnostic.flush();
     await go(page, path(data, "main", "milestone"));
+    await diagnostic.installPublication();
     await button(page, "新建 Sprint").click();
     await title(page).fill("浏览器 Sprint");
     await save(page, "structure");
     await current(page, "浏览器 Sprint");
     await title(page).fill("修改 Sprint");
     await save(page);
-    await realOrdering(page, data.work.main!.sprint_id, "sprint");
+    await realOrdering(page, data.work.main!.sprint_id, "sprint", {
+      seen,
+      diagnostic,
+    });
+    await diagnostic.flush();
     await go(page, path(data, "main", "sprint"));
+    await diagnostic.installPublication();
     await button(page, "新建 Task").click();
     await title(page).fill("浏览器 Task");
     const createTask = button(editor(page), "创建 Task");
@@ -498,7 +504,13 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
     await save(page);
     await current(page, "修改 Task");
     await expect(details(page)).toContainText("尚未填写 Plan");
-    await realOrdering(page, data.work.main!.related_id, "task");
+    await realOrdering(page, data.work.main!.related_id, "task", {
+      seen,
+      diagnostic,
+    });
+    seen.planningReorders!.close();
+    await diagnostic.finish();
+    expect(diagnostic.planningReordersComplete()).toBe(true);
     await button(page, "从首页读取阻塞记录").click();
     await expect(
       page.getByText("本页没有符合状态的阻塞记录。", { exact: true }),
@@ -530,7 +542,7 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
       bodies: await seen.verify(),
     });
   } finally {
-    seen.firstMilestoneReorder!.end();
+    seen.planningReorders!.close();
     await diagnostic.finish();
   }
 });
