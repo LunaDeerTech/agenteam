@@ -1,5 +1,7 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- 新成本来源片段仅源码：`tests/objects/metadata_cleanup_cost_test.go` 与内嵌 `tests/objects/testdata/metadata_cleanup_project_cost.sql`，精确 `TestObjectMetadataCleanupProjectHistoryPlans`。先用实际跨Service reader保持原Stop pending以捕获五lane/full-pending原SQL；另新成本数据库真实Migrator后seed 1025+1025终局Object、额外1available Object、65旧attempt、1001+10001已退休reader形状，随后33 active reader形状。没有Service绑定该seed数据库，不把SQL状态/Audit占位当native完成、ProcessGuard或权限证据。原SQL仅重绑合法Project/Archive-Delete/first-after参数；逐组核基数、精确32+1 ID排序、完整pending布尔、原2s实际返回/Rows关闭、EXPLAIN顶层实际行数并保完整节点/buffers。数据保持在场；空grant/transfer/Skills表不充成本接受，未核FK trigger或全部22索引必要性。实际仅gofmt/静态/diffcheck（833a90、944a4a），**未编译、未PG、未EXPLAIN**，当前两旧candidate均不含该新top；后继新候选另编，未加harness入口/未改产品、history或28。卡§7.2记录后继覆盖边界，Work独审待稳定输入。
+
 - 下一有限历史单组入口已保存384551f3：`^TestObjectMetadataCleanupOldAttemptsAndStopHistory$`（1top、无子）。两tools各+1，原8f8658纯控制与预算/全尾复用。但Work静审发现成功出口未核实际deadline、proxy.finished早于原Body.Close/wg.Done；root据此撤销历史测试直接复用旧候选的准备状态，允许窄修及后继新候选。原37180277B/完整SHA保留为旧未修输入，不冒修后源码的已编或业务证据；该top从未真实运行。
 - 历史返修仅 `tests/objects/metadata_cleanup_history_test.go`：首Stop、物理Delete及历史专用Stop循环在实际返回时核原2s/总3s绝对deadline；历史循环对允许继续的ResourceBusy同样拒绝晚返（Work复核指出后补齐），本域helper保原40轮/5ms，不改其他已验case的共享fixture。原GET观察改等真实proxy.wg（包含原response.Body.Close及handler尾）再进入后续Stop/Release/Delete，保原2s尾并拒晚成功；既有proxy源码不改。543fdb当时仅gofmt/static/diffcheck通过；最后Busy期限口收紧后Work f6aa82有限接受，无剩余mustfix。后继新候选编译如下，业务仍未运行。
 

@@ -148,6 +148,20 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 `.agent-state/object-metadata-cleanup/scale-fixture.sql` 是隔离的新成本数据库草稿，当前仅准备Object/Upload/attempt/cleanup/reader/work的代表性基数，**未执行／未SQL验证**。为合法CHECK/FK形状而插入的终局和标记Audit行只能用于SQL成本，禁止传入Service充作物理完成证明；实际业务组仍由真正调用产生native/Audit/退休事实。计划查询继续取实际Service观察器，草稿不另抄一套实现SELECT。transfer、download、Skills及所有FK完整入边仍需各自合法fixture，空表不抵充其成本接受。此草稿和本节不改变已冻结首业务二进制的输入来源。
 
 
+后继首个可执行成本来源为 `tests/objects/metadata_cleanup_cost_test.go`＋内嵌 `testdata/metadata_cleanup_project_cost.sql`（尚未编译/PG）。它用两个真实Service的未关闭reader保持原Stop五lane均可到达，捕获原SQL；随后只在另一新数据库执行成本seed与原SQL参数重绑。先测1025+1025终局Object和1001+10001退休reader仍在场的目标/缺失范围，再在独立available Object上增33活reader形状，分别测Archive/Delete与first/after-32的32+1精确结果。活状态是合法SQL成本刺激，**不是实际native活锁/退休验收**；真实查询/Rows关闭与EXPLAIN逐次沿2s绝对时限，完整节点/过滤/loops/buffers保留供判定，不强制planner或仅凭LIMIT/测试返回接受扫描成本。两现候选不含新top，已验history不受影响。
+
+该单例覆盖及剩余22候选所需合法数据如下；不是增加新的业务门槛，也不将空表计划算成全量覆盖：
+
+| 候选用途组 | 此片段及后继合法数据要求 |
+| --- | --- |
+| `objects_project_id`、`object_work_project_pending`、`uploads_project_reserved`；Stop完整pending涉及的attempt/cleanup范围 | 当前片段有Project历史/缺失范围、reader活尾和保留历史；reserved Upload、非closed attempt、applying cleanup仍需合法原Upload/current/worker-fence数据，不能用本轮空集合替代其有项计划。 |
+| `attempts_object_history/pending`、`cleanup_object_cause/pending`、`leases_object_history`、`object_work_history/pending` | seed有65旧attempt与1001历史，但本top不执行gate/metadata历史SELECT；后继复用原观察器记录的这些Service查询，在未删空及末pending状态测。原最早cause与native Audit不靠seed证明。 |
+| transfer三访问索引与`transfer_upload_fk/candidate_fk/source_lease_fk`、`attempts_transfer_fk` | 需实际00007合法PUT staging↔transfer循环（原DEFERRABLE）、candidate/Upload/external lease/source lease全套父行；GET/PUT与retired/末pending分别在场，不能让缺父行或缺lease暗示退休。当前未覆盖。 |
+| `uploads_current_attempt_fk`、`references_upload_fk`、`leases_attempt_fk`及其它已由unique/PK覆盖的入边 | 需在隔离回滚Tx删除合法无引用目标，保留其它Object/Project子行；`SET CONSTRAINTS`实际触发延期边，记录原FK trigger成本。SELECT父PK计划不能代替此项。当前未覆盖。 |
+| `download_grants_project_active` | 需正式grant/attempt形状：大量revoked历史、末active及started attempt＋原download work关联；Archive/Delete差异和完整pending分别测。当前表空只作分支结果，不接受索引成本。 |
+| `skill_work_project_history` | 需00027合法Project/Skill initialization与work外键，同Project1001 joined＋少量live、其它Project历史；原joined扫描和最后initialization父DELETE的全FK反查分别测。当前未覆盖，沿已独审Skills消费契约继续准备。 |
+
+
 错误遵循现有Fault/CommitResult：输入/结果形状错误InvalidArgument；缺正式provider为DependencyUnbound；当前authority/owner/cause不符Forbidden或原Project gate错误；plan/native映射变化ResourceBusy且整Tx NotCommitted；合法仍活关系为Pending，超过有限完整诊断上限为Pending＋ResourceBusy。已持久的矛盾关系保持安全DependencyUnavailable/InvalidState，不暴露原Locator/SQL/正文。任何Unknown保留原error、cause和attempt；InTx返回Completed本身仍不是CommitResult，不能据它提前删其它事务中的父表。
 
 ## 8. 旧源最小预计写域与验收
