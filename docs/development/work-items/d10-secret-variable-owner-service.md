@@ -67,3 +67,5 @@ Unknown保原CommitResult/Attempt/Cause，不自动重放callback；最多一次
 Read首真实组沿同固定产物/402输入，42579→f4ef34 actualouter1/80.220s完整FAIL：两父四子共6节点，当前Owner/跨Project、失权和撤销Session三子PASS；归档后的原材料重放报DEPENDENCY_UNAVAILABLE，Persistence历史安全Lookup报IDEMPOTENCY_KEY_REUSED。原Go/driver Wait1、PG两ID双退役、private/runtime/desc/TCP与input完整尾均齐，窗口已释放。只读确认测试no-op的expected指针后来被改为3；归档fixture双clock_timestamp可能违反正式时间顺序但本轮未采时间，仍非已证原因。尚无依据修改生产授权/digest或放宽预期；后继仅修明确测试输入并独审，原FAIL和其余两个未跑业务组保持。
 
 返修dfc0de53仅三Secret测试：提前冻结原no-op查询，局部归档fixture使用同statement稳定时间并同Tx重新验真实Project门；旧ordinary/生产/DDL/入口未改，Runner限定静审接受。新完整包race编译95963→ae7f0a actual0，新pure1top2sub d36685 actual0，实际list恰六原top与该pure共7；不代真实SQL。root396f25校验后原子推广9a514c候选（36,744,919B，完整身份见current），退休无旧队列的d52；03bd driver和原日志未变，新403输入/`sql-owner-read-02`尚未执行，read01FAIL与MigrationPASS保持原组合边界。
+
+Read修后同原组69141→d31012完整actualouter0/83.806s，新9a514c/03bd/403输入下六节点全PASS（CurrentAuthority7.45s、Persistence6.60s）：实际当前授权、prepare后Archive、只读生命周期原历史与新写拒绝、CRUD/type名称隔离、删除后新Session/Service恢复及安全输出检查完成。原Go/driver Wait0、PG两ID双退役、private/runtime/desc/TCP与inputs完整尾齐，窗口已释放，详情见current和原read02日志。保留read01FAIL且不回填其未采时间因果；原迁移PASS复用，AtomicFacts/Concurrency和CommitRecovery仍待各自fresh窗口，整库/正式连续迁移交付未完成。
