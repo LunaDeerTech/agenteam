@@ -1,7 +1,7 @@
 # D10 Secret Variable Owner Service 当前检查点
 
 - 当前阶段：库级既定六top/四组真实矩阵已按版本组合全部通过（Migration9、read6、Atomic/Concurrency10、Recovery5，共30节点）；原read01完整FAIL保留。生产/方法/入口有限独审及受影响测试返修独审已齐；正式main装配、连续26–30迁移交付与HTTP/defaultroot仍未完成，不新增默认矩阵。
-- 当前独立接续：482c5ae5产品静审无确认must-fix，复用原矩阵；只补真实keyset/generation和本域reference拒删，见[独验源码与方法](secret-owner-independent/README.md)。修后1top2sub已offline/race编译及精确list，content有限方法审接受；尚未PG，等待root独占资源窗。00026/27已与当前origin/main逐字相同，正式前缀现待00028→29→30；旧output和原日志未随环境恢复，未声称本轮重验原尾。
+- 当前独立接续：482c5ae5产品静审无确认must-fix，复用原矩阵；真实keyset/generation和本域reference拒删定向独验已完整PASS，见[独验源码与方法](secret-owner-independent/README.md)。修后f5edcbf1/固定候选1top2sub恰3RUN/PASS，原session69482 outer0/105.908s、Go/driver Wait0、两资源/private/runtime/desc/TCP完整双尾齐，窗口已释放，无自有在途命令。原read01 FAIL保留，旧30节点不重跑；00026/27与当前origin/main逐字相同，库候选可交付等待正式00028→29→30。旧output和原日志未随环境恢复，未声称本轮重验原尾。
 - 树 `/workspace/agenteam-secret-variable-owner-service`，分支 `ai/secret-variable-owner-service`，正式基线 `ce65714aac6eb4995a43fc427a2c77e6497470a7`。root负责Git、迁移协调和实际资源窗口；本线不执行Git写操作。
 - 完整目标见[本库工作项](../docs/development/work-items/d10-secret-variable-owner-service.md)：真实Human Owner的Secret Commands/Queries、D04专用authority、单final Tx中的两域事实/安全历史恢复、共享目录兼容及库调用退出。app/HTTP/defaultroot/UI和真实Agent F1/材料使用不在本轮。
 - eb0731实际只读核31承接路径逐字等于冻结D04 b724e397：16 production、9 pure tests、00029、D04/D10两卡，加26–28三测试依赖。新树Project/Knowledge/app/Outbox相对正式ce657无差异。没有把旧D04树的Project/B02整体覆盖过来。
