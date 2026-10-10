@@ -25,6 +25,13 @@
 - COMMIT代理只在首个真实 `knowledge.read` 成功callback后以原backend PID Arm，故Unknown在Object打开前；原Store Unknown/attempt/cause、Tx失效与服务端COMMIT或终止回滚/HeldJoined分列，fresh GET明确不作旧读确认。relation取消先实观察原PID/currentDB/精确holder的blocking关系，取消后先取HTTP实际返回、原NotCommitted与Tx失效，再释放writer并核原提交尾。各hold优先release、原请求和writer实际join及Service/Store/proxy退出顺序已静核。
 - 事实快照复用commands/events/Audit/Outbox计数与全部Session activity；本审只认这些前后事实，不称全库逐行不变或专门越过60s节流的Activity刺激。本人只读记录 `d13332`、`9fc478` 与后继实际源核对，未新增控制框架或运行被测进程。结论已直接交Vars/root；仅本文新增本节，停止写入供下一checkpoint。
 
+## Secret Variable Owner 库最终证据评估
+
+- 只读Model固定 `482c5ae5` 六能力库，复用此前本人D04 Intent/crypto/prepared/read/Apply/maintenance及SQL方法独审，并实际读取Vars的owner review/methods/entry和routing独审记录。当前权限、私有D04 plan/实际Match、同final Tx两域事实与私有witness、Unknown保原结果及一次3s确认未发现新确认产品must-fix；这不称本人运行作者矩阵或重新独验D04全套。
+- 本人 `7dc076` 只读原四成功日志，核Migration9、read6、Atomic/Concurrency10、Recovery5的实际RUN/PASS、Go/driver Wait及双资源/desc/TCP/input终态；版本组合及read01完整FAIL分别保留。真实Scope为当前Account/Project+D10/D04/Audit/Outbox库；Project创建使用原披露的persistent Skills fixture，完整生命周期/F1/HTTP/defaultroot不纳入。Stop取消后callback仍held的Drain负向仍只属既有controlled纯控，不外推为PG刺激。
+- 一个具体动态缺口尚待补：作者Persistence只有一个Secret且NextCursor为空，reader纯控的Query只返回受控错误/另验token函数，未执行真正续页SQL及Rows路径；Owner变更只核旧A拒绝，未实证新B对旧A回执/cursor与当前正向权限的分离。root已批准独立 `TestSecretVariableOwnerIndependentReadIsolation` 两子 `real_keyset_and_generation` / `current_owner_receipt_and_cursor`；真实三Secret分页、no-op/replay保持token和count不变的metadata变更使旧token stale，以及A→B合法上游SQL事实后当前B正向、旧receipt/cursor拒绝和零副作用。正式rev2§2/3/7为依据，不重跑原30节点。
+- 最小补集仅计划新 `tests/projectvariable/secret_independent_test.go` 与本独立任务current；root已另建 `/workspace/agenteam-secret-owner-independent`，模型作者包保持只读。正式交付还须按届时main装配前序D04/迁移与共享Project/ordinary窄合并并核有限文义，不把测试前缀或文件存在称正式发布。本阶段只读无Go/资源；本文本节停止写入供checkpoint，后继源码在新独立树。
+
 ## B02 当前 main 装配独立有限接受
 
 - 对 `/workspace/agenteam-knowledge-delivery` main `e94077eb`＋root44来源及Work冻结四共享Project Go源，未参与实现者有限接受、无mustfix。44路径逐字固定作者 `aaa408c8` / 独立 `924d5627`；共享Audit/events逆去新增路由后逐字main，原初始化wrapper/相邻权限源未改。初始化测试差异仅两普通委托子例；作者首837326整体FAIL与修后64574 Project race0分别保留，不把原EX-only fixture误报当产品缺陷。
