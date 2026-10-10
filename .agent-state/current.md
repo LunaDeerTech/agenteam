@@ -27,3 +27,7 @@
 ## 下一步与资源边界
 
 本批源码、测试及文档均已停写，交 Skills 独立审 controller、Session 组合、Tree 默认兼容与 Human 路由，root 负责 checkpoint。随后准备一个 `TestKnowledgeOwnerReadWeb` 与一个正常 Playwright case：显式测试 Project fixture 实际 Stop/Drain，默认 Knowledge 创建父子文本，真实页面四 GET 与 UTF-8 下一段、窄屏键盘/焦点、原消费发布和取消尾及原七资源完整退出门。未实现该 fixture，未运行 browser/socket/PG/network；当前实际资源窗口由 root 分配给其他任务。UI 未验收，不宣称编辑、完整 D12、生产 SPA 或 Project Create HTTP 可用。
+
+## 首真实链 fixture 实施准备
+
+root 已授权四新测试源与自有 native controls；生产11源保持 `da77c639` 冻结。新增 `internal/central/app/knowledge_owner_web_test.go`、`tests/account-captcha-web/knowledge-owner-read.config.js`、`tests/account-captcha-web/e2e/knowledge-owner-read.{spec,native}.ts`、`.agent-state/knowledge-owner-ui/native-controls.cjs` 和 README 已可恢复。方法与精确输入/失败见该 README。当前 strict TS 4320 actual0，native 控制44484 actual0（67项/0 unhandled），新当前 dist-read-01 正式构建44971 actual0。原方法环境826b、类型20326和观测49762 FAIL保留。固定锁的 PW 私有依赖/MinIO已离线复制，无lock变动/网络。Go race候选尚未编译、精确list及真实Go/browser均未运行。四新技术源/controls正在为长编停写交root checkpoint；shared入口归coordination，不在本批修改。
