@@ -33,7 +33,7 @@ def group_absent(pid):
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("core-01", "core-02", "regression-01", "regression-02", "regression-03"):
+    if len(sys.argv) != 2 or sys.argv[1] not in ("core-01", "core-02", "regression-01", "regression-02", "regression-03", "scope-grant-01"):
         raise SystemExit("exact evidence directory required")
     commands = COMMANDS
     selector = SELECTOR
@@ -43,6 +43,9 @@ def main():
             (name, [selector if item == SELECTOR else item for item in argv])
             for name, argv in COMMANDS if name != "vet" or sys.argv[1] != "regression-01"
         ]
+    elif sys.argv[1] == "scope-grant-01":
+        selector = "^TestRuntimeSecretGrantRespectsAuditScope$"
+        commands = [(name, [selector if item == SELECTOR else item for item in argv]) for name, argv in COMMANDS]
     out = ROOT / "output/ai/model-text-runtime" / sys.argv[1]
     out.mkdir(parents=True, exist_ok=False)
     out.chmod(0o700)

@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
@@ -50,6 +51,58 @@ func runtimePureRequest(t *testing.T) mc.ModelRequest {
 		t.Fatal("pure request shape", err)
 	}
 	return r
+}
+
+// The private witness is an explicit pure protocol fixture, not a DB grant.
+// Exercise the real grant path against the real Audit entry scope contract.
+func TestRuntimeSecretGrantRespectsAuditScope(t *testing.T) {
+	for _, projectScope := range []bool{false, true} {
+		t.Run(fmt.Sprint(projectScope), func(t *testing.T) {
+			r := runtimePureRequest(t)
+			scope := id.SystemScope()
+			if projectScope {
+				scope, _ = id.InProject(r.Consumer.ProjectID)
+			}
+			ref, err := sc.NewCredentialRef(mustID[sc.Credential](t), scope)
+			if err != nil {
+				t.Fatal(err)
+			}
+			a := runtimePureAuthority(t, &noIOStore{}, runtimeConsumerFunc(func(context.Context, mc.ConsumerRequest) (mc.ConsumerDependencies, error) {
+				panic("scope projection cannot discover authority")
+			}))
+			s := &runtimeState{authority: a, calls: make(map[mc.CallID]*runtimeCall)}
+			call := &runtimeCall{runtime: s, request: r}
+			s.calls[r.CallID] = call
+			actor, err := a.state().auth.SecretService.Actor(r.CallID.String(), scope)
+			if err != nil {
+				t.Fatal(err)
+			}
+			request := sc.UsageRequest{Actor: actor, Ref: ref, Purpose: sc.Model, LeaseOwner: r.Model.LeaseOwner, LeaseID: r.Model.CredentialLease.LeaseID, Action: sc.ReadLeaseUsage, RequestID: mustID[mc.Invocation](t).String()}
+			tx := f.NewTx()
+			witness := &runtimeSecretWitness{call: call, request: request, active: true, validatedTx: tx}
+			ctx := context.WithValue(context.Background(), runtimeSecretKey{}, witness)
+			grant, err := a.authorizeRuntimeLease(ctx, tx, actor, ref, request.LeaseOwner, sc.ReadLease)
+			if err != nil || grant.Validate(scope) != nil || grant.RequestID != "" {
+				t.Fatal("invalid scope grant", err)
+			}
+			wantOperation := ""
+			if projectScope {
+				wantOperation = r.Consumer.OperationID
+			}
+			if grant.OperationID != wantOperation {
+				t.Fatal("project association escaped credential scope")
+			}
+			resource, _ := ac.NewResource(ac.SecretResource, ref.Details().ID.String())
+			metadata, err := ac.SecretResolveMetadata(request.LeaseID.String(), ac.Model, "")
+			if err != nil {
+				t.Fatal(err)
+			}
+			entry, err := ac.NewEntry(ac.EntryFields{Scope: scope, Actor: grant.Subject, Action: ac.SecretResolve, Outcome: ac.Success, Resource: resource, Metadata: metadata, Associations: ac.Associations{RequestID: request.RequestID, OperationID: grant.OperationID}})
+			if err != nil || entry.Validate() != nil || entry.Fields().Associations.RequestID != request.RequestID {
+				t.Fatal("real Audit scope rejected grant or lost Invocation association", err)
+			}
+		})
+	}
 }
 
 func runtimePureAuthority(t *testing.T, store Store, consumer mc.ConsumerAuthority) *RuntimeAuthority {

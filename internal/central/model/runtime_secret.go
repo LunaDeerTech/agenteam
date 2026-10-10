@@ -194,7 +194,11 @@ func (a *RuntimeAuthority) authorizeRuntimeLease(ctx context.Context, tx f.Tx, a
 	if !valid || action != want || !actor.Equal(w.request.Actor) || !ref.Equal(w.request.Ref) || !owner.Equal(w.request.LeaseOwner) {
 		return sc.UseGrant{}, fault(f.Forbidden)
 	}
-	return sc.UseGrant{Subject: actor, Consumer: sc.Model, OperationID: w.call.request.Consumer.OperationID}, nil
+	grant := sc.UseGrant{Subject: actor, Consumer: sc.Model}
+	if ref.Details().Scope.Details().Kind == id.ProjectScope {
+		grant.OperationID = w.call.request.Consumer.OperationID
+	}
+	return grant, nil
 }
 
 func (c *runtimeCall) readMaterial(ctx context.Context) error {
