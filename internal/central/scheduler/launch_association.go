@@ -77,6 +77,9 @@ func (s *LaunchHandoff) markSending(ctx context.Context, call *launchCall) (*dis
 		if r.guard == nil || r.launch.Purpose != "task/work" || r.attempts != 0 {
 			return fault(f.CapabilityUnsupported)
 		}
+		if err = requirePendingVisitInTx(ctx, tx, s, r, true); err != nil {
+			return err
+		}
 		out, err = nextDispatch(r)
 		if err != nil {
 			return err
@@ -171,6 +174,9 @@ func (s *LaunchHandoff) associate(ctx context.Context, call *launchCall, expecte
 		}
 		if r.status != Pending || r.outcome != Unknown || r.version != expected.version {
 			return fault(f.ConfirmationStale)
+		}
+		if err = requirePendingVisitInTx(ctx, tx, s, r, false); err != nil {
+			return err
 		}
 		out, err = nextDispatch(r)
 		if err != nil {
