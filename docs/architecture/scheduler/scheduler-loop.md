@@ -606,7 +606,17 @@ Execution 已实现 `MatchLaunchTemporaryRejection` 的唯一临时证明 `launc
 
 后继有限 retry 实现已通过有限独审、11 个定向 top 的 race、三包 vet、编译及真实 PG 的 1 top/2 sub 整轮验证，原调用和七资源全部退出尾闭合。`NewLaunchHandoffWithRetry(authority, dependencies, projects)` 绑定真实 Project 门，沿原 Handoff 的调用登记与 Unknown owner 提供 `RetryDue(ctx, projectID, dispatchID)`；一次至多发送同一 key/request 的一个 attempt，不替换旧构造器或 policy。只有原同步 temporary 证明在原拒绝事务中持久记录、policy 仍为 Claim 时的绑定且到期后，才能在当前 Project 门及原 CAS 下递增 attempt、写入 unknown；该标记明确提交后才调用原 Launch。到期时间向上取整至微秒，上一 attempt 的临时错误仅保留诊断，不授权下一次发送。真实链已覆盖 temporary→到期→created，以及持续 temporary→耗尽→原 `FinalizeLaunchFailure` 同事务结算 Work 与 Dispatch，详见[有限 retry 实现边界](./scheduler-dispatch.md#123-有限-retry-实现边界)。
 
-有界 PendingVisitor 已接入上述显式 retry 分支；原 unknown 先 Lookup，Busy 和最终失败仍由各原 owner 处理。未到期、暂停、Current Sprint 不匹配或旧 NULL policy 不产生新发送，暂停也不结算 Task；旧无分类 known-not-created 不补证明。生产 app / Loop 尚未绑定，没有新增 timer worker、自动遍历或 relaunch 实现，不能将这些可调用端口视为完整 Scheduler Loop 已可用。
+有界 PendingVisitor 已接入上述显式 retry 分支；原 unknown 先 Lookup，Busy 和最终失败仍由各原 owner 处理。未到期、暂停、Current Sprint 不匹配或旧 NULL policy 不产生新发送，暂停也不结算 Task；旧无分类 known-not-created 不补证明。这些端口本身不启动生产 Loop，生产 app 绑定及完整 relaunch 仍未完成。
+
+### 14.2 Project 串行运行器的有限实现范围
+
+本节有限实现已通过源码独审、9 个定向 top 的 race、三包 vet、候选编译及真实 PG 的 1 top/2 sub 整轮验证，原调用、七资源及全部退出尾闭合。真实链覆盖 todo 排序与串行创建，以及暂停后原 pending 的 Lookup 恢复和调用退出；noCurrent/旧 Sprint 等边界由定向纯检查覆盖，不以 SQL 改写业务事实制造真实场景。`NewProjectRunner(coordinator, visitor, options)` 使用同一 PendingAuthority 的真实 Coordinator 和 PendingVisitor，并注入同 Store 的 Work `SchedulerTaskReader`，显式固定 Project、tick interval 和新 Claim 使用的 Launch policy；构造不启动调用或后台任务。`Run(ctx) error` 连续执行 traversal，每轮重新读取快照；`RunTraversal(ctx)` 是同一流程的单轮入口。两者在同一 Authority 下按 Project 互斥，连续 Run 在整个寿命内持有登记；该进程内登记不代表跨进程 leader。
+
+每轮在原同 Store 事务及 Project SH、Schedule EX 下读取全部 pending 身份与 Work 当前 Sprint 的固定四组身份快照。pending 不按 Current Sprint 或 Task 状态过滤，并优先于普通组处理；同 Task 不重复访问。Work 按 §4–§6 的顺序提供完整快照，逐项读取当前事实时另要求 Task SH；快照身份与版本均不代替原 Claim/Launch 的当前权限、占用及额度检查。没有 Current Sprint 时，Work 快照为空，已有 pending 仍保留在串行路径。todo 沿真实 Claim 与同一个 PendingVisitor 精确访问；in_progress、in_review、blocked 当前明确 Deferred，尚未实现其 relaunch、持久 cooldown 或自动解除 blocker。
+
+每个访问、skip 或 Deferred 后均等待一次可取消 tick，末项不额外重复等待；空轮及暂停轮也保持 pacing。普通领域拒绝保留观察并继续后项；读取失败或未知提交结果停止本次调用。暂停不创建或结算调度，恢复后从新快照继续；轮中暂停或 Sprint 切换在当前项 tick 后结束旧轮，下一轮仍完整枚举 pending。Stop 取消原调用和 timer，Drain/Joined 只在本运行器的原同步调用实际返回后完成，不能替代借用的 Coordinator/Handoff 各自的 Unknown 生命周期。
+
+单轮失败保留原错误及有限 `ProjectRunResult` 观察，其中包含恢复所需的原 ClaimRequest、DispatchID；连续 Run 以 `ProjectRunError` 的 `Observation()` 和 `Unwrap()` 传回该观察及原错误。观察不是提交收据或新发送授权：未确认 Claim 仍交原 Coordinator 核对，unknown Dispatch 仍沿原 Handoff 的原 key Lookup，不能因运行器退出或重新开始就另造请求。生产 app/initializer 尚未绑定本运行器，完整 Scheduler 能力仍按前述未完成范围保留。
 
 ## 15. Observability
 
