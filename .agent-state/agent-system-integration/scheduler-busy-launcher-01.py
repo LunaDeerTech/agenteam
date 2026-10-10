@@ -14,7 +14,7 @@ import subprocess
 import sys
 import time
 
-SOURCE = None  # Set once after the combined sources are frozen.
+SOURCE = '232c7af5'  # Combined checkpoint; replace only if reviewed sources change.
 
 
 def declared_binary(plan):
