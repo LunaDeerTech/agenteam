@@ -1,6 +1,6 @@
 # Agent F1 前置关系与并行接口建议
 
-本简报只协调现有设计与下一实施边界，不声明公共合同已落地。依据 main `69c13e5d` 的实际接口；后继有界恢复 Batch/Guard 交付不改变这些模块接口。Model/Secret 前置已分别授权实施；Skills 与 Registry 仍为接口准备，Agent canonical writer 尚无作者，迁移 00032 未分配。默认生产 Project initializer、完整 participant/Registry 与 F1 保持未绑定。
+本简报区分现有实现片段与下一接口建议，不声明完整前置已落地。依据 main `69c13e5d` 的实际接口；后继有界恢复 Batch/Guard 交付不改变这些模块接口。Model Selection 与 Secret Directory 首片段的修后纯检查已通过，尚无真实 PG/F1；Skills 与 Registry 仍为接口准备，Agent canonical writer 尚无作者，迁移 00032 未分配。默认生产 Project initializer、完整 participant/Registry 与 F1 保持未绑定。
 
 ## 正式来源与实际缺口
 
@@ -8,13 +8,13 @@
 
 | 提供方 | 现有事实 | 当前作者与最小下一口 |
 | --- | --- | --- |
-| Model | 配置、当前权限、Resolver 和引用合同已有；运行解析不证明配置授权 | work_ui，`/workspace/agenteam-agent-model-prerequisites`：配置期 Discover/RequireInTx 与 agent_model/approval_model 双角色引用，反向绑定 Agent 自有 authority |
-| Secret | [SecretDirectory/References](../../internal/central/projectvariable/contract/secret_directory.go) 已定义 opaque plan、逐 ID 结论与反向 owner authority；Owner 库已持久化 metadata | secret，`/workspace/agenteam-agent-secret-prerequisites`：实现既有端口，复用真实 Owner/类型/当前会话，目录不读取或输出值 |
+| Model | 配置期 Selection 首片段已实现，7 新 top race 与两包 vet 原全尾通过；运行解析不证明配置授权 | work_ui，`/workspace/agenteam-agent-model-prerequisites`：下一真实 PG 首链；agent_model/approval_model 双角色 References 及真实 Agent owner authority 尚未实现 |
+| Secret | [SecretDirectory/References](../../internal/central/projectvariable/contract/secret_directory.go) 合同已有；Directory 修后 4 top race 与同包 vet 原全尾通过，目录不读取或输出值 | secret，`/workspace/agenteam-agent-secret-prerequisites`：下一真实 PG 首链；References/反向 Agent 私有 witness 尚未实现，不冒 F1 |
 | Skills | [Service](../../internal/central/skill/service.go) 与 published 映射可复用；[00027](../../db/migrations/00027_skills.sql)没有 Agent assignment/head/sequence | content 只读准备：新 Agent 专用初始化器及本域 assignment 集合；尚不授权普通运行中 Assign/Remove |
 | Tool | [SpecRef](../../internal/central/tool/contract/spec_ref.go) 与 [NameTable](../../internal/central/tool/projection/name_table.go)仅纯值/名称投影 | cleanup 只读准备：真实 Registry、当前配置目录及原子 refs；不能把名称表当 Registry |
 | Agent | 只有 C1 纯合同，无 canonical 创建服务/表/私有 mutation witness | root 后续指定唯一 owner；不由四个提供方各自模拟 Agent 存在或成功 |
 
-Model 建议文件域为 `model/contract/agent_configuration.go`、`model/agent_selection.go`、`model/agent_references.go` 及对应测试。Secret 沿既有合同实现，不另造 CredentialRef 或第二份 Agent 表。两者只交付自己的提供方，仍以未绑定的真实 Agent authority 拒绝正向创建，不能拿测试替身宣称 F1 已通。
+Model Selection 接口与实现已落在 `model/contract/agent_configuration.go`、`model/agent_selection.go` 及相邻测试；`model/agent_references.go` 仍为后继范围。Secret Directory01 的 Version0 私有 projection JSON 编码失败保留，Directory02 改可选凭据版本（live 填真实值、缺凭据 nil）后有限通过。两域结果均为相应源码的纯 race/vet，不能拿测试替身宣称真实 PG、Agent 创建或 F1 已通；不另造 CredentialRef 或第二份 Agent 表。
 
 ## 四域共用的 Agent 创建与事务语义
 

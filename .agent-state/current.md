@@ -18,9 +18,9 @@
 | 执行者 | 当前工作、真实状态与下一步 |
 | --- | --- |
 | coordination | Lifecycle Stopper/phase/Batch 与 Guard 限定范围已正式交付，原功能 topic 保留。当前只协调 Agent 前置接口与台账，见[前置简报](agent-prerequisites/coordination.md)；Agent 核心无 writer、00032 未分配，不写模块契约源码或扩大生产绑定。 |
-| secret | `/workspace/agenteam-agent-secret-prerequisites` / `ai/agent-secret-prerequisites` 实际实施既有 SecretDirectory/References。Directory 首片段 `64d9c853` 已推送、单产品非作者静审有限接受，尚未 Go/真实验证；References 待同 Tx 原私有 witness 与完整 before/after 集合实现，无真实 Agent provider 时不返回占位成功。 |
+| secret | `/workspace/agenteam-agent-secret-prerequisites` / `ai/agent-secret-prerequisites` 的 Directory 修后 source `1e602747` 已通过 4 top race/同包 vet，outer/Go 原 Wait0、group/runtime 双空，缓存已归还。原01因私有 projection 的 Version0 无法合法 JSON 编码而 wholeFAIL；修为可选版本、live 凭据填真实值/缺凭据 nil，原失败保留。尚无真实 PG/F1；References 与真实 Agent 私有 witness 尚未实现。 |
 | content | Skills 新 Agent 初始化的 witness、assignment/sequence 与 Cleanup 关系已只读对齐，仍接口准备。Rename03 current-read wholeFAIL 原尾已释放，修正后的 DIST03/输入待实际验证；不把旧读取 UI 通过移作 rename 验收。 |
-| work_ui | `/workspace/agenteam-agent-model-prerequisites` / `ai/agent-model-prerequisites` 实际实施 Model 配置 selection/双角色 refs，当前两源与相邻测试准备中。Skills03 wholeFAIL 已退役并暂存：四预期请求出现但 PW 首次 detail failed；旧 Skills01/02 与 Work Planning06 FAIL 保留，未授新 native 轮。 |
+| work_ui | `/workspace/agenteam-agent-model-prerequisites` / `ai/agent-model-prerequisites` 的首 Selection source `c5de6` 已通过 7 新 top race/两包 vet，原全部 Wait/退出尾与输入一致性齐；未验真实 PG/F1，双角色 References 尚未实现。Skills03 wholeFAIL 已退役并暂存：四预期请求出现但 PW 首次 detail failed；旧 Skills01/02 与 Work Planning06 FAIL 保留，未授新 native 轮。 |
 | cleanup | 只读准备 D18 真实 Registry 的持久身份/spec/current binding、配置目录与引用保护；install-skill 尚缺真实安装后端，不能注册空 handler。共享入口与非作者方法审仍按 root 单独分配。 |
 | skills_http | 非实现者接口/权限/方法复核，继续核 Model/Secret 新前置与实际输入；只读接受不冒动态验证。Skills/Registry 尚仅接口准备，完整 F1 不以 false defaults 或空 catalog 缩减。 |
 
@@ -40,6 +40,6 @@ D05、Skills HTTP、Knowledge 正文、Secret Owner、Skills Cleanup 等旧 topi
 
 新树使用 root 管理的 sparse 规则，只不展开明确历史证据对象，生产源码、正式文档和必要 `.agent-state` 保留。仅经 owner/root 明确授权的旧 D18、Knowledge UI、Secret HTTP 可再生私有 Go cache 已退休；候选、dist、原日志/失败与共享模块未删。后续运行仍须同进程 fresh≥5GiB、固定 Go1.27.1、只读共享模块和实际 task-private telemetry off，不把旧容量快照当新授权。
 
-现存热缓存 `/workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build` 第一窗口交 Secret 独占执行 exact 4 top race 与包 vet，原全部 Wait 后再交 Model 执行新 7 top 与两包 vet；Model 尚未启动 Go。原 Batch/Guard 编译 writer 均已退出，Guard 固定候选不依赖该 cache。不并写、不复制数 GB；两新树各自保持私有 XDG/telemetry/runtime。51行前置协调简报只保留于 root 的 ai 分支，正式文档交付仅取 tasks.md。
+现存热缓存 `/workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build` 的 Model Selection 与 Secret Directory02 本轮使用均已原全尾退出，Secret 已归还缓存；下一次独占使用由 root 分配，不并写、不复制数 GB。两新树各自保持私有 XDG/telemetry/runtime，Guard 固定候选不依赖该 cache。下一步准备真正 PG 首链，References、Skills assignment 与 Registry/install 后端缺口仍需各 owner 完成；前置协调简报只保留于 root 的 ai 分支，本次不再更新正式 tasks 或补主线哈希。
 
 E01 实施前须冻结游戏版本、完整内容分母、权重及关键门槛；最终由 agenteam 本身组织任务、Agent/Execution、审核和产物，以可运行游戏、真实试玩和独立验收证明至少 50% 内容覆盖。
