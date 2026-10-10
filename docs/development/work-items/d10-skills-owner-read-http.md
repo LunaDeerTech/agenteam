@@ -1,6 +1,6 @@
 # D10 Skills 当前 Human Owner 目录与详情 HTTP
 
-状态：独立 HTTP adapter 已实现，作者限定 pure/race 11top/47sub、Schema21/HEAD18 与 vet 实际通过；未参与者已有限静审产品。PG/native 源码已形成但尚未编译或实际运行，因此本结果未交付。基线为正式 main `3b7ed9da`，消费已接受的 [P2 初始化与当前 Owner 读取](d10-skills-initialization.md)及[正式设计](d10-skills-initialization-design.md)。本卡交付独立只读 HTTP adapter，不完成完整 D10。
+状态：独立 HTTP adapter 已实现，作者限定 pure/race 11top/47sub、初Schema21/HEAD18 与 vet 实际通过；后补正式 Account Problem 标准Schema单top32控/HEAD18通过。未参与者已有限静审产品、PG/native测试方法及精确入口。PG/native候选均已离线race编译，但两个driver与精确list因后继磁盘门尚未完成，没有实际PG/native运行，因此本结果未交付。基线为正式 main `3b7ed9da`，消费已接受的 [P2 初始化与当前 Owner 读取](d10-skills-initialization.md)及[正式设计](d10-skills-initialization-design.md)。本卡交付独立只读 HTTP adapter，不完成完整 D10。
 
 ## 范围与真实依赖
 
