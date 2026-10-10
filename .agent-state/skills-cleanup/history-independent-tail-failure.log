@@ -1,0 +1,44 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.29.194.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=c572dd6e6bdc436a20b0b1269b690558
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=3d68fe2f15e74d87e3db4b7cffd5fef1
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+=== RUN   TestSkillLifecycleCleanupHistoricalAttempts
+=== RUN   TestSkillLifecycleCleanupHistoricalAttempts/native_retry_preserves_abandoned_cause
+=== RUN   TestSkillLifecycleCleanupHistoricalAttempts/seeded_retained_mapping_history_batches_and_fk_rollback
+--- PASS: TestSkillLifecycleCleanupHistoricalAttempts (6.01s)
+    --- PASS: TestSkillLifecycleCleanupHistoricalAttempts/native_retry_preserves_abandoned_cause (3.26s)
+    --- PASS: TestSkillLifecycleCleanupHistoricalAttempts/seeded_retained_mapping_history_batches_and_fk_rollback (2.75s)
+PASS
+D03 explicit test actual_wait pid=99043 code=0 selector=^TestSkillLifecycleCleanupHistoricalAttempts$
+D03 fixture cleanup checked for nonce e0c023ce49f59ff19040da102ecd6194
+D04 outbound fixture cleanup checked for nonce 3d68fe2f15e74d87e3db4b7cffd5fef1
+D05 object fixture exact resource cleanup checked nonce=c572dd6e6bdc436a20b0b1269b690558
+SUPERVISOR actual_driver_wait pid=96686 actual=True code=0
+STOP owned descendants survived driver: [96693]
+SUPERVISOR adopted_actual_wait pid=96693 status=0
+OWNED runtime_observation=1 descendants=[]
+OWNED runtime_observation=2 descendants=[]
+ROOT resource_observation=1 kind=container id=74b4f2f850d18e5b15a03fe069ab71d26c8b789d3f1c8281ff895568959d8689 nonce=c572dd6e6bdc436a20b0b1269b690558 absent=True
+ROOT resource_observation=1 kind=network id=b63b7274fb0c09303acd935adbcf1abedbdbaea925bc58349a0134ffc394c223 nonce=c572dd6e6bdc436a20b0b1269b690558 absent=True
+ROOT resource_observation=1 kind=container id=9a383f7fe68860ca20fa371ca4179f149ce4c34d50af2cc91d0db2b384cd0a6c nonce=3d68fe2f15e74d87e3db4b7cffd5fef1 absent=True
+ROOT resource_observation=1 kind=network id=6a17f3d2ad9edbbd9bfb7b2729b4282ba778fbb2f2d7e1a45b2681989df8b170 nonce=3d68fe2f15e74d87e3db4b7cffd5fef1 absent=True
+ROOT resource_observation=1 kind=container id=9a45a24674a7141393314a6daf2a2b86671cabf4038813b4f04b25bd9fb7b602 nonce=e0c023ce49f59ff19040da102ecd6194 absent=True
+ROOT resource_observation=1 kind=container id=ef280fb94074ab6a2e00839b6fa6c0e858bcc6ce58550ba27d50a524272c964b nonce=e0c023ce49f59ff19040da102ecd6194 absent=True
+ROOT resource_observation=1 kind=network id=8b9408e41829895a293a40e2f31f7648080c0bc7123a37960593729b04cd1e38 nonce=e0c023ce49f59ff19040da102ecd6194 absent=True
+ROOT private_observation=1 absent=True
+ROOT runtime_observation=1 empty=True
+ROOT resource_observation=2 kind=container id=74b4f2f850d18e5b15a03fe069ab71d26c8b789d3f1c8281ff895568959d8689 nonce=c572dd6e6bdc436a20b0b1269b690558 absent=True
+ROOT resource_observation=2 kind=network id=b63b7274fb0c09303acd935adbcf1abedbdbaea925bc58349a0134ffc394c223 nonce=c572dd6e6bdc436a20b0b1269b690558 absent=True
+ROOT resource_observation=2 kind=container id=9a383f7fe68860ca20fa371ca4179f149ce4c34d50af2cc91d0db2b384cd0a6c nonce=3d68fe2f15e74d87e3db4b7cffd5fef1 absent=True
+ROOT resource_observation=2 kind=network id=6a17f3d2ad9edbbd9bfb7b2729b4282ba778fbb2f2d7e1a45b2681989df8b170 nonce=3d68fe2f15e74d87e3db4b7cffd5fef1 absent=True
+ROOT resource_observation=2 kind=container id=9a45a24674a7141393314a6daf2a2b86671cabf4038813b4f04b25bd9fb7b602 nonce=e0c023ce49f59ff19040da102ecd6194 absent=True
+ROOT resource_observation=2 kind=container id=ef280fb94074ab6a2e00839b6fa6c0e858bcc6ce58550ba27d50a524272c964b nonce=e0c023ce49f59ff19040da102ecd6194 absent=True
+ROOT resource_observation=2 kind=network id=8b9408e41829895a293a40e2f31f7648080c0bc7123a37960593729b04cd1e38 nonce=e0c023ce49f59ff19040da102ecd6194 absent=True
+ROOT private_observation=2 absent=True
+ROOT runtime_observation=2 empty=True
+ROOT exact_tops=True actual_test_wait=True
+ROOT cleanup_exact_run_pass=True
+HOST_TCP delta_empty_observation=1
+HOST_TCP delta_empty_observation=2
+SUPERVISOR inputs_unchanged=True terminal=1 elapsed=111.278s
