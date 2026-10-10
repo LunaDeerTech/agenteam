@@ -1,6 +1,6 @@
 # 正文 HTTP 有限入口
 
-本工具片段复用本树既有 supervisor、root adapter 与 native driver，仅新增下列两个闭集 literal。旧默认与所有旧 selector 可逆为 `e3145974` 原字节，不造新的资源监督者。2026-10-10 已完成 PG/native race candidate 与原 native driver 的离线构建及 exact top 列举，原 root adapter `--check` 实际0；native01 三 top/六 sub 与原完整收尾实际通过，PG 测试体仍未执行。
+本工具片段复用本树既有 supervisor、root adapter 与 native driver，仅新增下列两个闭集 literal。旧默认与所有旧 selector 可逆为 `e3145974` 原字节，不造新的资源监督者。2026-10-10 已完成 PG/native race candidate 与原 native driver 的离线构建及 exact top 列举，原 root adapter `--check` 实际0；native01 三 top/六 sub 与原完整收尾实际通过，PG01 已实际整组 FAIL，原失败与完整收尾见下文。
 
 | 模式 | 唯一新增 selector | 必须实际出现的节点 |
 | --- | --- | --- |
@@ -47,3 +47,9 @@ python3 .agent-state/task-planning-recovery/pg_only_supervisor.py \
 PG 另须显式 `AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON` 指向已存在本地 jsonschema/referencing 解释器；未配置即业务失败，不能把 Schema skip 当通过。root adapter 仍要求 MinIO SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`。Go 离线构建与真实资源窗口分别协调，不因准备完成自动启动 PG/native。
 
 native01 已在冻结 `937fdff2` 的 root 独占窗口实际完成：上列 exact selector 三 top/六 sub 恰 RUN/PASS；Go 原 child Wait0、driver 原 Wait0、outer/tool53466 terminal0，runtime/private 真实空且移除、desc 双空、host TCP delta 双空、输入初尾一致，supervisor 68.033s/0。业务覆盖自然2s/较早父期限、同连接GET→HEAD越过旧期限、实际Body.Close错误零发布、原Write背压Timeout、断连后原调用实际退出。首执行剩余17883721728 bytes通过5GiB门。日志为 `output/ai/knowledge-content-http/native-01/pg-25e936e1c9304901b2013ae26ff2866c.log`，属可再生普通输出；该输出目录现已有结果，不自动复跑或覆盖。当前无自有socket/进程/临时目录残留，资源窗口已释放；PG、生产root和Object Runtime全局join未由此证明。
+
+PG01 在冻结 `6afc1ae2` 使用上列原候选/selector 实际执行：4top/14sub 全部 RUN，CurrentAuthority/CurrentBytes/ReadTransactions 三 top 与 ReaderOwnership 的 EOF+D05 Close 子通过；两 GET 的 live lease 前置在 owner/delete 刺激前失败。原 SQL err=nil，active 数未打印，不能重建为0。Go111926、driver106927 和 outer106924/tool22417 实际 code1；七资源、三private、runtime/desc/TCP双尾与输入一致均齐全，supervisor181.839s/1，原窗口已释放。最小安全原材料为 [pg-first-failure.json](pg-first-failure.json)，原日志留在忽略的 output；整组不接受。
+
+该轮首次 Go 前使用新 `pg-01-environment/config/go/telemetry/mode` 文件内容 `off\n`、`XDG_CONFIG_HOME` 指向该私有 config，并移除 `TEST_TELEMETRY_DIR`；仅 `GOTELEMETRY=off` 不足以控制实际 Go telemetry。新 `DOCKER_CONFIG` 仅含 `{}` 的 config.json，移除继承的 Docker context/host/TLS 变量，未读取外部凭据。首 UTC `2026-10-10T03:28:48.575893+00:00`，available15877173248≥5368709120。后继继续这些前置且使用新编号，禁止覆盖原输出或自动重试。
+
+Skills 独静审确认 `newIntegrityReader` 对短对象在返回 reader 前同步预读、核 EOF 并释放原 lease；测试仅持上层 reader 未 Read/Close 不足以推出 active==1。root 已授权只把两 GET 真实正文改为>StreamBufferSize并核真实 Meta.ByteSize，保 active==1、原 owner/delete 刺激、零上层 Read、一次实际 Close 与最终无 reader lease；不改产品/HEAD/预算。修后候选与窄独审待完成，真实同组须 root 新授窗口。

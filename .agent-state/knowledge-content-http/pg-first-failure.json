@@ -1,0 +1,75 @@
+{
+  "run": "pg-01",
+  "source": "6afc1ae22a8bfa2baae0b0ee517374e3a529f52b",
+  "candidate": "output/ai/knowledge-content-http/content-pg-race-02.test",
+  "selector": "^TestKnowledgeOwnerContentHTTP(CurrentBytes|CurrentAuthority|ReaderOwnership|ReadTransactions)$",
+  "result": "FAIL",
+  "first_utc": "2026-10-10T03:28:48.575893+00:00",
+  "available_bytes": 15877173248,
+  "minimum_bytes": 5368709120,
+  "tool_session": 22417,
+  "outer_pid": 106924,
+  "go_actual_wait": {
+    "pid": 111926,
+    "code": 1
+  },
+  "driver_actual_wait": {
+    "pid": 106927,
+    "actual": true,
+    "code": 1
+  },
+  "outer_terminal": 1,
+  "elapsed_seconds": 181.839,
+  "nodes": {
+    "top_run": 4,
+    "top_pass": 3,
+    "top_fail": 1,
+    "sub_run": 14,
+    "sub_pass": 12,
+    "sub_fail": 2
+  },
+  "failed_subtests": [
+    "TestKnowledgeOwnerContentHTTPReaderOwnership/current_owner_after_real_object_open",
+    "TestKnowledgeOwnerContentHTTPReaderOwnership/current_deleted_after_real_object_open"
+  ],
+  "original_failure": {
+    "location": "tests/knowledge/owner_content_http_reader_test.go:121",
+    "message": "real reader lease was not established before change <nil>",
+    "active_count": null,
+    "active_count_observed": "not printed; assertion proves active != 1 with nil query error only",
+    "owner_or_delete_stimulus_reached": false
+  },
+  "passed_top": [
+    "TestKnowledgeOwnerContentHTTPCurrentAuthority",
+    "TestKnowledgeOwnerContentHTTPCurrentBytes",
+    "TestKnowledgeOwnerContentHTTPReadTransactions"
+  ],
+  "passed_reader_sub": "real_eof_and_d05_close_do_not_finish_held_consumer",
+  "tails": {
+    "seven_exact_resources_absent_twice": true,
+    "three_private_directories_absent_twice": true,
+    "runtime_empty_twice": true,
+    "descendants_empty_twice": true,
+    "host_tcp_delta_empty_twice": true,
+    "inputs_unchanged": true,
+    "root_exact_tops": true,
+    "root_actual_test_wait": true,
+    "root_content_exact": false,
+    "root_original_wait": false
+  },
+  "environment": {
+    "private_telemetry_mode_off_before_first_go": true,
+    "test_telemetry_dir_unset": true,
+    "fresh_docker_config_empty_object": true
+  },
+  "raw_log": "output/ai/knowledge-content-http/pg-01/pg-fa0f7fb94a0e42fa925a1f40e72aea7c.log",
+  "static_diagnosis": {
+    "status": "confirmed source path; does not reconstruct missing runtime count",
+    "files": [
+      "internal/central/object/read.go",
+      "internal/central/object/reader.go"
+    ],
+    "cause": "newIntegrityReader synchronously buffers small bodies and verifies EOF/releases the original reader lease before ReadObject returns; holding the upper reader alone does not keep that lease active."
+  },
+  "next_authorized_change": "Only the two owner/delete GET fixtures use valid body > StreamBufferSize and verify returned Meta.ByteSize; keep active == 1 and all original mutation/zero-read/Close/lease-retirement assertions. No product, HEAD, budget or native changes."
+}
