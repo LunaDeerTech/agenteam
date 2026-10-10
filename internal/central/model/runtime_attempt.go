@@ -165,31 +165,10 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	cancel := func() { cancelDeadline(); stop() }
 	c := &runtimeCall{runtime: s, request: request, mode: mode, ctx: ctx, cancel: cancel, gate: make(chan struct{}, 1), record: &runtimeRecord{binding: binding, digest: hash(raw), value: value, sequence: 1, phase: "accepted", version: 1}}
 	c.gate <- struct{}{}
-	s.mu.Lock()
-	if s.stopped || !s.ready || process != s.process {
-		s.mu.Unlock()
-		cancel()
-		return nil, fault(f.ShuttingDown)
+	transferred, err = c.admit(ctx, consumer, plan)
+	if err != nil {
+		return nil, err
 	}
-	if s.calls[request.CallID] != nil {
-		s.mu.Unlock()
-		cancel()
-		return nil, c.duplicate(ctx, consumer, plan)
-	}
-	count := 0
-	for _, active := range s.calls {
-		if active.request.Consumer.ProjectID == request.Consumer.ProjectID {
-			count++
-		}
-	}
-	if len(s.calls) >= 64 || count >= 8 {
-		s.mu.Unlock()
-		cancel()
-		return nil, fault(f.ResourceBusy)
-	}
-	s.calls[request.CallID] = c
-	transferred = true
-	s.mu.Unlock()
 	// Start itself owns this gate until all acceptance/material/handoff work
 	// has returned. Stop/Drain may cancel it but must join that original work.
 	<-c.gate
@@ -202,6 +181,36 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 		return nil, runtimePortError(err)
 	}
 	return c, nil
+}
+
+// Admission never cancels its caller. A duplicate still owns the same current
+// authorization/transaction until it returns; begin's defer then retires the
+// untransferred admission. Keeping this gate separate also permits a pure
+// regression control without fabricating a bound Object ProcessGuard.
+func (c *runtimeCall) admit(ctx context.Context, consumer mc.ConsumerRequest, plan mc.ConsumerDependencies) (bool, error) {
+	s, request := c.runtime, c.request
+	s.mu.Lock()
+	if s.stopped || !s.ready || c.record.value.ProcessID != s.process {
+		s.mu.Unlock()
+		return false, fault(f.ShuttingDown)
+	}
+	if s.calls[request.CallID] != nil {
+		s.mu.Unlock()
+		return false, c.duplicate(ctx, consumer, plan)
+	}
+	count := 0
+	for _, active := range s.calls {
+		if active.request.Consumer.ProjectID == request.Consumer.ProjectID {
+			count++
+		}
+	}
+	if len(s.calls) >= 64 || count >= 8 {
+		s.mu.Unlock()
+		return false, fault(f.ResourceBusy)
+	}
+	s.calls[request.CallID] = c
+	s.mu.Unlock()
+	return true, nil
 }
 
 func (c *runtimeCall) duplicate(ctx context.Context, consumer mc.ConsumerRequest, plan mc.ConsumerDependencies) error {

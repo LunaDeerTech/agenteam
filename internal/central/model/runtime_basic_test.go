@@ -229,3 +229,82 @@ func TestRuntimeErrorsPreserveCauseAndHideUntrustedText(t *testing.T) {
 		t.Fatal("cancel observation changed")
 	}
 }
+
+type runtimeCurrentCheck func(context.Context, f.Tx, mc.ConsumerRequest, mc.ConsumerDependencies) error
+
+func (runtimeCurrentCheck) Discover(context.Context, mc.ConsumerRequest) (mc.ConsumerDependencies, error) {
+	panic("duplicate already owns its original plan")
+}
+func (fn runtimeCurrentCheck) ValidateInTx(ctx context.Context, tx f.Tx, r mc.ConsumerRequest, p mc.ConsumerDependencies) error {
+	return fn(ctx, tx, r, p)
+}
+
+func TestRuntimeActiveDuplicateKeepsOriginalAdmissionContext(t *testing.T) {
+	request := runtimePureRequest(t)
+	consumer := runtimeConsumerRequest(request, mc.InvokeConsumer, nil, nil)
+	binding, err := mc.ConsumerBinding(consumer)
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan, err := mc.NewConsumerDependencies(mc.NewPlanIssuer(), mc.ConsumerDependencyDetails{Binding: binding, Mapping: hash([]byte("duplicate-plan")), Locks: []f.LockRequest{projectLock(request.Consumer.ProjectID.String())}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	store := &projectScopeStore{}
+	entered, release, returned := make(chan struct{}), make(chan struct{}), make(chan error, 1)
+	defer func() {
+		select {
+		case <-release:
+		default:
+			close(release)
+		}
+	}()
+	authority := runtimePureAuthority(t, store, runtimeCurrentCheck(func(actual context.Context, tx f.Tx, _ mc.ConsumerRequest, _ mc.ConsumerDependencies) error {
+		if actual != ctx || actual.Err() != nil || tx != store.tx {
+			return fault(f.InvalidState)
+		}
+		close(entered)
+		<-release
+		return fault(f.Forbidden) // current authority, never a fake positive grant
+	}))
+	service := runtimePureService(authority)
+	s := service.state()
+	active := &runtimeCall{request: request, record: &runtimeRecord{digest: hash([]byte("active"))}}
+	s.calls[request.CallID] = active
+	candidate := &runtimeCall{runtime: s, request: request, cancel: cancel, record: &runtimeRecord{value: uc.Invocation{ID: mustID[mc.Invocation](t)}}}
+	go func() {
+		defer cancel() // the untransferred admission's real retirement boundary
+		transferred, err := candidate.admit(ctx, consumer, plan)
+		if transferred {
+			err = fault(f.InvalidState)
+		}
+		returned <- err
+	}()
+	select {
+	case <-entered:
+	case err := <-returned:
+		t.Fatalf("duplicate cancelled before current check: %v", err)
+	case <-time.After(5 * time.Second):
+		t.Fatal("duplicate did not enter original transaction")
+	}
+	if ctx.Err() != nil {
+		t.Fatal("live duplicate admission was cancelled")
+	}
+	select {
+	case <-returned:
+		t.Fatal("duplicate returned before original current check")
+	default:
+	}
+	close(release)
+	select {
+	case err := <-returned:
+		requireCode(t, err, f.Forbidden)
+	case <-time.After(5 * time.Second):
+		t.Fatal("duplicate did not join original transaction")
+	}
+	if store.transactions != 1 || s.calls[request.CallID] != active {
+		t.Fatal("duplicate replaced original call or opened another transaction")
+	}
+}
