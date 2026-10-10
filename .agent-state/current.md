@@ -2,6 +2,10 @@
 
 ## 2026-10-10 新环境接续
 
+Recovery12 候选仅六个既有测试技术源，产品/Session/Go候选/dist及45秒不变，已停写交 content 窄审。R11 的 afterEach 先于 context teardown，原首次快照全 null 与后续三个 observerErrors 不在同一时点，不能给三个错误补认请求；seq6 的 at_request=false 保留，异步头竞态仅是待控风险。新闭集在点击前 arm 并锁首个 mutation（错材料亦占位），同一 Request 原材料和 owned503 头后齐仅记 later_verified，结束/page/context close 后禁止提升；历史 Task 则冻结同 slot 原 Lookup Request/XID、实际已发布 receipt 对象，重放要求当次返回对象等于新 progress.receipt 且 typed 值等于历史值。两个 policy 均复用原 native/reader/outer/Session实际finally/两observer首explicit零pending/最终not_busy门。原 catch 同步追加最多256项安全阶段/坐标/闭集原因，首次快照深拷贝保持，晚事件不能升级接受。最终 helper111 控（50376/da0bd2）、真实Session/API/transport143控（36562/f73a26）、原Project57控（16647/404a4b）均actual0/0unhandled，strictTS1342/700bb8 actual0；首TS错误typeRoots与一次格式check FAIL已纠正，未作动态通过。下一拟复用 account-recovery11.test，fresh recovery-12-evidence/images、/tmp/wui-o12，原selector/540+60/七资源全尾保持，尚未获真实窗或独审结论；R11整FAIL、Go严格500后验未达与旧08缺尾均不变。
+
+content随后完成相对c466e658六技术路径实际diff窄审，有限方法接受、无must-fix；核首mutation占位/原请求时事实不可回填、Task原Lookup递归同一完整尾与typed深冻结历史receipt、安全首快照和有界晚事件。审者复用111/143/57及TS结果，未执行动态/browser；仅允许新方法进入fresh原case，R11不升级。最终格式91920/56dbe8及精确PW list3848/e683c7 actual0/恰一；八路径停写待root保存，未起真实资源。
+
 root随后授权唯一Go后验期望修正：固定P0001原trigger不变，仅严格改为status500、code INTERNAL_ERROR、commit_state not_committed，同原key/Session/Lookup/版本/唯一事实和计数全部保持。单Go源已停写交content映射窄审；新account candidate待hot编译/精确list，dist/PW源码不变，整Recovery仍须修后fresh完整一次。
 
 上述单Go +3/-1已获content未参与者限定静审接受、无must-fix；审者核P0001→原SQL poison优先→InternalError/NotCommitted→Work原样→HTTP500，未执行Go/PG。新output/ai/work-owner-planning-ui/build/account-recovery11.test经hot integration/race-c 46649 actual0，精确list aaa247 actual0/恰一OriginalRecovery。四路径全停写待root保存，旧account-recovery09仅证明R09/R10；下一使用新binary与新recovery-11-evidence/images、/tmp/wui-o11，原selector/预算/7资源不变，等待fresh完整窗。

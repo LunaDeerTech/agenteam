@@ -167,6 +167,33 @@ const workBodyAwaits = new WeakMap<
   { stage: WorkAwaitStage; at: number }
 >();
 const failureSnapshots: (() => unknown)[] = [];
+const failureTailEvents: Record<string, unknown>[] = [];
+let failureFirstSnapshot: Record<string, unknown> | null = null;
+let failureTailOverflow = false;
+function recordWorkFailureTail(event: Record<string, unknown>) {
+  if (failureTailEvents.length < 256)
+    failureTailEvents.push({
+      ...event,
+      sequence: failureTailEvents.length + 1,
+      after_first_snapshot: failureFirstSnapshot !== null,
+    });
+  else failureTailOverflow = true;
+  if (failureFirstSnapshot) {
+    try {
+      writeFileSync(
+        join(evidence, "work-failure-observation.json"),
+        JSON.stringify({
+          ...failureFirstSnapshot,
+          tail_events: failureTailEvents,
+          tail_overflow: failureTailOverflow,
+        }),
+        { mode: 0o600 },
+      );
+    } catch {
+      console.error("WORK_DIAGNOSTIC_WRITE_FAILED");
+    }
+  }
+}
 function markWorkBodyAwait(response: Response, stage: WorkAwaitStage) {
   workBodyAwaits.set(response, { stage, at: performance.now() });
 }
@@ -231,9 +258,10 @@ function safeWorkFailure(request: Request) {
 }
 export function saveWorkFailureObservations(status: string | null) {
   try {
-    if (status !== null)
-      writeFileSync(
-        join(evidence, "work-failure-observation.json"),
+    if (status !== null) {
+      // This first boundary remains immutable when original tails later reject
+      // during context teardown. Later events never upgrade completion.
+      failureFirstSnapshot ??= JSON.parse(
         JSON.stringify({
           status: ["failed", "timedOut", "interrupted"].includes(status)
             ? status
@@ -243,10 +271,22 @@ export function saveWorkFailureObservations(status: string | null) {
           browser_native_eof_observed: false,
           observers: failureSnapshots.map((snapshot) => snapshot()),
         }),
+      );
+      writeFileSync(
+        join(evidence, "work-failure-observation.json"),
+        JSON.stringify({
+          ...failureFirstSnapshot,
+          tail_events: failureTailEvents,
+          tail_overflow: failureTailOverflow,
+        }),
         { mode: 0o600 },
       );
+    } else {
+      failureFirstSnapshot = null;
+      failureTailEvents.length = 0;
+      failureTailOverflow = false;
+    }
   } catch {
-    // Diagnostic I/O cannot replace the original case failure or its wait gate.
     console.error("WORK_DIAGNOSTIC_WRITE_FAILED");
   } finally {
     failureSnapshots.length = 0;
@@ -423,7 +463,123 @@ function workIncompleteLedger() {
     settleFailure: () => void;
   };
   const slots: Slot[] = [];
-  let originalReplay: Request | undefined;
+  type ReplayKind = "unforwarded-milestone-update" | "lost-task-update";
+  type Replay = {
+    slot: Slot;
+    request?: Request;
+    lookup?: Request;
+    atRequest: boolean;
+    laterVerified: boolean;
+    active: boolean;
+    invalid: boolean;
+    material: boolean;
+    reason: string;
+    at: number | null;
+    verifiedAt: number | null;
+  };
+  const replays: Replay[] = [];
+  const lookups = new Map<
+    Request,
+    { slot: Slot; id: string | null; finished: boolean }
+  >();
+  let activeReplay: Replay | undefined;
+  const replayFor = (request: Request) =>
+    replays.find((r) => r.request === request);
+  function sameMaterial(slot: Slot, request: Request) {
+    const original = slot.request!.headers(),
+      headers = request.headers();
+    return (
+      matches(slot, request) &&
+      request !== slot.request &&
+      request.url() === slot.request!.url() &&
+      request.postData() === slot.body &&
+      headers["idempotency-key"] === slot.key &&
+      !!original["x-csrf-token"] &&
+      headers["x-csrf-token"] === original["x-csrf-token"] &&
+      original.origin === new URL(slot.request!.url()).origin &&
+      headers.origin === original.origin
+    );
+  }
+  function verifyReplay(replay: Replay, later: boolean) {
+    if (!replay.active || closed || replay.invalid || !replay.request)
+      return false;
+    if (!replay.material) {
+      replay.reason = "material-mismatch";
+      return false;
+    }
+    if (
+      replay.slot.spec.kind === "unforwarded-milestone-update" &&
+      !replay.slot.ownedResponse
+    ) {
+      replay.reason = "owned-headers-pending";
+      return false;
+    }
+    if (!sameMaterial(replay.slot, replay.request)) {
+      replay.invalid = true;
+      replay.reason = "material-changed";
+      return false;
+    }
+    if (later) replay.laterVerified = true;
+    else replay.atRequest = true;
+    replay.verifiedAt = performance.now();
+    replay.reason = "verified";
+    return true;
+  }
+  function captureReplay(request: Request) {
+    const replay = activeReplay;
+    if (!replay?.active || request.method() === "GET") return;
+    if (replay.request) {
+      replay.invalid = true;
+      replay.reason = "second-mutation";
+      errors++;
+      return;
+    }
+    replay.request = request;
+    replay.at = performance.now();
+    replay.material = sameMaterial(replay.slot, request);
+    verifyReplay(replay, false);
+  }
+  function observeLookup(request: Request) {
+    if (request.method() !== "POST") return;
+    for (const slot of slots) {
+      if (
+        slot.spec.kind !== "lost-task-update" ||
+        !slot.request ||
+        !slot.failed
+      )
+        continue;
+      const original = slot.request.headers(),
+        headers = request.headers(),
+        url = new URL(request.url());
+      if (
+        url.search ||
+        request.url() !==
+          new URL(
+            `/api/v1/projects/${slot.spec.projectID}/task-commands/lookup`,
+            slot.request.url(),
+          ).href ||
+        headers["idempotency-key"] !== slot.key ||
+        headers["x-csrf-token"] !== original["x-csrf-token"] ||
+        headers.origin !== original.origin ||
+        original.origin !== url.origin
+      )
+        continue;
+      try {
+        const body = request.postDataJSON(),
+          source = slot.request.postDataJSON();
+        if (
+          keys(body) === "command,expected_version,request,target_id" &&
+          body.command === "work.task.update" &&
+          body.target_id === slot.spec.targetID &&
+          body.expected_version === slot.spec.expectedVersion &&
+          JSON.stringify(body.request) === JSON.stringify(source.request)
+        )
+          lookups.set(request, { slot, id: null, finished: false });
+      } catch {
+        /* No malformed request can become the historical anchor. */
+      }
+    }
+  }
   let closed = false;
   let errors = 0;
   const keys = (value: object) => Object.keys(value).sort().join(",");
@@ -534,6 +690,8 @@ function workIncompleteLedger() {
       };
     },
     request(request: Request) {
+      captureReplay(request);
+      observeLookup(request);
       for (const slot of slots) {
         if (slot.failed || !matches(slot, request)) continue;
         if (slot.request) {
@@ -565,6 +723,7 @@ function workIncompleteLedger() {
     },
     close() {
       closed = true;
+      for (const replay of replays) replay.active = false;
       // End our event wait without creating a transport-finished operation.
       for (const slot of slots)
         if (slot.spec.kind !== "canceled-task-read") slot.settleFailure();
@@ -595,40 +754,85 @@ function workIncompleteLedger() {
       ]);
     },
     expectedFailure,
-    bindOriginalReplay(request: Request) {
-      if (closed) return false;
-      if (originalReplay) return originalReplay === request;
-      const slot = slots.find(
-        (value) => value.spec.kind === "unforwarded-milestone-update",
-      );
+    armOriginalReplay(kind: ReplayKind) {
+      const slot = slots.find((s) => s.spec.kind === kind);
       if (
+        closed ||
+        activeReplay?.active ||
+        !["unforwarded-milestone-update", "lost-task-update"].includes(kind) ||
         !slot?.request ||
         !slot.allowed ||
         !slot.failed ||
         slot.succeeded ||
-        !slot.ownedResponse ||
-        slot.request === request ||
-        !matches(slot, request)
+        replays.some((r) => r.slot === slot)
       )
-        return false;
-      const original = slot.request.headers(),
-        headers = request.headers();
-      // Keep original intent/security material private; publish only the
-      // exact Request binding. No other PATCH is eligible for this bridge.
-      if (
-        request.url() !== slot.request.url() ||
-        request.postData() !== slot.body ||
-        headers["idempotency-key"] !== slot.key ||
-        !original["x-csrf-token"] ||
-        headers["x-csrf-token"] !== original["x-csrf-token"] ||
-        original.origin !== new URL(slot.request.url()).origin ||
-        headers.origin !== original.origin
-      )
-        return false;
-      originalReplay = request;
-      return true;
+        throw Error("WORK_REPLAY_ARM_REJECTED");
+      const lookup =
+        kind === "lost-task-update"
+          ? [...lookups].filter(([, v]) => v.slot === slot).at(-1)
+          : undefined;
+      if (kind === "lost-task-update" && !lookup?.[1].id)
+        throw Error("WORK_REPLAY_LOOKUP_UNREADY");
+      activeReplay = {
+        slot,
+        lookup: lookup?.[0],
+        atRequest: false,
+        laterVerified: false,
+        active: true,
+        invalid: false,
+        material: false,
+        reason: "awaiting-request",
+        at: null,
+        verifiedAt: null,
+      };
+      replays.push(activeReplay);
     },
-    isOriginalReplay: (request: Request) => originalReplay === request,
+    finishOriginalReplay() {
+      if (!activeReplay?.active || !activeReplay.request)
+        throw Error("WORK_REPLAY_END_REJECTED");
+      activeReplay.active = false;
+    },
+    replayCandidate: (request: Request) => !!replayFor(request),
+    bindOriginalReplay: (request: Request) =>
+      replayFor(request)?.atRequest === true,
+    isOriginalReplay: (request: Request) => {
+      const replay = replayFor(request);
+      return (
+        !!replay &&
+        !replay.invalid &&
+        (replay.atRequest || replay.laterVerified)
+      );
+    },
+    replayEvidence(request: Request) {
+      const replay = replayFor(request);
+      if (!replay) return null;
+      const lookup = replay.lookup && lookups.get(replay.lookup);
+      return {
+        policy:
+          replay.slot.spec.kind === "lost-task-update"
+            ? "historical-task"
+            : "not-observed-milestone",
+        at_request_verified: replay.atRequest,
+        later_verified: replay.laterVerified,
+        request_at: replay.at,
+        verified_at: replay.verifiedAt,
+        ended: !replay.active,
+        invalid: replay.invalid,
+        reason: replay.reason,
+        lookup_request_id: lookup ? lookup.id : null,
+        lookup_finished: lookup ? lookup.finished : false,
+      };
+    },
+    lookupResponse(request: Request, id: string, finished = false) {
+      const lookup = lookups.get(request);
+      if (!lookup) return;
+      if (!uuid7.test(id) || (lookup.id !== null && lookup.id !== id)) {
+        errors++;
+        return;
+      }
+      lookup.id = id;
+      if (finished) lookup.finished = true;
+    },
     unforwarded(request: Request) {
       return slots.some(
         (slot) =>
@@ -660,6 +864,14 @@ function workIncompleteLedger() {
       )
         return false;
       slot.ownedResponse = true;
+      for (const replay of replays)
+        if (
+          replay.slot === slot &&
+          replay.request &&
+          !replay.atRequest &&
+          !replay.laterVerified
+        )
+          verifyReplay(replay, true);
       return true;
     },
     declared(request: Request) {
@@ -672,6 +884,13 @@ function workIncompleteLedger() {
       return (
         (slots.length === 0 || !closed) &&
         errors === 0 &&
+        replays.every(
+          (r) =>
+            r.request &&
+            !r.active &&
+            !r.invalid &&
+            (r.atRequest || r.laterVerified),
+        ) &&
         expected === slots.length &&
         slots.every(
           (slot) =>
@@ -692,7 +911,7 @@ function workIncompleteLedger() {
 // Installed at the original request event, before its response or failure.
 // Only the recovery case opts into this closed endpoint set.
 export function workOrdinaryCompletionEvents(
-  bindOriginalReplay?: (request: Request) => boolean,
+  replayCandidate?: (request: Request) => boolean,
 ) {
   type Terminal = "finished" | "failed" | "closed";
   const rows = new Map<
@@ -723,6 +942,10 @@ export function workOrdinaryCompletionEvents(
   return {
     request(request: Request) {
       if (sealed || rows.has(request)) return;
+      if (replayCandidate?.(request)) {
+        rows.set(request, { terminal: null, finished: 0, failed: 0 });
+        return;
+      }
       const url = new URL(request.url());
       const parts = url.pathname.split("/");
       if (
@@ -743,12 +966,7 @@ export function workOrdinaryCompletionEvents(
             parts[5] === "tasks" &&
             uuid7.test(parts[6]!) &&
             parts[7] === "blocker-commands" &&
-            parts[8] === "lookup") ||
-          (parts.length === 7 &&
-            request.method() === "PATCH" &&
-            parts[5] === "milestones" &&
-            uuid7.test(parts[6]!) &&
-            bindOriginalReplay?.(request) === true)
+            parts[8] === "lookup")
         )
       )
         return;
@@ -785,13 +1003,14 @@ export function observe(
   const startedAt = performance.now();
   const incompleteRequests = workIncompleteLedger();
   const ordinaryEvents = workOrdinaryCompletionEvents(
-    incompleteRequests.bindOriginalReplay,
+    incompleteRequests.replayCandidate,
   );
   const nativeComplete = new Set<Request>();
   const pendingNative = new Set<Request>();
   let ordinaryClosed = false;
   const closeOrdinary = () => {
     ordinaryClosed = true;
+    incompleteRequests.close();
     ordinaryEvents.seal();
   };
   page.context().on("close", closeOrdinary);
@@ -806,6 +1025,15 @@ export function observe(
     response_finished_at: number | null;
     observer_rejected_at: number | null;
     failure_reason: string | null;
+    stage:
+      | "response"
+      | "header"
+      | "owned-headers"
+      | "declared-terminal"
+      | "ordinary-terminal"
+      | "finished"
+      | "complete"
+      | "rejected";
   };
   const timings = new Map<Request, Timing>();
   let truncated = false;
@@ -824,6 +1052,7 @@ export function observe(
         response_finished_at: null,
         observer_rejected_at: null,
         failure_reason: null,
+        stage: "response",
       };
       if (timings.size < 256) timings.set(request, value);
       else truncated = true;
@@ -843,6 +1072,7 @@ export function observe(
         response_same_request_object: response
           ? response.request() === request
           : null,
+        replay: incompleteRequests.replayEvidence(request),
         original_body_await: stage
           ? {
               stage: stage.stage,
@@ -854,7 +1084,6 @@ export function observe(
   }));
   page.on("close", () => {
     closedAt = now();
-    incompleteRequests.close();
     closeOrdinary();
   });
   const facts = new Map<string, Observed>();
@@ -912,10 +1141,12 @@ export function observe(
     };
     tails.push(
       (async () => {
+        observed.stage = "header";
         const id = await r.headerValue("x-request-id");
         observed.request_id = id && uuid7.test(id) ? id : null;
         const owned = incompleteRequests.unforwarded(r.request());
         if (owned) {
+          observed.stage = "owned-headers";
           if (
             !incompleteRequests.ownedUnforwardedResponse(
               r.request(),
@@ -928,13 +1159,16 @@ export function observe(
           if (!id || facts.has(id))
             throw new Error("WORK_RESPONSE_IDENTITY_MISSING_OR_DUPLICATE");
           facts.set(id, fact);
+          incompleteRequests.lookupResponse(r.request(), id);
         }
         let error: Error | null;
         if (incompleteRequests.truncation(r.request())) {
           // PW1.56.1 requestfailed does not settle Response.finished(). Only
           // these four predeclared cuts use the original Request event tail.
+          observed.stage = "declared-terminal";
           error = await incompleteRequests.truncationTerminal(r.request());
         } else if (incompleteRequests.declared(r.request())) {
+          observed.stage = "declared-terminal";
           const originalFinished = r.finished();
           error = await incompleteRequests.terminal(
             r.request(),
@@ -951,6 +1185,7 @@ export function observe(
             ),
           );
         } else if (ordinaryEvents.selected(r.request()) && r.status() === 200) {
+          observed.stage = "ordinary-terminal";
           const terminal = await ordinaryEvents.terminal(r.request());
           if (terminal === "closed")
             throw new Error("WORK_ORDINARY_EVENT_MISSING");
@@ -960,26 +1195,57 @@ export function observe(
             pendingNative.add(r.request());
             error = new Error("WORK_ORDINARY_CONSUMPTION_UNPROVEN");
           } else {
+            observed.stage = "finished";
             error = await r.finished();
             observed.response_finished_at = now();
           }
         } else {
+          observed.stage = "finished";
           error = await r.finished();
           observed.response_finished_at = now();
         }
+        if (error === null && id)
+          incompleteRequests.lookupResponse(r.request(), id, true);
         fact.finished = error === null;
         fact.failed = error !== null;
+        observed.stage = "complete";
         if (owned) {
           if (!fact.failed || !incompleteRequests.expectedFailure(r.request()))
             throw new Error("WORK_OWNED_TRUNCATION_NOT_FAILED");
           ownedTruncations.add(r.request());
         }
-      })().catch(() => {
+      })().catch((error: unknown) => {
         // Attach the rejection sink immediately, including when the case ends
         // before verify. This records observation failure, never transport EOF.
         observerErrors++;
+        const stage = observed.stage;
         observed.observer_rejected_at = now();
+        observed.stage = "rejected";
         fact.failed = true;
+        const known = [
+          "WORK_OWNED_TRUNCATION_HEADERS_REJECTED",
+          "WORK_RESPONSE_IDENTITY_MISSING_OR_DUPLICATE",
+          "WORK_TRUNCATION_NOT_DECLARED",
+          "WORK_TRUNCATION_NOT_ACTUAL_FAILED",
+          "WORK_ORDINARY_EVENT_MISSING",
+          "WORK_OWNED_TRUNCATION_NOT_FAILED",
+        ];
+        recordWorkFailureTail({
+          ...workDiagnosticTarget(r.request()),
+          request_id: observed.request_id,
+          at: observed.observer_rejected_at,
+          stage,
+          reason:
+            error instanceof Error && known.includes(error.message)
+              ? error.message
+              : "operation-rejected",
+          request_failed: observed.request_failed_at !== null,
+          request_finished: observed.request_finished_at !== null,
+          response_finished: observed.response_finished_at !== null,
+          page_closed: closedAt !== null,
+          observer_closed: ordinaryClosed,
+          replay: incompleteRequests.replayEvidence(r.request()),
+        });
       }),
     );
   });
@@ -988,6 +1254,9 @@ export function observe(
     declareIncomplete: incompleteRequests.declare,
     declarationKind: incompleteRequests.declarationKind,
     isOriginalReplay: incompleteRequests.isOriginalReplay,
+    armOriginalReplay: incompleteRequests.armOriginalReplay,
+    finishOriginalReplay: incompleteRequests.finishOriginalReplay,
+    replayEvidence: incompleteRequests.replayEvidence,
     async verify(expectedIncomplete = 0) {
       // The caller must already have taken actual diagnostic end snapshots.
       // Missing original events retire as failure, never as an abandoned wait.

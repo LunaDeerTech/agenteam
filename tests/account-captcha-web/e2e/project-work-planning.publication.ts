@@ -185,6 +185,15 @@ export async function installWorkPublicationDiagnostic({
     !auth.personalContext?.identity
   )
     return "owner-unready";
+  const history = new Map<string, { row: any; published: any; value: any }>();
+  const replayAnchors = new WeakMap<
+    object,
+    { row: any; published: any; value: any }
+  >();
+  let armedReplay: {
+    policy: "not-observed-milestone" | "historical-task";
+    anchor?: { row: any; published: any; value: any };
+  } | null = null;
   const methods = [
     "getMilestone",
     "getTask",
@@ -311,12 +320,13 @@ export async function installWorkPublicationDiagnostic({
       };
     if (
       name === "retryOriginal" &&
-      progress.domain === "structure" &&
-      progress.command === "work.milestone.update"
+      ((progress.domain === "structure" &&
+        progress.command === "work.milestone.update") ||
+        (progress.domain === "task" && progress.command === "work.task.update"))
     )
       return {
         method: "PATCH",
-        path: `/api/v1/projects/${progress.projectID}/milestones/${progress.targetID}`,
+        path: `/api/v1/projects/${progress.projectID}/${progress.domain === "task" ? "tasks" : "milestones"}/${progress.targetID}`,
         target_id: progress.targetID,
       };
     return null;
@@ -475,11 +485,31 @@ export async function installWorkPublicationDiagnostic({
             if (name === "retryOriginal") {
               const progress = auth.workPlanning.progress;
               row.replay_from_not_observed =
+                armedReplay?.policy === "not-observed-milestone" &&
                 progress?.phase === "uncertain" &&
                 progress.observation === "not_observed" &&
                 progress.contextValid === true &&
                 progress.canReplay === true &&
                 progress.receipt === null;
+              const anchor =
+                armedReplay?.policy === "historical-task"
+                  ? armedReplay.anchor
+                  : undefined;
+              row.replay_from_history =
+                !!anchor &&
+                sameIdentity() &&
+                progress?.contextValid === true &&
+                progress.phase === "confirmed" &&
+                progress.observation === "committed" &&
+                progress.canReplay === true &&
+                progress.domain === "task" &&
+                progress.command === "work.task.update" &&
+                progress.receipt === anchor.published;
+              row.history_lookup_call_id = row.replay_from_history
+                ? anchor!.row.call_id
+                : null;
+              if (row.replay_from_history) replayAnchors.set(row, anchor!);
+              armedReplay = null;
               row.replay_receipt_published = false;
             }
             if (name === "getProject") {
@@ -540,26 +570,67 @@ export async function installWorkPublicationDiagnostic({
                     // only after live original-intent/action checks, publishWork
                     // and runAuthorized's owner finally. Require that same
                     // receipt object in the actual confirmed publication.
-                    row.replay_receipt_published =
-                      row.replay_from_not_observed === true &&
+                    const common =
                       sameIdentity() &&
                       progress?.contextValid === true &&
                       progress.phase === "confirmed" &&
                       progress.observation === "committed" &&
-                      progress.domain === "structure" &&
-                      progress.command === "work.milestone.update" &&
                       progress.projectID === row.path.split("/")[4] &&
                       progress.targetID === row.target_id &&
-                      progress.receipt === result &&
-                      result?.domain === "structure" &&
-                      result.value?.command === "work.milestone.update" &&
-                      result.value.changed === true &&
-                      result.value.milestone?.id === row.target_id &&
-                      result.value.milestone?.project_id ===
-                        progress.projectID &&
-                      result.value.sprint === null &&
-                      uuid.test(result.value.event_id);
+                      progress.receipt === result;
+                    const anchor = replayAnchors.get(row);
+                    row.replay_receipt_published =
+                      common &&
+                      ((row.replay_from_not_observed === true &&
+                        progress.domain === "structure" &&
+                        progress.command === "work.milestone.update" &&
+                        result?.domain === "structure" &&
+                        result.value?.command === "work.milestone.update" &&
+                        result.value.changed === true &&
+                        result.value.milestone?.id === row.target_id &&
+                        result.value.milestone?.project_id ===
+                          progress.projectID &&
+                        result.value.sprint === null &&
+                        uuid.test(result.value.event_id)) ||
+                        (row.replay_from_history === true &&
+                          !!anchor &&
+                          progress.domain === "task" &&
+                          progress.command === "work.task.update" &&
+                          result?.domain === "task" &&
+                          result.value?.task?.id === row.target_id &&
+                          result.value.task.project_id === progress.projectID &&
+                          JSON.stringify(result.value) ===
+                            JSON.stringify(anchor.value)));
                   }
+                  if (
+                    name === "checkOriginal" &&
+                    row.path.endsWith("/task-commands/lookup")
+                  ) {
+                    const progress = auth.workPlanning.progress;
+                    row.history_receipt_published =
+                      sameIdentity() &&
+                      progress?.contextValid === true &&
+                      progress.phase === "confirmed" &&
+                      progress.observation === "committed" &&
+                      progress.domain === "task" &&
+                      progress.command === "work.task.update" &&
+                      progress.projectID === row.path.split("/")[4] &&
+                      progress.targetID === row.target_id &&
+                      result?.domain === "task" &&
+                      result.value?.status === "committed" &&
+                      progress.receipt?.domain === "task" &&
+                      progress.receipt.value === result.value.receipt;
+                    if (row.history_receipt_published)
+                      history.set(
+                        row.path.split("/")[4] + "/" + row.target_id,
+                        {
+                          row,
+                          published: progress.receipt,
+                          value: result.value.receipt,
+                        },
+                      );
+                  }
+
                   row.result_kind = name.startsWith("get")
                     ? "typed-detail-returned"
                     : name === "checkOriginal" &&
@@ -578,7 +649,7 @@ export async function installWorkPublicationDiagnostic({
                         ? result.value.state
                         : result.value.status
                       : name === "retryOriginal" &&
-                          result?.domain === "structure"
+                          ["structure", "task"].includes(result?.domain)
                         ? "typed-receipt-returned"
                         : "other-returned";
                   sampleDOM();
@@ -635,6 +706,44 @@ export async function installWorkPublicationDiagnostic({
     );
     host.__workPublicationDiagnostic = {
       snapshot,
+      armReplay(policy: "not-observed-milestone" | "historical-task") {
+        if (retired || armedReplay || !sameIdentity() || auth.state.busy)
+          return false;
+        const progress = auth.workPlanning.progress;
+        if (policy === "not-observed-milestone") {
+          if (
+            progress?.domain !== "structure" ||
+            progress.command !== "work.milestone.update" ||
+            progress.phase !== "uncertain" ||
+            progress.observation !== "not_observed" ||
+            !progress.canReplay
+          )
+            return false;
+          armedReplay = { policy };
+          return true;
+        }
+        if (
+          policy !== "historical-task" ||
+          progress?.domain !== "task" ||
+          progress.command !== "work.task.update" ||
+          progress.phase !== "confirmed" ||
+          progress.observation !== "committed" ||
+          !progress.canReplay
+        )
+          return false;
+        const anchor = history.get(
+          progress.projectID + "/" + progress.targetID,
+        );
+        if (
+          !anchor ||
+          anchor.published !== progress.receipt ||
+          anchor.row.active ||
+          anchor.row.fulfilled !== 1
+        )
+          return false;
+        armedReplay = { policy, anchor };
+        return true;
+      },
       bindNative(method: string, path: string, sequence: number) {
         if (retired) return null;
         const matches = calls.filter(

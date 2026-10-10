@@ -28,6 +28,7 @@ const project = "01900000-0000-7000-8000-000000000001",
 function ledger() {
   const c = {
     URL,
+    performance,
     Promise,
     Error,
     Set,
@@ -352,6 +353,10 @@ process.on("unhandledRejection", () => unhandled++);
         /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
       workBodyAwaits: new WeakMap(),
       failureSnapshots: [],
+      failureTailEvents: [],
+      failureFirstSnapshot: null,
+      failureTailOverflow: false,
+      console,
       workDiagnosticTarget: () => ({}),
       safeWorkFailure: () => options.reason ?? "controlled-failure",
       evidence: "/owned",
@@ -391,6 +396,8 @@ process.on("unhandledRejection", () => unhandled++);
           ts.isFunctionDeclaration(n) &&
           [
             "workIncompleteLedger",
+            "recordWorkFailureTail",
+            "saveWorkFailureObservations",
             "workOrdinaryCompletionEvents",
             "observe",
           ].includes(n.name?.text),
@@ -451,6 +458,8 @@ process.on("unhandledRejection", () => unhandled++);
     }
     return {
       observed,
+      saveFailure: (status = "timedOut") =>
+        c.saveWorkFailureObservations(status),
       context,
       emit,
       response,
@@ -467,7 +476,8 @@ process.on("unhandledRejection", () => unhandled++);
           request: () => request,
           status: () => changes.status ?? 503,
           headerValue: async () => headers["x-request-id"] ?? null,
-          allHeaders: async () => headers,
+          allHeaders: async () =>
+            changes.headersPromise ? await changes.headersPromise : headers,
           finished: () => {
             calls++;
             return finished;
@@ -903,8 +913,242 @@ process.on("unhandledRejection", () => unhandled++);
       }
     },
   );
+  const ownedHeaders = {
+    "content-type": "application/problem+json",
+    "content-length": "4096",
+    connection: "close",
+  };
+  for (const late of [false, true])
+    await check(
+      "same locked replay verifies headers " +
+        (late ? "after" : "before") +
+        " request",
+      () => {
+        const kind = "unforwarded-milestone-update",
+          l = ledger(),
+          original = req(kind, { key }),
+          replay = req(kind, { key });
+        l.declare(spec(kind));
+        l.request(original);
+        assert.throws(() => l.armOriginalReplay(kind));
+        l.failed(original);
+        if (!late)
+          assert.equal(
+            l.ownedUnforwardedResponse(original, 503, ownedHeaders),
+            true,
+          );
+        l.armOriginalReplay(kind);
+        l.request(replay);
+        assert.equal(l.replayEvidence(replay).at_request_verified, !late);
+        if (late)
+          assert.equal(
+            l.ownedUnforwardedResponse(original, 503, ownedHeaders),
+            true,
+          );
+        const proof = l.replayEvidence(replay);
+        assert.equal(proof.at_request_verified, !late);
+        assert.equal(proof.later_verified, late);
+        assert.equal(l.isOriginalReplay(replay), true);
+        l.finishOriginalReplay();
+        assert.equal(l.verify(1, new Set([original])), true);
+      },
+    );
+  for (const changes of [
+    { key: "wrong" },
+    { csrf: "wrong" },
+    { origin: "https://wrong.invalid" },
+    {
+      url: `http://127.0.0.1:2/api/v1/projects/${project}/milestones/${target}`,
+    },
+    {
+      body: {
+        expected_version: "8",
+        request: { title: "specific original text" },
+      },
+    },
+    { body: { expected_version: "7", request: { title: "different" } } },
+    {
+      rawBody: JSON.stringify(
+        { expected_version: "7", request: { title: "specific original text" } },
+        null,
+        1,
+      ),
+    },
+    { method: "POST" },
+    { url: `http://127.0.0.1:1/api/v1/projects/${project}/milestones/${key}` },
+  ])
+    await check(
+      "wrong first mutation occupies replay slot: " +
+        Object.keys(changes).join(),
+      () => {
+        const kind = "unforwarded-milestone-update",
+          l = ledger(),
+          original = req(kind, { key }),
+          bad = req(kind, { key, ...changes }),
+          later = req(kind, { key });
+        l.declare(spec(kind));
+        l.request(original);
+        l.failed(original);
+        l.ownedUnforwardedResponse(original, 503, ownedHeaders);
+        l.armOriginalReplay(kind);
+        l.request(bad);
+        l.request(later);
+        l.finishOriginalReplay();
+        assert.equal(l.replayCandidate(bad), true);
+        assert.equal(l.replayCandidate(later), false);
+        assert.equal(l.isOriginalReplay(bad), false);
+        assert.equal(l.verify(1, new Set([original])), false);
+      },
+    );
+  for (const ending of [
+    "end",
+    "close",
+    "duplicate",
+    "missing",
+    "wrong-headers",
+  ])
+    await check("late original headers cannot upgrade " + ending, () => {
+      const kind = "unforwarded-milestone-update",
+        l = ledger(),
+        original = req(kind, { key }),
+        replay = req(kind, { key });
+      l.declare(spec(kind));
+      l.request(original);
+      l.failed(original);
+      l.armOriginalReplay(kind);
+      l.request(replay);
+      if (ending === "close") l.close();
+      else if (ending === "duplicate") l.request(req(kind, { key }));
+      else if (ending === "end") l.finishOriginalReplay();
+      if (ending !== "missing")
+        l.ownedUnforwardedResponse(
+          original,
+          503,
+          ending === "wrong-headers"
+            ? { ...ownedHeaders, "content-length": "1" }
+            : ownedHeaders,
+        );
+      if (!["end", "close"].includes(ending)) l.finishOriginalReplay();
+      assert.equal(l.replayEvidence(replay).at_request_verified, false);
+      assert.equal(l.isOriginalReplay(replay), false);
+      assert.equal(l.verify(1, new Set([original])), false);
+    });
   await check(
-    "original replay ledger binds only one exact retired owned intent",
+    "Task replay freezes exact latest Lookup Request and rejects unready anchor",
+    () => {
+      const kind = "lost-task-update",
+        l = ledger(),
+        original = req(kind, { key }),
+        replay = req(kind, { key });
+      l.declare(spec(kind));
+      l.request(original);
+      l.failed(original);
+      assert.throws(() => l.armOriginalReplay(kind));
+      const lookup = req(kind, {
+        key,
+        method: "POST",
+        url: `http://127.0.0.1:1/api/v1/projects/${project}/task-commands/lookup`,
+        body: {
+          command: "work.task.update",
+          target_id: target,
+          expected_version: "7",
+          request: { title: "specific original text" },
+        },
+      });
+      l.request(lookup);
+      assert.throws(() => l.armOriginalReplay(kind));
+      l.lookupResponse(lookup, key, true);
+      l.armOriginalReplay(kind);
+      l.request(replay);
+      l.finishOriginalReplay();
+      assert.equal(l.replayEvidence(replay).lookup_request_id, key);
+      assert.equal(l.replayEvidence(replay).lookup_finished, true);
+      assert.equal(l.replayEvidence(replay).policy, "historical-task");
+      assert.equal(l.verify(1, new Set([original])), true);
+    },
+  );
+  await check(
+    "afterEach first snapshot survives later original rejection with safe bounded event",
+    async () => {
+      const e = observerEnv(),
+        q = req("canceled-task-read");
+      let reject;
+      const tail = new Promise((_, r) => {
+        reject = r;
+      });
+      e.emit("request", q);
+      e.response(q, tail);
+      await new Promise((r) => setImmediate(r));
+      e.saveFailure();
+      const first = structuredClone(e.writes.at(-1).body);
+      assert.equal(first.observers[0].requests[0].observer_rejected_at, null);
+      reject(Error("private-rejection-material-canary"));
+      await new Promise((r) => setImmediate(r));
+      const last = e.writes.at(-1).body;
+      assert.deepEqual(last.observers, first.observers);
+      assert.equal(last.tail_events.length, 1);
+      assert.equal(last.tail_events[0].after_first_snapshot, true);
+      assert.equal(last.tail_events[0].stage, "finished");
+      assert.equal(last.tail_events[0].reason, "operation-rejected");
+      assert(
+        !JSON.stringify(last).includes("private-rejection-material-canary"),
+      );
+      await assert.rejects(e.observed.verify());
+    },
+  );
+  for (const ending of ["active", "end", "close", "context-close"])
+    await check(
+      "original observer late headers on same captured Request: " + ending,
+      async () => {
+        const kind = "unforwarded-milestone-update",
+          original = req(kind, { key }),
+          replay = req(kind, { key });
+        let releaseHeaders;
+        const headers = new Promise((r) => {
+          releaseHeaders = r;
+        });
+        const e = observerEnv({
+          reason: "aborted",
+          ordinaryCompletion: (request) =>
+            request === replay && e.observed.isOriginalReplay(request),
+        });
+        e.observed.declareIncomplete(spec(kind));
+        e.emit("request", original);
+        e.ownedResponse(original, new Promise(() => {}), {
+          headersPromise: headers,
+        });
+        e.emit("requestfailed", original);
+        await new Promise((r) => setImmediate(r));
+        e.observed.armOriginalReplay(kind);
+        e.emit("request", replay);
+        assert.equal(
+          e.observed.replayEvidence(replay).at_request_verified,
+          false,
+        );
+        const response = e.response(replay, new Promise(() => {}));
+        e.emit("requestfailed", replay);
+        if (ending === "end") e.observed.finishOriginalReplay();
+        if (ending === "close") e.emit("close");
+        if (ending === "context-close") e.context.emit("close");
+        releaseHeaders(ownedHeaders);
+        await new Promise((r) => setImmediate(r));
+        assert.equal(
+          e.observed.replayEvidence(replay).at_request_verified,
+          false,
+        );
+        assert.equal(
+          e.observed.replayEvidence(replay).later_verified,
+          ending === "active",
+        );
+        if (ending === "active") {
+          e.observed.finishOriginalReplay();
+          await e.observed.verify(1);
+        } else await assert.rejects(e.observed.verify(1));
+        assert.equal(response.calls(), 0);
+      },
+    );
+  await check(
+    "arming after original Request event cannot rematch that Request",
     () => {
       const kind = "unforwarded-milestone-update",
         l = ledger(),
@@ -912,57 +1156,54 @@ process.on("unhandledRejection", () => unhandled++);
         replay = req(kind, { key });
       l.declare(spec(kind));
       l.request(original);
-      assert.equal(l.bindOriginalReplay(replay), false);
       l.failed(original);
-      assert.equal(l.bindOriginalReplay(replay), false);
-      assert.equal(
-        l.ownedUnforwardedResponse(original, 503, {
-          "content-type": "application/problem+json",
-          "content-length": "4096",
-          connection: "close",
+      l.ownedUnforwardedResponse(original, 503, ownedHeaders);
+      l.request(replay);
+      l.armOriginalReplay(kind);
+      assert.equal(l.replayCandidate(replay), false);
+      assert.throws(() => l.finishOriginalReplay());
+      assert.equal(l.verify(1, new Set([original])), false);
+    },
+  );
+  await check(
+    "actual catch events distinguish pre/post first snapshot and cap late diagnostics",
+    async () => {
+      const e = observerEnv();
+      let rejectBefore, rejectAfter;
+      const before = new Promise((_, r) => {
+          rejectBefore = r;
         }),
-        true,
+        after = new Promise((_, r) => {
+          rejectAfter = r;
+        });
+      const first = req("canceled-task-read");
+      e.emit("request", first);
+      e.response(first, before);
+      await new Promise((r) => setImmediate(r));
+      rejectBefore(Error("private-before-canary"));
+      await new Promise((r) => setImmediate(r));
+      e.saveFailure();
+      const snapshot = structuredClone(e.writes.at(-1).body);
+      assert.equal(snapshot.tail_events[0].after_first_snapshot, false);
+      assert.notEqual(
+        snapshot.observers[0].requests[0].observer_rejected_at,
+        null,
       );
-      for (const changes of [
-        { key: "wrong-original-key" },
-        { csrf: "wrong-original-csrf" },
-        { origin: "https://different.invalid" },
-        {
-          url: `http://127.0.0.1:2/api/v1/projects/${project}/milestones/${target}`,
-        },
-        {
-          body: {
-            expected_version: "7",
-            request: { title: "different intent" },
-          },
-        },
-        {
-          rawBody: JSON.stringify(
-            {
-              expected_version: "7",
-              request: { title: "specific original text" },
-            },
-            null,
-            1,
-          ),
-        },
-        {
-          url: `http://127.0.0.1:1/api/v1/projects/${project}/milestones/${key}`,
-        },
-        { method: "POST" },
-      ])
-        assert.equal(
-          l.bindOriginalReplay(req(kind, { key, ...changes })),
-          false,
-        );
-      assert.equal(l.bindOriginalReplay(original), false);
-      assert.equal(l.bindOriginalReplay(replay), true);
-      assert.equal(l.isOriginalReplay(replay), true);
-      assert.equal(l.isOriginalReplay(original), false);
-      assert.equal(l.bindOriginalReplay(req(kind, { key })), false);
-      assert.equal(l.verify(1, new Set([original])), true);
-      l.close();
-      assert.equal(l.bindOriginalReplay(replay), false);
+      for (let i = 0; i < 256; i++) {
+        const q = req("canceled-task-read");
+        e.emit("request", q);
+        e.response(q, after);
+      }
+      await new Promise((r) => setImmediate(r));
+      rejectAfter(Error("private-after-canary"));
+      await new Promise((r) => setImmediate(r));
+      const last = e.writes.at(-1).body;
+      assert.deepEqual(last.observers, snapshot.observers);
+      assert.equal(last.tail_events.length, 256);
+      assert.equal(last.tail_overflow, true);
+      assert.equal(last.tail_events.at(-1).after_first_snapshot, true);
+      assert(!JSON.stringify(last).includes("canary"));
+      await assert.rejects(e.observed.verify());
     },
   );
   for (const witnessed of [true, false])
@@ -985,10 +1226,12 @@ process.on("unhandledRejection", () => unhandled++);
         e.ownedResponse(original, new Promise(() => {}));
         e.emit("requestfailed", original);
         await new Promise((r) => setImmediate(r));
+        e.observed.armOriginalReplay(kind);
         e.emit("request", replay);
         assert.equal(e.observed.isOriginalReplay(replay), true);
         const response = e.response(replay, new Promise(() => {}));
         e.emit("requestfailed", replay);
+        e.observed.finishOriginalReplay();
         if (witnessed) await e.observed.verify(1);
         else await assert.rejects(e.observed.verify(1));
         assert.equal(response.calls(), 0);

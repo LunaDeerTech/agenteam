@@ -562,6 +562,7 @@ test("[recovery] three committed lost responses retain original intent and histo
     repository,
     classify: seen.declarationKind,
     isOriginalReplay: seen.isOriginalReplay,
+    replayEvidence: seen.replayEvidence,
   });
   try {
     for (const [index, stage] of (
@@ -640,8 +641,11 @@ test("[recovery] three committed lost responses retain original intent and histo
         ).toBe(true);
       } else {
         await expect(button(recovery(page), "按原请求重放")).toBeEnabled();
+        await diagnostic.armOriginalReplay("not-observed-milestone");
+        seen.armOriginalReplay("unforwarded-milestone-update");
         await button(recovery(page), "按原请求重放").click();
         await confirmed(page);
+        seen.finishOriginalReplay();
       }
       await button(recovery(page), "查证原命令").click();
       await confirmed(page);
@@ -734,8 +738,13 @@ test("[recovery] three committed lost responses retain original intent and histo
       ).toBeVisible();
       await button(recovery(page), "查证原命令").click();
       await confirmed(page);
+      if (domain === "task") {
+        await diagnostic.armOriginalReplay("historical-task");
+        seen.armOriginalReplay("lost-task-update");
+      }
       await button(recovery(page), "按原请求重放").click();
       await confirmed(page);
+      if (domain === "task") seen.finishOriginalReplay();
       await expect(button(page, "新建 Milestone")).toBeDisabled();
       await button(recovery(page), "放弃本地追踪").click();
       if (await page.getByRole("dialog").count()) await discard(page);

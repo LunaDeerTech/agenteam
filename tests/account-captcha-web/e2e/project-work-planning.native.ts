@@ -399,241 +399,297 @@ export function workOrdinaryConsumption(
   requestID: string,
   projectRefresh = false,
 ): boolean {
-  const uuid =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-  const count = (n: unknown) =>
-    typeof n === "number" && Number.isSafeInteger(n) && n > 0;
-  const retired = (observer: any) =>
-    observer?.retired === true &&
-    observer.retirement_reason === "explicit" &&
-    observer.pending_at_retirement === 0 &&
-    observer.pending_observations === 0 &&
-    observer.observer_failed === false &&
-    observer.overflow === false;
-  if (
-    !report ||
-    report.observation_finished !== true ||
-    report.ordinary_finished_gate_unchanged !== false ||
-    report.sample_joined !== true ||
-    report.sample_join_unavailable !== false ||
-    report.end_snapshot_observed !== true ||
-    report.page_closed !== false ||
-    report.context_closed !== false ||
-    report.overflow !== false ||
-    report.projection_rejected !== 0 ||
-    !count(sequence) ||
-    !uuid.test(requestID) ||
-    !Array.isArray(report.requests) ||
-    !Array.isArray(report.documents)
-  )
-    return false;
-  const requests = report.requests.filter(
-    (r: any) => r.sequence === sequence || r.request_id === requestID,
-  );
-  if (requests.length !== 1) return false;
-  const pw = requests[0];
-  if (
-    pw.sequence !== sequence ||
-    pw.request_id !== requestID ||
-    pw.status !== 200 ||
-    pw.declaration !== null ||
-    !(
-      (projectRefresh &&
-        pw.failed_at === null &&
-        Number.isFinite(pw.finished_event_at) &&
-        pw.project_terminal === "finished" &&
-        pw.project_failed_count === 0 &&
-        pw.project_finished_count === 1) ||
-      (pw.failed_at !== null &&
-        Number.isFinite(pw.failed_at) &&
-        pw.finished_event_at === null &&
-        (!projectRefresh ||
-          (pw.project_terminal === "failed" &&
-            pw.project_failure_aborted === true &&
-            pw.project_failed_count === 1 &&
-            pw.project_finished_count === 0)))
-    ) ||
-    !Number.isFinite(pw.request_at) ||
-    !Number.isFinite(pw.response_at) ||
-    pw.request_at > pw.response_at ||
-    pw.response_at > (pw.failed_at ?? pw.finished_event_at)
-  )
-    return false;
-  const parts = typeof pw.path === "string" ? pw.path.split("/") : [];
-  const project =
-    projectRefresh &&
-    parts.length === 5 &&
-    pw.method === "GET" &&
-    pw.has_query === false;
-  const detail =
-    parts.length === 7 &&
-    pw.method === "GET" &&
-    ["milestones", "sprints", "tasks"].includes(parts[5]) &&
-    uuid.test(parts[6]);
-  const lookup =
-    parts.length === 7 &&
-    pw.method === "POST" &&
-    ["structure-commands", "task-commands"].includes(parts[5]) &&
-    parts[6] === "lookup";
-  const blockerLookup =
-    parts.length === 9 &&
-    pw.method === "POST" &&
-    parts[5] === "tasks" &&
-    uuid.test(parts[6]) &&
-    parts[7] === "blocker-commands" &&
-    parts[8] === "lookup";
-  const originalReplay =
-    parts.length === 7 &&
-    pw.method === "PATCH" &&
-    parts[5] === "milestones" &&
-    uuid.test(parts[6]) &&
-    pw.original_replay_bound === true;
-  if (
-    parts.slice(0, 4).join("/") !== "/api/v1/projects" ||
-    !uuid.test(parts[4]) ||
-    !(projectRefresh
-      ? project
-      : detail || lookup || blockerLookup || originalReplay)
-  )
-    return false;
-  const matches = report.documents.flatMap((doc: any) =>
-      (doc.native?.requests ?? [])
-        .filter((n: any) => n.request_id === requestID)
-        .map((native: any) => ({ doc, native })),
-    ),
-    pair = matches[0];
-  if (matches.length !== 1 || !pair) return false;
-  const { doc, native: n } = pair;
-  if (
-    doc.source !== "end" ||
-    doc.end_snapshot_observed !== true ||
-    doc.before_page_close !== true ||
-    !retired(doc.native) ||
-    !retired(doc.publication) ||
-    n.bound_original_request !== true ||
-    n.bound_public_call !== true ||
-    n.pw_sequence !== sequence ||
-    n.declaration !== null ||
-    n.method !== pw.method ||
-    n.path !== pw.path ||
-    n.status !== 200 ||
-    n.has_query !== false ||
-    !count(n.sequence) ||
-    !count(n.call_id) ||
-    n.headers_seen !== true ||
-    n.failure !== "none" ||
-    n.readers !== 1 ||
-    !count(n.read_calls) ||
-    n.read_settled !== n.read_calls ||
-    n.read_rejected !== 0 ||
-    n.read_done !== true ||
-    n.eof_before_interruption !== true ||
-    n.cancel_before_eof !== false ||
-    n.signal_aborted_at_start !== false ||
-    n.signal_aborted !== false ||
-    n.abort_events !== 0 ||
-    n.abort_order !== 0 ||
-    n.read_rejected_order !== 0 ||
-    n.content_length_present !== true ||
-    n.content_length_valid !== true ||
-    n.content_encoding_identity !== true ||
-    n.content_length_comparable !== true ||
-    n.content_length_matches_eof !== true ||
-    !count(n.bytes) ||
-    n.bytes !== n.content_length ||
-    n.reader_cancel_calls !== 1 ||
-    n.reader_cancel_settled !== 1 ||
-    n.reader_cancel_rejected !== 0 ||
-    n.stream_cancel_calls !== 1 ||
-    n.stream_cancel_settled !== 1 ||
-    n.stream_cancel_rejected !== 0 ||
-    n.release_calls !== 1 ||
-    n.release_successes !== 1 ||
-    ![
-      n.headers_order,
-      n.read_done_order,
-      n.reader_cancel_order,
-      n.release_order,
-      n.stream_cancel_order,
-    ].every(count) ||
-    !(
-      n.headers_order < n.read_done_order &&
-      n.read_done_order < n.reader_cancel_order &&
-      n.reader_cancel_order < n.release_order &&
-      n.release_order < n.stream_cancel_order
+  function completed(
+    sequence: number,
+    requestID: string,
+    historyLookup?: { finished: boolean },
+  ): boolean {
+    const uuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+    const count = (n: unknown) =>
+      typeof n === "number" && Number.isSafeInteger(n) && n > 0;
+    const retired = (observer: any) =>
+      observer?.retired === true &&
+      observer.retirement_reason === "explicit" &&
+      observer.pending_at_retirement === 0 &&
+      observer.pending_observations === 0 &&
+      observer.observer_failed === false &&
+      observer.overflow === false;
+    if (
+      !report ||
+      report.observation_finished !== true ||
+      report.ordinary_finished_gate_unchanged !== false ||
+      report.sample_joined !== true ||
+      report.sample_join_unavailable !== false ||
+      report.end_snapshot_observed !== true ||
+      report.page_closed !== false ||
+      report.context_closed !== false ||
+      report.overflow !== false ||
+      report.projection_rejected !== 0 ||
+      !count(sequence) ||
+      !uuid.test(requestID) ||
+      !Array.isArray(report.requests) ||
+      !Array.isArray(report.documents)
     )
-  )
-    return false;
-  const calls = doc.publication.calls.filter(
-      (c: any) => c.call_id === n.call_id,
-    ),
-    call = calls[0];
-  if (
-    calls.length !== 1 ||
-    doc.native.requests.filter((v: any) => v.call_id === n.call_id).length !==
-      1 ||
-    !call ||
-    call.method !== pw.method ||
-    call.path !== pw.path ||
-    call.native_requests !== 1 ||
-    call.native_sequence !== n.sequence ||
-    !uuid.test(call.target_id) ||
-    call.entry_identity_matches !== true ||
-    call.entry_not_busy !== true ||
-    call.identity_current !== true ||
-    call.authenticated !== true ||
-    call.not_busy !== true ||
-    call.fulfilled !== 1 ||
-    call.rejected !== 0 ||
-    call.synchronous_throws !== 0 ||
-    call.active !== false ||
-    !Number.isFinite(call.call_at) ||
-    !Number.isFinite(call.settled_at) ||
-    !Number.isFinite(call.sample_at) ||
-    call.call_at > call.settled_at ||
-    call.settled_at > call.sample_at
-  )
-    return false;
-  if (project)
-    return (
-      call.operation === "getProject" &&
-      call.target_id === parts[4] &&
-      call.result_kind === "typed-detail-returned" &&
-      call.result_target_matches === true &&
-      uuid.test(call.result_owner_id) &&
-      call.result_lifecycle === "archived" &&
-      typeof call.result_version === "string" &&
-      /^[1-9][0-9]{0,18}$/.test(call.result_version) &&
-      call.workspace_returned === 1 &&
-      call.workspace_rejected === 0 &&
-      call.workspace_published === true &&
-      call.workspace_canonical === true &&
-      Number.isFinite(call.workspace_settled_at) &&
-      call.settled_at <= call.workspace_settled_at &&
-      call.workspace_settled_at <= call.sample_at
+      return false;
+    const requests = report.requests.filter(
+      (r: any) => r.sequence === sequence || r.request_id === requestID,
     );
-  if (originalReplay)
-    return (
-      call.operation === "retryOriginal" &&
-      call.target_id === parts[6] &&
-      call.result_kind === "typed-receipt-returned" &&
-      call.replay_from_not_observed === true &&
-      call.replay_receipt_published === true
-    );
-  return detail
-    ? call.operation ===
-        (
-          {
-            milestones: "getMilestone",
-            sprints: "getSprint",
-            tasks: "getTask",
-          } as Record<string, string>
-        )[parts[5]] &&
-        call.target_id === parts[6] &&
-        call.result_kind === "typed-detail-returned"
-    : call.operation === "checkOriginal" &&
-        (!blockerLookup || call.target_id === parts[6]) &&
-        ["committed", "in_progress", "not_observed"].includes(call.result_kind);
+    if (requests.length !== 1) return false;
+    const pw = requests[0];
+    if (
+      pw.sequence !== sequence ||
+      pw.request_id !== requestID ||
+      pw.status !== 200 ||
+      pw.declaration !== null ||
+      !(
+        ((projectRefresh || historyLookup?.finished === true) &&
+          pw.failed_at === null &&
+          Number.isFinite(pw.finished_event_at) &&
+          (historyLookup?.finished === true ||
+            (pw.project_terminal === "finished" &&
+              pw.project_failed_count === 0 &&
+              pw.project_finished_count === 1))) ||
+        (pw.failed_at !== null &&
+          Number.isFinite(pw.failed_at) &&
+          pw.finished_event_at === null &&
+          (!projectRefresh ||
+            (pw.project_terminal === "failed" &&
+              pw.project_failure_aborted === true &&
+              pw.project_failed_count === 1 &&
+              pw.project_finished_count === 0)))
+      ) ||
+      !Number.isFinite(pw.request_at) ||
+      !Number.isFinite(pw.response_at) ||
+      pw.request_at > pw.response_at ||
+      pw.response_at > (pw.failed_at ?? pw.finished_event_at)
+    )
+      return false;
+    const parts = typeof pw.path === "string" ? pw.path.split("/") : [];
+    const project =
+      projectRefresh &&
+      parts.length === 5 &&
+      pw.method === "GET" &&
+      pw.has_query === false;
+    const detail =
+      parts.length === 7 &&
+      pw.method === "GET" &&
+      ["milestones", "sprints", "tasks"].includes(parts[5]) &&
+      uuid.test(parts[6]);
+    const lookup =
+      parts.length === 7 &&
+      pw.method === "POST" &&
+      ["structure-commands", "task-commands"].includes(parts[5]) &&
+      parts[6] === "lookup";
+    const blockerLookup =
+      parts.length === 9 &&
+      pw.method === "POST" &&
+      parts[5] === "tasks" &&
+      uuid.test(parts[6]) &&
+      parts[7] === "blocker-commands" &&
+      parts[8] === "lookup";
+    const originalReplay =
+      parts.length === 7 &&
+      pw.method === "PATCH" &&
+      ["milestones", "tasks"].includes(parts[5]) &&
+      uuid.test(parts[6]) &&
+      (pw.original_replay_bound === true ||
+        pw.original_replay_later_verified === true) &&
+      pw.replay_at_request_verified === pw.original_replay_bound &&
+      pw.replay_ended === true &&
+      pw.replay_invalid === false &&
+      Number.isFinite(pw.replay_request_at) &&
+      Number.isFinite(pw.replay_verified_at) &&
+      pw.replay_request_at <= pw.replay_verified_at &&
+      pw.replay_policy ===
+        (parts[5] === "tasks" ? "historical-task" : "not-observed-milestone");
+    if (
+      parts.slice(0, 4).join("/") !== "/api/v1/projects" ||
+      !uuid.test(parts[4]) ||
+      !(historyLookup
+        ? lookup && parts[5] === "task-commands"
+        : projectRefresh
+          ? project
+          : detail || lookup || blockerLookup || originalReplay)
+    )
+      return false;
+    const matches = report.documents.flatMap((doc: any) =>
+        (doc.native?.requests ?? [])
+          .filter((n: any) => n.request_id === requestID)
+          .map((native: any) => ({ doc, native })),
+      ),
+      pair = matches[0];
+    if (matches.length !== 1 || !pair) return false;
+    const { doc, native: n } = pair;
+    if (
+      doc.source !== "end" ||
+      doc.end_snapshot_observed !== true ||
+      doc.before_page_close !== true ||
+      !retired(doc.native) ||
+      !retired(doc.publication) ||
+      n.bound_original_request !== true ||
+      n.bound_public_call !== true ||
+      n.pw_sequence !== sequence ||
+      n.declaration !== null ||
+      n.method !== pw.method ||
+      n.path !== pw.path ||
+      n.status !== 200 ||
+      n.has_query !== false ||
+      !count(n.sequence) ||
+      !count(n.call_id) ||
+      n.headers_seen !== true ||
+      n.failure !== "none" ||
+      n.readers !== 1 ||
+      !count(n.read_calls) ||
+      n.read_settled !== n.read_calls ||
+      n.read_rejected !== 0 ||
+      n.read_done !== true ||
+      n.eof_before_interruption !== true ||
+      n.cancel_before_eof !== false ||
+      n.signal_aborted_at_start !== false ||
+      n.signal_aborted !== false ||
+      n.abort_events !== 0 ||
+      n.abort_order !== 0 ||
+      n.read_rejected_order !== 0 ||
+      n.content_length_present !== true ||
+      n.content_length_valid !== true ||
+      n.content_encoding_identity !== true ||
+      n.content_length_comparable !== true ||
+      n.content_length_matches_eof !== true ||
+      !count(n.bytes) ||
+      n.bytes !== n.content_length ||
+      n.reader_cancel_calls !== 1 ||
+      n.reader_cancel_settled !== 1 ||
+      n.reader_cancel_rejected !== 0 ||
+      n.stream_cancel_calls !== 1 ||
+      n.stream_cancel_settled !== 1 ||
+      n.stream_cancel_rejected !== 0 ||
+      n.release_calls !== 1 ||
+      n.release_successes !== 1 ||
+      ![
+        n.headers_order,
+        n.read_done_order,
+        n.reader_cancel_order,
+        n.release_order,
+        n.stream_cancel_order,
+      ].every(count) ||
+      !(
+        n.headers_order < n.read_done_order &&
+        n.read_done_order < n.reader_cancel_order &&
+        n.reader_cancel_order < n.release_order &&
+        n.release_order < n.stream_cancel_order
+      )
+    )
+      return false;
+    const calls = doc.publication.calls.filter(
+        (c: any) => c.call_id === n.call_id,
+      ),
+      call = calls[0];
+    if (
+      calls.length !== 1 ||
+      doc.native.requests.filter((v: any) => v.call_id === n.call_id).length !==
+        1 ||
+      !call ||
+      call.method !== pw.method ||
+      call.path !== pw.path ||
+      call.native_requests !== 1 ||
+      call.native_sequence !== n.sequence ||
+      !uuid.test(call.target_id) ||
+      call.entry_identity_matches !== true ||
+      call.entry_not_busy !== true ||
+      call.identity_current !== true ||
+      call.authenticated !== true ||
+      call.not_busy !== true ||
+      call.fulfilled !== 1 ||
+      call.rejected !== 0 ||
+      call.synchronous_throws !== 0 ||
+      call.active !== false ||
+      !Number.isFinite(call.call_at) ||
+      !Number.isFinite(call.settled_at) ||
+      !Number.isFinite(call.sample_at) ||
+      call.call_at > call.settled_at ||
+      call.settled_at > call.sample_at
+    )
+      return false;
+    if (project)
+      return (
+        call.operation === "getProject" &&
+        call.target_id === parts[4] &&
+        call.result_kind === "typed-detail-returned" &&
+        call.result_target_matches === true &&
+        uuid.test(call.result_owner_id) &&
+        call.result_lifecycle === "archived" &&
+        typeof call.result_version === "string" &&
+        /^[1-9][0-9]{0,18}$/.test(call.result_version) &&
+        call.workspace_returned === 1 &&
+        call.workspace_rejected === 0 &&
+        call.workspace_published === true &&
+        call.workspace_canonical === true &&
+        Number.isFinite(call.workspace_settled_at) &&
+        call.settled_at <= call.workspace_settled_at &&
+        call.workspace_settled_at <= call.sample_at
+      );
+    if (historyLookup)
+      return (
+        call.operation === "checkOriginal" &&
+        call.result_kind === "committed" &&
+        call.history_receipt_published === true
+      );
+    if (originalReplay) {
+      if (
+        call.operation !== "retryOriginal" ||
+        call.target_id !== parts[6] ||
+        call.result_kind !== "typed-receipt-returned" ||
+        call.replay_receipt_published !== true
+      )
+        return false;
+      if (pw.replay_policy === "not-observed-milestone")
+        return call.replay_from_not_observed === true;
+      if (
+        call.replay_from_history !== true ||
+        !count(call.history_lookup_call_id) ||
+        !uuid.test(pw.replay_lookup_request_id)
+      )
+        return false;
+      const anchors = doc.native.requests.filter(
+        (v: any) =>
+          v.call_id === call.history_lookup_call_id &&
+          v.request_id === pw.replay_lookup_request_id &&
+          v.method === "POST" &&
+          v.path === `/api/v1/projects/${parts[4]}/task-commands/lookup`,
+      );
+      const anchor = anchors[0],
+        historicalCalls = doc.publication.calls.filter(
+          (v: any) => v.call_id === call.history_lookup_call_id,
+        );
+      return (
+        anchors.length === 1 &&
+        historicalCalls.length === 1 &&
+        historicalCalls[0].target_id === parts[6] &&
+        historicalCalls[0].settled_at <= call.call_at &&
+        completed(anchor.pw_sequence, pw.replay_lookup_request_id, {
+          finished: pw.replay_lookup_finished === true,
+        })
+      );
+    }
+    return detail
+      ? call.operation ===
+          (
+            {
+              milestones: "getMilestone",
+              sprints: "getSprint",
+              tasks: "getTask",
+            } as Record<string, string>
+          )[parts[5]] &&
+          call.target_id === parts[6] &&
+          call.result_kind === "typed-detail-returned"
+      : call.operation === "checkOriginal" &&
+          (!blockerLookup || call.target_id === parts[6]) &&
+          ["committed", "in_progress", "not_observed"].includes(
+            call.result_kind,
+          );
+  }
+  return completed(sequence, requestID);
 }
 
 export async function startWorkNativeDiagnostic(
@@ -644,6 +700,18 @@ export async function startWorkNativeDiagnostic(
     repository: string;
     classify: (request: PWRequest) => string | null;
     isOriginalReplay?: (request: PWRequest) => boolean;
+    replayEvidence?: (request: PWRequest) => {
+      policy: string;
+      at_request_verified: boolean;
+      later_verified: boolean;
+      request_at: number | null;
+      verified_at: number | null;
+      ended: boolean;
+      invalid: boolean;
+      reason: string;
+      lookup_request_id: string | null;
+      lookup_finished: boolean;
+    } | null;
     ordinaryCompletion?: boolean;
     projectRefreshCompletion?: boolean;
   },
@@ -819,10 +887,10 @@ export async function startWorkNativeDiagnostic(
     const result = scalar(
       row,
       publication
-        ? "call_id call_at fulfilled rejected synchronous_throws native_requests native_sequence settled_at workspace_returned workspace_rejected workspace_settled_at detail_observed_after_fulfilled_at confirmed_observed_after_fulfilled_at sample_at"
+        ? "history_lookup_call_id call_id call_at fulfilled rejected synchronous_throws native_requests native_sequence settled_at workspace_returned workspace_rejected workspace_settled_at detail_observed_after_fulfilled_at confirmed_observed_after_fulfilled_at sample_at"
         : "sequence call_id status readers read_calls read_settled read_rejected bytes reader_cancel_calls reader_cancel_settled reader_cancel_rejected stream_cancel_calls stream_cancel_settled stream_cancel_rejected release_calls release_successes abort_events headers_order read_done_order read_rejected_order abort_order reader_cancel_order stream_cancel_order release_order content_length",
       publication
-        ? "replay_from_not_observed replay_receipt_published workspace_published workspace_canonical result_target_matches entry_identity_matches entry_not_busy active identity_current authenticated not_busy detail_target_present entry_detail_target_present recovery_confirmed entry_recovery_confirmed recovery_uncertain replay_available"
+        ? "history_receipt_published replay_from_history replay_from_not_observed replay_receipt_published workspace_published workspace_canonical result_target_matches entry_identity_matches entry_not_busy active identity_current authenticated not_busy detail_target_present entry_detail_target_present recovery_confirmed entry_recovery_confirmed recovery_uncertain replay_available"
         : "has_query headers_seen read_done cancel_before_eof signal_aborted_at_start signal_aborted content_length_present content_length_valid content_encoding_identity eof_before_interruption length_comparable_before_binding length_matches_before_binding",
     );
     result.method = row.method;
@@ -1011,18 +1079,35 @@ export async function startWorkNativeDiagnostic(
     }
   };
   function save(joined: boolean, endSeen: boolean) {
-    const requests = [...rows].map(([request, row]) => ({
-      ...row,
-      declaration: [
-        "unforwarded-milestone-update",
-        "lost-milestone-update",
-        "lost-task-update",
-        "lost-blocker-add",
-        "canceled-task-read",
-      ].includes(config.classify(request) ?? "")
-        ? config.classify(request)
-        : null,
-    }));
+    const requests = [...rows].map(([request, row]) => {
+      const replay = config.replayEvidence?.(request);
+      return {
+        ...row,
+        ...(replay
+          ? {
+              replay_policy: replay.policy,
+              replay_at_request_verified: replay.at_request_verified,
+              original_replay_later_verified: replay.later_verified,
+              replay_request_at: replay.request_at,
+              replay_verified_at: replay.verified_at,
+              replay_ended: replay.ended,
+              replay_invalid: replay.invalid,
+              replay_reason: replay.reason,
+              replay_lookup_request_id: replay.lookup_request_id,
+              replay_lookup_finished: replay.lookup_finished,
+            }
+          : {}),
+        declaration: [
+          "unforwarded-milestone-update",
+          "lost-milestone-update",
+          "lost-task-update",
+          "lost-blocker-add",
+          "canceled-task-read",
+        ].includes(config.classify(request) ?? "")
+          ? config.classify(request)
+          : null,
+      };
+    });
     const observations = [...documents.values()].map((doc) => ({
       ...doc,
       end_snapshot_observed: doc.source === "end",
@@ -1114,6 +1199,23 @@ export async function startWorkNativeDiagnostic(
   }
   sample();
   return {
+    async armOriginalReplay(
+      policy: "not-observed-milestone" | "historical-task",
+    ) {
+      if (
+        stopped ||
+        pageClosed ||
+        contextClosed ||
+        Date.now() >= expiresAt ||
+        !(await page.evaluate(
+          (value) =>
+            (window as any).__workPublicationDiagnostic?.armReplay(value) ===
+            true,
+          policy,
+        ))
+      )
+        throw Error("WORK_PUBLIC_REPLAY_ARM_REJECTED");
+    },
     async projectRefreshTerminal(response: PWResponse) {
       const request = response.request(),
         row = rows.get(request),

@@ -130,58 +130,71 @@ function installer(file, name) {
   );
   let positiveReport, blockerReport;
   function reportOf(e) {
-    const n = e.native.requests[0];
-    const report = {
-      observation_finished: true,
-      ordinary_finished_gate_unchanged: false,
-      sample_joined: true,
-      sample_join_unavailable: false,
-      end_snapshot_observed: true,
-      page_closed: false,
-      context_closed: false,
-      overflow: false,
-      projection_rejected: 0,
-      requests: [
-        {
-          sequence: 1,
-          request_id: n.request_id,
-          method: n.method,
-          path: n.path,
-          status: n.status,
-          declaration: null,
-          original_replay_bound: e.originalReplayBound === true,
-          request_at: 0,
-          response_at: 1,
-          failed_at: 2,
-          finished_event_at: null,
-        },
-      ],
-      documents: [
-        {
-          source: "end",
-          end_snapshot_observed: true,
-          before_page_close: true,
-          native: {
-            ...e.native,
-            requests: [
-              {
+    const requests = e.native.requests.map((n, i) => ({
+      sequence: i + 1,
+      request_id: n.request_id,
+      method: n.method,
+      path: n.path,
+      status: n.status,
+      declaration: null,
+      original_replay_bound:
+        e.originalReplayBound === true && n.request_id === id(100),
+      replay_at_request_verified:
+        e.originalReplayBound === true && n.request_id === id(100),
+      original_replay_later_verified: false,
+      replay_policy: e.replayPolicy,
+      replay_request_at: 0,
+      replay_verified_at: 1,
+      replay_ended: true,
+      replay_invalid: false,
+      replay_lookup_request_id:
+        e.replayPolicy === "historical-task" ? id(98) : null,
+      replay_lookup_finished: e.replayPolicy === "historical-task",
+      request_at: 0,
+      response_at: 1,
+      failed_at: n.request_id === id(98) ? null : 2,
+      finished_event_at: n.request_id === id(98) ? 2 : null,
+    }));
+    return JSON.parse(
+      JSON.stringify({
+        observation_finished: true,
+        ordinary_finished_gate_unchanged: false,
+        sample_joined: true,
+        sample_join_unavailable: false,
+        end_snapshot_observed: true,
+        page_closed: false,
+        context_closed: false,
+        overflow: false,
+        projection_rejected: 0,
+        requests,
+        documents: [
+          {
+            source: "end",
+            end_snapshot_observed: true,
+            before_page_close: true,
+            native: {
+              ...e.native,
+              requests: e.native.requests.map((n, i) => ({
                 ...n,
                 bound_original_request: true,
                 bound_public_call: true,
-                pw_sequence: 1,
+                pw_sequence: i + 1,
                 declaration: null,
                 content_length_comparable: n.length_comparable_before_binding,
                 content_length_matches_eof: n.length_matches_before_binding,
-              },
-            ],
+              })),
+            },
+            publication: e.public,
           },
-          publication: e.public,
-        },
-      ],
-    };
-    return JSON.parse(JSON.stringify(report));
+        ],
+      }),
+    );
   }
-  const accepts = (e) => judge(reportOf(e), 1, id(100));
+  const accepts = (e) => {
+    const report = reportOf(e),
+      request = report.requests.find((r) => r.request_id === id(100));
+    return !!request && judge(report, request.sequence, id(100));
+  };
   const passed = [];
   async function check(name, fn) {
     await fn();
@@ -221,6 +234,12 @@ function installer(file, name) {
       lookupPreparing = false,
       originalMaterial,
       originalReplayBound = false;
+    const historicalTaskReceipt = {
+      task: { ...task, plan: "original" },
+      changed: true,
+      task_event_id: id(21),
+      event_ids: [id(22)],
+    };
     const successorHold = deferred();
     const readerHold = deferred(),
       streamHold = deferred(),
@@ -256,20 +275,25 @@ function installer(file, name) {
       if (lookupPreparing) {
         assert.equal(
           url,
-          `/api/v1/projects/${project}/structure-commands/lookup`,
+          `/api/v1/projects/${project}/${kind === "replay-task" ? "task" : "structure"}-commands/lookup`,
         );
         assert.equal(init.method, "POST");
+        const value =
+          kind === "replay-task"
+            ? options.uncommittedHistory
+              ? { status: "not_observed", receipt: null }
+              : { status: "committed", receipt: historicalTaskReceipt }
+            : { state: "not_observed", result: null };
+        const raw = JSON.stringify(value);
         return Promise.resolve(
-          new Response(
-            JSON.stringify({ state: "not_observed", result: null }),
-            {
-              status: 200,
-              headers: {
-                "Content-Type": "application/json",
-                "X-Request-ID": id(98),
-              },
+          new Response(raw, {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+              "Content-Length": String(Buffer.byteLength(raw)),
+              "X-Request-ID": id(98),
             },
-          ),
+          }),
         );
       }
       assert.equal(url, endpoint);
@@ -284,7 +308,7 @@ function installer(file, name) {
               },
             }),
         );
-      if (kind === "replay") {
+      if (["replay", "replay-task"].includes(kind)) {
         originalReplayBound =
           originalMaterial.url === url &&
           originalMaterial.method === init.method &&
@@ -299,7 +323,7 @@ function installer(file, name) {
         init.method,
         ["structure", "lookup-task", "lookup-blocker"].includes(kind)
           ? "POST"
-          : kind === "replay"
+          : ["replay", "replay-task"].includes(kind)
             ? "PATCH"
             : "GET",
       );
@@ -324,6 +348,21 @@ function installer(file, name) {
               sprint: null,
               event_id: id(20),
             };
+      if (kind === "replay-task") {
+        value = options.voidReceipt
+          ? null
+          : {
+              ...historicalTaskReceipt,
+              task: {
+                ...historicalTaskReceipt.task,
+                ...(options.differentHistory
+                  ? { plan: "newer-current-value" }
+                  : {}),
+                ...(options.wrongReplayTask ? { id: id(15) } : {}),
+                ...(options.wrongReplayVersion ? { version: "3" } : {}),
+              },
+            };
+      }
       if (kind === "lookup-blocker" && options.lookupStatus) {
         value = {
           status: options.lookupStatus,
@@ -421,7 +460,13 @@ function installer(file, name) {
     assert.equal(auth.state.phase, "authenticated");
     assert.equal(auth.state.busy, false);
     if (
-      ["structure", "lookup-task", "lookup-blocker", "replay"].includes(kind)
+      [
+        "structure",
+        "lookup-task",
+        "lookup-blocker",
+        "replay",
+        "replay-task",
+      ].includes(kind)
     ) {
       preparing = true;
       await auth.workPlanning
@@ -469,6 +514,11 @@ function installer(file, name) {
         assert.equal(auth.workPlanning.progress.canReplay, true);
       }
     }
+    if (options.voidLookupFulfillment) {
+      const original = auth.workPlanning.checkOriginal;
+      auth.workPlanning.checkOriginal = (...args) =>
+        original(...args).then(() => undefined);
+    }
     if (options.voidFulfillment) {
       const original = auth.workPlanning.retryOriginal;
       auth.workPlanning.retryOriginal = (...args) =>
@@ -493,21 +543,35 @@ function installer(file, name) {
       }),
       "installed",
     );
+    if (kind === "replay-task") {
+      lookupPreparing = true;
+      await auth.workPlanning.checkOriginal();
+      lookupPreparing = false;
+      await drain();
+    }
+    if (["replay", "replay-task"].includes(kind) && !options.skipReplayArm) {
+      const armed = w.__workPublicationDiagnostic.armReplay(
+        kind === "replay-task" ? "historical-task" : "not-observed-milestone",
+      );
+      assert.equal(
+        armed,
+        !(options.uncommittedHistory || options.voidLookupFulfillment),
+      );
+    }
     let settled = false,
       outcome = "pending";
     const call = () => {
-      const result =
-        kind === "replay"
-          ? auth.workPlanning.retryOriginal()
-          : ["structure", "lookup-task", "lookup-blocker"].includes(kind)
-            ? auth.workPlanning.checkOriginal()
-            : auth.workPlanning[
-                kind === "milestone"
-                  ? "getMilestone"
-                  : kind === "sprint"
-                    ? "getSprint"
-                    : "getTask"
-              ](project, target);
+      const result = ["replay", "replay-task"].includes(kind)
+        ? auth.workPlanning.retryOriginal()
+        : ["structure", "lookup-task", "lookup-blocker"].includes(kind)
+          ? auth.workPlanning.checkOriginal()
+          : auth.workPlanning[
+              kind === "milestone"
+                ? "getMilestone"
+                : kind === "sprint"
+                  ? "getSprint"
+                  : "getTask"
+            ](project, target);
       void result.then(
         () => {
           settled = true;
@@ -522,6 +586,8 @@ function installer(file, name) {
     };
     const finish = () => ({
       originalReplayBound,
+      replayPolicy:
+        kind === "replay-task" ? "historical-task" : "not-observed-milestone",
       public: w.__workPublicationDiagnostic.finish(),
       native: w.__workNativeDiagnostic.finish(),
     });
@@ -740,6 +806,25 @@ function installer(file, name) {
         const e = x.finish();
         assert.equal(e.public.calls[0].replay_receipt_published, true);
         assert.equal(accepts(e), true);
+        const later = reportOf(e);
+        Object.assign(later.requests[0], {
+          original_replay_bound: false,
+          replay_at_request_verified: false,
+          original_replay_later_verified: true,
+        });
+        assert.equal(judge(later, 1, id(100)), true);
+        for (const changes of [
+          { original_replay_later_verified: false },
+          { replay_at_request_verified: true },
+          { replay_ended: false },
+          { replay_invalid: true },
+          { replay_verified_at: -1 },
+          { replay_policy: "historical-task" },
+        ]) {
+          const bad = structuredClone(later);
+          Object.assign(bad.requests[0], changes);
+          assert.equal(judge(bad, 1, id(100)), false);
+        }
         for (const field of [
           "replay_from_not_observed",
           "replay_receipt_published",
@@ -781,6 +866,132 @@ function installer(file, name) {
     },
   );
 
+  for (const issue of [
+    null,
+    "uncommittedHistory",
+    "voidLookupFulfillment",
+    "differentHistory",
+    "wrongReplayTask",
+    "wrongReplayVersion",
+    "voidFulfillment",
+    "voidReceipt",
+    "badJSON",
+    "badUTF8",
+  ]) {
+    await check(
+      "actual historical Task replay " +
+        (issue ?? "joins original Lookup receipt and same replay publication"),
+      async () => {
+        const x = await setup("replay-task", issue ? { [issue]: true } : {});
+        try {
+          await x.call().catch(() => {});
+          await drain();
+          const e = x.finish();
+          assert.equal(accepts(e), issue === null);
+          if (!issue) {
+            const report = reportOf(e),
+              replay = report.requests.find((r) => r.request_id === id(100));
+            for (const mutation of [
+              (r) =>
+                (r.requests.find(
+                  (v) => v.request_id === id(100),
+                ).replay_lookup_request_id = id(97)),
+              (r) =>
+                (r.documents[0].publication.calls[0].history_receipt_published = false),
+              (r) =>
+                (r.documents[0].native.requests[0].reader_cancel_settled = 0),
+              (r) =>
+                (r.documents[0].native.requests[0].stream_cancel_settled = 0),
+              (r) =>
+                (r.documents[0].publication.calls[1].history_lookup_call_id = 99),
+              (r) => r.requests.push({ ...r.requests[0], sequence: 99 }),
+            ]) {
+              const bad = structuredClone(report);
+              mutation(bad);
+              assert.equal(judge(bad, replay.sequence, id(100)), false);
+            }
+          }
+        } finally {
+          await x.cleanup();
+        }
+      },
+    );
+  }
+  for (const tail of ["reader", "stream"])
+    await check(
+      "actual historical Task replay waits original " + tail,
+      async () => {
+        const x = await setup("replay-task", { [tail + "Held"]: true });
+        try {
+          const original = x.call();
+          await x[tail + "Entered"].promise;
+          await drain();
+          assert.equal(x.settled(), false);
+          assert.equal(x.auth.state.busy, true);
+          x[tail === "reader" ? "releaseReader" : "releaseStream"]();
+          await original;
+          await drain();
+          assert.equal(accepts(x.finish()), true);
+        } finally {
+          await x.cleanup();
+        }
+      },
+    );
+  for (const kind of ["replay", "replay-task"])
+    await check(
+      "actual replay started before arm cannot acquire late publication proof: " +
+        kind,
+      async () => {
+        const x = await setup(kind, { skipReplayArm: true, streamHeld: true });
+        try {
+          const promise = x.call();
+          await x.streamEntered.promise;
+          await drain();
+          assert.equal(
+            x.w.__workPublicationDiagnostic.armReplay(
+              kind === "replay-task"
+                ? "historical-task"
+                : "not-observed-milestone",
+            ),
+            false,
+          );
+          x.releaseStream();
+          await promise;
+          await drain();
+          assert.equal(accepts(x.finish()), false);
+        } finally {
+          await x.cleanup();
+        }
+      },
+    );
+  for (const ending of ["abandon", "identity"])
+    await check(
+      "actual historical Task replay early " +
+        ending +
+        " cannot upgrade after original outer tail",
+      async () => {
+        const x = await setup("replay-task", { streamHeld: true });
+        try {
+          const promise = x.call();
+          await x.streamEntered.promise;
+          await drain();
+          if (ending === "abandon") x.auth.workPlanning.abandon();
+          else x.auth.leave();
+          await promise.catch(() => {});
+          await drain();
+          assert.equal(x.outcome(), "rejected");
+          assert.equal(x.auth.state.busy, true);
+          const evidence = x.finish();
+          assert.equal(accepts(evidence), false);
+          x.releaseStream();
+          await drain();
+          assert.equal(x.auth.state.busy, false);
+          assert.equal(accepts(evidence), false);
+        } finally {
+          await x.cleanup();
+        }
+      },
+    );
   for (const status of ["not_observed", "committed"])
     await check(
       "actual Blocker Lookup strict " +

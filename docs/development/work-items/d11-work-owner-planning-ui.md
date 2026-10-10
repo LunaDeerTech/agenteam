@@ -329,3 +329,7 @@ Recovery10（27870089）整轮仍FAIL：PW恢复1 passed/18.5秒，原Go三域�
 R10后验仅Go +3/-1严格修为500/INTERNAL_ERROR/not_committed，固定trigger/所有原业务门不变；content未参与者映射窄审接受、无must-fix且未跑Go/PG。新account-recovery11.test hot integration/race编译46649 actual0、精确list aaa247 actual0/恰一top。四路径停写待root保存，修后整R11尚未运行，R10整FAIL不回填。
 
 Recovery11 原整轮 FAIL（65409abc/account-recovery11.test，session13547，Go69.58秒、outer171.862秒actual1）：真实三域恢复与三份Project刷新联合门已越过，最终 seen.verify 等原观察 tails 至45秒总界，随后报 observerErrors=3；原 afterEach 安全快照尚无 observer_rejected 时间，暂未将三错误逐一归因。Go持久后验与严格500/INTERNAL_ERROR/not_committed修后断言未到；R10局部PW PASS不升级本轮。首次Go前本轮私有XDG telemetry mode=off，去TEST_TELEMETRY_DIR及两CHILD旁路；fresh14,661,992,448B与空Docker config预飞通过。Go/driver/outer实际Wait1，Node/proxy/body/preparation/root join、四Z实际Wait0、七资源/三private/runtime/desc/TCP双尾齐且inputsame，窗口已归还。最小安全原件 `.agent-state/work-owner-planning-ui/recovery-eleventh-failure.json` 仅保失败请求坐标及同原native/public投影，不复制全log；原08缺尾、09/10 FAIL保留。下一步只离线定位原观察门，不加预算、不重试、不泛放failed。
+
+R11后六测试源窄候选已冻结交 content：保原request时false事实，只对arm后首mutation同对象/原材料允许owned503头后齐的later_verified，end/page/context关闭后拒；Task独立绑定原历史Lookup/XID/实际receipt对象与当次重放typed发布，复用所有原消费及退役尾。原catch追加安全有界tail_events并保首次afterEach快照，不给旧三错误补认请求。helper111、真实Session/API143及Project57控制均actual0/0unhandled，严格TS通过；仅离线候选，产品/Go/dist/45秒与原严格500后验未改，完整Recovery12尚待独审和fresh窗口，旧FAIL保持。
+
+content随后完成六技术路径实际diff限定只读审，有限方法接受、无must-fix，复用上述控制/TS且未跑动态/browser。格式与精确单recovery发现actual0；八路径全冻结待root保存，fresh Recovery12及完整卡仍未动态接受。
