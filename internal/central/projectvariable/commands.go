@@ -61,7 +61,7 @@ func (s *Service) current(ctx context.Context, tx f.Tx, a i.Actor, q c.VariableC
 }
 func (s *Service) execute(ctx context.Context, a i.Actor, m f.CommandMeta, in commandInput) (c.VariableMutation, error) {
 	empty := c.VariableMutation{}
-	ctx, call, done, e := s.begin(ctx)
+	ctx, call, done, e := s.beginProject(ctx, in.Project, mutationCall)
 	if e != nil {
 		return empty, e
 	}
@@ -497,7 +497,7 @@ func validateRecord(r *commandRecord, a i.Actor) error {
 	return nil
 }
 func (s *Service) LookupVariableCommand(ctx context.Context, a i.Actor, q c.VariableCommandLookupRequest) (c.VariableCommandLookup, error) {
-	ctx, _, done, e := s.begin(ctx)
+	ctx, _, done, e := s.beginProject(ctx, q.Fields().ProjectID, readCall)
 	if e != nil {
 		return c.VariableCommandLookup{}, e
 	}
@@ -555,7 +555,7 @@ func (s *Service) confirmUnknown(ctx context.Context, entry *call, a i.Actor, q 
 	st := s.state()
 	st.mu.Lock()
 	entry.confirmations[token] = struct{}{}
-	if st.stopped {
+	if st.stopped || entry.stopRequested {
 		cancel()
 	}
 	st.mu.Unlock()

@@ -58,7 +58,18 @@ type serviceState struct {
 	calls   map[*call]struct{}
 	changed chan struct{}
 }
+type callKind uint8
+
+const (
+	controlCall callKind = iota
+	readCall
+	mutationCall
+)
+
 type call struct {
+	project       c.ProjectID
+	kind          callKind
+	stopRequested bool // protected with confirmations by the owning service mutex
 	cancel        context.CancelFunc
 	confirmations map[*confirmation]struct{}
 }
@@ -78,6 +89,9 @@ func (s *Service) state() *serviceState {
 	return s.data()
 }
 func (s *Service) begin(ctx context.Context) (context.Context, *call, func(), error) {
+	return s.beginProject(ctx, c.ProjectID{}, controlCall)
+}
+func (s *Service) beginProject(ctx context.Context, project c.ProjectID, kind callKind) (context.Context, *call, func(), error) {
 	st := s.state()
 	if st == nil {
 		return nil, nil, nil, fault(f.DependencyUnbound)
@@ -94,7 +108,7 @@ func (s *Service) begin(ctx context.Context) (context.Context, *call, func(), er
 		return nil, nil, nil, fault(f.ShuttingDown)
 	}
 	run, cancel := context.WithCancel(ctx)
-	entry := &call{cancel: cancel, confirmations: map[*confirmation]struct{}{}}
+	entry := &call{project: project, kind: kind, cancel: cancel, confirmations: map[*confirmation]struct{}{}}
 	st.calls[entry] = struct{}{}
 	var once sync.Once
 	done := func() {

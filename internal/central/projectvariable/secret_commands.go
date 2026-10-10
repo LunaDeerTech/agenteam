@@ -168,7 +168,7 @@ func (s *SecretService) prepareSecret(ctx context.Context, intent sc.ProjectVari
 
 func (s *SecretService) executeSecret(ctx context.Context, actor i.Actor, meta f.CommandMeta, project c.ProjectID, id c.VariableID, command c.SecretCommandName, create *c.SecretVariableCreate, update *c.SecretVariableUpdate) (c.SecretVariableMutation, error) {
 	empty := c.SecretVariableMutation{}
-	ctx, call, done, err := s.begin(ctx)
+	ctx, call, done, err := s.beginProject(ctx, project, mutationCall)
 	if err != nil {
 		return empty, err
 	}
@@ -338,7 +338,7 @@ func (s *SecretService) confirmSecretUnknown(ctx context.Context, entry *call, r
 	st := s.state()
 	st.mu.Lock()
 	entry.confirmations[token] = struct{}{}
-	if st.stopped {
+	if st.stopped || entry.stopRequested {
 		cancel()
 	}
 	st.mu.Unlock()
