@@ -69,9 +69,15 @@ type StructuredDocument struct {
 // Text remains explicitly accessible to consumers, never implicit in logs.
 func (StructuredElement) Format(w fmt.State, _ rune) { _, _ = io.WriteString(w, "parsed_paragraph") }
 func (StructuredElement) LogValue() slog.Value       { return slog.StringValue("parsed_paragraph") }
+func (StructuredElement) MarshalJSON() ([]byte, error) {
+	return []byte(`"parsed_paragraph"`), nil
+}
 func (StructuredDocument) Format(w fmt.State, _ rune) {
 	_, _ = io.WriteString(w, "parsed_document")
 }
 func (StructuredDocument) LogValue() slog.Value { return slog.StringValue("parsed_document") }
+func (StructuredDocument) MarshalJSON() ([]byte, error) {
+	return []byte(`"parsed_document"`), nil
+}
 
 func parseFault(code f.Code) error { return f.NewFault(code, f.NotStarted) }

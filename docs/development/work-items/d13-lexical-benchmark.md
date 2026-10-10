@@ -166,8 +166,16 @@ SPEC 窄审固定边界后才能写数据与工具。完成本卡要求：固定
 
 非 plain media 返回 Foundation `UnsupportedMediaType`；非法 UTF-8、元数据、union、请求或 next 结构返回 `InvalidArgument`；合法非零 offset 页、truncated 页及超出本文限额或请求字节预算返回 `PayloadTooLarge`。领域错误均为 `NotStarted`、不带正文；任何错误均返回零 StructuredDocument，不暴露部分解析结果。每次扫描至多 4 KiB、元素处理及返回检查 context，原取消/截止错误保留 `errors.Is`，无内部 goroutine、timer 或流。D12 正文的 UTF-8 校验由分段核心完成，避免在完整字符串校验内跳过取消检查；标题先限字节，再复用完整 DocumentRef 校验。输出正文须由调用者显式取得，默认 fmt/slog 投影不含正文。
 
+重叠错误固定按入口 context、请求、非 plain media 分类、plain 元数据/union、正文 1 MiB 硬限、D12 next 不变式/分段 UTF-8、合法 partial/请求预算、完整页 next 等值顺序判定。非 plain 分类不声称该 DTO 已合法；超过硬限不继续扫描正文。在硬限内，truncated 同时 next 为负或 UTF-8 非法仍为 `InvalidArgument`，不被 partial 分类掩盖。默认 JSONHandler 的 slice/map/struct 嵌套通过类型的安全 JSON 投影保护，显式 `Text` 访问保留；这些内存类型不是持久化/public DTO。
+
 ### 10.3 当前范围与验证
 
-六个 Go 源/测试已实现，待本轮离线单元、race、vet 和非作者审查。手工 byte oracle 覆盖中文/CRLF、BOM/NUL/混合换行、英文小数与缩写、固定闭合符、非 ASCII 空白、emoji/组合字符；另覆盖 UTF-8 错码、恰好/超限、全局句数、取消零结果、确定性、D12 非法 union/元数据/partial 页和真实版本复制。
+六个 Go 源/测试已实现，手工 byte oracle 覆盖中文/CRLF、BOM/NUL/混合换行、英文小数与缩写、固定闭合符、非 ASCII 空白、emoji/组合字符；另覆盖 UTF-8 错码、恰好/超限、全局句数、取消零结果、确定性、D12 非法 union/元数据/partial 页和真实版本复制。
+
+首轮 unit01 真实 FAIL：最后一个不变性断言用 `reflect.DeepEqual` 比较含非 nil closure 的 CreatorRef，Go 函数值即使相同也不深相等。改用真实 DocumentRef JSON 编码前后字节比较，保来源/正文 oracle；此失败不认领产品元数据修改。原进程 actual Wait=1、原组退出且私有 runtime 空。非作者静审同时指出默认 JSONHandler 嵌套漏出 Text 和重叠错误分类未明确；本轮已定向修复投影、明确优先级并补有限反例。
+
+2026-10-10 修后作者用固定 Go 1.27.1 实际完成 `go test -count=1 -p=1 -timeout=60s ./internal/central/retrieval/parser`（11 top、0.265s）、同命令加 `-race`（1.253s）及 `go vet -p=1 ./internal/central/retrieval/parser`，三项 actual Wait=0、各原进程组 absent、私有 runtime 空，监督工具均实际 terminal 0；gofmt 和 diff-check 通过。每个长命令在启动同 process fresh disk≥5 GiB，私有 telemetry mode off、移除三个旁路、共享只读 modcache/私有 build cache、GOPROXY/GOSUMDB off、readonly mod，未启动外部服务。可再生日志在 ignored `output/ai/d13-plain-text-parser/`，unit01 原失败保持。
+
+未参与实现的 Secret 实例完成六源实际只读复核及返修窄审，确认来源/范围、UTF-8 byte split/全局限额、取消零结果、D12 完整 plain 分支和安全日志投影，有限接受且无剩余 must-fix；未运行 Go/资源，不冒作者测试或真实联调。纯函数及无 I/O 值适配已具备小范围联调输入，完整 D13 仍未完成。
 
 真实 D12 ReadDocument→实际对象读/Close→Parser 小范围联调尚未运行，待单包基础检查后另行组织。Markdown/PDF Parser、chunker、ContextProvider、embedding、lexical backend、索引发布及生产 Project initializer 均不在本批，也不由本批证明 D13 整体完成或解除既有 STOP。

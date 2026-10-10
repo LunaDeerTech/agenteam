@@ -23,6 +23,8 @@ func ParseBoundedContent(ctx context.Context, request kc.ReadRequest, content kc
 		return StructuredDocument{}, parseFault(f.InvalidArgument)
 	}
 	d := content.Document
+	// Unsupported media is classified before validating that DTO's body/union;
+	// this rejection makes no claim that a non-plain D12 value is well-formed.
 	if d.MediaType != kc.PlainText {
 		return StructuredDocument{}, parseFault(f.UnsupportedMediaType)
 	}
@@ -33,11 +35,22 @@ func ParseBoundedContent(ctx context.Context, request kc.ReadRequest, content kc
 		return StructuredDocument{}, parseFault(f.InvalidArgument)
 	}
 	t := content.Text
-	if request.ByteOffset != 0 || t.Truncated || len(t.Text) > request.MaxBytes || len(t.Text) > MaxSourceBytes {
+	// Never scan an oversized body. Inside the hard cap, malformed D12 values
+	// take precedence over a structurally valid but incomplete/over-budget page.
+	if len(t.Text) > MaxSourceBytes {
 		return StructuredDocument{}, parseFault(f.PayloadTooLarge)
 	}
-	if t.NextByteOffset.Validate() != nil || t.NextByteOffset != f.Progress(len(t.Text)) {
+	if t.NextByteOffset.Validate() != nil || t.NextByteOffset < f.Progress(len(t.Text)) {
 		return StructuredDocument{}, parseFault(f.InvalidArgument)
 	}
-	return ParsePlainText(ctx, SourceIdentity{ProjectID: d.ProjectID, DocumentID: d.ID, ContentVersion: d.ContentVersion, ObjectID: d.ObjectID}, t.Text)
+	if err := validateUTF8(ctx, t.Text); err != nil {
+		return StructuredDocument{}, err
+	}
+	if request.ByteOffset != 0 || t.Truncated || len(t.Text) > request.MaxBytes {
+		return StructuredDocument{}, parseFault(f.PayloadTooLarge)
+	}
+	if t.NextByteOffset != f.Progress(len(t.Text)) {
+		return StructuredDocument{}, parseFault(f.InvalidArgument)
+	}
+	return parseValidated(ctx, SourceIdentity{ProjectID: d.ProjectID, DocumentID: d.ID, ContentVersion: d.ContentVersion, ObjectID: d.ObjectID}, t.Text)
 }

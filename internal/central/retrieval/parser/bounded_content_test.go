@@ -1,7 +1,9 @@
 package parser_test
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"reflect"
 	"strings"
@@ -56,6 +58,12 @@ func TestBoundedContentRejectsPartialAndMalformedValues(t *testing.T) {
 		{"oversized request", func(q *kc.ReadRequest, _ *kc.DocumentContent) { q.MaxBytes = kc.MaxReadBytes + 1 }, f.InvalidArgument},
 		{"continuation page", func(q *kc.ReadRequest, c *kc.DocumentContent) { q.ByteOffset = 4; c.Text.NextByteOffset += 4 }, f.PayloadTooLarge},
 		{"truncated", func(_ *kc.ReadRequest, c *kc.DocumentContent) { c.Text.Truncated = true }, f.PayloadTooLarge},
+		{"truncated malformed next", func(_ *kc.ReadRequest, c *kc.DocumentContent) { c.Text.Truncated = true; c.Text.NextByteOffset = -1 }, f.InvalidArgument},
+		{"truncated malformed utf8", func(_ *kc.ReadRequest, c *kc.DocumentContent) {
+			c.Text.Truncated = true
+			c.Text.Text = "\xff"
+			c.Text.NextByteOffset = 1
+		}, f.InvalidArgument},
 		{"budget overflow", func(q *kc.ReadRequest, _ *kc.DocumentContent) { q.MaxBytes = 1 }, f.PayloadTooLarge},
 		{"wrong next", func(_ *kc.ReadRequest, c *kc.DocumentContent) { c.Text.NextByteOffset++ }, f.InvalidArgument},
 		{"negative next", func(_ *kc.ReadRequest, c *kc.DocumentContent) { c.Text.NextByteOffset = -1 }, f.InvalidArgument},
@@ -63,6 +71,10 @@ func TestBoundedContentRejectsPartialAndMalformedValues(t *testing.T) {
 		{"missing text", func(_ *kc.ReadRequest, c *kc.DocumentContent) { c.Text = nil }, f.InvalidArgument},
 		{"unavailable union", func(_ *kc.ReadRequest, c *kc.DocumentContent) { x := kc.ReadableUnbound; c.Unavailable = &x }, f.InvalidArgument},
 		{"file union", func(_ *kc.ReadRequest, c *kc.DocumentContent) { c.File = new(oc.BusinessFileRef) }, f.InvalidArgument},
+		{"nonplain classification precedes union", func(_ *kc.ReadRequest, c *kc.DocumentContent) {
+			c.Document.MediaType = kc.Markdown
+			c.File = new(oc.BusinessFileRef)
+		}, f.UnsupportedMediaType},
 		{"deleted", func(_ *kc.ReadRequest, c *kc.DocumentContent) { c.Document.Status = kc.Deleted }, f.InvalidArgument},
 		{"source kind", func(_ *kc.ReadRequest, c *kc.DocumentContent) { c.Document.SourceKind = kc.File }, f.InvalidArgument},
 		{"object id", func(_ *kc.ReadRequest, c *kc.DocumentContent) { c.Document.ObjectID = oc.ObjectID{} }, f.InvalidArgument},
@@ -101,9 +113,11 @@ func TestBoundedContentCancellationAndLiteralMetadata(t *testing.T) {
 	}
 	got, err = p.ParseBoundedContent(nil, q, c)
 	wantFault(t, got, err, f.InvalidArgument)
-	before := c.Document
+	// CreatorRef contains a closure, so reflect.DeepEqual is never a valid
+	// equality oracle for a populated DocumentRef. Compare its actual wire value.
+	before := must(json.Marshal(c.Document))
 	got = must(p.ParseBoundedContent(context.Background(), q, c))
-	if !reflect.DeepEqual(c.Document, before) || got.Source != source() || got.Elements[0].Text != c.Text.Text {
+	if !bytes.Equal(must(json.Marshal(c.Document)), before) || got.Source != source() || got.Elements[0].Text != c.Text.Text {
 		t.Fatal("conversion mutated canonical metadata or content")
 	}
 }

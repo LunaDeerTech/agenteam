@@ -35,18 +35,30 @@ func ParsePlainText(ctx context.Context, source SourceIdentity, text string) (St
 	if len(text) > MaxSourceBytes {
 		return StructuredDocument{}, parseFault(f.PayloadTooLarge)
 	}
+	if err := validateUTF8(ctx, text); err != nil {
+		return StructuredDocument{}, err
+	}
+	return parseValidated(ctx, source, text)
+}
+
+func validateUTF8(ctx context.Context, text string) error {
 	// Validate incrementally so even malformed input observes cancellation.
 	check := scanCheck{ctx: ctx}
 	for at := 0; at < len(text); {
 		if err := check.at(at); err != nil {
-			return StructuredDocument{}, err
+			return err
 		}
 		r, size := utf8.DecodeRuneInString(text[at:])
 		if r == utf8.RuneError && size == 1 {
-			return StructuredDocument{}, parseFault(f.InvalidArgument)
+			return parseFault(f.InvalidArgument)
 		}
 		at += size
 	}
+	return ctx.Err()
+}
+
+// Both public entry points validate source identity, size and UTF-8 first.
+func parseValidated(ctx context.Context, source SourceIdentity, text string) (StructuredDocument, error) {
 	out := StructuredDocument{Source: source, ParserProfile: PlainTextProfile, SourceBytes: len(text), Elements: []StructuredElement{}}
 	paragraphStart, paragraphEnd, sentences := -1, 0, 0
 	appendParagraph := func() error {
@@ -71,7 +83,7 @@ func ParsePlainText(ctx context.Context, source SourceIdentity, text string) (St
 		paragraphStart = -1
 		return nil
 	}
-	check = scanCheck{ctx: ctx}
+	check := scanCheck{ctx: ctx}
 	for lineStart := 0; lineStart < len(text); {
 		lineEnd, blank := lineStart, true
 		for lineEnd < len(text) && text[lineEnd] != '\r' && text[lineEnd] != '\n' {

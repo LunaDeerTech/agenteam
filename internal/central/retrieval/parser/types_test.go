@@ -71,9 +71,15 @@ func TestParserLoggingAndErrorsDoNotExposeText(t *testing.T) {
 	var log bytes.Buffer
 	logger := slog.New(slog.NewJSONHandler(&log, nil))
 	logger.Info("derived", "document", got, "element", got.Elements[0])
+	// JSONHandler encodes KindAny containers via encoding/json instead of
+	// recursively invoking the contained values' LogValue methods.
+	logger.Info("nested", "slice", got.Elements, "map", map[string]any{"document": got, "paragraphs": got.Elements}, "wrapper", struct{ Document *p.StructuredDocument }{Document: &got})
 	formatted := fmt.Sprintf("%+v %#v %+v", got, &got, got.Elements)
 	if strings.Contains(log.String()+formatted, canary) {
 		t.Fatal("implicit logging exposed content")
+	}
+	if !strings.Contains(log.String(), "parsed_document") || !strings.Contains(log.String(), "parsed_paragraph") || got.Elements[0].Text != canary {
+		t.Fatal("safe projections lost their marker or explicit text access")
 	}
 	bad, err := p.ParsePlainText(context.Background(), source(), canary+"\xff")
 	wantFault(t, bad, err, f.InvalidArgument)
