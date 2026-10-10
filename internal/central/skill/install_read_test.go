@@ -32,7 +32,13 @@ func installationValues(t *testing.T, r installationRow) []any {
 	if err != nil {
 		t.Fatal(err)
 	}
-	values := []any{r.id.String(), r.project.String(), r.user.String(), r.key.String(), r.skill.String(), r.revision.String(), string(r.semantic), string(r.pkg.packageDigest), string(r.pkg.manifestDigest), int64(r.pkg.size), manifest, r.pkg.name, r.pkg.normalized, r.pkg.description, string(r.phase), int64(r.version), r.object.String(), r.upload.String(), r.attempt.String(), r.reason, r.created.Time(), r.updated.Time()}
+	// Match installationColumns: an absent Agent origin User is SQL NULL,
+	// projected by COALESCE as empty text, not the zero UUID's String value.
+	user := ""
+	if r.user != (id.UserID{}) {
+		user = r.user.String()
+	}
+	values := []any{r.id.String(), r.project.String(), user, r.key.String(), r.skill.String(), r.revision.String(), string(r.semantic), string(r.pkg.packageDigest), string(r.pkg.manifestDigest), int64(r.pkg.size), manifest, r.pkg.name, r.pkg.normalized, r.pkg.description, string(r.phase), int64(r.version), r.object.String(), r.upload.String(), r.attempt.String(), r.reason, r.created.Time(), r.updated.Time()}
 	if r.execution == nil {
 		return append(values, string(id.Human), "", "", "", "", int64(0), "", "", "")
 	}
