@@ -404,7 +404,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	planning, err := createWorkPlanning(cfg, db, workAuthority, authority, journal, workEvents)
+	planning, err := createWorkPlanning(cfg, db, workAuthority, authority, journal, workEvents, projectUsage.projects)
 	if err != nil {
 		return err
 	}

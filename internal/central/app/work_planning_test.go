@@ -38,7 +38,7 @@ type workRootStores interface {
 	outbox.Store
 }
 
-func workRootBundle(t *testing.T, store workRootStores) *workPlanningAssembly {
+func workRootBundle(t *testing.T, store workRootStores, transitions ...bool) *workPlanningAssembly {
 	t.Helper()
 	cfg := testConfig(t, "1s")
 	accounts, err := account.NewAuthority(store, cfg.AccountKeyring())
@@ -67,11 +67,17 @@ func workRootBundle(t *testing.T, store workRootStores) *workPlanningAssembly {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := createWorkPlanning(cfg, store, authority, accounts, journal, events)
+	var capability []*project.Authority
+	count := 3
+	if len(transitions) == 1 && transitions[0] {
+		capability = []*project.Authority{projects}
+		count = 4
+	}
+	b, err := createWorkPlanning(cfg, store, authority, accounts, journal, events, capability...)
 	if err != nil || b == nil {
 		t.Fatal("pure actual Work construction", err)
 	}
-	if b.structure == nil || b.structureReader == nil || b.tasks == nil || b.taskReader == nil || b.blockers == nil || b.blockerReader == nil || len(b.commands) != 3 {
+	if b.structure == nil || b.structureReader == nil || b.tasks == nil || b.taskReader == nil || b.blockers == nil || b.blockerReader == nil || len(b.commands) != count || (b.transitions != nil) != (count == 4) {
 		t.Fatal("incomplete Work bindings")
 	}
 	for _, db := range []database{nil, (*workRootStore)(nil), &unitDatabase{}, &workRootStore{}} {
@@ -85,7 +91,71 @@ func workRootBundle(t *testing.T, store workRootStores) *workPlanningAssembly {
 	if got, err := createWorkPlanningAuthority(store, nil); err == nil || got != nil {
 		t.Fatal("missing Project authority accepted")
 	}
+	if count == 4 {
+		for _, invalid := range [][]*project.Authority{{nil}, {projects, projects}} {
+			if got, err := createWorkPlanning(cfg, store, authority, accounts, journal, events, invalid...); err == nil || got != nil {
+				t.Fatal("invalid optional transition assembly accepted")
+			}
+		}
+		missing := events
+		missing.transitions = wc.TaskTransitionEvents{}
+		if got, err := createWorkPlanning(cfg, store, authority, accounts, journal, missing, projects); err == nil || got != nil {
+			t.Fatal("missing transition factory accepted")
+		}
+	}
 	return b
+}
+
+func TestWorkPlanningTransitionActualCallMustJoin(t *testing.T) {
+	s := &workRootBlockedStore{entered: make(chan context.Context, 1), release: make(chan struct{})}
+	b := workRootBundle(t, s, true)
+	actor, err := id.NewHuman(updateRootID[id.User](), updateRootID[id.Session]())
+	if err != nil {
+		t.Fatal(err)
+	}
+	var release sync.Once
+	t.Cleanup(func() { release.Do(func() { close(s.release) }) })
+	done := make(chan error, 1)
+	go func() {
+		_, err := b.transitions.LookupTaskTransition(context.Background(), actor, wc.TaskTransitionLookupRequest{
+			ProjectID: updateRootID[id.Project](), Command: wc.TaskTransitionTransfer,
+			IdempotencyKey: "transition-lookup", SemanticDigest: f.Digest("sha256:" + strings.Repeat("b", 64)),
+		})
+		done <- err
+	}()
+	var original context.Context
+	select {
+	case original = <-s.entered:
+	case <-time.After(2 * time.Second):
+		t.Fatal("transition did not enter the original Store")
+	}
+	expired, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := b.Force(expired); !errors.Is(err, context.Canceled) || b.Joined() {
+		t.Fatal("fourth service tail was omitted", err)
+	}
+	select {
+	case <-original.Done():
+	default:
+		t.Fatal("transition admission not cancelled")
+	}
+	select {
+	case <-done:
+		t.Fatal("transaction falsely joined")
+	default:
+	}
+	release.Do(func() { close(s.release) })
+	select {
+	case err := <-done:
+		if err == nil {
+			t.Fatal("held failure returned success")
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("original transition did not return")
+	}
+	if err := b.Drain(context.Background()); err != nil || !b.Joined() {
+		t.Fatal("actual transition completion not joined", err)
+	}
 }
 
 func TestWorkPlanningPureConstructionAndDrain(t *testing.T) {
