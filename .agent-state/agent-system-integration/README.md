@@ -1,0 +1,49 @@
+# Task / Scheduler 有限交付候选
+
+候选从正式 main `18a27db5` 构建，只选 AgentSystem `13138dbd` 的 255 个技术路径并合并 7 个兼容路径。main 已有 Human Skill 安装、Lookup、分页目录与读取入口保留；00032–00036 不重取旧分支版本。当前新增迁移为 00037–00046，00047 仍在作者分支实施，尚未纳入本候选。
+
+Work 的真实应用装配依赖 Agent 当前事实、Execution occupancy 和 Scheduler pending；真实 Agent 创建组合进一步使用 Model/Secret refs、Mount、Skills 初始化及真实 Runtime InstallSource/Builtin/Registry。对应有限库实现和测试均在选择范围中。Go 依赖保持 `jsonschema/v6 v6.0.3` 与实际 MVS 的 `regexp2 v1.12.0`；不是只复制 HTTP 层或以空 provider 补齐构造。
+
+## 已有接受与限制
+
+以下均指各源分支原输入的结果，合并候选尚未重新执行。必要纯检查与有限源码审查已随各组件完成，不要求重新运行旧全量矩阵。
+
+| 精确真实入口 | 已有有限结果 |
+| --- | --- |
+| `^TestAgentConfigurationSchema$` | 1 top / 3 sub wholePASS；32–35 升级、旧事实与 metadata，相关迁移已在 main。 |
+| `^TestAgentRuntimeSchema$` | 1 / 4 wholePASS；37–39 迁移、事务约束、Human 安装兼容，SQL 回滚探针不是 ToolCall 执行。 |
+| `^TestExecutionPreparation$` | 1 / 4 wholePASS；40 升级、claim 约束、真实 Project gate 与 Owner Task 读取，不是完整 capture。 |
+| `^TestAgentConfigurationCreate$` | 1 / 2 wholePASS；真实 Source/Reconcile、默认两项 true、refs/receipt 重放及最终事务整体回滚。 |
+| `^TestTaskTransitionHuman$` | 1 / 2 wholePASS；40→43/repeat、Owner 配置、真实指派、重放与整体回滚。 |
+| `^TestSchedulerClaim$` | 1 / 2 wholePASS；正式 Start、Work claim 与 durable pending 同事务、重放和回滚。 |
+| `^TestSchedulerLaunch$` | 1 / 2 业务通过，原 HOST_TCP delta=1 导致 wholeFAIL；原 tuple 未保存，不补认或回填。 |
+| `^TestSchedulerBusyCompensation$` | 1 / 2 wholePASS；真实明确 Busy、逻辑位置恢复、用户修改保全、原事务回滚与重放。 |
+| `^(TestSchedulerPendingVisit\|TestTaskHumanHTTP)$` | 2 / 4 wholePASS；有界 visit 与真实 Human HTTP/原意图 Lookup。 |
+| `^TestSprintStartHTTP$` | source `ff86ff65` 的 compile/native wholePASS，1 / 1、7.49s；真实 TLS Start/Get/Lookup/重放。 |
+
+Runtime/authorization/Agent capture 的受控纯检查、Schema 核心与历史 SpecRef 适配器检查不等于真实 ToolCall/Invocation；Agent Update、完整 capture/Snapshot 与 Model loop 未获本说明中的真实成功结论。生产 Project initializer 仍未绑定，真实 Agent.Create 使用测试中的正式服务组合，不能称生产 F1 已完成。完整 Dispatcher 的 retry/finalfailure/loop、Task UI、E01 及既有 Object/OpenAI tools/SPA/Jina/Image STOP 不随本候选改变。
+
+## 复现入口与输入
+
+真实业务源码集中在 [tests/projectvariable](../../tests/projectvariable)；固定真实组合在 [assembly.go](../../tests/testsupport/agentconfiguration/assembly.go)。共享入口使用原 [root_chain_driver.py](../work-owner-http/root_chain_driver.py) 和 [pg_only_supervisor.py](../task-planning-recovery/pg_only_supervisor.py)，精确 selector、required inputs 和完整 cases 由原 family 表选择。保留 main 原 Human Skill domain、HTTP 及组合三个 selector，不复制 observer、预算或资源退出方法。
+
+候选编译沿已验的私有编译入口，对 `./tests/projectvariable` 执行 integration/race `-c`，仅列举所选精确 top；使用固定 Go 1.27.1、只读离线模块、任务私有 telemetry/runtime、同进程 fresh ≥5 GiB 门和原进程 Wait/双尾。新的二进制、输出目录和实际输入清单须独立生成，不能拿原候选声称已验证合并后的源码。
+
+在既有资源窗口及原私有环境准备完成后，实际调用仍是原入口：
+
+```sh
+python3 -B .agent-state/task-planning-recovery/pg_only_supervisor.py \
+  --driver .agent-state/work-owner-http/root_chain_driver.py \
+  --binary "$CANDIDATE" --run "$EXACT_SELECTOR" \
+  --output "$FRESH_OUTPUT" --root-chain
+```
+
+保留固定 MinIO、empty Docker config、原 Schema 解释器及 nonce 资源协议；完整判据仍包括实际 Go/driver/supervisor/outer Wait、七资源十四次 absence、private/runtime/desc/TCP 双尾和实际输入初末一致。业务通过不替代 wholePASS；失败保留原材料、先定位首个具体差额，不自动重发业务、不扩大旧矩阵。
+
+旧轮可恢复源码与方法保留在 `ai/agent-system-integration` 及原 donor 分支，结果保留于原树 `output/ai/agent-system-integration/`，包括 `agent-create-02-control`、`scheduler-launch-01-control`、`scheduler-busy-01-control`、`pending-http-01-control` 和 `sprint-http-01-control`。编号 launcher、候选及历史 JSON 不复制为另一套正式入口；授权退休的成功二进制可重建，原失败与日志不删除。
+
+## 当前交付差额
+
+主线程只对冻结路径执行 Git 集成。`app/account.go` 保 main Skill management 两处接线，只加入 Work 所需 Project authority；六个入口/控制文件将 System exact profiles 合入 main generic family，并保留 strict inverse、未知输入拒绝与原退出门。当前未把这些新合并声明为已有动态通过。
+
+00047 后继仅拟接受真实 Work producer 返回的 `unsupported_resource_constraints_v1`：同一次原同步 KnownNotCreated、私有 typed marker 与完整原请求/attempt 相符，才可持久分类并由 Work 原事务生成 technical-blocker/历史。其代码、迁移、HTTP 只读 schema 及实际接受结果待冻结后按差额追加；其它错误不推断永久失败或 retry exhaustion。
