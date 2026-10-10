@@ -12,10 +12,10 @@
 
 | 执行者 | 工作树/分支 | 当前范围与保留原因 |
 | --- | --- | --- |
-| coordination | 本树 `ai/product-continuation`；`/workspace/agenteam-feature-integration` / `ai/owner-feature-integration` | 唯一current/总台账与共享harness协调。正式后端交付已完成；组合树保必要历史FAIL、规范撤回、可恢复入口和依赖来源，不等于新产品WIP均交付。新main同步已完成；继续维护各线当前边界并只读评估已完成库树清理条件，不写Git。 |
-| cleanup | `/workspace/agenteam-work-ui-independent` / `ai/work-owner-ui-independent`；D05历史树 | 独立Recovery/Authority尚未完成，原两类wholeFAIL保留；修后Recovery输入e194a772待新真人。D05 bounded范围已main交付，原成本FAIL/历史版本来源仍需可恢复，不能因库完成清掉独立Work活跃树。 |
-| secret | `/workspace/agenteam-secret-owner-http` / `ai/secret-owner-http`；D04/Owner/Skills消费者历史树 | Secret HTTP产品/方法与fb74607c入口有限静审、两candidate/两driver就绪；作者PG01已wholePASS：10903→0f53fa，1top/2sub16.75s，Go257796/driver257210/sup257209/outer均实际0；两资源/private/desc/TCP/input及outerruntime全尾齐，总86.636s，窗口释放。native、独立动态与默认根未验。D04/Owner/消费者已main有限交付；原FAIL、独验overlay与恢复证据留固定topic。 |
-| content | `/workspace/agenteam-knowledge-owner-ui` / `ai/knowledge-owner-ui`；正文历史树 | 新Knowledge只读UI已通过0658c54f同步合法后端基线；继续原页面/controller与相邻兼容。state fixture窄修后session21650实际13PASS，页面动态组合与最终build仍未验。后端正文及整改后root限定范围已交付；保正文PG01FAIL、root01规范拒绝与root02原完整结果，不能据后端通过升级UI。 |
+| coordination | 本树 `ai/product-continuation`；`/workspace/agenteam-feature-integration` / `ai/owner-feature-integration` | 唯一current/总台账与共享harness协调。正式后端交付已完成；组合树保必要历史FAIL、规范撤回、可恢复入口和依赖来源，不等于新产品WIP均交付。新main同步已完成；维护各线当前边界和目标顺序。本批清理调查已停止，五个旧库树保留，不写Git。 |
+| cleanup | `/workspace/agenteam-work-ui-independent` / `ai/work-owner-ui-independent`；D05历史树 | 独立Recovery/Authority尚未完成，原两类wholeFAIL保留。root已授修后e194a772 Recovery03唯一真实窗口；截至本记录尚未收到实际启动/终态，不执行Authority。D05 bounded范围已main交付，原成本FAIL/历史版本来源仍需可恢复，不能因库完成清掉独立Work活跃树。 |
+| secret | `/workspace/agenteam-secret-owner-http` / `ai/secret-owner-http`；D04/Owner/Skills消费者历史树 | Secret HTTP产品/方法与fb74607c入口有限静审；作者PG01 wholePASS（10903→0f53fa，1top/2sub16.75s、总86.636s、全部适用原尾齐）保留。native01也已wholePASS：53268→52a3bd，1top/2sub38.49s，Go/driver/sup/outer原Wait0，总100.561s，private/runtime/desc/TCP/input等原尾齐，窗口已释放。独立动态与默认根仍未验。D04/Owner/消费者已main有限交付；原FAIL、独验overlay与恢复证据留固定topic。 |
+| content | `/workspace/agenteam-knowledge-owner-ui` / `ai/knowledge-owner-ui`；正文历史树 | 新Knowledge只读UI已通过0658c54f同步合法后端基线；state fixture窄修后13PASS，随后页面/controller与相邻兼容7spec/166项PASS，完整vue-tsc与私有正式build51976实际0。正收尾冻结，独立actualdiff尚待；新Go/browser fixture未实现、真实UI未跑。后端正文及整改后root限定范围已交付；保正文PG01FAIL、root01规范拒绝与root02原完整结果，不能据后端或受控UI通过升级真实UI。 |
 | skills_http | `/workspace/agenteam-skills-owner-http` / `ai/skills-owner-http` | Skills HTTP已main有限交付；继续独立审查就绪任务。原fixtureFAIL、独验01TCP身份未知FAIL及02完整接受来源仍保留，UI/完整participant未完成。 |
 | work_ui | `/workspace/agenteam-work-ui` / `ai/work-owner-planning-ui` | R13原wholePASS记录2b8b9947，仅作者Recovery有限门闭；planning/read/identity旧FAIL、其余场景和独立Recovery/Authority尚未全闭。下一步planning9writes仅窄计划，未实跑；保65409严格后验及所有旧FAIL，不以局部PW或作者Recovery升级整Work UI。 |
 
@@ -25,7 +25,7 @@
 
 D05、SkillsHTTP、Knowledge正文、SecretOwner、SkillsCleanup五树当前均无tracked/untracked改动；ignored output（部分另pycache）仍在，尚未据此授权删除。明确产品/测试子集42/13/18/25/16路径分别与mainfb84逐字一致，但这不证明完整branch用途或ignored材料都可丢弃。
 
-各owner正在确认完整用途、独有FAIL/可恢复源与后继路径依赖。Knowledge旧hotcache最近仍供root02/离线编译使用，现已退出；新UI npm私有且无跨树symlink，未来Go cache可另定，owner尚未完成ignored核对，故先保留。main卡中的固定topic FAIL/历史链接须继续可达，删除worktree与删除唯一证据branch/ref分别判断。旧D04 storage、Knowledge metadata/treeHTTP当前无本地worktree，不冒作本轮可清对象。
+本批调查到此停止，五树均保留。各owner已确认本人停写；未发现活跃执行源对旧树路径的必需引用，但ignored必要材料尚未全闭。D05三份原PG日志含未全部跟踪保存的完整计划；SkillsHTTP两份与SkillsCleanup一份原FAIL已与tracked原件逐字核同，不能据此将其余历史输出一概视为可丢弃。Knowledge旧hotcache最近供root02/离线编译使用，现已退出，新UI使用私有npm；旧正文ignored仍待归属处理。main卡中的固定topic FAIL/历史链接须继续可达，删除worktree与删除唯一证据branch/ref分别判断。旧D04 storage、Knowledge metadata/treeHTTP当前无本地worktree，不冒作本轮可清对象。
 
 ## 验证集合与保留的失败
 
@@ -40,7 +40,7 @@ D05、SkillsHTTP、Knowledge正文、SecretOwner、SkillsCleanup五树当前均�
 - Model UI `ai/model-ui-delivery` / `41cbf90f`：新6/6、旧14/14及独立A/B按限定输入接受；新main两Audit完整通过，authority仍未验收，首FAIL和旧Wait/TCP/独占缺口保留。本协调树已有未验Model材料不删除。
 - 普通Variables UI `ai/project-variables-owner-ui` / `60dbcee7`：CRUD03有限通过；Authority03整体FAIL，detail GET真实消费者证明及剩余权限矩阵未闭，归档409不升级整组。
 - Task Timeline `ai/task-timeline-reader` / `9ad6f1cd`：Reader有限独审，三组真实PG仍未验收。
-- root02与Audit原窗口已完整释放，Secret作者PG01也已原全尾wholePASS释放；本人只有文档/只读核对，无compiler或资源。后继实际窗口以root新调度为准。后继窗口只有root新授权才生效，未承接旧授权；离线编译固定Go1.27.1、readonly共享mod、自有cache、task-private实际telemetry off，禁止native/socket偷跑。
+- root02、Audit、Secret作者PG01/native01原窗口均已完整释放；root现将唯一真实窗口授cleanup执行Work独立Recovery03，实际启动仍待报告，Git网络及其他实际资源暂停。本人只有文档/只读核对，无compiler或资源。后继窗口只有root新授权才生效，未承接旧授权；离线编译固定Go1.27.1、readonly共享mod、自有cache、task-private实际telemetry off，禁止native/socket偷跑。
 - main治理4d1cf3d2已读并同步：完整任务验收/main推送、必要材料可恢复、无独有未保存/活跃依赖后才由root逐对象清理；未完、身份不明或仍被引用的树保留，不能把库有限交付当整个D卡完成。
 
 ## 全局停止与最终门槛
