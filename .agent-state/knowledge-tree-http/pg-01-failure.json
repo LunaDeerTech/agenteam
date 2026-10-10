@@ -1,0 +1,107 @@
+{
+  "status": "FAIL",
+  "session": 29190,
+  "terminal_chunk": "fa6ad6",
+  "outer_exit": 1,
+  "elapsed_seconds": 138.481,
+  "selector": "^TestKnowledgeTreeCommandHTTP(Mutations|Authority|Transactions|Unknown)$",
+  "log": "/tmp/ktc-pg-01/pg-477a2456070142ecb5f6ade631696bee.log",
+  "start_utc": "2026-10-10T00:16:39.475204Z",
+  "available_bytes": 5460840448,
+  "go": {
+    "pid": 1381039,
+    "actual_wait": 1
+  },
+  "driver": {
+    "pid": 1379174,
+    "actual_wait": 1
+  },
+  "sub_pass": 12,
+  "sub_fail": 1,
+  "failed_sub": "TestKnowledgeTreeCommandHTTPUnknown/original_final_rollback_exposes_in_progress_not_a_receipt",
+  "failure": "owner_tree_commands_unknown_test.go:131: same original pending command retry effects",
+  "missing_evidence": "The composite retry gate did not print individual final counters or Activity values; do not reconstruct them.",
+  "reached_before_failure": [
+    "real final Activity fault rolled back final state",
+    "durable plan and original command unchanged by in_progress Lookup",
+    "retry HTTP success and committed Lookup",
+    "safe receipt document equals actual current document"
+  ],
+  "resources": [
+    {
+      "kind": "container",
+      "id": "2a2e42440c3f4024e142775d1d6f78ec3b85bded44144fa0348ca38b08f8ea88",
+      "nonce": "a5053e221e6638bfaa6b4a772863c80f",
+      "absent_observations": [
+        1,
+        2
+      ]
+    },
+    {
+      "kind": "network",
+      "id": "9ca9d7384d203aba068329511ba5821bf8d0528fee88a1d4a22122e2b2a1c8b1",
+      "nonce": "a5053e221e6638bfaa6b4a772863c80f",
+      "absent_observations": [
+        1,
+        2
+      ]
+    },
+    {
+      "kind": "container",
+      "id": "51a719b89798d8e62264c696b5ce7f692bb34b331e4d0f5b29e3e73e8d9a6fdc",
+      "nonce": "e9efc58a6133abea24d1f5bb6707e7f1",
+      "absent_observations": [
+        1,
+        2
+      ]
+    },
+    {
+      "kind": "network",
+      "id": "6906f8e19f46770edaedf4de8028087ba2ac82a459f08dd9d616445c46a42fb4",
+      "nonce": "e9efc58a6133abea24d1f5bb6707e7f1",
+      "absent_observations": [
+        1,
+        2
+      ]
+    },
+    {
+      "kind": "container",
+      "id": "c4269ca95089e97da3e699515bd0d18c8b6ab1a5527e2c278edcf67bcb8dc084",
+      "nonce": "35fd90d53771afd8500a3b12a7b64fb6",
+      "absent_observations": [
+        1,
+        2
+      ]
+    },
+    {
+      "kind": "container",
+      "id": "e96a665ed03ed1d27492752293dc67f68db74dd3d872a11f9bcdcb8d423c53a9",
+      "nonce": "35fd90d53771afd8500a3b12a7b64fb6",
+      "absent_observations": [
+        1,
+        2
+      ]
+    },
+    {
+      "kind": "network",
+      "id": "7552b515b7768f9bdd8ce2d21c36b159c0fbe0af02d27a0a8194165fee8189f6",
+      "nonce": "35fd90d53771afd8500a3b12a7b64fb6",
+      "absent_observations": [
+        1,
+        2
+      ]
+    }
+  ],
+  "tail": {
+    "private_double_absent": true,
+    "runtime_double_empty": true,
+    "descendants_double_empty": true,
+    "tcp_double_delta_empty": true,
+    "inputs_unchanged": true,
+    "actual_test_wait": true,
+    "exact_tops": true,
+    "tree_commands_exact": false
+  },
+  "source_frozen": true,
+  "automatic_retry": false
+}
