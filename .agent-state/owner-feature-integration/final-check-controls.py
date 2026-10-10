@@ -3,8 +3,10 @@
 import importlib.util
 import io
 from pathlib import Path
+import sys
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 path = Path(__file__).with_name('final_check.py')
 spec = importlib.util.spec_from_file_location('final_check', path)
@@ -13,6 +15,30 @@ spec.loader.exec_module(wrapper)
 
 
 class FinalCheckControls(unittest.TestCase):
+    def test_audit_repair_keeps_original_header_and_both_whole_package_stages(self):
+        source = (wrapper.ROOT / 'scripts/check-go.sh').read_text()
+        actual = wrapper.audit_repair_script(source)
+        header = source.split('"$AGENTEAM_GO" test ./...\n')[0]
+        self.assertEqual(actual, header + '"$AGENTEAM_GO" test ./internal/central/audit/http\n'
+                         '"$AGENTEAM_GO" test -race ./internal/central/audit/http\n')
+        self.assertIn('set -eu\n', actual)
+
+    def test_audit_repair_rejects_changed_original_stages(self):
+        source = (wrapper.ROOT / 'scripts/check-go.sh').read_text()
+        for changed in (source.replace('test ./...', 'test ./other'),
+                        source + '"$AGENTEAM_GO" test -race ./...\n',
+                        source.replace('vet ./...', 'vet ./other')):
+            with self.assertRaises(ValueError):
+                wrapper.audit_repair_script(changed)
+
+    def test_fixed_modes_are_mutually_exclusive_before_resources(self):
+        with patch.object(sys, 'argv', ['final_check', '--remaining', '--audit-repair',
+                                        '--source', 'control', '--output', '/not-created']), \
+                patch('sys.stderr', io.StringIO()):
+            with self.assertRaises(SystemExit) as stopped:
+                wrapper.main()
+            self.assertEqual(stopped.exception.code, 2)
+
     def test_remaining_only_removes_original_ordinary_test(self):
         source = (wrapper.ROOT / 'scripts/check-go.sh').read_text()
         before, after = source.split('"$AGENTEAM_GO" test ./...\n')

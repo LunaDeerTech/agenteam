@@ -97,17 +97,37 @@ def remaining_script(source):
     return source.replace(ordinary_test, '', 1)
 
 
+def audit_repair_script(source):
+    ordinary = '"$AGENTEAM_GO" test ./...\n'
+    race = '"$AGENTEAM_GO" test -race ./...\n'
+    if source.count(ordinary) != 1 or source.count(race) != 1:
+        raise ValueError('Audit repair test anchors changed')
+    header, tail = source.split(ordinary)
+    expected_tail = ('"$AGENTEAM_GO" vet ./...\n'
+        '# Analyze the explicit integration suite without starting Docker or a database.\n'
+        '"$AGENTEAM_GO" vet -tags=integration ./...\n' + race + 'sh scripts/build-go.sh\n')
+    if tail != expected_tail:
+        raise ValueError('original remaining stages changed')
+    return header + (ordinary + race).replace('./...', './internal/central/audit/http')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--source', required=True)
-    parser.add_argument('--remaining', action='store_true',
-                        help='run the original remaining stages after separately accepted ordinary tests')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--remaining', action='store_true',
+                      help='run the original remaining stages after separately accepted ordinary tests')
+    mode.add_argument('--audit-repair', action='store_true',
+                      help='run the original ordinary/race stages for the entire repaired Audit HTTP package')
     args = parser.parse_args()
     os.chdir(ROOT)
     command = ['sh', 'scripts/check-go.sh']
     if args.remaining:
         command = ['sh', '-c', remaining_script((ROOT / 'scripts/check-go.sh').read_text()),
+                   'scripts/check-go.sh']
+    elif args.audit_repair:
+        command = ['sh', '-c', audit_repair_script((ROOT / 'scripts/check-go.sh').read_text()),
                    'scripts/check-go.sh']
     output = args.output.resolve()
     if not output.is_relative_to(ROOT / 'output/ai/owner-feature-integration'):
@@ -154,7 +174,8 @@ def main():
     diagnostics = diagnostic_module.TCPDiagnostics(output, supervisor.descendants)
     sample = diagnostic_module.observe_tcp(supervisor.tcp, diagnostics)
     baseline = sample()
-    record = dict(source=args.source, command=command, remaining=args.remaining, outer_pid=os.getpid(),
+    record = dict(source=args.source, command=command, remaining=args.remaining,
+                  audit_repair=args.audit_repair, outer_pid=os.getpid(),
                   utc_start=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), fresh_free_bytes=free,
                   schema_environment=schema, python=json.loads(python_info), node=json.loads(node_info),
                   removed_environment_names=sorted(removed),
