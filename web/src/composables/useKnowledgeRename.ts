@@ -1,0 +1,333 @@
+import { computed, reactive, watch } from 'vue'
+import { AccountFailure } from '../api/client'
+import { captureKnowledgeRename } from '../api/knowledge-commands'
+import type { KnowledgeDocument } from '../api/knowledge-owner'
+import type { KnowledgeOwner } from './useKnowledgeOwner'
+import { useProjectWorkspace, type ProjectWorkspace } from './useProjectWorkspace'
+import { useSession, type PersonalIdentity, type SessionController } from './useSession'
+
+const same = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
+  !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
+
+export function useKnowledgeRename(
+  owner: KnowledgeOwner,
+  workspace: ProjectWorkspace = useProjectWorkspace(),
+  auth: SessionController = useSession(),
+) {
+  const state = reactive({
+    open: false,
+    title: '',
+    baseline: '',
+    version: '',
+    conflict: false,
+    needsCurrent: false,
+    denied: false,
+    message: '',
+    field: '',
+    confirming: false,
+  })
+  let baseline: KnowledgeDocument | null = null
+  let bound: {
+    identity: PersonalIdentity
+    project: string
+    document: string
+    generation: number
+    readGeneration: number
+  } | null = null
+  let revision = 0,
+    disposed = false
+  let answer: ((value: boolean) => void) | null = null
+  const progress = computed(() => {
+    const p = auth.knowledgeCommands.progress
+    return p && p.projectID === bound?.project && p.documentID === bound.document ? p : null
+  })
+  const live = () => {
+    const c = workspace.currentReadContext.value
+    return (
+      !disposed &&
+      !!bound &&
+      !!c &&
+      same(bound.identity, c.identity) &&
+      c.projectID === bound.project &&
+      c.generation === bound.generation &&
+      c.readGeneration === bound.readGeneration &&
+      owner.state.selected === bound.document &&
+      owner.visible.value
+    )
+  }
+  const unsettled = computed(() =>
+    ['submitting', 'uncertain'].includes(progress.value?.phase ?? ''),
+  )
+  const dirty = computed(() => state.title !== state.baseline || state.conflict || unsettled.value)
+  const blocked = computed(() => auth.state.busy || owner.busy.value || state.confirming || !live())
+  const canOpen = computed(
+    () =>
+      !owner.blocked.value &&
+      owner.state.metadataPhase === 'ready' &&
+      !!owner.state.document &&
+      workspace.detail.phase === 'current' &&
+      workspace.detail.project?.lifecycle === 'active',
+  )
+  const canSave = computed(
+    () =>
+      !blocked.value &&
+      !state.denied &&
+      !state.conflict &&
+      !state.needsCurrent &&
+      !unsettled.value &&
+      workspace.detail.project?.lifecycle === 'active' &&
+      !!baseline &&
+      state.title !== state.baseline,
+  )
+  const canLookup = computed(
+    () =>
+      !blocked.value &&
+      !state.denied &&
+      progress.value?.phase === 'uncertain' &&
+      progress.value.contextValid,
+  )
+  const canReplay = computed(
+    () =>
+      !blocked.value &&
+      !state.denied &&
+      !!progress.value?.canRetryOriginal &&
+      workspace.detail.project?.lifecycle === 'active',
+  )
+  const canAdopt = computed(
+    () =>
+      !blocked.value &&
+      !state.denied &&
+      !unsettled.value &&
+      owner.state.metadataPhase === 'ready' &&
+      owner.state.document?.id === bound?.document,
+  )
+
+  function clear() {
+    ++revision
+    baseline = null
+    bound = null
+    Object.assign(state, {
+      open: false,
+      title: '',
+      baseline: '',
+      version: '',
+      conflict: false,
+      needsCurrent: false,
+      denied: false,
+      message: '',
+      field: '',
+      confirming: false,
+    })
+    answer?.(false)
+    answer = null
+  }
+  function bind(value: KnowledgeDocument) {
+    const c = workspace.currentReadContext.value
+    if (!c || c.projectID !== value.project_id) return false
+    bound = {
+      identity: c.identity,
+      project: c.projectID,
+      document: value.id,
+      generation: c.generation,
+      readGeneration: c.readGeneration,
+    }
+    baseline = value
+    state.baseline = value.title
+    state.version = value.content_version
+    return true
+  }
+  function abandon() {
+    if (
+      bound &&
+      auth.knowledgeCommands.progress?.projectID === bound.project &&
+      auth.knowledgeCommands.progress.documentID === bound.document
+    )
+      auth.knowledgeCommands.abandon()
+    clear()
+  }
+  function open() {
+    if (!canOpen.value || !owner.state.document) return
+    if (!bind(owner.state.document)) return
+    state.title = state.baseline
+    state.open = true
+    state.field = ''
+    state.message = ''
+    state.denied = false
+    if (progress.value?.phase === 'uncertain')
+      state.message = '原改名结果尚不确定，请先查询原结果。'
+  }
+  async function permitNavigation() {
+    if (!bound || !dirty.value) {
+      abandon()
+      return true
+    }
+    if (answer) return false
+    state.confirming = true
+    const accepted = await new Promise<boolean>((resolve) => {
+      answer = resolve
+    })
+    state.confirming = false
+    if (accepted) abandon()
+    return accepted
+  }
+  function confirmDiscard(value: boolean) {
+    const resolve = answer
+    answer = null
+    resolve?.(value)
+  }
+  async function close() {
+    if (await permitNavigation()) state.open = false
+  }
+  async function perform(action: 'save' | 'lookup' | 'replay') {
+    if (
+      !live() ||
+      !baseline ||
+      (action === 'save'
+        ? !canSave.value
+        : action === 'lookup'
+          ? !canLookup.value
+          : !canReplay.value)
+    )
+      return
+    const own = revision,
+      original = baseline
+    state.field = ''
+    state.message = ''
+    try {
+      let pending
+      if (action === 'save') {
+        const input = captureKnowledgeRename({
+          expected_version: state.version,
+          title: state.title,
+        })
+        if (progress.value?.phase === 'rejected') auth.knowledgeCommands.editRejected()
+        pending = auth.knowledgeCommands.startRename(original.project_id, original.id, input)
+      } else
+        pending =
+          action === 'lookup'
+            ? auth.knowledgeCommands.checkOriginal()
+            : auth.knowledgeCommands.retryOriginal()
+      const result = await pending
+      if (revision !== own || !live()) return
+      if ('state' in result && result.state !== 'committed') {
+        state.message =
+          result.state === 'in_progress'
+            ? '原改名仍在处理中，请稍后查询原结果。'
+            : '尚未观察到原改名结果，可按原请求重放。'
+        return
+      }
+      state.conflict = false
+      state.needsCurrent = true
+      // The receipt records this command only. A fresh Get establishes the next baseline.
+      const receipt = 'state' in result ? result.receipt.document : result.document
+      state.baseline = state.title
+      state.message = '改名已确认，正在重新读取当前文档与目录。'
+      owner.refreshAfterRename(receipt, original.parent_document_id)
+    } catch (error) {
+      if (revision !== own || !live()) return
+      const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if (e.problem?.status === 403 || e.problem?.status === 404) {
+        state.denied = true
+        state.title = ''
+        state.baseline = ''
+        baseline = null
+        state.message = '当前文档不存在或不可访问。'
+        owner.invalidateCurrent(original.project_id, original.id)
+      } else if (e.kind === 'invalid-input')
+        state.field = '标题须为 1–512 个字符，不能包含控制字符。'
+      else if (progress.value?.phase === 'rejected') {
+        state.conflict = true
+        state.message =
+          e.problem?.code === 'VERSION_CONFLICT'
+            ? '文档已变化。草稿已保留，请重读后明确采用当前版本。'
+            : '本次改名未提交，请确认当前文档后再编辑。'
+      } else state.message = '改名结果尚不确定，请查询原结果；不会自动重发。'
+    }
+  }
+  function adoptCurrent() {
+    if (!canAdopt.value || !owner.state.document) return
+    if (progress.value?.phase === 'rejected') auth.knowledgeCommands.editRejected()
+    const draft = state.title
+    bind(owner.state.document)
+    state.title = state.conflict ? draft : state.baseline
+    state.conflict = false
+    state.needsCurrent = false
+    state.message = ''
+    state.field = ''
+  }
+  const stop = watch(
+    () =>
+      [
+        auth.personalContext.phase,
+        auth.personalContext.identity,
+        workspace.currentReadContext.value,
+        owner.state.selected,
+        owner.state.document,
+        owner.state.metadataPhase,
+        owner.busy.value,
+      ] as const,
+    () => {
+      if (disposed || !bound) return
+      if (!same(bound.identity, auth.personalContext.identity)) {
+        abandon()
+        return
+      }
+      // A same-session check keeps Session's original unknown intent. Do not
+      // confuse the temporarily missing read workspace with a new identity.
+      if (auth.personalContext.phase === 'checking') return
+      const c = workspace.currentReadContext.value
+      if (
+        !c ||
+        c.projectID !== bound.project ||
+        c.generation !== bound.generation ||
+        c.readGeneration !== bound.readGeneration ||
+        owner.state.selected !== bound.document
+      ) {
+        abandon()
+        return
+      }
+      if (progress.value?.phase === 'confirmed' && !owner.busy.value) {
+        const current = owner.state.document
+        state.message =
+          owner.state.metadataPhase === 'ready' &&
+          current &&
+          BigInt(current.content_version) >= BigInt(progress.value.receipt!.content_version)
+            ? '改名已确认；已读取当前文档。'
+            : '改名已确认；当前读取未完成，请明确重读。'
+      }
+    },
+    { flush: 'post' },
+  )
+  function dispose() {
+    if (disposed) return
+    // App may temporarily unmount this view for same-session checking.
+    if (auth.personalContext.phase === 'checking') clear()
+    else abandon()
+    disposed = true
+    stop()
+  }
+  return {
+    state,
+    progress,
+    dirty,
+    blocked,
+    canOpen,
+    canSave,
+    canLookup,
+    canReplay,
+    canAdopt,
+    open,
+    close,
+    permitNavigation,
+    confirmDiscard,
+    save: () => perform('save'),
+    lookup: () => perform('lookup'),
+    replay: () => perform('replay'),
+    adoptCurrent,
+    reread: () => {
+      if (live() && !blocked.value && !unsettled.value) owner.retryDocument()
+    },
+    dispose,
+  }
+}
+export type KnowledgeRename = ReturnType<typeof useKnowledgeRename>

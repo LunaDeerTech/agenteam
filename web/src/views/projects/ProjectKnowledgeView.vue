@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from 'vue-router'
+import KnowledgeRenameDialog from '../../components/knowledge/KnowledgeRenameDialog.vue'
+import { useKnowledgeRename } from '../../composables/useKnowledgeRename'
 import KnowledgeDocumentTree from '../../components/knowledge/KnowledgeDocumentTree.vue'
 import { UiBadge, UiBreadcrumb, UiButton, UiDrawer, UiState } from '../../components/ui'
 import { useKnowledgeOwner } from '../../composables/useKnowledgeOwner'
@@ -18,6 +20,7 @@ const location = computed(() => {
 })
 const owner = useKnowledgeOwner(undefined, workspace, location),
   state = owner.state
+const rename = useKnowledgeRename(owner, workspace)
 const drawer = ref(false),
   heading = ref<HTMLElement | null>(null),
   documentHeading = ref<HTMLElement | null>(null)
@@ -47,6 +50,7 @@ const creator = computed(() => {
       : `${value.agent_id} / ${value.execution_id}`
 })
 async function select(id: string) {
+  if (id !== state.selected && !(await rename.permitNavigation())) return
   const fromDrawer = drawer.value
   owner.select(id)
   drawer.value = false
@@ -54,15 +58,21 @@ async function select(id: string) {
   if (!fromDrawer && owner.visible.value && state.selected === id) documentHeading.value?.focus()
 }
 const cancel = () => owner.cancel()
-onBeforeRouteLeave(cancel)
-onBeforeRouteUpdate((to, from) => {
-  if (projectRoute(from.fullPath)?.path !== to.fullPath) cancel()
-})
+async function leave() {
+  if (!(await rename.permitNavigation())) return false
+  cancel()
+  return true
+}
+onBeforeRouteLeave(leave)
+onBeforeRouteUpdate((to, from) => (to.fullPath === from.fullPath ? true : leave()))
 onMounted(async () => {
   await nextTick()
   if (owner.visible.value) heading.value?.focus()
 })
-onBeforeUnmount(() => owner.dispose())
+onBeforeUnmount(() => {
+  rename.dispose()
+  owner.dispose()
+})
 </script>
 
 <template>
@@ -114,6 +124,7 @@ onBeforeUnmount(() => owner.dispose())
           </UiState>
           <template v-if="state.document">
             <div class="document-toolbar">
+              <UiButton :disabled="!rename.canOpen.value" @click="rename.open()">改名</UiButton>
               <UiBadge
                 :tone="state.document.indexing_status === 'failed' ? 'warning' : 'neutral'"
                 >{{ indexLabels[state.document.indexing_status] }}</UiBadge
@@ -206,6 +217,7 @@ onBeforeUnmount(() => owner.dispose())
         </template>
       </div>
     </div>
+    <KnowledgeRenameDialog :editor="rename" :fallback-focus="documentHeading ?? heading" />
     <UiDrawer v-model:open="drawer" title="文档树">
       <KnowledgeDocumentTree
         v-if="owner.visible.value"

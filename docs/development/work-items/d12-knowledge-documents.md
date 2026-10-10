@@ -116,13 +116,13 @@ Skills/coordination已对产品、fixture和消费方法实际差异做有限独
 
 真正改名增加 content_version、置索引 pending、产生 content_changed，ObjectID/正文不变；同名 no-op 不涨版本。Move 不增加内容版本，rename 用事务内实际 parent，客户端不得要求 receipt.parent 等于提交前 parent。文件也可改名，正文 unavailable 不阻止合法 metadata 写入。
 
-Session 唯一持有 identity、Project/Document、捕获输入、原 body、CSRF、key 和命令代次；新增 rename/lookup actions 显式接入 Human current/revision/failure/取消/实际 finally，不落 System/admin，不另造通用命令引擎。controller 仅持草稿、baseline 和安全 progress。新写须同身份当前 Owner、当前 active Project、当前 active 文档和空闲 Cookie lane；checking、不可用、未定命令或冲突禁止新写。
+Session 唯一持有 identity、Project/Document、捕获输入、原 body、CSRF、key 和命令代次；新增 rename/lookup actions 显式接入 Human current/revision/failure/取消/实际 finally，不落 System/admin，不另造通用命令引擎。controller 仅持草稿、baseline 和安全 progress。构造保持现有位置参数，新增尾 `capabilities: {knowledgeCommands?: KnowledgeCommandsAPI}` 使用有名能力，后继独立 Skills 读口只扩同一对象，不继续增加位置参数。新写须同身份当前 Owner、当前 active Project、当前 active 文档和空闲 Cookie lane；checking、不可用、未定命令或冲突禁止新写。
 
 ### 状态、恢复与有界重读
 
 - 完整 typed 响应或合法 committed Lookup 才确认原命令。confirmed 是历史事实，任何后续读取失败不得倒退 rejected 或重发 rename；历史 receipt 不直接成为下一写 baseline。
 - 原 Problem 明确 not_started/not_committed 的版本冲突保草稿，重读后由用户显式采用新版本，再新意图/新 key。transport、Unknown、解析或消费失败保原未定意图；用户 Lookup，in_progress 等待，not_observed 可人工原 key/body 重放，committed 后重读。Lookup 失败不改原写结论；IDEMPOTENCY_KEY_REUSED 禁重放/自动换 key。
-- same-session checking 暂停写、查证、发布而保未定原材料；同 User/Session/CSRF 恢复后可人工查证。真实 identity/CSRF 变化才清私有材料与发布资格；当前 401/CSRF 失效沿 Session，局部 403/404 不污染 System gate。
+- same-session checking 暂停写、查证、发布而保未定原材料；同 User/Session/CSRF 恢复后可人工查证。真实 identity/CSRF 变化才清私有材料与发布资格；当前 401/CSRF 失效沿 Session，局部 403/404 不污染 System gate。仍属当前 identity/Project/doc/编辑代次的拒绝使本域观察不可用并清受保护展示，保已确认历史命令事实；旧晚尾不得清新上下文。
 - 发布资格同时绑定工作区、所选文档与编辑代次。同项目选别文档、同组件路由参数变化、离页都处理草稿/未定意图的显式放弃确认。放弃退休发布资格并取消原调用，实际 reader/outer/finally 未回仍占 Cookie lane；迟到不改新页面，取消导航不复活已退休请求。
 
 确认后沿原单队列重读所选 metadata→祖先→offset0 正文。同 doc 的 current GET 版本不得低于确认 receipt；更高版本/不同 parent 是合法当前观察，相等也用当前 DTO。tombstone/403/404 如实不可用且保原确认事实；重读失败不采用历史 receipt 充当前数据。
