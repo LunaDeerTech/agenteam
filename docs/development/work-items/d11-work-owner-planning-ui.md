@@ -221,6 +221,8 @@ Current Sprint 非空真实正例暂不可由正式生产接口形成：[Work St
 
 未参与实施者本人执行两个独立top：`TestIndependentProjectWorkPlanningWebRecovery`（三域真实原意图/历史与归档门禁）和 `TestIndependentProjectWorkPlanningWebAuthority`（身份/旧尾/切项目/聚合确认）。对应独立spec由独立作者编写，config仅接受这两个明确case及六作者case，不能任意执行目录。作者结果不冒独立动态。
 
+独立树以`65409abc`为输入补齐上述Go/PW两源。Recovery独立选择blocker→task→structure并在断流后取消放弃、改变当前值，比较Lookup/归档重放前后实际事实快照和原历史；Authority独立核同Session/真实撤销换Session、精确held Task取消/handler join后切Project，以及Owner/Model/Work已安装确认分别取消/放弃不串清、其他Owner/admin零Work请求。Go后验直接从同Store核原operation/receipt/History/Outbox和全部增量、旧Session撤销及零额外事实；不把作者case重跑改名当独验，不扩作者identity IPC或非本轮过期/改名矩阵。共用Project同体helper仅新增作者默认/独立唯一top的sourceRun闭集参数，原SHA/schema/typed/生命周期判定不变。限定format/strictTS、race-c及Go两top/PW每case精确发现均实际0；实际helper/正式schema/typed的10个来源绑定正反控actual0／0unhandled，前置类型/VM与首Go编译失败及定向修复保留current。作者只读有限可运行性复核无确认must-fix，未写或执行独立case。当前独立真实两个top均未RUN，编译/发现/方法控制与作者复核均不替代独验动态；原预算及完整资源尾继续适用，等待root分别fresh授权。
+
 旧浏览器回归最少选 Owner read/navigation、edit/rename、original recovery、identity/ownership及受共享Session/router影响的当前已接受Model/System代表；具体精确selector由负责人按最终diff定，不机械重跑无关全模块。使用本任务私有构建outDir/固定资产与独占真实窗口，禁止与Model的web/dist租约并发；新树共享的Docker/PG/outbound/MinIO/浏览器资源统一root调度。
 
 实际测试、工具terminal、child/observer实际Wait、nonce/labels对应7资源及runtime/private目录、hostTCP双尾分别确认。业务通过但退出缺失不能记完整PASS，后来的current-clear不能回填原终态。监督及原预算沿已接受链，现有工具若不足只报精确缺口，不私自加第二监督器。普通输出放ignored output；必要可恢复harness源须进入本卡路径，失败事实保留，不生成重复闭包manifest/日志归档。

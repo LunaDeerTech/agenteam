@@ -291,7 +291,14 @@ export async function projectRefreshBody(
   response: Response,
   projectID: string,
   ownerID: string,
+  sourceRun:
+    | "TestAccountProjectWorkPlanningWebOriginalRecovery"
+    | "TestIndependentProjectWorkPlanningWebRecovery" = "TestAccountProjectWorkPlanningWebOriginalRecovery",
 ) {
+  expect(
+    sourceRun === "TestAccountProjectWorkPlanningWebOriginalRecovery" ||
+      sourceRun === "TestIndependentProjectWorkPlanningWebRecovery",
+  ).toBe(true);
   const url = new URL(response.url()),
     requestID = await response.headerValue("x-request-id");
   expect(
@@ -316,7 +323,7 @@ export async function projectRefreshBody(
     meta.endpoint === url.pathname &&
       meta.method === "GET" &&
       meta.status === 200 &&
-      meta.source_run === "TestAccountProjectWorkPlanningWebOriginalRecovery" &&
+      meta.source_run === sourceRun &&
       /^[0-9a-f]{64}$/.test(meta.input_hash) &&
       /^[0-9a-f]{64}$/.test(meta.body_sha256) &&
       meta.body_file === `body-${meta.body_sha256}.json` &&
