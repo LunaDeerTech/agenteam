@@ -140,6 +140,7 @@ func snapshot(r *dispatchRecord) Dispatch {
 		v.skippedAt = &t
 	}
 	v.failureOccurredAt, v.failedAt = cloneInstant(v.failureOccurredAt), cloneInstant(v.failedAt)
+	v.nextRetry, v.temporaryOccurredAt = cloneInstant(v.nextRetry), cloneInstant(v.temporaryOccurredAt)
 	return Dispatch{data: func() dispatchRecord { return v }}
 }
 func (Dispatch) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "scheduler_dispatch") }
@@ -170,6 +171,10 @@ type dispatchRecord struct {
 	failureCode          f.Code
 	failureOccurredAt    *f.Instant
 	failedAt             *f.Instant
+	temporaryAttempt     int64
+	temporaryReason      ec.LaunchTemporaryReason
+	temporaryCode        f.Code
+	temporaryOccurredAt  *f.Instant
 }
 
 func launchKey(id DispatchID) f.IdempotencyKey {

@@ -374,12 +374,12 @@ func (s *LaunchFailureFinalizer) Lookup(ctx context.Context, p i.ProjectID, id D
 // grant Work access; the authority also requires the private live call/Tx.
 func finalFailureMarker(r *dispatchRecord) bool {
 	return r != nil && r.finalAttempt > 0 && r.finalAttempt == r.attempts &&
-		r.failureReason == wc.TaskLaunchFailureUnsupportedResourceConstraints && r.failureCode == f.DependencyUnbound &&
+		(r.failureReason == wc.TaskLaunchFailureUnsupportedResourceConstraints && r.failureCode == f.DependencyUnbound && len(r.launch.Policy.AllowedResourceConstraints) > 0 || exhaustedTemporary(r)) &&
 		r.failureOccurredAt != nil && r.failureOccurredAt.Validate() == nil &&
 		!r.failureOccurredAt.Time().Before(r.createdAt.Time()) && !r.failureOccurredAt.Time().After(r.updatedAt.Time()) &&
 		r.outcome == KnownNotCreated && r.guard != nil && r.guard.valid() && r.execution == nil && r.nextRetry == nil &&
 		r.busyAttempt == 0 && r.skipReason == "" && r.skippedAt == nil &&
-		r.launch.Purpose == "task/work" && len(r.launch.Policy.AllowedResourceConstraints) > 0 &&
+		r.launch.Purpose == "task/work" &&
 		r.launch.Lineage.RetryOf == nil && r.launch.Lineage.RegenerateOf == nil && r.launch.Lineage.ContributionGeneration == nil && r.launch.Lineage.ContributionAttempt == nil
 }
 func pendingFinalFailure(r *dispatchRecord) bool {
@@ -389,5 +389,6 @@ func completedFinalFailure(r *dispatchRecord) bool {
 	return finalFailureMarker(r) && r.status == Failed && r.failedAt != nil && r.failedAt.Validate() == nil && r.failedAt.Time().Equal(r.updatedAt.Time())
 }
 func sameFinalFailure(a, b *dispatchRecord) bool {
-	return a != nil && b != nil && a.finalAttempt == b.finalAttempt && a.failureReason == b.failureReason && a.failureCode == b.failureCode && a.failureOccurredAt != nil && b.failureOccurredAt != nil && a.failureOccurredAt.Time().Equal(b.failureOccurredAt.Time())
+	return a != nil && b != nil && a.finalAttempt == b.finalAttempt && a.failureReason == b.failureReason && a.failureCode == b.failureCode && a.failureOccurredAt != nil && b.failureOccurredAt != nil && a.failureOccurredAt.Time().Equal(b.failureOccurredAt.Time()) &&
+		(a.failureReason != wc.TaskLaunchFailureRetryExhausted || exhaustedTemporary(a) && exhaustedTemporary(b) && a.retryPolicy == b.retryPolicy)
 }
