@@ -1,5 +1,13 @@
 # Work Owner 任务规划界面检查点
 
+## 2026-10-10 新环境接续
+
+本树恢复到 `197e7cb0`，唯一写者 `/root/work_ui`；按最新 `origin/main` AGENTS/团队流程执行，Git 与全局协调文件仍归 root/coordination。原 recovery08 业务 FAIL 与丢失原尾保持；Project refresh 接缝当前源码已保存，但本树尚未找到 Work09 后续未参与者本人接受原件，先保留此证据缺口，由 root 轮转窄审，不根据全局摘述升级。
+
+实际环境：Go `/workspace/toolchains/go1.27.1/bin/go` 为 go1.27.1；Node v24.19.0；`/usr/bin/chromium` 存在，尚未启动。原 output、binary14、私有 dist 与 MinIO 均未恢复。主树 web package/lock 与本树逐字一致，已离线复制 node_modules 成本树独占目录（排除构建缓存）；harness `npm ci --offline --ignore-scripts --no-audit --no-fund` 因 xmlchars 2.2.0 未缓存实际 exit1，没有联网。root 已协调 shared Go module/MinIO 由 cleanup 恢复，本树后续用独立 GOCACHE。
+
+下一最小验证：恢复锁定 harness 依赖，重建正式 Work 私有 dist 与当前 account race binary；取得新接缝独审及 root 资源窗口后，只执行 `^TestAccountProjectWorkPlanningWebOriginalRecovery$`，验证三次原 Project 刷新和既有最终同体/SQL/实际清理。其余 planning/read/identity 既有 FAIL 及 blockers/layouts/两个独立场景未验事实不变。当前未启 Docker、PG、socket 或浏览器；离线构建不作产品浏览器通过。
+
 跨域独审恢复点：Knowledge content HTTP 验收入口（作者树 `/workspace/agenteam-knowledge-content-http`，基线入口84b9df74及其解释器窄修）有限接受。独立 probe `.agent-state/knowledge-content-review/entry.py` 只运行 Python 文件/事件控制，不执行候选或启动 Go/PG/socket。原7d1d04以 `--expect-interpreter-gap` 明确复现实际 Schema 解释器字节或env路径变化仍被接收；该旧缺口保留。修后89b77e重取作者157控、a254f7独立16控均实际0，解释器仅PG前置/初尾身份纳入，native不强求Schema环境；原两selector、预算、Wait/资源/desc/TCP尾与旧分支不变。
 
 复核命令：`PYTHONDONTWRITEBYTECODE=1 python3 -B .agent-state/knowledge-content-review/entry.py --root /workspace/agenteam-knowledge-content-http`。探针的driver/candidate及原资源观察是显式替身，不能据此称PG4top14sub/native3top6sub已编译或真实通过；原Work08失败与09排队输入不变。
