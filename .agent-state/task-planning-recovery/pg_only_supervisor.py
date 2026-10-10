@@ -239,6 +239,46 @@ def secret_root_results(output):
             and re.search(r'^FAIL(?:\s|$)', output, re.M) is None)
 
 
+KNOWLEDGE_UI = '^TestKnowledgeOwnerReadWeb$'
+
+
+def knowledge_ui_results(output):
+    top = 'TestKnowledgeOwnerReadWeb'
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+    waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
+    browser = re.findall(r'^\s+\S+\.go:[0-9]+: Knowledge Node actual_wait pid=([1-9][0-9]*) success=(true|false)$', output, re.M)
+    return (runs == [top] and results == [('PASS', top)]
+            and len(waits) == 1 and waits[0][1:] == ('0', KNOWLEDGE_UI)
+            and len(browser) == 1 and browser[0][1] == 'true'
+            and re.search(r'^FAIL(?:\s|$)', output, re.M) is None)
+
+
+def knowledge_ui_same(inputs, args, adapter):
+    try:
+        paths = adapter.knowledge_ui_inputs(args.binary)
+        return (adapter.knowledge_ui_environment() == args.knowledge_ui_environment
+                and {str(p): adapter.sha(p) for p in paths} == inputs)
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError):
+        return False
+
+
+def knowledge_ui_reap_exited(log):
+    # Accepted Work UI pre-reap: one finite snapshot, actual WNOHANG waits.
+    # Live or not-yet-waitable children still reach the original survivor FAIL.
+    success = True
+    for _ in range(len(descendants(os.getpid()))):
+        try:
+            pid, status = os.waitpid(-1, os.WNOHANG)
+        except ChildProcessError:
+            return success
+        if pid == 0:
+            return success
+        log.write(f'SUPERVISOR knowledge_ui_adopted_actual_wait pid={pid} status={status}\n')
+        success = success and status == 0
+    return success
+
+
 def root_composition_results(output):
     selector = '^TestKnowledgeSkillsDefaultRootComposition$'
     wanted = 'TestKnowledgeSkillsDefaultRootComposition'
@@ -514,6 +554,7 @@ def observe_root_chain(directory, log, log_path, selector):
     expected = {
         PARSER_PG: {'TestKnowledgePlainTextParserIntegration'},
         SECRET_ROOT: {'TestProjectSecretVariablesDefaultRoot'},
+        KNOWLEDGE_UI: {'TestKnowledgeOwnerReadWeb'},
         '^TestKnowledgeSkillsDefaultRootComposition$': {'TestKnowledgeSkillsDefaultRootComposition'},
         CONTENT_PG: set(CONTENT_GROUPS[CONTENT_PG]),
         '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|PendingHistoryAndCausePlans)$': {'TestObjectMetadataCleanupLiveTransferAndDownloadPlans', 'TestObjectMetadataCleanupPendingHistoryAndCausePlans'},
@@ -539,6 +580,10 @@ def observe_root_chain(directory, log, log_path, selector):
     if selector == PARSER_PG:
         complete = parser_results(output)
         log.write(f'ROOT parser_exact_run_pass_wait={complete}\n')
+        good = good and complete
+    if selector == KNOWLEDGE_UI:
+        complete = knowledge_ui_results(output)
+        log.write(f'ROOT knowledge_ui_exact_run_pass_wait={complete}\n')
         good = good and complete
     if selector == SECRET_ROOT:
         complete = secret_root_results(output)
@@ -804,6 +849,8 @@ def main():
     args = parser.parse_args()
     if 'KnowledgePlainTextParser' in args.run and (args.run != PARSER_PG or not args.root_chain):
         parser.error('plain text parser requires its exact original root-chain entry')
+    if 'KnowledgeOwnerReadWeb' in args.run and (args.run != KNOWLEDGE_UI or not args.root_chain):
+        parser.error('Knowledge UI requires its exact original root-chain entry')
     if 'ProjectSecretVariablesDefaultRoot' in args.run and (args.run != SECRET_ROOT or not args.root_chain):
         parser.error('Secret default root requires its exact original root-chain entry')
     if args.run == '^TestKnowledgeSkillsDefaultRootComposition$' and not args.root_chain:
@@ -830,9 +877,15 @@ def main():
             args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
         except (OSError, ValueError):
             parser.error('explicit local content Schema interpreter required')
-    args.output.mkdir(parents=True, exist_ok=True)
-    stem = 'pg-' + uuid.uuid4().hex
+    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run == KNOWLEDGE_UI else ('pg-' + uuid.uuid4().hex)
     directory = args.output.resolve() / stem
+    if args.run == KNOWLEDGE_UI:
+        try:
+            adapter.knowledge_ui_configuration(directory)
+            args.knowledge_ui_environment = adapter.knowledge_ui_environment()
+        except (OSError, ValueError):
+            parser.error('exact frozen Knowledge assets, interpreters and fresh evidence required')
+    args.output.mkdir(parents=True, exist_ok=True)
     log_path = args.output / (stem + '.log')
     # Adopt only this supervisor's own descendants, so any unexpected survivor
     # can be actually waited and reported rather than inferred dead from ps.
@@ -864,6 +917,8 @@ def main():
         inputs.update({str(p): adapter.sha(p) for p in adapter.root_composition_inputs()})
     if args.run == PARSER_PG:
         inputs = {str(p): adapter.sha(p) for p in adapter.parser_inputs(args.binary)}
+    if args.run == KNOWLEDGE_UI:
+        inputs = {str(p): adapter.sha(p) for p in adapter.knowledge_ui_inputs(args.binary)}
     baseline = tcp()
     started = time.monotonic()
     child = None
@@ -912,6 +967,9 @@ def main():
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
             else:
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
+            if args.run == KNOWLEDGE_UI and child.returncode is not None:
+                if not knowledge_ui_reap_exited(log):
+                    code = 1
             survivors = descendants(os.getpid())
             if survivors:
                 code = 1
@@ -1012,6 +1070,8 @@ def main():
                 same = same and root_composition_same(inputs, args, adapter)
             if args.run == PARSER_PG:
                 same = same and parser_same(inputs, args, adapter)
+            if args.run == KNOWLEDGE_UI:
+                same = same and knowledge_ui_same(inputs, args, adapter)
             if not same: code = 1
             if interrupted: code = 1
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')

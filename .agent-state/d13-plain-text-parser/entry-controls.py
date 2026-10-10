@@ -20,7 +20,7 @@ sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[2]
 DRIVER = '.agent-state/work-owner-http/root_chain_driver.py'
 SUPERVISOR = '.agent-state/task-planning-recovery/pg_only_supervisor.py'
-BASE = '3a7a3fb5'
+BASE = '04455194'
 SELECTOR = '^TestKnowledgePlainTextParserIntegration$'
 TOP = 'TestKnowledgePlainTextParserIntegration'
 CASES = (TOP, *(TOP + '/' + name for name in (
@@ -31,8 +31,8 @@ BINARY = ROOT / 'output/ai/d13-plain-text-parser/parser-integration-race-01.test
 
 # Frozen additions from the sole shared writer: two driver and seven
 # supervisor hunks. No run-time diff or new source can extend this allowlist.
-BASE_SHA = {'.agent-state/work-owner-http/root_chain_driver.py': 'e784286b7e9debaf47aaac2f50e4a6c89a883231cff1c4e4063e46fdad91421c',
- '.agent-state/task-planning-recovery/pg_only_supervisor.py': '4335ca66ac391db8cd20c67850a35b79ae8f286f7d65ab2ada7e66d6d8e2ad29'}
+BASE_SHA = {'.agent-state/work-owner-http/root_chain_driver.py': 'fa8502149c5b782ac461dd1254af44b0ca862c8819f23cf10ec2d1e9db1c01b6',
+ '.agent-state/task-planning-recovery/pg_only_supervisor.py': '26e03db9fd5c37590846a9392d2c87e783971779aa1278ff6ea4649e9b567d2b'}
 SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': (('',
                                                         '    '
                                                         "'^TestKnowledgePlainTextParserIntegration$': "
@@ -213,9 +213,12 @@ def source_binding():
             ("PARSER_PG: {'TestKnowledgePlainTextParserIntegration'}", 'PARSER_PG: set()'),
             ("('0', PARSER_PG)", "('1', PARSER_PG)"),
             ("('0', SECRET_ROOT)", "('1', SECRET_ROOT)"),
+            ("KNOWLEDGE_UI: {'TestKnowledgeOwnerReadWeb'}", 'KNOWLEDGE_UI: set()'),
+            ("('0', KNOWLEDGE_UI)", "('1', KNOWLEDGE_UI)"),
             ('(540, 60) if root_chain', '(541, 60) if root_chain'),
             ('same = same and parser_same(inputs, args, adapter)', 'same = True'),
-            ('same = same and root_composition_same(inputs, args, adapter)', 'same = True')):
+            ('same = same and root_composition_same(inputs, args, adapter)', 'same = True'),
+            ('same = same and knowledge_ui_same(inputs, args, adapter)', 'same = True')):
         check(source.count(old) == 1, 'known original gate for mutation control')
         reject_inverse(SUPERVISOR, source.replace(old, new, 1))
     driver_source = (ROOT / DRIVER).read_text()

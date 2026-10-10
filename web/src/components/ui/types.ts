@@ -13,6 +13,7 @@ export interface TreeNode {
   id: string
   label: string
   children?: TreeNode[]
+  expandable?: boolean
   disabled?: boolean
 }
 export interface TableColumn {

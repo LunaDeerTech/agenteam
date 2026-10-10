@@ -196,4 +196,6 @@ SPEC 窄审固定边界后才能写数据与工具。完成本卡要求：固定
 
 共享入口已由 coordination 完成限定接线。入口控制固定 driver 两处、supervisor 七处增量；公开 `inverse(name, source)` 仅接受这些字节，剥离后以固定 SHA 和实际 Git 源全文核对 main `3a7a3fb5`，未知、缺失、重复增量及跨域门弱化均拒。真实 `main` 的非 root/alias 拒绝控制在 adapter、目录、进程和 TCP 哨兵之前退出；结果/Wait、精确输入重枚举和原 observer 的受控七资源双尾均保留。2026-10-10 本域离线 `python3 -B .agent-state/d13-plain-text-parser/entry-controls.py` 首次实际 exit0（session9853），没有启动 Go、Docker、socket 或真实资源观察；协调者的既有入口兼容控和非作者限定 review 仍独立记录，不把此方法通过计作联调通过。
 
+正式 Knowledge/D18 主线 `04455194` 合入后的入口基线已更新；D13 原两处/七处增量保持逐字不变，剥离后完整还原这次已包含 D12 浏览器入口的主线。额外拒绝 D12 expected top、原 Wait0 和 input-tail 被弱化的 source，既有 D13/Secret 反例保持。本域同一离线命令及 diff-check 再次 actual0（dd93cd），未重编候选或运行业务；共享 union 的其它入口兼容控由 coordination 单独完成。
+
 root 精确授权后，仅退役本树已无进程引用的可再生 `output/ai/d13-plain-text-parser/go-build`：无符号链接，原 468070400 allocated bytes；实际 free 5223272448→5691346944 bytes，cache absent，candidate/日志/私有配置/源码未动。随后同候选 `-test.list '^TestKnowledgePlainTextParserIntegration$'` 在新 list02/runtime、same-process fresh5691293696 下实际发现恰一 top；PID438212 Wait0、原组 absent/runtime 空、outer62370 actual0。原 list01 预飞失败保留，不重编。已将固定 shared MinIO 普通离线复制到本树 driver 既定 `output/ai/deps-minio/bin/minio`，109289632 bytes，SHA256=`dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`；未启动 MinIO、Docker 或任何产品用例。当前待共享兼容控、限定独审及明确真实窗口，联调仍未运行。
