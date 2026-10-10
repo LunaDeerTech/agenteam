@@ -24,7 +24,7 @@
 
 - root 保存本批 Skills HTTP、D05/00028、Skills Cleanup 与此 current；以后增量只能并集共享分支和逆投影控制，不能用某领域旧文件覆盖其他消费者。
 - D05 `52a42627` 的 16 产品 + 5 unit + 20 integration + 00028/领域卡/5 恢复源共 48 非共享路径已导入；Skills Cleanup 另从 `92cfb069` 导入 11 个领域源（含 2 pure）、5 个 PG 源及入口控制。两个既有 Skill 文件仅各增加 6 行精确 Cleanup 分派，其原 P2 主体不变。保留 main P2 的 `contract/authority.go`、`contract/skill_initialization_test.go`、`skill_initialization_test.go`、`transfer_upload.go`，不覆盖 content 新 resolver。成本限定组合和 D05 history 的 whole PASS 可复用；Skills 历史消费者在 `8cef9252` 入口窄修后的 recovery02 已完整 whole PASS（42162→2a973b outer 0/142.715s，Go/driver Wait 0，1 top/2 sub，七资源/三 private/runtime/desc/TCP 双尾和输入一致齐，无 STOP），00028 消费者门已关闭。原 recovery01 whole FAIL 及 96693 身份未知保留，不代表默认 root/全 participant 已完成。
-- Secret 00029/00030 及对应领域增量尚未导入；必须按 00028→00029→00030 连续前缀组合，原有效领域证据不等于 main 装配完成。
+- Secret 00029/00030 及对应库增量现已按 b724e397/f9cc11c6 精确导入，候选连续前缀为 00001..00030；最低离线组合检查见末节。原有效领域证据不等于 main 正式装配完成。
 - Knowledge 正文 HTTP PG01 原 whole FAIL：两 GET fixture 正文可被正式短正文预读提前释放 lease，与测试 live-lease 假设冲突；content 仅修两处正文大于 64KiB，保原门与原 FAIL，修后 `1e5833bc` PG02 原 4 top/14 sub 已完整 whole PASS，Go/driver/outer 实际 Wait0、七资源/private/runtime/desc/TCP双尾和输入一致齐；记录 `9b9d1e7c`，正文 HTTP adapter 有限接受，其原有效 native 证据复用。
 - Work UI recovery11 原 whole FAIL 已完整退出，作者正在定位 observerError；新的独立 Recovery/Authority 两 top 候选就绪但未验，旧 FAIL 不升级。默认根装配/Project 初始化链路由 content 在本树继续，root 再安排最小真实联调。
 
@@ -42,5 +42,15 @@
 - 共享仅 `pg_only_supervisor.py`、`root_chain_driver.py`、`native_driver.go` 的正文精确增量；`e3145974` 三源基线与 main280 相同。`entry_union.py` 明确增加第四域，只对 native selector/gate 与输入检查两个已知交叠作可审计组合，当前源须逐字符合并集，未知 hunk 失败。Skills 原输入一致性分支保留，正文检查进入其 else；所有原预算、selector、Wait、资源、private/desc/TCP 门保持。
 - 本候选正文 157 控、Skills HTTP 107 控、Cleanup 6 methods、D05 并集 200 控全部实际 exit0。一次 Cleanup 字节逆投影因 CONTENT 映射行顺序不一致 FAIL，仅固定在原 observe_root_chain.expected 开头后复核通过；这属于离线组装控制，没有真实业务执行。
 - `^TestContent(ProjectionStrictUnionAndByteIdentity|HTTPGETAndHEADSameConsumption|HTTPBoundariesAndOriginalFaults|HTTPActualSchema|QueryCanonicalBounds)$` 明确 5 pure/Schema top race PASS，不选 native/io；native 四域 driver 仅 build0；`tests/knowledge` integration race-c0/9.770s、正文 exact4 list0。session65082 与每个原子命令实际 Wait0，native gates 显式移除，沿自有 offline/cache/telemetry off/新鲜大于5GiB预飞；没有 socket/PG 场景。
-- 默认根 content route、必需 Knowledge keyring 影响的外域 fixture 及根最小测试由 content 唯一写；本结果不接受其尚未闭合的真实初始化/权限/生命周期组合。Secret 00029/30 尚未导入，保后续连续前缀责任。
-- 本批 23 非共享 + 3 shared + 两组合控制源 + current 共29路径准备保存；当前所有本写域停写，原命令终态齐，无资源在途。
+- 默认根 content route、必需 Knowledge keyring 影响的外域 fixture 及根最小测试由 content 唯一写；本结果不接受其尚未闭合的真实初始化/权限/生命周期组合。Secret 00029/30 已按末节进入连续候选前缀。
+- 本批 23 非共享 + 3 shared + 两组合控制源 + current 共29路径已保存推送 edc05688；Skills与cleanup均给四域实源/逆投影有限只读独审接受，无 must-fix，不冒两人动态执行。
+
+
+## Secret 连续前缀与默认根入口
+
+- root 从 D04 `b724e397` 与 Owner `f9cc11c6` 各精确导入37路径，共74（含两域产品/测试、00029/00030、两卡与必要恢复源）。67个 Go/迁移源逐字符合来源；main七个 P2/Project保护源仍逐字一致。仅合 Project 的 Secret Audit/Event闭集分派与事实 checker，未覆盖 Runner、app 或任何领域整目录。A SPEC 页首已交状态保留，仅§4.1/6.1/6.2实际 AuditID/私有 mutation witness顺序同步；两库卡引用正式迁移，历史失败与当时证据不重写。
+- `pg_only_driver.go` / supervisor 并入 D04四literal与Owner四literal，各namespace闭集、固定artifact对、初始输入冻结及末尾bytes/集合重枚举保持。`entry_union.py` 明确从同main基线合两个并列来源，不以Owner旧分支覆盖D04；stat共享、精确selector行及same分支只有已知交叠。Secret未参与本组装的执行者完成两源有限只读审查，无must-fix，未冒动态执行。
+- 组合最低纯检查只选9 top：Secret Apply/历史receipt2、跨D10 contract1、Owner Audit/Outbox/Authority/type Reader4、Project Secret Audit/Event2，四包race均实际Wait0。原session61926最终actual0；同一离线串行阶段PG driver build0、security/Owner两integration包race-c0，八个exact入口list均恰对应top，实际driver拒绝非exact发生在stat/mkdir前。每阶段同process新鲜磁盘≥5GiB，固定Go/只读module/私有cache及telemetry off；无业务PG/native/socket。
+- 原D04 core控制50、recovery61（含真实artifact/list附加为68）、Owner182（附加为189）、Skills107、正文157、Cleanup6methods、D05并集201均实际exit0。只复用各域已接受SQL与独验组合，不重跑原整矩阵；未声称新候选重新执行这些真人场景。控制首轮因两个输出目录未创建退出；随后Secret观察分支插入点与root helper被旧逆切片包含的失败均保留，分别固定独立插入点后通过，未删除预算/门或容忍未知hunk。
+- 默认根新入口仅 `^TestKnowledgeSkillsDefaultRootComposition$` → `internal/central/app`，同包app Go源初尾冻结、单top/零sub恰一次RUN/PASS及唯一原actual_test_wait=0；原7resource/Go6m/root540+60+3/75s TCP双空不变。独立 `root-composition-controls.py` 40控实际0，包括新域逆去后六域全源相等、非exact/非root前置拒绝、日志缺失/重复/失败、input漂移及七资源/私目录原双尾；OS/resource均明确double，不冒真实资源退役。此本地新增量由`apply_root_composition`精确声明，完整实源比较后才允许其他域逆投影，未知变化仍fail。
+- content的根真人test已在连续00030候选上race-c/list0（session66747），只发现一个top；尚未获得本current记录的真实whole PASS。app/config/外域fixture由content唯一持有，其结果单独验收。本次本人无compiler/子进程或真实资源在途，等待root checkpoint与fresh真实窗口；候选未正式交付main。
