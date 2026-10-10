@@ -1,13 +1,14 @@
 # 当前执行检查点
 
-## Execution preparation / Task 组合（2026-10-10，有限范围已通过）
+## Agent创建与Execution准备组合（2026-10-10，有限范围已通过）
 
-- 当前树为 `/workspace/agenteam-agent-system-integration` / `ai/agent-system-integration`；组合源码 `879a7252` 已远端保存，本轮记录待主线程提交。Execution donor恢复记录 `d0f72300` 与 Task donor恢复记录 `5122c1dc` 已推送，实际源仍分别为 `7fc` 与 `b98`；全局迁移 00040 归 Execution owner。
-- Project 3top race＋vet、Execution 6top/6sub（复用pure01）及Task pure02修后6top race＋两包vet按版本组合通过，共15个新top/3包。原pure01 Task编译FAIL、Project门前vet未启均保留；PG测试typed-ID单行修正后compile02/list通过，不回填旧编译失败。
-- `TestExecutionPreparation` 真实1top4sub、31.31s wholePASS（session42916→1e253c）：DDL40 fresh/repeat、39升级与rollback约束、真实Project preparation gate和当前Owner Task读取/Session撤销通过。原Go/driver/sup/outer全Wait0，七资源及private/runtime/desc/TCP全部退出尾闭合，窗口已释放。
-- 本轮不证明PreparationDriver完整capture、Started、真实Task Launch或F1。完整capture仍须全部实际提供方同Tx参与，缺项拒绝且零input；不持久化部分Snapshot。Task指派/状态写及真实启动来源仍缺，backlog可读不等于可启动。
-- 下一项是已只读接受、尚未实施的install-source/Backend构造解耦：真实同Store/ProcessGuard与每call私有handoff保留全部授权，再装配真实SkillService、adapter、Scope/Risk和BuiltinSource；不能用unbound壳或metadata定义冒可调用Backend。
-- 正式main仍为Human Skill有限交付 `18a27db5`；既有21top/10包vet、32–35与37–39 schema及下述Schema核心/适配器8top/两包vet接受范围保留。UI05wholeFAIL停放、旧STOP、生产initializer/F1未绑定与E01未开始不变，整体约30%仅工程粗估。
+- 当前树为 `/workspace/agenteam-agent-system-integration` / `ai/agent-system-integration`；最终组合`931b054f`已推送。Source实际产品`f8770d14`（donor `c39ff4e2`已推送）6top race＋runtime/skill两包vet wholePASS且双独审接受；Occupancy实际`957cf9df` 5top/16sub race＋execution vet通过并独审接受，共11个新top/3包。
+- `TestAgentConfigurationCreate` PG02真实1top2sub、28.67s（16.96/11.71）wholePASS，session22455→eeee99；真实Source→Registry Reconcile→默认两项true的Agent.Create/Get/Lookup及same-key重放，16类事实与跨域引用一致。原final Tx全部写入后marker证明业务整体rollback，planned intent允许保留；正式WorkCreateTask及真实empty Occupancy也通过。
+- 原Go/driver/sup/outer全Wait0，七资源14次absence及private/runtime/desc/TCP全部尾闭合，1349运行输入稳定并对应665编译输入。原PG01在Registry构造DependencyUnavailable的wholeFAIL保留：fixture漏调用真实ObjectRuntime.Initialize，Service.Initialize不能替代guard绑定；仅两fixture修正经work_ui有限独审，产品门未放宽。
+- 上批Project 3top、Execution 6top/6sub与Task修后6top及相应vet共15top/3包、`TestExecutionPreparation` 1top4sub wholePASS范围保留。原Task编译FAIL、Project门前vet未启、PG typed-ID编译失败不回填；00040 fresh/repeat、39升级/rollback约束、真实Project gate与Owner Task读取/Session撤销不冒完整capture或Started。
+- Occupancy donor `c87a1019`已推送，原`/workspace/agenteam-task-assignment`已正常移除且无ignored独有材料，pure材料留本树；旧preparation/Task trigger donor此前已移除、远端分支可复建。本批仅Runtime Source donor树保留其原pure；没有删除候选、FAIL或共享依赖。所有本批Go/native已实际退役。
+- 当前未验Launch/ToolExecution、生产app或完整F1；D23真实pending/claim writer缺失，Task指派/状态/HTTP及00041/00042仍未做。完整capture缺实际提供方即拒绝且零input，不持久化部分Snapshot，General Object Runtime join等旧STOP保持。
+- 正式main仍为Human Skill有限交付`18a27db5`；既有21top/10包vet、32–35与37–39 schema及下述Schema核心/适配器8top/两包vet范围保留。Secret UI05wholeFAIL停放、生产initializer未绑定、E01未开始与整体约30%的工程粗估不因本次有限通过改变。
 
 ## Tool Schema / Runtime 适配器（2026-10-10，有限范围已通过）
 

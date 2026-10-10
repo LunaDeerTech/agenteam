@@ -1,4 +1,14 @@
-# 当前有限组合：00040 preparation 前置真实 PG 通过
+# 当前有限组合：真实 Agent 默认配置创建通过
+
+source `931b054f` 的 `TestAgentConfigurationCreate` 在 `agent-create-02` **wholePASS**（session22455→eeee99，2026-10-10 15:32:36–15:35:00 UTC）：固定1 top/2直接sub，共28.67s；`default-create-and-replay` 16.96s、`final-transaction-rollback` 11.71s。目标 Project 来自正式 P2/Skill/Object 初始化；旧 Account fixture 的另一受控 Skills Project 不作为目标。实际 Runtime InstallAuthority 在 Skill 构造前传入，同一 Skill Service、真实 Object Runtime/guard、固定 BuiltinSource 经原 Registry EX 事务登记。Agent 调用省略两个默认开关，实际均为 true；正式 Model 主/审批两角色、完整 canonical 与 Tool/Mount/Secret/Skill owner 事实、Audit/Outbox/receipt 在原最终事务关联，完整同 key 重放及 Lookup 不增事实。回滚子项在原 callback 已写完全部16类计数及关系后返回 marker，由真实 Store 回滚，保原 NotCommitted/cause、Session Activity 及已提交的 planned 意图，无伪 CommitResult。默认子项另以正式 Work.CreateTask 后同 Store/Owner/Project SH/Schedule EX 读取实际空 Execution occupancy；未创建 Execution。
+
+原 `agent-create-01` **wholeFAIL 保留**（source `d20ace72`，session15076→30b479，15:26:48–15:28:46 UTC）：两个子项均在构造事务返回 `DEPENDENCY_UNAVAILABLE`，15.03s，尚未调用 Agent.Create；原日志无更细 stage，不回填。后续源码核实旧 fixture 只执行 Object.Service.Initialize，而 guard 绑定仅由 Object.Runtime.Initialize 完成。唯一两测试窄修为非 nil factory 分支构造真实 Transfer/Object Runtime、核原 guard 的 process，并使用 Runtime Drain/Force 退役；nil Human 分支保留。成功路径先退 Agent/InstallAuthority 再退 Project/Skill/Runtime/guard，构造失败兜底不冒未存在的 Source 调用。产品、两个业务场景、入口预算均未改；独立差额静审接受。01原 Go/driver/supervisor/outer Wait1及全部资源尾均已闭合。
+
+02候选 `output/ai/agent-system-integration/agent-create-race-02.test` 为52,503,449 B，SHA256 `9b175c71442a7ca82651e681f2351fe5c24ced7da45ce743b07299ec0b013d04`。`agent-create-compile-02` 原race-c8.983s、exact list1.070s/唯一top，session10012→d88e79，全原Wait0，665编译输入不变。PG同进程 fresh5,530,988,544 B，Go905867/supervisor904074/outer904007及原driver Wait全0；七资源14absent、private/runtime/descendant/TCP双尾与outer双尾均空，adopted空、STOP0，监督142.631s。1349运行输入完整包含665编译输入且初尾一致，hash `0a4688f202451e1ab10f0e4afcf58af2bdc4c659b72e50c6272e894be352180a`。窗口和热缓存已释放。
+
+最小复现沿同域 `agent-create-compile-02-launcher.py`、`agent-create-launcher-02.py` 和 `agent-create-02-inputs.json`（均 `output/ai/agent-system-integration/` 下），原结果 `agent-create-02-control/result.json`，原日志 `/tmp/agc02/pg-f95de8f7401642ddbd913bb234d25f5b.log`；旧01结果/日志与候选均保留。复现须新输出及获授唯一资源窗口。本次仅接受真实 Agent 配置创建和明确空占用读取，不证明 production app、完整 F1、非空 Mount/Secret 引用、Execution capture/Launch/ToolExecution、Task dispatch 或一般 Object Runtime STOP 已闭合。
+
+## 已完成的00040 preparation前置真实 PG
 
 source `879a7252` 的 `TestExecutionPreparation` 首次 PG 为 **wholePASS**：固定 1 top / 4 直接 sub，共 31.31s。四项为 `prefix39-upgrade-and-repeat`（14.52s）、`preparation-claim-and-attempt`（2.25s）、`project-preparation-gate`（7.43s）、`current-owner-task-input`（7.10s）。接受范围仅为 00040 fresh/repeat、保留真实 Project 的39→40升级、原事务内显式回滚的 claim/attempt 约束、真实 initialized/active Project gate，以及正式服务创建的 planned/backlog Task 的当前 Owner 完整输入读取、非 Owner 隐藏拒绝和正式 Logout 后 SessionRevoked。Project fixture 仍使用已披露的持久测试 Skills initializer；SQL 约束候选不交给业务服务，不证明 Driver capture、Snapshot、生产初始化或完整 F1。
 
