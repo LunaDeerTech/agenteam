@@ -125,4 +125,6 @@ SPEC 独立关系审后再实施。限定本包 pure/race/vet 一轮及源码静
 
 首稿 `51d4b299` 的独立静审发现两项必须修复：jsonb 会把 schema 数值 `1e0` 规范为 `1`，与源码保留词法的比较不一致；Go JSON 解码会将孤立 surrogate 转义替换为 U+FFFD。已改为 canonical bytea 存储并在解码前拒绝孤立 surrogate，补同定义持久字节回读、指数/超 PG numeric 范围/escaped NUL、合法成对/字面反斜线与孤立转义的定向纯控。原发现是静态问题，未冒称 Go 或 PG 的失败/通过。
 
-当前源码与必要纯控已落，格式检查通过；尚未编译、运行 Go、验证 00033 迁移、真实 Backend 或 Agent 联调。Agent 新 consumer contract 已由 root 按 `34755aa5` 同步；00033 真实迁移需组合连续 00032。后继限定九项新纯控 race 一次及两包 vet，再真实 PG 核稳定身份、immutable history、注册/引用共享门、同 Tx witness/rollback；不扩大旧 NameTable 或停止中的 tools 矩阵。
+编码返修 `27a42f5e` 已获 skills_http 非作者有限静审接受。该固定源码执行本批九项新纯控 race 一次和 Tool contract/registry 两包 vet，`pure-01` 整轮通过：race 原 Go Wait 0（12.646s，恰九 RUN/PASS），vet 原 Go Wait 0（5.237s），outer 最终 0；两阶段实际进程组均双次不存在、runtime 双次为空、adopted 为空，70 个同包/本地依赖 Go 源及模块锁前后相同。固定 Go1.27.1、私有 actual telemetry off、三个旁路移除、只读模块缓存与离线模式；两阶段启动前 fresh 均高于 5 GiB。记录在 `output/ai/tool-registry/pure-01/`；未重复旧 SpecRef/NameTable 矩阵，热缓存已归还。
+
+以上只验纯算法与受控接口边界，尚未验证 00033 迁移、真实 Backend 或 Agent 联调。Agent 新 consumer contract 已由 root 按 `34755aa5` 同步；00033 真实迁移需组合连续 00032。后继真实 PG 核稳定身份、immutable history、注册/引用共享门、同 Tx witness/rollback，不以 metadata fixture 代替生产安装后端或 F1 完成。
