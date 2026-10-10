@@ -156,7 +156,7 @@ func (p *TaskTrigger) DiscoverCapture(ctx context.Context, execution i.Execution
 	if p.state.captures == nil {
 		return nil, fault(f.DependencyUnbound)
 	}
-	agent, _ := f.AggregateLock(f.AgentAggregate, request.AgentID.String())
+	agent, _ := f.AgentLock(request.AgentID.String())
 	run, _ := f.AggregateLock(f.ExecutionAggregate, execution.String())
 	locks, err := oc.NormalizeLocks([]f.LockRequest{projectLock(request.ProjectID, f.Shared), taskScheduleLock(request.ProjectID, f.Shared), taskLock(request.Trigger.TaskID, f.Shared), {Key: agent, Mode: f.Shared}, {Key: run, Mode: f.Exclusive}})
 	if err != nil {
