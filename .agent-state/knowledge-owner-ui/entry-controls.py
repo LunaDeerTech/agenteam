@@ -136,7 +136,7 @@ class EntryControls(unittest.TestCase):
         self.assertEqual(driver.TARGETS[parser_entry.SELECTOR], 'tests/knowledge')
         self.assertEqual({k: v for k, v in driver.TARGETS.items()
                           if k not in (SELECTOR, parser_entry.SELECTOR, '^TestModelTextRuntimePersistentWire$',
-                                       '^TestProjectLifecycleStopBatchRealGuard$')}, old['TARGETS'])
+                                       '^TestProjectLifecycleStopBatchRealGuard$', '^TestAgentConfigurationMetadata$')}, old['TARGETS'])
         self.assertEqual(sup.budgets(True), (540, 60))
         self.assertEqual(sup.budgets(False), (123, 3))
 

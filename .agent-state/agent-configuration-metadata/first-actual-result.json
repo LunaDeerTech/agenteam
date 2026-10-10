@@ -1,0 +1,219 @@
+{
+  "scope": "Model Selection and Secret Directory first joint metadata chain",
+  "status": "wholePASS for the exact metadata chain; earlier failures preserved",
+  "selector": "^TestAgentConfigurationMetadata$",
+  "expected_subtests": [
+    "normal-metadata",
+    "current-and-stale",
+    "caller-rollback"
+  ],
+  "runs": [
+    {
+      "name": "metadata01",
+      "status": "wholeFAIL",
+      "terminal_chunk": "1129f1",
+      "outer_pid": 688072,
+      "actual_outer_exit": 1,
+      "started_utc": "2026-10-10T11:58:41Z",
+      "finished_utc": "2026-10-10T11:58:41Z",
+      "fresh_available_bytes": 5752885248,
+      "failure": "outer positional binary lookup selected --run; metadata_inputs rejected before resource preflight",
+      "supervisor_driver_go_or_resource_started": false,
+      "descendant_observations": [
+        [],
+        []
+      ],
+      "adopted_actual_waits": [],
+      "tcp_baseline_taken": false,
+      "input_tail": "original check failed from the same erroneous binary lookup; not recast as passed",
+      "original_result": "output/ai/agent-configuration-metadata/metadata-01-control/result.json"
+    },
+    {
+      "name": "metadata02",
+      "status": "wholeFAIL",
+      "session": 65042,
+      "terminal_chunk": "a80cc7",
+      "started_utc": "2026-10-10T12:04:19Z",
+      "finished_utc": "2026-10-10T12:06:06Z",
+      "fresh_available_bytes": 5752487936,
+      "failure": "formal Model create returned CAPABILITY_UNSUPPORTED at agent_configuration_metadata_test.go:234 before the three subtests",
+      "top_seconds": 8.93,
+      "actual_subtests_run": 0,
+      "waits": {
+        "go": {
+          "pid": 694599,
+          "actual_exit": 1
+        },
+        "driver": {
+          "pid": 692730,
+          "actual_exit": 1
+        },
+        "supervisor": {
+          "pid": 692709,
+          "actual_exit": 1,
+          "seconds": 105.007
+        },
+        "outer": {
+          "pid": 692663,
+          "actual_exit": 1
+        }
+      },
+      "tails": {
+        "exact_resources": 7,
+        "resource_absent_observations": 14,
+        "private_absent_observations": 2,
+        "runtime_empty_observations": 2,
+        "descendant_empty_observations": 2,
+        "tcp_empty_observations": 2,
+        "outer_descendant_empty_observations": 2,
+        "outer_tcp_empty_observations": 2,
+        "outer_adopted_waits": [],
+        "input_count_before": 1202,
+        "input_count_after": 1202,
+        "inputs_unchanged": true,
+        "stop_count": 0,
+        "window_released": true
+      },
+      "launcher_sha256": "36f0f7f2a2b39ce0201da146429e4d8be5acac6fd5b03f4ebea7fdff1e10a8a6",
+      "command_sha256": "5a8d104dbafaf17088bdffc25bf9bf1ea1195ccf1ad4e103b902feab5a4baea3",
+      "launch_input_sha256": "9fb90f9f7b1c4dc9db5b8b9e3c34c0bbf0658e693f11bd1085fc9be04dd199a0",
+      "artifacts": {
+        "original_log": "/tmp/acm02/pg-3cc343acf7604ccf8ee7b1012abc23e2.log",
+        "outer_result": "output/ai/agent-configuration-metadata/metadata-02-control/result.json",
+        "supervisor_log": "output/ai/agent-configuration-metadata/metadata-02-control/supervisor.log",
+        "fixed_input": "output/ai/agent-configuration-metadata/metadata-02-inputs.json",
+        "launcher": "output/ai/agent-configuration-metadata/metadata-launcher.py"
+      }
+    },
+    {
+      "name": "metadata03",
+      "status": "wholeFAIL",
+      "failure_class": "same-process capacity preflight; no business body",
+      "terminal_chunk": "85ae5d",
+      "outer_pid": 710044,
+      "actual_outer_exit": 1,
+      "started_utc": "2026-10-10T12:23:46Z",
+      "finished_utc": "2026-10-10T12:23:46Z",
+      "fresh_available_bytes": 5022830592,
+      "minimum_bytes": 5368709120,
+      "supervisor_driver_go_or_resource_started": false,
+      "descendant_observations": [
+        [],
+        []
+      ],
+      "adopted_actual_waits": [],
+      "tcp_baseline_taken": false,
+      "input_tail": "not accepted: capacity check preceded binary parsing; the original false field is preserved, not interpreted as a source change",
+      "candidate": {
+        "bytes": 44600867,
+        "sha256": "cac43b306727fc8fb0217da7f4674df57759e52ce4f620ba4e0e1f41509ff79d"
+      },
+      "planned_runtime_inputs": {
+        "count": 1202,
+        "sha256": "d9a108d93220e76f83942f2f32412b1e3c738dec954cc17843d90c90b9c3e0ef"
+      },
+      "original_result": "output/ai/agent-configuration-metadata/metadata-03-control/result.json",
+      "window_released": true
+    },
+    {
+      "name": "metadata04",
+      "status": "wholePASS",
+      "source_ref": "d5071ff5",
+      "candidate_source": "e075a779",
+      "session": 42919,
+      "terminal_chunk": "f1a1db",
+      "started_utc": "2026-10-10T12:28:11Z",
+      "finished_utc": "2026-10-10T12:29:52Z",
+      "fresh_available_bytes": 5717778432,
+      "top_seconds": 9.93,
+      "subtests": {
+        "normal-metadata": {
+          "status": "PASS",
+          "seconds": 0.06
+        },
+        "current-and-stale": {
+          "status": "PASS",
+          "seconds": 1.3
+        },
+        "caller-rollback": {
+          "status": "PASS",
+          "seconds": 0.02
+        }
+      },
+      "candidate": {
+        "bytes": 44600867,
+        "sha256": "cac43b306727fc8fb0217da7f4674df57759e52ce4f620ba4e0e1f41509ff79d",
+        "recompiled_for_run": false
+      },
+      "waits": {
+        "go": {
+          "pid": 715809,
+          "actual_exit": 0
+        },
+        "driver": {
+          "pid": 714009,
+          "actual_exit": 0
+        },
+        "supervisor": {
+          "pid": 713987,
+          "actual_exit": 0,
+          "seconds": 98.614
+        },
+        "outer": {
+          "pid": 713941,
+          "actual_exit": 0
+        }
+      },
+      "tails": {
+        "exact_resources": 7,
+        "resource_absent_observations": 14,
+        "private_absent_observations": 2,
+        "runtime_empty_observations": 2,
+        "descendant_empty_observations": 2,
+        "tcp_empty_observations": 2,
+        "outer_descendant_empty_observations": 2,
+        "outer_tcp_empty_observations": 2,
+        "outer_adopted_waits": [],
+        "input_count_before": 1202,
+        "input_count_after": 1202,
+        "inputs_unchanged": true,
+        "input_hash": "fa69107d99e83ea590b4203c6c15b412736124d77e81aefebfa185edf1093711",
+        "stop_count": 0,
+        "window_released": true
+      },
+      "launcher_sha256": "d807ebd4b28c0808c9572d85624d480f942a7cd8877bce0cf5b3abea4b3a70aa",
+      "command_sha256": "0e289cafd2a247cbc091e4d579f4a4fd88ae963eab140d903923ab7f470bb726",
+      "launch_input_sha256": "0ff7b0c0109fb111ea9a9b1394dc3e8abb6ae455aa9191cb4017f1dd0cada623",
+      "artifacts": {
+        "original_log": "/tmp/acm04/pg-44633f5e9b154f4daa2fbd35f594ffc0.log",
+        "outer_result": "output/ai/agent-configuration-metadata/metadata-04-control/result.json",
+        "supervisor_log": "output/ai/agent-configuration-metadata/metadata-04-control/supervisor.log",
+        "fixed_input": "output/ai/agent-configuration-metadata/metadata-04-inputs.json",
+        "launcher": "output/ai/agent-configuration-metadata/metadata-launcher-04.py"
+      }
+    }
+  ],
+  "next": "Secret References provider checks and real Agent canonical-witness integration remain separate work",
+  "limitations": [
+    "Only the exact three metadata scenarios are accepted; historical compilation and module unit evidence retain their original scopes",
+    "No Agent, References, F1, production initializer or Runtime authorization completion",
+    "Existing STOPs unchanged; no automatic retry after a failed preflight or real run"
+  ],
+  "initial_source_ref": "d764",
+  "initial_candidate": {
+    "bytes": 44600307,
+    "sha256": "9ad8467c1aae43d4092f52103b19983df42f66326845e603510d7dad60c6609a",
+    "recompiled_for_runs": false
+  },
+  "initial_inputs": {
+    "runtime_count": 1202,
+    "sha256": "5c2950c7013483f50e2f35edb486784c7da1f1710d21c3128e48aa5ba0b241da",
+    "all_1182_original_compile_paths_retained": true,
+    "original_compile_before_after_same": true,
+    "changes_after_compile": [
+      "README compile-result note",
+      "metadata-only driver full-internal provenance enumeration"
+    ],
+    "go_candidate_sources_unchanged": true
+  }
+}
