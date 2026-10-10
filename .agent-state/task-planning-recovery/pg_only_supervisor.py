@@ -189,6 +189,64 @@ def observe_secret_owner(log_path, log, selector):
     return good
 
 
+MODEL_RUNTIME = '^TestModelTextRuntimePersistentWire$'
+MODEL_RUNTIME_CASES = {'TestModelTextRuntimePersistentWire',
+                       'TestModelTextRuntimePersistentWire/json_success',
+                       'TestModelTextRuntimePersistentWire/policy_deny'}
+
+
+def model_runtime_results(output):
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+    waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
+    return (len(runs) == len(MODEL_RUNTIME_CASES) and set(runs) == MODEL_RUNTIME_CASES
+            and len(results) == len(MODEL_RUNTIME_CASES)
+            and all(state == 'PASS' for state, _ in results)
+            and {name for _, name in results} == MODEL_RUNTIME_CASES
+            and len(waits) == 1 and waits[0][1:] == ('0', MODEL_RUNTIME)
+            and len(re.findall(r'^D03 explicit test actual_wait ', output, re.M)) == 1
+            and re.search(r'^FAIL(?:\s|$)', output, re.M) is None)
+
+
+def model_runtime_same(inputs, args, adapter):
+    try:
+        return {str(p): adapter.sha(p) for p in adapter.model_runtime_inputs(args.binary)} == inputs
+    except (OSError, ValueError, TypeError):
+        return False
+
+
+PARSER_PG = '^TestKnowledgePlainTextParserIntegration$'
+PARSER_CASES = frozenset({
+    'TestKnowledgePlainTextParserIntegration',
+    'TestKnowledgePlainTextParserIntegration/full_current_bytes_after_actual_close',
+    'TestKnowledgePlainTextParserIntegration/partial_and_nonplain_rejected',
+    'TestKnowledgePlainTextParserIntegration/foreign_owner_produces_no_parser_input',
+})
+
+
+def parser_results(output):
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+    waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
+    return (len(runs) == len(PARSER_CASES) and set(runs) == PARSER_CASES
+            and len(results) == len(PARSER_CASES)
+            and all(state == 'PASS' for state, _ in results)
+            and {name for _, name in results} == PARSER_CASES
+            and len(waits) == 1 and waits[0][1:] == ('0', PARSER_PG)
+            and re.search(r'^FAIL(?:\s|$)', output, re.M) is None)
+
+
+def parser_same(inputs, args, adapter):
+    try:
+        paths = set(adapter.parser_inputs(args.binary))
+        return (set(inputs) == {str(p) for p in paths}
+                and all(p.is_file() and not p.is_symlink()
+                        and p.resolve(strict=True) == p
+                        and adapter.sha(p) == inputs[str(p)] for p in paths))
+    except (OSError, ValueError, TypeError):
+        return False
+
+
 SECRET_ROOT = '^TestProjectSecretVariablesDefaultRoot$'
 
 
@@ -245,6 +303,37 @@ def knowledge_ui_reap_exited(log):
         log.write(f'SUPERVISOR knowledge_ui_adopted_actual_wait pid={pid} status={status}\n')
         success = success and status == 0
     return success
+
+
+OWNER_UI_TOPS = {
+    '^TestSkillOwnerReadWeb$': ('TestSkillOwnerReadWeb', 'Skill'),
+    '^TestKnowledgeOwnerRenameWeb$': ('TestKnowledgeOwnerRenameWeb', 'KnowledgeRename'),
+}
+
+
+def owner_ui_results(output, selector):
+    if selector not in OWNER_UI_TOPS:
+        return False
+    top, label = OWNER_UI_TOPS[selector]
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+    waits = re.findall(r'^D03 explicit test actual_wait (.*)$', output, re.M)
+    browser = re.findall(r'^\s+\S+\.go:[0-9]+: (\S+) Node actual_wait (.*)$', output, re.M)
+    return (runs == [top] and results == [('PASS', top)]
+            and len(waits) == 1
+            and re.fullmatch(r'pid=[1-9][0-9]* code=0 selector=' + re.escape(selector), waits[0]) is not None
+            and len(browser) == 1 and browser[0][0] == label
+            and re.fullmatch(r'pid=[1-9][0-9]* success=true', browser[0][1]) is not None
+            and re.search(r'^FAIL(?:\s|$)', output, re.M) is None)
+
+
+def owner_ui_same(inputs, args, adapter):
+    try:
+        paths = adapter.owner_ui_inputs(args.binary, args.run)
+        return (adapter.owner_ui_environment(args.run) == args.owner_ui_environment
+                and {str(p): adapter.sha(p) for p in paths} == inputs)
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError):
+        return False
 
 
 def root_composition_results(output):
@@ -510,7 +599,7 @@ def observe_root_chain(directory, log, log_path, selector):
         if not empty: good = False
         if round == 1: time.sleep(.1)
     log.flush()
-    if selector in ('^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
+    if selector in (MODEL_RUNTIME, PARSER_PG, '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
                     '^TestSkillLifecycleCleanupHistoricalAttempts$'):
         try:
             output = log_path.read_text()
@@ -520,6 +609,9 @@ def observe_root_chain(directory, log, log_path, selector):
     else:
         output = log_path.read_text()
     expected = {
+        MODEL_RUNTIME: {'TestModelTextRuntimePersistentWire'},
+        **{selector: {top} for selector, (top, _) in OWNER_UI_TOPS.items()},
+        PARSER_PG: {'TestKnowledgePlainTextParserIntegration'},
         SECRET_ROOT: {'TestProjectSecretVariablesDefaultRoot'},
         KNOWLEDGE_UI: {'TestKnowledgeOwnerReadWeb'},
         '^TestKnowledgeSkillsDefaultRootComposition$': {'TestKnowledgeSkillsDefaultRootComposition'},
@@ -544,6 +636,18 @@ def observe_root_chain(directory, log, log_path, selector):
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
     log.write(f'ROOT exact_tops={actual == expected} actual_test_wait={waited}\n')
+    if selector in OWNER_UI_TOPS:
+        complete = owner_ui_results(output, selector)
+        log.write(f'ROOT owner_ui_exact_run_pass_wait={complete}\n')
+        good = good and complete
+    if selector == MODEL_RUNTIME:
+        complete = model_runtime_results(output)
+        log.write(f'ROOT model_runtime_exact_run_pass_wait={complete}\n')
+        good = good and complete
+    if selector == PARSER_PG:
+        complete = parser_results(output)
+        log.write(f'ROOT parser_exact_run_pass_wait={complete}\n')
+        good = good and complete
     if selector == KNOWLEDGE_UI:
         complete = knowledge_ui_results(output)
         log.write(f'ROOT knowledge_ui_exact_run_pass_wait={complete}\n')
@@ -810,6 +914,12 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
+    if 'ModelTextRuntimePersistentWire' in args.run and (args.run != MODEL_RUNTIME or not args.root_chain):
+        parser.error('Model Runtime requires one exact original root-chain entry')
+    if any(name in args.run for name in ('SkillOwnerReadWeb', 'KnowledgeOwnerRename')) and (args.run not in OWNER_UI_TOPS or not args.root_chain):
+        parser.error('Owner UI requires one exact original root-chain entry')
+    if 'KnowledgePlainTextParser' in args.run and (args.run != PARSER_PG or not args.root_chain):
+        parser.error('plain text parser requires its exact original root-chain entry')
     if 'KnowledgeOwnerReadWeb' in args.run and (args.run != KNOWLEDGE_UI or not args.root_chain):
         parser.error('Knowledge UI requires its exact original root-chain entry')
     if 'ProjectSecretVariablesDefaultRoot' in args.run and (args.run != SECRET_ROOT or not args.root_chain):
@@ -838,7 +948,7 @@ def main():
             args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
         except (OSError, ValueError):
             parser.error('explicit local content Schema interpreter required')
-    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run == KNOWLEDGE_UI else ('pg-' + uuid.uuid4().hex)
+    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run == KNOWLEDGE_UI or args.run in OWNER_UI_TOPS else ('pg-' + uuid.uuid4().hex)
     directory = args.output.resolve() / stem
     if args.run == KNOWLEDGE_UI:
         try:
@@ -846,6 +956,12 @@ def main():
             args.knowledge_ui_environment = adapter.knowledge_ui_environment()
         except (OSError, ValueError):
             parser.error('exact frozen Knowledge assets, interpreters and fresh evidence required')
+    if args.run in OWNER_UI_TOPS:
+        try:
+            adapter.owner_ui_configuration(args.run, directory)
+            args.owner_ui_environment = adapter.owner_ui_environment(args.run)
+        except (OSError, ValueError, KeyError):
+            parser.error('exact frozen Owner UI assets, interpreters and fresh evidence required')
     args.output.mkdir(parents=True, exist_ok=True)
     log_path = args.output / (stem + '.log')
     # Adopt only this supervisor's own descendants, so any unexpected survivor
@@ -876,8 +992,14 @@ def main():
         inputs = secret_http_inputs(args.driver, args.binary, args.run)
     if args.run in ('^TestKnowledgeSkillsDefaultRootComposition$', SECRET_ROOT):
         inputs.update({str(p): adapter.sha(p) for p in adapter.root_composition_inputs()})
+    if args.run == PARSER_PG:
+        inputs = {str(p): adapter.sha(p) for p in adapter.parser_inputs(args.binary)}
+    if args.run == MODEL_RUNTIME:
+        inputs = {str(p): adapter.sha(p) for p in adapter.model_runtime_inputs(args.binary)}
     if args.run == KNOWLEDGE_UI:
         inputs = {str(p): adapter.sha(p) for p in adapter.knowledge_ui_inputs(args.binary)}
+    if args.run in OWNER_UI_TOPS:
+        inputs = {str(p): adapter.sha(p) for p in adapter.owner_ui_inputs(args.binary, args.run)}
     baseline = tcp()
     started = time.monotonic()
     child = None
@@ -926,7 +1048,7 @@ def main():
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
             else:
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
-            if args.run == KNOWLEDGE_UI and child.returncode is not None:
+            if (args.run == KNOWLEDGE_UI or args.run in OWNER_UI_TOPS) and child.returncode is not None:
                 if not knowledge_ui_reap_exited(log):
                     code = 1
             survivors = descendants(os.getpid())
@@ -1027,8 +1149,14 @@ def main():
                                     for p, digest in inputs.items()))
             if args.run in ('^TestKnowledgeSkillsDefaultRootComposition$', SECRET_ROOT):
                 same = same and root_composition_same(inputs, args, adapter)
+            if args.run == PARSER_PG:
+                same = same and parser_same(inputs, args, adapter)
+            if args.run == MODEL_RUNTIME:
+                same = same and model_runtime_same(inputs, args, adapter)
             if args.run == KNOWLEDGE_UI:
                 same = same and knowledge_ui_same(inputs, args, adapter)
+            if args.run in OWNER_UI_TOPS:
+                same = same and owner_ui_same(inputs, args, adapter)
             if not same: code = 1
             if interrupted: code = 1
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')
