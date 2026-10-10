@@ -337,7 +337,7 @@ func TestSkillInstallationPersistentObject(t *testing.T) {
 		}
 		denied, e := v.service.Install(ctxFor(t), v.base.otherBrowser.actor, meta(t, id[struct{}](t).String(), nil), projectID, request)
 		var rejected *f.Fault
-		if !errors.As(e, &rejected) || rejected.Code != f.Forbidden || denied != (skill.InstallReceipt{}) {
+		if !errors.As(e, &rejected) || rejected.Code != f.NotFound || denied != (skill.InstallReceipt{}) {
 			t.Fatal("foreign current Owner entered installation", e)
 		}
 		var installations, attempts, revisions, references, uploads, liveWork, leases int
