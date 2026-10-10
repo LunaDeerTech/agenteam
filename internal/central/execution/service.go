@@ -182,7 +182,16 @@ func (s *Service) lookup(ctx context.Context, actor i.Actor, key c.LaunchLookupK
 		return c.LaunchLookup{}, invalid()
 	}
 	command, _ := key.Command()
-	locks, err := oc.NormalizeLocks(append(scopeLocks(actor, key.ProjectID, key.AgentID, f.Shared), commandLock(command)))
+	locks := append(scopeLocks(actor, key.ProjectID, key.AgentID, f.Shared), commandLock(command))
+	if actor.Details().Kind == i.Service && actor.Details().ServiceName == i.Scheduler {
+		// Launch performs this historical lookup before DiscoverLaunch. Its
+		// real Scheduler authority must inspect the original pending intent
+		// under the schedule gate even on that first transaction. The role
+		// chooses locks, never supplies the missing ServiceProjectAccess proof.
+		schedule, _ := f.ProjectScheduleLock(key.ProjectID.String())
+		locks = append(locks, f.LockRequest{Key: schedule, Mode: f.Exclusive})
+	}
+	locks, err := oc.NormalizeLocks(locks)
 	if err != nil {
 		return c.LaunchLookup{}, portError(err)
 	}
