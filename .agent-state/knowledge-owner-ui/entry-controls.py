@@ -17,9 +17,10 @@ ROOT = Path(__file__).resolve().parents[2]
 DRIVER = '.agent-state/work-owner-http/root_chain_driver.py'
 SUP = '.agent-state/task-planning-recovery/pg_only_supervisor.py'
 SELECTOR = '^TestKnowledgeOwnerReadWeb$'
-# Actual 15e730da main-union bytes before this D12-only increment.
-BASE = {DRIVER: '5c79e5edb34d88fac531dd6c8357c4307bb5c2123a74b706b92ebc622ed594d0',
-        SUP: '4e52d7628c43391bbe184ae179097c42ed201185a703cef372bb7ad7bc9fa4e7'}
+# Actual main 3a7a3fb5 bytes, including the accepted Secret HTTP/root entries.
+# Removing only D12 must recover this complete source, never a generated base.
+BASE = {DRIVER: 'e784286b7e9debaf47aaac2f50e4a6c89a883231cff1c4e4063e46fdad91421c',
+        SUP: '4335ca66ac391db8cd20c67850a35b79ae8f286f7d65ab2ada7e66d6d8e2ad29'}
 # Only these exact new helper blocks may be removed during inverse projection.
 BLOCKS = {DRIVER: ('def metadata_cost_inputs(', '73695a584b7ae85c4f302dc1f130306aa0d2fa503090ec4cf76c7a49bc2766a4'),
           SUP: ('def root_composition_results(', '1621a08b71d67bbac397b7dbccd838a15bc4f6bb2f3e41989f85eaabd514dd3b')}
@@ -49,11 +50,7 @@ def inverse(name, source):
          "                    'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),\n"
          "                    'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})\n", ''),
     ] if name == DRIVER else [
-        ("    expected = {\n"
-         "        KNOWLEDGE_UI: {'TestKnowledgeOwnerReadWeb'},\n"
-         "        '^TestKnowledgeSkillsDefaultRootComposition$': {'TestKnowledgeSkillsDefaultRootComposition'},\n",
-         "    expected = {\n"
-         "        '^TestKnowledgeSkillsDefaultRootComposition$': {'TestKnowledgeSkillsDefaultRootComposition'},\n"),
+        ("        KNOWLEDGE_UI: {'TestKnowledgeOwnerReadWeb'},\n", ''),
         ("    if selector == KNOWLEDGE_UI:\n"
          "        complete = knowledge_ui_results(output)\n"
          "        log.write(f'ROOT knowledge_ui_exact_run_pass_wait={complete}\\n')\n"
@@ -110,6 +107,15 @@ class EntryControls(unittest.TestCase):
                 inverse(name, source + '\n# unknown\n')
             with self.assertRaises(ValueError):
                 inverse(name, source.replace('KNOWLEDGE_UI =', '# unknown\nKNOWLEDGE_UI =', 1))
+        source = (ROOT / SUP).read_text()
+        for old, new in (("all(state == 'PASS'", "all(state != 'FAIL'"),
+                         ("SECRET_ROOT: {'TestProjectSecretVariablesDefaultRoot'}",
+                          "SECRET_ROOT: set()"),
+                         ("KNOWLEDGE_UI: {'TestKnowledgeOwnerReadWeb'}",
+                          "KNOWLEDGE_UI: set()")):
+            self.assertEqual(source.count(old), 1)
+            with self.assertRaises(ValueError):
+                inverse(SUP, source.replace(old, new, 1))
 
     def test_target_and_old_budgets(self):
         self.assertEqual(driver.TARGETS[SELECTOR], 'internal/central/app')

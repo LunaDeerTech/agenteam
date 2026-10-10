@@ -19,6 +19,8 @@ import (
 	"time"
 )
 
+const secretHTTPNativeSelector = `^TestSecretHTTPNativeTransport$`
+
 const skillOwnerHTTPNativeSelector = `^TestSkillOwnerHTTPNative(Deadlines|KeepAliveAndClose|BackpressureAndDisconnect)$`
 
 func main() { os.Exit(run()) }
@@ -40,7 +42,7 @@ func run() int {
 	binary := opts.String("test-binary", "", "frozen native race binary")
 	selector := opts.String("run", "", "one exact native top")
 	directory := opts.String("directory", "", "new task-owned directory")
-	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || !filepath.IsAbs(*binary) || !filepath.IsAbs(*directory) || (!regexp.MustCompile(`^\^TestWorkHTTPNative(?:Deadlines|KeepaliveAndEOF|WriteCloseAndConfirmationTail)\$$`).MatchString(*selector) && !variableNative(*selector) && !contentNative(*selector) && *selector != skillOwnerHTTPNativeSelector) {
+	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || !filepath.IsAbs(*binary) || !filepath.IsAbs(*directory) || (!regexp.MustCompile(`^\^TestWorkHTTPNative(?:Deadlines|KeepaliveAndEOF|WriteCloseAndConfirmationTail)\$$`).MatchString(*selector) && !variableNative(*selector) && !contentNative(*selector) && *selector != skillOwnerHTTPNativeSelector && *selector != secretHTTPNativeSelector) {
 		fmt.Fprintln(os.Stderr, "STOP exact native binary, selector and directory required")
 		return 1
 	}
@@ -64,6 +66,8 @@ func run() int {
 		nativeGate = "AGENTEAM_PROJECT_VARIABLE_HTTP_NATIVE"
 	} else if *selector == skillOwnerHTTPNativeSelector {
 		nativeGate = "AGENTEAM_SKILL_HTTP_NATIVE"
+	} else if *selector == secretHTTPNativeSelector {
+		nativeGate = "AGENTEAM_SECRET_VARIABLE_HTTP_NATIVE"
 	} else if contentNative(*selector) {
 		nativeGate = "AGENTEAM_KNOWLEDGE_CONTENT_HTTP_NATIVE"
 	}
