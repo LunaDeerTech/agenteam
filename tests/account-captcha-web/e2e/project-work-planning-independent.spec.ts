@@ -72,13 +72,34 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
     ).entries()) {
       const kind = domain === "structure" ? "milestone" : "task";
       const seed = data.work[domain]!;
-      if (index === 0) await enter(page, data, kind, domain);
+      if (index === 0) await enter(page, data, undefined, domain);
       else {
         await diagnostic.flush();
-        await page.goto(path(data, domain, kind));
-        await ready(page, seed[`${kind}_id`]);
+        await page.goto(path(data, domain));
+        await ready(page);
       }
+      await expect(
+        page.getByText("当前没有正在进行的 Sprint，请选择。", { exact: true }),
+      ).toBeVisible();
       await diagnostic.installPublication();
+      const tree = page.locator(".desktop-tree");
+      const milestone = tree.locator(
+        `[role="treeitem"][data-tree-id="milestone:${seed.milestone_id}"]`,
+      );
+      if (kind === "task") {
+        await button(milestone, "展开规划里程碑").click();
+        const sprint = tree.locator(
+          `[role="treeitem"][data-tree-id="sprint:${seed.sprint_id}"]`,
+        );
+        await expect(sprint).toBeVisible();
+        await button(sprint, "展开规划 Sprint").click();
+        const task = tree.locator(
+          `[role="treeitem"][data-tree-id="task:${seed.task_id}"]`,
+        );
+        await expect(task).toBeVisible();
+        await task.click();
+      } else await milestone.click();
+      await ready(page, seed[`${kind}_id`]);
       const expectedVersion = await field(
         details(page),
         "当前版本",
