@@ -602,7 +602,11 @@ Central 配置 `Load` 已支持显式的三项环境变量，并由 `Config.Sche
 
 Execution 已实现 `MatchLaunchTemporaryRejection` 的唯一临时证明 `launch_lock_timeout_v1`：只在最终 Launch 的原 `AcquireAll` 发生 `LockFailed` / SQLSTATE `55P03`，原 `WithinTx` 已实际退出并返回 `NotCommitted`，且上下文未取消时签发。证明绑定完整原请求摘要、RequestID 和幂等 key，并核对原锁错误与事务返回的同一物理错误；初次 Lookup、Discover、Unknown、取消或任意通用 Fault/RetryHint 均不能产生该证明。错误分类不改变原 cause 或 Unknown 边界，也不直接授权重发。
 
-上述增量已通过有限独审、15 个定向 top 的 race、五包 vet、候选编译及真实 PG 的 1 top/2 sub 整轮验证。真实链覆盖显式配置、Claim 原事务绑定与重放、旧 NULL 兼容及真实最终锁超时后签发证明且零 Execution；原调用、七资源和全部退出尾闭合。生产 app 尚未接入 policy，暂时错误的持久分类、`next_retry_at` 写入、RetryDue / 同 key 到期重发及耗尽后的 Work 技术失败原因仍未实现。旧无 policy 的行继续 Deferred，Unknown 仍只按原 key 核对，暂停仍不发送；本片不表示自动 retry、完整恢复或完整 Scheduler Loop 已可用。
+上述配置、Claim 绑定和 Execution 证明已通过有限独审、15 个定向 top 的 race、五包 vet、候选编译及真实 PG 的 1 top/2 sub 整轮验证。真实链覆盖显式配置、Claim 原事务绑定与重放、旧 NULL 兼容及真实最终锁超时后签发证明且零 Execution；原调用、七资源和全部退出尾闭合。
+
+后继有限 retry 实现已通过有限独审、11 个定向 top 的 race、三包 vet、编译及真实 PG 的 1 top/2 sub 整轮验证，原调用和七资源全部退出尾闭合。`NewLaunchHandoffWithRetry(authority, dependencies, projects)` 绑定真实 Project 门，沿原 Handoff 的调用登记与 Unknown owner 提供 `RetryDue(ctx, projectID, dispatchID)`；一次至多发送同一 key/request 的一个 attempt，不替换旧构造器或 policy。只有原同步 temporary 证明在原拒绝事务中持久记录、policy 仍为 Claim 时的绑定且到期后，才能在当前 Project 门及原 CAS 下递增 attempt、写入 unknown；该标记明确提交后才调用原 Launch。到期时间向上取整至微秒，上一 attempt 的临时错误仅保留诊断，不授权下一次发送。真实链已覆盖 temporary→到期→created，以及持续 temporary→耗尽→原 `FinalizeLaunchFailure` 同事务结算 Work 与 Dispatch，详见[有限 retry 实现边界](./scheduler-dispatch.md#123-有限-retry-实现边界)。
+
+有界 PendingVisitor 已接入上述显式 retry 分支；原 unknown 先 Lookup，Busy 和最终失败仍由各原 owner 处理。未到期、暂停、Current Sprint 不匹配或旧 NULL policy 不产生新发送，暂停也不结算 Task；旧无分类 known-not-created 不补证明。生产 app / Loop 尚未绑定，没有新增 timer worker、自动遍历或 relaunch 实现，不能将这些可调用端口视为完整 Scheduler Loop 已可用。
 
 ## 15. Observability
 

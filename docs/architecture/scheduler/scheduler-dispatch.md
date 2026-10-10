@@ -470,6 +470,16 @@ pending -> failed
 
 这两者不能混淆。
 
+### 12.3 有限 retry 实现边界
+
+当前新增实现已通过有限独审、11 个定向 top 的 race、三包 vet、候选编译及真实 PG 的 1 top/2 sub 整轮验证；真实 temporary→到期→created、持续 temporary→耗尽→原子 technical blocker 两链通过，原调用和七资源全部退出尾闭合。它只消费 Execution 原同步 Launch 返回的 `KnownNotCreated` 与私有、完整原请求绑定的 `launch_lock_timeout_v1` 证明。Scheduler 在安全包装前匹配证明，并在原拒绝 checkpoint 事务中重验 Dispatch/version/current attempt，写入迁移 00050 的 `temporary_attempt/reason/code/occurred_at`；`INTERNAL_ERROR` 只是安全诊断码，本身不构成 temporary 分类。旧无证明行不回填，AgentBusy、Unknown、取消及其他未分类错误不进入这条 retry 路径。
+
+已绑定 policy 且仍有次数时，`next_retry_at` 从本次持久观察时间加 `NextDelay(attemptCount)` 计算，再向上取整到 PostgreSQL 微秒，避免纳秒 policy 因截断而提前到期；policy identity 保留原整数纳秒。`Dispatch.RetryState()` 仅返回只读投影。下一次发送只清到期时间，保留最近已证错误作为 `last_error` 诊断；只有该错误属于当前 attempt、当前 outcome 为 known-not-created 且原 policy 仍有额度，才可能获得 retry 资格。旧 NULL policy 可以保留真实诊断，但不生成到期时间或耗尽标记。
+
+`NewLaunchHandoffWithRetry(authority, dependencies, projects)` 沿原 Handoff 实例绑定真实 Project 提供方，不另建 Unknown owner。显式 `RetryDue(ctx, projectID, dispatchID)` 在原事务、完整锁集和 CAS 下重读当前 enabled、Current Sprint、原请求/policy、当前 attempt 及到期事实；符合条件才写 `attempt_count+1`、outcome=unknown。只有这次发送标记已知提交才调用一次原 Launch，仍使用原 Dispatch/key/request。标记 Unknown 零发送，原调用或关联 Unknown 只准原 key Lookup。缺 policy、未到期、暂停或 Sprint 不匹配返回原 receipt 和 `InvalidState`，不写入或发送；历史关联只重验 enabled，不要求原 Sprint 仍为当前。旧构造器不获得 RetryDue 能力。
+
+最后一个允许的 attempt 仍返回真实 temporary 时，同一拒绝事务保存 `launch_retry_exhausted_v1` final marker；单纯达到次数、旧 attempt 诊断或 Lookup 未找到均不能产生该标记。原 `FinalizeLaunchFailure` 再核精确当前 marker/policy与私有 Work proof，在同一事务完成 Dispatch.failed 和适用的 technical blocker/Task/history/Outbox；不适用则保留当前 Task 事实，暂停继续 pending。00050 仅前向扩展持久约束及 Work 原失败 reason 闭集，旧 00047/00049 不改写。PendingVisitor 复用这些原 owner 的 Lookup、RetryDue 与 Finalize，仍然一次只访问一条；生产 Loop、自动遍历和 relaunch 尚未绑定或完成。
+
 ## 13. Unknown Outcome
 
 例如：
