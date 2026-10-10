@@ -307,3 +307,12 @@ PreparationDriver在原claim/process/fence及完整锁计划下，依次取得�
 `execution.NewContextBuilder`以显式Task builder组合原`PreparationInput`，不持Store、不读current配置。`work.TaskContextBuilder`先用原Work decoder校验已捕获Task输入，再按`task/work`或`task/review`添加各自版本化场景Prompt；原Task、Sprint、Milestone、blockers及有限历史字节与输入身份保持不变。`DecodeTaskContext`校验对应场景版本和内容后返回Work自有typed视图，不授予Task mutation、review启动或运行权限。
 
 `ExecutionContext`以schema 1固定原input、TriggerContext及input digest，提供封闭规范编码、显式解码与不可变副本；平台Prompt、Agent instructions与场景Prompt保持独立组件。该Build不新增DDL或持久事实，不生成最终SystemPrompt、Messages或ModelRequest，不重新解析当前Tool注册，也不写sealed Snapshot、running或Started。源码与方法已有限独审接受；来源`346003e6`的定向4 top/三包vet、compile/list及真实1 top/1 sub全部wholePASS。真实00054输入→Build→修改current后仍保持原Context已验证；原四Wait0、七资源14次absence与全部退出双尾闭合，1542输入首尾一致。结果及重跑方式沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)记录。
+
+
+## 有限后继：Model AgentRetry 与首轮请求投影
+
+`model.NewRuntimeWithAgentRetry`以显式`AgentRetryTiming`启用Agent文本重试，固定单次请求超时、增长倍率、上限及退避参数，不引入默认值、逻辑调用总期限或统一尝试次数。Model是唯一自动重试owner，仍须真实Consumer授权相应错误类别；Loop不得按Retryable叠加重试。00055扩展同一Call下多个Attempt/Invocation及其Usage记录，保留各次事实和当前attempt关系，旧Bounded构造与单次行为保持。Agent路径使用Execution拥有的credential lease，单个Model call退役不释放该共享租约，也不把公开Actor/Call/Round身份当运行授权。
+
+`agentloop.BuildDirectTextRequest`仅从固定`ExecutionContext`组装首轮候选SystemPrompt、初始user消息与`ModelRequest`，沿原Model输入摘要规则保留Context来源身份；`InitialInput`只是未来Transcript writer的语义输入候选，不是已提交记录。该投影不读current、不调用Model、不写数据库；要求原捕获结果真实无tools、纯text且无reasoning，保留既定`InjectAgentsMD=false`、empty Mount等支持边界，非空tools等不支持配置明确拒绝，不通过丢弃工具适配请求。
+
+来源`870b370b`已完成定向9 top及五包vet、compile/list与真实1 top/3 sub有限验证。原pure01的8项通过复用，唯一Loop测试浮点素材被canonical拒绝后仅修两处测试literal并补验该项；生产未改，原FAIL保留。native01整轮wholePASS（20.38s），真实TLS覆盖503→200及每attempt Usage、跨call复用Execution lease、取消阻止下一attempt并等待Stop/Drain真实退休、401仅一次attempt；原四Wait0、七资源14次absence与全部退出尾闭合，1591输入首尾一致。该验证限Model域，显式test-only Consumer不证明生产Execution运行授权。完整LoopController、持久Round/Transcript、sealed Snapshot与running/Started启动事务、生产app绑定均未由本片完成；tools/reasoning既有STOP保持，AgentRetry则是本片正式新增能力。结果与重跑方法沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)记录。
