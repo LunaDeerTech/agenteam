@@ -31,6 +31,9 @@ type Bindings struct {
 	TaskReader      *work.TaskReader
 	Blockers        *work.BlockerService
 	BlockerReader   *work.BlockerReader
+	// Optional for compatibility with the original planning-only assembly.
+	// Recognized transition routes fail closed when this service is absent.
+	Transitions *work.TaskTransitionService
 }
 
 type accountBoundary interface {
@@ -46,13 +49,20 @@ type handler struct {
 	blockers        c.TaskBlockerCommands
 	blockerReader   c.TaskBlockerPageReader
 	boundary        accountBoundary
+	transitions     c.TaskTransitions
 }
 
 func NewHTTPHandler(b Bindings, boundary *account.HTTPBoundary) (http.Handler, error) {
 	if b.Structure == nil || b.StructureReader == nil || b.Tasks == nil || b.TaskReader == nil || b.Blockers == nil || b.BlockerReader == nil || boundary == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	return &handler{b.Structure, b.StructureReader, b.Tasks, b.TaskReader, b.Blockers, b.BlockerReader, boundary}, nil
+	h := &handler{structure: b.Structure, structureReader: b.StructureReader,
+		tasks: b.Tasks, taskReader: b.TaskReader, blockers: b.Blockers,
+		blockerReader: b.BlockerReader, boundary: boundary}
+	if b.Transitions != nil {
+		h.transitions = b.Transitions
+	}
+	return h, nil
 }
 
 type resource uint8
@@ -73,6 +83,8 @@ const (
 	blockers
 	blockerResolve
 	blockerLookup
+	taskTransfer
+	taskTransitionLookup
 )
 
 type route struct {
@@ -126,6 +138,8 @@ func parseRoute(path string) route {
 			r.kind = taskReorder
 		case parts[3] == "blockers":
 			r.kind = blockers
+		case parts[3] == "transfer":
+			r.kind = taskTransfer
 		}
 	case "structure-commands":
 		if len(parts) == 3 && parts[2] == "lookup" {
@@ -135,6 +149,11 @@ func parseRoute(path string) route {
 	case "task-commands":
 		if len(parts) == 3 && parts[2] == "lookup" {
 			r.kind = taskLookup
+			r.target = ""
+		}
+	case "task-transition-commands":
+		if len(parts) == 3 && parts[2] == "lookup" {
+			r.kind = taskTransitionLookup
 			r.target = ""
 		}
 	}
@@ -158,7 +177,7 @@ func resourceRoute(path string) route {
 	return parseRoute(path)
 }
 func (r route) lookup() bool {
-	return r.kind == structureLookup || r.kind == taskLookup || r.kind == blockerLookup
+	return r.kind == structureLookup || r.kind == taskLookup || r.kind == blockerLookup || r.kind == taskTransitionLookup
 }
 func (r route) allow() string {
 	switch r.kind {
@@ -166,12 +185,18 @@ func (r route) allow() string {
 		return "GET, HEAD, POST"
 	case milestone, sprint, task:
 		return "GET, HEAD, PATCH"
-	case milestoneReorder, sprintReorder, taskReorder, structureLookup, taskLookup, blockerResolve, blockerLookup:
+	case milestoneReorder, sprintReorder, taskReorder, structureLookup, taskLookup, blockerResolve, blockerLookup, taskTransfer, taskTransitionLookup:
 		return "POST"
 	}
 	return ""
 }
 func (r route) pattern() string {
+	if r.kind == taskTransfer {
+		return projectPrefix + "{project_id}/tasks/{task_id}/transfer"
+	}
+	if r.kind == taskTransitionLookup {
+		return projectPrefix + "{project_id}/task-transition-commands/lookup"
+	}
 	suffix := map[resource]string{milestones: "milestones", milestone: "milestones/{milestone_id}", milestoneReorder: "milestones/{milestone_id}/reorder", sprints: "sprints", sprint: "sprints/{sprint_id}", sprintReorder: "sprints/{sprint_id}/reorder", structureLookup: "structure-commands/lookup", tasks: "tasks", task: "tasks/{task_id}", taskReorder: "tasks/{task_id}/reorder", taskLookup: "task-commands/lookup", blockers: "tasks/{task_id}/blockers", blockerResolve: "tasks/{task_id}/blockers/resolve", blockerLookup: "tasks/{task_id}/blocker-commands/lookup"}[r.kind]
 	if suffix == "" {
 		return ""
@@ -262,6 +287,9 @@ func (h *handler) execute(w http.ResponseWriter, r *http.Request, route route) (
 	}
 	if r.Method == http.MethodGet || r.Method == http.MethodHead {
 		return h.read(r, a, p, route)
+	}
+	if route.kind == taskTransfer || route.kind == taskTransitionLookup {
+		return h.transitionCommand(w, r, a, p, route)
 	}
 	return h.command(w, r, a, p, route)
 }

@@ -3152,6 +3152,236 @@
           }
         }
       }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/transfer": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerTaskTransfer",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TaskTransitionMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding. Current Human Owner only, including CSRF on Lookup. Unknown is returned as the original safe Problem with lookup hint; HTTP never retries a mutation. Missing transition service is DEPENDENCY_UNBOUND. No automatic Project initialization, Agent creation, Sprint start or Scheduler dispatch.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskTransferBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/task-transition-commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerTaskTransitionLookup",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TaskTransitionLookup"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding. Current Human Owner only, including CSRF on Lookup. Unknown is returned as the original safe Problem with lookup hint; HTTP never retries a mutation. Missing transition service is DEPENDENCY_UNBOUND. No automatic Project initialization, Agent creation, Sprint start or Scheduler dispatch.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskTransitionLookupRequest"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3608,6 +3838,64 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/TaskBlockerPage"
+            }
+          }
+        }
+      },
+      "TaskTransitionMutation": {
+        "description": "Complete typed Task transition receipt.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TaskTransitionMutation"
+            }
+          }
+        }
+      },
+      "TaskTransitionLookup": {
+        "description": "Complete typed Task transition lookup; only committed has a receipt.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TaskTransitionLookup"
             }
           }
         }
@@ -5616,6 +5904,160 @@
           }
         },
         "description": "Complete validated page, at most 5 MiB; items never null, no next_cursor when exhausted. Each summary or Blocker is bounded to 16 KiB. No description/plan fields in summaries."
+      },
+      "TaskTransferRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target_state"
+        ],
+        "properties": {
+          "target_state": {
+            "$ref": "#/components/schemas/TaskState"
+          },
+          "assignee_agent_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 32768,
+            "not": {
+              "pattern": "[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f]"
+            },
+            "description": "1..32768 UTF-8 bytes, at least one non-Unicode-whitespace character; original bytes are retained. Only TAB/LF/CR control characters are allowed.",
+            "minLength": 1
+          },
+          "add_blockers": {
+            "type": "array",
+            "maxItems": 16,
+            "items": {
+              "$ref": "#/components/schemas/BlockerAddRequest"
+            }
+          },
+          "resolve_blocker_ids": {
+            "type": "array",
+            "maxItems": 16,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "description": "Original strict TaskTransfer DTO, <=512 KiB. All explicit null values are rejected. Omitted assignee retains the stored value; no assignee clearing. Omitted blocker sets normalize to empty; each <=16, combined <=32, unique IDs across both sets; additions canonicalized by blocker_id. Only Human-allowed state edges are accepted by the domain; todo -> in_progress remains Scheduler-only. This transport does not bypass current Agent, occupancy, pending, Sprint or Blocker rules."
+      },
+      "TaskTransferBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/TaskTransferRequest"
+          }
+        }
+      },
+      "TaskTransitionLookupRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command",
+          "target_id",
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "command": {
+            "const": "work.task.transfer"
+          },
+          "target_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/TaskTransferRequest"
+          }
+        },
+        "description": "Saved original intent, available before the first send. Use the original Idempotency-Key. RequestID is fresh but not part of the semantic digest. No caller digest, namespace or current Get reconstruction."
+      },
+      "TaskTransitionMutation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "task",
+          "task_event_ids",
+          "event_ids"
+        ],
+        "properties": {
+          "task": {
+            "$ref": "#/components/schemas/Task"
+          },
+          "task_event_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 35,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          "event_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1,
+            "items": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "description": "Complete original Task receipt; task.version is exactly expected_version+1, task.state equals the requested target, and any explicitly requested assignee matches. Task history IDs are strictly increasing and unique. Historical replay returns the same receipt without consulting current Get. No changed=false branch."
+      },
+      "TaskTransitionLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "const": "committed"
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/TaskTransitionMutation"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              },
+              "receipt": {
+                "type": "null"
+              }
+            }
+          }
+        ],
+        "description": "Historical committed receipt, never reconstructed from current fields. Neither not_observed nor in_progress authorizes automatic resubmission."
       }
     }
   }

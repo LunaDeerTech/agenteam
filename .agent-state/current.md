@@ -1,3 +1,11 @@
+# 当前执行检查点：Human Owner Task HTTP
+
+- 本树 `/workspace/agenteam-task-human-http` / `ai/task-human-http`，基线 `07d490b2`；唯一写 HTTP Transfer/Lookup、Work 应用装配和 `work-planning.json`。具体接口与恢复入口见 [task-human-http/README.md](task-human-http/README.md)。
+- 复用真实 TaskTransitionService 与同 Store Agent/Pending/Occupancy，新增路由沿当前 Human/CSRF 和原请求生命周期；Unknown 只 Lookup。原三服务调用兼容，未装配新服务时明确 unbound；生产 initializer 未绑定边界不变。
+- 新源码与必要测试已落盘。gofmt、OpenAPI/schema 静态七向量及旧 paths/components 不变检查通过；Go 编译/六个新 top/两个旧兼容 top/vet、真实 HTTP/PG 均未运行，等待统一窗口。未启动资源、未下载依赖。
+
+下列为基线继承的历史状态，不作为本 HTTP 片验证结果。
+
 # 当前执行检查点
 
 ## Agent创建与Execution准备组合（2026-10-10，有限范围已通过）

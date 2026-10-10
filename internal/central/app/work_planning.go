@@ -7,8 +7,10 @@ import (
 	"sync"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	"github.com/LunaDeerTech/agenteam/internal/central/agent"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/execution"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
@@ -19,9 +21,10 @@ import (
 )
 
 type workPlanningEvents struct {
-	structure wc.WorkEvents
-	tasks     wc.TaskEvents
-	blockers  wc.TaskBlockerEvents
+	structure   wc.WorkEvents
+	tasks       wc.TaskEvents
+	blockers    wc.TaskBlockerEvents
+	transitions wc.TaskTransitionEvents
 }
 
 func defineWorkPlanningEvents(catalog *event.Catalog) (workPlanningEvents, error) {
@@ -34,6 +37,9 @@ func defineWorkPlanningEvents(catalog *event.Catalog) (workPlanningEvents, error
 		return workPlanningEvents{}, err
 	}
 	if v.blockers, err = wc.RegisterTaskBlockerEvents(catalog); err != nil {
+		return workPlanningEvents{}, err
+	}
+	if v.transitions, err = wc.RegisterTaskTransitionEvents(catalog); err != nil {
 		return workPlanningEvents{}, err
 	}
 	return v, nil
@@ -61,6 +67,7 @@ type workPlanningAssembly struct {
 	taskReader      *work.TaskReader
 	blockers        *work.BlockerService
 	blockerReader   *work.BlockerReader
+	transitions     *work.TaskTransitionService
 	commands        []workCommandCalls
 	mu              sync.Mutex
 	stopped, joined bool
@@ -69,9 +76,15 @@ type workPlanningAssembly struct {
 // These are pure constructors. Until the complete bundle is installed, none of
 // its services has been exposed to HTTP or another caller. On a partial failure
 // the local owner still retires every service it has constructed.
-func createWorkPlanning(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents) (result *workPlanningAssembly, err error) {
+func createWorkPlanning(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, transitionProjects ...*project.Authority) (result *workPlanningAssembly, err error) {
 	store, ok := db.(work.Store)
 	if !ok || runtimeInformationNil(store) || authority == nil || accounts == nil || journal == nil || !events.structure.Valid() || !events.tasks.Valid() || !events.blockers.Valid() {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	// An omitted capability retains the old three-service assembly. An explicit
+	// capability must be exactly one original Project authority; no partial or
+	// silently ignored transition binding is accepted.
+	if len(transitionProjects) > 1 || len(transitionProjects) == 1 && (transitionProjects[0] == nil || !events.transitions.Valid()) {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
 	b := &workPlanningAssembly{}
@@ -108,6 +121,26 @@ func createWorkPlanning(cfg config.Config, db database, authority *work.Authorit
 		return nil, err
 	}
 	b.commands = append(b.commands, b.blockers)
+	if len(transitionProjects) == 1 {
+		// All providers receive the original application Store and Project
+		// authority. Their current reads use the caller's actual transaction.
+		agents, e := agent.NewAuthority(store, transitionProjects[0])
+		if e != nil {
+			return nil, e
+		}
+		occupancy, e := execution.NewWorkOccupancy(store)
+		if e != nil {
+			return nil, e
+		}
+		if b.transitions, err = work.NewTaskTransition(store, work.TaskTransitionDependencies{
+			Agents: agents, Occupancy: occupancy, Pending: pending,
+			Structure: b.structureReader, Authority: authority, Events: journal,
+			TaskEvents: events.transitions, Activity: accounts,
+		}); err != nil {
+			return nil, err
+		}
+		b.commands = append(b.commands, b.transitions)
+	}
 	return b, nil
 }
 
@@ -169,6 +202,7 @@ func workPlanningHandler(b *workPlanningAssembly, core *account.Service, origin 
 		Structure: b.structure, StructureReader: b.structureReader,
 		Tasks: b.tasks, TaskReader: b.taskReader,
 		Blockers: b.blockers, BlockerReader: b.blockerReader,
+		Transitions: b.transitions,
 	}, boundary)
 }
 
