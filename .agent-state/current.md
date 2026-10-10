@@ -1,16 +1,18 @@
 # D05 bounded metadata cleanup 当前检查点
 
-- 83167失败后的**tests-only返修已准备、未编译/未PG**：只改`metadata_cleanup_cost_test.go`与`metadata_cleanup_live_cost_test.go`。真实`reader.go`构造对原4字节对象预读到EOF并同步关闭source/release/finish；因此原“返回reader必保活lease”前提错误，不回填失败日志未采state/时钟。两处改为`2*StreamBufferSize+64`真实Put；显式区分Stop实例ProcessID，读取原DB reader process并复用原`assertStopReaderLifetime`，在开后/每次原Stop后核exact lease/work active+unjoined，实际Close返回后核released+joined；只补安全state/late诊断，不改变原2s/总3s、五lane、Service/SQL/成本种子/计划断言。gofmt ca4ff1与diffcheck c5742a实际0，技术两源已冻结交Work差异独审；旧563候选仍是83167失败组合，返修需要新候选，不能冒当前源码已编/已验。
+- **返修新整包已编译并完成七top精确发现，未实行业务**：82925／09a716→e1271c actualexit78；源de54a33b，UTC2026-10-10T01:43:28.532634+00:00首fresh及compile前5507870720B。fixedGo1.27.1/local/offline/readonly/-p1/原Knowledge独占cache/继承PATH/300s总限，`go test -mod=readonly -p=1 -tags=integration -race -c -o output/ai/object-metadata-cleanup/metadata-cleanup-reader-fixed-cost-race.test ./tests/objects` actualWait0。新候选**37459554B／SHA256 3b55ad24ac4518c6851f24e061b8a432c92db5f48a5ce5e3b630eb3005e0a86f**。随后原七exact list前fresh01:43:37.820193 available5061918720B<5368709120B，严格exit78、list没有启动；无PG/socket/业务，也不把空间变化归因某一缓存或其它任务。随后获单独授权仅补发现：8505e1 actual0，01:45:02.308321+00:00首/exec fresh5457285120B，完整候选身份核齐；`-test.run=^$ -test.list='^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans|LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans|OldAttemptsAndStopHistory)$'` 恰七top/actualWait0，无业务/socket/PG，末空间同值。新3b55完整package就绪，全部后继成本/history统一改用它；取消旧563所有排队/执行用途，允许root精确退休旧37456516B/nlink1 regular ignored binary，原失败/源码/日志保留，本人不删。
+
+- 83167失败后的**tests-only返修已编译/发现、未PG**：只改`metadata_cleanup_cost_test.go`与`metadata_cleanup_live_cost_test.go`。真实`reader.go`构造对原4字节对象预读到EOF并同步关闭source/release/finish；因此原“返回reader必保活lease”前提错误，不回填失败日志未采state/时钟。两处改为`2*StreamBufferSize+64`真实Put；显式区分Stop实例ProcessID，读取原DB reader process并复用原`assertStopReaderLifetime`，在开后/每次原Stop后核exact lease/work active+unjoined，实际Close返回后核released+joined；只补安全state/late诊断，不改变原2s/总3s、五lane、Service/SQL/成本种子/计划断言。gofmt ca4ff1与diffcheck c5742a实际0，Work fade7d/384f03/8b90f0有限静态接受，核真实构造及原预算/SQL字节未变；旧563候选仍是83167失败组合，新候选编译/发现及未业务界限见上，不能冒业务已验。
 
 - 原三cost首次启动预飞 **67f7c4 actual exit78**：2026-10-10T01:35:18.982745+00:00 fresh available=5334228992B，低于5368709120B门槛34480128B；在candidate检查、Go及监督器执行前退出，未启动子进程/PG/MinIO，无session，`pg-cost01`未触碰。这是空间前置失败，不是成本业务FAIL。root已取消本次窗口占有；不自动重试，等待新的fresh grant，当时六成本/历史均未实际运行；随后独立新grant的83167结果见下。
 
 - **原三cost首次真实整轮FAIL，全部资源尾已完成**：83167／54ee44→d7e3e9 actualexit1；2026-10-10T01:37:57.652657+00:00首fresh及exec均5577924608B，原563b候选完整身份与固定Go/MinIO核齐。`ProjectHistoryPlans` 1.94s在`metadata_cleanup_cost_test.go:54`失败：`real foreign reader did not retain the finite Stop scan <nil>`；未到该top成本库/计划，原聚合断言未打印state/时钟，不回填具体分支。`SkillsIndexPlans` 1.76s、`TransferAndForeignKeyPlans` 4.55s业务PASS；只保各自实际SQL/延期FK/回滚范围，尚未据完整节点判定22索引必要性。原exact `^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$`／`pg-cost01`，日志`output/ai/object-metadata-cleanup/pg-cost01/pg-9b65fdb625b54659a6bcbbae4a74ed5e.log`；该输出已用，不可复用。4c1584核Go1478853 Wait1、driver1476815 actualWait1、outer1，七ID各双absent／3private双absent／runtime双empty／desc双[]／TCP双delta_empty／input unchanged，terminal1 elapsed100.429s；01:39:44.242864+00:00尾后available5512339456B。窗口已完整退役，无自动重试；下一步仅定位测试前置，后继实际另候root fresh grant。
-- 后继history仍使用同563b候选＋原 `^TestObjectMetadataCleanupOldAttemptsAndStopHistory$`／`pg-history01`：9a893d2f→当前全部Go/mod/SQL只新增六成本源，history/原业务/产品未变且82986已发现该top，旧08不再有执行队列。原history与后三成本组仍未实际运行。
+- 后继history统一使用3b55候选＋原 `^TestObjectMetadataCleanupOldAttemptsAndStopHistory$`／`pg-history01`：9a893d2f→当前全部Go/mod/SQL只新增六成本源，history/原业务/产品未变且82986已发现该top，旧08不再有执行队列。原history与后三成本组仍未实际运行。
 
-- **统一成本新候选已离线就绪**：82986/d13617→99d949 actualexit0，UTC2026-10-10T01:21:49.992556+00:00 fresh5389246464B≥5GiB，fixedGo1.27.1/local/offline/readonly/-p1/原Knowledge独占cache/继承PATH/300s总限；`go test -mod=readonly -p=1 -tags=integration -race -c -o output/ai/object-metadata-cleanup/metadata-cleanup-remaining-cost-race.test ./tests/objects` actual0，随后 `-test.run=^$ -test.list='^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans|LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans|OldAttemptsAndStopHistory)$'` 恰七top actual0。未执行任何业务/fixture/socket。候选**37456516B／SHA256 563b093b573a2f98badf6a4e07b3f994c1fd92932b9036676c464da2ea43590a**，构建源码d1e8fee6。末01:22:00.117545 available5317812224B低门，停止后继build，不归因单缓存。
-- 6ef7e1只读核365b2729→d1e8fee6全部Go/mod/SQL差异仅三个新成本Go和配套SQL，原三cost/top/helper/product/28未改；新整包已发现原三cost和history，可替旧5c7c成本候选，root已按37312361B/nlink1精确退休旧5c7c，源/日志仍保留，本人未删。history08eee6原编译/发现证据仍保留，旧binary已由root2d313e核size/SHA/nlink1/regular/ignored后精确退休；下一history原selector/entry统一使用563b新候选，取消08全部排队用途。旧37180277B候选root已573cfd精确退休，原首业务/迁移日志和SHA/失败/源码仍保留。下文旧路径命令仅历史记录，不作为新轮启动入口。
-- 六成本来源均有限静审接受，pending唯一原子shape返修Runner e0e2fb/b194bd接受、无剩余mustfix；后组三top新入口Work fd74fc接受（六SQL篡改main尾均拒绝）。两scope真实SQL/EXPLAIN都未run；不把可编/list或有限审查升级索引成本PASS。现controls没有`--artifacts`模式，本次不重跑已通过pure。
-- 执行组合记录统一使用新候选，两个精确组合仍分开：原三组`^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$`配`pg-cost01`，后三组如下配`pg-remaining-cost01`。8259ca当时核两父目录均absent（history的pg-history01亦absent）；现pg-cost01已由83167使用，后三组与history在fresh grant时仍必须重核。当前没有资源授权或在途命令；完整可复制后组三组入口如下，不能自动运行或扩大selector：
+- **旧563成本候选构建历史（已被3b55替代）**：82986/d13617→99d949 actualexit0，UTC2026-10-10T01:21:49.992556+00:00 fresh5389246464B≥5GiB，fixedGo1.27.1/local/offline/readonly/-p1/原Knowledge独占cache/继承PATH/300s总限；`go test -mod=readonly -p=1 -tags=integration -race -c -o output/ai/object-metadata-cleanup/metadata-cleanup-remaining-cost-race.test ./tests/objects` actual0，随后 `-test.run=^$ -test.list='^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans|LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans|OldAttemptsAndStopHistory)$'` 恰七top actual0。未执行任何业务/fixture/socket。候选**37456516B／SHA256 563b093b573a2f98badf6a4e07b3f994c1fd92932b9036676c464da2ea43590a**，构建源码d1e8fee6。末01:22:00.117545 available5317812224B低门，停止后继build，不归因单缓存。
+- 6ef7e1只读核365b2729→d1e8fee6全部Go/mod/SQL差异仅三个新成本Go和配套SQL，原三cost/top/helper/product/28未改；新整包已发现原三cost和history，可替旧5c7c成本候选，root已按37312361B/nlink1精确退休旧5c7c，源/日志仍保留，本人未删。history08eee6原编译/发现证据仍保留，旧binary已由root2d313e核size/SHA/nlink1/regular/ignored后精确退休；当时下一history原selector/entry改用563b并取消08全部排队用途，现由3b55再替代。旧37180277B候选root已573cfd精确退休，原首业务/迁移日志和SHA/失败/源码仍保留。下文旧路径命令仅历史记录，不作为新轮启动入口。
+- 六成本来源均有限静审接受，pending唯一原子shape返修Runner e0e2fb/b194bd接受、无剩余mustfix；后组三top新入口Work fd74fc接受（六SQL篡改main尾均拒绝）。现原三cost的两个top已实际到SQL/EXPLAIN，首Project前置FAIL与后三cost未验边界见上；不把可编/list或有限审查升级索引成本PASS。现controls没有`--artifacts`模式，本次不重跑已通过pure。
+- 后继现有入口统一使用3b55候选：原三组`^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$`若获新grant使用`pg-cost02`；后三组如下配`pg-remaining-cost01`，history配`pg-history01`。cf165f只读核三个后继父目录均absent；原pg-cost01已由83167使用不可重用，fresh grant时仍必须重核。当前没有资源授权或在途命令；完整可复制后组三组入口如下，不能自动运行或扩大selector：
 
 ```sh
 GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod \
@@ -22,7 +24,7 @@ PATH=/workspace/toolchains/go1.27.1/bin:$PATH \
 python3 - <<'PYRUN'
 import datetime, hashlib, os, pathlib, subprocess
 root = pathlib.Path('/workspace/agenteam-object-metadata-cleanup')
-binary = root / 'output/ai/object-metadata-cleanup/metadata-cleanup-remaining-cost-race.test'
+binary = root / 'output/ai/object-metadata-cleanup/metadata-cleanup-reader-fixed-cost-race.test'
 output = root / 'output/ai/object-metadata-cleanup/pg-remaining-cost01'
 v = os.statvfs(root)
 available = v.f_bavail * v.f_frsize
@@ -33,7 +35,7 @@ if output.exists() or output.is_symlink():
     raise SystemExit('fresh output parent required')
 with binary.open('rb') as stream:
     digest = hashlib.file_digest(stream, 'sha256').hexdigest()
-if binary.stat().st_size != 37456516 or digest != '563b093b573a2f98badf6a4e07b3f994c1fd92932b9036676c464da2ea43590a':
+if binary.stat().st_size != 37459554 or digest != '3b55ad24ac4518c6851f24e061b8a432c92db5f48a5ce5e3b630eb3005e0a86f':
     raise SystemExit('frozen candidate identity mismatch')
 version = subprocess.run(['/workspace/toolchains/go1.27.1/bin/go', 'version'], check=True, capture_output=True, text=True, timeout=10).stdout
 if not version.startswith('go version go1.27.1 '):
