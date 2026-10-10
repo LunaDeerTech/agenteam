@@ -6,6 +6,7 @@ resource-observation controls call the real supervisor function with explicitly
 controlled ownership/absence functions. A pending shared-source binding cannot
 produce a successful result.
 """
+import hashlib
 import importlib.util
 import io
 from pathlib import Path
@@ -13,6 +14,7 @@ import subprocess
 import sys
 import tempfile
 import types
+from unittest.mock import patch
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[2]
@@ -27,10 +29,126 @@ CASES = (TOP, *(TOP + '/' + name for name in (
     'foreign_owner_produces_no_parser_input')))
 BINARY = ROOT / 'output/ai/d13-plain-text-parser/parser-integration-race-01.test'
 
-# Filled only after the sole shared writer freezes the reviewed exact hunks.
-# Each tuple will be (old_bytes, new_bytes), independently scoped per file;
-# reverse application must recover the complete fixed main baseline bytes.
-SOURCE_HUNKS = None
+# Frozen additions from the sole shared writer: two driver and seven
+# supervisor hunks. No run-time diff or new source can extend this allowlist.
+BASE_SHA = {'.agent-state/work-owner-http/root_chain_driver.py': 'e784286b7e9debaf47aaac2f50e4a6c89a883231cff1c4e4063e46fdad91421c',
+ '.agent-state/task-planning-recovery/pg_only_supervisor.py': '4335ca66ac391db8cd20c67850a35b79ae8f286f7d65ab2ada7e66d6d8e2ad29'}
+SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': (('',
+                                                        '    '
+                                                        "'^TestKnowledgePlainTextParserIntegration$': "
+                                                        "'tests/knowledge',\n"),
+                                                       ('',
+                                                        '    return sorted(paths)\n'
+                                                        '\n'
+                                                        '\n'
+                                                        'def parser_inputs(binary):\n'
+                                                        '    # The fixed integration binary uses '
+                                                        'every same-package Knowledge helper.\n'
+                                                        '    paths = set(input_paths(binary)) | '
+                                                        'set((REPOSITORY / '
+                                                        "'tests/knowledge').glob('*.go'))\n"
+                                                        '    if any(not p.is_file() or '
+                                                        'p.is_symlink() or p.resolve(strict=True) '
+                                                        '!= p for p in paths):\n'
+                                                        "        raise ValueError('regular "
+                                                        "original parser inputs required')\n")),
+ '.agent-state/task-planning-recovery/pg_only_supervisor.py': (('',
+                                                                '\n'
+                                                                '\n'
+                                                                'PARSER_PG = '
+                                                                "'^TestKnowledgePlainTextParserIntegration$'\n"
+                                                                'PARSER_CASES = frozenset({\n'
+                                                                '    '
+                                                                "'TestKnowledgePlainTextParserIntegration',\n"
+                                                                '    '
+                                                                "'TestKnowledgePlainTextParserIntegration/full_current_bytes_after_actual_close',\n"
+                                                                '    '
+                                                                "'TestKnowledgePlainTextParserIntegration/partial_and_nonplain_rejected',\n"
+                                                                '    '
+                                                                "'TestKnowledgePlainTextParserIntegration/foreign_owner_produces_no_parser_input',\n"
+                                                                '})\n'
+                                                                '\n'
+                                                                '\n'
+                                                                'def parser_results(output):\n'
+                                                                "    runs = re.findall(r'^=== "
+                                                                "RUN   (\\S+)$', output, re.M)\n"
+                                                                "    results = re.findall(r'^[ "
+                                                                '\\t]*--- (PASS|FAIL|SKIP): (\\S+) '
+                                                                "\\([^()\\r\\n]*\\)$', output, "
+                                                                're.M)\n'
+                                                                "    waits = re.findall(r'^D03 "
+                                                                'explicit test actual_wait '
+                                                                'pid=([1-9][0-9]*) code=(-?[0-9]+) '
+                                                                "selector=(\\S+)$', output, re.M)\n"
+                                                                '    return (len(runs) == '
+                                                                'len(PARSER_CASES) and set(runs) '
+                                                                '== PARSER_CASES\n'
+                                                                '            and len(results) == '
+                                                                'len(PARSER_CASES)\n'
+                                                                '            and all(state == '
+                                                                "'PASS' for state, _ in results)\n"
+                                                                '            and {name for _, name '
+                                                                'in results} == PARSER_CASES\n'
+                                                                '            and len(waits) == 1 '
+                                                                "and waits[0][1:] == ('0', "
+                                                                'PARSER_PG)\n'
+                                                                '            and '
+                                                                "re.search(r'^FAIL(?:\\s|$)', "
+                                                                'output, re.M) is None)\n'
+                                                                '\n'
+                                                                '\n'
+                                                                'def parser_same(inputs, args, '
+                                                                'adapter):\n'
+                                                                '    try:\n'
+                                                                '        paths = '
+                                                                'set(adapter.parser_inputs(args.binary))\n'
+                                                                '        return (set(inputs) == '
+                                                                '{str(p) for p in paths}\n'
+                                                                '                and '
+                                                                'all(p.is_file() and not '
+                                                                'p.is_symlink()\n'
+                                                                '                        and '
+                                                                'p.resolve(strict=True) == p\n'
+                                                                '                        and '
+                                                                'adapter.sha(p) == inputs[str(p)] '
+                                                                'for p in paths))\n'
+                                                                '    except (OSError, ValueError, '
+                                                                'TypeError):\n'
+                                                                '        return False\n'),
+                                                               ('    if selector in '
+                                                                "('^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',\n",
+                                                                '    if selector in (PARSER_PG, '
+                                                                "'^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',\n"),
+                                                               ('',
+                                                                '        PARSER_PG: '
+                                                                "{'TestKnowledgePlainTextParserIntegration'},\n"),
+                                                               ('',
+                                                                '    if selector == PARSER_PG:\n'
+                                                                '        complete = '
+                                                                'parser_results(output)\n'
+                                                                "        log.write(f'ROOT "
+                                                                "parser_exact_run_pass_wait={complete}\\n')\n"
+                                                                '        good = good and '
+                                                                'complete\n'),
+                                                               ('',
+                                                                "    if 'KnowledgePlainTextParser' "
+                                                                'in args.run and (args.run != '
+                                                                'PARSER_PG or not '
+                                                                'args.root_chain):\n'
+                                                                "        parser.error('plain text "
+                                                                'parser requires its exact '
+                                                                "original root-chain entry')\n"),
+                                                               ('',
+                                                                '    if args.run == PARSER_PG:\n'
+                                                                '        inputs = {str(p): '
+                                                                'adapter.sha(p) for p in '
+                                                                'adapter.parser_inputs(args.binary)}\n'),
+                                                               ('',
+                                                                '            if args.run == '
+                                                                'PARSER_PG:\n'
+                                                                '                same = same and '
+                                                                'parser_same(inputs, args, '
+                                                                'adapter)\n'))}
 
 
 def load(name, relative):
@@ -60,19 +178,50 @@ def reverse_source(current, hunks):
     return current
 
 
+def inverse(name, source: str) -> str:
+    """Remove only the frozen D13 additions; reject any other source change."""
+    if name not in SOURCE_HUNKS or not isinstance(source, str):
+        raise ValueError('unknown shared source')
+    restored = reverse_source(source, SOURCE_HUNKS[name])
+    if hashlib.sha256(restored.encode()).hexdigest() != BASE_SHA[name]:
+        raise ValueError('unrecognized main baseline change')
+    return restored
+
+
+def reject_inverse(name, source):
+    try:
+        inverse(name, source)
+    except ValueError:
+        return
+    raise AssertionError('unrecognized or weakened source accepted')
+
+
 def source_binding():
-    if SOURCE_HUNKS is None:
-        return False
     check(set(SOURCE_HUNKS) == {DRIVER, SUPERVISOR}, 'closed shared-source set')
+    check(tuple(map(len, SOURCE_HUNKS.values())) == (2, 7), 'fixed two/seven hunk scope')
     for relative, hunks in SOURCE_HUNKS.items():
         baseline = subprocess.check_output(['git', 'show', BASE + ':' + relative], cwd=ROOT)
-        current = (ROOT / relative).read_bytes()
-        check(reverse_source(current, hunks) == baseline, 'exact original source restoration')
-        try:
-            changed = reverse_source(current + b'\n# unknown delta\n', hunks)
-        except ValueError:
-            changed = None
-        check(changed != baseline, 'unknown extra source must fail whole-byte comparison')
+        current = (ROOT / relative).read_text()
+        check(inverse(relative, current).encode() == baseline, 'exact original source restoration')
+        reject_inverse(relative, current + '\n# unknown delta\n')
+        for _, added in hunks:
+            reject_inverse(relative, current.replace(added, '', 1))
+            reject_inverse(relative, current + added)
+    reject_inverse('unknown.py', (ROOT / DRIVER).read_text())
+    source = (ROOT / SUPERVISOR).read_text()
+    for old, new in (
+            ("PARSER_PG: {'TestKnowledgePlainTextParserIntegration'}", 'PARSER_PG: set()'),
+            ("('0', PARSER_PG)", "('1', PARSER_PG)"),
+            ("('0', SECRET_ROOT)", "('1', SECRET_ROOT)"),
+            ('(540, 60) if root_chain', '(541, 60) if root_chain'),
+            ('same = same and parser_same(inputs, args, adapter)', 'same = True'),
+            ('same = same and root_composition_same(inputs, args, adapter)', 'same = True')):
+        check(source.count(old) == 1, 'known original gate for mutation control')
+        reject_inverse(SUPERVISOR, source.replace(old, new, 1))
+    driver_source = (ROOT / DRIVER).read_text()
+    original_target = "'^TestProjectSecretVariablesDefaultRoot$': 'internal/central/app'"
+    check(driver_source.count(original_target) == 1, 'original cross-domain target')
+    reject_inverse(DRIVER, driver_source.replace(original_target, original_target.replace('internal/central/app', 'tests/knowledge'), 1))
     return True
 
 
@@ -116,6 +265,33 @@ def configuration_controls(driver, supervisor, directory):
                      'internal/central/retrieval/parser/plain_text.go',
                      'internal/central/retrieval/parser/bounded_content.go'):
         check(ROOT / relative in paths, 'actual D12-to-D13 source present')
+
+
+def main_guard_controls(supervisor, directory):
+    # Call the real CLI parsing/guard path. Sentinels prove it stops before
+    # adapter setup, filesystem creation, process setup or TCP observation.
+    for selector, root_chain in (
+            (SELECTOR, False), (SELECTOR + 'x', True),
+            (SELECTOR[1:], True), (SELECTOR[:-1], True),
+            ('^TestKnowledgePlainTextParser.*$', True),
+            (SELECTOR + '/foreign_owner_produces_no_parser_input', True)):
+        output = directory / 'guard-must-not-create'
+        argv = ['supervisor', '--driver', str(ROOT / DRIVER), '--binary', str(BINARY),
+                '--output', str(output), '--run', selector]
+        if root_chain:
+            argv.append('--root-chain')
+        with patch.object(sys, 'argv', argv), patch('sys.stderr', io.StringIO()), \
+                patch.object(supervisor, 'root_adapter', side_effect=AssertionError('adapter setup reached')), \
+                patch.object(supervisor, 'tcp', side_effect=AssertionError('TCP observation reached')), \
+                patch.object(supervisor.ctypes, 'CDLL', side_effect=AssertionError('process setup reached')), \
+                patch.object(Path, 'mkdir', side_effect=AssertionError('directory creation reached')):
+            try:
+                supervisor.main()
+            except SystemExit as stopped:
+                check(stopped.code == 2, 'real main rejects invalid mode/selector')
+            else:
+                raise AssertionError('main returned without rejecting selector')
+        check(not output.exists(), 'rejected CLI creates no output directory')
 
 
 def input_controls(driver, supervisor, directory):
@@ -186,6 +362,7 @@ def main():
         directory = Path(temporary)
         result_controls(supervisor)
         configuration_controls(driver, supervisor, directory)
+        main_guard_controls(supervisor, directory)
         input_controls(driver, supervisor, directory)
         observer_controls(supervisor, directory)
     if not source_binding():

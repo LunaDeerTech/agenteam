@@ -189,6 +189,38 @@ def observe_secret_owner(log_path, log, selector):
     return good
 
 
+PARSER_PG = '^TestKnowledgePlainTextParserIntegration$'
+PARSER_CASES = frozenset({
+    'TestKnowledgePlainTextParserIntegration',
+    'TestKnowledgePlainTextParserIntegration/full_current_bytes_after_actual_close',
+    'TestKnowledgePlainTextParserIntegration/partial_and_nonplain_rejected',
+    'TestKnowledgePlainTextParserIntegration/foreign_owner_produces_no_parser_input',
+})
+
+
+def parser_results(output):
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+    waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
+    return (len(runs) == len(PARSER_CASES) and set(runs) == PARSER_CASES
+            and len(results) == len(PARSER_CASES)
+            and all(state == 'PASS' for state, _ in results)
+            and {name for _, name in results} == PARSER_CASES
+            and len(waits) == 1 and waits[0][1:] == ('0', PARSER_PG)
+            and re.search(r'^FAIL(?:\s|$)', output, re.M) is None)
+
+
+def parser_same(inputs, args, adapter):
+    try:
+        paths = set(adapter.parser_inputs(args.binary))
+        return (set(inputs) == {str(p) for p in paths}
+                and all(p.is_file() and not p.is_symlink()
+                        and p.resolve(strict=True) == p
+                        and adapter.sha(p) == inputs[str(p)] for p in paths))
+    except (OSError, ValueError, TypeError):
+        return False
+
+
 SECRET_ROOT = '^TestProjectSecretVariablesDefaultRoot$'
 
 
@@ -470,7 +502,7 @@ def observe_root_chain(directory, log, log_path, selector):
         if not empty: good = False
         if round == 1: time.sleep(.1)
     log.flush()
-    if selector in ('^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
+    if selector in (PARSER_PG, '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
                     '^TestSkillLifecycleCleanupHistoricalAttempts$'):
         try:
             output = log_path.read_text()
@@ -480,6 +512,7 @@ def observe_root_chain(directory, log, log_path, selector):
     else:
         output = log_path.read_text()
     expected = {
+        PARSER_PG: {'TestKnowledgePlainTextParserIntegration'},
         SECRET_ROOT: {'TestProjectSecretVariablesDefaultRoot'},
         '^TestKnowledgeSkillsDefaultRootComposition$': {'TestKnowledgeSkillsDefaultRootComposition'},
         CONTENT_PG: set(CONTENT_GROUPS[CONTENT_PG]),
@@ -503,6 +536,10 @@ def observe_root_chain(directory, log, log_path, selector):
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
     log.write(f'ROOT exact_tops={actual == expected} actual_test_wait={waited}\n')
+    if selector == PARSER_PG:
+        complete = parser_results(output)
+        log.write(f'ROOT parser_exact_run_pass_wait={complete}\n')
+        good = good and complete
     if selector == SECRET_ROOT:
         complete = secret_root_results(output)
         log.write(f'ROOT secret_exact_run_pass_wait={complete}\n')
@@ -765,6 +802,8 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
+    if 'KnowledgePlainTextParser' in args.run and (args.run != PARSER_PG or not args.root_chain):
+        parser.error('plain text parser requires its exact original root-chain entry')
     if 'ProjectSecretVariablesDefaultRoot' in args.run and (args.run != SECRET_ROOT or not args.root_chain):
         parser.error('Secret default root requires its exact original root-chain entry')
     if args.run == '^TestKnowledgeSkillsDefaultRootComposition$' and not args.root_chain:
@@ -823,6 +862,8 @@ def main():
         inputs = secret_http_inputs(args.driver, args.binary, args.run)
     if args.run in ('^TestKnowledgeSkillsDefaultRootComposition$', SECRET_ROOT):
         inputs.update({str(p): adapter.sha(p) for p in adapter.root_composition_inputs()})
+    if args.run == PARSER_PG:
+        inputs = {str(p): adapter.sha(p) for p in adapter.parser_inputs(args.binary)}
     baseline = tcp()
     started = time.monotonic()
     child = None
@@ -969,6 +1010,8 @@ def main():
                                     for p, digest in inputs.items()))
             if args.run in ('^TestKnowledgeSkillsDefaultRootComposition$', SECRET_ROOT):
                 same = same and root_composition_same(inputs, args, adapter)
+            if args.run == PARSER_PG:
+                same = same and parser_same(inputs, args, adapter)
             if not same: code = 1
             if interrupted: code = 1
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')

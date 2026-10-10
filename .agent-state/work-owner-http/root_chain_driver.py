@@ -16,6 +16,7 @@ GO = Path('/workspace/toolchains/go1.27.1/bin/go')
 MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
+    '^TestKnowledgePlainTextParserIntegration$': 'tests/knowledge',
     '^TestProjectSecretVariablesDefaultRoot$': 'internal/central/app',
     '^TestKnowledgeSkillsDefaultRootComposition$': 'internal/central/app',
     '^TestKnowledgeOwnerContentHTTP(CurrentBytes|CurrentAuthority|ReaderOwnership|ReadTransactions)$': 'tests/knowledge',
@@ -69,6 +70,14 @@ def input_paths(binary):
                  'lifecycle_cleanup_history_proxy_test.go'):
         paths.add(REPOSITORY / 'tests/skills' / name)
     paths.add(REPOSITORY / '.agent-state/project-variables-independent/commitproxy/proxy.go')
+    return sorted(paths)
+
+
+def parser_inputs(binary):
+    # The fixed integration binary uses every same-package Knowledge helper.
+    paths = set(input_paths(binary)) | set((REPOSITORY / 'tests/knowledge').glob('*.go'))
+    if any(not p.is_file() or p.is_symlink() or p.resolve(strict=True) != p for p in paths):
+        raise ValueError('regular original parser inputs required')
     return sorted(paths)
 
 
