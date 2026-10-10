@@ -15,6 +15,7 @@ import (
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -243,6 +244,16 @@ func TestOperationInstallCanonicalInput(t *testing.T) {
 	if e != nil || canonical != b.CanonicalArguments {
 		t.Fatal("whitespace altered fixed canonical arguments")
 	}
+	// This literal is the independently fixed canonical-v1 byte sequence:
+	// sorted object keys, original array/text order and no trailing newline.
+	want := `{"mode":"create","source":{"files":[{"path":"SKILL.md","utf8_text":"---\nname: Example\ndescription: Controlled package\n---\nprivate-operation-canary\n"}],"kind":"text_files"}}`
+	if canonical != digest([]byte(want)) {
+		t.Fatal("arguments do not use canonical-v1 bytes")
+	}
+	reordered := `{"source":{"kind":"text_files","files":[{"utf8_text":"---\nname: Example\ndescription: Controlled package\n---\nprivate-operation-canary\n","path":"SKILL.md"}]},"mode":"create"}`
+	if got, err := CanonicalInstallArguments(context.Background(), []byte(reordered)); err != nil || got != canonical {
+		t.Fatal("object key ordering changed argument semantics")
+	}
 	changed := operationArguments(t, operationText+"changed body\n")
 	other, e := CanonicalInstallArguments(context.Background(), changed)
 	if e != nil || other == canonical {
@@ -254,6 +265,21 @@ func TestOperationInstallCanonicalInput(t *testing.T) {
 	broken := bytes.Replace(raw, []byte(`"mode":"create"`), []byte(`"mode":"create","mode":"create"`), 1)
 	if _, e = CanonicalInstallArguments(context.Background(), broken); e == nil {
 		t.Fatal("duplicate JSON passed canonicalization")
+	}
+	// A fixed full fingerprint projection catches struct-order encoding at
+	// every nested level independently of the arguments helper above.
+	fixedID := "01900000-0000-7000-8000-000000000001"
+	fixedDigest := "sha256:" + strings.Repeat("a", 64)
+	fingerprintBytes := fmt.Sprintf(`{"Format":"canonical-v1","Input":{"Binding":{"Agent":"%[1]s","ArgumentsDigest":"%[2]s","Binding":{"contract_revision":"1","handler_id":"skill.install"},"Call":"call","Execution":"%[1]s","InputBinding":"%[1]s","Invocation":"%[1]s","LogicalCall":"%[1]s","ModelName":"tool_01900000000070008000000000000001","Payload":"%[1]s","PayloadBytes":"1","PayloadDigest":"%[2]s","Project":"%[1]s","Round":"%[1]s","Snapshot":"%[1]s","Spec":{"SpecRevision":"1","ToolID":"%[1]s"},"format_version":1},"ManifestDigest":"%[2]s","NormalizedName":"example","PackageBytes":"1","PackageDigest":"%[2]s"},"Skill":"%[1]s"}`, fixedID, fixedDigest)
+	var vector struct {
+		Input installData
+		Skill sc.SkillID
+	}
+	if err := json.Unmarshal([]byte(fingerprintBytes), &vector); err != nil {
+		t.Fatal(err)
+	}
+	if got, err := fingerprint(vector.Input, vector.Skill); err != nil || got != digest([]byte(fingerprintBytes)) {
+		t.Fatal("fingerprint does not use canonical-v1 bytes")
 	}
 }
 

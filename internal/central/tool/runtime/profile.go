@@ -3,7 +3,6 @@
 package runtime
 
 import (
-	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -12,6 +11,7 @@ import (
 	"io"
 	"log/slog"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
@@ -92,17 +92,18 @@ func parseInstall(ctx context.Context, raw []byte) (builtin.SkillInstallPackage,
 	if err = json.Unmarshal(raw, &v); err != nil {
 		return builtin.SkillInstallPackage{}, "", fail(f.InvalidArgument)
 	}
-	var canonical bytes.Buffer
-	encoder := json.NewEncoder(&canonical)
-	encoder.SetEscapeHTML(false)
-	if err = encoder.Encode(v); err != nil {
+	rawProjection, err := json.Marshal(v)
+	if err != nil {
+		return builtin.SkillInstallPackage{}, "", portError(err)
+	}
+	canonical, err := cursor.CanonicalJSON(rawProjection)
+	if err != nil {
 		return builtin.SkillInstallPackage{}, "", portError(err)
 	}
 	if err = ctx.Err(); err != nil {
 		return builtin.SkillInstallPackage{}, "", err
 	}
-	// json.Encoder's one trailing newline is fixed for canonical-install-v1.
-	return pkg, digest(canonical.Bytes()), nil
+	return pkg, digest(canonical), nil
 }
 
 func prepareInput(ctx context.Context, b tc.ToolCallBinding, raw []byte) (installData, error) {
@@ -175,7 +176,11 @@ func fingerprint(input installData, skill sc.SkillID) (f.Digest, error) {
 	if err != nil {
 		return "", err
 	}
-	return digest(raw), nil
+	canonical, err := cursor.CanonicalJSON(raw)
+	if err != nil {
+		return "", portError(err)
+	}
+	return digest(canonical), nil
 }
 
 func (r operationRecord) validate() error {
