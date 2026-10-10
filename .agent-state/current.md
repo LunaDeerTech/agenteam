@@ -4,7 +4,7 @@
 
 持续推进 D01–D28 的产品能力和真实组合，最终完成 E01 平台内游戏复刻验收。当前平台约完成 **30%（25%–35%）**，这是按设计能力及端到端闭环权重作的工程粗估，不是逐卡等权或客观审计。E01 尚未开始，其“至少 50% 游戏内容”是独立的未来验收目标。
 
-正式 main `7a693cb6` 已推送确认，root 协调树已正常合入。新增 Model Selection/Secret Directory 同事务 metadata 首链的有限正式交付；此前后端有限组合、连续迁移 00028→00031、Secret Owner HTTP、Knowledge 只读 UI、D13 纯文本 parser、D16 本地文件库、D18 名称投影、Variables 停止提供方/单轮 phase/有界 Batch 与真实 ProcessGuard，以及 D09 有限文本 Runtime 范围保留。各子项不代表整张 D 卡或完整应用完成，Agent 核心及 00032–00036 组合 SQL 尚未真实验证。
+正式 main `7a693cb6` 已推送确认，root 协调树已正常合入。新增 Model Selection/Secret Directory 同事务 metadata 首链的有限正式交付；此前后端有限组合、连续迁移 00028→00031、Secret Owner HTTP、Knowledge 只读 UI、D13 纯文本 parser、D16 本地文件库、D18 名称投影、Variables 停止提供方/单轮 phase/有界 Batch 与真实 ProcessGuard，以及 D09 有限文本 Runtime 范围保留。各子项不代表整张 D 卡或完整应用完成。topic 上 00032–00035 的 schema02 已真实通过，00036 安装与完整 Agent 创建仍待各自验收，尚未作为正式 main 能力交付。
 
 - Secret HTTP 的作者 PG/native/root、独立当前 Session 与安全错误补集、完整 app ordinary/race 已按相应版本接受；没有新增生产 Project 创建能力。
 - Knowledge 读取 UI 最终组合 read04 wholePASS，原调用及七资源/private/runtime/desc/TCP 全尾闭合。独立三项组件风险测试使用真实 Session/Workspace 和受控网络，不冒真实 Owner 转让或 Logout PG。原 read01/read02 FAIL 保留。D13 的 1 top/3 sub 真实链已正式交付，但未接索引、其他 parser 或生产创建。
@@ -18,13 +18,14 @@
 
 | 执行者 | 当前工作、真实状态与下一步 |
 | --- | --- |
-| coordination / content | `/workspace/agenteam-agent-system-integration` / `ai/agent-system-integration`：连续 00032–00035 的 schema 测试与真实同 Store assembly 已组合保存；compile02 race-c 与 exact 1 top/3 sub 列举通过，611 编译输入不变，原 compile01 容量 FAIL 保留。coordination 负责 schema 测试和有限审查；content 负责 assembly、运行入口；首 schema native 已在唯一窗口启动，尚无终态。该链验证迁移、Audit CHECK/SQL 一致性和缺 Backend 的明确拒绝，不冒完整 Agent Create。 |
-| cleanup / secret | `/workspace/agenteam-skill-install` / `ai/skill-install`：公开 Install/LookupInstall、普通读取和清理、00036 来源已保存；cleanup 负责公开安装/DDL/生命周期，secret 负责普通读取/清理 helper。新18路径有限源码审无确认阻断，下一为必要 pure 与首 PG36；旧 pure01 只证明较早生命周期/Object 片段。Human 链可测，AgentRun 与真实 Registry Backend 仍未接通。 |
-| work_ui | `/workspace/agenteam-tool-registry` / `ai/tool-registry`：install-skill Builtin 六源已保存，六个新 top race 与包 vet wholePASS；下一为非作者源码审和真实 Runtime/Service 接线。纯控中的 Operation/Service 是明确替身，不证明真实发布、授权或可调用注册。Registry/00033 原实现由 cleanup 持有。 |
-| skills_http | `/workspace/agenteam-secret-owner-ui` / `ai/secret-owner-ui`：首版已保存；client 分派、类型与依赖窄修后，三项 spec 共30项通过，type 检查仍在途，待原终态后冻结交独审。首轮 pure/type FAIL 保留；尚无真实浏览器/PG 接受，不升级旧 Owner UI 失败。 |
+| coordination / content | `/workspace/agenteam-agent-system-integration` / `ai/agent-system-integration`：schema02 的 1 top/3 sub wholePASS，连续 00032–00035 fresh/repeat/upgrade、原 Audit CHECK/SQL 一致性及缺 Backend 明确拒绝已验，原1271输入与七资源全部尾闭合，记录 `e028467b` 已保存。原 schema01 升级夹具 FAIL 与容量准备 FAIL 保留；不冒完整 Agent Create、00036 或 F1。 |
+| cleanup / content | `/workspace/agenteam-skill-install` / `ai/skill-install`：公开 Install/LookupInstall、普通读取与清理的 pure03 定向10 top/27 sub race+vet PASS。首 PG36 原目标 Project 名称夹具失败保留，外人拒绝码按真实 Project NotFound 窄修 `f6ebeb84` 已推送并只读导入 HTTP 树；content 获原 compile03/native02 后继窗口。cleanup 写 domain 源，content 维护入口；Human 业务与 AgentRun/Registry Backend 仍分开接受。 |
+| coordination | `/workspace/agenteam-skill-install-owner-http` / `ai/skill-install-owner-http`：`68cfb47a` 的8新 top及2旧 HTTP top race、修后 Schema race与三包vet有效补集已闭；原 pure01 整体 FAIL 保留。新增独立 HTTP PG 文件写作，1 top/2 sub 复用只读 domain fixture，验证同 Service POST/Lookup、分页 catalog、旧读取与当前 Owner/CSRF，尚未编译或真实运行；适配器组合不冒全 app root。 |
+| secret / work_ui | `/workspace/agenteam-tool-operation` / `ai/tool-operation`：Runtime created 核心及 canonical-v1 窄修已有限源码审，最新 `6eb3a62a` 已推送；Registry `19094bf5` donor 已导入并由 cleanup 有限独审。work_ui 在 `/workspace/agenteam-tool-registry` / `ai/tool-registry` 的 Builtin02 定向两 top race+vet PASS，Execution 取消漏洞窄修 `e9b8fb14` 已推送；纯控 Operation/Service 替身不证明真实授权、发布或 callable 注册，Runtime/00037 尚未实际 SQL 验收。 |
+| skills_http | `/workspace/agenteam-secret-owner-ui` / `ai/secret-owner-ui`：三spec30项、类型及 candidate 编译/精确1top list已就绪；native01 整体 FAIL，首 create 未产生 POST，原全尾已释放，当前只作定向诊断。root 已建 `/workspace/agenteam-secret-ui-delivery` 从 main7a，待实际范围收敛后正式选入；原 pure/type FAIL 保留，未获真实浏览器接受。 |
 | 已冻结提供方 | Agent/Audit/Project 四包 18 top/28 sub race+vet、Mount 修后 4 top race+vet、Model References 6 top race+vet、Secret References 4 top/17 sub race+vet、Skills 初始化 7 top/27 sub race及独立 vet 补集均按各版本保留。原 Mount fixture、Skills pure01 容量及 Directory01 失败不回填；源码树继续保留供组合，外域私有 witness/assignment/refs 的真实 Agent 写入仍未验。 |
 
-WIP/纯检查不等于正式 main 或 F1 接入。六个子代理席位动态共享，旧实例/进程/授权不继承。root 负责 Git、最终集成和实际共享资源窗口；执行者保持单文件唯一写者。此前 metadata、模块 pure 与 schema compile02 原尾均已闭合；当前 content 独占首 schema native 窗口，原 supervisor 已启动，尚无业务或整轮结果；Git 网络按 root 指令暂停至原全尾释放。
+WIP/纯检查不等于正式 main 或 F1 接入。六个子代理席位动态共享，旧实例/进程/授权不继承。root 负责 Git、最终集成和实际共享资源窗口；执行者保持单文件唯一写者。schema02、HTTP pure、Builtin02 与 Secret UI native01 原尾均已闭合；当前 root 将唯一窗口交 content 的修后 Human Installer compile03/native02。coordination 本轮仅 HTTP 源码和协调摘要，不占 Go/cache/资源；HTTP 新候选仍待后续授权，Git 网络按 root 原窗口规定执行。
 
 ## 未闭合结果与停止项
 
@@ -40,6 +41,6 @@ D05、Skills HTTP、Knowledge 正文、Secret Owner、Skills Cleanup 等旧 topi
 
 新树使用 root 管理的 sparse 规则，只不展开明确历史证据对象，生产源码、正式文档和必要 `.agent-state` 保留。仅经 owner/root 明确授权的旧 D18、Knowledge UI、Secret HTTP 可再生私有 Go cache 已退休；候选、dist、原日志/失败与共享模块未删。后续运行仍须同进程 fresh≥5GiB、固定 Go1.27.1、只读共享模块和实际 task-private telemetry off，不把旧容量快照当新授权。
 
-现存热缓存 `/workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build` 的此前模块检查、schema compile02 与 Builtin pure 均已原全尾退出，下一窗口由 root 分配；不并写、不复制数 GB，各树使用私有 XDG/telemetry/runtime。先验证连续 00032–00035 schema，再接 00036 真实 Human 安装与必要清理；默认 install-skill 的实际 Backend/Registry binding 仍缺闭合，显式 false 也不能绕过真实目录与初始化提供方。前置简报留于 root 的 ai 分支，本轮不改正式 tasks、不新建归档。
+现存热缓存 `/workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build` 由 root 串行分配，当前窗口归修后 Human Installer；不并写、不复制数 GB，各树使用私有 XDG/telemetry/runtime。00032–00035 schema 首链已闭，下一接 00036 真实 Human 安装/清理与 HTTP 可见入口；默认 install-skill 的实际 Backend/Registry binding 仍缺闭合，显式 false 也不能绕过真实目录与初始化提供方。前置简报留于 root 的 ai 分支，本轮不改正式 tasks、不新建归档。
 
 E01 实施前须冻结游戏版本、完整内容分母、权重及关键门槛；最终由 agenteam 本身组织任务、Agent/Execution、审核和产物，以可运行游戏、真实试玩和独立验收证明至少 50% 内容覆盖。
