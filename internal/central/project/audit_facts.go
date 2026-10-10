@@ -33,6 +33,9 @@ func (a *Authority) checkDomainAuditInTx(ctx context.Context, tx foundation.Tx, 
 		return fault(foundation.Forbidden)
 	}
 	if k.Producer == audit.ProjectVariableProducer {
+		if audit.ProjectSecretVariableAction(f.Action) {
+			return a.checkSecretVariableAuditInTx(ctx, tx, entry, key)
+		}
 		if !audit.ProjectVariableAction(f.Action) || f.Resource.Details().Kind != audit.ProjectVariableResource || f.Outcome != audit.Success || k.Ordinal != 0 || f.Actor.Details().Kind != identity.Human {
 			return fault(foundation.Forbidden)
 		}

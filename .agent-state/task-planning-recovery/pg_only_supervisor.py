@@ -15,10 +15,199 @@ import os
 from pathlib import Path
 import re
 import signal
+import stat
 import subprocess
 import sys
 import time
 import uuid
+
+
+SECRET_STORAGE_CORE = '^TestSecretVariableStorageSQL(ReplayAndEffects|AtomicAuditAndOwnerRollback|ClosedConstraints)$'
+SECRET_STORAGE_MAINTENANCE = '^TestSecretVariableStorageSQLRotationDeletedOwnerAndCleanup$'
+SECRET_STORAGE_RECOVERY_WRITE = '^TestSecretVariableStorageSQL(CommitUnknown|NonceUnknown)$'
+SECRET_STORAGE_RECOVERY_STATE = '^TestSecretVariableStorageSQL(MaintenanceUnknown|Concurrency)$'
+SECRET_STORAGE_RECOVERY_CASES = {
+    SECRET_STORAGE_RECOVERY_WRITE: {
+        'TestSecretVariableStorageSQLCommitUnknown',
+        *('TestSecretVariableStorageSQLCommitUnknown/' + name for name in ('before', 'after', 'pending')),
+        'TestSecretVariableStorageSQLNonceUnknown',
+    },
+    SECRET_STORAGE_RECOVERY_STATE: {
+        'TestSecretVariableStorageSQLMaintenanceUnknown',
+        *('TestSecretVariableStorageSQLMaintenanceUnknown/' + name for name in
+          ('rotation-refresh', 'rotation-no-refresh', 'cleanup')),
+        'TestSecretVariableStorageSQLConcurrency',
+        *('TestSecretVariableStorageSQLConcurrency/' + name for name in
+          ('same-intent', 'changed-value', 'stale-credential-version')),
+    },
+}
+SECRET_STORAGE_CASES = {
+    SECRET_STORAGE_CORE: {
+        'TestSecretVariableStorageSQLReplayAndEffects',
+        'TestSecretVariableStorageSQLAtomicAuditAndOwnerRollback',
+        'TestSecretVariableStorageSQLClosedConstraints',
+        *('TestSecretVariableStorageSQLAtomicAuditAndOwnerRollback/' + name for name in
+          ('owner-tail', 'audit-without-witness', 'audit-wrong-payload-kind',
+           'audit-wrong-payload-owner', 'missing-lock')),
+        *('TestSecretVariableStorageSQLClosedConstraints/' + name for name in
+          ('v4-variable', 'effect-create-mismatch', 'create-expected-present',
+           'command-digest', 'duplicate-command', 'duplicate-payload',
+           'kind3-system', 'kind3-length', 'purpose-system')),
+    },
+    SECRET_STORAGE_MAINTENANCE: {'TestSecretVariableStorageSQLRotationDeletedOwnerAndCleanup'},
+}
+
+
+def secret_storage_inputs(driver, binary, recovery=False):
+    # Precompiled test and driver; no TestMain rebuild or Go metadata process.
+    # Freeze the selected storage/fixture/migration sources as well as the two
+    # executable artifacts. This is scoped input evidence, not a whole-repo hash.
+    root = Path(__file__).resolve().parents[2]
+    output = root / 'output/ai/secret-variable-storage'
+    expected_driver = output / ('pg-only-recovery-driver' if recovery else 'pg-only-driver')
+    expected_binary = output / ('secret-variable-storage-recovery.test' if recovery else 'secret-variable-storage-sql-reviewed.test')
+    if driver != expected_driver or binary != expected_binary:
+        raise ValueError('exact Secret storage artifacts required')
+    paths = {driver, binary, Path(__file__).resolve(), root / 'go.mod', root / 'go.sum',
+             root / '.agent-state/task-planning-recovery/pg_only_driver.go'}
+    for name in ('secret_variable_storage_fixture_test.go', 'secret_variable_storage_test.go',
+                 'secret_variable_storage_maintenance_test.go', 'audit_common_test.go',
+                 'secret_common_test.go', 'secret_project_audit_fixture_test.go', 'secret_rotation_test.go'):
+        paths.add(root / 'tests/security' / name)
+    if recovery:
+        for name in ('secret_variable_storage_recovery_fixture_test.go',
+                     'secret_variable_storage_recovery_test.go',
+                     'secret_variable_storage_recovery_nonce_test.go',
+                     'secret_variable_storage_recovery_concurrency_test.go',
+                     'secret_variable_storage_recovery_maintenance_test.go',
+                     'audit_proxy_test.go', 'outbound_reload_test.go'):
+            paths.add(root / 'tests/security' / name)
+    for name in ('secret', 'audit', 'foundation', 'postgres', 'cursor',
+                 'identity/contract', 'projectvariable/contract'):
+        paths.update(p for p in (root / 'internal/central' / name).rglob('*.go')
+                     if not p.name.endswith('_test.go'))
+    paths.update((root / 'tests/testsupport/postgres').glob('*.go'))
+    paths.update((root / 'db/migrations').glob('*.go'))
+    paths.update((root / 'db/migrations').glob('*.sql'))
+    for path in paths:
+        if path.resolve(strict=True) != path or not stat.S_ISREG(path.stat().st_mode):
+            raise ValueError('non-regular Secret storage input')
+    return tuple(sorted(paths))
+
+
+def observe_secret_storage(log_path, log, selector):
+    expected = (SECRET_STORAGE_CASES | SECRET_STORAGE_RECOVERY_CASES)[selector]
+    try:
+        raw = log_path.read_text()
+    except (OSError, UnicodeDecodeError):
+        log.write('SECRET_STORAGE exact_cases=False log_unreadable=True\n')
+        return False
+    runs = re.findall(r'^=== RUN   (\S+)$', raw, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', raw, re.M)
+    passed = [name for state, name in results if state == 'PASS']
+    good = (len(runs) == len(expected) and set(runs) == expected
+            and len(results) == len(expected) and len(passed) == len(expected)
+            and set(passed) == expected)
+    log.write(f'SECRET_STORAGE exact_cases={good} run_count={len(runs)} result_count={len(results)}\n')
+    return good
+
+
+SECRET_OWNER_CASES = {
+    '^TestSecretVariableOwner(Persistence|CurrentAuthority)$': {
+        'TestSecretVariableOwnerPersistence', 'TestSecretVariableOwnerCurrentAuthority',
+        *('TestSecretVariableOwnerCurrentAuthority/' + name for name in
+          ('current-owner-and-cross-project', 'current-owner-loss-hides-original-history',
+           'real-archive-after-prepare-rechecks-final-gate', 'revoked-current-session-before-safe-history')),
+    },
+    '^TestSecretVariableOwner(AtomicFacts|Concurrency)$': {
+        'TestSecretVariableOwnerAtomicFacts', 'TestSecretVariableOwnerConcurrency',
+        *('TestSecretVariableOwnerAtomicFacts/' + name for name in
+          ('after-d10-audit', 'after-outbox', 'after-activity', 'owner-tail')),
+        *('TestSecretVariableOwnerConcurrency/' + name for name in
+          ('same-key-original-intent', 'same-key-other-value', 'two-keys-update-delete-version', 'ordinary-secret-name')),
+    },
+    '^TestSecretVariableOwnerCommitRecovery$': {
+        'TestSecretVariableOwnerCommitRecovery',
+        *('TestSecretVariableOwnerCommitRecovery/' + name for name in
+          ('before-forward', 'after-forward', 'pending-outlives-confirmation', 'stop-confirms-actual-join')),
+    },
+    '^TestSecretVariableOwnerMigration$': {
+        'TestSecretVariableOwnerMigration',
+        *('TestSecretVariableOwnerMigration/' + name for name in
+          ('empty-repeat-and-exact-new-schema', 'ordinary-stored-facts-survive-upgrade',
+           'actual-closed-checks-and-deferred-history')),
+        *('TestSecretVariableOwnerMigration/actual-closed-checks-and-deferred-history/' + name for name in
+          ('secret-plaintext', 'secret-null-internal-version', 'ordinary-null-value',
+           'completed-without-audit', 'audit-extra-material-field')),
+    },
+}
+
+
+def secret_owner_inputs(driver, binary):
+    # Fixed compiled artifacts plus their local source/embedded inputs. No
+    # rebuild, Go metadata process, package import or resource setup here.
+    root = Path(__file__).resolve().parents[2]
+    output = root / 'output/ai/secret-variable-owner-service'
+    if driver != output / 'pg-only-owner-driver' or binary != output / 'secret-variable-owner.test':
+        raise ValueError('exact Secret Owner artifacts required')
+    paths = {driver, binary, Path(__file__).resolve(), root / 'go.mod', root / 'go.sum',
+             root / '.agent-state/task-planning-recovery/pg_only_driver.go',
+             root / 'internal/central/account/assets/weak-passwords.json'}
+    # The actual package also compiles ordinary fixtures/proxy/helper files.
+    # Include those helpers and all local production dependencies; not a repo hash.
+    for name in ('account', 'account/contract', 'accountmail', 'audit', 'audit/contract',
+                 'cursor', 'event/contract', 'foundation', 'httpapi', 'identity/contract',
+                 'object', 'object/contract', 'outbound', 'outbox', 'outbox/contract',
+                 'postgres', 'project', 'project/contract', 'projectvariable',
+                 'projectvariable/contract', 'projectvariable/http', 'recoverylog',
+                 'secret', 'secret/contract', 'work', 'work/contract'):
+        paths.update(p for p in (root / 'internal/central' / name).glob('*.go')
+                     if not p.name.endswith('_test.go'))
+    for name in ('tests/projectvariable', 'tests/testsupport/postgres', 'db/migrations'):
+        paths.update((root / name).glob('*.go'))
+    paths.update((root / 'db/migrations').glob('*.sql'))
+    for path in paths:
+        if path.resolve(strict=True) != path or not stat.S_ISREG(path.stat().st_mode):
+            raise ValueError('non-regular Secret Owner input')
+    return tuple(sorted(paths))
+
+
+def observe_secret_owner(log_path, log, selector):
+    expected = SECRET_OWNER_CASES[selector]
+    try:
+        raw = log_path.read_text()
+    except (OSError, UnicodeDecodeError):
+        log.write('SECRET_OWNER exact_cases=False log_unreadable=True\n')
+        return False
+    runs = re.findall(r'^=== RUN   (\S+)$', raw, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', raw, re.M)
+    passed = [name for state, name in results if state == 'PASS']
+    good = (len(runs) == len(expected) and set(runs) == expected
+            and len(results) == len(expected) and len(passed) == len(expected)
+            and set(passed) == expected)
+    log.write(f'SECRET_OWNER exact_cases={good} run_count={len(runs)} result_count={len(results)}\n')
+    return good
+
+
+def root_composition_results(output):
+    selector = '^TestKnowledgeSkillsDefaultRootComposition$'
+    wanted = 'TestKnowledgeSkillsDefaultRootComposition'
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+    waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector='
+                       + re.escape(selector) + r'$', output, re.M)
+    return (runs == [wanted] and results == [('PASS', wanted)]
+            and len(waits) == 1 and waits[0][1] == '0'
+            and re.search(r'^FAIL(?:\s|$)', output, re.M) is None)
+
+
+def root_composition_same(inputs, args, adapter):
+    try:
+        paths = set(adapter.input_paths(args.binary)) | set(adapter.root_composition_inputs())
+        return (set(inputs) == {str(p) for p in paths}
+                and all(p.is_file() and not p.is_symlink() and adapter.sha(p) == inputs[str(p)] for p in paths))
+    except (OSError, ValueError, TypeError):
+        return False
 
 
 def budgets(root_chain):
@@ -273,6 +462,7 @@ def observe_root_chain(directory, log, log_path, selector):
     else:
         output = log_path.read_text()
     expected = {
+        '^TestKnowledgeSkillsDefaultRootComposition$': {'TestKnowledgeSkillsDefaultRootComposition'},
         CONTENT_PG: set(CONTENT_GROUPS[CONTENT_PG]),
         '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|PendingHistoryAndCausePlans)$': {'TestObjectMetadataCleanupLiveTransferAndDownloadPlans', 'TestObjectMetadataCleanupPendingHistoryAndCausePlans'},
         '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans)$': {'TestObjectMetadataCleanupLiveTransferAndDownloadPlans', 'TestObjectMetadataCleanupFinalAnchorForeignKeyPlans', 'TestObjectMetadataCleanupPendingHistoryAndCausePlans'},
@@ -294,6 +484,10 @@ def observe_root_chain(directory, log, log_path, selector):
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
     log.write(f'ROOT exact_tops={actual == expected} actual_test_wait={waited}\n')
+    if selector == '^TestKnowledgeSkillsDefaultRootComposition$':
+        complete = root_composition_results(output)
+        log.write(f'ROOT composition_exact_run_pass_wait={complete}\n')
+        good = good and complete
     if selector in ('^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
                     '^TestSkillLifecycleCleanupHistoricalAttempts$'):
         complete = skill_cleanup_results(output, selector)
@@ -453,8 +647,17 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
+    if args.run == '^TestKnowledgeSkillsDefaultRootComposition$' and not args.root_chain:
+        parser.error('default root composition requires the original root chain')
+    if 'SecretVariableOwner' in args.run and (args.root_chain or args.run not in SECRET_OWNER_CASES):
+        parser.error('Secret Owner requires one exact PG-only group')
+    secret_owner = not args.root_chain and args.run in SECRET_OWNER_CASES
+    if 'SecretVariableStorage' in args.run and (args.root_chain or args.run not in (SECRET_STORAGE_CASES | SECRET_STORAGE_RECOVERY_CASES)):
+        parser.error('Secret storage requires one exact PG-only core or maintenance group')
     driver_timeout, term_grace = budgets(args.root_chain)
     adapter = root_adapter(args.driver) if args.root_chain else None
+    secret_recovery = not args.root_chain and args.run in SECRET_STORAGE_RECOVERY_CASES
+    secret_storage = not args.root_chain and (args.run in SECRET_STORAGE_CASES or secret_recovery)
     if adapter is not None and args.run not in adapter.TARGETS:
         parser.error('root mode requires one exact Work root selector')
     if args.run in CONTENT_GROUPS and args.root_chain != (args.run == CONTENT_PG):
@@ -487,6 +690,14 @@ def main():
     skill_selected = not args.root_chain and args.run in SKILL_HTTP_CASES
     if skill_selected:
         inputs = skill_http_inputs(args.driver, args.binary, args.run)
+    if secret_storage:
+        inputs = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
+                  for p in secret_storage_inputs(args.driver, args.binary, secret_recovery)}
+    if secret_owner:
+        inputs = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
+                  for p in secret_owner_inputs(args.driver, args.binary)}
+    if args.run == '^TestKnowledgeSkillsDefaultRootComposition$':
+        inputs.update({str(p): adapter.sha(p) for p in adapter.root_composition_inputs()})
     baseline = tcp()
     started = time.monotonic()
     child = None
@@ -580,6 +791,10 @@ def main():
                 code = 1
             if skill_selected and not observe_skill_http(directory, log, log_path, args.run):
                 code = 1
+            if secret_storage and not observe_secret_storage(log_path, log, args.run):
+                code = 1
+            if secret_owner and not observe_secret_owner(log_path, log, args.run):
+                code = 1
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75
@@ -595,15 +810,33 @@ def main():
             if empty != 2:
                 code = 1
                 log.write(f'STOP host TCP delta tail not empty: {len(tcp() - baseline)} rows\n')
-            if skill_selected:
+            if secret_owner:
                 try:
-                    same = skill_http_inputs(args.driver, args.binary, args.run) == inputs
+                    same = (all(hashlib.sha256(Path(p).read_bytes()).hexdigest() == digest
+                                for p, digest in inputs.items())
+                            and set(inputs) == {str(p) for p in secret_owner_inputs(args.driver, args.binary)})
                 except (OSError, ValueError):
                     same = False
             else:
-                same = (content_same(inputs, args, adapter) if args.run in CONTENT_GROUPS else
-                        all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
-                            for p, digest in inputs.items()))
+                if secret_storage:
+                    try:
+                        same = (all(hashlib.sha256(Path(p).read_bytes()).hexdigest() == digest
+                                    for p, digest in inputs.items())
+                                and set(inputs) == {str(p) for p in secret_storage_inputs(args.driver, args.binary, secret_recovery)})
+                    except (OSError, ValueError):
+                        same = False
+                else:
+                    if skill_selected:
+                        try:
+                            same = skill_http_inputs(args.driver, args.binary, args.run) == inputs
+                        except (OSError, ValueError):
+                            same = False
+                    else:
+                        same = (content_same(inputs, args, adapter) if args.run in CONTENT_GROUPS else
+                                all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
+                                    for p, digest in inputs.items()))
+            if args.run == '^TestKnowledgeSkillsDefaultRootComposition$':
+                same = same and root_composition_same(inputs, args, adapter)
             if not same: code = 1
             if interrupted: code = 1
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')

@@ -81,6 +81,17 @@ func (s *Service) PrepareRewrap(ctx context.Context) (PreparedRewrap, error) {
 	}
 	for _, p := range candidates {
 		credential := p.ownerID
+		if p.ownerKind == projectVariableReceiptOwner {
+			var exists bool
+			credential, exists, err = projectVariableReceiptCredential(ctx, state.store, p)
+			if err != nil {
+				return PreparedRewrap{}, err
+			}
+			if !exists {
+				batch.last = p.id.String()
+				continue
+			}
+		}
 		if p.ownerKind == receiptOwner {
 			err = state.store.QueryRow(ctx, `SELECT credential_id::text FROM agenteam_secret.secret_command_receipts WHERE id=$1 AND digest_payload_id=$2`, p.ownerID, p.id.String()).Scan(&credential)
 			if errors.Is(err, pgx.ErrNoRows) {
@@ -174,6 +185,24 @@ func (s *Service) ApplyPreparedRewrapInTx(ctx context.Context, tx foundation.Tx,
 	}
 	var applied int64
 	for _, c := range b.items {
+		if c.previous.ownerKind == projectVariableReceiptOwner {
+			credential, exists, err := projectVariableReceiptCredential(ctx, e, c.previous)
+			if err != nil {
+				return RewrapReport{}, err
+			}
+			if !exists {
+				continue
+			}
+			// The discovered deleted Credential still owns the aggregate lock.
+			// A changed mapping requires a new outside-Tx preparation, never a
+			// second lock acquisition inside this already-locked batch.
+			if credential != c.credential {
+				return RewrapReport{}, failure(PreparationRequired, foundation.ResourceBusy, nil)
+			}
+			if err = checkAuditPayload(ctx, e, c.previous.id, c.previous.scope, projectVariableReceiptOwner, c.previous.ownerID); err != nil {
+				return RewrapReport{}, err
+			}
+		}
 		p := c.next
 		tag, err := e.Exec(ctx, `UPDATE agenteam_secret.secret_payloads SET wrap_nonce=$2,wrapped_dek=$3,master_version=$4,wrap_revision=$5 WHERE payload_id=$1 AND master_version=$6 AND wrap_revision=$7`, p.id.String(), p.wrapNonce, p.wrappedDEK, int64(p.masterVersion), int64(p.wrapRevision), int64(c.previous.masterVersion), int64(c.previous.wrapRevision))
 		if err != nil {
