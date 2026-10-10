@@ -4,14 +4,45 @@ package projectvariable_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	vc "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
 )
+
+func (v *secretOwnerFixture) archiveSecretFixture(t *testing.T, p pc.ProjectID, a i.Actor) {
+	t.Helper()
+	v.tx(t, ownerLocks(a, p), func(ctx context.Context, tx f.Tx, x postgres.SQLExecutor) error {
+		if _, err := v.projectAuthority.RequireOwnerInTx(ctx, tx, a, p, i.Read); err != nil {
+			return err
+		}
+		// Both fields use the same statement-stable DB timestamp. Independent
+		// clock_timestamp calls need not follow SQL's written assignment order.
+		tag, err := x.Exec(ctx, `UPDATE agenteam_project.projects SET lifecycle='archived',archived_at=statement_timestamp(),updated_at=statement_timestamp() WHERE id=$1`, p.String())
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() != 1 {
+			return errors.New("Secret archived fixture lost original Project")
+		}
+		access, err := v.projectAuthority.RequireOwnerInTx(ctx, tx, a, p, i.Read)
+		if err != nil {
+			return err
+		}
+		ref := access.Project()
+		if ref.Validate() != nil || ref.Lifecycle != pc.Archived || ref.ArchivedAt == nil || !ref.ArchivedAt.Time().Equal(ref.UpdatedAt.Time()) {
+			return errors.New("Secret archived fixture violated actual Project contract")
+		}
+		return nil
+	})
+	t.Log("archived row is a disclosed lifecycle gate fixture, with actual same-Tx Project validation; not participant/cleanup acceptance")
+}
 
 type secretAfterPrepare struct {
 	oc.Appender
@@ -118,12 +149,12 @@ func TestSecretVariableOwnerCurrentAuthority(t *testing.T) {
 		}
 		for _, state := range []string{"archiving", "archived"} {
 			if state == "archived" {
-				v.archiveFixture(t, project.ID, a)
+				v.archiveSecretFixture(t, project.ID, a)
 			}
 			before := v.secretSnapshot(t)
 			replay, err := v.owner.CreateSecretVariable(ctxFor(t), a, cm, project.ID, in)
 			if err != nil {
-				t.Fatal("historical original material on read-only Project", err)
+				t.Fatal("historical original material on read-only Project", state, err)
 			}
 			sameSecretReceipt(t, first, replay)
 			_, err = v.owner.GetSecretVariable(ctxFor(t), a, project.ID, in.Fields().ID)

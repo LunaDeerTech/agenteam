@@ -83,6 +83,10 @@ func TestSecretVariableOwnerPersistence(t *testing.T) {
 	if got := v.secretCounts(t); got != [6]int64{3, 2, 2, 2, 3, 3} {
 		t.Fatal("no-op must only add two protected receipts", got)
 	}
+	// Capture the original identity while expected is still 2. CommandMeta is
+	// a caller-owned struct; retaining its pointer until version=3 changes the
+	// lookup request rather than testing recovery of this no-op command.
+	noOpQuery := secretLookup(t, p, id, vc.SecretUpdateCommand, noOpMeta)
 	// Explicit same material is still a real replacement, not digest dedup.
 	material, err := sc.NewSecretMaterial(canary)
 	if err != nil {
@@ -148,14 +152,15 @@ func TestSecretVariableOwnerPersistence(t *testing.T) {
 	}
 	v.owner = v.newOwner(t)
 	for _, item := range []struct {
+		name  string
 		query vc.SecretVariableCommandLookupRequest
 		want  vc.SecretVariableMutation
 	}{
-		{q, created}, {secretLookup(t, p, id, vc.SecretUpdateCommand, noOpMeta), noop}, {secretLookup(t, p, id, vc.SecretDeleteCommand, deleteMeta), deleted},
+		{"create", q, created}, {"no-op", noOpQuery, noop}, {"delete", secretLookup(t, p, id, vc.SecretDeleteCommand, deleteMeta), deleted},
 	} {
 		got, err := v.owner.LookupSecretVariableCommand(ctxFor(t), newActor, item.query)
 		if err != nil || got.Receipt() == nil {
-			t.Fatal("historical safe lookup", err)
+			t.Fatal("historical safe lookup", item.name, err)
 		}
 		sameSecretReceipt(t, item.want, *got.Receipt())
 	}
