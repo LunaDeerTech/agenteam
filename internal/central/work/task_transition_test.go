@@ -217,7 +217,7 @@ func TestTaskTransitionHistoryRemainsReadableWithoutGrant(t *testing.T) {
 			t.Fatal("wire")
 		}
 		op := h.OperationID.String()
-		row := taskTriggerRow{h.ID.String(), h.ProjectID.String(), h.TaskID.String(), h.TaskVersion, string(h.Type), []byte(fields["actor"]), (*string)(nil), (*string)(nil), &op, h.CorrelationID.String(), []byte(fields["payload"]), h.CreatedAt.Time()}
+		row := taskTriggerRow{h.ID.String(), h.ProjectID.String(), h.TaskID.String(), h.TaskVersion, string(h.Type), []byte(fields["actor"]), (*string)(nil), (*string)(nil), &op, (*string)(nil), h.CorrelationID.String(), []byte(fields["payload"]), h.CreatedAt.Time()}
 		out, err := scanTaskTriggerEvent(row)
 		if err != nil {
 			t.Fatal("real storage arm", err)
