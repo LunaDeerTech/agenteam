@@ -10,6 +10,10 @@
 
 禁止 SQL 种一个有效 Agent、伪造 owner witness、用 fake install Backend/空 catalog 通过 Create。沿用 Project fixture 的持久测试 Skills 初始化已明确披露；它不证明生产 initializer 或 F1。首次创建/版本更新/各域 refs 与 assignment 同事务提交、真实安装发布和完整生命周期仍未验。00036 不在本次范围；意外混入的后续迁移使精确前缀检查失败。
 
-只复用现有真实 PG fixture、root-chain 的原阶段/预算和资源退出尾；尚未新增 selector 接线或运行命令，不创建新 wrapper。入口接线、候选 race 编译/精确 list、非作者方法审和 root 的唯一实际窗口须分别就绪。当前仅 gofmt/静态检查，不将其称为编译或 SQL 通过。
+只复用现有真实 PG fixture、root-chain 的原阶段/预算和资源退出尾，不创建新 wrapper。content 已冻结 Schema family 的两共享入口与两纯控制源；coordination 只读逆投影 driver 4/supervisor 9 个精确增量后整字节回 main `7a693cb6`，实际 observer/初末 input/原资源门有限审接受。新6与旧metadata6离线控制是作者结果，不冒独立动态或 SQL 验证；运行闭包、固定依赖预飞及 root 唯一实际窗口仍须另行就绪。
+
+首次候选准备 `compile-01` 在原容量门前停止：source `5ffab485`，2026-10-10 12:55:15 UTC、outer740561 实际 exit1，fresh 5,358,837,760 B 低于 5 GiB；零 Go/零 list、未生成候选，保留 FAIL，不自动重试。611 项实际 Go/import/embed/mod/tool 输入及方法初末一致；编译不包含可并行修改的入口 Python、README/current。ignored `output/ai/agent-system-integration/compile-01-launcher.py` 复用已验 metadata compile03 的原 Wait/descendant/group/runtime 方法，固定旧 `01157924` supervisor；原结果与输入在同级 `compile-01/`。原资源方法未因本次缺容量放宽；当前没有本轮 Go/cache writer。
+
+root 定向释放容量后另授一次 `compile-02`，同 Go 源/611 编译输入实际 PASS：session83580、outer742193/compile742197/list743141 原 Wait0，race-c 40.661s、exact list 1.069s，仅 `TestAgentConfigurationSchema`；两阶段 group/desc/runtime 双空，输入与固定旧监督方法未变。候选 `output/ai/agent-system-integration/schema-race.test` 为 46,644,478 B，SHA256 `0ee52a2faac7ef019fe138a9c43c830e99c123211d01990fd1ce182dd824adef`。原件在 `compile-02/`；没有执行正文/PG，不回填原容量 FAIL，热缓存已归还。
 
 停止条件：任一迁移、旧事实比较、实际指定 CHECK/FK、metadata 原 CommitResult 或零副作用断言失败，即保留该轮原 FAIL 和退出尾，向对应产品/测试 owner 报首个具体缺口；不自动重试、不扩大旧矩阵、不延长预算。
