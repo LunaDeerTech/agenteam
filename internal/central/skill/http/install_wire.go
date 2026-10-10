@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -31,6 +32,68 @@ type installRequestDTO struct {
 	Skill  sc.SkillID       `json:"skill_id"`
 	Mode   string           `json:"mode"`
 	Source installSourceDTO `json:"source"`
+}
+
+type installCommandDTO struct {
+	Request *installRequestDTO `json:"request"`
+}
+
+// DecodeJSON retains the bounded original bytes after checking syntax, exact
+// fields and duplicate names. Reject invalid scalar escapes before its final
+// typed decode can silently replace them and change the package's contents.
+func (v *installCommandDTO) UnmarshalJSON(raw []byte) error {
+	if !installationScalars(raw) {
+		return invalidInput()
+	}
+	type plain installCommandDTO
+	var next plain
+	if err := json.Unmarshal(raw, &next); err != nil {
+		return invalidInput()
+	}
+	*v = installCommandDTO(next)
+	return nil
+}
+
+func installationScalars(raw []byte) bool {
+	if len(raw) > installBodyLimit || !utf8.Valid(raw) {
+		return false
+	}
+	inString := false
+	for n := 0; n < len(raw); n++ {
+		if raw[n] == '"' {
+			inString = !inString
+			continue
+		}
+		if !inString || raw[n] != '\\' {
+			continue
+		}
+		n++
+		if n >= len(raw) {
+			return false
+		}
+		if raw[n] != 'u' {
+			continue
+		}
+		if n+4 >= len(raw) {
+			return false
+		}
+		high, err := strconv.ParseUint(string(raw[n+1:n+5]), 16, 16)
+		if err != nil || high >= 0xdc00 && high <= 0xdfff {
+			return false
+		}
+		n += 4
+		if high >= 0xd800 && high <= 0xdbff {
+			if n+6 >= len(raw) || raw[n+1] != '\\' || raw[n+2] != 'u' {
+				return false
+			}
+			low, err := strconv.ParseUint(string(raw[n+3:n+7]), 16, 16)
+			if err != nil || low < 0xdc00 || low > 0xdfff {
+				return false
+			}
+			n += 6
+		}
+	}
+	return true
 }
 
 // Both Install and Lookup consume the same complete intent. Lookup never
@@ -61,9 +124,7 @@ func decodeInstallation(w http.ResponseWriter, r *http.Request) (f.CommandMeta, 
 	if meta.Validate() != nil {
 		return f.CommandMeta{}, empty, invalidInput()
 	}
-	var wire struct {
-		Request *installRequestDTO `json:"request"`
-	}
+	var wire installCommandDTO
 	if err := httpapi.DecodeJSON(w, r, &wire, installBodyLimit); err != nil {
 		return f.CommandMeta{}, empty, err
 	}

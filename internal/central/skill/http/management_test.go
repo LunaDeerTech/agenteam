@@ -10,6 +10,7 @@ import (
 	"time"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
@@ -196,6 +197,48 @@ func TestSkillOwnerInstallHTTPCurrentAuthorityAndUnknown(t *testing.T) {
 				}
 			}
 			w.cleared(t)
+		})
+	}
+}
+
+func TestSkillOwnerInstallHTTPUnicodeScalars(t *testing.T) {
+	for _, tc := range []struct {
+		name, escaped, decoded string
+		valid                  bool
+	}{
+		{"lone-high", `\ud800`, "", false},
+		{"lone-low", `\udfff`, "", false},
+		{"wrong-pair", `\ud800\u0041`, "", false},
+		{"two-high", `\ud800\ud800`, "", false},
+		{"pair", `\uD83D\uDE00`, "😀", true},
+		{"replacement", "�", "�", true},
+		{"escaped-replacement", `\ufffd`, "�", true},
+		{"literal-escape", `\\ud800`, `\ud800`, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			body := strings.Replace(installationBody(t), "Use the actual package.", "Use the actual package. "+tc.escaped, 1)
+			// Inspect the original typed wire value, not a re-encoded or repaired
+			// JSON value; a valid pair and literal replacement must stay exact.
+			var wire installCommandDTO
+			err := httpapi.DecodeJSON(httptest.NewRecorder(), installationRequest("/skills", body), &wire, installBodyLimit)
+			if (err == nil) != tc.valid {
+				t.Fatal("scalar acceptance changed")
+			}
+			if tc.valid && (wire.Request == nil || len(wire.Request.Source.Files) != 1 || wire.Request.Source.Files[0].Text == nil || !strings.Contains(*wire.Request.Source.Files[0].Text, "Use the actual package. "+tc.decoded+"\n")) {
+				t.Fatal("original package text changed")
+			}
+			for _, path := range []string{"/skills", "/skills/commands/lookup"} {
+				h, _, p := managementFixture()
+				w := newTestWriter()
+				want, calls := 400, 0
+				if tc.valid {
+					want, calls = 200, 1
+				}
+				if serveTest(h, installationRequest(path, body), w) || w.Code != want || p.installs+p.lookups != calls || p.lists != 0 {
+					t.Fatal("installation scalar gate or provider dispatch changed", w.Code)
+				}
+				w.cleared(t)
+			}
 		})
 	}
 }
