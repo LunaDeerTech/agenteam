@@ -12,6 +12,12 @@
 
 coordination 本轮独审指出真实 PG 方法的一项预期错误：Account `HTTPBoundary.CheckRequest` 先拒绝 `/skills/` 非规范路径，原 PG 表却期望 404。仅修 `owner_http_test.go` 该格为 400，并加入规范但未匹配 `/skills/a/b` 的 404 控制；子例/top 数保持 12/4，产品不变，纯控制的私有 Boundary 局部路由 404 不外推真实 Account。正式卡已明确该优先次序。此为未运行 PG 方法修正，不构造原产品动态 FAIL；PG 候选须从该修订重建并交未参与者复核。
 
+root 已将方法修正保存为 `1627278a`。cleanup 恢复共享锁模块与 pinned PG 镜像后，本人仅离线恢复作者 PG：candidate `47912→9a87d0` actual Wait 0/222.181s（首 UTC 02:27:05.591758、19,782,430,720B），driver `23658→1dc26a` actual Wait 0/44.131s（02:31:06.768487、17,071,521,792B），exact-list `65291→ee231f` actual Wait 0/1.055s（02:32:06.380334、18,732,617,728B），恰原四 top。固定 Go1.27.1、off/readonly/-p1、自有 GOCACHE 与共享只读 GOMODCACHE；命令及终态见本树 `output/ai/skills-owner-http/{pg-build,pg-driver-build,pg-list}-recovery01.{json,log}`。没有业务测试或网络/socket。
+
+新作者 candidate 为 `output/ai/skills-owner-http/skill-owner-http-pg-race-recovery01.test`，SHA256 `f860ba54b48e63d7d2f6f4e4e010d023cd78d91a5bcec4c8708cc29ea99c85a5`；driver 为同目录 `pg-only-skill-owner-http-driver-recovery01`，SHA256 `0e6cf0bd6fbfd28b016066f6d0bec1eb06405d913c883163f6309d63a9cdbf3c`。只读预飞 `skill_http_inputs` 可读取当前完整输入，新输出 `pg-owner-read-recovery01` 未使用。原 supervisor/selector/预算/全尾不改，等待 root 当前真实窗口释放后另授本组。
+
+coordination 新增并冻结 `tests/skills/owner_http_independent_test.go` 与 `.agent-state/skills-owner-http/independent.py`；作者 candidate 在新增前完成，不含也不宣称验证该单 top 两 sub。该独验补集由其另编 candidate、另跑精确 selector，当前运行输入集合可稳定包含该源。作者无 Go/cache writer，暂交本树 `output/ai/skills-owner-http/gocache` 给 coordination 唯一写入以复用刚恢复的热缓存，独验编译完成后交还；本域尚无真实资源。
+
 ## 已保存的原环境证据
 
 工作树 `/workspace/agenteam-skills-owner-http`，分支 `ai/skills-owner-http`，基线正式 main `3b7ed9da`。唯一作者 Runner；Git 保存与真实资源窗口由 root 负责。
