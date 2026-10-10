@@ -47,9 +47,20 @@ SOURCE_HUNKS = {
     ],
 }
 
+def schema_projection(name, source):
+    if "'^TestSkillInstallationPersistentObject$'" in source:
+        install = load('metadata_install_inverse', '.agent-state/skill-installation/entry-controls.py')
+        source = install.inverse(name, source)
+    if "'^TestAgentConfigurationSchema$'" in source:
+        schema = load('metadata_schema_inverse', '.agent-state/agent-system-integration/schema-entry-controls.py')
+        return schema.inverse(name, source)
+    return source
+
+
 def inverse(name, source):
     if name not in BASE_SHA or not isinstance(source, str):
         raise ValueError('unknown shared source')
+    source = schema_projection(name, source)
     start, end, digest = BLOCKS[name]
     if source.count(start) != 1 or source.count(end) != 1:
         raise ValueError('missing or duplicated metadata block')
@@ -87,7 +98,7 @@ class MetadataEntryControls(unittest.TestCase):
 
     def test_fixed_inverse_and_original_scopes(self):
         for name in BASE_SHA:
-            source = (ROOT / name).read_text()
+            source = schema_projection(name, (ROOT / name).read_text())
             ast.parse(source)
             restored = inverse(name, source)
             ast.parse(restored)
@@ -103,7 +114,7 @@ class MetadataEntryControls(unittest.TestCase):
             start, end, _ = BLOCKS[name]
             with self.assertRaises(ValueError):
                 inverse(name, source[source.index(start):source.index(end)] + source)
-        source = (ROOT / SUP).read_text()
+        source = schema_projection(SUP, (ROOT / SUP).read_text())
         for old, new in (
                 ('(540, 60) if root_chain', '(541, 60) if root_chain'),
                 ("('0', METADATA_ROOT)", "('1', METADATA_ROOT)"),
@@ -117,7 +128,7 @@ class MetadataEntryControls(unittest.TestCase):
         baseline = {'__file__': str(ROOT / DRIVER), '__name__': 'metadata_baseline'}
         exec(compile(inverse(DRIVER, (ROOT / DRIVER).read_text()), DRIVER, 'exec'), baseline)
         self.assertEqual(self.driver.TARGETS[SELECTOR], 'tests/projectvariable')
-        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k != SELECTOR}, baseline['TARGETS'])
+        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in self.driver.METADATA_INPUTS}, baseline['TARGETS'])
         self.assertEqual(self.sup.budgets(True), (540, 60))
         self.assertEqual(self.sup.budgets(False), (123, 3))
         for path, constant in (

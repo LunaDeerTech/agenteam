@@ -287,10 +287,9 @@ func (v *skillInstallationFixture) enterCleanup(t *testing.T) (identity.Actor, p
 	return actor, cause, scope
 }
 
-func TestSkillInstallationPersistentObject(t *testing.T) {
-	v := newSkillInstallationFixture(t)
-	actor, projectID := v.base.ownerBrowser.actor, v.project.ID
-	files, err := sc.NewTextFiles([]sc.TextFile{{Path: sc.EntryPath, UTF8Text: "---\nname: Publish guide\ndescription: Owned ordinary installation\n---\n第一段。\nKeep original bytes.\n"}, {Path: "references/note.txt", UTF8Text: "line one\r\n第二行\n"}})
+func skillInstallationPackage(t *testing.T) skill.Package {
+	t.Helper()
+	files, err := sc.NewTextFiles([]sc.TextFile{{Path: sc.EntryPath, UTF8Text: "---\nname: Publish guide\ndescription: Owned ordinary installation\n---\n第一段。\nKeep original bytes.\n"}, {Path: "references/note.txt", UTF8Text: "line one\n第二行\n"}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -298,6 +297,20 @@ func TestSkillInstallationPersistentObject(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	return pkg
+}
+
+func TestSkillInstallationPackageInput(t *testing.T) {
+	pkg := skillInstallationPackage(t)
+	if _, err := skill.NewInstallRequest(ctxFor(t), id[pc.Skill](t), pkg); err != nil {
+		t.Fatal("fixture package install input", err)
+	}
+}
+
+func TestSkillInstallationPersistentObject(t *testing.T) {
+	pkg := skillInstallationPackage(t)
+	v := newSkillInstallationFixture(t)
+	actor, projectID := v.base.ownerBrowser.actor, v.project.ID
 	expected, err := pkg.Bytes()
 	if err != nil {
 		t.Fatal(err)
