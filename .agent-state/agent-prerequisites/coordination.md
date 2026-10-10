@@ -1,12 +1,20 @@
 # Agent F1 前置关系与并行接口建议
 
+## 当前批次与活动树
+
+正式main `c413550c`已交付Model AgentRetry/00055与Loop纯请求组装；当前第五批真实Execution单轮闭环仍为WIP。合同及Loop/JSON单call、Skill首Round与环境退休源已checkpoint并获有限源码独审接受；Execution core/00056已在`ae8db710`冻结并借入组合`4a2571fb`，整体独审在途；真实fixture尚未冻结，本批0 Go/cache/native，未产生动态通过结论。六位执行者的实际tree/branch、唯一职责与检查点统一见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，不再沿下表历史分工安排写入或清理。
+
+## 前置阶段记录（历史）
+
+以下保留早期metadata交付后的前置勘察与检查边界；其“当前缺口”“下一口”及迁移未验证描述对应当时输入，后继有限交付以根current为准，不回填原FAIL或解除STOP。默认生产initializer、完整participant/F1仍不因本批WIP而获得接受。
+
 本简报区分已实现、纯检查与真实组合。Model Selection/Secret Directory metadata 同事务首链已 wholePASS 并正式进入 main `7a693cb6`；原联合 topic 保留供后继 Agent 组合/失败恢复，临时 delivery 已正常清理。Agent、References、Skills 初始化与 Mount 的必要纯检查分版本通过，00032–00036 连续迁移及 canonical Agent 创建尚无真实组合证据。默认生产 Project initializer、完整 participant 与 F1 保持未绑定。
 
 ## 正式来源与实际缺口
 
 按 [Agent F1 §2/§6/§7](../../docs/development/work-items/d10-agent-configuration.md)、[D01 Skills](../../docs/development/work-items/d01-contracts/resources-skills.md)、[D01 Tool](../../docs/development/work-items/d01-contracts/model-tool.md)及 [Registry](../../docs/architecture/tool-system/tool-definition-registry.md)推进，不能以本简报改写其门槛。
 
-| 提供方 | 现有事实 | 当前作者与最小下一口 |
+| 提供方 | 当时事实 | 当时作者与最小下一口 |
 | --- | --- | --- |
 | Model | Selection 已有限正式交付；双角色 References 已实现，6 新 top race 与两包 vet wholePASS | work_ui，`/workspace/agenteam-agent-model-prerequisites`：下一接真实 Agent 私有 writer，不以 metadata 首链代 References SQL 验证 |
 | Secret | [Directory/References 合同](../../internal/central/projectvariable/contract/secret_directory.go) 的 Directory 已有限正式交付；References 4 top/17 sub race 与两包 vet wholePASS | secret，References 两源位于 `/workspace/agenteam-agent-model-prerequisites/internal/central/projectvariable/`；原 Directory 树保留历史失败，不误作当前 References 源 |
@@ -48,6 +56,6 @@ F1 所需配置口是只读 Discover 与同 Tx Require/Apply refs 的组合：�
 
 Agent 创建的两个默认 bool 继续省略为 true、允许显式 false；显式禁用不授权缺省依赖为空，不收窄其他 capability 字段。Mount 真实目录/引用保护也仍在 F1 完整门内，不由此次 Model/Secret/Skills/Registry 准备代证。当前约 30% 是平台粗估，E01 未开始；Object runtime join、OpenAI tools 独立验收等旧 STOP 均不改变。
 
-## 本次检查边界
+## 前置阶段检查边界
 
 本次摘要更新只写既有恢复文档，未运行新 Go/PG/guard/浏览器。SecretRefs、Installer 与 Mount 检查点均已推送确认；metadata、Installer pure01 和本轮其他模块原尾均已闭合，热 cache 已归还，当前无 Go/PG/socket 在途。后继先组合连续迁移与真实提供方，再验证同 Tx canonical Agent/完整 refs/Skills assignment/Audit/outbox/receipt；不以当前纯控或 metadata 首链宣称 00032–00036 SQL、生产 F1 或完整 participant 已通过。
