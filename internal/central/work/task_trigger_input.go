@@ -175,6 +175,22 @@ func decodeTaskTriggerEvent(raw []byte) (taskTriggerEventIdentity, error) {
 	if json.Unmarshal(fields["type"], &kind) != nil {
 		return taskTriggerEventIdentity{}, fault(f.InvalidArgument)
 	}
+	var actorTag struct {
+		Type string `json:"type"`
+	}
+	var reasonTag struct {
+		ReasonCode string `json:"reason_code"`
+	}
+	if json.Unmarshal(fields["actor"], &actorTag) != nil || json.Unmarshal(fields["payload"], &reasonTag) != nil {
+		return taskTriggerEventIdentity{}, fault(f.InvalidArgument)
+	}
+	if actorTag.Type == "system" && reasonTag.ReasonCode == c.TaskLaunchFailureHistoryReason {
+		var e c.TaskFailureTaskEvent
+		if e.UnmarshalJSON(raw) != nil {
+			return taskTriggerEventIdentity{}, fault(f.InvalidArgument)
+		}
+		return taskTriggerEventIdentity{e.ID.String(), e.ProjectID, e.TaskID, e.TaskVersion, e.CreatedAt}, nil
+	}
 	switch kind {
 	case string(c.TaskEventCreated), string(c.TaskEventFieldsUpdated):
 		var e c.TaskEvent

@@ -88,7 +88,30 @@ func recordValues(t *testing.T, r *dispatchRecord) []any {
 		v := r.skippedAt.Time()
 		skipped = &v
 	}
-	return []any{r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), raw, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), string(r.status), string(r.outcome), int64(r.version), guard, gs, gst, gp, execution, r.attempts, retry, r.createdAt.Time(), r.updatedAt.Time(), busy, reason, skipped}
+	var finalAttempt *int64
+	var failureReason, failureCode *string
+	var occurred, failed *time.Time
+	if r.finalAttempt > 0 {
+		v := r.finalAttempt
+		finalAttempt = &v
+	}
+	if r.failureReason != "" {
+		v := string(r.failureReason)
+		failureReason = &v
+	}
+	if r.failureCode != "" {
+		v := string(r.failureCode)
+		failureCode = &v
+	}
+	if r.failureOccurredAt != nil {
+		v := r.failureOccurredAt.Time()
+		occurred = &v
+	}
+	if r.failedAt != nil {
+		v := r.failedAt.Time()
+		failed = &v
+	}
+	return []any{r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), raw, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), string(r.status), string(r.outcome), int64(r.version), guard, gs, gst, gp, execution, r.attempts, retry, r.createdAt.Time(), r.updatedAt.Time(), busy, reason, skipped, finalAttempt, failureReason, failureCode, occurred, failed}
 }
 
 type dispatchTestRow struct {

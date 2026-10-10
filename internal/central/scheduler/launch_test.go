@@ -11,6 +11,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -93,7 +94,7 @@ func (s *handoffTestStore) QueryRow(context.Context, string, ...any) postgres.Ro
 	return dispatchTestRow{values: recordValues(s.t, s.staged)}
 }
 func (s *handoffTestStore) Exec(ctx context.Context, query string, args ...any) (pgconn.CommandTag, error) {
-	if !strings.HasPrefix(query, "UPDATE agenteam_scheduler.dispatches SET") || len(args) != 13 || s.staged.version != f.Version(args[9].(int64)) {
+	if !strings.HasPrefix(query, "UPDATE agenteam_scheduler.dispatches SET") || len(args) != 18 || s.staged.version != f.Version(args[9].(int64)) {
 		return pgconn.CommandTag{}, errors.New("unexpected controlled update")
 	}
 	r := *s.staged
@@ -109,6 +110,23 @@ func (s *handoffTestStore) Exec(ctx context.Context, query string, args ...any) 
 	if args[12] != nil {
 		v, _ := f.NewInstant(args[12].(time.Time))
 		r.skippedAt = &v
+	}
+	if args[13] != nil {
+		r.finalAttempt = args[13].(int64)
+	}
+	if args[14] != nil {
+		r.failureReason = wc.TaskLaunchFailureReason(args[14].(string))
+	}
+	if args[15] != nil {
+		r.failureCode = f.Code(args[15].(string))
+	}
+	if args[16] != nil {
+		at, _ := f.NewInstant(args[16].(time.Time))
+		r.failureOccurredAt = &at
+	}
+	if args[17] != nil {
+		at, _ := f.NewInstant(args[17].(time.Time))
+		r.failedAt = &at
 	}
 	if args[4] != nil {
 		v, err := f.ParseID[i.Execution](args[4].(string))

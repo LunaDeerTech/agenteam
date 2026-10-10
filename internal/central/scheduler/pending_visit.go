@@ -15,6 +15,7 @@ const (
 	PendingVisitLookup   PendingVisitAction = "lookup"
 	PendingVisitLaunch   PendingVisitAction = "launch"
 	PendingVisitBusy     PendingVisitAction = "busy_compensation"
+	PendingVisitFailure  PendingVisitAction = "final_failure"
 )
 
 // Action records the attempted path, not successful mutation. On a downstream
@@ -39,6 +40,7 @@ type PendingVisitor struct {
 	authority *PendingAuthority
 	handoff   *LaunchHandoff
 	busy      *BusyCompensator
+	failure   *LaunchFailureFinalizer
 	mu        sync.Mutex
 	stopped   bool
 	calls     map[i.ProjectID]*pendingVisitCall
@@ -57,6 +59,21 @@ func NewPendingVisitor(a *PendingAuthority, handoff *LaunchHandoff, busy *BusyCo
 		return nil, fault(f.DependencyUnbound)
 	}
 	return &PendingVisitor{authority: a, handoff: handoff, busy: busy, calls: make(map[i.ProjectID]*pendingVisitCall), drained: make(chan struct{})}, nil
+}
+
+// The original constructor remains a bounded Launch/Busy visitor. This
+// immutable composition additionally binds the actual final-failure owner;
+// there is no late setter or replacement of retained Unknown ownership.
+func NewPendingVisitorWithFailure(a *PendingAuthority, handoff *LaunchHandoff, busy *BusyCompensator, failure *LaunchFailureFinalizer) (*PendingVisitor, error) {
+	s, err := NewPendingVisitor(a, handoff, busy)
+	if err != nil {
+		return nil, err
+	}
+	if failure == nil || failure.authority != a || nilPort(failure.deps.Work) || nilPort(failure.deps.Projects) {
+		return nil, fault(f.DependencyUnbound)
+	}
+	s.failure = failure
+	return s, nil
 }
 func (s *PendingVisitor) begin(ctx context.Context, p i.ProjectID) (context.Context, *pendingVisitCall, error) {
 	if ctx == nil || p.Validate() != nil {
@@ -181,11 +198,23 @@ func (s *PendingVisitor) VisitNext(ctx context.Context, p i.ProjectID, after *Di
 		if err == nil && out.Dispatch.Summary().Status == Pending {
 			out.Dispatch, err = s.busy.CompensateAgentBusy(ctx, p, id)
 		}
+	case pendingFinalFailure(r) && s.failure != nil:
+		out.Action = PendingVisitFailure
+		// First retire any original rejection-checkpoint Unknown against its
+		// now-observed durable marker. Then resolve the settlement owner's
+		// physical Unknown before permitting another Work call.
+		out.Dispatch, err = s.handoff.Lookup(ctx, p, id)
+		if err == nil {
+			out.Dispatch, err = s.failure.Lookup(ctx, p, id)
+		}
+		if err == nil && out.Dispatch.Summary().Status == Pending {
+			out.Dispatch, err = s.failure.FinalizeLaunchFailure(ctx, p, id)
+		}
 	case r.outcome == NotSent && project.Project.CurrentSprintID != nil && project.Project.CurrentSprintID.String() == r.sprint:
 		out.Action = PendingVisitLaunch
 		out.Dispatch, err = s.handoff.LaunchOnce(ctx, p, id)
 		// Other known_not_created remains pending, whether its old retry time
-		// has passed or not. Retry/final failure are not implemented here.
+		// has passed or not. Only the closed typed final marker above settles.
 	}
 	return out, err
 }

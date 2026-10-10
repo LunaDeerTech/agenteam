@@ -10,6 +10,7 @@ import (
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
 
 type DispatchIdentity struct{}
@@ -73,17 +74,21 @@ func (g ClaimGuard) valid() bool {
 // the explicit LaunchRequest projection; default nested logging is constant.
 type Dispatch struct{ data func() dispatchRecord }
 type DispatchSummary struct {
-	ID               DispatchID
-	ProjectID        i.ProjectID
-	SprintID, TaskID string
-	AgentID          i.AgentID
-	Status           Status
-	LaunchOutcome    LaunchOutcome
-	Version          f.Version
-	ExecutionID      *i.ExecutionID
-	AttemptCount     int64
-	SkipReason       string
-	SkippedAt        *f.Instant
+	ID                DispatchID
+	ProjectID         i.ProjectID
+	SprintID, TaskID  string
+	AgentID           i.AgentID
+	Status            Status
+	LaunchOutcome     LaunchOutcome
+	Version           f.Version
+	ExecutionID       *i.ExecutionID
+	AttemptCount      int64
+	SkipReason        string
+	SkippedAt         *f.Instant
+	FailureReason     wc.TaskLaunchFailureReason
+	FailureCode       f.Code
+	FailureOccurredAt *f.Instant
+	FailedAt          *f.Instant
 }
 
 func (d Dispatch) Summary() DispatchSummary {
@@ -101,7 +106,14 @@ func (d Dispatch) Summary() DispatchSummary {
 		v := *r.skippedAt
 		skipped = &v
 	}
-	return DispatchSummary{r.id, r.project, r.sprint, r.task, r.agent, r.status, r.outcome, r.version, execution, r.attempts, r.skipReason, skipped}
+	return DispatchSummary{ID: r.id, ProjectID: r.project, SprintID: r.sprint, TaskID: r.task, AgentID: r.agent, Status: r.status, LaunchOutcome: r.outcome, Version: r.version, ExecutionID: execution, AttemptCount: r.attempts, SkipReason: r.skipReason, SkippedAt: skipped, FailureReason: r.failureReason, FailureCode: r.failureCode, FailureOccurredAt: cloneInstant(r.failureOccurredAt), FailedAt: cloneInstant(r.failedAt)}
+}
+func cloneInstant(v *f.Instant) *f.Instant {
+	if v == nil {
+		return nil
+	}
+	copy := *v
+	return &copy
 }
 func (d Dispatch) LaunchRequest() (ec.LaunchRequest, error) {
 	if d.data == nil {
@@ -127,6 +139,7 @@ func snapshot(r *dispatchRecord) Dispatch {
 		t := *v.skippedAt
 		v.skippedAt = &t
 	}
+	v.failureOccurredAt, v.failedAt = cloneInstant(v.failureOccurredAt), cloneInstant(v.failedAt)
 	return Dispatch{data: func() dispatchRecord { return v }}
 }
 func (Dispatch) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "scheduler_dispatch") }
@@ -151,6 +164,11 @@ type dispatchRecord struct {
 	busyAttempt          int64
 	skipReason           string
 	skippedAt            *f.Instant
+	finalAttempt         int64
+	failureReason        wc.TaskLaunchFailureReason
+	failureCode          f.Code
+	failureOccurredAt    *f.Instant
+	failedAt             *f.Instant
 }
 
 func launchKey(id DispatchID) f.IdempotencyKey {

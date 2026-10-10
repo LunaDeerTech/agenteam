@@ -1,0 +1,96 @@
+package contract
+
+import (
+	"context"
+	"fmt"
+	"io"
+	"log/slog"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+// TaskLaunchFailureRequest identifies one original claim and send attempt.
+// Neither these fields nor a known-not-created outcome prove final failure.
+type TaskLaunchFailureRequest struct {
+	Claim           TaskClaimRequest
+	DispatchVersion f.Version
+	LaunchAttempt   int64
+}
+
+func (v TaskLaunchFailureRequest) Validate() error {
+	if v.Claim.Validate() != nil || v.DispatchVersion.Validate() != nil || v.LaunchAttempt <= 0 {
+		return invalid("", "INVALID_TASK_LAUNCH_FAILURE")
+	}
+	return nil
+}
+func (v TaskLaunchFailureRequest) Clone() TaskLaunchFailureRequest { return v }
+
+// The closed reason names a deterministic rejection of the immutable original
+// task/work policy. A Fault code, retryable flag or absent Lookup result cannot
+// establish this fact. Other unbound capabilities and lineage remain separate.
+type TaskLaunchFailureReason string
+
+const TaskLaunchFailureUnsupportedResourceConstraints TaskLaunchFailureReason = "unsupported_resource_constraints_v1"
+
+func (v TaskLaunchFailureReason) Validate() error {
+	if v != TaskLaunchFailureUnsupportedResourceConstraints {
+		return invalid("", "INVALID_TASK_LAUNCH_FAILURE_REASON")
+	}
+	return nil
+}
+
+// Facts are a callback-local projection of Scheduler's durable final marker,
+// not a bearer grant. Work compares Guard with its own immutable claim and
+// freezes the complete facts into its private plan before any write.
+type TaskLaunchFailureFacts struct {
+	Guard      TaskClaimGuard
+	Reason     TaskLaunchFailureReason
+	OccurredAt f.Instant
+}
+
+func (v TaskLaunchFailureFacts) Clone() TaskLaunchFailureFacts {
+	v.Guard = v.Guard.Clone()
+	return v
+}
+
+type TaskLaunchFailurePlan interface{ RequiredLocks() []f.LockRequest }
+
+// Changed means the new technical Blocker was actually written with the Work
+// result in the caller's still-tentative transaction. It does not imply a
+// state change if the current Task was blocked, or a known physical commit.
+// Private concrete issuer/plan/Tx evidence, not this projection, authorizes
+// the Scheduler's final compare-and-swap in the same transaction.
+type AppliedTaskLaunchFailure interface{ Changed() bool }
+
+type SchedulerTaskLaunchFailures interface {
+	DiscoverTaskLaunchFailure(context.Context, i.Actor, TaskLaunchFailureRequest) (TaskLaunchFailurePlan, error)
+	ApplyTaskLaunchFailureInTx(context.Context, f.Tx, i.Actor, TaskLaunchFailureRequest, TaskLaunchFailurePlan) (AppliedTaskLaunchFailure, error)
+	CheckTaskLaunchFailureAppliedInTx(context.Context, f.Tx, i.Actor, TaskLaunchFailureRequest, TaskLaunchFailurePlan, AppliedTaskLaunchFailure) error
+}
+
+// Scheduler must verify its live private discovery/applying call, the original
+// same-Store transaction and complete held union, exact pending Dispatch and
+// same-attempt durable final rejection. Unknown, AgentBusy and historical
+// known-not-created without the final marker never pass. The final callback
+// also binds the original Work plan and excludes only this Dispatch from its
+// own protected source group; other pending claims remain protected.
+//
+// Paused scheduling preserves confirmed-final pending without Task mutation or
+// settlement. This is not a new Launch: no free-slot, quota or current-Sprint
+// admission is inferred. Work independently rechecks the current Task's full
+// preimage and applicability, preserving user changes and rejecting a stale
+// discovery plan. These callbacks must not recurse into Work or Execution.
+type SchedulerTaskLaunchFailureAuthority interface {
+	RequireTaskLaunchFailureDiscoveryInTx(context.Context, f.Tx, i.Actor, TaskLaunchFailureRequest) (TaskLaunchFailureFacts, error)
+	RequireTaskLaunchFailureInTx(context.Context, f.Tx, i.Actor, TaskLaunchFailureRequest, TaskLaunchFailurePlan) (TaskLaunchFailureFacts, error)
+}
+
+func (TaskLaunchFailureRequest) Format(w fmt.State, _ rune) {
+	_, _ = io.WriteString(w, "task_launch_failure")
+}
+func (TaskLaunchFailureRequest) LogValue() slog.Value { return slog.StringValue("task_launch_failure") }
+func (TaskLaunchFailureFacts) Format(w fmt.State, _ rune) {
+	_, _ = io.WriteString(w, "task_launch_failure")
+}
+func (TaskLaunchFailureFacts) LogValue() slog.Value { return slog.StringValue("task_launch_failure") }
