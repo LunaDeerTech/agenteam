@@ -238,3 +238,37 @@ stop-requested 只附在被授权捕获的原 call 上，不永久封闭整个 P
 - 核心 provider 与原调用登记已实现；独立静审有限接受。首纯测试编译因测试比较非 comparable LockKey 失败，原 FAIL 保留；修为正式 Mode/CompareLockKeys 后作者 9 top / 20 sub race 实际通过。
 - 首 PG 候选 race-c 与精确 list 通过后，冻结55a6e725的1 top / 3 sub 沿上述规范 phase fixture 首次实际整轮 PASS：top9.20s、原 Go/driver/supervisor/tool Wait0，两资源/private/desc/runtime/TCP双尾与435输入一致全部闭合（76.621s，无重试）。作者动态结果不冒独立动态；独立实例已有限静审核心/方法/入口。独有 [恢复入口与结果边界](../../../.agent-state/project-variable-lifecycle/README.md) 保留原准备失败及原两资源监督协议。
 - 此提供方切片只闭本实例 ordinary+Secret 精确停止/原call退出；foreign join、cleanup、完整复合participant 与生产phaseworker仍未交付。原生产initializer unbound、Object Runtime join STOP 和本卡其它阻断不变。
+
+## 有限后继：真实单轮 Stop phase 推进
+
+本段在 Variables 本实例提供方已有限交付后实施。目标是把合法原 operation 的 `accepted→stopping`、持久 claim/fence 与一次真实提供方调用连起来；不增加后台扫描器、全量 scheduler、生产 app 绑定或整个 participant 的完成报告。首链不再用测试 SQL 推进 stopping，但完整 registry 尚未就绪时，既有 initialized Project 与 accepted operation 仍由明确的规范 fixture 建立，不能称生产 BeginArchive/Create 正向已完成。
+
+### 提供方、接口与所有权
+
+新增 Project 库 `NewLifecycleStopDriver(store, lifecycleAuthority, processes, localStep)`；同一个具体 `LifecycleAuthority` 必须与 driver 使用同 Store，当前 process 身份固定且有效。`LocalStopStep` 是构造时唯一固定的 Tx 外函数，签名为 `func(context.Context, identity.Actor, LifecycleCause, ScopeRef) error`；nil 拒绝，不提供任意逐次回调或动态名称。`Run(ctx, ProjectID, OperationID)` 只运行一轮；`Stop/Drain` 追踪原 Run 和回调实际返回。回调成功仅表示该次同步调用正常返回，绝不等于本实例所有业务工作、foreign process 或整个 participant 已停止。
+
+首消费者在同 Store 的真实装配处捕获已交付的 `ProjectCallStopper`，用原 service actor/cause/scope 调 RequestStop/InspectStop 并核报告 Matches；LocalJoined 和 PendingCalls 只作此消费者的局部观察。driver 不引入 Project 对 projectvariable 具体实现的反向依赖。跨包 opaque 提供方的 Store 归属由正式构造关系与真实接缝检查保证，不能通过反射私有 state 或同 DSN 冒充具体实例证明。
+
+唯一新增产品路径为 `internal/central/project/lifecycle_stop_round.go` 与 `lifecycle_stop_claim.go`，纯测试分别为同名 `_test.go`。原 creation recovery、Project Audit/Model facts、app、公共 UI harness、旧迁移和 Model 独占 00031 不修改；需要新增真实 integration 源或私有入口时另报精确路径，不覆盖已验 Variables 首链。
+
+### 原事实、claim 与提交边界
+
+- 使用 00013 现有 `work_claims(work_kind='lifecycle', work_id=OperationID)`，完整身份固定为 `(ProjectID, OperationID, ProcessID, AttemptID, fence)`。其 `phase=terminal` 是该 claim 尝试的执行退役事实，不是 `lifecycle_operations.state=completed` 或 participant stopped；已有 creation checkpoint 同样允许 operation 未完成而本轮 claim terminal。本切片不新增 DDL。
+- Run 从原 operation 读出 action/accepted ProjectVersion，不允许 caller 改 cause。Project EX 短 Tx 内重读 Project 当前 operation 指针、initialized/生命周期 gate、owner、原固定版本、完整 frozen manifest/digest/每项 metadata 及所有 participant 行；缺历史声明、错版本、失败或 cleanup/completed phase 均拒绝。声明匹配不冒 registry adapter 绑定；缺 provider 的完整参与者事实保留，绝不删 required 项或注册空 handler。
+- 新 claim 仅在旧 claim 缺失、原本 terminal、该 driver 已观察同 process 原 attempt 实际返回，或真实 ProcessAuthority 确认精确 foreign process 已停止时接受。死亡检查在 Tx 外；取得 Project EX 后再次核原 claim 身份，串行等待原 writer 终局，只有完全相同旧 attempt/fence 才能递增 fence。TTL、失联、取消和本机未知 attempt 均不能接管。
+- claim 与首次 `accepted→stopping`/operation.version 前进在同一原事务提交；accepted ProjectVersion、manifest 和所有 participant 完成事实不变。已 stopping 的合法重试不倒退 phase。原物理 CommitResult 为 Unknown/NotCommitted，或 caller 已取消，均不启动 localStep，Unknown 保原 attempt/cause。
+- 提交已确认后释放 Tx/锁，再以 ProjectLifecycle 服务身份调用 localStep，单次调用最多 2s 或更早 parent。同步调用超时仍等待其实际返回，不借 goroutine 超时替身释放占用。同实例每 Project 仅一轮，最多四个原活 Run；未返回即占位，其他请求明确 ResourceBusy，不无界排队。
+- 回调实际返回后才允许短 Tx 以 exact claim/fence 记录本轮 terminal；回调错误保原错误，checkpoint Unknown 保物理 Unknown。该收尾使用至多 3s 的独立取消上下文，仍由原 Run/Drain 持有并追踪；不能先释放 driver/guard 再后台补写。若终态未确认，保原 claim 与本机实际返回证据，后继仍须原 Project 锁和 exact claim 重验。Stop 仅取消；Drain 只在原回调及全部本轮事务实际返回后结束。
+- driver 从不把 LocalJoined、回调 nil、claim terminal 写成 `agent-skills-variables.stop_state=stopped`，也不进入 cleaning/archived/completed。完整复合提供方、foreign 业务调用与 Cleanup 继续 required/pending；新的 phase 能力不会解除 production initializer unbound 或 Object Runtime join STOP。
+
+### 首个真实调用与必要验证
+
+首链使用真实 Account/Project/ordinary+Secret、同 Store 与 ProjectCallStopper。在已合法 accepted 的 operation 上调用真实 driver，检查实际 SQL 仅该引擎推进 stopping；原 Variables 调用停在 BEGIN 后、Project gate 锁前，提交后才收到取消，callback/SQL/commit/原业务函数全部实际返回后局部观察才 joined。另一 Project 保持可用，所有全域 participant 不被标 stopped。fixture 只提供尚未开放的 accepted 前置，不直接写本轮 phase/claim 结果。
+
+基本纯控覆盖未确认提交/取消零提供方调用、冻结 manifest/cause/claim 错配拒绝、同 Project 双轮拒绝、Stop/Drain 不提前 join、精确 foreign proof 与原 writer 锁重验、回调错误/收尾 Unknown 原样保留。真实 PG 重点验证原 EX 屏障、确认提交后调用、原调用 held 时 claim/Drain 仍活、释放后的 exact terminal，以及旧 attempt/fence 不能覆盖新轮。foreign 业务调用缺口仍显式保留；不以 fake ProcessAuthority success 声称真实进程死亡或完整 participant 验收。该有限源冻结并受独立方法审后才申请真实资源窗口。
+
+当前四个Project源与两新PG源已实现；既有fixture只保留原LifecycleAuthority指针。首6top/2sub纯race、Project vet通过；非作者实际审发现组合checkpoint错误可回显provider error，已窄修安全包装并以新private canary定向race及vet通过，物理Unknown/原cause仍保留。修后第一次fresh容量门失败且0Go的事实保留。PG候选race-c与exact list仅一top均已通过；非作者已有限接受核心与PG方法，首次实际结果见下段。私有入口新增固定1top/3sub与3项离线方法控制，原提供方入口/共享sup/driver/预算不改；详细命令与分版本结果在既有[本域恢复说明](../../../.agent-state/project-variable-lifecycle/README.md)。本轮仍不交付生产全phase worker/完整participant完成语义。
+
+首次phase PG随后实际整体FAIL并完整退出（来源1ccbc56b，top12.07s、Go/driver/outer Wait1、两资源/private/desc/TCP双尾与439输入一致齐）。第一sub phase barrier未命中，第二sub回滚断言失败，第三fencing子例通过；不把局部通过升级成整体接受。已定位两测试hook误用Recovery的Owner筛选真实JobCause，后续仅窄修原Kind/JobType/JobID/合法Attempt身份，产品/全部断言/预算未改；完整原失败边界保留。
+
+修后candidate02 race-c/list通过，非作者已对该唯一修正实际diff有限接受。来源88adc94a的`pg-phase-02`单次1top/3sub整轮PASS（12.44s；三个子例0.47/0.10/0.21s），原Go/driver/outer Wait0，两资源/private/desc/HOST_TCP双尾与439输入一致全齐（sup85.470s，无重试）。真实引擎确认phase/claim提交后才调用同Store provider，原业务与checkpoint实际返回才退役本轮；真实rollback/冻结版本拒绝及旧fence不可覆盖均已验。此有限链不把claim terminal或LocalJoined升级为participant/operation完成，不开放生产initializer、foreign join或cleanup；原phase01 FAIL保持，动态结果为作者执行且不冒非作者动态验收。
