@@ -56,7 +56,7 @@ func (s *environmentLeaseTestStore) QueryRow(_ context.Context, q string, args .
 		if s.lease == "" {
 			return projectAuditUnitRow{err: pgx.ErrNoRows}
 		}
-		return row(s.lease, s.r.ProjectID.String(), s.r.AgentID.String(), s.r.VariableID.String(), int64(s.r.VariableVersion), int64(s.r.CredentialVersion), int64(s.r.AgentVersion), string(s.r.AttemptBinding))
+		return row(s.lease, s.r.ProjectID.String(), s.r.AgentID.String(), s.r.VariableID.String(), int64(s.r.VariableVersion), int64(s.r.CredentialVersion), int64(s.r.AgentVersion), string(s.r.AttemptBinding), false)
 	default:
 		return projectAuditUnitRow{err: errors.New("unexpected lease query")}
 	}

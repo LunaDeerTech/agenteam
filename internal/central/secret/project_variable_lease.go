@@ -160,7 +160,8 @@ func (s *ProjectVariableLeaseService) AcquireProjectVariableLeaseInTx(ctx contex
 	}
 	var lease, project, agent, variable, binding string
 	var variableVersion, credentialVersion, agentVersion int64
-	err = x.QueryRow(ctx, `SELECT lease_id::text,project_id,agent_id,variable_id::text,variable_version,credential_version,agent_version,attempt_binding FROM agenteam_secret.project_variable_execution_leases WHERE execution_id=$1 AND credential_id=$2`, r.ExecutionID.String(), r.Ref.Details().ID.String()).Scan(&lease, &project, &agent, &variable, &variableVersion, &credentialVersion, &agentVersion, &binding)
+	var released bool
+	err = x.QueryRow(ctx, `SELECT lease_id::text,project_id,agent_id,variable_id::text,variable_version,credential_version,agent_version,attempt_binding,released FROM agenteam_secret.project_variable_execution_leases WHERE execution_id=$1 AND credential_id=$2`, r.ExecutionID.String(), r.Ref.Details().ID.String()).Scan(&lease, &project, &agent, &variable, &variableVersion, &credentialVersion, &agentVersion, &binding, &released)
 	if canceled := environmentLeaseContext(ctx); canceled != nil {
 		return empty, canceled
 	}
@@ -168,6 +169,9 @@ func (s *ProjectVariableLeaseService) AcquireProjectVariableLeaseInTx(ctx contex
 		id, e := f.ParseID[sc.Lease](lease)
 		if e != nil || project != r.ProjectID.String() || agent != r.AgentID.String() || variable != r.VariableID.String() || variableVersion != int64(r.VariableVersion) || credentialVersion != int64(r.CredentialVersion) || agentVersion != int64(r.AgentVersion) || binding != string(r.AttemptBinding) {
 			return empty, failure(Conflict, f.VersionConflict, nil)
+		}
+		if released {
+			return empty, failure(Conflict, f.InvalidState, nil)
 		}
 		if err = environmentLeaseContext(ctx); err != nil {
 			return empty, err
