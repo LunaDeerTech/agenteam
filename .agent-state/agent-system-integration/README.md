@@ -223,3 +223,26 @@ python3 -B output/ai/agent-system-integration/scheduler-bounded-retry-pure-check
 python3 -B output/ai/agent-system-integration/scheduler-bounded-retry-compile-01-launcher.py
 python3 -B output/ai/agent-system-integration/scheduler-bounded-retry-launcher-01.py
 ```
+
+## Project 串行遍历与 todo 启动
+
+SOURCE `d2be346a`：pure01 精确 9 top race＋3 pkg vet、compile01/list、native01 均 wholePASS。`TestSchedulerProjectRunner` 恰 1 top/2 sub（21.96s）：真实固定排序 todo 由 runner 串行 Claim→Launch，容量拒绝不改变其余 Task；真实 Execution 已提交、association 原事务回滚形成 pending，正式 pause 时零恢复写入，resume 后原 key Lookup 关联且不重发，并验证 Stop/Drain 等待原调用退出。其他三组保持 Deferred；无 CurrentSprint/旧 Sprint 的 pending 完整性由定向纯控覆盖，本轮未以 SQL 制造该业务状态。未交付跨进程 leader、relaunch/cooldown、自动处理 blocked 或实际执行 Loop。
+
+native01 于 2026-10-10 20:40:15–20:42:02 UTC 完成，Go 147433、driver 145826、supervisor 145822、outer 145758 原 Wait0；七资源 14 次 absent，private/runtime/desc/HOST_TCP 及 outer 双尾全闭，adopted=[]。1,492 输入首尾相同，包含全部 777 compile 输入。窗口已归还；旧 FAIL、候选与输入保留。原件：`output/ai/scheduler-project-runner/combined-pure-01/result.json`、`output/ai/agent-system-integration/scheduler-project-runner-compile-01/result.json`、`output/ai/agent-system-integration/scheduler-project-runner-01-control/result.json`；原日志 `/tmp/spr01/pg-6f63c91f3d0e45ba9e89ef76bd15451a.log`。
+
+恢复沿上述 recipe（不可变来源 `git show d2be346a:.agent-state/agent-system-integration/README.md`），从 `148640b8` pure、`73387883` compile/native 原源重建；仅代入本批 SOURCE、namespace `scheduler-project-runner`、私有 root `/tmp/spr01`、selector `^TestSchedulerProjectRunner$`。sub 固定 `ordered-todo-and-serial-launch`、`paused-pending-recovery-and-join`；compile list 用 len1＋精确集合，input 冻结必须要求 compile PASS，不套旧顺序 FAIL 特例。pure 为以下 9 名及 `exact_9_top_pass`，vet 仅 `work`、`work/contract`、`scheduler`；原环境、同进程 5GiB、预算/Wait/全部资源尾不变。
+
+```python
+TOPS = {
+ 'work': ['TestSchedulerTaskReaderScopeAndEmptySprint', 'TestSchedulerTaskSnapshotOrderAndCompleteTail', 'TestSchedulerTaskReaderCurrentFacts'],
+ 'scheduler': ['TestSchedulerProjectRunnerConsumesFixedSnapshotOrder', 'TestSchedulerProjectRunnerPrioritizesHistoricalPending', 'TestSchedulerProjectRunnerRechecksScopeAndPacesSkips', 'TestSchedulerProjectRunnerSerialAdmissionAndActualJoin', 'TestSchedulerPendingVisitSelectsOnlySupportedOriginalPath', 'TestSchedulerPendingVisitRechecksPauseInOriginalWriteTransaction'],
+}
+```
+
+仅在分配的唯一窗口内顺序执行；compile/list 原全尾 PASS 后先按原 recipe 冻结一次 `scheduler-project-runner-01-inputs.json`，再启动 native，已有结果不得覆盖：
+
+```sh
+python3 -B output/ai/agent-system-integration/scheduler-project-runner-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build
+python3 -B output/ai/agent-system-integration/scheduler-project-runner-compile-01-launcher.py
+python3 -B output/ai/agent-system-integration/scheduler-project-runner-launcher-01.py
+```
