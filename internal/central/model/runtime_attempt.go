@@ -46,7 +46,9 @@ func runtimePortError(err error) error {
 	}
 	var faultValue *f.Fault
 	if errors.As(err, &faultValue) {
-		return err
+		// Preserve the original chain/Unknown attempt for explicit inspection,
+		// but do not expose an outer error string or untrusted field paths.
+		return f.NewFault(faultValue.Code.Safe(), faultValue.CommitState.Safe()).WithCause(err)
 	}
 	var modelError *mc.ModelError
 	if errors.As(err, &modelError) && modelError.Validate() == nil {
@@ -128,6 +130,12 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	if !time.Now().Before(deadline) {
 		return nil, unavailable(context.DeadlineExceeded)
 	}
+	ctx, cancelDeadline := context.WithDeadline(ctx, deadline)
+	defer func() {
+		if !transferred {
+			cancelDeadline()
+		}
+	}()
 	process, err := s.authority.state().auth.Process.CurrentProcess()
 	if err != nil {
 		return nil, runtimePortError(err)
@@ -154,9 +162,8 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 		return nil, err
 	}
 	value := uc.Invocation{ID: invocation, CallID: request.CallID, AttemptIndex: 1, Consumer: request.Consumer.Clone(), SnapshotID: request.Model.Snapshot.ID, Identity: request.Model.Snapshot.Identity, ProcessID: process, Fence: 1, Dispatch: uc.Reserved, StartedAt: at, Usage: mc.Usage{Source: mc.UnknownUsage}}
-	callCtx, cancelDeadline := context.WithDeadline(ctx, deadline)
 	cancel := func() { cancelDeadline(); stop() }
-	c := &runtimeCall{runtime: s, request: request, mode: mode, ctx: callCtx, cancel: cancel, gate: make(chan struct{}, 1), record: &runtimeRecord{binding: binding, digest: hash(raw), value: value, sequence: 1, phase: "accepted", version: 1}}
+	c := &runtimeCall{runtime: s, request: request, mode: mode, ctx: ctx, cancel: cancel, gate: make(chan struct{}, 1), record: &runtimeRecord{binding: binding, digest: hash(raw), value: value, sequence: 1, phase: "accepted", version: 1}}
 	c.gate <- struct{}{}
 	s.mu.Lock()
 	if s.stopped || !s.ready || process != s.process {
@@ -346,6 +353,7 @@ func (c *runtimeCall) close(ctx context.Context) error {
 		return err
 	}
 	defer c.leave()
+	defer func() { c.terminalPublished = true }()
 	c.mu.Lock()
 	joined := c.joined
 	c.mu.Unlock()

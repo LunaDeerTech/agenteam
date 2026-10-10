@@ -215,6 +215,9 @@ func (c *runtimeCall) finish(ctx context.Context, result *wire.Result, original 
 	if original != nil && c.err == nil {
 		c.err = runtimePortError(original)
 	}
+	if c.err != nil {
+		original = c.err
+	}
 	pending, accepted, joined := c.pending, c.accepted, c.joined
 	x, handoff, returned := c.exchange, c.handoff, c.startReturned
 	c.mu.Unlock()

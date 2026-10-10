@@ -1,6 +1,6 @@
 # D09 有限 text-only Model Runtime
 
-状态：有限 SPEC 与首 Object/Project 五路径经 cleanup 非作者有限审接受；首边界15top普通/race均实际通过。Runtime九源、00031、Secret router显式分派及输入基础test首稿已落盘，尚未编译/验证或真实调用。基线 main `04455194`，工作树 `/workspace/agenteam-model-text-runtime`、分支 `ai/model-text-runtime`。root 分配本执行者独占迁移 `00031_model_logical_calls.sql`。本卡交付一次真实 attempt 的 logical-call 服务，生产 consumer 与默认根未绑定；不宣称完整 D09、D22 或 Agent F1。
+状态：有限 SPEC 与首 Object/Project 五路径经 cleanup 非作者有限审接受；首边界15top普通/race均实际通过。Runtime九源、00031、Secret router显式分派及两基础test已落盘，首有限8top普通/race与model包vet实际wholePASS；Runtime实际源独审和真实调用尚未完成。基线 main `04455194`，工作树 `/workspace/agenteam-model-text-runtime`、分支 `ai/model-text-runtime`。root 分配本执行者独占迁移 `00031_model_logical_calls.sql`。本卡交付一次真实 attempt 的 logical-call 服务，生产 consumer 与默认根未绑定；不宣称完整 D09、D22 或 Agent F1。
 
 ## 1. 正式依据、提供方与调用方
 
@@ -155,3 +155,5 @@ Text累计按原wire上限，有界保存以形成原ModelResponse；UTF-8 offse
 首次Go前固定Go1.27.1、same-process fresh≥5GiB、私有telemetry off/去旁路、自有cache、共享只读mods/offline；先必要包unit/race/vet与fixture编译。实际PG/native须root新授窗口，原Wait/资源/私有目录/desc/TCP完整尾，失败不自动重试、不扩未变旧矩阵。
 
 首接缝 `boundary-01` 固定入口 `.agent-state/model-text-runtime/boundary-checks.py`：Object 2个CurrentProcess pure＋Project 3个新Access与10个既有AuditFacts/ObjectAudit/KnowledgeAudit，共15top，ordinary与race各实际通过。两个Go/outer实际Wait0、原组absent、无adopted子进程、runtime/组尾各双空；每阶段启动同进程fresh≥5GiB。仅内存/既有SQL doubles范围，未跑真实flock/PG/Secret/Exchange，也不包含本次在写的Runtime包。原始结果保留于任务ignored output；后续Model Go仍须新的空间预飞，不据此宣 Runtime 可用。
+
+Runtime `core-01` 固定入口 `.agent-state/model-text-runtime/core-checks.py`：7个新pure top与原Secret router兼容top共8top，ordinary/race及model包vet各实际0，三Go/outer Wait0、无adopted、runtime/原组双空，三次同进程fresh≥5GiB。只核文本输入手算摘要/上限/clone、策略拒绝零reservation、held原Consumer预检的Stop/Drain、终帧与安全默认nested输出/错误cause；没有fake正链。真实00031迁移、同Tx Usage/Secret、D04/Exchange与Unknown收敛仍需后续限定隔离联调，生产Consumer/defaultroot未绑定。
