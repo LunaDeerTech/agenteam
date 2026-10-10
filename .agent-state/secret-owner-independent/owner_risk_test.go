@@ -87,7 +87,7 @@ func TestSecretOwnerIndependentRiskComplements(t *testing.T) {
 
 		// Move a row across the keyset boundary. The old cursor must fail as a
 		// whole page; a fresh cursor must expose the new canonical order.
-		renamed := "PAGE_B"
+		renamed := "PAGE_0"
 		update := secretUpdateInput(t, vc.SecretVariableUpdateFields{Name: &renamed})
 		if _, err := v.owner.UpdateSecretVariable(ctxFor(t), fresh, meta(t, "independent-page-rename", &version), p, inputs[2].Fields().ID, update); err != nil {
 			t.Fatal("rename across page boundary", err)
@@ -98,7 +98,7 @@ func TestSecretOwnerIndependentRiskComplements(t *testing.T) {
 			t.Fatal("stale failure returned a partial Secret page")
 		}
 		current, err := v.owner.ListSecretVariables(ctxFor(t), fresh, p, f.PageRequest{Limit: 3})
-		if err != nil || len(current.Items) != 3 || current.Items[0].Fields().ID != inputs[0].Fields().ID || current.Items[1].Fields().ID != inputs[2].Fields().ID || current.Items[2].Fields().ID != inputs[1].Fields().ID || current.NextCursor != "" {
+		if err != nil || len(current.Items) != 3 || current.Items[0].Fields().ID != inputs[2].Fields().ID || current.Items[1].Fields().ID != inputs[0].Fields().ID || current.Items[2].Fields().ID != inputs[1].Fields().ID || current.NextCursor != "" {
 			t.Fatal("fresh canonical order after rename", err)
 		}
 	})

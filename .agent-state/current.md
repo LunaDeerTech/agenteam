@@ -1,6 +1,7 @@
 # D10 Secret Variable Owner Service 当前检查点
 
 - 当前阶段：库级既定六top/四组真实矩阵已按版本组合全部通过（Migration9、read6、Atomic/Concurrency10、Recovery5，共30节点）；原read01完整FAIL保留。生产/方法/入口有限独审及受影响测试返修独审已齐；正式main装配、连续26–30迁移交付与HTTP/defaultroot仍未完成，不新增默认矩阵。
+- 当前独立接续：482c5ae5产品静审无确认must-fix，复用原矩阵；只补真实keyset/generation和本域reference拒删，见[独验源码与方法](secret-owner-independent/README.md)。修后1top2sub已offline/race编译及精确list，content有限方法审接受；尚未PG，等待root独占资源窗。00026/27已与当前origin/main逐字相同，正式前缀现待00028→29→30；旧output和原日志未随环境恢复，未声称本轮重验原尾。
 - 树 `/workspace/agenteam-secret-variable-owner-service`，分支 `ai/secret-variable-owner-service`，正式基线 `ce65714aac6eb4995a43fc427a2c77e6497470a7`。root负责Git、迁移协调和实际资源窗口；本线不执行Git写操作。
 - 完整目标见[本库工作项](../docs/development/work-items/d10-secret-variable-owner-service.md)：真实Human Owner的Secret Commands/Queries、D04专用authority、单final Tx中的两域事实/安全历史恢复、共享目录兼容及库调用退出。app/HTTP/defaultroot/UI和真实Agent F1/材料使用不在本轮。
 - eb0731实际只读核31承接路径逐字等于冻结D04 b724e397：16 production、9 pure tests、00029、D04/D10两卡，加26–28三测试依赖。新树Project/Knowledge/app/Outbox相对正式ce657无差异。没有把旧D04树的Project/B02整体覆盖过来。
@@ -9,7 +10,7 @@
 - 00030由root预留本线唯一writer；先写本域SQL草案和库源，正式迁移/真实PG待有序依赖与fresh grant。不改前序SQL，不写占位迁移，不绕Migrator。
 - 唯一共享例外：`project/audit_facts.go`、`project/projectvariable_event_authority.go`的exact Secret新分支与新增helper/test；原ordinary/Knowledge/Object/lifecycle分支保留。Outbox engine、app、HTTP和默认装配禁止扩域。
 - 已复用并核AGENTS、团队流程、D10 rev2/D04卡、Go/database/security/design/test-engineering/verification技能。当前仅安全记录首片段与SQL草案，下节纯控制不代表authority/事务库完成；无自有真实资源，本线不PG/socket/network、不大编译。
-- 缓存沿既有独占 `/workspace/agenteam/output/ai/model-ui-recovery/go-build`，mod只读 `/workspace/agenteam/output/ai/model-ui-recovery/go-mod`；未来小pure使用本树private TMP、Go1.27.1/local/offline/-mod=readonly/-p1，不建GBcache，运行前核本线没有冲突编译。
+- 当前Go1.27.1位于 `/workspace/toolchains/go1.27.1`；mod只读复用root协调的 `/workspace/shared/agenteam-deps/go-mod`，独验使用本树 `output/ai/secret-owner-independent/go-build` 与private TMP，local/offline/-mod=readonly。旧树output缓存路径不可用；实际socket/PG仍由root分配窗口。
 - 31承接＋2docs已root保存77de3469，后续从schema/真实authority与安全repository分片实现；每个可恢复片段约5分钟内交checkpoint，未编译WIP如实记录。原D04与Model交付树全部冻结。
 
 ## 安全持久记录首片段与00030草案
