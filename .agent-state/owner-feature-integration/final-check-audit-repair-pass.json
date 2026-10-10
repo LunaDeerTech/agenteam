@@ -1,0 +1,87 @@
+{
+  "source": "a0d81188",
+  "command": [
+    "sh",
+    "-c",
+    "#!/bin/sh\nset -eu\ncd \"$(dirname \"$0\")/..\"\nAGENTEAM_GO=${AGENTEAM_GO:-go}\nGOTOOLCHAIN=local\nexport AGENTEAM_GO GOTOOLCHAIN\nif ! agenteam_version=$(\"$AGENTEAM_GO\" env GOVERSION); then\n  printf '%s\\n' 'Unable to execute the configured Go toolchain.' >&2\n  exit 1\nfi\nif [ \"$agenteam_version\" != 'go1.27.1' ]; then\n  printf '%s\\n' 'Go go1.27.1 is required; set AGENTEAM_GO to that binary.' >&2\n  exit 1\nfi\n\"$AGENTEAM_GO\" test ./internal/central/audit/http\n\"$AGENTEAM_GO\" test -race ./internal/central/audit/http\n",
+    "scripts/check-go.sh"
+  ],
+  "remaining": false,
+  "audit_repair": true,
+  "outer_pid": 231678,
+  "utc_start": "2026-10-10T04:58:39Z",
+  "fresh_free_bytes": 10813165568,
+  "schema_environment": {
+    "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_MODEL_CONFIGURATION_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_VARIABLE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_WORK_HTTP_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_SKILL_HTTP_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_KNOWLEDGE_HTTP_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_USAGE_SCHEMA_NODE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node"
+  },
+  "python": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "python": "3.12.14",
+    "jsonschema": "4.26.0",
+    "referencing": "0.37.0"
+  },
+  "node": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "node": "v24.19.0"
+  },
+  "removed_environment_names": [],
+  "supervisor_sha256": "4e52d7628c43391bbe184ae179097c42ed201185a703cef372bb7ad7bc9fa4e7",
+  "script_pid": 231689,
+  "terminal": 0,
+  "script_exit": 0,
+  "seconds": 107.59,
+  "status": "whole PASS for Audit HTTP ordinary and race repair",
+  "tool_session": 86755,
+  "tool_chunk": "eb96d7",
+  "outer_actual_exit": 0,
+  "helper_source": "141ad8d3",
+  "completed_stages": [
+    {
+      "command": "go test ./internal/central/audit/http",
+      "package_seconds": 29.541
+    },
+    {
+      "command": "go test -race ./internal/central/audit/http",
+      "package_seconds": 38.049
+    }
+  ],
+  "original_tail": {
+    "descendants": [
+      [],
+      []
+    ],
+    "runtime_empty": [
+      true,
+      true
+    ],
+    "tcp_empty": [
+      true,
+      true
+    ],
+    "tcp_budget_seconds": 75,
+    "diagnostic_end": {
+      "elapsed": 107.589465,
+      "kind": "diagnostic_end",
+      "last_delta": [],
+      "last_delta_count": 0,
+      "last_original_sample": {
+        "elapsed": 107.589359,
+        "sample": 334,
+        "utc_ns": 1791608427220982129
+      },
+      "samples": 334
+    }
+  },
+  "limitations": "Reuses the unchanged other 66 ordinary packages and earlier remaining vet/race/build evidence. Original full-script rounds remain FAIL; this is not a single full-script whole PASS. Default production initializer acceptance is separately blocked by canonical participant/guard requirements. No whole-repository input hash/freeze claim."
+}

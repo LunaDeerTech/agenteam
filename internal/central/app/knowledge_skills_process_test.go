@@ -24,18 +24,24 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
 )
 
-// This single composition case observes the original default-root instances.
-// It does not replace an authority, seed domain facts, expose Project Create
-// over HTTP, or certify the separately bounded Object Runtime join work.
+// This case proves default-root creation stays unbound and reads existing data.
+// A separate, test-only Project service creates that data through real ports;
+// it never replaces the default service or writes domain facts directly.
+// This does not enable production initialization, a lifecycle manifest,
+// Project Create HTTP, or the separately bounded Object Runtime join work.
 func TestKnowledgeSkillsDefaultRootComposition(t *testing.T) {
 	db := pgfixture.NewDatabase(t)
 	const origin = "https://root.example.test"
@@ -95,7 +101,7 @@ func TestKnowledgeSkillsDefaultRootComposition(t *testing.T) {
 		}
 	}
 	// The listening event synchronizes construction. These are the actual
-	// installed owners; no second service or late initializer is constructed.
+	// installed owners; the test-only Project fixture below is never installed.
 	if core == nil || owned == nil {
 		t.Fatal("default root did not retain Account and resource owners")
 	}
@@ -137,16 +143,61 @@ func TestKnowledgeSkillsDefaultRootComposition(t *testing.T) {
 	meta := func() f.CommandMeta {
 		return f.CommandMeta{RequestID: guardID[f.Request](t), IdempotencyKey: f.IdempotencyKey(guardID[struct{}](t).String())}
 	}
-	projectID := guardID[id.Project](t)
-	created, err := projects.service.CreateProject(ctx, actor, meta(), pc.CreateProjectRequest{ProjectID: projectID, Name: "root-composition", Description: "Default root initialization"})
-	check("Project Create", err)
-	if created.Validate() != nil || created.State != pc.CreationReady || created.Project == nil || created.Project.ID != projectID || created.Operation != nil {
-		t.Fatal("original Project Create did not confirm ready")
+	// A fresh default-root command must fail before any name reservation,
+	// creation, Skill or publication fact. Library positive fixtures cannot
+	// waive the production lifecycle participant gate.
+	blockedID := guardID[id.Project](t)
+	blocked, err := projects.service.CreateProject(ctx, actor, meta(), pc.CreateProjectRequest{ProjectID: blockedID, Name: "root-composition", Description: "Default initialization remains unbound"})
+	var blockedFault *f.Fault
+	if !errors.As(err, &blockedFault) || blockedFault.Code != f.DependencyUnbound || blockedFault.CommitState != f.NotCommitted || blocked.State != "" || blocked.Project != nil || blocked.Operation != nil {
+		t.Fatal("default Project Create did not reject the new target as dependency_unbound/not_committed")
 	}
-	// SQL only observes actual results. Creation must traverse its original
-	// Inspect/Initialize/DiscoverConfirmation/Confirm ports and private Audit
-	// witness; this fixture never writes initialization or readiness facts.
 	conn := db.Connect(t)
+	var projectsCount, names, creations, commands, initializations, skillRows, revisions, work, attempts, uploads, objectsCount, audits, events int
+	check("default unbound zero facts", conn.QueryRow(ctx, `SELECT
+	 (SELECT count(*) FROM agenteam_project.projects WHERE id=$1),
+	 (SELECT count(*) FROM agenteam_project.projects WHERE owner_user_id=$2 AND normalized_name='root-composition'),
+	 (SELECT count(*) FROM agenteam_project.creations WHERE project_id=$1),
+	 (SELECT count(*) FROM agenteam_project.commands WHERE project_id=$1),
+	 (SELECT count(*) FROM agenteam_skill.initializations WHERE project_id=$1),
+	 (SELECT count(*) FROM agenteam_skill.skills WHERE project_id=$1),
+	 (SELECT count(*) FROM agenteam_skill.revisions WHERE project_id=$1),
+	 (SELECT count(*) FROM agenteam_skill.work WHERE project_id=$1),
+	 (SELECT count(*) FROM agenteam_skill.object_attempts WHERE project_id=$1),
+	 (SELECT count(*) FROM agenteam_object.uploads WHERE project_id=$1),
+	 (SELECT count(*) FROM agenteam_object.objects WHERE project_id=$1),
+	 (SELECT count(*) FROM agenteam_audit.audit_records WHERE project_id=$1),
+	 (SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$1)`, blockedID.String(), actor.Details().UserID).Scan(&projectsCount, &names, &creations, &commands, &initializations, &skillRows, &revisions, &work, &attempts, &uploads, &objectsCount, &audits, &events))
+	if projectsCount+names+creations+commands+initializations+skillRows+revisions+work+attempts+uploads+objectsCount+audits+events != 0 {
+		t.Fatalf("default unbound wrote facts: project=%d name=%d creation=%d command=%d initialization=%d skill=%d revision=%d work=%d attempt=%d upload=%d object=%d audit=%d event=%d", projectsCount, names, creations, commands, initializations, skillRows, revisions, work, attempts, uploads, objectsCount, audits, events)
+	}
+	// The explicit library fixture uses the same Store, original auditor,
+	// Skill and Object services. It owns a separate Project command service
+	// with real ports, never a production binding or SQL-created ready row.
+	fixture := rootCompositionProjectFixture(t, cfg, owned, objects, skills.service)
+	fixtureWork := &projectCommandWork{service: fixture}
+	t.Cleanup(func() {
+		if !fixtureWork.Joined() {
+			if err := fixtureWork.Drain(ctx); err != nil {
+				t.Error("test-only Project fixture did not actually drain")
+			}
+		}
+	})
+	projectID := guardID[id.Project](t)
+	created, createErr := fixture.CreateProject(ctx, actor, meta(), pc.CreateProjectRequest{ProjectID: projectID, Name: "root-composition", Description: "Isolated library fixture for default-root reads"})
+	// Stop + the actual Drain precede every root read and root shutdown. A
+	// successful Create alone does not establish fixture retirement.
+	drainErr := fixtureWork.Drain(ctx)
+	check("test-only Project Create", createErr)
+	check("test-only Project fixture Drain", drainErr)
+	if !fixtureWork.Joined() {
+		t.Fatal("test-only Project fixture did not join")
+	}
+	if created.Validate() != nil || created.State != pc.CreationReady || created.Project == nil || created.Project.ID != projectID || created.Operation != nil {
+		t.Fatal("test-only Project fixture did not confirm ready")
+	}
+	// SQL only observes actual results of the isolated fixture's original
+	// Inspect/Initialize/DiscoverConfirmation/Confirm ports and Audit witness.
 	var initialized, binding bool
 	var creationState, skillPhase, skillID string
 	var revision int64
@@ -318,4 +369,57 @@ func TestKnowledgeSkillsDefaultRootComposition(t *testing.T) {
 	if processState != "stopped" {
 		t.Fatal("actual process guard did not publish stopped after producer join")
 	}
+}
+
+// rootCompositionProjectFixture is deliberately test-only. Its nil lifecycle
+// registry is permitted for this finite library fixture, never default root.
+// It starts no runtime and installs nothing into the production assembly.
+func rootCompositionProjectFixture(t *testing.T, cfg config.Config, owned *resources, objects *objectAssembly, initializer pc.ProjectSkillInitializer) *project.Service {
+	t.Helper()
+	db := owned.store()
+	store, ok := db.(interface {
+		account.Store
+		project.Store
+		outbox.Store
+	})
+	if !ok {
+		t.Fatal("test-only Project fixture requires the original shared Store")
+	}
+	accounts, err := account.NewAuthority(store, cfg.AccountKeyring())
+	if err != nil {
+		t.Fatal("test-only Account authority construction failed")
+	}
+	usage, err := createProjectUsage(cfg, db, accounts)
+	if err != nil {
+		t.Fatal("test-only Project authority construction failed")
+	}
+	owned.mu.Lock()
+	auditor := owned.auditService
+	owned.mu.Unlock()
+	if auditor == nil {
+		t.Fatal("original root auditor missing")
+	}
+	catalog := event.NewCatalog()
+	events, err := pc.RegisterProjectEvents(catalog)
+	if err != nil {
+		t.Fatal("test-only Project event registration failed")
+	}
+	processes := outboxProcessAuthority{process: objects.process, guard: objects.guard}
+	journal, err := outbox.New(store, catalog, outbox.Authorizations{
+		Producers: map[event.StableName]oc.ProducerAuthority{pc.ProjectProducer: usage.projects},
+		Projects:  usage.projects, Sessions: accounts, System: accounts,
+		Audit: auditor, Processes: processes, Cursors: cfg.CursorKeyring(),
+	})
+	if err != nil {
+		t.Fatal("test-only Project journal construction failed")
+	}
+	service, err := project.New(store, project.Dependencies{
+		Authority: usage.projects, Activity: accounts, Audit: auditor, Events: journal,
+		ProjectEvents: events, Processes: processes, Cursors: cfg.CursorKeyring(),
+		Initializer: initializer,
+	}, project.DefaultConfig())
+	if err != nil {
+		t.Fatal("test-only Project service construction failed")
+	}
+	return service
 }
