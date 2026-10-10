@@ -33,8 +33,11 @@ It neither discovers inside the final transaction nor supplies late locks.
 
 ## Fixed checks
 
-- `normal-metadata`: System and same-Project primary chat selection with its
-  advertised effort, then same-Project approval selection with nil effort.
+- `normal-metadata`: System and same-Project primary chat selection, then
+  same-Project approval selection. The formal seeds use supported text input
+  and output, false reasoning and an empty effort set; both roles use nil
+  effort. The complete returned capabilities must equal the actual formal
+  GetModel/GetProjectModel view, including all flags and optional fields.
   Every selection is combined with five independently established Secret
   cases: valid, deleted, missing, foreign Project and ordinary variable. The
   formal statuses are `valid`, `removed` and `not_in_scope`; the last three
@@ -91,7 +94,26 @@ The original list printed exactly `TestAgentConfigurationMetadata`. Logs,
 input hashes and results are rebuildable under
 `output/ai/agent-configuration-metadata/compile-01/`. The Go source is unchanged
 by this result note. Final execution closure is generated once by the entry
-owner after this note is frozen; no actual PostgreSQL body has run.
+owner after this note was frozen. These are the original compile-01 facts,
+before the real runs and fixture correction below.
 
 Source review and successful test discovery do not count as business
 acceptance. An original failure will be kept with its actual tails.
+
+## Original failure and supported-seed correction
+
+Metadata01 stopped before supervisor/Go/resources on the outer argv parsing
+error. Metadata02 remains wholeFAIL: its real top ran for 8.93s and the first
+formal System Model creation returned `CAPABILITY_UNSUPPORTED`, before any
+subtest. All original Wait/resource/private/runtime/descendant/TCP/input tails
+closed; the minimal safe result is `first-actual-result.json` beside this file.
+
+The original seed advertised `ReasoningEfforts=[medium]`, which the existing
+`modelPolicy` explicitly rejects for all protocols. The correction changes
+only the fixture's supported text/text seed, leaves effort nil for both roles,
+and compares the complete returned capabilities with the actual formal Model
+view. Production policy, permissions, the three subtests, twelve count checks
+and all execution budgets are unchanged. This Go fixture change requires a
+new candidate and input closure; compile-01 and metadata01/02 are historical
+evidence, not acceptance of the corrected source. No new build or real run
+has been performed for the correction.

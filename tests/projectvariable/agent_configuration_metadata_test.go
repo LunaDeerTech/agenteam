@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"slices"
 	"testing"
 
@@ -117,7 +118,7 @@ func (v *agentMetadataFixture) createModel(t *testing.T, system bool) mc.ModelVi
 	if err != nil {
 		t.Fatal(err)
 	}
-	created, err := v.models.CreateModel(ctxFor(t), mc.CreateModelRequest{CommandMeta: meta(), ProviderID: pid, Input: mc.ModelInput{Name: "metadata-chat", ProviderModelID: "metadata-chat", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, Reasoning: true, ReasoningEfforts: []string{"medium"}}}})
+	created, err := v.models.CreateModel(ctxFor(t), mc.CreateModelRequest{CommandMeta: meta(), ProviderID: pid, Input: mc.ModelInput{Name: "metadata-chat", ProviderModelID: "metadata-chat", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}}}})
 	if err != nil {
 		t.Fatal("formal Model create", err)
 	}
@@ -155,10 +156,6 @@ func (v *agentMetadataFixture) discover(t *testing.T, actor i.Actor, modelID mc.
 	p := agentMetadataPlan{
 		modelRequest:  mc.ConfigurationSelectionRequest{Actor: actor, ProjectID: v.project.ID, Command: command, ModelID: modelID, Purpose: purpose},
 		secretRequest: vc.SecretDirectoryRequest{Actor: actor, ProjectID: v.project.ID, Command: command, IDs: ids},
-	}
-	if purpose == mc.AgentModelConfiguration {
-		effort := "medium"
-		p.modelRequest.ReasoningEffort = &effort
 	}
 	p.modelPlan, err = v.selection.DiscoverConfigurationSelection(ctxFor(t), p.modelRequest)
 	if err != nil {
@@ -269,7 +266,7 @@ func TestAgentConfigurationMetadata(t *testing.T) {
 				if err != nil {
 					return err
 				}
-				if m.ModelID != selected.view.ID || m.ProviderID != selected.view.ProviderID || m.ModelVersion != selected.view.Version || m.ProviderVersion != 1 || !m.Scope.Equal(selected.view.Scope) || !slices.Equal(m.Capabilities.ReasoningEfforts, []string{"medium"}) {
+				if m.ModelID != selected.view.ID || m.ProviderID != selected.view.ProviderID || m.ModelVersion != selected.view.Version || m.ProviderVersion != 1 || !m.Scope.Equal(selected.view.Scope) || !reflect.DeepEqual(m.Capabilities, selected.view.Input.Capabilities) {
 					t.Error("Model facts lost exact scope/identity/version/capabilities")
 				}
 				if len(directory.Entries()) != 5 {
