@@ -9,3 +9,9 @@
 Node v24.19.0/Vitest4.1.11。两份 donor/package-lock cmp0。私有 node_modules 仅链接现主树已锁包和旧Skills同锁 go-captcha-vue2.0.7，不入 Git、不写共享；私有测试 config/cache 在本域 output，`configLoader native`。不升级/安装依赖。
 
 14web源码与记录已停写；work_ui 非作者实际源审有限接受（未自行运行控）。没有 Go/browser/PG/socket/网络进程或动态接受。下一步由 root 保存小差异，准备首真实 Account/Project/SecretHTTP 浏览器链；shared harness 与 Go fixture 须独占作者及实际资源窗口。
+
+## 真实链方法准备
+
+4新技术入口已root保存3e406c0e，现新namespace/recipe `.agent-state/secret-owner-ui/README.md`。API/组件30通过与旧6定向/type证据不重跑，14产品不再改。四测试源真root/test-onlyProjectJoin/一POST→一PATCH实际committed后502→原keyLookup→GETv2→DELETE；严格normal-only观察原尾/当前typed/DOM，原Go/7resource预算待shared接线。
+
+新 type01 58788→85c02c exit2（unknown Promise推断）保留，单类型行修后type02 88841→f52e7c exit0；PWlist90403→7d86cf exit0恰1。离线native-controls01 67254→98b21e1因控误写readonly identity；改正式leave后02 41172→a5f1f0 exit0（6模式30检查0unhandled）。日志均本域output，未Go/实际browser/PG。新控只本域方法，不重旧UI矩阵。work_ui 对四方法源已非作者只读有限接受，无确认must-fix（未复跑）；四source/newcontrol/recipe与本两记录已停写，等root保存/后继授权。

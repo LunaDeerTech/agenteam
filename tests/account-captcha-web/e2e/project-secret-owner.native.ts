@@ -210,7 +210,7 @@ export async function installSecretOwnerObservation(config: {
         failed = true;
         return Reflect.apply(original, this, args);
       }
-      const promise = Reflect.apply(original, this, args);
+      const promise = Reflect.apply(original, this, args) as Promise<any>;
       observe(
         promise,
         (value) => {

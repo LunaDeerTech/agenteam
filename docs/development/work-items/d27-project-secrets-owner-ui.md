@@ -32,3 +32,9 @@ Lookup 仅原 command、target_id、update/delete 原 expected_version；沿原 
 - 原 client/Session 受影响边界仅选择六项：Knowledge 四 GET、Project 五请求、Credential 明确五操作，以及普通 Owner active/archived 与当前401；compat01 四文件选中6项通过/165未选，session50229/chunk391505 exit0。没有重跑旧全 UI 矩阵。
 - work_ui 非作者实际审查 14 web 源有限接受，无确认 must-fix；引用作者纯控/type 结果，没有重复运行，也不将它们升级为真实浏览器或 PG 证据。
 - 当前没有实际浏览器、真实 Cookie/PG 或视觉验收。首次正常 CRUD 与一次真实提交后受控响应丢失查证方案待 root 分配 fixture/shared writer；生产 SPA publication STOP 继续保留。
+
+## 首次真实链源码准备（未运行）
+
+首四个测试入口已保存 `3e406c0e`，方法见 [本域 recipe](../../../.agent-state/secret-owner-ui/README.md)。同一真实 Owner 的 create→list/detail→已提交 PATCH 原回执完整读取并关闭后受控502→identity-only原key Lookup→current GET v2→delete；只有测试代理丢响应，不模拟回滚或补第二次 PATCH。默认根仍未绑定 Project initializer，已有数据由显式真实 ports fixture 实际 Drain 后提供。新 normal-only Secret observer 不借 Knowledge requestfailed 例外；提交值清空、材料不回显、same Request/XID/reader/Session Promise/DOM 和完整资源尾均为必要条件。
+
+离线准备：strictTS01 原推断错误 exit2，单类型注解后 type02 exit0；PW list01 exit0 恰1case。native控01 因误写 Session readonly identity exit1，改用正式 leave；修后6模式/30检查 exit0、0 unhandled。所有反控明确使用受控 Fetch/PW，无 Go 编译或实际浏览器/PG；它们不改变上文未验收边界。源码将由未参与实现者进行实际方法审，真实窗口由root另授。
