@@ -22,6 +22,11 @@ func (r *Runtime) Chat(ctx context.Context, request mc.ModelRequest) (mc.ModelRe
 	if err != nil {
 		return mc.ModelResponse{}, err
 	}
+	return c.resultJSON(ctx)
+}
+
+func (c *runtimeCall) resultJSON(ctx context.Context) (mc.ModelResponse, error) {
+	var err error
 	if err = c.enter(ctx, true); err != nil {
 		c.cancel()
 		return mc.ModelResponse{}, err
@@ -32,6 +37,9 @@ func (r *Runtime) Chat(ctx context.Context, request mc.ModelRequest) (mc.ModelRe
 	}
 	for {
 		result, callErr := c.exchange.Result(c.wireContext())
+		// Retain the actual returned wire result before any Usage/retirement
+		// transaction. Unknown recovery may confirm it, but may not refetch it.
+		c.completedJSON, c.completedJSONError = &result, callErr
 		c.wireFailure = callErr != nil
 		if err = c.finish(c.ctx, &result, callErr); err != nil {
 			return mc.ModelResponse{}, err
@@ -368,10 +376,12 @@ func (c *runtimeCall) finish(ctx context.Context, result *wire.Result, original 
 	if err != nil {
 		return err
 	}
+	// This remains an unpublished candidate until the exact final mutation
+	// and retirement are confirmed. It contains only the original wire result.
+	c.result = response
 	if err = c.persist(ctx, uc.FinalizeAction, current, consumer, plan); err != nil {
 		return err
 	}
-	c.result = response
 	if retry {
 		c.retryPending, c.retryAnnounced = true, false
 		return nil
