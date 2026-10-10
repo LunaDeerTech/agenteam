@@ -113,6 +113,11 @@ export const router = createRouter({
           component: () => import('../views/projects/ProjectHomeView.vue'),
         },
         {
+          path: 'knowledge/:document_id?',
+          name: 'project-knowledge',
+          component: () => import('../views/projects/ProjectKnowledgeView.vue'),
+        },
+        {
           path: 'settings',
           component: () => import('../views/projects/ProjectSettingsView.vue'),
           redirect: (to) => {
