@@ -36,3 +36,15 @@ python3 -B .agent-state/skills-cleanup-review/run.py --repo /workspace/agenteam-
 ## 结论限制
 
 上述事务回滚与Unknown为显式double，不是PostgreSQL/FK/驱动COMMIT证据。真实Project→Skills→D05的opaque issuer、Release/native Audit、历史32推进、原两类COMMIT Unknown、最后D05四anchor＋Skills五核心及后序Object扫描还须独立真实窗口验证。D05规模/全部lane/00028升级与EXPLAIN、完整participant/root、Object Runtime join停止项不被本审查补足。现设计仍有历史“CleanupPhase unbound／metadata口当前不存在”措辞，应在下一必要状态归位时区分当时设计与已装配但尚未组合实证的当前能力；不因此更改正式授权契约。
+
+## 真实组合测试源码续审
+
+固定输入为 Skills 树 `58073b6768f6192aa2506323b46b4a9a1d687739` 的三个新增文件 `tests/skills/lifecycle_cleanup{_fixture,,_unknown}_test.go`；结论为测试设计及源码有限接受，无本轮已确认 must-fix。这里只审未参与实现的 Skills 消费层及测试有效性，不对本人实现的 D05 上游作独立接受。作者另行修改中的两个 root 工具不在本次范围。
+
+- fixture 绑定同一真实 Store 上的 Project LifecycleAuthority、Skills Authority/Service、Object Service/backend 与真实 native Audit checker；观察器只转发原 ctx/Tx。Project 创建、ready、accepted Delete、其他 participant 的停止状态和 scheduler 进入 Cleaning 是明确的上游 SQL 前提；Skills 与 Object 的本地 Stop 必须实际返回 Stopped 后才推进此前提。没有把未绑定 ProcessGuard.Close 当作死亡证明。
+- 65 条 reader 历史由实际 OpenPackage、完整 EOF、Close 与 Joined 产生。调用前核 66 条本域 work、原 canonical reference 与零 active lease；物理完成后查实际 Deleted/cleanup completed/native Audit，并核永久零 marker 或对象实际删除。本域历史逐调用要求 66→34→2→0，保持当前 attempt 和五核心；后续 D05 元数据逐批减少 1..32 且保最后四 anchor。
+- gate 注入在真实 callback 成功后的原事务内观察 serving 关闭、Release/revocation 与清理事实，再返回 sentinel；独立事务核双方事实回滚。最终注入在原 Tx 中观察 D05 四 anchor 与 Skills 五核心均已删除，并核原 Project/Object EX 锁；回滚须恢复两域，随后真实提交和新 Service 全空重放不得再调用缺父映射的 Object。
+- 两个 Unknown 场景只覆盖 gate 与最终两域 anchor 原 COMMIT 被截留后晚转发。hook 读取实际 backend PID 并 Arm 原代理；代理截取完整原 COMMIT，关闭调用方、保留服务端连接，不伪造 CommitResult。另一连接核旧持久事实；实际 waiter 和 pg_locks 验证精确 advisory key、原 writer PID 及阻塞关系。释放后等待服务端 COMMIT 确认及 HeldJoined，才以 fresh Service 恢复；原 Unknown attempt 不被事后证据改写。
+- 失败路径的优先 cleanup 注册在 fixture 之后，先 Release，再在已 Reached 时等待 HeldJoined，之后才进入原 Skill/Object/Store drain。后创建的锁 waiter 有自己的 cancel 与实际返回等待；后创建的 fresh Service 仅发生在原代理已经实际 join 之后，因此其后进先出 drain 不会挡住 held COMMIT 的释放。
+
+本次仅静态逐源核查及只读 Git 状态，未启动 Go、PG、MinIO 或任何 socket。源检查 `40ef1e` 确认固定提交，三目标文件无浮动改动；两 top 五子仍待编译及真实完整窗口。上述源码接受不证明实际 2s 预算、SQL/FK、真实组合通过、全部历史规模、全 participant/root 或 Object Runtime join。
