@@ -50,3 +50,120 @@ python3 -B .agent-state/task-planning-recovery/pg_only_supervisor.py \
 00047及其代码、HTTP只读schema已随B32纳入并完成静审、纯检查和本次真实链。唯一新增类别为真实Work producer返回的 `unsupported_resource_constraints_v1`：同一次原同步KnownNotCreated、私有typed marker与完整原请求/attempt相符，才可持久分类并由Work原事务生成technical-blocker/历史；其它错误不推断永久失败或retry exhaustion。该有限接受不代表完整Dispatcher、生产F1或ready。
 
 native01于2026-10-10 19:23:00–19:25:06 UTC整轮通过：所有原Go/driver/supervisor/outer Wait0，七资源十四次absence、private/runtime/desc/HOST_TCP及outer双尾空，adopted为空，1460inputs首尾一致；资源与cache窗口已归还。compile01容量门前0Go/0PG的FAIL、app-pure01容量wholeFAIL以及旧Launch01 TCP wholeFAIL全部保留，不被后继补集或本轮通过改写。
+
+## Owner 技术阻塞解除组合
+
+新范围仅为 Human 一次 Transfer 原子解除真实 technical blocker 并 blocked→todo、原 key Lookup/重放，以及 caller 原 final Tx 的 late rollback；TLS 与原子性各 1 top/1 sub，共 2 top/2 sub。Scheduler retry policy 本轮只有参数/计数/身份基础检查，不是实际重试或 Dispatcher loop。48 与新测试从当前组合树编译，旧通过矩阵不重跑。
+
+SOURCE `eca3336f`：pure01 的 16 top race＋4 pkg vet wholePASS；native01 于 2026-10-10 19:48:14–19:50:01 UTC wholePASS，TLS 11.96s、原子回滚/正常恢复 10.82s。Go 99090、driver 97437、supervisor 97436、outer 97390 均原 Wait0；七资源 14 次 absent、private/runtime/desc/HOST_TCP 双尾及外层双尾全部关闭，adopted=[]。1,468 输入首尾一致，hash `7d10773b26953f68d6aa5552d26f898633e6b84ea57fb5b9c8812602a377975b`。本批进程、资源及 cache writer 已全部归还。
+
+原件保留于 `output/ai/task-unblock/combined-pure-01/result.json`、`output/ai/agent-system-integration/task-unblock-compile-01/`、`output/ai/agent-system-integration/task-unblock-01-control/result.json`；native 原日志 `/tmp/tub01/pg-c44e79a26bd64c1a8c9cf41c330f8e1c.log`。compile01 原 wholeFAIL 仍保留：compile/list 原 Wait0，只因预期 top 顺序错误；离线按数量和精确集合核原 list、候选 SHA 及原 758 输入后复用，没有重编译或新 list。候选 `task-unblock-race-01.test` 为 59,338,760 B / SHA256 `d3a58a89788475b9a1f5bc1c673944f8eccd2bfb4703944b8a0d02acfc450bc6`。
+
+从仓库根运行下段，使用已推送不可变源码重建 ignored 入口，仅替换集合、root、输出及源码 pin。设置 `AGENTEAM_TASK_UNBLOCK_SOURCE` 为 root 保存的最终组合 commit；未设置时只生成待审副本，compile/native 的原 SOURCE 门拒执行。纯检查固定 16 top/4 pkg vet。每阶段仅在资源窗口内执行，wholePASS/原尾关闭后才接下一阶段；保同进程 fresh≥5GiB、原预算/Wait/subreaper/全部双尾。生成步骤只在本轮尚未运行时使用，失败材料不覆盖。
+
+```sh
+export AGENTEAM_TASK_UNBLOCK_SOURCE=eca3336f
+python3 -B - <<'PY'
+from pathlib import Path
+import ast, os, pprint, re, subprocess
+root = Path.cwd().resolve()
+source = os.environ.get('AGENTEAM_TASK_UNBLOCK_SOURCE')
+assert source is None or re.fullmatch(r'[0-9a-f]{8,40}', source)
+selector = '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$'
+tops = {
+ 'work': ['TestTaskUnblockFrozenResolutionsAndLegacyPlans', 'TestTaskUnblockResolutionReadsRejectPartialOrStaleSets', 'TestTaskUnblockResolverWritesAndPostimage', 'TestTaskTransitionPlanBindsOriginalIntentAndPostimage', 'TestTaskLaunchFailureHistoryAndEventRemainSeparate'],
+ 'work/contract': ['TestTaskTechnicalBlockerResolvedReadKeepsSchedulerProvenance', 'TestTaskUnblockHistoryKeepsStandaloneBoundary', 'TestTaskTechnicalBlockerReadDoesNotAuthorizeHumanCreate', 'TestTaskBlockerIdentityAndType', 'TestTaskBlockerRawCapsAndAtomicDecode', 'TestTaskTransitionHistoryTypedFacts'],
+ 'work/http': ['TestWorkHTTPTechnicalBlockerReadOnly', 'TestWorkHTTPTechnicalBlockerStandardSchema'],
+ 'scheduler': ['TestSchedulerLaunchRetryPolicyRequiresExplicitValidParameters', 'TestSchedulerLaunchRetryPolicyCountsInitialAttemptAndCapsSafely', 'TestSchedulerLaunchRetryPolicyIdentityIsStableAndImmutable'],
+}
+def saved(ref, name):
+ return subprocess.check_output(['git', 'show', ref + ':.agent-state/agent-system-integration/' + name], text=True)
+def replace(text, old, new):
+ assert old in text, old
+ return text.replace(old, new)
+def put(name, text):
+ ast.parse(text)
+ path = root / 'output/ai/agent-system-integration' / name
+ path.parent.mkdir(parents=True, exist_ok=True)
+ path.write_text(text); path.chmod(0o700)
+pure = saved('148640b8', 'task-launch-failure-pure-checks.py')
+node = next(n for n in ast.parse(pure).body if isinstance(n, ast.Assign) and getattr(n.targets[0], 'id', '') == 'TOPS')
+lines = pure.splitlines(True)
+lines[node.lineno-1:node.end_lineno] = ['TOPS = ' + pprint.pformat(tops, sort_dicts=False) + '\n']
+pure = ''.join(lines)
+pure = replace(pure, "ROOT = Path('/workspace/agenteam-agent-system-integration')", 'ROOT = Path(' + repr(str(root)) + ')')
+pure = replace(pure, '"./internal/central/scheduler", "./internal/central/work", "./internal/central/work/contract", "./internal/central/project", "./internal/central/work/http"', ', '.join(repr('./internal/central/' + p) for p in tops))
+pure = replace(pure, 'output/ai/task-launch-failure/combined-pure-01', 'output/ai/task-unblock/combined-pure-01')
+pure = replace(pure, 'exact_26_top_pass', 'exact_16_top_pass')
+put('task-unblock-pure-checks.py', pure)
+build = saved('73387883', 'scheduler-failure-compile-02-launcher.py')
+build = replace(build, "SOURCE = '70d383c5'", 'SOURCE = ' + repr(source))
+build = replace(build, "ROOT = Path('/workspace/agenteam-task-flow-delivery')", 'ROOT = Path(' + repr(str(root)) + ')')
+build = replace(build, 'scheduler-failure-compile-02', 'task-unblock-compile-01')
+build = replace(build, 'scheduler-failure-race-02.test', 'task-unblock-race-01.test')
+build = replace(build, "(OUT / 'list.log').read_text().splitlines() == ['TestSchedulerLaunchFinalFailure']", "len((OUT / 'list.log').read_text().splitlines()) == 2 and set((OUT / 'list.log').read_text().splitlines()) == {'TestTaskTechnicalResolutionAtomic', 'TestTaskTechnicalResolutionHTTP'}")
+build = replace(build, '^TestSchedulerLaunchFinalFailure$', selector)
+build = replace(build, 'exact_one_top', 'exact_two_tops')
+put('task-unblock-compile-01-launcher.py', build)
+native = saved('73387883', 'scheduler-failure-launcher-01.py')
+native = replace(native, "SOURCE = '70d383c5'", 'SOURCE = ' + repr(source))
+native = replace(native, 'Fixed Scheduler failure', 'Fixed Task unblock')
+native = replace(native, 'scheduler-failure-01-inputs.json', 'task-unblock-01-inputs.json')
+put('task-unblock-launcher-01.py', native)
+print('three original-method copies prepared; no Go or resources')
+PY
+```
+
+原入口依次为：
+
+```sh
+python3 -B output/ai/agent-system-integration/task-unblock-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build
+python3 -B output/ai/agent-system-integration/task-unblock-compile-01-launcher.py
+# 编译通过后先运行下段冻结一次实际输入，再启动 native：
+python3 -B output/ai/agent-system-integration/task-unblock-launcher-01.py
+```
+
+实际输入生成仅读取候选和源码，不启动资源。native01 固定新 `/tmp/tub01`，输出已存在即停止；新轮必须另定 namespace，不复用 FAIL 目录。原 Go 6m、driver 540s、TERM 60s/KILL 3s、TCP 75s 和七资源/所有原尾不变。
+
+本轮 compile01 原 wholeFAIL 保留：compile/list 均 Wait0、输入及所有实际尾不变，仅预期 top 顺序错误。原 list 恰为 HTTP、Atomic 两项；以下以数量加精确集合离线确认并复用原候选，不改旧 runner/result，不再执行 Go/list。
+
+```sh
+python3 -B - <<'PY'
+from pathlib import Path
+import ast, hashlib, importlib.util, json, os, shutil
+root = Path.cwd().resolve(); base = root / 'output/ai/agent-system-integration'
+ns = {}
+for n in ast.parse((base/'task-unblock-launcher-01.py').read_text()).body:
+ if isinstance(n, ast.Assign) and getattr(n.targets[0], 'id', '') == 'SOURCE': ns['source'] = ast.literal_eval(n.value)
+assert ns['source'] is not None
+spec = importlib.util.spec_from_file_location('unblock_driver', root/'.agent-state/work-owner-http/root_chain_driver.py')
+d = importlib.util.module_from_spec(spec); spec.loader.exec_module(d)
+compiled = base/'task-unblock-compile-01'
+r = json.loads((compiled/'result.json').read_text()); assert r['inputs_unchanged'] and r['method_inputs_unchanged']
+listed = (compiled/'list.log').read_text().splitlines()
+assert len(listed) == 2 and set(listed) == {'TestTaskTechnicalResolutionAtomic', 'TestTaskTechnicalResolutionHTTP'}
+assert [c['name'] for c in r['commands']] == ['compile', 'list']
+assert all(c['actual_wait'] == 0 and not c.get('timeout', False) and c['group_absent_first'] and c['group_absent_second'] and not c['descendants_first'] and not c['descendants_second'] and not c['descendants_final'] and not c['survivors_before_cleanup'] and not c['adopted_waits'] and c['runtime_samples'] == [[], []] for c in r['commands'])
+assert r['result'] == 'PASS' or (r['result'] == 'FAIL' and r['source'] == 'eca3336f' and r['commands'][1]['exact_two_tops'] is False)
+selector = '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$'; binary = base/'task-unblock-race-01.test'
+inputs = {str(p): d.sha(p) for p in d.metadata_inputs(binary, selector)}
+before = json.loads((compiled/'inputs-before.json').read_text())
+assert before == json.loads((compiled/'inputs-after.json').read_text()) and all(inputs.get(k) == v for k,v in before.items())
+private = base/'task-unblock-01-toolconfig'; control = base/'task-unblock-01-control'; output = Path('/tmp/tub01')
+assert all(not p.exists() and not p.is_symlink() for p in (private, control, output))
+env = {'CGO_ENABLED':'1', 'GOCACHE':'/workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build', 'GOFLAGS':'-mod=readonly -p=2', 'GOMAXPROCS':'2', 'GOMODCACHE':'/workspace/shared/agenteam-deps/go-mod', 'GOPROXY':'off', 'GOSUMDB':'off', 'GOTELEMETRY':'off', 'GOTOOLCHAIN':'local', 'LANG':'C.UTF-8', 'LC_ALL':'C.UTF-8', 'PATH':'/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin', 'PYTHONDONTWRITEBYTECODE':'1', 'TZ':'UTC', 'XDG_CONFIG_HOME':str(private/'go-config'), 'DOCKER_CONFIG':str(private/'docker')}
+python = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12'
+command = [python, '-B', str(root/'.agent-state/task-planning-recovery/pg_only_supervisor.py'), '--driver', str(root/'.agent-state/work-owner-http/root_chain_driver.py'), '--binary', str(binary), '--run', selector, '--output', str(output), '--root-chain']
+assert shutil.which('docker', path=env['PATH']) == '/usr/local/bin/docker'
+plan = {'source_ref':ns['source'], 'selector':selector, 'command':command, 'environment':env,
+ 'removed_environment':['TEST_TELEMETRY_DIR','GO_TELEMETRY_CHILD','GO_TELEMETRY_CHILD_UPLOAD','AGENTEAM_PROJECT_LIFECYCLE_GUARD_CHILD','AGENTEAM_PG_FIXTURE','AGENTEAM_PG_UNSUPPORTED_FIXTURE','AGENTEAM_OBJECT_FIXTURE','AGENTEAM_OUTBOUND_FIXTURE'],
+ 'planned_private':str(private), 'planned_control':str(control), 'planned_output':str(output),
+ 'candidate_bytes':r['candidate']['bytes'], 'candidate_sha256':r['candidate']['sha256'], 'inputs':inputs,
+ 'input_hash':hashlib.sha256(json.dumps(inputs,sort_keys=True,separators=(',',':')).encode()).hexdigest(),
+ 'docker_preflight':{'resolved_path':'/usr/local/bin/docker','bytes':43556144,'sha256':'27f239f97492c434e091a70b41b8796c698f0aa2b6052c6f9c28da4ee7ae888b'}}
+assert inputs[str(binary)] == r['candidate']['sha256']
+fd = os.open(base/'task-unblock-01-inputs.json', os.O_WRONLY|os.O_CREAT|os.O_EXCL, 0o600)
+with os.fdopen(fd,'w') as out: json.dump(plan,out,indent=2,sort_keys=True); out.write('\n')
+print('native inputs frozen',len(inputs),'compile inputs preserved',len(before))
+PY
+```
