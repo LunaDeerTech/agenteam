@@ -301,3 +301,9 @@ Model、环境及真实空Mount提供方、版本化Platform Prompt和00053/0005
 PreparationDriver在原claim/process/fence及完整锁计划下，依次取得真实Project、Trigger、Agent、Skill、Tool、Model、Environment与Mount结果；输入固定原Launch、完整命令身份、RequestID、attempt binding、捕获时间及版本化Prompt。00054按Execution唯一身份保存规范字节、摘要和原claim完整关系，所有本域引用、Model snapshot/binding与租约和输入在同一原Tx提交。Model discovery的prepared intent允许独立保留；最终捕获缺项或失败不得留下部分输入、引用或租约。Unknown保留原调用及精确输入身份，通过原只读观察确认，不能因未查到行重发；已提交输入的重放不重新捕获当前配置或生成新attempt。
 
 本片要求正式Agent配置显式`InjectAgentsMD=false`，Mount提供方真实读取head/version并确认配置为空；默认true缺内容源、非空Mount缺运行引用或未知资源约束均明确拒绝。Tool结果按当前注册交集冻结，Agent保留未注册Tool ID不等于捕获结果缺失。输入codec仅验证封闭类型、版本、边界和各域身份关系，不代替提供方私有证明；Platform Prompt包含Knowledge按需检索及Memory recall/retain/reflect的既定职责，不声称这些工具必然可用。输入提交后Execution仍为preparing，不构成sealed Snapshot、Running或Started；实际模型请求、OpenAI tools动态STOP、完整终态/relaunch/cooldown及生产app/initializer边界保持。重跑方式和最终结果继续放在[既有组合说明](../../../.agent-state/agent-system-integration/README.md)。
+
+## 有限后继：固定输入的 Execution Context 构造
+
+`execution.NewContextBuilder`以显式Task builder组合原`PreparationInput`，不持Store、不读current配置。`work.TaskContextBuilder`先用原Work decoder校验已捕获Task输入，再按`task/work`或`task/review`添加各自版本化场景Prompt；原Task、Sprint、Milestone、blockers及有限历史字节与输入身份保持不变。`DecodeTaskContext`校验对应场景版本和内容后返回Work自有typed视图，不授予Task mutation、review启动或运行权限。
+
+`ExecutionContext`以schema 1固定原input、TriggerContext及input digest，提供封闭规范编码、显式解码与不可变副本；平台Prompt、Agent instructions与场景Prompt保持独立组件。该Build不新增DDL或持久事实，不生成最终SystemPrompt、Messages或ModelRequest，不重新解析当前Tool注册，也不写sealed Snapshot、running或Started。源码与方法已有限独审接受；来源`346003e6`的定向4 top/三包vet、compile/list及真实1 top/1 sub全部wholePASS。真实00054输入→Build→修改current后仍保持原Context已验证；原四Wait0、七资源14次absence与全部退出双尾闭合，1542输入首尾一致。结果及重跑方式沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)记录。
