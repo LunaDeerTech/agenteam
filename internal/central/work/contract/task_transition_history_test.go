@@ -270,7 +270,11 @@ func TestTaskTransitionHistoryTypedFacts(t *testing.T) {
 				if err != nil || !reflect.DeepEqual(got, v) {
 					t.Fatal("supported blocker history rejected", err)
 				}
-				for _, unbound := range []TaskBlockerType{TaskBlockerTechnical, TaskBlockerWaitingForMeetingApproval, TaskBlockerUserCancelledExecution} {
+				unboundKinds := []TaskBlockerType{TaskBlockerWaitingForMeetingApproval, TaskBlockerUserCancelledExecution}
+				if kind == TaskTransitionBlockerAdded {
+					unboundKinds = append(unboundKinds, TaskBlockerTechnical)
+				}
+				for _, unbound := range unboundKinds {
 					var fields map[string]json.RawMessage
 					if err := json.Unmarshal(raw, &fields); err != nil {
 						t.Fatal(err)
