@@ -343,6 +343,58 @@ def descendants(root):
     return result - {root}
 
 
+RUNNER_CLI_SELECTOR = '^Test(CLIScopeAndSafeFailures|RunnerRealSIGTERMAndSIGINT|RunnerAndNeutralDependencyBoundaries)$'
+
+
+def runner_cli_inputs(binary, driver):
+    repository = Path(__file__).resolve().parents[2]
+    if Path.cwd().resolve() != repository:
+        raise ValueError('Runner CLI requires the repository cwd')
+    adapter = root_adapter(repository / '.agent-state/work-owner-http/root_chain_driver.py')
+    return sorted(set(adapter.input_paths(binary)) | {
+        driver.resolve(), repository / '.agent-state/work-owner-http/native_driver.go'})
+
+
+def observe_runner_cli(directory, log, log_path):
+    good = False
+    try:
+        output = log_path.read_text()
+        record_path = directory / 'owned.json'
+        if record_path.is_symlink() or record_path.stat().st_mode & 0o777 != 0o600:
+            raise ValueError('invalid native manifest')
+        record = json.loads(record_path.read_text())
+        if (set(record) != {'kind', 'child_pid'} or record['kind'] != 'work-http-native'
+                or type(record['child_pid']) is not int or record['child_pid'] <= 0):
+            raise ValueError('invalid native child')
+        expected = {'TestCLIScopeAndSafeFailures', 'TestRunnerRealSIGTERMAndSIGINT',
+                    'TestRunnerAndNeutralDependencyBoundaries'}
+        runs = re.findall(r'^=== RUN   (Test\w+)$', output, re.M)
+        passes = re.findall(r'^--- PASS: (Test\w+) \(', output, re.M)
+        started = re.findall(r'^CHILD pid=([1-9][0-9]*) selector='
+                             + re.escape(RUNNER_CLI_SELECTOR) + r' kind=native-http$', output, re.M)
+        waited = re.findall(r'^CHILD actual_wait pid=([1-9][0-9]*) state=exit status 0$', output, re.M)
+        terminal = re.findall(r'^DRIVER terminal exit=0 elapsed=[0-9.]+s child_started=true actual_child_wait=true private_removed=true$', output, re.M)
+        runtime = re.findall(r'^NATIVE runtime_empty=true actual_child_wait=true$', output, re.M)
+        good = (len(runs) == len(passes) == 3 and set(runs) == set(passes) == expected
+                and started == waited == [str(record['child_pid'])]
+                and len(terminal) == len(runtime) == 1)
+    except (OSError, UnicodeError, ValueError, TypeError):
+        pass
+    log.write(f'RUNNER_CLI exact_tops_and_wait={good}\n')
+    repository = Path(__file__).resolve().parents[2]
+    for round in (1, 2):
+        try:
+            tmp = directory / 'tmp'
+            retired = (not tmp.exists() and not tmp.is_symlink()
+                       and not any((repository / 'tests/process').glob('.runner-process-*')))
+        except OSError:
+            retired = False
+        log.write(f'RUNNER_CLI private_observation={round} absent={retired}\n')
+        if not retired:
+            good = False
+    return good
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--driver', required=True, type=Path)
@@ -369,6 +421,9 @@ def main():
               for p in (args.driver, args.binary)}
     if adapter is not None:
         inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
+    if not args.root_chain and args.run == RUNNER_CLI_SELECTOR:
+        inputs = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
+                  for p in runner_cli_inputs(args.binary, args.driver)}
     baseline_times = {'started_ns': time.monotonic_ns()}
     baseline = tcp()
     baseline_times['ended_ns'] = time.monotonic_ns()
@@ -454,6 +509,9 @@ def main():
                 if remaining: code = 1
             if args.root_chain and not observe_root_chain(directory, log, log_path, args.run):
                 code = 1
+            if not args.root_chain and args.run == RUNNER_CLI_SELECTOR:
+                if not observe_runner_cli(directory, log, log_path):
+                    code = 1
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75

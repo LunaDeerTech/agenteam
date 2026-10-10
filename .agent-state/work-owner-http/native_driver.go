@@ -19,6 +19,8 @@ import (
 	"time"
 )
 
+const runnerCLISelector = "^Test(CLIScopeAndSafeFailures|RunnerRealSIGTERMAndSIGINT|RunnerAndNeutralDependencyBoundaries)$"
+
 func main() { os.Exit(run()) }
 
 func variableNative(selector string) bool {
@@ -34,7 +36,7 @@ func run() int {
 	binary := opts.String("test-binary", "", "frozen native race binary")
 	selector := opts.String("run", "", "one exact native top")
 	directory := opts.String("directory", "", "new task-owned directory")
-	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || !filepath.IsAbs(*binary) || !filepath.IsAbs(*directory) || (!regexp.MustCompile(`^\^TestWorkHTTPNative(?:Deadlines|KeepaliveAndEOF|WriteCloseAndConfirmationTail)\$$`).MatchString(*selector) && !variableNative(*selector)) {
+	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || !filepath.IsAbs(*binary) || !filepath.IsAbs(*directory) || (!regexp.MustCompile(`^\^TestWorkHTTPNative(?:Deadlines|KeepaliveAndEOF|WriteCloseAndConfirmationTail)\$$`).MatchString(*selector) && !variableNative(*selector) && *selector != runnerCLISelector) {
 		fmt.Fprintln(os.Stderr, "STOP exact native binary, selector and directory required")
 		return 1
 	}
@@ -53,6 +55,11 @@ func run() int {
 	defer cancel()
 	started := time.Now()
 	cmd := exec.CommandContext(ctx, *binary, "-test.v", "-test.count=1", "-test.timeout=90s", "-test.run="+*selector)
+	if *selector == runnerCLISelector {
+		// The existing process TestMain resolves its repository from ../.. and
+		// builds the default commands; the supervisor fixes this repository cwd.
+		cmd.Dir = filepath.Join("tests", "process")
+	}
 	nativeGate := "AGENTEAM_WORK_OWNER_HTTP_NATIVE"
 	if variableNative(*selector) {
 		nativeGate = "AGENTEAM_PROJECT_VARIABLE_HTTP_NATIVE"
@@ -61,11 +68,14 @@ func run() int {
 	// explicit native gate and its fresh private temporary directory.
 	for _, entry := range os.Environ() {
 		key, _, _ := strings.Cut(entry, "=")
-		if key != nativeGate && key != "TMPDIR" {
+		if key != nativeGate && key != "TMPDIR" && (*selector != runnerCLISelector || key != "GOTMPDIR") {
 			cmd.Env = append(cmd.Env, entry)
 		}
 	}
 	cmd.Env = append(cmd.Env, nativeGate+"=1", "TMPDIR="+tmp)
+	if *selector == runnerCLISelector {
+		cmd.Env = append(cmd.Env, "GOTMPDIR="+tmp)
+	}
 	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
 	if err := cmd.Start(); err != nil {
 		fmt.Fprintln(os.Stderr, "STOP native child failed to start")

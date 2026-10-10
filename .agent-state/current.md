@@ -22,7 +22,7 @@
 
 ## 新main DefaultProcesses 准备片段
 
-稳定基线85832bd9后唯一业务差异是 `tests/process/runner_control_test.go`：删旧handler-only proxy，原case构造改`newRunnerFailureTransport`，三处退休调用改`controlRetired`，其余业务全文相同。C `runner_failure_test.go` 逐字未改；hold默认false，不调用换址或持有方法，实际Close/copy/半关闭尾仍同3s。旧Default handler0不证明异步101 Body.Close完成，只是原夹具证据缺口，不作为旧14016实际泄漏归因。Skills正做未参与者窄审。
+稳定基线85832bd9后唯一业务差异是 `tests/process/runner_control_test.go`：删旧handler-only proxy，原case构造改`newRunnerFailureTransport`，三处退休调用改`controlRetired`，其余业务全文相同。C `runner_failure_test.go` 逐字未改；hold默认false，不调用换址或持有方法，实际Close/copy/半关闭尾仍同3s。旧Default handler0不证明异步101 Body.Close完成，只是原夹具证据缺口，不作为旧14016实际泄漏归因。Skills e8a67e 已独立有限接受，无 must-fix；复跑18 TCP＋config1正6负＋observer7×14控制，保留原C方法/3s/copy-close-half尾、原工具预算/input门，不代真实Default。
 
 两WIP工具仅补原exact `^TestRunnerControlDefaultProcesses$` 和作者ed709的TCP失败证据方法，不改变baseline差集、75s、Go6m/root540+60+3、资源及输入观察。`python3 -B .agent-state/runner-control-delivery/preparation-controls.py` 8e823b actual0：原18TCP控制针对实际移植源，移除明确增量后两工具旧全文相同；旧configs/input_paths相同、精确配置1正6负、原observer7格每格14资源替身观察。控制不运行main/proc/socket/PG，MinIO配置正控是明示小文件替身；真正固定MinIO由root稍后硬链接，不据替身判实际资源ready。
 
@@ -39,3 +39,13 @@ python3 -B .agent-state/task-planning-recovery/pg_only_supervisor.py --root-chai
 cwd本树；保继承PATH前置Go1.27.1，AGENTEAM_GO固定该Go，GOTOOLCHAIN=local/GOENV=off/GOWORK=off/GOPROXY=off/GOSUMDB=off/GOTELEMETRY=off，GOMAXPROCS=2，外层GOFLAGS='-mod=readonly -p=1'（原root adapter按既定p2执行）。GOCACHE/GOMODCACHE/GOTMPDIR/TMPDIR/XDG_CONFIG_HOME复用作者 `/workspace/agenteam-runner-control/output/ai/runner-control/{gocache,go-mod,tmp,tmp,go-config}`，只有本人写cache；原adapter为fixture/TestMain覆写fresh runtime。不得删除仍由新main构建消费的这些既有缓存。全程原Go6m/root540+60+3/TCP75/七资源/private/runtime/desc/input尾不变，不改TCP身份或排除tuple。
 
 当前没有本域在途命令或真实资源，源码与候选冻结待Skills窄审/保存及freshgrant；旧14016整体FAIL保留。
+
+## 最小 CLI 回归入口准备（未实际）
+
+545d2b33 后仅三个 WIP 技术路径冻结：`.agent-state/work-owner-http/native_driver.go`、`.agent-state/task-planning-recovery/pg_only_supervisor.py`、`.agent-state/runner-control-delivery/cli-controls.py`。唯一组合 selector 为 `^Test(CLIScopeAndSafeFailures|RunnerRealSIGTERMAndSIGINT|RunnerAndNeutralDependencyBoundaries)$`，复用现33,772,357B候选，不重编业务。真实 held TLS challenge 的 TERM/INT 与 callback 退休不能用 Default 在线停止或已过 blocking-stdin 强退代替；此组不是无 socket 方法。
+
+复用既有 native driver 的 Go90s/driver105、非root supervisor123+3和TCP75；exact分支设正确tests/process cwd，让原TestMain实际构建默认双cmd，TMPDIR/GOTMPDIR同owned tmp。输入复用原root adapter动态cmd源码/embed/module/固定Go闭包，并补实际native driver源码与编译driver；原Default/root/其它native入口不变。新observer验RUN/PASS恰三及原manifest同child Wait0/runtime/private成功，再双查tmp与process私目录无遗留；失败仍原desc/reap/TCP/input尾。
+
+`python3 -B .agent-state/runner-control-delivery/cli-controls.py` 的852f6d实际0：24 observer/实际main外部效果替身控制，缺失/重复/额外/Skip/坏UTF8/错Wait/manifest/private拒绝，source变更和driver失败仍到原完整尾；逆去增量两工具全文等于545d2b33，预算和Default原输入路径不变。没有启动child/socket/PG，不据替身称业务通过。三技术已交Vars独审；native小driver尚未编译，CLI真实组仍待独占freshgrant。Default候选和其业务产品字节未动，supervisor已停止写，可先按原窗口运行Default。
+
+有限正式范围沿既有107＋独验3清单；只读0d1a71核545d2b33相对main4c1恰110正式路径＋原4WIP，missing/unexpected=0。此轮CLI工具/控制也仅WIP，不进入产品提交。剩余必要实际为new-main Default和上述三回归；正式OS三格、作者/独验限定业务及11个共享pure、Vars3top24child可复用。全部实际结束后一次归位card/README/后端文档及交全局writer的tasks单行，不为准备另扩正式范围。
