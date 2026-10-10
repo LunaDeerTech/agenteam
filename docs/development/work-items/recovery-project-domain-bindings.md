@@ -272,3 +272,11 @@ stop-requested 只附在被授权捕获的原 call 上，不永久封闭整个 P
 首次phase PG随后实际整体FAIL并完整退出（来源1ccbc56b，top12.07s、Go/driver/outer Wait1、两资源/private/desc/TCP双尾与439输入一致齐）。第一sub phase barrier未命中，第二sub回滚断言失败，第三fencing子例通过；不把局部通过升级成整体接受。已定位两测试hook误用Recovery的Owner筛选真实JobCause，后续仅窄修原Kind/JobType/JobID/合法Attempt身份，产品/全部断言/预算未改；完整原失败边界保留。
 
 修后candidate02 race-c/list通过，非作者已对该唯一修正实际diff有限接受。来源88adc94a的`pg-phase-02`单次1top/3sub整轮PASS（12.44s；三个子例0.47/0.10/0.21s），原Go/driver/outer Wait0，两资源/private/desc/HOST_TCP双尾与439输入一致全齐（sup85.470s，无重试）。真实引擎确认phase/claim提交后才调用同Store provider，原业务与checkpoint实际返回才退役本轮；真实rollback/冻结版本拒绝及旧fence不可覆盖均已验。此有限链不把claim terminal或LocalJoined升级为participant/operation完成，不开放生产initializer、foreign join或cleanup；原phase01 FAIL保持，动态结果为作者执行且不冒非作者动态验收。
+
+## 有限后继：有界 Stop recovery 批次
+
+`NewLifecycleStopRecovery(store, authority, processes, localStep)` 私有持有上述同 Store、固定 process/回调的原 driver；`RunBatch(ctx, after *OperationID, limit)` 只接受 limit 1..4，最多一个活动批次，不启动后台循环。发现查询仅取 Project 当前 pointer 对应的 accepted/stopping operation，按 ID 取 limit+1；实际 Rows.Close 返回后逐项调用原 Run，全部授权、完整 manifest、claim/fence 与 EX 重验仍由原 driver 执行。
+
+结果只有 `Visited/Pending/Next`，每个已访 operation 仍计 Pending，没有 Completed。Busy 不阻止访问后项；其他错误保留，首物理 Unknown 的原 attempt/cause 不被后项错误或取消遮掉。Next 只推进至已访问边界；nil 表示本次扫描末尾，调用者下一轮必须从 nil 重扫先前 Busy/Pending，不能永久遗漏前缀。未访问任何项即失败不消费输入 cursor。ctx 失效后不启动新项；Stop 取消原批次与 driver，Drain 等原查询/Rows.Close/Run/checkpoint 实际返回，不能递归 Drain 或提前释放共享 guard。
+
+实现仅新增 `internal/central/project/lifecycle_stop_recovery.go` 与同名测试，不改迁移、Audit、app/initializer 或完整 participant 状态。两源已获非作者有限静审，7 top / 12 sub 纯控源码明确使用 SQL 边界替身。首次定向 race/vet 预飞可用 5,262,024,704 B，未达 5 GiB，故 **0 Go，测试与 vet 均未运行**；保留该原阻断，不借旧 phase PASS 代替本批检查。真实 guard 单链测试另行准备，尚未编译或实际运行；Object Runtime join STOP 与 foreign 业务 join/cleanup 缺口不变。

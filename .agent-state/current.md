@@ -1,6 +1,6 @@
 # 当前执行检查点
 
-- 工作树 `/workspace/agenteam-project-variable-lifecycle`，分支 `ai/project-variable-lifecycle`；已合入正式 main `6564c1b5`。本实例 Variables 停止切片14路径已交付，原 topic/真实材料保留。其9top/20sub纯race、3legacy回归与首PG1top/3sub整轮PASS复用；首LockKey编译FAIL与commitproxy路径FAIL不追认。
+- 工作树 `/workspace/agenteam-project-variable-lifecycle`，分支 `ai/project-variable-lifecycle`；Variables 停止切片14路径与单轮 phase 11路径分别已正式交付 main `6564c1b5` / `a028559a`，原 topic/真实材料保留。旧范围有效证据复用；首LockKey编译FAIL与commitproxy路径FAIL不追认。
 - 当前是原 recovery 卡末段的真实单轮 `accepted→stopping` driver/claim。四新Project源、两新PG源与既有fixture保留原authority指针已由root保存推送a047efa3。生产initializer仍unbound；完整registry/foreign业务join/cleanup与Object Runtime join STOP保留；callback nil、LocalJoined与claim terminal不表示operation/participant完成。
 - 新6top/2sub纯race（55656→c42f7c）与Project vet（77795→105893）在修前核心通过。非作者发现组合checkpoint错误可能回显provider error，已安全portError包装，保物理Unknown/原cause。首修后fresh容量门ca201c失败且0Go；UI退出后单privacy canary定向race+vet93546→7784ce实际0/runtime空，没有重跑原6top。
 - 首phase PG候选39670→e47133 race-c/list实际0：Go567801/list567945原Wait0，exact `TestProjectLifecycleLocalStopRound` 恰一top、源3sub，runtime空。固定candidate-phase-01/project-phase-stop.test为37,379,760 B，完整SHA和命令见既有本域README。accepted只是明确上游夹具，stopping/claim由真实引擎写；首轮phase PG已整体FAIL，见下一项。
@@ -8,5 +8,6 @@
 - 首phase实际来源1ccbc56b：session41634→d62a41整体FAIL，全尾已释放；top12.07s两FAIL一PASS、Go579413/driver578850/outer578847原Wait1，两资源双退役/private仅owned.json/desc与TCP双空/439inputs相同/STOP0。测试两处after hook误以Recovery.Owner筛真实JobCause，导致phase持有和rollback注入未命中；两过滤已窄修为真实JobCause四项身份，非作者有限接受；原产品/断言未改，不追认PASS。详细原件与安全事实在既有README。
 - 两hook修6b91f717当时push失败；修复与入口准备后来随065598c2已保存远端。入口仅PHASE_BINARY改独立candidate-phase-02，逆变原entry逐字相同。新candidate02 race-c/list83514→d45aac实际0，Go586304/list586410原Wait0、exact恰一top，37,381,608 B/SHA4dd8bdb3…1672f6a6，runtime双空。旧selector/cases/controls/预算不变，未重pure/vet；随后PG02新窗口结果见下一项。
 - 修后phasePG02 source88adc94a已1top/3sub整体PASS并原全尾释放：23908→b856e7实际0，outer/sup593810、driver593811、Go594386原Wait0；top12.44s、sup85.470s，两ID精确双退役/private仅owned.json/desc与HOSTTCP双空/439inputs相同/STOP0。同Store真实phase提交后调用、实际原call/checkpoint返回、rollback与fencing闭合，仍仅有限本轮尝试；详细完整artifact/closure与原日志路径见本域README。
-- coordination唯一写本树获授4新Project源、3PG源、私有3入口、原卡及本current；不写creation recovery、app、ProjectAudit/Model facts、共享UI harness、迁移或锁文件。00031由Model Runtime独占。全部Git由root执行。
-- 当前无本人Go/真实资源在途。固定Go1.27.1、private实际telemetryoff/去旁路、shared modules只读、自有cache、同启动fresh>=5GiB保持。phase02窗口已释放；当前源等待有限交付收敛，后继任何资源仍需root独占fresh grant，不继承旧窗口或自动重试。
+- 新有界批次两源 `lifecycle_stop_recovery.go/_test.go` 已保存 a16ddd5e 并获非作者有限静审；固定原 driver、limit1..4/current pointer、Busy后项与每轮重扫、Unknown原attempt、Stop/Drain实际尾。7top/12sub定向race+vet首次在fresh门阻断：aee4cf实际1，5,262,024,704 B<5GiB，0Go/0测试/0vet，无重试；安全结果在 `output/ai/project-variable-lifecycle/batch-pure-01/result.json`，runtime空。content 唯一准备 `tests/projectvariable/project_phase_recovery_guard_test.go`，尚未编译/真实运行，不冒完整 participant 或生产绑定。
+- coordination唯一写新Batch两源、原卡及本current；content唯一写上述新guard测试。不写creation recovery、app、ProjectAudit/Model facts、共享UI harness、迁移或锁文件。全部Git由root执行。
+- 当前无本人Go/真实资源在途。固定Go1.27.1、private实际telemetryoff/去旁路、shared modules只读、自有cache、同启动fresh>=5GiB保持；容量恢复后才可按root新安排执行本批限定检查，不继承旧PG窗口或自动重试。
