@@ -97,7 +97,7 @@ func (s *Service) ApplyProjectVariableWriteInTx(ctx context.Context, tx f.Tx, ra
 			}
 			result.Effect, result.Deleted = sc.ProjectVariableDeleted, true
 			var busy bool
-			if err = e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_secret.secret_references WHERE credential_id=$1) OR EXISTS(SELECT 1 FROM agenteam_secret.secret_leases WHERE credential_id=$1 AND NOT released)`, refID).Scan(&busy); err != nil {
+			if err = e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_secret.secret_references WHERE credential_id=$1) OR EXISTS(SELECT 1 FROM agenteam_secret.secret_leases WHERE credential_id=$1 AND NOT released) OR EXISTS(SELECT 1 FROM agenteam_secret.project_variable_execution_leases WHERE credential_id=$1)`, refID).Scan(&busy); err != nil {
 				return empty, unavailable(err)
 			}
 			if busy {
