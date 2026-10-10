@@ -312,7 +312,7 @@ from referencing.jsonschema import DRAFT202012
 diagnostic('imports.end')
 diagnostic('documents.begin')
 root=pathlib.Path(sys.argv[1]); doc=json.loads((root/'project-audit.json').read_bytes()); common=json.loads((root/'common.json').read_bytes())
-base=(root/'project-audit.json').as_uri(); registry=Registry().with_resource(base,Resource.from_contents(doc,default_specification=DRAFT202012)).with_resource((root/'common.json').as_uri(),Resource.from_contents(common,default_specification=DRAFT202012))
+base=(root/'project-audit.json').as_uri(); registry=Registry().with_resource(base,Resource.from_contents(doc,default_specification=DRAFT202012)).with_resource((root/'common.json').as_uri(),Resource.from_contents(common,default_specification=DRAFT202012)).crawl()
 diagnostic('documents.end')
 checker=FormatChecker()
 @checker.checks('date-time')
@@ -328,9 +328,13 @@ for name,schema in doc['components']['schemas'].items():
 diagnostic('vectors.read.begin')
 vectors=json.load(sys.stdin)
 diagnostic('vectors.read.end')
+validators={}
 for index,v in enumerate(vectors):
  diagnostic('vector.begin',name=v['Name'],index=index); phase=time.monotonic()
- schema={'$ref':base+'#/components/schemas/'+v['Schema']}; valid=Draft202012Validator(schema,registry=registry,format_checker=checker).is_valid(v['Body'])
+ if v['Schema'] not in validators:
+  schema={'$ref':base+'#/components/schemas/'+v['Schema']}
+  validators[v['Schema']]=Draft202012Validator(schema,registry=registry,format_checker=checker)
+ valid=validators[v['Schema']].is_valid(v['Body'])
  diagnostic('vector.end',name=v['Name'],index=index,duration=time.monotonic()-phase)
  if valid!=v['Valid']:raise SystemExit('vector disagrees: '+v['Name'])
 print('standard Draft2020-12 accepted '+str(len(vectors))+' vectors with fixed local common refs')
