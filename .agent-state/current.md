@@ -2,6 +2,10 @@
 
 ## 2026-10-10 新环境接续
 
+Recovery09已实际完整FAIL：基线3fc21d08，outer98090 exit1/185.997秒、Go33.24秒；三次归档Project刷新都返回原finished/null及同体typed archived，但最后spec744 `projectRefreshesComplete(3)` 为false，最终Work联合/schema/client/complete与Go持久后验未到。原安全投影三份均workspace_returned=1、canonical=true、workspace_published=false；原EOF/CL/reader及outer尾、Session正常fulfilled和双observer explicit零pending尾齐，单项false原因待离线真实组合定位，不能推产品发布失败。Go/driver/outer实际Wait、4adopted Wait0、七资源/private/runtime/desc/TCP双尾与inputsame齐，已交还root资源窗口。必要不可重建原件 `recovery-ninth-failure.json`；原log位于ignored output/ai/work-owner-planning-ui/pg/recovery-09.log。未retry，09原FAIL与08缺尾分别保持。
+
+09离线定位已有实际源红绿：新增真实Session+Workspace+Work组合在20364 exit1复现，Project本次readGeneration恰+1且typed archived已发布，Work同步watcher随即读取选中Milestone，使共享busy/Workspace.blocked=true；原观察器错误地用后继Work操作否定原Project发布。只在原publication布尔组合删除该跨操作blocked条件，保留原Session正常Promise之后的actual.finally释放、同identity/generation/readGeneration、严格detail及canonical尾和最终全部observer零pending。现有控制新增后继Work读持住反例，最终联合仍拒且晚尾不升级；完整57控31178 exit0/0unhandled、strictTS76380 exit0。首74924到49控后缺本机ignored implementation目录setupFAIL，补目录后完整通过。两技术源已冻结交content独立窄审；产品、Go候选、私有dist与预算未变，下一fresh运行拟recovery10，未授权自动retry。
+
 本树恢复基线 `197e7cb0`，唯一写者 `/root/work_ui`；按最新 origin/main 工作流执行，Git/全局协调文件归 root/coordination。原 recovery08 业务 FAIL 与丢失原尾保持。原 Work09 本人接受原件未在本树找到，已由本轮未参与实现的 content 独立有限静审补足：沿实际 Session actual.finally、Workspace readCurrent accept/canonicalize/finally与原 Promise、三份 Project 同体联合及两 observer 原尾核对，无 must-fix；复用原55控制，本次未跑新的控制/browser，不升级08。
 
 实际环境：Go `/workspace/toolchains/go1.27.1/bin/go` 为 go1.27.1；Node v24.19.0；`/usr/bin/chromium` 存在尚未启动。主树 web 两锁逐字相同，已离线复制独占 node_modules；首次 build exit2 发现源副本缺 go-captcha-vue。harness首次 offline npm 因 xmlchars未缓存 exit1；cleanup随后按锁联网 npm ci 实际0/85 packages，Playwright1.56.1/vue3.5.43/captcha2.0.7。按两锁相同integrity离线补 captcha后，本人 `npm run build --prefix web -- --outDir ../output/ai/work-owner-planning-ui/dist` 实际 exit0（含类型检查与正式build）。独占 dist 从当前已存源码重建，旧dist/binary14不可复用。
@@ -10,7 +14,7 @@
 
 本轮唯一码差为布局spec归档后通过现有公开“刷新项目信息”读取并严格断言archived（替换只刷新Session的pageshow）；未改产品、recovery case本体或原finished/预算。content未参与者也有限接受该两行刺激；当前布局仍未真实验。
 
-下一条只执行 `^TestAccountProjectWorkPlanningWebOriginalRecovery$`，使用新鲜recovery09 evidence/images与 `/tmp/wui-o9` 监督器目录，保留原45/120/6m/540+60预算、七资源及实际Wait/join/TCP尾。启动前fresh可用磁盘至少5GiB、当前PID/daemon/TCP与固定两PG镜像由root授窗后核实；现在无本任务Docker、PG、socket或browser。planning/read/identity既有FAIL及blockers/layouts/两个独立场景未验事实不变。
+上一条执行 `^TestAccountProjectWorkPlanningWebOriginalRecovery$` 使用新鲜recovery09 evidence/images与 `/tmp/wui-o9` 监督器目录，保留原45/120/6m/540+60预算、七资源及实际Wait/join/TCP尾。启动前fresh可用磁盘至少5GiB、当前PID/daemon/TCP与固定两PG镜像由root授窗后核实；现在无本任务Docker、PG、socket或browser。planning/read/identity既有FAIL及blockers/layouts/两个独立场景未验事实不变。
 
 跨域独审恢复点：Knowledge content HTTP 验收入口（作者树 `/workspace/agenteam-knowledge-content-http`，基线入口84b9df74及其解释器窄修）有限接受。独立 probe `.agent-state/knowledge-content-review/entry.py` 只运行 Python 文件/事件控制，不执行候选或启动 Go/PG/socket。原7d1d04以 `--expect-interpreter-gap` 明确复现实际 Schema 解释器字节或env路径变化仍被接收；该旧缺口保留。修后89b77e重取作者157控、a254f7独立16控均实际0，解释器仅PG前置/初尾身份纳入，native不强求Schema环境；原两selector、预算、Wait/资源/desc/TCP尾与旧分支不变。
 

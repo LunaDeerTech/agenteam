@@ -400,7 +400,10 @@ export async function installWorkPublicationDiagnostic({
                     context.generation === frame.entry.generation &&
                     context.readGeneration === frame.entry.readGeneration + 1 &&
                     workspace.detail.phase === "current" &&
-                    workspace.blocked.value === false &&
+                    // Work may synchronously start its own read after accept.
+                    // This Project call's fulfilled Promise already follows its
+                    // original Session owner release; final observer retirement
+                    // separately requires all observed operations to settle.
                     value?.id === row.target_id &&
                     value.owner_user_id === row.result_owner_id &&
                     value.lifecycle === row.result_lifecycle &&

@@ -90,7 +90,7 @@ process.on("unhandledRejection", (e) => unhandled.push(e));
         resolveId: (n) => (n === entry ? "\0actual" : undefined),
         load: (n) =>
           n === "\0actual"
-            ? `export {createSessionController} from '${root}/web/src/composables/useSession.ts';export {createAccountAPI} from '${root}/web/src/api/account.ts';export {createProjectOwnerAPI} from '${root}/web/src/api/project-owner.ts';export {createProjectWorkspace,projectWorkspaceKey} from '${root}/web/src/composables/useProjectWorkspace.ts';export {createApp,provide,h} from '${root}/web/node_modules/vue/dist/vue.runtime.esm-bundler.js';`
+            ? `export {createSessionController} from '${root}/web/src/composables/useSession.ts';export {createAccountAPI} from '${root}/web/src/api/account.ts';export {createProjectOwnerAPI} from '${root}/web/src/api/project-owner.ts';export {createWorkPlanningAPI} from '${root}/web/src/api/work-planning.ts';export {createProjectWorkspace,projectWorkspaceKey} from '${root}/web/src/composables/useProjectWorkspace.ts';export {createProjectWorkPlanning} from '${root}/web/src/composables/useProjectWorkPlanning.ts';export {createApp,provide,h} from '${root}/web/node_modules/vue/dist/vue.runtime.esm-bundler.js';`
             : undefined,
       },
     ],
@@ -172,7 +172,9 @@ process.on("unhandledRejection", (e) => unhandled.push(e));
   }
   async function setup(options = {}) {
     const dom = new JSDOM('<div id="app"></div>', {
-        url: "https://owned.invalid/owner/owned/tasks/explore",
+        url:
+          "https://owned.invalid/owner/owned/tasks/explore" +
+          (options.withWork ? "/milestones/" + id(11) : ""),
         runScripts: "outside-only",
       }),
       w = dom.window,
@@ -203,10 +205,43 @@ process.on("unhandledRejection", (e) => unhandled.push(e));
       requests = 0,
       lastPublic,
       lastWorkspace,
-      fetchPromise;
+      fetchPromise,
+      workspaceAtSettlement;
     const entered = defer(),
-      release = defer();
+      release = defer(),
+      workEntered = defer(),
+      workRelease = defer();
     w.fetch = (url, init) => {
+      if (
+        options.withWork &&
+        url.startsWith(`/api/v1/projects/${id(10)}/milestones`)
+      ) {
+        const milestone = {
+          id: id(11),
+          project_id: id(10),
+          title: "Actual Work selection",
+          description: "",
+          manual_rank: "8".repeat(32),
+          version: "1",
+          created_at: at,
+          updated_at: at,
+        };
+        const { description, ...summary } = milestone;
+        const response = new Response(
+          JSON.stringify(url.includes("?") ? { items: [summary] } : milestone),
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "X-Request-ID": id(92),
+            },
+          },
+        );
+        if (prepared && options.holdWork) {
+          workEntered.resolve();
+          return workRelease.promise.then(() => response);
+        }
+        return Promise.resolve(response);
+      }
       if (url === "/api/v1/session")
         return Promise.resolve(
           new Response(JSON.stringify(session), {
@@ -280,10 +315,11 @@ process.on("unhandledRejection", (e) => unhandled.push(e));
     };
     vm.runInContext(code, ctx);
     const A = w.Actual,
-      dep = Array(13).fill(undefined),
+      dep = Array(16).fill(undefined),
       fetcher = (...a) => w.fetch(...a);
     dep[0] = A.createAccountAPI(fetcher);
     dep[12] = A.createProjectOwnerAPI(fetcher);
+    if (options.withWork) dep[15] = A.createWorkPlanningAPI(fetcher);
     const auth = A.createSessionController(...dep);
     await auth.restore();
     let workspace;
@@ -300,6 +336,14 @@ process.on("unhandledRejection", (e) => unhandled.push(e));
     await drain();
     assert.equal(workspace.detail.phase, "current");
     assert.ok(workspace.currentReadContext.value);
+    const work = options.withWork
+      ? A.createProjectWorkPlanning(auth, workspace)
+      : null;
+    if (work) {
+      work.afterNavigation(w.location.pathname);
+      await drain();
+      assert.equal(work.detail.phase, "ready");
+    }
     const app = A.createApp({
       setup() {
         A.provide(A.projectWorkspaceKey, workspace);
@@ -314,7 +358,19 @@ process.on("unhandledRejection", (e) => unhandled.push(e));
       return lastPublic;
     };
     workspace.readCurrent = function (...args) {
+      const entry = workspace.currentReadContext.value;
       lastWorkspace = Reflect.apply(actualWorkspace, this, args);
+      if (options.withWork)
+        void lastWorkspace.then(() => {
+          workspaceAtSettlement = {
+            busy: auth.state.busy,
+            blocked: workspace.blocked.value,
+            context: workspace.currentReadContext.value,
+            entry,
+            phase: workspace.detail.phase,
+            project: { ...workspace.detail.project },
+          };
+        });
       return lastWorkspace;
     };
     const originalPublic = auth.projects.get,
@@ -352,10 +408,14 @@ process.on("unhandledRejection", (e) => unhandled.push(e));
       dom,
       auth,
       workspace,
+      work,
+      workspaceAtSettlement: () => workspaceAtSettlement,
       A,
       timers,
       entered,
       release,
+      workEntered,
+      workRelease,
       call,
       requests: () => requests,
       close() {
@@ -363,12 +423,71 @@ process.on("unhandledRejection", (e) => unhandled.push(e));
         w.__workNativeDiagnostic.finish();
         assert.equal(workspace.readCurrent, originalWorkspace);
         assert.equal(auth.projects.get, originalPublic);
+        work?.dispose();
         workspace.dispose();
         app.unmount();
         dom.window.close();
       },
     };
   }
+  await check(
+    "actual Work automatic reread preserves completed Project publication",
+    async () => {
+      const f = await setup({ withWork: true });
+      await f.call();
+      await drain();
+      const state = f.workspaceAtSettlement();
+      const call = f.w.__workPublicationDiagnostic
+        .snapshot()
+        .calls.find((row) => row.operation === "getProject");
+      assert.equal(state.busy, true);
+      assert.equal(state.blocked, true);
+      assert.equal(state.phase, "current");
+      assert.equal(state.project.lifecycle, "archived");
+      assert.equal(state.context.generation, state.entry.generation);
+      assert.equal(
+        state.context.readGeneration,
+        state.entry.readGeneration + 1,
+      );
+      try {
+        assert.equal(call.workspace_published, true);
+        assert.equal(
+          native.workOrdinaryConsumption(report(f.w), 1, id(100), true),
+          true,
+        );
+      } finally {
+        f.close();
+      }
+    },
+  );
+  await check(
+    "completed Project never bypasses a pending successor Work owner",
+    async () => {
+      const f = await setup({ withWork: true, holdWork: true });
+      await f.call();
+      await f.workEntered.promise;
+      await drain();
+      const call = f.w.__workPublicationDiagnostic
+        .snapshot()
+        .calls.find((row) => row.operation === "getProject");
+      assert.equal(call.workspace_published, true);
+      assert.equal(f.auth.state.busy, true);
+      const incomplete = report(f.w);
+      assert.ok(incomplete.documents[0].publication.pending_at_retirement > 0);
+      assert.equal(
+        native.workOrdinaryConsumption(incomplete, 1, id(100), true),
+        false,
+      );
+      f.workRelease.resolve();
+      await drain();
+      assert.equal(f.auth.state.busy, false);
+      assert.equal(
+        native.workOrdinaryConsumption(incomplete, 1, id(100), true),
+        false,
+      );
+      f.close();
+    },
+  );
   await check(
     "production Vue owner; original Workspace Promise; typed archived publication",
     async () => {
