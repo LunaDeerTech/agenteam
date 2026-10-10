@@ -1,6 +1,8 @@
 # D12 Human Owner 文档树管理命令 HTTP
 
-状态：五个 Human Owner 文档树命令 POST、安全 DTO 与独立 Schema 已实现，正在正式 main `3b7ed9da35844e3a367cc5e9da0cf424ab36499a` 上做有限装配。作者 pure/race 10 top、86 sub、Schema 33 向量及 vet 通过；Runner 独立产品风险控制 2 top、9 sub 通过，Vars 入口与 Skills PG/native 方法有限接受。作者真实 PG 按未变 Authority 三子、Transactions 四子与修后 Mutations＋Unknown 六子组合通过，共 4 top、13 sub；native 3 top、6 sub 整轮通过，各实际命令与资源尾完整。原 PG01 整轮 FAIL 及末门未打印分项值的边界保留，不称当前 HEAD 单次全量。独立新 Owner／旧 actor receipt 补集首轮因测试 helper 将标准 Problem title 误判为材料泄露而整轮 FAIL，原全尾完整；新 Owner B 路径尚未到达，修后独立结果与主线同包编译、最终装配审仍待，尚未正式交付。
+状态：**五个 Human Owner 文档树命令 POST、安全 DTO 与独立 Schema 已实现并完成限定独立验收**。作者 pure/race 10 top、86 sub、Schema 33 向量及 vet 通过；Runner 独立产品风险控制 2 top、9 sub 通过，Vars 入口与 Skills PG/native 方法有限接受。作者真实 PG 按未变 Authority 三子、Transactions 四子与修后 Mutations＋Unknown 六子组合通过，共 4 top、13 sub；native 3 top、6 sub 整轮通过，各实际命令与资源尾完整。
+
+正式 main `3b7ed9da35844e3a367cc5e9da0cf424ab36499a` 装配已通过同包 integration race 编译与精确发现；未参与者在该主线的真实 00001–00027 迁移前缀运行新 Owner／旧 actor receipt 补集，唯一 top 整轮 PASS。新 Owner B 的新 key 写入与 Lookup、对 A 旧 key／原 Lookup 意图的拒绝及旧 A Session 拒绝均实际到达，原 Go/driver/outer Wait、七资源双退役、private/runtime/desc、TCP 双采与 input 全尾齐。原 PG01 整轮 FAIL 及未打印分项值的边界、独立首轮因标准 Problem title 误判而 FAIL／Owner B 未到达均保留；后者仅修八行测试 helper 判据后重验，不改产品。接受按固定版本组合，不称当前 HEAD 单次全量或完整 D12。
 
 本结果直接消费已交付的 [B02 Service](d12-b02-knowledge-service.md)、[文档合同](d12-knowledge-documents-design.md)与 Account HTTP boundary，提供已有文档的改名、移动、删除范围确认与删除，以及原命令结果查证。作者基线为正式 main `ce65714aac6eb4995a43fc427a2c77e6497470a7`；装配保留主线已交付 read HTTP、Runner 与 Skills P2。创建、替换正文、上传、正文读取、下载、UI 和生产 root 不在本结果。
 
@@ -67,4 +69,4 @@ Lookup 必须同时检查正式 union、原 command、目标、Project 与相应
 3. 真实 PG/服务：正式 Account 登录、Project Owner 与 B02 构造/内容产生；验证 rename/noop/version、move/root/expected parent、防环及同 key 异义，preview 后真实改变子树使旧确认失效，delete 原子安全输出、token 到期或 key轮换后完成重放、Lookup 三态。原 SQL/event/audit/Activity 最终事实与公开响应分开核；无手种 command/receipt。
 4. 当前身份和 Unknown：真实 Session 撤销/Owner 两锁序、归档新写与原重放、同 key 两调用；实际 COMMIT ack 丢失与未提交两方向后同意图 Lookup，不把本次读的 Unknown 当作原命令确定状态。取消/锁等待必须走实际原服务和 Tx 尾。没有纯控代 PG 的结论。
 
-固定 Go1.27.1/local/offline，复用原自有 cache；作者 pure 编译及验证已完成，首次测试类型名编译失败与一次磁盘不足未启动事实保留在 current。作者 PG/native 已按上述固定输入完成；新增独立补集只在统一资源窗口修后重验。主线装配另做一次同包 integration 编译与精确发现，不重复未变的全套业务矩阵。已有 B02 固定矩阵复用，只跑新 adapter 受影响风险；未参与者完成适用独立审查与动态补集后才交付本有限能力。原四停止项、完整 D12/D08 及 Work09/Timeline 未验状态均保持。
+固定 Go1.27.1/local/offline，复用已有 cache。作者与未参与者的上述 pure、原生 HTTP、PG 权限/事务/Unknown 和新主线独立补集已完成，原命令与各自资源尾实际闭合；首次测试类型名编译失败、磁盘不足未启动以及两次真实失败均保留。主线同包 integration 编译和精确发现已完成，已有 B02/read HTTP 及未变作者矩阵按固定输入复用，不冒主线所有业务单次重跑。此有限结果无迁移、不绑定默认 root；原四停止项与完整 D12/D08 未完成状态保持。
