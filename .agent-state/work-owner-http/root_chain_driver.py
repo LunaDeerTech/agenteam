@@ -16,6 +16,7 @@ GO = Path('/workspace/toolchains/go1.27.1/bin/go')
 MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
+    '^TestAgentConfigurationSchema$': 'tests/projectvariable',
     '^TestAgentConfigurationMetadata$': 'tests/projectvariable',
     '^TestProjectLifecycleStopBatchRealGuard$': 'tests/projectvariable',
     '^TestModelTextRuntimePersistentWire$': 'tests/model',
@@ -77,7 +78,9 @@ def input_paths(binary):
     return sorted(paths)
 
 
-def metadata_inputs(binary):
+def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
+    if selector not in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$'):
+        raise ValueError('exact configuration family selector required')
     # Include the compiled package's complete fixtures and the original shared
     # support, not just the new top or the unrelated Model test package.
     paths = set(input_paths(binary)) | set((REPOSITORY / 'tests/projectvariable').glob('*.go'))
@@ -86,10 +89,17 @@ def metadata_inputs(binary):
     paths.update(p for p in (REPOSITORY / 'internal').rglob('*') if p.is_file())
     paths.update((REPOSITORY / 'tests/testsupport').rglob('*.go'))
     paths.update((REPOSITORY / '.agent-state/project-variables-independent/commitproxy').glob('*.go'))
-    paths.update(REPOSITORY / name for name in (
-        'tests/projectvariable/agent_configuration_metadata_test.go',
-        '.agent-state/agent-configuration-metadata/README.md',
-        '.agent-state/agent-configuration-metadata/metadata-entry-controls.py'))
+    if selector == '^TestAgentConfigurationSchema$':
+        # Runtime/compiled source only. Task records and pure controls do not
+        # alter this run's inputs or force another candidate build.
+        paths.update(REPOSITORY / name for name in (
+            'tests/projectvariable/agent_configuration_schema_test.go',
+            'tests/testsupport/agentconfiguration/assembly.go'))
+    else:
+        paths.update(REPOSITORY / name for name in (
+            'tests/projectvariable/agent_configuration_metadata_test.go',
+            '.agent-state/agent-configuration-metadata/README.md',
+            '.agent-state/agent-configuration-metadata/metadata-entry-controls.py'))
     if any(not p.is_file() or p.is_symlink() or p.resolve(strict=True) != p for p in paths):
         raise ValueError('regular complete configuration metadata inputs required')
     return sorted(paths)
@@ -306,7 +316,7 @@ def main():
                 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime)})
     if args.run == '^TestSkillLifecycleCleanupHistoricalAttempts$':
         prepare_history_go_environment(directory, env)
-    if args.run == '^TestAgentConfigurationMetadata$':
+    if args.run in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$'):
         env.pop('AGENTEAM_PROJECT_LIFECYCLE_GUARD_CHILD', None)
         prepare_history_go_environment(directory, env)
     if args.run == '^TestProjectLifecycleStopBatchRealGuard$':
