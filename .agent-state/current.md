@@ -1,5 +1,10 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- pending/cause首形状被Runner发现原current仍published/ungated却已有gated cleanup的不可达组合；按真实 `gateAttempt` 原子规则窄修current为cleanup_gate=true／abandoned，两个非终局恰满足每command≤2/global64，当前closed且不late的首次ProjectDeleted采用delete mode；原65history/worker/fence/cause排序和生产源码不改。当前只静态修正，待Runner差异复核，不将旧形状称合法或PG通过。
+
+- 最后一项已知查询来源缺口现有新完整source `metadata_cleanup_pending_cost_test.go`／内嵌 `testdata/metadata_cleanup_pending_cost.sql`：沿原observer仅追加原finalization最早cause SQL捕获，不造行/替权限；真实小Service触发原Delete，另一成本库才保65cleaned旧attempt＋1closed abandoned applying＋已gated/abandoned current。核原31+31 gate union去重、physical pending、原Stop applying worker/fence（joined错fence仍pending、精确fence才停止SQL pending而物理仍未完成），同时测 `ORDER BY created_at,id LIMIT 1`原cause/缺失范围，较小current cleanup ID含不同的较晚ProjectDeleted cause使错排序可辨。原历史/外域数据全在场，SQL join/markedAudit绝不是native/权限证明；4543dc仅gofmt/diffcheck0，未编译/SQL/计划，待独立方法审。
+- final-anchor两源已保存6bba96da并获Work7379e3/a7a214有限静态方法接受：完整1001外域Artifact/Upload/current/reference/releasedwriter背景，三坏序父DELETE真实23503/rollback，原last4 DELETE/延期queue与原2s rollback方法；source-only，尚未执行。live容量修复已Work1c772d/615bd7有限接受（原全Store32遗漏保留），新三top均不属于5c7c旧三cost候选，没有新增入口或真实运行。后继编译依root磁盘门排队，旧history/三cost产品/方法/candidate保持原来源。
+
 - 新live成本两源 `metadata_cleanup_live_cost_test.go`／`testdata/metadata_cleanup_live_cost.sql` 在65a51922保存后由Runner发现真实Issue全Store32容量门：原33PUT+33GET虽满足attempt配额，仍超transfer容量。原静审不能关闭该缺口；当前窄修为**16PUT+16GET**，17非终局attempt、每command最多2，保PUT1 source已退/nativewriter活与PUT2 source活、33active grant及1001+10001 revoked历史。新增按真实Issue谓词核32outstanding（PUT retired但stage未cleaned仍占额；GET retired后16），不用仅active lease计数。70f2a9 gofmt/diffcheck0，待Work窄复核；没有编译/SQL/PG，新top未入任何candidate/入口，不外推旧5c7c。
 - 新live方法此前Work7d216d/c2d5cc/f11456/f8bcc7仅有限静核：真实Service取得6Stop＋7Object SQL，另一成本库测原Archive/Delete/first-after/empty、原2s返回/Rows尾；revoked+started-only即使work已joined仍pending，checkpoint+joined只使SQL pending=false且phase仍started，不冒native witness/真正I/O/Audit。此次容量修复以上述真实约束优先；旧三cost source与candidate不变。
 - 三cost入口已Work43090→30f30a有限独审接受：复用原controls、实际supervisor main正常＋三个embed SQL各自中途被改最终拒绝＋旧history不调用新closure，原Wait/TCP/input尾到达；无Go/PG/socket或真实子进程。三cost真实窗口尚未启动。

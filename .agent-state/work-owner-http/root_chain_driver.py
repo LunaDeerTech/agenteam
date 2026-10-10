@@ -16,6 +16,7 @@ GO = Path('/workspace/toolchains/go1.27.1/bin/go')
 MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
+    '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans)$': 'tests/objects',
     '^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$': 'tests/objects',
     '^TestObjectMetadataCleanupOldAttemptsAndStopHistory$': 'tests/objects',
     '^TestObjectMetadataCleanupIndexMigration$': 'tests/objects',
@@ -63,6 +64,17 @@ def metadata_cost_inputs():
     for name in ('metadata_cleanup_project_cost.sql',
                  'metadata_cleanup_skill_cost.sql',
                  'metadata_cleanup_transfer_cost.sql'):
+        paths.add(REPOSITORY / 'tests/objects/testdata' / name)
+    return sorted(paths)
+
+
+def metadata_remaining_cost_inputs():
+    # The later cost candidate also embeds these three new scenarios. Keep
+    # the original three-cost closure and all prior selector inputs intact.
+    paths = set(metadata_cost_inputs())
+    for name in ('metadata_cleanup_live_cost.sql',
+                 'metadata_cleanup_anchor_cost.sql',
+                 'metadata_cleanup_pending_cost.sql'):
         paths.add(REPOSITORY / 'tests/objects/testdata' / name)
     return sorted(paths)
 

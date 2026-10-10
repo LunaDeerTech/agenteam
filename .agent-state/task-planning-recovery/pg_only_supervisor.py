@@ -123,6 +123,7 @@ def observe_root_chain(directory, log, log_path, selector):
     log.flush()
     output = log_path.read_text()
     expected = {
+        '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans)$': {'TestObjectMetadataCleanupLiveTransferAndDownloadPlans', 'TestObjectMetadataCleanupFinalAnchorForeignKeyPlans', 'TestObjectMetadataCleanupPendingHistoryAndCausePlans'},
         '^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$': {'TestObjectMetadataCleanupProjectHistoryPlans', 'TestObjectMetadataCleanupSkillsIndexPlans', 'TestObjectMetadataCleanupTransferAndForeignKeyPlans'},
         '^TestObjectMetadataCleanupOldAttemptsAndStopHistory$': {'TestObjectMetadataCleanupOldAttemptsAndStopHistory'},
         '^TestObjectMetadataCleanupIndexMigration$': {'TestObjectMetadataCleanupIndexMigration'},
@@ -196,6 +197,8 @@ def main():
         inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
         if args.run == '^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$':
             inputs.update({str(p): adapter.sha(p) for p in adapter.metadata_cost_inputs()})
+        if args.run == '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans)$':
+            inputs.update({str(p): adapter.sha(p) for p in adapter.metadata_remaining_cost_inputs()})
     baseline = tcp()
     started = time.monotonic()
     child = None
