@@ -27,7 +27,10 @@ CREATE TABLE agenteam_skill.installations (
  updated_at timestamptz(6) NOT NULL CHECK(updated_at>=created_at),
  UNIQUE(project_id,command_key),
  UNIQUE(project_id,id,skill_id,revision_id),
+ UNIQUE(project_id,id,skill_id,revision_id,object_id),
  UNIQUE(project_id,id,skill_id,revision_id,object_id,upload_id),
+ UNIQUE(project_id,skill_id),
+ UNIQUE(project_id,skill_id,revision_id,object_id),
  CHECK((object_id IS NULL)=(upload_id IS NULL)),
  CHECK((phase='planned' AND object_id IS NULL AND current_attempt_id IS NULL AND safe_reason IS NULL)
  OR (phase IN ('reserved','published') AND object_id IS NOT NULL AND current_attempt_id IS NOT NULL AND safe_reason IS NULL)
@@ -72,3 +75,47 @@ $$;
 -- +goose StatementEnd
 CREATE TRIGGER installations_immutable BEFORE UPDATE ON agenteam_skill.installations
  FOR EACH ROW EXECUTE FUNCTION agenteam_skill.reject_installation_rewrite();
+
+-- Keep one canonical Skill catalogue. A protected row retains its exact
+-- initialization parent; an ordinary row must name its exact install command.
+-- Nullable origin columns are never authority: the exclusive origin check and
+-- deferred full-tuple FKs retain the parent throughout publication's same Tx.
+ALTER TABLE agenteam_skill.skills
+ ALTER COLUMN creation_id DROP NOT NULL,
+ ADD COLUMN installation_id agenteam_skill.safe_id,
+ DROP CONSTRAINT skills_name_check,
+ DROP CONSTRAINT skills_normalized_name_check,
+ DROP CONSTRAINT skills_protected_check,
+ ADD CONSTRAINT skills_name_bounded CHECK(octet_length(name) BETWEEN 1 AND 128),
+ ADD CONSTRAINT skills_normalized_name_bounded CHECK(octet_length(normalized_name) BETWEEN 1 AND 384),
+ ADD CONSTRAINT skills_exact_origin CHECK(
+  (protected AND creation_id IS NOT NULL AND installation_id IS NULL AND name='Add Skills' AND normalized_name='add-skills')
+  OR (NOT protected AND creation_id IS NULL AND installation_id IS NOT NULL AND normalized_name<>'add-skills')),
+ ADD CONSTRAINT skills_installation_identity UNIQUE(project_id,id,revision_id,installation_id),
+ ADD CONSTRAINT skills_installation_parent FOREIGN KEY(project_id,installation_id,id,revision_id)
+ REFERENCES agenteam_skill.installations(project_id,id,skill_id,revision_id) DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE agenteam_skill.revisions
+ ADD COLUMN installation_id agenteam_skill.safe_id,
+ ADD COLUMN initialization_project_id agenteam_skill.safe_id GENERATED ALWAYS AS (CASE WHEN installation_id IS NULL THEN project_id END) STORED,
+ ADD COLUMN installation_project_id agenteam_skill.safe_id GENERATED ALWAYS AS (CASE WHEN installation_id IS NOT NULL THEN project_id END) STORED,
+ DROP CONSTRAINT revisions_project_id_skill_id_id_object_id_fkey,
+ ADD CONSTRAINT revisions_initialization_parent FOREIGN KEY(initialization_project_id,skill_id,id,object_id)
+ REFERENCES agenteam_skill.initializations(project_id,skill_id,revision_id,object_id) DEFERRABLE INITIALLY DEFERRED,
+ ADD CONSTRAINT revisions_installation_parent FOREIGN KEY(installation_project_id,installation_id,skill_id,id,object_id)
+ REFERENCES agenteam_skill.installations(project_id,id,skill_id,revision_id,object_id) DEFERRABLE INITIALLY DEFERRED,
+ ADD CONSTRAINT revisions_installed_core FOREIGN KEY(project_id,skill_id,id,installation_id)
+ REFERENCES agenteam_skill.skills(project_id,id,revision_id,installation_id) DEFERRABLE INITIALLY DEFERRED;
+
+-- The original nine-column work projection remains valid. Source is a closed
+-- kind, with a real same-domain FK on each side, not an arbitrary parent flag.
+ALTER TABLE agenteam_skill.work
+ DROP CONSTRAINT work_kind_check,
+ ADD CONSTRAINT work_kind_check CHECK(kind IN ('initialization','package_reader','installation','installed_package_reader')),
+ ADD COLUMN initialization_project_id agenteam_skill.safe_id GENERATED ALWAYS AS (CASE WHEN kind IN ('initialization','package_reader') THEN project_id END) STORED,
+ ADD COLUMN installation_project_id agenteam_skill.safe_id GENERATED ALWAYS AS (CASE WHEN kind IN ('installation','installed_package_reader') THEN project_id END) STORED,
+ DROP CONSTRAINT work_project_id_skill_id_fkey,
+ ADD CONSTRAINT work_initialization_parent FOREIGN KEY(initialization_project_id,skill_id)
+ REFERENCES agenteam_skill.initializations(project_id,skill_id) DEFERRABLE INITIALLY DEFERRED,
+ ADD CONSTRAINT work_installation_parent FOREIGN KEY(installation_project_id,skill_id)
+ REFERENCES agenteam_skill.installations(project_id,skill_id) DEFERRABLE INITIALLY DEFERRED;
