@@ -1,6 +1,6 @@
 # D27 Project Secret Owner UI
 
-状态：实施中，尚未验收。仅消费 main 已交付的 Secret Owner HTTP；未修改后端、公共 OpenAPI、依赖或迁移。
+状态：实施中，首真实链整体 FAIL，定向测试方法修复后待第二次；尚未验收。仅消费 main 已交付的 Secret Owner HTTP；未修改后端、公共 OpenAPI、依赖或迁移。
 
 ## 范围与固定合同
 
@@ -41,3 +41,13 @@ Lookup 仅原 command、target_id、update/delete 原 expected_version；沿原 
 
 
 私有正式前端 build02 已 exit0（全type+Vite），69文件/981952B；首次 build01 因私有配置相对路径错误退出，保原日志。共享入口基于 root 转入19a donor，原 Knowledge 默认与新增 Secret 两个固定profile复用原 root 监督尾；metadata/Skill数据组保持。新入口5方法按原失败修后分项均通过，受影响旧2source控制通过；这些都是无OS资源的离线方法证明。尚未Go候选/真实窗口，当前不能宣称前后端联调或全资源链成功。
+
+## 首次真实结果与定向修复
+
+source56904deb 上 candidate01 原19161→9da97c Wait0（40.946s），exact list原Wait0恰1top；binary61,465,686B，SHA835f2f40adbc79c667eeb68655316917c3f1bd82c7d7439f02a4bdb6218bb56d。Go临时目录双空，固定MinIO普通私有副本已核。生产/dist/Go源码随后没有变化。
+
+native01 原1840→d44246整体FAIL。outer788736/sup788795，启动fresh5,619,044,352B；1491输入hash1a65dba7b3f873cd515790703153f3d3ffb64a4199ff7d9593626416475a14ff。Go790967原Wait1/top55.50s、Node791128原Waitfalse、driver788797原Wait1。firstfailure只有create/page_closed=true，代理仅首个空list200，无POST；不得把后继诊断回填为原首次失败的具体await。原sup148.164s terminal1，7资源14absent/private/runtime/desc/TCP各双尾齐、inputs unchanged=True。外层在原sup Wait和退役以后，将set写JSON触发TypeError；外层原Wait1、缺result保持，不补造原外层观测。原log在/tmp/psu01/ui-6c2e643f587644ee.log，安全首阶段和tail在本域evidence-owner-01，supervisor原摘要在native-01-control。
+
+后继无浏览器诊断确认一项定位器缺陷：锁定PW1.56.1实际injected selector在受控JSDOM、原UiField必填标记结构上，exact label“名称”/“新的 Secret 值”均0匹配（其elementText包含aria-hidden星号）；相同accessible textbox role各1匹配，1a445c实际0。首诊断误用生成exports构造方式失败，改用原工厂后得到上述结果。spec只把这些必填控件改为exact textbox角色，并细分create安全stage，原断言/45s/expect5s不变；产品、前端dist、Go候选均复用。
+
+新增唯一可恢复外层入口 `python3 .agent-state/secret-owner-ui/run.py --attempt 02`，固定原Secret selector/candidate01/dist01，fresh /tmp/psu02、evidence-owner-02、native-02-control；只调用原sup/原helper，结果在原采样时sorted，不后验补采。新run自身追加原Secret collector必需输入，known逆变对应更新；metadata/Installer条目、sup预算/资源门没有变化。离线actual main的OS边明确doubles，空set经原Wait后真实写JSON，低容量零spawn；与受影响inverse/collector共3方法cc6293实际0。strictTS03原13625→c8a72b0、PWlist02原13246→b073c9恰1/0，未重复旧30组件或6native模式。第二实际尚未运行，不追认首FAIL。

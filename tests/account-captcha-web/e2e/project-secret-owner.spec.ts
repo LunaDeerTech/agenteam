@@ -133,23 +133,30 @@ test("[owner] Project Secret lifecycle", async ({ page }) => {
       detail = page.getByRole("region", { name: "Secret 详情", exact: true });
     await expect(area).toBeVisible();
     await expect(list).toContainText("此项目尚无 Secret");
-    stage = "create";
+    stage = "create-open";
     await area
       .getByRole("button", { name: "创建 Secret", exact: true })
       .click();
     let dialog = page.getByRole("dialog", { name: "创建 Secret", exact: true });
-    await dialog.getByLabel("名称", { exact: true }).fill("UI_SECRET");
+    stage = "create-name";
+    await dialog
+      .getByRole("textbox", { name: "名称", exact: true })
+      .fill("UI_SECRET");
+    stage = "create-description";
     await dialog
       .getByLabel("描述", { exact: true })
       .fill("Initial safe metadata");
+    stage = "create-material";
     try {
       await dialog
-        .getByLabel("新的 Secret 值", { exact: true })
+        .getByRole("textbox", { name: "新的 Secret 值", exact: true })
         .fill(data.values[0]!);
     } catch {
       throw Error("PRIVATE_SECRET_CREATE_INPUT");
     }
+    stage = "create-submit";
     await dialog.getByRole("button", { name: "保存", exact: true }).click();
+    stage = "create-confirm";
     await expect(dialog).toHaveCount(0);
     await expect(
       detail.getByRole("heading", { name: "UI_SECRET", exact: true }),
@@ -170,21 +177,23 @@ test("[owner] Project Secret lifecycle", async ({ page }) => {
       .getByRole("button", { name: "编辑 Secret", exact: true })
       .click();
     dialog = page.getByRole("dialog", { name: "编辑 Secret", exact: true });
-    await dialog.getByLabel("名称", { exact: true }).fill("UI_SECRET_UPDATED");
+    await dialog
+      .getByRole("textbox", { name: "名称", exact: true })
+      .fill("UI_SECRET_UPDATED");
     await dialog
       .getByLabel("描述", { exact: true })
       .fill("Updated safe metadata");
     await dialog.getByLabel("替换 Secret 值", { exact: true }).check();
     try {
       await dialog
-        .getByLabel("新的 Secret 值", { exact: true })
+        .getByRole("textbox", { name: "新的 Secret 值", exact: true })
         .fill(data.values[1]!);
     } catch {
       throw Error("PRIVATE_SECRET_UPDATE_INPUT");
     }
     await dialog.getByRole("button", { name: "保存", exact: true }).click();
     await expect(
-      dialog.getByLabel("新的 Secret 值", { exact: true }),
+      dialog.getByRole("textbox", { name: "新的 Secret 值", exact: true }),
     ).toHaveValue("");
     await expect(dialog).toContainText("结果尚未确认");
     await expect(

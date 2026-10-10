@@ -164,7 +164,8 @@ SOURCE_HUNKS = {'.agent-state/task-planning-recovery/pg_only_supervisor.py': [["
                                                         '        paths.update(REPOSITORY / name for name in (\n'
                                                         "            'internal/central/app/project_secret_owner_web_test.go',\n"
                                                         "            'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'))\n"
-                                                        "        paths.add(REPOSITORY / '.agent-state/secret-owner-ui/entry-controls.py')\n"],
+                                                        "        paths.add(REPOSITORY / '.agent-state/secret-owner-ui/entry-controls.py')\n"
+                                                        "        paths.add(REPOSITORY / '.agent-state/secret-owner-ui/run.py')\n"],
                                                        ["    paths.update(REPOSITORY / 'api/openapi' / name for name in ('common.json', "
                                                         "'knowledge-owner.json', 'knowledge-content.json'))\n",
                                                         "    paths.update(REPOSITORY / 'api/openapi' / name for name in profile[4])\n"],
@@ -334,6 +335,7 @@ class SecretUIEntryControls(unittest.TestCase):
                    'tests/account-captcha-web/e2e/project-secret-owner.spec.ts','tests/account-captcha-web/e2e/project-secret-owner.native.ts','tests/account-captcha-web/e2e/knowledge-owner-read.native.ts',
                    'web/src/new.vue','web/package.json','web/package-lock.json','web/node_modules/typescript/package.json','web/node_modules/typescript/lib/typescript.js',
                    'api/openapi/common.json','api/openapi/secret-variables.json','.agent-state/secret-owner-ui/entry-controls.py',
+                   '.agent-state/secret-owner-ui/run.py',
                    'output/ai/secret-owner-ui/dist/index.html','output/ai/secret-owner-ui/dist/assets/app.js','tools/node','tools/python','usr/bin/chromium','usr/lib/chromium/chromium','etc/chromium.d/setting']
             for package in ('@playwright/test','playwright','playwright-core'):
                 names.extend('tests/account-captcha-web/node_modules/'+package+'/'+n for n in ('package.json','runtime.js'))
@@ -360,5 +362,60 @@ class SecretUIEntryControls(unittest.TestCase):
                     p=root/rel;original=p.read_text();p.unlink();self.assertFalse(self.sup.knowledge_ui_same(inputs,args,self.driver));p.symlink_to(root/'candidate');self.assertFalse(self.sup.knowledge_ui_same(inputs,args,self.driver));p.unlink();p.write_text(original)
                 with patch.dict(os.environ,{keys[3]:'unknown'}):self.assertFalse(self.sup.knowledge_ui_same(inputs,args,self.driver))
                 with self.assertRaises(ValueError):self.driver.knowledge_ui_inputs(root/'candidate','^TestUnknown$')
+
+    def test_outer_records_original_empty_sets_after_actual_wait(self):
+        runner = load('secret_ui_outer', '.agent-state/secret-owner-ui/run.py')
+        for free in (6 * 1024 ** 3, 0):
+            with self.subTest(free=free), tempfile.TemporaryDirectory(prefix='secret-ui-launch-') as tmp:
+                root = Path(tmp)
+                owned = root / 'output/ai/secret-owner-ui'
+                owned.mkdir(parents=True)
+                source = root / 'input'
+                source.write_text('controlled')
+                waited = []
+                class Child:
+                    pid = 123
+                    returncode = None
+                    def wait(self):
+                        waited.append(self.pid)
+                        self.returncode = 0
+                        return 0
+                adapter = {'configuration': lambda *a: None,
+                           'knowledge_ui_inputs': lambda *a: [source],
+                           'sha': lambda p: hashlib.sha256(p.read_bytes()).hexdigest()}
+                supervisor = {'tcp': lambda: set(), 'descendants': lambda pid: set()}
+                def start(command, **kwargs):
+                    self.assertEqual(command[command.index('--run') + 1], SELECTOR)
+                    self.assertIn('--root-chain', command)
+                    env = kwargs['env']
+                    self.assertEqual((Path(env['XDG_CONFIG_HOME']) / 'go/telemetry/mode').read_text(), 'off\n')
+                    self.assertEqual(list(Path(env['DOCKER_CONFIG']).iterdir()), [])
+                    for key in ('TEST_TELEMETRY_DIR','GO_TELEMETRY_CHILD','GO_TELEMETRY_CHILD_UPLOAD'):
+                        self.assertNotIn(key, env)
+                    return Child()
+                with patch.object(runner, 'ROOT', root), patch.object(runner, 'OWNED', owned), \
+                     patch.object(sys, 'argv', ['run.py', '--attempt', '98']), \
+                     patch.object(runner.shutil, 'disk_usage', return_value=SimpleNamespace(free=free)), \
+                     patch.object(runner.shutil, 'which', return_value='/usr/local/bin/docker'), \
+                     patch.object(runner.runpy, 'run_path', side_effect=[adapter, supervisor]), \
+                     patch.object(runner.ctypes, 'CDLL', return_value=SimpleNamespace(prctl=lambda *a: 0)), \
+                     patch.object(runner.subprocess, 'Popen', side_effect=start) as spawn, \
+                     patch.object(runner.signal, 'signal'), patch.object(runner.os, 'kill', side_effect=AssertionError('unexpected kill')), \
+                     patch.object(runner.os, 'waitpid', side_effect=ChildProcessError), \
+                     patch.object(runner.time, 'sleep'), patch.dict(os.environ, {'GO_TELEMETRY_CHILD':'bad'}), \
+                     patch.object(sys, 'stdout', io.StringIO()):
+                    code = runner.main()
+                record = json.loads((owned / 'native-98-control/result.json').read_text())
+                self.assertEqual(code, 0 if free else 1)
+                self.assertEqual(record['exit'], code)
+                if free:
+                    self.assertEqual(waited, [123])
+                    self.assertTrue(record['actual_supervisor_wait'])
+                    self.assertEqual(record['outer_descendants'], [[], []])
+                    self.assertEqual(record['outer_tcp_empty_observations'], 2)
+                    self.assertEqual(record['adopted'], [])
+                else:
+                    spawn.assert_not_called()
+                    self.assertFalse(record['actual_supervisor_wait'])
 
 if __name__ == '__main__':unittest.main()

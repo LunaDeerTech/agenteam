@@ -1,6 +1,6 @@
 # Secret Owner UI 首次真实链准备
 
-当前已有私有正式前端 build，仍仅源码和离线方法准备。没有 Go 编译、浏览器、PG 或整个链路 PASS；前端纯控与源码独审见 [D27](../../docs/development/work-items/d27-project-secrets-owner-ui.md)。默认 Project initializer 未绑定，生产 SPA publication STOP 不变。
+当前已有私有正式前端 build 和 Go 候选；首真实链整体 FAIL，定向方法修复后第二次尚未运行。没有整个链路 PASS；前端纯控与源码独审见 [D27](../../docs/development/work-items/d27-project-secrets-owner-ui.md)。默认 Project initializer 未绑定，生产 SPA publication STOP 不变。
 
 ## 固定输入与原链
 
@@ -42,3 +42,13 @@ work_ui 已实际只读审四方法源（3e406c0e 加单类型行）有限接受
 新 `entry-controls.py` 实际调用原 collector/observer/driver main 和 supervisor前置guard；操作系统边为 doubles，无资源。controls01 五项4PASS/1ERROR，原因逆变通用wait行在另一函数亦存在；只加 browser 相邻anchor 后该项通过。受影响旧 metadata/Installer source控各曾FAIL（新增唯一TARGET需排除；原Installer负控replace未命中）；窄修为排唯一Secret literal、先严格逆剥Secret再assert每hunk恰1，分别9940ff/8b0fb8/2ec4e8实际0。其它4新方法沿原d21031实际PASS复用，不重旧全矩阵。完整逆变恢复19a两共享源字节；未知改动、预算变更、缺/多RUN/PASS/NodeWait、失败/错mode/未知selector、缺资源/private/runtime尾，以及源/tool/dist增删改和环境变化均拒。
 
 后继 Go 计划仅在 root 独占cache授权后：固定Go1.27.1、readonly共享GOMODCACHE、GOPROXY/GOSUMDB off、fresh≥5GiB、私有mode=off并去除三telemetry旁路；`go test -tags=integration -race -c` 仅 app 包，新 `output/ai/secret-owner-ui/candidate-01/secret-owner-ui-race.test`，再精确 `-test.list '^TestProjectSecretOwnerWeb$'`。开始前 source/compile输入冻结；原Wait退出后再按新binary枚举最终运行闭包。当前未执行，不用将计划/candidate路径当真实产物。
+
+## 首次真实结果与定向修复
+
+source56904deb 上 candidate01 原19161→9da97c Wait0（40.946s），exact list原Wait0恰1top；binary61,465,686B，SHA835f2f40adbc79c667eeb68655316917c3f1bd82c7d7439f02a4bdb6218bb56d。Go临时目录双空，固定MinIO普通私有副本已核。生产/dist/Go源码随后没有变化。
+
+native01 原1840→d44246整体FAIL。outer788736/sup788795，启动fresh5,619,044,352B；1491输入hash1a65dba7b3f873cd515790703153f3d3ffb64a4199ff7d9593626416475a14ff。Go790967原Wait1/top55.50s、Node791128原Waitfalse、driver788797原Wait1。firstfailure只有create/page_closed=true，代理仅首个空list200，无POST；不得把后继诊断回填为原首次失败的具体await。原sup148.164s terminal1，7资源14absent/private/runtime/desc/TCP各双尾齐、inputs unchanged=True。外层在原sup Wait和退役以后，将set写JSON触发TypeError；外层原Wait1、缺result保持，不补造原外层观测。原log在/tmp/psu01/ui-6c2e643f587644ee.log，安全首阶段和tail在本域evidence-owner-01，supervisor原摘要在native-01-control。
+
+后继无浏览器诊断确认一项定位器缺陷：锁定PW1.56.1实际injected selector在受控JSDOM、原UiField必填标记结构上，exact label“名称”/“新的 Secret 值”均0匹配（其elementText包含aria-hidden星号）；相同accessible textbox role各1匹配，1a445c实际0。首诊断误用生成exports构造方式失败，改用原工厂后得到上述结果。spec只把这些必填控件改为exact textbox角色，并细分create安全stage，原断言/45s/expect5s不变；产品、前端dist、Go候选均复用。
+
+新增唯一可恢复外层入口 `python3 .agent-state/secret-owner-ui/run.py --attempt 02`，固定原Secret selector/candidate01/dist01，fresh /tmp/psu02、evidence-owner-02、native-02-control；只调用原sup/原helper，结果在原采样时sorted，不后验补采。新run自身追加原Secret collector必需输入，known逆变对应更新；metadata/Installer条目、sup预算/资源门没有变化。离线actual main的OS边明确doubles，空set经原Wait后真实写JSON，低容量零spawn；与受影响inverse/collector共3方法cc6293实际0。strictTS03原13625→c8a72b0、PWlist02原13246→b073c9恰1/0，未重复旧30组件或6native模式。第二实际尚未运行，不追认首FAIL。

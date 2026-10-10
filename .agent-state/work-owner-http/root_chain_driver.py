@@ -230,6 +230,7 @@ def knowledge_ui_inputs(binary, selector=KNOWLEDGE_UI):
             'internal/central/app/project_secret_owner_web_test.go',
             'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'))
         paths.add(REPOSITORY / '.agent-state/secret-owner-ui/entry-controls.py')
+        paths.add(REPOSITORY / '.agent-state/secret-owner-ui/run.py')
     for name in ('@playwright/test', 'playwright', 'playwright-core'):
         package = harness / 'node_modules' / name
         paths.add(package / 'package.json')
