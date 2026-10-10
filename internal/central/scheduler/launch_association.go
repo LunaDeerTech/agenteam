@@ -8,6 +8,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
 
 func handoffCommand(p i.ProjectID, id DispatchID, name string) (f.CommandIdentity, error) {
@@ -194,7 +195,10 @@ func (s *LaunchHandoff) associate(ctx context.Context, call *launchCall, expecte
 	return out, nil
 }
 
-func (s *LaunchHandoff) recordRejected(ctx context.Context, call *launchCall, expected *dispatchRecord, busy bool) (*dispatchRecord, error) {
+func (s *LaunchHandoff) recordRejected(ctx context.Context, call *launchCall, expected *dispatchRecord, busy bool, finalReason wc.TaskLaunchFailureReason) (*dispatchRecord, error) {
+	if finalReason != "" && (busy || finalReason.Validate() != nil) {
+		return nil, invalid()
+	}
 	locks, err := handoffLocks(call.project, call.id, "reject_launch", expected)
 	if err != nil {
 		return nil, err
@@ -214,7 +218,7 @@ func (s *LaunchHandoff) recordRejected(ctx context.Context, call *launchCall, ex
 		if err != nil {
 			return err
 		}
-		if !sameDispatch(r, expected) || r.status != Pending || r.outcome != Unknown || r.version != expected.version || r.attempts != expected.attempts {
+		if !sameDispatch(r, expected) || r.status != Pending || r.outcome != Unknown || r.version != expected.version || r.attempts != expected.attempts || r.attempts <= 0 || r.finalAttempt != 0 {
 			return fault(f.ConfirmationStale)
 		}
 		out, err = nextDispatch(r)
@@ -224,6 +228,13 @@ func (s *LaunchHandoff) recordRejected(ctx context.Context, call *launchCall, ex
 		out.outcome = KnownNotCreated
 		if busy {
 			out.busyAttempt = r.attempts
+		}
+		if finalReason != "" {
+			out.finalAttempt, out.failureReason, out.failureCode = r.attempts, finalReason, f.DependencyUnbound
+			out.failureOccurredAt = cloneInstant(&out.updatedAt)
+			if !pendingFinalFailure(out) {
+				return unavailable(nil)
+			}
 		}
 		return updateDispatch(ctx, x, out, r.version)
 	})

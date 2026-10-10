@@ -5103,9 +5103,100 @@
                 ]
               }
             ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "project_id",
+              "task_id",
+              "type",
+              "description",
+              "metadata",
+              "created_at",
+              "created_by",
+              "resolved_at",
+              "resolved_by",
+              "resolution_comment"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "project_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "task_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "type": {
+                "const": "technical"
+              },
+              "description": {
+                "$ref": "#/components/schemas/BlockerDescription"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "code",
+                  "source",
+                  "reference_id"
+                ],
+                "properties": {
+                  "code": {
+                    "const": "scheduler_launch_failed"
+                  },
+                  "source": {
+                    "const": "scheduler_dispatch"
+                  },
+                  "reference_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                }
+              },
+              "created_at": {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              "created_by": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "type",
+                  "service_name",
+                  "source",
+                  "cause_id"
+                ],
+                "properties": {
+                  "type": {
+                    "const": "system"
+                  },
+                  "service_name": {
+                    "const": "scheduler"
+                  },
+                  "source": {
+                    "const": "scheduler"
+                  },
+                  "cause_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                }
+              },
+              "resolved_at": {
+                "type": "null"
+              },
+              "resolved_by": {
+                "type": "null"
+              },
+              "resolution_comment": {
+                "type": "null"
+              }
+            },
+            "description": "Persisted Scheduler technical Blocker read projection only. metadata.reference_id equals created_by.cause_id; the typed response validator enforces this relationship. This slice has no technical resolution writer and does not permit Human Add or Transfer to create this variant."
           }
         ],
-        "description": "Only the two currently supported Blocker metadata variants. Resolved time is no earlier than creation; maximum encoded record is 16 KiB."
+        "description": "Human rely_on/waiting_for_human and Scheduler technical read projections. Resolved time is no earlier than creation; maximum encoded record is 16 KiB."
       },
       "BlockerAddRequest": {
         "oneOf": [

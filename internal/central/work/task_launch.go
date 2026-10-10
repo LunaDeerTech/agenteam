@@ -81,8 +81,11 @@ func taskLaunchInput(ctx context.Context, actor i.Actor, r ec.LaunchRequest) err
 	}
 	// Denied tools are preserved verbatim in the request/digest. No resource
 	// constraint or alternate lineage is silently interpreted as an empty one.
-	if len(r.Policy.AllowedResourceConstraints) != 0 || r.Lineage.RetryOf != nil || r.Lineage.RegenerateOf != nil || r.Lineage.ContributionGeneration != nil || r.Lineage.ContributionAttempt != nil {
+	if r.Lineage.RetryOf != nil || r.Lineage.RegenerateOf != nil || r.Lineage.ContributionGeneration != nil || r.Lineage.ContributionAttempt != nil {
 		return fault(f.DependencyUnbound)
+	}
+	if len(r.Policy.AllowedResourceConstraints) != 0 {
+		return c.RejectTaskResourceConstraints(r)
 	}
 	return nil
 }

@@ -8,6 +8,7 @@ import (
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
 
 // ExecutionLauncher is the original synchronous Execution service. Its return
@@ -194,6 +195,13 @@ func (s *LaunchHandoff) LaunchOnce(ctx context.Context, p i.ProjectID, id Dispat
 		// Classify the original result, before safe wrapping can introduce a
 		// NotStarted fault around an opaque transport/dependency error.
 		rejected := knownNotCreated(launchErr)
+		// Only the original provider's typed, request-bound rejection is final.
+		// A safe wrapper's Code/NotStarted state cannot manufacture this fact.
+		finalReason, final := wc.MatchTaskLaunchFailure(launchErr, r.launch.Clone())
+		var originalFault *f.Fault
+		if !rejected || !final || errors.Is(launchErr, context.Canceled) || errors.Is(launchErr, context.DeadlineExceeded) || !errors.As(launchErr, &originalFault) || originalFault.Code != f.DependencyUnbound {
+			finalReason = ""
+		}
 		launchErr = portError(launchErr)
 		if !rejected {
 			retain = true
@@ -201,7 +209,7 @@ func (s *LaunchHandoff) LaunchOnce(ctx context.Context, p i.ProjectID, id Dispat
 		}
 		var rejection *f.Fault
 		busy := errors.As(launchErr, &rejection) && rejection.Code == f.AgentBusy
-		observed, checkpointErr := s.recordRejected(ctx, call, r, busy)
+		observed, checkpointErr := s.recordRejected(ctx, call, r, busy, finalReason)
 		if checkpointErr != nil {
 			retain = true
 			return Dispatch{}, uncertainLaunch(errors.Join(launchErr, checkpointErr))
