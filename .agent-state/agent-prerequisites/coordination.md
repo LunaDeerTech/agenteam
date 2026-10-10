@@ -1,6 +1,6 @@
 # Agent F1 前置关系与并行接口建议
 
-本简报区分现有实现片段与下一接口建议，不声明完整前置已落地。依据 main `69c13e5d` 的实际接口；后继有界恢复 Batch/Guard 交付不改变这些模块接口。Model Selection 与 Secret Directory 首片段的修后纯检查已通过，尚无真实 PG/F1；Skills 与 Registry 仍为接口准备，Agent canonical writer 尚无作者，迁移 00032 未分配。默认生产 Project initializer、完整 participant/Registry 与 F1 保持未绑定。
+本简报区分现有实现片段与下一接口建议，不声明完整前置已落地。Model Selection 与 Secret Directory 首片段的修后纯检查已通过，尚无真实 PG/F1。root 已分配实际作者：content 为 Agent canonical 核心/00032、cleanup 为 Registry/00033、coordination 为 Skills 新 Agent 初始化/00034；三域尚在实施，默认生产 Project initializer、完整 participant/Registry 与 F1 保持未绑定。
 
 ## 正式来源与实际缺口
 
@@ -10,11 +10,13 @@
 | --- | --- | --- |
 | Model | 配置期 Selection 首片段已实现，7 新 top race 与两包 vet 原全尾通过；运行解析不证明配置授权 | work_ui，`/workspace/agenteam-agent-model-prerequisites`：下一真实 PG 首链；agent_model/approval_model 双角色 References 及真实 Agent owner authority 尚未实现 |
 | Secret | [SecretDirectory/References](../../internal/central/projectvariable/contract/secret_directory.go) 合同已有；Directory 修后 4 top race 与同包 vet 原全尾通过，目录不读取或输出值 | secret，`/workspace/agenteam-agent-secret-prerequisites`：下一真实 PG 首链；References/反向 Agent 私有 witness 尚未实现，不冒 F1 |
-| Skills | [Service](../../internal/central/skill/service.go) 与 published 映射可复用；[00027](../../db/migrations/00027_skills.sql)没有 Agent assignment/head/sequence | content 只读准备：新 Agent 专用初始化器及本域 assignment 集合；尚不授权普通运行中 Assign/Remove |
-| Tool | [SpecRef](../../internal/central/tool/contract/spec_ref.go) 与 [NameTable](../../internal/central/tool/projection/name_table.go)仅纯值/名称投影 | cleanup 只读准备：真实 Registry、当前配置目录及原子 refs；不能把名称表当 Registry |
-| Agent | 只有 C1 纯合同，无 canonical 创建服务/表/私有 mutation witness | root 后续指定唯一 owner；不由四个提供方各自模拟 Agent 存在或成功 |
+| Skills | [Service](../../internal/central/skill/service.go) 与 published 映射可复用；[00027](../../db/migrations/00027_skills.sql)没有 Agent assignment/head/sequence | coordination，`/workspace/agenteam-agent-skill-initialization`：新 Agent 专用初始化器、集合及 Cleanup 保护/00034；不实现普通运行中 Assign/Remove |
+| Tool | [SpecRef](../../internal/central/tool/contract/spec_ref.go) 与 [NameTable](../../internal/central/tool/projection/name_table.go)仅纯值/名称投影 | cleanup，`/workspace/agenteam-tool-registry`：真实 Registry、配置目录及原子 refs/00033；不能把名称表当 Registry |
+| Agent | 原主线只有 C1，canonical 创建服务/表/私有 mutation witness 由新切片实现 | content，`/workspace/agenteam-agent-configuration-core` 与00032；四个提供方不能各自模拟 Agent 存在或成功 |
 
 Model Selection 接口与实现已落在 `model/contract/agent_configuration.go`、`model/agent_selection.go` 及相邻测试；`model/agent_references.go` 仍为后继范围。Secret Directory01 的 Version0 私有 projection JSON 编码失败保留，Directory02 改可选凭据版本（live 填真实值、缺凭据 nil）后有限通过。两域结果均为相应源码的纯 race/vet，不能拿测试替身宣称真实 PG、Agent 创建或 F1 已通；不另造 CredentialRef 或第二份 Agent 表。
+
+联合 metadata PG 由 work_ui 独占 `/workspace/agenteam-agent-configuration-integration` 中的新 `tests/projectvariable/agent_configuration_metadata_test.go` 与方法；secret 独占该链入口/必要 shared 增量。真实 Account/Project 和正式 Model/Secret 创建提供数据；两个 Discover 使用同 Human/Project/原 agent.create key，caller 一次 Normalize/AcquireAll 完整并集，在同 Store 原 Tx 调两个 Require。首链只验证正常 metadata、正式状态变更后的 stale、Logout 后当前 Session 拒绝与原 callback rollback；公开说明沿用的 Project Skills 初始化 fixture，不 SQL 伪造 Agent。References、默认 assignment、Registry install 与 F1 成功不在这条链。
 
 ## 四域共用的 Agent 创建与事务语义
 
@@ -26,13 +28,13 @@ Discover 只读发现依赖，不能授权写入。首个 AcquireAll 必须合�
 
 ## Skills：可独立实现的最小真实部分
 
-建议由 content 后续独占 `skill/contract/agent_initialization{,_test}.go`、`skill/agent_initialization{,_test}.go`、`skill/agent_assignment_repository{,_test}.go`；root 尚未授权这些源码或迁移。独立 SQL-only 构造 `NewAgentInitializer(existing Authority, AgentCreationAuthority)`，不改变当前 Skill Service 的 Object/读取/生命周期依赖，不提供后设 setter 或默认成功 authority。
+root 已授权 coordination 独占 `skill/contract/agent_initialization{,_test}.go`、`skill/agent_initialization{,_test}.go`、`skill/agent_assignment_repository{,_test}.go`、必要相邻 Cleanup 保护及00034。独立 SQL-only 构造 `NewAgentInitializer(existing Authority, AgentCreationAuthority)` 的精确跨域口与 content 直接落定，不改变当前 Skill Service 的 Object/读取/生命周期依赖，不提供后设 setter 或默认成功 authority。
 
 建议窄口是 `DiscoverNewAgentInitialization(ctx, Human, request)` 与 `InitializeNewAgentInTx(ctx, tx, Human, request, plan)`。request 绑定 ProjectID、AgentID、原创建 command/修订与展开后的 AddSkillsEnabled；plan 绑定实例 issuer、原 identity/意图、真实 Agent 创建计划、protected Skill 映射及完整锁。Initialize 顺序为同 Store/活 Tx/完整锁→当前 Project Owner、initialized 与 Mutate→真实 Agent 创建 witness→本 Project protected/serving/published Skill 及当前 revision 重验→本域唯一初始集合写入。
 
 assignment 是独立权威集合，Skills 写自身 head/assignment；Agent config_version 仍仅 Agent owner 写，创建 version 保持 1。建议 head 从 sequence=1 起步（显式 false 也是一次空初始集合）；true 产生唯一 assignment identity 和稳定 SkillID，观察到的 revision 只作本次初始化校验，不永久钉住后续 Execution。false 不插 assignment、不在后继读写中自动补回，仍不能绕过真实初始化 provider、当前权限及原创建意图。普通运行中分配的 AssignmentRuntimeSink 未绑定时仍拒绝，不能为新建路径伪造 no_active_execution。
 
-新增本域 head/assignment 表须由 root 排独立迁移，不能改旧 00027 或自行占 00032。同域 FK/活 assignment 唯一性、创建身份和安全 receipt、Project 查询索引应纳该迁移。**相邻 Cleanup 必须同时封口**：当前清理只认旧表，新增集合后，在真实 gate 释放材料前对未退役初始化/assignment 事实 fail closed，并把新表纳 empty 检查；不能等最后 FK 报错时才保护已经删除的 payload。
+新增本域 head/assignment 表使用唯一分配的 `00034_agent_skill_assignments.sql`，不改旧00027或Agent/Registry的00032/00033。同域 FK/活 assignment 唯一性、创建身份和安全 receipt、Project 查询索引应纳该迁移。**相邻 Cleanup 必须同时封口**：当前清理只认旧表，新增集合后，在真实 gate 释放材料前对未退役初始化/assignment 事实 fail closed，并把新表纳 empty 检查；不能等最后 FK 报错时才保护已经删除的 payload。
 
 初次正向组合须等真实 Agent owner：已初始化 Project/真实 protected 出版→同 final Tx 新 Agent 与初始集合→commit/原 receipt；中段失败全部回滚。未发布 witness 缺失、结束/foreign Tx、缺锁、旧 Agent、Owner 失效、Skill 映射变化与显式禁用为必要基础问题。SQL 手种 Agent 或 fake authority 只属明确测试替身，不证明 F1。
 

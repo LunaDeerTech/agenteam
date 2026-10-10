@@ -17,12 +17,12 @@
 
 | 执行者 | 当前工作、真实状态与下一步 |
 | --- | --- |
-| coordination | Lifecycle Stopper/phase/Batch 与 Guard 限定范围已正式交付，原功能 topic 保留。当前只协调 Agent 前置接口与台账，见[前置简报](agent-prerequisites/coordination.md)；Agent 核心无 writer、00032 未分配，不写模块契约源码或扩大生产绑定。 |
-| secret | `/workspace/agenteam-agent-secret-prerequisites` / `ai/agent-secret-prerequisites` 的 Directory 修后 source `1e602747` 已通过 4 top race/同包 vet，outer/Go 原 Wait0、group/runtime 双空，缓存已归还。原01因私有 projection 的 Version0 无法合法 JSON 编码而 wholeFAIL；修为可选版本、live 凭据填真实值/缺凭据 nil，原失败保留。尚无真实 PG/F1；References 与真实 Agent 私有 witness 尚未实现。 |
-| content | Skills 新 Agent 初始化的 witness、assignment/sequence 与 Cleanup 关系已只读对齐，仍接口准备。Rename03 current-read wholeFAIL 原尾已释放，修正后的 DIST03/输入待实际验证；不把旧读取 UI 通过移作 rename 验收。 |
-| work_ui | `/workspace/agenteam-agent-model-prerequisites` / `ai/agent-model-prerequisites` 的首 Selection source `c5de6` 已通过 7 新 top race/两包 vet，原全部 Wait/退出尾与输入一致性齐；未验真实 PG/F1，双角色 References 尚未实现。Skills03 wholeFAIL 已退役并暂存：四预期请求出现但 PW 首次 detail failed；旧 Skills01/02 与 Work Planning06 FAIL 保留，未授新 native 轮。 |
-| cleanup | 只读准备 D18 真实 Registry 的持久身份/spec/current binding、配置目录与引用保护；install-skill 尚缺真实安装后端，不能注册空 handler。共享入口与非作者方法审仍按 root 单独分配。 |
-| skills_http | 非实现者接口/权限/方法复核，继续核 Model/Secret 新前置与实际输入；只读接受不冒动态验证。Skills/Registry 尚仅接口准备，完整 F1 不以 false defaults 或空 catalog 缩减。 |
+| coordination | `/workspace/agenteam-agent-skill-initialization` / `ai/agent-skill-initialization`：已接 Skills 新 Agent 初始化实际实现，独占本域 contract/core/repository、相邻 Cleanup fail-closed 与 `00034_agent_skill_assignments.sql`。同 Store 原创建 witness、真实 protected Add Skills 与初始 assignment/sequence 必须闭合；本轮尚未验证。继续唯一维护[前置简报](agent-prerequisites/coordination.md)和必要恢复状态。 |
+| secret | `/workspace/agenteam-agent-secret-prerequisites` / `ai/agent-secret-prerequisites` 的 Directory 修后 source `1e602f62` 已通过 4 top race/同包 vet，outer/Go 原 Wait0、group/runtime 双空，缓存已归还。原01 Version0 私有 projection JSON 失败保留；References 未实现。另接联合 metadata PG 的入口/必要共享增量，真实 PG 尚未运行。 |
+| content | `/workspace/agenteam-agent-configuration-core` / `ai/agent-configuration-core`：Agent 核心及 `00032_agent_configuration.sql` 唯一作者，实际提供同 Tx 私有创建/变更 witness，不由四个资源提供方模拟 Agent 成功。Rename 原 current-read FAIL 与新 DIST03 待验状态保留。 |
+| work_ui | Model Selection 7 新 top race/两包 vet 已通过，双角色 References 未实现。现于 `/workspace/agenteam-agent-configuration-integration` / `ai/agent-configuration-integration` 唯一编写 `tests/projectvariable/agent_configuration_metadata_test.go` 与方法，真实 Account/Project/Model/Secret metadata 同 Tx 首链不冒 Agent 创建/F1。Skills03 与旧 Skills/Work FAIL 保留，未授新 native 轮。 |
+| cleanup | `/workspace/agenteam-tool-registry` / `ai/tool-registry`：真实 Registry 身份/spec/current binding/目录/refs 与 `00033_tool_registry.sql` 唯一作者。不改 NameTable；install-skill 尚缺真实安装后端，不能注册空 handler。 |
+| skills_http | 非实现者接口/权限/方法复核，继续核四个实际前置与联合 PG 的冻结输入；只读接受不冒动态验证。完整 F1 不以 false defaults 或空 catalog 缩减。 |
 
 六个子代理席位动态共享，旧实例/进程/授权不继承。root负责分支、worktree、提交/推送、最终集成和实际共享资源窗口；执行者保持单文件唯一写者。Guard01 与 Skills03 原窗口均已完整释放，当前无 native/PG/browser 窗口在途；任何后继实际窗口须 root 重新分配，不继承已释放授权。
 
