@@ -267,4 +267,6 @@ stop-requested 只附在被授权捕获的原 call 上，不永久封闭整个 P
 
 基本纯控覆盖未确认提交/取消零提供方调用、冻结 manifest/cause/claim 错配拒绝、同 Project 双轮拒绝、Stop/Drain 不提前 join、精确 foreign proof 与原 writer 锁重验、回调错误/收尾 Unknown 原样保留。真实 PG 重点验证原 EX 屏障、确认提交后调用、原调用 held 时 claim/Drain 仍活、释放后的 exact terminal，以及旧 attempt/fence 不能覆盖新轮。foreign 业务调用缺口仍显式保留；不以 fake ProcessAuthority success 声称真实进程死亡或完整 participant 验收。该有限源冻结并受独立方法审后才申请真实资源窗口。
 
-当前四个Project源与两新PG源已实现；既有fixture只保留原LifecycleAuthority指针。首6top/2sub纯race、Project vet通过；非作者实际审发现组合checkpoint错误可回显provider error，已窄修安全包装并以新private canary定向race及vet通过，物理Unknown/原cause仍保留。修后第一次fresh容量门失败且0Go的事实保留。PG候选race-c与exact list仅一top均已通过，实际PG未运行；非作者已有限接受核心与PG方法。私有入口新增固定1top/3sub与3项离线方法控制，原提供方入口/共享sup/driver/预算不改；详细命令与分版本结果在既有[本域恢复说明](../../../.agent-state/project-variable-lifecycle/README.md)。本轮仍不交付生产全phase worker/完整participant完成语义。
+当前四个Project源与两新PG源已实现；既有fixture只保留原LifecycleAuthority指针。首6top/2sub纯race、Project vet通过；非作者实际审发现组合checkpoint错误可回显provider error，已窄修安全包装并以新private canary定向race及vet通过，物理Unknown/原cause仍保留。修后第一次fresh容量门失败且0Go的事实保留。PG候选race-c与exact list仅一top均已通过；非作者已有限接受核心与PG方法，首次实际结果见下段。私有入口新增固定1top/3sub与3项离线方法控制，原提供方入口/共享sup/driver/预算不改；详细命令与分版本结果在既有[本域恢复说明](../../../.agent-state/project-variable-lifecycle/README.md)。本轮仍不交付生产全phase worker/完整participant完成语义。
+
+首次phase PG随后实际整体FAIL并完整退出（来源1ccbc56b，top12.07s、Go/driver/outer Wait1、两资源/private/desc/TCP双尾与439输入一致齐）。第一sub phase barrier未命中，第二sub回滚断言失败，第三fencing子例通过；不把局部通过升级成整体接受。已定位两测试hook误用Recovery的Owner筛选真实JobCause，尚待窄修原JobType/JobID/Attempt身份后新候选；没有产品错误结论或修后PASS，完整原失败边界留在上述恢复说明。

@@ -38,7 +38,7 @@ python3 -B .agent-state/project-variable-lifecycle/run.py \
 
 独立实例已对 SPEC、核心实际 diff、两PG源与私有namespace入口作有限只读接受；动态纯测试和本次 PG 均由作者运行。此结果只接受 ordinary+Secret 两个本实例服务的精确停止与实际call退出；不证明 foreign process join、真实 Unknown COMMIT代理、完整复合participant、cleanup、生产phase worker 或 production Project Create。原两次准备失败（首Go编译与首input路径枚举）保留，未回填成原轮 PASS。
 
-## 后继单轮 phase：候选已编译，真实运行待授权
+## 后继单轮 phase：首轮整体 FAIL，测试钩子待修
 
 新增 `^TestProjectLifecycleLocalStopRound$` 使用独立固定产物 `output/ai/project-variable-lifecycle/candidate-phase-01/project-phase-stop.test`；原提供方 candidate01 不覆盖。新候选37,379,760 B，SHA256 `9983dab14e6415a6c5944fc6726c68dc73acf2aed1cdfd0d7cbe793542c761ae`。复用上文 driver，SHA不变；新实际输入439路径，额外显式要求两phase PG源存在，仍初末全闭包重新枚举。
 
@@ -58,4 +58,8 @@ python3 -B .agent-state/project-variable-lifecycle/run.py \
   --output "$PWD/output/ai/project-variable-lifecycle/pg-phase-01"
 ```
 
-新轮必须重新创建独有environment/private actual telemetry off/空Docker config并在同进程核fresh>=5GiB；沿上文固定镜像与全部原预算/Wait/双尾，无重试。真实phase尚未运行；不以候选编译或离线控替代联调，不覆盖完整registry、foreign业务join、cleanup或生产initializer。
+新轮必须重新创建独有environment/private actual telemetry off/空Docker config并在同进程核fresh>=5GiB；沿上文固定镜像与全部原预算/Wait/双尾，无重试。该准备阶段未运行phase；后续实际结果如下，不以候选编译或离线控替代联调，不覆盖完整registry、foreign业务join、cleanup或生产initializer。
+
+首轮后来按root独占授权实际执行，来源`1ccbc56b`，439输入SHA256 `c26a8d79b20ccc9824d2d94f16e6e987d8bf67b7b2044ba898eee9871b79d6de`。`pg-phase-01` 整体FAIL：top12.07s，第一sub在phase原barrier未命中（5.23s），第二sub回滚断言未成立（0.11s），第三sub fencing PASS（0.14s）。session41634→d62a41实际1，outer/sup578847、driver578850、Go579413均原Wait1；driver19.945s/sup80.542s。两资源精确双退役、private仅owned.json、desc/TCP双空、输入初末一致、STOP0，原exact cases门False保持。环境runtime退出后两次观测空属于后续观测，不补写原门。原日志在ignored `output/ai/project-variable-lifecycle/pg-phase-01/pg-b04f0f5503a746a4a421b5443a5d48b0.log`。
+
+有界源码定位：两个测试after hook错误筛选`CauseDetails.Owner`；实际driver使用`NewJobCause`，正式字段是`Kind=JobCause`、`JobType=project-lifecycle`及原JobID/JobAttemptID，Owner仅属于RecoveryCause。因此phase持有与回滚注入均未被触发。这是测试方法缺口，不能把原FAIL升级成产品PASS。下一步只修两过滤的真实cause身份，保产品/断言/预算，再冻结新候选并另等实际窗口；尚无修后动态结论。
