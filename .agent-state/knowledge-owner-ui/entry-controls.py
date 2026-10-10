@@ -27,6 +27,9 @@ BLOCKS = {DRIVER: ('def metadata_cost_inputs(', '73695a584b7ae85c4f302dc1f130306
 
 
 def inverse(name, source):
+    if "'^TestProjectLifecycleStopBatchRealGuard$'" in source:
+        guard = load('legacy_guard_inverse', '.agent-state/project-variable-lifecycle/guard-entry-controls.py')
+        source = guard.inverse(name, source)
     if name not in BASE:
         raise ValueError('unknown source')
     # The later Parser entry has its own exact inverse to accepted main
@@ -135,7 +138,8 @@ class EntryControls(unittest.TestCase):
         exec(compile(inverse(DRIVER, (ROOT / DRIVER).read_text()), DRIVER, 'exec'), old)
         self.assertEqual(driver.TARGETS[parser_entry.SELECTOR], 'tests/knowledge')
         self.assertEqual({k: v for k, v in driver.TARGETS.items()
-                          if k not in (SELECTOR, parser_entry.SELECTOR)}, old['TARGETS'])
+                          if k not in (SELECTOR, parser_entry.SELECTOR,
+                                       '^TestProjectLifecycleStopBatchRealGuard$')}, old['TARGETS'])
         self.assertEqual(sup.budgets(True), (540, 60))
         self.assertEqual(sup.budgets(False), (123, 3))
 

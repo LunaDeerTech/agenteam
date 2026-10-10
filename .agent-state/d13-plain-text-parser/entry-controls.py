@@ -180,6 +180,9 @@ def reverse_source(current, hunks):
 
 def inverse(name, source: str) -> str:
     """Remove only the frozen D13 additions; reject any other source change."""
+    if "'^TestProjectLifecycleStopBatchRealGuard$'" in source:
+        guard = load('legacy_guard_inverse', '.agent-state/project-variable-lifecycle/guard-entry-controls.py')
+        source = guard.inverse(name, source)
     if name not in SOURCE_HUNKS or not isinstance(source, str):
         raise ValueError('unknown shared source')
     restored = reverse_source(source, SOURCE_HUNKS[name])
@@ -204,7 +207,13 @@ def source_binding():
         current = (ROOT / relative).read_text()
         check(inverse(relative, current).encode() == baseline, 'exact original source restoration')
         reject_inverse(relative, current + '\n# unknown delta\n')
+        # The newer Guard log-read tuple overlaps an old D13 hunk. Verify
+        # and remove Guard first so each old negative control still mutates.
+        if "'^TestProjectLifecycleStopBatchRealGuard$'" in current:
+            guard = load('d13_guard_mutation_base', '.agent-state/project-variable-lifecycle/guard-entry-controls.py')
+            current = guard.inverse(relative, current)
         for _, added in hunks:
+            check(current.count(added) == 1, 'D13 mutation hunk occurs exactly once')
             reject_inverse(relative, current.replace(added, '', 1))
             reject_inverse(relative, current + added)
     reject_inverse('unknown.py', (ROOT / DRIVER).read_text())

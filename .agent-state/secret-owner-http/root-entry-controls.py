@@ -40,6 +40,9 @@ def secret_root_results(output):
 
 
 def inverse(name, source):
+    if "'^TestProjectLifecycleStopBatchRealGuard$'" in source:
+        guard = load('legacy_guard_inverse', '.agent-state/project-variable-lifecycle/guard-entry-controls.py')
+        source = guard.inverse(name, source)
     # D13 first restores complete main 04455194 bytes. D12 then restores
     # main 3a7a3fb5 before the original Secret projection; no unknown hunk
     # may disappear between these independently fixed whole-source checks.
@@ -123,7 +126,8 @@ class RootEntryControls(unittest.TestCase):
         self.assertEqual(driver.TARGETS[parser_entry.SELECTOR], 'tests/knowledge')
         self.assertEqual(driver.TARGETS[knowledge_entry.SELECTOR], 'internal/central/app')
         self.assertEqual({k: v for k, v in driver.TARGETS.items()
-                          if k not in (SELECTOR, parser_entry.SELECTOR, knowledge_entry.SELECTOR)}, baseline['TARGETS'])
+                          if k not in (SELECTOR, parser_entry.SELECTOR, knowledge_entry.SELECTOR,
+                                       '^TestProjectLifecycleStopBatchRealGuard$')}, baseline['TARGETS'])
 
     def test_exact_three_cases_and_original_wait(self):
         top = 'TestProjectSecretVariablesDefaultRoot'
