@@ -18,6 +18,8 @@ root 定向释放容量后另授一次 `compile-02`，同 Go 源/611 编译输�
 
 首次真实 `schema-01` 为 wholeFAIL：fresh/repeat 与 schema/unbound 两子项通过，升级子项在原第 71 行的 Secret replay 断言失败；top 39.03s。session10916、outer748638/supervisor748725/driver748748/Go750984 原 Wait1，7 个资源的双退役、private/runtime/desc/TCP 双空及 1271 输入不变全部闭合，窗口已释放。原日志 `/tmp/acs01/pg-ff1a7622a24e4aa298da0364423d6066.log`，安全外层结果为 `output/ai/agent-system-integration/schema-01-control/result.json`。两个子项通过不替代整轮通过。
 
-确定的夹具缺陷是比较 `Fields().AuditID` 指针地址；该契约每次返回深复制，正确的非空 receipt 也会比较不等。现只将错误分支单独检查，并复用既有 `sameSecretReceipt` 比较完整安全 receipt 值；产品、DDL、原场景与预算未改。原复合断言未记录服务 `err`，不回填旧 replay 成功或断言这是唯一运行缺口。修后只完成格式/静态检查，尚未重编或真实复验；旧候选和原 FAIL 保留，后继需新候选执行受影响的 schema 入口。
+确定的夹具缺陷是比较 `Fields().AuditID` 指针地址；该契约每次返回深复制，正确的非空 receipt 也会比较不等。返修只将错误分支单独检查，并复用既有 `sameSecretReceipt` 比较完整安全 receipt 值；产品、DDL、原场景与预算未改。原复合断言未记录服务 `err`，不回填旧 replay 成功或断言这是旧轮唯一运行缺口。该返修先保存为 `bde38042`，再另授以下新候选与实际轮次；旧候选和原 FAIL 保留。
+
+修后 `compile-03` 原 wholePASS：session77610、outer759460/compile759464/list759618 原 Wait0，611 编译输入/方法初末一致及 group/desc/runtime 双空。新候选 `output/ai/agent-system-integration/schema-race-02.test` 为 46,643,942 B、SHA256 `c229211e93851a9ba105ebe8ef71de31fc32e15a7c7d95b157be2c6c58f0d6b5`，不覆盖原失败输入。紧接的 `schema-02` 原 wholePASS：session39069、outer759922/supervisor759988/Go761799 原 Wait0，driver 原 actual wait 为 true/code0；1 top/3 sub 共 23.29s（3.31/11.15/8.83s）。7ID 的 14 次 absent、private/runtime/desc 双空、HOST_TCP 双空与 1271 输入不变全部闭合，supervisor119.036s，外层 UTC13:13:37–13:15:38。原件为 `/tmp/acs02/pg-6ee5d8c51c984a56814549cca1134d31.log` 和 `output/ai/agent-system-integration/schema-02-control/result.json`。升级子项实际完成原 receipt 值重放、旧 producer 追加及 Audit CHECK；仅本有限 schema/metadata 组合通过。窗口和热缓存已释放，无后继自动重跑。
 
 停止条件：任一迁移、旧事实比较、实际指定 CHECK/FK、metadata 原 CommitResult 或零副作用断言失败，即保留该轮原 FAIL 和退出尾，向对应产品/测试 owner 报首个具体缺口；不自动重试、不扩大旧矩阵、不延长预算。
