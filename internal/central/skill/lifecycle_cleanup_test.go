@@ -31,6 +31,8 @@ type cleanupTestStore struct {
 	rollbackUnknown              bool
 	failDelete                   string
 	deleted                      []string
+	agentHeads, agentAssignments int
+	agentFactsError              error
 }
 
 func (s *cleanupTestStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
@@ -66,6 +68,11 @@ func (s *cleanupTestStore) WithinTx(ctx context.Context, cause f.TransactionCaus
 func (s *cleanupTestStore) QueryRow(ctx context.Context, q string, args ...any) postgres.Row {
 	value := func(v ...any) postgres.Row { return skillRowValues{values: v} }
 	switch {
+	case strings.HasPrefix(q, "SELECT NOT EXISTS(SELECT 1 FROM agenteam_skill.agent_assignment_heads"):
+		if s.agentFactsError != nil {
+			return skillRowValues{err: s.agentFactsError}
+		}
+		return value(s.agentHeads == 0 && s.agentAssignments == 0)
 	case strings.HasPrefix(q, "SELECT NOT EXISTS(SELECT 1 FROM agenteam_skill.initializations"):
 		return value(!s.core && s.c == nil && len(s.work) == 0 && len(s.attempts) == 0)
 	case strings.HasPrefix(q, "SELECT NOT EXISTS(SELECT 1 FROM agenteam_skill.work"):
@@ -358,6 +365,43 @@ func TestSkillCleanupAtomicGateAndOriginalUnknown(t *testing.T) {
 				}
 			} else if !errors.Is(err, sentinel) || store.c != nil || !store.serving || store.gated {
 				t.Fatal("atomic gate rollback or error changed", err)
+			}
+		})
+	}
+}
+
+func TestSkillCleanupBlocksUnretiredAgentInitializationBeforeRelease(t *testing.T) {
+	for _, name := range []string{"enabled", "disabled", "orphan", "unreadable"} {
+		t.Run(name, func(t *testing.T) {
+			s, store, objects, projects, scope := cleanupFixture(t)
+			switch name {
+			case "enabled":
+				store.agentHeads, store.agentAssignments = 1, 1
+			case "disabled":
+				store.agentHeads = 1
+			case "orphan":
+				store.agentAssignments = 1
+			case "unreadable":
+				store.agentFactsError = errors.New("controlled agent facts unavailable")
+			}
+			report, err := s.Cleanup(context.Background(), projects.actor, projects.cause, scope, nil)
+			if name == "unreadable" {
+				if !errors.Is(err, store.agentFactsError) {
+					t.Fatal("facts error suppressed")
+				}
+			} else if err != nil || report.Details().State != pc.CleanupPending {
+				t.Fatal("unretired Agent set accepted", err)
+			}
+			if objects.releases != 0 || objects.physical != 0 || objects.purges != 0 || store.c != nil || !store.serving || len(store.deleted) != 0 {
+				t.Fatal("Agent facts gate ran after material release")
+			}
+			// A missing old initialization is not an empty Project when these
+			// new Skills-owned facts remain. This also covers damaged parents.
+			store.core = false
+			store.attempts = map[string]bool{}
+			empty, checkErr := cleanupAllEmpty(context.Background(), store, scope.ProjectID)
+			if empty || (name == "unreadable" && checkErr == nil) {
+				t.Fatal("new facts omitted from empty check")
 			}
 		})
 	}
