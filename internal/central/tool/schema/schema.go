@@ -68,8 +68,8 @@ func Compile(ctx context.Context, raw []byte) (out Compiled, err error) {
 		}
 		return out, fault(f.SchemaUnsupported)
 	}
-	policy := documentPolicy{ctx: ctx, doc: doc, resources: map[string]string{}, anchors: map[string][]string{}}
-	if err = policy.walk(doc, "", ""); err != nil {
+	policy := documentPolicy{ctx: ctx, doc: doc, resources: map[string]string{}, checked: map[string]bool{}, anchors: map[string][]string{}}
+	if err = policy.walk(doc, "", "", true); err != nil {
 		return out, err
 	}
 	run := &matchState{ctx: ctx}
@@ -232,29 +232,34 @@ func fault(code f.Code) error { return f.NewFault(code, f.NotStarted) }
 type documentPolicy struct {
 	ctx       context.Context
 	doc       any
-	resources map[string]string // visited schema pointer -> containing resource pointer
+	resources map[string]string // discovered schema pointer -> containing resource pointer
+	checked   map[string]bool   // discovery alone does not classify legacy annotations
 	anchors   map[string][]string
 }
 
-func (p *documentPolicy) walk(value any, pointer, resource string) error {
+func (p *documentPolicy) walk(value any, pointer, resource string, check bool) error {
 	if err := p.ctx.Err(); err != nil {
 		return err
 	}
-	if _, seen := p.resources[pointer]; seen {
+	if _, seen := p.resources[pointer]; seen && (!check || p.checked[pointer]) {
 		return nil
 	}
 	if _, ok := value.(bool); ok {
 		p.resources[pointer] = resource
+		p.checked[pointer] = check
 		return nil
 	}
 	m, ok := value.(map[string]any)
 	if !ok {
+		if !check {
+			return nil
+		}
 		return fault(f.SchemaUnsupported)
 	}
-	if raw, exists := m["$schema"]; exists && raw != Draft {
+	if raw, exists := m["$schema"]; check && exists && raw != Draft {
 		return fault(f.SchemaUnsupported)
 	}
-	if vocabulary, ok := m["$vocabulary"].(map[string]any); ok {
+	if vocabulary, ok := m["$vocabulary"].(map[string]any); check && ok {
 		for name, required := range vocabulary {
 			if required != true {
 				continue
@@ -270,15 +275,20 @@ func (p *documentPolicy) walk(value any, pointer, resource string) error {
 		resource = pointer
 	}
 	p.resources[pointer] = resource
+	p.checked[pointer] = check
 	if _, ok := m["$dynamicAnchor"].(string); ok {
 		p.anchors[resource] = append(p.anchors[resource], pointer)
 	}
-	child := func(key string, value any) error {
-		return p.walk(value, pointer+"/"+pointerToken(key), resource)
+	child := func(key string, value any, verify bool) error {
+		return p.walk(value, pointer+"/"+pointerToken(key), resource, verify)
 	}
 	for _, key := range []string{"additionalProperties", "unevaluatedProperties", "propertyNames", "items", "contains", "unevaluatedItems", "not", "if", "then", "else", "contentSchema", "additionalItems"} {
 		if value, exists := m[key]; exists {
-			if err := child(key, value); err != nil {
+			// additionalItems is an annotation in 2020-12. Discover possible
+			// resources/anchors exactly as the compiler does, but classify its
+			// contents only if a compiled reference/anchor actually reaches them.
+			verify := check && key != "additionalItems"
+			if err := child(key, value, verify); err != nil {
 				return err
 			}
 		}
@@ -293,7 +303,7 @@ func (p *documentPolicy) walk(value any, pointer, resource string) error {
 						continue
 					}
 				}
-				if err := p.walk(value, pointer+"/"+key+"/"+pointerToken(name), resource); err != nil {
+				if err := p.walk(value, pointer+"/"+key+"/"+pointerToken(name), resource, check); err != nil {
 					return err
 				}
 			}
@@ -302,7 +312,7 @@ func (p *documentPolicy) walk(value any, pointer, resource string) error {
 	for _, key := range []string{"prefixItems", "allOf", "anyOf", "oneOf"} {
 		if children, ok := m[key].([]any); ok {
 			for n, value := range children {
-				if err := p.walk(value, pointer+"/"+key+"/"+strconv.Itoa(n), resource); err != nil {
+				if err := p.walk(value, pointer+"/"+key+"/"+strconv.Itoa(n), resource, check); err != nil {
 					return err
 				}
 			}
@@ -414,7 +424,7 @@ func (p *documentPolicy) compiled(compiler *js.Compiler, root *js.Schema) error 
 			}
 			parent = parent[:n]
 		}
-		if err := p.walk(value, pointer, p.resources[parent]); err != nil {
+		if err := p.walk(value, pointer, p.resources[parent], true); err != nil {
 			return err
 		}
 		// Resource dynamic anchors are compiled by the library even when their

@@ -88,6 +88,8 @@ func TestToolSchemaStrictJSONAndOfflineResources(t *testing.T) {
 		`{"$vocabulary":{"urn:unsupported-required":true}}`,
 		`{"hidden":{"$id":"urn:hidden","$schema":"http://json-schema.org/draft-07/schema","type":"integer"},"$ref":"#/hidden"}`,
 		`{"hidden":{"$id":"urn:hidden","$vocabulary":{"urn:unsupported-required":true},"type":"integer"},"$ref":"#/hidden"}`,
+		`{"additionalItems":{"$schema":"http://json-schema.org/draft-07/schema"},"$ref":"#/additionalItems"}`,
+		`{"additionalItems":{"$dynamicAnchor":"node","$ref":"#/hidden"},"hidden":{"$vocabulary":{"urn:unsupported-required":true}}}`,
 		`{"const":{"$id":"urn:literal-target","$schema":"http://json-schema.org/draft-07/schema"},"$ref":"#/const"}`,
 		`{"$ref":"http://json-schema.org/draft-07/schema"}`,
 		`{"$ref":"https://json-schema.org/draft/2020-12/schema"}`,
@@ -104,6 +106,9 @@ func TestToolSchemaStrictJSONAndOfflineResources(t *testing.T) {
 	for _, raw := range []string{
 		`{"hidden":{"$id":"urn:hidden","$schema":"https://json-schema.org/draft/2020-12/schema","type":"integer"},"$ref":"#/hidden"}`,
 		`{"hidden/a~b":{"type":"integer"},"$ref":"#/hidden~1a~0b"}`,
+		`{"type":"integer","additionalItems":"literal-annotation"}`,
+		`{"type":"integer","additionalItems":{"$schema":"http://json-schema.org/draft-07/schema"}}`,
+		`{"type":"integer","additionalItems":[{"$schema":"literal-data"}]}`,
 		`{"default":{"$schema":"http://json-schema.org/draft-07/schema","$vocabulary":{"urn:unsupported-required":true}},"type":"integer"}`,
 	} {
 		compiled := compileTest(t, raw)
