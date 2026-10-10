@@ -130,13 +130,16 @@ func TestSchedulerRetryBinding(t *testing.T) {
 		}
 		requireStoredRetryPolicy(t, v, rejected, &policy)
 		var executions, slots int64
-		var noRetry bool
+		var retryCheckpoint bool
 		err = v.base.raw.QueryRow(ctxFor(t), `SELECT
  (SELECT count(*) FROM agenteam_execution.executions WHERE project_id=$1::text),
  (SELECT count(*) FROM agenteam_execution.executions WHERE agent_id=$2::text AND status IN ('created','preparing','running','waiting')),
- (SELECT next_retry_at IS NULL FROM agenteam_scheduler.dispatches WHERE project_id=$1::text AND id=$3::text)`, v.base.project.ID.String(), v.agentID.String(), summary.ID.String()).Scan(&executions, &slots, &noRetry)
-		if err != nil || executions != 0 || slots != 0 || !noRetry {
-			t.Fatal("temporary rejection created an Execution, occupied a slot or scheduled a retry", err)
+ (SELECT temporary_attempt=attempt_count AND temporary_attempt=1
+   AND temporary_reason='launch_lock_timeout_v1' AND temporary_code='INTERNAL_ERROR'
+   AND next_retry_at=temporary_occurred_at+interval '100 milliseconds' AND final_attempt IS NULL
+   FROM agenteam_scheduler.dispatches WHERE project_id=$1::text AND id=$3::text)`, v.base.project.ID.String(), v.agentID.String(), summary.ID.String()).Scan(&executions, &slots, &retryCheckpoint)
+		if err != nil || executions != 0 || slots != 0 || !retryCheckpoint {
+			t.Fatal("temporary rejection created an Execution/slot or lost its bound retry checkpoint", err)
 		}
 		looked, err := handoff.Lookup(ctxFor(t), v.base.project.ID, summary.ID)
 		launches, _, created := counter.observed()

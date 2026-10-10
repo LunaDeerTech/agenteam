@@ -203,6 +203,11 @@ func newSchedulerBusyFixture(t *testing.T) *schedulerBusyFixture {
 // counter only. Execution owns all synchronous provider calls and their tails.
 func newBusyLaunchHandoff(t *testing.T, v *taskTransitionFixture) (*scheduler.LaunchHandoff, *countedSchedulerExecution) {
 	t.Helper()
+	return newSchedulerLaunchHandoff(t, v, false)
+}
+
+func newSchedulerLaunchHandoff(t *testing.T, v *taskTransitionFixture, retry bool) (*scheduler.LaunchHandoff, *countedSchedulerExecution) {
+	t.Helper()
 	access, err := project.NewSchedulerExecutionAccess(v.base.projectAuthority, v.pending)
 	if err != nil {
 		t.Fatal(err)
@@ -236,7 +241,13 @@ func newBusyLaunchHandoff(t *testing.T, v *taskTransitionFixture) (*scheduler.La
 		t.Fatal(err)
 	}
 	counter := &countedSchedulerExecution{service: service}
-	handoff, err := scheduler.NewLaunchHandoff(v.pending, scheduler.LaunchHandoffDependencies{Executions: counter, Observations: observer})
+	deps := scheduler.LaunchHandoffDependencies{Executions: counter, Observations: observer}
+	var handoff *scheduler.LaunchHandoff
+	if retry {
+		handoff, err = scheduler.NewLaunchHandoffWithRetry(v.pending, deps, v.base.projectAuthority)
+	} else {
+		handoff, err = scheduler.NewLaunchHandoff(v.pending, deps)
+	}
 	if err != nil {
 		t.Fatal(err)
 	}
