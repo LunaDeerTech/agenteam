@@ -34,3 +34,11 @@ Object owner/access 与 maintenance 按实际安装行、当前 attempt、原 pr
 00036 普通 cleanup 分支指向完整 installation tuple，允许 reserved/failed 有 Object 而尚无 canonical Skill；初始化保原 canonical 与初始化 FK。追加真实源 FK 反查和历史有界访问索引。cleanup authority/maintenance/audit 只按真实旧映射缺失分派普通来源，原 lifecycle gate/同 Tx D05 checker 不替代。secret 的 `install_read.go`/`install_cleanup.go` 为实际 helper，借入 00032–35 与 Skill34 引用 guard 后仍须组合验证。
 
 此批仅 gofmt 与 diff-check；未执行 Go、迁移36、PG/Object 或后台安装。原 pure-01 PASS 只绑定748，不能外推新源码。下一先保存当前源码并有限独审，再按 root 资源窗口运行新增必要纯检查和首次真实调用；不重复未变矩阵。完整 Agent/F1、Registry install source/Backend、Runner source、自动分配、更新与旧 STOP 均未声明完成。
+
+## 公开链 pure-02：启动前磁盘门失败
+
+公开安装/普通清理 `74342fdd` 已获 coordination 有限源码独审接受；真实新 fixture `tests/projectvariable/skill_installation_test.go` 已保存 `46a95480`，精确 `TestSkillInstallationPersistentObject` 两 sub 为 `install-read-replay`、`ordinary-cleanup`，尚未编译或执行。该 fixture 从真实 Project Create/Skill initializer 开始，后继清理阶段显式使用上游生命周期 fixture；不宣称完整 Project participant 调度已接通。
+
+2026-10-10 13:09:46 UTC，原 `pure-02` outer 755841（exec `0f9c88`）在同进程 fresh 磁盘门失败：5,144,195,072 B < 5,368,709,120 B。outer 实际 exit 1，零 Go、零 cache 写、零资源；race 与 vet 均未执行。1069 个 Go/mod 输入前后相同，私有 runtime 为空；原 `output/ai/skill-install/pure-02/{result,inputs}.json` 保留，未自动重试，热 cache 已交回 root 调度。
+
+待资源条件满足后仍只运行既定 8 新 top、原 bounded cleanup 1 top、Stop 的 discard/reader 两 sub 与单 skill 包 vet。准确合计 10 top / 27 sub；此前 20 sub 的准备计数漏记 `TestInstalledCleanupFinalAnchorsRequireCompletedOriginalGate` 内既有 7 sub，选择器范围未扩大。源仍冻结，下一 fresh 轮须由 root 调度。
