@@ -1,6 +1,6 @@
 # 正文 HTTP 有限入口
 
-本工具片段复用本树既有 supervisor、root adapter 与 native driver，仅新增下列两个闭集 literal。旧默认与所有旧 selector 可逆为 `e3145974` 原字节，不造新的资源监督者。2026-10-10 已完成 PG/native race candidate 与原 native driver 的离线构建及 exact top 列举，原 root adapter `--check` 实际0；未运行任何 PG/native 测试体或真实资源。
+本工具片段复用本树既有 supervisor、root adapter 与 native driver，仅新增下列两个闭集 literal。旧默认与所有旧 selector 可逆为 `e3145974` 原字节，不造新的资源监督者。2026-10-10 已完成 PG/native race candidate 与原 native driver 的离线构建及 exact top 列举，原 root adapter `--check` 实际0；native01 三 top/六 sub 与原完整收尾实际通过，PG 测试体仍未执行。
 
 | 模式 | 唯一新增 selector | 必须实际出现的节点 |
 | --- | --- | --- |
@@ -45,3 +45,5 @@ python3 .agent-state/task-planning-recovery/pg_only_supervisor.py \
 ```
 
 PG 另须显式 `AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON` 指向已存在本地 jsonschema/referencing 解释器；未配置即业务失败，不能把 Schema skip 当通过。root adapter 仍要求 MinIO SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`。Go 离线构建与真实资源窗口分别协调，不因准备完成自动启动 PG/native。
+
+native01 已在冻结 `937fdff2` 的 root 独占窗口实际完成：上列 exact selector 三 top/六 sub 恰 RUN/PASS；Go 原 child Wait0、driver 原 Wait0、outer/tool53466 terminal0，runtime/private 真实空且移除、desc 双空、host TCP delta 双空、输入初尾一致，supervisor 68.033s/0。业务覆盖自然2s/较早父期限、同连接GET→HEAD越过旧期限、实际Body.Close错误零发布、原Write背压Timeout、断连后原调用实际退出。首执行剩余17883721728 bytes通过5GiB门。日志为 `output/ai/knowledge-content-http/native-01/pg-25e936e1c9304901b2013ae26ff2866c.log`，属可再生普通输出；该输出目录现已有结果，不自动复跑或覆盖。当前无自有socket/进程/临时目录残留，资源窗口已释放；PG、生产root和Object Runtime全局join未由此证明。

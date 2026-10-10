@@ -1,6 +1,6 @@
 # D12 Human Owner 有界正文 HTTP
 
-状态：SPEC rev1、产品与第一批测试方法已获 Work 独立有限审查；HTTP 9 个纯测试 top（含 17 个实际响应 Schema 向量）及领域 3 个 top/15 子场景已 race 通过，两 package vet 通过。2026-10-10 恢复后由 content 接管，Skills 未参与者复核产品/source及 PG/native 方法有限接受；真实 PG 4 top/14 sub 与 native 3 top/6 sub 的 race 候选及原 driver 已离线构建、exact top 列举通过，尚未运行测试体，不能称产品完整验收。首次旧缓存缺锁定依赖的构建 FAIL 保留，资源命令见 [本域恢复入口](../../../.agent-state/knowledge-content-http/README.md)。基线 main `3b7ed9da35844e3a367cc5e9da0cf424ab36499a`。原作者 Variables UI；依据 [D12 合同](d12-knowledge-documents-design.md) §3/5/6、[B02 Service](d12-b02-knowledge-service.md)与已交付 [metadata HTTP](d12-knowledge-owner-read-http.md)。结果只提供当前正文的有界结构化读取，不包含写入、下载 URL、原文件流、D13 parser、UI 或默认 root。
+状态：SPEC rev1、产品与第一批测试方法已获 Work 独立有限审查；HTTP 9 个纯测试 top（含 17 个实际响应 Schema 向量）及领域 3 个 top/15 子场景已 race 通过，两 package vet 通过。2026-10-10 恢复后由 content 接管，Skills 未参与者复核产品/source及 PG/native 方法有限接受；native 3 top/6 sub 已真实 race 通过且 Go/driver/outer Wait、runtime/private/desc/TCP双尾与输入初尾齐全。真实 PG 4 top/14 sub race 候选与 exact 列举已准备，尚未运行测试体，不能称产品完整验收。首次旧缓存缺锁定依赖的构建 FAIL 保留，资源命令及边界见 [本域恢复入口](../../../.agent-state/knowledge-content-http/README.md)。基线 main `3b7ed9da35844e3a367cc5e9da0cf424ab36499a`。原作者 Variables UI；依据 [D12 合同](d12-knowledge-documents-design.md) §3/5/6、[B02 Service](d12-b02-knowledge-service.md)与已交付 [metadata HTTP](d12-knowledge-owner-read-http.md)。结果只提供当前正文的有界结构化读取，不包含写入、下载 URL、原文件流、D13 parser、UI 或默认 root。
 
 ## 1. 唯一入口与依赖
 
@@ -57,4 +57,4 @@ HEAD 执行同 GET 的当前授权、实际正文读取、Close 和完整安全�
 
 新增写域：`internal/central/knowledge/contenthttp/**`、`api/openapi/knowledge-content.json`、`tests/knowledge/owner_content_http*`、本卡/current 与必要本域可恢复测试工具。领域配套限 `source.go` 上述两出口及新增相邻 `content_source_test.go`，不重构旧测试。无新依赖、锁文件、迁移、metadata/五 POST/root 改动。Go/真实 PG/native/socket/新缓存仍由 root 按资源窗口另授，未执行不得称验收。
 
-首领域纯测试原 FAIL 保留：测试夹具用 reflect.DeepEqual 比较含函数闭包的 LockKey，提前拒绝相等锁；已改正式 CompareLockKeys 配数量/顺序/Mode，Fault 也按原 cause/code/NotCommitted 检查而非被事务复制的指针。仅重跑受影响三 top 后通过。独审发现的 HEAD Problem 缺 headers、native 背压未断言原 Write Timeout 已分别补齐；前者已由实际 Schema 向量验证，后者仍待真实 native 窗口。
+首领域纯测试原 FAIL 保留：测试夹具用 reflect.DeepEqual 比较含函数闭包的 LockKey，提前拒绝相等锁；已改正式 CompareLockKeys 配数量/顺序/Mode，Fault 也按原 cause/code/NotCommitted 检查而非被事务复制的指针。仅重跑受影响三 top 后通过。独审发现的 HEAD Problem 缺 headers、native 背压未断言原 Write Timeout 已分别补齐；前者已由实际 Schema 向量验证，后者已在 native01 观察原 Write 返回的 Timeout 并通过，原问题保留。
