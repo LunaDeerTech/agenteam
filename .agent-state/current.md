@@ -1,6 +1,6 @@
 # Skill 受控包安装：当前检查点
 
-- 工作树 `/workspace/agenteam-skill-install`，分支 `ai/skill-install`，基线 `728cd45a`。源码唯一作者 cleanup；Git 与资源调度归 root。
+- 工作树 `/workspace/agenteam-skill-install`，分支 `ai/skill-install`，基线 `728cd45a`。公开安装/00036/共享生命周期来源作者 cleanup；普通读取/清理 helper 作者 secret，文件边界分离。Git 与资源调度归 root。
 - 源检查点：首包请求/命令表 `ff820f7b`，私有仓储/计划事务 `cff8a11d`，canonical 来源与 work FK 的 00036 增量 `b34a87e4`，Object authority/maintenance 与原生命周期接缝 `748ac4a7`。
 - 00036 只归本模块；必须在真实连续 00032/33/34/35 组合后验证。未执行迁移、PG、Object 或浏览器测试。
 
@@ -10,7 +10,7 @@
 
 安装 command 绑定原 User、Project、Skill、key、metadata 与 package/manifest digest。私有计划事务先当前 Owner Read，再对新写/未完成写要求 Mutate；未知提交返回零计划并保留原 physical AttemptID。canonical Skill 与 revision 通过完整安装来源 FK 关联，原 protected 初始化约束保留。
 
-Object owner/access 与 maintenance 按实际安装行、当前 attempt、原 process 关联；初始化路径保留。安装 work 纳入原 Service 容量、Stop、Drain 与有界 recovery；取消不代表返回，实际本地返回或原 foreign process 停止证明加原完整锁后才可退役。该源码尚没有公开 Install 完整调用，普通目录/包读取与删除清理尚未接通。
+Object owner/access 与 maintenance 按实际安装行、当前 attempt、原 process 关联；初始化路径保留。安装 work 纳入原 Service 容量、Stop、Drain 与有界 recovery；取消不代表返回，实际本地返回或原 foreign process 停止证明加原完整锁后才可退役。本段对应已验 748 片段；后续公开调用与普通读取/清理组合见下，尚未运行。
 
 ## 首次纯基础检查
 
@@ -25,6 +25,12 @@ Object owner/access 与 maintenance 按实际安装行、当前 attempt、原 pr
 
 本结果只证明当前源码纯基础及上述旧路径兼容，不代表 migration 00036、安装 publication、Project 完整删除或 Registry callable Backend 已通过。生产 install source 保持 unbound，旧 Object runtime join 等 STOP 不变。
 
-## 下一步
+## 公开安装与普通来源组合：源码冻结，未运行
 
-先接受本片有限非作者 source review，再完成同原 caller 的 Prepare → Reserve → Upload → Publish、严格当前 canonical 读取及必要失败清理。只有具备正式工具契约和真实安装 Backend 后才能提供 Registry install source；不以空目录、DTO 或 stub 宣告 ready。下一 Go/真实资源运行需 root 明确窗口；不重复已通过且输入未变的矩阵。
+公开 `Service.Install(ctx, actor, meta, project, request)` 已落同 caller Prepare → 已知 Reserve commit → Upload → 同 Tx canonical Skill/revision 与 Object Publish。当前仅 Human 当前 Owner；AgentRun 仍 unbound。原 key/input/User/Project/Skill 与包/manifest 摘要不变，published replay 与 `LookupInstall` 经当前 Owner Read/同 Tx canonical 验证返回原 receipt；reserved 只返回 ResourceBusy/lookup，不重发，不制造 CommitUnknown。真实 Unknown 仍保存原 CommitResult，返回零 receipt。
+
+安装原 Discard 失败保留在 owned work，原调用实际返回之后才能执行同一尾；Drain/Recover/InspectStop 有界接续，取消及 caller 返回不能冒清理返回。已提交 publication 后 tail 失败返回 committed 故障且无成功 receipt，可通过原 key 查实际结果。新增 `install_service_test.go` 受控 Service/事务/Object 顺序、Unknown 零重发/lookup、held Discard 判据，尚未执行，不代替真实 Object/PG。
+
+00036 普通 cleanup 分支指向完整 installation tuple，允许 reserved/failed 有 Object 而尚无 canonical Skill；初始化保原 canonical 与初始化 FK。追加真实源 FK 反查和历史有界访问索引。cleanup authority/maintenance/audit 只按真实旧映射缺失分派普通来源，原 lifecycle gate/同 Tx D05 checker 不替代。secret 的 `install_read.go`/`install_cleanup.go` 为实际 helper，借入 00032–35 与 Skill34 引用 guard 后仍须组合验证。
+
+此批仅 gofmt 与 diff-check；未执行 Go、迁移36、PG/Object 或后台安装。原 pure-01 PASS 只绑定748，不能外推新源码。下一先保存当前源码并有限独审，再按 root 资源窗口运行新增必要纯检查和首次真实调用；不重复未变矩阵。完整 Agent/F1、Registry install source/Backend、Runner source、自动分配、更新与旧 STOP 均未声明完成。

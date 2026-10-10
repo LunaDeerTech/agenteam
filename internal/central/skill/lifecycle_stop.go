@@ -45,6 +45,19 @@ func (s *Service) InspectStop(ctx context.Context, actor id.Actor, cause pc.Life
 	state := s.state()
 	proven := map[skillWorkID]bool{}
 	var firstErr error
+	for workID, local := range snapshot.local {
+		state.mu.Lock()
+		pendingDiscard := local.fact.kind == installationWork && local.installationCallerReturned && !local.returned
+		state.mu.Unlock()
+		if pendingDiscard {
+			if err := s.joinInstallationDiscard(local); err != nil && firstErr == nil {
+				firstErr = err
+			}
+			state.mu.Lock()
+			snapshot.returned[workID] = local.returned
+			state.mu.Unlock()
+		}
+	}
 	// The first current gate has committed before any process proof is asked.
 	// Proof occurs outside SQL; the second transaction revalidates the same
 	// gate and acquires the original writer's complete lock set after proof.

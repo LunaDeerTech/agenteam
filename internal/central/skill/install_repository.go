@@ -248,3 +248,31 @@ func reserveInstallation(ctx context.Context, x postgres.SQLExecutor, r installa
 	}
 	return nil
 }
+
+func insertInstallingSkill(ctx context.Context, x postgres.SQLExecutor, row installationRow) error {
+	if row.validate() != nil || row.phase != installationReserved {
+		return invalid()
+	}
+	_, err := x.Exec(ctx, `INSERT INTO agenteam_skill.skills(id,project_id,installation_id,revision_id,name,normalized_name,description,protected,current_revision,version,serving) VALUES($1,$2,$3,$4,$5,$6,$7,false,1,1,true)`, row.skill.String(), row.project.String(), row.id.String(), row.revision.String(), row.pkg.name, row.pkg.normalized, row.pkg.description)
+	return portError(err)
+}
+
+func publishInstallation(ctx context.Context, x postgres.SQLExecutor, row installationRow, stored oc.PutResult) error {
+	scope, err := id.InProject(row.project)
+	m := stored.Meta
+	if err != nil || row.validate() != nil || row.phase != installationReserved || stored.Receipt.Validate() == nil || m.Validate() != nil || m.ID != row.object || !m.Scope.Equal(scope) || m.State != oc.Available || m.MediaType != sc.PackageMediaType || m.ByteSize != row.pkg.size || m.SHA256 != row.pkg.packageDigest {
+		return unavailable(nil)
+	}
+	_, err = x.Exec(ctx, `INSERT INTO agenteam_skill.revisions(id,project_id,skill_id,installation_id,revision,object_id,object_version,object_created_at,published_at) VALUES($1,$2,$3,$4,1,$5,$6,$7,clock_timestamp())`, row.revision.String(), row.project.String(), row.skill.String(), row.id.String(), row.object.String(), int64(m.Version), m.CreatedAt.Time())
+	if err != nil {
+		return unavailable(err)
+	}
+	tag, err := x.Exec(ctx, `UPDATE agenteam_skill.installations SET phase='published',version=version+1,updated_at=clock_timestamp() WHERE project_id=$1 AND id=$2 AND phase='reserved' AND version=$3 AND current_attempt_id=$4`, row.project.String(), row.id.String(), int64(row.version), row.attempt.String())
+	if err != nil {
+		return unavailable(err)
+	}
+	if tag.RowsAffected() != 1 {
+		return fault(f.ResourceBusy)
+	}
+	return nil
+}

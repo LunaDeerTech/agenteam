@@ -47,6 +47,14 @@ func (s *Service) Cleanup(ctx context.Context, actor id.Actor, cause pc.Lifecycl
 	}
 	defer s.end(call)
 	ctx = call.ctx
+	// Ordinary commands are real cleanup parents, including an interrupted
+	// reservation without a canonical Skill. One bounded step shares this call,
+	// its original deadline and actual Object tail before builtin finalization.
+	if handled, err := s.cleanupInstallations(ctx, actor, cause, scope, purger); err != nil {
+		return pc.CleanupReport{}, err
+	} else if handled {
+		return cleanupReport(cause, scope, nil, false)
+	}
 
 	snapshot, err := s.inspectCleanup(ctx, actor, cause, scope, hint)
 	if err != nil {

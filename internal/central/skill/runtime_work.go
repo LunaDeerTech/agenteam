@@ -20,6 +20,56 @@ type ownedWork struct {
 	installation *installationRow
 	call         *serviceCall
 	returned     bool
+	// Only ordinary Install uses this retained original prepared owner. A
+	// failed Discard leaves it here; caller return/cancellation is not EOF.
+	installationCallerReturned bool
+	installationDiscard        func() error
+	installationDiscardRunning bool
+}
+
+func (s *Service) finishInstallationWork(ctx context.Context, w *ownedWork) error {
+	state := s.state()
+	state.mu.Lock()
+	w.installationCallerReturned = true
+	close(state.changed)
+	state.changed = make(chan struct{})
+	state.mu.Unlock()
+	if err := s.joinInstallationDiscard(w); err != nil {
+		return err
+	}
+	return s.retireOwnedWork(ctx, w)
+}
+
+// This is one bounded attempt on the same original Discard, outside any Tx.
+// No timer, cancellation callback, or late caller can mark the owner returned.
+func (s *Service) joinInstallationDiscard(w *ownedWork) error {
+	state := s.state()
+	state.mu.Lock()
+	if w.returned {
+		state.mu.Unlock()
+		return nil
+	}
+	if w.fact.kind != installationWork || !w.installationCallerReturned || w.installationDiscardRunning {
+		state.mu.Unlock()
+		return fault(f.ResourceBusy)
+	}
+	w.installationDiscardRunning = true
+	discard := w.installationDiscard
+	state.mu.Unlock()
+	var err error
+	if discard != nil {
+		err = discard()
+	}
+	state.mu.Lock()
+	w.installationDiscardRunning = false
+	if err == nil {
+		w.installationDiscard = nil
+		w.returned = true
+	}
+	close(state.changed)
+	state.changed = make(chan struct{})
+	state.mu.Unlock()
+	return portError(err)
 }
 
 func (s *Service) newInstallationOwnedWork(row installationRow, kind workKind, call *serviceCall) (*ownedWork, error) {

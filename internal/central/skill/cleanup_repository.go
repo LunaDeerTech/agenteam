@@ -57,7 +57,7 @@ func loadCleanup(ctx context.Context, x postgres.SQLExecutor, project id.Project
 	// A published Project has one revision and one accepted Delete. Detect a
 	// conflicting older gate instead of arbitrarily choosing one of its rows.
 	var ids []string
-	err := x.QueryRow(ctx, `SELECT COALESCE(array_agg(id::text ORDER BY id),ARRAY[]::text[]) FROM (SELECT id FROM agenteam_skill.cleanup WHERE project_id=$1 ORDER BY id LIMIT 2) gates`, project.String()).Scan(&ids)
+	err := x.QueryRow(ctx, `SELECT COALESCE(array_agg(id::text ORDER BY id),ARRAY[]::text[]) FROM (SELECT id FROM agenteam_skill.cleanup WHERE project_id=$1 AND installation_id IS NULL ORDER BY id LIMIT 2) gates`, project.String()).Scan(&ids)
 	if err != nil {
 		return nil, unavailable(err)
 	}
@@ -67,15 +67,19 @@ func loadCleanup(ctx context.Context, x postgres.SQLExecutor, project id.Project
 	if len(ids) != 1 {
 		return nil, unavailable(nil)
 	}
+	return loadCleanupID(ctx, x, project, ids[0])
+}
+
+func loadCleanupID(ctx context.Context, x postgres.SQLExecutor, project id.ProjectID, identity string) (*cleanupRow, error) {
 	var c cleanupRow
-	var identity, p, operation, action, skill, revision, object, upload, phase string
+	var actualIdentity, p, operation, action, skill, revision, object, upload, phase string
 	var version, projectVersion int64
 	var created, updated time.Time
-	err = x.QueryRow(ctx, `SELECT id::text,project_id::text,lifecycle_operation_id::text,project_version,action,skill_id::text,revision_id::text,object_id::text,upload_id::text,phase,version,created_at,updated_at FROM agenteam_skill.cleanup WHERE id=$1 AND project_id=$2`, ids[0], project.String()).Scan(&identity, &p, &operation, &projectVersion, &action, &skill, &revision, &object, &upload, &phase, &version, &created, &updated)
+	err := x.QueryRow(ctx, `SELECT id::text,project_id::text,lifecycle_operation_id::text,project_version,action,skill_id::text,revision_id::text,object_id::text,upload_id::text,phase,version,created_at,updated_at FROM agenteam_skill.cleanup WHERE id=$1 AND project_id=$2`, identity, project.String()).Scan(&actualIdentity, &p, &operation, &projectVersion, &action, &skill, &revision, &object, &upload, &phase, &version, &created, &updated)
 	if err != nil {
 		return nil, unavailable(err)
 	}
-	if c.id, err = f.ParseID[oc.CleanupOperation](identity); err != nil {
+	if c.id, err = f.ParseID[oc.CleanupOperation](actualIdentity); err != nil {
 		return nil, unavailable(err)
 	}
 	if c.project, err = f.ParseID[id.Project](p); err != nil {
@@ -100,7 +104,7 @@ func loadCleanup(ctx context.Context, x postgres.SQLExecutor, project id.Project
 	c.phase, c.version = cleanupPhase(phase), f.Version(version)
 	_, createdErr := f.NewInstant(created)
 	_, updatedErr := f.NewInstant(updated)
-	if c.project != project || c.id.String() != ids[0] || c.cause.Validate() != nil || c.cause.Action != pc.Delete || c.version.Validate() != nil || createdErr != nil || updatedErr != nil || updated.Before(created) || c.phase != cleanupGated && c.phase != cleanupPending && c.phase != cleanupCompleted {
+	if c.project != project || c.id.String() != identity || c.cause.Validate() != nil || c.cause.Action != pc.Delete || c.version.Validate() != nil || createdErr != nil || updatedErr != nil || updated.Before(created) || c.phase != cleanupGated && c.phase != cleanupPending && c.phase != cleanupCompleted {
 		return nil, unavailable(nil)
 	}
 	return &c, nil
@@ -134,13 +138,19 @@ func cleanupWorkJoined(ctx context.Context, x postgres.SQLExecutor, project id.P
 	if err := x.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_skill.work WHERE project_id=$1 AND phase<>'joined')`, project.String()).Scan(&joined); err != nil {
 		return false, unavailable(err)
 	}
-	return joined, nil
+	if !joined {
+		return false, nil
+	}
+	return agentAssignmentsEmpty(ctx, x, project)
 }
 
 func cleanupAllEmpty(ctx context.Context, x postgres.SQLExecutor, project id.ProjectID) (bool, error) {
 	var empty bool
-	err := x.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_skill.initializations WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.skills WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.revisions WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.cleanup WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.work WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.object_attempts WHERE project_id=$1)`, project.String()).Scan(&empty)
-	return empty, portError(err)
+	err := x.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_skill.initializations WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.skills WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.revisions WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.cleanup WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.work WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.object_attempts WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.installations WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.installation_attempts WHERE project_id=$1)`, project.String()).Scan(&empty)
+	if err != nil || !empty {
+		return empty, portError(err)
+	}
+	return agentAssignmentsEmpty(ctx, x, project)
 }
 
 func insertCleanupGate(ctx context.Context, x postgres.SQLExecutor, r initializationRow, c cleanupRow) error {

@@ -112,6 +112,12 @@ func (m maintenanceMapping) dependencies() (oc.AccessDependencies, error) {
 
 func (a *Authority) discoverMaintenance(ctx context.Context, request oc.AccessRequest) (oc.AccessDependencies, error) {
 	if cleanupMaintenanceOperation(request.Details().Operation) {
+		if _, err := cleanupProjectForObject(ctx, a.state().store, request.Details().ObjectID); err != nil {
+			if unboundInitializationMapping(err) {
+				return a.discoverInstallationCleanupMaintenance(ctx, request)
+			}
+			return oc.AccessDependencies{}, err
+		}
 		return a.discoverCleanupMaintenance(ctx, request)
 	}
 	m, e := loadMaintenanceMapping(ctx, a.state().store, request)
@@ -125,6 +131,16 @@ func (a *Authority) discoverMaintenance(ctx context.Context, request oc.AccessRe
 }
 func (a *Authority) validateMaintenance(ctx context.Context, tx f.Tx, request oc.AccessRequest, expected oc.AccessDependencies) error {
 	if cleanupMaintenanceOperation(request.Details().Operation) {
+		x, err := a.state().store.InTx(tx)
+		if err != nil {
+			return portError(err)
+		}
+		if _, err = cleanupProjectForObject(ctx, x, request.Details().ObjectID); err != nil {
+			if unboundInitializationMapping(err) {
+				return a.validateInstallationCleanupMaintenance(ctx, tx, request, expected)
+			}
+			return err
+		}
 		return a.validateCleanupMaintenance(ctx, tx, request, expected)
 	}
 	x, e := a.state().store.InTx(tx)

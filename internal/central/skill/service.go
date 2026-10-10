@@ -174,7 +174,7 @@ func (s *Service) Drain(ctx context.Context) error {
 		empty := len(state.calls) == 0 && len(state.work) == 0
 		ready := make([]*ownedWork, 0, len(state.work))
 		for _, work := range state.work {
-			if work.returned {
+			if work.returned || work.fact.kind == installationWork && work.installationCallerReturned {
 				ready = append(ready, work)
 			}
 		}
@@ -184,6 +184,11 @@ func (s *Service) Drain(ctx context.Context) error {
 			return nil
 		}
 		for _, work := range ready {
+			if work.fact.kind == installationWork {
+				if e := s.joinInstallationDiscard(work); e != nil {
+					return e
+				}
+			}
 			if e := s.retireOwnedWork(ctx, work); e != nil {
 				return e
 			}

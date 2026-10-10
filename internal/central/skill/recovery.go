@@ -214,9 +214,15 @@ func (s *Service) recoverInstallationWork(ctx context.Context, expected workFact
 	if expected.process == state.process {
 		state.mu.Lock()
 		local = state.work[expected.id]
+		pendingDiscard := local != nil && local.fact.kind == installationWork && local.installationCallerReturned && !local.returned
+		state.mu.Unlock()
+		if pendingDiscard {
+			proofErr = s.joinInstallationDiscard(local)
+		}
+		state.mu.Lock()
 		ready := local != nil && local.returned && sameWorkOwner(local.fact, expected)
 		state.mu.Unlock()
-		if !ready {
+		if !ready && proofErr == nil {
 			proofErr = fault(f.ResourceBusy)
 		}
 	} else {

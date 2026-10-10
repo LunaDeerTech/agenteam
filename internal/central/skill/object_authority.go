@@ -340,6 +340,12 @@ func (a *Authority) Discover(ctx context.Context, request oc.AccessRequest) (oc.
 		return a.discoverMaintenance(ctx, request)
 	}
 	if d.Kind == oc.CleanupReleaseAccess || d.Kind == oc.ObjectCleanupAccess {
+		if _, err := ownerInitialization(ctx, state.store, d.Cleanup.Details().Owner); err != nil {
+			if notInitializationOwner(err) {
+				return a.discoverInstallationCleanup(ctx, request)
+			}
+			return oc.AccessDependencies{}, err
+		}
 		return a.discoverCleanup(ctx, request)
 	}
 	if d.Kind != oc.OwnerAccess && d.Kind != oc.ObjectReadAccess {
@@ -377,6 +383,12 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx f.Tx, request oc.Access
 		return a.validateMaintenance(ctx, tx, request, expected)
 	}
 	if d.Kind == oc.CleanupReleaseAccess || d.Kind == oc.ObjectCleanupAccess {
+		if _, err := ownerInitialization(ctx, x, d.Cleanup.Details().Owner); err != nil {
+			if notInitializationOwner(err) {
+				return a.validateInstallationCleanup(ctx, tx, request, expected)
+			}
+			return err
+		}
 		return a.validateCleanup(ctx, tx, request, expected)
 	}
 	if d.Kind != oc.OwnerAccess && d.Kind != oc.ObjectReadAccess {

@@ -56,6 +56,7 @@ ALTER TABLE agenteam_skill.installations ADD CONSTRAINT skill_installation_curre
  FOREIGN KEY(current_attempt_id,project_id,id,skill_id,revision_id,object_id,upload_id)
  REFERENCES agenteam_skill.installation_attempts(attempt_id,project_id,installation_id,skill_id,revision_id,object_id,upload_id) DEFERRABLE INITIALLY DEFERRED;
 CREATE INDEX skill_installation_original_object ON agenteam_skill.installation_attempts(object_id,attempt_id);
+CREATE INDEX skill_installation_attempt_parent ON agenteam_skill.installation_attempts(project_id,installation_id,attempt_id);
 
 -- +goose StatementBegin
 CREATE FUNCTION agenteam_skill.reject_installation_rewrite() RETURNS trigger LANGUAGE plpgsql AS $$
@@ -119,3 +120,25 @@ ALTER TABLE agenteam_skill.work
  REFERENCES agenteam_skill.initializations(project_id,skill_id) DEFERRABLE INITIALLY DEFERRED,
  ADD CONSTRAINT work_installation_parent FOREIGN KEY(installation_project_id,skill_id)
  REFERENCES agenteam_skill.installations(project_id,skill_id) DEFERRABLE INITIALLY DEFERRED;
+
+-- Cleanup retains the exact source even if reservation never published a
+-- canonical Skill. Initialization still requires its original canonical row;
+-- ordinary cleanup is parented by the original complete installation tuple.
+ALTER TABLE agenteam_skill.cleanup
+ ADD COLUMN installation_id agenteam_skill.safe_id,
+ ADD COLUMN initialization_project_id agenteam_skill.safe_id GENERATED ALWAYS AS (CASE WHEN installation_id IS NULL THEN project_id END) STORED,
+ ADD COLUMN installation_project_id agenteam_skill.safe_id GENERATED ALWAYS AS (CASE WHEN installation_id IS NOT NULL THEN project_id END) STORED,
+ DROP CONSTRAINT cleanup_project_id_skill_id_revision_id_fkey,
+ DROP CONSTRAINT cleanup_project_id_skill_id_revision_id_object_id_upload_i_fkey,
+ ADD CONSTRAINT cleanup_initialized_core FOREIGN KEY(initialization_project_id,skill_id,revision_id)
+ REFERENCES agenteam_skill.skills(project_id,id,revision_id) DEFERRABLE INITIALLY DEFERRED,
+ ADD CONSTRAINT cleanup_initialization_parent FOREIGN KEY(initialization_project_id,skill_id,revision_id,object_id,upload_id)
+ REFERENCES agenteam_skill.initializations(project_id,skill_id,revision_id,object_id,upload_id) DEFERRABLE INITIALLY DEFERRED,
+ ADD CONSTRAINT cleanup_installation_parent FOREIGN KEY(installation_project_id,installation_id,skill_id,revision_id,object_id,upload_id)
+ REFERENCES agenteam_skill.installations(project_id,id,skill_id,revision_id,object_id,upload_id) DEFERRABLE INITIALLY DEFERRED;
+CREATE INDEX skill_cleanup_installation_parent ON agenteam_skill.cleanup(project_id,installation_id,id) WHERE installation_id IS NOT NULL;
+CREATE INDEX skill_work_parent_history ON agenteam_skill.work(project_id,skill_id,phase,id);
+CREATE INDEX skill_cleanup_initialization_fk ON agenteam_skill.cleanup(initialization_project_id,skill_id,revision_id,object_id,upload_id) WHERE initialization_project_id IS NOT NULL;
+CREATE INDEX skill_cleanup_installation_fk ON agenteam_skill.cleanup(installation_project_id,installation_id,skill_id,revision_id,object_id,upload_id) WHERE installation_project_id IS NOT NULL;
+CREATE INDEX skill_work_initialization_fk ON agenteam_skill.work(initialization_project_id,skill_id) WHERE initialization_project_id IS NOT NULL;
+CREATE INDEX skill_work_installation_fk ON agenteam_skill.work(installation_project_id,skill_id) WHERE installation_project_id IS NOT NULL;
