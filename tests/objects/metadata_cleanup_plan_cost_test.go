@@ -9,6 +9,7 @@ import (
 
 type metadataCostPlanNode struct {
 	NodeType     string                 `json:"Node Type"`
+	Relation     string                 `json:"Relation Name"`
 	Rows         float64                `json:"Actual Rows"`
 	Loops        float64                `json:"Actual Loops"`
 	Filtered     float64                `json:"Rows Removed by Filter"`
@@ -20,6 +21,20 @@ type metadataCostPlanNode struct {
 	LocalHit     float64                `json:"Local Hit Blocks"`
 	LocalRead    float64                `json:"Local Read Blocks"`
 	Plans        []metadataCostPlanNode `json:"Plans"`
+}
+
+// A planned branch with zero loops is not execution coverage. Check the
+// relation's actual scan, without requiring a particular index or node type.
+func metadataCostRelationExecuted(plan metadataCostPlanNode, relation string, nonempty bool) bool {
+	if plan.Relation == relation && plan.Loops > 0 && (plan.Rows > 0) == nonempty {
+		return true
+	}
+	for _, child := range plan.Plans {
+		if metadataCostRelationExecuted(child, relation, nonempty) {
+			return true
+		}
+	}
+	return false
 }
 
 func metadataCostPlanWithinFixtureBounds(plan metadataCostPlanNode) error {
@@ -48,6 +63,19 @@ func metadataCostPlanWithinFixtureBounds(plan metadataCostPlanNode) error {
 }
 
 func TestObjectMetadataCostPlanWorkBounds(t *testing.T) {
+	t.Run("actual_relation_execution", func(t *testing.T) {
+		plan := metadataCostPlanNode{NodeType: "Result", Rows: 1, Loops: 1, Plans: []metadataCostPlanNode{
+			{Relation: "project_work", Rows: 1, Loops: 0},
+			{Relation: "object_transfers", Loops: 1},
+		}}
+		if metadataCostRelationExecuted(plan, "project_work", true) || metadataCostRelationExecuted(plan, "project_work", false) || metadataCostRelationExecuted(plan, "object_transfers", true) || !metadataCostRelationExecuted(plan, "object_transfers", false) {
+			t.Fatal("planned or empty node was credited as nonempty execution")
+		}
+		plan.Plans[0].Loops = 1
+		if !metadataCostRelationExecuted(plan, "project_work", true) || metadataCostRelationExecuted(plan, "project_work", false) {
+			t.Fatal("actual nonempty relation was not distinguished from the empty tail")
+		}
+	})
 	for _, test := range []struct {
 		name string
 		plan metadataCostPlanNode
@@ -59,6 +87,7 @@ func TestObjectMetadataCostPlanWorkBounds(t *testing.T) {
 		// Actual 7868 regressions, even though their parents returned one bool
 		// and the total query completed within the original two-second limit.
 		{"retired_transfer_scan", metadataCostPlanNode{NodeType: "Seq Scan", Rows: 81, Filtered: 1017, Loops: 1, SharedHit: 123}, true},
+		{"retired_transfer_batch_join", metadataCostPlanNode{NodeType: "Bitmap Heap Scan", Rows: 81, Filtered: 16, Loops: 1}, true},
 		{"retired_lease_scan", metadataCostPlanNode{NodeType: "Seq Scan", Rows: 13134, Loops: 1, SharedHit: 215}, true},
 		{"revoked_grant_index_filter", metadataCostPlanNode{NodeType: "Index Scan", Filtered: 1034, Loops: 1, SharedHit: 36}, true},
 		{"nested_loop_amplification", metadataCostPlanNode{NodeType: "Index Scan", Rows: 2, Loops: 33, SharedHit: 99}, true},

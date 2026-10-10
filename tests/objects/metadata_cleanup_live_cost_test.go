@@ -224,7 +224,7 @@ func metadataLiveCostPages(t *testing.T, store *postgres.Store, q metadataPlanQu
 	}
 }
 
-func metadataLivePending(t *testing.T, store *postgres.Store, q metadataPlanQuery, stage string, args []any, want bool) {
+func metadataLivePending(t *testing.T, store *postgres.Store, q metadataPlanQuery, stage string, args []any, want bool) metadataCostPlanNode {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	deadline, _ := ctx.Deadline()
@@ -235,7 +235,7 @@ func metadataLivePending(t *testing.T, store *postgres.Store, q metadataPlanQuer
 	if err != nil || returned.After(deadline) || got != want {
 		t.Fatal("full pending query/absolute observation deadline", stage, got, want, err)
 	}
-	metadataCostExplain(t, store, stage, "full-pending", q.sql, args, 1)
+	return metadataCostExplain(t, store, stage, "full-pending", q.sql, args, 1)
 }
 
 func metadataLiveCostCardinalities(t *testing.T, store *postgres.Store, liveLeases, liveWork, liveGrants int) {

@@ -13,6 +13,7 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+	"github.com/jackc/pgx/v5"
 )
 
 //go:embed testdata/metadata_cleanup_pending_cost.sql
@@ -101,7 +102,88 @@ func TestObjectMetadataCleanupPendingHistoryAndCausePlans(t *testing.T) {
 	if err := store.QueryRow(contextFor(t), `SELECT phase FROM agenteam_object.cleanup_operations WHERE id=$1`, metadataCostID(0x01e30000, 66)).Scan(&phase); err != nil || phase != "applying" {
 		t.Fatal("SQL join probe changed original cleanup checkpoint", phase, err)
 	}
+	metadataPendingTailPlans(t, store, conn, queries["physical-full-pending"])
 }
+
+func metadataPendingTailPlans(t *testing.T, store *postgres.Store, conn *pgx.Conn, query metadataPlanQuery) {
+	t.Helper()
+	// A separate, explicitly SQL-only comparison snapshot advances the native
+	// checkpoints without deleting any history. Completed cleanup can precede
+	// the original call's work join (cleanup.go checkpoint/finalize); likewise
+	// ConfirmStopped may persist retirement and release a GET lease without
+	// revoking the transfer (transfer_recovery.go). Keep Object Available and
+	// cleaning throughout: neither snapshot asserts Project Stop completion,
+	// Object Deleted/Audit, a private witness, or a successful Purge.
+	if _, err := conn.Exec(contextFor(t), metadataPendingTailCostSQL); err != nil {
+		t.Fatal("pending tail SQL comparison snapshots", err)
+	}
+	object, worker, transfer := metadataCostID(0x01e00000, 1), metadataCostID(0x01e90000, 1), metadataCostID(0x01e60000, 66)
+	args := []any{object, []string{}}
+	plan := metadataLivePending(t, store, query, "completed-checkpoint-unjoined-tail", args, true)
+	if !metadataCostRelationExecuted(plan, "project_work", true) {
+		t.Fatal("pending work branch was planned but never executed with its original tail")
+	}
+	tag, err := store.Exec(contextFor(t), `UPDATE agenteam_object.project_work SET joined_at=clock_timestamp() WHERE id=$1 AND joined_at IS NULL`, worker)
+	if err != nil || tag.RowsAffected() != 1 {
+		t.Fatal("SQL tail comparison did not join exactly the original cleanup worker", err)
+	}
+	plan = metadataLivePending(t, store, query, "joined-retired-get-not-revoked", args, true)
+	if !metadataCostRelationExecuted(plan, "project_work", false) || !metadataCostRelationExecuted(plan, "object_transfers", true) {
+		t.Fatal("nonempty transfer tail remained hidden behind an earlier predicate")
+	}
+	tag, err = store.Exec(contextFor(t), `UPDATE agenteam_object.object_transfers SET revoked_at=clock_timestamp(),cleanup_gate=true,version=version+1 WHERE id=$1 AND revoked_at IS NULL AND retirement_evidence IS NOT NULL`, transfer)
+	if err != nil || tag.RowsAffected() != 1 {
+		t.Fatal("SQL comparison did not revoke exactly the already retired GET", err)
+	}
+	plan = metadataLivePending(t, store, query, "all-tail-predicates-empty-with-history", args, false)
+	if !metadataCostRelationExecuted(plan, "project_work", false) || !metadataCostRelationExecuted(plan, "object_transfers", false) {
+		t.Fatal("empty work/transfer ranges did not actually execute after history")
+	}
+	var attempts, cleaned, cleanup, work, joined, transfers, retired, foreignTransfers, foreignWork int
+	var available bool
+	err = store.QueryRow(contextFor(t), `SELECT
+ (SELECT count(*) FROM agenteam_object.upload_attempts WHERE object_id=$1),
+ (SELECT count(*) FROM agenteam_object.upload_attempts WHERE object_id=$1 AND phase='cleaned'),
+ (SELECT count(*) FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND phase='completed'),
+ (SELECT count(*) FROM agenteam_object.project_work WHERE object_id=$1),
+ (SELECT count(*) FROM agenteam_object.project_work WHERE object_id=$1 AND joined_at IS NOT NULL),
+ (SELECT count(*) FROM agenteam_object.object_transfers WHERE object_id=$1),
+ (SELECT count(*) FROM agenteam_object.object_transfers t JOIN agenteam_object.object_leases l ON l.id=t.lease_id WHERE t.object_id=$1 AND t.revoked_at IS NOT NULL AND t.retirement_evidence IS NOT NULL AND l.state='released'),
+ (SELECT count(*) FROM agenteam_object.object_transfers WHERE project_id=$2),
+ (SELECT count(*) FROM agenteam_object.project_work WHERE project_id=$2),
+ EXISTS(SELECT 1 FROM agenteam_object.objects WHERE id=$1 AND state='available' AND cleaning)`, object, metadataCostID(0x01910000, 2)).Scan(&attempts, &cleaned, &cleanup, &work, &joined, &transfers, &retired, &foreignTransfers, &foreignWork, &available)
+	if err != nil || attempts != 67 || cleaned != 67 || cleanup != 67 || work != 68 || joined != 68 || transfers != 66 || retired != 66 || foreignTransfers != 1001 || foreignWork != 11002 || !available {
+		t.Fatal("pending tail cost lost historical rows or invented Object completion", attempts, cleaned, cleanup, work, joined, transfers, retired, foreignTransfers, foreignWork, available, err)
+	}
+}
+
+// No marked retirement below is given to Service. These are SQL cost shapes
+// of 65 retired/revoked GETs and one retirement-confirmed but not-yet-revoked
+// GET, each with its original released external lease. This does not separate
+// retirement proof and lease release, or create live transfers over Deleted.
+const metadataPendingTailCostSQL = `
+BEGIN;
+UPDATE agenteam_object.upload_attempts SET phase='cleaned' WHERE object_id='01e00000-0000-7000-8000-000000000001' AND phase='abandoned' AND cleanup_gate AND io_closed;
+UPDATE agenteam_object.cleanup_operations SET phase='completed' WHERE object_id='01e00000-0000-7000-8000-000000000001' AND phase IN ('gated','applying');
+UPDATE agenteam_object.cleanup_operations SET worker_id='01e90000-0000-7000-8000-000000000001',fence=1 WHERE id='01e30000-0000-7000-8000-000000000000';
+INSERT INTO agenteam_object.project_work(id,project_id,process_id,kind,resource_id,object_id,admission_version,cleanup_claim_fence)
+VALUES('01e90000-0000-7000-8000-000000000001','01910000-0000-7000-8000-000000000001','01910000-0000-7000-8000-000000000005','cleanup','01e30000-0000-7000-8000-000000000000','01e00000-0000-7000-8000-000000000001',0,1);
+INSERT INTO agenteam_object.object_leases(id,object_id,owner_kind,owner_id,state,released_at)
+SELECT ('01e70000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,'01e00000-0000-7000-8000-000000000001','transfer',('01e60000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,'released',clock_timestamp() FROM generate_series(1,66) n;
+INSERT INTO agenteam_object.object_transfers(id,issue_hash,issue_key,issue_request_id,semantic_digest,actor_json,stable_actor,project_id,owner_kind,owner_id,runner_id,operation_id,runner_generation,operation_version,execution_id,direction,object_id,lease_id,media_type,byte_size,sha256,candidate_key,duration_seconds,expires_at,phase,version,revoked_at,completed_evidence,completed_digest,retirement_evidence,retirement_kind,retirement_digest,cleanup_gate)
+SELECT ('01e60000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,decode('06'||lpad(to_hex(n),62,'0'),'hex'),'pending-tail-get-'||n,('01e60000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,decode(repeat('22',32),'hex'),
+ '{"Kind":"human","UserID":"01910000-0000-7000-8000-000000000004","SessionID":"01910000-0000-7000-8000-000000000006"}'::jsonb,
+ '{"Agent":"","Cause":"","Execution":"","Project":"","Service":"","User":"01910000-0000-7000-8000-000000000004","kind":"human"}',
+ '01910000-0000-7000-8000-000000000001','skill_revision','01e00000-0000-7000-8000-000000000001','01910000-0000-7000-8000-000000000007','01910000-0000-7000-8000-000000000008',1,1,'01910000-0000-7000-8000-000000000009','get','01e00000-0000-7000-8000-000000000001',('01e70000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,'text/plain',4,decode(repeat('00',32),'hex'),'candidate/01e20000-0000-7000-8000-000000000043',60,'2026-01-01T00:01:00Z','complete',2,CASE WHEN n<=65 THEN '2026-01-01T00:02:00Z'::timestamptz END,('01e60000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,decode(repeat('33',32),'hex'),('01e60000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,'completed',decode(repeat('33',32),'hex'),n<=65 FROM generate_series(1,66) n;
+INSERT INTO agenteam_object.project_work(id,project_id,process_id,kind,resource_id,object_id,admission_version,joined_at)
+SELECT ('01e80000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,'01910000-0000-7000-8000-000000000001','01910000-0000-7000-8000-000000000005','transfer_get',('01e60000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,'01e00000-0000-7000-8000-000000000001',0,clock_timestamp() FROM generate_series(1,66) n;
+SET CONSTRAINTS ALL IMMEDIATE;
+COMMIT;
+ANALYZE agenteam_object.upload_attempts;
+ANALYZE agenteam_object.cleanup_operations;
+ANALYZE agenteam_object.project_work;
+ANALYZE agenteam_object.object_leases;
+ANALYZE agenteam_object.object_transfers;`
 
 // Extend the existing observer for one actual finalization SELECT. All SQL
 // still delegates to the original Store/Tx; no row or permission is replaced.

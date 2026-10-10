@@ -249,7 +249,7 @@ func metadataCostQueryIDs(t *testing.T, store *postgres.Store, sql string, args 
 	}
 }
 
-func metadataCostExplain(t *testing.T, store *postgres.Store, stage, name, sql string, args []any, wantRows int) {
+func metadataCostExplain(t *testing.T, store *postgres.Store, stage, name, sql string, args []any, wantRows int) metadataCostPlanNode {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	deadline, _ := ctx.Deadline()
@@ -269,6 +269,7 @@ func metadataCostExplain(t *testing.T, store *postgres.Store, stage, name, sql s
 	if err := metadataCostPlanWithinFixtureBounds(plans[0].Plan); err != nil {
 		t.Fatal("cost plan traversed beyond the fixture's current/batch work", stage, name, err)
 	}
+	return plans[0].Plan
 }
 
 const metadataCostActiveReadersSQL = `
