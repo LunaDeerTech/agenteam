@@ -177,11 +177,15 @@ func newSkillInstallationFixture(t *testing.T) *skillInstallationFixture {
 	if err != nil {
 		t.Fatal(err)
 	}
-	box, err := outbox.New(store, catalog, outbox.Authorizations{Producers: map[event.StableName]outc.ProducerAuthority{pc.ProjectProducer: projects}, Sessions: base.accounts, System: base.accounts, Projects: projects, Audit: aud, Cursors: base.keys, Processes: fixtureProcess{process}})
+	outboxProcess, err := f.ParseID[outc.Process](process.String())
 	if err != nil {
 		t.Fatal(err)
 	}
-	creator, err := project.New(store, project.Dependencies{Authority: projects, Activity: base.accounts, Audit: aud, Events: box, ProjectEvents: types, Initializer: service, Processes: fixtureProcess{process}, Cursors: base.keys}, project.DefaultConfig())
+	box, err := outbox.New(store, catalog, outbox.Authorizations{Producers: map[event.StableName]outc.ProducerAuthority{pc.ProjectProducer: projects}, Sessions: base.accounts, System: base.accounts, Projects: projects, Audit: aud, Cursors: base.keys, Processes: fixtureProcess{outboxProcess}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	creator, err := project.New(store, project.Dependencies{Authority: projects, Activity: base.accounts, Audit: aud, Events: box, ProjectEvents: types, Initializer: service, Processes: fixtureProcess{outboxProcess}, Cursors: base.keys}, project.DefaultConfig())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -193,7 +197,7 @@ func newSkillInstallationFixture(t *testing.T) *skillInstallationFixture {
 			t.Error("original Project drain", err)
 		}
 	})
-	target := pc.CreateProjectRequest{ProjectID: id[identity.Project](t), Name: "Skill install fixture", Description: "owned installation prerequisite"}
+	target := pc.CreateProjectRequest{ProjectID: id[identity.Project](t), Name: "skill-install-fixture", Description: "owned installation prerequisite"}
 	created, err := creator.CreateProject(ctxFor(t), base.ownerBrowser.actor, meta(t, id[struct{}](t).String(), nil), target)
 	if err != nil || created.State != pc.CreationReady || created.Project == nil || created.Project.ID != target.ProjectID {
 		t.Fatal("real target Project/Skills initialization", err)
@@ -333,7 +337,7 @@ func TestSkillInstallationPersistentObject(t *testing.T) {
 		}
 		denied, e := v.service.Install(ctxFor(t), v.base.otherBrowser.actor, meta(t, id[struct{}](t).String(), nil), projectID, request)
 		var rejected *f.Fault
-		if !errors.As(e, &rejected) || rejected.Code != f.Forbidden || denied != (skill.InstallReceipt{}) {
+		if !errors.As(e, &rejected) || rejected.Code != f.NotFound || denied != (skill.InstallReceipt{}) {
 			t.Fatal("foreign current Owner entered installation", e)
 		}
 		var installations, attempts, revisions, references, uploads, liveWork, leases int
