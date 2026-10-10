@@ -16,6 +16,7 @@ GO = Path('/workspace/toolchains/go1.27.1/bin/go')
 MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
+    '^TestKnowledgeTreeCommandHTTPIndependentReceiptOwner$': 'tests/knowledge',
     '^TestKnowledgeTreeCommandHTTP(Mutations|Authority|Transactions|Unknown)$': 'tests/knowledge',
     '^TestKnowledgeTreeCommandHTTPUnknown$': 'tests/knowledge',
     '^TestKnowledgeTreeCommandHTTP(Mutations|Unknown)$': 'tests/knowledge',

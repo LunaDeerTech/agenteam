@@ -44,4 +44,37 @@
 
 - native02原 `52400`→`0b3bce` outer actual0，67.850s，精确 `^TestTreeCommandsHTTPNative(ReadDeadlines|KeepAliveAndClose|WriteAndDisconnect)$` 3top/6sub完整PASS；Read2.16s、KeepAlive2.11s、Write2.13s，其中新增原Write Timeout与至少3/4预算门实际2.12s通过。原启动UTC2026-10-10T00:49:17.131702Z，同process available5,409,759,232B≥5GiB，native02与原driver尺寸/SHA、继承Node PATH和新 `/tmp/ktc-native-01` absent均核齐，没有重试或PG并跑。
 - child1422975原Wait0、driver1422968原Wait0/7.457s，runtime_empty/private_removed、desc两轮[]、tree_commands_exact、HOST_TCP两次delta_empty及inputs_unchanged=True均齐；本人原terminal与尾 `519485` 已核，窗口释放、无自有在途命令。日志 `/tmp/ktc-native-01/pg-87731d1f665a4a1cbb33325eb9548141.log`。native仅原TCP全Close，Account/domain端口controlled，不能冒half-close或真实PG权限。
-- Skills已收到两轮原日志与PG01不变七子入口，按其六源方法独审、Runner独立2top/9sub实际风险控制与当前作者结果作最终有限收口；不把原PG01整体FAIL改为PASS。交付目标现为正式Runner main `fb6ab7f492850bf1d3c025a59acbff381312a989`，原18路径清单不扩root/SQL；仍须root装配与同包编译，未宣布正式交付。
+- Skills已收到两轮原日志与PG01不变七子入口，按其六源方法独审、Runner独立2top/9sub实际风险控制与当前作者结果作最终有限收口；不把原PG01整体FAIL改为PASS。交付目标现为正式Skills P2 main `3b7ed9da35844e3a367cc5e9da0cf424ab36499a`；清单加Skills独占、尚待验的唯一Owner/旧receipt独立PG源为19路径，不扩root/SQL；仍须root装配与同包编译，未宣布正式交付。
+
+- 后继分工：Skills已有限接受两实际原结果的方法，独占新增independent test与两入口的唯一新literal/专属controls；作者不参与其预期设计，原4产品/5PG/native及当前候选保持冻结。旧PG01/PG02/native01 ignored binary已由root按精确路径回收，可按已保存固定源重建；原FAIL、源码、SHA与日志不删不改。P2共享Object增量仅精确Skills分支，旧Knowledge/Human路径保持；装配只需必要同包integration编译，未授权新的真实运行。
+
+## Skills 独立补集恢复点（未运行 PG）
+
+本节由未参与 command HTTP 产品实现的 Skills 编写；Work 已移交本节写权，不改前述作者事实。唯一新业务文件 `tests/knowledge/owner_tree_commands_independent_test.go`，精确 `^TestKnowledgeTreeCommandHTTPIndependentReceiptOwner$`，一 top、无子测试/新并发框架。
+
+场景沿原真实 Account 登录、HTTP、B02：A 原 rename/Lookup 正向、改变原意图的 Lookup 拒绝；同一原 Store/Tx 先取得规范 User A EX、User B EX、Project EX，重验 A 当前 Owner 和 B 当前 Session，再精确改变已初始化 active Project 的 Owner 并重验 B。该 UPDATE 仅上游 fixture，不称生产 OwnerTransfer API。B 新 key 真 rename/Lookup 正向后，B 查询 A 旧 key/原意图须 IdempotencyKeyReused、A 旧 scope 须 NotFound；原持久 A/B completed command 整行只读快照、当前正文引用、公开 receipt、领域计数与两 Session Activity 分开核，不插入或修改 command/receipt/witness。
+
+写权仅上述新 Go、两个既有入口工具及新 `.agent-state/knowledge-tree-http/independent-selector-controls.py`。driver 增唯一 literal，supervisor 增常量/1父0子集合/expected/原严格 RUN+PASS 支路成员；原 `tree_command_inputs()` 已 glob 全部 tests/knowledge，自动冻结新 Go。旧 selector、输入函数、7资源、Go6m/root540+60+3/TCP75 和原 Wait/双尾不改；旧 selector-controls 源不改。四技术已冻结，入口交 Variables 未参与者窄审，不把入口审当业务独验。
+
+- 首 compile `72413/4fbdf3→e5c523` actual1：UTC2026-10-10T00:59:47.973933Z、fresh5,568,876,544B 合门，固定 Go1.27.1；新测试误将 SQL `CommandTag` 直接与1比较，编译失败且未生成候选。已仅改 `RowsAffected()!=1`。原日志 `output/ai/knowledge-tree-http/independent/compile-01.log` 保留。
+- 首入口控 `440388` 是本控制误用别的 supervisor 的 descendants 日志标记，setup FAIL；改正式标记后 `f42620/fbc2da` 实际负控发现新增 literal 未进入严格 RUN/PASS 分支，缺 PASS 被误接受。已只补原 main 的 tuple 成员；`201deb` 实际26控/0，其中5格执行 actual main、仅 OS/进程/资源边界替身，核原 Wait540、14次资源观察与两次 private/runtime/desc/TCP/input 尾。UTF8、OSError 与 child exit2 均安全保失败，两工具逆去新增逐字等于 `fa7fcc6f`。没有 PG/socket/业务运行。
+- 返修重编 `7b18da` actual78：UTC2026-10-10T01:01:22.628203Z，fresh4,523,102,208B 低于5GiB，未启动 Go/未建新日志或候选。当前 Model 独占实际 PG 临时资源，等其完整退役恢复空间后重新 fresh；不删除 cache、旧候选或跳过门。没有本域在途命令。
+
+后继必要一次 race-c/list 使用本 Skills 既有独占 cache，**不写 Work GOCACHE**：
+
+```sh
+export PATH=/workspace/toolchains/go1.27.1/bin:$PATH
+export AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go
+export GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOSUMDB=off GOTELEMETRY=off
+export GOFLAGS='-mod=readonly -p=1' GOMAXPROCS=2
+export GOCACHE=/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache
+export GOMODCACHE=/workspace/agenteam-runner-control/output/ai/runner-control/go-mod
+export TMPDIR=$PWD/output/ai/knowledge-tree-http/independent/tmp
+export GOTMPDIR=$TMPDIR
+export XDG_CONFIG_HOME=$PWD/output/ai/knowledge-tree-http/independent/config
+go test -race -tags=integration -c -o output/ai/knowledge-tree-http/independent/knowledge-tree-commands-independent-race-01.test ./tests/knowledge
+output/ai/knowledge-tree-http/independent/knowledge-tree-commands-independent-race-01.test -test.list '^TestKnowledgeTreeCommandHTTPIndependentReceiptOwner$'
+PYTHONDONTWRITEBYTECODE=1 python3 -B .agent-state/knowledge-tree-http/independent-selector-controls.py --artifacts
+```
+
+首次每个新 build invocation 同 process statvfs≥5,368,709,120B/UTC/bytes 后才启动；私有目录先 mkdir 再 Go version，保继承 Node PATH。编译与 list 不执行 top；目前 `--artifacts` 尚不能通过，因为候选未生成。真实 PG 须 root 另授唯一窗口，不重跑旧四作者 PG 或三 native top；新独立补集尚未通过。

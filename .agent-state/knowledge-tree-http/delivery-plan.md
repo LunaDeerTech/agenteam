@@ -1,8 +1,8 @@
 # Knowledge 树命令 HTTP 有限交付准备
 
-本文件是装配清单，**不是正式接受记录**。目标是向正式 main `fb6ab7f492850bf1d3c025a59acbff381312a989` 添加独立五 POST adapter；不等待完整 D12，也不接默认 root。作者PG修后限定组合4top/13sub及native3top/6sub均已通过并完成原全尾；原PG01整体FAIL保留，最终未参与者收口及主线装配仍待，候选与产品冻结。
+本文件是装配清单，**不是正式接受记录**。目标是向正式 main `3b7ed9da35844e3a367cc5e9da0cf424ab36499a` 添加独立五 POST adapter；不等待完整 D12，也不接默认 root。作者PG修后限定组合4top/13sub及native3top/6sub均已通过并完成原全尾；原PG01整体FAIL保留，最终未参与者收口及主线装配仍待，候选与产品冻结。
 
-## 正式候选路径（18）
+## 正式候选路径（19）
 
 四产品、四纯测试、一个 native 测试：
 
@@ -16,26 +16,28 @@
 8. `internal/central/knowledge/commandhttp/schema_test.go`
 9. `internal/central/knowledge/commandhttp/native_test.go`
 
-五作者 PG 测试：
+五作者 PG 测试及一个尚待验收的独立 PG 测试：
 
 10. `tests/knowledge/owner_tree_commands_fixture_test.go`
 11. `tests/knowledge/owner_tree_commands_test.go`
 12. `tests/knowledge/owner_tree_commands_authority_test.go`
 13. `tests/knowledge/owner_tree_commands_transactions_test.go`
 14. `tests/knowledge/owner_tree_commands_unknown_test.go`
+15. `tests/knowledge/owner_tree_commands_independent_test.go`：Skills独占实施，唯一新Owner/旧actor receipt风险格；未验，不在当前作者结果中。
 
 公开 Schema、可移植的实际 handler 向量验证器、正式规格与单行台账：
 
-15. `api/openapi/knowledge-tree-commands.json`
-16. `.agent-state/knowledge-tree-http/check-schema.py`
-17. `docs/development/work-items/d12-knowledge-owner-tree-http.md`
-18. `docs/development/agent-team/tasks.md`：仅增加本有限树命令结果一行，保正式只读 HTTP 及其他台账；未达验收前不写“已接受”。
+16. `api/openapi/knowledge-tree-commands.json`
+17. `.agent-state/knowledge-tree-http/check-schema.py`
+18. `docs/development/work-items/d12-knowledge-owner-tree-http.md`
+19. `docs/development/agent-team/tasks.md`：仅增加本有限树命令结果一行，保正式只读 HTTP 及其他台账；未达验收前不写“已接受”。
 
-前17路径在当前 main 均不存在。helper从自身位置解析仓库；使用已有 `jsonschema`/`referencing` 进行离线 Draft202012 校验，不下载、不启动 Go/HTTP。向量由真实本包 handler 与明确领域端口替身生成，原 JSON 不加入正式交付，不把它当 PG 输出。
+原17新路径与新增独立test在目标main均不存在；新增test由未参与实现者写入并单独验收，不因列入清单提前接受。helper从自身位置解析仓库；使用已有 `jsonschema`/`referencing` 进行离线 Draft202012 校验，不下载、不启动 Go/HTTP。向量由真实本包 handler 与明确领域端口替身生成，原 JSON 不加入正式交付，不把它当 PG 输出。
 
 ## 与正式 main 的闭包
 
 - 原作者对4c1的无共享改动闭包复用；再实际只读核 `4c1db71c..fb6ab7f4`：B02/read HTTP、Account、Project、Object、Secret、Outbox、Foundation、httpapi、postgres及原commitproxy仍逐字不变，前17新路径在目标main均不存在（27e166）。Runner新增共享面仅闭集Audit action/producer分派、限定System的RunnerIdentity注册、gorilla/websocket新依赖、00026和默认app的Runner owner；旧Knowledge分派/身份路径未减，00026沿原实际Audit CHECK加Runner分支。不能继续称整个Audit/Identity/SQL/go.mod逐字未变；本模块不回退这些新增main能力，不新增SQL。
+- P2主线 `fb6ab7f4..3b7ed9da` 的共享Object增量已只读核：SkillRevision/ProjectDeleted CleanupAccess、ProjectInitialization Service精确Owner grant与reservation initiator，以及相邻矩阵/注释；原Knowledge release条件、Human/AgentRun initiator与B02产品未变。新增00027未绑定本adapter/root。装配后需一次 `go test -c -tags=integration ./tests/knowledge` 确认同包与新共享合同闭包；不据此重复全部B02/read/作者PG矩阵，若编译发现具体差异再定向处理。
 - main新增默认Runner owner在原Account assembly先于Account/DB收尾，原路由由Runner静态闭集分派后回落；本adapter不import app或Runner、不默认注册，装配保留该owner及原root，不因本候选未消费的binding改动自动重编/重跑旧B02或read动态矩阵。
 - main 的 `internal/central/knowledge/http`、`knowledge-owner.json`、三个 `owner_read_http*` 测试及其专属 helper 保留，不能整目录覆盖。新 commandhttp 不 import read HTTP；两个公开 constructor 都只消费正式 B02 Service/Account HTTPBoundary，没有 mutable 注册或生命周期副作用。
 - 当前五命令精确路由不被已交付 read `HandlesPath` 命中；read 的 collection/detail/children/ancestors/search-titles 也不由 command `HandlesPath` 接收。未来默认 root 分派仍归另项唯一 writer，本次不修改 root/共享 HTTP。
@@ -49,8 +51,8 @@
 | 实际入口 | Vars独立接受：作者132及独立37纯控制，精确PG四top十三sub/native三top六sub、旧入口逆差异/预算/完整尾保持；不代资源运行。 |
 | 作者PG | PG01整轮FAIL保留；未变Authority3/Transactions4与修后candidate03的Mutations3/Unknown3定向整轮PASS组合为4top/13sub。PG03 9527→b8dcb4 actual0/117.055s，全部原Wait、七资源双退役、TCP/input齐；不称当前HEAD一次全量。 |
 | 作者native | candidate02＋原driver的3top/6sub已整轮PASS，52400→0b3bce actual0/67.850s；原2s/更早父期限、keepalive、Close失败、背压Timeout/下界与全Close断开取消、原Wait/private/desc/TCP/input齐。Account/domain明确controlled，不称半关闭或PG权限。 |
-| 新测试独审 | Skills已有限接受五PG与native六源方法及两处判据修正；Knowledge已接受Session时间前置和定向2top入口/61控。两实际原结果已交Skills只读最终收口；Runner实现独审2top9sub按不变范围复用，纯控不代真实权限/事务。 |
-| 主线装配 | root精确复制17新路径＋tasks单行，核上游和已交付read保留；同包integration编译/发现及最终有限审查后发布。两作者窗口PASS可启动装配，不能回填旧失败或直接称完整D12。 |
+| 新测试独审 | Skills已有限接受五PG与native六源方法及两处判据修正；Knowledge已接受Session时间前置和定向2top入口/61控。两实际原结果获Skills有限方法接受；另由Skills独占实施唯一新Owner/旧actor receipt独立PG格，尚待验，不重跑旧作者矩阵。Runner实现独审2top9sub按不变范围复用，纯控不代真实权限/事务。 |
+| 主线装配 | root精确复制18新路径＋tasks单行，核上游和已交付read保留；同包integration编译/发现及最终有限审查后发布。两作者窗口PASS与新增独立格接受后可完成装配，不能回填旧失败或直接称完整D12。 |
 
 ## 不进入正式结果的恢复项
 
@@ -64,4 +66,4 @@ PG01原四top首轮整体FAIL保留；修后PG03使用candidate03及唯一 `^Tes
 
 native02使用原driver、精确 `^TestTreeCommandsHTTPNative(ReadDeadlines|KeepAliveAndClose|WriteAndDisconnect)$` 与新 `/tmp/ktc-native-01`，原Go90/driver105/outer123+3/TCP75全部尾齐，整轮PASS。两候选尺寸/SHA、原命令及完整固定env见current；无自动后继执行授权。
 
-最终main装配仍由root唯一writer执行；只复制17新路径并最小增加tasks单行，不覆盖read HTTP或Runner新增root/共享闭集。必要同包integration编译/精确发现与未参与者最终有限审查完成后才正式发布。
+最终main装配仍由root唯一writer执行；只复制18新路径并最小增加tasks单行，不覆盖read HTTP或Runner新增root/共享闭集。必要同包integration编译/精确发现与未参与者最终有限审查完成后才正式发布。
