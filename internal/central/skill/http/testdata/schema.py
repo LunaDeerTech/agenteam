@@ -35,8 +35,11 @@ for schema in schemas.values():
 cases = json.load(sys.stdin)["cases"]
 assert cases, "no schema controls"
 for case in cases:
+    name = case["schema"]
+    assert name in schemas or name == "Problem", "unknown local schema"
+    document = "common.json" if name == "Problem" else "skill-owner.json"
     validator = Draft202012Validator(
-        {"$ref": base + "skill-owner.json#/components/schemas/" + case["schema"]},
+        {"$ref": base + document + "#/components/schemas/" + name},
         registry=registry, format_checker=FormatChecker(),
     )
     accepted = not list(validator.iter_errors(case["value"]))
