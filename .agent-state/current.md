@@ -1,5 +1,13 @@
 # 当前执行检查点
 
+## 本树：Execution Work occupancy（2026-10-10）
+
+- 当前 donor 为 `/workspace/agenteam-task-assignment` / `ai/task-assignment`；此分支只交付 Task 所依赖的 Execution 占用读取。三份新源 `957cf9df`：`internal/central/execution/contract/work_occupancy.go`、`internal/central/execution/work_occupancy.go`、`internal/central/execution/work_occupancy_test.go`；组合到 AgentSystem `05916ca4`。原 Launch、Preparation、迁移均未改。
+- 正式内部口在原 Store/Tx 校验 Project SH、Schedule EX，读取全部 active（含已请求取消但未 terminal）及各 Task 的历史存在性。调用方负责在同 Tx 完成当前 Project 授权与真实 Task 集合读取；结果不含 D23 Pending Dispatch 事实。
+- `pure-01` 恰 5 top / 16 sub race 与 Execution 单包 vet 全 PASS；session `86386`→`12e9d7`，outer/race/vet `893113/893117/893207` 全 Wait0，group/runtime 双尾为空、adopted=[]，共享 cache 已释放。结果及原 launcher 仅保留在 AgentSystem `output/ai/execution-work-occupancy/`，不复制日志。本轮结束 Execution 包源码与锁文件仍等保存版本。
+- coordination 已对三源完成有限独立源码审查，无 must-fix；上述测试采用明确受控 Store/Rows，不代表 SQL 查询已经实际通过。真实 PG query 待首条组合链验证，可在真实 Work.CreateTask 后按正式原 Tx/锁读取当前 empty occupancy；不以 SQL 材料冒真实 Task Launch。
+- 本树未实现 Task transition/指派、Pending Dispatch，也未新增迁移 41/42。下方内容继承自 `8fd74739`，其中“当前树”及旧调度仅代表当时的 AgentSystem 截面；本树身份与本批结果以本节为准。本记录已停写待 root 保存。
+
 ## Execution preparation / Task 组合（2026-10-10，有限范围已通过）
 
 - 当前树为 `/workspace/agenteam-agent-system-integration` / `ai/agent-system-integration`；组合源码 `879a7252` 已远端保存，本轮记录待主线程提交。Execution donor恢复记录 `d0f72300` 与 Task donor恢复记录 `5122c1dc` 已推送，实际源仍分别为 `7fc` 与 `b98`；全局迁移 00040 归 Execution owner。
