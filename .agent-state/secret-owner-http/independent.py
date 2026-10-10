@@ -12,7 +12,7 @@ SELECTOR = '^TestIndependentSecretHTTPCurrentSessionAndSafeErrors$'
 CASES = {'TestIndependentSecretHTTPCurrentSessionAndSafeErrors': (
     'current-session-after-domain-begin', 'hostile-member-errors-are-safe')}
 DRIVER = 'output/ai/secret-owner-http/candidate-01/pg-only-driver'
-BINARY = 'output/ai/secret-owner-http/candidate-independent-01/secret-http-independent.test'
+BINARY = 'output/ai/secret-owner-http/candidate-independent-02/secret-http-independent.test'
 PROBE = 'tests/projectvariable/secret_http_independent_test.go'
 OWN = '.agent-state/secret-owner-http/'
 

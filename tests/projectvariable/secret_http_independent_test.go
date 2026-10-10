@@ -155,6 +155,13 @@ func independentSecretProblem(t *testing.T, r variableHTTPResponse, status int, 
 	if json.Unmarshal(r.body, &fields) != nil || len(fields) != 8+independentSecretBoolInt(len(p.FieldErrors) != 0) || p.RetryHint != "" || p.Instance != "/api/v1" {
 		t.Fatal("independent Problem exposed unexpected fields")
 	}
+	title, detail, kind := "Session revoked", "Sign in again.", "session-revoked"
+	if code == f.InvalidArgument {
+		title, detail, kind = "Invalid argument", "The request is invalid.", "invalid-argument"
+	}
+	if p.Title != title || p.Detail != detail || p.Type != "urn:agenteam:problem:"+kind {
+		t.Fatal("independent Problem contains noncanonical diagnostic text")
+	}
 	if r.header.Get("X-Request-ID") != p.RequestID.String() || r.header.Get("Cache-Control") != "no-store" || !strings.HasPrefix(r.header.Get("Content-Type"), "application/problem+json") {
 		t.Fatal("independent safe Problem header mismatch")
 	}
