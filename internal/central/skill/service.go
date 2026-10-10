@@ -87,14 +87,14 @@ func (s *Service) begin(ctx context.Context, initialization bool) (*serviceCall,
 // ID is persisted if work registration succeeds; lifecycle snapshots also see
 // the admitted interval before that transaction has committed.
 func (s *Service) beginProjectWork(ctx context.Context, project id.ProjectID, kind workKind) (*serviceCall, error) {
-	if project.Validate() != nil || kind != initializationWork && kind != packageReaderWork {
+	if project.Validate() != nil || kind != initializationWork && kind != packageReaderWork && !installedWork(kind) {
 		return nil, invalid()
 	}
 	workID, e := f.NewID[skillWork]()
 	if e != nil {
 		return nil, unavailable(e)
 	}
-	return s.admit(ctx, kind == initializationWork, project, workID, kind)
+	return s.admit(ctx, kind == initializationWork || kind == installationWork, project, workID, kind)
 }
 
 func (s *Service) admit(ctx context.Context, initialization bool, project id.ProjectID, workID skillWorkID, kind workKind) (*serviceCall, error) {
@@ -174,7 +174,7 @@ func (s *Service) Drain(ctx context.Context) error {
 		empty := len(state.calls) == 0 && len(state.work) == 0
 		ready := make([]*ownedWork, 0, len(state.work))
 		for _, work := range state.work {
-			if work.returned {
+			if work.returned || work.fact.kind == installationWork && work.installationCallerReturned {
 				ready = append(ready, work)
 			}
 		}
@@ -184,6 +184,11 @@ func (s *Service) Drain(ctx context.Context) error {
 			return nil
 		}
 		for _, work := range ready {
+			if work.fact.kind == installationWork {
+				if e := s.joinInstallationDiscard(work); e != nil {
+					return e
+				}
+			}
 			if e := s.retireOwnedWork(ctx, work); e != nil {
 				return e
 			}

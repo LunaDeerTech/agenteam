@@ -62,3 +62,15 @@ Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/d
 整改后的 `TestKnowledgeSkillsDefaultRootComposition` 原单 top/零 sub 完整 PASS：先证默认 Create 返回 `DEPENDENCY_UNBOUND`/`not_committed`，13 项 Project/Skill/Object/Audit/Event 事实为零；再由显式 test-only Project 服务使用同 Store、原 Audit、真实 Skill/Object 端口建立读取数据，并实际 Stop/Drain/Joined。它不替换默认服务、不以 SQL 写 ready。随后才验证默认 Skills 目录、Knowledge 正文 GET/HEAD、Avatar 维护与原进程退出。用例 7.39s，Go243371/driver241594/outer241447 均实际 Wait0，七资源/private/runtime/desc/TCP 双尾和 inputs 一致齐，总111.577s。该结果接受既有数据的默认读取组合，不接受生产初始化或完整 participant。
 
 后继 Skills UI 应消费本卡八字段和安全 Problem，覆盖当前 Session/Owner、未初始化及归档/Deleting 状态；不附带包正文、安装、分配或 Agent 能力。本批没有 Skills UI，Object Runtime join 等原停止项保持。
+
+## Human Owner 普通安装与分页发现：有限交付
+
+既有普通安装 Service、Human HTTP 适配与默认 root 的同实例分派已交付。新增 `POST /api/v1/projects/{project_id}/skills`、`POST .../skills/commands/lookup` 和 `GET/HEAD .../skills/catalog`；安装请求仅接收正式 `text_files` 包，使用原 Account Session/Origin/CSRF、当前 Project Owner 和原幂等命令。receipt 只公开 Skill ID、revision、version。Lookup 保留原 key 和完整原 intent；Unknown 不自动重发，NotFound 不证明先前已回滚。catalog 是最多 100 项的当前授权分页，游标绑定 Project/Owner；原 builtin-only collection 与 Skill 详情读合同保持。公开字段见 [OpenAPI](../../../api/openapi/skill-owner.json)，复现入口见 [Human Skill recipe](../../../.agent-state/skill-install-owner-http/README.md)。
+
+原 root 复用同一 Skill Service、Store、Object 服务和 Account boundary，不新增服务或停止 owner。旧只读请求仍为 2s，新命令为 30s，包含 body/build、事务、Object 及原消费/取消尾；真实调用退役之前不释放服务工作计数。普通安装的原命令、attempt、revision、Object reference、审计和清理锚点均持久化；已发布包的读取、同 key 重放及普通清理沿实际 Object 生命周期完成。
+
+验收按实际版本组合：安装库 pure-03 的 10 top / 27 sub race 与本包 vet 通过；HTTP 10 top / 59 sub race 通过，Schema 45 向量、30 个 HEAD 状态及三包 vet 的必要修后补集通过；combined02 的 domain 安装/读取重放、普通清理两 sub 通过；HTTP03 的真实安装/Lookup/分页/旧读兼容及当前 Owner/CSRF 两 sub 全部通过。后者包含真实 Logout 后原请求返回 401、安全 Problem、清 Cookie 与零新增事实。两次真实运行的原 Wait、七资源与 private/runtime/desc/HOST_TCP 双尾均闭合；combined01/02 原 wholeFAIL 保留，不能将分项通过改写为旧轮整体通过。HTTP03 使用真实 Account 和持久服务配合 ResponseRecorder；app 分派由定向纯控证明，未宣称新增完整 app 进程或浏览器验收。
+
+本次连续迁移为 00032–00036。32–35 与 schema02 已验来源逐字一致，其 fresh/repeat、旧 31→35 升级及约束验证可复用；36 已由本次真实安装与 HTTP 链实际执行。引入这些表不等于启用 Agent 配置、Registry、Mount 或 F1 服务；本片不导入其未交付实现。Skill 清理对 00034 的 assignment heads/rows 实际查表，任何残留（含 disabled 初始化事实）均阻止完成，不跨域删除 Agent 数据。
+
+生产 Project initializer 继续 unbound，AgentRun 安装仍明确 DependencyUnbound；完整 F1、Agent assignment、可执行 Install Backend、Skill 更新/删除 API、Runner 安装、physical ensure 与旧 Object runtime STOP 均未由本片放开。后续模块必须消费真实绑定，不以空 provider 或本次 Human receipt 替代运行授权。

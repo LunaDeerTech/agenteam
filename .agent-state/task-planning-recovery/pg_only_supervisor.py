@@ -198,22 +198,48 @@ METADATA_CASES = frozenset({
 })
 
 
-def metadata_results(output):
+METADATA_GROUPS = {
+    METADATA_ROOT: METADATA_CASES,
+    '^TestSkillInstallationPersistentObject$': frozenset({
+        'TestSkillInstallationPersistentObject',
+        'TestSkillInstallationPersistentObject/install-read-replay',
+        'TestSkillInstallationPersistentObject/ordinary-cleanup',
+    }),
+    '^TestSkillInstallationOwnerHTTP$': frozenset({
+        'TestSkillInstallationOwnerHTTP',
+        'TestSkillInstallationOwnerHTTP/install-lookup-catalog-and-read',
+        'TestSkillInstallationOwnerHTTP/current-owner-and-csrf',
+    }),
+    '^TestSkillInstallation(PersistentObject|OwnerHTTP)$': frozenset({
+        'TestSkillInstallationPersistentObject',
+        'TestSkillInstallationPersistentObject/install-read-replay',
+        'TestSkillInstallationPersistentObject/ordinary-cleanup',
+        'TestSkillInstallationOwnerHTTP',
+        'TestSkillInstallationOwnerHTTP/install-lookup-catalog-and-read',
+        'TestSkillInstallationOwnerHTTP/current-owner-and-csrf',
+    }),
+}
+
+
+def metadata_results(output, selector=METADATA_ROOT):
+    cases = METADATA_GROUPS.get(selector)
+    if cases is None:
+        return False
     runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
     results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
     waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
-    return (len(runs) == len(METADATA_CASES) and set(runs) == METADATA_CASES
-            and len(results) == len(METADATA_CASES)
+    return (len(runs) == len(cases) and set(runs) == cases
+            and len(results) == len(cases)
             and all(state == 'PASS' for state, _ in results)
-            and {name for _, name in results} == METADATA_CASES
-            and len(waits) == 1 and waits[0][1:] == ('0', METADATA_ROOT)
+            and {name for _, name in results} == cases
+            and len(waits) == 1 and waits[0][1:] == ('0', selector)
             and sum(line.startswith('D03 explicit test actual_wait') for line in output.splitlines()) == 1
             and re.search(r'^FAIL(?:\s|$)', output, re.M) is None)
 
 
-def metadata_same(inputs, args, adapter):
+def metadata_same(inputs, args, adapter, selector=METADATA_ROOT):
     try:
-        return {str(p): adapter.sha(p) for p in adapter.metadata_inputs(args.binary)} == inputs
+        return {str(p): adapter.sha(p) for p in adapter.metadata_inputs(args.binary, selector)} == inputs
     except (OSError, ValueError, TypeError):
         return False
 
@@ -625,7 +651,7 @@ def observe_root_chain(directory, log, log_path, selector):
         if not empty: good = False
         if round == 1: time.sleep(.1)
     log.flush()
-    if selector in (METADATA_ROOT, GUARD_ROOT, MODEL_RUNTIME, PARSER_PG, '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
+    if selector in (*METADATA_GROUPS, GUARD_ROOT, MODEL_RUNTIME, PARSER_PG, '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
                     '^TestSkillLifecycleCleanupHistoricalAttempts$'):
         try:
             output = log_path.read_text()
@@ -635,7 +661,8 @@ def observe_root_chain(directory, log, log_path, selector):
     else:
         output = log_path.read_text()
     expected = {
-        METADATA_ROOT: {'TestAgentConfigurationMetadata'},
+        **{key: {name for name in cases if '/' not in name}
+           for key, cases in METADATA_GROUPS.items()},
         GUARD_ROOT: {'TestProjectLifecycleStopBatchRealGuard'},
         MODEL_RUNTIME: {'TestModelTextRuntimePersistentWire'},
         PARSER_PG: {'TestKnowledgePlainTextParserIntegration'},
@@ -663,8 +690,8 @@ def observe_root_chain(directory, log, log_path, selector):
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
     log.write(f'ROOT exact_tops={actual == expected} actual_test_wait={waited}\n')
-    if selector == METADATA_ROOT:
-        complete = metadata_results(output)
+    if selector in METADATA_GROUPS:
+        complete = metadata_results(output, selector)
         log.write(f'ROOT metadata_exact_run_pass_wait={complete}\n')
         good = good and complete
     if selector == GUARD_ROOT:
@@ -945,7 +972,9 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
-    if 'AgentConfigurationMetadata' in args.run and (args.run != METADATA_ROOT or not args.root_chain):
+    if 'TestSkillInstallation' in args.run and (args.run not in METADATA_GROUPS or not args.root_chain):
+        parser.error('Skill installation requires one exact original root-chain profile')
+    if any(selector[1:-1] in args.run for selector in METADATA_GROUPS) and (args.run not in METADATA_GROUPS or not args.root_chain):
         parser.error('configuration metadata requires one exact original root-chain entry')
     if 'ProjectLifecycleStopBatchRealGuard' in args.run and (args.run != GUARD_ROOT or not args.root_chain):
         parser.error('lifecycle guard requires one exact original root-chain entry')
@@ -1019,8 +1048,8 @@ def main():
         inputs = secret_http_inputs(args.driver, args.binary, args.run)
     if args.run in ('^TestKnowledgeSkillsDefaultRootComposition$', SECRET_ROOT):
         inputs.update({str(p): adapter.sha(p) for p in adapter.root_composition_inputs()})
-    if args.run == METADATA_ROOT:
-        inputs = {str(p): adapter.sha(p) for p in adapter.metadata_inputs(args.binary)}
+    if args.run in METADATA_GROUPS:
+        inputs = {str(p): adapter.sha(p) for p in adapter.metadata_inputs(args.binary, args.run)}
     if args.run == GUARD_ROOT:
         inputs = {str(p): adapter.sha(p) for p in adapter.guard_inputs(args.binary)}
     if args.run == MODEL_RUNTIME:
@@ -1178,8 +1207,8 @@ def main():
                                     for p, digest in inputs.items()))
             if args.run in ('^TestKnowledgeSkillsDefaultRootComposition$', SECRET_ROOT):
                 same = same and root_composition_same(inputs, args, adapter)
-            if args.run == METADATA_ROOT:
-                same = same and metadata_same(inputs, args, adapter)
+            if args.run in METADATA_GROUPS:
+                same = same and metadata_same(inputs, args, adapter, args.run)
             if args.run == GUARD_ROOT:
                 same = same and guard_same(inputs, args, adapter)
             if args.run == MODEL_RUNTIME:

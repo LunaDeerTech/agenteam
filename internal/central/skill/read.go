@@ -5,6 +5,7 @@ import (
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 )
@@ -41,18 +42,26 @@ func (s *Service) GetSkill(ctx context.Context, actor id.Actor, project id.Proje
 	var out sc.Metadata
 	e = s.ownerReadTx(call.ctx, actor, project, func(ctx context.Context, _ f.Tx, x postgres.SQLExecutor, row initializationRow) error {
 		if row.skill != skill {
-			return fault(f.NotFound)
+			installed, err := loadInstallationSkill(ctx, x, project, skill)
+			if err != nil {
+				return err
+			}
+			if installed == nil || installed.phase != installationPublished {
+				return fault(f.NotFound)
+			}
+			out, _, err = loadInstalled(ctx, x, *installed)
+			return err
 		}
 		var err error
 		out, _, err = loadPublished(ctx, x, row)
 		return err
-	})
+	}, skill)
 	if e != nil {
 		return sc.Metadata{}, e
 	}
 	return out, nil
 }
-func (s *Service) ownerReadTx(ctx context.Context, actor id.Actor, project id.ProjectID, work func(context.Context, f.Tx, postgres.SQLExecutor, initializationRow) error) error {
+func (s *Service) ownerReadTx(ctx context.Context, actor id.Actor, project id.ProjectID, work func(context.Context, f.Tx, postgres.SQLExecutor, initializationRow) error, targets ...sc.SkillID) error {
 	state := s.state()
 	if state == nil {
 		return fault(f.DependencyUnbound)
@@ -72,6 +81,16 @@ func (s *Service) ownerReadTx(ctx context.Context, actor id.Actor, project id.Pr
 	discovered, _ := loadInitialization(ctx, store, project)
 	if discovered != nil && discovered.request.ProjectID == project {
 		locks = append(locks, skillLock(discovered.skill, f.Shared))
+	}
+	for _, target := range targets {
+		if target.Validate() != nil {
+			return invalid()
+		}
+		locks = append(locks, skillLock(target, f.Shared))
+	}
+	locks, e := oc.NormalizeAccessLocks(locks)
+	if e != nil {
+		return e
 	}
 	attempt, e := f.NewID[f.TransactionAttempt]()
 	if e != nil {
