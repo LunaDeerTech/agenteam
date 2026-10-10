@@ -260,6 +260,11 @@ PENDING_HTTP_CASES = frozenset({
     'TestTaskHumanHTTP/transfer-lookup-replay-and-get',
     'TestTaskHumanHTTP/owner-csrf-and-new-session-lookup',
 })
+SPRINT_HTTP_ROOT = '^TestSprintStartHTTP$'
+SPRINT_HTTP_CASES = frozenset({
+    'TestSprintStartHTTP',
+    'TestSprintStartHTTP/paused-start-get-lookup-replay',
+})
 METADATA_GROUPS = {METADATA_ROOT: METADATA_CASES, SCHEMA_ROOT: SCHEMA_CASES,
                    RUNTIME_SCHEMA_ROOT: RUNTIME_SCHEMA_CASES,
                    PREPARATION_ROOT: PREPARATION_CASES,
@@ -268,7 +273,8 @@ METADATA_GROUPS = {METADATA_ROOT: METADATA_CASES, SCHEMA_ROOT: SCHEMA_CASES,
                    SCHEDULER_CLAIM_ROOT: SCHEDULER_CLAIM_CASES,
                    SCHEDULER_LAUNCH_ROOT: SCHEDULER_LAUNCH_CASES,
                    SCHEDULER_BUSY_ROOT: SCHEDULER_BUSY_CASES,
-                   PENDING_HTTP_ROOT: PENDING_HTTP_CASES}
+                   PENDING_HTTP_ROOT: PENDING_HTTP_CASES,
+                   SPRINT_HTTP_ROOT: SPRINT_HTTP_CASES}
 
 
 def metadata_results(output, selector=METADATA_ROOT):
@@ -721,6 +727,7 @@ def observe_root_chain(directory, log, log_path, selector):
         SCHEDULER_LAUNCH_ROOT: {'TestSchedulerLaunch'},
         SCHEDULER_BUSY_ROOT: {'TestSchedulerBusyCompensation'},
         PENDING_HTTP_ROOT: {'TestSchedulerPendingVisit', 'TestTaskHumanHTTP'},
+        SPRINT_HTTP_ROOT: {'TestSprintStartHTTP'},
         GUARD_ROOT: {'TestProjectLifecycleStopBatchRealGuard'},
         MODEL_RUNTIME: {'TestModelTextRuntimePersistentWire'},
         PARSER_PG: {'TestKnowledgePlainTextParserIntegration'},
@@ -1041,7 +1048,7 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
-    if any(name in args.run for name in ('AgentConfigurationMetadata', 'AgentConfigurationSchema', 'AgentRuntimeSchema', 'ExecutionPreparation', 'AgentConfigurationCreate', 'TaskTransitionHuman', 'SchedulerClaim', 'SchedulerLaunch', 'SchedulerBusyCompensation', 'SchedulerPendingVisit', 'TaskHumanHTTP')) and (args.run not in METADATA_GROUPS or not args.root_chain):
+    if any(name in args.run for name in ('AgentConfigurationMetadata', 'AgentConfigurationSchema', 'AgentRuntimeSchema', 'ExecutionPreparation', 'AgentConfigurationCreate', 'TaskTransitionHuman', 'SchedulerClaim', 'SchedulerLaunch', 'SchedulerBusyCompensation', 'SchedulerPendingVisit', 'TaskHumanHTTP', 'SprintStartHTTP')) and (args.run not in METADATA_GROUPS or not args.root_chain):
         parser.error('configuration metadata requires one exact original root-chain entry')
     if 'ProjectLifecycleStopBatchRealGuard' in args.run and (args.run != GUARD_ROOT or not args.root_chain):
         parser.error('lifecycle guard requires one exact original root-chain entry')

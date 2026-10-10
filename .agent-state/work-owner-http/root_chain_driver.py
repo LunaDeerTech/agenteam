@@ -16,6 +16,7 @@ GO = Path('/workspace/toolchains/go1.27.1/bin/go')
 MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
+    '^TestSprintStartHTTP$': 'tests/projectvariable',
     '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$': 'tests/projectvariable',
     '^TestSchedulerBusyCompensation$': 'tests/projectvariable',
     '^TestSchedulerLaunch$': 'tests/projectvariable',
@@ -87,7 +88,7 @@ def input_paths(binary):
 
 
 def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
-    if selector not in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$', '^TestAgentRuntimeSchema$', '^TestExecutionPreparation$', '^TestAgentConfigurationCreate$', '^TestTaskTransitionHuman$', '^TestSchedulerClaim$', '^TestSchedulerLaunch$', '^TestSchedulerBusyCompensation$', '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$'):
+    if selector not in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$', '^TestAgentRuntimeSchema$', '^TestExecutionPreparation$', '^TestAgentConfigurationCreate$', '^TestTaskTransitionHuman$', '^TestSchedulerClaim$', '^TestSchedulerLaunch$', '^TestSchedulerBusyCompensation$', '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$', '^TestSprintStartHTTP$'):
         raise ValueError('exact configuration family selector required')
     # Include the compiled package's complete fixtures and the original shared
     # support, not just the new top or the unrelated Model test package.
@@ -97,7 +98,9 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
     paths.update(p for p in (REPOSITORY / 'internal').rglob('*') if p.is_file())
     paths.update((REPOSITORY / 'tests/testsupport').rglob('*.go'))
     paths.update((REPOSITORY / '.agent-state/project-variables-independent/commitproxy').glob('*.go'))
-    if selector == '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$':
+    if selector == '^TestSprintStartHTTP$':
+        paths.add(REPOSITORY / 'tests/projectvariable/task_human_http_test.go')
+    elif selector == '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$':
         paths.update(REPOSITORY / name for name in (
             'tests/projectvariable/scheduler_pending_visit_test.go',
             'tests/projectvariable/task_human_http_test.go'))
@@ -346,7 +349,7 @@ def main():
                 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime)})
     if args.run == '^TestSkillLifecycleCleanupHistoricalAttempts$':
         prepare_history_go_environment(directory, env)
-    if args.run in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$', '^TestAgentRuntimeSchema$', '^TestExecutionPreparation$', '^TestAgentConfigurationCreate$', '^TestTaskTransitionHuman$', '^TestSchedulerClaim$', '^TestSchedulerLaunch$', '^TestSchedulerBusyCompensation$', '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$'):
+    if args.run in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$', '^TestAgentRuntimeSchema$', '^TestExecutionPreparation$', '^TestAgentConfigurationCreate$', '^TestTaskTransitionHuman$', '^TestSchedulerClaim$', '^TestSchedulerLaunch$', '^TestSchedulerBusyCompensation$', '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$', '^TestSprintStartHTTP$'):
         env.pop('AGENTEAM_PROJECT_LIFECYCLE_GUARD_CHILD', None)
         prepare_history_go_environment(directory, env)
     if args.run == '^TestProjectLifecycleStopBatchRealGuard$':

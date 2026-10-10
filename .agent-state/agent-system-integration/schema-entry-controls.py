@@ -237,6 +237,105 @@ RUNTIME_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS
                                                                 "'AgentConfigurationSchema', "
                                                                 "'AgentRuntimeSchema')) and")]}
 
+SPRINT_HTTP_SELECTOR = '^TestSprintStartHTTP$'
+SPRINT_HTTP_TOP = 'TestSprintStartHTTP'
+SPRINT_HTTP_CASES = frozenset({'TestSprintStartHTTP/paused-start-get-lookup-replay', 'TestSprintStartHTTP'})
+SPRINT_HTTP_BASE = {'.agent-state/task-planning-recovery/pg_only_supervisor.py': '27d382600a3c844d4c85da190854e58d50236870bcdbeee6145f9120b8c461ce',
+ '.agent-state/work-owner-http/root_chain_driver.py': 'b97034d8a015ce518309c1093711f10a78f62694dd24c5a469bf74f04caebca8'}
+SPRINT_HTTP_HUNKS = {'.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {METADATA_ROOT: '
+                                                                'METADATA_CASES, SCHEMA_ROOT: '
+                                                                'SCHEMA_CASES,\n',
+                                                                "SPRINT_HTTP_ROOT = '^TestSprintStartHTTP$'\n"
+                                                                'SPRINT_HTTP_CASES = frozenset({\n'
+                                                                "    'TestSprintStartHTTP',\n"
+                                                                '    '
+                                                                "'TestSprintStartHTTP/paused-start-get-lookup-replay',\n"
+                                                                '})\n'
+                                                                'METADATA_GROUPS = {METADATA_ROOT: '
+                                                                'METADATA_CASES, SCHEMA_ROOT: '
+                                                                'SCHEMA_CASES,\n'),
+                                                               ('PENDING_HTTP_ROOT: PENDING_HTTP_CASES}',
+                                                                'PENDING_HTTP_ROOT: PENDING_HTTP_CASES,\n'
+                                                                '                   SPRINT_HTTP_ROOT: '
+                                                                'SPRINT_HTTP_CASES}'),
+                                                               ('        PENDING_HTTP_ROOT: '
+                                                                "{'TestSchedulerPendingVisit', "
+                                                                "'TestTaskHumanHTTP'},\n",
+                                                                '        PENDING_HTTP_ROOT: '
+                                                                "{'TestSchedulerPendingVisit', "
+                                                                "'TestTaskHumanHTTP'},\n"
+                                                                '        SPRINT_HTTP_ROOT: '
+                                                                "{'TestSprintStartHTTP'},\n"),
+                                                               ("'SchedulerPendingVisit', 'TaskHumanHTTP')) "
+                                                                'and',
+                                                                "'SchedulerPendingVisit', 'TaskHumanHTTP', "
+                                                                "'SprintStartHTTP')) and")],
+ '.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS = {\n',
+                                                        'TARGETS = {\n'
+                                                        "    '^TestSprintStartHTTP$': "
+                                                        "'tests/projectvariable',\n"),
+                                                       ('    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', '^TestSchedulerLaunch$', "
+                                                        "'^TestSchedulerBusyCompensation$', "
+                                                        "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$'):\n",
+                                                        '    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', '^TestSchedulerLaunch$', "
+                                                        "'^TestSchedulerBusyCompensation$', "
+                                                        "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$', "
+                                                        "'^TestSprintStartHTTP$'):\n"),
+                                                       ('    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', '^TestSchedulerLaunch$', "
+                                                        "'^TestSchedulerBusyCompensation$', "
+                                                        "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$'):\n",
+                                                        '    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', '^TestSchedulerLaunch$', "
+                                                        "'^TestSchedulerBusyCompensation$', "
+                                                        "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$', "
+                                                        "'^TestSprintStartHTTP$'):\n"),
+                                                       ('    if selector == '
+                                                        "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$':\n",
+                                                        "    if selector == '^TestSprintStartHTTP$':\n"
+                                                        '        paths.add(REPOSITORY / '
+                                                        "'tests/projectvariable/task_human_http_test.go')\n"
+                                                        '    elif selector == '
+                                                        "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$':\n")]}
+
+def sprint_http_projection(name, source):
+    if SPRINT_HTTP_SELECTOR not in source:
+        return source
+    for before, after in reversed(SPRINT_HTTP_HUNKS[name]):
+        if source.count(after) != 1:
+            raise ValueError('unknown or ambiguous Sprint HTTP data')
+        source = source.replace(after, before, 1)
+    if hashlib.sha256(source.encode()).hexdigest() != SPRINT_HTTP_BASE[name]:
+        raise ValueError('unknown Sprint HTTP baseline')
+    return source
+
+
 PENDING_HTTP_SELECTOR = '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$'
 PENDING_HTTP_TOP = 'TestSchedulerPendingVisit'
 PENDING_HTTP_CASES = frozenset({'TestSchedulerPendingVisit',
@@ -339,6 +438,7 @@ PENDING_HTTP_HUNKS = {'.agent-state/task-planning-recovery/pg_only_supervisor.py
                                                         "'^TestSchedulerBusyCompensation$':\n")]}
 
 def pending_http_projection(name, source):
+    source = sprint_http_projection(name, source)
     if PENDING_HTTP_SELECTOR not in source:
         return source
     for before, after in reversed(PENDING_HTTP_HUNKS[name]):
@@ -1037,7 +1137,7 @@ class SchemaEntryControls(unittest.TestCase):
         baseline = {'__file__': str(ROOT / DRIVER), '__name__': 'schema_baseline'}
         exec(compile(inverse(DRIVER, (ROOT / DRIVER).read_text()), DRIVER, 'exec'), baseline)
         self.assertEqual(self.driver.TARGETS[SELECTOR], 'tests/projectvariable')
-        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR, PREPARATION_SELECTOR, CREATE_SELECTOR, TASK_SELECTOR, CLAIM_SELECTOR, LAUNCH_SELECTOR, BUSY_SELECTOR, PENDING_HTTP_SELECTOR)}, baseline['TARGETS'])
+        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR, PREPARATION_SELECTOR, CREATE_SELECTOR, TASK_SELECTOR, CLAIM_SELECTOR, LAUNCH_SELECTOR, BUSY_SELECTOR, PENDING_HTTP_SELECTOR, SPRINT_HTTP_SELECTOR)}, baseline['TARGETS'])
         self.assertEqual(self.sup.budgets(True), (540, 60))
         self.assertEqual(self.sup.budgets(False), (123, 3))
         for path, constant in (
@@ -1098,7 +1198,8 @@ class SchemaEntryControls(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='agent-schema-inputs-') as tmp:
             root = Path(tmp).resolve()
             names = ('candidate.test', 'production.go',
-                     ('tests/projectvariable/scheduler_pending_visit_test.go' if SELECTOR == PENDING_HTTP_SELECTOR
+                     ('tests/projectvariable/task_human_http_test.go' if SELECTOR == SPRINT_HTTP_SELECTOR
+                      else 'tests/projectvariable/scheduler_pending_visit_test.go' if SELECTOR == PENDING_HTTP_SELECTOR
                       else 'tests/projectvariable/scheduler_busy_compensation_test.go' if SELECTOR == BUSY_SELECTOR
                       else 'tests/projectvariable/scheduler_launch_test.go' if SELECTOR == LAUNCH_SELECTOR
                       else 'tests/projectvariable/scheduler_claim_test.go' if SELECTOR == CLAIM_SELECTOR
@@ -1330,7 +1431,7 @@ class SchemaEntryControls(unittest.TestCase):
         self.assertEqual(self.driver.TARGETS[PENDING_HTTP_SELECTOR], 'tests/projectvariable')
         self.assertEqual(self.sup.METADATA_GROUPS[PENDING_HTTP_SELECTOR], PENDING_HTTP_CASES)
         for name, pairs in PENDING_HTTP_HUNKS.items():
-            source = (ROOT / name).read_text()
+            source = sprint_http_projection(name, (ROOT / name).read_text())
             self.assertEqual(hashlib.sha256(pending_http_projection(name, source).encode()).hexdigest(), PENDING_HTTP_BASE[name])
             for old, new in pairs:
                 self.assertEqual(source.count(new), 1)
@@ -1355,6 +1456,26 @@ class SchemaEntryControls(unittest.TestCase):
                 with self.assertRaises(SystemExit):
                     self.sup.main()
                 budgets.assert_not_called()
+
+    def test_sprint_http_reuses_the_original_family(self):
+        self.assertEqual(self.driver.TARGETS[SPRINT_HTTP_SELECTOR], 'tests/projectvariable')
+        self.assertEqual(self.sup.METADATA_GROUPS[SPRINT_HTTP_SELECTOR], SPRINT_HTTP_CASES)
+        for name, pairs in SPRINT_HTTP_HUNKS.items():
+            source = (ROOT / name).read_text()
+            self.assertEqual(hashlib.sha256(sprint_http_projection(name, source).encode()).hexdigest(), SPRINT_HTTP_BASE[name])
+            for old, new in pairs:
+                self.assertEqual(source.count(new), 1)
+                for bad in (source.replace(new, old, 1), source + new, source + '\n# unknown\n'):
+                    with self.assertRaises(ValueError):
+                        inverse(name, bad)
+        with patch.dict(globals(), SELECTOR=SPRINT_HTTP_SELECTOR, TOP=SPRINT_HTTP_TOP, CASES=SPRINT_HTTP_CASES), \
+                patch.object(self.sup, 'SCHEMA_ROOT', SPRINT_HTTP_SELECTOR), \
+                patch.object(self.sup, 'SCHEMA_CASES', SPRINT_HTTP_CASES):
+            self.test_exact_three_subcases_and_original_wait()
+            self.test_actual_main_requires_exact_root_mode()
+            self.test_actual_schema_inputs_reenumerate_runtime_sources()
+            self.test_actual_observer_keeps_original_resource_tails()
+            self.test_actual_driver_fixed_environment_before_original_exec()
 
     def test_busy_tcp_failure_uses_only_the_last_bounded_snapshot(self):
         rows = {('tcp', '%08X:AAAA' % index, '0100007F:BBBB', '06', str(index))
