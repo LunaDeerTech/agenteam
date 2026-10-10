@@ -1,4 +1,12 @@
-# 当前执行检查点：Human Owner Task HTTP
+# 当前执行检查点：Task/Sprint HTTP 有限交付
+
+- 正式 main `6cf008651160b36435281e157de30f3a0955757a` 已由 root 推送并核实远端。本批包含 Sprint Start/原 key Lookup HTTP 和 technical Blocker 只读 schema；本树产品与 fixture 保持冻结，不代表完整 F1、生产 initializer 或 Task UI 已完成。
+- Sprint HTTP 精确 9 top race＋2 包 vet 通过；`TestSprintStartHTTP/paused-start-get-lookup-replay` 真实 TLS 1 top／1 sub、7.49s wholePASS，Start→Get→原 key Lookup/replay 且 paused 配置不变，原服务与资源尾完整关闭。
+- technical 读分支 `857d85f5` 与领域只读 codec `20b0b970` 已纳入最终失败 B 组合的 26 top race＋5 包 vet wholePASS；最终 delivery 的 `TestSchedulerLaunchFinalFailure` 真实 1 top／2 sub、39.54s wholePASS，覆盖单类正式拒绝后的 technical Blocker、用户标题保留及原事务整体回滚/结算。Human Add/Transfer 输入与 actor 闭集未扩。原结果：`/workspace/agenteam-task-flow-delivery/output/ai/agent-system-integration/scheduler-failure-01-control/result.json`；Go/driver/sup/outer 全 Wait0、七资源十四次 absence、全部原双尾关闭、1460 inputs 首尾一致。
+- main app 合并的精确 4 top race PASS；原 `app-pure-01` 因 vet 前容量门拒绝而 wholeFAIL、0 vet 的事实保留。独立 `app-vet-02` 只补 app vet，wholePASS／原 Wait 与双尾全闭；两份结果均保留在 delivery 的 `output/ai/task-flow-delivery/`，未重跑 4 top 或覆盖原 FAIL。
+- donor `857d85f5` 的 tracked docs 已可逆 sparse 停放；source、AGENTS、原恢复材料与 ignored 输出保留，正式文档按上述 main 恢复。完整组合需沿 main 的 `.agent-state/agent-system-integration/README.md` 和原结果恢复，不将本 donor 单树冒作完整验收输入。Owner 解除 technical 后转 todo 尚未开始，无新代码、Go 或资源运行。
+
+此前 Task Human HTTP 的范围与原恢复材料继续复用：
 
 - 本树 `/workspace/agenteam-task-human-http` / `ai/task-human-http`；HTTP 产品 `81ab48c2`、真实 TLS fixture `e28f916e`，均经 content 有限独立源码审接受。具体接口与恢复入口见 [task-human-http/README.md](task-human-http/README.md)。产品和 fixture 保持停写。
 - 本片 HTTP/app 8 个精确 top（6 新＋2 必要兼容）已在 AgentSystem 的 pending/http 组合 16 top race＋3 包 vet 中全部通过，标准 OpenAPI schema 检查实际执行；默认 app 同 Store 装配和第四服务 Stop/Drain 接线已测，复用原结果、不重复运行。
