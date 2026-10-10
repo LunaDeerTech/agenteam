@@ -9,11 +9,11 @@
 - 下一步：本域上述有限初始化/Stop/当前D05及三top真实组已闭合各自范围，生产root/完整participant未完成。Cleanup rev2只到规格接受，D05新口与Project当前CleanupPhase须先独立交付。独立Knowledge六组已按89530未变五子＋82746修复末子闭合，原失败不回填；当前完成新main装配有限独审，见下节。root已将原占位00028移交Knowledge作为共享cleanup索引唯一写者，Skills不写SQL、不放宽FK/列；本域joined-work查询与FK反查候选须由其真实EXPLAIN确认。无自动真实重跑，由root协调资源和交叉审查。
 - 当前没有本实例运行进程/真实资源/缓存租约，未经运行的范围不得写PASS。必要失败和实际检查在本恢复点按发生追加。
 
-## Skills Owner HTTP 独立静审与待返修方法
+## Skills Owner HTTP 产品与验收方法有限静审
 
 - 审查树 `/workspace/agenteam-skills-owner-http`：短合同已有限接受；固定 `890d632f` 的3产品、5纯测试、Schema/helper共10技术源独立静审接受，无确认产品 must-fix。本人 `eb56ef` 只读核冻结字节、I/O除package与正式Knowledge相同、安全8字段及HEAD无体；作者原JSON的11top/47sub、Schema21与18个HEAD状态均actual0，明确复用而未自行Go。vet首鲜值不足exit78未启动；不以纯控外推PG/native。
 - 后继只读 `6fa6c733` 的native/PG fixture及作者冻结的两个PG矩阵源，4top/12sub与native3top/6sub均尚未编译、未运行。正式Account登录/注销、P2 List/Get、同Store Project gate、精确User advisory锁双向竞争及原Skill SELECT relation等待/取消、原Tx失活、完整帧COMMIT Unknown两向及Release/Committed/HeldJoined在源码上可行。Object仅明确受控初始化端口，Project/Creation/Owner/lifecycle为披露的合法上游fixture；不能冒D05物理或OwnerTransfer/BeginDelete API。
-- 两个方法must-fix已交Runner：native回压目前只有Write进入、abort与耗时，须绑定原Write/Flush实际返回的native Timeout；PG `facts`错误排除Account Activity，须删除“合法read Activity”假设，补原Session `last_activity_at`可触发60秒throttle的合法前置与GET/HEAD前后不变事实。依据真实 `account/session.go` 的Authenticate及TouchActivity契约和本HTTP卡零Activity要求。其余静核未发现新增阻断，整方法等待上述窄修；不改作者源，不运行Go/PG/socket，不新建审查流水文件。
+- 两个原方法must-fix及返修事实保留：原native只有Write进入/abort/耗时、原PG `facts`错误排除Account Activity。相对 `784ecf02` 的两个测试源最小增量经本人 `e43905` / `909441` 只读复核有限接受，无剩余确认must-fix：原Write及实际Flush返回原值并记录错误，在原handler terminal同步后核 `net.Error.Timeout`，仍保原2s上下界/同socket；第九快照只含全部Session ID/last_activity_at，Metadata前由原UserEX+ProjectEX活Tx设置实际Session issued=now-120s/activity=now-90s，Rows1并核60s阈值/顺序/绝对期限/未撤销，原Account仍负责当前idle。00010 CHECK与idle至少900秒吻合，原cookie/CSRF/private事实不改。所有GET/HEAD及拒绝后的九项事实必须不变，不再依赖新Login尚未越过节流窗。只接受源码方法，4top/12sub及native3top/6sub仍未编未跑；不改作者源、不Go/PG/socket。
 - 原温热GOCACHE `/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache` 已交Runner独占，本人无Go在途或排队；Cleanup新history仍仅静态接受等待后继构建授权。root已精确退休正式P2旧独立候选及两个旧PG driver共63,777,606B，保源码/日志/旧FAIL/Cleanup候选，历史命令产物可按原固定源重建。
 
 ## B02 当前 main 装配独立有限接受
