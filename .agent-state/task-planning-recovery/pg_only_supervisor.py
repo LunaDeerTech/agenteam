@@ -189,6 +189,24 @@ def observe_secret_owner(log_path, log, selector):
     return good
 
 
+SECRET_ROOT = '^TestProjectSecretVariablesDefaultRoot$'
+
+
+def secret_root_results(output):
+    top = 'TestProjectSecretVariablesDefaultRoot'
+    expected = {top, top + '/existing-project-protocol-and-routing',
+                top + '/stop-drain-original-calls'}
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+    waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
+    return (len(runs) == len(expected) and set(runs) == expected
+            and len(results) == len(expected)
+            and all(state == 'PASS' for state, _ in results)
+            and {name for _, name in results} == expected
+            and len(waits) == 1 and waits[0][1:] == ('0', SECRET_ROOT)
+            and re.search(r'^FAIL(?:\s|$)', output, re.M) is None)
+
+
 def root_composition_results(output):
     selector = '^TestKnowledgeSkillsDefaultRootComposition$'
     wanted = 'TestKnowledgeSkillsDefaultRootComposition'
@@ -462,6 +480,7 @@ def observe_root_chain(directory, log, log_path, selector):
     else:
         output = log_path.read_text()
     expected = {
+        SECRET_ROOT: {'TestProjectSecretVariablesDefaultRoot'},
         '^TestKnowledgeSkillsDefaultRootComposition$': {'TestKnowledgeSkillsDefaultRootComposition'},
         CONTENT_PG: set(CONTENT_GROUPS[CONTENT_PG]),
         '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|PendingHistoryAndCausePlans)$': {'TestObjectMetadataCleanupLiveTransferAndDownloadPlans', 'TestObjectMetadataCleanupPendingHistoryAndCausePlans'},
@@ -484,6 +503,10 @@ def observe_root_chain(directory, log, log_path, selector):
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
     log.write(f'ROOT exact_tops={actual == expected} actual_test_wait={waited}\n')
+    if selector == SECRET_ROOT:
+        complete = secret_root_results(output)
+        log.write(f'ROOT secret_exact_run_pass_wait={complete}\n')
+        good = good and complete
     if selector == '^TestKnowledgeSkillsDefaultRootComposition$':
         complete = root_composition_results(output)
         log.write(f'ROOT composition_exact_run_pass_wait={complete}\n')
@@ -742,6 +765,8 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
+    if 'ProjectSecretVariablesDefaultRoot' in args.run and (args.run != SECRET_ROOT or not args.root_chain):
+        parser.error('Secret default root requires its exact original root-chain entry')
     if args.run == '^TestKnowledgeSkillsDefaultRootComposition$' and not args.root_chain:
         parser.error('default root composition requires the original root chain')
     if any(name in args.run for name in ('SecretVariableHTTP', 'SecretHTTPNative')) and (args.root_chain or args.run not in SECRET_HTTP_CASES):
@@ -796,7 +821,7 @@ def main():
                   for p in secret_owner_inputs(args.driver, args.binary)}
     if secret_http_selected:
         inputs = secret_http_inputs(args.driver, args.binary, args.run)
-    if args.run == '^TestKnowledgeSkillsDefaultRootComposition$':
+    if args.run in ('^TestKnowledgeSkillsDefaultRootComposition$', SECRET_ROOT):
         inputs.update({str(p): adapter.sha(p) for p in adapter.root_composition_inputs()})
     baseline = tcp()
     started = time.monotonic()
@@ -942,7 +967,7 @@ def main():
                         same = (content_same(inputs, args, adapter) if args.run in CONTENT_GROUPS else
                                 all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
                                     for p, digest in inputs.items()))
-            if args.run == '^TestKnowledgeSkillsDefaultRootComposition$':
+            if args.run in ('^TestKnowledgeSkillsDefaultRootComposition$', SECRET_ROOT):
                 same = same and root_composition_same(inputs, args, adapter)
             if not same: code = 1
             if interrupted: code = 1
