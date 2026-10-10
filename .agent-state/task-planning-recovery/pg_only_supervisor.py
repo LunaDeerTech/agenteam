@@ -199,6 +199,10 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestExecutionFirstRound$/^cancel-joins-current-call$': frozenset({
+        'TestExecutionFirstRound',
+        'TestExecutionFirstRound/cancel-joins-current-call',
+    }),
     '^TestExecutionFirstRound$': frozenset({
         'TestExecutionFirstRound',
         'TestExecutionFirstRound/completed-one-turn',

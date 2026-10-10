@@ -131,7 +131,13 @@ func TestExecutionFirstRound(t *testing.T) {
 			t.Fatal("cancel did not return the original Execution call")
 		}
 		if !errors.Is(result.err, context.Canceled) || result.receipt.Status != ec.Cancelled {
-			t.Fatal("original cancellation did not retain its cause and committed terminal receipt")
+			var fault *f.Fault
+			code, commit := "", ""
+			if errors.As(result.err, &fault) {
+				code, commit = string(fault.Code.Safe()), string(fault.CommitState.Safe())
+			}
+			t.Fatalf("original cancellation did not retain its cause and committed terminal receipt: cancelled=%t fault=%s commit=%s receipt_status=%s receipt_version=%d",
+				errors.Is(result.err, context.Canceled), code, commit, result.receipt.Status, result.receipt.Version)
 		}
 		firstRoundDriverJoined(t, driver)
 		x.requireTerminal(t, captured, result.receipt, ec.Cancelled)
