@@ -1,4 +1,12 @@
-# 当前有限组合：Human Task 首轮失败已退出，定向修复中
+# 当前有限组合：Human Task 真实配置、指派与回滚通过
+
+source `9aa572cf` 的 `task-human-03` **wholePASS**（session74233→9a4ca7，2026-10-10 16:26:07–16:28:11 UTC）：原 `TestTaskTransitionHuman` 1 top/2 sub 共28.55s，`assignment-config-and-replay` 19.86s、`final-transaction-rollback` 8.68s。真实 prefix40 Project 创建与旧字段更新，经43升级和repeat后旧Project/Audit/Outbox保持、新scheduler为false/unlimited；随后正式Owner配置true/limit2、真实Agent与Work Task从backlog指派todo，同key重放/Lookup不增事实。最终事务marker使实际Task/history/Outbox/receipt及Activity回滚，原planned意图保留。未SQL种业务成功，不证明CurrentSprint/claim/Launch、默认app或完整F1。
+
+`task-human-compile-03` 实际PASS（27255→7cc6f8）：race-c5.705s、唯一top list1.068s，694编译输入不变。新候选 `task-human-race-03.test` 为53,735,721 B，SHA256 `fa8858c62ca90b8e7ae86246bf06aa8fc29ed8a683c5e66537ef472e67473e01`。PG同进程fresh5,457,145,856 B；Go953120/driver951435/supervisor951414/outer951369全原Wait0，七资源14absence、private/runtime/descendant/TCP及outer双尾闭合，adopted空，1387运行输入初尾一致。窗口/热缓存已交回，本批不再测试。
+
+必要复现入口在 `output/ai/agent-system-integration/`：`task-human-compile-03-launcher.py`、`task-human-launcher-03.py`、`task-human-03-inputs.json`；结果 `task-human-03-control/result.json`，原日志 `/tmp/tth03/pg-084c251ceef842aaa20c6a929cdb17ce.log`。复现使用新的输出与获授资源窗口。下述01/02 FAIL、候选和原件全部保留，不回填原未采原因。
+
+## Human Task 前两轮原始失败
 
 source `d041370d` 的 `task-human-02` **wholeFAIL**（session43529→3dfdd5，16:19:54–16:21:42 UTC）：原1 top/2 sub共15.47s，`final-transaction-rollback` 实际PASS8.24s，证明原最终事务完成Task/history/Outbox/receipt后 marker 使真实Store回滚、原physical NotCommitted/cause及快照不变。首sub新增40→43升级helper在prefix40正式Project更新即 `INVALID_ARGUMENT`（7.23s）；测试名称 `Legacy scheduler upgrade` 含空格，正式 `NormalizeName` 仅接受ASCII字母/数字/`._-`。仅改为合法 `legacy-scheduler-upgrade`，未改变产品或断言。旧字段更新、升级/repeat43和正向指派本轮尚未通过；没有自动第三次运行。
 
