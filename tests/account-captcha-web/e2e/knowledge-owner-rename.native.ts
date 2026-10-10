@@ -1090,6 +1090,7 @@ export async function observeRename(
     if (
       row.response_count !== 1 ||
       closed ||
+      retiring ||
       page.isClosed() ||
       Date.now() >= expiresAt
     ) {
