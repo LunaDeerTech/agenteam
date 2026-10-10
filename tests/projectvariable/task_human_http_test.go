@@ -329,35 +329,11 @@ func assembleTaskHumanHTTPFixture(t *testing.T, withSprintLifecycle bool) *taskH
 		owned = append(owned, lifecycle)
 	}
 
-	// Bind before starting TLS; the real Account boundary owns this exact
-	// loopback HTTPS origin. Server.Client trusts only the owned test certificate.
-	s := httptest.NewUnstartedServer(nil)
-	v := &taskHumanHTTPFixture{domain: d, server: s, done: make(chan bool, 1)}
-	t.Cleanup(s.Close) // actual Serve/connection/handler Wait, before Work Drain
-	boundary, err := account.NewHTTPBoundary(base.core, "https://"+s.Listener.Addr().String())
-	if err != nil {
-		t.Fatal(err)
-	}
-	handler, err := workhttp.NewHTTPHandler(workhttp.Bindings{
+	v := serveTaskHumanHTTPFixture(t, d, workhttp.Bindings{
 		Structure: d.structure, StructureReader: d.structureReader, Tasks: d.tasks, TaskReader: d.taskReader,
 		Blockers: blockers, BlockerReader: blockerReader, Transitions: d.transitions,
 		SprintLifecycle: lifecycle,
-	}, boundary)
-	if err != nil {
-		t.Fatal(err)
-	}
-	wrapped := httpapi.Handler(nil, handler)
-	s.Config.ErrorLog = log.New(io.Discard, "", 0)
-	s.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		normal := false
-		defer func() { v.done <- normal }()
-		wrapped.ServeHTTP(w, r)
-		normal = true
 	})
-	s.StartTLS()
-	if s.Client().Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify {
-		t.Fatal("TLS fixture disabled certificate verification")
-	}
 
 	milestone := wc.CreateMilestoneRequest{MilestoneID: id[wc.Milestone](t), Title: "HTTP assignment"}
 	if _, err = d.structure.CreateMilestone(ctxFor(t), base.ownerBrowser.actor, meta(t, "http-milestone", nil), base.project.ID, milestone); err != nil {
@@ -375,6 +351,37 @@ func assembleTaskHumanHTTPFixture(t *testing.T, withSprintLifecycle bool) *taskH
 		t.Fatal("real HTTP Create did not publish the original unassigned backlog Task")
 	}
 	d.task = created.Task
+	return v
+}
+
+func serveTaskHumanHTTPFixture(t *testing.T, d *taskTransitionFixture, bindings workhttp.Bindings) *taskHumanHTTPFixture {
+	t.Helper()
+	// Bind before starting TLS; the real Account boundary owns this exact
+	// loopback HTTPS origin. Server.Client trusts only the owned test certificate.
+	s := httptest.NewUnstartedServer(nil)
+	v := &taskHumanHTTPFixture{domain: d, server: s, done: make(chan bool, 1)}
+	t.Cleanup(s.Close) // actual Serve/connection/handler Wait, before Work Drain
+	boundary, err := account.NewHTTPBoundary(d.base.core, "https://"+s.Listener.Addr().String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler, err := workhttp.NewHTTPHandler(bindings, boundary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	wrapped := httpapi.Handler(nil, handler)
+	s.Config.ErrorLog = log.New(io.Discard, "", 0)
+	s.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		normal := false
+		defer func() { v.done <- normal }()
+		wrapped.ServeHTTP(w, r)
+		normal = true
+	})
+	s.StartTLS()
+	if s.Client().Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify {
+		t.Fatal("TLS fixture disabled certificate verification")
+	}
+
 	return v
 }
 

@@ -30,12 +30,23 @@ func technicalBlockerFixture() c.TaskBlocker {
 	return v
 }
 
+func resolvedTechnicalBlockerFixture() c.TaskBlocker {
+	v := technicalBlockerFixture()
+	v.ResolvedAt = ptr(testAt())
+	v.ResolvedBy = ptr(testBlocker().CreatedBy)
+	return v
+}
+
 func technicalBlockerPage(t *testing.T, v c.TaskBlocker) ([]byte, []byte) {
 	t.Helper()
 	h, boundary, p := testHandler()
 	p.bl = f.Page[c.TaskBlocker]{Items: []c.TaskBlocker{v}}
 	w := newTestWriter()
-	r := httptest.NewRequest("GET", testPath("/tasks/"+v.TaskID.String()+"/blockers"), nil)
+	suffix := "/tasks/" + v.TaskID.String() + "/blockers"
+	if v.ResolvedAt != nil {
+		suffix += "?status=resolved"
+	}
+	r := httptest.NewRequest("GET", testPath(suffix), nil)
 	if serveTest(h, r, w) || w.Code != 200 || p.calls != 1 || boundary.checks.Load() != 1 || boundary.auths.Load() != 1 {
 		t.Fatal("original authenticated read did not publish a complete page", w.Code)
 	}
@@ -62,8 +73,13 @@ func TestWorkHTTPTechnicalBlockerReadOnly(t *testing.T) {
 	}
 	for _, key := range []string{"resolved_at", "resolved_by", "resolution_comment"} {
 		if wire[key] != nil {
-			t.Fatal("unsupported technical resolution was published")
+			t.Fatal("unresolved record acquired a resolution")
 		}
+	}
+	_, resolvedRaw := technicalBlockerPage(t, resolvedTechnicalBlockerFixture())
+	resolved := wireObject(t, resolvedRaw)
+	if len(resolved) != 11 || !reflect.DeepEqual(resolved["metadata"], metadata) || !reflect.DeepEqual(resolved["created_by"], actor) || resolved["resolved_by"].(map[string]any)["type"] != "human" || resolved["resolution_comment"] != nil {
+		t.Fatal("resolution lost original System metadata or current Human projection")
 	}
 	for _, edit := range []func(*c.TaskBlocker){
 		func(x *c.TaskBlocker) { x.Technical.ReferenceID = testID[c.SchedulerClaim](81).String() },
@@ -114,6 +130,24 @@ func TestWorkHTTPTechnicalBlockerStandardSchema(t *testing.T) {
 	samples := []schemaSample{{"TaskBlockerPage", wireObject(t, page), true}, {"TaskBlocker", wireObject(t, raw), true}}
 	_, human := technicalBlockerPage(t, testBlocker())
 	samples = append(samples, schemaSample{"TaskBlocker", wireObject(t, human), true})
+	resolved := resolvedTechnicalBlockerFixture()
+	resolvedPage, resolvedRaw := technicalBlockerPage(t, resolved)
+	samples = append(samples, schemaSample{"TaskBlockerPage", wireObject(t, resolvedPage), true}, schemaSample{"TaskBlocker", wireObject(t, resolvedRaw), true})
+	// The read contract retains the existing optional resolution comment cap;
+	// the Transfer writer's per-Blocker comment is currently always nil.
+	resolved.ResolutionComment = ptr("Recorded Human resolution")
+	_, commentRaw := technicalBlockerPage(t, resolved)
+	samples = append(samples, schemaSample{"TaskBlocker", wireObject(t, commentRaw), true})
+	for _, edit := range []func(map[string]any){
+		func(v map[string]any) { v["resolved_at"] = nil },
+		func(v map[string]any) { v["resolved_by"] = nil },
+		func(v map[string]any) { v["resolved_by"] = v["created_by"] },
+		func(v map[string]any) { v["resolved_by"].(map[string]any)["source"] = "scheduler" },
+	} {
+		bad := wireObject(t, resolvedRaw)
+		edit(bad)
+		samples = append(samples, schemaSample{"TaskBlocker", bad, false})
+	}
 	for _, edit := range []func(map[string]any){
 		func(v map[string]any) { v["metadata"].(map[string]any)["code"] = "other" },
 		func(v map[string]any) { v["metadata"].(map[string]any)["source"] = "other" },
