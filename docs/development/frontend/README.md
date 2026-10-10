@@ -61,6 +61,12 @@ npm run preview --prefix web
 
 采用 HTML5 History。开发服务器和 Vite preview 支持回退；生产资源托管属于 D28，Central 当前未托管 SPA。非 API 的 History 页面才能回退到 `index.html`，API、缺失资产和服务端错误不能直接回退。认证、个人设置、公开入口、系统目录、邀请、Provider/Model 管理、平台用途、账号安全、SMTP 配置/投递、出站规则、系统审计、运行信息与 Owner 工作区的实际浏览器验收使用自有测试服务器托管冻结候选的生产 dist 并反代完整 Central，不把该测试服务器或 `vite preview` 当作生产部署；开发代理另有静态/类型检查，未单独进行真实 dev-server 浏览器验收。
 
+## Knowledge Owner 只读 UI
+
+`/:username/:project_name/knowledge` 读取当前 Owner 的已有文档，`/knowledge/:document_id` 使用规范 UUIDv7 深链；仅在 Project Resolve→Get 和当前 Human Session 均成立后读子层、metadata、祖先及正文。树展开与选择分开，每层按 cursor 显式继续；祖先是当前路径，不是完整目录快照。正文按正式默认 65536 UTF-8 字节分段，只显示当前段，版本变化清空旧段；Markdown 安全显示源文本，PDF/DOCX 明确不可读，不调用解析、预览或来源获取。
+
+实现复用唯一 Cookie 请求 owner、现有 Project 工作区与 UiTree/Drawer。取消/切换不提前释放原 fetch/body/cancel 尾；新的页面观察与原请求完成分别管理。普通 Owner 无管理员门禁，局部拒绝不污染 System 状态。定向客户端/会话/页面检查及旧后端输入下的作者单正常链 `read03` 已通过，涵盖真实四 GET、树键盘、UTF-8 下一段和窄屏 Drawer；新主线Account/Secret根装配下 `read04` 同范围整体通过，另有三项独立App/Session/Workspace受控网络风险验证，具体边界见 [D12 UI 片段](../work-items/d12-knowledge-documents.md#owner-文档树与正文读取-ui限定读取范围)。默认生产 Project initializer 仍未绑定；真实测试只用隔离正式服务准备已有 Project，并实际 Stop/Drain 后供默认读取服务使用；测试静态托管不代表 SPA 生产发布。
+
 ## Project Owner 工作区
 
 [Owner 工作区卡 rev2.1](../work-items/d27-project-owner-workspace-ui.md)连接正式 Owner List/Get、Resolve、Update 和 Update lookup 五个端点。普通 Human 与管理员使用同一 Owner 校验，管理员身份不提供 Project 访问豁免。
@@ -83,7 +89,7 @@ npm run preview --prefix web
 
 Project 与既有账号/System 操作共用唯一 Cookie 请求 owner；可见超时、取消和离页不提前释放真实 fetch/body/cancel 尾部。同 Session checking 隐藏内容并保留草稿，真正 Session/身份或 CSRF 变化清理旧材料。项目切换、系统导航、history 返回和退出接入原聚合确认，取消保留草稿与焦点；Project 本地确认不擅自清理 System 四用途/会议 Summary 的独立草稿，各域仍由原聚合流程处理。私有请求材料不写入 URL、history、storage 或普通日志。
 
-当前不提供创建、归档、恢复、删除、Owner 转移、会议/任务/知识库、Project Model/Usage 等页面或假统计；项目设置的基本信息与只读审计范围分别见本节和下节。系统管理员统一会议 Summary initial/update（含首轮标题），没有 Project override 或复制默认值。
+当前不提供创建、归档、恢复、删除、Owner 转移、会议/任务、Project Model/Usage 等页面或假统计；项目设置的基本信息与只读审计范围分别见本节和下节。系统管理员统一会议 Summary initial/update（含首轮标题），没有 Project override 或复制默认值。
 
 独立前端启动沿本页“启动与检查”的 `npm run dev --prefix web` 与可选 `AGENTEAM_DEV_API_TARGET` 同源代理；登录后可访问 `/projects`。没有后端连接时不提供假登录或假项目。受影响纯检查及任务自有静态构建入口如下，构建目录由调用方先设置为独占绝对路径：
 

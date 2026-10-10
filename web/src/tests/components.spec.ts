@@ -153,6 +153,52 @@ it('keeps tree disclosure separate from selection and uses arrows to reach child
   wrapper.unmount()
 })
 
+it('keeps lazy tree expansion consistent across disclosure, arrows and ARIA', async () => {
+  const wrapper = mount(UiTree, {
+    attachTo: document.body,
+    props: { label: '懒加载树', nodes: [{ id: 'p', label: '父', expandable: true }], expanded: [] },
+  })
+  const parent = wrapper.get('[data-tree-id=p]')
+  expect(parent.attributes('aria-expanded')).toBe('false')
+  expect(parent.find('button.tree-disclosure').exists()).toBe(true)
+  await parent.trigger('keydown', { key: 'ArrowRight' })
+  expect(wrapper.emitted('update:expanded')?.[0]).toEqual([['p']])
+  expect(wrapper.emitted('update:selected')).toBeUndefined()
+  await wrapper.setProps({ expanded: ['p'] })
+  expect(parent.attributes('aria-expanded')).toBe('true')
+  await wrapper.setProps({
+    nodes: [{ id: 'p', label: '父', expandable: true, children: [{ id: 'c', label: '子' }] }],
+  })
+  await parent.trigger('keydown', { key: 'ArrowRight' })
+  expect(document.activeElement?.getAttribute('data-tree-id')).toBe('c')
+  wrapper.unmount()
+})
+
+it('treats explicit nonexpandable tree nodes as leaves even with stale expansion state', async () => {
+  const wrapper = mount(UiTree, {
+    attachTo: document.body,
+    props: {
+      label: '叶子树',
+      nodes: [{ id: 'p', label: '父', expandable: false, children: [{ id: 'c', label: '旧子' }] }],
+      expanded: ['p'],
+    },
+  })
+  const parent = wrapper.get('[data-tree-id=p]')
+  ;(parent.element as HTMLElement).focus()
+  expect(parent.attributes('aria-expanded')).toBeUndefined()
+  expect(parent.find('button.tree-disclosure').exists()).toBe(false)
+  expect(
+    wrapper
+      .get('[data-tree-id=c]')
+      .element.closest('.tree-visibility')
+      ?.getAttribute('aria-hidden'),
+  ).toBe('true')
+  await parent.trigger('keydown', { key: 'ArrowRight' })
+  expect(document.activeElement).toBe(parent.element)
+  expect(wrapper.emitted('update:expanded')).toBeUndefined()
+  wrapper.unmount()
+})
+
 it('tabs skip disabled items using keyboard navigation', async () => {
   const wrapper = mount(UiTabs, {
     props: {
