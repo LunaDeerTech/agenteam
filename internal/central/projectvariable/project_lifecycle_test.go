@@ -74,7 +74,7 @@ func (p *localStopProjects) ValidateLifecycleInTx(ctx context.Context, tx f.Tx, 
 	if _, err := p.store.InTx(tx); err != nil {
 		return err
 	}
-	if cause != p.cause || actor.Details().ProjectID != p.project.String() || participant != pc.SkillsParticipant || phase != pc.StopPhase || len(p.store.locks) != 1 || p.store.locks[0] != projectLock(p.project, f.Shared) {
+	if cause != p.cause || actor.Details().ProjectID != p.project.String() || participant != pc.SkillsParticipant || phase != pc.StopPhase || len(p.store.locks) != 1 || p.store.locks[0].Mode != f.Shared || f.CompareLockKeys(p.store.locks[0].Key, projectLock(p.project, f.Shared).Key) != 0 {
 		return fault(f.Forbidden)
 	}
 	if p.err != nil {
