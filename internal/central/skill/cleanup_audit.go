@@ -77,6 +77,9 @@ func (a *LifecycleAuditAuthority) CheckAppendInTx(ctx context.Context, tx f.Tx, 
 		return unavailable(err)
 	}
 	if meta.InitiatorKind != id.Service {
+		if meta.InitiatorKind == id.Human || meta.InitiatorKind == id.AgentRun {
+			return a.checkInstallationDeleteAudit(ctx, tx, entry, key, meta)
+		}
 		return a.delegate.CheckAppendInTx(ctx, tx, entry, key)
 	}
 	object, err := f.ParseID[oc.StoredObject](e.Resource.Details().ID)
@@ -126,6 +129,48 @@ func (a *LifecycleAuditAuthority) CheckAppendInTx(ctx context.Context, tx f.Tx, 
 	}
 	// Only the actual D05 checker can prove its native call, earliest original
 	// cause/digest and physical facts. Keep context, Tx and opaque entries exact.
+	return portError(a.objects.CheckProjectAuditInTx(ctx, tx, entry, key))
+}
+
+func (a *LifecycleAuditAuthority) checkInstallationDeleteAudit(ctx context.Context, tx f.Tx, entry ac.Entry, key ac.AppendKey, meta skillAuditMetadata) error {
+	e, k := entry.Fields(), key.Details()
+	object, err := f.ParseID[oc.StoredObject](e.Resource.Details().ID)
+	if err != nil {
+		return fault(f.Forbidden)
+	}
+	state := a.authority.state()
+	if err = state.store.RequireHeldLocks(ctx, tx, []f.LockRequest{objectLock(object, f.Exclusive)}); err != nil {
+		return portError(err)
+	}
+	x, err := state.store.InTx(tx)
+	if err != nil {
+		return portError(err)
+	}
+	r, gate, err := loadInstallationCleanupObject(ctx, x, object)
+	if unboundInitializationMapping(err) || err == nil && gate == nil {
+		return a.delegate.CheckAppendInTx(ctx, tx, entry, key)
+	}
+	if err != nil {
+		return err
+	}
+	if gate.phase != cleanupGated && gate.phase != cleanupPending {
+		return fault(f.Forbidden)
+	}
+	if err = a.authority.checkInstallationCleanupInTx(ctx, tx, *r, *gate); err != nil {
+		return err
+	}
+	actor, scope := e.Actor.Details(), e.Scope.Details()
+	initiator, execution := r.user.String(), ""
+	if r.execution != nil {
+		initiator, execution = r.execution.agent.String(), r.execution.execution.String()
+	}
+	if scope.Kind != id.ProjectScope || scope.ProjectID != r.project.String() || actor.Kind != id.Service || actor.ServiceName != id.ObjectService || actor.ProjectID != r.project.String() || actor.CauseRef != k.CauseRef || f.Digest(k.CauseRef).Validate() != nil || k.Ordinal != 1 || e.Resource.Details().Kind != ac.ObjectResource || e.Associations != (ac.Associations{}) || e.Outcome != ac.Success || meta.ObjectID != object.String() || meta.InitiatorKind != r.actorKind() || meta.InitiatorID != initiator || meta.InitiatorExecutionID != execution || meta.Phase != ac.DeletedPhase || meta.Reason != "" {
+		return fault(f.Forbidden)
+	}
+	expected, err := ac.ObjectMetadata(ac.ObjectDelete, ac.ObjectMetadataFields{ObjectID: object.String(), InitiatorKind: r.actorKind(), InitiatorID: initiator, InitiatorExecutionID: execution, MediaType: sc.PackageMediaType, ByteSize: r.pkg.size, Phase: ac.DeletedPhase})
+	if err != nil || !bytes.Equal(expected.JSON(), e.Metadata.JSON()) {
+		return fault(f.Forbidden)
+	}
 	return portError(a.objects.CheckProjectAuditInTx(ctx, tx, entry, key))
 }
 

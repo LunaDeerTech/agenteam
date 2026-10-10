@@ -68,6 +68,8 @@ func (s *cleanupTestStore) WithinTx(ctx context.Context, cause f.TransactionCaus
 func (s *cleanupTestStore) QueryRow(ctx context.Context, q string, args ...any) postgres.Row {
 	value := func(v ...any) postgres.Row { return skillRowValues{values: v} }
 	switch {
+	case strings.HasPrefix(q, "SELECT skill_id::text FROM agenteam_skill.installations"):
+		return skillRowValues{err: pgx.ErrNoRows}
 	case strings.HasPrefix(q, "SELECT NOT EXISTS(SELECT 1 FROM agenteam_skill.agent_assignment_heads"):
 		if s.agentFactsError != nil {
 			return skillRowValues{err: s.agentFactsError}

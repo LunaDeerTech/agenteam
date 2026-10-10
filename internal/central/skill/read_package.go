@@ -31,7 +31,25 @@ func (s *Service) OpenPackage(ctx context.Context, actor id.Actor, project id.Pr
 	var work *ownedWork
 	var metadata sc.RevisionMetadata
 	err = s.ownerReadTx(call.ctx, actor, project, func(ctx context.Context, _ f.Tx, x postgres.SQLExecutor, row initializationRow) error {
-		if row.skill != skill || row.bundle.revision != revision {
+		if row.skill != skill {
+			installed, e := loadInstallationSkill(ctx, x, project, skill)
+			if e != nil {
+				return e
+			}
+			if installed == nil || installed.phase != installationPublished || revision != 1 {
+				return fault(f.NotFound)
+			}
+			_, metadata, e = loadInstalled(ctx, x, *installed)
+			if e != nil {
+				return e
+			}
+			work, e = s.installedReaderWork(*installed, call)
+			if e != nil {
+				return e
+			}
+			return insertWork(ctx, x, work.fact)
+		}
+		if row.bundle.revision != revision {
 			return fault(f.NotFound)
 		}
 		_, m, e := loadPublished(ctx, x, row)
@@ -44,7 +62,7 @@ func (s *Service) OpenPackage(ctx context.Context, actor id.Actor, project id.Pr
 			return e
 		}
 		return insertWork(ctx, x, work.fact)
-	})
+	}, skill)
 	if err != nil {
 		if work != nil {
 			s.registrationFailed(work, err)
@@ -55,6 +73,9 @@ func (s *Service) OpenPackage(ctx context.Context, actor id.Actor, project id.Pr
 	// current access gate and durable lease accounting. No cached read grant is
 	// passed through from the metadata transaction.
 	owner, err := work.row.owner()
+	if work.installation != nil {
+		owner, err = work.installation.owner()
+	}
 	if err != nil {
 		_ = s.finishOwnedWork(call.ctx, work)
 		return nil, err

@@ -101,6 +101,23 @@ func (a *Authority) CheckCleanupInTx(ctx context.Context, tx f.Tx, cause oc.Obje
 	if err != nil {
 		return portError(err)
 	}
+	if _, err := ownerInitialization(ctx, x, cause.Details().Owner); err != nil {
+		if notInitializationOwner(err) {
+			installed, gate, e := loadInstallationCleanupObject(ctx, x, object)
+			if e != nil {
+				return e
+			}
+			if gate == nil || installed.project != project {
+				return fault(f.Forbidden)
+			}
+			exact, e := installationCleanupCause(*gate, *installed)
+			if e != nil || exact.Details().OperationID != cause.Details().OperationID || exact.Details().Reason != cause.Details().Reason || !exact.Details().Owner.Equal(cause.Details().Owner) {
+				return fault(f.Forbidden)
+			}
+			return a.checkInstallationCleanupInTx(ctx, tx, *installed, *gate)
+		}
+		return err
+	}
 	r, c, err := loadCleanupObject(ctx, x, cause, object, false)
 	if err != nil {
 		return err

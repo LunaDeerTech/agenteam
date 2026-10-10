@@ -6,6 +6,7 @@ import (
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 )
@@ -44,6 +45,19 @@ func (s *Service) InspectStop(ctx context.Context, actor id.Actor, cause pc.Life
 	state := s.state()
 	proven := map[skillWorkID]bool{}
 	var firstErr error
+	for workID, local := range snapshot.local {
+		state.mu.Lock()
+		pendingDiscard := local.fact.kind == installationWork && local.installationCallerReturned && !local.returned
+		state.mu.Unlock()
+		if pendingDiscard {
+			if err := s.joinInstallationDiscard(local); err != nil && firstErr == nil {
+				firstErr = err
+			}
+			state.mu.Lock()
+			snapshot.returned[workID] = local.returned
+			state.mu.Unlock()
+		}
+	}
 	// The first current gate has committed before any process proof is asked.
 	// Proof occurs outside SQL; the second transaction revalidates the same
 	// gate and acquires the original writer's complete lock set after proof.
@@ -71,6 +85,14 @@ func (s *Service) InspectStop(ctx context.Context, actor id.Actor, cause pc.Life
 		}
 	}
 	joined := map[skillWorkID]bool{}
+	var installationLocks []f.LockRequest
+	for _, parent := range snapshot.installations {
+		locks, err := parent.locks(f.Exclusive)
+		if err != nil {
+			return pc.StopReport{}, err
+		}
+		installationLocks = append(installationLocks, locks...)
+	}
 	e = s.stopTransaction(call.ctx, actor, cause, scope, snapshot.row, func(ctx context.Context, x postgres.SQLExecutor, row *initializationRow) error {
 		for workID := range proven {
 			if !proven[workID] {
@@ -80,7 +102,19 @@ func (s *Service) InspectStop(ctx context.Context, actor id.Actor, cause pc.Life
 			if !exists {
 				expected = snapshot.local[workID].fact
 			}
-			if row == nil || expected.project != scope.ProjectID || expected.skill != row.skill {
+			if row == nil || expected.project != scope.ProjectID {
+				return unavailable(nil)
+			}
+			if installedWork(expected.kind) {
+				parent := snapshot.installations[workID]
+				if parent == nil || parent.project != scope.ProjectID || parent.skill != expected.skill {
+					return unavailable(nil)
+				}
+				owner := &ownedWork{fact: expected, installation: parent}
+				if err := owner.checkParent(ctx, x); err != nil {
+					return err
+				}
+			} else if expected.skill != row.skill {
 				return unavailable(nil)
 			}
 			current, e := loadWork(ctx, x, workID)
@@ -102,7 +136,7 @@ func (s *Service) InspectStop(ctx context.Context, actor id.Actor, cause pc.Life
 			joined[workID] = true
 		}
 		return nil
-	})
+	}, installationLocks)
 	if e != nil {
 		return pc.StopReport{}, e
 	}
@@ -124,16 +158,17 @@ func (s *Service) InspectStop(ctx context.Context, actor id.Actor, cause pc.Life
 }
 
 type stopSnapshot struct {
-	row      *initializationRow
-	work     map[skillWorkID]workFact
-	local    map[skillWorkID]*ownedWork
-	returned map[skillWorkID]bool
-	calls    map[skillWorkID]*serviceCall
-	more     bool
+	row           *initializationRow
+	work          map[skillWorkID]workFact
+	local         map[skillWorkID]*ownedWork
+	returned      map[skillWorkID]bool
+	calls         map[skillWorkID]*serviceCall
+	installations map[skillWorkID]*installationRow
+	more          bool
 }
 
 func stoppedKind(action pc.LifecycleAction, kind workKind) bool {
-	return kind == initializationWork || action == pc.Delete && kind == packageReaderWork
+	return kind == initializationWork || kind == installationWork || action == pc.Delete && (kind == packageReaderWork || kind == installedPackageReaderWork)
 }
 
 func stopArguments(actor id.Actor, cause pc.LifecycleCause, scope pc.ScopeRef) error {
@@ -151,7 +186,7 @@ func stopArguments(actor id.Actor, cause pc.LifecycleCause, scope pc.ScopeRef) e
 }
 
 func (s *Service) captureStop(ctx context.Context, actor id.Actor, cause pc.LifecycleCause, scope pc.ScopeRef) (stopSnapshot, error) {
-	out := stopSnapshot{work: map[skillWorkID]workFact{}, local: map[skillWorkID]*ownedWork{}, returned: map[skillWorkID]bool{}, calls: map[skillWorkID]*serviceCall{}}
+	out := stopSnapshot{work: map[skillWorkID]workFact{}, local: map[skillWorkID]*ownedWork{}, returned: map[skillWorkID]bool{}, calls: map[skillWorkID]*serviceCall{}, installations: map[skillWorkID]*installationRow{}}
 	if e := stopArguments(actor, cause, scope); e != nil {
 		return out, e
 	}
@@ -169,7 +204,7 @@ func (s *Service) captureStop(ctx context.Context, actor id.Actor, cause pc.Life
 		}
 		out.row = row
 		var raw []string
-		if e := x.QueryRow(ctx, `SELECT COALESCE(array_agg(id::text ORDER BY id),ARRAY[]::text[]) FROM (SELECT id FROM agenteam_skill.work WHERE project_id=$1 AND phase<>'joined' AND ($2 OR kind='initialization') ORDER BY id LIMIT 101) pending`, scope.ProjectID.String(), cause.Action == pc.Delete).Scan(&raw); e != nil {
+		if e := x.QueryRow(ctx, `SELECT COALESCE(array_agg(id::text ORDER BY id),ARRAY[]::text[]) FROM (SELECT id FROM agenteam_skill.work WHERE project_id=$1 AND phase<>'joined' AND ($2 OR kind IN ('initialization','installation')) ORDER BY id LIMIT 101) pending`, scope.ProjectID.String(), cause.Action == pc.Delete).Scan(&raw); e != nil {
 			return unavailable(e)
 		}
 		if len(raw) > MaxRecoveryWork+1 {
@@ -191,7 +226,19 @@ func (s *Service) captureStop(ctx context.Context, actor id.Actor, cause pc.Life
 			if e != nil {
 				return e
 			}
-			if w == nil || row == nil || w.project != scope.ProjectID || w.skill != row.skill || w.phase == workJoined || !stoppedKind(cause.Action, w.kind) {
+			if w == nil || row == nil || w.project != scope.ProjectID || w.phase == workJoined || !stoppedKind(cause.Action, w.kind) {
+				return unavailable(nil)
+			}
+			if installedWork(w.kind) {
+				parent, err := loadInstallationSkill(ctx, x, w.project, w.skill)
+				if err != nil {
+					return err
+				}
+				if parent == nil || parent.project != w.project || parent.skill != w.skill {
+					return unavailable(nil)
+				}
+				out.installations[workID] = parent
+			} else if w.skill != row.skill {
 				return unavailable(nil)
 			}
 			out.work[workID] = *w
@@ -207,7 +254,20 @@ func (s *Service) captureStop(ctx context.Context, actor id.Actor, cause pc.Life
 			if w.fact.project != scope.ProjectID || !stoppedKind(cause.Action, w.fact.kind) {
 				continue
 			}
-			if row == nil || w.fact.skill != row.skill {
+			if row == nil {
+				return unavailable(nil)
+			}
+			if installedWork(w.fact.kind) {
+				parent := w.installation
+				if parent == nil || parent.validate() != nil || parent.project != scope.ProjectID || parent.skill != w.fact.skill {
+					return unavailable(nil)
+				}
+				if stored := out.installations[workID]; stored != nil && (stored.id != parent.id || stored.revision != parent.revision || stored.semantic != parent.semantic) {
+					return fault(f.ResourceBusy)
+				}
+				copy := *parent
+				out.installations[workID] = &copy
+			} else if w.fact.skill != row.skill {
 				return unavailable(nil)
 			}
 			if persisted, exists := out.work[workID]; exists && !sameWorkOwner(persisted, w.fact) {
@@ -221,7 +281,7 @@ func (s *Service) captureStop(ctx context.Context, actor id.Actor, cause pc.Life
 	return out, e
 }
 
-func (s *Service) stopTransaction(ctx context.Context, actor id.Actor, cause pc.LifecycleCause, scope pc.ScopeRef, discovered *initializationRow, fn func(context.Context, postgres.SQLExecutor, *initializationRow) error) error {
+func (s *Service) stopTransaction(ctx context.Context, actor id.Actor, cause pc.LifecycleCause, scope pc.ScopeRef, discovered *initializationRow, fn func(context.Context, postgres.SQLExecutor, *initializationRow) error, extra ...[]f.LockRequest) error {
 	if e := stopArguments(actor, cause, scope); e != nil {
 		return e
 	}
@@ -235,6 +295,13 @@ func (s *Service) stopTransaction(ctx context.Context, actor id.Actor, cause pc.
 		if e != nil {
 			return e
 		}
+	}
+	for _, additional := range extra {
+		locks = append(locks, additional...)
+	}
+	locks, e = oc.NormalizeAccessLocks(locks)
+	if e != nil {
+		return e
 	}
 	transactionCause, e := f.NewRecoveryCause("skill-stop", cause.OperationID.String(), scope.ProjectID.String())
 	if e != nil {
@@ -274,8 +341,10 @@ func (snapshot stopSnapshot) report(cause pc.LifecycleCause, scope pc.ScopeRef) 
 	unknown := map[skillWorkID]bool{}
 	add := func(workID skillWorkID, kind workKind, uncertain bool) {
 		name := pc.ReferenceKind("skill-initialization")
-		if kind == packageReaderWork {
+		if kind == packageReaderWork || kind == installedPackageReaderWork {
 			name = "skill-package-reader"
+		} else if kind == installationWork {
+			name = "skill-installation"
 		}
 		resource, _ := f.ParseID[pc.ResourceIdentity](workID.String())
 		refs[workID] = pc.PendingRef{Participant: pc.SkillsParticipant, Kind: name, ID: resource}
