@@ -19,7 +19,19 @@ for name in ("skill-owner.json", "common.json"):
 schemas = documents["skill-owner.json"]["components"]["schemas"]
 spec = documents["skill-owner.json"]
 head_count = 0
-for endpoint in spec["paths"].values():
+collection = "/api/v1/projects/{project_id}/skills"
+read_paths = {
+    collection: 9,
+    collection + "/{skill_id}": 9,
+    collection + "/catalog": 12,
+}
+lookup = collection + "/commands/lookup"
+assert set(spec["paths"]) == {*read_paths, lookup}, "unexpected route set"
+assert set(spec["paths"][lookup]) == {"parameters", "post"}, "lookup must remain POST-only"
+assert set(spec["paths"][collection]) == {"parameters", "get", "head", "post"}
+for route, statuses in read_paths.items():
+    endpoint = spec["paths"][route]
+    assert len(endpoint["head"]["responses"]) == statuses, "HEAD status set changed"
     for status, response in endpoint["head"]["responses"].items():
         if "$ref" in response:
             response = spec["components"]["responses"][response["$ref"].rsplit("/", 1)[1]]
@@ -28,7 +40,7 @@ for endpoint in spec["paths"].values():
         assert "Content-Length" in response["headers"]
         head_count += 1
     assert endpoint["get"]["responses"]["400"] == {"$ref": "#/components/responses/Problem"}
-assert head_count == 18
+assert head_count == 30
 assert "application/problem+json" in spec["components"]["responses"]["Problem"]["content"]
 for schema in schemas.values():
     Draft202012Validator.check_schema(schema)
@@ -44,4 +56,4 @@ for case in cases:
     )
     accepted = not list(validator.iter_errors(case["value"]))
     assert accepted == case["valid"], case["label"]
-print("actual local Schema controls=" + str(len(cases)) + "; 18 bodyless HEAD statuses PASS; no network")
+print("actual local Schema controls=" + str(len(cases)) + "; 30 bodyless HEAD statuses PASS; no network")

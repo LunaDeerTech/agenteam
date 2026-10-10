@@ -12,6 +12,7 @@ import (
 	"time"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 )
 
@@ -38,6 +39,39 @@ func TestSkillOwnerHTTPStandardSchema(t *testing.T) {
 		t.Fatal(err)
 	}
 	cases = append(cases, schemaCase{"safe directory", "SkillDirectory", wireObject(t, raw), true})
+	// Additive schemas consume the actual bounded HTTP projections and actual
+	// text-package request shape; the legacy one-item directory cases stay below.
+	for _, page := range []skill.OwnerCatalogPage{{Items: []sc.Metadata{}}, {Items: []sc.Metadata{m}, NextCursor: "opaque-position"}} {
+		raw, err = encodeCatalog(context.Background(), m.ProjectID, skill.OwnerCatalogQuery{Limit: 1}, page)
+		if err != nil {
+			t.Fatal(err)
+		}
+		cases = append(cases, schemaCase{"catalogue", "SkillCatalog", wireObject(t, raw), true})
+	}
+	request := wireObject(t, []byte(installationBody(t)))
+	cases = append(cases, schemaCase{"ordinary text package", "SkillInstallCommand", request, true})
+	for _, name := range []string{"actor", "expected_version", "project_id"} {
+		changed := wireObject(t, []byte(installationBody(t)))
+		changed[name] = "private-input"
+		cases = append(cases, schemaCase{"reject install " + name, "SkillInstallCommand", changed, false})
+	}
+	for _, name := range []string{"skill_id", "mode", "source"} {
+		changed := wireObject(t, []byte(installationBody(t)))
+		delete(changed["request"].(map[string]any), name)
+		cases = append(cases, schemaCase{"required install " + name, "SkillInstallCommand", changed, false})
+	}
+	hm, _, pm := managementFixture()
+	writer := newTestWriter()
+	if serveTest(hm, installationRequest("/skills", installationBody(t)), writer) || writer.Code != 200 || pm.installs != 1 {
+		t.Fatal("actual installation projection failed")
+	}
+	receipt := wireObject(t, writer.Body.Bytes())
+	cases = append(cases, schemaCase{"public install receipt", "SkillInstallReceipt", receipt, true})
+	for _, name := range []string{"object_id", "installation_id", "package_sha256"} {
+		changed := wireObject(t, writer.Body.Bytes())
+		changed[name] = "private-provenance"
+		cases = append(cases, schemaCase{"reject receipt " + name, "SkillInstallReceipt", changed, false})
+	}
 	for _, v := range []struct {
 		key   string
 		value any
