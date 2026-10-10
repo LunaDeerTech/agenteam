@@ -277,6 +277,10 @@ func (s *Coordinator) ClaimTask(ctx context.Context, r wc.TaskClaimRequest, poli
 			if err = sameClaim(old, r, call.launch); err != nil {
 				return err
 			}
+			// This transaction observed another claimant's existing receipt.
+			// If its commit is Unknown, resolution must match that observed
+			// binding, not the deployment settings used for a new insertion.
+			call.retryPolicy = old.retryPolicy
 			committed = old
 			return nil
 		}
