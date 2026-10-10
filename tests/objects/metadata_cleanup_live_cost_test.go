@@ -6,6 +6,7 @@ import (
 	"context"
 	_ "embed"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 
@@ -141,13 +142,17 @@ func metadataLiveCaptureStopQueries(t *testing.T) map[string]metadataPlanQuery {
 	base := newFixture(t, false)
 	observed := &metadataPlanStore{Store: base.store}
 	authority := newObjectStopAuthority(t, base, base.store)
-	stopper := newObjectStopService(t, base, authority, stopServiceOptions{wrapper: observed})
-	put := base.put(t, "live-cost-query-capture", "cost")
+	stopProcess := id[oc.Process](t)
+	stopper := newObjectStopService(t, base, authority, stopServiceOptions{wrapper: observed, process: stopProcess})
+	// ReadObject may return a buffered small object after releasing its lease.
+	// An unread suffix plus native/work checks establish this foreign lifetime.
+	put := base.put(t, "live-cost-query-capture", strings.Repeat("x", 2*oc.StreamBufferSize+64))
 	reader, err := base.service.ReadObject(contextFor(t), base.actor, base.owner, put.Meta.ID, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer reader.Close()
+	readerProcess := metadataCostReaderProcess(t, base, put.Meta.ID, stopProcess)
 	actor, stop := activateObjectStop(t, base, oc.ProjectStopDelete)
 	total, end := context.WithTimeout(contextFor(t), 3*time.Second)
 	defer end()
@@ -158,12 +163,14 @@ func metadataLiveCaptureStopQueries(t *testing.T) map[string]metadataPlanQuery {
 		returned := time.Now()
 		cancel()
 		if err != nil || returned.After(deadline) || report.Details().State != oc.ProjectStopPending {
-			t.Fatal("foreign reader did not preserve all five actual query lanes", err)
+			t.Fatalf("foreign reader did not preserve all five actual query lanes: state=%s late=%t err=%v", report.Details().State, returned.After(deadline), err)
 		}
+		assertStopReaderLifetime(t, base, put.Meta.ID, readerProcess, true)
 	}
 	if err := reader.Close(); err != nil {
 		t.Fatal(err)
 	}
+	assertStopReaderLifetime(t, base, put.Meta.ID, readerProcess, false)
 	queries := make(map[string]metadataPlanQuery)
 	observed.mu.Lock()
 	for name, q := range observed.queries {

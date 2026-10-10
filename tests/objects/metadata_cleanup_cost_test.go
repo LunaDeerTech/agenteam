@@ -7,9 +7,11 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
@@ -34,13 +36,17 @@ func TestObjectMetadataCleanupProjectHistoryPlans(t *testing.T) {
 	base := newFixture(t, false)
 	observed := &metadataPlanStore{Store: base.store}
 	authority := newObjectStopAuthority(t, base, base.store)
-	stopper := newObjectStopService(t, base, authority, stopServiceOptions{wrapper: observed})
-	put := base.put(t, "cost-query-capture", "cost")
+	stopProcess := id[oc.Process](t)
+	stopper := newObjectStopService(t, base, authority, stopServiceOptions{wrapper: observed, process: stopProcess})
+	// Small objects reach EOF and release their native lease in ReadObject's
+	// constructor. Keep bytes beyond its integrity prefetch unread instead.
+	put := base.put(t, "cost-query-capture", strings.Repeat("x", 2*oc.StreamBufferSize+64))
 	reader, err := base.service.ReadObject(contextFor(t), base.actor, base.owner, put.Meta.ID, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer reader.Close()
+	readerProcess := metadataCostReaderProcess(t, base, put.Meta.ID, stopProcess)
 	actor, stop := activateObjectStop(t, base, oc.ProjectStopDelete)
 	total, end := context.WithTimeout(contextFor(t), 3*time.Second)
 	defer end()
@@ -51,12 +57,14 @@ func TestObjectMetadataCleanupProjectHistoryPlans(t *testing.T) {
 		returned := time.Now()
 		cancel()
 		if err != nil || returned.After(deadline) || report.Details().State != oc.ProjectStopPending {
-			t.Fatal("real foreign reader did not retain the finite Stop scan", err)
+			t.Fatalf("real foreign reader did not retain the finite Stop scan: state=%s late=%t err=%v", report.Details().State, returned.After(deadline), err)
 		}
+		assertStopReaderLifetime(t, base, put.Meta.ID, readerProcess, true)
 	}
 	if err := reader.Close(); err != nil {
 		t.Fatal("actual query-capture reader close", err)
 	}
+	assertStopReaderLifetime(t, base, put.Meta.ID, readerProcess, false)
 	end()
 	names := []string{"stop-work", "stop-reserved", "stop-leases", "stop-grants", "stop-transfers", "stop-full-pending"}
 	queries := make(map[string]metadataPlanQuery, len(names))
@@ -122,6 +130,20 @@ func TestObjectMetadataCleanupProjectHistoryPlans(t *testing.T) {
 	// Check absence again while another Project AND active target rows remain.
 	metadataCostProjectPlans(t, store, queries, "absent-with-active-other-project", absent, false)
 	metadataCostCardinalities(t, store, true)
+}
+
+func metadataCostReaderProcess(t *testing.T, f *fixture, object oc.ObjectID, stopper oc.ProcessID) oc.ProcessID {
+	t.Helper()
+	var raw string
+	if err := f.store.QueryRow(contextFor(t), `SELECT process_id::text FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='reader'`, object.String()).Scan(&raw); err != nil {
+		t.Fatal("query-capture reader process", err)
+	}
+	process, err := foundation.ParseID[oc.Process](raw)
+	if err != nil || process == stopper {
+		t.Fatal("query-capture reader is not owned by a distinct actual process", err)
+	}
+	assertStopReaderLifetime(t, f, object, process, true)
+	return process
 }
 
 func metadataCostCardinalities(t *testing.T, store *postgres.Store, active bool) {
