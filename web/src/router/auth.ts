@@ -235,10 +235,8 @@ export function installAuthentication(router: Router, auth: SessionController = 
     }
     // Same-component beforeRouteUpdate runs after this global guard. Confirm
     // before restore can temporarily unmount the page and retire its draft.
-    if (
-      to.fullPath !== from.fullPath &&
-      !((await knowledgeNavigation.get(router)?.confirmLeave()) ?? true)
-    )
+    const knowledgeOwner = knowledgeNavigation.get(router)
+    if (knowledgeOwner && to.fullPath !== from.fullPath && !(await knowledgeOwner.confirmLeave()))
       return false
     if (to.meta.accountEntry) {
       if (auth.state.busy) return false

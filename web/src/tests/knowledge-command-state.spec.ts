@@ -248,6 +248,12 @@ describe('Knowledge rename original Session owner and current observations', () 
     await f.editor.save()
     expect(f.editor.state.conflict).toBe(true)
     expect(f.editor.state.title).toBe('我的草稿')
+    expect(f.editor.canAdopt.value).toBe(false)
+    f.editor.adoptCurrent()
+    await f.editor.save()
+    expect(f.editor.state.version).toBe('1')
+    expect(f.editor.progress.value?.phase).toBe('rejected')
+    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/rename'))).toHaveLength(1)
     f.editor.reread()
     await flushPromises()
     expect(f.editor.state.version).toBe('1')
@@ -335,6 +341,52 @@ describe('Knowledge rename original Session owner and current observations', () 
     await flushPromises()
     expect(f.auth.state.busy).toBe(false)
     expect(f.auth.knowledgeCommands.progress).toBeNull()
+    expect(f.page.state.document?.title).toBe('父文档')
+  })
+  it.each([
+    ['rename', 'reader'],
+    ['rename', 'outer'],
+    ['lookup', 'reader'],
+    ['lookup', 'outer'],
+  ] as const)('keeps %s uncertain when actual %s cancellation rejects', async (action, tail) => {
+    const f = await editFixture()
+    f.editor.state.title = '待查证'
+    if (action === 'lookup') {
+      f.intercept(async () => {
+        throw new Error('controlled transport')
+      })
+      await f.editor.save()
+      expect(f.editor.progress.value?.phase).toBe('uncertain')
+    }
+    const receipt = { ...document(), title: '待查证', content_version: '2' }
+    const response = json(
+      action === 'rename'
+        ? { document: receipt }
+        : {
+            state: 'committed',
+            receipt: { command: 'update', document: receipt, changed: true },
+          },
+    )
+    const reader = response.body!.getReader()
+    vi.spyOn(response.body!, 'getReader').mockReturnValue(reader as never)
+    const release = vi.spyOn(reader, 'releaseLock')
+    const outer = vi.spyOn(response.body!, 'cancel')
+    const inner = vi.spyOn(reader, 'cancel')
+    ;(tail === 'reader' ? inner : outer).mockRejectedValue(new Error('private controlled failure'))
+    f.intercept(async (path, init) =>
+      path.endsWith(action === 'rename' ? '/rename' : '/commands/lookup')
+        ? response
+        : f.normal(path, init),
+    )
+    if (action === 'rename') await f.editor.save()
+    else await f.editor.lookup()
+    await flushPromises()
+    expect(inner).toHaveBeenCalledOnce()
+    expect(release).toHaveBeenCalledOnce()
+    expect(outer).toHaveBeenCalledOnce()
+    expect(f.editor.progress.value?.phase).toBe('uncertain')
+    expect(f.editor.progress.value?.receipt).toBeNull()
+    expect(f.auth.state.busy).toBe(false)
     expect(f.page.state.document?.title).toBe('父文档')
   })
   it('clears current protected observations on local refusal without denying System', async () => {

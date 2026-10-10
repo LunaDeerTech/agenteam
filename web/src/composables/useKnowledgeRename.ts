@@ -25,8 +25,10 @@ export function useKnowledgeRename(
     message: '',
     field: '',
     confirming: false,
+    recovering: false,
   })
   let baseline: KnowledgeDocument | null = null
+  let rejectedObservation: KnowledgeDocument | null = null
   let bound: {
     identity: PersonalIdentity
     project: string
@@ -50,9 +52,10 @@ export function useKnowledgeRename(
       !!c &&
       same(bound.identity, c.identity) &&
       c.projectID === bound.project &&
-      c.generation === bound.generation &&
-      c.readGeneration === bound.readGeneration &&
-      owner.state.selected === bound.document &&
+      (state.recovering ||
+        (c.generation === bound.generation &&
+          c.readGeneration === bound.readGeneration &&
+          owner.state.selected === bound.document)) &&
       owner.visible.value
     )
   }
@@ -100,12 +103,14 @@ export function useKnowledgeRename(
       !state.denied &&
       !unsettled.value &&
       owner.state.metadataPhase === 'ready' &&
-      owner.state.document?.id === bound?.document,
+      owner.state.document?.id === bound?.document &&
+      (!state.conflict || owner.state.document !== rejectedObservation),
   )
 
   function clear() {
     ++revision
     baseline = null
+    rejectedObservation = null
     bound = null
     Object.assign(state, {
       open: false,
@@ -118,6 +123,7 @@ export function useKnowledgeRename(
       message: '',
       field: '',
       confirming: false,
+      recovering: false,
     })
     answer?.(false)
     answer = null
@@ -133,6 +139,8 @@ export function useKnowledgeRename(
       readGeneration: c.readGeneration,
     }
     suspended = false
+    state.recovering = false
+    rejectedObservation = null
     baseline = value
     state.baseline = value.title
     state.version = value.content_version
@@ -147,7 +155,33 @@ export function useKnowledgeRename(
       auth.knowledgeCommands.abandon()
     clear()
   }
+  // Recover only the public target/identity. Session retains the private input,
+  // CSRF and key; no current metadata is required to discard or look up it.
+  function recoverPending() {
+    const p = auth.knowledgeCommands.progress,
+      identity = auth.personalContext.identity
+    if (!identity || !p?.contextValid || !['submitting', 'uncertain'].includes(p.phase))
+      return false
+    const c = workspace.currentReadContext.value
+    bound = {
+      identity,
+      project: p.projectID,
+      document: p.documentID,
+      generation: c?.generation ?? -1,
+      readGeneration: c?.readGeneration ?? -1,
+    }
+    baseline = null
+    state.recovering = true
+    state.open = true
+    state.needsCurrent = true
+    state.message = '原改名结果尚不确定，请查询原结果或明确放弃。'
+    return true
+  }
   function open() {
+    if (unsettled.value) {
+      state.open = true
+      return
+    }
     if (!canOpen.value || !owner.state.document) return
     if (!bind(owner.state.document)) return
     state.title = state.baseline
@@ -183,16 +217,19 @@ export function useKnowledgeRename(
   async function perform(action: 'save' | 'lookup' | 'replay') {
     if (
       !live() ||
-      !baseline ||
       (action === 'save'
-        ? !canSave.value
+        ? !baseline || !canSave.value
         : action === 'lookup'
           ? !canLookup.value
           : !canReplay.value)
     )
       return
     const own = revision,
-      original = baseline
+      original = {
+        project: bound!.project,
+        document: bound!.document,
+        parent: baseline?.parent_document_id ?? null,
+      }
     state.field = ''
     state.message = ''
     try {
@@ -203,7 +240,7 @@ export function useKnowledgeRename(
           title: state.title,
         })
         if (progress.value?.phase === 'rejected') auth.knowledgeCommands.editRejected()
-        pending = auth.knowledgeCommands.startRename(original.project_id, original.id, input)
+        pending = auth.knowledgeCommands.startRename(original.project, original.document, input)
       } else
         pending =
           action === 'lookup'
@@ -224,7 +261,7 @@ export function useKnowledgeRename(
       const receipt = 'state' in result ? result.receipt.document : result.document
       state.baseline = state.title
       state.message = '改名已确认，正在重新读取当前文档与目录。'
-      owner.refreshAfterRename(receipt, original.parent_document_id)
+      owner.refreshAfterRename(receipt, original.parent)
     } catch (error) {
       if (revision !== own || !live()) return
       const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
@@ -234,10 +271,11 @@ export function useKnowledgeRename(
         state.baseline = ''
         baseline = null
         state.message = '当前文档不存在或不可访问。'
-        owner.invalidateCurrent(original.project_id, original.id)
+        owner.invalidateCurrent(original.project, original.document)
       } else if (e.kind === 'invalid-input')
         state.field = '标题须为 1–512 个字符，不能包含控制字符。'
       else if (progress.value?.phase === 'rejected') {
+        rejectedObservation = owner.state.document
         state.conflict = true
         state.message =
           e.problem?.code === 'VERSION_CONFLICT'
@@ -267,9 +305,14 @@ export function useKnowledgeRename(
         owner.state.document,
         owner.state.metadataPhase,
         owner.busy.value,
+        auth.knowledgeCommands.progress?.phase,
       ] as const,
     () => {
-      if (disposed || !bound) return
+      if (disposed) return
+      if (!bound) {
+        recoverPending()
+        return
+      }
       if (!same(bound.identity, auth.personalContext.identity)) {
         abandon()
         return
@@ -281,9 +324,12 @@ export function useKnowledgeRename(
         return
       }
       if (suspended) {
+        suspended = false
         clear()
+        recoverPending()
         return
       }
+      if (state.recovering) return
       const c = workspace.currentReadContext.value
       if (
         !c ||
@@ -305,7 +351,7 @@ export function useKnowledgeRename(
             : '改名已确认；当前读取未完成，请明确重读。'
       }
     },
-    { flush: 'post' },
+    { flush: 'post', immediate: true },
   )
   function dispose() {
     if (disposed) return
@@ -334,7 +380,10 @@ export function useKnowledgeRename(
     replay: () => perform('replay'),
     adoptCurrent,
     reread: () => {
-      if (live() && !blocked.value && !unsettled.value) owner.retryDocument()
+      if (live() && !blocked.value && !unsettled.value) {
+        if (owner.state.selected !== bound!.document) owner.select(bound!.document)
+        else owner.retryDocument()
+      }
     },
     dispose,
   }

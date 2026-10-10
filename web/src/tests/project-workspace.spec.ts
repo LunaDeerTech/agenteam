@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import type { SessionController } from '../composables/useSession'
@@ -254,12 +254,30 @@ describe('Project production routes and public interactions', () => {
     await flushPromises()
     expect(f.router.currentRoute.value.path).toBe('/owner/demo/settings/general')
     expect(f.wrapper.find('textarea').element).toHaveProperty('value', 'dirty description')
-    await f.wrapper.find('a[href="/projects"]').trigger('click')
-    await flushPromises()
-    button('放弃并离开').click()
-    await flushPromises()
-    expect(f.router.currentRoute.value.path).toBe('/projects')
-    expect(f.fetcher.mock.calls.some(([, init]) => init.method === 'PATCH')).toBe(false)
+    // Join this navigation itself: the destination may still be loading its
+    // lazy component after the confirmation and one microtask flush.
+    let removeNavigation = () => {}
+    const navigation = new Promise<{ to: string; from: string; failed: boolean }>((resolve) => {
+      removeNavigation = f.router.afterEach((to, from, failure) => {
+        removeNavigation()
+        resolve({ to: to.fullPath, from: from.fullPath, failed: !!failure })
+      })
+    })
+    onTestFinished(() => removeNavigation())
+    try {
+      await f.wrapper.find('a[href="/projects"]').trigger('click')
+      await flushPromises()
+      button('放弃并离开').click()
+      expect(await navigation).toEqual({
+        to: '/projects',
+        from: '/owner/demo/settings/general',
+        failed: false,
+      })
+      expect(f.router.currentRoute.value.path).toBe('/projects')
+      expect(f.fetcher.mock.calls.some(([, init]) => init.method === 'PATCH')).toBe(false)
+    } finally {
+      removeNavigation()
+    }
   })
   it('saving a description requires one explicit action and reports button success', async () => {
     const f = await page('/owner/demo/settings/general')

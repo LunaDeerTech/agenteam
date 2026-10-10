@@ -262,4 +262,64 @@ describe('Knowledge rename production page', () => {
     expect(f.wrapper.find('h2').text()).toBe('子文档')
     expect(f.fetch.mock.calls.some(([path]) => path.endsWith('/rename'))).toBe(false)
   })
+  it('recovers the original unknown action after same-session restore even when its document is unavailable', async () => {
+    const f = await page(`/owner/demo/knowledge/${id(20)}`)
+    let unavailable = false
+    f.intercept(async (path, init) => {
+      if (path.endsWith('/rename')) throw new Error('controlled transport')
+      if (path.endsWith('/commands/lookup')) return json({ state: 'not_observed', receipt: null })
+      if (unavailable && path === `${base}/${id(20)}`) return problem(404, 'NOT_FOUND')
+      return f.normal(path, init)
+    })
+    button('改名').click()
+    await flushPromises()
+    const input = document.querySelector<HTMLInputElement>('input[autocomplete="off"]')!
+    input.value = '未知原意图'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await flushPromises()
+    button('保存标题').click()
+    await flushPromises()
+    expect(f.auth.knowledgeCommands.progress?.phase).toBe('uncertain')
+    const original = f.fetch.mock.calls.find(([path]) => path.endsWith('/rename'))!
+    unavailable = true
+    await f.auth.restore()
+    await flushPromises()
+    expect(document.body.textContent).toContain('文档不可用')
+    expect(button('查询原改名结果').disabled).toBe(false)
+    button('查询原改名结果').click()
+    await flushPromises()
+    const lookup = f.fetch.mock.calls.find(([path]) => path.endsWith('/commands/lookup'))!
+    expect(new Headers(lookup[1].headers).get('Idempotency-Key')).toBe(
+      new Headers(original[1].headers).get('Idempotency-Key'),
+    )
+    const cancelled = f.router.push(`/owner/demo/knowledge/${id(21)}`)
+    await flushPromises()
+    expect(document.body.textContent).toContain('放弃本次改名？')
+    button('继续处理').click()
+    await cancelled
+    await flushPromises()
+    expect(f.router.currentRoute.value.fullPath).toBe(`/owner/demo/knowledge/${id(20)}`)
+    expect(f.auth.knowledgeCommands.progress?.phase).toBe('uncertain')
+    const accepted = f.router.push(`/owner/demo/knowledge/${id(21)}`)
+    await flushPromises()
+    button('放弃并继续').click()
+    await accepted
+    await flushPromises()
+    expect(f.auth.knowledgeCommands.progress).toBeNull()
+    expect(f.wrapper.find('h2').text()).toBe('子文档')
+    button('改名').click()
+    await flushPromises()
+    const nextInput = document.querySelector<HTMLInputElement>('input[autocomplete="off"]')!
+    nextInput.value = '新的改名'
+    nextInput.dispatchEvent(new Event('input', { bubbles: true }))
+    await flushPromises()
+    button('保存标题').click()
+    await flushPromises()
+    const writes = f.fetch.mock.calls.filter(([path]) => path.endsWith('/rename'))
+    expect(writes).toHaveLength(2)
+    expect(writes[1]![0]).toBe(`${base}/${id(21)}/rename`)
+    expect(new Headers(writes[1]![1].headers).get('Idempotency-Key')).not.toBe(
+      new Headers(original[1].headers).get('Idempotency-Key'),
+    )
+  })
 })

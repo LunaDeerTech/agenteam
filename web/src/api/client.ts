@@ -54,6 +54,8 @@ export function string(value: unknown, minimum: number, maximum: number): string
 }
 
 const endpoints = {
+  listProjectSkills: ['GET', '/api/v1/projects/{project_id}/skills', 200],
+  getProjectSkill: ['GET', '/api/v1/projects/{project_id}/skills/{target}', 200],
   knowledgeRename: [
     'POST',
     '/api/v1/projects/{project_id}/knowledge/documents/{target}/rename',
@@ -377,6 +379,7 @@ async function readJSON(
   maximum = 600_000,
   preserveProjectModelJSON = false,
   checkProjectAuditMembers = false,
+  requireCancellation = false,
 ): Promise<unknown> {
   const reader = response.body?.getReader()
   if (!reader) throw new AccountFailure('invalid-response')
@@ -384,7 +387,17 @@ async function readJSON(
   let text = '',
     bytes = 0
   let cancelled: Promise<void> | undefined
-  const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined))
+  let cancelFailed = false
+  const cancel = () =>
+    (cancelled ??= requireCancellation
+      ? (async () => {
+          try {
+            await reader.cancel()
+          } catch {
+            cancelFailed = true
+          }
+        })()
+      : reader.cancel().catch(() => undefined))
   // The listener starts cancellation; the same promise is joined in finally.
   const abort = () => {
     void cancel()
@@ -407,8 +420,12 @@ async function readJSON(
       : (JSON.parse(text) as unknown)
   } finally {
     signal.removeEventListener('abort', abort)
-    await cancel()
-    reader.releaseLock()
+    try {
+      await cancel()
+    } finally {
+      reader.releaseLock()
+    }
+    if (requireCancellation && cancelFailed) throw new AccountFailure('invalid-response')
   }
 }
 
@@ -883,6 +900,12 @@ type KnowledgeCommandOptions<E extends KnowledgeCommandEndpoint> = {
   key: string
 } & (E extends 'knowledgeRename' ? { target: string } : { target?: never })
 
+const skillEndpoints = ['listProjectSkills', 'getProjectSkill'] as const
+type SkillEndpoint = (typeof skillEndpoints)[number]
+type SkillOptions<E extends SkillEndpoint> = E extends 'listProjectSkills'
+  ? { signal: AbortSignal; projectID: string }
+  : { signal: AbortSignal; projectID: string; target: string }
+
 const knowledgeEndpoints = [
   'knowledgeChildren',
   'knowledgeDocument',
@@ -908,6 +931,11 @@ type KnowledgeOptions<E extends KnowledgeEndpoint> = E extends 'knowledgeChildre
     : { signal: AbortSignal; projectID: string; target: string }
 
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends SkillEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: SkillOptions<E>,
+  ): Promise<T>
   function request<T, E extends KnowledgeCommandEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -998,6 +1026,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     endpoint: Exclude<
       keyof typeof endpoints,
       | KnowledgeCommandEndpoint
+      | SkillEndpoint
       | KnowledgeEndpoint
       | ProjectEndpoint
       | ProjectAuditEndpoint
@@ -1040,7 +1069,22 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if ((knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) {
+    if ((skillEndpoints as readonly string[]).includes(endpoint)) {
+      try {
+        const detail = endpoint === 'getProjectSkill'
+        shape(options, ['signal', 'projectID', ...(detail ? ['target'] : [])])
+        const project = string(options.projectID, 36, 36)
+        if (!uuid7.test(project) || !(options.signal instanceof AbortSignal)) throw new Error()
+        path = basePath.replace('{project_id}', project)
+        if (detail) {
+          const target = string(options.target, 36, 36)
+          if (!uuid7.test(target)) throw new Error()
+          path = path.replace('{target}', target)
+        }
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if ((knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const rename = endpoint === 'knowledgeRename'
         shape(options, [
@@ -1503,38 +1547,42 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         value = await readJSON(
           response,
           options.signal,
-          ((knowledgeEndpoints as readonly string[]).includes(endpoint) ||
-            (knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) &&
-            success
-            ? // Exact complete representation limits of the two Knowledge adapters.
-              endpoint === 'knowledgeContent'
-              ? 7 * 1024 * 1024
-              : 5 * 1024 * 1024
-            : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
-              ? (projectModelReads as readonly string[]).includes(endpoint)
-                ? 8388608
-                : 1024
-              : endpoint === 'listOwnerProjects' && success
-                ? 5 * 1024 * 1024
-                : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
-                  ? 64 * 1024
-                  : endpoint === 'getSystemRuntimeInformation' && success
-                    ? 16 * 1024
-                    : endpoint === 'listProviders' && success
-                      ? 2 * 1024 * 1024
-                      : (endpoint === 'listSystemAudit' ||
-                            endpoint === 'getSystemAudit' ||
-                            endpoint === 'listProjectAudit' ||
-                            endpoint === 'getProjectAudit') &&
-                          success
-                        ? 1024 * 1024
-                        : 600_000,
+          (skillEndpoints as readonly string[]).includes(endpoint) && success
+            ? 64 * 1024
+            : ((knowledgeEndpoints as readonly string[]).includes(endpoint) ||
+                  (knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) &&
+                success
+              ? // Exact complete representation limits of the two Knowledge adapters.
+                endpoint === 'knowledgeContent'
+                ? 7 * 1024 * 1024
+                : 5 * 1024 * 1024
+              : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
+                ? (projectModelReads as readonly string[]).includes(endpoint)
+                  ? 8388608
+                  : 1024
+                : endpoint === 'listOwnerProjects' && success
+                  ? 5 * 1024 * 1024
+                  : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
+                    ? 64 * 1024
+                    : endpoint === 'getSystemRuntimeInformation' && success
+                      ? 16 * 1024
+                      : endpoint === 'listProviders' && success
+                        ? 2 * 1024 * 1024
+                        : (endpoint === 'listSystemAudit' ||
+                              endpoint === 'getSystemAudit' ||
+                              endpoint === 'listProjectAudit' ||
+                              endpoint === 'getProjectAudit') &&
+                            success
+                          ? 1024 * 1024
+                          : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
           success &&
             (endpoint === 'listProjectAudit' ||
               endpoint === 'getProjectAudit' ||
               (knowledgeEndpoints as readonly string[]).includes(endpoint) ||
+              (skillEndpoints as readonly string[]).includes(endpoint) ||
               (knowledgeCommandEndpoints as readonly string[]).includes(endpoint)),
+          (knowledgeCommandEndpoints as readonly string[]).includes(endpoint),
         )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
@@ -1553,7 +1601,13 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     } finally {
       // Includes aborted/redirected/wrong-media-type responses which never acquired a reader.
       // The controller may finish its bounded UI wait, but owns us until this actually returns.
-      await response.body?.cancel().catch(() => undefined)
+      if ((knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) {
+        try {
+          await response.body?.cancel()
+        } catch {
+          throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
+        }
+      } else await response.body?.cancel().catch(() => undefined)
     }
   }
   return request

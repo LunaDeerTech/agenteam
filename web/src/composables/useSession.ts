@@ -184,6 +184,7 @@ import {
   type KnowledgeRenameLookup,
 } from '../api/knowledge-commands'
 import type { KnowledgeDocument } from '../api/knowledge-owner'
+import { createSkillOwnerAPI, captureSkillID, type SkillOwnerAPI } from '../api/skill-owner'
 import {
   createKnowledgeOwnerAPI,
   captureKnowledgeID,
@@ -497,6 +498,7 @@ type Action =
   | 'system'
   | 'audit-read'
   | 'knowledge-read'
+  | 'skill-read'
   | KnowledgeCommandAction
   | 'runtime-information-read'
   | 'invitation-read'
@@ -622,9 +624,10 @@ export function createSessionController(
   projectAuditAPI: ProjectAuditAPI = createProjectAuditAPI(),
   projectModelSettingsAPI: ProjectModelSettingsAPI = createProjectModelSettingsAPI(),
   knowledgeAPI: KnowledgeOwnerAPI = createKnowledgeOwnerAPI(),
-  capabilities: Readonly<{ knowledgeCommands?: KnowledgeCommandsAPI }> = {},
+  capabilities: Readonly<{ knowledgeCommands?: KnowledgeCommandsAPI; skills?: SkillOwnerAPI }> = {},
 ) {
   const knowledgeCommandsAPI = capabilities.knowledgeCommands ?? createKnowledgeCommandsAPI()
+  const skillsAPI = capabilities.skills ?? createSkillOwnerAPI()
   const state = shallowReactive<PublicState>({
     phase: 'checking',
     user: null,
@@ -663,6 +666,7 @@ export function createSessionController(
     auditRevision = 0,
     projectAuditRevision = 0,
     knowledgeRevision = 0,
+    skillRevision = 0,
     runtimeInformationRevision = 0
   let invitationReadRevision = 0,
     invitationRevision = 0
@@ -1441,6 +1445,7 @@ export function createSessionController(
       | 'system'
       | 'audit-read'
       | 'knowledge-read'
+      | 'skill-read'
       | KnowledgeCommandAction
       | 'runtime-information-read'
       | 'invitation-read'
@@ -1460,8 +1465,10 @@ export function createSessionController(
     const revisionNow = () =>
       isKnowledgeCommand(kind)
         ? knowledgeCommandRevisions[kind]
-        : kind === 'knowledge-read'
-          ? knowledgeRevision
+        : kind === 'knowledge-read' || kind === 'skill-read'
+          ? kind === 'skill-read'
+            ? skillRevision
+            : knowledgeRevision
           : isProjectModelAction(kind)
             ? projectModelRevisions[kind]
             : isProjectAuditAction(kind)
@@ -1509,6 +1516,7 @@ export function createSessionController(
       (kind === 'personal' ||
         (isKnowledgeCommand(kind) ||
         kind === 'knowledge-read' ||
+        kind === 'skill-read' ||
         isProjectAction(kind) ||
         isProjectAuditAction(kind) ||
         isProjectModelAction(kind)
@@ -1581,7 +1589,7 @@ export function createSessionController(
             : error instanceof AccountFailure
               ? error
               : new AccountFailure('transport')
-          : kind === 'knowledge-read'
+          : kind === 'knowledge-read' || kind === 'skill-read'
             ? knowledgeFailure(current, error)
             : isProjectModelAction(kind)
               ? projectModelFailure(kind, current, error)
@@ -4903,6 +4911,34 @@ export function createSessionController(
     },
     abandon: clearKnowledgeCommand,
   }
+  function skillRead<T>(capture: () => (signal: AbortSignal) => Promise<T>): Promise<T> {
+    try {
+      const identity = personalIdentity(),
+        work = capture()
+      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, 'skill-read')
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  const skills = {
+    list(projectID: string) {
+      return skillRead(() => {
+        const project = captureSkillID(projectID)
+        return (signal) => skillsAPI.list(project, signal)
+      })
+    },
+    get(projectID: string, skillID: string) {
+      return skillRead(() => {
+        const project = captureSkillID(projectID),
+          target = captureSkillID(skillID)
+        return (signal) => skillsAPI.get(project, target, signal)
+      })
+    },
+    abandon() {
+      ++skillRevision
+      if (owner?.kind === 'skill-read') owner.abandon?.()
+    },
+  }
   function clearKnowledgeRead() {
     ++knowledgeRevision
     if (owner?.kind === 'knowledge-read') owner.abandon?.()
@@ -5576,6 +5612,7 @@ export function createSessionController(
     projectAudit,
     knowledge,
     knowledgeCommands,
+    skills,
     projectModelSettings,
     personal,
     system,

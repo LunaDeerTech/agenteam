@@ -1,15 +1,21 @@
 # Knowledge Owner 已有文档改名
 
-- 分支/树：`ai/knowledge-owner-rename`，`/workspace/agenteam-knowledge-owner-rename`，正式 main `04455194`。本树唯一实现/current 写者 content；全部 Git 由 root 负责。
-- 目标：已有文档 rename→原 Lookup/显式重放→当前 metadata/body 与 root+已知父层有界重读。正式规格为 [D12 主卡附段](../docs/development/work-items/d12-knowledge-documents.md#owner-已有文档改名-ui实施规格尚未验收)。
-- 已完成：SPEC 已 checkpoint 81066224；七生产源与三核心测试已落盘初稿，尚未类型/测试。原同锁 web/node_modules 已离线复制到本树私有目录，未复制 Vite cache。正在准备限定客户端/状态/页面测试与类型检查，不冒用旧 read04。
-- 七生产源：新 `web/src/api/knowledge-commands.ts`、`web/src/composables/useKnowledgeRename.ts`、`web/src/components/knowledge/KnowledgeRenameDialog.vue`；旧 `web/src/api/client.ts`、`web/src/composables/useSession.ts`、`web/src/composables/useKnowledgeOwner.ts`、`web/src/views/projects/ProjectKnowledgeView.vue`。三新测试：`web/src/tests/knowledge-command-client.spec.ts`、`knowledge-command-state.spec.ts`、`knowledge-rename.spec.ts`。首纯测后唯一新增 `web/src/router/auth.ts` 导航注册点写权：原 restore 前确认，保已转入 Skills canonical route hunk；不改 Workspace/router index/nav/UiTree/Go/backend/锁/D13/其他命令。
-- 关系门：Move 不涨版本，receipt.parent 不强等旧 parent；current 同 doc 版本不得低于 receipt。confirmed 不因重读失败倒退或重发；root+提交前/receipt/current 三 parent 去重，非根仅已加载，最多四层首屏，旧 cursor 失效。发布绑定 identity/Project/selected doc/编辑代次；checking 保未定材料，真实 identity/CSRF 变化才清，actual finally 未回不放 Cookie lane。
-- 下一步：初稿十技术源+本卡/current冻结供 root 保存；执行三新测试与受影响旧读取/会话检查、类型，失败窄修后交 skills actual diff 审。真实 Go/PW fixture 与 shared entry 另分派，当前没有 browser/socket 授权。
-- 恢复：本 current 替换继承的其他任务状态；历史读取结果留原 ai/knowledge-owner-ui 与正式 D12 卡，不回填。可重建产物放 `output/ai/knowledge-owner-rename/`；必要源码/失败结论跟踪保存，不重推已删除 topic。
+- 树 `/workspace/agenteam-knowledge-owner-rename`，分支 `ai/knowledge-owner-rename`，main 基线 `04455194`。规格见 [D12 主卡末段](../docs/development/work-items/d12-knowledge-documents.md#owner-已有文档改名-ui实施规格尚未验收)。Git 全由 root 负责；没有真实 socket/browser/PG 授权。
+- 当前生产实现为已有文档 rename/原 Lookup/显式原请求重放→当前 metadata/body/root+三已知父层有界重读；不含 create/replace/move/delete，不改 backend/锁/D13/STOP。八生产源、三新 tests 已保存 `bd7502d2`；本次窄返修与结果待下一保存。
+- root 已导入 Skills `abdb43b4` 的最新 `client.ts`、`useSession.ts` 与 readonly `api/skill-owner.ts`。named capabilities 同时保 knowledgeCommands/skills，Skills 两 GET/current Human/原尾不变。当前 client/session 交回 content 唯一写，Session 与该来源零差异；下一转交由 root 做。auth 保 Skills canonical suffix 与原 Project 导航顺序。
+- 三个独审 must-fix 已窄修并获 skills 实际差异有限接受：冲突捕获旧 metadata，未取得新完整 GET 不能采用；same-session 恢复/重新 mount 由 Session 公开 target/identity 重建 pending 归属，原文档不可用也可查证/显式放弃，导航确认后清原私料；只有两个新 POST 严格处理 reader/outer cancel reject，原 actual join/release 保留，安全失败使原命令 uncertain，旧端点取消分支保持。
 
-## 首基础检查与窄返修
+## 已完成与失败边界
 
-- 初稿12路径已root保存 `0a857335`，owned format 80038 actual0；首类型41795 actual0/22.123s。
-- 首pure86317 actual1/10.266s，29项24通过5失败，原log/result在 `output/ai/knowledge-owner-rename/pure-01/`。3个client阳性fixture遗漏正式Instant六位微秒；其余为新controller错误清除same-session恢复后的unknown意图、同组件route guard晚于全局auth.restore导致确认前页面卸载。先前“可能Project先改上下文”只是初猜，实际源码确认是restore顺序，未按初猜修改Project。
-- 窄修：fixture对齐Instant；同会话检查退休旧UI但保Session原未知材料；新动作failure仅current能清身份；根授权唯一第8生产源auth.ts增加pre-restore确认，已导入Skills `1b5fa6b5` canonical suffix原hunk保留。新增一个已约并发Move父层集合控制，未改成功门。修后检查待运行；未跑browser/socket。
+- 首 pure `86317` actual1，29 项 24 PASS/5 FAIL：三个 Instant fixture 少正式微秒；旧 controller 错清 same-session unknown；同组件 guard 晚于 auth.restore。早期 Project 上下文猜测未作为修复依据。修后 `89673` actual0/30 项及类型 `63528` actual0；它们不代表后来独审缺口已接受。
+- 原兼容 `13568` actual1：40 selected 39 PASS/1 FAIL，旧 Project 取消后确认离页断言仍为旧 URL，build 未执行。返修 `31318` actual1：新 35 核心全 PASS，仍仅旧 Project case FAIL；类型 `13051` actual0。保旧取消分支后该 case `55453` 仍 actual1。
+- 有界诊断 `54674` 原进程退出；current 与 `04455194` 原三 shared 内存覆盖均同点 FAIL，实际 Project 确认 true/Session not busy，但原测试未等待 Router 导航完成。临时诊断首稿 `34763` 因插入变量未命中 ReferenceError 失败；修正后 `39370` actual0 仅证明等待原导航的诊断，不升级原测试。正式修该 case 用原 click 前的首个 afterEach 事件、严格目标/来源/无 failure、finally/onTestFinished 解绑，不加 sleep/retry 或预算；修后 `58520` actual0/恰一 case，原取消/草稿/URL/零 PATCH 断言保留。
+- 最终三新文件 `46075` actual0：35 项（client19/state13/page3）；`16585` 类型 actual0/27.497s + Vite 私有 build actual0/2.488s，dist 为 `output/ai/knowledge-owner-rename/dist`。旧受影响兼容 39 PASS 复用，仅失败项按以上修后验证；未重跑全 126。prod/source 后续不变则复用此次构建。
+- 原日志/result 保在 ignored `output/ai/knowledge-owner-rename/{pure-01,pure-02,compat-build-01,repair-03,project-compat-02,project-diagnostic,pure-04,project-compat-03,build-01}`。这些恢复事实不代表真实浏览器、实际 Owner 写权限或 Unknown 事务路径已验。
+
+## 写域与下一步
+
+- 生产：新 api/knowledge-commands、composables/useKnowledgeRename、components/knowledge/KnowledgeRenameDialog；旧 api/client、composables/useSession、composables/useKnowledgeOwner、views/projects/ProjectKnowledgeView、router/auth（均在 web/src）。新增 command-client、command-state、rename 三测试；另 root 授权只修 project-workspace.spec.ts 原单 case 的实际导航 join。Schema/API/Session 公共契约不变。
+- 已获新真实源码范围：`internal/central/app/knowledge_owner_rename_web_test.go`，`tests/account-captcha-web/knowledge-owner-rename.config.js`，`e2e/knowledge-owner-rename.{spec,native}.ts`，`.agent-state/knowledge-owner-rename/{README.md,native-controls.cjs}`。实现尚未落盘。exact `TestKnowledgeOwnerRenameWeb` 1top0sub/PW1case，首正常 rename；unknown/conflict 先保当前受控验证界限。
+- default initializer 仍 unbound/零事实；复用 same-package 正式 Account/Knowledge/Object 与 test-only 真实 Project fixture Stop/Drain。POST 必须原 Request finished、原响应完整消费/取消尾、Session typed 同 Promise 与 DOM 全门；不借旧四 GET failed 例外。原七资源、Go120/PW45/6m/root540+60+3/TCP 全尾不变。
+- shared supervisor/driver 新 Rename+Skills 闭集由 cleanup 唯一 writer；content 只发确切 env/闭包，不改 shared。long Go/native 前 fresh≥5GiB/私有 telemetryoff，并等 root 实际窗口；短 Node pure 不要求该磁盘门。没有在途本树进程。
