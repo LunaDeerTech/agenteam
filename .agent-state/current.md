@@ -8,7 +8,7 @@
 
 root 已交接唯一可写热 GOCACHE：`/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache`；Skills 确认无在途或排队 writer。只读 GOMODCACHE：`/workspace/agenteam-runner-control/output/ai/runner-control/go-mod`。后继离线 Go 固定 `/workspace/toolchains/go1.27.1/bin/go`，PATH 前置并保原 Node，GOTOOLCHAIN=local、GOPROXY=off、GOSUMDB=off、GOTELEMETRY=off、`-mod=readonly -p=1`；同进程先打印 UTC/available 并要求至少 5,368,709,120B，否则不启动。不得新建大 cache；PG/socket/native 仍须 fresh grant。
 
-下一步：已过 pure/race/Schema/vet 复用；新 PG/native 片段只作源码准备，待磁盘门与独立静审后编译/发现，再由 root 安排各自真实窗口。原I/O实现仅从正式Knowledge HTTP复制改package，传输控制保实际 callback/领域调用尾；不把源码已成形当实际通过。
+下一步：已过 pure/race/Schema/vet 复用；PG/native 两候选、两 driver 与各自精确发现均已实际完成，等待 root 分别授予真实窗口。源码98bb09f0保持冻结，没有实际 PG/native 业务结果。原I/O实现仅从正式Knowledge HTTP复制改package，传输控制保实际 callback/领域调用尾；不把离线构建/发现当实际通过。
 
 离线验证：首次同process门采 2026-10-10T01:21:41.992595Z / 5,409,042,432B，通过后固定Go运行 `go test -mod=readonly -p=1 -race -count=1 -timeout=60s -json ./internal/central/skill/http`，显式 `AGENTEAM_SKILL_HTTP_SCHEMA_PYTHON` 指向启动包装的实际 `sys.executable`，实际终态0。随后vet预飞 e0a7ad 于01:22:24.529801Z采5,287,940,096B，exit78，未启动Go/vet；不据前一次门冒后一次通过。当前无在途命令/cache writer。产品3源与短卡未因纯控制改变，PG/native验收仍待。
 
@@ -31,3 +31,23 @@ Skills 对新测试方法审发现两处判据缺口（非产品实际失败）�
 必要候选离线分步构建已有两条actual0（源码98bb09f0未变），每条独立outer Wait后才启动下条：native 86279/752ddf→bf099f actual0/2.512s，首UTC2026-10-10T01:54:20.416158Z/5,450,342,400B；`output/ai/skills-owner-http/skill-owner-http-native-race.test` 20,672,971B、SHA256 `e60c8355faefadb81fa2653b4485bf8c0123871ffc0cf87dd90944a0bd7cd3c8`。PG 81480/58e1d4→b49722 actual0/10.6s，首01:54:45.295913Z/5,429,440,512B；`skill-owner-http-pg-race.test` 37,956,311B、SHA256 `5b329ded76f6bb399215c9f87eba01e3e21e5666cedd866577ee92fc853cddfb`。原fixed Go1.27.1/off/readonly/-p1、native race-c / PG integration race-c，均无测试资源；同目录 `native-build-01.{json,log}` / `pg-build-01.{json,log}` 保存actual记录。
 
 第三条PG driver构建首门16cc49于01:55:07.028058Z采5,367,181,312B，actualexit78；未启动Go，也未开输出log/生成driver。依root指令立即停止后续，native driver和两精确list均未执行；不能把源码3/4top声明冒实际发现。保留两新candidate，不重编。后继空间协调与root授权后只补 `.agent-state/task-planning-recovery/pg_only_driver.go`→`output/ai/skills-owner-http/pg-only-skill-owner-http-driver`、`.agent-state/work-owner-http/native_driver.go`→`skill-owner-http-native-driver` 两build，以及各candidate原exact-list。两包无TestMain；list仍待本人actualWait，不能提前计PASS。当前无session/Go/cache writer，无native/PG/socket执行。current/card冻结给root。
+
+root 保存上述阶段为892046dd并回收明确已退休产物后，授权只补缺项。本轮四条仍每条单独 outer actualWait 后才下一 fresh，同原 fixed Go/off/readonly/-p1/cache，未重编两个 candidate：
+
+| 补项 | 首 UTC / 可用 B | 本人原实际终态 | 产物或发现 |
+| --- | --- | --- | --- |
+| PG driver build | 2026-10-10T01:57:57.084277Z / 5,432,700,928 | 34104/7c61db→6839c1，0 / 1.905s | `pg-only-skill-owner-http-driver`，15,400,524B，SHA256 `3c9e6bf9f5ef8f7bdb4bd1dbe9068b989202611936ce6a0bc4d97a0ad5911f1b` |
+| native driver build | 2026-10-10T01:58:11.179006Z / 5,416,235,008 | ba9efe，0 / 0.47s | `skill-owner-http-native-driver`，4,857,015B，SHA256 `c11ba3a9c7d626d7cbd9b1ba964ccb02e00827737ebabb7dcaa687ad07111767` |
+| native exact list | 2026-10-10T01:58:30.905286Z / 5,411,487,744 | 63489/0b0a02→422f18，0 / 1.06s | 恰 `TestSkillOwnerHTTPNativeDeadlines`、`TestSkillOwnerHTTPNativeKeepAliveAndClose`、`TestSkillOwnerHTTPNativeBackpressureAndDisconnect` |
+| PG exact list | 2026-10-10T01:59:02.268652Z / 5,411,430,400 | 30701/4dbe63→bcd478，0 / 1.07s | 恰 `TestSkillOwnerReadHTTPMetadata`、`TestSkillOwnerReadHTTPCurrentAuthority`、`TestSkillOwnerReadHTTPTransactions`、`TestSkillOwnerReadHTTPCommitUnknown` |
+
+同目录 `pg-driver-build-02.{json,log}`、`native-driver-build-01.{json,log}`、`native-list-01.{json,log}`、`pg-list-01.{json,log}` 保存实际记录。两次list分别核原candidate完整SHA；PG在`tests/skills` cwd，仅实际发现，不执行TestMain或测试体。16cc49门78和全部先前方法局限保留。
+
+f5ec1a只读执行冻结supervisor的`skill_http_inputs`（不调用main/driver）：native15、PG34输入均存在可读。新输出 `output/ai/skills-owner-http/native-owner-read-01`、`output/ai/skills-owner-http/pg-owner-read-01` 均未使用且无symlink；当时git status clean。未据该预飞声称实际资源尾。后继仅获fresh grant后，在本树cwd沿上文固定env/同进程fresh5GiB，分别执行原supervisor：
+
+```text
+python3 .agent-state/task-planning-recovery/pg_only_supervisor.py --driver /workspace/agenteam-skills-owner-http/output/ai/skills-owner-http/skill-owner-http-native-driver --binary /workspace/agenteam-skills-owner-http/output/ai/skills-owner-http/skill-owner-http-native-race.test --run '^TestSkillOwnerHTTPNative(Deadlines|KeepAliveAndClose|BackpressureAndDisconnect)$' --output /workspace/agenteam-skills-owner-http/output/ai/skills-owner-http/native-owner-read-01
+python3 .agent-state/task-planning-recovery/pg_only_supervisor.py --driver /workspace/agenteam-skills-owner-http/output/ai/skills-owner-http/pg-only-skill-owner-http-driver --binary /workspace/agenteam-skills-owner-http/output/ai/skills-owner-http/skill-owner-http-pg-race.test --run '^TestSkillOwnerReadHTTP(Metadata|CurrentAuthority|Transactions|CommitUnknown)$' --output /workspace/agenteam-skills-owner-http/output/ai/skills-owner-http/pg-owner-read-01
+```
+
+PG必须显式传原实际解释器 `AGENTEAM_SKILL_HTTP_SCHEMA_PYTHON=/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12`；两组各自原预算、Go/driver/outer实际Wait、private/desc/TCP双采/input尾均不变，PG另核精确两ID双退役。当前没有session/Go/cache writer或本域真实资源，两组均未执行。仅current/card更新后冻结给root；全部技术源与已成产物不动。
