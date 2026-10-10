@@ -146,11 +146,15 @@ System Model 路由使用同一 Account 安全边界，覆盖 `/api/v1/system/` 
 
 此口无写入、不拥有 Commit/Rollback，返回 nil 只在当前 Tx/持锁期间有效，不是 Owner grant、Skills 完成、发布许可、完成回执或 work 已 join 的证明。原 `ValidateInitializationInTx` 成功 gate 与其他写入、生命周期 gate 保持原义；新端口尚无生产 Skills/root 消费，不开放 Project 创建 HTTP，也不解除真实 Skills/初始化 Object 发布及共享 guard 依赖。Meeting Summary 继续由系统管理员统一选择 initial/update（含首轮标题）模型，项目不覆盖或复制默认值；生产 Resolution/Invocations、D24 仍未绑定，Object runtime join、OpenAI tools 独立验收、SPA 并发发布三项停止及 ready503 保持。
 
+## Skills P2 初始化与不可变内容库
+
+[Skills P2](../work-items/d10-skills-initialization.md)交付正式初始化四方法、同 Store 原 Tx 的 revision/canonical/native Audit、同 key 恢复、当前 Owner metadata/包读取和精确 Stop 子能力，以及连续前缀上的00027六表。作者固定版本组合与未参与者风险补集已有限接受；真实 Package Read/Close return、Skill work 与D05 lease 分别计证。Project/Creation/Session部分前置为明确fixture事实，不冒默认root创建链。CleanupAuthority、物理清理、完整 `agent-skills-variables` participant、创建HTTP/root与Agent/Tool/Runner消费仍未绑定；cleanup表与Release闭集形状不表示后段已实现，Runtime停止边界不变。
+
 ## Project 初始化 Audit 授权库
 
 [初始化 Audit 规格](../work-items/d08-project-initialization-audit.md)对应 `project.NewInitializationAuditAuthority(*project.Authority, audit.ProjectFactAuthority)`。包装器仅为原初始化的 `ObjectUploadComplete`、`ObjectUploadFailed`、`ObjectDelete` 增加精确路线：在同 Store 活 Tx、已持 Project EX 下重新读取原 Creation/Project/owner/状态，再将原 context、Tx、Entry、AppendKey 交给事实 provider。CreationID 来自已验证的 Service initiator metadata；ObjectService actor 的 cause 必须是该 Object 操作的 UploadID、AttemptID 或删除摘要，不能混用 CreationID。普通 Authorize、Append、Lookup、Cleanup 保持原 Authority 行为。
 
-构造器只能拒绝缺失依赖，不能凭非 nil 接口证明 provider 已组合真实 Skill 的原初始化 key、精确对象/attempt 映射与同 Store Object 私有 witness checker。该 Skill provider 仍未实现，因此生产 root 未绑定此包装器，Project 创建 HTTP、真实 Skills/Object 初始化链和完整 D08 仍未完成；Object runtime join 停止边界保持。检查不写入、不补锁、不另开事务，也不拥有提交或回滚。
+构造器只能拒绝缺失依赖，不能凭非 nil 接口证明 provider 已组合真实 Skill 的原初始化 key、精确对象/attempt 映射与同 Store Object 私有 witness checker。该 Skill provider 已在上述 P2 有限库中实现并通过真实 Object witness 组合；生产 root 尚未绑定此包装器，Project 创建 HTTP与完整 D08 仍未完成，Object runtime join 停止边界保持。检查不写入、不补锁、不另开事务，也不拥有提交或回滚。
 
 库范围已通过 Project/contract 普通与 race 单测、vet、三组作者真实 PG 测试（42 个子例），以及未参与实现者的源码审查和四项不同输入的真实 PG 补集。独验核对同 Tx 的 owner/状态重新读取、原 context/物理事务与 Unknown Fault 身份保留、已结束 Tx 拒绝；受控 delegate 正例和真实 Object 缺私有 witness 负例分别计证，不代表真实 Skill 发布或实际 COMMIT ACK 丢失验收。
 
