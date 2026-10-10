@@ -173,7 +173,7 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 
 错误遵循现有Fault/CommitResult：输入/结果形状错误InvalidArgument；缺正式provider为DependencyUnbound；当前authority/owner/cause不符Forbidden或原Project gate错误；plan/native映射变化ResourceBusy且整Tx NotCommitted；合法仍活关系为Pending，超过有限完整诊断上限为Pending＋ResourceBusy。已持久的矛盾关系保持安全DependencyUnavailable/InvalidState，不暴露原Locator/SQL/正文。任何Unknown保留原error、cause和attempt；InTx返回Completed本身仍不是CommitResult，不能据它提前删其它事务中的父表。
 
-### 7.3 成本来源的有限闭合范围（未实测）
+### 7.3 成本来源的有限闭合范围（仍有增量成本门）
 
 当前以两个精确三top组合准备成本观察，复用既有root7资源、Go6m／root540+60+3／TCP75及全尾。原组`ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans`已编候选只涵盖其原三源；新组`LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans`现已与原三top/history编入同一新整包候选（82986/99d949 compile0＋七exact list0），执行仍分两个精确组，不将新源码当旧候选输入。后组只增唯一闭集入口与六个实际embed SQL的输入观察，旧组及其他11配置的预算/输入不变。
 
@@ -184,6 +184,8 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 这些成本种子只进入另一个真实Migrator建立的独立SQL数据库，任何标记Audit/binding/退休状态均不交给Service或权限提供方。六成本来源仅有限静审接受，pending唯一原子shape返修Runner e0e2fb/b194bd接受，新后三top入口Work fd74fc接受；整包race-c和七exact list完成后，原三cost于83167首次真实整轮FAIL：ProjectHistoryPlans在真实Stop查询捕获前置失败，未到该top成本库；SkillsIndexPlans与TransferAndForeignKeyPlans业务PASS，原Go/driver/outer actualWait、七资源双尾/TCP/input均齐。两通过top仅接受各自实际SQL/延期FK/回滚范围，仍须据完整计划核索引成本；首次该轮其它四成本top及history未通过实际组；后续修后Project实际结果见下。两个捕获helper的真实小对象预读前置已tests-only修正，Work有限静态接受；修后de54整包82925编译actual0，新3b55候选37459554B；原七top list前空间门5061918720B不足而exit78保留，后单独8505e1在fresh5457285120B下仅补七exact发现actual0。随后修后原三cost13064于pg-cost02完整PASS（Project5.07s/Skills1.64s/Transfer4.66s，Go/driver/outer actualWait0及七资源/TCP/input全尾通过），原FAIL保持；随后7868后三top测试及全尾完整PASS，但其完整EXPLAIN暴露最后transfer EXISTS的历史扫描，详见下段；history仍另候实际窗口。旧563已root4477d4精确退休，失败/源码/日志保留（身份及界限见current）；旧08 history和5c7c成本二进制由root精确退休，原编译/失败/未验记录不改。原三cost首次预飞67f7c4因fresh5334228992B不足5GiB而exit78，监督器/业务/资源均未启动，输出未触碰；只保留空间前置失败，后续另候fresh grant。剩余门是原history真实单组、最后transfer谓词与相关成本断言修复后的真实计划/全部FK检查与原2s返回，然后根据全计划中的扫描/过滤/loops/buffers和真实trigger成本判断22索引必要性或缺项；测试body返回不自动接受成本，也不扩大Runtime join或其它停项。
 
 7868实际成本缺口限定：`projectStopPending`最后transfer EXISTS把`revoked_at IS NULL OR lease.state=active OR retirement_evidence IS NULL`置于跨表join后，live Archive/Delete的末空判断扫描1098条transfer，exact-fence-joined两个方向对13134条lease全表SeqScan；不是微小两行表的合法计划选择。顶层布尔仍正确、最大2.258ms也未超2s，但不满足排除终局历史的成本门。仅拆解该原谓词并增加能拒绝这些底层历史扫描的断言，保留所有原真值/Archive-Delete/权限/锁/原期限；优先复用当前索引，不因索引名增DDL，不把SQL成本种子当native退休证明。Model独立核修复语义/计划方法，原日志及测试PASS与成本缺口并列保留。
+
+恢复后的后三cost首轮仍有一处真实成本FAIL：`get-and-download/archive` 的完整Stop pending最后active-lease臂形成Hash Join，transfer方向先读81PUT＋16被过滤GET共97条，其中65条为退休PUT历史，超过原64门；布尔false与0.530ms返回不改变成本失败。a9的lane4分页已到且通过，FinalAnchor与Pending两top本轮PASS及七资源/actualWait/全部双尾齐全，原FAIL保持。完整必要计划见[原失败plan](../../../.agent-state/object-metadata-cleanup/pending-active-lease-cost-failure.json)。定向返修仅将最后active-lease臂改为原即时UNIQUE lease_id保证的scalar布尔lookup，保持缺行NULL不满足与原Project/action；00028不改。独立窄审与返修后的Live＋Pending二top仍待完成，FinalAnchor有效输入复用，原history另有窗口。
 
 ### 7.4 真实 Skills 消费者的增量组合
 

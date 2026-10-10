@@ -139,6 +139,9 @@ func (s *Service) projectStopTransaction(ctx context.Context, p projectStopPlan,
 // an OR across joined tables otherwise prevents their pending indexes from
 // excluding unrelated terminal history. Every arm retains its original join
 // and Project/action binding, including inside a deferred-constraint Tx.
+// The last scalar lookup follows the immediate UNIQUE transfer.lease_id edge
+// once per active lease. A missing transfer yields NULL (still not pending),
+// while keeping retired transfers from becoming the outer side of a hash join.
 func projectStopPending(ctx context.Context, e postgres.SQLExecutor, cause oc.ProjectStopCause) (bool, error) {
 	d := cause.Details()
 	var pending bool
@@ -151,6 +154,6 @@ func projectStopPending(ctx context.Context, e postgres.SQLExecutor, cause oc.Pr
  OR ($2 AND EXISTS(SELECT 1 FROM agenteam_download.grants g WHERE g.project_id=$1 AND NOT g.revoked))
  OR ($2 AND EXISTS(SELECT 1 FROM agenteam_download.attempts a JOIN agenteam_download.grants g ON g.id=a.grant_id WHERE g.project_id=$1 AND a.phase='started' AND (a.pending_phase IS NULL OR NOT EXISTS(SELECT 1 FROM agenteam_object.project_work w WHERE w.kind='download' AND w.resource_id=a.id AND w.joined_at IS NOT NULL))))
  OR EXISTS(SELECT 1 FROM agenteam_object.object_transfers t JOIN agenteam_object.object_leases l ON l.id=t.lease_id WHERE t.project_id=$1 AND ($2 OR t.direction='put') AND (t.revoked_at IS NULL OR t.retirement_evidence IS NULL))
- OR EXISTS(SELECT 1 FROM agenteam_object.object_leases l JOIN agenteam_object.object_transfers t ON t.lease_id=l.id WHERE t.project_id=$1 AND ($2 OR t.direction='put') AND l.state='active')`, d.ProjectID.String(), d.Action == oc.ProjectStopDelete).Scan(&pending)
+ OR EXISTS(SELECT 1 FROM agenteam_object.object_leases l WHERE l.state='active' AND (SELECT TRUE FROM agenteam_object.object_transfers t WHERE t.lease_id=l.id AND t.project_id=$1 AND ($2 OR t.direction='put')))`, d.ProjectID.String(), d.Action == oc.ProjectStopDelete).Scan(&pending)
 	return pending, unavailableIf(err)
 }
