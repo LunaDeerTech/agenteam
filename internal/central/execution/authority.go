@@ -118,6 +118,9 @@ func (a *Authority) RequireExecutionConfigurationInTx(ctx context.Context, tx f.
 	if err = a.state.store.RequireHeldLocks(ctx, tx, request.RequiredLocks()); err != nil {
 		return portError(err)
 	}
+	if request.Stage == ac.ExecutionConfigurationCapture {
+		return a.requireCaptureConfiguration(ctx, tx, request)
+	}
 	if request.Stage != ac.ExecutionConfigurationLaunch {
 		// Preparing capture and sealed Snapshot/current proofs are separately
 		// installed by their actual writer. A valid Actor or created row is not
