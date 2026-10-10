@@ -16,6 +16,8 @@
 
 Model未参与者另核9产品/3PG源与cleanup-02原节点/全尾（883f34），有限接受本次组合，无新已确认产品mustfix。必要剩余不能混算：65 reader 产生66 joined work，但本次仅1 attempt。新 `TestSkillLifecycleCleanupHistoricalAttempts` 两子源码准备中：真实PUT后验证失败→同key新candidate发布→原AbandonedAttempt与新ProjectDeleted原因/物理空marker/native Audit保持；另一个明确历史兼容fixture在实际physical完成后只加65本域保留映射，真实FK/CHECK、32/32/1删除与回滚。D05每命令未cleaned最多2且本域RecoverAttemptAccess未绑定，因此后者不是65次原生初始化，也不改维护授权来造测试。新源未编译/未PG，旧c04候选和2top5子结果不覆盖它。
 
+Secret未参与产品实现者已只读核两子方法，原PUT刺激缺口经独立MinIO完整包读取证明补齐后有限接受；原七资源入口已窄增精确新top、两源输入与一父两子结果门，离线入口控制实际通过。D05最后active-lease查询成本失败待修，本树等待修后两Stop SQL定稿再由root组合，保留原P2四处增量。新历史补集仍未编译/真实运行；原cleanup-02最后同Tx及Unknown证据按未变范围复用，完整生产接入仍待后继。
+
 ## 已交付 P1
 
 固定实现基线 `f401c15a5187690889eaea9ba9672ca8bdc85460`。新11路径：`internal/central/skill/contract/{types,package,read}.go` 及3对应测试，`internal/central/skill/{builtin,package}.go` 及2对应测试，`internal/central/skill/builtin/add-skills/v1/SKILL.md`。另仅本文及配套规格归位，共13路径；不改旧域、go.mod/go.sum、迁移、fixture、app或共享授权口。

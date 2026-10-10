@@ -86,19 +86,26 @@ def exact_absent(item, timeout):
 
 
 def skill_cleanup_results(output, selector):
-    # This one literal has a closed two-parent/five-child body. Parent-only
-    # success, a skipped child, and a duplicate successful run all fail closed.
-    if selector != '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$':
-        return False
+    # Both exact literals have closed bodies. Parent-only success, a skipped
+    # child, and a duplicate successful run all fail closed.
     expected = {
-        'TestSkillLifecycleCleanupPersistence',
-        'TestSkillLifecycleCleanupPersistence/current_gate_before_irreversible_release',
-        'TestSkillLifecycleCleanupPersistence/actual_physical_audit_and_bounded_history',
-        'TestSkillLifecycleCleanupPersistence/last_object_and_skill_anchors_share_original_transaction',
-        'TestSkillLifecycleCleanupCommitRecovery',
-        'TestSkillLifecycleCleanupCommitRecovery/gate',
-        'TestSkillLifecycleCleanupCommitRecovery/last_two_domain_anchors',
-    }
+        '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$': {
+            'TestSkillLifecycleCleanupPersistence',
+            'TestSkillLifecycleCleanupPersistence/current_gate_before_irreversible_release',
+            'TestSkillLifecycleCleanupPersistence/actual_physical_audit_and_bounded_history',
+            'TestSkillLifecycleCleanupPersistence/last_object_and_skill_anchors_share_original_transaction',
+            'TestSkillLifecycleCleanupCommitRecovery',
+            'TestSkillLifecycleCleanupCommitRecovery/gate',
+            'TestSkillLifecycleCleanupCommitRecovery/last_two_domain_anchors',
+        },
+        '^TestSkillLifecycleCleanupHistoricalAttempts$': {
+            'TestSkillLifecycleCleanupHistoricalAttempts',
+            'TestSkillLifecycleCleanupHistoricalAttempts/native_retry_preserves_abandoned_cause',
+            'TestSkillLifecycleCleanupHistoricalAttempts/seeded_retained_mapping_history_batches_and_fk_rollback',
+        },
+    }.get(selector)
+    if expected is None:
+        return False
     runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
     passed = re.findall(r'^\s*--- PASS: (\S+) \(', output, re.M)
     waits = re.findall(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=0 selector='
@@ -144,7 +151,8 @@ def observe_root_chain(directory, log, log_path, selector):
         if not empty: good = False
         if round == 1: time.sleep(.1)
     log.flush()
-    if selector == '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$':
+    if selector in ('^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
+                    '^TestSkillLifecycleCleanupHistoricalAttempts$'):
         try:
             output = log_path.read_text()
         except (OSError, UnicodeDecodeError):
@@ -161,12 +169,14 @@ def observe_root_chain(directory, log, log_path, selector):
         '^TestIndependentProjectVariablesProcessConfirmationExit$': {'TestIndependentProjectVariablesProcessConfirmationExit'},
         '^TestIndependentProjectVariablesRootConfirmationForce$': {'TestIndependentProjectVariablesRootConfirmationForce'},
         '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$': {'TestSkillLifecycleCleanupPersistence', 'TestSkillLifecycleCleanupCommitRecovery'},
+        '^TestSkillLifecycleCleanupHistoricalAttempts$': {'TestSkillLifecycleCleanupHistoricalAttempts'},
     }.get(selector, set())
     actual = set(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
     log.write(f'ROOT exact_tops={actual == expected} actual_test_wait={waited}\n')
-    if selector == '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$':
+    if selector in ('^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
+                    '^TestSkillLifecycleCleanupHistoricalAttempts$'):
         complete = skill_cleanup_results(output, selector)
         log.write(f'ROOT cleanup_exact_run_pass={complete}\n')
         good = good and complete

@@ -24,6 +24,7 @@ TARGETS = {
     '^TestIndependentProjectVariablesProcessConfirmationExit$': 'tests/process',
     '^TestIndependentProjectVariablesRootConfirmationForce$': 'internal/central/app',
     '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$': 'tests/skills',
+    '^TestSkillLifecycleCleanupHistoricalAttempts$': 'tests/skills',
 }
 
 
@@ -54,7 +55,9 @@ def input_paths(binary):
     for name in ('fixture_test.go', 'object_publication_test.go',
                  'lifecycle_stop_test.go', 'owner_read_test.go',
                  'commit_recovery_test.go', 'lifecycle_cleanup_fixture_test.go',
-                 'lifecycle_cleanup_test.go', 'lifecycle_cleanup_unknown_test.go'):
+                 'lifecycle_cleanup_test.go', 'lifecycle_cleanup_unknown_test.go',
+                 'lifecycle_cleanup_history_test.go',
+                 'lifecycle_cleanup_history_proxy_test.go'):
         paths.add(REPOSITORY / 'tests/skills' / name)
     paths.add(REPOSITORY / '.agent-state/project-variables-independent/commitproxy/proxy.go')
     return sorted(paths)

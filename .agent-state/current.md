@@ -1,5 +1,8 @@
 # Skills 精确 Project Cleanup 当前检查点
 
+- 2026-10-10 Secret独立实例接手本树三个入口工具、本文与领域卡；产品停写，只读核 HistoricalAttempts 两子方法后有限接受。唯一新 literal 为 `^TestSkillLifecycleCleanupHistoricalAttempts$`，输入闭包增加两个 history 测试源；新分支要求一父两子 RUN/PASS 各恰一次与原 Go Wait0，沿原七资源/三私有目录及全部实际退役尾。`853d50` 离线入口控制实际0（4 methods）：旧入口与新入口闭集、十一附加输入、逆投影保持旧七 targets 与原预算、两 selector 各八格明确 process/OS/Docker/TCP doubles 下保全部尾；`7001c5` diffcheck0。没有 Go 编译或真实 socket/资源测试。
+- D05最新成本运行发现最后 active-lease EXISTS 被 planner 拉平后扫描97行超过64；原失败保留，等待作者修后精确两 Stop SQL 路径定稿与窄独审，root再组合。本树尚未应用旧 a9 SQL，不编失败版本；须保留 P2 的 `contract/authority.go`、`contract/skill_initialization_test.go`、`skill_initialization_test.go`、`transfer_upload.go` 四处增量。History最后两域清空/重构由新两子实际补验；原最后4+5同Tx强回滚及真实Unknown在相关清理实现未变时复用cleanup-02，不能以入口控制或会编译代业务接受。
+
 - 2026-10-10 跨域 Knowledge 命令 PG/native 方法静审已收口：六测试源以 d504a5ac 为底，作者窄修 Delete 返回完整升序 ID 集合与 native 背压真实 Timeout / 预算下界后有限接受。原 PG01 whole FAIL、旧 native 未运行保留；修后 Mutations|Unknown 两 top 六子和 native02 尚待实际。本人未编译 / PG / socket，报告见 [限定方法审](knowledge-tree-command-review/report.md)。本域 Cleanup 下一必要补集为非 current attempts 超过两批与已发布 Object 的旧 AbandonedAttempt 原 cause；原 65 reader / 66 joined work 不能代该事实。
 
 ## 剩余 attempt 历史准备（未编译 / 未运行）
