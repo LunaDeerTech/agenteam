@@ -237,6 +237,119 @@ RUNTIME_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS
                                                                 "'AgentConfigurationSchema', "
                                                                 "'AgentRuntimeSchema')) and")]}
 
+PENDING_HTTP_SELECTOR = '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$'
+PENDING_HTTP_TOP = 'TestSchedulerPendingVisit'
+PENDING_HTTP_CASES = frozenset({'TestSchedulerPendingVisit',
+ 'TestSchedulerPendingVisit/association-rollback-original-lookup',
+ 'TestSchedulerPendingVisit/paused-enumeration-and-resume',
+ 'TestTaskHumanHTTP',
+ 'TestTaskHumanHTTP/owner-csrf-and-new-session-lookup',
+ 'TestTaskHumanHTTP/transfer-lookup-replay-and-get'})
+PENDING_HTTP_BASE = {'.agent-state/task-planning-recovery/pg_only_supervisor.py': '1b104ffd1ee6baaabcf5eeae76b7e2937562ee48719739b0ca28cb78e049551d',
+ '.agent-state/work-owner-http/root_chain_driver.py': '9854e31bd8dbd138872edbe6e2a216fda40177536ac3161da28c58a2e5896872'}
+PENDING_HTTP_HUNKS = {'.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {METADATA_ROOT: '
+                                                                'METADATA_CASES, SCHEMA_ROOT: '
+                                                                'SCHEMA_CASES,\n',
+                                                                'PENDING_HTTP_ROOT = '
+                                                                "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$'\n"
+                                                                'PENDING_HTTP_CASES = frozenset({\n'
+                                                                "    'TestSchedulerPendingVisit',\n"
+                                                                '    '
+                                                                "'TestSchedulerPendingVisit/paused-enumeration-and-resume',\n"
+                                                                '    '
+                                                                "'TestSchedulerPendingVisit/association-rollback-original-lookup',\n"
+                                                                "    'TestTaskHumanHTTP',\n"
+                                                                '    '
+                                                                "'TestTaskHumanHTTP/transfer-lookup-replay-and-get',\n"
+                                                                '    '
+                                                                "'TestTaskHumanHTTP/owner-csrf-and-new-session-lookup',\n"
+                                                                '})\n'
+                                                                'METADATA_GROUPS = {METADATA_ROOT: '
+                                                                'METADATA_CASES, SCHEMA_ROOT: '
+                                                                'SCHEMA_CASES,\n'),
+                                                               ('SCHEDULER_BUSY_ROOT: SCHEDULER_BUSY_CASES}',
+                                                                'SCHEDULER_BUSY_ROOT: SCHEDULER_BUSY_CASES,\n'
+                                                                '                   PENDING_HTTP_ROOT: '
+                                                                'PENDING_HTTP_CASES}'),
+                                                               ('        SCHEDULER_BUSY_ROOT: '
+                                                                "{'TestSchedulerBusyCompensation'},\n",
+                                                                '        SCHEDULER_BUSY_ROOT: '
+                                                                "{'TestSchedulerBusyCompensation'},\n"
+                                                                '        PENDING_HTTP_ROOT: '
+                                                                "{'TestSchedulerPendingVisit', "
+                                                                "'TestTaskHumanHTTP'},\n"),
+                                                               ("'SchedulerBusyCompensation')) and",
+                                                                "'SchedulerBusyCompensation', "
+                                                                "'SchedulerPendingVisit', 'TaskHumanHTTP')) "
+                                                                'and')],
+ '.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS = {\n',
+                                                        'TARGETS = {\n'
+                                                        '    '
+                                                        "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$': "
+                                                        "'tests/projectvariable',\n"),
+                                                       ('    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', '^TestSchedulerLaunch$', "
+                                                        "'^TestSchedulerBusyCompensation$'):\n",
+                                                        '    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', '^TestSchedulerLaunch$', "
+                                                        "'^TestSchedulerBusyCompensation$', "
+                                                        "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$'):\n"),
+                                                       ('    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', '^TestSchedulerLaunch$', "
+                                                        "'^TestSchedulerBusyCompensation$'):\n",
+                                                        '    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', '^TestSchedulerLaunch$', "
+                                                        "'^TestSchedulerBusyCompensation$', "
+                                                        "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$'):\n"),
+                                                       ('    if selector == '
+                                                        "'^TestSchedulerBusyCompensation$':\n",
+                                                        '    if selector == '
+                                                        "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$':\n"
+                                                        '        paths.update(REPOSITORY / name for name in '
+                                                        '(\n'
+                                                        '            '
+                                                        "'tests/projectvariable/scheduler_pending_visit_test.go',\n"
+                                                        '            '
+                                                        "'tests/projectvariable/task_human_http_test.go'))\n"
+                                                        '    elif selector == '
+                                                        "'^TestSchedulerBusyCompensation$':\n")]}
+
+def pending_http_projection(name, source):
+    if PENDING_HTTP_SELECTOR not in source:
+        return source
+    for before, after in reversed(PENDING_HTTP_HUNKS[name]):
+        if source.count(after) != 1:
+            raise ValueError('unknown or ambiguous Pending/HTTP data')
+        source = source.replace(after, before, 1)
+    if hashlib.sha256(source.encode()).hexdigest() != PENDING_HTTP_BASE[name]:
+        raise ValueError('unknown Pending/HTTP baseline')
+    return source
+
+
 BUSY_SELECTOR = '^TestSchedulerBusyCompensation$'
 BUSY_TOP = 'TestSchedulerBusyCompensation'
 BUSY_CASES = frozenset({BUSY_TOP, BUSY_TOP + '/rollback-restore-and-replay',
@@ -386,6 +499,7 @@ BUSY_HUNKS = {'.agent-state/task-planning-recovery/pg_only_supervisor.py': [('ME
                                                         "'^TestSchedulerBusyCompensation$'):\n")]}
 
 def busy_projection(name, source):
+    source = pending_http_projection(name, source)
     if "'^TestSchedulerBusyCompensation$'" not in source:
         return source
     for before, after in reversed(BUSY_HUNKS[name]):
@@ -923,7 +1037,7 @@ class SchemaEntryControls(unittest.TestCase):
         baseline = {'__file__': str(ROOT / DRIVER), '__name__': 'schema_baseline'}
         exec(compile(inverse(DRIVER, (ROOT / DRIVER).read_text()), DRIVER, 'exec'), baseline)
         self.assertEqual(self.driver.TARGETS[SELECTOR], 'tests/projectvariable')
-        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR, PREPARATION_SELECTOR, CREATE_SELECTOR, TASK_SELECTOR, CLAIM_SELECTOR, LAUNCH_SELECTOR, BUSY_SELECTOR)}, baseline['TARGETS'])
+        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR, PREPARATION_SELECTOR, CREATE_SELECTOR, TASK_SELECTOR, CLAIM_SELECTOR, LAUNCH_SELECTOR, BUSY_SELECTOR, PENDING_HTTP_SELECTOR)}, baseline['TARGETS'])
         self.assertEqual(self.sup.budgets(True), (540, 60))
         self.assertEqual(self.sup.budgets(False), (123, 3))
         for path, constant in (
@@ -984,7 +1098,8 @@ class SchemaEntryControls(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='agent-schema-inputs-') as tmp:
             root = Path(tmp).resolve()
             names = ('candidate.test', 'production.go',
-                     ('tests/projectvariable/scheduler_busy_compensation_test.go' if SELECTOR == BUSY_SELECTOR
+                     ('tests/projectvariable/scheduler_pending_visit_test.go' if SELECTOR == PENDING_HTTP_SELECTOR
+                      else 'tests/projectvariable/scheduler_busy_compensation_test.go' if SELECTOR == BUSY_SELECTOR
                       else 'tests/projectvariable/scheduler_launch_test.go' if SELECTOR == LAUNCH_SELECTOR
                       else 'tests/projectvariable/scheduler_claim_test.go' if SELECTOR == CLAIM_SELECTOR
                       else 'tests/projectvariable/task_transition_scheduler_test.go' if SELECTOR == TASK_SELECTOR
@@ -999,6 +1114,8 @@ class SchemaEntryControls(unittest.TestCase):
                      'tests/testsupport/agentconfiguration/assembly.go',
                      'tests/testsupport/postgres/original.go',
                      '.agent-state/project-variables-independent/commitproxy/proxy.go')
+            if SELECTOR == PENDING_HTTP_SELECTOR:
+                names += ('tests/projectvariable/task_human_http_test.go',)
             for name in names:
                 path = root / name
                 path.parent.mkdir(parents=True, exist_ok=True)
@@ -1193,7 +1310,7 @@ class SchemaEntryControls(unittest.TestCase):
         self.assertEqual(self.driver.TARGETS[BUSY_SELECTOR], 'tests/projectvariable')
         self.assertEqual(self.sup.METADATA_GROUPS[BUSY_SELECTOR], BUSY_CASES)
         for name, pairs in BUSY_HUNKS.items():
-            source = (ROOT / name).read_text()
+            source = pending_http_projection(name, (ROOT / name).read_text())
             self.assertEqual(hashlib.sha256(busy_projection(name, source).encode()).hexdigest(), BUSY_BASE[name])
             for old, new in pairs:
                 self.assertEqual(source.count(new), 1)
@@ -1208,6 +1325,36 @@ class SchemaEntryControls(unittest.TestCase):
             self.test_actual_schema_inputs_reenumerate_runtime_sources()
             self.test_actual_observer_keeps_original_resource_tails()
             self.test_actual_driver_fixed_environment_before_original_exec()
+
+    def test_pending_http_reuses_the_original_family(self):
+        self.assertEqual(self.driver.TARGETS[PENDING_HTTP_SELECTOR], 'tests/projectvariable')
+        self.assertEqual(self.sup.METADATA_GROUPS[PENDING_HTTP_SELECTOR], PENDING_HTTP_CASES)
+        for name, pairs in PENDING_HTTP_HUNKS.items():
+            source = (ROOT / name).read_text()
+            self.assertEqual(hashlib.sha256(pending_http_projection(name, source).encode()).hexdigest(), PENDING_HTTP_BASE[name])
+            for old, new in pairs:
+                self.assertEqual(source.count(new), 1)
+                for bad in (source.replace(new, old, 1), source + new, source + '\n# unknown\n'):
+                    with self.assertRaises(ValueError):
+                        inverse(name, bad)
+        with patch.dict(globals(), SELECTOR=PENDING_HTTP_SELECTOR, TOP=PENDING_HTTP_TOP, CASES=PENDING_HTTP_CASES), \
+                patch.object(self.sup, 'SCHEMA_ROOT', PENDING_HTTP_SELECTOR), \
+                patch.object(self.sup, 'SCHEMA_CASES', PENDING_HTTP_CASES):
+            self.test_exact_three_subcases_and_original_wait()
+            self.test_actual_main_requires_exact_root_mode()
+            self.test_actual_schema_inputs_reenumerate_runtime_sources()
+            self.test_actual_observer_keeps_original_resource_tails()
+            self.test_actual_driver_fixed_environment_before_original_exec()
+        base = ['supervisor', '--driver', '/not-used/driver', '--binary', '/not-used/candidate',
+                '--output', '/not-used/output', '--root-chain', '--run']
+        for bad in ('^TestSchedulerPendingVisit$', '^TestTaskHumanHTTP$',
+                    '^(TestTaskHumanHTTP|TestSchedulerPendingVisit)$', '^TestTaskHumanHTTP.*$'):
+            with patch.object(sys, 'argv', base + [bad]), \
+                    patch.object(self.sup, 'budgets') as budgets, \
+                    patch('sys.stderr', io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    self.sup.main()
+                budgets.assert_not_called()
 
     def test_busy_tcp_failure_uses_only_the_last_bounded_snapshot(self):
         rows = {('tcp', '%08X:AAAA' % index, '0100007F:BBBB', '06', str(index))
