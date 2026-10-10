@@ -1,5 +1,7 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- 原三cost首次启动预飞 **67f7c4 actual exit78**：2026-10-10T01:35:18.982745+00:00 fresh available=5334228992B，低于5368709120B门槛34480128B；在candidate检查、Go及监督器执行前退出，未启动子进程/PG/MinIO，无session，`pg-cost01`未触碰。这是空间前置失败，不是成本业务FAIL。root已取消本次窗口占有；不自动重试，等待新的fresh grant，原六成本/历史仍未实际运行。
+
 - 下一实际优先原三cost组：563b候选／exact `^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$`／`pg-cost01`。338b4b恢复只读核树clean8f098188、候选完整SHA/37456516B与两成本/history输出父仍absent，原7resources/3private/Go6m/root540+60+3/TCP75不变；尚待root保存与fresh grant，不能由余量或目录absent自动启动。后继history使用同563b候选＋原 `^TestObjectMetadataCleanupOldAttemptsAndStopHistory$`／`pg-history01`：9a893d2f→当前全部Go/mod/SQL只新增六成本源，history/原业务/产品未变且82986已发现该top，旧08不再有执行队列。
 
 - **统一成本新候选已离线就绪**：82986/d13617→99d949 actualexit0，UTC2026-10-10T01:21:49.992556+00:00 fresh5389246464B≥5GiB，fixedGo1.27.1/local/offline/readonly/-p1/原Knowledge独占cache/继承PATH/300s总限；`go test -mod=readonly -p=1 -tags=integration -race -c -o output/ai/object-metadata-cleanup/metadata-cleanup-remaining-cost-race.test ./tests/objects` actual0，随后 `-test.run=^$ -test.list='^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans|LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans|OldAttemptsAndStopHistory)$'` 恰七top actual0。未执行任何业务/fixture/socket。候选**37456516B／SHA256 563b093b573a2f98badf6a4e07b3f994c1fd92932b9036676c464da2ea43590a**，构建源码d1e8fee6。末01:22:00.117545 available5317812224B低门，停止后继build，不归因单缓存。
