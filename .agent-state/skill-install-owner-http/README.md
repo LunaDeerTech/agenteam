@@ -11,7 +11,7 @@
 
 当前新增 pure tests 仅控 HTTP投影/分派、错误、原deadline，以及 catalog 签名、当前授权先于有界SQL。受控 Store/HTTP ports 不冒真实数据库或 Account 权限结果。真实安装链候选见下文；不得 SQL 种普通 Skill 或用 fake install Backend 代替 Service.Install。
 
-本片必要纯检查已完成分版本补集：pure-01 的8新top及2旧HTTP top（59sub）race通过，Schema因旧夹具遍历每条路径的HEAD而失败，vet未执行；原整体FAIL保留。仅修本包testdata/schema.py的精确路由集合后，pure-02 Schema单top的45向量与30个无body HEAD状态、三包vet通过。两轮输入首尾相同，原Wait与group/runtime双尾闭合；原件为本树 output/ai/skill-install-owner-http/pure-{01,02}/，稳定入口run-{01,02}.py复用已验core-checks方法。未重复已通过10top或安装库/cleanup全矩阵。首次真实 HTTP/PG 组合已整体 FAIL，原结果见末段。完整初始化/Agent/F1/Backend 仍按各域真实绑定状态，生产 Project initializer 保持 unbound。
+本片必要纯检查已完成分版本补集：pure-01 的8新top及2旧HTTP top（59sub）race通过，Schema因旧夹具遍历每条路径的HEAD而失败，vet未执行；原整体FAIL保留。仅修本包testdata/schema.py的精确路由集合后，pure-02 Schema单top的45向量与30个无body HEAD状态、三包vet通过。两轮输入首尾相同，原Wait与group/runtime双尾闭合；原件为本树 output/ai/skill-install-owner-http/pure-{01,02}/，稳定入口run-{01,02}.py复用已验core-checks方法。未重复已通过10top或安装库/cleanup全矩阵。原两次真实组合整体 FAIL 保留；后继HTTP03单项wholePASS与domain原两sub通过组成当前有效补集，详见末段。完整初始化/Agent/F1/Backend 仍按各域真实绑定状态，生产 Project initializer 保持 unbound。
 
 ## 首条真实 HTTP 方法
 
@@ -44,4 +44,14 @@ source `71e6231b` 的compile02、exact两top list、同binary素材preflight原W
 
 combined02原 **wholeFAIL**（2026-10-10 13:59:29–14:01:18 UTC），outer814944/sup814990/driver815012/Go816731原Wait1，七ID14absence/private/runtime/desc/HOST_TCP双尾与outer原尾齐，1227输入相同，supervisor107.575s。HTTP安装/Lookup/catalog/旧GET-HEAD sub PASS0.34s，当前Owner/CSRF sub FAIL0.75s，HTTP top8.81s；domain安装/读取重放及普通清理两sub全PASS（0.30/1.06s，top8.37s）。原件 `output/ai/skill-install-owner-http/combined-02-control/result.json` 与 `/tmp/sih02/pg-a81ae562adbc49e8bb33aac838d0b634.log`。这些有限通过不改变组合整体FAIL。
 
-第二首错是HTTP:229的复合拒绝断言。正式 `Account.HTTPBoundary.WriteProblem` / `httpProblem` 两处固定 `/api/v1`，不得回显原路径；夹具却期待原collection，独立源码复核确认该期待必错。原SessionRevoked与严格Problem解码已过，其余复合分量未逐项记录，不补认；最终目标零事实查询尚未到达。只修该instance literal，并把同一复合门拆成安全布尔与前后八计数诊断，仍要求reached/401/clear-cookie/固定type-title-detail/无字段或retry/事实不增，不输出Cookie、Problem原文或请求材料。已静读正式Writer、清Cookie及Problem合同，未见其它确定静态偏差；这不代运行结果。修后尚未编译或运行，产品/预算/所有其余断言保持，下一候选与组合03另用新编号。
+第二首错是HTTP:229的复合拒绝断言。正式 `Account.HTTPBoundary.WriteProblem` / `httpProblem` 两处固定 `/api/v1`，不得回显原路径；夹具却期待原collection，独立源码复核确认该期待必错。原SessionRevoked与严格Problem解码已过，其余复合分量未逐项记录，不补认；最终目标零事实查询尚未到达。只修该instance literal，并把同一复合门拆成安全布尔与前后八计数诊断，仍要求reached/401/clear-cookie/固定type-title-detail/无字段或retry/事实不增，不输出Cookie、Problem原文或请求材料。已静读正式Writer、清Cookie及Problem合同，未见其它确定静态偏差；这不代运行结果。随后只编译新候选并运行已支持的HTTP单项，产品/预算/所有其余断言保持；不重复已通过的domain两sub。
+
+## HTTP03有效补集与交付边界
+
+source `f020d2f7` 的compile03与exact `^TestSkillInstallationOwnerHTTP$` list原Wait0，545编译输入、方法输入和group/runtime/desc双尾全部一致；未变素材沿compile02原preflight复用。新candidate `output/ai/skill-install-owner-http/installation-http-race-03.test`，47,985,269B，SHA256 `a05913b60e94e830db675f7773705fce2b82d8b77cd8ac909b84b96e534fd27d`，原编译结果在 `compile-03/`。
+
+HTTP03 **wholePASS**（2026-10-10 14:04:42–14:06:28 UTC，session11790），1top2sub13.35s（正常安装读取0.65s、当前权限及撤销1.19s）；Go822730/driver821110/supervisor821109/outer821043均原Wait0。七ID两轮共14absence、private/runtime/desc双空、精确3个RUN/PASS与原GoWait、HOST_TCP双empty、1227输入首末一致均闭合，supervisor103.742s；outer无survivor/adopted、TCP双empty。输入SHA256 `e8aa84978b4882cf51c2e0522b5741819056d539aeb23cd695bdf45ac5b1d900`。原件 `output/ai/skill-install-owner-http/http-03-control/result.json` 与 `/tmp/sih03/pg-e132405b6f144bdd9d3edf33d9046adb.log`。
+
+此轮实际确认同一Human安装Service的POST→原key Lookup→两页catalog→旧GET/HEAD兼容，并在真实认证后正式Logout证明原请求401/清cookie/固定安全Problem/项目八事实不增及新目标零事实。domain安装、读取原包、原key重放与普通清理沿combined02的两sub实际PASS复用，其输入产品与domain测试未变。有效补集来自不同版本和限定运行；combined01/02整体FAIL原样保留，不宣称组合单轮wholePASS。原素材/pure/Schema向量和三包vet也按上述原版本复用，没有重跑旧矩阵。
+
+正式范围可接受Human安装/读取/清理和Owner HTTP适配器，默认app分派仅有既有pure证据；没有真实完整app-root/native传输或浏览器验证。00032–35仅沿独立schema02的相同字节与本次连续迁移前缀，00036随真实安装清理链验证；这不接受Agent创建、assignment、Registry callable Backend、Runtime绑定或AgentRun安装。生产Project initializer、完整participant/F1与既有STOP保持；正式main状态由集成提交决定，不因本topic通过自动升级。
