@@ -1,6 +1,6 @@
 # D10 Secret Variables Owner 后端
 
-> 状态：工程 SPEC rev2 已获 Model 独立有限接受；A 纯合同、Schema 及独立复验资产已正式交付 main `8cb0a953`。D04 producer 与 Owner Service 的有限库验收已完成，专用端口、receipt 轮换/清理、真实权限与 final-Tx 事实已实现，00029/00030 已随连续前缀交付 main `fb84a892`。[HTTP 后继](d10-secret-variables-owner-http.md)的原冻结候选已分别通过作者 PG/native；这些原证据不证明本次合并后的新输入已验收。HTTP 独立动态、默认根绑定和 Agent F1 仍未完成，不能将库接受视为整卡通过。实施授权及共享所有权见§10。
+> 状态：工程 SPEC rev2 已获 Model 独立有限接受；A 纯合同、Schema 及独立复验资产已正式交付 main `8cb0a953`。D04 producer 与 Owner Service 的有限库验收已完成，专用端口、receipt 轮换/清理、真实权限与 final-Tx 事实已实现，00029/00030 已随连续前缀交付 main `fb84a892`。[HTTP 后继](d10-secret-variables-owner-http.md)已通过作者 PG/native、既有 initialized Project 的默认根组合、非作者当前 Session/安全错误独验，以及关联 vet/build 和完整 app 普通/race 检查；各证据按原冻结版本组合，原 FAIL 保留。生产 Project initializer 仍 unbound，完整 Project 生命周期、Agent F1、UI 与材料消费未交付，不能视为整卡通过。实施授权及共享所有权见§10。
 >
 > 拟完整结果：已初始化 Project 的当前 Human Owner，经默认 Central HTTP 创建 Secret Variable、读取安全元数据、分页、修改 name/description、覆盖 value、删除及恢复响应丢失。与普通变量共享业务 ID 和名称空间；明文不进入读取响应或持久命令。另落实 Agent F1 的资源侧目录/引用协议；真实 Agent canonical/引用适配由 F1 完成，不以测试 owner 代替。
 

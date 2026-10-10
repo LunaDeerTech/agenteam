@@ -22,6 +22,10 @@ BASE = {PG: 'b8878854e1f54319611c05796a575eb1f2bd4ac1561846170deaf39cf5776bba',
 spec = importlib.util.spec_from_file_location('secret_http_supervisor', ROOT / SUP)
 sup = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(sup)
+root_spec = importlib.util.spec_from_file_location('secret_root_entry_controls',
+    ROOT / '.agent-state/secret-owner-http/root-entry-controls.py')
+root_entry = importlib.util.module_from_spec(root_spec)
+root_spec.loader.exec_module(root_entry)
 
 
 def remove_once(source, old, new=''):
@@ -41,6 +45,14 @@ def inverse(name, source):
         source = remove_once(source, '\t} else if *selector == secretHTTPNativeSelector {\n'
             '\t\tnativeGate = "AGENTEAM_SECRET_VARIABLE_HTTP_NATIVE"\n')
     elif name == SUP:
+        # The later root entry is a separately accepted exact increment. Remove
+        # it with its real inverse before projecting this older HTTP domain.
+        # That inverse checks the complete intermediate source, so unknown
+        # changes cannot disappear while removing the HTTP helper block below.
+        try:
+            source = root_entry.inverse(SUP, source)
+        except ValueError:
+            return False
         begin, end = source.index('SECRET_HTTP_PG = '), source.index('def survivor_identity(')
         source = source[:begin] + source[end:]
         source = remove_once(source,
@@ -69,6 +81,8 @@ class EntryControls(unittest.TestCase):
                 source = (ROOT / name).read_text()
                 self.assertTrue(inverse(name, source))
                 self.assertFalse(inverse(name, source + '# unknown shared change\n'))
+        self.assertFalse(inverse(SUP, (ROOT / SUP).read_text().replace(
+            "all(state == 'PASS'", "all(state != 'FAIL'", 1)))
 
     def test_exact_cases(self):
         self.assertEqual(sup.SECRET_HTTP_CASES, {
