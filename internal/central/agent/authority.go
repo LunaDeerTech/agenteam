@@ -118,8 +118,12 @@ func (a *Authority) writeCanonical(ctx context.Context, tx f.Tx, actor i.Actor, 
 	if planned.User.String() != actor.Details().UserID {
 		return nil, fault(f.NotFound)
 	}
-	if _, err = a.state.projects.RequireOwnerInTx(ctx, tx, actor, planned.Project, i.Mutate); err != nil {
+	grant, err := a.state.projects.RequireOwnerInTx(ctx, tx, actor, planned.Project, i.Mutate)
+	if err != nil {
 		return nil, portError(err)
+	}
+	if !grant.Matches(actor, planned.Project) {
+		return nil, fault(f.Forbidden)
 	}
 	actual, err := loadCommand(ctx, x, planned.Project, planned.Name, planned.Key)
 	if err != nil {
@@ -197,8 +201,12 @@ func (a *Authority) checkApplied(ctx context.Context, tx f.Tx, actor i.Actor, pr
 	if current == nil || !sameValue(*current, w.after) {
 		return nil, fault(f.Forbidden)
 	}
-	if _, err := a.state.projects.RequireOwnerInTx(ctx, tx, actor, project, i.Mutate); err != nil {
+	grant, err := a.state.projects.RequireOwnerInTx(ctx, tx, actor, project, i.Mutate)
+	if err != nil {
 		return nil, portError(err)
+	}
+	if !grant.Matches(actor, project) {
+		return nil, fault(f.Forbidden)
 	}
 	return r, nil
 }
@@ -221,9 +229,7 @@ func (a *Authority) discoverPlanned(ctx context.Context, actor i.Actor, project 
 	if err != nil {
 		return invalid()
 	}
-	var callbackErr error
 	result := a.state.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) (err error) {
-		defer func() { callbackErr = err }()
 		if err = a.state.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
 		}
@@ -250,13 +256,7 @@ func (a *Authority) discoverPlanned(ctx context.Context, actor i.Actor, project 
 		}
 		return check(r)
 	})
-	if result.State() == f.NotCommitted && callbackErr != nil {
-		return callbackErr
-	}
-	if result.State() != f.Committed {
-		return unavailable(nil)
-	}
-	return nil
+	return commitError(result)
 }
 
 func (Authority) Format(w fmt.State, _ rune) { _, _ = io.WriteString(w, "agent_authority") }
