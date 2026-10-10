@@ -1,9 +1,11 @@
 package projectvariablehttp
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -13,6 +15,7 @@ import (
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	ec "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	c "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
 )
@@ -130,7 +133,9 @@ func TestSecretHTTPRoutesAndSafeReads(t *testing.T) {
 	for _, suffix := range []string{"/secret-variables", "/secret-variables/" + testID[id.ProjectVariable](3).String()} {
 		var getSize int
 		for _, method := range []string{"GET", "HEAD", "OPTIONS"} {
-			h, _, p := secretTestHandler(t)
+			h, b, p := secretTestHandler(t)
+			var pattern string
+			b.check = func(r *http.Request) error { pattern = r.Pattern; return nil }
 			r := httptest.NewRequest(method, testPath(suffix), nil)
 			w := newTestWriter()
 			if serveTest(h, r, w) {
@@ -142,7 +147,7 @@ func TestSecretHTTPRoutesAndSafeReads(t *testing.T) {
 				}
 				continue
 			}
-			if w.Code != 200 || p.calls != 1 || p.actor.Details() != testActor().Details() || p.project != testID[id.Project](4) || !strings.Contains(r.Pattern, "{project_id}/secret-variables") {
+			if w.Code != 200 || p.calls != 1 || p.actor.Details() != testActor().Details() || p.project != testID[id.Project](4) || !strings.Contains(pattern, "{project_id}/secret-variables") {
 				t.Fatal("read routing or original actor")
 			}
 			if method == "GET" {
@@ -156,6 +161,40 @@ func TestSecretHTTPRoutesAndSafeReads(t *testing.T) {
 				t.Fatal("HEAD diverged from complete GET representation")
 			}
 			w.cleared(t)
+		}
+	}
+}
+
+func TestSecretHTTPMiddlewareLogsNoMaterial(t *testing.T) {
+	const canary = "PRIVATE_MATERIAL_CANARY"
+	for _, mode := range []string{"success", "unknown-member", "error-chain", "panic", "query", "path"} {
+		h, _, p := secretTestHandler(t)
+		p.result = secretTestReceipt(t, c.SecretCreateCommand, true, 1)
+		r := commandRequest("POST", "/secret-variables", secretCreateBody(canary))
+		switch mode {
+		case "unknown-member":
+			r = commandRequest("POST", "/secret-variables", `{"`+canary+`":"value"}`)
+		case "error-chain":
+			problem := f.NewFault(f.InvalidArgument, f.NotStarted).WithCause(errors.New(canary))
+			problem.SafeMessage = canary
+			problem.FieldErrors = []f.FieldError{{Path: "/" + canary, Code: "INVALID_FIELD"}}
+			p.err = problem
+		case "panic":
+			p.before = func(context.Context) { panic(canary) }
+		case "query":
+			r.URL.RawQuery = "value=" + canary
+		case "path":
+			r.URL.Path = projectPrefix + canary + "/secret-variables"
+		}
+		var logs bytes.Buffer
+		logger := slog.New(slog.NewJSONHandler(&logs, nil))
+		w := newTestWriter()
+		aborted := testAbort(func() { httpapi.Handler(logger, h).ServeHTTP(w, r) })
+		if aborted != (mode == "panic") || logs.Len() == 0 || strings.Contains(logs.String(), canary) || strings.Contains(w.Body.String(), canary) {
+			t.Fatal("material escaped actual middleware", mode)
+		}
+		if !strings.Contains(logs.String(), `"route":"/api/v1/projects/{project_id}/secret-variables"`) {
+			t.Fatal("safe route template was not logged", mode)
 		}
 	}
 }

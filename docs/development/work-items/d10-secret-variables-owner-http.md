@@ -1,6 +1,6 @@
 # D10 Secret Variables Owner HTTP
 
-状态：方案已获 Skills HTTP 有限只读审接受并由 root 授权实施；首片段四产品/四 pure 测试已准备，首轮离线验证运行中，尚无本任务通过结论。树 `ai/secret-owner-http` 以已接受的 Owner 库 `f9cc11c6` 为输入；正式连续 00028–30/core 由 coordination 组装，默认 root/Account 装配由 root 指定的统一写者负责。
+状态：方案已获 Skills HTTP 有限只读审接受并由 root 授权实施；首片段四产品/四 pure 测试已准备，基础 pure/Schema 按限定版本组合通过，代码独审与真实 HTTP 组合仍待。树 `ai/secret-owner-http` 以已接受的 Owner 库 `f9cc11c6` 为输入；正式连续 00028–30/core 由 coordination 组装，默认 root/Account 装配由 root 指定的统一写者负责。
 
 ## 1. 已定契约与最小结果
 
@@ -63,4 +63,13 @@ ordinary HTTP、Account.HTTPBoundary、公共 httpapi、Secret/Project/Account �
 3. 单独 native 窗：自然期限、更早父期限、keepalive 清 deadline、disconnect/backpressure，以及 Body/Write/Close/Flush/callback 实际返回；不以纯 ResponseWriter 代 socket 结论。
 4. 未参与实现者有限独审及当前 Session/泄露风险独验。真实轮需 fresh 授权、精确 selector、原预算和实际 Wait/资源/runtime/desc/TCP 全尾；原 FAIL 保留。
 
-当前无阻塞 HTTP shape 的未决产品规则。尚待协调的是正式 00028→29→30、harness 并集、独立审者/真实窗口，以及后继默认 root 同 Store 构造与退出绑定；不跨写上述接入点。首片段离线 pure race/Schema 验证运行中；尚未 PG、socket 或网络。
+当前无阻塞 HTTP shape 的未决产品规则。尚待协调的是正式 00028→29→30、harness 并集、独立审者/真实窗口，以及后继默认 root 同 Store 构造与退出绑定；不跨写上述接入点。基础离线验证见下一节；尚未 PG、socket 或网络。
+
+
+## 7. 基础片段实际验证
+
+- 首次 pure01 构建整体 FAIL：局部变量重名和未用 import，未执行业务；仅机械修正后编译进入测试。
+- pure02 整体 FAIL：11 top 中10 top通过，包含24个实际 Secret Schema向量；唯路由测试查了中间件克隆前的外部 Request。仅将该观察改为实际 boundary Request，产品未改；原 FAIL保留。
+- pure03 原路由与新增日志反例两 top race实际通过。结合未变的10 top，基础12 top/9直接子覆盖正常 CRUD/identity-only Lookup、严格拒绝/字节边界、safe receipt/whole-page/HEAD、owned material销毁、原调用/取消callback实际join和实际middleware安全日志。样例端口只证明 HTTP，不证明真实 Session/SQL。
+- 相邻 ordinary HTTP 9 top/8直接子 race实际通过，26个原 Schema向量通过；ordinary源码和共用IO未改。这些是进程内controls，名称含 NativeCapability 的用例也没有socket，不能代native证明。
+- 实际命令与终态见本树[检查点](../../../.agent-state/current.md)。Skills HTTP正在实际diff有限独审；真实 Cookie/CSRF、认证后撤销Session、PG/native与默认root均未验。原 Owner 库30节点与定向独验继续按未变范围复用。

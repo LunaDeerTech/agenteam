@@ -129,20 +129,20 @@ func decodeSecretIntent(r *http.Request, route route, raw []byte, in *secretInte
 	if _, present := request["variable_id"]; present || len(request) == 0 {
 		return invalidInput()
 	}
-	var fields c.SecretVariableUpdateFields
+	var updateFields c.SecretVariableUpdateFields
 	if raw, present := request["name"]; present {
 		var name string
 		if json.Unmarshal(raw, &name) != nil {
 			return invalidInput()
 		}
-		fields.Name = &name
+		updateFields.Name = &name
 	}
 	if raw, present := request["description"]; present {
 		var description string
 		if json.Unmarshal(raw, &description) != nil {
 			return invalidInput()
 		}
-		fields.Description = &description
+		updateFields.Description = &description
 	}
 	if raw, present := request["value"]; present {
 		material, err := secretMaterial(raw)
@@ -150,9 +150,9 @@ func decodeSecretIntent(r *http.Request, route route, raw []byte, in *secretInte
 			return err
 		}
 		defer material.Destroy()
-		fields.Value = &material
+		updateFields.Value = &material
 	}
-	value, err := c.NewSecretVariableUpdate(fields)
+	value, err := c.NewSecretVariableUpdate(updateFields)
 	in.update = &value
 	if err != nil {
 		return inputError(err)
