@@ -189,6 +189,34 @@ def observe_secret_owner(log_path, log, selector):
     return good
 
 
+GUARD_ROOT = '^TestProjectLifecycleStopBatchRealGuard$'
+GUARD_CASES = frozenset({'TestProjectLifecycleStopBatchRealGuard'})
+
+
+def guard_results(output):
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+    waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
+    child_lines = [line for line in output.splitlines() if 'ProjectStopBatch child actual_wait' in line]
+    child = (re.fullmatch(r'[ \t]+project_phase_recovery_guard_test\.go:[1-9][0-9]*: '
+                         r'ProjectStopBatch child actual_wait pid=([1-9][0-9]*) '
+                         r'signal=SIGKILL stdout_joined=true', child_lines[0])
+             if len(child_lines) == 1 else None)
+    return (len(runs) == 1 and set(runs) == GUARD_CASES
+            and len(results) == 1 and results[0] == ('PASS', 'TestProjectLifecycleStopBatchRealGuard')
+            and len(waits) == 1 and waits[0][1:] == ('0', GUARD_ROOT)
+            and sum(line.startswith('D03 explicit test actual_wait') for line in output.splitlines()) == 1
+            and child is not None and child[1] != waits[0][0]
+            and re.search(r'^FAIL(?:\s|$)', output, re.M) is None)
+
+
+def guard_same(inputs, args, adapter):
+    try:
+        return {str(p): adapter.sha(p) for p in adapter.guard_inputs(args.binary)} == inputs
+    except (OSError, ValueError, TypeError):
+        return False
+
+
 MODEL_RUNTIME = '^TestModelTextRuntimePersistentWire$'
 MODEL_RUNTIME_CASES = {'TestModelTextRuntimePersistentWire',
                        'TestModelTextRuntimePersistentWire/json_success',
@@ -568,7 +596,7 @@ def observe_root_chain(directory, log, log_path, selector):
         if not empty: good = False
         if round == 1: time.sleep(.1)
     log.flush()
-    if selector in (MODEL_RUNTIME, PARSER_PG, '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
+    if selector in (GUARD_ROOT, MODEL_RUNTIME, PARSER_PG, '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
                     '^TestSkillLifecycleCleanupHistoricalAttempts$'):
         try:
             output = log_path.read_text()
@@ -578,6 +606,7 @@ def observe_root_chain(directory, log, log_path, selector):
     else:
         output = log_path.read_text()
     expected = {
+        GUARD_ROOT: {'TestProjectLifecycleStopBatchRealGuard'},
         MODEL_RUNTIME: {'TestModelTextRuntimePersistentWire'},
         PARSER_PG: {'TestKnowledgePlainTextParserIntegration'},
         SECRET_ROOT: {'TestProjectSecretVariablesDefaultRoot'},
@@ -604,6 +633,10 @@ def observe_root_chain(directory, log, log_path, selector):
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
     log.write(f'ROOT exact_tops={actual == expected} actual_test_wait={waited}\n')
+    if selector == GUARD_ROOT:
+        complete = guard_results(output)
+        log.write(f'ROOT guard_exact_run_pass_child_wait={complete}\n')
+        good = good and complete
     if selector == PARSER_PG:
         complete = parser_results(output)
         log.write(f'ROOT parser_exact_run_pass_wait={complete}\n')
@@ -878,6 +911,8 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
+    if 'ProjectLifecycleStopBatchRealGuard' in args.run and (args.run != GUARD_ROOT or not args.root_chain):
+        parser.error('lifecycle guard requires one exact original root-chain entry')
     if 'ModelTextRuntimePersistentWire' in args.run and (args.run != MODEL_RUNTIME or not args.root_chain):
         parser.error('Model Runtime requires one exact original root-chain entry')
     if 'KnowledgePlainTextParser' in args.run and (args.run != PARSER_PG or not args.root_chain):
@@ -948,6 +983,8 @@ def main():
         inputs = secret_http_inputs(args.driver, args.binary, args.run)
     if args.run in ('^TestKnowledgeSkillsDefaultRootComposition$', SECRET_ROOT):
         inputs.update({str(p): adapter.sha(p) for p in adapter.root_composition_inputs()})
+    if args.run == GUARD_ROOT:
+        inputs = {str(p): adapter.sha(p) for p in adapter.guard_inputs(args.binary)}
     if args.run == MODEL_RUNTIME:
         inputs = {str(p): adapter.sha(p) for p in adapter.model_runtime_inputs(args.binary)}
     if args.run == PARSER_PG:
@@ -1103,6 +1140,8 @@ def main():
                                     for p, digest in inputs.items()))
             if args.run in ('^TestKnowledgeSkillsDefaultRootComposition$', SECRET_ROOT):
                 same = same and root_composition_same(inputs, args, adapter)
+            if args.run == GUARD_ROOT:
+                same = same and guard_same(inputs, args, adapter)
             if args.run == MODEL_RUNTIME:
                 same = same and model_runtime_same(inputs, args, adapter)
             if args.run == PARSER_PG:

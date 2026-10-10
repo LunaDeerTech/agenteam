@@ -16,6 +16,7 @@ GO = Path('/workspace/toolchains/go1.27.1/bin/go')
 MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
+    '^TestProjectLifecycleStopBatchRealGuard$': 'tests/projectvariable',
     '^TestModelTextRuntimePersistentWire$': 'tests/model',
     '^TestKnowledgePlainTextParserIntegration$': 'tests/knowledge',
     '^TestProjectSecretVariablesDefaultRoot$': 'internal/central/app',
@@ -72,6 +73,22 @@ def input_paths(binary):
                  'lifecycle_cleanup_history_proxy_test.go'):
         paths.add(REPOSITORY / 'tests/skills' / name)
     paths.add(REPOSITORY / '.agent-state/project-variables-independent/commitproxy/proxy.go')
+    return sorted(paths)
+
+
+def guard_inputs(binary):
+    # Retain the fixed candidate's 683-source provenance, then add the
+    # original seven-resource runtime closure and this exact entry control.
+    paths = set(input_paths(binary)) | set((REPOSITORY / 'tests/projectvariable').glob('*.go'))
+    paths.update((REPOSITORY / 'tests/testsupport').rglob('*.go'))
+    paths.update((REPOSITORY / '.agent-state/project-variables-independent/commitproxy').glob('*.go'))
+    paths.update(REPOSITORY / name for name in (
+        'tests/projectvariable/project_phase_recovery_guard_test.go',
+        'tests/projectvariable/project_phase_stop_fixture_test.go',
+        'tests/projectvariable/project_lifecycle_fixture_test.go',
+        '.agent-state/project-variable-lifecycle/guard-entry-controls.py'))
+    if any(not p.is_file() or p.is_symlink() or p.resolve(strict=True) != p for p in paths):
+        raise ValueError('regular complete lifecycle guard inputs required')
     return sorted(paths)
 
 
@@ -269,6 +286,9 @@ def main():
                 'AGENTEAM_FIXTURE_OWNED_RECORD': str(directory / 'owned.json'),
                 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime)})
     if args.run == '^TestSkillLifecycleCleanupHistoricalAttempts$':
+        prepare_history_go_environment(directory, env)
+    if args.run == '^TestProjectLifecycleStopBatchRealGuard$':
+        env.pop('AGENTEAM_PROJECT_LIFECYCLE_GUARD_CHILD', None)
         prepare_history_go_environment(directory, env)
     if args.run == '^TestModelTextRuntimePersistentWire$':
         prepare_history_go_environment(directory, env)

@@ -1,0 +1,94 @@
+{
+  "scope": "bounded Project lifecycle stop recovery batch; one real ProcessGuard chain",
+  "status": "wholePASS",
+  "source_ref": "af133f7a",
+  "selector": "^TestProjectLifecycleStopBatchRealGuard$",
+  "top_count": 1,
+  "sub_count": 0,
+  "top_seconds": 10.58,
+  "started_utc": "2026-10-10T11:14:15Z",
+  "finished_utc": "2026-10-10T11:16:15Z",
+  "fresh_available_bytes": 5615099904,
+  "candidate": {
+    "path": "output/ai/project-variable-lifecycle/guard-compile-01/project-phase-guard.test",
+    "bytes": 42672058,
+    "sha256": "94632e84623c3584e6c16bf41798f1d3c97ad8a84a08b9f1deab3b740402ac44",
+    "recompiled_for_run": false
+  },
+  "inputs": {
+    "count_before": 704,
+    "count_after": 704,
+    "sha256": "4b37968f416edd2340b3e90e92554b9ffced1565fd05db5f92a5b4ed337c0c16",
+    "unchanged": true,
+    "compile_inputs_retained": 683
+  },
+  "execution": {
+    "session": 97563,
+    "terminal_chunk": "436059",
+    "outer": {
+      "pid": 649279,
+      "actual_wait": 0
+    },
+    "supervisor": {
+      "pid": 649335,
+      "actual_wait": 0,
+      "elapsed_seconds": 116.914
+    },
+    "driver": {
+      "pid": 649343,
+      "actual_wait": 0
+    },
+    "test": {
+      "pid": 651175,
+      "actual_wait": 0
+    },
+    "child": {
+      "pid": 651311,
+      "original_cmd_wait_joined": true,
+      "signal": "SIGKILL",
+      "stdout_reader_joined": true,
+      "safe_marker_count": 1
+    }
+  },
+  "tails": {
+    "exact_resource_ids": 7,
+    "resource_absent_observations": 2,
+    "private_absent_observations": 2,
+    "runtime_empty_observations": 2,
+    "descendant_empty_observations": 2,
+    "host_tcp_empty_observations": 2,
+    "outer_descendant_empty_observations": 2,
+    "outer_adopted_children": 0,
+    "outer_host_tcp_empty_observations": 2,
+    "stop_count": 0,
+    "input_reenumeration_unchanged": true,
+    "window_released": true
+  },
+  "artifacts": {
+    "original_log": "/tmp/plg01/pg-0662a93e1bf24ac0963929f14d290a27.log",
+    "outer_result": "output/ai/project-variable-lifecycle/guard-01-control/result.json",
+    "supervisor_log": "output/ai/project-variable-lifecycle/guard-01-control/supervisor.log",
+    "frozen_inputs": "output/ai/project-variable-lifecycle/guard-root-inputs-01.json",
+    "raw_artifacts_tracked": false
+  },
+  "verification_roles": {
+    "batch_implementation": "coordination",
+    "guard_fixture": "content",
+    "guard_entry_and_execution": "secret",
+    "batch_and_fixture_review": "non-author limited source/method review accepted",
+    "entry_review": "cleanup limited actual source/input review accepted",
+    "independent_dynamic_claim": false
+  },
+  "preserved_failures": [
+    "phase01 wholeFAIL remains; phase02 is a separate accepted run",
+    "Batch check01: capacity below 5 GiB, zero Go; check02: test fixture compile failure, zero test bodies",
+    "Guard legacy controls: first wrong method name; then D13 negative-control stimulus gap; both retained before corrected five-method PASS"
+  ],
+  "limitations": [
+    "accepted/manifest are explicit upstream fixtures; participant rows remain required",
+    "no complete operation/domain stop, Registry, production initializer or D08 completion",
+    "foreign business-call join and cleanup remain unverified/unbound",
+    "existing Object Runtime join and other STOPs remain unchanged",
+    "no retry; no fixture source change or candidate rebuild for Guard01"
+  ]
+}

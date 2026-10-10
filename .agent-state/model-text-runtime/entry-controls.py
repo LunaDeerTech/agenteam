@@ -81,6 +81,9 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': (('',
 def inverse(name, source):
     if name not in BASE_SHA or not isinstance(source, str):
         raise ValueError('unknown shared source')
+    if "'^TestProjectLifecycleStopBatchRealGuard$'" in source:
+        guard = load('model_guard_inverse', '.agent-state/project-variable-lifecycle/guard-entry-controls.py')
+        source = guard.inverse(name, source)
     start, end, digest = BLOCKS[name]
     if source.count(start) != 1 or source.count(end) != 1:
         raise ValueError('missing or duplicated Model block')
@@ -125,7 +128,13 @@ class ModelRuntimeEntryControls(unittest.TestCase):
             self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), BASE_SHA[name])
             with self.assertRaises(ValueError):
                 inverse(name, source + '\n# unknown source change\n')
+            # Guard overlaps the old Model log-read tuple. Mutate each Model
+            # hunk only after the complete newer delta has been verified.
+            if "'^TestProjectLifecycleStopBatchRealGuard$'" in source:
+                guard = load('model_guard_mutation_base', '.agent-state/project-variable-lifecycle/guard-entry-controls.py')
+                source = guard.inverse(name, source)
             for _, added in SOURCE_HUNKS[name]:
+                self.assertEqual(source.count(added), 1)
                 with self.assertRaises(ValueError):
                     inverse(name, source.replace(added, '', 1))
                 with self.assertRaises(ValueError):
@@ -158,7 +167,8 @@ class ModelRuntimeEntryControls(unittest.TestCase):
                     'TARGETS = {\n', 'TARGETS = {\n    ' + repr(unshipped)
                     + ": 'internal/central/app',\n", 1))
         self.assertFalse(hasattr(self.sup, 'OWNER_UI_TOPS'))
-        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k != SELECTOR}, baseline['TARGETS'])
+        self.assertEqual({k: v for k, v in self.driver.TARGETS.items()
+                          if k not in (SELECTOR, '^TestProjectLifecycleStopBatchRealGuard$')}, baseline['TARGETS'])
         self.assertEqual(self.sup.budgets(True), (540, 60))
         self.assertEqual(self.sup.budgets(False), (123, 3))
         # This follows the actual known inverse chain, without rerunning the
