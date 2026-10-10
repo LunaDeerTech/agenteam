@@ -1,4 +1,12 @@
-# 当前有限组合：真实 Agent 默认配置创建通过
+# 当前有限组合：Human Task 首轮失败已退出，定向修复中
+
+source `32af6683` 的 `TestTaskTransitionHuman` 首轮 `task-human-01` **wholeFAIL**（session90345→15d3ff，2026-10-10 16:06:50–16:09:11 UTC），固定1 top/2 sub共27.03s。`assignment-config-and-replay` 在正式 Project scheduler 配置写入返回 `INTERNAL_ERROR`；`final-transaction-rollback` 在调用 Transfer 前的测试快照查询返回 `DATABASE_SQL_FAILED`，本轮尚未验证 Human transition 提交或回滚。原日志未采 SQLSTATE/constraint，不回填为动态细分结论。源码检查分别发现 Project43 尚未扩大旧 Audit `project.update` changed_fields CHECK（由原作者修复），以及本测试把 Work/Outbox 的 UUID 列直接与 text 比较。测试唯一窄修为原两条断言 SELECT 中九行 UUID 参数转换，保 JSON 文本、Scheduler/Execution text、两场景和全部计数门；尚未重编或重跑。
+
+原 Go935408/driver933637/supervisor933636/outer933589 全实际 Wait1；7资源14absence、private/runtime/descendant/TCP 双尾及 outer descendant/TCP 双尾均空，adopted为空，1379运行输入初尾一致。原 `task-human-compile-01` 实际PASS（session8222→84f6ed）：race-c33.341s、唯一top list1.168s，全原Wait0及退出尾闭合；688编译输入完整包含于运行输入。候选 `output/ai/agent-system-integration/task-human-race-01.test` 为53,720,471 B，SHA256 `eb94091cbd673ebf528e4dfb93befd9b62e5f450d1ffbd22722b9e6c68cfe052`；PG同进程fresh5,530,025,984 B。窗口/热缓存已释放，无自动重试。
+
+原件与复现入口均在 `output/ai/agent-system-integration/`：`task-human-compile-01-launcher.py`、`task-human-launcher-01.py`、`task-human-01-inputs.json`、`task-human-01-control/result.json`；原日志 `/tmp/tth01/pg-a5b1a4c98f28481a9f1e0ac342f07269.log`。后继需新候选/新输出和获授窗口。此前已通过的 AgentCreate02 候选在本次新候选成功后按授权退休以回收容量，其保存源、launcher、结果与所有失败候选均保留；这是可再生成功二进制退休，不改原通过事实。本批不含 CurrentSprint/claim/Launch 正向，不以 planned Sprint 或空 pending 代替它们。
+
+## 已完成的真实 Agent 默认配置创建
 
 source `931b054f` 的 `TestAgentConfigurationCreate` 在 `agent-create-02` **wholePASS**（session22455→eeee99，2026-10-10 15:32:36–15:35:00 UTC）：固定1 top/2直接sub，共28.67s；`default-create-and-replay` 16.96s、`final-transaction-rollback` 11.71s。目标 Project 来自正式 P2/Skill/Object 初始化；旧 Account fixture 的另一受控 Skills Project 不作为目标。实际 Runtime InstallAuthority 在 Skill 构造前传入，同一 Skill Service、真实 Object Runtime/guard、固定 BuiltinSource 经原 Registry EX 事务登记。Agent 调用省略两个默认开关，实际均为 true；正式 Model 主/审批两角色、完整 canonical 与 Tool/Mount/Secret/Skill owner 事实、Audit/Outbox/receipt 在原最终事务关联，完整同 key 重放及 Lookup 不增事实。回滚子项在原 callback 已写完全部16类计数及关系后返回 marker，由真实 Store 回滚，保原 NotCommitted/cause、Session Activity 及已提交的 planned 意图，无伪 CommitResult。默认子项另以正式 Work.CreateTask 后同 Store/Owner/Project SH/Schedule EX 读取实际空 Execution occupancy；未创建 Execution。
 

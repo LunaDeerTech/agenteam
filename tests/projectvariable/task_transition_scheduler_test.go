@@ -21,12 +21,14 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 	"github.com/LunaDeerTech/agenteam/internal/central/work"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
 )
 
 // This first chain stops at a Human-assigned todo Task. There is no public
 // StartSprint in this composition, so neither a claim nor a Launch is seeded.
 func TestTaskTransitionHuman(t *testing.T) {
 	t.Run("assignment-config-and-replay", func(t *testing.T) {
+		assertTaskTransitionUpgrade43(t)
 		v := newTaskTransitionFixture(t)
 		v.configureProject(t)
 		request, commandMeta, lookup := v.transferRequest(t)
@@ -116,6 +118,51 @@ func TestTaskTransitionHuman(t *testing.T) {
 			t.Fatal("rollback lookup fabricated a completed transition", err)
 		}
 	})
+}
+
+// The current Create and legacy name/description command paths use only the
+// released Project columns. The existing fixture declares its test Skills
+// initializer; no Project, Audit or Outbox business row is seeded here.
+func assertTaskTransitionUpgrade43(t *testing.T) {
+	t.Helper()
+	db := pgfixture.NewDatabase(t)
+	migrate(t, db, migrationPrefix(t, "00040"))
+	raw := openStore(t, db.Config(t, nil))
+	v := assembleVariableHTTPFixture(t, db, raw, &hookStore{fixtureStore: raw})
+	name, description := "Legacy scheduler upgrade", "Existing Project fields and their original facts survive migration43"
+	updated, err := v.projects.UpdateProject(ctxFor(t), v.ownerBrowser.actor,
+		meta(t, "legacy-project-update", &v.project.Version), v.project.ID,
+		pc.UpdateProjectRequest{Name: &name, Description: &description})
+	if err != nil || updated.Version != v.project.Version+1 || updated.Name != name || updated.Description != description {
+		t.Fatal("formal prefix40 Project update", err)
+	}
+	snapshot := func() string {
+		t.Helper()
+		var value string
+		var audits, events int64
+		err := raw.QueryRow(ctxFor(t), `SELECT jsonb_build_object(
+ 'project',(SELECT to_jsonb(p)-ARRAY['scheduler_enabled','scheduler_max_concurrency'] FROM agenteam_project.projects p WHERE id=$1::uuid),
+ 'audit',(SELECT coalesce(jsonb_agg(to_jsonb(a) ORDER BY id),'[]'::jsonb) FROM agenteam_audit.audit_records a WHERE project_id=$1::uuid),
+ 'outbox',(SELECT coalesce(jsonb_agg(to_jsonb(e) ORDER BY id),'[]'::jsonb) FROM agenteam_outbox.events e WHERE project_id=$1::uuid)
+ )::text,
+ (SELECT count(*) FROM agenteam_audit.audit_records WHERE project_id=$1::uuid AND action='project.update'),
+ (SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$1::uuid AND producer='project' AND event_type='project.updated')`, v.project.ID.String()).Scan(&value, &audits, &events)
+		if err != nil || audits != 1 || events != 1 {
+			t.Fatal("original Project update facts unavailable", err)
+		}
+		return value
+	}
+	before := snapshot()
+	for pass := 0; pass < 2; pass++ {
+		migrate(t, db, migrationPrefix(t, "00043"))
+		if snapshot() != before {
+			t.Fatal("upgrade or repeat rewrote legacy Project, Audit or Outbox facts")
+		}
+		current, err := v.projects.GetSchedulerConfig(ctxFor(t), v.ownerBrowser.actor, v.project.ID)
+		if err != nil || !bytes.Equal(jsonBytes(t, current.Project), jsonBytes(t, updated)) || current.Config.Enabled || current.Config.MaxConcurrency != nil {
+			t.Fatal("upgrade or repeat changed the original Project or disabled unlimited default", err)
+		}
+	}
 }
 
 // This preparation uses the actual P2/InstallSource/Agent graph. The Work
@@ -278,10 +325,10 @@ func (v *taskTransitionFixture) committedFacts(ctx context.Context, x postgres.S
 	}
 	var facts [6]int64
 	err = x.QueryRow(ctx, `SELECT
- (SELECT count(*) FROM agenteam_work.task_events WHERE project_id=$1::text AND task_id=$2::text AND transition_operation_id=$3::text),
- (SELECT count(*) FROM agenteam_work.task_events WHERE project_id=$1::text AND id=$4::text AND transition_operation_id=$3::text AND correlation_id=$3::text AND task_version=$7 AND type='state_changed' AND payload->>'from_state'='backlog' AND payload->>'to_state'='todo' AND actor->>'user_id'=$8::text),
- (SELECT count(*) FROM agenteam_work.task_events WHERE project_id=$1::text AND id=$5::text AND transition_operation_id=$3::text AND correlation_id=$3::text AND task_version=$7 AND type='assignee_changed' AND payload->'from_agent_id'='null'::jsonb AND payload->>'to_agent_id'=$9::text AND actor->>'user_id'=$8::text),
- (SELECT count(*) FROM agenteam_outbox.events WHERE id=$6::text AND project_id=$1::text AND aggregate_id=$2::text AND aggregate_version=$7 AND producer='work' AND event_type='work.task_transitioned' AND schema_version=1 AND convert_from(payload,'UTF8')::jsonb->>'command_id'=$3::text),
+ (SELECT count(*) FROM agenteam_work.task_events WHERE project_id=$1::text::uuid AND task_id=$2::text::uuid AND transition_operation_id=$3::text::uuid),
+ (SELECT count(*) FROM agenteam_work.task_events WHERE project_id=$1::text::uuid AND id=$4::text::uuid AND transition_operation_id=$3::text::uuid AND correlation_id=$3::text::uuid AND task_version=$7 AND type='state_changed' AND payload->>'from_state'='backlog' AND payload->>'to_state'='todo' AND actor->>'user_id'=$8::text),
+ (SELECT count(*) FROM agenteam_work.task_events WHERE project_id=$1::text::uuid AND id=$5::text::uuid AND transition_operation_id=$3::text::uuid AND correlation_id=$3::text::uuid AND task_version=$7 AND type='assignee_changed' AND payload->'from_agent_id'='null'::jsonb AND payload->>'to_agent_id'=$9::text AND actor->>'user_id'=$8::text),
+ (SELECT count(*) FROM agenteam_outbox.events WHERE id=$6::text::uuid AND project_id=$1::text::uuid AND aggregate_id=$2::text::uuid AND aggregate_version=$7 AND producer='work' AND event_type='work.task_transitioned' AND schema_version=1 AND convert_from(payload,'UTF8')::jsonb->>'command_id'=$3::text),
  (SELECT count(*) FROM agenteam_scheduler.dispatches WHERE project_id=$1::text),
  (SELECT count(*) FROM agenteam_execution.executions WHERE project_id=$1::text)`,
 		v.base.project.ID.String(), v.task.ID.String(), operation, r.TaskEventIDs[0].String(), r.TaskEventIDs[1].String(), r.EventIDs[0].String(), int64(r.Task.Version), v.base.ownerBrowser.actor.Details().UserID, v.agentID.String()).Scan(&facts[0], &facts[1], &facts[2], &facts[3], &facts[4], &facts[5])
@@ -298,11 +345,11 @@ func (v *taskTransitionFixture) databaseSnapshot(t *testing.T) string {
 	t.Helper()
 	var snapshot string
 	err := v.base.raw.QueryRow(ctxFor(t), `SELECT jsonb_build_object(
- 'task',(SELECT to_jsonb(t) FROM agenteam_work.tasks t WHERE project_id=$1::text AND id=$2::text),
- 'history',(SELECT coalesce(jsonb_agg(to_jsonb(e) ORDER BY id),'[]'::jsonb) FROM agenteam_work.task_events e WHERE project_id=$1::text AND task_id=$2::text),
- 'groups',(SELECT coalesce(jsonb_agg(to_jsonb(g) ORDER BY sprint_id,state,priority),'[]'::jsonb) FROM agenteam_work.task_order_groups g WHERE project_id=$1::text),
- 'generation',(SELECT query_generation FROM agenteam_work.task_query_generations WHERE project_id=$1::text),
- 'outbox',(SELECT coalesce(jsonb_agg(to_jsonb(e) ORDER BY id),'[]'::jsonb) FROM agenteam_outbox.events e WHERE project_id=$1::text AND aggregate_id=$2::text),
+ 'task',(SELECT to_jsonb(t) FROM agenteam_work.tasks t WHERE project_id=$1::text::uuid AND id=$2::text::uuid),
+ 'history',(SELECT coalesce(jsonb_agg(to_jsonb(e) ORDER BY id),'[]'::jsonb) FROM agenteam_work.task_events e WHERE project_id=$1::text::uuid AND task_id=$2::text::uuid),
+ 'groups',(SELECT coalesce(jsonb_agg(to_jsonb(g) ORDER BY sprint_id,state,priority),'[]'::jsonb) FROM agenteam_work.task_order_groups g WHERE project_id=$1::text::uuid),
+ 'generation',(SELECT query_generation FROM agenteam_work.task_query_generations WHERE project_id=$1::text::uuid),
+ 'outbox',(SELECT coalesce(jsonb_agg(to_jsonb(e) ORDER BY id),'[]'::jsonb) FROM agenteam_outbox.events e WHERE project_id=$1::text::uuid AND aggregate_id=$2::text::uuid),
  'activity',(SELECT last_activity_at FROM agenteam_account.sessions WHERE id=$3::uuid)
  )::text`, v.base.project.ID.String(), v.task.ID.String(), v.base.ownerBrowser.actor.Details().SessionID).Scan(&snapshot)
 	if err != nil {
