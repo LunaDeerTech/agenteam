@@ -86,3 +86,7 @@ func (SprintStartChange) Format(w fmt.State, _ rune) {
 	_, _ = io.WriteString(w, "project_sprint_start")
 }
 func (SprintStartChange) LogValue() slog.Value { return slog.StringValue("project_sprint_start") }
+
+// Clone detaches both optional pointer fields while preserving the complete
+// Project value. Use the same copy semantics as ProjectAccess.Project.
+func (p ProjectRef) Clone() ProjectRef { return cloneProject(p) }
