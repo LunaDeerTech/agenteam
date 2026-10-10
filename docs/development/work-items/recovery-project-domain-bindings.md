@@ -269,4 +269,6 @@ stop-requested 只附在被授权捕获的原 call 上，不永久封闭整个 P
 
 当前四个Project源与两新PG源已实现；既有fixture只保留原LifecycleAuthority指针。首6top/2sub纯race、Project vet通过；非作者实际审发现组合checkpoint错误可回显provider error，已窄修安全包装并以新private canary定向race及vet通过，物理Unknown/原cause仍保留。修后第一次fresh容量门失败且0Go的事实保留。PG候选race-c与exact list仅一top均已通过；非作者已有限接受核心与PG方法，首次实际结果见下段。私有入口新增固定1top/3sub与3项离线方法控制，原提供方入口/共享sup/driver/预算不改；详细命令与分版本结果在既有[本域恢复说明](../../../.agent-state/project-variable-lifecycle/README.md)。本轮仍不交付生产全phase worker/完整participant完成语义。
 
-首次phase PG随后实际整体FAIL并完整退出（来源1ccbc56b，top12.07s、Go/driver/outer Wait1、两资源/private/desc/TCP双尾与439输入一致齐）。第一sub phase barrier未命中，第二sub回滚断言失败，第三fencing子例通过；不把局部通过升级成整体接受。已定位两测试hook误用Recovery的Owner筛选真实JobCause，尚待窄修原JobType/JobID/Attempt身份后新候选；没有产品错误结论或修后PASS，完整原失败边界留在上述恢复说明。
+首次phase PG随后实际整体FAIL并完整退出（来源1ccbc56b，top12.07s、Go/driver/outer Wait1、两资源/private/desc/TCP双尾与439输入一致齐）。第一sub phase barrier未命中，第二sub回滚断言失败，第三fencing子例通过；不把局部通过升级成整体接受。已定位两测试hook误用Recovery的Owner筛选真实JobCause，后续仅窄修原Kind/JobType/JobID/合法Attempt身份，产品/全部断言/预算未改；完整原失败边界保留。
+
+修后candidate02 race-c/list通过，非作者已对该唯一修正实际diff有限接受。来源88adc94a的`pg-phase-02`单次1top/3sub整轮PASS（12.44s；三个子例0.47/0.10/0.21s），原Go/driver/outer Wait0，两资源/private/desc/HOST_TCP双尾与439输入一致全齐（sup85.470s，无重试）。真实引擎确认phase/claim提交后才调用同Store provider，原业务与checkpoint实际返回才退役本轮；真实rollback/冻结版本拒绝及旧fence不可覆盖均已验。此有限链不把claim terminal或LocalJoined升级为participant/operation完成，不开放生产initializer、foreign join或cleanup；原phase01 FAIL保持，动态结果为作者执行且不冒非作者动态验收。

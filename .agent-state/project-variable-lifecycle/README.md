@@ -38,7 +38,7 @@ python3 -B .agent-state/project-variable-lifecycle/run.py \
 
 独立实例已对 SPEC、核心实际 diff、两PG源与私有namespace入口作有限只读接受；动态纯测试和本次 PG 均由作者运行。此结果只接受 ordinary+Secret 两个本实例服务的精确停止与实际call退出；不证明 foreign process join、真实 Unknown COMMIT代理、完整复合participant、cleanup、生产phase worker 或 production Project Create。原两次准备失败（首Go编译与首input路径枚举）保留，未回填成原轮 PASS。
 
-## 后继单轮 phase：首轮整体 FAIL，测试钩子已窄修
+## 后继单轮 phase：修后整轮通过，原首轮 FAIL 保留
 
 首轮 `^TestProjectLifecycleLocalStopRound$` 使用独立固定产物 `output/ai/project-variable-lifecycle/candidate-phase-01/project-phase-stop.test`；原提供方 candidate01 不覆盖。首候选37,379,760 B，SHA256 `9983dab14e6415a6c5944fc6726c68dc73acf2aed1cdfd0d7cbe793542c761ae`。复用上文 driver，SHA不变；新实际输入439路径，额外显式要求两phase PG源存在，仍初末全闭包重新枚举。
 
@@ -64,14 +64,14 @@ python3 -B .agent-state/project-variable-lifecycle/run.py \
 
 首轮后来按root独占授权实际执行，来源`1ccbc56b`，439输入SHA256 `c26a8d79b20ccc9824d2d94f16e6e987d8bf67b7b2044ba898eee9871b79d6de`。`pg-phase-01` 整体FAIL：top12.07s，第一sub在phase原barrier未命中（5.23s），第二sub回滚断言未成立（0.11s），第三sub fencing PASS（0.14s）。session41634→d62a41实际1，outer/sup578847、driver578850、Go579413均原Wait1；driver19.945s/sup80.542s。两资源精确双退役、private仅owned.json、desc/TCP双空、输入初末一致、STOP0，原exact cases门False保持。环境runtime退出后两次观测空属于后续观测，不补写原门。原日志在ignored `output/ai/project-variable-lifecycle/pg-phase-01/pg-b04f0f5503a746a4a421b5443a5d48b0.log`。
 
-有界源码定位：两个测试after hook错误筛选`CauseDetails.Owner`；实际driver使用`NewJobCause`，正式字段是`Kind=JobCause`、`JobType=project-lifecycle`及原JobID/JobAttemptID，Owner仅属于RecoveryCause。因此phase持有与回滚注入均未被触发。这是测试方法缺口，不能把原FAIL升级成产品PASS。修后状态见下段；原FAIL不追认，尚无修后动态结论。
+有界源码定位：两个测试after hook错误筛选`CauseDetails.Owner`；实际driver使用`NewJobCause`，正式字段是`Kind=JobCause`、`JobType=project-lifecycle`及原JobID/JobAttemptID，Owner仅属于RecoveryCause。因此phase持有与回滚注入均未被触发。这是测试方法缺口，不能把原FAIL升级成产品PASS。修后新轮结果见下段，原FAIL不追认。
 
 
-### 修后 candidate02 已编译/list通过（真实PG未运行）
+### 修后 candidate02 与首次有效真实链
 
 两处hook已窄修为原`Kind=JobCause`、`JobType=project-lifecycle`、`JobID=OperationID`及合法`JobAttemptID`；非作者实际diff有限接受，产品、全部断言、第三fencing子例与预算均未改。该单源修由root本地保存`6b91f717`，当时两次远端推送失败；后来该修复与入口准备已随`065598c2`保存远端，不改写原推送失败事实。为保留原FAIL产物，run.py仅将PHASE_BINARY字面值改为`output/ai/project-variable-lifecycle/candidate-phase-02/project-phase-stop.test`，复位该唯一字面值后与原entry逐字相同；selector/cases/controls/原sup/driver均不变，不另重跑矩阵。
 
-source `065598c2` 的candidate02现已race-c/list实际通过（83514→d45aac，outer586303、Go586304/list586410原Wait0），compile6.139s、fresh5,634,961,408 B，list前重新fresh5,589,934,080 B，runtime两次空。唯一列举`TestProjectLifecycleLocalStopRound`；新binary37,381,608 B，SHA256 `4dd8bdb36756011224eae6553adb652b78bdd4257ae70d9429e34d2d1672f6a6`。没有运行测试正文、PG或重跑pure/vet。以下固定入口仍待root新PG窗口，不会覆盖candidate-phase-01、旧日志或原失败结论。
+source `065598c2` 的candidate02已race-c/list实际通过（83514→d45aac，outer586303、Go586304/list586410原Wait0），compile6.139s、fresh5,634,961,408 B，list前重新fresh5,589,934,080 B，runtime两次空。唯一列举`TestProjectLifecycleLocalStopRound`；新binary37,381,608 B，SHA256 `4dd8bdb36756011224eae6553adb652b78bdd4257ae70d9429e34d2d1672f6a6`。该编译阶段没有运行测试正文、PG或重跑pure/vet。后续以下固定入口获root新窗口单次执行，没有覆盖candidate-phase-01、旧日志或原失败结论。
 
 ```sh
 python3 -B .agent-state/project-variable-lifecycle/run.py \
@@ -80,3 +80,7 @@ python3 -B .agent-state/project-variable-lifecycle/run.py \
   --run '^TestProjectLifecycleLocalStopRound$' \
   --output "$PWD/output/ai/project-variable-lifecycle/pg-phase-02"
 ```
+
+`pg-phase-02` 来源`88adc94a`、上述candidate02与原driver，439输入SHA256 `333eca2c703efed337ad3824bc270790563d48c51467634fa9ee8eedecb0fda9`。同启动fresh5,477,474,304 B；session23908→b856e7原实际0，outer/sup593810、driver593811、Go594386均原Wait0。精确1top/3sub全PASS（top12.44s，子例0.47/0.10/0.21s），driver25.281s、sup85.470s。两nonce资源精确双退役、private闭集仅owned.json、desc双空、exact cases与原Wait门、HOST_TCP连续双空、439输入初末相同、STOP0齐；环境runtime退出后两次观测空另记，不冒原监督日志字段。原件在ignored `output/ai/project-variable-lifecycle/pg-phase-02/pg-2cc00ba8554547a19b81e4976866b120.log`。本轮无重试，全部退出后才释放窗口。
+
+该结果证明真实Project单轮phase/claim事务确认后才调用同Store Variables提供方，原本地调用与checkpoint实际返回，真实rollback/冻结版本拒绝和旧fence竞争；原完整participant行仍required，claim terminal不是operation完成。核心、方法、私有入口及两hook窄修均获非作者有限只读接受；动态纯测试和PG由作者执行。完整registry/foreign业务join/cleanup/生产app initializer继续未绑定；原phase01整体FAIL不回填。
