@@ -63,7 +63,7 @@ ordinary HTTP、Account.HTTPBoundary、公共 httpapi、Secret/Project/Account �
 3. 单独 native 窗：自然期限、更早父期限、keepalive 清 deadline、disconnect/backpressure，以及 Body/Write/Close/Flush/callback 实际返回；不以纯 ResponseWriter 代 socket 结论。
 4. 未参与实现者有限独审及当前 Session/泄露风险独验。真实轮需 fresh 授权、精确 selector、原预算和实际 Wait/资源/runtime/desc/TCP 全尾；原 FAIL 保留。
 
-当前无阻塞 HTTP shape 的未决产品规则。尚待协调的是正式 00028→29→30、harness 并集、独立审者/真实窗口，以及后继默认 root 同 Store 构造与退出绑定；不跨写上述接入点。基础离线验证见下一节；尚未 PG、socket 或网络。
+当前无阻塞 HTTP shape 的未决产品规则。00028→29→30/core 已进入隔离候选，正式交付仍由 root 统筹；本任务尚待 harness 并集、独立动态验收/真实窗口，以及后继默认 root 同 Store 构造与退出绑定；不跨写上述接入点。基础离线验证见下一节；尚未 PG、socket 或网络。
 
 
 ## 7. 基础片段实际验证
@@ -77,5 +77,6 @@ ordinary HTTP、Account.HTTPBoundary、公共 httpapi、Secret/Project/Account �
 ## 8. 定向真实方法候选（未执行）
 
 - 新增 `tests/projectvariable/secret_http_fixture_test.go` 与 `secret_http_test.go`，精确 `^TestSecretVariableHTTPBoundary$` 一 top 两直接子。复用真实 Account/Project/D04/Owner fixture：真实 Cookie/CSRF CRUD、GET/HEAD/List、安全历史与同材料显式覆盖；独立子在认证后 Body.Read barrier 调正式 Logout，create/历史 Lookup 均须原领域 Tx 拒绝、清 Cookie、Secret 事实不变。现 fixture 的 Skills 初始化仍为已披露受控能力，HTTP recorder 不证明 native。
-- 新增 `secret_native_test.go`，精确 `^TestSecretHTTPNativeTransport$` 一 top 两直接子，总两 loopback listener。第一子顺序覆盖真实 2s read/Lookup、30s mutation、更早父期限及同连接跨期限复用；第二子真实响应 backpressure，随后断开正在调用的材料写入，核实际 call join 后 Destroy/abort。控制端口不冒真实授权；两 listener/连接/handler 沿原 native helper 实际 join。需独立 native gate 和 root 新窗口，禁止普通离线运行开启。
-- 三测试源已准备并停写，离线编译/精确发现及方法审尚待；没有 PG/native 动态 PASS。产品四路径与公共/共享 IO、harness、默认 root 保持不变。
+- 新增 `secret_native_test.go`，精确 `^TestSecretHTTPNativeTransport$` 一 top 两直接子，总两 loopback listener。第一子顺序覆盖 2s GET 拒绝未完整正文后的原 Body.Close 排空、Lookup Body.Read、30s mutation Body.Read、更早父期限及同连接跨期限复用；第二子真实响应 backpressure，随后断开正在调用的材料写入，核实际 call join 后 Destroy/abort。控制端口不冒真实授权；两 listener/连接/handler 沿原 native helper 实际 join。需独立 native gate 和 root 新窗口，禁止普通离线运行开启。
+- 三测试源已获 Skills HTTP 有限方法审接受；两个候选 race-c/精确发现实际通过，session18887→166067 actual0。GET Close 场景不冒正常 GET 领域查询耗时；fixture recorder 不冒真实 socket，native 控制端口不冒实际授权。没有 PG/native 动态 PASS，产品四路径、公共/共享 IO 和默认 root 保持不变。
+- coordination 正在唯一编写两精确入口的共享 harness 增量，作者五个纯方法控制已通过、实际方法审及 driver 重编尚待；不以编译或 parser 控制称完整真实尾接受。实际执行分别使用新证据目录/私有 telemetry off/空 Docker config 与同进程 fresh≥5GiB，原资源和 123s+3s supervisor/75s host TCP 尾保持。完整动态结果随后按实际填写。
