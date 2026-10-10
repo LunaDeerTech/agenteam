@@ -1,8 +1,11 @@
 # Secret HTTP independent risk probe
 
-Status: implementation preparation only. No independent PG execution or acceptance
-has occurred. Author HTTP PG/native/root results and their original failures remain
-separate. The probe author did not implement Secret HTTP or its default root.
+Status: the one-top/two-sub independent PG risk supplement passed its complete
+original execution and retirement chain. Acceptance is limited to current Session
+revalidation for GET/List and safe hostile-input errors. Author HTTP PG/native/root
+results and their original failures remain separate; this probe does not independently
+revalidate default root, full lifecycle or Agent F1. The probe author did not
+implement Secret HTTP or its default root.
 The six offline entry controls passed (tool `1f069c`, exit 0): this includes the
 actual shared main's PG observer and both input passes with explicit OS doubles.
 After checkpoint `7429c8e1`, the unchanged probe passed offline race compilation
@@ -12,20 +15,20 @@ top. Fresh space was 8,790,708,224 B at 2026-10-10T06:30:23.214238Z, elapsed 65.
 binary 37,029,513 B, private build runtime empty. The build used a new independent
 cache and private telemetry-off environment. Original logs and result are in
 `output/ai/secret-owner-http/independent-build-01/`. No source repair was needed.
-Both SQL subscenarios remain NOT RUN; method review and a fresh real grant are
-still required.
+At that preparation stage both SQL subscenarios remained NOT RUN, pending method
+review and a fresh real grant.
 After that build, self-review tightened the same probe's Problem assertion to the
 formal fixed title/detail/type for both tested codes. This excludes metadata in
 otherwise legal diagnostic fields. No scenarios or product behavior changed;
-the first binary does not yet verify this narrow assertion update.
+the first binary does not verify this narrow assertion update.
 The original `candidate-independent-01` artifact remains intact. The entry now
-requires the separate `candidate-independent-02` artifact, pending one hot rebuild
-and exact-list after this source update is checkpointed.
+requires the separate `candidate-independent-02` artifact, which was rebuilt and
+exact-listed after the source update was checkpointed.
 Independent method review also identified that the declared-value case must scan
 the Base64/digest/escaped forms of its complete transmitted value including NUL.
-That exact full-value set is now added alongside the short marker, using the same
-per-form detection controls. The second compilation had not started; candidate 02
-remains the pending target. This corrects the probe, not a demonstrated product
+That exact full-value set was added alongside the short marker, using the same
+per-form detection controls. The second compilation had not started when this
+repair was made. This corrects the probe, not a demonstrated product
 leak, and adds no scenario.
 
 Coordination independently reviewed the final four sources and accepted the
@@ -35,8 +38,30 @@ outer 344984 / Go 344985 / exact-list 345093 all exited. The list contains exact
 the declared top; binary size is 37,033,321 B. Fresh space was 8,409,997,312 B at
 2026-10-10T06:37:33.465839Z, elapsed 4.709s, private build runtime empty. Original
 logs/result are in `output/ai/secret-owner-http/independent-build-02/`. Candidate 01
-and its original evidence remain unchanged. Candidate 02 is ready for a separately
-authorized PG window; neither real subscenario has run.
+and its original evidence remain unchanged. No real subscenario ran during that
+offline preparation.
+
+The separately authorized `independent-pg-author-01` then passed with frozen
+record `f76f68b9`, candidate 02 (37,033,321 B,
+`126852399924a8ce4c59be04f8c09425c33a67bbe214d03332c85c0b0b5b0af0`) and the original
+PG driver. Session `30121` → `093759` exited 0. Started at
+2026-10-10T06:44:12.591987Z with fresh 8,362,786,816 B, private telemetry off and an
+empty Docker configuration. The top passed in 6.82s; the Session sub passed in
+1.17s (both GET and List), and hostile-input errors in 0.02s. Original Go 352507,
+driver 351870, supervisor 351869 and outer 351868 all actually waited with exit 0;
+driver elapsed 17.869s, supervisor 77.827s, outer 78.478s.
+
+The original container/network ownership record matched two clean retirements;
+exact cases and private-file gate were true, descendants and host TCP had their
+required double-empty observations, and all 434 input identities/bytes were
+unchanged. The outer's private runtime and descendant observations were also
+double empty, with no adopted child. The original log is
+`output/ai/secret-owner-http/independent-pg-author-01/pg-d4aaa15c2dda4efbab6cae724c1e5b64.log`,
+with its sibling owned directory; original outer log/result are in
+`output/ai/secret-owner-http/independent-author-01-control/`. Tool `f81163` checked
+these original records only; no later resource sampling repaired or replaced a
+terminal result. One run, no retry. The resource window was released after the
+complete original tail.
 
 The exact selector is `^TestIndependentSecretHTTPCurrentSessionAndSafeErrors$`:
 
