@@ -36,6 +36,7 @@ ast.parse(source)
 start, end = source.index('TREE_COMMAND_PG = '), source.index('def root_adapter(driver):')
 inverse = source[:start] + source[end:]
 inverse = inverse.replace('        TREE_COMMAND_PG: set(TREE_COMMAND_GROUPS[TREE_COMMAND_PG]),\n', '')
+inverse = inverse.replace('        TREE_COMMAND_UNKNOWN: set(TREE_COMMAND_GROUPS[TREE_COMMAND_UNKNOWN]),\n', '')
 inverse = inverse.replace('    if args.run in TREE_COMMAND_GROUPS:\n        inputs.update({str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in tree_command_inputs()})\n', '')
 start = inverse.index('            if args.root_chain and not (tree_commands_root(')
 end = inverse.index('            # The tail is a host delta', start)
@@ -44,8 +45,13 @@ assert inverse == original(SUP)
 sup = module(SUP, 'tree_command_supervisor_controls')
 adapter = module(ROOT_DRIVER, 'tree_command_adapter_controls')
 pg, native = sup.TREE_COMMAND_PG, sup.TREE_COMMAND_NATIVE
+unknown = sup.TREE_COMMAND_UNKNOWN
+assert sys.argv[1:] in ([], ['--unknown-only'])
+selectors = (unknown,) if sys.argv[1:] else (pg, native, unknown)
+root_selectors = (unknown,) if sys.argv[1:] else (pg, unknown)
+assert sup.TREE_COMMAND_GROUPS[unknown] == {'TestKnowledgeTreeCommandHTTPUnknown': sup.TREE_COMMAND_GROUPS[pg]['TestKnowledgeTreeCommandHTTPUnknown']}
 root_source = (ROOT / ROOT_DRIVER).read_text()
-assert root_source.replace("    '" + pg + "': 'tests/knowledge',\n", '') == original(ROOT_DRIVER)
+assert root_source.replace("    '" + pg + "': 'tests/knowledge',\n", '').replace("    '" + unknown + "': 'tests/knowledge',\n", '') == original(ROOT_DRIVER)
 native_source = (ROOT / NATIVE_DRIVER).read_text()
 start, end = native_source.index('func treeCommandNative('), native_source.index('func run() int {')
 inverse = (native_source[:start] + native_source[end:]).replace(' && !treeCommandNative(*selector)', '')
@@ -70,7 +76,7 @@ checks = 0
 with tempfile.TemporaryDirectory(prefix='tree-command-selector-') as name:
     temp = Path(name)
     path = temp / 'log'
-    for selector in (pg, native):
+    for selector in selectors:
         good = log(selector)
         path.write_text(good)
         assert sup.tree_commands_exact(path, selector)
@@ -94,7 +100,8 @@ with tempfile.TemporaryDirectory(prefix='tree-command-selector-') as name:
         p.chmod(0o700)
     adapter.MINIO = minio
     adapter.MINIO_SHA = hashlib.sha256(minio.read_bytes()).hexdigest()
-    assert adapter.configuration(binary, pg, temp / 'fresh')['resources'] == 7
+    for selector in root_selectors:
+        assert adapter.configuration(binary, selector, temp / 'fresh')['resources'] == 7
     for bad in (pg[1:], pg[:-1], pg + 'x', '^TestKnowledgeTreeCommandHTTP.*$', '^TestKnowledgeTreeCommandHTTPMutations$', pg.replace('Mutations|Authority', 'Authority|Mutations')):
         try:
             adapter.configuration(binary, bad, temp / 'fresh')
@@ -102,7 +109,14 @@ with tempfile.TemporaryDirectory(prefix='tree-command-selector-') as name:
             checks += 1
         else:
             raise AssertionError('unapproved PG selector')
-    for selector in (pg, native):
+    for bad in (unknown[1:], unknown[:-1], unknown + 'x', unknown.replace('Unknown', '(Unknown)'), unknown + '/.*', unknown.replace('Unknown', 'Unknown|Authority')):
+        try:
+            adapter.configuration(binary, bad, temp / 'fresh')
+        except ValueError:
+            checks += 1
+        else:
+            raise AssertionError('unapproved Unknown selector')
+    for selector in selectors:
         for mode in ('valid', 'missing', 'utf8', 'exit2'):
             trace = {'wait': [], 'desc': 0, 'tcp': 0, 'reap': 0, 'resource': 0}
             owned = []
@@ -138,17 +152,18 @@ with tempfile.TemporaryDirectory(prefix='tree-command-selector-') as name:
                 return True
             def record(directory):
                 return {'resources': [{'kind': 'container', 'id': f'{i+1:064x}', 'nonce': 'a'*32} for i in range(7)], 'directories': [str(directory/'runtime'/str(i)) for i in range(3)]}
-            fake_adapter = types.SimpleNamespace(TARGETS={pg: 'tests/knowledge'}, sha=adapter.sha, input_paths=lambda _: [driver, binary])
+            fake_adapter = types.SimpleNamespace(TARGETS={pg: 'tests/knowledge', unknown: 'tests/knowledge'}, sha=adapter.sha, input_paths=lambda _: [driver, binary])
             output = temp / ('out-' + str(checks))
             args = ['probe', '--driver', str(driver), '--binary', str(binary), '--run', selector, '--output', str(output)]
-            if selector == pg: args.append('--root-chain')
+            is_pg = selector in (pg, unknown)
+            if is_pg: args.append('--root-chain')
             with patch.object(sys, 'argv', args), patch.object(sup, 'root_adapter', return_value=fake_adapter), patch.object(sup, 'root_record', record), patch.object(sup, 'exact_absent', absent), patch.object(sup.ctypes, 'CDLL', return_value=types.SimpleNamespace(prctl=lambda *_: 0)), patch.object(sup.subprocess, 'Popen', Child), patch.object(sup, 'descendants', descendants), patch.object(sup, 'tcp', tcp), patch.object(sup.os, 'waitpid', reap), patch.object(sup.time, 'sleep'), patch.object(sup.signal, 'signal'), contextlib.redirect_stdout(io.StringIO()):
                 code = sup.main()
             expected = 0 if mode == 'valid' else 2 if mode == 'exit2' else 1
             assert code == expected
-            assert trace == {'wait': [540 if selector == pg else 123], 'desc': 3, 'tcp': 3, 'reap': 1, 'resource': 14 if selector == pg else 0}, trace
+            assert trace == {'wait': [540 if is_pg else 123], 'desc': 3, 'tcp': 3, 'reap': 1, 'resource': 14 if is_pg else 0}, trace
             raw = next(output.glob('*.log')).read_bytes()
             for marker in ('actual_driver_wait', 'runtime_observation=1', 'runtime_observation=2', 'delta_empty_observation=1', 'delta_empty_observation=2', 'inputs_unchanged=True terminal=' + str(expected)):
                 assert marker.encode() in raw
             checks += 1
-print(f'PASS controls={checks}; 4PG/13sub and 3native/6sub exact; old three tools inverse unchanged; no child/socket/PG')
+print(f'PASS controls={checks}; selectors={selectors}; old three tools inverse unchanged; no child/socket/PG')
