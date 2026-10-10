@@ -47,9 +47,20 @@ func copyClaims(values map[string]preparationClaim) map[string]preparationClaim 
 func (s *preparationStoreControl) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
 	claims, attempts, refs := copyClaims(s.claims), copyClaims(s.attempts), s.providerRefs
 	s.phase = ""
-	result := s.launchStore.WithinTx(ctx, cause, fn)
+	var callbackErr error
+	result := s.launchStore.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		callbackErr = fn(ctx, tx)
+		return callbackErr
+	})
 	if result.State() == f.NotCommitted {
 		s.claims, s.attempts, s.providerRefs = claims, attempts, refs
+		// The older Launch control does not preserve a non-Fault callback
+		// cause. Match postgres.rejected here so cancellation remains visible
+		// through the real preparation call, without changing that old fixture.
+		var known *f.Fault
+		if callbackErr != nil && !errors.As(callbackErr, &known) {
+			result = f.NotCommittedResult(f.NewFault(f.InternalError, f.NotCommitted).WithCause(callbackErr))
+		}
 	}
 	if result.State() == f.Committed && s.unknownAt != "" && s.phase == s.unknownAt {
 		s.unknownAt = ""
