@@ -236,4 +236,5 @@ stop-requested 只附在被授权捕获的原 call 上，不永久封闭整个 P
 ### 本切片当前恢复状态
 
 - 核心 provider 与原调用登记已实现；独立静审有限接受。首纯测试编译因测试比较非 comparable LockKey 失败，原 FAIL 保留；修为正式 Mode/CompareLockKeys 后作者 9 top / 20 sub race 实际通过。
-- 首 PG 候选仅 race-c 与精确单 top list 实际通过；1 top / 3 sub 方法沿上述规范 phase fixture，真实 PG 尚未运行。独有 [恢复入口](../../../.agent-state/project-variable-lifecycle/README.md) 沿原两资源 supervisor/driver，实际授权与退出门不变。
+- 首 PG 候选 race-c 与精确 list 通过后，冻结55a6e725的1 top / 3 sub 沿上述规范 phase fixture 首次实际整轮 PASS：top9.20s、原 Go/driver/supervisor/tool Wait0，两资源/private/desc/runtime/TCP双尾与435输入一致全部闭合（76.621s，无重试）。作者动态结果不冒独立动态；独立实例已有限静审核心/方法/入口。独有 [恢复入口与结果边界](../../../.agent-state/project-variable-lifecycle/README.md) 保留原准备失败及原两资源监督协议。
+- 此提供方切片只闭本实例 ordinary+Secret 精确停止/原call退出；foreign join、cleanup、完整复合participant 与生产phaseworker仍未交付。原生产initializer unbound、Object Runtime join STOP 和本卡其它阻断不变。

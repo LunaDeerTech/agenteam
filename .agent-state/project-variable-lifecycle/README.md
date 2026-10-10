@@ -31,3 +31,9 @@ python3 -B .agent-state/project-variable-lifecycle/run.py \
 ## 当前证据范围
 
 首纯测试编译因测试直接比较非 comparable LockKey 而 FAIL；窄修为 Mode+CompareLockKeys 后 9 top / 20 sub race actual0。candidate01 race-c / exact list 与原 PG driver race build actual0，原业务尚未运行。首次实际 input 枚举因复用时误改 commitproxy 目录字面值而 FAIL；已恢复 main 的真实原路径，未修改原 helper 或扩大依赖。`entry-controls.py` 使用显式 OS 边界替身调用真实 supervisor.main/observer 与输入双检查；其结果仅为离线方法控制，不能当作 PG 或独立验收。
+
+## 首次真实 PG 结果（有限作者链）
+
+冻结技术来源 `55a6e725`、上述 candidate01/driver；`pg-author-01` 单次运行 `TestProjectVariableLocalLifecycleStop` 1 top / 3 sub 全 PASS（top 9.20s，子例0.55/0.38/0.19s）。原 tool session59972 → 0590e9 exit0，outer/supervisor524357、driver524369、Go524928 均原实际 Wait0；driver17.323s，supervisor76.621s。两nonce PG资源各双退役、private闭集、desc/runtime双空、HOST_TCP连续双空、435 inputs unchanged、STOP0 全部原门成立，无重试。原日志位于 ignored `output/ai/project-variable-lifecycle/pg-author-01/pg-d77e6c6086274412855cbc89fb0d3bf2.log`；源码与本摘要可由 topic 恢复，不声称 ignored 原日志已进入 Git。
+
+独立实例已对 SPEC、核心实际 diff、两PG源与私有namespace入口作有限只读接受；动态纯测试和本次 PG 均由作者运行。此结果只接受 ordinary+Secret 两个本实例服务的精确停止与实际call退出；不证明 foreign process join、真实 Unknown COMMIT代理、完整复合participant、cleanup、生产phase worker 或 production Project Create。原两次准备失败（首Go编译与首input路径枚举）保留，未回填成原轮 PASS。
