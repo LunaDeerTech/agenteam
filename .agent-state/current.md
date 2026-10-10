@@ -8,7 +8,7 @@
 
 root 已交接唯一可写热 GOCACHE：`/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache`；Skills 确认无在途或排队 writer。只读 GOMODCACHE：`/workspace/agenteam-runner-control/output/ai/runner-control/go-mod`。后继离线 Go 固定 `/workspace/toolchains/go1.27.1/bin/go`，PATH 前置并保原 Node，GOTOOLCHAIN=local、GOPROXY=off、GOSUMDB=off、GOTELEMETRY=off、`-mod=readonly -p=1`；同进程先打印 UTC/available 并要求至少 5,368,709,120B，否则不启动。不得新建大 cache；PG/socket/native 仍须 fresh grant。
 
-下一步：已过 pure/race/Schema/vet 复用；PG/native 两候选、两 driver 与各自精确发现均已实际完成，等待 root 分别授予真实窗口。源码98bb09f0保持冻结，没有实际 PG/native 业务结果。原I/O实现仅从正式Knowledge HTTP复制改package，传输控制保实际 callback/领域调用尾；不把离线构建/发现当实际通过。
+下一步：已过 pure/race/Schema/vet 复用；native 3top/6sub 已在唯一真实窗口完整通过（24202→c0f5e4），PG 候选/driver/精确发现已就绪，等待 root 另授 PG 窗口。源码98bb09f0保持冻结，尚无实际 PG 权限/事务结果。原I/O实现仅从正式Knowledge HTTP复制改package，传输控制保实际 callback/领域调用尾；native 局部领域控制不替代真实 Account/P2/SQL 组合。
 
 离线验证：首次同process门采 2026-10-10T01:21:41.992595Z / 5,409,042,432B，通过后固定Go运行 `go test -mod=readonly -p=1 -race -count=1 -timeout=60s -json ./internal/central/skill/http`，显式 `AGENTEAM_SKILL_HTTP_SCHEMA_PYTHON` 指向启动包装的实际 `sys.executable`，实际终态0。随后vet预飞 e0a7ad 于01:22:24.529801Z采5,287,940,096B，exit78，未启动Go/vet；不据前一次门冒后一次通过。当前无在途命令/cache writer。产品3源与短卡未因纯控制改变，PG/native验收仍待。
 
@@ -51,3 +51,11 @@ python3 .agent-state/task-planning-recovery/pg_only_supervisor.py --driver /work
 ```
 
 PG必须显式传原实际解释器 `AGENTEAM_SKILL_HTTP_SCHEMA_PYTHON=/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12`；两组各自原预算、Go/driver/outer实际Wait、private/desc/TCP双采/input尾均不变，PG另核精确两ID双退役。当前没有session/Go/cache writer或本域真实资源，两组均未执行。仅current/card更新后冻结给root；全部技术源与已成产物不动。
+
+## Native01 原窗口完整结果
+
+root 在dae224f2结果保存后明确授唯一native窗口，本人原session24202/chunk339cf6于2026-10-10T02:02:54.242191Z同进程采5,411,155,968B，核原e60候选/c11 driver完整SHA与新输出absent，再exec原supervisor。未改任何输入，未启动PG。原日志 `output/ai/skills-owner-http/native-owner-read-01/pg-e66dba39c10645669d9d390897e508c4.log`：3top/6sub全PASS，原read 2.01s/更早parent0.15s、清deadline同连接2.15s、原Close错误、实际写Timeout2.00s及断连原领域尾均通过；这里仍是真实TCP加明确局部领域控制，不据此接受PG权限/SQL。
+
+child1506218实际Wait0；driver1506211 terminal0/7.384s且原supervisor actual_driver_wait=true/actual_exit0。`runtime_empty=true`、`actual_child_wait=true`、`private_removed=true`，双descendants=[]，`SKILL_HTTP exact_cases_wait_private=True`；HOST_TCP两次delta_empty，`inputs_unchanged=True terminal=0 elapsed=68.173s`。本人原outer由c0f5e4取得actualexit0，7456a2只读原日志/owned目录确认仅剩owned.json、manifest同child PID；未用后采样补原尾。窗口完整PASS后已向root释放，无在途命令/Go/cache writer或本域真实资源。尾后2026-10-10T02:04:14.723492Z可用7,345,946,624B仅记录现状，不作后继启动门。
+
+PG输出`pg-owner-read-01`仍未使用，原4top/12sub尚未实际；需独立fresh grant、fresh门与原PG2全部尾。没有自动重跑native或附带PG。current/card本结果更新后再次freeze；技术源及候选/driver保持原字节。
