@@ -14,3 +14,8 @@
 - 固定命令与结果保存在 `output/ai/tool-registry/skill-install-pure-01-launcher.py`、`output/ai/tool-registry/skill-install-pure-01/`。只验本次六项，不重旧 Registry/Skill/P2；控制中的 Operation/Service 为显式纯替身，未证明真实发布、Agent witness、Runtime 或 Backend 绑定。
 - 非作者审发现完整 InstallReceipt 未交 Runtime 的缺口，已在 `7a3de50b` 两个 adapter 源/测试修复并获增量静审接受：成功返回私有 `SkillInstallResult`，完整 receipt 值与模型三字段输出分开显式投影；原 Service 成功实际返回后，仅纯校验/投影不受迟到取消影响，不抹去已提交事实。失败仍零结果，不造 Runtime 持久 writer。
 - 修后 `skill-install-pure-02` wholePASS：2026-10-10 13:12:23–13:12:28 UTC，session81734→e54c68/outer758616 Wait0；仅两个原 adapter top race（758619，3.963s）及 builtin 包 vet（758713，0.544s）Wait0。group/desc/runtime 两尾空、adopted[]，11个限定输入及方法不变，同启动 fresh6,189,920,256B；原 launcher/result 在 `output/ai/tool-registry/skill-install-pure-02-launcher.py` 与 `skill-install-pure-02/`。热cache已交回，未运行其它四个不变 top 或任何真实资源。当前技术/记录停写，后继真实 Runtime、Service Agent 授权及 Source 注册仍未绑定。
+
+## 标准 schema 核心
+
+- `internal/central/tool/schema` 两源与依赖锁已保存 `48c7c054`，有限独审接受；固定 jsonschema/v6 v6.0.3（Apache-2.0）及 regexp2 v1.11.0（MIT），保原 x/text。Draft 2020-12、仅内存文档、实际引用/dynamic-anchor 闭包、精确数字及同步有界 regex；未绑定生产 Registry/Runtime。
+- 冻结源码 `core-01` wholePASS：`go test -mod=readonly -p=2 -race -count=1 -timeout=90s -json -run '^TestToolSchema(ActualInstallDefinitions|Draft202012AndExactNumbers|StrictJSONAndOfflineResources|ECMAScriptBudgetAndCancellation|SafeProjectionAndConcurrentReuse)$' ./internal/central/tool/schema` 恰5top PASS，及 `go vet -mod=readonly -p=2 ./internal/central/tool/schema` PASS。2026-10-10 14:31:52–14:32:03 UTC，session68090→2e799d；race/vet/outer实际Wait0、group/runtime双空、adopted[]，热cache已归还。固定入口/原结果为 `output/ai/tool-schema/run-core-01.py` 与 `output/ai/tool-schema/core-01/result.json`。Runtime适配器后继仅在AgentSystem树新增，不把此结果外推为真实持久/执行授权链。
