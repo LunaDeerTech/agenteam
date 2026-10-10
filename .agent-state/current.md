@@ -1,5 +1,13 @@
 # 当前执行检查点
 
+
+## Tool Schema / Runtime 适配器（2026-10-10，有限范围已通过）
+
+- 冻结实现：neutral core `48c7c054`、同 Store/原 Tx/精确历史 SpecRef 适配器 `d26e89eb`；cleanup 两段有限源码独审均接受。生产 Runtime/Registry 接线及真实 Execution 授权仍未绑定。
+- 实际有效依赖图要求 `regexp2 v1.12.0`（既有 MinIO v7.3.0 边）；本树仅改该版本行与两条校验，MIT/tag `3d5df45b703801b3fe51eb3f5c0dd302e8b0d676`。jsonschema `v6.0.3`、x/text 等其它版本不变。原 v1.11 core PASS 保留；adapter-01/02 均为缺锁定模块元数据、0 top 的原 FAIL，不回填。
+- 只读 `go list -mod=readonly -deps -test` 两目标包实际 0 后，`adapter-03` 一次执行 `go test -mod=readonly -p=2 -race -count=1 -timeout=90s -json -run <result.selector> ./internal/central/tool/schema ./internal/central/tool/runtime`（核心 5＋适配器 3 个精确 top，5.097s），随后同两包 `go vet -mod=readonly -p=2`（1.023s），均实际 0。原准确 argv/selector：`output/ai/tool-schema/adapter-03/result.json`；日志同目录。
+- session `21601` → `b78eb3`；outer/race/vet `861047/861050/861213` 全 Wait0，阶段 fresh `5,760,057,344/5,751,922,688 B`，group/runtime 双空、adopted=[]，`14:44:16Z` 完整尾关闭并归还热 cache。源码未因本轮测试修改；未运行 PG/native 或旧 Runtime 矩阵。
+
 当前持续开发分支为 `ai/product-continuation`；恢复时须显式查询远端 `ai/*`（本地 fetch 可能只跟踪 main）。本提交仅正式交付已独立验收的共享浮层层级及确认关闭后回焦修复，D27与Blocker服务未完成成果保存在活动任务分支。下方为原恢复历史，最新调度以活动分支检查点为准。
 
 - 目标：从环境中断处恢复产品开发，完成 D01–D28 全部能力及 E01 平台内游戏复刻与真实试玩验收。
