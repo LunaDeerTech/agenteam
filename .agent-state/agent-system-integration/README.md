@@ -197,3 +197,29 @@ python3 -B output/ai/agent-system-integration/scheduler-retry-binding-pure-check
 python3 -B output/ai/agent-system-integration/scheduler-retry-binding-compile-01-launcher.py
 python3 -B output/ai/agent-system-integration/scheduler-retry-binding-launcher-01.py
 ```
+
+## Scheduler 有界 retry 与真实耗尽
+
+SOURCE `08428005`：pure01 精确 11 top race＋3 pkg vet、compile01/list、native01 均 wholePASS。`TestSchedulerBoundedRetry` 恰 1 top/2 sub（34.35s）：真实 AgentSH→final AgentEX PostgreSQL 55P03/物理 NotCommitted→原 attempt 临时拒绝与持久 due；释放锁后，同 Handoff 到期以原完整请求/key 执行 attempt2，生成唯一 created Execution 并关联。另一场景持续持锁至两次真实 Launch 返回，固定 max2 耗尽后经原 Finalize 写 Work technical blocker、Task blocked、history/Outbox 与 Dispatch.failed；原 Lookup/replay 无重复事实。未运行后台 retry Loop、preparing/执行循环或新增旧 NULL 矩阵；旧 binding due 断言已同步产品语义，但其旧 top 本轮未重跑。
+
+native01 于 2026-10-10 20:24:38–20:26:45 UTC 完成，Go 132562、driver 130860、supervisor 130859、outer 130795 全部原 Wait0；七资源 14 次 absent，private/runtime/desc/HOST_TCP 及 outer 双尾全闭，adopted=[]。1,485 输入首尾一致（含全部 772 compile 输入），hash `7b8d91e268d6c67087d81a33afbe435f7f3af8cf68aaad5954a5d89479752ea3`。窗口已归还，旧 FAIL/候选/输入全保留。
+
+原件：`output/ai/scheduler-bounded-retry/combined-pure-01/result.json`、`output/ai/agent-system-integration/scheduler-bounded-retry-compile-01/result.json`、`output/ai/agent-system-integration/scheduler-bounded-retry-01-control/result.json`；原日志 `/tmp/sbr01/pg-f14ed156a05f4254bccbced271e92460.log`。候选 `scheduler-bounded-retry-race-01.test` 为 59,685,430 B，SHA256 `6d8500b528f9b0b88168dcd48098dea1748aa392a11547b930d406dd9420dd00`。
+
+恢复复用上节 recipe（不可变来源 `git show 08428005:.agent-state/agent-system-integration/README.md`），仍从 `148640b8` pure、`73387883` compile/native 原源重建，仅替换本批 SOURCE、namespace `scheduler-bounded-retry`、私有 root `/tmp/sbr01`、selector `^TestSchedulerBoundedRetry$`。sub 固定 `temporary-due-original-key-created`、`temporary-exhaustion-technical-blocker`；compile list 为 len1＋精确集合，input 冻结必须要求本批 compile PASS，不采用旧顺序 FAIL 特例。pure 用以下精确 11 名、`exact_11_top_pass`，vet 仅 `work`、`work/contract`、`scheduler`；原环境、同进程 5GiB 门、预算/Wait/所有资源尾不变。
+
+```python
+TOPS = {
+ 'work': ['TestTaskRetryExhaustionReusesCurrentFailureFacts'],
+ 'work/contract': ['TestTaskLaunchFailureExhaustionReasonKeepsProofBoundary'],
+ 'scheduler': ['TestSchedulerRetryDeadlineAndUnprovenRejection', 'TestSchedulerRetryDueRequiresCurrentEligibilityAndCommit', 'TestSchedulerRetryUnknownAndStopKeepOriginalOwner', 'TestSchedulerRetryAttemptAndProjectionBoundaries', 'TestSchedulerLaunchMarkerMustCommitBeforeHandoff', 'TestSchedulerLaunchAssociationAndOriginalKeyRecovery', 'TestSchedulerLaunchKnownRejectionAndUncertainTransport', 'TestSchedulerLaunchFailureCodecKeepsLegacyAndStrictAttempt', 'TestSchedulerPendingVisitSelectsOnlySupportedOriginalPath'],
+}
+```
+
+在分配的唯一窗口内依次运行以下入口；compile/list 全尾 PASS 后按上述 recipe 冻结 `scheduler-bounded-retry-01-inputs.json` 再启动 native，已有目录不得覆盖：
+
+```sh
+python3 -B output/ai/agent-system-integration/scheduler-bounded-retry-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build
+python3 -B output/ai/agent-system-integration/scheduler-bounded-retry-compile-01-launcher.py
+python3 -B output/ai/agent-system-integration/scheduler-bounded-retry-launcher-01.py
+```
