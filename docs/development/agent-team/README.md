@@ -42,7 +42,7 @@
 | [documentation_worker](../../../.codex/agents/documentation-worker.toml) | 成组或跨文档归位已确认决定，检查引用与一致性 | [agenteam-documentation](../../../.agents/skills/agenteam-documentation/SKILL.md) |
 | [verification_worker](../../../.codex/agents/verification-worker.toml) | 测试计划、证据分析、故障归因与独立验证；任务卡授权时补充指定测试 | [agenteam-verification](../../../.agents/skills/agenteam-verification/SKILL.md) |
 
-所有角色接收完整结果目标、正式契约、Git 基线与限定 diff、明确写入/资源范围和当前可用容量；交付实际文件路径、检查结果、失败限制、下一步及可恢复片段。下级负责人承担设计细化、局部决策、实施、联调和返修工作，消化范围内问题；不靠逐层转发审批维持层级。简单任务由一个执行者完成，范围内返修可复用有效实例，只有职责、独立性或上下文变化才换实例。
+所有角色接收完整结果目标、正式契约、Git 基线与限定 diff、明确写入/资源范围和当前可用容量；交付实际文件路径、检查结果、失败限制、下一步及可恢复片段。下级负责人承担设计细化、局部决策、实施、联调和返修工作，消化范围内问题；不靠逐层转发审批维持层级。简单任务由一个执行者完成，范围内返修可复用有效实例；受阻时根据原因复用、补派或替换执行者，并保持所需专业能力、独立性和上下文。
 
 数据库、安全、测试和排障技能可由实现者或验证者按需组合，不必再创建对应专家。独立性取决于实际参与：编写 harness 的 `test_worker` 不能独立验收自己的 harness；参与实现决策的负责人不能形成该实现的独立验收结论。`security_reviewer` 默认只读，修复须另行明确文件所有权；`platform_worker` 的身份不授予部署权限。调研结论经负责人采纳进入正式契约，跨子目标契约由主线程协调，文档角色按成组归位的收益使用。
 
