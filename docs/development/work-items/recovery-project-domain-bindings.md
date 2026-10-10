@@ -284,3 +284,11 @@ stop-requested 只附在被授权捕获的原 call 上，不永久封闭整个 P
 来源`af133f7a`的Guard01单次执行`TestProjectLifecycleStopBatchRealGuard`（1 top / 0 sub）整轮PASS，top10.58s。真实同Store原引擎在旧claim所属ProcessGuard仍活时返回Busy且后项可继续；原child进程SIGKILL后，由原cmd.Wait与stdout reader实际join，再经原ProcessAuthority确认和Project锁内重验推进原claim/fence。accepted及完整manifest仍是明确上游fixture，所有participant保持required；本轮不伪造完整domain停止或operation完成。Go、driver、supervisor、outer原Wait全部0，7资源双退役、private/runtime/desc/TCP双空，704输入初末不变；全部原尾结束后才释放窗口，无重试。必要安全结果见[Guard首链结果](../../../.agent-state/project-variable-lifecycle/guard-first-actual-result.json)，历史两次Batch FAIL与phase01整体FAIL不回填。
 
 本次只接受有界批次和真实guard死亡后的本轮claim恢复；完整Registry/participant、foreign业务调用join、cleanup、生产initializer与完整D08继续未交付，原Object Runtime join STOP不解除。正式取入为Batch两源、guard测试、本卡和必要Guard恢复入口增量；共享入口保main已有其他域，旧phase两资源方法不变。
+
+## 有限后继：Execution 初始 Skill 与 Tool 捕获提供方
+
+Skill、Tool、Execution提供方及00051/00052已有限验收：定向纯测与补验、五包vet、compile/list及真实1 top/1 sub通过，原调用和全部资源退出尾闭合，源码与最终结果获独立有限接受，原pure01失败保留。依[Execution Context](../../architecture/agent-executor/execution-context.md)和[D01 Snapshot原子捕获约束](d01-contracts/execution-orchestration.md)，本片提供Skill初始固定revision绑定、Tool固定metadata/ref，以及Execution preparing阶段的真实私有授权接缝。Skill拥有00051和清理引用保护，Tool拥有00052；旧迁移和既有STOP保持，恢复方法与分轮结果见[既有组合说明](../../../.agent-state/agent-system-integration/README.md)。
+
+两个提供方的请求只标识Project/Agent/Execution。discovery通过原preparing claim/process/fence的私有证明，读取各自真实assignment或Agent引用head，冻结版本、集合及完整锁计划；final在同Store原Tx取得完整锁并完成真实Project→Trigger→Agent捕获后，重验相同attempt与当前事实。Skill绑定当前已发布revision及assignment sequence，不把初始化时ObservedRevision当运行版本；Tool固定真实注册的Spec/名称/binding，与实际Agent配置和原Execution Policy精确对应，未实现的binding或约束明确拒绝。各域引用与捕获结果同Tx产生，不能凭公开DTO、虚构Human或已存在Execution行取得授权。
+
+真实组合已在原PreparationDriver内调用两真实提供方并观察非空固定结果及同Tx本域引用；完整Model/Context/ref/lease/input尚未齐备时，外层实际回滚，未提交半份preparation input、引用或Snapshot。此结果不等于完整capture、running或Started。Model捕获和网络请求、实际Tool调用、完整Core Tools、生产app/initializer、Execution终态与relaunch/cooldown仍未由本片完成。
