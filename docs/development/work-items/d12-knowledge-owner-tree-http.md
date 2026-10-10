@@ -2,7 +2,7 @@
 
 状态：**五个 Human Owner 文档树命令 POST、安全 DTO 与独立 Schema 已实现并完成限定独立验收**。作者 pure/race 10 top、86 sub、Schema 33 向量及 vet 通过；Runner 独立产品风险控制 2 top、9 sub 通过，Vars 入口与 Skills PG/native 方法有限接受。作者真实 PG 按未变 Authority 三子、Transactions 四子与修后 Mutations＋Unknown 六子组合通过，共 4 top、13 sub；native 3 top、6 sub 整轮通过，各实际命令与资源尾完整。
 
-正式 main `3b7ed9da35844e3a367cc5e9da0cf424ab36499a` 装配已通过同包 integration race 编译与精确发现；未参与者在该主线的真实 00001–00027 迁移前缀运行新 Owner／旧 actor receipt 补集，唯一 top 整轮 PASS。新 Owner B 的新 key 写入与 Lookup、对 A 旧 key／原 Lookup 意图的拒绝及旧 A Session 拒绝均实际到达，原 Go/driver/outer Wait、七资源双退役、private/runtime/desc、TCP 双采与 input 全尾齐。原 PG01 整轮 FAIL 及未打印分项值的边界、独立首轮因标准 Problem title 误判而 FAIL／Owner B 未到达均保留；后者仅修八行测试 helper 判据后重验，不改产品。接受按固定版本组合，不称当前 HEAD 单次全量或完整 D12。
+正式 main `3b7ed9da35844e3a367cc5e9da0cf424ab36499a` 装配已通过同包 integration race 编译与精确发现；未参与者在该主线的真实 00001–00027 迁移前缀运行新 Owner／旧 actor receipt 补集，唯一 top 整轮 PASS。新 Owner B 的新 key 写入与 Lookup、对 A 旧 key／原 Lookup 意图的拒绝及旧 A Session 拒绝均实际到达，原 Go/driver/outer Wait、七资源双退役、private/runtime/desc、TCP 双采与 input 全尾齐。原 PG01 整轮 FAIL 及未打印分项值的边界、独立首轮因标准 Problem title 误判而 FAIL／Owner B 未到达均保留；后者仅修八行测试 helper 判据后重验，不改产品。接受按固定版本组合，不称当前 HEAD 单次全量或完整 D12。Owner A→B 的变化是同 Store、原 User/Project 锁及 current authority 下建立的上游 SQL fixture 事实，不代表生产 OwnerTransfer 命令或 API 已实现或验收。
 
 本结果直接消费已交付的 [B02 Service](d12-b02-knowledge-service.md)、[文档合同](d12-knowledge-documents-design.md)与 Account HTTP boundary，提供已有文档的改名、移动、删除范围确认与删除，以及原命令结果查证。作者基线为正式 main `ce65714aac6eb4995a43fc427a2c77e6497470a7`；装配保留主线已交付 read HTTP、Runner 与 Skills P2。创建、替换正文、上传、正文读取、下载、UI 和生产 root 不在本结果。
 

@@ -14,7 +14,7 @@
 
 Skills 在本 main3b7/ee4340e7 装配树执行 88585→964c70，完整 `tests/knowledge` race-c、唯一 top 精确发现与实际 artifacts 28 控均 actual0。固定 Go1.27.1/local/offline/readonly，首同进程 fresh available=5,449,502,720 B（UTC 2026-10-10T01:09:58.124797Z），632 项实际闭包含 Reader/Runner/P2 与 00026–00027；没有旧树返编再主线重编。
 
-修后唯一 `TestKnowledgeTreeCommandHTTPIndependentReceiptOwner` 在本新主线实际通过：33318→1eec1d outer0、101.758s，业务 top 5.99s；Go 1452299、driver 1450313 actualWait0，7 个 exact IDs 各双 absent、3 private/运行时双退役、desc 双空、exact top/tree exact、TCP 双 empty、inputs_unchanged=True。Skills 本人 aece36 核原日志 `/tmp/ktc-independent-main-pg-01/pg-dc8e52d742ab4214878fc0e9f4f694b4.log` 后已释放窗口。实际 00001–00027 前缀与新 Owner B 新 key 写/Lookup、旧 A key/receipt 拒绝、旧 A Session 拒绝均闭合。
+修后唯一 `TestKnowledgeTreeCommandHTTPIndependentReceiptOwner` 在本新主线实际通过：33318→1eec1d outer0、101.758s，业务 top 5.99s；Go 1452299、driver 1450313 actualWait0，7 个 exact IDs 各双 absent、3 private/运行时双退役、desc 双空、exact top/tree exact、TCP 双 empty、inputs_unchanged=True。Skills 本人 aece36 核原日志 `/tmp/ktc-independent-main-pg-01/pg-dc8e52d742ab4214878fc0e9f4f694b4.log` 后已释放窗口。实际 00001–00027 前缀与新 Owner B 新 key 写/Lookup、旧 A key/receipt 拒绝、旧 A Session 拒绝均闭合。Owner A→B 的变化是同 Store、原 User/Project 锁及 current authority 下建立的上游 SQL fixture 事实，不代表生产 OwnerTransfer 命令或 API 已实现或验收。
 
 ## 交付与恢复
 
