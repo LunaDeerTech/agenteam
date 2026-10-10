@@ -124,16 +124,16 @@ describe('Project Audit two closed current-project GETs', () => {
       await pending
     }
   })
-  it('retains all 53 action and 25 resource filters including valid System-only empty results', async () => {
-    expect(auditFilterActions).toHaveLength(53)
-    expect(auditFilterResourceKinds).toHaveLength(25)
+  it('retains all 56 action and 26 resource filters including valid System-only empty results', async () => {
+    expect(auditFilterActions).toHaveLength(56)
+    expect(auditFilterResourceKinds).toHaveLength(26)
     const fetch = vi.fn<Fetch>(async () => json(page([]))),
       api = createProjectAuditAPI(fetch)
     for (const action of auditFilterActions)
       expect((await api.list(project, { action }, signal())).items).toEqual([])
     for (const resource_kind of auditFilterResourceKinds)
       expect((await api.list(project, { resource_kind }, signal())).items).toEqual([])
-    expect(fetch).toHaveBeenCalledTimes(78)
+    expect(fetch).toHaveBeenCalledTimes(82)
   })
   it.each([
     null,
@@ -524,4 +524,62 @@ describe('native bounded transport EOF and actual cancellation', () => {
       )
     }
   })
+})
+
+describe('ordinary variable records through the actual Project Audit client', () => {
+  const variableRow = (change: 'create' | 'update' | 'delete') => ({
+    ...row(),
+    action: `project.variable.${change}`,
+    summary: 'Audit event',
+    resource: { kind: 'project_variable', id: id(3) },
+    metadata: {
+      variable_id: id(3),
+      version: change === 'create' ? '1' : '2',
+      changed_fields: [change === 'create' ? 'created' : change === 'delete' ? 'deleted' : 'value'],
+    },
+  })
+  it.each(['create', 'update', 'delete'] as const)(
+    'accepts the exact %s record in list and detail',
+    async (change) => {
+      const record = variableRow(change),
+        fetch = vi.fn<Fetch>(async (path) =>
+          json(path.endsWith('/audit') ? page([record]) : record),
+        )
+      const api = createProjectAuditAPI(fetch)
+      expect((await api.list(project, {}, signal())).items[0]?.metadata).toEqual(record.metadata)
+      expect((await api.get(project, id(10), signal())).action).toBe(record.action)
+    },
+  )
+  it.each([
+    { resource: { kind: 'project', id: project } },
+    { resource: { kind: 'project_variable', id: id(44) } },
+    {
+      actor: {
+        kind: 'service',
+        service: 'project-lifecycle',
+        cause_ref: id(8),
+        project_id: project,
+      },
+    },
+    { outcome: 'denied' },
+    { associations: { request_id: id(9) } },
+    { metadata: { variable_id: id(3), version: '1', changed_fields: ['value'] } },
+    {
+      metadata: {
+        variable_id: id(3),
+        version: '2',
+        changed_fields: ['value'],
+        value: 'must-not-be-published',
+      },
+    },
+  ])(
+    'refuses an invalid variable record without publishing an earlier valid page item',
+    async (change) => {
+      const bad = { ...variableRow('update'), ...change }
+      const api = createProjectAuditAPI(async () => json(page([row(11), bad])))
+      await expect(api.list(project, {}, signal())).rejects.toMatchObject({
+        kind: 'invalid-response',
+      })
+    },
+  )
 })

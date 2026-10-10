@@ -137,9 +137,9 @@ describe('System Audit two fixed GET operations', () => {
       await pending
     }
   })
-  it('keeps the 53 action and 25 resource Filter domains, including project-only empty observations', async () => {
-    expect(auditFilterActions.length).toBe(53)
-    expect(auditFilterResourceKinds.length).toBe(25)
+  it('keeps the 56 action and 26 resource Filter domains, including project-only empty observations', async () => {
+    expect(auditFilterActions.length).toBe(56)
+    expect(auditFilterResourceKinds.length).toBe(26)
     const formalActions = [
       'secret.create',
       'secret.update',
@@ -194,6 +194,9 @@ describe('System Audit two fixed GET operations', () => {
       'model.delete',
       'model.selection.update',
       'knowledge.delete_subtree',
+      'project.secret_variable.create',
+      'project.secret_variable.update',
+      'project.secret_variable.delete',
     ]
     const formalResources = [
       'secret',
@@ -221,6 +224,7 @@ describe('System Audit two fixed GET operations', () => {
       'model_config',
       'model_selection',
       'knowledge_document',
+      'project_variable',
     ]
     expect(
       [...auditFilterActions].sort().join('|') === formalActions.sort().join('|') &&

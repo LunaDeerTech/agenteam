@@ -378,6 +378,15 @@ func DecodeMetadata(action Action, raw []byte) (Metadata, error) {
 	if len(raw) > 4096 {
 		return Metadata{}, invalid("metadata")
 	}
+	if ProjectSecretVariableAction(action) {
+		return decodeProjectSecretVariableMetadata(action, raw)
+	}
+	if ProjectVariableAction(action) {
+		return decodeProjectVariableMetadata(action, raw)
+	}
+	if RunnerAction(action) {
+		return decodeRunnerMetadata(action, raw)
+	}
 	if AccountAction(action) {
 		return decodeAccountMetadata(action, raw)
 	}

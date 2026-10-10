@@ -1,0 +1,1120 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Knowledge Human Owner tree commands",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/knowledge/documents/{document_id}/rename": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "knowledgeTreeRename",
+        "description": "One original 2s budget from before Account checks through SQL/Rows/Tx, input Close, encoding, native write/flush and cancellation callback join. Strict complete JSON <=16 KiB; no queries, duplicate keys, lone surrogates or Content-Encoding. No root registration or automatic replay.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After browser/current Human authentication, unsupported method.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Complete validated safe result, at most 5 MiB. Does not grant current object access.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RenameResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/{document_id}/move": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "knowledgeTreeMove",
+        "description": "One original 2s budget from before Account checks through SQL/Rows/Tx, input Close, encoding, native write/flush and cancellation callback join. Strict complete JSON <=16 KiB; no queries, duplicate keys, lone surrogates or Content-Encoding. No root registration or automatic replay.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After browser/current Human authentication, unsupported method.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Complete validated safe result, at most 5 MiB. Does not grant current object access.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoveResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/{document_id}/delete-preview": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "knowledgeTreePreview",
+        "description": "One original 2s budget from before Account checks through SQL/Rows/Tx, input Close, encoding, native write/flush and cancellation callback join. Strict complete JSON <=16 KiB; no queries, duplicate keys, lone surrogates or Content-Encoding. No root registration or automatic replay. Idempotency-Key is forbidden. Read gate only; signed confirmation material appears only in this authorized Human response.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After browser/current Human authentication, unsupported method.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Complete validated safe result, at most 5 MiB. Does not grant current object access.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreviewResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/{document_id}/delete-subtree": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "knowledgeTreeDelete",
+        "description": "One original 2s budget from before Account checks through SQL/Rows/Tx, input Close, encoding, native write/flush and cancellation callback join. Strict complete JSON <=16 KiB; no queries, duplicate keys, lone surrogates or Content-Encoding. No root registration or automatic replay.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After browser/current Human authentication, unsupported method.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Complete validated safe result, at most 5 MiB. Does not grant current object access.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "knowledgeTreeLookup",
+        "description": "One original 2s budget from before Account checks through SQL/Rows/Tx, input Close, encoding, native write/flush and cancellation callback join. Strict complete JSON <=16 KiB; no queries, duplicate keys, lone surrogates or Content-Encoding. No root registration or automatic replay. Digest is recomputed from the current Human User and complete original command request; RequestID/Session are not business identity.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LookupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After browser/current Human authentication, unsupported method.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Complete validated safe result, at most 5 MiB. Does not grant current object access.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LookupResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Title": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512,
+        "not": {
+          "pattern": "[\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]"
+        }
+      },
+      "ConfirmationToken": {
+        "type": "string",
+        "minLength": 5,
+        "maxLength": 8192,
+        "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+        "not": {
+          "pattern": "\\s"
+        },
+        "description": "Opaque original confirmation material. Signature/current scope and replay order are owned by Knowledge Service."
+      },
+      "Creator": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "user_id"
+            ],
+            "properties": {
+              "kind": {
+                "const": "human"
+              },
+              "user_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "project_id",
+              "agent_id",
+              "execution_id"
+            ],
+            "properties": {
+              "kind": {
+                "const": "agent_run"
+              },
+              "project_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "agent_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "execution_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            }
+          }
+        ]
+      },
+      "Document": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "parent_document_id",
+          "title",
+          "content_version",
+          "source_kind",
+          "media_type",
+          "status",
+          "indexing_status",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "parent_document_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "content_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "source_kind": {
+            "enum": [
+              "text",
+              "file"
+            ]
+          },
+          "media_type": {
+            "enum": [
+              "text/markdown",
+              "text/plain",
+              "application/pdf",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ]
+          },
+          "status": {
+            "const": "active"
+          },
+          "indexing_status": {
+            "enum": [
+              "pending",
+              "processing",
+              "ready",
+              "failed"
+            ]
+          },
+          "created_by": {
+            "$ref": "#/components/schemas/Creator"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "source_kind": {
+                  "const": "text"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "media_type": {
+                  "enum": [
+                    "text/markdown",
+                    "text/plain"
+                  ]
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "media_type": {
+                  "enum": [
+                    "application/pdf",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "RenameRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "title"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          }
+        }
+      },
+      "MoveRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_parent_id",
+          "target_parent_id"
+        ],
+        "properties": {
+          "expected_parent_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "target_parent_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "PreviewRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {}
+      },
+      "DeleteRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "confirmation_token"
+        ],
+        "properties": {
+          "confirmation_token": {
+            "$ref": "#/components/schemas/ConfirmationToken"
+          }
+        }
+      },
+      "LookupRequest": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "document_id",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "const": "update"
+              },
+              "document_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "request": {
+                "$ref": "#/components/schemas/RenameRequest"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "document_id",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "const": "move"
+              },
+              "document_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "request": {
+                "$ref": "#/components/schemas/MoveRequest"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "document_id",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "const": "delete-subtree"
+              },
+              "document_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "request": {
+                "$ref": "#/components/schemas/DeleteRequest"
+              }
+            }
+          }
+        ]
+      },
+      "RenameResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document"
+        ],
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          }
+        }
+      },
+      "MoveResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document",
+          "changed"
+        ],
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          },
+          "changed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PreviewResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "root_id",
+          "nodes",
+          "scope_digest",
+          "confirmation_token",
+          "expires_at"
+        ],
+        "properties": {
+          "root_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "nodes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            }
+          },
+          "scope_digest": {
+            "$ref": "./common.json#/components/schemas/Digest"
+          },
+          "confirmation_token": {
+            "$ref": "#/components/schemas/ConfirmationToken"
+          },
+          "expires_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        }
+      },
+      "DeleteResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "root_id",
+          "deleted_ids",
+          "cleanup_pending"
+        ],
+        "properties": {
+          "root_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "deleted_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          "cleanup_pending": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DocumentReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command",
+          "document",
+          "changed"
+        ],
+        "properties": {
+          "command": {
+            "enum": [
+              "update",
+              "move"
+            ]
+          },
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          },
+          "changed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DeleteReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command",
+          "root_id",
+          "changed",
+          "deleted_ids",
+          "cleanup_pending"
+        ],
+        "properties": {
+          "command": {
+            "const": "delete-subtree"
+          },
+          "root_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "changed": {
+            "const": true
+          },
+          "deleted_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          "cleanup_pending": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LookupResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "receipt"
+            ],
+            "properties": {
+              "state": {
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              },
+              "receipt": {
+                "type": "null"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "receipt"
+            ],
+            "properties": {
+              "state": {
+                "const": "committed"
+              },
+              "receipt": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/DocumentReceipt"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DeleteReceipt"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "parameters": {
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "$ref": "./common.json#/components/schemas/IdempotencyKey"
+        },
+        "description": "Exactly one original business key; no trimming, automatic generation or replay."
+      },
+      "CSRF": {
+        "name": "X-CSRF-Token",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Original safe Account Problem and CommitState; no internal material. Expired or failed native I/O aborts the connection.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account Session; configured loopback HTTP uses agenteam_local_session. No caller Actor or bearer bypass."
+      }
+    }
+  }
+}

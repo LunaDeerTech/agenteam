@@ -285,7 +285,8 @@ func (a *Authority) ValidateAppendInTx(ctx context.Context, tx foundation.Tx, ac
 }
 
 // Discover/ValidateInTx bind typed Project appends and explicitly configured
-// lifecycle facts, plus the Model-only Project gate. Other delivery remains unbound.
+// lifecycle facts, plus the Model, Work, ProjectVariable and Knowledge gates.
+// Other delivery remains unbound; each producer proves its own facts.
 func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc.Dependencies, error) {
 	if a.state() == nil {
 		return oc.Dependencies{}, fault(foundation.DependencyUnbound)
@@ -306,6 +307,12 @@ func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc
 	}
 	if d.Kind == oc.AppendProject && d.Event.Producer == "work" {
 		return a.discoverWorkEvent(request)
+	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "projectvariable" {
+		return a.discoverProjectVariableEvent(request)
+	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "knowledge" {
+		return a.discoverKnowledgeEvent(request)
 	}
 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
 		return oc.Dependencies{}, fault(foundation.DependencyUnbound)
@@ -340,6 +347,12 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx foundation.Tx, request 
 	}
 	if d.Kind == oc.AppendProject && d.Event.Producer == "work" {
 		return a.validateWorkEventInTx(ctx, tx, request, deps)
+	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "projectvariable" {
+		return a.validateProjectVariableEventInTx(ctx, tx, request, deps)
+	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "knowledge" {
+		return a.validateKnowledgeEventInTx(ctx, tx, request, deps)
 	}
 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
 		return fault(foundation.DependencyUnbound)

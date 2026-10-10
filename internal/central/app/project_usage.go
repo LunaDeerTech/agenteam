@@ -9,6 +9,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
+	"github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"github.com/LunaDeerTech/agenteam/internal/central/usage"
 	usagehttp "github.com/LunaDeerTech/agenteam/internal/central/usage/http"
@@ -17,8 +18,9 @@ import (
 // The sole Project authority owns reads, commands and the real Secret Audit
 // gate. Its initializer, Runtime facts and lifecycle owner remain unbound.
 type projectUsageAssembly struct {
-	projects *project.Authority
-	reader   *usage.Service
+	projects  *project.Authority
+	reader    *usage.Service
+	variables *projectvariable.Authority
 }
 
 func createProjectUsage(cfg config.Config, db database, accounts *account.Authority) (*projectUsageAssembly, error) {
@@ -38,7 +40,11 @@ func createProjectUsage(cfg config.Config, db database, accounts *account.Author
 	if err != nil {
 		return nil, err
 	}
-	projects, err := project.NewAuthority(projectsStore, project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.SecretProducer: secretFacts}})
+	variableFacts, err := createProjectVariableAuthority(db)
+	if err != nil {
+		return nil, err
+	}
+	projects, err := project.NewAuthority(projectsStore, project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts}})
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +56,7 @@ func createProjectUsage(cfg config.Config, db database, accounts *account.Author
 	if err != nil {
 		return nil, err
 	}
-	return &projectUsageAssembly{projects: projects, reader: reader}, nil
+	return &projectUsageAssembly{projects: projects, reader: reader, variables: variableFacts}, nil
 }
 
 func (a *projectUsageAssembly) handler(core *account.Service, origin string) (http.Handler, error) {

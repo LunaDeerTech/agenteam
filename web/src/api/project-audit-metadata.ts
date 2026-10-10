@@ -321,6 +321,36 @@ const parsers = {
     ] as const),
   }),
   'model.delete': modelDelete,
+  'project.variable.create': record({
+    variable_id: auditID,
+    version,
+    changed_fields: exactFields(['created'] as const),
+  }),
+  'project.variable.update': record({
+    variable_id: auditID,
+    version,
+    changed_fields: fields(['description', 'name', 'value'] as const),
+  }),
+  'project.variable.delete': record({
+    variable_id: auditID,
+    version,
+    changed_fields: exactFields(['deleted'] as const),
+  }),
+  'project.secret_variable.create': record({
+    variable_id: auditID,
+    version,
+    changed_fields: exactFields(['created'] as const),
+  }),
+  'project.secret_variable.update': record({
+    variable_id: auditID,
+    version,
+    changed_fields: fields(['description', 'name', 'value'] as const),
+  }),
+  'project.secret_variable.delete': record({
+    variable_id: auditID,
+    version,
+    changed_fields: exactFields(['deleted'] as const),
+  }),
   'knowledge.delete_subtree': record({
     project_id: auditID,
     root_id: auditID,
@@ -381,6 +411,7 @@ export const projectAuditResourceKinds = [
   'model_provider',
   'model_config',
   'knowledge_document',
+  'project_variable',
 ] as const
 export type ProjectAuditResource =
   | Readonly<{ kind: 'outbound_policy' }>
@@ -470,6 +501,28 @@ export function validateProjectAuditRelations(
   const same = (kind: string, id?: string) =>
     resource.kind === kind && ('id' in resource ? resource.id : undefined) === id
   const { action, metadata } = entry
+  if (
+    entry.action === 'project.variable.create' ||
+    entry.action === 'project.variable.update' ||
+    entry.action === 'project.variable.delete' ||
+    entry.action === 'project.secret_variable.create' ||
+    entry.action === 'project.secret_variable.update' ||
+    entry.action === 'project.secret_variable.delete'
+  ) {
+    requireAudit(
+      actor.kind === 'human' &&
+        outcome === 'success' &&
+        Object.keys(links).length === 0 &&
+        same('project_variable', entry.metadata.variable_id),
+    )
+    requireAudit(
+      entry.action === 'project.variable.create' ||
+        entry.action === 'project.secret_variable.create'
+        ? entry.metadata.version === '1'
+        : BigInt(entry.metadata.version) >= 2n,
+    )
+    return
+  }
   if (action.startsWith('project.')) {
     const m = metadata as ProjectAuditMetadataByAction['project.update'] &
       Partial<{ creation_id: string; operation_id: string }>
@@ -596,6 +649,7 @@ export function validateProjectAuditRelations(
 }
 
 const metadataLabels = {
+  variable_id: '变量 ID',
   project_id: '项目 ID',
   creation_id: '创建 ID',
   creation_version: '创建版本',

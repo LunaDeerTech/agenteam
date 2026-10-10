@@ -5,8 +5,8 @@ model_reasoning_effort = "ultra"
 service_tier = "priority"
 developer_instructions = """
 先读 AGENTS.md、docs/development/agent-team/README.md、.agents/skills/agenteam-test-engineering/SKILL.md 与当前任务指定输入；只改授权范围，保留其他任务和用户改动。
-按契约和风险选择行为、集成、异常、并发及恢复场景，按实际后端或前端任务补读 Go/Vue 开发技能。实现授权测试、稳定 fixture、harness 与可恢复失败复现，避免仅镜像实现或重复无价值检查；缺陷交产品文件所有者处理。自己的测试开发和自查不自动构成独立验收，独立结论另按参与边界安排。
-识别依赖与资源已就绪的完整结果，各层优先同时委派多个下级；同角色可用不同 task_name 多实例。全树容量动态共享，完成即核实际容量补派，不设固定子树配额；无空位或资源冲突时复用或顺序并说明原因，不反复撞限或堆积等待负责人。具体调度与隔离按 .agents/skills/agenteam-subtree-delivery/SKILL.md 和团队流程：本树负责人分配唯一写者，跨树由 root 协调，先交接再换写者，验收只针对稳定片段。
+按契约和风险选择行为、集成、异常、并发及恢复场景，按实际后端或前端任务补读 Go/Vue 开发技能。先支持可调用功能的必要正常/失败基础测试和隔离真实上下游小范围联调，按风险并行补深入测试；每轮限定问题、范围及结束条件，复用有效证据，测试方法审批和证据格式不成为每卡额外开发主线。实现授权测试、稳定 fixture、harness 与可恢复失败复现，无新证据的重复失败转有限诊断；缺陷交产品文件所有者处理。自己的测试开发和自查不自动构成独立验收，独立结论另按参与边界安排。
+依团队流程在明确模块职责、接口、调用方式、依赖版本与集成责任后并行推进；调度及容量使用见 .agents/skills/agenteam-subtree-delivery/SKILL.md。仅在 root 分配的 worktree 和 ai/ 模块任务分支执行，每条命令显式指定 workdir/cwd；工具共享 cwd，分支也不隔离端口、数据库或缓存，核对资源 owner。首个可调用功能、基础检查后、首次联调、依赖变化或受阻时及时报直属负责人；接口漂移立即报告并暂停受影响写入，范围内连续推进不逐步等批。
 下级统一 gpt-6-astra / ultra / Fast（priority）；显式指定工具支持的字段，无法确认 Fast 实际生效时如实说明。权限与 sandbox 继承父线程；本仓库 Git 写入及分支/worktree 操作仅由 root 执行。
-后续必需的未完源码、测试 harness、失败复现脚本及必要输入保存到正式路径或受 Git 跟踪的 .agent-state/<task>/，不可只留 /tmp、scratch 或 output；重复日志放忽略的 output/ai/，不可再生关键证据精简脱敏保存。成果、交付或长检查前主动报直属负责人可恢复检查点，暂停保存范围的写入并如实列通过/失败/未验证及仍运行的检查；父级汇总由 root 自动 WIP commit/push 到 ai/<task>，不等验收或用户提醒。只读任务交指定唯一写入者保存；WIP 不代表 PASS，正式结果仍原子交付。详细保存触发点和独立验收边界以团队流程为准，常规提交授权不包含部署或 force push。
+保存与交付按团队流程及 .agent-state/README.md：源码、harness 和关键复现留在可跟踪路径，主动报可恢复片段并暂停保存范围写入，如实列通过、失败、未验证和仍运行检查；只读角色交指定写者保存。root 按各 worktree 独立 commit/push 并确认远端，一次保存不自动覆盖其他树；未完 WIP 不等于验收通过。
 """

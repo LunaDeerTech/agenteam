@@ -5,11 +5,13 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
 	"io"
 	"net"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -21,6 +23,8 @@ import (
 	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	runneridentity "github.com/LunaDeerTech/agenteam/internal/runner/identity"
+	runnerprotocol "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
 )
 
 var binaries map[string]string
@@ -214,19 +218,100 @@ func assertLogRecords(t *testing.T, output, service string) {
 func TestRunnerRealSIGTERMAndSIGINT(t *testing.T) {
 	for _, signal := range []os.Signal{syscall.SIGTERM, syscall.SIGINT} {
 		t.Run(signal.String(), func(t *testing.T) {
-			p := launch(t, "agenteam-runner", nil, nil)
-			p.event(t, "phase", "unconnected")
-			assertNoSockets(t, p.command.Process.Pid)
+			requestEntered, handlerReturned := make(chan struct{}), make(chan struct{})
+			var once sync.Once
+			server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" || r.URL.Path != "/api/v1/runner/challenge" {
+					http.Error(w, "rejected", http.StatusBadRequest)
+					return
+				}
+				raw, err := io.ReadAll(io.LimitReader(r.Body, runnerprotocol.MaxDeviceBodyBytes+1))
+				r.Body.Close()
+				if _, decodeErr := runnerprotocol.DecodeChallengeRequest(raw); err != nil || decodeErr != nil {
+					http.Error(w, "rejected", http.StatusBadRequest)
+					return
+				}
+				once.Do(func() { close(requestEntered) })
+				<-r.Context().Done()
+				close(handlerReturned)
+			}))
+			t.Cleanup(server.Close)
+			ca := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: server.Certificate().Raw})
+			p := launch(t, "agenteam-runner", nil, runnerProcessEnvironment(t, server.URL, ca))
+			p.event(t, "state", "connecting")
+			select {
+			case <-requestEntered:
+			case <-time.After(5 * time.Second):
+				t.Fatal("Runner never entered its actual TLS challenge")
+			}
 			if err := p.command.Process.Signal(signal); err != nil {
 				t.Fatal(err)
 			}
 			p.wait(t, 0)
+			select {
+			case <-handlerReturned:
+			case <-time.After(5 * time.Second):
+				t.Fatal("Runner native request did not actually retire")
+			}
 			if !strings.Contains(p.stderr.String(), `"outcome":"drained"`) || p.stdout.Len() != 0 {
 				t.Fatal("clean Runner stop did not finish")
 			}
 			assertLogRecords(t, p.stderr.String(), "runner")
 		})
 	}
+}
+
+// The private file is a process stimulus, not proof of a Central enrollment.
+// Normal authentication and same-key recovery are verified by runnercontrol's
+// real Central integration matrix, while this fixture owns only process exit.
+func runnerProcessEnvironment(t *testing.T, origin string, ca []byte) []string {
+	t.Helper()
+	directory, err := os.MkdirTemp(".", ".runner-process-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	directory, err = filepath.Abs(directory)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.RemoveAll(directory); err != nil {
+			t.Error(err)
+		}
+	})
+	path := filepath.Join(directory, "identity.json")
+	id, err := runnerprotocol.NewID()
+	if err != nil {
+		t.Fatal(err)
+	}
+	v, err := runneridentity.NewPending(runneridentity.Configuration{CentralURL: origin, RunnerID: id, RootPath: "/runner/work"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	v, err = v.AsActive()
+	if err != nil {
+		t.Fatal(err)
+	}
+	owner, err := runneridentity.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = owner.Save(v); err != nil {
+		owner.Close()
+		t.Fatal(err)
+	}
+	if err = owner.Close(); err != nil {
+		t.Fatal(err)
+	}
+	env := []string{"AGENTEAM_RUNNER_IDENTITY_FILE=" + path}
+	if ca != nil {
+		file := filepath.Join(directory, "root.pem")
+		if err = os.WriteFile(file, ca, 0600); err != nil {
+			t.Fatal(err)
+		}
+		env = append(env, "AGENTEAM_RUNNER_CA_FILE="+file)
+	}
+	return env
 }
 
 func checkDiagnosticBinary(t *testing.T, address string) {
@@ -312,7 +397,7 @@ func TestCLIScopeAndSafeFailures(t *testing.T) {
 				}
 			}
 			var checkedEnvironment []string
-			scope := "d02"
+			scope := "d15"
 			if service == "central" {
 				scope = "d05"
 				checkedEnvironment = []string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_DATABASE_URL=postgresql://config:config-only@127.0.0.1:1/config_only", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"}
@@ -320,6 +405,8 @@ func TestCLIScopeAndSafeFailures(t *testing.T) {
 			if service == "central" {
 				checkedEnvironment = append(checkedEnvironment, objectfixture.ConfigOnlyEnvironment()...)
 				checkedEnvironment = append(checkedEnvironment, accountEnvironment(t, "config")...)
+			} else {
+				checkedEnvironment = runnerProcessEnvironment(t, "https://runner.invalid", nil)
 			}
 			p := launch(t, name, []string{"--check-config"}, checkedEnvironment)
 			p.wait(t, 0)

@@ -2,7 +2,7 @@
 
 根 module 为 `github.com/LunaDeerTech/agenteam`，固定 Go 1.27.1。Central 已装配固定 pgx/Goose 数据库库，见[数据库说明](database.md)。Audit 的同事务追加、授权查询/生命周期清理端口与独立签名 cursor 已实现，见[Audit 说明](audit.md)。Secret 的 envelope、引用/lease、加密 receipt 和可恢复主密钥维护见 [Secret 说明](secret.md)。动态策略、受控 HTTP 与 SMTP 拨号端口见[出站说明](outbound.md)。D05 对象库提供受限流式存储、授权 reference/lease、Artifact/下载和 typed Runner transfer，接口与阶段见[对象实施规格](../work-items/d05-object-storage-design.md)。Central 与 Runner 分别装配；Runner 不导入 Central。中立 `internal/platform` 只处理进程日志和关闭协调，不提供授权、业务幂等、数据库事务或 Runner 设备协议。
 
-Central 已在真实数据库、安全初始化、Object/Outbox 注册恢复及 Account/Mail 启动后提供诊断、正式账户 HTTP、System Model 配置 HTTP、Project Owner 元数据读取与更新、Model 配置与安全 chat 目录读取、Project Owner 模型凭据管理、Provider/Model 配置写入与原命令查证，以及 Project Owner Usage 与 Audit 只读 HTTP。默认根已绑定 System Provider/Model CRUD、平台 selector、Model credential 独立写入及 Model 配置和 credential 两类原命令查证，使用真实 Account Session/admin、同一 Secret/Audit/Outbox；接口见 [System Model OpenAPI](../../../api/openapi/model-system.json)，装配边界见[根装配规格](../work-items/recovery-d09-system-model-root.md)。当前 Session/System 授权已接入 Audit、Secret、出站与 Outbox；Object 绑定本人当前头像，SMTP 使用受控出站和真实 Secret lease，Outbox 唯一生产 handler 仍为 `account.mail-enqueue`，没有 Model consumer。对象 Runtime 实际核 store identity、双 origin probe、ProcessGuard 与恢复门禁，见[对象 Runtime 说明](object-runtime.md)；已证实的 [Object runtime join 缺陷](../agent-team/object-runtime-join-regression.md)尚未修复，本次 System Model 根装配不解除该限制。Artifact/通用下载 HTTP、Project 创建与生命周期、Runner/Operation、Model Resolver/Invocation Facts 写入和实际 Provider/MCP 调用仍未绑定。系统管理员统一选择 Meeting Summary 模型的 S1 持久化库、S2 设置 HTTP 与默认根初始化、S3 解析库已实现，默认根 Resolution 与实际 Meeting 消费仍未绑定，详见下文；完整 D09 未完成。Runner 是未连接进程，整体 `ready=false`、`/readyz` 仍为 503。账户接口见 [OpenAPI](../../../api/openapi/account.json)，Artifact 与浏览器下载库边界见 [Artifact 说明](artifact.md)。
+Central 已在真实数据库、安全初始化、Object/Outbox 注册恢复及 Account/Mail 启动后提供诊断、正式账户 HTTP、System Model 配置 HTTP、Project Owner 元数据读取与更新、Model 配置与安全 chat 目录读取、Project Owner 模型凭据管理、Provider/Model 配置写入与原命令查证，以及 Project Owner Usage 与 Audit 只读 HTTP。默认根已绑定 System Provider/Model CRUD、平台 selector、Model credential 独立写入及 Model 配置和 credential 两类原命令查证，使用真实 Account Session/admin、同一 Secret/Audit/Outbox；接口见 [System Model OpenAPI](../../../api/openapi/model-system.json)，装配边界见[根装配规格](../work-items/recovery-d09-system-model-root.md)。当前 Session/System 授权已接入 Audit、Secret、出站与 Outbox；Object 绑定本人当前头像，SMTP 使用受控出站和真实 Secret lease，Outbox 唯一生产 handler 仍为 `account.mail-enqueue`，没有 Model consumer。对象 Runtime 实际核 store identity、双 origin probe、ProcessGuard 与恢复门禁，见[对象 Runtime 说明](object-runtime.md)；已证实的 [Object runtime join 缺陷](../agent-team/object-runtime-join-regression.md)尚未修复，本次 System Model 根装配不解除该限制。Artifact/通用下载 HTTP、Project 创建与生命周期、Runner Operation、Model Resolver/Invocation Facts 写入和实际 Provider/MCP 调用仍未绑定。系统管理员统一选择 Meeting Summary 模型的 S1 持久化库、S2 设置 HTTP 与默认根初始化、S3 解析库已实现，默认根 Resolution 与实际 Meeting 消费仍未绑定，详见下文；完整 D09 未完成。[Runner D15](runner.md) 的迁移00026与Linux/amd64身份/control空registry已完成限定实现和验收：作者业务、独立风险七子、正式OS三格、main组合默认双cmd及CLI/真实TLS信号回归均有相应完整结果；历史失败分列见D15卡，不冒当前HEAD一次全量通过。macOS/其他架构与生产operation仍未验收或绑定。整体 `ready=false`、`/readyz` 仍为 503。账户接口见 [OpenAPI](../../../api/openapi/account.json)，Artifact 与浏览器下载库边界见 [Artifact 说明](artifact.md)。
 
 System Model 管理读口已实现并通过[独立验收](../agent-team/system-model-management-reads-verification.md)：GET/HEAD `/api/v1/system/model-credentials/{id}` 只返回当前安全 metadata（credential ID、purpose、version）；GET/HEAD `/api/v1/system/models/{id}/deletion-impact` 返回有界精确引用统计、替换要求和已知 adapter 阻断。两类读取各自拥有完整锁 union 的读取事务，在同一 Tx 内重验当前 Session/admin 后读取；最长 3 秒预算包含 HTTP 认证、锁等待和 SQL，并继承更早的调用方取消。仅确认 Committed 且 context 仍有效才返回结果，失败、Unknown 或取消不返回候选数据，也不自动重读。预览不授予删除权限，后续 DeleteModel 仍重验当前引用与替换事实；外域引用 adapter 仍未绑定。精确接口与边界见[管理读口规格](../work-items/recovery-d09-system-model-management-reads.md)。
 
@@ -85,7 +85,7 @@ AGENTEAM_MINIO_BINARY=/task-owned/cache/minio GOFLAGS=-p=1 sh scripts/test-accou
 
 `test-accounts.sh` 的固定组为 `mutations`、`identity`、`mail`、`profile`、`avatar`、`avatar-recovery`、`http`、`app`、`library`；前八组沿原 `test-objects.sh` 的精确选择，`library` 完整执行 `internal/central/account/...`。真实 fixture 保留 `-race -count=1 -timeout=6m` 和包级 `-p=1`，内部并发断言不变。完整兼容采用旧域完整包覆盖、运行前固定的 Account 穷尽分组及普通 `check-go.sh`，不把增长后的 Account 累计执行硬塞进一个 6m 包预算。D07 已采纳结果是明确输入上的分组、受影响补验和未变证据复用；原失败及限制见[D07 当前进度](../work-items/d07-account-session-smtp.md#当前进度)，不称一次整套全绿。临时验收 wrapper/overlay 不是生产接口或上述脚本的默认行为。
 
-`tests/process` 在临时目录构建真实 cmd，普通测试检查纯 CLI、配置拒绝、Runner SIGINT/SIGTERM 和依赖方向；Linux 下检查未连接 Runner 没有 socket descriptor。实际 Central 成功启动、迁移/对象初始化失败、监听冲突、启动信号、数据库/存储故障恢复与健康超时放在 integration suite；所有成功启动均使用真实 MinIO，不跳过对象阶段。Central app 普通测试覆盖装配顺序和时钟边界；integration 中的测试进程调用真实 Store/Migrator，通过真实 HTTP+Tx、Secret worker 与受控出站验证正常 drain、阻塞查询、第二信号和不合作 callback 的有限退出。测试专属 route/barrier 不进入生产入口。并发顺序用 channel、数据库锁和观测事实协调；测试不读取外部 `.env`、凭据或已有服务，本机监听用 loopback port 0，出站成功路径使用 owned internal Docker 私网与精确规则。
+`tests/process` 在临时目录构建真实 cmd，普通测试覆盖纯 CLI、配置拒绝和依赖方向；Runner SIGINT/SIGTERM已改为D15私有身份及受控TLS请求中的真实退出测试，并在交付候选实际通过原请求取消/handler退役、两cmd CLI/config与依赖方向的精确组合，原child/stdio/private/desc/TCP及输入尾齐。默认双cmd根链另取得七资源完整结果；Linux正式OS三格单独验证blocking stdin下EOF、第二信号与原截止，强退不冒Read joined。实际 Central 成功启动、迁移/对象初始化失败、监听冲突、启动信号、数据库/存储故障恢复与健康超时放在 integration suite；所有成功启动均使用真实 MinIO，不跳过对象阶段。Central app 普通测试覆盖装配顺序和时钟边界；integration 中的测试进程调用真实 Store/Migrator，通过真实 HTTP+Tx、Secret worker 与受控出站验证正常 drain、阻塞查询、第二信号和不合作 callback 的有限退出。测试专属 route/barrier 不进入生产入口。并发顺序用 channel、数据库锁和观测事实协调；测试不读取外部 `.env`、凭据或已有服务，本机监听用 loopback port 0，出站成功路径使用 owned internal Docker 私网与精确规则。
 
 前端依赖和检查仍独立；本次 Go 工程变动无需无条件执行前端全量检查。
 
@@ -107,7 +107,7 @@ AGENTEAM_MINIO_BINARY=/task-owned/cache/minio GOFLAGS=-p=1 sh scripts/test-accou
 
 Central 还必须配置 `AGENTEAM_CENTRAL_DATABASE_URL`；TLS 默认 verify-full，显式 CA 文件会在配置检查时读取验证，其余数据库参数及范围见[数据库配置表](database.md#版本与配置)。连接、迁移 guard、全部迁移和首次 Check 共用 `DATABASE_STARTUP_TIMEOUT`，随后在独立且共享的 30s 安全初始化预算内构造真实账户依赖并打开受限 Sink，验证 Account key registry、cursor/Audit、Secret registry/canary/write fence。仅在 Secret 初始化成功且原 ctx 仍有效后，才用同一 ctx/deadline 依次调用同一 Model Service 的 `Initialize`、`InitializeMeetingSummarySelection` 和 Usage Service 的 `Initialize`，三步在 Secret maintenance 及后续业务启动、监听之前完成，不另起预算。Usage 只检查已有表结构，不建表、填默认行或启动 worker；Model 的原 `Initialize` 首次只建立未配置的四用途技术 selector，随后根显式初始化独立的 Summary 技术行。Summary 未配置不阻塞启动；重启保留已有 ID/version/model 和命令历史，不补默认模型。随后验证 DB 出站策略、对象 bucket/双 origin 实际写读删 probe、ProcessGuard 与恢复门禁、Outbox 唯一 handler 注册/恢复，再完成 Account bootstrap/账户及头像恢复、Mail canonical/恢复与技术 Check，最后 HTTP bind。后续步骤不能重置前序消耗的预算；Model 或 Summary 初始化失败或 Unknown、Usage 结构检查失败均不放行监听，SMTP 是否配置或远端可达不作为启动探测。两个阶段都受启动停止信号取消。配置缺失退出 2，连接、版本、迁移、受限日志打开或安全初始化失败退出 1。
 
-两个二进制接受 `--help`、`--version`、`--check-config`，无参数启动进程。未知参数和多余位置参数返回 2，不回显输入。help/version 不加载配置或启动服务；Central check-config 验证当前配置，包括四用途独立 keyring、Account 恢复日志路径、安全 PublicOrigin、必需存储坐标/凭据、spool 路径和显式 CA，不连接、创建目录或打开恢复日志。当前输出仍为 `scope=d05, valid=true, ready=false`，help/version 也保留 D05 标识，这不表示配置只到 D05；Runner 保持 `scope=d02`，另有 `connected=false, authenticated=false`。check-config 不证明日志权限、bootstrap、canary/策略或任一 Runtime 已初始化。出站策略由 DB 管理，不接受环境规则绕过；RunnerLocalConfig 仍未实现。
+两个二进制接受 `--help`、`--version`、`--check-config`，无参数启动进程。未知参数和多余位置参数返回 2，不回显输入。help/version 不加载配置或启动服务；Central check-config 验证当前配置，包括四用途独立 keyring、Account 恢复日志路径、安全 PublicOrigin、必需存储坐标/凭据、spool 路径和显式 CA，不连接、创建目录或打开恢复日志。当前输出仍为 `scope=d05, valid=true, ready=false`，help/version 也保留 D05 标识，这不表示配置只到 D05；Runner 改为D15私有身份离线检查，输出 `scope=d15` 与 `connected=false, authenticated=false, ready=false`；参数与登记恢复见[Runner说明](runner.md)。check-config 不证明日志权限、bootstrap、canary/策略或任一 Runtime 已初始化。出站策略由 DB 管理，不接受环境规则绕过；Runner身份本地配置见[Runner说明](runner.md)，Workspace/Mount/Operation本地配置仍未实现。
 
 Central 另接受成对的 `--repair-migration <version> --expected-checksum <sha256:...>`，只使用已编译迁移和精确指纹，不接受 SQL/文件路径。`022dcea` 已提交正式迁移为 00001–00013，均为仅 Up 的 tx 迁移，不写 Down；修复明确失败为 `MIGRATION_REPAIR_UNSUPPORTED`；不得将 CLI 存在理解为任意版本都可强制修复。使用规则见[迁移与修复](database.md#迁移与修复)。
 
@@ -134,7 +134,7 @@ AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:8080 ./bin/agenteam
 
 System Model 路由使用同一 Account 安全边界，覆盖 `/api/v1/system/` 下 `model-providers`、`models`、`model-selection`、`model-commands`、`model-credentials`、`model-credential-commands` 六个精确路径根及其子路径，详情见 [System Model OpenAPI](../../../api/openapi/model-system.json)。配置写入、credential 写入及两类 lookup 均保持原当前授权、CSRF、幂等和 Unknown 规则；credential 写入与 Provider 绑定是两个独立命令。各 handler 继承原 request context，两条管理读口额外施加上述 3 秒预算，纳入同一 HTTP admission/drain 和 DB 最后关闭协议，不新增 Model runtime、后台调用或重复 middleware；force 有界退出不证明所有 writer 已 join 或回滚。
 
-日志用 `slog.JSONHandler` 写 stderr；stdout 仅输出 CLI 结果。正常日志包含 UTC 时间、level、service、event、随机进程 run_id。HTTP 另有 request_id、method、声明的 route、status、duration、bytes；未匹配路由用 `unknown_route`。数据库日志仅增加白名单阶段/错误码、五位 SQLSTATE 和迁移版本；安全日志仅输出 cursor_initializing/audit_initializing/secret_initializing/secret_maintenance_starting/secret_unavailable/outbound_initializing/object_initializing/object_available/object_unavailable/outbox_initializing/outbox_available/outbox_unavailable/initialized/failed 固定阶段。不记录原始错误、panic/堆栈、SQL/参数、DSN、证书路径、配置、body、query、Authorization、Cookie 或其他任意 header。原始 net/http 错误文本只投影为固定 `HTTP_SERVER_ERROR`。启动在实际 bind 后记录监听地址，Runner 明确 `unconnected`，不尝试连接、注册、认证或监听。
+日志用 `slog.JSONHandler` 写 stderr；stdout 仅输出 CLI 结果。正常日志包含 UTC 时间、level、service、event、随机进程 run_id。HTTP 另有 request_id、method、声明的 route、status、duration、bytes；未匹配路由用 `unknown_route`。数据库日志仅增加白名单阶段/错误码、五位 SQLSTATE 和迁移版本；安全日志仅输出 cursor_initializing/audit_initializing/secret_initializing/secret_maintenance_starting/secret_unavailable/outbound_initializing/object_initializing/object_available/object_unavailable/outbox_initializing/outbox_available/outbox_unavailable/initialized/failed 固定阶段。不记录原始错误、panic/堆栈、SQL/参数、DSN、证书路径、配置、body、query、Authorization、Cookie 或其他任意 header。原始 net/http 错误文本只投影为固定 `HTTP_SERVER_ERROR`。Central 在实际 bind 后记录监听地址。Runner 默认入口读取私有身份并发起 HTTPS challenge 与出站 WSS，`--enroll` 额外消费标准输入的一次登记材料；固定 `runner_connection` 日志只投影 `disconnected/connecting/connected/incompatible`。只有当前认证且 hello 完成的 `connected` 将连接/认证布尔设为 true，`ready` 仍为 false；离线 check-config 不连接或登记。
 
 受限 Account recovery log 是独立敏感渠道，不是上述普通日志：首次管理员密码只尝试写一次；SMTP 未配置时邀请/reset 链接可写入，配置后发送失败不改渠道。不得复制其正文到 stderr、Audit、诊断或报告；部署操作者管理读取、备份与保留权限。文件/目录安全检查、written/unknown 与真实 Close/join 语义见[账号邮件说明](accountmail.md#smtp-与日志)。
 
@@ -146,11 +146,15 @@ System Model 路由使用同一 Account 安全边界，覆盖 `/api/v1/system/` 
 
 此口无写入、不拥有 Commit/Rollback，返回 nil 只在当前 Tx/持锁期间有效，不是 Owner grant、Skills 完成、发布许可、完成回执或 work 已 join 的证明。原 `ValidateInitializationInTx` 成功 gate 与其他写入、生命周期 gate 保持原义；新端口尚无生产 Skills/root 消费，不开放 Project 创建 HTTP，也不解除真实 Skills/初始化 Object 发布及共享 guard 依赖。Meeting Summary 继续由系统管理员统一选择 initial/update（含首轮标题）模型，项目不覆盖或复制默认值；生产 Resolution/Invocations、D24 仍未绑定，Object runtime join、OpenAI tools 独立验收、SPA 并发发布三项停止及 ready503 保持。
 
+## Skills P2 初始化与不可变内容库
+
+[Skills P2](../work-items/d10-skills-initialization.md)交付正式初始化四方法、同 Store 原 Tx 的 revision/canonical/native Audit、同 key 恢复、当前 Owner metadata/包读取和精确 Stop 子能力，以及连续前缀上的00027六表。作者固定版本组合与未参与者风险补集已有限接受；真实 Package Read/Close return、Skill work 与D05 lease 分别计证。Project/Creation/Session部分前置为明确fixture事实，不冒默认root创建链。CleanupAuthority、物理清理、完整 `agent-skills-variables` participant、创建HTTP/root与Agent/Tool/Runner消费仍未绑定；cleanup表与Release闭集形状不表示后段已实现，Runtime停止边界不变。
+
 ## Project 初始化 Audit 授权库
 
 [初始化 Audit 规格](../work-items/d08-project-initialization-audit.md)对应 `project.NewInitializationAuditAuthority(*project.Authority, audit.ProjectFactAuthority)`。包装器仅为原初始化的 `ObjectUploadComplete`、`ObjectUploadFailed`、`ObjectDelete` 增加精确路线：在同 Store 活 Tx、已持 Project EX 下重新读取原 Creation/Project/owner/状态，再将原 context、Tx、Entry、AppendKey 交给事实 provider。CreationID 来自已验证的 Service initiator metadata；ObjectService actor 的 cause 必须是该 Object 操作的 UploadID、AttemptID 或删除摘要，不能混用 CreationID。普通 Authorize、Append、Lookup、Cleanup 保持原 Authority 行为。
 
-构造器只能拒绝缺失依赖，不能凭非 nil 接口证明 provider 已组合真实 Skill 的原初始化 key、精确对象/attempt 映射与同 Store Object 私有 witness checker。该 Skill provider 仍未实现，因此生产 root 未绑定此包装器，Project 创建 HTTP、真实 Skills/Object 初始化链和完整 D08 仍未完成；Object runtime join 停止边界保持。检查不写入、不补锁、不另开事务，也不拥有提交或回滚。
+构造器只能拒绝缺失依赖，不能凭非 nil 接口证明 provider 已组合真实 Skill 的原初始化 key、精确对象/attempt 映射与同 Store Object 私有 witness checker。该 Skill provider 已在上述 P2 有限库中实现并通过真实 Object witness 组合；生产 root 尚未绑定此包装器，Project 创建 HTTP与完整 D08 仍未完成，Object runtime join 停止边界保持。检查不写入、不补锁、不另开事务，也不拥有提交或回滚。
 
 库范围已通过 Project/contract 普通与 race 单测、vet、三组作者真实 PG 测试（42 个子例），以及未参与实现者的源码审查和四项不同输入的真实 PG 补集。独验核对同 Tx 的 owner/状态重新读取、原 context/物理事务与 Unknown Fault 身份保留、已结束 Tx 拒绝；受控 delegate 正例和真实 Object 缺私有 witness 负例分别计证，不代表真实 Skill 发布或实际 COMMIT ACK 丢失验收。
 
@@ -336,7 +340,7 @@ AGENTEAM_MINIO_BINARY=/task-owned/cache/minio \
 | 2 | 参数或配置拒绝 |
 | 1 | 初始化、监听、意外 Serve 错误、drain 超时或第二信号强关 |
 
-Runner 当前没有 RPC、子进程或长连接；第一次信号停止真实未连接进程即可。D15–D17 后续绑定其 Managed Process 和通道关闭顺序。HTTP hijack/WebSocket 不由 Server.Shutdown 自动等待；当前生产没有该连接，后续连接 owner 必须登记自身停止与关闭责任，不将当前 HTTP 测试当作未来长连接或持久恢复验收。
+Runner 默认入口已绑定 D15 Client；第一次信号停止新准入、取消重连与当前会话，并等待原 `Client.Run`、socket/worker 和回调实际返回，最后释放身份文件锁。第二信号或排空超时进入原有额外1秒 Force 尾，未返回的工作不能记为干净退出。Central 的 Runner owner 显式拥有已 hijack 的 WSS，并在 Account/DB 前停止和排空；`http.Server.Shutdown` 或 HTTP active 归零不能代替该 owner 的实际 join。当前 production operation registry 为空；Linux/amd64真实双cmd、Central Crash/Force与Runner OS信号的限定结果已验，D16 Managed Process、D17 Data Channel和其他平台仍待各自验收，详见[Runner说明](runner.md)。
 
 ## D05 B01 对象库
 
@@ -395,6 +399,14 @@ Human 重投先验证当前 Session/Owner 或 SystemAdmin，历史 receipt 也�
 `internal/central/agent/contract` 已实现 [Agent 配置工作项](../work-items/d10-agent-configuration.md)的 C1：17 字段 `AgentCore`、三字段 `AgentRef`、审批策略和配置删除门禁枚举，以及 `WorkReferences` 接口声明。复用现有 Identity、Model 和 Foundation 类型，提供严格 JSON、完整输入大小限制、Unicode 校验、Clone 与直接 fmt/slog 安全投影。`AgentCore` 尚不含 Tool、Mount、SecretVariable 引用，不是完整 AgentConfig；合法 DTO 不证明 Agent 存在、已初始化、可指派或空闲。
 
 六个纯契约文件已通过作者及独立验证，准确依赖的 pure、race、vet 均通过。当前没有 Agent 服务、数据库迁移、PG 验收或生产绑定；`WorkReferences` 只约定同 Store 活 caller Tx、完整锁与当前 Owner 授权责任，没有默认成功实现。F1 真实配置和当前事实能力仍等待 Model 引用校验与替换、默认 Skills、资源目录及引用保护；三类 ID 的低层位置已由 R1 闭合；真实目录 DTO 与窄适配端口仍须由所属模块冻结，不能复制 marker 或向上依赖 Tool contract 来绕过。
+
+## D10 普通 Project Variables Owner 服务与 HTTP
+
+[普通变量工作项](../work-items/d10-project-variables-owner-http.md)已实现并独立接受普通变量服务、迁移 `00024`、HTTP 和默认根接线。接口见 [Project Variables OpenAPI](../../../api/openapi/project-variables.json)：`GET/HEAD /api/v1/projects/{project_id}/variables` 读取摘要页，`GET/HEAD /variables/{variable_id}` 读取完整值，`POST /variables`、`PATCH/DELETE /variables/{variable_id}` 创建、更新、删除，`POST /variables/commands/lookup` 使用原 key 与原请求查询历史回执；后几项路径同样带上述 Project 前缀。只允许已有 initialized Project 的当前 Human Owner；管理员没有跨 Owner 权限，归档可读及重放已完成命令，新写被拒绝。
+
+变量 ID 为 UUIDv7，与未来 Secret 变量共享身份和命名空间。名称区分大小写，保留 AGENTEAM 及 AGENTEAM_ 前缀；值不是秘密存储，不提供 Agent 或运行环境注入。更新/删除必须保留原 expected_version，no-op 不改变量、分页代数、历史、Audit、Outbox 或 Activity。删除保留不可复用 ID 的墓碑与原命令回执，释放名称。真实变更把对象、查询代数、历史、安全 Audit/Outbox、Activity 和 receipt 放在同一最终事务；普通值不进入 Audit/Outbox 和诊断日志。Unknown 只进行有界只读确认，`not_observed` 或当前 GET 不能证明原请求未提交，不自动重发。
+
+列表按名称 C 序与 ID 使用 SQL keyset，默认50、最多100，摘要不含值；签名 cursor 绑定当前 Owner、Project 与查询代数，真实变更使旧页过期。请求、detail/变更/Lookup 成功响应上限1MiB，摘要页5MiB；读/Lookup 总预算2秒，变更30秒，涵盖实际认证/I/O。统一 Service owner 管理读、写、Lookup 和确认尾，Stop/Drain/Force 不以取消代替实际 join。库/HTTP、native传输、默认根与独立风险补集已按明确版本组合完成真实验收，实际Wait与资源尾闭合；原失败和范围限制见工作项，不声称单次HEAD全量通过。此能力不完成 Agent F1、Secret 变量或完整D10，也不解除默认根既有停止项。
 
 ## D11 Milestone / Sprint 结构库
 

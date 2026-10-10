@@ -62,6 +62,10 @@ type knowledgeEventData struct {
 }
 type KnowledgeEvents struct{ data func() knowledgeEventData }
 
+// Valid reports whether these event types were registered in a real catalog.
+// It does not authorize any event or prove a persistent producer fact.
+func (e KnowledgeEvents) Valid() bool { return e.data != nil }
+
 func RegisterKnowledgeEvents(c *event.Catalog) (KnowledgeEvents, error) {
 	if !c.Valid() {
 		return KnowledgeEvents{}, invalid()
