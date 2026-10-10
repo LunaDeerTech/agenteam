@@ -28,6 +28,16 @@ per-form detection controls. The second compilation had not started; candidate 0
 remains the pending target. This corrects the probe, not a demonstrated product
 leak, and adds no scenario.
 
+Coordination independently reviewed the final four sources and accepted the
+limited method after that repair. Checkpoint `5c6ea3fe` then built into the distinct
+candidate 02 without source repairs: session `81851` → `5ee69b`, actual exit 0,
+outer 344984 / Go 344985 / exact-list 345093 all exited. The list contains exactly
+the declared top; binary size is 37,033,321 B. Fresh space was 8,409,997,312 B at
+2026-10-10T06:37:33.465839Z, elapsed 4.709s, private build runtime empty. Original
+logs/result are in `output/ai/secret-owner-http/independent-build-02/`. Candidate 01
+and its original evidence remain unchanged. Candidate 02 is ready for a separately
+authorized PG window; neither real subscenario has run.
+
 The exact selector is `^TestIndependentSecretHTTPCurrentSessionAndSafeErrors$`:
 
 - `current-session-after-domain-begin`: successful GET/List controls with real
