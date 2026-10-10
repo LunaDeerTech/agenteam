@@ -1,7 +1,7 @@
 # Knowledge Owner 只读 UI
 
 - 分支 `ai/knowledge-owner-ui`，树 `/workspace/agenteam-knowledge-owner-ui`；`0658c54f` 已合正式后端 `fb84a892`，UI 已保存 `da77c639`，首链七源已保存 `15e730da`。root 独占 Git，content 独占本树 UI 下述路径及新首链测试；shared 入口由 coordination 单写。不写 candidate 或旧正文树。
-- API/client/Session 第一片段 `b0c89d6e`、后续页面和目录失败清层修复均已通过对应离线验证及 Skills 有限 actual diff 审。首真实 Go/browser fixture 已实现并通过方法静审、race 编译与精确 list，仍未运行真实链、未验收 UI。后端、锁、parser、来源及 STOP 不变。
+- API/client/Session 第一片段 `b0c89d6e`、后续页面和目录失败清层修复均已通过对应离线验证及 Skills 有限 actual diff 审。首真实 Go/browser fixture 已实现并通过方法静审、race 编译与精确 list；`read-author-01` 已实际运行且整体 FAIL，原退出尾完整结束，UI 未验收。后端、锁、parser、来源及 STOP 不变。
 - 默认 Project initializer 已按 canonical 门禁撤回。修后 root-02 的默认 Create Unbound/零事实、显式测试 fixture 真 ports/Stop/Drain 和默认读取链已正式进入 main；旧 root-01 业务 PASS 仍仅历史事实，不为生产初始化背书。UI 后继 fixture 必须沿修后边界，不重新绑定默认 initializer。
 
 ## 唯一写域与当前结果
@@ -26,10 +26,14 @@
 
 ## 下一步与资源边界
 
-下一步由 coordination 完成 D12 独立精确入口与输入初尾闭包，root 保存后分配真实窗口；只运行一个 `TestKnowledgeOwnerReadWeb` 与一个正常 Playwright case。显式测试 Project fixture 实际 Stop/Drain，默认 Knowledge 创建父子文本，真实页面四 GET 与 UTF-8 下一段、窄屏键盘/焦点、原消费发布和取消尾及原七资源完整退出门。尚未运行 browser/socket/PG/network；当前实际资源窗口由 root 分配给其他任务。UI 未验收，不宣称编辑、完整 D12、生产 SPA 或 Project Create HTTP 可用。
+coordination 的 D12 独立入口及初尾闭包已经有限独审并随 `bd970b97` 保存。首真实单 top/case 失败后，当前仅获授权对原安全材料和冻结源码做有界诊断，定位 actual-consumption 内原等待/断言；先保安全结果，再交方法缺口计划，不自动重试或放宽 finished/reader/typed/DOM 门。UI 未验收，不宣称编辑、完整 D12、生产 SPA 或 Project Create HTTP 可用。
 
 ## 首真实链 fixture 实施准备
 
 root 已授权四新测试源与自有 native controls；生产11源保持 `da77c639` 冻结。新增 `internal/central/app/knowledge_owner_web_test.go`、`tests/account-captcha-web/knowledge-owner-read.config.js`、`tests/account-captcha-web/e2e/knowledge-owner-read.{spec,native}.ts`、`.agent-state/knowledge-owner-ui/native-controls.cjs` 和 README 已随 `15e730da` 保存。精确输入与失败见[恢复说明](knowledge-owner-ui/README.md)。最终同步双 seal 后 strict TS 80628 actual0，native 控制44484 actual0（67项/0 unhandled），当前 dist-read-01 正式构建44971 actual0；Skills actual diff 有限接受。固定锁 PW 私有依赖/MinIO已离线复制，无lock变动/网络。
 
-首 race-c 36818 actual1/list 未执行：旧 `project_update_test.go` 三调用的末 nil 未随生产 initializer 撤回同步；仅此三处机械修复后该文件逐字正式 main。88190 修后 race-c + exact list actual0，候选 `output/ai/knowledge-owner-ui/knowledge-owner-web-race-01.test` 为60,147,683 bytes、恰1 top。使用私有 mode=off/去三旁路，同 process 空闲9,549,406,208 bytes。首 PW --list 80873 actual1/0tests，原因是完整 title 含文件前缀；root 授权只改 config 精确 grep，11664 actual0，恰1 case。最终 config 属运行时输入，Go/native/spec/dist 未变。原方法环境826b、类型20326、观测49762、编译36818、PW列表80873 FAIL全部保留。当前无在途作者命令；此批新增待保存四路径为上述 `project_update_test.go`、PW config、本 current 和恢复 README。真实 Go/browser 尚未运行，shared 入口由 coordination 独占。
+首 race-c 36818 actual1/list 未执行：旧 `project_update_test.go` 三调用的末 nil 未随生产 initializer 撤回同步；仅此三处机械修复后该文件逐字正式 main。88190 修后 race-c + exact list actual0，候选 `output/ai/knowledge-owner-ui/knowledge-owner-web-race-01.test` 为60,147,683 bytes、恰1 top。使用私有 mode=off/去三旁路，同 process 空闲9,549,406,208 bytes。首 PW --list 80873 actual1/0tests，原因是完整 title 含文件前缀；root 授权只改 config 精确 grep，11664 actual0，恰1 case。最终 config 属运行时输入，Go/native/spec/dist 未变。原方法环境826b、类型20326、观测49762、编译36818、PW列表80873 FAIL全部保留。shared 入口原8控未识别 expected 挂错 cleanup map，经独审发现后改为正式 root map、加入真正 root observer 正负控，修后9控通过，原缺口不改写为已覆盖。
+
+## 首真实原结果
+
+`read-author-01` /source `bd970b97` /session10035 /outer307373：UTC06:11:29.848076Z启动，同 process 空闲9,249,374,208 bytes、1448 inputs、候选 c6d147… 身份一致、私有 modeoff/去三旁路/new empty Docker config。Go原 top59.14s FAIL，Node原Waitfalse、Go1、driver1、outer实际1；原安全快照 stage=actual-consumption/page_closed=true/observer_report=false，具体 conjunct 未分辨。12个原GET200 sidecar及两布局截图只证明相应观察，最终 observer联合/Schema/根成功断言未到达，不能升级为通过。7resource IDs双absent/private双absent/runtime双empty/desc双[]、4 adopted原Wait0、TCP双空，1448输入重枚举与摘要unchanged=true；wholeFAIL terminal1/193.904s，窗口释放、无在途作者命令。安全原件：[read-first-failure.json](knowledge-owner-ui/read-first-failure.json)；源/fixture/selector/预算未改、未retry。

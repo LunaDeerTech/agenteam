@@ -1,6 +1,6 @@
 # Knowledge Owner 正常读取链
 
-本目录的方法仅对应 `TestKnowledgeOwnerReadWeb`（integration、app 包、1 top / 0 sub）与锁定 Playwright 的一个 `[read] Knowledge Owner existing-document read` case。离线方法、类型、构建及两个精确列表检查已完成，真实链未运行。生产 UI 已存 `da77c639`，首链测试源已存 `15e730da`；默认 Project initializer 保持未绑定。
+本目录的方法仅对应 `TestKnowledgeOwnerReadWeb`（integration、app 包、1 top / 0 sub）与锁定 Playwright 的一个 `[read] Knowledge Owner existing-document read` case。离线检查已完成；首真实 `read-author-01` 整体 FAIL、原退出尾已完整结束，尚未验收。生产 UI 已存 `da77c639`，首链最终组合 `bd970b97`；默认 Project initializer 保持未绑定。
 
 Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/Object；普通 Owner 来自正式 invitation / inspect / redeem / login。默认 Project Create 的新 target 必须 `DependencyUnbound/NotCommitted` 且零事实；正向准备只使用已有 `rootCompositionProjectFixture` 真实 ports，实际 Stop/Drain/Joined 后才进入浏览器。没有业务 SQL 造 ready 或生产注入。静态 dist 与同源反代只供测试。
 
@@ -27,4 +27,10 @@ Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/O
 - 双 observer 在同一个同步调用中先 seal 再分别 await 后，最终 strict TS 80628 actual0。Skills 对 `15e730da` 七源 actual diff 有限接受，无方法 must-fix；此结论不代表真实执行通过。
 - 首 race-c 36818 actual1（185.531s）：旧 `project_update_test.go` 三处仍传已撤回的 initializer 参数，list 未执行。仅删除三处末尾 nil，与正式 main 该文件逐字相同。修后88190 race-c actual0（10.761s），随后同原 wrapper 的 `-test.list '^TestKnowledgeOwnerReadWeb$'` actual0，恰一个 top。编译使用已落盘 private telemetry mode=off、去除三旁路；同 process 预飞空闲9,549,406,208 bytes。
 - 首锁定 PW `--list` 80873 actual1，0 tests：配置误把带文件前缀的完整 grep title 当裸 case。仅将匹配改为该精确文件与完整 case 的边界表达式；11664 actual0，恰1 test / 1 file。该 config 是编译后运行时输入变更；Go/native/spec 和生产资产未变，不重新编译。单文件 Prettier 与 diff 检查通过。
-- 当前真实 Go/PW 用例未运行，编译/list不算实际链通过。生产页面166/修后29项已有证据保持原范围；不重跑未变矩阵，不扩编辑/parser/来源/生产 SPA/initializer/Runtime STOP。
+- 生产页面166/修后29项已有证据保持原范围；不重跑未变矩阵，不扩编辑/parser/来源/生产 SPA/initializer/Runtime STOP。
+
+## 首真实失败
+
+`read-author-01` 使用冻结 `bd970b97`、上述候选与当前 dist，session10035 / outer307373。同 process 空闲9,249,374,208 bytes、1448 inputs、私有 telemetry mode=off/去三旁路、空 Docker config 后启动。Go 单 top 59.14s FAIL，原 Node actual Wait success=false、Go code1、driver code1、outer actual1。原安全快照仅定位 `stage=actual-consumption`、page_closed=true、observer_report=false；该阶段内具体等待/断言尚不能从原材料区分，不归因为产品错误。
+
+同次12个原反代完整 GET200 sidecar（含精确下一段 offset=65535）及两张布局截图存在，但没有最终 observer report，未执行后继逐响应联合证明/Schema与根成功断言，不能据此称消费发布或真实链通过。7个资源ID双不存在、private双不存在、runtime双空、descendant双空、4个 adopted child 原 Wait0、host TCP双空；1448输入初末重枚举/摘要一致，原 terminal1 /193.904s，窗口已释放。安全原记录见 [read-first-failure.json](read-first-failure.json)，不复制原凭据、headers或正文。下一步仅只读有界定位45s内原等待与方法覆盖缺口，保持严格 finished/reader/typed/DOM/首 explicit门；未授权重试或改实现。

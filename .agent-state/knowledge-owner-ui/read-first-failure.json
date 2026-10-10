@@ -1,0 +1,293 @@
+{
+  "run": "read-author-01",
+  "source": "bd970b97aca5501cfe60abfbce2c5e83c51c453b",
+  "selector": "^TestKnowledgeOwnerReadWeb$",
+  "result": "FAIL",
+  "scope": "One normal read chain; no successful final consumption proof",
+  "candidate": {
+    "path": "output/ai/knowledge-owner-ui/knowledge-owner-web-race-01.test",
+    "bytes": 60147683,
+    "sha256": "c6d14713436ee201f07883435082b50adbb79f88b68626147210ad1a45b0bc1d"
+  },
+  "started_utc": "2026-10-10T06:11:29.848076Z",
+  "session": 10035,
+  "outer_pid": 307373,
+  "outer_actual_exit": 1,
+  "preflight_free_bytes": 9249374208,
+  "input_count": 1448,
+  "first_failure": {
+    "stage": "actual-consumption",
+    "input_hash": "c71ebec456373fdb5c85ffb3141c6f4510c3a600f2c0a6faf13f6a127c9237dd",
+    "page_closed": true,
+    "observer_report": false
+  },
+  "go_top_seconds": 59.14,
+  "original_waits": [
+    "knowledge_owner_web_test.go:301: Knowledge Node actual_wait pid=311779 success=false",
+    "D03 explicit test actual_wait pid=311601 code=1 selector=^TestKnowledgeOwnerReadWeb$",
+    "SUPERVISOR actual_driver_wait pid=307396 actual=True code=1",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=311845 status=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=311848 status=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=311850 status=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=311851 status=0"
+  ],
+  "resources": [
+    {
+      "round": 1,
+      "kind": "container",
+      "id": "66d8f59db7262446deff4b1029eff4680a8bc007a1a87e02cc1249e9e65f943c",
+      "nonce": "7a1a69501715aa48774e9486418f7437",
+      "absent": true
+    },
+    {
+      "round": 1,
+      "kind": "network",
+      "id": "d9d3f4510eddaee586f6804e23ae108adf20ba1739820df41ae5d00f3711e027",
+      "nonce": "7a1a69501715aa48774e9486418f7437",
+      "absent": true
+    },
+    {
+      "round": 1,
+      "kind": "container",
+      "id": "7dc49d94d44ca15ebf0279e966604d2998b0c434c1f3627653c8f4b2f2790fec",
+      "nonce": "b9318cb4e851667c12b783eed31183f6",
+      "absent": true
+    },
+    {
+      "round": 1,
+      "kind": "network",
+      "id": "8ca3fb39e59191d434a4493829c1bed448e61bcb41342dfbacf65f83fbd88243",
+      "nonce": "b9318cb4e851667c12b783eed31183f6",
+      "absent": true
+    },
+    {
+      "round": 1,
+      "kind": "container",
+      "id": "a3eb6da37ad41c30e16eedcbc5de54d8aa6b266b663a725e11d9d9662bb39047",
+      "nonce": "44033030c17a1a6ab1f4178dc127ffa6",
+      "absent": true
+    },
+    {
+      "round": 1,
+      "kind": "container",
+      "id": "b8a6bfa13f5dd83ddf1d954d16a3881387a92a409bd8598919216d49e9fde0c4",
+      "nonce": "44033030c17a1a6ab1f4178dc127ffa6",
+      "absent": true
+    },
+    {
+      "round": 1,
+      "kind": "network",
+      "id": "4454b2a62ae5a5582772656250843ca6b6ba9bcb8fd85df54dd103a53fefa09f",
+      "nonce": "44033030c17a1a6ab1f4178dc127ffa6",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "container",
+      "id": "66d8f59db7262446deff4b1029eff4680a8bc007a1a87e02cc1249e9e65f943c",
+      "nonce": "7a1a69501715aa48774e9486418f7437",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "network",
+      "id": "d9d3f4510eddaee586f6804e23ae108adf20ba1739820df41ae5d00f3711e027",
+      "nonce": "7a1a69501715aa48774e9486418f7437",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "container",
+      "id": "7dc49d94d44ca15ebf0279e966604d2998b0c434c1f3627653c8f4b2f2790fec",
+      "nonce": "b9318cb4e851667c12b783eed31183f6",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "network",
+      "id": "8ca3fb39e59191d434a4493829c1bed448e61bcb41342dfbacf65f83fbd88243",
+      "nonce": "b9318cb4e851667c12b783eed31183f6",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "container",
+      "id": "a3eb6da37ad41c30e16eedcbc5de54d8aa6b266b663a725e11d9d9662bb39047",
+      "nonce": "44033030c17a1a6ab1f4178dc127ffa6",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "container",
+      "id": "b8a6bfa13f5dd83ddf1d954d16a3881387a92a409bd8598919216d49e9fde0c4",
+      "nonce": "44033030c17a1a6ab1f4178dc127ffa6",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "network",
+      "id": "4454b2a62ae5a5582772656250843ca6b6ba9bcb8fd85df54dd103a53fefa09f",
+      "nonce": "44033030c17a1a6ab1f4178dc127ffa6",
+      "absent": true
+    }
+  ],
+  "tail": [
+    "OWNED runtime_observation=1 descendants=[]",
+    "OWNED runtime_observation=2 descendants=[]",
+    "ROOT private_observation=1 absent=True",
+    "ROOT runtime_observation=1 empty=True",
+    "ROOT private_observation=2 absent=True",
+    "ROOT runtime_observation=2 empty=True",
+    "ROOT exact_tops=True actual_test_wait=True",
+    "ROOT knowledge_ui_exact_run_pass_wait=False",
+    "HOST_TCP delta_empty_observation=1",
+    "HOST_TCP delta_empty_observation=2",
+    "SUPERVISOR inputs_unchanged=True terminal=1 elapsed=193.904s"
+  ],
+  "responses": [
+    {
+      "sequence": 1,
+      "method": "GET",
+      "path": "/api/v1/projects/01a12471-51f5-72d4-825a-f5375958ac1c/knowledge/documents/children",
+      "query": "parent_document_id=null&limit=50",
+      "status": 200,
+      "request_id": "01a12471-8349-7947-ab9a-1bf0c0fc069e",
+      "content_length": 435,
+      "body_sha256": "39ee2db8282228d833e1e72cda81763b4ea1afa9bd4102a670c2a03f959f73f4"
+    },
+    {
+      "sequence": 2,
+      "method": "GET",
+      "path": "/api/v1/projects/01a12471-51f5-72d4-825a-f5375958ac1c/knowledge/documents/children",
+      "query": "parent_document_id=01a12471-536b-728e-bcd6-2851ab291c31&limit=50",
+      "status": 200,
+      "request_id": "01a12471-83b3-7263-88b8-c2cc148d6e7f",
+      "content_length": 469,
+      "body_sha256": "8ecc9c8b12862f5276f568487a01d495da148e7071d06e4f8de2c703b2cbdc21"
+    },
+    {
+      "sequence": 3,
+      "method": "GET",
+      "path": "/api/v1/projects/01a12471-51f5-72d4-825a-f5375958ac1c/knowledge/documents/01a12471-536b-70ec-bf1a-15aa791e91d5",
+      "query": "",
+      "status": 200,
+      "request_id": "01a12471-83fa-7f20-9ec9-8fa2e98a4fe8",
+      "content_length": 468,
+      "body_sha256": "3719322379d48f286365424dbd9dc4138424c858c58dccd5b46393ef3442b615"
+    },
+    {
+      "sequence": 4,
+      "method": "GET",
+      "path": "/api/v1/projects/01a12471-51f5-72d4-825a-f5375958ac1c/knowledge/documents/01a12471-536b-70ec-bf1a-15aa791e91d5/ancestors",
+      "query": "",
+      "status": 200,
+      "request_id": "01a12471-8438-7a17-af6c-f5941344f1e0",
+      "content_length": 435,
+      "body_sha256": "39ee2db8282228d833e1e72cda81763b4ea1afa9bd4102a670c2a03f959f73f4"
+    },
+    {
+      "sequence": 5,
+      "method": "GET",
+      "path": "/api/v1/projects/01a12471-51f5-72d4-825a-f5375958ac1c/knowledge/documents/01a12471-536b-70ec-bf1a-15aa791e91d5/content",
+      "query": "byte_offset=0&max_bytes=65536",
+      "status": 200,
+      "request_id": "01a12471-8455-7b1e-94de-9f328b55e030",
+      "content_length": 66068,
+      "body_sha256": "d9da0cd3b283c69786bc8d4fd26bbada6c03d204d73c681005316c0a32425a35"
+    },
+    {
+      "sequence": 6,
+      "method": "GET",
+      "path": "/api/v1/projects/01a12471-51f5-72d4-825a-f5375958ac1c/knowledge/documents/01a12471-536b-70ec-bf1a-15aa791e91d5/content",
+      "query": "byte_offset=65535&max_bytes=65536",
+      "status": 200,
+      "request_id": "01a12471-85a0-7f41-9f10-b0de48034a53",
+      "content_length": 543,
+      "body_sha256": "347291ba3dd84204c463128594aeda1fc648ace83bde847affa065de781686a0"
+    },
+    {
+      "sequence": 7,
+      "method": "GET",
+      "path": "/api/v1/projects/01a12471-51f5-72d4-825a-f5375958ac1c/knowledge/documents/01a12471-536b-728e-bcd6-2851ab291c31",
+      "query": "",
+      "status": 200,
+      "request_id": "01a12471-8633-7701-8f11-b6cbe8462660",
+      "content_length": 434,
+      "body_sha256": "51deb4d553f5dfd57dddc8a30f6424489b658e542ff97d57e0480b4add5c3245"
+    },
+    {
+      "sequence": 8,
+      "method": "GET",
+      "path": "/api/v1/projects/01a12471-51f5-72d4-825a-f5375958ac1c/knowledge/documents/01a12471-536b-728e-bcd6-2851ab291c31/ancestors",
+      "query": "",
+      "status": 200,
+      "request_id": "01a12471-865d-76e9-8074-1ca27ecb1a8a",
+      "content_length": 12,
+      "body_sha256": "eef46741adfc3a9f76294d3b78f37a45f113092ac9d44ee77c7a038a88ff09a1"
+    },
+    {
+      "sequence": 9,
+      "method": "GET",
+      "path": "/api/v1/projects/01a12471-51f5-72d4-825a-f5375958ac1c/knowledge/documents/01a12471-536b-728e-bcd6-2851ab291c31/content",
+      "query": "byte_offset=0&max_bytes=65536",
+      "status": 200,
+      "request_id": "01a12471-8675-7277-8955-bf52fa0c3ed8",
+      "content_length": 560,
+      "body_sha256": "8583d407f1cd89c32013b74552ca52f2155956cfb1ab200bfa16d307a1ab9ab3"
+    },
+    {
+      "sequence": 10,
+      "method": "GET",
+      "path": "/api/v1/projects/01a12471-51f5-72d4-825a-f5375958ac1c/knowledge/documents/01a12471-536b-70ec-bf1a-15aa791e91d5",
+      "query": "",
+      "status": 200,
+      "request_id": "01a12471-87c1-7809-8e7f-ee2a6cfd9c9b",
+      "content_length": 468,
+      "body_sha256": "3719322379d48f286365424dbd9dc4138424c858c58dccd5b46393ef3442b615"
+    },
+    {
+      "sequence": 11,
+      "method": "GET",
+      "path": "/api/v1/projects/01a12471-51f5-72d4-825a-f5375958ac1c/knowledge/documents/01a12471-536b-70ec-bf1a-15aa791e91d5/ancestors",
+      "query": "",
+      "status": 200,
+      "request_id": "01a12471-87de-7ab9-a370-1d8f21071fb5",
+      "content_length": 435,
+      "body_sha256": "39ee2db8282228d833e1e72cda81763b4ea1afa9bd4102a670c2a03f959f73f4"
+    },
+    {
+      "sequence": 12,
+      "method": "GET",
+      "path": "/api/v1/projects/01a12471-51f5-72d4-825a-f5375958ac1c/knowledge/documents/01a12471-536b-70ec-bf1a-15aa791e91d5/content",
+      "query": "byte_offset=0&max_bytes=65536",
+      "status": 200,
+      "request_id": "01a12471-87ef-7a6f-a9d4-83390e4797c9",
+      "content_length": 66068,
+      "body_sha256": "d9da0cd3b283c69786bc8d4fd26bbada6c03d204d73c681005316c0a32425a35"
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "knowledge-desktop-light.png",
+      "bytes": 58776,
+      "sha256": "6bb6eae1cf5855b5a1871ecf18bcf9cdab4cf460d4842c93157d86447109e453"
+    },
+    {
+      "name": "knowledge-narrow-dark-reduced.png",
+      "bytes": 50112,
+      "sha256": "53db819c9cd9f456373a490883704ae804988e1c523664ea3227915893a24842"
+    }
+  ],
+  "observations": {
+    "proxy_complete_responses": 12,
+    "final_observer_report_exists": false,
+    "final_schema_validation": "NOT_REACHED",
+    "final_root_success_assertions": "NOT_REACHED",
+    "failure_conjunct": "NOT_DISTINGUISHED_BY_ORIGINAL_SAFE_RECORD"
+  },
+  "artifacts": {
+    "raw_log": "/tmp/ku-o01/ui-1fd4dbc49017491c.log",
+    "evidence": "/workspace/agenteam-knowledge-owner-ui/output/ai/knowledge-owner-ui/read-author-01/TestKnowledgeOwnerReadWeb"
+  },
+  "next": "Read-only bounded method diagnosis. Preserve original FAIL; no retry or gate changes authorized."
+}
