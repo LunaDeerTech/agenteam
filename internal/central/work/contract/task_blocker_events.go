@@ -60,6 +60,9 @@ func (v TaskBlockerEventPayload) ValidateFor(t TaskBlockerEventType) error {
 		return v.Added.Validate()
 	}
 	if t == TaskBlockerEventResolved && v.Resolved != nil && v.Added == nil {
+		if err := taskBlockerSupported(v.Resolved.BlockerType); err != nil {
+			return err
+		}
 		return v.Resolved.Validate()
 	}
 	return invalid("/payload", "INVALID_BLOCKER_EVENT_PAYLOAD")
