@@ -185,7 +185,9 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 
 7868实际成本缺口限定：`projectStopPending`最后transfer EXISTS把`revoked_at IS NULL OR lease.state=active OR retirement_evidence IS NULL`置于跨表join后，live Archive/Delete的末空判断扫描1098条transfer，exact-fence-joined两个方向对13134条lease全表SeqScan；不是微小两行表的合法计划选择。顶层布尔仍正确、最大2.258ms也未超2s，但不满足排除终局历史的成本门。仅拆解该原谓词并增加能拒绝这些底层历史扫描的断言，保留所有原真值/Archive-Delete/权限/锁/原期限；优先复用当前索引，不因索引名增DDL，不把SQL成本种子当native退休证明。Model独立核修复语义/计划方法，原日志及测试PASS与成本缺口并列保留。
 
-恢复后的后三cost首轮仍有一处真实成本FAIL：`get-and-download/archive` 的完整Stop pending最后active-lease臂形成Hash Join，transfer方向先读81PUT＋16被过滤GET共97条，其中65条为退休PUT历史，超过原64门；布尔false与0.530ms返回不改变成本失败。a9的lane4分页已到且通过，FinalAnchor与Pending两top本轮PASS及七资源/actualWait/全部双尾齐全，原FAIL保持。完整必要计划见[原失败plan](../../../.agent-state/object-metadata-cleanup/pending-active-lease-cost-failure.json)。定向返修仅将最后active-lease臂改为原即时UNIQUE lease_id保证的scalar布尔lookup，保持缺行NULL不满足与原Project/action；00028不改。独立窄审与返修后的Live＋Pending二top仍待完成，FinalAnchor有效输入复用，原history另有窗口。
+恢复后的后三cost首轮保留一处真实成本FAIL：`get-and-download/archive` 的完整Stop pending最后active-lease臂形成Hash Join，transfer方向先读81PUT＋16被过滤GET共97条，其中65条为退休PUT历史，超过原64门；布尔false与0.530ms返回不改变成本失败。a9的lane4分页已到且通过，FinalAnchor与Pending两top该轮PASS及七资源/actualWait/全部双尾齐全。完整必要计划见[原失败plan](../../../.agent-state/object-metadata-cleanup/pending-active-lease-cost-failure.json)。定向返修仅将最后active-lease臂改为原即时UNIQUE lease_id保证的scalar布尔lookup，保持缺行NULL不满足与原Project/action；Secret独立窄审接受，00028不改。
+
+`079b74a5`／b6ec候选的修后Live＋Pending两top已真实完整PASS（7.54s／7.46s），Go/driver/outer实际Wait0与七资源及所有原双尾齐全。67份完整EXPLAIN最大visited64、loops34、heap fetch34、buffers159、单查询3.56ms；原失败末臂改为16active lease→16次原唯一transfer索引lookup，0.206ms。work→transfer→false三尾实采并保67/68/66历史，原cause/fence/Archive-Delete/分页语义保持。FinalAnchor有效PASS及原三成本组/迁移输入复用；实际计划未给出增删00028索引的依据。Object与Project前缀承担不同scope，当前小活集可能选Project partial再过滤Object，不能仅按一次索引名称未被选中删除Object前缀。已知成本缺口收敛，原history与§7.4真实消费者补集仍须独立完成；成本PASS不等于完整清理或Runtime join验收。
 
 ### 7.4 真实 Skills 消费者的增量组合
 
