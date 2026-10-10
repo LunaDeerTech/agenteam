@@ -185,6 +185,12 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 
 7868实际成本缺口限定：`projectStopPending`最后transfer EXISTS把`revoked_at IS NULL OR lease.state=active OR retirement_evidence IS NULL`置于跨表join后，live Archive/Delete的末空判断扫描1098条transfer，exact-fence-joined两个方向对13134条lease全表SeqScan；不是微小两行表的合法计划选择。顶层布尔仍正确、最大2.258ms也未超2s，但不满足排除终局历史的成本门。仅拆解该原谓词并增加能拒绝这些底层历史扫描的断言，保留所有原真值/Archive-Delete/权限/锁/原期限；优先复用当前索引，不因索引名增DDL，不把SQL成本种子当native退休证明。Model独立核修复语义/计划方法，原日志及测试PASS与成本缺口并列保留。
 
+### 7.4 真实 Skills 消费者的增量组合
+
+`ai/skills-cleanup` 的 `cleanup-02` 已完成同 Store Project CleanupPhase→Skills→真实 D05/MinIO/Audit 的两 top 五子：当前 gate、真实65 reader与32历史批次、最后 Object四anchors＋Skill五核心同Tx回滚/提交，以及两种真实 COMMIT Unknown。原输入未变的证据继续复用；后继仍缺 `TestSkillLifecycleCleanupHistoricalAttempts` 两子，分别验证真实同命令重试保留旧 AbandonedAttempt cause，以及明确 SQL 历史兼容 fixture 的65个非current本域映射、32/32/1删除与原Tx回滚。后者不冒称65个真实 native attempts，也不为测试绑定正式 unbound RecoverAttemptAccess。
+
+root 负责恢复消费者组合树和最终 Git 装配；D05 owner 提供当前两个 Stop SQL 修复与00028连续候选，未参与作者的验证者核新版真实消费结果。消费者已包含正式 P2 初始化的 `contract/authority.go`、`transfer_upload.go` 专用增量及其测试，本旧 D05 树没有这些增量，因此组合保留消费者的 P2输入，只应用 `project_stop_store.go`／`project_stop_batch.go` 的当前修复，不能整目录覆盖。00028在两候选中相同；该真实组合与成本/history门槛共同闭合后再交付，Object Runtime join 保持原STOP。
+
 ## 8. 旧源最小预计写域与验收
 
 已获rev1独审及root授权的实现域：`contract/access.go`闭集；`access.go`真实binding与同Tx一次purge消费、`service.go`仅相应私有access事务记录类型；`cleanup.go`＋新bounded SQL helper；`reference_cleanup.go`仅Skills canonical cause重放；必要`references.go`仅新私有有限诊断helper；`project_work.go`精确cleanup准入；`project_stop_store.go`及必要`project_lifecycle.go`投影分页；新`object/metadata_cleanup.go`；必要`project_audit.go`仅终局查询。各相邻tests及最小`tests/objects`组合，均先获明确写权。Skills独占其planner/CleanupAuthority/六表/participant，Project独占CleanupPhase，root负责immutable routes/迁移/组合，Object不读Skills私表。
