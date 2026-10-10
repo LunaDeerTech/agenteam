@@ -202,7 +202,11 @@ func TestSecretReferencesOriginalCallerAndCanonicalGate(t *testing.T) {
 			case "foreign-issuer":
 				service, _ = NewSecretReferences(x.store, x.service.state().directory, x)
 			case "actor-session":
-				r.Actor, _ = i.NewHuman(r.Actor.Details().UserID, testID[i.Session](239))
+				user, err := f.ParseID[i.User](r.Actor.Details().UserID)
+				if err != nil {
+					t.Fatal(err)
+				}
+				r.Actor, _ = i.NewHuman(user, testID[i.Session](239))
 			case "missing-lock":
 				x.store.locks = nil
 			case "missing-witness":
