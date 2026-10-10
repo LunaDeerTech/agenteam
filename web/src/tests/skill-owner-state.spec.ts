@@ -1,7 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { flushPromises, mount } from '@vue/test-utils'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { shallowRef } from 'vue'
-import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
+import {
+  createMemoryHistory,
+  createRouter,
+  isNavigationFailure,
+  NavigationFailureType,
+  RouterView,
+} from 'vue-router'
 import { createAccountAPI, type SessionView } from '../api/account'
 import { createProjectOwnerAPI, type Project } from '../api/project-owner'
 import { createSkillOwnerAPI } from '../api/skill-owner'
@@ -15,6 +21,13 @@ import {
 } from '../composables/useProjectWorkspace'
 import { useSkillOwner, type SkillOwnerController } from '../composables/useSkillOwner'
 import ProjectSkillsView from '../views/projects/ProjectSkillsView.vue'
+import ProjectWorkspaceView from '../views/projects/ProjectWorkspaceView.vue'
+import ProjectSettingsView from '../views/projects/ProjectSettingsView.vue'
+import {
+  installAuthentication,
+  installProjectNavigation,
+  skillsNavigationReadReady,
+} from '../router/auth'
 
 const id = (n: number) => `01970000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
 const time = '2026-10-10T12:00:00.123456Z',
@@ -149,7 +162,181 @@ async function fixture(lifecycle: Project['lifecycle'] = 'active', bind = true) 
   }
 }
 
+async function navigationFixture() {
+  const f = await fixture()
+  f.page.dispose()
+  f.fetch.mockClear()
+  const singleton = vi.spyOn(sessionModule, 'useSession').mockReturnValue(f.auth)
+  const path = '/owner/demo/settings/skills'
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      {
+        path: '/:username/:project_name',
+        component: ProjectWorkspaceView,
+        meta: { authentication: true, protected: true, projectWorkspace: true },
+        children: [
+          {
+            path: 'settings',
+            component: ProjectSettingsView,
+            children: [{ path: 'skills/:skill_id?', component: ProjectSkillsView }],
+          },
+        ],
+      },
+    ],
+  })
+  installAuthentication(router, f.auth)
+  const stopNavigation = installProjectNavigation(router, f.workspace)
+  const reads: { method: string; route: string; authenticated: boolean }[] = []
+  f.intercept(async (request, init) => {
+    if (request.startsWith(base))
+      reads.push({
+        method: request === base ? 'list' : 'get',
+        route: router.currentRoute.value.params.skill_id ? 'detail' : 'directory',
+        authenticated: f.auth.state.phase === 'authenticated',
+      })
+    return f.normal(request, init)
+  })
+  vi.stubGlobal('matchMedia', (media: string) => ({
+    media,
+    matches: false,
+    addEventListener() {},
+    removeEventListener() {},
+  }))
+  let wrapper: VueWrapper | undefined
+  async function close() {
+    wrapper?.unmount()
+    await flushPromises()
+    stopNavigation()
+    router.options.history.destroy()
+    singleton.mockRestore()
+    vi.unstubAllGlobals()
+    document.body.innerHTML = ''
+  }
+  try {
+    await router.push(path)
+    await router.isReady()
+    wrapper = mount(RouterView, {
+      attachTo: document.body,
+      global: { plugins: [router], provide: { [projectWorkspaceKey as symbol]: f.workspace } },
+    })
+    await flushPromises()
+    expect(wrapper.findAll('[aria-label="技能目录"] li')).toHaveLength(1)
+    return { ...f, router, path, wrapper, reads, close, ready: skillsNavigationReadReady(router) }
+  } catch (error) {
+    await close()
+    throw error
+  }
+}
+
 describe('Skills current Human owner and page lifetime', () => {
+  it('does not reread the old Skills route while authentication restores during navigation', async () => {
+    const f = await navigationFixture()
+    try {
+      await f.wrapper.get(`a[href="${f.path}/${id(20)}"]`).trigger('click')
+      await flushPromises()
+      await vi.waitFor(() => {
+        expect(f.wrapper.get('.skill-facts').text()).toContain(id(20))
+        expect(f.auth.state.busy).toBe(false)
+      })
+      await f.wrapper.get(`.skills-page a[href="${f.path}"]`).trigger('click')
+      await flushPromises()
+      await vi.waitFor(() =>
+        expect(f.wrapper.findAll('[aria-label="技能目录"] li')).toHaveLength(1),
+      )
+      expect(f.reads).toEqual([
+        { method: 'list', route: 'directory', authenticated: true },
+        { method: 'get', route: 'detail', authenticated: true },
+        { method: 'list', route: 'directory', authenticated: true },
+      ])
+      expect(f.auth.state.busy).toBe(false)
+    } finally {
+      await f.close()
+    }
+  })
+  it('restores the committed Skills page after navigation cancellation and error', async () => {
+    const f = await navigationFixture()
+    let outcome: 'abort' | 'error' | 'allow' = 'abort'
+    const remove = f.router.beforeResolve(() => {
+      expect(f.ready.value).toBe(false)
+      if (outcome === 'abort') return false
+      if (outcome === 'error') throw Error('controlled Skills navigation error')
+    })
+    try {
+      const aborted = await f.router.push(`${f.path}/${id(20)}`)
+      expect(isNavigationFailure(aborted, NavigationFailureType.aborted)).toBe(true)
+      await flushPromises()
+      await vi.waitFor(() =>
+        expect(f.wrapper.findAll('[aria-label="技能目录"] li')).toHaveLength(1),
+      )
+      expect(f.ready.value).toBe(true)
+      expect(f.router.currentRoute.value.fullPath).toBe(f.path)
+      outcome = 'error'
+      await expect(f.router.push(`${f.path}/${id(20)}`)).rejects.toThrow(
+        'controlled Skills navigation error',
+      )
+      await flushPromises()
+      await vi.waitFor(() =>
+        expect(f.wrapper.findAll('[aria-label="技能目录"] li')).toHaveLength(1),
+      )
+      expect(f.ready.value).toBe(true)
+      expect(f.router.currentRoute.value.fullPath).toBe(f.path)
+      expect(f.reads.map((r) => r.method)).toEqual(['list', 'list', 'list'])
+      outcome = 'allow'
+      await f.router.push(`${f.path}/${id(20)}`)
+      await flushPromises()
+      await vi.waitFor(() => expect(f.wrapper.get('.skill-facts').text()).toContain(id(20)))
+      expect(f.reads.map((r) => r.method)).toEqual(['list', 'list', 'list', 'get'])
+      expect(f.auth.state.busy).toBe(false)
+    } finally {
+      remove()
+      await f.close()
+    }
+  })
+  it('keeps the newer Skills navigation closed when the older attempt is cancelled', async () => {
+    const f = await navigationFixture()
+    const firstEntered = deferred<void>(),
+      secondEntered = deferred<void>()
+    const releaseFirst = deferred<void>(),
+      releaseSecond = deferred<void>()
+    const remove = f.router.beforeResolve(async (to) => {
+      if (to.params.skill_id === id(20)) {
+        firstEntered.resolve()
+        await releaseFirst.promise
+      } else if (to.params.skill_id === id(21)) {
+        secondEntered.resolve()
+        await releaseSecond.promise
+      }
+    })
+    const pending: ReturnType<typeof f.router.push>[] = []
+    try {
+      const first = f.router.push(`${f.path}/${id(20)}`)
+      pending.push(first)
+      await firstEntered.promise
+      const second = f.router.push(`${f.path}/${id(21)}`)
+      pending.push(second)
+      await secondEntered.promise
+      expect(f.ready.value).toBe(false)
+      releaseFirst.resolve()
+      expect(isNavigationFailure(await first, NavigationFailureType.cancelled)).toBe(true)
+      await flushPromises()
+      expect(f.ready.value).toBe(false)
+      expect(f.reads.map((r) => r.method)).toEqual(['list'])
+      releaseSecond.resolve()
+      await second
+      await flushPromises()
+      await vi.waitFor(() => expect(f.wrapper.get('.skill-facts').text()).toContain(id(21)))
+      expect(f.ready.value).toBe(true)
+      expect(f.reads.map((r) => r.method)).toEqual(['list', 'get'])
+      expect(f.auth.state.busy).toBe(false)
+    } finally {
+      releaseFirst.resolve()
+      releaseSecond.resolve()
+      await Promise.allSettled(pending)
+      remove()
+      await f.close()
+    }
+  })
   it('reads the directory for an absent optional route ID through the actual view and owner', async () => {
     const f = await fixture()
     // Retire the fixture's state-only page before mounting the actual view.

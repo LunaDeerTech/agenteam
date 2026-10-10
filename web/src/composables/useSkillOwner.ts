@@ -1,4 +1,4 @@
-import { computed, readonly, shallowReactive, watch, type Ref } from 'vue'
+import { computed, readonly, shallowReactive, shallowRef, watch, type Ref } from 'vue'
 import { AccountFailure } from '../api/client'
 import { captureSkillID, type SkillMetadata } from '../api/skill-owner'
 import { useSession, type PersonalIdentity, type SessionController } from './useSession'
@@ -32,8 +32,8 @@ export function useSkillOwner(
     message: '',
   })
   const identity = auth.personalContext.identity
-  let scope: Context | null = null,
-    route: SkillLocation | null = null,
+  const scope = shallowRef<Context | null>(null)
+  let route: SkillLocation | null = null,
     generation = 0,
     disposed = false
   const queue = shallowReactive<{ active: number | null; pending: SkillLocation | null }>({
@@ -49,7 +49,7 @@ export function useSkillOwner(
     auth.state.session?.id === identity?.sessionID
   const live = () =>
     authorized() &&
-    sameContext(scope, workspace.currentReadContext.value) &&
+    sameContext(scope.value, workspace.currentReadContext.value) &&
     location.value.projectPath !== '' &&
     location.value.projectPath === workspace.paths.value.home
   const visible = computed(live)
@@ -76,9 +76,10 @@ export function useSkillOwner(
     pump()
   }
   function pump() {
-    if (!live() || !scope || queue.active !== null || !queue.pending || auth.state.busy) return
+    if (!live() || !scope.value || queue.active !== null || !queue.pending || auth.state.busy)
+      return
     const task = queue.pending,
-      captured = scope,
+      captured = scope.value,
       serial = ++generation
     queue.pending = null
     queue.active = serial
@@ -89,7 +90,7 @@ export function useSkillOwner(
     const current = () =>
       live() &&
       serial === generation &&
-      sameContext(captured, scope) &&
+      sameContext(captured, scope.value) &&
       task.projectPath === location.value.projectPath &&
       task.skillID === location.value.skillID
     try {
@@ -137,8 +138,8 @@ export function useSkillOwner(
     ([context, home, next]) => {
       if (disposed) return
       if (!authorized() || !context || !home || next.projectPath !== home) {
-        if (scope || queue.pending || queue.active !== null) {
-          scope = null
+        if (scope.value || queue.pending || queue.active !== null) {
+          scope.value = null
           route = null
           retire()
           clear()
@@ -147,11 +148,11 @@ export function useSkillOwner(
         return
       }
       if (
-        !sameContext(scope, context) ||
+        !sameContext(scope.value, context) ||
         route?.projectPath !== next.projectPath ||
         route?.skillID !== next.skillID
       ) {
-        scope = context
+        scope.value = context
         route = next
         schedule(next)
       } else pump()
@@ -179,7 +180,7 @@ export function useSkillOwner(
       stop()
       retire()
       clear()
-      scope = null
+      scope.value = null
     },
   }
 }

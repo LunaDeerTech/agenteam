@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
-import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from 'vue-router'
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import { UiBadge, UiButton, UiCard, UiState } from '../../components/ui'
 import { useProjectWorkspace } from '../../composables/useProjectWorkspace'
 import { useSkillOwner } from '../../composables/useSkillOwner'
-import { projectRoute } from '../../router/auth'
+import { projectRoute, skillsNavigationReadReady } from '../../router/auth'
 
 const route = useRoute(),
-  workspace = useProjectWorkspace()
+  workspace = useProjectWorkspace(),
+  navigationReady = skillsNavigationReadReady(useRouter())
 const location = computed(() => {
   const address = projectRoute(route.fullPath)
   return {
-    projectPath: address ? `/${address.username}/${address.project_name}` : '',
+    projectPath:
+      navigationReady.value && address ? `/${address.username}/${address.project_name}` : '',
     skillID:
       typeof route.params.skill_id === 'string' && route.params.skill_id !== ''
         ? route.params.skill_id

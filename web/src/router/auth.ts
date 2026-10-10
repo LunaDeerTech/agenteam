@@ -1,4 +1,5 @@
-import type { Router } from 'vue-router'
+import { readonly, shallowRef, type Ref } from 'vue'
+import type { Router, RouteLocationNormalized } from 'vue-router'
 import { useSession, type SessionController } from '../composables/useSession'
 
 const returnTargets = [
@@ -160,8 +161,39 @@ export function installKnowledgeNavigation(
   }
 }
 
+type SkillsNavigation = {
+  generation: number
+  attempts: WeakMap<RouteLocationNormalized, number>
+  ready: Ref<boolean>
+  publicReady: Readonly<Ref<boolean>>
+}
+const skillsNavigation = new WeakMap<Router, SkillsNavigation>()
+function skillNavigation(router: Router) {
+  let state = skillsNavigation.get(router)
+  if (!state) {
+    const ready = shallowRef(true)
+    state = { generation: 0, attempts: new WeakMap(), ready, publicReady: readonly(ready) }
+    skillsNavigation.set(router, state)
+  }
+  return state
+}
+// A read-only page may be remounted on its old route while Session restore is
+// finishing. Keep this eligibility outside that page until navigation commits
+// or fails. It never supplies Session or Project authority.
+export function skillsNavigationReadReady(router: Router): Readonly<Ref<boolean>> {
+  return skillNavigation(router).publicReady
+}
+
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
+  const skills = skillNavigation(router)
+  const finishSkillsNavigation = (to: RouteLocationNormalized) => {
+    const generation = skills.attempts.get(to)
+    skills.attempts.delete(to)
+    if (generation === skills.generation) skills.ready.value = true
+  }
   router.beforeEach(async (to, from) => {
+    skills.attempts.set(to, ++skills.generation)
+    skills.ready.value = false
     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
       return {
         name: 'not-found',
@@ -257,19 +289,27 @@ export function installAuthentication(router: Router, auth: SessionController = 
     return true
   })
   router.afterEach((to, from, failure) => {
-    if (!failure) projectNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-    if (!failure) projectModelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-    if (!failure) outboundPolicyNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-    if (!failure) smtpNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-    if (!failure) accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-    if (!failure) modelSelectionNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-    if (!failure) modelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-    if (!failure) providerNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-    if (!failure) invitationNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-    if (!failure) personalNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-    if (!failure && from.meta.authentication && !to.meta.authentication) auth.leave()
-    if (!failure) accountEntryNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+    try {
+      if (!failure) projectNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure) projectModelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure)
+        outboundPolicyNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure) smtpNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure)
+        accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure)
+        modelSelectionNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure) modelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure) providerNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure) invitationNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure) personalNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure && from.meta.authentication && !to.meta.authentication) auth.leave()
+      if (!failure) accountEntryNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+    } finally {
+      finishSkillsNavigation(to)
+    }
   })
+  router.onError((_error, to) => finishSkillsNavigation(to))
 }
 
 const accountSecurityNavigation = new WeakMap<

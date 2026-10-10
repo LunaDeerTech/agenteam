@@ -62,3 +62,12 @@ Skills01使用已冻结组合source `6f3f1faf`、同一61,196,757-byte候选（S
 Skills02按combined-inputs-03的Skills1474项 `aa1138ce303c7d61d4de29ce98e36f5f562c057ea127af4c7513658030a246a9`、同candidate/DIST02执行一次，新的两Rename TS不在Skills闭包内。新/tmp/sui02与evidence-read-02，启动free5,448,818,688 bytes，旧Skills01七资源两轮absent预飞通过；原全部预算保持。28155→c16589 actual1，原Node614889 false、Go29.35s FAIL、driver612271/sup612250/outer612088 Wait齐，4adopted0、七资源14absent/private-runtime-desc-TCP双尾与输入一致/STOP0，总142.792s后释放。
 
 原首snapshot在original-completion：pw_failed=true、pending0、pw_first=null；双observer仍active，说明没有调用首explicit。实际6请求中seq1/3/4/6正常finished一次、finished(null)一次及完整native/public尾；seq2旧list、seq5旧get无response/XID，native fetch rejected/public原Promise rejected，不能扩消费例外。原idle因此无法通过，4个成功sidecar和两截图不升级whole；第二Human及Go后验未到。原首投影与关闭后尾分别保存在 [second-read-result.json](second-read-result.json)，原精确PW错误/导航时点未持久化，不补原因。下一仅授权实际Router+auth恢复+WorkspaceView导航重现潜在旧route读竞态，不改正常完成门、预算或observer，也无第三次真实执行授权。
+
+
+## 导航期间旧路由重复读取的最小修复
+
+Skills02失败后只做实际MemoryRouter+installAuthentication+installProjectNavigation+WorkspaceView/SettingsView/SkillsView/Session/API组合重现，网络、singleton lookup与jsdom布局能力明确受控。62907→6b1156原红控的请求序列list/list/get/get/list，证明auth恢复到current而路由尚未提交时旧页面再次读取；不补写原浏览器未采的取消原因。首92153→ee26c5为jsdom缺matchMedia的fixture失败。
+
+生产变化仅三文件：auth.ts提供稳定只读Skills导航准入ref，按原to对象及递增代区分attempt，原guard入口关闭、当前afterEach/onError才恢复；Knowledge guard与旧认证逻辑保留。View只在导航就绪时给出原projectPath；useSkillOwner的原本地scope改shallowRef以让清空/复绑触发computed可见性，全部身份/权限/typed条件仍旧。首实现已消额外GET，但scope非响应式导致详情隐身（91471→51f0a8、26182→bc68e9、45338→e1440e原FAIL保留）；不能用增加等待解决，因此按root窄授权修内部scope。
+
+scope修后92485→cbce25实际0；最终只跑 `skill-owner-state.spec.ts` 的三条必要导航用例，4101→7a9c61 actual0、3passed9skipped：正常list/get/list；导航取消及抛错后原已提交页面恢复；前一导航取消不能放开仍在途的新导航。原受控guard Promise在finally释放并实际allSettled，页面/监听/历史/Session清理保留。vue-tsc58031→35f94e、format8d8264/diff-check65d25f实际0。四技术路径已freeze供非作者审，不重旧业务矩阵；没有新Go、dist或真实执行，本次源码不得沿用旧DIST02/输入hash宣联调ready。
