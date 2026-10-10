@@ -256,4 +256,4 @@ B首次真实窗口整组FAIL：pending persisted首子在真实SIGKILL/Wait后�
 
 有限00026开始在正式main4c1独立树装配：只并入Runner身份/control空registry与必要测试/文档，保留既有Variables、Secret Audit、B02/Project及24/25，不混后继迁移或生产Dispatch。三共享源的最小语义合并已获未参与者有限独审：六owner组合停止、拒绝未join后续退休、原Force/late install与11路由/11Audit动作闭集，纯3top24child通过；另作者11个原Runner/Variables/Audit受影响pure top实际race通过。实际Default case会由本树TestMain构建两个默认cmd，在新空DB运行完整1..26并构造六owner，正常退出时只有Runner带在途连接，不能称六owner同时held的真实验证。
 
-Default夹具现只复用已审C的原upgrade Close/copy/half-close owner和同3s `controlRetired`，不启持有/换址分支，不改C方法体或原业务断言。其旧handler计数归零单独不证明异步101 Close已返；此接缝补全不归因原14016 TCP失败。delivery WIP两工具仅新增该exact入口并移植作者已审TCP失败证据，原差集/75s/Go6m/root540+60+3/七资源/input门保持；18原TCP控制、旧全文逆投影与精确配置/资源尾替身控制已过，仍待独审和新main候选编译。后继一次新main完整真实轮同时承担正常双cmd与组合验证，取代另跑旧作者候选；旧wholeFAIL及当前无新main实际结果均保留。
+Default夹具现只复用已审C的原upgrade Close/copy/half-close owner和同3s `controlRetired`，不启持有/换址分支，不改C方法体或原业务断言。其旧handler计数归零单独不证明异步101 Close已返；此接缝补全不归因原14016 TCP失败。delivery WIP两工具仅新增该exact入口并移植作者已审TCP失败证据，原差集/75s/Go6m/root540+60+3/七资源/input门保持；18原TCP控制、旧全文逆投影与精确配置/资源尾替身控制已过，修后新main race候选与精确发现已实际通过，原TestMain离线构建本树两默认cmd；技术增量仍待未参与者窄审，无新main业务运行。后继一次新main完整真实轮同时承担正常双cmd与组合验证，取代另跑旧作者候选；旧wholeFAIL及当前无新main实际结果均保留。

@@ -28,4 +28,14 @@
 
 静核根case：正确cwd本树tests/process→TestMain实际本树cmd build→pgfixture新空DB→默认App完整EmbeddedSource1..26→六owner正常装配；只有Runner连接在途。Shared owner竞争/Force以已独审组合pure及原不变域证据分别覆盖，不冒本case验证六owner同时held。
 
-新main candidate拟 `output/ai/runner-control-delivery/runnercontrol-default-processes-main-race.test`，固定Go `test -mod=readonly -p=1 -tags=integration -race -c -o <candidate> ./tests/process`，原作者热cache。首8a06f2在2026-10-10T00:20:54.807228Z sameprocess可用5,289,971,712B<5GiB，实际exit78，未exec/未生成候选；无业务编译失败。正确cwd精确list还会构建两个cmd，后继须记其实际终态。当前无自有活命令或真实资源；Knowledge PG唯一窗口，待空间/独审和freshgrant，不重编旧候选。
+新main candidate拟 `output/ai/runner-control-delivery/runnercontrol-default-processes-main-race.test`，固定Go `test -mod=readonly -p=1 -tags=integration -race -c -o <candidate> ./tests/process`，原作者热cache。首8a06f2在2026-10-10T00:20:54.807228Z sameprocess可用5,289,971,712B<5GiB，实际exit78，未exec/未生成候选；无业务编译失败。正确cwd精确list还会构建两个cmd，后继须记其实际终态。空间经root回收后，新候选已完成：84543/210833→838883 race-c actual0（首2026-10-10T00:23:51.383531Z free5,945,798,656B），产物33,772,357B/SHA256 `eaec76bdb90f8f3d9539a93b3b8ad63329e625e7e78da22cd017e53ece0db455`。正确cwd本树tests/process的31065/489000→261250 exact-list actual0，只发现TestRunnerControlDefaultProcesses，原TestMain实际离线构建本树两默认cmd；未执行业务。7d0678原root --check actual0，真实固定MinIO校验通过，579个实际输入文件全存在/本树00026在列，fresh `output/ai/runner-control-delivery/root-default-processes-main-01` 尚不存在，没有启动或创建runtime。
+
+唯一就绪命令（仍待root独占freshgrant，首sameprocess≥5GiB）：
+
+```text
+python3 -B .agent-state/task-planning-recovery/pg_only_supervisor.py --root-chain --driver /workspace/agenteam-runner-control-delivery/.agent-state/work-owner-http/root_chain_driver.py --binary /workspace/agenteam-runner-control-delivery/output/ai/runner-control-delivery/runnercontrol-default-processes-main-race.test --run '^TestRunnerControlDefaultProcesses$' --output /workspace/agenteam-runner-control-delivery/output/ai/runner-control-delivery/root-default-processes-main-01
+```
+
+cwd本树；保继承PATH前置Go1.27.1，AGENTEAM_GO固定该Go，GOTOOLCHAIN=local/GOENV=off/GOWORK=off/GOPROXY=off/GOSUMDB=off/GOTELEMETRY=off，GOMAXPROCS=2，外层GOFLAGS='-mod=readonly -p=1'（原root adapter按既定p2执行）。GOCACHE/GOMODCACHE/GOTMPDIR/TMPDIR/XDG_CONFIG_HOME复用作者 `/workspace/agenteam-runner-control/output/ai/runner-control/{gocache,go-mod,tmp,tmp,go-config}`，只有本人写cache；原adapter为fixture/TestMain覆写fresh runtime。不得删除仍由新main构建消费的这些既有缓存。全程原Go6m/root540+60+3/TCP75/七资源/private/runtime/desc/input尾不变，不改TCP身份或排除tuple。
+
+当前没有本域在途命令或真实资源，源码与候选冻结待Skills窄审/保存及freshgrant；旧14016整体FAIL保留。
