@@ -146,7 +146,7 @@ func TestSchedulerClaimPlanRanksAndStrictHistory(t *testing.T) {
 	actor, _ := json.Marshal(r.History.Actor)
 	payload, _ := json.Marshal(r.History.Payload)
 	op := r.Request.DispatchID
-	row := taskTriggerRow{r.History.ID.String(), r.Request.ProjectID.String(), r.Request.TaskID.String(), r.After.Version, "state_changed", actor, (*string)(nil), (*string)(nil), (*string)(nil), &op, op, payload, r.After.UpdatedAt.Time()}
+	row := taskTriggerRow{r.History.ID.String(), r.Request.ProjectID.String(), r.Request.TaskID.String(), r.After.Version, "state_changed", actor, (*string)(nil), (*string)(nil), (*string)(nil), &op, (*string)(nil), op, payload, r.After.UpdatedAt.Time()}
 	if _, err = scanTaskTriggerEvent(row); err != nil {
 		t.Fatal("claim storage arm", err)
 	}
