@@ -403,6 +403,14 @@ async function scenario(mode = "normal") {
     await final;
     await until(() => box.__secretOwnerObservation.snapshot().pending === 0);
     await tick();
+    if (process.argv.includes("--diagnostics-only")) {
+      assert.equal(await observer.ready(), true);
+      const sampled = observer.diagnostics();
+      assert.equal(sampled.node_ready, true);
+      assert.equal(sampled.browser_pending, 0);
+      assert(Object.isFrozen(sampled));
+      assert(Object.isFrozen(sampled.pw[0]));
+    }
     if (mode === "identity-change") auth.leave();
     result = await observer.finish();
     assert.equal(readerThis, true);
@@ -414,29 +422,56 @@ async function scenario(mode = "normal") {
     checks += 3;
   }
   if (mode === "normal") {
-    const bad = [
-      (r) => (r.rows[0].xid = id(900)),
-      (r) => (r.browser.rows[0].reader_cancel_joined = 0),
-      (r) => (r.browser.rows[0].release = 0),
-      (r) => (r.browser.rows[0].outer_cancel_joined = 0),
-      (r) => (r.browser.rows[0].current = false),
-      (r) => (r.browser.rows[0].typed = { items: ["wrong"] }),
-      (r) =>
-        (r.browser.rows.find((v) => v.operation === "lookup").request_valid =
-          false),
-      (r) =>
-        (r.browser.rows.find((v) => v.operation === "update").progress.phase =
-          "confirmed"),
-      (r) =>
-        (r.browser.rows.find((v) => v.operation === "update").status = 200),
-      (r) => (r.rows[0].finished_null = false),
-      (r) => (r.first.ready = false),
-    ];
-    for (const mutate of bad) {
-      const copy = structuredClone(result);
-      mutate(copy);
-      assert.equal(box.exports.secretOriginalCompleted(copy), false);
-      checks++;
+    if (process.argv.includes("--diagnostics-only")) {
+      const marker = "SYNTHETIC_DIAGNOSTIC_VALUE";
+      const copied = structuredClone(result);
+      const original = box.exports.secretOwnerDiagnostic(copied);
+      copied.rows[0].failed = 1;
+      copied.rows[0].url = marker;
+      copied.rows[0].xid = marker;
+      copied.browser.reason = marker;
+      copied.browser.rows[0].operation = marker;
+      copied.browser.rows[0].body = { value: marker };
+      copied.browser.rows[0].typed = { value: "other" };
+      copied.browser.rows[0].outer_cancel_joined = 0;
+      copied.browser.rows[0].current = false;
+      const projected = box.exports.secretOwnerDiagnostic(copied);
+      assert.equal(original.pw[0].failed_zero, true);
+      assert.equal(projected.pw[0].failed_zero, false);
+      assert.equal(projected.consumer[0].binding, false);
+      assert.equal(projected.consumer[0].outer, false);
+      assert.equal(projected.consumer[0].publication, false);
+      assert.equal(projected.consumer[0].representation, false);
+      assert.equal(projected.consumer[0].operation, "unknown");
+      assert.equal(projected.reason, "unavailable");
+      assert.equal(JSON.stringify(projected).includes(marker), false);
+      assert.equal(box.exports.secretOriginalCompleted(copied), false);
+      checks += 10;
+    } else {
+      const bad = [
+        (r) => (r.rows[0].xid = id(900)),
+        (r) => (r.browser.rows[0].reader_cancel_joined = 0),
+        (r) => (r.browser.rows[0].release = 0),
+        (r) => (r.browser.rows[0].outer_cancel_joined = 0),
+        (r) => (r.browser.rows[0].current = false),
+        (r) => (r.browser.rows[0].typed = { items: ["wrong"] }),
+        (r) =>
+          (r.browser.rows.find((v) => v.operation === "lookup").request_valid =
+            false),
+        (r) =>
+          (r.browser.rows.find((v) => v.operation === "update").progress.phase =
+            "confirmed"),
+        (r) =>
+          (r.browser.rows.find((v) => v.operation === "update").status = 200),
+        (r) => (r.rows[0].finished_null = false),
+        (r) => (r.first.ready = false),
+      ];
+      for (const mutate of bad) {
+        const copy = structuredClone(result);
+        mutate(copy);
+        assert.equal(box.exports.secretOriginalCompleted(copy), false);
+        checks++;
+      }
     }
   }
   await observer.abort();
@@ -444,20 +479,23 @@ async function scenario(mode = "normal") {
   page.emit("close");
 }
 (async () => {
-  for (const mode of [
-    "normal",
-    "held-reader",
-    "held-pw",
-    "request-failed",
-    "identity-change",
-    "leaked-body",
-  ]) {
+  const modes = process.argv.includes("--diagnostics-only")
+    ? ["normal"]
+    : [
+        "normal",
+        "held-reader",
+        "held-pw",
+        "request-failed",
+        "identity-change",
+        "leaked-body",
+      ];
+  for (const mode of modes) {
     await scenario(mode);
     console.log("PASS " + mode);
   }
   await tick();
   assert.equal(unhandled, 0);
-  console.log(JSON.stringify({ modes: 6, checks, unhandled }));
+  console.log(JSON.stringify({ modes: modes.length, checks, unhandled }));
 })().catch(() => {
   console.error("SECRET_OBSERVER_CONTROL_FAILED");
   process.exitCode = 1;

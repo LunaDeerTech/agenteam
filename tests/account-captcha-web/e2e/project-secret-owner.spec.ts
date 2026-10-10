@@ -247,9 +247,11 @@ test("[owner] Project Secret lifecycle", async ({ page }) => {
     await expect(list).toContainText("此项目尚无 Secret");
     await expect(detail).toContainText("选择一项查看安全元数据");
     await noMaterial();
-    stage = "original-tails";
+    stage = "original-ready";
     await expect.poll(() => observer!.ready()).toBe(true);
+    stage = "original-retirement";
     terminal = await observer.finish();
+    stage = "original-conjunction";
     expect(secretOriginalCompleted(terminal)).toBe(true);
     const deleted = terminal.browser.rows.find(
       (r: any) => r.operation === "delete",
@@ -337,6 +339,10 @@ test("[owner] Project Secret lifecycle", async ({ page }) => {
         stage,
         page_closed: page.isClosed(),
         observer_present: !!observer,
+        observation_source: terminal
+          ? "original-terminal"
+          : "last-ready-sample",
+        gates: observer?.diagnostics(terminal) ?? null,
       }),
       { mode: 0o600 },
     );
@@ -354,6 +360,7 @@ test("[owner] Project Secret lifecycle", async ({ page }) => {
         rows: terminal?.rows?.length ?? null,
         pw_pending: terminal?.pw_pending ?? null,
         browser_pending: terminal?.browser?.pending ?? null,
+        gates: observer?.diagnostics(terminal) ?? null,
         failed: true,
       }),
       { mode: 0o600 },

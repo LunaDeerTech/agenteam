@@ -594,6 +594,122 @@ export function secretOriginalCompleted(report: any): boolean {
   return true;
 }
 
+// Closed diagnostic projection only. It never participates in acceptance and
+// never returns request/response values, headers, identities or material.
+export function secretOwnerDiagnostic(report: any) {
+  const b = report?.browser,
+    node = Array.isArray(report?.rows) ? report.rows.slice(0, 64) : [],
+    browser = Array.isArray(b?.rows) ? b.rows.slice(0, 64) : [];
+  const canonical = (value: any): string =>
+    JSON.stringify(value, (_key, v) =>
+      v && typeof v === "object" && !Array.isArray(v)
+        ? Object.fromEntries(
+            Object.keys(v)
+              .sort()
+              .map((k) => [k, v[k]]),
+          )
+        : v,
+    );
+  const known = ["list", "get", "create", "update", "lookup", "delete"];
+  return Object.freeze({
+    node_ready: report?.node_ready === true,
+    node_failed: report?.pw_failed === true,
+    node_pending: Number.isSafeInteger(report?.pw_pending)
+      ? report.pw_pending
+      : -1,
+    node_rows: node.length,
+    first_present: !!report?.first,
+    first_ready: report?.first?.ready === true,
+    browser_present: !!b,
+    browser_failed: b?.failed === true,
+    browser_pending: Number.isSafeInteger(b?.pending) ? b.pending : -1,
+    browser_rows: browser.length,
+    current: b?.current === true,
+    not_busy: b?.not_busy === true,
+    retired: b?.retired === true,
+    reason: ["active", "explicit", "expired"].includes(b?.reason)
+      ? b.reason
+      : "unavailable",
+    first_pending: Number.isSafeInteger(b?.first?.pending)
+      ? b.first.pending
+      : -1,
+    first_current: b?.first?.current === true,
+    first_not_busy: b?.first?.not_busy === true,
+    pw: Object.freeze(
+      node.map((p: any, index: number) =>
+        Object.freeze({
+          index,
+          finished_one: p.finished === 1,
+          failed_zero: p.failed === 0,
+          responses_one: p.responses === 1,
+          finished_calls_one: p.finished_calls === 1,
+          finished_null: p.finished_null === true,
+          joined: p.joined === true,
+          xid_present: typeof p.xid === "string" && p.xid.length > 0,
+          xid_unique:
+            !!p.xid && node.filter((r: any) => r.xid === p.xid).length === 1,
+          first_ready: p.first_ready === true,
+        }),
+      ),
+    ),
+    consumer: Object.freeze(
+      browser.map((row: any, index: number) => {
+        const matched = node.filter((p: any) => p.xid === row.xid),
+          p = matched[0];
+        return Object.freeze({
+          index,
+          operation: known.includes(row.operation) ? row.operation : "unknown",
+          binding:
+            !!row.xid &&
+            matched.length === 1 &&
+            p.method === row.method &&
+            p.url === row.url &&
+            p.status === row.status &&
+            row.bound === 1 &&
+            row.request_valid === true,
+          fetch:
+            row.fetch_returned === true && !row.fetch_rejected && !row.io_error,
+          publication:
+            row.settled === true &&
+            row.current === true &&
+            row.not_busy === true,
+          outer: row.outer_cancel === 1 && row.outer_cancel_joined === 1,
+          reader:
+            row.operation === "update"
+              ? row.readers === 0
+              : row.eof === true &&
+                row.readers === 1 &&
+                row.reads >= 1 &&
+                row.reads === row.read_returns &&
+                row.reader_cancel === 1 &&
+                row.reader_cancel_joined === 1 &&
+                row.release === 1,
+          representation:
+            row.operation === "update"
+              ? row.status === 502 &&
+                row.rejected === true &&
+                !row.fulfilled &&
+                row.typed === null
+              : row.status === 200 &&
+                row.fulfilled === true &&
+                !row.rejected &&
+                /^[0-9]+$/.test(row.cl ?? "") &&
+                row.bytes === Number(row.cl) &&
+                /^[0-9a-f]{64}$/.test(row.digest ?? "") &&
+                canonical(row.body) === canonical(row.typed),
+          progress:
+            row.operation === "update"
+              ? row.progress?.phase === "uncertain" &&
+                row.progress?.receipt_null === true
+              : !["create", "delete", "lookup"].includes(row.operation) ||
+                (row.progress?.phase === "confirmed" &&
+                  row.progress?.receipt_same === true),
+        });
+      }),
+    ),
+  });
+}
+
 export async function observeSecretOwner(
   page: Page,
   config: {
@@ -621,6 +737,7 @@ export async function observeSecretOwner(
     closed = false,
     failed = false,
     first: any = null,
+    lastReady: ReturnType<typeof secretOwnerDiagnostic> | null = null,
     finishPromise: Promise<any> | undefined,
     pageFinish: Promise<any> | undefined;
   const selected = (request: Request) => {
@@ -749,9 +866,17 @@ export async function observeSecretOwner(
     },
     async ready() {
       const node = ready();
+      const nodeSample = {
+        node_ready: node,
+        pw_failed: failed,
+        pw_pending: tails.size,
+        first,
+        rows: rows.map((r) => ({ ...r })),
+      };
       const b = await page.evaluate(() =>
         (window as any).__secretOwnerObservation.snapshot(),
       );
+      lastReady = secretOwnerDiagnostic({ ...nodeSample, browser: b });
       return (
         node &&
         !b.failed &&
@@ -760,6 +885,9 @@ export async function observeSecretOwner(
         b.current &&
         b.rows.length === rows.length
       );
+    },
+    diagnostics(terminal?: any) {
+      return terminal ? secretOwnerDiagnostic(terminal) : lastReady;
     },
     finish() {
       if (finishPromise) return finishPromise;

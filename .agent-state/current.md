@@ -1,6 +1,6 @@
 # Secret Owner UI 当前恢复点
 
-最新：source56904deb 的 compile/list 已实际0；native01 wholeFAIL且原资源尾已闭，当前已修测试定位器与外层序列化，7路径停写待root保存/第二真实窗。以下旧准备记录为历史，最新细节见末段。
+最新：compile/list已实际0；native02整体FAIL且原资源/outer尾已闭。可见操作走到删除，original-tails具体门未记录；现3方法源仅补安全诊断，6路径停写待保存/后继窗口。以下旧准备记录为历史，最新细节见末段。
 
 树 `/workspace/agenteam-secret-owner-ui`，原 main7a，root 唯一 Git writer。首16path保存 `7df16529`；卡为 `docs/development/work-items/d27-project-secrets-owner-ui.md`。
 
@@ -34,3 +34,11 @@ native01 原1840→d44246整体FAIL。outer788736/sup788795，启动fresh5,619,0
 后继无浏览器诊断确认一项定位器缺陷：锁定PW1.56.1实际injected selector在受控JSDOM、原UiField必填标记结构上，exact label“名称”/“新的 Secret 值”均0匹配（其elementText包含aria-hidden星号）；相同accessible textbox role各1匹配，1a445c实际0。首诊断误用生成exports构造方式失败，改用原工厂后得到上述结果。spec只把这些必填控件改为exact textbox角色，并细分create安全stage，原断言/45s/expect5s不变；产品、前端dist、Go候选均复用。
 
 新增唯一可恢复外层入口 `python3 .agent-state/secret-owner-ui/run.py --attempt 02`，固定原Secret selector/candidate01/dist01，fresh /tmp/psu02、evidence-owner-02、native-02-control；只调用原sup/原helper，结果在原采样时sorted，不后验补采。新run自身追加原Secret collector必需输入，known逆变对应更新；metadata/Installer条目、sup预算/资源门没有变化。离线actual main的OS边明确doubles，空set经原Wait后真实写JSON，低容量零spawn；与受影响inverse/collector共3方法cc6293实际0。strictTS03原13625→c8a72b0、PWlist02原13246→b073c9恰1/0，未重复旧30组件或6native模式。第二实际尚未运行，不追认首FAIL。
+
+## native02：可见链先完成，完成证明仍 FAIL
+
+原 source e9d5728d、同candidate/dist，native02 8328→cdf84c actual1，outer800844/sup800868/driver800889/Go802761原Wait1，Node802875原Waitfalse；Go52.95s，sup144.137s/outer147.806s。fresh6,427,688,960B，1492闭包hash0ea489f112ca4b6da888a6494d1dfb96bcdd0fe152c0178bdc629a4bccc2208c，原尾inputs unchanged=True。7资源14absent/private/runtime/desc/TCP各双尾齐；outerdesc双空/TCP2/adopted[]/survivors[]，原result实际写入native-02-control/result.json。未重编、未改产品或dist。
+
+原10条代理响应及spec顺序证明浏览器已走过create→实际提交PATCH受控502→原keyLookup/current v2→delete/空列表/材料清除的可见断言；随后原original-tails失败，page_closed=false，后尾Node rows10/PW pending0/browser pending0。这不是wholePASS；原后置Go三类提交计数断言未达。原stage包含ready轮询、finish、完整conjunction三步，不能依据后尾零计数反推首ready或具体失败门；work_ui只读同结论。原记录不回填。
+
+仅必要诊断增量：将这三步拆为固定stage；同observer原ready调用保存不可变闭集布尔/计数采样，不加第三observer/新请求或后台采样；completed沿原terminal产生固定分组布尔，不输出body/headers/URL/identity/key/receipt。首失败写原terminal或明确标记last-ready-sample；后尾只另文件追加，不能升级首记录。normal-only、原secretOriginalCompleted函数和所有预算保持。新diagnostics-only受控原observer/实际API/Session一正向＋投影反例13计数检查、0unhandled，24721→4e8415 actual0；strictTS4991→40c490 actual0。没有重旧6模式/30组件或再跑浏览器。三技术native/spec/native-controls与本记录停写；第三实际仍需root新窗口。
