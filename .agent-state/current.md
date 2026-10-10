@@ -10,8 +10,8 @@
 - 首 pure `86317` actual1，29 项 24 PASS/5 FAIL：三个 Instant fixture 少正式微秒；旧 controller 错清 same-session unknown；同组件 guard 晚于 auth.restore。早期 Project 上下文猜测未作为修复依据。修后 `89673` actual0/30 项及类型 `63528` actual0；它们不代表后来独审缺口已接受。
 - 原兼容 `13568` actual1：40 selected 39 PASS/1 FAIL，旧 Project 取消后确认离页断言仍为旧 URL，build 未执行。返修 `31318` actual1：新 35 核心全 PASS，仍仅旧 Project case FAIL；类型 `13051` actual0。保旧取消分支后该 case `55453` 仍 actual1。
 - 有界诊断 `54674` 原进程退出；current 与 `04455194` 原三 shared 内存覆盖均同点 FAIL，实际 Project 确认 true/Session not busy，但原测试未等待 Router 导航完成。临时诊断首稿 `34763` 因插入变量未命中 ReferenceError 失败；修正后 `39370` actual0 仅证明等待原导航的诊断，不升级原测试。正式修该 case 用原 click 前的首个 afterEach 事件、严格目标/来源/无 failure、finally/onTestFinished 解绑，不加 sleep/retry 或预算；修后 `58520` actual0/恰一 case，原取消/草稿/URL/零 PATCH 断言保留。
-- 最终三新文件 `46075` actual0：35 项（client19/state13/page3）；`16585` 类型 actual0/27.497s + Vite 私有 build actual0/2.488s，dist 为 `output/ai/knowledge-owner-rename/dist`。旧受影响兼容 39 PASS 复用，仅失败项按以上修后验证；未重跑全 126。prod/source 后续不变则复用此次构建。
-- 原日志/result 保在 ignored `output/ai/knowledge-owner-rename/{pure-01,pure-02,compat-build-01,repair-03,project-compat-02,project-diagnostic,pure-04,project-compat-03,build-01}`。这些恢复事实不代表真实浏览器、实际 Owner 写权限或 Unknown 事务路径已验。
+- 最终三新文件 `46075` actual0：35 项（client19/state13/page3）；`16585` 类型 actual0/27.497s + Vite 私有 build actual0/2.488s，dist 为 `output/ai/knowledge-owner-rename/dist`。旧受影响兼容 39 PASS 复用，仅失败项按以上修后验证；未重跑全 126。prod/source 后续不变则复用此次构建。原 Project test 修后最后 noEmit `67029` actual0/22.323s；owned format/diffcheck 实际0。
+- 原日志/result 保在 ignored `output/ai/knowledge-owner-rename/{pure-01,pure-02,compat-build-01,repair-03,project-compat-02,project-diagnostic,pure-04,project-compat-03,build-01,type-final}`。这些恢复事实不代表真实浏览器、实际 Owner 写权限或 Unknown 事务路径已验。
 
 ## 写域与下一步
 
