@@ -63,8 +63,8 @@ outside their corresponding read-only comparison windows.
 
 ## Build and controlled execution
 
-The candidate is
-`output/ai/agent-configuration-metadata/metadata-race.test`, built once with
+The corrected candidate is
+`output/ai/agent-configuration-metadata/metadata-race-03.test`, built with
 fixed Go 1.27.1 using `go test -p=2 -race -tags=integration -c -o <candidate>
 ./tests/projectvariable`, followed by exact `-test.list` discovery. Build and
 real execution require separately granted windows, fresh space of at least
@@ -115,5 +115,33 @@ and compares the complete returned capabilities with the actual formal Model
 view. Production policy, permissions, the three subtests, twelve count checks
 and all execution budgets are unchanged. This Go fixture change requires a
 new candidate and input closure; compile-01 and metadata01/02 are historical
-evidence, not acceptance of the corrected source. No new build or real run
-has been performed for the correction.
+evidence, not acceptance of the corrected source.
+
+## Corrected candidate and unchanged-source boundary
+
+Compile02 remains wholeFAIL. Its Go process actually returned 0, but the
+author's outer script tried an unavailable `/proc/PID/task/PID/children` file
+and exited 1 before listing or the second/input tails. A later bounded
+observation found the original PIDs/group absent and runtime empty; it does
+not fill the missing original proof. The original result is retained under
+`output/ai/agent-configuration-metadata/compile-02/`.
+
+The explicitly authorized compile03 launcher instead imports the existing
+supervisor's `descendants` method. Source `e075a779` completed the single-package
+race compile and exact list on 2026-10-10 12:19:37 UTC: session 63858 ended
+867998/0, outer 706328, Go 706333 and list 706411 all Wait 0. Compile/list took
+2.272s/1.068s. Both process groups, all original descendant samples and both
+runtime samples were empty; no adopted child or survivor required cleanup.
+All 1182 source inputs and the separate launcher/Python/supervisor method
+hashes matched before and after. Fresh launch space was 5,643,743,232 bytes;
+private telemetry/offline settings remained unchanged and the hot cache was
+released after complete Wait. No body, old pure suite, socket or database ran.
+
+`metadata-race-03.test` is a regular mode-0700, nlink-1 file, 44,600,867 bytes,
+SHA-256 `cac43b306727fc8fb0217da7f4674df57759e52ce4f620ba4e0e1f41509ff79d`.
+The list printed only `TestAgentConfigurationMetadata`; the source still has
+the same three subtests. The original compile03 logs/manifests/result remain
+under `output/ai/agent-configuration-metadata/compile-03/`. This outcome note
+changes only README/current after compilation, not Go source. The entry owner
+must generate the final native03 closure after this note is frozen. Metadata
+01/02 failures remain; successful compilation is not joint business acceptance.
