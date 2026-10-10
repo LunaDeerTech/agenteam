@@ -1,7 +1,9 @@
 # TaskDispatch 当前检查点
 
 - 物理树：`/workspace/agenteam-skill-install-runtime-source`；当前分支 `ai/task-dispatch`。目录旧名用于保留原 Runtime Source 纯验材料的绝对路径，不代表当前写域。
-- 源码检查点 `07dea4a9` 保存 Scheduler Launch 四源及 Work `task_launch` 合同，组合输入为 AgentSystem `281fc3cb`，两者现均已由 root 成功推送。有限交接已实现首次发送标记已知提交后同步 Launch、持久关联与原键 Lookup；Unknown 不重发，明确未创建仍保留 pending/known_not_created，未实现 Busy 补偿、自动重试或完整 Dispatcher。此前 HTTP 401 推送失败保留为历史事实，重启后的登录恢复已解除该推送阻塞。
+- 最新源码 `75fb14c5` 已远端保存：Scheduler Busy 9 个源码路径及 Work 消费合同，组合为 AgentSystem `232c7af5`。新增同 attempt 的真实 AgentBusy 标记、BusyCompensator 与私有原事务证明；Work Apply/Check 成功后才同事务 CAS 为 skipped，paused 保留 pending，Unknown 只按原身份 Lookup，Stop 等原调用实际返回。secret 有限独立源码审接受，无确认 must-fix；本片尚未运行 Go 或 PG，不能据此称实际补偿通过。
+- 强前置是 Work `92a3` 中的 `db/migrations/00046_task_busy_compensation.sql` 及真实 Work 补偿提供方；不得只部署新增扫描/UPDATE 而缺少 busy_attempt、skip_reason、skipped_at 三列及对应约束。后继限定 Scheduler 新 6 top / 32 sub 加实际受影响旧 Launch 2 top / 7 sub，组合测试由 root 安排，未受影响的旧通过证据复用。
+- 前片源码检查点 `07dea4a9` 保存 Scheduler Launch 四源及 Work `task_launch` 合同，组合输入为 AgentSystem `281fc3cb`，两者现均已由 root 成功推送。有限交接已实现首次发送标记已知提交后同步 Launch、持久关联与原键 Lookup；Unknown 不重发，明确未创建仍保留 pending/known_not_created；该前片未实现 Busy 补偿、自动重试或完整 Dispatcher。此前 HTTP 401 推送失败保留为历史事实，重启后的登录恢复已解除该推送阻塞。
 - 新增 Work/Scheduler 8 top race 与 3 包 vet 已 whole PASS，原尾关闭；材料原位于 AgentSystem `output/ai/task-launch/combined-pure-01/`。真实 PG `TestSchedulerLaunch` 1 top / 2 sub 业务 24.45s PASS，但整轮 whole FAIL：Go/driver Wait 0、supervisor/outer Wait 1，host TCP delta=1 且未保存该 tuple，无法归因；其余 owned 资源、进程及输入尾门齐。原件在 AgentSystem `output/ai/agent-system-integration/scheduler-launch-01-control/`，不得将业务通过升级为整体通过。
 - 本批源码基线 `a6ddde3d`：Scheduler PendingAuthority、四态持久模型及迁移 `00042`、单次 claim coordinator、私有同事务证明、配额分批观察；含配套 Execution capacity 与 Agent scheduler-current 提供方。已精确集成 AgentSystem `d041370d`。这不是完整 Scheduler 或生产接入完成。
 - 首片 `0434bc76` 的 5 top / 12 sub race 与 Scheduler 包 vet 已实际通过（session `43029` → `762123`）。原结果、日志、runner 和输入前后记录仍在 `output/ai/task-dispatch/pure-01/` 及同层 `pure-01-*` 文件。
