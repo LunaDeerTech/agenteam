@@ -197,7 +197,7 @@ func newSkillInstallationFixture(t *testing.T) *skillInstallationFixture {
 			t.Error("original Project drain", err)
 		}
 	})
-	target := pc.CreateProjectRequest{ProjectID: id[identity.Project](t), Name: "Skill install fixture", Description: "owned installation prerequisite"}
+	target := pc.CreateProjectRequest{ProjectID: id[identity.Project](t), Name: "skill-install-fixture", Description: "owned installation prerequisite"}
 	created, err := creator.CreateProject(ctxFor(t), base.ownerBrowser.actor, meta(t, id[struct{}](t).String(), nil), target)
 	if err != nil || created.State != pc.CreationReady || created.Project == nil || created.Project.ID != target.ProjectID {
 		t.Fatal("real target Project/Skills initialization", err)

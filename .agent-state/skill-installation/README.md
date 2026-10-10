@@ -19,3 +19,11 @@ python3 -B .agent-state/task-planning-recovery/pg_only_supervisor.py \
 真实断言范围：当前普通 Owner Install → 原 package EOF/Close/Joined → 正式 Lookup 与同 key replay → 非 Owner 拒绝及原持久事实；随后明示的生命周期 fixture 进入真实 Skill/Object stop 和普通来源清理，核 SQL anchors/Audit 与原对象 `NoSuchKey`。它不证明完整 Project 删除、Agent/F1、AgentRun 安装、Registry install Backend 注册、外进程恢复或解除旧 Object Runtime STOP。连续 00032–00036 SQL 与真实安装/删除尚未执行；失败时保留原事实及全部尾，不自动重试。
 
 首次编译 `compile-01` 已实际 FAIL（2026-10-10 13:19:00–13:19:27 UTC，session38864→4240b9）：fixture 第180/184行把 Object ProcessID 直接传给 Outbox ProcessID，两个不同类型不能赋值。原 Go Wait1/26.457s，outer Wait1；未执行 list、无候选、未启动 PG/Object。538 个编译输入和原方法输入初末一致，原进程组双 absent、后代与 adopted 均空、runtime 双空。输出位于 `output/ai/skill-install/compile-01/{compile.log,result.json,inputs-before.json,inputs-after.json}`；终端 `tails_closed=false` 同时包含原非零 exit 判断，不能据此反推有遗留进程。该 fixture 差异交原作者窄修，原 FAIL 不回填。
+
+原作者仅把同一个 ProcessID 字符串经正式 Outbox typed parse 转换（`f5945be0`）。修后 `compile-02` 实际 wholePASS：session11185→c01554，13:21:50–13:22:01 UTC，compile/list 原 Wait0（9.084s/1.051s）、精确列举上述1top，538个输入及方法初末相同，原进程组/runtime双空、后代/adopted空。候选为 `output/ai/skill-install/install-race.test`，47,749,377B，SHA256 `9f2a44bdb449191b072a75d527317a00608738b3d57cd1b8dd44d0d74257732c`；编译通过不代表业务执行。
+
+首次真实 `native01` 整体 **FAIL**（session38390→a44356，13:23:13–13:24:51 UTC）。原 top 6.36s，在 `skill_installation_test.go:291` 的目标 Project/Skills 初始化报固定 `INVALID_ARGUMENT`；两个 sub 均未开始，不能据此接受安装/读取/重放/清理，也不凭该安全错误猜测具体根因。原 Go773290、driver771390、supervisor771388、outer771342 的实际 Wait 均1；supervisor 96.272s。七个精确资源14次 absent，private/runtime各两次 clean，原后代及 adopted 空，supervisor 与 outer HOST_TCP 各双空，STOP0。运行闭包1219项、SHA256 `cb86d5af68ebd79c6623302fbb51b0c3c20442f75f478de8c97056af0b196ee8`，初末一致并完整包含原538个同字节编译输入。
+
+原启动计划/结果在 `output/ai/skill-install/install-01-inputs.json` 与 `install-01-control/result.json`；原日志为 `/tmp/ski01/pg-19926d70da544933ae74869adb4bfcd5.log`。该轮已释放完整实际窗口；未修改生产、fixture、预算或成功门，未自动重试。后继先对上述唯一前置失败做有界分类。
+
+全尾后作者对原 fixture 的有限源码定位：目标 Project 名称 `Skill install fixture` 含空格；正式 `CreateDigest → CreateProjectRequest.Validate → NormalizeName` 仅接受 ASCII 字母、数字及 `._-`，因此在接受事务/Skills 初始化之前即拒绝。原作者仅把该名称改为合法 `skill-install-fixture`，不改产品或成功断言；修后尚未重新编译/实际运行，原 native01 FAIL 与未执行子用例不回填。
