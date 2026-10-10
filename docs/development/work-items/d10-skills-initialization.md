@@ -14,6 +14,8 @@
 
 前置b6fd24因启动包装Go版本调用先创建XDG目录导致mkdir冲突，实际exit1且监督器/业务/七资源均未启动；此失败保留。修正只改外围目录创建次序，未改候选/工具；新cleanup-02沿fresh授权实际运行。原日志与完整命令见[恢复点](../../../.agent-state/current.md#cleanup-02-首次业务组合完整通过)。D05旧attempt/PUT/规模/00028专项成本和完整participant仍按各自结果计证；永久空zero_marker策略未变，Object Runtime join停项不恢复。下一正式交付仍须核完整依赖前缀和独立风险结论，不能以本轮PASS把原P2交付混入全部Cleanup。
 
+Model未参与者另核9产品/3PG源与cleanup-02原节点/全尾（883f34），有限接受本次组合，无新已确认产品mustfix。必要剩余不能混算：65 reader 产生66 joined work，但本次仅1 attempt。新 `TestSkillLifecycleCleanupHistoricalAttempts` 两子源码准备中：真实PUT后验证失败→同key新candidate发布→原AbandonedAttempt与新ProjectDeleted原因/物理空marker/native Audit保持；另一个明确历史兼容fixture在实际physical完成后只加65本域保留映射，真实FK/CHECK、32/32/1删除与回滚。D05每命令未cleaned最多2且本域RecoverAttemptAccess未绑定，因此后者不是65次原生初始化，也不改维护授权来造测试。新源未编译/未PG，旧c04候选和2top5子结果不覆盖它。
+
 ## 已交付 P1
 
 固定实现基线 `f401c15a5187690889eaea9ba9672ca8bdc85460`。新11路径：`internal/central/skill/contract/{types,package,read}.go` 及3对应测试，`internal/central/skill/{builtin,package}.go` 及2对应测试，`internal/central/skill/builtin/add-skills/v1/SKILL.md`。另仅本文及配套规格归位，共13路径；不改旧域、go.mod/go.sum、迁移、fixture、app或共享授权口。

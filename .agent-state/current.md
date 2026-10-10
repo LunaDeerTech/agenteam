@@ -2,6 +2,15 @@
 
 - 2026-10-10 跨域 Knowledge 命令 PG/native 方法静审已收口：六测试源以 d504a5ac 为底，作者窄修 Delete 返回完整升序 ID 集合与 native 背压真实 Timeout / 预算下界后有限接受。原 PG01 whole FAIL、旧 native 未运行保留；修后 Mutations|Unknown 两 top 六子和 native02 尚待实际。本人未编译 / PG / socket，报告见 [限定方法审](knowledge-tree-command-review/report.md)。本域 Cleanup 下一必要补集为非 current attempts 超过两批与已发布 Object 的旧 AbandonedAttempt 原 cause；原 65 reader / 66 joined work 不能代该事实。
 
+## 剩余 attempt 历史准备（未编译 / 未运行）
+
+- Model独立补审883f34核9产品/3PG源与cleanup-02原全尾，有限接受现库与实际2top5子，无新已确认产品mustfix；指出真实旧attempt与超过两批映射仍欠验。root已授权本域补集并明确不得为测试擅绑正式unbound RecoverAttemptAccess。
+- 当前真实边界：ReserveUploadInTx对旧closed candidate自身写AbandonedAttempt+原UploadID，可以同key再发布一个current。D05单command未cleaned上限2，本域一个Project只有一套初始化/Skill/Revision/Object，无法自然在当前端口累计65未退休nativeattempt；D05 history fixture的Recover使用其test-only owner，不移植成Skills授权。
+- 新三技术路径：旧 `tests/skills/lifecycle_cleanup_fixture_test.go` 仅增加可选存储配置回调（所有旧调用无参数原行为）；新 `lifecycle_cleanup_history_proxy_test.go` 是原signed request/task-owned实际MinIO代理，仅candidate GET可失败、原PUT/cleanup透传、原handler实际尾；新 `lifecycle_cleanup_history_test.go` 为唯一 `^TestSkillLifecycleCleanupHistoricalAttempts$` 两直接子。
+- `native_retry_preserves_abandoned_cause` 计划核真实PUT/原验证错误/原failed Audit与writer+Skillwork退役，真实同key重试保Object/Upload而新Attempt，原Abandoned cleanup ID/cause与新ProjectDeleted分别保持，空marker及native ObjectDelete一次，最终两个域全空/重建重放。`seeded_retained_mapping_history_batches_and_fk_rollback` 在真实当前publication/physical completed后显式SQL插65本域非current映射，只测历史兼容；SET CONSTRAINTS ALL IMMEDIATE核真实FK、work先退、66→34→2→1的32/32/1 mapping删除与原Tx失败回滚、当前anchor存活、最终两域删除。未插改D05 native状态/canonical/witness，不冒当前API生产65attempt。
+- 14c116仅gofmt与源内1top2sub计数actual0；尚未Go编译/业务/PG/socket，入口仍旧2top5sub不自动包含新top，旧c04候选不覆盖这些新源。产品/Object/Project/SQL零改。后继新候选需原固定env/cache和fresh5GiB，唯一root selector及两个新增输入另做必要窄增量；原全部预算/尾保留。
+- Model首静审指出PUT前计数不能排除“PUT失败＋GET拒绝”的同形前置；作者已窄补首次失败后按原持久candidate key、独立实际MinIO GetObject/ReadAll/Close并逐字核原bundle，retry必须在此证据之后。此只读fixture证明原payload实存，不冒原SDK PUT返回nil，也不修改native proof。8558cb gofmt/diffcheck实际0；新测试仍未compile/运行，等待独立增量结论。
+
 - 工作树 `/workspace/agenteam-skills-cleanup`，分支 `ai/skills-cleanup`；正式 base `ce65714aac6eb4995a43fc427a2c77e6497470a7`。root组装76路径，2026-10-09作者只读核对 `9f5153` actual0：eaad50fd 的29个Skill Go/8集成源及4个Object初始化专用源、b37f9a49的22个Object Go/7集成源与26/27/28及D05卡、本Skills树最新两D10卡逐字一致；Project/Audit/Knowledge与main完全保留，无额外产品差异。此核对不是组合编译或动态接受。
 - 本轮唯一writer为Skills agent；写域仅 `internal/central/skill` 必要dispatch/新cleanup实现与测试、`tests/skills` 新组合测试、本域D10卡/design及本文。Object/Project/SQL/App/D04只读；共享缺口交原owner，Git操作由root负责。不改00027 FK，不占00028，不恢复Object Runtime join停项。
 - 目标按已独审§16 rev2：真实CleanupAuthority与Release/Object/Purge opaque plan、当前Project Cleaning gate及精确parent/cause/全锁、原子关闭serving与Release、原预算内真实物理终局/私有Audit、32历史推进及D05四anchor与Skill五核心同Tx最终删除；最终全六表空仍须当前授权/实际调用尾。禁止以unbound/stub或假proof报完整Cleanup。

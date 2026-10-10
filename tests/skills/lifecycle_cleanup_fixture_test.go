@@ -74,7 +74,7 @@ type skillCleanupFixture struct {
 // in one Store. Project creation, ready and later lifecycle stage records are
 // explicit upstream fixtures; no Project.Create/BeginDelete/root claim follows.
 // Existing publication tests stay byte-identical and retain their unbound ports.
-func newSkillCleanupFixture(t *testing.T, p *skillPG) *skillCleanupFixture {
+func newSkillCleanupFixture(t *testing.T, p *skillPG, configure ...func(map[string]string)) *skillCleanupFixture {
 	t.Helper()
 	if p == nil {
 		p = newSkillPG(t)
@@ -134,6 +134,11 @@ func newSkillCleanupFixture(t *testing.T, p *skillPG) *skillCleanupFixture {
 		t.Fatal("owned bucket creation failed")
 	}
 	values := map[string]string{"ENDPOINT": remote.Endpoint(), "BUCKET": bucket, "ACCESS_KEY": remote.AccessKey, "SECRET_KEY": remote.SecretKey, "TLS_MODE": "verify-full", "CA_FILE": remote.CAFile}
+	// Optional test-owned transport stimulus; authority, Store, native Object
+	// service and every original fixture call remain unchanged.
+	for _, apply := range configure {
+		apply(values)
+	}
 	config, e := object.LoadStorageConfig(func(name string) (string, bool) {
 		value, ok := values[strings.TrimPrefix(name, object.EnvironmentPrefix)]
 		return value, ok
