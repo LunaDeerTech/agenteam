@@ -333,3 +333,5 @@ Recovery11 原整轮 FAIL（65409abc/account-recovery11.test，session13547，Go
 R11后六测试源窄候选已冻结交 content：保原request时false事实，只对arm后首mutation同对象/原材料允许owned503头后齐的later_verified，end/page/context关闭后拒；Task独立绑定原历史Lookup/XID/实际receipt对象与当次重放typed发布，复用所有原消费及退役尾。原catch追加安全有界tail_events并保首次afterEach快照，不给旧三错误补认请求。helper111、真实Session/API143及Project57控制均actual0/0unhandled，严格TS通过；仅离线候选，产品/Go/dist/45秒与原严格500后验未改，完整Recovery12尚待独审和fresh窗口，旧FAIL保持。
 
 content随后完成六技术路径实际diff限定只读审，有限方法接受、无must-fix，复用上述控制/TS且未跑动态/browser。格式与精确单recovery发现actual0；八路径全冻结待root保存，fresh Recovery12及完整卡仍未动态接受。
+
+Recovery12（b364def5/原binary+dist）整轮FAIL，原Task归档Lookup后、重放点击前arm报WORK_REPLAY_LOOKUP_UNREADY（helpers775/spec743）；Go43.17秒、outer138.820秒/21630 actual1，最终联合与Go持久/严格500后验未到。原两个Task Lookup正常finished不证明新ledger全部材料绑定；seq6另见material-mismatch而最终验证未到，不冒第二断言FAIL。首次快照与关闭后一个安全catch事件分开保存，R11三错误不回填。Go/driver/outer原Wait、四Z实际Wait0、各join及七ID/三private/runtime/desc/TCP双尾/inputsame全齐，窗口已归还，无retry；最小安全原件recovery-twelfth-failure.json与本树current记录停写供root保存，后续仅只读诊断原Lookup条件，任何方法更改先审。
