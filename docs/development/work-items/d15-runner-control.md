@@ -1,6 +1,6 @@
 # D15 Runner 身份与 Control Channel
 
-状态：rev2 已获独立有限SPEC接受，实施中；wire/本地身份局部作者离线通过，迁移、管理及一组真实TLS/WSS代际场景作者限定通过，完整身份/控制通道、双cmd、独立风险与平台矩阵尚未完成。
+状态：迁移00026对应的Linux/amd64 identity/control（空operation registry）已完成限定实现与验收，含默认双cmd、正式OS三格和独立风险补集；完整D15、macOS/其他架构及实际operation/Dispatch/Mount/D16–18绑定未完成。
 
 ## 1. 结果、依据与边界
 
@@ -214,7 +214,9 @@ Runner实际入口为满足上述既定行为，根补授权仅本树`tests/proc
 
 本卡完整接受需identity/control上述必需矩阵与独立验收；无真实macOS则只能报告Linux限定结果并保留平台gate，不能标整个D15双平台完成。Mount业务dispatch、实际D16 operation、D17数据面与D18ToolRuntime真实绑定仍需后续正式集成，不因测试替身通过而消失。若scope与端口改变，先修卡/独审受影响部分再实现，不把consumer缺失藏进TODO。
 
-## 10. 当前状态与下一步
+## 10. 实施过程与历史边界
+
+以下按原检查点保留当时事实与失败；后继范围以§10.1为准，不把局部或分次通过改写成旧轮整体PASS。
 
 rev1独审发现payload闭集不完整及HTTP误列不存在Foundation Conflict，两项原结论保留；rev2仅补本卡§6/7的闭集表与§3既有码映射，原审者差异复审已接受；这不是产品运行接受。规格阶段作者自查完成正式来源/现Account/Audit/Runner D02依赖核对。根授权一次固定依赖准备，`go mod download github.com/gorilla/websocket@v1.5.3`实际exit0，使用本树任务缓存。当前未启动任何server/PG/browser；共享wire普通test/race/短时fuzz作者自测actual0，尚未独立实现验收。
 
@@ -256,4 +258,20 @@ B首次真实窗口整组FAIL：pending persisted首子在真实SIGKILL/Wait后�
 
 有限00026开始在正式main4c1独立树装配：只并入Runner身份/control空registry与必要测试/文档，保留既有Variables、Secret Audit、B02/Project及24/25，不混后继迁移或生产Dispatch。三共享源的最小语义合并已获未参与者有限独审：六owner组合停止、拒绝未join后续退休、原Force/late install与11路由/11Audit动作闭集，纯3top24child通过；另作者11个原Runner/Variables/Audit受影响pure top实际race通过。实际Default case会由本树TestMain构建两个默认cmd，在新空DB运行完整1..26并构造六owner，正常退出时只有Runner带在途连接，不能称六owner同时held的真实验证。
 
-Default夹具现只复用已审C的原upgrade Close/copy/half-close owner和同3s `controlRetired`，不启持有/换址分支，不改C方法体或原业务断言。其旧handler计数归零单独不证明异步101 Close已返；此接缝补全不归因原14016 TCP失败。delivery WIP两工具仅新增该exact入口并移植作者已审TCP失败证据，原差集/75s/Go6m/root540+60+3/七资源/input门保持；18原TCP控制、旧全文逆投影与精确配置/资源尾替身控制已过，修后新main race候选与精确发现已实际通过，原TestMain离线构建本树两默认cmd；技术增量仍待未参与者窄审，无新main业务运行。后继一次新main完整真实轮同时承担正常双cmd与组合验证，取代另跑旧作者候选；旧wholeFAIL及当前无新main实际结果均保留。
+Default夹具现只复用已审C的原upgrade Close/copy/half-close owner和同3s `controlRetired`，不启持有/换址分支，不改C方法体或原业务断言。其旧handler计数归零单独不证明异步101 Close已返；此接缝补全不归因原14016 TCP失败。delivery WIP两工具仅新增该exact入口并移植作者已审TCP失败证据，原差集/75s/Go6m/root540+60+3/七资源/input门保持；18原TCP控制、旧全文逆投影与精确配置/资源尾替身控制已过，修后新main race候选与精确发现已实际通过，原TestMain离线构建本树两默认cmd；技术增量随后获Skills有限独立接受，无must-fix；其实际18 TCP/配置/资源尾控制与原C方法不变核对通过。后继一次新main完整真实轮同时承担正常双cmd与组合验证，取代另跑旧作者候选；结果见下，旧wholeFAIL保留。
+
+## 10.1 Linux/amd64 有限 00026 验收结果
+
+有限正式范围是作者107路径与独立验证3源，共110路径：设备管理/登记、私有身份、出站WSS代际与有界在线视图、空operation registry及必要默认根接线、测试和文档。只新增00026，保留已交付00024/25、Variables、Secret Audit、B02/Project与原Owner链；WIP监督器/恢复current/日志及后继00027–00030不纳入产品提交。
+
+不变语义按原固定版本复用作者Migration、Management、NativeGeneration、ClientLifecycle、A+DeviceReader、Competition/Deadlines/IdentityRecovery、修后Protocol以及B/C有限结果。B的committed子与修后pending首子分次接受，不回填原3175整体FAIL。独立Management原Concurrent三子、CommitUnknown两子与修后LogoutOrder两子去重七子；原Management01整FAIL保留，旧Logout-first只修真实首target锁观察。当前RoleChange无公开API，外部权限负事实不代该生产能力。
+
+正式main4c1三方装配后，Account/Audit保留原已交付分支，作者11个受影响pure top实际race通过；Vars独立3top24child验证组合六owner停止/未join/原Force/late install、11路由与11Audit动作闭集。只使用受控owner，不把它当真实PG或六owner同时held。
+
+new-main `TestRunnerControlDefaultProcesses` 在固定eaec…b455候选取得完整实际PASS：54801→4d4538 outer0，业务3.30s，Go1405934与driver1403815实际Wait0；7精确资源ID双absent、3private双absent、runtime/desc双空、TCP双delta空与输入不变齐全，原总99.895s。TestMain实际构建本树两默认cmd，新空DB执行完整1..26；原stdin登记/在线/锁竞争、无token同key重启、撤销再登记、双方退出和DB尾均经过正式入口。TLS proxy只转transport，复用已审原Close/copy/half-close owner和同3s退休；不打开hold/换址，不改原TCP差集门。作者14016旧Default wholeFAIL永久保留，不据新通过猜旧TCP归属。
+
+同一候选的三个既有回归随后在独立窗口完整PASS：50801→37fcd3 outer0，真实held TLS请求中TERM/INT（两子）0.06s、两默认cmd CLI/config 0.13s、Runner/neutral依赖方向0.15s；Go1413230及driver1413222实际Wait0，原runtime/private/desc、TCP双delta及重取源码集合/逐文件输入检查全部通过，总6.239s。WIP入口先前漏18个package源码、遗漏新增动态源码集合的两个独立红控保留；仅精确CLI分支修复后独立25控和作者27控通过，再执行本轮，旧Default/generic方法不变。
+
+默认Runner OS03方法与后继正式Linux/amd64 `TestRunnerControlDefaultRunnerSignals` 三格分别通过：正式55855→bf18c5 outer0，原EOF Wait0、真实第二信号和原3s+1s截止Wait1、双read/PID/stdio/同inode锁/private尾齐；强退仍read_joined=false。其源与默认Runner产品在main装配中未变，不为正式整合重复运行。原OS01/02方法FAIL、原86448 TCP归属缺口、原70310 Protocol残留身份缺口及所有已记setup/业务失败均保留；不称当前HEAD单次全矩阵通过。
+
+本结果不提供真实operation、业务Dispatch/Mount、D16进程/文件、D17数据面或D18 Runtime绑定，不证明macOS、其他架构、跨UID或断电持久性，不解除Object runtime join等原停止项；`ready=false`与`/readyz`503保持。完整D15仍按这些真实前置与平台门继续，有限00026不需重建已验不变矩阵。

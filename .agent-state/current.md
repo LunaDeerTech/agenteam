@@ -1,4 +1,4 @@
-# 当前工作：Runner 00026 有限 Linux 交付装配
+# 当前工作：Runner 00026 有限 Linux 验收完成，待原子正式整合
 
 - 工作树 `/workspace/agenteam-runner-control-delivery`，分支 `ai/runner-control-delivery`；精确正式基线 `4c1db71cf0f86cb6d6330167577944b0466c8664`。本文件是 WIP 恢复入口，不列入最终正式 main 产品提交。Git/index/resolved/checkpoint 仍由 root 操作。
 - 装配来源为作者基线 `f1c94ee520e8153e935fea7e7ed269e7e8b9adca` 到 `101a7b7cdc8a2615d02fc0556c128eb62a223003` 的有限 107 路径差异，另取独立树 `af51e339bcb1a8714c24dbfa05b8cdbe223454ff` 的 `tests/runnercontrol/independent_{fixture,management,unknown}_test.go`，合计 110 路径。精确分组清单在作者树 `.agent-state/runner-control/delivery-scope.json`；不复制 WIP supervisor/driver/review/probe、output/cache、UI 或其他业务。
@@ -8,7 +8,7 @@
 
 ## 实际状态与剩余门槛
 
-交付树11个受影响原pure top已实际race通过：69752/32e354→2b36ac，app1.128s、audit/contract1.022s、audit1.019s，Runner构造/当前调用Force/routes、Variables对应三组与两Audit typed分支/解码/授权。固定Go1.27.1/local/off/readonly/-p1和原Runner独占热cache，未递归选native/PG。作者旧树证据仅按不变语义复用；new-main Default 的实际根链已完整通过，精确结果见下；CLI 三回归尚未实际。
+交付树11个受影响原pure top已实际race通过：69752/32e354→2b36ac，app1.128s、audit/contract1.022s、audit1.019s，Runner构造/当前调用Force/routes、Variables对应三组与两Audit typed分支/解码/授权。固定Go1.27.1/local/off/readonly/-p1和原Runner独占热cache，未递归选native/PG。作者旧树证据仅按不变语义复用；new-main Default 与CLI三回归均已完整通过，精确结果见最后一节。
 
 作者 migration/management/native/client/device/current-authority、协议/竞争/deadline/identity、B 分次 Crash 恢复与 C 默认 Central 失败原结果见本卡，历史 wholeFAIL 与缺失材料保持。独立 Management 原 Concurrent 三子与 Unknown 两子有限通过，修后 LogoutOrder02 两子完整通过，去重七子；原 Management01 wholeFAIL 不回填。
 
@@ -59,3 +59,13 @@ CLI独审Vars原9c45fa确认遗漏18个tests/process Go源，d246c0的actualmain
 小native driver已离线构建：0cf2cc actual0，首2026-10-10T00:35:28.642046Z可用5,540,933,632B，固定Go/local/off/readonly/p1及原Runner热cache；路径`output/ai/runner-control-delivery/runner-cli-native-driver-01`，4,857,247B，SHA256 `ad8626d7b253796f4298499b795ebaaee514d4eccd2a9e091005acd9a2b0fcbe`。eedf30实际编译driver验证7个非精确selector都在资源创建前拒绝；精确selector只走到预先存在目录的Mkdir拒绝，不启动Go或TLS。业务候选不重编；返修只Python输入方法不影响该driver字节。
 
 本轮冻结current、supervisor和cli-controls，原native driver源码/110正式产品不改。CLI仍未执行，等待Vars原两红复验与root新独占fresh窗口；不在Default之后自动启动。最终card/README/backend/tasks待这最后三回归实际完成后一次归位。
+
+## 最后 CLI 完整结果与正式范围冻结
+
+CLI入口两must-fix经Vars独立e1da5f的25控（原两红转绿）及f4ab9f作者27控复取接受；e4ad92d3保存后才获唯一实际窗口。只读3a2ffa核599实际输入全存在，含18个tests/process源码。50801/a268f3→37fcd3实际outer0：首2026-10-10T00:41:47.210910Z可用5,500,887,040B，原候选eaec…b455与driver ad862…fcbe完整SHA/size检查，fresh `cli-regressions-main-01` 此前未用。原日志`pg-d2179d876f7c44c3839524f129c8e34f.log`三top实际PASS：held TLS challenge中的TERM/INT0.06s（两子）、两cmd CLI/config0.13s、Runner/neutral依赖0.15s。Go1413230 Wait0，driver1413222 Wait0/5.051s；runtime_empty/private_removed、desc双空、exact3/原Wait、private双absent、TCP双delta_empty、重取闭包集合与逐文件hash inputs_unchanged全部齐全，terminal0/6.239s。本人取得原terminal后立即释放；无PG、无root七资源声明或第二轮。Vars只读核Default/CLI原日志，外层终态明确复用本人的actual tool证据，不冒其本人运行。
+
+有限26最后两实际缺口已闭合，正式文档一次归位：`docs/development/backend/README.md`、`docs/development/backend/runner.md`、`docs/development/work-items/d15-runner-control.md`。Linux/amd64空registry边界、原14016及其他FAIL、分次恢复/独验计数7、正式OS结果与强退Read未join均保留；完整D15/macOS/其他架构/跨UID/实际Dispatch-Mount-D16–18未完成，ready503与原停止项不变。三正式docs及本current已冻结交root，tasks只提供单行给Work全局writer，不在本树修改。原110正式路径清单不变；root独占release树只接受这些文档差异和必要tasks单行，WIP工具/current/review/output均排除，不另跑相同矩阵。
+
+root经owner确认已回收旧已PASS的`runnercontrol-default-failures-race-3.test`（33,351,096B）及`runnercontrol-os-signals-race.test`（18,980,155B）；原测试源/日志/结果与失败候选、固定OS probe cmd、当前new-main/CLI两产物均保留。这两个旧二进制若再需要须按原保存source重建，本轮无排队用途。
+
+当前无活命令或真实资源；所有技术与三个正式docs/current保持freeze。此检查点只表示限定验收完成，正式main提交/远端发布由root在独立fresh main release树完成后报告，不提前冒已正式main。

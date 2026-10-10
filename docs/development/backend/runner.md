@@ -1,6 +1,6 @@
 # Runner 身份与控制通道
 
-本分支按 [D15 规格](../work-items/d15-runner-control.md)实现 Runner 管理、一次性登记、Ed25519 设备身份和出站 WSS。当前源码已接 Central 与 Runner 默认入口；连续迁移、管理服务、TLS/WSS 代际与公开 Client 生命周期已有作者限定真实结果；默认双进程退出、独立风险验证和完整平台矩阵仍待验收。共享 wire 与 Linux 身份文件已有局部验证，不能将这些结果视为完整 D15 或可部署结论，验收状态以规格卡为准。
+迁移00026对应的 Linux/amd64 Runner identity/control 空 registry 已完成限定实现与验收，详见 [D15 规格](../work-items/d15-runner-control.md#101-linuxamd64-有限-00026-验收结果)。Central 与 Runner 默认入口已接设备管理、一次性登记、Ed25519 私有身份和出站 WSS；作者业务、独立风险补集、正式 OS 三格及新 main 组合的双 cmd/CLI 结果按明确版本复用，不能称当前 HEAD 一次全量或完整 D15 通过。
 
 生产 operation registry 为空，hello 的 capability 列表相应为空。设备在线不代表可以执行命令、访问 Workspace 或使用 Data Channel；Agent Mount、D16 operation、D17 数据面和 D18 Tool Runtime 的真实绑定仍是独立集成门槛。整体 `ready=false` / `/readyz` 503 的既有限制不变。
 
@@ -65,8 +65,10 @@ Central 的 Runner owner 位于 Account/DB 之前停止，拥有升级后的 soc
 
 Runner 停止新请求、取消已接收请求及重连，再等待实际运行时、socket/worker退出，最后释放身份文件锁。当前D16/D17 owner为空只表示未绑定，不是其退出验证。局部状态日志仅使用固定状态和布尔值，不打印token、签名、私钥、raw public key或配置值。
 
-首期支持目标是Linux kernel≥5.15及macOS≥14，amd64/arm64；Windows明确不支持。目前仅有Linux局部文件/协议、限定PG和TLS/WSS结果，macOS、跨UID、真实crash和其它CPU保持未验。业务PG测试使用实际Account Bootstrap/Login、同Store/Audit与隔离Postgres；native/真实双入口须分别取得资源窗口。开发中只运行已核实无网络的精确pure selector，禁止递归测试误纳native组。
+首期平台目标仍为 Linux kernel≥5.15及macOS≥14、amd64/arm64；本次实际接受只到 Linux/amd64。macOS、其他CPU、跨UID与断电持久性未验，Windows不支持。有限结果不解除既有Object runtime join等停止项，也不补实际操作、Mount、D16/D17/D18绑定。
 
-作者真实 `TestRunnerControlMigration` 与 `TestRunnerControlManagement` 已通过各自断言及实际 Wait、精确资源退役、runtime/descendants、TCP 和输入不变检查；前者限定连续迁移/约束，后者限定管理原意图、同 User 新 Session 与 Audit 原子性。`TestRunnerControlDeviceAndReader` 的设备/代际/自然 lease/闭池断言通过，但原 host TCP 尾有4行未清、外层退出1，整轮仍为失败；原 tuple 未保存，事后资源清空不能补写原归属或 PASS。
+作者已完成连续迁移、当前管理权限/命令恢复、设备认证/代际、自然lease、公开Client生命周期和有限协议风险组。真实进程Crash分两原窗口覆盖pending尚未登记、后端已登记但本地仍pending；保留原key，无token重启不自动登记重放，已提交身份经同key challenge恢复。Central实际Crash后Reader保守保留原lease至自然到期，再同key重连；数据库不能读时不制造offline。独立管理风险为Concurrent三子、CommitUnknown两子和修后LogoutOrder两子，合计七子；外部降权负事实不代表尚无公开API的RoleChange生产命令已验。
 
-作者本人 `TestRunnerControlNativeGeneration` 已在独占窗口实际通过坏 CA/错 hostname、原设备登记/token重放、Origin/nonce拒绝、hello/heartbeat、双 Service 替代旧连接及撤销退役，并完成实际 Wait、资源/runtime/TCP双尾及输入不变检查。`TestRunnerControlNativeClientLifecycle` 后继完整通过真实登记、原10s heartbeat、无token/config重启原key与held回调下Force/身份锁/原Run返回边界，Go/driver/outer实际退出及双资源/runtime/TCP尾齐全。四组有限安全组合随后真实运行：DeviceCompetition、NativeDeadlines、NativeIdentityRecovery通过；NativeProtocolRejection四子通过，但其top在原Drain/HTTP清理后仍观察1个accepted物理连接，整体退出1。原实际Wait、资源/runtime/TCP双尾和输入不变齐全仍不消除此FAIL；残留连接具体身份未采，原因尚待定位。默认双cmd组仍仅编译并精确发现，待真实验证。当前结果不覆盖全部 COMMIT Unknown、双 cmd、RPC/Runtime 或平台矩阵。
+Linux正式OS测试使用真实默认cmd、自有PID/starttime/exe、blocking fd0 pipe和双SYS_read见证。EOF退出Wait0；实际第二信号及原3s+1s期限退出Wait1，强退两格仍Read未join。另一次new-main默认双cmd真实验证完整1..26迁移、stdin登记、在线、锁竞争、无token同key重启、撤销/再登记、正常退出和实际数据库尾；七资源、private/runtime/desc、TCP双尾及输入不变齐全。组合六owner的未join/Force/late-install由独立纯控制补证，默认进程case不冒六owner同时held。CLI/config、held TLS challenge中正常TERM/INT与依赖方向三个原回归也在同交付候选实际完整通过。
+
+历史失败不被后继结果改写：原DeviceAndReader的TCP四行缺原tuple/归属；原四组组合的Protocol top残留物理连接缺身份；原B首子未读POST导致handler join未完成；原OS01/02方法失败；作者Default01的同baseline tuple由ESTAB转TIME_WAIT、无PID归属，整轮仍FAIL。修后Protocol单组、A+DeviceReader、B首子、正式OS以及new-main Default分别取得后继限定合格结果；没有修改原TCP门或把事后清空补成旧轮PASS。具体原始边界与组合证据见D15卡。
