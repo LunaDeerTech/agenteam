@@ -49,6 +49,14 @@ type skillInstallationFixture struct {
 
 func newSkillInstallationFixture(t *testing.T) *skillInstallationFixture {
 	t.Helper()
+	return newSkillInstallationFixtureWithAuthority(t, nil)
+}
+
+// The optional factory binds a real execution-install producer after opening
+// the actual guard and before Object/Skill construction. The nil/default path
+// retains the Human fixture; it cannot register that service as a Runtime source.
+func newSkillInstallationFixtureWithAuthority(t *testing.T, factory func(*hookStore, *project.Authority, *object.ProcessGuard, objc.ProcessID) (*skill.Authority, error)) *skillInstallationFixture {
+	t.Helper()
 	base := newVariableHTTPFixture(t) // newDatabase migrates the continuous 00001–36 source.
 	store := base.tracked
 	manifest, err := pc.NewRequiredManifest([]pc.ParticipantRegistration{
@@ -70,26 +78,6 @@ func newSkillInstallationFixture(t *testing.T) *skillInstallationFixture {
 		t.Fatal(err)
 	}
 	projects, err := project.NewAuthority(store, project.AuthorityDependencies{Sessions: base.accounts, Routes: base.accounts, Lifecycle: lifecycle, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.ObjectProducer: facts}})
-	if err != nil {
-		t.Fatal(err)
-	}
-	authority, err := skill.NewAuthority(store, projects)
-	if err != nil {
-		t.Fatal(err)
-	}
-	initialFacts, err := skill.NewInitializationAuditFacts(authority, facts)
-	if err != nil {
-		t.Fatal(err)
-	}
-	initialAudit, err := project.NewInitializationAuditAuthority(projects, initialFacts)
-	if err != nil {
-		t.Fatal(err)
-	}
-	cleanupAudit, err := skill.NewLifecycleAuditAuthority(initialAudit, authority, facts)
-	if err != nil {
-		t.Fatal(err)
-	}
-	aud, err := audit.New(store, base.keys, audit.Authorizations{Sessions: base.accounts, System: base.accounts, Accounts: base.accounts, Projects: cleanupAudit})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -139,6 +127,41 @@ func newSkillInstallationFixture(t *testing.T) *skillInstallationFixture {
 			t.Error("original unbound guard close", err)
 		}
 	})
+	var authority *skill.Authority
+	if factory == nil {
+		authority, err = skill.NewAuthority(store, projects)
+	} else {
+		authority, err = factory(store, projects, guard, process)
+	}
+	if err != nil {
+		_ = spool.Close()
+		_ = backend.Close()
+		t.Fatal(err)
+	}
+	initialFacts, err := skill.NewInitializationAuditFacts(authority, facts)
+	if err != nil {
+		_ = spool.Close()
+		_ = backend.Close()
+		t.Fatal(err)
+	}
+	initialAudit, err := project.NewInitializationAuditAuthority(projects, initialFacts)
+	if err != nil {
+		_ = spool.Close()
+		_ = backend.Close()
+		t.Fatal(err)
+	}
+	cleanupAudit, err := skill.NewLifecycleAuditAuthority(initialAudit, authority, facts)
+	if err != nil {
+		_ = spool.Close()
+		_ = backend.Close()
+		t.Fatal(err)
+	}
+	aud, err := audit.New(store, base.keys, audit.Authorizations{Sessions: base.accounts, System: base.accounts, Accounts: base.accounts, Projects: cleanupAudit})
+	if err != nil {
+		_ = spool.Close()
+		_ = backend.Close()
+		t.Fatal(err)
+	}
 	objects, err := object.New(store, backend, spool, aud, object.Authorizations{Planner: authority, Resources: authority, Read: authority, Gate: authority, Cleanup: authority, Processes: guard, ProjectStop: lifecycle})
 	if err != nil {
 		_ = spool.Close()
