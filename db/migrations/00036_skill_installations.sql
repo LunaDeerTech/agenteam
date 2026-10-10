@@ -1,0 +1,74 @@
+-- agenteam:transaction tx
+-- +goose Up
+-- Skills owns the complete ordinary-install command and original Object
+-- attempt mapping. This does not create a Tool registration or assignment.
+CREATE TABLE agenteam_skill.installations (
+ id agenteam_skill.safe_id PRIMARY KEY,
+ project_id agenteam_skill.safe_id NOT NULL,
+ actor_user_id agenteam_skill.safe_id NOT NULL,
+ command_key text NOT NULL CHECK(octet_length(command_key) BETWEEN 1 AND 128 AND command_key ~ '^[A-Za-z0-9._:/-]+$'),
+ skill_id agenteam_skill.safe_id NOT NULL UNIQUE,
+ revision_id agenteam_skill.safe_id NOT NULL UNIQUE,
+ semantic_digest text NOT NULL CHECK(semantic_digest ~ '^sha256:[0-9a-f]{64}$'),
+ package_sha256 text NOT NULL CHECK(package_sha256 ~ '^sha256:[0-9a-f]{64}$'),
+ manifest_sha256 text NOT NULL CHECK(manifest_sha256 ~ '^sha256:[0-9a-f]{64}$'),
+ byte_size bigint NOT NULL CHECK(byte_size>0 AND byte_size<=33832982),
+ manifest bytea NOT NULL CHECK(octet_length(manifest) BETWEEN 1 AND 1016832),
+ name text NOT NULL CHECK(octet_length(name) BETWEEN 1 AND 128),
+ normalized_name text COLLATE "C" NOT NULL CHECK(octet_length(normalized_name) BETWEEN 1 AND 384 AND normalized_name<>'add-skills'),
+ description text NOT NULL CHECK(octet_length(description) BETWEEN 1 AND 8192),
+ phase text NOT NULL CHECK(phase IN ('planned','reserved','published','failed')),
+ version bigint NOT NULL CHECK(version>0),
+ object_id agenteam_skill.safe_id UNIQUE,
+ upload_id agenteam_skill.safe_id UNIQUE,
+ current_attempt_id agenteam_skill.safe_id,
+ safe_reason text CHECK(safe_reason IN ('dependency_unavailable','work_pending','outcome_unknown','operation_failed')),
+ created_at timestamptz(6) NOT NULL,
+ updated_at timestamptz(6) NOT NULL CHECK(updated_at>=created_at),
+ UNIQUE(project_id,command_key),
+ UNIQUE(project_id,id,skill_id,revision_id),
+ UNIQUE(project_id,id,skill_id,revision_id,object_id,upload_id),
+ CHECK((object_id IS NULL)=(upload_id IS NULL)),
+ CHECK((phase='planned' AND object_id IS NULL AND current_attempt_id IS NULL AND safe_reason IS NULL)
+ OR (phase IN ('reserved','published') AND object_id IS NOT NULL AND current_attempt_id IS NOT NULL AND safe_reason IS NULL)
+ OR (phase='failed' AND safe_reason IS NOT NULL AND ((object_id IS NULL AND current_attempt_id IS NULL) OR (object_id IS NOT NULL AND current_attempt_id IS NOT NULL))))
+);
+CREATE UNIQUE INDEX skill_installation_live_name ON agenteam_skill.installations(project_id,normalized_name) WHERE phase<>'failed';
+
+CREATE TABLE agenteam_skill.installation_attempts (
+ attempt_id agenteam_skill.safe_id PRIMARY KEY,
+ project_id agenteam_skill.safe_id NOT NULL,
+ installation_id agenteam_skill.safe_id NOT NULL,
+ skill_id agenteam_skill.safe_id NOT NULL,
+ revision_id agenteam_skill.safe_id NOT NULL,
+ object_id agenteam_skill.safe_id NOT NULL,
+ upload_id agenteam_skill.safe_id NOT NULL,
+ process_id agenteam_skill.safe_id NOT NULL,
+ created_at timestamptz(6) NOT NULL,
+ UNIQUE(attempt_id,project_id,installation_id,skill_id,revision_id,object_id,upload_id),
+ FOREIGN KEY(project_id,installation_id,skill_id,revision_id,object_id,upload_id)
+ REFERENCES agenteam_skill.installations(project_id,id,skill_id,revision_id,object_id,upload_id) DEFERRABLE INITIALLY DEFERRED
+);
+ALTER TABLE agenteam_skill.installations ADD CONSTRAINT skill_installation_current_attempt
+ FOREIGN KEY(current_attempt_id,project_id,id,skill_id,revision_id,object_id,upload_id)
+ REFERENCES agenteam_skill.installation_attempts(attempt_id,project_id,installation_id,skill_id,revision_id,object_id,upload_id) DEFERRABLE INITIALLY DEFERRED;
+CREATE INDEX skill_installation_original_object ON agenteam_skill.installation_attempts(object_id,attempt_id);
+
+-- +goose StatementBegin
+CREATE FUNCTION agenteam_skill.reject_installation_rewrite() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF OLD.phase IN ('published','failed')
+ OR ROW(NEW.id,NEW.project_id,NEW.actor_user_id,NEW.command_key,NEW.skill_id,NEW.revision_id,NEW.semantic_digest,NEW.package_sha256,NEW.manifest_sha256,NEW.byte_size,NEW.manifest,NEW.name,NEW.normalized_name,NEW.description,NEW.created_at)
+ IS DISTINCT FROM ROW(OLD.id,OLD.project_id,OLD.actor_user_id,OLD.command_key,OLD.skill_id,OLD.revision_id,OLD.semantic_digest,OLD.package_sha256,OLD.manifest_sha256,OLD.byte_size,OLD.manifest,OLD.name,OLD.normalized_name,OLD.description,OLD.created_at)
+ OR OLD.version=9223372036854775807 OR NEW.version<>OLD.version+1
+ OR NEW.updated_at<OLD.updated_at
+ OR (OLD.phase='reserved' AND NEW.phase='planned')
+ OR (OLD.object_id IS NOT NULL AND ROW(NEW.object_id,NEW.upload_id) IS DISTINCT FROM ROW(OLD.object_id,OLD.upload_id)) THEN
+  RAISE EXCEPTION USING ERRCODE='23514', CONSTRAINT='installations_immutable', MESSAGE='immutable skill installation';
+ END IF;
+ RETURN NEW;
+END;
+$$;
+-- +goose StatementEnd
+CREATE TRIGGER installations_immutable BEFORE UPDATE ON agenteam_skill.installations
+ FOR EACH ROW EXECUTE FUNCTION agenteam_skill.reject_installation_rewrite();
