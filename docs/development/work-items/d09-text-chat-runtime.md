@@ -1,6 +1,6 @@
 # D09 有限 text-only Model Runtime
 
-状态：有限 SPEC 与首 Object/Project 五路径经 cleanup 非作者有限审接受；首边界15top普通/race均实际通过，Runtime 尚未闭合、未编译或真实调用。基线 main `04455194`，工作树 `/workspace/agenteam-model-text-runtime`、分支 `ai/model-text-runtime`。root 分配本执行者独占迁移 `00031_model_logical_calls.sql`。本卡交付一次真实 attempt 的 logical-call 服务，生产 consumer 与默认根未绑定；不宣称完整 D09、D22 或 Agent F1。
+状态：有限 SPEC 与首 Object/Project 五路径经 cleanup 非作者有限审接受；首边界15top普通/race均实际通过。Runtime九源、00031、Secret router显式分派及输入基础test首稿已落盘，尚未编译/验证或真实调用。基线 main `04455194`，工作树 `/workspace/agenteam-model-text-runtime`、分支 `ai/model-text-runtime`。root 分配本执行者独占迁移 `00031_model_logical_calls.sql`。本卡交付一次真实 attempt 的 logical-call 服务，生产 consumer 与默认根未绑定；不宣称完整 D09、D22 或 Agent F1。
 
 ## 1. 正式依据、提供方与调用方
 
