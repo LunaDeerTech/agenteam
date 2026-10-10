@@ -62,3 +62,36 @@ Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/d
 整改后的 `TestKnowledgeSkillsDefaultRootComposition` 原单 top/零 sub 完整 PASS：先证默认 Create 返回 `DEPENDENCY_UNBOUND`/`not_committed`，13 项 Project/Skill/Object/Audit/Event 事实为零；再由显式 test-only Project 服务使用同 Store、原 Audit、真实 Skill/Object 端口建立读取数据，并实际 Stop/Drain/Joined。它不替换默认服务、不以 SQL 写 ready。随后才验证默认 Skills 目录、Knowledge 正文 GET/HEAD、Avatar 维护与原进程退出。用例 7.39s，Go243371/driver241594/outer241447 均实际 Wait0，七资源/private/runtime/desc/TCP 双尾和 inputs 一致齐，总111.577s。该结果接受既有数据的默认读取组合，不接受生产初始化或完整 participant。
 
 后继 Skills UI 应消费本卡八字段和安全 Problem，覆盖当前 Session/Owner、未初始化及归档/Deleting 状态；不附带包正文、安装、分配或 Agent 能力。本批没有 Skills UI，Object Runtime join 等原停止项保持。
+
+## Owner 读取 UI：接口与首条链路
+
+本节为后继 UI SPEC rev1，基线 `33903460`，工作树 `/workspace/agenteam-skills-owner-ui`、分支 `ai/skills-owner-ui`。当前仅规格准备，尚未实现或运行浏览器；上文已接受的 HTTP、默认根既有数据读取和原 FAIL 边界不变。
+
+用户从项目设置的“Skills / 项目技能库”进入目录，点击技能查看名称、描述、受保护标记、当前修订及记录版本，可明确重读和返回目录。路由为 `/:username/:project_name/settings/skills/:skill_id?`；详情 ID 只接受 canonical UUID7。目录沿正式 HTTP 恰一项合同，空数组是无效响应，不伪造空库或创建入口。归档项目仍可读取；未初始化、不可访问、读取失败、取消分别显示安全反馈。当前页没有创建、安装、包正文、版本写入、删除或 Agent 分配控件。
+
+### 文件与依赖关系
+
+- 本域新增 `web/src/api/skill-owner.ts`、`web/src/composables/useSkillOwner.ts`、`web/src/views/projects/ProjectSkillsView.vue` 和 `web/src/tests/skill-owner-{client,state,view}.spec.ts`。
+- 导航仅改 `web/src/router/index.ts`、`web/src/router/auth.ts`、`web/src/views/projects/ProjectSettingsView.vue`。`projectRoute` 只增加上述目录/详情闭集，保留 query、hash、percent、backslash、非法 ID 与未知后缀拒绝；无需修改 Workspace、App 或公共控件。
+- `client.ts` 与 `useSession.ts` 当前唯一写者是 KnowledgeRename 作者 content。其共享源冻结并经 root 交接精确基线后，Skills 才接这两处；当前不得并写。其新增尾参数采用 `capabilities: Readonly<{ knowledgeCommands?: KnowledgeCommandsAPI }> = {}`，旧参数 0..15 保持。Skills 后继仅在同一具名对象增加 `skills?: SkillOwnerAPI`，不增加位置参数、不更改 Knowledge 命令或旧 GET。共享整合责任由 root 分配，当前两端已确认此兼容合同。
+- 不改 Go、默认后端、迁移、依赖锁、D16/D18、Work 或独立 Recovery harness。生产 Project initializer 仍 unbound；权限仍由真实 Account、Project 与 Skills 每次读取确认。
+
+### 两个 GET 与严格值边界
+
+共享 transport 增加 `listProjectSkills`（GET `/api/v1/projects/{project_id}/skills`）及 `getProjectSkill`（GET `/api/v1/projects/{project_id}/skills/{target}`），成功状态均为 200。前者 options 恰 `{signal, projectID}`，后者恰 `{signal, projectID, target}`；UUID7 参数先捕获校验，不允许 query、body、CSRF、幂等键或额外字段。独立类型 overload 与运行时闭合检查一致，不借 generic overload 绕过输入限制。
+
+成功 JSON 最大 65536 bytes，沿原 transport 的 fatal UTF-8、完整 EOF、reader cancel/release 和 response finally；复用已有 JSON member 检查拒绝重复字段，不新增解码算法。安全 Problem 沿原 AccountFailure，不输出原 body、错误 cause 或请求材料。后端原 2s 预算不变。
+
+本域 `SkillOwnerAPI` 为 `list(projectID, signal): Promise<SkillDirectory>` 和 `get(projectID, skillID, signal): Promise<SkillMetadata>`；工厂为 `createSkillOwnerAPI(fetcher?: Fetch)`，输入导出 `captureSkillID`。目录恰 `{items}` 且恰一项；metadata 恰本卡八字段，ID/project/目标严格绑定，`protected` 为 boolean，revision/version 为 1..9223372036854775807 的 canonical 十进制字符串。文本拒绝孤立 surrogate，name/normalized_name/description 的 UTF-8 byte 上限分别为 128/384/8192，保正式控制字符与非空约束。所有返回值递归只读冻结。名称 NFC/full-fold 与 normalized_name 的完整领域关系仍由正式服务的 Metadata.Validate 校验；前端不以 JavaScript lowercase 冒充 Go full-fold，不根据名称或 protected 标记建立权限。
+
+### 单一 Session 与页面发布
+
+对页面暴露 `auth.skills.list(projectID)`、`get(projectID, skillID)`、`abandon()`。只增加 `skill-read` action 及其失效 revision，仍使用现有唯一 `runAuthorized` owner、原 30s 可见等待及实际 finally；不引入另一个 Cookie 队列、intent、lookup 或 replay。当前 Human 身份条件与现 Knowledge GET 一致；仅当次仍 current 的 Session 失效错误可清身份，局部 403/404 不写 System denied。abandon 只取消 Skills 原 owner，原 body/cancel 尾退出前仍 busy。
+
+页面控制器消费 `Workspace.currentReadContext` 的 identity、projectID、generation、readGeneration，并绑定当前路由与选择代次。切换 Session/Project/路由、取消或卸载后旧结果不得发布；身份失效时立即隐藏旧内容。后继读取等待 Session 原 owner 真正退出，不用页面取消等同退役。目录和详情分别保持加载、就绪及安全失败状态，明确重读才恢复取消读取。页面沿现 Ui 控件和主题 tokens，支持窄屏、键盘、标题焦点和长文本，描述作为文本渲染。
+
+### 必要自测与真实链路
+
+基础离线检查聚焦两 GET 原路径/无写材料、八字段/目标/版本/字节限额及坏 JSON，实际 reader 取消尾；控制器/组件覆盖目录→详情→返回、明确重读、未初始化/不可访问、归档读取、切换身份或 Project 后迟到结果拒绝、取消期间原 owner 未释放。路由检查上述两条合法路径和原非法返回目标。使用 Vitest/Vue Test Utils 验证可见行为，不以内部方法镜像或复跑无关矩阵替代功能。
+
+首条真实链为真实登录→当前 Owner 项目→项目设置技能目录→真实详情→刷新，另检查撤销或跨 Owner 不展示旧值及只读不增加业务事实。数据由现有明确 test-only Project 服务沿同 Store/Audit/真实 Skills/Object 初始化，随后由默认 Central 两条正式路由读取；不替换默认服务、不用 SQL 写 ready、不宣称生产 Create。fixture/浏览器接线的新增具体路径另交 root 分配；当前 Go 与共享 driver 不在写域。真实资源由 root 单独授窗，验收保原请求与进程/资源实际退役；不搬用 Work 的 failed/replay/planning 观察特例。正常与失败基础自测完成后尽早交首条联调，不因该切片扩成反复方法开发。
