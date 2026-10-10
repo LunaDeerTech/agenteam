@@ -49,22 +49,22 @@ func TestObjectMetadataCleanupLiveTransferAndDownloadPlans(t *testing.T) {
 			t.Fatal("isolated live SQL shapes", err)
 		}
 	}
-	metadataLiveCostCardinalities(t, store, 68, 2, 33)
+	metadataLiveCostCardinalities(t, store, 34, 2, 33)
 	target, absent := metadataCostID(0x01910000, 1), metadataCostID(0x01910000, 3)
 	for _, deleting := range []bool{false, true} {
 		want := map[string][]string{
 			"stop-work":      {metadataCostID(0x01c70000, 1)},
-			"stop-reserved":  metadataLiveIDs(0x01c00000, 33),
-			"stop-leases":    append(metadataLiveIDs(0x01c40000, 33), metadataCostID(0x01c80000, 1)),
+			"stop-reserved":  metadataLiveIDs(0x01c00000, 16),
+			"stop-leases":    append(metadataLiveIDs(0x01c40000, 16), metadataCostID(0x01c80000, 1)),
 			"stop-grants":    nil,
-			"stop-transfers": metadataLiveIDs(0x01c30000, 33),
+			"stop-transfers": metadataLiveIDs(0x01c30000, 16),
 		}
 		if deleting {
 			want["stop-work"] = append(want["stop-work"], metadataCostID(0x01c90000, 2))
-			want["stop-leases"] = append(want["stop-leases"], metadataLiveIDs(0x01c60000, 33)...)
+			want["stop-leases"] = append(want["stop-leases"], metadataLiveIDs(0x01c60000, 16)...)
 			want["stop-leases"] = append(want["stop-leases"], metadataCostID(0x01c90000, 2))
 			want["stop-grants"] = metadataLiveIDs(0x01cb0000, 33)
-			want["stop-transfers"] = append(want["stop-transfers"], metadataLiveIDs(0x01c50000, 33)...)
+			want["stop-transfers"] = append(want["stop-transfers"], metadataLiveIDs(0x01c50000, 16)...)
 		}
 		for _, name := range []string{"stop-work", "stop-reserved", "stop-leases", "stop-grants", "stop-transfers"} {
 			metadataLiveCostPages(t, store, queries[name], "live/"+name, target, deleting, want[name])
@@ -102,11 +102,11 @@ func TestObjectMetadataCleanupLiveTransferAndDownloadPlans(t *testing.T) {
 	if _, err := conn.Exec(contextFor(t), metadataCostRetirePUTShapeSQL); err != nil {
 		t.Fatal("retired PUT SQL comparison snapshot", err)
 	}
-	metadataLiveCostCardinalities(t, store, 33, 0, 33)
+	metadataLiveCostCardinalities(t, store, 16, 0, 33)
 	metadataLivePending(t, store, queries["stop-full-pending"], "get-and-download/archive", []any{target, false}, false)
 	metadataLivePending(t, store, queries["stop-full-pending"], "get-and-download/delete", []any{target, true}, true)
 	metadataLiveCostPages(t, store, queries["stop-transfers"], "get-only/archive", target, false, nil)
-	metadataLiveCostPages(t, store, queries["stop-transfers"], "get-only/delete", target, true, metadataLiveIDs(0x01c50000, 33))
+	metadataLiveCostPages(t, store, queries["stop-transfers"], "get-only/delete", target, true, metadataLiveIDs(0x01c50000, 16))
 	if _, err := conn.Exec(contextFor(t), metadataCostRetireGETShapeSQL); err != nil {
 		t.Fatal("retired GET SQL comparison snapshot", err)
 	}
@@ -246,29 +246,44 @@ func metadataLiveCostCardinalities(t *testing.T, store *postgres.Store, liveLeas
  (SELECT count(*) FROM agenteam_download.grants WHERE NOT revoked),
  (SELECT count(*) FROM agenteam_object.uploads WHERE disposition='reserved')`, metadataCostID(0x01910000, 2)).Scan(&transfers, &attempts, &cleanup, &grants, &foreignTransfers, &foreignGrants, &leases, &work, &active, &reserved)
 	wantReserved := 0
-	if liveLeases == 68 {
-		wantReserved = 33
+	if liveLeases == 34 {
+		wantReserved = 16
 	}
-	if err != nil || transfers != 1132 || attempts != 4217 || cleanup != 4182 || grants != 11035 || foreignTransfers != 1001 || foreignGrants != 10001 || leases != liveLeases || work != liveWork || active != liveGrants || reserved != wantReserved {
+	if err != nil || transfers != 1098 || attempts != 4200 || cleanup != 4182 || grants != 11035 || foreignTransfers != 1001 || foreignGrants != 10001 || leases != liveLeases || work != liveWork || active != liveGrants || reserved != wantReserved {
 		t.Fatal("SQL live/history comparison cardinalities", transfers, attempts, cleanup, grants, foreignTransfers, foreignGrants, leases, work, active, reserved, err)
+	}
+	// This is a fixture validity check using the real Issue quota predicate,
+	// not an Issue/authorization test. Retired but uncleaned PUT staging still
+	// consumes capacity; counting only active external leases would miss it.
+	var outstanding, nonterminal, perCommand int
+	err = store.QueryRow(contextFor(t), `SELECT
+ (SELECT count(*) FROM agenteam_object.object_transfers t WHERE EXISTS(SELECT 1 FROM agenteam_object.object_leases l WHERE l.id=t.lease_id AND l.state='active') OR t.direction='put' AND EXISTS(SELECT 1 FROM agenteam_object.upload_attempts a WHERE a.id=t.staging_id AND a.phase<>'cleaned')),
+ (SELECT count(*) FROM agenteam_object.upload_attempts WHERE phase NOT IN ('published','cleaned')),
+ (SELECT max(n) FROM (SELECT count(*) n FROM agenteam_object.upload_attempts WHERE phase NOT IN ('published','cleaned') GROUP BY upload_id) per_command)`).Scan(&outstanding, &nonterminal, &perCommand)
+	wantOutstanding := 32
+	if liveLeases == 0 {
+		wantOutstanding = 16
+	}
+	if err != nil || outstanding != wantOutstanding || nonterminal != 17 || perCommand != 2 {
+		t.Fatal("SQL fixture exceeds actual transfer/attempt admission capacity", outstanding, nonterminal, perCommand, err)
 	}
 }
 
 const metadataCostRetirePUTShapeSQL = `
 BEGIN;
-UPDATE agenteam_object.uploads SET disposition='revoked',state='failed' WHERE id BETWEEN '01c10000-0000-7000-8000-000000000001' AND '01c10000-0000-7000-8000-000000000021';
-DELETE FROM agenteam_object.object_references WHERE upload_id BETWEEN '01c10000-0000-7000-8000-000000000001' AND '01c10000-0000-7000-8000-000000000021';
-UPDATE agenteam_object.objects SET state='failed',version=2 WHERE id BETWEEN '01c00000-0000-7000-8000-000000000001' AND '01c00000-0000-7000-8000-000000000021';
-UPDATE agenteam_object.upload_attempts SET io_closed=true,phase='abandoned',cleanup_gate=true WHERE upload_id BETWEEN '01c10000-0000-7000-8000-000000000001' AND '01c10000-0000-7000-8000-000000000021';
-UPDATE agenteam_object.object_leases SET state='released',released_at=clock_timestamp() WHERE object_id BETWEEN '01c00000-0000-7000-8000-000000000001' AND '01c00000-0000-7000-8000-000000000021' AND state='active';
-UPDATE agenteam_object.object_transfers SET revoked_at=clock_timestamp(),retirement_evidence=id,retirement_kind='stopped',retirement_digest=decode(repeat('44',32),'hex'),phase='failed',version=version+1,cleanup_gate=true WHERE id BETWEEN '01c30000-0000-7000-8000-000000000001' AND '01c30000-0000-7000-8000-000000000021';
-UPDATE agenteam_object.project_work SET joined_at=clock_timestamp() WHERE object_id BETWEEN '01c00000-0000-7000-8000-000000000001' AND '01c00000-0000-7000-8000-000000000021' AND joined_at IS NULL;
+UPDATE agenteam_object.uploads SET disposition='revoked',state='failed' WHERE id BETWEEN '01c10000-0000-7000-8000-000000000001' AND '01c10000-0000-7000-8000-000000000010';
+DELETE FROM agenteam_object.object_references WHERE upload_id BETWEEN '01c10000-0000-7000-8000-000000000001' AND '01c10000-0000-7000-8000-000000000010';
+UPDATE agenteam_object.objects SET state='failed',version=2 WHERE id BETWEEN '01c00000-0000-7000-8000-000000000001' AND '01c00000-0000-7000-8000-000000000010';
+UPDATE agenteam_object.upload_attempts SET io_closed=true,phase='abandoned',cleanup_gate=true WHERE upload_id BETWEEN '01c10000-0000-7000-8000-000000000001' AND '01c10000-0000-7000-8000-000000000010';
+UPDATE agenteam_object.object_leases SET state='released',released_at=clock_timestamp() WHERE object_id BETWEEN '01c00000-0000-7000-8000-000000000001' AND '01c00000-0000-7000-8000-000000000010' AND state='active';
+UPDATE agenteam_object.object_transfers SET revoked_at=clock_timestamp(),retirement_evidence=id,retirement_kind='stopped',retirement_digest=decode(repeat('44',32),'hex'),phase='failed',version=version+1,cleanup_gate=true WHERE id BETWEEN '01c30000-0000-7000-8000-000000000001' AND '01c30000-0000-7000-8000-000000000010';
+UPDATE agenteam_object.project_work SET joined_at=clock_timestamp() WHERE object_id BETWEEN '01c00000-0000-7000-8000-000000000001' AND '01c00000-0000-7000-8000-000000000010' AND joined_at IS NULL;
 SET CONSTRAINTS ALL IMMEDIATE;
 COMMIT;`
 
 const metadataCostRetireGETShapeSQL = `
 BEGIN;
-UPDATE agenteam_object.object_transfers SET revoked_at=clock_timestamp(),retirement_evidence=id,retirement_kind='stopped',retirement_digest=decode(repeat('44',32),'hex'),phase='failed',version=version+1,cleanup_gate=true WHERE id BETWEEN '01c50000-0000-7000-8000-000000000001' AND '01c50000-0000-7000-8000-000000000021';
-UPDATE agenteam_object.object_leases SET state='released',released_at=clock_timestamp() WHERE id BETWEEN '01c60000-0000-7000-8000-000000000001' AND '01c60000-0000-7000-8000-000000000021';
+UPDATE agenteam_object.object_transfers SET revoked_at=clock_timestamp(),retirement_evidence=id,retirement_kind='stopped',retirement_digest=decode(repeat('44',32),'hex'),phase='failed',version=version+1,cleanup_gate=true WHERE id BETWEEN '01c50000-0000-7000-8000-000000000001' AND '01c50000-0000-7000-8000-000000000010';
+UPDATE agenteam_object.object_leases SET state='released',released_at=clock_timestamp() WHERE id BETWEEN '01c60000-0000-7000-8000-000000000001' AND '01c60000-0000-7000-8000-000000000010';
 SET CONSTRAINTS ALL IMMEDIATE;
 COMMIT;`

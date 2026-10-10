@@ -2,9 +2,10 @@
 -- into a database that is never attached to an Object/Downloads Service.
 -- Live shapes do not assert authorization, real I/O, ProcessGuard, a native
 -- retirement witness or a signed download binding. No constraint is disabled.
--- 33 GETs share the available Object; 33 PUTs have separate pending commands.
--- Only one PUT has a second private candidate: 34 nonterminal attempts in
--- total, at most two per command, below the existing global quota of 64.
+-- 16 GETs share the available Object; 16 PUTs have separate pending commands.
+-- Only one PUT has a second private candidate: 17 nonterminal attempts in
+-- total, at most two per command, below the attempt quota of 64. The
+-- 16 GET + 16 PUT active transfers also obey the independent global cap 32.
 BEGIN;
 CREATE TEMP TABLE d05_live_puts(n integer PRIMARY KEY, object_id uuid, upload_id uuid, stage_id uuid, transfer_id uuid, lease_id uuid) ON COMMIT DROP;
 INSERT INTO d05_live_puts SELECT n,
@@ -13,7 +14,7 @@ INSERT INTO d05_live_puts SELECT n,
  ('01c20000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,
  ('01c30000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,
  ('01c40000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid
-FROM generate_series(1,33) n;
+FROM generate_series(1,16) n;
 INSERT INTO agenteam_object.objects(id,scope,partition_id,project_id,media_type,byte_size,sha256,state)
 SELECT object_id,'project','01910000-0000-7000-8000-000000000001','01910000-0000-7000-8000-000000000001','text/plain',4,decode(repeat('00',32),'hex'),'pending' FROM d05_live_puts;
 INSERT INTO agenteam_object.uploads(id,object_id,command_hash,command_key,semantic_digest,owner_kind,owner_id,project_id,stable_actor,initiator_kind,initiator_id,existence,state,disposition,receipt_id)
@@ -34,7 +35,7 @@ UPDATE agenteam_object.uploads u SET current_attempt_id=p.stage_id FROM d05_live
 CREATE TEMP TABLE d05_live_gets(n integer PRIMARY KEY, transfer_id uuid, lease_id uuid) ON COMMIT DROP;
 INSERT INTO d05_live_gets SELECT n,
  ('01c50000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,
- ('01c60000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid FROM generate_series(1,33) n;
+ ('01c60000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid FROM generate_series(1,16) n;
 INSERT INTO agenteam_object.object_leases(id,object_id,owner_kind,owner_id,state)
 SELECT lease_id,'01920000-0000-7000-8000-000000000803','transfer',transfer_id,'active' FROM d05_live_gets;
 INSERT INTO agenteam_object.object_transfers(id,issue_hash,issue_key,issue_request_id,semantic_digest,actor_json,stable_actor,project_id,owner_kind,owner_id,runner_id,operation_id,runner_generation,operation_version,execution_id,direction,object_id,lease_id,media_type,byte_size,sha256,candidate_key,duration_seconds,expires_at,phase)
