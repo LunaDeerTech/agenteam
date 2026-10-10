@@ -21,6 +21,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 	"github.com/LunaDeerTech/agenteam/internal/central/work"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
@@ -113,7 +114,11 @@ func assembleTask(t *testing.T, db *pgfixture.Database, raw *postgres.Store, sto
 }
 func (f *taskFixture) newTaskService(t *testing.T, events oc.Appender, activity work.ActivityAuthority) *work.TaskService {
 	t.Helper()
-	s, err := work.NewTask(f.store, work.TaskDependencies{Authority: f.authority, Structure: f.reader, Events: events, TaskEvents: f.taskEvents, Activity: activity})
+	pending, err := scheduler.NewPendingAuthority(f.store)
+	if err != nil {
+		t.Fatal("same-Store pending Dispatch authority assembly", err)
+	}
+	s, err := work.NewTask(f.store, work.TaskDependencies{Authority: f.authority, Structure: f.reader, Events: events, TaskEvents: f.taskEvents, Activity: activity, Pending: pending})
 	if err != nil {
 		t.Fatal(err)
 	}

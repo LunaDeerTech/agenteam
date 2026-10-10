@@ -9,7 +9,7 @@ import (
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
-	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
@@ -21,6 +21,7 @@ type CoordinatorDependencies struct {
 	Projects   ProjectSchedulerGate
 	Claims     wc.SchedulerTaskClaims
 	Executions ec.DispatchObserver
+	Capacity   ec.DispatchCapacityReader
 }
 
 // Coordinator provides individual durable claims; it does not invent a
@@ -60,7 +61,7 @@ type claimCall struct {
 }
 
 func NewCoordinator(a *PendingAuthority, deps CoordinatorDependencies) (*Coordinator, error) {
-	if a == nil || nilPort(a.store) || nilPort(deps.Projects) || nilPort(deps.Claims) || nilPort(deps.Executions) {
+	if a == nil || nilPort(a.store) || nilPort(deps.Projects) || nilPort(deps.Claims) || nilPort(deps.Executions) || nilPort(deps.Capacity) {
 		return nil, fault(f.DependencyUnbound)
 	}
 	return &Coordinator{authority: a, deps: deps, calls: make(map[*claimCall]struct{}), unknown: make(map[DispatchID]*claimCall), drained: make(chan struct{})}, nil
@@ -196,10 +197,9 @@ func (s *Coordinator) ClaimTask(ctx context.Context, r wc.TaskClaimRequest, poli
 	if err != nil {
 		return Dispatch{}, err
 	}
-	var observed []*dispatchRecord
 	var replay *dispatchRecord
-	// This is protected lock discovery only. Work and canonical mutation happen
-	// in the later single final transaction; no permit survives this callback.
+	// Observe only the original claim for replay. Work and canonical mutation
+	// happen in the later final transaction; no permit survives this callback.
 	result := s.authority.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := s.authority.store.AcquireAll(ctx, tx, base); err != nil {
 			return portError(err)
@@ -218,8 +218,7 @@ func (s *Coordinator) ClaimTask(ctx context.Context, r wc.TaskClaimRequest, poli
 		if replay != nil {
 			return sameClaim(replay, r, call.launch)
 		}
-		observed, err = readCapacityRecords(ctx, x, r.ProjectID)
-		return err
+		return nil
 	})
 	if err = commitError(result); err != nil {
 		return Dispatch{}, err
@@ -235,7 +234,6 @@ func (s *Coordinator) ClaimTask(ctx context.Context, r wc.TaskClaimRequest, poli
 		return Dispatch{}, fault(f.DependencyUnbound)
 	}
 	locks := append(base, plan.RequiredLocks()...)
-	locks = append(locks, capacityLocks(observed)...)
 	locks, err = oc.NormalizeLocks(locks)
 	if err != nil {
 		return Dispatch{}, invalid()
@@ -268,15 +266,12 @@ func (s *Coordinator) ClaimTask(ctx context.Context, r wc.TaskClaimRequest, poli
 		if err != nil {
 			return err
 		}
-		if !sameCapacityRecords(observed, current) {
-			return fault(f.VersionConflict)
-		}
 		for _, d := range current {
 			if d.task == r.TaskID.String() && d.status == Pending {
 				return fault(f.ResourceBusy)
 			}
 		}
-		used, err := s.capacityInTx(ctx, tx, current)
+		used, err := s.capacityInTx(ctx, tx, r.ProjectID, current)
 		if err != nil {
 			return err
 		}

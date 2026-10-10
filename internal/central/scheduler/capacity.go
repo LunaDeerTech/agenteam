@@ -46,55 +46,59 @@ func readCapacityRecords(ctx context.Context, x postgres.SQLExecutor, p i.Projec
 	}
 	return out, portError(rows.Err())
 }
-func sameCapacityRecords(a, b []*dispatchRecord) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for n, x := range a {
-		y := b[n]
-		if x.id != y.id || x.version != y.version || x.status != y.status || x.digest != y.digest {
-			return false
-		}
-	}
-	return true
-}
-func capacityLocks(rows []*dispatchRecord) []f.LockRequest {
-	var out []f.LockRequest
-	for _, r := range rows {
-		if r.status != Launched {
-			continue
-		}
-		ak, _ := f.AgentLock(r.agent.String())
-		cmd, _ := r.launch.Command()
-		ck, _ := f.CommandLock(cmd)
-		out = append(out, f.LockRequest{Key: ak, Mode: f.Shared}, f.LockRequest{Key: ck, Mode: f.Exclusive})
-	}
-	return out
-}
-func (s *Coordinator) capacityInTx(ctx context.Context, tx f.Tx, rows []*dispatchRecord) (int64, error) {
+
+// The original Schedule EX freezes pending rows and all Task Execution status
+// writers for this transaction. History does not add per-Agent/Command locks:
+// every persisted association is checked by its real owner in bounded batches.
+func (s *Coordinator) capacityInTx(ctx context.Context, tx f.Tx, p i.ProjectID, rows []*dispatchRecord) (int64, error) {
 	var count int64
+	batch := make([]ec.AssociatedDispatch, 0, ec.MaxDispatchCapacityBatch)
+	flush := func() error {
+		if len(batch) == 0 {
+			return nil
+		}
+		n, err := s.deps.Capacity.CountAssociatedInTx(ctx, tx, p, batch)
+		if err != nil {
+			return portError(err)
+		}
+		if n < 0 || n > int64(len(batch)) || count > math.MaxInt64-n {
+			return unavailable(nil)
+		}
+		count += n
+		batch = batch[:0]
+		return ctx.Err()
+	}
 	for _, r := range rows {
 		if err := ctx.Err(); err != nil {
 			return 0, err
 		}
+		if r == nil || r.project != p {
+			return 0, unavailable(nil)
+		}
 		if r.status == Pending {
-			count++
-		} else {
-			found, err := s.deps.Executions.LookupLaunchInTx(ctx, tx, lookupKey(r), r.digest, r.id.String())
-			if err != nil {
-				return 0, portError(err)
+			if count == math.MaxInt64 {
+				return 0, fault(f.InvalidState)
 			}
-			if !found.Found || found.Execution == nil || r.execution == nil || found.Execution.ID != *r.execution || found.RequestDigest != r.digest || found.Execution.ProjectID != r.project || found.Execution.AgentID != r.agent || !found.Execution.Status.Valid() {
+			count++
+		} else if r.status == Launched {
+			if r.execution == nil {
 				return 0, unavailable(nil)
 			}
-			switch found.Execution.Status {
-			case ec.Created, ec.Preparing, ec.Running:
-				count++
+			batch = append(batch, ec.AssociatedDispatch{ExecutionID: *r.execution, AgentID: r.agent, Key: r.launch.Meta.IdempotencyKey, Digest: r.digest, DispatchID: r.id.String()})
+			if len(batch) == ec.MaxDispatchCapacityBatch {
+				if err := flush(); err != nil {
+					return 0, err
+				}
 			}
+		} else {
+			return 0, unavailable(nil)
 		}
-		if count == math.MaxInt64 {
-			return 0, fault(f.InvalidState)
-		}
+	}
+	if err := flush(); err != nil {
+		return 0, err
+	}
+	if err := ctx.Err(); err != nil {
+		return 0, err
 	}
 	return count, nil
 }

@@ -508,6 +508,9 @@ func (s *TaskService) evaluateTask(ctx context.Context, tx f.Tx, x postgres.SQLE
 	}
 	if in.Create != nil || in.Reorder != nil || priorityChange != nil {
 		target := groupForTask(t)
+		if err := s.state().deps.Pending.RequireNoPendingGroupsInTx(ctx, tx, in.Project, pendingGroups(source, target)); err != nil {
+			return nil, portError(err)
+		}
 		rows, generation, err := loadTaskRanks(ctx, x, in.Project, target)
 		if err != nil {
 			return nil, err

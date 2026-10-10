@@ -37,8 +37,10 @@ func ProjectAction(a Action) bool {
 type ProjectChangedField string
 
 const (
-	ProjectNameChanged        ProjectChangedField = "name"
-	ProjectDescriptionChanged ProjectChangedField = "description"
+	ProjectNameChanged                    ProjectChangedField = "name"
+	ProjectDescriptionChanged             ProjectChangedField = "description"
+	ProjectSchedulerEnabledChanged        ProjectChangedField = "scheduler_enabled"
+	ProjectSchedulerMaxConcurrencyChanged ProjectChangedField = "scheduler_max_concurrency"
 )
 
 // Only stable identifiers, versions and closed transitions are durable Audit
@@ -75,13 +77,13 @@ func ProjectMetadata(action Action, f ProjectMetadataFields) (Metadata, error) {
 		return bad()
 	}
 	if action == ProjectUpdate {
-		if f.ProjectVersion < 2 || len(f.ChangedFields) < 1 || len(f.ChangedFields) > 2 {
+		if f.ProjectVersion < 2 || len(f.ChangedFields) < 1 || len(f.ChangedFields) > 4 {
 			return bad()
 		}
 		f.ChangedFields = append([]ProjectChangedField(nil), f.ChangedFields...)
 		sort.Slice(f.ChangedFields, func(i, j int) bool { return f.ChangedFields[i] < f.ChangedFields[j] })
 		for i, v := range f.ChangedFields {
-			if v != ProjectNameChanged && v != ProjectDescriptionChanged || i > 0 && v == f.ChangedFields[i-1] {
+			if v != ProjectNameChanged && v != ProjectDescriptionChanged && v != ProjectSchedulerEnabledChanged && v != ProjectSchedulerMaxConcurrencyChanged || i > 0 && v == f.ChangedFields[i-1] {
 				return bad()
 			}
 		}

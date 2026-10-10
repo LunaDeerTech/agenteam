@@ -47,18 +47,19 @@ func (*claimTestWork) CheckTaskClaimAppliedInTx(context.Context, f.Tx, i.Actor, 
 	panic("controlled commit-outcome test must not mint applied proof")
 }
 
-type claimTestObserver struct {
-	lookup func(ec.LaunchLookupKey, f.Digest, string) (ec.LaunchLookup, error)
-}
+type claimTestObserver struct{}
 
-func (o claimTestObserver) LookupLaunchInTx(_ context.Context, _ f.Tx, k ec.LaunchLookupKey, d f.Digest, id string) (ec.LaunchLookup, error) {
-	if o.lookup == nil {
-		return ec.LaunchLookup{}, fault(f.DependencyUnbound)
-	}
-	return o.lookup(k, d, id)
+func (claimTestObserver) LookupLaunchInTx(context.Context, f.Tx, ec.LaunchLookupKey, f.Digest, string) (ec.LaunchLookup, error) {
+	return ec.LaunchLookup{}, fault(f.DependencyUnbound)
 }
 func (claimTestObserver) AgentSlotInTx(context.Context, f.Tx, i.ProjectID, i.AgentID) (ec.AgentSlotObservation, error) {
 	return ec.AgentSlotObservation{}, nil
+}
+
+type claimTestCapacity func(context.Context, f.Tx, i.ProjectID, []ec.AssociatedDispatch) (int64, error)
+
+func (c claimTestCapacity) CountAssociatedInTx(ctx context.Context, tx f.Tx, p i.ProjectID, rows []ec.AssociatedDispatch) (int64, error) {
+	return c(ctx, tx, p, rows)
 }
 
 type claimTestStore struct {
@@ -92,7 +93,9 @@ func testClaimSetup(t *testing.T) (*Coordinator, *claimTestStore, *claimTestWork
 	store := &claimTestStore{pendingTestStore: pendingTestStore{tx: f.NewTx()}}
 	a, _ := NewPendingAuthority(store)
 	work := &claimTestWork{}
-	s, err := NewCoordinator(a, CoordinatorDependencies{Projects: claimTestProject{pc.SchedulerProject{Project: pc.ProjectRef{ID: r.ProjectID, CurrentSprintID: &r.CurrentSprintID}, Config: pc.ProjectSchedulerConfig{Enabled: true}}}, Claims: work, Executions: claimTestObserver{}})
+	s, err := NewCoordinator(a, CoordinatorDependencies{Projects: claimTestProject{pc.SchedulerProject{Project: pc.ProjectRef{ID: r.ProjectID, CurrentSprintID: &r.CurrentSprintID}, Config: pc.ProjectSchedulerConfig{Enabled: true}}}, Claims: work, Executions: claimTestObserver{}, Capacity: claimTestCapacity(func(context.Context, f.Tx, i.ProjectID, []ec.AssociatedDispatch) (int64, error) {
+		return 0, fault(f.DependencyUnbound)
+	})})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -271,27 +274,82 @@ func TestSchedulerClaimStopWaitsOriginalDiscoveryReturn(t *testing.T) {
 	}
 }
 
-func TestSchedulerCapacityKeepsUnknownAndExcludesWaiting(t *testing.T) {
-	s, store, _, _ := testClaimSetup(t)
-	pending := dispatchTestRecord(t, 1, Pending)
-	launched := dispatchTestRecord(t, 2, Launched)
-	for _, status := range []ec.Status{ec.Created, ec.Preparing, ec.Running, ec.Waiting, ec.Succeeded} {
-		t.Run(string(status), func(t *testing.T) {
-			s.deps.Executions = claimTestObserver{lookup: func(_ ec.LaunchLookupKey, d f.Digest, _ string) (ec.LaunchLookup, error) {
-				return ec.LaunchLookup{Found: true, RequestDigest: d, Execution: &ec.Summary{ID: *launched.execution, ProjectID: launched.project, AgentID: launched.agent, Status: status}}, nil
-			}}
-			used, err := s.capacityInTx(context.Background(), store.tx, []*dispatchRecord{pending, launched})
-			want := int64(2)
-			if status == ec.Waiting || status == ec.Succeeded {
-				want = 1
+func TestSchedulerCapacityChecksCompleteAssociatedHistory(t *testing.T) {
+	s, store, _, request := testClaimSetup(t)
+	// More than 512 historical entries must not become historical lock requests
+	// or be truncated. The final association alone consumes Execution capacity.
+	rows := []*dispatchRecord{dispatchTestRecord(t, 1, Pending)}
+	for n := 2; n <= 514; n++ {
+		rows = append(rows, dispatchTestRecord(t, n, Launched))
+	}
+	t.Run("all-history-original-tuples", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		seen, calls := 0, 0
+		s.deps.Capacity = claimTestCapacity(func(gotCtx context.Context, tx f.Tx, p i.ProjectID, batch []ec.AssociatedDispatch) (int64, error) {
+			calls++
+			if gotCtx != ctx || tx != store.tx || p != request.ProjectID || len(batch) == 0 || len(batch) > ec.MaxDispatchCapacityBatch {
+				t.Fatal("batch left original caller transaction or exceeded bound")
 			}
-			if err != nil || used != want {
-				t.Fatal("quota/slot semantics mixed", used, err)
+			for _, got := range batch {
+				seen++
+				want := rows[seen]
+				if got.ExecutionID != *want.execution || got.AgentID != want.agent || got.Key != want.launch.Meta.IdempotencyKey || got.Digest != want.digest || got.DispatchID != want.id.String() {
+					t.Fatal("original association skipped, repeated or changed")
+				}
+			}
+			if seen == len(rows)-1 {
+				return 1, nil
+			}
+			return 0, nil
+		})
+		used, err := s.capacityInTx(ctx, store.tx, request.ProjectID, rows)
+		if err != nil || used != 2 || seen != 513 || calls != 5 {
+			t.Fatal("unknown pending or complete associated history lost", used, seen, calls, err)
+		}
+	})
+	t.Run("later-batch-error", func(t *testing.T) {
+		calls := 0
+		cause := errors.New("private capacity backend canary")
+		s.deps.Capacity = claimTestCapacity(func(context.Context, f.Tx, i.ProjectID, []ec.AssociatedDispatch) (int64, error) {
+			calls++
+			if calls == 3 {
+				return 0, cause
+			}
+			return 1, nil
+		})
+		used, err := s.capacityInTx(context.Background(), store.tx, request.ProjectID, rows)
+		if used != 0 || !errors.Is(err, cause) || calls != 3 {
+			t.Fatal("later failure returned a partial quota", used, calls, err)
+		}
+	})
+	for _, mode := range []string{"negative-count", "excess-count", "cancel-at-return"} {
+		t.Run(mode, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			s.deps.Capacity = claimTestCapacity(func(_ context.Context, _ f.Tx, _ i.ProjectID, batch []ec.AssociatedDispatch) (int64, error) {
+				switch mode {
+				case "negative-count":
+					return -1, nil
+				case "excess-count":
+					return int64(len(batch)) + 1, nil
+				default:
+					cancel()
+					return 1, nil
+				}
+			})
+			used, err := s.capacityInTx(ctx, store.tx, request.ProjectID, rows[:2])
+			if used != 0 || err == nil || mode == "cancel-at-return" && !errors.Is(err, context.Canceled) {
+				t.Fatal("invalid final count published", used, err)
 			}
 		})
 	}
-	s.deps.Executions = claimTestObserver{lookup: func(ec.LaunchLookupKey, f.Digest, string) (ec.LaunchLookup, error) { return ec.LaunchLookup{}, nil }}
-	if n, err := s.capacityInTx(context.Background(), store.tx, []*dispatchRecord{pending, launched}); err == nil || n != 0 {
-		t.Fatal("missing associated fact returned partial quota")
-	}
+	t.Run("missing-capacity-provider", func(t *testing.T) {
+		deps := s.deps
+		var missing claimTestCapacity
+		deps.Capacity = missing
+		if out, err := NewCoordinator(s.authority, deps); out != nil || err == nil {
+			t.Fatal("typed nil counter accepted")
+		}
+	})
 }

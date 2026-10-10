@@ -16,6 +16,7 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 	"github.com/LunaDeerTech/agenteam/internal/central/work"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
@@ -231,7 +232,11 @@ func newPreparationTaskInput(t *testing.T, v *variableHTTPFixture) (*work.TaskTr
 	if err != nil {
 		t.Fatal("same-Store structure reader assembly")
 	}
-	tasks, err := work.NewTask(v.tracked, work.TaskDependencies{Structure: structureReader, Authority: authority, Events: box, TaskEvents: taskEvents, Activity: v.accounts})
+	pending, err := scheduler.NewPendingAuthority(v.tracked)
+	if err != nil {
+		t.Fatal("same-Store pending Dispatch authority assembly")
+	}
+	tasks, err := work.NewTask(v.tracked, work.TaskDependencies{Structure: structureReader, Authority: authority, Events: box, TaskEvents: taskEvents, Activity: v.accounts, Pending: pending})
 	if err != nil {
 		t.Fatal("same-Store formal Task service assembly")
 	}
