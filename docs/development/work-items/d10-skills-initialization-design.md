@@ -1,8 +1,8 @@
 # D10 Skills 初始化与内容规格
 
-状态：rev3，2026-10-10。P1 固定编码与纯口不变；P2 初始化／持久不可变内容／当前 Owner／精确 Stop 和 00027 有限库按 §§10–15 实现并接受，实际证据见[主卡](d10-skills-initialization.md)。§§1–8 保留完整结果的目标和后段验收边界，不把尚未实现的 Cleanup、生产 root 或 Runtime 当作本次交付。
+状态：rev3，2026-10-10。P1 固定编码与纯口不变；P2 初始化／持久不可变内容／当前 Owner／精确 Stop 和 00027 有限库按 §§10–15 实现并接受，实际证据见[主卡](d10-skills-initialization.md)。§16 精确 Cleanup 库已另行有限接受；§§1–8 保留完整结果的目标和后段验收边界，生产 initializer、完整 participant 与 Runtime 不因库完成而视为交付。
 
-历史 S01 `/tmp` 草案不是当前 DDL 来源；00027 为本次正式库模型。Object 原生 Audit checker、Project 初始化／收敛 wrapper 及有限 Skills CleanupPhase 已在 main，本 P2 消费初始化/读/Stop 子口；真实清理与完整多域 participant 另行闭合。
+历史 S01 `/tmp` 草案不是当前 DDL 来源；00027 为本次正式库模型。Object 原生 Audit checker、Project 初始化／收敛 wrapper 及有限 Skills CleanupPhase 已在 main，P2 消费初始化/读/Stop 子口，§16 后续精确清理库已闭合；完整多域 participant 仍未完成。
 
 ## 1. 完整结果目标与边界
 
@@ -21,7 +21,7 @@
 | D05 initiator | 仅上述已授权 Service 分支持久原 CreationID，Human/Agent 原路径保留。不改 Audit 的 action/resource/producer 或旧 SQL 约束。 |
 | 初始化 Object Audit | 正式 Project 初始化 wrapper 与 Object native checker 已在 main；本次新增 Skill facts 将当前原 Creation gate、本域完整 object/attempt 映射和原私有 witness 在同一 Tx 闭合。真实 D05 发布正向及公开字段伪 witness 拒绝已有限验收，不泛放未初始化 Project 的其它事实。 |
 | 失败与 Unknown | 原 D08 收敛口只允许原工作观察及失败事实，不授新 Reserve/Send/Publish。P2 Inspect 不发 I/O，Recover 只收敛原工作账本；原 Unknown 与实际尾保留，不能用空查或 TTL 冒终局。 |
-| 清理 | Release 的 SkillRevision+ProjectDeleted closed shape 本次加入，保 Avatar/Knowledge。main 已有有限 Skills CleanupPhase，但本 P2 尚无 CleanupAuthority／生命周期 Audit／完整删除实现；schema和形状成功不代表清理可执行。 |
+| 清理 | Release 的 SkillRevision+ProjectDeleted closed shape 本次加入，保 Avatar/Knowledge。P2 之后的 §16 库已实现 CleanupAuthority、私有事实及精确删除，并通过同 Store 的真实消费组合；该结果不等于完整 participant 或生产 root 生命周期启用。 |
 | 生产组合 | main 的 Project/B02/Audit/Variables/Secret 与路由保持原字节。当前库不注册完整participant，不消除生产 root 的缺绑定，不恢复 Object Runtime join 停止项。 |
 
 Foundation 锁序、D01 分层、正式 Project/Object 契约与 P1 编码不变；实现依赖上游契约，上游契约不反向 import skill。

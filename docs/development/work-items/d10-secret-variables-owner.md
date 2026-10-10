@@ -1,6 +1,6 @@
 # D10 Secret Variables Owner 后端
 
-> 状态：工程 SPEC rev2 已获 Model 独立有限接受；A 纯合同、Schema及独立复验资产已正式交付 main `8cb0a953`。Owner Service/HTTP、D04提供方、SQL及生产组合尚未交付，不能将A视为整卡通过。原SPEC基线main `3cea6076`；§4/§6专用D04端口、回执轮换/清理和真实事实证明仍是后继前置。实施授权及共享所有权见§10。
+> 状态：工程 SPEC rev2 已获 Model 独立有限接受；A 纯合同、Schema 及独立复验资产已正式交付 main `8cb0a953`。D04 producer 与 Owner Service 的有限库验收已完成，专用端口、receipt 轮换/清理、真实权限与 final-Tx 事实已实现，00029/00030 在本批连续候选中组装；正式 main 集成尚未完成。HTTP、默认根绑定和 Agent F1 仍未交付，不能将库接受视为整卡通过。实施授权及共享所有权见§10。
 >
 > 拟完整结果：已初始化 Project 的当前 Human Owner，经默认 Central HTTP 创建 Secret Variable、读取安全元数据、分页、修改 name/description、覆盖 value、删除及恢复响应丢失。与普通变量共享业务 ID 和名称空间；明文不进入读取响应或持久命令。另落实 Agent F1 的资源侧目录/引用协议；真实 Agent canonical/引用适配由 F1 完成，不以测试 owner 代替。
 
@@ -12,7 +12,7 @@
 | --- | --- |
 | Account/Project/Postgres | 正式 Session、当前 Owner、Project gate、同 Store caller Tx、完整锁、CommitResult、Activity 可复用；须实际组合验收 |
 | 普通 Variables | main 已有 `identity.ProjectVariableID`、共享目录/名称规则、Owner HTTP/root；本卡前向扩展，保留原普通值语义 |
-| D04 | 已有真正信封加密、nonce/epoch、Prepare/Apply、加密 receipt digest、Audit、引用/lease及轮换；§4 专用组合口仍待实现 |
+| D04 | 已有真正信封加密、nonce/epoch、Prepare/Apply、加密 receipt digest、Audit、引用/lease及轮换；§4 专用组合口已由 D04 库实现并有限验收 |
 | Audit/Outbox/Cursor | 复用同 Tx 事实与严格闭集/签名游标；新事实须接来源证明和现读取端 decoder |
 | Agent F1 | 尚无真实 Agent 配置 owner；本卡资源侧端口不等于真实 Agent 创建/引用通过 |
 | MCP/Runner | 已定同一 Project Secret 可供 MCP backend 和获白名单 Agent 使用；本卡不创建连接、执行 lease、resolver 或材料下发 |

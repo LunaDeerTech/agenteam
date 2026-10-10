@@ -1,0 +1,83 @@
+{
+  "source": "0747b02c",
+  "status": "wrapper FAIL; three requested command stages actual PASS",
+  "tool_session": 19596,
+  "tool_chunk": "dc3338",
+  "outer_pid": 244529,
+  "outer_actual_exit": 1,
+  "utc_start": "2026-10-10T05:08:48.386437+00:00",
+  "fresh_free_bytes": 10619785216,
+  "go": "/workspace/toolchains/go1.27.1/bin/go",
+  "goflags": "-mod=readonly -p=2",
+  "gomodcache": "/workspace/shared/agenteam-deps/go-mod",
+  "gocache": "output/ai/skills-http-integration/go-build",
+  "private_telemetry_mode": "off",
+  "removed_environment_names": [],
+  "stages": [
+    {
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "./internal/central/app"
+      ],
+      "pid": 244530,
+      "actual_wait": true,
+      "exit": 0,
+      "seconds": 1.011
+    },
+    {
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./internal/central/app"
+      ],
+      "pid": 244562,
+      "actual_wait": true,
+      "exit": 0,
+      "seconds": 0.795
+    },
+    {
+      "command": [
+        "sh",
+        "scripts/build-go.sh"
+      ],
+      "pid": 244593,
+      "actual_wait": true,
+      "exit": 0,
+      "seconds": 5.205,
+      "script_stages": [
+        "go build -o bin/agenteam ./cmd/agenteam",
+        "go build -o bin/agenteam-runner ./cmd/agenteam-runner"
+      ]
+    }
+  ],
+  "failure": {
+    "phase": "metadata serialization after all child waits",
+    "type": "TypeError",
+    "message": "Object of type set is not JSON serializable",
+    "cause": "Original supervisor.descendants returns set; inline wrapper placed it directly in record.",
+    "original_result_json_written": false,
+    "original_runtime_and_descendant_values_recorded": false
+  },
+  "limitations": "Not a wrapper whole PASS. No posthoc runtime/descendant sampling substitutes original values; no retry. All three original subprocess waits and exit codes were printed before the metadata error. Compiler-only checks ran after content confirmed root-02 test/Go/driver had returned and its original TCP tail was active; bin outputs are outside root-02 input closure.",
+  "later_cleanup_state": {
+    "scope": "new cleanup-state observation only; not original wrapper tail or gate proof",
+    "observations": [
+      {
+        "sample": 1,
+        "utc": "2026-10-10T05:10:14.186898+00:00",
+        "task_private_environment_pids": [],
+        "original_parent_and_command_pids_present": [],
+        "runtime_empty": true
+      },
+      {
+        "sample": 2,
+        "utc": "2026-10-10T05:10:14.289739+00:00",
+        "task_private_environment_pids": [],
+        "original_parent_and_command_pids_present": [],
+        "runtime_empty": true
+      }
+    ]
+  }
+}

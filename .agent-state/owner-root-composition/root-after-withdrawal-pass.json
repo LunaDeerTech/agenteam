@@ -1,0 +1,113 @@
+{
+  "format": 1,
+  "scope": "Default-root new Project creation remains unbound; existing-data reads and original retirement using an explicitly isolated real-port Project fixture",
+  "source_ref": "0747b02c",
+  "run": "root-02",
+  "selector": "^TestKnowledgeSkillsDefaultRootComposition$",
+  "top_level_tests": 1,
+  "subtests": 0,
+  "whole_result": "PASS",
+  "preflight_utc": "2026-10-10T05:07:14.039120+00:00",
+  "available_bytes": 10622713856,
+  "minimum_bytes": 5368709120,
+  "private_telemetry_mode": "off",
+  "telemetry_bypass_variables_absent": true,
+  "fresh_empty_docker_config": true,
+  "prior_root_01_owned_preflight": {
+    "resource_count": 7,
+    "resource_absent_rounds": 2,
+    "private_directory_absent_rounds": 2,
+    "runtime_empty_rounds": 2,
+    "all_passed": true
+  },
+  "test_candidate": "output/ai/owner-root/root-composition-race-02.test",
+  "candidate_bytes": 59829383,
+  "candidate_rebuilt_for_run": false,
+  "offline": {
+    "tool_session": 44120,
+    "actual_terminal_observed": true,
+    "exit": 0,
+    "pure_top_level_tests": 10,
+    "pure_subtests": 43,
+    "pure_race_exit": 0,
+    "pure_package_seconds": 1.171,
+    "integration_race_compile_exit": 0,
+    "exact_list_exit": 0,
+    "exact_list": [
+      "TestKnowledgeSkillsDefaultRootComposition"
+    ]
+  },
+  "test": {
+    "pid": 243371,
+    "actual_wait": true,
+    "exit": 0,
+    "run_count": 1,
+    "pass_count": 1,
+    "duration_seconds": 7.39
+  },
+  "driver": {
+    "pid": 241594,
+    "actual_wait": true,
+    "exit": 0
+  },
+  "outer": {
+    "pid": 241447,
+    "tool_session": 7494,
+    "actual_terminal_observed": true,
+    "exit": 0,
+    "duration_seconds": 111.577
+  },
+  "resources": {
+    "count": 7,
+    "absent_rounds": 2,
+    "all_absent": true
+  },
+  "private_directories": {
+    "absent_rounds": 2,
+    "all_absent": true
+  },
+  "runtime_directories": {
+    "empty_rounds": 2,
+    "all_empty": true
+  },
+  "owned_descendants": {
+    "rounds": 2,
+    "values": [
+      [],
+      []
+    ]
+  },
+  "host_tcp": {
+    "delta_empty_rounds": 2,
+    "all_empty": true
+  },
+  "composition_exact_run_pass_wait": true,
+  "inputs_unchanged": true,
+  "log": "output/ai/owner-root/root-02/pg-a76a4d74c29b481799c267eab081b8e9.log",
+  "proved": [
+    "Original default-root Project service and current Human reject a new target as DependencyUnbound/NotCommitted with an empty result",
+    "Thirteen read-only counters show zero target Project, owner/name reservation, creation, command, Skill initialization/skill/revision/work/attempt, Object upload/object, Audit and Outbox facts",
+    "An explicit test-only Project service uses real Account/Project/Event/Outbox ports, the original Store/auditor/Skill/Object, and no SQL-created ready facts or production hook",
+    "The isolated Project fixture returns from real initialization and then actually Stop/Drain/Joined before default-root reads",
+    "Original protected Skill directory/package bytes and original PackageReader Close/Joined",
+    "Original Knowledge service CreateDocument and default-root current HTTP GET/HEAD content; actual Skill HTTP read",
+    "Original Avatar PUT/GET/DELETE maintenance and cleanup",
+    "Original SIGTERM and domain/producer/process guard retirement"
+  ],
+  "historical_root_01": {
+    "record": "root-first-pass.json",
+    "source_ref": "649e6ad3",
+    "execution_result_preserved": "PASS",
+    "production_initializer_acceptance": "WITHDRAWN: canonical D08/D10 require the complete lifecycle participant and actual stop/guard acceptance before production binding"
+  },
+  "not_claimed": [
+    "production Project initializer binding",
+    "complete agent-skills-variables lifecycle participant",
+    "Project Create HTTP",
+    "SPA availability",
+    "production readiness",
+    "whole Project/Lease/Transfer/Execution root bindings",
+    "Secret Owner HTTP/F1/default-root availability",
+    "global Object Runtime join STOP closure"
+  ]
+}

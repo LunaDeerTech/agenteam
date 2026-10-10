@@ -1,4 +1,11 @@
 {
+  "acceptance_review": {
+    "default_initializer_acceptance": "withdrawn",
+    "execution_result_preserved": true,
+    "reason": "D08 section 7 and D10 sections 1/14 require a complete participant manifest and guard before enabling a production initializer; the original default root did not meet that requirement. No public Create HTTP is not an exemption.",
+    "corrective_source": "0747b02c",
+    "corrective_scope": "Default initializer removed; explicit test-only composition and default-unbound zero-fact checks prepared. Pure/race and compile/list passed; corrected real root-02 subsequently passed for default-unbound and existing-data reads only, recorded separately in root-after-withdrawal-pass.json."
+  },
   "format": 1,
   "scope": "Knowledge/Skills default-root selected normal composition and original retirement only",
   "source_ref": "649e6ad3",

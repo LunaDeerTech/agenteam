@@ -2,8 +2,9 @@
 
 ## 当前验收纠正
 
-- 默认生产 initializer 接缝尚不合规。Skills 独立核对 D08 §7 与 D10 设计 §§1、14，确认启用真实 initializer 必须同时满足完整 participant manifest 与 guard 门；公开 Create/Lifecycle HTTP 未开放不能豁免内部默认根。当前 app 绑定了真实 Skills initializer 而没有完整 registry，root 已交 content 最小撤回，不能修改 SPEC 降门。
+- 默认生产 initializer 接缝尚不合规。Skills 独立核对 D08 §7 与 D10 设计 §§1、14，确认启用真实 initializer 必须同时满足完整 participant manifest 与 guard 门；公开 Create/Lifecycle HTTP 未开放不能豁免内部默认根。原 app 绑定了真实 Skills initializer 而没有完整 registry；content 已在 `0747b02c` 最小撤回生产绑定，不能修改 SPEC 降门。
 - `649e6ad3` 根单 top 的业务与全部退出尾 PASS 保留为该版本实际事实，但不能作为合规默认 Project 创建的正式接受。Knowledge/Skills HTTP、Object 固定 owner 分派、D04/Owner/Cleanup 库的既有有限证据不因此升级或作废；正式默认根范围须按整改后源码重新确认。
+- 整改 `0747b02c` 已经 Skills 实际差异有限审查接受；content 离线44120 actual0，精确10 pure top/43 sub race PASS（app1.171s），integration race-c/list0仅原root单top。新版root-02真实场景随后完整wholePASS：默认Create精确unbound与13项零事实、显式test-only Project/Skills真实端口数据fixture实际Stop/Drain后才验默认读/Avatar/退出。实际单top7.39s、outer0/111.577s及全部原尾见末节；接受读取组合，不启生产initializer。
 - Audit 修后整个包 ordinary/race 已完整 PASS：`a0d81188` 固定 `--audit-repair`，04:58:39Z / fresh10813165568B，86755→eb96d7、outer231678/script231689 均 actual0；ordinary29.541s、race38.049s，总107.590s，原desc/runtime/TCP各双空，334同步样本末delta0。原每轮5个native listeners、20s Schema门、11 Python+Usage Node保持，窗口已释放。14离线控actual0、Skills有限静审接受。wrapper不声称全仓输入冻结；content独立app整改不在此包依赖内。
 
 - 分支：`ai/owner-feature-integration`；本地树提示 `/workspace/agenteam-feature-integration`，正式基线 `origin/main 280a6431`。这是隔离组合候选，尚未交付 main；不继承基线 current 中的旧进程、代理或任务状态。
@@ -63,7 +64,7 @@
 
 ## 拟交付后端范围与最后门槛
 
-本候选接通默认 Central 的 Knowledge 元数据/树命令/有界正文和 Skills 目录 HTTP，Object 按固定 Avatar/Knowledge/Skill owner 分派。此前绑定同一 Skills initializer 的默认 Project.Create 接缝被规范独审拒绝，正在撤回；不列入正式接受范围。新增必需公开配置 `AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING`，没有自动默认值：部署方提供独立32字节密钥、严格base64与1–32个kid，全部保留材料不得复用 Cursor/Secret/Download/Account 当前或历史密钥。配置 getter 返回 typed `knowledge/contract.ConfirmationKeys`，错误只报告字段，不暴露值。
+本候选接通默认 Central 的 Knowledge 元数据/树命令/有界正文和 Skills 目录 HTTP，Object 按固定 Avatar/Knowledge/Skill owner 分派。此前绑定同一 Skills initializer 的默认 Project.Create 接缝被规范独审拒绝，已在 `0747b02c` 撤回；不列入正式接受范围。新增必需公开配置 `AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING`，没有自动默认值：部署方提供独立32字节密钥、严格base64与1–32个kid，全部保留材料不得复用 Cursor/Secret/Download/Account 当前或历史密钥。配置 getter 返回 typed `knowledge/contract.ConfirmationKeys`，错误只报告字段，不暴露值。
 
 正式拟交付的库同时包括 D05 有界 metadata purge/Stop 与 Skills Cleanup 消费者、D04 Project Variable 专用材料/intent receipt存储和 Secret Owner服务。00028只加共享cleanup索引；00029加D04专用purpose/owner-kind3及receipt表；00030扩共享Variable的互斥ordinary/secret形状和Secret commands/history/generation。迁移只按00001..30连续前缀进入main，前三新SQL保持各已验来源字节，不改已有00001..27。
 
@@ -73,7 +74,7 @@
 
 最终检查建议采用一次仓库原 `scripts/check-go.sh`：Go1.27.1普通test、普通vet、integration源码vet、普通race及两cmd build，以覆盖最终跨包接口与required配置fixture。已有领域PG/native/SQL矩阵按不变输入复用，不重跑。完整脚本仍含未设gate的普通本地TCP/Runner TLS与process测试，必须在根原尾完全结束后由root另授独占socket窗口；仅离线授权只能执行vet/build。Skill/Content native开关缺省明确SKIP，沿原独占native PASS，不声称本轮重新执行。计划沿私有XDG telemetry mode=off、readonly共享mod、private GOCACHE、GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off，移除继承fixture/native gate；启动同process fresh≥5GiB，所有Go读源前冻结候选。随后最终脚本01原whole FAIL见下节。
 
-主线集成不带 Work UI 或新 Secret HTTP 分支；`web/`、浏览器harness、projectvariable/http及go.mod/go.sum相对main280均无本批diff。RootMainFeature0的剩余产品接缝/STOP保持：完整 participant/guard、Object Runtime join、OpenAI tools独立动态验收、SPA concurrent-publication、Jina/Image来源，以及真实Agent/F1/Invocation等未绑定范围不因根此top解除；ready=false与/readyz503保持。正式 main 仍待默认 initializer 撤回及整改后适用范围确认与最终文档收敛；ordinary Audit 修后完整包已按末节闭合；原根业务 PASS 和最终脚本01/02 FAIL 分别保留，不互相替代。
+主线集成不带 Work UI 或新 Secret HTTP 分支；`web/`、浏览器harness、projectvariable/http及go.mod/go.sum相对main280均无本批diff。RootMainFeature0的剩余产品接缝/STOP保持：完整 participant/guard、Object Runtime join、OpenAI tools独立动态验收、SPA concurrent-publication、Jina/Image来源，以及真实Agent/F1/Invocation等未绑定范围不因根此top解除；ready=false与/readyz503保持。默认 initializer 已撤回且整改后的限定根单top已完整PASS；ordinary Audit修后整包和适用最终检查集合已闭，正式main仍待文档独审及root精确Git选入；原根业务 PASS 和最终脚本01/02 FAIL 分别保留，不互相替代。
 
 
 ## 最终原 check-go 01：whole FAIL，窗口已释放
@@ -107,3 +108,8 @@
 
 - Secret 的 helper 等价提效 `141ad8d3` 保留原20秒与全部向量；本轮 `a0d81188` 整个Audit HTTP普通与race均通过，未按top筛减，完整实际终态与原尾见 `owner-feature-integration/final-check-audit-repair-pass.json`。成功日志未展示单向量耗时，不从包耗时推断具体提速倍数或先前CPU原因。
 - 此结果与原66个普通PASS包、remaining两vet/全race/两cmd build组成适用最终检查通过集合；原01 wrapper TypeError、check02及两次exact diagnostic FAIL仍保留，不改写为原完整脚本单次wholePASS。此集合不覆盖随后默认initializer撤回后的app差异，后者须按实际变更补验。
+
+## initializer 撤回后限定检查
+
+- content报告 `0747b02c` root-02已完整wholePASS：session7494/outer241447 actual0，总111.577s；Go243371/driver241594 actualWait0，1top0sub7.39s，七resource/private/runtime/desc/TCP均双尾、inputs一致。仅接受默认Create仍unbound且13项零事实、显式test-only真实端口fixture实际Stop/Drain后的当前读/Avatar/退出，不开放生产Create/participant。新安全记录由content唯一保存。
+- 后继最小检查三原阶段均actual0：普通app vet244530/1.011s、integration app vet244562/0.795s、原两cmd build脚本244593/5.205s。19596→dc3338 outer244529却因本人inline将descendants的set直接JSON序列化而TypeError/exit1；原runtime/desc采样值未打印、result.json未完成，不称wrapper wholePASS，不后采样回填，不重跑成功编译。安全记录 `owner-feature-integration/app-final-first-failure.json`。原命令输出及Wait0单独支持两vet/两build；该记录错误不改写root-02独立原尾。

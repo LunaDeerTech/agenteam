@@ -1,8 +1,8 @@
 # D10 Secret Variable Human Owner 库
 
-> 2026-10-10 组合记录：本库已接受的固定版本进入 `ai/owner-feature-integration`，main正式基线为280a6431（到00027），候选已连续装配00028→00029→00030；最低纯/race、编译与exact入口发现通过，未在候选重跑原SQL矩阵、未正式交付main。以下早期迁移前缀与失败描述保留为当时记录，不能用其“当前到25”等措辞覆盖本轮事实。
+> 交付边界：Secret Owner 库有限验收已完成，候选连续组装 00028→00029→00030；正式 main 集成尚未完成。服务返回安全元信息与 receipt，不返回 value、密文或摘要。Secret HTTP、默认根绑定与 F1 不属于本批库交付。
 
-状态：库级候选的既定实现、有限独审与六top/四组真实矩阵已齐，基线正式main `ce65714a`。Migration9、read6、Atomic/Concurrency10、Recovery5共30节点按各自冻结版本完整PASS，均有原Wait/两资源/私文件/runtime/desc/TCP/input全尾；原read01FAIL保留。Variables对固定生产/SQL/方法/四组入口、Runner对read测试返修有限独审无剩余must-fix。后继未参与实现者对482c5ae5静审无must-fix，真实keyset/generation及本域reference拒删的1top2sub独验亦完整PASS；[方法与结果](../../../.agent-state/secret-owner-independent/README.md)保留输入和有限边界。当前26/27已与正式main相同，库候选可交付等待00028→29→30有序装配；HTTP/defaultroot不在本库验收中。唯一实施者为本分支 `ai/secret-variable-owner-service`；root拥有Git和共享资源调度。
+状态：库级候选的既定实现、有限独审与六top/四组真实矩阵已齐，基线正式main `ce65714a`。Migration9、read6、Atomic/Concurrency10、Recovery5共30节点按各自冻结版本完整PASS，均有原Wait/两资源/私文件/runtime/desc/TCP/input全尾；原read01FAIL保留。Variables对固定生产/SQL/方法/四组入口、Runner对read测试返修有限独审无剩余must-fix。后继未参与实现者对482c5ae5静审无must-fix，真实keyset/generation及本域reference拒删的1top2sub独验亦完整PASS；[方法与结果](../../../.agent-state/secret-owner-independent/README.md)保留输入和有限边界。本批已按 00028→00029→00030 连续组装；HTTP/defaultroot 不在本库验收中。唯一实施者为本分支 `ai/secret-variable-owner-service`；root拥有Git和共享资源调度。
 
 本工作项落实[Secret Variables rev2](d10-secret-variables-owner.md)中的库级子结果，直接复用[已验D04 producer](d04-secret-variable-storage.md)、A纯合同和e940 Audit严格读合同。业务规则、字段/安全输出、预算与原意图定义以rev2为准；本文只固定本次实施和验收边界，不另造产品契约。
 
@@ -16,7 +16,7 @@
 
 ## 2. 已有依赖与构造
 
-root从b724e397精确承接D04的16 production、9 pure tests、00029和D04/D10卡；26/27/28仅连续测试依赖。正式main当前仅到25；00029以及本域预留00030均不得越过尚未正式完成的前缀交付。D04全部承接源和前序SQL只读，发现真实缺口交原域修复，不在本树复制旁路。
+本批从 b724e397 精确承接 D04 的 16 production、9 pure tests 和 00029，并与 D05 已接受的 00028、Owner 00030 连续组装；既有 00001..00027 字节保持。D04 typed producer 与本域真实 authority 构造关系如下，不复制旁路。
 
 `projectvariable.NewAuthority(Store)`继续store-only事实提供方，不反持Project/Secret。新增immutable SecretWriteAuthority绑定本Store与真实Project gate，在Project之后、Secret Service之前构造；实现D04 Discover、无IO CheckPlan以及ReceiptRead/NewWrite当前检查。名称及共享空间由最终Owner事务核验，不假称无name输入的authority已经核新名称。当前Session由正式Project authority沿Account端口证明，不接受生产allow/stub。
 
@@ -48,7 +48,7 @@ Unknown保原CommitResult/Attempt/Cause，不自动重放callback；最多一次
 - 仅两个Project共享例外：`audit_facts.go`、`projectvariable_event_authority.go`先分发精确新Secret action/event到新增helper/test；旧普通predicate/Knowledge/Object/lifecycle分支字节及语义保留。现`project/events.go`producer分发足够，不改该文件。
 - 本域00030草案/后续正式migration、本文和本树current。D04生产/00029与26–28只读；app、HTTP、defaultroot、Outbox engine、Audit公开API/reader及其它共享源不写。
 
-## 6. 有限验收
+## 6. 有限验收与保留的历史结果
 
 不重复D04已过十格/nonce/rotation全矩阵。本库以五组新增风险闭合，现有源码使用正式库装配及真实Account/Project门，Project创建仍复用明确披露的persistent Skills fixture，不冒Skills完整初始化验收：
 
@@ -64,13 +64,13 @@ Unknown保原CommitResult/Attempt/Cause，不自动重放callback；最多一次
 
 实际入口沿原PG-only工具按读/权限、原子/并发、COMMIT恢复、迁移四组分窗，完整节点6/10/5/9；原Go6m、105+15、123+3、TCP75和两资源不变，入口控制/固定候选/独审完成后仍须root fresh grant。Activity回滚必须先在原Tx看到真实更新；Stop格要求原writer尚未返回，取消后held-callback的Drain负向由独立受控pure覆盖，不冒该负向已经真实PG验证。
 
-00030首真实组沿固定d52/03bd与402输入，原session66022→6226ae actualouter0/85.988s，单top9节点PASS15.50s：空库/repeat、普通00029存量和原receipt升级保留、升级后真实Secret写入、五CHECK及deferred history FK实际回滚。Go/driver Wait0、两个原ID双退役、私文件/desc/TCP双尾和输入不变均齐；精确日志及身份见current。该结果不替代其余五业务top、全Owner或26–29正式交付。
+00030首真实组沿固定d52/03bd与402输入，原session66022→6226ae actualouter0/85.988s，单top9节点PASS15.50s：空库/repeat、普通00029存量和原receipt升级保留、升级后真实Secret写入、五CHECK及deferred history FK实际回滚。Go/driver Wait0、两个原ID双退役、私文件/desc/TCP双尾和输入不变均齐；精确日志及身份见[固定 Owner 恢复记录](https://github.com/LunaDeerTech/agenteam/blob/f9cc11c6ce71b367913e426bf0eafbf055c1f964/.agent-state/current.md)。该结果不替代其余五业务top、全Owner或26–29正式交付。
 
 Read首真实组沿同固定产物/402输入，42579→f4ef34 actualouter1/80.220s完整FAIL：两父四子共6节点，当前Owner/跨Project、失权和撤销Session三子PASS；归档后的原材料重放报DEPENDENCY_UNAVAILABLE，Persistence历史安全Lookup报IDEMPOTENCY_KEY_REUSED。原Go/driver Wait1、PG两ID双退役、private/runtime/desc/TCP与input完整尾均齐，窗口已释放。只读确认测试no-op的expected指针后来被改为3；归档fixture双clock_timestamp可能违反正式时间顺序但本轮未采时间，仍非已证原因。尚无依据修改生产授权/digest或放宽预期；后继仅修明确测试输入并独审，原FAIL和其余两个未跑业务组保持。
 
 返修dfc0de53仅三Secret测试：提前冻结原no-op查询，局部归档fixture使用同statement稳定时间并同Tx重新验真实Project门；旧ordinary/生产/DDL/入口未改，Runner限定静审接受。新完整包race编译95963→ae7f0a actual0，新pure1top2sub d36685 actual0，实际list恰六原top与该pure共7；不代真实SQL。root396f25校验后原子推广9a514c候选（36,744,919B，完整身份见current），退休无旧队列的d52；03bd driver和原日志未变，新403输入/`sql-owner-read-02`尚未执行，read01FAIL与MigrationPASS保持原组合边界。
 
-Read修后同原组69141→d31012完整actualouter0/83.806s，新9a514c/03bd/403输入下六节点全PASS（CurrentAuthority7.45s、Persistence6.60s）：实际当前授权、prepare后Archive、只读生命周期原历史与新写拒绝、CRUD/type名称隔离、删除后新Session/Service恢复及安全输出检查完成。原Go/driver Wait0、PG两ID双退役、private/runtime/desc/TCP与inputs完整尾齐，窗口已释放，详情见current和原read02日志。保留read01FAIL且不回填其未采时间因果；原迁移PASS复用，AtomicFacts/Concurrency和CommitRecovery仍待各自fresh窗口，整库/正式连续迁移交付未完成。
+Read修后同原组69141→d31012完整actualouter0/83.806s，新9a514c/03bd/403输入下六节点全PASS（CurrentAuthority7.45s、Persistence6.60s）：实际当前授权、prepare后Archive、只读生命周期原历史与新写拒绝、CRUD/type名称隔离、删除后新Session/Service恢复及安全输出检查完成。原Go/driver Wait0、PG两ID双退役、private/runtime/desc/TCP与inputs完整尾齐，窗口已释放，详情见[固定 Owner 恢复记录](https://github.com/LunaDeerTech/agenteam/blob/f9cc11c6ce71b367913e426bf0eafbf055c1f964/.agent-state/current.md)及其原 read02 日志。保留read01FAIL且不回填其未采时间因果；原迁移PASS复用，AtomicFacts/Concurrency和CommitRecovery仍待各自fresh窗口，整库/正式连续迁移交付未完成。
 
 AtomicFacts＋Concurrency原36671→5b10f7完整actualouter0/84.147s，同固定9a514c/03bd/403输入，十节点全PASS（7.61s/5.88s）。四个实际事实边界注错后的精确回滚，以及同key同/异义、同expected更新/删除、ordinary/Secret名称竞争的原backend/锁屏障与调用返回均通过；原Go/driver Wait0、PG两ID双退役、private/runtime/desc/TCP/input完整尾齐，窗口已释放。只剩CommitRecovery五节点真实组待单独授权；旧FAIL/各版本结果保持，不宣称完整Owner或正式前缀交付。
 

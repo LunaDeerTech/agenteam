@@ -1,8 +1,18 @@
 # Knowledge / Skills 默认 root 有限组合
 
+> 当前接受结论已撤回：以下构造、调用和 PASS 均记录原 `649e6ad3` 的历史执行事实。后续规范独审确认 D08 §7 与 D10 §§1、14 要求完整 participant manifest/guard 后才启用生产 initializer；旧默认 root 未满足该门，内部调用成功及未开放 Create HTTP 都不能豁免。`0747b02c` 已撤回默认 initializer，精确 pure/race 与新单 top 编译/list 通过，整改后的真实 root-02 已完成下述限定验证；不恢复生产 initializer 的接受。旧 PID、业务断言、原 Wait/资源尾和 PASS 不回填、不改成执行失败；它们也不证明合规默认 Project 创建已接受。
+
 2026-10-10：组合树 `649e6ad3` 的首次单 top 真实链 whole PASS。原 Go、driver、outer 均实际返回 0；资源和 TCP 初尾检查全部完成。安全投影见 [root-first-pass.json](root-first-pass.json)。本记录不替代各领域已有的完整验收，也不扩展 Object Runtime 全局 join 停止项。
 
-## 构造与边界
+## 当前 0747b02c 有限接受
+
+生产默认 initializer 已撤回。root-02 先验证真实默认 Create 返回 DependencyUnbound/NotCommitted、13项相关事实全零；再由显式 test-only Project 服务使用原 Store、Audit、真实 Skill/Object 端口创建读测试数据，实际 Stop/Drain/Joined 后才测试默认读路由。这个 fixture 不替换生产服务或用 SQL 写 ready，不满足或绕过生产 participant 启用门。
+
+`TestKnowledgeSkillsDefaultRootComposition` 的新一 top/零 sub 于 session7494/outer241447 完整 PASS：用例7.39s，Go243371/driver241594实际Wait0，outer0/111.577s，七资源/private/runtime/desc/TCP双尾及inputs一致齐。接受原Skills包Close、默认Skills目录/Knowledge正文GETHEAD、Avatar维护及进程退出；安全实际记录见 [root-after-withdrawal-pass.json](root-after-withdrawal-pass.json)。公开Create/完整生命周期、SecretHTTP/F1、SPA与全局Object Runtime join均未完成。
+
+修后精确10 pure top/43sub race及新单top编译/list通过；两app vet与原两cmd build的实际命令均0。后者记录包装器因set序列化TypeError而整体FAIL，原runtime/desc未保留，不称包装器wholePASS；命令成功与记录失败分列，详见 [安全失败记录](../owner-feature-integration/app-final-first-failure.json)。Audit修后整包ordinary/race已与其余未变范围的普通/vet/race/build结果共同闭合适用检查集合，不称原完整check-go单次PASS。
+
+## 原 649e6ad3 构造与边界
 
 - 唯一 Store、Account、Project Authority、Object Service 和 ProcessGuard；固定 Avatar / Knowledge / SkillRevision 分派。Maintenance 的无 Owner 请求由 Object 自己的 uploads 映射发现，原 Store/Tx 中重读后委托同一个请求与 expected；解析结果不是授权。缺行、坏 kind、未知/未绑定用途均安全拒绝，不尝试其他 provider。
 - Project 创建服务在同一个 Skills 实例构造并登记生命周期所有者后构造，Initializer 直接绑定它。Skill 初始化 Audit 仅在 Audit 端使用原 Object facts 与 Project 私有 witness wrapper；Skills 的 ProjectPorts 仍为原 Authority。原 Secret/Variables/Account Audit 路由保留。
@@ -10,7 +20,7 @@
 - 退役顺序保留调用者 Project → Skills → Knowledge → Account/Core。Skill adapter 直接读取 `Service.Joined()`；Knowledge 先 Stop，仅原实际 Drain 成功后记录 join。共享 Object guard 仍受原 producersJoined 门约束，失败/取消/只发 Stop 不构成 join。
 - 未绑定 Lease、whole-Project cleanup、Transfer、Execution 和本轮未授权的 Skill cleanup 根入口仍未绑定。没有新增 Project Create HTTP、自动 RecoverCreations、SPA 发布或生产就绪结论；Secret Owner 库组装也不代表 Secret HTTP/F1/默认根已交付。
 
-## 本次真实证明
+## 原 649e6ad3 实际执行
 
 入口为 `internal/central/app/knowledge_skills_process_test.go` 的唯一 `TestKnowledgeSkillsDefaultRootComposition`，1 top / 0 sub。只观察默认 `run` / `bindAccounts` 的原实例，不替换 authority，不直接写业务 SQL，不另构造领域服务。
 
@@ -23,14 +33,14 @@
 
 这些行为在真实 PG17、D05 MinIO 与原七资源 harness 上运行。Go 用例 6.63s；Go PID 179551、driver PID 177729、outer PID 177706 均实际 Wait 0；outer 105.502s。七资源各两轮 absent，私有目录两轮 absent，runtime 两轮 empty，后代两轮 `[]`，host TCP 两轮 delta empty，源码/候选初尾一致。原 log 在 ignored `output/ai/owner-root/root-01/pg-99b75c64414e493c94b63590e299f1b4.log`；安全投影为跟踪材料，恢复所需 test/harness 源均已跟踪。
 
-## 已执行离线检查与独审
+## 当时离线检查与有限独审
 
 - Config 全包 race PASS（session 58758，1.314s），含严格 required、错误不泄漏、单次读取 Account raw 及 Confirmation 自身 retained key 与其他用途冲突负控。既有根相邻 10 top race PASS（1.209s）。
 - 连续 00001..00030 组装后，实际 fixture 环境配置负正控、真实领域调用 held Store 退役、调用者/提供者退出顺序、限定路由 4 top / 12 sub race PASS（session 66747，1.446s）；同 session 的 integration race 编译与 exact list 均 0，列表仅目标 1 top。
 - 固定 dispatcher 1 top race PASS（session 89138，1.130s）。真实 Knowledge/Skill Authority 在受控 Store 上拒绝，核当前映射重读、原 Tx/context/object/expected locks 以及缺失/未知/未绑定不 fallback。这是拒绝与方法控制，不冒真实授权通过。该新测试首编因 Query 返回值误写 `Rows` 而非 `*Rows` actual 1；只修测试签名后通过。原真人候选的产品与真人源未变，按 root 授权复用，没有为此重编或重跑真实链。
 - Skills 作者独立只读审配置/resolver、七项装配断言，以及本次实际组合方法和 dispatcher 控制，均有限接受无 must-fix。共享单 top 入口另经独审及 40 项离线正负控。独审不冒动态结果。
 
-## 可恢复入口
+## 原版本可恢复入口
 
 正式共享入口由 coordination 单写：`.agent-state/work-owner-http/root_chain_driver.py` 与 `.agent-state/task-planning-recovery/pg_only_supervisor.py`。精确命令：
 
