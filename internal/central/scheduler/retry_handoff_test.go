@@ -176,11 +176,22 @@ func TestSchedulerRetryDueRequiresCurrentEligibilityAndCommit(t *testing.T) {
 			h, store, project, execution := newRetryHandoffControl(t)
 			switch mode {
 			case "not-due":
-				future, err := f.ParseInstant("9999-12-31T23:59:59.999999Z")
+				observed, err := f.NewInstant(time.Now().UTC().Truncate(time.Microsecond).Add(time.Hour))
 				if err != nil {
 					t.Fatal(err)
 				}
-				store.row.nextRetry = &future
+				delay, remaining, err := store.row.retryPolicy.NextDelay(store.row.attempts)
+				if err != nil || !remaining {
+					t.Fatal("not-due control has no remaining policy allowance", err)
+				}
+				deadline, err := retryDeadline(observed, delay)
+				if err != nil {
+					t.Fatal(err)
+				}
+				store.row.updatedAt, store.row.temporaryOccurredAt, store.row.nextRetry = observed, &observed, &deadline
+				if row, err := scanDispatch(dispatchTestRow{values: recordValues(t, store.row)}); err != nil || row == nil {
+					t.Fatal("not-due control is not a valid persisted receipt", err)
+				}
 			case "paused":
 				project.enabled = false
 			case "other-sprint":
@@ -350,6 +361,10 @@ func TestSchedulerRetryAttemptAndProjectionBoundaries(t *testing.T) {
 				store.row.attempts, store.row.nextRetry = 2, nil
 			case "unknown-at-limit":
 				store.row.attempts, store.row.outcome, store.row.nextRetry = 3, Unknown, nil
+				store.row.temporaryAttempt = 2
+				if row, err := scanDispatch(dispatchTestRow{values: recordValues(t, store.row)}); err != nil || row == nil {
+					t.Fatal("unknown-at-limit control is not a valid previous-attempt receipt", err)
+				}
 			case "at-limit", "over-limit":
 				store.row.attempts, store.row.temporaryAttempt = 3, 3
 				if mode == "over-limit" {
