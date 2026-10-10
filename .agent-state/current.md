@@ -2,7 +2,7 @@
 
 ## 2026-10-10 新环境接续
 
-当前：作者修后 PG 恢复02已完整 PASS（4top/12sub），原恢复01完整 FAIL 保留；native/pure/Schema/vet 未变结果复用。未参与者独立 Session 撤销恢复01业务 1top/2sub PASS，但原 TCP75s 尾残 1row，outer actual1，整体 FAIL，尚不能正式接受。产品/测试/harness 全部冻结，只有本记录与正式卡更新及原失败日志保存。
+当前：作者修后 PG 恢复02完整 PASS（4top/12sub），未参与者独立 Session 撤销诊断02也完整 PASS（1top/2sub），coordination 已正式有限接受独立 HTTP adapter；native/pure/Schema/vet 未变结果复用。原作者恢复01及独验恢复01整体 FAIL 均保留，诊断02不能反推独验01残留归因。产品/测试/harness 全部冻结，只有本记录与正式卡更新；root 正在限定集成，尚不代表默认root/Project.Create/UI已接通。
 
 恢复输入为 `cc0e45ac2b851912e6b10db9f212026a5b7a9956`，新唯一作者 `/root/skills_http`；采用最新 `origin/main` AGENTS/团队流程。产品、Schema、测试和 harness 未修改，现均停写供独立审查。原 pure/race/Schema/vet、native 3top/6sub 完整 PASS 和既有有限独审继续复用；PG 4top/12sub 是本 HTTP 尚未执行的真实门槛。下面旧缓存、输出路径和原命令记录属于已保存的上一环境结果，新环境没有这些产物，不凭缺失产物重跑已闭合的 native 验收。
 
@@ -45,6 +45,14 @@ coordination 在 root 另授唯一窗口使用同一86fd候选/0e6 driver、其�
 原 outer `50063→96a6c8` actual1；child71642 actualWait0，driver70983 actualWait0/38.527s。container `9ea95caaf6b0667b10b7b35b63839963d714e1f3739786a85648f1f783368a2e` / network `31102a03c1d1b68b95dff439b303d58402eaee1030d113b9829c570c3fa556f5` 两次精确退役clean=true，private/exact_cases_wait=true、desc双空、inputs_unchanged=true；但原hostTCP75s尾只记录 `STOP host TCP delta tail not empty: 1 rows`，没有两次delta_empty，supervisor terminal1/113.891s，故整体FAIL，不能升级正式独验接受。原日志只存残留数量，没有该行的身份或状态，不能据此归因于产品、PG或外部连接。
 
 原1988B日志在安全字段检查后逐字保存至 [独验失败原件](skills-owner-http/independent-recovery01-failure.log)，与原 `output/ai/skills-owner-http/independent-current-session-recovery01/pg-2dfcd4360b6e437293453b006c2335ad.log` 相同；不后采样、不补原终态、不自动重试。窗口调度已交回root，作者4top/12sub完整PASS继续有效。后继只围绕未齐资源尾由root安排诊断或新窗口，当前没有本域Go/cache writer或真实命令。
+
+### 未参与者独诊断02原完整 PASS 与有限接受
+
+root 保存 `d4cdbbc0` 的原采样同步诊断后另授窗口，coordination 本人沿同86fd候选/0e6 driver执行原独验 selector。首同进程 UTC03:24:01.780708Z、16,345,309,184B；原 outer `68413→205cd5` actual0、supervisor PID102488。1top/2sub业务全PASS/11.45s（GET5.36s、HEAD6.09s），child103042/driver102489 actualWait0、driver19.814s。
+
+原日志 `output/ai/skills-owner-http/independent-current-session-recovery02/pg-b3b8cb8c827d470794431a3a3e670bbb.log` 及 owned.json：container `4b3d64e4203436ae20785e121f653cfb2c8fc366d2cc54e5e59d9fc21e9e84c6` / network `7b316d8c12c6839f2571c440b7e7d8c0fd816d45aa14a654327c098331792d0b` 双退役clean=true，private/exactCases=true、desc双空、HOST_TCP两次delta_empty、inputs_unchanged=true、supervisor terminal0/75.271s。同步 `tcp-diagnostics.jsonl` 只记录原534次tcp调用，差值从两个TIME_WAIT降为一个再为零，inode均0、没有fixture端口匹配；不含额外后台/后验TCP采样，不能据该新轮替原独验01判归属或改其FAIL。
+
+coordination 据该原完整尾正式有限接受本独立adapter，复用作者PG4top/12sub、native3top/6sub及未变pure/Schema/vet。本人只核原日志与保存记录，未冒充执行者。该接受证明真实HTTP认证后Logout与原P2当前Session重验的GET/HEAD详情拒绝，仍使用声明的受控Object及Project seed，不覆盖默认root、Project.Create、新D05发布或UI。原失败日志保留，窗口已交回root，无本域资源或Go/cache writer。交付由root限定组装；新增Object maintenance resolver、统一Audit/Initializer/生命周期及配置只由后继feature集成树writer负责。
 
 ## 已保存的原环境证据
 

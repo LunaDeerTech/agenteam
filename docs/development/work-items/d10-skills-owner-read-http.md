@@ -1,6 +1,6 @@
 # D10 Skills 当前 Human Owner 目录与详情 HTTP
 
-状态：独立 HTTP adapter 已实现，作者限定 pure/race 11top/47sub、初Schema21/HEAD18 与 vet 实际通过；后补正式 Account Problem 标准Schema单top32控/HEAD18通过。未参与者已有限静审产品、PG/native测试方法及精确入口。native 3top/6sub 与修后 PG 恢复02的4top/12sub均已真实完整 PASS。PG 恢复01因 HTTP fixture 漏掉正式 Account.Initialize 而失败，原全尾和 FAIL 保留；只补正式启动调用，未改产品或放宽断言。独立 Session 撤销恢复01业务1top/2sub已PASS，但原 TCP 尾残1row、outer actual1，整体FAIL，尚未正式接受或交付。基线为正式 main `3b7ed9da`，消费已接受的 [P2 初始化与当前 Owner 读取](d10-skills-initialization.md)及[正式设计](d10-skills-initialization-design.md)。本卡交付独立只读 HTTP adapter，不完成完整 D10。
+状态：独立 HTTP adapter 已实现并获未参与者正式有限接受，正在由root限定集成。作者 pure/race 11top/47sub、初Schema21/HEAD18、vet 及后补正式 Account Problem 标准Schema单top32控/HEAD18通过；native3top/6sub、修后PG恢复02的4top/12sub及独立Session撤销诊断02的1top/2sub均取得原完整PASS。PG恢复01因HTTP fixture漏掉正式Account.Initialize而FAIL，独验恢复01因原TCP尾残1row而整体FAIL，两者原件与终态均保留；修后不改产品或放宽断言，新诊断也不反推旧残留归因。基线为正式 main `3b7ed9da`，消费已接受的 [P2 初始化与当前 Owner 读取](d10-skills-initialization.md)及[正式设计](d10-skills-initialization-design.md)。本卡接受独立只读 HTTP adapter，不完成完整D10，也不声称默认root、Project.Create或UI已接通。
 
 ## 范围与真实依赖
 
@@ -50,6 +50,8 @@ Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/d
 修后 fixture `3b97fe69`、86fd 候选的恢复02原 outer `30222→fc38c6` actual0：4top/12sub全 PASS、0 skip，实际 Account Bootstrap/Invitation/Redeem/Login/Logout、P2 目录/详情/Schema/HEAD、当前 Session/Owner/Project gate、User SH/EX两序、真实SELECT取消与原Tx退役、读 COMMIT 两种 Unknown 均闭合。原读取之外的 Store 查询核九项事实与原 Object 调用数不增。原 child67853/driver67244实际 Wait0，driver55.293s；两个精确自有 PG 资源双退役、private/desc/TCP/input 尾齐，supervisor0/114.362s。完整路径与资源身份见本树 current。P2 Object 是声明的受控端口，Project/Creation/ready 是合法 seed，不能外推默认 root、Project.Create 或新 D05 物理发布。
 
 未参与者 coordination 独立恢复01沿同一86fd候选/0e6 driver、独立单top入口验证 HTTP 认证后真实 Logout，再由原 P2 读取重验 Session，GET/HEAD 两 sub 的原业务断言PASS（1top/2sub，23.52s）。原 child71642/driver70983实际Wait0，两个精确PG资源双退役clean、private/exactCases正确、desc双空、inputs不变；原hostTCP75s尾却残1row，没有双empty，supervisor1/113.891s，outer `50063→96a6c8` actual1，故整体FAIL。本轮不能正式接受；作者已闭合的4top/12sub与native结果保持。原记录只保存TCP残留数量，不能判定其身份或归因；不自动重试或后采样补原终态。原1988B日志留在 topic 分支 `.agent-state/skills-owner-http/independent-recovery01-failure.log`，由root保存，不随独立adapter交付重复可重建日志。
+
+独立诊断02由 coordination 本人使用同86fd候选/0e6 driver与已保存d4cdbbc0同步诊断入口执行，原 outer `68413→205cd5` actual0：1top/2sub全PASS/11.45s（GET5.36s、HEAD6.09s），child103042/driver102489 actualWait0；两个精确PG资源双退役clean、private/exactCases正确、desc双空、HOST_TCP双empty、inputs不变，supervisor0/75.271s。原日志与身份见本树current；同步诊断沿原534次TCP采样观察TIME_WAIT差值两个→一个→零，inode0、无fixture端口匹配，未改变75s/双empty拒绝门，也未增加后台或后验采样。该新轮原全尾支持未参与者正式有限接受；不能更改独验01整体FAIL或补其缺失的归属证据。默认root、真实Project创建及UI仍须后继各自完成。
 
 ## 产品接入后继
 
