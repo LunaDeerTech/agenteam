@@ -1,30 +1,30 @@
 # D10 Skills 初始化与内容规格
 
-状态：rev2，2026-10-05 仅同步 P1 提交与验收进度，正式契约与后段门槛不变。S01 主卡已独立审查并采纳；[主卡](d10-skills-initialization.md) P1 纯块已提交 `8872110099c84cf0600bb5b62cdcd6c0c6c843e3`，并通过[本轮独立验收](../agent-team/d10-p1-recovery-verification.md)。§§1–8 保留完整后段目标与未实现前置；不能把 P1 通过扩为真实初始化链路完成。S01 固定基线 `71dc17671631632bb26e251ad8491e74092ac975`，P1 原实现基线 `f401c15a5187690889eaea9ba9672ca8bdc85460`；本次独立输入为 `8872110` 的源码及 rev1 规格。
+状态：rev3，2026-10-10。P1 固定编码与纯口不变；P2 初始化／持久不可变内容／当前 Owner／精确 Stop 和 00027 有限库按 §§10–15 实现并接受，实际证据见[主卡](d10-skills-initialization.md)。§§1–8 保留完整结果的目标和后段验收边界，不把尚未实现的 Cleanup、生产 root 或 Runtime 当作本次交付。
 
-§2 的上游状态及 §7 的候选路径保留原 S01 输入；旧 P r4/A 冻结首段和 `/tmp` 草案不是本轮已恢复实现，现存范围见[恢复记录](../agent-team/recovery-2026-10-05.md#3-未恢复的实现与临时证据)。后段仍须逐项授权、实现和验收。
+历史 S01 `/tmp` 草案不是当前 DDL 来源；00027 为本次正式库模型。Object 原生 Audit checker、Project 初始化／收敛 wrapper 及有限 Skills CleanupPhase 已在 main，本 P2 消费初始化/读/Stop 子口；真实清理与完整多域 participant 另行闭合。
 
-## 1. 完整结果与边界
+## 1. 完整结果目标与边界
 
-本卡交付：每个新 Project 的**真实 Add Skills 内容包 → 独立不可变 revision → D05 实际对象/规范引用 → D08 同 Tx 完成确认**，以及当前 Owner 元数据/包读取、原 key 恢复、当前生命周期停止与项目删除清理。生产缺任何真实绑定就保持 D08 `DEPENDENCY_UNBOUND`，不写无内容保护 Skill，不将 PUT 或构造 completed DTO 当成功。
+完整目标：每个新 Project 的**真实 Add Skills 内容包 → 独立不可变 revision → D05 实际对象/规范引用 → D08 同 Tx 完成确认**，以及当前 Owner 元数据/包读取、原 key 恢复、当前生命周期停止与项目删除清理。生产缺任何真实绑定就保持 D08 `DEPENDENCY_UNBOUND`，不写无内容保护 Skill，不将 PUT 或构造 completed DTO 当成功。
 
 可以独立于 D09 模型配置和未绑定 Tool/Mount 运行：包由仓库内审定文本构成，验证/打包不调用模型、不联网、不执行脚本、不建立 Agent。目录/读取是当前 Human Owner 的服务口。本卡不实现外部安装入口、Agent 分配、Tool 暴露、Runner staging 或 Agent 配置；它们以后消费同一 stable SkillID、不可变 revision、manifest 与对象 owner。无对应生产 API，不用默认成功实现宽接口。
 
 依据：[开发计划](../development-plan.md) D10；[Skills](../../architecture/agent-skills.md) §§1–9；D01 [resources-skills](d01-contracts/resources-skills.md)、[domain-lifecycle](d01-contracts/domain-lifecycle.md) 删除矩阵；[D08 设计](d08-project-owner-design.md) §7 和正式 `project/contract/initialization.go`。D08 启用 initializer **同时**必须注册真实 `agent-skills-variables` participant，不能只消除创建端口的 unbound。
 
-## 2. 真前置与已核缺口
+## 2. 当前前置与有限绑定
 
-| 前置 | 固定事实 / 必要最小变化 |
+| 前置 | 当前事实与边界 |
 | --- | --- |
-| D08 创建 | 已验 `ProjectSkillInitializer` 四方法、私有 `InitializationPlanIssuer`；`ValidateInitializationInTx` 同 live Tx/Project EX 只认 exact Project/Creation/key、注册 Service、active gate，状态 initializing/completed。D10不改该成功确认语义。 |
-| D05 初始化权限 | `object/contract/authority.go:53` 拒所有 Service Read/Mutate，实际 Prepare/Reserve/Send/Publish 是 Mutate，Lookup 是 Read。候选仅放形状 `project-initialization + SkillRevision + CreationCause=Actor.CauseRef(UUIDv7)`；配置的真实 Skill authority 再核原 Creation/request、完整 D05 私有 issuer plan 与当前事实。其它 Service、owner、cause 继续拒绝；Service Read 只供 exact Lookup，不能开正文/Stat/transfer。 |
-| D05 initiator 事实 | `object/transfer_upload.go:18–21` 仅 Human/Agent 取 ID，Service 会把空 UserID 写入 `uploads.initiator_id safe_id NOT NULL`。仅上述已验证初始化分支持久原 CreationID；保 Human/Agent 原路径。原 ObjectService Audit 的 InitiatorKind=Service/InitiatorID=CreationID 已符合闭集，不改通用 Audit actions/resource/producer/SQL 旧约束。 |
-| 初始化中的 Object Audit | 已验 Project authority 只接受 ProjectAction。P r4 未验候选支持 Object facts 但 `audit_authority.go:252` 仍在 provider 前拒 `!initialized`，故不能直接用来发布初始化对象。必须有**初始化专用路线**：当前 exact Creation gate + Skill 本域 object/attempt 映射 + A 正式 D05 exact-fact provider 三者同 Tx 全满足。禁止泛放未初始化项目的 Object/Secret/Artifact/任意 Service。 |
-| 已失败初始化的收敛 | D08 会保留 failed creation/name，现写授权只认 initializing/completed。候选新增独立窄 `InitializationConvergenceAuthority`（见 §10 后段形状）：只核原失败/未决工作的元数据观察、失败 Audit/清理，不允许 Reserve/Send/Publish 或把 Project 标可用。重试新写必须由 D08 原 creation 重新进入 initializing。不能让错误路径借用普通 Owner，也不能把合法 failed 原因丢成“未找到”。 |
-| 不可逆清理 | 当前 `CleanupReleaseAccess` 和 `ReleaseForCleanupInTx` 只支持 Avatar。新增闭集 `SkillRevision + ProjectDeleted`，必须绑定原 Project lifecycle operation/版本、Skill revision、UploadID、ObjectID；原 Avatar 及任何先已验的新变体保留。仅普通 Release 会留下可 Attach 的 existing-owner upload，不足以封旧回执。 |
-| P/A 真绑定 | P r4 三文件仅用来定位接口/排序，**未验**。A 已明确：当前已冻结首段只有 stop/work/fence，**没有 D05 `audit.ProjectFactAuthority` 实现或 constructor**。这是同时影响 D10/D12 的独立未实现前置，不能假定可注入。须另交真正同 Store、无 Service 构造环的精确事实校验器并验收，连同 A 的 stop/物理收敛及 P lifecycle authority 再接入；不消费活动稿、不跨域直接查/写私有表代替它们。当前卡不授权这些旧域修改。 |
+| D08 初始化 | 正式 `ProjectSkillInitializer` 四方法、私有 plan issuer、初始化写 gate 和失败收敛 gate 已在 main。P2 同 Store/current Project/Creation/key 消费，不改其成功语义；生产 D08 initializer 和创建 HTTP/root 尚未接通。 |
+| D05 初始化权限 | 本次 Object 窄分支仅允许 ProjectInitialization + SkillRevision + 同 Project、CreationCause 与 Actor.CauseRef 同一 UUIDv7。真实 Skill Authority 再核当前原请求和完整私有 plan；Service Read 只用于 exact Lookup，不能开正文/Stat/transfer，其它原变体不变。 |
+| D05 initiator | 仅上述已授权 Service 分支持久原 CreationID，Human/Agent 原路径保留。不改 Audit 的 action/resource/producer 或旧 SQL 约束。 |
+| 初始化 Object Audit | 正式 Project 初始化 wrapper 与 Object native checker 已在 main；本次新增 Skill facts 将当前原 Creation gate、本域完整 object/attempt 映射和原私有 witness 在同一 Tx 闭合。真实 D05 发布正向及公开字段伪 witness 拒绝已有限验收，不泛放未初始化 Project 的其它事实。 |
+| 失败与 Unknown | 原 D08 收敛口只允许原工作观察及失败事实，不授新 Reserve/Send/Publish。P2 Inspect 不发 I/O，Recover 只收敛原工作账本；原 Unknown 与实际尾保留，不能用空查或 TTL 冒终局。 |
+| 清理 | Release 的 SkillRevision+ProjectDeleted closed shape 本次加入，保 Avatar/Knowledge。main 已有有限 Skills CleanupPhase，但本 P2 尚无 CleanupAuthority／生命周期 Audit／完整删除实现；schema和形状成功不代表清理可执行。 |
+| 生产组合 | main 的 Project/B02/Audit/Variables/Secret 与路由保持原字节。当前库不注册完整participant，不消除生产 root 的缺绑定，不恢复 Object Runtime join 停止项。 |
 
-无需改变 foundation 锁排序、D01 分层或 D08 已验 initialization 消费口。新增 `skill/contract` 位于第4层；实现可依赖 project/object/audit 的正式契约，project/object 契约不得反向 import skill。
+Foundation 锁序、D01 分层、正式 Project/Object 契约与 P1 编码不变；实现依赖上游契约，上游契约不反向 import skill。
 
 ## 3. 首个真实包与工程参数
 
@@ -58,39 +58,30 @@ D08已定：失败保创建名称/原creation，不自动删除已产生技能�
 
 正常 Owner `OpenPackage` 先当前权限+固定 revision，再 D05 actual ReadObject；无私有MinIO读。包reader保 meta/manifest副本，Close/取消必须区分实际本地 reader I/O join 与 D05 lease 的持久释放：wrapper Joined只在其所有Read/Close实际return后为真；D05释放Unknown仍保留原lease，由真实Object runtime/cleanup收束，不能把wrapper Joined当lease已释放。失败/Unknown不能宣称已读、已释放。Service Lookup不授予正文。普通archive保持合法read，不改既有快照；Project delete关闭serving且等待真实活动。
 
-`SkillsParticipant` 名称沿现 `agent-skills-variables`，本次注册声明启用owner仅Skills，不伪造Agent/Variable实现；将来启用这些领域必须扩同participant正式组合与manifest版本，缺绑定不能默认为空。其 cleanup 排在 artifact-object/secret/outbox/audit 前（采用P登记的显式依赖）。
+后续完整 `SkillsParticipant`（现名 `agent-skills-variables`）必须按届时实际启用的 Skills、Variables、Agent 组合及 manifest 版本声明能力，缺绑定不能默认为空。本 P2 只实现 Skills 精确 Stop 子能力，不注册完整 participant。完整组合的 cleanup 排在 artifact-object/secret/outbox/audit 前（采用 P 登记的显式依赖）。
 
 - Stop：同当前P lifecycle cause/phase验证后捕获 exact 本域 work/reader，短Tx确认再取消；Inspect 不创另一 stop cause。archive停止新写/既有初始化工作，保已发表包及合法读；delete同时撤正文准入。stopped取决于所有真实本地join/精确死亡及原PG事务终局，不取决于取消返回、租约过期或仅D08 work_claim已结束。
 - Delete cleanup：同 Project gate+Skill/Object完整锁原子 tombstone 本域 serving，并通过扩展的 `ReleaseForCleanupInTx` 关闭原 upload/canonical（含reserved）gate；cause必须原Project lifecycleOperation+version和exactowner/object/upload，不允许单独删除 protected Add Skills。所有旧初始化/Lookup/Attach/Consume/Publish捷径仍先当前gate，不能凭历史success复活。
-- 物理删除用正式 `DeleteUnreferencedWithinBudget`，pending reader/history/external lease、未终局writer/zero-marker保进度；**marker不是终止证据**。只有必要 payload/marker/lease清理可证明完成后删除本域正文metadata/manifest/初始化输入/attempt/checkpoint；无跨域cascade。本域participant完成后，D05 Project participant继续清其拥有的剩余技术记录；仅D08最终receipt可跨项目永久删除保留。因阶段顺序不能在本域cleanup中等待“后序Artifact/Object整个participant completed”，只能确认本域exact objects实际已清，避免环。
+- 物理删除用正式 `DeleteUnreferencedWithinBudget`，pending reader/history/external lease、未终局writer/zero-marker保进度；**marker不是终止证据**。只有必要 payload清除、永久空marker核实与lease实际终局可证明完成后删除本域正文metadata/manifest/初始化输入/attempt/checkpoint；无跨域cascade。本域participant完成后，D05 Project participant继续清其拥有的剩余技术记录；仅D08最终receipt可跨项目永久删除保留。因阶段顺序不能在本域cleanup中等待“后序Artifact/Object整个participant completed”，只能确认本域exact objects实际已清，避免环。
 - 已发表revision清理保 exact upload→Object映射直到所需D05物理证明完成。D05对象消失/ResourceDeleted仅在已经同cause关闭gate+已证terminal的路径可作幂等结果，不把无行当原Unknown回滚。
 
 ## 6. 构造与运行责任
 
-先构造 Store/current Account/Project authority → Skill Authority（只本域Store+Project端口，无Object Service）→ immutable owner/cleanup routing（保Avatar、Artifact等原提供者）及初始化Audit facts（D10映射+A D05facts）→ 新的 P InitializationAuditAuthority 包装已构造ProjectAuthority与上述facts → Audit Service → 真Object Service/Runtime → Skill Service（注入真Object ports+私有bundle）→ D08 Service initializer与生命周期registry。包装器仅新增初始化closed路线，其余方法委托真实原ProjectAuthority；不能反过来要求ProjectAuthority构造前先有SkillService。constructor缺任何必需provider拒绝，不用late locator、nil替身、隐式反向查表解决环。其中 A fact provider 当前不存在，所以上述是目标构造顺序、不是已可执行装配。独立前置应优先以同 Store 的只读新 checker 构造；不能依赖 Object Service/Audit Appender。现 UploadComplete/Delete 的 Append 在终态 UPDATE 之前，不能要求事后状态已经出现，也不能以任意 Entry 代事实；逐 action 的持久前置和必要私有同 Tx 见证或最小次序调整须由该独立前置卡审定。无此真实实现时 root 明确 unbound，不发明占位 getter。
+先构造 Store/current Account/Project authority → Skill Authority（只本域Store+Project端口，无Object Service）→ immutable owner/cleanup routing（保Avatar、Artifact等原提供者）及初始化Audit facts（D10映射+A D05facts）→ 新的 P InitializationAuditAuthority 包装已构造ProjectAuthority与上述facts → Audit Service → 真Object Service/Runtime → Skill Service（注入真Object ports+私有bundle）→ D08 Service initializer与生命周期registry。包装器仅新增初始化closed路线，其余方法委托真实原ProjectAuthority；不能反过来要求ProjectAuthority构造前先有SkillService。constructor缺任何必需provider拒绝，不用late locator、nil替身、隐式反向查表解决环。其中同 Store Object fact provider 已正式存在，P2 已实际组合初始化路线；含 Runtime／cleanup／registry 的完整构造仍是目标，不是生产绑定。独立前置应优先以同 Store 的只读新 checker 构造；不能依赖 Object Service/Audit Appender。现 UploadComplete/Delete 的 Append 在终态 UPDATE 之前，不能要求事后状态已经出现，也不能以任意 Entry 代事实；逐 action 的持久前置和必要私有同 Tx 见证或最小次序调整须由该独立前置卡审定。无此真实实现时 root 明确 unbound，不发明占位 getter。
 
 D08驱动原creation恢复，D10不另启第二套自动发布队列；D10 Service登记所有实际调用/读流/补偿直到return，D05继续拥有自己的实际writers/leases。技术Recover只处理原命令事实，不越过D08当前init gate重新发布；公平扫描按持久pass/游标推进，不能前100个busy阻塞tail。全局最多16实际初始化工作（与D08已有默认上限一致，不放宽其配置），持锁Tx不等待网络/join。
 
 Start/Check/停止复用现root共享30s启动、2s健康round及同一停机deadline/额外共享1s Force；恢复单项建议≤2s并取caller剩余最短。清理包括失败checkpoint必须走WithinBudget，不用WithoutCancel/新15s/2s脱离；超时返回但实际I/O未join继续留registry/ProcessGuard，DB最后实际Drain/Force仍发起。root装配需把D10也纳入guard持有与最后释放，不能直接调用Object.Runtime.Drain先释放共享guard。该组合需真实测试，纯类型不证明。
 
-## 7. 候选文件所有权 / 分阶段完整结果
+## 7. 有限交付文件边界
 
-P1 已提交并通过本轮独立验收的范围：`internal/central/skill/contract/{types,package,read}.go`及各同名test；`skill/{builtin,package}.go`及同名test；`skill/builtin/add-skills/v1/SKILL.md`。真实body+纯规则通过仍不解除生产unbound，实际验证与限制见[主卡记录](d10-skills-initialization.md#p1-本轮独立验收)。
+P1 的 contract／builtin／package及真实SKILL.md保持原内容。P2 新增 `internal/central/skill` 的 authority、initializer、repository、read、work／recovery与精确Stop实现及相邻测试；八个作者集成源与一个独立集成源位于 `tests/skills`，独立纯测试仅从原overlay移到正式同包文件。数据模型为原字节 `db/migrations/00027_skills.sql`；旧前缀和依赖锁不改。
 
-完整库候选新源：`skill/{service,store,initialization,object_authority,audit_authority,read,recovery,lifecycle,runtime}.go`及同名适用test；`tests/skills/{fixture,initialization,recovery,authorization,lifecycle}_test.go`。`skill/contract`只发实现真正消费的口，不提前生成Agent/Tool空实现。
+共享仅五个窄文件：Object authority的初始化Service闭集、transfer_upload的该分支initiator、access的SkillRevision+ProjectDeleted Release形状、reference_cleanup对应注释，以及旧cleanup owner/reason矩阵仅增加该合法格。另含两个Object初始化相邻测试。其余 Object、全部 Project／Audit／B02／Account／app与默认root不由本批覆盖。
 
-共享候选须root顺序授写，不能和A/P/D12/B同时写：
+生产 immutable routes、D08 initializer／多域 participant、完整清理与共享guard退休另属后段。它们不能用生产stub或成功空结果代替，但不阻止本P2有限库独立交付。已有必要COMMIT proxy依赖在main保留，不复制新的资源框架或私有产物。
 
-1. D05 `object/contract/authority.go`（上述服务closed形状）及专门新初始化负例test；`object/transfer_upload.go`（Service initiator UUID仅该分支）。
-2. D05 `object/contract/access.go`、`object/contract/reference_cleanup.go`、`object/reference_cleanup.go`（SkillRevision+ProjectDeleted closed分支），新同包test；原Avatar/已采其它variant保留。无需先扩大 object/access.go、普通cleanup.go、foundation。
-3. A 独立后段前置：优先新 `object/project_audit_facts.go` 及对应 test，构造只接同 Store，消费已验 `audit.ProjectFactAuthority`；不得借 Service/Appender 或跨 Project 表。若仅已持久事实不能充分证明某 action，精确列该 action 现有调用文件与私有同 Tx 见证/写入次序方案，另行审定范围后才可改；本卡不把该 checker 当已有或临时 allow。
-4. P 新 `project/contract/initialization_convergence.go`及test、`project/initialization_convergence.go`；新 `project/initialization_audit.go` 及test做初始化Audit专用wrapper：复用 `audit.ProjectFactAuthority`，普通授权/cleanup/lookup全部委托原authority。优先不改P活动 `authority.go`/`audit_authority.go`；若实际冻结构造链仍需旧调用点变动，先交精确delta获批。不修改已验 `ValidateInitializationInTx` 成功条件。
-5. D08注册/组合根：`app/{account,object,resources}.go`必要窄调用点与新 `app/skills.go`，P registry的配置调用方；准确旧路径在冻结P/A后确认，不授权批量覆盖。注册Project初始化的HTTP/root入口仍属D08 B04，不以此提前宣布整站Project可用。
-6. 新无编号DDL只在 `/tmp/agenteam-d10-s01-skills-uve1ji1r/skills-schema.draft.sql`（SHA `4b473f8785c8a15ca4a7b7e6a8f4b9d33569fd6f47bffe9a10f05fd904854dfc`）；全局编号由root在A014/B015等已验序列后分配，旧迁移不改。真实fixture脚本只在迁移归属与批次明确后精确更新。
-
-先纯载体/真实bundle，随后共享补口独立审，最后同一完整Skill服务+真D08/D05/P/MinIO组合。P/A尚未验收阻止的是该集成门槛，**不阻止无依赖的新Skill纯包/服务准备**。不得以避共享文件为由交无内容假初始化或把cleanup留成成功stub。
-
-## 8. 验收门槛（后续执行，本次未运行）
+## 8. 完整结果验收门槛（有限已验项见主卡）
 
 | 场景 | 必须可观察的事实 |
 | --- | --- |
@@ -102,7 +93,7 @@ P1 已提交并通过本轮独立验收的范围：`internal/central/skill/contr
 | 公平/预算/join | 100项busy+tail实际推进；有新错误仍不饿死独立项；MinIO慢PUT/GET/delete/checkpoint锁、caller取消、force相反先后、实际Close阻塞；原共享预算不延长，未join留guard、DB最后。 |
 | 适用兼容 | D05旧Human/Agent/其它Service负例、Avatar及A/D12已验cleanup变体；D08原missinginitializer/错误confirmation/T11Unknown；实际constructor/root启用participant、迁移fresh/最近已验序列升级；原预算/断言不削弱。 |
 
-本卡没有待用户选择的模型/工具默认值；首个bundle与编码参数是供独立审查的工程候选。安装格式扩展、protected builtin升级、Agent删除/运行中分配等后段规则不得在实现中自行提前决定。S01只静态证明缺口和提出可实施路径；P1仅纯包/载体，不声称 Skill 服务、PG、MinIO、权限、恢复或生命周期已运行通过。
+本卡没有待用户选择的模型/工具默认值；首个bundle与编码参数是供独立审查的工程候选。安装格式扩展、protected builtin升级、Agent删除/运行中分配等后段规则不得在实现中自行提前决定。S01仅是原静态规格，P1仅纯包/载体；P2 已运行的服务、PG、MinIO与精确 Stop 按主卡固定版本组合计证，表内尚未闭合的完整清理／root不由它们代替。
 
 ## 9. P1 固定编码与纯 Go 口
 
@@ -120,26 +111,67 @@ manifest有固定format=`skill-zip-v1`/entry_path=`SKILL.md`/按序files；`File
 
 冻结builtin：bundle_id=`builtin.add-skills.v1`、revision1；SKILL.md 2473B SHA `a5f2416d9531ca0d450d97fd9d7064187c3d865573b9b20d874d146f1ee9663d`；ZIP2587B SHA `a67cef2cf755baa48880ea1727444ab060ac6237e5505e99081e868c91f1dcf1`。构造时核这两个常量，字节漂移必须新版本/审查，不能换同ID已有事实。无创建、安装、对象、Project成功状态产生。
 
-## 10. 后段必要形状（未实现、未授权旧域写入）
+## 10. 当前构造口与职责
 
-以下仅把已审候选的组合口归位，不把它们放进P1接口或伪实现：
+正式 `ProjectSkillInitializer` 四方法、`InitializationPlanIssuer`、`InitializationConvergenceAuthority` 和 P1 `OwnerReader` 的签名原样实现，不复制契约。新 `skill.NewAuthority(Store, ProjectPorts)` 只接同一 Store 和 Project 当前授权/初始化/收敛/生命周期端口；生命周期本次只消费 Stop/Inspect，后段 Cleanup 不以端口形状冒已绑定。`skill.New(Dependencies)` 必需 Authority、真实 Object Uploads/Objects/ReferenceCleanup/预算内清理口、精确 ProcessAuthority、当前 ProcessID 和 P1 私有 BuiltinBundle；缺任何必需口立即 DependencyUnbound，不允许启动后才悄悄补绑定。
 
-```go
-// Project 新可选口：exact original failed/accepted work 收敛，不能新写/发布。
-type InitializationConvergenceAuthority interface {
-    ValidateInitializationConvergenceInTx(context.Context, foundation.Tx,
-        identity.Actor, project.InitializationRequest) error
-}
-// 同活Tx、Project EX、真实registered service/CreationID/ProjectID/key/owner。
-// accepted|initializing|failed|completed 的一致事实；删除走lifecycle cause。
-// Skill Authority 先构造，只接 Store+Project 端口，不要求 Object Service。
-func NewAuthority(Store, ProjectPorts) (*Authority, error)
-func New(Dependencies) (*Service, error)
-// Dependencies: Authority, real Object Uploads/Objects/ReferenceCleanup +
-// DeleteUnreferencedWithinBudget, exact ProcessAuthority, validated BuiltinBundle.
-// 新 P implementation wrapper 在SkillAuthority+A真facts之后、Audit之前构造：
-func NewInitializationAuditAuthority(*project.Authority,
-    audit.ProjectFactAuthority) (audit.ProjectAuthority, error)
-```
+Authority 实现 D05 ResourceAuthority、AccessPlanner、ObjectReadAuthority、ProjectGate 所需的本域分支；CleanupAuthority 不在本 P2 实现，只有本域 SkillRevision 可匹配；外域路由由不可变组合交给原提供者。D05 maintenance/技术 checkpoint 需要的父 Skill 锁也从本域 exact object/attempt 映射发现，不从 RevisionID 猜 SkillID。它不持有 Object Service，也不开外部 I/O。服务实现 initializer、OwnerReader 和本域精确 Stop 子能力；没有通用安装/更新/独立删除口。
 
-既有 `ProjectSkillInitializer` 四方法和private confirmation issuer原签名不变。A Object facts当前未实现；同Store无Service环的checker、逐action真实前置以及必要私有同Tx见证由其独立卡决定，本规格不授权任意Entry或占位provider。原候选shapes `/tmp/agenteam-d10-s01-skills-uve1ji1r/contract-shapes.go.txt` SHA `aca3c103b36073aa47cc605492269e009be4e86e8ee7188dedca73943621b7ee` 供版本定位；P1实际公开口以新纯源码和本节明确边界为准。
+新 Skill Audit facts 同活 Tx 先核本域完整映射及当前正式 Project gate，再一遍调用实际 `object.NewProjectAuditAuthority` 所得 checker，传原 ctx/Tx/Entry/key。生产构造根应显式使用同 Store 的具体对象，单凭非 nil 接口不能证明此关系；真实验收必须有真实 checker 的正例和缺私有 witness 的反例。禁止跨模块 SQL、复制 witness、造成功 Entry 或只比较 DTO。
+
+## 11. 持久数据与不可变关系
+
+迁移 00027 建 `agenteam_skill` 私有 schema，所有主键 UUIDv7，版本正整数、状态 closed CHECK，业务外键只在本域，跨 Project/Object 关系由正式端口验证；只使用 Foundation 已有类型/锁序，不新增数据库函数绕授权。
+
+| 数据 | 约束和存续 |
+| --- | --- |
+| `initializations` | 每 Project 一条 original creation/key，creation 唯一；完整 command identity/semantic digest、稳定 SkillID/RevisionID、bundle_id/包与 manifest digest、冻结 manifest/大小/name/description、phase/version。Project+key、creation、SkillID、RevisionID 各有防歧义唯一约束。同 key 异义拒绝，异 key 同 Creation 不能另建 Skill。phase 仅 planned/reserved/published/failed；failed 不等 D08 CreationFailed，也不抹除 attempt/Unknown。 |
+| `skills` | SkillID、ProjectID、name/normalized_name/description、protected、current_revision、version、serving tombstone。Project+normalized_name 唯一；本结果唯一受保护 Add Skills，revision=1。仅 Publish Tx 插入，不把 planned 行列入目录。 |
+| `revisions` | RevisionID、SkillID/ProjectID/revision、immutable manifest/包摘要/真实 ObjectMeta/发布时间。SkillID+revision 唯一；每个完整 ObjectID 只属此 revision。本域 FK 保父关联，ObjectMeta 逐字段通过正式 typed constructor 恢复，不让通用 JSON 制造 scope。 |
+| `object_attempts` | 本域 command/Skill/Revision 与真实 UploadID/ObjectID/AttemptID、创建 ProcessID、当前 attempt/version 的 exact 映射；一个 upload/object 对应一 revision，旧 attempt 留存到真实收敛。不能用本表自造 verified/published 代替 D05。Reserve 与 mapping 同外层 Tx；D05 Audit failure ordinal/cause 必须能映射原真实 AttemptID。 |
+| `work` | 接受的实际初始化调用/包读取、ProcessID、原 operation/cause、开始与 joined/unknown 状态、稳定 work UUID 和 fence。持久闭合不先于实际调用/Read/Close 结束；取消或进程心跳过期不删行。只保存必要安全标识，不保存包正文、用户凭据、底层 error 文本。 |
+| `cleanup` | 00027 预留的当前 lifecycle operation/action/version 与 exact revision/upload/object、清理阶段/ID约束。本 P2 不写此表、不以 schema 存在声称 Cleanup 实现；原子 Release／物理终局／清理重放是后段责任。 |
+
+只保固定 builtin 的内容摘要/manifest/metadata，正文从审定 bundle 或真实 Object 读取，不在 PG 保存第二份包。计划缺行与矛盾行有别：无权范围先权限拒绝；已授权但 canonical 关系损坏返回 Unavailable，绝不当 NotFound 自动重建。已完成 command 结果从持久 revision 投影，不因进程升级重新生成包或换原 bundle。
+
+## 12. 服务步骤、错误与恢复
+
+`InitializeProjectSkills` 逐步执行 §4 的 Plan → Prepare → Reserve → Physical → Publish，每步前重验当前原 request。工作上限16，名额包括取消后未真实 return 的调用；满额 ResourceBusy。短 Tx 之外的任何读写都受 caller 原 deadline 和 D05 实际预算限制；不自动再执行已可能外发的 callback。
+
+- `InspectProjectSkills` 只用收敛口观察原 command/revision/attempt；无本域命令返回 Pending，published 且全映射一致返回 Completed，已有安全 failed checkpoint 返回 Failed。它不执行 Reserve/Send/Publish，不通过“没看到记录”清除原 Unknown。
+- `DiscoverConfirmation` 只从准确已发表结果发私有 issuer plan，含 Project EX、真实 Skill EX、Object EX 和原 command 必需锁；`ConfirmInitializedInTx` 拒另一 issuer/actor/request、弱锁、外 Store、已结束 Tx，重验当前 Project gate/完整不可变映射，不嵌套 Tx、不做 I/O。
+- 每一步的 Foundation Fault 原 commit state、cause 和 metadata 原样传递；已接受写的 Unknown 不改成 KnownFailure/NotStarted。Malformed 输入 InvalidArgument，形状或当前权限不符 Forbidden，未绑定 DependencyUnbound，状态不允许 InvalidState，语义异义 IdempotencyKeyReused，预期版本不符 VersionConflict，当前争用 ResourceBusy；底层未知/损坏 Unavailable。仅明确业务失败写闭集 SafeReason，不存原错误文本。
+- Commit Unknown 后只在原 complete locks 与 writer 终局序列下重读同 command，可证同语义已发表才确认完成；未确认仍返回原 Unknown。COMMIT ACK 丢失必须真实代理验证，受控 Fault 只证明传播。ProcessAuthority 只用于精确旧 ProcessID 已停止；必须另证旧 Tx 已结束才接管，不能用 TTL/lookup 缺行或本地未登记代替。
+- D05 `ReserveUploadInTx` 对活旧 candidate 返回 busy、对同进程 reserved/verified 或 committed 返回原 handle；D10复用该行为，不发明 attempt 重置。允许接管时仍用原 upload/command 和冻结包，持久新 candidate 映射再 PUT；每个真实 attempt 最多一次本域外发选择，不保证网络层 exactly once。
+- 本域 `Recover` 只推进原工作收敛/账本，不代 D08 重启初始化发布。按持久 cursor/pass 扫描固定有界批次，忙项记位置再走 tail；不每轮只查前100。当前 cause、process 终局和权限均不满足时保 Pending/Unknown，不能返回成功 stop。
+
+OwnerReader 每次用原 actor 当前授权，不沿用 initialization Service；列表只有本结果的有限 protected 目录，具体 ID/revision 先验证当前 Project Owner 后查本域。读包是 immutable revision 的实际 ObjectReader→P1 PackageReader；本地工作直到所有 Read/Close 返回才 join，D05 lease 的 Unknown 另保真实待收敛事实。archived 可读、deleting 拒绝；服务 Stop 的当前 lifecycle gate关闭新入口，不能只靠本地 map 检查。
+
+## 13. 精确 Stop 与后段清理边界
+
+本域 Stop 的 reference kinds 固定 `skill-initialization`、`skill-package-reader`，来自原持久 work。当前 scope/cause 先通过正式 Project ValidateLifecycleInTx；同 Tx 核当前 facts、完整锁并捕获 exact 工作集合，提交后才取消。InspectStop 重验同一 operation/action/version 和实际 join；外来 ProcessAuthority 证明后还必须持原事务锁重读原 process/kind/phase，不能用 TTL／本地无记录或 cancellation 返回当终局。100条有界扫描及 tail 保持 Pending，不以截断列表冒完成。
+
+Archive 不删除 immutable 内容，现有合法 Owner read 保持；Delete 撤新正文准入且 reader 进入停止集合。原错误、Unknown 与未实际返回的调用继续阻止 Stopped。本 Service 不实现完整 participant Name，也不替 Variables/Agent 报完成。
+
+D08 active-only 初始化 Audit wrapper 保持原样。本 P2 没有 CleanupAuthority 或 lifecycle Audit 外层；Project 已有有限 CleanupPhase gate 仍不足单独完成本域 gate/Release/物理清理/最后双域事务。D05 Release 的 closed shape、新 cleanup 表不等于清理可调用。后续必须保持 exact cause、当前权限、真实 native witness、原预算与 actual join，并独立验证；本文不带入后段清理实现。
+
+## 14. 本次共享差异与后续依赖
+
+| 所属 | 必要变化与授权边界 |
+| --- | --- |
+| D05 permissions | 仅 `ProjectInitialization + SkillRevision + Actor.CauseRef=CreationCause UUIDv7 + same Project` 允许 OwnerAuthorization Read/Mutate；operation planner 进一步仅授 Prepare/Reserve/Send/Publish/Lookup 及合法收敛。ReadObject/Stat/transfer 等不能借该宽 intent偷渡。只此分支的 upload initiator 使用 CreationID，Human/Agent 原样。 |
+| D05 release | NewCleanupReleaseAccess 精确增加 SkillRevision+ProjectDeleted；具体原 implementation可复用。原 Avatar/Knowledge全变体及其它 owner拒绝不能变。 |
+| D08 lifecycle | Project main 已交付有限 Skills CleanupPhase gate，核 operation/action/version/Project/required participant 当前 Cleaning、原Owner和删除gate。本 P2 不消费完整Cleanup，不查Project私表，也不以初始化active gate替代；后续真实Skills/Object清理组合仍是独立门槛。 |
+| Audit 构造 | 复用已正式两个 checker/wrapper，新 Skill组合不改共享Audit闭集/迁移。初始化 facts为本次本域精确代码，真实Object witness正反与原Action/ordinal/key已有限验收；lifecycle外层另属后段，不在本 P2。 |
+| Root/生命周期 manifest | root依据届时实际启用 Variables等域精确组合 `agent-skills-variables`，保其它既有 participant/owner routes及依赖顺序。没有完整组合/实际停止guard验收不绑定生产 initializer。这里不授权 app旧源，不恢复 Object runtime join停止项。 |
+
+这些条件分别报告未完成，不能因本域 PG PASS改写成整 D05/D08/D10已完成。若实现发现现有 formal port确实无法证明某当前事实，先给精确差异和风险，请root协调；不会以新通用allow端口绕过。
+
+## 15. 当前实现与验收分层
+
+1. **纯层**：新 constructor缺依赖、闭集 permission/plan issuer、精确 parent locks、语义幂等、metadata重建、原Fault/Unknown身份、实际Reader/call join与fair扫描控制。P1当前未变结果可复用；改动相关处才重跑。
+2. **真实 PG 本域**：迁移完整前缀fresh/upgrade；真实 Account/Project/Creation/currentSession；同 Tx Plan/Reserve映射/Publish原子结果和4口确认；跨Store/endedTx/漏锁/弱锁/跨Owner/归档删除gate；并发同key/异义、独立连接晚提交/回滚/锁争用。受控 Object delegate精确标注，不能称真实Object成功；真实 Object checker缺witness负控必须拒绝。旧基础/schema权限不变。
+3. **真实对象组合**：共享门槛齐后实际 D05 Uploads/ObjectReader/MinIO/私有 Audit witness。真实包逐字相同，一Skill/revision/canonical和各exact Audit；注入 Reserve/Publish ACK丢失并核原身份，无活writer重发；实际取消/迟到/关闭/释放Unknown、Project archive/delete与读/发布竞争、原upload回执失效、全部物理清理终局。未运行项逐项保留，不用PG受控delegate替代。
+4. **运行/生产组合**：真实 lifecycle provider与完整多域participant、公平tail、共享启动/健康/停止budget、原guard至actualjoin/DB最后、生产构造和root检查。Object停止项未解时此层不可执行/不可通过；本域可构建库仍继续交付准备。没有新增HTTP/UI端点，不宣称整站创建可用。
+
+源码放新 `internal/central/skill/*.go`、适用同包tests、`tests/skills/*_test.go` 和00027；测试fixture复用现 tests/testsupport和既有有界监督器，不复制一套资源框架。实际资源命令/输入/预算先报root按全局窗口执行，全部direct/adopted Wait、资源ID/私有目录/双TCP尾闭合后才释放。独立验收由未参与实现者选风险补集，作者pure/PG不能冒独验。本次服务／PG／真实Object有限结果和独立风险补集已按主卡接受；生产root、完整Cleanup及全D10仍未完成，不把此规格的后段验证目标当成已运行。
