@@ -61,3 +61,32 @@ export GOCACHE=/workspace/agenteam-project-variables-independent/output/ai/proje
 - `451a01`原终态后只读核：`output/ai/skills-cleanup/pg/cleanup-01` 不存在；`runtime-env-01` 只有 `config/go/telemetry` 目录及2/16,384/0B本地计数文件；`/proc` 无argv精确指向本树路径的进程。没有PG/Object/outbound资源ID或业务actualWait可报告，也不冒完整七资源尾。原前置失败保留；未自动重试，已向root报告无live/可释放。
 - root已授权本域包装次序返修，无须为这种常规修正逐次确认；后继 `cleanup-02/runtime-env-02` 先创建新private四子目录，再用原固定env做Go身份核验与exec。不改已冻结产品、测试、driver/supervisor或任何预算。当前root有Git网络保存窗，故尚未创建新目录或启动；保存结束的单条通知后，按原唯一2top5sub授权再次same-process fresh磁盘/身份核验再exec。
 - Runner新main Default准备的独立窄审记录已冻结于 `.agent-state/runner-default-delivery-review/report.md`：四技术相对85832bd9，实际e8a67e原controls exit0，有限接受，无mustfix；不是新Default动态结果，不回填14016。只写本人记录，未改Runner源或启真实资源。
+
+## Cleanup-02 首次业务组合完整通过
+
+- root保存原前置FAIL与Runner审查为30607a56后重新授唯一窗口。session22843/b20a53同process UTC2026-10-10T00:31:33.866694Z，fresh5,549,584,384B≥5GiB；candidate34,139,265B/SHA `c04c9f12c0ab02bfe6a3cf329d42c66f843c8e7437b9a1288c3f921d9f91aff8` 与MinIO109,289,632B/SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8` 复核，cleanup-02/runtime-env-02当场absent。先mkdir私有四目录后实际Go1.27.1核验再exec，未改任何已冻产品/业务源/工具。
+- 原outer f97748 actualexit0，2top5sub全PASS：Persistence5.17s（currentgate0.09/physical+history0.26/lastanchors0.61），CommitRecovery4.94s（gate2.46/last_two_domain_anchors2.49）。Go1399503 actualWait0、driver1397618 actualWait0；supervisor102.655s terminal0。七精确资源各两次absent、private两次absent、runtime两次empty、owned descendants两次[]、原两父五子RUN/PASS、TCP连续两个delta_empty及inputs_unchanged=True全齐。9b3ee0对原日志/owned记录逐项核正，两个PID均不存在；owned目录保request.json/owned.json和空runtime作为证据。窗口已向root即时释放，没有第二轮/后台业务。
+- 原日志 `output/ai/skills-cleanup/pg/cleanup-02/pg-2657f4e5a47f402facdff3d307877766.log`，owned同stem目录。D05 nonce `726f0d5ad3c7016ce7d9ff038350d39d`、D04 `4e33138be359b2d0bb05fd7c25c867b0`、D03 `614975c09d8d76d5742533fd4d072eb3`；七完整ID与三private路径由原owned.json保留，不重新生成或泛按label清理。
+- 真实证据范围：同Store Project当前CleanupPhase→Skills→D05/MinIO/native Audit；原Release callback注错两域回滚、实际65包reader EOF/Close与Skill66→34→2→0、D05 metadata跨表32、最后4+5同原Tx回滚/提交与全空重放；两类真实COMMIT-frame Unknown，精确原backend与Project advisory lock竞争、竞争者取消后actual Tx返回、Release/Committed/HeldJoined后新Service同identity恢复。没有SQL伪canonical/claim/witness或以受控CommitResult冒Unknown。
+- 上游Project/Creation/ready、accepted Delete/Cleaning/其它participant是已披露fixture，Runtime=nil、ProcessGuard仅构造；未证明BeginDelete、foreign死亡、完整participant/root或D05所有规模/PUT场景。00028前缀随实际fixture执行不代专项升级/回滚/EXPLAIN成本验收。原b6fd24 setupFAIL、原P2/其它域FAIL均保留，既验P2有限交付仍独立。
+
+完整实际入口如下；运行前同process先做上述freshstat/absent/fullSHA，再创建runtime-env-02/{tmp,config,cache,data}及核Go版本。继承上节固定env/原PATH、GOMODCACHE和独占GOCACHE，补充：
+
+```sh
+export AGENTEAM_MINIO_BINARY=/workspace/agenteam-skills-cleanup/output/ai/deps-minio/bin/minio
+export TMPDIR=/workspace/agenteam-skills-cleanup/output/ai/skills-cleanup/runtime-env-02/tmp
+export GOTMPDIR="$TMPDIR"
+export XDG_CONFIG_HOME=/workspace/agenteam-skills-cleanup/output/ai/skills-cleanup/runtime-env-02/config
+export XDG_CACHE_HOME=/workspace/agenteam-skills-cleanup/output/ai/skills-cleanup/runtime-env-02/cache
+export XDG_DATA_HOME=/workspace/agenteam-skills-cleanup/output/ai/skills-cleanup/runtime-env-02/data
+export PYTHONDONTWRITEBYTECODE=1
+cd /workspace/agenteam-skills-cleanup
+python3 .agent-state/task-planning-recovery/pg_only_supervisor.py \
+  --root-chain \
+  --driver /workspace/agenteam-skills-cleanup/.agent-state/work-owner-http/root_chain_driver.py \
+  --binary /workspace/agenteam-skills-cleanup/output/ai/skills-cleanup/compile/skill-cleanup-integration-01.test \
+  --run '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$' \
+  --output /workspace/agenteam-skills-cleanup/output/ai/skills-cleanup/pg/cleanup-02
+```
+
+外围GOFLAGS为原`-mod=readonly -p=1`；冻结root adapter内部依原约定设`-mod=readonly -p=2`并把TMP/GOTMP切到其owned runtime，未改Go6m/root540+60+3/TCP75。以上两个目录均已使用，不可当fresh目录复用；此命令记录不是后继自动开窗授权。

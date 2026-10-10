@@ -1,6 +1,6 @@
 # D10：Skills 初始化与不可变内容
 
-状态：rev3，2026-10-09，P2 持久初始化服务 SPEC 已获未参与实现者有限独立接受，持续实施。P1 纯契约与真实 builtin 的既有提交及[独立验收](../agent-team/d10-p1-recovery-verification.md)不变。当前基线正式 main `ca9f2d5d` 已包含 D08 初始化 Audit 授权库；P2 受控 Object 边界下的真实 PG 持久初始化、发布回滚与原 COMMIT 恢复三个作者 top 已通过。后增Project精确Stop已获有限独审，当前产品真实PG12子完整PASS；当前binary的真实D05发布/private witness/replay/Package三子组合亦已完整PASS（70196）。完整服务验收、独立迁移/Admission/Owner矩阵、D05清理和生产root仍未闭合。本文不代表 D10 完成。
+状态：rev3，2026-10-10。P1 纯契约与真实 builtin 的既有提交及[独立验收](../agent-team/d10-p1-recovery-verification.md)不变；P2 初始化/发布/恢复、当前Owner读取和精确Stop的作者有限组及P2独立补集已通过，00027有限正式交付另按manifest准备。当前独立Cleanup树基于正式Project `ce65714a`，新增消费库已获有限独审，首次真实同Store清理组合22843的2top5子完整PASS。各结果按下文固定版本组合与受控前置分别计证，不是当前HEAD一次全量通过。完整participant、生产root、D05其它规模/成本与Runtime停项不由本结果完成；本文不代表 D10 完成。
 
 依据：[开发计划](../development-plan.md)、[Skills 架构](../../architecture/agent-skills.md)、[D01 资源/Skills 契约](d01-contracts/resources-skills.md)、[本工作项规格](d10-skills-initialization-design.md)。S01 候选基线 `71dc17671631632bb26e251ad8491e74092ac975`，原主卡 SHA `a258ed11366946529082e885b5ec1e74d033687d1aec60d69000691862811b88`；独立结论 `/tmp/agenteam-d10-s01-review-4r1gg40i/report.md` SHA `49381427440c1f2a09219361e8a1b902ecb8c0db1d1700a35350050f6136f990` 无新增硬阻断，只采纳规格，不证明真实链路。
 
@@ -8,7 +8,11 @@
 
 本清理树基于正式Project `ce65714a`，按精确来源承接P2与D05有界子能力；原P2有限交付与本结果分开。已实现§16的真实本域CleanupAuthority/三类opaque plan、精确维护/Audit外层、原子gate/serving与Release、原预算physical调用、32历史推进、两域最后anchor同Tx和Unknown恢复。`Service.Cleanup`仅报告Skills本域，未增加Name代替完整组合。
 
-作者7top/21子受控边界race通过，全skill两包race及vet通过；真实native checker无witness负控在内。真实PG/SQL/COMMIT与D05组合尚未验证，新产品未独审；Object28规模/成本、生产root、完整participant及Runtime停项保持。源码来源、原测试编译失败与准确命令在本树current，首实现不是整D10接受。
+作者7top/21子受控边界race通过，全skill两包race及vet通过；真实native checker无witness负控在内。Knowledge未参与本域消费实现者另以11239/194d92的4top17子和源码审查有限接受，没有代审其本人D05实现。新三PG源码58073b67与入口6a1c03b3均获限定独审。
+
+真实组合22843/f97748 **whole PASS**：冻结候选 `c04c9f12…aff8` 沿唯一 `^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$` 执行，Persistence三子5.17s、CommitRecovery两子4.94s；原Go1399503/driver1397618实际Wait0，supervisor102.655s/outeractual0。七ID双退役、private/runtime/desc双尾、2top5sub精确RUN/PASS、TCP两个空差集与inputs不变全部齐，9b3ee0原日志核对通过。真实证明当前Project gate拒绝在先、同Tx Release失败整回滚、65次真实Package EOF/Close生成历史、本域每32与D05跨表每32推进、native ObjectDelete Audit一次、最后Object四anchor与Skill五核心同原事务失败/提交，以及gate/最后双域两类真实COMMIT Unknown的原backend锁、竞争者实际返回和释放后恢复。Project创建/ready/accepted Delete/Cleaning及其它participant仍是明确上游fixture事实；不冒BeginDelete、全Project/root或foreign进程终局。
+
+前置b6fd24因启动包装Go版本调用先创建XDG目录导致mkdir冲突，实际exit1且监督器/业务/七资源均未启动；此失败保留。修正只改外围目录创建次序，未改候选/工具；新cleanup-02沿fresh授权实际运行。原日志与完整命令见[恢复点](../../../.agent-state/current.md#cleanup-02-首次业务组合完整通过)。D05旧attempt/PUT/规模/00028专项成本和完整participant仍按各自结果计证；永久空zero_marker策略未变，Object Runtime join停项不恢复。下一正式交付仍须核完整依赖前缀和独立风险结论，不能以本轮PASS把原P2交付混入全部Cleanup。
 
 ## 已交付 P1
 
