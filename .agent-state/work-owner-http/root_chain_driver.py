@@ -18,6 +18,10 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestExecutionFirstRound$': (
+        'tests/projectvariable/execution_first_round_test.go',
+        'tests/projectvariable/execution_model_environment_capture_test.go',
+    ),
     '^TestModelAgentRetryRuntime$': (
         'tests/model/agent_runtime_test.go',
         'tests/model/runtime_native_test.go',

@@ -338,3 +338,30 @@ TOPS = {
 ```
 
 实际三阶段命令沿原固定 Python `-B`：`output/ai/agent-system-integration/model-agent-runtime-pure-checks-02.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build` → 同目录 `model-agent-runtime-compile-01-launcher.py` → 冻结 plan 后 `model-agent-runtime-launcher-01.py`。pure01 入口仍原位保留，需从零重验新 namespace 时用上述完整 9 top；本次补集不冒完整重跑。固定 Go、正常环境、RO 模块、private XDG、同进程 5GiB、预算、原 Wait 和全部资源尾均保持。
+
+## 真实 Execution 首轮
+
+最终运行 SOURCE `f524b1feebd3e63c4360fccfc0a38f81b45ba0f2`，`TestExecutionFirstRound` 恰 1 top/3 sub：`completed-one-turn`、`start-receipt-loss-recovery`、`cancel-joins-current-call`。native03 全通过（39.05s），真实 preparation input→Snapshot/首 Round/Started→Loop→Model JSON/Usage/Secret→terminal 与双 lease 退休；使用正式 Execution consumer，无测试替代授权。正常 Execution succeeded 不把 Task 改为 done；启动事务实际提交后丢回执，原 owner 观察恢复且不重复 Model；held wire 取消待原调用/Loop 实退后提交 cancelled。回执丢失不冒数据库物理 Unknown，范围仍是显式调用的一轮 direct text，无 tools/stream 或 App 自动运行。
+
+原 pure01 wholeFAIL 保留（Execution 两处 Process ID 类型错误），其余 15 top PASS 复用；修后 pure02 补 Execution 5 top＋13 包 vet 全通过。真实 native01 前两 sub PASS、取消失败；生产窄修仅以实际 Joined 区分业务取消与未退出，再由 pure03 补原第三 Execution top＋execution vet 通过。compile02/list wholePASS；native02 因 slash 子选择器不能用于原 fixture 顶层枚举而失败，业务未启动、七资源记录未形成，不能记资源验收通过。已撤销该新 profile，postgres fixture 源未改；native03 恢复成熟三子项入口，复用 compile02 候选，未再 pure/compile/list。所有原 FAIL、两个候选、输入和日志保留。
+
+结果原件：`output/ai/execution-first-round/combined-pure-{01,02,03}/result.json`；`output/ai/agent-system-integration/execution-first-round-compile-{01,02}/result.json`、`execution-first-round-01-control/result.json`、`execution-first-round-cancel-02-control/result.json`、`execution-first-round-03-control/result.json`。各 control 保留原 supervisor.log；成功 PG 日志 `/tmp/efr03/pg-1f8c63f722e7417d8e6448c603657e8a.log`。native03 在 2026-10-10 23:41:04–23:43:10 UTC 完成，Go 302670、driver 301108、supervisor 301105、outer 301041 原 Wait0；七资源 14 次 absent、private/runtime/desc/HOST_TCP 与 outer 全部双尾关闭，adopted=[]，1,588 输入首尾相同。窗口已归还。
+
+复用候选 `output/ai/agent-system-integration/execution-first-round-race-02.test`：64,558,702 B，SHA256 `db0d41b06180d232b43d455bd2dcb994758530585bda68a2e127e450d8f3dfaa`，编译 SOURCE 为 `30a0b946dde81ee9c1d4002dd0c727f3dbcc3fe2`。最终 f524 仅撤回方法 profile，854 编译输入逐项与原 compile02 相同，候选身份按原门确认；新 native03 plan 独立冻结全部运行输入。此复用不改旧运行的 source/result。
+
+本批容量恢复仅按 owner 确认逐文件退休上述 output 目录中五个旧成功派生产物：`model-agent-runtime-race-01.test`、`execution-context-race-01.test`、`execution-model-environment-race-01.test`（合 192,727,242 B），以及 `scheduler-failure-race-02.test`、`scheduler-retry-binding-race-01.test`（合 118,652,064 B）；对应 source refs/recipe/inputs/PASS 原件都在。root 另对已停用 donor/root 树实施 normal sparse 可逆停放，保留根规则、恢复目录、refs 和全部 ignored/output/FAIL；delivery 源及 ProjectVariable sole hotcache 未停放。接续不要因旧 binary 缺失重建失败记录或自动展开所有 donor；必要构建仍用原恢复 recipe 和资源窗口，原 MinIO/shared mod/hotcache 不变。
+
+恢复继续用本文件既有 recipe（可从 `f524b1fe` 读取）及 immutable 模板：`148640b8` 的 `task-launch-failure-pure-checks.py`、`73387883` 的 `scheduler-failure-compile-02-launcher.py` / `scheduler-failure-launcher-01.py`，均在 `.agent-state/agent-system-integration/`。仅代入 delivery ROOT、本批完整 SOURCE、namespace `execution-first-round`、compile 目标 `tests/projectvariable`、list `len==1` 加精确集合 `{'TestExecutionFirstRound'}`；native 必须用父选择器 `^TestExecutionFirstRound$`，不要恢复 slash profile。原计划 `execution-first-round-03-inputs.json` 和 `/tmp/efr03` 已使用，新运行须新 namespace；输入冻结沿原严格 compile PASS＋完整编译输入子集匹配步骤。完整 pure 使用以下 20 top、`exact_20_top_pass`，vet 为 agentloop 与 skill/model/secret/execution/projectvariable/project 各本包及 contract，共 13 包，不跑旧整库矩阵。
+
+```python
+TOPS = {
+ 'agentloop': ['TestDirectTextControllerAcceptsAndCompletesOwnedTurn', 'TestDirectTextControllerKeepsUnknownHandleWithoutRedispatch', 'TestDirectTextControllerCancellationWaitsForActualModelReturn', 'TestDirectTextTurnRejectsUnsafeOrIncompleteResponses'],
+ 'skill': ['TestInitialRoundSkillBindingsFixedAndEmpty', 'TestInitialRoundSkillBindingsRejectDriftAndMissingFacts', 'TestInitialRoundSkillBindingsCallerBoundaryAndOutcome'],
+ 'model': ['TestRuntimeJSONCallRejectsBeforeOwnership', 'TestRuntimeJSONCallCloseJoinsOnlyItsOriginalOwner', 'TestRuntimeJSONCallUnknownObservationDoesNotRedispatch', 'TestExecutionModelRetirementRequiresCurrentConsumerAndOwnPlan', 'TestExecutionModelRetirementWitnessIsScopedAndNoMaterial'],
+ 'secret': ['TestModelExecutionLeaseObservationUsesCurrentProofAndOriginalRead', 'TestProjectVariableLeaseRetirementIsExactAndCannotBeReacquired'],
+ 'execution': ['TestExecutionRuntimeModelMatchesExactRoundAndRetirement', 'TestExecutionRuntimeModelDoesNotGrantFromPublicCandidates', 'TestExecutionDirectTextCodecsKeepExactIdentityAndSafeOutput', 'TestExecutionDirectTextLifecycleRequiresClosedTypedEvents', 'TestExecutionDirectTextRejectsUnboundAndForeignOwners'],
+ 'projectvariable': ['TestEnvironmentRetirementPreservesHistoryAndRequiresOriginalProof'],
+}
+```
+
+实际 ignored 入口都在 `output/ai/agent-system-integration/`，固定 Python `-B`：`execution-first-round-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build`（原 20 top）；`execution-first-round-pure-checks-02.py`（Execution 5/13 vet）；`execution-first-round-pure-checks-03.py`（第三 top/1 vet）；`execution-first-round-compile-02-launcher.py`；`execution-first-round-launcher-03.py`。这些目录均已执行，不直接覆盖重跑；后续需先获唯一窗口，使用新 namespace，按所改范围选择必要补集。原 Go 1.27.1、只读模块、sole hotcache、private XDG、每进程 fresh≥5GiB、Go 6m/driver 540s/TERM 60s/KILL 3s/TCP 75s、实际 Wait 和全部资源尾保持。
