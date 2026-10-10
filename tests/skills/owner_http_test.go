@@ -44,18 +44,35 @@ func (r skillOwnerHTTPResponse) want(t *testing.T, status int) map[string]any {
 	return out
 }
 
-// Account's legitimate read activity is intentionally outside these business
-// facts. Each comparison surrounds reads, never a Login/Logout or fixture write.
-func (v *skillOwnerHTTPFixture) facts(t *testing.T) [8]string {
+// Successful GET/HEAD must not touch Account Activity either. The ninth fact
+// snapshots only Session identity/last_activity_at, with no cookie or verifier.
+// Comparisons surround reads, never Login/Logout or an explicit fixture write.
+func (v *skillOwnerHTTPFixture) facts(t *testing.T) [9]string {
 	t.Helper()
-	var out [8]string
+	var out [9]string
 	for i, table := range []string{"agenteam_skill.initializations", "agenteam_skill.object_attempts", "agenteam_skill.skills", "agenteam_skill.revisions", "agenteam_skill.work", "agenteam_skill.cleanup", "agenteam_audit.audit_records", "agenteam_outbox.events"} {
 		query := `SELECT md5(COALESCE(jsonb_agg(to_jsonb(x) ORDER BY to_jsonb(x)::text)::text,'[]')) FROM ` + table + ` x`
 		if err := v.store.QueryRow(testContext(t), query).Scan(&out[i]); err != nil {
 			t.Fatal("business facts snapshot", err)
 		}
 	}
+	if err := v.store.QueryRow(testContext(t), `SELECT md5(COALESCE(jsonb_agg(jsonb_build_array(id::text,last_activity_at) ORDER BY id)::text,'[]')) FROM agenteam_account.sessions`).Scan(&out[8]); err != nil {
+		t.Fatal("Session Activity snapshot", err)
+	}
 	return out
+}
+
+// The real Session remains valid, but an accidental TouchActivity is no longer
+// hidden by its 60-second throttle. This is a declared fixture timestamp seed,
+// not a production activity mutation or an authentication substitute.
+func (v *skillOwnerHTTPFixture) ageActivity(t *testing.T) {
+	t.Helper()
+	details := v.ownerBrowser.actor.Details()
+	readerMutation(t, v.skillPG, v.seed, `UPDATE agenteam_account.sessions SET issued_at=statement_timestamp()-interval '120 seconds',last_activity_at=statement_timestamp()-interval '90 seconds' WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL`, details.SessionID, details.UserID)
+	var eligible bool
+	if err := v.store.QueryRow(testContext(t), `SELECT last_activity_at<=statement_timestamp()-interval '60 seconds' AND last_activity_at>=issued_at AND absolute_expires_at>statement_timestamp() AND revoked_at IS NULL FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2`, details.SessionID, details.UserID).Scan(&eligible); err != nil || !eligible {
+		t.Fatal("valid old Activity prerequisite not established", err)
+	}
 }
 
 type skillOwnerHTTPSchemaCase struct {
@@ -108,6 +125,7 @@ func TestSkillOwnerReadHTTPMetadata(t *testing.T) {
 	}
 	skill := listed[0].ID
 	base := skillOwnerHTTPPath(v.project, "")
+	v.ageActivity(t)
 	before := v.facts(t)
 	steps := len(v.seed.objects.steps)
 	var cases []skillOwnerHTTPSchemaCase

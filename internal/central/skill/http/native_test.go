@@ -298,14 +298,24 @@ func TestSkillOwnerHTTPNativeKeepAliveAndClose(t *testing.T) {
 
 type nativeWriteObserver struct {
 	http.ResponseWriter
-	entered chan struct{}
-	once    sync.Once
+	entered            chan struct{}
+	once               sync.Once
+	writeErr, flushErr error
 }
 
 func (w *nativeWriteObserver) Unwrap() http.ResponseWriter { return w.ResponseWriter }
 func (w *nativeWriteObserver) Write(p []byte) (int, error) {
 	w.once.Do(func() { close(w.entered) })
-	return w.ResponseWriter.Write(p)
+	n, err := w.ResponseWriter.Write(p)
+	w.writeErr = err
+	return n, err
+}
+func (w *nativeWriteObserver) FlushError() error {
+	// Delegate the actual capability unchanged. A timeout must originate from
+	// this original native output, not from elapsed time or a generic abort.
+	err := http.NewResponseController(w.ResponseWriter).Flush()
+	w.flushErr = err
+	return err
 }
 func TestSkillOwnerHTTPNativeBackpressureAndDisconnect(t *testing.T) {
 	requireNative(t)
@@ -320,8 +330,10 @@ func TestSkillOwnerHTTPNativeBackpressureAndDisconnect(t *testing.T) {
 		}
 		ports.items = []sc.Metadata{item}
 		entered := make(chan struct{})
+		var observed *nativeWriteObserver
 		address, results, _ := nativeListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(&nativeWriteObserver{ResponseWriter: w, entered: entered}, r)
+			observed = &nativeWriteObserver{ResponseWriter: w, entered: entered}
+			h.ServeHTTP(observed, r)
 		}), true)
 		conn := nativeDialSmall(t, address)
 		start := time.Now()
@@ -333,8 +345,11 @@ func TestSkillOwnerHTTPNativeBackpressureAndDisconnect(t *testing.T) {
 		}
 		terminal := nativeTerminal(t, results)
 		elapsed := time.Since(start)
-		if !terminal.aborted || elapsed < readBudget*3/4 || elapsed > readBudget+2*time.Second || ports.calls != 1 {
-			t.Fatal("blocked actual Write did not expire", elapsed)
+		// Receipt of the handler's original terminal synchronizes these fields
+		// after both original output calls returned; there is no synthetic error.
+		var timeout net.Error
+		if observed == nil || !errors.As(errors.Join(observed.writeErr, observed.flushErr), &timeout) || !timeout.Timeout() || !terminal.aborted || elapsed < readBudget*3/4 || elapsed > readBudget+2*time.Second || ports.calls != 1 {
+			t.Fatal("original native Write/Flush did not return Timeout and join", elapsed)
 		}
 		if e := conn.Close(); e != nil {
 			t.Fatal(e)
