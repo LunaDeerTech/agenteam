@@ -89,10 +89,13 @@ func (r *CreateProjectRequest) UnmarshalJSON(raw []byte) error {
 type UpdateProjectRequest struct {
 	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
+	// Scheduler is an internal Owner command capability. Existing HTTP input
+	// remains its independent name/description-only wire type.
+	Scheduler *ProjectSchedulerConfig `json:"scheduler,omitempty"`
 }
 
 func (r UpdateProjectRequest) Validate() error {
-	if r.Name == nil && r.Description == nil {
+	if r.Name == nil && r.Description == nil && r.Scheduler == nil {
 		return invalid("", "EMPTY_PATCH")
 	}
 	if r.Name != nil {
@@ -101,7 +104,12 @@ func (r UpdateProjectRequest) Validate() error {
 		}
 	}
 	if r.Description != nil {
-		return ValidateDescription(*r.Description)
+		if err := ValidateDescription(*r.Description); err != nil {
+			return err
+		}
+	}
+	if r.Scheduler != nil {
+		return r.Scheduler.Validate()
 	}
 	return nil
 }
@@ -111,7 +119,7 @@ func (r UpdateProjectRequest) MarshalJSON() ([]byte, error) {
 }
 func (r *UpdateProjectRequest) UnmarshalJSON(raw []byte) error {
 	type wire UpdateProjectRequest
-	v, err := decodeFields[wire](raw, nil, []string{"name", "description"}, nil)
+	v, err := decodeFields[wire](raw, nil, []string{"name", "description", "scheduler"}, nil)
 	if err != nil {
 		return err
 	}
@@ -379,12 +387,13 @@ func (p *ProjectListItem) UnmarshalJSON(raw []byte) error {
 // Fields are in canonical-v1 object-key order; semantic integers use foundation
 // decimal strings. These private, fixed structs are not arbitrary JSON patches.
 type semanticParameters struct {
-	Description           *string      `json:"description,omitempty"`
-	Name                  *string      `json:"name,omitempty"`
-	NormalizedCurrentPath *string      `json:"normalized_current_path,omitempty"`
-	NormalizedName        *string      `json:"normalized_name,omitempty"`
-	OperationID           *OperationID `json:"operation_id,omitempty"`
-	Permanent             *bool        `json:"permanent,omitempty"`
+	Description           *string                 `json:"description,omitempty"`
+	Name                  *string                 `json:"name,omitempty"`
+	NormalizedCurrentPath *string                 `json:"normalized_current_path,omitempty"`
+	NormalizedName        *string                 `json:"normalized_name,omitempty"`
+	OperationID           *OperationID            `json:"operation_id,omitempty"`
+	Permanent             *bool                   `json:"permanent,omitempty"`
+	Scheduler             *ProjectSchedulerConfig `json:"scheduler,omitempty"`
 }
 type semanticCommand struct {
 	ActorUserID     string              `json:"actor_user_id"`
@@ -425,7 +434,7 @@ func UpdateDigest(human identity.Actor, meta foundation.CommandMeta, project Pro
 	if err := r.Validate(); err != nil {
 		return "", err
 	}
-	parameters := semanticParameters{Name: r.Name, Description: r.Description}
+	parameters := semanticParameters{Name: r.Name, Description: r.Description, Scheduler: r.Scheduler}
 	if r.Name != nil {
 		normalized, _ := NormalizeName(*r.Name)
 		parameters.NormalizedName = &normalized

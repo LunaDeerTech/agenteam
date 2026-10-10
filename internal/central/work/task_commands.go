@@ -455,7 +455,7 @@ func (s *TaskService) evaluateTask(ctx context.Context, tx f.Tx, x postgres.SQLE
 		if t.State.Terminal() {
 			return nil, fault(f.TaskTerminalImmutable)
 		}
-		if t.State != c.TaskStateBacklog || t.AssigneeAgentID != nil {
+		if !taskPlanningWriteSupported(in, t) {
 			return nil, fault(f.DependencyUnbound)
 		}
 		if at.Time().Before(t.UpdatedAt.Time()) {
@@ -508,6 +508,9 @@ func (s *TaskService) evaluateTask(ctx context.Context, tx f.Tx, x postgres.SQLE
 	}
 	if in.Create != nil || in.Reorder != nil || priorityChange != nil {
 		target := groupForTask(t)
+		if err := s.state().deps.Pending.RequireNoPendingGroupsInTx(ctx, tx, in.Project, pendingGroups(source, target)); err != nil {
+			return nil, portError(err)
+		}
 		rows, generation, err := loadTaskRanks(ctx, x, in.Project, target)
 		if err != nil {
 			return nil, err
@@ -648,6 +651,22 @@ func (s *TaskService) evaluateTask(ctx context.Context, tx f.Tx, x postgres.SQLE
 	p.Payload = typed.PayloadBytes()
 	return p, nil
 }
+
+// Existing backlog planning remains unchanged. The only additional mutation
+// is a Human's title-only update of an assigned in-progress Task; it cannot
+// change the running claim's state, assignee, parent or logical position.
+// Persisted plans and no-op receipts use the same capability check on replay.
+func taskPlanningWriteSupported(in taskInput, t c.Task) bool {
+	if t.State == c.TaskStateBacklog && t.AssigneeAgentID == nil {
+		return true
+	}
+	u := in.Update
+	return t.State == c.TaskStateInProgress && t.AssigneeAgentID != nil &&
+		in.Command == taskUpdate && in.Create == nil && in.Reorder == nil &&
+		u != nil && u.Title != nil && u.Description == nil && u.Type == nil &&
+		u.Priority == nil && u.Plan == nil
+}
+
 func taskHeader(id event.EventID, t c.Task, at f.Instant) (event.Header, error) {
 	p, err := f.ParseID[event.Project](t.ProjectID.String())
 	if err != nil {

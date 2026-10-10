@@ -4,12 +4,14 @@ import (
 	"context"
 	"sync"
 
+	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	c "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
 
 type TaskDependencies struct {
+	Pending    ec.PendingClaimGroupGuard
 	Structure  *Reader
 	TaskEvents c.TaskEvents
 	Authority  *Authority
@@ -27,7 +29,7 @@ type taskServiceState struct {
 }
 
 func NewTask(store Store, deps TaskDependencies) (*TaskService, error) {
-	if nilPort(store) || deps.Authority.state() == nil || !sameStore(store, deps.Authority.state().store) || nilPort(deps.Events) || nilPort(deps.Activity) || !deps.TaskEvents.Valid() || deps.Structure.state() == nil || !sameStore(store, deps.Structure.state().store) || deps.Structure.state().authority != deps.Authority {
+	if nilPort(deps.Pending) || nilPort(store) || deps.Authority.state() == nil || !sameStore(store, deps.Authority.state().store) || nilPort(deps.Events) || nilPort(deps.Activity) || !deps.TaskEvents.Valid() || deps.Structure.state() == nil || !sameStore(store, deps.Structure.state().store) || deps.Structure.state().authority != deps.Authority {
 		return nil, fault(f.DependencyUnbound)
 	}
 	st := &taskServiceState{store: store, deps: deps, calls: map[*call]struct{}{}, changed: make(chan struct{})}

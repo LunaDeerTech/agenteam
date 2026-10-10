@@ -157,7 +157,7 @@ func (p *testPorts) ListTaskBlockersPage(ctx context.Context, _ id.Actor, _ c.Pr
 }
 func testHandler() (*handler, *testBoundary, *testPorts) {
 	b, p := &testBoundary{}, newTestPorts()
-	return &handler{p, p, p, p, p, p, b}, b, p
+	return &handler{structure: p, structureReader: p, tasks: p, taskReader: p, blockers: p, blockerReader: p, boundary: b}, b, p
 }
 
 type testWriter struct {
@@ -239,7 +239,7 @@ func serveTest(h http.Handler, r *http.Request, w http.ResponseWriter) bool {
 }
 
 func TestWorkHTTPBindingAndExactRoutes(t *testing.T) {
-	b := Bindings{&work.Service{}, &work.Reader{}, &work.TaskService{}, &work.TaskReader{}, &work.BlockerService{}, &work.BlockerReader{}}
+	b := Bindings{Structure: &work.Service{}, StructureReader: &work.Reader{}, Tasks: &work.TaskService{}, TaskReader: &work.TaskReader{}, Blockers: &work.BlockerService{}, BlockerReader: &work.BlockerReader{}}
 	if _, e := NewHTTPHandler(b, &account.HTTPBoundary{}); e != nil {
 		t.Fatal(e)
 	}

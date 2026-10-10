@@ -46,11 +46,15 @@ func (p *CreatedPayload) UnmarshalJSON(raw []byte) error {
 type ChangedField string
 
 const (
-	NameChanged        ChangedField = "name"
-	DescriptionChanged ChangedField = "description"
+	NameChanged                    ChangedField = "name"
+	DescriptionChanged             ChangedField = "description"
+	SchedulerEnabledChanged        ChangedField = "scheduler_enabled"
+	SchedulerMaxConcurrencyChanged ChangedField = "scheduler_max_concurrency"
 )
 
-func (f ChangedField) Validate() error              { return oneOf(f, NameChanged, DescriptionChanged) }
+func (f ChangedField) Validate() error {
+	return oneOf(f, NameChanged, DescriptionChanged, SchedulerEnabledChanged, SchedulerMaxConcurrencyChanged)
+}
 func (f ChangedField) MarshalJSON() ([]byte, error) { return enumJSON(f, f.Validate()) }
 func (f *ChangedField) UnmarshalJSON(raw []byte) error {
 	v, err := decodeEnum(raw, ChangedField.Validate)
@@ -65,7 +69,7 @@ type UpdatedPayload struct {
 }
 
 func (p UpdatedPayload) Validate() error {
-	if len(p.ChangedFields) < 1 || len(p.ChangedFields) > 2 {
+	if len(p.ChangedFields) < 1 || len(p.ChangedFields) > 4 {
 		return invalid("/changed_fields", "INVALID_EVENT")
 	}
 	for i, field := range p.ChangedFields {

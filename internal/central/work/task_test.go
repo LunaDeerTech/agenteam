@@ -11,6 +11,7 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
@@ -18,6 +19,15 @@ import (
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	c "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
+
+// This pure constructor/lifetime dependency rejects every fact request. It
+// does not represent an empty Scheduler or prove a real claim. PG fixtures
+// inject the same Store's actual scheduler.PendingAuthority instead.
+type denialTaskPending struct{}
+
+func (*denialTaskPending) RequireNoPendingGroupsInTx(context.Context, f.Tx, i.ProjectID, []ec.PendingClaimGroup) error {
+	return f.NewFault(f.Forbidden, f.NotStarted)
+}
 
 func pureTaskPorts(t *testing.T) (*denialStore, *Authority, *Reader, TaskDependencies) {
 	t.Helper()
@@ -30,7 +40,7 @@ func pureTaskPorts(t *testing.T) (*denialStore, *Authority, *Reader, TaskDepende
 	if err != nil {
 		t.Fatal(err)
 	}
-	return store, authority, structure, TaskDependencies{Authority: authority, Structure: structure, TaskEvents: events, Events: &denialEvents{}, Activity: &denialActivity{}}
+	return store, authority, structure, TaskDependencies{Authority: authority, Structure: structure, TaskEvents: events, Events: &denialEvents{}, Activity: &denialActivity{}, Pending: &denialTaskPending{}}
 }
 
 func TestTaskConstructorsRequireCompleteExactBindings(t *testing.T) {
@@ -43,6 +53,7 @@ func TestTaskConstructorsRequireCompleteExactBindings(t *testing.T) {
 	}
 	var missingEvents *denialEvents
 	var missingActivity *denialActivity
+	var missingPending *denialTaskPending
 	var missingStore *denialStore
 	_, err := NewTask(missingStore, deps)
 	pureCode(t, err, f.DependencyUnbound)
@@ -60,6 +71,8 @@ func TestTaskConstructorsRequireCompleteExactBindings(t *testing.T) {
 		"catalog":        func(d *TaskDependencies) { d.TaskEvents = c.TaskEvents{} },
 		"activity":       func(d *TaskDependencies) { d.Activity = nil },
 		"typed-activity": func(d *TaskDependencies) { d.Activity = missingActivity },
+		"pending":        func(d *TaskDependencies) { d.Pending = nil },
+		"typed-pending":  func(d *TaskDependencies) { d.Pending = missingPending },
 	} {
 		t.Run(name, func(t *testing.T) {
 			bad := deps

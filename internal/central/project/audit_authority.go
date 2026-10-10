@@ -125,6 +125,14 @@ func (a *Authority) CheckAppendInTx(ctx context.Context, tx foundation.Tx, entry
 		if e = a.state().store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{commandLock(cmd.identity())}); e != nil {
 			return unavailable(e)
 		}
+		if cmd.plan.Scheduler != nil {
+			if e = a.state().store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{schedulerLock(project)}); e != nil {
+				return preparationProjectError(e)
+			}
+			if e = requireSchedulerPostimage(ctx, x, project, cmd.plan.Scheduler); e != nil {
+				return e
+			}
+		}
 		changed := make([]audit.ProjectChangedField, len(cmd.plan.Changed))
 		for i, v := range cmd.plan.Changed {
 			changed[i] = audit.ProjectChangedField(v)
