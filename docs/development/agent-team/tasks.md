@@ -1,49 +1,63 @@
 # 团队任务台账
 
-本页只保存全局产品状态、阻塞和下一步；任务分支的最小恢复状态见[分支记录](../../../.agent-state/current.md)。下表的 2026-10-09 产品核对基线为 `e55ad7d1`，包含 Work Structure `a64fb5e7` 与 Task planning 规格 `97439ffd`；当时初始工作树干净，只做文档及文件存在性核对，没有产品实现或动态测试。
+## 当前验收与推进边界
 
-长期范围与完成门槛见[开发计划](../development-plan.md)，协作规则见[团队流程](README.md)，环境与缺失输入见[恢复说明](recovery-2026-10-08-environment.md)。历史代理名、ACK、资源授权和 STOP 都是当时记录，不表示本次仍有活动实例、进程或可用测试窗口。
+- 正式 main 当前为 `5abcc5f0`：后端有限组合及连续 00028→00029→00030、Secret Owner HTTP/既有 Project 默认根接入、Knowledge 有限只读 UI、D16 本地读取库、D18 名称投影库与 D13 有界纯文本 Parser 已交付。阶段成果不代表整个 D04/D05/D08/D09/D10/D12/D16/D18 完成。
+- 默认生产 Project initializer 保持 **unbound**，完整 participant/guard 与 F1 门未放宽。旧根执行 PASS 与其生产绑定规范拒绝分别保留；后继默认拒绝/零事实及显式 test-only 真实端口 fixture 的接受，不开放生产创建或完整生命周期。
+- Secret HTTP 的作者 PG/native/root、独立当前 Session 与安全错误风险补集、完整 app ordinary/race 已按限定输入接受。Knowledge 最终组合 read04 已 wholePASS，原全部 Wait、七资源及 private/runtime/desc/TCP 双尾、输入一致性齐；独立三项 UI 风险验证使用真实 Session/Workspace 和受控网络，不冒真实 Owner 转让或 Logout PG。
+- D13 纯文本 Parser 的 pure/race/vet、非作者源码审查和首条真实 D12→Parser 1 top/3 sub 已通过、原资源全尾齐，正式13路径已交付；索引/检索/发布、Markdown/PDF 与完整 D13 未完成。
+- Work 作者 Recovery R13 仅该门 wholePASS。Planning06 原 wholeFAIL/完整尾已释放：Doc1 第二次 Milestone GET 的原 finished 等至45秒，首 list 安装门仅有限通过；Planning04/05及独立 Recovery03/04、Authority01 原失败保持。九类规划写、read/identity、blockers/layouts 和独立整体门未闭。
+- 平台整体约 30%（25%–35%）是按设计能力与端到端门作的粗估，不是逐卡等权审计。Agent 执行器、完整调度/团队协作及 E01 未完成；E01 尚未开始，其至少50%游戏内容目标另行冻结与验收。
 
-## 本批后端有限交付
+原普通包、两 vet/全 race/两命令构建及 Audit、默认根整改后的定向复验按相应输入组合接受，不称当前 HEAD 一次完整脚本全绿。原 check01/02、Audit deadline、wrapper 元数据失败、Knowledge read01/read02 和各领域历史 FAIL 均保留；后验清理不补写原终态。部署独立必填 `AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING` 继续有效，见[后端说明](../backend/README.md)。
 
-Knowledge 元数据/树命令/有界正文及 Skills 当前 Owner 目录读取接入默认 Central；部署新增必需 `AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING`，格式和用途隔离见[后端说明](../backend/README.md)。D05/Skills Cleanup、D04 producer 与 Secret Owner 库按 00028→00029→00030 连续交付，旧前缀保持。
+## 当前并行所有权
 
-默认生产 Project initializer 仍为 unbound：D08/D10 的完整 participant manifest 与共享 guard 门没有放宽。整改后的真实根组合证明新建命令拒绝且无相关事实，再用显式 test-only 真实端口 fixture 验既有数据读取、Avatar与原退出；不开放生产创建或完整生命周期。旧根版本的执行 PASS 与其 initializer 规范拒绝分别保留。
+六个子代理席位动态复用，全部 Git 和实际资源窗口由 root 调度；当前具体进程/分支恢复读 [current](../../../.agent-state/current.md)，旧实例和窗口授权不继承。
 
-领域真实矩阵、独立补集和最终 ordinary/vet/race/两命令构建按未变输入及定向修复范围组合接受，不称当前 HEAD 的一次原完整脚本全绿。文档归档子模块保留原13个Go probe字节，仅使根检查遵守标准模块边界。Work UI、Knowledge UI、新 Secret HTTP、Agent F1 与完整 D08/D10/D12 均不在本批；ready503及下方停止项保持。
+- **secret：D09 Model Runtime。** `/workspace/agenteam-model-text-runtime` / `ai/model-text-runtime` 已从正式基线创建，先落实 SPEC、真实调用与 00031 迁移关系。00031 只是后继预留，生产 Resolution/Invocation 尚未接通。
+- **content：Knowledge rename。** `/workspace/agenteam-knowledge-owner-rename` / `ai/knowledge-owner-rename` 已创建，沿已独审关系门先落实 SPEC；当前正式 UI 仍只接受读取范围。
+- **cleanup：D13 正式收敛与 Work 独立风险。** Parser 首次真实链通过不代索引或完整 D13；Work 独立 Recovery/Authority 原失败仍待有界处理。
+- **work_ui：Work 规划与界面。** Planning06 失败材料和技术已冻结，后继须针对原消费缺口诊断，不盲重跑或降低成功门。
+- **skills_http / coordination：** 分别承担未参与实现者的风险审查和唯一共享入口/总索引整合；不把方法静审写成独立动态验证。
 
-## 当前恢复点与并行所有权
-
-本次已恢复 D11 Task Planning 与 D27 Model harness 工作，实际进度见对应行及活动分支。后续恢复开发时，主线程给一级负责人完整子目标，由其安排下级实现、自测、独立验证和文件/资源所有权；共享入口、迁移、构建资产与测试资源只允许一个写入者或明确串行。
+旧恢复、装配与逐轮资源记录保存在 Git 文件历史及各正式卡/任务 topic，不再在当前摘要复制过时“最新 main/未交付”流水。未验 Model 材料与五个旧库树的必要历史原件继续保留；完成子集不等于整个分支可删，清理由 root 逐对象核实。
 
 | 工作项 | 当前可证状态 | 接手时的下一步与完成边界 |
 | --- | --- | --- |
 | [D01 低层资源身份](../work-items/d01-resource-identities.md) | **R1纯契约已实现并独立验收**。Tool/Mount/ProjectVariable三个canonical marker与Foundation ID alias，四依赖race/vet及独立3顶层6子例通过。 | 仅标量声明与类型消费；Tool/Mount/Variables真实目录、引用保护和Agent F1仍未闭合，普通与Secret共用变量ID且不同CredentialID。 |
 | [D10 Agent 核心与引用](../work-items/d10-agent-configuration.md) | **C1六纯契约已实现、独立验收并正式交付main**。17键AgentCore、3键AgentRef、strict codec/Clone/直接日志投影；作者pure/race/vet与5组独立pure/race通过。 | 仅纯类型与WorkReferences声明。F1真实创建/初始化/Model引用/目录/引用保护未实现；R1已闭合ID定义位置，Tool目录窄投影及其余真实前置未闭合，没有真实Agent或Task指派绑定。 |
-| [D10 普通 Project Variables Owner 服务与 HTTP](../work-items/d10-project-variables-owner-http.md) | **普通变量后端已实现并独立接受**。已有 initialized Project 的当前 Human Owner 可经默认根六能力 HTTP 使用普通变量 CRUD、有界分页、expected_version 及原 key Lookup/重放；00024、严格 Audit/Outbox 与既有 Audit 客户端兼容闭合。 | 作者库/HTTP/native/root及独立三风险补集按明确版本组合通过，实际Wait与资源尾齐；原FAIL和修复边界保留于工作项。不包含 Secret、Agent F1、运行环境注入、UI或完整D10，不解除既有停止项。 |
-| [D10 Secret Variable Owner A 纯合同与 Schema](../work-items/d10-secret-variables-owner.md#11-a-纯合同作者结果) | **限定纯合同已实现并独立接受**。安全材料请求、metadata/receipt、独立命令与 identity-only Lookup、事件及 F1 目录/引用端口、严格独立 OpenAPI 已闭合；作者与独立 race、解码保密/绑定负例及 schema 检查通过，原两处独审失败和修复保留。 | A本身仅证明类型、codec、端口形状与schema；后续D04/Owner库及00029/30见下方独立行。Secret HTTP、真实F1与默认根仍未交付，不代表完整D10。 |
-| [D10 Secret Variable Audit 合同与读兼容](../work-items/d10-secret-variable-audit-read.md) | **限定结果已实现并独立接受**。三action安全metadata、独立predicate/既有producer、Go row/HTTP投影、OpenAPI及真实TS严格decoder闭合；作者与独立race、Schema、跨action/重复JSON及实际取消尾控制通过。 | 本行只证明纯合同与既有读兼容；后续D04/Owner真实持久事实与权限由独立库矩阵另证，生产Secret HTTP/root未接入，不代表完整D10。 |
+| [D10 普通 Project Variables Owner 后端](https://github.com/LunaDeerTech/agenteam/blob/3cea6076bb01693ead2755826826d189626aa3aa/docs/development/work-items/d10-project-variables-owner-http.md) | **限定后端已实现、独立接受并正式交付main（3cea6076）**。已有初始化Project当前Human Owner可经默认Central HTTP创建、读取、分页、更新、删除普通变量，以原意图Lookup/同key显式重放恢复；迁移00024、原子Audit/Outbox及真实退出均闭合。 | 作者库/HTTP/native/默认根与独立三个风险补集按限定版本组合通过，实际Wait与资源尾齐，原FAIL及独占缺口保留。本协调树已合并该main，Git保存由root负责；不含Secret、Agent白名单/执行注入、Runner环境、UI、Project创建HTTP或完整D10，Object join等停止项不变。 |
+| [D10 Secret Variable Owner A 纯合同与 Schema](../work-items/d10-secret-variables-owner.md#11-a-纯合同作者结果) | **限定纯合同已实现并独立接受**。安全材料请求、metadata/receipt、独立命令与 identity-only Lookup、事件及 F1 目录/引用端口、严格独立 OpenAPI 已闭合；作者与独立 race、解码保密/绑定负例及 schema 检查通过，原两处独审失败和修复保留。 | A本身仅证明类型、codec、端口形状与schema；后续D04/Owner库及00029/30见下方独立行。后续 Secret HTTP/既有 Project 默认根已按独立范围交付，真实 F1 与完整 D10 仍未完成。 |
+| [D10 Secret Variable Audit 合同与读兼容](../work-items/d10-secret-variable-audit-read.md) | **限定结果已实现并独立接受**。三action安全metadata、独立predicate/既有producer、Go row/HTTP投影、OpenAPI及真实TS严格decoder闭合；作者与独立race、Schema、跨action/重复JSON及实际取消尾控制通过。 | 本行只证明纯合同与既有读兼容；后续D04/Owner真实持久事实与权限由独立库矩阵另证，后续 Secret HTTP/root 已另项交付，不由本合同结果代证，完整 D10 未完成。 |
 | [D11 Work Structure](../work-items/d11-work-structure.md) | **本卡已完成**。四 contract `c3b1ee72` 与实现 `a64fb5e7` 已提交；18 路径均存在，限定技术域至本次基线无差异。 | 可供 Task planning 消费。全18按明确版本组合接受；保留 Unknown01 原 FAIL、U1 修复与独立 B 工具终态缺口。不是当前 HEAD 单次全量测试或完整 D11。 |
-| [D11 Task planning](../work-items/d11-task-planning.md) | **本卡规划库已实现并独立验收，完整D11未完成**。契约、三个Human规划命令、Lookup、当前Get/List、同Tx membership、TaskEvent/Outbox及00022已完成；原enclosing日志FAIL与真实投影边界保留。 | 活动 `ai/task-planning-recovery` 已恢复服务、查询、00022与两ID测试harness并推送可构建检查点；七新PG顶层、四旧Project/Outbox及独立A/B按限定版本组合已实际通过并完成资源终态；原观察器/非法Project输入/rank fixture/归档输入FAIL保留，测试修正的真实对照与完整top已通过。四旧Structure亦已实际通过并完成资源终态。状态机、指派、执行、删除、生产root与完整D11均未完成。 |
+| [D11 Task planning](../work-items/d11-task-planning.md) | **本卡规划库已实现、独立验收并正式交付main，完整D11未完成**。契约、三个Human规划命令、Lookup、当前Get/List、同Tx membership、TaskEvent/Outbox及00022已完成；原enclosing日志FAIL与真实投影边界保留。 | 七新PG顶层、四旧Project/Outbox、四旧Structure及独立A/B按限定版本组合已实际通过并完成资源终态；原观察器/非法Project输入/rank fixture/归档输入FAIL保留，测试修正的真实对照与完整top已通过。状态机、指派、执行、删除、生产root与完整D11均未完成。 |
 | [D11 Task 流转](../work-items/d11-task-transitions.md) | **T0a与T0b纯契约已实现并独立验收**。状态/角色/Position及Transfer/Lookup/摘要、Human typed历史、严格封套与纯多事实工厂已完成；作者及独立pure/race/vet通过。 | 仅纯决策与类型，不提供授权或提交能力。T0b仅消费B0-C两类；独立公开API各6顶层34子测试实际通过。运行服务仍须真实Agent/Blocker/occupancy与执行事实；完整D11未完成。 |
 | [D11 Blocker 纯契约](../work-items/d11-task-blocker-contracts.md) | **B0-C两类纯契约已实现并独立验收**。唯一BlockerID、rely_on/无引用waiting_for_human typed metadata、Create及小payload；strict codec/cap/Clone/log，作者及独立pure/race通过。 | T0b只可消费已接受两类；其余三类和外域引用保持未绑定。B0-P持久服务见下行，跨状态组合与完整流转仍未完成。 |
-| [D11 backlog Blocker 持久服务](../work-items/d11-task-blocker-service.md) | **限定服务已实现并独立接受**。Human Owner对未指派backlog Task的两类Blocker可add/resolve/list/lookup；真实完整图、Task版本及同事务历史/Outbox/Activity/receipt与00023已完成。 | 作者pure/race/vet/build、公开契约与runtime独验、真实权限/并发/Unknown/互操作/SQL回滚及旧Planning/Structure回归通过并完成资源终态；首Persistence整轮FAIL保留，以未受影响子项与修复后的History定向回归组合接受。非backlog、Agent/Executor、HTTP、生产root及完整D11仍未绑定。 |
-| [D11 Work Owner HTTP/root](../work-items/d11-work-owner-http.md) | **限定实现与规定动态验收已完成，候选装配已独立确认**。已有initialized Project的当前Human Owner可经正式HTTP规划Milestone/Sprint、未指派backlog Task及两类Blocker；默认Central根实际绑定三服务/三Reader。 | 作者pure/race/vet/schema、分页/权限/恢复/Unknown、native及真实根21能力/生命周期通过；未参与实现者本人分页、网络断连恢复/撤销竞争及真实提交确认退出均完整PASS，实际Wait与各自资源尾齐。首分页/TCP尾、Reader期限判据及独立确认泛SQL断言原FAIL保留，按限定修后组合接受。无新迁移，不包含Project创建、UI、Task状态流转或完整D11。 |
-| [D27 Project Model Settings UI](../work-items/d27-project-owner-model-settings-ui.md) | **前端已交付，验收输入恢复中，整卡未完成**。API/state/页面已提交，25个web源存在；四缺失harness已形成可构建并推送片段，当前unit354PASS、浏览器启动与固定依赖恢复。 | 真实root/故障代理/只读事务快照已恢复；recovery第七轮已真实完整通过，schema/client各13、七ID/进程/hostTCP完整退出；仅六个新场景中的一个。原前六FAIL与原字节/lookup map/双关闭定位测试缺陷保留，最小修复均独审通过；其余五case正在接线或准备，旧14与独立A/B仍待验。原语/type/build不代替业务。原8个IPC非法参数接受的独验FAIL已保留并补值校验，旧modelsrecover01/02仍FAIL。 |
-| [D08 Project 与 Owner](../work-items/d08-project-owner.md) | **部分子能力接受，模块未完成**。基础权限/生命周期事实、Owner 读写 HTTP、Audit 与初始化收敛已有交付；[初始化 Audit 授权库](../work-items/d08-project-initialization-audit.md)已正式交付main（ca9f2d5d）。[Skills CleanupPhase授权](../work-items/d08-project-skills-cleanup-authority.md)已实现并独立接受；作者三个真实PG顶层与独立风险补集均完整通过，实际命令与资源尾齐。 | 新授权仅在同Store活Tx、Project锁下核当前Deleting/Cleaning、Owner/版本/manifest及停止/依赖完成事实；零迁移，不执行清理、不授其他participant/final权。真实Skills/D05最后同Tx与初始化Object witness已由后续有限库组合验证；完整registry、生产initializer/创建HTTP及全生命周期仍未绑定，Artifact/Object完整组合未闭合。Object join停止项保持，完整D08未完成。见[领域绑定卡](../work-items/recovery-project-domain-bindings.md)。 |
-| [D09 Model System](../work-items/d09-model-system-token-usage.md) | **部分库与 HTTP 接受，模块未完成**。已有配置、Owner/Usage HTTP、Summary、Chat text 与 Embeddings/平台选择 Resolver 等限定成果。 | 生产 Resolution/Invocation 与 consumer 仍未绑定；OpenAI tools 独立动态验收停止，Jina/Image 来源缺口另列。不能把 wire、受控 fixture 或 UI 通过写成真实 Provider/生产调用完成。 |
+| [D11 backlog Blocker 持久服务](../work-items/d11-task-blocker-service.md) | **限定服务已实现、独立接受并正式交付main**。Human Owner对未指派backlog Task的两类Blocker可add/resolve/list/lookup；真实完整图、Task版本及同事务历史/Outbox/Activity/receipt与00023已完成。 | 作者pure/race/vet/build、公开契约与runtime独验、真实权限/并发/Unknown/互操作/SQL回滚及旧Planning/Structure回归通过并完成资源终态；独立装配审查已接受。首Persistence整轮FAIL保留，以未受影响子项与修复后的History定向回归组合接受。非backlog、Agent/Executor、HTTP、生产root及完整D11仍未绑定。 |
+| [D11 Work Owner HTTP/root](../work-items/d11-work-owner-http.md) | **限定HTTP/root能力已独立接受并正式交付main（f1c94ee5）**。已有initialized Project的当前Human Owner可经正式HTTP规划Milestone/Sprint、未指派backlog Task及两类Blocker；默认Central根实际绑定三服务/三Reader。 | 作者pure/race/vet/schema、分页/权限/恢复/Unknown、native及真实根21能力/生命周期通过；未参与实现者本人分页、网络断连恢复/撤销竞争及真实提交确认退出均完整PASS，实际Wait与各自资源尾齐。首分页/TCP尾、Reader期限判据及独立确认泛SQL断言原FAIL保留，按限定修后组合接受。无新迁移，不包含Project创建、UI、Task状态流转或完整D11。 |
+| [D27 Work Owner规划UI](../work-items/d11-work-owner-planning-ui.md) | **未完成**。作者Recovery R13仅有限恢复门已通过；Planning06整体FAIL并完整退役，首list安装门局部通过不代最终规划矩阵。 | Doc1第二次Milestone GET原finished超时须有界诊断；旧Planning04/05、独立Recovery03/04、Authority01 FAIL保留。read/identity、blockers/layouts及最终真实后验仍待。 |
+| [D27 Project Model Settings UI](../work-items/d27-project-owner-model-settings-ui.md) | **原限定版本组合接受，新main两Audit完整通过，Model authority仍待**。新6/6、旧14/14、独立A/B完整通过；新树AuditAuthority/AuditNavigation均实际全尾齐，原FAIL与Wait/TCP/独占缺口保留；原8个IPC非法参数的独验FAIL及其值校验修复不回填。 | 新树`/workspace/agenteam-model-ui-delivery`基于main3cea；首authority整体FAIL，限定Resolve方法已离线独审、尚待真实验收。两Audit通过仅覆盖其固定输入，不机械重跑旧14，不冒生产SPA、完整D27或后继新main装配。 |
+| [D08 Project 与 Owner](../work-items/d08-project-owner.md) | **部分子能力接受，模块未完成**。基础权限/生命周期事实、Owner 读写 HTTP、Audit 与初始化收敛已有交付；[初始化 Audit 授权库](../work-items/d08-project-initialization-audit.md)已正式交付main（ca9f2d5d）。[Skills CleanupPhase授权](https://github.com/LunaDeerTech/agenteam/blob/ce65714aac6eb4995a43fc427a2c77e6497470a7/docs/development/work-items/d08-project-skills-cleanup-authority.md)已独立接受并正式交付main；作者三个真实PG顶层与独立风险补集均完整通过，实际命令与资源尾齐。 | 新授权仅在同Store活Tx、Project锁下核当前Deleting/Cleaning、Owner/版本/manifest及停止/依赖完成事实；零迁移，不执行清理、不授其他participant/final权。真实Skills/D05最后同Tx与初始化Object witness已由后续有限库组合验证；完整registry、生产initializer/创建HTTP及全生命周期仍未绑定，Artifact/Object完整组合未闭合。Object join停止项保持，完整D08未完成。见[领域绑定卡](../work-items/recovery-project-domain-bindings.md)。 |
+| [D09 Model System](../work-items/d09-model-system-token-usage.md) | **部分库与 HTTP 接受，模块未完成**。已有配置、Owner/Usage HTTP、Summary、Chat text 与 Embeddings/平台选择 Resolver 等限定成果。 | secret 已在独立 Model Runtime 树准备真实 text 调用与预留00031的 SPEC；生产 Resolution/Invocation 与 consumer 仍未绑定，当前没有新迁移交付；OpenAI tools 独立动态验收停止，Jina/Image 来源缺口另列。不能把 wire、受控 fixture 或 UI 通过写成真实 Provider/生产调用完成。 |
 | [D10 Skills 初始化](../work-items/d10-skills-initialization.md) | **P1/P2及精确Cleanup限定库已交付，模块未完成**。真实初始化／不可变包、当前Owner、原命令恢复与精确Stop有作者固定版本组合和未参与者风险补集；P1 builtin结果继续复用。 | 后续Cleanup32条历史批次、两域最后anchors同Tx与真实历史消费者已有限接受；完整多域participant、生产initializer/创建HTTP与Agent/Tool/Runner消费未完成。库前置fixture不冒生产创建。Object Runtime join停止项保持，不因局部库交付改变全局ready。 |
-| [D12 Knowledge](../work-items/d12-knowledge-documents.md) | **B02、Owner metadata/树命令/有界正文HTTP及默认根有限接入已交付；完整D12未完成**。canonical内容/树、原子变更、来源复制、本域恢复、Object/Audit/Outbox适配器及00025保持已接受；五GET/HEAD的安全DTO/当前Owner、真实读事务与native资源尾已验。 | 见[B02服务卡](../work-items/d12-b02-knowledge-service.md)与[只读HTTP卡](../work-items/d12-knowledge-owner-read-http.md)。原失败保留；正文/树命令HTTP与默认根既有数据读取见下方后继结果；UI、下载URL、D13、B03全Project生命周期、生产initializer与Object Runtime join未完成，停止项不恢复。 |
+| [D12 Knowledge B02](https://github.com/LunaDeerTech/agenteam/blob/29dd429881783595e5a1304b86af5bfb56ec80b2/docs/development/work-items/d12-b02-knowledge-service.md) | **有限Human Service及主线共享整合已独立接受并正式交付main（29dd4298），完整D12未完成**。canonical内容/文档树、原子变更、来源复制、本域恢复、Object/Audit/Outbox适配器及00025闭合；作者固定矩阵、独立六组与共享路由回归按限定组合接受。 | 原整体FAIL及终态缺口保留；HTTP/UI、下载URL、D13、B03全Project生命周期、生产root与Object Runtime join均不在本结果，停止项不恢复。 |
+| [D12 Knowledge只读HTTP](https://github.com/LunaDeerTech/agenteam/blob/4c1db71cf0f86cb6d6330167577944b0466c8664/docs/development/work-items/d12-knowledge-owner-read-http.md) | **五查询metadata/tree Human Owner GET/HEAD及安全DTO/OpenAPI已独立接受并正式交付main（4c1db71c）**。作者真实PG/native与独立风险补集闭合，原命令与资源尾齐。 | 独立adapter消费正式B02；不含默认root、正文/下载、树命令、UI或完整D12。树命令另项已正式交付，见下行；旧FAIL保留。 |
+| [D12 Knowledge](../work-items/d12-knowledge-documents.md) | **B02、Owner metadata/树命令/有界正文HTTP、默认根既有数据读取和限定只读UI已交付；完整D12未完成**。UI消费文档树、metadata、ancestors与UTF-8正文分页，最终组合真实四GET链与独立受控网络风险按限定范围接受。 | 原 read01/read02 FAIL 保留；编辑/改名UI正在新任务准备，下载URL、B03全Project生命周期、生产initializer与Object Runtime join未完成。Parser首条后继调用见D13行，不冒索引或完整检索接入。 |
 | [D12 Knowledge 树命令 HTTP](../work-items/d12-knowledge-owner-tree-http.md) | **五个 POST adapter 已实现并完成限定独立验收**。当前 Human Owner 的改名、移动、删除确认、删除和原意图 Lookup 使用独立安全 DTO；作者 PG 固定组合 4 top/13 sub、native 3 top/6 sub 与新主线独立新 Owner/旧 receipt 补集均完整通过。 | 同包 integration 编译与独立产品/方法审按固定输入接受，装配保留原主线源；保留原 PG01 和独立首轮测试 helper FAIL，不称当前 HEAD 单次全量。本adapter证据不含创建、正文或UI；后续正文与默认根读取装配见下行，不代表完整D12，原停止项保持。 |
 | [D05 有界 metadata 清理](../work-items/d05-bounded-metadata-cleanup.md) | **限定库、00028与真实Skills消费者已交付**。32条总额、原最终事务/Unknown、历史与成本矩阵及消费者完整尾均按固定版本闭合，成本保持64/512/2s。 | 原成本/退出FAIL保留；不代表Object Runtime全局join或完整生产participant。 |
 | [D04 Secret Variable producer](../work-items/d04-secret-variable-storage.md) | **typed专用材料/receipt库与00029已交付**。core、rotation/cleanup、固定Unknown/并发矩阵有限接受，旧purpose闭集保持。 | 不公开value读取，不以受控authority替代真实Owner；后续Owner权限矩阵见下行，HTTP/F1不在本库。 |
-| [D10 Secret Owner服务](../work-items/d10-secret-variable-owner-service.md) | **typed Owner库与00030已交付**。真实Account/Project当前授权、单final Tx、metadata/receipt、类型/命令/cursor隔离与作者30节点、独立两风险通过。 | 与普通变量共享业务ID/活名称唯一性，响应无value/密文/摘要；SecretHTTP/defaultroot/F1未交付，原read01FAIL保留。 |
+| [D10 Secret Owner服务](../work-items/d10-secret-variable-owner-service.md) | **typed Owner库与00030已交付**。真实Account/Project当前授权、单final Tx、metadata/receipt、类型/命令/cursor隔离与作者30节点、独立两风险通过。 | 与普通变量共享业务ID/活名称唯一性，响应无value/密文/摘要；Secret HTTP/既有 Project 默认根见后继正式卡；F1 未交付，原 read01FAIL 保留。 |
+| [D10 Secret Owner HTTP](../work-items/d10-secret-variables-owner-http.md) | **三路由HTTP与既有 initialized Project 的默认根接入已正式交付**。同Store当前Owner/Session、唯一facts producer、Catalog事件及Account前原Stop/Drain；作者PG/native/root、独立撤Session读与安全错误补集、完整app ordinary/race接受。 | 普通变量路径与命名空间保持；默认Project initializer仍unbound。原错误/恢复材料保留，F1、完整生命周期、Agent注入与UI不在此范围。 |
 | [D10 Skills目录HTTP](../work-items/d10-skills-owner-read-http.md) | **只读adapter与默认根既有数据读取接入已交付**。作者PG/native与独立当前Session撤权补集完整接受，HEAD同当前表示消费。 | 生产initializer保持unbound；完整participant、创建、安装、Agent/Tool/Runner与UI未完成。 |
-| [D12 Knowledge正文HTTP](../work-items/d12-knowledge-owner-content-http.md) | **有界正文adapter与默认根读取接入已交付**。当前Owner、GET/HEAD、真实reader/事务退出、native与PG有限矩阵闭合；删除正文410保持权限前置。 | 原短正文fixture PG01FAIL保留；PDF/DOCX parser、下载URL、UI、生产Project创建与全局Object Runtime join未交付。 |
-| [D13 固定语料与离线评分工具](../work-items/d13-lexical-benchmark.md) | **独立子结果已实现并完成限定验收，D13未完成**。lexical-v2含32篇原创文档/64section、64有答案+8无答案query及4608显式相关性判断；标准库validate/export/score、可重复指标与独立手算控制已完成。 | 三真实lexical backend、索引/查询性能、扩展/字典版本与许可、固定dense leg的hybrid RRF及最终选型仍未验证；不接Knowledge服务、生产索引、embedding或新增正式依赖。后继复用固定数据或明确的新修订，不能把离线准备当D13整体完成。 |
-| [D15 Runner identity/control](../work-items/d15-runner-control.md) | **迁移00026对应Linux/amd64限定能力已实现并验收**。设备管理/登记、私有身份、出站WSS代际与有界在线视图、空operation registry和默认双cmd已闭合；作者业务、独立七子、正式OS三格及new-main Default/CLI完整尾分别通过。 | 固定版本组合接受，原Device/Protocol/B/OS/Default等FAIL保留；不代表当前HEAD单次全量或完整D15。macOS/其他架构、跨UID及实际Dispatch/Mount/D16–18绑定未完成，ready503与Object join等原停止项不变。 |
+| [D12 Knowledge正文HTTP](../work-items/d12-knowledge-owner-content-http.md) | **有界正文adapter与默认根读取接入已交付**。当前Owner、GET/HEAD、真实reader/事务退出、native与PG有限矩阵闭合；删除正文410保持权限前置。 | 原短正文fixture PG01FAIL保留；只读UI已后继交付；PDF/DOCX parser、下载URL、生产Project创建与全局Object Runtime join未交付。 |
+| [D13固定语料＋离线评分工具](https://github.com/LunaDeerTech/agenteam/blob/b2a7d0abef0b7ca0623c8e2a7c020658948848da/docs/development/work-items/d13-lexical-benchmark.md) | **独立子结果已接受并正式交付main（b2a7d0ab）**。lexical-v2语料语义返修获独立接受，评分工具独立128控通过；原语义/夹具FAIL保留，任务分支关闭。 | 只交付固定语料和可重复离线评分工具；lexical-v2含32篇原创文档/64section、64有答案+8无答案query及4608显式相关性判断。三候选backend真实成绩、索引/查询性能、扩展/字典版本与许可、固定dense leg的hybrid RRF及最终选型仍未验证，不完成D13。 |
+| [D13有界纯文本Parser](../work-items/d13-lexical-benchmark.md) | **限定库与首条真实调用已接受并正式交付**。plain_text:v1保原UTF-8字节/版本来源、有界段句与取消零结果；D12完整DTO适配及真实Close后解析、partial/非plain拒绝、外Owner无输入三子联调wholePASS。 | 纯函数/值适配的非作者审查与作者真实链分列；不冒独立动态验收、自动current发布、索引、chunker/ContextProvider、embedding、Markdown/PDF或完整D13。 |
+| [D16 Linux Workspace读取库](../work-items/d16-runner-filesystem-read.md) | **限定本地read/list与Root生命周期库已正式交付**。Linux原目录fd边界、有界读取/列举、原调用与Close后Stop/Drain；本包pure/race/vet及非作者源码审接受。 | 可信根由调用方提供；不代表OS sandbox、current Mount授权、生产Runner operation/Dispatch、写操作、macOS或完整D16。 |
+| [D18 Tool名称投影](../work-items/d18-tool-name-projection.md) | **SpecRef及不可变NameTable纯库已正式交付**。唯一ToolID、固定模型名称、同ID跨revision稳定名称、原表准确反解；unit/race/vet与非作者范围审接受。 | 调用必须使用原Snapshot的表；真实Registry/版本目录、Schema/授权、Tool Runtime、Agent/F1和Executor接线未完成，不宣完整D18。 |
+| [D15 Runner 身份与控制通道](https://github.com/LunaDeerTech/agenteam/blob/fb6ab7f492850bf1d3c025a59acbff381312a989/docs/development/work-items/d15-runner-control.md) | **迁移00026对应Linux/amd64限定能力已独立接受并正式交付main（fb6ab7f4）**。设备管理/登记、私有身份、出站WSS代际与有界在线视图、空operation registry和默认双cmd已闭合；作者业务、独立七子、正式OS三格及new-main Default/CLI完整尾分别通过。 | 固定版本组合接受，原Device/Protocol/B/OS/Default等FAIL保留；不代表当前HEAD单次全量或完整D15。macOS/其他架构、跨UID及实际Dispatch/Mount/D16–18绑定未完成，ready503与Object join等原停止项不变。 |
 
-D08–D28 各模块仍有未完成范围，E01 未开始；首个未完成模块编号为 D08，但只消费已接受子能力的其他完整结果可并行。Task/Work HTTP、UI/App/生产 root，生产 Skills/创建 HTTP、Resolution/Invocation 及 D24 均未完整绑定；现有 `ready=false` / `/readyz` 503 的产品边界不因本次文档整理改变，隔离fixture中的真实root启动与局部测试不证明生产部署或全平台ready。
+D08–D28 各模块仍有未完成范围，E01 未开始；首个未完成模块编号为 D08，但只消费已接受子能力的其他完整结果可并行。Human Owner规划HTTP与对应默认root已限定绑定；完整Task状态/执行与UI、生产Skills/创建HTTP、Resolution/Invocation及D24仍未完整绑定；现有 `ready=false` / `/readyz` 503 的产品边界不因本次文档整理改变，隔离fixture中的真实root启动与局部测试不证明生产部署或全平台ready。
 
 共享浮层遮挡修复已独立验收：`useLayer` 按激活栈同步 Dialog/Drawer/Popover 绘制层级，浅深色16个真实组件场景与完整前端2632单元/类型/构建检查通过。见[限定结果](../work-items/d27-project-owner-model-settings-ui.md#02-共享浮层遮挡修复)；D27剩余业务验收仍未完成。
 
@@ -68,9 +82,11 @@ D08–D28 各模块仍有未完成范围，E01 未开始；首个未完成模块
 
 **Model Settings UI：** 历史 `modelsconfig01/02` 均失败；`modelsconfig03` 与 `modelscred01` 后续有限通过。`modelsrecover01/02` 仍为 FAIL：前者缺原 native/DOM/final facts；后者虽到达 Credential 断连恢复、Model DELETE cut/lookup/replay 等步骤，最终 browser-result/final durable 缺失，原 host TCP 未在原期限内双清。后续观察或窗口释放不能补写原通过。受控 header/Flush 与 ReadPrivate 同 fd 快照探针通过只证明限定行为，不确定旧 business FAIL 的具体原因。
 
-`modelsrecover03`、author v06/private v04 和独立 A/B 只有历史准备描述，没有本次可执行输入或业务通过证据。原25前端源及有限测试记录可按相关差异复用；缺失 harness 需重建后验证，不能把旧二进制、旧 sourcecheck 或前端 unit 代作真实浏览器结论。详细场景与实现范围以[当前卡](../work-items/d27-project-owner-model-settings-ui.md)为准。
+`modelsrecover03`、author v06/private v04的历史准备描述不构成动态通过。当前独立A第二轮及B第六轮均已按限定完整结果接受，B1–5原FAIL与首轮Wait缺口保留；不能把历史二进制或前端unit代作当前真实浏览器结论。范围以[当前卡](../work-items/d27-project-owner-model-settings-ui.md)为准。
 
 **Work Structure：** 六新 PG 按版本组合通过，Unknown01 原 FAIL 经 U1 Lookup 取消修复后 Unknown02 11/11；五旧回归及独立 A/B 实际断言通过。独立 B 的监督器 Wait、2个资源清理与 watcher join 有记录，但外部工具 `session20487` 恢复后返回 Unknown process，原 terminal/exit 缺失。后续 current-clear 只证明当时 PID/资源不存在，不补原工具终态、不推断机器重启；完整接受仍沿[报告中的限定组合](d11-work-structure-verification.md)。
+
+最新独占环境核对：Runner误启native与Model LoginOwner42057监督尾重叠，保留其主体观察及实际退出事实，撤回整窗接受；Variables独验90414独占性未证，后继64224同输入新独占窗完整PASS仅作为新轮接受。UI read02原无tuple TCP差异独立保留，不推同一原因。
 
 其他历史原 FAIL 与受限组合结论保留在对应验收报告及基线文件历史；这里不复制每轮日志，也不把后验通过改写为原失败原因已知。
 
@@ -93,10 +109,10 @@ D08–D28 各模块仍有未完成范围，E01 未开始；首个未完成模块
 
 ## 接手步骤
 
-1. 按[团队流程](README.md)先 fetch origin，检查 `ai/*` 分支和 [current.md](../../../.agent-state/current.md)，能定位任务就自动接续；再核分支、提交、实际差异与上表目标卡，dirty 改动先保存，不覆盖其他任务工作。
-2. 后续获得产品开发任务时，可将 Task planning 实施恢复、Model harness重建分别交一级负责人；二者对共享文件/构建/Go缓存/测试资源核所有权，局部细节与返修由负责人处理，无需回到旧逐轮 root 批准流程。
+1. 由主线程按[团队流程](README.md) fetch origin，检查 `ai/*` 分支和 [current.md](../../../.agent-state/current.md)，能定位任务就自动接续；再核分支、提交、实际差异与上表目标卡，dirty 改动先保存，不覆盖其他任务工作。
+2. 后续接续Model业务验收与下一就绪产品结果时，由对应一级负责人组织子代理执行；核对共享文件/构建/Go缓存/测试资源所有权，局部细节与返修由负责人处理，无需恢复旧实施或重建已存在harness。
 3. 先恢复必要源码与工具条件，再运行有意义的自测及按风险独立验证。必要源、harness、probe 进入正式仓库或 `.agent-state/<task>/`；原失败与未验范围保留，可再生原始日志放忽略的 `output/ai/`，不可再生的必要材料随 checkpoint 保存。
-4. 中间结果由主线程按[自动 checkpoint 规则](README.md#自动保存与跨设备恢复)在 `ai/<task>` 批次提交并推送，不等待整体验收或用户提醒；下级交出可恢复片段并停止相关写入。完整结果正式验收后交付 `main`，保存记录不代表 PASS。本轮只整理文档、保存流程与工具，未推进产品或动态测试。
+4. 中间结果由主线程按[自动 checkpoint 规则](README.md#自动保存与跨设备恢复)在 `ai/<task>` 批次提交并推送，不等待整体验收或用户提醒；下级交出可恢复片段并停止相关写入。完整结果正式验收后交付 `main`，保存记录不代表PASS，也不替代真实测试与资源终态。
 
 ## 历史查询与兼容入口
 
