@@ -316,3 +316,13 @@ PreparationDriver在原claim/process/fence及完整锁计划下，依次取得�
 `agentloop.BuildDirectTextRequest`仅从固定`ExecutionContext`组装首轮候选SystemPrompt、初始user消息与`ModelRequest`，沿原Model输入摘要规则保留Context来源身份；`InitialInput`只是未来Transcript writer的语义输入候选，不是已提交记录。该投影不读current、不调用Model、不写数据库；要求原捕获结果真实无tools、纯text且无reasoning，保留既定`InjectAgentsMD=false`、empty Mount等支持边界，非空tools等不支持配置明确拒绝，不通过丢弃工具适配请求。
 
 来源`870b370b`已完成定向9 top及五包vet、compile/list与真实1 top/3 sub有限验证。原pure01的8项通过复用，唯一Loop测试浮点素材被canonical拒绝后仅修两处测试literal并补验该项；生产未改，原FAIL保留。native01整轮wholePASS（20.38s），真实TLS覆盖503→200及每attempt Usage、跨call复用Execution lease、取消阻止下一attempt并等待Stop/Drain真实退休、401仅一次attempt；原四Wait0、七资源14次absence与全部退出尾闭合，1591输入首尾一致。该验证限Model域，显式test-only Consumer不证明生产Execution运行授权。完整LoopController、持久Round/Transcript、sealed Snapshot与running/Started启动事务、生产app绑定均未由本片完成；tools/reasoning既有STOP保持，AgentRetry则是本片正式新增能力。结果与重跑方法沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)记录。
+
+## 有限后继：Execution direct-text 首轮启动与终态
+
+`execution.NewDirectTextDriver`消费真实已提交的00054 preparation input，复用固定Context、原ProcessGuard、初始Skill目录读验证与真实Execution运行授权。Loop先接受一个无I/O的session；00056在同一原Tx固定sealed Snapshot、首Round/Input、初始Transcript及running/typed Started事件，只有确认提交后才由该session调用Model。首Round Skill提供方重验原assignment/head和00051固定revision/ref完整集合，空集合也须有真实head；配置或绑定变化明确拒绝，不虚构动态分配能力。支持范围固定为原捕获结果真实empty tools、`ToolChoice=none`、text输出的单次JSON Turn，保留`InjectAgentsMD=false`和真实empty Mount，不通过删工具适配请求。
+
+实际Model调用沿同一Execution Authority的私有live owner、持久Snapshot/Round/Input/Call及原Tx证明，Model继续独占AgentRetry。正常`finish_reason=stop`且响应为严格assistant text时，在原Model handle真正Joined后，同Tx写assistant Transcript、Execution `succeeded`/completed时间及typed Succeeded事件；Task保持`in_progress`，模型文本不代替Work状态变更。错误、不完整响应与取消不得冒充正常完成，相应终态仍须原调用实际退出和完整事务提交。启动或终态Unknown保留原owner和精确候选，只读核对原事实；Model结果或清理未终结则继续同一session/JSON handle的确认与Close/Drain，不重新BeginChat，Stop不等于Joined。
+
+终态事务由Execution先证明原terminal候选与allJoined，再调用Model execution lease和专用ProjectVariable环境lease的两个真实退休提供方，最后追加对应typed事件；任一失败全部回滚，Unknown不重复退休写入。00057只增加环境lease的单向`released/released_at`资格退休，已退休lease不得被原capture重放重新取得。原lease tuple、环境head/ref及物理FK全部保留，历史引用仍可能阻止Secret或Variable删除，不把使用资格退休解释为可物理清理。
+
+来源`f524b1fe`已完成定向20 top、十三包vet及compile/list。原pure01类型编译FAIL、native01取消FAIL、native02子selector入口FAIL（0业务测试）均保留；取消修复后仅补受影响的1 top/一包vet并重建compile02候选，其余有效通过证据复用。native03的`TestExecutionFirstRound`真实1 top/3 sub整轮wholePASS（39.05s）：正常ExecutionSucceeded且Task仍为in_progress、启动回执丢失后原owner恢复、取消后真实Joined并提交Cancelled与双lease退休均已验证。原四Wait0、七资源14次absence与全部退出双尾闭合，1588输入首尾一致。完整多轮Loop、工具调用、Stream、relaunch/cooldown与生产app/initializer绑定仍未完成，既有STOP保持。结果和可重跑入口继续使用[既有组合说明](../../../.agent-state/agent-system-integration/README.md)。
