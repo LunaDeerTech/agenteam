@@ -42,7 +42,7 @@ ALTER TABLE agenteam_model.calls
     AND request_data#>>'{Initiator,ProjectID}'=project_id::text
     AND request_data#>>'{Initiator,AgentID}'=request_data#>>'{Consumer,agent_id}'
     AND request_data#>>'{Initiator,ExecutionID}'=request_data#>>'{Consumer,execution_id}'
-    AND request_data#>>'{Policy,class}'='agent_retry'
+    AND request_data#>>'{Policy,class}'='agent'
     AND NOT (request_data->'Policy') ?| ARRAY['deadline','max_attempts']
     AND jsonb_typeof(request_data->'agent_retry_timing')='object'
     AND (request_data#>>'{agent_retry_timing,initial_request_timeout}')::bigint>0
