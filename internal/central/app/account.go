@@ -458,7 +458,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.skills = &skillWork{service: skills} }) {
 		return context.Canceled
 	}
-	projectCommands, err := createProjectUpdate(cfg, db, projectUsage.projects, authority, auditor, journal, projectEvents, processes, skills)
+	projectCommands, err := createProjectUpdate(cfg, db, projectUsage.projects, authority, auditor, journal, projectEvents, processes)
 	if err != nil {
 		return err
 	}

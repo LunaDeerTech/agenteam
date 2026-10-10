@@ -1,6 +1,6 @@
 # D10：Skills 初始化与不可变内容
 
-状态：rev3，2026-10-10。P1 和 P2 初始化／不可变内容／当前 Owner 读取／精确 Stop 库及 00027 已有限接受；本次在正式 Runner 前缀之上交付。完整 Cleanup、生产 initializer／多域 participant、创建 HTTP/root 与 Agent/Tool/Runner 消费仍未完成，Object Runtime join 停止项保持。本文不代表 D10 完成。
+状态：rev3，2026-10-10。P1 和 P2 初始化／不可变内容／当前 Owner 读取／精确 Stop 库及 00027 已有限接受；本次在正式 Runner 前缀之上交付。后续精确 Skills Cleanup 库已有限接受（见末节）；生产 initializer／完整多域 participant、创建 HTTP/root 与 Agent/Tool/Runner 消费仍未完成，Object Runtime join 停止项保持。本文不代表 D10 完成。
 
 依据：[开发计划](../development-plan.md)、[Skills 架构](../../architecture/agent-skills.md)、[D01 资源/Skills 契约](d01-contracts/resources-skills.md)、[本工作项规格](d10-skills-initialization-design.md)。S01 候选基线 `71dc17671631632bb26e251ad8491e74092ac975`，原主卡 SHA `a258ed11366946529082e885b5ec1e74d033687d1aec60d69000691862811b88`；独立结论 `/tmp/agenteam-d10-s01-review-4r1gg40i/report.md` SHA `49381427440c1f2a09219361e8a1b902ecb8c0db1d1700a35350050f6136f990` 无新增硬阻断，只采纳规格，不证明真实链路。
 
@@ -10,7 +10,7 @@
 
 精确 Project Stop 子能力在既有 StopPhase 端口和完整锁下捕获原工作，提交后取消，实际 join 后才 Stopped；Archive 保留合法 reader，Delete 包含 reader。Service 只报告 Skills 本域，不提供 Name 伪装完整 `agent-skills-variables` participant。真实 foreign ProcessAuthority 和生产共享 guard 接入不在该范围。
 
-00027 建立本域六表及原 FK/CHECK；cleanup 表是后段数据模型，不表示已实现清理。当前 Authority 仅实现 ResourceAuthority、AccessPlanner、ObjectReadAuthority、ProjectGate 与技术返回所需 exact mapping；没有本轮 CleanupAuthority、生命周期 Audit 外层、metadata purge 或新清理迁移。Project 已正式提供有限 Skills CleanupPhase gate，本 P2 库尚未消费完整清理。D05 `SkillRevision + ProjectDeleted` Release 的 closed shape 属兼容面，不能凭构造成功认物理删除可用。
+P2 原交付时，00027 建立本域六表及原 FK/CHECK；cleanup 表当时仅为后段数据模型，不表示该批已实现清理。当时 Authority 仅实现 ResourceAuthority、AccessPlanner、ObjectReadAuthority、ProjectGate 与技术返回所需 exact mapping；没有本轮 CleanupAuthority、生命周期 Audit 外层、metadata purge 或新清理迁移。Project 已正式提供有限 Skills CleanupPhase gate，该批 P2 尚未消费完整清理；后续库实现及实际组合证据见末节。D05 `SkillRevision + ProjectDeleted` Release 的 closed shape 属兼容面，不能凭构造成功认物理删除可用。
 
 交付来源：Skills 作者产品/测试 `eaad50fdb08e248b850a65c74f49d3aabf73b682`（产品与 `d0a16242` 相同），独立补集 `5bb671868ce5b4f9f0ff18fde0a692d432392911`；在 main `fb6ab7f492850bf1d3c025a59acbff381312a989` 上装配 42 新文件和 5 个 Object 窄 hunks，保留 main 全部 Project/B02/Audit/Variables/Secret/root。独立纯测试仅从原 overlay 源移到正式同包路径，断言字节不变。00026 与先前已验前缀逐字相同，迁移连续到 00027；不覆盖旧迁移。
 

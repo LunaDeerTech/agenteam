@@ -8,7 +8,7 @@
 
 第一 provider 只支持 initialized Project 的已发表 SkillRevision＋ProjectDeleted、原 Creation/Skill/Revision/Object/Upload 和同命令的旧 candidate。不加 Creation取消、其它Owner新purge权限、Runner退休、HTTP/生产root或自动删除永久marker。
 
-初始四路径及后继§8实现域均已获root授权。2026-10-09 root在Skills确认原占位无独立DDL后，将`00028_cleanup_indexes.sql`移交本任务为共享cleanup索引迁移唯一writer；不改FK/约束/列。root已将稳定00025/26/27精确装配到本树（分别aaa408c8/eea4ced0/7cf7a58e）；28为待成本计划核验的22索引候选；专用迁移矩阵已实际验证fresh、旧库27升级、末DDL失败整体回滚及原字节重试，核journal/Goose及旧schema/数据不变，不据此接受查询或FK trigger成本。本次及首批独占窗口已完整释放，后继真实资源仍需root另授。
+初始四路径及后继§8实现域均已获root授权。2026-10-09 root在Skills确认原占位无独立DDL后，将`00028_cleanup_indexes.sql`移交本任务为共享cleanup索引迁移唯一writer；不改FK/约束/列。root已将稳定00025/26/27精确装配到本树（分别aaa408c8/eea4ced0/7cf7a58e）；28的22索引已由后文限定成本矩阵核验；专用迁移矩阵已实际验证fresh、旧库27升级、末DDL失败整体回滚及原字节重试，核journal/Goose及旧schema/数据不变，不据此接受查询或FK trigger成本。本次及首批独占窗口已完整释放，后继真实资源仍需root另授。
 
 ## 2. 实际缺口与必须成立的结果
 
@@ -145,7 +145,7 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 | FK入边 | 外Project/外Object子表历史保留；被删目标本身合法无引用 | 在独立回滚事务实际DELETE并SET CONSTRAINTS检查deferred边；逐父表记录trigger耗时和buffers对应查询，不能只看父PK扫描 |
 | Skills共享索引 | 本Project1001 joined＋少量live，以及只有其它Project历史；最后initialization前本Project work全空 | 正式SPEC joined扫描与完整FK反查分别测，Project前缀是否足够由计划决定，不先增加重复partial |
 
-`.agent-state/object-metadata-cleanup/scale-fixture.sql` 是隔离的新成本数据库草稿，当前仅准备Object/Upload/attempt/cleanup/reader/work的代表性基数，**未执行／未SQL验证**。为合法CHECK/FK形状而插入的终局和标记Audit行只能用于SQL成本，禁止传入Service充作物理完成证明；实际业务组仍由真正调用产生native/Audit/退休事实。计划查询继续取实际Service观察器，草稿不另抄一套实现SELECT。transfer、download、Skills及所有FK完整入边仍需各自合法fixture，空表不抵充其成本接受。此草稿和本节不改变已冻结首业务二进制的输入来源。
+早期 `scale-fixture.sql` 仅为未执行草稿，不是当前可执行成本来源；正式来源是 `tests/objects/testdata/metadata_cleanup_{project,skill,transfer,live,anchor,pending}_cost.sql` 六份嵌入 SQL。成本 seed 中明确构造的历史状态仅用于独立 SQL/索引计划，不能交给 Service 充作物理完成或权限事实；业务证据与成本证据仍分列。
 
 
 后继首个可执行成本来源为 `tests/objects/metadata_cleanup_cost_test.go`＋内嵌 `testdata/metadata_cleanup_project_cost.sql`（尚未编译/PG）。它用两个真实Service的未关闭reader保持原Stop五lane均可到达，捕获原SQL；随后只在另一新数据库执行成本seed与原SQL参数重绑。先测1025+1025终局Object和1001+10001退休reader仍在场的目标/缺失范围，再在独立available Object上增33活reader形状，分别测Archive/Delete与first/after-32的32+1精确结果。活状态是合法SQL成本刺激，**不是实际native活锁/退休验收**；真实查询/Rows关闭与EXPLAIN逐次沿2s绝对时限，完整节点/过滤/loops/buffers保留供判定，不强制planner或仅凭LIMIT/测试返回接受扫描成本。两现候选不含新top，已验history不受影响。
@@ -185,7 +185,7 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 
 7868实际成本缺口限定：`projectStopPending`最后transfer EXISTS把`revoked_at IS NULL OR lease.state=active OR retirement_evidence IS NULL`置于跨表join后，live Archive/Delete的末空判断扫描1098条transfer，exact-fence-joined两个方向对13134条lease全表SeqScan；不是微小两行表的合法计划选择。顶层布尔仍正确、最大2.258ms也未超2s，但不满足排除终局历史的成本门。仅拆解该原谓词并增加能拒绝这些底层历史扫描的断言，保留所有原真值/Archive-Delete/权限/锁/原期限；优先复用当前索引，不因索引名增DDL，不把SQL成本种子当native退休证明。Model独立核修复语义/计划方法，原日志及测试PASS与成本缺口并列保留。
 
-恢复后的后三cost首轮保留一处真实成本FAIL：`get-and-download/archive` 的完整Stop pending最后active-lease臂形成Hash Join，transfer方向先读81PUT＋16被过滤GET共97条，其中65条为退休PUT历史，超过原64门；布尔false与0.530ms返回不改变成本失败。a9的lane4分页已到且通过，FinalAnchor与Pending两top该轮PASS及七资源/actualWait/全部双尾齐全。完整必要计划见[原失败plan](../../../.agent-state/object-metadata-cleanup/pending-active-lease-cost-failure.json)。定向返修仅将最后active-lease臂改为原即时UNIQUE lease_id保证的scalar布尔lookup，保持缺行NULL不满足与原Project/action；Secret独立窄审接受，00028不改。
+恢复后的后三cost首轮保留一处真实成本FAIL：`get-and-download/archive` 的完整Stop pending最后active-lease臂形成Hash Join，transfer方向先读81PUT＋16被过滤GET共97条，其中65条为退休PUT历史，超过原64门；布尔false与0.530ms返回不改变成本失败。a9的lane4分页已到且通过，FinalAnchor与Pending两top该轮PASS及七资源/actualWait/全部双尾齐全。完整必要计划见[固定版本原失败 plan](https://github.com/LunaDeerTech/agenteam/blob/52a42627adbbc10796ee0182e06515d56bf4393c/.agent-state/object-metadata-cleanup/pending-active-lease-cost-failure.json)。定向返修仅将最后active-lease臂改为原即时UNIQUE lease_id保证的scalar布尔lookup，保持缺行NULL不满足与原Project/action；Secret独立窄审接受，00028不改。
 
 `079b74a5`／b6ec候选的修后Live＋Pending两top已真实完整PASS（7.54s／7.46s），Go/driver/outer实际Wait0与七资源及所有原双尾齐全。67份完整EXPLAIN最大visited64、loops34、heap fetch34、buffers159、单查询3.56ms；原失败末臂改为16active lease→16次原唯一transfer索引lookup，0.206ms。work→transfer→false三尾实采并保67/68/66历史，原cause/fence/Archive-Delete/分页语义保持。FinalAnchor有效PASS及原三成本组/迁移输入复用；实际计划未给出增删00028索引的依据。Object与Project前缀承担不同scope，当前小活集可能选Project partial再过滤Object，不能仅按一次索引名称未被选中删除Object前缀。已知成本缺口收敛；成本PASS不等于完整清理或Runtime join验收。
 
@@ -199,12 +199,12 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 
 root 负责恢复消费者组合树和最终 Git 装配；D05 owner 提供当前两个 Stop SQL 修复与00028连续候选，未参与作者的验证者核新版真实消费结果。消费者已包含正式 P2 初始化的 `contract/authority.go`、`transfer_upload.go` 专用增量及其测试，本旧 D05 树没有这些增量，因此组合保留消费者的 P2输入，只应用 `project_stop_store.go`／`project_stop_batch.go` 的当前修复，不能整目录覆盖。00028在两候选中相同；该真实组合与成本/history门槛共同闭合后再交付，Object Runtime join 保持原STOP。
 
-## 8. 旧源最小预计写域与验收
+## 8. 实现写域与验收边界
 
 已获rev1独审及root授权的实现域：`contract/access.go`闭集；`access.go`真实binding与同Tx一次purge消费、`service.go`仅相应私有access事务记录类型；`cleanup.go`＋新bounded SQL helper；`reference_cleanup.go`仅Skills canonical cause重放；必要`references.go`仅新私有有限诊断helper；`project_work.go`精确cleanup准入；`project_stop_store.go`及必要`project_lifecycle.go`投影分页；新`object/metadata_cleanup.go`；必要`project_audit.go`仅终局查询。各相邻tests及最小`tests/objects`组合，均先获明确写权。Skills独占其planner/CleanupAuthority/六表/participant，Project独占CleanupPhase，root负责immutable routes/迁移/组合，Object不读Skills私表。
 
 有限验收：纯result/Access闭集与同issuer/Store/liveTx/锁反例；原子gate两种真实Unknown和旧cause；65以上历史及超过1000投影、末尾活writer、32总额/原2s/服务重建；实际reader/callback阻塞尾及foreign guard；FK关联包/跨source保护、分批cancel/Unknown、最后两域一起保留或消失；最终Skills父映射已清后真实CleanupProject无旧维护，Audit恰一次且fake witness拒。旧受影响Avatar/Knowledge/transfer/Stop有限回归。
 
-纯合同、受控Store、真实PG、真实MinIO/ProcessGuard、生产root分别报告；当前rev1只完成工程规格与纯类型结果，待未参与者核§4原子gate/终局、§5分页不漏writer和§6互引包/最后原子性，没有冒称真实三层通过。实现中发现本规格未覆盖的真实合法拓扑或原退休缺口时，暂停受影响路径并更新SPEC，不把未定义关系投影成成功。
+纯合同、受控 Store、真实 PG、真实 MinIO/ProcessGuard 与生产 root 分别计证。§§7.3–7.4 的成本、原历史及真实 Skills 消费组合已按固定版本闭合；它们不接受生产 root、完整多域 participant 或 Object Runtime 全局 join。发现规格未覆盖的合法拓扑或原退休缺口时仍须暂停受影响路径并按 SPEC 处理，不把未定义关系投影成成功。
 
-当前作者仅纯合同2top race25403/8510e0、contract包vet793dd1、本卡链接与四文件UTF8/LF5693d2通过；旧Service/SQL尚未修改，不以类型可编译声称清理能力可用。
+早期只有纯合同的阶段已由上述实际实现与限定矩阵推进；原阶段失败、成本失败和消费者01退出失败保留，后续 PASS 不改写其原终态。

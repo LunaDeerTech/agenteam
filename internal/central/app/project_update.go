@@ -18,13 +18,14 @@ import (
 )
 
 // Pure construction retains the existing authority, store, actual process
-// guard and already constructed Skill initializer. No deferred locator is used.
-func createProjectUpdate(cfg config.Config, db database, projects *project.Authority, accounts *account.Authority, auditor *audit.Service, journal *outbox.Service, events pc.ProjectEvents, processes accountProcessAuthority, initializer pc.ProjectSkillInitializer) (*project.Service, error) {
+// guard. Creation remains unbound until the full lifecycle manifest and its
+// actual stop/guard integration are accepted (D08 §7, D10 §14).
+func createProjectUpdate(cfg config.Config, db database, projects *project.Authority, accounts *account.Authority, auditor *audit.Service, journal *outbox.Service, events pc.ProjectEvents, processes accountProcessAuthority) (*project.Service, error) {
 	store, ok := db.(project.Store)
 	if !ok || runtimeInformationNil(store) || accounts == nil || auditor == nil || journal == nil || processes.guard == nil {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
-	return project.New(store, project.Dependencies{Authority: projects, Activity: accounts, Audit: auditor, Events: journal, ProjectEvents: events, Processes: projectCommandProcess{processes}, Cursors: cfg.CursorKeyring(), Initializer: initializer}, project.DefaultConfig())
+	return project.New(store, project.Dependencies{Authority: projects, Activity: accounts, Audit: auditor, Events: journal, ProjectEvents: events, Processes: projectCommandProcess{processes}, Cursors: cfg.CursorKeyring()}, project.DefaultConfig())
 }
 
 // The IDs have distinct nominal types but identify the very same root process.
