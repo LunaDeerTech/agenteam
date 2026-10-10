@@ -423,6 +423,7 @@ function workIncompleteLedger() {
     settleFailure: () => void;
   };
   const slots: Slot[] = [];
+  let originalReplay: Request | undefined;
   let closed = false;
   let errors = 0;
   const keys = (value: object) => Object.keys(value).sort().join(",");
@@ -594,6 +595,40 @@ function workIncompleteLedger() {
       ]);
     },
     expectedFailure,
+    bindOriginalReplay(request: Request) {
+      if (closed) return false;
+      if (originalReplay) return originalReplay === request;
+      const slot = slots.find(
+        (value) => value.spec.kind === "unforwarded-milestone-update",
+      );
+      if (
+        !slot?.request ||
+        !slot.allowed ||
+        !slot.failed ||
+        slot.succeeded ||
+        !slot.ownedResponse ||
+        slot.request === request ||
+        !matches(slot, request)
+      )
+        return false;
+      const original = slot.request.headers(),
+        headers = request.headers();
+      // Keep original intent/security material private; publish only the
+      // exact Request binding. No other PATCH is eligible for this bridge.
+      if (
+        request.url() !== slot.request.url() ||
+        request.postData() !== slot.body ||
+        headers["idempotency-key"] !== slot.key ||
+        !original["x-csrf-token"] ||
+        headers["x-csrf-token"] !== original["x-csrf-token"] ||
+        original.origin !== new URL(slot.request.url()).origin ||
+        headers.origin !== original.origin
+      )
+        return false;
+      originalReplay = request;
+      return true;
+    },
+    isOriginalReplay: (request: Request) => originalReplay === request,
     unforwarded(request: Request) {
       return slots.some(
         (slot) =>
@@ -656,7 +691,9 @@ function workIncompleteLedger() {
 
 // Installed at the original request event, before its response or failure.
 // Only the recovery case opts into this closed endpoint set.
-export function workOrdinaryCompletionEvents() {
+export function workOrdinaryCompletionEvents(
+  bindOriginalReplay?: (request: Request) => boolean,
+) {
   type Terminal = "finished" | "failed" | "closed";
   const rows = new Map<
     Request,
@@ -706,7 +743,12 @@ export function workOrdinaryCompletionEvents() {
             parts[5] === "tasks" &&
             uuid7.test(parts[6]!) &&
             parts[7] === "blocker-commands" &&
-            parts[8] === "lookup")
+            parts[8] === "lookup") ||
+          (parts.length === 7 &&
+            request.method() === "PATCH" &&
+            parts[5] === "milestones" &&
+            uuid7.test(parts[6]!) &&
+            bindOriginalReplay?.(request) === true)
         )
       )
         return;
@@ -742,7 +784,9 @@ export function observe(
 ) {
   const startedAt = performance.now();
   const incompleteRequests = workIncompleteLedger();
-  const ordinaryEvents = workOrdinaryCompletionEvents();
+  const ordinaryEvents = workOrdinaryCompletionEvents(
+    incompleteRequests.bindOriginalReplay,
+  );
   const nativeComplete = new Set<Request>();
   const pendingNative = new Set<Request>();
   let ordinaryClosed = false;
@@ -943,6 +987,7 @@ export function observe(
     requests,
     declareIncomplete: incompleteRequests.declare,
     declarationKind: incompleteRequests.declarationKind,
+    isOriginalReplay: incompleteRequests.isOriginalReplay,
     async verify(expectedIncomplete = 0) {
       // The caller must already have taken actual diagnostic end snapshots.
       // Missing original events retire as failure, never as an abandoned wait.

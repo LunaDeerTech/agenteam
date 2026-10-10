@@ -472,6 +472,16 @@ export async function installWorkPublicationDiagnostic({
               confirmed_observed_after_fulfilled_at: null,
               active: true,
             };
+            if (name === "retryOriginal") {
+              const progress = auth.workPlanning.progress;
+              row.replay_from_not_observed =
+                progress?.phase === "uncertain" &&
+                progress.observation === "not_observed" &&
+                progress.contextValid === true &&
+                progress.canReplay === true &&
+                progress.receipt === null;
+              row.replay_receipt_published = false;
+            }
             if (name === "getProject") {
               refresh.row = row;
               Object.assign(row, {
@@ -523,6 +533,32 @@ export async function installWorkPublicationDiagnostic({
                         ? result.version
                         : null;
                     row.result_target_matches = result?.id === row.target_id;
+                  }
+                  if (name === "retryOriginal") {
+                    const progress = auth.workPlanning.progress;
+                    // The actual Session Promise returns the strict receipt
+                    // only after live original-intent/action checks, publishWork
+                    // and runAuthorized's owner finally. Require that same
+                    // receipt object in the actual confirmed publication.
+                    row.replay_receipt_published =
+                      row.replay_from_not_observed === true &&
+                      sameIdentity() &&
+                      progress?.contextValid === true &&
+                      progress.phase === "confirmed" &&
+                      progress.observation === "committed" &&
+                      progress.domain === "structure" &&
+                      progress.command === "work.milestone.update" &&
+                      progress.projectID === row.path.split("/")[4] &&
+                      progress.targetID === row.target_id &&
+                      progress.receipt === result &&
+                      result?.domain === "structure" &&
+                      result.value?.command === "work.milestone.update" &&
+                      result.value.changed === true &&
+                      result.value.milestone?.id === row.target_id &&
+                      result.value.milestone?.project_id ===
+                        progress.projectID &&
+                      result.value.sprint === null &&
+                      uuid.test(result.value.event_id);
                   }
                   row.result_kind = name.startsWith("get")
                     ? "typed-detail-returned"

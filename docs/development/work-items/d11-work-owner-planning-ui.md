@@ -319,3 +319,7 @@ recovery08（原session12016，3e64c6f3/ff12技术、binary14/原dist）业务FA
 2026-10-10新环境限定复核：未参与实现的 content 沿真实 Session actual.finally、Workspace readCurrent 的 accept/canonicalize/finally及原 Promise，核单 Project 完成接缝、三份同体联合、两 observer 实际尾和旧默认分支，有限静审接受，无 must-fix；原55控制复用，本次未执行新控制或浏览器。布局case归档刺激仅改为既有公开刷新后严格 archived，亦获该独审接受，原finished及预算不变。锁定依赖、正式私有dist和当前account integration/race候选已重建实际0，PW严格TS与精确recovery发现通过；这只是新实际轮输入就绪，recovery08 FAIL及原尾缺口保持。下一fresh窗口验recovery09，布局及完整卡片仍未动态接受。
 
 Recovery09仍完整FAIL：三次Project归档刷新正常finished/EOF/typed返回，最终publication联合false；原Go/driver/outer Wait与资源/TCP双尾齐。实际Session+Workspace+Work红例把缺陷定位到观察器用后继Work读的共享busy/blocked否定已完成Project发布；仅移除该跨调用判据，保留原owner/严格发布及最终零pending门槛。原55+新增2联动控制实际57通过，严格TS通过；content未参与者两文件限定静审已接受，无must-fix，复用原控且未跑新控制/browser，尚待新真实窗口；原09失败材料见本树current，Go持久后验及完整卡未接受。
+
+Recovery09同原安全材料另见sequence6显式原retryOriginal PATCH已native EOF/CL450与typed fulfill，但旧ordinary闭集不选PATCH；最终verify未到，不升级成第二实际断言失败。root已限定授权同原failed/owned503后的唯一URL/key/body/CSRF/Origin Request及真实not_observed→confirmed/committed receipt对象发布接缝；不泛化其它PATCH或改产品。实际消费者127/helper88/Project回归57与strictTS均通过，控制初次重复cleanup setupFAIL保留；六技术源已冻结交content窄审，未跑新PG/browser、未改Go/dist/预算，下一Recovery10仍须root保存和fresh授窗。
+
+content未参与者随后完成六技术路径窄审并有限接受、无确认must-fix：同原Request材料、真实retryOriginal intent/action/live及not_observed→confirmed receipt对象发布与原全部尾闭合；复用作者127/88/57和TS结果，未运行测试/browser，不升级09或08。十路径已停写待root保存。

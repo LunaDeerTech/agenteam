@@ -32,3 +32,10 @@ cwd本树；使用既有锁定Node依赖与Python jsonschema/referencing，不�
 Recovery09新证据与最小修复：基线3fc21d08真实Go33.24秒/outer185.997秒完整FAIL；三份原Project读取均正常requestfinished/finished=null、EOF与CL同长、typed archived正常返回，两observer原尾齐，但最终三份workspace_published全false。唯一不可重建投影保存于recovery-ninth-failure.json，最终Work联合/Go持久后验未到，09全尾齐与08原缺尾分别保留。
 
 实际Session+Workspace+Work联动红例20364证明：Workspace accept同步触发Work重新读取当前选择，Project原Promise已经返回、detail与本次readGeneration发布正确，此时共享busy已属于后继Work读；用workspace.blocked否定原Project publication会误拒绝。最小修改仅删publication这一跨操作条件，原Session正常Promise的actual.finally释放保证、identity/Project/generation/readGeneration+1、typed字段/phase、canonicalize与最终两observer explicit/零pending/原尾均不变。现有控制加入2条真实联动：正常后继读完成后接受；后继Work未完则最终联合拒绝且晚尾不升级。完整57控31178 actual0/0unhandled及strictTS76380 actual0；首次控制74924因新环境缺ignored implementation目录在49控后setupFAIL保留。产品/Go候选/私有dist/预算不变；content未参与者两文件限定静审接受，无must-fix，复用57控/原红且未跑新控制/browser；等待新fresh窗口，不回填09或08。
+
+
+Recovery09余下原材料还定位到sequence6：not_observed显式retryOriginal PATCH实际PW aborted/no finished，原native EOF/CL450、reader cancel/release/outer cancel尾和public typed fulfillment均齐；旧ordinary endpoint闭集不选择PATCH，最终Work verify尚未运行，不把潜在阻塞写成另一实际断言失败。原始安全投影已加入recovery-ninth-failure.json；当轮没有记录entry not_observed及返回receipt对象发布关系，不能由新布尔回填。
+
+root仅授权这个原PATCH：已有四cut ledger在owned503/实际failed后私下核同URL、key、原body、CSRF、Origin，只绑定唯一新Request；原native/public两观察器仍用唯一XID和调用关系，新增entry not_observed及实际返回receipt===Session confirmed/committed progress.receipt。正式Session的原WorkIntent引用/identity/work-write revision live检查、executeWork严格parseWorkPlanningReceipt（原target、字段、版本）与actual.finally是原Promise正常fulfilled的必要前提，未改生产API，也没有用void Promise或generic PATCH放行。后续busy可变化，但最终全部真实尾/两observer explicit零pending仍必需。
+
+作者实际源127消费者控31460 exit0（旧116+11），含reader/outer held、abandon/timer/identity、void body/void fulfilled/坏schema拒绝、错原绑定与后继Work owner未完拒绝及晚尾不升级；helper88控60975 exit0（旧85+3）精确材料/一次绑定与最终typed见证门禁；Project57回归35217和strictTS18252均exit0，0unhandled。首49453因新增负控重复cleanup导致已关闭jsdom失败，保留为控制setupFAIL，随后已修；未跑新的旧源码红例、PG或浏览器。六技术源冻结待content有限窄审，不升级09或08。

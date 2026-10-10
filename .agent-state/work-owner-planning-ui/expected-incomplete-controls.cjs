@@ -79,8 +79,14 @@ function req(kind = "lost-milestone-update", changes = {}) {
   return {
     url: () => values.url,
     method: () => values.method,
-    headers: () => ({ "idempotency-key": values.key }),
-    postData: () => (values.body === null ? null : JSON.stringify(values.body)),
+    headers: () => ({
+      "idempotency-key": values.key,
+      "x-csrf-token": changes.csrf ?? "controlled-csrf",
+      origin: changes.origin ?? new URL(values.url).origin,
+    }),
+    postData: () =>
+      changes.rawBody ??
+      (values.body === null ? null : JSON.stringify(values.body)),
     postDataJSON: () => values.body,
   };
 }
@@ -897,6 +903,97 @@ process.on("unhandledRejection", () => unhandled++);
       }
     },
   );
+  await check(
+    "original replay ledger binds only one exact retired owned intent",
+    () => {
+      const kind = "unforwarded-milestone-update",
+        l = ledger(),
+        original = req(kind, { key }),
+        replay = req(kind, { key });
+      l.declare(spec(kind));
+      l.request(original);
+      assert.equal(l.bindOriginalReplay(replay), false);
+      l.failed(original);
+      assert.equal(l.bindOriginalReplay(replay), false);
+      assert.equal(
+        l.ownedUnforwardedResponse(original, 503, {
+          "content-type": "application/problem+json",
+          "content-length": "4096",
+          connection: "close",
+        }),
+        true,
+      );
+      for (const changes of [
+        { key: "wrong-original-key" },
+        { csrf: "wrong-original-csrf" },
+        { origin: "https://different.invalid" },
+        {
+          url: `http://127.0.0.1:2/api/v1/projects/${project}/milestones/${target}`,
+        },
+        {
+          body: {
+            expected_version: "7",
+            request: { title: "different intent" },
+          },
+        },
+        {
+          rawBody: JSON.stringify(
+            {
+              expected_version: "7",
+              request: { title: "specific original text" },
+            },
+            null,
+            1,
+          ),
+        },
+        {
+          url: `http://127.0.0.1:1/api/v1/projects/${project}/milestones/${key}`,
+        },
+        { method: "POST" },
+      ])
+        assert.equal(
+          l.bindOriginalReplay(req(kind, { key, ...changes })),
+          false,
+        );
+      assert.equal(l.bindOriginalReplay(original), false);
+      assert.equal(l.bindOriginalReplay(replay), true);
+      assert.equal(l.isOriginalReplay(replay), true);
+      assert.equal(l.isOriginalReplay(original), false);
+      assert.equal(l.bindOriginalReplay(req(kind, { key })), false);
+      assert.equal(l.verify(1, new Set([original])), true);
+      l.close();
+      assert.equal(l.bindOriginalReplay(replay), false);
+    },
+  );
+  for (const witnessed of [true, false])
+    await check(
+      "exact original replay observer requires final typed witness: " +
+        witnessed,
+      async () => {
+        const kind = "unforwarded-milestone-update",
+          original = req(kind, { key }),
+          replay = req(kind, { key });
+        const e = observerEnv({
+          reason: "aborted",
+          ordinaryCompletion: (request) =>
+            request === replay &&
+            e.observed.isOriginalReplay(request) &&
+            witnessed,
+        });
+        e.observed.declareIncomplete(spec(kind));
+        e.emit("request", original);
+        e.ownedResponse(original, new Promise(() => {}));
+        e.emit("requestfailed", original);
+        await new Promise((r) => setImmediate(r));
+        e.emit("request", replay);
+        assert.equal(e.observed.isOriginalReplay(replay), true);
+        const response = e.response(replay, new Promise(() => {}));
+        e.emit("requestfailed", replay);
+        if (witnessed) await e.observed.verify(1);
+        else await assert.rejects(e.observed.verify(1));
+        assert.equal(response.calls(), 0);
+      },
+    );
   for (const [method, endpoint] of [
     ["GET", `milestones/${target}`],
     ["GET", `sprints/${target}`],

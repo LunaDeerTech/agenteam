@@ -561,6 +561,7 @@ test("[recovery] three committed lost responses retain original intent and histo
     evidence,
     repository,
     classify: seen.declarationKind,
+    isOriginalReplay: seen.isOriginalReplay,
   });
   try {
     for (const [index, stage] of (

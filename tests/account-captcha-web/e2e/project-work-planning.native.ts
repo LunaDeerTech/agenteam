@@ -482,10 +482,18 @@ export function workOrdinaryConsumption(
     uuid.test(parts[6]) &&
     parts[7] === "blocker-commands" &&
     parts[8] === "lookup";
+  const originalReplay =
+    parts.length === 7 &&
+    pw.method === "PATCH" &&
+    parts[5] === "milestones" &&
+    uuid.test(parts[6]) &&
+    pw.original_replay_bound === true;
   if (
     parts.slice(0, 4).join("/") !== "/api/v1/projects" ||
     !uuid.test(parts[4]) ||
-    !(projectRefresh ? project : detail || lookup || blockerLookup)
+    !(projectRefresh
+      ? project
+      : detail || lookup || blockerLookup || originalReplay)
   )
     return false;
   const matches = report.documents.flatMap((doc: any) =>
@@ -604,6 +612,14 @@ export function workOrdinaryConsumption(
       call.settled_at <= call.workspace_settled_at &&
       call.workspace_settled_at <= call.sample_at
     );
+  if (originalReplay)
+    return (
+      call.operation === "retryOriginal" &&
+      call.target_id === parts[6] &&
+      call.result_kind === "typed-receipt-returned" &&
+      call.replay_from_not_observed === true &&
+      call.replay_receipt_published === true
+    );
   return detail
     ? call.operation ===
         (
@@ -627,6 +643,7 @@ export async function startWorkNativeDiagnostic(
     evidence: string;
     repository: string;
     classify: (request: PWRequest) => string | null;
+    isOriginalReplay?: (request: PWRequest) => boolean;
     ordinaryCompletion?: boolean;
     projectRefreshCompletion?: boolean;
   },
@@ -704,6 +721,7 @@ export async function startWorkNativeDiagnostic(
       method: request.method(),
       path: new URL(request.url()).pathname,
       request_id: null,
+      original_replay_bound: config.isOriginalReplay?.(request) === true,
       request_at: at(),
       response_at: null,
       failed_at: null,
@@ -804,7 +822,7 @@ export async function startWorkNativeDiagnostic(
         ? "call_id call_at fulfilled rejected synchronous_throws native_requests native_sequence settled_at workspace_returned workspace_rejected workspace_settled_at detail_observed_after_fulfilled_at confirmed_observed_after_fulfilled_at sample_at"
         : "sequence call_id status readers read_calls read_settled read_rejected bytes reader_cancel_calls reader_cancel_settled reader_cancel_rejected stream_cancel_calls stream_cancel_settled stream_cancel_rejected release_calls release_successes abort_events headers_order read_done_order read_rejected_order abort_order reader_cancel_order stream_cancel_order release_order content_length",
       publication
-        ? "workspace_published workspace_canonical result_target_matches entry_identity_matches entry_not_busy active identity_current authenticated not_busy detail_target_present entry_detail_target_present recovery_confirmed entry_recovery_confirmed recovery_uncertain replay_available"
+        ? "replay_from_not_observed replay_receipt_published workspace_published workspace_canonical result_target_matches entry_identity_matches entry_not_busy active identity_current authenticated not_busy detail_target_present entry_detail_target_present recovery_confirmed entry_recovery_confirmed recovery_uncertain replay_available"
         : "has_query headers_seen read_done cancel_before_eof signal_aborted_at_start signal_aborted content_length_present content_length_valid content_encoding_identity eof_before_interruption length_comparable_before_binding length_matches_before_binding",
     );
     result.method = row.method;
