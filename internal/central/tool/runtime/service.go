@@ -243,8 +243,14 @@ func (s *Service) LookupInstall(ctx context.Context, b tc.ToolCallBinding) (Prep
 		if err != nil || record == nil {
 			return err
 		}
-		want, _ := encode(bindingProjection(b))
-		got, _ := encode(record.Input.Binding)
+		want, err := encode(bindingProjection(b))
+		if err != nil {
+			return err
+		}
+		got, err := encode(record.Input.Binding)
+		if err != nil {
+			return err
+		}
 		if digest(want) != digest(got) {
 			return fail(f.IdempotencyKeyReused)
 		}

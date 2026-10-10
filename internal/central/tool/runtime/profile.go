@@ -61,6 +61,7 @@ type installData struct {
 	NormalizedName string
 	PackageDigest  f.Digest
 	ManifestDigest f.Digest
+	PackageBytes   f.Progress
 }
 
 // CanonicalInstallArguments is the fixed profile's explicit projection, not a
@@ -131,7 +132,15 @@ func prepareInput(ctx context.Context, b tc.ToolCallBinding, raw []byte) (instal
 	if facts.NormalizedName == skill.AddSkillsNormalizedName {
 		return installData{}, fail(f.Forbidden)
 	}
-	return installData{bindingProjection(b), facts.NormalizedName, facts.PackageSHA256, facts.ManifestSHA256}, nil
+	value, err := pkg.Package()
+	if err != nil {
+		return installData{}, err
+	}
+	packageBytes, err := value.Bytes()
+	if err != nil {
+		return installData{}, err
+	}
+	return installData{bindingProjection(b), facts.NormalizedName, facts.PackageSHA256, facts.ManifestSHA256, f.Progress(len(packageBytes))}, nil
 }
 
 func digest(raw []byte) f.Digest {
@@ -170,7 +179,7 @@ func fingerprint(input installData, skill sc.SkillID) (f.Digest, error) {
 }
 
 func (r operationRecord) validate() error {
-	if r.ID.Validate() != nil || r.SkillID.Validate() != nil || r.Version.Validate() != nil || r.Input.PackageDigest.Validate() != nil || r.Input.ManifestDigest.Validate() != nil {
+	if r.ID.Validate() != nil || r.SkillID.Validate() != nil || r.Version.Validate() != nil || r.Input.PackageDigest.Validate() != nil || r.Input.ManifestDigest.Validate() != nil || r.Input.PackageBytes < 1 || r.Input.PackageBytes > sc.MaxArchiveBytes {
 		return fail(f.InvalidState)
 	}
 	if _, err := r.Input.Binding.request(); err != nil {
