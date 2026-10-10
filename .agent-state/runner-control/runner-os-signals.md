@@ -49,6 +49,16 @@ root 在诊断02事实基础上仅授权原 wchan 条件改为精确 `{pipe_read
 
 `803389` 实际运行 `python3 -B .agent-state/runner-control/runner-os-diagnostic-controls.py`，72纯控 exit0，含原60及新12：精确alias阳性、近似/其他wchan拒绝、错syscall/fd/zero count、同安全投影但原buffer字段不同拒绝、前后identity失效拒绝；原cleanup先行、失败落盘不覆盖原错误继续通过。均为内存替身，无新child/proc/socket或三格结果。源码冻结待Vars独立窄审；原01/02FAIL不变，新实际仍须未用output与freshgrant。
 
+## 第三轮实际三格通过
+
+固定已审精确alias方法及原默认cmd，root fresh OS03窗口使用未占用`output/ai/runner-control/os-signals-03`。首同processUTC2026-10-09T23:59:18.598102Z free5,741,203,456B，脚本自身紧接5,732,679,680B；40776/09709c→b86eb6 actualouter0。e578ea原events证明三格均取得initial与stopping后的同原fd0/double syscall/anon_pipe_read见证，再按原顺序发真实信号：
+
+- eof：PID1354600/start6279021/pipe3116903，SIGTERM后父writer EOF，原actualWait0、stdio EOF、drained，read_joined=true。
+- second_signal：PID1354612/start6279023/pipe3116926，SIGTERM→SIGINT，原actualWait1、forced/SHUTDOWN_TIMEOUT，原首次信号后1.014396s；read_joined=false。
+- deadline：PID1354665/start6279126/pipe3116977，只有SIGTERM，原3s+1s链实际Wait1、forced/SHUTDOWN_TIMEOUT，4.018991s；read_joined=false。
+
+三个同inode身份锁均实际释放、精确PID消失、父pipe关闭，原cleanup均killed=false/actual_waited=true且私有目录实际删除。外层终态后只读核三个/proc/PID均absent，output仅events.jsonl；free5,737,435,136B，窗口立即释放。未开socket，不宣称TCP双空；未将强退出OS回收冒Read正常join。原01和02FAIL、原数字Wait缺字段及历史诊断界限保持，不回填。当前证明Linux/amd64默认cmd此三格可行且实际通过；最小正式test接入、DefaultProcesses和独立剩余单top/正式main装配仍分别推进。
+
 ## 固定 cmd 与命令
 
 在明确独占窗口前，不执行此脚本的 main。先由原固定离线环境单独构建原 cmd 至新私有 output 文件，并记录真实 build Wait 与 SHA；不复用测试 binary 冒默认 cmd。沿已有本树 GOCACHE、只读 GOMODCACHE、Go1.27.1/local/off、保留原 PATH。构建不修改正式源码或 C 输入。

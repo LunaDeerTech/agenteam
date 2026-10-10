@@ -1,5 +1,7 @@
 # 当前工作：D15 Runner 身份与 Control Channel
 
+- OS03真实三格完整PASS并立即释放：40776/09709c→b86eb6 actual0，首2026-10-09T23:59:18.598102Z free5,741,203,456B，固定cmd/已审精确alias/fresh os-signals-03。e578ea原initial与after_stop同fd0双syscall见证齐；PID1354600 EOF后Wait0/drained/read_joined=true，1354612双信号Wait1/forced1.014396s，1354665单TERM原3s+1s Wait1/forced4.018991s，后两格read_joined=false。三stdio EOF/原Wait/同inode锁释放/父pipe关闭/私目录删除实际齐，cleanup均killed=false，精确PID当前absent，output只events，后free5,737,435,136B；无socket/TCP双空宣称。原01/02FAIL及缺字段不改。准备最小正式Linux test接入与DefaultProcesses，不自行开启第二真实窗口。
+
 - OS方法唯一兼容增量已freeze待Vars独审：基于02实际匿名pipe等待点，wchan仅扩为精确{pipe_read,anon_pipe_read}，fifo/epoll/近似拒绝；原身份/exe/自有fd0/flags/双raw/positive count/所有deadline与Wait/cleanup不变。803389实际72纯控0（原60+12 alias/错误样本与前后身份），无child/proc/socket；未改production/cmd。原01和02FAIL保持，不将本次纯控记三格通过；新实际需freshgrant和新output。
 
 - OS诊断02 actual FAIL且窗口释放：15233/2841d9→b9fa47 outer1，首同process23:50:35.672768Z free5,650,419,712B，fresh os-signals-diagnostic-02。原PID1345287/start6226730/pipe3098639；仅eof首格initial_read_not_observed，未发TERM/INT。ba3061原失败快照显示TID1345289两次SYS_read0/fd0、原syscall样本相同、wchan=anon_pipe_read，原gate仅pipe_read故不接受；不回填01/未保留字段/不称三格通过。原cleanup实际返回后才快照，killed/actual_waited/parent_fds_closed均true，当前精确PID absent，数值Wait未记录不补造；失败目录仅eof锁与events保留，无identity，后free5,646,598,144B。详情runner-os-signals.md；无自有活动资源、无重跑或gate变动。
