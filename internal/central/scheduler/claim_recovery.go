@@ -55,6 +55,11 @@ func (s *Coordinator) ResolveClaim(ctx context.Context, r wc.TaskClaimRequest) (
 		if err != nil || found == nil {
 			return err
 		}
+		// A public replay may observe another process's existing receipt, but
+		// resolution of this physical Unknown must prove its original binding.
+		if found.retryPolicy != call.retryPolicy {
+			return fault(f.IdempotencyKeyReused)
+		}
 		return sameClaim(found, r, call.launch)
 	})
 	if result.State() != f.Committed || found == nil {

@@ -16,7 +16,7 @@ import (
 
 const dispatchColumns = `id::text,project_id::text,sprint_id::text,task_id::text,agent_id::text,
  launch_request,launch_digest,idempotency_key,request_id::text,status,launch_outcome,version,
- claim_guard,claim_source_sprint_id::text,claim_source_state,claim_source_priority,execution_id::text,attempt_count,next_retry_at,created_at,updated_at,busy_attempt,skip_reason,skipped_at,final_attempt,failure_reason,failure_code,failure_occurred_at,failed_at`
+ claim_guard,claim_source_sprint_id::text,claim_source_state,claim_source_priority,execution_id::text,attempt_count,next_retry_at,created_at,updated_at,busy_attempt,skip_reason,skipped_at,final_attempt,failure_reason,failure_code,failure_occurred_at,failed_at,retry_policy,retry_policy_digest`
 
 func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	var id, p, s, t, a, key, requestID, status, outcome, digest string
@@ -32,7 +32,9 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	var finalAttempt *int64
 	var failureReason, failureCode *string
 	var occurred, failed *time.Time
-	if err := row.Scan(&id, &p, &s, &t, &a, &launchRaw, &digest, &key, &requestID, &status, &outcome, &version, &guardRaw, &sourceSprint, &sourceState, &sourcePriority, &execution, &attempts, &retry, &created, &updated, &busy, &reason, &skipped, &finalAttempt, &failureReason, &failureCode, &occurred, &failed); err != nil {
+	var policyRaw []byte
+	var policyDigest *string
+	if err := row.Scan(&id, &p, &s, &t, &a, &launchRaw, &digest, &key, &requestID, &status, &outcome, &version, &guardRaw, &sourceSprint, &sourceState, &sourcePriority, &execution, &attempts, &retry, &created, &updated, &busy, &reason, &skipped, &finalAttempt, &failureReason, &failureCode, &occurred, &failed, &policyRaw, &policyDigest); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
@@ -40,6 +42,9 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	}
 	r := &dispatchRecord{sprint: s, task: t, status: Status(status), outcome: LaunchOutcome(outcome), version: f.Version(version), digest: f.Digest(digest), attempts: attempts}
 	var err error
+	if r.retryPolicy, err = decodeRetryPolicy(policyRaw, policyDigest); err != nil {
+		return nil, err
+	}
 	if r.id, err = f.ParseID[DispatchIdentity](id); err != nil {
 		return nil, unavailable(nil)
 	}
@@ -174,6 +179,10 @@ func insertDispatch(ctx context.Context, x postgres.SQLExecutor, r *dispatchReco
 	if err != nil {
 		return err
 	}
+	policyRaw, policyDigest, err := encodeRetryPolicy(r.retryPolicy)
+	if err != nil {
+		return err
+	}
 	var guard []byte
 	var sourceSprint, sourceState, sourcePriority any
 	if r.guard != nil {
@@ -186,9 +195,9 @@ func insertDispatch(ctx context.Context, x postgres.SQLExecutor, r *dispatchReco
 		sourceSprint, sourceState, sourcePriority = r.guard.SourceSprintID, r.guard.SourceState, r.guard.SourcePriority
 	}
 	tag, err := x.Exec(ctx, `INSERT INTO agenteam_scheduler.dispatches
- (id,project_id,sprint_id,task_id,agent_id,launch_request,launch_digest,idempotency_key,request_id,status,launch_outcome,version,claim_guard,claim_source_sprint_id,claim_source_state,claim_source_priority,attempt_count,created_at,updated_at)
- VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending','not_sent',1,$10,$11,$12,$13,0,$14,$14)`,
-		r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), launch, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), guard, sourceSprint, sourceState, sourcePriority, r.createdAt.Time())
+ (id,project_id,sprint_id,task_id,agent_id,launch_request,launch_digest,idempotency_key,request_id,status,launch_outcome,version,claim_guard,claim_source_sprint_id,claim_source_state,claim_source_priority,attempt_count,created_at,updated_at,retry_policy,retry_policy_digest)
+ VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending','not_sent',1,$10,$11,$12,$13,0,$14,$14,$15,$16)`,
+		r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), launch, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), guard, sourceSprint, sourceState, sourcePriority, r.createdAt.Time(), policyRaw, policyDigest)
 	if err != nil {
 		return portError(err)
 	}

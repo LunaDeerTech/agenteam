@@ -51,12 +51,15 @@ func (p LaunchRetryPolicy) Identity() (f.Digest, error) {
 	if err := p.Validate(); err != nil {
 		return "", err
 	}
-	raw := "agenteam.scheduler.launch_retry\nalgorithm=" + LaunchRetryPolicyAlgorithm +
+	sum := sha256.Sum256([]byte(p.canonical()))
+	return f.Digest("sha256:" + hex.EncodeToString(sum[:])), nil
+}
+
+func (p LaunchRetryPolicy) canonical() string {
+	return "agenteam.scheduler.launch_retry\nalgorithm=" + LaunchRetryPolicyAlgorithm +
 		"\nmax_attempts=" + strconv.FormatInt(p.maxAttempts, 10) +
 		"\ninitial_backoff_ns=" + strconv.FormatInt(int64(p.initialBackoff), 10) +
 		"\nmax_backoff_ns=" + strconv.FormatInt(int64(p.maxBackoff), 10) + "\n"
-	sum := sha256.Sum256([]byte(raw))
-	return f.Digest("sha256:" + hex.EncodeToString(sum[:])), nil
 }
 
 // NextDelay applies only after the caller has independently established a
