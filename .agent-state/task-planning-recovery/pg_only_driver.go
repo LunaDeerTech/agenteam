@@ -31,6 +31,16 @@ const variableStorageRepairSelector = `^TestProjectVariable(Migration|Atomicity)
 const variableAuthoritySelector = `^TestProjectVariable(Authority|FinalAuthorityCompetition)$`
 const variableHTTPSelector = `^TestProjectVariableHTTP(AuthorityAndPersistence|IntentRecovery)$`
 const variableJoinSelector = `^TestProjectVariable(UnknownStopJoin|ReadCancellationJoin)$`
+const secretOwnerReadSelector = `^TestSecretVariableOwner(Persistence|CurrentAuthority)$`
+const secretOwnerAtomicSelector = `^TestSecretVariableOwner(AtomicFacts|Concurrency)$`
+const secretOwnerRecoverySelector = `^TestSecretVariableOwnerCommitRecovery$`
+const secretOwnerMigrationSelector = `^TestSecretVariableOwnerMigration$`
+const secretVariableStorageCoreSelector = `^TestSecretVariableStorageSQL(ReplayAndEffects|AtomicAuditAndOwnerRollback|ClosedConstraints)$`
+const secretVariableStorageMaintenanceSelector = `^TestSecretVariableStorageSQLRotationDeletedOwnerAndCleanup$`
+const secretVariableStorageRecoveryWriteSelector = `^TestSecretVariableStorageSQL(CommitUnknown|NonceUnknown)$`
+const secretVariableStorageRecoveryStateSelector = `^TestSecretVariableStorageSQL(MaintenanceUnknown|Concurrency)$`
+
+const skillOwnerHTTPSelector = `^TestSkillOwnerReadHTTP(Metadata|CurrentAuthority|Transactions|CommitUnknown)$`
 
 func main()             { os.Exit(run()) }
 func fail(s string) int { fmt.Fprintln(os.Stderr, s); return 1 }
@@ -39,8 +49,21 @@ func run() (code int) {
 	binary := opts.String("test-binary", "", "precompiled race integration executable")
 	selector := opts.String("run", "", "one exact anchored top-level selector")
 	directory := opts.String("directory", "", "new private task-owned run directory")
-	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || *binary == "" || *directory == "" || (!regexp.MustCompile(`^\^Test[A-Za-z0-9]+\$$`).MatchString(*selector) && *selector != variableStorageSelector && *selector != variableStorageRepairSelector && *selector != variableAuthoritySelector && *selector != variableHTTPSelector && *selector != variableJoinSelector) {
+	if opts.Parse(os.Args[1:]) != nil || opts.NArg() != 0 || *binary == "" || *directory == "" || (!regexp.MustCompile(`^\^Test[A-Za-z0-9]+\$$`).MatchString(*selector) && *selector != variableStorageSelector && *selector != variableStorageRepairSelector && *selector != variableAuthoritySelector && *selector != variableHTTPSelector && *selector != variableJoinSelector && *selector != skillOwnerHTTPSelector && *selector != secretVariableStorageCoreSelector && *selector != secretVariableStorageRecoveryWriteSelector && *selector != secretVariableStorageRecoveryStateSelector && *selector != secretOwnerReadSelector && *selector != secretOwnerAtomicSelector) {
 		return fail("exact binary, directory and one anchored top are required")
+	}
+	if *selector == skillOwnerHTTPSelector {
+		python := os.Getenv("AGENTEAM_SKILL_HTTP_SCHEMA_PYTHON")
+		info, err := os.Stat(python)
+		if !filepath.IsAbs(python) || err != nil || !info.Mode().IsRegular() {
+			return fail("exact Skill HTTP Schema interpreter required")
+		}
+	}
+	if strings.Contains(*selector, "SecretVariableStorage") && *selector != secretVariableStorageCoreSelector && *selector != secretVariableStorageMaintenanceSelector && *selector != secretVariableStorageRecoveryWriteSelector && *selector != secretVariableStorageRecoveryStateSelector {
+		return fail("Secret storage requires an exact core or maintenance group")
+	}
+	if strings.Contains(*selector, "SecretVariableOwner") && *selector != secretOwnerReadSelector && *selector != secretOwnerAtomicSelector && *selector != secretOwnerRecoverySelector && *selector != secretOwnerMigrationSelector {
+		return fail("Secret Owner requires one exact PG-only group")
 	}
 	start := time.Now()
 	var disk syscall.Statfs_t
@@ -239,6 +262,14 @@ func run() (code int) {
 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
 	cmd.WaitDelay = 3 * time.Second
 	cmd.Env = append(os.Environ(), pgfixture.Env+"="+path, "GOTOOLCHAIN=local", "GOPROXY=off", "GOSUMDB=off", "TMPDIR="+*directory)
+	if *selector == skillOwnerHTTPSelector {
+		root, err := os.Getwd()
+		if err != nil {
+			return fail("Skill HTTP repository cwd required")
+		}
+		cmd.Dir = filepath.Join(root, "tests", "skills")
+		cmd.Env = append(cmd.Env, "AGENTEAM_SKILL_HTTP_SCHEMA_PYTHON="+os.Getenv("AGENTEAM_SKILL_HTTP_SCHEMA_PYTHON"))
+	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err = cmd.Start(); err != nil {

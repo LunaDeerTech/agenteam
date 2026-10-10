@@ -43,6 +43,9 @@ func projectVariableEventBinding(request oc.ProjectRequest) (foundation.Digest, 
 	return digest(raw), locks, nil
 }
 func (a *Authority) discoverProjectVariableEvent(request oc.ProjectRequest) (oc.Dependencies, error) {
+	if request.Details().Event.Header.EventType == "project.secret_variable_changed" {
+		return a.discoverSecretVariableEvent(request)
+	}
 	if request.Details().Stage != oc.CurrentAccess {
 		return oc.Dependencies{}, fault(foundation.Forbidden)
 	}
@@ -53,6 +56,9 @@ func (a *Authority) discoverProjectVariableEvent(request oc.ProjectRequest) (oc.
 	return oc.NewDependencies(a.state().projectIssuer, binding, locks, []byte(projectVariableEventPurpose))
 }
 func (a *Authority) validateProjectVariableEventInTx(ctx context.Context, tx foundation.Tx, request oc.ProjectRequest, deps oc.Dependencies) error {
+	if request.Details().Event.Header.EventType == "project.secret_variable_changed" {
+		return a.validateSecretVariableEventInTx(ctx, tx, request, deps)
+	}
 	binding, locks, err := projectVariableEventBinding(request)
 	if err != nil {
 		return err

@@ -21,11 +21,12 @@ type Store interface {
 	RequireHeldLocks(context.Context, foundation.Tx, []foundation.LockRequest) error
 }
 type Authorizations struct {
-	AccountWrites sc.AccountWriteAuthority
-	Sessions      identity.SessionAuthority
-	System        identity.SystemAuthority
-	Projects      sc.ProjectAuthority
-	Usage         sc.UsageAuthority
+	AccountWrites    sc.AccountWriteAuthority
+	ProjectVariables sc.ProjectVariableWriteAuthority
+	Sessions         identity.SessionAuthority
+	System           identity.SystemAuthority
+	Projects         sc.ProjectAuthority
+	Usage            sc.UsageAuthority
 }
 type serviceState struct {
 	usageIssuer   sc.PlanIssuer

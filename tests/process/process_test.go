@@ -405,6 +405,7 @@ func TestCLIScopeAndSafeFailures(t *testing.T) {
 			if service == "central" {
 				checkedEnvironment = append(checkedEnvironment, objectfixture.ConfigOnlyEnvironment()...)
 				checkedEnvironment = append(checkedEnvironment, accountEnvironment(t, "config")...)
+				checkedEnvironment = append(checkedEnvironment, `AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING={"format":1,"current_kid":"knowledge","keys":[{"kid":"knowledge","key_b64":"gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp8="}]}`)
 			} else {
 				checkedEnvironment = runnerProcessEnvironment(t, "https://runner.invalid", nil)
 			}
@@ -481,7 +482,7 @@ func TestCentralCheckAndCompiledRepairNeverConnect(t *testing.T) {
 				args = []string{"--expected-checksum", string(source.Manifest()[0].Checksum), "--repair-migration", "1"}
 				want = 1
 			}
-			p := launch(t, "agenteam", args, append(append(objectfixture.ConfigOnlyEnvironment(), accountEnvironment(t, "check-repair")...), []string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_DATABASE_URL=postgresql://pure:password-SENTINEL@" + listener.Addr().String() + "/pure", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"}...))
+			p := launch(t, "agenteam", args, append(append(objectfixture.ConfigOnlyEnvironment(), accountEnvironment(t, "check-repair")...), []string{`AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING={"format":1,"current_kid":"knowledge","keys":[{"kid":"knowledge","key_b64":"gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp8="}]}`, `AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_DATABASE_URL=postgresql://pure:password-SENTINEL@" + listener.Addr().String() + "/pure", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"}...))
 			p.wait(t, want)
 			_ = listener.Close()
 			if <-accepted {

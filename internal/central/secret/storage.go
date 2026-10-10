@@ -32,6 +32,10 @@ func scanPayload(row scanner) (envelope, error) {
 	if err != nil {
 		return envelope{}, err
 	}
+	// Do not let an out-of-domain database value wrap into a valid byte kind.
+	if kind != int16(valueOwner) && kind != int16(receiptOwner) && kind != int16(projectVariableReceiptOwner) {
+		return envelope{}, failure(DecryptFailed, foundation.DependencyUnavailable, nil)
+	}
 	p.ownerKind = ownerKind(kind)
 	p.masterVersion = foundation.Version(version)
 	p.wrapRevision = foundation.Version(revision)

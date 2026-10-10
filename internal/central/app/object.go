@@ -5,7 +5,6 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -181,9 +180,9 @@ func openObjectAssembly(ctx context.Context, cfg config.Config, owned *resources
 	}
 	return a, nil
 }
-func (a *objectAssembly) construct(cfg config.Config, db database, auditing *audit.Service, avatar *account.AvatarAuthority) error {
+func (a *objectAssembly) construct(cfg config.Config, db database, auditing *audit.Service, authorities *objectAuthorities) error {
 	store, ok := db.(object.Store)
-	if !ok || avatar == nil {
+	if !ok || authorities == nil {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
 	a.mu.Lock()
@@ -191,7 +190,7 @@ func (a *objectAssembly) construct(cfg config.Config, db database, auditing *aud
 	if a.stopped || a.closed {
 		return context.Canceled
 	}
-	service, err := object.New(store, a.backend, a.spool, auditing, object.Authorizations{Planner: avatar, Resources: avatar, Read: avatar, Gate: avatar, Cleanup: avatar, Leases: avatar, Processes: a.guard})
+	service, err := object.New(store, a.backend, a.spool, auditing, object.Authorizations{Planner: authorities, Resources: authorities, Read: authorities, Gate: authorities, Cleanup: authorities, Leases: authorities, Processes: a.guard})
 	if err != nil {
 		return err
 	}

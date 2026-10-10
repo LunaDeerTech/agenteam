@@ -21,8 +21,9 @@ type payloadID = foundation.ID[payloadMarker]
 type ownerKind byte
 
 const (
-	valueOwner   ownerKind = 1
-	receiptOwner ownerKind = 2
+	valueOwner                  ownerKind = 1
+	receiptOwner                ownerKind = 2
+	projectVariableReceiptOwner ownerKind = 3
 )
 const envelopeFormat = 1
 const envelopeAlgorithm = "AES-256-GCM"
@@ -53,7 +54,10 @@ func uuidBytes(raw string) ([]byte, error) {
 	return hex.DecodeString(strings.ReplaceAll(raw, "-", ""))
 }
 func baseAAD(domain string, p envelope) ([]byte, error) {
-	if p.format != envelopeFormat || p.algorithm != envelopeAlgorithm || p.id.Validate() != nil || p.scope.Validate() != nil || p.ownerKind != valueOwner && p.ownerKind != receiptOwner {
+	if p.format != envelopeFormat || p.algorithm != envelopeAlgorithm || p.id.Validate() != nil || p.scope.Validate() != nil || p.ownerKind != valueOwner && p.ownerKind != receiptOwner && p.ownerKind != projectVariableReceiptOwner {
+		return nil, errors.New("INVALID_ENVELOPE")
+	}
+	if p.ownerKind == projectVariableReceiptOwner && p.scope.Details().Kind != identity.ProjectScope {
 		return nil, errors.New("INVALID_ENVELOPE")
 	}
 	owner, err := uuidBytes(p.ownerID)
@@ -88,7 +92,7 @@ func baseAAD(domain string, p envelope) ([]byte, error) {
 func dataAAD(p envelope) ([]byte, error) { return baseAAD("agenteam.secret.data.v1", p) }
 func wrapAAD(p envelope) ([]byte, error) {
 	aad, err := baseAAD("agenteam.secret.wrap.v1", p)
-	if err != nil || p.masterVersion.Validate() != nil || len(p.dataNonce) != 12 || len(p.ciphertext) < 17 || len(p.ciphertext) > sc.MaxValueBytes+16 {
+	if err != nil || p.masterVersion.Validate() != nil || len(p.dataNonce) != 12 || len(p.ciphertext) < 17 || len(p.ciphertext) > sc.MaxValueBytes+16 || p.ownerKind == projectVariableReceiptOwner && len(p.ciphertext) != 48 {
 		return nil, errors.New("INVALID_ENVELOPE")
 	}
 	aad = binary.BigEndian.AppendUint64(aad, uint64(p.masterVersion))
@@ -112,7 +116,7 @@ func validMasterNonce(nonce []byte) bool {
 }
 func seal(keys Keyring, version foundation.Version, nonce []byte, scope identity.Scope, kind ownerKind, owner string, id payloadID, value []byte) (envelope, error) {
 	p := envelope{id: id, scope: scope, ownerKind: kind, ownerID: owner, format: envelopeFormat, algorithm: envelopeAlgorithm, masterVersion: version, wrapRevision: 1}
-	if len(value) < 1 || len(value) > sc.MaxValueBytes || kind == receiptOwner && len(value) != 32 || !validMasterNonce(nonce) {
+	if len(value) < 1 || len(value) > sc.MaxValueBytes || (kind == receiptOwner || kind == projectVariableReceiptOwner) && len(value) != 32 || !validMasterNonce(nonce) {
 		return envelope{}, invalid()
 	}
 	key, ok := keys.key(version)
@@ -187,7 +191,7 @@ func openEnvelope(keys Keyring, p envelope) ([]byte, error) {
 		return nil, unavailable(err)
 	}
 	value, err := dataCipher.Open(nil, p.dataNonce, p.ciphertext, aad)
-	if err != nil || len(value) < 1 || len(value) > sc.MaxValueBytes || p.ownerKind == receiptOwner && len(value) != 32 {
+	if err != nil || len(value) < 1 || len(value) > sc.MaxValueBytes || (p.ownerKind == receiptOwner || p.ownerKind == projectVariableReceiptOwner) && len(value) != 32 {
 		clear(value)
 		return nil, failure(DecryptFailed, foundation.DependencyUnavailable, nil)
 	}

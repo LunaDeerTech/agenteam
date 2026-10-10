@@ -378,7 +378,13 @@ func (s *Service) finishOperationWork(op *operation) {
 	if len(handles) == 0 {
 		return
 	}
-	ctx, done := s.cleanupContext()
+	var ctx context.Context
+	var done context.CancelFunc
+	if budget, ok := op.ctx.Value(boundedCleanupBudgetKey{}).(context.Context); ok {
+		ctx, done = s.cleanupCheckpointWithinBudget(budget)
+	} else {
+		ctx, done = s.cleanupContext()
+	}
 	defer done()
 	for _, h := range handles {
 		if ctx.Err() != nil {
@@ -551,16 +557,30 @@ func (s *Service) accessWorkAfter(ctx context.Context, tx foundation.Tx, request
 		return invalid()
 	}
 	if err = s.maintenanceAdmission(ctx, e, d.ObjectID); err != nil {
-		// A real Runner retirement may already have authorized this exact staging
-		// cleanup. That protocol obligation must finish before its remote lease can
-		// retire; the Project stop itself supplies no cleanup authority.
-		var retirement bool
-		queryErr := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations c JOIN agenteam_object.object_transfers t ON t.staging_id=c.attempt_id JOIN agenteam_object.project_stops p ON p.project_id=t.project_id WHERE c.id=$1 AND t.cleanup_gate AND t.retirement_evidence IS NOT NULL AND p.state='stopping')`, after.id).Scan(&retirement)
-		if queryErr != nil {
-			return unavailable(queryErr)
+		if hasCode(err, foundation.InvalidState) {
+			allowed, authorizeErr := s.authorizeStoppedSkillCleanup(ctx, tx, e, d.ObjectID)
+			if authorizeErr != nil {
+				return authorizeErr
+			}
+			if allowed {
+				err = nil
+			}
 		}
-		if !retirement {
-			return err
+		if err == nil {
+			// The current owning domain authorized its retained canonical cause
+			// in this same transaction. No old attempt's cause is rewritten.
+		} else {
+			// A real Runner retirement may already have authorized this exact staging
+			// cleanup. That protocol obligation must finish before its remote lease can
+			// retire; the Project stop itself supplies no cleanup authority.
+			var retirement bool
+			queryErr := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations c JOIN agenteam_object.object_transfers t ON t.staging_id=c.attempt_id JOIN agenteam_object.project_stops p ON p.project_id=t.project_id WHERE c.id=$1 AND t.cleanup_gate AND t.retirement_evidence IS NOT NULL AND p.state='stopping')`, after.id).Scan(&retirement)
+			if queryErr != nil {
+				return unavailable(queryErr)
+			}
+			if !retirement {
+				return err
+			}
 		}
 	}
 	obj, found, err := loadObject(ctx, e, d.ObjectID)
@@ -580,6 +600,39 @@ func (s *Service) accessWorkAfter(ctx context.Context, tx foundation.Tx, request
 	}
 	h := s.projectWorkHandle(ctx, projectWork{id: after.worker, project: pid, process: s.state().process, kind: "cleanup", resource: after.id, object: d.ObjectID, fence: after.fence})
 	return s.registerProjectWork(ctx, tx, h, locked.Locks())
+}
+
+func (s *Service) authorizeStoppedSkillCleanup(ctx context.Context, tx foundation.Tx, e postgres.SQLExecutor, object oc.ObjectID) (bool, error) {
+	u, found, err := scanUpload(e.QueryRow(ctx, `SELECT `+uploadColumns+` FROM agenteam_object.uploads WHERE object_id=$1`, object.String()))
+	if err != nil || !found {
+		return false, err
+	}
+	if u.owner.Details().Kind != oc.SkillRevision || u.state != "committed" || u.disposition != "revoked" || u.attempt.Validate() != nil {
+		return false, nil
+	}
+	var raw string
+	err = e.QueryRow(ctx, `SELECT c.operation_id::text FROM agenteam_object.cleanup_operations c JOIN agenteam_object.upload_attempts a ON a.id=c.attempt_id JOIN agenteam_object.objects o ON o.id=c.object_id WHERE c.object_id=$1 AND c.attempt_id=$2 AND c.reason='project_deleted' AND a.upload_id=$3 AND a.object_id=$1 AND a.cleanup_gate AND o.cleaning AND o.state<>'deleted'`, object.String(), u.attempt.String(), u.id.String()).Scan(&raw)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return false, nil
+	}
+	if err != nil {
+		return false, unavailable(err)
+	}
+	operation, err := foundation.ParseID[oc.CleanupOperation](raw)
+	if err != nil {
+		return false, unavailable(err)
+	}
+	cause, err := oc.NewObjectCleanupCause(oc.CleanupDetails{OperationID: operation, Owner: u.owner, Reason: oc.ProjectDeleted})
+	if err != nil {
+		return false, unavailable(err)
+	}
+	if nilPort(s.state().auth.Cleanup) {
+		return false, failure(foundation.DependencyUnbound, nil)
+	}
+	if err = s.state().auth.Cleanup.CheckCleanupInTx(ctx, tx, cause, object); err != nil {
+		return false, portError(err)
+	}
+	return true, nil
 }
 
 type projectWorkContextKey struct{}

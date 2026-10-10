@@ -15,10 +15,199 @@ import os
 from pathlib import Path
 import re
 import signal
+import stat
 import subprocess
 import sys
 import time
 import uuid
+
+
+SECRET_STORAGE_CORE = '^TestSecretVariableStorageSQL(ReplayAndEffects|AtomicAuditAndOwnerRollback|ClosedConstraints)$'
+SECRET_STORAGE_MAINTENANCE = '^TestSecretVariableStorageSQLRotationDeletedOwnerAndCleanup$'
+SECRET_STORAGE_RECOVERY_WRITE = '^TestSecretVariableStorageSQL(CommitUnknown|NonceUnknown)$'
+SECRET_STORAGE_RECOVERY_STATE = '^TestSecretVariableStorageSQL(MaintenanceUnknown|Concurrency)$'
+SECRET_STORAGE_RECOVERY_CASES = {
+    SECRET_STORAGE_RECOVERY_WRITE: {
+        'TestSecretVariableStorageSQLCommitUnknown',
+        *('TestSecretVariableStorageSQLCommitUnknown/' + name for name in ('before', 'after', 'pending')),
+        'TestSecretVariableStorageSQLNonceUnknown',
+    },
+    SECRET_STORAGE_RECOVERY_STATE: {
+        'TestSecretVariableStorageSQLMaintenanceUnknown',
+        *('TestSecretVariableStorageSQLMaintenanceUnknown/' + name for name in
+          ('rotation-refresh', 'rotation-no-refresh', 'cleanup')),
+        'TestSecretVariableStorageSQLConcurrency',
+        *('TestSecretVariableStorageSQLConcurrency/' + name for name in
+          ('same-intent', 'changed-value', 'stale-credential-version')),
+    },
+}
+SECRET_STORAGE_CASES = {
+    SECRET_STORAGE_CORE: {
+        'TestSecretVariableStorageSQLReplayAndEffects',
+        'TestSecretVariableStorageSQLAtomicAuditAndOwnerRollback',
+        'TestSecretVariableStorageSQLClosedConstraints',
+        *('TestSecretVariableStorageSQLAtomicAuditAndOwnerRollback/' + name for name in
+          ('owner-tail', 'audit-without-witness', 'audit-wrong-payload-kind',
+           'audit-wrong-payload-owner', 'missing-lock')),
+        *('TestSecretVariableStorageSQLClosedConstraints/' + name for name in
+          ('v4-variable', 'effect-create-mismatch', 'create-expected-present',
+           'command-digest', 'duplicate-command', 'duplicate-payload',
+           'kind3-system', 'kind3-length', 'purpose-system')),
+    },
+    SECRET_STORAGE_MAINTENANCE: {'TestSecretVariableStorageSQLRotationDeletedOwnerAndCleanup'},
+}
+
+
+def secret_storage_inputs(driver, binary, recovery=False):
+    # Precompiled test and driver; no TestMain rebuild or Go metadata process.
+    # Freeze the selected storage/fixture/migration sources as well as the two
+    # executable artifacts. This is scoped input evidence, not a whole-repo hash.
+    root = Path(__file__).resolve().parents[2]
+    output = root / 'output/ai/secret-variable-storage'
+    expected_driver = output / ('pg-only-recovery-driver' if recovery else 'pg-only-driver')
+    expected_binary = output / ('secret-variable-storage-recovery.test' if recovery else 'secret-variable-storage-sql-reviewed.test')
+    if driver != expected_driver or binary != expected_binary:
+        raise ValueError('exact Secret storage artifacts required')
+    paths = {driver, binary, Path(__file__).resolve(), root / 'go.mod', root / 'go.sum',
+             root / '.agent-state/task-planning-recovery/pg_only_driver.go'}
+    for name in ('secret_variable_storage_fixture_test.go', 'secret_variable_storage_test.go',
+                 'secret_variable_storage_maintenance_test.go', 'audit_common_test.go',
+                 'secret_common_test.go', 'secret_project_audit_fixture_test.go', 'secret_rotation_test.go'):
+        paths.add(root / 'tests/security' / name)
+    if recovery:
+        for name in ('secret_variable_storage_recovery_fixture_test.go',
+                     'secret_variable_storage_recovery_test.go',
+                     'secret_variable_storage_recovery_nonce_test.go',
+                     'secret_variable_storage_recovery_concurrency_test.go',
+                     'secret_variable_storage_recovery_maintenance_test.go',
+                     'audit_proxy_test.go', 'outbound_reload_test.go'):
+            paths.add(root / 'tests/security' / name)
+    for name in ('secret', 'audit', 'foundation', 'postgres', 'cursor',
+                 'identity/contract', 'projectvariable/contract'):
+        paths.update(p for p in (root / 'internal/central' / name).rglob('*.go')
+                     if not p.name.endswith('_test.go'))
+    paths.update((root / 'tests/testsupport/postgres').glob('*.go'))
+    paths.update((root / 'db/migrations').glob('*.go'))
+    paths.update((root / 'db/migrations').glob('*.sql'))
+    for path in paths:
+        if path.resolve(strict=True) != path or not stat.S_ISREG(path.stat().st_mode):
+            raise ValueError('non-regular Secret storage input')
+    return tuple(sorted(paths))
+
+
+def observe_secret_storage(log_path, log, selector):
+    expected = (SECRET_STORAGE_CASES | SECRET_STORAGE_RECOVERY_CASES)[selector]
+    try:
+        raw = log_path.read_text()
+    except (OSError, UnicodeDecodeError):
+        log.write('SECRET_STORAGE exact_cases=False log_unreadable=True\n')
+        return False
+    runs = re.findall(r'^=== RUN   (\S+)$', raw, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', raw, re.M)
+    passed = [name for state, name in results if state == 'PASS']
+    good = (len(runs) == len(expected) and set(runs) == expected
+            and len(results) == len(expected) and len(passed) == len(expected)
+            and set(passed) == expected)
+    log.write(f'SECRET_STORAGE exact_cases={good} run_count={len(runs)} result_count={len(results)}\n')
+    return good
+
+
+SECRET_OWNER_CASES = {
+    '^TestSecretVariableOwner(Persistence|CurrentAuthority)$': {
+        'TestSecretVariableOwnerPersistence', 'TestSecretVariableOwnerCurrentAuthority',
+        *('TestSecretVariableOwnerCurrentAuthority/' + name for name in
+          ('current-owner-and-cross-project', 'current-owner-loss-hides-original-history',
+           'real-archive-after-prepare-rechecks-final-gate', 'revoked-current-session-before-safe-history')),
+    },
+    '^TestSecretVariableOwner(AtomicFacts|Concurrency)$': {
+        'TestSecretVariableOwnerAtomicFacts', 'TestSecretVariableOwnerConcurrency',
+        *('TestSecretVariableOwnerAtomicFacts/' + name for name in
+          ('after-d10-audit', 'after-outbox', 'after-activity', 'owner-tail')),
+        *('TestSecretVariableOwnerConcurrency/' + name for name in
+          ('same-key-original-intent', 'same-key-other-value', 'two-keys-update-delete-version', 'ordinary-secret-name')),
+    },
+    '^TestSecretVariableOwnerCommitRecovery$': {
+        'TestSecretVariableOwnerCommitRecovery',
+        *('TestSecretVariableOwnerCommitRecovery/' + name for name in
+          ('before-forward', 'after-forward', 'pending-outlives-confirmation', 'stop-confirms-actual-join')),
+    },
+    '^TestSecretVariableOwnerMigration$': {
+        'TestSecretVariableOwnerMigration',
+        *('TestSecretVariableOwnerMigration/' + name for name in
+          ('empty-repeat-and-exact-new-schema', 'ordinary-stored-facts-survive-upgrade',
+           'actual-closed-checks-and-deferred-history')),
+        *('TestSecretVariableOwnerMigration/actual-closed-checks-and-deferred-history/' + name for name in
+          ('secret-plaintext', 'secret-null-internal-version', 'ordinary-null-value',
+           'completed-without-audit', 'audit-extra-material-field')),
+    },
+}
+
+
+def secret_owner_inputs(driver, binary):
+    # Fixed compiled artifacts plus their local source/embedded inputs. No
+    # rebuild, Go metadata process, package import or resource setup here.
+    root = Path(__file__).resolve().parents[2]
+    output = root / 'output/ai/secret-variable-owner-service'
+    if driver != output / 'pg-only-owner-driver' or binary != output / 'secret-variable-owner.test':
+        raise ValueError('exact Secret Owner artifacts required')
+    paths = {driver, binary, Path(__file__).resolve(), root / 'go.mod', root / 'go.sum',
+             root / '.agent-state/task-planning-recovery/pg_only_driver.go',
+             root / 'internal/central/account/assets/weak-passwords.json'}
+    # The actual package also compiles ordinary fixtures/proxy/helper files.
+    # Include those helpers and all local production dependencies; not a repo hash.
+    for name in ('account', 'account/contract', 'accountmail', 'audit', 'audit/contract',
+                 'cursor', 'event/contract', 'foundation', 'httpapi', 'identity/contract',
+                 'object', 'object/contract', 'outbound', 'outbox', 'outbox/contract',
+                 'postgres', 'project', 'project/contract', 'projectvariable',
+                 'projectvariable/contract', 'projectvariable/http', 'recoverylog',
+                 'secret', 'secret/contract', 'work', 'work/contract'):
+        paths.update(p for p in (root / 'internal/central' / name).glob('*.go')
+                     if not p.name.endswith('_test.go'))
+    for name in ('tests/projectvariable', 'tests/testsupport/postgres', 'db/migrations'):
+        paths.update((root / name).glob('*.go'))
+    paths.update((root / 'db/migrations').glob('*.sql'))
+    for path in paths:
+        if path.resolve(strict=True) != path or not stat.S_ISREG(path.stat().st_mode):
+            raise ValueError('non-regular Secret Owner input')
+    return tuple(sorted(paths))
+
+
+def observe_secret_owner(log_path, log, selector):
+    expected = SECRET_OWNER_CASES[selector]
+    try:
+        raw = log_path.read_text()
+    except (OSError, UnicodeDecodeError):
+        log.write('SECRET_OWNER exact_cases=False log_unreadable=True\n')
+        return False
+    runs = re.findall(r'^=== RUN   (\S+)$', raw, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', raw, re.M)
+    passed = [name for state, name in results if state == 'PASS']
+    good = (len(runs) == len(expected) and set(runs) == expected
+            and len(results) == len(expected) and len(passed) == len(expected)
+            and set(passed) == expected)
+    log.write(f'SECRET_OWNER exact_cases={good} run_count={len(runs)} result_count={len(results)}\n')
+    return good
+
+
+def root_composition_results(output):
+    selector = '^TestKnowledgeSkillsDefaultRootComposition$'
+    wanted = 'TestKnowledgeSkillsDefaultRootComposition'
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+    waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector='
+                       + re.escape(selector) + r'$', output, re.M)
+    return (runs == [wanted] and results == [('PASS', wanted)]
+            and len(waits) == 1 and waits[0][1] == '0'
+            and re.search(r'^FAIL(?:\s|$)', output, re.M) is None)
+
+
+def root_composition_same(inputs, args, adapter):
+    try:
+        paths = set(adapter.input_paths(args.binary)) | set(adapter.root_composition_inputs())
+        return (set(inputs) == {str(p) for p in paths}
+                and all(p.is_file() and not p.is_symlink() and adapter.sha(p) == inputs[str(p)] for p in paths))
+    except (OSError, ValueError, TypeError):
+        return False
 
 
 def budgets(root_chain):
@@ -26,6 +215,118 @@ def budgets(root_chain):
     # build/scheduling allowance 50s. The separate 60s TERM grace allows the
     # original three owners' bounded cleanup; it does not extend a Go test.
     return (540, 60) if root_chain else (123, 3)
+
+
+CONTENT_PG = '^TestKnowledgeOwnerContentHTTP(CurrentBytes|CurrentAuthority|ReaderOwnership|ReadTransactions)$'
+CONTENT_NATIVE = '^TestContentHTTPNative(Deadlines|KeepAliveAndClose|BackpressureAndDisconnect)$'
+CONTENT_GROUPS = {
+    CONTENT_PG: {
+        'TestKnowledgeOwnerContentHTTPCurrentBytes': ('utf8_slices_default_head_and_zero_business_facts', 'default_and_maximum_are_utf8_byte_limits', 'real_pdf_docx_have_no_readable_provider', 'deleted_410_missing_foreign_404_and_bodyless_head'),
+        'TestKnowledgeOwnerContentHTTPCurrentAuthority': ('real_account_before_query_and_safe_rejection', 'new_actual_login_then_formal_logout', 'uninitialized_archived_and_deleting_read_gate', 'owner_changed_sql_fact_requires_new_authority'),
+        'TestKnowledgeOwnerContentHTTPReaderOwnership': ('current_owner_after_real_object_open', 'current_deleted_after_real_object_open', 'real_eof_and_d05_close_do_not_finish_held_consumer'),
+        'TestKnowledgeOwnerContentHTTPReadTransactions': ('commit_not_forwarded', 'commit_applied_ack_lost', 'original_select_cancelled_and_transaction_retired'),
+    },
+    CONTENT_NATIVE: {
+        'TestContentHTTPNativeDeadlines': ('read-natural', 'earlier-parent'),
+        'TestContentHTTPNativeKeepAliveAndClose': ('cleared-deadline-keeps-real-connection', 'real-body-close-error-aborts-before-response'),
+        'TestContentHTTPNativeBackpressureAndDisconnect': ('content-write-natural-deadline', 'disconnect-cancels-actual-library-tail'),
+    },
+}
+
+
+def content_schema_python():
+    raw = os.environ.get('AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON', '')
+    path = Path(raw)
+    if not raw or not path.is_absolute() or not path.is_file() or not os.access(path, os.X_OK):
+        raise ValueError('explicit local Schema interpreter required')
+    return path.resolve(strict=True)
+
+
+def content_inputs(selector=None):
+    root = Path(__file__).resolve().parents[2]
+    paths = {Path(__file__).resolve(), root / '.agent-state/work-owner-http/root_chain_driver.py',
+             root / '.agent-state/work-owner-http/native_driver.go',
+             root / '.agent-state/knowledge-content-http/schema-controls.py',
+             root / 'api/openapi/knowledge-content.json', root / 'api/openapi/common.json',
+             root / 'go.mod', root / 'go.sum', Path('/workspace/toolchains/go1.27.1/bin/go'),
+             root / 'internal/central/account/assets/weak-passwords.json',
+             root / 'internal/central/skill/builtin/add-skills/v1/SKILL.md'}
+    for directory in ('internal', 'cmd', 'tests/testsupport'):
+        paths.update(p for p in (root / directory).rglob('*.go') if not p.name.endswith('_test.go'))
+    paths.update((root / 'internal/central/knowledge/contenthttp').glob('*.go'))
+    paths.update((root / 'tests/knowledge').glob('*.go'))
+    paths.update((root / '.agent-state/project-variables-independent/commitproxy').glob('*.go'))
+    paths.update((root / 'db/migrations').glob('*.go'))
+    paths.update((root / 'db/migrations').glob('*.sql'))
+    if selector == CONTENT_PG:
+        paths.add(content_schema_python())
+    return sorted(paths)
+
+
+def content_exact(path, selector):
+    try:
+        output = path.read_text()
+    except (OSError, UnicodeError):
+        return False
+    groups = CONTENT_GROUPS[selector]
+    expected = set(groups) | {parent + '/' + child for parent, children in groups.items() for child in children}
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    passes = re.findall(r'^\s*--- PASS: (\S+) \(', output, re.M)
+    return (len(runs) == len(expected) and set(runs) == expected
+            and len(passes) == len(expected) and set(passes) == expected
+            and re.search(r'^(?:FAIL(?:\s|$)|\s*--- (?:FAIL|SKIP):)', output, re.M) is None)
+
+
+def content_root(directory, log, path, selector):
+    try:
+        observed = observe_root_chain(directory, log, path, selector)
+        output = path.read_text()
+        waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=' + re.escape(selector) + r'$', output, re.M)
+        observed = observed and len(waits) == 1 and waits[0][1] == '0'
+    except (OSError, UnicodeError):
+        observed = False
+    exact = content_exact(path, selector)
+    log.write(f'ROOT content_exact={exact} original_wait={observed}\n')
+    return observed and exact
+
+
+def content_native(directory, log, path, selector):
+    good = False
+    try:
+        output = path.read_text()
+        manifest = directory / 'owned.json'
+        if manifest.is_symlink() or manifest.stat().st_mode & 0o777 != 0o600 or manifest.stat().st_size > 4096:
+            raise ValueError('invalid native owned record')
+        record = json.loads(manifest.read_text())
+        pid = record.get('child_pid')
+        if set(record) != {'kind', 'child_pid'} or record['kind'] != 'work-http-native' or type(pid) is not int or pid <= 0:
+            raise ValueError('invalid native child identity')
+        starts = re.findall(r'^CHILD pid=([1-9][0-9]*) selector=' + re.escape(selector) + r' kind=native-http$', output, re.M)
+        waits = re.findall(r'^CHILD actual_wait pid=([1-9][0-9]*) state=exit status (\d+)$', output, re.M)
+        terminals = re.findall(r'^DRIVER terminal exit=0 elapsed=\d+\.\d+s child_started=true actual_child_wait=true private_removed=true$', output, re.M)
+        runtime = re.findall(r'^NATIVE runtime_empty=true actual_child_wait=true$', output, re.M)
+        tmp = directory / 'tmp'
+        good = (starts == [str(pid)] and waits == [(str(pid), '0')] and len(terminals) == 1
+                and len(runtime) == 1 and not tmp.exists() and not tmp.is_symlink())
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError):
+        pass
+    exact = content_exact(path, selector)
+    log.write(f'NATIVE content_exact={exact} original_wait_private={good}\n')
+    return good and exact
+
+
+def content_same(inputs, args, adapter):
+    # Re-enumerate this exact branch's closure: a newly added or removed source
+    # is drift even if every originally hashed file is otherwise unchanged.
+    try:
+        if args.run == CONTENT_PG and os.environ.get('AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON') != args.content_schema_python:
+            return False
+        paths = {p.resolve() for p in content_inputs(args.run)}
+        paths.update(p.resolve() for p in (adapter.input_paths(args.binary) if adapter is not None else (args.driver, args.binary)))
+        return (paths == {Path(p) for p in inputs}
+                and all(p.is_file() and not p.is_symlink() and hashlib.sha256(p.read_bytes()).hexdigest() == inputs[str(p)] for p in paths))
+    except (OSError, ValueError, TypeError):
+        return False
 
 
 def root_adapter(driver):
@@ -85,6 +386,36 @@ def exact_absent(item, timeout):
     return result.returncode != 0 and missing.search(result.stderr) is not None
 
 
+def skill_cleanup_results(output, selector):
+    # Both exact literals have closed bodies. Parent-only success, a skipped
+    # child, and a duplicate successful run all fail closed.
+    expected = {
+        '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$': {
+            'TestSkillLifecycleCleanupPersistence',
+            'TestSkillLifecycleCleanupPersistence/current_gate_before_irreversible_release',
+            'TestSkillLifecycleCleanupPersistence/actual_physical_audit_and_bounded_history',
+            'TestSkillLifecycleCleanupPersistence/last_object_and_skill_anchors_share_original_transaction',
+            'TestSkillLifecycleCleanupCommitRecovery',
+            'TestSkillLifecycleCleanupCommitRecovery/gate',
+            'TestSkillLifecycleCleanupCommitRecovery/last_two_domain_anchors',
+        },
+        '^TestSkillLifecycleCleanupHistoricalAttempts$': {
+            'TestSkillLifecycleCleanupHistoricalAttempts',
+            'TestSkillLifecycleCleanupHistoricalAttempts/native_retry_preserves_abandoned_cause',
+            'TestSkillLifecycleCleanupHistoricalAttempts/seeded_retained_mapping_history_batches_and_fk_rollback',
+        },
+    }.get(selector)
+    if expected is None:
+        return False
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    passed = re.findall(r'^\s*--- PASS: (\S+) \(', output, re.M)
+    waits = re.findall(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=0 selector='
+                       + re.escape(selector) + r'$', output, re.M)
+    return (len(runs) == len(passed) == len(expected)
+            and set(runs) == set(passed) == expected and len(waits) == 1
+            and re.search(r'^\s*--- (?:FAIL|SKIP):', output, re.M) is None)
+
+
 def observe_root_chain(directory, log, log_path, selector):
     good = True
     try:
@@ -121,8 +452,24 @@ def observe_root_chain(directory, log, log_path, selector):
         if not empty: good = False
         if round == 1: time.sleep(.1)
     log.flush()
-    output = log_path.read_text()
+    if selector in ('^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
+                    '^TestSkillLifecycleCleanupHistoricalAttempts$'):
+        try:
+            output = log_path.read_text()
+        except (OSError, UnicodeDecodeError):
+            log.write('STOP cleanup result log unavailable or invalid UTF-8\n')
+            return False
+    else:
+        output = log_path.read_text()
     expected = {
+        '^TestKnowledgeSkillsDefaultRootComposition$': {'TestKnowledgeSkillsDefaultRootComposition'},
+        CONTENT_PG: set(CONTENT_GROUPS[CONTENT_PG]),
+        '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|PendingHistoryAndCausePlans)$': {'TestObjectMetadataCleanupLiveTransferAndDownloadPlans', 'TestObjectMetadataCleanupPendingHistoryAndCausePlans'},
+        '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans)$': {'TestObjectMetadataCleanupLiveTransferAndDownloadPlans', 'TestObjectMetadataCleanupFinalAnchorForeignKeyPlans', 'TestObjectMetadataCleanupPendingHistoryAndCausePlans'},
+        '^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$': {'TestObjectMetadataCleanupProjectHistoryPlans', 'TestObjectMetadataCleanupSkillsIndexPlans', 'TestObjectMetadataCleanupTransferAndForeignKeyPlans'},
+        '^TestObjectMetadataCleanupOldAttemptsAndStopHistory$': {'TestObjectMetadataCleanupOldAttemptsAndStopHistory'},
+        '^TestObjectMetadataCleanupIndexMigration$': {'TestObjectMetadataCleanupIndexMigration'},
+        '^TestObjectMetadataCleanup(BoundedHistoryAndFinalTransaction|FinalCommitUnknown)$': {'TestObjectMetadataCleanupBoundedHistoryAndFinalTransaction', 'TestObjectMetadataCleanupFinalCommitUnknown'},
         '^TestWorkOwnerRootActual(Command|Reader)Join$': {'TestWorkOwnerRootActualCommandJoin', 'TestWorkOwnerRootActualReaderJoin'},
         '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': {'TestWorkOwnerHTTPProcessRoutingAndPersistence'},
         '^TestIndependentWorkOwnerRootConfirmationJoin$': {'TestIndependentWorkOwnerRootConfirmationJoin'},
@@ -130,11 +477,22 @@ def observe_root_chain(directory, log, log_path, selector):
         '^TestProjectVariablesHTTPProcessRoutingAndPersistence$': {'TestProjectVariablesHTTPProcessRoutingAndPersistence'},
         '^TestIndependentProjectVariablesProcessConfirmationExit$': {'TestIndependentProjectVariablesProcessConfirmationExit'},
         '^TestIndependentProjectVariablesRootConfirmationForce$': {'TestIndependentProjectVariablesRootConfirmationForce'},
+        '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$': {'TestSkillLifecycleCleanupPersistence', 'TestSkillLifecycleCleanupCommitRecovery'},
+        '^TestSkillLifecycleCleanupHistoricalAttempts$': {'TestSkillLifecycleCleanupHistoricalAttempts'},
     }.get(selector, set())
     actual = set(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
     log.write(f'ROOT exact_tops={actual == expected} actual_test_wait={waited}\n')
+    if selector == '^TestKnowledgeSkillsDefaultRootComposition$':
+        complete = root_composition_results(output)
+        log.write(f'ROOT composition_exact_run_pass_wait={complete}\n')
+        good = good and complete
+    if selector in ('^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
+                    '^TestSkillLifecycleCleanupHistoricalAttempts$'):
+        complete = skill_cleanup_results(output, selector)
+        log.write(f'ROOT cleanup_exact_run_pass={complete}\n')
+        good = good and complete
     return good and actual == expected and waited
 
 
@@ -164,6 +522,122 @@ def descendants(root):
     return result - {root}
 
 
+
+SKILL_HTTP_PG = '^TestSkillOwnerReadHTTP(Metadata|CurrentAuthority|Transactions|CommitUnknown)$'
+SKILL_HTTP_NATIVE = '^TestSkillOwnerHTTPNative(Deadlines|KeepAliveAndClose|BackpressureAndDisconnect)$'
+SKILL_HTTP_CASES = {
+    SKILL_HTTP_PG: {
+        'TestSkillOwnerReadHTTPMetadata': ('same_current_directory_and_detail_get_head', 'strict_request_and_real_browser_boundary'),
+        'TestSkillOwnerReadHTTPCurrentAuthority': ('foreign_owner_and_admin_no_bypass', 'project_gate_and_missing_publication_are_distinct', 'real_new_session_and_logout', 'current_owner_mapping_rechecked', 'archived_read_then_deleting_gate'),
+        'TestSkillOwnerReadHTTPTransactions': ('reader_first', 'writer_first', 'actual_query_cancel_and_original_tx_join'),
+        'TestSkillOwnerReadHTTPCommitUnknown': ('not_forwarded', 'committed_ack_lost'),
+    },
+    SKILL_HTTP_NATIVE: {
+        'TestSkillOwnerHTTPNativeDeadlines': ('read-natural', 'earlier-parent'),
+        'TestSkillOwnerHTTPNativeKeepAliveAndClose': ('cleared-deadline-keeps-real-connection', 'real-body-close-error-aborts-before-response'),
+        'TestSkillOwnerHTTPNativeBackpressureAndDisconnect': ('summary-write-natural-deadline', 'disconnect-cancels-actual-library-tail'),
+    },
+}
+
+
+def skill_http_inputs(driver, binary, selector):
+    # Exact local test inputs plus the runtime Schema producer/JSON/interpreter.
+    # The immutable precompiled binary represents its other build dependencies;
+    # this is not a repository-wide hash or another build during supervision.
+    root = Path(__file__).resolve().parents[2]
+    paths = {driver.resolve(), binary.resolve(), Path(__file__).resolve(),
+             root / 'go.mod', root / 'go.sum'}
+    paths.update(root / 'internal/central/skill/http' / name for name in ('handler.go', 'wire.go', 'io.go', 'native_test.go'))
+    paths.update((root / 'internal/central/skill/http').glob('*.go'))
+    if selector == SKILL_HTTP_PG:
+        paths.add(root / '.agent-state/task-planning-recovery/pg_only_driver.go')
+        paths.update(root / 'tests/skills' / name for name in ('owner_http_fixture_test.go', 'owner_http_test.go', 'owner_http_transactions_test.go'))
+        paths.update((root / 'tests/skills').glob('*.go'))
+        paths.update((root / '.agent-state/project-variables-independent/commitproxy').glob('*.go'))
+        paths.update((root / 'tests/testsupport/postgres').glob('*.go'))
+        paths.update({root / 'internal/central/skill/http/testdata/schema.py',
+                      root / 'api/openapi/skill-owner.json', root / 'api/openapi/common.json',
+                      Path(sys.executable).resolve()})
+    elif selector == SKILL_HTTP_NATIVE:
+        paths.add(root / '.agent-state/work-owner-http/native_driver.go')
+    else:
+        raise ValueError('unknown Skill HTTP selector')
+    return {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
+
+
+def skill_http_spawn(driver, binary, selector, directory, log):
+    environment = dict(os.environ)
+    if selector == SKILL_HTTP_PG:
+        environment['AGENTEAM_SKILL_HTTP_SCHEMA_PYTHON'] = str(Path(sys.executable).resolve())
+    return subprocess.Popen([str(driver.resolve()), '--test-binary', str(binary.resolve()),
+                             '--run', selector, '--directory', str(directory)],
+                            stdout=log, stderr=subprocess.STDOUT, env=environment)
+
+
+def observe_skill_http(directory, log, log_path, selector):
+    try:
+        output = log_path.read_text()
+        expected = {top for top in SKILL_HTTP_CASES[selector]}
+        expected.update(top + '/' + sub for top, subs in SKILL_HTTP_CASES[selector].items() for sub in subs)
+        runs = re.findall(r'^=== RUN   (Test[^\s]+)$', output, re.M)
+        passes = re.findall(r'^\s*--- PASS: (Test[^\s]+) \([^\r\n]*\)$', output, re.M)
+        good = (set(runs) == expected and len(runs) == len(expected)
+                and set(passes) == expected and len(passes) == len(expected))
+        started = re.findall(r'^CHILD pid=([1-9][0-9]*) selector=' + re.escape(selector)
+                             + (r' kind=native-http' if selector == SKILL_HTTP_NATIVE else '') + r'$', output, re.M)
+        waited = re.findall(r'^CHILD actual_wait pid=([1-9][0-9]*) state=exit status 0$', output, re.M)
+        good = (good and len(started) == 1 and waited == started
+                and len(re.findall(r'^CHILD pid=', output, re.M)) == 1
+                and len(re.findall(r'^CHILD actual_wait ', output, re.M)) == 1
+                and len(re.findall(r'^DRIVER terminal ', output, re.M)) == 1
+                and re.search(r'^\s*--- (?:FAIL|SKIP): ', output, re.M) is None)
+        manifest = directory / 'owned.json'
+        if manifest.is_symlink() or manifest.stat().st_mode & 0o777 != 0o600 or manifest.stat().st_size > 16384:
+            raise ValueError('invalid Skill HTTP ownership record')
+        record = json.loads(manifest.read_bytes())
+        if selector == SKILL_HTTP_PG:
+            if (set(record) != {'nonce', 'network_id', 'container_id'}
+                    or re.fullmatch('[0-9a-f]{32}', record['nonce']) is None
+                    or any(re.fullmatch('[0-9a-f]{64}', record[k]) is None for k in ('network_id', 'container_id'))):
+                raise ValueError('incomplete Skill HTTP PG identities')
+            expected_retire = [(str(n), record['container_id'], record['network_id']) for n in (1, 2)]
+            retired = re.findall(r'^RETIRE observation=([12]) exact_container=([0-9a-f]{64}) exact_network=([0-9a-f]{64}) clean=true$', output, re.M)
+            owned = re.findall(r'^OWNED nonce=([0-9a-f]{32}) container=([0-9a-f]{64}) network=([0-9a-f]{64}) port=[0-9]+ PostgreSQL=[0-9]+ vector=0\.8\.1$', output, re.M)
+            terminal = re.findall(r'^DRIVER terminal exit=0 elapsed=\S+ child_started=true actual_child_wait=true cleanup=true$', output, re.M)
+            good = good and len(re.findall(r'^RETIRE observation=', output, re.M)) == 2 and len(re.findall(r'^OWNED nonce=', output, re.M)) == 1 and retired == expected_retire and owned == [(record['nonce'], record['container_id'], record['network_id'])] and len(terminal) == 1
+        else:
+            if set(record) != {'kind', 'child_pid'} or record['kind'] != 'work-http-native' or type(record['child_pid']) is not int:
+                raise ValueError('invalid Skill HTTP native identity')
+            good = (good and started == [str(record['child_pid'])]
+                    and len(re.findall(r'^NATIVE runtime_empty=true actual_child_wait=true$', output, re.M)) == 1
+                    and len(re.findall(r'^DRIVER terminal exit=0 elapsed=\S+ child_started=true actual_child_wait=true private_removed=true$', output, re.M)) == 1)
+        good = good and not directory.is_symlink() and {p.name for p in directory.iterdir()} == {'owned.json'}
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError):
+        good = False
+    log.write(f'SKILL_HTTP exact_cases_wait_private={good}\n')
+    return good
+
+def survivor_identity(pid):
+    # Failure-only evidence for an already discovered owned descendant. Never
+    # collect argv, environment or full executable paths, or change retirement.
+    result = {'pid': pid, 'comm': None, 'state': None, 'ppid': None,
+              'starttime': None, 'exe_name': None}
+    try:
+        raw = Path(f'/proc/{pid}/stat').read_text()
+        prefix, fields = raw.rsplit(')', 1)
+        tail = fields.split()
+        if int(prefix.split('(', 1)[0]) == pid:
+            result.update(comm=prefix.split('(', 1)[1], state=tail[0],
+                          ppid=int(tail[1]), starttime=int(tail[19]))
+    except (OSError, UnicodeError, ValueError, IndexError):
+        pass
+    try:
+        result['exe_name'] = Path(os.readlink(f'/proc/{pid}/exe')).name
+    except OSError:
+        pass
+    return json.dumps(result, sort_keys=True)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--driver', required=True, type=Path)
@@ -173,10 +647,27 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
+    if args.run == '^TestKnowledgeSkillsDefaultRootComposition$' and not args.root_chain:
+        parser.error('default root composition requires the original root chain')
+    if 'SecretVariableOwner' in args.run and (args.root_chain or args.run not in SECRET_OWNER_CASES):
+        parser.error('Secret Owner requires one exact PG-only group')
+    secret_owner = not args.root_chain and args.run in SECRET_OWNER_CASES
+    if 'SecretVariableStorage' in args.run and (args.root_chain or args.run not in (SECRET_STORAGE_CASES | SECRET_STORAGE_RECOVERY_CASES)):
+        parser.error('Secret storage requires one exact PG-only core or maintenance group')
     driver_timeout, term_grace = budgets(args.root_chain)
     adapter = root_adapter(args.driver) if args.root_chain else None
+    secret_recovery = not args.root_chain and args.run in SECRET_STORAGE_RECOVERY_CASES
+    secret_storage = not args.root_chain and (args.run in SECRET_STORAGE_CASES or secret_recovery)
     if adapter is not None and args.run not in adapter.TARGETS:
         parser.error('root mode requires one exact Work root selector')
+    if args.run in CONTENT_GROUPS and args.root_chain != (args.run == CONTENT_PG):
+        parser.error('exact content selector requires its declared mode')
+    if args.run == CONTENT_PG:
+        try:
+            content_schema_python()
+            args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
+        except (OSError, ValueError):
+            parser.error('explicit local content Schema interpreter required')
     args.output.mkdir(parents=True, exist_ok=True)
     stem = 'pg-' + uuid.uuid4().hex
     directory = args.output.resolve() / stem
@@ -190,6 +681,23 @@ def main():
               for p in (args.driver, args.binary)}
     if adapter is not None:
         inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
+        if args.run == '^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$':
+            inputs.update({str(p): adapter.sha(p) for p in adapter.metadata_cost_inputs()})
+        if args.run in ('^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans)$', '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|PendingHistoryAndCausePlans)$'):
+            inputs.update({str(p): adapter.sha(p) for p in adapter.metadata_remaining_cost_inputs()})
+    if args.run in CONTENT_GROUPS:
+        inputs.update({str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest() for p in content_inputs(args.run)})
+    skill_selected = not args.root_chain and args.run in SKILL_HTTP_CASES
+    if skill_selected:
+        inputs = skill_http_inputs(args.driver, args.binary, args.run)
+    if secret_storage:
+        inputs = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
+                  for p in secret_storage_inputs(args.driver, args.binary, secret_recovery)}
+    if secret_owner:
+        inputs = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
+                  for p in secret_owner_inputs(args.driver, args.binary)}
+    if args.run == '^TestKnowledgeSkillsDefaultRootComposition$':
+        inputs.update({str(p): adapter.sha(p) for p in adapter.root_composition_inputs()})
     baseline = tcp()
     started = time.monotonic()
     child = None
@@ -203,9 +711,12 @@ def main():
     old = {s: signal.signal(s, stop) for s in (signal.SIGINT, signal.SIGTERM)}
     with log_path.open('w', buffering=1) as log:
         try:
-            child = subprocess.Popen([str(args.driver.resolve()), '--test-binary',
-                str(args.binary.resolve()), '--run', args.run, '--directory', str(directory)],
-                stdout=log, stderr=subprocess.STDOUT)
+            if skill_selected:
+                child = skill_http_spawn(args.driver, args.binary, args.run, directory, log)
+            else:
+                child = subprocess.Popen([str(args.driver.resolve()), '--test-binary',
+                    str(args.binary.resolve()), '--run', args.run, '--directory', str(directory)],
+                    stdout=log, stderr=subprocess.STDOUT)
             nonroot_reap_deadline = None
             try:
                 code = child.wait(timeout=driver_timeout)
@@ -240,6 +751,8 @@ def main():
                 code = 1
                 log.write(f'STOP owned descendants survived driver: {sorted(survivors)}\n')
                 for pid in survivors:
+                    if args.run == '^TestSkillLifecycleCleanupHistoricalAttempts$':
+                        log.write('OWNED survivor_identity=' + survivor_identity(pid) + '\n')
                     try: os.kill(pid, signal.SIGKILL)
                     except ProcessLookupError: pass
             reap_deadline = (time.monotonic() + 5 if args.root_chain else
@@ -271,7 +784,16 @@ def main():
                 remaining = descendants(os.getpid())
                 log.write(f'OWNED runtime_observation={round} descendants={sorted(remaining)}\n')
                 if remaining: code = 1
-            if args.root_chain and not observe_root_chain(directory, log, log_path, args.run):
+            if args.root_chain and not (content_root(directory, log, log_path, args.run)
+                    if args.run == CONTENT_PG else observe_root_chain(directory, log, log_path, args.run)):
+                code = 1
+            if not args.root_chain and args.run == CONTENT_NATIVE and not content_native(directory, log, log_path, args.run):
+                code = 1
+            if skill_selected and not observe_skill_http(directory, log, log_path, args.run):
+                code = 1
+            if secret_storage and not observe_secret_storage(log_path, log, args.run):
+                code = 1
+            if secret_owner and not observe_secret_owner(log_path, log, args.run):
                 code = 1
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.
@@ -288,8 +810,33 @@ def main():
             if empty != 2:
                 code = 1
                 log.write(f'STOP host TCP delta tail not empty: {len(tcp() - baseline)} rows\n')
-            same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
-                       for p, digest in inputs.items())
+            if secret_owner:
+                try:
+                    same = (all(hashlib.sha256(Path(p).read_bytes()).hexdigest() == digest
+                                for p, digest in inputs.items())
+                            and set(inputs) == {str(p) for p in secret_owner_inputs(args.driver, args.binary)})
+                except (OSError, ValueError):
+                    same = False
+            else:
+                if secret_storage:
+                    try:
+                        same = (all(hashlib.sha256(Path(p).read_bytes()).hexdigest() == digest
+                                    for p, digest in inputs.items())
+                                and set(inputs) == {str(p) for p in secret_storage_inputs(args.driver, args.binary, secret_recovery)})
+                    except (OSError, ValueError):
+                        same = False
+                else:
+                    if skill_selected:
+                        try:
+                            same = skill_http_inputs(args.driver, args.binary, args.run) == inputs
+                        except (OSError, ValueError):
+                            same = False
+                    else:
+                        same = (content_same(inputs, args, adapter) if args.run in CONTENT_GROUPS else
+                                all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
+                                    for p, digest in inputs.items()))
+            if args.run == '^TestKnowledgeSkillsDefaultRootComposition$':
+                same = same and root_composition_same(inputs, args, adapter)
             if not same: code = 1
             if interrupted: code = 1
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')

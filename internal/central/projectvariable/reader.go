@@ -177,7 +177,7 @@ func (s *Service) ListVariables(ctx context.Context, a i.Actor, p c.ProjectID, q
 			return e
 		}
 		const columns = `id::text,project_id::text,type,name,description,version,created_at,updated_at`
-		query := `SELECT ` + columns + ` FROM agenteam_projectvariable.variables WHERE project_id=$1 AND deleted_at IS NULL`
+		query := `SELECT ` + columns + ` FROM agenteam_projectvariable.variables WHERE project_id=$1 AND type='variable' AND deleted_at IS NULL`
 		args := []any{p.String(), q.Limit + 1}
 		if after != nil {
 			query += ` AND (name COLLATE "C",id)>($3::text COLLATE "C",$4::uuid)`

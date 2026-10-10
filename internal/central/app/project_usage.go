@@ -8,6 +8,8 @@ import (
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/knowledge"
+	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	"github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
@@ -15,12 +17,13 @@ import (
 	usagehttp "github.com/LunaDeerTech/agenteam/internal/central/usage/http"
 )
 
-// The sole Project authority owns reads, commands and the real Secret Audit
-// gate. Its initializer, Runtime facts and lifecycle owner remain unbound.
+// The sole Project authority retains every existing fact provider. The Skill
+// initialization wrapper is constructed later and belongs only to Audit.
 type projectUsageAssembly struct {
-	projects  *project.Authority
-	reader    *usage.Service
-	variables *projectvariable.Authority
+	projects    *project.Authority
+	reader      *usage.Service
+	variables   *projectvariable.Authority
+	objectFacts *object.ProjectAuditAuthority
 }
 
 func createProjectUsage(cfg config.Config, db database, accounts *account.Authority) (*projectUsageAssembly, error) {
@@ -44,7 +47,23 @@ func createProjectUsage(cfg config.Config, db database, accounts *account.Author
 	if err != nil {
 		return nil, err
 	}
-	projects, err := project.NewAuthority(projectsStore, project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts}})
+	knowledgeStore, ok := db.(knowledge.Store)
+	if !ok || runtimeInformationNil(knowledgeStore) {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	knowledgeFacts, err := knowledge.NewProjectAuditAuthority(knowledgeStore)
+	if err != nil {
+		return nil, err
+	}
+	objectStore, ok := db.(object.Store)
+	if !ok || runtimeInformationNil(objectStore) {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	objectFacts, err := object.NewProjectAuditAuthority(objectStore)
+	if err != nil {
+		return nil, err
+	}
+	projects, err := project.NewAuthority(projectsStore, project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts, ac.KnowledgeProducer: knowledgeFacts, ac.ObjectProducer: objectFacts}})
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +75,7 @@ func createProjectUsage(cfg config.Config, db database, accounts *account.Author
 	if err != nil {
 		return nil, err
 	}
-	return &projectUsageAssembly{projects: projects, reader: reader, variables: variableFacts}, nil
+	return &projectUsageAssembly{projects: projects, reader: reader, variables: variableFacts, objectFacts: objectFacts}, nil
 }
 
 func (a *projectUsageAssembly) handler(core *account.Service, origin string) (http.Handler, error) {

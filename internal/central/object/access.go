@@ -79,6 +79,7 @@ func (s *Service) AcquireAccessPlansInTx(ctx context.Context, tx foundation.Tx, 
 	for old := range r.accessTransactions {
 		if _, err := r.store.InTx(old); err != nil {
 			delete(r.accessTransactions, old)
+			delete(r.metadataTransactions, old)
 		}
 	}
 	if r.accessTransactions[tx] {
@@ -356,6 +357,9 @@ func (s *Service) accessFacts(ctx context.Context, e postgres.SQLExecutor, reque
 	}
 	sum := sha256.Sum256(raw)
 	out.binding = newDigest(sum[:])
+	if d.Operation == oc.PurgeDeletedObjectMetadataAccess {
+		return s.metadataAccessFacts(ctx, e, d.Cleanup, d.ObjectID, out)
+	}
 	return out, nil
 }
 
