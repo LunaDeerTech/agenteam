@@ -18,6 +18,14 @@ root 已将方法修正保存为 `1627278a`。cleanup 恢复共享锁模块与 p
 
 coordination 新增并冻结 `tests/skills/owner_http_independent_test.go` 与 `.agent-state/skills-owner-http/independent.py`；作者 candidate 在新增前完成，不含也不宣称验证该单 top 两 sub。该独验补集由其另编 candidate、另跑精确 selector，当前运行输入集合可稳定包含该源。作者无 Go/cache writer，暂交本树 `output/ai/skills-owner-http/gocache` 给 coordination 唯一写入以复用刚恢复的热缓存，独验编译完成后交还；本域尚无真实资源。
 
+### PG 恢复01原 FAIL 与定向修复
+
+root 在 `08fa0432` checkpoint 后授予唯一 PG 窗口。原 outer `60256→88c74b` actual exit1；首同进程 UTC 02:34:32.357634Z、18,687,987,712B，核固定 f860/0e6 binary/driver，新输出 `pg-owner-read-recovery01`，自有空 Docker config 与原 pinned PG17。四 top 均在共同 HTTP fixture 报 `DEPENDENCY_UNAVAILABLE`，Metadata/CurrentAuthority 尚未进入子例，Transactions 三子与 Unknown 两子同构造失败。原 child49669 actual Wait1、driver49004 actual Wait1/35.222s；container `8839c2bac2881064b4031d87e895b065ab78375a2fe31cec7668154699694d92` / network `dc5765e40ef804fb595d17113ef14ff6e369b20af4c0e532df675ba8cc04006a` 双退役 clean=true，私目录仅 owned.json、desc 双空、HOST_TCP 两次 delta_empty，inputs_unchanged=true、supervisor terminal1/95.790s。原全尾日志脱敏检查后按原字节保存至 [失败原件](skills-owner-http/pg-recovery01-failure.log)，不回填成功；窗口已释放。
+
+coordination 未参与者与作者只读定位：Knowledge 真登录 fixture 在 Authority 构造后调用 `accounts.Initialize`，Skills P2 seed fixture 没有此需求，新 HTTP fixture 漏了这一步。`account/browser.go` 的 NewAnonymousContext 要求 account_key_registry UPDATE 恰一行，因此真实 Login 的首匿名上下文确定需要正式启动事实。仅修改本域 `owner_http_fixture_test.go`：NewAuthority 后调用正式 `accounts.Initialize(testContext(t))`，并给 Authority/Initialize/匿名上下文失败加安全阶段名；不改共享 P2、HTTP 产品或 Account，不手种凭据/允许授权。已 gofmt/diff-check，技术修订待独立复核/新候选，动态因果待新窗口验证。
+
+coordination 独验 candidate/list 已离线 actual0、一 top 两 sub 仍未执行；其原补集 wrapper 曾将新 selector 误入 native observer，已限定 namespace 改为 PG 并通过11离线控制，保留为准备方法修正。热 GOCACHE 已归还作者，目前无后台 Go/cache writer或自有真实资源。作者/独验均须从修后 fixture 重新编译，复用原 driver、pure/Schema/vet/native 的未变证据，不重跑无影响通过项。
+
 ## 已保存的原环境证据
 
 工作树 `/workspace/agenteam-skills-owner-http`，分支 `ai/skills-owner-http`，基线正式 main `3b7ed9da`。唯一作者 Runner；Git 保存与真实资源窗口由 root 负责。

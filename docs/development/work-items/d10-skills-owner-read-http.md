@@ -1,6 +1,6 @@
 # D10 Skills 当前 Human Owner 目录与详情 HTTP
 
-状态：独立 HTTP adapter 已实现，作者限定 pure/race 11top/47sub、初Schema21/HEAD18 与 vet 实际通过；后补正式 Account Problem 标准Schema单top32控/HEAD18通过。未参与者已有限静审产品、PG/native测试方法及精确入口。PG/native候选均已离线race编译，两driver构建及精确发现恰4/3top也已实际退出0；native 3top/6sub已真实完整PASS，PG4top/12sub尚未执行，因此本结果未交付。基线为正式 main `3b7ed9da`，消费已接受的 [P2 初始化与当前 Owner 读取](d10-skills-initialization.md)及[正式设计](d10-skills-initialization-design.md)。本卡交付独立只读 HTTP adapter，不完成完整 D10。
+状态：独立 HTTP adapter 已实现，作者限定 pure/race 11top/47sub、初Schema21/HEAD18 与 vet 实际通过；后补正式 Account Problem 标准Schema单top32控/HEAD18通过。未参与者已有限静审产品、PG/native测试方法及精确入口。native 3top/6sub 已真实完整 PASS；新环境 PG 恢复01四 top 在共同 Account 启动夹具失败，原全尾完整关闭且 FAIL 保留。已定位并补正式 Account.Initialize 启动调用，修后 PG4top/12sub 与独验补集待执行，因此本结果未交付。基线为正式 main `3b7ed9da`，消费已接受的 [P2 初始化与当前 Owner 读取](d10-skills-initialization.md)及[正式设计](d10-skills-initialization-design.md)。本卡交付独立只读 HTTP adapter，不完成完整 D10。
 
 ## 范围与真实依赖
 
@@ -44,6 +44,8 @@ GET/HEAD 不产生 Skill、Object、Audit、Event、receipt 或业务 Activity �
 Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/driver实际Wait0，原runtime/private退役、两次desc空、TCP两次delta空及inputsame完整；supervisor终态0/68.173s，未改原预算或方法。固定e60候选+c11 driver，首同进程2026-10-10T02:02:54.242191Z/5,411,155,968B；原日志路径与资源身份见current。结论覆盖真实TCP read/更早parent期限、同连接清deadline、Close错误、真实输出Timeout与断连/原领域尾；native的领域/身份控制是明确替身，不能代替待运行的真实Account/P2权限和PG事务。窗口已完整释放，PG尚未执行。
 
 ## 产品接入后继
+
+新环境 PG 恢复01的确定夹具缺项：P2 原 fixture 只构造 Account Authority 以消费 seed 身份，新 HTTP fixture 引入真实 Login 却未调用正式 `Account.Authority.Initialize`。`NewAnonymousContext` 更新 `account_key_registry` 要求恰一行，未注册 key 时返回安全 DependencyUnavailable；与四 top 构造阶段的实际错误一致。只在 HTTP 自有 fixture 中补正式 Initialize 并给启动/anonymous 错误加安全阶段标签，不修改 P2 fixture、产品、权限或用 SQL 伪造凭据。原日志见本树 `.agent-state/skills-owner-http/pg-recovery01-failure.log`；原 child/driver/outer 均 actual exit1，两个自有 PG 资源双退役、私目录/desc/TCP 双尾齐，输入未变。修后需新候选和新窗口，不回填该 FAIL。
 
 本 HTTP 的下一条小范围真实联调由 root 另建候选并指定装配写者：在默认 Central 的同一 Store、Project Authority、Account Service 与实际 D05 Object/ProcessAuthority 上构造 `skill.NewAuthority`、`skill.AddSkills` 和 `skill.New`，再以同一 `*skill.Service` 创建本 HTTP 并按 `HandlesPath` 分派两条 Skills 路由。服务的 Stop/Drain/Joined 必须交给实际进程生命周期持有，不能把 HTTP 请求退出当作整个 Skills 或 Object 已退役。当前 `internal/central/app/account.go` 没有这项装配；本卡不跨写该根。
 

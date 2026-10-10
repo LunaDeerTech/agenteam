@@ -124,7 +124,13 @@ func assembleSkillOwnerHTTPFixture(t *testing.T, p *skillPG) *skillOwnerHTTPFixt
 	}
 	accounts, err := account.NewAuthority(store, accountKeys)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal("construct formal Account authority", err)
+	}
+	// Real browser credentials require the registered Account key and settings.
+	// The P2 fixture only needs an authority for seeded identities; HTTP Login
+	// must execute the actual Account startup before Bootstrap/anonymous context.
+	if err = accounts.Initialize(testContext(t)); err != nil {
+		t.Fatal("initialize formal Account storage", err)
 	}
 	pa := p.projects
 	aud, err := audit.New(store, ck, audit.Authorizations{Sessions: accounts, System: accounts, Accounts: accounts, Projects: pa})
@@ -320,7 +326,7 @@ func (v *skillOwnerHTTPFixture) login(t *testing.T, email string) skillOwnerHTTP
 	t.Helper()
 	anonymous, err := v.core.NewAnonymousContext(testContext(t))
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal("formal anonymous browser for Login", err)
 	}
 	defer anonymous.Cookie.Destroy()
 	defer anonymous.CSRF.Destroy()

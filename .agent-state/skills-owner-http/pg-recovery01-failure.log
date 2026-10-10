@@ -1,0 +1,39 @@
+OWNED nonce=84babc443e6fa1b474e0e23b7e2852b3 container=8839c2bac2881064b4031d87e895b065ab78375a2fe31cec7668154699694d92 network=dc5765e40ef804fb595d17113ef14ff6e369b20af4c0e532df675ba8cc04006a port=32770 PostgreSQL=170008 vector=0.8.1
+CHILD pid=49669 selector=^TestSkillOwnerReadHTTP(Metadata|CurrentAuthority|Transactions|CommitUnknown)$
+=== RUN   TestSkillOwnerReadHTTPMetadata
+    owner_http_test.go:121: DEPENDENCY_UNAVAILABLE
+--- FAIL: TestSkillOwnerReadHTTPMetadata (4.52s)
+=== RUN   TestSkillOwnerReadHTTPCurrentAuthority
+    owner_http_test.go:193: DEPENDENCY_UNAVAILABLE
+--- FAIL: TestSkillOwnerReadHTTPCurrentAuthority (2.33s)
+=== RUN   TestSkillOwnerReadHTTPTransactions
+=== RUN   TestSkillOwnerReadHTTPTransactions/reader_first
+    owner_http_transactions_test.go:223: DEPENDENCY_UNAVAILABLE
+=== RUN   TestSkillOwnerReadHTTPTransactions/writer_first
+    owner_http_transactions_test.go:223: DEPENDENCY_UNAVAILABLE
+=== RUN   TestSkillOwnerReadHTTPTransactions/actual_query_cancel_and_original_tx_join
+    owner_http_transactions_test.go:294: DEPENDENCY_UNAVAILABLE
+--- FAIL: TestSkillOwnerReadHTTPTransactions (9.57s)
+    --- FAIL: TestSkillOwnerReadHTTPTransactions/reader_first (3.49s)
+    --- FAIL: TestSkillOwnerReadHTTPTransactions/writer_first (3.13s)
+    --- FAIL: TestSkillOwnerReadHTTPTransactions/actual_query_cancel_and_original_tx_join (2.95s)
+=== RUN   TestSkillOwnerReadHTTPCommitUnknown
+=== RUN   TestSkillOwnerReadHTTPCommitUnknown/not_forwarded
+    owner_http_transactions_test.go:398: DEPENDENCY_UNAVAILABLE
+=== RUN   TestSkillOwnerReadHTTPCommitUnknown/committed_ack_lost
+    owner_http_transactions_test.go:398: DEPENDENCY_UNAVAILABLE
+--- FAIL: TestSkillOwnerReadHTTPCommitUnknown (5.88s)
+    --- FAIL: TestSkillOwnerReadHTTPCommitUnknown/not_forwarded (2.04s)
+    --- FAIL: TestSkillOwnerReadHTTPCommitUnknown/committed_ack_lost (3.84s)
+FAIL
+CHILD actual_wait pid=49669 state=exit status 1
+RETIRE observation=1 exact_container=8839c2bac2881064b4031d87e895b065ab78375a2fe31cec7668154699694d92 exact_network=dc5765e40ef804fb595d17113ef14ff6e369b20af4c0e532df675ba8cc04006a clean=true
+RETIRE observation=2 exact_container=8839c2bac2881064b4031d87e895b065ab78375a2fe31cec7668154699694d92 exact_network=dc5765e40ef804fb595d17113ef14ff6e369b20af4c0e532df675ba8cc04006a clean=true
+DRIVER terminal exit=1 elapsed=35.221705653s child_started=true actual_child_wait=true cleanup=true
+SUPERVISOR actual_driver_wait pid=49004 actual=True actual_exit=1 code=1
+OWNED runtime_observation=1 descendants=[]
+OWNED runtime_observation=2 descendants=[]
+SKILL_HTTP exact_cases_wait_private=False
+HOST_TCP delta_empty_observation=1
+HOST_TCP delta_empty_observation=2
+SUPERVISOR inputs_unchanged=True terminal=1 elapsed=95.790s
