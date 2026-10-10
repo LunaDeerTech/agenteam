@@ -150,3 +150,21 @@ available bytes), before supervisor, Go, Docker or sockets. Outer 710044 ended
 The original failure and absence of a TCP/input acceptance tail are preserved
 in [the safe result](first-actual-result.json). Metadata01/02 and compile02
 failures also remain; successful compilation is not joint business acceptance.
+
+## Accepted real metadata chain
+
+After the separately authorized capacity recovery, metadata04 completed the
+original root-chain entry on 2026-10-10 12:28:11–12:29:52 UTC. The top and all
+three subtests passed (9.93s total): exact safe metadata, current authority and
+stale-plan rejection, and caller-owned rollback. Session 42919 ended f1a1db/0;
+Go 715809, driver 714009, supervisor 713987 and outer 713941 all Wait 0.
+Seven owned resources had 14 absence checks; private/runtime/descendant/TCP
+and outer descendant/TCP double tails were empty, with no adopted children
+or STOP. All 1202 runtime input hashes were unchanged. Same-process launch
+space was 5,717,778,432 bytes; the compiled candidate above was reused.
+
+[The minimal result](first-actual-result.json) retains metadata01/02/03 FAILs
+and the accepted run’s original artifact locations. Compile02 remains FAIL
+as described above. This result proves only the declared Model Selection and
+Secret Directory caller chain, not Agent CRUD, reference persistence, F1,
+production initializer binding or any existing STOP recovery.
