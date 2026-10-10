@@ -7,6 +7,7 @@ import (
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 )
 
 type PendingVisitAction string
@@ -174,7 +175,31 @@ func (s *PendingVisitor) VisitNext(ctx context.Context, p i.ProjectID, after *Di
 	if err != nil || r == nil {
 		return PendingVisitResult{}, err
 	}
-	id := r.id
+	return s.visit(ctx, call, r, project)
+}
+
+// Visit visits one original identity selected by a bounded traversal. It uses
+// the same lifecycle, current scan and downstream owners as VisitNext; it
+// does not reuse a snapshot row as a current scheduling permit.
+func (s *PendingVisitor) Visit(ctx context.Context, p i.ProjectID, id DispatchID) (PendingVisitResult, error) {
+	if id.Validate() != nil {
+		return PendingVisitResult{}, invalid()
+	}
+	ctx, call, err := s.begin(ctx, p)
+	if err != nil {
+		return PendingVisitResult{}, err
+	}
+	defer s.finish(call)
+	r, project, err := s.readIdentity(ctx, p, id)
+	if err != nil || r == nil {
+		return PendingVisitResult{}, err
+	}
+	return s.visit(ctx, call, r, project)
+}
+
+func (s *PendingVisitor) visit(ctx context.Context, call *pendingVisitCall, r *dispatchRecord, project pc.SchedulerProject) (PendingVisitResult, error) {
+	p, id := call.project, r.id
+	var err error
 	out := PendingVisitResult{Found: true, After: &id, Action: PendingVisitDeferred, Dispatch: snapshot(r)}
 	if err = ctx.Err(); err != nil {
 		return out, err
