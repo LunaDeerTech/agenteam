@@ -1,6 +1,6 @@
 # D09 有限 text-only Model Runtime
 
-状态：有限 SPEC 经 cleanup 非作者接口审接受，实现进行中；首 Object/Project 窄口已落盘待源码审，Runtime 尚未闭合，无编译/测试或真实调用结果。基线 main `04455194`，工作树 `/workspace/agenteam-model-text-runtime`、分支 `ai/model-text-runtime`。root 分配本执行者独占迁移 `00031_model_logical_calls.sql`。本卡交付一次真实 attempt 的 logical-call 服务，生产 consumer 与默认根未绑定；不宣称完整 D09、D22 或 Agent F1。
+状态：有限 SPEC 与首 Object/Project 五路径经 cleanup 非作者有限审接受；首边界15top普通/race均实际通过，Runtime 尚未闭合、未编译或真实调用。基线 main `04455194`，工作树 `/workspace/agenteam-model-text-runtime`、分支 `ai/model-text-runtime`。root 分配本执行者独占迁移 `00031_model_logical_calls.sql`。本卡交付一次真实 attempt 的 logical-call 服务，生产 consumer 与默认根未绑定；不宣称完整 D09、D22 或 Agent F1。
 
 ## 1. 正式依据、提供方与调用方
 
@@ -115,7 +115,7 @@ Root最终同Store组合与生产Consumer注册另行负责，本卡不改 app�
 - Project 在原 Audit Tx 检查既有 Project Shared 锁、同Store活Tx、真实已初始化/current lifecycle gate；不创建Call、不补Consumer锁、不重建用户或Service授权。然后原样委派精确 Entry/Key。业务权限仍须原 Runtime invoke/credential_read plan在dispatch前验证。
 - Runtime checker只认该Project下原 InvocationID cause、accepted未退休call和发送资格已确认的实际attempt、同Process/fence、当前私有已handoff且未join owner、原consumer精确associations及本text Model consumer元数据；当前dispatch可以为 `authorized` 或 `sent`。原D04在已发后仍可产生RedirectDenied/ResponseLimit等拒绝审计，不能把当前dispatch必须等于authorized作为门槛；不接受caller自报“sent”。检查不升级调用资格，也不引入另一Access事实producer。
 - 非法entry/actor/cause/关联返回原安全Forbidden；缺provider是DependencyUnbound；错误Store/锁及SQL沿原安全DependencyUnavailable；Project状态沿既有gate fault；所有错误保原cause、零成功 receipt。不能将 Audit 失败改成网络允许。
-- 额外写域仅 `internal/central/project/audit_facts.go`、新 `model_access_audit.go` 与对应必要 `model_access_audit_test.go`（均在 Project 包）。cleanup接口审后root已授权这三路径，首源待非作者代码审。本域 checker放原计划 `model/runtime_authority.go`，不扩app/defaultroot或Project管理。
+- 额外写域仅 `internal/central/project/audit_facts.go`、新 `model_access_audit.go` 与对应必要 `model_access_audit_test.go`（均在 Project 包）。cleanup接口审后root已授权这三路径，首源已获非作者有限代码审接受。本域 checker放原计划 `model/runtime_authority.go`，不扩app/defaultroot或Project管理。
 
 ## 7. Stream 与实际关闭
 
@@ -135,7 +135,7 @@ Text累计按原wire上限，有界保存以形成原ModelResponse；UTF-8 offse
 
 候选新增：`CurrentProcess() (oc.ProcessID,error)`。只在 `g!=nil && g.data!=nil`，取既有 `processState.mu`，检查`bound && !closed && service!=nil`，返回原`process`值；其余返回零ID+安全unbound/unavailable。无I/O、无新flock、无Close、无死亡结论、不返回宿主路径/nonce/文件句柄。原bind/finish/Close已用同mutex，此读取不得改其线性化和close职责。Runtime Initialize/准入从该对象读取，不接受callerProcessID。
 
-该读取不是pin或死亡证明；共享guard保持到Model等所有借用者真实Joined的根关闭顺序仍是必要条件。它不修复或解禁Object STOP。cleanup契约审后root已授权 `object/process.go` 与新 `object/process_current_test.go` 窄增量，首源已冻结待代码审；pure控制只检查内存状态/同mutex，不冒真实flock/数据库注册或退休证据。
+该读取不是pin或死亡证明；共享guard保持到Model等所有借用者真实Joined的根关闭顺序仍是必要条件。它不修复或解禁Object STOP。cleanup契约审后root已授权 `object/process.go` 与新 `object/process_current_test.go` 窄增量，首源已获非作者有限代码审接受；pure控制只检查内存状态/同mutex，不冒真实flock/数据库注册或退休证据。
 
 ## 9. 写域与首次验证
 
@@ -152,4 +152,6 @@ Text累计按原wire上限，有界保存以形成原ModelResponse；UTF-8 offse
 
 首个真实隔离测试只贯通一次带凭据的text JSON成功（canonical Call/attempt、原Secret/Audit、真实Usage及实际wire、terminal/lease尾）与一次明确拒绝零发送；随后按暴露风险补SSE partial/usage/terminal、取消held I/O/Close超期、关键提交Unknown零重复Start。Consumer自有canonical契约fixture必须明示范围；不以SQL种“Agent ready”或默认allow宣业务正链。
 
-首次Go前固定Go1.27.1、same-process fresh≥5GiB、私有telemetry off/去旁路、自有cache、共享只读mods/offline；先必要包unit/race/vet与fixture编译。实际PG/native须root新授窗口，原Wait/资源/私有目录/desc/TCP完整尾，失败不自动重试、不扩未变旧矩阵。当前没有任何本卡运行结果。
+首次Go前固定Go1.27.1、same-process fresh≥5GiB、私有telemetry off/去旁路、自有cache、共享只读mods/offline；先必要包unit/race/vet与fixture编译。实际PG/native须root新授窗口，原Wait/资源/私有目录/desc/TCP完整尾，失败不自动重试、不扩未变旧矩阵。
+
+首接缝 `boundary-01` 固定入口 `.agent-state/model-text-runtime/boundary-checks.py`：Object 2个CurrentProcess pure＋Project 3个新Access与10个既有AuditFacts/ObjectAudit/KnowledgeAudit，共15top，ordinary与race各实际通过。两个Go/outer实际Wait0、原组absent、无adopted子进程、runtime/组尾各双空；每阶段启动同进程fresh≥5GiB。仅内存/既有SQL doubles范围，未跑真实flock/PG/Secret/Exchange，也不包含本次在写的Runtime包。原始结果保留于任务ignored output；后续Model Go仍须新的空间预飞，不据此宣 Runtime 可用。
