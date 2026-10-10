@@ -15,7 +15,8 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[2]
 DRIVER = '.agent-state/work-owner-http/root_chain_driver.py'
 SUP = '.agent-state/task-planning-recovery/pg_only_supervisor.py'
-SYSTEM_INPUTS = {'^TestExecutionModelEnvironmentCapture$': ('tests/projectvariable/execution_model_environment_capture_test.go', 'tests/projectvariable/execution_capture_providers_test.go', 'tests/projectvariable/agent_configuration_create_test.go'),
+SYSTEM_INPUTS = {'^TestExecutionTaskContext$': ('tests/projectvariable/execution_context_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go', 'tests/projectvariable/execution_capture_providers_test.go', 'tests/projectvariable/agent_configuration_create_test.go'),
+ '^TestExecutionModelEnvironmentCapture$': ('tests/projectvariable/execution_model_environment_capture_test.go', 'tests/projectvariable/execution_capture_providers_test.go', 'tests/projectvariable/agent_configuration_create_test.go'),
  '^TestExecutionCaptureProviders$': ('tests/projectvariable/execution_capture_providers_test.go', 'tests/projectvariable/agent_configuration_create_test.go'),
  '^TestSchedulerProjectRunner$': ('tests/projectvariable/scheduler_project_runner_test.go',),
  '^TestSchedulerBoundedRetry$': ('tests/projectvariable/scheduler_bounded_retry_test.go', 'tests/projectvariable/scheduler_busy_compensation_test.go', 'tests/projectvariable/scheduler_retry_binding_test.go', 'tests/projectvariable/scheduler_launch_failure_test.go'),
@@ -37,7 +38,8 @@ SYSTEM_INPUTS = {'^TestExecutionModelEnvironmentCapture$': ('tests/projectvariab
  '^TestSprintStartHTTP$': ('tests/projectvariable/task_human_http_test.go',),
  '^TestSchedulerLaunchFinalFailure$': ('tests/projectvariable/scheduler_launch_failure_test.go',),
  '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': ('tests/projectvariable/task_technical_resolution_http_test.go', 'tests/projectvariable/task_unblock_atomic_test.go')}
-SYSTEM_CASES = {'^TestExecutionModelEnvironmentCapture$': ('TestExecutionModelEnvironmentCapture', 'TestExecutionModelEnvironmentCapture/complete-input-unknown-recovery', 'TestExecutionModelEnvironmentCapture/missing-provider-rolls-back'),
+SYSTEM_CASES = {'^TestExecutionTaskContext$': ('TestExecutionTaskContext', 'TestExecutionTaskContext/frozen-input-after-owner-updates'),
+ '^TestExecutionModelEnvironmentCapture$': ('TestExecutionModelEnvironmentCapture', 'TestExecutionModelEnvironmentCapture/complete-input-unknown-recovery', 'TestExecutionModelEnvironmentCapture/missing-provider-rolls-back'),
  '^TestExecutionCaptureProviders$': ('TestExecutionCaptureProviders', 'TestExecutionCaptureProviders/real-providers-roll-back-with-unbound-snapshot'),
  '^TestSchedulerProjectRunner$': ('TestSchedulerProjectRunner', 'TestSchedulerProjectRunner/ordered-todo-and-serial-launch', 'TestSchedulerProjectRunner/paused-pending-recovery-and-join'),
  '^TestSchedulerBoundedRetry$': ('TestSchedulerBoundedRetry', 'TestSchedulerBoundedRetry/temporary-due-original-key-created', 'TestSchedulerBoundedRetry/temporary-exhaustion-technical-blocker'),
@@ -86,6 +88,7 @@ BASE_SHA = {'.agent-state/work-owner-http/root_chain_driver.py': '776e6306214722
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': 'ce09376d0db54c1ef805974c491836cb854f3e23468e0414b0ef31235d00e589'}
 SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA_INPUTS = {\n',
                                                         'METADATA_INPUTS = {\n'
+                                                        "    '^TestExecutionTaskContext$': (\n        'tests/projectvariable/execution_context_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n"
                                                         "    '^TestExecutionModelEnvironmentCapture$': (\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n"
                                                         "    '^TestExecutionCaptureProviders$': (\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n"
                                                         "    '^TestSchedulerProjectRunner$': (\n        'tests/projectvariable/scheduler_project_runner_test.go',\n    ),\n"
@@ -150,6 +153,7 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA
                                                         '    ),\n')],
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {\n',
                                                                 'METADATA_GROUPS = {\n'
+                                                                "    '^TestExecutionTaskContext$': frozenset({\n        'TestExecutionTaskContext',\n        'TestExecutionTaskContext/frozen-input-after-owner-updates',\n    }),\n"
                                                                 "    '^TestExecutionModelEnvironmentCapture$': frozenset({\n        'TestExecutionModelEnvironmentCapture',\n        'TestExecutionModelEnvironmentCapture/complete-input-unknown-recovery',\n        'TestExecutionModelEnvironmentCapture/missing-provider-rolls-back',\n    }),\n"
                                                                 "    '^TestExecutionCaptureProviders$': frozenset({\n        'TestExecutionCaptureProviders',\n        'TestExecutionCaptureProviders/real-providers-roll-back-with-unbound-snapshot',\n    }),\n"
                                                                 "    '^TestSchedulerProjectRunner$': frozenset({\n        'TestSchedulerProjectRunner',\n        'TestSchedulerProjectRunner/ordered-todo-and-serial-launch',\n        'TestSchedulerProjectRunner/paused-pending-recovery-and-join',\n    }),\n"
@@ -266,7 +270,7 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA
                                                                 "'SchedulerLaunch', "
                                                                 "'SchedulerBusyCompensation', "
                                                                 "'SchedulerPendingVisit', 'TaskHumanHTTP', "
-                                                                "'SprintStartHTTP', 'TaskTechnicalResolutionHTTP', 'TaskTechnicalResolutionAtomic', 'SchedulerRetryBinding', 'SchedulerBoundedRetry', 'SchedulerProjectRunner', 'ExecutionCaptureProviders', 'ExecutionModelEnvironmentCapture')) and (args.run not in "
+                                                                "'SprintStartHTTP', 'TaskTechnicalResolutionHTTP', 'TaskTechnicalResolutionAtomic', 'SchedulerRetryBinding', 'SchedulerBoundedRetry', 'SchedulerProjectRunner', 'ExecutionCaptureProviders', 'ExecutionModelEnvironmentCapture', 'ExecutionTaskContext')) and (args.run not in "
                                                                 'METADATA_GROUPS or not args.root_chain):\n'
                                                                 "        parser.error('System configuration "
                                                                 'requires one exact original root-chain '
