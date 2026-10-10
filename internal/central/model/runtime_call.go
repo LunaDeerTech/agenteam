@@ -6,6 +6,7 @@ import (
 	"unicode/utf8"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
@@ -110,7 +111,7 @@ func prepareRuntimeInput(ctx context.Context, request mc.ModelRequest, mode wire
 		return mc.ModelRequest{}, fault(f.InvalidArgument)
 	}
 	s, c := request.Model.Snapshot, request.Model.Snapshot.Capabilities
-	if request.RetryClass != mc.BoundedRetry || len(request.Tools) != 0 || request.ToolChoice.Kind != "none" || request.ResponseFormat.Kind != "text" || s.Identity.Profile != mc.OpenAIChatV1 || s.Identity.Protocol != mc.OpenAIChat || s.Identity.ModelType != mc.ChatModel || s.Identity.AdapterRevision != wire.OpenAIChatTextRevision || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !runtimeOnlyText(c.InputModalities) || !runtimeOnlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !runtimeOnlyText(c.StructuredOutputModes) || mode == wire.SSEResponse && !c.Streaming || s.CredentialRef == nil || request.Model.CredentialLease == nil || request.Model.LeaseOwner.Details().Kind != sc.ModelCallOwner {
+	if !runtimeSupportedOwner(request) || len(request.Tools) != 0 || request.ToolChoice.Kind != "none" || request.ResponseFormat.Kind != "text" || s.Identity.Profile != mc.OpenAIChatV1 || s.Identity.Protocol != mc.OpenAIChat || s.Identity.ModelType != mc.ChatModel || s.Identity.AdapterRevision != wire.OpenAIChatTextRevision || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !runtimeOnlyText(c.InputModalities) || !runtimeOnlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !runtimeOnlyText(c.StructuredOutputModes) || mode == wire.SSEResponse && !c.Streaming || s.CredentialRef == nil || request.Model.CredentialLease == nil {
 		return mc.ModelRequest{}, fault(f.CapabilityUnsupported)
 	}
 	if request.Input.SchemaVersion != 1 {
@@ -162,4 +163,14 @@ func runtimeContextError(ctx context.Context) error {
 		return unavailable(err)
 	}
 	return nil
+}
+
+// This only recognizes a shape. Every admission still requires the original
+// ConsumerAuthority and the persisted resolution; Actor construction grants none.
+func runtimeSupportedOwner(r mc.ModelRequest) bool {
+	o := r.Model.LeaseOwner.Details()
+	if r.RetryClass == mc.BoundedRetry {
+		return o.Kind == sc.ModelCallOwner
+	}
+	return r.RetryClass == mc.AgentRetry && r.Consumer.Kind == mc.AgentConsumer && r.Consumer.Purpose == mc.AgentGeneration && r.Actor.Details().Kind == id.AgentRun && o.Kind == sc.ExecutionOwner && r.Consumer.ExecutionID != nil && o.ID == r.Consumer.ExecutionID.String()
 }

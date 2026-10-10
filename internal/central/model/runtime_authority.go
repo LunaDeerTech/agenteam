@@ -115,6 +115,9 @@ func runtimeRetryPolicy(request mc.ModelRequest, plan mc.ConsumerDependencies) (
 	if p == nil || p.ValidateFor(request.Consumer) != nil {
 		return mc.RetryPolicy{}, fault(f.Forbidden)
 	}
+	if request.RetryClass == mc.AgentRetry && p.Class == mc.AgentRetry {
+		return p.Clone(), nil
+	}
 	if request.RetryClass != mc.BoundedRetry || p.Class != mc.BoundedRetry || p.MaxAttempts == nil || *p.MaxAttempts != 1 || len(p.Categories) != 0 {
 		return mc.RetryPolicy{}, fault(f.CapabilityUnsupported)
 	}
@@ -202,13 +205,13 @@ func (c *runtimeCall) outboundContext() (outbound.CallContext, error) {
 	return outbound.NewCallContext(actor, scope, key, c.outboundAssociations())
 }
 func (c *runtimeCall) callOptions(call outbound.CallContext, material sc.SecretMaterial) wire.CallOptions {
-	deadline, _ := c.ctx.Deadline()
+	deadline, _ := c.wireContext().Deadline()
 	remaining := time.Until(deadline)
 	if remaining <= 0 {
 		remaining = time.Nanosecond
 	}
 	return wire.CallOptions{ProjectID: c.request.Consumer.ProjectID, Context: call, Credential: material, AllowHTTP: c.runtime.deps.AllowHTTP,
-		Limits: outbound.Limits{Overall: remaining, ReadIdle: remaining, RequestBodyBytes: 16 << 20, ResponseBodyBytes: 16 << 20}}
+		Limits: outbound.Limits{Overall: remaining, ReadIdle: min(remaining, 60*time.Second), RequestBodyBytes: 16 << 20, ResponseBodyBytes: 16 << 20}}
 }
 
 var _ ac.ProjectFactAuthority = (*RuntimeAuthority)(nil)

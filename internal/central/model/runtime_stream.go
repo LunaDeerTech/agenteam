@@ -30,17 +30,31 @@ func (r *Runtime) Chat(ctx context.Context, request mc.ModelRequest) (mc.ModelRe
 	if err = runtimeContextError(c.ctx); err != nil {
 		return mc.ModelResponse{}, c.failStart(c.ctx, err)
 	}
-	result, callErr := c.exchange.Result(c.ctx)
-	if err = c.finish(c.ctx, &result, callErr); err != nil {
-		return mc.ModelResponse{}, err
+	for {
+		result, callErr := c.exchange.Result(c.wireContext())
+		c.wireFailure = callErr != nil
+		if err = c.finish(c.ctx, &result, callErr); err != nil {
+			return mc.ModelResponse{}, err
+		}
+		if c.retryPending {
+			err = c.nextAgentAttempt(c.ctx)
+			for err != nil && c.retryPending {
+				err = c.nextAgentAttempt(c.ctx)
+			}
+			if err != nil {
+				return mc.ModelResponse{}, runtimePortError(err)
+			}
+			continue
+		}
+		if callErr != nil {
+			return mc.ModelResponse{}, runtimePortError(callErr)
+		}
+		if c.result == nil {
+			return mc.ModelResponse{}, fault(f.InvalidState)
+		}
+		return c.result.Clone(), nil
 	}
-	if callErr != nil {
-		return mc.ModelResponse{}, runtimePortError(callErr)
-	}
-	if c.result == nil {
-		return mc.ModelResponse{}, fault(f.InvalidState)
-	}
-	return c.result.Clone(), nil
+
 }
 
 type runtimeStream struct{ data func() *runtimeCall }
@@ -116,8 +130,33 @@ func (s *runtimeStream) Next(ctx context.Context) (mc.ModelFrame, error) {
 		c.frames = c.frames[1:]
 		return c.frame(frame)
 	}
-	event, err := c.exchange.Next(ctx)
+	if c.retryPending {
+		if !c.retryAnnounced {
+			return c.retryFrame()
+		}
+		if err := c.nextAgentAttempt(ctx); err != nil {
+			if !c.retryPending {
+				return c.failFrame(ctx, err)
+			}
+		}
+		value := c.copyRecord().value
+		c.frames = []mc.ModelFrame{{Kind: "message_start", Start: &mc.FrameStart{MessageID: value.ID.String()}}}
+		return c.frame(mc.ModelFrame{Kind: "attempt_started", Start: &mc.FrameStart{StartedAt: &value.StartedAt}})
+	}
+	wireWait, wireCancel := context.WithCancel(ctx)
+	stopAttempt := context.AfterFunc(c.wireContext(), wireCancel)
+	defer stopAttempt()
+	defer wireCancel()
+	if c.wireContext().Err() != nil {
+		c.wireFailure = true
+		return c.failFrame(ctx, c.wireContext().Err())
+	}
+	event, err := c.exchange.Next(wireWait)
 	if err != nil {
+		c.wireFailure = true
+		if c.wireContext().Err() != nil {
+			err = c.wireContext().Err()
+		}
 		return c.failFrame(ctx, err)
 	}
 	switch event.Kind {
@@ -166,7 +205,7 @@ func (c *runtimeCall) frame(frame mc.ModelFrame) (mc.ModelFrame, error) {
 	}
 	c.frameSequence++
 	value := c.copyRecord().value
-	frame.CallID, frame.InvocationID, frame.AttemptIndex, frame.Sequence = value.CallID, value.ID, 1, c.frameSequence
+	frame.CallID, frame.InvocationID, frame.AttemptIndex, frame.Sequence = value.CallID, value.ID, value.AttemptIndex, c.frameSequence
 	if frame.Validate() != nil {
 		c.cancel()
 		c.terminalPublished = true
@@ -179,10 +218,16 @@ func (c *runtimeCall) frame(frame mc.ModelFrame) (mc.ModelFrame, error) {
 }
 
 func (c *runtimeCall) failFrame(ctx context.Context, original error) (mc.ModelFrame, error) {
+	if c.retryPending && c.ctx.Err() == nil {
+		return c.retryFrame()
+	}
 	if err := c.finish(ctx, nil, original); err != nil {
 		c.cancel()
 		c.terminalPublished = true
 		return mc.ModelFrame{}, runtimePortError(err)
+	}
+	if c.retryPending {
+		return c.retryFrame()
 	}
 	value := c.copyRecord().value
 	if value.Final == nil {
@@ -253,6 +298,9 @@ func (c *runtimeCall) finish(ctx context.Context, result *wire.Result, original 
 	if owned {
 		material.Destroy()
 	}
+	if c.attemptCancel != nil {
+		c.attemptCancel()
+	}
 	c.mu.Lock()
 	c.materialOwned, c.ioRetired = false, true
 	c.mu.Unlock()
@@ -309,6 +357,10 @@ func (c *runtimeCall) finish(ctx context.Context, result *wire.Result, original 
 	}
 	current.value.Final = &uc.Final{Status: status, Version: 1, FinishedAt: at, Error: modelError}
 	current.phase = string(status)
+	retry := c.mayRetry(modelError, current.value.Dispatch)
+	if retry {
+		current.phase = "retry_wait"
+	}
 	if err = runtimeAdvance(current); err != nil {
 		return err
 	}
@@ -320,6 +372,10 @@ func (c *runtimeCall) finish(ctx context.Context, result *wire.Result, original 
 		return err
 	}
 	c.result = response
+	if retry {
+		c.retryPending, c.retryAnnounced = true, false
+		return nil
+	}
 	if err = c.retireLease(ctx); err != nil {
 		return err
 	}
@@ -425,3 +481,13 @@ func runtimeModelError(err error, sent, partial bool) *mc.ModelError {
 func (*runtimeStream) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "model_runtime_stream") }
 func (*runtimeStream) MarshalJSON() ([]byte, error) { return []byte(`"model_runtime_stream"`), nil }
 func (*runtimeStream) LogValue() slog.Value         { return slog.StringValue("model_runtime_stream") }
+
+func (c *runtimeCall) retryFrame() (mc.ModelFrame, error) {
+	v := c.copyRecord().value
+	if v.Final == nil || v.Final.Error == nil {
+		return mc.ModelFrame{}, fault(f.InvalidState)
+	}
+	e := *v.Final.Error
+	c.retryAnnounced = true
+	return c.frame(mc.ModelFrame{Kind: "attempt_aborted", Error: &e, Partial: e.PartialOutput})
+}
