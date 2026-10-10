@@ -86,3 +86,11 @@ source f29c7c5d：candidate02 原5714→121281 actual0，race-c10.634s/exact lis
 本轮十请求均requestfinished1/failed0/Response.finished(null)，首次explicit ready=true/pending0；十消费者分组全true，真实create→提交后Unknown→Lookup/current v2→delete/材料清除及同原响应关联均已执行。首失败stage=standard-schema，后置Go提交计数未达，仍为wholeFAIL。原03 GET失败原因不能由本轮正常完成反推。
 
 原嵌入Python对同批安全响应离线复现KeyError（0b29d8 exit1）：正式OpenAPI的200为本地Response Object `$ref`，helper错误地直接取content。仅spec增加 `#/components/responses/` 前缀检查，再用已有Registry的正式resolver解析，无外部获取；原完整bytes/hash/status/input关联与Draft202012逐body验证保留。修后同十个原backend200响应（包括PATCH原v2 receipt，非线上空502）7b9927 exit0/stdout10。没有404样本，也未增删样本或伪造可接受Problem；空502原EOF/Unknown已由实际消费者门验证。本离线结果不追认native04通过，未再次运行浏览器或重编候选。
+
+## native05：跨请求网络完成失败，停止重复全链
+
+source27aa30b8，candidate02/dist01不变。原42994→220bd8 actual1：Node853639=false，Go853347/70.11s、driver851186、sup851164/186.639s、outer851140/189.847s全原Wait1。fresh5,810,212,864B，1492inputs hash32783d772c5e17e2229fe9d412dd5a170ae65508f7b42cdb5d00c674499991be原末一致；7IDs14absence/private/runtime/desc/TCP双尾及outerdesc/TCP双空，survivors/adopted空；sup四个已退出adopted实际Wait0，窗口释放。
+
+首次stage=original-ready：仅index8 DELETE原failure_category=aborted、finished0/failed1/Node pending1；PATCH和GET等九行全部normal/finished(null)。十消费者分组通过，DELETE原EOF→reader.cancel→release→outer.cancel→public settle局部序号41..45，三处signal.aborted=false；Node对应request33/response34/failed35，下一list36。两个序号域不能用于跨进程先后断言；完整消费不升级网络失败。本轮未达Schema或Go后置事实计数。[安全首失败原件](native05-first-failure.json)逐字保留自 `evidence-owner-05/TestProjectSecretOwnerWeb/secret-first-failure.json`，是本轮唯一随源码保存的小复现材料；尾及outer记录仍在原ignored证据目录与 `native-05-control/result.json`，原log `/tmp/psu05/ui-4182775d3853472d.log`，不复制全trace或日志。
+
+04十normal与05删除aborted说明剩余问题不能只由受控wrong-media解释；原03 GET原因仍不回填。停止第六次全PG/微复现，无产品门放宽；下一步只沿原真实消费/取消与网络事件共同机制做有界诊断，需独立定位后才提出修复。生产客户端和候选保持冻结，未正式交付。
