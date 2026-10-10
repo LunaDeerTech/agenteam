@@ -31,7 +31,7 @@ if (
 export default defineConfig({
   testDir: "./e2e",
   testMatch: "knowledge-owner-read.spec.ts",
-  grep: /^\[read\] Knowledge Owner existing-document read$/,
+  grep: /(?:^| )knowledge-owner-read\.spec\.ts \[read\] Knowledge Owner existing-document read$/,
   timeout: 45_000,
   expect: { timeout: 5_000 },
   workers: 1,

@@ -58,16 +58,16 @@ func updateRootService(t *testing.T, store interface {
 	if e != nil {
 		t.Fatal(e)
 	}
-	service, e := createProjectUpdate(cfg, store, usage.projects, accounts, aud, journal, events, process, nil)
+	service, e := createProjectUpdate(cfg, store, usage.projects, accounts, aud, journal, events, process)
 	if e != nil {
 		t.Fatal(e)
 	}
 	for _, db := range []database{nil, &unitDatabase{}, &projectUsageRootStore{}} {
-		if got, err := createProjectUpdate(cfg, db, usage.projects, accounts, aud, journal, events, process, nil); err == nil || got != nil {
+		if got, err := createProjectUpdate(cfg, db, usage.projects, accounts, aud, journal, events, process); err == nil || got != nil {
 			t.Fatal("missing or foreign store")
 		}
 	}
-	if got, err := createProjectUpdate(cfg, store, usage.projects, accounts, aud, journal, events, accountProcessAuthority{process: process.process}, nil); err == nil || got != nil {
+	if got, err := createProjectUpdate(cfg, store, usage.projects, accounts, aud, journal, events, accountProcessAuthority{process: process.process}); err == nil || got != nil {
 		t.Fatal("missing actual guard")
 	}
 	if got, err := projectUpdateHandler(service, nil, cfg.PublicOrigin()); err == nil || got != nil {

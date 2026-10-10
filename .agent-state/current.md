@@ -1,7 +1,7 @@
 # Knowledge Owner 只读 UI
 
-- 分支 `ai/knowledge-owner-ui`，树 `/workspace/agenteam-knowledge-owner-ui`；当前保存点 `0658c54f` 已合正式后端 `fb84a892`。九处后端冲突逐字同步 main，UI/current/主卡 WIP 保留。root 独占 Git，content 独占本树 UI 下述路径；不写 candidate 或旧正文树。
-- API/client/Session 第一片段 `b0c89d6e` 已经 Skills 有限独审接受；第二片段 WIP `f9fde343` 在基线同步后继续修复。当前新改动已完成定向离线检查，待独立 actual diff 审与 root 保存；真实 Go/browser fixture 尚未实现，无真实 UI 验收。后端、锁、parser、来源及 STOP 不变。
+- 分支 `ai/knowledge-owner-ui`，树 `/workspace/agenteam-knowledge-owner-ui`；`0658c54f` 已合正式后端 `fb84a892`，UI 已保存 `da77c639`，首链七源已保存 `15e730da`。root 独占 Git，content 独占本树 UI 下述路径及新首链测试；shared 入口由 coordination 单写。不写 candidate 或旧正文树。
+- API/client/Session 第一片段 `b0c89d6e`、后续页面和目录失败清层修复均已通过对应离线验证及 Skills 有限 actual diff 审。首真实 Go/browser fixture 已实现并通过方法静审、race 编译与精确 list，仍未运行真实链、未验收 UI。后端、锁、parser、来源及 STOP 不变。
 - 默认 Project initializer 已按 canonical 门禁撤回。修后 root-02 的默认 Create Unbound/零事实、显式测试 fixture 真 ports/Stop/Drain 和默认读取链已正式进入 main；旧 root-01 业务 PASS 仍仅历史事实，不为生产初始化背书。UI 后继 fixture 必须沿修后边界，不重新绑定默认 initializer。
 
 ## 唯一写域与当前结果
@@ -26,8 +26,10 @@
 
 ## 下一步与资源边界
 
-本批源码、测试及文档均已停写，交 Skills 独立审 controller、Session 组合、Tree 默认兼容与 Human 路由，root 负责 checkpoint。随后准备一个 `TestKnowledgeOwnerReadWeb` 与一个正常 Playwright case：显式测试 Project fixture 实际 Stop/Drain，默认 Knowledge 创建父子文本，真实页面四 GET 与 UTF-8 下一段、窄屏键盘/焦点、原消费发布和取消尾及原七资源完整退出门。未实现该 fixture，未运行 browser/socket/PG/network；当前实际资源窗口由 root 分配给其他任务。UI 未验收，不宣称编辑、完整 D12、生产 SPA 或 Project Create HTTP 可用。
+下一步由 coordination 完成 D12 独立精确入口与输入初尾闭包，root 保存后分配真实窗口；只运行一个 `TestKnowledgeOwnerReadWeb` 与一个正常 Playwright case。显式测试 Project fixture 实际 Stop/Drain，默认 Knowledge 创建父子文本，真实页面四 GET 与 UTF-8 下一段、窄屏键盘/焦点、原消费发布和取消尾及原七资源完整退出门。尚未运行 browser/socket/PG/network；当前实际资源窗口由 root 分配给其他任务。UI 未验收，不宣称编辑、完整 D12、生产 SPA 或 Project Create HTTP 可用。
 
 ## 首真实链 fixture 实施准备
 
-root 已授权四新测试源与自有 native controls；生产11源保持 `da77c639` 冻结。新增 `internal/central/app/knowledge_owner_web_test.go`、`tests/account-captcha-web/knowledge-owner-read.config.js`、`tests/account-captcha-web/e2e/knowledge-owner-read.{spec,native}.ts`、`.agent-state/knowledge-owner-ui/native-controls.cjs` 和 README 已可恢复。方法与精确输入/失败见该 README。当前 strict TS 4320 actual0，native 控制44484 actual0（67项/0 unhandled），新当前 dist-read-01 正式构建44971 actual0。原方法环境826b、类型20326和观测49762 FAIL保留。固定锁的 PW 私有依赖/MinIO已离线复制，无lock变动/网络。Go race候选尚未编译、精确list及真实Go/browser均未运行。四新技术源/controls正在为长编停写交root checkpoint；shared入口归coordination，不在本批修改。
+root 已授权四新测试源与自有 native controls；生产11源保持 `da77c639` 冻结。新增 `internal/central/app/knowledge_owner_web_test.go`、`tests/account-captcha-web/knowledge-owner-read.config.js`、`tests/account-captcha-web/e2e/knowledge-owner-read.{spec,native}.ts`、`.agent-state/knowledge-owner-ui/native-controls.cjs` 和 README 已随 `15e730da` 保存。精确输入与失败见[恢复说明](knowledge-owner-ui/README.md)。最终同步双 seal 后 strict TS 80628 actual0，native 控制44484 actual0（67项/0 unhandled），当前 dist-read-01 正式构建44971 actual0；Skills actual diff 有限接受。固定锁 PW 私有依赖/MinIO已离线复制，无lock变动/网络。
+
+首 race-c 36818 actual1/list 未执行：旧 `project_update_test.go` 三调用的末 nil 未随生产 initializer 撤回同步；仅此三处机械修复后该文件逐字正式 main。88190 修后 race-c + exact list actual0，候选 `output/ai/knowledge-owner-ui/knowledge-owner-web-race-01.test` 为60,147,683 bytes、恰1 top。使用私有 mode=off/去三旁路，同 process 空闲9,549,406,208 bytes。首 PW --list 80873 actual1/0tests，原因是完整 title 含文件前缀；root 授权只改 config 精确 grep，11664 actual0，恰1 case。最终 config 属运行时输入，Go/native/spec/dist 未变。原方法环境826b、类型20326、观测49762、编译36818、PW列表80873 FAIL全部保留。当前无在途作者命令；此批新增待保存四路径为上述 `project_update_test.go`、PW config、本 current 和恢复 README。真实 Go/browser 尚未运行，shared 入口由 coordination 独占。
