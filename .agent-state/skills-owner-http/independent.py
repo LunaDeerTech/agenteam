@@ -8,6 +8,8 @@ from pathlib import Path
 import hashlib
 import sys
 
+from tcp_diagnostics import TCPDiagnostics, observe_tcp
+
 ROOT = Path(__file__).resolve().parents[2]
 SUPERVISOR = ROOT / ".agent-state/task-planning-recovery/pg_only_supervisor.py"
 SELECTOR = "^TestSkillOwnerReadHTTPIndependentCurrentSession$"
@@ -29,6 +31,8 @@ def load_supervisor():
         result[str(required)] = hashlib.sha256(required.read_bytes()).hexdigest()
         own = Path(__file__).resolve()
         result[str(own)] = hashlib.sha256(own.read_bytes()).hexdigest()
+        diagnostic_source = own.with_name("tcp_diagnostics.py")
+        result[str(diagnostic_source)] = hashlib.sha256(diagnostic_source.read_bytes()).hexdigest()
         return result
 
     namespace["skill_http_inputs"] = inputs
@@ -41,7 +45,21 @@ def main():
     index = sys.argv.index("--run")
     if index + 1 >= len(sys.argv) or sys.argv[index + 1] != SELECTOR:
         raise SystemExit("exact independent Skill HTTP selector required")
-    return load_supervisor()["main"]()
+    namespace = load_supervisor()
+    if sys.argv.count("--output") != 1:
+        raise SystemExit("one diagnostic --output required")
+    output_index = sys.argv.index("--output")
+    if output_index + 1 >= len(sys.argv):
+        raise SystemExit("diagnostic output missing")
+    diagnostics = TCPDiagnostics(sys.argv[output_index + 1], namespace["descendants"])
+    namespace["tcp"] = observe_tcp(namespace["tcp"], diagnostics)
+    try:
+        return namespace["main"]()
+    finally:
+        try:
+            diagnostics.finish()
+        except Exception as error:
+            print("TCP_DIAGNOSTIC_ERROR " + type(error).__name__, file=sys.stderr, flush=True)
 
 
 if __name__ == "__main__":
