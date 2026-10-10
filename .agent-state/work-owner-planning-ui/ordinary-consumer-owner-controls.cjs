@@ -142,6 +142,8 @@ function installer(file, name) {
       replay_at_request_verified:
         e.originalReplayBound === true && n.request_id === id(100),
       original_replay_later_verified: false,
+      replay_actual_verified: true,
+      replay_headers_joined: true,
       replay_policy: e.replayPolicy,
       replay_request_at: 0,
       replay_verified_at: 1,
@@ -815,6 +817,8 @@ function installer(file, name) {
         assert.equal(judge(later, 1, id(100)), true);
         for (const changes of [
           { original_replay_later_verified: false },
+          { replay_actual_verified: false },
+          { replay_headers_joined: false },
           { replay_at_request_verified: true },
           { replay_ended: false },
           { replay_invalid: true },

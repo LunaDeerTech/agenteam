@@ -25,7 +25,7 @@ const code = ts.transpileModule(ledgerFunction.getText(tree), {
 const project = "01900000-0000-7000-8000-000000000001",
   target = "01900000-0000-7000-8000-000000000002",
   key = "01900000-0000-7000-8000-000000000003";
-function ledger() {
+function ledger(...owners) {
   const c = {
     URL,
     performance,
@@ -38,7 +38,7 @@ function ledger() {
   };
   vm.createContext(c);
   vm.runInContext(code + ";this.make=workIncompleteLedger;", c);
-  return c.make();
+  return c.make(...owners);
 }
 const spec = (kind = "lost-milestone-update") => ({
   kind,
@@ -85,10 +85,65 @@ function req(kind = "lost-milestone-update", changes = {}) {
       "x-csrf-token": changes.csrf ?? "controlled-csrf",
       origin: changes.origin ?? new URL(values.url).origin,
     }),
+    allHeaders: async () => ({
+      "idempotency-key": values.key,
+      "x-csrf-token": changes.csrf ?? "controlled-csrf",
+      origin: changes.origin ?? new URL(values.url).origin,
+    }),
     postData: () =>
       changes.rawBody ??
       (values.body === null ? null : JSON.stringify(values.body)),
     postDataJSON: () => values.body,
+  };
+}
+// Use the locked Playwright methods themselves; only the original channel is
+// controlled. This opens no browser, socket, HTTP server or substitute request.
+const PWRequest = require(
+  require("path").resolve(
+    "tests/account-captcha-web/node_modules/playwright-core/lib/client/network.js",
+  ),
+).Request;
+const drainHeaders = () => new Promise((resolve) => setImmediate(resolve));
+function rawRequest(kind, changes = {}, options = {}) {
+  const request = req(kind, changes);
+  const complete = request.headers();
+  const provisional = { ...complete, ...options.provisional };
+  if (options.omitOrigin) delete provisional.origin;
+  let release,
+    reject,
+    calls = 0;
+  const channel = new Promise((yes, no) => {
+    release = yes;
+    reject = no;
+  });
+  Object.assign(request, {
+    _fallbackOverrides: {},
+    _provisionalHeaders: { headers: () => provisional },
+    _wrapApiCall: (fn) => fn(),
+    _channel: {
+      rawRequestHeaders: () => {
+        calls++;
+        options.onCall?.();
+        return channel;
+      },
+    },
+    _actualHeaders: PWRequest.prototype._actualHeaders,
+    headers: PWRequest.prototype.headers,
+    allHeaders: PWRequest.prototype.allHeaders,
+  });
+  return {
+    request,
+    calls: () => calls,
+    release(overrides = {}) {
+      release({
+        headers: Object.entries({ ...complete, ...overrides }).map(
+          ([name, value]) => ({ name, value }),
+        ),
+      });
+    },
+    reject() {
+      reject(Error("private-header-rejection-canary"));
+    },
   };
 }
 let unhandled = 0;
@@ -923,7 +978,7 @@ process.on("unhandledRejection", () => unhandled++);
       "same locked replay verifies headers " +
         (late ? "after" : "before") +
         " request",
-      () => {
+      async () => {
         const kind = "unforwarded-milestone-update",
           l = ledger(),
           original = req(kind, { key }),
@@ -937,7 +992,7 @@ process.on("unhandledRejection", () => unhandled++);
             l.ownedUnforwardedResponse(original, 503, ownedHeaders),
             true,
           );
-        l.armOriginalReplay(kind);
+        await l.armOriginalReplay(kind);
         l.request(replay);
         assert.equal(l.replayEvidence(replay).at_request_verified, !late);
         if (late)
@@ -945,6 +1000,7 @@ process.on("unhandledRejection", () => unhandled++);
             l.ownedUnforwardedResponse(original, 503, ownedHeaders),
             true,
           );
+        await new Promise((r) => setImmediate(r));
         const proof = l.replayEvidence(replay);
         assert.equal(proof.at_request_verified, !late);
         assert.equal(proof.later_verified, late);
@@ -980,7 +1036,7 @@ process.on("unhandledRejection", () => unhandled++);
     await check(
       "wrong first mutation occupies replay slot: " +
         Object.keys(changes).join(),
-      () => {
+      async () => {
         const kind = "unforwarded-milestone-update",
           l = ledger(),
           original = req(kind, { key }),
@@ -990,7 +1046,7 @@ process.on("unhandledRejection", () => unhandled++);
         l.request(original);
         l.failed(original);
         l.ownedUnforwardedResponse(original, 503, ownedHeaders);
-        l.armOriginalReplay(kind);
+        await l.armOriginalReplay(kind);
         l.request(bad);
         l.request(later);
         l.finishOriginalReplay();
@@ -1007,7 +1063,7 @@ process.on("unhandledRejection", () => unhandled++);
     "missing",
     "wrong-headers",
   ])
-    await check("late original headers cannot upgrade " + ending, () => {
+    await check("late original headers cannot upgrade " + ending, async () => {
       const kind = "unforwarded-milestone-update",
         l = ledger(),
         original = req(kind, { key }),
@@ -1015,7 +1071,7 @@ process.on("unhandledRejection", () => unhandled++);
       l.declare(spec(kind));
       l.request(original);
       l.failed(original);
-      l.armOriginalReplay(kind);
+      await l.armOriginalReplay(kind);
       l.request(replay);
       if (ending === "close") l.close();
       else if (ending === "duplicate") l.request(req(kind, { key }));
@@ -1035,7 +1091,7 @@ process.on("unhandledRejection", () => unhandled++);
     });
   await check(
     "Task replay freezes exact latest Lookup Request and rejects unready anchor",
-    () => {
+    async () => {
       const kind = "lost-task-update",
         l = ledger(),
         original = req(kind, { key }),
@@ -1056,15 +1112,425 @@ process.on("unhandledRejection", () => unhandled++);
         },
       });
       l.request(lookup);
-      assert.throws(() => l.armOriginalReplay(kind));
+      const waiting = l.armOriginalReplay(kind);
+      assert.equal(l.replayCandidate(replay), false);
       l.lookupResponse(lookup, key, true);
-      l.armOriginalReplay(kind);
+      await waiting;
       l.request(replay);
+      await new Promise((r) => setImmediate(r));
       l.finishOriginalReplay();
       assert.equal(l.replayEvidence(replay).lookup_request_id, key);
       assert.equal(l.replayEvidence(replay).lookup_finished, true);
       assert.equal(l.replayEvidence(replay).policy, "historical-task");
       assert.equal(l.verify(1, new Set([original])), true);
+    },
+  );
+  for (const late of [false, true])
+    await check(
+      "actual PW both raw sides preserve provisional fact; late=" + late,
+      async () => {
+        const kind = "unforwarded-milestone-update",
+          tails = [];
+        const l = ledger((tail) => tails.push(tail));
+        const original = rawRequest(
+          kind,
+          { key },
+          { omitOrigin: true, onCall: () => assert.equal(tails.length, 1) },
+        );
+        const replay = rawRequest(
+          kind,
+          { key },
+          { omitOrigin: true, onCall: () => assert.equal(tails.length, 2) },
+        );
+        l.declare(spec(kind));
+        l.request(original.request);
+        l.failed(original.request);
+        l.ownedUnforwardedResponse(original.request, 503, ownedHeaders);
+        if (!late) original.release();
+        const arm = l.armOriginalReplay(kind);
+        assert.equal(l.replayCandidate(replay.request), false);
+        if (late) {
+          await drainHeaders();
+          assert.equal(l.headerState(original.request).joined, false);
+          original.release();
+        }
+        await arm;
+        if (!late) replay.release();
+        l.request(replay.request);
+        assert.equal(
+          l.replayEvidence(replay.request).at_request_verified,
+          false,
+        );
+        assert.equal(l.isOriginalReplay(replay.request), false);
+        if (late) replay.release();
+        await Promise.all(tails);
+        assert.equal(original.request.headers().origin, undefined);
+        assert.equal(replay.request.headers().origin, undefined);
+        assert.equal(
+          l.replayEvidence(replay.request).at_request_verified,
+          false,
+        );
+        assert.equal(l.replayEvidence(replay.request).actual_verified, true);
+        assert.equal(l.replayEvidence(replay.request).later_verified, true);
+        assert.equal(l.replayEvidence(replay.request).headers_joined, true);
+        assert.equal(original.calls(), 1);
+        assert.equal(replay.calls(), 1);
+        l.finishOriginalReplay();
+        l.sealHeaders();
+        assert.equal(l.headersComplete(), true);
+        assert.equal(l.verify(1, new Set([original.request])), true);
+      },
+    );
+  for (const side of ["original", "replay"])
+    for (const [field, value] of [
+      ["origin", "https://wrong.invalid"],
+      ["x-csrf-token", "wrong"],
+      ["idempotency-key", "wrong"],
+    ])
+      await check(
+        "actual PW conflict overrides matching provisional " +
+          side +
+          "/" +
+          field,
+        async () => {
+          const kind = "unforwarded-milestone-update",
+            tails = [],
+            l = ledger((tail) => tails.push(tail));
+          const original = rawRequest(kind, { key }),
+            replay = rawRequest(kind, { key });
+          l.declare(spec(kind));
+          l.request(original.request);
+          l.failed(original.request);
+          l.ownedUnforwardedResponse(original.request, 503, ownedHeaders);
+          original.release(side === "original" ? { [field]: value } : {});
+          const arm = l.armOriginalReplay(kind);
+          if (side === "original" && field !== "x-csrf-token")
+            await assert.rejects(arm);
+          else {
+            await arm;
+            l.request(replay.request);
+            assert.equal(
+              l.replayEvidence(replay.request).at_request_verified,
+              true,
+            );
+            replay.release(side === "replay" ? { [field]: value } : {});
+            await Promise.all(tails);
+            assert.equal(
+              l.replayEvidence(replay.request).at_request_verified,
+              true,
+            );
+            assert.equal(
+              l.replayEvidence(replay.request).actual_verified,
+              false,
+            );
+            assert.equal(l.replayEvidence(replay.request).invalid, true);
+            l.finishOriginalReplay();
+          }
+          await Promise.all(tails);
+          l.sealHeaders();
+          // An arm rejection is terminal to its caller; no later mutation becomes a replay.
+          assert.equal(l.isOriginalReplay(replay.request), false);
+        },
+      );
+  function taskLookup(overrides = {}, options = {}) {
+    return rawRequest(
+      "lost-task-update",
+      {
+        key,
+        method: "POST",
+        url: `http://127.0.0.1:1/api/v1/projects/${project}/task-commands/lookup`,
+        body: {
+          command: "work.task.update",
+          target_id: target,
+          expected_version: "7",
+          request: { title: "specific original text" },
+        },
+        ...overrides,
+      },
+      options,
+    );
+  }
+  for (const order of ["headers-first", "response-first"])
+    await check(
+      "actual PW Lookup retains original response before/after raw headers " +
+        order,
+      async () => {
+        const kind = "lost-task-update",
+          tails = [],
+          l = ledger((tail) => tails.push(tail));
+        const original = rawRequest(kind, { key }, { omitOrigin: true }),
+          lookup = taskLookup({}, { omitOrigin: true });
+        l.declare(spec(kind));
+        l.request(original.request);
+        l.failed(original.request);
+        l.request(lookup.request);
+        let armed = false;
+        if (order === "headers-first") {
+          original.release();
+          lookup.release();
+          await Promise.all(tails);
+        } else l.lookupResponse(lookup.request, key, true);
+        const arm = l.armOriginalReplay(kind).then(() => {
+          armed = true;
+        });
+        await drainHeaders();
+        assert.equal(armed, false);
+        if (order === "headers-first")
+          l.lookupResponse(lookup.request, key, true);
+        else {
+          original.release();
+          lookup.release();
+        }
+        await arm;
+        const replay = rawRequest(kind, { key }, { omitOrigin: true });
+        replay.release();
+        l.request(replay.request);
+        await Promise.all(tails);
+        const proof = l.replayEvidence(replay.request);
+        assert.equal(proof.lookup_request_id, key);
+        assert.equal(proof.lookup_finished, true);
+        assert.equal(proof.actual_verified, true);
+        l.finishOriginalReplay();
+        l.sealHeaders();
+        assert.equal(l.headersComplete(), true);
+        assert.equal(l.verify(1, new Set([original.request])), true);
+        assert.equal(original.calls(), 1);
+        assert.equal(lookup.calls(), 1);
+      },
+    );
+  for (const invalid of [
+    "origin",
+    "csrf",
+    "key",
+    "target",
+    "version",
+    "request",
+  ])
+    await check(
+      "latest invalid Lookup occupies slot without fallback " + invalid,
+      async () => {
+        const kind = "lost-task-update",
+          tails = [],
+          l = ledger((tail) => tails.push(tail));
+        const original = rawRequest(kind, { key }),
+          good = taskLookup();
+        l.declare(spec(kind));
+        l.request(original.request);
+        l.failed(original.request);
+        original.release();
+        good.release();
+        l.request(good.request);
+        l.lookupResponse(good.request, key, true);
+        await Promise.all(tails);
+        const body = {
+          command: "work.task.update",
+          target_id: target,
+          expected_version: "7",
+          request: { title: "specific original text" },
+        };
+        if (invalid === "target") body.target_id = key;
+        if (invalid === "version") body.expected_version = "8";
+        if (invalid === "request") body.request.title = "wrong";
+        const bad = taskLookup({ body });
+        l.request(bad.request);
+        l.lookupResponse(bad.request, target, true);
+        bad.release(
+          invalid === "origin"
+            ? { origin: "https://wrong.invalid" }
+            : invalid === "csrf"
+              ? { "x-csrf-token": "wrong" }
+              : invalid === "key"
+                ? { "idempotency-key": "wrong" }
+                : {},
+        );
+        await assert.rejects(l.armOriginalReplay(kind));
+        await Promise.all(tails);
+        assert.equal(good.calls(), 1);
+        assert.equal(bad.calls(), 1);
+      },
+    );
+  for (const interruption of [
+    "new-lookup",
+    "mutation",
+    "close",
+    "seal",
+    "reject",
+  ])
+    await check(
+      "waiting latest Lookup cannot gain permission after " + interruption,
+      async () => {
+        const kind = "lost-task-update",
+          tails = [],
+          l = ledger((tail) => tails.push(tail));
+        const original = rawRequest(kind, { key }),
+          lookup = taskLookup();
+        l.declare(spec(kind));
+        l.request(original.request);
+        l.failed(original.request);
+        original.release();
+        l.request(lookup.request);
+        l.lookupResponse(lookup.request, key, true);
+        const arm = l.armOriginalReplay(kind),
+          rejected = assert.rejects(arm);
+        let next;
+        if (interruption === "new-lookup") {
+          next = taskLookup();
+          l.request(next.request);
+          next.release();
+          l.lookupResponse(next.request, target, true);
+        } else if (interruption === "mutation") l.request(req(kind, { key }));
+        else if (interruption === "close") l.close();
+        else if (interruption === "seal") l.sealHeaders();
+        if (interruption === "reject") lookup.reject();
+        else lookup.release();
+        await rejected;
+        await Promise.all(tails);
+        assert.equal(l.headerState(lookup.request).joined, true);
+        assert.equal(l.replayCandidate(req(kind, { key })), false);
+      },
+    );
+  for (const ending of ["end", "close", "seal"])
+    await check(
+      "pending actual replay header joins but cannot upgrade after " + ending,
+      async () => {
+        const kind = "unforwarded-milestone-update",
+          tails = [],
+          l = ledger((tail) => tails.push(tail));
+        const original = rawRequest(kind, { key }),
+          replay = rawRequest(kind, { key }, { omitOrigin: true });
+        l.declare(spec(kind));
+        l.request(original.request);
+        l.failed(original.request);
+        l.ownedUnforwardedResponse(original.request, 503, ownedHeaders);
+        original.release();
+        await l.armOriginalReplay(kind);
+        l.request(replay.request);
+        let joined = false;
+        const join = Promise.all(tails).then(() => {
+          joined = true;
+        });
+        if (ending === "end") l.finishOriginalReplay();
+        else if (ending === "close") l.close();
+        else l.sealHeaders();
+        await drainHeaders();
+        assert.equal(joined, false);
+        assert.equal(l.headerState(replay.request).joined, false);
+        replay.release();
+        await join;
+        assert.equal(joined, true);
+        assert.equal(l.headerState(replay.request).joined, true);
+        assert.equal(l.replayEvidence(replay.request).actual_verified, false);
+        assert.equal(l.verify(1, new Set([original.request])), false);
+      },
+    );
+  await check(
+    "verify boundary seals admission; successor cannot escape original tail join",
+    async () => {
+      const kind = "lost-task-update",
+        tails = [],
+        l = ledger((tail) => tails.push(tail));
+      const original = rawRequest(kind, { key }),
+        lookup = taskLookup();
+      l.declare(spec(kind));
+      l.request(original.request);
+      l.failed(original.request);
+      l.request(lookup.request);
+      l.lookupResponse(lookup.request, key, true);
+      l.sealHeaders();
+      const admitted = tails.length,
+        join = Promise.all(tails);
+      const successor = taskLookup();
+      l.request(successor.request);
+      successor.release();
+      assert.equal(tails.length, admitted);
+      assert.equal(successor.calls(), 0);
+      assert.equal(l.headersComplete(), false);
+      original.release();
+      lookup.release();
+      await join;
+      assert.equal(l.headerState(original.request).joined, true);
+      assert.equal(l.headerState(lookup.request).joined, true);
+      assert.equal(l.headersComplete(), false);
+    },
+  );
+  for (const settle of ["fulfill", "reject"])
+    await check(
+      "afterEach seals pending actual header and preserves first snapshot: " +
+        settle,
+      async () => {
+        const kind = "unforwarded-milestone-update",
+          e = observerEnv();
+        const original = rawRequest(kind, { key }),
+          replay = rawRequest(kind, { key }, { omitOrigin: true });
+        e.observed.declareIncomplete(spec(kind));
+        e.emit("request", original.request);
+        e.ownedResponse(original.request, new Promise(() => {}));
+        e.emit("requestfailed", original.request);
+        original.release();
+        await drainHeaders();
+        await e.observed.armOriginalReplay(kind);
+        e.emit("request", replay.request);
+        await drainHeaders();
+        e.saveFailure();
+        const first = structuredClone(e.writes.at(-1).body);
+        assert.equal(
+          first.observers[0].requests.at(-1).original_request_headers.state,
+          "pending",
+        );
+        assert.equal(
+          first.observers[0].requests.at(-1).original_request_headers.joined,
+          false,
+        );
+        if (settle === "fulfill") replay.release();
+        else replay.reject();
+        await drainHeaders();
+        const last = e.writes.at(-1).body;
+        assert.deepEqual(last.observers, first.observers);
+        assert.equal(last.tail_events.length, 1);
+        assert.equal(last.tail_events[0].stage, "request-headers");
+        assert.equal(
+          last.tail_events[0].reason,
+          settle === "fulfill" ? "headers-after-end" : "headers-rejected",
+        );
+        assert.equal(last.tail_events[0].after_first_snapshot, true);
+        assert.equal(
+          e.observed.replayEvidence(replay.request).headers_joined,
+          true,
+        );
+        assert.equal(
+          e.observed.replayEvidence(replay.request).actual_verified,
+          false,
+        );
+        assert(
+          !JSON.stringify(last).includes("private-header-rejection-canary"),
+        );
+        await assert.rejects(e.observed.verify(1));
+      },
+    );
+  await check(
+    "actual observer rejects a new header candidate during decode after its original tail join",
+    async () => {
+      const kind = "lost-task-update",
+        original = rawRequest(kind, { key });
+      const lookup = taskLookup(),
+        successor = taskLookup();
+      const e = observerEnv({
+        duringDecode: () => e.emit("request", successor.request),
+      });
+      e.observed.declareIncomplete(spec(kind));
+      e.emit("request", original.request);
+      e.emit("requestfailed", original.request);
+      e.emit("request", lookup.request);
+      original.release();
+      lookup.release();
+      e.response(lookup.request, Promise.resolve(null));
+      e.emit("requestfinished", lookup.request);
+      await drainHeaders();
+      await assert.rejects(e.observed.verify(1));
+      assert.equal(original.calls(), 1);
+      assert.equal(lookup.calls(), 1);
+      assert.equal(successor.calls(), 0);
+      successor.release();
     },
   );
   await check(
@@ -1119,7 +1585,7 @@ process.on("unhandledRejection", () => unhandled++);
         });
         e.emit("requestfailed", original);
         await new Promise((r) => setImmediate(r));
-        e.observed.armOriginalReplay(kind);
+        await e.observed.armOriginalReplay(kind);
         e.emit("request", replay);
         assert.equal(
           e.observed.replayEvidence(replay).at_request_verified,
@@ -1149,7 +1615,7 @@ process.on("unhandledRejection", () => unhandled++);
     );
   await check(
     "arming after original Request event cannot rematch that Request",
-    () => {
+    async () => {
       const kind = "unforwarded-milestone-update",
         l = ledger(),
         original = req(kind, { key }),
@@ -1159,7 +1625,7 @@ process.on("unhandledRejection", () => unhandled++);
       l.failed(original);
       l.ownedUnforwardedResponse(original, 503, ownedHeaders);
       l.request(replay);
-      l.armOriginalReplay(kind);
+      await l.armOriginalReplay(kind);
       assert.equal(l.replayCandidate(replay), false);
       assert.throws(() => l.finishOriginalReplay());
       assert.equal(l.verify(1, new Set([original])), false);
@@ -1226,8 +1692,9 @@ process.on("unhandledRejection", () => unhandled++);
         e.ownedResponse(original, new Promise(() => {}));
         e.emit("requestfailed", original);
         await new Promise((r) => setImmediate(r));
-        e.observed.armOriginalReplay(kind);
+        await e.observed.armOriginalReplay(kind);
         e.emit("request", replay);
+        await new Promise((r) => setImmediate(r));
         assert.equal(e.observed.isOriginalReplay(replay), true);
         const response = e.response(replay, new Promise(() => {}));
         e.emit("requestfailed", replay);

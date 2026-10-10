@@ -335,3 +335,7 @@ R11后六测试源窄候选已冻结交 content：保原request时false事实，
 content随后完成六技术路径实际diff限定只读审，有限方法接受、无must-fix，复用上述控制/TS且未跑动态/browser。格式与精确单recovery发现actual0；八路径全冻结待root保存，fresh Recovery12及完整卡仍未动态接受。
 
 Recovery12（b364def5/原binary+dist）整轮FAIL，原Task归档Lookup后、重放点击前arm报WORK_REPLAY_LOOKUP_UNREADY（helpers775/spec743）；Go43.17秒、outer138.820秒/21630 actual1，最终联合与Go持久/严格500后验未到。原两个Task Lookup正常finished不证明新ledger全部材料绑定；seq6另见material-mismatch而最终验证未到，不冒第二断言FAIL。首次快照与关闭后一个安全catch事件分开保存，R11三错误不回填。Go/driver/outer原Wait、四Z实际Wait0、各join及七ID/三private/runtime/desc/TCP双尾/inputsame全齐，窗口已归还，无retry；最小安全原件recovery-twelfth-failure.json与本树current记录停写供root保存，后续仅只读诊断原Lookup条件，任何方法更改先审。
+
+Recovery13 五技术路径相对53a77ce5离线窄候选已冻结交cleanup实际diff审：同Request两侧actual allHeaders一次、Lookup先占最新slot保原XID/finished、await原头期间无arm权限且新候选/写入令等待失败；at_request不回填，原重放最终同时需actual_verified/headers_joined。verify封新头准入并join原操作、前后pending0/errors0，afterEach保首快照后封闭，晚尾只作安全事件；原45秒/receipt/所有消费尾/产品/Go/dist不变。实际helper139、Session/API143及TS均0/0unhandled，Project57复用；首次旧控制未等新头settle的FAIL与修正记current。R12具体私有材料分项仍未知，不写Origin根因；旧FAIL全保留，尚无R13真实资源或动态PASS。
+
+cleanup随后完成53a77ce5五技术实际diff独立窄审并有限接受，无确认must-fix；复用139/143/TS与精确list实际0，未运行控制/浏览器，不升级R12或宣R13动态通过。七路径全停写待root保存和明确授窗。

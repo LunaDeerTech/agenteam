@@ -561,7 +561,7 @@ test("[recovery] three committed lost responses retain original intent and histo
     evidence,
     repository,
     classify: seen.declarationKind,
-    isOriginalReplay: seen.isOriginalReplay,
+    isOriginalReplay: seen.bindOriginalReplay,
     replayEvidence: seen.replayEvidence,
   });
   try {
@@ -642,7 +642,7 @@ test("[recovery] three committed lost responses retain original intent and histo
       } else {
         await expect(button(recovery(page), "按原请求重放")).toBeEnabled();
         await diagnostic.armOriginalReplay("not-observed-milestone");
-        seen.armOriginalReplay("unforwarded-milestone-update");
+        await seen.armOriginalReplay("unforwarded-milestone-update");
         await button(recovery(page), "按原请求重放").click();
         await confirmed(page);
         seen.finishOriginalReplay();
@@ -740,7 +740,7 @@ test("[recovery] three committed lost responses retain original intent and histo
       await confirmed(page);
       if (domain === "task") {
         await diagnostic.armOriginalReplay("historical-task");
-        seen.armOriginalReplay("lost-task-update");
+        await seen.armOriginalReplay("lost-task-update");
       }
       await button(recovery(page), "按原请求重放").click();
       await confirmed(page);
@@ -765,6 +765,7 @@ test("[recovery] three committed lost responses retain original intent and histo
       bodies: await seen.verify(4),
     });
   } finally {
+    seen.endReplayObservation();
     await diagnostic.finish();
   }
 });

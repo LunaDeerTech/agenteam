@@ -496,6 +496,8 @@ export function workOrdinaryConsumption(
       (pw.original_replay_bound === true ||
         pw.original_replay_later_verified === true) &&
       pw.replay_at_request_verified === pw.original_replay_bound &&
+      pw.replay_actual_verified === true &&
+      pw.replay_headers_joined === true &&
       pw.replay_ended === true &&
       pw.replay_invalid === false &&
       Number.isFinite(pw.replay_request_at) &&
@@ -704,6 +706,8 @@ export async function startWorkNativeDiagnostic(
       policy: string;
       at_request_verified: boolean;
       later_verified: boolean;
+      actual_verified: boolean;
+      headers_joined: boolean;
       request_at: number | null;
       verified_at: number | null;
       ended: boolean;
@@ -1088,6 +1092,8 @@ export async function startWorkNativeDiagnostic(
               replay_policy: replay.policy,
               replay_at_request_verified: replay.at_request_verified,
               original_replay_later_verified: replay.later_verified,
+              replay_actual_verified: replay.actual_verified,
+              replay_headers_joined: replay.headers_joined,
               replay_request_at: replay.request_at,
               replay_verified_at: replay.verified_at,
               replay_ended: replay.ended,
