@@ -24,13 +24,15 @@
 
 上一批Project串行运行器与Work固定组snapshot/current facts读取已有限验收：固定源码`d2be346a`的源码/方法独审、pure 9 top/三包vet、compile/list及native 1 top/2 sub全部wholePASS。真实两sub共21.96s（20:40:15–20:42:02 UTC），覆盖todo排序/串行创建、暂停后原pending的Lookup恢复与join；全部原Wait0、七资源14次absence及全部尾闭合，当前无Go/cache/native活动。`Run(ctx)`连续重建快照，pending优先、todo沿真实Claim/Handoff，每次visit/skip/deferred及空轮均pacing；后三组明确Deferred，不冒完整relaunch/cooldown/blocked处理。整个Run寿命在同Authority同Project内互斥，Stop/Drain等原调用退出，不声称跨进程leader或生产app绑定。15路径有限包已正式交付main `bbf8b60f`；root已正常merge main，delivery已ff并推送同一main，旧FAIL/STOP不变。后继relaunch/terminal候选已停止：本次仅只读调查，无代码、DDL、新分支或Go改动。`execution/preparation.go::capture`仍因完整Model/Tool/Skill/ref/lease提供方缺失而回滚并返回DependencyUnbound；`preparation_repository.go::finish`只退役attempt，不使Execution终态。Work TaskTrigger当前资格/编码Fault不具永久失败证明，不能按code升级failed。依既有Execution Context、Lifecycle §§4/9/11及D01 execution-orchestration的Snapshot约束，后继顺序为：真实Snapshot/Context捕获提供方与明确错误语义→正式Execution终态producer及事实读口→完整relaunch/cooldown；本轮不实施候选。
 
+本批初始Skill/Tool捕获提供方已完成有限验证，SOURCE`6c3200ed`待正式main交付。pure01原wholeFAIL保留：15 top中11项通过，4项Skill测试helper使用非法事务ID失败，原Wait与全部尾已闭；原11项输入未变，未重复运行。修后一行仅补pure02四项（7.087s）及五包vet（1.273s），wholePASS。compile01/精确list分别13.021s/1.069s，788输入首尾一致；native01的1 top/1 sub为16.81s（21:52:26–21:54:18 UTC，原调用88587→c7fb27 exit0），四原Wait全0、七资源14次absence及所有双尾closed、1506输入一致。独立最终原件有限接受，当前无Go/cache/native活动，完整Model/Context/ref/lease/input和Snapshot/Running/Tool调用/生产app仍未闭合。
+
 | 执行者 | 当前工作、真实状态与下一步 |
 | --- | --- |
-| content / Skill捕获 | `/workspace/agenteam-task-transition` / `ai/skill-capture-provider`：实现真实assignment head/sequence、当前已发布revision的初始绑定及本域Execution引用保护；唯一持有00051和Skill清理窄保护。公共合同已保存`d9299cfc`并借入消费者，其余实现未验收。 |
+| content / Skill捕获 | `/workspace/agenteam-task-transition` / `ai/skill-capture-provider`：真实assignment head/sequence、当前已发布revision绑定、本域Execution引用保护及00051/清理窄保护已冻结，源码与纯测有限独审接受。51 loader格式已静态修正，不记作动态FAIL。 |
 | cleanup / Execution捕获 | `/workspace/agenteam-skill-install-runtime-source` / `ai/execution-capture-providers`：实现preparing原claim/process/fence绑定的discovery/final私有授权，复用真实Project→Trigger→Agent捕获后调用Skill/Tool；不新增Agent planning stage，不提交部分preparation input。 |
-| secret / 独立差额审查 | 本批冻结源码和方法的独立审查者，未参与接口设计；当前无新增验收结论，上一批已接受范围保持。 |
+| secret / 独立差额审查 | 本批源码、方法及最终动态原件已有限接受，无main阻项；不参与接口设计，不外推完整Snapshot、Running、Tool调用或生产app。 |
 | work_ui / Tool捕获 | `/workspace/agenteam-task-human-http` / `ai/tool-capture-provider`：实现真实Agent引用head、固定ToolSpec/名称/builtin绑定及Execution引用；唯一持有00052。最终selection须与实际Agent配置/原Execution policy一致，未具备的运行绑定明确拒绝。 |
-| skills_http / 组合测试 | `/workspace/agenteam-task-flow-delivery` / `ai/capture-provider-delivery`：准备独有`execution_capture_providers_test.go`，沿正式Task/Agent/Execution链观察两真实provider在原Tx成功及引用，然后验证缺完整Snapshot时外层实际回滚；不造authority或SQL业务成功，当前未Go/PG。 |
+| skills_http / 组合测试 | `/workspace/agenteam-task-flow-delivery` / `ai/capture-provider-delivery`：最终实测源码`6c3200ed`，仅相`61a671d9`修正一行Skill测试helper事务ID（作者`bfaea481`）。15 top按原11 PASS加修后4 top补验接受，五包vet、compile/list及真实1 top/1 sub均通过；非空Skill/Tool捕获和同Tx引用后外层完整回滚已验证，窗口归还，尚未交付main。 |
 | cleanup / content | `/workspace/agenteam-skill-install` / `ai/skill-install`：Human Install/LookupInstall、普通读取与清理已随main有限交付；domain安装读取重放、原Object/Audit事实及普通清理两sub真实通过，定向pure/race/vet证据按版本复用。旧树已可逆sparse停放，原ignored材料保留；原Project/外人码/素材/Audit查询夹具FAIL保留。真实Source配置装配已进Agent创建链，AgentRun/Runtime实际调用仍未验。 |
 | coordination | 统筹本批消费方自有合同、唯一写者与依赖；仅维护本摘要和既有Project域恢复说明，不作为参与设计范围的独立验收者。 |
 | 已冻结Runtime/Registry | `/workspace/agenteam-tool-operation` / `ai/tool-operation` 与 `/workspace/agenteam-tool-registry` / `ai/tool-registry`：Runtime created、canonical-v1、Registry donor及Execution取消修正的有限实现/组合纯检查保留。neutral标准Schema核心已独审并单独5top race/vet通过；AgentSystem中的真实Registry Schema适配器`d26e89eb`已推送并独审接受。统一实际MVS的`regexp2 1.12.0`后，核心5＋适配3共8top race及schema/runtime两包vet全部通过，原Wait及group/runtime双尾闭合、缓存归还；`jsonschema/v6 6.0.3`不变。旧适配01/02依赖元数据缺失导致0top、vet未跑的FAIL保留；生产绑定、真实Execution授权和AgentRun发布仍未完成。 |
@@ -49,7 +51,7 @@ Object Runtime join、OpenAI tools 独立动态验收、Central SPA concurrent-p
 
 ## 恢复与容量
 
-本批四个物理树均从main `bbf8b60f`复用为上表capture-provider分支；旧runner/traversal/test/delivery分支仍保留，`ai/scheduler-runner-delivery`已ff并推送该正式main。新片尚未验收或交付main；Skill/Tool合同的discovery与final均绑定原私有attempt，完整Model/Context/ref/lease/input缺口未闭时必须整Tx回滚，不能据本域provider成功宣称Snapshot已可提交。原retry、binding、unblock及更早topic，以及ignored PASS/FAIL、候选、输入、结果与日志全部原位保留；四个逐次launcher/app-checks仍只在旧topic。当前无Go/cache/native活动，不扫描或删除恢复材料。
+本批四个物理树均从main `bbf8b60f`复用为上表capture-provider分支；旧runner/traversal/test/delivery分支仍保留，`ai/scheduler-runner-delivery`已ff并推送该正式main。新片已有限验收、尚未交付main；Skill/Tool合同的discovery与final均绑定原私有attempt，完整Model/Context/ref/lease/input缺口未闭时必须整Tx回滚，不能据本域provider成功宣称Snapshot已可提交。原retry、binding、unblock及更早topic，以及ignored PASS/FAIL、候选、输入、结果与日志全部原位保留；四个逐次launcher/app-checks仍只在旧topic。当前无Go/cache/native活动，不扫描或删除恢复材料。
 
 当前无Go/cache writer或native在途。secret经content明确owner确认，仅退休 `/workspace/agenteam-knowledge-content-http/output/ai/knowledge-content-http/gocache`，生成缓存1,041,469,440 B，actual0/absent=true；一次实际可用6,372,360,192 B，比5GiB多1,003,651,072 B。shared hot/mod及其它cache、FAIL、source、inputs/results/logs、MinIO、refs均未动，旧Skills/WorkUI缓存保留；compile02及首次native现已wholePASS，原容量FAIL保留。HTTP `857d85`、Work `91e384`、Scheduler `e0fe`三个donor的tracked docs已获owner确认可逆停放，source、refs与原evidence保留；该事实不授权删除其它路径。
 
