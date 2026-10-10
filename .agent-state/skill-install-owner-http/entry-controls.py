@@ -51,6 +51,9 @@ MODE_GUARD = ("    if 'TestSkillInstallation' in args.run and (args.run not in M
 
 
 def inverse(name, source):
+    if isinstance(source, str) and "'^TestProjectSecretOwnerWeb$'" in source:
+        secret = load('http_secret_ui_inverse', '.agent-state/secret-owner-ui/entry-controls.py')
+        source = secret.inverse(name, source)
     if name not in BASE_SHA or not isinstance(source, str) or source.count(ADDED[name]) != 1:
         raise ValueError('unknown or duplicated HTTP profile')
     source = source.replace(ADDED[name], '', 1)
@@ -90,7 +93,7 @@ class HTTPEntryControls(unittest.TestCase):
                     inverse(name, bad)
         raw = (ROOT / SUP).read_text()
         for old, new in (('(540, 60) if root_chain', '(541, 60) if root_chain'),
-                         ("('0', selector)", "('1', selector)"),
+                         ("waits[0][1:] == ('0', selector)\n            and sum", "waits[0][1:] == ('1', selector)\n            and sum"),
                          ('same = same and metadata_same(inputs, args, adapter, args.run)', 'same = True')):
             self.assertEqual(raw.count(old), 1)
             with self.assertRaises(ValueError):

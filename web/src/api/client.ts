@@ -54,6 +54,16 @@ export function string(value: unknown, minimum: number, maximum: number): string
 }
 
 const endpoints = {
+  listProjectSecrets: ['GET', '/api/v1/projects/{project_id}/secret-variables', 200],
+  getProjectSecret: ['GET', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
+  createProjectSecret: ['POST', '/api/v1/projects/{project_id}/secret-variables', 200],
+  updateProjectSecret: ['PATCH', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
+  deleteProjectSecret: ['DELETE', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
+  lookupProjectSecret: [
+    'POST',
+    '/api/v1/projects/{project_id}/secret-variables/commands/lookup',
+    200,
+  ],
   knowledgeChildren: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/children', 200],
   knowledgeDocument: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/{target}', 200],
   knowledgeAncestors: [
@@ -367,6 +377,7 @@ async function readJSON(
   maximum = 600_000,
   preserveProjectModelJSON = false,
   checkProjectAuditMembers = false,
+  strictCancel = false,
 ): Promise<unknown> {
   const reader = response.body?.getReader()
   if (!reader) throw new AccountFailure('invalid-response')
@@ -374,7 +385,11 @@ async function readJSON(
   let text = '',
     bytes = 0
   let cancelled: Promise<void> | undefined
-  const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined))
+  let cancelFailed = false
+  const cancel = () =>
+    (cancelled ??= reader.cancel().catch(() => {
+      cancelFailed = true
+    }))
   // The listener starts cancellation; the same promise is joined in finally.
   const abort = () => {
     void cancel()
@@ -399,6 +414,7 @@ async function readJSON(
     signal.removeEventListener('abort', abort)
     await cancel()
     reader.releaseLock()
+    if (strictCancel && cancelFailed) throw new AccountFailure('invalid-response')
   }
 }
 
@@ -887,7 +903,37 @@ type KnowledgeOptions<E extends KnowledgeEndpoint> = E extends 'knowledgeChildre
       }
     : { signal: AbortSignal; projectID: string; target: string }
 
+const secretEndpoints = [
+  'listProjectSecrets',
+  'getProjectSecret',
+  'createProjectSecret',
+  'updateProjectSecret',
+  'deleteProjectSecret',
+  'lookupProjectSecret',
+] as const
+type SecretEndpoint = (typeof secretEndpoints)[number]
+type SecretWireQuery = Readonly<{ limit: number; cursor?: string }>
+type SecretOptions<E extends SecretEndpoint> = E extends 'listProjectSecrets'
+  ? { signal: AbortSignal; projectID: string; secrets: SecretWireQuery }
+  : E extends 'getProjectSecret'
+    ? { signal: AbortSignal; projectID: string; target: string }
+    : E extends 'updateProjectSecret' | 'deleteProjectSecret'
+      ? {
+          signal: AbortSignal
+          projectID: string
+          target: string
+          body: unknown
+          csrf: string
+          key: string
+        }
+      : { signal: AbortSignal; projectID: string; body: unknown; csrf: string; key: string }
+
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends SecretEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: SecretOptions<E>,
+  ): Promise<T>
   function request<T, E extends KnowledgeEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -973,6 +1019,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     endpoint: Exclude<
       keyof typeof endpoints,
       | KnowledgeEndpoint
+      | SecretEndpoint
       | ProjectEndpoint
       | ProjectAuditEndpoint
       | ProjectModelEndpoint
@@ -1003,6 +1050,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       mailJobs?: Readonly<{ cursor?: string }>
       audit?: AuditWireQuery
       projects?: ProjectWireQuery
+      secrets?: SecretWireQuery
       knowledgeChildren?: KnowledgeChildrenWire
       knowledgeContent?: KnowledgeContentWire
       projectModels?: ProjectModelWireQuery
@@ -1014,7 +1062,60 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if ((knowledgeEndpoints as readonly string[]).includes(endpoint)) {
+    const secretEndpoint = (secretEndpoints as readonly string[]).includes(endpoint)
+    if (secretEndpoint) {
+      try {
+        const target = basePath.includes('{target}'),
+          list = endpoint === 'listProjectSecrets'
+        shape(options, [
+          'signal',
+          'projectID',
+          ...(target ? ['target'] : []),
+          ...(list ? ['secrets'] : []),
+          ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
+        ])
+        const project = string(options.projectID, 36, 36)
+        if (!uuid7.test(project)) throw new Error()
+        path = basePath.replace('{project_id}', project)
+        if (target) {
+          const id = string(options.target, 36, 36)
+          if (!uuid7.test(id)) throw new Error()
+          path = path.replace('{target}', id)
+        }
+        if (list) {
+          const q = shape(options.secrets, ['limit'], ['cursor'])
+          if (
+            typeof q.limit !== 'number' ||
+            !Number.isInteger(q.limit) ||
+            q.limit < 1 ||
+            q.limit > 100
+          )
+            throw new Error()
+          const params = new URLSearchParams({ limit: String(q.limit) })
+          if (Object.hasOwn(q, 'cursor')) {
+            const cursor = string(q.cursor, 1, 8192)
+            if (
+              cursor.includes('\0') ||
+              new TextEncoder().encode(cursor).byteLength > 8192 ||
+              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(cursor)
+            )
+              throw new Error()
+            params.set('cursor', cursor)
+          }
+          const query = params.toString()
+          if (new TextEncoder().encode(query).byteLength > 32768) throw new Error()
+          path += '?' + query
+        }
+        if (
+          method !== 'GET' &&
+          (!/^[A-Za-z0-9_-]{43}$/.test(string(options.csrf, 43, 43)) ||
+            !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128)))
+        )
+          throw new Error()
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if ((knowledgeEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const children = endpoint === 'knowledgeChildren',
           content = endpoint === 'knowledgeContent'
@@ -1364,26 +1465,29 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['Content-Type'] = options.avatar.mediaType
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
-      const maximum = (projectConfigurationWrites as readonly string[]).includes(endpoint)
+      const maximum = secretEndpoint
         ? 1048576
-        : endpoint === 'createProjectModelCredential' || endpoint === 'updateProjectModelCredential'
-          ? 409600
-          : endpoint === 'deleteProjectModelCredential' ||
-              endpoint === 'lookupProjectModelCredential'
-            ? 1024
-            : endpoint === 'updateOwnerProject'
-              ? 64 * 1024
-              : endpoint === 'lookupOwnerProject'
-                ? 1024
-                : endpoint === 'updateOutboundPolicy'
-                  ? 1024 * 1024
-                  : endpoint === 'createModelCredential'
-                    ? 512 * 1024
-                    : endpoint === 'createProvider' ||
-                        endpoint === 'updateProvider' ||
-                        endpoint === 'updateSMTPSettings'
-                      ? 32 * 1024
-                      : 16 * 1024
+        : (projectConfigurationWrites as readonly string[]).includes(endpoint)
+          ? 1048576
+          : endpoint === 'createProjectModelCredential' ||
+              endpoint === 'updateProjectModelCredential'
+            ? 409600
+            : endpoint === 'deleteProjectModelCredential' ||
+                endpoint === 'lookupProjectModelCredential'
+              ? 1024
+              : endpoint === 'updateOwnerProject'
+                ? 64 * 1024
+                : endpoint === 'lookupOwnerProject'
+                  ? 1024
+                  : endpoint === 'updateOutboundPolicy'
+                    ? 1024 * 1024
+                    : endpoint === 'createModelCredential'
+                      ? 512 * 1024
+                      : endpoint === 'createProvider' ||
+                          endpoint === 'updateProvider' ||
+                          endpoint === 'updateSMTPSettings'
+                        ? 32 * 1024
+                        : 16 * 1024
       try {
         body = JSON.stringify(options.body)
       } catch {
@@ -1449,35 +1553,41 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         value = await readJSON(
           response,
           options.signal,
-          (knowledgeEndpoints as readonly string[]).includes(endpoint) && success
-            ? // Exact complete representation limits of the two Knowledge adapters.
-              endpoint === 'knowledgeContent'
-              ? 7 * 1024 * 1024
-              : 5 * 1024 * 1024
-            : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
-              ? (projectModelReads as readonly string[]).includes(endpoint)
-                ? 8388608
-                : 1024
-              : endpoint === 'listOwnerProjects' && success
-                ? 5 * 1024 * 1024
-                : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
-                  ? 64 * 1024
-                  : endpoint === 'getSystemRuntimeInformation' && success
-                    ? 16 * 1024
-                    : endpoint === 'listProviders' && success
-                      ? 2 * 1024 * 1024
-                      : (endpoint === 'listSystemAudit' ||
-                            endpoint === 'getSystemAudit' ||
-                            endpoint === 'listProjectAudit' ||
-                            endpoint === 'getProjectAudit') &&
-                          success
-                        ? 1024 * 1024
-                        : 600_000,
+          secretEndpoint && success
+            ? endpoint === 'listProjectSecrets'
+              ? 5 * 1024 * 1024
+              : 1024 * 1024
+            : (knowledgeEndpoints as readonly string[]).includes(endpoint) && success
+              ? // Exact complete representation limits of the two Knowledge adapters.
+                endpoint === 'knowledgeContent'
+                ? 7 * 1024 * 1024
+                : 5 * 1024 * 1024
+              : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
+                ? (projectModelReads as readonly string[]).includes(endpoint)
+                  ? 8388608
+                  : 1024
+                : endpoint === 'listOwnerProjects' && success
+                  ? 5 * 1024 * 1024
+                  : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
+                    ? 64 * 1024
+                    : endpoint === 'getSystemRuntimeInformation' && success
+                      ? 16 * 1024
+                      : endpoint === 'listProviders' && success
+                        ? 2 * 1024 * 1024
+                        : (endpoint === 'listSystemAudit' ||
+                              endpoint === 'getSystemAudit' ||
+                              endpoint === 'listProjectAudit' ||
+                              endpoint === 'getProjectAudit') &&
+                            success
+                          ? 1024 * 1024
+                          : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
-          success &&
-            (endpoint === 'listProjectAudit' ||
-              endpoint === 'getProjectAudit' ||
-              (knowledgeEndpoints as readonly string[]).includes(endpoint)),
+          secretEndpoint ||
+            (success &&
+              (endpoint === 'listProjectAudit' ||
+                endpoint === 'getProjectAudit' ||
+                (knowledgeEndpoints as readonly string[]).includes(endpoint))),
+          secretEndpoint,
         )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
@@ -1496,7 +1606,14 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     } finally {
       // Includes aborted/redirected/wrong-media-type responses which never acquired a reader.
       // The controller may finish its bounded UI wait, but owns us until this actually returns.
-      await response.body?.cancel().catch(() => undefined)
+      if (secretEndpoint) {
+        // A failed cancellation cannot certify a complete Secret response.
+        try {
+          await response.body?.cancel()
+        } catch {
+          throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
+        }
+      } else await response.body?.cancel().catch(() => undefined)
     }
   }
   return request

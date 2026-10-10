@@ -27,6 +27,7 @@ const settingsCurrent = computed(() => {
     current.project_name === target.project_name &&
     (current.suffix === '/settings/general' ||
       current.suffix === '/settings/audit' ||
+      current.suffix === '/settings/secrets' ||
       current.suffix === '/settings/model-providers' ||
       current.suffix === '/settings/available-models')
   )

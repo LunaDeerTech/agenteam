@@ -1,3 +1,15 @@
+import {
+  createProjectSecretsAPI,
+  captureSecretCommand,
+  captureSecretID,
+  captureSecretQuery,
+  secretIdentity,
+  type ProjectSecretsAPI,
+  type SecretCommand,
+  type SecretIdentity,
+  type SecretQuery,
+  type SecretReceipt,
+} from '../api/project-secrets'
 import { readonly, shallowReactive } from 'vue'
 import {
   createAccountAPI,
@@ -459,6 +471,16 @@ interface LogoutIntent {
   csrf: string
 }
 type Intent = LoginIntent | LogoutIntent
+type SecretAction = 'secret-read' | 'secret-write' | 'secret-lookup'
+export type SecretProgress = Readonly<{
+  identity: PersonalIdentity
+  target: SecretIdentity
+  phase: 'submitting' | 'uncertain' | 'confirmed' | 'rejected'
+  observation: 'not_observed' | 'committed' | null
+  receipt: SecretReceipt | null
+  conflict: boolean
+  keyConflict: boolean
+}>
 type Action =
   | 'restore'
   | 'login'
@@ -468,6 +490,7 @@ type Action =
   | 'system'
   | 'audit-read'
   | 'knowledge-read'
+  | SecretAction
   | 'runtime-information-read'
   | 'invitation-read'
   | 'invitation-write'
@@ -592,7 +615,18 @@ export function createSessionController(
   projectAuditAPI: ProjectAuditAPI = createProjectAuditAPI(),
   projectModelSettingsAPI: ProjectModelSettingsAPI = createProjectModelSettingsAPI(),
   knowledgeAPI: KnowledgeOwnerAPI = createKnowledgeOwnerAPI(),
+  capabilities: Readonly<{ secrets?: ProjectSecretsAPI }> = {},
 ) {
+  const secretsAPI = capabilities.secrets ?? createProjectSecretsAPI()
+  let secretReadRevision = 0,
+    secretMutationRevision = 0
+  let secretIntent: {
+    identity: PersonalIdentity
+    target: SecretIdentity
+    csrf: string
+    key: string
+  } | null = null
+  const secretState = shallowReactive<{ progress: SecretProgress | null }>({ progress: null })
   const state = shallowReactive<PublicState>({
     phase: 'checking',
     user: null,
@@ -827,11 +861,13 @@ export function createSessionController(
   }
   function clearIdentity(invalidate = true) {
     clearKnowledgeRead()
+    clearSecretRead()
     clearProjectAuditRead()
     clearProjectModelReads()
     state.user = null
     state.session = null
     if (invalidate) {
+      abandonSecret()
       clearProjectModelState()
       clearProjectState()
       clearInvitationState()
@@ -896,6 +932,7 @@ export function createSessionController(
       previous.sessionID === view.session.id &&
       (!sessionCSRF || sessionCSRF === view.csrf_token)
     if (!same) {
+      abandonSecret()
       clearProjectModelState()
       clearProjectState()
       ++personalRevision
@@ -1397,6 +1434,7 @@ export function createSessionController(
       | 'system'
       | 'audit-read'
       | 'knowledge-read'
+      | SecretAction
       | 'runtime-information-read'
       | 'invitation-read'
       | 'invitation-write'
@@ -1413,39 +1451,43 @@ export function createSessionController(
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
-      kind === 'knowledge-read'
-        ? knowledgeRevision
-        : isProjectModelAction(kind)
-          ? projectModelRevisions[kind]
-          : isProjectAuditAction(kind)
-            ? projectAuditRevision
-            : isProjectAction(kind)
-              ? projectRevisions[kind]
-              : kind === 'system'
-                ? systemRevision
-                : kind === 'audit-read'
-                  ? auditRevision
-                  : kind === 'runtime-information-read'
-                    ? runtimeInformationRevision
-                    : kind === 'invitation-read'
-                      ? invitationReadRevision
-                      : kind === 'invitation-write'
-                        ? invitationRevision
-                        : kind === 'personal'
-                          ? personalRevision
-                          : isModelAction(kind)
-                            ? modelRevisions[kind]
-                            : isSelectionAction(kind)
-                              ? selectionRevisions[kind]
-                              : isAccountSecurityAction(kind)
-                                ? accountSecurityRevisions[kind]
-                                : isSMTPAction(kind)
-                                  ? smtpRevisions[kind]
-                                  : isSMTPDeliveryAction(kind)
-                                    ? smtpDeliveryRevisions[kind]
-                                    : isOutboundPolicyAction(kind)
-                                      ? outboundRevisions[kind]
-                                      : providerRevisions[kind]
+      isSecretAction(kind)
+        ? kind === 'secret-read'
+          ? secretReadRevision
+          : secretMutationRevision
+        : kind === 'knowledge-read'
+          ? knowledgeRevision
+          : isProjectModelAction(kind)
+            ? projectModelRevisions[kind]
+            : isProjectAuditAction(kind)
+              ? projectAuditRevision
+              : isProjectAction(kind)
+                ? projectRevisions[kind]
+                : kind === 'system'
+                  ? systemRevision
+                  : kind === 'audit-read'
+                    ? auditRevision
+                    : kind === 'runtime-information-read'
+                      ? runtimeInformationRevision
+                      : kind === 'invitation-read'
+                        ? invitationReadRevision
+                        : kind === 'invitation-write'
+                          ? invitationRevision
+                          : kind === 'personal'
+                            ? personalRevision
+                            : isModelAction(kind)
+                              ? modelRevisions[kind]
+                              : isSelectionAction(kind)
+                                ? selectionRevisions[kind]
+                                : isAccountSecurityAction(kind)
+                                  ? accountSecurityRevisions[kind]
+                                  : isSMTPAction(kind)
+                                    ? smtpRevisions[kind]
+                                    : isSMTPDeliveryAction(kind)
+                                      ? smtpDeliveryRevisions[kind]
+                                      : isOutboundPolicyAction(kind)
+                                        ? outboundRevisions[kind]
+                                        : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1460,7 +1502,8 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (kind === 'knowledge-read' ||
+        (isSecretAction(kind) ||
+        kind === 'knowledge-read' ||
         isProjectAction(kind) ||
         isProjectAuditAction(kind) ||
         isProjectModelAction(kind)
@@ -1527,8 +1570,9 @@ export function createSessionController(
         return result
       })
       .catch((error: unknown) => {
-        const e =
-          kind === 'knowledge-read'
+        const e = isSecretAction(kind)
+          ? secretFailure(current, error)
+          : kind === 'knowledge-read'
             ? knowledgeFailure(current, error)
             : isProjectModelAction(kind)
               ? projectModelFailure(kind, current, error)
@@ -4669,6 +4713,166 @@ export function createSessionController(
     },
     abandon: clearRuntimeInformationRead,
   }
+  function isSecretAction(kind: Action): kind is SecretAction {
+    return kind === 'secret-read' || kind === 'secret-write' || kind === 'secret-lookup'
+  }
+  function clearSecretRead() {
+    ++secretReadRevision
+    if (owner?.kind === 'secret-read') owner.abandon?.()
+  }
+  function abandonSecret() {
+    ++secretMutationRevision
+    secretIntent = null
+    secretState.progress = null
+    if (owner?.kind === 'secret-write' || owner?.kind === 'secret-lookup') owner.abandon?.()
+  }
+  function secretFailure(current: () => boolean, error: unknown) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    if (current() && (unavailableSession(e) || e.problem?.code === 'CSRF_FAILED')) {
+      clearIdentity()
+      clearBrowser()
+      state.phase = 'unavailable'
+      state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
+    }
+    return e
+  }
+  function secretRead<T>(capture: () => (signal: AbortSignal) => Promise<T>): Promise<T> {
+    try {
+      const identity = personalIdentity(),
+        work = capture()
+      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, 'secret-read')
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  const secrets = {
+    get progress() {
+      return readonly(secretState).progress
+    },
+    list(projectID: string, query: SecretQuery) {
+      return secretRead(() => {
+        const project = captureSecretID(projectID),
+          q = captureSecretQuery(query)
+        return (signal) => secretsAPI.list(project, q, signal)
+      })
+    },
+    get(projectID: string, targetID: string) {
+      return secretRead(() => {
+        const project = captureSecretID(projectID),
+          target = captureSecretID(targetID)
+        return (signal) => secretsAPI.get(project, target, signal)
+      })
+    },
+    execute(command: SecretCommand): Promise<SecretReceipt> {
+      try {
+        const identity = personalIdentity()
+        if (owner || secretIntent) throw new AccountFailure('busy')
+        let captured: SecretCommand | null = captureSecretCommand(command)
+        const original = {
+          identity,
+          target: secretIdentity(captured),
+          csrf: sessionCSRF,
+          key: newKey(),
+        }
+        secretIntent = original
+        secretState.progress = Object.freeze({
+          identity,
+          target: original.target,
+          phase: 'submitting',
+          observation: null,
+          receipt: null,
+          conflict: false,
+          keyConflict: false,
+        })
+        const result = runAuthorized(
+          identity,
+          async (op, current) => {
+            try {
+              const receipt = await secretsAPI.execute(captured!, {
+                csrf: original.csrf,
+                key: original.key,
+                signal: op.abort.signal,
+              })
+              if (current() && secretIntent === original) {
+                secretState.progress = Object.freeze({
+                  ...secretState.progress!,
+                  phase: 'confirmed',
+                  receipt,
+                })
+                secretIntent = null
+              }
+              return receipt
+            } finally {
+              captured = null
+            }
+          },
+          undefined,
+          'secret-write',
+        )
+        return result.catch((error: unknown) => {
+          if (secretIntent === original && sameIdentity(identity, personalContext.identity)) {
+            const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+            const rejected =
+              e.kind === 'problem' &&
+              (e.problem?.commit_state === 'not_started' ||
+                e.problem?.commit_state === 'not_committed') &&
+              e.problem.code !== 'IDEMPOTENCY_KEY_REUSED'
+            secretState.progress = Object.freeze({
+              ...secretState.progress!,
+              phase: rejected ? 'rejected' : 'uncertain',
+              conflict: e.problem?.code === 'VERSION_CONFLICT',
+              keyConflict: e.problem?.code === 'IDEMPOTENCY_KEY_REUSED',
+            })
+            if (rejected) secretIntent = null
+          }
+          throw error
+        })
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    lookup() {
+      try {
+        const identity = personalIdentity(),
+          original = secretIntent
+        if (
+          !original ||
+          !sameIdentity(identity, original.identity) ||
+          original.csrf !== sessionCSRF ||
+          secretState.progress?.phase !== 'uncertain' ||
+          secretState.progress.keyConflict
+        )
+          throw new AccountFailure('invalid-input')
+        return runAuthorized(
+          identity,
+          async (op, current) => {
+            const result = await secretsAPI.lookup(original.target, {
+              csrf: original.csrf,
+              key: original.key,
+              signal: op.abort.signal,
+            })
+            if (current() && secretIntent === original) {
+              secretState.progress = Object.freeze({
+                ...secretState.progress!,
+                observation: result.status,
+                ...(result.status === 'committed'
+                  ? { phase: 'confirmed', receipt: result.receipt }
+                  : {}),
+              })
+              if (result.status === 'committed') secretIntent = null
+            }
+            return result
+          },
+          undefined,
+          'secret-lookup',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    abandonRead: clearSecretRead,
+    abandon: abandonSecret,
+  }
   function clearKnowledgeRead() {
     ++knowledgeRevision
     if (owner?.kind === 'knowledge-read') owner.abandon?.()
@@ -5341,6 +5545,7 @@ export function createSessionController(
     projects,
     projectAudit,
     knowledge,
+    secrets,
     projectModelSettings,
     personal,
     system,

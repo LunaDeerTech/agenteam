@@ -32,6 +32,7 @@ METADATA_INPUTS = {
         'tests/projectvariable/skill_installation_test.go'),
 }
 TARGETS = {
+    '^TestProjectSecretOwnerWeb$': 'internal/central/app',
     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
     '^TestProjectLifecycleStopBatchRealGuard$': 'tests/projectvariable',
     '^TestModelTextRuntimePersistentWire$': 'tests/model',
@@ -163,9 +164,29 @@ KNOWLEDGE_ENV = ('AGENTEAM_KNOWLEDGE_OWNER_WEB_DIST',
                  'AGENTEAM_KNOWLEDGE_OWNER_WEB_CASE')
 
 
-def knowledge_ui_assets():
-    owned = (REPOSITORY / 'output/ai/knowledge-owner-ui').resolve()
-    dist = Path(os.environ.get(KNOWLEDGE_ENV[0], ''))
+SECRET_OWNER_UI = '^TestProjectSecretOwnerWeb$'
+# Only data differs between these two owned browser chains. Resource ownership,
+# original waits and retirement remain in the existing root supervisor.
+UI_PROFILES = {
+    KNOWLEDGE_UI: ('knowledge-owner-ui', 'AGENTEAM_KNOWLEDGE_OWNER_WEB', 'read',
+                   'knowledge-owner-read', ('common.json', 'knowledge-owner.json', 'knowledge-content.json')),
+    SECRET_OWNER_UI: ('secret-owner-ui', 'AGENTEAM_SECRET_OWNER_WEB', 'owner',
+                     'project-secret-owner', ('common.json', 'secret-variables.json')),
+}
+
+
+def ui_profile(selector):
+    if selector not in UI_PROFILES:
+        raise ValueError('one exact owned UI selector required')
+    profile = UI_PROFILES[selector]
+    keys = tuple(profile[1] + '_' + suffix for suffix in ('DIST', 'EVIDENCE', 'SCHEMA_PYTHON', 'CASE'))
+    return profile, keys
+
+
+def knowledge_ui_assets(selector=KNOWLEDGE_UI):
+    profile, keys = ui_profile(selector)
+    owned = (REPOSITORY / 'output/ai' / profile[0]).resolve()
+    dist = Path(os.environ.get(keys[0], ''))
     if (not dist.is_absolute() or dist != dist.resolve() or not dist.is_relative_to(owned)
             or not (dist / 'index.html').is_file()):
         raise ValueError('owned frozen Knowledge dist required')
@@ -175,34 +196,44 @@ def knowledge_ui_assets():
     return sorted(p for p in assets if p.is_file())
 
 
-def knowledge_ui_environment():
-    values = tuple(os.environ.get(key, '') for key in KNOWLEDGE_ENV)
-    if (values[2] != str(KNOWLEDGE_PYTHON) or values[3] != 'read'
+def knowledge_ui_environment(selector=KNOWLEDGE_UI):
+    profile, keys = ui_profile(selector)
+    values = tuple(os.environ.get(key, '') for key in keys)
+    if (values[2] != str(KNOWLEDGE_PYTHON) or values[3] != profile[2]
             or not KNOWLEDGE_PYTHON.is_file() or not os.access(KNOWLEDGE_PYTHON, os.X_OK)
             or not KNOWLEDGE_NODE.is_file() or not os.access(KNOWLEDGE_NODE, os.X_OK)):
         raise ValueError('exact Knowledge case and fixed local interpreters required')
     return values
 
 
-def knowledge_ui_configuration(directory):
-    values = knowledge_ui_environment()
-    knowledge_ui_assets()
+def knowledge_ui_configuration(directory, selector=KNOWLEDGE_UI):
+    profile, keys = ui_profile(selector)
+    values = knowledge_ui_environment(selector)
+    knowledge_ui_assets(selector)
     evidence = Path(values[1])
-    owned = (REPOSITORY / 'output/ai/knowledge-owner-ui').resolve()
+    owned = (REPOSITORY / 'output/ai' / profile[0]).resolve()
     if (len(str(directory / 'runtime')) > 45 or not evidence.is_absolute()
             or evidence != evidence.resolve() or evidence.exists() or evidence.is_symlink()
             or not evidence.parent.is_dir() or not evidence.parent.is_relative_to(owned)
             or evidence.is_relative_to(Path(values[0]))):
         raise ValueError('fresh owned Knowledge evidence and short runtime required')
-    return dict(zip(KNOWLEDGE_ENV, values))
+    return dict(zip(keys, values))
 
 
-def knowledge_ui_inputs(binary):
-    knowledge_ui_environment()
-    paths = set(input_paths(binary)) | set(root_composition_inputs()) | set(knowledge_ui_assets())
+def knowledge_ui_inputs(binary, selector=KNOWLEDGE_UI):
+    profile, _ = ui_profile(selector)
+    knowledge_ui_environment(selector)
+    paths = set(input_paths(binary)) | set(root_composition_inputs()) | set(knowledge_ui_assets(selector))
     harness = REPOSITORY / 'tests/account-captcha-web'
-    paths.update(harness / name for name in ('knowledge-owner-read.config.js', 'package.json', 'package-lock.json',
-        'e2e/knowledge-owner-read.spec.ts', 'e2e/knowledge-owner-read.native.ts'))
+    stem = profile[3]
+    paths.update(harness / name for name in (stem + '.config.js', 'package.json', 'package-lock.json',
+        'e2e/' + stem + '.spec.ts', 'e2e/' + stem + '.native.ts'))
+    if selector == SECRET_OWNER_UI:
+        paths.update(REPOSITORY / name for name in (
+            'internal/central/app/project_secret_owner_web_test.go',
+            'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'))
+        paths.add(REPOSITORY / '.agent-state/secret-owner-ui/entry-controls.py')
+        paths.add(REPOSITORY / '.agent-state/secret-owner-ui/run.py')
     for name in ('@playwright/test', 'playwright', 'playwright-core'):
         package = harness / 'node_modules' / name
         paths.add(package / 'package.json')
@@ -212,10 +243,13 @@ def knowledge_ui_inputs(binary):
                  if p.is_file() and '.spec.' not in p.name and '.test.' not in p.name)
     paths.update(REPOSITORY / 'web' / name for name in ('package.json', 'package-lock.json',
         'node_modules/typescript/package.json', 'node_modules/typescript/lib/typescript.js'))
-    paths.update(REPOSITORY / 'api/openapi' / name for name in ('common.json', 'knowledge-owner.json', 'knowledge-content.json'))
+    paths.update(REPOSITORY / 'api/openapi' / name for name in profile[4])
     # Freeze the actual launcher and browser it execs, without enumerating the OS.
     paths.update({KNOWLEDGE_NODE, KNOWLEDGE_PYTHON.resolve(), Path('/usr/bin/chromium'), Path('/usr/lib/chromium/chromium')})
     paths.update(p for p in Path('/etc/chromium.d').glob('*') if p.is_file() or p.is_symlink())
+    if selector == SECRET_OWNER_UI:
+        tools = (harness / 'node_modules', REPOSITORY / 'web/node_modules')
+        paths = {p.resolve(strict=True) if any(p.is_relative_to(tool) for tool in tools) else p for p in paths}
     if any(not p.is_file() or p.is_symlink() for p in paths):
         raise ValueError('regular complete Knowledge inputs required')
     for name in ('@playwright/test', 'playwright', 'playwright-core'):
@@ -224,9 +258,9 @@ def knowledge_ui_inputs(binary):
     return sorted(paths)
 
 
-def knowledge_ui_input_hash(binary):
+def knowledge_ui_input_hash(binary, selector=KNOWLEDGE_UI):
     digest = hashlib.sha256()
-    for path in knowledge_ui_inputs(binary):
+    for path in knowledge_ui_inputs(binary, selector):
         digest.update(str(path).encode() + b'\0' + sha(path).encode() + b'\n')
     return digest.hexdigest()
 
@@ -266,8 +300,8 @@ def configuration(binary, selector, directory):
             'cwd': str(REPOSITORY / TARGETS[selector]),
             'directory': str(directory), 'runtime': str(directory / 'runtime'),
             'test_timeout': '6m', 'resources': 7}
-    if selector == KNOWLEDGE_UI:
-        plan['knowledge_ui'] = knowledge_ui_configuration(directory)
+    if selector in UI_PROFILES:
+        plan['knowledge_ui'] = knowledge_ui_configuration(directory, selector)
     return plan
 
 
@@ -331,13 +365,14 @@ def main():
         prepare_history_go_environment(directory, env)
     if args.run == '^TestModelTextRuntimePersistentWire$':
         prepare_history_go_environment(directory, env)
-    if args.run == KNOWLEDGE_UI:
+    if args.run in UI_PROFILES:
         prepare_history_go_environment(directory, env)
+        profile, keys = ui_profile(args.run)
         ui = plan['knowledge_ui']
-        Path(ui['AGENTEAM_KNOWLEDGE_OWNER_WEB_EVIDENCE']).mkdir(mode=0o700)
+        Path(ui[keys[1]]).mkdir(mode=0o700)
         env.update(ui)
         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
-                    'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
+                    profile[1] + '_INPUT_HASH': knowledge_ui_input_hash(args.test_binary, args.run),
                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
     os.chdir(REPOSITORY)
     # No child is started here: the original shell chain replaces this PID.

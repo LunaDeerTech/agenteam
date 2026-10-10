@@ -43,6 +43,7 @@ export function projectRoute(value: unknown): {
     | '/settings'
     | '/settings/general'
     | '/settings/audit'
+    | '/settings/secrets'
     | '/settings/model-providers'
     | '/settings/available-models'
     | '/knowledge'
@@ -51,7 +52,7 @@ export function projectRoute(value: unknown): {
 } | null {
   if (typeof value !== 'string' || /[%\\?#]/.test(value)) return null
   const match =
-    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|model-providers|available-models))?|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
+    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|secrets|model-providers|available-models))?|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
       value,
     )
   if (!match) return null
@@ -147,6 +148,17 @@ export function installProjectModelSettingsNavigation(
   }
 }
 
+const projectSecretsNavigation = new WeakMap<Router, { confirmLeave: () => Promise<boolean> }>()
+export function installProjectSecretsNavigation(
+  router: Router,
+  owner: { confirmLeave: () => Promise<boolean> },
+) {
+  projectSecretsNavigation.set(router, owner)
+  return () => {
+    if (projectSecretsNavigation.get(router) === owner) projectSecretsNavigation.delete(router)
+  }
+}
+
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   router.beforeEach(async (to, from) => {
     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
@@ -164,6 +176,13 @@ export function installAuthentication(router: Router, auth: SessionController = 
     if (
       to.fullPath !== from.fullPath &&
       !((await projectModelNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
+    )
+      return false
+    const secretNavigation = projectSecretsNavigation.get(router)
+    if (
+      secretNavigation &&
+      to.fullPath !== from.fullPath &&
+      !(await secretNavigation.confirmLeave())
     )
       return false
     // Ask before Session revalidation can temporarily unmount the dirty page.
