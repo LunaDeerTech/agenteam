@@ -18,6 +18,44 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestSchedulerLaunchFinalFailure$': (
+        'tests/projectvariable/scheduler_launch_failure_test.go',
+    ),
+    '^TestAgentConfigurationSchema$': (
+        'tests/projectvariable/agent_configuration_schema_test.go',
+        'tests/testsupport/agentconfiguration/assembly.go',
+    ),
+    '^TestAgentRuntimeSchema$': (
+        'tests/projectvariable/agent_runtime_schema_test.go',
+    ),
+    '^TestExecutionPreparation$': (
+        'tests/projectvariable/execution_preparation_test.go',
+    ),
+    '^TestAgentConfigurationCreate$': (
+        'tests/projectvariable/agent_configuration_create_test.go',
+        'tests/projectvariable/agent_configuration_facts_test.go',
+        'tests/projectvariable/skill_installation_test.go',
+        'tests/testsupport/agentconfiguration/assembly.go',
+    ),
+    '^TestTaskTransitionHuman$': (
+        'tests/projectvariable/task_transition_scheduler_test.go',
+    ),
+    '^TestSchedulerClaim$': (
+        'tests/projectvariable/scheduler_claim_test.go',
+    ),
+    '^TestSchedulerLaunch$': (
+        'tests/projectvariable/scheduler_launch_test.go',
+    ),
+    '^TestSchedulerBusyCompensation$': (
+        'tests/projectvariable/scheduler_busy_compensation_test.go',
+    ),
+    '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$': (
+        'tests/projectvariable/scheduler_pending_visit_test.go',
+        'tests/projectvariable/task_human_http_test.go',
+    ),
+    '^TestSprintStartHTTP$': (
+        'tests/projectvariable/task_human_http_test.go',
+    ),
     '^TestAgentConfigurationMetadata$': (
         'tests/projectvariable/agent_configuration_metadata_test.go',
         '.agent-state/agent-configuration-metadata/README.md',
