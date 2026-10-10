@@ -181,7 +181,7 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 - final-anchor源保1001外域available Artifact/Object/Upload/current/reference/writer→attempt及原retired PUT全部入边背景；三坏序父DELETE拒绝与原current NULL→最后四anchor DELETE、原延期FK queue、同2s实际rollback分别观察。此格测SQL/FK成本，不替Purge权限、32业务批次或Skills最后五行。
 - pending/cause源保65cleaned旧attempt、一条closed abandoned applying、原current已gated/abandoned，两个非终局符合配额。原current published却已有gated cleanup的草案不可达形状已按`gateAttempt`原子更新修正。原union两个候选集合去重/物理pending、已joined但错fence仍Stop pending及原`ORDER BY created_at,id LIMIT 1`真实捕获SQL均独立观测；较小ID较晚cause使错误排序可辨，不删除旧cause重算native Audit。
 
-这些成本种子只进入另一个真实Migrator建立的独立SQL数据库，任何标记Audit/binding/退休状态均不交给Service或权限提供方。六成本来源仅有限静审接受，pending唯一原子shape返修Runner e0e2fb/b194bd接受，新后三top入口Work fd74fc接受；已完成整包race-c和七exact list，不执行业务，尚无SQL/EXPLAIN实测。剩余门是原history真实单组、两成本组实际计划/全部FK检查与原2s返回，然后根据全计划中的扫描/过滤/loops/buffers和真实trigger成本判断22索引必要性或缺项；测试body返回不自动接受成本，也不扩大Runtime join或其它停项。
+这些成本种子只进入另一个真实Migrator建立的独立SQL数据库，任何标记Audit/binding/退休状态均不交给Service或权限提供方。六成本来源仅有限静审接受，pending唯一原子shape返修Runner e0e2fb/b194bd接受，新后三top入口Work fd74fc接受；已完成整包race-c和七exact list，不执行业务，尚无SQL/EXPLAIN实测。后继history及两个成本组统一使用同一563b完整候选（身份与完整命令见current）；旧08 history和5c7c成本二进制由root精确退休，原编译/失败/未验记录不改。剩余门是原history真实单组、两成本组实际计划/全部FK检查与原2s返回，然后根据全计划中的扫描/过滤/loops/buffers和真实trigger成本判断22索引必要性或缺项；测试body返回不自动接受成本，也不扩大Runtime join或其它停项。
 
 ## 8. 旧源最小预计写域与验收
 
