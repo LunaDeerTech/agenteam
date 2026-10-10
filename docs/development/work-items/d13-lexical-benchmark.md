@@ -190,4 +190,8 @@ SPEC 窄审固定边界后才能写数据与工具。完成本卡要求：固定
 
 共享 root driver/supervisor 由 coordination 唯一接线，增加独立 exact selector、root-only 与四个 RUN/PASS 节点及唯一 actual Wait0 门；source inputs 在原闭包上只增加 `tests/knowledge/*.go`，尾部重新枚举集合并核字节，不借用正文 HTTP selector/Schema/native 模式。原 top 含尾 120s、调用 20s、Go 6m、root 540+60+3s、host TCP 75s、七资源及 private/runtime/desc 双尾不变。离线入口控制源为 `.agent-state/d13-plain-text-parser/entry-controls.py`，只检查真实函数及受控输入，不执行资源。
 
-当前新 Go 源已落盘，待离线 race-c/exact list、共享两源接线和方法控制、非作者 review；尚未启动 PG/Object/socket。六个已验纯 Parser Go 源及 `plain_text:v1`、原 D12 服务/fixture 均不修改。真实运行须另获窗口，候选准备不计联调通过。
+当前新 Go 源已落盘，尚未启动 PG/Object/socket。六个已验纯 Parser Go 源及 `plain_text:v1`、原 D12 服务/fixture 均不修改。真实运行须另获窗口，候选准备不计联调通过。
+
+离线 race-c 首次实际完成：2026-10-10 07:36:12 UTC，同 process fresh 6135709696 bytes，通过 `go test -race -p=1 -tags=integration -c -o output/ai/d13-plain-text-parser/parser-integration-race-01.test ./tests/knowledge`；原 Go PID427925 actual Wait0、原进程组 absent、私有 runtime 空。候选 41743204 bytes，发布输入身份 SHA256=`e5e9baa664b349fe62030e209f3d4e7f5f6308d908e002ca202fbf98894b0129`。同监督随后准备 exact list 时 fresh=5293277184 bytes，低于 5368709120 门，因此原 outer58349 actual1；list 未启动、MinIO 复制未执行，不属于产品失败。容量恢复后只补同候选发现，不重编已成功输入。Go 的 `-test.list` 仅能发现 top；三子源码闭集可核，实际各 RUN/PASS 必须留到真实窗口。
+
+入口控制初稿包含真实结果/Wait 判定、配置/输入集合变化与原 observer 的有控双尾；共享 API 未安装或已知 delta 逆投影未冻结时明确 `PENDING`/exit2，不输出 READY/PASS。coordination 当前先完成另一受派树边界，本树 shared 两源未接线；后继需完整恢复固定 main `3a7a3fb5` 两源的逆投影、方法控及非作者 review，故当前不就绪。
