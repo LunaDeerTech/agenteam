@@ -8,17 +8,11 @@ import (
 	"encoding/pem"
 	"errors"
 	"io"
-	"log"
-	"net"
 	"net/http"
-	"net/http/httptest"
-	"net/http/httputil"
-	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"sync/atomic"
 	"syscall"
 	"testing"
 	"time"
@@ -28,53 +22,6 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/runner/identity"
 	p "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
 )
-
-// This is a deployment-style TLS terminator, not a device/control replacement.
-// Every request and upgraded stream reaches the default Central cmd listener.
-type runnerRootTransport struct {
-	server *httptest.Server
-	wss    atomic.Int32
-}
-
-func newRunnerRootTransport(t *testing.T, address string) *runnerRootTransport {
-	t.Helper()
-	upstream, err := url.Parse(address)
-	if err != nil {
-		t.Fatal("root transport address invalid")
-	}
-	v := &runnerRootTransport{}
-	transport := &http.Transport{Proxy: nil, DialContext: (&net.Dialer{Timeout: 3 * time.Second}).DialContext, ResponseHeaderTimeout: 5 * time.Second, DisableKeepAlives: true}
-	proxy := httputil.NewSingleHostReverseProxy(upstream)
-	proxy.Transport = transport
-	proxy.ErrorLog = log.New(io.Discard, "", 0)
-	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, _ error) {
-		http.Error(w, "unavailable", http.StatusBadGateway)
-	}
-	v.server = httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/api/v1/runner/control" {
-			v.wss.Add(1)
-			defer v.wss.Add(-1)
-		}
-		proxy.ServeHTTP(w, r)
-	}))
-	t.Cleanup(func() { transport.CloseIdleConnections(); v.server.Close() })
-	return v
-}
-
-func (v *runnerRootTransport) retired(t *testing.T) {
-	t.Helper()
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-	tick := time.NewTicker(10 * time.Millisecond)
-	defer tick.Stop()
-	for v.wss.Load() != 0 {
-		select {
-		case <-ctx.Done():
-			t.Fatal("original root upgraded transport handler has not returned")
-		case <-tick.C:
-		}
-	}
-}
 
 func runnerRootDirectory(t *testing.T) string {
 	t.Helper()
@@ -284,7 +231,7 @@ func runnerRootCredential(t *testing.T, response modelSystemResponse, wantToken 
 // the existing seven-resource root chain, not the PG-only fixture window.
 func TestRunnerControlDefaultProcesses(t *testing.T) {
 	v := newModelSystemBinary(t)
-	proxy := newRunnerRootTransport(t, v.address)
+	proxy := newRunnerFailureTransport(t, v.address)
 	directory := runnerRootDirectory(t)
 	path, ca := filepath.Join(directory, "identity.json"), filepath.Join(directory, "root.pem")
 	if os.WriteFile(ca, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: proxy.server.Certificate().Raw}), 0600) != nil {
@@ -315,7 +262,7 @@ func TestRunnerControlDefaultProcesses(t *testing.T) {
 	runnerRootLock(t, path, true)
 	runnerRootSnapshot(t, v, target, rc.Online)
 	runnerRootStop(t, first, syscall.SIGTERM)
-	proxy.retired(t)
+	proxy.controlRetired(t)
 	runnerRootLock(t, path, false)
 	runnerRootSnapshot(t, v, target, rc.Offline)
 
@@ -330,7 +277,7 @@ func TestRunnerControlDefaultProcesses(t *testing.T) {
 	pathAPI := "/api/v1/system/runners/" + target
 	revoked, _ := runnerRootCredential(t, v.request(t, "POST", pathAPI+"/revoke", modelSystemKey(t), rc.CredentialRequest{ExpectedVersion: online.Version}, nil).want(t, 200), false)
 	runnerRootState(t, second, "disconnected")
-	proxy.retired(t)
+	proxy.controlRetired(t)
 	if revoked.Runner.Version != 3 || revoked.Runner.CredentialGeneration != 2 || runnerRootSnapshot(t, v, target, rc.Offline).PublicKeyFingerprint != nil {
 		t.Fatal("default revoke retained a current credential")
 	}
@@ -360,7 +307,7 @@ func TestRunnerControlDefaultProcesses(t *testing.T) {
 	// actual cmd Wait and absent database backends must precede fixture retirement.
 	v.stop(t, syscall.SIGTERM)
 	runnerRootState(t, third, "disconnected")
-	proxy.retired(t)
+	proxy.controlRetired(t)
 	runnerRootStop(t, third, syscall.SIGTERM)
 	runnerRootLock(t, path, false)
 	if err := conn.QueryRow(databaseContext(t), `SELECT NOT EXISTS(SELECT 1 FROM agenteam_runner.connections WHERE runner_id=$1)`, target).Scan(&facts); err != nil || !facts {
