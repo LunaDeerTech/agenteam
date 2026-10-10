@@ -292,3 +292,12 @@ Skill、Tool、Execution提供方及00051/00052已有限验收：定向纯测与
 两个提供方的请求只标识Project/Agent/Execution。discovery通过原preparing claim/process/fence的私有证明，读取各自真实assignment或Agent引用head，冻结版本、集合及完整锁计划；final在同Store原Tx取得完整锁并完成真实Project→Trigger→Agent捕获后，重验相同attempt与当前事实。Skill绑定当前已发布revision及assignment sequence，不把初始化时ObservedRevision当运行版本；Tool固定真实注册的Spec/名称/binding，与实际Agent配置和原Execution Policy精确对应，未实现的binding或约束明确拒绝。各域引用与捕获结果同Tx产生，不能凭公开DTO、虚构Human或已存在Execution行取得授权。
 
 真实组合已在原PreparationDriver内调用两真实提供方并观察非空固定结果及同Tx本域引用；完整Model/Context/ref/lease/input尚未齐备时，外层实际回滚，未提交半份preparation input、引用或Snapshot。此结果不等于完整capture、running或Started。Model捕获和网络请求、实际Tool调用、完整Core Tools、生产app/initializer、Execution终态与relaunch/cooldown仍未由本片完成。
+
+
+## 有限后继：受支持配置的完整 preparation input
+
+Model、环境及真实空Mount提供方、版本化Platform Prompt和00053/00054输入持久化已实现并获有限源码审查接受；定向23 top按原20项通过及修后Mount三项补验、十一包vet、compile/list及真实1 top/2 sub整轮通过，原调用与全部资源退出尾闭合。完整input、引用与租约真实提交后丢回执的Unknown由原owner只读恢复，未重复调用提供方；缺Mount时原NotCommitted回滚input、引用与租约，Model prepared intent按合同单独保留。原纯测素材失败和启动前容量失败保留。本片复用原Model Resolver与Execution真实Consumer授权，仅捕获现有受支持的主模型配置；Model credential沿原Model私有Secret usage链取得Execution租约，环境Secret沿独立ProjectVariable用途取得租约，不扩大旧Purpose闭集。普通环境值可进入输入，Secret只保存元数据、稳定引用与lease ID，不保存明文或密文，也不承诺冻结后续进程读取的Secret值。
+
+PreparationDriver在原claim/process/fence及完整锁计划下，依次取得真实Project、Trigger、Agent、Skill、Tool、Model、Environment与Mount结果；输入固定原Launch、完整命令身份、RequestID、attempt binding、捕获时间及版本化Prompt。00054按Execution唯一身份保存规范字节、摘要和原claim完整关系，所有本域引用、Model snapshot/binding与租约和输入在同一原Tx提交。Model discovery的prepared intent允许独立保留；最终捕获缺项或失败不得留下部分输入、引用或租约。Unknown保留原调用及精确输入身份，通过原只读观察确认，不能因未查到行重发；已提交输入的重放不重新捕获当前配置或生成新attempt。
+
+本片要求正式Agent配置显式`InjectAgentsMD=false`，Mount提供方真实读取head/version并确认配置为空；默认true缺内容源、非空Mount缺运行引用或未知资源约束均明确拒绝。Tool结果按当前注册交集冻结，Agent保留未注册Tool ID不等于捕获结果缺失。输入codec仅验证封闭类型、版本、边界和各域身份关系，不代替提供方私有证明；Platform Prompt包含Knowledge按需检索及Memory recall/retain/reflect的既定职责，不声称这些工具必然可用。输入提交后Execution仍为preparing，不构成sealed Snapshot、Running或Started；实际模型请求、OpenAI tools动态STOP、完整终态/relaunch/cooldown及生产app/initializer边界保持。重跑方式和最终结果继续放在[既有组合说明](../../../.agent-state/agent-system-integration/README.md)。
