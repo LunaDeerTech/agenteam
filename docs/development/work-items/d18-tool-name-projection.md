@@ -1,6 +1,6 @@
 # D18 Tool 引用名称投影
 
-状态：有限实施 SPEC，待独立关系审查；尚未编码或运行。基线为 main `3a7a3fb5`。本批仅交付内存中的确定性名称表，不完成 Registry、Tool Runtime 或 D18，也不解除既有停止项。
+状态：有限 SPEC 已经 coordination 与 cleanup 独立只读审查接受；两纯包及相邻测试已落盘，尚未编译或运行。基线为 main `3a7a3fb5`。本批仅交付内存中的确定性名称表，不完成 Registry、Tool Runtime 或 D18，也不解除既有停止项。
 
 ## 1. 正式依据与模块关系
 
@@ -106,4 +106,4 @@ Resolve 只在该表内按完整字节查找；不 trim、case-fold、Unicode �
 
 SPEC 独立关系审后再实施。限定本包 pure/race/vet 一轮及源码静审；不启动 PG/socket/browser/Provider、不重跑 D16 或未变 Model/Agent 矩阵。首次 Go 前使用固定 Go1.27.1、同进程 fresh≥5 GiB、任务私有 telemetry off/去旁路、自有 cache 与只读模块 cache；命令实际 Wait 并记录私有运行目录正常退役。
 
-当前仅本卡落盘，未编码、编译或运行。后续结果按实际输入记录，不将规格接受写成运行验收。
+当前源码为 `internal/central/tool/contract/spec_ref.go` 与 `internal/central/tool/projection/name_table.go`，各有相邻纯测试。SPEC 的关系与边界独审均无 must-fix；实现和测试仍待实际验证及源码独审。后续结果按实际输入记录，不将规格接受写成运行验收。
