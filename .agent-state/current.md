@@ -79,3 +79,10 @@
 - 本组真实正式Migrator验证00030空库/repeat与schema、00029普通存量/原receipt升级保持及升级后实际Secret producer写入、五目标CHECK（含Audit严格metadata）和deferred history FK同Tx拒绝回滚。26–29依旧仅测试装配前缀，不据本次迁移成功宣称其各域正式交付；普通Project创建保原已披露Skills fixture，未扩HTTP/defaultroot。
 - Go child1409847 actualWait0，driver1409223 actualWait0/25.933s；nonce58c6828a9456d92b865832260dc5db12，container6893dbc2134bbd3d6e6092a0ab1410dddbe700ad76647e4480ee746890f566a1、network6a744e2052607cb40af649b883a46b294af81da37cb7ee7fe9b0d074f733f689原ID双RETIRE clean。原desc双空、exact_cases9/9、TCP双delta空、inputs_unchanged=True/terminal0全部齐。bcce50与111d9e两次只读确认六私文件实际absent，run目录仅owned.json，无runtime遗留；未拿事后无进程补原Wait。
 - 完整终态已即时向root释放窗口；无自动retry/第二组。其他三组（五业务top）全部未跑，Owner整库未完成。源码、固定候选/driver及原工具/预算继续冻结，后继各组另需fresh grant。root另已精确回收D04旧a587 compile/list-only产物，该旧件从未PG；其历史记录保留、如需恢复必须重建，D04两对已验fixed与本树d52/03bd均未变。
+
+## Read 首真实组 FAIL 与完整终态
+
+- 固定 d52/03bd、402输入；d85726 同进程 UTC2026-10-10T01:01:07.712613Z/fresh5439598592 后执行 `^TestSecretVariableOwner(Persistence|CurrentAuthority)$`，唯一 `sql-owner-read-01/pg-4971ef4f15ca4a39bd30db87993018b6.log`。原 session42579→f4ef34 本人 actual outer1；supervisor80.220s，6 RUN/6结果，3子PASS、归档子与两父FAIL，exact_cases=False。没有自动retry或执行其余组。
+- CurrentAuthority7.25s：当前Owner/跨Project、Owner失权与撤销Session三子PASS；归档子在 archived fixture 之后重放原材料返回 DEPENDENCY_UNAVAILABLE。Persistence6.31s在历史安全Lookup返回 IDEMPOTENCY_KEY_REUSED；原日志未标具体循环项，不反推该项之前每次迭代均已采证。
+- Go1436950 actualWait1、driver1436361 actualWait1/20.021s/cleanup=true；nonce69f3e11555bf1cd11a88009dda3a0c1e，containerce6620662dc8f9bf9e0575796d90a6d819367e675f5318a478a655a8ee0c4bd4、networkde5b08d2ce7bd388b00bf3025063aae439532a46bac0c916cc24b9fc1b35bd83均原双RETIRE clean。desc双[]、TCP双delta空、inputs_unchanged=True/terminal1齐；d1f001/2ac1d9两次只读核run仅owned.json、无runtime，六私文件absent。原outer已实际退出后向root释放窗口，未用事后无PID补Wait。
+- 后置只读定位：`noOpMeta`持有`version`原指针，在原命令expected=2之后，测试将同变量改为3才构造历史Lookup；这是实际源码可确定的请求改义，尚未运行离线复现。既有归档fixture在同UPDATE各自调用clock_timestamp设置archived_at/updated_at，正式ProjectRef要求前者不晚于后者；这是可能构造非法前像的源码风险，本轮未采原两时间，不能回填确切原因。没有生产digest或权限缺陷证据，原FAIL保留；下一步仅必要fixture修复/有限控制与未参与者独审，未授权重跑。

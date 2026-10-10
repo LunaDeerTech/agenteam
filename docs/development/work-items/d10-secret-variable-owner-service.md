@@ -63,3 +63,5 @@ Unknown保原CommitResult/Attempt/Cause，不自动重放callback；最多一次
 实际入口沿原PG-only工具按读/权限、原子/并发、COMMIT恢复、迁移四组分窗，完整节点6/10/5/9；原Go6m、105+15、123+3、TCP75和两资源不变，入口控制/固定候选/独审完成后仍须root fresh grant。Activity回滚必须先在原Tx看到真实更新；Stop格要求原writer尚未返回，取消后held-callback的Drain负向由独立受控pure覆盖，不冒该负向已经真实PG验证。
 
 00030首真实组沿固定d52/03bd与402输入，原session66022→6226ae actualouter0/85.988s，单top9节点PASS15.50s：空库/repeat、普通00029存量和原receipt升级保留、升级后真实Secret写入、五CHECK及deferred history FK实际回滚。Go/driver Wait0、两个原ID双退役、私文件/desc/TCP双尾和输入不变均齐；精确日志及身份见current。该结果不替代其余五业务top、全Owner或26–29正式交付。
+
+Read首真实组沿同固定产物/402输入，42579→f4ef34 actualouter1/80.220s完整FAIL：两父四子共6节点，当前Owner/跨Project、失权和撤销Session三子PASS；归档后的原材料重放报DEPENDENCY_UNAVAILABLE，Persistence历史安全Lookup报IDEMPOTENCY_KEY_REUSED。原Go/driver Wait1、PG两ID双退役、private/runtime/desc/TCP与input完整尾均齐，窗口已释放。只读确认测试no-op的expected指针后来被改为3；归档fixture双clock_timestamp可能违反正式时间顺序但本轮未采时间，仍非已证原因。尚无依据修改生产授权/digest或放宽预期；后继仅修明确测试输入并独审，原FAIL和其余两个未跑业务组保持。
