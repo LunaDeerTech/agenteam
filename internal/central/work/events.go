@@ -89,6 +89,12 @@ func eventBinding(record *commandRecord, actor i.Actor, summary event.Summary) (
 	return digest(raw), locks, opaque, nil
 }
 func (a *Authority) DiscoverAppend(ctx context.Context, actor i.Actor, summary event.Summary) (oc.Dependencies, error) {
+	if schedulerClaimEventTriple(summary) {
+		return a.discoverSchedulerClaimAppend(ctx, actor, summary)
+	}
+	if sprintStartEventTriple(summary) {
+		return a.discoverSprintStartAppend(ctx, actor, summary)
+	}
 	if transitionEventTriple(summary) {
 		return a.discoverTransitionAppend(ctx, actor, summary)
 	}
@@ -138,6 +144,12 @@ func eventProject(summary event.Summary) (c.ProjectID, error) {
 }
 
 func (a *Authority) ValidateAppendInTx(ctx context.Context, tx f.Tx, actor i.Actor, summary event.Summary, deps oc.Dependencies, stage oc.Stage) error {
+	if schedulerClaimEventTriple(summary) {
+		return a.validateSchedulerClaimAppendInTx(ctx, tx, actor, summary, deps, stage)
+	}
+	if sprintStartEventTriple(summary) {
+		return a.validateSprintStartAppendInTx(ctx, tx, actor, summary, deps, stage)
+	}
 	if transitionEventTriple(summary) {
 		return a.validateTransitionAppendInTx(ctx, tx, actor, summary, deps, stage)
 	}

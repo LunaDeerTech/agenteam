@@ -72,7 +72,7 @@ func loadTaskTriggerBlockers(ctx context.Context, x postgres.SQLExecutor, projec
 	return result, nil
 }
 func loadTaskTriggerEvents(ctx context.Context, x postgres.SQLExecutor, project c.ProjectID, task c.TaskID) ([]json.RawMessage, error) {
-	rows, err := x.Query(ctx, `SELECT id::text,project_id::text,task_id::text,task_version,type,actor,operation_id::text,blocker_operation_id::text,transition_operation_id::text,correlation_id::text,payload,created_at FROM agenteam_work.task_events WHERE project_id=$1 AND task_id=$2 ORDER BY created_at DESC,id DESC LIMIT $3`, project.String(), task.String(), TaskTriggerRecentEvents)
+	rows, err := x.Query(ctx, `SELECT id::text,project_id::text,task_id::text,task_version,type,actor,operation_id::text,blocker_operation_id::text,transition_operation_id::text,claim_operation_id::text,correlation_id::text,payload,created_at FROM agenteam_work.task_events WHERE project_id=$1 AND task_id=$2 ORDER BY created_at DESC,id DESC LIMIT $3`, project.String(), task.String(), TaskTriggerRecentEvents)
 	if err != nil {
 		return nil, taskTriggerError(err)
 	}
@@ -97,24 +97,40 @@ func loadTaskTriggerEvents(ctx context.Context, x postgres.SQLExecutor, project 
 func scanTaskTriggerEvent(row interface{ Scan(...any) error }) (json.RawMessage, error) {
 	var id, project, task, kind, correlation string
 	var version f.Version
-	var operation, blockerOperation, transitionOperation *string
+	var operation, blockerOperation, transitionOperation, claimOperation *string
 	var actor, payload []byte
 	var created time.Time
-	if err := row.Scan(&id, &project, &task, &version, &kind, &actor, &operation, &blockerOperation, &transitionOperation, &correlation, &payload, &created); err != nil {
+	if err := row.Scan(&id, &project, &task, &version, &kind, &actor, &operation, &blockerOperation, &transitionOperation, &claimOperation, &correlation, &payload, &created); err != nil {
 		return nil, taskTriggerError(err)
+	}
+	var actorKind struct {
+		Type string `json:"type"`
+	}
+	if json.Unmarshal(actor, &actorKind) != nil {
+		return nil, internal(nil)
+	}
+	if claimOperation != nil && actorKind.Type != "system" || transitionOperation != nil && actorKind.Type != "human" {
+		return nil, internal(nil)
 	}
 	selected := operation
 	switch kind {
 	case string(c.TaskEventCreated), string(c.TaskEventFieldsUpdated):
-		if operation == nil || blockerOperation != nil || transitionOperation != nil {
+		if operation == nil || blockerOperation != nil || transitionOperation != nil || claimOperation != nil {
 			return nil, internal(nil)
 		}
 	case string(c.TaskBlockerEventAdded), string(c.TaskBlockerEventResolved):
-		if blockerOperation == nil || operation != nil || transitionOperation != nil {
+		if blockerOperation == nil || operation != nil || transitionOperation != nil || claimOperation != nil {
 			return nil, internal(nil)
 		}
 		selected = blockerOperation
 	case string(c.TaskTransitionStateChanged), string(c.TaskTransitionAssigneeChanged), string(c.TaskTransitionComment):
+		if claimOperation != nil {
+			if kind != string(c.TaskTransitionStateChanged) || transitionOperation != nil || operation != nil || blockerOperation != nil {
+				return nil, internal(nil)
+			}
+			selected = claimOperation
+			break
+		}
 		if transitionOperation == nil || operation != nil || blockerOperation != nil {
 			return nil, internal(nil)
 		}
