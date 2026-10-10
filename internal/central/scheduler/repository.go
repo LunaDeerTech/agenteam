@@ -10,12 +10,13 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 	"github.com/jackc/pgx/v5"
 )
 
 const dispatchColumns = `id::text,project_id::text,sprint_id::text,task_id::text,agent_id::text,
  launch_request,launch_digest,idempotency_key,request_id::text,status,launch_outcome,version,
- claim_guard,claim_source_sprint_id::text,claim_source_state,claim_source_priority,execution_id::text,attempt_count,next_retry_at,created_at,updated_at,busy_attempt,skip_reason,skipped_at`
+ claim_guard,claim_source_sprint_id::text,claim_source_state,claim_source_priority,execution_id::text,attempt_count,next_retry_at,created_at,updated_at,busy_attempt,skip_reason,skipped_at,final_attempt,failure_reason,failure_code,failure_occurred_at,failed_at`
 
 func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	var id, p, s, t, a, key, requestID, status, outcome, digest string
@@ -28,7 +29,10 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	var busy *int64
 	var reason *string
 	var skipped *time.Time
-	if err := row.Scan(&id, &p, &s, &t, &a, &launchRaw, &digest, &key, &requestID, &status, &outcome, &version, &guardRaw, &sourceSprint, &sourceState, &sourcePriority, &execution, &attempts, &retry, &created, &updated, &busy, &reason, &skipped); err != nil {
+	var finalAttempt *int64
+	var failureReason, failureCode *string
+	var occurred, failed *time.Time
+	if err := row.Scan(&id, &p, &s, &t, &a, &launchRaw, &digest, &key, &requestID, &status, &outcome, &version, &guardRaw, &sourceSprint, &sourceState, &sourcePriority, &execution, &attempts, &retry, &created, &updated, &busy, &reason, &skipped, &finalAttempt, &failureReason, &failureCode, &occurred, &failed); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
@@ -129,6 +133,33 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 			return nil, unavailable(nil)
 		}
 	}
+	// Old generic known-not-created rows have no classification. A missing
+	// marker never becomes final failure, even if a safe code looks familiar.
+	if finalAttempt == nil {
+		if failureReason != nil || failureCode != nil || occurred != nil || failed != nil {
+			return nil, unavailable(nil)
+		}
+	} else {
+		if failureReason == nil || failureCode == nil || occurred == nil || occurred.IsZero() || occurred.Nanosecond()%1000 != 0 || occurred.Before(created) || occurred.After(updated) || busy != nil || reason != nil || skipped != nil {
+			return nil, unavailable(nil)
+		}
+		r.finalAttempt, r.failureReason, r.failureCode = *finalAttempt, wc.TaskLaunchFailureReason(*failureReason), f.Code(*failureCode)
+		at, err := f.NewInstant(*occurred)
+		if err != nil {
+			return nil, unavailable(nil)
+		}
+		r.failureOccurredAt = &at
+		if failed != nil {
+			at, err := f.NewInstant(*failed)
+			if err != nil || failed.Nanosecond()%1000 != 0 || !failed.Equal(updated) {
+				return nil, unavailable(nil)
+			}
+			r.failedAt = &at
+		}
+		if !pendingFinalFailure(r) && !completedFinalFailure(r) {
+			return nil, unavailable(nil)
+		}
+	}
 	return r, nil
 }
 
@@ -188,8 +219,24 @@ func updateDispatch(ctx context.Context, x postgres.SQLExecutor, r *dispatchReco
 	if r.skippedAt != nil {
 		skipped = r.skippedAt.Time()
 	}
-	tag, err := x.Exec(ctx, `UPDATE agenteam_scheduler.dispatches SET status=$3,launch_outcome=$4,execution_id=$5,attempt_count=$6,next_retry_at=$7,version=$8,updated_at=$9,busy_attempt=$11,skip_reason=$12,skipped_at=$13
- WHERE project_id=$1 AND id=$2 AND version=$10`, r.project.String(), r.id.String(), string(r.status), string(r.outcome), execution, r.attempts, retry, int64(r.version), r.updatedAt.Time(), int64(previous), busy, reason, skipped)
+	var finalAttempt, failureReason, failureCode, occurred, failed any
+	if r.finalAttempt > 0 {
+		finalAttempt = r.finalAttempt
+	}
+	if r.failureReason != "" {
+		failureReason = string(r.failureReason)
+	}
+	if r.failureCode != "" {
+		failureCode = string(r.failureCode)
+	}
+	if r.failureOccurredAt != nil {
+		occurred = r.failureOccurredAt.Time()
+	}
+	if r.failedAt != nil {
+		failed = r.failedAt.Time()
+	}
+	tag, err := x.Exec(ctx, `UPDATE agenteam_scheduler.dispatches SET status=$3,launch_outcome=$4,execution_id=$5,attempt_count=$6,next_retry_at=$7,version=$8,updated_at=$9,busy_attempt=$11,skip_reason=$12,skipped_at=$13,final_attempt=$14,failure_reason=$15,failure_code=$16,failure_occurred_at=$17,failed_at=$18
+ WHERE project_id=$1 AND id=$2 AND version=$10`, r.project.String(), r.id.String(), string(r.status), string(r.outcome), execution, r.attempts, retry, int64(r.version), r.updatedAt.Time(), int64(previous), busy, reason, skipped, finalAttempt, failureReason, failureCode, occurred, failed)
 	if err != nil {
 		return portError(err)
 	}
