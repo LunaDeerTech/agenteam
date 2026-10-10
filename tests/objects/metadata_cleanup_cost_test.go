@@ -258,21 +258,17 @@ func metadataCostExplain(t *testing.T, store *postgres.Store, stage, name, sql s
 	returned := time.Now()
 	cancel()
 	var plans []struct {
-		Plan struct {
-			NodeType string  `json:"Node Type"`
-			Rows     float64 `json:"Actual Rows"`
-			Loops    float64 `json:"Actual Loops"`
-		} `json:"Plan"`
+		Plan metadataCostPlanNode `json:"Plan"`
 	}
 	if err != nil || returned.After(deadline) || json.Unmarshal(raw, &plans) != nil || len(plans) != 1 || plans[0].Plan.NodeType == "" || plans[0].Plan.Rows != float64(wantRows) || plans[0].Plan.Loops != 1 {
 		t.Fatal("executed cost plan/result mismatch or late return", stage, name, err)
 	}
-	// Keep the entire node tree, rows removed, loops, buffers and timings. A
-	// successful observation does not certify every node/index as bounded, nor
-	// cover FK triggers, nonempty grants/transfers, PUT packages or Skills.
-	// Index pruning requires reviewing these actual plans, not forcing a plan
-	// with enable_seqscan=off or assuming LIMIT bounds rows scanned.
+	// Preserve the original full plan before rejecting work hidden below a
+	// one-row Boolean result or LIMIT. No scan/index name is forced or banned.
 	t.Logf("D05 SQL-cost EXPLAIN stage=%s query=%s plan=%s", stage, name, raw)
+	if err := metadataCostPlanWithinFixtureBounds(plans[0].Plan); err != nil {
+		t.Fatal("cost plan traversed beyond the fixture's current/batch work", stage, name, err)
+	}
 }
 
 const metadataCostActiveReadersSQL = `
