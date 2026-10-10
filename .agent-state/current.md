@@ -42,3 +42,16 @@ Object owner/access 与 maintenance 按实际安装行、当前 attempt、原 pr
 2026-10-10 13:09:46 UTC，原 `pure-02` outer 755841（exec `0f9c88`）在同进程 fresh 磁盘门失败：5,144,195,072 B < 5,368,709,120 B。outer 实际 exit 1，零 Go、零 cache 写、零资源；race 与 vet 均未执行。1069 个 Go/mod 输入前后相同，私有 runtime 为空；原 `output/ai/skill-install/pure-02/{result,inputs}.json` 保留，未自动重试，热 cache 已交回 root 调度。
 
 待资源条件满足后仍只运行既定 8 新 top、原 bounded cleanup 1 top、Stop 的 discard/reader 两 sub 与单 skill 包 vet。准确合计 10 top / 27 sub；此前 20 sub 的准备计数漏记 `TestInstalledCleanupFinalAnchorsRequireCompletedOriginalGate` 内既有 7 sub，选择器范围未扩大。源仍冻结，下一 fresh 轮须由 root 调度。
+
+## 公开链 pure-03：限定 race / vet whole PASS
+
+root 对三棵停驻旧树的已保存 archive 工作副本可逆 sparse 后，2026-10-10 13:11:35 UTC 启动 fresh `pure-03`，首阶段同进程可用 6,210,076,672 B。运行时 HEAD `5569c668`，Skill 产品与既定测试未改；1069 个 Go/mod 输入每阶段及整轮前后相同。共享 Python 入口不属于本轮编译输入，可由 content 独立维护。
+
+- 新 8 top / 25 sub：Go 757738，race Wait 0，15.525 秒。
+- 原 bounded cleanup 1 top：Go 757970，race Wait 0，3.872 秒。
+- 原 Stop `discard|reader` 1 top / 2 sub：Go 758097，race Wait 0，2.712 秒。
+- 单 `internal/central/skill` 包 vet：Go 758184，Wait 0，2.936 秒。
+
+exact 合计 10 top / 27 sub，无 FAIL/SKIP；outer 757734、session 41809 → `d109a6` 实际 exit 0。每阶段原 Go Wait、进程组双 absent、runtime 双 empty、adopted [] 齐。原日志、result 与输入位于 `output/ai/skill-install/pure-03/`；全部尾已释放，热 cache 已直接交 work_ui 后继窗口。pure-02 原预飞 FAIL 保留。
+
+本轮只证明公开安装/读取/清理受控基础与受影响旧路径；迁移 00036、真实 Human Install → Get/Open → Cleanup 首链尚未执行，AgentRun / Registry callable Backend 与原 STOP 边界保持。
