@@ -294,7 +294,7 @@ func verifySchedulerClaimPostimage(ctx context.Context, x postgres.SQLExecutor, 
 			return fault(f.Forbidden)
 		}
 	}
-	rows, err := x.Query(ctx, `SELECT id::text,project_id::text,task_id::text,task_version,type,actor,operation_id::text,blocker_operation_id::text,transition_operation_id::text,claim_operation_id::text,correlation_id::text,payload,created_at FROM agenteam_work.task_events WHERE project_id=$1 AND claim_operation_id=$2 ORDER BY id`, r.Request.ProjectID.String(), r.Request.DispatchID)
+	rows, err := x.Query(ctx, `SELECT id::text,project_id::text,task_id::text,task_version,type,actor,operation_id::text,blocker_operation_id::text,transition_operation_id::text,claim_operation_id::text,compensation_operation_id::text,correlation_id::text,payload,created_at FROM agenteam_work.task_events WHERE project_id=$1 AND claim_operation_id=$2 ORDER BY id`, r.Request.ProjectID.String(), r.Request.DispatchID)
 	if err != nil {
 		return taskSQL(err)
 	}

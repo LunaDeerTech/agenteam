@@ -15,7 +15,7 @@ import (
 
 const dispatchColumns = `id::text,project_id::text,sprint_id::text,task_id::text,agent_id::text,
  launch_request,launch_digest,idempotency_key,request_id::text,status,launch_outcome,version,
- claim_guard,claim_source_sprint_id::text,claim_source_state,claim_source_priority,execution_id::text,attempt_count,next_retry_at,created_at,updated_at`
+ claim_guard,claim_source_sprint_id::text,claim_source_state,claim_source_priority,execution_id::text,attempt_count,next_retry_at,created_at,updated_at,busy_attempt,skip_reason,skipped_at`
 
 func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	var id, p, s, t, a, key, requestID, status, outcome, digest string
@@ -25,7 +25,10 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	var version, attempts int64
 	var retry *time.Time
 	var created, updated time.Time
-	if err := row.Scan(&id, &p, &s, &t, &a, &launchRaw, &digest, &key, &requestID, &status, &outcome, &version, &guardRaw, &sourceSprint, &sourceState, &sourcePriority, &execution, &attempts, &retry, &created, &updated); err != nil {
+	var busy *int64
+	var reason *string
+	var skipped *time.Time
+	if err := row.Scan(&id, &p, &s, &t, &a, &launchRaw, &digest, &key, &requestID, &status, &outcome, &version, &guardRaw, &sourceSprint, &sourceState, &sourcePriority, &execution, &attempts, &retry, &created, &updated, &busy, &reason, &skipped); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
@@ -97,6 +100,35 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 		}
 		r.nextRetry = &v
 	}
+	// Historical rows have all three NULL fields. Never infer AgentBusy from
+	// their generic known_not_created outcome. A new marker is attempt-bound.
+	if busy == nil {
+		if reason != nil || skipped != nil {
+			return nil, unavailable(nil)
+		}
+	} else {
+		if *busy <= 0 || *busy != attempts || r.outcome != KnownNotCreated || r.execution != nil || retry != nil {
+			return nil, unavailable(nil)
+		}
+		r.busyAttempt = *busy
+		switch r.status {
+		case Pending:
+			if reason != nil || skipped != nil {
+				return nil, unavailable(nil)
+			}
+		case Skipped:
+			if reason == nil || *reason != "agent_busy" || skipped == nil || !skipped.Equal(updated) {
+				return nil, unavailable(nil)
+			}
+			v, err := f.NewInstant(*skipped)
+			if err != nil || skipped.Nanosecond()%1000 != 0 {
+				return nil, unavailable(nil)
+			}
+			r.skipReason, r.skippedAt = *reason, &v
+		default:
+			return nil, unavailable(nil)
+		}
+	}
 	return r, nil
 }
 
@@ -146,8 +178,18 @@ func updateDispatch(ctx context.Context, x postgres.SQLExecutor, r *dispatchReco
 	if r.nextRetry != nil {
 		retry = r.nextRetry.Time()
 	}
-	tag, err := x.Exec(ctx, `UPDATE agenteam_scheduler.dispatches SET status=$3,launch_outcome=$4,execution_id=$5,attempt_count=$6,next_retry_at=$7,version=$8,updated_at=$9
- WHERE project_id=$1 AND id=$2 AND version=$10`, r.project.String(), r.id.String(), string(r.status), string(r.outcome), execution, r.attempts, retry, int64(r.version), r.updatedAt.Time(), int64(previous))
+	var busy, reason, skipped any
+	if r.busyAttempt > 0 {
+		busy = r.busyAttempt
+	}
+	if r.skipReason != "" {
+		reason = r.skipReason
+	}
+	if r.skippedAt != nil {
+		skipped = r.skippedAt.Time()
+	}
+	tag, err := x.Exec(ctx, `UPDATE agenteam_scheduler.dispatches SET status=$3,launch_outcome=$4,execution_id=$5,attempt_count=$6,next_retry_at=$7,version=$8,updated_at=$9,busy_attempt=$11,skip_reason=$12,skipped_at=$13
+ WHERE project_id=$1 AND id=$2 AND version=$10`, r.project.String(), r.id.String(), string(r.status), string(r.outcome), execution, r.attempts, retry, int64(r.version), r.updatedAt.Time(), int64(previous), busy, reason, skipped)
 	if err != nil {
 		return portError(err)
 	}

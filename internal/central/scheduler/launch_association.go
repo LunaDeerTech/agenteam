@@ -188,7 +188,7 @@ func (s *LaunchHandoff) associate(ctx context.Context, call *launchCall, expecte
 	return out, nil
 }
 
-func (s *LaunchHandoff) recordRejected(ctx context.Context, call *launchCall, expected *dispatchRecord) (*dispatchRecord, error) {
+func (s *LaunchHandoff) recordRejected(ctx context.Context, call *launchCall, expected *dispatchRecord, busy bool) (*dispatchRecord, error) {
 	locks, err := handoffLocks(call.project, call.id, "reject_launch", expected)
 	if err != nil {
 		return nil, err
@@ -216,6 +216,9 @@ func (s *LaunchHandoff) recordRejected(ctx context.Context, call *launchCall, ex
 			return err
 		}
 		out.outcome = KnownNotCreated
+		if busy {
+			out.busyAttempt = r.attempts
+		}
 		return updateDispatch(ctx, x, out, r.version)
 	})
 	if err = commitError(result); err != nil {

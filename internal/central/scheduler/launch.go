@@ -199,7 +199,9 @@ func (s *LaunchHandoff) LaunchOnce(ctx context.Context, p i.ProjectID, id Dispat
 			retain = true
 			return Dispatch{}, uncertainLaunch(launchErr)
 		}
-		observed, checkpointErr := s.recordRejected(ctx, call, r)
+		var rejection *f.Fault
+		busy := errors.As(launchErr, &rejection) && rejection.Code == f.AgentBusy
+		observed, checkpointErr := s.recordRejected(ctx, call, r, busy)
 		if checkpointErr != nil {
 			retain = true
 			return Dispatch{}, uncertainLaunch(errors.Join(launchErr, checkpointErr))

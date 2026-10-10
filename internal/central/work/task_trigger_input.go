@@ -196,6 +196,22 @@ func decodeTaskTriggerEvent(raw []byte) (taskTriggerEventIdentity, error) {
 			return taskTriggerEventIdentity{}, fault(f.InvalidArgument)
 		}
 		if actor.Type == "system" {
+			var payload struct {
+				ReasonCode string `json:"reason_code"`
+			}
+			if json.Unmarshal(fields["payload"], &payload) != nil {
+				return taskTriggerEventIdentity{}, fault(f.InvalidArgument)
+			}
+			if payload.ReasonCode == "scheduler_agent_busy_compensation" {
+				var e c.TaskBusyTaskEvent
+				if e.UnmarshalJSON(raw) != nil {
+					return taskTriggerEventIdentity{}, fault(f.InvalidArgument)
+				}
+				return taskTriggerEventIdentity{e.ID.String(), e.ProjectID, e.TaskID, e.TaskVersion, e.CreatedAt}, nil
+			}
+			if payload.ReasonCode != "scheduler_claim" {
+				return taskTriggerEventIdentity{}, fault(f.InvalidArgument)
+			}
 			var e c.SchedulerTaskEvent
 			if e.UnmarshalJSON(raw) != nil {
 				return taskTriggerEventIdentity{}, fault(f.InvalidArgument)

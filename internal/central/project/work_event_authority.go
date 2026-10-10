@@ -19,7 +19,7 @@ const workEventPurpose = "project.work-structure.append-v1"
 func schedulerWorkEvent(request oc.ProjectRequest) bool {
 	d := request.Details()
 	h := d.Event.Header
-	return d.Event.Producer == "work" && h.EventType == "work.task_transitioned" && h.AggregateType == "work.task" && h.SchemaVersion == 2
+	return d.Event.Producer == "work" && h.EventType == "work.task_transitioned" && h.AggregateType == "work.task" && (h.SchemaVersion == 2 || h.SchemaVersion == 3)
 }
 func schedulerWorkEventBinding(request oc.ProjectRequest) (foundation.Digest, []foundation.LockRequest, error) {
 	if request.Validate() != nil {
@@ -115,7 +115,7 @@ func (a *Authority) validateWorkEventInTx(ctx context.Context, tx foundation.Tx,
 		if e != nil {
 			return e
 		}
-		if !p.Config.Enabled || p.Project.CurrentSprintID == nil {
+		if !p.Config.Enabled || d.Event.Header.SchemaVersion == 2 && p.Project.CurrentSprintID == nil {
 			return fault(foundation.InvalidState)
 		}
 		return nil
