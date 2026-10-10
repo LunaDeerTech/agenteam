@@ -146,7 +146,10 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
     await dialog.getByRole("button", { name: "保存标题", exact: true }).click();
     enter("current-read");
     await expect(dialog).toContainText("改名已确认；已读取当前文档。");
-    await dialog.getByRole("button", { name: "关闭", exact: true }).click();
+    await dialog
+      .locator("footer.dialog-footer")
+      .getByRole("button", { name: "关闭", exact: true })
+      .click();
     await expect(dialog).toHaveCount(0);
     await expect(area.locator("h2")).toHaveText(data.title);
     await expect(document).toContainText(data.title);

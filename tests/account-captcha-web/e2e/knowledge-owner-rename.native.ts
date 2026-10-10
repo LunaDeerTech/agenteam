@@ -683,6 +683,19 @@ type KnowledgeReadEvent =
   | "phase-enter"
   | "phase-complete";
 
+const postMaterialPredicates = [
+  "no_fragment",
+  "single_document",
+  "rename_path",
+  "no_query",
+  "expected_body",
+  "idempotency_key",
+  "csrf_token",
+  "content_type",
+  "same_origin",
+] as const;
+type PostMaterial = Record<(typeof postMaterialPredicates)[number], boolean>;
+
 // A synchronous, bounded sink owned by the existing Node observer. It never
 // reads a body, header collection or error text and never supplies proof.
 export function createRenameDiagnostic(config: {
@@ -762,6 +775,25 @@ export function createRenameDiagnostic(config: {
       terminal_open: row.terminal_open === true,
       terminal_in_budget: row.terminal_in_budget === true,
       request_valid: row.request_valid === true,
+      post_material:
+        row.method === "POST"
+          ? Object.fromEntries(
+              postMaterialPredicates.map((key) => [
+                key,
+                typeof row.post_material?.[key] === "boolean"
+                  ? row.post_material[key]
+                  : null,
+              ]),
+            )
+          : null,
+      post_material_failure:
+        row.method !== "POST"
+          ? null
+          : ["none", ...postMaterialPredicates].includes(
+                row.post_material_failure,
+              )
+            ? row.post_material_failure
+            : "not_observed",
       events_valid: row.events_valid === true,
       request_count: Number.isSafeInteger(row.request_count)
         ? row.request_count
@@ -934,22 +966,35 @@ export async function observeRename(
   const prefix = `/api/v1/projects/${config.project}/knowledge/documents`;
   const selected = (request: Request) =>
     new URL(request.url()).pathname.startsWith(prefix);
-  const validRequest = (request: Request, url: URL) => {
-    if (url.hash) return false;
+  const validRequest = (
+    request: Request,
+    url: URL,
+    material: { post: PostMaterial | null },
+  ) => {
     if (request.method() === "POST") {
       const headers = request.headers();
-      return (
-        config.documents.length === 1 &&
-        url.pathname === `${prefix}/${config.documents[0]}/rename` &&
-        url.search === "" &&
-        request.postData() ===
-          JSON.stringify({ expected_version: "1", title: config.title }) &&
-        /^[!-~]{1,128}$/.test(headers["idempotency-key"] ?? "") &&
-        /^[A-Za-z0-9_-]{43,128}$/.test(headers["x-csrf-token"] ?? "") &&
-        headers["content-type"] === "application/json" &&
-        headers.origin === url.origin
-      );
+      // Retain only fixed predicate results from the same original Request.
+      // Provisional headers and every existing POST gate remain unchanged.
+      material.post = Object.freeze({
+        no_fragment: !url.hash,
+        single_document: config.documents.length === 1,
+        rename_path: url.pathname === `${prefix}/${config.documents[0]}/rename`,
+        no_query: url.search === "",
+        expected_body:
+          request.postData() ===
+          JSON.stringify({ expected_version: "1", title: config.title }),
+        idempotency_key: /^[!-~]{1,128}$/.test(
+          headers["idempotency-key"] ?? "",
+        ),
+        csrf_token: /^[A-Za-z0-9_-]{43,128}$/.test(
+          headers["x-csrf-token"] ?? "",
+        ),
+        content_type: headers["content-type"] === "application/json",
+        same_origin: headers.origin === url.origin,
+      });
+      return postMaterialPredicates.every((key) => material.post![key]);
     }
+    if (url.hash) return false;
     if (request.method() !== "GET") return false;
     const query = url.search.slice(1);
     if (url.pathname === prefix + "/children")
@@ -1005,6 +1050,8 @@ export async function observeRename(
       return;
     }
     const url = new URL(request.url());
+    const material: { post: PostMaterial | null } = { post: null };
+    const requestValid = validRequest(request, url, material);
     const row = {
       sequence: rows.size + 1,
       method: request.method(),
@@ -1014,7 +1061,11 @@ export async function observeRename(
       status: null,
       request_count: 1,
       response_count: 0,
-      request_valid: validRequest(request, url),
+      request_valid: requestValid,
+      post_material: material.post,
+      post_material_failure: material.post
+        ? (postMaterialPredicates.find((key) => !material.post![key]) ?? "none")
+        : null,
       events_valid: true,
       terminal: "pending",
       terminal_open: false,
