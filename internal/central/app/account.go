@@ -562,7 +562,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	knowledgeReads, knowledgeCommands, skillReads, err := knowledgeSkillHandlers(documents, skills, core, cfg.PublicOrigin())
+	knowledgeReads, knowledgeCommands, knowledgeContent, skillReads, err := knowledgeSkillHandlers(documents, skills, core, cfg.PublicOrigin())
 	if err != nil {
 		return err
 	}
@@ -571,7 +571,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		accounts.handler = workPlanningRoutes(accounts.handler, planningHandler)
 		accounts.handler = projectVariablesRoutes(accounts.handler, variableHandler)
 		accounts.handler = runnerControlRoutes(accounts.handler, runnerAdmin, runnerDevice)
-		accounts.handler = knowledgeSkillRoutes(accounts.handler, knowledgeReads, knowledgeCommands, skillReads)
+		accounts.handler = knowledgeSkillRoutes(accounts.handler, knowledgeReads, knowledgeCommands, knowledgeContent, skillReads)
 	}) {
 		return context.Canceled
 	}

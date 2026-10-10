@@ -12,6 +12,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/knowledge"
 	knowledgecommands "github.com/LunaDeerTech/agenteam/internal/central/knowledge/commandhttp"
+	knowledgecontent "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contenthttp"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
 	knowledgehttp "github.com/LunaDeerTech/agenteam/internal/central/knowledge/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
@@ -129,33 +130,39 @@ func (w *knowledgeWork) Joined() bool {
 	return w.stopped && w.joined
 }
 
-func knowledgeSkillHandlers(documents *knowledge.Service, skills *skill.Service, core *account.Service, origin string) (http.Handler, http.Handler, http.Handler, error) {
+func knowledgeSkillHandlers(documents *knowledge.Service, skills *skill.Service, core *account.Service, origin string) (http.Handler, http.Handler, http.Handler, http.Handler, error) {
 	boundary, err := account.NewHTTPBoundary(core, origin)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 	reads, err := knowledgehttp.NewHTTPHandler(documents, boundary)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 	commands, err := knowledgecommands.NewHTTPHandler(documents, boundary)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
+	}
+	content, err := knowledgecontent.NewHTTPHandler(documents, boundary)
+	if err != nil {
+		return nil, nil, nil, nil, err
 	}
 	packages, err := skillhttp.NewHTTPHandler(skills, boundary)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
-	return reads, commands, packages, nil
+	return reads, commands, content, packages, nil
 }
 
-func knowledgeSkillRoutes(existing, reads, commands, packages http.Handler) http.Handler {
+func knowledgeSkillRoutes(existing, reads, commands, content, packages http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case knowledgehttp.HandlesPath(r.URL.Path):
 			reads.ServeHTTP(w, r)
 		case knowledgecommands.HandlesPath(r.URL.Path):
 			commands.ServeHTTP(w, r)
+		case knowledgecontent.HandlesPath(r.URL.Path):
+			content.ServeHTTP(w, r)
 		case skillhttp.HandlesPath(r.URL.Path):
 			packages.ServeHTTP(w, r)
 		default:

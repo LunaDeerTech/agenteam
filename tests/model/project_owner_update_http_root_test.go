@@ -132,11 +132,12 @@ func startProjectUpdateRoot(t *testing.T, v *projectUsageHTTPFixture, databaseUR
 	b64 := func(b byte) string { return base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{b}, 32)) }
 	for k, value := range map[string]string{
 		"DATABASE_URL": databaseURL, "DATABASE_TLS_MODE": "disable", "DATABASE_STARTUP_TIMEOUT": "15s", "HTTP_ADDR": "127.0.0.1:0", "PUBLIC_ORIGIN": systemHTTPOrigin, "SHUTDOWN_TIMEOUT": shutdown,
-		"ACCOUNT_RECOVERY_LOG":    filepath.Join(dir, "root-recovery.jsonl"),
-		"CURSOR_KEYRING":          fmt.Sprintf(`{"format":1,"current_kid":"c","keys":[{"kid":"c","key_b64":%q}]}`, b64(1)),
-		"SECRET_KEYRING":          fmt.Sprintf(`{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":%q}]}`, b64(2)),
-		"OBJECT_DOWNLOAD_KEYRING": fmt.Sprintf(`{"format":1,"current_kid":"d","keys":[{"kid":"d","key_b64":%q}]}`, b64(3)),
-		"ACCOUNT_KEYRING":         fmt.Sprintf(`{"format":1,"current_kid":"a","keys":[{"kid":"a","key_b64":%q}]}`, b64(4)),
+		"ACCOUNT_RECOVERY_LOG":           filepath.Join(dir, "root-recovery.jsonl"),
+		"CURSOR_KEYRING":                 fmt.Sprintf(`{"format":1,"current_kid":"c","keys":[{"kid":"c","key_b64":%q}]}`, b64(1)),
+		"SECRET_KEYRING":                 fmt.Sprintf(`{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":%q}]}`, b64(2)),
+		"OBJECT_DOWNLOAD_KEYRING":        fmt.Sprintf(`{"format":1,"current_kid":"d","keys":[{"kid":"d","key_b64":%q}]}`, b64(3)),
+		"ACCOUNT_KEYRING":                fmt.Sprintf(`{"format":1,"current_kid":"a","keys":[{"kid":"a","key_b64":%q}]}`, b64(4)),
+		"KNOWLEDGE_CONFIRMATION_KEYRING": fmt.Sprintf(`{"format":1,"current_kid":"k","keys":[{"kid":"k","key_b64":%q}]}`, b64(5)),
 	} {
 		values[config.Prefix+k] = value
 	}
