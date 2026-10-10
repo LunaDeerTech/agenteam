@@ -46,8 +46,11 @@ func (r ProjectVariableLeaseRequest) RequiredLocks() []f.LockRequest {
 	a, _ := f.AgentLock(r.AgentID.String())
 	e, _ := f.AggregateLock(f.ExecutionAggregate, r.ExecutionID.String())
 	c, _ := f.AggregateLock(f.CredentialRefAggregate, r.Ref.Details().ID.String())
-	k, _ := f.RecordLock(f.ReferenceRecordLock, "environment-lease:"+r.ExecutionID.String()+":"+r.Ref.Details().ID.String())
-	return []f.LockRequest{{Key: p, Mode: f.Shared}, {Key: s, Mode: f.Exclusive}, {Key: a, Mode: f.Shared}, {Key: e, Mode: f.Exclusive}, {Key: c, Mode: f.Exclusive}, {Key: k, Mode: f.Exclusive}}
+	// Execution EX already serializes all leases for this Execution; credential
+	// EX serializes this credential's references/delete across Executions. A
+	// second record key would protect no additional fact and exceed the global
+	// lock budget at the supported 256-Secret capability boundary.
+	return []f.LockRequest{{Key: p, Mode: f.Shared}, {Key: s, Mode: f.Exclusive}, {Key: a, Mode: f.Shared}, {Key: e, Mode: f.Exclusive}, {Key: c, Mode: f.Exclusive}}
 }
 
 type ProjectVariableLeasePlan interface{ RequiredLocks() []f.LockRequest }
