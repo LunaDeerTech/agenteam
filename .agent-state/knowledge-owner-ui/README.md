@@ -1,10 +1,10 @@
 # Knowledge Owner 正常读取链
 
-本目录的方法仅对应 `TestKnowledgeOwnerReadWeb`（integration、app 包、1 top / 0 sub）与锁定 Playwright 的一个 `[read] Knowledge Owner existing-document read` case。两次真实读取均整体 FAIL、原退出尾完整结束，尚未验收。生产 UI 已存 `da77c639`，初次组合 `bd970b97`、有界诊断源 `27a46c9e`；默认 Project initializer 保持未绑定。
+本目录的方法仅对应 `TestKnowledgeOwnerReadWeb`（integration、app 包、1 top / 0 sub）与锁定 Playwright 的一个 `[read] Knowledge Owner existing-document read` case。前两次真实读取整体 FAIL 保留；第三次 `read-author-03` 作者单正常链整体 PASS，原退出尾完整结束。生产 UI 已存 `da77c639`，当前方法源 `0f2194c8`；这不等于整 D12 或独立风险验收，默认 Project initializer 保持未绑定。
 
 Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/Object；普通 Owner 来自正式 invitation / inspect / redeem / login。默认 Project Create 的新 target 必须 `DependencyUnbound/NotCommitted` 且零事实；正向准备只使用已有 `rootCompositionProjectFixture` 真实 ports，实际 Stop/Drain/Joined 后才进入浏览器。没有业务 SQL 造 ready 或生产注入。静态 dist 与同源反代只供测试。
 
-原四 GET 的每次请求同时绑定 PW 原 Request/XID、`Response.finished()==null`、原 reader EOF/Content-Length/正文摘要、reader cancel/release/outer cancel 实际尾、正式 Session 同 Promise 的 typed 返回与当前身份、DOM 实际正文。public observer 只读定位当前 dist 已导出的唯一原 singleton，不改写资产、不建第二 Session。两个 observer 在同一显式退役点冻结第一轮 pending，实际 join 所有尾后恢复原方法；错误、过期、缺尾、void 返回、错 XID 和迟到结果都不能升级成功。只接受正常 finished 请求，没有 Work replay/aborted 例外。
+原四 GET 的每次请求同时绑定 PW 原 Request/XID、唯一原 terminal、原 reader EOF/Content-Length/正文摘要、reader cancel/release/outer cancel 实际尾、正式 Session 同 Promise 的 typed 返回与当前身份、DOM 实际正文。正常 terminal 必须 requestfinished 恰1/failed0，并实际调用 `Response.finished()` 恰1且返回 null；failed terminal 必须在原 page/context 仍 open、原预算内现场捕获 `net::ERR_ABORTED`，requestfailed 恰1/finished0，且从未调用 finished。public observer 只读定位当前 dist 已导出的唯一原 singleton，不改写资产、不建第二 Session。两个 observer 在同一显式退役点冻结第一轮 pending，实际 join 所有尾后恢复原方法；错误、过期、缺尾、void 返回、错 XID 和迟到结果都不能升级成功。重复、冲突、晚到、关闭、未知错误及首错后另取请求均拒绝；没有 Work replay 或其它接口豁免。
 
 ## 可恢复输入
 
@@ -15,7 +15,7 @@ Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/O
 - 已编译候选：`output/ai/knowledge-owner-ui/knowledge-owner-web-race-01.test`（60,147,683 bytes）。固定 Go1.27.1，共享只读 modules、本树私有 GOCACHE；MinIO 为 `output/ai/deps-minio/bin/minio`，由已验证共享固定产物离线复制。
 - 固定 Schema Python：`/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3`，通过 `AGENTEAM_KNOWLEDGE_OWNER_WEB_SCHEMA_PYTHON` 原样传给浏览器 runner；实际 safe sidecar 对照正式 common/knowledge-owner/knowledge-content Schema。
 
-运行输入为 `AGENTEAM_KNOWLEDGE_OWNER_WEB_{DIST,EVIDENCE,INPUT_HASH,SCHEMA_PYTHON,CASE}`（CASE 仅 `read`）与既有 `AGENTEAM_AUTH_WEB_{RUNTIME,PRIVATE,ORIGIN,CHROMIUM}`。共享 driver/supervisor 由 coordination 单写；新 D12 入口尚待组装，不能借 Work selector 开跑。
+运行输入为 `AGENTEAM_KNOWLEDGE_OWNER_WEB_{DIST,EVIDENCE,INPUT_HASH,SCHEMA_PYTHON,CASE}`（CASE 仅 `read`）与既有 `AGENTEAM_AUTH_WEB_{RUNTIME,PRIVATE,ORIGIN,CHROMIUM}`。共享 driver/supervisor 由 coordination 单写，D12 独立 exact 入口已保存 `bd970b97`；每次仍需 fresh 授窗，不能借 Work selector 开跑。
 
 预算沿原 Go top 120s（含 cleanup）、PW45s、Go test6m、root540s + TERM60s + KILL3s、host TCP75s 双空。原七资源 nonce/ID、Node/Go/driver/outer 实际 Wait、adopted child 实际 wait、private/runtime/desc/TCP/input 双尾保持；仅一个 outer cleanup owner。新私有 telemetry mode=off 并移除三旁路，空 Docker config，同 process fresh disk >=5GiB；每次真实运行仍需 root fresh grant。
 
@@ -33,7 +33,7 @@ Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/O
 
 `read-author-01` 使用冻结 `bd970b97`、上述候选与当前 dist，session10035 / outer307373。同 process 空闲9,249,374,208 bytes、1448 inputs、私有 telemetry mode=off/去三旁路、空 Docker config 后启动。Go 单 top 59.14s FAIL，原 Node actual Wait success=false、Go code1、driver code1、outer actual1。原安全快照仅定位 `stage=actual-consumption`、page_closed=true、observer_report=false；该阶段内具体等待/断言尚不能从原材料区分，不归因为产品错误。
 
-同次12个原反代完整 GET200 sidecar（含精确下一段 offset=65535）及两张布局截图存在，但没有最终 observer report，未执行后继逐响应联合证明/Schema与根成功断言，不能据此称消费发布或真实链通过。7个资源ID双不存在、private双不存在、runtime双空、descendant双空、4个 adopted child 原 Wait0、host TCP双空；1448输入初末重枚举/摘要一致，原 terminal1 /193.904s，窗口已释放。安全原记录见 [read-first-failure.json](read-first-failure.json)，不复制原凭据、headers或正文。下一步仅只读有界定位45s内原等待与方法覆盖缺口，保持严格 finished/reader/typed/DOM/首 explicit门；未授权重试或改实现。
+同次12个原反代完整 GET200 sidecar（含精确下一段 offset=65535）及两张布局截图存在，但没有最终 observer report，未执行后继逐响应联合证明/Schema与根成功断言，不能据此称消费发布或真实链通过。7个资源ID双不存在、private双不存在、runtime双空、descendant双空、4个 adopted child 原 Wait0、host TCP双空；1448输入初末重枚举/摘要一致，原 terminal1 /193.904s，窗口已释放。安全原记录见 [read-first-failure.json](read-first-failure.json)，不复制原凭据、headers或正文。该轮结束时下一步仅只读有界定位45s内原等待与方法覆盖缺口，保持严格 finished/reader/typed/DOM/首 explicit门；当时未授权重试或改实现。
 
 ## 第二次诊断运行
 
@@ -43,4 +43,12 @@ Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/O
 
 最后已有browser采样发生在observer-idle：12 native行均EOF、read/read-return一致、reader-cancel/release/outer-cancel及实际join计数各1；12 public行fulfilled/settled/current/not_busy且bound1，两observer当时pending0、仍active。该安全样本未保留native摘要/CL/XID跨观察器绑定、完整typed返回对象和DTO等式，最终首次explicit退休/end/join亦未取得；这些保持UNKNOWN，不能称全消费证明齐。请求失败分类与取消来源未捕获，不推定ERR_ABORTED或产品原因。
 
-原7ID双不存在、private双不存在、runtime双空、descendant双空、4 adopted原Wait0、TCP双空、1448输入重枚举/摘要一致；wholeFAIL terminal1/135.099s，窗口已释放。安全原结果见 [read-second-failure.json](read-second-failure.json)。后继只提出四固定GET原消费闭集方法方案，参考共享同一Request terminal的正常finished一次/failed零次，所有其他真实联合门保留；尚未授权实现或第三次实际运行。
+原7ID双不存在、private双不存在、runtime双空、descendant双空、4 adopted原Wait0、TCP双空、1448输入重枚举/摘要一致；wholeFAIL terminal1/135.099s，窗口已释放。安全原结果见 [read-second-failure.json](read-second-failure.json)。该轮结束时只提出四固定GET原消费闭集方法方案，参考共享同一Request terminal的正常finished一次/failed零次，所有其他真实联合门保留；当时未授权实现或第三次实际运行。
+
+## 第三次作者正常链通过
+
+`0f2194c8` 三方法源经 coordination actual diff 有限接受。仅补原 Request 单 terminal/首 Response 占位，保完整原 native/public/typed/DOM/Schema AND 与原 PW tails→双 observer 同调用首 seal 顺序。新 children 控制首轮55684 actual1为刺激少传 parentID，按正式 `children(project, null, {limit:50})` 修正；原 FAIL 保留。最终35822方法653控/0unhandled、46653严格TS、84536精确list恰1case、30064三源format均 actual0。Go/config/dist/生产/共享预算未改。
+
+`read-author-03` /session25505 /outer409429于UTC07:18:53.594873启动，fresh6,898,204,672 bytes，旧01+02共14ID/6private/2runtime双预飞齐；私有modeoff/去三旁路、空Docker config、原1448输入与67dist。原Node411934 Waittrue，Go411714单top32.59s PASS/Wait0，driver409741 Wait0，outer实际0，4 adopted原Wait0。新LIVE seq1/5/6为ERR_ABORTED失败终态且finished调用0，另9正常终态finished调用1/null；12原Request/native/typed的XID/CL/digest/完整DTO与正文等式、树键盘/UTF8下一段/Drawer、Schema12/status0均通过。两个observer均首次explicit且首次pending0、最终pending0、失败false，publication仍current/notbusy。默认initializer未绑定、显式真实Project fixture已join及文档2/commands2/active readers0由原Go断言通过。
+
+七资源14次absent、private/runtime/desc双空、HOST_TCP双空、初末1448输入重枚举/摘要unchanged=true；wholePASS terminal0/150.043s，窗口已释放。安全记录：[read-third-pass.json](read-third-pass.json)。前两次FAIL及其UNKNOWN不回填，本次只接受作者四GET正常链；不宣称编辑、来源/parser、Project Create HTTP、完整D12或生产SPA已完成。

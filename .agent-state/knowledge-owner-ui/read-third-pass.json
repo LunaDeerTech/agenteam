@@ -1,0 +1,289 @@
+{
+  "run": "read-author-03",
+  "source": "0f2194c8871cc23aa3078f05899214364029e5be",
+  "selector": "^TestKnowledgeOwnerReadWeb$",
+  "result": "PASS",
+  "scope": "Author one normal Owner read chain, one Go top and one locked PW case; not whole D12 or independent risk acceptance",
+  "started_utc": "2026-10-10T07:18:53.594873+00:00",
+  "session": 25505,
+  "outer_pid": 409429,
+  "outer_actual_exit": 0,
+  "preflight_free_bytes": 6898204672,
+  "input_count": 1448,
+  "dist_files": 67,
+  "old01_old02_preflight": "14 IDs, 6 private directories and 2 runtimes absent/empty twice",
+  "candidate": {
+    "bytes": 60147683,
+    "sha256": "c6d14713436ee201f07883435082b50adbb79f88b68626147210ad1a45b0bc1d"
+  },
+  "go_top_seconds": 32.59,
+  "original_waits": [
+    "knowledge_owner_web_test.go:301: Knowledge Node actual_wait pid=411934 success=true",
+    "D03 explicit test actual_wait pid=411714 code=0 selector=^TestKnowledgeOwnerReadWeb$",
+    "SUPERVISOR actual_driver_wait pid=409741 actual=True code=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=412000 status=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=412005 status=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=412002 status=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=412003 status=0"
+  ],
+  "requests": [
+    {
+      "sequence": 1,
+      "method": "children",
+      "terminal": "failed",
+      "finished_count": 0,
+      "failed_count": 1,
+      "finished_calls": 0,
+      "finished_null": false,
+      "failure_kind": "net::ERR_ABORTED",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 2,
+      "method": "children",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 3,
+      "method": "get",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 4,
+      "method": "ancestors",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 5,
+      "method": "readContent",
+      "terminal": "failed",
+      "finished_count": 0,
+      "failed_count": 1,
+      "finished_calls": 0,
+      "finished_null": false,
+      "failure_kind": "net::ERR_ABORTED",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 6,
+      "method": "readContent",
+      "terminal": "failed",
+      "finished_count": 0,
+      "failed_count": 1,
+      "finished_calls": 0,
+      "finished_null": false,
+      "failure_kind": "net::ERR_ABORTED",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 7,
+      "method": "get",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 8,
+      "method": "ancestors",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 9,
+      "method": "readContent",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 10,
+      "method": "get",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 11,
+      "method": "ancestors",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 12,
+      "method": "readContent",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    }
+  ],
+  "observers": {
+    "native": {
+      "retired": true,
+      "reason": "explicit",
+      "pending_at_retirement": 0,
+      "pending": 0,
+      "failed": false,
+      "overflow": false
+    },
+    "publication": {
+      "retired": true,
+      "reason": "explicit",
+      "pending_at_retirement": 0,
+      "pending": 0,
+      "failed": false,
+      "overflow": false
+    }
+  },
+  "publication_current": true,
+  "publication_not_busy": true,
+  "schema": {
+    "actual_exit": 0,
+    "validated_responses": 12
+  },
+  "go_verified_facts": {
+    "default_initializer_unbound": true,
+    "test_only_real_project_fixture_joined": true,
+    "documents": 2,
+    "commands": 2,
+    "active_readers": 0
+  },
+  "resources": [
+    {
+      "kind": "container",
+      "id": "f7062fe0b372b98fd8c11f79c9f37be8e1116d89d24a51ba87f9f0c68584a00a",
+      "label": "agenteam.d05.objectfixture",
+      "nonce": "cc9e04fedec330d2529d461a20d053cf"
+    },
+    {
+      "kind": "network",
+      "id": "ce9360087a8f2d343836d0e1498f34b4a4b94ec374cb8d9d75d7484dc31fb772",
+      "label": "agenteam.d05.objectfixture",
+      "nonce": "cc9e04fedec330d2529d461a20d053cf"
+    },
+    {
+      "kind": "container",
+      "id": "63a420dc42c45a07b08f5f760697c2ebd6003dfcf2bd41bccffe8774ea72b318",
+      "label": "agenteam.d04.networkfixture",
+      "nonce": "96dfe2a99cfd7f0266e1da7b993fa9a6"
+    },
+    {
+      "kind": "network",
+      "id": "985e6ba5212fbd5907eb655a3ef36d8c224b4aaa339cddba950db904590729ec",
+      "label": "agenteam.d04.networkfixture",
+      "nonce": "96dfe2a99cfd7f0266e1da7b993fa9a6"
+    },
+    {
+      "kind": "container",
+      "id": "f2a78294cb99f5a6ec1798db6a1c468347cf653437ca99e1f78866f77ff3aa3f",
+      "label": "agenteam.d03.fixture",
+      "nonce": "3802744b8a20e32d2a67426e7d15ad52"
+    },
+    {
+      "kind": "container",
+      "id": "b85435e7566f368f142b1d02c2ec63b729bb4af95606c238416ce323e4d9e569",
+      "label": "agenteam.d03.fixture",
+      "nonce": "3802744b8a20e32d2a67426e7d15ad52"
+    },
+    {
+      "kind": "network",
+      "id": "9487b0b15019d91ed450af6443952d8fdbe64b042c0ccb732779c7d30c5800e3",
+      "label": "agenteam.d03.fixture",
+      "nonce": "3802744b8a20e32d2a67426e7d15ad52"
+    }
+  ],
+  "resource_absent_observations": 14,
+  "tail": [
+    "OWNED runtime_observation=1 descendants=[]",
+    "OWNED runtime_observation=2 descendants=[]",
+    "ROOT private_observation=1 absent=True",
+    "ROOT runtime_observation=1 empty=True",
+    "ROOT private_observation=2 absent=True",
+    "ROOT runtime_observation=2 empty=True",
+    "ROOT exact_tops=True actual_test_wait=True",
+    "ROOT knowledge_ui_exact_run_pass_wait=True",
+    "HOST_TCP delta_empty_observation=1",
+    "HOST_TCP delta_empty_observation=2",
+    "SUPERVISOR inputs_unchanged=True terminal=0 elapsed=150.043s"
+  ],
+  "limits": [
+    "Read01 and read02 remain whole FAIL; their request failure classification, typed payload and final retirements are not backfilled.",
+    "ERR_ABORTED is a new LIVE observation only in read03.",
+    "Production initializer, manifest participation and Object runtime join STOP remain unchanged; no editor/parser/source access or whole D12 claim."
+  ],
+  "artifacts": {
+    "raw_log": "/tmp/ku-o03/ui-bebf5a4ea731433e.log",
+    "evidence": "/workspace/agenteam-knowledge-owner-ui/output/ai/knowledge-owner-ui/read-author-03/TestKnowledgeOwnerReadWeb",
+    "images": [
+      "knowledge-desktop-light.png",
+      "knowledge-narrow-dark-reduced.png"
+    ]
+  }
+}
