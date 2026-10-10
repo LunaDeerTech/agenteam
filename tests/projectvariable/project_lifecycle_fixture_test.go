@@ -94,6 +94,7 @@ type variableLifecycleFixture struct {
 	secretOwner *pv.SecretService
 	stopper     *pv.ProjectCallStopper
 	manifest    pc.RequiredManifest
+	lifecycle   *project.LifecycleAuthority
 }
 
 func lifecycleManifest(t *testing.T) pc.RequiredManifest {
@@ -197,7 +198,7 @@ func newVariableLifecycleFixture(t *testing.T) *variableLifecycleFixture {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return &variableLifecycleFixture{base, ordinary, secretOwner, stopper, manifest}
+	return &variableLifecycleFixture{base, ordinary, secretOwner, stopper, manifest, lifecycle}
 }
 
 // This is the normative upstream STOPPING fixture. It is not BeginArchive/

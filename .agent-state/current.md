@@ -1,9 +1,10 @@
 # 当前执行检查点
 
-- 工作树 `/workspace/agenteam-project-variable-lifecycle`，分支 `ai/project-variable-lifecycle`，基线 main `33903460`；由 root 创建的稀疏树，正式源码/文档及本任务恢复源完整。
-- 目标：普通 Variables 与 Secret Variables 两个现有真实 Service 的 Project 精确停止子能力；同 Store/唯一 Authority、真实 StopPhase 授权确认后取消原 call/confirmation，原调用实际返回才 LocalJoined。Archive 保合法读，Delete 纳入本 Project 读，另一 Project 不受影响。
-- 有限 SPEC 与7产品源已获 skills_http 只读有限接受。首 pure01 因新测试比较不可比较 LockKey 编译 FAIL；原记录保留，窄修后 pure02 作者9top/20sub race actual0、原Wait0/runtime空。首 PG 2源 race-c/list actual0；冻结55a6e725的 exact TestProjectVariableLocalLifecycleStop（1top3sub）首次真实pg-author-01 wholePASS，top9.20s，Go/driver/sup/原tool Wait0、两PG资源/private/desc/runtime/TCP双尾与435inputs齐，sup76.621s，无retry。
-- 本域 run/entry-controls/README 复用原 PG supervisor 私有namespace，6离线控 actual0；共享源未改。driver race build actual0；首次实 input 因误改 commitproxy 字面路径 FAIL，窄恢复正式原目录后435输入检查通过。独立实际方法审有限接受，动态由作者运行；原唯一PG窗口已完整释放，不把本实例 LocalJoined当完整participant。
-- coordination 唯一写本任务 projectvariable 实现/测试及上述两文档；不写 app、Project、Audit facts、共享 harness、迁移、Schema 或依赖锁。00031 属 Model Runtime owner。全部 Git 由 root 执行。
-- 首 PG 的 stopping operation/manifest 是规范 phase fixture，不冒生产 Archive API；生产 phase worker、foreign join、cleanup 和完整 participant 未完成。LocalJoined 不等于 Project stopped；生产 initializer unbound、Object Runtime join STOP 保持。
-- 运行前固定 Go1.27.1、私有实际 telemetry off/去旁路、共享只读 module cache/自有 build cache、同进程 fresh≥5GiB。当前无在途命令或自有真实资源；PG/socket 必须 root fresh grant。
+- 工作树 `/workspace/agenteam-project-variable-lifecycle`，分支 `ai/project-variable-lifecycle`；已由 root 合入正式 main `6564c1b5`。本实例 Variables 停止切片的14路径已正式交付，原 topic 与实际材料继续保留。
+- 已交付：同 Store/唯一 Authority 的 ordinary+Secret 原 call/confirmation 精确停止；Archive 保合法读，Delete 包含读，另一 Project 隔离。pure02 作者9top/20sub race、原3legacy回归通过；首次PG exact `TestProjectVariableLocalLifecycleStop` 1top/3sub wholePASS（原Wait、两资源/private/desc/runtime/TCP双尾、435inputs齐）。原首不可比较LockKey编译FAIL、首次commitproxy路径input FAIL不追认为PASS；详情见本域README。
+- 当前目标是原 recovery 卡末段的真实单轮 `accepted→stopping` driver/claim。SPEC已获非作者有限接受；新增 `internal/central/project/lifecycle_stop_{round,claim}.go` 及同名纯测已本地WIP保存。所有 full participant/foreign join/cleanup/生产 initializer 与 Object Runtime join STOP 保留；callback nil、LocalJoined 与 claim terminal 均不代表 operation/participant完成。
+- 首新6top/2sub phase纯race实际0（55656→c42f7c，9.537s、原Wait0/runtime空）；Project包vet实际0（77795→105893，104.914s、原Wait0/runtime空）。这两个结果针对修前核心，不冒真实SQL/phase验证。
+- 非作者实际审发现组合 checkpoint 错误可能回显原 provider error：已在唯一组合分支通过安全portError包装，并新增private canary/原cause/物理Unknown证明控。修后定向运行的同进程fresh门只有2,301,857,792B，ca201c实际1且0Go；原目录未建、未清任何cache。root暂停新Go至当前UI资源退出/容量恢复；修后控和vet尚未执行。
+- 首phasePG两个新文件 `tests/projectvariable/project_phase_stop_fixture_test.go`、`tests/projectvariable/project_phase_stop_test.go` 已写；原 `project_lifecycle_fixture_test.go` 只保存同一LifecycleAuthority指针。新 exact `TestProjectLifecycleLocalStopRound` 1top/3sub：确认phase提交与原调用/收尾事务实际返回、真实rollback/冻结版本拒绝、原BEGIN后的stale claim与真实新fence竞争。accepted前置明确由规范fixture提供，stopping/claim只由真实引擎写；未编译/未PG，方法待审。
+- coordination 唯一写本树获授4新Project源、3PG源、原卡和本current；不写creation recovery、app、Project Audit/Model facts、共享UI harness、迁移或依赖锁。00031属于Model Runtime。全部Git由root执行；新phase核心目前仅知本地checkpoint，未把等待窗口后的push写成已远端。
+- 原Variables资源窗口已全部释放；当前无本人Go或真实资源在途。固定Go1.27.1、private实际telemetryoff/去旁路、sharedmodule只读、自有cache、同cmdfresh≥5GiB仍是启动前置。PG/socket须方法冻结/独审后root fresh grant；不继承旧窗口。

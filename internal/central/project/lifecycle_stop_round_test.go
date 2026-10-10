@@ -3,6 +3,7 @@ package project
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -165,5 +166,17 @@ func TestLifecycleStopRoundStepCancellationStillWaits(t *testing.T) {
 	close(release)
 	if err := <-returned; !errors.Is(err, context.Canceled) {
 		t.Fatal("canceled successful provider lost deadline", err)
+	}
+}
+
+func TestLifecycleStopRoundCheckpointErrorIsSafe(t *testing.T) {
+	cause, _ := f.NewJobCause("project-lifecycle", testID[c.Operation](t).String(), testID[struct{}](t).String())
+	physical := f.UnknownResult(testID[f.TransactionAttempt](t), cause)
+	private := errors.New("private-stop-provider-value-DoNotExpose")
+	err := lifecycleStopRoundError(commitError(physical), private)
+	hasCode(t, err, f.CommitUnknown)
+	saved, ok := UnknownAttempt(err)
+	if !ok || saved.AttemptID() != physical.AttemptID() || !errors.Is(err, private) || strings.Contains(err.Error(), private.Error()) {
+		t.Fatal("checkpoint error lost provenance or exposed private provider material")
 	}
 }

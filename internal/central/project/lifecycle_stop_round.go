@@ -103,9 +103,15 @@ func (d *LifecycleStopDriver) Run(ctx context.Context, project c.ProjectID, oper
 	end()
 	terminal = finishErr == nil
 	if finishErr != nil {
-		return errors.Join(finishErr, stepErr)
+		return lifecycleStopRoundError(finishErr, stepErr)
 	}
 	return portError(stepErr)
+}
+
+// Keep the physical checkpoint failure first, and retain the provider's cause
+// without exposing its raw dependency message in Error or default logs.
+func lifecycleStopRoundError(finishErr, stepErr error) error {
+	return errors.Join(finishErr, portError(stepErr))
 }
 
 func (st *lifecycleStopState) invoke(ctx context.Context, project c.ProjectID, operation c.OperationID, cause c.LifecycleCause) error {
