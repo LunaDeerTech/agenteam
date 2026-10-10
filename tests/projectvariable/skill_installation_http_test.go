@@ -225,8 +225,13 @@ func TestSkillInstallationOwnerHTTP(t *testing.T) {
 				cleared = true
 			}
 		}
-		if !reached || response.status != http.StatusUnauthorized || !cleared || problem.Type != "urn:agenteam:problem:session-revoked" || problem.Title != "Session revoked" || problem.Detail != "Sign in again." || problem.Instance != collection || before != skillInstallHTTPFacts(t, v) {
-			t.Fatal("post-authentication revocation did not refuse with safe empty metadata")
+		after := skillInstallHTTPFacts(t, v)
+		typeOK := problem.Type == "urn:agenteam:problem:session-revoked"
+		titleOK := problem.Title == "Session revoked"
+		detailOK := problem.Detail == "Sign in again."
+		instanceOK := problem.Instance == "/api/v1" // Account never reflects the original path or query.
+		if !reached || response.status != http.StatusUnauthorized || !cleared || !typeOK || !titleOK || !detailOK || !instanceOK || before != after {
+			t.Fatalf("post-authentication revocation reached=%t status=%d clear_cookie=%t closed_problem=true type_ok=%t title_ok=%t detail_ok=%t instance_ok=%t facts_before=%v facts_after=%v", reached, response.status, cleared, typeOK, titleOK, detailOK, instanceOK, before, after)
 		}
 		var targets int
 		if err := v.base.raw.QueryRow(ctxFor(t), `SELECT (SELECT count(*) FROM agenteam_skill.installations WHERE project_id=$1 AND skill_id=$2)+(SELECT count(*) FROM agenteam_skill.skills WHERE project_id=$1 AND id=$2)`, v.project.ID.String(), newTarget.String()).Scan(&targets); err != nil || targets != 0 {
