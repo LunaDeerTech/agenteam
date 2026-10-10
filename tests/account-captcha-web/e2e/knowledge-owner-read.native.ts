@@ -2,6 +2,7 @@ import type { Page, Request, Response as PWResponse } from "@playwright/test";
 import { createRequire } from "node:module";
 import { basename, join } from "node:path";
 import { readFile, readdir, writeFile } from "node:fs/promises";
+import { writeFileSync } from "node:fs";
 
 export type KnowledgeBinding = {
   entry: string;
@@ -693,6 +694,220 @@ export function knowledgeOriginalCompleted(
   );
 }
 
+export type KnowledgeReadPhase =
+  | "login"
+  | "project-entry"
+  | "tree-keyboard"
+  | "first-content"
+  | "utf8-next"
+  | "parent-read"
+  | "drawer"
+  | "completion-button"
+  | "observer-idle"
+  | "observer-finish"
+  | "pw-tails"
+  | "page-observers"
+  | "report-write"
+  | "joint-proof"
+  | "schema";
+type KnowledgeReadEvent =
+  | "request"
+  | "requestfinished"
+  | "requestfailed"
+  | "response"
+  | "header-enter"
+  | "header-return"
+  | "header-reject"
+  | "finished-enter"
+  | "finished-return"
+  | "finished-reject"
+  | "pw-tail-joined"
+  | "page-close"
+  | "context-close"
+  | "idle-sample"
+  | "idle-reject"
+  | "finish-reject"
+  | "cleanup-return"
+  | "cleanup-reject"
+  | "phase-enter"
+  | "phase-complete";
+
+// A synchronous, bounded sink owned by the existing Node observer. It never
+// reads a body, header collection or error text and never supplies proof.
+export function createKnowledgeReadDiagnostic(config: {
+  evidence: string;
+  inputHash: string;
+  project: string;
+  documents: string[];
+}) {
+  let sequence = 0,
+    phase: KnowledgeReadPhase = "login",
+    writeFailed = false,
+    overflow = false,
+    pageClosed = false,
+    contextClosed = false;
+  let first: any = null,
+    lastSample: any = null;
+  let pwPending: number | null = null;
+  const completed: KnowledgeReadPhase[] = [],
+    events: any[] = [],
+    tailEvents: any[] = [];
+  const rows = new Map<number, any>();
+  const prefix = `/api/v1/projects/${config.project}/knowledge/documents`;
+  const uuid = (value: unknown) =>
+    typeof value === "string" &&
+    /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(value);
+  const project = (row: any) => {
+    const children = row.path === prefix + "/children";
+    const content = config.documents.some(
+      (id) => row.path === `${prefix}/${id}/content`,
+    );
+    const item = config.documents.some((id) =>
+      [`${prefix}/${id}`, `${prefix}/${id}/ancestors`].includes(row.path),
+    );
+    const pathOK = children || content || item;
+    const queryOK = children
+      ? ["null", ...config.documents].some(
+          (id) => row.query === `parent_document_id=${id}&limit=50`,
+        )
+      : content
+        ? /^(?:byte_offset=0|byte_offset=65535)&max_bytes=65536$/.test(
+            row.query,
+          )
+        : item && row.query === "";
+    return {
+      sequence: Number.isSafeInteger(row.sequence) ? row.sequence : null,
+      method: row.method === "GET" ? "GET" : "invalid",
+      path: pathOK ? row.path : "invalid",
+      query: queryOK ? row.query : "invalid",
+      request_id: uuid(row.header_request_id ?? row.request_id)
+        ? (row.header_request_id ?? row.request_id)
+        : null,
+      invalid_request_id:
+        (row.header_request_id ?? row.request_id) !== null &&
+        !uuid(row.header_request_id ?? row.request_id),
+      status:
+        Number.isInteger(row.response_status ?? row.status) &&
+        (row.response_status ?? row.status) >= 100 &&
+        (row.response_status ?? row.status) <= 599
+          ? (row.response_status ?? row.status)
+          : null,
+      finished: row.finished === true,
+      finished_null: row.finished_null === true,
+      failed: row.failed === true,
+      header: ["not_entered", "entered", "returned", "rejected"].includes(
+        row.header_state,
+      )
+        ? row.header_state
+        : "not_entered",
+      finished_await: [
+        "not_entered",
+        "entered",
+        "null",
+        "error",
+        "rejected",
+      ].includes(row.finished_state)
+        ? row.finished_state
+        : "not_entered",
+      tail_joined: row.tail_joined === true,
+    };
+  };
+  const state = () => ({
+    input_hash: config.inputHash,
+    phase,
+    sequence,
+    completed: [...completed],
+    page_closed: pageClosed,
+    context_closed: contextClosed,
+    write_failed: writeFailed,
+    overflow,
+    pw_pending: pwPending,
+    pw_rows: [...rows.values()],
+    // A historical sample is never a claim about pending at failure time.
+    last_observers: lastSample,
+    first_failure: first,
+    events,
+    tail_events: tailEvents,
+  });
+  const persist = () => {
+    try {
+      const raw = JSON.stringify(state());
+      writeFileSync(
+        join(config.evidence, "knowledge-read-diagnostic.json"),
+        raw,
+        { mode: 0o600 },
+      );
+      if (first)
+        writeFileSync(
+          join(config.evidence, "knowledge-first-failure.json"),
+          raw,
+          { mode: 0o600 },
+        );
+    } catch {
+      writeFailed = true;
+    }
+  };
+  const event = (kind: KnowledgeReadEvent, row?: any, pending?: number) => {
+    if (pending !== undefined) pwPending = pending;
+    if (row) rows.set(row.sequence, project(row));
+    if (kind === "page-close") pageClosed = true;
+    if (kind === "context-close") contextClosed = true;
+    if (events.length + tailEvents.length >= 256) overflow = true;
+    else
+      (first ? tailEvents : events).push({
+        sequence: ++sequence,
+        phase,
+        kind,
+        ...(row ? { request: project(row) } : {}),
+      });
+    persist();
+  };
+  return {
+    enter(value: KnowledgeReadPhase) {
+      phase = value;
+      event("phase-enter");
+    },
+    complete(value: KnowledgeReadPhase) {
+      if (!completed.includes(value)) completed.push(value);
+      event("phase-complete");
+    },
+    event,
+    sample(value: unknown) {
+      // value was already allowlisted inside the original idle evaluate.
+      lastSample = {
+        observed_at_sequence: sequence + 1,
+        observed_in_phase: phase,
+        current_at_failure: "not_observed",
+        value,
+      };
+      event("idle-sample");
+    },
+    firstFailure(pageIsClosed: boolean, reportPresent: boolean) {
+      if (!first) {
+        pageClosed ||= pageIsClosed;
+        first = JSON.parse(
+          JSON.stringify({
+            phase,
+            sequence: ++sequence,
+            completed,
+            page_closed: pageClosed,
+            context_closed: contextClosed,
+            observer_report: reportPresent,
+            pw_pending: pwPending,
+            pw_rows: [...rows.values()],
+            last_observers: lastSample,
+            write_failed: writeFailed,
+            overflow,
+          }),
+        );
+      }
+      persist();
+    },
+    healthy: () => !writeFailed && !overflow && first === null,
+    snapshot: () => JSON.parse(JSON.stringify(state())),
+  };
+}
+
 export async function observeKnowledge(
   page: Page,
   config: {
@@ -703,9 +918,11 @@ export async function observeKnowledge(
     user: string;
     evidence: string;
     inputHash: string;
+    diagnostic: ReturnType<typeof createKnowledgeReadDiagnostic>;
   },
 ) {
   const expiresAt = Date.now() + 45_000;
+  const diagnostic = config.diagnostic;
   const binding = await knowledgeSessionBinding(config.root, config.dist);
   const rows = new Map<Request, any>(),
     tails = new Set<Promise<void>>();
@@ -733,21 +950,52 @@ export async function observeKnowledge(
       finished_null: false,
       failed: false,
     });
+    diagnostic.event("request", rows.get(request), tails.size);
   };
   const finished = (request: Request) => {
     const row = rows.get(request);
     if (row && !closed) row.finished = true;
+    if (row) diagnostic.event("requestfinished", row, tails.size);
   };
   const rejected = (request: Request) => {
     const row = rows.get(request);
     if (row && !closed) row.failed = true;
+    if (row) diagnostic.event("requestfailed", row, tails.size);
   };
   const response = (response: PWResponse) => {
     const row = rows.get(response.request());
     if (!row) return;
+    row.response_status = response.status();
     const tail = (async () => {
-      const id = await response.headerValue("x-request-id");
-      const terminal = await response.finished();
+      row.header_state = "entered";
+      diagnostic.event("header-enter", row, tails.size);
+      let id: string | null;
+      try {
+        id = await response.headerValue("x-request-id");
+      } catch (error) {
+        row.header_state = "rejected";
+        diagnostic.event("header-reject", row, tails.size);
+        throw error;
+      }
+      row.header_state = "returned";
+      row.header_request_id =
+        typeof id === "string" &&
+        /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(id)
+          ? id
+          : "invalid";
+      diagnostic.event("header-return", row, tails.size);
+      row.finished_state = "entered";
+      diagnostic.event("finished-enter", row, tails.size);
+      let terminal: Error | null;
+      try {
+        terminal = await response.finished();
+      } catch (error) {
+        row.finished_state = "rejected";
+        diagnostic.event("finished-reject", row, tails.size);
+        throw error;
+      }
+      row.finished_state = terminal === null ? "null" : "error";
+      diagnostic.event("finished-return", row, tails.size);
       if (closed) {
         failed = true;
         return;
@@ -761,19 +1009,30 @@ export async function observeKnowledge(
       })
       .then(() => {
         tails.delete(tail);
+        row.tail_joined = true;
+        diagnostic.event("pw-tail-joined", row, tails.size);
       });
     tails.add(tail);
+    diagnostic.event("response", row, tails.size);
   };
   const close = () => {
     failed = true;
     closed = true;
   };
+  const pageClose = () => {
+    diagnostic.event("page-close", undefined, tails.size);
+    close();
+  };
+  const contextClose = () => {
+    diagnostic.event("context-close", undefined, tails.size);
+    close();
+  };
   page.on("request", requested);
   page.on("requestfinished", finished);
   page.on("requestfailed", rejected);
   page.on("response", response);
-  page.on("close", close);
-  page.context().on("close", close);
+  page.on("close", pageClose);
+  page.context().on("close", contextClose);
   // Installed in the current document after login, before its first Knowledge
   // navigation. It does not instrument unrelated Account material.
   await page.evaluate(installKnowledgeNative, {
@@ -792,45 +1051,120 @@ export async function observeKnowledge(
   return {
     async finish() {
       if (report) return report;
-      await Promise.all([...tails]);
-      const value = await page.evaluate(async () => {
-        const host = window as any;
-        const native = host.__knowledgeNative.finish();
-        const publication = host.__knowledgePublication.finish();
-        return {
-          native: await native,
-          publication: await publication,
+      try {
+        diagnostic.enter("pw-tails");
+        await Promise.all([...tails]);
+        diagnostic.complete("pw-tails");
+        diagnostic.enter("page-observers");
+        const value = await page.evaluate(async () => {
+          const host = window as any;
+          const native = host.__knowledgeNative.finish();
+          const publication = host.__knowledgePublication.finish();
+          return {
+            native: await native,
+            publication: await publication,
+          };
+        });
+        diagnostic.complete("page-observers");
+        closed = true;
+        page.off("request", requested);
+        page.off("requestfinished", finished);
+        page.off("requestfailed", rejected);
+        page.off("response", response);
+        page.off("close", pageClose);
+        page.context().off("close", contextClose);
+        report = {
+          ...value,
+          pw_failed: failed || !diagnostic.healthy(),
+          pw_pending: tails.size,
+          requests: [...rows.values()],
+          input_hash: config.inputHash,
         };
-      });
-      closed = true;
-      page.off("request", requested);
-      page.off("requestfinished", finished);
-      page.off("requestfailed", rejected);
-      page.off("response", response);
-      page.off("close", close);
-      page.context().off("close", close);
-      report = {
-        ...value,
-        pw_failed: failed,
-        pw_pending: tails.size,
-        requests: [...rows.values()],
-        input_hash: config.inputHash,
-      };
-      await writeFile(
-        join(config.evidence, "knowledge-native-consumption.json"),
-        JSON.stringify(report),
-        { mode: 0o600 },
-      );
-      return report;
+        diagnostic.enter("report-write");
+        await writeFile(
+          join(config.evidence, "knowledge-native-consumption.json"),
+          JSON.stringify(report),
+          { mode: 0o600 },
+        );
+        diagnostic.complete("report-write");
+        return report;
+      } catch (error) {
+        diagnostic.event("finish-reject", undefined, tails.size);
+        throw error;
+      }
     },
     async idle() {
-      return page.evaluate(() => {
-        const host = window as any;
-        return (
-          host.__knowledgeNative.snapshot().pending === 0 &&
-          host.__knowledgePublication.snapshot().pending === 0
-        );
-      });
+      try {
+        const sample = await page.evaluate(() => {
+          const host = window as any;
+          const native = host.__knowledgeNative.snapshot(),
+            publication = host.__knowledgePublication.snapshot();
+          const number = (v: unknown) =>
+            typeof v === "number" && Number.isSafeInteger(v) && v >= 0
+              ? v
+              : null;
+          const project = (v: any) => ({
+            retired: v.retired === true,
+            reason: ["active", "explicit", "expired"].includes(v.reason)
+              ? v.reason
+              : "invalid",
+            pending: number(v.pending),
+            pending_at_retirement: number(v.pending_at_retirement),
+            failed: v.failed === true,
+            overflow: v.overflow === true,
+            current: typeof v.current === "boolean" ? v.current : null,
+            not_busy: typeof v.not_busy === "boolean" ? v.not_busy : null,
+            row_count: Array.isArray(v.rows) ? v.rows.length : null,
+            rows: Array.isArray(v.rows)
+              ? v.rows.slice(0, 256).map((r: any) => {
+                  const result: Record<string, number | boolean | null> = {};
+                  for (const key of [
+                    "sequence",
+                    "id",
+                    "call_id",
+                    "bytes",
+                    "readers",
+                    "reads",
+                    "read_returns",
+                    "reader_cancel",
+                    "reader_cancel_joined",
+                    "release",
+                    "outer_cancel",
+                    "outer_cancel_joined",
+                    "bound",
+                  ])
+                    result[key] = number(r[key]);
+                  for (const key of [
+                    "fetch_returned",
+                    "fetch_rejected",
+                    "eof",
+                    "read_rejected",
+                    "owner_error",
+                    "fulfilled",
+                    "rejected",
+                    "settled",
+                    "current",
+                    "not_busy",
+                  ])
+                    result[key] = typeof r[key] === "boolean" ? r[key] : null;
+                  return result;
+                })
+              : [],
+          });
+          return {
+            idle: native.pending === 0 && publication.pending === 0,
+            observers: {
+              native: project(native),
+              publication: project(publication),
+            },
+          };
+        });
+        diagnostic.sample(sample.observers);
+        return sample.idle;
+      } catch (error) {
+        diagnostic.event("idle-reject", undefined, tails.size);
+        throw error;
+      }
     },
   };
 }

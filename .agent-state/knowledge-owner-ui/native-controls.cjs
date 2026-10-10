@@ -444,10 +444,358 @@ process.on("unhandledRejection", () => {
   checks++;
   delete global.__knowledgeNative;
   delete global.__knowledgePublication;
+  // Exercise the actual Node orchestration, not constructed proof rows. The
+  // controlled Page runs the two actual browser programs; its module loader
+  // maps the already-checked singleton export to this one real Session.
+  const { EventEmitter } = require("node:events");
+  const secretMarker = "PRIVATE_DIAGNOSTIC_SENTINEL";
+  for (const mode of [
+    "normal-node",
+    "held-header",
+    "held-finished",
+    "finished-without-event",
+    "page-close",
+    "context-close",
+    "evaluate-reject",
+    "header-reject",
+    "finished-error",
+    "invalid-metadata",
+  ]) {
+    const evidence = fs.mkdtempSync(
+      path.join(require("node:os").tmpdir(), "ku-node-"),
+    );
+    const diagnostic = methods.createKnowledgeReadDiagnostic({
+      evidence,
+      inputHash: "d".repeat(64),
+      project,
+      documents: [target],
+    });
+    const page = new EventEmitter(),
+      context = new EventEmitter();
+    let pageClosed = false,
+      rejectEvaluate = false,
+      headerCalls = 0,
+      finishedCalls = 0;
+    const headerGate = deferred(),
+      finishedGate = deferred();
+    const request = {
+      url: () =>
+        location.origin +
+        base +
+        "?" +
+        (mode === "invalid-metadata"
+          ? "token=" + secretMarker
+          : "byte_offset=0&max_bytes=65536"),
+      method: () => "GET",
+      headers: () => {
+        throw Error("must never inspect request headers");
+      },
+    };
+    const pwResponse = {
+      request: () => request,
+      status: () => 200,
+      headerValue(name) {
+        assert.equal(this, pwResponse);
+        assert.equal(name, "x-request-id");
+        headerCalls++;
+        if (mode === "header-reject")
+          return Promise.reject(Error(secretMarker));
+        return mode === "held-header"
+          ? headerGate.promise
+          : Promise.resolve(
+              mode === "invalid-metadata" ? secretMarker : requestID,
+            );
+      },
+      finished() {
+        assert.equal(this, pwResponse);
+        finishedCalls++;
+        return ["held-finished", "page-close", "context-close"].includes(mode)
+          ? finishedGate.promise
+          : Promise.resolve(
+              mode === "finished-error" ? Error(secretMarker) : null,
+            );
+      },
+      body: () => {
+        throw Error("must never read a PW body");
+      },
+    };
+    const bytes = new TextEncoder().encode(JSON.stringify(body));
+    global.fetch = function (input) {
+      if (input === "/api/v1/session") return Promise.resolve(json(session));
+      if (input === "/api/v1/auth/bootstrap")
+        return Promise.resolve(
+          json({
+            csrf_token: "A".repeat(43),
+            challenge_modes: ["rotate"],
+            delivery_channel: "backend_log",
+          }),
+        );
+      assert.equal(new URL(input, location).pathname, base);
+      page.emit("request", request);
+      queueMicrotask(() => {
+        page.emit("response", pwResponse);
+        if (mode !== "finished-without-event")
+          page.emit("requestfinished", request);
+      });
+      return Promise.resolve(
+        new Response(bytes, {
+          headers: {
+            "Content-Type": "application/json",
+            "Content-Length": String(bytes.length),
+            "X-Request-ID": requestID,
+          },
+        }),
+      );
+    };
+    const args = [createAccountAPI((...args) => window.fetch(...args))];
+    args[15] = createKnowledgeOwnerAPI((...args) => window.fetch(...args));
+    const auth = createSessionController(...args);
+    await auth.restore();
+    global.__knowledgeNodeAuth = auth;
+    page.context = () => context;
+    page.isClosed = () => pageClosed;
+    page.evaluate = async (fn, value) => {
+      if (pageClosed || rejectEvaluate) throw Error(secretMarker);
+      if (fn === methods.installKnowledgePublication) {
+        assert.deepEqual(value.binding, binding);
+        return fn({
+          ...value,
+          binding: {
+            entry: binding.entry,
+            exportName: "singleton",
+            asset:
+              "data:text/javascript,export%20function%20singleton(){return%20globalThis.__knowledgeNodeAuth}",
+          },
+        });
+      }
+      return fn(value);
+    };
+    let observer, report;
+    try {
+      observer = await methods.observeKnowledge(page, {
+        root,
+        dist,
+        project,
+        documents: [target],
+        user,
+        evidence,
+        inputHash: "d".repeat(64),
+        diagnostic,
+      });
+      const typed = await auth.knowledge.readContent(project, target, {
+        byte_offset: "0",
+        max_bytes: 65536,
+      });
+      assert.deepEqual(typed, body);
+      checks++;
+      await wait(
+        () =>
+          __knowledgeNative.snapshot().pending === 0 &&
+          __knowledgePublication.snapshot().pending === 0,
+      );
+      diagnostic.enter("observer-idle");
+      assert.equal(await observer.idle(), true);
+      checks++;
+      let sample = diagnostic.snapshot().last_observers;
+      assert.equal(sample.observed_in_phase, "observer-idle");
+      assert.equal(sample.current_at_failure, "not_observed");
+      assert.equal(sample.value.native.pending, 0);
+      assert.equal(sample.value.publication.pending, 0);
+      assert.equal(JSON.stringify(sample).includes('"typed"'), false);
+      checks += 5;
+      diagnostic.enter("observer-finish");
+      if (mode === "evaluate-reject") rejectEvaluate = true;
+      let settled = false;
+      const finishing = observer.finish().then(
+        (value) => {
+          settled = true;
+          return { value };
+        },
+        () => {
+          settled = true;
+          return { rejected: true };
+        },
+      );
+      if (
+        [
+          "held-header",
+          "held-finished",
+          "page-close",
+          "context-close",
+        ].includes(mode)
+      ) {
+        await tick();
+        assert.equal(settled, false);
+        const before = diagnostic.snapshot();
+        assert.equal(before.phase, "pw-tails");
+        assert.equal(before.pw_pending, 1);
+        assert.equal(
+          before.pw_rows[0].header,
+          mode === "held-header" ? "entered" : "returned",
+        );
+        assert.equal(
+          before.pw_rows[0].finished_await,
+          mode === "held-header" ? "not_entered" : "entered",
+        );
+        assert.equal(finishedCalls, mode === "held-header" ? 0 : 1);
+        checks += 6;
+        diagnostic.firstFailure(false, false);
+        const first = diagnostic.snapshot().first_failure;
+        assert.deepEqual(
+          JSON.parse(
+            fs.readFileSync(
+              path.join(evidence, "knowledge-first-failure.json"),
+              "utf8",
+            ),
+          ).first_failure,
+          first,
+        );
+        checks++;
+        if (mode === "page-close") {
+          pageClosed = true;
+          page.emit("close");
+        }
+        if (mode === "context-close") {
+          context.emit("close");
+          pageClosed = true;
+        }
+        headerGate.resolve(requestID);
+        finishedGate.resolve(null);
+        const outcome = await finishing;
+        report = outcome.value;
+        diagnostic.event(
+          outcome.rejected ? "cleanup-reject" : "cleanup-return",
+        );
+        diagnostic.firstFailure(true, !!report);
+        const after = diagnostic.snapshot();
+        assert.deepEqual(after.first_failure, first);
+        assert.equal(after.first_failure.page_closed, false);
+        assert(after.tail_events.length > 0);
+        assert.equal(after.pw_pending, 0);
+        assert.equal(diagnostic.healthy(), false);
+        if (mode.endsWith("close")) assert.equal(outcome.rejected, true);
+        else assert.equal(report.pw_failed, true);
+        checks += 6;
+      } else {
+        const outcome = await finishing;
+        report = outcome.value;
+        if (mode === "evaluate-reject") {
+          assert.equal(outcome.rejected, true);
+          diagnostic.firstFailure(false, false);
+          assert.equal(
+            diagnostic.snapshot().first_failure.phase,
+            "page-observers",
+          );
+          assert.equal(
+            diagnostic.snapshot().first_failure.last_observers
+              .current_at_failure,
+            "not_observed",
+          );
+          checks += 3;
+        } else {
+          const side = {
+            method: "GET",
+            request_id: requestID,
+            path: base,
+            query: "byte_offset=0&max_bytes=65536",
+            status: 200,
+            content_length: bytes.length,
+            body_sha256: require("node:crypto")
+              .createHash("sha256")
+              .update(bytes)
+              .digest("hex"),
+          };
+          assert.equal(
+            methods.knowledgeOriginalCompleted(
+              report.native,
+              report.publication,
+              report.requests[0],
+              side,
+            ),
+            mode === "normal-node",
+          );
+          if (mode === "normal-node") {
+            assert.equal(report.pw_failed, false);
+            assert.equal(report.pw_pending, 0);
+            assert(diagnostic.healthy());
+            assert.equal(report.native.reason, "explicit");
+            assert.equal(report.publication.reason, "explicit");
+            checks += 5;
+          }
+          checks++;
+        }
+      }
+      assert.equal(headerCalls, 1);
+      assert.equal(finishedCalls, mode === "header-reject" ? 0 : 1);
+      checks += 2;
+      const safe = fs.readFileSync(
+        path.join(evidence, "knowledge-read-diagnostic.json"),
+        "utf8",
+      );
+      assert.equal(safe.includes(secretMarker), false);
+      assert.equal(safe.includes('"typed"'), false);
+      checks += 2;
+    } finally {
+      headerGate.resolve(requestID);
+      finishedGate.resolve(null);
+      // Controlled Page closing rejects evaluate, so its own fixture releases
+      // the actual installed browser programs directly; never a success proof.
+      if (global.__knowledgeNative) await __knowledgeNative.finish();
+      if (global.__knowledgePublication) await __knowledgePublication.finish();
+      auth.leave();
+      page.removeAllListeners();
+      context.removeAllListeners();
+      delete global.__knowledgeNative;
+      delete global.__knowledgePublication;
+      delete global.__knowledgeNodeAuth;
+      fs.rmSync(evidence, { recursive: true, force: true });
+    }
+  }
+  const diagnosticDirectory = fs.mkdtempSync(
+    path.join(require("node:os").tmpdir(), "ku-diagnostic-"),
+  );
+  try {
+    const d = methods.createKnowledgeReadDiagnostic({
+      evidence: diagnosticDirectory,
+      inputHash: "d".repeat(64),
+      project,
+      documents: [target],
+    });
+    d.enter("completion-button");
+    d.firstFailure(false, false);
+    const first = d.snapshot().first_failure;
+    const mutation = d.snapshot();
+    mutation.first_failure.phase = "forged";
+    for (let i = 0; i < 260; i++) d.event("cleanup-return");
+    const end = d.snapshot();
+    assert.deepEqual(end.first_failure, first);
+    assert(end.overflow);
+    assert.equal(end.events.length + end.tail_events.length, 256);
+    assert.equal(d.healthy(), false);
+    checks += 4;
+    const file = path.join(diagnosticDirectory, "not-a-directory");
+    fs.writeFileSync(file, "owned");
+    const blocked = methods.createKnowledgeReadDiagnostic({
+      evidence: file,
+      inputHash: "d".repeat(64),
+      project,
+      documents: [target],
+    });
+    assert.doesNotThrow(() => {
+      blocked.enter("pw-tails");
+      blocked.firstFailure(false, false);
+      blocked.event("cleanup-return");
+    });
+    assert(blocked.snapshot().write_failed);
+    assert.equal(blocked.healthy(), false);
+    checks += 3;
+  } finally {
+    fs.rmSync(diagnosticDirectory, { recursive: true, force: true });
+  }
   await tick();
   assert.equal(unhandled, 0);
   console.log(
-    `Knowledge native controls PASS checks=${checks} unhandled=${unhandled}; real client/Session with controlled transport, PW rows simulated`,
+    `Knowledge native controls PASS checks=${checks} unhandled=${unhandled}; real client/Session and Node observeKnowledge, browser/PW events controlled`,
   );
 })().catch((error) => {
   console.error("CONTROL_FAIL", error.name, error.message);

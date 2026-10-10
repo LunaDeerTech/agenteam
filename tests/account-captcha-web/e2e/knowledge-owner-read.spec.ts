@@ -5,8 +5,10 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import {
+  createKnowledgeReadDiagnostic,
   knowledgeOriginalCompleted,
   observeKnowledge,
+  type KnowledgeReadPhase,
 } from "./knowledge-owner-read.native";
 
 const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
@@ -59,8 +61,20 @@ test("[read] Knowledge Owner existing-document read", async ({ page }) => {
     readFileSync(join(directory, "knowledge-owner-material.json"), "utf8"),
   );
   expect(data.input_hash).toBe(inputHash);
-  let stage = "login",
-    observer: Awaited<ReturnType<typeof observeKnowledge>> | undefined;
+  const diagnostic = createKnowledgeReadDiagnostic({
+    evidence,
+    inputHash,
+    project: data.project_id,
+    documents: [data.parent_id, data.child_id],
+  });
+  let stage: KnowledgeReadPhase = "login";
+  let observer: Awaited<ReturnType<typeof observeKnowledge>> | undefined;
+  const enter = (value: KnowledgeReadPhase) => {
+    diagnostic.complete(stage);
+    stage = value;
+    diagnostic.enter(value);
+  };
+  diagnostic.enter(stage);
   let terminal: any;
   try {
     await page.emulateMedia({
@@ -82,7 +96,7 @@ test("[read] Knowledge Owner existing-document read", async ({ page }) => {
     await expect(
       page.getByRole("list", { name: "项目列表", exact: true }),
     ).toBeVisible();
-    stage = "project-entry";
+    enter("project-entry");
     await page
       .getByRole("list", { name: "项目列表", exact: true })
       .getByRole("link", { name: data.project_name, exact: true })
@@ -98,6 +112,7 @@ test("[read] Knowledge Owner existing-document read", async ({ page }) => {
       user: data.user_id,
       evidence,
       inputHash,
+      diagnostic,
     });
     await page
       .getByRole("navigation", { name: "项目导航", exact: true })
@@ -111,7 +126,7 @@ test("[read] Knowledge Owner existing-document read", async ({ page }) => {
     const parent = tree.locator(`[data-tree-id="${data.parent_id}"]`),
       child = tree.locator(`[data-tree-id="${data.child_id}"]`);
     await expect(parent).toHaveAttribute("aria-selected", "false");
-    stage = "tree-keyboard";
+    enter("tree-keyboard");
     await parent.focus();
     await page.keyboard.press("ArrowRight");
     await expect(parent).toHaveAttribute("aria-expanded", "true");
@@ -120,7 +135,7 @@ test("[read] Knowledge Owner existing-document read", async ({ page }) => {
     await expect(child).toBeFocused();
     await page.keyboard.press("Enter");
     const text = area.locator("pre.canonical-text");
-    stage = "first-content";
+    enter("first-content");
     await expect.poll(() => text.textContent()).toBe("a".repeat(65535));
     await expect(area.locator(".document-facts")).toContainText(data.user_id);
     await expect(
@@ -137,7 +152,7 @@ test("[read] Knowledge Owner existing-document read", async ({ page }) => {
     await page.screenshot({
       path: join(evidence, "knowledge-desktop-light.png"),
     });
-    stage = "utf8-next";
+    enter("utf8-next");
     await area.getByRole("button", { name: "下一段", exact: true }).click();
     await expect.poll(() => text.textContent()).toBe("中🙂\n");
     await expect(area.locator(".content-range")).toContainText("65535–65543");
@@ -147,12 +162,12 @@ test("[read] Knowledge Owner existing-document read", async ({ page }) => {
     await expect(
       area.getByRole("button", { name: "上一段", exact: true }),
     ).toBeEnabled();
-    stage = "parent-read";
+    enter("parent-read");
     await parent.focus();
     await page.keyboard.press("Enter");
     await expect.poll(() => text.textContent()).toBe(data.parent_text);
     expect(await area.locator("script").count()).toBe(0);
-    stage = "drawer";
+    enter("drawer");
     await page.setViewportSize({ width: 390, height: 844 });
     await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
     const trigger = area.getByRole("button", { name: "文档树", exact: true });
@@ -176,12 +191,15 @@ test("[read] Knowledge Owner existing-document read", async ({ page }) => {
     await page.screenshot({
       path: join(evidence, "knowledge-narrow-dark-reduced.png"),
     });
-    stage = "actual-consumption";
+    enter("completion-button");
     await expect(
       area.getByRole("button", { name: "从开头重读", exact: true }),
     ).toBeEnabled();
+    enter("observer-idle");
     await expect.poll(() => observer!.idle()).toBe(true);
+    enter("observer-finish");
     terminal = await observer.finish();
+    enter("joint-proof");
     expect(terminal.pw_failed).toBe(false);
     expect(terminal.pw_pending).toBe(0);
     const records = readdirSync(evidence)
@@ -247,7 +265,7 @@ test("[read] Knowledge Owner existing-document read", async ({ page }) => {
       "readContent",
     ]);
     expect(nextOffset).toBe(true);
-    stage = "schema";
+    enter("schema");
     const schema = spawnSync(
       process.env.AGENTEAM_KNOWLEDGE_OWNER_WEB_SCHEMA_PYTHON!,
       ["-c", schemaProgram, root, evidence],
@@ -266,6 +284,8 @@ test("[read] Knowledge Owner existing-document read", async ({ page }) => {
     );
     expect(schema.status).toBe(0);
     expect(schema.stdout.trim()).toBe(String(records.length));
+    diagnostic.complete("schema");
+    expect(diagnostic.healthy()).toBe(true);
     writeFileSync(
       join(directory, "knowledge-owner-result.json"),
       JSON.stringify({
@@ -284,23 +304,18 @@ test("[read] Knowledge Owner existing-document read", async ({ page }) => {
       { mode: 0o600 },
     );
   } catch {
+    // Preserve the actual first phase and known state before any tail await.
+    // finish/close may append later observations but cannot rewrite this copy.
+    diagnostic.firstFailure(page.isClosed(), !!terminal);
     if (observer && !terminal) {
       try {
         terminal = await observer.finish();
+        diagnostic.event("cleanup-return");
       } catch {
+        diagnostic.event("cleanup-reject");
         /* Original stage remains failed. */
       }
     }
-    writeFileSync(
-      join(evidence, "knowledge-first-failure.json"),
-      JSON.stringify({
-        stage,
-        input_hash: inputHash,
-        page_closed: page.isClosed(),
-        observer_report: !!terminal,
-      }),
-      { mode: 0o600 },
-    );
     throw Error(
       `KNOWLEDGE_READ_STAGE_${stage.toUpperCase().replaceAll("-", "_")}`,
     );
