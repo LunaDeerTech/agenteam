@@ -55,3 +55,10 @@ Skills01使用已冻结组合source `6f3f1faf`、同一61,196,757-byte候选（S
 在web cwd仅执行一次 `npm run build -- --outDir ../output/ai/skills-owner-ui/web-dist-combined-02`，npm PID570647实际Wait0，vue-tsc通过，Vite304modules/1.09s；同产物普通文件复制到 `output/ai/knowledge-owner-rename/web-dist-combined-02`。各69文件、978075 bytes，sorted relative-path/NUL/file-SHA/LF共同manifest `13b13dff90ee55806b2f588709340458885a31e2109ba4009f4c0813f7419fe4`，nlink1且对应inode互异。源构建前后hash同为 `bf5bc945dcb1daa04a2a987e3e65a43d8af6d81ac3df14a3b44823de47d420be`。
 
 原outer18799→91f60b actual1发生在build/copy成功后写summary：循环Path变量覆盖Popen变量，取pid时报错；其原失败保留。63b10d actual0仅复核既有两目录并写 `output/ai/skills-owner-ui/combined-frontend-02.json`，未重build/copy。两个01目录及Skills01原FAIL不变。Go源码未变，继续复用同候选，driver最终closure须针对02重新枚举；Rename首轮优先，Skills02无实际授权。
+
+
+## Skills02真实失败与后续界限
+
+Skills02按combined-inputs-03的Skills1474项 `aa1138ce303c7d61d4de29ce98e36f5f562c057ea127af4c7513658030a246a9`、同candidate/DIST02执行一次，新的两Rename TS不在Skills闭包内。新/tmp/sui02与evidence-read-02，启动free5,448,818,688 bytes，旧Skills01七资源两轮absent预飞通过；原全部预算保持。28155→c16589 actual1，原Node614889 false、Go29.35s FAIL、driver612271/sup612250/outer612088 Wait齐，4adopted0、七资源14absent/private-runtime-desc-TCP双尾与输入一致/STOP0，总142.792s后释放。
+
+原首snapshot在original-completion：pw_failed=true、pending0、pw_first=null；双observer仍active，说明没有调用首explicit。实际6请求中seq1/3/4/6正常finished一次、finished(null)一次及完整native/public尾；seq2旧list、seq5旧get无response/XID，native fetch rejected/public原Promise rejected，不能扩消费例外。原idle因此无法通过，4个成功sidecar和两截图不升级whole；第二Human及Go后验未到。原首投影与关闭后尾分别保存在 [second-read-result.json](second-read-result.json)，原精确PW错误/导航时点未持久化，不补原因。下一仅授权实际Router+auth恢复+WorkspaceView导航重现潜在旧route读竞态，不改正常完成门、预算或observer，也无第三次真实执行授权。
