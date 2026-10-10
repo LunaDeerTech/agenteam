@@ -104,8 +104,10 @@ func (s *Service) Launch(ctx context.Context, actor i.Actor, request c.LaunchReq
 	}
 	cause, _ := f.NewCommandsCause(command)
 	var output c.LaunchResult
+	var acquireErr error
 	result := s.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := s.store.AcquireAll(ctx, tx, locks); err != nil {
+			acquireErr = err
 			return portError(err)
 		}
 		x, err := s.store.InTx(tx)
@@ -160,7 +162,7 @@ func (s *Service) Launch(ctx context.Context, actor i.Actor, request c.LaunchReq
 		output = c.LaunchResult{Execution: created.summary.Clone()}
 		return nil
 	})
-	if err = commitError(result); err != nil {
+	if err = launchCommitError(ctx, request, acquireErr, result); err != nil {
 		return c.LaunchResult{}, err
 	}
 	return output, nil

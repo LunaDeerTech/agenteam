@@ -11,10 +11,14 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 )
 
-type rejection struct {
+type binding struct {
 	digest  f.Digest
 	request f.ID[f.Request]
 	key     f.IdempotencyKey
+}
+
+type rejection struct {
+	binding func() binding
 	cause   func() error
 }
 
@@ -43,11 +47,17 @@ func MintLockTimeout(digest f.Digest, request f.ID[f.Request], key f.Idempotency
 	if digest.Validate() != nil || request.Validate() != nil || key.Validate() != nil || cause == nil {
 		return nil
 	}
-	return &rejection{digest: digest, request: request, key: key, cause: func() error { return cause }}
+	// Closures also prevent recursive formatting of an enclosing private field
+	// from traversing request material or the diagnostic cause.
+	return &rejection{binding: func() binding { return binding{digest, request, key} }, cause: func() error { return cause }}
 }
 
 func Match(err error, digest f.Digest, request f.ID[f.Request], key f.IdempotencyKey) bool {
 	var marker *rejection
-	return digest.Validate() == nil && request.Validate() == nil && key.Validate() == nil &&
-		errors.As(err, &marker) && marker != nil && marker.digest == digest && marker.request == request && marker.key == key
+	if digest.Validate() != nil || request.Validate() != nil || key.Validate() != nil ||
+		!errors.As(err, &marker) || marker == nil || marker.binding == nil {
+		return false
+	}
+	original := marker.binding()
+	return original.digest == digest && original.request == request && original.key == key
 }
