@@ -240,11 +240,9 @@ func validatePreparationFields(v PreparationInputFields) error {
 			return invalid()
 		}
 	}
-	for _, id := range a.AllowedToolIDs {
-		if !slices.Contains(r.Launch.Policy.DeniedToolIDs, id) && !tools[id] {
-			return invalid()
-		}
-	}
+	// Agent configuration may retain currently unregistered Tool IDs. Registry
+	// proves the complete current-registration intersection in the original Tx;
+	// this value codec only validates the returned entries against that policy.
 	return nil
 }
 
