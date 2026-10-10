@@ -2,16 +2,13 @@
 
 ## 本轮最新验收边界
 
-- 隔离后端候选已组合D05/Skills Cleanup、Skills与Knowledge正文HTTP、D04/SecretOwner库和连续00028..00030；尚未正式main。原领域接受均限各卡固定版本，不带Work UI或新Secret HTTP。
-- 最终检查适用集合已闭：原66普通包、remaining两vet/全race/两cmd build，加修后Audit整个ordinary/race（a0d81188，86755→eb96d7 actual0/107.590s，原desc/runtime/TCP双空）。原完整check01/02与两次diagnostic仍FAIL，不冒单次全仓wholePASS。
-- 默认initializer接缝被独立规范审查拒绝：D08 §7与D10 §§1/14要求完整participant/guard，未开放公开HTTP不豁免内部默认Create。旧649e6ad3根单top业务PASS保留，content正在撤回生产initializer并重整测试，修后未验；不得改SPEC降门或正式放行默认创建。
-- 当前真实独占窗口为Work作者R13；SecretHTTP仅入口fb74607c与两driver编译就绪、PG/native未跑。Knowledge UI首片段f9fde343已保存未验，均为未完分支。main4d1cf3d2仅治理变化；活跃/未完/独有材料树按现owner保留，由root完成验收及main推送后逐对象检查清理。
+- root已将 `fb84a892a7d07bb6f82a28c2be7505af47ea9d38` 正式推送main并核exact tip：D05/Skills Cleanup、Skills与Knowledge正文HTTP、D04/SecretOwner库和连续00028..00030已有限交付；不带Work/Knowledge UI或新Secret HTTP，不称完整D04/D05/D08/D10/D12完成。本协调树待root合并新main，原未验Model材料保留。
+- 默认生产initializer已撤回并保持unbound，完整participant/guard规则未变。旧649e业务PASS与规范拒绝分别保留；0747修后root02原全部退出尾PASS只接受默认拒绝/13项零事实、显式test-only真实端口fixture退休后的既有数据读取/Avatar/退出。
+- 原66普通包、remaining两vet/全race/两cmd build，加修后Audit整包ordinary/race构成适用最终验证集合；撤回后10pure/43sub、新根及两app vet/两build按变化补验。原check01/02和diagnosticFAIL保留；后继编译记录wrapper的set序列化FAIL不抹除其三命令Wait0，也不后补原runtime/desc门。
+- Work R13记录2b8b9947只闭作者Recovery有限门，独立Recovery/Authority及整卡仍未完成；SecretHTTP入口/两driver只READY未PG/native；KnowledgeUI f9fde343首片段未验。各活跃树的owner/用途与历史材料保留原因见本树current。
+- 临时backend-owner-delivery用途已完成，writer停、status含ignored空、HEAD同远端main，root已普通remove/branch-d且核本地tree/ref与远端分支为空；不批量清理其他未完/被引用树。其余全局STOP与E01未开始保持。
 
-以下保留固定阶段成果及历史路径；与本轮状态冲突的“仍待”只描述当时版本，当前门槛以上节及各树current为准。
-
-本页只保存全局产品状态、阻塞和下一步；任务分支的最小恢复状态见[分支记录](../../../.agent-state/current.md)。2026-10-09初始核对基线 `e55ad7d1` 仅做文档及文件存在性核对；下表已按后续实际交付与验证更新，不代表当前HEAD的一次全量测试。
-
-长期范围与完成门槛见[开发计划](../development-plan.md)，协作规则见[团队流程](README.md)，环境与缺失输入见[恢复说明](recovery-2026-10-08-environment.md)。历史代理名、ACK、资源授权和 STOP 都是当时记录，不表示本次仍有活动实例、进程或可用测试窗口。
+以下固定阶段记录按当时来源保留，旧“仍待”不覆盖本轮正式交付；领域当前范围以main正式卡与本树current为准。
 
 ## 当前恢复点与并行所有权
 
