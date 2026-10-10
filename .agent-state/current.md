@@ -53,4 +53,18 @@
 - 组合最低纯检查只选9 top：Secret Apply/历史receipt2、跨D10 contract1、Owner Audit/Outbox/Authority/type Reader4、Project Secret Audit/Event2，四包race均实际Wait0。原session61926最终actual0；同一离线串行阶段PG driver build0、security/Owner两integration包race-c0，八个exact入口list均恰对应top，实际driver拒绝非exact发生在stat/mkdir前。每阶段同process新鲜磁盘≥5GiB，固定Go/只读module/私有cache及telemetry off；无业务PG/native/socket。
 - 原D04 core控制50、recovery61（含真实artifact/list附加为68）、Owner182（附加为189）、Skills107、正文157、Cleanup6methods、D05并集201均实际exit0。只复用各域已接受SQL与独验组合，不重跑原整矩阵；未声称新候选重新执行这些真人场景。控制首轮因两个输出目录未创建退出；随后Secret观察分支插入点与root helper被旧逆切片包含的失败均保留，分别固定独立插入点后通过，未删除预算/门或容忍未知hunk。
 - 默认根新入口仅 `^TestKnowledgeSkillsDefaultRootComposition$` → `internal/central/app`，同包app Go源初尾冻结、单top/零sub恰一次RUN/PASS及唯一原actual_test_wait=0；原7resource/Go6m/root540+60+3/75s TCP双空不变。独立 `root-composition-controls.py` 40控实际0，包括新域逆去后六域全源相等、非exact/非root前置拒绝、日志缺失/重复/失败、input漂移及七资源/私目录原双尾；OS/resource均明确double，不冒真实资源退役。此本地新增量由`apply_root_composition`精确声明，完整实源比较后才允许其他域逆投影，未知变化仍fail。
-- content的根真人test已在连续00030候选上race-c/list0（session66747），只发现一个top；尚未获得本current记录的真实whole PASS。app/config/外域fixture由content唯一持有，其结果单独验收。本次本人无compiler/子进程或真实资源在途，等待root checkpoint与fresh真实窗口；候选未正式交付main。
+- content的根真人test已在连续00030候选上race-c/list0（session66747），只发现一个top；后续原单top whole PASS见末节。app/config/外域fixture由content唯一持有，其结果单独验收。本次本人无compiler/子进程或真实资源在途，等待root checkpoint与fresh真实窗口；候选未正式交付main。
+
+## 正式后端交付范围与最后门槛（根真实whole PASS）
+
+本候选接通默认 Central 的 Knowledge 元数据/树命令/有界正文和 Skills 目录 HTTP，并让真实 Project Service.CreateProject 使用同一 Skills 初始化器；Object 按固定 Avatar/Knowledge/Skill owner 分派。新增必需公开配置 `AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING`，没有自动默认值：部署方提供独立32字节密钥、严格base64与1–32个kid，全部保留材料不得复用 Cursor/Secret/Download/Account 当前或历史密钥。配置 getter 返回 typed `knowledge/contract.ConfirmationKeys`，错误只报告字段，不暴露值。
+
+正式拟交付的库同时包括 D05 有界 metadata purge/Stop 与 Skills Cleanup 消费者、D04 Project Variable 专用材料/intent receipt存储和 Secret Owner服务。00028只加共享cleanup索引；00029加D04专用purpose/owner-kind3及receipt表；00030扩共享Variable的互斥ordinary/secret形状和Secret commands/history/generation。迁移只按00001..30连续前缀进入main，前三新SQL保持各已验来源字节，不改已有00001..27。
+
+公共边界：两个新HTTP构造器只接真实Service和Account.HTTPBoundary；GET/HEAD仍经当前Human Session/Owner及原2秒预算，HEAD消费相同表示而无body。Object `DeletedObjectMetadataPurger` 是独立可选能力，公开result不充权限/物理join/commit证明；`MaintenanceOwnerResolver`只找原upload所属owner，同Store/活Tx下分派后仍由正式域授权。D04 `ProjectVariableWrites`/`ProjectVariableWriteAuthority` 与 D10 `NewSecret`、`SecretCommands`/`SecretQueries`保各自typed端口；ordinary与secret共享业务ID/活name唯一性，但各命令/read/type/cursor与材料权限分离，普通入口不能读Secret材料。Secret Owner库本次未接默认root或HTTP，F1未完成。
+
+根新实际单top已由content在来源649e6ad3完整whole PASS（session61711 / outer177706 terminal0，driver177729/Go179551实际Wait0，单top零sub PASS6.63s，完整105.502s）。七资源各双absent、private/runtime各双空、desc/TCP各双空与inputsame均齐，原窗口已释放。实际默认bind/run、Project.Create确认/保护Skill package读取、Knowledge正文GET/HEAD、Skill列表HTTP、Avatar PUT/GET/DELETE及原SIGTERM/ProcessGuard尾均在本轮最小接缝内。该测试不是Project.Create HTTP、完整Project生命周期或根上每条树命令的新全矩阵。
+
+最终检查建议采用一次仓库原 `scripts/check-go.sh`：Go1.27.1普通test、普通vet、integration源码vet、普通race及两cmd build，以覆盖最终跨包接口与required配置fixture。已有领域PG/native/SQL矩阵按不变输入复用，不重跑。完整脚本仍含未设gate的普通本地TCP/Runner TLS与process测试，必须在根原尾完全结束后由root另授独占socket窗口；仅离线授权只能执行vet/build。Skill/Content native开关缺省明确SKIP，沿原独占native PASS，不声称本轮重新执行。计划沿私有XDG telemetry mode=off、readonly共享mod、private GOCACHE、GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off，移除继承fixture/native gate；每阶段fresh≥5GiB，所有Go读源前冻结候选。当前未执行最终脚本。
+
+主线集成不带 Work UI 或新 Secret HTTP 分支；`web/`、浏览器harness、projectvariable/http及go.mod/go.sum相对main280均无本批diff。RootMainFeature0的剩余产品接缝/STOP保持：Object Runtime join、OpenAI tools独立动态验收、SPA concurrent-publication、Jina/Image来源，以及真实Agent/F1/Invocation等未绑定范围不因根此top解除；ready=false与/readyz503保持。root应在根wholePASS和适用最终检查终态齐后完成隔离main Git合并；根单top已有限接受；最终脚本尚未执行、正式main集成未完成。
