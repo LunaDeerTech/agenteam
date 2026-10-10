@@ -237,7 +237,100 @@ RUNTIME_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS
                                                                 "'AgentConfigurationSchema', "
                                                                 "'AgentRuntimeSchema')) and")]}
 
+PREPARATION_SELECTOR = "^TestExecutionPreparation$"
+PREPARATION_TOP = "TestExecutionPreparation"
+PREPARATION_CASES = frozenset({PREPARATION_TOP,
+    PREPARATION_TOP + "/prefix39-upgrade-and-repeat",
+    PREPARATION_TOP + "/preparation-claim-and-attempt",
+    PREPARATION_TOP + "/project-preparation-gate",
+    PREPARATION_TOP + "/current-owner-task-input"})
+PREPARATION_BASE = {'.agent-state/work-owner-http/root_chain_driver.py': '409a122d19a840f42d268ea147fe5a1899afb20770e2348526da23d6b5ffebde', '.agent-state/task-planning-recovery/pg_only_supervisor.py': '5cc7d2dee481da371ad92d2b22f756a9f70f36eebffabd136d3221c6b048df88'}
+PREPARATION_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS = {\n',
+                                                        'TARGETS = {\n'
+                                                        "    '^TestExecutionPreparation$': "
+                                                        "'tests/projectvariable',\n"),
+                                                       ('    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$'):\n",
+                                                        '    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$'):\n"),
+                                                       ('    if selector == '
+                                                        "'^TestAgentRuntimeSchema$':\n",
+                                                        '    if selector == '
+                                                        "'^TestExecutionPreparation$':\n"
+                                                        '        paths.add(REPOSITORY / '
+                                                        "'tests/projectvariable/execution_preparation_test.go')\n"
+                                                        '    elif selector == '
+                                                        "'^TestAgentRuntimeSchema$':\n"),
+                                                       ('    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$'):\n",
+                                                        '    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$'):\n")],
+ '.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {METADATA_ROOT: '
+                                                                'METADATA_CASES, SCHEMA_ROOT: '
+                                                                'SCHEMA_CASES,\n'
+                                                                '                   '
+                                                                'RUNTIME_SCHEMA_ROOT: '
+                                                                'RUNTIME_SCHEMA_CASES}\n',
+                                                                'PREPARATION_ROOT = '
+                                                                "'^TestExecutionPreparation$'\n"
+                                                                'PREPARATION_CASES = frozenset({\n'
+                                                                "    'TestExecutionPreparation',\n"
+                                                                '    '
+                                                                "'TestExecutionPreparation/prefix39-upgrade-and-repeat',\n"
+                                                                '    '
+                                                                "'TestExecutionPreparation/preparation-claim-and-attempt',\n"
+                                                                '    '
+                                                                "'TestExecutionPreparation/project-preparation-gate',\n"
+                                                                '    '
+                                                                "'TestExecutionPreparation/current-owner-task-input',\n"
+                                                                '})\n'
+                                                                'METADATA_GROUPS = {METADATA_ROOT: '
+                                                                'METADATA_CASES, SCHEMA_ROOT: '
+                                                                'SCHEMA_CASES,\n'
+                                                                '                   '
+                                                                'RUNTIME_SCHEMA_ROOT: '
+                                                                'RUNTIME_SCHEMA_CASES,\n'
+                                                                '                   '
+                                                                'PREPARATION_ROOT: '
+                                                                'PREPARATION_CASES}\n'),
+                                                               ('        RUNTIME_SCHEMA_ROOT: '
+                                                                "{'TestAgentRuntimeSchema'},\n",
+                                                                '        RUNTIME_SCHEMA_ROOT: '
+                                                                "{'TestAgentRuntimeSchema'},\n"
+                                                                '        PREPARATION_ROOT: '
+                                                                "{'TestExecutionPreparation'},\n"),
+                                                               ("('AgentConfigurationMetadata', "
+                                                                "'AgentConfigurationSchema', "
+                                                                "'AgentRuntimeSchema')) and",
+                                                                "('AgentConfigurationMetadata', "
+                                                                "'AgentConfigurationSchema', "
+                                                                "'AgentRuntimeSchema', "
+                                                                "'ExecutionPreparation')) and")]}
+
+def preparation_projection(name, source):
+    if "'^TestExecutionPreparation$'" not in source:
+        return source
+    for old, new in reversed(PREPARATION_HUNKS[name]):
+        if source.count(new) != 1:
+            raise ValueError('unknown or ambiguous preparation data')
+        source = source.replace(new, old, 1)
+    if hashlib.sha256(source.encode()).hexdigest() != PREPARATION_BASE[name]:
+        raise ValueError('unknown preparation baseline')
+    return source
+
+
 def runtime_projection(name, source):
+    source = preparation_projection(name, source)
     if "'^TestAgentRuntimeSchema$'" not in source:
         return source
     for old, new in reversed(RUNTIME_HUNKS[name]):
@@ -298,7 +391,7 @@ class SchemaEntryControls(unittest.TestCase):
         baseline = {'__file__': str(ROOT / DRIVER), '__name__': 'schema_baseline'}
         exec(compile(inverse(DRIVER, (ROOT / DRIVER).read_text()), DRIVER, 'exec'), baseline)
         self.assertEqual(self.driver.TARGETS[SELECTOR], 'tests/projectvariable')
-        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR)}, baseline['TARGETS'])
+        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR, PREPARATION_SELECTOR)}, baseline['TARGETS'])
         self.assertEqual(self.sup.budgets(True), (540, 60))
         self.assertEqual(self.sup.budgets(False), (123, 3))
         for path, constant in (
@@ -359,7 +452,8 @@ class SchemaEntryControls(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='agent-schema-inputs-') as tmp:
             root = Path(tmp).resolve()
             names = ('candidate.test', 'production.go',
-                     ('tests/projectvariable/agent_runtime_schema_test.go' if SELECTOR == RUNTIME_SELECTOR
+                     ('tests/projectvariable/execution_preparation_test.go' if SELECTOR == PREPARATION_SELECTOR
+                      else 'tests/projectvariable/agent_runtime_schema_test.go' if SELECTOR == RUNTIME_SELECTOR
                       else 'tests/projectvariable/agent_configuration_schema_test.go'),
                      'tests/projectvariable/original_helper_test.go',
                      'internal/other/other_test.go', 'internal/other/assets/NOTICE',
@@ -441,7 +535,7 @@ class SchemaEntryControls(unittest.TestCase):
         self.assertEqual(self.driver.TARGETS[RUNTIME_SELECTOR], 'tests/projectvariable')
         self.assertEqual(self.sup.METADATA_GROUPS[RUNTIME_SELECTOR], RUNTIME_CASES)
         for name, pairs in RUNTIME_HUNKS.items():
-            source = (ROOT / name).read_text()
+            source = preparation_projection(name, (ROOT / name).read_text())
             self.assertEqual(hashlib.sha256(runtime_projection(name, source).encode()).hexdigest(), RUNTIME_BASE[name])
             for old, new in pairs:
                 for bad in (source.replace(new, old, 1), source + new):
@@ -450,6 +544,26 @@ class SchemaEntryControls(unittest.TestCase):
         with patch.dict(globals(), SELECTOR=RUNTIME_SELECTOR, TOP=RUNTIME_TOP, CASES=RUNTIME_CASES), \
                 patch.object(self.sup, 'SCHEMA_ROOT', RUNTIME_SELECTOR), \
                 patch.object(self.sup, 'SCHEMA_CASES', RUNTIME_CASES):
+            self.test_exact_three_subcases_and_original_wait()
+            self.test_actual_main_requires_exact_root_mode()
+            self.test_actual_schema_inputs_reenumerate_runtime_sources()
+            self.test_actual_observer_keeps_original_resource_tails()
+            self.test_actual_driver_fixed_environment_before_original_exec()
+
+    def test_preparation_reuses_the_original_family(self):
+        self.assertEqual(self.driver.TARGETS[PREPARATION_SELECTOR], 'tests/projectvariable')
+        self.assertEqual(self.sup.METADATA_GROUPS[PREPARATION_SELECTOR], PREPARATION_CASES)
+        for name, pairs in PREPARATION_HUNKS.items():
+            source = (ROOT / name).read_text()
+            self.assertEqual(hashlib.sha256(preparation_projection(name, source).encode()).hexdigest(), PREPARATION_BASE[name])
+            for old, new in pairs:
+                self.assertEqual(source.count(new), 1)
+                for bad in (source.replace(new, old, 1), source + new, source + '\n# unknown\n'):
+                    with self.assertRaises(ValueError):
+                        inverse(name, bad)
+        with patch.dict(globals(), SELECTOR=PREPARATION_SELECTOR, TOP=PREPARATION_TOP, CASES=PREPARATION_CASES), \
+                patch.object(self.sup, 'SCHEMA_ROOT', PREPARATION_SELECTOR), \
+                patch.object(self.sup, 'SCHEMA_CASES', PREPARATION_CASES):
             self.test_exact_three_subcases_and_original_wait()
             self.test_actual_main_requires_exact_root_mode()
             self.test_actual_schema_inputs_reenumerate_runtime_sources()
