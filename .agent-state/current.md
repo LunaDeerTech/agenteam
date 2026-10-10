@@ -2,6 +2,12 @@
 
 ## 2026-10-10 新环境接续
 
+Planning06（f83d5fdd；skills_http未参与者actualdiff有限接受、无must-fix，复用38/86/TS/list且未跑动态）原完整一次wholeFAIL，模块现冻结，不继续Planning07方法/重跑。session54072/outer462880，UTC2026-10-10T08:06:51.887741+00:00；同process fresh/exec5,560,336,384B≥5GiB、新空DockerConfig/daemon28.4.0、P05原7IDs/private/runtime双空、首Go前私有telemetryoff与去三旁路均通过。677输入sha17d5f8cc…/原binary a272…/dist68不变，未新建产品请求或扩大业务。
+
+首gap为Doc1第一次move(false)后第二次打开Milestone排序列表，原response017 GET milestones/status200、XID01a124da-6822-7458-9179-ef842fd2b090；45秒止于spec161→105→helpers305 originalBody等待原Response.finished，body/schema列表顺序断言未执行。首44,757.960ms快照page仍open，phase=document-1、16原tails/15settled、已观察request headers0；该请求4,259.379ms已aborted而requestfinished/finished返回/observer拒绝仍null。44,801.106ms页面关闭后原同Request才追加finished/operation-rejected，不回填首因。原sample将此list同PW/XID绑定，native EOF/CL/reader/outer尾可见，但public call_id=null且首explicit/end未发生，不能据其升级普通list消费。首初始化installed/released/route_joined/ready均true仅有限事实；六槽/四doc最终联合、后续Sprint/Task/冲突、schema/client/complete及Go持久后验未到，不认旧Node35根因或产品缺陷。
+
+Go58.27秒FAIL；Go464928/driver463023 actualWait1、4 adopted465188/465192/465190/465193 actualWait0、Node/proxybody/preparation/defaultroot join全齐。七资源14absent、三private/runtime/desc/TCP双尾全部闭合、inputs_unchanged=True、STOP0；原outer50578d actualexit1/144.723秒，唯一窗口已明确交还root，无retry。最小安全原件`.agent-state/work-owner-planning-ui/planning-sixth-failure.json`只保首gap/不可变首快照/原晚尾/完整资源事实；原log`/tmp/wui-op6/ui-1b68d1cb19a64900.log`与planning-06-evidence保持原件，不复制body或请求材料。结果JSON/current/领域卡三路径现冻结供root保存，六技术f83d5fdd继续停写；完整Work UI尚未验收，遵root转后继业务模块，历史FAIL与R13仅作者Recovery门wholePASS不外推。
+
 Planning06 六技术于2026-10-10 07:38:06 UTC后冻结，按已保存6c56795e计划及root授权实施，待coordination actualdiff独审/root checkpoint，未运行浏览器或真实资源。只在planning显式组合同Project、无query/body的现Milestone/Sprint/Task详情GET闭集，六reorder优先；原list/Lookup/其它writes不获新消费例外。保四次原导航：首真实Milestones list同步占位并短暂hold，其公共Promise早已开始不追认；在真实Workspace currentReadContext身份/Project/generation资格下安装现publication，严格installed枚举与原250ms boundedJoin实际结果，原list未headers/未取消、尚无详情入口才放行同route一次无参数continue。首详情入口与ready复核同资格；错误首请求、安装失败/超期、取消/关闭和晚settle永久拒绝。原45秒/Go/driver及后验预算不改。
 
 原Doc1/2/3各在goto前首flush，Doc4在原冲突/current-read/采用/放弃及最终标题断言后首finish；四个原doc explicit/pending0/end/Nodejoin累计AND，六槽仍只属前三doc。owned route/install/release/continue/unroute原Promise在启动前登记并实际join，verify/afterEach封新准入，timeout不写joined。first immutable snapshot仅新增闭集phase、原tails登记/settled计数与已观察请求header状态计数，晚尾不改首快照/不升级通过。原Node35无response/XID/同PW绑定仍unknown硬拒，不能承诺本候选whole通过；真实route安装能否在原250ms门内完成仍待唯一实际轮。

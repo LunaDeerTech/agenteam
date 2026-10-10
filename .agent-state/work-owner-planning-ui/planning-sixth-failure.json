@@ -1,0 +1,268 @@
+{
+  "status": "FAIL",
+  "technical_checkpoint": "f83d5fdd",
+  "selector": "^TestAccountProjectWorkPlanningWebStructureAndTasks$",
+  "session": 54072,
+  "launch": {
+    "binary_sha256": "a272a4bd0e60a8a4ecd882b39c19970a4e9d72f0ba63309eda7c15e56ff67f5d",
+    "daemon": "28.4.0",
+    "exec_available_bytes": 5560336384,
+    "fresh_available_bytes": 5560336384,
+    "input_count": 677,
+    "input_sha256": "17d5f8cc8660c7eee692413cf66ee5b2cf2e6a9d31168e1b6086947efe2fa5c2",
+    "minimum_bytes": 5368709120,
+    "new_empty_docker_config": true,
+    "outer_pid": 462880,
+    "prior_owned_absent_observations": 2,
+    "private_telemetry_off_before_go": true,
+    "start_utc": "2026-10-10T08:06:51.887741+00:00",
+    "telemetry_overrides_removed": [
+      "TEST_TELEMETRY_DIR",
+      "GO_TELEMETRY_CHILD",
+      "GO_TELEMETRY_CHILD_UPLOAD"
+    ]
+  },
+  "failure": {
+    "whole": "Planning06 failed; no retry or further method revision authorized",
+    "pw_timeout_ms": 45000,
+    "go_elapsed_seconds": 58.27,
+    "phase": "document-1",
+    "operation": "second opening of original Milestone reorder list, after first move(false), before move(true)",
+    "await": "originalBody -> original Response.finished",
+    "location": [
+      "project-work-planning.helpers.ts:305",
+      "project-work-planning.spec.ts:105",
+      "project-work-planning.spec.ts:161",
+      "project-work-planning.spec.ts:446"
+    ],
+    "original_request_id": "01a124da-6822-7458-9179-ef842fd2b090",
+    "original_response_sidecar": "response-017.json",
+    "response_status": 200,
+    "original_response_body_schema_not_read_by_spec": true,
+    "final_six_slot_four_document_conjunction_reached": false,
+    "schema_client_complete_reached": false,
+    "go_persistence_postconditions_reached": false
+  },
+  "first_immutable_snapshot": {
+    "snapshot_at": 44757.96,
+    "page_closed_at": null,
+    "truncated": false,
+    "planning_phase": "document-1",
+    "owned_tails_registered": 16,
+    "owned_tails_settled": 15,
+    "planning_admission_sealed": false,
+    "ordinary_closed": false,
+    "observed_request_headers": {
+      "registered": 0,
+      "pending": 0,
+      "unjoined": 0,
+      "rejected": 0
+    }
+  },
+  "original_request_first_snapshot": {
+    "method": "GET",
+    "endpoint": "milestones",
+    "project_id": "01a124da-40be-7d5f-8689-a76ffe01b845",
+    "request_id": "01a124da-6822-7458-9179-ef842fd2b090",
+    "request_at": 4244.45,
+    "response_at": 4255.69,
+    "request_failed_at": 4259.379,
+    "request_finished_at": null,
+    "response_finished_at": null,
+    "observer_rejected_at": null,
+    "failure_reason": "aborted",
+    "stage": "finished",
+    "response_same_request_object": true,
+    "replay": null,
+    "original_request_headers": null,
+    "original_body_await": {
+      "stage": "finished",
+      "at": 4256.745
+    }
+  },
+  "original_later_tail_events": [
+    {
+      "method": "GET",
+      "endpoint": "milestones",
+      "project_id": "01a124da-40be-7d5f-8689-a76ffe01b845",
+      "request_id": "01a124da-6822-7458-9179-ef842fd2b090",
+      "at": 44801.106,
+      "stage": "finished",
+      "reason": "operation-rejected",
+      "request_failed": true,
+      "request_finished": false,
+      "response_finished": false,
+      "page_closed": true,
+      "observer_closed": true,
+      "replay": null,
+      "sequence": 1,
+      "after_first_snapshot": true
+    }
+  ],
+  "tail_overflow": false,
+  "limited_initialization": [
+    {
+      "document_id": "15adebaa-e223-42ac-b449-6df3bfbef7af",
+      "installed": true,
+      "released": true,
+      "route_joined": true,
+      "ready": true,
+      "invalid": false
+    }
+  ],
+  "document_retirement": {
+    "planning_document_joins": [
+      {
+        "document_id": null,
+        "joined": true,
+        "end_seen": false
+      }
+    ],
+    "planning_joins_complete": false,
+    "source": "sample",
+    "end_snapshot_observed": false,
+    "native_retired": false,
+    "native_pending_at_retirement": null,
+    "public_retired": false,
+    "public_pending_at_retirement": null
+  },
+  "same_request_existing_sample": {
+    "sequence": 9,
+    "call_id": null,
+    "request_id": "01a124da-6822-7458-9179-ef842fd2b090",
+    "method": "GET",
+    "path": "/api/v1/projects/01a124da-40be-7d5f-8689-a76ffe01b845/milestones",
+    "status": 200,
+    "has_query": true,
+    "bound_original_request": true,
+    "bound_public_call": false,
+    "headers_seen": true,
+    "bytes": 558,
+    "content_length": 558,
+    "content_length_comparable": true,
+    "content_length_matches_eof": true,
+    "read_done": true,
+    "eof_before_interruption": true,
+    "readers": 1,
+    "read_calls": 2,
+    "read_settled": 2,
+    "read_rejected": 0,
+    "reader_cancel_calls": 1,
+    "reader_cancel_settled": 1,
+    "reader_cancel_rejected": 0,
+    "stream_cancel_calls": 1,
+    "stream_cancel_settled": 1,
+    "stream_cancel_rejected": 0,
+    "release_calls": 1,
+    "release_successes": 1,
+    "failure": "none",
+    "signal_aborted": false
+  },
+  "tails": {
+    "go_actual_wait": {
+      "pid": 464928,
+      "code": 1
+    },
+    "driver_actual_wait": {
+      "pid": 463023,
+      "actual": true,
+      "code": 1
+    },
+    "adopted_actual_wait": [
+      {
+        "pid": 465188,
+        "status": 0
+      },
+      {
+        "pid": 465192,
+        "status": 0
+      },
+      {
+        "pid": 465190,
+        "status": 0
+      },
+      {
+        "pid": 465193,
+        "status": 0
+      }
+    ],
+    "seven_exact_resources": [
+      {
+        "kind": "container",
+        "id": "3dd740a61029f3d7efaebcf7a692cb11f9584af1c0358276451beb12ff5f73c6",
+        "label": "agenteam.d05.objectfixture",
+        "nonce": "5526e3a2c18110ec497e1547f7d1d955"
+      },
+      {
+        "kind": "network",
+        "id": "99da9818ef63375871e56f97763fa4ea7454005ae083291361720062a49bc54e",
+        "label": "agenteam.d05.objectfixture",
+        "nonce": "5526e3a2c18110ec497e1547f7d1d955"
+      },
+      {
+        "kind": "container",
+        "id": "85548668ae4ed8968f11ca8e64a7186279ddbfe15b5ea16703586245ed080e43",
+        "label": "agenteam.d04.networkfixture",
+        "nonce": "aeef40c407495bdc9ba7f6b112190298"
+      },
+      {
+        "kind": "network",
+        "id": "05231c6be5a38c3bbc571b3f62406be7f864fd3561779e8bc30ec92d52daa248",
+        "label": "agenteam.d04.networkfixture",
+        "nonce": "aeef40c407495bdc9ba7f6b112190298"
+      },
+      {
+        "kind": "container",
+        "id": "0030b96d00fa5088814d08c749d3c5d64f8d36446d3080a03a7a59c796bed50c",
+        "label": "agenteam.d03.fixture",
+        "nonce": "0fea69361bc8491736045600caedd3c0"
+      },
+      {
+        "kind": "container",
+        "id": "26b0c4432aa001eb561879314e7732c052c0e5e058bc965201ee491e6b439f8f",
+        "label": "agenteam.d03.fixture",
+        "nonce": "0fea69361bc8491736045600caedd3c0"
+      },
+      {
+        "kind": "network",
+        "id": "168ba63adb5c9389655024d243e3b77bec9ed91d0d682bb437e5483c92affb0d",
+        "label": "agenteam.d03.fixture",
+        "nonce": "0fea69361bc8491736045600caedd3c0"
+      }
+    ],
+    "resource_absent_observations": 14,
+    "private_absent_observations": 2,
+    "runtime_empty_observations": 2,
+    "descendant_empty_observations": 2,
+    "host_tcp_empty_observations": 2,
+    "service_joins": {
+      "node_direct_child": true,
+      "proxy_body": true,
+      "preparation": true,
+      "default_root": true
+    },
+    "exact_top_actual_test_wait": true,
+    "inputs_unchanged": true,
+    "stop_count": 0,
+    "outer_actual_wait": {
+      "pid": 462880,
+      "tool_chunk": "50578d",
+      "exit_code": 1,
+      "elapsed_seconds": 144.723
+    }
+  },
+  "sources": {
+    "log": "/tmp/wui-op6/ui-1b68d1cb19a64900.log",
+    "evidence": "/workspace/agenteam-work-ui/output/ai/work-owner-planning-ui/planning-06-evidence/TestAccountProjectWorkPlanningWebStructureAndTasks",
+    "first_snapshot": "work-failure-observation.json",
+    "native_sample": "work-native-consumption-diagnostic.json"
+  },
+  "limits": [
+    "Original list remains ordinary finished-only; no broad list/GET completion exception is introduced.",
+    "First snapshot remains before page close. The later operation-rejected event does not rewrite its missing rejection or missing finished facts.",
+    "First initialization installed/released/route_joined/ready is limited evidence; full six-slot/four-document retirement was not reached.",
+    "Existing native EOF/reader/outer sample lacks a public list-call binding and original explicit end; it is not consumer acceptance.",
+    "No inference of the browser abort cause, product defect, or prior Planning05 Node35 binding/cancellation cause.",
+    "Preserve prior failures. Freeze this module after the safe record; no Planning07 revision or retry."
+  ]
+}
