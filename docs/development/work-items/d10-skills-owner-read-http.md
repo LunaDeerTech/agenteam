@@ -42,3 +42,11 @@ GET/HEAD 不产生 Skill、Object、Audit、Event、receipt 或业务 Activity �
 离线准备终态：源码98bb09f0未变，native候选86279→bf099f、PG候选81480→b49722实际race-c0；后续PG driver首磁盘门16cc49 exit78且未启动Go，保留此记录。空间协调后仅补两driver与两list，34104→6839c1、ba9efe、63489→422f18、30701→bcd478均实际0，逐条独立fresh≥5GiB及outer Wait，未重编候选。两包没有TestMain，list不执行测试体。候选/driver完整SHA、各次可用量、日志及未使用真实输出目录见本树current；冻结输入预飞为native15/PG34项。后继PG4top/12sub及native3top/6sub必须各自原完整资源与TCP尾后才判业务结果，不能用已通过pure或发现代替。
 
 Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/driver实际Wait0，原runtime/private退役、两次desc空、TCP两次delta空及inputsame完整；supervisor终态0/68.173s，未改原预算或方法。固定e60候选+c11 driver，首同进程2026-10-10T02:02:54.242191Z/5,411,155,968B；原日志路径与资源身份见current。结论覆盖真实TCP read/更早parent期限、同连接清deadline、Close错误、真实输出Timeout与断连/原领域尾；native的领域/身份控制是明确替身，不能代替待运行的真实Account/P2权限和PG事务。窗口已完整释放，PG尚未执行。
+
+## 产品接入后继
+
+本 HTTP 的下一条小范围真实联调由 root 另建候选并指定装配写者：在默认 Central 的同一 Store、Project Authority、Account Service 与实际 D05 Object/ProcessAuthority 上构造 `skill.NewAuthority`、`skill.AddSkills` 和 `skill.New`，再以同一 `*skill.Service` 创建本 HTTP 并按 `HandlesPath` 分派两条 Skills 路由。服务的 Stop/Drain/Joined 必须交给实际进程生命周期持有，不能把 HTTP 请求退出当作整个 Skills 或 Object 已退役。当前 `internal/central/app/account.go` 没有这项装配；本卡不跨写该根。
+
+真实初始化接缝也须在该候选中落实：当前 `internal/central/app/project_update.go` 构造 `project.Dependencies` 时没有绑定 `Initializer`。后继将同一真实 Skills 实例绑定为 Project Initializer，沿 Project 的正式创建与恢复流程取得 published 初始化和完成凭据，再由当前 Human Owner 调用目录与详情。已有 PG HTTP fixture 只证明明确 seed 的 Project/Creation/ready 与真实 P2/Account 读取组合，不能代替这条 Project.Create 链路。现行 Object Runtime join STOP 仍有效；候选先验证已允许的小范围真实调用，不能据此开放未通过的生产生命周期范围。
+
+可用的界面后继是 Project 工作区的 Skills 目录及选中项详情，消费本卡八字段和安全 Problem，不添加包正文或安装操作。当前 `web/src/components/layout/ProjectNav.vue` 与 `web/src/router/index.ts` 没有 Skills 入口；由 root 另派 UI 写者，在 HTTP 候选可用后完成目录→详情的真实浏览器交互，并覆盖 Session 失效、跨 Owner、未初始化及归档/Deleting 的页面状态。上述 root、初始化和界面完成以前，本结果只交付独立 HTTP adapter，不宣称用户已经能从默认产品入口使用 Skills。

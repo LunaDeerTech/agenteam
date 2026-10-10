@@ -1,5 +1,17 @@
 # Skills Human Owner 目录与详情 HTTP
 
+## 2026-10-10 新环境接续
+
+恢复输入为 `cc0e45ac2b851912e6b10db9f212026a5b7a9956`，新唯一作者 `/root/skills_http`；采用最新 `origin/main` AGENTS/团队流程。产品、Schema、测试和 harness 未修改，现均停写供独立审查。原 pure/race/Schema/vet、native 3top/6sub 完整 PASS 和既有有限独审继续复用；PG 4top/12sub 是本 HTTP 尚未执行的真实门槛。下面旧缓存、输出路径和原命令记录属于已保存的上一环境结果，新环境没有这些产物，不凭缺失产物重跑已闭合的 native 验收。
+
+新环境只读发现：固定 `/workspace/toolchains/go1.27.1/bin/go` 存在，当前 Python 为 `/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3`，本机 jsonschema 4.26.0 可导入。旧 GOCACHE、旧 GOMODCACHE 及本树 output 均缺失。root 指定 cleanup 独占恢复锁定依赖至 `/workspace/shared/agenteam-deps/go-mod` 并统一核 pinned PG17/vector 镜像；待其完成后本树只读该 GOMODCACHE、自有 `output/ai/skills-owner-http/gocache`，沿原 Go1.27.1/off/readonly/-p1 离线重建 PG integration race candidate 与 PG-only driver。无需重建 native 或引入 MinIO；PG 的 P2 Object 明确受控，真实 D05 证据仍单列复用。
+
+精确待运行入口为 `^TestSkillOwnerReadHTTP(Metadata|CurrentAuthority|Transactions|CommitUnknown)$`，4top/12sub。重建及 exact-list 后由 root checkpoint、另授 PG 独占窗口；每条原 fresh 5GiB 门、原 105s+15s driver/123s+3s supervisor、原 Go6m 上限、实际 Wait、两个 nonce-owned PG 资源双退役和 private/desc/TCP/input 尾保持。新执行显式传实际 Python；旧解释器路径不照搬。当前没有本域后台命令或真实资源，未连接 Docker、数据库或既有基础设施。
+
+默认 root、真实 Project→Skills 初始化与 Project Skills UI 的后继接缝已写入正式 HTTP 卡，由 root 协调候选装配与界面写者；本树不跨写根装配，也不解除 Object Runtime join 等四停项。
+
+## 已保存的原环境证据
+
 工作树 `/workspace/agenteam-skills-owner-http`，分支 `ai/skills-owner-http`，基线正式 main `3b7ed9da`。唯一作者 Runner；Git 保存与真实资源窗口由 root 负责。
 
 当前可恢复片段：新 [短规格](../docs/development/work-items/d10-skills-owner-read-http.md) 已固定两 GET/HEAD、空 query/body、安全八字段、真实 P2 ListSkills/GetSkill 与当前身份/Project Read gate、原 2s/I/O 尾。Skills 对短合同只读核真实P2/Project/Account、字段上限与3链接（45bf1c）有限接受，无must-fix；不是产品实现验收。现独立产品3源 handler/wire/io、5纯测试源、Schema及其本包testdata/schema.py已形成，固定gofmt/JSON解析完成；本包初次pure/race实际40059→a88f0b exit0：11top/47sub/0skip，标准Schema21控及18HEAD无体状态通过，原日志 `output/ai/skills-owner-http/pure-race-01.jsonl`。没有 PG/native/HTTP 资源。作者在授权新包内实现，不改 P2/Project/Cleanup/root/迁移。四停项不解除。
