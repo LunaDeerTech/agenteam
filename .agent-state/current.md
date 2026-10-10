@@ -1,11 +1,11 @@
 # 当前执行检查点
 
-当前为有限交付候选 `/workspace/agenteam-task-flow-delivery` / `ai/task-flow-delivery`，最新保存为 `f2af515a`，正式 main 仍为 `18a27db5`。技术输入是 AgentSystem `13138dbd` 的精确 255 路径、7 个必要合并路径与后继 B32 精确增量；B 已保存为 `3cc9f1bd`，六方法 union 为 `70d383`，不是整树覆盖。迁移 00032–00036 和既有 Human Skill HTTP 保留 main 原实现；新增连续迁移现包含 00037–00047。
+当前有限交付候选 `/workspace/agenteam-task-flow-delivery` / `ai/task-flow-delivery` 已完成本说明范围的验收与集成，基线为main `18a27db5`；实际main提交及远端确认由协调索引记录。技术输入是 AgentSystem `13138dbd` 的精确255路径、7个必要合并路径与后继B32增量，去重后连同本页和recipe共282路径；B为 `3cc9f1bd`，实际验收source为 `70d383c5`，不是整树覆盖。迁移00032–00036及既有Human Skill HTTP保留main原实现；新增连续迁移为00037–00047。四个逐次launcher/checks只留topic，不进入正式范围。
 
 - 本候选承接真实 Agent 默认配置创建、Human Task 指派与 HTTP、StartSprint 与 HTTP、Scheduler claim/created 关联、明确 AgentBusy 补偿和有界 pending visit 的有限实现。原模块纯检查及各自真实链按原输入复用；Sprint HTTP source `ff86ff65` 的9top race/两包vet、compile/native1top1sub全部wholePASS。详细范围和复现入口见 [有限交付说明](agent-system-integration/README.md)。
 - 合并所有权：work_ui 的 `app/account.go` 单行及 skills_http 的六个共享入口/控制文件均已有限静审，main Skill路由保留；coordination 只维护本页与上述 README。main兼容4个app top race通过，app-pure01因容量未启vet且wholeFAIL保留，独立app-vet02后继wholePASS。
-- B整源 `542574b5` 已静审并通过精确26top race/五包vet，00047 technical-blocker 单类最终失败已纳入候选；首次真实链仍未运行。仅原同步明确未创建且匹配私有marker的unsupported_resource_constraints_v1进入新分支，其它错误Deferred，不猜重试次数或耗尽规则。
-- failure compile01在fresh 5,331,312,640 B不足5GiB（差37,396,480 B）时容量FAIL，0Go/0PG且全部原尾闭合；compile02仅恢复稿待root保存，未执行。当前无Go/cache writer/native；secret经content owner确认，仅退休 `/workspace/agenteam-knowledge-content-http/output/ai/knowledge-content-http/gocache`（1,041,469,440 B），actual0/absent=true；一次实际可用6,372,360,192 B，比5GiB多1,003,651,072 B。其它cache/FAIL/source/inputs/results/logs/MinIO/refs及shared hot/mod未动，旧Skills/WorkUI缓存保留。首次failure compile/native将直接绑定最终delivery，System复用相同产品纯证据，不重37–46旧链。
+- B整源 `542574b5` 已静审并通过精确26top race/五包vet，00047单类最终失败已在最终delivery实际通过。TestSchedulerLaunchFinalFailure的1top2sub、39.54s wholePASS，真实拒绝→technical-blocker、标题保留与原Tx整体回滚/结算齐；仅匹配原同步KnownNotCreated和私有marker的unsupported_resource_constraints_v1进入新分支，其它错误Deferred，不猜重试次数或耗尽规则。
+- failure compile02与native01均wholePASS；Go/driver/sup/outer全Wait0，七资源14次absence、private/runtime/desc/HOST_TCP及outer双尾空，adopted为空，1460inputs首尾同。原结果在 `output/ai/agent-system-integration/scheduler-failure-01-control/result.json`，当前无Go/cache writer/native。compile01不足5GiB导致0Go/0PG的容量FAIL保留；当次仅获授Knowledge旧gocache退休，其它cache/FAIL/source/inputs/results/logs/MinIO/refs及shared hot/mod未动。System复用相同产品纯证据，37–46旧链未重复。
 - 原 SchedulerLaunch01 业务通过但 HOST_TCP 尾门失败的 wholeFAIL 保留；后续各自 wholePASS 不回填该轮。完整 Dispatcher/retry/loop、Execution Snapshot/ToolCall、生产 initializer/F1、Task UI 和 E01 仍未完成，既有 STOP 与约 30% 的工程粗估不变。源 topic、原 FAIL、输入和输出材料保留；本页不复制运行流水。
 
 以下为 main 原有恢复历史，不代表本交付候选的当前分支、环境容量或在途任务。
