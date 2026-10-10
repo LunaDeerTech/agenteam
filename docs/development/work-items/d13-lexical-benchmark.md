@@ -179,3 +179,15 @@ SPEC 窄审固定边界后才能写数据与工具。完成本卡要求：固定
 未参与实现的 Secret 实例完成六源实际只读复核及返修窄审，确认来源/范围、UTF-8 byte split/全局限额、取消零结果、D12 完整 plain 分支和安全日志投影，有限接受且无剩余 must-fix；未运行 Go/资源，不冒作者测试或真实联调。纯函数及无 I/O 值适配已具备小范围联调输入，完整 D13 仍未完成。
 
 真实 D12 ReadDocument→实际对象读/Close→Parser 小范围联调尚未运行，待单包基础检查后另行组织。Markdown/PDF Parser、chunker、ContextProvider、embedding、lexical backend、索引发布及生产 Project initializer 均不在本批，也不由本批证明 D13 整体完成或解除既有 STOP。
+
+### 10.4 首条真实 D12 值联调候选
+
+新增 `tests/knowledge/plain_text_parser_integration_test.go`，唯一入口 `^TestKnowledgePlainTextParserIntegration$`，固定三子：`full_current_bytes_after_actual_close`、`partial_and_nonplain_rejected`、`foreign_owner_produces_no_parser_input`。复用已有真实 Account Bootstrap/邀请/兑换/Login、同 Store Knowledge/Project/Object/Audit/Outbox；Project 初始化仍是既有明确的上游 SQL fixture，不冒生产 Create/Skills 初始化。正文全部通过正式 CreateDocument/UpdateDocument 和 D05 canonical 对象产生，没有 SQLRead、假 Domain 或内存成功 reader。
+
+第一子正式更新至 version 2/新的实际 ObjectID，原文固定为 23 bytes 的 `甲。\r\n乙！\r\n\r\nA. B?`。委托原 ObjectReader，只有其真实 Close 返回后才 hold；期间 ReadDocument 未返回、原 caller 未退出，取消的 Drain 不能成功。释放 barrier、原 caller 实际 join、原 Close/Drain 齐后，才将同一个完整 D12 DTO 交给正式 ParseBoundedContent。核原对象 Meta/真实更新结果/返回 DTO 的一致来源、段落 `[0,14)`/`[18,23)`、句 `[0,6)`/`[6,14)`/`[18,20)`/`[20,23)`，读和解析不新增业务事实。短对象不要求持活 lease；最终无 reader lease 只补充原 Close/Drain 证据。
+
+第二子实际读取 MaxBytes=6 的 partial 页并实际 Close，Parser 拒 PayloadTooLarge；实际发布/读取 Markdown 再 Close，Parser 拒 UnsupportedMediaType，均零结果。第三子用另一真实登录 Owner 请求原 Project，要求 NotFound/零 DTO、Object ReadObject 调用次数零（含拒绝尝试）、不调用 Parser且实际 Drain/业务事实无增量。失败路径也释放原 barrier、取消并等待原 caller，不把 timeout 当 join。
+
+共享 root driver/supervisor 由 coordination 唯一接线，增加独立 exact selector、root-only 与四个 RUN/PASS 节点及唯一 actual Wait0 门；source inputs 在原闭包上只增加 `tests/knowledge/*.go`，尾部重新枚举集合并核字节，不借用正文 HTTP selector/Schema/native 模式。原 top 含尾 120s、调用 20s、Go 6m、root 540+60+3s、host TCP 75s、七资源及 private/runtime/desc 双尾不变。离线入口控制源为 `.agent-state/d13-plain-text-parser/entry-controls.py`，只检查真实函数及受控输入，不执行资源。
+
+当前新 Go 源已落盘，待离线 race-c/exact list、共享两源接线和方法控制、非作者 review；尚未启动 PG/Object/socket。六个已验纯 Parser Go 源及 `plain_text:v1`、原 D12 服务/fixture 均不修改。真实运行须另获窗口，候选准备不计联调通过。
