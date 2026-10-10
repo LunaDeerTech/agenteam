@@ -181,6 +181,7 @@ func launchDatabaseApp(t *testing.T, db *pgfixture.Database, mode, timeout strin
 	}
 	p.cmd.Env = append(p.cmd.Env, objects...)
 	p.cmd.Env = append(p.cmd.Env, accountTestEnvironment(t, db.Name).Environ()...)
+	p.cmd.Env = append(p.cmd.Env, `AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING={"format":1,"current_kid":"knowledge","keys":[{"kid":"knowledge","key_b64":"gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp8="}]}`)
 	for _, extra := range extras {
 		key, _, _ := strings.Cut(extra, "=")
 		replaced := false

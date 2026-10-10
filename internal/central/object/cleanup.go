@@ -239,6 +239,9 @@ func (s *Service) DeleteUnreferenced(ctx context.Context, cause oc.ObjectCleanup
 	if nilPort(s.state().auth.Cleanup) {
 		return oc.CleanupResult{}, failure(foundation.DependencyUnbound, nil)
 	}
+	if skillProjectCleanup(cause) {
+		return s.deleteSkillObject(ctx, cause, id)
+	}
 	op, finish, err := s.begin(ctx)
 	if err != nil {
 		return oc.CleanupResult{}, err
@@ -336,7 +339,8 @@ func (s *Service) claimCleanup(ctx context.Context, object oc.ObjectID, attemptI
 		if !found {
 			return unavailable(nil)
 		}
-		remaining, err := inspect(ctx, e, object)
+		bounded := s.boundedCleanup(ctx, object) != nil
+		remaining, err := inspectWithLimit(ctx, e, object, bounded)
 		if err != nil {
 			return err
 		}
@@ -366,6 +370,18 @@ func (s *Service) claimCleanup(ctx context.Context, object oc.ObjectID, attemptI
 		}
 		if out.phase == "completed" {
 			return nil
+		}
+		if bounded {
+			if a.kind == "private_candidate" && !a.closed {
+				return failure(foundation.ResourceBusy, nil)
+			}
+			var live bool
+			if err = e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.project_work WHERE object_id=$1 AND kind='cleanup' AND resource_id=$2 AND joined_at IS NULL)`, object.String(), out.id).Scan(&live); err != nil {
+				return unavailable(err)
+			}
+			if live {
+				return failure(foundation.ResourceBusy, nil)
+			}
 		}
 		out.worker = worker.String()
 		out.fence++
@@ -402,10 +418,22 @@ func (s *Service) cleanupIOContext(parent context.Context) (context.Context, con
 	return context.WithTimeout(context.WithoutCancel(parent), 15*time.Second)
 }
 func (s *Service) cleanObject(ctx context.Context, object oc.ObjectID) (oc.CleanupState, error) {
+	cause, bounded, err := canonicalSkillCleanup(ctx, s.state().store, object)
+	if err != nil {
+		return oc.CleanupPending, err
+	}
+	if bounded {
+		out, err := s.deleteSkillObject(ctx, cause, object)
+		return out.State, err
+	}
 	ids, err := attemptIDs(ctx, s.state().store, object)
 	if err != nil {
 		return oc.CleanupPending, err
 	}
+	return s.cleanObjectAttempts(ctx, object, ids)
+}
+
+func (s *Service) cleanObjectAttempts(ctx context.Context, object oc.ObjectID, ids []oc.AttemptID) (oc.CleanupState, error) {
 	for _, id := range ids {
 		claim, err := s.claimCleanup(ctx, object, id)
 		if err != nil {
@@ -444,6 +472,9 @@ func (s *Service) cleanObject(ctx context.Context, object oc.ObjectID) (oc.Clean
 		})
 		if err = commitError(result); err != nil {
 			return oc.CleanupPending, err
+		}
+		if call := s.boundedCleanup(ctx, object); call != nil {
+			call.completed[claim.worker] = claim
 		}
 	}
 	return s.finalizeCleanup(ctx, object)
@@ -494,6 +525,16 @@ func (s *Service) finalizeCleanup(ctx context.Context, object oc.ObjectID) (oc.C
 		if !found {
 			return failure(foundation.NotFound, nil)
 		}
+		if s.boundedCleanup(ctx, object) != nil {
+			workers, err := s.completedCleanupWorkers(ctx, object)
+			if err != nil {
+				return err
+			}
+			pending, err := boundedCleanupPending(ctx, e, object, workers)
+			if err != nil || pending {
+				return err
+			}
+		}
 		if obj.meta.State == oc.Deleted {
 			state = oc.CleanupCompleted
 			return nil
@@ -501,18 +542,18 @@ func (s *Service) finalizeCleanup(ctx context.Context, object oc.ObjectID) (oc.C
 		if !obj.cleaning {
 			return nil
 		}
-		refs, err := inspect(ctx, e, object)
+		refs, err := inspectWithLimit(ctx, e, object, s.boundedCleanup(ctx, object) != nil)
 		if err != nil {
 			return err
 		}
 		if len(refs.References) > 0 || len(refs.ActiveLeases) > 0 {
 			return nil
 		}
-		var remaining int64
-		if err = e.QueryRow(ctx, `SELECT count(*) FROM agenteam_object.upload_attempts WHERE object_id=$1 AND phase<>'cleaned'`, object.String()).Scan(&remaining); err != nil {
+		var remaining bool
+		if err = e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.upload_attempts WHERE object_id=$1 AND phase<>'cleaned')`, object.String()).Scan(&remaining); err != nil {
 			return unavailable(err)
 		}
-		if remaining != 0 {
+		if remaining {
 			return nil
 		}
 		u, found, err = scanUpload(e.QueryRow(ctx, `SELECT `+uploadColumns+` FROM agenteam_object.uploads WHERE object_id=$1`, object.String()))

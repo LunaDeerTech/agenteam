@@ -132,6 +132,7 @@ func guardEnvironment(t *testing.T, db *pgfixture.Database) []string {
 		t.Fatal(err)
 	}
 	objects = append(objects, accountTestEnvironment(t, db.Name).Environ()...)
+	objects = append(objects, `AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING={"format":1,"current_kid":"knowledge","keys":[{"kid":"knowledge","key_b64":"gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp8="}]}`)
 	return append(objects, `AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_DATABASE_URL="+db.Fixture.URL(db.Name), "AGENTEAM_CENTRAL_DATABASE_CA_FILE="+db.Fixture.CAFile, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0")
 }
 func guardID[K any](t *testing.T) foundation.ID[K] {

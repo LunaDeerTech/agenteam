@@ -17,6 +17,7 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
@@ -39,19 +40,21 @@ type Config struct {
 	outboundTrust   outbound.TrustStore
 	objectRuntime   object.RuntimeConfig
 	accountKeys     account.Keyring
+	knowledgeKeys   kc.ConfirmationKeys
 	accountLog      func() string
 }
 
-func (c Config) LogLevel() slog.Level               { return c.logLevel }
-func (c Config) ShutdownTimeout() time.Duration     { return c.shutdownTimeout }
-func (c Config) HTTPAddr() string                   { return c.httpAddr }
-func (c Config) PublicOrigin() string               { return c.publicOrigin }
-func (c Config) Database() postgres.Config          { return c.database }
-func (c Config) CursorKeyring() cursor.Keyring      { return c.cursorKeys }
-func (c Config) SecretKeyring() secret.Keyring      { return c.secretKeys }
-func (c Config) Objects() object.RuntimeConfig      { return c.objectRuntime }
-func (c Config) OutboundTrust() outbound.TrustStore { return c.outboundTrust }
-func (c Config) AccountKeyring() account.Keyring    { return c.accountKeys }
+func (c Config) LogLevel() slog.Level                           { return c.logLevel }
+func (c Config) ShutdownTimeout() time.Duration                 { return c.shutdownTimeout }
+func (c Config) HTTPAddr() string                               { return c.httpAddr }
+func (c Config) PublicOrigin() string                           { return c.publicOrigin }
+func (c Config) Database() postgres.Config                      { return c.database }
+func (c Config) CursorKeyring() cursor.Keyring                  { return c.cursorKeys }
+func (c Config) SecretKeyring() secret.Keyring                  { return c.secretKeys }
+func (c Config) Objects() object.RuntimeConfig                  { return c.objectRuntime }
+func (c Config) OutboundTrust() outbound.TrustStore             { return c.outboundTrust }
+func (c Config) AccountKeyring() account.Keyring                { return c.accountKeys }
+func (c Config) KnowledgeConfirmationKeys() kc.ConfirmationKeys { return c.knowledgeKeys }
 func (c Config) AccountRecoveryLog() string {
 	if c.accountLog == nil {
 		return ""
@@ -92,6 +95,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 		switch strings.TrimPrefix(key, Prefix) {
 		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "CURSOR_KEYRING", "SECRET_KEYRING", "OUTBOUND_CA_FILE":
 		case "ACCOUNT_KEYRING", "ACCOUNT_RECOVERY_LOG":
+		case "KNOWLEDGE_CONFIRMATION_KEYRING":
 		case "OBJECT_DOWNLOAD_KEYRING", "OBJECT_ENDPOINT", "OBJECT_TRANSFER_ENDPOINT", "OBJECT_BUCKET", "OBJECT_ACCESS_KEY", "OBJECT_SECRET_KEY", "OBJECT_TLS_MODE", "OBJECT_CA_FILE", "OBJECT_SPOOL_DIR":
 		case "DATABASE_URL", "DATABASE_TLS_MODE", "DATABASE_CA_FILE", "DATABASE_MAX_CONNS", "DATABASE_CONNECT_TIMEOUT", "DATABASE_STARTUP_TIMEOUT", "DATABASE_LOCK_TIMEOUT":
 		default:
@@ -167,9 +171,14 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 	if err != nil {
 		return Config{}, invalid("OBJECT_*")
 	}
-	c.accountKeys, err = account.LoadKeyring(value("ACCOUNT_KEYRING", ""), c.cursorKeys, c.secretKeys, c.objectRuntime.DownloadKeyring())
+	accountKeysRaw := value("ACCOUNT_KEYRING", "")
+	c.accountKeys, err = account.LoadKeyring(accountKeysRaw, c.cursorKeys, c.secretKeys, c.objectRuntime.DownloadKeyring())
 	if err != nil {
 		return Config{}, invalid("ACCOUNT_KEYRING")
+	}
+	c.knowledgeKeys, err = loadKnowledgeConfirmationKeys(value("KNOWLEDGE_CONFIRMATION_KEYRING", ""), accountKeysRaw, c)
+	if err != nil {
+		return Config{}, invalid("KNOWLEDGE_CONFIRMATION_KEYRING")
 	}
 	accountLog := value("ACCOUNT_RECOVERY_LOG", "")
 	if !validAccountLogPath(accountLog) {
@@ -213,6 +222,9 @@ func (c Config) Validate() error {
 	}
 	if c.accountKeys.Validate() != nil {
 		return invalid("ACCOUNT_KEYRING")
+	}
+	if c.knowledgeKeys.Validate() != nil {
+		return invalid("KNOWLEDGE_CONFIRMATION_KEYRING")
 	}
 	if !validAccountLogPath(c.AccountRecoveryLog()) {
 		return invalid("ACCOUNT_RECOVERY_LOG")

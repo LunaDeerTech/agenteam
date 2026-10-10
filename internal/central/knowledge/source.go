@@ -54,7 +54,7 @@ func (s *Service) OpenCanonical(ctx context.Context, actor id.Actor, project id.
 		return kc.CanonicalRead{}, err
 	}
 	if head.Active == nil {
-		return kc.CanonicalRead{}, fault(f.NotFound)
+		return kc.CanonicalRead{}, fault(f.ResourceDeleted)
 	}
 	owner, err := oc.NewObjectOwner(oc.Knowledge, document.String(), project.String())
 	if err != nil {
@@ -142,7 +142,7 @@ func (s *Service) ReadDocument(ctx context.Context, actor id.Actor, project id.P
 		return kc.DocumentContent{}, err
 	}
 	if head.Active == nil {
-		return kc.DocumentContent{}, fault(f.NotFound)
+		return kc.DocumentContent{}, fault(f.ResourceDeleted)
 	}
 	if head.Active.SourceKind == kc.File {
 		unbound := kc.ReadableUnbound

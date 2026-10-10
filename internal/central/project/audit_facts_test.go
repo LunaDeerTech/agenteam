@@ -12,6 +12,7 @@ import (
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	pv "github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
 )
 
 type auditFactFunc func(context.Context, foundation.Tx, ac.Entry, ac.AppendKey) error
@@ -265,16 +266,17 @@ func TestProjectVariableAuditFactsCurrentGateAndExactDispatch(t *testing.T) {
 
 func TestSecretVariableAuditReadShapeDoesNotAuthorizeProjectFacts(t *testing.T) {
 	f := newAuditGateFixture(t, nil)
-	calls := 0
-	checker := auditFactFunc(func(context.Context, foundation.Tx, ac.Entry, ac.AppendKey) error {
-		calls++
-		return nil
-	})
+	// The write-fact phase now has an exact Secret route. Use the real D10
+	// checker: public read-compatible metadata still cannot mint its private
+	// same-transaction mutation witness. No allow/deny stand-in proves this.
+	checker, err := pv.NewAuthority(f.store)
+	if err != nil {
+		t.Fatal(err)
+	}
 	a, err := NewAuthority(f.store, AuthorityDependencies{
 		Sessions: f.a.state().sessions,
 		AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{
-			ac.SecretProducer: checker, ac.ProjectVariableProducer: checker,
-			ac.KnowledgeProducer: checker, ac.ObjectProducer: checker,
+			ac.ProjectVariableProducer: checker,
 		},
 	})
 	if err != nil {
@@ -300,8 +302,14 @@ func TestSecretVariableAuditReadShapeDoesNotAuthorizeProjectFacts(t *testing.T) 
 			t.Fatal(err)
 		}
 		hasCode(t, a.CheckAppendInTx(context.Background(), f.store.tx, entry, key), foundation.Forbidden)
-	}
-	if calls != 0 {
-		t.Fatal("read-compatible Secret metadata reached a fact authority")
+		if len(f.order) == 0 {
+			t.Fatal("Secret fact route skipped current gate")
+		}
+		f.sessionErr = fault(foundation.SessionRevoked)
+		hasCode(t, a.CheckAppendInTx(context.Background(), f.store.tx, entry, key), foundation.SessionRevoked)
+		f.sessionErr = nil
+		f.lifecycle = c.Archived
+		hasCode(t, a.CheckAppendInTx(context.Background(), f.store.tx, entry, key), foundation.ProjectNotActive)
+		f.lifecycle = c.Active
 	}
 }

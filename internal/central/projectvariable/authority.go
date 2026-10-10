@@ -80,6 +80,9 @@ func (a *Authority) DiscoverAppend(ctx context.Context, actor i.Actor, summary e
 	if ctx == nil {
 		return empty, fault(f.InvalidArgument)
 	}
+	if summary.Header.EventType == c.SecretVariableChangedName {
+		return a.discoverSecretAppend(ctx, actor, summary)
+	}
 	p, e := eventProject(summary)
 	if e != nil {
 		return empty, e
@@ -120,6 +123,9 @@ func (a *Authority) ValidateAppendInTx(ctx context.Context, tx f.Tx, actor i.Act
 	st := a.state()
 	if st == nil {
 		return fault(f.DependencyUnbound)
+	}
+	if summary.Header.EventType == c.SecretVariableChangedName {
+		return a.validateSecretAppend(ctx, tx, actor, summary, deps, stage)
 	}
 	p, e := eventProject(summary)
 	if e != nil {
@@ -164,6 +170,9 @@ func (a *Authority) CheckProjectAuditInTx(ctx context.Context, tx f.Tx, entry ac
 	}
 	if entry.Validate() != nil || key.Validate() != nil {
 		return fault(f.InvalidArgument)
+	}
+	if ac.ProjectSecretVariableAction(entry.Fields().Action) {
+		return a.checkSecretProjectAudit(ctx, tx, entry, key)
 	}
 	v, k := entry.Fields(), key.Details()
 	if !ac.ProjectVariableAction(v.Action) || k.Producer != ac.ProjectVariableProducer || k.Ordinal != 0 || v.Actor.Details().Kind != i.Human || v.Scope.Details().Kind != i.ProjectScope {

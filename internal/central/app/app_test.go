@@ -82,6 +82,7 @@ func await(t *testing.T, ch <-chan struct{}) {
 func testConfig(t *testing.T, timeout string) config.Config {
 	t.Helper()
 	values := map[string]string{config.Prefix + "SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, config.Prefix + "CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, config.Prefix + "HTTP_ADDR": "127.0.0.1:0", config.Prefix + "SHUTDOWN_TIMEOUT": timeout, config.Prefix + "DATABASE_URL": "postgresql://unit:unit@127.0.0.1:1/unit", config.Prefix + "DATABASE_TLS_MODE": "disable"}
+	values[config.Prefix+"KNOWLEDGE_CONFIRMATION_KEYRING"] = `{"format":1,"current_kid":"knowledge","keys":[{"kid":"knowledge","key_b64":"gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp8="}]}`
 	for key, value := range objectfixture.ConfigOnlyValues() {
 		values[key] = value
 	}

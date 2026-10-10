@@ -16,6 +16,14 @@ GO = Path('/workspace/toolchains/go1.27.1/bin/go')
 MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
+    '^TestKnowledgeSkillsDefaultRootComposition$': 'internal/central/app',
+    '^TestKnowledgeOwnerContentHTTP(CurrentBytes|CurrentAuthority|ReaderOwnership|ReadTransactions)$': 'tests/knowledge',
+    '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|PendingHistoryAndCausePlans)$': 'tests/objects',
+    '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans)$': 'tests/objects',
+    '^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$': 'tests/objects',
+    '^TestObjectMetadataCleanupOldAttemptsAndStopHistory$': 'tests/objects',
+    '^TestObjectMetadataCleanupIndexMigration$': 'tests/objects',
+    '^TestObjectMetadataCleanup(BoundedHistoryAndFinalTransaction|FinalCommitUnknown)$': 'tests/objects',
     '^TestWorkOwnerRootActual(Command|Reader)Join$': 'internal/central/app',
     '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': 'tests/process',
     '^TestIndependentWorkOwnerRootConfirmationJoin$': 'internal/central/app',
@@ -23,6 +31,8 @@ TARGETS = {
     '^TestProjectVariablesHTTPProcessRoutingAndPersistence$': 'tests/process',
     '^TestIndependentProjectVariablesProcessConfirmationExit$': 'tests/process',
     '^TestIndependentProjectVariablesRootConfirmationForce$': 'internal/central/app',
+    '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$': 'tests/skills',
+    '^TestSkillLifecycleCleanupHistoricalAttempts$': 'tests/skills',
 }
 
 
@@ -48,6 +58,44 @@ def input_paths(binary):
                      if not p.name.endswith('_test.go'))
     paths.update((REPOSITORY / 'db/migrations').glob('*.go'))
     paths.update((REPOSITORY / 'db/migrations').glob('*.sql'))
+    # The cleanup fixture invokes these exact shared helpers and the original
+    # COMMIT-frame proxy; they are inputs even though the tests are precompiled.
+    for name in ('fixture_test.go', 'object_publication_test.go',
+                 'lifecycle_stop_test.go', 'owner_read_test.go',
+                 'commit_recovery_test.go', 'lifecycle_cleanup_fixture_test.go',
+                 'lifecycle_cleanup_test.go', 'lifecycle_cleanup_unknown_test.go',
+                 'lifecycle_cleanup_history_test.go',
+                 'lifecycle_cleanup_history_proxy_test.go'):
+        paths.add(REPOSITORY / 'tests/skills' / name)
+    paths.add(REPOSITORY / '.agent-state/project-variables-independent/commitproxy/proxy.go')
+    return sorted(paths)
+
+
+def root_composition_inputs():
+    # Freeze the precompiled app package's same-package fixtures as provenance.
+    return sorted((REPOSITORY / 'internal/central/app').glob('*.go'))
+
+
+def metadata_cost_inputs():
+    # The selected cost cases embed these SQL seeds in the fixed candidate.
+    # Include their package helpers as source provenance; old selectors keep
+    # the original input_paths closure unchanged.
+    paths = set((REPOSITORY / 'tests/objects').glob('*.go'))
+    for name in ('metadata_cleanup_project_cost.sql',
+                 'metadata_cleanup_skill_cost.sql',
+                 'metadata_cleanup_transfer_cost.sql'):
+        paths.add(REPOSITORY / 'tests/objects/testdata' / name)
+    return sorted(paths)
+
+
+def metadata_remaining_cost_inputs():
+    # The later cost candidate also embeds these three new scenarios. Keep
+    # the original three-cost closure and all prior selector inputs intact.
+    paths = set(metadata_cost_inputs())
+    for name in ('metadata_cleanup_live_cost.sql',
+                 'metadata_cleanup_anchor_cost.sql',
+                 'metadata_cleanup_pending_cost.sql'):
+        paths.add(REPOSITORY / 'tests/objects/testdata' / name)
     return sorted(paths)
 
 
@@ -63,6 +111,22 @@ def configuration(binary, selector, directory):
             'cwd': str(REPOSITORY / TARGETS[selector]),
             'directory': str(directory), 'runtime': str(directory / 'runtime'),
             'test_timeout': '6m', 'resources': 7}
+
+
+def prepare_history_go_environment(directory, env):
+    # GOTELEMETRY is a read-only go env value. The fixed Go toolchain reads
+    # this mode file before starting its optional telemetry child. Establish
+    # task-owned configuration before the shell's first go env/build call.
+    config = directory / 'go-config'
+    telemetry = config / 'go' / 'telemetry'
+    for path in (config, config / 'go', telemetry):
+        path.mkdir(mode=0o700)
+    with (telemetry / 'mode').open('x') as stream:
+        os.chmod(stream.name, 0o600)
+        stream.write('off\n')
+    env['XDG_CONFIG_HOME'] = str(config)
+    for name in ('TEST_TELEMETRY_DIR', 'GO_TELEMETRY_CHILD', 'GO_TELEMETRY_CHILD_UPLOAD'):
+        env.pop(name, None)
 
 
 def main():
@@ -99,6 +163,8 @@ def main():
                 'AGENTEAM_FIXTURE_TEST_CWD': plan['cwd'],
                 'AGENTEAM_FIXTURE_OWNED_RECORD': str(directory / 'owned.json'),
                 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime)})
+    if args.run == '^TestSkillLifecycleCleanupHistoricalAttempts$':
+        prepare_history_go_environment(directory, env)
     os.chdir(REPOSITORY)
     # No child is started here: the original shell chain replaces this PID.
     # Its nested Go Cmd.Run and shell wait remain the actual child owners.

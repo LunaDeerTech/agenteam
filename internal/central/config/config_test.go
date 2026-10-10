@@ -23,8 +23,9 @@ import (
 // nor starts the account service. Real app/process tests use accountenv.New.
 func configOnlyAccountValues() map[string]string {
 	return map[string]string{
-		Prefix + "ACCOUNT_KEYRING":      `{"format":1,"current_kid":"config","keys":[{"kid":"config","key_b64":"YGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn8="}]}`,
-		Prefix + "ACCOUNT_RECOVERY_LOG": "/config-only/account-recovery.log",
+		Prefix + "ACCOUNT_KEYRING":                `{"format":1,"current_kid":"config","keys":[{"kid":"config","key_b64":"YGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn8="}]}`,
+		Prefix + "ACCOUNT_RECOVERY_LOG":           "/config-only/account-recovery.log",
+		Prefix + "KNOWLEDGE_CONFIRMATION_KEYRING": `{"format":1,"current_kid":"knowledge","keys":[{"kid":"knowledge","key_b64":"gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp8="}]}`,
 	}
 }
 
@@ -179,6 +180,7 @@ func TestConfigurationBoundariesAndSafeErrors(t *testing.T) {
 
 func TestLoadNeverReadsIgnoredValues(t *testing.T) {
 	accountValues := accountenv.New(t).Values()
+	accountValues[Prefix+"KNOWLEDGE_CONFIRMATION_KEYRING"] = configOnlyAccountValues()[Prefix+"KNOWLEDGE_CONFIRMATION_KEYRING"]
 	_, err := Load(func(key string) (string, bool) {
 		if value, ok := accountValues[key]; ok {
 			return value, true

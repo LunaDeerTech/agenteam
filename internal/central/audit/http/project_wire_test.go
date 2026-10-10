@@ -284,7 +284,9 @@ func projectAuditStandardSchema(t *testing.T, vectors []projectAuditSchemaVector
 	defer cancel()
 	cmd := exec.CommandContext(ctx, python, "-c", projectAuditSchemaProgram, root)
 	cmd.Stdin = bytes.NewReader(input)
+	started := time.Now()
 	output, err := cmd.CombinedOutput()
+	t.Logf("SCHEMA_PROCESS wait_returned=true elapsed=%s context_error=%v vectors=%d", time.Since(started), ctx.Err(), len(vectors))
 	if err != nil {
 		t.Fatalf("standard schema validation failed: %v %s", err, output)
 	}
@@ -292,12 +294,26 @@ func projectAuditStandardSchema(t *testing.T, vectors []projectAuditSchemaVector
 }
 
 const projectAuditSchemaProgram = `
-import sys,json,pathlib,re,calendar
+import sys,json,pathlib,re,calendar,time
+started=time.monotonic()
+def diagnostic(stage,*,name=None,index=None,duration=None):
+ # Only fixed stages and bounded fixture/schema labels, never Body, errors,
+ # schema contents, argv or environment. Flush preserves the last stage if
+ # the unchanged parent deadline kills this process during validation.
+ fields={'stage':stage,'elapsed_seconds':round(time.monotonic()-started,6)}
+ if name is not None:fields['name']=name if isinstance(name,str) and re.fullmatch(r'[A-Za-z0-9_.:/+\-]{1,160}',name) else 'non-label'
+ if index is not None:fields['index']=index
+ if duration is not None:fields['duration_seconds']=round(duration,6)
+ print('SCHEMA_DIAGNOSTIC '+json.dumps(fields,sort_keys=True),flush=True)
+diagnostic('imports.begin')
 from jsonschema import Draft202012Validator,FormatChecker
 from referencing import Registry,Resource
 from referencing.jsonschema import DRAFT202012
+diagnostic('imports.end')
+diagnostic('documents.begin')
 root=pathlib.Path(sys.argv[1]); doc=json.loads((root/'project-audit.json').read_bytes()); common=json.loads((root/'common.json').read_bytes())
-base=(root/'project-audit.json').as_uri(); registry=Registry().with_resource(base,Resource.from_contents(doc,default_specification=DRAFT202012)).with_resource((root/'common.json').as_uri(),Resource.from_contents(common,default_specification=DRAFT202012))
+base=(root/'project-audit.json').as_uri(); registry=Registry().with_resource(base,Resource.from_contents(doc,default_specification=DRAFT202012)).with_resource((root/'common.json').as_uri(),Resource.from_contents(common,default_specification=DRAFT202012)).crawl()
+diagnostic('documents.end')
 checker=FormatChecker()
 @checker.checks('date-time')
 def instant(s):
@@ -305,10 +321,21 @@ def instant(s):
  m=re.fullmatch(r'(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(?:\.\d+)?Z',s)
  if not m:return False
  y,mo,d,h,mi,se=map(int,m.groups());return 1<=mo<=12 and 1<=d<=calendar.monthrange(y,mo)[1] and h<24 and mi<60 and se<60
-for schema in doc['components']['schemas'].values():Draft202012Validator.check_schema(schema)
+for name,schema in doc['components']['schemas'].items():
+ diagnostic('check_schema.begin',name=name); phase=time.monotonic()
+ Draft202012Validator.check_schema(schema)
+ diagnostic('check_schema.end',name=name,duration=time.monotonic()-phase)
+diagnostic('vectors.read.begin')
 vectors=json.load(sys.stdin)
-for v in vectors:
- schema={'$ref':base+'#/components/schemas/'+v['Schema']}; valid=Draft202012Validator(schema,registry=registry,format_checker=checker).is_valid(v['Body'])
+diagnostic('vectors.read.end')
+validators={}
+for index,v in enumerate(vectors):
+ diagnostic('vector.begin',name=v['Name'],index=index); phase=time.monotonic()
+ if v['Schema'] not in validators:
+  schema={'$ref':base+'#/components/schemas/'+v['Schema']}
+  validators[v['Schema']]=Draft202012Validator(schema,registry=registry,format_checker=checker)
+ valid=validators[v['Schema']].is_valid(v['Body'])
+ diagnostic('vector.end',name=v['Name'],index=index,duration=time.monotonic()-phase)
  if valid!=v['Valid']:raise SystemExit('vector disagrees: '+v['Name'])
 print('standard Draft2020-12 accepted '+str(len(vectors))+' vectors with fixed local common refs')
 `

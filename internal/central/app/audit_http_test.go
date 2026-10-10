@@ -85,7 +85,7 @@ func TestAuditRootPureSameInstanceConstructionGraph(t *testing.T) {
 		if !ok {
 			return true
 		}
-		if is(call.Fun, "createSecurity") {
+		if is(call.Fun, "createSecurityWithRunners") {
 			created++
 		}
 		selector, ok := call.Fun.(*ast.SelectorExpr)

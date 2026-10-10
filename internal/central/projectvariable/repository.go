@@ -1,4 +1,5 @@
-// Package projectvariable owns ordinary project configuration, not Secrets.
+// Package projectvariable owns ordinary values and Secret variable metadata.
+// Secret material and protected intent receipts belong to the Secret producer.
 package projectvariable
 
 import (
@@ -234,7 +235,7 @@ func scanVariable(row interface{ Scan(...any) error }) (c.Variable, *f.Instant, 
 	return result, &at, nil
 }
 func loadVariable(ctx context.Context, x postgres.SQLExecutor, p c.ProjectID, id c.VariableID, deleted bool) (c.Variable, *f.Instant, error) {
-	v, at, e := scanVariable(x.QueryRow(ctx, `SELECT `+variableColumns+` FROM agenteam_projectvariable.variables WHERE project_id=$1 AND id=$2`, p.String(), id.String()))
+	v, at, e := scanVariable(x.QueryRow(ctx, `SELECT `+variableColumns+` FROM agenteam_projectvariable.variables WHERE project_id=$1 AND id=$2 AND type='variable'`, p.String(), id.String()))
 	if e == nil && at != nil && !deleted {
 		return c.Variable{}, nil, fault(f.NotFound)
 	}
