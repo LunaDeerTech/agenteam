@@ -1,6 +1,6 @@
 # 正文 HTTP 有限入口
 
-本工具片段复用本树既有 supervisor、root adapter 与 native driver，仅新增下列两个闭集 literal。旧默认与所有旧 selector 可逆为 `e3145974` 原字节，不造新的资源监督者。当前仅源码和替身控制就绪，PG/native candidate、native driver 都尚未构建，未运行任何真实资源。
+本工具片段复用本树既有 supervisor、root adapter 与 native driver，仅新增下列两个闭集 literal。旧默认与所有旧 selector 可逆为 `e3145974` 原字节，不造新的资源监督者。2026-10-10 已完成 PG/native race candidate 与原 native driver 的离线构建及 exact top 列举，原 root adapter `--check` 实际0；未运行任何 PG/native 测试体或真实资源。
 
 | 模式 | 唯一新增 selector | 必须实际出现的节点 |
 | --- | --- | --- |
@@ -21,13 +21,19 @@ PYTHONDONTWRITEBYTECODE=1 python3 -B .agent-state/knowledge-content-http/selecto
 
 首实际 `b17961` 通过148项，但独审 `7d1d04` 确认其未冻结运行时 Schema 解释器，原材料不回填。窄修后 `ace5f7` 通过157项：精确节点删/重/缺/错/skip/非法UTF8、固定配置正负例、实际 supervisor main 的显式 Child/资源/TCP/proc 替身，覆盖错误 Wait/退出码、资源/runtime残留、输入新增/删除、解释器字节/环境/链接目标改变仍走完整尾；三工具逐字逆差异。缺失/相对路径/目录/不可执行解释器在启动前拒绝。不调用实际 child/proc/PG/socket，也未证明真正节点可发现。
 
-候选准备后，真实命令分别如下。下列路径是预定的新候选/输出，当前不能运行；每次必须 root 单独授予真实窗口，首次同进程打印 UTC/statvfs≥5GiB、核新输出及完整固定环境，禁止自动重试或借 pure/compiled 推 PASS。
+候选准备后，真实命令分别如下。每次必须 root 单独授予真实窗口，首次同进程打印 UTC/statvfs≥5GiB、核新输出及完整固定环境，禁止自动重试或借 pure/compiled 推 PASS。
+
+2026-10-10 新环境固定前置：`PATH` 前置 `/workspace/toolchains/go1.27.1/bin` 并保留继承项，`GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2`；`GOMODCACHE=/workspace/shared/agenteam-deps/go-mod` 只读复用，`GOCACHE=$PWD/output/ai/knowledge-content-http/gocache` 独占。`TMPDIR` 与 `GOTMPDIR` 均为本树 `output/ai/knowledge-content-http/tmp`，`XDG_CACHE_HOME` 为同层 `xdg`。上述私有目录先准备；旧 `AGENTEAM_{OBJECT,OUTBOUND,PG,PG_UNSUPPORTED}_FIXTURE` 与 native gate 从环境移除，由原 driver 配置本次自己的资源。Schema Python 显式设为 `/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3`，该本地解释器及 jsonschema/referencing 已确认存在。
+
+第一次离线 PG 构建因 `/workspace/go/pkg/mod` 缺当前锁定版本实际失败，未生成候选。共享依赖恢复后用新编号重新构建 `content-pg-race-02.test`，首次 native 候选与 driver 仍用 `01`。构建/列举结果只记准备，不算行为通过。MinIO 已从 root 提供的 `/workspace/shared/agenteam-deps/bin/minio` 按下述原固定 SHA 一次确认后普通复制到本树 `output/ai/deps-minio/bin/minio`（109289632 bytes），driver 保留原身份检查；无需再下载。
+
+离线命令均 actualWait=0：`go test -mod=readonly -p=1 -race -tags=integration -c -o output/ai/knowledge-content-http/content-pg-race-02.test ./tests/knowledge`、`go test -mod=readonly -p=1 -race -c -o output/ai/knowledge-content-http/content-native-race-01.test ./internal/central/knowledge/contenthttp`、`go build -mod=readonly -p=1 -o output/ai/knowledge-content-http/content-native-driver-01 .agent-state/work-owner-http/native_driver.go`。本次两个 package 均无 `TestMain`；分别对候选执行下列 exact selector 的 `-test.list`，实际恰4/3 top、无额外节点、退出0。构建与 list 原工具已退出，无真实资源。
 
 ```sh
 python3 .agent-state/task-planning-recovery/pg_only_supervisor.py \
   --root-chain \
   --driver "$PWD/.agent-state/work-owner-http/root_chain_driver.py" \
-  --binary "$PWD/output/ai/knowledge-content-http/content-pg-race-01.test" \
+  --binary "$PWD/output/ai/knowledge-content-http/content-pg-race-02.test" \
   --run '^TestKnowledgeOwnerContentHTTP(CurrentBytes|CurrentAuthority|ReaderOwnership|ReadTransactions)$' \
   --output "$PWD/output/ai/knowledge-content-http/pg-01"
 
@@ -38,4 +44,4 @@ python3 .agent-state/task-planning-recovery/pg_only_supervisor.py \
   --output "$PWD/output/ai/knowledge-content-http/native-01"
 ```
 
-PG 另须显式 `AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON` 指向已存在本地 jsonschema/referencing 解释器；未配置即业务失败，不能把 Schema skip 当通过。root adapter 校验的固定 MinIO 尚待 root 授予普通复制；不在本任务自行下载或安装。Go 缓存当前已交还，后继编译同样另排。
+PG 另须显式 `AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON` 指向已存在本地 jsonschema/referencing 解释器；未配置即业务失败，不能把 Schema skip 当通过。root adapter 仍要求 MinIO SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`。Go 离线构建与真实资源窗口分别协调，不因准备完成自动启动 PG/native。
