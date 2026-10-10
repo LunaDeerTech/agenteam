@@ -50,6 +50,12 @@ func (r *SecretUsageRouter) AuthorizeLeaseInTx(ctx context.Context, tx f.Tx, act
 	if resolutionHasApply(ctx) {
 		return r.model.AuthorizeLeaseInTx(ctx, tx, actor, ref, owner, action)
 	}
+	if ctx != nil && ctx.Value(executionRetirementKey{}) != nil {
+		if r.runtime == nil {
+			return sc.UseGrant{}, fault(f.DependencyUnbound)
+		}
+		return r.runtime.authorizeExecutionRetirement(ctx, tx, actor, ref, owner, action)
+	}
 	if runtimeHasSecretWitness(ctx) {
 		if r.runtime == nil {
 			return sc.UseGrant{}, fault(f.DependencyUnbound)

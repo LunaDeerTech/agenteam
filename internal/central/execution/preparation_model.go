@@ -77,6 +77,9 @@ func (a *Authority) Discover(ctx context.Context, request mc.ConsumerRequest) (m
 	if err := ctx.Err(); err != nil {
 		return mc.ConsumerDependencies{}, err
 	}
+	if request.Action != mc.ResolveConsumer {
+		return a.discoverRuntimeModel(ctx, request)
+	}
 	source, err := preparationModelConsumer(request)
 	if err != nil {
 		return mc.ConsumerDependencies{}, err
@@ -107,6 +110,9 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx f.Tx, request mc.Consum
 	}
 	if err := ctx.Err(); err != nil {
 		return err
+	}
+	if request.Action != mc.ResolveConsumer {
+		return a.validateRuntimeModelInTx(ctx, tx, request, plan)
 	}
 	source, err := preparationModelConsumer(request)
 	if err != nil {
