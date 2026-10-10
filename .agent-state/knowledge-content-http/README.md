@@ -1,6 +1,6 @@
 # 正文 HTTP 有限入口
 
-本工具片段复用本树既有 supervisor、root adapter 与 native driver，仅新增下列两个闭集 literal。旧默认与所有旧 selector 可逆为 `e3145974` 原字节，不造新的资源监督者。2026-10-10 已完成 PG/native race candidate 与原 native driver 的离线构建及 exact top 列举，原 root adapter `--check` 实际0；native01 三 top/六 sub 与原完整收尾实际通过，PG01 已实际整组 FAIL，原失败与完整收尾见下文。
+本工具片段复用本树既有 supervisor、root adapter 与 native driver，仅新增下列两个闭集 literal。旧默认与所有旧 selector 可逆为 `e3145974` 原字节，不造新的资源监督者。2026-10-10 已完成 PG/native race candidate 与原 native driver 的离线构建及 exact top 列举，原 root adapter `--check` 实际0；native01 三 top/六 sub 与原完整收尾实际通过；PG01 原整组 FAIL 保留，reader03窄修后PG02四top十四sub及完整收尾实际通过。
 
 | 模式 | 唯一新增 selector | 必须实际出现的节点 |
 | --- | --- | --- |
@@ -53,3 +53,7 @@ PG01 在冻结 `6afc1ae2` 使用上列原候选/selector 实际执行：4top/14s
 该轮首次 Go 前使用新 `pg-01-environment/config/go/telemetry/mode` 文件内容 `off\n`、`XDG_CONFIG_HOME` 指向该私有 config，并移除 `TEST_TELEMETRY_DIR`；仅 `GOTELEMETRY=off` 不足以控制实际 Go telemetry。新 `DOCKER_CONFIG` 仅含 `{}` 的 config.json，移除继承的 Docker context/host/TLS 变量，未读取外部凭据。首 UTC `2026-10-10T03:28:48.575893+00:00`，available15877173248≥5368709120。后继继续这些前置且使用新编号，禁止覆盖原输出或自动重试。
 
 Skills 独静审确认 `newIntegrityReader` 对短对象在返回 reader 前同步预读、核 EOF 并释放原 lease；测试仅持上层 reader 未 Read/Close 不足以推出 active==1。root 已授权只把两 GET 真实正文改为>StreamBufferSize并核真实 Meta.ByteSize，保 active==1、原 owner/delete 刺激、零上层 Read、一次实际 Close 与最终无 reader lease；不改产品/HEAD/预算。修后候选与窄独审待完成，真实同组须 root 新授窗口。
+
+reader03 已就绪：仅上述两 GET 的 fixture 改为131073B，真实 Meta ID/ByteSize/SHA256一致并保原活lease前置与后继全部断言，HEAD/产品/预算未动。Skills窄静审接受；离线新 `content-pg-race-03.test` 编0、原exact四top list0，现有 `TestIntegrityHoldbackRejectsBeforeCompleteLength` race方法控0/1.047s，session82809实际退出。下一原 supervisor 命令只把 `--binary` 换为该03候选，`--output` 换新 `output/ai/knowledge-content-http/pg-02`；selector和资源/预算/完整尾不变，root freshgrant之前不执行。PG01原FAIL不回填。
+
+PG02 已在冻结 `1e5833bc`、原03候选与同selector下实际完整 PASS：4top14sub各恰RUN/PASS；Go138789 Wait0、driver136999 actualWaittrue/0、outer136998/tool62216 terminal0。7资源/3private双absent、runtime双empty、desc双[]、hostTCP delta双空及inputs_unchanged=True齐全，supervisor212.663s/0。首UTC2026-10-10T03:45:03.383078+00:00、available14657765376≥5GiB；本轮私有telemetrymodeoff在首次Go前设置且尾仍off，移除TEST_TELEMETRY_DIR、新emptyDockerconfig。普通日志 `output/ai/knowledge-content-http/pg-02/pg-0877f324727b43419bf8243918b54695.log`；无在途命令或自有资源，root已收到窗口释放。原PG01安全FAIL材料不改；不再重跑有效native/pure。正文独立adapter真实Account/B02/D05消费验收闭合，默认root、Project/Skill创建组合、UI及Object Runtime全局join仍需各自正式验收。
