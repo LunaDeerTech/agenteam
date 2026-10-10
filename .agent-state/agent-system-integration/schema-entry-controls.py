@@ -237,6 +237,99 @@ RUNTIME_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS
                                                                 "'AgentConfigurationSchema', "
                                                                 "'AgentRuntimeSchema')) and")]}
 
+CREATE_SELECTOR = '^TestAgentConfigurationCreate$'
+CREATE_TOP = 'TestAgentConfigurationCreate'
+CREATE_CASES = frozenset({CREATE_TOP, CREATE_TOP + '/default-create-and-replay',
+                          CREATE_TOP + '/final-transaction-rollback'})
+CREATE_BASE = {'.agent-state/work-owner-http/root_chain_driver.py': '3a8b513901b4fedc602edeff4f094f41da19c9d87f5bcdba2f5f188aa314dd0d', '.agent-state/task-planning-recovery/pg_only_supervisor.py': 'c7dff4f78c0cc3a574564c93f7f167b24a4bc454c8c693c230b607d7eb5a45c0'}
+CREATE_HUNKS = {'.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {METADATA_ROOT: '
+                                                                'METADATA_CASES, SCHEMA_ROOT: SCHEMA_CASES,\n'
+                                                                '                   RUNTIME_SCHEMA_ROOT: '
+                                                                'RUNTIME_SCHEMA_CASES,\n'
+                                                                '                   PREPARATION_ROOT: '
+                                                                'PREPARATION_CASES}\n',
+                                                                'AGENT_CREATE_ROOT = '
+                                                                "'^TestAgentConfigurationCreate$'\n"
+                                                                'AGENT_CREATE_CASES = frozenset({\n'
+                                                                "    'TestAgentConfigurationCreate',\n"
+                                                                '    '
+                                                                "'TestAgentConfigurationCreate/default-create-and-replay',\n"
+                                                                '    '
+                                                                "'TestAgentConfigurationCreate/final-transaction-rollback',\n"
+                                                                '})\n'
+                                                                'METADATA_GROUPS = {METADATA_ROOT: '
+                                                                'METADATA_CASES, SCHEMA_ROOT: SCHEMA_CASES,\n'
+                                                                '                   RUNTIME_SCHEMA_ROOT: '
+                                                                'RUNTIME_SCHEMA_CASES,\n'
+                                                                '                   PREPARATION_ROOT: '
+                                                                'PREPARATION_CASES,\n'
+                                                                '                   AGENT_CREATE_ROOT: '
+                                                                'AGENT_CREATE_CASES}\n'),
+                                                               ('        PREPARATION_ROOT: '
+                                                                "{'TestExecutionPreparation'},\n",
+                                                                '        PREPARATION_ROOT: '
+                                                                "{'TestExecutionPreparation'},\n"
+                                                                '        AGENT_CREATE_ROOT: '
+                                                                "{'TestAgentConfigurationCreate'},\n"),
+                                                               ("'AgentRuntimeSchema', "
+                                                                "'ExecutionPreparation')) and",
+                                                                "'AgentRuntimeSchema', "
+                                                                "'ExecutionPreparation', "
+                                                                "'AgentConfigurationCreate')) and")],
+ '.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS = {\n',
+                                                        'TARGETS = {\n'
+                                                        "    '^TestAgentConfigurationCreate$': "
+                                                        "'tests/projectvariable',\n"),
+                                                       ('    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$'):\n",
+                                                        '    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$'):\n"),
+                                                       ('    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$'):\n",
+                                                        '    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$'):\n"),
+                                                       ("    if selector == '^TestExecutionPreparation$':\n",
+                                                        '    if selector == '
+                                                        "'^TestAgentConfigurationCreate$':\n"
+                                                        '        paths.update(REPOSITORY / name for name in '
+                                                        '(\n'
+                                                        '            '
+                                                        "'tests/projectvariable/agent_configuration_create_test.go',\n"
+                                                        '            '
+                                                        "'tests/projectvariable/agent_configuration_facts_test.go',\n"
+                                                        '            '
+                                                        "'tests/projectvariable/skill_installation_test.go',\n"
+                                                        '            '
+                                                        "'tests/testsupport/agentconfiguration/assembly.go'))\n"
+                                                        '    elif selector == '
+                                                        "'^TestExecutionPreparation$':\n")]}
+
+def create_projection(name, source):
+    if "'^TestAgentConfigurationCreate$'" not in source:
+        return source
+    for old, new in reversed(CREATE_HUNKS[name]):
+        if source.count(new) != 1:
+            raise ValueError('unknown or ambiguous Agent Create data')
+        source = source.replace(new, old, 1)
+    if hashlib.sha256(source.encode()).hexdigest() != CREATE_BASE[name]:
+        raise ValueError('unknown Agent Create baseline')
+    return source
+
+
 PREPARATION_SELECTOR = "^TestExecutionPreparation$"
 PREPARATION_TOP = "TestExecutionPreparation"
 PREPARATION_CASES = frozenset({PREPARATION_TOP,
@@ -318,6 +411,7 @@ PREPARATION_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TAR
                                                                 "'ExecutionPreparation')) and")]}
 
 def preparation_projection(name, source):
+    source = create_projection(name, source)
     if "'^TestExecutionPreparation$'" not in source:
         return source
     for old, new in reversed(PREPARATION_HUNKS[name]):
@@ -452,10 +546,13 @@ class SchemaEntryControls(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='agent-schema-inputs-') as tmp:
             root = Path(tmp).resolve()
             names = ('candidate.test', 'production.go',
-                     ('tests/projectvariable/execution_preparation_test.go' if SELECTOR == PREPARATION_SELECTOR
+                     ('tests/projectvariable/agent_configuration_create_test.go' if SELECTOR == CREATE_SELECTOR
+                      else 'tests/projectvariable/execution_preparation_test.go' if SELECTOR == PREPARATION_SELECTOR
                       else 'tests/projectvariable/agent_runtime_schema_test.go' if SELECTOR == RUNTIME_SELECTOR
                       else 'tests/projectvariable/agent_configuration_schema_test.go'),
                      'tests/projectvariable/original_helper_test.go',
+                     'tests/projectvariable/agent_configuration_facts_test.go',
+                     'tests/projectvariable/skill_installation_test.go',
                      'internal/other/other_test.go', 'internal/other/assets/NOTICE',
                      'tests/testsupport/agentconfiguration/assembly.go',
                      'tests/testsupport/postgres/original.go',
@@ -554,7 +651,7 @@ class SchemaEntryControls(unittest.TestCase):
         self.assertEqual(self.driver.TARGETS[PREPARATION_SELECTOR], 'tests/projectvariable')
         self.assertEqual(self.sup.METADATA_GROUPS[PREPARATION_SELECTOR], PREPARATION_CASES)
         for name, pairs in PREPARATION_HUNKS.items():
-            source = (ROOT / name).read_text()
+            source = create_projection(name, (ROOT / name).read_text())
             self.assertEqual(hashlib.sha256(preparation_projection(name, source).encode()).hexdigest(), PREPARATION_BASE[name])
             for old, new in pairs:
                 self.assertEqual(source.count(new), 1)
@@ -564,6 +661,26 @@ class SchemaEntryControls(unittest.TestCase):
         with patch.dict(globals(), SELECTOR=PREPARATION_SELECTOR, TOP=PREPARATION_TOP, CASES=PREPARATION_CASES), \
                 patch.object(self.sup, 'SCHEMA_ROOT', PREPARATION_SELECTOR), \
                 patch.object(self.sup, 'SCHEMA_CASES', PREPARATION_CASES):
+            self.test_exact_three_subcases_and_original_wait()
+            self.test_actual_main_requires_exact_root_mode()
+            self.test_actual_schema_inputs_reenumerate_runtime_sources()
+            self.test_actual_observer_keeps_original_resource_tails()
+            self.test_actual_driver_fixed_environment_before_original_exec()
+
+    def test_agent_create_reuses_the_original_family(self):
+        self.assertEqual(self.driver.TARGETS[CREATE_SELECTOR], 'tests/projectvariable')
+        self.assertEqual(self.sup.METADATA_GROUPS[CREATE_SELECTOR], CREATE_CASES)
+        for name, pairs in CREATE_HUNKS.items():
+            source = (ROOT / name).read_text()
+            self.assertEqual(hashlib.sha256(create_projection(name, source).encode()).hexdigest(), CREATE_BASE[name])
+            for old, new in pairs:
+                self.assertEqual(source.count(new), 1)
+                for bad in (source.replace(new, old, 1), source + new, source + '\n# unknown\n'):
+                    with self.assertRaises(ValueError):
+                        inverse(name, bad)
+        with patch.dict(globals(), SELECTOR=CREATE_SELECTOR, TOP=CREATE_TOP, CASES=CREATE_CASES), \
+                patch.object(self.sup, 'SCHEMA_ROOT', CREATE_SELECTOR), \
+                patch.object(self.sup, 'SCHEMA_CASES', CREATE_CASES):
             self.test_exact_three_subcases_and_original_wait()
             self.test_actual_main_requires_exact_root_mode()
             self.test_actual_schema_inputs_reenumerate_runtime_sources()
