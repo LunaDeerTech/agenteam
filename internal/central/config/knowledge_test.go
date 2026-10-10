@@ -53,6 +53,29 @@ func TestKnowledgeConfirmationConfiguration(t *testing.T) {
 }
 
 func TestKnowledgeConfirmationRejectsCrossPurposeMaterial(t *testing.T) {
+	t.Run("confirmation_history_reuses_account_current", func(t *testing.T) {
+		values := configValues(nil)
+		if cfg, err := loadAccountValues(values); err != nil || cfg.Validate() != nil {
+			t.Fatal("independent control rejected", err)
+		}
+		var confirmation, account struct {
+			Keys []struct {
+				Key string `json:"key_b64"`
+			} `json:"keys"`
+		}
+		if json.Unmarshal([]byte(values[Prefix+"KNOWLEDGE_CONFIRMATION_KEYRING"]), &confirmation) != nil || json.Unmarshal([]byte(values[Prefix+"ACCOUNT_KEYRING"]), &account) != nil {
+			t.Fatal("bad fixture ring")
+		}
+		// The current confirmation material stays independent. Only a retained
+		// old key collides, so checking the current key alone must fail this test.
+		values[Prefix+"KNOWLEDGE_CONFIRMATION_KEYRING"] = `{"format":1,"current_kid":"current","keys":[{"kid":"current","key_b64":"` + confirmation.Keys[0].Key + `"},{"kid":"old","key_b64":"` + account.Keys[0].Key + `"}]}`
+		_, err := loadAccountValues(values)
+		var issue *Error
+		if !errors.As(err, &issue) || issue.Field() != Prefix+"KNOWLEDGE_CONFIRMATION_KEYRING" || issue.Reason() != "invalid" {
+			t.Fatal("retained confirmation material reused for another purpose")
+		}
+		assertConfigProjectionSafe(t, err)
+	})
 	for _, field := range []string{"CURSOR_KEYRING", "SECRET_KEYRING", "OBJECT_DOWNLOAD_KEYRING", "ACCOUNT_KEYRING"} {
 		for _, historical := range []bool{false, true} {
 			t.Run(field+map[bool]string{false: "/current", true: "/historical"}[historical], func(t *testing.T) {

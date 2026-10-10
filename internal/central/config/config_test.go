@@ -180,6 +180,7 @@ func TestConfigurationBoundariesAndSafeErrors(t *testing.T) {
 
 func TestLoadNeverReadsIgnoredValues(t *testing.T) {
 	accountValues := accountenv.New(t).Values()
+	accountValues[Prefix+"KNOWLEDGE_CONFIRMATION_KEYRING"] = configOnlyAccountValues()[Prefix+"KNOWLEDGE_CONFIRMATION_KEYRING"]
 	_, err := Load(func(key string) (string, bool) {
 		if value, ok := accountValues[key]; ok {
 			return value, true

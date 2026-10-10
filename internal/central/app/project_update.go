@@ -17,14 +17,14 @@ import (
 	projecthttp "github.com/LunaDeerTech/agenteam/internal/central/project/http"
 )
 
-// Pure construction retains the existing authority, store and actual process
-// guard. No initializer, lifecycle registry or background work is fabricated.
-func createProjectUpdate(cfg config.Config, db database, projects *project.Authority, accounts *account.Authority, auditor *audit.Service, journal *outbox.Service, events pc.ProjectEvents, processes accountProcessAuthority) (*project.Service, error) {
+// Pure construction retains the existing authority, store, actual process
+// guard and already constructed Skill initializer. No deferred locator is used.
+func createProjectUpdate(cfg config.Config, db database, projects *project.Authority, accounts *account.Authority, auditor *audit.Service, journal *outbox.Service, events pc.ProjectEvents, processes accountProcessAuthority, initializer pc.ProjectSkillInitializer) (*project.Service, error) {
 	store, ok := db.(project.Store)
 	if !ok || runtimeInformationNil(store) || accounts == nil || auditor == nil || journal == nil || processes.guard == nil {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
-	return project.New(store, project.Dependencies{Authority: projects, Activity: accounts, Audit: auditor, Events: journal, ProjectEvents: events, Processes: projectCommandProcess{processes}, Cursors: cfg.CursorKeyring()}, project.DefaultConfig())
+	return project.New(store, project.Dependencies{Authority: projects, Activity: accounts, Audit: auditor, Events: journal, ProjectEvents: events, Processes: projectCommandProcess{processes}, Cursors: cfg.CursorKeyring(), Initializer: initializer}, project.DefaultConfig())
 }
 
 // The IDs have distinct nominal types but identify the very same root process.
