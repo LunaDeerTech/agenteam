@@ -37,3 +37,12 @@ root 将 Rename `40e1e4ea` 的19路径精确导入 Skills `1f67ddd5` 当前树�
 - `output/ai/knowledge-owner-rename/web-dist-combined-01`
 
 两目录各69个regular文件、978051 bytes，无symlink、所有文件nlink1，逐相对路径对应inode互异。对排序的 `relative_path + NUL + file_sha256 + LF` 计算的共同manifest SHA256为 `a83ba680012d00ff1cd9dab62932cb7782f58926906e01ed0b6485eec5ae57ca`。构建前后web/src与实际入口/锁/config源清单hash一致 `e0169c99fbc4f80b09c78f8bd0bf1679777f776db93c360a262ec13633605d7e`；该清单只证明构建期间输入未变，不能替代driver完整候选闭包。ignored输出 `output/ai/skills-owner-ui/combined-frontend-01.json` 保存上述本机产物摘要。cleanup与content已收到精确DIST供后继闭包/候选使用。
+
+
+## 首次真实结果与停止点
+
+Skills01使用已冻结组合source `6f3f1faf`、同一61,196,757-byte候选（SHA `adaed67fef0d3571709f671d1448061d9730a4d088fc6e73dd4f5c6259f74825`）、上述69文件dist，以及1474项Skills闭包 `d47c109e0698b4b23afd07364ce2023142b7689e40775f8a02cfaec1a1e98ef0`。固定Python运行原supervisor `--root-chain`，driver原入口、selector `^TestSkillOwnerReadWeb$`、fresh `/tmp/sui01` 与 `output/ai/skills-owner-ui/evidence-read-01`；CASE=read，预算未改。原同启动free6,232,592,384 bytes，私有telemetry off/空Docker配置与原清理全部保留。
+
+整轮FAIL：session61629→e96f98 exit1，Node实际Wait失败、Go top36.06s。原driver/supervisor/outer与4 adopted实际Wait齐，七资源14次absent、private/runtime/desc/HOST_TCP双尾齐、inputs unchanged、STOP0，总236.476s后释放。安全原件投影与精确身份在 [first-read-result.json](first-read-result.json)；本地原输出为 `/tmp/sui01/ui-8a3f37e4514b43c1.log`，不可把body前置通过升级整轮。
+
+最早持久阶段为directory：原PW/native/public均无Skill请求，pending0、未failed，public current/not_busy为true；没有响应sidecar。原安全Go错误只说明Node未通过，精确PW断言未持久化；关闭后的pw_failed=true不回填首snapshot。源码可确定Vue Router缺省optional参数解析为空字符串，View把它保留为详情ID，控制器在Session调用前校验失败；这是确定源码缺口而非已采原route/DOM的动态归因。下一最小修建议仅将缺省空字符串归为目录null，并补真实View/controller路由组合控；本次只读诊断后停写技术源，未修改产品/方法/预算，未重试。目录后续、完整只读事实与真实第二Human页面均未验收；生产初始化unbound不变。

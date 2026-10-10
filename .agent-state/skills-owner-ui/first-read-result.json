@@ -1,0 +1,142 @@
+{
+  "run": "Skills01",
+  "selector": "^TestSkillOwnerReadWeb$",
+  "whole": "FAIL",
+  "released": true,
+  "launch": {
+    "started_utc": "2026-10-10T09:27:49.302722+00:00",
+    "launcher_pid": 555107,
+    "source": "6f3f1faf",
+    "candidate_sha256": "adaed67fef0d3571709f671d1448061d9730a4d088fc6e73dd4f5c6259f74825",
+    "input_count": 1474,
+    "input_hash": "d47c109e0698b4b23afd07364ce2023142b7689e40775f8a02cfaec1a1e98ef0",
+    "free_bytes": 6232592384,
+    "private_telemetry_off": true,
+    "empty_docker_config": true,
+    "selector": "^TestSkillOwnerReadWeb$",
+    "output": "/tmp/sui01",
+    "supervisor_pid": 555170,
+    "actual_supervisor_wait": 1,
+    "ended_utc": "2026-10-10T09:31:47.325805+00:00",
+    "launch_private_absent": true
+  },
+  "tool_session": 61629,
+  "tool_terminal_chunk": "e96f98",
+  "tool_exit": 1,
+  "candidate_bytes": 61196757,
+  "dist": {
+    "files": 69,
+    "manifest_sha256": "a83ba680012d00ff1cd9dab62932cb7782f58926906e01ed0b6485eec5ae57ca"
+  },
+  "original_first_snapshot": {
+    "input_hash": "d47c109e0698b4b23afd07364ce2023142b7689e40775f8a02cfaec1a1e98ef0",
+    "stage": "directory",
+    "original": {
+      "pw_failed": false,
+      "pw_pending": 0,
+      "pw_first": null,
+      "requests": [],
+      "native": {
+        "document_id": "e11087e1-c77d-430f-ae56-894c67f7d2c9",
+        "retired": false,
+        "reason": "active",
+        "pending": 0,
+        "pending_at_retirement": null,
+        "failed": false,
+        "overflow": false,
+        "rows": []
+      },
+      "publication": {
+        "retired": false,
+        "reason": "active",
+        "pending": 0,
+        "pending_at_retirement": null,
+        "failed": false,
+        "overflow": false,
+        "current": true,
+        "not_busy": true,
+        "rows": []
+      }
+    }
+  },
+  "original_failure_tail": {
+    "input_hash": "d47c109e0698b4b23afd07364ce2023142b7689e40775f8a02cfaec1a1e98ef0",
+    "pw_failed": true,
+    "pw_pending": 0,
+    "pw_first": null,
+    "requests": []
+  },
+  "evidence_sha256": {
+    "skill-failure.json": "0e6656932f4b6cb08a49e6e0fd209c680da10afa466e6132a4e31da35cff7bf1",
+    "skill-failure-tail.json": "1a0044f0c901161e8d499532c79ba37ed558868d6e20537af474ddeafdfed8f3"
+  },
+  "actual_wait": {
+    "node_pid": 562894,
+    "node_success": false,
+    "driver_pid": 555197,
+    "driver_exit": 1,
+    "supervisor_pid": 555170,
+    "supervisor_exit": 1,
+    "outer_pid": 555107,
+    "outer_exit": 1,
+    "adopted_exit0_pids": [
+      563008,
+      563013,
+      563011,
+      563012
+    ]
+  },
+  "tails": {
+    "resource_count": 7,
+    "resource_absent_observations": 14,
+    "private_absent_rounds": 2,
+    "runtime_empty_rounds": 2,
+    "descendants_empty_rounds": 2,
+    "host_tcp_delta_empty_rounds": 2,
+    "exact_tops": true,
+    "actual_test_wait": true,
+    "owner_ui_exact_run_pass_wait": false,
+    "inputs_unchanged": true,
+    "stop_count": 0,
+    "elapsed_seconds": 236.476
+  },
+  "gap": {
+    "stage": "directory",
+    "pw_requests": 0,
+    "native_rows": 0,
+    "publication_rows": 0,
+    "original_assertion": "not_preserved",
+    "original_route_dom": "not_sampled",
+    "response_sidecars": 0,
+    "classification": "before_observed_skill_request",
+    "source_defect": "optional_skill_id_empty_string_sent_to_detail_validation",
+    "source_defect_is_original_assertion_proof": false,
+    "repair_proposed_only": "normalize_only_absent_optional_skill_id_to_null_and_cover_actual_view_controller_route"
+  },
+  "post_release_free_bytes": 5962326016,
+  "post_release_free_tool_chunk": "8db6b1",
+  "cache_retirement": {
+    "path": "/workspace/agenteam-feature-integration/output/ai/skills-http-integration/go-build",
+    "original_preflight_chunk": "581f49",
+    "original_preflight_exit": 1,
+    "original_unreadable_pid": "not_recorded",
+    "retirement_chunk": "d8a1e5",
+    "retirement_exit": 0,
+    "same_uid_checked": 223,
+    "active_references": 0,
+    "unresolved_active_processes": 0,
+    "removed_files": 11383,
+    "logical_bytes": 1572923506,
+    "allocated_bytes": 1614516224,
+    "free_before": 4807450624,
+    "free_after": 6423175168,
+    "observed_free_increase": 1615724544,
+    "directory_absent": true
+  },
+  "limits": [
+    "No retry or source repair performed.",
+    "Directory through final browser business gates and postbrowser Go facts not accepted.",
+    "Original PW error was private in-memory output; no exact assertion reconstructed.",
+    "Production Project initializer remains unbound."
+  ]
+}
