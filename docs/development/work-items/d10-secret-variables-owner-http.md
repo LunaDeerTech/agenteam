@@ -1,6 +1,6 @@
 # D10 Secret Variables Owner HTTP
 
-状态：实现前边界方案，尚无本任务产品改动或验证结果。树 `ai/secret-owner-http` 以已接受的 Owner 库 `f9cc11c6` 为输入；正式连续 00028–30/core 由 coordination 组装，默认 root/Account 装配由 root 指定的统一写者负责。
+状态：方案已获 Skills HTTP 有限只读审接受并由 root 授权实施；首片段四产品/四 pure 测试已准备，首轮离线验证运行中，尚无本任务通过结论。树 `ai/secret-owner-http` 以已接受的 Owner 库 `f9cc11c6` 为输入；正式连续 00028–30/core 由 coordination 组装，默认 root/Account 装配由 root 指定的统一写者负责。
 
 ## 1. 已定契约与最小结果
 
@@ -47,7 +47,7 @@ handler 不关闭共享库/Store。后继根须绑定同一个 SecretService 的
 
 ## 5. 明确文件责任
 
-本实例拟独占以下新增路径，方案确定后才开始实现：
+本实例独占以下新增路径：
 
 - `internal/central/projectvariable/http/secret_handler.go`、`secret_read.go`、`secret_commands.go`、`secret_wire.go`：精确入口、安全读、strict 意图/材料寿命、typed 投影。
 - 同目录 `secret_handler_test.go`、`secret_commands_test.go`、`secret_wire_test.go`、`secret_io_test.go`、`secret_native_test.go`。
@@ -63,4 +63,4 @@ ordinary HTTP、Account.HTTPBoundary、公共 httpapi、Secret/Project/Account �
 3. 单独 native 窗：自然期限、更早父期限、keepalive 清 deadline、disconnect/backpressure，以及 Body/Write/Close/Flush/callback 实际返回；不以纯 ResponseWriter 代 socket 结论。
 4. 未参与实现者有限独审及当前 Session/泄露风险独验。真实轮需 fresh 授权、精确 selector、原预算和实际 Wait/资源/runtime/desc/TCP 全尾；原 FAIL 保留。
 
-当前无阻塞 HTTP shape 的未决产品规则。尚待协调的是正式 00028→29→30、harness 并集、独立审者/真实窗口，以及后继默认 root 同 Store 构造与退出绑定；不跨写上述接入点。本阶段只静态核对，未执行 Go、PG、socket 或网络。
+当前无阻塞 HTTP shape 的未决产品规则。尚待协调的是正式 00028→29→30、harness 并集、独立审者/真实窗口，以及后继默认 root 同 Store 构造与退出绑定；不跨写上述接入点。首片段离线 pure race/Schema 验证运行中；尚未 PG、socket 或网络。
