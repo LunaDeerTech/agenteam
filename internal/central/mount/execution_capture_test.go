@@ -47,7 +47,7 @@ func mountCaptureFixture(t *testing.T) (*ExecutionCapture, *controlledStore, *mo
 	_, s, projects, _, change := fixture(t)
 	s.head = referenceState{exists: true, version: 1, ids: []i.MountID{}}
 	r := mc.ExecutionMountCaptureRequest{ProjectID: change.ProjectID, AgentID: change.AgentID, ExecutionID: testID[i.Execution](t, 50)}
-	o := &mountCaptureOwner{store: s, request: r, facts: mc.ExecutionMountCaptureFacts{Scope: mc.ExecutionMountCaptureScope{Project: projects.access.Project(), AttemptBinding: f.Digest(strings.Repeat("a", 64))}, AgentVersion: 1, AllowedMountIDs: []i.MountID{}}}
+	o := &mountCaptureOwner{store: s, request: r, facts: mc.ExecutionMountCaptureFacts{Scope: mc.ExecutionMountCaptureScope{Project: projects.access.Project(), AttemptBinding: f.Digest("sha256:" + strings.Repeat("a", 64))}, AgentVersion: 1, AllowedMountIDs: []i.MountID{}}}
 	p, err := NewExecutionCapture(s, o)
 	if err != nil {
 		t.Fatal(err)
@@ -100,7 +100,7 @@ func TestExecutionMountCaptureRejectsStaleAndForeignPlans(t *testing.T) {
 		tx := s.tx
 		switch mode {
 		case "attempt":
-			o.facts.Scope.AttemptBinding = f.Digest(strings.Repeat("b", 64))
+			o.facts.Scope.AttemptBinding = f.Digest("sha256:" + strings.Repeat("b", 64))
 		case "agent-version":
 			o.facts.AgentVersion++
 		case "head-version":
