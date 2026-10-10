@@ -1,0 +1,803 @@
+{
+  "status": "whole-FAIL",
+  "technical_checkpoint": "39cfa444",
+  "review_records_checkpoint": "155ae593",
+  "selector": "^TestAccountProjectWorkPlanningWebStructureAndTasks$",
+  "session": 4580,
+  "launch": {
+    "start_utc": "2026-10-10T06:31:08.175411+00:00",
+    "outer_pid": 337628,
+    "fresh_available_bytes": 8215339008,
+    "exec_available_bytes": 8214380544,
+    "minimum_bytes": 5368709120,
+    "new_empty_docker_config": true,
+    "daemon": "28.4.0",
+    "prior_owned_absent_observations": 2,
+    "private_telemetry_off_before_go": true,
+    "telemetry_overrides_removed": [
+      "TEST_TELEMETRY_DIR",
+      "GO_TELEMETRY_CHILD",
+      "GO_TELEMETRY_CHILD_UPLOAD"
+    ],
+    "input_count": 677,
+    "input_sha256": "774de69e22420ce27294dd570534691c371c3d2283f5fa6b3413fcae0ef203c5",
+    "binary_sha256": "a272a4bd0e60a8a4ecd882b39c19970a4e9d72f0ba63309eda7c15e56ff67f5d"
+  },
+  "failure": {
+    "case_budget_ms": 45000,
+    "await": "final seen.verify Promise.all(original tails)",
+    "reported_after_wait": "helpers1842 incompleteRequests.headersComplete() false after timeout teardown",
+    "first_cause_is_not_inferred_from_closed_headersComplete": true,
+    "go_seconds": 58.27,
+    "all_nine_browser_mutation_steps_reached": true,
+    "six_reorder_three_document_gate_passed_limited": true,
+    "final_seen_verify_entered": true,
+    "final_schema_client_validation_reached": false,
+    "complete_reached": false,
+    "go_durable_postconditions_reached": false
+  },
+  "six_reorder_limited": {
+    "statement": "Only the six original reorder and three-document conjunction was reached successfully. Slot4 Sprint tail used the failed/aborted complete-consumer branch; other five used original normal finished. This does not accept whole Planning or later original GETs.",
+    "planning_joins_complete": true,
+    "document_joins": [
+      {
+        "document_id": "8f3aba83-9d2b-455c-a927-89e29d896745",
+        "joined": true,
+        "end_seen": true
+      },
+      {
+        "document_id": "d140c3cf-2500-40a5-a9d0-f1db1a90971b",
+        "joined": true,
+        "end_seen": true
+      },
+      {
+        "document_id": "3da80db0-05d9-4967-b7c4-b0159ff82aa3",
+        "joined": true,
+        "end_seen": true
+      }
+    ],
+    "documents": [
+      {
+        "document_id": "8f3aba83-9d2b-455c-a927-89e29d896745",
+        "source": "end",
+        "before_page_close": true,
+        "native_retirement": {
+          "retired": true,
+          "retirement_reason": "explicit",
+          "pending_at_retirement": 0,
+          "pending_observations": 0,
+          "observer_failed": false,
+          "overflow": false
+        },
+        "publication_retirement": {
+          "retired": true,
+          "retirement_reason": "explicit",
+          "pending_at_retirement": 0,
+          "pending_observations": 0,
+          "observer_failed": false,
+          "overflow": false
+        }
+      },
+      {
+        "document_id": "d140c3cf-2500-40a5-a9d0-f1db1a90971b",
+        "source": "end",
+        "before_page_close": true,
+        "native_retirement": {
+          "retired": true,
+          "retirement_reason": "explicit",
+          "pending_at_retirement": 0,
+          "pending_observations": 0,
+          "observer_failed": false,
+          "overflow": false
+        },
+        "publication_retirement": {
+          "retired": true,
+          "retirement_reason": "explicit",
+          "pending_at_retirement": 0,
+          "pending_observations": 0,
+          "observer_failed": false,
+          "overflow": false
+        }
+      },
+      {
+        "document_id": "3da80db0-05d9-4967-b7c4-b0159ff82aa3",
+        "source": "end",
+        "before_page_close": true,
+        "native_retirement": {
+          "retired": true,
+          "retirement_reason": "explicit",
+          "pending_at_retirement": 0,
+          "pending_observations": 0,
+          "observer_failed": false,
+          "overflow": false
+        },
+        "publication_retirement": {
+          "retired": true,
+          "retirement_reason": "explicit",
+          "pending_at_retirement": 0,
+          "pending_observations": 0,
+          "observer_failed": false,
+          "overflow": false
+        }
+      }
+    ],
+    "slots": [
+      {
+        "sequence": 7,
+        "request_id": "01a12482-ce69-70a5-8840-7b1c45f00ac6",
+        "failed_at": null,
+        "finished_event_at": 2932.536129,
+        "planning_document_id": "8f3aba83-9d2b-455c-a927-89e29d896745",
+        "planning_reorder": {
+          "projectID": "01a12482-a81f-757f-a6d9-499e834abaa0",
+          "targetID": "01a12482-ca5c-76bb-9ad4-3a2d03f6e835",
+          "expectedVersion": "2",
+          "slot": 1,
+          "kind": "milestone",
+          "tail": false,
+          "peerID": "01a12482-ab40-788d-85b0-a447e23715c6",
+          "milestoneID": null,
+          "sprintID": null,
+          "bound": true,
+          "joined": true,
+          "invalid": false,
+          "ended": true,
+          "failedCount": 0,
+          "finishedCount": 1,
+          "aborted": false,
+          "finishedStarted": true,
+          "finishedNull": true
+        },
+        "limited_native_public": {
+          "native_sequence": 7,
+          "call_id": 3,
+          "bytes": 418,
+          "content_length": 418,
+          "eof_before_interruption": true,
+          "content_length_matches_eof": true,
+          "reader_cancel_settled": 1,
+          "stream_cancel_settled": 1,
+          "release_successes": 1,
+          "public_fulfilled": 1,
+          "receipt_published": true,
+          "input_material_unique": true,
+          "not_busy": true
+        }
+      },
+      {
+        "sequence": 10,
+        "request_id": "01a12482-cf70-75b3-a96d-ab0d9107e579",
+        "failed_at": null,
+        "finished_event_at": 3192.9762839999994,
+        "planning_document_id": "8f3aba83-9d2b-455c-a927-89e29d896745",
+        "planning_reorder": {
+          "projectID": "01a12482-a81f-757f-a6d9-499e834abaa0",
+          "targetID": "01a12482-ca5c-76bb-9ad4-3a2d03f6e835",
+          "expectedVersion": "3",
+          "slot": 2,
+          "kind": "milestone",
+          "tail": true,
+          "peerID": "01a12482-ab40-788d-85b0-a447e23715c6",
+          "milestoneID": null,
+          "sprintID": null,
+          "bound": true,
+          "joined": true,
+          "invalid": false,
+          "ended": true,
+          "failedCount": 0,
+          "finishedCount": 1,
+          "aborted": false,
+          "finishedStarted": true,
+          "finishedNull": true
+        },
+        "limited_native_public": {
+          "native_sequence": 10,
+          "call_id": 5,
+          "bytes": 418,
+          "content_length": 418,
+          "eof_before_interruption": true,
+          "content_length_matches_eof": true,
+          "reader_cancel_settled": 1,
+          "stream_cancel_settled": 1,
+          "release_successes": 1,
+          "public_fulfilled": 1,
+          "receipt_published": true,
+          "input_material_unique": true,
+          "not_busy": true
+        }
+      },
+      {
+        "sequence": 23,
+        "request_id": "01a12482-d53d-7f65-9205-d7af79fcf813",
+        "failed_at": null,
+        "finished_event_at": 4683.593583,
+        "planning_document_id": "d140c3cf-2500-40a5-a9d0-f1db1a90971b",
+        "planning_reorder": {
+          "projectID": "01a12482-a81f-757f-a6d9-499e834abaa0",
+          "targetID": "01a12482-d1b2-70fd-a2ac-6469aa7d9f8f",
+          "expectedVersion": "2",
+          "slot": 3,
+          "kind": "sprint",
+          "tail": false,
+          "peerID": "01a12482-ab40-7028-ad7b-b53b9988175f",
+          "milestoneID": "01a12482-ab40-788d-85b0-a447e23715c6",
+          "sprintID": null,
+          "bound": true,
+          "joined": true,
+          "invalid": false,
+          "ended": true,
+          "failedCount": 0,
+          "finishedCount": 1,
+          "aborted": false,
+          "finishedStarted": true,
+          "finishedNull": true
+        },
+        "limited_native_public": {
+          "native_sequence": 11,
+          "call_id": 6,
+          "bytes": 560,
+          "content_length": 560,
+          "eof_before_interruption": true,
+          "content_length_matches_eof": true,
+          "reader_cancel_settled": 1,
+          "stream_cancel_settled": 1,
+          "release_successes": 1,
+          "public_fulfilled": 1,
+          "receipt_published": true,
+          "input_material_unique": true,
+          "not_busy": true
+        }
+      },
+      {
+        "sequence": 27,
+        "request_id": "01a12482-d6de-75fd-a418-78ba4b5eda41",
+        "failed_at": 5104.166419,
+        "finished_event_at": null,
+        "planning_document_id": "d140c3cf-2500-40a5-a9d0-f1db1a90971b",
+        "planning_reorder": {
+          "projectID": "01a12482-a81f-757f-a6d9-499e834abaa0",
+          "targetID": "01a12482-d1b2-70fd-a2ac-6469aa7d9f8f",
+          "expectedVersion": "3",
+          "slot": 4,
+          "kind": "sprint",
+          "tail": true,
+          "peerID": "01a12482-ab40-7028-ad7b-b53b9988175f",
+          "milestoneID": "01a12482-ab40-788d-85b0-a447e23715c6",
+          "sprintID": null,
+          "bound": true,
+          "joined": true,
+          "invalid": false,
+          "ended": true,
+          "failedCount": 1,
+          "finishedCount": 0,
+          "aborted": true,
+          "finishedStarted": false,
+          "finishedNull": false
+        },
+        "original_proof": [
+          {
+            "document_id": "d140c3cf-2500-40a5-a9d0-f1db1a90971b",
+            "native": {
+              "sequence": 15,
+              "call_id": 9,
+              "request_id": "01a12482-d6de-75fd-a418-78ba4b5eda41",
+              "method": "POST",
+              "path": "/api/v1/projects/01a12482-a81f-757f-a6d9-499e834abaa0/sprints/01a12482-d1b2-70fd-a2ac-6469aa7d9f8f/reorder",
+              "status": 200,
+              "bound_original_request": true,
+              "bound_public_call": true,
+              "pw_sequence": 27,
+              "eof_before_interruption": true,
+              "bytes": 560,
+              "content_length": 560,
+              "content_length_matches_eof": true,
+              "read_calls": 2,
+              "read_settled": 2,
+              "read_rejected": 0,
+              "reader_cancel_calls": 1,
+              "reader_cancel_settled": 1,
+              "reader_cancel_rejected": 0,
+              "release_calls": 1,
+              "release_successes": 1,
+              "stream_cancel_calls": 1,
+              "stream_cancel_settled": 1,
+              "stream_cancel_rejected": 0
+            },
+            "publication": [
+              {
+                "call_id": 9,
+                "reorder_slot": 4,
+                "operation": "start",
+                "target_id": "01a12482-d1b2-70fd-a2ac-6469aa7d9f8f",
+                "fulfilled": 1,
+                "rejected": 0,
+                "active": false,
+                "identity_current": true,
+                "not_busy": true,
+                "result_kind": "typed-receipt-returned",
+                "start_input_matches": true,
+                "start_unique": true,
+                "start_material_bound": true,
+                "start_receipt_published": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 44,
+        "request_id": "01a12482-e32a-71dc-8578-8b84d00892d7",
+        "failed_at": null,
+        "finished_event_at": 8326.969328,
+        "planning_document_id": "3da80db0-05d9-4967-b7c4-b0159ff82aa3",
+        "planning_reorder": {
+          "projectID": "01a12482-a81f-757f-a6d9-499e834abaa0",
+          "targetID": "01a12482-dc80-7ae9-b580-9f9858b1da00",
+          "expectedVersion": "2",
+          "slot": 5,
+          "kind": "task",
+          "tail": false,
+          "peerID": "01a12482-ab40-7382-9c5a-14a95a157628",
+          "milestoneID": "01a12482-ab40-788d-85b0-a447e23715c6",
+          "sprintID": "01a12482-ab40-7028-ad7b-b53b9988175f",
+          "bound": true,
+          "joined": true,
+          "invalid": false,
+          "ended": true,
+          "failedCount": 0,
+          "finishedCount": 1,
+          "aborted": false,
+          "finishedStarted": true,
+          "finishedNull": true
+        },
+        "limited_native_public": {
+          "native_sequence": 14,
+          "call_id": 8,
+          "bytes": 610,
+          "content_length": 610,
+          "eof_before_interruption": true,
+          "content_length_matches_eof": true,
+          "reader_cancel_settled": 1,
+          "stream_cancel_settled": 1,
+          "release_successes": 1,
+          "public_fulfilled": 1,
+          "receipt_published": true,
+          "input_material_unique": true,
+          "not_busy": true
+        }
+      },
+      {
+        "sequence": 49,
+        "request_id": "01a12482-e4ed-735b-93e6-98743364f9f0",
+        "failed_at": null,
+        "finished_event_at": 8790.282432,
+        "planning_document_id": "3da80db0-05d9-4967-b7c4-b0159ff82aa3",
+        "planning_reorder": {
+          "projectID": "01a12482-a81f-757f-a6d9-499e834abaa0",
+          "targetID": "01a12482-dc80-7ae9-b580-9f9858b1da00",
+          "expectedVersion": "3",
+          "slot": 6,
+          "kind": "task",
+          "tail": true,
+          "peerID": "01a12482-ab40-7382-9c5a-14a95a157628",
+          "milestoneID": "01a12482-ab40-788d-85b0-a447e23715c6",
+          "sprintID": "01a12482-ab40-7028-ad7b-b53b9988175f",
+          "bound": true,
+          "joined": true,
+          "invalid": false,
+          "ended": true,
+          "failedCount": 0,
+          "finishedCount": 1,
+          "aborted": false,
+          "finishedStarted": true,
+          "finishedNull": true
+        },
+        "limited_native_public": {
+          "native_sequence": 19,
+          "call_id": 12,
+          "bytes": 610,
+          "content_length": 610,
+          "eof_before_interruption": true,
+          "content_length_matches_eof": true,
+          "reader_cancel_settled": 1,
+          "stream_cancel_settled": 1,
+          "release_successes": 1,
+          "public_fulfilled": 1,
+          "receipt_published": true,
+          "input_material_unique": true,
+          "not_busy": true
+        }
+      }
+    ]
+  },
+  "first_immutable_snapshot": {
+    "status": "timedOut",
+    "boundary": "Node observation snapshot at afterEach; not a final post-close state",
+    "observers": [
+      {
+        "snapshot_at": 44743.533,
+        "page_closed_at": null,
+        "truncated": false,
+        "failed_original_requests": [
+          {
+            "method": "GET",
+            "project_id": "01a12482-a81f-757f-a6d9-499e834abaa0",
+            "target_id": "01a12482-ab40-788d-85b0-a447e23715c6",
+            "endpoint": "milestones/id",
+            "request_id": "01a12482-d261-7dcf-833b-b68ecd8f21a3",
+            "request_at": 4820.277,
+            "response_at": 4827.758,
+            "request_failed_at": 4834.253,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "aborted",
+            "stage": "finished",
+            "response_same_request_object": true,
+            "replay": null,
+            "original_request_headers": null,
+            "original_body_await": null
+          },
+          {
+            "method": "POST",
+            "project_id": "01a12482-a81f-757f-a6d9-499e834abaa0",
+            "target_id": "01a12482-d1b2-70fd-a2ac-6469aa7d9f8f",
+            "endpoint": "sprints/id/reorder",
+            "request_id": "01a12482-d6de-75fd-a418-78ba4b5eda41",
+            "request_at": 5977.068,
+            "response_at": 6062.272,
+            "request_failed_at": 6074.448,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "aborted",
+            "stage": "complete",
+            "response_same_request_object": true,
+            "replay": null,
+            "original_request_headers": null,
+            "original_body_await": {
+              "stage": "complete",
+              "at": 6089.487
+            }
+          },
+          {
+            "method": "GET",
+            "project_id": "01a12482-a81f-757f-a6d9-499e834abaa0",
+            "target_id": "01a12482-ab40-7028-ad7b-b53b9988175f",
+            "endpoint": "sprints/id",
+            "request_id": "01a12482-d8ee-72a8-aa4c-421280306901",
+            "request_at": 6495.959,
+            "response_at": 6510.25,
+            "request_failed_at": 6513.171,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "aborted",
+            "stage": "finished",
+            "response_same_request_object": true,
+            "replay": null,
+            "original_request_headers": null,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a12482-a81f-757f-a6d9-499e834abaa0",
+            "target_id": "01a12482-ab40-788d-85b0-a447e23715c6",
+            "endpoint": "milestones/id",
+            "request_id": "01a12482-d8ff-7439-b011-b7ac3d9d32b2",
+            "request_at": 6513.661,
+            "response_at": 6521.325,
+            "request_failed_at": 6528.766,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "aborted",
+            "stage": "finished",
+            "response_same_request_object": true,
+            "replay": null,
+            "original_request_headers": null,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a12482-a81f-757f-a6d9-499e834abaa0",
+            "target_id": "01a12482-ab40-7028-ad7b-b53b9988175f",
+            "endpoint": "sprints/id",
+            "request_id": null,
+            "request_at": 7649.848,
+            "response_at": null,
+            "request_failed_at": 7670.551,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "aborted",
+            "stage": "response",
+            "response_same_request_object": null,
+            "replay": null,
+            "original_request_headers": null,
+            "original_body_await": null
+          },
+          {
+            "method": "GET",
+            "project_id": "01a12482-a81f-757f-a6d9-499e834abaa0",
+            "target_id": "01a12482-ab40-788d-85b0-a447e23715c6",
+            "endpoint": "milestones/id",
+            "request_id": "01a12482-ea83-7be7-ae2b-77823bf62e19",
+            "request_at": 11002.759,
+            "response_at": 11010.115,
+            "request_failed_at": 11013.677,
+            "request_finished_at": null,
+            "response_finished_at": null,
+            "observer_rejected_at": null,
+            "failure_reason": "aborted",
+            "stage": "finished",
+            "response_same_request_object": true,
+            "replay": null,
+            "original_request_headers": null,
+            "original_body_await": null
+          }
+        ]
+      }
+    ]
+  },
+  "original_later_tail_events": [
+    {
+      "method": "GET",
+      "project_id": "01a12482-a81f-757f-a6d9-499e834abaa0",
+      "target_id": "01a12482-ab40-788d-85b0-a447e23715c6",
+      "endpoint": "milestones/id",
+      "request_id": "01a12482-d261-7dcf-833b-b68ecd8f21a3",
+      "at": 44783.23,
+      "stage": "finished",
+      "reason": "operation-rejected",
+      "request_failed": true,
+      "request_finished": false,
+      "response_finished": false,
+      "page_closed": true,
+      "observer_closed": true,
+      "replay": null,
+      "sequence": 1,
+      "after_first_snapshot": true
+    },
+    {
+      "method": "GET",
+      "project_id": "01a12482-a81f-757f-a6d9-499e834abaa0",
+      "target_id": "01a12482-ab40-7028-ad7b-b53b9988175f",
+      "endpoint": "sprints/id",
+      "request_id": "01a12482-d8ee-72a8-aa4c-421280306901",
+      "at": 44783.866,
+      "stage": "finished",
+      "reason": "operation-rejected",
+      "request_failed": true,
+      "request_finished": false,
+      "response_finished": false,
+      "page_closed": true,
+      "observer_closed": true,
+      "replay": null,
+      "sequence": 2,
+      "after_first_snapshot": true
+    },
+    {
+      "method": "GET",
+      "project_id": "01a12482-a81f-757f-a6d9-499e834abaa0",
+      "target_id": "01a12482-ab40-788d-85b0-a447e23715c6",
+      "endpoint": "milestones/id",
+      "request_id": "01a12482-d8ff-7439-b011-b7ac3d9d32b2",
+      "at": 44784.283,
+      "stage": "finished",
+      "reason": "operation-rejected",
+      "request_failed": true,
+      "request_finished": false,
+      "response_finished": false,
+      "page_closed": true,
+      "observer_closed": true,
+      "replay": null,
+      "sequence": 3,
+      "after_first_snapshot": true
+    },
+    {
+      "method": "GET",
+      "project_id": "01a12482-a81f-757f-a6d9-499e834abaa0",
+      "target_id": "01a12482-ab40-788d-85b0-a447e23715c6",
+      "endpoint": "milestones/id",
+      "request_id": "01a12482-ea83-7be7-ae2b-77823bf62e19",
+      "at": 44784.607,
+      "stage": "finished",
+      "reason": "operation-rejected",
+      "request_failed": true,
+      "request_finished": false,
+      "response_finished": false,
+      "page_closed": true,
+      "observer_closed": true,
+      "replay": null,
+      "sequence": 4,
+      "after_first_snapshot": true
+    }
+  ],
+  "tail_overflow": false,
+  "failed_get_existing_diagnostic": [
+    {
+      "request_id": "01a12482-d261-7dcf-833b-b68ecd8f21a3",
+      "original_proof": [
+        {
+          "document_id": "d140c3cf-2500-40a5-a9d0-f1db1a90971b",
+          "native": {
+            "sequence": 6,
+            "call_id": 3,
+            "bytes": 304,
+            "content_length": 304,
+            "eof_before_interruption": true,
+            "bound_public_call": true,
+            "reader_cancel_settled": 1,
+            "stream_cancel_settled": 1,
+            "release_successes": 1
+          },
+          "publication": [
+            {
+              "call_id": 3,
+              "operation": "getMilestone",
+              "target_id": "01a12482-ab40-788d-85b0-a447e23715c6",
+              "fulfilled": 1,
+              "rejected": 0,
+              "active": false,
+              "identity_current": true,
+              "not_busy": true,
+              "result_kind": "typed-detail-returned"
+            }
+          ]
+        }
+      ],
+      "proof_missing_is_not_filled": false
+    },
+    {
+      "request_id": "01a12482-d8ee-72a8-aa4c-421280306901",
+      "original_proof": [
+        {
+          "document_id": "3da80db0-05d9-4967-b7c4-b0159ff82aa3",
+          "native": {
+            "sequence": 2,
+            "call_id": null,
+            "bytes": 435,
+            "content_length": 435,
+            "eof_before_interruption": true,
+            "bound_public_call": false,
+            "reader_cancel_settled": 1,
+            "stream_cancel_settled": 1,
+            "release_successes": 1
+          },
+          "publication": []
+        }
+      ],
+      "proof_missing_is_not_filled": false
+    },
+    {
+      "request_id": "01a12482-d8ff-7439-b011-b7ac3d9d32b2",
+      "original_proof": [
+        {
+          "document_id": "3da80db0-05d9-4967-b7c4-b0159ff82aa3",
+          "native": {
+            "sequence": 3,
+            "call_id": null,
+            "bytes": 304,
+            "content_length": 304,
+            "eof_before_interruption": true,
+            "bound_public_call": false,
+            "reader_cancel_settled": 1,
+            "stream_cancel_settled": 1,
+            "release_successes": 1
+          },
+          "publication": []
+        }
+      ],
+      "proof_missing_is_not_filled": false
+    },
+    {
+      "request_id": null,
+      "original_proof": [],
+      "proof_missing_is_not_filled": true
+    },
+    {
+      "request_id": "01a12482-ea83-7be7-ae2b-77823bf62e19",
+      "original_proof": [],
+      "proof_missing_is_not_filled": true
+    }
+  ],
+  "tails": {
+    "go_actual_wait": {
+      "pid": 340199,
+      "code": 1
+    },
+    "driver_actual_wait": {
+      "pid": 338263,
+      "actual": true,
+      "code": 1
+    },
+    "adopted_actual_wait": [
+      {
+        "pid": 340444,
+        "status": 0
+      },
+      {
+        "pid": 340449,
+        "status": 0
+      },
+      {
+        "pid": 340446,
+        "status": 0
+      },
+      {
+        "pid": 340447,
+        "status": 0
+      }
+    ],
+    "seven_exact_resources": [
+      {
+        "kind": "container",
+        "id": "fbd3492daafca0fc720a3c3be381a22c4f04358dbc9f8d119cc3df8d98b3ed8c",
+        "nonce": "14912d58f0e268a03ec1b134685daf70"
+      },
+      {
+        "kind": "network",
+        "id": "80762c79be8dfe20daaacf2fbff8b6dcef97c6447581bf07fc0cb004464aba4f",
+        "nonce": "14912d58f0e268a03ec1b134685daf70"
+      },
+      {
+        "kind": "container",
+        "id": "d27b26e890de3bfe88c52cbb638941faa2541c4cbb4d906393d6c918182336c6",
+        "nonce": "c3ccc48ed41bbdf3f7c20de46301fbac"
+      },
+      {
+        "kind": "network",
+        "id": "3672b951ab0f6f632dfe1fccaf1fce885d72eea8afec623015901b16626e70bf",
+        "nonce": "c3ccc48ed41bbdf3f7c20de46301fbac"
+      },
+      {
+        "kind": "container",
+        "id": "25818b738391a6a63e309314cc631eb69f74927f42afc412bb425e855fad149d",
+        "nonce": "c3dc35cc03d9ccec370818a8c8f4c343"
+      },
+      {
+        "kind": "container",
+        "id": "5c5deecb55907977e945b9e5de23b17391bf62f7793c70c6e2af2da7a27437a7",
+        "nonce": "c3dc35cc03d9ccec370818a8c8f4c343"
+      },
+      {
+        "kind": "network",
+        "id": "755ff5d810bebf0f133cdb90f956a9f1570e89662c6cb3e884ad5301daef5ddc",
+        "nonce": "c3dc35cc03d9ccec370818a8c8f4c343"
+      }
+    ],
+    "resource_absent_observations": 14,
+    "private_absent_observations": 2,
+    "runtime_empty_observations": 2,
+    "descendant_empty_observations": 2,
+    "host_tcp_empty_observations": 2,
+    "service_joins": {
+      "node_direct_child": true,
+      "proxy_body": true,
+      "preparation": true,
+      "default_root": true
+    },
+    "exact_top_actual_test_wait": true,
+    "inputs_unchanged": true,
+    "stop_count": 0,
+    "outer_actual_wait": {
+      "pid": 337628,
+      "tool_chunk": "a6fdbc",
+      "exit_code": 1,
+      "elapsed_seconds": 147.811
+    }
+  },
+  "sources": {
+    "original_log": "/tmp/wui-op5/ui-bb9e9a2ece144bb0.log",
+    "log_sha256": "dc1eb647c5a5eccd57e8c0e26eab872d3b056e29bffd62dc0da868ff84e99795",
+    "original_evidence": "/workspace/agenteam-work-ui/output/ai/work-owner-planning-ui/planning-05-evidence/TestAccountProjectWorkPlanningWebStructureAndTasks"
+  },
+  "limits": [
+    "Planning03/04 original FAIL remain unchanged.",
+    "Four original GET finished waits later rejected only after the immutable first snapshot and context close; this does not retroactively set observer_rejected_at in that snapshot.",
+    "One additional original GET failed before a response/XID was observed.",
+    "Two original GETs have native complete tails but no public binding; the final post-diagnostic GET has no native/public observation. Missing evidence is not supplied by later requests.",
+    "No Planning06 source change, new runtime or retry is authorized."
+  ]
+}
