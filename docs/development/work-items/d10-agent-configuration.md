@@ -250,7 +250,9 @@ root 已授权隔离树中的 Agent 契约、Store、canonical writer、Authorit
 
 本域仅写 `agenteam_agent.agents`、三张 canonical 白名单和 `commands`。外域反向引用/Skills assignment 仍由其 owner 写。planned command 持久绑定原稳定命令、revision、完整创建 absent/更新 preimage、完整 postimage 与两个默认选项；唯一私有 writer 在原活 Store Tx 检查并实际写入全部 canonical 后才产生私有 context witness。Skills、Tool 与 Secret 回调同时重核原命令、完整 Actor、same Tx/Authority、完整锁和当前 postimage；公开 DTO、已存在行、空集合或 false 均不替代该见证。
 
-当前仍仅格式/静态准备，未执行 Go、迁移或真实授权。严格 Create/Update/receipt/Lookup codec、服务强制 required providers、Get/Lookup/Stop/Drain/Joined、Work 当前事实、Model/Mount owner 回调和 typed Outbox producer 已形成候选。Work 当前事实须同 Tx 看到 completed 创建 receipt，单独 canonical 行不作为初始化证明。新 Create/Update 提交链已落源：先持久原命令与完整计划，实际 Tool 默认 ID 冻入 revision 后才发现引用；同 final Tx 写 canonical、各域引用/创建初始化、Audit/Outbox、Activity 和 receipt。已完成重放先返回历史结果，no-op 仍验证引用但不推进 canonical/Outbox；Unknown 只作一次独立有界确认，保持原 Attempt/Cause 与实际调用退休。Agent Audit checker 只接受真实 writer 的原 Tx 私有 witness，并重核完整 postimage/Entry/Key；正式共享 producer 注册未到位仍拒绝。基础 pure 控候选尚未运行，受控 CommitResult/lifecycle 不代表真实 SQL 授权。Model 双角色引用、Secret 引用、Mount 初始化/引用及 Agent typed Outbox/Audit 闭集尚未全部组装或验收；缺任一 required provider 必须 `DEPENDENCY_UNBOUND` 且不提交。默认两个 bool 省略 true、false/空集仍核真实依赖；不提供 fake `no_active_execution`。未接 App/HTTP/Work 正向绑定，不解既有 Object STOP。
+严格 Create/Update/receipt/Lookup codec、服务强制 required providers、Get/Lookup/Stop/Drain/Joined、Work 当前事实、Model/Mount owner 回调和 typed Outbox producer 已形成候选。Work 当前事实须同 Tx 看到 completed 创建 receipt，单独 canonical 行不作为初始化证明。新 Create/Update 提交链已落源：先持久原命令与完整计划，实际 Tool 默认 ID 冻入 revision 后才发现引用；同 final Tx 写 canonical、各域引用/创建初始化、Audit/Outbox、Activity 和 receipt。已完成重放先返回历史结果，no-op 仍验证引用但不推进 canonical/Outbox；Unknown 只作一次独立有界确认，保持原 Attempt/Cause 与实际调用退休。Agent Audit checker 只接受真实 writer 的原 Tx 私有 witness，并重核完整 postimage/Entry/Key；00032 Audit DB闭集与Store-only immutable审计装配已落源，缺正式producer仍拒绝。
+
+首次限定纯验已完成：Agent、Agent/contract、Audit/contract、Project 四包的18top/28sub race全部通过，四包vet通过；原Go/outer Wait均0，1191输入初末一致且groups/runtime双空。此结论只覆盖该批纯控，受控CommitResult/lifecycle不代表真实SQL授权；独立源码审查也不代替真实联调。Mount新包仍未运行，00032–35实际迁移及Agent/provider同Tx正向创建、回滚与引用组合尚未验收。缺任一required provider必须`DEPENDENCY_UNBOUND`且不提交；默认两个bool省略true，false/空集仍核真实依赖，不提供fake `no_active_execution`。未接App/HTTP/Work正向绑定，不解既有Object STOP，F1仍未接受。
 
 ## 10. Mount 配置引用候选与未绑定边界
 
@@ -262,4 +264,4 @@ Apply 在当前 Owner Read/Mutate 与完整旧 head/version/集合及当前定�
 
 **未完成的产品接缝保留：** 正式 MountCreate 与普通 Project Owner 选择系统 Runner 的当前目录权限尚未定义/绑定。现有 Runner 管理读取为 System Admin 接口并含 root path，不能拿它冒普通 Owner catalog，也不能由有效 Runner UUID 推导权限。本候选没有创建 Mount 或授予 Runner 能力的入口；非空已有定义校验不等于端到端创建。physical ensure、执行期当前检查与 Project/Agent 生命周期清理另行实现，不解旧 STOP，也不宣称 Agent F1 已闭合。
 
-本轮4个基础 pure 测试 top 仅用受控 Store/Owner 验 provider 的正常及拒绝调用链，明确不冒真实 SQL、Session 或 Agent canonical writer 联调。当前仅格式与静态 diff 检查完成；00035、真实空 head/非空引用、取消及回滚仍待限定真实验收。
+本轮4个基础pure测试top仅用受控Store/Owner验provider的正常及拒绝调用链，明确不冒真实SQL、Session或Agent canonical writer联调。源码已获独立有限静审接受，当前仅格式与静态diff检查完成，新包未编译或运行；00035、真实空head/非空引用、取消及回滚仍待限定真实验收。
