@@ -10,3 +10,10 @@
 - 本轮只有 gofmt 与 diff whitespace 静态检查，实际 exit 0；尚未 Go 编译/测试、DDL/PG、native 或其他真实资源。源码是 WIP，不是 F1 接受。
 - 下一步：等待共享 Audit/Project writer freeze，执行本 Agent/contract 两包的新10top基础 pure/race 与定向 vet，保首编译/测试真实结果；再准备同 Store 真实链。Model 双角色引用、Secret 引用、Mount 与 Agent 事件闭集仍未全部组装或验收；缺 provider（含 false/空集）必须 unbound、不提交。00033 Registry/00034 Skills 归各 owner，不在本树代写。
 - App/HTTP、Task 正向 Agent 绑定、Execution、动态 assignment、删除、Project participant、Object Runtime STOP 均未开放。长 Go 与真实窗口待 root 单独调度；当前本代理无运行进程/资源。
+
+## Mount 配置 provider 候选
+
+- root 分配独立 `internal/central/mount/**` 与 `00035_mount_configuration.sql`，不改当前首次检查的 Agent/contract、Audit/contract、Project 四包。新增 `store.go/types.go/repository.go/configuration.go/configuration_test.go` 已格式化；本段与 D10 §10 一并冻结待 root 保存。
+- `NewConfiguration(Store, ProjectAuthority, MountReferenceOwnerAuthority)` 实际消费 Agent 的既有 Mount 窄口；Discover 收齐 Command/User/Project/Agent 与 owner 的原锁并集，final 只核原 Store Tx/held locks/current Owner。Apply 必须收到真实 Agent canonical writer 的原 ctx/Tx witness，再写本域 head/完整 refs。创建 `[]` 实际建立 version1 head；后续 Agent-only 升版同样推进该 head，缺 head/旧集合不符拒绝。
+- 已有定义按同 Project/Agent、active、逻辑 workspace 与原版本重验；不读 Runner 在线状态或宿主路径。MountCreate、普通 Owner 选择系统 Runner 的目录权限、physical ensure 与非空端到端创建仍未绑定，不把受控定义行当真实创建验收。
+- 4 个基础测试 top 已落源码：空集实际 head/原 witness；计划/当前权限/旧集合拒绝；已有定义变化/失效/安全 workspace；原 Unknown/cancel/安全存储错误。其 Store/Owner 明确受控，不代表真实 PG、真实 Session 或真实 Agent witness。仅 gofmt/diffcheck 实际0；尚未编译/运行或执行00035。新包无后台工作，所有原调用由调用方生命周期拥有。
