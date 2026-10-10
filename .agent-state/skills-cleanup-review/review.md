@@ -48,3 +48,11 @@ python3 -B .agent-state/skills-cleanup-review/run.py --repo /workspace/agenteam-
 - 失败路径的优先 cleanup 注册在 fixture 之后，先 Release，再在已 Reached 时等待 HeldJoined，之后才进入原 Skill/Object/Store drain。后创建的锁 waiter 有自己的 cancel 与实际返回等待；后创建的 fresh Service 仅发生在原代理已经实际 join 之后，因此其后进先出 drain 不会挡住 held COMMIT 的释放。
 
 本次仅静态逐源核查及只读 Git 状态，未启动 Go、PG、MinIO 或任何 socket。源检查 `40ef1e` 确认固定提交，三目标文件无浮动改动；两 top 五子仍待编译及真实完整窗口。上述源码接受不证明实际 2s 预算、SQL/FK、真实组合通过、全部历史规模、全 participant/root 或 Object Runtime join。
+
+## 两 top 五子入口窄审
+
+基线 `58073b67` 加作者冻结的 `.agent-state/work-owner-http/root_chain_driver.py`、`.agent-state/task-planning-recovery/pg_only_supervisor.py`、`.agent-state/skills-cleanup/entry-controls.py`。唯一新 literal 为 `^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$`；新增九个输入是三新业务测试、五个实际旧 helper/fixture 及原 COMMIT proxy。逐源确认七个 RUN/PASS 节点与上节实际测试声明一致。移除明确新增段后，两工具全文逐字等于基线，原七个 selector、原配置和所有进程/资源收尾保留；新 log UTF-8/read 错误拒绝仅限本 selector。
+
+独立复跑作者现有控制：Skills 树中执行 `PYTHONDONTWRITEBYTECODE=1 python3 .agent-state/skills-cleanup/entry-controls.py`，`b43f66` actual exit0（4 methods/0.075s）。包括真实 configuration 的新精确选择器及六个拒绝项、旧 selector 与九输入差集；两父五子缺漏/重复/FAIL/SKIP/额外目标及非法 Wait 拒绝；实际 supervisor main 的八格明确 OS/进程替身（正常、缺子、非法 UTF-8、日志读取失败、driver 失败、资源残留、runtime 残留、input 改变）。每格仍执行原 driver wait、七资源两轮十四次观察、private/runtime 双尾、descendant/reap、TCP 双尾和输入末验。预算保持 Go6m/root540+60、nonroot123+共享3s、原 TCP75。
+
+入口有限接受，无确认 must-fix。未重编 candidate、未执行 Go/PG/Docker/MinIO/socket，替身不构成实际 Wait/资源证据；业务编译来源复用作者 `55305/b0d352` actual0 与 exact list，不把入口控制或此前源码审查写成真实两域组合 PASS。MinIO 固定本地前置仍须在真实窗口前由 owner 准备。
