@@ -308,3 +308,40 @@ func TestRuntimeActiveDuplicateKeepsOriginalAdmissionContext(t *testing.T) {
 		t.Fatal("duplicate replaced original call or opened another transaction")
 	}
 }
+
+func TestRuntimeStartFailurePrecedesGateHandoff(t *testing.T) {
+	first := errors.New("first-private-failure")
+	tail := errors.New("later-private-close-failure")
+	for _, seeded := range []bool{false, true} {
+		t.Run(fmt.Sprint(seeded), func(t *testing.T) {
+			c := &runtimeCall{gate: make(chan struct{})}
+			want := tail
+			if seeded {
+				c.err = runtimePortError(first)
+				want = first
+			}
+			returned := make(chan struct{})
+			go func() { c.finishStart(tail); close(returned) }()
+			// This is the next gate owner. It must see the published first error
+			// as soon as ownership transfers, without waiting for another write.
+			select {
+			case <-c.gate:
+			case <-time.After(5 * time.Second):
+				t.Fatal("start gate was not returned")
+			}
+			c.mu.Lock()
+			observed := c.err
+			c.mu.Unlock()
+			if !errors.Is(observed, want) {
+				t.Fatal("gate transferred before first failure was preserved")
+			}
+			<-returned
+			c.mu.Lock()
+			final := c.err
+			c.mu.Unlock()
+			if !errors.Is(final, want) || strings.Contains(final.Error(), "private") {
+				t.Fatal("late tail replaced or exposed original failure")
+			}
+		})
+	}
+}

@@ -173,14 +173,25 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	// has returned. Stop/Drain may cancel it but must join that original work.
 	<-c.gate
 	err = c.start(consumer, plan)
-	c.leave()
+	c.finishStart(err)
 	if err != nil {
-		c.mu.Lock()
-		c.err = runtimePortError(err)
-		c.mu.Unlock()
 		return nil, runtimePortError(err)
 	}
 	return c, nil
+}
+
+// Publish the first observed error while still owning the operation gate.
+// Drain may take over only after this point; a later join/confirmation error
+// cannot replace the original call failure already recorded by finish.
+func (c *runtimeCall) finishStart(err error) {
+	if err != nil {
+		c.mu.Lock()
+		if c.err == nil {
+			c.err = runtimePortError(err)
+		}
+		c.mu.Unlock()
+	}
+	c.leave()
 }
 
 // Admission never cancels its caller. A duplicate still owns the same current

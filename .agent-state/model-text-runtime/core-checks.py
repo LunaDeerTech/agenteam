@@ -33,8 +33,16 @@ def group_absent(pid):
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("core-01", "core-02"):
+    if len(sys.argv) != 2 or sys.argv[1] not in ("core-01", "core-02", "regression-01", "regression-02"):
         raise SystemExit("exact evidence directory required")
+    commands = COMMANDS
+    selector = SELECTOR
+    if sys.argv[1] in ("regression-01", "regression-02"):
+        selector = "^TestRuntime(ActiveDuplicateKeepsOriginalAdmissionContext|StartFailurePrecedesGateHandoff)$"
+        commands = [
+            (name, [selector if item == SELECTOR else item for item in argv])
+            for name, argv in COMMANDS if name != "vet" or sys.argv[1] == "regression-02"
+        ]
     out = ROOT / "output/ai/model-text-runtime" / sys.argv[1]
     out.mkdir(parents=True, exist_ok=False)
     out.chmod(0o700)
@@ -54,10 +62,10 @@ def main():
     # No inherited TEST_TELEMETRY_DIR or any user/global config override.
     if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
         raise OSError(ctypes.get_errno(), "subreaper unavailable")
-    result = {"outer_pid": os.getpid(), "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "selector": SELECTOR, "phases": [], "whole_pass": False}
+    result = {"outer_pid": os.getpid(), "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "selector": selector, "phases": [], "whole_pass": False}
     code = 1
     try:
-        for name, command in COMMANDS:
+        for name, command in commands:
             stat = os.statvfs(ROOT)
             available = stat.f_bavail * stat.f_frsize
             phase = {"name": name, "available_bytes": available, "argv": command}
