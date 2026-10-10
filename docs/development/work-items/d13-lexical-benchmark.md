@@ -178,9 +178,9 @@ SPEC 窄审固定边界后才能写数据与工具。完成本卡要求：固定
 
 未参与实现的 Secret 实例完成六源实际只读复核及返修窄审，确认来源/范围、UTF-8 byte split/全局限额、取消零结果、D12 完整 plain 分支和安全日志投影，有限接受且无剩余 must-fix；未运行 Go/资源，不冒作者测试或真实联调。纯函数及无 I/O 值适配已具备小范围联调输入，完整 D13 仍未完成。
 
-真实 D12 ReadDocument→实际对象读/Close→Parser 小范围联调尚未运行，待单包基础检查后另行组织。Markdown/PDF Parser、chunker、ContextProvider、embedding、lexical backend、索引发布及生产 Project initializer 均不在本批，也不由本批证明 D13 整体完成或解除既有 STOP。
+真实 D12 ReadDocument→实际对象读/Close→Parser 首条小范围联调已按下节完成。Markdown/PDF Parser、chunker、ContextProvider、embedding、lexical backend、索引发布及生产 Project initializer 均不在本批，也不由本批证明 D13 整体完成或解除既有 STOP。
 
-### 10.4 首条真实 D12 值联调候选
+### 10.4 首条真实 D12 值联调
 
 新增 `tests/knowledge/plain_text_parser_integration_test.go`，唯一入口 `^TestKnowledgePlainTextParserIntegration$`，固定三子：`full_current_bytes_after_actual_close`、`partial_and_nonplain_rejected`、`foreign_owner_produces_no_parser_input`。复用已有真实 Account Bootstrap/邀请/兑换/Login、同 Store Knowledge/Project/Object/Audit/Outbox；Project 初始化仍是既有明确的上游 SQL fixture，不冒生产 Create/Skills 初始化。正文全部通过正式 CreateDocument/UpdateDocument 和 D05 canonical 对象产生，没有 SQLRead、假 Domain 或内存成功 reader。
 
@@ -190,7 +190,7 @@ SPEC 窄审固定边界后才能写数据与工具。完成本卡要求：固定
 
 共享 root driver/supervisor 由 coordination 唯一接线，增加独立 exact selector、root-only 与四个 RUN/PASS 节点及唯一 actual Wait0 门；source inputs 在原闭包上只增加 `tests/knowledge/*.go`，尾部重新枚举集合并核字节，不借用正文 HTTP selector/Schema/native 模式。原 top 含尾 120s、调用 20s、Go 6m、root 540+60+3s、host TCP 75s、七资源及 private/runtime/desc 双尾不变。离线入口控制源为 `.agent-state/d13-plain-text-parser/entry-controls.py`，只检查真实函数及受控输入，不执行资源。
 
-当前新 Go 源已落盘，尚未启动 PG/Object/socket。六个已验纯 Parser Go 源及 `plain_text:v1`、原 D12 服务/fixture 均不修改。真实运行须另获窗口，候选准备不计联调通过。
+六个已验纯 Parser Go 源及 `plain_text:v1`、原 D12 服务/fixture 均不修改；首轮在明确独占窗口中执行，候选准备与实际结果分别记录如下。
 
 离线 race-c 首次实际完成：2026-10-10 07:36:12 UTC，同 process fresh 6135709696 bytes，通过 `go test -race -p=1 -tags=integration -c -o output/ai/d13-plain-text-parser/parser-integration-race-01.test ./tests/knowledge`；原 Go PID427925 actual Wait0、原进程组 absent、私有 runtime 空。候选 41743204 bytes，发布输入身份 SHA256=`e5e9baa664b349fe62030e209f3d4e7f5f6308d908e002ca202fbf98894b0129`。同监督随后准备 exact list 时 fresh=5293277184 bytes，低于 5368709120 门，因此原 outer58349 actual1；list 未启动、MinIO 复制未执行，不属于产品失败。容量恢复后只补同候选发现，不重编已成功输入。Go 的 `-test.list` 仅能发现 top；三子源码闭集可核，实际各 RUN/PASS 必须留到真实窗口。
 
@@ -198,4 +198,10 @@ SPEC 窄审固定边界后才能写数据与工具。完成本卡要求：固定
 
 正式 Knowledge/D18 主线 `04455194` 合入后的入口基线已更新；D13 原两处/七处增量保持逐字不变，剥离后完整还原这次已包含 D12 浏览器入口的主线。额外拒绝 D12 expected top、原 Wait0 和 input-tail 被弱化的 source，既有 D13/Secret 反例保持。本域同一离线命令及 diff-check 再次 actual0（dd93cd），未重编候选或运行业务；共享 union 的其它入口兼容控由 coordination 单独完成。
 
-root 精确授权后，仅退役本树已无进程引用的可再生 `output/ai/d13-plain-text-parser/go-build`：无符号链接，原 468070400 allocated bytes；实际 free 5223272448→5691346944 bytes，cache absent，candidate/日志/私有配置/源码未动。随后同候选 `-test.list '^TestKnowledgePlainTextParserIntegration$'` 在新 list02/runtime、same-process fresh5691293696 下实际发现恰一 top；PID438212 Wait0、原组 absent/runtime 空、outer62370 actual0。原 list01 预飞失败保留，不重编。已将固定 shared MinIO 普通离线复制到本树 driver 既定 `output/ai/deps-minio/bin/minio`，109289632 bytes，SHA256=`dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`；未启动 MinIO、Docker 或任何产品用例。当前待共享兼容控、限定独审及明确真实窗口，联调仍未运行。
+root 精确授权后，仅退役本树已无进程引用的可再生 `output/ai/d13-plain-text-parser/go-build`：无符号链接，原 468070400 allocated bytes；实际 free 5223272448→5691346944 bytes，cache absent，candidate/日志/私有配置/源码未动。随后同候选 `-test.list '^TestKnowledgePlainTextParserIntegration$'` 在新 list02/runtime、same-process fresh5691293696 下实际发现恰一 top；PID438212 Wait0、原组 absent/runtime 空、outer62370 actual0。原 list01 预飞失败保留，不重编。已将固定 shared MinIO 普通离线复制到本树 driver 既定 `output/ai/deps-minio/bin/minio`，109289632 bytes，SHA256=`dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`；此准备阶段没有启动 MinIO、Docker 或产品用例。
+
+最终联合入口 `31aedb5e` 在原候选不变的条件下冻结 697 个实际 source inputs；coordination 的 D13 控与 Knowledge9/Secret root5/HTTP5/app6/independent6 兼容控全部 actual0，完整逆投影保 D13→`04455194`→D12→`3a7a3fb5` 字节链，不以修改旧门取得兼容。
+
+2026-10-10 08:12:01 UTC，独占窗口首次执行上述 exact selector；same-process fresh5557276672 bytes，新的任务私有 telemetry off、empty Docker config、独立 build cache，未重编测试候选、未重试。原 `TestKnowledgePlainTextParserIntegration` 和三个子项全部 PASS，top 6.34s；full/current/Close 0.04s、partial/Markdown 0.22s、foreign Owner 0.00s。原 Go474419 与 driver468944 实际 Wait0，outer468923/session96279 实际 terminal0；七个原资源 ID/nonce 各两轮 absent，private/runtime 双空、原 descendant 检查无残留，host TCP 原双空，697 inputs unchanged、STOP0，supervisor elapsed178.973s。原可再生日志位于 `/tmp/d13-p01/pg-d175deb19c184f27b8cda969293a5657.log`，资源完整释放后才交还窗口。
+
+该结果证明本节声明的真实服务和 DTO 消费链，属于作者联调结果；不冒独立动态验收、生产 Project Create/Skills initializer、自动 current-version 发布、索引或完整 D13。
