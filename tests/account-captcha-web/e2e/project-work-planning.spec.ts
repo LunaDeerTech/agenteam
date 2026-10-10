@@ -1081,9 +1081,8 @@ test("[layouts] eight actual layouts, keyboard, focus and production content", a
   await page.keyboard.press("Escape");
   await expect(button(page, "打开规划树")).toBeFocused();
   await ipc("archive");
-  await page.evaluate(() =>
-    window.dispatchEvent(new PageTransitionEvent("pageshow")),
-  );
+  const archived = await refreshProject(page, data.work.main!.project_id);
+  expect(archived.lifecycle).toBe("archived");
   await expect(
     page.getByText("项目已归档，当前内容只读。", { exact: true }),
   ).toBeVisible();
