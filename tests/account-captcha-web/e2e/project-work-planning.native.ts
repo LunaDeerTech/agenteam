@@ -159,14 +159,32 @@ export function installWorkNativeDiagnostic(config: {
       failure: "none",
     };
     entries.push(row);
-    if (config.independentRecovery === "TestIndependentProjectWorkPlanningWebRecovery") safe(() => {
-      const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
-      host.__workPublicationDiagnostic?.independentFetch(method, url.href, {
-        body: typeof init?.body === "string" ? init.body : init?.body === undefined ? null : "invalid-body",
-        key: headers.get("idempotency-key"), csrf: headers.get("x-csrf-token"),
-        origin: method === "GET" ? null : url.origin,
-      }, row.sequence);
-    });
+    if (
+      config.independentRecovery ===
+      "TestIndependentProjectWorkPlanningWebRecovery"
+    )
+      safe(() => {
+        const headers = new Headers(
+          init?.headers ??
+            (input instanceof Request ? input.headers : undefined),
+        );
+        host.__workPublicationDiagnostic?.independentFetch(
+          method,
+          url.href,
+          {
+            body:
+              typeof init?.body === "string"
+                ? init.body
+                : init?.body === undefined
+                  ? null
+                  : "invalid-body",
+            key: headers.get("idempotency-key"),
+            csrf: headers.get("x-csrf-token"),
+            origin: method === "GET" ? null : url.origin,
+          },
+          row.sequence,
+        );
+      });
     safe(() => {
       row.call_id =
         host.__workPublicationDiagnostic?.bindNative(
@@ -207,9 +225,16 @@ export function installWorkNativeDiagnostic(config: {
       (response) => {
         row.headers_seen = true;
         row.status = response.status;
-        if (config.independentRecovery === "TestIndependentProjectWorkPlanningWebRecovery") safe(() => {
-          host.__workPublicationDiagnostic?.independentResponse(row.sequence, response.headers.get("x-request-id"));
-        });
+        if (
+          config.independentRecovery ===
+          "TestIndependentProjectWorkPlanningWebRecovery"
+        )
+          safe(() => {
+            host.__workPublicationDiagnostic?.independentResponse(
+              row.sequence,
+              response.headers.get("x-request-id"),
+            );
+          });
         mark("headers_order");
         const id = response.headers.get("X-Request-ID");
         row.request_id = id && uuid.test(id) ? id : null;
@@ -454,8 +479,13 @@ export function workOrdinaryConsumption(
       ((projectRefresh || independentRecovery) &&
         pw.failed_at === null &&
         Number.isFinite(pw.finished_event_at) &&
-        (independentRecovery ? pw.independent_recovery?.finished === 1 && pw.independent_recovery.failed === 0 && pw.independent_recovery.finishedNull === true :
-        pw.project_terminal === "finished" && pw.project_failed_count === 0 && pw.project_finished_count === 1)) ||
+        (independentRecovery
+          ? pw.independent_recovery?.finished === 1 &&
+            pw.independent_recovery.failed === 0 &&
+            pw.independent_recovery.finishedNull === true
+          : pw.project_terminal === "finished" &&
+            pw.project_failed_count === 0 &&
+            pw.project_finished_count === 1)) ||
       (pw.failed_at !== null &&
         Number.isFinite(pw.failed_at) &&
         pw.finished_event_at === null &&
@@ -495,16 +525,42 @@ export function workOrdinaryConsumption(
     parts[7] === "blocker-commands" &&
     parts[8] === "lookup";
   const independent = pw.independent_recovery;
-  const independentScope = independentRecovery && report.independent_recovery === "TestIndependentProjectWorkPlanningWebRecovery" &&
-    independent?.bound === true && independent.invalid === false && independent.ended === true && independent.published === true &&
-    independent.projectID === parts[4] && uuid.test(independent.parentID) && uuid.test(independent.childID) &&
-    ((independent.finished === 1 && independent.failed === 0 && independent.finishedNull === true && pw.failed_at === null) ||
-      (independent.finished === 0 && independent.failed === 1 && independent.aborted === true && independent.finishedNull === false && pw.finished_event_at === null));
-  const independentList = independentScope && pw.method === "GET" && parts.length === 6 &&
-    ((independent.policy === "independent-blocker-tree-tasks" && parts[5] === "tasks") ||
-      (independent.policy === "independent-task-tree-sprints" && parts[5] === "sprints"));
-  const independentHistory = independentScope && independent.policy === "independent-history-milestone" && pw.method === "PATCH" &&
-    parts.length === 7 && parts[5] === "milestones" && parts[6] === independent.childID && independent.parentID === independent.childID &&
+  const independentScope =
+    independentRecovery &&
+    report.independent_recovery ===
+      "TestIndependentProjectWorkPlanningWebRecovery" &&
+    independent?.bound === true &&
+    independent.invalid === false &&
+    independent.ended === true &&
+    independent.published === true &&
+    independent.projectID === parts[4] &&
+    uuid.test(independent.parentID) &&
+    uuid.test(independent.childID) &&
+    ((independent.finished === 1 &&
+      independent.failed === 0 &&
+      independent.finishedNull === true &&
+      pw.failed_at === null) ||
+      (independent.finished === 0 &&
+        independent.failed === 1 &&
+        independent.aborted === true &&
+        independent.finishedNull === false &&
+        pw.finished_event_at === null));
+  const independentList =
+    independentScope &&
+    pw.method === "GET" &&
+    parts.length === 6 &&
+    ((independent.policy === "independent-blocker-tree-tasks" &&
+      parts[5] === "tasks") ||
+      (independent.policy === "independent-task-tree-sprints" &&
+        parts[5] === "sprints"));
+  const independentHistory =
+    independentScope &&
+    independent.policy === "independent-history-milestone" &&
+    pw.method === "PATCH" &&
+    parts.length === 7 &&
+    parts[5] === "milestones" &&
+    parts[6] === independent.childID &&
+    independent.parentID === independent.childID &&
     /^[1-9][0-9]{0,18}$/.test(independent.expectedVersion);
   const originalReplay =
     parts.length === 7 &&
@@ -517,7 +573,9 @@ export function workOrdinaryConsumption(
     !uuid.test(parts[4]) ||
     !(projectRefresh
       ? project
-      : independentRecovery ? independentList || independentHistory : detail || lookup || blockerLookup || originalReplay)
+      : independentRecovery
+        ? independentList || independentHistory
+        : detail || lookup || blockerLookup || originalReplay)
   )
     return false;
   const matches = report.documents.flatMap((doc: any) =>
@@ -637,10 +695,24 @@ export function workOrdinaryConsumption(
       call.workspace_settled_at <= call.sample_at
     );
   if (independentList || independentHistory)
-    return call.operation === (independentHistory ? "retryOriginal" : parts[5] === "tasks" ? "listTasks" : "listSprints") &&
-      call.target_id === independent.childID && call.result_kind === (independentHistory ? "typed-receipt-returned" : "typed-page-returned") &&
-      call.independent_input === true && call.independent_material === true && call.independent_result === true &&
-      call.independent_published === true && call.independent_valid === true;
+    return (
+      call.operation ===
+        (independentHistory
+          ? "retryOriginal"
+          : parts[5] === "tasks"
+            ? "listTasks"
+            : "listSprints") &&
+      call.target_id === independent.childID &&
+      call.result_kind ===
+        (independentHistory
+          ? "typed-receipt-returned"
+          : "typed-page-returned") &&
+      call.independent_input === true &&
+      call.independent_material === true &&
+      call.independent_result === true &&
+      call.independent_published === true &&
+      call.independent_valid === true
+    );
   if (originalReplay)
     return (
       call.operation === "retryOriginal" &&
@@ -679,7 +751,12 @@ export async function startWorkNativeDiagnostic(
     independentEvidence?: (request: PWRequest) => any;
   },
 ) {
-  if (config.independentRecovery !== undefined && config.independentRecovery !== "TestIndependentProjectWorkPlanningWebRecovery") throw Error("WORK_INDEPENDENT_SOURCE");
+  if (
+    config.independentRecovery !== undefined &&
+    config.independentRecovery !==
+      "TestIndependentProjectWorkPlanningWebRecovery"
+  )
+    throw Error("WORK_INDEPENDENT_SOURCE");
   const expiresAt = Date.now() + 45_000;
   const binding = await workSessionBinding(
     config.repository,
@@ -1048,7 +1125,11 @@ export async function startWorkNativeDiagnostic(
   function save(joined: boolean, endSeen: boolean) {
     const requests = [...rows].map(([request, row]) => ({
       ...row,
-      ...(config.independentRecovery ? { independent_recovery: config.independentEvidence?.(request) ?? null } : {}),
+      ...(config.independentRecovery
+        ? {
+            independent_recovery: config.independentEvidence?.(request) ?? null,
+          }
+        : {}),
       declaration: [
         "unforwarded-milestone-update",
         "lost-milestone-update",
@@ -1115,7 +1196,9 @@ export async function startWorkNativeDiagnostic(
       },
     }));
     const report = {
-      ...(config.independentRecovery ? { independent_recovery: config.independentRecovery } : {}),
+      ...(config.independentRecovery
+        ? { independent_recovery: config.independentRecovery }
+        : {}),
       diagnostic_only: !config.ordinaryCompletion,
       ordinary_finished_gate_unchanged: !config.ordinaryCompletion,
       observation_finished: stopped,
@@ -1271,19 +1354,65 @@ export async function startWorkNativeDiagnostic(
         stopped &&
         !!row &&
         row.request_id === requestID &&
-        workOrdinaryConsumption(finalReport, row.sequence, requestID, false, !!config.independentEvidence?.(request))
+        workOrdinaryConsumption(
+          finalReport,
+          row.sequence,
+          requestID,
+          false,
+          !!config.independentEvidence?.(request),
+        )
       );
     },
     async independentAction(action: string, value: any) {
-      if (config.independentRecovery !== "TestIndependentProjectWorkPlanningWebRecovery" || stopped || pageClosed || contextClosed || Date.now() >= expiresAt) return false;
-      if (!["arm", "history", "bind", "published"].includes(action)) return false;
-      const result = await page.evaluate(({ action, value }) => (window as any).__workPublicationDiagnostic?.independentAction(action, value) === true, { action, value });
-      return result === true && !stopped && !pageClosed && !contextClosed && Date.now() < expiresAt;
+      if (
+        config.independentRecovery !==
+          "TestIndependentProjectWorkPlanningWebRecovery" ||
+        stopped ||
+        pageClosed ||
+        contextClosed ||
+        Date.now() >= expiresAt
+      )
+        return false;
+      if (!["arm", "history", "bind", "published"].includes(action))
+        return false;
+      const result = await page.evaluate(
+        ({ action, value }) =>
+          (window as any).__workPublicationDiagnostic?.independentAction(
+            action,
+            value,
+          ) === true,
+        { action, value },
+      );
+      return (
+        result === true &&
+        !stopped &&
+        !pageClosed &&
+        !contextClosed &&
+        Date.now() < expiresAt
+      );
     },
     independentComplete() {
-      if (!stopped || config.independentRecovery !== "TestIndependentProjectWorkPlanningWebRecovery") return false;
-      const selected = [...rows].filter(([request]) => config.independentEvidence?.(request));
-      return selected.length === 3 && selected.every(([, row]) => workOrdinaryConsumption(finalReport, row.sequence, row.request_id, false, true));
+      if (
+        !stopped ||
+        config.independentRecovery !==
+          "TestIndependentProjectWorkPlanningWebRecovery"
+      )
+        return false;
+      const selected = [...rows].filter(([request]) =>
+        config.independentEvidence?.(request),
+      );
+      return (
+        selected.length === 3 &&
+        selected.every(([, row]) =>
+          workOrdinaryConsumption(
+            finalReport,
+            row.sequence,
+            row.request_id,
+            false,
+            true,
+          ),
+        )
+      );
     },
     async flush() {
       closeProjectWaiters();

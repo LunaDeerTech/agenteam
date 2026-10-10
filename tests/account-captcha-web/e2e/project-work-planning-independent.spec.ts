@@ -58,7 +58,11 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
     ordinaryCompletion: (request, id) => diagnostic.consumed(request, id),
     independentRecovery: {
       sourceRun: "TestIndependentProjectWorkPlanningWebRecovery",
-      seeds: { blocker: data.work.blocker!, task: data.work.task!, structure: data.work.structure! },
+      seeds: {
+        blocker: data.work.blocker!,
+        task: data.work.task!,
+        structure: data.work.structure!,
+      },
       invoke: (action, value) => diagnostic.independentAction(action, value),
     },
   });
@@ -71,7 +75,8 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
     projectRefreshCompletion: true,
     isOriginalReplay: seen.isOriginalReplay,
     independentRecovery: "TestIndependentProjectWorkPlanningWebRecovery",
-    independentEvidence: request => seen.independentRecovery!.evidence(request),
+    independentEvidence: (request) =>
+      seen.independentRecovery!.evidence(request),
   });
   try {
     for (const [index, domain] of (
@@ -103,7 +108,10 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
         }
         await button(milestone, "展开规划里程碑").click();
         await expect(sprint).toBeVisible();
-        if (domain === "task") await seen.independentRecovery!.published("independent-task-tree-sprints");
+        if (domain === "task")
+          await seen.independentRecovery!.published(
+            "independent-task-tree-sprints",
+          );
         const task = tree.locator(
           `[role="treeitem"][data-tree-id="task:${seed.task_id}"]`,
         );
@@ -113,7 +121,10 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
         }
         await button(sprint, "展开规划 Sprint").click();
         await expect(task).toBeVisible();
-        if (domain === "blocker") await seen.independentRecovery!.published("independent-blocker-tree-tasks");
+        if (domain === "blocker")
+          await seen.independentRecovery!.published(
+            "independent-blocker-tree-tasks",
+          );
         await task.click();
       } else await milestone.click();
       await ready(page, seed[`${kind}_id`]);
@@ -122,7 +133,11 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
         "当前版本",
       ).innerText();
       const originalText = `独验原命令 ${domain}`;
-      if (domain === "structure") await seen.independentRecovery!.arm("independent-history-milestone", expectedVersion);
+      if (domain === "structure")
+        await seen.independentRecovery!.arm(
+          "independent-history-milestone",
+          expectedVersion,
+        );
       await ipc("arm-loss", { project: domain, domain });
       seen.declareIncomplete({
         kind:
@@ -258,7 +273,10 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
       expect((await ipc("observe", { project: domain })).facts).toEqual(
         beforeReplay,
       );
-      if (domain === "structure") await seen.independentRecovery!.published("independent-history-milestone");
+      if (domain === "structure")
+        await seen.independentRecovery!.published(
+          "independent-history-milestone",
+        );
       await button(recovery(page), "放弃本地追踪").click();
       await button(workDialog(page), "放弃本地修改").click();
       await expect(recovery(page)).toHaveCount(0);
