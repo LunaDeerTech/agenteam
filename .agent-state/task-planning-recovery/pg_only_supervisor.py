@@ -189,6 +189,24 @@ def observe_secret_owner(log_path, log, selector):
     return good
 
 
+SECRET_ROOT = '^TestProjectSecretVariablesDefaultRoot$'
+
+
+def secret_root_results(output):
+    top = 'TestProjectSecretVariablesDefaultRoot'
+    expected = {top, top + '/existing-project-protocol-and-routing',
+                top + '/stop-drain-original-calls'}
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+    waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
+    return (len(runs) == len(expected) and set(runs) == expected
+            and len(results) == len(expected)
+            and all(state == 'PASS' for state, _ in results)
+            and {name for _, name in results} == expected
+            and len(waits) == 1 and waits[0][1:] == ('0', SECRET_ROOT)
+            and re.search(r'^FAIL(?:\s|$)', output, re.M) is None)
+
+
 def root_composition_results(output):
     selector = '^TestKnowledgeSkillsDefaultRootComposition$'
     wanted = 'TestKnowledgeSkillsDefaultRootComposition'
@@ -462,6 +480,7 @@ def observe_root_chain(directory, log, log_path, selector):
     else:
         output = log_path.read_text()
     expected = {
+        SECRET_ROOT: {'TestProjectSecretVariablesDefaultRoot'},
         '^TestKnowledgeSkillsDefaultRootComposition$': {'TestKnowledgeSkillsDefaultRootComposition'},
         CONTENT_PG: set(CONTENT_GROUPS[CONTENT_PG]),
         '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|PendingHistoryAndCausePlans)$': {'TestObjectMetadataCleanupLiveTransferAndDownloadPlans', 'TestObjectMetadataCleanupPendingHistoryAndCausePlans'},
@@ -484,6 +503,10 @@ def observe_root_chain(directory, log, log_path, selector):
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
     log.write(f'ROOT exact_tops={actual == expected} actual_test_wait={waited}\n')
+    if selector == SECRET_ROOT:
+        complete = secret_root_results(output)
+        log.write(f'ROOT secret_exact_run_pass_wait={complete}\n')
+        good = good and complete
     if selector == '^TestKnowledgeSkillsDefaultRootComposition$':
         complete = root_composition_results(output)
         log.write(f'ROOT composition_exact_run_pass_wait={complete}\n')
@@ -617,6 +640,101 @@ def observe_skill_http(directory, log, log_path, selector):
     log.write(f'SKILL_HTTP exact_cases_wait_private={good}\n')
     return good
 
+SECRET_HTTP_PG = '^TestSecretVariableHTTPBoundary$'
+SECRET_HTTP_NATIVE = '^TestSecretHTTPNativeTransport$'
+SECRET_HTTP_CASES = {
+    SECRET_HTTP_PG: {'TestSecretVariableHTTPBoundary': (
+        'real-owner-protocol-and-safe-history', 'authenticated-session-revoked-before-domain')},
+    SECRET_HTTP_NATIVE: {'TestSecretHTTPNativeTransport': (
+        'deadlines-and-keepalive', 'backpressure-and-disconnect-join')},
+}
+
+
+def secret_http_inputs(driver, binary, selector):
+    root = Path(__file__).resolve().parents[2]
+    output = root / 'output/ai/secret-owner-http/candidate-01'
+    if selector == SECRET_HTTP_PG:
+        expected_driver, expected_binary = 'pg-only-driver', 'secret-http-pg.test'
+    elif selector == SECRET_HTTP_NATIVE:
+        expected_driver, expected_binary = 'native-driver', 'secret-http-native.test'
+    else:
+        raise ValueError('unknown Secret HTTP selector')
+    if driver != output / expected_driver or binary != output / expected_binary:
+        raise ValueError('exact Secret HTTP artifacts required')
+    paths = {driver, binary, Path(__file__).resolve(), root / 'go.mod', root / 'go.sum'}
+    paths.update((root / 'internal/central/projectvariable/http').glob('*.go'))
+    paths.add(root / 'internal/central/projectvariable/http/secret_native_test.go')
+    if selector == SECRET_HTTP_PG:
+        paths.update({root / '.agent-state/task-planning-recovery/pg_only_driver.go',
+                      root / 'internal/central/account/assets/weak-passwords.json',
+                      root / 'tests/projectvariable/secret_http_fixture_test.go',
+                      root / 'tests/projectvariable/secret_http_test.go'})
+        # Same concrete Owner dependencies and ordinary fixture helpers as its
+        # accepted PG entry, plus the actual new HTTP fixture. No root/MinIO.
+        for name in ('account', 'account/contract', 'accountmail', 'audit', 'audit/contract',
+                     'cursor', 'event/contract', 'foundation', 'httpapi', 'identity/contract',
+                     'object', 'object/contract', 'outbound', 'outbox', 'outbox/contract',
+                     'postgres', 'project', 'project/contract', 'projectvariable',
+                     'projectvariable/contract', 'projectvariable/http', 'recoverylog',
+                     'secret', 'secret/contract', 'work', 'work/contract'):
+            paths.update(p for p in (root / 'internal/central' / name).glob('*.go')
+                         if not p.name.endswith('_test.go'))
+        for name in ('tests/projectvariable', 'tests/testsupport/postgres', 'db/migrations',
+                     '.agent-state/project-variables-independent/commitproxy'):
+            paths.update((root / name).glob('*.go'))
+        paths.update((root / 'db/migrations').glob('*.sql'))
+    else:
+        paths.add(root / '.agent-state/work-owner-http/native_driver.go')
+    for path in paths:
+        if path.resolve(strict=True) != path or not stat.S_ISREG(path.stat().st_mode):
+            raise ValueError('non-regular Secret HTTP input')
+    return {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
+
+
+def observe_secret_http(directory, log, log_path, selector):
+    try:
+        output = log_path.read_text()
+        expected = {top for top in SECRET_HTTP_CASES[selector]}
+        expected.update(top + '/' + sub for top, subs in SECRET_HTTP_CASES[selector].items() for sub in subs)
+        runs = re.findall(r'^=== RUN   (Test[^\s]+)$', output, re.M)
+        passes = re.findall(r'^\s*--- PASS: (Test[^\s]+) \([^\r\n]*\)$', output, re.M)
+        good = (set(runs) == expected and len(runs) == len(expected)
+                and set(passes) == expected and len(passes) == len(expected))
+        started = re.findall(r'^CHILD pid=([1-9][0-9]*) selector=' + re.escape(selector)
+                             + (r' kind=native-http' if selector == SECRET_HTTP_NATIVE else '') + r'$', output, re.M)
+        waited = re.findall(r'^CHILD actual_wait pid=([1-9][0-9]*) state=exit status 0$', output, re.M)
+        good = (good and len(started) == 1 and waited == started
+                and len(re.findall(r'^CHILD pid=', output, re.M)) == 1
+                and len(re.findall(r'^CHILD actual_wait ', output, re.M)) == 1
+                and len(re.findall(r'^DRIVER terminal ', output, re.M)) == 1
+                and re.search(r'^\s*--- (?:FAIL|SKIP): ', output, re.M) is None)
+        manifest = directory / 'owned.json'
+        if manifest.is_symlink() or manifest.stat().st_mode & 0o777 != 0o600 or manifest.stat().st_size > 16384:
+            raise ValueError('invalid Secret HTTP ownership record')
+        record = json.loads(manifest.read_bytes())
+        if selector == SECRET_HTTP_PG:
+            if (set(record) != {'nonce', 'network_id', 'container_id'}
+                    or re.fullmatch('[0-9a-f]{32}', record['nonce']) is None
+                    or any(re.fullmatch('[0-9a-f]{64}', record[k]) is None for k in ('network_id', 'container_id'))):
+                raise ValueError('incomplete Secret HTTP PG identities')
+            expected_retire = [(str(n), record['container_id'], record['network_id']) for n in (1, 2)]
+            retired = re.findall(r'^RETIRE observation=([12]) exact_container=([0-9a-f]{64}) exact_network=([0-9a-f]{64}) clean=true$', output, re.M)
+            owned = re.findall(r'^OWNED nonce=([0-9a-f]{32}) container=([0-9a-f]{64}) network=([0-9a-f]{64}) port=[0-9]+ PostgreSQL=[0-9]+ vector=0\.8\.1$', output, re.M)
+            terminal = re.findall(r'^DRIVER terminal exit=0 elapsed=\S+ child_started=true actual_child_wait=true cleanup=true$', output, re.M)
+            good = good and len(re.findall(r'^RETIRE observation=', output, re.M)) == 2 and len(re.findall(r'^OWNED nonce=', output, re.M)) == 1 and retired == expected_retire and owned == [(record['nonce'], record['container_id'], record['network_id'])] and len(terminal) == 1
+        else:
+            if set(record) != {'kind', 'child_pid'} or record['kind'] != 'work-http-native' or type(record['child_pid']) is not int:
+                raise ValueError('invalid Secret HTTP native identity')
+            good = (good and started == [str(record['child_pid'])]
+                    and len(re.findall(r'^NATIVE runtime_empty=true actual_child_wait=true$', output, re.M)) == 1
+                    and len(re.findall(r'^DRIVER terminal exit=0 elapsed=\S+ child_started=true actual_child_wait=true private_removed=true$', output, re.M)) == 1)
+        good = good and not directory.is_symlink() and {p.name for p in directory.iterdir()} == {'owned.json'}
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError):
+        good = False
+    log.write(f'SECRET_HTTP exact_cases_wait_private={good}\n')
+    return good
+
+
 def survivor_identity(pid):
     # Failure-only evidence for an already discovered owned descendant. Never
     # collect argv, environment or full executable paths, or change retirement.
@@ -647,8 +765,13 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
+    if 'ProjectSecretVariablesDefaultRoot' in args.run and (args.run != SECRET_ROOT or not args.root_chain):
+        parser.error('Secret default root requires its exact original root-chain entry')
     if args.run == '^TestKnowledgeSkillsDefaultRootComposition$' and not args.root_chain:
         parser.error('default root composition requires the original root chain')
+    if any(name in args.run for name in ('SecretVariableHTTP', 'SecretHTTPNative')) and (args.root_chain or args.run not in SECRET_HTTP_CASES):
+        parser.error('Secret HTTP requires one exact PG/native top without root mode')
+    secret_http_selected = not args.root_chain and args.run in SECRET_HTTP_CASES
     if 'SecretVariableOwner' in args.run and (args.root_chain or args.run not in SECRET_OWNER_CASES):
         parser.error('Secret Owner requires one exact PG-only group')
     secret_owner = not args.root_chain and args.run in SECRET_OWNER_CASES
@@ -696,7 +819,9 @@ def main():
     if secret_owner:
         inputs = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
                   for p in secret_owner_inputs(args.driver, args.binary)}
-    if args.run == '^TestKnowledgeSkillsDefaultRootComposition$':
+    if secret_http_selected:
+        inputs = secret_http_inputs(args.driver, args.binary, args.run)
+    if args.run in ('^TestKnowledgeSkillsDefaultRootComposition$', SECRET_ROOT):
         inputs.update({str(p): adapter.sha(p) for p in adapter.root_composition_inputs()})
     baseline = tcp()
     started = time.monotonic()
@@ -795,6 +920,8 @@ def main():
                 code = 1
             if secret_owner and not observe_secret_owner(log_path, log, args.run):
                 code = 1
+            if secret_http_selected and not observe_secret_http(directory, log, log_path, args.run):
+                code = 1
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75
@@ -810,7 +937,12 @@ def main():
             if empty != 2:
                 code = 1
                 log.write(f'STOP host TCP delta tail not empty: {len(tcp() - baseline)} rows\n')
-            if secret_owner:
+            if secret_http_selected:
+                try:
+                    same = secret_http_inputs(args.driver, args.binary, args.run) == inputs
+                except (OSError, ValueError):
+                    same = False
+            elif secret_owner:
                 try:
                     same = (all(hashlib.sha256(Path(p).read_bytes()).hexdigest() == digest
                                 for p, digest in inputs.items())
@@ -835,7 +967,7 @@ def main():
                         same = (content_same(inputs, args, adapter) if args.run in CONTENT_GROUPS else
                                 all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
                                     for p, digest in inputs.items()))
-            if args.run == '^TestKnowledgeSkillsDefaultRootComposition$':
+            if args.run in ('^TestKnowledgeSkillsDefaultRootComposition$', SECRET_ROOT):
                 same = same and root_composition_same(inputs, args, adapter)
             if not same: code = 1
             if interrupted: code = 1

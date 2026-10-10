@@ -64,7 +64,7 @@ def reap_fragment():
 
 def tcp_fragment():
     return original_fragment('            tail_deadline = time.monotonic() + 75',
-                             '            if secret_owner:\n                try:\n                    same =')
+                             '            if secret_http_selected:\n                try:\n                    same =')
 
 
 def schema_environment():
@@ -111,6 +111,15 @@ def audit_repair_script(source):
     return header + (ordinary + race).replace('./...', './internal/central/audit/http')
 
 
+def app_repair_script(source):
+    # Freeze the original Go/version/cwd header; audit_repair_script verifies
+    # both unique test lines and the complete original remaining-stage tail.
+    header = source.split('"$AGENTEAM_GO" test ./...\n', 1)[0]
+    if hashlib.sha256(header.encode()).hexdigest() != 'b9bc2651561468ff83a9af6447cf47c56e984210821c2c4adcea24b9707d485e':
+        raise ValueError('original check header changed')
+    return audit_repair_script(source).replace('./internal/central/audit/http', './internal/central/app')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True, type=Path)
@@ -120,6 +129,8 @@ def main():
                       help='run the original remaining stages after separately accepted ordinary tests')
     mode.add_argument('--audit-repair', action='store_true',
                       help='run the original ordinary/race stages for the entire repaired Audit HTTP package')
+    mode.add_argument('--app-repair', action='store_true',
+                      help='run the original ordinary/race stages for the entire app package')
     args = parser.parse_args()
     os.chdir(ROOT)
     command = ['sh', 'scripts/check-go.sh']
@@ -128,6 +139,9 @@ def main():
                    'scripts/check-go.sh']
     elif args.audit_repair:
         command = ['sh', '-c', audit_repair_script((ROOT / 'scripts/check-go.sh').read_text()),
+                   'scripts/check-go.sh']
+    elif args.app_repair:
+        command = ['sh', '-c', app_repair_script((ROOT / 'scripts/check-go.sh').read_text()),
                    'scripts/check-go.sh']
     output = args.output.resolve()
     if not output.is_relative_to(ROOT / 'output/ai/owner-feature-integration'):
@@ -175,7 +189,7 @@ def main():
     sample = diagnostic_module.observe_tcp(supervisor.tcp, diagnostics)
     baseline = sample()
     record = dict(source=args.source, command=command, remaining=args.remaining,
-                  audit_repair=args.audit_repair, outer_pid=os.getpid(),
+                  audit_repair=args.audit_repair, app_repair=args.app_repair, outer_pid=os.getpid(),
                   utc_start=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), fresh_free_bytes=free,
                   schema_environment=schema, python=json.loads(python_info), node=json.loads(node_info),
                   removed_environment_names=sorted(removed),

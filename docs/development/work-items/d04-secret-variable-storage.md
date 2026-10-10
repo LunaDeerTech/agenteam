@@ -1,6 +1,8 @@
 # D04 Project Secret Variable 存储 producer
 
-> 交付边界：D04 材料存储 producer 的有限验收已完成；本批与 D05、Secret Owner 一起按 00028→00029→00030 连续迁移组装。库矩阵沿固定来源复用，集成候选尚待正式 main 交付。Secret HTTP、默认根绑定与 Agent F1 不在本库接受范围。
+> 交付边界：D04 材料存储 producer 的有限验收已完成；已与 D05、Secret Owner 一起按 00028→00029→00030 连续迁移交付 main `fb84a892`。库矩阵沿固定来源复用。Secret HTTP、默认根绑定与 Agent F1 不在本库接受范围。
+
+后继 [Secret Owner HTTP](d10-secret-variables-owner-http.md) 已完成 HTTP、既有 Project 默认根接入及限定独立风险验证；该后继不改变本卡的库验收范围，也不启用生产 Project initializer、完整生命周期或 F1。
 
 D04 producer 与 00029 已实现：core3（17 节点）、maintenance 单 top、固定四 top/十格恢复矩阵（13 节点）均完整真实 PG PASS，原 Wait 与资源双退役尾齐。它通过 typed `secret/contract.ProjectVariableWrites` 向 Owner 提供材料写入和安全 receipt，不新增公开明文读取接口。本卡落实已接受的 [D10 rev2](d10-secret-variables-owner.md) §4、§6；真实 authority 与 Owner final-Tx 的后续有限验收见 [Owner 服务](d10-secret-variable-owner-service.md)。
 
