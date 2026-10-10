@@ -266,3 +266,5 @@ stop-requested 只附在被授权捕获的原 call 上，不永久封闭整个 P
 首链使用真实 Account/Project/ordinary+Secret、同 Store 与 ProjectCallStopper。在已合法 accepted 的 operation 上调用真实 driver，检查实际 SQL 仅该引擎推进 stopping；原 Variables 调用停在 BEGIN 后、Project gate 锁前，提交后才收到取消，callback/SQL/commit/原业务函数全部实际返回后局部观察才 joined。另一 Project 保持可用，所有全域 participant 不被标 stopped。fixture 只提供尚未开放的 accepted 前置，不直接写本轮 phase/claim 结果。
 
 基本纯控覆盖未确认提交/取消零提供方调用、冻结 manifest/cause/claim 错配拒绝、同 Project 双轮拒绝、Stop/Drain 不提前 join、精确 foreign proof 与原 writer 锁重验、回调错误/收尾 Unknown 原样保留。真实 PG 重点验证原 EX 屏障、确认提交后调用、原调用 held 时 claim/Drain 仍活、释放后的 exact terminal，以及旧 attempt/fence 不能覆盖新轮。foreign 业务调用缺口仍显式保留；不以 fake ProcessAuthority success 声称真实进程死亡或完整 participant 验收。该有限源冻结并受独立方法审后才申请真实资源窗口。
+
+当前四个Project源与两新PG源已实现；既有fixture只保留原LifecycleAuthority指针。首6top/2sub纯race、Project vet通过；非作者实际审发现组合checkpoint错误可回显provider error，已窄修安全包装并以新private canary定向race及vet通过，物理Unknown/原cause仍保留。修后第一次fresh容量门失败且0Go的事实保留。PG候选race-c与exact list仅一top均已通过，实际PG未运行；非作者已有限接受核心与PG方法。私有入口新增固定1top/3sub与3项离线方法控制，原提供方入口/共享sup/driver/预算不改；详细命令与分版本结果在既有[本域恢复说明](../../../.agent-state/project-variable-lifecycle/README.md)。本轮仍不交付生产全phase worker/完整participant完成语义。

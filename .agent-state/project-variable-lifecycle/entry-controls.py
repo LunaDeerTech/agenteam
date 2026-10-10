@@ -18,8 +18,9 @@ entry = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(entry)
 
 
-def fake_tree(root):
-    names = set(entry.REQUIRED) | {entry.DRIVER, entry.BINARY}
+def fake_tree(root, selector=entry.SELECTOR):
+    binary, _, _, required = entry.SCOPES[selector]
+    names = set(entry.REQUIRED + required) | {entry.DRIVER, binary}
     names.update('internal/central/' + name + '/fixture.go' for name in entry.CENTRAL)
     names.update(name + '/fixture.go' for name in entry.GO_TREES)
     names.add('db/migrations/00001_fixture.sql')
@@ -29,17 +30,17 @@ def fake_tree(root):
         path.write_text('controlled input\n')
 
 
-def transcript(directory):
+def transcript(directory, selector=entry.SELECTOR):
     record = {'nonce': 'a' * 32, 'container_id': 'b' * 64, 'network_id': 'c' * 64}
     directory.mkdir()
     owned = directory / 'owned.json'
     owned.write_text(json.dumps(record))
     owned.chmod(0o600)
-    top, subs = next(iter(entry.CASES.items()))
+    top, subs = next(iter(entry.SCOPES[selector][1].items()))
     cases = [top] + [top + '/' + sub for sub in subs]
     lines = ['=== RUN   ' + name for name in cases]
     lines += ['--- PASS: ' + name + ' (0.01s)' for name in cases]
-    lines += ['CHILD pid=77 selector=' + entry.SELECTOR,
+    lines += ['CHILD pid=77 selector=' + selector,
               'CHILD actual_wait pid=77 state=exit status 0',
               'OWNED nonce=' + record['nonce'] + ' container=' + record['container_id'] +
               ' network=' + record['network_id'] + ' port=54321 PostgreSQL=170010 vector=0.8.1']
@@ -124,16 +125,17 @@ class LifecycleEntryControls(unittest.TestCase):
             probe.write_bytes(saved)
             self.assertEqual(first, entry.inputs(driver, binary, entry.SELECTOR))
 
-    def exercise_main(self, mutation=None, change_input=False):
+    def exercise_main(self, mutation=None, change_input=False, selector=entry.SELECTOR):
         # Load the real frozen supervisor before replacing the root with an
         # explicitly synthetic input tree; only OS/resource edges are doubled.
-        sup = entry.load_supervisor()
+        sup = entry.load_supervisor(selector)
         original_observer = sup['observe_secret_http']
         observations, input_reads, wait_budgets = [], [], []
         with tempfile.TemporaryDirectory() as tmp, patch.object(entry, 'ROOT', Path(tmp).resolve()):
-            fake_tree(entry.ROOT)
-            output = entry.ROOT / 'output/ai/project-variable-lifecycle/pg-author-control'
-            argv = ['run.py', '--driver', str(entry.ROOT / entry.DRIVER), '--binary', str(entry.ROOT / entry.BINARY), '--run', entry.SELECTOR, '--output', str(output)]
+            fake_tree(entry.ROOT, selector)
+            binary, _, prefix, _ = entry.SCOPES[selector]
+            output = entry.ROOT / ('output/ai/project-variable-lifecycle/' + prefix + 'control')
+            argv = ['run.py', '--driver', str(entry.ROOT / entry.DRIVER), '--binary', str(entry.ROOT / binary), '--run', selector, '--output', str(output)]
             def observed(directory, log, path, selector):
                 observations.append(selector)
                 return original_observer(directory, log, path, selector)
@@ -145,7 +147,7 @@ class LifecycleEntryControls(unittest.TestCase):
                 def __init__(self, command, stdout, stderr):
                     self.command = command
                     directory = Path(command[command.index('--directory')+1])
-                    value = transcript(directory)
+                    value = transcript(directory, selector)
                     stdout.write(mutation(value) if mutation else value)
                     stdout.flush()
                 def wait(self, timeout):
@@ -164,8 +166,8 @@ class LifecycleEntryControls(unittest.TestCase):
                  patch.object(sup['signal'], 'signal'), patch.object(sup['time'], 'sleep'), \
                  contextlib.redirect_stdout(io.StringIO()):
                 code = entry.main()
-            self.assertEqual(observations, [entry.SELECTOR])
-            self.assertEqual(input_reads, [entry.SELECTOR, entry.SELECTOR])
+            self.assertEqual(observations, [selector])
+            self.assertEqual(input_reads, [selector, selector])
             self.assertEqual(wait_budgets, [123])
             log = next(output.glob('*.log')).read_text()
             self.assertIn('SUPERVISOR actual_driver_wait pid=42 actual=True actual_exit=0', log)
@@ -179,6 +181,73 @@ class LifecycleEntryControls(unittest.TestCase):
     def test_actual_main_fails_missing_sub_and_changed_input(self):
         self.assertEqual(self.exercise_main(lambda s: s.replace('--- PASS:', '--- SKIP:', 1)), 1)
         self.assertEqual(self.exercise_main(change_input=True), 1)
+
+    def test_phase_closed_dispatch_and_original_scope(self):
+        self.assertEqual(entry.SCOPES[entry.SELECTOR], (entry.BINARY, entry.CASES, 'pg-author-', ()))
+        sup = entry.load_supervisor(entry.PHASE_SELECTOR)
+        self.assertEqual(sup['SECRET_HTTP_PG'], entry.PHASE_SELECTOR)
+        self.assertEqual(sup['SECRET_HTTP_CASES'], {entry.PHASE_SELECTOR: entry.PHASE_CASES})
+        self.assertEqual(sup['budgets'](False), (123, 3))
+        with tempfile.TemporaryDirectory() as tmp, patch.object(entry, 'ROOT', Path(tmp)):
+            args = ['--driver', str(entry.ROOT / entry.DRIVER), '--binary', str(entry.ROOT / entry.PHASE_BINARY),
+                    '--run', entry.PHASE_SELECTOR, '--output', str(entry.ROOT / 'output/ai/project-variable-lifecycle/pg-phase-control')]
+            entry.arguments(args)
+            invalid = [args + ['--root-chain'], args + ['--native'], args + ['--unknown'],
+                       args + ['--run', entry.PHASE_SELECTOR],
+                       [x.replace(entry.PHASE_SELECTOR, entry.PHASE_SELECTOR + 'x') for x in args],
+                       [x.replace(entry.PHASE_BINARY, entry.BINARY) for x in args],
+                       [x.replace(entry.PHASE_SELECTOR, entry.SELECTOR) for x in args],
+                       [x.replace('pg-phase-control', 'pg-author-control') for x in args]]
+            for vector in invalid:
+                with patch.object(sys, 'argv', ['run.py'] + vector), patch.object(entry, 'load_supervisor') as load, contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit): entry.main()
+                    load.assert_not_called()
+            with self.assertRaises(ValueError): entry.load_supervisor(entry.PHASE_SELECTOR + 'x')
+
+    def test_phase_observer_and_actual_main(self):
+        sup = entry.load_supervisor(entry.PHASE_SELECTOR)
+        with tempfile.TemporaryDirectory() as tmp:
+            directory, log = Path(tmp) / 'owned', Path(tmp) / 'log'
+            original = transcript(directory, entry.PHASE_SELECTOR)
+            def observe(value):
+                log.write_text(value)
+                return sup['observe_secret_http'](directory, io.StringIO(), log, entry.PHASE_SELECTOR)
+            self.assertTrue(observe(original))
+            lines = original.splitlines(True)
+            negative = [original.replace('--- PASS:', '--- FAIL:', 1), original.replace('--- PASS:', '--- SKIP:', 1),
+                        original + '=== RUN   TestUnexpected\n', original + lines[0], original.replace(lines[1], ''),
+                        original.replace('actual_wait pid=77', 'actual_wait pid=78'),
+                        original.replace('state=exit status 0', 'state=exit status 1'),
+                        original.replace('RETIRE observation=2', 'RETIRE observation=1'),
+                        original.replace('clean=true', 'clean=false')]
+            for value in negative: self.assertFalse(observe(value))
+            (directory / 'private.key').write_text('controlled')
+            self.assertFalse(observe(original))
+        self.assertEqual(self.exercise_main(selector=entry.PHASE_SELECTOR), 0)
+        self.assertEqual(self.exercise_main(lambda s: s.replace('--- PASS:', '--- SKIP:', 1), selector=entry.PHASE_SELECTOR), 1)
+        self.assertEqual(self.exercise_main(change_input=True, selector=entry.PHASE_SELECTOR), 1)
+
+    def test_phase_inputs_require_both_sources_and_reenumerate(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(entry, 'ROOT', Path(tmp).resolve()):
+            fake_tree(entry.ROOT, entry.PHASE_SELECTOR)
+            driver, binary = entry.ROOT / entry.DRIVER, entry.ROOT / entry.PHASE_BINARY
+            first = entry.inputs(driver, binary, entry.PHASE_SELECTOR)
+            for name in entry.PHASE_REQUIRED:
+                probe = entry.ROOT / name
+                self.assertIn(str(probe), first)
+                saved = probe.read_bytes()
+                probe.unlink()
+                with self.assertRaises(FileNotFoundError): entry.inputs(driver, binary, entry.PHASE_SELECTOR)
+                probe.symlink_to(driver)
+                with self.assertRaises(ValueError): entry.inputs(driver, binary, entry.PHASE_SELECTOR)
+                probe.unlink()
+                probe.write_bytes(saved)
+            added = entry.ROOT / 'tests/projectvariable/new_phase_input.go'
+            added.write_text('new')
+            self.assertNotEqual(first, entry.inputs(driver, binary, entry.PHASE_SELECTOR))
+            added.unlink()
+            self.assertEqual(first, entry.inputs(driver, binary, entry.PHASE_SELECTOR))
+            with self.assertRaises(ValueError): entry.inputs(driver, entry.ROOT / entry.BINARY, entry.PHASE_SELECTOR)
 
 
 if __name__ == '__main__':
