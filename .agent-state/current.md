@@ -38,4 +38,12 @@
 - 新`secret_mutation.go`负责共享名称/Secret容量/本域引用/独立generation检查、精确D04 preparation与实际observation各字段/effect/两域版本、同Tx canonical/history写及后像重读；新`secret_facts.go`区分prepare discovery与sameStore/liveTx mutation见证，Outbox NewFact必须完整completed及真实Audit返回ID。事实实现尚未接旧Authority/Project两个闭集路由，不能称可用成品。
 - 自查将`secret_write_authority.go`创建ID预检从全局EXISTS改为仅取所属Project：本Project重复Busy，跨ProjectNotFound，沿普通API隐私行为；`secret_authority_test.go`补对应闭集负控。两源较54c的小差异尚未重跑。
 - root精确回收五个有完整保留备份的旧Model重复candidate后恢复空间；53c304同进程fresh5742374912→原session11787→1d767a actual0/race1.028s：先前未跑读层三个top＋受跨Project ID修正影响的authority一个top，共4top。新commands/facts/mutation也参与实际编译无错，但其写事务业务控制与真实SQL未运行，不能把读层通过外推写功能。
-- 本轮5技术路径＋本文6paths重新冻结：commands/facts/mutation三新源及authority两差异。限定gofmt/diffcheck0，全部自有工具终态；root在Runner OS03实际窗口后保存。后继exact事实路由/普通type兼容和独立新测试文件可继续，冻结源不竞写；无PG/socket/network，D04/29/前缀/app/HTTP不变。
+- 本轮5技术路径＋本文6paths已root保存87838e2f。限定gofmt/diffcheck0，全部自有工具终态；无PG/socket/network，D04/29/前缀/app/HTTP不变。
+
+## 精确事实路由与共享type兼容
+
+- 本域`authority.go`只新增exact Secret Event/Audit三处分发；Project `audit_facts.go`、`projectvariable_event_authority.go`只新增精确Secret路由至新`secret_variable_facts.go`。实际逆移除新增分发后，三个旧文件全文逐字等于正式ce65714a；未扩ordinary predicate，Knowledge/Object/lifecycle旧分支保留。
+- ordinary repository Get/读列表/容量/UPDATE四处SQL增`type='variable'`；Secret独立4096容量和generation，跨两type名称唯一检查保持。包说明同步实际职责；完整SQL未执行。
+- 经root明确授权，旧`audit_facts_test.go`只更新只读阶段的Secret无事实负控：不再用always-allow替身证明“无分发”，改实际D10 Authority拒缺sameTx私有proof，且当前Session/Archived门先行；普通与其它action测试未改。新增Project测试核两Outbox stage、生命周期/Session/foreignTx、错闭集event、ordinary依赖隔离。
+- 2e051d fresh5708410880→原90611→8e3a2a actual1：projectvariable定向SecretOwner/Variable组已race1.128s通过，但Project新测试误写三返回值为二导致编译失败。只修该测试赋值后a3903a fresh5622099968→原8262→e07f9c actual0/race1.032s，四个精确Project新旧top通过。没有PG/实际Session/真实Rows或Owner写事务验收；私有写事实/Unknown仍待纯负控和真实组合。
+- 本轮9技术路径＋current/库卡共11paths冻结供root checkpoint与独审；全部工具实际终态，原D04/前缀/Outbox engine/app/HTTP未写。

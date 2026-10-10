@@ -357,7 +357,7 @@ func checkPreimage(ctx context.Context, x postgres.SQLExecutor, r *commandRecord
 			return unavailable(e)
 		}
 		var count int64
-		if e = x.QueryRow(ctx, `SELECT count(*) FROM agenteam_projectvariable.variables WHERE project_id=$1 AND deleted_at IS NULL`, r.Project.String()).Scan(&count); e != nil {
+		if e = x.QueryRow(ctx, `SELECT count(*) FROM agenteam_projectvariable.variables WHERE project_id=$1 AND type='variable' AND deleted_at IS NULL`, r.Project.String()).Scan(&count); e != nil {
 			return unavailable(e)
 		}
 		if count >= c.MaxVariables {
@@ -415,7 +415,7 @@ func applyPlan(ctx context.Context, x postgres.SQLExecutor, r *commandRecord) er
 		if p.Deleted {
 			deleted = v.UpdatedAt.Time()
 		}
-		if e := affected(x.Exec(ctx, `UPDATE agenteam_projectvariable.variables SET name=$3,description=$4,value=$5,version=$6,updated_at=$7,deleted_at=$8 WHERE project_id=$1 AND id=$2 AND version=$9 AND deleted_at IS NULL`, v.ProjectID.String(), v.ID.String(), v.Name, v.Description, v.Value, int64(v.Version), v.UpdatedAt.Time(), deleted, int64(p.Before.Fields().Version))); e != nil {
+		if e := affected(x.Exec(ctx, `UPDATE agenteam_projectvariable.variables SET name=$3,description=$4,value=$5,version=$6,updated_at=$7,deleted_at=$8 WHERE project_id=$1 AND id=$2 AND type='variable' AND version=$9 AND deleted_at IS NULL`, v.ProjectID.String(), v.ID.String(), v.Name, v.Description, v.Value, int64(v.Version), v.UpdatedAt.Time(), deleted, int64(p.Before.Fields().Version))); e != nil {
 			return e
 		}
 	}

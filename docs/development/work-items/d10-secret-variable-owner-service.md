@@ -1,6 +1,6 @@
 # D10 Secret Variable Human Owner 库
 
-状态：实施已授权，基线正式main `ce65714a`；安全持久记录首片段三top定向race已通过，00030仅SQL草案；真实authority/Owner事务库及数据库验收未完成。唯一实施者为本分支 `ai/secret-variable-owner-service`；root拥有Git和共享资源调度。
+状态：实施进行中，基线正式main `ce65714a`；安全记录、真实D04 authority接缝、Owner调用/计划/读层首版及exact事实路由已编译，定向纯race通过。Commands/单final Tx首版已编译，私有写事实/Unknown控制与真实数据库组合未完成；00030仍仅SQL草案。唯一实施者为本分支 `ai/secret-variable-owner-service`；root拥有Git和共享资源调度。
 
 本工作项落实[Secret Variables rev2](d10-secret-variables-owner.md)中的库级子结果，直接复用[已验D04 producer](d04-secret-variable-storage.md)、A纯合同和e940 Audit严格读合同。业务规则、字段/安全输出、预算与原意图定义以rev2为准；本文只固定本次实施和验收边界，不另造产品契约。
 
@@ -35,6 +35,8 @@ Unknown保原CommitResult/Attempt/Cause，不自动重放callback；最多一次
 短只读发现→事务外D04 Prepare与非no-op Outbox plan→final一次完整union AcquireAll。当前权限及两域前像/版本重验后，固定顺序为D04真实Apply及适用native Audit→D10 canonical/映射/version/generation/history→本域sameTx私有mutation witness及真实D10 Audit→含实际AuditID的completed→Outbox NewFact/Activity→commit。nonce合法预留为既定例外；其余任一步失败均同一业务事务回滚，Unknown不伪称回滚。
 
 两种私有witness分开：prepare discovery绑定原Actor/Session/identity/前像/exact event/D04 Preparation原receiptID+Ref与完整锁；mutation witness只在真实D04 Apply和D10后像/history写入后签发，绑定sameStore/liveTx/私有issuer/Actor-Session/cause/operation/version/exact Entry-Key/该次实际D04 observation。公开安全Observation构造器、prepared或discovery不能自签mutation事实。Audit checker重读本Tx后像/history，Outbox NewFact仍重读完整completed/实际AuditID及D04事实。no-op/replay不签新mutation witness，不发新Audit/Event。
+
+从e940只读兼容进入本次写事实阶段，Project新增精确Secret路由；既有“读形状不能授权写事实”负控随此契约演进改用实际D10 facts provider拒缺私有witness，并保当前Session/生命周期门先行。普通action/event predicates未扩大，三处分发源逆移除新增行后逐字同正式基线；本变化不授权HTTP/defaultroot装配。
 
 并发相同key已由他方完成且原create Ref不同，退出final Tx后至多一次重新发现/准备；不可锁内补锁、重base expected或自动重放Unknown。完整锁至少原command EX/User EX/Project EX/write-key SH/Credential EX及Outbox所需registry/event/全部引用锁。
 

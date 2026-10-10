@@ -143,12 +143,12 @@ func (a *Authority) secretDiscovery(ctx context.Context, actor i.Actor, summary 
 		Fields             []string
 		At                 f.Instant
 		PriorCredential    string
-		PriorVersion       f.Version
+		PriorVersion       int64
 		Receipt            sc.ProjectVariableReceiptID
 		Credential         string
 		Value              bool
 		Stages             [2]oc.Stage
-	}{secretAppendPurpose, actor.Details(), summary, r.Identity.Canonical(), r.Kind, r.VariableID, r.ExpectedVersion, p.Operation, p.History, before, p.After, p.Deleted, p.Fields, p.At, priorCredential, priorVersion, w.preparation.ReceiptID, w.preparation.Ref.Details().ID.String(), w.value, [2]oc.Stage{oc.CurrentAccess, oc.NewFact}})
+	}{secretAppendPurpose, actor.Details(), summary, r.Identity.Canonical(), r.Kind, r.VariableID, r.ExpectedVersion, p.Operation, p.History, before, p.After, p.Deleted, p.Fields, p.At, priorCredential, int64(priorVersion), w.preparation.ReceiptID, w.preparation.Ref.Details().ID.String(), w.value, [2]oc.Stage{oc.CurrentAccess, oc.NewFact}})
 	if err != nil {
 		return nil, "", nil, err
 	}
