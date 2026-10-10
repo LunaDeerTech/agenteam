@@ -18,6 +18,7 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
     '^TestKnowledgeTreeCommandHTTP(Mutations|Authority|Transactions|Unknown)$': 'tests/knowledge',
     '^TestKnowledgeTreeCommandHTTPUnknown$': 'tests/knowledge',
+    '^TestKnowledgeTreeCommandHTTP(Mutations|Unknown)$': 'tests/knowledge',
     '^TestWorkOwnerRootActual(Command|Reader)Join$': 'internal/central/app',
     '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': 'tests/process',
     '^TestIndependentWorkOwnerRootConfirmationJoin$': 'internal/central/app',

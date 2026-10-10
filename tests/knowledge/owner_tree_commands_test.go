@@ -271,7 +271,11 @@ func TestKnowledgeTreeCommandHTTPMutations(t *testing.T) {
 		response := v.post(t, root.ID, "delete-subtree", body, key)
 		out := treeCommandSuccess(t, response)
 		var deleted []kc.DocumentID
-		if json.Unmarshal(out["deleted_ids"], &deleted) != nil || len(deleted) != 2 || string(out["cleanup_pending"]) != "true" {
+		wantDeleted := []kc.DocumentID{root.ID, child.ID}
+		if wantDeleted[0].String() > wantDeleted[1].String() {
+			wantDeleted[0], wantDeleted[1] = wantDeleted[1], wantDeleted[0]
+		}
+		if json.Unmarshal(out["deleted_ids"], &deleted) != nil || !reflect.DeepEqual(deleted, wantDeleted) || string(out["cleanup_pending"]) != "true" {
 			t.Fatal("exact deleted subtree")
 		}
 		for _, id := range []kc.DocumentID{root.ID, child.ID} {

@@ -320,7 +320,10 @@ func TestTreeCommandsHTTPNativeWriteAndDisconnect(t *testing.T) {
 			t.Fatal("original Write not reached")
 		}
 		result := treeNativeTerminal(t, out)
-		if !result.aborted || <-returned == nil || time.Since(start) > requestBudget+800*time.Millisecond {
+		writeErr := <-returned
+		elapsed := time.Since(start)
+		var timeout net.Error
+		if !result.aborted || !errors.As(writeErr, &timeout) || !timeout.Timeout() || elapsed < requestBudget*3/4 || elapsed > requestBudget+800*time.Millisecond {
 			t.Fatal("native original write deadline/return")
 		}
 	})

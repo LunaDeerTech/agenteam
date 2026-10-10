@@ -30,6 +30,7 @@ def budgets(root_chain):
 
 TREE_COMMAND_PG = '^TestKnowledgeTreeCommandHTTP(Mutations|Authority|Transactions|Unknown)$'
 TREE_COMMAND_UNKNOWN = '^TestKnowledgeTreeCommandHTTPUnknown$'
+TREE_COMMAND_RECHECK = '^TestKnowledgeTreeCommandHTTP(Mutations|Unknown)$'
 TREE_COMMAND_NATIVE = '^TestTreeCommandsHTTPNative(ReadDeadlines|KeepAliveAndClose|WriteAndDisconnect)$'
 TREE_COMMAND_GROUPS = {
     TREE_COMMAND_PG: {
@@ -46,6 +47,10 @@ TREE_COMMAND_GROUPS = {
 }
 TREE_COMMAND_GROUPS[TREE_COMMAND_UNKNOWN] = {
     'TestKnowledgeTreeCommandHTTPUnknown': TREE_COMMAND_GROUPS[TREE_COMMAND_PG]['TestKnowledgeTreeCommandHTTPUnknown'],
+}
+TREE_COMMAND_GROUPS[TREE_COMMAND_RECHECK] = {
+    name: TREE_COMMAND_GROUPS[TREE_COMMAND_PG][name]
+    for name in ('TestKnowledgeTreeCommandHTTPMutations', 'TestKnowledgeTreeCommandHTTPUnknown')
 }
 
 
@@ -184,6 +189,7 @@ def observe_root_chain(directory, log, log_path, selector):
     expected = {
         TREE_COMMAND_PG: set(TREE_COMMAND_GROUPS[TREE_COMMAND_PG]),
         TREE_COMMAND_UNKNOWN: set(TREE_COMMAND_GROUPS[TREE_COMMAND_UNKNOWN]),
+        TREE_COMMAND_RECHECK: set(TREE_COMMAND_GROUPS[TREE_COMMAND_RECHECK]),
         '^TestWorkOwnerRootActual(Command|Reader)Join$': {'TestWorkOwnerRootActualCommandJoin', 'TestWorkOwnerRootActualReaderJoin'},
         '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': {'TestWorkOwnerHTTPProcessRoutingAndPersistence'},
         '^TestIndependentWorkOwnerRootConfirmationJoin$': {'TestIndependentWorkOwnerRootConfirmationJoin'},
@@ -335,7 +341,7 @@ def main():
                 log.write(f'OWNED runtime_observation={round} descendants={sorted(remaining)}\n')
                 if remaining: code = 1
             if args.root_chain and not (tree_commands_root(directory, log, log_path, args.run)
-                    if args.run in (TREE_COMMAND_PG, TREE_COMMAND_UNKNOWN) else observe_root_chain(directory, log, log_path, args.run)):
+                    if args.run in (TREE_COMMAND_PG, TREE_COMMAND_UNKNOWN, TREE_COMMAND_RECHECK) else observe_root_chain(directory, log, log_path, args.run)):
                 code = 1
             if not args.root_chain and args.run == TREE_COMMAND_NATIVE:
                 exact = tree_commands_exact(log_path, args.run)

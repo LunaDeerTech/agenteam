@@ -37,6 +37,7 @@ start, end = source.index('TREE_COMMAND_PG = '), source.index('def root_adapter(
 inverse = source[:start] + source[end:]
 inverse = inverse.replace('        TREE_COMMAND_PG: set(TREE_COMMAND_GROUPS[TREE_COMMAND_PG]),\n', '')
 inverse = inverse.replace('        TREE_COMMAND_UNKNOWN: set(TREE_COMMAND_GROUPS[TREE_COMMAND_UNKNOWN]),\n', '')
+inverse = inverse.replace('        TREE_COMMAND_RECHECK: set(TREE_COMMAND_GROUPS[TREE_COMMAND_RECHECK]),\n', '')
 inverse = inverse.replace('    if args.run in TREE_COMMAND_GROUPS:\n        inputs.update({str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in tree_command_inputs()})\n', '')
 start = inverse.index('            if args.root_chain and not (tree_commands_root(')
 end = inverse.index('            # The tail is a host delta', start)
@@ -46,12 +47,18 @@ sup = module(SUP, 'tree_command_supervisor_controls')
 adapter = module(ROOT_DRIVER, 'tree_command_adapter_controls')
 pg, native = sup.TREE_COMMAND_PG, sup.TREE_COMMAND_NATIVE
 unknown = sup.TREE_COMMAND_UNKNOWN
-assert sys.argv[1:] in ([], ['--unknown-only'])
-selectors = (unknown,) if sys.argv[1:] else (pg, native, unknown)
-root_selectors = (unknown,) if sys.argv[1:] else (pg, unknown)
+recheck = sup.TREE_COMMAND_RECHECK
+assert sys.argv[1:] in ([], ['--unknown-only'], ['--recheck-only'])
+selected = unknown if sys.argv[1:] == ['--unknown-only'] else recheck
+selectors = (selected,) if sys.argv[1:] else (pg, native, unknown, recheck)
+root_selectors = (selected,) if sys.argv[1:] else (pg, unknown, recheck)
 assert sup.TREE_COMMAND_GROUPS[unknown] == {'TestKnowledgeTreeCommandHTTPUnknown': sup.TREE_COMMAND_GROUPS[pg]['TestKnowledgeTreeCommandHTTPUnknown']}
+assert sup.TREE_COMMAND_GROUPS[recheck] == {name: sup.TREE_COMMAND_GROUPS[pg][name] for name in ('TestKnowledgeTreeCommandHTTPMutations', 'TestKnowledgeTreeCommandHTTPUnknown')}
 root_source = (ROOT / ROOT_DRIVER).read_text()
-assert root_source.replace("    '" + pg + "': 'tests/knowledge',\n", '').replace("    '" + unknown + "': 'tests/knowledge',\n", '') == original(ROOT_DRIVER)
+inverse = root_source
+for selector in (pg, unknown, recheck):
+    inverse = inverse.replace("    '" + selector + "': 'tests/knowledge',\n", '')
+assert inverse == original(ROOT_DRIVER)
 native_source = (ROOT / NATIVE_DRIVER).read_text()
 start, end = native_source.index('func treeCommandNative('), native_source.index('func run() int {')
 inverse = (native_source[:start] + native_source[end:]).replace(' && !treeCommandNative(*selector)', '')
@@ -116,6 +123,13 @@ with tempfile.TemporaryDirectory(prefix='tree-command-selector-') as name:
             checks += 1
         else:
             raise AssertionError('unapproved Unknown selector')
+    for bad in (recheck[1:], recheck[:-1], recheck + 'x', recheck.replace('Mutations|Unknown', 'Unknown|Mutations'), recheck + '/.*', recheck.replace('Mutations|Unknown', 'Mutations|Authority')):
+        try:
+            adapter.configuration(binary, bad, temp / 'fresh')
+        except ValueError:
+            checks += 1
+        else:
+            raise AssertionError('unapproved recheck selector')
     for selector in selectors:
         for mode in ('valid', 'missing', 'utf8', 'exit2'):
             trace = {'wait': [], 'desc': 0, 'tcp': 0, 'reap': 0, 'resource': 0}
@@ -152,10 +166,10 @@ with tempfile.TemporaryDirectory(prefix='tree-command-selector-') as name:
                 return True
             def record(directory):
                 return {'resources': [{'kind': 'container', 'id': f'{i+1:064x}', 'nonce': 'a'*32} for i in range(7)], 'directories': [str(directory/'runtime'/str(i)) for i in range(3)]}
-            fake_adapter = types.SimpleNamespace(TARGETS={pg: 'tests/knowledge', unknown: 'tests/knowledge'}, sha=adapter.sha, input_paths=lambda _: [driver, binary])
+            fake_adapter = types.SimpleNamespace(TARGETS={pg: 'tests/knowledge', unknown: 'tests/knowledge', recheck: 'tests/knowledge'}, sha=adapter.sha, input_paths=lambda _: [driver, binary])
             output = temp / ('out-' + str(checks))
             args = ['probe', '--driver', str(driver), '--binary', str(binary), '--run', selector, '--output', str(output)]
-            is_pg = selector in (pg, unknown)
+            is_pg = selector in (pg, unknown, recheck)
             if is_pg: args.append('--root-chain')
             with patch.object(sys, 'argv', args), patch.object(sup, 'root_adapter', return_value=fake_adapter), patch.object(sup, 'root_record', record), patch.object(sup, 'exact_absent', absent), patch.object(sup.ctypes, 'CDLL', return_value=types.SimpleNamespace(prctl=lambda *_: 0)), patch.object(sup.subprocess, 'Popen', Child), patch.object(sup, 'descendants', descendants), patch.object(sup, 'tcp', tcp), patch.object(sup.os, 'waitpid', reap), patch.object(sup.time, 'sleep'), patch.object(sup.signal, 'signal'), contextlib.redirect_stdout(io.StringIO()):
                 code = sup.main()
