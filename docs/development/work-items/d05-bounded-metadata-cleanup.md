@@ -1,6 +1,6 @@
 # D05 有界收敛与单对象元数据清理
 
-状态：rev1设计、Service/SQL主体及三个配套增量已获Variables独立有限接受（f4c64f、46327/e70e7a），Skills已核消费契约兼容。首批metadata／最终Unknown两top于46857真实PG/MinIO完整PASS：65真实reader历史、跨表32与同Tx重复回滚、最后4＋fixture父mapping原子性、两种真实COMMIT Unknown恢复/native Audit唯一；原Wait/7资源/TCP/input完整尾通过，详见当前检查点。历史规模／索引成本／专用迁移／PUT跨source／真实Skills最后5核心仍未闭合。正式基线 main `b2a7d0ab`；本结果不恢复 Object Runtime join 停项，不代表完整 D05/Skills participant或生产root接入。
+状态：rev1设计、Service/SQL主体及三个配套增量已获Variables独立有限接受（f4c64f、46327/e70e7a），Skills已核消费契约兼容。首批metadata／最终Unknown两top于46857真实PG/MinIO完整PASS：65真实reader历史、跨表32与同Tx重复回滚、最后4＋fixture父mapping原子性、两种真实COMMIT Unknown恢复/native Audit唯一；原Wait/7资源/TCP/input完整尾通过，详见当前检查点。专用IndexMigration一top三子于2913完整PASS（fresh／populated27／末DDL失败整体回滚后原字节重试），原Wait/7资源/TCP/input尾齐。历史规模／索引成本／PUT跨source／真实Skills最后5核心仍未闭合。正式基线 main `b2a7d0ab`；本结果不恢复 Object Runtime join 停项，不代表完整 D05/Skills participant或生产root接入。
 
 ## 1. 来源与范围
 
@@ -8,7 +8,7 @@
 
 第一 provider 只支持 initialized Project 的已发表 SkillRevision＋ProjectDeleted、原 Creation/Skill/Revision/Object/Upload 和同命令的旧 candidate。不加 Creation取消、其它Owner新purge权限、Runner退休、HTTP/生产root或自动删除永久marker。
 
-初始四路径及后继§8实现域均已获root授权。2026-10-09 root在Skills确认原占位无独立DDL后，将`00028_cleanup_indexes.sql`移交本任务为共享cleanup索引迁移唯一writer；不改FK/约束/列。root已将稳定00025/26/27精确装配到本树（分别aaa408c8/eea4ced0/7cf7a58e）；28为待计划核验的22索引候选，已随首批真实fresh业务fixture执行Migrator，旧库升级／失败回滚／原字节重试专用矩阵和成本仍未验。首批独占窗口已完整释放，后继真实资源仍需root另授。
+初始四路径及后继§8实现域均已获root授权。2026-10-09 root在Skills确认原占位无独立DDL后，将`00028_cleanup_indexes.sql`移交本任务为共享cleanup索引迁移唯一writer；不改FK/约束/列。root已将稳定00025/26/27精确装配到本树（分别aaa408c8/eea4ced0/7cf7a58e）；28为待成本计划核验的22索引候选；专用迁移矩阵已实际验证fresh、旧库27升级、末DDL失败整体回滚及原字节重试，核journal/Goose及旧schema/数据不变，不据此接受查询或FK trigger成本。本次及首批独占窗口已完整释放，后继真实资源仍需root另授。
 
 ## 2. 实际缺口与必须成立的结果
 
@@ -102,7 +102,7 @@ root已明确移交**00028**给本任务，候选名`00028_cleanup_indexes.sql`�
 
 ### 7.1 实现访问路径与待编号索引
 
-下表是针对实际SQL的候选 `CREATE INDEX … ON …` 主体，已写入`00028_cleanup_indexes.sql`但尚未实际执行/验收。唯一编号现为root移交的00028，索引名仍随实际计划收敛；不修改历史约束、不增加级联/公开proof或填充业务假数据。同一个完整索引兼顾历史分页和FK入边，不因有另一partial索引就重复建同形完整索引。
+下表是针对实际SQL的候选 `CREATE INDEX … ON …` 主体，已写入`00028_cleanup_indexes.sql`并通过专用迁移三子；索引必要性、查询及FK trigger成本仍待真实计划验收。唯一编号现为root移交的00028，索引名仍随实际计划收敛；不修改历史约束、不增加级联/公开proof或填充业务假数据。同一个完整索引兼顾历史分页和FK入边，不因有另一partial索引就重复建同形完整索引。
 
 | 表（`agenteam_object`，另注除外） | 索引列及谓词 | 实际用途 |
 | --- | --- | --- |
