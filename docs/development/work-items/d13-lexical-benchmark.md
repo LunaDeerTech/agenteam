@@ -145,3 +145,63 @@ SPEC 窄审固定边界后才能写数据与工具。完成本卡要求：固定
 评分代码获Model限定独审接受：独立手算与真实CLI共128项检查74159b actual0，未使用作者函数计算期望，范围不含数据语义或backend执行。v2只使测试控制的dataset revision从固定数据读取，不修改评分器或黄金期望；最后版本窄复核563bcf actual0确认q01/q02、数量/分母及手算前提保持，复用原128控。独审首次误把q02当zh的夹具FAIL已按实际en纠正，不是evaluator缺陷。
 
 作者修后17个测试方法、实际validate/export及逐项内容/数量比较通过；必要独验控制源码已保留，可用 `PYTHONDONTWRITEBYTECODE=1 python3 .agent-state/search-benchmark-review/evaluator-controls.py` 在独占ignored输出目录复验。最终只归位来源判断状态与必要文档，语料正文、query、grade、family及评分器均保持已验输入。此完整独立结果可以供后续候选运行消费，不能据此填入任何backend实测分数或选型结论。
+
+## 10. 独立后继：有界纯文本 Parser
+
+本批在 `internal/central/retrieval/parser/` 实现可直接调用的纯算法，独立于前述 lexical evaluator；不消费或修改其 corpus、qrels 和成绩。`ParsePlainText(ctx, SourceIdentity, text)` 返回 `StructuredDocument`，`ParseBoundedContent(ctx, knowledge.ReadRequest, knowledge.DocumentContent)` 只适配已经完整返回的 D12 值。类型归 D13 包所有，不注册通用 Parser、不增加依赖、迁移、I/O、生产初始化或索引接线。
+
+`SourceIdentity` 保留实际内容对应的 typed ProjectID、DocumentID、ContentVersion 和 ObjectID。四项采用现有领域校验，ObjectID 按 D12 `DocumentRef.Validate` 为必需；version 保留原整数，不经浮点或提前读取的元数据替换。来源标识不是授权凭据，未来发布/locator 消费仍需重新验证当前版本。输出包含 profile、原文总字节数、有序 paragraph 元素、逐元素原文、段落区间及句区间；Ordinal 从 1 开始，所有区间均为原始 UTF-8 字节坐标的零起始半开区间，句区间连续覆盖所属段落。空文档或全部 ASCII 空白行成功返回零元素；空白分隔行不构成元素。
+
+### 10.1 冻结的 `plain_text:v1`
+
+- 输入最多 1 MiB、最多 16384 段、全文合计最多 65536 句，等于上限允许，超过拒绝并返回零结果。保留 BOM、NUL、缩进、原换行及原 Unicode 字节，不裁剪、不归一化。
+- CRLF 是一个换行，孤立 CR 或 LF 也结束一行。仅含 ASCII space/TAB 的行为空白行；连续非空白行合成一段，保留段内换行，排除末行终止符及段间空白行。
+- 连续终止符集合固定为 `.?!。！？`。最大连续串包含中文 `。！？` 时总断句；纯英文终止符串仅在随后所有闭合符之后为 ASCII 空白或段尾时断句，不另推断缩写、小数或语义。
+- 闭合符固定为 ASCII 双引号、单引号、右圆括号、右方括号、右花括号，以及 `” ’ 」 』 ） 】 》 〉`，紧随终止符的连续闭合符并入前句。ASCII 空白仅 space、TAB、CR、LF；句间空白归后句，段末仅剩 ASCII 空白时归最后一句，不产生空句。
+- 改变上述语义须换 profile，不原地改变 `plain_text:v1`。
+
+### 10.2 D12 值边界、失败和取消
+
+适配器读取原 `DocumentContent.Document` 的实际来源，只接受 Active、Text、`text/plain` 且唯一 Text arm；完整校验 DocumentRef、ReadRequest、union 及页大小/offset/next。只接受 ByteOffset=0、Truncated=false、NextByteOffset=文本字节数、长度不超过该请求 MaxBytes 的完整值。不能把非空 Text 指针当成 union 合法，也不能拼接可能来自不同版本的分页。调用者仍负责原 D12 授权、事务、read/Close 结果；本适配不会重读、验证当前权限或承诺原 I/O 已成功。
+
+非 plain media 返回 Foundation `UnsupportedMediaType`；非法 UTF-8、元数据、union、请求或 next 结构返回 `InvalidArgument`；合法非零 offset 页、truncated 页及超出本文限额或请求字节预算返回 `PayloadTooLarge`。领域错误均为 `NotStarted`、不带正文；任何错误均返回零 StructuredDocument，不暴露部分解析结果。每次扫描至多 4 KiB、元素处理及返回检查 context，原取消/截止错误保留 `errors.Is`，无内部 goroutine、timer 或流。D12 正文的 UTF-8 校验由分段核心完成，避免在完整字符串校验内跳过取消检查；标题先限字节，再复用完整 DocumentRef 校验。输出正文须由调用者显式取得，默认 fmt/slog 投影不含正文。
+
+重叠错误固定按入口 context、请求、非 plain media 分类、plain 元数据/union、正文 1 MiB 硬限、D12 next 不变式/分段 UTF-8、合法 partial/请求预算、完整页 next 等值顺序判定。非 plain 分类不声称该 DTO 已合法；超过硬限不继续扫描正文。在硬限内，truncated 同时 next 为负或 UTF-8 非法仍为 `InvalidArgument`，不被 partial 分类掩盖。默认 JSONHandler 的 slice/map/struct 嵌套通过类型的安全 JSON 投影保护，显式 `Text` 访问保留；这些内存类型不是持久化/public DTO。
+
+### 10.3 当前范围与验证
+
+六个 Go 源/测试已实现，手工 byte oracle 覆盖中文/CRLF、BOM/NUL/混合换行、英文小数与缩写、固定闭合符、非 ASCII 空白、emoji/组合字符；另覆盖 UTF-8 错码、恰好/超限、全局句数、取消零结果、确定性、D12 非法 union/元数据/partial 页和真实版本复制。
+
+首轮 unit01 真实 FAIL：最后一个不变性断言用 `reflect.DeepEqual` 比较含非 nil closure 的 CreatorRef，Go 函数值即使相同也不深相等。改用真实 DocumentRef JSON 编码前后字节比较，保来源/正文 oracle；此失败不认领产品元数据修改。原进程 actual Wait=1、原组退出且私有 runtime 空。非作者静审同时指出默认 JSONHandler 嵌套漏出 Text 和重叠错误分类未明确；本轮已定向修复投影、明确优先级并补有限反例。
+
+2026-10-10 修后作者用固定 Go 1.27.1 实际完成 `go test -count=1 -p=1 -timeout=60s ./internal/central/retrieval/parser`（11 top、0.265s）、同命令加 `-race`（1.253s）及 `go vet -p=1 ./internal/central/retrieval/parser`，三项 actual Wait=0、各原进程组 absent、私有 runtime 空，监督工具均实际 terminal 0；gofmt 和 diff-check 通过。每个长命令在启动同 process fresh disk≥5 GiB，私有 telemetry mode off、移除三个旁路、共享只读 modcache/私有 build cache、GOPROXY/GOSUMDB off、readonly mod，未启动外部服务。可再生日志在 ignored `output/ai/d13-plain-text-parser/`，unit01 原失败保持。
+
+未参与实现的 Secret 实例完成六源实际只读复核及返修窄审，确认来源/范围、UTF-8 byte split/全局限额、取消零结果、D12 完整 plain 分支和安全日志投影，有限接受且无剩余 must-fix；未运行 Go/资源，不冒作者测试或真实联调。纯函数及无 I/O 值适配已具备小范围联调输入，完整 D13 仍未完成。
+
+真实 D12 ReadDocument→实际对象读/Close→Parser 首条小范围联调已按下节完成。Markdown/PDF Parser、chunker、ContextProvider、embedding、lexical backend、索引发布及生产 Project initializer 均不在本批，也不由本批证明 D13 整体完成或解除既有 STOP。
+
+### 10.4 首条真实 D12 值联调
+
+新增 `tests/knowledge/plain_text_parser_integration_test.go`，唯一入口 `^TestKnowledgePlainTextParserIntegration$`，固定三子：`full_current_bytes_after_actual_close`、`partial_and_nonplain_rejected`、`foreign_owner_produces_no_parser_input`。复用已有真实 Account Bootstrap/邀请/兑换/Login、同 Store Knowledge/Project/Object/Audit/Outbox；Project 初始化仍是既有明确的上游 SQL fixture，不冒生产 Create/Skills 初始化。正文全部通过正式 CreateDocument/UpdateDocument 和 D05 canonical 对象产生，没有 SQLRead、假 Domain 或内存成功 reader。
+
+第一子正式更新至 version 2/新的实际 ObjectID，原文固定为 23 bytes 的 `甲。\r\n乙！\r\n\r\nA. B?`。委托原 ObjectReader，只有其真实 Close 返回后才 hold；期间 ReadDocument 未返回、原 caller 未退出，取消的 Drain 不能成功。释放 barrier、原 caller 实际 join、原 Close/Drain 齐后，才将同一个完整 D12 DTO 交给正式 ParseBoundedContent。核原对象 Meta/真实更新结果/返回 DTO 的一致来源、段落 `[0,14)`/`[18,23)`、句 `[0,6)`/`[6,14)`/`[18,20)`/`[20,23)`，读和解析不新增业务事实。短对象不要求持活 lease；最终无 reader lease 只补充原 Close/Drain 证据。
+
+第二子实际读取 MaxBytes=6 的 partial 页并实际 Close，Parser 拒 PayloadTooLarge；实际发布/读取 Markdown 再 Close，Parser 拒 UnsupportedMediaType，均零结果。第三子用另一真实登录 Owner 请求原 Project，要求 NotFound/零 DTO、Object ReadObject 调用次数零（含拒绝尝试）、不调用 Parser且实际 Drain/业务事实无增量。失败路径也释放原 barrier、取消并等待原 caller，不把 timeout 当 join。
+
+共享 root driver/supervisor 由 coordination 唯一接线，增加独立 exact selector、root-only 与四个 RUN/PASS 节点及唯一 actual Wait0 门；source inputs 在原闭包上只增加 `tests/knowledge/*.go`，尾部重新枚举集合并核字节，不借用正文 HTTP selector/Schema/native 模式。原 top 含尾 120s、调用 20s、Go 6m、root 540+60+3s、host TCP 75s、七资源及 private/runtime/desc 双尾不变。离线入口控制源为 `.agent-state/d13-plain-text-parser/entry-controls.py`，只检查真实函数及受控输入，不执行资源。
+
+六个已验纯 Parser Go 源及 `plain_text:v1`、原 D12 服务/fixture 均不修改；首轮在明确独占窗口中执行，候选准备与实际结果分别记录如下。
+
+离线 race-c 首次实际完成：2026-10-10 07:36:12 UTC，同 process fresh 6135709696 bytes，通过 `go test -race -p=1 -tags=integration -c -o output/ai/d13-plain-text-parser/parser-integration-race-01.test ./tests/knowledge`；原 Go PID427925 actual Wait0、原进程组 absent、私有 runtime 空。候选 41743204 bytes，发布输入身份 SHA256=`e5e9baa664b349fe62030e209f3d4e7f5f6308d908e002ca202fbf98894b0129`。同监督随后准备 exact list 时 fresh=5293277184 bytes，低于 5368709120 门，因此原 outer58349 actual1；list 未启动、MinIO 复制未执行，不属于产品失败。容量恢复后只补同候选发现，不重编已成功输入。Go 的 `-test.list` 仅能发现 top；三子源码闭集可核，实际各 RUN/PASS 必须留到真实窗口。
+
+共享入口已由 coordination 完成限定接线。入口控制固定 driver 两处、supervisor 七处增量；公开 `inverse(name, source)` 仅接受这些字节，剥离后以固定 SHA 和实际 Git 源全文核对 main `3a7a3fb5`，未知、缺失、重复增量及跨域门弱化均拒。真实 `main` 的非 root/alias 拒绝控制在 adapter、目录、进程和 TCP 哨兵之前退出；结果/Wait、精确输入重枚举和原 observer 的受控七资源双尾均保留。2026-10-10 本域离线 `python3 -B .agent-state/d13-plain-text-parser/entry-controls.py` 首次实际 exit0（session9853），没有启动 Go、Docker、socket 或真实资源观察；协调者的既有入口兼容控和非作者限定 review 仍独立记录，不把此方法通过计作联调通过。
+
+正式 Knowledge/D18 主线 `04455194` 合入后的入口基线已更新；D13 原两处/七处增量保持逐字不变，剥离后完整还原这次已包含 D12 浏览器入口的主线。额外拒绝 D12 expected top、原 Wait0 和 input-tail 被弱化的 source，既有 D13/Secret 反例保持。本域同一离线命令及 diff-check 再次 actual0（dd93cd），未重编候选或运行业务；共享 union 的其它入口兼容控由 coordination 单独完成。
+
+root 精确授权后，仅退役本树已无进程引用的可再生 `output/ai/d13-plain-text-parser/go-build`：无符号链接，原 468070400 allocated bytes；实际 free 5223272448→5691346944 bytes，cache absent，candidate/日志/私有配置/源码未动。随后同候选 `-test.list '^TestKnowledgePlainTextParserIntegration$'` 在新 list02/runtime、same-process fresh5691293696 下实际发现恰一 top；PID438212 Wait0、原组 absent/runtime 空、outer62370 actual0。原 list01 预飞失败保留，不重编。已将固定 shared MinIO 普通离线复制到本树 driver 既定 `output/ai/deps-minio/bin/minio`，109289632 bytes，SHA256=`dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`；此准备阶段没有启动 MinIO、Docker 或产品用例。
+
+最终联合入口 `31aedb5e` 在原候选不变的条件下冻结 697 个实际 source inputs；coordination 的 D13 控与 Knowledge9/Secret root5/HTTP5/app6/independent6 兼容控全部 actual0，完整逆投影保 D13→`04455194`→D12→`3a7a3fb5` 字节链，不以修改旧门取得兼容。
+
+2026-10-10 08:12:01 UTC，独占窗口首次执行上述 exact selector；same-process fresh5557276672 bytes，新的任务私有 telemetry off、empty Docker config、独立 build cache，未重编测试候选、未重试。原 `TestKnowledgePlainTextParserIntegration` 和三个子项全部 PASS，top 6.34s；full/current/Close 0.04s、partial/Markdown 0.22s、foreign Owner 0.00s。原 Go474419 与 driver468944 实际 Wait0，outer468923/session96279 实际 terminal0；七个原资源 ID/nonce 各两轮 absent，private/runtime 双空、原 descendant 检查无残留，host TCP 原双空，697 inputs unchanged、STOP0，supervisor elapsed178.973s。原可再生日志位于 `/tmp/d13-p01/pg-d175deb19c184f27b8cda969293a5657.log`，资源完整释放后才交还窗口。
+
+该结果证明本节声明的真实服务和 DTO 消费链，属于作者联调结果；不冒独立动态验收、生产 Project Create/Skills initializer、自动 current-version 发布、索引或完整 D13。

@@ -40,10 +40,11 @@ def secret_root_results(output):
 
 
 def inverse(name, source):
-    # D12 is a later, independently closed increment. Its inverse first
-    # validates the entire intermediate source against accepted main 3a7a3fb5.
-    # HTTP -> root -> D12 remains acyclic: D12 imports only actual adapters.
-    if name in BASE and 'KNOWLEDGE_UI =' in source:
+    # D13 first restores complete main 04455194 bytes. D12 then restores
+    # main 3a7a3fb5 before the original Secret projection; no unknown hunk
+    # may disappear between these independently fixed whole-source checks.
+    if name in BASE:
+        source = parser_entry.inverse(name, source)
         source = knowledge_entry.inverse(name, source)
     changes = [("    '^TestProjectSecretVariablesDefaultRoot$': 'internal/central/app',\n", '')] if name == DRIVER else [
         (RESULTS, ''),
@@ -82,6 +83,8 @@ def load(name, path):
 
 
 sup, driver = load('secret_root_supervisor', SUP), load('secret_root_driver', DRIVER)
+parser_entry = load('secret_root_parser_entry',
+                    '.agent-state/d13-plain-text-parser/entry-controls.py')
 knowledge_entry = load('secret_root_knowledge_entry',
                        '.agent-state/knowledge-owner-ui/entry-controls.py')
 
@@ -97,6 +100,14 @@ class RootEntryControls(unittest.TestCase):
                 inverse(name, source + '\n# unknown change\n')
         with self.assertRaises(ValueError):
             inverse(SUP, (ROOT / SUP).read_text().replace("all(state == 'PASS'", "all(state != 'FAIL'", 1))
+        source = (ROOT / SUP).read_text()
+        for old, new in (
+                ("PARSER_PG: {'TestKnowledgePlainTextParserIntegration'}", "PARSER_PG: set()"),
+                ("('0', PARSER_PG)", "('1', PARSER_PG)"),
+                ('(540, 60) if root_chain', '(541, 60) if root_chain')):
+            self.assertEqual(source.count(old), 1)
+            with self.assertRaises(ValueError):
+                inverse(SUP, source.replace(old, new, 1))
         with self.assertRaises(ValueError):
             inverse(SUP, (ROOT / SUP).read_text().replace(
                 "KNOWLEDGE_UI: {'TestKnowledgeOwnerReadWeb'}", "KNOWLEDGE_UI: set()", 1))
@@ -109,9 +120,10 @@ class RootEntryControls(unittest.TestCase):
         baseline = {}
         exec(compile(inverse(DRIVER, (ROOT / DRIVER).read_text()), DRIVER, 'exec'),
              {'__file__': str(ROOT / DRIVER), '__name__': 'baseline_driver'}, baseline)
+        self.assertEqual(driver.TARGETS[parser_entry.SELECTOR], 'tests/knowledge')
         self.assertEqual(driver.TARGETS[knowledge_entry.SELECTOR], 'internal/central/app')
         self.assertEqual({k: v for k, v in driver.TARGETS.items()
-                          if k not in (SELECTOR, knowledge_entry.SELECTOR)}, baseline['TARGETS'])
+                          if k not in (SELECTOR, parser_entry.SELECTOR, knowledge_entry.SELECTOR)}, baseline['TARGETS'])
 
     def test_exact_three_cases_and_original_wait(self):
         top = 'TestProjectSecretVariablesDefaultRoot'

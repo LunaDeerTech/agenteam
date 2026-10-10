@@ -29,6 +29,10 @@ BLOCKS = {DRIVER: ('def metadata_cost_inputs(', '73695a584b7ae85c4f302dc1f130306
 def inverse(name, source):
     if name not in BASE:
         raise ValueError('unknown source')
+    # The later Parser entry has its own exact inverse to accepted main
+    # 04455194. It imports only adapters, so this projection remains acyclic.
+    if "'^TestKnowledgePlainTextParserIntegration$'" in source:
+        source = parser_entry.inverse(name, source)
     end, digest = BLOCKS[name]
     first, last = source.index('KNOWLEDGE_UI ='), source.index(end)
     if hashlib.sha256(source[first:last].encode()).hexdigest() != digest:
@@ -94,6 +98,8 @@ def load(name, path):
 
 
 driver, sup = load('knowledge_ui_driver', DRIVER), load('knowledge_ui_supervisor', SUP)
+parser_entry = load('knowledge_ui_parser_entry',
+                    '.agent-state/d13-plain-text-parser/entry-controls.py')
 
 
 class EntryControls(unittest.TestCase):
@@ -108,7 +114,13 @@ class EntryControls(unittest.TestCase):
             with self.assertRaises(ValueError):
                 inverse(name, source.replace('KNOWLEDGE_UI =', '# unknown\nKNOWLEDGE_UI =', 1))
         source = (ROOT / SUP).read_text()
-        for old, new in (("all(state == 'PASS'", "all(state != 'FAIL'"),
+        begin, end = source.index('def secret_root_results('), source.index('KNOWLEDGE_UI =')
+        secret_block = source[begin:end]
+        self.assertEqual(secret_block.count("all(state == 'PASS'"), 1)
+        with self.assertRaises(ValueError):
+            inverse(SUP, source[:begin] + secret_block.replace(
+                "all(state == 'PASS'", "all(state != 'FAIL'", 1) + source[end:])
+        for old, new in (("('0', PARSER_PG)", "('1', PARSER_PG)"),
                          ("SECRET_ROOT: {'TestProjectSecretVariablesDefaultRoot'}",
                           "SECRET_ROOT: set()"),
                          ("KNOWLEDGE_UI: {'TestKnowledgeOwnerReadWeb'}",
@@ -121,7 +133,9 @@ class EntryControls(unittest.TestCase):
         self.assertEqual(driver.TARGETS[SELECTOR], 'internal/central/app')
         old = {'__file__': str(ROOT / DRIVER), '__name__': 'baseline'}
         exec(compile(inverse(DRIVER, (ROOT / DRIVER).read_text()), DRIVER, 'exec'), old)
-        self.assertEqual({k: v for k, v in driver.TARGETS.items() if k != SELECTOR}, old['TARGETS'])
+        self.assertEqual(driver.TARGETS[parser_entry.SELECTOR], 'tests/knowledge')
+        self.assertEqual({k: v for k, v in driver.TARGETS.items()
+                          if k not in (SELECTOR, parser_entry.SELECTOR)}, old['TARGETS'])
         self.assertEqual(sup.budgets(True), (540, 60))
         self.assertEqual(sup.budgets(False), (123, 3))
 
