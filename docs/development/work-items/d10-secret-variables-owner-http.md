@@ -104,3 +104,9 @@ main 合并基线 `114f5ede` 保留 Project initializer unbound。root 授权本
 root-author-01一次执行实际wholePASS：记录基线 `5715b32c`、入口 `f5d49ffd`、原c0e27d0d候选未重编；session70248→9ba821，精确一top两sub PASS9.78s（5.13s/4.64s），Go302620/driver298525/supervisor298503/outer298502均实际Wait0。原7个nonce/ID资源双退役、私有目录/runtime/后代/TCP双空、typed三case与GoWait、703输入字节及重新枚举、STOP0全门齐；原Go6m/540+60+3s/TCP75s预算未变，完整尾后释放窗口，无retry。原件在 `output/ai/secret-owner-http/root-author-01`，准确UTC/磁盘与命令见current/result.json。
 
 本次接受限作者默认root组合：同Store授权/事实/路由、普通变量兼容、原调用实际join及Account/guard退出顺序。屏障放在真实事务进入后、授权前，只证明被取消调用仍须实际返回，不扩大为该子授权成功；Force动态未包含。默认Project initializer保持unbound，未参与实现者独立动态、完整Project lifecycle和F1仍待；原HTTP作者PG/native按各自冻结输入复用，原FAIL不升级。
+
+## 12. 正式交付前关联检查
+
+固定source `109c4db8` 的受影响普通/integration vet与Central/Runner两命令构建已顺序实际通过：session41545→8f2a8b，四Go实际Wait及outer均0，runtime双空，总70.349s。普通vet检查app/projectvariable/projectvariable-http/secret；integration另检查tests/projectvariable。所有Go均先经过同process≥5GiB、私有telemetry off与去旁路，依赖cache只读，未运行测试或构建产物。初次fresh不足5GiB在任何Go前的门失败仍保留；容量恢复后由root另授本次执行，未自动重试。精确命令、PID和原件见current及 `output/ai/secret-owner-http/delivery-offline-01/result.json`。
+
+恢复入口 `.agent-state/secret-owner-http/offline-checks.py` 只保这四固定argv、安全FAIL记录和runtime双观察；实际本轮使用转存前的ignored入口，后增异常记录分支仅静态解析，未宣动态接受。全app普通race含真实监听，需要后继独占窗口；有限七top pure、作者PG/native/root和既有Owner库证据继续复用。Skills独立Session/泄露风险补集尚待，不将关联静态检查视为独立动态或F1完成。
