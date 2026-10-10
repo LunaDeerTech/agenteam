@@ -16,6 +16,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	c "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
 
@@ -196,7 +197,7 @@ func TestTaskTransitionOpaquePlanAndCancellationRejectBeforeSQL(t *testing.T) {
 	if _, err = transitionNext(math.MaxInt64); err == nil {
 		t.Fatal("overflow accepted")
 	}
-	g := taskGroup{Sprint: pureID[c.Sprint](t, 6), State: c.TaskStateBacklog, Priority: c.TaskPriorityHigh}
+	g := taskGroup{Sprint: pureID[pc.Sprint](t, 6), State: c.TaskStateBacklog, Priority: c.TaskPriorityHigh}
 	other := g
 	other.State = c.TaskStateTodo
 	groups := pendingGroups(other, g, g)
