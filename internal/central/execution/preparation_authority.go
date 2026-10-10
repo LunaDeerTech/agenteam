@@ -2,6 +2,7 @@ package execution
 
 import (
 	"context"
+	"sync/atomic"
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	c "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
@@ -22,6 +23,9 @@ type preparationWitness struct {
 	projectChecked bool
 	input          c.CapturedTriggerInput
 	sourceCaptured bool
+	agent          ac.AgentConfig
+	agentCaptured  bool
+	resourcesOpen  atomic.Bool
 }
 
 func clonePreparationProject(p pc.ProjectRef) pc.ProjectRef {

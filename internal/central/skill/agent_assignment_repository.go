@@ -126,6 +126,9 @@ func insertAgentInitialization(ctx context.Context, x postgres.SQLExecutor, r ag
 // retirement provider in this slice, so cleanup cannot consume those facts.
 func agentAssignmentsEmpty(ctx context.Context, x postgres.SQLExecutor, project id.ProjectID) (bool, error) {
 	var empty bool
-	err := x.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_skill.agent_assignment_heads WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.agent_assignments WHERE project_id=$1)`, project.String()).Scan(&empty)
+	// Execution protects fixed revision bindings independently of live Agent
+	// assignments. Even an empty captured set retains its initialized head;
+	// lifecycle must retire Execution-owned input before releasing Skill Objects.
+	err := x.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_skill.agent_assignment_heads WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.agent_assignments WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.execution_binding_heads WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.execution_bindings WHERE project_id=$1)`, project.String()).Scan(&empty)
 	return empty, portError(err)
 }

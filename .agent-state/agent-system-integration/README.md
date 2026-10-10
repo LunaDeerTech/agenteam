@@ -246,3 +246,28 @@ python3 -B output/ai/agent-system-integration/scheduler-project-runner-pure-chec
 python3 -B output/ai/agent-system-integration/scheduler-project-runner-compile-01-launcher.py
 python3 -B output/ai/agent-system-integration/scheduler-project-runner-launcher-01.py
 ```
+
+## Execution preparing 中的真实 Skill/Tool capture providers
+
+SOURCE `6c3200ed`。pure01 原 wholeFAIL 保留：11 top PASS，4 个新 Skill top 因测试 helper 的非法 JobCause ID 失败；仅修该测试一行后，pure02 的这 4 top＋尚未执行的 5 pkg vet 均 wholePASS，原 11 PASS 复用。compile01/list 与 native01 wholePASS。`TestExecutionCaptureProviders/real-providers-roll-back-with-unbound-snapshot` 恰 1 top/1 sub（16.81s）：真实 P2/Agent/Task Launch 后，PreparationDriver 的私有 preparing authority 经原 Task/Agent capture 调用真实 Skill/Tool providers；同一原事务中观察固定 Skill revision/assignment 与实际 install builtin metadata、两域 head/ref 各一条。完整 Snapshot 提供方尚未齐，原 DependencyUnbound 导致物理 NotCommitted、四表引用全回滚；Execution 仍 preparing 且持 slot，attempt terminal 仅表示原调用已退。原调用外两 provider 均 Forbidden；不宣称完整 Snapshot、running 或 Tool 执行。
+
+native01 于 2026-10-10 21:52:26–21:54:18 UTC 完成，Go 201513、driver 199767、supervisor 199766、outer 199701 原 Wait0；七资源 14 次 absent，private/runtime/desc/HOST_TCP 与 outer 双尾全闭，adopted=[]。1,506 运行输入首尾相同，含全部 788 compile 输入。窗口已归还，所有旧 FAIL/候选/输入保留。原件：`output/ai/execution-capture-providers/combined-pure-{01,02}/result.json`、`output/ai/agent-system-integration/execution-capture-providers-compile-01/result.json`、`output/ai/agent-system-integration/execution-capture-providers-01-control/result.json`；原日志 `/tmp/ecp01/pg-d09d2d10a2394423aac5b4b94516d523.log`。候选 `execution-capture-providers-race-01.test` 为 60,615,294 B，SHA256 `d89e14dc17e4c69cb8cc83b5748f0b93fb668040182af7c6b15f6c29a6434e6f`。
+
+恢复复用本文件原 recipe（不可变来源 `git show 6c3200ed:.agent-state/agent-system-integration/README.md`），从 `148640b8` 的 `.agent-state/agent-system-integration/task-launch-failure-pure-checks.py`、`73387883` 的同目录 `scheduler-failure-compile-02-launcher.py` 和 `scheduler-failure-launcher-01.py` 重建 ignored 入口。仅代入 ROOT 为当前 delivery、SOURCE `6c3200ed`、namespace `execution-capture-providers`、私有 root `/tmp/ecp01`、selector `^TestExecutionCaptureProviders$`；compile list 为 len1＋精确集合，输入冻结要求 compile PASS 并覆盖原 compile 输入，排除旧顺序 FAIL 特例。pure 完整范围为以下 15 名及 `exact_15_top_pass`，vet 仅 `execution`、`tool/registry`、`tool/contract`、`skill`、`skill/contract`。历史补集 `pure-checks-02.py` 仅保留其中 Skill 新 4 名（不含旧 Cleanup top），count 改 4、输出 `combined-pure-02`，5 vet 不变；不覆盖原 01。原正常环境、同进程 5GiB、预算/Wait/全部尾保持。
+
+```python
+TOPS = {
+ 'execution': ['TestExecutionPreparationResourceCaptureOriginalTransaction', 'TestExecutionPreparationResourcePlansRejectChangedSourceAndClaim', 'TestExecutionPreparationResourceDiscoveryStopJoinsOriginalCall', 'TestExecutionPreparationCapturesInOriginalTransactionAndRollsBackPartialInput', 'TestExecutionPreparationUnknownOwnsOriginalAttemptUntilObserved'],
+ 'tool/registry': ['TestToolExecutionCaptureFixesRealMetadataAndReferences', 'TestToolExecutionCaptureRejectsUnprovenOrChangedFacts', 'TestToolExecutionCaptureEmptySetStillRequiresOwner', 'TestToolExecutionCaptureJoinsOriginalCallAndKeepsUnknown'],
+ 'skill': ['TestExecutionSkillBindingsFixedRevisionAndEmptyHead', 'TestExecutionSkillBindingsRejectSourceAndAttemptDrift', 'TestExecutionSkillBindingsKeepOriginalOutcomeAndRollback', 'TestExecutionSkillBindingsProtectCleanup', 'TestSkillCleanupBlocksUnretiredAgentInitializationBeforeRelease'],
+ 'skill/contract': ['TestInitialSkillBindingsKeepFixedCatalogAndClone'],
+}
+```
+
+在已分配的唯一窗口内依次执行；compile/list 全尾 PASS 后按原 recipe 冻结 `execution-capture-providers-01-inputs.json` 再启动 native，已有输出不得覆盖：
+
+```sh
+python3 -B output/ai/agent-system-integration/execution-capture-providers-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build
+python3 -B output/ai/agent-system-integration/execution-capture-providers-compile-01-launcher.py
+python3 -B output/ai/agent-system-integration/execution-capture-providers-launcher-01.py
+```

@@ -154,6 +154,7 @@ func TestAgentConfigurationCreate(t *testing.T) {
 
 type agentCreateFixture struct {
 	p2        *skillInstallationFixture
+	guard     *object.ProcessGuard
 	providers assembly.Providers
 	agents    *agent.Service
 	modelID   mc.ModelID
@@ -163,6 +164,7 @@ type agentCreateFixture struct {
 func newAgentCreateFixture(t *testing.T) *agentCreateFixture {
 	t.Helper()
 	var installer *toolruntime.InstallAuthority
+	var processGuard *object.ProcessGuard
 	var process objc.ProcessID
 	var installerRetired sync.Once
 	retireInstaller := func() {
@@ -177,6 +179,7 @@ func newAgentCreateFixture(t *testing.T) *agentCreateFixture {
 	}
 	p2 := newSkillInstallationFixtureWithAuthority(t, func(store *hookStore, projects *project.Authority, guard *object.ProcessGuard, p objc.ProcessID) (*skill.Authority, error) {
 		process = p
+		processGuard = guard
 		var err error
 		installer, err = toolruntime.NewInstallAuthority(store, guard, p)
 		if err != nil {
@@ -196,7 +199,7 @@ func newAgentCreateFixture(t *testing.T) *agentCreateFixture {
 	if err != nil {
 		t.Fatal(err)
 	}
-	v := &agentCreateFixture{p2: p2, providers: graph.Providers()}
+	v := &agentCreateFixture{p2: p2, guard: processGuard, providers: graph.Providers()}
 	// Registration traverses the actual bound guard and exactly the service
 	// constructed with this InstallAuthority, in the original Registry EX Tx.
 	p2.base.tx(t, []f.LockRequest{registry.RegistryLock(f.Exclusive)}, func(ctx context.Context, tx f.Tx, _ postgres.SQLExecutor) error {

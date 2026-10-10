@@ -12,6 +12,8 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
+	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
 
 type PreparationDependencies struct {
@@ -20,6 +22,8 @@ type PreparationDependencies struct {
 	Processes oc.ProcessAuthority
 	Task      c.TriggerCaptureProvider
 	Meeting   c.TriggerCaptureProvider
+	Skills    sc.InitialBindingsProvider
+	Tools     tc.ExecutionTools
 }
 
 // PreparationDriver owns a synchronous attempt to prepare an existing
@@ -35,6 +39,8 @@ type preparationState struct {
 	processes     oc.ProcessAuthority
 	process       oc.ProcessID
 	task, meeting c.TriggerCaptureProvider
+	skills        sc.InitialBindingsProvider
+	tools         tc.ExecutionTools
 	mu            sync.Mutex
 	stopped       bool
 	calls         map[i.ExecutionID]*preparationCall
@@ -53,17 +59,20 @@ func NewPreparationDriver(store Store, authority *Authority, deps PreparationDep
 	if nilPort(store) || !reflect.TypeOf(store).Comparable() || authority == nil || authority.state == nil || authority.state.store != store || nilPort(deps.Agents) || nilPort(deps.Projects) || nilPort(deps.Processes) {
 		return nil, fault(f.DependencyUnbound)
 	}
+	if deps.Skills != nil && nilPort(deps.Skills) || deps.Tools != nil && nilPort(deps.Tools) {
+		return nil, fault(f.DependencyUnbound)
+	}
 	process := deps.Processes.CurrentProcess()
 	if process.Validate() != nil {
 		return nil, fault(f.DependencyUnbound)
 	}
-	return &PreparationDriver{&preparationState{store: store, authority: authority, agents: deps.Agents, projects: deps.Projects, processes: deps.Processes, process: process, task: deps.Task, meeting: deps.Meeting, calls: map[i.ExecutionID]*preparationCall{}, returned: map[i.ExecutionID]preparationClaim{}, changed: make(chan struct{})}}, nil
+	return &PreparationDriver{&preparationState{store: store, authority: authority, agents: deps.Agents, projects: deps.Projects, processes: deps.Processes, process: process, task: deps.Task, meeting: deps.Meeting, skills: deps.Skills, tools: deps.Tools, calls: map[i.ExecutionID]*preparationCall{}, returned: map[i.ExecutionID]preparationClaim{}, changed: make(chan struct{})}}, nil
 }
 
 // Run reads the stored original Launch, commits created -> preparing and a
-// fenced attempt, then crosses the real Project/Trigger/Agent capture ports.
-// The remaining complete Model/Tool/Skill/ref/lease capture is not installed in
-// this slice: its absence returns DependencyUnbound from the original capture
+// fenced attempt, then crosses the real Project/Trigger/Agent capture ports
+// and any installed Skill/Tool providers. Complete Model/context/ref/lease
+// capture is not installed in this slice: its absence returns DependencyUnbound from the original capture
 // transaction, rolling back every source reference and retaining zero input.
 // No partial preparation, Snapshot, running state or Started event is written.
 func (d *PreparationDriver) Run(ctx context.Context, execution i.ExecutionID) (err error) {
@@ -236,6 +245,13 @@ func (d *PreparationDriver) Joined() bool {
 }
 
 func (s *preparationState) capture(ctx context.Context, request c.PreparationRequest, claim preparationClaim) (err error) {
+	// Every provider call, including discovery, belongs to this original Run.
+	// A provider panic cannot publish a plan or skip attempt retirement.
+	defer func() {
+		if recover() != nil {
+			err = unavailable(nil)
+		}
+	}()
 	if err = ctx.Err(); err != nil {
 		return err
 	}
@@ -253,20 +269,51 @@ func (s *preparationState) capture(ctx context.Context, request c.PreparationReq
 	if nilPort(plan) {
 		return fault(f.DependencyUnavailable)
 	}
+	skillRequest := sc.SkillCaptureRequest{ProjectID: request.Launch.ProjectID, AgentID: request.Launch.AgentID, ExecutionID: request.ExecutionID}
+	var skillPlan sc.InitialBindingsPlan
+	if !nilPort(s.skills) {
+		err = s.discoverResource(ctx, request, claim, "skill", func(discoveryCtx context.Context) error {
+			var discoverErr error
+			skillPlan, discoverErr = s.skills.DiscoverInitialBindings(discoveryCtx, skillRequest)
+			return discoverErr
+		})
+		if err != nil {
+			return portError(err)
+		}
+		if nilPort(skillPlan) {
+			return fault(f.DependencyUnavailable)
+		}
+	}
+	toolRequest := tc.ExecutionToolCaptureRequest{ProjectID: request.Launch.ProjectID, AgentID: request.Launch.AgentID, ExecutionID: request.ExecutionID}
+	var toolPlan tc.ExecutionToolPlan
+	if !nilPort(s.tools) {
+		err = s.discoverResource(ctx, request, claim, "tool", func(discoveryCtx context.Context) error {
+			var discoverErr error
+			toolPlan, discoverErr = s.tools.DiscoverExecutionTools(discoveryCtx, toolRequest)
+			return discoverErr
+		})
+		if err != nil {
+			return portError(err)
+		}
+		if nilPort(toolPlan) {
+			return fault(f.DependencyUnavailable)
+		}
+	}
 	locks, err := preparationLocks(request)
 	if err != nil {
 		return err
 	}
-	locks, err = oc.NormalizeLocks(append(locks, plan.RequiredLocks()...))
+	locks = append(locks, plan.RequiredLocks()...)
+	if skillPlan != nil {
+		locks = append(locks, skillPlan.RequiredLocks()...)
+	}
+	if toolPlan != nil {
+		locks = append(locks, toolPlan.RequiredLocks()...)
+	}
+	locks, err = oc.NormalizeLocks(locks)
 	if err != nil {
 		return portError(err)
 	}
-	// No panic from a provider becomes permission or a successful capture.
-	defer func() {
-		if recover() != nil {
-			err = unavailable(nil)
-		}
-	}()
 	result := s.store.WithinTx(ctx, claim.cause(), func(ctx context.Context, tx f.Tx) error {
 		if err := s.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
@@ -313,8 +360,44 @@ func (s *preparationState) capture(ctx context.Context, request c.PreparationReq
 		if config.Validate() != nil || fields.Core.ID != request.Launch.AgentID || fields.Core.ProjectID != request.Launch.ProjectID || fields.Core.Lifecycle != ac.AgentActive {
 			return fault(f.InvalidState)
 		}
-		// The complete D01 atomic metadata/ref/lease capture ports are not yet
-		// implemented. Do not serialize these two partial values or let this
+		proof.agent, proof.agentCaptured = config.Clone(), true
+		proof.resourcesOpen.Store(true)
+		defer proof.resourcesOpen.Store(false)
+		if nilPort(s.skills) {
+			return fault(f.DependencyUnbound)
+		}
+		bindings, err := s.skills.ResolveInitialBindingsInTx(captureCtx, tx, skillRequest, skillPlan)
+		if err != nil {
+			return portError(err)
+		}
+		if err = ctx.Err(); err != nil {
+			return err
+		}
+		if bindings.Validate() != nil || bindings.Request != skillRequest {
+			return fault(f.InvalidState)
+		}
+		if nilPort(s.tools) {
+			return fault(f.DependencyUnbound)
+		}
+		tools, err := s.tools.ResolveExecutionToolsInTx(captureCtx, tx, toolRequest, toolPlan)
+		if err != nil {
+			return portError(err)
+		}
+		if err = ctx.Err(); err != nil {
+			return err
+		}
+		if tools == nil {
+			return fault(f.InvalidState)
+		}
+		seen := make(map[i.ToolID]bool, len(tools))
+		for _, tool := range tools {
+			if tool.Validate() != nil || seen[tool.ToolID] {
+				return fault(f.InvalidState)
+			}
+			seen[tool.ToolID] = true
+		}
+		// The remaining complete D01 atomic metadata/ref/lease capture ports
+		// are not installed. Do not serialize partial values or let this
 		// transaction commit provider references on their own.
 		return fault(f.DependencyUnbound)
 	})
