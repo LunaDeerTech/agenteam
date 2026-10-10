@@ -1,7 +1,7 @@
 # Knowledge Owner 只读 UI
 
 - 分支 `ai/knowledge-owner-ui`，树 `/workspace/agenteam-knowledge-owner-ui`；`0658c54f` 已合正式后端 `fb84a892`，UI 已保存 `da77c639`，首链七源已保存 `15e730da`。root 独占 Git，content 独占本树 UI 下述路径及新首链测试；shared 入口由 coordination 单写。不写 candidate 或旧正文树。
-- API/client/Session 第一片段 `b0c89d6e`、后续页面和目录失败清层修复均已通过对应离线验证及 Skills 有限 actual diff 审。Go/browser fixture 已实现；`read-author-01` 与诊断源 `27a46c9e` 的 `read-second-diagnostic-02` 均实际整体 FAIL 保留；方法源 `0f2194c8` 的 `read-author-03` 作者单正常链已整体 PASS、原退出尾完整结束。整 D12 与独立风险验收未完成。后端、锁、parser、来源及 STOP 不变。
+- API/client/Session 第一片段 `b0c89d6e`、后续页面和目录失败清层修复均已通过对应离线验证及 Skills 有限 actual diff 审。Go/browser fixture 已实现；`read-author-01` 与诊断源 `27a46c9e` 的 `read-second-diagnostic-02` 均实际整体 FAIL 保留；方法源 `0f2194c8` 的 `read-author-03` 作者单正常链已整体 PASS、原退出尾完整结束。新主线组合read04整体PASS，新增独立组件风险3项通过；整D12与生产SPA未完成。后端、锁、parser、来源及 STOP 不变。
 - 默认 Project initializer 已按 canonical 门禁撤回。修后 root-02 的默认 Create Unbound/零事实、显式测试 fixture 真 ports/Stop/Drain 和默认读取链已正式进入 main；旧 root-01 业务 PASS 仍仅历史事实，不为生产初始化背书。UI 后继 fixture 必须沿修后边界，不重新绑定默认 initializer。
 
 ## 唯一写域与当前结果
@@ -26,7 +26,7 @@
 
 ## 下一步与资源边界
 
-coordination 的 D12 独立入口/初尾闭包与 `0f2194c8` 三方法源均已有限独审；第三次作者四GET正常链 wholePASS 见下。当前无在途命令或资源窗口。原01/02 FAIL及未知不回填，后继独立风险/验收范围由 root 调度；不自行重跑，不宣称编辑、完整 D12、生产 SPA 或 Project Create HTTP 可用。
+coordination 的 D12 独立入口/初尾闭包与 `0f2194c8` 三方法源均已有限独审；第三次旧输入与第四次新主线组合作者四GET正常链 wholePASS 见下。当前无在途命令或资源窗口。原01/02 FAIL及未知不回填，新增独立3项组件风险已通过，其它后继范围由 root 调度；不自行重跑，不宣称编辑、完整 D12、生产 SPA 或 Project Create HTTP 可用。
 
 ## 首真实链 fixture 实施准备
 
@@ -41,3 +41,7 @@ root 已授权四新测试源与自有 native controls；生产11源保持 `da77
 第二次：计划57c5fd03与三源27a46c9e经coord有限独审；64664方法249控/0unhandled、57776严格TS、82407恰1PW list与三源format actual0。`read-second-diagnostic-02` session21831/outer345887于UTC06:38:36.591933Z启动，旧01七ID/3private/runtime双预飞齐，fresh8,365,895,680B/privateoff/emptyDockerconfig/1448输入。Go53.36s FAIL、Nodefalse/Go1/driver1/outer1。原pageopen时phase=pw-tails/pending4，seq1/4/6/9已requestfailed、header返回、无finished；pageclose后四finished reject并join，随后page-observers evaluate拒绝。首快照较晚page-observers不能替代关闭前事件链。最后idle样本的12 native EOF/read/cancel/release/outer与12 public fulfilled/current/not_busy/bound计数已知，但digest/CL/XID绑定、typed实值、最终首次explicit/end/join及失败分类保持UNKNOWN。7IDs14次absent/private/runtime/desc双空、4adopted原Wait0、TCP双空、inputs_unchanged=true，wholeFAIL135.099s；窗口释放、无在途作者命令。最小安全原件：[read-second-failure.json](knowledge-owner-ui/read-second-failure.json)。原01/02均不回填PASS；该轮结束时后继仅方法计划。
 
 第三次：三源 `0f2194c8` 实施原Request单terminal，normal实际finished一次/null；failed仅LIVE ERR_ABORTED且open/原预算内、finished调用0，所有原消费/typed/DOM/首explicit/endjoin门保留。原55684新children刺激签名FAIL保留；修后最终35822方法653控/0unhandled、46653 strictTS、84536 exact1case list、30064 format全部actual0，coord实际diff有限接受。`read-author-03` session25505/outer409429于UTC07:18:53.594873启动，fresh6,898,204,672B、旧01+02双预飞齐、同候选/67dist/1448input/privateoff。Node411934true、Go411714单top32.59s PASS/0、driver409741/0、outer0、4adopted原Wait0。LIVE3failed(seq1/5/6)/9normal满足严格终态；12原native/PW/public/DTO/正文/Schema12与原UI动作通过，两observerfirstexplicitpending0/end0，current/notbusy真实。七IDs14absent/private/runtime/desc双空/HOSTTCP双空、inputsunchangedTrue，wholePASS150.043s，窗口已释放。最小安全记录：[read-third-pass.json](knowledge-owner-ui/read-third-pass.json)。旧FAIL不改写；默认initializer/来源/Runtime STOP不变。
+
+新主线：root合main3a7后26e3928d保全部shared并集，新增独立risk源由coord保存3c7958ac。作者42757新race-c与精确1top list0/runtime[]，候选02为60,984,862B/fe88b150d4a7d82476697ec96016094fad1ef291cfde83abe1449e90c9f8fa30；PW14897精确1case/driver56476 check0。生产11源、原4tests/锁/dist未变，复用最终78与旧兼容126，不复跑。独立risk真实App/Session/Workspace+受控network3项31259 actual0、类型66927/format0；只认当前401与held跨Project/Session组件边界，不冒真实Owner转让/Logout PG。
+
+`read-author-04` source3c7958ac/session93990/outer448904，UTC07:53:29.989745；sameprocess fresh5,565,239,296B，旧01/02/03资源及私有双预飞齐、privateoff/emptyDocker。原collector排除pure spec，实枚举1455/inputSHA6a298ef9c1c6046e0949ba09e781bbc235dd6c79f2bc5f90679c1db2447a2b4d，未改成猜值1456。Node451523true、Go451366单top27.31s/0、driver449324/0、outer0、4adopted原Wait0；12原响应/typed/DOM/Schema12和两observerfirstexplicitpending0/endjoin齐。LIVE4failed(seq6/7/8/12)/8normal均严格原门。7ID14absent/private/runtime/desc/TCP双尾与1455inputsunchangedTrue，wholePASS130.643s。安全记录：[read-fourth-pass.json](knowledge-owner-ui/read-fourth-pass.json)。原01/02FAIL/03旧PASS保留，无在途资源；正式源码收敛不导入本current/历史JSON/output。

@@ -1,6 +1,6 @@
 # D12 Knowledge 文档与文档树
 
-状态：B01 纯契约、[B02 Human canonical/树服务](d12-b02-knowledge-service.md)、[Owner metadata/树 HTTP](d12-knowledge-owner-read-http.md)、[树命令 HTTP](d12-knowledge-owner-tree-http.md)与[有界正文 HTTP](d12-knowledge-owner-content-http.md)已分别完成有限交付；正文卡 §6 记录默认 root 的有限真实组合通过。下一片段为下述 Owner 只读 UI，已有实现、离线检查及旧后端输入下作者正常链 `read03` 整体通过；新主线组合与独立动态验收未完成；D12 整体与既有 STOP 未关闭。下列 B01/C1 段落保留当时记录，后续实际状态以相应子卡为准。
+状态：B01 纯契约、[B02 Human canonical/树服务](d12-b02-knowledge-service.md)、[Owner metadata/树 HTTP](d12-knowledge-owner-read-http.md)、[树命令 HTTP](d12-knowledge-owner-tree-http.md)与[有界正文 HTTP](d12-knowledge-owner-content-http.md)已分别完成有限交付；正文卡 §6 记录默认 root 的有限真实组合通过。下述 Owner 只读 UI 已完成实现、作者正常链及新主线组合 `read04` 整体检查，新增三项独立组件风险验证通过；D12 整体与既有 STOP 未关闭。下列 B01/C1 段落保留当时记录，后续实际状态以相应子卡为准。
 
 正式依据：[实施规格](d12-knowledge-documents-design.md)、[D01 资源契约](d01-contracts/resources-skills.md)、[文档领域](../../architecture/knowledge-memory/knowledge-document-domain.md)。规格输入固定 `16595ad1e78e5283dfe85fb812095acde382edd1`。原候选 `/tmp/agenteam-d12-s01-rev2-21if98iv/d12-knowledge-s01-candidate.md` SHA `c1ae54e6a6d4ea111d4e662ba3c75cbd4c7a42d8f7ab2768b3bbbf45309adf23`；独立复核 `/tmp/agenteam-d12-rev2-review-0nxov8_a/report.md` SHA `35c733111d44052d124e7cc731433905794840b4b82b2777da102806ca78acf9`。R01 namespace/OwnerIDs 与 R02 跨包 typed 载体已闭环；静态采纳不代表生产能力通过。
 
@@ -37,11 +37,11 @@ B01 独立报告 `/tmp/agenteam-d12-b01-verify-49kvfiqa/report.md` SHA `b95a4e96
 
 B02 新 canonical/树服务库可依真实稳定端口继续准备；真实 PG/MinIO、唯一迁移号、cursor.Text、Knowledge Object/source/download/Audit 与清理能力分别交接验收。B03 participant 必须等待 D08 lifecycle/D05 stop 的真实稳定绑定，不以 C0 或 pure 通过替代。D13 parser/index/retrieval、Agent destructive 的 D18/D19/D21/D22 适配与正式 HTTP/UI 后续单独接入；不阻断当前 Human 契约，也不宣称已有这些生产能力。无 D09 全局等待门槛。
 
-## 下一独立交付：Owner 文档树与正文读取 UI（实现中，未验收）
+## Owner 文档树与正文读取 UI（限定读取范围）
 
 本段只落实[知识库布局](../../frontend-design/layouts/knowledge-base.md)和[项目工作台](../../frontend-design/layouts/project-workspace.md)中已有文档的读取部分：当前 Owner 进入项目知识库，分页展开文档树，选择父文档或子文档，查看元数据、祖先路径和当前有界正文。默认不选中文档；空库显示“暂无文档”。普通入口不恢复旧选择，指定文档链接按当前权限重新定位。首片段可独立交付，不等待完整知识库编辑器。
 
-实施使用 root 已创建的独立 `ai/knowledge-owner-ui` 树；前端执行者唯一写本段列出的客户端、会话接缝、组件与页面，配套真实 fixture 由指定后端/测试写者负责，共享 harness 仍由原 owner 集成。客户端、controller、树和页面已实现，沿现有 Session/Project 工作区接入；作者四 GET 正常链已真实通过，新主线 Account/Secret 根装配合入后的组合仍待验证。无迁移、新后端契约或生产 root 改动；保留 Object Runtime join、来源获取及其他既有 STOP。
+实施使用 root 已创建的独立 `ai/knowledge-owner-ui` 树；前端执行者唯一写本段列出的客户端、会话接缝、组件与页面，配套真实 fixture 由指定后端/测试写者负责，共享 harness 仍由原 owner 集成。客户端、controller、树和页面已实现，沿现有 Session/Project 工作区接入；作者四 GET 正常链及新主线 Account/Secret 根装配合入后的组合均已真实通过。无迁移、新后端契约或生产 root 改动；保留 Object Runtime join、来源获取及其他既有 STOP。
 
 ### 四个正式读取接口
 
@@ -85,14 +85,18 @@ B02 新 canonical/树服务库可依真实稳定端口继续准备；真实 PG/M
 
 首个正常 case 从真实登录后的项目入口进入知识库，确认默认未选中，展开父文档、选择子文档、核真实 metadata/祖先及首段 UTF-8 文本，再取下一段核实际 byte offset；同时验证父文档也可选读。先以小 fixture 打通这一次原客户端→Session→HTTP→B02/D05→原响应完整消费→页面发布。沿既有 task-owned 静态 dist/同源反代测试入口与七资源 fixture；它们不是 SPA 生产发布。浏览器、Go/driver/outer、原请求消费和取消尾、领域/root 退役与自有资源/TCP尾全部结束才算该次完成，HTTP 200、native EOF 或截图单独不算 UI 发布。
 
-与本片段风险对应的增量检查限定为：四端点完整/坏尾表示与偏移解析；根/子级 cursor、空树/空正文/tombstone/unavailable；当前 Owner 拒绝与 archived 读取；切换文档/项目或身份、held reader/cancel/finally 时禁止迟到发布及提前放行下一 Cookie 请求。复用未变后端权限/native/root 证据，不重跑其全矩阵。真实浏览器补窄屏 Drawer、键盘选择/展开、焦点恢复、长文本滚动和现有明暗/reduced-motion样式；独立验证者只核新权限、消费/发布和页面接缝。精确选择器为 `^TestKnowledgeOwnerReadWeb$`（1 top / 0 sub），锁定 Playwright 1 case / 45s / retry0；Go 120s 含 cleanup，包6m、root540s及原退出/资源/TCP尾沿已有共享入口。Go/browser fixture 已实现，旧输入作者 `read03` 已实际通过；合入新主线后须使用新编 Go 候选执行同一组合，未运行前不沿用旧二进制结论。
+与本片段风险对应的增量检查限定为：四端点完整/坏尾表示与偏移解析；根/子级 cursor、空树/空正文/tombstone/unavailable；当前 Owner 拒绝与 archived 读取；切换文档/项目或身份、held reader/cancel/finally 时禁止迟到发布及提前放行下一 Cookie 请求。复用未变后端权限/native/root 证据，不重跑其全矩阵。真实浏览器补窄屏 Drawer、键盘选择/展开、焦点恢复、长文本滚动和现有明暗/reduced-motion样式；独立验证者只核新权限、消费/发布和页面接缝。精确选择器为 `^TestKnowledgeOwnerReadWeb$`（1 top / 0 sub），锁定 Playwright 1 case / 45s / retry0；Go 120s 含 cleanup，包6m、root540s及原退出/资源/TCP尾沿已有共享入口。Go/browser fixture 已实现；旧输入作者 `read03` 和合入新主线后使用新编 Go 候选的 `read04` 分别实际通过，结果各自绑定原输入。
 
-### 当前证据与组合待验
+### 当前证据与完成边界
 
 四个前端测试文件的有效最终证据为：客户端35项、UiTree/公共组件14项、目录失败清层修后state/页面29项，共78项；相关输入未变时复用。既有Session/认证/Project工作区126项兼容检查保持原范围。最初166项组合早于目录返修，不写成修后重新全跑；失败保留在[固定topic恢复记录](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/current.md)。完整类型检查、返修后的私有正式dist构建与有限静审已完成；受控Fetch/jsdom证据不冒真实权限或浏览器。
 
 目录继续页失败或取消会清该层行和cursor，保留其他ready层；新增根403、子503及持住原尾的Stop控制。当前67个dist资产来自返修后冻结源，并已由作者 `read03` 真实消费；生产11源、四个前端测试及锁未变，本轮不重复构建或重跑未变矩阵。
 
-作者正常链 `read03` 在方法源 `0f2194c8` 与旧Go候选下整体PASS：12个四GET原请求完成原reader/取消/Close与Session同Promise typed发布、DOM及Schema核对；两observer首次explicit/pending0与全部尾join通过。原Node、Go、driver、outer及七资源/private/runtime/desc/TCP双尾完整退出。首两轮wholeFAIL及其UNKNOWN保持原样，原请求ERR_ABORTED只由第三轮现场观测支持；[安全结果](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/knowledge-owner-ui/read-third-pass.json)与[恢复说明](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/knowledge-owner-ui/README.md)固定到已保存topic，不要求把历史JSON/current导入正式范围。
+作者正常链 `read03` 在方法源 `0f2194c8` 与旧Go候选下整体PASS：12个四GET原请求完成原reader/取消/Close与Session同Promise typed发布、DOM及Schema核对；两observer首次explicit/pending0与全部尾join通过。原Node、Go、driver、outer及七资源/private/runtime/desc/TCP双尾完整退出。首两轮wholeFAIL及其UNKNOWN保持原样，该轮ERR_ABORTED只由当轮现场观测支持；[旧输入安全结果](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/knowledge-owner-ui/read-third-pass.json)与[恢复说明](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/knowledge-owner-ui/README.md)固定到已保存topic，不要求把历史JSON/current导入正式范围。
 
-Skills/coordination已对产品、fixture和消费方法实际差异做有限独立静审；上述离线和正常链动态均由作者执行，不宣称已有独立动态风险验收。当前已合主线Secret根装配及共享入口并集（`26e3928d`），Go依赖有实变，需新race候选/精确入口准备后执行一次同范围组合；当前组合尚待。默认initializer、完整participant、Object Runtime join与来源STOP保持，不扩编辑、parser、Project Create HTTP、整D12或生产SPA。
+Skills/coordination已对产品、fixture和消费方法实际差异做有限独立静审。coordination另独立执行 `knowledge-owner-risk.spec.ts` 三项实际App/Session/Workspace、受控Fetch/Stream验证：当前401隐藏原内容、reader未退役时跨Project不提前请求、outer cancel未退役时跨Session不提前restore，释放后各有正常完成证明；unit/类型/格式通过。其最初按钮精确文本及Problem URN刺激错误已窄修，原方法FAIL保留；这不是新增真实Owner转让或Logout PG验收。
+
+合入主线Account/Secret根与共享并集后，`26e3928d` 新race候选经精确1 top/list准备；`3c7958ac` 输入的作者 `read04` 使用该新候选和未变67个dist资产，1 Go top/1 PW case整体PASS（Go27.31s）。12原四GET与Schema12、树键盘/UTF8下一段/Drawer、原typed发布和两个observer首次explicit/pending0/实际join全部通过；4个原请求现场ERR_ABORTED且finished调用0，另8个正常finished调用1/null。原Node/Go/driver/outer及4 adopted Wait0，七资源14次absent/private/runtime/desc/TCP双尾齐，1455运行时输入初末一致，wholePASS130.643s。新增纯测试由既有collector排除，不人为扩成1456输入。
+
+本次有限完成范围仅Owner已有文档的四GET与只读页面，复用既有后端权限证据；旧01/02FAIL与read03旧输入PASS不升级。默认initializer、完整participant、Object Runtime join与来源STOP保持，不扩编辑、parser、Project Create HTTP、整D12或生产SPA。

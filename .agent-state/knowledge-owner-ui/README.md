@@ -1,6 +1,6 @@
 # Knowledge Owner 正常读取链
 
-本目录的方法仅对应 `TestKnowledgeOwnerReadWeb`（integration、app 包、1 top / 0 sub）与锁定 Playwright 的一个 `[read] Knowledge Owner existing-document read` case。前两次真实读取整体 FAIL 保留；第三次 `read-author-03` 作者单正常链整体 PASS，原退出尾完整结束。生产 UI 已存 `da77c639`，当前方法源 `0f2194c8`；这不等于整 D12 或独立风险验收，默认 Project initializer 保持未绑定。现已合主线 `3a7a3fb5` 的 Account/Secret 根装配与共享入口并集（merge `26e3928d`）；该新组合须重新编译 Go 候选并执行一次原正常链，当前尚待。
+本目录的方法仅对应 `TestKnowledgeOwnerReadWeb`（integration、app 包、1 top / 0 sub）与锁定 Playwright 的一个 `[read] Knowledge Owner existing-document read` case。前两次真实读取整体 FAIL 保留；第三次 `read-author-03` 作者单正常链整体 PASS，原退出尾完整结束。生产 UI 已存 `da77c639`，当前方法源 `0f2194c8`；这不等于整 D12，默认 Project initializer 保持未绑定。现已合主线 `3a7a3fb5` 的 Account/Secret 根装配与共享入口并集（merge `26e3928d`）；新编race候选已在 `3c7958ac` 输入下完成 `read-author-04` 整体PASS，新增独立三项组件风险检查也已通过，边界见末节。
 
 Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/Object；普通 Owner 来自正式 invitation / inspect / redeem / login。默认 Project Create 的新 target 必须 `DependencyUnbound/NotCommitted` 且零事实；正向准备只使用已有 `rootCompositionProjectFixture` 真实 ports，实际 Stop/Drain/Joined 后才进入浏览器。没有业务 SQL 造 ready 或生产注入。静态 dist 与同源反代只供测试。
 
@@ -53,8 +53,14 @@ Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/O
 
 七资源14次absent、private/runtime/desc双空、HOST_TCP双空、初末1448输入重枚举/摘要unchanged=true；wholePASS terminal0/150.043s，窗口已释放。安全记录：[read-third-pass.json](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/knowledge-owner-ui/read-third-pass.json)。前两次FAIL及其UNKNOWN不回填，本次只接受作者四GET正常链；不宣称编辑、来源/parser、Project Create HTTP、完整D12或生产SPA已完成。
 
-## 新主线组合准备
+## 新主线组合准备与实际通过
 
-已仅重编app integration race候选并核 `-test.list '^TestKnowledgeOwnerReadWeb$'` 恰1 top、PW config `--list` 恰1 case及新driver `--check` 当前输入。使用Go1.27.1、私有telemetry modeoff/去三旁路、只读离线modules与独立runtime；长编译前同process fresh>=5GiB。生产UI/锁/dist未改，复用最终78项及既有兼容/44971构建，不把复用记成新执行。此次42757编译/Go list实际0，原两个子进程Wait0且runtime为空；14897 PW list实际0/恰1 case，56476 driver --check实际0。当前1455输入、67dist，plan未创建runtime/evidence；这些是准备结果，read04仍未运行。
+已仅重编app integration race候选并核 `-test.list '^TestKnowledgeOwnerReadWeb$'` 恰1 top、PW config `--list` 恰1 case及新driver `--check` 当前输入。使用Go1.27.1、私有telemetry modeoff/去三旁路、只读离线modules与独立runtime；长编译前同process fresh>=5GiB。生产UI/锁/dist未改，复用最终78项及既有兼容/44971构建，不把复用记成新执行。此次42757编译/Go list实际0，原两个子进程Wait0且runtime为空；14897 PW list实际0/恰1 case，56476 driver --check实际0。当前1455输入、67dist，plan未创建runtime/evidence；这些仅是准备结果；后续read04实际结果另记如下。
 
-真实运行仍须单次自有窗口：固定Python调用 `.agent-state/task-planning-recovery/pg_only_supervisor.py --root-chain --driver <本树root_chain_driver.py绝对路径> --binary <新候选绝对路径> --run '^TestKnowledgeOwnerReadWeb$' --output <新自有短目录>`，并设置上述D12私有环境。不得复用旧evidence/nonce；原Wait、七资源和输入初末/TCP双尾全部保持。编译/列表/plan检查不等于该组合运行通过；独立动态风险尚未完成。
+真实运行仍须单次自有窗口：固定Python调用 `.agent-state/task-planning-recovery/pg_only_supervisor.py --root-chain --driver <本树root_chain_driver.py绝对路径> --binary <新候选绝对路径> --run '^TestKnowledgeOwnerReadWeb$' --output <新自有短目录>`，并设置上述D12私有环境。不得复用旧evidence/nonce；原Wait、七资源和输入初末/TCP双尾全部保持。编译/列表/plan检查本身不等于组合运行通过，必须另有原实际Wait和全部退出尾。
+
+`read-author-04` source3c7958ac/session93990/outer448904在UTC07:53:29.989745启动；sameprocess fresh5,565,239,296B、旧01/02/03共21ID/9private/3runtime双预飞齐，privateoff/去三旁路/新emptyDocker。原collector排除pure `.spec/.test`，实际closure1455、inputSHA `6a298ef9c1c6046e0949ba09e781bbc235dd6c79f2bc5f90679c1db2447a2b4d`，不是根据新增风险测试猜1456。新candidate02与同67dist身份齐。
+
+Node451523 Waittrue、Go451366单top27.31s PASS/0、driver449324 Wait0、4 adopted Wait0、outer实际0；12四GET/native/public/typed/DOM/Schema12全部AND，两observer首次explicit/pending0/end0齐。新LIVE seq6/7/8/12严格ERR_ABORTED/finished调用0，另8normal调用1/null。七资源14次absent/private/runtime/desc双空/HOSTTCP双空、初末1455输入一致，wholePASS130.643s，窗口释放。此安全结果留topic的 `read-fourth-pass.json`，无需随正式源码导入；原01/02FAIL和03旧输入PASS保留。
+
+独立风险文件 `web/src/tests/knowledge-owner-risk.spec.ts` 已保存3c7958ac；coordination执行3项实际App/Session/Workspace、受控Fetch/Stream：当前401隐藏内容、reader-held跨Project与outer-held跨Session不提前释放原Cookie请求owner，释放后正控通过。unit31259 actual0（7.99s/测试3.04s）、类型66927与格式通过；首容量预飞未exec、两刺激错误FAIL保留。这里只认独立组件风险范围，不声称新真实Owner转让/Logout PG、完整D12或生产SPA验收。

@@ -1,0 +1,293 @@
+{
+  "run": "read-author-04",
+  "source": "3c7958acfcc09a2dcb29340a35f9e5f80aa426ec",
+  "candidate_source": "26e3928d1cadea0786c02d2364cb9d8199ea7a06",
+  "selector": "^TestKnowledgeOwnerReadWeb$",
+  "result": "PASS",
+  "scope": "Combined main Account/Secret root and D12 author one normal Owner read chain, one Go top and one locked PW case; no whole D12 or production SPA claim",
+  "started_utc": "2026-10-10T07:53:29.989745+00:00",
+  "session": 93990,
+  "outer_pid": 448904,
+  "outer_actual_exit": 0,
+  "preflight_free_bytes": 5565239296,
+  "input_count": 1455,
+  "input_hash": "6a298ef9c1c6046e0949ba09e781bbc235dd6c79f2bc5f90679c1db2447a2b4d",
+  "dist_files": 67,
+  "input_boundary": "Existing collector excludes pure web .spec/.test files; independent risk test is not a runtime input. No collector change.",
+  "old01_02_03_preflight": "21 IDs, 9 private directories and 3 runtimes absent/empty twice",
+  "candidate": {
+    "bytes": 60984862,
+    "sha256": "fe88b150d4a7d82476697ec96016094fad1ef291cfde83abe1449e90c9f8fa30"
+  },
+  "go_top_seconds": 27.31,
+  "original_waits": [
+    "knowledge_owner_web_test.go:301: Knowledge Node actual_wait pid=451523 success=true",
+    "D03 explicit test actual_wait pid=451366 code=0 selector=^TestKnowledgeOwnerReadWeb$",
+    "SUPERVISOR actual_driver_wait pid=449324 actual=True code=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=451606 status=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=451610 status=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=451608 status=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=451611 status=0"
+  ],
+  "requests": [
+    {
+      "sequence": 1,
+      "method": "children",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 2,
+      "method": "children",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 3,
+      "method": "get",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 4,
+      "method": "ancestors",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 5,
+      "method": "readContent",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 6,
+      "method": "readContent",
+      "terminal": "failed",
+      "finished_count": 0,
+      "failed_count": 1,
+      "finished_calls": 0,
+      "finished_null": false,
+      "failure_kind": "net::ERR_ABORTED",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 7,
+      "method": "get",
+      "terminal": "failed",
+      "finished_count": 0,
+      "failed_count": 1,
+      "finished_calls": 0,
+      "finished_null": false,
+      "failure_kind": "net::ERR_ABORTED",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 8,
+      "method": "ancestors",
+      "terminal": "failed",
+      "finished_count": 0,
+      "failed_count": 1,
+      "finished_calls": 0,
+      "finished_null": false,
+      "failure_kind": "net::ERR_ABORTED",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 9,
+      "method": "readContent",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 10,
+      "method": "get",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 11,
+      "method": "ancestors",
+      "terminal": "finished",
+      "finished_count": 1,
+      "failed_count": 0,
+      "finished_calls": 1,
+      "finished_null": true,
+      "failure_kind": "not_observed",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    },
+    {
+      "sequence": 12,
+      "method": "readContent",
+      "terminal": "failed",
+      "finished_count": 0,
+      "failed_count": 1,
+      "finished_calls": 0,
+      "finished_null": false,
+      "failure_kind": "net::ERR_ABORTED",
+      "open_and_in_budget": true,
+      "tail_joined": true,
+      "original_xid_digest_length_and_typed_body_equal": true
+    }
+  ],
+  "observers": {
+    "native": {
+      "retired": true,
+      "reason": "explicit",
+      "pending_at_retirement": 0,
+      "pending": 0,
+      "failed": false,
+      "overflow": false
+    },
+    "publication": {
+      "retired": true,
+      "reason": "explicit",
+      "pending_at_retirement": 0,
+      "pending": 0,
+      "failed": false,
+      "overflow": false
+    }
+  },
+  "publication_current": true,
+  "publication_not_busy": true,
+  "schema": {
+    "actual_exit": 0,
+    "validated_responses": 12
+  },
+  "go_verified_facts": {
+    "default_initializer_unbound": true,
+    "test_only_real_project_fixture_joined": true,
+    "documents": 2,
+    "commands": 2,
+    "active_readers": 0
+  },
+  "independent_risk_scope": "Coordination separately ran 3 real App/Session/Workspace tests with controlled Fetch/Streams: current 401, held reader across Project, held outer cancel across Session. This is not new Owner-transfer or Logout PG evidence.",
+  "resources": [
+    {
+      "kind": "container",
+      "id": "4ee5086fc418fefeafd1a6e08fd12f7e17323a3ae262c1dd90fdbb3ddedf8748",
+      "label": "agenteam.d05.objectfixture",
+      "nonce": "9728dc23e00c64ebd26a2a69c1470c52"
+    },
+    {
+      "kind": "network",
+      "id": "1d7fab56ad0c33050ce9ab466b75bfee40dbfa726f5be3d4b187a813df1ee1f1",
+      "label": "agenteam.d05.objectfixture",
+      "nonce": "9728dc23e00c64ebd26a2a69c1470c52"
+    },
+    {
+      "kind": "container",
+      "id": "0859ad77d2a47cc2782b9fd003583f619d2e0798aa1e6eb07a1b59dc1860d657",
+      "label": "agenteam.d04.networkfixture",
+      "nonce": "15e2bad676e489bda21882049dd0e074"
+    },
+    {
+      "kind": "network",
+      "id": "78c954c0393d26fed60b596c53aa85fc5db80399bfb42a3db085114b7d32a013",
+      "label": "agenteam.d04.networkfixture",
+      "nonce": "15e2bad676e489bda21882049dd0e074"
+    },
+    {
+      "kind": "container",
+      "id": "4737e4ba0fe8e0b80cfe761d0b46e94a35531b48083b8f6219abd78a7f01ce03",
+      "label": "agenteam.d03.fixture",
+      "nonce": "818f6c61db87f340e07b0995beadfb71"
+    },
+    {
+      "kind": "container",
+      "id": "59e2f45688c5b8a8be50efffc556a7681c7709526801fc38ec81cb36850203f6",
+      "label": "agenteam.d03.fixture",
+      "nonce": "818f6c61db87f340e07b0995beadfb71"
+    },
+    {
+      "kind": "network",
+      "id": "ec8b19dbe34aa8191e74af7058f521b543ae664dc30318b3cfc956859de28e30",
+      "label": "agenteam.d03.fixture",
+      "nonce": "818f6c61db87f340e07b0995beadfb71"
+    }
+  ],
+  "resource_absent_observations": 14,
+  "tail": [
+    "OWNED runtime_observation=1 descendants=[]",
+    "OWNED runtime_observation=2 descendants=[]",
+    "ROOT private_observation=1 absent=True",
+    "ROOT runtime_observation=1 empty=True",
+    "ROOT private_observation=2 absent=True",
+    "ROOT runtime_observation=2 empty=True",
+    "ROOT exact_tops=True actual_test_wait=True",
+    "ROOT knowledge_ui_exact_run_pass_wait=True",
+    "HOST_TCP delta_empty_observation=1",
+    "HOST_TCP delta_empty_observation=2",
+    "SUPERVISOR inputs_unchanged=True terminal=0 elapsed=130.643s"
+  ],
+  "limits": [
+    "Read01 and read02 remain whole FAIL with their unknown fields unchanged. Read03 remains PASS only for its own older backend inputs.",
+    "Read04 ERR_ABORTED branch relies only on LIVE events from this run.",
+    "Production initializer, lifecycle participant and Object runtime join STOP remain unchanged. No editing/parser/source acquisition/whole D12/production SPA claim."
+  ],
+  "artifacts": {
+    "raw_log": "/tmp/ku-o04/ui-e5ed6ca430a2468c.log",
+    "evidence": "/workspace/agenteam-knowledge-owner-ui/output/ai/knowledge-owner-ui/read-author-04/TestKnowledgeOwnerReadWeb",
+    "images": [
+      "knowledge-desktop-light.png",
+      "knowledge-narrow-dark-reduced.png"
+    ]
+  }
+}
