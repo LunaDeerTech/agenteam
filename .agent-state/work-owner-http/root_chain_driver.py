@@ -16,6 +16,7 @@ GO = Path('/workspace/toolchains/go1.27.1/bin/go')
 MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
+    '^TestAgentRuntimeSchema$': 'tests/projectvariable',
     '^TestAgentConfigurationSchema$': 'tests/projectvariable',
     '^TestAgentConfigurationMetadata$': 'tests/projectvariable',
     '^TestProjectLifecycleStopBatchRealGuard$': 'tests/projectvariable',
@@ -79,7 +80,7 @@ def input_paths(binary):
 
 
 def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
-    if selector not in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$'):
+    if selector not in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$', '^TestAgentRuntimeSchema$'):
         raise ValueError('exact configuration family selector required')
     # Include the compiled package's complete fixtures and the original shared
     # support, not just the new top or the unrelated Model test package.
@@ -89,7 +90,9 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
     paths.update(p for p in (REPOSITORY / 'internal').rglob('*') if p.is_file())
     paths.update((REPOSITORY / 'tests/testsupport').rglob('*.go'))
     paths.update((REPOSITORY / '.agent-state/project-variables-independent/commitproxy').glob('*.go'))
-    if selector == '^TestAgentConfigurationSchema$':
+    if selector == '^TestAgentRuntimeSchema$':
+        paths.add(REPOSITORY / 'tests/projectvariable/agent_runtime_schema_test.go')
+    elif selector == '^TestAgentConfigurationSchema$':
         # Runtime/compiled source only. Task records and pure controls do not
         # alter this run's inputs or force another candidate build.
         paths.update(REPOSITORY / name for name in (
@@ -316,7 +319,7 @@ def main():
                 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime)})
     if args.run == '^TestSkillLifecycleCleanupHistoricalAttempts$':
         prepare_history_go_environment(directory, env)
-    if args.run in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$'):
+    if args.run in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$', '^TestAgentRuntimeSchema$'):
         env.pop('AGENTEAM_PROJECT_LIFECYCLE_GUARD_CHILD', None)
         prepare_history_go_environment(directory, env)
     if args.run == '^TestProjectLifecycleStopBatchRealGuard$':

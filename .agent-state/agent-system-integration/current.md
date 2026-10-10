@@ -1,4 +1,8 @@
-# 当前有限组合：新增领域连接准备
+# 当前有限组合：37–39真实事务候选
+
+- 当前新候选：`TestAgentRuntimeSchema`，1 top / 4 直接 sub，唯一新增 `tests/projectvariable/agent_runtime_schema_test.go`。范围为36→39/fresh/repeat、Runtime attempt/terminal 与父身份约束、Execution active slot/immutable/cancel-wins及真实公共 Launch 缺 Trigger 拒绝、39后真实 Human 安装与 Agent/Human 来源互斥。SQL合成材料只在强制回滚事务内，不被业务服务消费作授权；不冒真实 Agent/Trigger/ToolCall/Snapshot 正向。
+- 基线为 `2045c8bf` 的已验21top有效补集；00038 的text/uuid复合FK不兼容于源静读发现，原owner在 `87a92951` 改自有safe_id为严格UUIDv7 text domain，root只导入该迁移。原FK/regex/Go均保留；这是已修源码问题，不存在可回填的PG失败或通过。
+- 新入口只增既有metadata/schema family的selector、必需测试源与exact expected set，原7resources/6m/540+60+3/Wait/TCP/input尾方法不变。受影响现control共7方法实际0，gofmt/Python AST/diff-check完成；尚未Go编译/列举、未运行新PG。后继只需一次projectvariable integration/race候选编译/精确1top列举及一次该top PG，不重旧pure或schema02。
 
 - root 已在原 `e028467b` 上按五组来源精确导入64个技术路径，加 cleanup 唯一合成的 `lifecycle_cleanup_test.go` 两行适配，保存为 `bc2bc5ea`。来源为 Human Install `7cf8cd15`、Registry/Builtin `19094bf5`、Tool Runtime `6eb3a62a`、Execution/Agent capture `e9b8fb14`、Skill Agent 安装 `b3e251ad`；不覆盖旧 current、卡片或共享入口，不删除文件。
 - content 仅维护本摘要及 `core-checks.py`；cleanup 的上述适配已停写。64路径逐字等于指定 donor，四个旧 Skills34 初始化/测试源逐字保留；cleanup 旧 Agent head/assignment/error 事实与四个拒绝子项完整保留，只新增普通 installation 查询无行分支。没有未解决的源码覆盖冲突。

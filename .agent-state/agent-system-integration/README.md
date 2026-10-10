@@ -23,3 +23,30 @@ root 定向释放容量后另授一次 `compile-02`，同 Go 源/611 编译输�
 修后 `compile-03` 原 wholePASS：session77610、outer759460/compile759464/list759618 原 Wait0，611 编译输入/方法初末一致及 group/desc/runtime 双空。新候选 `output/ai/agent-system-integration/schema-race-02.test` 为 46,643,942 B、SHA256 `c229211e93851a9ba105ebe8ef71de31fc32e15a7c7d95b157be2c6c58f0d6b5`，不覆盖原失败输入。紧接的 `schema-02` 原 wholePASS：session39069、outer759922/supervisor759988/Go761799 原 Wait0，driver 原 actual wait 为 true/code0；1 top/3 sub 共 23.29s（3.31/11.15/8.83s）。7ID 的 14 次 absent、private/runtime/desc 双空、HOST_TCP 双空与 1271 输入不变全部闭合，supervisor119.036s，外层 UTC13:13:37–13:15:38。原件为 `/tmp/acs02/pg-6ee5d8c51c984a56814549cca1134d31.log` 和 `output/ai/agent-system-integration/schema-02-control/result.json`。升级子项实际完成原 receipt 值重放、旧 producer 追加及 Audit CHECK；仅本有限 schema/metadata 组合通过。窗口和热缓存已释放，无后继自动重跑。
 
 停止条件：任一迁移、旧事实比较、实际指定 CHECK/FK、metadata 原 CommitResult 或零副作用断言失败，即保留该轮原 FAIL 和退出尾，向对应产品/测试 owner 报首个具体缺口；不自动重试、不扩大旧矩阵、不延长预算。
+
+
+## 37–39真实事务候选
+
+新 `tests/projectvariable/agent_runtime_schema_test.go` 的 `TestAgentRuntimeSchema` 固定四个直接sub：`prefix36-upgrade-and-repeat`、`runtime-attempt-and-terminal`、`execution-slot-and-unbound-launch`、`human-compatibility-and-agent-origin`。第一项沿正式Migrator只核36→39及fresh/repeat的新表/约束；第二、三项以真实同一Tx的强制rollback探针验证operation/attempt/terminal bytes、Execution父FK、唯一active slot与不可变启动/取消规则。探针的Tool definition、Execution、Agent与terminal字节只是数据库约束材料，不能当作实际注册Backend、Launch、Runtime receipt或执行授权。每个可接受探针在明确rollback前执行`SET CONSTRAINTS ALL IMMEDIATE`；拒绝项核实际PG code/table或明确constraint，外层要求真实NotCommitted，不用最终rollback掩盖延迟FK。
+
+公共拒绝链使用既有真实Account/当前Project Owner、同Store ExecutionAuthority及AgentExecutionConfiguration构造；Task/Meeting未绑定时Launch明确DependencyUnbound、Lookup无结果、外人NotFound，无created/slot事实。最后一项复用已验Human安装fixture完成一次39后的真实Human安装和Lookup，只新增来源互斥/immutable/attempt同Actor父键的rollback检查。无SQL伪造已发布Skill、Agent canonical或成功ToolCall；不重跑旧domain清理矩阵。
+
+源码静查发现37的Tool P/A/E为text domain，38原父列为uuid domain，直接复合FK不兼容。原Execution作者在`87a92951`只把38自有domain改为严格UUIDv7 text，保留完整regex/所有FK/索引/trigger；root导入该单源。此处尚无真实迁移执行结论，不为已知源错误刻意先跑一次失败。
+
+沿原成功schema入口准备一次新的`tests/projectvariable` integration/race `-c`候选，精确列举`^TestAgentRuntimeSchema$`（1 top），后续由root分配唯一真实窗执行：
+
+```sh
+python3 -B .agent-state/task-planning-recovery/pg_only_supervisor.py \
+  --driver .agent-state/work-owner-http/root_chain_driver.py \
+  --binary "$CANDIDATE" --run '^TestAgentRuntimeSchema$' \
+  --output "$FRESH_OUTPUT" --root-chain
+```
+
+使用已有schema成功launcher的完整私有环境、固定MinIO/解释器及原fresh/实际Wait/7resource/private/runtime/desc/HOST_TCP双尾；只替新candidate、selector和全新output。共享入口本轮仅4个driver/3个supervisor数据hunk；既有schema control以同一parser/collector/observer复用新四sub，7方法离线通过。没有新监督层、manifest规则或业务成功替身；Go/PG仍未运行。
+
+
+## 后继 preparation / Snapshot 接缝（接口准备，未实施）
+
+下一切片先由Execution持久化preparation input及原attempt/fence，沿`DiscoverPreparation → CapturePreparationInTx → PreparationRef`在完整锁并集、preparing/无取消及来源重验后调用真实Trigger CaptureInput，再供应现Agent capture口的sameStore/Tx/PAE私有witness，与受保护引用原子保存。恢复只用原ref/digest，不能重新读取另一版正文。事务外Build完成真实环境准备后，Seal再核原attempt/ref、取消与gate，同Tx插不可变Snapshot、更新running/started_at和Started Outbox；提交确认前不发布，Unknown保留原身份查证。当前不新增迁移，编号仍由root分配。
+
+D01完整Snapshot包括schema版本/Execution/捕获时刻、Project context及固定AGENTS.md内容或保护引用、完整AgentConfig/version、平台prompt revision、TriggerContext/input_ref、ResolvedModel、ExecutionTool/NameTable、原policy、initial Skills/assignment sequence、Mount metadata、普通变量值、Secret metadata/lease refs。不能先发布缺字段Snapshot。现Agent消费口、Model正式Resolve口与Registry definition/currentBuiltin/NameTable可复用，但Execution capture/current witness、Task/Meeting CaptureInput/Build、各环境owner的捕获保护与Execution Tool选择仍未绑定；Model Discover会落prepared事实且现profile拒tools/reasoning，Human配置Directory也不能充当Execution环境口。缺依赖继续unbound，不用空集合、伪Human或SQL运行行填齐。

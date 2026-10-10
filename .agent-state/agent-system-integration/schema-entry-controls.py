@@ -168,9 +168,91 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [['TARGETS 
                                                                 'args.run)\n']]}
 
 
+RUNTIME_SELECTOR = "^TestAgentRuntimeSchema$"
+RUNTIME_TOP = "TestAgentRuntimeSchema"
+RUNTIME_CASES = frozenset({RUNTIME_TOP,
+    RUNTIME_TOP + "/prefix36-upgrade-and-repeat",
+    RUNTIME_TOP + "/runtime-attempt-and-terminal",
+    RUNTIME_TOP + "/execution-slot-and-unbound-launch",
+    RUNTIME_TOP + "/human-compatibility-and-agent-origin"})
+RUNTIME_BASE = {'.agent-state/work-owner-http/root_chain_driver.py': 'a2dafc36700f4caa8a2b0f7d068afc771354068903d3c1d9feea86dd2d33603d',
+ '.agent-state/task-planning-recovery/pg_only_supervisor.py': 'e66109118867c3c477aaae481b5f34f9ba52a39de34b3800048927f3e879daee'}
+RUNTIME_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS = {\n',
+                                                        'TARGETS = {\n'
+                                                        "    '^TestAgentRuntimeSchema$': "
+                                                        "'tests/projectvariable',\n"),
+                                                       ('    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$'):\n",
+                                                        '    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$'):\n"),
+                                                       ('    if selector == '
+                                                        "'^TestAgentConfigurationSchema$':\n",
+                                                        '    if selector == '
+                                                        "'^TestAgentRuntimeSchema$':\n"
+                                                        '        paths.add(REPOSITORY / '
+                                                        "'tests/projectvariable/agent_runtime_schema_test.go')\n"
+                                                        '    elif selector == '
+                                                        "'^TestAgentConfigurationSchema$':\n"),
+                                                       ('    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$'):\n",
+                                                        '    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$'):\n")],
+ '.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {METADATA_ROOT: '
+                                                                'METADATA_CASES, SCHEMA_ROOT: '
+                                                                'SCHEMA_CASES}\n',
+                                                                'RUNTIME_SCHEMA_ROOT = '
+                                                                "'^TestAgentRuntimeSchema$'\n"
+                                                                'RUNTIME_SCHEMA_CASES = frozenset({\n'
+                                                                "    'TestAgentRuntimeSchema',\n"
+                                                                '    '
+                                                                "'TestAgentRuntimeSchema/prefix36-upgrade-and-repeat',\n"
+                                                                '    '
+                                                                "'TestAgentRuntimeSchema/runtime-attempt-and-terminal',\n"
+                                                                '    '
+                                                                "'TestAgentRuntimeSchema/execution-slot-and-unbound-launch',\n"
+                                                                '    '
+                                                                "'TestAgentRuntimeSchema/human-compatibility-and-agent-origin',\n"
+                                                                '})\n'
+                                                                'METADATA_GROUPS = {METADATA_ROOT: '
+                                                                'METADATA_CASES, SCHEMA_ROOT: '
+                                                                'SCHEMA_CASES,\n'
+                                                                '                   '
+                                                                'RUNTIME_SCHEMA_ROOT: '
+                                                                'RUNTIME_SCHEMA_CASES}\n'),
+                                                               ('        SCHEMA_ROOT: '
+                                                                "{'TestAgentConfigurationSchema'},\n",
+                                                                '        SCHEMA_ROOT: '
+                                                                "{'TestAgentConfigurationSchema'},\n"
+                                                                '        RUNTIME_SCHEMA_ROOT: '
+                                                                "{'TestAgentRuntimeSchema'},\n"),
+                                                               ("('AgentConfigurationMetadata', "
+                                                                "'AgentConfigurationSchema')) and",
+                                                                "('AgentConfigurationMetadata', "
+                                                                "'AgentConfigurationSchema', "
+                                                                "'AgentRuntimeSchema')) and")]}
+
+def runtime_projection(name, source):
+    if "'^TestAgentRuntimeSchema$'" not in source:
+        return source
+    for old, new in reversed(RUNTIME_HUNKS[name]):
+        if source.count(new) != 1:
+            raise ValueError('unknown or ambiguous runtime schema data')
+        source = source.replace(new, old, 1)
+    if hashlib.sha256(source.encode()).hexdigest() != RUNTIME_BASE[name]:
+        raise ValueError('unknown runtime schema baseline')
+    return source
+
+
 def inverse(name, source):
     if name not in BASE_SHA or not isinstance(source, str):
         raise ValueError('unknown shared source')
+    source = runtime_projection(name, source)
     for old, new in reversed(SOURCE_HUNKS[name]):
         if source.count(new) != 1:
             raise ValueError('unknown or ambiguous schema hunk')
@@ -201,7 +283,7 @@ class SchemaEntryControls(unittest.TestCase):
 
     def test_exact_delta_and_existing_family(self):
         for name in BASE_SHA:
-            source = (ROOT / name).read_text()
+            source = runtime_projection(name, (ROOT / name).read_text())
             ast.parse(source)
             restored = inverse(name, source)
             ast.parse(restored)
@@ -216,7 +298,7 @@ class SchemaEntryControls(unittest.TestCase):
         baseline = {'__file__': str(ROOT / DRIVER), '__name__': 'schema_baseline'}
         exec(compile(inverse(DRIVER, (ROOT / DRIVER).read_text()), DRIVER, 'exec'), baseline)
         self.assertEqual(self.driver.TARGETS[SELECTOR], 'tests/projectvariable')
-        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k != SELECTOR}, baseline['TARGETS'])
+        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR)}, baseline['TARGETS'])
         self.assertEqual(self.sup.budgets(True), (540, 60))
         self.assertEqual(self.sup.budgets(False), (123, 3))
         for path, constant in (
@@ -277,7 +359,8 @@ class SchemaEntryControls(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='agent-schema-inputs-') as tmp:
             root = Path(tmp).resolve()
             names = ('candidate.test', 'production.go',
-                     'tests/projectvariable/agent_configuration_schema_test.go',
+                     ('tests/projectvariable/agent_runtime_schema_test.go' if SELECTOR == RUNTIME_SELECTOR
+                      else 'tests/projectvariable/agent_configuration_schema_test.go'),
                      'tests/projectvariable/original_helper_test.go',
                      'internal/other/other_test.go', 'internal/other/assets/NOTICE',
                      'tests/testsupport/agentconfiguration/assembly.go',
@@ -340,7 +423,7 @@ class SchemaEntryControls(unittest.TestCase):
                     patch.object(self.sup.time, 'sleep'):
                 self.assertTrue(self.sup.observe_root_chain(root, io.StringIO(), log, SELECTOR))
                 self.assertEqual(absent.call_count, 14)
-                for value in (original_log().replace('--- PASS: ' + TOP + '/fresh-prefix-and-repeat (0.01s)\n', ''),
+                for value in (original_log().replace('--- PASS: ' + sorted(CASES - {TOP})[0] + ' (0.01s)\n', ''),
                               original_log().replace('code=0', 'code=1')):
                     log.write_text(value)
                     self.assertFalse(self.sup.observe_root_chain(root, io.StringIO(), log, SELECTOR))
@@ -353,6 +436,25 @@ class SchemaEntryControls(unittest.TestCase):
                 absent.return_value = True
                 (runtime / 'pending').write_text('controlled')
                 self.assertFalse(self.sup.observe_root_chain(root, io.StringIO(), log, SELECTOR))
+
+    def test_runtime_schema_reuses_the_original_family(self):
+        self.assertEqual(self.driver.TARGETS[RUNTIME_SELECTOR], 'tests/projectvariable')
+        self.assertEqual(self.sup.METADATA_GROUPS[RUNTIME_SELECTOR], RUNTIME_CASES)
+        for name, pairs in RUNTIME_HUNKS.items():
+            source = (ROOT / name).read_text()
+            self.assertEqual(hashlib.sha256(runtime_projection(name, source).encode()).hexdigest(), RUNTIME_BASE[name])
+            for old, new in pairs:
+                for bad in (source.replace(new, old, 1), source + new):
+                    with self.assertRaises(ValueError):
+                        inverse(name, bad)
+        with patch.dict(globals(), SELECTOR=RUNTIME_SELECTOR, TOP=RUNTIME_TOP, CASES=RUNTIME_CASES), \
+                patch.object(self.sup, 'SCHEMA_ROOT', RUNTIME_SELECTOR), \
+                patch.object(self.sup, 'SCHEMA_CASES', RUNTIME_CASES):
+            self.test_exact_three_subcases_and_original_wait()
+            self.test_actual_main_requires_exact_root_mode()
+            self.test_actual_schema_inputs_reenumerate_runtime_sources()
+            self.test_actual_observer_keeps_original_resource_tails()
+            self.test_actual_driver_fixed_environment_before_original_exec()
 
     def test_actual_driver_fixed_environment_before_original_exec(self):
         class OriginalExecBoundary(Exception):
