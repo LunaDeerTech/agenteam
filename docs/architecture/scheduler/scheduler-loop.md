@@ -592,13 +592,17 @@ SystemSchedulerDefaults
 
 这些有限次数只控制已确认暂时 Launch 失败，不为 unknown 核对设置耗尽即失败规则；查询端口与节奏在 D01/D22/D23 固定，继续复用本 Loop。
 
-### 14.1 显式 retry policy 库的当前边界
+### 14.1 显式 retry policy 与已实现前置的边界
 
-`internal/central/scheduler/retry_policy.go` 已提供经有限独审的库实现，三个定向 top 已纳入本批组合 race 通过，Scheduler 包 vet 通过。`NewLaunchRetryPolicy(maxAttempts, initialBackoff, maxBackoff)` 必须显式传入三个参数，满足 `maxAttempts≥1` 和 `0<initialBackoff≤maxBackoff`；没有默认值、环境变量或配置加载。不可变值的 `NextDelay(attemptCount)` 把首次 Launch 计为第1次：首次失败延迟为 initial，后续按 `min(initial×2^(attemptCount−1), max)` 计算并安全封顶；达到或超过上限返回无重试额度。零/负 attempt 拒绝，不使用 jitter、时钟、sleep 或 timer worker。
+`internal/central/scheduler/retry_policy.go` 的库实现已通过原三个定向 top 的组合 race 与 Scheduler 包 vet。`NewLaunchRetryPolicy(maxAttempts, initialBackoff, maxBackoff)` 必须显式传入三个参数，满足 `maxAttempts≥1` 和 `0<initialBackoff≤maxBackoff`；没有默认值。不可变值的 `NextDelay(attemptCount)` 把首次 Launch 计为第1次：首次失败延迟为 initial，后续按 `min(initial×2^(attemptCount−1), max)` 计算并安全封顶；达到或超过上限返回无重试额度。零/负 attempt 拒绝，不使用 jitter、时钟、sleep 或 timer worker。
 
-`Identity()` 仅给出固定 `capped_exponential_v1` 算法与三个精确参数（duration 为整数纳秒）的摘要，不证明某个 Dispatch 已持久绑定该 policy。库不识别 Fault/RetryHint，不证明已确认未创建，不把 Unknown 或 AgentBusy 转为耗尽。调用方仍须先取得真实暂时失败分类；无额度也不直接授权修改 Task 或 Dispatch。
+Central 配置 `Load` 已支持显式的三项环境变量，并由 `Config.SchedulerLaunchRetryPolicy()` 返回不可变值及是否配置的标志，详见[后端配置说明](../../development/backend/README.md#配置与命令)。三项全部缺省保持旧启动行为；任一项存在时必须全部存在且合法，空串也拒绝，不补默认值。加载配置不创建 Scheduler，也不启动生产 Loop。
 
-现有配置白名单、服务构造、Launch、PendingVisitor 与迁移均未因此改变。部署参数来源、temporary 分类、持久 last_error/policy 绑定、原 Dispatch/key 的 attempt 与到期发送接线仍待实现；本结果不表示自动 retry、重启恢复或完整 Scheduler Loop 已可用。
+`NewCoordinatorWithRetryPolicy` 固定经验证的 policy 值，只在首次 Claim 的原 Work 写入与 pending INSERT 同一事务中保存规范字节和 `Identity()` 摘要。摘要包含固定 `capped_exponential_v1` 算法及三个精确参数（duration 为整数纳秒）；迁移 00049 要求两列成对合法且不可修改。旧构造器保持兼容，旧 NULL 行不补 policy；普通重放沿用原持久值，部署配置变化不能替换它。原 Claim Unknown 核对须匹配当次写入或 final 重放实际观察到的 policy。`Dispatch.RetryPolicy()` 只返回值副本；缺失或存储损坏不能成为发送授权。
+
+Execution 已实现 `MatchLaunchTemporaryRejection` 的唯一临时证明 `launch_lock_timeout_v1`：只在最终 Launch 的原 `AcquireAll` 发生 `LockFailed` / SQLSTATE `55P03`，原 `WithinTx` 已实际退出并返回 `NotCommitted`，且上下文未取消时签发。证明绑定完整原请求摘要、RequestID 和幂等 key，并核对原锁错误与事务返回的同一物理错误；初次 Lookup、Discover、Unknown、取消或任意通用 Fault/RetryHint 均不能产生该证明。错误分类不改变原 cause 或 Unknown 边界，也不直接授权重发。
+
+上述增量已通过有限独审、15 个定向 top 的 race、五包 vet、候选编译及真实 PG 的 1 top/2 sub 整轮验证。真实链覆盖显式配置、Claim 原事务绑定与重放、旧 NULL 兼容及真实最终锁超时后签发证明且零 Execution；原调用、七资源和全部退出尾闭合。生产 app 尚未接入 policy，暂时错误的持久分类、`next_retry_at` 写入、RetryDue / 同 key 到期重发及耗尽后的 Work 技术失败原因仍未实现。旧无 policy 的行继续 Deferred，Unknown 仍只按原 key 核对，暂停仍不发送；本片不表示自动 retry、完整恢复或完整 Scheduler Loop 已可用。
 
 ## 15. Observability
 

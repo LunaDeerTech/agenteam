@@ -111,6 +111,11 @@ AGENTEAM_MINIO_BINARY=/task-owned/cache/minio GOFLAGS=-p=1 sh scripts/test-accou
 | `AGENTEAM_CENTRAL_ACCOUNT_RECOVERY_LOG` | 无，必填 | 规范绝对文件路径；配置阶段只验证路径，启动核服务 UID、0700 父目录、0600 常规文件及无符号链接，不自动创建父目录 |
 | `AGENTEAM_CENTRAL_OUTBOUND_CA_FILE` | 无，可选 | 追加到系统 trust roots 的部署 PEM CA，纯配置验证即读取，最多 1 MiB；与数据库 CA 独立，见[出站说明](outbound.md) |
 | `AGENTEAM_CENTRAL_PUBLIC_ORIGIN` | `http://localhost:8080` | 正式部署 HTTPS，仅字面 localhost/loopback 允许本地 HTTP；无 userinfo/query/fragment，路径仅空或 `/`；规范化主机、IP、默认端口和尾 `/`，代理须保留 canonical Host |
+| `AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS` | 无，三项可同时缺省 | 规范十进制正 int64，至少 1，包含首次 Launch |
+| `AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF` | 无，三项可同时缺省 | Go duration，严格大于 0 |
+| `AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF` | 无，三项可同时缺省 | Go duration，不小于 initial backoff |
+
+Scheduler retry 三项全部缺省时保持旧启动行为；任一项存在（包括空串）即要求三项完整、合法，不补默认值。`Load` 使用 `NewLaunchRetryPolicy` 统一验证，`Config.SchedulerLaunchRetryPolicy()` 返回不可变 policy 值和是否配置的标志；错误只报告固定字段，不携带解析器输入或原始错误。该 loader、Claim 持久绑定和 Execution 锁超时证明已通过有限独审、15 个定向 top 的 race、五包 vet、编译及真实 PG 的 1 top/2 sub 整轮验证，全部原调用和资源尾闭合；生产 app / Loop 尚未接入。设置变量不启动自动重试，也不补写旧 Dispatch 的 policy。原构造器兼容和到期发送等未完成边界见 [Scheduler policy 说明](../../architecture/scheduler/scheduler-loop.md#141-显式-retry-policy-与已实现前置的边界)。
 
 Central 还必须配置 `AGENTEAM_CENTRAL_DATABASE_URL`；TLS 默认 verify-full，显式 CA 文件会在配置检查时读取验证，其余数据库参数及范围见[数据库配置表](database.md#版本与配置)。连接、迁移 guard、全部迁移和首次 Check 共用 `DATABASE_STARTUP_TIMEOUT`，随后在独立且共享的 30s 安全初始化预算内构造真实账户依赖并打开受限 Sink，验证 Account key registry、cursor/Audit、Secret registry/canary/write fence。仅在 Secret 初始化成功且原 ctx 仍有效后，才用同一 ctx/deadline 依次调用同一 Model Service 的 `Initialize`、`InitializeMeetingSummarySelection` 和 Usage Service 的 `Initialize`，三步在 Secret maintenance 及后续业务启动、监听之前完成，不另起预算。Usage 只检查已有表结构，不建表、填默认行或启动 worker；Model 的原 `Initialize` 首次只建立未配置的四用途技术 selector，随后根显式初始化独立的 Summary 技术行。Summary 未配置不阻塞启动；重启保留已有 ID/version/model 和命令历史，不补默认模型。随后验证 DB 出站策略、对象 bucket/双 origin 实际写读删 probe、ProcessGuard 与恢复门禁、Outbox 唯一 handler 注册/恢复，再完成 Account bootstrap/账户及头像恢复、Mail canonical/恢复与技术 Check，最后 HTTP bind。后续步骤不能重置前序消耗的预算；Model 或 Summary 初始化失败或 Unknown、Usage 结构检查失败均不放行监听，SMTP 是否配置或远端可达不作为启动探测。两个阶段都受启动停止信号取消。配置缺失退出 2，连接、版本、迁移、受限日志打开或安全初始化失败退出 1。
 
