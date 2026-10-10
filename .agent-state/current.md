@@ -4,7 +4,7 @@
 
 持续推进 D01–D28 的产品能力和真实组合，最终完成 E01 平台内游戏复刻验收。当前平台约完成 **30%（25%–35%）**，这是按设计能力及端到端闭环权重作的工程粗估，不是逐卡等权或客观审计。E01 尚未开始，其“至少 50% 游戏内容”是独立的未来验收目标。
 
-正式 main `031b5df9266dfb2a54a5b2c8c329c435c50d0291` 已提交、普通推送并经远端ls-remote确认；上一有限包29路径交付Owner原子解除blocker并blocked→todo、HTTP兼容、00048及显式参数retry policy库。前一main `6cf00865` 的282路径有限包包括Agent默认配置创建及其真实提供方、Task Human指派与HTTP、StartSprint与HTTP、Scheduler claim/created关联、Busy补偿、有界pending和单类技术失败结算，以及连续00037–00047迁移，原证据按各自输入接受。此前 `18a27db5` 的Human Skill安装/读取清理/Owner HTTP及00032–00036保持兼容，旧metadata、Knowledge读取、D13/D16/D18、Variables/phase/Batch/Guard与D09文本Runtime有限接受保留。默认生产initializer、完整F1/ToolExecution/Dispatcher仍未完成，不提升整体粗估。
+正式 main `fd9390992f5a6d193a45674f6568c67a085cc3ff` 已提交、普通推送并经远端ls-remote确认；本批25路径交付显式retry配置、Claim不可变policy绑定/00049与真实Execution锁超时temporary证明，产品与实测源码`6d0a6a5c`一致，仅README和正式docs有补充。上一main `031b5df9` 的29路径交付Owner原子解除blocker并blocked→todo、HTTP兼容、00048及显式参数retry policy库。前一main `6cf00865` 的282路径有限包包括Agent默认配置创建及其真实提供方、Task Human指派与HTTP、StartSprint与HTTP、Scheduler claim/created关联、Busy补偿、有界pending和单类技术失败结算，以及连续00037–00047迁移，原证据按各自输入接受。此前 `18a27db5` 的Human Skill安装/读取清理/Owner HTTP及00032–00036保持兼容，旧metadata、Knowledge读取、D13/D16/D18、Variables/phase/Batch/Guard与D09文本Runtime有限接受保留。默认生产initializer、完整F1/ToolExecution/Dispatcher仍未完成，不提升整体粗估。
 
 - Secret HTTP 的作者 PG/native/root、独立当前 Session 与安全错误补集、完整 app ordinary/race 已按相应版本接受；没有新增生产 Project 创建能力。
 - Knowledge 读取 UI 最终组合 read04 wholePASS，原调用及七资源/private/runtime/desc/TCP 全尾闭合。独立三项组件风险测试使用真实 Session/Workspace 和受控网络，不冒真实 Owner 转让或 Logout PG。原 read01/read02 FAIL 保留。D13 的 1 top/3 sub 真实链已正式交付，但未接索引、其他 parser 或生产创建。
@@ -16,7 +16,7 @@
 
 ## 当前并行产品线与执行者
 
-上一组合源码`eca3336f`的Owner原子解除、HTTP兼容、独立事务回滚及显式参数retry policy库已随29路径正式main交付：16 top race/四包vet及native01的HTTP/Atomic各1 top/1 sub wholePASS，1468输入首尾一致、全部原Wait和资源尾闭合，原验收不重跑。本批四树复用main `031b5df9`基线，组合源码`6d0a6a5c`已保存推送并完成有限验收：显式配置、Claim不可变policy绑定/00049、Execution真实锁超时temporary证明的15 top race/五包vet、compile01及native01均wholePASS。真实PG的1 top/2 sub共41.10s，20:05:04–20:07:11 UTC，原Go/driver/sup/outer均Wait0，七资源14次absence及private/runtime/desc/HOST_TCP/outer全部双尾空，1478输入首尾一致。当前25路径有限包待正式main交付；原启动、PendingVisitor及生产Loop不因配置存在而自动启用。
+上一组合源码`eca3336f`的Owner原子解除、HTTP兼容、独立事务回滚及显式参数retry policy库已随29路径正式main交付：16 top race/四包vet及native01的HTTP/Atomic各1 top/1 sub wholePASS，1468输入首尾一致、全部原Wait和资源尾闭合，原验收不重跑。本批四树复用main `031b5df9`基线，组合源码`6d0a6a5c`已保存推送并完成有限验收：显式配置、Claim不可变policy绑定/00049、Execution真实锁超时temporary证明的15 top race/五包vet、compile01及native01均wholePASS。真实PG的1 top/2 sub共41.10s，20:05:04–20:07:11 UTC，原Go/driver/sup/outer均Wait0，七资源14次absence及private/runtime/desc/HOST_TCP/outer全部双尾空，1478输入首尾一致。当前25路径有限包已正式交付main `fd939099`；root分支已正常merge main，integration已ff至同一main并推送，原启动、PendingVisitor及生产Loop不因配置存在而自动启用。
 
 上一批unblock compile01原wholeFAIL保留：实际compile与list均退出0，输入及原尾一致，仅预期top顺序与真实列举相反；原列表恰为HTTP、Atomic。经独立核对后，以数量加精确集合确认原候选可复用，未重编译、未重跑Go/list；native01使用同一候选并于19:48:14–19:50:01 UTC整轮通过。原result/runner不回填，恢复recipe记录修正与复用依据。本批retry binding的compile01为独立wholePASS，无新增FAIL；当前无Go/cache/native在途，旧Launch01 wholeFAIL及全部STOP不变。
 
@@ -26,9 +26,9 @@
 | cleanup / Scheduler | `/workspace/agenteam-skill-install-runtime-source` / `ai/scheduler-retry-binding`：完整binding `8e0abf2e`含00049、原Unknown final重放policy捕获窄修与测试，已在组合有限通过。opt-in Coordinator首次Claim固定policy快照/identity；旧constructor兼容、旧NULL不补，replay沿stored，原Unknown核对当次实际policy。无RetryDue、next_retry_at writer或Work耗尽reason。 |
 | secret / 独立差额审查 | 本批冻结配置、policy binding与temporary来源actualdiff已有限接受；不参与其接口设计，不以静审代替动态证据。原Execution/Agent有限接受及生产未绑定边界继续保留。 |
 | work_ui / Central配置 | `/workspace/agenteam-task-human-http` / `ai/scheduler-retry-config`：三源`f58da0ad`已保存并借入组合，有限独审及本批组合检查通过；三个显式retry参数全absent兼容旧启动，partial/empty/非法值拒绝，getter返回不可变policy副本。无默认、无app/Loop绑定。 |
-| skills_http / 组合测试 | `/workspace/agenteam-task-flow-delivery` / `ai/scheduler-retry-integration`：测试源码`6d0a6a5c`，pure15/五包vet、compile01及native01全部wholePASS，原资源窗口已归还。真实范围止于配置→bound Claim/原key保持、旧NULL兼容→final锁超时证明与零Execution；不宣自动retry。既有README保存本批短recipe，原unblock及更早PASS/FAIL/output仍在原位置。 |
+| skills_http / 组合测试 | `/workspace/agenteam-task-flow-delivery` / `ai/scheduler-retry-integration`：已ff并推送main `fd939099`；测试源码仍为`6d0a6a5c`，pure15/五包vet、compile01及native01全部wholePASS，原资源窗口已归还。真实范围止于配置→bound Claim/原key保持、旧NULL兼容→final锁超时证明与零Execution；不宣自动retry。既有README保存本批短recipe，原unblock及更早PASS/FAIL/output仍在原位置。 |
 | cleanup / content | `/workspace/agenteam-skill-install` / `ai/skill-install`：Human Install/LookupInstall、普通读取与清理已随main有限交付；domain安装读取重放、原Object/Audit事实及普通清理两sub真实通过，定向pure/race/vet证据按版本复用。旧树已可逆sparse停放，原ignored材料保留；原Project/外人码/素材/Audit查询夹具FAIL保留。真实Source配置装配已进Agent创建链，AgentRun/Runtime实际调用仍未验。 |
-| coordination | 本批仅更新Scheduler §14.1、原后端配置说明及本摘要；main候选范围为22授权源码/方法路径＋既有README＋两正式docs，不带root current或ignored runner。有限验收已完成，正式Git交付由root处理；不作为参与设计范围的独立验收者。 |
+| coordination | 本批仅更新Scheduler §14.1、原后端配置说明及本摘要；已交付main的25路径为22授权源码/方法路径＋既有README＋两正式docs，不带root current或ignored runner。有限验收及远端交付已完成；不作为参与设计范围的独立验收者。 |
 | 已冻结Runtime/Registry | `/workspace/agenteam-tool-operation` / `ai/tool-operation` 与 `/workspace/agenteam-tool-registry` / `ai/tool-registry`：Runtime created、canonical-v1、Registry donor及Execution取消修正的有限实现/组合纯检查保留。neutral标准Schema核心已独审并单独5top race/vet通过；AgentSystem中的真实Registry Schema适配器`d26e89eb`已推送并独审接受。统一实际MVS的`regexp2 1.12.0`后，核心5＋适配3共8top race及schema/runtime两包vet全部通过，原Wait及group/runtime双尾闭合、缓存归还；`jsonschema/v6 6.0.3`不变。旧适配01/02依赖元数据缺失导致0top、vet未跑的FAIL保留；生产绑定、真实Execution授权和AgentRun发布仍未完成。 |
 | skills_http / work_ui | `/workspace/agenteam-secret-owner-ui` / `ai/secret-owner-ui`：UI04十请求均normal但测试helper解析Response的`$ref`失败，已用原10body离线修正；UI05 DELETE仍aborted，其余9请求normal且consumer全部true，整轮仍wholeFAIL，全部原尾已闭，停止第六次全PG。公共EOF后cancel竞态仅待证，client未据此修改。源记录及唯一安全first-failure JSON在`fd426`保留；main18a基线的27路径候选已保存推送`ai/secret-ui-delivery` / `2b2a0ac0`，20控制通过，仅为WIP，不入main、不冒正式浏览器接受。 |
 | 已冻结提供方 | Agent/Audit/Project 四包 18 top/28 sub race+vet、Mount 修后 4 top race+vet、Model References 6 top race+vet、Secret References 4 top/17 sub race+vet、Skills 初始化 7 top/27 sub race及独立 vet 补集均按各版本保留。原 Mount fixture、Skills pure01 容量及 Directory01 失败不回填；AgentCore旧树已可逆停放，61技术路径在AgentSystem保留，其余组合源按原位置保留。初始私有witness/assignment/refs写入由既有Agent创建PG链有限验证，其他权限与执行范围不外推。 |
@@ -45,7 +45,7 @@ Object Runtime join、OpenAI tools 独立动态验收、Central SPA concurrent-p
 
 ## 恢复与容量
 
-`/workspace/agenteam-task-flow-delivery` 物理树现基于正式main `031b5df9`复用为`ai/scheduler-retry-integration`；旧`ai/task-unblock-integration`与更早`ai/task-flow-delivery`/`b04b15fa`保留原恢复源码，ignored PASS/FAIL、输入、结果与日志仍在原位置。四个逐次launcher/app-checks只在旧topic保留。另三个donor仅切换本批分支复用，output原恢复材料保留；新测试不覆盖旧材料，不由本批授权删除树或cache。
+`/workspace/agenteam-task-flow-delivery` 物理树的`ai/scheduler-retry-integration`现已ff并推送正式main `fd939099`；旧`ai/task-unblock-integration`与更早`ai/task-flow-delivery`/`b04b15fa`保留原恢复源码，ignored PASS/FAIL、输入、结果与日志仍在原位置。四个逐次launcher/app-checks只在旧topic保留。另三个donor保留`ai/scheduler-retry-config`、`ai/scheduler-retry-binding`、`ai/execution-launch-temporary`及原output。四个复用树当前均无运行活动，本批没有可安全清理的必要对象；新旧ignored候选、FAIL、输入和结果仍为恢复依赖，全部原位保留，不再扫描或删除树/cache。
 
 当前无Go/cache writer或native在途。secret经content明确owner确认，仅退休 `/workspace/agenteam-knowledge-content-http/output/ai/knowledge-content-http/gocache`，生成缓存1,041,469,440 B，actual0/absent=true；一次实际可用6,372,360,192 B，比5GiB多1,003,651,072 B。shared hot/mod及其它cache、FAIL、source、inputs/results/logs、MinIO、refs均未动，旧Skills/WorkUI缓存保留；compile02及首次native现已wholePASS，原容量FAIL保留。HTTP `857d85`、Work `91e384`、Scheduler `e0fe`三个donor的tracked docs已获owner确认可逆停放，source、refs与原evidence保留；该事实不授权删除其它路径。
 
