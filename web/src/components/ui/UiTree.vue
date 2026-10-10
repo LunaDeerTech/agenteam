@@ -14,7 +14,12 @@ const all = computed(() => {
     for (const node of nodes) {
       out.push({ node, level, parent, visible })
       if (node.children)
-        walk(node.children, level + 1, node.id, visible && expanded.value.includes(node.id))
+        walk(
+          node.children,
+          level + 1,
+          node.id,
+          visible && expandable(node) && expanded.value.includes(node.id),
+        )
     }
   }
   walk(props.nodes, 1)
@@ -49,10 +54,12 @@ function keydown(event: KeyboardEvent, id: string) {
   else if (event.key === 'Home') target = visible.value[0]?.node.id
   else if (event.key === 'End') target = visible.value.at(-1)?.node.id
   else if (event.key === 'ArrowRight') {
-    if (expandable(row.node) && !expanded.value.includes(id)) toggle(id)
-    else target = row.node.children?.find((n) => !n.disabled)?.id
+    if (expandable(row.node)) {
+      if (!expanded.value.includes(id)) toggle(id)
+      else target = row.node.children?.find((n) => !n.disabled)?.id
+    }
   } else if (event.key === 'ArrowLeft') {
-    if (expanded.value.includes(id)) toggle(id)
+    if (expandable(row.node) && expanded.value.includes(id)) toggle(id)
     else target = row.parent
   } else if (event.key === 'Enter' || event.key === ' ') selected.value = id
   else return

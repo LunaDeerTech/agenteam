@@ -47,10 +47,11 @@ const creator = computed(() => {
       : `${value.agent_id} / ${value.execution_id}`
 })
 async function select(id: string) {
+  const fromDrawer = drawer.value
   owner.select(id)
   drawer.value = false
   await nextTick()
-  if (owner.visible.value && state.selected === id) documentHeading.value?.focus()
+  if (!fromDrawer && owner.visible.value && state.selected === id) documentHeading.value?.focus()
 }
 const cancel = () => owner.cancel()
 onBeforeRouteLeave(cancel)

@@ -116,9 +116,11 @@ export function useKnowledgeOwner(
   })
   const identity = auth.personalContext.identity
   let scope: Context | null = null,
-    generation = 0,
-    active: Readonly<{ serial: number; task: Task }> | null = null,
-    pending: Task | null = null
+    generation = 0
+  const queue = shallowReactive<{
+    active: Readonly<{ serial: number; task: Task }> | null
+    pending: Task | null
+  }>({ active: null, pending: null })
   let disposed = false,
     retired = false,
     route: KnowledgeLocation | null = null
@@ -137,7 +139,7 @@ export function useKnowledgeOwner(
     sameContext(scope, workspace.currentReadContext.value) &&
     location.value.projectPath !== '' &&
     location.value.projectPath === workspace.paths.value.home
-  const busy = computed(() => auth.state.busy || active !== null || pending !== null)
+  const busy = computed(() => auth.state.busy || queue.active !== null || queue.pending !== null)
   const blocked = computed(() => !live() || busy.value)
   const visible = computed(live)
   const root = computed(() => state.levels[rootKey]!)
@@ -171,14 +173,14 @@ export function useKnowledgeOwner(
   }
   function retireRead() {
     ++generation
-    pending = null
-    const previous = active
-    active = null
+    queue.pending = null
+    const previous = queue.active
+    queue.active = null
     if (previous) auth.knowledge.abandon()
     const message = '读取已停止，请明确重读。'
     for (const value of Object.values(state.levels))
       if (value.phase === 'loading' || value.phase === 'waiting')
-        setLevel({ ...value, phase: 'error', message })
+        setLevel({ ...emptyLevel(value.parentID), phase: 'error', message })
     if (state.metadataPhase === 'loading' || state.metadataPhase === 'waiting') {
       state.metadataPhase = 'error'
       state.metadataMessage = message
@@ -197,16 +199,16 @@ export function useKnowledgeOwner(
     if (!live()) return
     retireRead()
     if (task.kind === 'selection') clearSelection(task.target)
-    pending = task
+    queue.pending = task
     pump()
   }
   function pump() {
-    if (!pending || active || auth.state.busy || !scope || !live()) return
-    const task = pending,
+    if (!queue.pending || queue.active || auth.state.busy || !scope || !live()) return
+    const task = queue.pending,
       captured = scope,
       serial = ++generation
-    pending = null
-    active = { serial, task }
+    queue.pending = null
+    queue.active = { serial, task }
     void execute(task, captured, serial)
   }
   async function readAncestors(target: string, captured: Context, current: () => boolean) {
@@ -228,7 +230,15 @@ export function useKnowledgeOwner(
         ...new Set([...state.expanded, ...items.map((item) => item.id)]),
       ])
     } catch (error) {
-      if (current()) state.ancestors = Object.freeze({ ...emptyAncestors(), ...failure(error) })
+      if (!current()) return
+      const result = failure(error)
+      state.ancestors = Object.freeze({ ...emptyAncestors(), ...result })
+      if (result.phase === 'deleted' || result.phase === 'unavailable') {
+        state.document = null
+        state.metadataPhase = result.phase
+        state.metadataMessage = result.message
+        state.content = emptyContent(result.phase, result.message)
+      }
     }
   }
   async function readContent(
@@ -312,7 +322,7 @@ export function useKnowledgeOwner(
             message: '',
           })
         } catch (error) {
-          if (current()) setLevel({ ...level(task.parent), ...failure(error) })
+          if (current()) setLevel({ ...emptyLevel(task.parent), ...failure(error) })
         }
       } else if (task.kind === 'selection') {
         state.metadataPhase = 'loading'
@@ -328,7 +338,7 @@ export function useKnowledgeOwner(
           state.document = head.active
           state.metadataPhase = 'ready'
           await readAncestors(task.target, captured, current)
-          if (current())
+          if (current() && state.document)
             await readContent(
               {
                 kind: 'content',
@@ -350,7 +360,7 @@ export function useKnowledgeOwner(
       } else if (task.kind === 'ancestors') await readAncestors(task.target, captured, current)
       else await readContent(task, captured, current)
     } finally {
-      if (active?.serial === serial) active = null
+      if (queue.active?.serial === serial) queue.active = null
       if (current() && task.kind === 'children' && task.initial && location.value.documentID)
         enqueue({ kind: 'selection', target: location.value.documentID })
       else pump()
@@ -386,7 +396,7 @@ export function useKnowledgeOwner(
         reset()
         scope = context
         route = nextRoute
-        pending = { kind: 'children', parent: null, initial: true }
+        queue.pending = { kind: 'children', parent: null, initial: true }
       } else if (route?.documentID !== nextRoute.documentID) {
         route = nextRoute
         if (nextRoute.documentID) enqueue({ kind: 'selection', target: nextRoute.documentID })

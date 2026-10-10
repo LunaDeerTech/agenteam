@@ -1,21 +1,29 @@
 # Knowledge Owner 只读 UI
 
-- 分支 `ai/knowledge-owner-ui`，本地树 `/workspace/agenteam-knowledge-owner-ui`；基线 `bacbb28d` 完整默认根候选，规划保存 `b6102066`，治理同步 `3107ce4d`。root 独占 Git，content 独占本树下述源码/current；candidate 与旧正文树均不写。
-- 已读 origin/main `4d1cf3d2` 三治理；完整任务尚未交付，不清理任何树或引用。root 已授权四 GET 的最小 Owner 树/metadata/正文 UI，Skills 对接口规划有限静审接受，未证明 UI 实现或真实调用。
-- 正式范围见 `docs/development/work-items/d12-knowledge-documents.md` 末段。四新生产源：`web/src/api/knowledge-owner.ts`、`web/src/composables/useKnowledgeOwner.ts`、`web/src/views/projects/ProjectKnowledgeView.vue`、`web/src/components/knowledge/KnowledgeDocumentTree.vue`；七旧窄接缝 client/Session、router两文件、ProjectNav、UiTree/types。新三 spec 加相邻组件/路由测试及必要文档。后端/锁文件/来源/parser/STOP 不变。
-- 第一片段 API+client+Session 已保存 b0c89d6e，Skills 对四技术源实际静审有限接受。当前 controller/树/页面及路由/UiTree 窄接缝为未验收 WIP，暂停实施。节点依赖从 Work UI 的相同 package-lock 离线复制到本树私有 node_modules，锁未改。
-- 当前优先级：按 root 指令冻结 UI，转 candidate 撤回违反 D08/D10 manifest participant 门禁的默认 Project initializer 绑定；UI 真实 fixture 方案也须按该边界重整后再继续。所有新 UI Go/browser/socket/网络未运行且无资源授权，真实 top 与共享 entry 后续由 root 调度。既有正文/root有限PASS复用，不升级到 UI/ProjectCreateHTTP/SPA 发布。
+- 分支 `ai/knowledge-owner-ui`，树 `/workspace/agenteam-knowledge-owner-ui`；当前保存点 `0658c54f` 已合正式后端 `fb84a892`。九处后端冲突逐字同步 main，UI/current/主卡 WIP 保留。root 独占 Git，content 独占本树 UI 下述路径；不写 candidate 或旧正文树。
+- API/client/Session 第一片段 `b0c89d6e` 已经 Skills 有限独审接受；第二片段 WIP `f9fde343` 在基线同步后继续修复。当前新改动已完成定向离线检查，待独立 actual diff 审与 root 保存；真实 Go/browser fixture 尚未实现，无真实 UI 验收。后端、锁、parser、来源及 STOP 不变。
+- 默认 Project initializer 已按 canonical 门禁撤回。修后 root-02 的默认 Create Unbound/零事实、显式测试 fixture 真 ports/Stop/Drain 和默认读取链已正式进入 main；旧 root-01 业务 PASS 仍仅历史事实，不为生产初始化背书。UI 后继 fixture 必须沿修后边界，不重新绑定默认 initializer。
 
-## 第一片段：四 GET / Session 接缝
+## 唯一写域与当前结果
 
-- 新 `web/src/api/knowledge-owner.ts` + `web/src/tests/knowledge-owner-client.spec.ts`，旧 `web/src/api/client.ts` / `web/src/composables/useSession.ts`。35 个实际客户端纯控 PASS（Vitest 4.1.11，session 77376 actual0，1.56s），`npm --prefix web run type-check` 修后 actual0（90183）；源码格式检查及编译不证明 Session 组合或 UI 动态通过。
-- 首 type-check 21638 actual2：unavailable literal 被 Object.freeze 推断为 string；仅补 `as const` 后上述修后检查通过。保留失败事实，不改正式表示。首检查启动与仅授权源码格式化尾短暂交叉，不计为稳定片段通过；实际格式化67942已0，修后90183在停写源上通过。
-- 此四源码/测试已保存 b0c89d6e，保持停写；第二片段独立 WIP 见下。依赖使用相同锁的私有复制，无新增包/lock变化，无网络或实际资源命令。
+11 个生产路径：`web/src/api/knowledge-owner.ts`、`api/client.ts`、`composables/useSession.ts`、`composables/useKnowledgeOwner.ts`、`components/knowledge/KnowledgeDocumentTree.vue`、`views/projects/ProjectKnowledgeView.vue`、`components/layout/ProjectNav.vue`、`components/ui/UiTree.vue`、`components/ui/types.ts`、`router/auth.ts`、`router/index.ts`（未写全前缀者均在 `web/src/`）。四个测试为 `web/src/tests/knowledge-owner-{client,state}.spec.ts`、`knowledge-owner.spec.ts`、`components.spec.ts`。文档仅本 current、D12 主卡、frontend README/components。既有 Session/认证/Project 四 spec 只运行不修改。
 
-## 第二片段冻结：未验收 WIP
+- 四 GET 严格客户端、当前 Human Session dispatch 保持第一片段已审源。35 项客户端控（77376 actual0）及修后 type-check（90183 actual0）按未变输入复用。
+- controller 只在当前 identity/Project 读取上下文内工作；单 Cookie owner 实际 finally 前不放行下一请求。目录按层分页，祖先仅路径，正文只保留一个 UTF-8 段及偏移导航。页面树默认未选择，文本安全展示，不获取来源或解析 PDF/DOCX。
+- 本轮修复正式 System users query fixture；用响应式任务槽解除实际完成后的页面 busy；祖先 `403/410` 清除详情并停止正文链；Drawer 选择关闭保持原入口焦点恢复；UiTree `expandable=false` 同时约束旧展开状态、键盘、disclosure 和 ARIA，undefined 保留原行为。
+- 最终稳定源检查 88317 actual0：7 个 spec、166 项 PASS，11.27s，包含新页面 10 项、state 16 项、组件 14 项及未变 Session/认证/Project 工作区兼容。受控 Fetch/jsdom 使用实际客户端/Session/工作区，不冒真实浏览器。
+- 最终完整类型检查与私有正式构建 51976 actual0：`npm --prefix web run build -- --outDir /workspace/agenteam-knowledge-owner-ui/output/ai/knowledge-owner-ui/dist`；包含 `vue-tsc --noEmit`，Vite 8.3.1 / 294 模块。未写默认 dist 或锁文件。
+- 独审发现目录继续页失败/取消后未标旧却仍保留行和 cursor；按 root 授权只返修 controller/state：失败 catch 与 loading/waiting 退役都清该层，其他 ready 层保留。新增根403、子503与 held 后页 Stop 控；修后 state/page 2 spec、29项 PASS（34409 actual0，9.45s），完整 `vue-tsc --noEmit`（22652 actual0）、两源 Prettier 与 diff 检查通过。原166项为返修前有效结果，未变兼容源复用；51976私有 dist 早于此返修，真实联调前必须由当前冻结源重建。
+- 11 个生产源与4个测试的 Prettier 检查 49660 actual0；三份正式文档 UTF-8/LF 与74个本地链接/标题核对通过，`git diff --check` 通过。无在途进程；以下冻结范围可由 root 保存。
+- 定向测试命令：`node web/node_modules/vitest/vitest.mjs run --root web src/tests/knowledge-owner.spec.ts src/tests/knowledge-owner-state.spec.ts src/tests/components.spec.ts src/tests/session.spec.ts src/tests/authentication.spec.ts src/tests/project-workspace.spec.ts src/tests/project-workspace-state.spec.ts`。Node 使用 `/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node`；私有 node_modules 来自相同锁的离线复制。
 
-- 新四路径：`web/src/composables/useKnowledgeOwner.ts`、`web/src/components/knowledge/KnowledgeDocumentTree.vue`、`web/src/views/projects/ProjectKnowledgeView.vue`、`web/src/tests/knowledge-owner-state.spec.ts`。旧五路径：`web/src/components/layout/ProjectNav.vue`、`web/src/components/ui/UiTree.vue`、`web/src/components/ui/types.ts`、`web/src/router/auth.ts`、`web/src/router/index.ts`。这九路径与本 current 均停写，交 root 保存；无在途进程或实际资源。
-- controller 仅四 GET、当前 Human/Project generation、原 Cookie owner 实际退役后继续、显式目录分页及单正文段；祖先只作路径不伪造子目录。UiTree optional expandable 同步 disclosure/键盘/ARIA，默认语义保留。页面/窄路由接缝已写，尚无页面 spec、相邻兼容控、私有 build 或第二片段独立审。
-- 第一轮全量 type-check 62736 actual2：局部 emptyAncestors.message/emptyContent.offset literal 推断过窄；只给新 controller 局部空状态函数显式返回类型后，95398 actual0。新片段 Prettier 实际0。
-- Session/controller exact state 检查 80391 actual1：13 控中12通过，`keeps a local 403 out of System denied state` 失败保留。已静态定位测试 fetch fixture 只匹配 `/api/v1/system/users`，实际正式客户端请求带 `?limit=25`，落入不匹配 JSON；尚未修复/重跑，不能称整组通过。其余结果包含普通非 admin/current401/迟到401、原 reader+outer held 尾、分页、祖先路径、UTF8 offset/版本变化、tombstone/unavailable。
-- 暂停后不继续 UI 实施。原默认 root 649e6ad3 业务执行 PASS 仍为历史事实，但此前对生产 initializer 接缝的接受已因 canonical D08/D10 门禁撤回；不得用该历史结果为 UI 新建 Project fixture 或生产创建背书。既有正文 HTTP 有限验收未因此改写。所有网络/socket/PG/browser 未运行。
+## 保留的失败及收敛
+
+- 第一片段 type-check 21638 actual2：unavailable literal 推断过宽；显式 `as const` 后 90183 通过。第二片段 type-check 62736 actual2：空状态 literal 推断过窄；局部返回类型修后 95398 通过。
+- 原 state 80391 actual1（12/13）：fixture 匹配 `/api/v1/system/users`，正式请求为 `?limit=25`；仅精确修 fixture，21650 actual0（13/13）。原拒绝判据未放宽。
+- 新页面 62362 actual1（4/10）：按钮查找误把 aria-hidden 文字算入名称；改用既有页面测试同一查找方法。29463 actual1（6/10）暴露 controller 非响应式任务槽导致已完成仍 busy；修后 59259 actual0（页面/state 共23项）。
+- 组件定向 33241 actual1（2/3，11 skip）：`expandable=false` 仍显露旧展开子节点；同步所有展开判定。后续 75280 actual1（37/40）暴露祖先拒绝后仍继续读取、Drawer 关闭焦点被 heading 抢走；精确修复后最终 88317 全部通过。历史 FAIL 不改写为 PASS。
+
+## 下一步与资源边界
+
+本批源码、测试及文档均已停写，交 Skills 独立审 controller、Session 组合、Tree 默认兼容与 Human 路由，root 负责 checkpoint。随后准备一个 `TestKnowledgeOwnerReadWeb` 与一个正常 Playwright case：显式测试 Project fixture 实际 Stop/Drain，默认 Knowledge 创建父子文本，真实页面四 GET 与 UTF-8 下一段、窄屏键盘/焦点、原消费发布和取消尾及原七资源完整退出门。未实现该 fixture，未运行 browser/socket/PG/network；当前实际资源窗口由 root 分配给其他任务。UI 未验收，不宣称编辑、完整 D12、生产 SPA 或 Project Create HTTP 可用。

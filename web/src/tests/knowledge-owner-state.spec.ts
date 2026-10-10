@@ -126,8 +126,11 @@ async function fixture(
         challenge_modes: ['rotate'],
         delivery_channel: 'backend_log',
       })
-    if (path === '/api/v1/system/users') return json({ items: [] })
-    if (path.startsWith('/api/v1/projects/resolve?') || path === `/api/v1/projects/${id(10)}`)
+    if (path === '/api/v1/system/users?limit=25') return json({ items: [] })
+    if (
+      path.startsWith('/api/v1/projects/resolve?') ||
+      path === `/api/v1/projects/${currentProject.id}`
+    )
       return json(currentProject)
     if (url.pathname === `${base}/children`)
       return json({
@@ -350,6 +353,144 @@ describe('Knowledge workspace observations and bounded text navigation', () => {
     expect(f.fetch.mock.calls.at(-1)?.[0]).toBe(
       `${base}/children?parent_document_id=null&limit=50&cursor=next.page`,
     )
+  })
+  it.each([
+    [null, 403, 'FORBIDDEN'],
+    [id(20), 503, 'DEPENDENCY_UNAVAILABLE'],
+  ] as const)(
+    'discards only the failed continuation level %s and its cursor on %s',
+    async (parent, status, code) => {
+      const f = await fixture()
+      f.page.setExpanded([id(20)])
+      await flushPromises()
+      const otherParent = parent === null ? id(20) : null
+      const other = f.page.level(otherParent)
+      f.intercept(async (path, init) => {
+        const url = new URL(path, 'https://owned.invalid')
+        if (
+          url.pathname !== `${base}/children` ||
+          url.searchParams.get('parent_document_id') !== (parent ?? 'null')
+        )
+          return f.normal(path, init)
+        return url.searchParams.has('cursor')
+          ? problem(status, code)
+          : json({
+              items: Array.from({ length: 50 }, (_, i) => ({
+                ...document(i + 100, parent),
+                title: String(i + 100),
+              })),
+              next_cursor: 'failed.page',
+            })
+      })
+      f.page.readLevel(parent)
+      await flushPromises()
+      expect(f.page.level(parent).items).toHaveLength(50)
+      expect(f.page.level(parent).nextCursor).toBe('failed.page')
+      f.page.readLevel(parent, true)
+      await flushPromises()
+      expect(f.page.level(parent)).toMatchObject({
+        phase: status === 403 ? 'unavailable' : 'error',
+        items: [],
+      })
+      expect(f.page.level(parent).nextCursor).toBeUndefined()
+      expect(f.page.level(otherParent)).toBe(other)
+      const calls = f.fetch.mock.calls.length
+      f.page.readLevel(parent, true)
+      await flushPromises()
+      expect(f.fetch.mock.calls).toHaveLength(calls)
+      expect(f.auth.state.phase).toBe('authenticated')
+      expect(f.auth.state.busy).toBe(false)
+    },
+  )
+  it('discards a cancelled continuation and retains the actual Cookie owner until its tail', async () => {
+    const f = await fixture(),
+      gate = barrier<Response>()
+    releases.push(() => gate.resolve(json({ items: [] })))
+    f.page.setExpanded([id(20)])
+    await flushPromises()
+    const child = f.page.level(id(20))
+    f.intercept((path, init) => {
+      const url = new URL(path, 'https://owned.invalid')
+      if (url.pathname !== `${base}/children`) return f.normal(path, init)
+      return url.searchParams.has('cursor')
+        ? gate.promise
+        : Promise.resolve(
+            json({
+              items: Array.from({ length: 50 }, (_, i) => ({
+                ...document(i + 100),
+                title: String(i + 100),
+              })),
+              next_cursor: 'held.page',
+            }),
+          )
+    })
+    f.page.readLevel(null)
+    await flushPromises()
+    expect(f.page.root.value.items).toHaveLength(50)
+    f.page.readLevel(null, true)
+    await flushPromises()
+    expect(f.page.root.value.phase).toBe('loading')
+    f.page.cancel()
+    await flushPromises()
+    expect(f.page.root.value).toMatchObject({ phase: 'error', items: [] })
+    expect(f.page.root.value.nextCursor).toBeUndefined()
+    expect(f.page.level(id(20))).toBe(child)
+    expect(f.auth.state.busy).toBe(true)
+    gate.resolve(json({ items: [] }))
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+    expect(f.page.root.value).toMatchObject({ phase: 'error', items: [] })
+    expect(f.page.root.value.nextCursor).toBeUndefined()
+  })
+  it.each([
+    [403, 'FORBIDDEN'],
+    [410, 'RESOURCE_DELETED'],
+  ] as const)(
+    'stops the selected document chain when ancestors report %s',
+    async (status, code) => {
+      const f = await fixture()
+      f.intercept(async (path, init) =>
+        path.endsWith('/ancestors') ? problem(status, code) : f.normal(path, init),
+      )
+      f.page.select(id(20))
+      await flushPromises()
+      expect(f.page.state.document).toBeNull()
+      expect(f.page.state.metadataPhase).toBe(status === 410 ? 'deleted' : 'unavailable')
+      expect(f.page.state.content.value).toBeNull()
+      expect(f.fetch.mock.calls.some(([path]) => path.includes('/content?'))).toBe(false)
+      expect(f.auth.state.phase).toBe('authenticated')
+    },
+  )
+  it('clears the old Project observation and waits for its actual tail before reading another Project', async () => {
+    const f = await fixture(),
+      gate = barrier<Response>()
+    releases.push(() => gate.resolve(json({ active: document() })))
+    const nextBase = `/api/v1/projects/${id(11)}/knowledge/documents`
+    f.intercept((path, init) =>
+      path === `${base}/${id(20)}`
+        ? gate.promise
+        : path.startsWith(nextBase)
+          ? Promise.resolve(json({ items: [] }))
+          : f.normal(path, init),
+    )
+    f.page.select(id(20))
+    await flushPromises()
+    f.project({ ...project(), id: id(11), name: 'Other', normalized_name: 'other' })
+    f.location.value = { projectPath: '/owner/other', documentID: null }
+    f.workspace.afterNavigation('/owner/other/knowledge')
+    await flushPromises()
+    expect(f.page.visible.value).toBe(false)
+    expect(f.page.state.document).toBeNull()
+    expect(f.page.root.value.items).toEqual([])
+    expect(f.auth.state.busy).toBe(true)
+    expect(f.fetch.mock.calls.some(([path]) => path.startsWith(nextBase))).toBe(false)
+    gate.resolve(json({ active: document() }))
+    await flushPromises()
+    expect(f.workspace.currentReadContext.value?.projectID).toBe(id(11))
+    expect(f.page.visible.value).toBe(true)
+    expect(f.page.root.value.phase).toBe('empty')
+    expect(f.page.state.document).toBeNull()
+    expect(f.fetch.mock.calls.some(([path]) => path.includes('/content?'))).toBe(false)
   })
   it('lazily reads a child branch independently from selecting a parent', async () => {
     const f = await fixture()

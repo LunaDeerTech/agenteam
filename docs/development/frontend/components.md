@@ -24,7 +24,7 @@
 
 | 组件 | 主要接口 |
 | --- | --- |
-| UiTree | nodes、label、`v-model:selected`、`v-model:expanded`；TreeNode 使用 id、label、children、disabled；suffix 插槽接收 node；展开与选择独立 |
+| UiTree | nodes、label、`v-model:selected`、`v-model:expanded`；TreeNode 使用 id、label、children、disabled 和可选 expandable；suffix 插槽接收 node；展开与选择独立 |
 | UiCollapse | label、`v-model:open`；正文插槽；默认折叠、无边框，动态高度可中断过渡；maxHeight 默认 min(320px, 40dvh)，超出内部滚动 |
 | UiCard | 默认内容插槽 |
 | UiList | items（id、label、disabled）、label；select(id)；suffix 插槽 |
@@ -36,6 +36,8 @@
 | UiBreadcrumb | items（label、可选 to）；最后一项为当前位置 |
 | UiTabs | 字符串 v-model、items（ChoiceOption[]）、label；默认插槽接收 value；方向键、Home / End 自动激活，跳过禁用项；指示线和内容滑动，退出面板 inert，支持快速反向和减少动效 |
 | UiPagination | 数字 v-model、total（页数）、label；上一页、下一页与当前页附近页码，超出范围会修正 |
+
+`TreeNode.expandable` 未传时保留按 `children?.length` 判断的原行为；`true` 支持子级尚未加载的节点，`false` 按叶子处理。展开按钮、键盘、子级可见性和 `aria-expanded` 使用同一判断；业务组件负责按展开动作读取子级。
 
 Tree 使用可见节点的方向键、Home / End、Enter / Space；右键展开或进入子节点，左键折叠或回到父节点。标签页需要传入有效初始 value，列表和树节点 ID 必须唯一且稳定。
 
