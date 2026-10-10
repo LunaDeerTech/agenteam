@@ -23,18 +23,18 @@ import (
 // create its active private dispatch context, after a known committed Attempt.
 type InstallAuthority struct{ data func() *installAuthorityState }
 type installAuthorityState struct {
-	core       *Service
-	permission *authorization.Service
-	guard      *object.ProcessGuard
-	process    oc.ProcessID
-	mu         sync.Mutex
-	stopped    bool
-	active     map[tc.OperationID]*installHandoff
+	store   Store
+	guard   *object.ProcessGuard
+	process oc.ProcessID
+	mu      sync.Mutex
+	stopped bool
+	active  map[tc.OperationID]*installHandoff
 }
 
 type installHandoff struct {
 	mu         sync.Mutex
 	issuer     *installAuthorityState
+	executor   *installExecutorData
 	record     operationRecord
 	binding    tc.ToolCallBinding
 	call       builtin.SkillInstallCall
@@ -60,15 +60,15 @@ type installHandoffContext struct {
 	call   *installHandoff
 }
 
-func NewInstallAuthority(core *Service, permission *authorization.Service, guard *object.ProcessGuard) (*InstallAuthority, error) {
-	if core == nil || core.data == nil || permission == nil || guard == nil {
+// NewInstallAuthority fixes the real Store, guard and intended process before
+// Object.Initialize binds that guard. Construction issues no grant and does not
+// claim the process is ready. Registry binding and each dispatch recheck the
+// same guard's current bound process.
+func NewInstallAuthority(store Store, guard *object.ProcessGuard, expectedProcess oc.ProcessID) (*InstallAuthority, error) {
+	if nilPort(store) || guard == nil || expectedProcess.Validate() != nil {
 		return nil, fail(f.DependencyUnbound)
 	}
-	process, err := guard.CurrentProcess()
-	if err != nil {
-		return nil, portError(err)
-	}
-	d := &installAuthorityState{core: core, permission: permission, guard: guard, process: process, active: map[tc.OperationID]*installHandoff{}}
+	d := &installAuthorityState{store: store, guard: guard, process: expectedProcess, active: map[tc.OperationID]*installHandoff{}}
 	return &InstallAuthority{data: func() *installAuthorityState { return d }}, nil
 }
 
@@ -84,7 +84,7 @@ func (a *InstallAuthority) handoff(ctx context.Context) (*installAuthorityState,
 	if !ok || witness.issuer != d || witness.call == nil || witness.call.issuer != d {
 		return nil, nil, fail(f.Forbidden)
 	}
-	if witness.call.ctx == nil {
+	if !witness.call.boundExecutor(d) || witness.call.ctx == nil {
 		return nil, nil, fail(f.InvalidState)
 	}
 	if err := witness.call.ctx.Err(); err != nil {
@@ -194,7 +194,7 @@ func (a *InstallAuthority) RequireCurrentSkillInstall(ctx context.Context, call 
 	if !h.live {
 		return fail(f.Forbidden)
 	}
-	store := d.core.data().store
+	store := d.store
 	result := store.WithinTx(ctx, h.cause, func(ctx context.Context, tx f.Tx) error {
 		if err := store.AcquireAll(ctx, tx, h.locks); err != nil {
 			return portError(err)
@@ -205,9 +205,15 @@ func (a *InstallAuthority) RequireCurrentSkillInstall(ctx context.Context, call 
 }
 
 func requireInstallHandoff(ctx context.Context, tx f.Tx, d *installAuthorityState, h *installHandoff) error {
-	store := d.core.data().store
+	if !h.boundExecutor(d) {
+		return fail(f.Forbidden)
+	}
+	store := d.store
 	x, err := store.InTx(tx)
 	if err != nil {
+		return portError(err)
+	}
+	if _, err = h.executor.core.data().store.InTx(tx); err != nil {
 		return portError(err)
 	}
 	if err = store.RequireHeldLocks(ctx, tx, h.locks); err != nil {
@@ -217,7 +223,7 @@ func requireInstallHandoff(ctx context.Context, tx f.Tx, d *installAuthorityStat
 	if err != nil || process != d.process {
 		return fail(f.DependencyUnavailable)
 	}
-	if err = d.permission.AuthorizeInstallInTx(ctx, tx, h.input, h.permission); err != nil {
+	if err = h.executor.permission.AuthorizeInstallInTx(ctx, tx, h.input, h.permission); err != nil {
 		return portError(err)
 	}
 	return requireRunningInstall(ctx, x, d, h)

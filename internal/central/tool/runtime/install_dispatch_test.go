@@ -13,6 +13,7 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/tool/authorization"
 	"github.com/LunaDeerTech/agenteam/internal/central/tool/builtin"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
@@ -57,7 +58,7 @@ func installHandoffFixture(t *testing.T) (*installHandoff, sc.InstallExecutionRe
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
-	h := &installHandoff{record: r, binding: binding, call: call, attempt: newOperationID[tc.Attempt](t), request: newOperationID[f.Request](t), cancel: cancel, ctx: ctx, done: make(chan struct{}), live: true}
+	h := &installHandoff{executor: &installExecutorData{core: s, permission: &authorization.Service{}, schemas: &RegistrySchemaValidator{}}, record: r, binding: binding, call: call, attempt: newOperationID[tc.Attempt](t), request: newOperationID[f.Request](t), cancel: cancel, ctx: ctx, done: make(chan struct{}), live: true}
 	command, err := f.NewCommandIdentity("project", []string{binding.ProjectID.String()}, "skill.install", r.Key)
 	if err != nil {
 		t.Fatal(err)
@@ -68,9 +69,15 @@ func installHandoffFixture(t *testing.T) (*installHandoff, sc.InstallExecutionRe
 
 func TestInstallRuntimePrivateHandoffAndOriginalJoin(t *testing.T) {
 	h, request := installHandoffFixture(t)
-	d := &installAuthorityState{active: map[tc.OperationID]*installHandoff{h.record.ID: h}}
+	d := &installAuthorityState{store: h.executor.core.data().store, active: map[tc.OperationID]*installHandoff{h.record.ID: h}}
 	h.issuer = d
 	a := &InstallAuthority{data: func() *installAuthorityState { return d }}
+	service := &skill.Service{}
+	adapter, err := builtin.NewSkillInstallAdapter(service, a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	h.executor.source = &installSourceState{authority: a, service: service, adapter: adapter}
 	if _, err := a.DiscoverInstallExecution(context.Background(), request); err == nil {
 		t.Fatal("public DTO manufactured a handoff")
 	}
@@ -82,6 +89,12 @@ func TestInstallRuntimePrivateHandoffAndOriginalJoin(t *testing.T) {
 	if !plan.Binding().Matches(request) {
 		t.Fatal("original identity lost")
 	}
+	originalSource := h.executor.source
+	h.executor.source = &installSourceState{authority: &InstallAuthority{data: func() *installAuthorityState { return &installAuthorityState{} }}, service: service, adapter: adapter}
+	if _, err = a.DiscoverInstallExecution(ctx, request); err == nil {
+		t.Fatal("foreign executor/backend admitted to original issuer")
+	}
+	h.executor.source = originalSource
 	changed := request
 	changed.RequestID = newOperationID[f.Request](t)
 	if _, err = a.DiscoverInstallExecution(ctx, changed); err == nil {
