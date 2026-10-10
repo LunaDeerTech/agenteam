@@ -43,6 +43,8 @@ type runtimeCall struct {
 	frames                                   []mc.ModelFrame
 	text                                     []byte
 	result                                   *mc.ModelResponse
+	completedJSON                            *wire.Result
+	completedJSONError                       error
 	err                                      error
 }
 
@@ -197,7 +199,9 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	}
 	c.finishStart(err)
 	if err != nil {
-		return nil, runtimePortError(err)
+		// The original admitted owner may still hold an Unknown mutation or
+		// unjoined I/O. Scoped callers must receive that exact handle.
+		return c, runtimePortError(err)
 	}
 	return c, nil
 }
@@ -412,6 +416,9 @@ func (c *runtimeCall) close(ctx context.Context) error {
 	c.mu.Unlock()
 	if joined {
 		return nil
+	}
+	if c.completedJSON != nil {
+		return c.finish(ctx, c.completedJSON, c.completedJSONError)
 	}
 	return c.finish(ctx, nil, unavailable(context.Canceled))
 }
