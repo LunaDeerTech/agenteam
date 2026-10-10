@@ -17,6 +17,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"syscall"
 	"testing"
 	"time"
 
@@ -215,7 +216,7 @@ func TestTreeCommandsHTTPNativeReadDeadlines(t *testing.T) {
 				t.Fatal("original native body deadline/Close boundary")
 			}
 			var b [1]byte
-			if n, err := conn.Read(b[:]); n != 0 || err == nil {
+			if n, err := conn.Read(b[:]); n != 0 || !(errors.Is(err, io.EOF) || errors.Is(err, syscall.ECONNRESET)) {
 				t.Fatal("failed body unexpectedly published/reused connection")
 			}
 		})
@@ -263,7 +264,7 @@ func TestTreeCommandsHTTPNativeKeepAliveAndClose(t *testing.T) {
 			t.Fatal("original service success/Close failure boundary")
 		}
 		var b [1]byte
-		if n, err := conn.Read(b[:]); n != 0 || err == nil {
+		if n, err := conn.Read(b[:]); n != 0 || !(errors.Is(err, io.EOF) || errors.Is(err, syscall.ECONNRESET)) {
 			t.Fatal("Close failure published a response")
 		}
 	})
