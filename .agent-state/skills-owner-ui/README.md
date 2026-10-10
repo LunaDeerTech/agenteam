@@ -84,3 +84,11 @@ scope修后92485→cbce25实际0；最终只跑 `skill-owner-state.spec.ts` 的�
 - Rename1476项：`dcd46abf23a0c0a0dae41dd5c24ec72c13bdbda07742ccb11ba75bdc5cdd48ca`；计划fresh `/tmp/kur04`、`/tmp/kur04-private`、`output/ai/knowledge-owner-rename/evidence-rename-04`。
 
 非DIST输入相对combined-inputs-03仅auth.ts、useSkillOwner.ts、ProjectSkillsView.vue三产品文件变化。两者继续复用61,196,757-byte `combined-compile-01/owner-ui-combined-race.test`，SHA `adaed67fef0d3571709f671d1448061d9730a4d088fc6e73dd4f5c6259f74825`。此次未执行Go/真实浏览器，未改原normal-only、首seal、资源/Wait/预算；Skills02 wholeFAIL仍为原结果。上述路径只在准备阶段查fresh，实际执行仍须root授唯一窗口，并由同启动重新核fresh5GiB/private telemetry/原owned资源与全尾。
+
+## Skills03 原整轮结果
+
+2026-10-10 10:52:37–10:54:52 UTC，以source44686a4d、上列DIST03/1474 c03224…dc9aa3、sameadaed执行一次。原same-process fresh5,372,129,280 bytes、private telemetry off/unset3/empty Docker及旧Skills02七exactID双absent通过；按root授权仅lstat确认旧 `/tmp/sui02/ui-a970202220c043f6/runtime` 普通且空后rmdir，原证据不变。
+
+整轮FAIL，session23221→84df93 actual1。Go单top26.07s FAIL/Node634891实际Wait=false；driver632747 Wait1、supervisor632721 Wait1、outer632578 exit1，四adopted Wait0。原log `/tmp/sui03/ui-552f1fc38d604967.log` 的七资源14absent、private/runtime/desc/hostTCP双尾、inputs unchanged、STOP0全齐，supervisor131.460s终态，launch-private absent并释放。安全原首快照/原后尾分别投影在 [third-read-result.json](third-read-result.json)，原不可重建缺项不补。
+
+首阶段original-completion；idle因pw_failed=true拒绝，pw_first=null且两page observer仍active，尚未first explicit。真实4请求的public调用恰list/get/get/list，均typed/fulfilled/current/notbusy，native4行200/EOF/reader和outer尾齐；PW1/3/4原正常finished(null)，PW seq2第一次detail失败：response_count1、header_state returned、failed1，但request_id/status=null、finished0/finished_calls0。这一次没有Skills02额外旧route请求；仍不能将native成功升级为PW原完成、推测原失败原因或填充缺失XID。原精确PW错误与取消时点未持久化，第二Human及Go后验未到。原normal-only门保持，技术继续冻结；未重试、未延预算、未更换完成判据。
