@@ -650,9 +650,31 @@ export function knowledgeOriginalCompleted(
     /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
       n.request_id,
     ) &&
-    pw.finished === true &&
-    pw.finished_null === true &&
-    pw.failed === false &&
+    pw.request_count === 1 &&
+    pw.response_count === 1 &&
+    pw.request_valid === true &&
+    pw.events_valid === true &&
+    pw.terminal_open === true &&
+    pw.terminal_in_budget === true &&
+    pw.tail_joined === true &&
+    ((pw.terminal === "finished" &&
+      pw.finished === true &&
+      pw.finished_count === 1 &&
+      pw.failed === false &&
+      pw.failed_count === 0 &&
+      pw.finished_calls === 1 &&
+      pw.finished_state === "null" &&
+      pw.finished_null === true &&
+      pw.failure_kind === "not_observed") ||
+      (pw.terminal === "failed" &&
+        pw.finished === false &&
+        pw.finished_count === 0 &&
+        pw.failed === true &&
+        pw.failed_count === 1 &&
+        pw.finished_calls === 0 &&
+        pw.finished_state === "not_entered" &&
+        pw.finished_null === false &&
+        pw.failure_kind === "net::ERR_ABORTED")) &&
     pw.method === "GET" &&
     pw.status === 200 &&
     pw.path === n.path &&
@@ -715,6 +737,7 @@ type KnowledgeReadEvent =
   | "requestfinished"
   | "requestfailed"
   | "response"
+  | "terminal-return"
   | "header-enter"
   | "header-return"
   | "header-reject"
@@ -795,6 +818,38 @@ export function createKnowledgeReadDiagnostic(config: {
       finished: row.finished === true,
       finished_null: row.finished_null === true,
       failed: row.failed === true,
+      terminal: ["pending", "finished", "failed", "closed"].includes(
+        row.terminal,
+      )
+        ? row.terminal
+        : "invalid",
+      terminal_open: row.terminal_open === true,
+      terminal_in_budget: row.terminal_in_budget === true,
+      request_valid: row.request_valid === true,
+      events_valid: row.events_valid === true,
+      request_count: Number.isSafeInteger(row.request_count)
+        ? row.request_count
+        : null,
+      response_count: Number.isSafeInteger(row.response_count)
+        ? row.response_count
+        : null,
+      finished_count: Number.isSafeInteger(row.finished_count)
+        ? row.finished_count
+        : null,
+      failed_count: Number.isSafeInteger(row.failed_count)
+        ? row.failed_count
+        : null,
+      finished_calls: Number.isSafeInteger(row.finished_calls)
+        ? row.finished_calls
+        : null,
+      failure_kind: [
+        "not_observed",
+        "net::ERR_ABORTED",
+        "other",
+        "unavailable",
+      ].includes(row.failure_kind)
+        ? row.failure_kind
+        : "invalid",
       header: ["not_entered", "entered", "returned", "rejected"].includes(
         row.header_state,
       )
@@ -924,47 +979,169 @@ export async function observeKnowledge(
   const expiresAt = Date.now() + 45_000;
   const diagnostic = config.diagnostic;
   const binding = await knowledgeSessionBinding(config.root, config.dist);
+  type Terminal = "finished" | "failed" | "closed";
+  type Slot = {
+    row: any;
+    // Created once at the original request event; both response and finish
+    // consume this same Promise. No later URL match can replace its Request.
+    terminal: Promise<Terminal>;
+    resolve: (value: Terminal) => void;
+    finished?: Promise<Error | null>;
+  };
   const rows = new Map<Request, any>(),
+    slots = new Map<Request, Slot>(),
     tails = new Set<Promise<void>>();
   let failed = false,
     closed = false;
+  const prefix = `/api/v1/projects/${config.project}/knowledge/documents`;
   const selected = (request: Request) =>
-    new URL(request.url()).pathname.startsWith(
-      `/api/v1/projects/${config.project}/knowledge/documents`,
+    new URL(request.url()).pathname.startsWith(prefix);
+  const validRequest = (request: Request, url: URL) => {
+    if (request.method() !== "GET" || url.hash) return false;
+    const query = url.search.slice(1);
+    if (url.pathname === prefix + "/children")
+      return ["null", ...config.documents].some(
+        (id) => query === `parent_document_id=${id}&limit=50`,
+      );
+    return config.documents.some((id) =>
+      url.pathname === `${prefix}/${id}/content`
+        ? /^(?:byte_offset=0|byte_offset=65535)&max_bytes=65536$/.test(query)
+        : [`${prefix}/${id}`, `${prefix}/${id}/ancestors`].includes(
+            url.pathname,
+          ) && query === "",
     );
+  };
+  const invalidate = (row?: any) => {
+    failed = true;
+    if (row) row.events_valid = false;
+  };
+  const settle = (slot: Slot, value: Terminal) => {
+    if (slot.row.terminal !== "pending") return;
+    slot.row.terminal = value;
+    slot.resolve(value);
+  };
+  const close = () => {
+    failed = true;
+    closed = true;
+    clearTimeout(expiry);
+    for (const slot of slots.values()) {
+      invalidate(slot.row);
+      settle(slot, "closed");
+    }
+  };
+  // This is the existing 45s observation deadline, not an extra wait budget.
+  // Closing releases terminal waiters, never an already-started finished().
+  const expiry = setTimeout(close, Math.max(0, expiresAt - Date.now()));
   const requested = (request: Request) => {
     if (!selected(request)) return;
-    if (closed || rows.size >= 256) {
-      failed = true;
+    const previous = rows.get(request);
+    if (previous) {
+      previous.request_count++;
+      invalidate(previous);
+      diagnostic.event("request", previous, tails.size);
+      return;
+    }
+    if (
+      closed ||
+      page.isClosed() ||
+      Date.now() >= expiresAt ||
+      rows.size >= 256
+    ) {
+      invalidate();
       return;
     }
     const url = new URL(request.url());
-    rows.set(request, {
+    const row = {
       sequence: rows.size + 1,
       method: request.method(),
       path: url.pathname,
       query: url.search.slice(1),
       request_id: null,
       status: null,
+      request_count: 1,
+      response_count: 0,
+      request_valid: validRequest(request, url),
+      events_valid: true,
+      terminal: "pending",
+      terminal_open: false,
+      terminal_in_budget: false,
       finished: false,
+      finished_count: 0,
+      finished_calls: 0,
+      finished_state: "not_entered",
       finished_null: false,
       failed: false,
-    });
-    diagnostic.event("request", rows.get(request), tails.size);
+      failed_count: 0,
+      failure_kind: "not_observed",
+    };
+    let resolve!: (value: Terminal) => void;
+    const terminal = new Promise<Terminal>((done) => (resolve = done));
+    rows.set(request, row);
+    slots.set(request, { row, terminal, resolve });
+    if (!row.request_valid) invalidate(row);
+    diagnostic.event("request", row, tails.size);
   };
-  const finished = (request: Request) => {
-    const row = rows.get(request);
-    if (row && !closed) row.finished = true;
-    if (row) diagnostic.event("requestfinished", row, tails.size);
+  const terminalEvent = (request: Request, kind: "finished" | "failed") => {
+    const slot = slots.get(request);
+    if (!slot) {
+      if (selected(request)) invalidate();
+      return;
+    }
+    const row = slot.row;
+    row[kind] = true;
+    row[kind + "_count"]++;
+    const open = !closed && !page.isClosed(),
+      inBudget = Date.now() < expiresAt;
+    if (row.terminal !== "pending" || !open || !inBudget) {
+      invalidate(row);
+      settle(slot, "closed");
+    } else {
+      row.terminal_open = open;
+      row.terminal_in_budget = inBudget;
+      if (kind === "failed") {
+        // LIVE observation only. Never persist error text, or infer this enum
+        // from read02's requestfailed event, a later GET or a rejected await.
+        try {
+          const failure = request.failure();
+          row.failure_kind =
+            failure?.errorText === "net::ERR_ABORTED"
+              ? "net::ERR_ABORTED"
+              : failure
+                ? "other"
+                : "unavailable";
+        } catch {
+          row.failure_kind = "unavailable";
+        }
+        if (row.failure_kind !== "net::ERR_ABORTED") invalidate(row);
+      }
+      settle(slot, kind);
+    }
+    diagnostic.event(
+      kind === "finished" ? "requestfinished" : "requestfailed",
+      row,
+      tails.size,
+    );
   };
-  const rejected = (request: Request) => {
-    const row = rows.get(request);
-    if (row && !closed) row.failed = true;
-    if (row) diagnostic.event("requestfailed", row, tails.size);
-  };
+  const finished = (request: Request) => terminalEvent(request, "finished");
+  const rejected = (request: Request) => terminalEvent(request, "failed");
   const response = (response: PWResponse) => {
-    const row = rows.get(response.request());
-    if (!row) return;
+    const slot = slots.get(response.request());
+    if (!slot) {
+      if (selected(response.request())) invalidate();
+      return;
+    }
+    const row = slot.row;
+    row.response_count++;
+    if (
+      row.response_count !== 1 ||
+      closed ||
+      page.isClosed() ||
+      Date.now() >= expiresAt
+    ) {
+      invalidate(row);
+      diagnostic.event("response", row, tails.size);
+      return;
+    }
     row.response_status = response.status();
     const tail = (async () => {
       row.header_state = "entered";
@@ -984,28 +1161,61 @@ export async function observeKnowledge(
           ? id
           : "invalid";
       diagnostic.event("header-return", row, tails.size);
-      row.finished_state = "entered";
-      diagnostic.event("finished-enter", row, tails.size);
-      let terminal: Error | null;
-      try {
-        terminal = await response.finished();
-      } catch (error) {
-        row.finished_state = "rejected";
-        diagnostic.event("finished-reject", row, tails.size);
-        throw error;
+      if (row.header_request_id === "invalid") invalidate(row);
+      const terminal = await slot.terminal;
+      diagnostic.event("terminal-return", row, tails.size);
+      if (
+        closed ||
+        page.isClosed() ||
+        Date.now() >= expiresAt ||
+        !row.events_valid ||
+        terminal === "closed"
+      ) {
+        invalidate(row);
+        return;
       }
-      row.finished_state = terminal === null ? "null" : "error";
-      diagnostic.event("finished-return", row, tails.size);
-      if (closed) {
-        failed = true;
+      if (terminal === "finished") {
+        if (row.finished_count !== 1 || row.failed_count !== 0) {
+          invalidate(row);
+          return;
+        }
+        // Only the normal terminal may create this Promise, at most once.
+        // Once created its actual settlement is always joined, even on close.
+        if (!slot.finished) {
+          row.finished_calls++;
+          row.finished_state = "entered";
+          diagnostic.event("finished-enter", row, tails.size);
+          slot.finished = response.finished();
+        }
+        let result: Error | null;
+        try {
+          result = await slot.finished;
+        } catch (error) {
+          row.finished_state = "rejected";
+          diagnostic.event("finished-reject", row, tails.size);
+          throw error;
+        }
+        row.finished_state = result === null ? "null" : "error";
+        row.finished_null = result === null;
+        diagnostic.event("finished-return", row, tails.size);
+      } else if (
+        row.failed_count !== 1 ||
+        row.finished_count !== 0 ||
+        row.failure_kind !== "net::ERR_ABORTED" ||
+        slot.finished
+      ) {
+        invalidate(row);
+        return;
+      }
+      if (closed || page.isClosed() || Date.now() >= expiresAt) {
+        invalidate(row);
         return;
       }
       row.request_id = id;
       row.status = response.status();
-      row.finished_null = terminal === null;
     })()
       .catch(() => {
-        failed = true;
+        invalidate(row);
       })
       .then(() => {
         tails.delete(tail);
@@ -1014,10 +1224,6 @@ export async function observeKnowledge(
       });
     tails.add(tail);
     diagnostic.event("response", row, tails.size);
-  };
-  const close = () => {
-    failed = true;
-    closed = true;
   };
   const pageClose = () => {
     diagnostic.event("page-close", undefined, tails.size);
@@ -1033,27 +1239,44 @@ export async function observeKnowledge(
   page.on("response", response);
   page.on("close", pageClose);
   page.context().on("close", contextClose);
+  const detach = () => {
+    page.off("request", requested);
+    page.off("requestfinished", finished);
+    page.off("requestfailed", rejected);
+    page.off("response", response);
+    page.off("close", pageClose);
+    page.context().off("close", contextClose);
+  };
   // Installed in the current document after login, before its first Knowledge
   // navigation. It does not instrument unrelated Account material.
-  await page.evaluate(installKnowledgeNative, {
-    project: config.project,
-    documents: config.documents,
-    expiresAt,
-  });
-  await page.evaluate(installKnowledgePublication, {
-    binding,
-    project: config.project,
-    documents: config.documents,
-    user: config.user,
-    expiresAt,
-  });
+  try {
+    await page.evaluate(installKnowledgeNative, {
+      project: config.project,
+      documents: config.documents,
+      expiresAt,
+    });
+    await page.evaluate(installKnowledgePublication, {
+      binding,
+      project: config.project,
+      documents: config.documents,
+      user: config.user,
+      expiresAt,
+    });
+  } catch (error) {
+    close();
+    detach();
+    throw error;
+  }
   let report: any;
   return {
     async finish() {
       if (report) return report;
       try {
         diagnostic.enter("pw-tails");
-        await Promise.all([...tails]);
+        await Promise.all([
+          ...tails,
+          ...[...slots.values()].map((slot) => slot.terminal),
+        ]);
         diagnostic.complete("pw-tails");
         diagnostic.enter("page-observers");
         const value = await page.evaluate(async () => {
@@ -1067,12 +1290,8 @@ export async function observeKnowledge(
         });
         diagnostic.complete("page-observers");
         closed = true;
-        page.off("request", requested);
-        page.off("requestfinished", finished);
-        page.off("requestfailed", rejected);
-        page.off("response", response);
-        page.off("close", pageClose);
-        page.context().off("close", contextClose);
+        clearTimeout(expiry);
+        detach();
         report = {
           ...value,
           pw_failed: failed || !diagnostic.healthy(),
@@ -1090,6 +1309,8 @@ export async function observeKnowledge(
         return report;
       } catch (error) {
         diagnostic.event("finish-reject", undefined, tails.size);
+        clearTimeout(expiry);
+        close();
         throw error;
       }
     },

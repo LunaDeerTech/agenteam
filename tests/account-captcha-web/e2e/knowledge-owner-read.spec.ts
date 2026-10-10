@@ -222,6 +222,19 @@ test("[read] Knowledge Owner existing-document read", async ({ page }) => {
         (row: any) => row.request_id === record.request_id,
       );
       expect(matches).toHaveLength(1);
+      // Counts are from this Request's live events. The failed branch must
+      // never create/abandon a Response.finished() Promise.
+      const original = matches[0];
+      expect(["finished", "failed"]).toContain(original.terminal);
+      expect(original.finished_calls).toBe(
+        original.terminal === "finished" ? 1 : 0,
+      );
+      expect(original.finished_count).toBe(
+        original.terminal === "finished" ? 1 : 0,
+      );
+      expect(original.failed_count).toBe(
+        original.terminal === "failed" ? 1 : 0,
+      );
       expect(
         knowledgeOriginalCompleted(
           terminal.native,
