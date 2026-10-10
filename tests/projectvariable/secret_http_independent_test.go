@@ -324,6 +324,7 @@ func TestIndependentSecretHTTPCurrentSessionAndSafeErrors(t *testing.T) {
 		const invalidCanary = "INDEPENDENT_INVALID_VALUE_1a9"
 		forms := append(independentSecretForms(nameCanary), independentSecretForms(valueCanary)...)
 		forms = append(forms, independentSecretForms(invalidCanary)...)
+		forms = append(forms, independentSecretForms(invalidCanary+"\x00")...)
 		if independentSecretContains([]byte("safe HTTP metadata"), forms) {
 			t.Fatal("independent leak detector negative control failed")
 		}

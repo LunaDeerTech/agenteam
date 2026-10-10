@@ -21,6 +21,12 @@ the first binary does not yet verify this narrow assertion update.
 The original `candidate-independent-01` artifact remains intact. The entry now
 requires the separate `candidate-independent-02` artifact, pending one hot rebuild
 and exact-list after this source update is checkpointed.
+Independent method review also identified that the declared-value case must scan
+the Base64/digest/escaped forms of its complete transmitted value including NUL.
+That exact full-value set is now added alongside the short marker, using the same
+per-form detection controls. The second compilation had not started; candidate 02
+remains the pending target. This corrects the probe, not a demonstrated product
+leak, and adds no scenario.
 
 The exact selector is `^TestIndependentSecretHTTPCurrentSessionAndSafeErrors$`:
 
