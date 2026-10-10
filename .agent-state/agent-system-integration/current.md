@@ -1,6 +1,21 @@
-# 当前有限组合
+# 当前有限组合：新增领域连接准备
 
-- 写域：coordination 仅 `tests/projectvariable/agent_configuration_schema_test.go` 和本目录两份记录；content 写独立构造 helper，root 负责所有 Git。组合基线 main `7a693cb6` 加四组精确源，生产/迁移不由此测试修改。
+- root 已在原 `e028467b` 上按五组来源精确导入64个技术路径，加 cleanup 唯一合成的 `lifecycle_cleanup_test.go` 两行适配，保存为 `bc2bc5ea`。来源为 Human Install `7cf8cd15`、Registry/Builtin `19094bf5`、Tool Runtime `6eb3a62a`、Execution/Agent capture `e9b8fb14`、Skill Agent 安装 `b3e251ad`；不覆盖旧 current、卡片或共享入口，不删除文件。
+- content 仅维护本摘要及 `core-checks.py`；cleanup 的上述适配已停写。64路径逐字等于指定 donor，四个旧 Skills34 初始化/测试源逐字保留；cleanup 旧 Agent head/assignment/error 事实与四个拒绝子项完整保留，只新增普通 installation 查询无行分支。没有未解决的源码覆盖冲突。
+- 最小入口复用 Tool Runtime `6eb3a62a` 的原 Wait/subreaper/group/runtime 方法，只替换测试集合、包范围及输出目录。一次 race 精确21个新 top（Agent capture3、Execution4、Registry current3、Authorization2、Runtime6、Skill Agent3），随后一次六个产品包及四个契约包 vet；不重跑旧 Agent18、Builtin6 或 Human10。输出固定为 `output/ai/agent-system-integration/combined-core-01/`，须等 root 分配热缓存和执行窗口。
+- 已完成无 Go 的有限检查：Python AST、21个真实测试函数唯一存在、28个仓库导入目录存在、原监督方法除上述参数外逐字相同及 diff-check。尚未运行本组合 race/vet；源码可解析与目录存在不代表编译通过。
+- 迁移顺序保持00032→00033→00034→00035→00036→00037→00038→00039。下方旧 schema02 PASS只覆盖32–35；36后继安装尚无成功验收，37–39真实SQL未跑。实际 Execution Tool authority、Snapshot/Model调用证明及标准 Schema validator仍未绑定，Builtin adapter不冒 Registry Source；缺 provider继续明确拒绝，不为组合添加成功替身。此候选不影响独立的 UI/Human HTTP 实际交付。
+
+资源窗口获授后的唯一复现命令：
+
+```sh
+python3 -B .agent-state/agent-system-integration/core-checks.py \
+  --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build
+```
+
+## 已完成的32–35/schema有限组合
+
+- 原阶段写域：coordination 维护 `tests/projectvariable/agent_configuration_schema_test.go` 与 schema 记录，content 写独立构造 helper，root 负责所有 Git。组合基线 main `7a693cb6` 加四组精确源，生产/迁移不由此测试修改。
 - 新 `TestAgentConfigurationSchema` 已形成 1 top/3 sub 源码，覆盖真实连续迁移/重跑、00031 旧事实升级、Audit CHECK 回滚探针、refs/head 拒绝与固定真实构造中的 metadata 同 Tx 正向；Registry 配置及组合 NewService 缺实际 install Backend 均须明确 unbound，不冒完整 Create。
 - 测试仍为 1 top/3直接sub；content 的四入口源已冻结，精确 family/实际 observer/逆投影有限独审接受；原预算/资源/Wait/TCP/input 门保留。首次真实结果及唯一夹具返修见下。
 - 首次 `compile-01` 原预飞 FAIL：source `5ffab485`、outer740561 exit1，fresh 5,358,837,760 B 低于 5 GiB，commands=[]，零 Go/零 list/无候选。611 编译输入及固定旧 metadata 监督方法初末一致；原件留在 ignored `output/ai/agent-system-integration/compile-01/`，不自动重试。当时 content 在写的入口 Python 不属编译输入；无我方 Go/cache writer。
