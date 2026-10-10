@@ -26,6 +26,8 @@ coordination 未参与者与作者只读定位：Knowledge 真登录 fixture 在
 
 coordination 独验 candidate/list 已离线 actual0、一 top 两 sub 仍未执行；其原补集 wrapper 曾将新 selector 误入 native observer，已限定 namespace 改为 PG 并通过11离线控制，保留为准备方法修正。热 GOCACHE 已归还作者，目前无后台 Go/cache writer或自有真实资源。作者/独验均须从修后 fixture 重新编译，复用原 driver、pure/Schema/vet/native 的未变证据，不重跑无影响通过项。
 
+修后 fixture 经 coordination 窄复核接受，root 保存为 `3b97fe69`。仅一次新 integration race-c `54270→cf4d39` actual0/9.476s（首 UTC02:40:01.009994Z、18,687,721,472B）生成同一 `output/ai/skills-owner-http/skill-owner-http-pg-race-recovery02.test`，SHA256 `86fd92431a3c928946445873c3b574b05bc55734aecef7d59e8fd7f3abb8a05f`。随后 `19561→245265` 按每条 fresh 门分别 exact-list 作者四 top 及独验一 top，两个子进程 actual0/1.048s、0/1.199s（17,726,709,760B / 17,726,697,472B）；不执行测试体。命令与终态见同目录 `pg-build-recovery02`、`author-list-recovery02`、`independent-list-recovery02` 的 json/log。原 driver 0e6 保持，作者/独验将分两个实际窗口使用同一新候选；原候选仅保原失败复现，不再当作修后证据。当前无 Go/cache writer，等待 root 另授真实 PG 窗口。
+
 ## 已保存的原环境证据
 
 工作树 `/workspace/agenteam-skills-owner-http`，分支 `ai/skills-owner-http`，基线正式 main `3b7ed9da`。唯一作者 Runner；Git 保存与真实资源窗口由 root 负责。
