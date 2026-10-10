@@ -199,6 +199,12 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestExecutionFirstRound$': frozenset({
+        'TestExecutionFirstRound',
+        'TestExecutionFirstRound/completed-one-turn',
+        'TestExecutionFirstRound/start-receipt-loss-recovery',
+        'TestExecutionFirstRound/cancel-joins-current-call',
+    }),
     '^TestModelAgentRetryRuntime$': frozenset({
         'TestModelAgentRetryRuntime',
         'TestModelAgentRetryRuntime/retry-success-and-execution-lease-reuse',

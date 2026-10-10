@@ -15,7 +15,8 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[2]
 DRIVER = '.agent-state/work-owner-http/root_chain_driver.py'
 SUP = '.agent-state/task-planning-recovery/pg_only_supervisor.py'
-SYSTEM_INPUTS = {'^TestModelAgentRetryRuntime$': ('tests/model/agent_runtime_test.go', 'tests/model/runtime_native_test.go', 'tests/testsupport/outbound/fixture.go', 'tests/testsupport/outbound/cmd/server/main.go'),
+SYSTEM_INPUTS = {'^TestExecutionFirstRound$': ('tests/projectvariable/execution_first_round_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go'),
+ '^TestModelAgentRetryRuntime$': ('tests/model/agent_runtime_test.go', 'tests/model/runtime_native_test.go', 'tests/testsupport/outbound/fixture.go', 'tests/testsupport/outbound/cmd/server/main.go'),
  '^TestExecutionTaskContext$': ('tests/projectvariable/execution_context_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go', 'tests/projectvariable/execution_capture_providers_test.go', 'tests/projectvariable/agent_configuration_create_test.go'),
  '^TestExecutionModelEnvironmentCapture$': ('tests/projectvariable/execution_model_environment_capture_test.go', 'tests/projectvariable/execution_capture_providers_test.go', 'tests/projectvariable/agent_configuration_create_test.go'),
  '^TestExecutionCaptureProviders$': ('tests/projectvariable/execution_capture_providers_test.go', 'tests/projectvariable/agent_configuration_create_test.go'),
@@ -39,7 +40,8 @@ SYSTEM_INPUTS = {'^TestModelAgentRetryRuntime$': ('tests/model/agent_runtime_tes
  '^TestSprintStartHTTP$': ('tests/projectvariable/task_human_http_test.go',),
  '^TestSchedulerLaunchFinalFailure$': ('tests/projectvariable/scheduler_launch_failure_test.go',),
  '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': ('tests/projectvariable/task_technical_resolution_http_test.go', 'tests/projectvariable/task_unblock_atomic_test.go')}
-SYSTEM_CASES = {'^TestModelAgentRetryRuntime$': ('TestModelAgentRetryRuntime', 'TestModelAgentRetryRuntime/retry-success-and-execution-lease-reuse', 'TestModelAgentRetryRuntime/cancel-prevents-next-attempt', 'TestModelAgentRetryRuntime/nonretryable-single-failure'),
+SYSTEM_CASES = {'^TestExecutionFirstRound$': ('TestExecutionFirstRound', 'TestExecutionFirstRound/completed-one-turn', 'TestExecutionFirstRound/start-receipt-loss-recovery', 'TestExecutionFirstRound/cancel-joins-current-call'),
+ '^TestModelAgentRetryRuntime$': ('TestModelAgentRetryRuntime', 'TestModelAgentRetryRuntime/retry-success-and-execution-lease-reuse', 'TestModelAgentRetryRuntime/cancel-prevents-next-attempt', 'TestModelAgentRetryRuntime/nonretryable-single-failure'),
  '^TestExecutionTaskContext$': ('TestExecutionTaskContext', 'TestExecutionTaskContext/frozen-input-after-owner-updates'),
  '^TestExecutionModelEnvironmentCapture$': ('TestExecutionModelEnvironmentCapture', 'TestExecutionModelEnvironmentCapture/complete-input-unknown-recovery', 'TestExecutionModelEnvironmentCapture/missing-provider-rolls-back'),
  '^TestExecutionCaptureProviders$': ('TestExecutionCaptureProviders', 'TestExecutionCaptureProviders/real-providers-roll-back-with-unbound-snapshot'),
@@ -90,6 +92,7 @@ BASE_SHA = {'.agent-state/work-owner-http/root_chain_driver.py': '776e6306214722
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': 'ce09376d0db54c1ef805974c491836cb854f3e23468e0414b0ef31235d00e589'}
 SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA_INPUTS = {\n',
                                                         'METADATA_INPUTS = {\n'
+                                                        "    '^TestExecutionFirstRound$': (\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n"
                                                         "    '^TestModelAgentRetryRuntime$': (\n        'tests/model/agent_runtime_test.go',\n        'tests/model/runtime_native_test.go',\n        'tests/testsupport/outbound/fixture.go',\n        'tests/testsupport/outbound/cmd/server/main.go',\n    ),\n"
                                                         "    '^TestExecutionTaskContext$': (\n        'tests/projectvariable/execution_context_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n"
                                                         "    '^TestExecutionModelEnvironmentCapture$': (\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n"
@@ -158,6 +161,7 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA
                                                         ("    paths = set(input_paths(binary)) | set((REPOSITORY / 'tests/projectvariable').glob('*.go'))\n    # Preserve the author's", "    paths = set(input_paths(binary)) | set((REPOSITORY / TARGETS[selector]).glob('*.go'))\n    # Preserve the author's")],
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {\n',
                                                                 'METADATA_GROUPS = {\n'
+                                                                "    '^TestExecutionFirstRound$': frozenset({\n        'TestExecutionFirstRound',\n        'TestExecutionFirstRound/completed-one-turn',\n        'TestExecutionFirstRound/start-receipt-loss-recovery',\n        'TestExecutionFirstRound/cancel-joins-current-call',\n    }),\n"
                                                                 "    '^TestModelAgentRetryRuntime$': frozenset({\n        'TestModelAgentRetryRuntime',\n        'TestModelAgentRetryRuntime/retry-success-and-execution-lease-reuse',\n        'TestModelAgentRetryRuntime/cancel-prevents-next-attempt',\n        'TestModelAgentRetryRuntime/nonretryable-single-failure',\n    }),\n"
                                                                 "    '^TestExecutionTaskContext$': frozenset({\n        'TestExecutionTaskContext',\n        'TestExecutionTaskContext/frozen-input-after-owner-updates',\n    }),\n"
                                                                 "    '^TestExecutionModelEnvironmentCapture$': frozenset({\n        'TestExecutionModelEnvironmentCapture',\n        'TestExecutionModelEnvironmentCapture/complete-input-unknown-recovery',\n        'TestExecutionModelEnvironmentCapture/missing-provider-rolls-back',\n    }),\n"
