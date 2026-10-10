@@ -11,6 +11,7 @@ import (
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	model "github.com/LunaDeerTech/agenteam/internal/central/model"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	object "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 )
@@ -75,7 +76,11 @@ func TestExecutionRuntimeModelMatchesExactRoundAndRetirement(t *testing.T) {
 			t.Fatal("changed captured identity accepted")
 		}
 	}
-	attempt := mc.AttemptIdentity{CallID: *request.CallID, InvocationID: newTestID[mc.Invocation](t), AttemptIndex: 1, ProcessID: facts.ProcessID, Fence: 1}
+	process, err := f.ParseID[object.Process](facts.ProcessID.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	attempt := mc.AttemptIdentity{CallID: *request.CallID, InvocationID: newTestID[mc.Invocation](t), AttemptIndex: 1, ProcessID: process, Fence: 1}
 	final := request.Clone()
 	final.Action, final.Attempt = mc.FinalizeConsumer, &attempt
 	registration, _ := i.RegisterService(i.ModelRuntime)
