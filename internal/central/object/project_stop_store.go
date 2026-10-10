@@ -135,6 +135,13 @@ func (s *Service) projectStopTransaction(ctx context.Context, p projectStopPlan,
 
 // Full existence predicates, rather than bounded diagnostics or cursor state,
 // establish completion under the current Project EX gate.
+// Keep terminal metadata and live native rows in separate existence checks:
+// an OR across joined tables otherwise prevents their pending indexes from
+// excluding unrelated terminal history. Every arm retains its original join
+// and Project/action binding, including inside a deferred-constraint Tx.
+// The last scalar lookup follows the immediate UNIQUE transfer.lease_id edge
+// once per active lease. A missing transfer yields NULL (still not pending),
+// while keeping retired transfers from becoming the outer side of a hash join.
 func projectStopPending(ctx context.Context, e postgres.SQLExecutor, cause oc.ProjectStopCause) (bool, error) {
 	d := cause.Details()
 	var pending bool
@@ -144,7 +151,9 @@ func projectStopPending(ctx context.Context, e postgres.SQLExecutor, cause oc.Pr
  OR EXISTS(SELECT 1 FROM agenteam_object.upload_attempts a JOIN agenteam_object.objects o ON o.id=a.object_id WHERE o.project_id=$1 AND a.kind='private_candidate' AND NOT a.io_closed)
  OR EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations c JOIN agenteam_object.objects o ON o.id=c.object_id WHERE o.project_id=$1 AND c.phase='applying' AND NOT EXISTS(SELECT 1 FROM agenteam_object.project_work w WHERE w.id=c.worker_id AND w.kind='cleanup' AND w.resource_id=c.id AND w.cleanup_claim_fence=c.fence AND w.joined_at IS NOT NULL))
  OR EXISTS(SELECT 1 FROM agenteam_object.object_leases l JOIN agenteam_object.objects o ON o.id=l.object_id LEFT JOIN agenteam_object.object_transfers t ON t.lease_id=l.id WHERE o.project_id=$1 AND l.state='active' AND ($2 OR l.owner_kind='writer' OR l.owner_kind='transfer' AND t.direction='put'))
- OR ($2 AND EXISTS(SELECT 1 FROM agenteam_download.grants g WHERE g.project_id=$1 AND (NOT g.revoked OR EXISTS(SELECT 1 FROM agenteam_download.attempts a WHERE a.grant_id=g.id AND a.phase='started' AND (a.pending_phase IS NULL OR NOT EXISTS(SELECT 1 FROM agenteam_object.project_work w WHERE w.kind='download' AND w.resource_id=a.id AND w.joined_at IS NOT NULL))))))
- OR EXISTS(SELECT 1 FROM agenteam_object.object_transfers t JOIN agenteam_object.object_leases l ON l.id=t.lease_id WHERE t.project_id=$1 AND ($2 OR t.direction='put') AND (t.revoked_at IS NULL OR l.state='active' OR t.retirement_evidence IS NULL))`, d.ProjectID.String(), d.Action == oc.ProjectStopDelete).Scan(&pending)
+ OR ($2 AND EXISTS(SELECT 1 FROM agenteam_download.grants g WHERE g.project_id=$1 AND NOT g.revoked))
+ OR ($2 AND EXISTS(SELECT 1 FROM agenteam_download.attempts a JOIN agenteam_download.grants g ON g.id=a.grant_id WHERE g.project_id=$1 AND a.phase='started' AND (a.pending_phase IS NULL OR NOT EXISTS(SELECT 1 FROM agenteam_object.project_work w WHERE w.kind='download' AND w.resource_id=a.id AND w.joined_at IS NOT NULL))))
+ OR EXISTS(SELECT 1 FROM agenteam_object.object_transfers t JOIN agenteam_object.object_leases l ON l.id=t.lease_id WHERE t.project_id=$1 AND ($2 OR t.direction='put') AND (t.revoked_at IS NULL OR t.retirement_evidence IS NULL))
+ OR EXISTS(SELECT 1 FROM agenteam_object.object_leases l WHERE l.state='active' AND (SELECT TRUE FROM agenteam_object.object_transfers t WHERE t.lease_id=l.id AND t.project_id=$1 AND ($2 OR t.direction='put')))`, d.ProjectID.String(), d.Action == oc.ProjectStopDelete).Scan(&pending)
 	return pending, unavailableIf(err)
 }

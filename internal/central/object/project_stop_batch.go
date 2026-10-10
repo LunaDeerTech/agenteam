@@ -42,11 +42,13 @@ func (s *Service) projectStopFacts(ctx context.Context, x postgres.SQLExecutor, 
 		// Two current native sets, each independently bounded. A correlated OR
 		// against every terminal transfer would defeat the pending index. The
 		// external-lease arm starts at this Project's active native leases and
-		// follows the existing unique transfer.lease_id edge.
+		// follows the existing unique transfer.lease_id edge. OFFSET 0 keeps
+		// that lookup correlated: flattening it back into a three-table join
+		// can scan retired transfers before joining the small active lease set.
 		`SELECT id::text FROM (
  (SELECT r.id FROM agenteam_object.object_transfers r WHERE r.project_id=$1 AND ($3 OR r.direction='put') AND (r.revoked_at IS NULL OR r.retirement_evidence IS NULL) AND ($2::uuid IS NULL OR r.id>$2) ORDER BY r.id LIMIT 32)
  UNION
- (SELECT t.id FROM agenteam_object.objects o JOIN agenteam_object.object_leases l ON l.object_id=o.id JOIN agenteam_object.object_transfers t ON t.lease_id=l.id WHERE o.project_id=$1 AND t.project_id=$1 AND l.state='active' AND ($3 OR t.direction='put') AND ($2::uuid IS NULL OR t.id>$2) ORDER BY t.id LIMIT 32)
+ (SELECT t.id FROM agenteam_object.objects o JOIN agenteam_object.object_leases l ON l.object_id=o.id CROSS JOIN LATERAL (SELECT r.id FROM agenteam_object.object_transfers r WHERE r.lease_id=l.id AND r.project_id=$1 AND ($3 OR r.direction='put') AND ($2::uuid IS NULL OR r.id>$2) OFFSET 0) t WHERE o.project_id=$1 AND l.state='active' ORDER BY t.id LIMIT 32)
 ) pending ORDER BY id LIMIT 32`,
 	}
 	ids, err := queryStopIDs(ctx, x, queries[lane], b.project, null(after), d.Action == oc.ProjectStopDelete)

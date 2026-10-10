@@ -16,7 +16,7 @@
 
 Model未参与者另核9产品/3PG源与cleanup-02原节点/全尾（883f34），有限接受本次组合，无新已确认产品mustfix。必要剩余不能混算：65 reader 产生66 joined work，但本次仅1 attempt。新 `TestSkillLifecycleCleanupHistoricalAttempts` 两子源码准备中：真实PUT后验证失败→同key新candidate发布→原AbandonedAttempt与新ProjectDeleted原因/物理空marker/native Audit保持；另一个明确历史兼容fixture在实际physical完成后只加65本域保留映射，真实FK/CHECK、32/32/1删除与回滚。D05每命令未cleaned最多2且本域RecoverAttemptAccess未绑定，因此后者不是65次原生初始化，也不改维护授权来造测试。新源未编译/未PG，旧c04候选和2top5子结果不覆盖它。
 
-Secret未参与产品实现者已只读核两子方法，原PUT刺激缺口经独立MinIO完整包读取证明补齐后有限接受；原七资源入口已窄增精确新top、两源输入与一父两子结果门，离线入口控制实际通过。D05最后active-lease查询成本失败待修，本树等待修后两Stop SQL定稿再由root组合，保留原P2四处增量。新历史补集仍未编译/真实运行；原cleanup-02最后同Tx及Unknown证据按未变范围复用，完整生产接入仍待后继。
+Secret未参与产品实现者已只读核两子方法，原PUT刺激缺口经独立MinIO完整包读取证明补齐后有限接受；原七资源入口已窄增精确新top、两源输入与一父两子结果门，离线入口控制实际通过。root已仅组合D05 `079b74a5` 修后两Stop SQL，保留原P2四处增量；独立窄静审无确认must-fix，D05修后成本仍待实际。新历史候选race-c与精确一top发现实际通过，尚未真实运行；原cleanup-02最后同Tx及Unknown证据按未变范围复用，完整生产接入仍待后继。
 
 ## 已交付 P1
 
