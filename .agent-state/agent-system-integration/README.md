@@ -16,4 +16,8 @@
 
 root 定向释放容量后另授一次 `compile-02`，同 Go 源/611 编译输入实际 PASS：session83580、outer742193/compile742197/list743141 原 Wait0，race-c 40.661s、exact list 1.069s，仅 `TestAgentConfigurationSchema`；两阶段 group/desc/runtime 双空，输入与固定旧监督方法未变。候选 `output/ai/agent-system-integration/schema-race.test` 为 46,644,478 B，SHA256 `0ee52a2faac7ef019fe138a9c43c830e99c123211d01990fd1ce182dd824adef`。原件在 `compile-02/`；没有执行正文/PG，不回填原容量 FAIL，热缓存已归还。
 
+首次真实 `schema-01` 为 wholeFAIL：fresh/repeat 与 schema/unbound 两子项通过，升级子项在原第 71 行的 Secret replay 断言失败；top 39.03s。session10916、outer748638/supervisor748725/driver748748/Go750984 原 Wait1，7 个资源的双退役、private/runtime/desc/TCP 双空及 1271 输入不变全部闭合，窗口已释放。原日志 `/tmp/acs01/pg-ff1a7622a24e4aa298da0364423d6066.log`，安全外层结果为 `output/ai/agent-system-integration/schema-01-control/result.json`。两个子项通过不替代整轮通过。
+
+确定的夹具缺陷是比较 `Fields().AuditID` 指针地址；该契约每次返回深复制，正确的非空 receipt 也会比较不等。现只将错误分支单独检查，并复用既有 `sameSecretReceipt` 比较完整安全 receipt 值；产品、DDL、原场景与预算未改。原复合断言未记录服务 `err`，不回填旧 replay 成功或断言这是唯一运行缺口。修后只完成格式/静态检查，尚未重编或真实复验；旧候选和原 FAIL 保留，后继需新候选执行受影响的 schema 入口。
+
 停止条件：任一迁移、旧事实比较、实际指定 CHECK/FK、metadata 原 CommitResult 或零副作用断言失败，即保留该轮原 FAIL 和退出尾，向对应产品/测试 owner 报首个具体缺口；不自动重试、不扩大旧矩阵、不延长预算。

@@ -67,9 +67,10 @@ func TestAgentConfigurationSchema(t *testing.T) {
 			t.Fatal("original ordinary variable is no longer readable")
 		}
 		replayed, err := v.owner.CreateSecretVariable(ctxFor(t), v.ownerBrowser.actor, secretMeta, v.project.ID, secretInput)
-		if err != nil || replayed.Fields().AuditID != created.Fields().AuditID || replayed.Fields().Variable.Fields().ID != created.Fields().Variable.Fields().ID {
-			t.Fatal("upgrade changed original Secret command replay")
+		if err != nil {
+			t.Fatal("original Secret command replay failed after upgrade")
 		}
+		sameSecretReceipt(t, created, replayed)
 		// Both old producers must still append through their real post-upgrade
 		// services, not merely leave historical rows grandfathered in place.
 		v.createVariable(t, "SCHEMA_NEW_ORDINARY", "task-owned-after")
