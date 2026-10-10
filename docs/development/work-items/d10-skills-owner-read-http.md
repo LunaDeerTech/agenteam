@@ -65,7 +65,7 @@ Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/d
 
 ## Owner 读取 UI：接口与首条链路
 
-本节为后继 UI SPEC rev1，基线 `33903460`，工作树 `/workspace/agenteam-skills-owner-ui`、分支 `ai/skills-owner-ui`。当前仅规格准备，尚未实现或运行浏览器；上文已接受的 HTTP、默认根既有数据读取和原 FAIL 边界不变。
+本节为后继 UI SPEC rev1，基线 `33903460`，工作树 `/workspace/agenteam-skills-owner-ui`、分支 `ai/skills-owner-ui`。规格已获 skills_http 非作者描述级有限接受。API/controller/view 与三处导航首稿已落盘，属于待共享接线和自测的 WIP；未运行浏览器，上文已接受的 HTTP、默认根既有数据读取和原 FAIL 边界不变。
 
 用户从项目设置的“Skills / 项目技能库”进入目录，点击技能查看名称、描述、受保护标记、当前修订及记录版本，可明确重读和返回目录。路由为 `/:username/:project_name/settings/skills/:skill_id?`；详情 ID 只接受 canonical UUID7。目录沿正式 HTTP 恰一项合同，空数组是无效响应，不伪造空库或创建入口。归档项目仍可读取；未初始化、不可访问、读取失败、取消分别显示安全反馈。当前页没有创建、安装、包正文、版本写入、删除或 Agent 分配控件。
 
@@ -82,11 +82,11 @@ Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/d
 
 成功 JSON 最大 65536 bytes，沿原 transport 的 fatal UTF-8、完整 EOF、reader cancel/release 和 response finally；复用已有 JSON member 检查拒绝重复字段，不新增解码算法。安全 Problem 沿原 AccountFailure，不输出原 body、错误 cause 或请求材料。后端原 2s 预算不变。
 
-本域 `SkillOwnerAPI` 为 `list(projectID, signal): Promise<SkillDirectory>` 和 `get(projectID, skillID, signal): Promise<SkillMetadata>`；工厂为 `createSkillOwnerAPI(fetcher?: Fetch)`，输入导出 `captureSkillID`。目录恰 `{items}` 且恰一项；metadata 恰本卡八字段，ID/project/目标严格绑定，`protected` 为 boolean，revision/version 为 1..9223372036854775807 的 canonical 十进制字符串。文本拒绝孤立 surrogate，name/normalized_name/description 的 UTF-8 byte 上限分别为 128/384/8192，保正式控制字符与非空约束。所有返回值递归只读冻结。名称 NFC/full-fold 与 normalized_name 的完整领域关系仍由正式服务的 Metadata.Validate 校验；前端不以 JavaScript lowercase 冒充 Go full-fold，不根据名称或 protected 标记建立权限。
+本域 `SkillOwnerAPI` 为 `list(projectID, signal): Promise<SkillDirectory>` 和 `get(projectID, skillID, signal): Promise<SkillMetadata>`；工厂为 `createSkillOwnerAPI(fetcher?: Fetch)`，输入导出 `captureSkillID`。目录恰 `{items}` 且恰一项；metadata 恰本卡八字段，ID/project/目标严格绑定，`protected` 为 boolean，revision/version 为 1..9223372036854775807 的 canonical 十进制字符串。文本拒绝孤立 surrogate，name/normalized_name/description 的 UTF-8 byte 上限分别为 128/384/8192，name 拒首尾 Go White_Space、`/`、`\`、`.` 和 `..`；description 允许 TAB/LF、拒 CR 及其它控制码，且不得全为 Go White_Space。校验不改写原文本，不以 JavaScript trim 替代该空白集合。所有返回值递归只读冻结。名称 NFC/full-fold 与 normalized_name 的完整领域关系仍由正式服务的 Metadata.Validate 校验；前端不以 JavaScript lowercase 冒充 Go full-fold，不根据名称或 protected 标记建立权限。
 
 ### 单一 Session 与页面发布
 
-对页面暴露 `auth.skills.list(projectID)`、`get(projectID, skillID)`、`abandon()`。只增加 `skill-read` action 及其失效 revision，仍使用现有唯一 `runAuthorized` owner、原 30s 可见等待及实际 finally；不引入另一个 Cookie 队列、intent、lookup 或 replay。当前 Human 身份条件与现 Knowledge GET 一致；仅当次仍 current 的 Session 失效错误可清身份，局部 403/404 不写 System denied。abandon 只取消 Skills 原 owner，原 body/cancel 尾退出前仍 busy。
+对页面暴露 `auth.skills.list(projectID)`、`get(projectID, skillID)`、`abandon()`。只增加 `skill-read` action 及其失效 revision，仍使用现有唯一 `runAuthorized` owner、原 30s 可见等待及实际 finally；不引入另一个 Cookie 队列、intent、lookup 或 replay。当前 Human 身份条件与现 Knowledge GET 一致；仅当次仍 current 的 Session 失效错误可清身份，局部 403/404 不写 System denied。同身份、同 Project 下仍 current 的本域 403/404 必须清除对应目录/详情旧值并进入不可访问；迟到旧错误不得清除新上下文，不继续展示被拒绝读取的旧成功值。abandon 只取消 Skills 原 owner，原 body/cancel 尾退出前仍 busy。
 
 页面控制器消费 `Workspace.currentReadContext` 的 identity、projectID、generation、readGeneration，并绑定当前路由与选择代次。切换 Session/Project/路由、取消或卸载后旧结果不得发布；身份失效时立即隐藏旧内容。后继读取等待 Session 原 owner 真正退出，不用页面取消等同退役。目录和详情分别保持加载、就绪及安全失败状态，明确重读才恢复取消读取。页面沿现 Ui 控件和主题 tokens，支持窄屏、键盘、标题焦点和长文本，描述作为文本渲染。
 

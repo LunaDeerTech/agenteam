@@ -128,6 +128,11 @@ export const router = createRouter({
           },
           children: [
             {
+              path: 'skills/:skill_id?',
+              name: 'project-skills',
+              component: () => import('../views/projects/ProjectSkillsView.vue'),
+            },
+            {
               path: 'general',
               name: 'project-general',
               component: () => import('../views/projects/ProjectGeneralSettings.vue'),
