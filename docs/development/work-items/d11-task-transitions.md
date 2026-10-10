@@ -1,6 +1,6 @@
 # D11 Task transition 与 reviewer 工程规格
 
-> 状态：工程规格已独立接受；**T0a 纯状态核心已实现并独立验收**。仅两个新 contract 源提供状态边/角色决策与严格 TaskTransitionPosition；完整流转服务、T0b 与运行前置仍未完成。
+> 状态：工程规格、T0a/T0b 纯契约已独立接受。Human `backlog→todo`、真实当前 Agent/占用/调度前置及对应 HTTP 已有限交付；完整流转、AgentRun/reviewer 与生产装配仍未完成。本批新增 Human `blocked→todo` 同事务解除 Blocker 的源码已冻结，纯检查和真实组合验证尚未完成，见 §1.1。
 >
 > 前置：[Task planning](d11-task-planning.md) 的规划库已正式交付并独立验收。本卡运行服务还须满足 §13 的真实 Agent/Blocker/执行前置；下述新增纯契约、状态决策及兼容方案可以分别审查，不因整个 Agent/Executor 尚未实现而全部停工。
 >
@@ -10,7 +10,7 @@
 
 提供统一 `TransferTask`，把合法 state 变化、显式 assignee/reviewer 交接、必要 comment、允许的 Blocker 变更、rank、TaskEvent、Outbox 和完成回执原子提交。reviewer 就是 `in_review` 的当前 `Task.AssigneeAgentID`，不建立第二个 reviewer 列或独立批准状态机。
 
-现有 Task planning 只成功写入未指派 backlog。其 `Task` 已能严格解码七种 state 和持久 assignee，这不证明存在 Agent/Blocker/Execution 服务，也不授权现有 Create/Update/Reorder 写这些状态。规划验收中的直接 SQL future-state fixture 只验证读取、约束与否定边界，不能作为本卡的分配或转换正向证据。当前 Agent 已有 C1 纯核心契约及 `identity.AgentID` marker，仍没有可供 Work 使用的当前 Agent 事实服务。
+原 Task planning 的创建范围仍是未指派 backlog。其 `Task` 能严格解码七种 state 和持久 assignee，不授权 Create/Update/Reorder 输入状态或指派；后继已接受的 assigned `in_progress` title-only 更新也不提供结构变更权限。规划验收中的直接 SQL future-state fixture 只验证读取、约束与否定边界，不能作为分配或转换正向证据。现 Human transition 已消费真实 Agent `WorkReferences`、Execution occupancy 与 Scheduler pending/group 门，不能以这些有限提供方已存在推导全部状态边可用。
 
 兼容边界固定如下：
 
@@ -26,6 +26,16 @@
 本卡不实现 HTTP/Tool adapter、独立 comment 编辑/软删、Timeline 分页、普通 assignee-only update、Move/Delete/Sprint Complete、Scheduler loop、Executor 或 Inbox/Audit projection。它们消费正式端口，不能把本卡当作相应生产装配已完成。取消 Task 与取消 Execution 是不同命令；有真实活动时的组合见 §4、§13。
 
 旧架构伪代码中承担去重含义的 `request_id` 在此映射为业务 `IdempotencyKey`，传输 RequestID 不参与摘要。旧文档“恢复旧 manual_rank”按 D01 收敛为恢复 claim **逻辑位置**与持久位置映射，不写回已失效 rank。未列状态边的 code 统一沿 D01 `INVALID_STATE`；不再新增含义相同的 `TASK_STATE_TRANSITION_INVALID`。
+
+### 1.1 Human 原子解除的有限实现
+
+本批沿原 `PrepareTaskTransition` / `TransferTaskInTx` / `TransferTask` / `LookupTaskTransition` 实现当前 Human Owner 的 `blocked→todo`。指定 `ResolveBlockerIDs` 必须属于当前 Task 且尚未解决，全部应用后 unresolved 必须为零；新命令引用已解决 ID 拒绝，原 completed key 则先返回历史 receipt。assignee 省略时保留当前值，显式值替换为当前合法 Agent；原、新 Agent 均纳锁集，但合法换人不要求原 Agent 仍 active。新增范围不接收 AddBlockers，不扩大旧 backlog 请求、standalone BlockerService 或 AgentRun 权限。
+
+原 Store 活事务内重验当前 Owner/Session、expected version、Sprint、最终 Agent、真实 occupancy 和 pending/task/source/target group 门。以当前 Task 为 preimage 保留标题等无关字段，进入当前 todo 同 priority 组尾部；解除、Task version、rank/group/query generation、typed history、一个 Outbox、completed receipt 与 activity 同事务提交。每个解除记录真实 Human resolver 和统一时间，`resolution_comment` 为 null；整体 `Comment` 只写独立 Task history。technical Blocker 原 Scheduler creator、metadata、Work failure 事实和旧 failed Dispatch 均保持，失败历史不能代替无占用证明，也不自动发起新 claim。
+
+前向 `00048_task_unblock.sql` 增加 `resolved_transition_operation_id` 指向原 transition command，并与旧 standalone resolution parent 严格互斥；不改旧迁移或创建来源。新增 plan 仅在存在解除时保存完整 Blocker before/after 与来源，旧 backlog plan/receipt 编码保持兼容。沿原 `work.task_transitioned` schema 1 记录 state、可选 assignee、排序后的 resolutions 和独立 comment；支持读取已解决 technical 不等于允许 Human 创建 technical 或用 standalone 命令解除。
+
+当前仅已冻结实现，尚无本批动态通过结论。最小真实验收分别由现 HTTP 的 TLS 正向/原 key 重放链，以及独立 caller Tx 在 `TransferTaskInTx` 全部写入后返回哨兵的真实 rollback/同 key 恢复链承担；`InTx` receipt 在外层 commit 前只是 tentative。原 planned intent 可保留，Unknown 仍沿原 key/digest Lookup，不自动重发。完整状态矩阵、生产绑定和 Scheduler retry 不由本切片完成。
 
 ## 2. 完整边表、Actor 与提交不变量
 
