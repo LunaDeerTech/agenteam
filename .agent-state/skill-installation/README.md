@@ -26,4 +26,10 @@ python3 -B .agent-state/task-planning-recovery/pg_only_supervisor.py \
 
 原启动计划/结果在 `output/ai/skill-install/install-01-inputs.json` 与 `install-01-control/result.json`；原日志为 `/tmp/ski01/pg-19926d70da544933ae74869adb4bfcd5.log`。该轮已释放完整实际窗口；未修改生产、fixture、预算或成功门，未自动重试。后继先对上述唯一前置失败做有界分类。
 
-全尾后作者对原 fixture 的有限源码定位：目标 Project 名称 `Skill install fixture` 含空格；正式 `CreateDigest → CreateProjectRequest.Validate → NormalizeName` 仅接受 ASCII 字母、数字及 `._-`，因此在接受事务/Skills 初始化之前即拒绝。原作者仅把该名称改为合法 `skill-install-fixture`，不改产品或成功断言；修后尚未重新编译/实际运行，原 native01 FAIL 与未执行子用例不回填。
+全尾后作者对原 fixture 的有限源码定位：目标 Project 名称 `Skill install fixture` 含空格；正式 `CreateDigest → CreateProjectRequest.Validate → NormalizeName` 仅接受 ASCII 字母、数字及 `._-`，因此在接受事务/Skills 初始化之前即拒绝。原作者仅把该名称改为合法 `skill-install-fixture`；随后只读核对还确认 foreign Owner 按正式 Project 隐藏语义应得到 `NotFound`，将原 `Forbidden` 期望对齐。两处 fixture 修复保存为 `f6ebeb84`，产品与判定强度不变；原 native01 FAIL 与未执行子用例不回填。
+
+修后 `compile-03` 实际 wholePASS（session76795→819b72，13:42:23–13:42:31 UTC）：原 compile794229/list794346 Wait0（6.299s/1.068s），精确1top；538个编译输入及方法初末相同，原进程组/runtime双空、后代/adopted空。新候选 `output/ai/skill-install/install-race-03.test` 为47,749,377B，SHA256 `d19566e8d1bd4cafe35fb74eec7e23f682afc646207010952109d64fecea0a41`；旧候选与失败记录均保留。
+
+第二次真实 `native02` 整体 **FAIL**（session56196→ce5b31，13:43:06–13:44:43 UTC，source `f6ebeb84`）。fixture 已返回，随后 `skill_installation_test.go:295` 的 `sc.NewTextFiles` 返回固定 `INVALID_ARGUMENT`；top 6.98s，两个sub仍未开始，未到 `BuildPackage` 或 `Install`。这只定位原失败调用，不凭安全错误猜测具体材料谓词。原 Go796624、driver794821、supervisor794799、outer794754 Wait均1；supervisor95.538s。七个精确资源14次absent、private/runtime各双clean、原后代及adopted空，supervisor与outer HOST_TCP各双空，STOP0；运行1219输入初末一致，SHA256 `9a0c7fa68149f443f5072844692ae62191b4a076f81344cdcff9dd95bc4d9ddf`，完整包含原538个同字节编译输入。
+
+本轮计划/结果位于 `output/ai/skill-install/install-02-inputs.json`、`install-02-control/result.json`，原日志 `/tmp/ski02/pg-fa64332eb25b4e2c98d807c568044951.log`。全部实际尾已释放，未自动重试；材料构造契约由原 fixture 作者有限诊断，仍不接受安装/读取/重放/清理或完整 Agent/F1。
