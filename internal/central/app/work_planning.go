@@ -12,6 +12,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
+	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 	"github.com/LunaDeerTech/agenteam/internal/central/work"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 	workhttp "github.com/LunaDeerTech/agenteam/internal/central/work/http"
@@ -95,7 +96,11 @@ func createWorkPlanning(cfg config.Config, db database, authority *work.Authorit
 		return nil, err
 	}
 	b.commands = append(b.commands, b.structure)
-	if b.tasks, err = work.NewTask(store, work.TaskDependencies{Authority: authority, Structure: b.structureReader, Events: journal, TaskEvents: events.tasks, Activity: accounts}); err != nil {
+	pending, err := scheduler.NewPendingAuthority(store)
+	if err != nil {
+		return nil, err
+	}
+	if b.tasks, err = work.NewTask(store, work.TaskDependencies{Authority: authority, Structure: b.structureReader, Events: journal, TaskEvents: events.tasks, Activity: accounts, Pending: pending}); err != nil {
 		return nil, err
 	}
 	b.commands = append(b.commands, b.tasks)

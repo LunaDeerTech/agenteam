@@ -36,7 +36,7 @@ func (s *Service) CreateProject(ctx context.Context, actor identity.Actor, meta 
 		}
 	}()
 	result := s.state().store.WithinTx(ctx, commandCause(command), func(ctx context.Context, tx foundation.Tx) error {
-		if e := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{commandLock(command), userLock(actor.Details().UserID, foundation.Exclusive), projectLock(request.ProjectID, foundation.Exclusive)}); e != nil {
+		if e := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{commandLock(command), schedulerDefaultsLock(foundation.Shared), userLock(actor.Details().UserID, foundation.Exclusive), projectLock(request.ProjectID, foundation.Exclusive)}); e != nil {
 			return unavailable(e)
 		}
 		x, e := s.state().deps.Authority.current(ctx, tx, actor, request.ProjectID, foundation.Exclusive)

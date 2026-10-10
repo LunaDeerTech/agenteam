@@ -7866,11 +7866,13 @@
                   "type": "string",
                   "enum": [
                     "description",
-                    "name"
+                    "name",
+                    "scheduler_enabled",
+                    "scheduler_max_concurrency"
                   ]
                 },
                 "minItems": 1,
-                "maxItems": 2,
+                "maxItems": 4,
                 "uniqueItems": true
               }
             },
