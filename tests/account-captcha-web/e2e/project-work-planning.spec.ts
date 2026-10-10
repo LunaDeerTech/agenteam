@@ -400,7 +400,9 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
   const data = material();
   let diagnostic!: Awaited<ReturnType<typeof startWorkNativeDiagnostic>>;
   const seen = observe(page, {
+    ordinaryCompletion: (request, id) => diagnostic.consumed(request, id),
     planningReorders: {
+      projectID: data.work.main!.project_id,
       bind: (...args) => diagnostic.bindPlanningReorder(...args),
       complete: (request, id) =>
         diagnostic.planningReorderComplete(request, id),
@@ -411,12 +413,16 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
     evidence,
     repository,
     classify: seen.declarationKind,
+    ordinaryCompletion: true,
+    ownPlanningTail: seen.ownPlanningTail,
     planningPolicy: "planning-reorders",
     planningReorderEvidence: seen.planningReorders!.evidence,
   });
   try {
+    seen.setPlanningPhase("document-1");
+    await diagnostic.preparePlanningDocument(path(data, "main"));
     await enter(page, data);
-    await diagnostic.installPublication();
+    await diagnostic.planningDocumentReady();
     const sessionResponse = await page.request.get("/api/v1/session");
     expect(sessionResponse.status()).toBe(200);
     const session = await sessionResponse.json();
@@ -442,8 +448,10 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
       diagnostic,
     });
     await diagnostic.flush();
+    seen.setPlanningPhase("document-2");
+    await diagnostic.preparePlanningDocument(path(data, "main", "milestone"));
     await go(page, path(data, "main", "milestone"));
-    await diagnostic.installPublication();
+    await diagnostic.planningDocumentReady();
     await button(page, "新建 Sprint").click();
     await title(page).fill("浏览器 Sprint");
     await save(page, "structure");
@@ -455,8 +463,10 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
       diagnostic,
     });
     await diagnostic.flush();
+    seen.setPlanningPhase("document-3");
+    await diagnostic.preparePlanningDocument(path(data, "main", "sprint"));
     await go(page, path(data, "main", "sprint"));
-    await diagnostic.installPublication();
+    await diagnostic.planningDocumentReady();
     await button(page, "新建 Task").click();
     await title(page).fill("浏览器 Task");
     const createTask = button(editor(page), "创建 Task");
@@ -509,15 +519,17 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
       diagnostic,
     });
     seen.planningReorders!.close();
-    await diagnostic.finish();
-    expect(diagnostic.planningReordersComplete()).toBe(true);
     await button(page, "从首页读取阻塞记录").click();
     await expect(
       page.getByText("本页没有符合状态的阻塞记录。", { exact: true }),
     ).toBeVisible();
     // A separate real command advances the selected version; the UI must retain
     // its original draft and require an explicit read/adopt, never auto-rebase.
+    await diagnostic.flush();
+    seen.setPlanningPhase("document-4");
+    await diagnostic.preparePlanningDocument(path(data, "main", "task"));
     await go(page, path(data, "main", "task"));
+    await diagnostic.planningDocumentReady();
     await current(page, data.work.main!.task_id);
     await title(page).fill("保留冲突草稿");
     await ipc("update", { resource: "task", text: "另一命令的当前 Plan" });
@@ -532,6 +544,9 @@ test("[planning] all nine planning mutations, raw Plan, conflict and grouped ord
     await button(page, "按当前值重新编辑").click();
     await discard(page);
     await expect(title(page)).toHaveValue("规划任务");
+    seen.setPlanningPhase("final-consumption");
+    await diagnostic.finish();
+    expect(diagnostic.planningReordersComplete()).toBe(true);
     complete({
       structure: true,
       task: true,

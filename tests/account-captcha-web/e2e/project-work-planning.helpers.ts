@@ -1419,13 +1419,14 @@ function workPlanningReorders(
 }
 
 // Installed at the original request event, before its response or failure.
-// Recovery uses the existing closed endpoint set. Planning selects only its
-// separately armed first Request and never inherits Recovery's selection.
+// Recovery uses the existing closed endpoint set. Planning explicitly composes
+// its armed reorders with the same three detail methods, never Lookup/replay.
 export function workOrdinaryCompletionEvents(
   replayCandidate?: (request: Request) => boolean,
   planning?: {
     policy: "planning-reorders";
     selected: (request: Request) => boolean;
+    detailProject?: string;
   },
 ) {
   type Terminal = "finished" | "failed" | "closed";
@@ -1460,7 +1461,20 @@ export function workOrdinaryCompletionEvents(
       if (planning) {
         if (planning.policy !== "planning-reorders")
           throw Error("WORK_ORDINARY_POLICY");
-        if (planning.selected(request))
+        const url = new URL(request.url()),
+          parts = url.pathname.split("/");
+        if (
+          planning.selected(request) ||
+          (uuid7.test(planning.detailProject ?? "") &&
+            request.method() === "GET" &&
+            request.postData() === null &&
+            !url.search &&
+            parts.length === 7 &&
+            parts.slice(0, 4).join("/") === "/api/v1/projects" &&
+            parts[4] === planning.detailProject &&
+            ["milestones", "sprints", "tasks"].includes(parts[5]!) &&
+            uuid7.test(parts[6]!))
+        )
           rows.set(request, { terminal: null, finished: 0, failed: 0 });
         return;
       }
@@ -1521,6 +1535,7 @@ export function observe(
   options: {
     ordinaryCompletion?: (request: Request, requestID: string) => boolean;
     planningReorders?: {
+      projectID?: string;
       bind: (
         request: Request,
         input: PlanningReorder,
@@ -1532,9 +1547,23 @@ export function observe(
 ) {
   const startedAt = performance.now();
   const tails: Promise<void>[] = [];
+  let planningSettledTails = 0;
+  let planningPhase = "initializing";
+  const trackTail = (tail: Promise<void>) => {
+    tails.push(tail);
+    if (options.planningReorders)
+      void tail.then(
+        () => {
+          planningSettledTails++;
+        },
+        () => {
+          planningSettledTails++;
+        },
+      );
+  };
   const incompleteRequests = workIncompleteLedger(
     (tail) => {
-      tails.push(tail);
+      trackTail(tail);
     },
     (request, reason) => {
       recordWorkFailureTail({
@@ -1548,20 +1577,22 @@ export function observe(
     },
   );
   const firstReorder = options.planningReorders
-    ? workPlanningReorders(
-        (tail) => tails.push(tail),
-        options.planningReorders.bind,
-      )
+    ? workPlanningReorders(trackTail, options.planningReorders.bind)
     : null;
   const ordinaryEvents = workOrdinaryCompletionEvents(
     incompleteRequests.replayCandidate,
     firstReorder
-      ? { policy: "planning-reorders", selected: firstReorder.selected }
+      ? {
+          policy: "planning-reorders",
+          selected: firstReorder.selected,
+          detailProject: options.planningReorders?.projectID,
+        }
       : undefined,
   );
   const nativeComplete = new Set<Request>();
   const pendingNative = new Set<Request>();
   let ordinaryClosed = false;
+  let planningTailsSealed = false;
   const closeOrdinary = () => {
     firstReorder?.close();
     ordinaryClosed = true;
@@ -1619,6 +1650,28 @@ export function observe(
       snapshot_at: now(),
       page_closed_at: closedAt,
       truncated,
+      ...(firstReorder
+        ? {
+            planning_phase: planningPhase,
+            owned_tails_registered: tails.length,
+            owned_tails_settled: planningSettledTails,
+            planning_admission_sealed: planningTailsSealed,
+            ordinary_closed: ordinaryClosed,
+            observed_request_headers: [...timings.keys()].reduce(
+              (counts, request) => {
+                const header = incompleteRequests.headerState(request);
+                if (header) {
+                  counts.registered++;
+                  if (!header.joined) counts.unjoined++;
+                  if (header.state === "pending") counts.pending++;
+                  if (header.state === "rejected") counts.rejected++;
+                }
+                return counts;
+              },
+              { registered: 0, pending: 0, unjoined: 0, rejected: 0 },
+            ),
+          }
+        : {}),
       requests: [...timings.values()].map((value) => {
         const { request, response, ...safe } = value;
         const stage = response && workBodyAwaits.get(response);
@@ -1640,6 +1693,7 @@ export function observe(
       }),
     };
     if (seal) {
+      planningTailsSealed = true;
       incompleteRequests.close();
       firstReorder?.close();
     }
@@ -1706,7 +1760,7 @@ export function observe(
       finished: false,
       failed: false,
     };
-    tails.push(
+    trackTail(
       (async () => {
         observed.stage = "header";
         const id = await r.headerValue("x-request-id");
@@ -1831,13 +1885,51 @@ export function observe(
     replayEvidence: incompleteRequests.replayEvidence,
     endReplayObservation: incompleteRequests.close,
     planningReorders: firstReorder,
+    setPlanningPhase(
+      phase:
+        | "document-1"
+        | "document-2"
+        | "document-3"
+        | "document-4"
+        | "final-consumption",
+    ) {
+      if (
+        !firstReorder ||
+        ordinaryClosed ||
+        planningTailsSealed ||
+        ![
+          "document-1",
+          "document-2",
+          "document-3",
+          "document-4",
+          "final-consumption",
+        ].includes(phase)
+      )
+        throw Error("WORK_PLANNING_PHASE_CLOSED");
+      planningPhase = phase;
+    },
+    ownPlanningTail(start: () => Promise<void>) {
+      if (!firstReorder || ordinaryClosed || planningTailsSealed)
+        throw Error("WORK_PLANNING_TAIL_CLOSED");
+      // Register before starting the original operation. Its rejection is owned
+      // even when afterEach runs before the route/install call returns.
+      const tail = Promise.resolve()
+        .then(start)
+        .catch(() => {
+          observerErrors++;
+        });
+      trackTail(tail);
+      return tail;
+    },
     async verify(expectedIncomplete = 0) {
       // The caller must already have taken actual diagnostic end snapshots.
       // Missing original events retire as failure, never as an abandoned wait.
       ordinaryEvents.seal();
+      planningTailsSealed = true;
       incompleteRequests.sealHeaders();
       firstReorder?.seal();
       try {
+        if (firstReorder) planningPhase = "verify-tails";
         await Promise.all(tails);
         expect(incompleteRequests.headersComplete()).toBe(true);
         expect(observerErrors).toBe(0);
@@ -1886,6 +1978,7 @@ export function observe(
             ),
           ),
         ).toBe(true);
+        if (firstReorder) planningPhase = "verify-schema";
         const checked = spawnSync(
           "python3",
           ["-c", schemaProgram, repository, evidence],
@@ -1905,6 +1998,7 @@ export function observe(
         expect(checked.status === 0 && /^\d+\s*$/.test(checked.stdout)).toBe(
           true,
         );
+        if (firstReorder) planningPhase = "verify-decoder";
         let decoded = 0,
           incomplete = 0;
         for (const name of readdirSync(evidence).filter((name) =>
@@ -1970,6 +2064,7 @@ export function observe(
           }),
           { mode: 0o600 },
         );
+        if (firstReorder) planningPhase = "verify-complete";
         return { original_bodies: decoded, expected_incomplete: incomplete };
       } finally {
         ordinaryEvents.seal();

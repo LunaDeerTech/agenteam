@@ -1268,6 +1268,156 @@ process.on("unhandledRejection", () => unhandled++);
       scope.close();
     },
   );
+  for (const terminal of ["finished", "failed"])
+    await check(
+      "planning composes exactly three detail methods: " + terminal,
+      async () => {
+        const consumed = [],
+          e = planningEnvironment({
+            planningReorders: { projectID: project },
+            ordinaryCompletion: (request) => {
+              consumed.push(request);
+              return true;
+            },
+          });
+        for (let slot = 1; slot <= 6; slot++) await planningSlot(e, slot);
+        e.observed.planningReorders.close();
+        const details = [];
+        for (const kind of ["milestones", "sprints", "tasks"]) {
+          const q = req("canceled-task-read", {
+            url: `http://127.0.0.1:1/api/v1/projects/${project}/${kind}/${target}`,
+          });
+          details.push(q);
+          e.emit("request", q);
+          const r = e.response(
+            q,
+            terminal === "finished"
+              ? Promise.resolve(null)
+              : new Promise(() => {}),
+          );
+          e.emit(
+            terminal === "finished" ? "requestfinished" : "requestfailed",
+            q,
+          );
+          await drainHeaders();
+          assert.equal(r.calls(), terminal === "finished" ? 1 : 0);
+        }
+        await e.observed.verify();
+        assert.deepEqual(
+          consumed.filter((q) => details.includes(q)),
+          terminal === "failed" ? [...details, ...details] : [],
+        );
+      },
+    );
+  for (const [label, suffix, changes] of [
+    ["list", "milestones?limit=50", {}],
+    ["detail query", `tasks/${target}?limit=1`, {}],
+    ["detail body", `tasks/${target}`, { body: {} }],
+    ["other Project", `tasks/${target}`, { otherProject: true }],
+    ["lookup", "task-commands/lookup", { method: "POST", body: {} }],
+    ["PATCH", `tasks/${target}`, { method: "PATCH", body: {} }],
+  ])
+    await check("planning detail composition excludes " + label, async () => {
+      const e = planningEnvironment({
+          planningReorders: { projectID: project },
+        }),
+        q = req("canceled-task-read", {
+          ...changes,
+          url: `http://127.0.0.1:1/api/v1/projects/${changes.otherProject ? key : project}/${suffix}`,
+        });
+      e.emit("request", q);
+      const r = e.response(q, Promise.resolve(null));
+      e.emit("requestfinished", q);
+      await drainHeaders();
+      assert.equal(r.calls(), 1);
+      assert.equal(e.observed.planningReorders.selected(q), false);
+    });
+  await check(
+    "planning headerless Sprint remains unproven and no late owned-tail admission",
+    async () => {
+      const e = planningEnvironment({
+        planningReorders: { projectID: project },
+        ordinaryCompletion: () => true,
+      });
+      for (let slot = 1; slot <= 6; slot++) await planningSlot(e, slot);
+      e.observed.planningReorders.close();
+      const q = req("canceled-task-read", {
+        url: `http://127.0.0.1:1/api/v1/projects/${project}/sprints/${target}`,
+      });
+      e.emit("request", q);
+      e.emit("requestfailed", q);
+      await assert.rejects(e.observed.verify());
+      assert.throws(
+        () => e.observed.ownPlanningTail(async () => {}),
+        /TAIL_CLOSED/,
+      );
+    },
+  );
+  await check(
+    "planning owned tail registers before start and verify waits original settlement",
+    async () => {
+      const e = planningEnvironment();
+      for (let slot = 1; slot <= 6; slot++) await planningSlot(e, slot);
+      e.observed.planningReorders.close();
+      let started = false,
+        release,
+        verified = false;
+      const original = new Promise((resolve) => (release = resolve));
+      e.observed.ownPlanningTail(async () => {
+        started = true;
+        await original;
+      });
+      assert.equal(started, false);
+      const verify = e.observed.verify().then(() => (verified = true));
+      await drainHeaders();
+      assert.equal(started, true);
+      assert.equal(verified, false);
+      release();
+      await verify;
+      assert.equal(verified, true);
+    },
+  );
+  await check(
+    "planning first phase and owned pending tail remain immutable after actual late join",
+    async () => {
+      const e = planningEnvironment();
+      for (let slot = 1; slot <= 6; slot++) await planningSlot(e, slot);
+      e.observed.planningReorders.close();
+      e.observed.setPlanningPhase("document-4");
+      assert.throws(
+        () => e.observed.setPlanningPhase("untrusted-input"),
+        /PHASE_CLOSED/,
+      );
+      let release,
+        joined = false;
+      const held = new Promise((resolve) => (release = resolve));
+      const tail = e.observed.ownPlanningTail(async () => {
+        await held;
+        joined = true;
+      });
+      await drainHeaders();
+      e.saveFailure();
+      const first = structuredClone(e.writes.at(-1).body.observers[0]);
+      assert.equal(first.planning_phase, "document-4");
+      assert.equal(first.owned_tails_registered - first.owned_tails_settled, 1);
+      assert.equal(first.planning_admission_sealed, false);
+      assert.throws(
+        () => e.observed.setPlanningPhase("document-1"),
+        /PHASE_CLOSED/,
+      );
+      assert.throws(
+        () => e.observed.ownPlanningTail(async () => {}),
+        /TAIL_CLOSED/,
+      );
+      assert.equal(joined, false);
+      release();
+      await tail;
+      assert.equal(joined, true);
+      await drainHeaders();
+      e.saveFailure();
+      assert.deepEqual(e.writes.at(-1).body.observers[0], first);
+    },
+  );
   await check(
     "planning verify seals original material admission including decoder-stage new reorder",
     async () => {

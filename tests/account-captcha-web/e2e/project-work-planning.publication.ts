@@ -14,6 +14,7 @@ export type WorkSessionBinding = {
 export async function workSessionBinding(
   root: string,
   projectRefresh = false,
+  planningInitialization = false,
 ): Promise<WorkSessionBinding> {
   const ts = createRequire(join(root, "web/package.json"))(
     "typescript",
@@ -122,7 +123,7 @@ export async function workSessionBinding(
       .length !== 1
   )
     throw new Error("WORK_DIAGNOSTIC_SINGLETON_LOADED");
-  if (projectRefresh) {
+  if (projectRefresh || planningInitialization) {
     let markers = 0;
     const visit = (
       node: import("../../../web/node_modules/typescript").Node,
@@ -145,7 +146,7 @@ export async function workSessionBinding(
   return {
     ...matches[0]!,
     entry,
-    ...(projectRefresh
+    ...(projectRefresh || planningInitialization
       ? { workspace_marker: "project-workspace" as const }
       : {}),
   };
@@ -157,10 +158,12 @@ export async function installWorkPublicationDiagnostic({
   binding,
   expiresAt,
   planningPolicy,
+  planningInitialization,
 }: {
   binding: WorkSessionBinding;
   expiresAt: number;
   planningPolicy?: "planning-reorders";
+  planningInitialization?: { projectID: string; path: string };
 }) {
   const host = window as any;
   if (planningPolicy !== undefined && planningPolicy !== "planning-reorders")
@@ -269,6 +272,45 @@ export async function installWorkPublicationDiagnostic({
       identity.epoch === initialIdentity.epoch
     );
   };
+  const initialContext = planningInitialization
+    ? workspace?.currentReadContext.value
+    : null;
+  const initialPath = planningInitialization?.path.match(
+    /\/tasks\/explore(?:\/(milestones|sprints|tasks)\/([0-9a-f-]{36}))?$/,
+  );
+  let initializationReleased = false,
+    firstDetailChecked = !initialPath?.[1];
+  const sameInitializationContext = () => {
+    const current = workspace?.currentReadContext.value;
+    return (
+      !!planningInitialization &&
+      !!initialContext &&
+      !!current &&
+      sameIdentity() &&
+      current.projectID === planningInitialization.projectID &&
+      current.projectID === initialContext.projectID &&
+      current.generation === initialContext.generation &&
+      current.readGeneration === initialContext.readGeneration &&
+      ["userID", "sessionID", "epoch"].every(
+        (key) =>
+          current.identity?.[key] === initialContext.identity?.[key] &&
+          current.identity?.[key] === auth.personalContext.identity?.[key],
+      ) &&
+      location.pathname === planningInitialization.path &&
+      !location.search &&
+      !location.hash
+    );
+  };
+  if (
+    planningInitialization &&
+    (planningPolicy !== "planning-reorders" ||
+      !uuid.test(planningInitialization.projectID) ||
+      !initialPath ||
+      (initialPath[2] && !uuid.test(initialPath[2])) ||
+      !sameInitializationContext() ||
+      auth.state.busy !== true)
+  )
+    return "planning-context-unavailable";
   const safe = (work: () => void) => {
     try {
       work();
@@ -426,7 +468,7 @@ export async function installWorkPublicationDiagnostic({
     for (const restore of restores.splice(0)) safe(restore);
   };
   try {
-    if (workspace) {
+    if (workspace && !planningInitialization) {
       const original = workspace.readCurrent;
       const wrapped = function (this: unknown, ...args: unknown[]) {
         const frame: any = { entry: null, row: null };
@@ -505,7 +547,10 @@ export async function installWorkPublicationDiagnostic({
         else observerFailed = true;
       });
     }
-    for (const name of [...methods, ...(workspace ? ["getProject"] : [])]) {
+    for (const name of [
+      ...methods,
+      ...(workspace && !planningInitialization ? ["getProject"] : []),
+    ]) {
       const facade = name === "getProject" ? auth.projects : auth.workPlanning;
       const key = name === "getProject" ? "get" : name;
       const original = facade[key];
@@ -516,6 +561,20 @@ export async function installWorkPublicationDiagnostic({
           safe(() => {
             const selected = target(name, args);
             if (!selected) return;
+            if (
+              planningInitialization &&
+              ["getMilestone", "getSprint", "getTask"].includes(name) &&
+              (!initializationReleased ||
+                (!firstDetailChecked &&
+                  (!sameInitializationContext() ||
+                    selected.path !==
+                      `/api/v1/projects/${planningInitialization.projectID}/${initialPath![1]}/${initialPath![2]}`)))
+            ) {
+              observerFailed = true;
+              return;
+            }
+            if (planningInitialization && name.startsWith("get"))
+              firstDetailChecked = true;
             if (calls.length >= 256) {
               overflow = true;
               return;
@@ -822,6 +881,46 @@ export async function installWorkPublicationDiagnostic({
     );
     host.__workPublicationDiagnostic = {
       snapshot,
+      releasePlanningInitialization() {
+        const native = host.__workNativeDiagnostic?.snapshot();
+        const rows = native?.requests;
+        const valid =
+          !!planningInitialization &&
+          !retired &&
+          !observerFailed &&
+          !initializationReleased &&
+          Date.now() < expiresAt &&
+          sameInitializationContext() &&
+          auth.state.busy === true &&
+          calls.length === 0 &&
+          native?.retired === false &&
+          Array.isArray(rows) &&
+          rows.length === 1 &&
+          rows[0].method === "GET" &&
+          rows[0].path ===
+            `/api/v1/projects/${planningInitialization.projectID}/milestones` &&
+          rows[0].has_query === true &&
+          rows[0].headers_seen === false &&
+          rows[0].signal_aborted_at_start === false &&
+          rows[0].signal_aborted === false &&
+          rows[0].abort_events === 0 &&
+          rows[0].failure === "none" &&
+          rows[0].call_id === null;
+        if (!valid) observerFailed = true;
+        initializationReleased = valid;
+        return valid;
+      },
+      planningInitializationComplete() {
+        return (
+          !!planningInitialization &&
+          initializationReleased &&
+          firstDetailChecked &&
+          !observerFailed &&
+          !retired &&
+          Date.now() < expiresAt &&
+          sameInitializationContext()
+        );
+      },
       armReplay(policy: "not-observed-milestone" | "historical-task") {
         if (retired || armedReplay || !sameIdentity() || auth.state.busy)
           return false;

@@ -2,6 +2,7 @@ import type {
   Page,
   Request as PWRequest,
   Response as PWResponse,
+  Route,
 } from "@playwright/test";
 import type { PlanningReorder } from "./project-work-planning.helpers";
 import { writeFileSync } from "node:fs";
@@ -413,13 +414,32 @@ export function workOrdinaryConsumption(
   projectRefresh = false,
   planningReorders = false,
 ): boolean {
-  if (planningReorders) {
+  const retired = (observer: any) =>
+    observer?.retired === true &&
+    observer.retirement_reason === "explicit" &&
+    observer.pending_at_retirement === 0 &&
+    observer.pending_observations === 0 &&
+    observer.observer_failed === false &&
+    observer.overflow === false;
+  if (planningReorders || report?.planning_policy === "planning-reorders") {
     const joins = report?.planning_document_joins,
+      initializations = report?.planning_initializations,
       rows = report?.requests?.filter((row: any) => row.planning_reorder);
     if (
       report?.planning_joins_complete !== true ||
       !Array.isArray(joins) ||
-      joins.length !== 3 ||
+      joins.length !== 4 ||
+      !Array.isArray(initializations) ||
+      initializations.length !== 4 ||
+      !initializations.every(
+        (v: any, i: number) =>
+          v.document_id === joins[i]?.document_id &&
+          v.ready === true &&
+          v.installed === true &&
+          v.released === true &&
+          v.route_joined === true &&
+          v.invalid === false,
+      ) ||
       !joins.every(
         (j: any) =>
           j.joined === true &&
@@ -427,7 +447,22 @@ export function workOrdinaryConsumption(
           typeof j.document_id === "string" &&
           j.document_id.length === 36,
       ) ||
-      new Set(joins.map((j: any) => j.document_id)).size !== 3 ||
+      new Set(joins.map((j: any) => j.document_id)).size !== 4 ||
+      !Array.isArray(report.documents) ||
+      report.documents.length !== 4 ||
+      !joins.every((j: any) => {
+        const docs = report.documents.filter(
+          (d: any) => d.native?.document_id === j.document_id,
+        );
+        return (
+          docs.length === 1 &&
+          docs[0].source === "end" &&
+          docs[0].end_snapshot_observed === true &&
+          docs[0].before_page_close === true &&
+          retired(docs[0].native) &&
+          retired(docs[0].publication)
+        );
+      }) ||
       !Array.isArray(rows) ||
       rows.length !== 6 ||
       new Set(rows.map((r: any) => r.request_id)).size !== 6 ||
@@ -449,13 +484,6 @@ export function workOrdinaryConsumption(
       /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
     const count = (n: unknown) =>
       typeof n === "number" && Number.isSafeInteger(n) && n > 0;
-    const retired = (observer: any) =>
-      observer?.retired === true &&
-      observer.retirement_reason === "explicit" &&
-      observer.pending_at_retirement === 0 &&
-      observer.pending_observations === 0 &&
-      observer.observer_failed === false &&
-      observer.overflow === false;
     if (
       !report ||
       report.observation_finished !== true ||
@@ -811,6 +839,7 @@ export async function startWorkNativeDiagnostic(
     } | null;
     ordinaryCompletion?: boolean;
     planningPolicy?: "planning-reorders";
+    ownPlanningTail?: (start: () => Promise<void>) => Promise<void>;
     planningReorderEvidence?: (
       request: PWRequest,
     ) => Record<string, unknown> | null;
@@ -826,6 +855,7 @@ export async function startWorkNativeDiagnostic(
   const binding = await workSessionBinding(
     config.repository,
     config.projectRefreshCompletion === true,
+    config.planningPolicy === "planning-reorders",
   );
   await page.addInitScript(installWorkNativeDiagnostic, {
     projects: config.projects,
@@ -835,6 +865,22 @@ export async function startWorkNativeDiagnostic(
   });
   const rows = new Map<PWRequest, any>(),
     documents = new Map<string, any>();
+  type Initialization = {
+    path: string;
+    request: PWRequest | null;
+    document_id: string | null;
+    installed: boolean;
+    released: boolean;
+    route_joined: boolean;
+    ready: boolean;
+    invalid: boolean;
+    routeUsed: boolean;
+    tail?: Promise<void>;
+    handler?: (route: Route) => Promise<void>;
+    match: (url: URL) => boolean;
+  };
+  const initializations: Initialization[] = [];
+  let initializing: Initialization | null = null;
   const planningDocumentJoins: {
     document_id: string | null;
     joined: boolean;
@@ -859,7 +905,10 @@ export async function startWorkNativeDiagnostic(
       joined &&
       endSeen &&
       !!documentID &&
-      planningDocumentJoins.length < 3 &&
+      planningDocumentJoins.length < 4 &&
+      initializing?.ready === true &&
+      initializing.invalid === false &&
+      initializing.document_id === documentID &&
       !planningDocumentJoins.some((d) => d.document_id === documentID) &&
       doc?.source === "end" &&
       doc.before_page_close === true &&
@@ -934,6 +983,29 @@ export async function startWorkNativeDiagnostic(
     ["GET", "POST", "PATCH", "DELETE"].includes(request.method());
   const requested = (request: PWRequest) => {
     if (stopped || !selected(request)) return;
+    if (initializing && !initializing.ready) {
+      const url = new URL(request.url());
+      if (!initializing.request) {
+        initializing.request = request;
+        if (
+          !initializing.match(url) ||
+          request.method() !== "GET" ||
+          request.postData() !== null ||
+          url.search !== "?limit=50"
+        )
+          initializing.invalid = true;
+      } else if (
+        !initializing.released ||
+        request.method() !== "GET" ||
+        request.postData() !== null ||
+        !!url.search ||
+        !/^\/api\/v1\/projects\/[^/]+\/(?:milestones|sprints|tasks)\/[^/]+$/.test(
+          url.pathname,
+        )
+      )
+        initializing.invalid = true;
+      if (initializing.invalid) planningJoinsComplete = false;
+    }
     if (
       new URL(request.url()).pathname.endsWith("/reorder") &&
       !config.planningReorderEvidence?.(request)
@@ -1343,6 +1415,14 @@ export async function startWorkNativeDiagnostic(
               ...v,
             })),
             planning_joins_complete: planningJoinsComplete,
+            planning_initializations: initializations.map((v) => ({
+              document_id: v.document_id,
+              installed: v.installed,
+              released: v.released,
+              route_joined: v.route_joined,
+              ready: v.ready,
+              invalid: v.invalid,
+            })),
           }
         : {}),
       observation_finished: stopped,
@@ -1376,8 +1456,234 @@ export async function startWorkNativeDiagnostic(
       { mode: 0o600 },
     );
   }
+  async function installPublication(initialization?: {
+    projectID: string;
+    path: string;
+  }): Promise<boolean | undefined> {
+    if (stopped) return false;
+    paused = true;
+    if (timer) {
+      clearTimeout(timer);
+      timer = undefined;
+    }
+    if (pending && !(await boundedJoin(pending))) {
+      paused = false;
+      return false;
+    }
+    if (timer) {
+      clearTimeout(timer);
+      timer = undefined;
+    }
+    let installed = false;
+    const start = () =>
+      page
+        .evaluate(installWorkPublicationDiagnostic, {
+          binding,
+          expiresAt,
+          planningPolicy: config.planningPolicy,
+          planningInitialization: initialization,
+        })
+        .then(
+          (value) => {
+            installed = value === "installed";
+          },
+          () => {
+            failed++;
+          },
+        )
+        .catch(() => {
+          failed++;
+        });
+    const observed = initialization ? config.ownPlanningTail!(start) : start();
+    pending = observed;
+    paused = false;
+    void observed
+      .then(() => {
+        if (pending === observed) pending = null;
+        if (!stopped && !paused) timer = setTimeout(sample, 250);
+      })
+      .catch(() => {});
+    if (initialization) {
+      const joined = await boundedJoin(observed);
+      return (
+        joined &&
+        installed &&
+        !stopped &&
+        !pageClosed &&
+        !contextClosed &&
+        Date.now() < expiresAt
+      );
+    }
+    await boundedJoin(observed);
+    return undefined;
+  }
   sample();
   return {
+    async preparePlanningDocument(path: string) {
+      if (
+        config.planningPolicy !== "planning-reorders" ||
+        !config.ownPlanningTail ||
+        config.projects.length !== 1 ||
+        initializations.length >= 4 ||
+        initializations.length !== planningDocumentJoins.length ||
+        (initializing && !initializing.ready) ||
+        !planningJoinsComplete ||
+        stopped ||
+        pageClosed ||
+        contextClosed ||
+        Date.now() >= expiresAt ||
+        !path.startsWith("/") ||
+        path.includes("?") ||
+        path.includes("#")
+      )
+        throw Error("WORK_PLANNING_INITIALIZATION_ARM");
+      const projectID = config.projects[0]!;
+      const entry: Initialization = {
+        path,
+        request: null,
+        document_id: null,
+        installed: false,
+        released: false,
+        route_joined: false,
+        ready: false,
+        invalid: false,
+        routeUsed: false,
+        match: (url) =>
+          url.pathname === `/api/v1/projects/${projectID}/milestones`,
+      };
+      initializations.push(entry);
+      initializing = entry;
+      const live = () =>
+        initializing === entry &&
+        !entry.invalid &&
+        !entry.ready &&
+        !stopped &&
+        !pageClosed &&
+        !contextClosed &&
+        Date.now() < expiresAt;
+      entry.handler = (route) => {
+        const first = !entry.routeUsed;
+        entry.routeUsed = true;
+        const pageURL = new URL(page.url()),
+          requestURL = new URL(route.request().url());
+        if (
+          !first ||
+          entry.request !== route.request() ||
+          pageURL.pathname !== path ||
+          pageURL.search ||
+          pageURL.hash ||
+          requestURL.origin !== pageURL.origin
+        )
+          entry.invalid = true;
+        const tail = config.ownPlanningTail!(async () => {
+          try {
+            if (!live()) throw Error("WORK_PLANNING_INITIALIZATION_REQUEST");
+            entry.installed =
+              (await installPublication({ projectID, path })) === true;
+            if (!live() || !entry.installed)
+              throw Error("WORK_PLANNING_INITIALIZATION_INSTALL");
+            let released: {
+              accepted: boolean;
+              documentID: string | null;
+            } | null = null;
+            const release = config.ownPlanningTail!(async () => {
+              released = await page.evaluate(() => {
+                const host = window as any;
+                return {
+                  accepted:
+                    host.__workPublicationDiagnostic?.releasePlanningInitialization() ===
+                    true,
+                  documentID:
+                    host.__workNativeDiagnostic?.snapshot()?.document_id ??
+                    null,
+                };
+              });
+            });
+            const joined = await boundedJoin(release);
+            const result = released as {
+              accepted: boolean;
+              documentID: string | null;
+            } | null;
+            if (
+              !live() ||
+              !joined ||
+              result?.accepted !== true ||
+              typeof result.documentID !== "string" ||
+              !/^[0-9a-f-]{36}$/.test(result.documentID)
+            )
+              throw Error("WORK_PLANNING_INITIALIZATION_RELEASE");
+            entry.document_id = result.documentID;
+            entry.released = true;
+          } catch {
+            entry.invalid = true;
+            planningJoinsComplete = false;
+          } finally {
+            // An installation failure remains failure, but does not leave a
+            // held original route behind or manufacture a response for it.
+            try {
+              if (!pageClosed && !contextClosed) await route.continue();
+              else entry.invalid = true;
+            } catch {
+              entry.invalid = true;
+            }
+            if (first) entry.route_joined = true;
+            if (entry.invalid) planningJoinsComplete = false;
+          }
+        });
+        if (first) entry.tail = tail;
+        return tail;
+      };
+      await config.ownPlanningTail(async () => {
+        try {
+          await page.route(entry.match, entry.handler!);
+        } catch {
+          entry.invalid = true;
+          planningJoinsComplete = false;
+          throw Error("WORK_PLANNING_INITIALIZATION_ROUTE");
+        }
+      });
+      if (entry.invalid) throw Error("WORK_PLANNING_INITIALIZATION_ROUTE");
+    },
+    async planningDocumentReady() {
+      const entry = initializing;
+      if (!entry?.tail) throw Error("WORK_PLANNING_INITIALIZATION_MISSING");
+      const joined = await boundedJoin(entry.tail);
+      let accepted = false;
+      const tail = config.ownPlanningTail!(async () => {
+        accepted = await page.evaluate((documentID) => {
+          const host = window as any;
+          return (
+            host.__workNativeDiagnostic?.snapshot()?.document_id ===
+              documentID &&
+            host.__workPublicationDiagnostic?.planningInitializationComplete() ===
+              true
+          );
+        }, entry.document_id);
+      });
+      const checkJoined = await boundedJoin(tail);
+      const unroute = config.ownPlanningTail!(async () => {
+        await page.unroute(entry.match, entry.handler);
+      });
+      const unrouteJoined = await boundedJoin(unroute);
+      entry.ready =
+        joined &&
+        checkJoined &&
+        unrouteJoined &&
+        accepted &&
+        entry.installed &&
+        entry.released &&
+        entry.route_joined &&
+        !entry.invalid &&
+        !stopped &&
+        !pageClosed &&
+        !contextClosed &&
+        Date.now() < expiresAt;
+      if (!entry.ready) {
+        entry.invalid = true;
+        planningJoinsComplete = false;
+        throw Error("WORK_PLANNING_INITIALIZATION_NOT_READY");
+      }
+    },
     async armPlanningReorder(input: PlanningReorder) {
       if (
         !config.planningPolicy ||
@@ -1701,46 +2007,7 @@ export async function startWorkNativeDiagnostic(
       if (config.planningPolicy && !planningJoinsComplete)
         throw Error("WORK_REORDER_DOCUMENT_END");
     },
-    async installPublication() {
-      if (stopped) return;
-      paused = true;
-      if (timer) {
-        clearTimeout(timer);
-        timer = undefined;
-      }
-      if (pending && !(await boundedJoin(pending))) {
-        paused = false;
-        return;
-      }
-      if (timer) {
-        clearTimeout(timer);
-        timer = undefined;
-      }
-      const work = page.evaluate(installWorkPublicationDiagnostic, {
-        binding,
-        expiresAt,
-        planningPolicy: config.planningPolicy,
-      });
-      const observed = work
-        .then(
-          () => {},
-          () => {
-            failed++;
-          },
-        )
-        .catch(() => {
-          failed++;
-        });
-      pending = observed;
-      paused = false;
-      void observed
-        .then(() => {
-          if (pending === observed) pending = null;
-          if (!stopped && !paused) timer = setTimeout(sample, 250);
-        })
-        .catch(() => {});
-      await boundedJoin(observed);
-    },
+    installPublication,
     async finish() {
       if (stopped) return;
       stopped = true;
