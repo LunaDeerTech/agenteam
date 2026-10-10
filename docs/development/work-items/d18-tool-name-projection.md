@@ -1,6 +1,6 @@
 # D18 Tool 引用名称投影
 
-状态：有限 SPEC 已经 coordination 与 cleanup 独立只读审查接受；两纯包及相邻测试已落盘，尚未编译或运行。基线为 main `3a7a3fb5`。本批仅交付内存中的确定性名称表，不完成 Registry、Tool Runtime 或 D18，也不解除既有停止项。
+状态：有限 SPEC 已经 coordination 与 cleanup 独立只读审查接受；两纯包的 unit、race、vet 已通过，cleanup 已对冻结源码完成有限独审，无 must-fix。基线为 main `3a7a3fb5`。本批仅交付内存中的确定性名称表，不完成 Registry、Tool Runtime 或 D18，也不解除既有停止项。
 
 ## 1. 正式依据与模块关系
 
@@ -106,4 +106,8 @@ Resolve 只在该表内按完整字节查找；不 trim、case-fold、Unicode �
 
 SPEC 独立关系审后再实施。限定本包 pure/race/vet 一轮及源码静审；不启动 PG/socket/browser/Provider、不重跑 D16 或未变 Model/Agent 矩阵。首次 Go 前使用固定 Go1.27.1、同进程 fresh≥5 GiB、任务私有 telemetry off/去旁路、自有 cache 与只读模块 cache；命令实际 Wait 并记录私有运行目录正常退役。
 
-当前源码为 `internal/central/tool/contract/spec_ref.go` 与 `internal/central/tool/projection/name_table.go`，各有相邻纯测试。SPEC 的关系与边界独审均无 must-fix；实现和测试仍待实际验证及源码独审。后续结果按实际输入记录，不将规格接受写成运行验收。
+当前源码为 `internal/central/tool/contract/spec_ref.go` 与 `internal/central/tool/projection/name_table.go`，各有相邻纯测试。SPEC 的关系与边界独审均无 must-fix；cleanup 对冻结四个 Go 文件的有限只读独审已接受，覆盖真实 scalar、上限、复制、旧 revision、取消和默认嵌套日志边界。该审查复用下述作者结果，没有另跑 Go 或声明独立动态验收。
+
+固定源码 `814ceb4d` 的两个包已各执行一次 `go test -count=1 -timeout=60s -v`、`go test -race -count=1 -timeout=60s -v` 与 `go vet`：共 8 个 top，unit 为 0.003/0.004s，race 为 1.057/1.030s，vet 通过。固定 Go1.27.1、离线只读模块缓存和独立构建缓存；三阶段启动前 fresh 均大于 5 GiB，私有 telemetry off，Go 实际 Wait 均为 0、原进程组消失、临时目录各两次为空，outer 最终为 0。原记录在 `output/ai/d18-tool-name-projection/checks-01/`，没有源码返修或自动重跑。
+
+这些结果仅验本批纯引用与名称表，不证明真实 Registry、Snapshot/Provider 联调、授权、Mount 或完整 D18；未运行 PG/socket/模型调用。
