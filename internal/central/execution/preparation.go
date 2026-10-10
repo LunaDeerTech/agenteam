@@ -9,21 +9,28 @@ import (
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	c "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/execution/prompt"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	mountc "github.com/LunaDeerTech/agenteam/internal/central/mount/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	pvc "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
 
 type PreparationDependencies struct {
-	Agents    ac.ExecutionConfiguration
-	Projects  c.PreparationProjectGate
-	Processes oc.ProcessAuthority
-	Task      c.TriggerCaptureProvider
-	Meeting   c.TriggerCaptureProvider
-	Skills    sc.InitialBindingsProvider
-	Tools     tc.ExecutionTools
+	Agents      ac.ExecutionConfiguration
+	Projects    c.PreparationProjectGate
+	Processes   oc.ProcessAuthority
+	Task        c.TriggerCaptureProvider
+	Meeting     c.TriggerCaptureProvider
+	Skills      sc.InitialBindingsProvider
+	Tools       tc.ExecutionTools
+	Models      mc.ExecutionModelCaptureProvider
+	Environment pvc.ExecutionEnvironment
+	Mounts      mountc.ExecutionMountCaptureProvider
 }
 
 // PreparationDriver owns a synchronous attempt to prepare an existing
@@ -41,6 +48,9 @@ type preparationState struct {
 	task, meeting c.TriggerCaptureProvider
 	skills        sc.InitialBindingsProvider
 	tools         tc.ExecutionTools
+	models        mc.ExecutionModelCaptureProvider
+	environment   pvc.ExecutionEnvironment
+	mounts        mountc.ExecutionMountCaptureProvider
 	mu            sync.Mutex
 	stopped       bool
 	calls         map[i.ExecutionID]*preparationCall
@@ -53,28 +63,32 @@ type preparationCall struct {
 	claim               *preparationClaim
 	returned, resolving bool
 	unresolved          error
+	modelUnknown        error
+	modelScope          *mc.ExecutionModelCaptureScope
+	input               *preparationInputRecord
+	replayed            bool
 }
 
 func NewPreparationDriver(store Store, authority *Authority, deps PreparationDependencies) (*PreparationDriver, error) {
 	if nilPort(store) || !reflect.TypeOf(store).Comparable() || authority == nil || authority.state == nil || authority.state.store != store || nilPort(deps.Agents) || nilPort(deps.Projects) || nilPort(deps.Processes) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	if deps.Skills != nil && nilPort(deps.Skills) || deps.Tools != nil && nilPort(deps.Tools) {
+	if deps.Skills != nil && nilPort(deps.Skills) || deps.Tools != nil && nilPort(deps.Tools) || deps.Models != nil && nilPort(deps.Models) || deps.Environment != nil && nilPort(deps.Environment) || deps.Mounts != nil && nilPort(deps.Mounts) {
 		return nil, fault(f.DependencyUnbound)
 	}
 	process := deps.Processes.CurrentProcess()
 	if process.Validate() != nil {
 		return nil, fault(f.DependencyUnbound)
 	}
-	return &PreparationDriver{&preparationState{store: store, authority: authority, agents: deps.Agents, projects: deps.Projects, processes: deps.Processes, process: process, task: deps.Task, meeting: deps.Meeting, skills: deps.Skills, tools: deps.Tools, calls: map[i.ExecutionID]*preparationCall{}, returned: map[i.ExecutionID]preparationClaim{}, changed: make(chan struct{})}}, nil
+	return &PreparationDriver{&preparationState{store: store, authority: authority, agents: deps.Agents, projects: deps.Projects, processes: deps.Processes, process: process, task: deps.Task, meeting: deps.Meeting, skills: deps.Skills, tools: deps.Tools, models: deps.Models, environment: deps.Environment, mounts: deps.Mounts, calls: map[i.ExecutionID]*preparationCall{}, returned: map[i.ExecutionID]preparationClaim{}, changed: make(chan struct{})}}, nil
 }
 
 // Run reads the stored original Launch, commits created -> preparing and a
-// fenced attempt, then crosses the real Project/Trigger/Agent capture ports
-// and any installed Skill/Tool providers. Complete Model/context/ref/lease
-// capture is not installed in this slice: its absence returns DependencyUnbound from the original capture
-// transaction, rolling back every source reference and retaining zero input.
-// No partial preparation, Snapshot, running state or Started event is written.
+// fenced attempt, then atomically captures all installed providers and their
+// references/leases with one immutable input. A missing provider rolls the
+// entire capture back. The supported profile requires AGENTS.md injection off
+// and a real empty Mount head. This does not seal a Snapshot, enter running or
+// publish Started. A committed input is reused without recapturing sources.
 func (d *PreparationDriver) Run(ctx context.Context, execution i.ExecutionID) (err error) {
 	if ctx == nil || execution.Validate() != nil {
 		return invalid()
@@ -128,7 +142,17 @@ func (d *PreparationDriver) Run(ctx context.Context, execution i.ExecutionID) (e
 	if err = preparingRecord(row, run.request, true); err != nil {
 		return err
 	}
-	if err = s.start(runCtx, run.request, run); err != nil {
+	captured, err := s.capturedInput(runCtx, run.request)
+	if err != nil || captured {
+		return err
+	}
+	err = s.start(runCtx, run.request, run)
+	if run.replayed {
+		// The original transaction only observed a prior immutable input.
+		// No preparation writer or attempt was started by this replay.
+		return err
+	}
+	if err != nil {
 		if _, unknown := UnknownAttempt(err); unknown {
 			run.unresolved = err
 		}
@@ -136,14 +160,14 @@ func (d *PreparationDriver) Run(ctx context.Context, execution i.ExecutionID) (e
 	}
 	started = true
 	err = s.capture(runCtx, run.request, *run.claim)
-	if _, unknown := UnknownAttempt(err); unknown {
+	if preparationUnknown(err) {
 		run.unresolved = err
 		return err
 	}
 	// The source/Agent call and its entire transaction actually returned. This
 	// bounded checkpoint belongs to the same Run and remains counted in Drain.
 	checkpoint, end := context.WithTimeout(context.WithoutCancel(runCtx), 3*time.Second)
-	finishErr := s.finish(checkpoint, run.request, *run.claim, false)
+	finishErr := s.finish(checkpoint, run.request, *run.claim, false, run.input)
 	end()
 	if _, unknown := UnknownAttempt(finishErr); unknown {
 		run.unresolved = finishErr
@@ -180,7 +204,10 @@ func (d *PreparationDriver) ResolveUnknown(ctx context.Context, execution i.Exec
 	}
 	run.resolving = true
 	s.mu.Unlock()
-	err := s.finish(ctx, run.request, *run.claim, true)
+	err := s.observeModelDiscovery(ctx, run)
+	if err == nil {
+		err = s.finish(ctx, run.request, *run.claim, true, run.input)
+	}
 	s.mu.Lock()
 	run.resolving = false
 	if err == nil {
@@ -251,6 +278,13 @@ func (s *preparationState) capture(ctx context.Context, request c.PreparationReq
 		if recover() != nil {
 			err = unavailable(nil)
 		}
+		if err != nil && !preparationUnknown(err) {
+			s.mu.Lock()
+			if run := s.calls[request.ExecutionID]; run != nil && run.claim != nil && *run.claim == claim {
+				run.input = nil
+			}
+			s.mu.Unlock()
+		}
 	}()
 	if err = ctx.Err(); err != nil {
 		return err
@@ -299,6 +333,59 @@ func (s *preparationState) capture(ctx context.Context, request c.PreparationReq
 			return fault(f.DependencyUnavailable)
 		}
 	}
+	modelRequest := mc.ExecutionModelCaptureRequest{ProjectID: request.Launch.ProjectID, AgentID: request.Launch.AgentID, ExecutionID: request.ExecutionID}
+	var modelPlan mc.ExecutionModelCapturePlan
+	if !nilPort(s.models) {
+		err = s.discoverResource(ctx, request, claim, "model", func(discoveryCtx context.Context) error {
+			var discoverErr error
+			modelPlan, discoverErr = s.models.DiscoverExecutionModel(discoveryCtx, modelRequest)
+			return discoverErr
+		})
+		if err != nil {
+			if preparationUnknown(err) {
+				s.mu.Lock()
+				if run := s.calls[request.ExecutionID]; run != nil && run.claim != nil && *run.claim == claim {
+					run.modelUnknown = err
+				}
+				s.mu.Unlock()
+				return err
+			}
+			return portError(err)
+		}
+		if nilPort(modelPlan) {
+			return fault(f.DependencyUnavailable)
+		}
+	}
+	environmentRequest := pvc.EnvironmentCaptureRequest{ProjectID: request.Launch.ProjectID, AgentID: request.Launch.AgentID, ExecutionID: request.ExecutionID}
+	var environmentPlan pvc.EnvironmentCapturePlan
+	if !nilPort(s.environment) {
+		err = s.discoverResource(ctx, request, claim, "environment", func(discoveryCtx context.Context) error {
+			var discoverErr error
+			environmentPlan, discoverErr = s.environment.DiscoverExecutionEnvironment(discoveryCtx, environmentRequest)
+			return discoverErr
+		})
+		if err != nil {
+			return portError(err)
+		}
+		if nilPort(environmentPlan) {
+			return fault(f.DependencyUnavailable)
+		}
+	}
+	mountRequest := mountc.ExecutionMountCaptureRequest{ProjectID: request.Launch.ProjectID, AgentID: request.Launch.AgentID, ExecutionID: request.ExecutionID}
+	var mountPlan mountc.ExecutionMountCapturePlan
+	if !nilPort(s.mounts) {
+		err = s.discoverResource(ctx, request, claim, "mount", func(discoveryCtx context.Context) error {
+			var discoverErr error
+			mountPlan, discoverErr = s.mounts.DiscoverExecutionMounts(discoveryCtx, mountRequest)
+			return discoverErr
+		})
+		if err != nil {
+			return portError(err)
+		}
+		if nilPort(mountPlan) {
+			return fault(f.DependencyUnavailable)
+		}
+	}
 	locks, err := preparationLocks(request)
 	if err != nil {
 		return err
@@ -309,6 +396,15 @@ func (s *preparationState) capture(ctx context.Context, request c.PreparationReq
 	}
 	if toolPlan != nil {
 		locks = append(locks, toolPlan.RequiredLocks()...)
+	}
+	if modelPlan != nil {
+		locks = append(locks, modelPlan.RequiredLocks()...)
+	}
+	if environmentPlan != nil {
+		locks = append(locks, environmentPlan.RequiredLocks()...)
+	}
+	if mountPlan != nil {
+		locks = append(locks, mountPlan.RequiredLocks()...)
 	}
 	locks, err = oc.NormalizeLocks(locks)
 	if err != nil {
@@ -360,6 +456,11 @@ func (s *preparationState) capture(ctx context.Context, request c.PreparationReq
 		if config.Validate() != nil || fields.Core.ID != request.Launch.AgentID || fields.Core.ProjectID != request.Launch.ProjectID || fields.Core.Lifecycle != ac.AgentActive {
 			return fault(f.InvalidState)
 		}
+		if fields.Core.InjectAgentsMD {
+			// No AGENTS.md filesystem capture provider is installed. Never
+			// represent a configured injection as an empty captured document.
+			return fault(f.DependencyUnbound)
+		}
 		proof.agent, proof.agentCaptured = config.Clone(), true
 		proof.resourcesOpen.Store(true)
 		defer proof.resourcesOpen.Store(false)
@@ -396,10 +497,62 @@ func (s *preparationState) capture(ctx context.Context, request c.PreparationReq
 			}
 			seen[tool.ToolID] = true
 		}
-		// The remaining complete D01 atomic metadata/ref/lease capture ports
-		// are not installed. Do not serialize partial values or let this
-		// transaction commit provider references on their own.
-		return fault(f.DependencyUnbound)
+		if nilPort(s.models) {
+			return fault(f.DependencyUnbound)
+		}
+		resolved, err := s.models.ResolveExecutionModelInTx(captureCtx, tx, modelRequest, modelPlan)
+		if err != nil {
+			return portError(err)
+		}
+		if err = ctx.Err(); err != nil {
+			return err
+		}
+		if resolved.Validate() != nil || resolved.Consumer.Kind != mc.AgentConsumer || resolved.Consumer.Purpose != mc.AgentGeneration || resolved.Consumer.ProjectID != modelRequest.ProjectID || resolved.Consumer.AgentID == nil || *resolved.Consumer.AgentID != modelRequest.AgentID || resolved.Consumer.ExecutionID == nil || *resolved.Consumer.ExecutionID != modelRequest.ExecutionID || resolved.Snapshot.Identity.ModelID != fields.Core.ModelRef {
+			return fault(f.InvalidState)
+		}
+		if nilPort(s.environment) {
+			return fault(f.DependencyUnbound)
+		}
+		environment, err := s.environment.ResolveExecutionEnvironmentInTx(captureCtx, tx, environmentRequest, environmentPlan)
+		if err != nil {
+			return portError(err)
+		}
+		if err = ctx.Err(); err != nil {
+			return err
+		}
+		if environment.Validate() != nil || environment.Fields().Request != environmentRequest || environment.Fields().AgentVersion != fields.Core.Version {
+			return fault(f.InvalidState)
+		}
+		if nilPort(s.mounts) {
+			return fault(f.DependencyUnbound)
+		}
+		mounts, err := s.mounts.CaptureExecutionMountsInTx(captureCtx, tx, mountRequest, mountPlan)
+		if err != nil {
+			return portError(err)
+		}
+		if err = ctx.Err(); err != nil {
+			return err
+		}
+		if mounts.Validate() != nil || mounts.Request != mountRequest || mounts.AgentVersion != fields.Core.Version || len(fields.AllowedMountIDs) != 0 {
+			return fault(f.InvalidState)
+		}
+		x, err := s.store.InTx(tx)
+		if err != nil {
+			return portError(err)
+		}
+		at, err := captureTime(ctx, x)
+		if err != nil {
+			return err
+		}
+		binding, err := preparationResourceBinding(request, claim, project)
+		if err != nil {
+			return err
+		}
+		complete, err := c.NewPreparationInput(c.PreparationInputFields{Request: request.Clone(), AttemptBinding: binding, CapturedAt: at, Project: clonePreparationProject(project), Agent: config.Clone(), Trigger: input, Model: resolved.Clone(), Tools: tools, Skills: bindings, Environment: environment.Clone(), Mounts: mounts.Clone(), PlatformPrompt: prompt.Current()})
+		if err != nil {
+			return portError(err)
+		}
+		return proof.saveInput(captureCtx, complete)
 	})
 	return commitError(result)
 }

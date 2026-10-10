@@ -3,6 +3,7 @@ package execution
 import (
 	"context"
 	"encoding/json"
+	"sync"
 	"sync/atomic"
 
 	c "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
@@ -17,18 +18,25 @@ import (
 // request contains identities; the original preparing call owns every proof.
 type preparationDiscoveryKey struct{}
 type preparationDiscovery struct {
-	driver  *preparationState
-	request c.PreparationRequest
-	claim   preparationClaim
-	kind    string
-	active  atomic.Bool
+	driver       *preparationState
+	request      c.PreparationRequest
+	claim        preparationClaim
+	kind         string
+	recovering   bool
+	active       atomic.Bool
+	modelMu      sync.Mutex
+	modelBinding f.Digest
 }
 
 func (s *preparationState) discoverResource(ctx context.Context, request c.PreparationRequest, claim preparationClaim, kind string, discover func(context.Context) error) error {
-	d := &preparationDiscovery{driver: s, request: request.Clone(), claim: claim, kind: kind}
+	return s.resourceCall(ctx, request, claim, kind, false, discover)
+}
+
+func (s *preparationState) resourceCall(ctx context.Context, request c.PreparationRequest, claim preparationClaim, kind string, recovering bool, invoke func(context.Context) error) error {
+	d := &preparationDiscovery{driver: s, request: request.Clone(), claim: claim, kind: kind, recovering: recovering}
 	d.active.Store(true)
 	defer d.active.Store(false)
-	if err := discover(context.WithValue(ctx, preparationDiscoveryKey{}, d)); err != nil {
+	if err := invoke(context.WithValue(ctx, preparationDiscoveryKey{}, d)); err != nil {
 		return err
 	}
 	return ctx.Err()
@@ -78,9 +86,26 @@ func (a *Authority) requireResourceDiscovery(ctx context.Context, tx f.Tx, proje
 	if !ok || d == nil || d.driver == nil || d.driver.authority != a || !d.active.Load() || d.kind != kind || d.request.ExecutionID != execution || d.request.Launch.ProjectID != project || d.request.Launch.AgentID != agent {
 		return pc.ProjectRef{}, "", fault(f.Forbidden)
 	}
-	proof := &preparationWitness{owner: a.state, driver: d.driver, tx: tx, request: d.request.Clone(), claim: d.claim, locks: preparationDiscoveryLocks(project, agent, execution)}
+	proof := &preparationWitness{owner: a.state, driver: d.driver, tx: tx, request: d.request.Clone(), claim: d.claim, locks: preparationDiscoveryLocks(project, agent, execution), recovering: d.recovering}
 	if err := proof.require(ctx, tx, d.request); err != nil {
 		return pc.ProjectRef{}, "", err
+	}
+	if d.recovering {
+		if kind != "model" {
+			return pc.ProjectRef{}, "", fault(f.Forbidden)
+		}
+		d.driver.mu.Lock()
+		run := d.driver.calls[execution]
+		if run == nil || run.modelScope == nil {
+			d.driver.mu.Unlock()
+			return pc.ProjectRef{}, "", fault(f.Forbidden)
+		}
+		scope := run.modelScope.Clone()
+		d.driver.mu.Unlock()
+		if !d.active.Load() {
+			return pc.ProjectRef{}, "", fault(f.Forbidden)
+		}
+		return scope.Project, scope.AttemptBinding, ctx.Err()
 	}
 	view, err := d.driver.projects.RequirePreparingProjectInTx(ctx, tx, project)
 	if err != nil {

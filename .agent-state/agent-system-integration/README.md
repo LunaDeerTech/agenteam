@@ -271,3 +271,31 @@ python3 -B output/ai/agent-system-integration/execution-capture-providers-pure-c
 python3 -B output/ai/agent-system-integration/execution-capture-providers-compile-01-launcher.py
 python3 -B output/ai/agent-system-integration/execution-capture-providers-launcher-01.py
 ```
+
+## Model、环境与完整 preparation input
+
+SOURCE `67804902`。限定 pure 共 23 top：原 pure01 中 20 PASS 复用，Mount 三项原素材缺 `sha256:` 前缀；仅两行测试修复后，pure03 的原三项＋11 pkg vet 全 PASS。pure01 素材 wholeFAIL、pure02 容量门 FAIL（0 Go）、native01 容量门 FAIL（0 资源）原件保持，不补写成成功。compile01/list wholePASS；native02 复用该候选和原冻结输入，wholePASS，`TestExecutionModelEnvironmentCapture` 恰 1 top/2 sub（18.67s）：
+
+- `complete-input-unknown-recovery`：正式 Owner 创建 Model 凭据、普通/Secret 变量及 Agent allowlist，显式关闭 AGENTS 注入；真实 Claim/Launch 后，同 preparing 原事务捕获 Model、Skill、Tool、环境专用租约及实际空 Mount head，写完整 typed input。测试仅在真实 COMMIT 成功后丢一次回执，原 owner 观察 exact input/claim 恢复、已知重放不重调 provider；不是 PostgreSQL 物理 CommitUnknown。
+- `missing-provider-rolls-back`：缺 Mount 提供方时，原事务 NotCommitted，input、引用及两类租约全部回滚；Model prepared 意图单独保留。两条均仍是 preparing，未 sealed Snapshot、Running、Invoke 或生产 Loop。
+
+native02 于 2026-10-10 22:17:29–22:19:11 UTC 收尾，Go 225958、driver 224346、supervisor 224345、outer 224298 原 Wait0；七资源 14 次 absent、private/runtime/desc/HOST_TCP 及 outer 全部双尾关闭，adopted=[]。1,536 输入首尾相同，完整包含 810 compile 输入；input hash `21692875e9a5f9eebda920c63f1fb6779738e17b99d013f0505928ce1e440ac3`。候选 `output/ai/agent-system-integration/execution-model-environment-race-01.test` 为 61,660,895 B，SHA256 `57ed294d7dc4d81f7258aa775a65a899137993199daedf88fb3aaef508f12115`。窗口已归还，无追加测试。
+
+原结果保留于 `output/ai/execution-model-environment/combined-pure-{01,02,03}/result.json`、`output/ai/agent-system-integration/execution-model-environment-compile-01/result.json`、同目录 `execution-model-environment-{01,02}-control/result.json`；成功 PG 日志 `/tmp/eme02/pg-e40bb2ce120a43dcbb7522f054f46792.log`，supervisor 日志在 `02-control/supervisor.log`。三个旧成功候选（capture-providers、project-runner、bounded-retry）共 180,326,314 B 已按授权退休，仅派生二进制移除，原源码/recipe/输入/PASS/FAIL/日志保留。
+
+恢复沿已保存 recipe（`git show 67804902:.agent-state/agent-system-integration/README.md`），从 `148640b8` pure 和 `73387883` compile02/native01 原源重建，仅代入 SOURCE `67804902`、namespace `execution-model-environment`、selector `^TestExecutionModelEnvironmentCapture$`、compile len1＋精确集合、下列 TOPS 与 `exact_23_top_pass`。vet 精确为 execution、execution/contract、execution/prompt、model、model/contract、mount、mount/contract、projectvariable、projectvariable/contract、secret、secret/contract。补集 pure03 仅保下列 Mount 三名、`exact_3_top_pass` 与独立 `combined-pure-03`，11 vet 不变；旧01/02不可覆盖。
+
+```python
+TOPS = {
+ 'execution': ['TestExecutionPreparationCompleteInputAndConsumerAuthority', 'TestExecutionPreparationInputUnknownAndAtomicRollback', 'TestExecutionPreparationModelUnknownRecoveryUsesOriginalScope', 'TestExecutionPreparationResourceCaptureOriginalTransaction', 'TestExecutionPreparationUnknownOwnsOriginalAttemptUntilObserved'],
+ 'execution/contract': ['TestPreparationInputCanonicalRoundTrip', 'TestPreparationInputRejectsPartialOrCrossCapture', 'TestPreparationInputClosedEncodingAndSafeDefaults'],
+ 'execution/prompt': ['TestPlatformPromptVersionedContent'],
+ 'model': ['TestExecutionModelCaptureCurrentSourceAndClosedProfile', 'TestExecutionModelCaptureRejectsStaleOriginalTransaction', 'TestExecutionModelCaptureDiscoveryUnknownObservation', 'TestExecutionModelCapturePreparedObservationIsExactReadOnly'],
+ 'model/contract': ['TestExecutionModelCaptureContractCopiesAndSafeFacts'],
+ 'mount': ['TestExecutionMountCaptureRequiresRealEmptyHead', 'TestExecutionMountCaptureRejectsStaleAndForeignPlans', 'TestExecutionMountCaptureCancellationAndPhysicalUnknown'],
+ 'projectvariable': ['TestExecutionEnvironmentCapturesValuesAndStableSecretReferences', 'TestExecutionEnvironmentRejectsUnprovenAndChangedFacts', 'TestExecutionEnvironmentEmptyStillRequiresRealOwner', 'TestExecutionEnvironmentOriginalCallJoinsAndUnknownKeepsNoPlan'],
+ 'secret': ['TestProjectVariableEnvironmentLeaseUsesDedicatedCurrentMetadata', 'TestProjectVariableEnvironmentLeaseRejectsUnprovenAndJoinsOriginalCall'],
+}
+```
+
+本轮实际入口为 `execution-model-environment-pure-checks-03.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build`、`execution-model-environment-compile-01-launcher.py`、`execution-model-environment-launcher-02.py`，均位于 `output/ai/agent-system-integration/`，用 `python3 -B` 执行且必须先获唯一资源窗口。native02 launcher 仅把 plan 名改 `execution-model-environment-02-inputs.json`；该 plan 复用原 candidate/SOURCE/1,536 inputs/hash，仅将 private/control 及 XDG/DOCKER_CONFIG 改02、output/command 改 `/tmp/eme02`。新轮须另定 fresh namespace；compile PASS 后按原 recipe 冻结实际输入，不采用旧顺序 FAIL 特例。原 5GiB 同进程门、固定 Go/正常环境、预算、真实 Wait、全部资源尾不变。

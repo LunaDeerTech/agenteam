@@ -181,7 +181,7 @@ func (s *Service) DiscoverResolve(ctx context.Context, request mc.ResolveRequest
 		}
 		return nil
 	})
-	if e = commitError(preflight); e != nil {
+	if e = resolutionDiscoveryOutcome(preflight, c, true); e != nil {
 		return empty, e
 	}
 	if e = ctx.Err(); e != nil {
@@ -247,7 +247,7 @@ func (s *Service) DiscoverResolve(ctx context.Context, request mc.ResolveRequest
 		}
 		return nil
 	})
-	if e = commitError(result); e != nil {
+	if e = resolutionDiscoveryOutcome(result, c, false); e != nil {
 		return empty, e
 	}
 	if e = ctx.Err(); e != nil {

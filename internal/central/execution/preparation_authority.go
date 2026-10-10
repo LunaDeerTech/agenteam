@@ -26,6 +26,7 @@ type preparationWitness struct {
 	agent          ac.AgentConfig
 	agentCaptured  bool
 	resourcesOpen  atomic.Bool
+	recovering     bool
 }
 
 func clonePreparationProject(p pc.ProjectRef) pc.ProjectRef {
@@ -63,7 +64,14 @@ func (w *preparationWitness) require(ctx context.Context, tx f.Tx, request c.Pre
 	}
 	s.mu.Lock()
 	run := s.calls[request.ExecutionID]
-	active := run != nil && !run.returned && run.unresolved == nil && run.claim != nil && *run.claim == w.claim && run.request.Equal(request)
+	active := run != nil && run.claim != nil && *run.claim == w.claim && run.request.Equal(request)
+	if active {
+		if w.recovering {
+			active = run.returned && run.resolving && run.unresolved != nil && run.modelUnknown != nil
+		} else {
+			active = !run.returned && run.unresolved == nil
+		}
+	}
 	s.mu.Unlock()
 	if !active {
 		return fault(f.Forbidden)
@@ -72,8 +80,16 @@ func (w *preparationWitness) require(ctx context.Context, tx f.Tx, request c.Pre
 	if err != nil {
 		return err
 	}
-	if err = preparingRecord(row, request, false); err != nil {
-		return err
+	if w.recovering {
+		// Recovery observes only the original Model planning transaction. A
+		// later cancellation cannot erase that transaction's physical owner.
+		if row == nil || !(c.PreparationRequest{ExecutionID: row.summary.ID, Launch: row.launch}).Equal(request) {
+			return fault(f.ConfirmationStale)
+		}
+	} else {
+		if err = preparingRecord(row, request, false); err != nil {
+			return err
+		}
 	}
 	claim, err := loadPreparationClaim(ctx, x, request.ExecutionID)
 	if err != nil {
