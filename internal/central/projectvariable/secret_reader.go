@@ -45,7 +45,7 @@ func (s *SecretService) readTx(ctx context.Context, actor i.Actor, project c.Pro
 }
 func (s *SecretService) GetSecretVariable(ctx context.Context, actor i.Actor, project c.ProjectID, id c.VariableID) (c.SecretVariable, error) {
 	empty := c.SecretVariable{}
-	ctx, _, done, err := s.begin(ctx)
+	ctx, _, done, err := s.beginProject(ctx, project, readCall)
 	if err != nil {
 		return empty, err
 	}
@@ -108,7 +108,7 @@ func secretPageToken(keys cursor.Keyring, binding cursor.Binding, generation int
 }
 func (s *SecretService) ListSecretVariables(ctx context.Context, actor i.Actor, project c.ProjectID, q f.PageRequest) (f.Page[c.SecretVariable], error) {
 	empty := f.Page[c.SecretVariable]{}
-	ctx, _, done, err := s.begin(ctx)
+	ctx, _, done, err := s.beginProject(ctx, project, readCall)
 	if err != nil {
 		return empty, err
 	}
@@ -192,7 +192,7 @@ func (s *SecretService) ListSecretVariables(ctx context.Context, actor i.Actor, 
 
 func (s *SecretService) LookupSecretVariableCommand(ctx context.Context, actor i.Actor, q c.SecretVariableCommandLookupRequest) (c.SecretVariableCommandLookup, error) {
 	empty := c.SecretVariableCommandLookup{}
-	ctx, _, done, err := s.begin(ctx)
+	ctx, _, done, err := s.beginProject(ctx, q.Fields().ProjectID, readCall)
 	if err != nil {
 		return empty, err
 	}

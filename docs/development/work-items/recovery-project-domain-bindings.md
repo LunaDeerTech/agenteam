@@ -194,3 +194,47 @@ Secret/Audit 在 stopping 可依据上述真实屏障报告 stopped；在 failed
 Object Audit 的13源已独立验收并提交推送 `a716ae2a16bc24c115d0207557cada96a30f1049`，最终源清单 SHA-256 `061a4c19791e812e68a0755059a171984bc3bf8070197ae6f034f7943f119558`；独立2顶层6子例通过，真实资源已清零。其通过不代表本卡的 Project 映射已绑定。D09 Project 配置21源已独立验收并提交 `de00c610da62cb77cc03efe7c3cc842cf81f1ba5`。Artifact stop 最终验收、受阻的 Object Runtime join 修复及后续组合接缝 delta 尚未闭合；本卡仍须等待这些前置和文件所有权交还，再由主线程单独授权实施。本次状态归位不恢复 Object 修复任务，没有本卡 Go、PG/MinIO 或产品行为通过声明。
 
 主线程采纳本轮有界静态报告 `/tmp/agenteam-project-domain-prereq-delta-t7gyhkzz/review.md`，SHA-256 `6ef0db9394550cd695efeaaa439b44d7894c5c70bf71a7a7bc621b4e0a970742`：固定 `8bce2d9319f0b649b7c144ba14d9ee52f7dd09da` 核对上述 D09/Object Audit 已验接缝相容，保留 Model Append 的完整绑定、不同 stage 计划及 Object 同 Tx witness/真实事实消费。该核对不改本卡 API、22 路径或行为，不覆盖 Artifact 最终实现或 Object 修复，也不授予任何文件写权；原 `fda0a35` 核查与规格来源仍按当时历史保留。
+
+## 有限后继：Project Variables 本实例精确停止
+
+状态：基线 main `33903460`，SPEC 准备完成，产品尚未实施。该后继只消除普通 Variables 与 Secret Variables 的真实调用退出缺口，不恢复前文 Object Runtime join STOP，不注册完整 participant，不启用生产 Project initializer。D08 §7/§8 与 [D10 §14](d10-skills-initialization-design.md#14-本次共享差异与后续依赖) 的完整组合门保持。
+
+### 提供方与局部接口
+
+提供方在 `projectvariable` 包内直接组合原 `*Service` 和 `*SecretService`，两者必须使用同一 Store、同一具体 `*Authority` 和同一可比较 ProjectAuthority 端口；Secret 的 Writes 原同 Store/Project 约束保持。复用当前唯一 facts/Outbox producer，不增加新 producer、数据库表、公共 HTTP 或迁移，不改 Secret 的材料接口。
+
+拟新增 `NewProjectCallStopper(ordinary, secrets)`，返回不可变 `*ProjectCallStopper`，提供 `RequestStop(ctx, actor, cause, scope)` 与 `InspectStop(ctx, actor, cause, scope)`。返回本包 `ProjectCallStopReport`：安全 Details 只含原 ProjectID、OperationID、Action、accepted ProjectVersion、当前已授权快照的 PendingCalls 与 LocalJoined；报告私有构造、零值无效，fmt/slog 不含业务材料。它不实现 `ProjectLifecycleParticipant`，没有 `Name`/`Cleanup` 方法，不返回可被 D08 当作全域完成证据的 `pc.StopReport`。LocalJoined 只证明同一提供方两个 Service 的该次快照，不证明其他进程、Skills、Agent 或整个 Project 已停止。
+
+每个生产调用在任何 SQL、D04 Prepare 或 confirmation 之前固定私有 `{ProjectID, class, original-call}`。class 仅 read、mutation、control：普通/Secret Get、List、identity-only Lookup 都是 read；Create/Update/Delete 及其原 CommitUnknown confirmation 归同一个 mutation call；生命周期方法自身是 control，不进入待停止集合。调用身份是原登记对象，不能用同 Project 的后来调用替换。无 timer、后台 goroutine、额外生命周期预算或持久 stop 表。
+
+### 授权、取消与实际返回
+
+1. 拒绝 nil/非法 ctx、非 Project Scope、非法 cause 或非 `ProjectLifecycle` Service actor；actor ProjectID、CauseRef 必须分别等于 scope.ProjectID 与 cause.OperationID。精确身份为 `{ProjectID, OperationID, Action, accepted ProjectVersion}`，不把 UUID 合法或当前 ProjectID 相等当授权。
+2. 使用原共享 Store 的短事务，完整取得 Project SH，再通过两个 Service 原同一 `Projects.ValidateLifecycleInTx(..., SkillsParticipant, StopPhase)` 核持久 operation、当前 pointer、accepted version、冻结 manifest/name/version 与合法 stopping 状态。它是 agent-skills-variables 的 Variables 子能力，不另注册一个同名成功 adapter。当前正式口仅允许 stopping 且相应 stop 未 failed；本切片 Inspect 同样只支持该阶段，不把 cleaning/completed 的旧 cause 当新取消资格。
+3. 在该授权事务内按固定 ordinary→Secret 锁序捕获对应本实例原调用指针，锁只包住内存快照，不跨 Commit 或外部 I/O。Archive 捕获 mutation（包括原 confirmation），保留合法 Get/List/Lookup；Delete 捕获本 Project 的 read 和 mutation；其他 Project 与 control 都排除。
+4. 只有原 `WithinTx` 实际返回 Committed，且入口原 ctx 仍有效，RequestStop 才在各服务原 mutex 下标记捕获且仍登记的原 call 为 stop-requested，取消其原 ctx 和已登记 confirmation。NotCommitted/Unknown、授权或锁失败均返回原安全错误和零报告，**零取消、零 stop-requested 标记**；不因重读当前行“看起来存在”改判原 Unknown。
+5. 两个原 confirmation 都在 `context.WithoutCancel` 后登记，故其现有同 mutex 准入必须同时检查 `service.stopped || originalCall.stopRequested`：Stop 先发生时，后来登记的原 confirmation 立即取消；confirmation 先登记时由 RequestStop 取消。保原三秒确认预算、原 CommitResult/Unknown 语义，不能以 lifecycle 取消抹成 committed/not-committed。
+6. RequestStop 不等待 I/O；取消后原 call 仍留在 calls 集合。只有原调用函数（包括同步 confirmation）实际返回并执行原 done，才退出登记。InspectStop 每次重新执行第1–3步的真实当前授权与原 Commit 判据，不再取消；在确认提交后同一双 mutex 下统计当前本实例所有匹配 scope/action 的调用，仍登记即 PendingCalls>0/LocalJoined=false。COMMIT 期间新登记的同范围调用也阻止 LocalJoined，但不能被旧授权快照追认取消。即便 ctx 已取消、Tx token 已失效或 SQL 结果已返回，也不提前 join。
+7. 提供方的每次方法自身登记进两 Service 的 control 调用并沿原 ctx 传播，保证进程级 Stop/Drain 不能越过仍在途的授权事务。现全服务 Stop/Drain 仍覆盖全部调用、仍不关闭共享 Store/D04/Account。不会用全服务 Stop 实现单 Project 停止。
+
+stop-requested 只附在被授权捕获的原 call 上，不永久封闭整个 Project 本地实例；新调用继续经过现有真实 Project gate。首轮不声称本地 map 空能证明 foreign process 死亡；未来完整 participant 必须另落实跨实例事实及原事务终局，不能复用 LocalJoined 直接报告全域 stopped。
+
+### 唯一写域与第一条真实链
+
+实现限 `internal/central/projectvariable/{service.go,secret_service.go,commands.go,reader.go,secret_commands.go,secret_reader.go}` 中的调用登记、confirmation 准入及必要窄辅助，新增本包 `project_lifecycle.go`/有限 helpers 与相邻测试；新增独有 `tests/projectvariable/project_lifecycle_test.go` 及必要 fixture。实际旧入口只有上述四个业务文件，不为凑路径修改其它源。app、Project、Audit facts、共享 harness、Schema、迁移和 go.mod/sum 不写；00031 由 Model Runtime owner 独占。
+
+先用有限纯控制核构造身份、事务 NotCommitted/Unknown 零取消、Archive/Delete/跨Project选择、先stop后confirmation与反序、原call held不join、Inspect不取消及全服务Drain等待control；基础可用后即准备首真实 PG，不重跑 Owner30 或完整 HTTP/native 矩阵。
+
+首真实链使用原 Account/Login、同 Store/Project Authority、普通与 Secret Service 和 D04；两个 Project 的合法初始化/生命周期 stopping operation、manifest/participants 由规范 fixture 明确建立。**该 phase fixture 不声称执行了生产 Archive API/worker**：当前真实 BeginArchive 只接受 operation，accepted→stopping 的生产推进者仍未实现。授权/完整锁/业务调用/提交结果均用真实提供方，不造 stop 成功报告。
+
+用原 BEGIN 或 confirmation barrier 持有该 Project 实际调用，先验证 Project EX 未获时没有已接受 gate/取消；再以明确的已提交 phase fixture 行为刺激 RequestStop，证明原调用未返回时 RequestStop/Inspect 均 pending，release 后原 call/confirmation 真正返回才 LocalJoined。Archive 的合法读与另一 Project 的读写不被取消；Delete 包含本 Project 读。新旧 cause、跨 Project/Store、错误 actor、未提交授权反例不产生取消或材料泄漏；所有原调用即使断言失败也实际 join。真实资源仅在 root 独占窗口中运行。
+
+### 集中保留的后继缺口
+
+生产 initializer 仍 unbound。后继尚需：D08 lifecycle claim/phase worker；Variables 普通/Secret 的真实 cleanup 与跨进程终局；Skills+已启用 Variables 的完整组合；四个基础真实 adapter 及当前已启用 Work/Knowledge/Usage 等域的停止与清理；最后真实共享 guard。既有 00013 已包含 lifecycle manifest/participants/work_claims，可供独立 D08 推进者消费；本切片不占新迁移、不扩真实 phase authority，不删除 required 项或注册空处理器。Object Runtime join 原 STOP 保持，不能由本实例退出证据解除。
+
+### 本切片当前恢复状态
+
+- 核心 provider 与原调用登记已实现；独立静审有限接受。首纯测试编译因测试比较非 comparable LockKey 失败，原 FAIL 保留；修为正式 Mode/CompareLockKeys 后作者 9 top / 20 sub race 实际通过。
+- 首 PG 候选 race-c 与精确 list 通过后，冻结55a6e725的1 top / 3 sub 沿上述规范 phase fixture 首次实际整轮 PASS：top9.20s、原 Go/driver/supervisor/tool Wait0，两资源/private/desc/runtime/TCP双尾与435输入一致全部闭合（76.621s，无重试）。作者动态结果不冒独立动态；独立实例已有限静审核心/方法/入口。独有 [恢复入口与结果边界](../../../.agent-state/project-variable-lifecycle/README.md) 保留原准备失败及原两资源监督协议。
+- 此提供方切片只闭本实例 ordinary+Secret 精确停止/原call退出；foreign join、cleanup、完整复合participant 与生产phaseworker仍未交付。原生产initializer unbound、Object Runtime join STOP 和本卡其它阻断不变。

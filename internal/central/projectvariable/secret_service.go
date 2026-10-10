@@ -59,6 +59,9 @@ func (s *SecretService) state() *secretServiceState {
 	return s.data()
 }
 func (s *SecretService) begin(ctx context.Context) (context.Context, *call, func(), error) {
+	return s.beginProject(ctx, c.ProjectID{}, controlCall)
+}
+func (s *SecretService) beginProject(ctx context.Context, project c.ProjectID, kind callKind) (context.Context, *call, func(), error) {
 	st := s.state()
 	if st == nil {
 		return nil, nil, nil, fault(f.DependencyUnbound)
@@ -75,7 +78,7 @@ func (s *SecretService) begin(ctx context.Context) (context.Context, *call, func
 		return nil, nil, nil, fault(f.ShuttingDown)
 	}
 	run, cancel := context.WithCancel(ctx)
-	entry := &call{cancel: cancel, confirmations: map[*confirmation]struct{}{}}
+	entry := &call{project: project, kind: kind, cancel: cancel, confirmations: map[*confirmation]struct{}{}}
 	st.calls[entry] = struct{}{}
 	var once sync.Once
 	done := func() {
