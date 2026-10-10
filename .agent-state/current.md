@@ -53,3 +53,11 @@ export GOFLAGS='-mod=readonly -p=1' GOMAXPROCS=2
 export GOMODCACHE=/workspace/agenteam/output/ai/model-ui-recovery/go-mod
 export GOCACHE=/workspace/agenteam-project-variables-independent/output/ai/project-variables-independent/gocache
 ```
+
+## 首次真实启动的前置失败（业务未启动）
+
+- root已保存入口4scope为 `6a1c03b3`，Knowledge入口独审 `b43f66` 有限接受（记录 `e7ee272c`）；root已把固定MinIO硬链接到本树原路径，size109,289,632B/fullSHA与原身份一致。新Cleanup库/候选未改变。
+- 获freshgrant后的首次执行 `b6fd24` actualexit1，无running session。same-process UTC2026-10-10T00:26:58.761607Z、available5,751,590,912B满足5GiB；候选34,139,265B/fullSHA `c04c9f12c0ab02bfe6a3cf329d42c66f843c8e7437b9a1288c3f921d9f91aff8`、MinIO/fullSHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8` 及实际Go1.27.1均通过身份核对。启动包装先检查新private不存在，却在创建它之前以该XDG环境运行 `go version`；Go建立本地计数目录后，包装的 `private.mkdir` 报FileExistsError。失败发生在exec supervisor之前，不是业务、driver或七资源运行。
+- `451a01`原终态后只读核：`output/ai/skills-cleanup/pg/cleanup-01` 不存在；`runtime-env-01` 只有 `config/go/telemetry` 目录及2/16,384/0B本地计数文件；`/proc` 无argv精确指向本树路径的进程。没有PG/Object/outbound资源ID或业务actualWait可报告，也不冒完整七资源尾。原前置失败保留；未自动重试，已向root报告无live/可释放。
+- root已授权本域包装次序返修，无须为这种常规修正逐次确认；后继 `cleanup-02/runtime-env-02` 先创建新private四子目录，再用原固定env做Go身份核验与exec。不改已冻结产品、测试、driver/supervisor或任何预算。当前root有Git网络保存窗，故尚未创建新目录或启动；保存结束的单条通知后，按原唯一2top5sub授权再次same-process fresh磁盘/身份核验再exec。
+- Runner新main Default准备的独立窄审记录已冻结于 `.agent-state/runner-default-delivery-review/report.md`：四技术相对85832bd9，实际e8a67e原controls exit0，有限接受，无mustfix；不是新Default动态结果，不回填14016。只写本人记录，未改Runner源或启真实资源。
