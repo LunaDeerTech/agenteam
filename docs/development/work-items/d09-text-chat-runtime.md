@@ -163,3 +163,5 @@ cleanup后续实际core窄审发现两项并发错误：活跃重复分支提前
 在实际资源尾释放后的新授权`regression-03`中，两修定向top ordinary/race及model vet均实际0（session59305/outer567378，Go567381/567521/567681全Wait0）；每阶段启动fresh≥5GiB、无adopted、原组与runtime各双空。只补两修的ctx/首错转交风险，旧8top/boundary15不重复，首真实00031/Secret/Usage/D04链仍未运行。
 
 首联调前按正式MeetingSummary platform/System配置接线，发现并修正Runtime grant无条件OperationID会被System Secret Audit拒绝的范围错误。cleanup实际diff有限接受；`scope-grant-01`精确一top两scope实际调用私有grant路径→UseGrant.Validate→Audit.NewEntry，ordinary/race及model vet皆0、原Wait与runtime/进程组双空。pure私有witness不宣DB授权；后继真实凭据读会核原Invocation关联，Outbound仍Project scope，不能以System wire fixture代替。
+
+首真实两fixture与方法初稿保存299f0138后，`candidate-01`原race-c及samebinary精确list均实际0（outer576890/Go576893/list577560原Wait0、runtime/进程组双空），无需编译修正。仅发现`TestModelTextRuntimePersistentWire`（json_success/policy_deny源码两sub），尚未执行其正文或00031真实迁移；候选就绪不构成PG/Secret/Usage/网络接受。方法见任务first-wire-method，独立方法审/精确资源入口/唯一实际窗口仍待完成。
