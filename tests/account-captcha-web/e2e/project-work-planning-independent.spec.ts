@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
+import { writeFileSync } from "node:fs";
 import { startWorkNativeDiagnostic } from "./project-work-planning.native";
 import {
   material,
@@ -372,7 +373,95 @@ test("[independent-authority] real sessions, held old read and installed domain 
   await ready(page);
   await expect(recovery(page)).toHaveCount(0);
   await navigation.getByRole("link", { name: "项目设置", exact: true }).click();
-  await expect(ownerForm).toBeVisible();
+  try {
+    await expect(ownerForm).toBeVisible();
+  } catch (originalFailure) {
+    // One synchronous browser snapshot after this exact assertion fails. It
+    // neither changes the assertion nor replaces the original afterEach record.
+    const snapshotFile = `${evidence}/work-authority-settings-failure.json`;
+    try {
+      const snapshot = await page.evaluate(
+        ({ settingsPath, workPath }) => {
+          const state = (node: Element | null) => {
+            const box = node?.getBoundingClientRect();
+            const visible = !!(
+              node?.isConnected &&
+              box?.width &&
+              box.height &&
+              !node.closest('[hidden], [inert], [aria-hidden="true"]') &&
+              getComputedStyle(node).visibility === "visible"
+            );
+            return {
+              exists: node !== null,
+              visible,
+              disabled: node?.matches(":disabled") === true,
+            };
+          };
+          const guard = (fixedTitle: string) =>
+            state(
+              [...document.querySelectorAll('[role="dialog"]')].find((node) => {
+                const heading = node.querySelector(".dialog-header > h2");
+                return (
+                  heading?.textContent === fixedTitle &&
+                  node.getAttribute("aria-labelledby") === heading.id
+                );
+              }) ?? null,
+            );
+          return {
+            snapshot_available: true,
+            expected_settings_url:
+              location.href === new URL(settingsPath, location.origin).href,
+            expected_work_url:
+              location.href === new URL(workPath, location.origin).href,
+            has_query: location.search !== "",
+            has_hash: location.hash !== "",
+            owner_guard: guard("放弃项目修改？"),
+            model_guard: guard("离开项目模型设置？"),
+            work_guard: guard("放弃任务规划修改？"),
+            settings: state(document.querySelector("#project-general-heading")),
+            need_read: state(
+              document.querySelector(
+                '.project-general > .ui-state[role="status"]',
+              ),
+            ),
+            form: state(
+              document.querySelector('form[aria-label="项目基本信息"]'),
+            ),
+            reread_button: state(
+              document.querySelector(
+                ".project-general > .form-actions > button",
+              ),
+            ),
+            work: state(document.querySelector("#work-planning-title")),
+            work_new: state(
+              document.querySelector('[aria-label="新建规划对象"] > button'),
+            ),
+          };
+        },
+        {
+          settingsPath: path(data, "duplicate").replace(
+            /\/tasks\/explore$/,
+            "/settings/general",
+          ),
+          workPath: path(data, "duplicate"),
+        },
+      );
+      writeFileSync(snapshotFile, JSON.stringify(snapshot), {
+        flag: "wx",
+        mode: 0o600,
+      });
+    } catch {
+      try {
+        writeFileSync(snapshotFile, '{"snapshot_available":false}', {
+          flag: "wx",
+          mode: 0o600,
+        });
+      } catch {
+        // A missing diagnostic never replaces or upgrades the original failure.
+      }
+    }
+    throw originalFailure;
+  }
   await page.getByRole("link", { name: "Providers", exact: true }).click();
   await button(
     page.locator('[aria-label="项目模型操作"]'),
