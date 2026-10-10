@@ -316,3 +316,25 @@ TOPS = {
 ```
 
 实际三个 ignored 入口均在 `output/ai/agent-system-integration/`：`execution-context-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build` → `execution-context-compile-01-launcher.py` → `execution-context-launcher-01.py`，用固定 Python `-B` 执行。必须先取得唯一资源窗口；每段 wholePASS 后才下一段，compile PASS 后按原输入冻结 recipe 一次生成实际 plan（严格 PASS，不采用旧顺序 FAIL 特例）。原固定 Go/正常环境/RO 模块、同进程 5GiB、预算、实际 Wait、七资源与全部双尾门不变。
+
+## Model 域 AgentRetry 与 ExecutionOwner 租约
+
+SOURCE `870b370bcfa3d7e7c13a565415200fa182add602`。`TestModelAgentRetryRuntime` 恰 1 top/3 sub：`retry-success-and-execution-lease-reuse`、`cancel-prevents-next-attempt`、`nonretryable-single-failure`，真实 PG/TLS 20.38s 全通过。测试明确用 Model 域私有 Consumer authority，正式 Resolver/Runtime/Usage/Secret/ProcessGuard 与新源码构建的 D04 server 全实；503→200 的不同 Invocation/连续 ordinal/逐次 Usage 与材料退出、同 ExecutionOwner 租约跨 call 保留、retry_wait 取消后零后继且 Drain 实退、401 一发失败均成立。不代表生产 Execution 调用授权、54→Loop、首 Round 或 Snapshot/start；Loop 本片仅纯请求组装。
+
+原 pure01 wholeFAIL 保留：`TestDirectTextRequestRejectsUnsupportedProfiles` 的两处小数素材在 canonical input 构造时被拒，其余 8 top PASS。修复仅测试值改合法整数；pure02 只补该 1 top（3.011s）及原 5 包 vet（12.059s），全部 Wait0/双尾闭合，未重跑其余 8 项。原件分别在 `output/ai/model-agent-runtime/combined-pure-{01,02}/{result.json,race.jsonl}`。compile01/list wholePASS（25.367s/1.068s，912 输入同），native01 wholePASS；结果在 `output/ai/agent-system-integration/model-agent-runtime-compile-01/result.json`、`model-agent-runtime-01-control/result.json`，后者同目录保留 supervisor 日志。原 PG 日志 `/tmp/mar01/pg-6da194c254cb4d8ca9f2bcaeb20c1e35.log`。
+
+native 原窗口 2026-10-10 22:51:55–22:53:41 UTC，Go 258426、driver 256965、supervisor 256944、outer 256899 全部实际 Wait0；七资源 14 次 absent、private/runtime/desc/HOST_TCP 和 outer 全部双尾关闭，adopted=[]。1,591 native 输入首尾相同且包含全部 912 compile 输入；窗口已归还。候选 `output/ai/agent-system-integration/model-agent-runtime-race-01.test` 为 69,254,712 B，SHA256 `687baf0f5aae48fc423ad0af912562309870b2dc1d2e965cbdc851ef8160f962`。旧 FAIL、输入、源码和原结果不改。
+
+恢复复用上述 immutable 模板 `148640b8` pure 与 `73387883` compile-02/native-01，只有本批 profile 常量差：ROOT 为 delivery、namespace `model-agent-runtime`、完整 SOURCE 如上；compile 的同包输入枚举与 `go test -c` 目标都改 `tests/model`，list 用 `len==1` 加精确集合 `{'TestModelAgentRetryRuntime'}`。native selector `^TestModelAgentRetryRuntime$`、plan `model-agent-runtime-01-inputs.json`、原输出 `/tmp/mar01`；实际输入按原 recipe 冻结一次且只接受 compile wholePASS。shared metadata family 的本 key 显式 TARGETS=`tests/model`，四 fixture 源均 mandatory；D04 沿原 fixture 构建新 server，不采用旧缓存 server 代替响应序列。新轮使用 fresh namespace，不覆盖原件。
+
+pure01 的 9 top 集合如下；pure02 仅其一个失败项，vet 固定 `./internal/central/agentloop`、`./internal/central/model`、`./internal/central/model/contract`、`./tests/testsupport/outbound`、`./tests/testsupport/outbound/cmd/server`，不跑旧整库矩阵：
+
+```python
+TOPS = {
+ 'agentloop': ['TestDirectTextRequestProjectsCapturedSources', 'TestDirectTextRequestRejectsUnsupportedProfiles', 'TestDirectTextRequestKeepsIsolationAndRejectsIdentityAndCancellation'],
+ 'model': ['TestRuntimeAgentTimingGrowthSaturates', 'TestRuntimeAgentAndBoundedConsumerPoliciesStaySeparate', 'TestRuntimeAgentRetryNeedsWireFailureAndAuthorizedCategory', 'TestRuntimeAgentCanceledBackoffCreatesNoNextAttempt', 'TestRuntimeStreamFramesAndSafeNestedOutput'],
+ 'model/contract': ['TestAgentRetryTimingBoundsAndOwnedFields'],
+}
+```
+
+实际三阶段命令沿原固定 Python `-B`：`output/ai/agent-system-integration/model-agent-runtime-pure-checks-02.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build` → 同目录 `model-agent-runtime-compile-01-launcher.py` → 冻结 plan 后 `model-agent-runtime-launcher-01.py`。pure01 入口仍原位保留，需从零重验新 namespace 时用上述完整 9 top；本次补集不冒完整重跑。固定 Go、正常环境、RO 模块、private XDG、同进程 5GiB、预算、原 Wait 和全部资源尾均保持。
