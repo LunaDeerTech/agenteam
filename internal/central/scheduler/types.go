@@ -82,6 +82,8 @@ type DispatchSummary struct {
 	Version          f.Version
 	ExecutionID      *i.ExecutionID
 	AttemptCount     int64
+	SkipReason       string
+	SkippedAt        *f.Instant
 }
 
 func (d Dispatch) Summary() DispatchSummary {
@@ -94,7 +96,12 @@ func (d Dispatch) Summary() DispatchSummary {
 		v := *r.execution
 		execution = &v
 	}
-	return DispatchSummary{r.id, r.project, r.sprint, r.task, r.agent, r.status, r.outcome, r.version, execution, r.attempts}
+	var skipped *f.Instant
+	if r.skippedAt != nil {
+		v := *r.skippedAt
+		skipped = &v
+	}
+	return DispatchSummary{r.id, r.project, r.sprint, r.task, r.agent, r.status, r.outcome, r.version, execution, r.attempts, r.skipReason, skipped}
 }
 func (d Dispatch) LaunchRequest() (ec.LaunchRequest, error) {
 	if d.data == nil {
@@ -115,6 +122,10 @@ func snapshot(r *dispatchRecord) Dispatch {
 	if v.execution != nil {
 		e := *v.execution
 		v.execution = &e
+	}
+	if v.skippedAt != nil {
+		t := *v.skippedAt
+		v.skippedAt = &t
 	}
 	return Dispatch{data: func() dispatchRecord { return v }}
 }
@@ -137,6 +148,9 @@ type dispatchRecord struct {
 	attempts             int64
 	nextRetry            *f.Instant
 	createdAt, updatedAt f.Instant
+	busyAttempt          int64
+	skipReason           string
+	skippedAt            *f.Instant
 }
 
 func launchKey(id DispatchID) f.IdempotencyKey {

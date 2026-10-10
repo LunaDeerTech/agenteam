@@ -93,13 +93,23 @@ func (s *handoffTestStore) QueryRow(context.Context, string, ...any) postgres.Ro
 	return dispatchTestRow{values: recordValues(s.t, s.staged)}
 }
 func (s *handoffTestStore) Exec(ctx context.Context, query string, args ...any) (pgconn.CommandTag, error) {
-	if !strings.HasPrefix(query, "UPDATE agenteam_scheduler.dispatches SET") || len(args) != 10 || s.staged.version != f.Version(args[9].(int64)) {
+	if !strings.HasPrefix(query, "UPDATE agenteam_scheduler.dispatches SET") || len(args) != 13 || s.staged.version != f.Version(args[9].(int64)) {
 		return pgconn.CommandTag{}, errors.New("unexpected controlled update")
 	}
 	r := *s.staged
 	r.status, r.outcome = Status(args[2].(string)), LaunchOutcome(args[3].(string))
 	r.attempts, r.version = args[5].(int64), f.Version(args[7].(int64))
 	r.updatedAt, _ = f.NewInstant(args[8].(time.Time))
+	if args[10] != nil {
+		r.busyAttempt = args[10].(int64)
+	}
+	if args[11] != nil {
+		r.skipReason = args[11].(string)
+	}
+	if args[12] != nil {
+		v, _ := f.NewInstant(args[12].(time.Time))
+		r.skippedAt = &v
+	}
 	if args[4] != nil {
 		v, err := f.ParseID[i.Execution](args[4].(string))
 		if err != nil {
@@ -279,13 +289,15 @@ func TestSchedulerLaunchAssociationAndOriginalKeyRecovery(t *testing.T) {
 }
 
 func TestSchedulerLaunchKnownRejectionAndUncertainTransport(t *testing.T) {
-	for _, mode := range []string{"busy", "opaque-error", "context-cancel"} {
+	for _, mode := range []string{"busy", "forbidden", "opaque-error", "context-cancel"} {
 		t.Run(mode, func(t *testing.T) {
 			s, store, e := newHandoffTest(t)
 			e.onLaunch = func(context.Context) error {
 				switch mode {
 				case "busy":
 					return f.NewFault(f.AgentBusy, f.NotCommitted)
+				case "forbidden":
+					return f.NewFault(f.Forbidden, f.NotCommitted)
 				case "context-cancel":
 					return context.Canceled
 				default:
@@ -297,10 +309,14 @@ func TestSchedulerLaunchKnownRejectionAndUncertainTransport(t *testing.T) {
 				t.Fatal("rejection classification", err)
 			}
 			if mode == "busy" {
-				if store.row.outcome != KnownNotCreated || out.Summary().LaunchOutcome != KnownNotCreated {
+				if store.row.outcome != KnownNotCreated || out.Summary().LaunchOutcome != KnownNotCreated || store.row.busyAttempt != store.row.attempts {
 					t.Fatal("known busy was falsified as unknown/skipped")
 				}
-			} else if store.row.outcome != Unknown || out.data != nil {
+			} else if mode == "forbidden" {
+				if store.row.outcome != KnownNotCreated || out.Summary().LaunchOutcome != KnownNotCreated || store.row.busyAttempt != 0 {
+					t.Fatal("non-Busy rejection manufactured a compensation receipt")
+				}
+			} else if store.row.outcome != Unknown || out.data != nil || store.row.busyAttempt != 0 {
 				t.Fatal("opaque error used as negative creation proof")
 			}
 			_, _ = s.LaunchOnce(context.Background(), store.row.project, store.row.id)

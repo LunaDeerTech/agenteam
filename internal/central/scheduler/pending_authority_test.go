@@ -74,7 +74,21 @@ func recordValues(t *testing.T, r *dispatchRecord) []any {
 		v := r.nextRetry.Time()
 		retry = &v
 	}
-	return []any{r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), raw, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), string(r.status), string(r.outcome), int64(r.version), guard, gs, gst, gp, execution, r.attempts, retry, r.createdAt.Time(), r.updatedAt.Time()}
+	var busy *int64
+	var reason *string
+	var skipped *time.Time
+	if r.busyAttempt > 0 {
+		v := r.busyAttempt
+		busy = &v
+	}
+	if r.skipReason != "" {
+		reason = &r.skipReason
+	}
+	if r.skippedAt != nil {
+		v := r.skippedAt.Time()
+		skipped = &v
+	}
+	return []any{r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), raw, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), string(r.status), string(r.outcome), int64(r.version), guard, gs, gst, gp, execution, r.attempts, retry, r.createdAt.Time(), r.updatedAt.Time(), busy, reason, skipped}
 }
 
 type dispatchTestRow struct {
