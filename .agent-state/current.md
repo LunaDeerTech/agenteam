@@ -2,6 +2,10 @@
 
 ## 2026-10-10 独立验证树
 
+独立Authority01也已首次整轮FAIL（同`f7c068b3`技术输入，session60214／outer157528，04:01:34 UTC fresh13457510400B≥5GiB）。精确单top运行至spec361第二次从Work点“项目设置”，原5秒未见“项目基本信息”form；此前首次Work取消/放弃→Owner草稿取消/放弃→Work ready顺序已返回，但Model/其他Owner与admin、最终observer/complete和Go同Store后验未到，不能计身份或聚合确认整项通过。原现场未采最终URL/dialog/DOM，不从缺form推定具体guard或产品原因。Go159333实际Wait1／30.97秒，driver157578实际Wait1，4Z均actualWait0，outer239df9实际exit1／125.496秒；七ID/三private/runtime/desc/hostTCP双尾、inputsame/exacttop/actualtestwait齐（124fe1 actual0），窗口已交回root，无自动重试。必要安全材料`.agent-state/work-owner-ui-independent/authority-first-failure.json`，原log`/tmp/wui-ia01/ui-608d037a84084a6a.log`。两个独立top原FAIL均保留，技术源仍完全冻结；只读方法诊断不冒修后动态接受。
+
+独立Recovery01（冻结技术输入`f7c068b3`）首次整轮FAIL，原session78032／outer146150，03:52:50 UTC同进程fresh可用13860028416B≥5GiB；只运行精确`TestIndependentProjectWorkPlanningWebRecovery`，未重试。首blocker域归档刷新同体实际archived/version3后，spec189误要求“保存修改”disabled，正式只读模板以`v-if="!readOnly"`不呈现该按钮，原5秒报element(s) not found。归档原key重放、后两域、最终observer联合/complete与Go持久后验均未到，不计三域PASS。Go150893实际Wait1（27.59秒）、driver146182实际Wait1、outer实际exit1（158.098秒）；4 adopted Z均actualWait0，原七资源/三private/runtime/desc/hostTCP双尾及inputsame全部齐，窗口已交回root。必要安全材料`.agent-state/work-owner-ui-independent/recovery-first-failure.json`，原log`/tmp/wui-ir01/ui-b7e0abf5aa844930.log`。本次仅记录，不改技术源；Recovery断言修订须独立scope方法审后fresh完整运行。Authority技术输入未受影响；后续首次真实FAIL见本节首条。
+
 本树为root建立的`/workspace/agenteam-work-ui-independent`／`ai/work-owner-ui-independent`，基线`65409abc`。未参与Work产品及作者恢复的验证者按卡§8.3补写独立Recovery/Authority；下面作者历史仅是继承输入，不充本树独立动态结果。Object Runtime join等停项保持，Git与真实窗口由root持有。
 
 新增`tests/account/project_work_planning_web_independent_test.go`、`tests/account-captcha-web/e2e/project-work-planning-independent.spec.ts`：Recovery按blocker→task→structure实际断流、取消放弃、先改当前值再查历史、归档Lookup/同义重放，浏览器逐界SQL快照和独立Go原operation/History/Outbox/唯一receipt及全事实增量配合；Authority用真实同Session检查、旧Session Logout/新Session、原held Task消费者取消join后切Project、三域既有确认各自取消/放弃及其他Owner/admin拒绝，独立Go同Store核真实撤销、零Work/Provider/Owner修改。复用正式Account/Project/Work和原fixture；不使用仅作者identity模式可用的IPC，不伪造Account/Session或Work成功。
@@ -12,7 +16,7 @@
 
 授权离线检查已完成：gofmt/Prettier actual0；strictTS初次typeRoots误指harness缺node types而exit2，改本树web实际@types后actual0（48657/66d0a9）；PW两个独立config分别恰1case list/actual0（44677/f3f400），未启动browser。新GOCACHE在本树`output/ai/work-owner-ui-independent/go-build`，首次Go前私有`tool-config/go/telemetry/mode`写off；固定Go1.27.1/local/offline/readonly/-p1/GOMAXPROCS2、共享mod只读。首冷race-c86059在新后验直接索引fixture的any值处compile1／138.655s；已加实际Project响应的类型断言、缺失/错形状即拒，修后89955/f43837 actual0／22.331s。候选`output/ai/work-owner-ui-independent/account-independent-race.test`为57206593B／SHA `1784cf4744303fb613ec2dab0d4773797ad8d6c3b867fc9131d3d9c0fc36a0a7`；03:35:02 fresh12889116672B≥5GiB下精确Go list恰Recovery/Authority两top，61730/ff21f7 actual0，无fixture。
 
-Work作者只读核过独立fixture种子/版本/事实增量、实际定位器、Session/Logout与精确held取消join、sourceRun闭集，有限可运行性接受，无确认must-fix；作者未写独立case、未运行其Go/browser，不构成独立动态结果。六路径检查与必要setup失败记录完成后停写交root保存；所有上述实际进程均已退出，无资源/网络/后台在途。独立两个top均未RUN，下一只候root保存后分别fresh grant，沿已有精确入口和全部原尾，不以编译/list/方法控关闭§8.3。
+Work作者只读核过独立fixture种子/版本/事实增量、实际定位器、Session/Logout与精确held取消join、sourceRun闭集，有限可运行性接受，无确认must-fix；作者未写独立case、未运行其Go/browser，不构成独立动态结果。六路径检查与必要setup失败记录完成后停写交root保存；所有上述实际进程均已退出，无资源/网络/后台在途。上述准备时独立两个top均未RUN；后续Recovery01/Authority01真实FAIL见本节首条，不以编译/list/方法控关闭§8.3。
 
 ## 2026-10-10 新环境接续
 

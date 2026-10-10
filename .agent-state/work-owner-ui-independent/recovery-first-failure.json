@@ -1,0 +1,84 @@
+{
+  "scope": "independent Recovery first original run; sanitized necessary failure projection",
+  "candidate_ref": "f7c068b3ac917e216a23afec2bb6a68348cc6438",
+  "binary_sha256": "1784cf4744303fb613ec2dab0d4773797ad8d6c3b867fc9131d3d9c0fc36a0a7",
+  "source_changed": false,
+  "selector": "^TestIndependentProjectWorkPlanningWebRecovery$",
+  "started_at": "2026-10-10T03:52:50.198916+00:00",
+  "fresh_available_bytes": 13860028416,
+  "session": 78032,
+  "outer_pid": 146150,
+  "log": "/tmp/wui-ir01/ui-b7e0abf5aa844930.log",
+  "whole_result": "FAIL",
+  "failure": {
+    "file": "tests/account-captcha-web/e2e/project-work-planning-independent.spec.ts",
+    "line": 189,
+    "first_domain": "blocker",
+    "assertion": "expect(button(editor(page), 保存修改)).toBeDisabled()",
+    "expected": "disabled",
+    "actual": "element(s) not found",
+    "timeout_ms": 5000
+  },
+  "same_original_project_refresh": {
+    "project_id": "01a123f2-6293-7758-98a1-f24471c3ff69",
+    "request_id": "01a123f2-9150-7634-a292-4c07f629c622",
+    "method": "GET",
+    "status": 200,
+    "source_run": "TestIndependentProjectWorkPlanningWebRecovery",
+    "body_sha256": "134c92cfe4494307176ee7148b3bb213c3b5c8d88fe5e9f4e99fe500106449d5",
+    "lifecycle_state": "archived",
+    "version": "3",
+    "boundary": "strict same-body helper returned; does not establish final native/public joint acceptance"
+  },
+  "not_reached": [
+    "archived original-key replay",
+    "task domain",
+    "structure domain",
+    "final observer joint verification",
+    "complete IPC",
+    "independent Go durable postconditions"
+  ],
+  "actual_wait": {
+    "go_pid": 150893,
+    "go_status": 1,
+    "go_seconds": 27.59,
+    "driver_pid": 146182,
+    "driver_status": 1,
+    "adopted_pids": [
+      151134,
+      151136,
+      151138,
+      151140
+    ],
+    "adopted_statuses": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "outer_status": 1,
+    "outer_seconds": 158.098,
+    "terminal_chunk": "b05d46"
+  },
+  "original_tails": {
+    "seven_owned_resources_double_absent": true,
+    "three_private_dirs_double_absent": true,
+    "runtime_double_empty": true,
+    "descendants_double_empty": true,
+    "host_tcp_double_delta_empty": true,
+    "inputs_unchanged": true,
+    "exact_tops": true,
+    "actual_test_wait": true,
+    "audit_chunk": "25ef8e",
+    "window_released": true
+  },
+  "retry": false,
+  "authority_run": false,
+  "diagnostic_boundary": "afterEach snapshots are not a final post-close state; final verify was not reached",
+  "readonly_source_finding": {
+    "task_editor": "web/src/views/projects/ProjectWorkTaskEditor.vue:135",
+    "structure_editor": "web/src/views/projects/ProjectWorkStructureEditor.vue:75",
+    "condition": "Save UiButton v-if=!readOnly; archived permits read/history recovery, prohibits new mutation",
+    "repair_applied": false
+  }
+}
