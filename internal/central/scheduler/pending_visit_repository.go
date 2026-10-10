@@ -54,6 +54,49 @@ func (s *PendingVisitor) readNext(ctx context.Context, p i.ProjectID, after stri
 	return found, current.Clone(), nil
 }
 
+func (s *PendingVisitor) readIdentity(ctx context.Context, p i.ProjectID, id DispatchID) (*dispatchRecord, pc.SchedulerProject, error) {
+	command, _ := f.NewCommandIdentity("scheduler", []string{p.String()}, "visit_pending", "pending_visit")
+	key, _ := f.CommandLock(command)
+	locks := append(pendingLocks(p), f.LockRequest{Key: key, Mode: f.Exclusive})
+	cause, _ := f.NewCommandsCause(command)
+	var found *dispatchRecord
+	var current pc.SchedulerProject
+	result := s.authority.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		if err := s.authority.store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		x, err := s.authority.inTx(ctx, tx, p)
+		if err != nil {
+			return err
+		}
+		found, err = loadDispatch(ctx, x, p, id)
+		if err != nil {
+			return err
+		}
+		if found != nil && (found.project != p || found.id != id) {
+			return unavailable(nil)
+		}
+		if found != nil && found.status != Pending {
+			found = nil
+		}
+		current, err = s.busy.deps.Projects.RequireSchedulerProjectInTx(ctx, tx, p)
+		if err != nil {
+			return portError(err)
+		}
+		if current.Project.ID != p || current.Config.Validate() != nil {
+			return unavailable(nil)
+		}
+		return ctx.Err()
+	})
+	if err := commitError(result); err != nil {
+		return nil, pc.SchedulerProject{}, err
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, pc.SchedulerProject{}, err
+	}
+	return found, current.Clone(), nil
+}
+
 // A visit can only add a current pause/Sprint restriction. It cannot mint a
 // launch intent: markSending and associate keep all their original authority,
 // canonical identity, physical commit and held-lock checks. Standalone

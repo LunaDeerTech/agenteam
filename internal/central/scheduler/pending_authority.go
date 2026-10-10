@@ -4,6 +4,7 @@ import (
 	"context"
 	"slices"
 	"strings"
+	"sync"
 
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -14,7 +15,12 @@ import (
 // PendingAuthority is constructed before Work and the coordinator. It owns
 // current facts and a private proof issuer, not a mutable provider registry.
 // Construction does not claim a running Scheduler or a bound Launch provider.
-type PendingAuthority struct{ store Store }
+type PendingAuthority struct {
+	store Store
+	// In-process Project ownership only; this is not a database leader lease.
+	runnerMu sync.Mutex
+	runners  map[i.ProjectID]*projectRunCall
+}
 
 func NewPendingAuthority(store Store) (*PendingAuthority, error) {
 	if nilPort(store) {
