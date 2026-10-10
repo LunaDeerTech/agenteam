@@ -12,7 +12,9 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	c "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
+	"github.com/jackc/pgx/v5"
 )
 
 type busyControlAuthority struct{}
@@ -157,6 +159,55 @@ func (forgedBusyPlan) RequiredLocks() []f.LockRequest { return nil }
 type forgedBusyApplied struct{}
 
 func (forgedBusyApplied) Restored() bool { return true }
+
+// This controlled Store runs the original read callback completely, then
+// cancels while returning its physical result. The later title forces the
+// preserved branch, which never calls PrepareAppend.
+type busyReadTailStore struct {
+	*taskLaunchTestStore
+	cancel   context.CancelFunc
+	physical f.CommitResult
+	returned bool
+}
+
+func (s *busyReadTailStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
+	if tx != s.tx {
+		return nil, fault(f.Forbidden)
+	}
+	return s, nil
+}
+func (s *busyReadTailStore) WithinTx(ctx context.Context, _ f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
+	if err := fn(ctx, s.tx); err != nil {
+		s.t.Fatal("controlled read did not finish", err)
+	}
+	s.returned = true
+	s.cancel()
+	return s.physical
+}
+func (s *busyReadTailStore) QueryRow(ctx context.Context, query string, args ...any) postgres.Row {
+	if strings.Contains(query, "FROM agenteam_work.task_busy_compensations") {
+		s.queries++
+		if len(args) != 2 || args[0] != s.task.ProjectID.String() || args[1] != s.claim.Request.DispatchID {
+			s.t.Fatal("wrong compensation identity")
+		}
+		return busyAbsentRow{}
+	}
+	return s.taskLaunchTestStore.QueryRow(ctx, query, args...)
+}
+
+type busyAbsentRow struct{}
+
+func (busyAbsentRow) Scan(...any) error { return pgx.ErrNoRows }
+
+type busyReadTailAuthority struct {
+	busyControlAuthority
+	guard c.TaskClaimGuard
+}
+
+func (a *busyReadTailAuthority) RequireTaskBusyCompensationDiscoveryInTx(context.Context, f.Tx, i.Actor, c.TaskBusyCompensationRequest) (c.TaskClaimGuard, error) {
+	return a.guard.Clone(), nil
+}
+
 func TestTaskBusyCompensationRejectsForeignWitnessAndJoins(t *testing.T) {
 	store, deps := busyControlPorts(t)
 	s, err := NewTaskBusyCompensation(store, deps)
@@ -212,6 +263,47 @@ func TestTaskBusyCompensationRejectsForeignWitnessAndJoins(t *testing.T) {
 	pureCode(t, err, f.ShuttingDown)
 	if store.touches.Load() != 0 {
 		t.Fatal("forged proof reached Store")
+	}
+	for _, unknown := range []bool{false, true} {
+		_, source, project, _, base, actor, _ := newTaskLaunchControl(t)
+		source.task.Title = "later title retained"
+		source.task.Version++
+		ctx, cancel := context.WithCancel(base)
+		cause, e := readCause("busy-read-tail-control")
+		if e != nil {
+			t.Fatal(e)
+		}
+		physical := f.CommittedResult()
+		if unknown {
+			physical = f.UnknownResult(pureID[f.TransactionAttempt](t, 107), cause)
+		}
+		read := &busyReadTailStore{taskLaunchTestStore: source, cancel: cancel, physical: physical}
+		authority, e := NewAuthority(read, project)
+		if e != nil {
+			t.Fatal(e)
+		}
+		ports := deps
+		ports.Authority = authority
+		ports.Scheduler = &busyReadTailAuthority{guard: source.claim.Guard}
+		reader, e := NewTaskBusyCompensation(read, ports)
+		if e != nil {
+			t.Fatal(e)
+		}
+		request := c.TaskBusyCompensationRequest{Claim: source.claim.Request, DispatchVersion: 3, LaunchAttempt: 1}
+		plan, e := reader.DiscoverTaskBusyCompensation(ctx, actor, request)
+		cancel()
+		if plan != nil || !read.returned || read.queries != 5 || read.writes != 0 || len(reader.calls) != 0 {
+			t.Fatal("canceled preserved discovery published a plan or missed original tail", e)
+		}
+		if unknown {
+			pureCode(t, e, f.CommitUnknown)
+			var problem *f.Fault
+			if !errors.As(e, &problem) || problem.CauseID != physical.AttemptID().String() {
+				t.Fatal("cancellation replaced original Unknown attempt")
+			}
+		} else if !errors.Is(e, context.Canceled) {
+			t.Fatal("committed read lost cancellation", e)
+		}
 	}
 }
 func TestTaskBusyCompensationTypedHistoryAndEventProof(t *testing.T) {

@@ -201,6 +201,9 @@ func (s *TaskBusyCompensationService) DiscoverTaskBusyCompensation(ctx context.C
 	if err = taskTxError(ctx, result); err != nil {
 		return nil, err
 	}
+	if err = ctx.Err(); err != nil {
+		return nil, err
+	}
 	if err = validateTaskBusyRecord(&record); err != nil {
 		return nil, err
 	}
