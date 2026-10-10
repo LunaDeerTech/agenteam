@@ -83,7 +83,7 @@ spec.loader.exec_module(supervisor)
 
 space = os.statvfs(ROOT)
 fresh = space.f_bavail * space.f_frsize
-result = {'source': '232c7af5', 'started_utc': now(), 'outer_pid': os.getpid(),
+result = {'source': '07d490b2', 'started_utc': now(), 'outer_pid': os.getpid(),
           'fresh_available_bytes': fresh, 'commands': [], 'result': 'FAIL'}
 print(json.dumps({'stage': 'preflight', **{k: result[k] for k in
                  ('started_utc', 'outer_pid', 'fresh_available_bytes', 'source')}}), flush=True)
