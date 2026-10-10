@@ -71,3 +71,5 @@ source `b73020f0`，原候选835f/dist69复用。原 session82845→9dd064 actua
 
 
 后继仅受控故障表示定向修复：原backend200真实提交/EOF/Close后返回502空表示，以Problem媒体类型进入原bounded读取，EOF后解析失败仍Unknown，不伪造Problem。相应UPDATE必须真实0B EOF及reader/outer全尾；新GET仅安全错误类别/局部顺序诊断。微复现没有解释原GET，原三个wholeFAIL保留；定向32+31控制与strictTS0，仍待新候选和原1top实际链。生产/client/dist无改，详见本域recipe。
+
+native04 在新candidate02上已执行全部可见CRUD/Unknown查证，十个原请求normal-only、实际消费及首explicit退役均通过；整轮仍因测试Schema helper未解析OpenAPI本地Response Object引用而FAIL，原资源全尾已关闭。仅该helper修复后，本轮十个原backend安全响应离线标准Schema全部通过；无Go/产品/dist变更，后置Go事实计数与整体真实验收仍未完成。原FAIL及精确入口见[本域recipe](../../../.agent-state/secret-owner-ui/README.md)。

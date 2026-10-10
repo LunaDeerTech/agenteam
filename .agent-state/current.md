@@ -1,6 +1,6 @@
 # Secret Owner UI 当前恢复点
 
-最新：native03整体FAIL/原全尾已闭。已依有限真实微复现修受控502表示，Go/native/controls与candidate02入口字面共4技术源已冻结；定向32+31控及strictTS0。生产/client/dist未改，尚未新Go候选/实际链；GET原因未定，后继仅安全枚举观察。方法与原FAIL见本域README。
+最新：candidate02 race-c/exact list已通过；native04整体FAIL、原全尾已闭并释放。十请求normal-only/实际消费/首explicit门全部通过，首失败为standard-schema。确定helper未解析正式OpenAPI Response Object本地引用；仅spec窄修resolver后，本轮十个原backend200安全响应离线逐一通过（7b9927 exit0）。生产/client/dist/Go候选不变；未运行第五轮，后置Go提交计数尚未达到。详细原事实见本域README，既有FAIL保持。
 
 树 `/workspace/agenteam-secret-owner-ui`，原 main7a，root 唯一 Git writer。首16path保存 `7df16529`；卡为 `docs/development/work-items/d27-project-secrets-owner-ui.md`。
 

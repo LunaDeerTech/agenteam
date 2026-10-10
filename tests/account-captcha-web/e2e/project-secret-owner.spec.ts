@@ -48,7 +48,11 @@ try:
   assert meta['input_hash']==sys.argv[3] and meta['content_length']==len(raw)
   stem='/api/v1/projects/{project_id}/secret-variables'; operation=meta['operation']
   route=stem if operation in ('list','create') else stem+'/commands/lookup' if operation=='lookup' else stem+'/{variable_id}'
-  ref=docs['secret-variables.json']['paths'][route][meta['method'].lower()]['responses']['200']['content']['application/json']['schema']
+  response=docs['secret-variables.json']['paths'][route][meta['method'].lower()]['responses']['200']
+  if '$ref' in response:
+   assert response['$ref'].startswith('#/components/responses/')
+   response=registry.resolver(base_uri=(base/'secret-variables.json').as_uri()).lookup(response['$ref']).contents
+  ref=response['content']['application/json']['schema']
   schema=dict(docs['secret-variables.json']); schema['$id']=(base/'secret-variables.json').as_uri(); schema.update(ref)
   Draft202012Validator(schema,registry=registry).validate(json.loads(raw));count+=1
  assert count>=8;print(count)

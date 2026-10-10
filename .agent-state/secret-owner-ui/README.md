@@ -78,3 +78,11 @@ source `b73020f0`，原候选835f/dist69复用。原 session82845→9dd064 actua
 仅Go代理受控丢回执分支改为502/Problem媒体类型/Content-Length0/零body。仍在原backend200、typed回执/EOF/Close之后，不造Problem或回滚事实。UPDATE观察门由未读reader0改成实际0B EOF、原reader.cancel/release/outer尾、空体digest、原Unknown；normal-only和所有200门未放宽。新增GET诊断只有固定网络错误类别、两个观察器各自局部ordinal与取消当时signal布尔，不能比较两个ordinal域来推跨进程先后，不输出原错误文本/材料。
 
 定向response-loss 2模式/32检查0unhandled，19402→fe982a actual0；诊断投影1模式/31检查0unhandled，11178→97b445 actual0；strictTS05 10900→593090 actual0。只gofmt/两源format，无新Go/PG/浏览器或旧30组件重跑。`run.py`仅改为新candidate-02/secret-owner-ui-race.test，旧835f候选保留；dist01及生产客户端不变。下一步新race-c/list后仅原1top实际链，GET原因保持未定，不宣称已修完整链路。
+
+## native04 与标准响应引用修复
+
+source f29c7c5d：candidate02 原5714→121281 actual0，race-c10.634s/exact list恰1top，61,467,158B，SHA49921546bec4c51e78beedbbf6fc9730664575bfd6874988c5a3eb2f9752cb37。dist01复用。native04 原46766→9da4c3 actual1，Go847121/19.60s、driver845081、sup845080/120.249s、outer845054/124.383s全部实际Wait1；fresh5,831,913,472B。1492输入原末一致，7资源14absent/private/runtime/desc/TCP双尾齐，outerdesc/TCP双空、survivors/adopted空，窗口已释放。原件为 `native-04-control/result.json`、`evidence-owner-04/TestProjectSecretOwnerWeb/secret-first-failure.json` 与 `/tmp/psu04/ui-c1d8deec16ac4b75.log`。
+
+本轮十请求均requestfinished1/failed0/Response.finished(null)，首次explicit ready=true/pending0；十消费者分组全true，真实create→提交后Unknown→Lookup/current v2→delete/材料清除及同原响应关联均已执行。首失败stage=standard-schema，后置Go提交计数未达，仍为wholeFAIL。原03 GET失败原因不能由本轮正常完成反推。
+
+原嵌入Python对同批安全响应离线复现KeyError（0b29d8 exit1）：正式OpenAPI的200为本地Response Object `$ref`，helper错误地直接取content。仅spec增加 `#/components/responses/` 前缀检查，再用已有Registry的正式resolver解析，无外部获取；原完整bytes/hash/status/input关联与Draft202012逐body验证保留。修后同十个原backend200响应（包括PATCH原v2 receipt，非线上空502）7b9927 exit0/stdout10。没有404样本，也未增删样本或伪造可接受Problem；空502原EOF/Unknown已由实际消费者门验证。本离线结果不追认native04通过，未再次运行浏览器或重编候选。
