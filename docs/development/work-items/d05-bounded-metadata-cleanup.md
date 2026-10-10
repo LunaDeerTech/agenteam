@@ -173,7 +173,7 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 
 错误遵循现有Fault/CommitResult：输入/结果形状错误InvalidArgument；缺正式provider为DependencyUnbound；当前authority/owner/cause不符Forbidden或原Project gate错误；plan/native映射变化ResourceBusy且整Tx NotCommitted；合法仍活关系为Pending，超过有限完整诊断上限为Pending＋ResourceBusy。已持久的矛盾关系保持安全DependencyUnavailable/InvalidState，不暴露原Locator/SQL/正文。任何Unknown保留原error、cause和attempt；InTx返回Completed本身仍不是CommitResult，不能据它提前删其它事务中的父表。
 
-### 7.3 成本来源的有限闭合范围（仍有增量成本门）
+### 7.3 成本来源及真实历史的有限闭合范围
 
 当前以两个精确三top组合准备成本观察，复用既有root7资源、Go6m／root540+60+3／TCP75及全尾。原组`ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans`已编候选只涵盖其原三源；新组`LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans`现已与原三top/history编入同一新整包候选（82986/99d949 compile0＋七exact list0），执行仍分两个精确组，不将新源码当旧候选输入。后组只增唯一闭集入口与六个实际embed SQL的输入观察，旧组及其他11配置的预算/输入不变。
 
@@ -187,7 +187,9 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 
 恢复后的后三cost首轮保留一处真实成本FAIL：`get-and-download/archive` 的完整Stop pending最后active-lease臂形成Hash Join，transfer方向先读81PUT＋16被过滤GET共97条，其中65条为退休PUT历史，超过原64门；布尔false与0.530ms返回不改变成本失败。a9的lane4分页已到且通过，FinalAnchor与Pending两top该轮PASS及七资源/actualWait/全部双尾齐全。完整必要计划见[原失败plan](../../../.agent-state/object-metadata-cleanup/pending-active-lease-cost-failure.json)。定向返修仅将最后active-lease臂改为原即时UNIQUE lease_id保证的scalar布尔lookup，保持缺行NULL不满足与原Project/action；Secret独立窄审接受，00028不改。
 
-`079b74a5`／b6ec候选的修后Live＋Pending两top已真实完整PASS（7.54s／7.46s），Go/driver/outer实际Wait0与七资源及所有原双尾齐全。67份完整EXPLAIN最大visited64、loops34、heap fetch34、buffers159、单查询3.56ms；原失败末臂改为16active lease→16次原唯一transfer索引lookup，0.206ms。work→transfer→false三尾实采并保67/68/66历史，原cause/fence/Archive-Delete/分页语义保持。FinalAnchor有效PASS及原三成本组/迁移输入复用；实际计划未给出增删00028索引的依据。Object与Project前缀承担不同scope，当前小活集可能选Project partial再过滤Object，不能仅按一次索引名称未被选中删除Object前缀。已知成本缺口收敛，原history与§7.4真实消费者补集仍须独立完成；成本PASS不等于完整清理或Runtime join验收。
+`079b74a5`／b6ec候选的修后Live＋Pending两top已真实完整PASS（7.54s／7.46s），Go/driver/outer实际Wait0与七资源及所有原双尾齐全。67份完整EXPLAIN最大visited64、loops34、heap fetch34、buffers159、单查询3.56ms；原失败末臂改为16active lease→16次原唯一transfer索引lookup，0.206ms。work→transfer→false三尾实采并保67/68/66历史，原cause/fence/Archive-Delete/分页语义保持。FinalAnchor有效PASS及原三成本组/迁移输入复用；实际计划未给出增删00028索引的依据。Object与Project前缀承担不同scope，当前小活集可能选Project partial再过滤Object，不能仅按一次索引名称未被选中删除Object前缀。已知成本缺口收敛；成本PASS不等于完整清理或Runtime join验收。
+
+`b3a4ab7d`／同一b6ec候选随后只补`OldAttemptsAndStopHistory`首真实单top，fresh `pg-restored-history01`：首available17503870976B、原预算不变，body PASS56.48s；session29900／outer90046实际0，Go91916／driver90093 actualWait0，原7ID及3private、runtime、desc、hostTCP双尾/input unchanged全部齐，terminal0／142.414s。该格实际65次同命令失败候选经原Recover完成并保原AbandonedAttempt cause，1001真实reader历史与一条实际阻塞late reader经Stop/Close/原handler join退休，1002 work joined且无active lease；原2s调用和3s Stop总限均通过。canonical Release重放及physical Completed仍保65旧cause，ObjectDelete Audit恰一次，并记录四份真实SQL的EXPLAIN。metadata parent authority行仅是明确fixture，未伪造native完成；本格不代替原32批次/最后anchors同Tx，更不代替§7.4尚待完成的真实Skills消费者两子。原成本/迁移/FinalAnchor有效证据复用且未重跑；完整日志与原Wait/资源尾索引见本树current。
 
 ### 7.4 真实 Skills 消费者的增量组合
 
