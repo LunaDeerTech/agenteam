@@ -1,13 +1,20 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { flushPromises } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { shallowRef } from 'vue'
+import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
 import { createAccountAPI, type SessionView } from '../api/account'
 import { createProjectOwnerAPI, type Project } from '../api/project-owner'
 import { createSkillOwnerAPI } from '../api/skill-owner'
 import { type Fetch } from '../api/client'
 import { createSessionController, type SessionController } from '../composables/useSession'
-import { createProjectWorkspace, type ProjectWorkspace } from '../composables/useProjectWorkspace'
+import * as sessionModule from '../composables/useSession'
+import {
+  createProjectWorkspace,
+  projectWorkspaceKey,
+  type ProjectWorkspace,
+} from '../composables/useProjectWorkspace'
 import { useSkillOwner, type SkillOwnerController } from '../composables/useSkillOwner'
+import ProjectSkillsView from '../views/projects/ProjectSkillsView.vue'
 
 const id = (n: number) => `01970000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
 const time = '2026-10-10T12:00:00.123456Z',
@@ -143,6 +150,57 @@ async function fixture(lifecycle: Project['lifecycle'] = 'active', bind = true) 
 }
 
 describe('Skills current Human owner and page lifetime', () => {
+  it('reads the directory for an absent optional route ID through the actual view and owner', async () => {
+    const f = await fixture()
+    // Retire the fixture's state-only page before mounting the actual view.
+    // Only the singleton lookup and network are controlled; the Session,
+    // Workspace, route parser, view and Skills controller are the real code.
+    f.page.dispose()
+    f.fetch.mockClear()
+    const singleton = vi.spyOn(sessionModule, 'useSession').mockReturnValue(f.auth)
+    const path = '/owner/demo/settings/skills'
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [
+        {
+          path: '/:username/:project_name/settings/skills/:skill_id?',
+          component: ProjectSkillsView,
+        },
+      ],
+    })
+    await router.push(path)
+    await router.isReady()
+    const wrapper = mount(RouterView, {
+      attachTo: document.body,
+      global: { plugins: [router], provide: { [projectWorkspaceKey as symbol]: f.workspace } },
+    })
+    try {
+      await flushPromises()
+      expect(router.currentRoute.value.params.skill_id).toBe('')
+      expect(wrapper.findAll('[aria-label="技能目录"] li')).toHaveLength(1)
+      expect(wrapper.get('h2').text()).toBe('Add Skills')
+      await wrapper.get(`a[href="${path}/${id(20)}"]`).trigger('click')
+      await flushPromises()
+      expect(wrapper.get('h1').text()).toBe('技能详情')
+      expect(wrapper.get('.skill-facts').text()).toContain(id(20))
+      await wrapper.get(`a[href="${path}"]`).trigger('click')
+      await flushPromises()
+      expect(wrapper.get('h1').text()).toBe('项目技能库')
+      expect(wrapper.findAll('[aria-label="技能目录"] li')).toHaveLength(1)
+      expect(
+        f.fetch.mock.calls
+          .filter(([request]) => request.startsWith(base))
+          .map(([request]) => request),
+      ).toEqual([base, `${base}/${id(20)}`, base])
+      expect(f.auth.state.busy).toBe(false)
+    } finally {
+      wrapper.unmount()
+      await flushPromises()
+      router.options.history.destroy()
+      singleton.mockRestore()
+      document.body.innerHTML = ''
+    }
+  })
   it.each(['active', 'archived'] as const)(
     'reads directory and detail in %s through the original Session owner',
     async (lifecycle) => {

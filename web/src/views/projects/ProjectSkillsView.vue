@@ -12,7 +12,10 @@ const location = computed(() => {
   const address = projectRoute(route.fullPath)
   return {
     projectPath: address ? `/${address.username}/${address.project_name}` : '',
-    skillID: typeof route.params.skill_id === 'string' ? route.params.skill_id : null,
+    skillID:
+      typeof route.params.skill_id === 'string' && route.params.skill_id !== ''
+        ? route.params.skill_id
+        : null,
   }
 })
 const owner = useSkillOwner(undefined, workspace, location),

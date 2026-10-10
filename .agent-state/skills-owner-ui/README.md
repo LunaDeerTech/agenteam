@@ -46,3 +46,12 @@ Skills01使用已冻结组合source `6f3f1faf`、同一61,196,757-byte候选（S
 整轮FAIL：session61629→e96f98 exit1，Node实际Wait失败、Go top36.06s。原driver/supervisor/outer与4 adopted实际Wait齐，七资源14次absent、private/runtime/desc/HOST_TCP双尾齐、inputs unchanged、STOP0，总236.476s后释放。安全原件投影与精确身份在 [first-read-result.json](first-read-result.json)；本地原输出为 `/tmp/sui01/ui-8a3f37e4514b43c1.log`，不可把body前置通过升级整轮。
 
 最早持久阶段为directory：原PW/native/public均无Skill请求，pending0、未failed，public current/not_busy为true；没有响应sidecar。原安全Go错误只说明Node未通过，精确PW断言未持久化；关闭后的pw_failed=true不回填首snapshot。源码可确定Vue Router缺省optional参数解析为空字符串，View把它保留为详情ID，控制器在Session调用前校验失败；这是确定源码缺口而非已采原route/DOM的动态归因。下一最小修建议仅将缺省空字符串归为目录null，并补真实View/controller路由组合控；本次只读诊断后停写技术源，未修改产品/方法/预算，未重试。目录后续、完整只读事实与真实第二Human页面均未验收；生产初始化unbound不变。
+
+
+## 可选路由空值修复与组合02
+
+根保存原FAIL至521b124b后，仅 `web/src/views/projects/ProjectSkillsView.vue` 将缺省optional空字符串归为目录null，非空ID仍沿原校验。既有 `web/src/tests/skill-owner-state.spec.ts` 增加一条真实MemoryRouter/View/controller/Session/Workspace/API组合控；只有网络和singleton取得方式受控，先退役旧state fixture，目录→UUID详情→返回目录严格请求序列list/get/list，并验证原owner busyfalse。修前25840→4a5cce actual1、修后39115→ab4296 actual0（恰1 passed/8 skipped）；skills_http两技术限定实际差异审接受。旧方法、Go fixture、权限/UUID门、预算不变，没有新浏览器结果。
+
+在web cwd仅执行一次 `npm run build -- --outDir ../output/ai/skills-owner-ui/web-dist-combined-02`，npm PID570647实际Wait0，vue-tsc通过，Vite304modules/1.09s；同产物普通文件复制到 `output/ai/knowledge-owner-rename/web-dist-combined-02`。各69文件、978075 bytes，sorted relative-path/NUL/file-SHA/LF共同manifest `13b13dff90ee55806b2f588709340458885a31e2109ba4009f4c0813f7419fe4`，nlink1且对应inode互异。源构建前后hash同为 `bf5bc945dcb1daa04a2a987e3e65a43d8af6d81ac3df14a3b44823de47d420be`。
+
+原outer18799→91f60b actual1发生在build/copy成功后写summary：循环Path变量覆盖Popen变量，取pid时报错；其原失败保留。63b10d actual0仅复核既有两目录并写 `output/ai/skills-owner-ui/combined-frontend-02.json`，未重build/copy。两个01目录及Skills01原FAIL不变。Go源码未变，继续复用同候选，driver最终closure须针对02重新枚举；Rename首轮优先，Skills02无实际授权。
