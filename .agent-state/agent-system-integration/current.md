@@ -15,9 +15,11 @@ python3 -B .agent-state/agent-system-integration/core-checks.py \
 
 首次 `combined-core-01` 原 wholeFAIL（2026-10-10 13:55:35 UTC，session5457→05b684）：outer811324/Go811327 实际Wait1，race14.258s，fresh6,252,564,480B；21top为19PASS/2FAIL，vet未启动。失败均在Skill39：`TestAgentInstallCurrentTransactionAndRecovery` 的publish、publish-revoked、published-recovery于第138/145行返回`DEPENDENCY_UNAVAILABLE`；`TestInstallationExecutionOriginKeepsHumanCompatibility`第210行来源记录roundtrip同码。原组双empty/runtime双empty、adopted空，热缓存已归还。原件在`output/ai/agent-system-integration/combined-core-01/{race.jsonl,result.json}`，不自动重试；cleanup原作者仅针对该来源记录路径定位，其他已通过18top及Skill拒绝top不扩大复验。本结果不是整体通过，也不改变上述真实SQL/未绑定范围。
 
-cleanup 已确定并修正唯一测试 helper：`installationValues` 原把零 User 的全零 UUID 字符串模拟成数据库值，而正式 SQL 的 `COALESCE(actor_user_id::text,'')` 在 Agent 分支返回空串。00039要求该分支 User 为 NULL，产品 scanner 拒绝非空 User 正确。`install_read_test.go` 仅 +7/-1，使零 User 为空串、非零 Human 保原值；有限差额审接受，产品/DDL/断言不变，尚未复验。
+cleanup 已确定并修正唯一测试 helper：`installationValues` 原把零 User 的全零 UUID 字符串模拟成数据库值，而正式 SQL 的 `COALESCE(actor_user_id::text,'')` 在 Agent 分支返回空串。00039要求该分支 User 为 NULL，产品 scanner 拒绝非空 User 正确。`install_read_test.go` 仅 +7/-1，使零 User 为空串、非零 Human 保原值；有限差额审接受，产品/DDL/断言不变，修后定向结果如下。
 
 修后只在新授权窗口用上述命令追加 `--profile repair`：输出 `combined-core-02/`，只执行 `TestAgentInstallCurrentTransactionAndRecovery` 与 `TestInstallationExecutionOriginKeepsHumanCompatibility` 两top/3sub的 Skill race，随后执行原未运行的10pkg vet。原默认21top入口及原01 FAIL保留；19个通过top复用。profile 的 AST、旧结果语义、精确两top的正常/缺失/多项集合检查已通过，无 Go/资源；原预算、实际Wait和组/runtime退出尾未改变。
+
+`combined-core-02` 修后原 wholePASS（source `4d387887`，2026-10-10 14:02:13 UTC起，session14891→e281c9）：Skill两top/3sub race818825 Wait0/8.065s，原10pkg vet819008 Wait0/10.295s，outer818820实际exit0。两阶段fresh分别6,142,386,176/6,129,848,320B，原组/runtime各双empty、adopted空，热缓存已归还。有效有限覆盖为原19top PASS加修后2top PASS及10pkg vet PASS，未重复整21项；原01 wholeFAIL保持。结果位于`output/ai/agent-system-integration/combined-core-02/{race.jsonl,vet.jsonl,result.json}`。仅受控领域接口与组合编译通过，不代表37–39真实SQL、真实Execution/Tool调用链、标准validator或完整F1已绑定。
 
 ## 已完成的32–35/schema有限组合
 
