@@ -173,7 +173,23 @@ func prepareCaptureEnvironment(t *testing.T, v *taskTransitionFixture) (vc.Varia
 // and transaction checks; no synthetic consumer/input tables are introduced.
 func newCaptureModelResolver(t *testing.T, v *taskTransitionFixture, consumers mc.ConsumerAuthority) (*model.Service, *secret.Service, sc.Metadata) {
 	t.Helper()
+	return newCaptureModelResolverWithPorts(t, v, consumers, captureModelPorts{})
+}
+
+// Optional ports only change real service composition. The default remains
+// the original preparation-only resolver and Secret usage router.
+type captureModelPorts struct {
+	projects     *project.Authority
+	usageFactory func(*model.Authority) (sc.UsageAuthority, error)
+	ready        func(*model.Service, *secret.Service, *audit.Service)
+}
+
+func newCaptureModelResolverWithPorts(t *testing.T, v *taskTransitionFixture, consumers mc.ConsumerAuthority, ports captureModelPorts) (*model.Service, *secret.Service, sc.Metadata) {
+	t.Helper()
 	b, projects := v.base, v.agent.providers.Projects
+	if ports.projects != nil {
+		projects = ports.projects
+	}
 	registration, err := i.RegisterService(i.SecretService)
 	if err != nil {
 		t.Fatal("actual Secret service registration", err)
@@ -187,7 +203,12 @@ func newCaptureModelResolver(t *testing.T, v *taskTransitionFixture, consumers m
 	if err != nil {
 		t.Fatal("Model capture Audit", err)
 	}
-	usage, err := model.NewSecretUsageRouter(authority, b.accounts)
+	var usage sc.UsageAuthority
+	if ports.usageFactory == nil {
+		usage, err = model.NewSecretUsageRouter(authority, b.accounts)
+	} else {
+		usage, err = ports.usageFactory(authority)
+	}
 	if err != nil {
 		t.Fatal("actual Model Secret usage routing", err)
 	}
@@ -260,6 +281,9 @@ func newCaptureModelResolver(t *testing.T, v *taskTransitionFixture, consumers m
 	if err != nil {
 		t.Fatal("formal Provider credential binding", err)
 	}
+	if ports.ready != nil {
+		ports.ready(models, secrets, aud)
+	}
 	return models, secrets, written.Metadata
 }
 
@@ -307,6 +331,14 @@ type modelEnvironmentFixture struct {
 
 func newModelEnvironmentFixture(t *testing.T) *modelEnvironmentFixture {
 	t.Helper()
+	return newModelEnvironmentFixtureWithPorts(t, nil, nil)
+}
+
+func newModelEnvironmentFixtureWithPorts(t *testing.T,
+	modelFactory func(*taskTransitionFixture, *execution.Authority) captureModelPorts,
+	beforeClaim func(*taskTransitionFixture, *model.Service, *ec.Policy),
+) *modelEnvironmentFixture {
+	t.Helper()
 	v, claims := newSchedulerClaimFixture(t)
 	ordinary, secretVariable, environmentSecrets := prepareCaptureEnvironment(t, v)
 	access, err := project.NewSchedulerExecutionAccess(v.base.projectAuthority, v.pending)
@@ -317,7 +349,11 @@ func newModelEnvironmentFixture(t *testing.T) *modelEnvironmentFixture {
 	if err != nil {
 		t.Fatal("capture Execution authority", err)
 	}
-	models, _, credential := newCaptureModelResolver(t, v, authority)
+	var ports captureModelPorts
+	if modelFactory != nil {
+		ports = modelFactory(v, authority)
+	}
+	models, _, credential := newCaptureModelResolverWithPorts(t, v, authority, ports)
 	modelCapture, err := model.NewExecutionCapture(models, authority)
 	if err != nil {
 		t.Fatal("real Model capture adapter", err)
@@ -355,6 +391,9 @@ func newModelEnvironmentFixture(t *testing.T) *modelEnvironmentFixture {
 		t.Fatal("real Tool capture", err)
 	}
 	claim, policy := schedulerClaimRequest(t, v)
+	if beforeClaim != nil {
+		beforeClaim(v, models, &policy)
+	}
 	dispatch, err := claims.ClaimTask(ctxFor(t), claim, policy)
 	if err != nil {
 		t.Fatal("formal capture source Claim", err)
