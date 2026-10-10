@@ -1,12 +1,12 @@
 # Task / Scheduler 有限交付候选
 
-候选从正式 main `18a27db5` 构建，只选 AgentSystem `13138dbd` 的 255 个技术路径并合并 7 个兼容路径。main 已有 Human Skill 安装、Lookup、分页目录与读取入口保留；00032–00036 不重取旧分支版本。当前新增迁移为 00037–00046，00047 仍在作者分支实施，尚未纳入本候选。
+候选从正式 main `18a27db5` 构建，选择 AgentSystem `13138dbd` 的255个技术路径与7个兼容路径，再精确加入 B32 产品增量（`3cc9f1bd`）和六方法 union（`70d383`）；当前保存为 `f2af515a`，尚未正式交付 main。main 已有 Human Skill 安装、Lookup、分页目录与读取入口保留；00032–00036 不重取旧分支版本。新增连续迁移为 00037–00047。
 
 Work 的真实应用装配依赖 Agent 当前事实、Execution occupancy 和 Scheduler pending；真实 Agent 创建组合进一步使用 Model/Secret refs、Mount、Skills 初始化及真实 Runtime InstallSource/Builtin/Registry。对应有限库实现和测试均在选择范围中。Go 依赖保持 `jsonschema/v6 v6.0.3` 与实际 MVS 的 `regexp2 v1.12.0`；不是只复制 HTTP 层或以空 provider 补齐构造。
 
 ## 已有接受与限制
 
-以下均指各源分支原输入的结果，合并候选尚未重新执行。必要纯检查与有限源码审查已随各组件完成，不要求重新运行旧全量矩阵。
+下表指各源分支原输入的真实结果，不冒合并后重新执行。B整源 `542574b5` 已有限静审，精确26top race及五包vet wholePASS；候选main兼容4个app top race通过，app-pure01容量wholeFAIL/0vet保留，独立app-vet02后继wholePASS。必要旧证据复用，不要求重新运行旧全量矩阵。
 
 | 精确真实入口 | 已有有限结果 |
 | --- | --- |
@@ -19,7 +19,7 @@ Work 的真实应用装配依赖 Agent 当前事实、Execution occupancy 和 Sc
 | `^TestSchedulerLaunch$` | 1 / 2 业务通过，原 HOST_TCP delta=1 导致 wholeFAIL；原 tuple 未保存，不补认或回填。 |
 | `^TestSchedulerBusyCompensation$` | 1 / 2 wholePASS；真实明确 Busy、逻辑位置恢复、用户修改保全、原事务回滚与重放。 |
 | `^(TestSchedulerPendingVisit\|TestTaskHumanHTTP)$` | 2 / 4 wholePASS；有界 visit 与真实 Human HTTP/原意图 Lookup。 |
-| `^TestSprintStartHTTP$` | source `ff86ff65` 的 compile/native wholePASS，1 / 1、7.49s；真实 TLS Start/Get/Lookup/重放。 |
+| `^TestSprintStartHTTP$` | source `ff86ff65` 的9top/两包vet、compile/native全部wholePASS，1 / 1、7.49s；真实 TLS Start/Get/Lookup/重放。 |
 
 Runtime/authorization/Agent capture 的受控纯检查、Schema 核心与历史 SpecRef 适配器检查不等于真实 ToolCall/Invocation；Agent Update、完整 capture/Snapshot 与 Model loop 未获本说明中的真实成功结论。生产 Project initializer 仍未绑定，真实 Agent.Create 使用测试中的正式服务组合，不能称生产 F1 已完成。完整 Dispatcher 的 retry/finalfailure/loop、Task UI、E01 及既有 Object/OpenAI tools/SPA/Jina/Image STOP 不随本候选改变。
 
@@ -44,6 +44,8 @@ python3 -B .agent-state/task-planning-recovery/pg_only_supervisor.py \
 
 ## 当前交付差额
 
-主线程只对冻结路径执行 Git 集成。`app/account.go` 保 main Skill management 两处接线，只加入 Work 所需 Project authority；六个入口/控制文件将 System exact profiles 合入 main generic family，并保留 strict inverse、未知输入拒绝与原退出门。当前未把这些新合并声明为已有动态通过。
+`app/account.go` 保 main Skill management 两处接线，只加入 Work 所需 Project authority；六个入口/控制文件已将 System exact profiles 合入 main generic family，保留 strict inverse、未知输入拒绝与原退出门，并获有限静审。四app受影响top及独立vet已通过；首次failure编译/真实链直接在最终delivery运行，System复用相同产品纯证据，不重37–46。
 
-00047 后继仅拟接受真实 Work producer 返回的 `unsupported_resource_constraints_v1`：同一次原同步 KnownNotCreated、私有 typed marker 与完整原请求/attempt 相符，才可持久分类并由 Work 原事务生成 technical-blocker/历史。其代码、迁移、HTTP 只读 schema 及实际接受结果待冻结后按差额追加；其它错误不推断永久失败或 retry exhaustion。
+00047及其代码、HTTP只读schema已随B32纳入、静审和纯检查通过。唯一新增类别为真实Work producer返回的 `unsupported_resource_constraints_v1`：同一次原同步 KnownNotCreated、私有typed marker与完整原请求/attempt相符，才可持久分类并由Work原事务生成technical-blocker/历史；其它错误不推断永久失败或retry exhaustion。首次真实失败链尚未运行，纯检查不替代迁移及服务正向验收。
+
+failure compile01同启动fresh为5,331,312,640 B，低于5GiB、差37,396,480 B，0Go/0PG容量FAIL且全部原尾已闭；compile02仅恢复稿待root保存、尚未执行。当前无Go/cache writer/native。secret经content明确owner确认，仅退休 `/workspace/agenteam-knowledge-content-http/output/ai/knowledge-content-http/gocache`（1,041,469,440 B），actual0/absent=true；一次实际可用6,372,360,192 B，比5GiB多1,003,651,072 B。其它cache/FAIL/source/inputs/results/logs/MinIO/refs及shared hot/mod未动，旧Skills/WorkUI缓存保留；该容量观测不代替后继同启动fresh门，compile02仍未执行。三个donor的tracked docs已获owner确认可逆停放，source、refs与evidence保留。

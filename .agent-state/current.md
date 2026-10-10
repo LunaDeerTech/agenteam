@@ -1,10 +1,11 @@
 # 当前执行检查点
 
-当前为有限交付候选 `/workspace/agenteam-task-flow-delivery` / `ai/task-flow-delivery`，从正式 main `18a27db5` 建立；尚未作为本批正式 main 成果发布。技术输入是 AgentSystem `13138dbd` 的精确 255 路径与 7 个必要合并路径，不是整树覆盖。迁移 00032–00036 和既有 Human Skill HTTP 保留 main 原实现；新增连续迁移止于 00046。
+当前为有限交付候选 `/workspace/agenteam-task-flow-delivery` / `ai/task-flow-delivery`，最新保存为 `f2af515a`，正式 main 仍为 `18a27db5`。技术输入是 AgentSystem `13138dbd` 的精确 255 路径、7 个必要合并路径与后继 B32 精确增量；B 已保存为 `3cc9f1bd`，六方法 union 为 `70d383`，不是整树覆盖。迁移 00032–00036 和既有 Human Skill HTTP 保留 main 原实现；新增连续迁移现包含 00037–00047。
 
-- 本候选承接真实 Agent 默认配置创建、Human Task 指派与 HTTP、StartSprint 与 HTTP、Scheduler claim/created 关联、明确 AgentBusy 补偿和有界 pending visit 的有限实现。原模块纯检查及各自真实链结果按原输入复用；Sprint HTTP 的 source `ff86ff65` 已 compile/native wholePASS。详细范围和复现入口见 [有限交付说明](agent-system-integration/README.md)。
-- 合并所有权：work_ui 只合 `app/account.go` 的 Work 装配末参并保留 main Skill 路由；skills_http 合六个共享入口/控制文件；coordination 只维护本页与上述 README。当前候选未运行新的 Go 或真实资源验证，不能把源分支通过写成合并后重新验收。
-- 00047 technical-blocker 单类最终失败仍在 content/cleanup 作者分支实施，不在当前 255 路径中；冻结、必要检查及真实链完成后再按精确差额决定纳入。其余非 Busy、未分类明确未创建结果仍 Deferred，不猜重试次数或耗尽规则。
+- 本候选承接真实 Agent 默认配置创建、Human Task 指派与 HTTP、StartSprint 与 HTTP、Scheduler claim/created 关联、明确 AgentBusy 补偿和有界 pending visit 的有限实现。原模块纯检查及各自真实链按原输入复用；Sprint HTTP source `ff86ff65` 的9top race/两包vet、compile/native1top1sub全部wholePASS。详细范围和复现入口见 [有限交付说明](agent-system-integration/README.md)。
+- 合并所有权：work_ui 的 `app/account.go` 单行及 skills_http 的六个共享入口/控制文件均已有限静审，main Skill路由保留；coordination 只维护本页与上述 README。main兼容4个app top race通过，app-pure01因容量未启vet且wholeFAIL保留，独立app-vet02后继wholePASS。
+- B整源 `542574b5` 已静审并通过精确26top race/五包vet，00047 technical-blocker 单类最终失败已纳入候选；首次真实链仍未运行。仅原同步明确未创建且匹配私有marker的unsupported_resource_constraints_v1进入新分支，其它错误Deferred，不猜重试次数或耗尽规则。
+- failure compile01在fresh 5,331,312,640 B不足5GiB（差37,396,480 B）时容量FAIL，0Go/0PG且全部原尾闭合；compile02仅恢复稿待root保存，未执行。当前无Go/cache writer/native；secret经content owner确认，仅退休 `/workspace/agenteam-knowledge-content-http/output/ai/knowledge-content-http/gocache`（1,041,469,440 B），actual0/absent=true；一次实际可用6,372,360,192 B，比5GiB多1,003,651,072 B。其它cache/FAIL/source/inputs/results/logs/MinIO/refs及shared hot/mod未动，旧Skills/WorkUI缓存保留。首次failure compile/native将直接绑定最终delivery，System复用相同产品纯证据，不重37–46旧链。
 - 原 SchedulerLaunch01 业务通过但 HOST_TCP 尾门失败的 wholeFAIL 保留；后续各自 wholePASS 不回填该轮。完整 Dispatcher/retry/loop、Execution Snapshot/ToolCall、生产 initializer/F1、Task UI 和 E01 仍未完成，既有 STOP 与约 30% 的工程粗估不变。源 topic、原 FAIL、输入和输出材料保留；本页不复制运行流水。
 
 以下为 main 原有恢复历史，不代表本交付候选的当前分支、环境容量或在途任务。
