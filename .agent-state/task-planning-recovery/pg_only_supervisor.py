@@ -123,6 +123,7 @@ def observe_root_chain(directory, log, log_path, selector):
     log.flush()
     output = log_path.read_text()
     expected = {
+        '^TestObjectMetadataCleanupOldAttemptsAndStopHistory$': {'TestObjectMetadataCleanupOldAttemptsAndStopHistory'},
         '^TestObjectMetadataCleanupIndexMigration$': {'TestObjectMetadataCleanupIndexMigration'},
         '^TestObjectMetadataCleanup(BoundedHistoryAndFinalTransaction|FinalCommitUnknown)$': {'TestObjectMetadataCleanupBoundedHistoryAndFinalTransaction', 'TestObjectMetadataCleanupFinalCommitUnknown'},
         '^TestWorkOwnerRootActual(Command|Reader)Join$': {'TestWorkOwnerRootActualCommandJoin', 'TestWorkOwnerRootActualReaderJoin'},

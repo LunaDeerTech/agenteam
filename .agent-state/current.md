@@ -1,5 +1,8 @@
 # D05 bounded metadata cleanup 当前检查点
 
+- 下一有限历史单组 prepared：`^TestObjectMetadataCleanupOldAttemptsAndStopHistory$`（1top、无子），复用原37180277B候选；history/plan源码最后在b44f46cd修改，早于该候选构建，未重编。原两root tools各只新增一行映射；`8f8658` 复用Runner既有纯控制、内存改selector/base后actual0：逆两行全文=322dcf5a、1正6错selector拒、7 observer格各14资源替身观察、9旧config/input_paths不变，原预算/完整尾保留。现交Work独立窄审历史源码及入口；尚无该top真实行为结果。建议未用输出`output/ai/object-metadata-cleanup/pg-history01`，须fresh grant再查absent才能启动。
+- 本组范围是65原failed attempt真实恢复、1001已关闭reader之后的第1002 held reader、原Stop/实际join、Release重放保旧cause/nativeAudit唯一。其四EXPLAIN是在方法返回后保留历史但pending已空的观测；不会补活项/五lane/全部FK或22索引成本结论。完整成本矩阵仍按卡§7.2后续准备，当前不改生产/28或其它停止项。
+
 - **专用索引迁移 `2913` 完整 PASS**：精确 `^TestObjectMetadataCleanupIndexMigration$`，fresh／populated-27／atomic-failure-same-bytes-retry 三子分别2.38／2.60／2.87s，父7.85s；核22候选索引、journal/Goose一致、原数据及checks/FK/列/旧indexes不变、末DDL失败整体回滚与原字节重试。没有运行history/EXPLAIN或其它业务组，不据此接受索引成本。
 - 本轮沿原37180277B／`46329/d8e8b8`构建来源和未变相关用例；原冻结记录**未持久保存候选fullSHA**，本次没有声称对上旧摘要。root明确接受该记录缺口后，以本轮新算并在启动时复核的 `158124c71d85bd4f1d0904754f0991dde34b4c1c0a63e68e9fe93dd1d0ac50d8` 冻结启动身份。`18246b` 首sameprocess UTC2026-10-10T00:08:43.355647Z、available5510782976B≥5GiB，fixedGo1.27.1／原完整offlineenv／继承PATH／固定MinIO，输出父`pg-migration01`原absent后才exec。
 - 原session2913→`fc7cb6` actualouterexit0；`9b7f39` 按原owned.json/log核Go1369938 actualWait0、driver1368000 actualWait0、7ID×2共14absent、3private/runtime/desc双尾、TCP双delta_empty、exacttop/inputsame/terminal0，supervisor99.023s。末UTC00:10:32.952816Z、available5470879744B；本轮窗口完整释放，无命令/资源在途。日志 `output/ai/object-metadata-cleanup/pg-migration01/pg-610b615f20774e9eb93d6c415291b7ff.log`。
