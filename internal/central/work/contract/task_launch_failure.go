@@ -26,15 +26,18 @@ func (v TaskLaunchFailureRequest) Validate() error {
 }
 func (v TaskLaunchFailureRequest) Clone() TaskLaunchFailureRequest { return v }
 
-// The closed reason names a deterministic rejection of the immutable original
-// task/work policy. A Fault code, retryable flag or absent Lookup result cannot
-// establish this fact. Other unbound capabilities and lineage remain separate.
+// The closed reason distinguishes a deterministic policy rejection from an
+// exhausted bound retry policy. A Fault code, retryable flag, attempt count or
+// absent Lookup result cannot establish either fact.
 type TaskLaunchFailureReason string
 
-const TaskLaunchFailureUnsupportedResourceConstraints TaskLaunchFailureReason = "unsupported_resource_constraints_v1"
+const (
+	TaskLaunchFailureUnsupportedResourceConstraints TaskLaunchFailureReason = "unsupported_resource_constraints_v1"
+	TaskLaunchFailureRetryExhausted                 TaskLaunchFailureReason = "launch_retry_exhausted_v1"
+)
 
 func (v TaskLaunchFailureReason) Validate() error {
-	if v != TaskLaunchFailureUnsupportedResourceConstraints {
+	if v != TaskLaunchFailureUnsupportedResourceConstraints && v != TaskLaunchFailureRetryExhausted {
 		return invalid("", "INVALID_TASK_LAUNCH_FAILURE_REASON")
 	}
 	return nil
@@ -75,6 +78,12 @@ type SchedulerTaskLaunchFailures interface {
 // known-not-created without the final marker never pass. The final callback
 // also binds the original Work plan and excludes only this Dispatch from its
 // own protected source group; other pending claims remain protected.
+//
+// RetryExhausted additionally requires the Scheduler's immutable stored policy
+// and its durable, request-bound temporary rejection for the same canonical
+// attempt, with that policy's attempt budget exhausted. A missing policy,
+// unrelated temporary observation or numeric counter alone must not issue
+// facts. Work does not calculate retries or reinterpret Execution errors.
 //
 // Paused scheduling preserves confirmed-final pending without Task mutation or
 // settlement. This is not a new Launch: no free-slot, quota or current-Sprint
