@@ -55,6 +55,15 @@ func (d *DirectTextDriver) ResolveUnknown(ctx context.Context, execution i.Execu
 		return s.callAndFinish(wait, run, false)
 	case "model":
 		return s.callAndFinish(wait, run, true)
+	case "draining":
+		if err := s.drainSession(wait, run); err != nil {
+			return s.receipt(run), errors.Join(original, err)
+		}
+		s.mu.Lock()
+		run.unresolved = nil
+		run.uncertainty = ""
+		s.mu.Unlock()
+		return s.finish(run)
 	case "terminal":
 		found, observeErr := s.observeTerminal(wait, run)
 		if observeErr != nil {
