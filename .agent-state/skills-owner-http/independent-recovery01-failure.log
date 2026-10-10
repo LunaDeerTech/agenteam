@@ -1,0 +1,21 @@
+OWNED nonce=020930ba01aa22b2ac43353445a67aae container=9ea95caaf6b0667b10b7b35b63839963d714e1f3739786a85648f1f783368a2e network=31102a03c1d1b68b95dff439b303d58402eaee1030d113b9829c570c3fa556f5 port=32775 PostgreSQL=170008 vector=0.8.1
+CHILD pid=71642 selector=^TestSkillOwnerReadHTTPIndependentCurrentSession$
+=== RUN   TestSkillOwnerReadHTTPIndependentCurrentSession
+=== RUN   TestSkillOwnerReadHTTPIndependentCurrentSession/get_detail
+    owner_http_independent_test.go:28: real Account login and P2 publication with controlled Object; Project initialization is explicit upstream SQL fixture, not Project.Create or D05 physical acceptance
+=== RUN   TestSkillOwnerReadHTTPIndependentCurrentSession/head_detail
+    owner_http_independent_test.go:28: real Account login and P2 publication with controlled Object; Project initialization is explicit upstream SQL fixture, not Project.Create or D05 physical acceptance
+--- PASS: TestSkillOwnerReadHTTPIndependentCurrentSession (23.52s)
+    --- PASS: TestSkillOwnerReadHTTPIndependentCurrentSession/get_detail (11.73s)
+    --- PASS: TestSkillOwnerReadHTTPIndependentCurrentSession/head_detail (11.79s)
+PASS
+CHILD actual_wait pid=71642 state=exit status 0
+RETIRE observation=1 exact_container=9ea95caaf6b0667b10b7b35b63839963d714e1f3739786a85648f1f783368a2e exact_network=31102a03c1d1b68b95dff439b303d58402eaee1030d113b9829c570c3fa556f5 clean=true
+RETIRE observation=2 exact_container=9ea95caaf6b0667b10b7b35b63839963d714e1f3739786a85648f1f783368a2e exact_network=31102a03c1d1b68b95dff439b303d58402eaee1030d113b9829c570c3fa556f5 clean=true
+DRIVER terminal exit=0 elapsed=38.527151251s child_started=true actual_child_wait=true cleanup=true
+SUPERVISOR actual_driver_wait pid=70983 actual=True actual_exit=0 code=0
+OWNED runtime_observation=1 descendants=[]
+OWNED runtime_observation=2 descendants=[]
+SKILL_HTTP exact_cases_wait_private=True
+STOP host TCP delta tail not empty: 1 rows
+SUPERVISOR inputs_unchanged=True terminal=1 elapsed=113.891s

@@ -2,6 +2,8 @@
 
 ## 2026-10-10 新环境接续
 
+当前：作者修后 PG 恢复02已完整 PASS（4top/12sub），原恢复01完整 FAIL 保留；native/pure/Schema/vet 未变结果复用。未参与者独立 Session 撤销恢复01业务 1top/2sub PASS，但原 TCP75s 尾残 1row，outer actual1，整体 FAIL，尚不能正式接受。产品/测试/harness 全部冻结，只有本记录与正式卡更新及原失败日志保存。
+
 恢复输入为 `cc0e45ac2b851912e6b10db9f212026a5b7a9956`，新唯一作者 `/root/skills_http`；采用最新 `origin/main` AGENTS/团队流程。产品、Schema、测试和 harness 未修改，现均停写供独立审查。原 pure/race/Schema/vet、native 3top/6sub 完整 PASS 和既有有限独审继续复用；PG 4top/12sub 是本 HTTP 尚未执行的真实门槛。下面旧缓存、输出路径和原命令记录属于已保存的上一环境结果，新环境没有这些产物，不凭缺失产物重跑已闭合的 native 验收。
 
 新环境只读发现：固定 `/workspace/toolchains/go1.27.1/bin/go` 存在，当前 Python 为 `/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3`，本机 jsonschema 4.26.0 可导入。旧 GOCACHE、旧 GOMODCACHE 及本树 output 均缺失。root 指定 cleanup 独占恢复锁定依赖至 `/workspace/shared/agenteam-deps/go-mod` 并统一核 pinned PG17/vector 镜像；待其完成后本树只读该 GOMODCACHE、自有 `output/ai/skills-owner-http/gocache`，沿原 Go1.27.1/off/readonly/-p1 离线重建 PG integration race candidate 与 PG-only driver。无需重建 native 或引入 MinIO；PG 的 P2 Object 明确受控，真实 D05 证据仍单列复用。
@@ -27,6 +29,22 @@ coordination 未参与者与作者只读定位：Knowledge 真登录 fixture 在
 coordination 独验 candidate/list 已离线 actual0、一 top 两 sub 仍未执行；其原补集 wrapper 曾将新 selector 误入 native observer，已限定 namespace 改为 PG 并通过11离线控制，保留为准备方法修正。热 GOCACHE 已归还作者，目前无后台 Go/cache writer或自有真实资源。作者/独验均须从修后 fixture 重新编译，复用原 driver、pure/Schema/vet/native 的未变证据，不重跑无影响通过项。
 
 修后 fixture 经 coordination 窄复核接受，root 保存为 `3b97fe69`。仅一次新 integration race-c `54270→cf4d39` actual0/9.476s（首 UTC02:40:01.009994Z、18,687,721,472B）生成同一 `output/ai/skills-owner-http/skill-owner-http-pg-race-recovery02.test`，SHA256 `86fd92431a3c928946445873c3b574b05bc55734aecef7d59e8fd7f3abb8a05f`。随后 `19561→245265` 按每条 fresh 门分别 exact-list 作者四 top 及独验一 top，两个子进程 actual0/1.048s、0/1.199s（17,726,709,760B / 17,726,697,472B）；不执行测试体。命令与终态见同目录 `pg-build-recovery02`、`author-list-recovery02`、`independent-list-recovery02` 的 json/log。原 driver 0e6 保持，作者/独验将分两个实际窗口使用同一新候选；原候选仅保原失败复现，不再当作修后证据。当前无 Go/cache writer，等待 root 另授真实 PG 窗口。
+
+### PG 恢复02原完整 PASS
+
+root 在 `a5b385b5` 记录保存及前一实际窗口完整释放后授予本组。原 outer `30222→fc38c6` actual exit0；首 UTC02:51:44.144001Z、17,883,529,216B，固定86fd candidate/0e6 driver、原四 top selector，新输出 `output/ai/skills-owner-http/pg-owner-read-recovery02`、独有空 Docker config。Metadata6.76s、CurrentAuthority6.98s、Transactions19.30s、CommitUnknown14.78s，4top/12sub全PASS、0skip，实际Schema2控/HEAD18无体也通过；原子进程67853 actualWait0，driver67244 actualWait0/55.293s。
+
+原日志 `pg-owner-read-recovery02/pg-dd0620f7eafa44249fd7153ddff19e20.log`：container `a975eb70ddc2379cce573b440177b596468345ebb1510cb5b1fa60707820759e` / network `d9ec675431143a04247d5766e85e3cb3fb5d3ed408a3fa7604b5f394062fc1aa` 两次精确退役clean=true；私目录仅 owned.json，desc双空、SKILL_HTTP exact_cases_wait_private=True、HOST_TCP两次delta_empty、inputs_unchanged=True，supervisor terminal0/114.362s。该原尾齐后才接受本组完整PASS、向root释放窗口；无追加采样补原尾或自动重试。当前无真实资源、Go/cache writer。
+
+结果支持原失败夹具的正式 Initialize 修复；原恢复01仍为FAIL，作者业务/P2受控Object/上游Project seed边界不变。作者4top结果不能代替后继独验。默认 Object 授权分派及私有 Audit witness 的必要根装配链已补进正式卡，默认root/UI不在本HTTP接受范围。
+
+### 未参与者独验恢复01原整体 FAIL
+
+coordination 在 root 另授唯一窗口使用同一86fd候选/0e6 driver、其冻结独立入口，执行 `^TestSkillOwnerReadHTTPIndependentCurrentSession$`。真实 HTTP 身份认证后，在原 P2 读取 Tx 继续前由正式 Account.Logout 撤销同 Session，再放行并核 GET/HEAD 详情返回 SESSION_REVOKED；两 sub 均通过（11.73s/11.79s），原1top/2sub业务PASS/23.52s。该场景及实际执行属于未参与者独验；本人只 peer 方法核与保存结果，没有将作者测试冒充独验。
+
+原 outer `50063→96a6c8` actual1；child71642 actualWait0，driver70983 actualWait0/38.527s。container `9ea95caaf6b0667b10b7b35b63839963d714e1f3739786a85648f1f783368a2e` / network `31102a03c1d1b68b95dff439b303d58402eaee1030d113b9829c570c3fa556f5` 两次精确退役clean=true，private/exact_cases_wait=true、desc双空、inputs_unchanged=true；但原hostTCP75s尾只记录 `STOP host TCP delta tail not empty: 1 rows`，没有两次delta_empty，supervisor terminal1/113.891s，故整体FAIL，不能升级正式独验接受。原日志只存残留数量，没有该行的身份或状态，不能据此归因于产品、PG或外部连接。
+
+原1988B日志在安全字段检查后逐字保存至 [独验失败原件](skills-owner-http/independent-recovery01-failure.log)，与原 `output/ai/skills-owner-http/independent-current-session-recovery01/pg-2dfcd4360b6e437293453b006c2335ad.log` 相同；不后采样、不补原终态、不自动重试。窗口调度已交回root，作者4top/12sub完整PASS继续有效。后继只围绕未齐资源尾由root安排诊断或新窗口，当前没有本域Go/cache writer或真实命令。
 
 ## 已保存的原环境证据
 

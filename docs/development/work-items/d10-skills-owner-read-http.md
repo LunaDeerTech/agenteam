@@ -1,6 +1,6 @@
 # D10 Skills 当前 Human Owner 目录与详情 HTTP
 
-状态：独立 HTTP adapter 已实现，作者限定 pure/race 11top/47sub、初Schema21/HEAD18 与 vet 实际通过；后补正式 Account Problem 标准Schema单top32控/HEAD18通过。未参与者已有限静审产品、PG/native测试方法及精确入口。native 3top/6sub 已真实完整 PASS；新环境 PG 恢复01四 top 在共同 Account 启动夹具失败，原全尾完整关闭且 FAIL 保留。已定位并补正式 Account.Initialize 启动调用，修后 PG4top/12sub 与独验补集待执行，因此本结果未交付。基线为正式 main `3b7ed9da`，消费已接受的 [P2 初始化与当前 Owner 读取](d10-skills-initialization.md)及[正式设计](d10-skills-initialization-design.md)。本卡交付独立只读 HTTP adapter，不完成完整 D10。
+状态：独立 HTTP adapter 已实现，作者限定 pure/race 11top/47sub、初Schema21/HEAD18 与 vet 实际通过；后补正式 Account Problem 标准Schema单top32控/HEAD18通过。未参与者已有限静审产品、PG/native测试方法及精确入口。native 3top/6sub 与修后 PG 恢复02的4top/12sub均已真实完整 PASS。PG 恢复01因 HTTP fixture 漏掉正式 Account.Initialize 而失败，原全尾和 FAIL 保留；只补正式启动调用，未改产品或放宽断言。独立 Session 撤销恢复01业务1top/2sub已PASS，但原 TCP 尾残1row、outer actual1，整体FAIL，尚未正式接受或交付。基线为正式 main `3b7ed9da`，消费已接受的 [P2 初始化与当前 Owner 读取](d10-skills-initialization.md)及[正式设计](d10-skills-initialization-design.md)。本卡交付独立只读 HTTP adapter，不完成完整 D10。
 
 ## 范围与真实依赖
 
@@ -43,11 +43,19 @@ GET/HEAD 不产生 Skill、Object、Audit、Event、receipt 或业务 Activity �
 
 Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/driver实际Wait0，原runtime/private退役、两次desc空、TCP两次delta空及inputsame完整；supervisor终态0/68.173s，未改原预算或方法。固定e60候选+c11 driver，首同进程2026-10-10T02:02:54.242191Z/5,411,155,968B；原日志路径与资源身份见current。结论覆盖真实TCP read/更早parent期限、同连接清deadline、Close错误、真实输出Timeout与断连/原领域尾；native的领域/身份控制是明确替身，不能代替待运行的真实Account/P2权限和PG事务。窗口已完整释放，PG尚未执行。
 
+## PG 恢复与实际结果
+
+新环境 PG 恢复01的确定夹具缺项：P2 原 fixture 只构造 Account Authority 以消费 seed 身份，新 HTTP fixture 引入真实 Login 却未调用正式 `Account.Authority.Initialize`。`NewAnonymousContext` 更新 `account_key_registry` 要求恰一行，未注册 key 时返回安全 DependencyUnavailable；与四 top 构造阶段的实际错误一致。只在 HTTP 自有 fixture 中补正式 Initialize 并给启动/anonymous 错误加安全阶段标签，不修改 P2 fixture、产品、权限或用 SQL 伪造凭据。原日志保留于 [topic checkpoint 3b97fe69](https://github.com/LunaDeerTech/agenteam/blob/3b97fe69/.agent-state/skills-owner-http/pg-recovery01-failure.log)；原 child/driver/outer 均 actual exit1，两个自有 PG 资源双退役、私目录/desc/TCP 双尾齐，输入未变。修后另用新候选和新窗口，不回填该 FAIL。
+
+修后 fixture `3b97fe69`、86fd 候选的恢复02原 outer `30222→fc38c6` actual0：4top/12sub全 PASS、0 skip，实际 Account Bootstrap/Invitation/Redeem/Login/Logout、P2 目录/详情/Schema/HEAD、当前 Session/Owner/Project gate、User SH/EX两序、真实SELECT取消与原Tx退役、读 COMMIT 两种 Unknown 均闭合。原读取之外的 Store 查询核九项事实与原 Object 调用数不增。原 child67853/driver67244实际 Wait0，driver55.293s；两个精确自有 PG 资源双退役、private/desc/TCP/input 尾齐，supervisor0/114.362s。完整路径与资源身份见本树 current。P2 Object 是声明的受控端口，Project/Creation/ready 是合法 seed，不能外推默认 root、Project.Create 或新 D05 物理发布。
+
+未参与者 coordination 独立恢复01沿同一86fd候选/0e6 driver、独立单top入口验证 HTTP 认证后真实 Logout，再由原 P2 读取重验 Session，GET/HEAD 两 sub 的原业务断言PASS（1top/2sub，23.52s）。原 child71642/driver70983实际Wait0，两个精确PG资源双退役clean、private/exactCases正确、desc双空、inputs不变；原hostTCP75s尾却残1row，没有双empty，supervisor1/113.891s，outer `50063→96a6c8` actual1，故整体FAIL。本轮不能正式接受；作者已闭合的4top/12sub与native结果保持。原记录只保存TCP残留数量，不能判定其身份或归因；不自动重试或后采样补原终态。原1988B日志留在 topic 分支 `.agent-state/skills-owner-http/independent-recovery01-failure.log`，由root保存，不随独立adapter交付重复可重建日志。
+
 ## 产品接入后继
 
-新环境 PG 恢复01的确定夹具缺项：P2 原 fixture 只构造 Account Authority 以消费 seed 身份，新 HTTP fixture 引入真实 Login 却未调用正式 `Account.Authority.Initialize`。`NewAnonymousContext` 更新 `account_key_registry` 要求恰一行，未注册 key 时返回安全 DependencyUnavailable；与四 top 构造阶段的实际错误一致。只在 HTTP 自有 fixture 中补正式 Initialize 并给启动/anonymous 错误加安全阶段标签，不修改 P2 fixture、产品、权限或用 SQL 伪造凭据。原日志见本树 `.agent-state/skills-owner-http/pg-recovery01-failure.log`；原 child/driver/outer 均 actual exit1，两个自有 PG 资源双退役、私目录/desc/TCP 双尾齐，输入未变。修后需新候选和新窗口，不回填该 FAIL。
-
 本 HTTP 的下一条小范围真实联调由 root 另建候选并指定装配写者：在默认 Central 的同一 Store、Project Authority、Account Service 与实际 D05 Object/ProcessAuthority 上构造 `skill.NewAuthority`、`skill.AddSkills` 和 `skill.New`，再以同一 `*skill.Service` 创建本 HTTP 并按 `HandlesPath` 分派两条 Skills 路由。服务的 Stop/Drain/Joined 必须交给实际进程生命周期持有，不能把 HTTP 请求退出当作整个 Skills 或 Object 已退役。当前 `internal/central/app/account.go` 没有这项装配；本卡不跨写该根。
+
+默认 `internal/central/app/object.go` 目前将 Object 的 Planner/Resources/Read/Gate/Cleanup/Leases 全部绑定 AvatarAuthority；后继需按正式 owner 种类接入 Skills Authority 并保留原 Avatar 路径。P2 已验真实发布的审计构造链为 `object.NewProjectAuditAuthority` → `skill.NewInitializationAuditFacts` → `project.NewInitializationAuditAuthority` → `audit.New`，将原私有 Object witness 与精确 Skills 初始化事实组合；默认 `app/security.go` 尚只直接绑定 Project Authority。只传入已有 Object Service 不能代替这些真实权限和审计绑定。
 
 真实初始化接缝也须在该候选中落实：当前 `internal/central/app/project_update.go` 构造 `project.Dependencies` 时没有绑定 `Initializer`。后继将同一真实 Skills 实例绑定为 Project Initializer，沿 Project 的正式创建与恢复流程取得 published 初始化和完成凭据，再由当前 Human Owner 调用目录与详情。已有 PG HTTP fixture 只证明明确 seed 的 Project/Creation/ready 与真实 P2/Account 读取组合，不能代替这条 Project.Create 链路。现行 Object Runtime join STOP 仍有效；候选先验证已允许的小范围真实调用，不能据此开放未通过的生产生命周期范围。
 
