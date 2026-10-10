@@ -218,9 +218,9 @@ func TestDirectTextRequestRejectsUnsupportedProfiles(t *testing.T) {
 			s.Capabilities.Reasoning = true
 			s.Capabilities.ReasoningEfforts = []string{"high"}
 		case "parameters":
-			s.Parameters = json.RawMessage(`{"temperature":0.5}`)
+			s.Parameters = json.RawMessage(`{"temperature":1}`)
 		case "request-overwrite":
-			s.RequestOverwrite = json.RawMessage(`{"temperature":0.5}`)
+			s.RequestOverwrite = json.RawMessage(`{"temperature":1}`)
 		case "header-overwrite":
 			s.HeaderOverwrite = map[string]string{"X-Custom": "value"}
 		case "image-input":
