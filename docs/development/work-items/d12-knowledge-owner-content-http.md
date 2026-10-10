@@ -1,6 +1,6 @@
 # D12 Human Owner 有界正文 HTTP
 
-状态：有限正文后端结果已通过。HTTP9top纯race（17个实际响应Schema向量）、领域3top15sub race与两pkg vet通过；native3top6sub真实race与完整尾通过。PG01原整组FAIL保留：两GET小正文可在ReadObject返回前同步预读EOF并释放lease，原活lease前置未成立，原计数未打印不推测为0。只修两GET为131073B真实正文并核Meta ID/size/digest，保active==1及后继全部断言；Skills窄独审接受，新候选编/list及Object既有holdback方法控通过。PG02在冻结 `1e5833bc` 使用原03候选，同4top14sub全部真实RUN/PASS，Go/driver/outer实际Wait0，七资源、private/runtime/desc/TCP双尾及input初尾全部齐全（212.663s/0）。产品与方法独立有限审查均已接受，早期构建FAIL/PG01FAIL材料保留，命令及边界见 [本域恢复入口](../../../.agent-state/knowledge-content-http/README.md)。默认root与UI未由本卡验收，Object Runtime全局join停止项不变。基线 main `3b7ed9da35844e3a367cc5e9da0cf424ab36499a`。原作者 Variables UI；依据 [D12 合同](d12-knowledge-documents-design.md) §3/5/6、[B02 Service](d12-b02-knowledge-service.md)与已交付 [metadata HTTP](d12-knowledge-owner-read-http.md)。结果只提供当前正文的有界结构化读取，不包含写入、下载 URL、原文件流、D13 parser、UI 或默认 root。
+状态：有限正文后端结果已通过。HTTP9top纯race（17个实际响应Schema向量）、领域3top15sub race与两pkg vet通过；native3top6sub真实race与完整尾通过。PG01原整组FAIL保留：两GET小正文可在ReadObject返回前同步预读EOF并释放lease，原活lease前置未成立，原计数未打印不推测为0。只修两GET为131073B真实正文并核Meta ID/size/digest，保active==1及后继全部断言；Skills窄独审接受，新候选编/list及Object既有holdback方法控通过。PG02在冻结 `1e5833bc` 使用原03候选，同4top14sub全部真实RUN/PASS，Go/driver/outer实际Wait0，七资源、private/runtime/desc/TCP双尾及input初尾全部齐全（212.663s/0）。产品与方法独立有限审查均已接受，早期构建FAIL/PG01FAIL材料保留，命令及边界见 [本域恢复入口](../../../.agent-state/knowledge-content-http/README.md)。后续默认root候选的有限真实组合通过，单独记录于 §6；UI与Object Runtime全局join停止项不变。基线 main `3b7ed9da35844e3a367cc5e9da0cf424ab36499a`。原作者 Variables UI；依据 [D12 合同](d12-knowledge-documents-design.md) §3/5/6、[B02 Service](d12-b02-knowledge-service.md)与已交付 [metadata HTTP](d12-knowledge-owner-read-http.md)。正文包只提供当前正文的有界结构化读取，不包含写入、下载 URL、原文件流、D13 parser 或 UI。
 
 ## 1. 唯一入口与依赖
 
@@ -58,3 +58,11 @@ HEAD 执行同 GET 的当前授权、实际正文读取、Close 和完整安全�
 新增写域：`internal/central/knowledge/contenthttp/**`、`api/openapi/knowledge-content.json`、`tests/knowledge/owner_content_http*`、本卡/current 与必要本域可恢复测试工具。领域配套限 `source.go` 上述两出口及新增相邻 `content_source_test.go`，不重构旧测试。无新依赖、锁文件、迁移、metadata/五 POST/root 改动。Go/真实 PG/native/socket/新缓存仍由 root 按资源窗口另授，未执行不得称验收。
 
 首领域纯测试原 FAIL 保留：测试夹具用 reflect.DeepEqual 比较含函数闭包的 LockKey，提前拒绝相等锁；已改正式 CompareLockKeys 配数量/顺序/Mode，Fault 也按原 cause/code/NotCommitted 检查而非被事务复制的指针。仅重跑受影响三 top 后通过。独审发现的 HEAD Problem 缺 headers、native 背压未断言原 Write Timeout 已分别补齐；前者已由实际 Schema 向量验证，后者已在 native01 观察原 Write 返回的 Timeout 并通过，原问题保留。
+
+## 6. 后续默认 root 候选有限组合
+
+2026-10-10，独立组合树 `649e6ad3` 的 `TestKnowledgeSkillsDefaultRootComposition` 单 top / 0 sub，在连续 00001..00030、原七资源链上 whole PASS。正式默认构造共用同 Store/Account/Project/Object/ProcessGuard；Knowledge metadata/commands/content handlers 消费同一个 Knowledge.Service 和 AccountBoundary，SourceReads 仍沿正式 B02/D05。新必填 Confirmation keyring、固定 OwnerKind 路由、Object 私有 Maintenance owner 发现及同 Tx 重读、原 Skill 初始化 Audit witness 和实际生命周期已做限定纯控及独立静审。
+
+真人链从原 Account Login 出发，经原 Project.Service.CreateProject 与同 Skill 实例确认 protected revision；读取真实 Skill 包并等待原 Close，再由同 Knowledge.Service 正式创建正文，经默认根实际 GET/HEAD 验当前字节和长度；原 Avatar PUT/GET/DELETE 验共享 Object 维护兼容。最后原 SIGTERM 实际等待领域/producer join、ProcessGuard 文件锁释放及 DB stopped。fixture 只读观察初始化事实，没有 SQL 植入或替换 authority。
+
+用例 6.63s，Go 179551 / driver 177729 / outer 177706 实际 Wait 均 0（tool 61711，outer 105.502s）；7资源、private/runtime/desc/TCP均双轮退役，input初尾一致。完整恢复方法与安全投影见 [默认根组合记录](../../../.agent-state/owner-root-composition/README.md)。此结果不声明 Project Create HTTP、SPA 发布、生产就绪、全 Project/Lease/Transfer/Execution 根入口或 Object Runtime 全局 join STOP 已完成；原正文 PG01 FAIL 继续保留。

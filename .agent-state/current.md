@@ -65,6 +65,13 @@
 
 根新实际单top已由content在来源649e6ad3完整whole PASS（session61711 / outer177706 terminal0，driver177729/Go179551实际Wait0，单top零sub PASS6.63s，完整105.502s）。七资源各双absent、private/runtime各双空、desc/TCP各双空与inputsame均齐，原窗口已释放。实际默认bind/run、Project.Create确认/保护Skill package读取、Knowledge正文GET/HEAD、Skill列表HTTP、Avatar PUT/GET/DELETE及原SIGTERM/ProcessGuard尾均在本轮最小接缝内。该测试不是Project.Create HTTP、完整Project生命周期或根上每条树命令的新全矩阵。
 
-最终检查建议采用一次仓库原 `scripts/check-go.sh`：Go1.27.1普通test、普通vet、integration源码vet、普通race及两cmd build，以覆盖最终跨包接口与required配置fixture。已有领域PG/native/SQL矩阵按不变输入复用，不重跑。完整脚本仍含未设gate的普通本地TCP/Runner TLS与process测试，必须在根原尾完全结束后由root另授独占socket窗口；仅离线授权只能执行vet/build。Skill/Content native开关缺省明确SKIP，沿原独占native PASS，不声称本轮重新执行。计划沿私有XDG telemetry mode=off、readonly共享mod、private GOCACHE、GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off，移除继承fixture/native gate；每阶段fresh≥5GiB，所有Go读源前冻结候选。当前未执行最终脚本。
+最终检查建议采用一次仓库原 `scripts/check-go.sh`：Go1.27.1普通test、普通vet、integration源码vet、普通race及两cmd build，以覆盖最终跨包接口与required配置fixture。已有领域PG/native/SQL矩阵按不变输入复用，不重跑。完整脚本仍含未设gate的普通本地TCP/Runner TLS与process测试，必须在根原尾完全结束后由root另授独占socket窗口；仅离线授权只能执行vet/build。Skill/Content native开关缺省明确SKIP，沿原独占native PASS，不声称本轮重新执行。计划沿私有XDG telemetry mode=off、readonly共享mod、private GOCACHE、GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off，移除继承fixture/native gate；每阶段fresh≥5GiB，所有Go读源前冻结候选。随后最终脚本01原whole FAIL见下节。
 
-主线集成不带 Work UI 或新 Secret HTTP 分支；`web/`、浏览器harness、projectvariable/http及go.mod/go.sum相对main280均无本批diff。RootMainFeature0的剩余产品接缝/STOP保持：Object Runtime join、OpenAI tools独立动态验收、SPA concurrent-publication、Jina/Image来源，以及真实Agent/F1/Invocation等未绑定范围不因根此top解除；ready=false与/readyz503保持。root应在根wholePASS和适用最终检查终态齐后完成隔离main Git合并；根单top已有限接受；最终脚本尚未执行、正式main集成未完成。
+主线集成不带 Work UI 或新 Secret HTTP 分支；`web/`、浏览器harness、projectvariable/http及go.mod/go.sum相对main280均无本批diff。RootMainFeature0的剩余产品接缝/STOP保持：Object Runtime join、OpenAI tools独立动态验收、SPA concurrent-publication、Jina/Image来源，以及真实Agent/F1/Invocation等未绑定范围不因根此top解除；ready=false与/readyz503保持。root应在根wholePASS和适用最终检查终态齐后完成隔离main Git合并；根单top已有限接受；最终脚本01已whole FAIL，修复/剩余必需阶段及正式main集成未完成。
+
+
+## 最终原 check-go 01：whole FAIL，窗口已释放
+
+- 原 `sh scripts/check-go.sh`（source649e6ad3，04:22:09Z，fresh12435464192B）实际启动83115/outer183918/script183919；首普通 `go test ./...`实际11包失败，script实际Wait1。4个main已有docs overlay归档包被误纳独立编译；5个HTTP包缺7项旧必需Schema Python环境（本次预飞只设新域两项，漏查旧项）；cmd required配置fixture与app旧AST构造图各1包失败。原其余已通过包不回填为失败；后两vet/race/两cmd build因原set-e均未到。最小原因/包清单与原尾元事实保存在 `owner-feature-integration/final-check-first-failure.json`。
+- 原监督器survivor/reap/desc双观察及75s TCP双empty代码节点逐字复用；scriptWait1、desc两次[]、task runtime两次空、原TCP两次空均完成。同步诊断539次，末原delta0，diagnostic_end218.964817s。随后包装元数据格式化的`round`循环变量遮蔽内置函数引发TypeError，tool f2412d actual1；此包装FAIL与原结果均保留，原result.json不补terminal、无后验采样回填。窗口已释放，无本人子进程/资源在途。安全摘要首次正则跨行导致包数断言拒绝，改按原FAIL制表符整行提取后恰11包，不改原结果。
+- 最小后续：原领域作者核cmd新required和app真实单例AST路径，先不改生产；归档应保13个原probe字节/路径，以文档Go模块边界避免根`./...`将历史overlay当产品；补七Schema解释器环境。原失败包定向重验后仍须完成原未到的两vet/全race/两cmd build。没有自动重试原脚本，也没有因已有根wholePASS跳过最终门；正式main暂不交付。
