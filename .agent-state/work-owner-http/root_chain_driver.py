@@ -77,6 +77,22 @@ def configuration(binary, selector, directory):
             'test_timeout': '6m', 'resources': 7}
 
 
+def prepare_history_go_environment(directory, env):
+    # GOTELEMETRY is a read-only go env value. The fixed Go toolchain reads
+    # this mode file before starting its optional telemetry child. Establish
+    # task-owned configuration before the shell's first go env/build call.
+    config = directory / 'go-config'
+    telemetry = config / 'go' / 'telemetry'
+    for path in (config, config / 'go', telemetry):
+        path.mkdir(mode=0o700)
+    with (telemetry / 'mode').open('x') as stream:
+        os.chmod(stream.name, 0o600)
+        stream.write('off\n')
+    env['XDG_CONFIG_HOME'] = str(config)
+    for name in ('TEST_TELEMETRY_DIR', 'GO_TELEMETRY_CHILD', 'GO_TELEMETRY_CHILD_UPLOAD'):
+        env.pop(name, None)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--test-binary', required=True)
@@ -111,6 +127,8 @@ def main():
                 'AGENTEAM_FIXTURE_TEST_CWD': plan['cwd'],
                 'AGENTEAM_FIXTURE_OWNED_RECORD': str(directory / 'owned.json'),
                 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime)})
+    if args.run == '^TestSkillLifecycleCleanupHistoricalAttempts$':
+        prepare_history_go_environment(directory, env)
     os.chdir(REPOSITORY)
     # No child is started here: the original shell chain replaces this PID.
     # Its nested Go Cmd.Run and shell wait remain the actual child owners.

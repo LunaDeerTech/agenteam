@@ -82,11 +82,21 @@ class Controls(unittest.TestCase):
     def test_inverse_and_original_budgets(self):
         driver = DRIVER.read_text().replace("    '" + SELECTOR + "': 'tests/skills',\n", '')
         driver = driver.replace("    '" + HISTORY_SELECTOR + "': 'tests/skills',\n", '')
+        begin = driver.index('def prepare_history_go_environment(')
+        end = driver.index('def main():', begin)
+        driver = driver[:begin] + driver[end:]
+        driver = driver.replace("    if args.run == '" + HISTORY_SELECTOR + "':\n"
+                                '        prepare_history_go_environment(directory, env)\n', '')
         begin = driver.index('    # The cleanup fixture invokes these exact shared helpers')
         end = driver.index('    return sorted(paths)', begin)
         driver = driver[:begin] + driver[end:]
         self.assertEqual(driver, prior(DRIVER))
         sup = SUPERVISOR.read_text()
+        begin = sup.index('def survivor_identity(')
+        end = sup.index('def main():', begin)
+        sup = sup[:begin] + sup[end:]
+        sup = sup.replace("                    if args.run == '" + HISTORY_SELECTOR + "':\n"
+                          "                        log.write('OWNED survivor_identity=' + survivor_identity(pid) + '\\n')\n", '')
         begin = sup.index('def skill_cleanup_results(')
         end = sup.index('def observe_root_chain(', begin)
         sup = sup[:begin] + sup[end:]
@@ -128,6 +138,69 @@ class Controls(unittest.TestCase):
         self.assertFalse((self.tmp / 'new').exists())
         self.assertFalse((self.tmp / 'history').exists())
 
+    def test_history_mode_is_local_and_precedes_exec(self):
+        outside = self.tmp / 'unrelated-config'
+        outside.mkdir()
+        (outside / 'mode').write_text('on\n')
+        inherited = {'XDG_CONFIG_HOME': str(outside), 'TEST_TELEMETRY_DIR': str(outside),
+                     'GO_TELEMETRY_CHILD': '1', 'GO_TELEMETRY_CHILD_UPLOAD': '1',
+                     'GOTELEMETRY': 'off'}
+        original_open = Path.open
+        for selector, fail_mode in ((HISTORY_SELECTOR, False), (HISTORY_SELECTOR, True),
+                                    (SELECTOR, False)):
+            with self.subTest(selector=selector, fail_mode=fail_mode):
+                directory = self.tmp / ('mode-failure' if fail_mode else 'mode-history' if selector == HISTORY_SELECTOR else 'mode-legacy')
+                argv = ['adapter', '--test-binary', str(self.binary), '--run', selector,
+                        '--directory', str(directory)]
+                boundary = []
+                def execute(binary, args, env):
+                    boundary.append(env.copy())
+                    self.assertEqual((binary, args[:2]), ('/bin/sh', ['/bin/sh', 'scripts/test-objects.sh']))
+                    if selector == HISTORY_SELECTOR:
+                        config = directory / 'go-config'
+                        mode = config / 'go/telemetry/mode'
+                        self.assertEqual(env['XDG_CONFIG_HOME'], str(config))
+                        self.assertEqual(mode.read_bytes(), b'off\n')
+                        self.assertEqual(mode.stat().st_mode & 0o777, 0o600)
+                        self.assertTrue(all(name not in env for name in inherited if name.startswith(('TEST_', 'GO_TELEMETRY_'))))
+                    else:
+                        self.assertTrue(all(env[name] == value for name, value in inherited.items()))
+                        self.assertFalse((directory / 'go-config').exists())
+                    self.assertFalse(any((directory / 'runtime').iterdir()))
+                def opening(path, *args, **kwargs):
+                    if fail_mode and path.name == 'mode':
+                        raise PermissionError('explicit owned mode write failure')
+                    return original_open(path, *args, **kwargs)
+                with patch.object(sys, 'argv', argv), patch.dict(os.environ, inherited), \
+                        patch.object(self.driver, 'MINIO', self.binary), \
+                        patch.object(self.driver, 'MINIO_SHA', self.driver.sha(self.binary)), \
+                        patch.object(self.driver.os, 'chdir'), \
+                        patch.object(self.driver.os, 'execve', execute), patch.object(Path, 'open', opening):
+                    if fail_mode:
+                        with self.assertRaises(PermissionError):
+                            self.driver.main()
+                        self.assertEqual(boundary, [])
+                    else:
+                        self.driver.main()
+                        self.assertEqual(len(boundary), 1)
+                self.assertEqual((outside / 'mode').read_text(), 'on\n')
+
+    def test_survivor_identity_has_no_sensitive_process_material(self):
+        # Exact /proc shape, including spaces and a closing parenthesis in comm.
+        raw = '567 (go ) worker) Z 432 ' + '0 ' * 17 + '987654 0\n'
+        with patch.object(Path, 'read_text', return_value=raw), \
+                patch.object(os, 'readlink', return_value='/private/secret-path/bin/go'):
+            got = json.loads(self.sup.survivor_identity(567))
+        self.assertEqual(got, {'pid': 567, 'comm': 'go ) worker', 'state': 'Z',
+                               'ppid': 432, 'starttime': 987654, 'exe_name': 'go'})
+        for error in (FileNotFoundError(), UnicodeError(), ValueError(), IndexError()):
+            with self.subTest(error=type(error).__name__), \
+                    patch.object(Path, 'read_text', side_effect=error), \
+                    patch.object(os, 'readlink', side_effect=OSError()):
+                got = json.loads(self.sup.survivor_identity(567))
+                self.assertEqual(got, {'pid': 567, 'comm': None, 'state': None,
+                                       'ppid': None, 'starttime': None, 'exe_name': None})
+
     def test_closed_body_positive_and_negative(self):
         for selector, nodes in ((SELECTOR, NODES), (HISTORY_SELECTOR, HISTORY_NODES)):
             with self.subTest(selector=selector):
@@ -161,6 +234,7 @@ class Controls(unittest.TestCase):
         if mode == 'missing_child':
             text = output(nodes[:-1], selector)
         original_read = Path.read_text
+        original_readlink = os.readlink
         class Child:
             pid = 432
             returncode = None
@@ -201,7 +275,13 @@ class Controls(unittest.TestCase):
         def read(path, *args, **kwargs):
             if mode == 'log_oserror' and path.suffix == '.log':
                 raise OSError('explicit read boundary fault')
+            if mode == 'owned_survivor' and str(path) == '/proc/567/stat':
+                raise UnicodeError('explicit failed identity observation')
             return original_read(path, *args, **kwargs)
+        def readlink(path, *args, **kwargs):
+            if mode == 'owned_survivor' and str(path) == '/proc/567/exe':
+                raise OSError('explicit unavailable executable')
+            return original_readlink(path, *args, **kwargs)
         def absent(item, timeout):
             observed.append(item['id'])
             return not (mode == 'resource_left' and item['id'] == format(1, '064x'))
@@ -210,7 +290,12 @@ class Controls(unittest.TestCase):
             return set()
         def descendants(_):
             events.append('descendants_double')
+            if mode == 'owned_survivor' and events.count('descendants_double') == 1:
+                return {567}
             return set()
+        def kill(pid, sig):
+            self.assertEqual((pid, sig), (567, sup.signal.SIGKILL))
+            events.append('kill_double')
         def reaped(*_):
             events.append('reap_double')
             raise ChildProcessError
@@ -223,6 +308,7 @@ class Controls(unittest.TestCase):
                 (sup.ctypes, 'CDLL', lambda *_args, **_kwargs: types.SimpleNamespace(prctl=lambda *_: 0)),
                 (sup.signal, 'signal', lambda *_: None), (sup.subprocess, 'Popen', popen),
                 (sup, 'tcp', tcp), (sup, 'descendants', descendants),
+                (sup.os, 'kill', kill), (sup.os, 'readlink', readlink),
                 (sup.os, 'waitpid', reaped), (sup.time, 'sleep', lambda _: None),
                 (sup, 'exact_absent', absent), (Path, 'read_text', read)):
                 stack.enter_context(patch.object(obj, name, replacement))
@@ -240,6 +326,10 @@ class Controls(unittest.TestCase):
         self.assertIn('ROOT runtime_observation=2', log)
         self.assertIn('HOST_TCP delta_empty_observation=2', log)
         self.assertIn('SUPERVISOR inputs_unchanged=', log)
+        if mode == 'owned_survivor':
+            self.assertEqual(events.count('kill_double'), 1)
+            self.assertIn('STOP owned descendants survived driver: [567]', log)
+            self.assertEqual('OWNED survivor_identity=' in log, selector == HISTORY_SELECTOR)
         self.assertTrue(terminal['actual_driver_wait'])
         wanted = 0 if mode == 'good' else 2 if mode == 'driver_exit' else 1
         self.assertEqual(result, wanted)
@@ -251,7 +341,8 @@ class Controls(unittest.TestCase):
     def test_actual_main_retains_all_tails(self):
         for selector, nodes in ((SELECTOR, NODES), (HISTORY_SELECTOR, HISTORY_NODES)):
             for mode in ('good', 'missing_child', 'invalid_utf8', 'log_oserror',
-                         'driver_exit', 'resource_left', 'runtime_left', 'changed_input'):
+                         'driver_exit', 'resource_left', 'runtime_left', 'changed_input',
+                         'owned_survivor'):
                 with self.subTest(selector=selector, mode=mode):
                     self.actual_main(mode, selector, nodes)
 

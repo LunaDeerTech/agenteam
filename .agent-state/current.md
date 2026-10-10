@@ -1,5 +1,8 @@
 # Skills 精确 Project Cleanup 当前检查点
 
+- 消费者入口窄修已准备、尚未真实复跑：固定Go1.27.1源码确认 `GOTELEMETRY` 是不可设的go env投影，环境同名 `off` 不会设mode；本轮private下无mode而有counter/upload.token。此为已证配置缺口，**未证明96693身份或原FAIL因果**。仅HistoricalAttempts在driver原exec前创建本次owned目录下 `go-config/go/telemetry/mode`（0600，`off\n`），设置本轮XDG_CONFIG_HOME并清除TEST_TELEMETRY_DIR/GO_TELEMETRY_CHILD/GO_TELEMETRY_CHILD_UPLOAD；不读写用户全局配置，不改产品/fixture关闭/候选/原预算。mode留在owned目录供核，不污染应清空的runtime。
+- 原survivor FAIL门/kill/actual Wait原样；仅该selector在原失败点追加一次comm/state/ppid/starttime/exe basename，缺失/解析失败记null且继续原退役，不读argv/env/完整exe路径、不后台轮询。`7852d4` Python离线controls实际0（6methods）：真实adapter main在明确exec double下核mode先于exec/0600/去旁路、写失败不exec、旧selector及外部受控配置不变；原main两selector各九格doubles保所有尾并新增survivor身份读取失败仍kill/FAIL，逆投影原旧入口/预算保持。未Go/资源实验；三工具停写交Skills HTTP独立终核，原wholeFAIL不可回填。
+
 - **HistoricalAttempts 独立消费者01 whole FAIL，原窗口已完整释放。** root保存组合 `068cee6c` 后授一次原1top2sub/七资源；same-process UTC03:19:44.580229、fresh16,431,951,872B，empty task Docker config、proxy/offline配置，未重编或重试。session13802→0bf439 outer实际1，supervisor96685 terminal1/111.278s；唯一触发 `STOP owned descendants survived driver: [96693]`，后续 `adopted_actual_wait pid=96693 status=0` 不能回填PASS或证明该PID角色。
 - 原一父两子恰3 RUN/3 PASS（top6.01s，native retry3.26s、mapping history2.75s），Go99043 Wait0、driver96686 Wait0；原七ID双absent、三private双absent、runtime/desc/TCP双空、inputs unchanged全部齐（只读复核1e6317）。原日志逐字保存为 [故障原材料](skills-cleanup/history-independent-tail-failure.log)，运行目录为 `output/ai/skills-cleanup-independent/pg-history-independent-01/pg-9a4bc8931ba44db294623f7a2ca48e00`。目前未采到96693的原argv/身份，尚无已证产品或fixture原因；消费者独立门未通过，待离线启动/关闭链定位。候选/源仍冻结，无后台命令，不自动retry。
 

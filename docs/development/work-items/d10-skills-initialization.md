@@ -18,6 +18,8 @@ Model未参与者另核9产品/3PG源与cleanup-02原节点/全尾（883f34）�
 
 Secret未参与产品实现者已只读核两子方法，原PUT刺激缺口经独立MinIO完整包读取证明补齐后有限接受；原七资源入口已窄增精确新top、两源输入与一父两子结果门，离线入口控制实际通过。root已仅组合D05 `079b74a5` 修后两Stop SQL，保留原P2四处增量；独立窄静审无确认must-fix，候选race-c与精确一top发现实际通过。历史消费者01原session13802/0bf439 **whole FAIL**：一父两子业务6.01s及原Go/driver Wait0，但监督器报告driver结束后尚有后代96693，随后adopted Wait0，不能升级通过。原七资源/三private/runtime/desc/TCP双尾和input不变均闭合，窗口已释放；[原故障日志](../../../.agent-state/skills-cleanup/history-independent-tail-failure.log)保留，PID角色与原因待离线核证，无自动重试。原cleanup-02最后同Tx及Unknown证据按未变范围复用，消费者独立门及完整生产接入仍未闭合。
 
+离线已证原同名GOTELEMETRY环境变量未实际配置Go telemetry mode，不能据此认定96693角色。入口窄修仅在本轮私有配置中于首次Go前写off、去除覆盖旁路，并在原survivor失败点保留安全身份信息；原FAIL/Wait/资源预算保持。六项离线入口控制通过，尚待限定独审及新窗口实际结果；没有产品或fixture关闭改动，不重编原业务候选。
+
 ## 已交付 P1
 
 固定实现基线 `f401c15a5187690889eaea9ba9672ca8bdc85460`。新11路径：`internal/central/skill/contract/{types,package,read}.go` 及3对应测试，`internal/central/skill/{builtin,package}.go` 及2对应测试，`internal/central/skill/builtin/add-skills/v1/SKILL.md`。另仅本文及配套规格归位，共13路径；不改旧域、go.mod/go.sum、迁移、fixture、app或共享授权口。

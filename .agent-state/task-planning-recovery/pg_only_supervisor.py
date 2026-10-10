@@ -209,6 +209,27 @@ def descendants(root):
     return result - {root}
 
 
+def survivor_identity(pid):
+    # Failure-only evidence for an already discovered owned descendant. Never
+    # collect argv, environment or full executable paths, or change retirement.
+    result = {'pid': pid, 'comm': None, 'state': None, 'ppid': None,
+              'starttime': None, 'exe_name': None}
+    try:
+        raw = Path(f'/proc/{pid}/stat').read_text()
+        prefix, fields = raw.rsplit(')', 1)
+        tail = fields.split()
+        if int(prefix.split('(', 1)[0]) == pid:
+            result.update(comm=prefix.split('(', 1)[1], state=tail[0],
+                          ppid=int(tail[1]), starttime=int(tail[19]))
+    except (OSError, UnicodeError, ValueError, IndexError):
+        pass
+    try:
+        result['exe_name'] = Path(os.readlink(f'/proc/{pid}/exe')).name
+    except OSError:
+        pass
+    return json.dumps(result, sort_keys=True)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--driver', required=True, type=Path)
@@ -285,6 +306,8 @@ def main():
                 code = 1
                 log.write(f'STOP owned descendants survived driver: {sorted(survivors)}\n')
                 for pid in survivors:
+                    if args.run == '^TestSkillLifecycleCleanupHistoricalAttempts$':
+                        log.write('OWNED survivor_identity=' + survivor_identity(pid) + '\n')
                     try: os.kill(pid, signal.SIGKILL)
                     except ProcessLookupError: pass
             reap_deadline = (time.monotonic() + 5 if args.root_chain else
