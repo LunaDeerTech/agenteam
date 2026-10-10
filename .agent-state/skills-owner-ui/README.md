@@ -71,3 +71,16 @@ Skills02失败后只做实际MemoryRouter+installAuthentication+installProjectNa
 生产变化仅三文件：auth.ts提供稳定只读Skills导航准入ref，按原to对象及递增代区分attempt，原guard入口关闭、当前afterEach/onError才恢复；Knowledge guard与旧认证逻辑保留。View只在导航就绪时给出原projectPath；useSkillOwner的原本地scope改shallowRef以让清空/复绑触发computed可见性，全部身份/权限/typed条件仍旧。首实现已消额外GET，但scope非响应式导致详情隐身（91471→51f0a8、26182→bc68e9、45338→e1440e原FAIL保留）；不能用增加等待解决，因此按root窄授权修内部scope。
 
 scope修后92485→cbce25实际0；最终只跑 `skill-owner-state.spec.ts` 的三条必要导航用例，4101→7a9c61 actual0、3passed9skipped：正常list/get/list；导航取消及抛错后原已提交页面恢复；前一导航取消不能放开仍在途的新导航。原受控guard Promise在finally释放并实际allSettled，页面/监听/历史/Session清理保留。vue-tsc58031→35f94e、format8d8264/diff-check65d25f实际0。四技术路径已freeze供非作者审，不重旧业务矩阵；没有新Go、dist或真实执行，本次源码不得沿用旧DIST02/输入hash宣联调ready。
+
+## 导航修复后的组合产物03
+
+四源经 skills_http 有限actualdiff接受后保存 `7b027dfb`。只执行一次固定 `/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node web/node_modules/vite/bin/vite.js build --outDir ../output/ai/skills-owner-ui/web-dist-combined-03`（cwd `web`；实际命令使用Vite脚本绝对路径），复用已通过的TS58031/35f94e，不再独立type。2026-10-10 10:49:27–10:49:30 UTC，session67678→b074e2 actual0，outer630330/build630331实际Wait0，Vite2.51s。构建前后源hash均为 `aa53af8ba0bcb5c613be17332a2da587348ddf02dcde906c240c5dc0df7feb5f`。
+
+首产物普通copy至 `output/ai/knowledge-owner-rename/web-dist-combined-03`，两个目录各69 regular/nlink1文件、978580 bytes、对应inode互异；排序relative-path/NUL/file-SHA/LF共同manifest为 `f31858db78b913a6421199fd090ed1afe5de438be8f2e84de49823c8d4b33469`。唯一69行清单及原build/outer Wait保存在 ignored `output/ai/skills-owner-ui/combined-frontend-03.json`；原build输出在同级 `combined-frontend-03.log`。旧01/02产物未覆盖。
+
+当前driver原owner_ui_inputs每selector调用一次，union1549文件各hash一次，session97746→403dcb actual0，形成新ignored `output/ai/skills-owner-ui/combined-inputs-04.json`：
+
+- Skills1474项：`c03224f78f9f66dc2f37815e2ed1a9baa58db0605f7cc205afddf5d232dc9aa3`；计划fresh `/tmp/sui03`、`/tmp/sui03-private`、`output/ai/skills-owner-ui/evidence-read-03`。
+- Rename1476项：`dcd46abf23a0c0a0dae41dd5c24ec72c13bdbda07742ccb11ba75bdc5cdd48ca`；计划fresh `/tmp/kur04`、`/tmp/kur04-private`、`output/ai/knowledge-owner-rename/evidence-rename-04`。
+
+非DIST输入相对combined-inputs-03仅auth.ts、useSkillOwner.ts、ProjectSkillsView.vue三产品文件变化。两者继续复用61,196,757-byte `combined-compile-01/owner-ui-combined-race.test`，SHA `adaed67fef0d3571709f671d1448061d9730a4d088fc6e73dd4f5c6259f74825`。此次未执行Go/真实浏览器，未改原normal-only、首seal、资源/Wait/预算；Skills02 wholeFAIL仍为原结果。上述路径只在准备阶段查fresh，实际执行仍须root授唯一窗口，并由同启动重新核fresh5GiB/private telemetry/原owned资源与全尾。
