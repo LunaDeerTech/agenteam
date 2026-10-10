@@ -257,7 +257,8 @@ func TestExecutionDirectTextRejectsUnboundAndForeignOwners(t *testing.T) {
 	if !driver.Joined() || len(state.calls) != 0 || driver.Drain(context.Background()) != nil {
 		t.Fatal("resolved and actually returned owner did not retire")
 	}
-	directTextRetainedDrainControl(t)
+	directTextRetainedDrainControl(t, false)
+	directTextRetainedDrainControl(t, true)
 }
 
 // Formal codecs supply a valid Loop candidate; the controlled values do not
@@ -366,6 +367,7 @@ type directTextDrainControl struct {
 	begins, results, closes int
 	canJoin, joined         bool
 	owner                   context.Context
+	closeOutcome            error
 }
 
 func (v *directTextDrainControl) BeginChat(ctx context.Context, _ mc.ModelRequest) (mc.JSONCall, error) {
@@ -386,7 +388,7 @@ func (v *directTextDrainControl) Close(ctx context.Context) error {
 		return context.DeadlineExceeded
 	}
 	v.joined = true
-	return nil
+	return v.closeOutcome
 }
 func (v *directTextDrainControl) Joined() bool { return v.joined }
 
@@ -399,7 +401,7 @@ func (s *directTextTerminalRejectStore) WithinTx(context.Context, f.TransactionC
 	s.attempts++
 	return f.NotCommittedResult(f.NewFault(f.DependencyUnavailable, f.NotCommitted))
 }
-func directTextRetainedDrainControl(t *testing.T) {
+func directTextRetainedDrainControl(t *testing.T, cancelledOutcome bool) {
 	t.Helper()
 	facts, request := directTextDrainCandidate(t)
 	model := &directTextDrainControl{t: t}
@@ -424,12 +426,28 @@ func directTextRetainedDrainControl(t *testing.T) {
 	if err == nil || run.uncertainty != "draining" || run.allJoined || session.Joined() || model.begins != 1 || model.results != 1 || model.closes != 1 || store.attempts != 0 {
 		t.Fatal("failed Close lost original draining owner", err)
 	}
+	if cancelledOutcome {
+		// A joined Model handle may still report its original business outcome.
+		// Cancellation belongs to the original run, not the recovery wait.
+		cancel()
+		model.closeOutcome = &mc.ModelError{Category: "cancelled", Code: "wire_cancelled"}
+	}
 	model.canJoin = true
 	_, err = driver.ResolveUnknown(context.Background(), run.request.ExecutionID)
 	// Terminal storage deliberately reports NotCommitted without running its
 	// callback: this proves join advancement, never a fictional terminal commit.
 	if err == nil || !session.Joined() || !run.allJoined || model.begins != 1 || model.results != 1 || model.closes != 2 || store.attempts != 1 || run.uncertainty != "closing" || state.calls[run.request.ExecutionID] != run {
 		t.Fatal("recovery did not drain the same handle without redispatch", err)
+	}
+	if cancelledOutcome {
+		var outcome *mc.ModelError
+		var terminalFault *f.Fault
+		if !errors.Is(run.invocation.callError, context.Canceled) || !errors.As(run.invocation.callError, &outcome) || outcome.Validate() != nil || outcome.Category != "cancelled" || outcome.Code != "wire_cancelled" {
+			t.Fatal("joined cleanup lost the original cancellation outcome", run.invocation.callError)
+		}
+		if !errors.As(err, &terminalFault) || terminalFault.CommitState != f.NotCommitted || run.terminal != nil {
+			t.Fatal("joined business outcome bypassed terminal storage refusal", err)
+		}
 	}
 	controller.Stop()
 	if err = controller.Drain(context.Background()); err != nil || !controller.Joined() {
