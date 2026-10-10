@@ -272,3 +272,15 @@ stop-requested 只附在被授权捕获的原 call 上，不永久封闭整个 P
 首次phase PG随后实际整体FAIL并完整退出（来源1ccbc56b，top12.07s、Go/driver/outer Wait1、两资源/private/desc/TCP双尾与439输入一致齐）。第一sub phase barrier未命中，第二sub回滚断言失败，第三fencing子例通过；不把局部通过升级成整体接受。已定位两测试hook误用Recovery的Owner筛选真实JobCause，后续仅窄修原Kind/JobType/JobID/合法Attempt身份，产品/全部断言/预算未改；完整原失败边界保留。
 
 修后candidate02 race-c/list通过，非作者已对该唯一修正实际diff有限接受。来源88adc94a的`pg-phase-02`单次1top/3sub整轮PASS（12.44s；三个子例0.47/0.10/0.21s），原Go/driver/outer Wait0，两资源/private/desc/HOST_TCP双尾与439输入一致全齐（sup85.470s，无重试）。真实引擎确认phase/claim提交后才调用同Store provider，原业务与checkpoint实际返回才退役本轮；真实rollback/冻结版本拒绝及旧fence不可覆盖均已验。此有限链不把claim terminal或LocalJoined升级为participant/operation完成，不开放生产initializer、foreign join或cleanup；原phase01 FAIL保持，动态结果为作者执行且不冒非作者动态验收。
+
+## 有限后继：有界 Stop recovery 批次
+
+`NewLifecycleStopRecovery(store, authority, processes, localStep)` 私有持有上述同 Store、固定 process/回调的原 driver；`RunBatch(ctx, after *OperationID, limit)` 只接受 limit 1..4，最多一个活动批次，不启动后台循环。发现查询仅取 Project 当前 pointer 对应的 accepted/stopping operation，按 ID 取 limit+1；实际 Rows.Close 返回后逐项调用原 Run，全部授权、完整 manifest、claim/fence 与 EX 重验仍由原 driver 执行。
+
+结果只有 `Visited/Pending/Next`，每个已访 operation 仍计 Pending，没有 Completed。Busy 不阻止访问后项；其他错误保留，首物理 Unknown 的原 attempt/cause 不被后项错误或取消遮掉。Next 只推进至已访问边界；nil 表示本次扫描末尾，调用者下一轮必须从 nil 重扫先前 Busy/Pending，不能永久遗漏前缀。未访问任何项即失败不消费输入 cursor。ctx 失效后不启动新项；Stop 取消原批次与 driver，Drain 等原查询/Rows.Close/Run/checkpoint 实际返回，不能递归 Drain 或提前释放共享 guard。
+
+实现仅新增 `internal/central/project/lifecycle_stop_recovery.go` 与同名测试，不改迁移、Audit、app/initializer 或完整 participant 状态。两源已获非作者有限静审，7 top / 12 sub 纯控源码明确使用 SQL 边界替身。首次预飞 5,262,024,704 B 未达 5 GiB，故0 Go；第二次预飞通过后，测试夹具将 `error` 接口传给需要 `*Fault` 的 `NotCommittedResult`，编译失败、0测试正文，vet未达。仅改为同一安全 Fault 的具体构造后，第三轮原定向7 top / 12 sub race 全部通过（package1.053s），Project vet通过；原进程/outer Wait0及group/runtime双空齐。产品和断言未变，两原失败均保留，未重复旧 phase 矩阵。真实 guard 单链测试已获非作者有限方法审；content 的 integration race-c 与精确1top/0sub list实际通过，683输入不变，原Go/list/outer Wait0及group/runtime双空齐，候选为本树 `output/ai/project-variable-lifecycle/guard-compile-01/project-phase-guard.test`。Guard七资源入口随后获非作者实际源审并完成以下首次真实链；Object Runtime join STOP 与 foreign 业务 join/cleanup 缺口不变。
+
+来源`af133f7a`的Guard01单次执行`TestProjectLifecycleStopBatchRealGuard`（1 top / 0 sub）整轮PASS，top10.58s。真实同Store原引擎在旧claim所属ProcessGuard仍活时返回Busy且后项可继续；原child进程SIGKILL后，由原cmd.Wait与stdout reader实际join，再经原ProcessAuthority确认和Project锁内重验推进原claim/fence。accepted及完整manifest仍是明确上游fixture，所有participant保持required；本轮不伪造完整domain停止或operation完成。Go、driver、supervisor、outer原Wait全部0，7资源双退役、private/runtime/desc/TCP双空，704输入初末不变；全部原尾结束后才释放窗口，无重试。必要安全结果见[Guard首链结果](../../../.agent-state/project-variable-lifecycle/guard-first-actual-result.json)，历史两次Batch FAIL与phase01整体FAIL不回填。
+
+本次只接受有界批次和真实guard死亡后的本轮claim恢复；完整Registry/participant、foreign业务调用join、cleanup、生产initializer与完整D08继续未交付，原Object Runtime join STOP不解除。正式取入为Batch两源、guard测试、本卡和必要Guard恢复入口增量；共享入口保main已有其他域，旧phase两资源方法不变。
