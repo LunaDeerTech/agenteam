@@ -181,28 +181,21 @@ func (s *Service) projectStop(ctx context.Context, actor identity.Actor, cause o
 		return stopFailure(cause, err)
 	}
 	dead := map[oc.ProcessID]bool{}
+	checkedProcess := map[oc.ProcessID]bool{}
 	if !nilPort(s.state().auth.Processes) {
 		for _, w := range checkpoint.facts.works {
-			if w.process != s.state().process && !w.joined && !dead[w.process] {
+			if w.process != s.state().process && !w.joined && !checkedProcess[w.process] {
+				checkedProcess[w.process] = true
 				dead[w.process] = s.state().auth.Processes.ConfirmStopped(ctx, w.process) == nil
 			}
 		}
 	}
-	// Native rows from before work registration still need exact process proof.
-	nativeProcesses, err := queryStopIDs(ctx, s.state().store, `SELECT DISTINCT process_id::text FROM (SELECT process_id FROM agenteam_object.upload_attempts WHERE object_id=ANY($1::uuid[]) AND kind='private_candidate' AND NOT io_closed UNION SELECT process_id FROM agenteam_object.object_leases WHERE object_id=ANY($1::uuid[]) AND state='active' AND process_id IS NOT NULL) p ORDER BY process_id LIMIT 1001`, checkpoint.facts.objects)
-	if err != nil {
-		return stopFailure(cause, err)
-	}
-	if len(nativeProcesses) > stopFanoutLimit {
-		return stopReport(cause, oc.ProjectStopPending, oc.ProjectStopWorkPending, nil), nil
-	}
+	// Native rows selected by these primary IDs still need exact process proof.
+	// Their discovery contains only fixed pointers, not Object-wide history.
 	if !nilPort(s.state().auth.Processes) {
-		for _, raw := range nativeProcesses {
-			id, err := foundation.ParseID[oc.Process](raw)
-			if err != nil {
-				return stopFailure(cause, unavailable(err))
-			}
-			if id != s.state().process && !dead[id] {
+		for _, id := range checkpoint.facts.processes {
+			if id != s.state().process && !checkedProcess[id] {
+				checkedProcess[id] = true
 				dead[id] = s.state().auth.Processes.ConfirmStopped(ctx, id) == nil
 			}
 		}
@@ -227,10 +220,17 @@ func (s *Service) projectStop(ctx context.Context, actor identity.Actor, cause o
 				joined := w.joined || dead[w.process]
 				s.state().mu.Lock()
 				h := s.state().projectWork[w.id]
-				if h != nil && workIdentityEqual(w, h.work) && h.ended {
-					joined = true
+				localEnded := h != nil && workIdentityEqual(w, h.work) && h.ended
+				var origin foundation.Tx
+				if localEnded {
+					origin = h.origin
 				}
 				s.state().mu.Unlock()
+				if localEnded {
+					if _, err := s.state().store.InTx(origin); err != nil {
+						joined = true
+					}
+				}
 				if !joined {
 					continue
 				}
@@ -247,10 +247,10 @@ func (s *Service) projectStop(ctx context.Context, actor identity.Actor, cause o
 				if !proved {
 					continue
 				}
-				if _, err = e.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET io_closed=true,phase=CASE WHEN phase IN ('reserved','sending') THEN 'unknown' ELSE phase END WHERE object_id=ANY($1::uuid[]) AND process_id=$2 AND kind='private_candidate'`, f.objects, process.String()); err != nil {
+				if _, err = e.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET io_closed=true,phase=CASE WHEN phase IN ('reserved','sending') THEN 'unknown' ELSE phase END WHERE id=ANY($1::uuid[]) AND process_id=$2 AND kind='private_candidate' AND NOT io_closed`, f.attempts, process.String()); err != nil {
 					return unavailable(err)
 				}
-				if _, err = e.Exec(ctx, `UPDATE agenteam_object.object_leases SET state='released',released_at=clock_timestamp() WHERE object_id=ANY($1::uuid[]) AND process_id=$2 AND state='active' AND (owner_kind='writer' OR $3 AND owner_kind IN ('reader','source'))`, f.objects, process.String(), cause.Details().Action == oc.ProjectStopDelete); err != nil {
+				if _, err = e.Exec(ctx, `UPDATE agenteam_object.object_leases SET state='released',released_at=clock_timestamp() WHERE id=ANY($1::uuid[]) AND process_id=$2 AND state='active' AND (owner_kind='writer' OR $3 AND owner_kind IN ('reader','source'))`, f.leases, process.String(), cause.Details().Action == oc.ProjectStopDelete); err != nil {
 					return unavailable(err)
 				}
 			}
@@ -329,18 +329,12 @@ func (s *Service) revokeProjectBatch(ctx context.Context, tx foundation.Tx, e po
 		}
 	}
 	if d.Action == oc.ProjectStopDelete {
-		if _, err := e.Exec(ctx, `UPDATE agenteam_download.grants SET revoked=true WHERE project_id=$1 AND (id=ANY($2::uuid[]) OR object_id=ANY($3::uuid[]))`, d.ProjectID.String(), f.ids, f.objects); err != nil {
+		if _, err := e.Exec(ctx, `UPDATE agenteam_download.grants SET revoked=true WHERE project_id=$1 AND id=ANY($2::uuid[])`, d.ProjectID.String(), f.grants); err != nil {
 			return unavailable(err)
 		}
 	}
-	ids, err := queryStopIDs(ctx, e, `SELECT id::text FROM agenteam_object.object_transfers WHERE project_id=$1 AND (id=ANY($2::uuid[]) OR object_id=ANY($3::uuid[])) AND ($4 OR direction='put') AND revoked_at IS NULL ORDER BY id LIMIT 1001`, d.ProjectID.String(), f.ids, f.objects, d.Action == oc.ProjectStopDelete)
-	if err != nil {
-		return err
-	}
-	if len(ids) > stopFanoutLimit {
-		return failure(foundation.ResourceBusy, nil)
-	}
-	for _, raw := range ids {
+
+	for _, raw := range f.transfers {
 		id, _ := foundation.ParseID[oc.Transfer](raw)
 		r, ok, err := loadTransfer(ctx, e, id)
 		if err != nil {
@@ -348,6 +342,9 @@ func (s *Service) revokeProjectBatch(ctx context.Context, tx foundation.Tx, e po
 		}
 		if !ok {
 			return accessChanged()
+		}
+		if r.revoked || d.Action != oc.ProjectStopDelete && r.spec.Details().Direction != oc.TransferPUT {
+			continue
 		}
 		s.state().mu.Lock()
 		transfers := s.state().transfers
@@ -367,15 +364,20 @@ func (s *Service) revokeProjectBatch(ctx context.Context, tx foundation.Tx, e po
 
 func checkpointWorkNative(ctx context.Context, e postgres.SQLExecutor, w projectWork) error {
 	if w.kind == "preparation" {
-		if _, err := e.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET io_closed=true,phase=CASE WHEN phase IN ('reserved','sending') THEN 'unknown' ELSE phase END WHERE id=$1 AND process_id=$2 AND kind='private_candidate'`, w.resource, w.process.String()); err != nil {
+		if w.object.Validate() != nil {
+			// Initial Prepare has no native Object/attempt; its own original
+			// work still needed actual return/death before this checkpoint.
+			return nil
+		}
+		if _, err := e.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET io_closed=true,phase=CASE WHEN phase IN ('reserved','sending') THEN 'unknown' ELSE phase END WHERE id=$1 AND process_id=$2 AND object_id=$3 AND kind='private_candidate'`, w.resource, w.process.String(), w.object.String()); err != nil {
 			return unavailable(err)
 		}
-		if _, err := e.Exec(ctx, `UPDATE agenteam_object.object_leases SET state='released',released_at=clock_timestamp() WHERE attempt_id=$1 AND process_id=$2 AND owner_kind='writer' AND state='active'`, w.resource, w.process.String()); err != nil {
+		if _, err := e.Exec(ctx, `UPDATE agenteam_object.object_leases SET state='released',released_at=clock_timestamp() WHERE attempt_id=$1 AND process_id=$2 AND object_id=$3 AND owner_kind='writer' AND state='active'`, w.resource, w.process.String(), w.object.String()); err != nil {
 			return unavailable(err)
 		}
 	}
 	if w.kind == "reader" || w.kind == "source" {
-		if _, err := e.Exec(ctx, `UPDATE agenteam_object.object_leases SET state='released',released_at=clock_timestamp() WHERE id=$1 AND process_id=$2 AND owner_kind IN ('reader','source') AND state='active'`, w.resource, w.process.String()); err != nil {
+		if _, err := e.Exec(ctx, `UPDATE agenteam_object.object_leases SET state='released',released_at=clock_timestamp() WHERE id=$1 AND process_id=$2 AND object_id=$3 AND owner_kind=$4 AND state='active'`, w.resource, w.process.String(), w.object.String(), w.kind); err != nil {
 			return unavailable(err)
 		}
 	}

@@ -1,6 +1,8 @@
 # D04 Project Secret Variable 存储 producer
 
-状态（2026-10-09）：D04 producer 与00029已实现；core3（17节点）、maintenance单top与固定四top/十格恢复矩阵（13节点）均完整真实PG PASS，本producer有限证据到齐。正式main当前迁移仅至25，26–28在本树只是测试依赖；producer有限接受与00029正式SQL交付分开，后者须等待正式连续前缀及main整合，本卡未宣称正式交付。工作树基线为正式 main `8cb0a95338dc417ff34be06c00086fbbc7159efa`。本卡落实已接受的 [D10 rev2](d10-secret-variables-owner.md) §4、§6，不改变 Secret Variable 的业务语义。D10 A 的五个 contract、三个测试及 schema 已正式交付；D10真实authority与Owner仍为后继范围。
+> 交付边界：D04 材料存储 producer 的有限验收已完成；已与 D05、Secret Owner 一起按 00028→00029→00030 连续迁移交付 main `fb84a892`。库矩阵沿固定来源复用。Secret HTTP、默认根绑定与 Agent F1 不在本库接受范围。
+
+D04 producer 与 00029 已实现：core3（17 节点）、maintenance 单 top、固定四 top/十格恢复矩阵（13 节点）均完整真实 PG PASS，原 Wait 与资源双退役尾齐。它通过 typed `secret/contract.ProjectVariableWrites` 向 Owner 提供材料写入和安全 receipt，不新增公开明文读取接口。本卡落实已接受的 [D10 rev2](d10-secret-variables-owner.md) §4、§6；真实 authority 与 Owner final-Tx 的后续有限验收见 [Owner 服务](d10-secret-variable-owner-service.md)。
 
 ## 1. 范围、所有者与构造顺序
 
@@ -73,9 +75,9 @@ Prepare 在事务外分配 nonce 并密封必要材料，不写 durable planned 
 
 并发 create 的获胜映射若与事务外候选 Ref 不同，应退出事务、重发现并按 D10 原有限重准备规则处理；不在锁内加锁或无界重试。Unknown 保留原 attempt/cause/CommitResult，D04 不私自另开确认事务或重跑 callback；由 D10 按原一次、有界确认协议处理，不能把未提交/未知都变成成功。
 
-## 4. 精确 SQL 与 index 需求（00029 已预留，尚未正式装配）
+## 4. 精确 SQL 与 index 需求（00029）
 
-root已将00029分配本域唯一writer，已按[原DDL草案](../../../.agent-state/secret-variable-storage/project-variable-storage.draft.sql)落为[正式路径候选](../../../db/migrations/00029_project_variable_receipts.sql)，并在本树真实Migrator与SQL矩阵执行。root装入的25 Knowledge（main29dd4298）、26 Runner（eea4ced0）、27 Skills（7cf7a58e）、28共享cleanup indexes（eda849dc）保持原字节，仅作连续测试依赖；这不证明26–28正式业务交付或28执行计划。00029不能越过尚未正式完成的前缀进入main。此号只包含下列D04存储对象，D10 Owner的canonical/history/completed表由其后继独立迁移负责。
+[00029 正式迁移源](../../../db/migrations/00029_project_variable_receipts.sql)已由真实 Migrator 与本域 SQL 矩阵覆盖。本批保留既有 00001..00027，先装配已接受的 D05 00028，再连续加入 00029 和 Owner 00030；本域测试不替代前缀各领域的业务与成本验收。00029 只包含下列 D04 存储对象，D10 Owner 的 canonical/history/completed 由独立 00030 负责。
 
 1. `secret_payloads.owner_kind` 扩为 1/2/3；kind3 仅 Project scope，摘要明文恰 32 bytes、密文恰 48 bytes。kind1/2 既有约束和编码保持。不能修改历史 migration00003，后续使用独立已授权迁移。
 2. `secrets.purpose` 新增仅 Project scope 的 `project_variable`；旧 `secret_command_receipts.purpose`、`secret_references.consumer`、`secret_leases.consumer` 闭集不扩大，避免经旧 API 或执行消费者旁路。
@@ -99,17 +101,17 @@ CleanupProject 保持真实 D08 deleting gate/操作与 cause，既有 reference
 
 纯测试先覆盖闭集 Intent/Request、opaque issuer 与 copy/mutation、保密输出及材料销毁、原语义稳定/区分、kind3/AAD 及旧 golden、stage/错误与 Unknown 分类。后继真实 PG 必须验证 receipt replay/KeyReused/并发 create 重发现/历史映射、所有 current gates、完整锁并集、原子回滚、rotation/canary/Retire、100/101 cleanup、deleted Credential 和 private Audit witness 负控。独立审查针对实际固定差异与可复跑控制；不把无 PG 的 pure 或编译结果计入这些矩阵。
 
-SPEC的prepared/名称/表名三缺口及CheckPlan增量已获Runner有限复核；Intent、crypto/plan/prepared/read/Prepare、Apply/nativeAudit与rotation/Cleanup均已获Skills对应有限独审，00029获Runner限定DDL审查，SQL与recovery tests/入口亦已独审。旧入口Purpose.Valid保持闭集。独审边界与实际证据见[current](../../../.agent-state/current.md)，不以其中任一pure控制代替后续真实PG。
+SPEC的prepared/名称/表名三缺口及CheckPlan增量已获Runner有限复核；Intent、crypto/plan/prepared/read/Prepare、Apply/nativeAudit与rotation/Cleanup均已获Skills对应有限独审，00029获Runner限定DDL审查，SQL与recovery tests/入口亦已独审。旧入口Purpose.Valid保持闭集。独审边界与固定版本证据见[原 D04 恢复记录](https://github.com/LunaDeerTech/agenteam/blob/b724e397dce837f7bc9af7f83ad4d9d93ee311f9/.agent-state/current.md)，不以 pure 控制替代真实 PG。
 
-作者完整 Secret implementation/contract 两包纯 race 已实际通过（5785→713106）。新的纯测试调用实际 Service/AEAD/native facts checker，Store/当前 authority/Append transport/commit 是明确受控端口，不能据此宣称真实 D10 权限、PostgreSQL SQL/原子回滚、100/101 cleanup 或 Unknown 数据库结果。具体可复跑入口和已核有限范围保存在 [current](../../../.agent-state/current.md)。
+作者完整 Secret implementation/contract 两包纯 race 已实际通过（5785→713106）。新的纯测试调用实际 Service/AEAD/native facts checker，Store/当前 authority/Append transport/commit 是明确受控端口，不能据此宣称真实 D10 权限、PostgreSQL SQL/原子回滚、100/101 cleanup 或 Unknown 数据库结果。具体入口、冻结输入及有限范围保存在[原 D04 恢复记录](https://github.com/LunaDeerTech/agenteam/blob/b724e397dce837f7bc9af7f83ad4d9d93ee311f9/.agent-state/current.md)。
 
-本树固定Unknown/并发矩阵现已实际通过；仍缺真实D10 authority provider与Owner final-Tx，基线8cb未自动包含后继SecretAudit读兼容主线。不得以controlled fixture或纯回调越过这些依赖；正式前缀齐备后由root以实际main整合，按影响补验，不机械重跑未变矩阵。
+本库固定 Unknown/并发矩阵已实际通过。D04 矩阵使用明示受控 authority；真实 D10 authority provider 与 Owner final-Tx 由后续 Owner 库矩阵和独验另行覆盖。整合按实际差异补验，不把 D04 fixture 当作真实 Owner，也不机械重跑未变矩阵。
 
 ## 7. 已验有限结果
 
 core3首次真实PG在固定候选742/driver831上完成：原session48021→11fe77实际outer0，三top＋14sub共17节点PASS，Go/driver实际Wait0、精确两资源双退役、凭据退役、后代双空、TCP双空增量、输入未变全部齐备。该组证明本树连续Migrator含00029、D04四effect/历史幂等/current deny、真实目标回滚及九DDL负例；25–28依赖迁移成功不代表其业务或28执行计划验收。
 
-maintenance复用同候选/driver，原session3222→0a46e7实际outer0、69.661s完整尾；唯一top PASS2.51s，真实101历史receipt/删Credential后轮换与Retire/仅key2重启重放/100+1清理通过，原Wait、两资源/private/后代/TCP/input尾全部齐。D10权限来源仍为明示受控fixture，真实Unknown/并发和正式Owner未验。两原日志路径、资源身份和终态见[current](../../../.agent-state/current.md)；未重编或修改旧验收输入。
+maintenance复用同候选/driver，原session3222→0a46e7实际outer0、69.661s完整尾；唯一top PASS2.51s，真实101历史receipt/删Credential后轮换与Retire/仅key2重启重放/100+1清理通过，原Wait、两资源/private/后代/TCP/input尾全部齐。D10权限来源仍为明示受控fixture，真实Unknown/并发和正式Owner未验。两原日志路径、资源身份和终态见[固定 D04 恢复记录](https://github.com/LunaDeerTech/agenteam/blob/b724e397dce837f7bc9af7f83ad4d9d93ee311f9/.agent-state/current.md)；未重编或修改旧验收输入。
 
 write/nonce恢复首窗使用独立a7a7候选/8f1driver，原session76000→cc555a本人实际outer0，完整76.654s；原COMMIT before/after/pending及nonce ACK-loss四格、5精确节点PASS，实际Go/driver Wait、代理Close/wg与Store退役、两资源双退役/private/后代/TCP双空/input未变齐全。此证据保留真实Unknown/原Cause、目标COMMIT与nonce持久事实的界线；第二组maintenance Unknown/并发六格尚未启动，不扩为十格全过。当前D10仍为受控provider，正式Owner/HTTP与main连续迁移交付不在本次结论内。
 

@@ -5,9 +5,11 @@ import (
 	"errors"
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
+	runners "github.com/LunaDeerTech/agenteam/internal/central/runner/service"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"time"
 )
@@ -15,6 +17,10 @@ import (
 const SecurityStartupTimeout = 30 * time.Second
 
 func createSecurity(cfg config.Config, db database, authority *account.Authority, models *model.Authority, projects *project.Authority) (*audit.Service, error) {
+	return createSecurityWithRunners(cfg, db, authority, models, projects, nil)
+}
+
+func createSecurityWithRunners(cfg config.Config, db database, authority *account.Authority, models *model.Authority, projects ac.ProjectAuthority, runnerAuthority *runners.Authority) (*audit.Service, error) {
 	store, ok := db.(audit.Store)
 	if !ok || authority == nil {
 		return nil, errors.New("AUDIT_STORE_UNAVAILABLE")
@@ -22,10 +28,10 @@ func createSecurity(cfg config.Config, db database, authority *account.Authority
 	if models == nil {
 		return nil, errors.New("MODEL_AUTHORITY_UNAVAILABLE")
 	}
-	if projects == nil {
+	if runtimeInformationNil(projects) {
 		return nil, errors.New("PROJECT_AUTHORITY_UNAVAILABLE")
 	}
-	return audit.New(store, cfg.CursorKeyring(), audit.Authorizations{Accounts: authority, Sessions: authority, System: authority, Models: models, Projects: projects})
+	return audit.New(store, cfg.CursorKeyring(), audit.Authorizations{Accounts: authority, Sessions: authority, System: authority, Models: models, Projects: projects, Runners: runnerAuthority})
 }
 
 type maintenance interface {

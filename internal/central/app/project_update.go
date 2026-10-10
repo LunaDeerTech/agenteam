@@ -17,8 +17,9 @@ import (
 	projecthttp "github.com/LunaDeerTech/agenteam/internal/central/project/http"
 )
 
-// Pure construction retains the existing authority, store and actual process
-// guard. No initializer, lifecycle registry or background work is fabricated.
+// Pure construction retains the existing authority, store, actual process
+// guard. Creation remains unbound until the full lifecycle manifest and its
+// actual stop/guard integration are accepted (D08 §7, D10 §14).
 func createProjectUpdate(cfg config.Config, db database, projects *project.Authority, accounts *account.Authority, auditor *audit.Service, journal *outbox.Service, events pc.ProjectEvents, processes accountProcessAuthority) (*project.Service, error) {
 	store, ok := db.(project.Store)
 	if !ok || runtimeInformationNil(store) || accounts == nil || auditor == nil || journal == nil || processes.guard == nil {

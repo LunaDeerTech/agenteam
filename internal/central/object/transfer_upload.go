@@ -19,6 +19,18 @@ func (s *Service) reserveObjectCommand(ctx context.Context, e postgres.SQLExecut
 	if a.Kind == identity.AgentRun {
 		initiator = a.AgentID
 	}
+	if a.Kind == identity.Service {
+		// The CreationID is the durable initiator, not an empty UserID or an
+		// Object service cause. The current domain gate was checked by the
+		// supplied full plan; recheck the narrow grant before any SQL here.
+		_, creationErr := foundation.ParseID[struct{}](a.CauseRef)
+		if a.ServiceName != identity.ProjectInitialization || od.Kind != oc.SkillRevision ||
+			a.ProjectID != od.ProjectID || creationErr != nil ||
+			!grant.Matches(actor, owner, identity.Mutate) || grant.Details().CreationCause != a.CauseRef {
+			return uploadRow{}, failure(foundation.Forbidden, nil)
+		}
+		initiator = a.CauseRef
+	}
 	command, err := commandIdentity(owner, meta.IdempotencyKey)
 	if err != nil {
 		return uploadRow{}, err

@@ -125,6 +125,16 @@ func scanRecord(row scanner) (contract.SafeRecord, error) {
 }
 func summary(action contract.Action) string {
 	switch action {
+	case contract.RunnerCreate:
+		return "Runner created"
+	case contract.RunnerUpdate:
+		return "Runner metadata updated"
+	case contract.RunnerEnrollmentIssue:
+		return "Runner enrollment issued"
+	case contract.RunnerEnroll:
+		return "Runner enrolled"
+	case contract.RunnerRevoke:
+		return "Runner identity revoked"
 	case contract.SecretCreate:
 		return "Secret created"
 	case contract.SecretUpdate:

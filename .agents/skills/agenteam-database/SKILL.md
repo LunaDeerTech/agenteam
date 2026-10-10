@@ -28,7 +28,7 @@ description: 在 agenteam 修改 PostgreSQL schema、SQL adapter、事务锁、�
 
 ## 有意义的验证
 
-- 从[真实 PG fixture](../../../tests/testsupport/postgres/)和相邻领域测试复用建库、迁移与连接管理。通过[现有脚本](../../../scripts/test-postgres.sh)取得任务所有的环境，运行前按[后端说明](../../../docs/development/backend/README.md)核工具链、固定 fixture 与 MinIO 前提。
+- 从[真实 PG fixture](../../../tests/testsupport/postgres/)和相邻领域测试复用建库、迁移与连接管理。复用[现有脚本](../../../scripts/test-postgres.sh)的隔离环境方法，按本轮问题、受影响范围和结束条件选择验证；整套脚本仅在本次风险和范围需要时运行。运行前按[后端说明](../../../docs/development/backend/README.md)核工具链、固定 fixture 与 MinIO 前提，保留数据及迁移关键门禁。
 - 并发测试使用两个真实事务、明确的 barrier/锁等待事实和独立观察连接；断言互斥、最终版本/行数和副作用。单纯延时后读取不能证明两操作发生了竞争。
 - 提交未知测试区分 COMMIT 未转发和服务端已提交但响应丢失，查另一连接的持久事实与后续 lookup。可参考[Work 并发测试](../../../tests/work/structure_concurrency_test.go)的方法，不能照搬其业务规则。
 - 取消、poison、授权撤销或清理与写入竞争只覆盖当前变更涉及的边界；核对事务结果、对外输出和遗留资源。需要 harness 方法时组合[测试工程技能](../agenteam-test-engineering/SKILL.md)。

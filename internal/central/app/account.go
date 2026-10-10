@@ -14,6 +14,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	objectcontract "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
@@ -61,6 +62,9 @@ type accountAssembly struct {
 	planning     accountWork
 	variables    accountWork
 	projects     accountWork
+	skills       accountWork
+	knowledge    accountWork
+	runners      accountWork
 	sink         accountWork
 	core         accountWork
 	runtime      accountRuntime
@@ -137,6 +141,11 @@ func (a *accountAssembly) works() []accountWork {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	var work []accountWork
+	// Runner owns hijacked sockets and generation/Audit transactions; HTTP
+	// shutdown alone cannot retire them. Account and DB must remain until join.
+	if a.runners != nil {
+		work = append(work, a.runners)
+	}
 	// Variables, Work and Project calls release Account Activity before core retires.
 	if a.variables != nil {
 		work = append(work, a.variables)
@@ -146,6 +155,14 @@ func (a *accountAssembly) works() []accountWork {
 	}
 	if a.projects != nil {
 		work = append(work, a.projects)
+	}
+	// Project creation is a caller of Skills. Both content domains must retire
+	// their original Object/Store work before Account and the shared guard.
+	if a.skills != nil {
+		work = append(work, a.skills)
+	}
+	if a.knowledge != nil {
+		work = append(work, a.knowledge)
 	}
 	// Mail finishes its durable completion through core after protocol I/O.
 	// Retiring core first would reject that last cleanup transaction.
@@ -260,7 +277,15 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	contentAuthorities, err := createKnowledgeSkillAuthorities(db, projectUsage)
+	if err != nil {
+		return err
+	}
 	workAuthority, err := createWorkPlanningAuthority(db, projectUsage.projects)
+	if err != nil {
+		return err
+	}
+	runnerAuthority, err := createRunnerAuthority(db, authority)
 	if err != nil {
 		return err
 	}
@@ -291,9 +316,16 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		return err
 	}
 	processes := accountProcessAuthority{process: process, guard: objects.guard}
-	auditor, err := createSecurity(cfg, db, authority, modelAuthority, projectUsage.projects)
+	auditor, err := createSecurityWithRunners(cfg, db, authority, modelAuthority, contentAuthorities.audit, runnerAuthority)
 	if err != nil {
 		return err
+	}
+	runners, err := createRunnerControl(runnerAuthority, auditor)
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() { accounts.runners = runners }) {
+		return context.Canceled
 	}
 	secrets, err := createSecret(cfg, db, auditor, authority, usage, projectUsage.projects)
 	if err != nil {
@@ -348,20 +380,17 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	knowledgeEvents, err := kc.RegisterKnowledgeEvents(catalog)
+	if err != nil {
+		return err
+	}
 	journal, err := outbox.New(journalStore, catalog, outbox.Authorizations{
-		Producers: map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects, wc.WorkProducer: workAuthority, vc.VariableProducer: projectUsage.variables},
+		Producers: map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects, wc.WorkProducer: workAuthority, vc.VariableProducer: projectUsage.variables, kc.KnowledgeProducer: contentAuthorities.knowledge},
 		Processes: outboxProcessAuthority{process: objects.process, guard: objects.guard},
 		Sessions:  authority, System: authority, Audit: auditor, Cursors: cfg.CursorKeyring(), Projects: projectUsage.projects,
 	})
 	if err != nil {
 		return err
-	}
-	projectCommands, err := createProjectUpdate(cfg, db, projectUsage.projects, authority, auditor, journal, projectEvents, processes)
-	if err != nil {
-		return err
-	}
-	if !accounts.install(ctx, func() { accounts.projects = &projectCommandWork{service: projectCommands} }) {
-		return context.Canceled
 	}
 	planning, err := createWorkPlanning(cfg, db, workAuthority, authority, journal, workEvents)
 	if err != nil {
@@ -404,8 +433,37 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	if err = objects.construct(cfg, db, auditor, avatar); err != nil {
+	objectStore, ok := db.(object.Store)
+	if !ok {
+		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	objectAuthorities, err := newObjectAuthorities(objectStore, avatar, contentAuthorities.knowledge, contentAuthorities.skills)
+	if err != nil {
 		return err
+	}
+	if err = objects.construct(cfg, db, auditor, objectAuthorities); err != nil {
+		return err
+	}
+	documents, err := createKnowledge(cfg, db, contentAuthorities.knowledge, projectUsage.projects, authority, objects, auditor, journal, knowledgeEvents)
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() { accounts.knowledge = &knowledgeWork{service: documents} }) {
+		return context.Canceled
+	}
+	skills, err := createSkills(ctx, contentAuthorities.skills, objects)
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() { accounts.skills = &skillWork{service: skills} }) {
+		return context.Canceled
+	}
+	projectCommands, err := createProjectUpdate(cfg, db, projectUsage.projects, authority, auditor, journal, projectEvents, processes)
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() { accounts.projects = &projectCommandWork{service: projectCommands} }) {
+		return context.Canceled
 	}
 	profiles, err := account.NewProfileService(core, objects.service)
 	if err != nil {
@@ -500,10 +558,20 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	runnerAdmin, runnerDevice, err := runnerControlHandlers(runners, core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
+	knowledgeReads, knowledgeCommands, knowledgeContent, skillReads, err := knowledgeSkillHandlers(documents, skills, core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
 	if !accounts.install(ctx, func() {
 		accounts.handler = projectAuditRoutes(projectCredentialsRoutes(projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler), credentialHandler), projectAudit)
 		accounts.handler = workPlanningRoutes(accounts.handler, planningHandler)
 		accounts.handler = projectVariablesRoutes(accounts.handler, variableHandler)
+		accounts.handler = runnerControlRoutes(accounts.handler, runnerAdmin, runnerDevice)
+		accounts.handler = knowledgeSkillRoutes(accounts.handler, knowledgeReads, knowledgeCommands, knowledgeContent, skillReads)
 	}) {
 		return context.Canceled
 	}

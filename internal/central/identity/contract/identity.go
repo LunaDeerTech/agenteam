@@ -65,6 +65,7 @@ const (
 	AccountMaintenance ServiceName = "account-maintenance"
 	AccountMail        ServiceName = "account-mail"
 	ModelRuntime       ServiceName = "model-runtime"
+	RunnerIdentity     ServiceName = "runner-identity"
 )
 
 const ProjectInitialization ServiceName = "project-initialization"
@@ -170,7 +171,7 @@ type ServiceRegistration struct{ data func() ServiceName }
 
 func RegisterService(name ServiceName) (ServiceRegistration, error) {
 	switch name {
-	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, ProjectInitialization, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail, ModelRuntime:
+	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, ProjectInitialization, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail, ModelRuntime, RunnerIdentity:
 	default:
 		return ServiceRegistration{}, invalid()
 	}
@@ -178,6 +179,9 @@ func RegisterService(name ServiceName) (ServiceRegistration, error) {
 }
 func (r ServiceRegistration) Actor(causeRef string, scope Scope) (Actor, error) {
 	if r.data == nil || scope.Validate() != nil || scope.Details().Kind == AgentMemory || !ValidCauseRef(causeRef) {
+		return Actor{}, invalid()
+	}
+	if r.data() == RunnerIdentity && scope.Details().Kind != System {
 		return Actor{}, invalid()
 	}
 	return actor(ActorDetails{Kind: Service, ServiceName: r.data(), CauseRef: causeRef, ProjectID: scope.Details().ProjectID}), nil

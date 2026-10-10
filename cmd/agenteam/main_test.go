@@ -45,6 +45,8 @@ func TestCheckConfigAndUnsupportedCompiledRepair(t *testing.T) {
 			return `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, true
 		case config.Prefix + "CURSOR_KEYRING":
 			return `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, true
+		case config.Prefix + "KNOWLEDGE_CONFIRMATION_KEYRING":
+			return `{"format":1,"current_kid":"knowledge","keys":[{"kid":"knowledge","key_b64":"gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp8="}]}`, true
 		case config.Prefix + "DATABASE_URL":
 			return "postgresql://check:private-sentinel@127.0.0.1:1/config_only", true
 		case config.Prefix + "DATABASE_TLS_MODE":
