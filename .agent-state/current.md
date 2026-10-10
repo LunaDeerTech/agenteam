@@ -1,6 +1,6 @@
 # 当前执行检查点
 
-## 当前组合与 AgentBusy 有限接受（2026-10-10）
+## 当前组合与 pending/HTTP 有限接受（2026-10-10）
 
 - 当前树为 `/workspace/agenteam-agent-system-integration` / `ai/agent-system-integration`；Busy与title-only产品组合`07d490b2`已有限独审，pure02的19个新top race＋四包vet及候选编译wholePASS。00046由content唯一维护，title三源`ce799351`获work_ui独审；本轮实际结果与恢复记录由root统一保存，不预填未确认的远端状态。此前组合`931b054f`已推送，Source实际产品`f8770d14`（donor `c39ff4e2`已推送）6top race＋runtime/skill两包vet wholePASS且双独审接受；Occupancy实际`957cf9df` 5top/16sub race＋execution vet通过并独审接受，共11个新top/3包。
 - `TestAgentConfigurationCreate` PG02真实1top2sub、28.67s（16.96/11.71）wholePASS，session22455→eeee99；真实Source→Registry Reconcile→默认两项true的Agent.Create/Get/Lookup及same-key重放，16类事实与跨域引用一致。原final Tx全部写入后marker证明业务整体rollback，planned intent允许保留；正式WorkCreateTask及真实empty Occupancy也通过。
@@ -9,9 +9,10 @@
 - Occupancy donor `c87a1019`已推送，原`/workspace/agenteam-task-assignment`已正常移除且无ignored独有材料，pure材料留本树；旧preparation/Task trigger donor此前已移除、远端分支可复建。原Runtime Source donor树现复用为TaskDispatch并保留旧pure；后续成功候选仅按授权退休，FAIL与共享依赖保留。旧提供方批次全部原尾已闭。
 - 后继Human PG03及StartSprint/WorkClaim原子pending链已按各版本wholePASS，41–45相关范围保留。Launch组合`281fc3cb`已推送：8top/三包vet及compile01 wholePASS，真实SchedulerLaunch PG01业务1top2sub通过，但HOST_TCP delta=1使sup/outer Wait1、整轮wholeFAIL；原tuple未保存不能归因或补认，其余七资源/owned尾已退出，1411输入一致。原FAIL候选、日志、输入保留，不重跑该轮。
 - Busy native01 1top2sub、38.22s（21.48/16.74）wholePASS：Go/driver/sup/outer全Wait0，七资源14次absence、private/runtime/desc/TCP及outer双尾全空，survivors/adopted为空，1423输入不变；结果保留在`output/ai/agent-system-integration/scheduler-busy-01-control/result.json`。当前无Go/cache/native在途。pure01同启动fresh 5,326,884,864B不足5GiB，0Go/0top、vet未启的容量FAIL保留，不是产品FAIL。
-- 本轮只处理明确AgentBusy的持久分类及原Tx补偿：原version/关系允许则恢复逻辑位置，后继业务变化preserve，坏锚点失败；paused保confirmed-busy pending待resume。title-only仅扩当前Human Owner对assigned in_progress Task的原UpdateTask，结构变更旧门不放宽。ToolExecution、完整Dispatcher/自动retry/Loop、Task HTTP/UI、生产app与完整F1未完成；完整capture缺实际提供方即拒绝且零input，不持久化部分Snapshot，General Object Runtime join等旧STOP保持。
-- 下一两线保留独立donor：`/workspace/agenteam-skill-install-runtime-source` / `ai/task-dispatch`的bounded pending visit四源及配套一个PG测试已静审接受，含current六路径保存`92c282bc`；`/workspace/agenteam-task-human-http` / `ai/task-human-http`的transfer/lookup HTTP 12路径已获content有限独审接受，保存`81ab48c2`。两片15个产品路径已集成本树`a400b85f`并推送，16top/三包vet待运行；新HTTP真实fixture由work_ui在其独立树编写。paused visit只Deferred、原发送/关联Tx重验配置；HTTP沿真实服务/当前Human/CSRF/原意图Lookup，不新增Scheduler权限。
-- 容量：Model835a、Secret e591、Skills e9a、Metadata0115四旧树production park保留。漏继承的两组archive排除已纠正，回收约1.417GB；Model/Secret另可逆排除tracked docs约289MB、Git clean，再用须hydrate docs/source；Skills/Metadata仍仅production park加旧archive规则。AGENTS、.agent-state、output/ignored、FAIL与refs保留，旧成功候选的授权退休不删除失败或恢复材料。
+- 本轮只处理明确AgentBusy的持久分类及原Tx补偿：原version/关系允许则恢复逻辑位置，后继业务变化preserve，坏锚点失败；paused保confirmed-busy pending待resume。title-only仅扩当前Human Owner对assigned in_progress Task的原UpdateTask，结构变更旧门不放宽。ToolExecution、完整Dispatcher retry/finalfailure/loop、Task UI、生产app与完整F1未完成；完整capture缺实际提供方即拒绝且零input，不持久化部分Snapshot，General Object Runtime join等旧STOP保持。
+- 最新组合`ccfd5674`＝HTTP `81ab48c2`＋fixture `e28f`＋pending `92c282bc`，已有限独审；16top/三包vet、compile及组合native01 2top4sub均wholePASS（Pending 17.85s、HTTP 16.01s）。原Go/driver/sup/outer全Wait0，七资源14次absence、private/runtime/desc/TCP双尾全空，1432输入稳定，窗口已归还；结果为`output/ai/agent-system-integration/pending-http-01-control/result.json`，无Go/cache/native在途。独立donor仍为`/workspace/agenteam-skill-install-runtime-source` / `ai/task-dispatch`和`/workspace/agenteam-task-human-http` / `ai/task-human-http`。paused visit只Deferred、原发送/关联Tx重验配置；HTTP沿真实服务/当前Human/CSRF/原意图Lookup，不新增Scheduler权限。
+- 下轮仅建议SprintStart HTTP与真实technical-blocker最终失败提供方并行，先契约后实施，尚未开工；不将本轮有限通过称为完整Dispatcher。旧Launch01 wholeFAIL不被本次结果覆盖。
+- 容量：Model835a、Secret e591、Skills e9a、Metadata0115四旧树均production＋tracked docs可逆sparse停放，AGENTS、.agent-state、output/ignored、FAIL与refs保留，再用source/docs须hydrate。四树漏继承archive排除的事故已纠正；旧成功候选的授权退休不删除失败或恢复材料。
 - 正式main仍为Human Skill有限交付`18a27db5`；既有21top/10包vet、32–35与37–39 schema及下述Schema核心/适配器8top/两包vet范围保留。Secret UI05wholeFAIL停放、生产initializer未绑定、E01未开始与整体约30%的工程粗估不因本次有限通过改变。
 
 ## Tool Schema / Runtime 适配器（2026-10-10，有限范围已通过）
