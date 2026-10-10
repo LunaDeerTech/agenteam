@@ -406,6 +406,7 @@ async function scenario(mode = "normal") {
     if (process.argv.includes("--diagnostics-only")) {
       assert.equal(await observer.ready(), true);
       const sampled = observer.diagnostics();
+      assert.equal(sampled.node_ready_observed, true);
       assert.equal(sampled.node_ready, true);
       assert.equal(sampled.browser_pending, 0);
       assert(Object.isFrozen(sampled));
@@ -426,6 +427,13 @@ async function scenario(mode = "normal") {
       const marker = "SYNTHETIC_DIAGNOSTIC_VALUE";
       const copied = structuredClone(result);
       const original = box.exports.secretOwnerDiagnostic(copied);
+      assert.equal(original.node_ready_observed, false);
+      const observedFalse = box.exports.secretOwnerDiagnostic({
+        ...copied,
+        node_ready: false,
+      });
+      assert.equal(observedFalse.node_ready_observed, true);
+      assert.equal(observedFalse.node_ready, false);
       copied.rows[0].failed = 1;
       copied.rows[0].url = marker;
       copied.rows[0].xid = marker;
@@ -446,7 +454,7 @@ async function scenario(mode = "normal") {
       assert.equal(projected.reason, "unavailable");
       assert.equal(JSON.stringify(projected).includes(marker), false);
       assert.equal(box.exports.secretOriginalCompleted(copied), false);
-      checks += 10;
+      checks += 14;
     } else {
       const bad = [
         (r) => (r.rows[0].xid = id(900)),

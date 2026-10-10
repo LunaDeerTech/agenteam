@@ -612,6 +612,7 @@ export function secretOwnerDiagnostic(report: any) {
     );
   const known = ["list", "get", "create", "update", "lookup", "delete"];
   return Object.freeze({
+    node_ready_observed: typeof report?.node_ready === "boolean",
     node_ready: report?.node_ready === true,
     node_failed: report?.pw_failed === true,
     node_pending: Number.isSafeInteger(report?.pw_pending)
