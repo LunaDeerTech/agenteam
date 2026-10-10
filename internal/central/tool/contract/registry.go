@@ -112,6 +112,9 @@ func canonicalSchema(ctx context.Context, b []byte) ([]byte, error) {
 	if len(b) == 0 || !utf8.Valid(b) {
 		return nil, invalidRegistry()
 	}
+	if err := checkUnicodeEscapes(ctx, b); err != nil {
+		return nil, err
+	}
 	d := json.NewDecoder(bytes.NewReader(b))
 	d.UseNumber()
 	v, err := schemaValue(ctx, d, 0)
@@ -127,6 +130,72 @@ func canonicalSchema(ctx context.Context, b []byte) ([]byte, error) {
 		return nil, invalidRegistry()
 	}
 	return json.Marshal(v)
+}
+
+// encoding/json replaces lone surrogate escapes with U+FFFD. Reject them before
+// decoding instead; escaped backslashes are consumed as pairs, so a literal
+// "\\ud800" string is not mistaken for a surrogate. The decoder below remains
+// responsible for the JSON grammar and all non-Unicode escape validity.
+func checkUnicodeEscapes(ctx context.Context, b []byte) error {
+	nextCheck := 0
+	for n := 0; n < len(b); n++ {
+		if n >= nextCheck {
+			if err := ctx.Err(); err != nil {
+				return err
+			}
+			nextCheck = n + 4096
+		}
+		if b[n] != '\\' {
+			continue
+		}
+		n++
+		if n == len(b) {
+			return invalidRegistry()
+		}
+		if b[n] != 'u' {
+			continue
+		}
+		value, ok := unicodeUnit(b[n+1:])
+		if !ok {
+			return invalidRegistry()
+		}
+		n += 4
+		if value >= 0xdc00 && value <= 0xdfff {
+			return invalidRegistry()
+		}
+		if value < 0xd800 || value > 0xdbff {
+			continue
+		}
+		if len(b)-n < 7 || b[n+1] != '\\' || b[n+2] != 'u' {
+			return invalidRegistry()
+		}
+		low, ok := unicodeUnit(b[n+3:])
+		if !ok || low < 0xdc00 || low > 0xdfff {
+			return invalidRegistry()
+		}
+		n += 6
+	}
+	return ctx.Err()
+}
+func unicodeUnit(b []byte) (uint16, bool) {
+	if len(b) < 4 {
+		return 0, false
+	}
+	var value uint16
+	for _, c := range b[:4] {
+		value <<= 4
+		switch {
+		case c >= '0' && c <= '9':
+			value |= uint16(c - '0')
+		case c >= 'a' && c <= 'f':
+			value |= uint16(c - 'a' + 10)
+		case c >= 'A' && c <= 'F':
+			value |= uint16(c - 'A' + 10)
+		default:
+			return 0, false
+		}
+	}
+	return value, true
 }
 func schemaValue(ctx context.Context, d *json.Decoder, depth int) (any, error) {
 	if err := ctx.Err(); err != nil {

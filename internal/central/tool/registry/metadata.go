@@ -56,6 +56,12 @@ func decodeDefinition(ctx context.Context, raw []byte, key string) ([]byte, erro
 	if err != nil {
 		return nil, portError(err)
 	}
+	// bytea deliberately has no database JSON normalization. Require the complete
+	// exact canonical encoding on reads too, rejecting trailing values, replaced
+	// Unicode and any data not written by the validated metadata writer.
+	if !bytes.Equal(b, raw) {
+		return nil, fail(f.InvalidState)
+	}
 	return b, nil
 }
 
@@ -116,7 +122,7 @@ func (r *Registry) ReconcileBuiltinInTx(ctx context.Context, tx f.Tx, key string
 		}
 	}
 	if newSpec {
-		if _, err = x.Exec(ctx, `INSERT INTO agenteam_tool.spec_revisions(tool_id,spec_revision,definition) VALUES($1,$2,$3::jsonb)`, tool.String(), int64(revision), string(definition)); err != nil {
+		if _, err = x.Exec(ctx, `INSERT INTO agenteam_tool.spec_revisions(tool_id,spec_revision,definition) VALUES($1,$2,$3)`, tool.String(), int64(revision), definition); err != nil {
 			return tc.SpecRef{}, portError(err)
 		}
 		if old != nil {

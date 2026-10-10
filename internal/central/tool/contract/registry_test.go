@@ -35,10 +35,15 @@ func TestRegistryDefinitionPreservesSchemaAndCanonicalIdentity(t *testing.T) {
 	if _, err = CanonicalDefinition(context.Background(), second); err != nil {
 		t.Fatalf("boolean schema: %v", err)
 	}
+	second.InputSchema = []byte(`{"const":[1e0,1e200000,"\u0000","\ud83d\ude00","\\ud800"]}`)
+	b, err = CanonicalDefinition(context.Background(), second)
+	if err != nil || !bytes.Contains(b, []byte(`1e0`)) || !bytes.Contains(b, []byte(`1e200000`)) || !bytes.Contains(b, []byte(`\u0000`)) || !bytes.Contains(b, []byte("😀")) || !bytes.Contains(b, []byte(`\\ud800`)) {
+		t.Fatal("valid JSON value or paired Unicode changed")
+	}
 }
 func TestRegistryDefinitionRejectsMalformedAndBoundedInput(t *testing.T) {
 	base := Definition{StableKey: "builtin:fixture", Name: "Fixture", InputSchema: []byte(`{}`)}
-	for _, raw := range []string{`{"type":"object","type":"string"}`, `{"properties":{"x":true,"x":false}}`, `{} {}`, `[]`, `null`, `{"x":NaN}`} {
+	for _, raw := range []string{`{"type":"object","type":"string"}`, `{"properties":{"x":true,"x":false}}`, `{} {}`, `[]`, `null`, `{"x":NaN}`, `{"const":"\ud800"}`, `{"\udc00":true}`, `{"const":"\ud800\u0041"}`, `{"const":"\ud800\\udc00"}`} {
 		v := base
 		v.InputSchema = []byte(raw)
 		if got, err := CanonicalDefinition(context.Background(), v); err == nil || got != nil {

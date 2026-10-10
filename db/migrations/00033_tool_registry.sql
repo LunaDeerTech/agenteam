@@ -15,7 +15,10 @@ CREATE TABLE agenteam_tool.identities (
 CREATE TABLE agenteam_tool.spec_revisions (
  tool_id agenteam_tool.safe_id NOT NULL REFERENCES agenteam_tool.identities(tool_id),
  spec_revision bigint NOT NULL CHECK (spec_revision > 0),
- definition jsonb NOT NULL CHECK ((jsonb_typeof(definition)='object' AND octet_length(definition::text)<=131072) IS TRUE),
+ -- Preserve validated canonical bytes exactly. jsonb would normalize numeric
+ -- spellings, reject valid large numbers/escaped NUL, and expand whitespace.
+ -- The trusted writer and every read validate the full bounded definition.
+ definition bytea NOT NULL CHECK (octet_length(definition) BETWEEN 2 AND 131072),
  created_at timestamptz(6) NOT NULL DEFAULT clock_timestamp(),
  PRIMARY KEY(tool_id,spec_revision)
 );

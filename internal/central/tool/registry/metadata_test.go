@@ -123,6 +123,7 @@ func metadataFixture(t *testing.T) (*Registry, *metadataStore, *metadataSource) 
 }
 func TestRegistryIdentityAndRevisionArePersistentMetadata(t *testing.T) {
 	r, s, p := metadataFixture(t)
+	p.registration.Definition.InputSchema = []byte(`{"const":[1e0,1e200000,"\u0000"]}`)
 	first, err := r.ReconcileBuiltinInTx(context.Background(), s.tx, "builtin:fixture")
 	if err != nil {
 		t.Fatal(err)
@@ -133,6 +134,17 @@ func TestRegistryIdentityAndRevisionArePersistentMetadata(t *testing.T) {
 	canonical, err := tc.CanonicalDefinition(context.Background(), p.registration.Definition)
 	if err != nil {
 		t.Fatal(err)
+	}
+	stored, ok := s.args[1][2].([]byte)
+	if !ok || string(stored) != string(canonical) || strings.Contains(s.writes[1], "::jsonb") {
+		t.Fatal("persistent representation rewrites validated canonical bytes")
+	}
+	recovered, err := decodeDefinition(context.Background(), stored, "builtin:fixture")
+	if err != nil || string(recovered) != string(canonical) {
+		t.Fatal("stored canonical identity is not stable")
+	}
+	if _, err = decodeDefinition(context.Background(), append(append([]byte{}, stored...), []byte(` {}`)...), "builtin:fixture"); err == nil {
+		t.Fatal("byte storage accepted a trailing JSON value")
 	}
 	s.row = metadataRow{tool: first.ToolID.String(), key: "builtin:fixture", revision: 1, definition: canonical}
 	s.writes = nil
