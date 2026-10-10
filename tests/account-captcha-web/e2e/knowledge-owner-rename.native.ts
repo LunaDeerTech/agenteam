@@ -929,7 +929,8 @@ export async function observeRename(
     slots = new Map<Request, Slot>(),
     tails = new Set<Promise<void>>();
   let failed = false,
-    closed = false;
+    closed = false,
+    retiring = false;
   const prefix = `/api/v1/projects/${config.project}/knowledge/documents`;
   const selected = (request: Request) =>
     new URL(request.url()).pathname.startsWith(prefix);
@@ -995,6 +996,7 @@ export async function observeRename(
     }
     if (
       closed ||
+      retiring ||
       page.isClosed() ||
       Date.now() >= expiresAt ||
       rows.size >= 256
@@ -1222,51 +1224,87 @@ export async function observeRename(
     throw error;
   }
   let report: any;
+  let finishPromise: Promise<any> | undefined;
   return {
-    async finish() {
-      if (report) return report;
-      try {
-        diagnostic.enter("pw-tails");
-        await Promise.all([
-          ...tails,
-          ...[...slots.values()].map((slot) => slot.terminal),
-        ]);
-        diagnostic.complete("pw-tails");
-        diagnostic.enter("page-observers");
-        const value = await page.evaluate(async () => {
-          const host = window as any;
-          const native = host.__knowledgeRenameNative.finish();
-          const publication = host.__knowledgeRenamePublication.finish();
-          return {
-            native: await native,
-            publication: await publication,
+    finish() {
+      if (finishPromise) return finishPromise;
+      // Capture Node eligibility before any await. Joining a held PW tail
+      // later cannot turn this first retirement into an eligible one.
+      const firstNode = Object.freeze({
+        requests: rows.size,
+        pending: tails.size,
+        pending_terminals: [...rows.values()].filter(
+          (row) => row.terminal === "pending",
+        ).length,
+        ready:
+          !failed &&
+          !closed &&
+          !page.isClosed() &&
+          Date.now() < expiresAt &&
+          tails.size === 0 &&
+          [...rows.values()].every(
+            (row) =>
+              row.events_valid &&
+              ["finished", "failed"].includes(row.terminal) &&
+              row.response_count === 1 &&
+              row.tail_joined === true,
+          ),
+      });
+      retiring = true;
+      finishPromise = (async () => {
+        try {
+          diagnostic.enter("page-observers");
+          // Start both browser seals immediately, before joining any PW tail.
+          // The single evaluation and all original tails are always joined.
+          const pageTail = page.evaluate(async () => {
+            const host = window as any;
+            const native = host.__knowledgeRenameNative.finish();
+            const publication = host.__knowledgeRenamePublication.finish();
+            return {
+              native: await native,
+              publication: await publication,
+            };
+          });
+          diagnostic.enter("pw-tails");
+          const [pageResult, ...pwResults] = await Promise.allSettled([
+            pageTail,
+            ...tails,
+            ...[...slots.values()].map((slot) => slot.terminal),
+          ]);
+          diagnostic.complete("pw-tails");
+          diagnostic.complete("page-observers");
+          if (pageResult.status === "rejected") throw pageResult.reason;
+          const rejectedTail = pwResults.find(
+            (result) => result.status === "rejected",
+          );
+          if (rejectedTail?.status === "rejected") throw rejectedTail.reason;
+          closed = true;
+          clearTimeout(expiry);
+          detach();
+          report = {
+            ...pageResult.value,
+            first_node: firstNode,
+            pw_failed: failed || !firstNode.ready || !diagnostic.healthy(),
+            pw_pending: tails.size,
+            requests: [...rows.values()],
+            input_hash: config.inputHash,
           };
-        });
-        diagnostic.complete("page-observers");
-        closed = true;
-        clearTimeout(expiry);
-        detach();
-        report = {
-          ...value,
-          pw_failed: failed || !diagnostic.healthy(),
-          pw_pending: tails.size,
-          requests: [...rows.values()],
-          input_hash: config.inputHash,
-        };
-        diagnostic.enter("report-write");
-        await writeFile(
-          join(config.evidence, "knowledge-rename-native-consumption.json"),
-          JSON.stringify(report),
-          { mode: 0o600 },
-        );
-        diagnostic.complete("report-write");
-        return report;
-      } catch (error) {
-        diagnostic.event("finish-reject", undefined, tails.size);
-        clearTimeout(expiry);
-        close();
-        throw error;
-      }
+          diagnostic.enter("report-write");
+          await writeFile(
+            join(config.evidence, "knowledge-rename-native-consumption.json"),
+            JSON.stringify(report),
+            { mode: 0o600 },
+          );
+          diagnostic.complete("report-write");
+          return report;
+        } catch (error) {
+          diagnostic.event("finish-reject", undefined, tails.size);
+          clearTimeout(expiry);
+          close();
+          throw error;
+        }
+      })();
+      return finishPromise;
     },
     async idle() {
       try {

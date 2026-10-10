@@ -1,7 +1,7 @@
 # Knowledge Owner 已有文档改名
 
 - 树 `/workspace/agenteam-knowledge-owner-rename`，分支 `ai/knowledge-owner-rename`，main 基线 `04455194`。规格见 [D12 主卡末段](../docs/development/work-items/d12-knowledge-documents.md#owner-已有文档改名-ui实施规格尚未验收)。Git 全由 root 负责；没有真实 socket/browser/PG 授权。
-- 当前生产实现为已有文档 rename/原 Lookup/显式原请求重放→当前 metadata/body/root+三已知父层有界重读；不含 create/replace/move/delete，不改 backend/锁/D13/STOP。八生产源、三新 tests 已保存 `bd7502d2`；本次窄返修与结果待下一保存。
+- 当前生产实现为已有文档 rename/原 Lookup/显式原请求重放→当前 metadata/body/root+三已知父层有界重读；不含 create/replace/move/delete，不改 backend/锁/D13/STOP。八生产源及必要测试窄返修已保存 `22417dae`；main `33903460` 已合入为 `f408715d`，生产冻结。新真实 fixture 六源初稿与本状态已保存 `f88a1824`，首次退役方法窄返修待下一保存。
 - root 已导入 Skills `abdb43b4` 的最新 `client.ts`、`useSession.ts` 与 readonly `api/skill-owner.ts`。named capabilities 同时保 knowledgeCommands/skills，Skills 两 GET/current Human/原尾不变。当前 client/session 交回 content 唯一写，Session 与该来源零差异；下一转交由 root 做。auth 保 Skills canonical suffix 与原 Project 导航顺序。
 - 三个独审 must-fix 已窄修并获 skills 实际差异有限接受：冲突捕获旧 metadata，未取得新完整 GET 不能采用；same-session 恢复/重新 mount 由 Session 公开 target/identity 重建 pending 归属，原文档不可用也可查证/显式放弃，导航确认后清原私料；只有两个新 POST 严格处理 reader/outer cancel reject，原 actual join/release 保留，安全失败使原命令 uncertain，旧端点取消分支保持。
 
@@ -16,6 +16,8 @@
 ## 写域与下一步
 
 - 生产：新 api/knowledge-commands、composables/useKnowledgeRename、components/knowledge/KnowledgeRenameDialog；旧 api/client、composables/useSession、composables/useKnowledgeOwner、views/projects/ProjectKnowledgeView、router/auth（均在 web/src）。新增 command-client、command-state、rename 三测试；另 root 授权只修 project-workspace.spec.ts 原单 case 的实际导航 join。Schema/API/Session 公共契约不变。
-- 已获新真实源码范围：`internal/central/app/knowledge_owner_rename_web_test.go`，`tests/account-captcha-web/knowledge-owner-rename.config.js`，`e2e/knowledge-owner-rename.{spec,native}.ts`，`.agent-state/knowledge-owner-rename/{README.md,native-controls.cjs}`。实现尚未落盘。exact `TestKnowledgeOwnerRenameWeb` 1top0sub/PW1case，首正常 rename；unknown/conflict 先保当前受控验证界限。
+- 新真实源码已落盘：`internal/central/app/knowledge_owner_rename_web_test.go`，`tests/account-captcha-web/knowledge-owner-rename.config.js`，`tests/account-captcha-web/e2e/knowledge-owner-rename.{spec,native}.ts`，`.agent-state/knowledge-owner-rename/{README.md,native-controls.cjs}`。exact `TestKnowledgeOwnerRenameWeb` 1top0sub/PW1case，首正常 rename 与八 GET；unknown/conflict 先保当前受控验证界限。Go 尚未编译、真实链未运行。
+- 初稿原 native 格式解析因选择表达式少右括号失败，机械修正；原离线 native `35402` actual0（10 模式/57 控/0 unhandled）、fixture strict TS `72800` actual0、锁定 PW list `19235` actual0/恰一 case。独审随后发现 first finish 先等待 PW 尾、后记录 browser 首退休的缺口；这些旧 PASS 不冒方法完整接受。
+- 仅新 native/controls 窄返修：首次 finish 同步冻结 Node pending/terminal/完整 tail 资格，立即调用同一次 page 双 seal，再 allSettled join 全部原 PW/page 尾；缓存原 finish Promise，首时未完成或之后新 Request 均不能迟到升级。新增一个 actual observeRename held-finished 负控；修后 `25870` actual0（11 模式/71 控/0 unhandled，3.587s），fixture strict TS `49712` actual0（1.821s）。POST normal-only 与旧四 GET live ERR_ABORTED 全联合门保持；旧 read04、Go/config/spec/dist、预算未改。最后实际 diff 独审待结论。
 - default initializer 仍 unbound/零事实；复用 same-package 正式 Account/Knowledge/Object 与 test-only 真实 Project fixture Stop/Drain。POST 必须原 Request finished、原响应完整消费/取消尾、Session typed 同 Promise 与 DOM 全门；不借旧四 GET failed 例外。原七资源、Go120/PW45/6m/root540+60+3/TCP 全尾不变。
 - shared supervisor/driver 新 Rename+Skills 闭集由 cleanup 唯一 writer；content 只发确切 env/闭包，不改 shared。long Go/native 前 fresh≥5GiB/私有 telemetryoff，并等 root 实际窗口；短 Node pure 不要求该磁盘门。没有在途本树进程。

@@ -148,6 +148,7 @@ process.on("unhandledRejection", () => unhandled++);
     "outer-reject",
     "void-public",
     "held-first-retirement",
+    "held-pw-first-retirement",
   ];
   for (const mode of modes) {
     const evidence = fs.mkdtempSync(
@@ -182,6 +183,10 @@ process.on("unhandledRejection", () => unhandled++);
       finished() {
         assert.equal(this, pwResponse);
         finishedCalls++;
+        if (mode === "held-pw-first-retirement") {
+          entered.resolve();
+          return gate.promise.then(() => null);
+        }
         return Promise.resolve(null);
       },
       body() {
@@ -338,6 +343,39 @@ process.on("unhandledRejection", () => unhandled++);
           __knowledgeRenameNative.snapshot().pending === 0 &&
           __knowledgeRenamePublication.snapshot().pending === 0,
       );
+      if (mode === "held-pw-first-retirement") {
+        await entered.promise;
+        assert.equal(await observer.idle(), true);
+        let completed = false;
+        const finish = observer.finish();
+        finish.then(
+          () => (completed = true),
+          () => (completed = true),
+        );
+        assert.equal(observer.finish(), finish);
+        await wait(
+          () =>
+            __knowledgeRenameNative.snapshot().retired &&
+            __knowledgeRenamePublication.snapshot().retired,
+        );
+        assert.equal(completed, false);
+        assert.equal(
+          __knowledgeRenameNative.snapshot().pending_at_retirement,
+          0,
+        );
+        assert.equal(
+          __knowledgeRenamePublication.snapshot().pending_at_retirement,
+          0,
+        );
+        gate.resolve();
+        report = await finish;
+        assert.equal(report.first_node.pending, 1);
+        assert.equal(report.first_node.pending_terminals, 0);
+        assert.equal(report.first_node.ready, false);
+        assert.equal(report.pw_pending, 0);
+        assert.equal(report.pw_failed, true);
+        checks += 10;
+      }
       report ??= await observer.finish();
       assert.equal(headerCalls, 1);
       assert.equal(
