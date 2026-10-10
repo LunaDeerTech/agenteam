@@ -237,6 +237,95 @@ RUNTIME_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS
                                                                 "'AgentConfigurationSchema', "
                                                                 "'AgentRuntimeSchema')) and")]}
 
+LAUNCH_SELECTOR = '^TestSchedulerLaunch$'
+LAUNCH_TOP = 'TestSchedulerLaunch'
+LAUNCH_CASES = frozenset({LAUNCH_TOP, LAUNCH_TOP + '/created-association-and-replay',
+                          LAUNCH_TOP + '/association-failure-lookup-recovery'})
+LAUNCH_BASE = {'.agent-state/work-owner-http/root_chain_driver.py': '018c6e6dc3754aa6dc608e86d75fa4cac8987c50a23b4200583926d2d04ed002',
+ '.agent-state/task-planning-recovery/pg_only_supervisor.py': '2f62858668ec91c1d2208f86b4e8456927c260dc48d4ee73fa86c5b3e04d399c'}
+LAUNCH_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS = {\n',
+                                                        'TARGETS = {\n'
+                                                        "    '^TestSchedulerLaunch$': "
+                                                        "'tests/projectvariable',\n"),
+                                                       ("    if selector == '^TestSchedulerClaim$':\n",
+                                                        "    if selector == '^TestSchedulerLaunch$':\n"
+                                                        '        paths.add(REPOSITORY / '
+                                                        "'tests/projectvariable/scheduler_launch_test.go')\n"
+                                                        "    elif selector == '^TestSchedulerClaim$':\n"),
+                                                       ('    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$'):\n",
+                                                        '    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', "
+                                                        "'^TestSchedulerLaunch$'):\n"),
+                                                       ('    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$'):\n",
+                                                        '    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$', "
+                                                        "'^TestSchedulerClaim$', "
+                                                        "'^TestSchedulerLaunch$'):\n")],
+ '.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {',
+                                                                'SCHEDULER_LAUNCH_ROOT = '
+                                                                "'^TestSchedulerLaunch$'\n"
+                                                                'SCHEDULER_LAUNCH_CASES = frozenset({\n'
+                                                                "    'TestSchedulerLaunch',\n"
+                                                                '    '
+                                                                "'TestSchedulerLaunch/created-association-and-replay',\n"
+                                                                '    '
+                                                                "'TestSchedulerLaunch/association-failure-lookup-recovery',\n"
+                                                                '})\n'
+                                                                'METADATA_GROUPS = {'),
+                                                               ('SCHEDULER_CLAIM_ROOT: '
+                                                                'SCHEDULER_CLAIM_CASES}',
+                                                                'SCHEDULER_CLAIM_ROOT: '
+                                                                'SCHEDULER_CLAIM_CASES,\n'
+                                                                '                   SCHEDULER_LAUNCH_ROOT: '
+                                                                'SCHEDULER_LAUNCH_CASES}'),
+                                                               ('        SCHEDULER_CLAIM_ROOT: '
+                                                                "{'TestSchedulerClaim'},\n",
+                                                                '        SCHEDULER_CLAIM_ROOT: '
+                                                                "{'TestSchedulerClaim'},\n"
+                                                                '        SCHEDULER_LAUNCH_ROOT: '
+                                                                "{'TestSchedulerLaunch'},\n"),
+                                                               ("'TaskTransitionHuman', 'SchedulerClaim')) "
+                                                                'and',
+                                                                "'TaskTransitionHuman', 'SchedulerClaim', "
+                                                                "'SchedulerLaunch')) and")]}
+
+def launch_projection(name, source):
+    if "'^TestSchedulerLaunch$'" not in source:
+        return source
+    for before, after in reversed(LAUNCH_HUNKS[name]):
+        if source.count(after) != 1:
+            raise ValueError('unknown or ambiguous Scheduler Launch data')
+        source = source.replace(after, before, 1)
+    if hashlib.sha256(source.encode()).hexdigest() != LAUNCH_BASE[name]:
+        raise ValueError('unknown Scheduler Launch baseline')
+    return source
+
+
 CLAIM_SELECTOR = '^TestSchedulerClaim$'
 CLAIM_TOP = 'TestSchedulerClaim'
 CLAIM_CASES = frozenset({CLAIM_TOP, CLAIM_TOP + '/start-sprint-claim-and-replay',
@@ -322,6 +411,7 @@ CLAIM_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS =
                                                                 "'SchedulerClaim')) and")]}
 
 def claim_projection(name, source):
+    source = launch_projection(name, source)
     if "'^TestSchedulerClaim$'" not in source:
         return source
     for before, after in reversed(CLAIM_HUNKS[name]):
@@ -672,7 +762,7 @@ class SchemaEntryControls(unittest.TestCase):
         baseline = {'__file__': str(ROOT / DRIVER), '__name__': 'schema_baseline'}
         exec(compile(inverse(DRIVER, (ROOT / DRIVER).read_text()), DRIVER, 'exec'), baseline)
         self.assertEqual(self.driver.TARGETS[SELECTOR], 'tests/projectvariable')
-        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR, PREPARATION_SELECTOR, CREATE_SELECTOR, TASK_SELECTOR, CLAIM_SELECTOR)}, baseline['TARGETS'])
+        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR, PREPARATION_SELECTOR, CREATE_SELECTOR, TASK_SELECTOR, CLAIM_SELECTOR, LAUNCH_SELECTOR)}, baseline['TARGETS'])
         self.assertEqual(self.sup.budgets(True), (540, 60))
         self.assertEqual(self.sup.budgets(False), (123, 3))
         for path, constant in (
@@ -733,7 +823,8 @@ class SchemaEntryControls(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='agent-schema-inputs-') as tmp:
             root = Path(tmp).resolve()
             names = ('candidate.test', 'production.go',
-                     ('tests/projectvariable/scheduler_claim_test.go' if SELECTOR == CLAIM_SELECTOR
+                     ('tests/projectvariable/scheduler_launch_test.go' if SELECTOR == LAUNCH_SELECTOR
+                      else 'tests/projectvariable/scheduler_claim_test.go' if SELECTOR == CLAIM_SELECTOR
                       else 'tests/projectvariable/task_transition_scheduler_test.go' if SELECTOR == TASK_SELECTOR
                       else 'tests/projectvariable/agent_configuration_create_test.go' if SELECTOR == CREATE_SELECTOR
                       else 'tests/projectvariable/execution_preparation_test.go' if SELECTOR == PREPARATION_SELECTOR
@@ -900,7 +991,7 @@ class SchemaEntryControls(unittest.TestCase):
         self.assertEqual(self.driver.TARGETS[CLAIM_SELECTOR], 'tests/projectvariable')
         self.assertEqual(self.sup.METADATA_GROUPS[CLAIM_SELECTOR], CLAIM_CASES)
         for name, pairs in CLAIM_HUNKS.items():
-            source = (ROOT / name).read_text()
+            source = launch_projection(name, (ROOT / name).read_text())
             self.assertEqual(hashlib.sha256(claim_projection(name, source).encode()).hexdigest(), CLAIM_BASE[name])
             for old, new in pairs:
                 self.assertEqual(source.count(new), 1)
@@ -910,6 +1001,26 @@ class SchemaEntryControls(unittest.TestCase):
         with patch.dict(globals(), SELECTOR=CLAIM_SELECTOR, TOP=CLAIM_TOP, CASES=CLAIM_CASES), \
                 patch.object(self.sup, 'SCHEMA_ROOT', CLAIM_SELECTOR), \
                 patch.object(self.sup, 'SCHEMA_CASES', CLAIM_CASES):
+            self.test_exact_three_subcases_and_original_wait()
+            self.test_actual_main_requires_exact_root_mode()
+            self.test_actual_schema_inputs_reenumerate_runtime_sources()
+            self.test_actual_observer_keeps_original_resource_tails()
+            self.test_actual_driver_fixed_environment_before_original_exec()
+
+    def test_scheduler_launch_reuses_the_original_family(self):
+        self.assertEqual(self.driver.TARGETS[LAUNCH_SELECTOR], 'tests/projectvariable')
+        self.assertEqual(self.sup.METADATA_GROUPS[LAUNCH_SELECTOR], LAUNCH_CASES)
+        for name, pairs in LAUNCH_HUNKS.items():
+            source = (ROOT / name).read_text()
+            self.assertEqual(hashlib.sha256(launch_projection(name, source).encode()).hexdigest(), LAUNCH_BASE[name])
+            for old, new in pairs:
+                self.assertEqual(source.count(new), 1)
+                for bad in (source.replace(new, old, 1), source + new, source + '\n# unknown\n'):
+                    with self.assertRaises(ValueError):
+                        inverse(name, bad)
+        with patch.dict(globals(), SELECTOR=LAUNCH_SELECTOR, TOP=LAUNCH_TOP, CASES=LAUNCH_CASES), \
+                patch.object(self.sup, 'SCHEMA_ROOT', LAUNCH_SELECTOR), \
+                patch.object(self.sup, 'SCHEMA_CASES', LAUNCH_CASES):
             self.test_exact_three_subcases_and_original_wait()
             self.test_actual_main_requires_exact_root_mode()
             self.test_actual_schema_inputs_reenumerate_runtime_sources()

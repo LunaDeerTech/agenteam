@@ -16,6 +16,7 @@ GO = Path('/workspace/toolchains/go1.27.1/bin/go')
 MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
+    '^TestSchedulerLaunch$': 'tests/projectvariable',
     '^TestSchedulerClaim$': 'tests/projectvariable',
     '^TestTaskTransitionHuman$': 'tests/projectvariable',
     '^TestAgentConfigurationCreate$': 'tests/projectvariable',
@@ -84,7 +85,7 @@ def input_paths(binary):
 
 
 def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
-    if selector not in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$', '^TestAgentRuntimeSchema$', '^TestExecutionPreparation$', '^TestAgentConfigurationCreate$', '^TestTaskTransitionHuman$', '^TestSchedulerClaim$'):
+    if selector not in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$', '^TestAgentRuntimeSchema$', '^TestExecutionPreparation$', '^TestAgentConfigurationCreate$', '^TestTaskTransitionHuman$', '^TestSchedulerClaim$', '^TestSchedulerLaunch$'):
         raise ValueError('exact configuration family selector required')
     # Include the compiled package's complete fixtures and the original shared
     # support, not just the new top or the unrelated Model test package.
@@ -94,7 +95,9 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
     paths.update(p for p in (REPOSITORY / 'internal').rglob('*') if p.is_file())
     paths.update((REPOSITORY / 'tests/testsupport').rglob('*.go'))
     paths.update((REPOSITORY / '.agent-state/project-variables-independent/commitproxy').glob('*.go'))
-    if selector == '^TestSchedulerClaim$':
+    if selector == '^TestSchedulerLaunch$':
+        paths.add(REPOSITORY / 'tests/projectvariable/scheduler_launch_test.go')
+    elif selector == '^TestSchedulerClaim$':
         paths.add(REPOSITORY / 'tests/projectvariable/scheduler_claim_test.go')
     elif selector == '^TestTaskTransitionHuman$':
         paths.add(REPOSITORY / 'tests/projectvariable/task_transition_scheduler_test.go')
@@ -335,7 +338,7 @@ def main():
                 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime)})
     if args.run == '^TestSkillLifecycleCleanupHistoricalAttempts$':
         prepare_history_go_environment(directory, env)
-    if args.run in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$', '^TestAgentRuntimeSchema$', '^TestExecutionPreparation$', '^TestAgentConfigurationCreate$', '^TestTaskTransitionHuman$', '^TestSchedulerClaim$'):
+    if args.run in ('^TestAgentConfigurationMetadata$', '^TestAgentConfigurationSchema$', '^TestAgentRuntimeSchema$', '^TestExecutionPreparation$', '^TestAgentConfigurationCreate$', '^TestTaskTransitionHuman$', '^TestSchedulerClaim$', '^TestSchedulerLaunch$'):
         env.pop('AGENTEAM_PROJECT_LIFECYCLE_GUARD_CHILD', None)
         prepare_history_go_environment(directory, env)
     if args.run == '^TestProjectLifecycleStopBatchRealGuard$':
