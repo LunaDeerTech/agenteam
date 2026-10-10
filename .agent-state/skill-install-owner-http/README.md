@@ -11,4 +11,4 @@
 
 当前新增 pure tests 仅控 HTTP投影/分派、错误、原deadline，以及 catalog 签名、当前授权先于有界SQL。受控 Store/HTTP ports 不冒真实数据库或 Account 权限结果。真实页/安装/重放与撤权/CSRF将在既有真实 fixture 上验证；不得 SQL 种普通 Skill 或用 fake install Backend 代替 Service.Install。
 
-本片尚未执行 Go/PG。首阶段只对新增 top、旧两读取兼容 top、三包 vet 和定向 Schema 执行必要检查；不重复原安装库/cleanup 全矩阵。完整初始化/Agent/F1/Backend 仍按各域真实绑定状态，生产 Project initializer 保持 unbound。
+本片必要纯检查已完成分版本补集：pure-01 的8新top及2旧HTTP top（59sub）race通过，Schema因旧夹具遍历每条路径的HEAD而失败，vet未执行；原整体FAIL保留。仅修本包testdata/schema.py的精确路由集合后，pure-02 Schema单top的45向量与30个无body HEAD状态、三包vet通过。两轮输入首尾相同，原Wait与group/runtime双尾闭合；原件为本树 output/ai/skill-install-owner-http/pure-{01,02}/，稳定入口run-{01,02}.py复用已验core-checks方法。未重复已通过10top或安装库/cleanup全矩阵。真实HTTP/PG尚未运行。完整初始化/Agent/F1/Backend 仍按各域真实绑定状态，生产 Project initializer 保持 unbound。
