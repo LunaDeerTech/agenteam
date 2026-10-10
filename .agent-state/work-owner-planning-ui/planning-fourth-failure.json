@@ -1,0 +1,307 @@
+{
+  "status": "whole-FAIL",
+  "input_checkpoint": "68d146f9",
+  "selector": "^TestAccountProjectWorkPlanningWebStructureAndTasks$",
+  "session": 16621,
+  "start_utc": "2026-10-10T05:55:06.010580+00:00",
+  "launch": {
+    "outer_pid": 283424,
+    "fresh_available_bytes": 10076819456,
+    "exec_available_bytes": 10076798976,
+    "minimum_bytes": 5368709120,
+    "new_empty_docker_config": true,
+    "daemon": "28.4.0",
+    "prior_owned_absent_observations": 2,
+    "private_telemetry_off_before_go": true,
+    "telemetry_overrides_removed": [
+      "TEST_TELEMETRY_DIR",
+      "GO_TELEMETRY_CHILD",
+      "GO_TELEMETRY_CHILD_UPLOAD"
+    ],
+    "input_count": 677,
+    "input_sha256": "4029cbd88bd7625fe14cb6a533a463534f78a05c49fbba1a06261b6d697b0fba",
+    "binary_sha256": "a272a4bd0e60a8a4ecd882b39c19970a4e9d72f0ba63309eda7c15e56ff67f5d"
+  },
+  "failure": {
+    "case_budget_ms": 45000,
+    "step": "second Milestone reorder move(true), original move-to-tail action",
+    "await": "originalBody(response): original Response.finished()",
+    "location": "helpers:305; spec move:142, realOrdering:164, planning:441",
+    "go_seconds": 70.8,
+    "all_nine_writes_reached": false,
+    "final_schema_client_seen_verify_reached": false,
+    "complete_reached": false,
+    "go_durable_postconditions_reached": false
+  },
+  "first_reorder_limited": {
+    "statement": "The first before-peer conjunction passed on its normal requestfinished branch, then original second sorting opened. This does not accept the whole case or the failed branch dynamically.",
+    "upstream": {
+      "file": "response-015.json",
+      "request_id": "01a12462-062d-7289-b205-2ca5a1f9dd94",
+      "method": "POST",
+      "endpoint": "/api/v1/projects/01a12461-cbfc-7dbc-9c14-8352842d770b/milestones/01a12462-0215-7107-8ecb-56e4cff79d37/reorder",
+      "status": 200,
+      "body_bytes": 418,
+      "original_body_hash_verified": true,
+      "version": "3",
+      "command": "work.milestone.reorder",
+      "changed": true
+    },
+    "pw": {
+      "sequence": 7,
+      "method": "POST",
+      "path": "/api/v1/projects/01a12461-cbfc-7dbc-9c14-8352842d770b/milestones/01a12462-0215-7107-8ecb-56e4cff79d37/reorder",
+      "request_id": "01a12462-062d-7289-b205-2ca5a1f9dd94",
+      "original_replay_bound": false,
+      "request_at": 4284.420343999999,
+      "response_at": 4373.1763710000005,
+      "failed_at": null,
+      "finished_event_at": 4383.79791,
+      "status": 200,
+      "first_milestone_reorder": {
+        "projectID": "01a12461-cbfc-7dbc-9c14-8352842d770b",
+        "targetID": "01a12462-0215-7107-8ecb-56e4cff79d37",
+        "expectedVersion": "2",
+        "beforeID": "01a12461-d094-70ae-938c-40afd2f3278e",
+        "bound": true,
+        "joined": true,
+        "invalid": false,
+        "ended": true,
+        "failedCount": 0,
+        "finishedCount": 1,
+        "aborted": false,
+        "finishedStarted": true,
+        "finishedNull": true
+      },
+      "declaration": null
+    },
+    "native": {
+      "call_id": 1,
+      "bytes": 418,
+      "content_length": 418,
+      "read_calls": 2,
+      "read_settled": 2,
+      "read_rejected": 0,
+      "read_done": true,
+      "eof_before_interruption": true,
+      "cancel_before_eof": false,
+      "reader_cancel_calls": 1,
+      "reader_cancel_settled": 1,
+      "reader_cancel_rejected": 0,
+      "stream_cancel_calls": 1,
+      "stream_cancel_settled": 1,
+      "stream_cancel_rejected": 0,
+      "release_calls": 1,
+      "release_successes": 1,
+      "signal_aborted": false,
+      "signal_aborted_at_start": false,
+      "abort_events": 0,
+      "failure": "none",
+      "bound_public_call": true,
+      "bound_original_request": true,
+      "content_length_comparable": true,
+      "content_length_matches_eof": true
+    },
+    "public": {
+      "call_id": 1,
+      "operation": "start",
+      "fulfilled": 1,
+      "rejected": 0,
+      "synchronous_throws": 0,
+      "native_requests": 1,
+      "native_sequence": 7,
+      "active": false,
+      "entry_identity_matches": true,
+      "entry_not_busy": true,
+      "identity_current": true,
+      "not_busy": true,
+      "result_kind": "typed-receipt-returned",
+      "start_input_matches": true,
+      "start_unique": true,
+      "start_material_bound": true,
+      "start_receipt_published": true
+    },
+    "observers": {
+      "native": {
+        "pending_observations": 0,
+        "pending_at_retirement": 0,
+        "retired": true,
+        "overflow": false,
+        "observer_failed": false,
+        "retirement_reason": "explicit"
+      },
+      "publication": {
+        "pending_observations": 0,
+        "pending_at_retirement": 0,
+        "retired": true,
+        "overflow": false,
+        "observer_failed": false,
+        "retirement_reason": "explicit"
+      }
+    },
+    "node_sample_joined": true,
+    "end_snapshot_observed": true
+  },
+  "second_reorder": {
+    "upstream": {
+      "file": "response-018.json",
+      "request_id": "01a12462-075b-7b16-be5a-7570b5774475",
+      "method": "POST",
+      "endpoint": "/api/v1/projects/01a12461-cbfc-7dbc-9c14-8352842d770b/milestones/01a12462-0215-7107-8ecb-56e4cff79d37/reorder",
+      "status": 200,
+      "body_bytes": 418,
+      "original_body_hash_verified": true,
+      "version": "4",
+      "command": "work.milestone.reorder",
+      "changed": true
+    },
+    "first_snapshot_at": 44486.963,
+    "first_snapshot_page_closed_at": null,
+    "original_observation": {
+      "method": "POST",
+      "project_id": "01a12461-cbfc-7dbc-9c14-8352842d770b",
+      "target_id": "01a12462-0215-7107-8ecb-56e4cff79d37",
+      "endpoint": "milestones/id/reorder",
+      "request_id": "01a12462-075b-7b16-be5a-7570b5774475",
+      "request_at": 6015.855,
+      "response_at": 6097.379,
+      "request_failed_at": 6114.024,
+      "request_finished_at": null,
+      "response_finished_at": null,
+      "observer_rejected_at": null,
+      "failure_reason": "aborted",
+      "stage": "finished",
+      "response_same_request_object": true,
+      "replay": null,
+      "original_request_headers": null,
+      "original_body_await": {
+        "stage": "finished",
+        "at": 6099.913
+      }
+    },
+    "later_events": [
+      {
+        "method": "POST",
+        "project_id": "01a12461-cbfc-7dbc-9c14-8352842d770b",
+        "target_id": "01a12462-0215-7107-8ecb-56e4cff79d37",
+        "endpoint": "milestones/id/reorder",
+        "request_id": "01a12462-075b-7b16-be5a-7570b5774475",
+        "at": 44549.638,
+        "stage": "finished",
+        "reason": "operation-rejected",
+        "request_failed": true,
+        "request_finished": false,
+        "response_finished": false,
+        "page_closed": true,
+        "observer_closed": true,
+        "replay": null,
+        "sequence": 1,
+        "after_first_snapshot": true
+      }
+    ],
+    "following_get": {
+      "file": "response-019.json",
+      "request_id": "01a12462-07bf-7ebd-972c-68aefaa0d028",
+      "method": "GET",
+      "endpoint": "/api/v1/projects/01a12461-cbfc-7dbc-9c14-8352842d770b/milestones/01a12462-0215-7107-8ecb-56e4cff79d37",
+      "status": 200,
+      "body_bytes": 290,
+      "original_body_hash_verified": true,
+      "version": "4"
+    },
+    "limits": [
+      "Native/public observation ended after the first reorder; no browser EOF/CL or original start receipt/finally evidence was sampled for the second reorder.",
+      "The upstream 200/version4 and following GET/version4 cannot replace this original request consumption.",
+      "No new causal attribution to original planning03 is made."
+    ]
+  },
+  "tail": {
+    "go_actual_wait": {
+      "pid": 285447,
+      "code": 1
+    },
+    "driver_actual_wait": {
+      "pid": 283612,
+      "code": 1
+    },
+    "adopted_actual_waits": [
+      {
+        "pid": 285858,
+        "status": 0
+      },
+      {
+        "pid": 285861,
+        "status": 0
+      },
+      {
+        "pid": 285862,
+        "status": 0
+      },
+      {
+        "pid": 285863,
+        "status": 0
+      }
+    ],
+    "node_actual_wait": true,
+    "proxy_body_preparation_default_root_joined": true,
+    "resources": [
+      {
+        "kind": "container",
+        "id": "81ea40f5d6e35b3192980297a8e0d54c63733df036ffabe5345d52d5902df5bb",
+        "label": "agenteam.d05.objectfixture",
+        "nonce": "8f6023b82d6d4a88be31ffb6a7819db5"
+      },
+      {
+        "kind": "network",
+        "id": "b50d7dd939a734b16bf8ffa28de0d09768343ebe2ef2cc80c39c1ae93af2dd09",
+        "label": "agenteam.d05.objectfixture",
+        "nonce": "8f6023b82d6d4a88be31ffb6a7819db5"
+      },
+      {
+        "kind": "container",
+        "id": "b38ed00c90566b08121964eb2ba32a8bf302fbbc33166973ce4c0d37b6615b83",
+        "label": "agenteam.d04.networkfixture",
+        "nonce": "101e763c3105de11531185769b07769a"
+      },
+      {
+        "kind": "network",
+        "id": "f0e159a29418816ee4aa72aed8ffd8978e048e702086866fa669ce7e73fabed2",
+        "label": "agenteam.d04.networkfixture",
+        "nonce": "101e763c3105de11531185769b07769a"
+      },
+      {
+        "kind": "container",
+        "id": "7988262b1e65de7d8b9cdbf552c78878989168bfe43659c7287cee804e83609b",
+        "label": "agenteam.d03.fixture",
+        "nonce": "f332164ca497ff6b5a11a1699d1f1348"
+      },
+      {
+        "kind": "container",
+        "id": "e117ec71510e73c1939522754e1f914ee0588e8269640e49647f033f08839ab7",
+        "label": "agenteam.d03.fixture",
+        "nonce": "f332164ca497ff6b5a11a1699d1f1348"
+      },
+      {
+        "kind": "network",
+        "id": "3e5a110e44b94029f5c38063d51ce5e8e0c5ceed6b2b882432bf072003261e9a",
+        "label": "agenteam.d03.fixture",
+        "nonce": "f332164ca497ff6b5a11a1699d1f1348"
+      }
+    ],
+    "resource_absent_observations_each": 2,
+    "private_count": 3,
+    "private_absent_observations": 2,
+    "runtime_empty_observations": 2,
+    "descendant_empty_observations": 2,
+    "host_tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "stop_count": 0,
+    "outer_actual_exit": 1,
+    "outer_terminal_chunk": "5a4331",
+    "outer_seconds": 159.052,
+    "window_released": true
+  },
+  "original_log": "/tmp/wui-op4/ui-c5136d57364c467c.log",
+  "original_evidence": "output/ai/work-owner-planning-ui/planning-04-evidence/TestAccountProjectWorkPlanningWebStructureAndTasks",
+  "history": "Author Recovery13 wholePASS remains limited; original planning03 and previous failures are unchanged; no retry."
+}
