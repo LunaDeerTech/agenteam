@@ -1,14 +1,6 @@
-# Registry 配置前置当前恢复点
+# ToolOperation 当前恢复点
 
-- 树：`/workspace/agenteam-tool-registry`，分支 `ai/tool-registry`，基线 `728cd45a`。Registry 实现归 cleanup；新增 `tool/builtin/skill_install*.go` 六文件归 work_ui，当前均停写。所有 Git 操作归 root。
-- 首四路径已保存 `1d60e34f`，目录/Agent 引用及九项必要纯控已保存 `51d4b299`；两个编码问题修复已保存 `27a42f5e` 并获非作者有限静审接受。canonical bytea/完整回读与严格 Unicode 转义保留；原静态问题事实不升级或回填。
-- 范围与工程契约见 [D18 卡 §10](../docs/development/work-items/d18-tool-name-projection.md#10-registry-配置前置实施中)。Registry 仅 Builtin metadata/current/配置目录及同 Tx Agent refs；无安装 Backend 时 production install-skill 未绑定。NameTable、执行器、既有 tools STOP 不变。
-- Agent owner content 的 consumer-owned Tool contract 四文件已由 root 按 `34755aa5` 同步；Registry 未修改借用源。00032 归 Agent，00033 唯一归本树；真实迁移必须连续组合。
-- `pure-01` 已原整轮通过：九项新 race（Go 698760 Wait0）及两包 vet（Go 699049 Wait0），session9986/outer698759 最终0；70输入不变、两组双absent/runtime双empty/adopted[]。原日志/结果在 `output/ai/tool-registry/pure-01/`，固定私有 telemetry/offline/readonly modules，各阶段 fresh≥5GiB，lifecycle 热cache 已完整归还。
-- 未 PG/socket/实际资源。纯测试替身不证明真实 Backend、授权、迁移或 F1 完成。后继按新窗口组织连续00032/00033及真实PG/Agent组合；当前无在途自有进程或资源，技术源停写。
-
-## install-skill v1 适配层
-
-- [D21 固定契约](../docs/development/work-items/d21-skill-install-builtin.md)已保存 `94d96653`；六个 Builtin 源/测试及只读借入的 Skill `install_types.go`、`install_repository.go` 已保存 `e66ec018`。实现严格参数到原 Skill Package、不可变调用/scope/key、同步 typed adapter 和 receipt 投影；未生成 Operation/SkillID、签发授权或注册 Source，缺真实 Runtime/Service Agent 授权仍不能成为可执行 Tool。
-- `skill-install-pure-01` wholePASS：2026-10-10 12:58:28–12:58:38 UTC，session90304→ca4805/outer743893 Wait0；恰六个新 top race（743896，6.620s）及单 builtin 包 vet（744057，3.297s）均 Wait0。两阶段 group/desc/runtime 双尾空、adopted[]，范围与方法输入前后不变；同启动 fresh5,497,159,680B、私有 telemetry off、离线只读模块，热cache已归还。
-- 固定命令与结果保存在 `output/ai/tool-registry/skill-install-pure-01-launcher.py`、`output/ai/tool-registry/skill-install-pure-01/`。只验本次六项，不重旧 Registry/Skill/P2；控制中的 Operation/Service 为显式纯替身，未证明真实发布、Agent witness、Runtime 或 Backend 绑定。下一步为非作者源码审及真实提供方接线，不自行启动资源。
+- 树 `/workspace/agenteam-tool-operation`，分支 `ai/tool-operation`，基线 `5659d300`（含只读 Builtin receipt 窄修）。唯一写者 secret；Git 归 root。旧 Registry/Builtin 源不改。
+- [有限卡](../docs/development/work-items/d18-tool-operation.md)：ToolCallBinding/Execution 反向口、固定 install profile 的 Prepare/Lookup、原输入幂等与 00037 Operation/Attempt 表首稿已落。只写 created 元数据，不派发 Backend、不造 Execution 或授权。
+- Execution 真实来源由 work_ui 的 00038/Execution 树提供；双方已对齐同 Store 原 Tx/完整锁、immutable snapshot 与当前 Capability∩Policy。标准 schema validator/D19/Skill AgentRun 最终门仍待真实绑定，Actor 值或纯控不能代替。
+- 仅指定源码 gofmt 与 git diff --check 实际 0；未编译/测试/迁移/资源。00037 必须连续前缀，38 将补真实 Execution 复合 FK；原 STOP 不变。当前无本域在途 Go 或资源，首稿停写待 checkpoint 后补必要基础控。
