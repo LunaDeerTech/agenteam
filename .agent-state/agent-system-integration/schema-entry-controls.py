@@ -237,6 +237,95 @@ RUNTIME_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS
                                                                 "'AgentConfigurationSchema', "
                                                                 "'AgentRuntimeSchema')) and")]}
 
+TASK_SELECTOR = '^TestTaskTransitionHuman$'
+TASK_TOP = 'TestTaskTransitionHuman'
+TASK_CASES = frozenset({TASK_TOP, TASK_TOP + '/assignment-config-and-replay',
+                        TASK_TOP + '/final-transaction-rollback'})
+TASK_BASE = {'.agent-state/task-planning-recovery/pg_only_supervisor.py': '04cf0e70fdb148916253f735fc2b69d13492f0bc5aa010ef39f044a4e5e90a7b',
+ '.agent-state/work-owner-http/root_chain_driver.py': 'afb3eaa1a52523d14e74063eb0d170a77d473ac2c4e8471c48fbfca934425a8e'}
+TASK_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('TARGETS = {\n',
+                                                        'TARGETS = {\n'
+                                                        "    '^TestTaskTransitionHuman$': "
+                                                        "'tests/projectvariable',\n"),
+                                                       ('    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$'):\n",
+                                                        '    if selector not in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$'):\n"),
+                                                       ('    if selector == '
+                                                        "'^TestAgentConfigurationCreate$':\n",
+                                                        '    if selector == '
+                                                        "'^TestTaskTransitionHuman$':\n"
+                                                        '        paths.add(REPOSITORY / '
+                                                        "'tests/projectvariable/task_transition_scheduler_test.go')\n"
+                                                        '    elif selector == '
+                                                        "'^TestAgentConfigurationCreate$':\n"),
+                                                       ('    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$'):\n",
+                                                        '    if args.run in '
+                                                        "('^TestAgentConfigurationMetadata$', "
+                                                        "'^TestAgentConfigurationSchema$', "
+                                                        "'^TestAgentRuntimeSchema$', "
+                                                        "'^TestExecutionPreparation$', "
+                                                        "'^TestAgentConfigurationCreate$', "
+                                                        "'^TestTaskTransitionHuman$'):\n")],
+ '.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {METADATA_ROOT:',
+                                                                'TASK_HUMAN_ROOT = '
+                                                                "'^TestTaskTransitionHuman$'\n"
+                                                                'TASK_HUMAN_CASES = frozenset({\n'
+                                                                "    'TestTaskTransitionHuman',\n"
+                                                                '    '
+                                                                "'TestTaskTransitionHuman/assignment-config-and-replay',\n"
+                                                                '    '
+                                                                "'TestTaskTransitionHuman/final-transaction-rollback',\n"
+                                                                '})\n'
+                                                                'METADATA_GROUPS = '
+                                                                '{METADATA_ROOT:'),
+                                                               ('                   '
+                                                                'AGENT_CREATE_ROOT: '
+                                                                'AGENT_CREATE_CASES}\n',
+                                                                '                   '
+                                                                'AGENT_CREATE_ROOT: '
+                                                                'AGENT_CREATE_CASES,\n'
+                                                                '                   '
+                                                                'TASK_HUMAN_ROOT: '
+                                                                'TASK_HUMAN_CASES}\n'),
+                                                               ('        AGENT_CREATE_ROOT: '
+                                                                "{'TestAgentConfigurationCreate'},\n",
+                                                                '        AGENT_CREATE_ROOT: '
+                                                                "{'TestAgentConfigurationCreate'},\n"
+                                                                '        TASK_HUMAN_ROOT: '
+                                                                "{'TestTaskTransitionHuman'},\n"),
+                                                               ("'ExecutionPreparation', "
+                                                                "'AgentConfigurationCreate')) and",
+                                                                "'ExecutionPreparation', "
+                                                                "'AgentConfigurationCreate', "
+                                                                "'TaskTransitionHuman')) and")]}
+
+def task_projection(name, source):
+    if "'^TestTaskTransitionHuman$'" not in source:
+        return source
+    for before, after in reversed(TASK_HUNKS[name]):
+        if source.count(after) != 1:
+            raise ValueError('unknown or ambiguous Task Human data')
+        source = source.replace(after, before, 1)
+    if hashlib.sha256(source.encode()).hexdigest() != TASK_BASE[name]:
+        raise ValueError('unknown Task Human baseline')
+    return source
+
+
 CREATE_SELECTOR = '^TestAgentConfigurationCreate$'
 CREATE_TOP = 'TestAgentConfigurationCreate'
 CREATE_CASES = frozenset({CREATE_TOP, CREATE_TOP + '/default-create-and-replay',
@@ -319,6 +408,7 @@ CREATE_HUNKS = {'.agent-state/task-planning-recovery/pg_only_supervisor.py': [('
                                                         "'^TestExecutionPreparation$':\n")]}
 
 def create_projection(name, source):
+    source = task_projection(name, source)
     if "'^TestAgentConfigurationCreate$'" not in source:
         return source
     for old, new in reversed(CREATE_HUNKS[name]):
@@ -485,7 +575,7 @@ class SchemaEntryControls(unittest.TestCase):
         baseline = {'__file__': str(ROOT / DRIVER), '__name__': 'schema_baseline'}
         exec(compile(inverse(DRIVER, (ROOT / DRIVER).read_text()), DRIVER, 'exec'), baseline)
         self.assertEqual(self.driver.TARGETS[SELECTOR], 'tests/projectvariable')
-        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR, PREPARATION_SELECTOR)}, baseline['TARGETS'])
+        self.assertEqual({k: v for k, v in self.driver.TARGETS.items() if k not in (SELECTOR, RUNTIME_SELECTOR, PREPARATION_SELECTOR, CREATE_SELECTOR, TASK_SELECTOR)}, baseline['TARGETS'])
         self.assertEqual(self.sup.budgets(True), (540, 60))
         self.assertEqual(self.sup.budgets(False), (123, 3))
         for path, constant in (
@@ -546,7 +636,8 @@ class SchemaEntryControls(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='agent-schema-inputs-') as tmp:
             root = Path(tmp).resolve()
             names = ('candidate.test', 'production.go',
-                     ('tests/projectvariable/agent_configuration_create_test.go' if SELECTOR == CREATE_SELECTOR
+                     ('tests/projectvariable/task_transition_scheduler_test.go' if SELECTOR == TASK_SELECTOR
+                      else 'tests/projectvariable/agent_configuration_create_test.go' if SELECTOR == CREATE_SELECTOR
                       else 'tests/projectvariable/execution_preparation_test.go' if SELECTOR == PREPARATION_SELECTOR
                       else 'tests/projectvariable/agent_runtime_schema_test.go' if SELECTOR == RUNTIME_SELECTOR
                       else 'tests/projectvariable/agent_configuration_schema_test.go'),
@@ -671,7 +762,7 @@ class SchemaEntryControls(unittest.TestCase):
         self.assertEqual(self.driver.TARGETS[CREATE_SELECTOR], 'tests/projectvariable')
         self.assertEqual(self.sup.METADATA_GROUPS[CREATE_SELECTOR], CREATE_CASES)
         for name, pairs in CREATE_HUNKS.items():
-            source = (ROOT / name).read_text()
+            source = task_projection(name, (ROOT / name).read_text())
             self.assertEqual(hashlib.sha256(create_projection(name, source).encode()).hexdigest(), CREATE_BASE[name])
             for old, new in pairs:
                 self.assertEqual(source.count(new), 1)
@@ -681,6 +772,26 @@ class SchemaEntryControls(unittest.TestCase):
         with patch.dict(globals(), SELECTOR=CREATE_SELECTOR, TOP=CREATE_TOP, CASES=CREATE_CASES), \
                 patch.object(self.sup, 'SCHEMA_ROOT', CREATE_SELECTOR), \
                 patch.object(self.sup, 'SCHEMA_CASES', CREATE_CASES):
+            self.test_exact_three_subcases_and_original_wait()
+            self.test_actual_main_requires_exact_root_mode()
+            self.test_actual_schema_inputs_reenumerate_runtime_sources()
+            self.test_actual_observer_keeps_original_resource_tails()
+            self.test_actual_driver_fixed_environment_before_original_exec()
+
+    def test_task_human_reuses_the_original_family(self):
+        self.assertEqual(self.driver.TARGETS[TASK_SELECTOR], 'tests/projectvariable')
+        self.assertEqual(self.sup.METADATA_GROUPS[TASK_SELECTOR], TASK_CASES)
+        for name, pairs in TASK_HUNKS.items():
+            source = (ROOT / name).read_text()
+            self.assertEqual(hashlib.sha256(task_projection(name, source).encode()).hexdigest(), TASK_BASE[name])
+            for old, new in pairs:
+                self.assertEqual(source.count(new), 1)
+                for bad in (source.replace(new, old, 1), source + new, source + '\n# unknown\n'):
+                    with self.assertRaises(ValueError):
+                        inverse(name, bad)
+        with patch.dict(globals(), SELECTOR=TASK_SELECTOR, TOP=TASK_TOP, CASES=TASK_CASES), \
+                patch.object(self.sup, 'SCHEMA_ROOT', TASK_SELECTOR), \
+                patch.object(self.sup, 'SCHEMA_CASES', TASK_CASES):
             self.test_exact_three_subcases_and_original_wait()
             self.test_actual_main_requires_exact_root_mode()
             self.test_actual_schema_inputs_reenumerate_runtime_sources()
