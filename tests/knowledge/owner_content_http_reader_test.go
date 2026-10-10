@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -96,16 +97,22 @@ func TestKnowledgeOwnerContentHTTPReaderOwnership(t *testing.T) {
 	for _, change := range []string{"owner", "deleted"} {
 		t.Run("current_"+change+"_after_real_object_open", func(t *testing.T) {
 			v := newContentHTTPFixture(t)
-			doc := contentHTTPCreate(t, v, kc.PlainText, "Opened canonical", "unpublished reader bytes")
+			// Small objects may verify EOF and retire the D05 lease before
+			// ReadObject returns. Keep this real stream beyond that prefetch.
+			text := strings.Repeat("a", 2*oc.StreamBufferSize+1)
+			doc := contentHTTPCreate(t, v, kc.PlainText, "Opened canonical", text)
 			gate, release := knowledgeOwnerHTTPGate()
 			defer release()
 			opened := make(chan struct{})
 			objects := &contentHTTPObjects{Objects: v.deps.Objects}
 			var body *contentHTTPReaderBody
+			var originalCtx context.Context
 			objects.afterOpen = func(ctx context.Context, reader *oc.ObjectReader) error {
-				if reader.Meta().ID != doc.ObjectID {
-					return errors.New("wrong actual canonical Object")
+				meta := reader.Meta()
+				if meta.ID != doc.ObjectID || meta.ByteSize <= oc.StreamBufferSize || meta.ByteSize != f.Progress(len(text)) || meta.SHA256 != independentDigest([]byte(text)) {
+					return errors.New("wrong actual canonical Object identity, size or digest")
 				}
+				originalCtx = ctx
 				close(opened)
 				return knowledgeOwnerHTTPWait(ctx, gate)
 			}
@@ -118,7 +125,7 @@ func TestKnowledgeOwnerContentHTTPReaderOwnership(t *testing.T) {
 			runtimeAwait(t, opened)
 			var active int
 			if err := v.raw.QueryRow(knowledgeContext(t), `SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='reader' AND state='active'`, doc.ObjectID.String()).Scan(&active); err != nil || active != 1 {
-				t.Fatal("real reader lease was not established before change", err)
+				t.Fatalf("real reader lease was not established before change: active=%d query_error=%v original_context=%v", active, err, originalCtx.Err())
 			}
 			want, code := 409, f.VersionConflict
 			if change == "owner" {
