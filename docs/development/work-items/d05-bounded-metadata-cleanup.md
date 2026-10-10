@@ -162,6 +162,9 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 | `skill_work_project_history` | 需00027合法Project/Skill initialization与work外键，同Project1001 joined＋少量live、其它Project历史；原joined扫描和最后initialization父DELETE的全FK反查分别测。当前未覆盖，沿已独审Skills消费契约继续准备。 |
 
 
+共享Skills成本来源另见 `metadata_cleanup_skill_cost_test.go`／`testdata/metadata_cleanup_skill_cost.sql`（仅源码）。其joined SELECT逐字取已验消费源598bc02e的`compressCleanupHistory`，不是本旧基线中尚未存在的Service实现；只测该SQL及00027真实约束成本。成本库保完整五核心互引、1001joined＋低ID running、外域10001joined，最后父DELETE在回滚Tx实际执行并**SET CONSTRAINTS ALL IMMEDIATE**冲刷原deferred队列；记录总耗时／队列耗时，不把DELETE plan未列出的延期trigger编造成逐项耗时，Rollback后核原数据恢复。transfer补充seed `testdata/metadata_cleanup_transfer_cost.sql` 目前尚未接测试：保65目标＋1001外域 retired PUT原staging↔transfer双向FK、candidate和external/source lease；真实SQL、活GET/PUT及FK成本观察仍待接入，不能算成本接受。
+
+
 错误遵循现有Fault/CommitResult：输入/结果形状错误InvalidArgument；缺正式provider为DependencyUnbound；当前authority/owner/cause不符Forbidden或原Project gate错误；plan/native映射变化ResourceBusy且整Tx NotCommitted；合法仍活关系为Pending，超过有限完整诊断上限为Pending＋ResourceBusy。已持久的矛盾关系保持安全DependencyUnavailable/InvalidState，不暴露原Locator/SQL/正文。任何Unknown保留原error、cause和attempt；InTx返回Completed本身仍不是CommitResult，不能据它提前删其它事务中的父表。
 
 ## 8. 旧源最小预计写域与验收
