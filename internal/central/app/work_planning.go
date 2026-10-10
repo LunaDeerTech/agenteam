@@ -25,6 +25,7 @@ type workPlanningEvents struct {
 	tasks       wc.TaskEvents
 	blockers    wc.TaskBlockerEvents
 	transitions wc.TaskTransitionEvents
+	sprints     wc.SprintLifecycleEvents
 }
 
 func defineWorkPlanningEvents(catalog *event.Catalog) (workPlanningEvents, error) {
@@ -40,6 +41,9 @@ func defineWorkPlanningEvents(catalog *event.Catalog) (workPlanningEvents, error
 		return workPlanningEvents{}, err
 	}
 	if v.transitions, err = wc.RegisterTaskTransitionEvents(catalog); err != nil {
+		return workPlanningEvents{}, err
+	}
+	if v.sprints, err = wc.RegisterSprintLifecycleEvents(catalog); err != nil {
 		return workPlanningEvents{}, err
 	}
 	return v, nil
@@ -68,6 +72,7 @@ type workPlanningAssembly struct {
 	blockers        *work.BlockerService
 	blockerReader   *work.BlockerReader
 	transitions     *work.TaskTransitionService
+	sprints         *work.SprintLifecycleService
 	commands        []workCommandCalls
 	mu              sync.Mutex
 	stopped, joined bool
@@ -83,8 +88,8 @@ func createWorkPlanning(cfg config.Config, db database, authority *work.Authorit
 	}
 	// An omitted capability retains the old three-service assembly. An explicit
 	// capability must be exactly one original Project authority; no partial or
-	// silently ignored transition binding is accepted.
-	if len(transitionProjects) > 1 || len(transitionProjects) == 1 && (transitionProjects[0] == nil || !events.transitions.Valid()) {
+	// silently ignored transition/lifecycle binding is accepted.
+	if len(transitionProjects) > 1 || len(transitionProjects) == 1 && (transitionProjects[0] == nil || !events.transitions.Valid() || !events.sprints.Valid()) {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
 	b := &workPlanningAssembly{}
@@ -140,6 +145,17 @@ func createWorkPlanning(cfg config.Config, db database, authority *work.Authorit
 			return nil, err
 		}
 		b.commands = append(b.commands, b.transitions)
+		pointer, e := project.NewSprintLifecycle(transitionProjects[0], authority)
+		if e != nil {
+			return nil, e
+		}
+		if b.sprints, err = work.NewSprintLifecycle(store, work.SprintLifecycleDependencies{
+			Authority: authority, Projects: pointer, Events: journal,
+			SprintEvents: events.sprints, Activity: accounts,
+		}); err != nil {
+			return nil, err
+		}
+		b.commands = append(b.commands, b.sprints)
 	}
 	return b, nil
 }
@@ -202,7 +218,8 @@ func workPlanningHandler(b *workPlanningAssembly, core *account.Service, origin 
 		Structure: b.structure, StructureReader: b.structureReader,
 		Tasks: b.tasks, TaskReader: b.taskReader,
 		Blockers: b.blockers, BlockerReader: b.blockerReader,
-		Transitions: b.transitions,
+		Transitions:     b.transitions,
+		SprintLifecycle: b.sprints,
 	}, boundary)
 }
 

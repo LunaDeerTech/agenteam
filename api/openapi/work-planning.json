@@ -3382,6 +3382,236 @@
           }
         }
       }
+    },
+    "/api/v1/projects/{project_id}/sprints/{sprint_id}/start": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "sprint_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerSprintStart",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SprintStartMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes body Close, complete output, Flush and cancellation callback join; earlier parent deadlines win. Current Human Owner and original Account CSRF/Origin only. Strict JSON <=1 MiB, no query/bare ?, encoding, duplicate/unknown/case-folded keys, invalid UTF-8/surrogates or trailing values. Exactly one original Idempotency-Key. expected_version is the original Sprint version, not the Project version; request is exactly {}. Lookup recomputes StartSprintDigest from the saved original target/version and current User; it never calls Start or current GET. Unknown retains the original safe Problem and lookup hint. Missing lifecycle service fails DEPENDENCY_UNBOUND. Start allows empty Sprints and a paused Scheduler; it neither enables nor launches scheduling. No automatic initialization or Sprint completion.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SprintStartBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/sprint-lifecycle-commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerSprintStartLookup",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SprintStartLookup"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes body Close, complete output, Flush and cancellation callback join; earlier parent deadlines win. Current Human Owner and original Account CSRF/Origin only. Strict JSON <=1 MiB, no query/bare ?, encoding, duplicate/unknown/case-folded keys, invalid UTF-8/surrogates or trailing values. Exactly one original Idempotency-Key. expected_version is the original Sprint version, not the Project version; request is exactly {}. Lookup recomputes StartSprintDigest from the saved original target/version and current User; it never calls Start or current GET. Unknown retains the original safe Problem and lookup hint. Missing lifecycle service fails DEPENDENCY_UNBOUND. Start allows empty Sprints and a paused Scheduler; it neither enables nor launches scheduling. No automatic initialization or Sprint completion.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SprintStartLookupRequest"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3899,6 +4129,64 @@
             }
           }
         }
+      },
+      "SprintStartMutation": {
+        "description": "Original validated Sprint Start receipt.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SprintStartMutation"
+            }
+          }
+        }
+      },
+      "SprintStartLookup": {
+        "description": "Original validated Sprint Start lookup projection.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SprintStartLookup"
+            }
+          }
+        }
       }
     },
     "schemas": {
@@ -4384,7 +4672,7 @@
             ]
           }
         ],
-        "description": "Original lifecycle and timestamp ordering are validated. This API does not start or complete Sprints."
+        "description": "Original lifecycle and timestamp ordering are validated. Sprint Start is exposed through its separate lifecycle command; this API does not complete Sprints."
       },
       "TaskSummary": {
         "type": "object",
@@ -6058,6 +6346,243 @@
           }
         ],
         "description": "Historical committed receipt, never reconstructed from current fields. Neither not_observed nor in_progress authorizes automatic resubmission."
+      },
+      "SprintStartBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "type": "object",
+            "additionalProperties": false,
+            "maxProperties": 0
+          }
+        }
+      },
+      "SprintStartLookupRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command",
+          "target_id",
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "command": {
+            "type": "string",
+            "const": "work.sprint.start"
+          },
+          "target_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "type": "object",
+            "additionalProperties": false,
+            "maxProperties": 0
+          }
+        },
+        "description": "Saved original target and Sprint version; no caller digest, Actor, Project version or replacement request. Same User with a new authorized Session may look up the original key."
+      },
+      "SprintStartProject": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "owner_user_id",
+          "name",
+          "normalized_name",
+          "description",
+          "lifecycle",
+          "version",
+          "current_sprint_id",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "owner_user_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._-]{1,64}(?![\\s\\S])",
+            "not": {
+              "enum": [
+                ".",
+                ".."
+              ]
+            },
+            "maxLength": 64
+          },
+          "normalized_name": {
+            "type": "string",
+            "pattern": "^[a-z0-9._-]{1,64}(?![\\s\\S])",
+            "not": {
+              "enum": [
+                ".",
+                ".."
+              ]
+            },
+            "maxLength": 64
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 8192,
+            "x-maxUTF8Bytes": 8192,
+            "not": {
+              "pattern": "[\u0000-\b\u000b-\u001f]"
+            },
+            "description": "At most 8192 UTF-8 bytes; server validates this byte bound. Tabs and newlines are allowed."
+          },
+          "lifecycle": {
+            "type": "string",
+            "const": "active"
+          },
+          "version": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              {
+                "not": {
+                  "const": "1"
+                }
+              }
+            ]
+          },
+          "current_sprint_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "description": "Original active ProjectRef postimage, with current_sprint_id equal to the receipt Sprint ID; absent archived_at follows its actual domain encoding. The service changes Project and Sprint atomically; HTTP does not accept a caller Project version or consult a later GET."
+      },
+      "SprintStartMutation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sprint",
+          "project",
+          "event_id"
+        ],
+        "properties": {
+          "sprint": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Sprint"
+              },
+              {
+                "properties": {
+                  "state": {
+                    "const": "current"
+                  },
+                  "version": {
+                    "allOf": [
+                      {
+                        "$ref": "./common.json#/components/schemas/Version"
+                      },
+                      {
+                        "not": {
+                          "const": "1"
+                        }
+                      }
+                    ]
+                  },
+                  "started_at": {
+                    "$ref": "./common.json#/components/schemas/Instant"
+                  },
+                  "started_by": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "kind",
+                      "user_id"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "const": "human"
+                      },
+                      "user_id": {
+                        "$ref": "./common.json#/components/schemas/ID"
+                      }
+                    }
+                  },
+                  "completed_at": {
+                    "type": "null"
+                  },
+                  "completed_by": {
+                    "type": "null"
+                  }
+                }
+              }
+            ]
+          },
+          "project": {
+            "$ref": "#/components/schemas/SprintStartProject"
+          },
+          "event_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        "description": "Exact original Sprint/Project/Event postimage. Sprint version is original expected+1, Project current pointer equals Sprint, both updated_at values agree, and started_by is the original Human User. Complete domain validation precedes publication; a bad success projection aborts instead of inventing an uncommitted Problem."
+      },
+      "SprintStartLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "const": "committed"
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/SprintStartMutation"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              },
+              "receipt": {
+                "type": "null"
+              }
+            }
+          }
+        ],
+        "description": "Public projection of domain State/Result; null receipt is required outside committed. Lookup is read-only and neither nonterminal state authorizes automatic resubmission."
       }
     }
   }

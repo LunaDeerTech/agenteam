@@ -71,13 +71,13 @@ func workRootBundle(t *testing.T, store workRootStores, transitions ...bool) *wo
 	count := 3
 	if len(transitions) == 1 && transitions[0] {
 		capability = []*project.Authority{projects}
-		count = 4
+		count = 5
 	}
 	b, err := createWorkPlanning(cfg, store, authority, accounts, journal, events, capability...)
 	if err != nil || b == nil {
 		t.Fatal("pure actual Work construction", err)
 	}
-	if b.structure == nil || b.structureReader == nil || b.tasks == nil || b.taskReader == nil || b.blockers == nil || b.blockerReader == nil || len(b.commands) != count || (b.transitions != nil) != (count == 4) {
+	if b.structure == nil || b.structureReader == nil || b.tasks == nil || b.taskReader == nil || b.blockers == nil || b.blockerReader == nil || len(b.commands) != count || (b.transitions != nil) != (count == 5) || (b.sprints != nil) != (count == 5) {
 		t.Fatal("incomplete Work bindings")
 	}
 	for _, db := range []database{nil, (*workRootStore)(nil), &unitDatabase{}, &workRootStore{}} {
@@ -91,7 +91,7 @@ func workRootBundle(t *testing.T, store workRootStores, transitions ...bool) *wo
 	if got, err := createWorkPlanningAuthority(store, nil); err == nil || got != nil {
 		t.Fatal("missing Project authority accepted")
 	}
-	if count == 4 {
+	if count == 5 {
 		for _, invalid := range [][]*project.Authority{{nil}, {projects, projects}} {
 			if got, err := createWorkPlanning(cfg, store, authority, accounts, journal, events, invalid...); err == nil || got != nil {
 				t.Fatal("invalid optional transition assembly accepted")
@@ -101,6 +101,11 @@ func workRootBundle(t *testing.T, store workRootStores, transitions ...bool) *wo
 		missing.transitions = wc.TaskTransitionEvents{}
 		if got, err := createWorkPlanning(cfg, store, authority, accounts, journal, missing, projects); err == nil || got != nil {
 			t.Fatal("missing transition factory accepted")
+		}
+		missing = events
+		missing.sprints = wc.SprintLifecycleEvents{}
+		if got, err := createWorkPlanning(cfg, store, authority, accounts, journal, missing, projects); err == nil || got != nil {
+			t.Fatal("missing Sprint lifecycle factory accepted")
 		}
 	}
 	return b
@@ -155,6 +160,58 @@ func TestWorkPlanningTransitionActualCallMustJoin(t *testing.T) {
 	}
 	if err := b.Drain(context.Background()); err != nil || !b.Joined() {
 		t.Fatal("actual transition completion not joined", err)
+	}
+}
+
+func TestWorkPlanningSprintLifecycleActualCallMustJoin(t *testing.T) {
+	s := &workRootBlockedStore{entered: make(chan context.Context, 1), release: make(chan struct{})}
+	b := workRootBundle(t, s, true)
+	actor, err := id.NewHuman(updateRootID[id.User](), updateRootID[id.Session]())
+	if err != nil {
+		t.Fatal(err)
+	}
+	var release sync.Once
+	t.Cleanup(func() { release.Do(func() { close(s.release) }) })
+	done := make(chan error, 1)
+	go func() {
+		_, err := b.sprints.LookupStartSprint(context.Background(), actor, wc.SprintStartLookupRequest{
+			ProjectID: updateRootID[id.Project](),
+			Key:       "sprint-start-lookup", Semantic: f.Digest("sha256:" + strings.Repeat("b", 64)),
+		})
+		done <- err
+	}()
+	var original context.Context
+	select {
+	case original = <-s.entered:
+	case <-time.After(2 * time.Second):
+		t.Fatal("Sprint lifecycle did not enter the original Store")
+	}
+	expired, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := b.Force(expired); !errors.Is(err, context.Canceled) || b.Joined() {
+		t.Fatal("fifth service tail was omitted", err)
+	}
+	select {
+	case <-original.Done():
+	default:
+		t.Fatal("Sprint lifecycle admission not cancelled")
+	}
+	select {
+	case <-done:
+		t.Fatal("transaction falsely joined")
+	default:
+	}
+	release.Do(func() { close(s.release) })
+	select {
+	case err := <-done:
+		if err == nil {
+			t.Fatal("held failure returned success")
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("original Sprint lifecycle did not return")
+	}
+	if err := b.Drain(context.Background()); err != nil || !b.Joined() {
+		t.Fatal("actual Sprint lifecycle completion not joined", err)
 	}
 }
 
