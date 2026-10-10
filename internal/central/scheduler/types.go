@@ -153,6 +153,7 @@ type dispatchRecord struct {
 	agent                i.AgentID
 	launch               ec.LaunchRequest
 	digest               f.Digest
+	retryPolicy          LaunchRetryPolicy
 	status               Status
 	outcome              LaunchOutcome
 	version              f.Version

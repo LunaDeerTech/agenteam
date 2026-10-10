@@ -15,7 +15,8 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[2]
 DRIVER = '.agent-state/work-owner-http/root_chain_driver.py'
 SUP = '.agent-state/task-planning-recovery/pg_only_supervisor.py'
-SYSTEM_INPUTS = {'^TestAgentConfigurationSchema$': ('tests/projectvariable/agent_configuration_schema_test.go',
+SYSTEM_INPUTS = {'^TestSchedulerRetryBinding$': ('tests/projectvariable/scheduler_retry_binding_test.go', 'tests/projectvariable/scheduler_claim_test.go'),
+ '^TestAgentConfigurationSchema$': ('tests/projectvariable/agent_configuration_schema_test.go',
                                     'tests/testsupport/agentconfiguration/assembly.go'),
  '^TestAgentRuntimeSchema$': ('tests/projectvariable/agent_runtime_schema_test.go',),
  '^TestExecutionPreparation$': ('tests/projectvariable/execution_preparation_test.go',),
@@ -32,7 +33,8 @@ SYSTEM_INPUTS = {'^TestAgentConfigurationSchema$': ('tests/projectvariable/agent
  '^TestSprintStartHTTP$': ('tests/projectvariable/task_human_http_test.go',),
  '^TestSchedulerLaunchFinalFailure$': ('tests/projectvariable/scheduler_launch_failure_test.go',),
  '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': ('tests/projectvariable/task_technical_resolution_http_test.go', 'tests/projectvariable/task_unblock_atomic_test.go')}
-SYSTEM_CASES = {'^TestAgentConfigurationSchema$': ('TestAgentConfigurationSchema',
+SYSTEM_CASES = {'^TestSchedulerRetryBinding$': ('TestSchedulerRetryBinding', 'TestSchedulerRetryBinding/config-bound-claim-and-real-lock-timeout', 'TestSchedulerRetryBinding/legacy-null-policy-stays-unbound'),
+ '^TestAgentConfigurationSchema$': ('TestAgentConfigurationSchema',
                                     'TestAgentConfigurationSchema/fresh-prefix-and-repeat',
                                     'TestAgentConfigurationSchema/schema-invariants-and-unbound-dependencies',
                                     'TestAgentConfigurationSchema/upgrade-preserves-facts-and-audit-checks'),
@@ -76,6 +78,7 @@ BASE_SHA = {'.agent-state/work-owner-http/root_chain_driver.py': '776e6306214722
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': 'ce09376d0db54c1ef805974c491836cb854f3e23468e0414b0ef31235d00e589'}
 SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA_INPUTS = {\n',
                                                         'METADATA_INPUTS = {\n'
+                                                        "    '^TestSchedulerRetryBinding$': (\n        'tests/projectvariable/scheduler_retry_binding_test.go',\n        'tests/projectvariable/scheduler_claim_test.go',\n    ),\n"
                                                         "    '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': (\n        'tests/projectvariable/task_technical_resolution_http_test.go',\n        'tests/projectvariable/task_unblock_atomic_test.go',\n    ),\n"
                                                         "    '^TestSchedulerLaunchFinalFailure$': (\n"
                                                         '        '
@@ -135,6 +138,7 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA
                                                         '    ),\n')],
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {\n',
                                                                 'METADATA_GROUPS = {\n'
+                                                                "    '^TestSchedulerRetryBinding$': frozenset({\n        'TestSchedulerRetryBinding',\n        'TestSchedulerRetryBinding/config-bound-claim-and-real-lock-timeout',\n        'TestSchedulerRetryBinding/legacy-null-policy-stays-unbound',\n    }),\n"
                                                                 "    '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': frozenset({\n        'TestTaskTechnicalResolutionHTTP',\n        'TestTaskTechnicalResolutionHTTP/resolve-to-todo-lookup-replay',\n        'TestTaskTechnicalResolutionAtomic',\n        'TestTaskTechnicalResolutionAtomic/late-transaction-rollback-and-replay',\n    }),\n"
                                                                 "    '^TestSchedulerLaunchFinalFailure$': "
                                                                 'frozenset({\n'
@@ -246,7 +250,7 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA
                                                                 "'SchedulerLaunch', "
                                                                 "'SchedulerBusyCompensation', "
                                                                 "'SchedulerPendingVisit', 'TaskHumanHTTP', "
-                                                                "'SprintStartHTTP', 'TaskTechnicalResolutionHTTP', 'TaskTechnicalResolutionAtomic')) and (args.run not in "
+                                                                "'SprintStartHTTP', 'TaskTechnicalResolutionHTTP', 'TaskTechnicalResolutionAtomic', 'SchedulerRetryBinding')) and (args.run not in "
                                                                 'METADATA_GROUPS or not args.root_chain):\n'
                                                                 "        parser.error('System configuration "
                                                                 'requires one exact original root-chain '

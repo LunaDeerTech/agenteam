@@ -28,13 +28,14 @@ type CoordinatorDependencies struct {
 // traversal, timer, dispatcher process or a Task source that is not installed.
 // Authority -> Work -> Coordinator is an immutable, acyclic construction order.
 type Coordinator struct {
-	authority *PendingAuthority
-	deps      CoordinatorDependencies
-	mu        sync.Mutex
-	stopped   bool
-	calls     map[*claimCall]struct{}
-	unknown   map[DispatchID]*claimCall
-	drained   chan struct{}
+	authority   *PendingAuthority
+	deps        CoordinatorDependencies
+	retryPolicy LaunchRetryPolicy
+	mu          sync.Mutex
+	stopped     bool
+	calls       map[*claimCall]struct{}
+	unknown     map[DispatchID]*claimCall
+	drained     chan struct{}
 }
 type claimStage uint8
 
@@ -45,19 +46,20 @@ const (
 
 type claimContextKey struct{}
 type claimCall struct {
-	owner     *Coordinator
-	request   wc.TaskClaimRequest
-	actor     i.Actor
-	launch    ec.LaunchRequest
-	cancel    context.CancelCauseFunc
-	mu        sync.Mutex
-	live      bool
-	stage     claimStage
-	tx        f.Tx
-	plan      wc.TaskClaimPlan
-	locks     []f.LockRequest
-	unknown   error
-	resolving bool
+	owner       *Coordinator
+	request     wc.TaskClaimRequest
+	actor       i.Actor
+	launch      ec.LaunchRequest
+	retryPolicy LaunchRetryPolicy
+	cancel      context.CancelCauseFunc
+	mu          sync.Mutex
+	live        bool
+	stage       claimStage
+	tx          f.Tx
+	plan        wc.TaskClaimPlan
+	locks       []f.LockRequest
+	unknown     error
+	resolving   bool
 }
 
 func NewCoordinator(a *PendingAuthority, deps CoordinatorDependencies) (*Coordinator, error) {
@@ -65,6 +67,22 @@ func NewCoordinator(a *PendingAuthority, deps CoordinatorDependencies) (*Coordin
 		return nil, fault(f.DependencyUnbound)
 	}
 	return &Coordinator{authority: a, deps: deps, calls: make(map[*claimCall]struct{}), unknown: make(map[DispatchID]*claimCall), drained: make(chan struct{})}, nil
+}
+
+// NewCoordinatorWithRetryPolicy fixes explicit deployment settings for newly
+// created Dispatches. Existing receipts retain their stored policy, including
+// its absence. The original constructor remains unbound to retry settings.
+// Neither constructor enables sending a known-rejected Launch again.
+func NewCoordinatorWithRetryPolicy(a *PendingAuthority, deps CoordinatorDependencies, policy LaunchRetryPolicy) (*Coordinator, error) {
+	if err := policy.Validate(); err != nil {
+		return nil, err
+	}
+	s, err := NewCoordinator(a, deps)
+	if err != nil {
+		return nil, err
+	}
+	s.retryPolicy = policy
+	return s, nil
 }
 func schedulerActor(p i.ProjectID, dispatch string) (i.Actor, error) {
 	r, err := i.RegisterService(i.Scheduler)
@@ -110,7 +128,7 @@ func (s *Coordinator) admit(ctx context.Context, r wc.TaskClaimRequest, policy e
 		}
 	}
 	owned, cancel := context.WithCancelCause(ctx)
-	call := &claimCall{owner: s, request: r.Clone(), actor: actor, launch: launch, cancel: cancel, live: true, stage: claimDiscovery}
+	call := &claimCall{owner: s, request: r.Clone(), actor: actor, launch: launch, retryPolicy: s.retryPolicy, cancel: cancel, live: true, stage: claimDiscovery}
 	s.calls[call] = struct{}{}
 	return context.WithValue(owned, claimContextKey{}, call), call, nil
 }
@@ -259,6 +277,10 @@ func (s *Coordinator) ClaimTask(ctx context.Context, r wc.TaskClaimRequest, poli
 			if err = sameClaim(old, r, call.launch); err != nil {
 				return err
 			}
+			// This transaction observed another claimant's existing receipt.
+			// If its commit is Unknown, resolution must match that observed
+			// binding, not the deployment settings used for a new insertion.
+			call.retryPolicy = old.retryPolicy
 			committed = old
 			return nil
 		}
@@ -321,7 +343,7 @@ func (s *Coordinator) ClaimTask(ctx context.Context, r wc.TaskClaimRequest, poli
 		}
 		now, _ := f.NewInstant(time.Now())
 		digest, _ := call.launch.Digest()
-		committed = &dispatchRecord{id: dispatch, project: r.ProjectID, sprint: r.CurrentSprintID.String(), task: r.TaskID.String(), agent: r.AgentID, launch: call.launch.Clone(), digest: digest, status: Pending, outcome: NotSent, version: 1, guard: guard, createdAt: now, updatedAt: now}
+		committed = &dispatchRecord{id: dispatch, project: r.ProjectID, sprint: r.CurrentSprintID.String(), task: r.TaskID.String(), agent: r.AgentID, launch: call.launch.Clone(), digest: digest, retryPolicy: call.retryPolicy, status: Pending, outcome: NotSent, version: 1, guard: guard, createdAt: now, updatedAt: now}
 		return insertDispatch(ctx, x, committed)
 	})
 	err = commitError(result)

@@ -21,6 +21,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 )
 
@@ -42,6 +43,7 @@ type Config struct {
 	accountKeys     account.Keyring
 	knowledgeKeys   kc.ConfirmationKeys
 	accountLog      func() string
+	launchRetry     *scheduler.LaunchRetryPolicy
 }
 
 func (c Config) LogLevel() slog.Level                           { return c.logLevel }
@@ -96,6 +98,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "CURSOR_KEYRING", "SECRET_KEYRING", "OUTBOUND_CA_FILE":
 		case "ACCOUNT_KEYRING", "ACCOUNT_RECOVERY_LOG":
 		case "KNOWLEDGE_CONFIRMATION_KEYRING":
+		case schedulerRetryMaxAttempts, schedulerRetryInitialBackoff, schedulerRetryMaxBackoff:
 		case "OBJECT_DOWNLOAD_KEYRING", "OBJECT_ENDPOINT", "OBJECT_TRANSFER_ENDPOINT", "OBJECT_BUCKET", "OBJECT_ACCESS_KEY", "OBJECT_SECRET_KEY", "OBJECT_TLS_MODE", "OBJECT_CA_FILE", "OBJECT_SPOOL_DIR":
 		case "DATABASE_URL", "DATABASE_TLS_MODE", "DATABASE_CA_FILE", "DATABASE_MAX_CONNS", "DATABASE_CONNECT_TIMEOUT", "DATABASE_STARTUP_TIMEOUT", "DATABASE_LOCK_TIMEOUT":
 		default:
@@ -188,6 +191,10 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 	// Config is nested in another type's private fields. Opening belongs to
 	// account initialization, never configuration validation.
 	c.accountLog = func() string { return accountLog }
+	c.launchRetry, err = loadSchedulerLaunchRetry(lookup)
+	if err != nil {
+		return Config{}, err
+	}
 
 	return c, nil
 }
@@ -228,6 +235,9 @@ func (c Config) Validate() error {
 	}
 	if !validAccountLogPath(c.AccountRecoveryLog()) {
 		return invalid("ACCOUNT_RECOVERY_LOG")
+	}
+	if c.launchRetry != nil && c.launchRetry.Validate() != nil {
+		return invalid("SCHEDULER_LAUNCH_RETRY_*")
 	}
 	return nil
 }
