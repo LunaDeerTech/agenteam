@@ -86,6 +86,13 @@ func TestToolSchemaStrictJSONAndOfflineResources(t *testing.T) {
 		`{"$schema":"http://json-schema.org/draft-07/schema"}`,
 		`{"$defs":{"old":{"$schema":"https://json-schema.org/draft/2019-09/schema","type":"integer"}},"$ref":"#/$defs/old"}`,
 		`{"$vocabulary":{"urn:unsupported-required":true}}`,
+		`{"hidden":{"$id":"urn:hidden","$schema":"http://json-schema.org/draft-07/schema","type":"integer"},"$ref":"#/hidden"}`,
+		`{"hidden":{"$id":"urn:hidden","$vocabulary":{"urn:unsupported-required":true},"type":"integer"},"$ref":"#/hidden"}`,
+		`{"const":{"$id":"urn:literal-target","$schema":"http://json-schema.org/draft-07/schema"},"$ref":"#/const"}`,
+		`{"$ref":"http://json-schema.org/draft-07/schema"}`,
+		`{"$ref":"https://json-schema.org/draft/2020-12/schema"}`,
+		`{"$defs":{"node":{"$dynamicAnchor":"node","$ref":"#/hidden"}},"hidden":{"$id":"urn:hidden","$schema":"http://json-schema.org/draft-07/schema"}}`,
+		`{"definitions":{"node":{"$dynamicAnchor":"node","$ref":"#/hidden"}},"hidden":{"$vocabulary":{"urn:unsupported-required":true}}}`,
 		`{"$ref":"file:///must-not-open"}`, `{"$ref":"https://must-not-resolve.invalid/schema"}`,
 	} {
 		compiled, err := Compile(context.Background(), []byte(raw))
@@ -93,6 +100,17 @@ func TestToolSchemaStrictJSONAndOfflineResources(t *testing.T) {
 		if compiled.data != nil {
 			t.Fatal("unsupported schema returned a compiled value")
 		}
+	}
+	for _, raw := range []string{
+		`{"hidden":{"$id":"urn:hidden","$schema":"https://json-schema.org/draft/2020-12/schema","type":"integer"},"$ref":"#/hidden"}`,
+		`{"hidden/a~b":{"type":"integer"},"$ref":"#/hidden~1a~0b"}`,
+		`{"default":{"$schema":"http://json-schema.org/draft-07/schema","$vocabulary":{"urn:unsupported-required":true}},"type":"integer"}`,
+	} {
+		compiled := compileTest(t, raw)
+		if err := compiled.Validate(context.Background(), []byte(`2`)); err != nil {
+			t.Fatal(err)
+		}
+		requireCode(t, compiled.Validate(context.Background(), []byte(`"wrong"`)), f.InvalidArgument)
 	}
 	c := compileTest(t, `true`)
 	for _, raw := range [][]byte{[]byte(`{"x":1,"\u0078":2}`), []byte(`1 2`), []byte(`"\udc00"`), {'"', 0xff, '"'}} {

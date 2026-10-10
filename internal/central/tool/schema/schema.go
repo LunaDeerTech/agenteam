@@ -9,6 +9,9 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net/url"
+	"strconv"
+	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -65,7 +68,8 @@ func Compile(ctx context.Context, raw []byte) (out Compiled, err error) {
 		}
 		return out, fault(f.SchemaUnsupported)
 	}
-	if err = dialect(ctx, doc); err != nil {
+	policy := documentPolicy{ctx: ctx, doc: doc, resources: map[string]string{}, anchors: map[string][]string{}}
+	if err = policy.walk(doc, "", ""); err != nil {
 		return out, err
 	}
 	run := &matchState{ctx: ctx}
@@ -85,6 +89,15 @@ func Compile(ctx context.Context, raw []byte) (out Compiled, err error) {
 	}
 	if compileErr != nil {
 		return out, fault(f.SchemaUnsupported)
+	}
+	if err = policy.compiled(compiler, compiled); err != nil {
+		return out, err
+	}
+	if err = ctx.Err(); err != nil {
+		return out, err
+	}
+	if run.err != nil {
+		return out, run.err
 	}
 	run.ctx = nil
 	state := &compiledState{gate: make(chan struct{}, 1), schema: compiled, run: run}
@@ -210,14 +223,28 @@ func checkContext(ctx context.Context) error {
 }
 func fault(code f.Code) error { return f.NewFault(code, f.NotStarted) }
 
-// This is a dialect/resource policy check, not a schema evaluator. Only actual
-// standard subschema positions are visited: literal data under const/default
-// may contain "$schema" without declaring another dialect.
-func dialect(ctx context.Context, value any) error {
-	if err := ctx.Err(); err != nil {
+// documentPolicy checks dialect/resource policy, not validation semantics.
+// Only standard subschema positions and actual compiled reference targets are
+// schema objects. Literal const/default data is never recursively classified.
+// Locations from the library retain the retrieval document URL and JSONPointer,
+// including for embedded $id resources; this also excludes embedded metaschemas
+// reached through $ref, which the library can load without calling our loader.
+type documentPolicy struct {
+	ctx       context.Context
+	doc       any
+	resources map[string]string // visited schema pointer -> containing resource pointer
+	anchors   map[string][]string
+}
+
+func (p *documentPolicy) walk(value any, pointer, resource string) error {
+	if err := p.ctx.Err(); err != nil {
 		return err
 	}
+	if _, seen := p.resources[pointer]; seen {
+		return nil
+	}
 	if _, ok := value.(bool); ok {
+		p.resources[pointer] = resource
 		return nil
 	}
 	m, ok := value.(map[string]any)
@@ -239,17 +266,34 @@ func dialect(ctx context.Context, value any) error {
 			}
 		}
 	}
-	for _, key := range []string{"additionalProperties", "unevaluatedProperties", "propertyNames", "items", "contains", "unevaluatedItems", "not", "if", "then", "else", "contentSchema"} {
-		if child, exists := m[key]; exists {
-			if err := dialect(ctx, child); err != nil {
+	if id, ok := m["$id"].(string); ok && id != "" {
+		resource = pointer
+	}
+	p.resources[pointer] = resource
+	if _, ok := m["$dynamicAnchor"].(string); ok {
+		p.anchors[resource] = append(p.anchors[resource], pointer)
+	}
+	child := func(key string, value any) error {
+		return p.walk(value, pointer+"/"+pointerToken(key), resource)
+	}
+	for _, key := range []string{"additionalProperties", "unevaluatedProperties", "propertyNames", "items", "contains", "unevaluatedItems", "not", "if", "then", "else", "contentSchema", "additionalItems"} {
+		if value, exists := m[key]; exists {
+			if err := child(key, value); err != nil {
 				return err
 			}
 		}
 	}
-	for _, key := range []string{"$defs", "properties", "patternProperties", "dependentSchemas"} {
+	for _, key := range []string{"$defs", "definitions", "properties", "patternProperties", "dependentSchemas", "dependencies"} {
 		if children, ok := m[key].(map[string]any); ok {
-			for _, child := range children {
-				if err := dialect(ctx, child); err != nil {
+			for name, value := range children {
+				// The pinned compiler recognizes legacy schema containers too.
+				// Property-dependency string arrays are values, not schemas.
+				if key == "dependencies" {
+					if _, names := value.([]any); names {
+						continue
+					}
+				}
+				if err := p.walk(value, pointer+"/"+key+"/"+pointerToken(name), resource); err != nil {
 					return err
 				}
 			}
@@ -257,14 +301,150 @@ func dialect(ctx context.Context, value any) error {
 	}
 	for _, key := range []string{"prefixItems", "allOf", "anyOf", "oneOf"} {
 		if children, ok := m[key].([]any); ok {
-			for _, child := range children {
-				if err := dialect(ctx, child); err != nil {
+			for n, value := range children {
+				if err := p.walk(value, pointer+"/"+key+"/"+strconv.Itoa(n), resource); err != nil {
 					return err
 				}
 			}
 		}
 	}
 	return nil
+}
+
+func pointerToken(value string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(value, "~", "~0"), "/", "~1")
+}
+
+func (p *documentPolicy) at(location string) (any, string, error) {
+	fragment, ok := strings.CutPrefix(location, resourceURL+"#")
+	if !ok {
+		return nil, "", fault(f.SchemaUnsupported)
+	}
+	pointer, err := url.PathUnescape(fragment)
+	if err != nil || (pointer != "" && !strings.HasPrefix(pointer, "/")) {
+		return nil, "", fault(f.SchemaUnsupported)
+	}
+	value := p.doc
+	if pointer != "" {
+		for _, token := range strings.Split(pointer[1:], "/") {
+			if err := p.ctx.Err(); err != nil {
+				return nil, "", err
+			}
+			token = strings.ReplaceAll(strings.ReplaceAll(token, "~1", "/"), "~0", "~")
+			switch parent := value.(type) {
+			case map[string]any:
+				value, ok = parent[token]
+			case []any:
+				n, parseErr := strconv.Atoi(token)
+				ok = parseErr == nil && n >= 0 && n < len(parent)
+				if ok {
+					value = parent[n]
+				}
+			default:
+				ok = false
+			}
+			if !ok {
+				return nil, "", fault(f.SchemaUnsupported)
+			}
+		}
+	}
+	return value, pointer, nil
+}
+
+func (p *documentPolicy) compiled(compiler *js.Compiler, root *js.Schema) error {
+	queue := []*js.Schema{root}
+	seen := map[*js.Schema]bool{}
+	anchors := map[string]bool{}
+	// All public compiled schema edges in the pinned library, including legacy
+	// edges it can retain. Values/annotations and regex implementation fields
+	// are deliberately not inspected. No private reflection or unsafe access.
+	var add func(any)
+	add = func(value any) {
+		switch value := value.(type) {
+		case *js.Schema:
+			if value != nil && !seen[value] {
+				queue = append(queue, value)
+			}
+		case []*js.Schema:
+			for _, child := range value {
+				add(child)
+			}
+		case map[string]*js.Schema:
+			for _, child := range value {
+				add(child)
+			}
+		case map[js.Regexp]*js.Schema:
+			for _, child := range value {
+				add(child)
+			}
+		case map[string]any:
+			for _, child := range value {
+				add(child)
+			}
+		}
+	}
+	for len(queue) != 0 {
+		if err := p.ctx.Err(); err != nil {
+			return err
+		}
+		s := queue[0]
+		queue = queue[1:]
+		if seen[s] {
+			continue
+		}
+		seen[s] = true
+		if s.DraftVersion != 2020 {
+			return fault(f.SchemaUnsupported)
+		}
+		value, pointer, err := p.at(s.Location)
+		if err != nil {
+			return err
+		}
+		// A newly promoted reference target inherits the nearest already known
+		// resource, just as ensureSubschema does before processing its own $id.
+		parent := pointer
+		for {
+			if _, known := p.resources[parent]; known {
+				break
+			}
+			n := strings.LastIndexByte(parent, '/')
+			if n < 0 {
+				parent = ""
+				break
+			}
+			parent = parent[:n]
+		}
+		if err := p.walk(value, pointer, p.resources[parent]); err != nil {
+			return err
+		}
+		// Resource dynamic anchors are compiled by the library even when their
+		// only edge is its private dynamic-anchor table. Reuse public Compile on
+		// exactly those original locations; do not force unrelated resources.
+		for _, pointer := range p.anchors[p.resources[pointer]] {
+			if anchors[pointer] {
+				continue
+			}
+			anchors[pointer] = true
+			anchor, err := compiler.Compile(resourceURL + "#" + url.PathEscape(pointer))
+			if err != nil {
+				if p.ctx.Err() != nil {
+					return p.ctx.Err()
+				}
+				return fault(f.SchemaUnsupported)
+			}
+			add(anchor)
+		}
+		for _, edge := range []any{s.Ref, s.RecursiveRef, s.Not, s.AllOf, s.AnyOf, s.OneOf, s.If, s.Then, s.Else,
+			s.PropertyNames, s.Properties, s.PatternProperties, s.AdditionalProperties, s.Dependencies,
+			s.DependentSchemas, s.UnevaluatedProperties, s.Contains, s.Items, s.AdditionalItems,
+			s.PrefixItems, s.Items2020, s.UnevaluatedItems, s.ContentSchema} {
+			add(edge)
+		}
+		if s.DynamicRef != nil {
+			add(s.DynamicRef.Ref)
+		}
+	}
+	return p.ctx.Err()
 }
 
 func decode(ctx context.Context, raw []byte) (any, error) {
