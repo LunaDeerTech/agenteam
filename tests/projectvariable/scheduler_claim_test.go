@@ -42,6 +42,13 @@ func newSchedulerClaimFixture(t *testing.T) (*taskTransitionFixture, *scheduler.
 	t.Helper()
 	v := prepareSchedulerClaimTask(t)
 	startSchedulerSprint(t, v)
+	return v, newSchedulerClaimCoordinator(t, v, nil)
+}
+
+// An optional immutable policy selects the explicit opt-in constructor. The
+// existing Claim fixture retains its unbound default and original lifecycle.
+func newSchedulerClaimCoordinator(t *testing.T, v *taskTransitionFixture, policy *scheduler.LaunchRetryPolicy) *scheduler.Coordinator {
+	t.Helper()
 	catalog := event.NewCatalog()
 	events, err := wc.RegisterSchedulerClaimEvents(catalog)
 	if err != nil {
@@ -82,9 +89,15 @@ func newSchedulerClaimFixture(t *testing.T) (*taskTransitionFixture, *scheduler.
 	if err != nil {
 		t.Fatal("same-Store Dispatch observer", err)
 	}
-	coordinator, err := scheduler.NewCoordinator(v.pending, scheduler.CoordinatorDependencies{
+	deps := scheduler.CoordinatorDependencies{
 		Projects: v.base.projectAuthority, Claims: claims, Executions: observer, Capacity: observer,
-	})
+	}
+	var coordinator *scheduler.Coordinator
+	if policy == nil {
+		coordinator, err = scheduler.NewCoordinator(v.pending, deps)
+	} else {
+		coordinator, err = scheduler.NewCoordinatorWithRetryPolicy(v.pending, deps, *policy)
+	}
 	if err != nil {
 		t.Fatal("real Scheduler coordinator", err)
 	}
@@ -96,7 +109,7 @@ func newSchedulerClaimFixture(t *testing.T) (*taskTransitionFixture, *scheduler.
 			t.Error("original Scheduler calls did not join", err)
 		}
 	})
-	return v, coordinator
+	return coordinator
 }
 
 // Preparation reuses the real P2/Agent/Object Runtime composition. The Task
