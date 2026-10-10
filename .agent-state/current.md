@@ -46,4 +46,11 @@
 - ordinary repository Get/读列表/容量/UPDATE四处SQL增`type='variable'`；Secret独立4096容量和generation，跨两type名称唯一检查保持。包说明同步实际职责；完整SQL未执行。
 - 经root明确授权，旧`audit_facts_test.go`只更新只读阶段的Secret无事实负控：不再用always-allow替身证明“无分发”，改实际D10 Authority拒缺sameTx私有proof，且当前Session/Archived门先行；普通与其它action测试未改。新增Project测试核两Outbox stage、生命周期/Session/foreignTx、错闭集event、ordinary依赖隔离。
 - 2e051d fresh5708410880→原90611→8e3a2a actual1：projectvariable定向SecretOwner/Variable组已race1.128s通过，但Project新测试误写三返回值为二导致编译失败。只修该测试赋值后a3903a fresh5622099968→原8262→e07f9c actual0/race1.032s，四个精确Project新旧top通过。没有PG/实际Session/真实Rows或Owner写事务验收；私有写事实/Unknown仍待纯负控和真实组合。
-- 本轮9技术路径＋current/库卡共11paths冻结供root checkpoint与独审；全部工具实际终态，原D04/前缀/Outbox engine/app/HTTP未写。
+- 本轮11paths及后继事实修复/测试两源已root保存eaf209f5；Variables对原11blob有限独审无must-fix，含实际Project两top独立race和旧分支逆差异，未纳后继事实控制/完整Owner/SQL。原D04/前缀/Outbox engine/app/HTTP未写。
+
+## 私有事实控制与真实库fixture准备
+
+- `secret_facts_test.go`三top/16子格沿真实D10 Authority与私有checker检查same live Tx、完整Actor/Session/锁、真实后像/history、实际Audit返回与completed/D04 tuple。Store/Rows及D04安全投影受控，不冒真实Apply/Audit/PG。首0e04e9实际红定位create discovery内部缺省priorVersion=0被Foundation Version JSON拒；`secret_facts.go`仅内部binding字段改int64，Before与正式类型校验不变。c7cf6e余一测试把ordinary原SQL算为私有proof SQL，修断言位置；d094d1仅Python包装语法失败未启动Go。最终ba0c6a fresh5574062080→原97023→aa89b5 actual0/race1.068s，3top/16子均过；全部红保留。
+- 新`tests/projectvariable/secret_fixture_test.go`复用原真实Account/Project创建及其已明确的persistent Skills fixture，再独立构造正式D10 WriteAuthority、D04/native facts、Audit/Outbox与Owner；同Store/真实当前gate，无app/HTTP装配修改，不启动Outbox dispatcher或Secret后台worker。新`secret_persistence_test.go`准备完整CRUD/metadata/no-op/显式覆盖、两域版本、普通type/name隔离、删除后新Session与Owner重建安全历史/原意图重放及无canary/摘要泄露检查。
+- 两新integration源首cd9d76 fresh5450506240→原53816→6a901e actual1，仅编译发现四处ordinary opaque DTO需Fields()的测试API误用；已窄修，尚未重编/PG。共享空间不足期间依root要求暂停新Go构建，不降低门槛。00030仍草案，因此不能执行该组或称SQL就绪；使用正式Migrator且不从fixture直接执行草案，不改旧fixture/生产/迁移。
+- 新`secret_confirmation_test.go`准备两个纯top：原prepared Match/完整原锁、一次原3s、各失败保原Unknown attempt/cause以及Stop取消后仍等原confirmation实际返回才Drain完成。此处D04/Store明确受控，仅测试确认Owner，不冒物理COMMIT或生产prepared权限；尚未编译，待空间恢复。当前四路径均gofmt/diffcheck且全部工具终态，无自有真实资源。
