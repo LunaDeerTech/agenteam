@@ -1,6 +1,6 @@
 # D09 有限 text-only Model Runtime
 
-状态：SPEC 已冻结，待 cleanup 非作者接口审查；尚未编码、编译或运行。基线 main `04455194`，工作树 `/workspace/agenteam-model-text-runtime`、分支 `ai/model-text-runtime`。root 分配本执行者独占迁移 `00031_model_logical_calls.sql`。本卡交付一次真实 attempt 的 logical-call 服务，生产 consumer 与默认根未绑定；不宣称完整 D09、D22 或 Agent F1。
+状态：有限 SPEC 经 cleanup 非作者接口审接受，实现进行中；首 Object/Project 窄口已落盘待源码审，Runtime 尚未闭合，无编译/测试或真实调用结果。基线 main `04455194`，工作树 `/workspace/agenteam-model-text-runtime`、分支 `ai/model-text-runtime`。root 分配本执行者独占迁移 `00031_model_logical_calls.sql`。本卡交付一次真实 attempt 的 logical-call 服务，生产 consumer 与默认根未绑定；不宣称完整 D09、D22 或 Agent F1。
 
 ## 1. 正式依据、提供方与调用方
 
@@ -107,6 +107,16 @@ Call 的 canonical binding 另覆盖完整 consumer、original initiator 身份�
 
 Root最终同Store组合与生产Consumer注册另行负责，本卡不改 app；该分离不省略本次隔离真实服务组合的上述callbacks。全部大材料只在受控内存，00031/Usage/Audit不落正文或Credential value。
 
+### 6.1 Project Access Audit 的实际缺口与窄口候选
+
+现 `project/audit_facts.go` 只允许 Secret/Variables/Knowledge/Object producer；真实 Audit 在 Project scope 的 AccessDeny 必调 `Projects.CheckAppendInTx`，当前返回 DependencyUnbound，旧 System scope 管理员 wire fixture 不能代表本链。候选仍复用现 `audit.ProjectFactAuthority.CheckProjectAuditInTx(context.Context, foundation.Tx, audit.Entry, audit.AppendKey) error`，由唯一 RuntimeAuthority 提供本域 invocation 事实，不新造 Audit 接口。
+
+- Project 的 AuditFacts 可选映射新增 `AccessProducer`，缺 provider 仍 unbound。最窄分支仅接受 `Action=AccessDeny/Outcome=Denied/PolicyResource/ordinal=0`，原注册 `OutboundService`、Project scope及actor cause=key cause；其它actor/action不因本注册放行。
+- Project 在原 Audit Tx 检查既有 Project Shared 锁、同Store活Tx、真实已初始化/current lifecycle gate；不创建Call、不补Consumer锁、不重建用户或Service授权。然后原样委派精确 Entry/Key。业务权限仍须原 Runtime invoke/credential_read plan在dispatch前验证。
+- Runtime checker只认该Project下原 InvocationID cause、accepted未退休call和发送资格已确认的实际attempt、同Process/fence、当前私有已handoff且未join owner、原consumer精确associations及本text Model consumer元数据；当前dispatch可以为 `authorized` 或 `sent`。原D04在已发后仍可产生RedirectDenied/ResponseLimit等拒绝审计，不能把当前dispatch必须等于authorized作为门槛；不接受caller自报“sent”。检查不升级调用资格，也不引入另一Access事实producer。
+- 非法entry/actor/cause/关联返回原安全Forbidden；缺provider是DependencyUnbound；错误Store/锁及SQL沿原安全DependencyUnavailable；Project状态沿既有gate fault；所有错误保原cause、零成功 receipt。不能将 Audit 失败改成网络允许。
+- 额外写域仅 `internal/central/project/audit_facts.go`、新 `model_access_audit.go` 与对应必要 `model_access_audit_test.go`（均在 Project 包）。cleanup接口审后root已授权这三路径，首源待非作者代码审。本域 checker放原计划 `model/runtime_authority.go`，不扩app/defaultroot或Project管理。
+
 ## 7. Stream 与实际关闭
 
 Stream只在reservation、材料与发送资格确认并实际取得原Exchange后返回。使用原ModelFrame，CallID/InvocationID/AttemptIndex=1贯穿；本invocation Sequence单调递增。仅产生`attempt_started/message_start/text_delta/usage_update/message_end/call_failed/call_cancelled`，没有tool/reasoning/attempt retry边界。
@@ -125,7 +135,7 @@ Text累计按原wire上限，有界保存以形成原ModelResponse；UTF-8 offse
 
 候选新增：`CurrentProcess() (oc.ProcessID,error)`。只在 `g!=nil && g.data!=nil`，取既有 `processState.mu`，检查`bound && !closed && service!=nil`，返回原`process`值；其余返回零ID+安全unbound/unavailable。无I/O、无新flock、无Close、无死亡结论、不返回宿主路径/nonce/文件句柄。原bind/finish/Close已用同mutex，此读取不得改其线性化和close职责。Runtime Initialize/准入从该对象读取，不接受callerProcessID。
 
-该读取不是pin或死亡证明；共享guard保持到Model等所有借用者真实Joined的根关闭顺序仍是必要条件。它不修复或解禁Object STOP。只读契约审通过后，由root另授权 `object/process.go` 与相邻必要基础测试窄增量；本卡此时尚未修改这两个路径。
+该读取不是pin或死亡证明；共享guard保持到Model等所有借用者真实Joined的根关闭顺序仍是必要条件。它不修复或解禁Object STOP。cleanup契约审后root已授权 `object/process.go` 与新 `object/process_current_test.go` 窄增量，首源已冻结待代码审；pure控制只检查内存状态/同mutex，不冒真实flock/数据库注册或退休证据。
 
 ## 9. 写域与首次验证
 
@@ -136,7 +146,7 @@ Text累计按原wire上限，有界保存以形成原ModelResponse；UTF-8 offse
 - 本域旧 `internal/central/model/secret_router.go` 与 `secret_router_test.go` 仅上述显式新runtime构造/分派；原构造和所有原分支必须兼容。
 - `db/migrations/00031_model_logical_calls.sql`；原连续00001–30完整保留。
 - 新 `tests/model/runtime_persistence_test.go`、`tests/model/runtime_native_test.go`，复用原正式fixture；新增精确harness入口由root协调唯一writer，不整文件覆盖旧输入。
-- §8 Object窄口待单独授权；adapter/contract/原Model管理与Resolver/app默认根不在允许写域。若实际缺observer或正式Project验证端口，先报具体协约，不私加callback绕口。
+- §8 Object窄口与§6.1 Project精确三路径已单独授权；adapter/contract/原Model管理与Resolver/app默认根不在允许写域。若另缺observer或正式验证端口，先报具体协约，不私加callback绕口。
 
 先实现正常和明确失败基础测试：profile/策略拒绝零reservation、实际输入摘要/clone与安全日志、单call重复与一次handoff、frame唯一terminal、Close/Next生命周期。基础片段稳定就保存，不等全部恢复矩阵才联调。
 
