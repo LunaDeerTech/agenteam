@@ -1,6 +1,6 @@
 # D10 Agent 配置与当前身份事实
 
-状态：**C1 六个纯契约文件已实现并经独立验收接受；F1 未接受、未实施、BLOCKED**。本轮实施仅限 §8 的六个纯契约文件，没有 Agent 服务、迁移、动态授权或生产绑定。C1 接受不扩展到 F1；正文中的 F1 新类型、接口、字段与工程上限仍待独立 SPEC 审查，不因被其它草稿引用而成为已验能力。`identity.AgentID` 只是 typed identity。本文不占用迁移号，进入真实持久实施前由 root 根据当时全局序列分配。
+状态：**C1 六个纯契约已接受；Model Selection 与 Secret Directory 的 metadata 前置已实现并通过有限真实联调；完整 F1 仍未接受**。本次新增交付见 §2.3，不含 Agent 服务、引用写入、迁移或生产绑定。后继 F1 实施由独立任务推进，其类型、接口与工程约束须按实际范围验收，不能因其它草稿引用或 metadata 通过而视为完成。`identity.AgentID` 仍只是 typed identity；本次前置不占用迁移号。
 
 本卡拟分成两个可分别验收的结果：**C1 纯 AgentCore 与当前身份端口契约**可在规格接受后先行；**F1 Human Owner 创建、读取、修改真实 Agent 配置，并提供同 caller Tx 的当前身份事实**必须等本卡列出的真实前置闭合后开工。F1 不接受 SQL 手种 Agent、默认成功目录或未绑定初始化作为生产创建路径。C1 完成不解锁 Task 指派；F1 完成也不等于 Executor、Agent 删除、完整 D10 或平台 ready。
 
@@ -13,12 +13,12 @@
 | Foundation / PostgreSQL | typed UUIDv7、Version、Instant、CommandMeta、活 caller Tx、完整锁 union、CommitResult 已有实现 | 复用，不新增事务框架、SQL 驱动、锁类别；`AgentLock` 已在 rank 4 |
 | Account / Project Owner | 当前 Session、Owner Read/Mutate、初始化及 Project lifecycle gate、Activity 已有已验库能力 | 同 Tx 真验；管理员无 Owner 旁路，Project initialized 不能被 Agent 构造器伪造 |
 | Model 配置、读取及部分解析 | 真实 Model/Provider canonical、Owner/System 配置能力、部分当前 Resolver 已交付 | 能力可复用但范围有限；配置选择验证不能借运行 Resolver 生成虚构 Execution/lease |
-| Model Agent 引用 | `model/contract.ReferenceOwner{Kind:"agent",Role:"agent_model"或"approval_model"}` 与 `References` 为现存纯契约 | **仅 contract**。`DiscoverReference/ApplyReferenceInTx` 未见实现；`model.prepareReplacement` 遇 Agent 引用明确 `DEPENDENCY_UNBOUND`，不能称已支持 Agent 原子替换 |
-| Agent 配置目录 Model 校验 | D01 `ModelCatalog.ValidateSelectionInTx` 是概念端口；现有 `resolution_policy.go` 拒绝非空 reasoning effort，且解析含运行 snapshot/lease 职责 | **未实现本卡所需配置窄口**。由 Model owner 补同 Tx 可见性、enabled chat、effort 与引用写入/替换后，F1 才能消费 |
+| Model Agent 引用 | 既有 `ReferenceOwner`/`References` 纯契约与后继双角色引用实施分开；本次 metadata 不写引用 | **本次未交付真实 Agent 引用链**。完整角色集合、canonical 同 Tx witness、owner_version 与替换竞锁仍须由后继组合证明；`model.prepareReplacement` 遇 Agent 引用继续明确 `DEPENDENCY_UNBOUND` |
+| Agent 配置目录 Model 校验 | `AgentConfigurationSelections` 及 `NewAgentConfiguration` 已实现，真实 Owner/同 Store caller Tx 的配置 metadata 链见 §2.3 | 可消费 System 或当前 Project 的 enabled chat/Provider、版本及安全 capabilities；不借运行 Resolver。主模型 effort 按 advertised set 校验，审批模型只允许 nil；当前正式创建策略仍拒非空 reasoning efforts，本次 PG 使用支持的 text-only 种子 |
 | Skills | [初始化卡](d10-skills-initialization.md) P1 的不可变包/builtin 材料、纯 contract 已验；Project 初始化收敛前置另已验 | **真实 Skill 发布、Agent 默认分配及 AssignmentRuntimeSink 未实现/未绑定**。材料存在不等于保护技能已发布或新 Agent 已初始化 |
 | Tool / MCP 目录 | 架构与 D01 稳定 Tool 引用、Core Tool、MCP scope 规则 | **未实现所需真实目录/原子引用保护**。默认 install-skill 的普通 Builtin Tool 身份也须由正式 Registry 返回 |
 | Runner / Mount 目录 | 逻辑 Mount/workspace、offline 与有效引用分离的规则 | **仅设计契约**；不得用 Runner 在线布尔值、任意路径或空目录替代同 Project/Agent 引用校验 |
-| Secret / 项目变量 | D04 Secret 加密、凭据/lease 等限定能力已交付 | **项目 SecretVariable 业务目录及 Agent 白名单引用口未实现**；`CredentialRef` 不能冒充 `identity.ProjectVariableID` 或证明其为 Secret |
+| Secret / 项目变量 | Secret Owner 库与 `NewSecretDirectory` 的当前 Project metadata 目录已实现；五类输入的真实联合链见 §2.3 | 目录仅返回可见性分类与安全 metadata，不返回材料。Agent 白名单引用写入/删除保护不在本次交付；`CredentialRef` 不能冒充 `identity.ProjectVariableID` |
 | Task / Work | Structure 已验；Task Planning 契约已验，runtime 当前仍在验收 | 本卡不将 Task runtime 候选算已接受。assignee/reviewer 当前引用及状态转换是后继 Work 的事实责任 |
 | Execution / Dispatch / Meeting / Memory / Governance | D01 端口与架构责任存在 | **实际 Agent slot、活动/历史占用、运行 snapshot、Memory namespace 清理等未绑定**；不实现 Agent 删除或把这些域报成无引用 |
 | Outbox / Audit | 已有 typed planned Append、同 Tx 与当前 Project gate 等前置 | Agent 自己的 typed producer/Audit 业务类型仍须正式实现与验收；合法 event DTO 不构成 producer 权限 |
@@ -44,6 +44,16 @@ F1 开工前必须已有可供组合的 Model 配置验证与 Agent 引用写入
 **F1 仍 BLOCKED；ID 位置接缝已由 [R1](d01-resource-identities.md)闭合。** `identity.ToolID/MountID/ProjectVariableID` 的唯一 marker 位于层 1，完整配置可向下依赖；`agent/contract` 仍不能 import 层 5 的 ToolCatalog/ToolSpec。真实窄目录投影、同 Tx 引用保护及其余前置尚未闭合，不能把三个 ID 声明当 F1 已就绪。C1 的 AgentCore 排除三类引用数组，保持原样。
 
 默认 Add Skills 启用、install-skill 默认启用且允许显式禁用属于既定产品规则。新 Agent 的配置事实与默认分配必须原子可证明，已有 Project initialized 只证明 Project 初始化，不证明该 Agent 已获得默认能力。缺保护技能、缺 Registry 或初始化错误时，创建失败且无可供 Work 指派的 active Agent。
+
+### 2.3 已接受的 metadata 前置
+
+本次交付包含 Model 的 `contract/agent_configuration.go`、`agent_selection.go` 及对应测试，ProjectVariable 的 `secret_directory.go` 及对应测试，以及 [联合 PG 测试](../../../tests/projectvariable/agent_configuration_metadata_test.go)和其固定入口。恢复、原命令与失败记录见 [metadata 方法](../../../.agent-state/agent-configuration-metadata/README.md)；不把该方法扩大为 Agent 创建验收。
+
+两个领域的 Discover 绑定同一 Human 当前 Session、Project 与原 `agent.create` CommandIdentity，给出不可变计划和完整锁集合。调用方一次获取两计划的 union，再于原同 Store 活 Tx 调用各自 Require；最终方法只验证已持锁、当前 Owner/Session 与重新读取的映射，不补锁、不自开最终事务。Model 返回身份、版本、scope 和 capabilities；Secret 对 valid、deleted、missing、foreign Project、ordinary variable 五类输入给出 `valid`、`removed`、`not_in_scope` 三种结果，不暴露 Secret 材料。
+
+Selection 的七个作者 race 测试及两个包 vet、Directory 的四个作者 race 测试及包 vet已经通过；产品、方法及确定的种子修正获非作者源码审接受。真实 `TestAgentConfigurationMetadata` 的 `normal-metadata`、`current-and-stale`、`caller-rollback` 三子项在 metadata04 wholePASS：正式 Account/Project/Model/Secret 服务验证 System/同 Project 模型、两个非 Owner 拒绝、正式 Logout、两域陈旧映射及原 caller 物理回滚，十二类持久事实保持对应预期。原 Go/driver/supervisor/outer Wait、七资源与 private/runtime/descendant/TCP 双尾、输入前后核对均闭合；独立原件核对接受该有限结果，不声称另一次独立动态 PG 验收。metadata01/02/03 和 compile02 的原失败仍保留。
+
+Project 初始化使用明确的持久 test-only Skills receipt，生产 initializer 继续 unbound。本链不创建 Agent，不写 Model/Secret 引用，不证明新 Agent 默认 Skill/Tool 分配、Runtime consumer 授权或完整 F1；00032 及后继 Registry/Skills 迁移不随本次交付。主模型 advertised effort 的纯校验结果也不等于已开放当前生产策略尚不支持的配置。
 
 ## 3. 类型、字段与严格 schema
 
@@ -242,4 +252,4 @@ F1真实PG必须逐项证明：
 
 所有并发必须用实际caller Tx PID、精确预期key/mode、granted=false与blocker握手后释放/取消，不靠sleep。独立验证者须全文STATIC并各自构造Owner撤权/Ref竞争以及跨ownerModel替换/Unknown两组真实场景；作者tests不能代替独立结论。真实资源/单top预算沿当时明确的私有PG-only fixture与所有权，未获扩展不启动Object/Runner/Provider；需要受阻真实依赖时如实BLOCKED，不削弱断言或复制空实现。离线检查每条≤45秒且GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off。
 
-C1 六个纯契约文件已实现并经独立验收接受；其接受只开放依赖纯类型的编译工作。F1 尚未接受或实施并保持 BLOCKED，只有全部实际前置、真创建/事实/引用与独立验证通过才可供 Task assignee/reviewer 正向绑定。完整 Agent 配置、Skills/Variables、删除、Executor 与完整 D10 的未完成事实保留。
+C1 六个纯契约与 §2.3 的 metadata 前置分别按其范围接受。完整 F1 仍未接受，只有全部实际前置、真创建/事实/引用与独立验证通过才可供 Task assignee/reviewer 正向绑定。后继独立树中的 Agent/References 实施或纯测试不由本次 PG 代证；完整 Agent 配置、Skills/Variables、删除、Executor 与完整 D10 的未完成事实保留。

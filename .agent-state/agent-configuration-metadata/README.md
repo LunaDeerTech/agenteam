@@ -1,0 +1,170 @@
+# Agent configuration metadata: first real PG chain
+
+This is one integration test, `^TestAgentConfigurationMetadata$`, in
+`tests/projectvariable/agent_configuration_metadata_test.go`, with exactly three
+subtests: `normal-metadata`, `current-and-stale`, and `caller-rollback`.
+
+The integration tree combines main `728` with Model Selection's four Go files
+from `171aee` (implementation first saved in `c5de6ad4`) and Secret Directory's
+two Go files from `e591c5`. Their accepted unit checks are reused; this test does
+not repeat the old Runtime suite or implement Agent reference persistence.
+
+## Actual services and data
+
+`newSecretOwnerFixture` supplies a migrated task-owned PostgreSQL database,
+real Bootstrap/Invitation/Redeem/Login identities, current Session and Project
+Owner checks, real Project creation, and formal Secret variable commands.
+Its persistent test Skills initialization receipt is explicitly a fixture;
+it does not bind the default production Project initializer. Unavailable
+lifecycle participants remain unavailable.
+
+The new test assembles Model Authority, Audit's Model authority, the real Model
+Secret usage router, real Secret UsageOperations, Model events/Outbox and Model
+Service on that same Store. System Provider/Model creation uses the real admin;
+Project Provider/Model creation uses the real Owner. Selection always checks
+the requesting Project Owner, including for System Models. No SQL seeds Model,
+Secret, Agent or reference rows; no Provider invocation is made.
+
+Each pair of Discover calls binds the same Human, Project and original
+`project / [ProjectID] / agent.create / key` command. The test consumer
+normalizes and acquires the complete union of both returned plans once, before
+calling both final Require methods in its original live Store transaction.
+It neither discovers inside the final transaction nor supplies late locks.
+
+## Fixed checks
+
+- `normal-metadata`: System and same-Project primary chat selection, then
+  same-Project approval selection. The formal seeds use supported text input
+  and output, false reasoning and an empty effort set; both roles use nil
+  effort. The complete returned capabilities must equal the actual formal
+  GetModel/GetProjectModel view, including all flags and optional fields.
+  Every selection is combined with five independently established Secret
+  cases: valid, deleted, missing, foreign Project and ordinary variable. The
+  formal statuses are `valid`, `removed` and `not_in_scope`; the last three
+  cases must not return metadata. Exact Model identity/scope/version/capability
+  facts and valid Secret metadata are checked.
+- `current-and-stale`: the other Human and admin cannot discover the Owner's
+  Project metadata. A freshly logged-in Owner discovers both plans, then formal
+  Logout revokes that exact Session; both final ports reject in real caller
+  transactions. Formal Model update and Secret metadata update independently
+  invalidate the previously issued mapping; no new plan substitutes for the
+  stale request under test.
+- `caller-rollback`: both Require calls succeed in the original caller Tx,
+  which inserts one task-private marker and intentionally returns an error.
+  Actual NotCommitted plus absence of the marker proves the caller's physical
+  rollback. This does not claim atomic Agent creation; metadata itself is read
+  only. No Agent or reference is written.
+
+Twelve actual counts before/after metadata operations cover references,
+snapshots/bindings/invocations, Secret leases, Model catalog/commands, Secret
+commands, Audit and Outbox. All remain unchanged across reads and rejected or
+rolled-back consumers. Fixture setup and deliberate formal mutations are
+outside their corresponding read-only comparison windows.
+
+## Build and controlled execution
+
+The corrected candidate is
+`output/ai/agent-configuration-metadata/metadata-race-03.test`, built with
+fixed Go 1.27.1 using `go test -p=2 -race -tags=integration -c -o <candidate>
+./tests/projectvariable`, followed by exact `-test.list` discovery. Build and
+real execution require separately granted windows, fresh space of at least
+5 GiB, private XDG telemetry mode `off`, the three telemetry bypass variables
+unset, offline module lookup, and the explicitly handed-over build cache.
+
+The existing root-chain supervisor/driver is the only real execution entry:
+`pg_only_supervisor.py --driver root_chain_driver.py --binary <candidate>
+--run '^TestAgentConfigurationMetadata$' --output <fresh-output> --root-chain`.
+The entry owner adds only this exact selector, mandatory source closure and
+necessary native entry controls. Existing seven-resource fixture ownership,
+Go timeout, supervisor budget, actual Wait, descendant adoption, runtime,
+resource, input and host-TCP final checks remain unchanged. No new launcher,
+resource retry, or alternate success path is introduced here.
+
+The author fixture and method received limited independent review with no
+must-fix. The `e5e51946` candidate compiled and listed successfully on
+2026-10-10 11:49:50 UTC: session 83220 ended 032899/0; outer 680041,
+compile 680042 and list 680719 all Wait 0. Compile/list took 31.661s/1.068s;
+both process-group and runtime samples were empty, with no adopted children.
+All 1182 original build-input hashes were unchanged. The same launch measured
+5,578,985,472 available bytes and used the private/offline settings above.
+
+The regular, mode-0700, nlink-1 candidate is 44,600,307 bytes, SHA-256
+`9ad8467c1aae43d4092f52103b19983df42f66326845e603510d7dad60c6609a`.
+The original list printed exactly `TestAgentConfigurationMetadata`. Logs,
+input hashes and results are rebuildable under
+`output/ai/agent-configuration-metadata/compile-01/`. The Go source is unchanged
+by this result note. Final execution closure is generated once by the entry
+owner after this note was frozen. These are the original compile-01 facts,
+before the real runs and fixture correction below.
+
+Source review and successful test discovery do not count as business
+acceptance. An original failure will be kept with its actual tails.
+
+## Original failure and supported-seed correction
+
+Metadata01 stopped before supervisor/Go/resources on the outer argv parsing
+error. Metadata02 remains wholeFAIL: its real top ran for 8.93s and the first
+formal System Model creation returned `CAPABILITY_UNSUPPORTED`, before any
+subtest. All original Wait/resource/private/runtime/descendant/TCP/input tails
+closed; the minimal safe result is `first-actual-result.json` beside this file.
+
+The original seed advertised `ReasoningEfforts=[medium]`, which the existing
+`modelPolicy` explicitly rejects for all protocols. The correction changes
+only the fixture's supported text/text seed, leaves effort nil for both roles,
+and compares the complete returned capabilities with the actual formal Model
+view. Production policy, permissions, the three subtests, twelve count checks
+and all execution budgets are unchanged. This Go fixture change requires a
+new candidate and input closure; compile-01 and metadata01/02 are historical
+evidence, not acceptance of the corrected source.
+
+## Corrected candidate and unchanged-source boundary
+
+Compile02 remains wholeFAIL. Its Go process actually returned 0, but the
+author's outer script tried an unavailable `/proc/PID/task/PID/children` file
+and exited 1 before listing or the second/input tails. A later bounded
+observation found the original PIDs/group absent and runtime empty; it does
+not fill the missing original proof. The original result is retained under
+`output/ai/agent-configuration-metadata/compile-02/`.
+
+The explicitly authorized compile03 launcher instead imports the existing
+supervisor's `descendants` method. Source `e075a779` completed the single-package
+race compile and exact list on 2026-10-10 12:19:37 UTC: session 63858 ended
+867998/0, outer 706328, Go 706333 and list 706411 all Wait 0. Compile/list took
+2.272s/1.068s. Both process groups, all original descendant samples and both
+runtime samples were empty; no adopted child or survivor required cleanup.
+All 1182 source inputs and the separate launcher/Python/supervisor method
+hashes matched before and after. Fresh launch space was 5,643,743,232 bytes;
+private telemetry/offline settings remained unchanged and the hot cache was
+released after complete Wait. No body, old pure suite, socket or database ran.
+
+`metadata-race-03.test` is a regular mode-0700, nlink-1 file, 44,600,867 bytes,
+SHA-256 `cac43b306727fc8fb0217da7f4674df57759e52ce4f620ba4e0e1f41509ff79d`.
+The list printed only `TestAgentConfigurationMetadata`; the source still has
+the same three subtests. The original compile03 logs/manifests/result remain
+under `output/ai/agent-configuration-metadata/compile-03/`. This outcome note
+changes only README/current after compilation, not Go source. The entry owner
+generated the final native03 closure with all 1182 compile paths retained.
+Metadata03 then stopped at the same-process 5 GiB disk gate (5,022,830,592
+available bytes), before supervisor, Go, Docker or sockets. Outer 710044 ended
+85ae5d/1 at 12:23:46 UTC with empty descendant tails; no business subtest ran.
+The original failure and absence of a TCP/input acceptance tail are preserved
+in [the safe result](first-actual-result.json). Metadata01/02 and compile02
+failures also remain; successful compilation is not joint business acceptance.
+
+## Accepted real metadata chain
+
+After the separately authorized capacity recovery, metadata04 completed the
+original root-chain entry on 2026-10-10 12:28:11–12:29:52 UTC. The top and all
+three subtests passed (9.93s total): exact safe metadata, current authority and
+stale-plan rejection, and caller-owned rollback. Session 42919 ended f1a1db/0;
+Go 715809, driver 714009, supervisor 713987 and outer 713941 all Wait 0.
+Seven owned resources had 14 absence checks; private/runtime/descendant/TCP
+and outer descendant/TCP double tails were empty, with no adopted children
+or STOP. All 1202 runtime input hashes were unchanged. Same-process launch
+space was 5,717,778,432 bytes; the compiled candidate above was reused.
+
+[The minimal result](first-actual-result.json) retains metadata01/02/03 FAILs
+and the accepted run’s original artifact locations. Compile02 remains FAIL
+as described above. This result proves only the declared Model Selection and
+Secret Directory caller chain, not Agent CRUD, reference persistence, F1,
+production initializer binding or any existing STOP recovery.

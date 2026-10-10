@@ -168,7 +168,7 @@ class ModelRuntimeEntryControls(unittest.TestCase):
                     + ": 'internal/central/app',\n", 1))
         self.assertFalse(hasattr(self.sup, 'OWNER_UI_TOPS'))
         self.assertEqual({k: v for k, v in self.driver.TARGETS.items()
-                          if k not in (SELECTOR, '^TestProjectLifecycleStopBatchRealGuard$')}, baseline['TARGETS'])
+                          if k not in (SELECTOR, '^TestProjectLifecycleStopBatchRealGuard$', '^TestAgentConfigurationMetadata$')}, baseline['TARGETS'])
         self.assertEqual(self.sup.budgets(True), (540, 60))
         self.assertEqual(self.sup.budgets(False), (123, 3))
         # This follows the actual known inverse chain, without rerunning the

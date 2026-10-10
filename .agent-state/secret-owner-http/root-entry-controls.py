@@ -124,7 +124,7 @@ class RootEntryControls(unittest.TestCase):
         self.assertEqual(driver.TARGETS[knowledge_entry.SELECTOR], 'internal/central/app')
         self.assertEqual({k: v for k, v in driver.TARGETS.items()
                           if k not in (SELECTOR, parser_entry.SELECTOR, knowledge_entry.SELECTOR, '^TestModelTextRuntimePersistentWire$',
-                                       '^TestProjectLifecycleStopBatchRealGuard$')}, baseline['TARGETS'])
+                                       '^TestProjectLifecycleStopBatchRealGuard$', '^TestAgentConfigurationMetadata$')}, baseline['TARGETS'])
 
     def test_exact_three_cases_and_original_wait(self):
         top = 'TestProjectSecretVariablesDefaultRoot'
