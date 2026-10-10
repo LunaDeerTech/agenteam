@@ -1,6 +1,6 @@
 # D10 Secret Variable Human Owner 库
 
-状态：实施进行中，基线正式main `ce65714a`；完整库源码、exact事实路由及定向pure/race通过。Variables对固定生产/SQL/业务方法与四组入口有限独审无剩余must-fix。00030 Migration单组已完整真实PASS（9节点及原Wait/两资源/私目录/desc/TCP/input尾齐）；其他三组五业务top仍未运行，整库未完成。26–29为测试前缀，00030正式交付仍等待有序依赖。唯一实施者为本分支 `ai/secret-variable-owner-service`；root拥有Git和共享资源调度。
+状态：库级候选的既定实现、有限独审与六top/四组真实矩阵已齐，基线正式main `ce65714a`。Migration9、read6、Atomic/Concurrency10、Recovery5共30节点按各自冻结版本完整PASS，均有原Wait/两资源/私文件/runtime/desc/TCP/input全尾；原read01FAIL保留。Variables对固定生产/SQL/方法/四组入口、Runner对read测试返修有限独审无剩余must-fix。26–29为测试前缀，00030正式交付及main组合仍待有序依赖装配；HTTP/defaultroot不在本库验收中。唯一实施者为本分支 `ai/secret-variable-owner-service`；root拥有Git和共享资源调度。
 
 本工作项落实[Secret Variables rev2](d10-secret-variables-owner.md)中的库级子结果，直接复用[已验D04 producer](d04-secret-variable-storage.md)、A纯合同和e940 Audit严格读合同。业务规则、字段/安全输出、预算与原意图定义以rev2为准；本文只固定本次实施和验收边界，不另造产品契约。
 
@@ -71,3 +71,5 @@ Read首真实组沿同固定产物/402输入，42579→f4ef34 actualouter1/80.22
 Read修后同原组69141→d31012完整actualouter0/83.806s，新9a514c/03bd/403输入下六节点全PASS（CurrentAuthority7.45s、Persistence6.60s）：实际当前授权、prepare后Archive、只读生命周期原历史与新写拒绝、CRUD/type名称隔离、删除后新Session/Service恢复及安全输出检查完成。原Go/driver Wait0、PG两ID双退役、private/runtime/desc/TCP与inputs完整尾齐，窗口已释放，详情见current和原read02日志。保留read01FAIL且不回填其未采时间因果；原迁移PASS复用，AtomicFacts/Concurrency和CommitRecovery仍待各自fresh窗口，整库/正式连续迁移交付未完成。
 
 AtomicFacts＋Concurrency原36671→5b10f7完整actualouter0/84.147s，同固定9a514c/03bd/403输入，十节点全PASS（7.61s/5.88s）。四个实际事实边界注错后的精确回滚，以及同key同/异义、同expected更新/删除、ordinary/Secret名称竞争的原backend/锁屏障与调用返回均通过；原Go/driver Wait0、PG两ID双退役、private/runtime/desc/TCP/input完整尾齐，窗口已释放。只剩CommitRecovery五节点真实组待单独授权；旧FAIL/各版本结果保持，不宣称完整Owner或正式前缀交付。
+
+CommitRecovery原59444→190edf完整actualouter0/82.913s，同9a514c/03bd/403输入，五节点全PASS11.96s。实际COMMIT before/after/pending与Stop确认取消，原Unknown/Attempt/Cause、独立当前确认、锁屏障/调用返回、代理释放与新Session历史恢复/事实恰一次均闭合；held-callback取消后Drain负向仍属既有受控pure。原Go/driver Wait0、PG两ID双退役、private/runtime/desc/TCP/input全尾齐并已释放。至此本库既定六top矩阵按版本到齐，原FAIL保持；后继只按正式前缀/main装配差异补必要验收，不新增默认恢复矩阵或冒HTTP/root/F1完成。

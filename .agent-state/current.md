@@ -1,5 +1,6 @@
 # D10 Secret Variable Owner Service 当前检查点
 
+- 当前阶段：库级既定六top/四组真实矩阵已按版本组合全部通过（Migration9、read6、Atomic/Concurrency10、Recovery5，共30节点）；原read01完整FAIL保留。生产/方法/入口有限独审及受影响测试返修独审已齐；正式main装配、连续26–30迁移交付与HTTP/defaultroot仍未完成，不新增默认矩阵。
 - 树 `/workspace/agenteam-secret-variable-owner-service`，分支 `ai/secret-variable-owner-service`，正式基线 `ce65714aac6eb4995a43fc427a2c77e6497470a7`。root负责Git、迁移协调和实际资源窗口；本线不执行Git写操作。
 - 完整目标见[本库工作项](../docs/development/work-items/d10-secret-variable-owner-service.md)：真实Human Owner的Secret Commands/Queries、D04专用authority、单final Tx中的两域事实/安全历史恢复、共享目录兼容及库调用退出。app/HTTP/defaultroot/UI和真实Agent F1/材料使用不在本轮。
 - eb0731实际只读核31承接路径逐字等于冻结D04 b724e397：16 production、9 pure tests、00029、D04/D10两卡，加26–28三测试依赖。新树Project/Knowledge/app/Outbox相对正式ce657无差异。没有把旧D04树的Project/B02整体覆盖过来。
@@ -103,3 +104,10 @@
 - 真实原Tx在D10 Audit、Outbox、实际Activity更新和Owner尾四处先到达目标事实再注精确故障，外部精确回滚；四竞争格为同key同原意图、同key改value、两key同expected更新/删除及普通/Secret同名，保原双方backend/本DB/排序首冲突锁与blocker屏障、原调用实际返回。未扩大业务断言、睡眠预算或故障机制，未重跑read/Migration。
 - Go1482283 actualWait0、driver1481665 actualWait0/23.385s；nonce538e1661f51d6aa09f848c24c30e0203，container35293c3979756499e94143b8c9aac87528a281d0407a8c7d9843c29448556830、network55daeb65fd35e899e72c979c78a3ea21487975fe60ea3d492003f6d794b8aa6f原双RETIRE clean。49fe69原末行确认exact10/10、desc双[]、TCP双delta空、inputs_unchanged=True/terminal0；86ec9a/49fe69两次实际六私文件absent、run仅owned.json、无runtime。全部原尾后已向root释放，无自有活命令或自动下一组。
 - 本轮只接受该十节点；原read01FAIL、read02六节点PASS、原Migration九节点PASS均保持各自组合。现只剩CommitRecovery五节点真实组未运行，仍需单独fresh grant；全Owner及正式连续迁移交付未完成。
+
+## CommitRecovery 末组完整通过
+
+- 沿c0be63f7冻结记录及原9a514c/03bd/403输入，fdf22d同进程UTC2026-10-10T01:43:34.863996Z/fresh5504147456后启动`^TestSecretVariableOwnerCommitRecovery$`，唯一`sql-owner-recovery-01/pg-7167ebf9a9e94498a9af2ae95a7d8926.log`。本人原59444→190edf actualouter0，supervisor82.913s；1父4子共5RUN/5PASS，业务11.96s（before-forward0.81、after-forward0.97、pending-outlives-confirmation3.93、stop-confirms-actual-join0.70秒）。
+- 真实原backend完整COMMIT故障与原Store Unknown/Attempt/Cause，独立确认Tx和精确锁等待、pending超过原3s、Stop取消确认与原调用返回/Drain、代理COMMIT释放/实际wg及新Session安全Lookup/原材料重放均按原断言通过；after-forward只在真实完整事实确认后返回成功，其余保Unknown，再显式恢复且事实恰一次。Stop的“取消但callback仍held时Drain不得完成”负向继续只复用59616a受控pure；本真实格不冒该负向独立PG证明。
+- Go1486334 actualWait0、driver1485690 actualWait0/22.482s；nonceccd5137496448df14a51367303201f7a，container72a8b0f14f4864ba4fc59c78314e2b23540626764717499d2be7b53e1fb94bd5、network6bea347deb91ae5efbab06e606df1dab54aa04f4765ef3ab555defc3d9ba915a原双RETIRE clean。13e892原末行确认exact5/5、desc双[]、TCP双delta空、inputs_unchanged=True/terminal0；957a2d/13e892两次实际六私文件absent、run仅owned.json、runtime无残余。全部原尾后已即时向root释放，无自有活命令/资源或下一组。
+- 六top既定有限矩阵现到齐：Migration仍原d52/402输入，read02/Atomic/Recovery为修fixture后的9a514c/403输入；三处测试差异不改生产/SQL/原迁移断言，不机械重跑Migration。原read01FAIL不删除、不回填未采时间因果。库候选可交root按当前正式依赖处理装配及必要差异验收；26–30有序前缀、HTTP/defaultroot/真实F1与完整Project生命周期不由本矩阵冒完成。
