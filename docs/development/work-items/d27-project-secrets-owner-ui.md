@@ -1,6 +1,6 @@
 # D27 Project Secret Owner UI
 
-状态：实施中，前两次真实链整体 FAIL，第二轮可见操作已到删除但完成证明未通过；尚未验收。仅消费 main 已交付的 Secret Owner HTTP；未修改后端、公共 OpenAPI、依赖或迁移。
+状态：实施中，三次真实链整体 FAIL，第三轮已明确两个请求的网络完成门未通过；尚未验收。仅消费 main 已交付的 Secret Owner HTTP；未修改后端、公共 OpenAPI、依赖或迁移。
 
 ## 范围与固定合同
 
@@ -59,3 +59,15 @@ native01 原1840→d44246整体FAIL。outer788736/sup788795，启动fresh5,619,0
 原10条代理响应及spec顺序证明浏览器已走过create→实际提交PATCH受控502→原keyLookup/current v2→delete/空列表/材料清除的可见断言；随后原original-tails失败，page_closed=false，后尾Node rows10/PW pending0/browser pending0。这不是wholePASS；原后置Go三类提交计数断言未达。原stage包含ready轮询、finish、完整conjunction三步，不能依据后尾零计数反推首ready或具体失败门；work_ui只读同结论。原记录不回填。
 
 仅必要诊断增量：将这三步拆为固定stage；同observer原ready调用保存不可变闭集布尔/计数采样，不加第三observer/新请求或后台采样；completed沿原terminal产生固定分组布尔，不输出body/headers/URL/identity/key/receipt。首失败写原terminal或明确标记last-ready-sample；后尾只另文件追加，不能升级首记录。normal-only、原secretOriginalCompleted函数和所有预算保持。新diagnostics-only受控原observer/实际API/Session一正向＋投影反例13计数检查、0unhandled，24721→4e8415 actual0；strictTS4991→40c490 actual0。没有重旧6模式/30组件或再跑浏览器。三技术native/spec/native-controls与本记录停写；第三实际仍需root新窗口。
+
+
+## native03：原首失败门与全尾
+
+source `b73020f0`，原候选835f/dist69复用。原 session82845→9dd064 actual1，outer824857/174.2s、sup824971/167.664s、driver824992、Go826777/63.56s 原 Wait1，Node826981实际false。fresh5,835,186,176B；1492输入 hash73d31ef4e9932e5802fede3030b19602789b5088d439182f52721c65d8b64d03，原尾 unchanged=true。7资源14absent/private/runtime/desc/TCP各双尾，outerdesc双空/TCP2/survivors[]/adopted[]；原UI有限预收四已退出adopted均实际wait0。资源窗口已释放，整体FAIL没有重试或追认。
+
+首 `original-ready` 原采样 node_ready_observed=true/node_ready=false/node_failed=true/node_pending=2；Node/browser均10行，browser failed=false/pending0/current=true/not_busy=true。PW index4（UPDATE）与6（current GET）failed_zero=false/finished_one=false/finished_null=false/joined=false，其余8行正常。UPDATE的reader组表示未取得reader、只实际outer cancel；GET的reader组才表示EOF/cancel/release。全部消费者分组通过不替代PW门。后尾pending0仍first_ready=false，不能升级；后置Go提交计数门未达。
+
+原错误码及失败事件相对取消的时序未采，不能推断具体ERR_ABORTED或回填native02。原安全文件 `output/ai/secret-owner-ui/evidence-owner-03/TestProjectSecretOwnerWeb/secret-{first-failure,failure-tail}.json`，原outer记录 `native-03-control/result.json`，原监督log `/tmp/psu03/ui-c55b6cf49f624f95.log`。后继只针对两请求进行合成无Secret的回环诊断；normal-only门不变。
+
+
+后继仅受控故障表示定向修复：原backend200真实提交/EOF/Close后返回502空表示，以Problem媒体类型进入原bounded读取，EOF后解析失败仍Unknown，不伪造Problem。相应UPDATE必须真实0B EOF及reader/outer全尾；新GET仅安全错误类别/局部顺序诊断。微复现没有解释原GET，原三个wholeFAIL保留；定向32+31控制与strictTS0，仍待新候选和原1top实际链。生产/client/dist无改，详见本域recipe。

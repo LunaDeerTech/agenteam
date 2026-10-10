@@ -1,6 +1,6 @@
 # Secret Owner UI 首次真实链准备
 
-当前已有私有正式前端 build 和 Go 候选；前两次真实链均整体 FAIL，第二轮可见操作已到删除、仍缺完成证明，诊断准备见末段。没有整个链路 PASS；前端纯控与源码独审见 [D27](../../docs/development/work-items/d27-project-secrets-owner-ui.md)。默认 Project initializer 未绑定，生产 SPA publication STOP 不变。
+当前已有私有正式前端 build 和 Go 候选；三次真实链均整体 FAIL，第三轮已定位两个请求的网络完成门，详见末段。没有整个链路 PASS；前端纯控与源码独审见 [D27](../../docs/development/work-items/d27-project-secrets-owner-ui.md)。默认 Project initializer 未绑定，生产 SPA publication STOP 不变。
 
 ## 固定输入与原链
 
@@ -18,7 +18,7 @@
 
 唯一正常链：create→当前 list/detail→PATCH 实际后端成功。代理完整读取原200回执、核正式安全 DTO、实际 Close、保存安全 body/XID 证据后，只对这一次 PATCH 返回固定502；没有领域回滚或虚构 Problem。浏览器必须进入 uncertain，值输入清空、不能重发；人工 Lookup 仅 command/target/expected_version，原 key 相同，无 value；历史回执确认后重读 current GET v2，再 delete v2→3。原3次写入的 history/Audit/event/commands/D04 receipt 各恰3，重复 PATCH 不接受。
 
-新 observer 对所有 Secret 请求坚持 normal requestfinished 恰1、failed0、原 Response.finished(null)。502 是明确失败执行响应，只接受外层 body.cancel 的实际退役与 Session uncertain；绝不作为安全 metadata 完成。200 额外要求同一原 Request/XID、原 fetch Promise、同 reader EOF/Content-Length/bytes/hash、reader.cancel 实际 Promise→release→outer.cancel join、原 Session 公有方法原 Promise 的完整 typed 值/current identity/busy=false，以及页面对应展示。无第二 fetch/clone/tee/模拟 Session。首次 finish 先同步固定 Node pending/ready，再立即派发 browser 同步 seal，之后才 allSettled join；迟到完成不能修复首失败。
+新 observer 对所有 Secret 请求坚持 normal requestfinished 恰1、failed0、原 Response.finished(null)。502 是空的 application/problem+json 表示，必须实际读取 EOF、reader.cancel/release/outer.cancel 全尾完成后解析失败并进入 Session uncertain；它不能解码成 Problem 或安全 metadata，也不带提交状态断言。200 额外要求同一原 Request/XID、原 fetch Promise、同 reader EOF/Content-Length/bytes/hash、reader.cancel 实际 Promise→release→outer.cancel join、原 Session 公有方法原 Promise 的完整 typed 值/current identity/busy=false，以及页面对应展示。无第二 fetch/clone/tee/模拟 Session。首次 finish 先同步固定 Node pending/ready，再立即派发 browser 同步 seal，之后才 allSettled join；迟到完成不能修复首失败。
 
 合成 Secret canary 的 raw/JSON 转义/base64/SHA256 形态不得出现在响应、响应头、日志或提交后的 DOM/输入。原登录凭据和原写 key 仅私有内存/受控文件，不进入安全证据。失败只写固定阶段和计数，先保存首次失败再等原尾。截屏仅在值已清空后。标准 Draft202012 schema 实际验证原 backend 安全响应，PATCH 原200与线上502分别标明。
 
@@ -60,3 +60,21 @@ native01 原1840→d44246整体FAIL。outer788736/sup788795，启动fresh5,619,0
 原10条代理响应及spec顺序证明浏览器已走过create→实际提交PATCH受控502→原keyLookup/current v2→delete/空列表/材料清除的可见断言；随后原original-tails失败，page_closed=false，后尾Node rows10/PW pending0/browser pending0。这不是wholePASS；原后置Go三类提交计数断言未达。原stage包含ready轮询、finish、完整conjunction三步，不能依据后尾零计数反推首ready或具体失败门；work_ui只读同结论。原记录不回填。
 
 仅必要诊断增量：将这三步拆为固定stage；同observer原ready调用保存不可变闭集布尔/计数采样，不加第三observer/新请求或后台采样；completed沿原terminal产生固定分组布尔，不输出body/headers/URL/identity/key/receipt。首失败写原terminal或明确标记last-ready-sample；后尾只另文件追加，不能升级首记录。normal-only、原secretOriginalCompleted函数和所有预算保持。新diagnostics-only受控原observer/实际API/Session一正向＋投影反例13计数检查、0unhandled，24721→4e8415 actual0；strictTS4991→40c490 actual0。没有重旧6模式/30组件或再跑浏览器。三技术native/spec/native-controls与本记录停写；第三实际仍需root新窗口。
+
+
+## native03：原首失败门与全尾
+
+source `b73020f0`，原候选835f/dist69复用。原 session82845→9dd064 actual1，outer824857/174.2s、sup824971/167.664s、driver824992、Go826777/63.56s 原 Wait1，Node826981实际false。fresh5,835,186,176B；1492输入 hash73d31ef4e9932e5802fede3030b19602789b5088d439182f52721c65d8b64d03，原尾 unchanged=true。7资源14absent/private/runtime/desc/TCP各双尾，outerdesc双空/TCP2/survivors[]/adopted[]；原UI有限预收四已退出adopted均实际wait0。资源窗口已释放，整体FAIL没有重试或追认。
+
+首 `original-ready` 原采样 node_ready_observed=true/node_ready=false/node_failed=true/node_pending=2；Node/browser均10行，browser failed=false/pending0/current=true/not_busy=true。PW index4（UPDATE）与6（current GET）failed_zero=false/finished_one=false/finished_null=false/joined=false，其余8行正常。UPDATE的reader组表示未取得reader、只实际outer cancel；GET的reader组才表示EOF/cancel/release。全部消费者分组通过不替代PW门。后尾pending0仍first_ready=false，不能升级；后置Go提交计数门未达。
+
+原错误码及失败事件相对取消的时序未采，不能推断具体ERR_ABORTED或回填native02。原安全文件 `output/ai/secret-owner-ui/evidence-owner-03/TestProjectSecretOwnerWeb/secret-{first-failure,failure-tail}.json`，原outer记录 `native-03-control/result.json`，原监督log `/tmp/psu03/ui-c55b6cf49f624f95.log`。后继只针对两请求进行合成无Secret的回环诊断；normal-only门不变。
+
+
+## 后继定向修复（待新候选与真实窗口）
+
+同锁PW回环微03执行10个合成请求：两次text/plain502均在未读outer cancel后出现net::ERR_ABORTED，8个200（含相邻GET、分别省略单一取消的对照）均正常；不能据此解释原GET或回填原错误码。空text/plain502微04仍failed，故未采用。微05只改为空application/problem+json，原readJSON真实EOF后解析失败，原requestfinished1/failed0；终态副本没有记录后续Response.finished返回值，不据此宣称finished(null)。微03/04/05原Node/outer均0，browser/context/server/原尾已退、desc/TCP双空；01/02分别为长runtime和evaluate字符串setupFAIL，保持0业务结论。
+
+仅Go代理受控丢回执分支改为502/Problem媒体类型/Content-Length0/零body。仍在原backend200、typed回执/EOF/Close之后，不造Problem或回滚事实。UPDATE观察门由未读reader0改成实际0B EOF、原reader.cancel/release/outer尾、空体digest、原Unknown；normal-only和所有200门未放宽。新增GET诊断只有固定网络错误类别、两个观察器各自局部ordinal与取消当时signal布尔，不能比较两个ordinal域来推跨进程先后，不输出原错误文本/材料。
+
+定向response-loss 2模式/32检查0unhandled，19402→fe982a actual0；诊断投影1模式/31检查0unhandled，11178→97b445 actual0；strictTS05 10900→593090 actual0。只gofmt/两源format，无新Go/PG/浏览器或旧30组件重跑。`run.py`仅改为新candidate-02/secret-owner-ui-race.test，旧835f候选保留；dist01及生产客户端不变。下一步新race-c/list后仅原1top实际链，GET原因保持未定，不宣称已修完整链路。

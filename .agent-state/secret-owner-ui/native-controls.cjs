@@ -178,6 +178,7 @@ async function scenario(mode = "normal") {
       request = {
         url: () => box.location.origin + input,
         method: () => method,
+        failure: () => ({ errorText: "net::ERR_ABORTED" }),
       };
     let body,
       status = 200;
@@ -213,7 +214,7 @@ async function scenario(mode = "normal") {
         variable: rows[0],
       };
       patchKey = new Headers(init.headers).get("idempotency-key");
-      body = "Owned backend response unavailable\n";
+      body = "";
       status = 502;
     } else if (input.endsWith("/commands/lookup")) {
       assert.equal(new Headers(init.headers).get("idempotency-key"), patchKey);
@@ -275,7 +276,8 @@ async function scenario(mode = "normal") {
     const response = new Response(stream, {
       status,
       headers: {
-        "content-type": status === 502 ? "text/plain" : "application/json",
+        "content-type":
+          status === 502 ? "application/problem+json" : "application/json",
         "content-length": String(bytes.length),
         "x-request-id": xid,
       },
@@ -423,6 +425,30 @@ async function scenario(mode = "normal") {
     checks += 3;
   }
   if (mode === "normal") {
+    const update = result.browser.rows.find(
+      (row) => row.operation === "update",
+    );
+    assert.equal(update.bytes, 0);
+    assert.equal(update.eof, true);
+    assert.equal(update.readers, 1);
+    assert.equal(update.rejected, true);
+    assert.equal(update.progress.phase, "uncertain");
+    assert(update.eof_order < update.reader_cancel_order);
+    assert(update.reader_cancel_order < update.release_order);
+    assert(update.release_order < update.outer_cancel_order);
+    assert(update.outer_cancel_order < update.public_settle_order);
+    for (const field of [
+      "eof",
+      "reader_cancel_joined",
+      "release",
+      "outer_cancel_joined",
+    ]) {
+      const copy = structuredClone(result);
+      copy.browser.rows.find((row) => row.operation === "update")[field] =
+        field === "eof" ? false : 0;
+      assert.equal(box.exports.secretOriginalCompleted(copy), false);
+    }
+    checks += 13;
     if (process.argv.includes("--diagnostics-only")) {
       const marker = "SYNTHETIC_DIAGNOSTIC_VALUE";
       const copied = structuredClone(result);
@@ -435,6 +461,7 @@ async function scenario(mode = "normal") {
       assert.equal(observedFalse.node_ready_observed, true);
       assert.equal(observedFalse.node_ready, false);
       copied.rows[0].failed = 1;
+      copied.rows[0].failure_category = marker;
       copied.rows[0].url = marker;
       copied.rows[0].xid = marker;
       copied.browser.reason = marker;
@@ -452,9 +479,10 @@ async function scenario(mode = "normal") {
       assert.equal(projected.consumer[0].representation, false);
       assert.equal(projected.consumer[0].operation, "unknown");
       assert.equal(projected.reason, "unavailable");
+      assert.equal(projected.pw[0].failure_category, "unavailable");
       assert.equal(JSON.stringify(projected).includes(marker), false);
       assert.equal(box.exports.secretOriginalCompleted(copied), false);
-      checks += 14;
+      checks += 15;
     } else {
       const bad = [
         (r) => (r.rows[0].xid = id(900)),
@@ -482,6 +510,12 @@ async function scenario(mode = "normal") {
       }
     }
   }
+  if (mode === "request-failed") {
+    const diagnostic = box.exports.secretOwnerDiagnostic(result);
+    assert.equal(diagnostic.pw[0].failure_category, "aborted");
+    assert(diagnostic.pw[0].failed_order > diagnostic.pw[0].request_order);
+    checks += 2;
+  }
   await observer.abort();
   closed = true;
   page.emit("close");
@@ -489,14 +523,16 @@ async function scenario(mode = "normal") {
 (async () => {
   const modes = process.argv.includes("--diagnostics-only")
     ? ["normal"]
-    : [
-        "normal",
-        "held-reader",
-        "held-pw",
-        "request-failed",
-        "identity-change",
-        "leaked-body",
-      ];
+    : process.argv.includes("--response-loss-only")
+      ? ["normal", "request-failed"]
+      : [
+          "normal",
+          "held-reader",
+          "held-pw",
+          "request-failed",
+          "identity-change",
+          "leaked-body",
+        ];
   for (const mode of modes) {
     await scenario(mode);
     console.log("PASS " + mode);

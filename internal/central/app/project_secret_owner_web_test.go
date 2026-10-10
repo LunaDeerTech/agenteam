@@ -441,6 +441,11 @@ func (o *secretOwnerWebObservations) unavailable(w http.ResponseWriter, r *http.
 	o.mu.Unlock()
 	if controlled {
 		w.Header().Set("X-Request-ID", xid)
+		// Readable to EOF, but not a decodable Problem or a commit assertion.
+		w.Header().Set("Content-Type", "application/problem+json")
+		w.Header().Set("Content-Length", "0")
+		w.WriteHeader(http.StatusBadGateway)
+		return
 	}
 	// This is deliberately not a domain Problem and makes no rollback assertion.
 	http.Error(w, "Owned backend response unavailable", http.StatusBadGateway)

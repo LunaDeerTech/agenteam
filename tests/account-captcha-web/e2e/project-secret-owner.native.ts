@@ -44,6 +44,7 @@ export async function installSecretOwnerObservation(config: {
     tails = new Set<Promise<void>>(),
     restore: (() => void)[] = [];
   let retired = false,
+    sequence = 0,
     reason = "active",
     failed = false,
     first: any = null,
@@ -191,6 +192,14 @@ export async function installSecretOwnerObservation(config: {
       io_error: false,
       body: null,
       digest: null,
+      eof_order: 0,
+      reader_cancel_order: 0,
+      release_order: 0,
+      outer_cancel_order: 0,
+      public_settle_order: 0,
+      aborted_at_eof: null,
+      aborted_at_reader_cancel: null,
+      aborted_at_outer_cancel: null,
     };
   };
   for (const method of ["list", "get", "execute", "lookup"]) {
@@ -215,6 +224,7 @@ export async function installSecretOwnerObservation(config: {
         promise,
         (value) => {
           row.settled = true;
+          row.public_settle_order = ++sequence;
           row.fulfilled = true;
           row.current = current();
           row.not_busy = auth.state.busy === false;
@@ -232,6 +242,7 @@ export async function installSecretOwnerObservation(config: {
         },
         () => {
           row.settled = true;
+          row.public_settle_order = ++sequence;
           row.rejected = true;
           row.current = current();
           row.not_busy = auth.state.busy === false;
@@ -276,6 +287,8 @@ export async function installSecretOwnerObservation(config: {
         return Reflect.apply(originalFetch, this, [input, init]);
       }
       const row = candidates[0];
+      const observedSignal =
+        init?.signal ?? (input instanceof Request ? input.signal : null);
       row.bound++;
       const headers = new Headers(
         init?.headers ?? (input instanceof Request ? input.headers : undefined),
@@ -331,6 +344,8 @@ export async function installSecretOwnerObservation(config: {
             outerCancel = stream.cancel;
           replace(stream, "cancel", function (this: any, ...args: any[]) {
             row.outer_cancel++;
+            row.outer_cancel_order = ++sequence;
+            row.aborted_at_outer_cancel = observedSignal?.aborted === true;
             const result = Reflect.apply(outerCancel, this, args);
             observe(
               result,
@@ -367,6 +382,8 @@ export async function installSecretOwnerObservation(config: {
                       return;
                     }
                     row.eof = true;
+                    row.eof_order = ++sequence;
+                    row.aborted_at_eof = observedSignal?.aborted === true;
                     const data = new Uint8Array(row.bytes);
                     let offset = 0;
                     for (const chunk of chunks) {
@@ -383,7 +400,11 @@ export async function installSecretOwnerObservation(config: {
                       data.fill(0);
                       return;
                     }
-                    row.body = JSON.parse(text);
+                    // The empty injected 502 is not a Problem or metadata DTO.
+                    row.body =
+                      row.operation === "update" && data.length === 0
+                        ? null
+                        : JSON.parse(text);
                     observe(
                       crypto.subtle.digest("SHA-256", data),
                       (digest: ArrayBuffer) => {
@@ -415,6 +436,8 @@ export async function installSecretOwnerObservation(config: {
             });
             replace(reader, "cancel", function (this: any, ...args: any[]) {
               row.reader_cancel++;
+              row.reader_cancel_order = ++sequence;
+              row.aborted_at_reader_cancel = observedSignal?.aborted === true;
               const result = Reflect.apply(cancel, this, args);
               observe(
                 result,
@@ -433,6 +456,7 @@ export async function installSecretOwnerObservation(config: {
               function (this: any, ...args: any[]) {
                 const result = Reflect.apply(release, this, args);
                 row.release++;
+                row.release_order = ++sequence;
                 return result;
               },
             );
@@ -558,7 +582,18 @@ export function secretOriginalCompleted(report: any): boolean {
         !row.rejected ||
         row.fulfilled ||
         row.typed !== null ||
-        row.readers !== 0 ||
+        !row.eof ||
+        row.readers !== 1 ||
+        row.reads < 1 ||
+        row.reads !== row.read_returns ||
+        row.reader_cancel !== 1 ||
+        row.reader_cancel_joined !== 1 ||
+        row.release !== 1 ||
+        row.cl !== "0" ||
+        row.bytes !== 0 ||
+        row.body !== null ||
+        row.digest !==
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" ||
         row.progress?.phase !== "uncertain" ||
         !row.progress.receipt_null
       )
@@ -611,6 +646,10 @@ export function secretOwnerDiagnostic(report: any) {
         : v,
     );
   const known = ["list", "get", "create", "update", "lookup", "delete"];
+  const order = (value: unknown) =>
+    Number.isSafeInteger(value) && Number(value) > 0 ? Number(value) : 0;
+  const sampledBoolean = (value: unknown) =>
+    typeof value === "boolean" ? value : null;
   return Object.freeze({
     node_ready_observed: typeof report?.node_ready === "boolean",
     node_ready: report?.node_ready === true,
@@ -650,6 +689,22 @@ export function secretOwnerDiagnostic(report: any) {
           xid_unique:
             !!p.xid && node.filter((r: any) => r.xid === p.xid).length === 1,
           first_ready: p.first_ready === true,
+          failure_category: [
+            "none",
+            "aborted",
+            "connection-reset",
+            "connection-closed",
+            "content-length-mismatch",
+            "network-other",
+            "unavailable",
+          ].includes(p.failure_category)
+            ? p.failure_category
+            : "unavailable",
+          request_order: order(p.request_order),
+          response_order: order(p.response_order),
+          finished_order: order(p.finished_order),
+          failed_order: order(p.failed_order),
+          response_tail_order: order(p.response_tail_order),
         }),
       ),
     ),
@@ -676,21 +731,24 @@ export function secretOwnerDiagnostic(report: any) {
             row.not_busy === true,
           outer: row.outer_cancel === 1 && row.outer_cancel_joined === 1,
           reader:
-            row.operation === "update"
-              ? row.readers === 0
-              : row.eof === true &&
-                row.readers === 1 &&
-                row.reads >= 1 &&
-                row.reads === row.read_returns &&
-                row.reader_cancel === 1 &&
-                row.reader_cancel_joined === 1 &&
-                row.release === 1,
+            row.eof === true &&
+            row.readers === 1 &&
+            row.reads >= 1 &&
+            row.reads === row.read_returns &&
+            row.reader_cancel === 1 &&
+            row.reader_cancel_joined === 1 &&
+            row.release === 1,
           representation:
             row.operation === "update"
               ? row.status === 502 &&
                 row.rejected === true &&
                 !row.fulfilled &&
-                row.typed === null
+                row.typed === null &&
+                row.cl === "0" &&
+                row.bytes === 0 &&
+                row.body === null &&
+                row.digest ===
+                  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
               : row.status === 200 &&
                 row.fulfilled === true &&
                 !row.rejected &&
@@ -705,6 +763,16 @@ export function secretOwnerDiagnostic(report: any) {
               : !["create", "delete", "lookup"].includes(row.operation) ||
                 (row.progress?.phase === "confirmed" &&
                   row.progress?.receipt_same === true),
+          eof_order: order(row.eof_order),
+          reader_cancel_order: order(row.reader_cancel_order),
+          release_order: order(row.release_order),
+          outer_cancel_order: order(row.outer_cancel_order),
+          public_settle_order: order(row.public_settle_order),
+          aborted_at_eof: sampledBoolean(row.aborted_at_eof),
+          aborted_at_reader_cancel: sampledBoolean(
+            row.aborted_at_reader_cancel,
+          ),
+          aborted_at_outer_cancel: sampledBoolean(row.aborted_at_outer_cancel),
         });
       }),
     ),
@@ -735,6 +803,7 @@ export async function observeSecretOwner(
     slots = new Map<Request, any>(),
     tails = new Set<Promise<void>>();
   let sealed = false,
+    sequence = 0,
     closed = false,
     failed = false,
     first: any = null,
@@ -772,6 +841,12 @@ export async function observeSecretOwner(
         finished_null: false,
         joined: false,
         first_ready: false,
+        failure_category: "none",
+        request_order: ++sequence,
+        response_order: 0,
+        finished_order: 0,
+        failed_order: 0,
+        response_tail_order: 0,
       };
     rows.push(row);
     slots.set(request, row);
@@ -780,13 +855,33 @@ export async function observeSecretOwner(
     const row = slots.get(request);
     if (row) {
       row.finished++;
+      row.finished_order = ++sequence;
       if (sealed || closed || row.finished !== 1 || row.failed !== 0)
         failed = true;
     } else if (selected(request)) failed = true;
   };
   const rejected = (request: Request) => {
     const row = slots.get(request);
-    if (row) row.failed++;
+    if (row) {
+      row.failed++;
+      row.failed_order = ++sequence;
+      const text =
+        typeof request.failure === "function"
+          ? request.failure()?.errorText
+          : undefined;
+      row.failure_category =
+        text === "net::ERR_ABORTED"
+          ? "aborted"
+          : text === "net::ERR_CONNECTION_RESET"
+            ? "connection-reset"
+            : text === "net::ERR_CONNECTION_CLOSED"
+              ? "connection-closed"
+              : text === "net::ERR_CONTENT_LENGTH_MISMATCH"
+                ? "content-length-mismatch"
+                : typeof text === "string"
+                  ? "network-other"
+                  : "unavailable";
+    }
     if (row || selected(request)) failed = true;
   };
   const response = (value: PWResponse) => {
@@ -796,6 +891,7 @@ export async function observeSecretOwner(
       return;
     }
     row.responses++;
+    row.response_order = ++sequence;
     if (
       sealed ||
       closed ||
@@ -824,6 +920,7 @@ export async function observeSecretOwner(
       })
       .then(() => {
         row.joined = true;
+        row.response_tail_order = ++sequence;
         tails.delete(tail);
       });
     tails.add(tail);

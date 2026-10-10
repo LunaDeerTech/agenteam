@@ -70,7 +70,7 @@ def main():
             raise ValueError('docker')
         os.environ.clear()
         os.environ.update(env)
-        binary = OWNED / 'candidate-01/secret-owner-ui-race.test'
+        binary = OWNED / 'candidate-02/secret-owner-ui-race.test'
         driver = ROOT / '.agent-state/work-owner-http/root_chain_driver.py'
         supervisor_path = ROOT / '.agent-state/task-planning-recovery/pg_only_supervisor.py'
         adapter = runpy.run_path(str(driver))
