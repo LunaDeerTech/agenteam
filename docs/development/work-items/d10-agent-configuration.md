@@ -1,6 +1,6 @@
 # D10 Agent 配置与当前身份事实
 
-状态：**C1 六个纯契约文件已实现并经独立验收接受；F1 未接受、未实施、BLOCKED**。本轮实施仅限 §8 的六个纯契约文件，没有 Agent 服务、迁移、动态授权或生产绑定。C1 接受不扩展到 F1；正文中的 F1 新类型、接口、字段与工程上限仍待独立 SPEC 审查，不因被其它草稿引用而成为已验能力。`identity.AgentID` 只是 typed identity。本文不占用迁移号，进入真实持久实施前由 root 根据当时全局序列分配。
+状态：**C1 六个纯契约文件已独立接受；F1 核心在隔离树实施，完整创建前置未齐、未验收**。当前授权范围见 §9；既有 C1 意义与生产未绑定状态保持。`identity.AgentID` 只是 typed identity。root 已分配本域迁移 `00032_agent_configuration.sql`；新源码与迁移尚未编译或运行，不能作为 F1 能力使用。
 
 本卡拟分成两个可分别验收的结果：**C1 纯 AgentCore 与当前身份端口契约**可在规格接受后先行；**F1 Human Owner 创建、读取、修改真实 Agent 配置，并提供同 caller Tx 的当前身份事实**必须等本卡列出的真实前置闭合后开工。F1 不接受 SQL 手种 Agent、默认成功目录或未绑定初始化作为生产创建路径。C1 完成不解锁 Task 指派；F1 完成也不等于 Executor、Agent 删除、完整 D10 或平台 ready。
 
@@ -242,4 +242,12 @@ F1真实PG必须逐项证明：
 
 所有并发必须用实际caller Tx PID、精确预期key/mode、granted=false与blocker握手后释放/取消，不靠sleep。独立验证者须全文STATIC并各自构造Owner撤权/Ref竞争以及跨ownerModel替换/Unknown两组真实场景；作者tests不能代替独立结论。真实资源/单top预算沿当时明确的私有PG-only fixture与所有权，未获扩展不启动Object/Runner/Provider；需要受阻真实依赖时如实BLOCKED，不削弱断言或复制空实现。离线检查每条≤45秒且GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off。
 
-C1 六个纯契约文件已实现并经独立验收接受；其接受只开放依赖纯类型的编译工作。F1 尚未接受或实施并保持 BLOCKED，只有全部实际前置、真创建/事实/引用与独立验证通过才可供 Task assignee/reviewer 正向绑定。完整 Agent 配置、Skills/Variables、删除、Executor 与完整 D10 的未完成事实保留。
+C1 六个纯契约文件已实现并经独立验收接受；其接受只开放依赖纯类型的编译工作。F1 尚未接受，完整创建前置仍 BLOCKED，只有全部实际前置、真创建/事实/引用与独立验证通过才可供 Task assignee/reviewer 正向绑定。完整 Agent 配置、Skills/Variables、删除、Executor 与完整 D10 的未完成事实保留。
+
+## 9. F1 核心实施边界
+
+root 已授权隔离树中的 Agent 契约、Store、canonical writer、Authority、命令服务及唯一迁移 00032；本节更新 §2/§8 的历史开工范围，不把前置计划或源码接受变成完整 F1 验收。C1 六源不修改。首片段新增完整三类引用配置、创建 Skills/Tool 的 consumer-owned 窄口及命令身份，Registry 与 Skills 直接消费这些低层契约，Agent 不导入 ToolSpec 或外域实现。
+
+本域仅写 `agenteam_agent.agents`、三张 canonical 白名单和 `commands`。外域反向引用/Skills assignment 仍由其 owner 写。planned command 持久绑定原稳定命令、revision、完整创建 absent/更新 preimage、完整 postimage 与两个默认选项；唯一私有 writer 在原活 Store Tx 检查并实际写入全部 canonical 后才产生私有 context witness。Skills、Tool 与 Secret 回调同时重核原命令、完整 Actor、same Tx/Authority、完整锁和当前 postimage；公开 DTO、已存在行、空集合或 false 均不替代该见证。
+
+首片段仅格式/静态准备，未执行 Go、迁移或真实授权。服务、严格 Create/Update/receipt/Lookup codec、实际完整 provider 调用链与必要测试仍在实现。Model 双角色引用、Secret 引用、Mount 初始化/引用及 Agent typed Outbox/Audit 闭集尚未全部提供；缺任一 required provider 必须 `DEPENDENCY_UNBOUND` 且不提交。默认两个 bool 省略 true、false/空集仍核真实依赖；不提供 fake `no_active_execution`。未接 App/HTTP/Work 正向绑定，不解既有 Object STOP。
