@@ -169,7 +169,7 @@ func captureFixture(t *testing.T, enabled bool) (*ExecutionBindings, *captureBin
 }
 func captureFinal(t *testing.T, s *captureBindingStore, o *captureOwnerDouble, ctx context.Context, plan sc.InitialBindingsPlan, fn func(context.Context, f.Tx) error) f.CommitResult {
 	t.Helper()
-	cause, err := f.NewJobCause("skill-capture-test", "final", "capture")
+	cause, err := f.NewJobCause("skill-capture-test", o.request.ExecutionID.String(), stateID[f.TransactionAttempt](240).String())
 	if err != nil {
 		t.Fatal(err)
 	}
