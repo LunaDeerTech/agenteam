@@ -1,14 +1,16 @@
-# 当前有限组合：37–39真实事务候选
+# 当前有限组合：37–39真实事务通过
 
 - 当前新候选：`TestAgentRuntimeSchema`，1 top / 4 直接 sub，唯一新增 `tests/projectvariable/agent_runtime_schema_test.go`。范围为36→39/fresh/repeat、Runtime attempt/terminal 与父身份约束、Execution active slot/immutable/cancel-wins及真实公共 Launch 缺 Trigger 拒绝、39后真实 Human 安装与 Agent/Human 来源互斥。SQL合成材料只在强制回滚事务内，不被业务服务消费作授权；不冒真实 Agent/Trigger/ToolCall/Snapshot 正向。
 - 基线为 `2045c8bf` 的已验21top有效补集；00038 的text/uuid复合FK不兼容于源静读发现，原owner在 `87a92951` 改自有safe_id为严格UUIDv7 text domain，root只导入该迁移。原FK/regex/Go均保留；这是已修源码问题，不存在可回填的PG失败或通过。
-- 新入口只增既有metadata/schema family的selector、必需测试源与exact expected set，原7resources/6m/540+60+3/Wait/TCP/input尾方法不变。受影响现control共7方法实际0，gofmt/Python AST/diff-check完成；尚未Go编译/列举、未运行新PG。后继只需一次projectvariable integration/race候选编译/精确1top列举及一次该top PG，不重旧pure或schema02。
+- 新入口只增既有metadata/schema family的selector、必需测试源与exact expected set，原7resources/6m/540+60+3/Wait/TCP/input尾方法不变。受影响现control共7方法实际0，gofmt/Python AST/diff-check完成；source `db058002` 的首次新候选编译/精确列举及首次PG均已通过，未重旧pure或schema02。
+- `runtime-schema-compile-01`：session70554→a08e7f，compile839889 Wait0/10.518s、唯一top list840103 Wait0/1.068s，outer839880 exit0；647编译输入初尾一致，原group/desc/runtime双空。新候选`runtime-schema-race-01.test`为49,539,466B，SHA256 `c63e4626f9cb04ca9d312956a07e549d7ba0671edb5a01335dcfce03097944dc`。
+- `runtime-schema-01` 原wholePASS：session65794→885772，UTC14:24:38–14:26:49，1top4sub共34.15s（10.29/3.26/10.37/10.23s），Go842245、driver、sup840415及outer840369原Wait0。七ID14absent、private/runtime/desc及HOST_TCP双空、outer无adopted/survivor，1321 runtime输入初尾一致；sup128.903s。完整结果见README，窗口与热cache已归还。此轮接受真实37–39约束、公共缺依赖拒绝与39后Human兼容；rollback材料不证明真实Launch/Runtime writer/Agent安装授权，Snapshot和完整F1仍未绑定。
 
 - root 已在原 `e028467b` 上按五组来源精确导入64个技术路径，加 cleanup 唯一合成的 `lifecycle_cleanup_test.go` 两行适配，保存为 `bc2bc5ea`。来源为 Human Install `7cf8cd15`、Registry/Builtin `19094bf5`、Tool Runtime `6eb3a62a`、Execution/Agent capture `e9b8fb14`、Skill Agent 安装 `b3e251ad`；不覆盖旧 current、卡片或共享入口，不删除文件。
 - content 仅维护本摘要及 `core-checks.py`；cleanup 的上述适配已停写。64路径逐字等于指定 donor，四个旧 Skills34 初始化/测试源逐字保留；cleanup 旧 Agent head/assignment/error 事实与四个拒绝子项完整保留，只新增普通 installation 查询无行分支。没有未解决的源码覆盖冲突。
 - 最小入口复用 Tool Runtime `6eb3a62a` 的原 Wait/subreaper/group/runtime 方法，只替换测试集合、包范围及输出目录。一次 race 精确21个新 top（Agent capture3、Execution4、Registry current3、Authorization2、Runtime6、Skill Agent3），随后一次六个产品包及四个契约包 vet；不重跑旧 Agent18、Builtin6 或 Human10。输出固定为 `output/ai/agent-system-integration/combined-core-01/`，须等 root 分配热缓存和执行窗口。
 - 已完成无 Go 的有限检查：Python AST、21个真实测试函数唯一存在、28个仓库导入目录存在、原监督方法除上述参数外逐字相同及 diff-check。入口保存后，root 又将 Human PG fixture 的正式 Audit action 常量修复导入，运行来源为 `219053f0`。
-- 迁移顺序保持00032→00033→00034→00035→00036→00037→00038→00039。下方旧 schema02 PASS只覆盖32–35；36后继安装尚无成功验收，37–39真实SQL未跑。实际 Execution Tool authority、Snapshot/Model调用证明及标准 Schema validator仍未绑定，Builtin adapter不冒 Registry Source；缺 provider继续明确拒绝，不为组合添加成功替身。此候选不影响独立的 UI/Human HTTP 实际交付。
+- 迁移顺序保持00032→00033→00034→00035→00036→00037→00038→00039。下方旧 schema02 PASS只覆盖32–35；当时36后继安装与37–39真实SQL尚待。后继Human正式交付及本轮37–39结果分别记录，均不回填旧阶段。实际 Execution Tool authority、Snapshot/Model调用证明及标准 Schema validator仍未绑定，Builtin adapter不冒 Registry Source；缺 provider继续明确拒绝，不为组合添加成功替身。此候选不影响独立的 UI/Human HTTP 实际交付。
 
 资源窗口获授后的唯一复现命令：
 

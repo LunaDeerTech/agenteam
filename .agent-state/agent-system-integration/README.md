@@ -25,13 +25,13 @@ root 定向释放容量后另授一次 `compile-02`，同 Go 源/611 编译输�
 停止条件：任一迁移、旧事实比较、实际指定 CHECK/FK、metadata 原 CommitResult 或零副作用断言失败，即保留该轮原 FAIL 和退出尾，向对应产品/测试 owner 报首个具体缺口；不自动重试、不扩大旧矩阵、不延长预算。
 
 
-## 37–39真实事务候选
+## 37–39真实事务有限通过
 
 新 `tests/projectvariable/agent_runtime_schema_test.go` 的 `TestAgentRuntimeSchema` 固定四个直接sub：`prefix36-upgrade-and-repeat`、`runtime-attempt-and-terminal`、`execution-slot-and-unbound-launch`、`human-compatibility-and-agent-origin`。第一项沿正式Migrator只核36→39及fresh/repeat的新表/约束；第二、三项以真实同一Tx的强制rollback探针验证operation/attempt/terminal bytes、Execution父FK、唯一active slot与不可变启动/取消规则。探针的Tool definition、Execution、Agent与terminal字节只是数据库约束材料，不能当作实际注册Backend、Launch、Runtime receipt或执行授权。每个可接受探针在明确rollback前执行`SET CONSTRAINTS ALL IMMEDIATE`；拒绝项核实际PG code/table或明确constraint，外层要求真实NotCommitted，不用最终rollback掩盖延迟FK。
 
 公共拒绝链使用既有真实Account/当前Project Owner、同Store ExecutionAuthority及AgentExecutionConfiguration构造；Task/Meeting未绑定时Launch明确DependencyUnbound、Lookup无结果、外人NotFound，无created/slot事实。最后一项复用已验Human安装fixture完成一次39后的真实Human安装和Lookup，只新增来源互斥/immutable/attempt同Actor父键的rollback检查。无SQL伪造已发布Skill、Agent canonical或成功ToolCall；不重跑旧domain清理矩阵。
 
-源码静查发现37的Tool P/A/E为text domain，38原父列为uuid domain，直接复合FK不兼容。原Execution作者在`87a92951`只把38自有domain改为严格UUIDv7 text，保留完整regex/所有FK/索引/trigger；root导入该单源。此处尚无真实迁移执行结论，不为已知源错误刻意先跑一次失败。
+源码静查发现37的Tool P/A/E为text domain，38原父列为uuid domain，直接复合FK不兼容。原Execution作者在`87a92951`只把38自有domain改为严格UUIDv7 text，保留完整regex/所有FK/索引/trigger；root导入该单源。修前没有实际PG失败，修后首次真实迁移结果如下，不为已知源错误刻意先跑一次失败。
 
 沿原成功schema入口准备一次新的`tests/projectvariable` integration/race `-c`候选，精确列举`^TestAgentRuntimeSchema$`（1 top），后续由root分配唯一真实窗执行：
 
@@ -42,7 +42,13 @@ python3 -B .agent-state/task-planning-recovery/pg_only_supervisor.py \
   --output "$FRESH_OUTPUT" --root-chain
 ```
 
-使用已有schema成功launcher的完整私有环境、固定MinIO/解释器及原fresh/实际Wait/7resource/private/runtime/desc/HOST_TCP双尾；只替新candidate、selector和全新output。共享入口本轮仅4个driver/3个supervisor数据hunk；既有schema control以同一parser/collector/observer复用新四sub，7方法离线通过。没有新监督层、manifest规则或业务成功替身；Go/PG仍未运行。
+使用已有schema成功launcher的完整私有环境、固定MinIO/解释器及原fresh/实际Wait/7resource/private/runtime/desc/HOST_TCP双尾；只替新candidate、selector和全新output。共享入口本轮仅4个driver/3个supervisor数据hunk；既有schema control以同一parser/collector/observer复用新四sub，7方法离线通过。没有新监督层、manifest规则或业务成功替身。
+
+source `db058002` 首次 `runtime-schema-compile-01` 实际PASS：session70554→a08e7f，outer839880/compile839889/list840103原Wait0，race-c10.518s、精确唯一top列举1.068s；fresh5,994,541,056B，647编译输入及方法初尾一致、group/desc/runtime双空。候选`output/ai/agent-system-integration/runtime-schema-race-01.test`为49,539,466B，SHA256 `c63e4626f9cb04ca9d312956a07e549d7ba0671edb5a01335dcfce03097944dc`，普通nlink1/mode0700。编译结果在`output/ai/agent-system-integration/runtime-schema-compile-01/result.json`。
+
+随后同源 `runtime-schema-01` 原wholePASS：session65794→885772，UTC2026-10-10 14:24:38–14:26:49，同进程fresh5,917,450,240B。1top4sub共34.15s（prefix10.29/runtime3.26/execution10.37/human10.23），Go842245、原driver、supervisor840415、outer840369均实际Wait0，supervisor128.903s。七个资源14次absent、private/runtime/desc/HOST_TCP双空、outer两次desc/TCP空且无adopted/survivor，1321运行输入初尾一致，SHA256 `9c68152687b9dc3c74486c288cf2d32529d47c7fb4cab314d81382fa7a80ddde`。原日志`/tmp/ars01/pg-bbb361b9db8a44b1a52a74fa97708a2e.log`，安全结果`output/ai/agent-system-integration/runtime-schema-01-control/result.json`，实际环境/命令与闭包在同级`runtime-schema-01-inputs.json`；原成功schema02 launcher仅换本轮字面参数，热cache及资源窗口已释放。
+
+本次真实接受连续迁移与37–39事务约束、公共Launch缺真实Trigger的拒绝/零事实、39后真实Human安装兼容；SQL回滚材料仅证明约束，不能冒真实Runtime attempt/receipt writer、Execution Launch成功、Agent安装授权、Snapshot或完整F1。已有纯检查、旧schema02及本轮结果按各自输入复用，原历史FAIL保留，无后继自动重跑。
 
 
 ## 后继 preparation / Snapshot 接缝（接口准备，未实施）
