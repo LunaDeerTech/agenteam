@@ -77,6 +77,21 @@ Go timeout, supervisor budget, actual Wait, descendant adoption, runtime,
 resource, input and host-TCP final checks remain unchanged. No new launcher,
 resource retry, or alternate success path is introduced here.
 
-Current status: test source is formatted; compilation and real PG execution
-have not run. Source review and a successful test discovery do not count as
-business acceptance. An original failure will be kept with its actual tails.
+The author fixture and method received limited independent review with no
+must-fix. The `e5e51946` candidate compiled and listed successfully on
+2026-10-10 11:49:50 UTC: session 83220 ended 032899/0; outer 680041,
+compile 680042 and list 680719 all Wait 0. Compile/list took 31.661s/1.068s;
+both process-group and runtime samples were empty, with no adopted children.
+All 1182 original build-input hashes were unchanged. The same launch measured
+5,578,985,472 available bytes and used the private/offline settings above.
+
+The regular, mode-0700, nlink-1 candidate is 44,600,307 bytes, SHA-256
+`9ad8467c1aae43d4092f52103b19983df42f66326845e603510d7dad60c6609a`.
+The original list printed exactly `TestAgentConfigurationMetadata`. Logs,
+input hashes and results are rebuildable under
+`output/ai/agent-configuration-metadata/compile-01/`. The Go source is unchanged
+by this result note. Final execution closure is generated once by the entry
+owner after this note is frozen; no actual PostgreSQL body has run.
+
+Source review and successful test discovery do not count as business
+acceptance. An original failure will be kept with its actual tails.
