@@ -16,3 +16,5 @@
 `regression-01`于2026-10-10T09:24:13Z/outer551071在首阶段fresh4808167424B不足5GiB停止，exit1，零Go启动/零资源；`output/ai/model-text-runtime/regression-01/result.json`保原FAIL，不回填。
 
 `regression-02`于2026-10-10T09:29:29Z/outer561025在首阶段fresh5057089536B不足5GiB停止，exit1，仍零Go/零资源。资源尾释放后另授`regression-03`，session59305→90bb38/outer567378 actual0，ordinary567381/race567521/vet567681各Wait0；三fresh5952544768/5937975296/5921067008B，每阶段原组absent/adopted[]、runtime/组尾双空。两个定向top普通/race与model vet通过，未重跑旧8/15；原件各自output目录分开保存。
+
+首联调准备发现System凭据grant不可带Project OperationID，已窄修并获cleanup实际diff接受；System保原Secret proof Invocation RequestID，Project保OperationID。`scope-grant-01`原51600→7fbaad/outer572627 exit0，ordinary572630/race572724/vet572891全Wait0，fresh5867253760/5852631040/5835702272B，各原组与runtime双空。1top2sub普通/race及model vet通过，原regression03保旧输入证据。首真实fixture用正式platform MeetingSummary/System Model和凭据，D04仍Project scope；两新test文件与first-wire-method.md已初稿冻结，709行；固定candidate-01仅race-c+精确list就绪，未编/未实际运行。

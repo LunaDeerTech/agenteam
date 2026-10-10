@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fixed offline Runtime core unit/race/vet; no socket or schema subprocesses."""
 import ctypes
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -33,7 +34,7 @@ def group_absent(pid):
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("core-01", "core-02", "regression-01", "regression-02", "regression-03", "scope-grant-01"):
+    if len(sys.argv) != 2 or sys.argv[1] not in ("core-01", "core-02", "regression-01", "regression-02", "regression-03", "scope-grant-01", "candidate-01"):
         raise SystemExit("exact evidence directory required")
     commands = COMMANDS
     selector = SELECTOR
@@ -47,6 +48,13 @@ def main():
         selector = "^TestRuntimeSecretGrantRespectsAuditScope$"
         commands = [(name, [selector if item == SELECTOR else item for item in argv]) for name, argv in COMMANDS]
     out = ROOT / "output/ai/model-text-runtime" / sys.argv[1]
+    binary = out / "model-runtime.test"
+    if sys.argv[1] == "candidate-01":
+        selector = "^TestModelTextRuntimePersistentWire$"
+        commands = [
+            ("build", [GO, "test", "-mod=readonly", "-p=2", "-race", "-tags=integration", "-c", "-o", str(binary), "./tests/model"]),
+            ("list", [str(binary), "-test.list=" + selector]),
+        ]
     out.mkdir(parents=True, exist_ok=False)
     out.chmod(0o700)
     runtime = out / "runtime"
@@ -119,8 +127,13 @@ def main():
             phase["adopted_waits"] = adopted
             phase["group_empty_tail"] = [group_absent(process.pid), group_absent(process.pid)]
             phase["runtime_empty"] = [not any(runtime.iterdir()), not any(runtime.iterdir())]
+            if name == "list":
+                phase["exact_top"] = (out / "list.jsonl").read_text().splitlines() == ["TestModelTextRuntimePersistentWire"]
+                with binary.open("rb") as stream:
+                    phase["candidate_sha256"] = hashlib.file_digest(stream, "sha256").hexdigest()
+                phase["candidate_bytes"] = binary.stat().st_size
             emit(phase)
-            if phase.get("timeout") or phase["actual_wait"] != 0 or not phase["group_absent"] or phase.get("unjoined_child") or adopted or not all(phase["runtime_empty"]):
+            if phase.get("timeout") or phase["actual_wait"] != 0 or not phase["group_absent"] or phase.get("unjoined_child") or adopted or not all(phase["runtime_empty"]) or phase.get("exact_top") is False:
                 break
         else:
             result["whole_pass"], code = True, 0
