@@ -1,8 +1,10 @@
 # 当前执行检查点：Human Owner Task HTTP
 
-- 本树 `/workspace/agenteam-task-human-http` / `ai/task-human-http`，基线 `07d490b2`；唯一写 HTTP Transfer/Lookup、Work 应用装配和 `work-planning.json`。具体接口与恢复入口见 [task-human-http/README.md](task-human-http/README.md)。
-- 复用真实 TaskTransitionService 与同 Store Agent/Pending/Occupancy，新增路由沿当前 Human/CSRF 和原请求生命周期；Unknown 只 Lookup。原三服务调用兼容，未装配新服务时明确 unbound；生产 initializer 未绑定边界不变。
-- 新源码与必要测试已落盘。gofmt、OpenAPI/schema 静态七向量及旧 paths/components 不变检查通过；Go 编译/六个新 top/两个旧兼容 top/vet、真实 HTTP/PG 均未运行，等待统一窗口。未启动资源、未下载依赖。
+- 本树 `/workspace/agenteam-task-human-http` / `ai/task-human-http`；HTTP 产品 `81ab48c2`、真实 TLS fixture `e28f916e`，均经 content 有限独立源码审接受。具体接口与恢复入口见 [task-human-http/README.md](task-human-http/README.md)。产品和 fixture 保持停写。
+- 本片 HTTP/app 8 个精确 top（6 新＋2 必要兼容）已在 AgentSystem 的 pending/http 组合 16 top race＋3 包 vet 中全部通过，标准 OpenAPI schema 检查实际执行；默认 app 同 Store 装配和第四服务 Stop/Drain 接线已测，复用原结果、不重复运行。
+- AgentSystem 源 `ccfd5674`／方法 `612d92a9` 的组合 PG01 wholePASS；本片 `TestTaskHumanHTTP` 1 top／2 sub、16.01s，通过真实 HTTPS、P2/Agent/Account 和同 Store 四 Work 服务的 Create→Transfer→Lookup/replay→Get，以及 Owner/CSRF/原 Session 撤销后新 Session 只读 Lookup。原 Go/driver/sup/outer 全 Wait0，七资源 14 次 absence、private/runtime/desc/TCP 双尾关闭，1432 输入前后不变。
+- 原结果位于 `/workspace/agenteam-agent-system-integration/output/ai/agent-system-integration/pending-http-01-control/result.json`；pure 位于同树 `output/ai/pending-http/combined-pure-01/result.json`。本 HTTP 树缺该批 pending 新 fixture／组合方法，完整恢复须使用上述 AgentSystem 源与方法，不能仅在本树冒称已复现组合。
+- 复用真实 TaskTransitionService/Agent/Pending/Occupancy，当前 Human/CSRF 与原请求生命周期保持；Unknown 只 Lookup，第二真实 sub 不代表物理 CommitUnknown。省略第四服务仍明确 unbound；生产 Project initializer 尚未绑定，本片不代表完整 F1、Scheduler 或 UI 完成。
 
 下列为基线继承的历史状态，不作为本 HTTP 片验证结果。
 
