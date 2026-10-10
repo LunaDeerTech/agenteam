@@ -142,6 +142,7 @@ func TestDirectTextControllerKeepsUnknownHandleWithoutRedispatch(t *testing.T) {
 		unknown := f.NewFault(f.CommitUnknown, f.Unknown).WithCause(cause)
 		var begins, results, closes int
 		canJoin, joined := false, false
+		var closeFailure error = context.DeadlineExceeded
 		owner := &struct{}{}
 		call := &loopJSONCall{
 			result: func(context.Context) (mc.ModelResponse, error) {
@@ -163,7 +164,7 @@ func TestDirectTextControllerKeepsUnknownHandleWithoutRedispatch(t *testing.T) {
 					t.Fatal("recovery borrowed a replacement owner")
 				}
 				if !canJoin {
-					return unknown
+					return closeFailure
 				}
 				joined = true
 				return nil
@@ -189,8 +190,14 @@ func TestDirectTextControllerKeepsUnknownHandleWithoutRedispatch(t *testing.T) {
 		loopCode(t, err, f.ResourceBusy)
 		_, err = session.Result(context.Background())
 		loopCode(t, err, f.CommitUnknown)
-		if begins != 1 || session.Joined() || closes != 1 {
+		if !errors.Is(err, cause) || begins != 1 || session.Joined() || closes != 1 {
 			t.Fatal("unconfirmed recovery repeated admission or retired owner")
+		}
+		closeFailure = f.NewFault(f.ResourceBusy, f.NotStarted)
+		_, err = session.Result(context.Background())
+		loopCode(t, err, f.CommitUnknown)
+		if !errors.Is(err, cause) || begins != 1 || session.Joined() || closes != 2 {
+			t.Fatal("later cleanup error replaced the original Unknown")
 		}
 		canJoin = true
 		got, err := session.Result(context.Background())
@@ -205,7 +212,7 @@ func TestDirectTextControllerKeepsUnknownHandleWithoutRedispatch(t *testing.T) {
 				t.Fatal("confirmed response did not retain original invocation")
 			}
 		}
-		if begins != 1 || !session.Joined() || closes != 2 {
+		if begins != 1 || !session.Joined() || closes != 3 {
 			t.Fatal("exact handle did not join")
 		}
 		controller.Stop()
