@@ -379,6 +379,7 @@ async function readJSON(
   maximum = 600_000,
   preserveProjectModelJSON = false,
   checkProjectAuditMembers = false,
+  requireCancellation = false,
 ): Promise<unknown> {
   const reader = response.body?.getReader()
   if (!reader) throw new AccountFailure('invalid-response')
@@ -386,7 +387,17 @@ async function readJSON(
   let text = '',
     bytes = 0
   let cancelled: Promise<void> | undefined
-  const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined))
+  let cancelFailed = false
+  const cancel = () =>
+    (cancelled ??= requireCancellation
+      ? (async () => {
+          try {
+            await reader.cancel()
+          } catch {
+            cancelFailed = true
+          }
+        })()
+      : reader.cancel().catch(() => undefined))
   // The listener starts cancellation; the same promise is joined in finally.
   const abort = () => {
     void cancel()
@@ -409,8 +420,12 @@ async function readJSON(
       : (JSON.parse(text) as unknown)
   } finally {
     signal.removeEventListener('abort', abort)
-    await cancel()
-    reader.releaseLock()
+    try {
+      await cancel()
+    } finally {
+      reader.releaseLock()
+    }
+    if (requireCancellation && cancelFailed) throw new AccountFailure('invalid-response')
   }
 }
 
@@ -1567,6 +1582,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
               (knowledgeEndpoints as readonly string[]).includes(endpoint) ||
               (skillEndpoints as readonly string[]).includes(endpoint) ||
               (knowledgeCommandEndpoints as readonly string[]).includes(endpoint)),
+          (knowledgeCommandEndpoints as readonly string[]).includes(endpoint),
         )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
@@ -1585,7 +1601,13 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     } finally {
       // Includes aborted/redirected/wrong-media-type responses which never acquired a reader.
       // The controller may finish its bounded UI wait, but owns us until this actually returns.
-      await response.body?.cancel().catch(() => undefined)
+      if ((knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) {
+        try {
+          await response.body?.cancel()
+        } catch {
+          throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
+        }
+      } else await response.body?.cancel().catch(() => undefined)
     }
   }
   return request
