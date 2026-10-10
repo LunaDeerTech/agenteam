@@ -175,6 +175,15 @@ import {
   type ProjectCredentialObservation,
 } from '../api/project-model-credentials'
 import { shape } from '../api/client'
+import {
+  createKnowledgeOwnerAPI,
+  captureKnowledgeID,
+  captureKnowledgeQuery,
+  captureKnowledgeReadRequest,
+  type KnowledgeOwnerAPI,
+  type KnowledgeQuery,
+  type KnowledgeReadRequest,
+} from '../api/knowledge-owner'
 const projectModelReadActions = [
   'project-model-provider-list',
   'project-model-provider-get',
@@ -458,6 +467,7 @@ type Action =
   | 'entry'
   | 'system'
   | 'audit-read'
+  | 'knowledge-read'
   | 'runtime-information-read'
   | 'invitation-read'
   | 'invitation-write'
@@ -581,6 +591,7 @@ export function createSessionController(
   projectAPI: ProjectOwnerAPI = createProjectOwnerAPI(),
   projectAuditAPI: ProjectAuditAPI = createProjectAuditAPI(),
   projectModelSettingsAPI: ProjectModelSettingsAPI = createProjectModelSettingsAPI(),
+  knowledgeAPI: KnowledgeOwnerAPI = createKnowledgeOwnerAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -619,6 +630,7 @@ export function createSessionController(
   let systemRevision = 0,
     auditRevision = 0,
     projectAuditRevision = 0,
+    knowledgeRevision = 0,
     runtimeInformationRevision = 0
   let invitationReadRevision = 0,
     invitationRevision = 0
@@ -814,6 +826,7 @@ export function createSessionController(
     )
   }
   function clearIdentity(invalidate = true) {
+    clearKnowledgeRead()
     clearProjectAuditRead()
     clearProjectModelReads()
     state.user = null
@@ -951,6 +964,7 @@ export function createSessionController(
       clearOutboundPolicyState()
     if (!same || view.user.role !== 'admin') clearAuditRead()
     if (!same) clearProjectAuditRead()
+    if (!same) clearKnowledgeRead()
     if (!same || view.user.role !== 'admin') clearRuntimeInformationRead()
     state.notice = ''
     state.fields = {}
@@ -1382,6 +1396,7 @@ export function createSessionController(
       | 'personal'
       | 'system'
       | 'audit-read'
+      | 'knowledge-read'
       | 'runtime-information-read'
       | 'invitation-read'
       | 'invitation-write'
@@ -1398,37 +1413,39 @@ export function createSessionController(
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
-      isProjectModelAction(kind)
-        ? projectModelRevisions[kind]
-        : isProjectAuditAction(kind)
-          ? projectAuditRevision
-          : isProjectAction(kind)
-            ? projectRevisions[kind]
-            : kind === 'system'
-              ? systemRevision
-              : kind === 'audit-read'
-                ? auditRevision
-                : kind === 'runtime-information-read'
-                  ? runtimeInformationRevision
-                  : kind === 'invitation-read'
-                    ? invitationReadRevision
-                    : kind === 'invitation-write'
-                      ? invitationRevision
-                      : kind === 'personal'
-                        ? personalRevision
-                        : isModelAction(kind)
-                          ? modelRevisions[kind]
-                          : isSelectionAction(kind)
-                            ? selectionRevisions[kind]
-                            : isAccountSecurityAction(kind)
-                              ? accountSecurityRevisions[kind]
-                              : isSMTPAction(kind)
-                                ? smtpRevisions[kind]
-                                : isSMTPDeliveryAction(kind)
-                                  ? smtpDeliveryRevisions[kind]
-                                  : isOutboundPolicyAction(kind)
-                                    ? outboundRevisions[kind]
-                                    : providerRevisions[kind]
+      kind === 'knowledge-read'
+        ? knowledgeRevision
+        : isProjectModelAction(kind)
+          ? projectModelRevisions[kind]
+          : isProjectAuditAction(kind)
+            ? projectAuditRevision
+            : isProjectAction(kind)
+              ? projectRevisions[kind]
+              : kind === 'system'
+                ? systemRevision
+                : kind === 'audit-read'
+                  ? auditRevision
+                  : kind === 'runtime-information-read'
+                    ? runtimeInformationRevision
+                    : kind === 'invitation-read'
+                      ? invitationReadRevision
+                      : kind === 'invitation-write'
+                        ? invitationRevision
+                        : kind === 'personal'
+                          ? personalRevision
+                          : isModelAction(kind)
+                            ? modelRevisions[kind]
+                            : isSelectionAction(kind)
+                              ? selectionRevisions[kind]
+                              : isAccountSecurityAction(kind)
+                                ? accountSecurityRevisions[kind]
+                                : isSMTPAction(kind)
+                                  ? smtpRevisions[kind]
+                                  : isSMTPDeliveryAction(kind)
+                                    ? smtpDeliveryRevisions[kind]
+                                    : isOutboundPolicyAction(kind)
+                                      ? outboundRevisions[kind]
+                                      : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1443,7 +1460,10 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (isProjectAction(kind) || isProjectAuditAction(kind) || isProjectModelAction(kind)
+        (kind === 'knowledge-read' ||
+        isProjectAction(kind) ||
+        isProjectAuditAction(kind) ||
+        isProjectModelAction(kind)
           ? state.phase === 'authenticated' &&
             personalContext.phase === 'current' &&
             state.user?.id === identity.userID &&
@@ -1507,15 +1527,18 @@ export function createSessionController(
         return result
       })
       .catch((error: unknown) => {
-        const e = isProjectModelAction(kind)
-          ? projectModelFailure(kind, current, error)
-          : isProjectAuditAction(kind)
-            ? projectAuditFailure(current, error)
-            : isProjectAction(kind)
-              ? projectFailure(identity, op, error)
-              : kind !== 'personal'
-                ? systemFailure(identity, op, current, error)
-                : personalFailure(identity, error)
+        const e =
+          kind === 'knowledge-read'
+            ? knowledgeFailure(current, error)
+            : isProjectModelAction(kind)
+              ? projectModelFailure(kind, current, error)
+              : isProjectAuditAction(kind)
+                ? projectAuditFailure(current, error)
+                : isProjectAction(kind)
+                  ? projectFailure(identity, op, error)
+                  : kind !== 'personal'
+                    ? systemFailure(identity, op, current, error)
+                    : personalFailure(identity, error)
         if (command && personalIntent === command) {
           if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
             command.checked = false
@@ -4646,6 +4669,64 @@ export function createSessionController(
     },
     abandon: clearRuntimeInformationRead,
   }
+  function clearKnowledgeRead() {
+    ++knowledgeRevision
+    if (owner?.kind === 'knowledge-read') owner.abandon?.()
+  }
+  function knowledgeFailure(current: () => boolean, error: unknown) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    // Only this still-current Human read can invalidate the current Session.
+    // Local 403/404 and a retired response never set System/admin denied state.
+    if (current() && unavailableSession(e)) {
+      clearIdentity()
+      clearBrowser()
+      state.phase = 'unavailable'
+      state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
+    }
+    return e
+  }
+  function knowledgeRead<T>(capture: () => (signal: AbortSignal) => Promise<T>): Promise<T> {
+    try {
+      const identity = personalIdentity(),
+        work = capture()
+      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, 'knowledge-read')
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  const knowledge = {
+    children(projectID: string, parentID: string | null, query: KnowledgeQuery) {
+      return knowledgeRead(() => {
+        const project = captureKnowledgeID(projectID),
+          parent = parentID === null ? null : captureKnowledgeID(parentID),
+          captured = captureKnowledgeQuery(query)
+        return (signal) => knowledgeAPI.children(project, parent, captured, signal)
+      })
+    },
+    get(projectID: string, documentID: string) {
+      return knowledgeRead(() => {
+        const project = captureKnowledgeID(projectID),
+          target = captureKnowledgeID(documentID)
+        return (signal) => knowledgeAPI.get(project, target, signal)
+      })
+    },
+    ancestors(projectID: string, documentID: string) {
+      return knowledgeRead(() => {
+        const project = captureKnowledgeID(projectID),
+          target = captureKnowledgeID(documentID)
+        return (signal) => knowledgeAPI.ancestors(project, target, signal)
+      })
+    },
+    readContent(projectID: string, documentID: string, request: KnowledgeReadRequest) {
+      return knowledgeRead(() => {
+        const project = captureKnowledgeID(projectID),
+          target = captureKnowledgeID(documentID),
+          captured = captureKnowledgeReadRequest(request)
+        return (signal) => knowledgeAPI.readContent(project, target, captured, signal)
+      })
+    },
+    abandon: clearKnowledgeRead,
+  }
   function clearAuditRead() {
     ++auditRevision
     if (owner?.kind === 'audit-read') owner.abandon?.()
@@ -5259,6 +5340,7 @@ export function createSessionController(
     personalContext: readonly(personalContext),
     projects,
     projectAudit,
+    knowledge,
     projectModelSettings,
     personal,
     system,

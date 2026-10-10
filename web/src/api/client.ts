@@ -54,6 +54,18 @@ export function string(value: unknown, minimum: number, maximum: number): string
 }
 
 const endpoints = {
+  knowledgeChildren: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/children', 200],
+  knowledgeDocument: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/{target}', 200],
+  knowledgeAncestors: [
+    'GET',
+    '/api/v1/projects/{project_id}/knowledge/documents/{target}/ancestors',
+    200,
+  ],
+  knowledgeContent: [
+    'GET',
+    '/api/v1/projects/{project_id}/knowledge/documents/{target}/content',
+    200,
+  ],
   listOwnerProjects: ['GET', '/api/v1/projects', 200],
   getOwnerProject: ['GET', '/api/v1/projects/{id}', 200],
   resolveOwnerProject: ['GET', '/api/v1/projects/resolve', 200],
@@ -229,7 +241,7 @@ function problem(value: unknown, status: number, requestID: string | null): Prob
 // numeric token widths as metadata, never raw bodies. Go compacts RawMessage
 // and HTML-escapes strings; those injected escapes give a necessary lower
 // bound on the original bytes, not proof of the unavailable stored spelling.
-// Project Audit reuses the token walk for duplicate-member rejection.
+// Project Audit and Knowledge reuse the token walk for duplicate-member rejection.
 const projectModelJSONSizes = new WeakMap<object, number>()
 function projectModelJSON(text: string): unknown {
   const value: unknown = JSON.parse(text)
@@ -851,7 +863,36 @@ const projectEndpoints: readonly ProjectEndpoint[] = [
   'lookupOwnerProject',
 ]
 
+const knowledgeEndpoints = [
+  'knowledgeChildren',
+  'knowledgeDocument',
+  'knowledgeAncestors',
+  'knowledgeContent',
+] as const
+type KnowledgeEndpoint = (typeof knowledgeEndpoints)[number]
+type KnowledgeChildrenWire = Readonly<{
+  parent_document_id: string | null
+  limit: number
+  cursor?: string
+}>
+type KnowledgeContentWire = Readonly<{ byte_offset: string; max_bytes: number }>
+type KnowledgeOptions<E extends KnowledgeEndpoint> = E extends 'knowledgeChildren'
+  ? { signal: AbortSignal; projectID: string; knowledgeChildren: KnowledgeChildrenWire }
+  : E extends 'knowledgeContent'
+    ? {
+        signal: AbortSignal
+        projectID: string
+        target: string
+        knowledgeContent: KnowledgeContentWire
+      }
+    : { signal: AbortSignal; projectID: string; target: string }
+
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends KnowledgeEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: KnowledgeOptions<E>,
+  ): Promise<T>
   function request<T, E extends ProjectModelEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -931,6 +972,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
   function request<T>(
     endpoint: Exclude<
       keyof typeof endpoints,
+      | KnowledgeEndpoint
       | ProjectEndpoint
       | ProjectAuditEndpoint
       | ProjectModelEndpoint
@@ -961,6 +1003,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       mailJobs?: Readonly<{ cursor?: string }>
       audit?: AuditWireQuery
       projects?: ProjectWireQuery
+      knowledgeChildren?: KnowledgeChildrenWire
+      knowledgeContent?: KnowledgeContentWire
       projectModels?: ProjectModelWireQuery
       projectAddress?: ProjectWireAddress
       projectID?: string
@@ -970,7 +1014,68 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if ((projectModelEndpoints as readonly string[]).includes(endpoint)) {
+    if ((knowledgeEndpoints as readonly string[]).includes(endpoint)) {
+      try {
+        const children = endpoint === 'knowledgeChildren',
+          content = endpoint === 'knowledgeContent'
+        shape(options, [
+          'signal',
+          'projectID',
+          ...(children ? ['knowledgeChildren'] : ['target']),
+          ...(content ? ['knowledgeContent'] : []),
+        ])
+        const project = string(options.projectID, 36, 36)
+        if (!uuid7.test(project)) throw new Error()
+        path = basePath.replace('{project_id}', project)
+        if (!children) {
+          const target = string(options.target, 36, 36)
+          if (!uuid7.test(target)) throw new Error()
+          path = path.replace('{target}', target)
+        }
+        const params = new URLSearchParams()
+        if (children) {
+          const q = shape(options.knowledgeChildren, ['parent_document_id', 'limit'], ['cursor'])
+          const parent = q.parent_document_id,
+            limit = q.limit
+          if (parent !== null && !uuid7.test(string(parent, 36, 36))) throw new Error()
+          if (typeof limit !== 'number' || !Number.isInteger(limit) || limit < 1 || limit > 200)
+            throw new Error()
+          params.set('parent_document_id', parent === null ? 'null' : (parent as string))
+          params.set('limit', String(limit))
+          if (Object.hasOwn(q, 'cursor')) {
+            const cursor = string(q.cursor, 1, 8192)
+            if (
+              new TextEncoder().encode(cursor).byteLength > 8192 ||
+              /[\u0000-\u001f\u007f-\u009f]/u.test(cursor) ||
+              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(cursor)
+            )
+              throw new Error()
+            params.set('cursor', cursor)
+          }
+        }
+        if (content) {
+          const q = shape(options.knowledgeContent, ['byte_offset', 'max_bytes'])
+          const offset = string(q.byte_offset, 1, 19),
+            maximum = q.max_bytes
+          if (
+            !/^(0|[1-9][0-9]*)$/.test(offset) ||
+            BigInt(offset) > 9223372036854775807n ||
+            typeof maximum !== 'number' ||
+            !Number.isInteger(maximum) ||
+            maximum < 1 ||
+            maximum > 1048576
+          )
+            throw new Error()
+          params.set('byte_offset', offset)
+          params.set('max_bytes', String(maximum))
+        }
+        const query = params.toString()
+        if (new TextEncoder().encode(query).byteLength > (content ? 256 : 32768)) throw new Error()
+        if (query) path += '?' + query
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if ((projectModelEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const target = basePath.includes('{target}')
         const list =
@@ -1344,27 +1449,35 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         value = await readJSON(
           response,
           options.signal,
-          (projectModelEndpoints as readonly string[]).includes(endpoint) && success
-            ? (projectModelReads as readonly string[]).includes(endpoint)
-              ? 8388608
-              : 1024
-            : endpoint === 'listOwnerProjects' && success
-              ? 5 * 1024 * 1024
-              : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
-                ? 64 * 1024
-                : endpoint === 'getSystemRuntimeInformation' && success
-                  ? 16 * 1024
-                  : endpoint === 'listProviders' && success
-                    ? 2 * 1024 * 1024
-                    : (endpoint === 'listSystemAudit' ||
-                          endpoint === 'getSystemAudit' ||
-                          endpoint === 'listProjectAudit' ||
-                          endpoint === 'getProjectAudit') &&
-                        success
-                      ? 1024 * 1024
-                      : 600_000,
+          (knowledgeEndpoints as readonly string[]).includes(endpoint) && success
+            ? // Exact complete representation limits of the two Knowledge adapters.
+              endpoint === 'knowledgeContent'
+              ? 7 * 1024 * 1024
+              : 5 * 1024 * 1024
+            : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
+              ? (projectModelReads as readonly string[]).includes(endpoint)
+                ? 8388608
+                : 1024
+              : endpoint === 'listOwnerProjects' && success
+                ? 5 * 1024 * 1024
+                : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
+                  ? 64 * 1024
+                  : endpoint === 'getSystemRuntimeInformation' && success
+                    ? 16 * 1024
+                    : endpoint === 'listProviders' && success
+                      ? 2 * 1024 * 1024
+                      : (endpoint === 'listSystemAudit' ||
+                            endpoint === 'getSystemAudit' ||
+                            endpoint === 'listProjectAudit' ||
+                            endpoint === 'getProjectAudit') &&
+                          success
+                        ? 1024 * 1024
+                        : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
-          success && (endpoint === 'listProjectAudit' || endpoint === 'getProjectAudit'),
+          success &&
+            (endpoint === 'listProjectAudit' ||
+              endpoint === 'getProjectAudit' ||
+              (knowledgeEndpoints as readonly string[]).includes(endpoint)),
         )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
