@@ -34,14 +34,16 @@ Context有限包已随main `561a2443`的11路径正式交付，源码`346003e6`�
 
 本批Model AgentRetry/00055与Loop纯首轮请求投影已随main `c413550c`正式交付，SOURCE`870b370b`的最终原件获独立有限接受，无must-fix。定向9 top/五包vet、compile/list及native01的1 top/3 sub（20.38s）通过；原pure01的8项PASS复用，唯一Loop测试浮点素材被canonical拒绝，仅改两处测试literal后补验1项，生产未改，原FAIL保留。真实TLS覆盖503→200/每attempt Usage、跨call复用Execution lease、取消阻止下一attempt并等待Stop/Drain实际退休、401单attempt；原四Wait0、七资源14次absence及全部退出尾closed，1591输入首尾一致。AgentRetry是本批补齐的正式能力；tools/reasoning STOP保持，本轮真实结果不外推Stream。Model域显式test-only Consumer不冒生产Execution运行授权；Loop仅构造固定Context的候选请求，完整Controller、首Round/Transcript持久化及Snapshot/running/Started启动链仍未完成。三作者已停写，当前0 Go/cache/native活动，窗口归root。
 
+下一批以正式main `c413550c`为基线，已分工推进真实首条执行链，当前分支与唯一作者如下；新合同及源码尚待冻结独审，未进行本批Go/native验证，资源窗口仍归root。上一批接受范围、原main、所有FAIL及STOP保持；下文旧分支与恢复记录保留为历史事实，不代表本批已验证。
+
 | 执行者 | 当前工作、真实状态与下一步 |
 | --- | --- |
-| content / Loop候选请求 | `/workspace/agenteam-task-transition` / `ai/agent-loop-request`：三个新增request/projection/tests路径已随main交付，当前停写；仅固定Context的首轮候选请求，原branch与物理树保留供后继复用。 |
-| cleanup / 合同统筹 | 本批协调Model runtime与Loop候选请求边界，无源码写域；`/workspace/agenteam-skill-install-runtime-source`原分支及ignored恢复材料保留，已交付00054输入/Unknown恢复不改。 |
-| secret / 独立差额审查 | 本批产品/方法及最终原件有限接受，无must-fix；Model域真实结果不外推生产Execution授权或完整Loop。 |
-| work_ui / Model AgentRetry | `/workspace/agenteam-task-human-http` / `ai/model-agent-retry`：runtime/contracts/tests与00055已随main交付，当前停写；保留旧Bounded及Execution共享租约边界，原branch与物理树保留供后继复用。 |
-| skills_http / Model真实组合 | `/workspace/agenteam-task-flow-delivery` / `ai/agent-runtime-delivery`：已ff并推送main `c413550c`，本批Model域真实受控provider组合整轮通过、当前停写；原FAIL、输入、日志及当前候选仍是必要恢复材料，物理树和旧Context/Model/Environment refs保留。 |
-| coordination / codec与Prompt | `ai/execution-input-codec`及远端/source refs保留；临时物理树`/workspace/agenteam-execution-input-codec`经owner确认clean、无消费者或独有ignored材料后已由root正常remove（actual0）。四路径源码随main交付，4 top已通过；完整编码仅显式储存接口可取上下文正文，Secret仅引用/lease元数据。 |
+| content / 真实Loop首轮 | `/workspace/agenteam-task-transition` / `ai/agent-loop-turn`：基于main `c413550c`实现原session、一次JSONCall及CloseJoined；新源码待冻结、未验证。 |
+| cleanup / Execution启动与终态 | `/workspace/agenteam-skill-install-runtime-source` / `ai/execution-direct-text-start`：负责Snapshot/running/Started、首Round/Transcript及终态，唯一新增00056迁移作者，并负责必要Project Execution事件gate接缝；新源码待冻结、未验证。 |
+| secret / 独立差额审查 | 等待本批冻结合同与源码，独立核原活owner、同Tx、Unknown不重call及实际退休后租约释放；不参与实现，仅获根current操作状态最小更新写权，不写formal/source。 |
+| work_ui / Model运行消费方 | `/workspace/agenteam-task-human-http` / `ai/execution-model-runtime`：先补scopedJSONCall，再接真实运行consumer，Execution authority.go Current及preparation_model.go亦归其唯一写入；新源码待冻结、未验证。 |
+| skills_http / 真实执行组合 | `/workspace/agenteam-task-flow-delivery` / `ai/execution-direct-text-delivery`：准备真实00054输入→启动→Model调用及租约清理fixture，使用真实Execution consumer；尚未运行，不复用上批test-only consumer为本批授权证据。 |
+| coordination / 首Round Skills及环境租约释放 | `/workspace/agenteam-skill-round-input` / `ai/skill-round-input`：负责首RoundSkills真实提供方，并独占Secret/PV专用Execution环境租约正式释放及前向00057迁移；新源码待冻结、未验证，不写根current。 |
 | cleanup / content | `/workspace/agenteam-skill-install` / `ai/skill-install`：Human Install/LookupInstall、普通读取与清理已随main有限交付；domain安装读取重放、原Object/Audit事实及普通清理两sub真实通过，定向pure/race/vet证据按版本复用。旧树已可逆sparse停放，原ignored材料保留；原Project/外人码/素材/Audit查询夹具FAIL保留。真实Source配置装配已进Agent创建链，AgentRun/Runtime实际调用仍未验。 |
 | coordination | 统筹合同、唯一写者及必要恢复说明，不作为参与设计或编码范围的独立验收者。 |
 | 已冻结Runtime/Registry | `/workspace/agenteam-tool-operation` / `ai/tool-operation` 与 `/workspace/agenteam-tool-registry` / `ai/tool-registry`：Runtime created、canonical-v1、Registry donor及Execution取消修正的有限实现/组合纯检查保留。neutral标准Schema核心已独审并单独5top race/vet通过；AgentSystem中的真实Registry Schema适配器`d26e89eb`已推送并独审接受。统一实际MVS的`regexp2 1.12.0`后，核心5＋适配3共8top race及schema/runtime两包vet全部通过，原Wait及group/runtime双尾闭合、缓存归还；`jsonschema/v6 6.0.3`不变。旧适配01/02依赖元数据缺失导致0top、vet未跑的FAIL保留；生产绑定、真实Execution授权和AgentRun发布仍未完成。 |
