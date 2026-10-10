@@ -1576,7 +1576,11 @@ export function createSessionController(
       })
       .catch((error: unknown) => {
         const e = isKnowledgeCommand(kind)
-          ? projectFailure(identity, op, error)
+          ? current()
+            ? projectFailure(identity, op, error)
+            : error instanceof AccountFailure
+              ? error
+              : new AccountFailure('transport')
           : kind === 'knowledge-read'
             ? knowledgeFailure(current, error)
             : isProjectModelAction(kind)

@@ -131,6 +131,6 @@ Session 唯一持有 identity、Project/Document、捕获输入、原 body、CSR
 
 ### 文件域与首条真实链
 
-新生产源：`web/src/api/knowledge-commands.ts`、`web/src/composables/useKnowledgeRename.ts`、`web/src/components/knowledge/KnowledgeRenameDialog.vue`。旧窄接缝：`web/src/api/client.ts`、`web/src/composables/useSession.ts`、`web/src/composables/useKnowledgeOwner.ts`、`web/src/views/projects/ProjectKnowledgeView.vue`。复用现 `parseKnowledgeDocument`、UiDialog/UiField/UiInput/UiButton/UiState；不改 Workspace/router/nav/UiTree、Go/backend、锁、D13。必要测试为 command-client、command-state、rename 三文件与受影响读取/会话兼容检查。
+新生产源：`web/src/api/knowledge-commands.ts`、`web/src/composables/useKnowledgeRename.ts`、`web/src/components/knowledge/KnowledgeRenameDialog.vue`。旧窄接缝：`web/src/api/client.ts`、`web/src/composables/useSession.ts`、`web/src/composables/useKnowledgeOwner.ts`、`web/src/views/projects/ProjectKnowledgeView.vue`。复用现 `parseKnowledgeDocument`、UiDialog/UiField/UiInput/UiButton/UiState；不改 Workspace/router index/nav/UiTree、Go/backend、锁、D13。首基础测试确认同组件 route update 晚于全局认证恢复，故另授权 `web/src/router/auth.ts` 一个 Knowledge 导航注册点，在原 restore 前询问页面确认并按 owner 注销；保 Project 导航顺序与 Skills canonical 路由闭集，不改其他路由门。必要测试为 command-client、command-state、rename 三文件与受影响读取/会话兼容检查。
 
 基础控制聚焦正常改名、明确冲突、Unknown→原 Lookup/重放及身份/选择变化原尾；完成类型/格式后尽早联调。真实 fixture/共享入口另由 root 分配：default Project initializer 仍 unbound，test-only 真实 ports 造已有文档并 Stop/Drain，普通 Owner 登录→UI 改名→原完整 typed 发布→当前 GET/有界目录刷新，核 title/version、正文原 hash、一次真实 command/event，再闭合全部原浏览器/服务/资源尾。复用未变 read04/backend 证据，不扩阅读方法矩阵。当前仅规格获独立有限接受，代码、纯检查与真实链均待完成。

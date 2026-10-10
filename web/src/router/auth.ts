@@ -45,13 +45,15 @@ export function projectRoute(value: unknown): {
     | '/settings/audit'
     | '/settings/model-providers'
     | '/settings/available-models'
+    | '/settings/skills'
+    | `/settings/skills/${string}`
     | '/knowledge'
     | `/knowledge/${string}`
   path: string
 } | null {
   if (typeof value !== 'string' || /[%\\?#]/.test(value)) return null
   const match =
-    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|model-providers|available-models))?|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
+    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|model-providers|available-models|skills(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?))?|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
       value,
     )
   if (!match) return null
@@ -147,6 +149,17 @@ export function installProjectModelSettingsNavigation(
   }
 }
 
+const knowledgeNavigation = new WeakMap<Router, { confirmLeave: () => Promise<boolean> }>()
+export function installKnowledgeNavigation(
+  router: Router,
+  owner: { confirmLeave: () => Promise<boolean> },
+) {
+  knowledgeNavigation.set(router, owner)
+  return () => {
+    if (knowledgeNavigation.get(router) === owner) knowledgeNavigation.delete(router)
+  }
+}
+
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   router.beforeEach(async (to, from) => {
     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
@@ -220,6 +233,13 @@ export function installAuthentication(router: Router, auth: SessionController = 
         return false
       auth.entry.abandon()
     }
+    // Same-component beforeRouteUpdate runs after this global guard. Confirm
+    // before restore can temporarily unmount the page and retire its draft.
+    if (
+      to.fullPath !== from.fullPath &&
+      !((await knowledgeNavigation.get(router)?.confirmLeave()) ?? true)
+    )
+      return false
     if (to.meta.accountEntry) {
       if (auth.state.busy) return false
       if (from.name === 'login') auth.leave()

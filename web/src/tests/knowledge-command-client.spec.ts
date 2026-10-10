@@ -21,8 +21,8 @@ const row = () => ({
   status: 'active',
   indexing_status: 'pending',
   created_by: { kind: 'human', user_id: id(4) },
-  created_at: '2026-10-10T12:00:00Z',
-  updated_at: '2026-10-10T12:00:00Z',
+  created_at: '2026-10-10T12:00:00.000000Z',
+  updated_at: '2026-10-10T12:00:00.000000Z',
 })
 const json = (value: unknown) =>
   new Response(JSON.stringify(value), { headers: { 'Content-Type': 'application/json' } })

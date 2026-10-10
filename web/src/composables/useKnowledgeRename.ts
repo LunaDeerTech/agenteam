@@ -35,6 +35,7 @@ export function useKnowledgeRename(
     readGeneration: number
   } | null = null
   let revision = 0,
+    suspended = false,
     disposed = false
   let answer: ((value: boolean) => void) | null = null
   const progress = computed(() => {
@@ -131,6 +132,7 @@ export function useKnowledgeRename(
       generation: c.generation,
       readGeneration: c.readGeneration,
     }
+    suspended = false
     baseline = value
     state.baseline = value.title
     state.version = value.content_version
@@ -274,7 +276,14 @@ export function useKnowledgeRename(
       }
       // A same-session check keeps Session's original unknown intent. Do not
       // confuse the temporarily missing read workspace with a new identity.
-      if (auth.personalContext.phase === 'checking') return
+      if (auth.personalContext.phase === 'checking') {
+        suspended = true
+        return
+      }
+      if (suspended) {
+        clear()
+        return
+      }
       const c = workspace.currentReadContext.value
       if (
         !c ||

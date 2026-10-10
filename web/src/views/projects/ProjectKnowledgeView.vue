@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from 'vue-router'
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import KnowledgeRenameDialog from '../../components/knowledge/KnowledgeRenameDialog.vue'
 import { useKnowledgeRename } from '../../composables/useKnowledgeRename'
 import KnowledgeDocumentTree from '../../components/knowledge/KnowledgeDocumentTree.vue'
 import { UiBadge, UiBreadcrumb, UiButton, UiDrawer, UiState } from '../../components/ui'
 import { useKnowledgeOwner } from '../../composables/useKnowledgeOwner'
 import { useProjectWorkspace } from '../../composables/useProjectWorkspace'
-import { projectRoute } from '../../router/auth'
+import { installKnowledgeNavigation, projectRoute } from '../../router/auth'
 
 const route = useRoute(),
   workspace = useProjectWorkspace()
@@ -21,6 +21,9 @@ const location = computed(() => {
 const owner = useKnowledgeOwner(undefined, workspace, location),
   state = owner.state
 const rename = useKnowledgeRename(owner, workspace)
+const stopNavigation = installKnowledgeNavigation(useRouter(), {
+  confirmLeave: rename.permitNavigation,
+})
 const drawer = ref(false),
   heading = ref<HTMLElement | null>(null),
   documentHeading = ref<HTMLElement | null>(null)
@@ -70,6 +73,7 @@ onMounted(async () => {
   if (owner.visible.value) heading.value?.focus()
 })
 onBeforeUnmount(() => {
+  stopNavigation()
   rename.dispose()
   owner.dispose()
 })

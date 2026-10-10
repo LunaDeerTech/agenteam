@@ -365,6 +365,53 @@ describe('Knowledge rename original Session owner and current observations', () 
     expect(f.editor.canAdopt.value).toBe(false)
     expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/rename'))).toHaveLength(1)
   })
+  it('refreshes only root and the three known loaded parents after concurrent moves', async () => {
+    const f = await editFixture()
+    let moved = false
+    const a = id(30),
+      b = id(31),
+      c = id(32)
+    const before = { ...document(20, a), title: '旧标题' }
+    const receipt = { ...before, parent_document_id: b, title: '改名', content_version: '2' }
+    const current = { ...receipt, parent_document_id: c, content_version: '3' }
+    f.intercept(async (path, init) => {
+      const url = new URL(path, 'https://owned.invalid')
+      if (path.endsWith('/rename')) {
+        moved = true
+        return json({ document: receipt })
+      }
+      const value = moved ? current : before
+      if (url.pathname.endsWith('/children')) return json({ items: [] })
+      return currentResponse(path, value)
+    })
+    f.page.retryDocument()
+    await flushPromises()
+    for (const parent of [a, b, c]) {
+      f.page.readLevel(parent)
+      await flushPromises()
+    }
+    f.editor.open()
+    f.editor.state.title = '改名'
+    const start = f.fetch.mock.calls.length
+    await f.editor.save()
+    await flushPromises()
+    expect(f.editor.progress.value?.phase).toBe('confirmed')
+    expect(f.page.state.document).toMatchObject({ parent_document_id: c, content_version: '3' })
+    const lists = f.fetch.mock.calls
+      .slice(start)
+      .filter(([path]) => path.includes('/children?'))
+      .map(([path]) => new URL(path, 'https://owned.invalid'))
+    expect(lists.map((url) => url.searchParams.get('parent_document_id'))).toEqual([
+      'null',
+      a,
+      b,
+      c,
+    ])
+    expect(lists.every((url) => !url.searchParams.has('cursor'))).toBe(true)
+    expect(
+      f.fetch.mock.calls.slice(start).filter(([path]) => path.endsWith('/rename')),
+    ).toHaveLength(1)
+  })
   it('keeps archived projects read-only', async () => {
     const f = await fixture({ lifecycle: 'archived', documentID: id(20) })
     const editor = useKnowledgeRename(f.page, f.workspace, f.auth)
