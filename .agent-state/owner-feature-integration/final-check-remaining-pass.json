@@ -1,0 +1,83 @@
+{
+  "source": "af727927",
+  "command": [
+    "sh",
+    "-c",
+    "#!/bin/sh\nset -eu\ncd \"$(dirname \"$0\")/..\"\nAGENTEAM_GO=${AGENTEAM_GO:-go}\nGOTOOLCHAIN=local\nexport AGENTEAM_GO GOTOOLCHAIN\nif ! agenteam_version=$(\"$AGENTEAM_GO\" env GOVERSION); then\n  printf '%s\\n' 'Unable to execute the configured Go toolchain.' >&2\n  exit 1\nfi\nif [ \"$agenteam_version\" != 'go1.27.1' ]; then\n  printf '%s\\n' 'Go go1.27.1 is required; set AGENTEAM_GO to that binary.' >&2\n  exit 1\nfi\n\"$AGENTEAM_GO\" vet ./...\n# Analyze the explicit integration suite without starting Docker or a database.\n\"$AGENTEAM_GO\" vet -tags=integration ./...\n\"$AGENTEAM_GO\" test -race ./...\nsh scripts/build-go.sh\n",
+    "scripts/check-go.sh"
+  ],
+  "remaining": true,
+  "outer_pid": 214126,
+  "utc_start": "2026-10-10T04:46:05Z",
+  "fresh_free_bytes": 11252547584,
+  "schema_environment": {
+    "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_MODEL_CONFIGURATION_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_VARIABLE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_WORK_HTTP_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_SKILL_HTTP_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_KNOWLEDGE_HTTP_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_USAGE_SCHEMA_NODE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node"
+  },
+  "python": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "python": "3.12.14",
+    "jsonschema": "4.26.0",
+    "referencing": "0.37.0"
+  },
+  "node": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "node": "v24.19.0"
+  },
+  "removed_environment_names": [],
+  "supervisor_sha256": "4e52d7628c43391bbe184ae179097c42ed201185a703cef372bb7ad7bc9fa4e7",
+  "script_pid": 214137,
+  "terminal": 0,
+  "script_exit": 0,
+  "seconds": 290.233,
+  "status": "whole PASS for remaining stages only",
+  "tool_session": 61962,
+  "tool_chunk": "78c7ef",
+  "outer_actual_exit": 0,
+  "completed_stages": [
+    "go vet ./...",
+    "go vet -tags=integration ./...",
+    "go test -race ./...",
+    "sh scripts/build-go.sh (Central and Runner)"
+  ],
+  "race_pass_packages": 67,
+  "race_fail_packages": 0,
+  "original_tail": {
+    "descendants": [
+      [],
+      []
+    ],
+    "runtime_empty": [
+      true,
+      true
+    ],
+    "tcp_empty": [
+      true,
+      true
+    ],
+    "tcp_budget_seconds": 75,
+    "diagnostic_end": {
+      "elapsed": 290.232118,
+      "kind": "diagnostic_end",
+      "last_delta": [],
+      "last_delta_count": 0,
+      "last_original_sample": {
+        "elapsed": 290.232005,
+        "sample": 3,
+        "utc_ns": 1791607855905032598
+      },
+      "samples": 3
+    }
+  },
+  "limitations": "Ordinary Audit Schema failures remain open. This race PASS does not replace ordinary failure closure. Gated PG/native domain matrices were not rerun; integration source was vetted only."
+}

@@ -110,5 +110,48 @@
     "outer_actual_exit": 1,
     "top_seconds": 20.13,
     "result": "FAIL: original 20-second schema helper signal:killed also recurs with only the exact top, so cross-package concurrency is not required; ctx.Err and per-vector progress were not recorded; no performance cause proved"
+  },
+  "author_safe_diagnostic": {
+    "source": "af727927",
+    "command": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-count=1",
+      "-run",
+      "^TestProjectAuditHTTPPureWireAndMaximumPage$",
+      "-v",
+      "./internal/central/audit/http"
+    ],
+    "utc_start": "2026-10-10T04:44:42.888484+00:00",
+    "fresh_free_bytes": 11257393152,
+    "outer_pid": 212968,
+    "original_schema_deadline_seconds": 20,
+    "go_pid": 212969,
+    "actual_wait": 1,
+    "seconds": 22.247,
+    "runtime_observations": [
+      true,
+      true
+    ],
+    "tool_session": 10739,
+    "tool_chunk": "bd1a6b",
+    "outer_actual_exit": 1,
+    "helper_wait_seconds": 20.006783834,
+    "context_error": "context deadline exceeded",
+    "vectors": 341,
+    "completed_vectors": 340,
+    "imports_end_seconds": 0.061197,
+    "documents_end_seconds": 0.065956,
+    "maximum_page": {
+      "index": 85,
+      "duration_seconds": 4.592487,
+      "end_seconds": 6.82448
+    },
+    "real_signer_page": {
+      "index": 340,
+      "begin_seconds": 14.598518,
+      "end_observed": false
+    },
+    "conclusion": "Standard validation reached the last original vector; original 20-second context killed the process. This does not establish a library or CPU root cause. Subsequent race package PASS also disproves an unconditional same-input always-fails claim."
   }
 }

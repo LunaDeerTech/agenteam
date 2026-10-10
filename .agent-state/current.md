@@ -90,3 +90,9 @@
 - 授权的一次精确无socketSchema诊断也FAIL：51908→4c48aa，outer205655/Go205656实际Wait1，20.760s，top20.13s，runtime空；同原schema helper signal:killed。保同20秒/原输入/p2且只有单top，说明不依赖跨包并发才能复现；不能确定具体性能根因。test/schema与main280字节相同，原日志没有ctx.Err或向量进度。未继续重跑，需原helper最小诊断或针对性修复后再补受影响ordinary与原未达vet/race/build。
 
 - 原剩余四阶段入口已按root授权窄增量冻结：`final_check.py --remaining` 从实际未改 `scripts/check-go.sh` 仅删除唯一普通test行，原版本检查/set-e/普通vet/integration vet/race/两cmd build逐字保持，仍原Wait/desc/runtime/TCP尾。新增2纯控合原9共11实际0；没有运行剩余阶段，等待Skills有限审及cleanup独立Recovery02原窗口全尾释放后root fresh grant。Audit失败仍未闭，Secret唯一负责test helper诊断；本入口不接任意命令、不放宽失败、不重跑已PASS ordinary包。
+
+## 最终检查剩余阶段：whole PASS，ordinary Audit仍未闭
+
+- `af727927` 的原固定remaining入口实际61962→78c7ef、outer214126/script214137均Wait0；04:46:05Z启动、fresh11252547584B，完整290.233s。普通vet、integration vet、全仓race（67包PASS/无FAIL）与两cmd build全部按原set-e完成。原desc/runtime各双空、TCP连续双empty，3个同步样本末delta0/finish290.232118；窗口已释放，无进程/资源在途。安全结果为 `owner-feature-integration/final-check-remaining-pass.json`。
+- Audit race包本轮PASS36.086s，不能替代普通阶段失败闭合，也不支持“同20秒必然失败”。Secret在此前一次安全诊断10739→bd1a6b确认20秒context deadline exceeded：341原向量已完成340，最大页index85验证4.592487s，末real-signer-page在14.598518s开始且无end至kill；imports/docs约.06s。仅定位标准验证及原deadline，未证明库/CPU根因，原diagnosticFAIL保留在second-failure JSON；Secret唯一准备等价提效，不增20秒/不减向量。
+- 正式main仍待ordinary Audit受影响范围修后验。66个普通PASS包、两vet/全race/两cmd build与原领域真人证据可按未变输入复用；不重跑已有PG矩阵。正式文档收敛由coordination唯一负责，但未验项不提前写成通过。
