@@ -149,6 +149,17 @@ func (s *preparationState) start(ctx context.Context, request c.PreparationReque
 		if !samePreparationClaim(actual, previous) {
 			return fault(f.ResourceBusy)
 		}
+		captured, err := loadPreparationInput(ctx, x, request.ExecutionID)
+		if err != nil {
+			return err
+		}
+		if captured != nil {
+			if current.summary.Status != c.Preparing || !captured.input.Fields().Request.Equal(request) {
+				return fault(f.ConfirmationStale)
+			}
+			run.replayed = true
+			return ctx.Err()
+		}
 		project, err := s.projects.RequirePreparingProjectInTx(ctx, tx, request.Launch.ProjectID)
 		if err != nil {
 			return portError(err)
@@ -220,7 +231,7 @@ func markPreparationReturned(ctx context.Context, x postgres.SQLExecutor, claim 
 
 // finish is accounting only, after the original callback and its transaction
 // have returned. Project cancellation/archival does not erase that obligation.
-func (s *preparationState) finish(ctx context.Context, request c.PreparationRequest, claim preparationClaim, requireObserved bool) error {
+func (s *preparationState) finish(ctx context.Context, request c.PreparationRequest, claim preparationClaim, requireObserved bool, expected *preparationInputRecord) error {
 	locks, err := preparationLocks(request)
 	if err != nil {
 		return err
@@ -235,6 +246,18 @@ func (s *preparationState) finish(ctx context.Context, request c.PreparationRequ
 		}
 		if s.processes.CurrentProcess() != s.process {
 			return fault(f.InvalidState)
+		}
+		if expected != nil {
+			observed, err := loadPreparationInput(ctx, x, request.ExecutionID)
+			if err != nil {
+				return err
+			}
+			if !samePreparationInput(observed, expected) {
+				if requireObserved {
+					return fault(f.CommitUnknown)
+				}
+				return fault(f.ConfirmationStale)
+			}
 		}
 		actual, err := loadPreparationAttempt(ctx, x, claim)
 		if err != nil {

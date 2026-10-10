@@ -9,14 +9,16 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 )
 
 type Authority struct{ state *authorityState }
 type authorityState struct {
-	store    Store
-	projects pc.ProjectAuthority
-	services c.ServiceProjectAccess
+	store       Store
+	projects    pc.ProjectAuthority
+	services    c.ServiceProjectAccess
+	modelIssuer mc.PlanIssuer
 }
 
 // The Authority is constructed before Agent's execution-configuration adapter;
@@ -28,7 +30,7 @@ func NewAuthority(store Store, projects pc.ProjectAuthority, services c.ServiceP
 	if !reflect.TypeOf(store).Comparable() {
 		return nil, invalid()
 	}
-	return &Authority{&authorityState{store, projects, services}}, nil
+	return &Authority{&authorityState{store: store, projects: projects, services: services, modelIssuer: mc.NewPlanIssuer()}}, nil
 }
 func projectLock(project i.ProjectID) f.LockRequest {
 	key, _ := f.ProjectLock(project.String())

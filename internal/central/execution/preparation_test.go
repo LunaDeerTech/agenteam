@@ -29,6 +29,7 @@ type preparationStoreControl struct {
 	unknownAt    string
 	phase        string
 	providerRefs int
+	inputs       map[string][]any
 }
 
 func (s *preparationStoreControl) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
@@ -46,6 +47,10 @@ func copyClaims(values map[string]preparationClaim) map[string]preparationClaim 
 }
 func (s *preparationStoreControl) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
 	claims, attempts, refs := copyClaims(s.claims), copyClaims(s.attempts), s.providerRefs
+	inputs := make(map[string][]any, len(s.inputs))
+	for key, value := range s.inputs {
+		inputs[key] = append([]any(nil), value...)
+	}
 	s.phase = ""
 	var callbackErr error
 	result := s.launchStore.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
@@ -54,6 +59,7 @@ func (s *preparationStoreControl) WithinTx(ctx context.Context, cause f.Transact
 	})
 	if result.State() == f.NotCommitted {
 		s.claims, s.attempts, s.providerRefs = claims, attempts, refs
+		s.inputs = inputs
 		// The older Launch control does not preserve a non-Fault callback
 		// cause. Match postgres.rejected here so cancellation remains visible
 		// through the real preparation call, without changing that old fixture.
@@ -72,6 +78,12 @@ func claimValues(c preparationClaim) []any {
 	return []any{c.execution.String(), c.project.String(), c.agent.String(), c.attempt.String(), c.process.String(), c.fence, c.phase}
 }
 func (s *preparationStoreControl) QueryRow(ctx context.Context, query string, args ...any) postgres.Row {
+	if strings.Contains(query, "FROM agenteam_execution.preparation_inputs WHERE") {
+		return launchScan{values: s.inputs[args[0].(string)]}
+	}
+	if query == "SELECT clock_timestamp()" {
+		return launchScan{values: []any{time.Now().UTC().Truncate(time.Microsecond)}}
+	}
 	if strings.Contains(query, "agenteam_execution.preparation_claims c") {
 		claim, ok := s.claims[args[0].(string)]
 		if !ok {
@@ -102,6 +114,17 @@ func (s *preparationStoreControl) Exec(ctx context.Context, query string, args .
 		s.t.Fatal("preparation SQL escaped its live original transaction")
 	}
 	switch {
+	case strings.HasPrefix(query, "INSERT INTO agenteam_execution.preparation_inputs("):
+		if s.inputs == nil {
+			s.inputs = map[string][]any{}
+		}
+		if s.inputs[args[0].(string)] != nil {
+			return pgconn.NewCommandTag("INSERT 0 0"), nil
+		}
+		s.inputs[args[0].(string)] = append([]any(nil), args...)
+		s.phase = "capture"
+		s.writes++
+		return pgconn.NewCommandTag("INSERT 0 1"), nil
 	case strings.HasPrefix(query, "UPDATE agenteam_execution.executions SET status='preparing'"):
 		row := s.rows[args[0].(string)]
 		if row == nil || row[3] != "created" || row[4] != args[1] || row[5] != (*time.Time)(nil) {
