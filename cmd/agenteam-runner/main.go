@@ -24,6 +24,9 @@ func main() {
 }
 
 func execute(args []string, lookup config.LookupEnv, env []string, stdout, stderr io.Writer, signals <-chan os.Signal) int {
+	return executeInput(args, lookup, env, os.Stdin, stdout, stderr, signals)
+}
+func executeInput(args []string, lookup config.LookupEnv, env []string, input io.ReadCloser, stdout, stderr io.Writer, signals <-chan os.Signal) int {
 	action := "run"
 	if len(args) == 1 {
 		switch args[0] {
@@ -33,6 +36,8 @@ func execute(args []string, lookup config.LookupEnv, env []string, stdout, stder
 			action = "version"
 		case "--check-config":
 			action = "check"
+		case "--enroll":
+			action = "enroll"
 		default:
 			action = "invalid"
 		}
@@ -40,11 +45,11 @@ func execute(args []string, lookup config.LookupEnv, env []string, stdout, stder
 		action = "invalid"
 	}
 	if action == "help" {
-		_, _ = fmt.Fprintln(stdout, "Usage: agenteam-runner [--help | --version | --check-config]\nD02 process foundation only; product ready=false.")
+		_, _ = fmt.Fprintln(stdout, "Usage: agenteam-runner [--help | --version | --check-config | --enroll]\nD15 Runner identity and control channel; --enroll reads one token from stdin.\nProduction operation registry is empty; connection does not enable command execution.")
 		return 0
 	}
 	if action == "version" {
-		_, _ = fmt.Fprintln(stdout, "agenteam-runner development (D02)")
+		_, _ = fmt.Fprintln(stdout, "agenteam-runner development (D15)")
 		return 0
 	}
 	if action == "invalid" {
@@ -72,6 +77,14 @@ func execute(args []string, lookup config.LookupEnv, env []string, stdout, stder
 	if err != nil {
 		return loggingFailure(stderr)
 	}
+	if err := cfg.OfflineCheck(action == "enroll"); err != nil {
+		if issue, ok := err.(*config.Error); ok {
+			logger.InvalidConfig(issue.Field(), issue.Reason())
+		} else {
+			logger.InvalidConfig("AGENTEAM_RUNNER_*", "invalid")
+		}
+		return 2
+	}
 	if action == "check" {
 		result := struct {
 			Scope         string `json:"scope"`
@@ -79,8 +92,14 @@ func execute(args []string, lookup config.LookupEnv, env []string, stdout, stder
 			Ready         bool   `json:"ready"`
 			Connected     bool   `json:"connected"`
 			Authenticated bool   `json:"authenticated"`
-		}{Scope: "d02", Valid: true}
+		}{Scope: "d15", Valid: true}
 		if err := json.NewEncoder(stdout).Encode(result); err != nil {
+			return 1
+		}
+		return 0
+	}
+	if action == "enroll" {
+		if err := app.RunEnrollment(context.Background(), cfg, logger, signals, input); err != nil {
 			return 1
 		}
 		return 0

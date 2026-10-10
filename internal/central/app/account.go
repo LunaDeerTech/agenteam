@@ -61,6 +61,7 @@ type accountAssembly struct {
 	planning     accountWork
 	variables    accountWork
 	projects     accountWork
+	runners      accountWork
 	sink         accountWork
 	core         accountWork
 	runtime      accountRuntime
@@ -137,6 +138,11 @@ func (a *accountAssembly) works() []accountWork {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	var work []accountWork
+	// Runner owns hijacked sockets and generation/Audit transactions; HTTP
+	// shutdown alone cannot retire them. Account and DB must remain until join.
+	if a.runners != nil {
+		work = append(work, a.runners)
+	}
 	// Variables, Work and Project calls release Account Activity before core retires.
 	if a.variables != nil {
 		work = append(work, a.variables)
@@ -264,6 +270,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	runnerAuthority, err := createRunnerAuthority(db, authority)
+	if err != nil {
+		return err
+	}
 	modelStore, ok := db.(model.Store)
 	if !ok {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
@@ -291,9 +301,16 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		return err
 	}
 	processes := accountProcessAuthority{process: process, guard: objects.guard}
-	auditor, err := createSecurity(cfg, db, authority, modelAuthority, projectUsage.projects)
+	auditor, err := createSecurityWithRunners(cfg, db, authority, modelAuthority, projectUsage.projects, runnerAuthority)
 	if err != nil {
 		return err
+	}
+	runners, err := createRunnerControl(runnerAuthority, auditor)
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() { accounts.runners = runners }) {
+		return context.Canceled
 	}
 	secrets, err := createSecret(cfg, db, auditor, authority, usage, projectUsage.projects)
 	if err != nil {
@@ -500,10 +517,15 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	runnerAdmin, runnerDevice, err := runnerControlHandlers(runners, core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
 	if !accounts.install(ctx, func() {
 		accounts.handler = projectAuditRoutes(projectCredentialsRoutes(projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler), credentialHandler), projectAudit)
 		accounts.handler = workPlanningRoutes(accounts.handler, planningHandler)
 		accounts.handler = projectVariablesRoutes(accounts.handler, variableHandler)
+		accounts.handler = runnerControlRoutes(accounts.handler, runnerAdmin, runnerDevice)
 	}) {
 		return context.Canceled
 	}

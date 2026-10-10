@@ -43,7 +43,7 @@ const (
 )
 
 func (a Action) Valid() bool {
-	if AccountAction(a) || ProjectAction(a) || ModelAction(a) || KnowledgeAction(a) || ProjectVariableAction(a) || ProjectSecretVariableAction(a) {
+	if RunnerAction(a) || AccountAction(a) || ProjectAction(a) || ModelAction(a) || KnowledgeAction(a) || ProjectVariableAction(a) || ProjectSecretVariableAction(a) {
 		return true
 	}
 	switch a {
@@ -87,7 +87,7 @@ func (k ResourceKind) Valid() bool {
 		return true
 	case ModelProviderResource, ModelConfigResource, ModelSelectionResource:
 		return true
-	case KnowledgeDocumentResource, ProjectVariableResource:
+	case KnowledgeDocumentResource, ProjectVariableResource, RunnerResource:
 		return true
 	case UserResource, SessionResource, AccountAttemptResource, InvitationResource, PasswordResetResource, AccountSettingsResource, SMTPSettingsResource, MailJobResource:
 		return true
@@ -182,6 +182,14 @@ func NewEntry(f EntryFields) (Entry, error) {
 	}
 	if s.Kind == identity.System && (f.Associations.ExecutionID != "" || f.Associations.ToolCallID != "" || f.Associations.OperationID != "" || f.Associations.ApprovalID != "" || r.Kind == AgentResource) {
 		return Entry{}, invalid("scope")
+	}
+	if (a.Kind == identity.Service && a.ServiceName == identity.RunnerIdentity || r.Kind == RunnerResource) && !RunnerAction(f.Action) {
+		return Entry{}, invalid("runner_entry")
+	}
+	if RunnerAction(f.Action) {
+		if err := validateRunnerEntry(f); err != nil {
+			return Entry{}, err
+		}
 	}
 	if AccountAction(f.Action) {
 		if err := validateAccountEntry(f); err != nil {
@@ -306,9 +314,12 @@ const (
 )
 
 func (p Producer) Valid() bool {
-	return p == ProjectVariableProducer || p == KnowledgeProducer || p == ModelProducer || p == ProjectProducer || p == AccountProducer || p == AccountMailProducer || p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer || p == OutboxProducer
+	return p == RunnerProducer || p == ProjectVariableProducer || p == KnowledgeProducer || p == ModelProducer || p == ProjectProducer || p == AccountProducer || p == AccountMailProducer || p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer || p == OutboxProducer
 }
 func ProducerFor(action Action) Producer {
+	if RunnerAction(action) {
+		return RunnerProducer
+	}
 	if ProjectSecretVariableAction(action) {
 		return ProjectVariableProducer
 	}
@@ -357,6 +368,9 @@ type AppendKeyDetails struct {
 }
 
 func NewAppendKey(producer Producer, causeRef string, ordinal int64) (AppendKey, error) {
+	if producer == RunnerProducer && (!validID(causeRef) || ordinal > 1) {
+		return AppendKey{}, invalid("append_key")
+	}
 	if !producer.Valid() || !identity.ValidCauseRef(causeRef) || ordinal < 0 || (producer == KnowledgeProducer || producer == ProjectVariableProducer) && (ordinal != 0 || foundation.Digest(causeRef).Validate() != nil) {
 		return AppendKey{}, invalid("append_key")
 	}
