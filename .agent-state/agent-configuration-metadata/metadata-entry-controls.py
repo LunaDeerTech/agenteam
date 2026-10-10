@@ -26,7 +26,7 @@ BASE_SHA = {'.agent-state/work-owner-http/root_chain_driver.py': '405c22124124a2
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': '2cfa7a4d86bcc7fa9846eefc8693e8fea0d38ad4465af458b606e83894231b25'}
 BLOCKS = {'.agent-state/work-owner-http/root_chain_driver.py': ('def metadata_inputs(binary):',
                                                        'def guard_inputs(binary):',
-                                                       '3b5a825103f1b7d983c3dcac4533094809d7ea74e92417309f6d3ba73e1b075a'),
+                                                       'bda4e3af4554e9a259cee93c610ffffb3e5b23263748183d5f899703d787d17e'),
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': ('METADATA_ROOT = '
                                                                "'^TestAgentConfigurationMetadata$'",
                                                                'GUARD_ROOT = '
@@ -181,6 +181,7 @@ class MetadataEntryControls(unittest.TestCase):
             names = ('candidate.test', 'production.go',
                      'tests/projectvariable/agent_configuration_metadata_test.go',
                      'tests/projectvariable/original_helper_test.go',
+                     'internal/other/other_test.go', 'internal/other/assets/NOTICE',
                      'tests/testsupport/postgres/original.go',
                      'tests/testsupport/outbound/original_test.go',
                      '.agent-state/project-variables-independent/commitproxy/proxy.go',
@@ -198,10 +199,12 @@ class MetadataEntryControls(unittest.TestCase):
                 inputs = {str(p): self.driver.sha(p) for p in paths}
                 args = SimpleNamespace(binary=binary)
                 self.assertTrue(self.sup.metadata_same(inputs, args, self.driver))
-                added = root / 'tests/projectvariable/later_helper_test.go'
-                added.write_text('later source')
-                self.assertFalse(self.sup.metadata_same(inputs, args, self.driver))
-                added.unlink()
+                for relative in ('tests/projectvariable/later_helper_test.go',
+                                 'internal/other/later_test.go', 'internal/other/assets/later.txt'):
+                    added = root / relative
+                    added.write_text('later source')
+                    self.assertFalse(self.sup.metadata_same(inputs, args, self.driver))
+                    added.unlink()
                 for name in names[2:]:
                     path = root / name
                     original = path.read_text()

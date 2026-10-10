@@ -81,6 +81,9 @@ def metadata_inputs(binary):
     # Include the compiled package's complete fixtures and the original shared
     # support, not just the new top or the unrelated Model test package.
     paths = set(input_paths(binary)) | set((REPOSITORY / 'tests/projectvariable').glob('*.go'))
+    # Preserve the author's conservative full-internal compile provenance,
+    # including other packages' test sources and non-Go package assets.
+    paths.update(p for p in (REPOSITORY / 'internal').rglob('*') if p.is_file())
     paths.update((REPOSITORY / 'tests/testsupport').rglob('*.go'))
     paths.update((REPOSITORY / '.agent-state/project-variables-independent/commitproxy').glob('*.go'))
     paths.update(REPOSITORY / name for name in (
