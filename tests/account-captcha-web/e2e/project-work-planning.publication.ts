@@ -156,11 +156,18 @@ export async function workSessionBinding(
 export async function installWorkPublicationDiagnostic({
   binding,
   expiresAt,
+  planningPolicy,
 }: {
   binding: WorkSessionBinding;
   expiresAt: number;
+  planningPolicy?: "first-milestone-reorder";
 }) {
   const host = window as any;
+  if (
+    planningPolicy !== undefined &&
+    planningPolicy !== "first-milestone-reorder"
+  )
+    return "unknown-scope";
   if (Date.now() >= expiresAt) return "expired";
   if (host.__workPublicationDiagnostic) return "already-installed";
   const loaded = (path: string) =>
@@ -194,7 +201,9 @@ export async function installWorkPublicationDiagnostic({
     policy: "not-observed-milestone" | "historical-task";
     anchor?: { row: any; published: any; value: any };
   } | null = null;
+  let firstStart: any = null;
   const methods = [
+    ...(planningPolicy ? ["start"] : []),
     "getMilestone",
     "getTask",
     "getSprint",
@@ -264,6 +273,37 @@ export async function installWorkPublicationDiagnostic({
     }
   };
   const target = (name: string, args: unknown[]) => {
+    if (name === "start") {
+      if (!firstStart) return null;
+      if (firstStart.used) {
+        firstStart.invalid = true;
+        return null;
+      }
+      firstStart.used = true;
+      const value = args[0] as any,
+        spec = firstStart.spec;
+      firstStart.input = value;
+      firstStart.entryReceipt = auth.workPlanning.progress?.receipt;
+      firstStart.inputMatches =
+        args.length === 1 &&
+        !!value &&
+        Object.keys(value).sort().join() ===
+          "command,domain,expected_version,projectID,request,targetID" &&
+        value.domain === "structure" &&
+        value.command === "work.milestone.reorder" &&
+        value.projectID === spec.projectID &&
+        value.targetID === spec.targetID &&
+        value.expected_version === spec.expectedVersion &&
+        !!value.request &&
+        Object.keys(value.request).join() === "before_id" &&
+        value.request.before_id === spec.beforeID;
+      if (!firstStart.inputMatches) firstStart.invalid = true;
+      return {
+        method: "POST",
+        path: `/api/v1/projects/${spec.projectID}/milestones/${spec.targetID}/reorder`,
+        target_id: spec.targetID,
+      };
+    }
     if (name === "getProject") {
       if (
         !refresh ||
@@ -338,6 +378,8 @@ export async function installWorkPublicationDiagnostic({
       const recovery = document.querySelector('[aria-label="原命令恢复"]');
       const heading = recovery?.querySelector("h2,h3")?.textContent?.trim();
       for (const row of calls) {
+        if (row.operation === "start")
+          row.start_unique = firstStart?.invalid === false;
         row.identity_current = sameIdentity();
         row.authenticated = auth.state.phase === "authenticated";
         row.not_busy = auth.state.busy === false;
@@ -365,6 +407,11 @@ export async function installWorkPublicationDiagnostic({
     retirementReason = Date.now() >= expiresAt ? "expired" : reason;
     pendingAtRetirement = pending;
     retired = true;
+    if (firstStart) {
+      firstStart.native = null;
+      firstStart.input = null;
+      firstStart.entryReceipt = null;
+    }
     observer?.disconnect();
     clearTimeout(timer);
     for (const restore of restores.splice(0)) safe(restore);
@@ -482,6 +529,12 @@ export async function installWorkPublicationDiagnostic({
               confirmed_observed_after_fulfilled_at: null,
               active: true,
             };
+            if (name === "start") {
+              firstStart.row = row;
+              row.start_input_matches = firstStart.inputMatches === true;
+              row.start_material_bound = false;
+              row.start_receipt_published = false;
+            }
             if (name === "retryOriginal") {
               const progress = auth.workPlanning.progress;
               row.replay_from_not_observed =
@@ -563,6 +616,32 @@ export async function installWorkPublicationDiagnostic({
                         ? result.version
                         : null;
                     row.result_target_matches = result?.id === row.target_id;
+                  }
+                  if (name === "start") {
+                    const progress = auth.workPlanning.progress,
+                      spec = firstStart.spec;
+                    row.start_receipt_published =
+                      firstStart.row === row &&
+                      firstStart.invalid === false &&
+                      sameIdentity() &&
+                      progress?.contextValid === true &&
+                      progress.phase === "confirmed" &&
+                      progress.observation === "committed" &&
+                      progress.domain === "structure" &&
+                      progress.command === "work.milestone.reorder" &&
+                      progress.projectID === spec.projectID &&
+                      progress.targetID === spec.targetID &&
+                      progress.receipt === result &&
+                      result !== firstStart.entryReceipt &&
+                      result?.domain === "structure" &&
+                      result.value?.command === "work.milestone.reorder" &&
+                      result.value.changed === true &&
+                      result.value.milestone?.id === spec.targetID &&
+                      result.value.milestone.project_id === spec.projectID &&
+                      result.value.milestone.version ===
+                        String(BigInt(spec.expectedVersion) + 1n) &&
+                      result.value.sprint === null &&
+                      uuid.test(result.value.event_id);
                   }
                   if (name === "retryOriginal") {
                     const progress = auth.workPlanning.progress;
@@ -648,7 +727,7 @@ export async function installWorkPublicationDiagnostic({
                       ? result.domain === "structure"
                         ? result.value.state
                         : result.value.status
-                      : name === "retryOriginal" &&
+                      : ["retryOriginal", "start"].includes(name) &&
                           ["structure", "task"].includes(result?.domain)
                         ? "typed-receipt-returned"
                         : "other-returned";
@@ -743,6 +822,92 @@ export async function installWorkPublicationDiagnostic({
           return false;
         armedReplay = { policy, anchor };
         return true;
+      },
+      armFirstMilestoneReorder(spec: any) {
+        if (
+          !planningPolicy ||
+          retired ||
+          firstStart ||
+          !sameIdentity() ||
+          auth.state.busy ||
+          !spec ||
+          Object.keys(spec).sort().join() !==
+            "beforeID,expectedVersion,projectID,targetID" ||
+          ![spec.projectID, spec.targetID, spec.beforeID].every((v) =>
+            uuid.test(v),
+          ) ||
+          spec.targetID === spec.beforeID ||
+          !/^[1-9][0-9]{0,18}$/.test(spec.expectedVersion)
+        )
+          return false;
+        firstStart = {
+          spec: Object.freeze({ ...spec }),
+          used: false,
+          invalid: false,
+          nativeSeen: false,
+        };
+        return true;
+      },
+      selectStartFetch(method: string, path: string, material: any) {
+        if (!firstStart || retired || method === "GET") return false;
+        if (firstStart.nativeSeen) {
+          firstStart.invalid = true;
+          return false;
+        }
+        firstStart.nativeSeen = true;
+        const spec = firstStart.spec;
+        if (
+          !sameIdentity() ||
+          !firstStart.used ||
+          !firstStart.row ||
+          firstStart.invalid ||
+          method !== "POST" ||
+          path !==
+            `/api/v1/projects/${spec.projectID}/milestones/${spec.targetID}/reorder` ||
+          material?.origin !== location.origin ||
+          material?.hasQuery !== false ||
+          !material?.key ||
+          !material.csrf ||
+          material.body !==
+            JSON.stringify({
+              expected_version: spec.expectedVersion,
+              request: { before_id: spec.beforeID },
+            })
+        ) {
+          firstStart.invalid = true;
+          return false;
+        }
+        firstStart.native = material; // Private closure only; never in a snapshot.
+        return true;
+      },
+      bindFirstRequest(spec: any, material: any) {
+        if (
+          !firstStart ||
+          retired ||
+          Date.now() >= expiresAt ||
+          firstStart.invalid ||
+          !sameIdentity() ||
+          firstStart.bound ||
+          !firstStart.native ||
+          !firstStart.row ||
+          !spec ||
+          Object.keys(spec).sort().join() !==
+            "beforeID,expectedVersion,projectID,targetID" ||
+          !["projectID", "targetID", "expectedVersion", "beforeID"].every(
+            (key) => firstStart.spec[key] === spec[key],
+          )
+        )
+          return false;
+        firstStart.bound = true;
+        const native = firstStart.native;
+        const matches =
+          native.body === material?.body &&
+          native.key === material?.key &&
+          native.csrf === material?.csrf &&
+          material?.origin === native.origin;
+        firstStart.row.start_material_bound = matches;
+        if (!matches) firstStart.invalid = true;
+        return matches;
       },
       bindNative(method: string, path: string, sequence: number) {
         if (retired) return null;

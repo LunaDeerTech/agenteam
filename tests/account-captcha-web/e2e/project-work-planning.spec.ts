@@ -88,6 +88,10 @@ async function realOrdering(
   page: Page,
   peer: string,
   kind: "milestone" | "sprint" | "task",
+  first?: {
+    seen: ReturnType<typeof observe>;
+    diagnostic: Awaited<ReturnType<typeof startWorkNativeDiagnostic>>;
+  },
 ) {
   const selected = new URL(page.url()).pathname.split("/").at(-1)!;
   const listPath = `/api/v1/projects/${material().work.main!.project_id}/${kind}s`;
@@ -112,10 +116,30 @@ async function realOrdering(
       await button(page, "移到哪个对象之前").click();
       await page.getByRole("option").filter({ hasText: peer }).click();
     }
+    if (first && !tail) {
+      expect(kind).toBe("milestone");
+      const expectedVersion = await details(page)
+        .locator("dt")
+        .filter({ hasText: /^当前版本$/ })
+        .locator("+ dd")
+        .innerText();
+      const input = {
+        projectID: material().work.main!.project_id,
+        targetID: selected,
+        expectedVersion,
+        beforeID: peer,
+      };
+      await first.diagnostic.installPublication();
+      first.seen.firstMilestoneReorder!.arm(input);
+      await first.diagnostic.armFirstMilestoneReorder(input);
+    }
     await button(page, tail ? "移到组尾" : "移到所选对象之前").click();
     const response = await pending;
     expect(response.status()).toBe(200);
-    const body = await originalBody(response);
+    const body =
+      first && !tail
+        ? await first.seen.firstMilestoneReorder!.body(response)
+        : await originalBody(response);
     const request = response.request().postDataJSON();
     expect(
       body.changed === true &&
@@ -123,6 +147,16 @@ async function realOrdering(
     ).toBe(true);
     await confirmed(page);
     await expect(button(page, "关闭排序")).toHaveCount(0);
+    if (first && !tail) {
+      first.seen.firstMilestoneReorder!.end();
+      await first.diagnostic.finish();
+      expect(
+        first.diagnostic.firstMilestoneReorderComplete(
+          response.request(),
+          (await response.headerValue("x-request-id"))!,
+        ),
+      ).toBe(true);
+    }
   }
   await open([peer, selected]);
   await move(false);
@@ -365,116 +399,140 @@ test("[read] actual Owner route, bounded pages, deep links and stale cursor", as
 test("[planning] all nine planning mutations, raw Plan, conflict and grouped ordering", async ({
   page,
 }) => {
-  const data = material(),
-    seen = observe(page);
-  await enter(page, data);
-  const sessionResponse = await page.request.get("/api/v1/session");
-  expect(sessionResponse.status()).toBe(200);
-  const session = await sessionResponse.json();
-  await ipc("age-activity", { target: session.session.id });
-  await button(page, "新建 Milestone").click();
-  await title(page).fill("浏览器 Milestone");
-  await editor(page)
-    .getByRole("textbox", { name: "描述", exact: true })
-    .fill("真实待清空描述");
-  await save(page, "structure");
-  await current(page, "浏览器 Milestone");
-  await title(page).fill("修改 Milestone");
-  await editor(page)
-    .getByRole("textbox", { name: "描述", exact: true })
-    .fill("");
-  await save(page);
-  await current(page, "修改 Milestone");
-  await expect(
-    editor(page).getByRole("textbox", { name: "描述", exact: true }),
-  ).toHaveValue("");
-  await realOrdering(page, data.work.main!.milestone_id, "milestone");
-  await go(page, path(data, "main", "milestone"));
-  await button(page, "新建 Sprint").click();
-  await title(page).fill("浏览器 Sprint");
-  await save(page, "structure");
-  await current(page, "浏览器 Sprint");
-  await title(page).fill("修改 Sprint");
-  await save(page);
-  await realOrdering(page, data.work.main!.sprint_id, "sprint");
-  await go(page, path(data, "main", "sprint"));
-  await button(page, "新建 Task").click();
-  await title(page).fill("浏览器 Task");
-  const createTask = button(editor(page), "创建 Task");
-  const taskPosts = () =>
-    seen.requests.filter(
-      (request) =>
-        request.method === "POST" &&
-        request.path === `/api/v1/projects/${data.work.main!.project_id}/tasks`,
-    );
-  // Required values are validated on explicit submission, before any command.
-  await expect(createTask).toBeEnabled();
-  await createTask.click();
-  await expect(
-    editor(page).getByText("请选择类型。", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    editor(page).getByText("请选择优先级。", { exact: true }),
-  ).toBeVisible();
-  expect(taskPosts()).toHaveLength(0);
-  await choose(page, "Task 类型", "功能");
-  await createTask.click();
-  await expect(
-    editor(page).getByText("请选择类型。", { exact: true }),
-  ).toHaveCount(0);
-  await expect(
-    editor(page).getByText("请选择优先级。", { exact: true }),
-  ).toBeVisible();
-  expect(taskPosts()).toHaveLength(0);
-  await choose(page, "Task 优先级", "中");
-  const plan = "  <script>literal</script>\n第二行 🧭  ";
-  await editor(page)
-    .getByRole("textbox", { name: "Plan", exact: true })
-    .fill(plan);
-  await save(page, "task");
-  await current(page, "浏览器 Task");
-  await expect
-    .poll(() => details(page).locator("p.raw").last().textContent())
-    .toBe(plan);
-  await choose(page, "Task 优先级", "高");
-  await title(page).fill("修改 Task");
-  await editor(page)
-    .getByRole("textbox", { name: "Plan", exact: true })
-    .fill("");
-  await save(page);
-  await current(page, "修改 Task");
-  await expect(details(page)).toContainText("尚未填写 Plan");
-  await realOrdering(page, data.work.main!.related_id, "task");
-  await button(page, "从首页读取阻塞记录").click();
-  await expect(
-    page.getByText("本页没有符合状态的阻塞记录。", { exact: true }),
-  ).toBeVisible();
-  // A separate real command advances the selected version; the UI must retain
-  // its original draft and require an explicit read/adopt, never auto-rebase.
-  await go(page, path(data, "main", "task"));
-  await current(page, data.work.main!.task_id);
-  await title(page).fill("保留冲突草稿");
-  await ipc("update", { resource: "task", text: "另一命令的当前 Plan" });
-  await button(editor(page), "保存修改").click();
-  await expect(
-    editor(page).getByText("版本冲突，原草稿与版本已保留。请先读取当前值。"),
-  ).toBeVisible();
-  await expect(title(page)).toHaveValue("保留冲突草稿");
-  await button(editor(page), "读取当前值").click();
-  await current(page, "另一命令的当前 Plan");
-  await expect(title(page)).toHaveValue("保留冲突草稿");
-  await button(page, "按当前值重新编辑").click();
-  await discard(page);
-  await expect(title(page)).toHaveValue("规划任务");
-  complete({
-    structure: true,
-    task: true,
-    plan: true,
-    ordering: true,
-    conflict: true,
-    current_receipt: true,
-    bodies: await seen.verify(),
+  const data = material();
+  let diagnostic!: Awaited<ReturnType<typeof startWorkNativeDiagnostic>>;
+  const seen = observe(page, {
+    firstMilestoneReorder: {
+      bind: (...args) => diagnostic.bindFirstMilestoneReorder(...args),
+      complete: (request, id) =>
+        diagnostic.firstMilestoneReorderComplete(request, id),
+    },
   });
+  diagnostic = await startWorkNativeDiagnostic(page, {
+    projects: [data.work.main!.project_id],
+    evidence,
+    repository,
+    classify: seen.declarationKind,
+    planningPolicy: "first-milestone-reorder",
+    firstMilestoneReorderEvidence: seen.firstMilestoneReorder!.evidence,
+  });
+  try {
+    await enter(page, data);
+    const sessionResponse = await page.request.get("/api/v1/session");
+    expect(sessionResponse.status()).toBe(200);
+    const session = await sessionResponse.json();
+    await ipc("age-activity", { target: session.session.id });
+    await button(page, "新建 Milestone").click();
+    await title(page).fill("浏览器 Milestone");
+    await editor(page)
+      .getByRole("textbox", { name: "描述", exact: true })
+      .fill("真实待清空描述");
+    await save(page, "structure");
+    await current(page, "浏览器 Milestone");
+    await title(page).fill("修改 Milestone");
+    await editor(page)
+      .getByRole("textbox", { name: "描述", exact: true })
+      .fill("");
+    await save(page);
+    await current(page, "修改 Milestone");
+    await expect(
+      editor(page).getByRole("textbox", { name: "描述", exact: true }),
+    ).toHaveValue("");
+    await realOrdering(page, data.work.main!.milestone_id, "milestone", {
+      seen,
+      diagnostic,
+    });
+    await go(page, path(data, "main", "milestone"));
+    await button(page, "新建 Sprint").click();
+    await title(page).fill("浏览器 Sprint");
+    await save(page, "structure");
+    await current(page, "浏览器 Sprint");
+    await title(page).fill("修改 Sprint");
+    await save(page);
+    await realOrdering(page, data.work.main!.sprint_id, "sprint");
+    await go(page, path(data, "main", "sprint"));
+    await button(page, "新建 Task").click();
+    await title(page).fill("浏览器 Task");
+    const createTask = button(editor(page), "创建 Task");
+    const taskPosts = () =>
+      seen.requests.filter(
+        (request) =>
+          request.method === "POST" &&
+          request.path ===
+            `/api/v1/projects/${data.work.main!.project_id}/tasks`,
+      );
+    // Required values are validated on explicit submission, before any command.
+    await expect(createTask).toBeEnabled();
+    await createTask.click();
+    await expect(
+      editor(page).getByText("请选择类型。", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      editor(page).getByText("请选择优先级。", { exact: true }),
+    ).toBeVisible();
+    expect(taskPosts()).toHaveLength(0);
+    await choose(page, "Task 类型", "功能");
+    await createTask.click();
+    await expect(
+      editor(page).getByText("请选择类型。", { exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      editor(page).getByText("请选择优先级。", { exact: true }),
+    ).toBeVisible();
+    expect(taskPosts()).toHaveLength(0);
+    await choose(page, "Task 优先级", "中");
+    const plan = "  <script>literal</script>\n第二行 🧭  ";
+    await editor(page)
+      .getByRole("textbox", { name: "Plan", exact: true })
+      .fill(plan);
+    await save(page, "task");
+    await current(page, "浏览器 Task");
+    await expect
+      .poll(() => details(page).locator("p.raw").last().textContent())
+      .toBe(plan);
+    await choose(page, "Task 优先级", "高");
+    await title(page).fill("修改 Task");
+    await editor(page)
+      .getByRole("textbox", { name: "Plan", exact: true })
+      .fill("");
+    await save(page);
+    await current(page, "修改 Task");
+    await expect(details(page)).toContainText("尚未填写 Plan");
+    await realOrdering(page, data.work.main!.related_id, "task");
+    await button(page, "从首页读取阻塞记录").click();
+    await expect(
+      page.getByText("本页没有符合状态的阻塞记录。", { exact: true }),
+    ).toBeVisible();
+    // A separate real command advances the selected version; the UI must retain
+    // its original draft and require an explicit read/adopt, never auto-rebase.
+    await go(page, path(data, "main", "task"));
+    await current(page, data.work.main!.task_id);
+    await title(page).fill("保留冲突草稿");
+    await ipc("update", { resource: "task", text: "另一命令的当前 Plan" });
+    await button(editor(page), "保存修改").click();
+    await expect(
+      editor(page).getByText("版本冲突，原草稿与版本已保留。请先读取当前值。"),
+    ).toBeVisible();
+    await expect(title(page)).toHaveValue("保留冲突草稿");
+    await button(editor(page), "读取当前值").click();
+    await current(page, "另一命令的当前 Plan");
+    await expect(title(page)).toHaveValue("保留冲突草稿");
+    await button(page, "按当前值重新编辑").click();
+    await discard(page);
+    await expect(title(page)).toHaveValue("规划任务");
+    complete({
+      structure: true,
+      task: true,
+      plan: true,
+      ordering: true,
+      conflict: true,
+      current_receipt: true,
+      bodies: await seen.verify(),
+    });
+  } finally {
+    seen.firstMilestoneReorder!.end();
+    await diagnostic.finish();
+  }
 });
 
 test("[blockers] two kinds, real dependency cycle refusal, resolution and stale pages", async ({

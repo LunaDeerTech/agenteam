@@ -13,6 +13,20 @@ const id = (n) => `01900000-0000-7000-8000-${String(n).padStart(12, "0")}`;
 const project = id(10),
   target = id(11),
   at = "2026-10-09T10:00:00.000000Z";
+const planningSpec = {
+  projectID: project,
+  targetID: target,
+  expectedVersion: "1",
+  beforeID: id(12),
+};
+const planningCommand = () => ({
+  domain: "structure",
+  projectID: project,
+  command: "work.milestone.reorder",
+  targetID: target,
+  expected_version: "1",
+  request: { before_id: id(12) },
+});
 const session = {
   user: {
     id: id(1),
@@ -128,7 +142,7 @@ function installer(file, name) {
       "workOrdinaryConsumption",
     ),
   );
-  let positiveReport, blockerReport;
+  let positiveReport, blockerReport, planningReport;
   function reportOf(e) {
     const requests = e.native.requests.map((n, i) => ({
       sequence: i + 1,
@@ -156,6 +170,22 @@ function installer(file, name) {
       response_at: 1,
       failed_at: n.request_id === id(98) ? null : 2,
       finished_event_at: n.request_id === id(98) ? 2 : null,
+      ...(e.planning
+        ? {
+            first_milestone_reorder: {
+              ...planningSpec,
+              bound: true,
+              joined: true,
+              invalid: false,
+              ended: true,
+              failedCount: 1,
+              finishedCount: 0,
+              aborted: true,
+              finishedStarted: false,
+              finishedNull: false,
+            },
+          }
+        : {}),
     }));
     return JSON.parse(
       JSON.stringify({
@@ -168,6 +198,7 @@ function installer(file, name) {
         context_closed: false,
         overflow: false,
         projection_rejected: 0,
+        ...(e.planning ? { planning_policy: "first-milestone-reorder" } : {}),
         requests,
         documents: [
           {
@@ -195,7 +226,10 @@ function installer(file, name) {
   const accepts = (e) => {
     const report = reportOf(e),
       request = report.requests.find((r) => r.request_id === id(100));
-    return !!request && judge(report, request.sequence, id(100));
+    return (
+      !!request &&
+      judge(report, request.sequence, id(100), false, e.planning === true)
+    );
   };
   const passed = [];
   async function check(name, fn) {
@@ -248,11 +282,13 @@ function installer(file, name) {
       readerEntered = deferred(),
       streamEntered = deferred();
     const endpoint =
-      kind === "lookup-blocker"
-        ? `/api/v1/projects/${project}/tasks/${target}/blocker-commands/lookup`
-        : ["structure", "lookup-task", "lookup-blocker"].includes(kind)
-          ? `/api/v1/projects/${project}/${kind === "structure" ? "structure" : "task"}-commands/lookup`
-          : `/api/v1/projects/${project}/${["milestone", "replay"].includes(kind) ? "milestones" : kind === "sprint" ? "sprints" : "tasks"}/${target}`;
+      kind === "planning"
+        ? `/api/v1/projects/${project}/milestones/${target}/reorder`
+        : kind === "lookup-blocker"
+          ? `/api/v1/projects/${project}/tasks/${target}/blocker-commands/lookup`
+          : ["structure", "lookup-task", "lookup-blocker"].includes(kind)
+            ? `/api/v1/projects/${project}/${kind === "structure" ? "structure" : "task"}-commands/lookup`
+            : `/api/v1/projects/${project}/${["milestone", "replay"].includes(kind) ? "milestones" : kind === "sprint" ? "sprints" : "tasks"}/${target}`;
     w.fetch = (url, init) => {
       if (url === "/api/v1/session")
         return Promise.resolve(
@@ -299,6 +335,17 @@ function installer(file, name) {
         );
       }
       assert.equal(url, endpoint);
+      if (kind === "planning" && !options.skipMaterial) {
+        const material = {
+          body: init.body,
+          key: new Headers(init.headers).get("idempotency-key"),
+          csrf: new Headers(init.headers).get("x-csrf-token"),
+          origin: w.location.origin,
+        };
+        if (options.wrongMaterial)
+          material[options.wrongMaterial] = "wrong-private-material";
+        w.__workPublicationDiagnostic.bindFirstRequest(planningSpec, material);
+      }
       if (kind === "replay" && init.method === "GET" && options.successorHeld)
         return successorHold.promise.then(
           () =>
@@ -323,7 +370,9 @@ function installer(file, name) {
       }
       assert.equal(
         init.method,
-        ["structure", "lookup-task", "lookup-blocker"].includes(kind)
+        ["structure", "lookup-task", "lookup-blocker", "planning"].includes(
+          kind,
+        )
           ? "POST"
           : ["replay", "replay-task"].includes(kind)
             ? "PATCH"
@@ -347,6 +396,20 @@ function installer(file, name) {
               command: "work.milestone.update",
               changed: true,
               milestone: { ...milestone, title: "original", version: "2" },
+              sprint: null,
+              event_id: id(20),
+            };
+      if (kind === "planning")
+        value = options.voidReceipt
+          ? null
+          : {
+              command: "work.milestone.reorder",
+              changed: !options.unchanged,
+              milestone: {
+                ...milestone,
+                version: options.wrongVersion ? "3" : "2",
+                ...(options.wrongTarget ? { id: id(15) } : {}),
+              },
               sprint: null,
               event_id: id(20),
             };
@@ -522,15 +585,35 @@ function installer(file, name) {
         original(...args).then(() => undefined);
     }
     if (options.voidFulfillment) {
-      const original = auth.workPlanning.retryOriginal;
-      auth.workPlanning.retryOriginal = (...args) =>
+      const method = kind === "planning" ? "start" : "retryOriginal";
+      const original = auth.workPlanning[method];
+      auth.workPlanning[method] = (...args) =>
         original(...args).then(() => undefined);
+    }
+    if (kind === "planning" && options.clonedFulfillment) {
+      const original = auth.workPlanning.start;
+      auth.workPlanning.start = (...args) =>
+        original(...args).then((value) => structuredClone(value));
+    }
+    let originalStartPromise;
+    if (kind === "planning") {
+      const original = auth.workPlanning.start;
+      auth.workPlanning.start = (...args) => {
+        originalStartPromise = original(...args);
+        return originalStartPromise;
+      };
     }
     vm.runInContext(
       `this.installNative=${nativeCode};this.installPublic=${publicCode}`,
       ctx,
     );
-    w.installNative({ projects: [project], expiresAt: Date.now() + 45000 });
+    w.installNative({
+      projects: [project],
+      expiresAt: Date.now() + 45000,
+      ...(kind === "planning"
+        ? { planningPolicy: "first-milestone-reorder" }
+        : {}),
+    });
     w.Function = function () {
       return async () => ({ singleton: () => auth });
     };
@@ -542,9 +625,17 @@ function installer(file, name) {
           export_name: "singleton",
         },
         expiresAt: Date.now() + 45000,
+        ...(kind === "planning"
+          ? { planningPolicy: "first-milestone-reorder" }
+          : {}),
       }),
       "installed",
     );
+    if (kind === "planning" && !options.skipArm)
+      assert.equal(
+        w.__workPublicationDiagnostic.armFirstMilestoneReorder(planningSpec),
+        true,
+      );
     if (kind === "replay-task") {
       lookupPreparing = true;
       await auth.workPlanning.checkOriginal();
@@ -563,17 +654,29 @@ function installer(file, name) {
     let settled = false,
       outcome = "pending";
     const call = () => {
-      const result = ["replay", "replay-task"].includes(kind)
-        ? auth.workPlanning.retryOriginal()
-        : ["structure", "lookup-task", "lookup-blocker"].includes(kind)
-          ? auth.workPlanning.checkOriginal()
-          : auth.workPlanning[
-              kind === "milestone"
-                ? "getMilestone"
-                : kind === "sprint"
-                  ? "getSprint"
-                  : "getTask"
-            ](project, target);
+      const result =
+        kind === "planning"
+          ? auth.workPlanning.start({
+              ...planningCommand(),
+              ...options.command,
+            })
+          : ["replay", "replay-task"].includes(kind)
+            ? auth.workPlanning.retryOriginal()
+            : ["structure", "lookup-task", "lookup-blocker"].includes(kind)
+              ? auth.workPlanning.checkOriginal()
+              : auth.workPlanning[
+                  kind === "milestone"
+                    ? "getMilestone"
+                    : kind === "sprint"
+                      ? "getSprint"
+                      : "getTask"
+                ](project, target);
+      if (kind === "planning")
+        assert.equal(
+          result,
+          originalStartPromise,
+          "public wrapper must return the exact original start Promise",
+        );
       void result.then(
         () => {
           settled = true;
@@ -587,6 +690,7 @@ function installer(file, name) {
       return result;
     };
     const finish = () => ({
+      planning: kind === "planning",
       originalReplayBound,
       replayPolicy:
         kind === "replay-task" ? "historical-task" : "not-observed-milestone",
@@ -631,6 +735,7 @@ function installer(file, name) {
     "lookup-task",
     "lookup-blocker",
     "replay",
+    "planning",
   ])
     await check(
       "actual " +
@@ -665,12 +770,19 @@ function installer(file, name) {
           assert.equal(accepts(e), true);
           if (kind === "milestone") positiveReport = reportOf(e);
           if (kind === "lookup-blocker") blockerReport = reportOf(e);
+          if (kind === "planning") planningReport = reportOf(e);
         } finally {
           await x.cleanup();
         }
       },
     );
-  for (const kind of ["milestone", "structure", "lookup-blocker", "replay"])
+  for (const kind of [
+    "milestone",
+    "structure",
+    "lookup-blocker",
+    "replay",
+    "planning",
+  ])
     for (const held of ["reader", "stream"])
       await check(
         "actual " +
@@ -713,7 +825,7 @@ function installer(file, name) {
           }
         },
       );
-  for (const kind of ["milestone", "lookup-blocker", "replay"])
+  for (const kind of ["milestone", "lookup-blocker", "replay", "planning"])
     for (const ending of ["abandon", "timer", "identity"])
       await check(
         "actual early " +
@@ -728,7 +840,7 @@ function installer(file, name) {
             await x.streamEntered.promise;
             await drain();
             if (ending === "abandon") {
-              if (["lookup-blocker", "replay"].includes(kind))
+              if (["lookup-blocker", "replay", "planning"].includes(kind))
                 x.auth.workPlanning.abandon();
               else x.auth.workPlanning.abandonRead();
             } else if (ending === "timer") x.timer();
@@ -785,6 +897,132 @@ function installer(file, name) {
         },
       );
 
+  for (const [issue, options] of [
+    ...[
+      "voidReceipt",
+      "voidFulfillment",
+      "clonedFulfillment",
+      "badJSON",
+      "badUTF8",
+      "wrongVersion",
+      "wrongTarget",
+      "unchanged",
+      "skipMaterial",
+      "skipArm",
+    ].map((name) => [name, { [name]: true }]),
+    ...["key", "csrf", "origin", "body"].map((name) => [
+      "wrong native/PW " + name,
+      { wrongMaterial: name },
+    ]),
+    ["wrong before_id", { command: { request: { before_id: id(14) } } }],
+    ["wrong expected_version", { command: { expected_version: "2" } }],
+  ])
+    await check("actual first reorder rejects " + issue, async () => {
+      const x = await setup("planning", options);
+      try {
+        await x.call().catch(() => {});
+        await drain();
+        const evidence = x.finish();
+        assert.equal(accepts(evidence), false);
+        assert.equal(x.auth.state.busy, false);
+      } finally {
+        await x.cleanup();
+      }
+    });
+  for (const tail of ["reader", "stream"])
+    await check(
+      "first reorder early retirement retains original " +
+        tail +
+        " pending and rejects late success",
+      async () => {
+        const x = await setup("planning", { [tail + "Held"]: true });
+        try {
+          const promise = x.call();
+          await x[tail + "Entered"].promise;
+          await drain();
+          const early = x.finish();
+          assert.equal(accepts(early), false);
+          assert(early.native.pending_at_retirement > 0);
+          assert(early.public.pending_at_retirement > 0);
+          x[tail === "reader" ? "releaseReader" : "releaseStream"]();
+          await promise;
+          await drain();
+          assert.equal(accepts(x.finish()), false);
+        } finally {
+          await x.cleanup();
+        }
+      },
+    );
+  await check(
+    "first wrong start occupies arm and later valid start cannot acquire proof",
+    async () => {
+      const x = await setup("planning", {
+        command: { request: { before_id: id(14) } },
+      });
+      try {
+        await x.call();
+        await drain();
+        await x.auth.workPlanning.start(planningCommand());
+        await drain();
+        const evidence = x.finish();
+        assert.equal(accepts(evidence), false);
+        assert.equal(evidence.public.calls[0].start_unique, false);
+        assert.equal(evidence.public.calls[0].start_input_matches, false);
+      } finally {
+        await x.cleanup();
+      }
+    },
+  );
+  await check(
+    "first reorder closed policy accepts original finished and rejects unknown or ordinary selection",
+    () => {
+      const report = structuredClone(planningReport),
+        row = report.requests[0];
+      row.failed_at = null;
+      row.finished_event_at = 2;
+      Object.assign(row.first_milestone_reorder, {
+        failedCount: 0,
+        finishedCount: 1,
+        finishedStarted: true,
+        finishedNull: true,
+      });
+      assert.equal(judge(report, 1, id(100), false, true), true);
+      assert.equal(judge(report, 1, id(100)), false);
+      report.planning_policy = "unknown";
+      assert.equal(judge(report, 1, id(100), false, true), false);
+      assert.equal(judge(positiveReport, 1, id(100), false, true), false);
+      for (const mutate of [
+        (r) => {
+          r.requests[0].first_milestone_reorder.bound = false;
+        },
+        (r) => {
+          r.requests[0].first_milestone_reorder.joined = false;
+        },
+        (r) => {
+          r.requests[0].first_milestone_reorder.ended = false;
+        },
+        (r) => {
+          r.requests[0].first_milestone_reorder.invalid = true;
+        },
+        (r) => {
+          r.requests[0].first_milestone_reorder.aborted = false;
+        },
+        (r) => {
+          r.requests[0].first_milestone_reorder.finishedStarted = true;
+        },
+        (r) => {
+          r.documents[0].publication.calls[0].start_receipt_published = false;
+        },
+        (r) => {
+          r.documents[0].publication.calls[0].start_unique = false;
+        },
+      ]) {
+        const bad = structuredClone(planningReport);
+        mutate(bad);
+        assert.equal(judge(bad, 1, id(100), false, true), false);
+      }
+    },
+  );
   for (const issue of ["voidReceipt", "voidFulfillment", "badSchema"])
     await check("actual original replay rejects " + issue, async () => {
       const x = await setup("replay", { [issue]: true });

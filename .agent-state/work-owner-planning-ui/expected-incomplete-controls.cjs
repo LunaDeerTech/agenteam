@@ -418,7 +418,10 @@ process.on("unhandledRejection", () => unhandled++);
       repository: "/repo",
       schemaProgram: "unchanged-schema",
       join: require("path").join,
-      expect: (value) => ({ toBe: (want) => assert.equal(value, want) }),
+      expect: (value) => ({
+        toBe: (want) => assert.equal(value, want),
+        toBeNull: () => assert.equal(value, null),
+      }),
       spawnSync: () => ({
         status: options.schemaStatus ?? 0,
         stdout: String(metaNames.length),
@@ -451,6 +454,10 @@ process.on("unhandledRejection", () => unhandled++);
           ts.isFunctionDeclaration(n) &&
           [
             "workIncompleteLedger",
+            "workFirstMilestoneReorder",
+            "capturedOriginalBody",
+            "originalBody",
+            "markWorkBodyAwait",
             "recordWorkFailureTail",
             "saveWorkFailureObservations",
             "workOrdinaryCompletionEvents",
@@ -476,6 +483,7 @@ process.on("unhandledRejection", () => unhandled++);
     };
     const observed = c.make(page, {
         ordinaryCompletion: options.ordinaryCompletion,
+        firstMilestoneReorder: options.firstMilestoneReorder,
       }),
       emit = (name, item) => {
         for (const fn of callbacks[name] ?? []) fn(item);
@@ -509,10 +517,11 @@ process.on("unhandledRejection", () => unhandled++);
         },
       };
       emit("response", r);
-      return { calls: () => calls };
+      return { calls: () => calls, original: r };
     }
     return {
       observed,
+      originalBody: c.originalBody,
       saveFailure: (status = "timedOut") =>
         c.saveWorkFailureObservations(status),
       context,
@@ -924,7 +933,7 @@ process.on("unhandledRejection", () => unhandled++);
     },
   );
   await check(
-    "originalBody/schema/decoder unchanged from accepted read02 input",
+    "schema and typed decoder unchanged from accepted read02 input",
     () => {
       const base = require("child_process").execFileSync(
         "git",
@@ -941,7 +950,7 @@ process.on("unhandledRejection", () => unhandled++);
         true,
       );
       const print = ts.createPrinter();
-      for (const name of ["originalBody", "decodeOriginal"]) {
+      for (const name of ["decodeOriginal"]) {
         const old = ast.statements.find(
             (n) => ts.isFunctionDeclaration(n) && n.name?.text === name,
           ),
@@ -966,6 +975,178 @@ process.on("unhandledRejection", () => unhandled++);
             .getText(t);
         assert.equal(pick(ast), pick(tree));
       }
+    },
+  );
+  const planningInput = {
+    projectID: project,
+    targetID: target,
+    expectedVersion: "7",
+    beforeID: key,
+  };
+  const planningRequest = (changes = {}) =>
+    req("lost-milestone-update", {
+      method: "POST",
+      url: `http://127.0.0.1:1/api/v1/projects/${project}/milestones/${target}/reorder`,
+      body: { expected_version: "7", request: { before_id: key } },
+      ...changes,
+    });
+  for (const terminal of ["finished", "failed"])
+    await check(
+      "planning original observe and body share one original terminal/finished: " +
+        terminal,
+      async () => {
+        const request = planningRequest();
+        let bound = 0;
+        const e = observerEnv({
+          reason: "aborted",
+          firstMilestoneReorder: {
+            bind: async (q, input, headers) => {
+              assert.equal(q, request);
+              assert.equal(input.beforeID, key);
+              assert.equal(headers.origin, new URL(q.url()).origin);
+              bound++;
+              return true;
+            },
+            complete: (q) => q === request,
+          },
+        });
+        const scope = e.observed.firstMilestoneReorder;
+        scope.arm(planningInput);
+        e.emit("request", request);
+        const r = e.response(
+          request,
+          terminal === "finished"
+            ? Promise.resolve(null)
+            : new Promise(() => {}),
+        );
+        const body = scope.body(r.original);
+        e.emit(
+          terminal === "finished" ? "requestfinished" : "requestfailed",
+          request,
+        );
+        await body;
+        scope.end();
+        await e.observed.verify();
+        assert.equal(bound, 1);
+        assert.equal(r.calls(), terminal === "finished" ? 1 : 0);
+        assert.equal(scope.verify(), true);
+      },
+    );
+  for (const change of [
+    { body: { expected_version: "8", request: { before_id: key } } },
+    { body: { expected_version: "7", request: { before_id: target } } },
+    {
+      url: `http://127.0.0.1:1/api/v1/projects/${project}/milestones/${key}/reorder`,
+    },
+    { method: "PATCH" },
+  ])
+    await check(
+      "planning wrong first mutation occupies slot " + Object.keys(change),
+      async () => {
+        const e = observerEnv({
+            firstMilestoneReorder: {
+              bind: async () => true,
+              complete: () => true,
+            },
+          }),
+          scope = e.observed.firstMilestoneReorder;
+        scope.arm(planningInput);
+        const wrong = planningRequest(change),
+          later = planningRequest();
+        e.emit("request", wrong);
+        e.emit("request", later);
+        await drainHeaders();
+        scope.end();
+        assert.equal(scope.selected(wrong), true);
+        assert.equal(scope.selected(later), false);
+        assert.equal(scope.verify(), false);
+      },
+    );
+  for (const failure of [
+    "material",
+    "duplicate",
+    "late",
+    "unconsumed",
+    "non-aborted",
+  ])
+    await check("planning original pair rejects " + failure, async () => {
+      let release;
+      const held = new Promise((r) => {
+        release = r;
+      });
+      const request = planningRequest();
+      const e = observerEnv({
+          reason: failure === "non-aborted" ? "connection-closed" : "aborted",
+          firstMilestoneReorder: {
+            bind: async () =>
+              failure === "late" ? await held : failure !== "material",
+            complete: () => failure !== "unconsumed",
+          },
+        }),
+        scope = e.observed.firstMilestoneReorder;
+      scope.arm(planningInput);
+      e.emit("request", request);
+      const response = e.response(request, new Promise(() => {}));
+      const body = scope.body(response.original);
+      const rejected = failure === "unconsumed" ? null : assert.rejects(body);
+      e.emit("requestfailed", request);
+      if (failure === "duplicate") e.emit("request", planningRequest());
+      if (failure === "late") {
+        await drainHeaders();
+        scope.end();
+        release(true);
+      }
+      if (rejected) await rejected;
+      else await body;
+      scope.end();
+      await assert.rejects(e.observed.verify());
+      assert.equal(response.calls(), 0);
+    });
+  await check(
+    "planning policy does not admit ordinary detail GET or other reorder",
+    async () => {
+      const e = observerEnv({
+          firstMilestoneReorder: {
+            bind: async () => true,
+            complete: () => true,
+          },
+        }),
+        scope = e.observed.firstMilestoneReorder;
+      const q = req("canceled-task-read"),
+        r = e.response(q, Promise.resolve(null));
+      e.emit("requestfinished", q);
+      await drainHeaders();
+      assert.equal(r.calls(), 1);
+      assert.equal(scope.selected(q), false);
+      assert.throws(() => scope.arm({ ...planningInput, beforeID: target }));
+      const wrong = planningRequest();
+      e.emit("request", wrong);
+      scope.arm(planningInput);
+      assert.equal(scope.selected(wrong), false);
+    },
+  );
+  await check(
+    "default originalBody retains original finished gate before captured body",
+    async () => {
+      const e = observerEnv(),
+        q = req("canceled-task-read");
+      let finish;
+      e.emit("request", q);
+      const r = e.response(
+        q,
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+      );
+      let returned = false;
+      const body = e.originalBody(r.original).then(() => {
+        returned = true;
+      });
+      await drainHeaders();
+      assert.equal(returned, false);
+      finish(null);
+      await body;
+      assert.equal(returned, true);
     },
   );
   const ownedHeaders = {

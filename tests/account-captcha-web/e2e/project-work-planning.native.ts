@@ -16,6 +16,7 @@ export function installWorkNativeDiagnostic(config: {
   projects: string[];
   expiresAt: number;
   projectRefreshCompletion?: boolean;
+  planningPolicy?: "first-milestone-reorder";
 }) {
   const host = window as any;
   if (host.__workNativeDiagnostic || Date.now() >= config.expiresAt) return;
@@ -104,10 +105,21 @@ export function installWorkNativeDiagnostic(config: {
       /^\/api\/v1\/projects\/[^/]+$/.test(url.pathname) &&
       uuid.test(url.pathname.split("/")[4]!) &&
       config.projects.includes(url.pathname.split("/")[4]!);
+    const firstReorder =
+      config.planningPolicy === "first-milestone-reorder" &&
+      !retired &&
+      host.__workPublicationDiagnostic?.selectStartFetch(method, url.pathname, {
+        body: typeof init?.body === "string" ? init.body : null,
+        key: new Headers(init?.headers).get("idempotency-key"),
+        csrf: new Headers(init?.headers).get("x-csrf-token"),
+        origin: url.origin,
+        hasQuery: !!url.search,
+      }) === true;
     const selected =
       !retired &&
       url.origin === location.origin &&
-      (projectRoot ||
+      (firstReorder ||
+        projectRoot ||
         (match &&
           uuid.test(match[1]!) &&
           config.projects.includes(match[1]!) &&
@@ -398,6 +410,7 @@ export function workOrdinaryConsumption(
   sequence: number,
   requestID: string,
   projectRefresh = false,
+  firstMilestoneReorder = false,
 ): boolean {
   function completed(
     sequence: number,
@@ -443,10 +456,13 @@ export function workOrdinaryConsumption(
       pw.status !== 200 ||
       pw.declaration !== null ||
       !(
-        ((projectRefresh || historyLookup?.finished === true) &&
+        ((projectRefresh ||
+          firstMilestoneReorder ||
+          historyLookup?.finished === true) &&
           pw.failed_at === null &&
           Number.isFinite(pw.finished_event_at) &&
           (historyLookup?.finished === true ||
+            firstMilestoneReorder ||
             (pw.project_terminal === "finished" &&
               pw.project_failed_count === 0 &&
               pw.project_finished_count === 1))) ||
@@ -488,6 +504,34 @@ export function workOrdinaryConsumption(
       uuid.test(parts[6]) &&
       parts[7] === "blocker-commands" &&
       parts[8] === "lookup";
+    const planning = pw.first_milestone_reorder;
+    const firstReorder =
+      firstMilestoneReorder &&
+      report.planning_policy === "first-milestone-reorder" &&
+      parts.length === 8 &&
+      parts[5] === "milestones" &&
+      parts[7] === "reorder" &&
+      pw.method === "POST" &&
+      uuid.test(parts[6]) &&
+      planning?.projectID === parts[4] &&
+      planning.targetID === parts[6] &&
+      uuid.test(planning.beforeID) &&
+      planning.beforeID !== planning.targetID &&
+      /^[1-9][0-9]{0,18}$/.test(planning.expectedVersion) &&
+      planning.bound === true &&
+      planning.joined === true &&
+      planning.invalid === false &&
+      planning.ended === true &&
+      ((planning.finishedCount === 1 &&
+        planning.failedCount === 0 &&
+        planning.finishedStarted === true &&
+        planning.finishedNull === true &&
+        pw.failed_at === null) ||
+        (planning.finishedCount === 0 &&
+          planning.failedCount === 1 &&
+          planning.aborted === true &&
+          planning.finishedStarted === false &&
+          pw.finished_event_at === null));
     const originalReplay =
       parts.length === 7 &&
       pw.method === "PATCH" &&
@@ -512,7 +556,9 @@ export function workOrdinaryConsumption(
         ? lookup && parts[5] === "task-commands"
         : projectRefresh
           ? project
-          : detail || lookup || blockerLookup || originalReplay)
+          : firstMilestoneReorder
+            ? firstReorder
+            : detail || lookup || blockerLookup || originalReplay)
     )
       return false;
     const matches = report.documents.flatMap((doc: any) =>
@@ -613,6 +659,16 @@ export function workOrdinaryConsumption(
       call.settled_at > call.sample_at
     )
       return false;
+    if (firstReorder)
+      return (
+        call.operation === "start" &&
+        call.target_id === parts[6] &&
+        call.result_kind === "typed-receipt-returned" &&
+        call.start_input_matches === true &&
+        call.start_unique === true &&
+        call.start_material_bound === true &&
+        call.start_receipt_published === true
+      );
     if (project)
       return (
         call.operation === "getProject" &&
@@ -717,9 +773,18 @@ export async function startWorkNativeDiagnostic(
       lookup_finished: boolean;
     } | null;
     ordinaryCompletion?: boolean;
+    planningPolicy?: "first-milestone-reorder";
+    firstMilestoneReorderEvidence?: (
+      request: PWRequest,
+    ) => Record<string, unknown> | null;
     projectRefreshCompletion?: boolean;
   },
 ) {
+  if (
+    config.planningPolicy !== undefined &&
+    config.planningPolicy !== "first-milestone-reorder"
+  )
+    throw Error("WORK_PLANNING_POLICY");
   const expiresAt = Date.now() + 45_000;
   const binding = await workSessionBinding(
     config.repository,
@@ -729,6 +794,7 @@ export async function startWorkNativeDiagnostic(
     projects: config.projects,
     expiresAt,
     projectRefreshCompletion: config.projectRefreshCompletion,
+    planningPolicy: config.planningPolicy,
   });
   const rows = new Map<PWRequest, any>(),
     documents = new Map<string, any>();
@@ -767,6 +833,15 @@ export async function startWorkNativeDiagnostic(
         uuid.test(path.split("/")[4]!) &&
         config.projects.includes(path.split("/")[4]!)
       );
+    if (
+      config.planningPolicy === "first-milestone-reorder" &&
+      /^\/api\/v1\/projects\/[^/]+\/milestones\/[^/]+\/reorder$/.test(path)
+    )
+      return (
+        uuid.test(path.split("/")[4]!) &&
+        uuid.test(path.split("/")[6]!) &&
+        config.projects.includes(path.split("/")[4]!)
+      );
     const match =
       /^\/api\/v1\/projects\/([^/]+)\/(milestones|sprints|tasks|structure-commands|task-commands)(?:\/([^/]+))?(?:\/(blockers|blocker-commands)(?:\/([^/]+))?)?$/.exec(
         path,
@@ -784,6 +859,11 @@ export async function startWorkNativeDiagnostic(
     ["GET", "POST", "PATCH", "DELETE"].includes(request.method());
   const requested = (request: PWRequest) => {
     if (stopped || !selected(request)) return;
+    if (
+      new URL(request.url()).pathname.endsWith("/reorder") &&
+      !config.firstMilestoneReorderEvidence?.(request)
+    )
+      return;
     if (rows.size >= 256) {
       overflow = true;
       return;
@@ -894,7 +974,7 @@ export async function startWorkNativeDiagnostic(
         ? "history_lookup_call_id call_id call_at fulfilled rejected synchronous_throws native_requests native_sequence settled_at workspace_returned workspace_rejected workspace_settled_at detail_observed_after_fulfilled_at confirmed_observed_after_fulfilled_at sample_at"
         : "sequence call_id status readers read_calls read_settled read_rejected bytes reader_cancel_calls reader_cancel_settled reader_cancel_rejected stream_cancel_calls stream_cancel_settled stream_cancel_rejected release_calls release_successes abort_events headers_order read_done_order read_rejected_order abort_order reader_cancel_order stream_cancel_order release_order content_length",
       publication
-        ? "history_receipt_published replay_from_history replay_from_not_observed replay_receipt_published workspace_published workspace_canonical result_target_matches entry_identity_matches entry_not_busy active identity_current authenticated not_busy detail_target_present entry_detail_target_present recovery_confirmed entry_recovery_confirmed recovery_uncertain replay_available"
+        ? "start_input_matches start_unique start_material_bound start_receipt_published history_receipt_published replay_from_history replay_from_not_observed replay_receipt_published workspace_published workspace_canonical result_target_matches entry_identity_matches entry_not_busy active identity_current authenticated not_busy detail_target_present entry_detail_target_present recovery_confirmed entry_recovery_confirmed recovery_uncertain replay_available"
         : "has_query headers_seen read_done cancel_before_eof signal_aborted_at_start signal_aborted content_length_present content_length_valid content_encoding_identity eof_before_interruption length_comparable_before_binding length_matches_before_binding",
     );
     result.method = row.method;
@@ -904,6 +984,7 @@ export async function startWorkNativeDiagnostic(
         !uuid.test(row.target_id) ||
         ![
           ...(config.projectRefreshCompletion ? ["getProject"] : []),
+          ...(config.planningPolicy ? ["start"] : []),
           "getMilestone",
           "getTask",
           "getSprint",
@@ -1087,6 +1168,12 @@ export async function startWorkNativeDiagnostic(
       const replay = config.replayEvidence?.(request);
       return {
         ...row,
+        ...(config.planningPolicy
+          ? {
+              first_milestone_reorder:
+                config.firstMilestoneReorderEvidence?.(request) ?? null,
+            }
+          : {}),
         ...(replay
           ? {
               replay_policy: replay.policy,
@@ -1170,8 +1257,13 @@ export async function startWorkNativeDiagnostic(
       },
     }));
     const report = {
-      diagnostic_only: !config.ordinaryCompletion,
-      ordinary_finished_gate_unchanged: !config.ordinaryCompletion,
+      diagnostic_only: !(config.ordinaryCompletion || config.planningPolicy),
+      ordinary_finished_gate_unchanged: !(
+        config.ordinaryCompletion || config.planningPolicy
+      ),
+      ...(config.planningPolicy
+        ? { planning_policy: config.planningPolicy }
+        : {}),
       observation_finished: stopped,
       samples,
       sample_settled: settled,
@@ -1205,6 +1297,88 @@ export async function startWorkNativeDiagnostic(
   }
   sample();
   return {
+    async armFirstMilestoneReorder(input: {
+      projectID: string;
+      targetID: string;
+      expectedVersion: string;
+      beforeID: string;
+    }) {
+      if (
+        !config.planningPolicy ||
+        stopped ||
+        pageClosed ||
+        contextClosed ||
+        Date.now() >= expiresAt ||
+        !(await page.evaluate(
+          (value) =>
+            (
+              window as any
+            ).__workPublicationDiagnostic?.armFirstMilestoneReorder(value) ===
+            true,
+          input,
+        ))
+      )
+        throw Error("WORK_FIRST_REORDER_PUBLIC_ARM");
+    },
+    async bindFirstMilestoneReorder(
+      request: PWRequest,
+      input: {
+        projectID: string;
+        targetID: string;
+        expectedVersion: string;
+        beforeID: string;
+      },
+      headers: Record<string, string>,
+    ) {
+      if (
+        !config.planningPolicy ||
+        stopped ||
+        pageClosed ||
+        contextClosed ||
+        Date.now() >= expiresAt ||
+        !rows.has(request)
+      )
+        return false;
+      const matched = await page.evaluate(
+        ({ input, material }) =>
+          (window as any).__workPublicationDiagnostic?.bindFirstRequest(
+            input,
+            material,
+          ) === true,
+        {
+          input,
+          material: {
+            body: request.postData(),
+            key: headers["idempotency-key"],
+            csrf: headers["x-csrf-token"],
+            origin: headers.origin,
+          },
+        },
+      );
+      return (
+        matched &&
+        !stopped &&
+        !pageClosed &&
+        !contextClosed &&
+        Date.now() < expiresAt
+      );
+    },
+    firstMilestoneReorderComplete(request: PWRequest, requestID: string) {
+      const row = rows.get(request);
+      return (
+        config.planningPolicy === "first-milestone-reorder" &&
+        stopped &&
+        !!row &&
+        row.request_id === requestID &&
+        workOrdinaryConsumption(
+          finalReport,
+          row.sequence,
+          requestID,
+          false,
+          true,
+        )
+      );
+    },
     async armOriginalReplay(
       policy: "not-observed-milestone" | "historical-task",
     ) {
@@ -1403,6 +1577,7 @@ export async function startWorkNativeDiagnostic(
       const work = page.evaluate(installWorkPublicationDiagnostic, {
         binding,
         expiresAt,
+        planningPolicy: config.planningPolicy,
       });
       const observed = work
         .then(
