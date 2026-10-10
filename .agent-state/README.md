@@ -4,7 +4,7 @@
 
 ## 状态归属
 
-- **全局协调分支的 `current.md`**：保存最小活动任务索引，每项只记分支名、任务、负责人或活跃会话归属、上游提交或分支与版本、集成状态、下一步。使用实际指定的协调分支，不另建永久台账；只更新变化，不搬运各分支流水。
+- **全局协调分支的 `current.md`**：保存最小活动任务索引，每项只记分支名、任务、负责人或活跃会话归属、上游提交或分支与版本、集成状态、下一步；待清理或保留项在此注明真实用途、owner 及原因。使用实际指定的协调分支，不另建永久台账；只更新变化，不搬运各分支流水。
 - **各功能分支的 [current.md](current.md)**：是该任务恢复细节的唯一来源，记录目标、进行中/阻塞/完成状态、分支与基线、上下游契约版本、必要文件、已完成/未完成、实际检查及失败限制、依赖与复现命令、下一步。分支有唯一活动写会话和状态文件作者。
 - [任务台账](../docs/development/agent-team/tasks.md)继续保存正式总体产品状态，不复制各 worktree 进度。源码、测试 harness、probe 和不可再生的脱敏输入进入正式路径或受跟踪的 `.agent-state/<task>/`；原始日志和可重建产物放忽略的 `output/ai/<task>/`。
 
@@ -60,15 +60,17 @@ git log --oneline --branches --not --remotes
 
 对列出的每个已有 worktree，分别检查 `git -C <该目录> status --short --branch`，识别 dirty 文件、当前分支、活动写会话和未推送提交。最后一条只反映本地已知远端信息，fetch 后再核对；远端缺失的本地任务分支也必须保留。保留现有改动，不用 reset、clean、强制切换或覆盖目录。需要保存时，按文件与分支归属协调其 root/作者先 checkpoint。
 
-**显式 fetch 最新 `main` 和全部 `ai/*`**，避免 `--single-branch` clone 或受限 refspec 只取默认主分支：
+**显式 fetch 最新 `main` 和全部 `ai/*`，并 prune 已删除的远端跟踪引用**，避免 `--single-branch` clone 或受限 refspec 只取默认主分支：
 
 ```sh
-git fetch origin 'refs/heads/main:refs/remotes/origin/main' 'refs/heads/ai/*:refs/remotes/origin/ai/*'
+git fetch --prune origin 'refs/heads/main:refs/remotes/origin/main' 'refs/heads/ai/*:refs/remotes/origin/ai/*'
 git show origin/main:AGENTS.md
 git show origin/main:docs/development/agent-team/README.md
 git show origin/main:.agent-state/README.md
 git for-each-ref --sort=-committerdate --format='%(refname:short)' refs/remotes/origin/ai/
 ```
+
+这里的 prune 仅刷新上述范围的远端跟踪引用，不删除本地分支或任何 worktree。远端任务已删除而本地仍存在时，先按[清理操作与跨环境接续](#清理操作与跨环境接续)核对交付、归属和独有成果；不要直接运行 checkpoint 或重新 push 旧分支。
 
 先采用最新 `origin/main` 的工作规范，并按任务补读其相关技能；旧功能分支的规范不能覆盖新规范。代码仍以任务记录的基线和已保存进度恢复，读取最新规范不等于把 `main` 自动合入所有任务。
 
@@ -106,4 +108,34 @@ git worktree add --no-track -b "$task_branch" "$task_tree" "origin/$task_branch"
 
 候选分支的 `current.md` 记录实际组合版本、已通过/失败/未验证范围和下一条联调路径；协调索引只更新相应集成状态。保留权限、数据、事务、协议、竞争及恢复等高风险关键验证，不用接口声明、stub 或基础自测替代真实集成事实。
 
-`main` 只接正式验收结果，不承接多个未验模块的组合试验。验收后由 root 整理 WIP 为完整结果的 Conventional Commit，将实现、测试、必要文档和状态一并交付；不另造 `docs archive` 或补哈希提交。状态作者将任务记为完成并指出下一步，协调索引仅同步变化，避免下次恢复重复已完成任务。
+`main` 只接正式验收结果，不承接多个未验模块的组合试验。验收后由 root 整理 WIP 为完整结果的 Conventional Commit，将实现、测试、必要文档和状态一并交付；不另造 `docs archive` 或补哈希提交。状态作者按该分支的当前完整任务范围记为完成并指出下一步，协调索引仅同步变化；`main` 推送确认后转入下述清理，避免下次恢复重复已完成任务。
+
+## 清理操作与跨环境接续
+
+触发时机、授权与成立条件统一见[已完成分支与 worktree 清理](../docs/development/agent-team/README.md#已完成分支与-worktree-清理)。以下由 root 针对**一个已明确归属的候选任务**执行，不提供按日期、名称或 merged 列表批量删除的命令。
+
+1. **发现与核对归属。** 先按上文检查所有本地 worktree、分支及未推送提交，再显式 fetch 最新 `main` 与 `ai/*`。读取最新协调索引和候选分支 `current.md`，确认没有复用为新任务、其他会话或上下游仍在使用，也没有待接续的阻塞工作；离线或无法联系的 owner 不能推定为已停写。内容与材料的核对交执行者，root 核对其结论及 Git 状态。
+2. **确认完整交付与材料。** 对照本次实际范围、主线交付、必要材料的位置和仍保留远端引用的用途。`--merged`、左右独有提交数、`close` 标题或单一文件 diff 均不能独立证明可删；对 squash 后的独有 WIP 提交，结合交付记录与限定内容比较，区分已交付内容、仍需材料与无须保留的流水；不要求永久保存重复 WIP、纯关闭状态或可再生日志。dirty、untracked、ignored 的关键材料或未推送提交先保留并处理，不以 worktree 看似干净代替材料检查。
+3. **停止依赖并逐对象清理。** 确认相关作者与后台写入停止，自有命令、进程及资源已结束或明确迁离；停止 Git 写入并不代表进程已退出。root 从另一个保留的 worktree 逐个移除已核清的 worktree，再删除不再需要的本地分支和远端分支；每一步失败或状态变化就停在当前结果，不强制绕过。
+4. **核实并记录结果。** 用 `git worktree list --porcelain`、本地引用查询和 `git ls-remote --heads` 分别核对实际结果；远端缺失只有在查询成功且对应引用为空时才成立。部分失败、离线目录或必要保留项仍记在已有协调索引并注明原因，全部完成后移出活动索引；交付简报记录已清理与保留对象，不新增永久清理台账。
+
+root 可在明确设置实际目录与单一分支后，用以下只读查询辅助核对；命令输出不能替代 owner 的停写、完成及材料结论：
+
+```sh
+repo_tree=/chosen/path/retained-worktree
+task_tree=/chosen/path/completed-task
+task_branch=ai/completed-task
+git -C "$repo_tree" worktree list --porcelain
+git -C "$task_tree" status --short --branch --untracked-files=all
+git -C "$task_tree" ls-files --others --ignored --exclude-standard
+git -C "$repo_tree" log --oneline "$task_branch" --not "origin/$task_branch"
+git -C "$repo_tree" ls-remote --heads origin "refs/heads/$task_branch"
+```
+
+比较命令仅在相应本地分支和远端跟踪引用均存在且已刷新后使用；远端缺失时直接保护本地成果并查明原因，不把查询失败或不存在的引用当作无独有提交。ignored 列表只用于定位可能丢失的材料，不读取凭据或私人配置；不可再生的必要材料由 owner 精简、脱敏后保存，再重新核对。
+
+所有条件成立后，逐个使用 `git -C "$repo_tree" worktree remove "$task_tree"` 和 `git -C "$repo_tree" branch -d "$task_branch"`。`-d` 是否通过不是主线交付证据；如仅因 squash、cherry-pick 或原子整合未形成祖先关系而被拒绝，执行负责人已核实全部实际成果和必要材料可从 `main` 或明确保留的远端引用恢复，且无独有未保存成果、无任何 worktree 挂载或活跃依赖时，root 可对**这个已核定的冗余本地引用**使用 `branch -D`。该例外只删除冗余引用，不授权丢弃改动、未交付内容、未保存证据或强制移除 worktree；任何条件不确定就保留。
+
+删除远端前，root 再次 fetch 候选引用并用 `ls-remote` 核对实际 tip，确认与清理结论的输入一致且没有活跃 writer，随后才逐个执行 `git -C "$repo_tree" push origin --delete "$task_branch"`。普通删除命令不会锁定上一次查询的 tip；预先查询也不能替代明确的单写归属与停写。发现远端前进、归属变化或无法排除并发写入时停止清理并重新核对，不强推覆盖，也不把远端缺失的旧任务自动重新发布。删除后再次查询远端并显式 fetch/prune 刷新本地远端跟踪引用。
+
+远端删除不影响其他机器或离线环境的本地分支、worktree 和文件。该环境下次恢复时先保留本地改动，读取最新工作规范、协调索引和主线交付，按上文 fetch/prune 清除过期远端跟踪引用。已完成且已删除的旧任务不再执行自动 checkpoint/push；有独有未保存成果时先核归属并另行保存，需要新增工作时从确认基线建立新任务分支。只有本机对应对象重新满足清理条件后，root 才移除其本地 worktree 与分支；不把 remote prune 或 `git worktree prune` 当作删除其他环境目录、结束进程或保存成果的手段。
