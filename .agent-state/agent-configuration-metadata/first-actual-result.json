@@ -101,12 +101,42 @@
         "fixed_input": "output/ai/agent-configuration-metadata/metadata-02-inputs.json",
         "launcher": "output/ai/agent-configuration-metadata/metadata-launcher.py"
       }
+    },
+    {
+      "name": "metadata03",
+      "status": "wholeFAIL",
+      "failure_class": "same-process capacity preflight; no business body",
+      "terminal_chunk": "85ae5d",
+      "outer_pid": 710044,
+      "actual_outer_exit": 1,
+      "started_utc": "2026-10-10T12:23:46Z",
+      "finished_utc": "2026-10-10T12:23:46Z",
+      "fresh_available_bytes": 5022830592,
+      "minimum_bytes": 5368709120,
+      "supervisor_driver_go_or_resource_started": false,
+      "descendant_observations": [
+        [],
+        []
+      ],
+      "adopted_actual_waits": [],
+      "tcp_baseline_taken": false,
+      "input_tail": "not accepted: capacity check preceded binary parsing; the original false field is preserved, not interpreted as a source change",
+      "candidate": {
+        "bytes": 44600867,
+        "sha256": "cac43b306727fc8fb0217da7f4674df57759e52ce4f620ba4e0e1f41509ff79d"
+      },
+      "planned_runtime_inputs": {
+        "count": 1202,
+        "sha256": "d9a108d93220e76f83942f2f32412b1e3c738dec954cc17843d90c90b9c3e0ef"
+      },
+      "original_result": "output/ai/agent-configuration-metadata/metadata-03-control/result.json",
+      "window_released": true
     }
   ],
-  "next": "fixture author diagnoses the first formal Model-create rejection before any new build/run authorization",
+  "next": "corrected candidate is ready; require changed capacity evidence and a new explicit window before another same-process preflight",
   "limitations": [
     "No joint metadata subtest passed; compilation/list and unchanged module unit evidence retain only their original scope",
     "No Agent, References, F1, production initializer or Runtime authorization completion",
-    "Existing STOPs unchanged; no automatic third run"
+    "Existing STOPs unchanged; no automatic retry after a failed preflight or real run"
   ]
 }

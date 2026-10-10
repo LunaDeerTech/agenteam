@@ -143,5 +143,10 @@ The list printed only `TestAgentConfigurationMetadata`; the source still has
 the same three subtests. The original compile03 logs/manifests/result remain
 under `output/ai/agent-configuration-metadata/compile-03/`. This outcome note
 changes only README/current after compilation, not Go source. The entry owner
-must generate the final native03 closure after this note is frozen. Metadata
-01/02 failures remain; successful compilation is not joint business acceptance.
+generated the final native03 closure with all 1182 compile paths retained.
+Metadata03 then stopped at the same-process 5 GiB disk gate (5,022,830,592
+available bytes), before supervisor, Go, Docker or sockets. Outer 710044 ended
+85ae5d/1 at 12:23:46 UTC with empty descendant tails; no business subtest ran.
+The original failure and absence of a TCP/input acceptance tail are preserved
+in [the safe result](first-actual-result.json). Metadata01/02 and compile02
+failures also remain; successful compilation is not joint business acceptance.
