@@ -12,38 +12,38 @@ import (
 
 const maxRepresentationBytes = 7 << 20
 
-func invalidInput() error { return f.NewFault(f.InvalidArgument, f.NotStarted) }
+func invalidInput() error  { return f.NewFault(f.InvalidArgument, f.NotStarted) }
 func badProjection() error { return f.NewFault(f.DependencyUnavailable, f.NotStarted) }
 
 type creatorDTO struct {
-	Kind id.ActorKind `json:"kind"`
-	User string `json:"user_id,omitempty"`
-	Project string `json:"project_id,omitempty"`
-	Agent string `json:"agent_id,omitempty"`
-	Execution string `json:"execution_id,omitempty"`
+	Kind      id.ActorKind `json:"kind"`
+	User      string       `json:"user_id,omitempty"`
+	Project   string       `json:"project_id,omitempty"`
+	Agent     string       `json:"agent_id,omitempty"`
+	Execution string       `json:"execution_id,omitempty"`
 }
 type documentDTO struct {
-	ID kc.DocumentID `json:"id"`
-	ProjectID id.ProjectID `json:"project_id"`
-	ParentDocumentID *kc.DocumentID `json:"parent_document_id"`
-	Title string `json:"title"`
-	ContentVersion f.Version `json:"content_version"`
-	SourceKind kc.SourceKind `json:"source_kind"`
-	MediaType string `json:"media_type"`
-	Status kc.DocumentStatus `json:"status"`
-	IndexingStatus kc.IndexingStatus `json:"indexing_status"`
-	CreatedBy creatorDTO `json:"created_by"`
-	CreatedAt f.Instant `json:"created_at"`
-	UpdatedAt f.Instant `json:"updated_at"`
+	ID               kc.DocumentID     `json:"id"`
+	ProjectID        id.ProjectID      `json:"project_id"`
+	ParentDocumentID *kc.DocumentID    `json:"parent_document_id"`
+	Title            string            `json:"title"`
+	ContentVersion   f.Version         `json:"content_version"`
+	SourceKind       kc.SourceKind     `json:"source_kind"`
+	MediaType        string            `json:"media_type"`
+	Status           kc.DocumentStatus `json:"status"`
+	IndexingStatus   kc.IndexingStatus `json:"indexing_status"`
+	CreatedBy        creatorDTO        `json:"created_by"`
+	CreatedAt        f.Instant         `json:"created_at"`
+	UpdatedAt        f.Instant         `json:"updated_at"`
 }
 type textDTO struct {
-	Text string `json:"text"`
+	Text           string     `json:"text"`
 	NextByteOffset f.Progress `json:"next_byte_offset"`
-	Truncated bool `json:"truncated"`
+	Truncated      bool       `json:"truncated"`
 }
 type contentDTO struct {
-	Document documentDTO `json:"document"`
-	Text *textDTO `json:"text,omitempty"`
+	Document    documentDTO             `json:"document"`
+	Text        *textDTO                `json:"text,omitempty"`
 	Unavailable *kc.ReadableUnavailable `json:"unavailable,omitempty"`
 }
 

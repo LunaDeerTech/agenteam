@@ -28,7 +28,7 @@ type accountBoundary interface {
 	WriteProblem(http.ResponseWriter, *http.Request, error)
 }
 type handler struct {
-	reader contentReader
+	reader   contentReader
 	boundary accountBoundary
 }
 
@@ -42,7 +42,7 @@ func NewHTTPHandler(service *knowledge.Service, boundary *account.HTTPBoundary) 
 
 type route struct {
 	project, document string
-	valid bool
+	valid             bool
 }
 
 func contentRoute(path string) route {
