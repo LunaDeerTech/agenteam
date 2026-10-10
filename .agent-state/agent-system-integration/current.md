@@ -1,4 +1,14 @@
-# 当前有限组合：StartSprint 与 Scheduler claim/pending 真实原子链通过
+# 当前有限组合：Task Launch 业务通过，HOST_TCP 收尾未通过
+
+本地 source `281fc3cb` 的 Work TaskLaunch Provider、Scheduler handoff、fixture 与 exact selector 已获有限独审接受；前置 pure01 为8个新top race与3pkg vet **wholePASS**，原全部调用尾关闭。`scheduler-launch-compile-01` **wholePASS**，原race-c12.737s、exact list1.067s恰 `TestSchedulerLaunch`，713编译输入不变。Git凭据401曾阻塞推送；环境恢复后root已完成远端fetch，并成功推送 `281fc3cb` 与 `07dea4a9`，本批代码现已远端保存。原401失败保留为历史事实。
+
+`scheduler-launch-01` 原 **wholeFAIL**（session12904→afe0f5，2026-10-10 17:48:24–17:52:04 UTC）：1top/2sub业务全部PASS，共24.45s（created关联与重放12.31s、关联事务回滚后原key Lookup恢复12.13s）。Go1013833/driver1012161原Wait0，supervisor1012138/outer1012093原Wait1；唯一失门为原supervisor与outer各自75s HOST_TCP尾仍有1条delta。原记录没有保存该tuple，不能回填其身份或归因产品。七资源14absence、private/runtime/descendant双尾、outer survivors/adopted空均已记录，1411运行输入初尾一致。所有本批owned进程已退出、窗口与热缓存已交回，但不称host TCP全空，不自动重跑。
+
+有限业务结果仅为真实Task来源授权、Execution created/唯一Agent slot、原Dispatch关联/重放，以及Execution真实提交后关联事务实际回滚再只读Lookup恢复；不冒Execution physical COMMIT Unknown矩阵、preparing或Loop。Busy等明确未创建结果保持pending/known_not_created，尚无补偿、自动retry或完整调度遍历。旧成功 `scheduler-claim-race-01.test` 已按精确授权退休，原源码/launcher/inputs/PASS结果保留；本轮 `scheduler-launch-race-01.test` 与现有FAIL材料保留。
+
+最小恢复源码为本目录 [compile launcher](scheduler-launch-compile-01-launcher.py) 与 [native launcher](scheduler-launch-launcher-01.py)，均固定source `281fc3cb`；先恢复到 `output/ai/agent-system-integration/` 下同名位置再使用，native根路径依赖该位置。原输入 `scheduler-launch-01-inputs.json`、compile结果 `scheduler-launch-compile-01/result.json`、PG结果 `scheduler-launch-01-control/result.json` 均在该output目录；pure结果在 `output/ai/task-launch/combined-pure-01/result.json`。环境恢复后已只读确认这三份结果仍在；原 `/tmp/sln01/pg-2ca488dbd4bc448287d4357ef0d2a22f.log` 已不存在，保留的 `supervisor.log` 仅有原exit1与日志指针，不能补造原PG明细或TCP tuple。PG result仍保留wholeFAIL、sup Wait1、TCP empty0/delta1与1411输入初尾相同。本批到此停止；后继须另获窗口并用新输出，不覆盖本轮FAIL。
+
+## 已完成的 StartSprint 与 Scheduler claim/pending 真实原子链
 
 source `ddac1072` 的 `scheduler-claim-01` **wholePASS**（session81708→f4d6e2，2026-10-10 17:30:11–17:32:11 UTC）：`TestSchedulerClaim` 1 top/2 sub 共19.43s（正向9.31s、最终事务回滚10.12s）。真实P2/Agent/Owner配置与todo Task，经正式StartSprint写入当前Sprint/Project，再由实际WorkClaim与Scheduler在同一事务提交Task in_progress、唯一history/schema2 Outbox、Work claim和pending Dispatch；原请求重放与正式pending读取保持原事实。另一sub在原final callback已见完整关联事实后返marker，由真实Store回滚且原physical NotCommitted/cause保留，全部业务快照不变、pending与Dispatch历史为空。完整嵌入迁移实际应用44/45；未SQL种成功，不证明Launch、调度遍历、生产app或完整F1。
 
