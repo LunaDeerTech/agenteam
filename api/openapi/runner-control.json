@@ -1,0 +1,1483 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "agenteam Runner management and device control",
+    "version": "1.0.0",
+    "description": "D15 implementation contract; real service/native/root acceptance remains governed by the work item. Strict UTF-8 JSON: unknown/duplicate decoded members, aliases, invalid surrogate, null unless explicit, trailing content and depth>16 rejected before application. All finite request bodies <=32KiB; Content-Encoding presence forbidden. No raw public key, private seed, token, nonce or signature in diagnostics. URL path canonical with no RawPath/ForceQuery; only list permits the specified query. Current operations registry empty; no Mount/Execution authorization or D16/D17 business capability is granted by a connection."
+  },
+  "paths": {
+    "/api/v1/system/runners": {
+      "get": {
+        "operationId": "listSystemRunners",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current Human administrator via original Account boundary; service rechecks current Session/admin in its transaction. 2s original native deadline including body/transaction/encoding/Close/write/Flush/callback join.",
+        "responses": {
+          "200": {
+            "description": "Complete validated result; no-store, exact encoded Content-Length. HEAD omits body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnerPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-success-body-max-bytes": 2097152,
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "description": "Canonical decimal only."
+          },
+          {
+            "name": "after_id",
+            "in": "query",
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ]
+      },
+      "head": {
+        "operationId": "headSystemRunners",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current Human administrator via original Account boundary; service rechecks current Session/admin in its transaction. 2s original native deadline including body/transaction/encoding/Close/write/Flush/callback join.",
+        "responses": {
+          "200": {
+            "description": "Complete validated result; no-store, exact encoded Content-Length. HEAD omits body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-success-body-max-bytes": 2097152,
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "description": "Canonical decimal only."
+          },
+          {
+            "name": "after_id",
+            "in": "query",
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createSystemRunner",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Human administrator via original Account boundary; service rechecks current Session/admin in its transaction. 30s original native deadline including body/transaction/encoding/Close/write/Flush/callback join.",
+        "responses": {
+          "200": {
+            "description": "Complete validated result; no-store, exact encoded Content-Length. HEAD omits body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mutation"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-success-body-max-bytes": 65536,
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRequest"
+              }
+            }
+          },
+          "x-max-bytes": 32768
+        }
+      }
+    },
+    "/api/v1/system/runners/{runner_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/RunnerID"
+        }
+      ],
+      "get": {
+        "operationId": "getSystemRunner",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current Human administrator via original Account boundary; service rechecks current Session/admin in its transaction. 2s original native deadline including body/transaction/encoding/Close/write/Flush/callback join.",
+        "responses": {
+          "200": {
+            "description": "Complete validated result; no-store, exact encoded Content-Length. HEAD omits body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Runner"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-success-body-max-bytes": 65536
+      },
+      "head": {
+        "operationId": "headSystemRunner",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current Human administrator via original Account boundary; service rechecks current Session/admin in its transaction. 2s original native deadline including body/transaction/encoding/Close/write/Flush/callback join.",
+        "responses": {
+          "200": {
+            "description": "Complete validated result; no-store, exact encoded Content-Length. HEAD omits body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-success-body-max-bytes": 65536
+      },
+      "patch": {
+        "operationId": "updateSystemRunner",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Human administrator via original Account boundary; service rechecks current Session/admin in its transaction. 30s original native deadline including body/transaction/encoding/Close/write/Flush/callback join.",
+        "responses": {
+          "200": {
+            "description": "Complete validated result; no-store, exact encoded Content-Length. HEAD omits body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicMutation"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-success-body-max-bytes": 65536,
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRequest"
+              }
+            }
+          },
+          "x-max-bytes": 32768
+        }
+      }
+    },
+    "/api/v1/system/runners/{runner_id}/enrollment": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/RunnerID"
+        }
+      ],
+      "post": {
+        "operationId": "issueRunnerEnrollment",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Human administrator via original Account boundary; service rechecks current Session/admin in its transaction. 30s original native deadline including body/transaction/encoding/Close/write/Flush/callback join.",
+        "responses": {
+          "200": {
+            "description": "Complete validated result; no-store, exact encoded Content-Length. HEAD omits body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mutation"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-success-body-max-bytes": 65536,
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialRequest"
+              }
+            }
+          },
+          "x-max-bytes": 32768
+        }
+      }
+    },
+    "/api/v1/system/runners/{runner_id}/revoke": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/RunnerID"
+        }
+      ],
+      "post": {
+        "operationId": "revokeRunnerIdentity",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Human administrator via original Account boundary; service rechecks current Session/admin in its transaction. 30s original native deadline including body/transaction/encoding/Close/write/Flush/callback join.",
+        "responses": {
+          "200": {
+            "description": "Complete validated result; no-store, exact encoded Content-Length. HEAD omits body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicMutation"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-success-body-max-bytes": 65536,
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialRequest"
+              }
+            }
+          },
+          "x-max-bytes": 32768
+        }
+      }
+    },
+    "/api/v1/system/runners/{runner_id}/commands/lookup": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/RunnerID"
+        }
+      ],
+      "post": {
+        "operationId": "lookupRunnerCommand",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Human administrator via original Account boundary; service rechecks current Session/admin in its transaction. 2s original native deadline including body/transaction/encoding/Close/write/Flush/callback join.",
+        "responses": {
+          "200": {
+            "description": "Complete validated result; no-store, exact encoded Content-Length. HEAD omits body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LookupResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-success-body-max-bytes": 65536,
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LookupRequest"
+              }
+            }
+          },
+          "x-max-bytes": 32768
+        }
+      }
+    },
+    "/api/v1/runner/enroll": {
+      "post": {
+        "operationId": "enrollRunnerDevice",
+        "security": [],
+        "description": "Device only: reject Cookie, browser Origin and CSRF; do not use Human actors. 30s original native deadline including body/transaction/encoding/Close/write/Flush/callback join.",
+        "responses": {
+          "200": {
+            "description": "Complete validated result; no-store, exact encoded Content-Length. HEAD omits body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-success-body-max-bytes": 32768,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrollmentRequest"
+              }
+            }
+          },
+          "x-max-bytes": 32768
+        }
+      }
+    },
+    "/api/v1/runner/challenge": {
+      "post": {
+        "operationId": "challengeRunnerDevice",
+        "security": [],
+        "description": "Device only: reject Cookie, browser Origin and CSRF; do not use Human actors. 2s original native deadline including body/transaction/encoding/Close/write/Flush/callback join.",
+        "responses": {
+          "200": {
+            "description": "Complete validated result; no-store, exact encoded Content-Length. HEAD omits body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChallengeResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-success-body-max-bytes": 32768,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChallengeRequest"
+              }
+            }
+          },
+          "x-max-bytes": 32768
+        }
+      }
+    },
+    "/api/v1/runner/control": {
+      "get": {
+        "operationId": "connectRunnerControl",
+        "security": [
+          {
+            "RunnerSignature": []
+          }
+        ],
+        "description": "WSS HTTP/1.1 upgrade only; 5s original authentication/upgrade budget. Exactly one canonical WebSocket key, version 13, Upgrade websocket and Connection upgrade; exact single subprotocol agenteam.runner.v1, no extensions/compression. Reject Cookie/Origin/CSRF, body, query and RawPath. Authorization is Runner plus base64url strict JSON {runner_id,nonce,timestamp,signature}, decoded at most 2048 bytes. Ed25519 signs UTF-8 agenteam-runner-control-v1\\n + runner_id + \\n + nonce + \\n + timestamp + \\n (actual LF). Timestamp canonical Unix seconds; DB window ±30s. Authenticate consumes nonce before upgrade. Fixed v1.0 thirteen-frame contract is defined in D15 and internal/runnerprotocol; OpenAPI does not model a post-upgrade HTTP JSON response.",
+        "parameters": [
+          {
+            "name": "Sec-WebSocket-Protocol",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "agenteam.runner.v1"
+            }
+          }
+        ],
+        "responses": {
+          "101": {
+            "description": "Current authenticated connection reserved; hello still required within 5s before online. Separate owner retains socket/reader/writer/actual callbacks through Stop/Drain.",
+            "headers": {
+              "Sec-WebSocket-Protocol": {
+                "schema": {
+                  "const": "agenteam.runner.v1"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+        "x-max-utf8-bytes": 128
+      },
+      "Description": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 4096,
+        "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+        "x-max-utf8-bytes": 4096
+      },
+      "Tags": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+          "x-max-utf8-bytes": 64
+        },
+        "maxItems": 32,
+        "uniqueItems": true,
+        "description": "Strict ascending UTF-8 byte order; no null."
+      },
+      "RootPath": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096,
+        "x-max-utf8-bytes": 4096,
+        "pattern": "^/(?!\\.{1,2}(?:/|$))(?!.*\\/\\.{1,2}(?:/|$))(?:[^/\\\\\\u0000]+(?:/[^/\\\\\\u0000]+)*)?$",
+        "description": "Absolute clean Linux/macOS path; no empty, dot or dot-dot segments; / is valid. Immutable after creation."
+      },
+      "ProtocolVersion": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "major": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          },
+          "minor": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          }
+        },
+        "required": [
+          "major",
+          "minor"
+        ]
+      },
+      "ProtocolInstant": {
+        "type": "string",
+        "format": "date-time",
+        "minLength": 20,
+        "maxLength": 30,
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{0,8}[1-9])?Z$",
+        "description": "Valid UTC RFC3339Nano, canonical reformat must match. Distinct from Foundation six-fraction output."
+      },
+      "Names": {
+        "type": "array",
+        "maxItems": 32,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9_.-]*$"
+        }
+      },
+      "HelloSnapshot": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "runner_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "runner_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]*$",
+            "x-max-utf8-bytes": 64
+          },
+          "protocol_version": {
+            "$ref": "#/components/schemas/ProtocolVersion"
+          },
+          "os": {
+            "enum": [
+              "linux",
+              "darwin"
+            ]
+          },
+          "arch": {
+            "enum": [
+              "amd64",
+              "arm64"
+            ]
+          },
+          "headless": {
+            "type": "boolean"
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/Names"
+          },
+          "feature_flags": {
+            "$ref": "#/components/schemas/Names"
+          }
+        },
+        "required": [
+          "runner_id",
+          "runner_version",
+          "protocol_version",
+          "os",
+          "arch",
+          "headless",
+          "capabilities",
+          "feature_flags"
+        ]
+      },
+      "Runner": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          },
+          "tags": {
+            "$ref": "#/components/schemas/Tags"
+          },
+          "root_path": {
+            "$ref": "#/components/schemas/RootPath"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "credential_generation": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "status": {
+            "enum": [
+              "offline",
+              "online",
+              "incompatible"
+            ]
+          },
+          "public_key_fingerprint": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Digest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "enrolled_at": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_seen_at": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_hello": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/HelloSnapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "tags",
+          "root_path",
+          "version",
+          "credential_generation",
+          "status",
+          "public_key_fingerprint",
+          "enrolled_at",
+          "last_seen_at",
+          "last_hello",
+          "created_at",
+          "updated_at"
+        ],
+        "description": "Current public projection. Online is current DB row + hello + both generations + unexpired 30s lease, not instant owner-death proof. Fingerprint and enrolled_at are both null or both present. Last hello Runner ID must match. No raw key, token or nonce.",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "public_key_fingerprint": {
+                  "type": "null"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "enrolled_at": {
+                  "type": "null"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "enrolled_at": {
+                  "$ref": "./common.json#/components/schemas/Instant"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "online"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "public_key_fingerprint": {
+                  "$ref": "./common.json#/components/schemas/Digest"
+                },
+                "enrolled_at": {
+                  "$ref": "./common.json#/components/schemas/Instant"
+                },
+                "last_seen_at": {
+                  "$ref": "./common.json#/components/schemas/Instant"
+                },
+                "last_hello": {
+                  "$ref": "#/components/schemas/HelloSnapshot"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "RunnerPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Runner"
+            },
+            "maxItems": 200
+          },
+          "next": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next"
+        ],
+        "description": "Non-snapshot keyset in ascending ID order. next is the last returned ID only when lookahead exists; null at the end. Encoded body at most 2MiB."
+      },
+      "CreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "runner_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          },
+          "tags": {
+            "$ref": "#/components/schemas/Tags"
+          },
+          "root_path": {
+            "$ref": "#/components/schemas/RootPath"
+          }
+        },
+        "required": [
+          "runner_id",
+          "name",
+          "description",
+          "tags",
+          "root_path"
+        ]
+      },
+      "UpdateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          },
+          "tags": {
+            "$ref": "#/components/schemas/Tags"
+          }
+        },
+        "required": [
+          "expected_version"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "name"
+            ]
+          },
+          {
+            "required": [
+              "description"
+            ]
+          },
+          {
+            "required": [
+              "tags"
+            ]
+          }
+        ]
+      },
+      "CredentialRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "expected_version"
+        ]
+      },
+      "Command": {
+        "enum": [
+          "runner.create",
+          "runner.update",
+          "runner.enrollment.issue",
+          "runner.revoke"
+        ]
+      },
+      "LookupRequest": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "command": {
+                "const": "runner.create"
+              },
+              "request": {
+                "$ref": "#/components/schemas/CreateRequest"
+              }
+            },
+            "required": [
+              "command",
+              "request"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "command": {
+                "const": "runner.update"
+              },
+              "request": {
+                "$ref": "#/components/schemas/UpdateRequest"
+              }
+            },
+            "required": [
+              "command",
+              "request"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "command": {
+                "const": "runner.enrollment.issue"
+              },
+              "request": {
+                "$ref": "#/components/schemas/CredentialRequest"
+              }
+            },
+            "required": [
+              "command",
+              "request"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "command": {
+                "const": "runner.revoke"
+              },
+              "request": {
+                "$ref": "#/components/schemas/CredentialRequest"
+              }
+            },
+            "required": [
+              "command",
+              "request"
+            ]
+          }
+        ],
+        "description": "Exact original intent. For create, request.runner_id must equal the path Runner ID. Server derives original semantic digest; no client digest accepted."
+      },
+      "Receipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "command": {
+            "$ref": "#/components/schemas/Command"
+          },
+          "runner": {
+            "$ref": "#/components/schemas/Runner"
+          },
+          "changed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "command_id",
+          "command",
+          "runner",
+          "changed"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "command": {
+                  "not": {
+                    "const": "runner.update"
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "changed": {
+                  "const": true
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Material32": {
+        "type": "string",
+        "minLength": 43,
+        "maxLength": 43,
+        "pattern": "^[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$",
+        "description": "Canonical unpadded base64url of exactly 32 bytes. Shape does not prove issuer or purpose."
+      },
+      "PublicMutation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "receipt": {
+            "$ref": "#/components/schemas/Receipt"
+          },
+          "token_available": {
+            "const": false
+          }
+        },
+        "required": [
+          "receipt",
+          "token_available"
+        ]
+      },
+      "FirstMaterialMutation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "receipt": {
+            "$ref": "#/components/schemas/Receipt"
+          },
+          "token_available": {
+            "const": true
+          },
+          "enrollment_token": {
+            "$ref": "#/components/schemas/Material32"
+          },
+          "expires_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "receipt",
+          "token_available",
+          "enrollment_token",
+          "expires_at"
+        ],
+        "allOf": [
+          {
+            "properties": {
+              "receipt": {
+                "properties": {
+                  "command": {
+                    "enum": [
+                      "runner.create",
+                      "runner.enrollment.issue"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Mutation": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PublicMutation"
+          },
+          {
+            "$ref": "#/components/schemas/FirstMaterialMutation"
+          }
+        ],
+        "description": "Only a first known-committed create/enrollment may publish token. Replay and Lookup cannot repeat token; expired/aborted transport cannot turn a known commit into not_committed."
+      },
+      "LookupResponse": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "const": "not_observed"
+              },
+              "token_available": {
+                "const": false
+              }
+            },
+            "required": [
+              "state",
+              "token_available"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "const": "committed"
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/Receipt"
+              },
+              "token_available": {
+                "const": false
+              }
+            },
+            "required": [
+              "state",
+              "receipt",
+              "token_available"
+            ]
+          }
+        ]
+      },
+      "EnrollmentRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "runner_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "token": {
+            "$ref": "#/components/schemas/Material32"
+          },
+          "public_key": {
+            "$ref": "#/components/schemas/Material32"
+          },
+          "root_path": {
+            "$ref": "#/components/schemas/RootPath"
+          },
+          "os": {
+            "enum": [
+              "linux",
+              "darwin"
+            ]
+          },
+          "arch": {
+            "enum": [
+              "amd64",
+              "arm64"
+            ]
+          }
+        },
+        "required": [
+          "runner_id",
+          "token",
+          "public_key",
+          "root_path",
+          "os",
+          "arch"
+        ]
+      },
+      "EnrollmentResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "runner_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "version": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              {
+                "not": {
+                  "const": "1"
+                }
+              }
+            ]
+          },
+          "credential_generation": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "enrolled_at": {
+            "$ref": "#/components/schemas/ProtocolInstant"
+          },
+          "public_key_fingerprint": {
+            "$ref": "./common.json#/components/schemas/Digest"
+          }
+        },
+        "required": [
+          "runner_id",
+          "version",
+          "credential_generation",
+          "enrolled_at",
+          "public_key_fingerprint"
+        ]
+      },
+      "ChallengeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "runner_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        "required": [
+          "runner_id"
+        ]
+      },
+      "ChallengeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "nonce": {
+            "$ref": "#/components/schemas/Material32"
+          },
+          "expires_at": {
+            "$ref": "#/components/schemas/ProtocolInstant"
+          }
+        },
+        "required": [
+          "nonce",
+          "expires_at"
+        ]
+      }
+    },
+    "parameters": {
+      "RunnerID": {
+        "name": "runner_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "$ref": "./common.json#/components/schemas/ID"
+        }
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "$ref": "./common.json#/components/schemas/IdempotencyKey"
+        },
+        "description": "Exactly one header; retain original key and original DTO through lookup/replay."
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Safe shared Problem. 400 malformed/presence; 401 current identity/nonce/signature; 403 admin/CSRF/Origin; 404 missing Runner; 405 method; 409 version/key/state/capacity; 413 body; 415 media/encoding; 503 dependency/unknown/shutdown; 500 internal. No raw material/cause/SQL. CommitUnknown keeps original attempt/cause and lookup advice for management; never auto-replay device material. HEAD has no body. Native abort may publish no complete Problem.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Session": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session"
+      },
+      "LocalSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "agenteam_local_session"
+      },
+      "CSRF": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-CSRF-Token"
+      },
+      "RunnerSignature": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Exactly one Runner <base64url(strict-auth-json)> device signature; never a Session or bearer token."
+      }
+    }
+  }
+}

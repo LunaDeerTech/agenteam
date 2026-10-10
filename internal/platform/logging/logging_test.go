@@ -81,3 +81,55 @@ func TestLogLevelAndEntropyFailure(t *testing.T) {
 		t.Fatal("entropy fallback")
 	}
 }
+
+func TestRunnerConnectionProjectionAndCentralCompatibility(t *testing.T) {
+	var output bytes.Buffer
+	logger, err := New(Runner, slog.LevelInfo, &output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	logger.Transition(Starting)
+	states := []RunnerConnectionState{RunnerConnecting, RunnerConnected, RunnerDisconnected, RunnerIncompatible, RunnerConnectionState("PRIVATE_CREDENTIAL_CANARY")}
+	for _, state := range states {
+		logger.RunnerConnection(state)
+		logger.Transition(Stopping)
+	}
+	for _, field := range []string{"IDENTITY_FILE", "CENTRAL_URL", "ID", "ROOT_PATH", "CA_FILE"} {
+		logger.InvalidConfig("AGENTEAM_RUNNER_"+field, "invalid")
+	}
+	if strings.Contains(output.String(), "CANARY") {
+		t.Fatal("unknown connection state leaked")
+	}
+	dec := json.NewDecoder(bytes.NewReader(output.Bytes()))
+	index := 0
+	for dec.More() {
+		var record map[string]any
+		if err := dec.Decode(&record); err != nil {
+			t.Fatal(err)
+		}
+		expected := index == 3 || index == 4
+		if record["connected"] != expected || record["authenticated"] != expected || record["ready"] != false {
+			t.Fatal("connection projection changed current state", index, record)
+		}
+		// A duplicate member would make strict clients ambiguous even if Go's map
+		// decoder chose its last value. The emitted JSON must contain one of each.
+		index++
+	}
+	if strings.Count(output.String(), `"connected":`) != index || strings.Count(output.String(), `"authenticated":`) != index {
+		t.Fatal("duplicate current connection fields")
+	}
+	output.Reset()
+	central, _ := New(Central, slog.LevelInfo, &output)
+	central.RunnerConnection(RunnerConnected)
+	if output.Len() != 0 {
+		t.Fatal("Runner event admitted on Central logger")
+	}
+	central.Transition(Starting)
+	var record map[string]any
+	if json.Unmarshal(output.Bytes(), &record) != nil || record["service"] != "central" {
+		t.Fatal("Central logger changed")
+	}
+	if _, found := record["connected"]; found {
+		t.Fatal("Runner state added to Central")
+	}
+}
