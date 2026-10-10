@@ -1,3 +1,12 @@
+# Skill install Runtime Source 当前状态
+
+- 本树 `ai/skill-install-runtime-source`：8 个源码/测试路径已保存 `f8770d14`。真实 Source 固定唯一 Skill Service/adapter；Authority 固定 Store/guard/expectedProcess，执行证明只由原 Executor 私有 handoff 发行。没有新 DDL、默认根绑定或生产 Execution 授权。
+- 2026-10-10 作者限定 `go test -mod=readonly -p=2 -race -count=1 -timeout=90s -json -run <6 精确 top> ./internal/central/tool/runtime ./internal/central/skill` 及同两包 `go vet -mod=readonly -p=2` 实际通过；精确 selector/argv/每阶段结果见 `output/ai/agent-system-integration/combined-core-01/result.json`。6 top 为 Source 3、Skill binding 2、受影响原 private-handoff 1；未重跑旧矩阵。
+- session `99823` → terminal `3f4846`，outer/race/vet 原 Wait 均 0，race 22.478s、vet 10.077s，group/runtime 双空、adopted=[]；15:20:04Z 全尾关闭，热 cache 已归还。适用源码全过程冻结。
+- cleanup 已有限独审 Runtime 六源、content 已有限独审 Skill 两源，均无 must-fix。上述受控方法检查不制造 bound guard；真实 Object.Initialize → Registry.Reconcile → Agent.Create 默认两项 true 的 PG 正向由 skills 后续组合，尚未运行。既有 STOP 保持。
+
+## 继承基线记录
+
 # 当前执行检查点
 
 ## Execution preparation / Task 组合（2026-10-10，有限范围已通过）
