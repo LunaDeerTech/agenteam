@@ -100,3 +100,39 @@ Skills/coordination已对产品、fixture和消费方法实际差异做有限独
 合入主线Account/Secret根与共享并集后，`26e3928d` 新race候选经精确1 top/list准备；`3c7958ac` 输入的作者 `read04` 使用该新候选和未变67个dist资产，1 Go top/1 PW case整体PASS（Go27.31s）。12原四GET与Schema12、树键盘/UTF8下一段/Drawer、原typed发布和两个observer首次explicit/pending0/实际join全部通过；4个原请求现场ERR_ABORTED且finished调用0，另8个正常finished调用1/null。原Node/Go/driver/outer及4 adopted Wait0，七资源14次absent/private/runtime/desc/TCP双尾齐，1455运行时输入初末一致，wholePASS130.643s。新增纯测试由既有collector排除，不人为扩成1456输入。
 
 本次有限完成范围仅Owner已有文档的四GET与只读页面，复用既有后端权限证据；旧01/02FAIL与read03旧输入PASS不升级。默认initializer、完整participant、Object Runtime join与来源STOP保持，不扩编辑、parser、Project Create HTTP、整D12或生产SPA。
+
+## Owner 已有文档改名 UI（实施规格，尚未验收）
+
+本片段提供“改名→查询原命令结果→重新读取当前文档与目录”，只消费[树命令 HTTP](d12-knowledge-owner-tree-http.md)的 rename/lookup，普通当前 Human Owner 可用。创建、正文替换、移动、删除不在本片段；前两者虽已有 Service，尚无正式写 HTTP。D13 只消费已完整返回的版本绑定正文，改名不等待 Parser、不发布索引成功；生产 initializer、participant、Object Runtime join 和来源 STOP 保持。
+
+### 固定接口与原意图
+
+沿前段 `P`，仅新增两 POST，无 query，原 Cookie Session、单个 Idempotency-Key、原 CSRF 和 JSON；正式 16 KiB 请求、5 MiB 成功完整表示与服务 2s 预算保持，Problem/四 GET 上限不变。title 保原 UTF-8、1–512 Unicode scalar、无控制字符、不 trim；版本为正数规范 int64 字符串，不经 Number。
+
+| 调用 | 精确输入 | 完整结果与关系 |
+| --- | --- | --- |
+| `rename(projectID, documentID, input, write)` / `P/{document_id}/rename` | `{expected_version,title}` | `{document}`；复用安全 12 字段解析，核同 Project/Document、原 title，version 为 expected 或安全 expected+1；不补造 changed |
+| `lookup(projectID, documentID, originalInput, write)` / `P/commands/lookup` | `{command:"update",document_id,request:{expected_version,title}}`，原 key | `{state,receipt}`；in_progress/not_observed 必须 receipt:null；committed 为 `{command:"update",document,changed}`，changed 与版本及原 title/目标一致 |
+
+真正改名增加 content_version、置索引 pending、产生 content_changed，ObjectID/正文不变；同名 no-op 不涨版本。Move 不增加内容版本，rename 用事务内实际 parent，客户端不得要求 receipt.parent 等于提交前 parent。文件也可改名，正文 unavailable 不阻止合法 metadata 写入。
+
+Session 唯一持有 identity、Project/Document、捕获输入、原 body、CSRF、key 和命令代次；新增 rename/lookup actions 显式接入 Human current/revision/failure/取消/实际 finally，不落 System/admin，不另造通用命令引擎。controller 仅持草稿、baseline 和安全 progress。构造保持现有位置参数，新增尾 `capabilities: {knowledgeCommands?: KnowledgeCommandsAPI}` 使用有名能力，后继独立 Skills 读口只扩同一对象，不继续增加位置参数。新写须同身份当前 Owner、当前 active Project、当前 active 文档和空闲 Cookie lane；checking、不可用、未定命令或冲突禁止新写。
+
+### 状态、恢复与有界重读
+
+- 完整 typed 响应或合法 committed Lookup 才确认原命令。confirmed 是历史事实，任何后续读取失败不得倒退 rejected 或重发 rename；历史 receipt 不直接成为下一写 baseline。
+- 原 Problem 明确 not_started/not_committed 的版本冲突保草稿，重读后由用户显式采用新版本，再新意图/新 key。transport、Unknown、解析或消费失败保原未定意图；用户 Lookup，in_progress 等待，not_observed 可人工原 key/body 重放，committed 后重读。Lookup 失败不改原写结论；IDEMPOTENCY_KEY_REUSED 禁重放/自动换 key。
+- same-session checking 暂停写、查证、发布而保未定原材料；同 User/Session/CSRF 恢复后可人工查证。真实 identity/CSRF 变化才清私有材料与发布资格；当前 401/CSRF 失效沿 Session，局部 403/404 不污染 System gate。仍属当前 identity/Project/doc/编辑代次的拒绝使本域观察不可用并清受保护展示，保已确认历史命令事实；旧晚尾不得清新上下文。
+- 发布资格同时绑定工作区、所选文档与编辑代次。同项目选别文档、同组件路由参数变化、离页都处理草稿/未定意图的显式放弃确认。放弃退休发布资格并取消原调用，实际 reader/outer/finally 未回仍占 Cookie lane；迟到不改新页面，取消导航不复活已退休请求。
+
+确认后沿原单队列重读所选 metadata→祖先→offset0 正文。同 doc 的 current GET 版本不得低于确认 receipt；更高版本/不同 parent 是合法当前观察，相等也用当前 DTO。tombstone/403/404 如实不可用且保原确认事实；重读失败不采用历史 receipt 充当前数据。
+
+目录刷新固定 root 加提交前 parent、receipt.parent、成功 current GET.parent，去重、null 只一次，非根仅已加载，最多四层首屏。各 parent 只是其时刻观察；获知即清相应 items/cursor，不把 receipt 插旧分页，不无限刷子树或翻页找新位置。current GET 失败只处理已知集合，不猜新 parent；后续明确重读再纳新观察。自动刷新不能重新选回已离开的文档。
+
+### 文件域与首条真实链
+
+新生产源：`web/src/api/knowledge-commands.ts`、`web/src/composables/useKnowledgeRename.ts`、`web/src/components/knowledge/KnowledgeRenameDialog.vue`。旧窄接缝：`web/src/api/client.ts`、`web/src/composables/useSession.ts`、`web/src/composables/useKnowledgeOwner.ts`、`web/src/views/projects/ProjectKnowledgeView.vue`。复用现 `parseKnowledgeDocument`、UiDialog/UiField/UiInput/UiButton/UiState；不改 Workspace/router index/nav/UiTree、Go/backend、锁、D13。首基础测试确认同组件 route update 晚于全局认证恢复，故另授权 `web/src/router/auth.ts` 一个 Knowledge 导航注册点，在原 restore 前询问页面确认并按 owner 注销；保 Project 导航顺序与 Skills canonical 路由闭集，不改其他路由门。必要测试为 command-client、command-state、rename 三文件与受影响读取/会话兼容检查。
+
+基础控制聚焦正常改名、明确冲突、Unknown→原 Lookup/重放及身份/选择变化原尾；完成类型/格式后尽早联调。真实 fixture/共享入口另由 root 分配：default Project initializer 仍 unbound，test-only 真实 ports 造已有文档并 Stop/Drain，普通 Owner 登录→UI 改名→原完整 typed 发布→当前 GET/有界目录刷新，核 title/version、正文原 hash、一次真实 command/event，再闭合全部原浏览器/服务/资源尾。复用未变 read04/backend 证据，不扩阅读方法矩阵。八生产接缝已实现；三项独审缺口经窄修后有限源码审接受：冲突必须新完整 GET 后才能采用版本，同会话恢复保原目标的查证/显式放弃入口，两 POST 的 reader/outer 取消失败保 uncertain 并实际 join。定向 35 项客户端/Session/页面控制、类型及私有构建已通过；原 Project 导航兼容用例改为等待原 Router 导航实际完成后通过，原断言和预算保持。首轮 fixture/方法失败保留于本任务恢复记录，不追认为通过。Unknown/冲突目前是实际前端组合与受控网络验证，真实改名链、独立动态与完整片段交付仍待完成。
+
+首个真实联调限定 `TestKnowledgeOwnerRenameWeb` 一个正常 case：一次原 rename、原 typed 消费发布及当前 metadata/body/有界目录重读；由正式 Lookup 和数据库只读观察核实持久事实，不添加故障控制 HTTP，也不把既有 read04 的 GET failed 接缝扩到 POST。独立的 Go/PW/native/config 与原七资源入口按本片段接入；共享入口由唯一 writer 维护。

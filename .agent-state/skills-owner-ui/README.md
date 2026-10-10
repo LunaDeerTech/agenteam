@@ -12,14 +12,28 @@
 
 ## 真实链与判据
 
-Owner 登录 → Project settings → Skills 目录 → Enter 详情 → 显式重读 → 键盘返回；原4次请求应为 list/get/get/list。同文档安装原 native 与 public 包装，所有包装返回原 Promise；原 reader EOF、字节长度/hash、cancel/release、outer cancel、Session 实际返回和忙碌尾，与唯一原 PW Request/XID 及服务端完整原响应联合。正常终态只允许一次 requestfinished 和一次原 Response.finished(null)，requestfailed 始终拒绝。双 observer 第一次 explicit 退休必须 pending0，之后实际 join；失败首 snapshot 不变，页关闭后的原尾只作追加事实。
+Owner 登录 → Project settings → Skills 目录 → Enter 详情 → 显式重读 → 键盘返回；原4次请求应为 list/get/get/list。同文档安装原 native 与 public 包装，所有包装返回原 Promise；原 reader EOF、字节长度/hash、cancel/release、outer cancel、Session 实际返回和忙碌尾，与唯一原 PW Request/XID 及服务端完整原响应联合。正常终态只允许一次 requestfinished 和一次原 Response.finished(null)，requestfailed 始终拒绝。第一次 finish 同步封存 Node pending/每原Request终态资格，立即在同一 page task 发起双 observer 首次 explicit 退休；之后才实际 join 原PW/page尾。首资格与pending0不可被迟到完成补成成功，sealed之后不新启header观察。失败首 snapshot 不变，页关闭后的原尾只作追加事实。
 
 浅色1280/深色390、减少动效、Enter/焦点及全局无横向溢出有真实 DOM/截图门。完成并退休 normal observer 后，真实 UI Logout/Login 切换第二 Human，原 Owner Project 路由应不可用且不触发 Skill GET。Go 单独用第二 Human 当前 Cookie 调用两 Skill GET，严格404/NOT_FOUND/not_started；不把浏览器 Project404混作Skill404。最终比较 Project scoped Skills/Project/Object/Audit/Outbox十类事实未变，并核原 Node Wait、proxy Serve/Shutdown、fixture/root/domain Drain/Joined 和 ProcessGuard stopped。
 
 ## 当前离线结果
 
-- 新 Go 源仅 gofmt，未编译；第一次使用不存在的 `/toolchains/...` 路径失败后，实际路径 `/workspace/toolchains/go1.27.1/bin/gofmt` 成功。不是产品执行。
-- [native-controls.cjs](native-controls.cjs) 使用实际观察源、原 Stream/crypto，transport/Session 明确受控；7项 normal/failed/duplicate/held reader/held outer/identity/void 观察控制 actual0、0unhandled（89678→7fb2f4）。不作为浏览器、真实 API 或完整 UI PASS。
+- 本线程对新 Go 源仅执行 gofmt；组合候选编译由 content 另按 root 授权执行。第一次使用不存在的 `/toolchains/...` 路径失败后，实际路径 `/workspace/toolchains/go1.27.1/bin/gofmt` 成功。不是产品执行。
+- [native-controls.cjs](native-controls.cjs) 使用实际观察源、原 Stream/crypto，transport/Session 明确受控；原7项 normal/failed/duplicate/held reader/held outer/identity/void 观察控制 actual0、0unhandled（89678→7fb2f4）。独审发现先join PW再首seal可后移首次资格；新增held-PW header/finished与晚reader两负控修前ed17d3 actual1，窄修后最终9项f29cfb actual0/0unhandled，strictTS49414→aa7f96/格式8daeea actual0。两源已保存1f67ddd5，skills_http精准复核接受；这些不作为浏览器、真实 API 或完整 UI PASS。
 - 现有产品 basic API/state38与视图3、Knowledge GET54保持其原有限证据。共享 client/auth 后继由 root 导入 Rename `22417dae`，Session 未变；新 Knowledge 两POST严格取消改动不扩入本读链。
 - harness 同锁 `cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534` 私有离线复制19392→bff603 actual0，实际 Playwright1.56.1/TS5.9.3。strict TS 首15074→1a6b7f actual2仅命令 typeRoots 指向无 Node types 的harness；改为 web/node_modules/@types 后7670→2afe91 actual0，无源变更。精确 list98644→460a9e actual0恰一用例；格式与 gofmt-l 5041e1 actual0。
-- cleanup shared方法已离线ready（其自有6控与旧31控通过），两作者最终source闭包仍待各自枚举；不冒真实联调。下一步非作者 actualdiff 审及 root 安排两 UI appGo 组合候选一次编译；Go candidate 与真实浏览器仍未运行。
+- cleanup shared方法09f7eb19已离线ready（其自有6控与旧31控通过）；两作者方法均获有限独审接受。当前最终source闭包由cleanup枚举，Go组合候选交content按root授权一次编译，各场景单独真实窗口；本人未执行Go/浏览器，不冒真实联调。
+
+
+## 两 UI 组合资产
+
+root 将 Rename `40e1e4ea` 的19路径精确导入 Skills `1f67ddd5` 当前树，保留本域入口与current。共享 client/useSession/auth/knowledge-commands 同源；本次没有编辑产品或这些共享源，也未覆盖 Rename 自身current。
+
+只在组合树执行一次：`npm run build -- --outDir ../output/ai/skills-owner-ui/web-dist-combined-01`（cwd `web`，脚本依次vue-tsc/Vite），原session `57900→d9fdc8` actual0，304modules。首次预飞650101因源hash清单误含不存在的tsconfig.app.json退出，当时npm/type/build尚未启动；核实际单tsconfig.json后才执行此唯一构建。
+
+产物从首目录通过普通文件copy到第二目录，旧web-dist保留：
+
+- `output/ai/skills-owner-ui/web-dist-combined-01`
+- `output/ai/knowledge-owner-rename/web-dist-combined-01`
+
+两目录各69个regular文件、978051 bytes，无symlink、所有文件nlink1，逐相对路径对应inode互异。对排序的 `relative_path + NUL + file_sha256 + LF` 计算的共同manifest SHA256为 `a83ba680012d00ff1cd9dab62932cb7782f58926906e01ed0b6485eec5ae57ca`。构建前后web/src与实际入口/锁/config源清单hash一致 `e0169c99fbc4f80b09c78f8bd0bf1679777f776db93c360a262ec13633605d7e`；该清单只证明构建期间输入未变，不能替代driver完整候选闭包。ignored输出 `output/ai/skills-owner-ui/combined-frontend-01.json` 保存上述本机产物摘要。cleanup与content已收到精确DIST供后继闭包/候选使用。
