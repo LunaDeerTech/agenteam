@@ -883,7 +883,7 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
-    if any(name in args.run for name in ('SkillOwner', 'KnowledgeOwnerRename')) and (args.run not in OWNER_UI_TOPS or not args.root_chain):
+    if any(name in args.run for name in ('SkillOwnerReadWeb', 'KnowledgeOwnerRename')) and (args.run not in OWNER_UI_TOPS or not args.root_chain):
         parser.error('Owner UI requires one exact original root-chain entry')
     if 'KnowledgePlainTextParser' in args.run and (args.run != PARSER_PG or not args.root_chain):
         parser.error('plain text parser requires its exact original root-chain entry')

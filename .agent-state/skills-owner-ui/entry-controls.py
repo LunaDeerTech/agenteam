@@ -67,7 +67,7 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': (('',
                                                                 '        good = good and complete\n'),
                                                                ('',
                                                                 '    if any(name in args.run for name in '
-                                                                "('SkillOwner', 'KnowledgeOwnerRename')) and "
+                                                                "('SkillOwnerReadWeb', 'KnowledgeOwnerRename')) and "
                                                                 '(args.run not in OWNER_UI_TOPS or not '
                                                                 'args.root_chain):\n'
                                                                 "        parser.error('Owner UI requires one "
@@ -217,7 +217,7 @@ class OwnerUIControls(unittest.TestCase):
         for selector in SELECTORS:
             for selected, root_mode in ((selector, False), (selector + 'x', True),
                     (selector[1:], True), (selector[:-1], True),
-                    (selector + '/extra', True), (selector.replace('Web', '.*'), False)):
+                    (selector + '/extra', True), (selector.replace('Web', 'Web.*'), False)):
                 argv = ['supervisor', '--driver', '/absent', '--binary', '/absent',
                         '--output', '/never-created', '--run', selected]
                 if root_mode:
@@ -230,6 +230,23 @@ class OwnerUIControls(unittest.TestCase):
                     with self.assertRaises(SystemExit) as stopped:
                         self.sup.main()
                     self.assertEqual(stopped.exception.code, 2)
+
+    def test_existing_skill_http_selectors_pass_new_ui_guard(self):
+        class OriginalBudgetBoundary(Exception):
+            pass
+
+        for selector in (self.sup.SKILL_HTTP_PG, self.sup.SKILL_HTTP_NATIVE):
+            argv = ['supervisor', '--driver', '/absent', '--binary', '/absent',
+                    '--output', '/never-created', '--run', selector]
+            with patch.object(sys, 'argv', argv), patch('sys.stderr', io.StringIO()), \
+                    patch.object(self.sup, 'budgets', side_effect=OriginalBudgetBoundary) as boundary, \
+                    patch.object(self.sup, 'root_adapter', side_effect=AssertionError('adapter reached')), \
+                    patch.object(self.sup, 'tcp', side_effect=AssertionError('TCP reached')), \
+                    patch.object(self.sup.ctypes, 'CDLL', side_effect=AssertionError('process setup reached')), \
+                    patch.object(Path, 'mkdir', side_effect=AssertionError('directory creation reached')):
+                with self.assertRaises(OriginalBudgetBoundary):
+                    self.sup.main()
+                boundary.assert_called_once_with(False)
 
     def configuration_fixture(self, root, selector):
         name, prefix, case, _, _ = self.driver.OWNER_UI[selector]
