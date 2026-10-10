@@ -11,6 +11,7 @@ import (
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 )
 
 // SkillInstallOperationAuthority is a narrow consumer port, not an authority
@@ -31,6 +32,26 @@ type skillInstallAdapterData struct {
 // actual Service and Runtime implementation are joined by a trusted owner.
 type SkillInstallAdapter struct {
 	data func() skillInstallAdapterData
+}
+
+// SkillInstallResult keeps the complete validated Service receipt for the
+// Runtime's original Operation record. Only ModelOutput belongs in the model
+// response. This value does not persist that record or grant Runtime authority.
+type SkillInstallResult struct {
+	receipt skill.InstallReceipt
+	output  json.RawMessage
+}
+
+func (r SkillInstallResult) Receipt() skill.InstallReceipt { return r.receipt }
+func (r SkillInstallResult) ModelOutput() json.RawMessage {
+	return append(json.RawMessage(nil), r.output...)
+}
+func (SkillInstallResult) Format(w fmt.State, _ rune) {
+	_, _ = io.WriteString(w, "skill_install_result")
+}
+func (SkillInstallResult) LogValue() slog.Value { return slog.StringValue("skill_install_result") }
+func (SkillInstallResult) MarshalJSON() ([]byte, error) {
+	return []byte(`"skill_install_result"`), nil
 }
 
 func NewSkillInstallAdapter(service SkillInstallService, operation SkillInstallOperationAuthority) (*SkillInstallAdapter, error) {
@@ -63,25 +84,25 @@ func (c SkillInstallCall) Actor() (id.Actor, error) {
 // Execute performs exactly one synchronous Service call after the actual
 // Runtime precheck. It never retries, regenerates SkillID/key, changes actor,
 // starts a goroutine, or returns while the admitted Service call is in flight.
-func (a *SkillInstallAdapter) Execute(ctx context.Context, call SkillInstallCall, requestID f.ID[f.Request]) (json.RawMessage, error) {
+func (a *SkillInstallAdapter) Execute(ctx context.Context, call SkillInstallCall, requestID f.ID[f.Request]) (SkillInstallResult, error) {
 	if err := skillInstallContext(ctx); err != nil {
-		return nil, err
+		return SkillInstallResult{}, err
 	}
 	if a == nil || a.data == nil {
-		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
+		return SkillInstallResult{}, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
 	if err := call.Validate(); err != nil {
-		return nil, err
+		return SkillInstallResult{}, err
 	}
 	if requestID.Validate() != nil {
-		return nil, skillInstallInvalid()
+		return SkillInstallResult{}, skillInstallInvalid()
 	}
 	s := a.data()
 	if err := s.operation.RequireCurrentSkillInstall(ctx, call); err != nil {
-		return nil, skillInstallPortError(err, f.NotStarted)
+		return SkillInstallResult{}, skillInstallPortError(err, f.NotStarted)
 	}
 	if err := ctx.Err(); err != nil {
-		return nil, err
+		return SkillInstallResult{}, err
 	}
 	d := call.data()
 	meta := f.CommandMeta{RequestID: requestID, IdempotencyKey: d.details.Key}
@@ -89,9 +110,16 @@ func (a *SkillInstallAdapter) Execute(ctx context.Context, call SkillInstallCall
 	if err != nil {
 		// Preserve domain commit-state and the original cause. An unexpected
 		// service error cannot certify that publication never happened.
-		return nil, skillInstallPortError(err, f.Unknown)
+		return SkillInstallResult{}, skillInstallPortError(err, f.Unknown)
 	}
-	return ProjectSkillInstallReceipt(ctx, call, receipt)
+	// The original Service call has actually returned a known publication.
+	// Cancellation may stop later model delivery, but must not erase that
+	// receipt. This final bounded validation/projection performs no I/O.
+	output, err := ProjectSkillInstallReceipt(context.WithoutCancel(ctx), call, receipt)
+	if err != nil {
+		return SkillInstallResult{}, err
+	}
+	return SkillInstallResult{receipt: receipt, output: output}, nil
 }
 
 func skillInstallPortError(err error, state f.CommitState) error {

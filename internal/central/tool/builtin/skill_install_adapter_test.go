@@ -73,9 +73,24 @@ func TestSkillInstallAdapterRequiresCurrentOperation(t *testing.T) {
 		t.Fatal(err)
 	}
 	for range 2 {
-		raw, err := adapter.Execute(ctx, call, installTestID[f.Request](t))
-		if err != nil || !json.Valid(raw) {
+		result, err := adapter.Execute(ctx, call, installTestID[f.Request](t))
+		if err != nil || !json.Valid(result.ModelOutput()) || result.Receipt() != receipt {
 			t.Fatal("typed invocation failed")
+		}
+		var fields map[string]json.RawMessage
+		if err := json.Unmarshal(result.ModelOutput(), &fields); err != nil || len(fields) != 3 || fields["skill_id"] == nil || fields["revision"] == nil || fields["version"] == nil {
+			t.Fatal("model result is not the exact safe projection")
+		}
+		output := result.ModelOutput()
+		output[0] = '!'
+		copyReceipt := result.Receipt()
+		copyReceipt.Version = 99
+		if !json.Valid(result.ModelOutput()) || result.Receipt() != receipt {
+			t.Fatal("caller mutation changed the retained outcome")
+		}
+		encoded, marshalErr := json.Marshal(result)
+		if marshalErr != nil || string(encoded) != `"skill_install_result"` || fmt.Sprintf("%+v", result) != "skill_install_result" || result.LogValue().String() != "skill_install_result" {
+			t.Fatal("result formatting exposed internal receipt")
 		}
 	}
 	if calls != 2 || checks != 2 {
@@ -90,7 +105,7 @@ func TestSkillInstallAdapterRequiresCurrentOperation(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if raw, err := adapter.Execute(ctx, other, installTestID[f.Request](t)); err == nil || raw != nil {
+		if raw, err := adapter.Execute(ctx, other, installTestID[f.Request](t)); err == nil || !emptyInstallResult(raw) {
 			t.Fatal("mismatched operation called service")
 		}
 	}
@@ -102,7 +117,7 @@ func TestSkillInstallAdapterRequiresCurrentOperation(t *testing.T) {
 		calls++
 		return skill.InstallReceipt{}, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	if raw, err := adapter.Execute(ctx, call, installTestID[f.Request](t)); err == nil || raw != nil {
+	if raw, err := adapter.Execute(ctx, call, installTestID[f.Request](t)); err == nil || !emptyInstallResult(raw) {
 		t.Fatal("precheck bypassed Service gate")
 	}
 	if calls != 3 {
@@ -131,7 +146,7 @@ func TestSkillInstallAdapterJoinsServiceAndKeepsCommitOutcome(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	type outcome struct {
-		raw json.RawMessage
+		raw SkillInstallResult
 		err error
 	}
 	done := make(chan outcome, 1)
@@ -148,14 +163,14 @@ func TestSkillInstallAdapterJoinsServiceAndKeepsCommitOutcome(t *testing.T) {
 	}
 	close(release)
 	got := <-done
-	if got.raw != nil || !errors.Is(got.err, context.Canceled) {
+	if !emptyInstallResult(got.raw) || !errors.Is(got.err, context.Canceled) {
 		t.Fatal("cancel did not retain original synchronous tail")
 	}
 	unknown := f.NewFault(f.CommitUnknown, f.Unknown)
 	service.install = func(context.Context, id.Actor, f.CommandMeta, id.ProjectID, skill.InstallRequest) (skill.InstallReceipt, error) {
 		return skill.InstallReceipt{}, unknown
 	}
-	if raw, err := adapter.Execute(context.Background(), call, request); raw != nil || err != unknown {
+	if raw, err := adapter.Execute(context.Background(), call, request); !emptyInstallResult(raw) || err != unknown {
 		t.Fatal("domain unknown changed")
 	}
 	canary := errors.New("private-install-error-canary")
@@ -164,8 +179,29 @@ func TestSkillInstallAdapterJoinsServiceAndKeepsCommitOutcome(t *testing.T) {
 	}
 	raw, err := adapter.Execute(context.Background(), call, request)
 	var fault *f.Fault
-	if raw != nil || !errors.As(err, &fault) || fault.CommitState != f.Unknown || !errors.Is(err, canary) || strings.Contains(fmt.Sprint(err), canary.Error()) {
+	if !emptyInstallResult(raw) || !errors.As(err, &fault) || fault.CommitState != f.Unknown || !errors.Is(err, canary) || strings.Contains(fmt.Sprint(err), canary.Error()) {
 		t.Fatal("unexpected Service failure leaked or lost unknown cause")
+	}
+	// A successful original Service receipt must reach the Runtime even if
+	// cancellation arrives just before the call returns. This adds no work
+	// to the Service and does not turn an invalid receipt into success.
+	committed := installTestReceipt(t, call)
+	ctx, cancel = context.WithCancel(context.Background())
+	service.install = func(context.Context, id.Actor, f.CommandMeta, id.ProjectID, skill.InstallRequest) (skill.InstallReceipt, error) {
+		cancel()
+		return committed, nil
+	}
+	result, err := adapter.Execute(ctx, call, request)
+	if err != nil || ctx.Err() != context.Canceled || result.Receipt() != committed || !json.Valid(result.ModelOutput()) {
+		t.Fatal("late cancellation erased a validated committed receipt")
+	}
+	bad := committed
+	bad.ProjectID = installTestID[id.Project](t)
+	service.install = func(context.Context, id.Actor, f.CommandMeta, id.ProjectID, skill.InstallRequest) (skill.InstallReceipt, error) {
+		return bad, nil
+	}
+	if result, err = adapter.Execute(context.Background(), call, request); !emptyInstallResult(result) || !errors.Is(err, ErrSkillInstallReceipt) {
+		t.Fatal("invalid receipt escaped as a partial outcome")
 	}
 	// Cancellation arriving during the precheck prevents Service dispatch.
 	ctx, cancel = context.WithCancel(context.Background())
@@ -175,7 +211,11 @@ func TestSkillInstallAdapterJoinsServiceAndKeepsCommitOutcome(t *testing.T) {
 		t.Fatal("dispatched after cancellation")
 		return skill.InstallReceipt{}, nil
 	}
-	if raw, err = adapter.Execute(ctx, call, request); raw != nil || !errors.Is(err, context.Canceled) {
+	if raw, err = adapter.Execute(ctx, call, request); !emptyInstallResult(raw) || !errors.Is(err, context.Canceled) {
 		t.Fatal("late precheck cancellation lost")
 	}
+}
+
+func emptyInstallResult(result SkillInstallResult) bool {
+	return result.Receipt() == (skill.InstallReceipt{}) && result.ModelOutput() == nil
 }
