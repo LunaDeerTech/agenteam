@@ -17,7 +17,7 @@
 | Agent 配置目录 Model 校验 | D01 `ModelCatalog.ValidateSelectionInTx` 是概念端口；现有 `resolution_policy.go` 拒绝非空 reasoning effort，且解析含运行 snapshot/lease 职责 | **未实现本卡所需配置窄口**。由 Model owner 补同 Tx 可见性、enabled chat、effort 与引用写入/替换后，F1 才能消费 |
 | Skills | [初始化卡](d10-skills-initialization.md) P1 的不可变包/builtin 材料、纯 contract 已验；Project 初始化收敛前置另已验 | **真实 Skill 发布、Agent 默认分配及 AssignmentRuntimeSink 未实现/未绑定**。材料存在不等于保护技能已发布或新 Agent 已初始化 |
 | Tool / MCP 目录 | 架构与 D01 稳定 Tool 引用、Core Tool、MCP scope 规则 | **未实现所需真实目录/原子引用保护**。默认 install-skill 的普通 Builtin Tool 身份也须由正式 Registry 返回 |
-| Runner / Mount 目录 | 逻辑 Mount/workspace、offline 与有效引用分离的规则 | 已有定义与 Agent 配置引用的 Store/provider 候选见 §10，尚未运行；MountCreate/Runner 选择权限仍未绑定，不得以在线布尔值、任意路径或空目录代替授权 |
+| Runner / Mount 目录 | 逻辑 Mount/workspace、offline 与有效引用分离的规则 | 已有定义与 Agent 配置引用的 Store/provider 基础纯验见 §10，真实 SQL 未验；MountCreate/Runner 选择权限仍未绑定，不得以在线布尔值、任意路径或空目录代替授权 |
 | Secret / 项目变量 | D04 Secret 加密、凭据/lease 等限定能力已交付 | **项目 SecretVariable 业务目录及 Agent 白名单引用口未实现**；`CredentialRef` 不能冒充 `identity.ProjectVariableID` 或证明其为 Secret |
 | Task / Work | Structure 已验；Task Planning 契约已验，runtime 当前仍在验收 | 本卡不将 Task runtime 候选算已接受。assignee/reviewer 当前引用及状态转换是后继 Work 的事实责任 |
 | Execution / Dispatch / Meeting / Memory / Governance | D01 端口与架构责任存在 | **实际 Agent slot、活动/历史占用、运行 snapshot、Memory namespace 清理等未绑定**；不实现 Agent 删除或把这些域报成无引用 |
@@ -252,7 +252,7 @@ root 已授权隔离树中的 Agent 契约、Store、canonical writer、Authorit
 
 严格 Create/Update/receipt/Lookup codec、服务强制 required providers、Get/Lookup/Stop/Drain/Joined、Work 当前事实、Model/Mount owner 回调和 typed Outbox producer 已形成候选。Work 当前事实须同 Tx 看到 completed 创建 receipt，单独 canonical 行不作为初始化证明。新 Create/Update 提交链已落源：先持久原命令与完整计划，实际 Tool 默认 ID 冻入 revision 后才发现引用；同 final Tx 写 canonical、各域引用/创建初始化、Audit/Outbox、Activity 和 receipt。已完成重放先返回历史结果，no-op 仍验证引用但不推进 canonical/Outbox；Unknown 只作一次独立有界确认，保持原 Attempt/Cause 与实际调用退休。Agent Audit checker 只接受真实 writer 的原 Tx 私有 witness，并重核完整 postimage/Entry/Key；00032 Audit DB闭集与Store-only immutable审计装配已落源，缺正式producer仍拒绝。
 
-首次限定纯验已完成：Agent、Agent/contract、Audit/contract、Project 四包的18top/28sub race全部通过，四包vet通过；原Go/outer Wait均0，1191输入初末一致且groups/runtime双空。此结论只覆盖该批纯控，受控CommitResult/lifecycle不代表真实SQL授权；独立源码审查也不代替真实联调。Mount新包仍未运行，00032–35实际迁移及Agent/provider同Tx正向创建、回滚与引用组合尚未验收。缺任一required provider必须`DEPENDENCY_UNBOUND`且不提交；默认两个bool省略true，false/空集仍核真实依赖，不提供fake `no_active_execution`。未接App/HTTP/Work正向绑定，不解既有Object STOP，F1仍未接受。
+首次限定纯验已完成：Agent、Agent/contract、Audit/contract、Project 四包的18top/28sub race全部通过，四包vet通过；原Go/outer Wait均0，1191输入初末一致且groups/runtime双空。此结论只覆盖该批纯控，受控CommitResult/lifecycle不代表真实SQL授权；独立源码审查也不代替真实联调。Mount基础纯验见§10，00032–35实际迁移及Agent/provider同Tx正向创建、回滚与引用组合尚未验收。缺任一required provider必须`DEPENDENCY_UNBOUND`且不提交；默认两个bool省略true，false/空集仍核真实依赖，不提供fake `no_active_execution`。未接App/HTTP/Work正向绑定，不解既有Object STOP，F1仍未接受。
 
 ## 10. Mount 配置引用候选与未绑定边界
 
@@ -264,4 +264,4 @@ Apply 在当前 Owner Read/Mutate 与完整旧 head/version/集合及当前定�
 
 **未完成的产品接缝保留：** 正式 MountCreate 与普通 Project Owner 选择系统 Runner 的当前目录权限尚未定义/绑定。现有 Runner 管理读取为 System Admin 接口并含 root path，不能拿它冒普通 Owner catalog，也不能由有效 Runner UUID 推导权限。本候选没有创建 Mount 或授予 Runner 能力的入口；非空已有定义校验不等于端到端创建。physical ensure、执行期当前检查与 Project/Agent 生命周期清理另行实现，不解旧 STOP，也不宣称 Agent F1 已闭合。
 
-本轮4个基础pure测试top仅用受控Store/Owner验provider的正常及拒绝调用链，明确不冒真实SQL、Session或Agent canonical writer联调。源码已获独立有限静审接受，当前仅格式与静态diff检查完成，新包未编译或运行；00035、真实空head/非空引用、取消及回滚仍待限定真实验收。
+本轮4个基础pure测试top仅用受控Store/Owner验provider的正常及拒绝调用链，明确不冒真实SQL、Session或Agent canonical writer联调。源码已获独立有限静审接受。首轮编译成功但夹具以DeepEqual比较含函数的LockKey误拒合法锁，4top FAIL、vet未执行；仅测试比较改为完整canonical key/mode序列后，修后一次4top race与本包vet全部通过，原Wait及双尾完整、输入一致，旧FAIL保留。产品/DDL未为该修复改变；00035、真实空head/非空引用、取消及回滚仍待限定真实验收。

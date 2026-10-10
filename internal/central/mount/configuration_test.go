@@ -85,7 +85,9 @@ func (s *controlledStore) AcquireAll(_ context.Context, _ f.Tx, locks []f.LockRe
 	return nil
 }
 func (s *controlledStore) RequireHeldLocks(_ context.Context, _ f.Tx, locks []f.LockRequest) error {
-	if s.missingLocks || !reflect.DeepEqual(s.locks, locks) {
+	if s.missingLocks || !slices.EqualFunc(s.locks, locks, func(a, b f.LockRequest) bool {
+		return a.Key.Canonical() == b.Key.Canonical() && a.Mode == b.Mode
+	}) {
 		return fault(f.Forbidden)
 	}
 	return nil
