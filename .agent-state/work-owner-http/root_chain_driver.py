@@ -18,6 +18,9 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestSchedulerProjectRunner$': (
+        'tests/projectvariable/scheduler_project_runner_test.go',
+    ),
     '^TestSchedulerBoundedRetry$': (
         'tests/projectvariable/scheduler_bounded_retry_test.go',
         'tests/projectvariable/scheduler_busy_compensation_test.go',
