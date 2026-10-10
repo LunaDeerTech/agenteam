@@ -118,6 +118,12 @@ func (s *sessionState) recoverResult(ctx context.Context) (mc.ModelResponse, err
 		s.markJoined()
 	}
 	if closeErr != nil {
+		// A failed cleanup wait says nothing new about the original physical
+		// outcome. Until this exact handle joins, retain its Unknown and cause.
+		var original *f.Fault
+		if !joined && errors.As(s.err, &original) && original.CommitState == f.Unknown {
+			return zero, s.err
+		}
 		s.err = loopPortError(closeErr)
 		return zero, s.err
 	}
