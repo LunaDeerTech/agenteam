@@ -11,3 +11,19 @@
 - native 背压原来只要求非空错误与上界，可能接受早发普通错误。作者改为 `errors.As(net.Error)` 且 `Timeout()`，实际 elapsed 至少原 requestBudget 的 3/4、仍保原上界 +800ms；原刺激、writer 透传与资源尾不变。该四行修复已静态复核。
 
 原 PG01 `29190/fa6ad6` whole FAIL 与完整资源尾保留：Authority 3、Mutations 3、Transactions 4、Unknown 前两子实际通过，末子原复合断言失败；不据本审升级。后继修复仅 Mutations / Unknown 两 top 六子使用新候选，未变 Authority / Transactions 结果可复用。旧 native01 从未执行，native02 含新 Timeout 判据，仍待唯一真实窗口。没有为本静态方法审增加控制框架。
+
+## 原动态结果收口与最小独立补集
+
+2026-10-10，最终技术 `3976b984`；本人只读原日志核对 `d642b2` actual0，没有运行业务、Go 或 socket。上段“仍待”是静审时点，现后继结果如下：
+
+- native02 `52400/0b3bce` outer0，67.850s，三个父/六子 RUN、PASS 恰各一次；原 child1422975、driver1422968 Wait0，runtime/private/desc 双尾、TCP 两次空差量与 input unchanged 齐。日志 `/tmp/ktc-native-01/pg-87731d1f665a4a1cbb33325eb9548141.log`。实际背压 Timeout 和原预算下界经过；断开仍是 TCP 全 Close，不称 half-close。
+- PG03 `9527/b8dcb4` outer0，117.055s，Mutations/Unknown 两父六子全部通过；原 Go1417828、driver1416054 Wait0，七个精确资源各两次 absent，private/runtime/desc/TCP/input 尾齐。日志 `/tmp/ktc-pg-02/pg-2cd352f2538145f7bbcd89f675642d9a.log`。
+- 原 PG01 日志 `/tmp/ktc-pg-01/pg-477a2456070142ecb5f6ade631696bee.log` 的未变 Authority 三子与 Transactions 四子及父节点逐项通过；原 Unknown 末子及父 top 失败、whole FAIL 不回填。固定输入组合现覆盖作者四 top/十三子，不能称当前 HEAD 单次全量通过。
+
+有限接受上述实际方法及结果，没有新增确认的产品 must-fix。Runner `25660/6cc25b` 的实际两 top/九 sub 覆盖 actual adapter/正式 digest、坏隐藏字段/提交后投影与原取消 callback held/join；B02 已正式交付的真实事务、正文和 tree/reference 独立补集继续复用。没有必要重跑作者 Unknown、锁序或 native 矩阵。
+
+正式 HTTP 交付前建议只补一个独立 PG 情景：**当前合法的新 Owner 不能取得旧 Owner 的命令回执**。正式卡 §2 要求 User/原意图绑定，§3 要求每次当前授权；`commands.go:LookupCommand` 是当前 `readScope` 成功后才读取原命令并比较持久 `row.user`/digest。作者两锁序实测 Owner 漂移后旧 A 的 mutation 被拒，但未让已经获权的 B 到达此旧回执分支；Runner 的不同 User 控制止于 controlled Service 捕获摘要，不能代持久回执组合。
+
+最小一 top/一个连续场景即可：真实 A rename 后原 key Lookup 正向，改变原 title 的 Lookup 必须拒绝；在同正式锁/原 Tx 中完成已披露的上游 Owner A→B fixture 事实；B 用新 key 真实 rename/Lookup 正向证明当前权限，再用 A 的原 key/原意图 Lookup 必须 `IdempotencyKeyReused` 且不发布 receipt；A 的旧 Session 仍按当前权限拒绝。核原 A command/receipt 不变、拒绝段无新增领域事实，并保原资源/调用尾。具体刺激与断言由未参与 HTTP 实现者独立编写，不手种 command/receipt，不引入新并发或故障框架，不把上游 Owner fixture 称生产转移 API。
+
+该补集尚未实现或执行；不是已知漏洞，也不新增 root、UI、正文下载或整个 D12 完成结论。无须复跑旧十三子来完成它。

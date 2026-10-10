@@ -52,6 +52,12 @@ go test -race -count=1 -timeout=90s ./internal/central/skill/...
 go vet ./internal/central/skill/...
 ```
 
+## Knowledge 命令 HTTP 动态收口（只读）
+
+原六源方法报告 `.agent-state/knowledge-tree-command-review/report.md` 已补原动态结果：本人 d642b2 只读实际日志，native02 52400/0b3bce 三父六子及 PG03 9527/b8dcb4 两父六子完整 PASS/Wait/资源双尾/TCP/input 齐；PG01 未变 Authority 三子、Transactions 四子复用，原 whole FAIL 保留。组合覆盖作者四 top/十三子和 native 三 top/六子，Runner 2top9sub 及正式 B02 证据复用，不重跑。
+
+没有新增产品 must-fix；给 root 的唯一最小独立 PG 建议为当前合法新 Owner B 对旧 Owner A 命令回执的 User/原意图绑定（1top/单情景），正向证明 B 当前可写、旧回执拒绝且无副作用。原作者仅测旧 A 被当前权限拒，Runner 的不同 User 摘要格为 controlled Service；此动态接缝尚未执行。只更新报告与本文，产品及 b5bb3ae8 新 Cleanup 六源均保持冻结，没有新的 Go、PG、socket 或候选。
+
 ## 后续固定离线环境
 
 复用独占Variables-independent cache，不创建新GB缓存，也不写Work/VarsUI/Knowledge cache。获得编译授权时第一same-process statvfs≥5368709120B并flush实际UTC/bytes，`-p=1`；继承PATH前置Go保留Node。实际资源必须另有root fresh grant。
