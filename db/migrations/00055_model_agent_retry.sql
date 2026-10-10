@@ -100,7 +100,7 @@ CREATE FUNCTION agenteam_model.check_runtime_attempt_profile() RETURNS trigger
 LANGUAGE plpgsql AS $$
 DECLARE profile integer;
 BEGIN
- IF TG_OP='UPDATE' AND OLD.fact_data#>'{Value,final}' IS NOT NULL
+ IF TG_OP='UPDATE' AND jsonb_typeof(OLD.fact_data#>'{Value,final}')='object'
     AND (NEW.call_id,NEW.id,NEW.project_id,NEW.ordinal,NEW.process_id,NEW.fence,NEW.dispatch,NEW.sequence,NEW.fact_data)
       IS DISTINCT FROM (OLD.call_id,OLD.id,OLD.project_id,OLD.ordinal,OLD.process_id,OLD.fence,OLD.dispatch,OLD.sequence,OLD.fact_data) THEN
   RAISE EXCEPTION 'final Model attempt is immutable';
