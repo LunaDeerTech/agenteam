@@ -53,17 +53,28 @@ func (s *contentReadStore) WithinTx(ctx context.Context, cause f.TransactionCaus
 	return f.CommittedResult()
 }
 func (s *contentReadStore) AcquireAll(_ context.Context, tx f.Tx, locks []f.LockRequest) error {
-	if !s.active || tx != s.tx || !reflect.DeepEqual(locks, s.expected) {
+	if !s.active || tx != s.tx || !contentReadSameLocks(locks, s.expected) {
 		return errors.New("wrong live transaction or read locks")
 	}
 	s.held = append([]f.LockRequest(nil), locks...)
 	return nil
 }
 func (s *contentReadStore) RequireHeldLocks(_ context.Context, tx f.Tx, locks []f.LockRequest) error {
-	if !s.active || tx != s.tx || !reflect.DeepEqual(locks, s.held) {
+	if !s.active || tx != s.tx || !contentReadSameLocks(locks, s.held) {
 		return errors.New("read was not preceded by the original lock union")
 	}
 	return nil
+}
+func contentReadSameLocks(a, b []f.LockRequest) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i].Key.Validate() != nil || b[i].Key.Validate() != nil || f.CompareLockKeys(a[i].Key, b[i].Key) != 0 || a[i].Mode != b[i].Mode {
+			return false
+		}
+	}
+	return true
 }
 func (s *contentReadStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
 	if !s.active || tx != s.tx {
@@ -102,14 +113,15 @@ func TestContentDeletedClassificationAfterCurrentAuthority(t *testing.T) {
 			t.Run(method+"/"+mode, func(t *testing.T) {
 				service, store, gate, objects, actor := contentReadFixture(t)
 				want, queries := f.ResourceDeleted, 1
+				originalCause := errors.New("original current authority refusal")
 				switch mode {
 				case "missing":
 					store.rows = []postgres.Row{publicationCheckpointRow(func(...any) error { return pgx.ErrNoRows })}
 					want = f.NotFound
 				case "foreign":
-					gate.err, want, queries = fault(f.NotFound), f.NotFound, 0
+					gate.err, want, queries = fault(f.NotFound).WithCause(originalCause), f.NotFound, 0
 				case "revoked":
-					gate.err, want, queries = fault(f.SessionRevoked), f.SessionRevoked, 0
+					gate.err, want, queries = fault(f.SessionRevoked).WithCause(originalCause), f.SessionRevoked, 0
 				case "unknown":
 					store.unknown, want = true, f.CommitUnknown
 				}
@@ -123,8 +135,8 @@ func TestContentDeletedClassificationAfterCurrentAuthority(t *testing.T) {
 				if !errors.As(err, &actual) || actual.Code != want || store.queries != queries || objects.calls != 0 || store.active || len(service.state().calls) != 0 {
 					t.Fatal("wrong classification, protected read, or retained original call", err)
 				}
-				if gate.err != nil && err != gate.err {
-					t.Fatal("original authority error was replaced")
+				if gate.err != nil && (!errors.Is(err, originalCause) || actual.CommitState != f.NotCommitted) {
+					t.Fatal("original authority cause or transaction outcome was replaced")
 				}
 			})
 		}

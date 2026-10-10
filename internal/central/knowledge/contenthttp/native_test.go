@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -17,7 +18,6 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
-	"strings"
 )
 
 // These tests use actual loopback TCP and require a separately granted window.
@@ -267,14 +267,22 @@ func TestContentHTTPNativeKeepAliveAndClose(t *testing.T) {
 
 type nativeWriteObserver struct {
 	http.ResponseWriter
-	entered chan struct{}
-	once    sync.Once
+	entered  chan struct{}
+	once     sync.Once
+	returned chan error
+	calls    atomic.Int32
 }
 
 func (w *nativeWriteObserver) Unwrap() http.ResponseWriter { return w.ResponseWriter }
 func (w *nativeWriteObserver) Write(p []byte) (int, error) {
+	w.calls.Add(1)
 	w.once.Do(func() { close(w.entered) })
-	return w.ResponseWriter.Write(p)
+	n, err := w.ResponseWriter.Write(p)
+	select {
+	case w.returned <- err:
+	default:
+	}
+	return n, err
 }
 func TestContentHTTPNativeBackpressureAndDisconnect(t *testing.T) {
 	requireNative(t)
@@ -282,8 +290,10 @@ func TestContentHTTPNativeBackpressureAndDisconnect(t *testing.T) {
 		h, _, ports := testHandler()
 		ports.content.Text = &kc.TextContent{Text: strings.Repeat("<", 1<<20), NextByteOffset: 1 << 20}
 		entered := make(chan struct{})
+		observer := &nativeWriteObserver{entered: entered, returned: make(chan error, 1)}
 		address, results, _ := nativeListener(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(&nativeWriteObserver{ResponseWriter: w, entered: entered}, r)
+			observer.ResponseWriter = w
+			h.ServeHTTP(observer, r)
 		}), true)
 		conn := nativeDial(t, address)
 		if e := conn.SetReadBuffer(1024); e != nil {
@@ -298,7 +308,14 @@ func TestContentHTTPNativeBackpressureAndDisconnect(t *testing.T) {
 		}
 		terminal := nativeTerminal(t, results)
 		elapsed := time.Since(start)
-		if !terminal.aborted || elapsed < contentBudget*3/4 || elapsed > contentBudget+2*time.Second || ports.calls != 1 {
+		var writeErr error
+		select {
+		case writeErr = <-observer.returned:
+		default:
+			t.Fatal("original Write did not actually return")
+		}
+		var timeout net.Error
+		if !terminal.aborted || elapsed < contentBudget*3/4 || elapsed > contentBudget+2*time.Second || ports.calls != 1 || observer.calls.Load() != 1 || !errors.As(writeErr, &timeout) || !timeout.Timeout() {
 			t.Fatal("blocked actual Write did not expire", elapsed)
 		}
 		if e := conn.Close(); e != nil {

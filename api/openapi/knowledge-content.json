@@ -181,10 +181,36 @@
               "$ref": "./common.json#/components/schemas/Problem"
             }
           }
+        },
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+            }
+          }
         }
       },
       "HeadProblem": {
-        "description": "Same Problem status and headers as GET, with no response body."
+        "description": "Same Problem status and headers as GET, with no response body.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+            }
+          }
+        }
       }
     },
     "schemas": {

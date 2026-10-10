@@ -1,6 +1,6 @@
 # D12 Human Owner 有界正文 HTTP
 
-状态：SPEC rev1 与两个已授权 tombstone 出口方案已获 Work 独立有限接受；第一份 HTTP/Schema 与领域两行源码已保存准备，尚未编译或执行测试，不代表产品验收。基线 main `3b7ed9da35844e3a367cc5e9da0cf424ab36499a`。作者 Variables UI；依据 [D12 合同](d12-knowledge-documents-design.md) §3/5/6、[B02 Service](d12-b02-knowledge-service.md)与已交付 [metadata HTTP](d12-knowledge-owner-read-http.md)。结果只提供当前正文的有界结构化读取，不包含写入、下载 URL、原文件流、D13 parser、UI 或默认 root。
+状态：SPEC rev1、产品与第一批测试方法已获 Work 独立有限审查；HTTP 9 个纯测试 top（含 17 个实际响应 Schema 向量）及领域 3 个 top/15 子场景已 race 通过，两 package vet 通过。3 个 native top 明确未运行；真实 PG 源码仍在准备，不能称产品完整验收。基线 main `3b7ed9da35844e3a367cc5e9da0cf424ab36499a`。作者 Variables UI；依据 [D12 合同](d12-knowledge-documents-design.md) §3/5/6、[B02 Service](d12-b02-knowledge-service.md)与已交付 [metadata HTTP](d12-knowledge-owner-read-http.md)。结果只提供当前正文的有界结构化读取，不包含写入、下载 URL、原文件流、D13 parser、UI 或默认 root。
 
 ## 1. 唯一入口与依赖
 
@@ -34,9 +34,9 @@ HEAD 执行同 GET 的当前授权、实际正文读取、Close 和完整安全�
 
 每次请求由真实 B02/Project/Account 在活 Store Tx 中重验当前 Session、当前 Owner、initialized 与 Read gate；archived 可读，Deleting/未初始化拒绝，foreign Project/非 Owner/缺行保原 NotFound。已删正文按 D12 §6 返回 `ResourceDeleted`（统一 Problem 410），metadata tombstone 查询仍是原 200。
 
-现 `source.go` 的 `ReadDocument` 与其调用的 `OpenCanonical`，各在成功 `GetDocument` 后 `head.Active==nil` 返回 NotFound。这两处已经由领域完成当前权限与同 Project 查询，结果只会是合法 tombstone；二次 OpenCanonical 还可能在两次查询间首次观察到删除。拟仅将**同一文件这两个精确出口**改成 `ResourceDeleted`，让明确已删除正文不因竞态退回 404。HTTP 不将任意 404 改为 410；数据库缺行、foreign、权限、Object 端口故障继续原错误。
+原 `source.go` 的 `ReadDocument` 与其调用的 `OpenCanonical`，各在成功 `GetDocument` 后 `head.Active==nil` 返回 NotFound。这两处已经由领域完成当前权限与同 Project 查询，结果只会是合法 tombstone；二次 OpenCanonical 还可能在两次查询间首次观察到删除。现已仅将**同一文件这两个精确出口**改成 `ResourceDeleted`，让明确已删除正文不因竞态退回 404。HTTP 不将任意 404 改为 410；数据库缺行、foreign、权限、Object 端口故障继续原错误。
 
-打开 reader 后的 current version/ObjectID/active 复查仍是原 VersionConflict，并先实际 Close；不改 SourceResolver、新 source、preview 或其他 B02 分支。本次没有权限扩大或公开合同变更。领域两出口与定向相邻测试先交 Work 独立审后实施，测试须实证 authorized tombstone 410、missing/foreign/拒权保持原错误且 Objects 未被调用、两次读取间删除正确分类及既有 reader Close 语义保持。
+打开 reader 后的 current version/ObjectID/active 复查仍是原 VersionConflict，并先实际 Close；不改 SourceResolver、新 source、preview 或其他 B02 分支。本次没有权限扩大或公开合同变更。领域两出口方案经 Work 独立审后实施；定向控制已实证 authorized tombstone 410、missing/foreign/拒权保持原错误且 Objects 未被调用、两次读取间删除正确分类及 typed reader Read/Close 的原错误、阻塞和实际退役。这些控制使用真实 Service 与明确 Store/authority/body 替身，不是实际 PG 或 D05 lease 证明。
 
 ## 4. 原总预算与资源完成
 
@@ -56,3 +56,5 @@ HEAD 执行同 GET 的当前授权、实际正文读取、Close 和完整安全�
 4. 真实 PG+Account+B02+D05：规范 Login/当前Owner、UTF-8 真实 canonical 文本与分页、PDF/DOCX不可读、授权 tombstone410/foreign404/归档读取、Session/Owner撤权及原锁序、真实 reader/Tx 退出和零业务写事实；原七资源及 test/driver/outer Wait、private/runtime/desc/TCP/input 完整尾。Project 初始化/Owner变更如用上游 SQL fixture须明确，不冒生产创建/转移API。
 
 新增写域：`internal/central/knowledge/contenthttp/**`、`api/openapi/knowledge-content.json`、`tests/knowledge/owner_content_http*`、本卡/current 与必要本域可恢复测试工具。领域配套限 `source.go` 上述两出口及新增相邻 `content_source_test.go`，不重构旧测试。无新依赖、锁文件、迁移、metadata/五 POST/root 改动。Go/真实 PG/native/socket/新缓存仍由 root 按资源窗口另授，未执行不得称验收。
+
+首领域纯测试原 FAIL 保留：测试夹具用 reflect.DeepEqual 比较含函数闭包的 LockKey，提前拒绝相等锁；已改正式 CompareLockKeys 配数量/顺序/Mode，Fault 也按原 cause/code/NotCommitted 检查而非被事务复制的指针。仅重跑受影响三 top 后通过。独审发现的 HEAD Problem 缺 headers、native 背压未断言原 Write Timeout 已分别补齐；前者已由实际 Schema 向量验证，后者仍待真实 native 窗口。
