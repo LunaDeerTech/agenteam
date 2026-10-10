@@ -43,7 +43,9 @@ func TestProjectLifecycleLocalStopRound(t *testing.T) {
 		phaseEntered, stepEntered, checkpointEntered := make(chan struct{}), make(chan struct{}), make(chan struct{})
 		var txNumber atomic.Int32
 		v.tracked.setAfter(func(ctx context.Context, tx f.Tx, c f.TransactionCause) error {
-			if c.Details().Owner != "project-lifecycle" {
+			details := c.Details()
+			_, attemptErr := f.ParseID[struct{}](details.JobAttemptID)
+			if details.Kind != f.JobCause || details.JobType != "project-lifecycle" || details.JobID != cause.OperationID.String() || attemptErr != nil {
 				return nil
 			}
 			switch txNumber.Add(1) {
@@ -129,7 +131,9 @@ func TestProjectLifecycleLocalStopRound(t *testing.T) {
 		step := func(context.Context, i.Actor, pc.LifecycleCause, pc.ScopeRef) error { calls.Add(1); return nil }
 		driver := phaseDriver(t, v, process, v.lifecycle, step)
 		v.tracked.setAfter(func(_ context.Context, _ f.Tx, c f.TransactionCause) error {
-			if c.Details().Owner == "project-lifecycle" {
+			details := c.Details()
+			_, attemptErr := f.ParseID[struct{}](details.JobAttemptID)
+			if details.Kind == f.JobCause && details.JobType == "project-lifecycle" && details.JobID == cause.OperationID.String() && attemptErr == nil {
 				return f.NewFault(f.DependencyUnavailable, f.NotStarted)
 			}
 			return nil
