@@ -1115,8 +1115,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       } catch {
         throw new AccountFailure('invalid-input')
       }
-    }
-    if ((knowledgeEndpoints as readonly string[]).includes(endpoint)) {
+    } else if ((knowledgeEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const children = endpoint === 'knowledgeChildren',
           content = endpoint === 'knowledgeContent'

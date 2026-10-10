@@ -49,9 +49,11 @@ async function page(archived = false) {
   return { ...f, router, wrapper }
 }
 function button(label: string, root: ParentNode = document): HTMLButtonElement {
-  const match = [...root.querySelectorAll<HTMLButtonElement>('button')].find(
-    (node) => (node.getAttribute('aria-label') ?? node.textContent?.trim()) === label,
-  )
+  const match = [...root.querySelectorAll<HTMLButtonElement>('button')].find((node) => {
+    const content = node.cloneNode(true) as HTMLElement
+    content.querySelectorAll('[aria-hidden="true"]').forEach((hidden) => hidden.remove())
+    return (node.getAttribute('aria-label') ?? content.textContent?.trim()) === label
+  })
   if (!match) throw new Error('Missing UI action: ' + label)
   return match
 }

@@ -23,3 +23,12 @@ Lookup 仅原 command、target_id、update/delete 原 expected_version；沿原 
 新 API `project-secrets.ts`、controller `useProjectSecrets.ts`、页面与 SecretEditor；共享 client/Session/router/Settings/ProjectNav 仅本域闭合接线。普通 Variables donor `60dbcee7` 只参考严格校验与列表结构，未覆盖旧 snapshot 的 shared 文件，也不复用普通值长期缓存或其原失败验收。
 
 定向三 spec 使用真实 API/Session/Workspace 与 Vue Router/页面，只有 Fetch/环境受控：校验合同、输入清除、Unknown identity-only 查证、same-session/真正换身份、当前拒权、原取消尾、归档只读、迟到读抑制、显式冲突采用与导航确认。它们不是实际浏览器或真实 Cookie/PG 证明。后继实际窗口由 root 分配，SPA concurrent-publication STOP 不变。
+
+## 首轮基础结果（有限）
+
+- 首版 source `7df16529`。pure01 原 Wait1：26 项实际执行中 15 通过/11 失败，另页面套件未加载；确定 client 新 Secret 分支后继续进入旧分派，带 target 的合法请求被旧 fallback 拒绝。仅接为同一 else-if 链，旧域规则不改。页面套件错误来自私有 configLoader runner 的已关闭 Vue module runner，改原 `.mjs` native loader。
+- type01 原 Wait2：本域 delete 联合类型未收窄，另主树已锁 node_modules 缺 go-captcha-vue。前者返回固定 delete literal；后者比对旧 Skills 树与本树 package-lock 完全一致后，只读借其原 2.0.7 包，在本树私有 node_modules 链接集合补齐。未 npm install、未修改锁或共享依赖。
+- 修后 pure02 三个新 spec 共 30 项全部通过，原 session24216/chunkc7943a exit0，13.82s；完整 vue-tsc type02 原 session91351/chunk78def9 exit0。运行命令及日志在本树 `output/ai/secret-owner-ui/`，源随本卡可恢复；不将可重建 ignored 输出称 main 固定材料。
+- 原 client/Session 受影响边界仅选择六项：Knowledge 四 GET、Project 五请求、Credential 明确五操作，以及普通 Owner active/archived 与当前401；compat01 四文件选中6项通过/165未选，session50229/chunk391505 exit0。没有重跑旧全 UI 矩阵。
+- work_ui 非作者实际审查 14 web 源有限接受，无确认 must-fix；引用作者纯控/type 结果，没有重复运行，也不将它们升级为真实浏览器或 PG 证据。
+- 当前没有实际浏览器、真实 Cookie/PG 或视觉验收。首次正常 CRUD 与一次真实提交后受控响应丢失查证方案待 root 分配 fixture/shared writer；生产 SPA publication STOP 继续保留。

@@ -199,7 +199,7 @@ export function captureSecretCommand(value: unknown): SecretCommand {
     requireValue(identity.kind !== 'create')
     if (identity.kind === 'delete') {
       shape(v, ['kind', 'projectID', 'targetID', 'expectedVersion'])
-      return identity
+      return Object.freeze({ ...identity, kind: 'delete' as const })
     }
     const r = shape(v.request, [], ['name', 'description', 'value'])
     requireValue(Object.keys(r).length > 0)
