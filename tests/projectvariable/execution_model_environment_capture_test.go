@@ -312,21 +312,22 @@ func (o *observedExecutionMounts) CaptureExecutionMountsInTx(ctx context.Context
 }
 
 type modelEnvironmentFixture struct {
-	v             *taskTransitionFixture
-	created       ec.Summary
-	request       ec.LaunchRequest
-	attempt       string
-	authority     *execution.Authority
-	configuration *agent.ExecutionConfigurationAuthority
-	task          *work.TaskTrigger
-	ordinary      vc.Variable
-	secret        vc.SecretVariable
-	credential    sc.Metadata
-	skills        *observedSkillCapture
-	tools         *observedToolCapture
-	models        *observedExecutionModel
-	environment   *observedExecutionEnvironment
-	mounts        *observedExecutionMounts
+	v                  *taskTransitionFixture
+	created            ec.Summary
+	request            ec.LaunchRequest
+	attempt            string
+	authority          *execution.Authority
+	configuration      *agent.ExecutionConfigurationAuthority
+	task               *work.TaskTrigger
+	ordinary           vc.Variable
+	secret             vc.SecretVariable
+	credential         sc.Metadata
+	skills             *observedSkillCapture
+	tools              *observedToolCapture
+	models             *observedExecutionModel
+	environment        *observedExecutionEnvironment
+	environmentSecrets *secret.Service
+	mounts             *observedExecutionMounts
 }
 
 func newModelEnvironmentFixture(t *testing.T) *modelEnvironmentFixture {
@@ -415,7 +416,8 @@ func newModelEnvironmentFixtureWithPorts(t *testing.T,
 		ordinary: ordinary, secret: secretVariable, credential: credential,
 		skills: &observedSkillCapture{provider: skills}, tools: &observedToolCapture{provider: tools},
 		models: &observedExecutionModel{provider: modelCapture}, environment: &observedExecutionEnvironment{provider: environment},
-		mounts: &observedExecutionMounts{provider: mounts}}
+		environmentSecrets: environmentSecrets,
+		mounts:             &observedExecutionMounts{provider: mounts}}
 	x.models.observe = x.observeModel
 	x.environment.observe = x.observeEnvironment
 	return x
