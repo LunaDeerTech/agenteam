@@ -1,6 +1,8 @@
 # D05 bounded metadata cleanup 当前检查点
 
-- 下一有限历史单组 prepared：`^TestObjectMetadataCleanupOldAttemptsAndStopHistory$`（1top、无子），复用原37180277B候选；history/plan源码最后在b44f46cd修改，早于该候选构建，未重编。原两root tools各只新增一行映射；`8f8658` 复用Runner既有纯控制、内存改selector/base后actual0：逆两行全文=322dcf5a、1正6错selector拒、7 observer格各14资源替身观察、9旧config/input_paths不变，原预算/完整尾保留。现交Work独立窄审历史源码及入口；尚无该top真实行为结果。建议未用输出`output/ai/object-metadata-cleanup/pg-history01`，须fresh grant再查absent才能启动。
+- 下一有限历史单组入口已保存384551f3：`^TestObjectMetadataCleanupOldAttemptsAndStopHistory$`（1top、无子）。两tools各+1，原8f8658纯控制与预算/全尾复用。但Work静审发现成功出口未核实际deadline、proxy.finished早于原Body.Close/wg.Done；root据此撤销历史测试直接复用旧候选的准备状态，允许窄修及后继新候选。原37180277B/完整SHA保留为旧未修输入，不冒修后源码的已编或业务证据；该top从未真实运行。
+- 历史返修仅 `tests/objects/metadata_cleanup_history_test.go`：首Stop、物理Delete及历史专用Stop循环在原成功返回时核原2s/总3s绝对deadline；本域helper保原40轮/5ms，不改其他已验case的共享fixture。原GET观察改等真实proxy.wg（包含原response.Body.Close及handler尾）再进入后续Stop/Release/Delete，保原2s尾并拒晚成功；既有proxy源码不改。543fdb仅gofmt/static/diffcheck通过，未Go编译或业务；当前冻结交Work返修复核，需另获编译/实际窗。
+
 - 本组范围是65原failed attempt真实恢复、1001已关闭reader之后的第1002 held reader、原Stop/实际join、Release重放保旧cause/nativeAudit唯一。其四EXPLAIN是在方法返回后保留历史但pending已空的观测；不会补活项/五lane/全部FK或22索引成本结论。完整成本矩阵仍按卡§7.2后续准备，当前不改生产/28或其它停止项。
 
 - **专用索引迁移 `2913` 完整 PASS**：精确 `^TestObjectMetadataCleanupIndexMigration$`，fresh／populated-27／atomic-failure-same-bytes-retry 三子分别2.38／2.60／2.87s，父7.85s；核22候选索引、journal/Goose一致、原数据及checks/FK/列/旧indexes不变、末DDL失败整体回滚与原字节重试。没有运行history/EXPLAIN或其它业务组，不据此接受索引成本。

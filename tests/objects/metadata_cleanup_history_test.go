@@ -12,6 +12,7 @@ import (
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/minio/minio-go/v7"
 )
@@ -93,21 +94,37 @@ func TestObjectMetadataCleanupOldAttemptsAndStopHistory(t *testing.T) {
 	}
 	actor, stop := activateObjectStop(t, f.fixture, oc.ProjectStopDelete)
 	ctx, cancel := context.WithTimeout(contextFor(t), 2*time.Second)
+	deadline, _ := ctx.Deadline()
 	_, err = f.service.RequestProjectStop(ctx, actor, stop)
+	returned := time.Now()
 	cancel()
-	if err != nil {
+	if err != nil || returned.After(deadline) {
 		t.Fatal("bounded first Stop", err)
 	}
 	proxy.release()
 	if err := reader.Close(); err != nil && !errors.Is(err, context.Canceled) {
 		t.Fatal("late reader Close returned an unrelated failure", err)
 	}
+	// finished is an earlier response milestone: serve closes it before its
+	// deferred upstream Body.Close and final wg.Done. Wait for the original
+	// handler accounting before any subsequent Stop/Release/Delete call.
+	joinDeadline := time.Now().Add(2 * time.Second)
+	joinTimer := time.NewTimer(time.Until(joinDeadline))
+	defer joinTimer.Stop()
+	handlersJoined := make(chan struct{})
+	go func() {
+		proxy.wg.Wait()
+		close(handlersJoined)
+	}()
 	select {
-	case <-proxy.finished:
-	case <-time.After(2 * time.Second):
+	case <-handlersJoined:
+		if time.Now().After(joinDeadline) {
+			t.Fatal("original GET handler joined after the existing tail deadline")
+		}
+	case <-joinTimer.C:
 		t.Fatal("original held GET handler did not actually return")
 	}
-	metadataStopUntilSettled(t, f, actor, stop)
+	metadataHistoryStopUntilSettled(t, f, actor, stop)
 	if err := f.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND state='active'`, object.String()).Scan(&live); err != nil || live != 0 {
 		t.Fatal("Stop skipped an active native lease", err, live)
 	}
@@ -133,9 +150,11 @@ func TestObjectMetadataCleanupOldAttemptsAndStopHistory(t *testing.T) {
 		}
 	}
 	ctx, cancel = context.WithTimeout(contextFor(t), 2*time.Second)
+	deadline, _ = ctx.Deadline()
 	cleaned, err := f.service.DeleteUnreferencedWithinBudget(ctx, cleanup, object)
+	returned = time.Now()
 	cancel()
-	if err != nil || cleaned.State != oc.CleanupCompleted {
+	if err != nil || cleaned.State != oc.CleanupCompleted || returned.After(deadline) {
 		t.Fatal("bounded physical cleanup after genuine history", err)
 	}
 	if err := f.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND reason='abandoned_attempt' AND operation_id=$2 AND phase='completed'`, object.String(), original).Scan(&oldCount); err != nil || oldCount != 65 {
@@ -145,4 +164,35 @@ func TestObjectMetadataCleanupOldAttemptsAndStopHistory(t *testing.T) {
 		t.Fatal("canonical delete did not append exactly one native Audit")
 	}
 	plans.explain(t, "65-attempts-1001-readers-physical-returned", "gate-two-pending-sets", "physical-full-pending")
+}
+
+// Keep this stricter historical-budget oracle local: previously accepted
+// metadata cases and their shared fixture retain their original input bytes.
+func metadataHistoryStopUntilSettled(t *testing.T, f *objectAuditFixture, actor identity.Actor, cause oc.ProjectStopCause) {
+	t.Helper()
+	total, end := context.WithTimeout(contextFor(t), 3*time.Second)
+	defer end()
+	totalDeadline, _ := total.Deadline()
+	for range 40 {
+		ctx, cancel := context.WithTimeout(total, 2*time.Second)
+		deadline, _ := ctx.Deadline()
+		report, err := f.service.RequestProjectStop(ctx, actor, cause)
+		returned := time.Now()
+		cancel()
+		if err == nil && (returned.After(deadline) || returned.After(totalDeadline)) {
+			t.Fatal("Stop returned success after its original call or total deadline")
+		}
+		if err == nil && report.Details().State == oc.ProjectStopped {
+			return
+		}
+		if err != nil && codeOf(err) != foundation.ResourceBusy {
+			t.Fatal("bounded Stop failed", err)
+		}
+		select {
+		case <-total.Done():
+			t.Fatal("bounded Stop did not converge", report.Details().State)
+		case <-time.After(5 * time.Millisecond):
+		}
+	}
+	t.Fatal("bounded Stop exhausted the fixture's existing round limit")
 }
