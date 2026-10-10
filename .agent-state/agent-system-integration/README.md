@@ -299,3 +299,20 @@ TOPS = {
 ```
 
 本轮实际入口为 `execution-model-environment-pure-checks-03.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build`、`execution-model-environment-compile-01-launcher.py`、`execution-model-environment-launcher-02.py`，均位于 `output/ai/agent-system-integration/`，用 `python3 -B` 执行且必须先获唯一资源窗口。native02 launcher 仅把 plan 名改 `execution-model-environment-02-inputs.json`；该 plan 复用原 candidate/SOURCE/1,536 inputs/hash，仅将 private/control 及 XDG/DOCKER_CONFIG 改02、output/command 改 `/tmp/eme02`。新轮须另定 fresh namespace；compile PASS 后按原 recipe 冻结实际输入，不采用旧顺序 FAIL 特例。原 5GiB 同进程门、固定 Go/正常环境、预算、真实 Wait、全部资源尾不变。
+
+## 固定 input 的 Execution Context
+
+SOURCE `346003e6720a313cd3d6da6d493e3828dd7d842b`：新增 4 top race 与 3 包 vet、compile/list、native01 均 wholePASS。真实 `TestExecutionTaskContext/frozen-input-after-owner-updates` 恰 1 top / 1 sub，11.34s：正式完整 preparation input 正常提交后构造 Context，再由 Owner 正式更新当前 Task 标题与 Agent 指令，旧 input 与再次 Build 的 canonical bytes/digest、typed Task 和版本化组件保持固定。默认显示和文本组件不含 Secret 明文、credential/lease ID；内部 canonical 保留明确访问的 typed refs，不能整包作为 model messages。Execution 仍 preparing；不宣称 sealed Snapshot、Running 或 Loop assembly。没有重跑上一批 Unknown/缺 provider 矩阵。
+
+原 pure/compile/native 结果依次为 `output/ai/execution-context/combined-pure-01/result.json`、`output/ai/agent-system-integration/execution-context-compile-01/result.json`、同目录 `execution-context-01-control/result.json`；原 supervisor 日志在该 control 目录，PG 日志 `/tmp/ctx01/pg-da2e98d247f541c89e40325ad0850277.log`。pure race/vet Wait0（16.923s/3.743s），compile/list Wait0（13.851s/1.068s）。native 于 2026-10-10 22:32:10–22:33:41 UTC 结束，Go 239739、driver 238199、supervisor 238198、outer 238153 均实际 Wait0；七资源 14 次 absent、private/runtime/desc/HOST_TCP 及 outer 全部双尾关闭，adopted=[]。1,542 native 输入首尾相同且包含全部 814 compile 输入，窗口已归还。旧 FAIL、输入和所有原结果保留。
+
+候选 `output/ai/agent-system-integration/execution-context-race-01.test` 为 61,811,635 B，SHA256 `c3ef046129292fb0b158b03838b12c4b8a25fd63185b0accaaef5b6af49174ae`。恢复沿本文件原 recipe（可从 `346003e6` 读取），原模板仍为 `148640b8` 的 `task-launch-failure-pure-checks.py` 与 `73387883` 的 `scheduler-failure-compile-02-launcher.py` / `scheduler-failure-launcher-01.py`，均在 `.agent-state/agent-system-integration/`。仅代入上述完整 SOURCE、delivery ROOT、namespace `execution-context`、selector `^TestExecutionTaskContext$`、compile `len(listed)==1` 加精确集合、native `/tmp/ctx01` 与 `execution-context-01-inputs.json`；新轮使用 fresh namespace，不覆盖原件。pure TOPS 如下，`exact_4_top_pass`；vet 仅 execution、execution/contract、work。
+
+```python
+TOPS = {
+ 'execution': ['TestExecutionContextBuildKeepsCapturedComponents', 'TestExecutionContextBuildRejectsMissingMismatchedAndCanceledProvider'],
+ 'work': ['TestTaskContextBuildUsesOnlyFixedTypedSource', 'TestTaskContextBuildRejectsReboundInputAndUnknownComponent'],
+}
+```
+
+实际三个 ignored 入口均在 `output/ai/agent-system-integration/`：`execution-context-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build` → `execution-context-compile-01-launcher.py` → `execution-context-launcher-01.py`，用固定 Python `-B` 执行。必须先取得唯一资源窗口；每段 wholePASS 后才下一段，compile PASS 后按原输入冻结 recipe 一次生成实际 plan（严格 PASS，不采用旧顺序 FAIL 特例）。原固定 Go/正常环境/RO 模块、同进程 5GiB、预算、实际 Wait、七资源与全部双尾门不变。
