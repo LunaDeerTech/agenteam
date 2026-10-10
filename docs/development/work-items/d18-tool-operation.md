@@ -1,6 +1,6 @@
 # D18 固定安装 profile 的 Operation 持久核心
 
-状态：实现中；未编译、未执行 SQL，未提供生产 Tool 派发。基线 `5659d300`，真实 Execution、D19 授权及标准 schema validator 尚未绑定。Builtin adapter 的完整内部 receipt 已有返回接缝，不等于已持久化。
+状态：实现中；未编译、未执行 SQL，未提供生产 Tool 派发。首 created 核心及 canonical-v1 窄修已有限独立静审接受；后继单次派发和 D19 固定分支已落源码，尚待检查。真实 Execution/Registry 代码来源、标准 schema validator 与 Skill AgentRun 组合未绑定，不能把接口/纯控当真实成功链。
 
 依据：[D01 Tool 调用和 Operation](d01-contracts/model-tool.md#operationattempt-与结果)、[Tool Execution](../../architecture/tool-system/tool-execution.md)、[D21 install-skill](d21-skill-install-builtin.md)。本切片不修改 Agent/Model/Runner/app，不解除既有 STOP。
 
@@ -8,7 +8,7 @@
 
 Tool 独占 `tool/contract/operation.go`、`tool/runtime/` 与迁移 `00037_tool_operations.sql`；Execution 作者独占真实身份、Snapshot/round/input/payload 及未来 00038。Skill 仍独占真实安装与最后领域授权，Registry 保持 immutable spec 和当前代码绑定。没有任何模块通过读取其他领域私有表制造授权。
 
-首片实现 `PrepareInstall(ctx, ToolCallBinding, rawArguments)` 与同原输入的 `LookupInstall`，使用实际 Store/短 Tx 写读原 Operation；只产生 `created` 事实。规范包构造、派生 key、首次固定 SkillID 和完整输入绑定不依赖运行内存。不先导出只返回 unbound 的 Execute 空壳。
+首片 `PrepareInstall(ctx, ToolCallBinding, rawArguments)` 与同原输入的 `LookupInstall` 使用实际 Store/短 Tx 写读原 Operation，只产生 `created` 事实。规范包构造、派生 key、首次固定 SkillID 和完整输入绑定不依赖运行内存。后继真正单次 Executor 的实现/依赖边界见下节。
 
 `OperationExecutionAuthority.DiscoverToolCall` 返回自有 issuer 计划/完整锁；`RequireToolCallInTx` 在同 Store 活 Tx 下核原 Actor、Project/Agent/Execution、Snapshot 精确名称/spec/binding、原已提交 Model call/input reference 和当前 Capability∩Policy。完整请求变化、外来计划、停止/取消、未绑定真实来源均拒绝。Tool 的基础锁为 Command EX、Registry SH、Project SH、Agent SH、Execution EX，与提供方计划一次 union；已有 Operation 的后继变更另持 Operation EX，不在 Tx 内补低序锁。
 
@@ -37,3 +37,15 @@ Skill 将定义消费口，Runtime 提供原 Operation/attempt/spec/binding/key/
 ## 验证与恢复
 
 首基础检查聚焦唯一输入/漂移、无 owner 零 SQL、原 Tx/完整锁、Unknown 不返回新成功及安全元数据，不重复旧 Builtin/Skill 矩阵。真实 00037 迁移与竞争须连续前缀 1–37 和隔离 PG，当前未运行。所有 Git 操作由 root 完成；无 Go、Docker、网络资源在途。
+
+## 单次派发、Skill 消费口和固定 D19 分支
+
+实际构造顺序是 `NewInstallAuthority(core, authorizer, bound ProcessGuard)` → 真实 Skill Service 接该 `InstallExecutionAuthority` → `NewInstallExecutor(authority, SkillService, standard SchemaValidator)`。无可变晚 Bind，没有公开构造 active handoff 的口。ProcessGuard 必须由实际 Object 初始化绑定，composition 持有至 Runtime 和所有原调用真 Joined；只读 CurrentProcess 不证明死亡或替代 join。
+
+Executor 重验原输入/固定目标，取得同 issuer 的当前授权计划，原完整锁和同 Tx 验证标准 input schema 后，原子写一条 ordinal/fence=1 的 Attempt 与 running Operation；running 仅是发送意图。只有物理提交已知成功才用私有 context 同步调用原 Builtin adapter 一次。Skill Discover/Require 对全部 Actor/Command/RequestID/Intent/目标/名称/包和 manifest/字节数绑定；原调用 Tx 内重验完整锁、真实 active Attempt、当前 Execution/Registry/授权。公开 DTO、旧计划、返回后的 context 和移除 cancellation 的 context 均不能自造权限。当前不新增重试或重启接管。
+
+原 Service（含物理 cleanup）实际返回后才撤 active handoff。完整合法 receipt 通过显式私有投影写入 Operation/Attempt 终态，模型仅三字段输出；标准 output schema 失败保 receipt 但形成 backend_contract_violation。已开始调用的普通取消错误不证明无副作用，按 unknown_outcome 保守记录；原 Skill/Runtime CommitUnknown 的 transaction attempt/cause 另存安全 lookup 投影。晚取消后的结果会用独立最多3s、同步等待的最后 metadata Tx 记账，不开 goroutine、不重试。若这次完成写没有确认，原调用已经返回的事实不等于持久退休：原 cause 与候选 receipt 保留，Drain 返回失败且 Joined=false，不能提前释放 guard。
+
+`tool/authorization` 是唯一固定决策实现，不由 Runtime 再写一份规则。它沿原 Execution 计划核当前基础权限，再由 Registry 正式同 Tx 口核 immutable selected revision 与当前真实 code binding；使用已审 Builtin 的真实 scope/resolver 和空 risk classifier，再从同原计划取当前 Agent ApprovalPolicy。此 publish-only v1 的 default、auto 的第一段 default、allow 都直接执行；没有推断「当前无 Approval」，也没有造 Approval/Inbox 记录。需要审批的未来分支必须真实绑定工作流，不能变 deny 或假 waiting。此包不是完整 D19。
+
+Registry 新口由其作者负责；标准 validator 仍无生产实现，缺失时 Executor 强依赖构造拒绝，固定 parser 不冒全 2020-12。Execution 的真实成功 Model input proof、完整 canonical Transcript writer、终态查询/重放与停止后恢复也未交付。本轮新增两项 authorizer、两项 handoff/receipt 控，加原四项 created 核心控，均未执行；这些受控端口不证明 SQL、flock 或真实 Agent 授权。

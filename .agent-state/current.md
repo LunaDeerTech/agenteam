@@ -1,6 +1,7 @@
 # ToolOperation 当前恢复点
 
 - 树 `/workspace/agenteam-tool-operation`，分支 `ai/tool-operation`，基线 `5659d300`（含只读 Builtin receipt 窄修）。唯一写者 secret；Git 归 root。旧 Registry/Builtin 源不改。
-- [有限卡](../docs/development/work-items/d18-tool-operation.md)：ToolCallBinding/Execution 反向口、固定 install profile 的 Prepare/Lookup、原输入幂等与 00037 Operation/Attempt 表首稿已落。只写 created 元数据，不派发 Backend、不造 Execution 或授权。
-- Execution 真实来源由 work_ui 的 00038/Execution 树提供；双方已对齐同 Store 原 Tx/完整锁、immutable snapshot 与当前 Capability∩Policy。标准 schema validator/D19/Skill AgentRun 最终门仍待真实绑定，Actor 值或纯控不能代替。
-- 仅指定源码 gofmt 与 git diff --check 实际 0；未编译/测试/迁移/资源。00037 必须连续前缀，38 将补真实 Execution 复合 FK；原 STOP 不变。当前无本域在途 Go 或资源，首稿停写待 checkpoint 后补必要基础控。
+- [有限卡](../docs/development/work-items/d18-tool-operation.md)：Prepare/Lookup created 核心、00037 和 canonical-v1 窄修已 coordination 有限独立静审接受；未 Go/SQL。
+- 后继独立 authorization 固定直接分支、单次 Executor/Skill-owned producer、Attempt/完整 receipt 终态源码和必要4项基础控已落，尚待编译/审查。没有标准 validator 则构造拒绝；真实 Execution Model proof/Registry code source、39 Skill组合与终态恢复未绑定，不冒生产派发。
+- 已约 provider：Execution 的同 plan/current Agent policy 由 work_ui；Registry exact currentBuiltin 同 Tx 口由 content；Skill 39 消费口由 cleanup。当前 donor contract 不由本域改写，00037 仍本域唯一写，38 后补真实复合 FK。
+- 指定源码 gofmt/diffcheck 实际0；8项新 pure top 尚未运行，无 Go/native 在途。原 STOP 不变。当前源码片段停写可 checkpoint，后继按新源最小 race/vet 范围排窗，不重复 Builtin/Skill 原矩阵。
