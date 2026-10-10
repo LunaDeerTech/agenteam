@@ -23,6 +23,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 	"github.com/LunaDeerTech/agenteam/internal/central/work"
@@ -114,6 +115,87 @@ func TestTaskHumanHTTP(t *testing.T) {
 	})
 }
 
+func TestSprintStartHTTP(t *testing.T) {
+	t.Run("paused-start-get-lookup-replay", func(t *testing.T) {
+		v := assembleTaskHumanHTTPFixture(t, true)
+		base, browser := v.domain.base, v.domain.base.ownerBrowser
+		before, err := v.domain.structureReader.GetSprint(ctxFor(t), browser.actor, base.project.ID, v.domain.task.SprintID)
+		if err != nil || before.State != wc.Planned {
+			t.Fatal("original Sprint is not planned", err)
+		}
+		config, err := base.projects.GetSchedulerConfig(ctxFor(t), browser.actor, base.project.ID)
+		if err != nil || config.Config.Enabled || config.Project.CurrentSprintID != nil {
+			t.Fatal("actual Project is not paused with an empty current pointer", err)
+		}
+		key := f.IdempotencyKey("http-sprint-start")
+		path := variableHTTPPath(base.project.ID, "/sprints/"+before.ID.String())
+		body := string(jsonBytes(t, map[string]any{"expected_version": before.Version, "request": map[string]any{}}))
+		lookup := string(jsonBytes(t, map[string]any{"command": wc.SprintStartCommandName, "target_id": before.ID, "expected_version": before.Version, "request": map[string]any{}}))
+		reply := v.request(t, browser, "POST", path+"/start", body, key)
+		var receipt wc.SprintStartMutation
+		if reply.status != 200 || json.Unmarshal(reply.body, &receipt) != nil || receipt.Validate() != nil || receipt.Sprint.ID != before.ID || receipt.Sprint.Version != before.Version+1 || receipt.Project.ID != base.project.ID || receipt.Project.Version != config.Project.Version+1 || receipt.Sprint.StartedBy.UserID != browser.actor.Details().UserID {
+			t.Fatal("HTTPS Start did not publish the original Sprint/Project postimage")
+		}
+		current := v.request(t, browser, "GET", path, "", "")
+		var sprint wc.Sprint
+		if current.status != 200 || json.Unmarshal(current.body, &sprint) != nil || !bytes.Equal(jsonBytes(t, sprint), jsonBytes(t, receipt.Sprint)) {
+			t.Fatal("HTTPS Sprint GET differs from the committed Start")
+		}
+		after, err := base.projects.GetSchedulerConfig(ctxFor(t), browser.actor, base.project.ID)
+		if err != nil || !bytes.Equal(jsonBytes(t, after.Project), jsonBytes(t, receipt.Project)) || !bytes.Equal(jsonBytes(t, after.Config), jsonBytes(t, config.Config)) || after.Config.Enabled {
+			t.Fatal("Start changed the paused Scheduler configuration", err)
+		}
+		var commandID, eventID string
+		var stored []byte
+		if err = base.raw.QueryRow(ctxFor(t), `SELECT id::text,event_id::text,receipt FROM agenteam_work.sprint_start_commands WHERE project_id=$1::uuid AND sprint_id=$2::uuid AND idempotency_key=$3 AND state='completed'`, base.project.ID.String(), before.ID.String(), string(key)).Scan(&commandID, &eventID, &stored); err != nil {
+			t.Fatal("original completed Sprint command missing", err)
+		}
+		var persisted wc.SprintStartMutation
+		if json.Unmarshal(stored, &persisted) != nil || !bytes.Equal(jsonBytes(t, persisted), jsonBytes(t, receipt)) || eventID != receipt.EventID.String() {
+			t.Fatal("original command receipt differs from HTTP")
+		}
+		var facts [4]int64
+		err = base.raw.QueryRow(ctxFor(t), `SELECT
+ (SELECT count(*) FROM agenteam_work.sprint_start_commands WHERE project_id=$1::text::uuid),
+ (SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$1::text::uuid AND aggregate_id=$2::text::uuid AND id=$3::text::uuid AND aggregate_version=$4 AND producer='work' AND event_type='work.sprint_started' AND schema_version=1 AND convert_from(payload,'UTF8')::jsonb->>'command_id'=$5::text AND convert_from(payload,'UTF8')::jsonb->>'actor_user_id'=$6::text AND convert_from(payload,'UTF8')::jsonb->>'milestone_id'=$7::text AND convert_from(payload,'UTF8')::jsonb->>'project_version'=$8::text),
+ (SELECT count(*) FROM agenteam_scheduler.dispatches WHERE project_id=$1::text),
+ (SELECT count(*) FROM agenteam_execution.executions WHERE project_id=$1::text)`, base.project.ID.String(), before.ID.String(), receipt.EventID.String(), int64(receipt.Sprint.Version), commandID, browser.actor.Details().UserID, before.MilestoneID.String(), receipt.Project.Version.String()).Scan(&facts[0], &facts[1], &facts[2], &facts[3])
+		if err != nil || facts != ([4]int64{1, 1, 0, 0}) {
+			t.Fatal("Start command/event or paused no-dispatch facts differ", err)
+		}
+		snapshot := func() string {
+			t.Helper()
+			var value string
+			err := base.raw.QueryRow(ctxFor(t), `SELECT jsonb_build_object(
+ 'project',(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$1::text::uuid),
+ 'sprint',(SELECT to_jsonb(s) FROM agenteam_work.sprints s WHERE project_id=$1::text::uuid AND id=$2::text::uuid),
+ 'commands',(SELECT coalesce(jsonb_agg(to_jsonb(c) ORDER BY id),'[]'::jsonb) FROM agenteam_work.sprint_start_commands c WHERE project_id=$1::text::uuid),
+ 'outbox',(SELECT coalesce(jsonb_agg(to_jsonb(e) ORDER BY id),'[]'::jsonb) FROM agenteam_outbox.events e WHERE project_id=$1::text::uuid AND aggregate_id=$2::text::uuid),
+ 'dispatches',(SELECT count(*) FROM agenteam_scheduler.dispatches WHERE project_id=$1::text),
+ 'executions',(SELECT count(*) FROM agenteam_execution.executions WHERE project_id=$1::text),
+ 'activity',(SELECT last_activity_at FROM agenteam_account.sessions WHERE id=$3::uuid)
+ )::text`, base.project.ID.String(), before.ID.String(), browser.actor.Details().SessionID).Scan(&value)
+			if err != nil {
+				t.Fatal("original Sprint transaction snapshot", err)
+			}
+			return value
+		}
+		beforeRecovery := snapshot()
+		found := v.request(t, browser, "POST", variableHTTPPath(base.project.ID, "/sprint-lifecycle-commands/lookup"), lookup, key)
+		var recovered struct {
+			Status  wc.LookupState          `json:"status"`
+			Receipt *wc.SprintStartMutation `json:"receipt"`
+		}
+		if found.status != 200 || json.Unmarshal(found.body, &recovered) != nil || recovered.Status != wc.LookupCommitted || recovered.Receipt == nil || !bytes.Equal(jsonBytes(t, *recovered.Receipt), jsonBytes(t, receipt)) {
+			t.Fatal("HTTPS Lookup lost the original Start receipt")
+		}
+		replayed := v.request(t, browser, "POST", path+"/start", body, key)
+		if replayed.status != 200 || !bytes.Equal(replayed.body, reply.body) || snapshot() != beforeRecovery {
+			t.Fatal("HTTPS replay/Lookup changed original Start facts or Activity")
+		}
+	})
+}
+
 type taskHumanHTTPFixture struct {
 	domain *taskTransitionFixture
 	server *httptest.Server
@@ -124,6 +206,11 @@ type taskHumanHTTPFixture struct {
 // Agent chain. Only the Work HTTP graph below is new; no successful business
 // fact, Agent, empty occupancy or current Sprint is seeded through SQL.
 func newTaskHumanHTTPFixture(t *testing.T) *taskHumanHTTPFixture {
+	t.Helper()
+	return assembleTaskHumanHTTPFixture(t, false)
+}
+
+func assembleTaskHumanHTTPFixture(t *testing.T, withSprintLifecycle bool) *taskHumanHTTPFixture {
 	t.Helper()
 	a := newAgentCreateFixture(t)
 	request, commandMeta, _ := a.request(t)
@@ -154,6 +241,13 @@ func newTaskHumanHTTPFixture(t *testing.T) *taskHumanHTTPFixture {
 	d.transitionEvents, err = wc.RegisterTaskTransitionEvents(catalog)
 	if err != nil {
 		t.Fatal(err)
+	}
+	var sprintEvents wc.SprintLifecycleEvents
+	if withSprintLifecycle {
+		sprintEvents, err = wc.RegisterSprintLifecycleEvents(catalog)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 	d.box, err = outbox.New(base.tracked, catalog, outbox.Authorizations{
 		Producers: map[event.StableName]oc.ProducerAuthority{wc.WorkProducer: d.authority},
@@ -222,6 +316,18 @@ func newTaskHumanHTTPFixture(t *testing.T) *taskHumanHTTPFixture {
 		t.Fatal(err)
 	}
 	owned = append(owned, d.transitions)
+	var lifecycle *work.SprintLifecycleService
+	if withSprintLifecycle {
+		pointer, err := project.NewSprintLifecycle(base.projectAuthority, d.authority)
+		if err != nil {
+			t.Fatal(err)
+		}
+		lifecycle, err = work.NewSprintLifecycle(base.tracked, work.SprintLifecycleDependencies{Authority: d.authority, Projects: pointer, Events: d.box, SprintEvents: sprintEvents, Activity: base.accounts})
+		if err != nil {
+			t.Fatal(err)
+		}
+		owned = append(owned, lifecycle)
+	}
 
 	// Bind before starting TLS; the real Account boundary owns this exact
 	// loopback HTTPS origin. Server.Client trusts only the owned test certificate.
@@ -235,6 +341,7 @@ func newTaskHumanHTTPFixture(t *testing.T) *taskHumanHTTPFixture {
 	handler, err := workhttp.NewHTTPHandler(workhttp.Bindings{
 		Structure: d.structure, StructureReader: d.structureReader, Tasks: d.tasks, TaskReader: d.taskReader,
 		Blockers: blockers, BlockerReader: blockerReader, Transitions: d.transitions,
+		SprintLifecycle: lifecycle,
 	}, boundary)
 	if err != nil {
 		t.Fatal(err)
