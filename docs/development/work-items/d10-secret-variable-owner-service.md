@@ -1,6 +1,6 @@
 # D10 Secret Variable Human Owner 库
 
-状态：实施进行中，基线正式main `ce65714a`；完整库源码、exact事实路由及定向pure/race已编译通过。Variables对固定生产/SQL草案及六源业务方法有限静审未见剩余must-fix；六精确top已离线race编译/list，业务和SQL全部未执行。00030为已授权的正式格式候选，四组既有PG入口增量尚待控制/独审；连续26–29仅测试前缀。唯一实施者为本分支 `ai/secret-variable-owner-service`；root拥有Git和共享资源调度。
+状态：实施进行中，基线正式main `ce65714a`；完整库源码、exact事实路由及定向pure/race通过。Variables对固定生产/SQL/业务方法与四组入口有限独审无剩余must-fix。00030 Migration单组已完整真实PASS（9节点及原Wait/两资源/私目录/desc/TCP/input尾齐）；其他三组五业务top仍未运行，整库未完成。26–29为测试前缀，00030正式交付仍等待有序依赖。唯一实施者为本分支 `ai/secret-variable-owner-service`；root拥有Git和共享资源调度。
 
 本工作项落实[Secret Variables rev2](d10-secret-variables-owner.md)中的库级子结果，直接复用[已验D04 producer](d04-secret-variable-storage.md)、A纯合同和e940 Audit严格读合同。业务规则、字段/安全输出、预算与原意图定义以rev2为准；本文只固定本次实施和验收边界，不另造产品契约。
 
@@ -22,7 +22,7 @@ root从b724e397精确承接D04的16 production、9 pure tests、00029和D04/D10�
 
 ## 3. 持久数据与安全恢复
 
-00030唯一归本线；[必要DDL草案](../../../.agent-state/secret-variable-owner-service/owner-storage.draft.sql)已按root授权以相同正文落正式格式候选`db/migrations/00030_project_secret_variables.sql`，尚未执行SQL或正式交付。扩现variables的type和互斥payload约束，活Secret一对一Credential映射，保跨type活name unique与不可变身份。Secret行只存安全metadata/内部Ref及独立Credential version，不存材料或密文。
+00030唯一归本线；[必要DDL草案](../../../.agent-state/secret-variable-owner-service/owner-storage.draft.sql)已按root授权以相同正文落正式格式候选`db/migrations/00030_project_secret_variables.sql`，已在本树真实Migrator组执行，但尚未正式交付。扩现variables的type和互斥payload约束，活Secret一对一Credential映射，保跨type活name unique与不可变身份。Secret行只存安全metadata/内部Ref及独立Credential version，不存材料或密文。
 
 新增completed-only secret_commands、Secret history/generation和本域引用记录；不得复用普通request.value/semantic_digest/receipt.value，也不持久Secret planned。D04受保护receipt提供原语义比较，D10只保存恢复所必需的安全身份/presence和安全结果。外部Variable expected与内部Credential version不能合并。
 
@@ -61,3 +61,5 @@ Unknown保原CommitResult/Attempt/Cause，不自动重放callback；最多一次
 迁移单独核空库、正式普通Variables存量升级/历史保留、重复启动和真实CHECK/FK；不据本树测试前缀通过称26–28正式交付。无真实资源grant时仅源码/小pure/离线编译，普通pure和list不算业务通过。高风险实现及实际方法由未参与者独审。
 
 实际入口沿原PG-only工具按读/权限、原子/并发、COMMIT恢复、迁移四组分窗，完整节点6/10/5/9；原Go6m、105+15、123+3、TCP75和两资源不变，入口控制/固定候选/独审完成后仍须root fresh grant。Activity回滚必须先在原Tx看到真实更新；Stop格要求原writer尚未返回，取消后held-callback的Drain负向由独立受控pure覆盖，不冒该负向已经真实PG验证。
+
+00030首真实组沿固定d52/03bd与402输入，原session66022→6226ae actualouter0/85.988s，单top9节点PASS15.50s：空库/repeat、普通00029存量和原receipt升级保留、升级后真实Secret写入、五CHECK及deferred history FK实际回滚。Go/driver Wait0、两个原ID双退役、私文件/desc/TCP双尾和输入不变均齐；精确日志及身份见current。该结果不替代其余五业务top、全Owner或26–29正式交付。

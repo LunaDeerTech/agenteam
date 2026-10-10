@@ -72,3 +72,10 @@
 - 上述九路径（含后继`pg-entry-controls.py`）已root保存1ab29197；972746→原3797→85e432 actual0为182离线控制：四组actual main使用明确process/proc/TCP/artifact替身，覆盖完整节点、缺失/重复/skip/fail/额外/坏UTF8、源变/消失与driver原exit2；旧driver逆移除全字节同26db，supervisor旧AST全同，递归实际本地imports独立核输入覆盖。该控制不冒真实退役，Vars正审固定入口。
 - 固定新产物沿原cache串行构建：e9adcc fresh5605892096→原71250→c1b772 actual0（race `-c`）；ddb771 fresh5568946176→原47932→628cc0 actual0（driver build）。`output/ai/secret-variable-owner-service/secret-variable-owner.test` 36729504B/SHA256 `d52aa35a3ddfd1ad06c458020e779bb57e551e5f09178e7680a42bc2e989f9e5`；同目录`pg-only-owner-driver` 15394699B/SHA256 `03bdcbcd6a31715680316057ce909c7f07c24db1610265f8e915c3fbfe6adbe6`。未覆盖原D04或Model产物。
 - b15e67→原39509→953624 actual0，实际四组exact-list均0、三坏selector由真实driver在stat/mkdir前拒，402输入全部存在普通非link；末available5549998080。b7491f只读核`sql-owner-read-01`/`sql-owner-atomic-01`/`sql-owner-recovery-01`/`sql-owner-migration-01`全部未用；建议先迁移再业务，每组仍须单独fresh grant。当前所有自有命令actual终态，无PG/socket/真实业务结论，source/artifacts冻结供独审。
+
+## 00030 Migration 首次真实组完整通过
+
+- 固定d52 race候选/03bd driver与402输入；1e7b9f同进程UTC2026-10-10T00:38:46.819816Z/fresh5421301760后启动exact `^TestSecretVariableOwnerMigration$`，唯一输出`output/ai/secret-variable-owner-service/sql-owner-migration-01/pg-b5d66890b1e64729844609c8b91aabb7.log`。原session66022→6226ae本人实际outer exit0，85.988s完整尾；单top/3主sub/5约束sub共9RUN/PASS，业务15.50s。
+- 本组真实正式Migrator验证00030空库/repeat与schema、00029普通存量/原receipt升级保持及升级后实际Secret producer写入、五目标CHECK（含Audit严格metadata）和deferred history FK同Tx拒绝回滚。26–29依旧仅测试装配前缀，不据本次迁移成功宣称其各域正式交付；普通Project创建保原已披露Skills fixture，未扩HTTP/defaultroot。
+- Go child1409847 actualWait0，driver1409223 actualWait0/25.933s；nonce58c6828a9456d92b865832260dc5db12，container6893dbc2134bbd3d6e6092a0ab1410dddbe700ad76647e4480ee746890f566a1、network6a744e2052607cb40af649b883a46b294af81da37cb7ee7fe9b0d074f733f689原ID双RETIRE clean。原desc双空、exact_cases9/9、TCP双delta空、inputs_unchanged=True/terminal0全部齐。bcce50与111d9e两次只读确认六私文件实际absent，run目录仅owned.json，无runtime遗留；未拿事后无进程补原Wait。
+- 完整终态已即时向root释放窗口；无自动retry/第二组。其他三组（五业务top）全部未跑，Owner整库未完成。源码、固定候选/driver及原工具/预算继续冻结，后继各组另需fresh grant。root另已精确回收D04旧a587 compile/list-only产物，该旧件从未PG；其历史记录保留、如需恢复必须重建，D04两对已验fixed与本树d52/03bd均未变。
