@@ -234,7 +234,7 @@ func (r commandRecord) validate() error {
 	} else if r.State != "completed" || r.Committed == nil || r.Committed.Validate() != nil || r.Committed.Time().Before(r.Created.Time()) || !json.Valid(r.Receipt) || len(r.Receipt) > c.MaxAgentCoreBytes {
 		return unavailable(nil)
 	}
-	return nil
+	return validateCommandInput(&r)
 }
 
 func loadCommand(ctx context.Context, x postgres.SQLExecutor, project i.ProjectID, command c.CommandName, key f.IdempotencyKey) (*commandRecord, error) {
