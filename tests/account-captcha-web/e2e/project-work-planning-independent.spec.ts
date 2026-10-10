@@ -56,6 +56,11 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
   let diagnostic: Awaited<ReturnType<typeof startWorkNativeDiagnostic>>;
   const seen = observe(page, {
     ordinaryCompletion: (request, id) => diagnostic.consumed(request, id),
+    independentRecovery: {
+      sourceRun: "TestIndependentProjectWorkPlanningWebRecovery",
+      seeds: { blocker: data.work.blocker!, task: data.work.task!, structure: data.work.structure! },
+      invoke: (action, value) => diagnostic.independentAction(action, value),
+    },
   });
   diagnostic = await startWorkNativeDiagnostic(page, {
     projects: Object.values(data.work).map((seed) => seed.project_id),
@@ -65,6 +70,8 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
     ordinaryCompletion: true,
     projectRefreshCompletion: true,
     isOriginalReplay: seen.isOriginalReplay,
+    independentRecovery: "TestIndependentProjectWorkPlanningWebRecovery",
+    independentEvidence: request => seen.independentRecovery!.evidence(request),
   });
   try {
     for (const [index, domain] of (
@@ -87,16 +94,26 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
         `[role="treeitem"][data-tree-id="milestone:${seed.milestone_id}"]`,
       );
       if (kind === "task") {
-        await button(milestone, "展开规划里程碑").click();
         const sprint = tree.locator(
           `[role="treeitem"][data-tree-id="sprint:${seed.sprint_id}"]`,
         );
+        if (domain === "task") {
+          await expect(sprint).toHaveCount(0);
+          await seen.independentRecovery!.arm("independent-task-tree-sprints");
+        }
+        await button(milestone, "展开规划里程碑").click();
         await expect(sprint).toBeVisible();
-        await button(sprint, "展开规划 Sprint").click();
+        if (domain === "task") await seen.independentRecovery!.published("independent-task-tree-sprints");
         const task = tree.locator(
           `[role="treeitem"][data-tree-id="task:${seed.task_id}"]`,
         );
+        if (domain === "blocker") {
+          await expect(task).toHaveCount(0);
+          await seen.independentRecovery!.arm("independent-blocker-tree-tasks");
+        }
+        await button(sprint, "展开规划 Sprint").click();
         await expect(task).toBeVisible();
+        if (domain === "blocker") await seen.independentRecovery!.published("independent-blocker-tree-tasks");
         await task.click();
       } else await milestone.click();
       await ready(page, seed[`${kind}_id`]);
@@ -105,6 +122,7 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
         "当前版本",
       ).innerText();
       const originalText = `独验原命令 ${domain}`;
+      if (domain === "structure") await seen.independentRecovery!.arm("independent-history-milestone", expectedVersion);
       await ipc("arm-loss", { project: domain, domain });
       seen.declareIncomplete({
         kind:
@@ -230,6 +248,7 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
       expect(await field(recovery(page), "历史版本").innerText()).toBe(
         historicalVersion,
       );
+      if (domain === "structure") await seen.independentRecovery!.armHistory();
       await button(recovery(page), "按原请求重放").click();
       await confirmed(page);
       expect(await field(recovery(page), "历史版本").innerText()).toBe(
@@ -239,12 +258,14 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
       expect((await ipc("observe", { project: domain })).facts).toEqual(
         beforeReplay,
       );
+      if (domain === "structure") await seen.independentRecovery!.published("independent-history-milestone");
       await button(recovery(page), "放弃本地追踪").click();
       await button(workDialog(page), "放弃本地修改").click();
       await expect(recovery(page)).toHaveCount(0);
     }
     await diagnostic.finish();
     expect(diagnostic.projectRefreshesComplete(3)).toBe(true);
+    expect(diagnostic.independentComplete()).toBe(true);
     complete({
       three_domains: true,
       canceled_discard: true,
@@ -254,6 +275,7 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
       bodies: await seen.verify(3),
     });
   } finally {
+    seen.independentRecovery!.close();
     await diagnostic.finish();
   }
 });

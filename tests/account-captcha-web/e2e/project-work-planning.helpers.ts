@@ -696,10 +696,223 @@ function workIncompleteLedger() {
   };
 }
 
+
+export type IndependentRecoveryPolicy =
+  | "independent-blocker-tree-tasks"
+  | "independent-task-tree-sprints"
+  | "independent-history-milestone";
+export type IndependentRecoverySpec = {
+  policy: IndependentRecoveryPolicy;
+  projectID: string;
+  parentID: string;
+  childID: string;
+  expectedVersion?: string;
+};
+
+// Only this independent case opts in. Each entry owns its original Request and
+// operations; headers and business material remain private, never in evidence.
+export function workIndependentRecovery(
+  sourceRun: string,
+  seeds: Pick<Material["work"], "blocker" | "task" | "structure">,
+  ownTail: (tail: Promise<void>) => void,
+  invoke: (action: string, value: any) => Promise<boolean>,
+) {
+  if (sourceRun !== "TestIndependentProjectWorkPlanningWebRecovery")
+    throw Error("WORK_INDEPENDENT_SOURCE");
+  const deadline = Date.now() + 45_000;
+  const validWorkKey = (value: string) => /^[\x21-\x7e]{1,128}$/.test(value);
+  type Record = {
+    spec: IndependentRecoverySpec;
+    request?: Request;
+    invalid: boolean;
+    bound: boolean;
+    ended: boolean;
+    published: boolean;
+    binding?: Promise<void>;
+    failed: number;
+    finished: number;
+    aborted: boolean;
+    finishedNull: boolean;
+  };
+  const entries: Record[] = [];
+  const headers = new Map<Request, { tail: Promise<void>; value?: { [key: string]: string } }>();
+  let sealed = false, closed = false, errors = 0, pending = 0;
+  let original: Request | undefined, latestLookup: Request | undefined;
+  let history: Record | undefined, historyReady = false;
+  const ids = new Map<Request, string>();
+  const live = () => !closed && !sealed && Date.now() < deadline;
+  const keys = (value: any) => Object.keys(value ?? {}).sort().join(",");
+  const reject = () => { errors++; throw Error("WORK_INDEPENDENT_BINDING"); };
+  function owned<T>(start: () => Promise<T>): Promise<T> {
+    if (!live()) return Promise.reject(Error("WORK_INDEPENDENT_CLOSED"));
+    let resolve!: (value: T) => void, fail!: (error: unknown) => void;
+    const result = new Promise<T>((yes, no) => { resolve = yes; fail = no; });
+    // Register before starting the real operation, including synchronous throws.
+    const tail = result.then(() => {}, () => {});
+    ownTail(tail);
+    pending++;
+    try {
+      void start().then((value) => {
+        pending--;
+        if (closed || Date.now() >= deadline) { errors++; fail(Error("WORK_INDEPENDENT_LATE")); }
+        else resolve(value);
+      }, (error) => { pending--; errors++; fail(error); }).catch(() => {});
+    } catch (error) { pending--; errors++; fail(error); }
+    return result;
+  }
+  function raw(request: Request) {
+    let row = headers.get(request);
+    if (row) return row;
+    if (!live()) { errors++; return undefined; }
+    row = { tail: Promise.resolve() };
+    headers.set(request, row);
+    row.tail = owned(async () => { row!.value = await request.allHeaders(); });
+    // owned() has already attached a rejection sink through its registered tail.
+    return row;
+  }
+  function material(request: Request) {
+    const value = headers.get(request)?.value;
+    if (!value) return reject();
+    return { url: request.url(), method: request.method(), body: request.postData(),
+      key: value["idempotency-key"] ?? null, csrf: value["x-csrf-token"] ?? null,
+      origin: value.origin ?? null, requestID: ids.get(request) ?? null };
+  }
+  function specFor(policy: IndependentRecoveryPolicy, version?: string): IndependentRecoverySpec {
+    const seed = policy === "independent-blocker-tree-tasks" ? seeds.blocker
+      : policy === "independent-task-tree-sprints" ? seeds.task
+      : policy === "independent-history-milestone" ? seeds.structure : undefined;
+    if (!seed || ![seed.project_id, seed.milestone_id, seed.sprint_id, seed.task_id].every(id => uuid7.test(id))) return reject();
+    if (policy === "independent-history-milestone" && !/^[1-9][0-9]{0,18}$/.test(version ?? "")) return reject();
+    return Object.freeze({ policy, projectID: seed.project_id,
+      parentID: policy === "independent-blocker-tree-tasks" ? seed.sprint_id : seed.milestone_id,
+      childID: policy === "independent-blocker-tree-tasks" ? seed.task_id : policy === "independent-task-tree-sprints" ? seed.sprint_id : seed.milestone_id,
+      ...(version ? { expectedVersion: version } : {}) });
+  }
+  function listMatches(request: Request, spec: IndependentRecoverySpec) {
+    const url = new URL(request.url()), tasks = spec.policy === "independent-blocker-tree-tasks";
+    const expected = tasks ? { sprint_id: spec.parentID, state: "backlog", assignee_agent_id: "null", limit: "50" }
+      : { milestone_id: spec.parentID, limit: "50" };
+    return request.method() === "GET" && request.postData() === null &&
+      url.pathname === `/api/v1/projects/${spec.projectID}/${tasks ? "tasks" : "sprints"}` &&
+      [...url.searchParams].length === Object.keys(expected).length &&
+      Object.entries(expected).every(([key, value]) => url.searchParams.getAll(key).length === 1 && url.searchParams.get(key) === value);
+  }
+  function mutationMatches(request: Request, spec: IndependentRecoverySpec) {
+    try {
+      const url = new URL(request.url()), body = request.postDataJSON();
+      return request.method() === "PATCH" && !url.search &&
+        url.pathname === `/api/v1/projects/${spec.projectID}/milestones/${spec.childID}` &&
+        keys(body) === "expected_version,request" && body.expected_version === spec.expectedVersion &&
+        keys(body.request) === "title" && typeof body.request.title === "string";
+    } catch { return false; }
+  }
+  async function bind(row: Record, request: Request) {
+    const head = raw(request);
+    if (!head) return;
+    await head.tail;
+    if (!live() || row.invalid) return reject();
+    const value = material(request);
+    if (row.spec.policy === "independent-history-milestone") {
+      if (!original || !latestLookup) return reject();
+      await Promise.all([raw(original)!.tail, raw(latestLookup)!.tail]);
+      const old = material(original);
+      if (value.url !== old.url || value.body !== old.body || value.key !== old.key || value.csrf !== old.csrf ||
+        !old.key || !validWorkKey(old.key) || !old.csrf || value.origin !== old.origin || old.origin !== new URL(old.url).origin) return reject();
+    }
+    const accepted = await owned(() => invoke("bind", { spec: row.spec, material: value }));
+    if (!live() || row.invalid || accepted !== true) return reject();
+    row.bound = true;
+  }
+  return {
+    async arm(policy: IndependentRecoveryPolicy, version?: string) {
+      if (!live() || entries.some(row => row.spec.policy === policy)) return reject();
+      const spec = specFor(policy, version);
+      const row = { spec, invalid: false, bound: false, ended: false, published: false, failed: 0, finished: 0, aborted: false, finishedNull: false } as Record;
+      entries.push(row);
+      if (policy === "independent-history-milestone") history = row;
+      if (!(await owned(() => invoke("arm", { spec })))) { row.invalid = true; return reject(); }
+    },
+    request(request: Request, declaration: string | null) {
+      if (sealed || closed) { if (entries.some(row => !row.ended)) errors++; return; }
+      const url = new URL(request.url());
+      if (history && !history.ended && url.pathname.startsWith(`/api/v1/projects/${history.spec.projectID}/`)) {
+        if (declaration === "lost-milestone-update") {
+          if (original || !mutationMatches(request, history.spec)) history.invalid = true;
+          else { original = request; raw(request); }
+          return;
+        }
+        if (request.method() === "POST" && url.pathname.endsWith("/lookup")) {
+          if (historyReady) history.invalid = true;
+          latestLookup = request; raw(request); return;
+        }
+      }
+      for (const row of entries) {
+        if (row.ended) continue;
+        const isHistory = row.spec.policy === "independent-history-milestone";
+        const relevant = isHistory ? historyReady && request.method() !== "GET"
+          : url.pathname === `/api/v1/projects/${row.spec.projectID}/${row.spec.policy === "independent-blocker-tree-tasks" ? "tasks" : "sprints"}`;
+        if (!relevant) continue;
+        if (row.request) { row.invalid = true; return; }
+        row.request = request;
+        if (!(isHistory ? mutationMatches(request, row.spec) : listMatches(request, row.spec))) row.invalid = true;
+        // Own the entire header + browser comparison chain before it starts.
+        row.binding = owned(() => bind(row, request));
+        void row.binding.catch(() => { row.invalid = true; });
+        return;
+      }
+    },
+    response(request: Request, id: string | null) {
+      if (!id || !uuid7.test(id) || [...ids.values()].includes(id)) { if (headers.has(request)) errors++; return; }
+      ids.set(request, id);
+    },
+    async armHistory() {
+      const row = history, candidate = latestLookup;
+      if (!live() || !row || row.invalid || historyReady || !original || !candidate) return reject();
+      await Promise.all([raw(original)!.tail, raw(candidate)!.tail]);
+      if (!live() || latestLookup !== candidate || !ids.has(candidate)) return reject();
+      const old = material(original), lookup = material(candidate);
+      let body: any, oldBody: any;
+      try { body = JSON.parse(lookup.body!); oldBody = JSON.parse(old.body!); } catch { return reject(); }
+      if (lookup.method !== "POST" || new URL(lookup.url).search ||
+        new URL(lookup.url).pathname !== `/api/v1/projects/${row.spec.projectID}/structure-commands/lookup` ||
+        keys(body) !== "command,expected_version,request,target_id" || body.command !== "work.milestone.update" ||
+        body.target_id !== row.spec.childID || body.expected_version !== oldBody.expected_version ||
+        JSON.stringify(body.request) !== JSON.stringify(oldBody.request) || !validWorkKey(old.key ?? "") || !old.csrf ||
+        lookup.key !== old.key || lookup.csrf !== old.csrf || lookup.origin !== old.origin || old.origin !== new URL(old.url).origin)
+        return reject();
+      const accepted = await owned(() => invoke("history", { spec: row.spec, original: old, lookup }));
+      if (!live() || candidate !== latestLookup || accepted !== true) return reject();
+      historyReady = true;
+    },
+    async published(policy: IndependentRecoveryPolicy) {
+      const row = entries.find(row => row.spec.policy === policy);
+      if (!live() || !row || row.invalid || !row.request) return reject();
+      await row.binding;
+      // The actual original comparison is joined before confirming UI publication.
+      const accepted = await owned(() => invoke("published", { spec: row.spec }));
+      if (!live() || row.invalid || !row.bound || accepted !== true) return reject();
+      row.published = true; row.ended = true;
+    },
+    failed(request: Request) { const row = entries.find(row => row.request === request); if (row) { row.failed++; row.aborted = safeWorkFailure(request) === "aborted"; } },
+    finished(request: Request) { const row = entries.find(row => row.request === request); if (row) row.finished++; },
+    finishedResult(request: Request, result: Error | null) { const row = entries.find(row => row.request === request); if (row) row.finishedNull = result === null; },
+    selected: (request: Request) => entries.some(row => row.request === request),
+    evidence(request: Request) {
+      const row = entries.find(row => row.request === request);
+      return row ? { ...row.spec, bound: row.bound, invalid: row.invalid, ended: row.ended, published: row.published, failed: row.failed, finished: row.finished, aborted: row.aborted, finishedNull: row.finishedNull } : null;
+    },
+    seal() { sealed = true; },
+    close() { closed = true; sealed = true; for (const row of entries) if (!row.ended) row.invalid = true; },
+    verify: () => !closed && errors === 0 && pending === 0 && entries.length === 3 &&
+      entries.every(row => row.request && row.bound && row.published && row.ended && !row.invalid),
+  };
+}
+
 // Installed at the original request event, before its response or failure.
 // Only the recovery case opts into this closed endpoint set.
 export function workOrdinaryCompletionEvents(
   bindOriginalReplay?: (request: Request) => boolean,
+  independentSelected?: (request: Request) => boolean,
 ) {
   type Terminal = "finished" | "failed" | "closed";
   const rows = new Map<
@@ -730,6 +943,10 @@ export function workOrdinaryCompletionEvents(
   return {
     request(request: Request) {
       if (sealed || rows.has(request)) return;
+      if (independentSelected?.(request) === true) {
+        rows.set(request, { terminal: null, finished: 0, failed: 0 });
+        return;
+      }
       const url = new URL(request.url());
       const parts = url.pathname.split("/");
       if (
@@ -787,18 +1004,23 @@ export function observe(
   page: Page,
   options: {
     ordinaryCompletion?: (request: Request, requestID: string) => boolean;
+    independentRecovery?: { sourceRun: string; seeds: Pick<Material["work"], "blocker" | "task" | "structure">; invoke: (action: string, value: any) => Promise<boolean> };
   } = {},
 ) {
   const startedAt = performance.now();
+  const tails: Promise<void>[] = [];
+  const independent = options.independentRecovery ? workIndependentRecovery(options.independentRecovery.sourceRun, options.independentRecovery.seeds, tail => tails.push(tail), options.independentRecovery.invoke) : undefined;
   const incompleteRequests = workIncompleteLedger();
   const ordinaryEvents = workOrdinaryCompletionEvents(
     incompleteRequests.bindOriginalReplay,
+    independent?.selected,
   );
   const nativeComplete = new Set<Request>();
   const pendingNative = new Set<Request>();
   let ordinaryClosed = false;
   const closeOrdinary = () => {
     ordinaryClosed = true;
+    independent?.close();
     ordinaryEvents.seal();
   };
   page.context().on("close", closeOrdinary);
@@ -866,10 +1088,10 @@ export function observe(
   });
   const facts = new Map<string, Observed>();
   const ownedTruncations = new Set<Request>();
-  const tails: Promise<void>[] = [];
   let observerErrors = 0;
   const failedRequests = new Set<Request>();
   page.on("requestfailed", (request) => {
+    independent?.failed(request);
     if (isWork(new URL(request.url()))) {
       failedRequests.add(request);
       if (
@@ -894,10 +1116,12 @@ export function observe(
       requests.push({ method: r.method(), path: url.pathname });
       timing(r).request_at = now();
       incompleteRequests.request(r);
+      independent?.request(r, incompleteRequests.declarationKind(r));
       if (options.ordinaryCompletion) ordinaryEvents.request(r);
     }
   });
   page.on("requestfinished", (request) => {
+    independent?.finished(request);
     if (isWork(new URL(request.url()))) {
       timing(request).request_finished_at = now();
       incompleteRequests.finished(request);
@@ -921,6 +1145,7 @@ export function observe(
       (async () => {
         const id = await r.headerValue("x-request-id");
         observed.request_id = id && uuid7.test(id) ? id : null;
+        independent?.response(r.request(), observed.request_id);
         const owned = incompleteRequests.unforwarded(r.request());
         if (owned) {
           if (
@@ -968,6 +1193,7 @@ export function observe(
             error = new Error("WORK_ORDINARY_CONSUMPTION_UNPROVEN");
           } else {
             error = await r.finished();
+            independent?.finishedResult(r.request(), error);
             observed.response_finished_at = now();
           }
         } else {
@@ -992,6 +1218,7 @@ export function observe(
   });
   return {
     requests,
+    independentRecovery: independent,
     declareIncomplete: incompleteRequests.declare,
     declarationKind: incompleteRequests.declarationKind,
     isOriginalReplay: incompleteRequests.isOriginalReplay,
@@ -999,8 +1226,10 @@ export function observe(
       // The caller must already have taken actual diagnostic end snapshots.
       // Missing original events retire as failure, never as an abandoned wait.
       ordinaryEvents.seal();
+      independent?.seal();
       try {
         await Promise.all(tails);
+        if (independent) expect(independent.verify()).toBe(true);
         expect(observerErrors).toBe(0);
         expect(ordinaryEvents.pending()).toBe(0);
         for (const request of pendingNative) {
@@ -1104,6 +1333,7 @@ export function observe(
               ) === true,
           ),
         ).toBe(true);
+        if (independent) expect(independent.verify()).toBe(true);
         writeFileSync(
           join(evidence, "work-body-validation.json"),
           JSON.stringify({

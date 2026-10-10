@@ -156,11 +156,14 @@ export async function workSessionBinding(
 export async function installWorkPublicationDiagnostic({
   binding,
   expiresAt,
+  independentRecovery,
 }: {
   binding: WorkSessionBinding;
   expiresAt: number;
+  independentRecovery?: "TestIndependentProjectWorkPlanningWebRecovery";
 }) {
   const host = window as any;
+  if (independentRecovery !== undefined && independentRecovery !== "TestIndependentProjectWorkPlanningWebRecovery") return "unknown-scope";
   if (Date.now() >= expiresAt) return "expired";
   if (host.__workPublicationDiagnostic) return "already-installed";
   const loaded = (path: string) =>
@@ -191,6 +194,7 @@ export async function installWorkPublicationDiagnostic({
     "getSprint",
     "checkOriginal",
     "retryOriginal",
+    ...(independentRecovery ? ["listTasks", "listSprints"] : []),
   ];
   if (
     !document.body ||
@@ -254,7 +258,143 @@ export async function installWorkPublicationDiagnostic({
       observerFailed = true;
     }
   };
+
+  // Private scope, never included in snapshots. The regular observer continues
+  // to own the exact facade Promise and its original transport/finally tail.
+  const independentLists: any[] = [];
+  const independentRows = new Map<any, any>();
+  let independentHistory: any = null;
+  const keyset = (value: any) => Object.keys(value ?? {}).sort().join(",");
+  const independentLive = () => !!independentRecovery && !retired && Date.now() < expiresAt && sameIdentity();
+  const contextMatches = (entry: any) => {
+    const current = workspace?.currentReadContext?.value;
+    return !!current && current.projectID === entry?.projectID &&
+      current.generation === entry.generation && current.readGeneration === entry.readGeneration &&
+      current.identity?.userID === initialIdentity.userID && current.identity?.sessionID === initialIdentity.sessionID && current.identity?.epoch === initialIdentity.epoch;
+  };
+  const childElement = (spec: any) => document.querySelector(
+    `.desktop-tree [role="treeitem"][data-tree-id="${spec.policy === "independent-blocker-tree-tasks" ? "task" : "sprint"}:${spec.childID}"]`,
+  );
+  const independentTarget = (name: string, args: unknown[]) => {
+    if (!independentRecovery || !["listTasks", "listSprints"].includes(name)) return null;
+    const entry = independentLists.find(item => !item.ended && item.name === name);
+    if (!entry) return null;
+    if (entry.used) { entry.invalid = true; return null; }
+    entry.used = true;
+    const tasks = name === "listTasks", query: any = args[1];
+    entry.inputMatches = args.length === 2 && args[0] === entry.spec.projectID &&
+      keyset(query) === (tasks ? "assignee_agent_id,limit,sprint_id,state" : "limit,milestone_id") &&
+      query.limit === 50 && (tasks ? query.sprint_id === entry.spec.parentID && query.state === "backlog" && query.assignee_agent_id === null : query.milestone_id === entry.spec.parentID);
+    if (!entry.inputMatches) entry.invalid = true;
+    return { method: "GET", path: `/api/v1/projects/${entry.spec.projectID}/${tasks ? "tasks" : "sprints"}`, target_id: entry.spec.childID };
+  };
+  const independentRow = (name: string, row: any) => {
+    const entry = independentLists.find(item => !item.ended && item.name === name && item.used && !item.row);
+    if (entry) { entry.row = row; independentRows.set(row, entry); }
+    const history = independentHistory;
+    if (history && !history.ended && name === "checkOriginal") {
+      if (history.armed) history.invalid = true;
+      history.latest = { row, material: null, invalid: false, receipt: null, value: null };
+    }
+    if (history && !history.ended && name === "retryOriginal" && history.armed) {
+      if (history.row) history.invalid = true;
+      else {
+        history.row = row; independentRows.set(row, history);
+        const progress = auth.workPlanning.progress;
+        history.entryMatches = progress?.receipt === history.latest?.receipt && progress.contextValid === true &&
+          progress.phase === "confirmed" && progress.observation === "committed" && progress.canReplay === true;
+        if (!history.entryMatches) history.invalid = true;
+      }
+    }
+    if (independentRows.has(row)) Object.assign(row, { independent_input: false, independent_material: false, independent_result: false, independent_published: false, independent_valid: false });
+  };
+  const independentReturned = (name: string, row: any, result: any) => {
+    const entry = independentRows.get(row);
+    if (entry && ["listTasks", "listSprints"].includes(name)) {
+      const tasks = name === "listTasks", items = result?.items;
+      entry.result = result;
+      row.independent_input = entry.inputMatches === true;
+      row.independent_result = independentLive() && contextMatches(entry.context) && entry.inputMatches && !entry.invalid &&
+        Array.isArray(items) && items.length > 0 && items.length <= 50 && result.next_cursor === undefined &&
+        new Set(items.map((item: any) => item.id)).size === items.length &&
+        items.every((item: any) => uuid.test(item.id) && item.project_id === entry.spec.projectID &&
+          (tasks ? item.sprint_id === entry.spec.parentID && item.state === "backlog" && item.assignee_agent_id === null : item.milestone_id === entry.spec.parentID)) &&
+        items.some((item: any) => item.id === entry.spec.childID);
+      row.result_kind = row.independent_result ? "typed-page-returned" : "other-returned";
+    }
+    const history = independentHistory, latest = history?.latest;
+    if (latest?.row === row && name === "checkOriginal") {
+      const progress = auth.workPlanning.progress;
+      latest.valid = independentLive() && !history.invalid && progress?.contextValid === true &&
+        progress.phase === "confirmed" && progress.observation === "committed" && progress.domain === "structure" &&
+        progress.command === "work.milestone.update" && progress.projectID === history.spec.projectID && progress.targetID === history.spec.childID &&
+        result?.domain === "structure" && result.value?.state === "committed" && progress.receipt?.domain === "structure" &&
+        progress.receipt.value === result.value.result && result.value.result?.command === "work.milestone.update" &&
+        result.value.result.changed === true && result.value.result.milestone?.id === history.spec.childID &&
+        result.value.result.milestone.project_id === history.spec.projectID && result.value.result.milestone.version === String(BigInt(history.spec.expectedVersion) + 1n) &&
+        result.value.result.sprint === null && uuid.test(result.value.result.event_id);
+      latest.receipt = progress?.receipt;
+      latest.value = latest.valid ? JSON.stringify(result.value.result) : null;
+    }
+    if (entry === history && name === "retryOriginal") {
+      const progress = auth.workPlanning.progress;
+      row.independent_input = history.entryMatches === true;
+      row.independent_result = independentLive() && !history.invalid && progress?.contextValid === true &&
+        progress.phase === "confirmed" && progress.observation === "committed" && progress.domain === "structure" &&
+        progress.command === "work.milestone.update" && progress.projectID === history.spec.projectID && progress.targetID === history.spec.childID &&
+        result === progress.receipt && result?.domain === "structure" && JSON.stringify(result.value) === history.latest.value;
+    }
+  };
+  const independentActions = {
+    arm({ spec }: any) {
+      if (!independentLive() || !workspace || auth.state.busy || !spec ||
+        !["independent-blocker-tree-tasks", "independent-task-tree-sprints", "independent-history-milestone"].includes(spec.policy) ||
+        ![spec.projectID, spec.parentID, spec.childID].every(id => typeof id === "string" && uuid.test(id))) return false;
+      const context = workspace.currentReadContext.value;
+      if (context?.projectID !== spec.projectID) return false;
+      if (spec.policy === "independent-history-milestone") {
+        if (independentHistory || keyset(spec) !== "childID,expectedVersion,parentID,policy,projectID" || spec.childID !== spec.parentID || !/^[1-9][0-9]{0,18}$/.test(spec.expectedVersion)) return false;
+        independentHistory = { spec: Object.freeze({ ...spec }), invalid: false, ended: false, armed: false, original: null, latest: null };
+      } else {
+        if (keyset(spec) !== "childID,parentID,policy,projectID" || independentLists.some(item => item.spec.policy === spec.policy) ||
+          !location.pathname.endsWith("/tasks/explore") || childElement(spec)) return false;
+        independentLists.push({ spec: Object.freeze({ ...spec }), name: spec.policy === "independent-blocker-tree-tasks" ? "listTasks" : "listSprints",
+          context: { ...context }, path: location.pathname, used: false, invalid: false, ended: false, row: null, material: null, absent: true });
+      }
+      return true;
+    },
+    history({ spec, original, lookup }: any) {
+      const h = independentHistory, latest = h?.latest;
+      if (!independentLive() || !h || h.invalid || h.armed || h.ended || JSON.stringify(h.spec) !== JSON.stringify(spec) ||
+        !latest?.valid || latest.invalid || !latest.material || !h.original || !latest.row || latest.row.fulfilled !== 1 || latest.row.active ||
+        auth.workPlanning.progress?.receipt !== latest.receipt || latest.row.native_requests !== 1) return false;
+      const same = (a: any, b: any) => a && b && ["url", "method", "body", "key", "csrf", "origin"].every(key => a[key] === b[key]);
+      if (!same(original, h.original) || !same(lookup, latest.material) || !uuid.test(lookup.requestID) || lookup.requestID !== latest.requestID) { h.invalid = true; return false; }
+      h.armed = true; return true;
+    },
+    bind({ spec, material }: any) {
+      const entry = spec.policy === "independent-history-milestone" ? independentHistory : independentLists.find(item => item.spec.policy === spec.policy);
+      if (!independentLive() || !entry || entry.invalid || entry.ended || entry.bound || !entry.row || !entry.material || JSON.stringify(entry.spec) !== JSON.stringify(spec)) return false;
+      entry.bound = true;
+      const same = ["url", "method", "body", "key", "csrf", "origin"].every(key => entry.material[key] === material[key]);
+      entry.row.independent_material = same;
+      if (!same) entry.invalid = true;
+      return same;
+    },
+    published({ spec }: any) {
+      const entry = spec.policy === "independent-history-milestone" ? independentHistory : independentLists.find(item => item.spec.policy === spec.policy);
+      if (!independentLive() || !entry || entry.invalid || entry.ended || !entry.bound || !entry.row || entry.row.fulfilled !== 1 || entry.row.active || entry.row.independent_result !== true) return false;
+      if (spec.policy !== "independent-history-milestone") {
+        const child = childElement(spec);
+        if (!contextMatches(entry.context) || location.pathname !== entry.path || !entry.absent || !child || child.getClientRects().length === 0) return false;
+      }
+      entry.ended = true; entry.row.independent_published = true; entry.row.independent_valid = true;
+      return true;
+    },
+  };
+
   const target = (name: string, args: unknown[]) => {
+    if (["listTasks", "listSprints"].includes(name)) return independentTarget(name, args);
     if (name === "getProject") {
       if (
         !refresh ||
@@ -343,6 +483,8 @@ export async function installWorkPublicationDiagnostic({
           row.detail_observed_after_fulfilled_at ??= at();
         if (row.fulfilled && row.recovery_confirmed)
           row.confirmed_observed_after_fulfilled_at ??= at();
+        const independentEntry = independentRows.get(row);
+        if (independentEntry?.invalid) row.independent_valid = false;
         row.sample_at = at();
       }
     });
@@ -493,6 +635,7 @@ export async function installWorkPublicationDiagnostic({
               });
             }
             calls.push(row);
+            if (independentRecovery) independentRow(name, row);
             sampleDOM();
           });
         let promise: Promise<unknown>;
@@ -581,6 +724,7 @@ export async function installWorkPublicationDiagnostic({
                           result?.domain === "structure"
                         ? "typed-receipt-returned"
                         : "other-returned";
+                  if (independentRecovery) independentReturned(name, row, result);
                   sampleDOM();
                 });
               },
@@ -635,6 +779,40 @@ export async function installWorkPublicationDiagnostic({
     );
     host.__workPublicationDiagnostic = {
       snapshot,
+      independentAction(action: string, value: any) {
+        if (!independentRecovery || !Object.prototype.hasOwnProperty.call(independentActions, action)) return false;
+        return independentActions[action as keyof typeof independentActions](value);
+      },
+      independentFetch(method: string, url: string, material: any, sequence: number) {
+        if (!independentLive()) return;
+        const parsed = new URL(url), h = independentHistory;
+        const value = { url, method, ...material };
+        if (h && !h.ended && parsed.pathname.startsWith(`/api/v1/projects/${h.spec.projectID}/`) && method !== "GET") {
+          if (!h.original) {
+            if (method !== "PATCH" || parsed.search || parsed.pathname !== `/api/v1/projects/${h.spec.projectID}/milestones/${h.spec.childID}`) h.invalid = true;
+            h.original = value;
+          } else if (method === "POST" && parsed.pathname.endsWith("/lookup")) {
+            if (h.armed || !h.latest || h.latest.material) h.invalid = true;
+            if (h.latest) { h.latest.material = value; h.latest.sequence = sequence; }
+          } else if (h.armed && !h.material) {
+            h.material = value;
+            if (method !== "PATCH" || ["url", "method", "body", "key", "csrf", "origin"].some(key => value[key] !== h.original[key])) h.invalid = true;
+          } else h.invalid = true;
+        }
+        for (const entry of independentLists) {
+          if (entry.ended || parsed.pathname !== `/api/v1/projects/${entry.spec.projectID}/${entry.name === "listTasks" ? "tasks" : "sprints"}`) continue;
+          if (entry.material || !entry.used || !entry.row) { entry.invalid = true; continue; }
+          entry.material = value;
+          const expected = entry.name === "listTasks" ? { sprint_id: entry.spec.parentID, state: "backlog", assignee_agent_id: "null", limit: "50" } : { milestone_id: entry.spec.parentID, limit: "50" };
+          if (method !== "GET" || material.body !== null || parsed.origin !== location.origin ||
+            [...parsed.searchParams].length !== Object.keys(expected).length ||
+            !Object.entries(expected).every(([key, value]) => parsed.searchParams.getAll(key).length === 1 && parsed.searchParams.get(key) === value)) entry.invalid = true;
+        }
+      },
+      independentResponse(sequence: number, requestID: string) {
+        const latest = independentHistory?.latest;
+        if (independentLive() && latest?.sequence === sequence) latest.requestID = requestID;
+      },
       bindNative(method: string, path: string, sequence: number) {
         if (retired) return null;
         const matches = calls.filter(
