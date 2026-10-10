@@ -145,3 +145,29 @@ SPEC 窄审固定边界后才能写数据与工具。完成本卡要求：固定
 评分代码获Model限定独审接受：独立手算与真实CLI共128项检查74159b actual0，未使用作者函数计算期望，范围不含数据语义或backend执行。v2只使测试控制的dataset revision从固定数据读取，不修改评分器或黄金期望；最后版本窄复核563bcf actual0确认q01/q02、数量/分母及手算前提保持，复用原128控。独审首次误把q02当zh的夹具FAIL已按实际en纠正，不是evaluator缺陷。
 
 作者修后17个测试方法、实际validate/export及逐项内容/数量比较通过；必要独验控制源码已保留，可用 `PYTHONDONTWRITEBYTECODE=1 python3 .agent-state/search-benchmark-review/evaluator-controls.py` 在独占ignored输出目录复验。最终只归位来源判断状态与必要文档，语料正文、query、grade、family及评分器均保持已验输入。此完整独立结果可以供后续候选运行消费，不能据此填入任何backend实测分数或选型结论。
+
+## 10. 独立后继：有界纯文本 Parser
+
+本批在 `internal/central/retrieval/parser/` 实现可直接调用的纯算法，独立于前述 lexical evaluator；不消费或修改其 corpus、qrels 和成绩。`ParsePlainText(ctx, SourceIdentity, text)` 返回 `StructuredDocument`，`ParseBoundedContent(ctx, knowledge.ReadRequest, knowledge.DocumentContent)` 只适配已经完整返回的 D12 值。类型归 D13 包所有，不注册通用 Parser、不增加依赖、迁移、I/O、生产初始化或索引接线。
+
+`SourceIdentity` 保留实际内容对应的 typed ProjectID、DocumentID、ContentVersion 和 ObjectID。四项采用现有领域校验，ObjectID 按 D12 `DocumentRef.Validate` 为必需；version 保留原整数，不经浮点或提前读取的元数据替换。来源标识不是授权凭据，未来发布/locator 消费仍需重新验证当前版本。输出包含 profile、原文总字节数、有序 paragraph 元素、逐元素原文、段落区间及句区间；Ordinal 从 1 开始，所有区间均为原始 UTF-8 字节坐标的零起始半开区间，句区间连续覆盖所属段落。空文档或全部 ASCII 空白行成功返回零元素；空白分隔行不构成元素。
+
+### 10.1 冻结的 `plain_text:v1`
+
+- 输入最多 1 MiB、最多 16384 段、全文合计最多 65536 句，等于上限允许，超过拒绝并返回零结果。保留 BOM、NUL、缩进、原换行及原 Unicode 字节，不裁剪、不归一化。
+- CRLF 是一个换行，孤立 CR 或 LF 也结束一行。仅含 ASCII space/TAB 的行为空白行；连续非空白行合成一段，保留段内换行，排除末行终止符及段间空白行。
+- 连续终止符集合固定为 `.?!。！？`。最大连续串包含中文 `。！？` 时总断句；纯英文终止符串仅在随后所有闭合符之后为 ASCII 空白或段尾时断句，不另推断缩写、小数或语义。
+- 闭合符固定为 ASCII 双引号、单引号、右圆括号、右方括号、右花括号，以及 `” ’ 」 』 ） 】 》 〉`，紧随终止符的连续闭合符并入前句。ASCII 空白仅 space、TAB、CR、LF；句间空白归后句，段末仅剩 ASCII 空白时归最后一句，不产生空句。
+- 改变上述语义须换 profile，不原地改变 `plain_text:v1`。
+
+### 10.2 D12 值边界、失败和取消
+
+适配器读取原 `DocumentContent.Document` 的实际来源，只接受 Active、Text、`text/plain` 且唯一 Text arm；完整校验 DocumentRef、ReadRequest、union 及页大小/offset/next。只接受 ByteOffset=0、Truncated=false、NextByteOffset=文本字节数、长度不超过该请求 MaxBytes 的完整值。不能把非空 Text 指针当成 union 合法，也不能拼接可能来自不同版本的分页。调用者仍负责原 D12 授权、事务、read/Close 结果；本适配不会重读、验证当前权限或承诺原 I/O 已成功。
+
+非 plain media 返回 Foundation `UnsupportedMediaType`；非法 UTF-8、元数据、union、请求或 next 结构返回 `InvalidArgument`；合法非零 offset 页、truncated 页及超出本文限额或请求字节预算返回 `PayloadTooLarge`。领域错误均为 `NotStarted`、不带正文；任何错误均返回零 StructuredDocument，不暴露部分解析结果。每次扫描至多 4 KiB、元素处理及返回检查 context，原取消/截止错误保留 `errors.Is`，无内部 goroutine、timer 或流。D12 正文的 UTF-8 校验由分段核心完成，避免在完整字符串校验内跳过取消检查；标题先限字节，再复用完整 DocumentRef 校验。输出正文须由调用者显式取得，默认 fmt/slog 投影不含正文。
+
+### 10.3 当前范围与验证
+
+六个 Go 源/测试已实现，待本轮离线单元、race、vet 和非作者审查。手工 byte oracle 覆盖中文/CRLF、BOM/NUL/混合换行、英文小数与缩写、固定闭合符、非 ASCII 空白、emoji/组合字符；另覆盖 UTF-8 错码、恰好/超限、全局句数、取消零结果、确定性、D12 非法 union/元数据/partial 页和真实版本复制。
+
+真实 D12 ReadDocument→实际对象读/Close→Parser 小范围联调尚未运行，待单包基础检查后另行组织。Markdown/PDF Parser、chunker、ContextProvider、embedding、lexical backend、索引发布及生产 Project initializer 均不在本批，也不由本批证明 D13 整体完成或解除既有 STOP。
