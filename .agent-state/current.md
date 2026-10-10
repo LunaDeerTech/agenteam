@@ -16,13 +16,15 @@
 
 ## 当前并行产品线与执行者
 
+Task/Scheduler有限交付的产品与必要验收已完成，最终main建议范围282路径；四个逐次launcher/checks留topic。root尚待正式commit/push，main仍18a，当前无Go/cache/native在途；旧Launch01 wholeFAIL及其余STOP不变。
+
 | 执行者 | 当前工作、真实状态与下一步 |
 | --- | --- |
-| content / Work | `/workspace/agenteam-task-transition` / `ai/task-transition`：Work technical-blocker 单类最终失败与前向00047已冻结、有限静审接受，并纳入System `542574b5`的26top/五包vet wholePASS；精确B32路径已进入delivery `3cc9f1bd`。首次真实失败链仍待最终delivery执行，原Busy/claim接受范围保留。 |
-| cleanup / Scheduler | `/workspace/agenteam-skill-install-runtime-source` / `ai/task-dispatch`：最终失败分类/原Tx结算已随B整源静审、纯检查通过；仅原同步确定未创建且私有marker匹配的unsupported_resource_constraints_v1进入结算，其它错误Deferred。bounded pending/Busy原真实PASS保留，完整retry/loop与本次47真实链仍未完成。 |
+| content / Work | `/workspace/agenteam-task-transition` / `ai/task-transition`：Work technical-blocker单类最终失败与前向00047已静审，并随System `542574b5`通过26top/五包vet；B32精确进入delivery。最终delivery source `70d383c5`的真实失败链1top2sub wholePASS，标题等用户字段保留、技术阻塞与原Tx整体回滚/结算均通过；不扩为一般重试耗尽。 |
+| cleanup / Scheduler | `/workspace/agenteam-skill-install-runtime-source` / `ai/task-dispatch`：最终失败分类/原Tx结算已静审、纯检查及本次delivery真实链通过；仅原同步确定未创建且私有marker匹配的unsupported_resource_constraints_v1进入结算，其它错误Deferred。bounded pending/Busy原真实PASS保留，完整retry/loop仍未完成。 |
 | secret / Execution | `/workspace/agenteam-agent-system-integration` / `ai/agent-system-integration`：复用既有真实Launch/Lookup、Agent私有witness及原key/slot/capacity观察，无第二套Execution接口或新迁移；Scheduler首次lookup的Schedule锁与原Project门保持。本批真实功能止于created、slot及可靠关联，不进入完整preparing/Snapshot/Model运行或生产绑定。旧`ca30f836`独审、6新top/两包vet与后继Execution 4top有效。 |
 | work_ui / Human Task HTTP | `/workspace/agenteam-task-human-http` / `ai/task-human-http`：SprintStart HTTP source `ff86ff65`的9top race/两包vet、compile及native1top1sub全部wholePASS；沿真实TLS Start/Get/Lookup/重放，不自动enable。delivery的account单行union已独审，main Skill管理接线保留；4个受影响app top race通过，app-pure01因容量未启vet且wholeFAIL保留，独立app-vet02后继wholePASS。 |
-| skills_http / 组合测试 | 最终有限候选 `/workspace/agenteam-task-flow-delivery` / `ai/task-flow-delivery` 当前 `f2af515a`；B32与六方法union（`70d383`）已静审。failure compile01在同启动fresh 5,331,312,640 B不足5GiB（差37,396,480 B）时容量FAIL，0Go/0PG且原尾全部闭合；compile02仅恢复稿待root保存，未执行。首次failure compile/native直接绑定最终delivery，不重37–46旧链。 |
+| skills_http / 组合测试 | `/workspace/agenteam-task-flow-delivery` / `ai/task-flow-delivery`的failure compile02及native01 wholePASS；TestSchedulerLaunchFinalFailure 1top2sub、39.54s，全部原Wait0、七资源14次absence及private/runtime/desc/HOST_TCP/outer双尾空，1460inputs同，窗口已归还。结果在原`output/ai/agent-system-integration/scheduler-failure-01-control/result.json`。compile01容量0Go/0PG FAIL与app-pure01容量wholeFAIL保留；app4race及独立app-vet02通过。 |
 | cleanup / content | `/workspace/agenteam-skill-install` / `ai/skill-install`：Human Install/LookupInstall、普通读取与清理已随main有限交付；domain安装读取重放、原Object/Audit事实及普通清理两sub真实通过，定向pure/race/vet证据按版本复用。旧树已可逆sparse停放，原ignored材料保留；原Project/外人码/素材/Audit查询夹具FAIL保留。真实Source配置装配已进Agent创建链，AgentRun/Runtime实际调用仍未验。 |
 | coordination | 维护root/System摘要与delivery current/recipe，明确精确255路径、7个main兼容union及B32增量的接受边界，不把System纯证据冒最终delivery真实通过。title-only原有限独审、纯检查和Busy实际链有效；旧OwnerHTTP及原材料可恢复停放，不作为当前消费者。 |
 | 已冻结Runtime/Registry | `/workspace/agenteam-tool-operation` / `ai/tool-operation` 与 `/workspace/agenteam-tool-registry` / `ai/tool-registry`：Runtime created、canonical-v1、Registry donor及Execution取消修正的有限实现/组合纯检查保留。neutral标准Schema核心已独审并单独5top race/vet通过；AgentSystem中的真实Registry Schema适配器`d26e89eb`已推送并独审接受。统一实际MVS的`regexp2 1.12.0`后，核心5＋适配3共8top race及schema/runtime两包vet全部通过，原Wait及group/runtime双尾闭合、缓存归还；`jsonschema/v6 6.0.3`不变。旧适配01/02依赖元数据缺失导致0top、vet未跑的FAIL保留；生产绑定、真实Execution授权和AgentRun发布仍未完成。 |
@@ -41,7 +43,7 @@ Object Runtime join、OpenAI tools 独立动态验收、Central SPA concurrent-p
 
 ## 恢复与容量
 
-当前无Go/cache writer或native在途。secret经content明确owner确认，仅退休 `/workspace/agenteam-knowledge-content-http/output/ai/knowledge-content-http/gocache`，生成缓存1,041,469,440 B，actual0/absent=true；一次实际可用6,372,360,192 B，比5GiB多1,003,651,072 B。shared hot/mod及其它cache、FAIL、source、inputs/results/logs、MinIO、refs均未动，旧Skills/WorkUI缓存保留；compile02仍未执行。HTTP `857d85`、Work `91e384`、Scheduler `e0fe`三个donor的tracked docs已获owner确认可逆停放，source、refs与原evidence保留；该事实不授权删除其它路径。
+当前无Go/cache writer或native在途。secret经content明确owner确认，仅退休 `/workspace/agenteam-knowledge-content-http/output/ai/knowledge-content-http/gocache`，生成缓存1,041,469,440 B，actual0/absent=true；一次实际可用6,372,360,192 B，比5GiB多1,003,651,072 B。shared hot/mod及其它cache、FAIL、source、inputs/results/logs、MinIO、refs均未动，旧Skills/WorkUI缓存保留；compile02及首次native现已wholePASS，原容量FAIL保留。HTTP `857d85`、Work `91e384`、Scheduler `e0fe`三个donor的tracked docs已获owner确认可逆停放，source、refs与原evidence保留；该事实不授权删除其它路径。
 
 先前GH_TOKEN 401导致的push失败保留；重启后认证已恢复，root沿现有gh helper普通fetch成功，未改治理配置且无远端他方独有提交。组合`281fc3cb`与Scheduler donor `07dea4a9`已原push Wait0，最新产品代码已远端保存；本轮pending/HTTP实际结果及恢复记录由root统一保存/推送，未收到确认的提交不预填远端成功。
 
