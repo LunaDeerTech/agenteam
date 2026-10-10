@@ -10,6 +10,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	object "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 )
 
@@ -54,8 +55,11 @@ func runtimeModelRequestMatches(request mc.ConsumerRequest, facts directTextMode
 	if request.CallID == nil || *request.CallID != round.CallID || request.Input == nil || !reflect.DeepEqual(request.Input.Clone(), round.Input.Clone()) {
 		return fault(f.Forbidden)
 	}
-	if request.Attempt != nil && (request.Attempt.ProcessID != facts.ProcessID || request.Attempt.CallID != round.CallID) {
-		return fault(f.Forbidden)
+	if request.Attempt != nil {
+		process, err := f.ParseID[object.Process](facts.ProcessID.String())
+		if err != nil || request.Attempt.ProcessID != process || request.Attempt.CallID != round.CallID {
+			return fault(f.Forbidden)
+		}
 	}
 	return nil
 }
