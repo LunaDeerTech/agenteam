@@ -31,6 +31,9 @@ func (s *initializationReadStore) QueryRow(_ context.Context, query string, _ ..
 	if strings.Contains(query, "FROM agenteam_skill.initializations") {
 		return s.row
 	}
+	if strings.Contains(query, "FROM agenteam_skill.installations") {
+		return skillRowValues{err: pgx.ErrNoRows}
+	}
 	return s.published
 }
 func (s *initializationReadStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
