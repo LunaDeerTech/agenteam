@@ -2,10 +2,10 @@
 
 ## 本轮最新验收边界
 
-- root已将 `fb84a892a7d07bb6f82a28c2be7505af47ea9d38` 正式推送main并核exact tip：D05/Skills Cleanup、Skills与Knowledge正文HTTP、D04/SecretOwner库和连续00028..00030已有限交付；不带Work/Knowledge UI或新Secret HTTP，不称完整D04/D05/D08/D10/D12完成。本协调树本轮同步该main基线，原未验Model材料保留。
+- root已将 `fb84a892a7d07bb6f82a28c2be7505af47ea9d38` 正式推送main并核exact tip：D05/Skills Cleanup、Skills与Knowledge正文HTTP、D04/SecretOwner库和连续00028..00030已有限交付；不带Work/Knowledge UI或新Secret HTTP，不称完整D04/D05/D08/D10/D12完成。本协调树已35d83f18同步该main，KnowledgeUI基线已0658c54f同步，原未验Model材料保留。
 - 默认生产initializer已撤回并保持unbound，完整participant/guard规则未变。旧649e业务PASS与规范拒绝分别保留；0747修后root02原全部退出尾PASS只接受默认拒绝/13项零事实、显式test-only真实端口fixture退休后的既有数据读取/Avatar/退出。
 - 原66普通包、remaining两vet/全race/两cmd build，加修后Audit整包ordinary/race构成适用最终验证集合；撤回后10pure/43sub、新根及两app vet/两build按变化补验。原check01/02和diagnosticFAIL保留；后继编译记录wrapper的set序列化FAIL不抹除其三命令Wait0，也不后补原runtime/desc门。
-- Work R13记录2b8b9947只闭作者Recovery有限门，独立Recovery/Authority及整卡仍未完成；SecretHTTP入口/两driver只READY未PG/native；KnowledgeUI f9fde343首片段未验。各活跃树的owner/用途与历史材料保留原因见本树current。
+- Work R13记录2b8b9947只闭作者Recovery有限门，独立Recovery/Authority及整卡仍未完成；SecretHTTP作者PG01已wholePASS（10903→0f53fa，1top2sub及全部原尾齐），native/独立动态/默认根仍未验；KnowledgeUI state fixture修后13PASS，页面动态/最终build未验，Work planning9writes仍是窄计划。各活跃树的owner/用途与历史材料保留原因见本树current。
 - 临时backend-owner-delivery用途已完成，writer停、status含ignored空、HEAD同远端main，root已普通remove/branch-d且核本地tree/ref与远端分支为空；不批量清理其他未完/被引用树。其余全局STOP与E01未开始保持。
 
 以下固定阶段记录按当时来源保留，旧“仍待”不覆盖本轮正式交付；领域当前范围以main正式卡与本树current为准。
