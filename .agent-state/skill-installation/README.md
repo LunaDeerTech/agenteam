@@ -16,4 +16,6 @@ python3 -B .agent-state/task-planning-recovery/pg_only_supervisor.py \
 
 源码冻结后只做所需 integration/race 编译与精确 1 top 列举，再一次收集当前运行依赖；本条命令须等 root 的资源窗口，不在准备阶段执行。当前入口离线新增 4 控、受影响旧 metadata 6 控实际通过，均为受控输出/文件/资源观察替身，无 Go、Docker、PG 或 Object 调用。
 
-真实断言范围：当前普通 Owner Install → 原 package EOF/Close/Joined → 正式 Lookup 与同 key replay → 非 Owner 拒绝及原持久事实；随后明示的生命周期 fixture 进入真实 Skill/Object stop 和普通来源清理，核 SQL anchors/Audit 与原对象 `NoSuchKey`。它不证明完整 Project 删除、Agent/F1、AgentRun 安装、Registry install Backend 注册、外进程恢复或解除旧 Object Runtime STOP。编译、连续 00032–00036 SQL 与真实安装/删除尚未执行；失败时保留原事实及全部尾，不自动重试。
+真实断言范围：当前普通 Owner Install → 原 package EOF/Close/Joined → 正式 Lookup 与同 key replay → 非 Owner 拒绝及原持久事实；随后明示的生命周期 fixture 进入真实 Skill/Object stop 和普通来源清理，核 SQL anchors/Audit 与原对象 `NoSuchKey`。它不证明完整 Project 删除、Agent/F1、AgentRun 安装、Registry install Backend 注册、外进程恢复或解除旧 Object Runtime STOP。连续 00032–00036 SQL 与真实安装/删除尚未执行；失败时保留原事实及全部尾，不自动重试。
+
+首次编译 `compile-01` 已实际 FAIL（2026-10-10 13:19:00–13:19:27 UTC，session38864→4240b9）：fixture 第180/184行把 Object ProcessID 直接传给 Outbox ProcessID，两个不同类型不能赋值。原 Go Wait1/26.457s，outer Wait1；未执行 list、无候选、未启动 PG/Object。538 个编译输入和原方法输入初末一致，原进程组双 absent、后代与 adopted 均空、runtime 双空。输出位于 `output/ai/skill-install/compile-01/{compile.log,result.json,inputs-before.json,inputs-after.json}`；终端 `tails_closed=false` 同时包含原非零 exit 判断，不能据此反推有遗留进程。该 fixture 差异交原作者窄修，原 FAIL 不回填。

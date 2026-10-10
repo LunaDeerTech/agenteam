@@ -177,11 +177,15 @@ func newSkillInstallationFixture(t *testing.T) *skillInstallationFixture {
 	if err != nil {
 		t.Fatal(err)
 	}
-	box, err := outbox.New(store, catalog, outbox.Authorizations{Producers: map[event.StableName]outc.ProducerAuthority{pc.ProjectProducer: projects}, Sessions: base.accounts, System: base.accounts, Projects: projects, Audit: aud, Cursors: base.keys, Processes: fixtureProcess{process}})
+	outboxProcess, err := f.ParseID[outc.Process](process.String())
 	if err != nil {
 		t.Fatal(err)
 	}
-	creator, err := project.New(store, project.Dependencies{Authority: projects, Activity: base.accounts, Audit: aud, Events: box, ProjectEvents: types, Initializer: service, Processes: fixtureProcess{process}, Cursors: base.keys}, project.DefaultConfig())
+	box, err := outbox.New(store, catalog, outbox.Authorizations{Producers: map[event.StableName]outc.ProducerAuthority{pc.ProjectProducer: projects}, Sessions: base.accounts, System: base.accounts, Projects: projects, Audit: aud, Cursors: base.keys, Processes: fixtureProcess{outboxProcess}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	creator, err := project.New(store, project.Dependencies{Authority: projects, Activity: base.accounts, Audit: aud, Events: box, ProjectEvents: types, Initializer: service, Processes: fixtureProcess{outboxProcess}, Cursors: base.keys}, project.DefaultConfig())
 	if err != nil {
 		t.Fatal(err)
 	}
