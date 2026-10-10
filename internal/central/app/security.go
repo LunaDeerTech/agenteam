@@ -9,6 +9,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
+	"github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
 	runners "github.com/LunaDeerTech/agenteam/internal/central/runner/service"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"time"
@@ -40,7 +41,7 @@ type maintenance interface {
 	Status() secret.Status
 }
 
-func createSecret(cfg config.Config, db database, auditing *audit.Service, authority *account.Authority, usage *model.SecretUsageRouter, projects *project.Authority) (*secret.Service, error) {
+func createSecret(cfg config.Config, db database, auditing *audit.Service, authority *account.Authority, usage *model.SecretUsageRouter, projects *project.Authority, writes *projectvariable.SecretWriteAuthority) (*secret.Service, error) {
 	store, ok := db.(secret.Store)
 	if !ok || authority == nil {
 		return nil, errors.New("SECRET_STORE_UNAVAILABLE")
@@ -48,9 +49,12 @@ func createSecret(cfg config.Config, db database, auditing *audit.Service, autho
 	if usage == nil {
 		return nil, errors.New("MODEL_USAGE_UNAVAILABLE")
 	}
+	if writes == nil {
+		return nil, errors.New("PROJECT_VARIABLE_AUTHORITY_UNAVAILABLE")
+	}
 	projectSecrets, err := project.NewSecretAuthority(projects)
 	if err != nil {
 		return nil, err
 	}
-	return secret.New(store, cfg.SecretKeyring(), auditing, secret.Authorizations{AccountWrites: authority, Sessions: authority, System: authority, Usage: usage, Projects: projectSecrets})
+	return secret.New(store, cfg.SecretKeyring(), auditing, secret.Authorizations{AccountWrites: authority, Sessions: authority, System: authority, Usage: usage, Projects: projectSecrets, ProjectVariables: writes})
 }

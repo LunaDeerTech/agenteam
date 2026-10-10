@@ -40,6 +40,8 @@ const secretVariableStorageMaintenanceSelector = `^TestSecretVariableStorageSQLR
 const secretVariableStorageRecoveryWriteSelector = `^TestSecretVariableStorageSQL(CommitUnknown|NonceUnknown)$`
 const secretVariableStorageRecoveryStateSelector = `^TestSecretVariableStorageSQL(MaintenanceUnknown|Concurrency)$`
 
+const secretHTTPSelector = `^TestSecretVariableHTTPBoundary$`
+
 const skillOwnerHTTPSelector = `^TestSkillOwnerReadHTTP(Metadata|CurrentAuthority|Transactions|CommitUnknown)$`
 
 func main()             { os.Exit(run()) }
@@ -58,6 +60,9 @@ func run() (code int) {
 		if !filepath.IsAbs(python) || err != nil || !info.Mode().IsRegular() {
 			return fail("exact Skill HTTP Schema interpreter required")
 		}
+	}
+	if strings.Contains(*selector, "SecretVariableHTTP") && *selector != secretHTTPSelector {
+		return fail("Secret HTTP requires its exact PG-only top")
 	}
 	if strings.Contains(*selector, "SecretVariableStorage") && *selector != secretVariableStorageCoreSelector && *selector != secretVariableStorageMaintenanceSelector && *selector != secretVariableStorageRecoveryWriteSelector && *selector != secretVariableStorageRecoveryStateSelector {
 		return fail("Secret storage requires an exact core or maintenance group")

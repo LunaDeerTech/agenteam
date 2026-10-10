@@ -54,22 +54,23 @@ type accountWork interface {
 // Sink before a core or either Runtime exists. Its fields are lifecycle owners,
 // never mutable domain capabilities consulted by an authorization provider.
 type accountAssembly struct {
-	mu           sync.Mutex
-	constructing bool
-	stopped      bool
-	started      bool
-	forced       context.Context
-	planning     accountWork
-	variables    accountWork
-	projects     accountWork
-	skills       accountWork
-	knowledge    accountWork
-	runners      accountWork
-	sink         accountWork
-	core         accountWork
-	runtime      accountRuntime
-	mail         accountRuntime
-	handler      http.Handler
+	mu              sync.Mutex
+	constructing    bool
+	stopped         bool
+	started         bool
+	forced          context.Context
+	planning        accountWork
+	variables       accountWork
+	secretVariables accountWork
+	projects        accountWork
+	skills          accountWork
+	knowledge       accountWork
+	runners         accountWork
+	sink            accountWork
+	core            accountWork
+	runtime         accountRuntime
+	mail            accountRuntime
+	handler         http.Handler
 }
 
 func (a *accountAssembly) install(ctx context.Context, f func()) bool {
@@ -149,6 +150,9 @@ func (a *accountAssembly) works() []accountWork {
 	// Variables, Work and Project calls release Account Activity before core retires.
 	if a.variables != nil {
 		work = append(work, a.variables)
+	}
+	if a.secretVariables != nil {
+		work = append(work, a.secretVariables)
 	}
 	if a.planning != nil {
 		work = append(work, a.planning)
@@ -327,7 +331,11 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.runners = runners }) {
 		return context.Canceled
 	}
-	secrets, err := createSecret(cfg, db, auditor, authority, usage, projectUsage.projects)
+	secretWrites, err := createProjectSecretWriteAuthority(db, projectUsage.projects)
+	if err != nil {
+		return err
+	}
+	secrets, err := createSecret(cfg, db, auditor, authority, usage, projectUsage.projects, secretWrites)
 	if err != nil {
 		return err
 	}
@@ -380,6 +388,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	secretVariableEvents, err := vc.RegisterSecretVariableEvents(catalog)
+	if err != nil {
+		return err
+	}
 	knowledgeEvents, err := kc.RegisterKnowledgeEvents(catalog)
 	if err != nil {
 		return err
@@ -419,6 +431,13 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		return err
 	}
 	if !accounts.install(ctx, func() { accounts.variables = variables }) {
+		return context.Canceled
+	}
+	secretVariables, err := createProjectSecretVariables(cfg, db, projectUsage.variables, secretWrites, secrets, projectUsage.projects, authority, auditor, journal, secretVariableEvents)
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() { accounts.secretVariables = secretVariables }) {
 		return context.Canceled
 	}
 	projectReads, err := createProjectRead(cfg, db, projectUsage.projects)
@@ -558,6 +577,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	secretVariableHandler, err := projectSecretVariablesHandler(secretVariables, core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
 	runnerAdmin, runnerDevice, err := runnerControlHandlers(runners, core, cfg.PublicOrigin())
 	if err != nil {
 		return err
@@ -570,6 +593,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		accounts.handler = projectAuditRoutes(projectCredentialsRoutes(projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler), credentialHandler), projectAudit)
 		accounts.handler = workPlanningRoutes(accounts.handler, planningHandler)
 		accounts.handler = projectVariablesRoutes(accounts.handler, variableHandler)
+		accounts.handler = projectSecretVariablesRoutes(accounts.handler, secretVariableHandler)
 		accounts.handler = runnerControlRoutes(accounts.handler, runnerAdmin, runnerDevice)
 		accounts.handler = knowledgeSkillRoutes(accounts.handler, knowledgeReads, knowledgeCommands, knowledgeContent, skillReads)
 	}) {
