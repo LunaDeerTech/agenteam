@@ -323,3 +323,7 @@ Recovery09仍完整FAIL：三次Project归档刷新正常finished/EOF/typed返�
 Recovery09同原安全材料另见sequence6显式原retryOriginal PATCH已native EOF/CL450与typed fulfill，但旧ordinary闭集不选PATCH；最终verify未到，不升级成第二实际断言失败。root已限定授权同原failed/owned503后的唯一URL/key/body/CSRF/Origin Request及真实not_observed→confirmed/committed receipt对象发布接缝；不泛化其它PATCH或改产品。实际消费者127/helper88/Project回归57与strictTS均通过，控制初次重复cleanup setupFAIL保留；六技术源已冻结交content窄审，未跑新PG/browser、未改Go/dist/预算，下一Recovery10仍须root保存和fresh授窗。
 
 content未参与者随后完成六技术路径窄审并有限接受、无确认must-fix：同原Request材料、真实retryOriginal intent/action/live及not_observed→confirmed receipt对象发布与原全部尾闭合；复用作者127/88/57和TS结果，未运行测试/browser，不升级09或08。十路径已停写待root保存。
+
+Recovery10（27870089）整轮仍FAIL：PW恢复1 passed/18.5秒，原Go三域历史/归档/重放持久后验已返回；后续非终态final-Outbox回滚原响应500/INTERNAL_ERROR/not_committed与测试错误预期503不符，Go31.00秒、outer121.846秒/actual exit1。离线确认P0001 SQL poison优先于callback unavailable，正式Work与HTTP映射均匹配实际；非Project归档或对象版本前置失效。全部Wait/join及七资源/private/runtime/desc/TCP双尾/inputsame闭合并交还窗口。必要原件recovery-tenth-failure.json/current保留，技术源尚未改；不得将PW通过写成整轮或完整UI接受。
+
+R10后验仅Go +3/-1严格修为500/INTERNAL_ERROR/not_committed，固定trigger/所有原业务门不变；content未参与者映射窄审接受、无must-fix且未跑Go/PG。新account-recovery11.test hot integration/race编译46649 actual0、精确list aaa247 actual0/恰一top。四路径停写待root保存，修后整R11尚未运行，R10整FAIL不回填。

@@ -542,7 +542,9 @@ func assertProjectWorkRecoveryStages(t *testing.T, f *projectWorkPlanningWebFixt
 					}
 				} else {
 					var problem map[string]any
-					if o.Status != http.StatusServiceUnavailable || json.Unmarshal(o.Response, &problem) != nil || problem["code"] != "DEPENDENCY_UNAVAILABLE" {
+					// The P0001 SQL failure poisons the real transaction. Postgres
+					// preserves that cause ahead of Outbox's callback wrapper.
+					if o.Status != http.StatusInternalServerError || json.Unmarshal(o.Response, &problem) != nil || problem["code"] != "INTERNAL_ERROR" || problem["commit_state"] != "not_committed" {
 						t.Fatal("actual final-Outbox rollback response differs from the formal service mapping")
 					}
 				}

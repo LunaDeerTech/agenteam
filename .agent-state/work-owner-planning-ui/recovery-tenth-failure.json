@@ -1,0 +1,262 @@
+{
+  "case": "recovery-10",
+  "input_checkpoint": "27870089",
+  "selector": "^TestAccountProjectWorkPlanningWebOriginalRecovery$",
+  "tool_session": 37273,
+  "outer_exit": 1,
+  "outer_seconds": 121.846,
+  "go_seconds": 31.0,
+  "business_result": "FAIL",
+  "playwright_result": {
+    "passed": 1,
+    "seconds": 18.5
+  },
+  "failure": "assertProjectWorkRecoveryStages: actual final-Outbox rollback response differs from the formal service mapping",
+  "go_original_three_domain_recovery_assertions_returned": true,
+  "go_nonterminal_stage_assertions_completed": false,
+  "disk_preflight": {
+    "available_bytes": 17591734272,
+    "minimum_bytes": 5368709120
+  },
+  "original_in_progress_failure": {
+    "sidecar": "response-026.json",
+    "method": "PATCH",
+    "endpoint": "/api/v1/projects/01a123c4-b468-7a38-bda9-05f0661a3a28/milestones/01a123c4-b49c-7b3b-bc73-b18a22780393",
+    "request_id": "01a123c4-d8ed-7691-8a5b-9cb19e556dc5",
+    "status": 500,
+    "content_type": "application/problem+json",
+    "body_sha256": "ed71657ddfef208dbf92bc1178ba6d374bb24c6b4a3d6ecd88baf18a0c333d57",
+    "sha_matches_original_bytes": true,
+    "safe_problem": {
+      "status": 500,
+      "code": "INTERNAL_ERROR",
+      "type": "urn:agenteam:problem:internal-error",
+      "title": "Internal error",
+      "commit_state": "not_committed",
+      "request_id": "01a123c4-d8ed-7691-8a5b-9cb19e556dc5"
+    },
+    "old_test_expected": {
+      "status": 503,
+      "code": "DEPENDENCY_UNAVAILABLE"
+    },
+    "context": [
+      {
+        "sidecar": "response-022.json",
+        "endpoint": "/api/v1/projects/01a123c4-b468-7a38-bda9-05f0661a3a28",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a123c4-d7ae-7d40-b137-a939b5990252",
+        "id": "01a123c4-b468-7a38-bda9-05f0661a3a28",
+        "version": "1",
+        "lifecycle": "active"
+      },
+      {
+        "sidecar": "response-024.json",
+        "endpoint": "/api/v1/projects/01a123c4-b468-7a38-bda9-05f0661a3a28/milestones/01a123c4-b49c-7b3b-bc73-b18a22780393",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a123c4-d7cd-7a15-acf7-a55b452a1bd6",
+        "id": "01a123c4-b49c-7b3b-bc73-b18a22780393",
+        "project_id": "01a123c4-b468-7a38-bda9-05f0661a3a28",
+        "version": "1"
+      },
+      {
+        "sidecar": "response-025.json",
+        "endpoint": "/api/v1/projects/01a123c4-b468-7a38-bda9-05f0661a3a28/milestones/01a123c4-b49c-7b3b-bc73-b18a22780393",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a123c4-d82d-7bf2-863b-09e9eceda20a",
+        "id": "01a123c4-b49c-7b3b-bc73-b18a22780393",
+        "project_id": "01a123c4-b468-7a38-bda9-05f0661a3a28",
+        "version": "1"
+      },
+      {
+        "sidecar": "response-027.json",
+        "endpoint": "/api/v1/projects/01a123c4-b468-7a38-bda9-05f0661a3a28/structure-commands/lookup",
+        "method": "POST",
+        "status": 200,
+        "request_id": "01a123c4-d97c-7006-b0e0-ff50d8f10a1e",
+        "state": "in_progress"
+      },
+      {
+        "sidecar": "response-028.json",
+        "endpoint": "/api/v1/projects/01a123c4-b468-7a38-bda9-05f0661a3a28/milestones/01a123c4-b49c-7b3b-bc73-b18a22780393",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a123c4-d9fb-7540-8155-a48e851c7b6f",
+        "id": "01a123c4-b49c-7b3b-bc73-b18a22780393",
+        "project_id": "01a123c4-b468-7a38-bda9-05f0661a3a28",
+        "version": "1"
+      },
+      {
+        "sidecar": "response-029.json",
+        "endpoint": "/api/v1/projects/01a123c4-b468-7a38-bda9-05f0661a3a28/milestones/01a123c4-b49c-7b3b-bc73-b18a22780393",
+        "method": "PATCH",
+        "status": 200,
+        "request_id": "01a123c4-da91-75e0-a1a3-4dfe9f2abb72",
+        "command": "work.milestone.update",
+        "changed": true,
+        "milestone": {
+          "id": "01a123c4-b49c-7b3b-bc73-b18a22780393",
+          "project_id": "01a123c4-b468-7a38-bda9-05f0661a3a28",
+          "version": "2"
+        }
+      },
+      {
+        "sidecar": "response-030.json",
+        "endpoint": "/api/v1/projects/01a123c4-b468-7a38-bda9-05f0661a3a28/structure-commands/lookup",
+        "method": "POST",
+        "status": 200,
+        "request_id": "01a123c4-dbf3-73ab-b067-665ff90b000d",
+        "state": "committed",
+        "result": {
+          "command": "work.milestone.update",
+          "changed": true,
+          "milestone": {
+            "id": "01a123c4-b49c-7b3b-bc73-b18a22780393",
+            "project_id": "01a123c4-b468-7a38-bda9-05f0661a3a28",
+            "version": "2"
+          }
+        }
+      },
+      {
+        "sidecar": "response-031.json",
+        "endpoint": "/api/v1/projects/01a123c4-b468-7a38-bda9-05f0661a3a28/milestones/01a123c4-b49c-7b3b-bc73-b18a22780393",
+        "method": "GET",
+        "status": 200,
+        "request_id": "01a123c4-dc1c-75de-863c-aa4ca4bea556",
+        "id": "01a123c4-b49c-7b3b-bc73-b18a22780393",
+        "project_id": "01a123c4-b468-7a38-bda9-05f0661a3a28",
+        "version": "2"
+      }
+    ]
+  },
+  "original_stage_evidence": [
+    {
+      "kind": "not-observed",
+      "bound": true,
+      "wire_attempts": 1,
+      "closed_attempts": 1,
+      "truncated_attempts": 1,
+      "rejected": false,
+      "rejection_reason": "",
+      "lookup_observed": true,
+      "completed": false,
+      "fault_installed": false,
+      "fault_hits": 0
+    },
+    {
+      "kind": "in-progress",
+      "bound": true,
+      "wire_attempts": 0,
+      "closed_attempts": 0,
+      "truncated_attempts": 0,
+      "rejected": false,
+      "rejection_reason": "",
+      "lookup_observed": true,
+      "completed": true,
+      "fault_installed": false,
+      "fault_hits": 1
+    }
+  ],
+  "body_validation": {
+    "original_bodies": 70,
+    "browser_complete": 67,
+    "original_native_complete_with_pw_failed": 8,
+    "expected_incomplete": 3,
+    "owned_unforwarded_truncations": 1,
+    "failed_without_headers": 0,
+    "all_schema_client_validated": true
+  },
+  "schema_validation": {
+    "status": 0,
+    "signal": null,
+    "stdout": "86\n",
+    "stderr": "",
+    "failed_to_run": false
+  },
+  "tails": {
+    "go_pid": 80119,
+    "go_actual_wait": 1,
+    "driver_pid": 78176,
+    "driver_actual_wait": 1,
+    "supervisor_pid": 78111,
+    "outer_actual_exit": 1,
+    "adopted_actual_waits": [
+      {
+        "pid": 80360,
+        "status": 0
+      },
+      {
+        "pid": 80364,
+        "status": 0
+      },
+      {
+        "pid": 80362,
+        "status": 0
+      },
+      {
+        "pid": 80365,
+        "status": 0
+      }
+    ],
+    "node_proxy_body_preparation_root_joined": true,
+    "owned_resources": [
+      {
+        "kind": "container",
+        "id": "bfa28517e0b03b34420f7892f7a602499486ecc3bdd175c5ae099f83c66509cc",
+        "label": "agenteam.d05.objectfixture",
+        "nonce": "690e7df6c82df8668382608c495187bc"
+      },
+      {
+        "kind": "network",
+        "id": "cdb42060dd8df30bdfa8b0eeeca3846e202495ef62bc18f2cf92ba56ade7f111",
+        "label": "agenteam.d05.objectfixture",
+        "nonce": "690e7df6c82df8668382608c495187bc"
+      },
+      {
+        "kind": "container",
+        "id": "b55e2651f5bfdb7d85fce15314cd030e9d6766c9bc741589f45417e5f6fa99f1",
+        "label": "agenteam.d04.networkfixture",
+        "nonce": "723bc38fabd460ceb3d9085959f03a95"
+      },
+      {
+        "kind": "network",
+        "id": "50015fdf5d95f4ebd5c8c799b5534f35ee1527feccea2d6c9a5f21e65f4b2750",
+        "label": "agenteam.d04.networkfixture",
+        "nonce": "723bc38fabd460ceb3d9085959f03a95"
+      },
+      {
+        "kind": "container",
+        "id": "a9e059eaf515f337616a929762b3e4fff15ca6df62078d528f2e0112e05e40ae",
+        "label": "agenteam.d03.fixture",
+        "nonce": "4c848c300ea0dda88c9c66f7375496f5"
+      },
+      {
+        "kind": "container",
+        "id": "732b282bec57c3b0bb8ae52d63c00fac92f6a0a71bf0c66fc9ca36827bb425d7",
+        "label": "agenteam.d03.fixture",
+        "nonce": "4c848c300ea0dda88c9c66f7375496f5"
+      },
+      {
+        "kind": "network",
+        "id": "a37801ae2f8f54e9f592edaca98c03c1c7f0a887d96ee483b85240eea2b9958d",
+        "label": "agenteam.d03.fixture",
+        "nonce": "4c848c300ea0dda88c9c66f7375496f5"
+      }
+    ],
+    "resource_absent_observations": 2,
+    "private_three_absent_observations": 2,
+    "runtime_empty_observations": 2,
+    "descendants_empty_observations": 2,
+    "host_tcp_delta_empty_observations": 2,
+    "inputs_unchanged": true
+  },
+  "original_log": "/tmp/wui-o10/ui-04eb80aeed1d4762.log",
+  "limitations": [
+    "whole recovery remains FAIL",
+    "not all final nonterminal-stage counts reached; map iteration order not recorded",
+    "original key/body/CSRF and business text omitted",
+    "Recovery08 missing original tails and Recovery09 FAIL are unchanged"
+  ]
+}
