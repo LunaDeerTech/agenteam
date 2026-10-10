@@ -65,6 +65,32 @@ func (environmentPlan) MarshalJSON() ([]byte, error) {
 	return []byte(`"execution_environment_plan"`), nil
 }
 
+// Validate each participant's bounded set first, then merge repeated locks
+// before applying the global union budget. Never discard a stronger mode.
+func mergeEnvironmentLocks(a, b []f.LockRequest) ([]f.LockRequest, error) {
+	left, err := oc.NormalizeLocks(a)
+	if err != nil {
+		return nil, err
+	}
+	right, err := oc.NormalizeLocks(b)
+	if err != nil {
+		return nil, err
+	}
+	byKey := make(map[string]f.LockRequest, len(left)+len(right))
+	for _, request := range append(left, right...) {
+		key := request.Key.Canonical()
+		old, exists := byKey[key]
+		if !exists || old.Mode != f.Exclusive {
+			byKey[key] = request
+		}
+	}
+	union := make([]f.LockRequest, 0, len(byKey))
+	for _, request := range byKey {
+		union = append(union, request)
+	}
+	return oc.NormalizeLocks(union)
+}
+
 func (p *ExecutionEnvironmentProvider) DiscoverExecutionEnvironment(ctx context.Context, r c.EnvironmentCaptureRequest) (c.EnvironmentCapturePlan, error) {
 	if err := environmentContext(ctx); err != nil {
 		return nil, err
@@ -139,8 +165,14 @@ func (p *ExecutionEnvironmentProvider) DiscoverExecutionEnvironment(ctx context.
 			return nil, fault(f.DependencyUnbound)
 		}
 		d.leasePlans[n] = plan
-		locks = append(locks, request.RequiredLocks()...)
-		locks = append(locks, plan.RequiredLocks()...)
+		locks, err = mergeEnvironmentLocks(locks, request.RequiredLocks())
+		if err != nil {
+			return nil, environmentError(err)
+		}
+		locks, err = mergeEnvironmentLocks(locks, plan.RequiredLocks())
+		if err != nil {
+			return nil, environmentError(err)
+		}
 	}
 	d.locks, err = oc.NormalizeLocks(locks)
 	if err != nil {
