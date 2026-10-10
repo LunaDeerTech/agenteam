@@ -15,6 +15,10 @@ python3 -B .agent-state/agent-system-integration/core-checks.py \
 
 首次 `combined-core-01` 原 wholeFAIL（2026-10-10 13:55:35 UTC，session5457→05b684）：outer811324/Go811327 实际Wait1，race14.258s，fresh6,252,564,480B；21top为19PASS/2FAIL，vet未启动。失败均在Skill39：`TestAgentInstallCurrentTransactionAndRecovery` 的publish、publish-revoked、published-recovery于第138/145行返回`DEPENDENCY_UNAVAILABLE`；`TestInstallationExecutionOriginKeepsHumanCompatibility`第210行来源记录roundtrip同码。原组双empty/runtime双empty、adopted空，热缓存已归还。原件在`output/ai/agent-system-integration/combined-core-01/{race.jsonl,result.json}`，不自动重试；cleanup原作者仅针对该来源记录路径定位，其他已通过18top及Skill拒绝top不扩大复验。本结果不是整体通过，也不改变上述真实SQL/未绑定范围。
 
+cleanup 已确定并修正唯一测试 helper：`installationValues` 原把零 User 的全零 UUID 字符串模拟成数据库值，而正式 SQL 的 `COALESCE(actor_user_id::text,'')` 在 Agent 分支返回空串。00039要求该分支 User 为 NULL，产品 scanner 拒绝非空 User 正确。`install_read_test.go` 仅 +7/-1，使零 User 为空串、非零 Human 保原值；有限差额审接受，产品/DDL/断言不变，尚未复验。
+
+修后只在新授权窗口用上述命令追加 `--profile repair`：输出 `combined-core-02/`，只执行 `TestAgentInstallCurrentTransactionAndRecovery` 与 `TestInstallationExecutionOriginKeepsHumanCompatibility` 两top/3sub的 Skill race，随后执行原未运行的10pkg vet。原默认21top入口及原01 FAIL保留；19个通过top复用。profile 的 AST、旧结果语义、精确两top的正常/缺失/多项集合检查已通过，无 Go/资源；原预算、实际Wait和组/runtime退出尾未改变。
+
 ## 已完成的32–35/schema有限组合
 
 - 原阶段写域：coordination 维护 `tests/projectvariable/agent_configuration_schema_test.go` 与 schema 记录，content 写独立构造 helper，root 负责所有 Git。组合基线 main `7a693cb6` 加四组精确源，生产/迁移不由此测试修改。

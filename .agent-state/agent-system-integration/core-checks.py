@@ -46,6 +46,10 @@ TOPS = {
         "TestInstallationExecutionOriginKeepsHumanCompatibility",
     ],
 }
+REPAIR_TOPS = {"skill": [
+    "TestAgentInstallCurrentTransactionAndRecovery",
+    "TestInstallationExecutionOriginKeepsHumanCompatibility",
+]}
 SELECTOR = "^(" + "|".join(top for tops in TOPS.values() for top in tops) + ")$"
 PACKAGES = ["./internal/central/" + package for package in TOPS]
 COMMANDS = [
@@ -79,7 +83,7 @@ def signal_group(pid, value):
         pass
 
 
-def race_summary(path):
+def race_summary(path, tops=TOPS):
     observed = {}
     for line in path.read_text().splitlines():
         try:
@@ -91,19 +95,29 @@ def race_summary(path):
             observed[event["Package"] + "/" + test] = event["Action"]
     expected = {
         "github.com/LunaDeerTech/agenteam/internal/central/" + package + "/" + top: "pass"
-        for package, tops in TOPS.items() for top in tops
+        for package, names in tops.items() for top in names
     }
-    return {"tops": observed, "exact_21_top_pass": observed == expected}
+    return {"tops": observed, f"exact_{sum(map(len, tops.values()))}_top_pass": observed == expected}
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--cache", type=Path, required=True)
+    parser.add_argument("--profile", choices=("initial", "repair"), default="initial")
     args = parser.parse_args()
     cache = args.cache
     if not cache.is_absolute() or not cache.is_dir() or cache.resolve() != cache:
         parser.error("an existing coordinator-assigned absolute cache is required")
-    out = ROOT / "output/ai/agent-system-integration/combined-core-01"
+    tops, selector, commands, run = TOPS, SELECTOR, COMMANDS, "combined-core-01"
+    if args.profile == "repair":
+        tops = REPAIR_TOPS
+        selector = "^(" + "|".join(tops["skill"]) + ")$"
+        race = [selector if arg == SELECTOR else arg
+                for arg in COMMANDS[0][1] if arg not in PACKAGES]
+        commands = [("race", race + ["./internal/central/skill"]), COMMANDS[1]]
+        run = "combined-core-02"
+    pass_key = f"exact_{sum(map(len, tops.values()))}_top_pass"
+    out = ROOT / "output/ai/agent-system-integration" / run
     out.mkdir(parents=True, exist_ok=False)
     out.chmod(0o700)
     runtime = out / "runtime"
@@ -124,13 +138,14 @@ def main():
         "XDG_CONFIG_HOME": str(config), "GOMAXPROCS": "2", "CGO_ENABLED": "1",
     }
     # Whitelist above excludes telemetry/config bypasses before the first Go.
-    result = {"outer_pid": os.getpid(), "started_utc": utc(), "selector": SELECTOR,
+    result = {"outer_pid": os.getpid(), "started_utc": utc(), "selector": selector,
+              "profile": args.profile,
               "cache": str(cache), "phases": [], "whole_pass": False}
     code = 1
     try:
         if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
             raise OSError(ctypes.get_errno(), "subreaper unavailable")
-        for name, command in COMMANDS:
+        for name, command in commands:
             stat = os.statvfs(ROOT)
             available = stat.f_bavail * stat.f_frsize
             phase = {"name": name, "available_bytes": available, "argv": command}
@@ -188,12 +203,12 @@ def main():
             phase["group_empty_tail"] = [group_absent(process.pid), group_absent(process.pid)]
             phase["runtime_empty"] = [not any(runtime.iterdir()), not any(runtime.iterdir())]
             if name == "race":
-                phase.update(race_summary(log_path))
+                phase.update(race_summary(log_path, tops))
             emit(phase)
             if (phase.get("timeout") or phase.get("interrupted") or phase["actual_wait"] != 0
                     or not phase["group_absent"] or phase.get("unjoined_child") or adopted
                     or not all(phase["group_empty_tail"]) or not all(phase["runtime_empty"])
-                    or phase.get("exact_21_top_pass") is False):
+                    or phase.get(pass_key) is False):
                 break
         else:
             result["whole_pass"], code = True, 0
