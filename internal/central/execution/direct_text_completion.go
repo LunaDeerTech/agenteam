@@ -42,7 +42,7 @@ func (s *directTextState) callAndFinish(ctx context.Context, run *directTextCall
 			}
 		}
 	}
-	if callErr != nil && (!recovering && directTextUnknown(callErr) || recovering && !run.invocation.session.Joined()) {
+	if callErr != nil && (!recovering && directTextUnknown(callErr) || recovering && !run.invocation.session.Joined() && !errors.Is(callErr, context.Canceled) && !errors.Is(callErr, context.DeadlineExceeded)) {
 		s.mu.Lock()
 		run.uncertainty = "model"
 		run.invocation.callError = callErr
@@ -56,14 +56,14 @@ func (s *directTextState) callAndFinish(ctx context.Context, run *directTextCall
 	s.mu.Unlock()
 	if !run.invocation.session.Joined() {
 		wait, cancel := context.WithTimeout(context.WithoutCancel(run.ctx), 3*time.Second)
-		drainErr := run.invocation.session.Drain(wait)
+		drainErr := s.drainSession(wait, run)
 		cancel()
 		if drainErr != nil || !run.invocation.session.Joined() {
 			if drainErr == nil {
 				drainErr = fault(f.ResourceBusy)
 			}
 			s.mu.Lock()
-			run.uncertainty = "model"
+			run.uncertainty = "draining"
 			s.mu.Unlock()
 			s.retain(run, errors.Join(callErr, drainErr))
 			return s.receipt(run), run.unresolved
@@ -86,6 +86,33 @@ func (s *directTextState) callAndFinish(ctx context.Context, run *directTextCall
 		run.invocation.response = &owned
 	}
 	return s.finish(run)
+}
+
+// Once Drain has stopped the session, Result cannot advance its Close again.
+// Retain that distinct phase and continue the same session's original cleanup
+// on explicit recovery. No BeginChat or model dispatch occurs in this helper.
+func (s *directTextState) drainSession(ctx context.Context, run *directTextCall) error {
+	if ctx == nil || run == nil || run.invocation == nil || run.invocation.session == nil {
+		return invalid()
+	}
+	s.mu.Lock()
+	run.phase = "closing"
+	run.uncertainty = "draining"
+	s.mu.Unlock()
+	err := run.invocation.session.Drain(ctx)
+	if !run.invocation.session.Joined() {
+		if err == nil {
+			return fault(f.ResourceBusy)
+		}
+		return err
+	}
+	if err != nil {
+		return err
+	}
+	s.mu.Lock()
+	run.allJoined = true
+	s.mu.Unlock()
+	return ctx.Err()
 }
 
 func (s *directTextState) finish(run *directTextCall) (c.DirectTextReceipt, error) {
