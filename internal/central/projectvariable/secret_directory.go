@@ -122,7 +122,7 @@ func secretDirectoryMapping(r c.SecretDirectoryRequest, rows []*secretVariableRo
 		Variable          *c.SecretVariableFields
 		Deleted           *f.Instant
 		CredentialID      string
-		CredentialVersion f.Version
+		CredentialVersion *f.Version
 	}
 	entries := make([]entry, len(r.IDs))
 	for n, id := range r.IDs {
@@ -132,7 +132,8 @@ func secretDirectoryMapping(r c.SecretDirectoryRequest, rows []*secretVariableRo
 			entries[n].Variable, entries[n].Deleted = &v, row.Deleted
 			if row.Deleted == nil {
 				entries[n].CredentialID = row.Ref.Details().ID.String()
-				entries[n].CredentialVersion = row.CredentialVersion
+				version := row.CredentialVersion
+				entries[n].CredentialVersion = &version
 			}
 		}
 	}
