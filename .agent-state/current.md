@@ -86,3 +86,7 @@
 - check02 在bacbb28d上实际99351/outer201522、script201533，于04:35:16Z/fresh11646693376B运行。原完整脚本首普通test仅Audit HTTP最大页Schema子进程signal:killed，top20.15s/包32.825s；其余普通包已完成。Go helper原20秒context与本次耗时吻合，但原日志未打印ctx.Err，不能单凭此认定CPU/p2压力原因。两vet/race/两build因set-e未到。
 - 原script/outer实际1，103.661s；desc/runtime/TCP各双空、205原TCP样本末delta0，元数据正确完成，无wrapper TypeError，窗口已释放。安全原事实在 `owner-feature-integration/final-check-second-failure.json`，不升级原01。该wrapper未实现全仓初末input hash门；content报告运行期将一份d12规划文档草稿搬新UI树并恢复候选，Go源码未变，不能声称初始全仓clean或全仓bytes冻结；限定Go源码搜索无该卡引用。
 - 下一步只允许最多一次无socket原精确Schema top诊断，保持20秒门/fresh磁盘/输入；不自动重跑全仓。原必需vet/race/build仍须有效完成，正式main未交付。
+
+- 授权的一次精确无socketSchema诊断也FAIL：51908→4c48aa，outer205655/Go205656实际Wait1，20.760s，top20.13s，runtime空；同原schema helper signal:killed。保同20秒/原输入/p2且只有单top，说明不依赖跨包并发才能复现；不能确定具体性能根因。test/schema与main280字节相同，原日志没有ctx.Err或向量进度。未继续重跑，需原helper最小诊断或针对性修复后再补受影响ordinary与原未达vet/race/build。
+
+- 原剩余四阶段入口已按root授权窄增量冻结：`final_check.py --remaining` 从实际未改 `scripts/check-go.sh` 仅删除唯一普通test行，原版本检查/set-e/普通vet/integration vet/race/两cmd build逐字保持，仍原Wait/desc/runtime/TCP尾。新增2纯控合原9共11实际0；没有运行剩余阶段，等待Skills有限审及cleanup独立Recovery02原窗口全尾释放后root fresh grant。Audit失败仍未闭，Secret唯一负责test helper诊断；本入口不接任意命令、不放宽失败、不重跑已PASS ordinary包。

@@ -90,12 +90,25 @@ def final_record(record, code, started, script_code):
                 seconds=builtins.round(time.monotonic() - started, 3))
 
 
+def remaining_script(source):
+    ordinary_test = '"$AGENTEAM_GO" test ./...\n'
+    if source.count(ordinary_test) != 1:
+        raise ValueError('ordinary test anchor changed')
+    return source.replace(ordinary_test, '', 1)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--source', required=True)
+    parser.add_argument('--remaining', action='store_true',
+                        help='run the original remaining stages after separately accepted ordinary tests')
     args = parser.parse_args()
     os.chdir(ROOT)
+    command = ['sh', 'scripts/check-go.sh']
+    if args.remaining:
+        command = ['sh', '-c', remaining_script((ROOT / 'scripts/check-go.sh').read_text()),
+                   'scripts/check-go.sh']
     output = args.output.resolve()
     if not output.is_relative_to(ROOT / 'output/ai/owner-feature-integration'):
         raise ValueError('output must be task-owned')
@@ -141,13 +154,13 @@ def main():
     diagnostics = diagnostic_module.TCPDiagnostics(output, supervisor.descendants)
     sample = diagnostic_module.observe_tcp(supervisor.tcp, diagnostics)
     baseline = sample()
-    record = dict(source=args.source, command=['sh', 'scripts/check-go.sh'], outer_pid=os.getpid(),
+    record = dict(source=args.source, command=command, remaining=args.remaining, outer_pid=os.getpid(),
                   utc_start=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), fresh_free_bytes=free,
                   schema_environment=schema, python=json.loads(python_info), node=json.loads(node_info),
                   removed_environment_names=sorted(removed),
                   supervisor_sha256=hashlib.sha256(SUPERVISOR.read_bytes()).hexdigest())
     with (output / 'check-go.log').open('x', buffering=1) as log:
-        child = subprocess.Popen(['sh', 'scripts/check-go.sh'], cwd=ROOT, env=env,
+        child = subprocess.Popen(command, cwd=ROOT, env=env,
                                  stdout=log, stderr=subprocess.STDOUT)
         record['script_pid'] = child.pid
         (output / 'result.json').write_text(json.dumps(record, indent=2) + '\n')

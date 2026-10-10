@@ -13,6 +13,22 @@ spec.loader.exec_module(wrapper)
 
 
 class FinalCheckControls(unittest.TestCase):
+    def test_remaining_only_removes_original_ordinary_test(self):
+        source = (wrapper.ROOT / 'scripts/check-go.sh').read_text()
+        before, after = source.split('"$AGENTEAM_GO" test ./...\n')
+        remaining = wrapper.remaining_script(source)
+        self.assertEqual(remaining, before + after)
+        self.assertIn('set -eu\n', remaining)
+        self.assertTrue(remaining.endswith('"$AGENTEAM_GO" vet ./...\n'
+            '# Analyze the explicit integration suite without starting Docker or a database.\n'
+            '"$AGENTEAM_GO" vet -tags=integration ./...\n'
+            '"$AGENTEAM_GO" test -race ./...\nsh scripts/build-go.sh\n'))
+
+    def test_remaining_requires_unique_original_anchor(self):
+        for source in ('', '"$AGENTEAM_GO" test ./...\n' * 2):
+            with self.assertRaisesRegex(ValueError, 'anchor changed'):
+                wrapper.remaining_script(source)
+
     def test_schema_inventory(self):
         env = wrapper.schema_environment()
         self.assertEqual(len(env), 12)

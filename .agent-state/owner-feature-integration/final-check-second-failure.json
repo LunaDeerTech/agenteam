@@ -86,5 +86,29 @@
       "samples": 205
     }
   },
-  "source_scope_note": "Product Go inputs held stable by coordinated writers. No full-repository initial/final input hash gate was implemented in this local script wrapper. Content reported a documentation-only d12-knowledge-documents.md draft moved to the new UI tree and restored during this invocation; no Go test references this work-item path were found. Do not claim initial whole-tree clean or a full-repository byte freeze."
+  "source_scope_note": "Product Go inputs held stable by coordinated writers. No full-repository initial/final input hash gate was implemented in this local script wrapper. Content reported a documentation-only d12-knowledge-documents.md draft moved to the new UI tree and restored during this invocation; no Go test references this work-item path were found. Do not claim initial whole-tree clean or a full-repository byte freeze.",
+  "one_authorized_no_socket_diagnostic": {
+    "command": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-count=1",
+      "-run",
+      "^TestProjectAuditHTTPPureWireAndMaximumPage$",
+      "-v",
+      "./internal/central/audit/http"
+    ],
+    "utc_start": "2026-10-10T04:38:24Z",
+    "fresh_free_bytes": 11393421312,
+    "outer_pid": 205655,
+    "original_schema_deadline_seconds": 20,
+    "go_pid": 205656,
+    "actual_wait": 1,
+    "seconds": 20.76,
+    "runtime_empty": true,
+    "tool_session": 51908,
+    "tool_chunk": "4c48aa",
+    "outer_actual_exit": 1,
+    "top_seconds": 20.13,
+    "result": "FAIL: original 20-second schema helper signal:killed also recurs with only the exact top, so cross-package concurrency is not required; ctx.Err and per-vector progress were not recorded; no performance cause proved"
+  }
 }
