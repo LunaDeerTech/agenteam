@@ -10,11 +10,13 @@ import (
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 )
 
 type authorityState struct {
-	store    Store
-	projects ProjectPorts
+	store            Store
+	projects         ProjectPorts
+	installExecution sc.InstallExecutionAuthority
 }
 
 // Authority is constructed before Object/Audit services and owns no physical
@@ -25,8 +27,22 @@ func NewAuthority(store Store, projects ProjectPorts) (*Authority, error) {
 	if nilPort(store) || nilPort(projects) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	state := &authorityState{store, projects}
+	state := &authorityState{store: store, projects: projects}
 	return &Authority{func() *authorityState { return state }}, nil
+}
+
+// NewAuthorityWithInstallExecution fixes the trusted Runtime consumer once at
+// composition. The ordinary constructor intentionally keeps AgentRun unbound.
+func NewAuthorityWithInstallExecution(store Store, projects ProjectPorts, execution sc.InstallExecutionAuthority) (*Authority, error) {
+	if nilPort(execution) {
+		return nil, fault(f.DependencyUnbound)
+	}
+	a, err := NewAuthority(store, projects)
+	if err != nil {
+		return nil, err
+	}
+	a.state().installExecution = execution
+	return a, nil
 }
 func (a *Authority) state() *authorityState {
 	if a == nil || a.data == nil {

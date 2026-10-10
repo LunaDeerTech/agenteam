@@ -51,20 +51,30 @@ func (v *TaskBlockerStatus) UnmarshalJSON(raw []byte) error {
 }
 
 type TaskBlocker struct {
-	ID                TaskBlockerID       `json:"id"`
-	ProjectID         ProjectID           `json:"project_id"`
-	TaskID            TaskID              `json:"task_id"`
-	Type              TaskBlockerType     `json:"type"`
-	Description       string              `json:"description"`
-	Metadata          TaskBlockerMetadata `json:"-"`
-	CreatedAt         f.Instant           `json:"created_at"`
-	CreatedBy         TaskEventActor      `json:"created_by"`
-	ResolvedAt        *f.Instant          `json:"resolved_at"`
-	ResolvedBy        *TaskEventActor     `json:"resolved_by"`
-	ResolutionComment *string             `json:"resolution_comment"`
+	ID          TaskBlockerID       `json:"id"`
+	ProjectID   ProjectID           `json:"project_id"`
+	TaskID      TaskID              `json:"task_id"`
+	Type        TaskBlockerType     `json:"type"`
+	Description string              `json:"description"`
+	Metadata    TaskBlockerMetadata `json:"-"`
+	CreatedAt   f.Instant           `json:"created_at"`
+	CreatedBy   TaskEventActor      `json:"created_by"`
+	// SchedulerCreatedBy and Technical are the read-only technical arm. They
+	// never enter TaskBlockerCreate or the Human actor codec.
+	SchedulerCreatedBy *SchedulerTaskActor           `json:"-"`
+	Technical          *TaskBlockerTechnicalMetadata `json:"-"`
+	ResolvedAt         *f.Instant                    `json:"resolved_at"`
+	ResolvedBy         *TaskEventActor               `json:"resolved_by"`
+	ResolutionComment  *string                       `json:"resolution_comment"`
 }
 
 func (v TaskBlocker) Validate() error {
+	if v.Type == TaskBlockerTechnical {
+		return v.validateTechnicalRecord()
+	}
+	if v.Technical != nil || v.SchedulerCreatedBy != nil {
+		return invalid("", "INVALID_BLOCKER")
+	}
 	if err := (TaskBlockerCreate{BlockerID: v.ID, Type: v.Type, Description: v.Description, Metadata: v.Metadata}).Validate(); err != nil {
 		return err
 	}
@@ -87,6 +97,8 @@ func (v TaskBlocker) Validate() error {
 }
 func (v TaskBlocker) Clone() TaskBlocker {
 	v.Metadata = v.Metadata.Clone()
+	v.Technical = taskClonePtr(v.Technical)
+	v.SchedulerCreatedBy = taskClonePtr(v.SchedulerCreatedBy)
 	v.ResolvedAt = taskClonePtr(v.ResolvedAt)
 	v.ResolvedBy = taskClonePtr(v.ResolvedBy)
 	v.ResolutionComment = taskClonePtr(v.ResolutionComment)
@@ -101,6 +113,13 @@ func (v TaskBlocker) MarshalJSON() ([]byte, error) {
 		metadata = v.Metadata.RelyOn
 	}
 	type wire TaskBlocker
+	if v.Type == TaskBlockerTechnical {
+		return checkedLimit(struct {
+			wire
+			Metadata  TaskBlockerTechnicalMetadata `json:"metadata"`
+			CreatedBy SchedulerTaskActor           `json:"created_by"`
+		}{wire(v), *v.Technical, *v.SchedulerCreatedBy}, nil, MaxTaskBlockerRecordBytes)
+	}
 	return checkedLimit(struct {
 		wire
 		Metadata any `json:"metadata"`
@@ -123,7 +142,13 @@ func (v *TaskBlocker) UnmarshalJSON(raw []byte) error {
 			return invalid("", "INVALID_ENCODING")
 		}
 	}
-	if err = next.CreatedBy.UnmarshalJSON(fields["created_by"]); err != nil {
+	if next.Type == TaskBlockerTechnical {
+		next.SchedulerCreatedBy = new(SchedulerTaskActor)
+		err = next.SchedulerCreatedBy.UnmarshalJSON(fields["created_by"])
+	} else {
+		err = next.CreatedBy.UnmarshalJSON(fields["created_by"])
+	}
+	if err != nil {
 		return err
 	}
 	if !blockerNull(fields["resolved_by"]) {
@@ -135,10 +160,15 @@ func (v *TaskBlocker) UnmarshalJSON(raw []byte) error {
 	if err = taskBlockerObject(fields["metadata"], MaxTaskBlockerMetadataBytes); err != nil {
 		return err
 	}
-	if err = taskBlockerSupported(next.Type); err != nil {
-		return err
+	if next.Type != TaskBlockerTechnical {
+		if err = taskBlockerSupported(next.Type); err != nil {
+			return err
+		}
 	}
-	if next.Type == TaskBlockerRelyOn {
+	if next.Type == TaskBlockerTechnical {
+		next.Technical = new(TaskBlockerTechnicalMetadata)
+		err = next.Technical.UnmarshalJSON(fields["metadata"])
+	} else if next.Type == TaskBlockerRelyOn {
 		next.Metadata.RelyOn = new(TaskBlockerRelyOnMetadata)
 		err = next.Metadata.RelyOn.UnmarshalJSON(fields["metadata"])
 	} else {

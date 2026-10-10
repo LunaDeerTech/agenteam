@@ -51,9 +51,10 @@ type blockerRow struct {
 	Value             c.TaskBlocker
 	CreatedOperation  c.TaskBlockerCommandID
 	ResolvedOperation *c.TaskBlockerCommandID
+	FailureOperation  *c.SchedulerClaimID
 }
 
-const blockerColumns = `id::text,project_id::text,task_id::text,type,description,metadata,created_at,created_by,created_operation_id::text,resolved_at,resolved_by,resolution_comment,resolved_operation_id::text`
+const blockerColumns = `id::text,project_id::text,task_id::text,type,description,metadata,created_at,created_by,(CASE WHEN type='technical' AND created_operation_id IS NULL THEN failure_operation_id WHEN type<>'technical' AND failure_operation_id IS NULL THEN created_operation_id END)::text,resolved_at,resolved_by,resolution_comment,resolved_operation_id::text`
 
 func scanBlocker(row interface{ Scan(...any) error }) (*blockerRow, error) {
 	var out blockerRow
@@ -82,7 +83,13 @@ func scanBlocker(row interface{ Scan(...any) error }) (*blockerRow, error) {
 	if v.CreatedAt, e = f.NewInstant(at); e != nil {
 		return nil, internal(e)
 	}
-	if out.CreatedOperation, e = f.ParseID[c.TaskBlockerCommand](created); e != nil {
+	if v.Type == c.TaskBlockerTechnical {
+		id, err := f.ParseID[c.SchedulerClaim](created)
+		if err != nil {
+			return nil, internal(err)
+		}
+		out.FailureOperation = &id
+	} else if out.CreatedOperation, e = f.ParseID[c.TaskBlockerCommand](created); e != nil {
 		return nil, internal(e)
 	}
 	if resolved != nil {
@@ -92,7 +99,16 @@ func scanBlocker(row interface{ Scan(...any) error }) (*blockerRow, error) {
 		}
 		out.ResolvedOperation = &n
 	}
-	if e = v.CreatedBy.UnmarshalJSON(actor); e != nil {
+	if v.Type == c.TaskBlockerTechnical {
+		v.SchedulerCreatedBy = new(c.SchedulerTaskActor)
+		e = v.SchedulerCreatedBy.UnmarshalJSON(actor)
+		if e == nil && v.SchedulerCreatedBy.CauseID != created {
+			return nil, internal(nil)
+		}
+	} else {
+		e = v.CreatedBy.UnmarshalJSON(actor)
+	}
+	if e != nil {
 		return nil, internal(e)
 	}
 	if done != nil {
@@ -123,6 +139,9 @@ func scanBlocker(row interface{ Scan(...any) error }) (*blockerRow, error) {
 func decodeBlockerMetadata(v *c.TaskBlocker, raw []byte) error {
 	var e error
 	switch v.Type {
+	case c.TaskBlockerTechnical:
+		v.Technical = new(c.TaskBlockerTechnicalMetadata)
+		e = v.Technical.UnmarshalJSON(raw)
 	case c.TaskBlockerRelyOn:
 		v.Metadata.RelyOn = new(c.TaskBlockerRelyOnMetadata)
 		e = v.Metadata.RelyOn.UnmarshalJSON(raw)

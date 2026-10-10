@@ -41,8 +41,18 @@ func (s *installCallStore) Exec(ctx context.Context, q string, args ...any) (pgc
 	}
 	switch {
 	case strings.HasPrefix(q, "INSERT INTO agenteam_skill.installation_attempts"):
-		if len(args) != 8 || args[2] != s.installed.id.String() || args[7] != stateID[oc.Process](50).String() {
+		if len(args) != 11 || args[2] != s.installed.id.String() || args[7] != stateID[oc.Process](50).String() {
 			return pgconn.CommandTag{}, invalid()
+		}
+		if s.installed.execution == nil {
+			if args[8] != string(id.Human) || args[9] != nil || args[10] != nil {
+				return pgconn.CommandTag{}, invalid()
+			}
+		} else {
+			call, _ := ctx.Value(installExecutionKey{}).(*installExecutionCall)
+			if call == nil || args[8] != string(id.AgentRun) || args[9] != call.binding.AttemptID || args[10] != call.read.RequestID.String() {
+				return pgconn.CommandTag{}, invalid()
+			}
 		}
 	case strings.HasPrefix(q, "UPDATE agenteam_skill.installations SET phase='reserved'"):
 		if s.installationValues[14] != "planned" || s.installationValues[15] != args[5] {

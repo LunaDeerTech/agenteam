@@ -66,12 +66,19 @@ func (s *Service) UpdateProject(ctx context.Context, actor identity.Actor, meta 
 	if e = human(actor); e != nil {
 		return c.ProjectRef{}, e
 	}
+	if request.Scheduler != nil {
+		config := request.Scheduler.Clone()
+		request.Scheduler = &config
+	}
 	semantic, e := c.UpdateDigest(actor, meta, id, request)
 	if e != nil {
 		return c.ProjectRef{}, e
 	}
 	command, _ := c.CommandIdentity(id, c.UpdateCommand, meta.IdempotencyKey)
 	locks := []foundation.LockRequest{commandLock(command), userLock(actor.Details().UserID, foundation.Exclusive), projectLock(id, foundation.Exclusive)}
+	if request.Scheduler != nil {
+		locks = append(locks, schedulerLock(id))
+	}
 	var planned *commandRecord
 	var replay *c.ProjectRef
 	result := s.state().store.WithinTx(ctx, commandCause(command), func(ctx context.Context, tx foundation.Tx) error {
@@ -116,6 +123,25 @@ func (s *Service) UpdateProject(ctx context.Context, actor identity.Actor, meta 
 		if e != nil {
 			return e
 		}
+		var scheduler *c.ProjectSchedulerConfig
+		if request.Scheduler != nil {
+			previous, err := loadSchedulerConfig(ctx, x, id)
+			if err != nil {
+				return err
+			}
+			fields := schedulerChangedFields(previous, *request.Scheduler)
+			if len(fields) != 0 {
+				if len(changed) == 0 {
+					ref.Version, e = nextVersion(p.ref.Version)
+					if e != nil {
+						return e
+					}
+				}
+				changed = append(changed, fields...)
+				value := request.Scheduler.Clone()
+				scheduler = &value
+			}
+		}
 		if ref.NormalizedName != p.ref.NormalizedName {
 			if e = s.requireAvailableName(ctx, tx, x, p.ref.OwnerUserID, id, ref.NormalizedName); e != nil {
 				return e
@@ -153,7 +179,7 @@ func (s *Service) UpdateProject(ctx context.Context, actor identity.Actor, meta 
 		if e != nil {
 			return e
 		}
-		plan := updatePlan{ExpectedVersion: p.ref.Version, Project: ref, Changed: changed, Header: header, Payload: ev.PayloadBytes()}
+		plan := updatePlan{ExpectedVersion: p.ref.Version, Project: ref, Changed: changed, Header: header, Payload: ev.PayloadBytes(), Scheduler: scheduler}
 		raw, e := json.Marshal(plan)
 		if e != nil {
 			return unavailable(e)
@@ -260,6 +286,16 @@ func (s *Service) UpdateProject(ctx context.Context, actor identity.Actor, meta 
 		}
 		if tag.RowsAffected() != 1 {
 			return fault(foundation.VersionConflict)
+		}
+		if current.plan.Scheduler != nil {
+			if e = s.state().store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{schedulerLock(id)}); e != nil {
+				return preparationProjectError(e)
+			}
+			config := current.plan.Scheduler
+			tag, e = x.Exec(ctx, `UPDATE agenteam_project.projects SET scheduler_enabled=$2,scheduler_max_concurrency=$3 WHERE id=$1 AND version=$4`, id.String(), config.Enabled, config.MaxConcurrency, int64(next.Version))
+			if e = affected(tag, e); e != nil {
+				return e
+			}
 		}
 		if e = s.appendUpdateAudit(ctx, tx, actor, current); e != nil {
 			return e

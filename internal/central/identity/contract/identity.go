@@ -66,6 +66,7 @@ const (
 	AccountMail        ServiceName = "account-mail"
 	ModelRuntime       ServiceName = "model-runtime"
 	RunnerIdentity     ServiceName = "runner-identity"
+	Scheduler          ServiceName = "scheduler"
 )
 
 const ProjectInitialization ServiceName = "project-initialization"
@@ -171,7 +172,7 @@ type ServiceRegistration struct{ data func() ServiceName }
 
 func RegisterService(name ServiceName) (ServiceRegistration, error) {
 	switch name {
-	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, ProjectInitialization, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail, ModelRuntime, RunnerIdentity:
+	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, ProjectInitialization, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail, ModelRuntime, RunnerIdentity, Scheduler:
 	default:
 		return ServiceRegistration{}, invalid()
 	}
@@ -183,6 +184,16 @@ func (r ServiceRegistration) Actor(causeRef string, scope Scope) (Actor, error) 
 	}
 	if r.data() == RunnerIdentity && scope.Details().Kind != System {
 		return Actor{}, invalid()
+	}
+	if r.data() == Scheduler {
+		// The cause names the original Dispatch intent. Registration provides
+		// identity only; its durable/current private proof is checked by owners.
+		if scope.Details().Kind != ProjectScope {
+			return Actor{}, invalid()
+		}
+		if _, err := foundation.ParseID[struct{}](causeRef); err != nil {
+			return Actor{}, invalid()
+		}
 	}
 	return actor(ActorDetails{Kind: Service, ServiceName: r.data(), CauseRef: causeRef, ProjectID: scope.Details().ProjectID}), nil
 }

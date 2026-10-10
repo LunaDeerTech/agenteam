@@ -358,11 +358,12 @@ func creationResult(r *creationRecord, p *projectRecord) (c.CreationResult, erro
 // Stored plans are private canonical facts, never a wire projection. safe_result
 // remains NULL until the business change, Audit, Event and activity commit.
 type updatePlan struct {
-	ExpectedVersion foundation.Version `json:"expected_version"`
-	Project         c.ProjectRef       `json:"project"`
-	Changed         []c.ChangedField   `json:"changed"`
-	Header          json.RawMessage    `json:"event_header"`
-	Payload         json.RawMessage    `json:"event_payload"`
+	ExpectedVersion foundation.Version        `json:"expected_version"`
+	Project         c.ProjectRef              `json:"project"`
+	Changed         []c.ChangedField          `json:"changed"`
+	Header          json.RawMessage           `json:"event_header"`
+	Payload         json.RawMessage           `json:"event_payload"`
+	Scheduler       *c.ProjectSchedulerConfig `json:"scheduler,omitempty"`
 }
 type commandRecord struct {
 	id       string
@@ -432,6 +433,13 @@ func validateUpdatePlan(p updatePlan) error {
 	}
 	fields := c.UpdatedPayload{ChangedFields: p.Changed}
 	if fields.Validate() != nil {
+		return unavailable(nil)
+	}
+	hasScheduler := false
+	for _, field := range p.Changed {
+		hasScheduler = hasScheduler || field == c.SchedulerEnabledChanged || field == c.SchedulerMaxConcurrencyChanged
+	}
+	if hasScheduler != (p.Scheduler != nil) || p.Scheduler != nil && p.Scheduler.Validate() != nil {
 		return unavailable(nil)
 	}
 	var payload c.UpdatedPayload

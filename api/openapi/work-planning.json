@@ -3152,6 +3152,466 @@
           }
         }
       }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/transfer": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerTaskTransfer",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TaskTransitionMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding. Current Human Owner only, including CSRF on Lookup. Unknown is returned as the original safe Problem with lookup hint; HTTP never retries a mutation. Missing transition service is DEPENDENCY_UNBOUND. No automatic Project initialization, Agent creation, Sprint start or Scheduler dispatch.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskTransferBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/task-transition-commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerTaskTransitionLookup",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TaskTransitionLookup"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes actual body Close, complete output, Flush and cancellation callback join. Earlier parent deadlines win. No RawQuery or bare ?. One strict JSON body, at most 1 MiB; original inner DTO caps remain. No duplicate, unknown, case-folded keys, explicit null except declared, invalid UTF-8/surrogates, trailing values or Content-Encoding. Current Human Owner only, including CSRF on Lookup. Unknown is returned as the original safe Problem with lookup hint; HTTP never retries a mutation. Missing transition service is DEPENDENCY_UNBOUND. No automatic Project initialization, Agent creation, Sprint start or Scheduler dispatch.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskTransitionLookupRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/sprints/{sprint_id}/start": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "sprint_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerSprintStart",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SprintStartMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Thirty-second total deadline starts before authentication and includes body Close, complete output, Flush and cancellation callback join; earlier parent deadlines win. Current Human Owner and original Account CSRF/Origin only. Strict JSON <=1 MiB, no query/bare ?, encoding, duplicate/unknown/case-folded keys, invalid UTF-8/surrogates or trailing values. Exactly one original Idempotency-Key. expected_version is the original Sprint version, not the Project version; request is exactly {}. Lookup recomputes StartSprintDigest from the saved original target/version and current User; it never calls Start or current GET. Unknown retains the original safe Problem and lookup hint. Missing lifecycle service fails DEPENDENCY_UNBOUND. Start allows empty Sprints and a paused Scheduler; it neither enables nor launches scheduling. No automatic initialization or Sprint completion.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SprintStartBody"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/sprint-lifecycle-commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "workOwnerSprintStartLookup",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SprintStartLookup"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Two-second total deadline starts before authentication and includes body Close, complete output, Flush and cancellation callback join; earlier parent deadlines win. Current Human Owner and original Account CSRF/Origin only. Strict JSON <=1 MiB, no query/bare ?, encoding, duplicate/unknown/case-folded keys, invalid UTF-8/surrogates or trailing values. Exactly one original Idempotency-Key. expected_version is the original Sprint version, not the Project version; request is exactly {}. Lookup recomputes StartSprintDigest from the saved original target/version and current User; it never calls Start or current GET. Unknown retains the original safe Problem and lookup hint. Missing lifecycle service fails DEPENDENCY_UNBOUND. Start allows empty Sprints and a paused Scheduler; it neither enables nor launches scheduling. No automatic initialization or Sprint completion.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SprintStartLookupRequest"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3608,6 +4068,122 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/TaskBlockerPage"
+            }
+          }
+        }
+      },
+      "TaskTransitionMutation": {
+        "description": "Complete typed Task transition receipt.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TaskTransitionMutation"
+            }
+          }
+        }
+      },
+      "TaskTransitionLookup": {
+        "description": "Complete typed Task transition lookup; only committed has a receipt.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TaskTransitionLookup"
+            }
+          }
+        }
+      },
+      "SprintStartMutation": {
+        "description": "Original validated Sprint Start receipt.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SprintStartMutation"
+            }
+          }
+        }
+      },
+      "SprintStartLookup": {
+        "description": "Original validated Sprint Start lookup projection.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SprintStartLookup"
             }
           }
         }
@@ -4096,7 +4672,7 @@
             ]
           }
         ],
-        "description": "Original lifecycle and timestamp ordering are validated. This API does not start or complete Sprints."
+        "description": "Original lifecycle and timestamp ordering are validated. Sprint Start is exposed through its separate lifecycle command; this API does not complete Sprints."
       },
       "TaskSummary": {
         "type": "object",
@@ -4527,9 +5103,100 @@
                 ]
               }
             ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "project_id",
+              "task_id",
+              "type",
+              "description",
+              "metadata",
+              "created_at",
+              "created_by",
+              "resolved_at",
+              "resolved_by",
+              "resolution_comment"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "project_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "task_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "type": {
+                "const": "technical"
+              },
+              "description": {
+                "$ref": "#/components/schemas/BlockerDescription"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "code",
+                  "source",
+                  "reference_id"
+                ],
+                "properties": {
+                  "code": {
+                    "const": "scheduler_launch_failed"
+                  },
+                  "source": {
+                    "const": "scheduler_dispatch"
+                  },
+                  "reference_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                }
+              },
+              "created_at": {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              "created_by": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "type",
+                  "service_name",
+                  "source",
+                  "cause_id"
+                ],
+                "properties": {
+                  "type": {
+                    "const": "system"
+                  },
+                  "service_name": {
+                    "const": "scheduler"
+                  },
+                  "source": {
+                    "const": "scheduler"
+                  },
+                  "cause_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                }
+              },
+              "resolved_at": {
+                "type": "null"
+              },
+              "resolved_by": {
+                "type": "null"
+              },
+              "resolution_comment": {
+                "type": "null"
+              }
+            },
+            "description": "Persisted Scheduler technical Blocker read projection only. metadata.reference_id equals created_by.cause_id; the typed response validator enforces this relationship. This slice has no technical resolution writer and does not permit Human Add or Transfer to create this variant."
           }
         ],
-        "description": "Only the two currently supported Blocker metadata variants. Resolved time is no earlier than creation; maximum encoded record is 16 KiB."
+        "description": "Human rely_on/waiting_for_human and Scheduler technical read projections. Resolved time is no earlier than creation; maximum encoded record is 16 KiB."
       },
       "BlockerAddRequest": {
         "oneOf": [
@@ -5616,6 +6283,397 @@
           }
         },
         "description": "Complete validated page, at most 5 MiB; items never null, no next_cursor when exhausted. Each summary or Blocker is bounded to 16 KiB. No description/plan fields in summaries."
+      },
+      "TaskTransferRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target_state"
+        ],
+        "properties": {
+          "target_state": {
+            "$ref": "#/components/schemas/TaskState"
+          },
+          "assignee_agent_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 32768,
+            "not": {
+              "pattern": "[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f]"
+            },
+            "description": "1..32768 UTF-8 bytes, at least one non-Unicode-whitespace character; original bytes are retained. Only TAB/LF/CR control characters are allowed.",
+            "minLength": 1
+          },
+          "add_blockers": {
+            "type": "array",
+            "maxItems": 16,
+            "items": {
+              "$ref": "#/components/schemas/BlockerAddRequest"
+            }
+          },
+          "resolve_blocker_ids": {
+            "type": "array",
+            "maxItems": 16,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "description": "Original strict TaskTransfer DTO, <=512 KiB. All explicit null values are rejected. Omitted assignee retains the stored value; no assignee clearing. Omitted blocker sets normalize to empty; each <=16, combined <=32, unique IDs across both sets; additions canonicalized by blocker_id. Only Human-allowed state edges are accepted by the domain; todo -> in_progress remains Scheduler-only. This transport does not bypass current Agent, occupancy, pending, Sprint or Blocker rules."
+      },
+      "TaskTransferBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/TaskTransferRequest"
+          }
+        }
+      },
+      "TaskTransitionLookupRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command",
+          "target_id",
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "command": {
+            "const": "work.task.transfer"
+          },
+          "target_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "$ref": "#/components/schemas/TaskTransferRequest"
+          }
+        },
+        "description": "Saved original intent, available before the first send. Use the original Idempotency-Key. RequestID is fresh but not part of the semantic digest. No caller digest, namespace or current Get reconstruction."
+      },
+      "TaskTransitionMutation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "task",
+          "task_event_ids",
+          "event_ids"
+        ],
+        "properties": {
+          "task": {
+            "$ref": "#/components/schemas/Task"
+          },
+          "task_event_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 35,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          "event_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1,
+            "items": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "description": "Complete original Task receipt; task.version is exactly expected_version+1, task.state equals the requested target, and any explicitly requested assignee matches. Task history IDs are strictly increasing and unique. Historical replay returns the same receipt without consulting current Get. No changed=false branch."
+      },
+      "TaskTransitionLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "const": "committed"
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/TaskTransitionMutation"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              },
+              "receipt": {
+                "type": "null"
+              }
+            }
+          }
+        ],
+        "description": "Historical committed receipt, never reconstructed from current fields. Neither not_observed nor in_progress authorizes automatic resubmission."
+      },
+      "SprintStartBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "type": "object",
+            "additionalProperties": false,
+            "maxProperties": 0
+          }
+        }
+      },
+      "SprintStartLookupRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command",
+          "target_id",
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "command": {
+            "type": "string",
+            "const": "work.sprint.start"
+          },
+          "target_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "type": "object",
+            "additionalProperties": false,
+            "maxProperties": 0
+          }
+        },
+        "description": "Saved original target and Sprint version; no caller digest, Actor, Project version or replacement request. Same User with a new authorized Session may look up the original key."
+      },
+      "SprintStartProject": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "owner_user_id",
+          "name",
+          "normalized_name",
+          "description",
+          "lifecycle",
+          "version",
+          "current_sprint_id",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "owner_user_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._-]{1,64}(?![\\s\\S])",
+            "not": {
+              "enum": [
+                ".",
+                ".."
+              ]
+            },
+            "maxLength": 64
+          },
+          "normalized_name": {
+            "type": "string",
+            "pattern": "^[a-z0-9._-]{1,64}(?![\\s\\S])",
+            "not": {
+              "enum": [
+                ".",
+                ".."
+              ]
+            },
+            "maxLength": 64
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 8192,
+            "x-maxUTF8Bytes": 8192,
+            "not": {
+              "pattern": "[\u0000-\b\u000b-\u001f]"
+            },
+            "description": "At most 8192 UTF-8 bytes; server validates this byte bound. Tabs and newlines are allowed."
+          },
+          "lifecycle": {
+            "type": "string",
+            "const": "active"
+          },
+          "version": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              {
+                "not": {
+                  "const": "1"
+                }
+              }
+            ]
+          },
+          "current_sprint_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "description": "Original active ProjectRef postimage, with current_sprint_id equal to the receipt Sprint ID; absent archived_at follows its actual domain encoding. The service changes Project and Sprint atomically; HTTP does not accept a caller Project version or consult a later GET."
+      },
+      "SprintStartMutation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sprint",
+          "project",
+          "event_id"
+        ],
+        "properties": {
+          "sprint": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Sprint"
+              },
+              {
+                "properties": {
+                  "state": {
+                    "const": "current"
+                  },
+                  "version": {
+                    "allOf": [
+                      {
+                        "$ref": "./common.json#/components/schemas/Version"
+                      },
+                      {
+                        "not": {
+                          "const": "1"
+                        }
+                      }
+                    ]
+                  },
+                  "started_at": {
+                    "$ref": "./common.json#/components/schemas/Instant"
+                  },
+                  "started_by": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "kind",
+                      "user_id"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "const": "human"
+                      },
+                      "user_id": {
+                        "$ref": "./common.json#/components/schemas/ID"
+                      }
+                    }
+                  },
+                  "completed_at": {
+                    "type": "null"
+                  },
+                  "completed_by": {
+                    "type": "null"
+                  }
+                }
+              }
+            ]
+          },
+          "project": {
+            "$ref": "#/components/schemas/SprintStartProject"
+          },
+          "event_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        "description": "Exact original Sprint/Project/Event postimage. Sprint version is original expected+1, Project current pointer equals Sprint, both updated_at values agree, and started_by is the original Human User. Complete domain validation precedes publication; a bad success projection aborts instead of inventing an uncommitted Problem."
+      },
+      "SprintStartLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "const": "committed"
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/SprintStartMutation"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              },
+              "receipt": {
+                "type": "null"
+              }
+            }
+          }
+        ],
+        "description": "Public projection of domain State/Result; null receipt is required outside committed. Lookup is read-only and neither nonterminal state authorizes automatic resubmission."
       }
     }
   }

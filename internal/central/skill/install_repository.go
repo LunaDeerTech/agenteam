@@ -69,6 +69,7 @@ type installationRow struct {
 	id               InstallationID
 	project          id.ProjectID
 	user             id.UserID
+	execution        *installationExecutionOrigin
 	key              f.IdempotencyKey
 	skill            sc.SkillID
 	revision         sc.RevisionID
@@ -93,7 +94,7 @@ func (r installationRow) validate() error {
 	if r.id.Validate() != nil || r.key.Validate() != nil || r.revision.Validate() != nil || r.version.Validate() != nil || r.created.Validate() != nil || r.updated.Validate() != nil || r.updated.Time().Before(r.created.Time()) {
 		return unavailable(nil)
 	}
-	semantic, err := installationSemantic(r.project, r.user, r.skill, r.pkg)
+	semantic, err := r.semanticDigest()
 	if err != nil || semantic != r.semantic {
 		return unavailable(err)
 	}
@@ -136,7 +137,15 @@ func (r installationRow) locks(mode f.LockMode) ([]f.LockRequest, error) {
 	if err != nil {
 		return nil, err
 	}
-	locks := []f.LockRequest{commandLock(command), userLock(r.user.String(), f.Exclusive), projectLock(r.project, mode), skillLock(r.skill, mode)}
+	locks := []f.LockRequest{commandLock(command), projectLock(r.project, mode), skillLock(r.skill, mode)}
+	if r.execution == nil {
+		locks = append(locks, userLock(r.user.String(), f.Exclusive))
+	} else {
+		agent, _ := f.AgentLock(r.execution.agent.String())
+		execution, _ := f.AggregateLock(f.ExecutionAggregate, r.execution.execution.String())
+		operation, _ := f.AggregateLock(f.OperationAggregate, r.execution.binding.OperationID)
+		locks = append(locks, f.LockRequest{Key: agent, Mode: f.Shared}, f.LockRequest{Key: execution, Mode: f.Exclusive}, f.LockRequest{Key: operation, Mode: f.Exclusive})
+	}
 	if r.object.Validate() == nil {
 		locks = append(locks, objectLock(r.object, mode))
 	}
@@ -150,7 +159,7 @@ func (r installationRow) receipt() (InstallReceipt, error) {
 	return result, result.Validate()
 }
 
-const installationColumns = `id::text,project_id::text,actor_user_id::text,command_key,skill_id::text,revision_id::text,semantic_digest,package_sha256,manifest_sha256,byte_size,manifest,name,normalized_name,description,phase,version,COALESCE(object_id::text,''),COALESCE(upload_id::text,''),COALESCE(current_attempt_id::text,''),COALESCE(safe_reason,''),created_at,updated_at`
+const installationColumns = `id::text,project_id::text,COALESCE(actor_user_id::text,''),command_key,skill_id::text,revision_id::text,semantic_digest,package_sha256,manifest_sha256,byte_size,manifest,name,normalized_name,description,phase,version,COALESCE(object_id::text,''),COALESCE(upload_id::text,''),COALESCE(current_attempt_id::text,''),COALESCE(safe_reason,''),created_at,updated_at,actor_kind,COALESCE(actor_agent_id::text,''),COALESCE(actor_execution_id::text,''),COALESCE(tool_operation_id::text,''),COALESCE(tool_id::text,''),COALESCE(tool_spec_revision,0),COALESCE(operation_fingerprint,''),COALESCE(first_tool_attempt_id::text,''),COALESCE(first_backend_request_id::text,'')`
 
 func loadInstallation(ctx context.Context, x postgres.SQLExecutor, project id.ProjectID, key f.IdempotencyKey) (*installationRow, error) {
 	return scanInstallation(x.QueryRow(ctx, `SELECT `+installationColumns+` FROM agenteam_skill.installations WHERE project_id=$1 AND command_key=$2`, project.String(), key.String()))
@@ -163,10 +172,12 @@ func loadInstallationSkill(ctx context.Context, x postgres.SQLExecutor, project 
 }
 func scanInstallation(row postgres.Row) (*installationRow, error) {
 	var rid, project, user, key, skill, revision, semantic, pkg, manifestDigest, name, normalized, description, phase, object, upload, attempt, reason string
+	var actorKind, agentID, executionID, operationID, toolID, fingerprint, firstAttempt, firstRequest string
+	var specRevision int64
 	var size, version int64
 	var manifest []byte
 	var created, updated time.Time
-	err := row.Scan(&rid, &project, &user, &key, &skill, &revision, &semantic, &pkg, &manifestDigest, &size, &manifest, &name, &normalized, &description, &phase, &version, &object, &upload, &attempt, &reason, &created, &updated)
+	err := row.Scan(&rid, &project, &user, &key, &skill, &revision, &semantic, &pkg, &manifestDigest, &size, &manifest, &name, &normalized, &description, &phase, &version, &object, &upload, &attempt, &reason, &created, &updated, &actorKind, &agentID, &executionID, &operationID, &toolID, &specRevision, &fingerprint, &firstAttempt, &firstRequest)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -181,8 +192,34 @@ func scanInstallation(row postgres.Row) (*installationRow, error) {
 	if r.project, err = f.ParseID[id.Project](project); err != nil {
 		return nil, unavailable(err)
 	}
-	if r.user, err = f.ParseID[id.User](user); err != nil {
-		return nil, unavailable(err)
+	switch id.ActorKind(actorKind) {
+	case id.Human:
+		if agentID != "" || executionID != "" || operationID != "" || toolID != "" || specRevision != 0 || fingerprint != "" || firstAttempt != "" || firstRequest != "" {
+			return nil, unavailable(nil)
+		}
+		if r.user, err = f.ParseID[id.User](user); err != nil {
+			return nil, unavailable(err)
+		}
+	case id.AgentRun:
+		if user != "" {
+			return nil, unavailable(nil)
+		}
+		e := &installationExecutionOrigin{binding: sc.InstallExecutionBinding{OperationID: operationID, AttemptID: firstAttempt, SpecRevision: f.Version(specRevision), HandlerID: "skill.install", ContractRevision: 1, Fingerprint: f.Digest(fingerprint)}}
+		if e.agent, err = f.ParseID[id.Agent](agentID); err != nil {
+			return nil, unavailable(err)
+		}
+		if e.execution, err = f.ParseID[id.Execution](executionID); err != nil {
+			return nil, unavailable(err)
+		}
+		if e.binding.ToolID, err = f.ParseID[id.Tool](toolID); err != nil {
+			return nil, unavailable(err)
+		}
+		if e.request, err = f.ParseID[f.Request](firstRequest); err != nil {
+			return nil, unavailable(err)
+		}
+		r.execution = e
+	default:
+		return nil, unavailable(nil)
 	}
 	if r.skill, err = f.ParseID[pc.Skill](skill); err != nil {
 		return nil, unavailable(err)
@@ -227,7 +264,15 @@ func insertInstallation(ctx context.Context, x postgres.SQLExecutor, r installat
 	if err != nil {
 		return unavailable(err)
 	}
-	_, err = x.Exec(ctx, `INSERT INTO agenteam_skill.installations(id,project_id,actor_user_id,command_key,skill_id,revision_id,semantic_digest,package_sha256,manifest_sha256,byte_size,manifest,name,normalized_name,description,phase,version,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,'planned',1,$15,$15)`, r.id.String(), r.project.String(), r.user.String(), r.key.String(), r.skill.String(), r.revision.String(), r.semantic.String(), r.pkg.packageDigest.String(), r.pkg.manifestDigest.String(), int64(r.pkg.size), manifest, r.pkg.name, r.pkg.normalized, r.pkg.description, r.created.Time())
+	var user, agent, execution, operation, tool, spec, fingerprint, firstAttempt, firstRequest any
+	if r.execution == nil {
+		user = r.user.String()
+	} else {
+		e := r.execution
+		agent, execution, operation, tool, spec = e.agent.String(), e.execution.String(), e.binding.OperationID, e.binding.ToolID.String(), int64(e.binding.SpecRevision)
+		fingerprint, firstAttempt, firstRequest = e.binding.Fingerprint.String(), e.binding.AttemptID, e.request.String()
+	}
+	_, err = x.Exec(ctx, `INSERT INTO agenteam_skill.installations(id,project_id,actor_user_id,command_key,skill_id,revision_id,semantic_digest,package_sha256,manifest_sha256,byte_size,manifest,name,normalized_name,description,phase,version,created_at,updated_at,actor_kind,actor_agent_id,actor_execution_id,tool_operation_id,tool_id,tool_spec_revision,operation_fingerprint,first_tool_attempt_id,first_backend_request_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,'planned',1,$15,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)`, r.id.String(), r.project.String(), user, r.key.String(), r.skill.String(), r.revision.String(), r.semantic.String(), r.pkg.packageDigest.String(), r.pkg.manifestDigest.String(), int64(r.pkg.size), manifest, r.pkg.name, r.pkg.normalized, r.pkg.description, r.created.Time(), string(r.actorKind()), agent, execution, operation, tool, spec, fingerprint, firstAttempt, firstRequest)
 	return portError(err)
 }
 func reserveInstallation(ctx context.Context, x postgres.SQLExecutor, r installationRow, attempt oc.UploadAttempt, process oc.ProcessID) error {
@@ -235,7 +280,15 @@ func reserveInstallation(ctx context.Context, x postgres.SQLExecutor, r installa
 		return invalid()
 	}
 	d := attempt.Details()
-	_, err := x.Exec(ctx, `INSERT INTO agenteam_skill.installation_attempts(attempt_id,project_id,installation_id,skill_id,revision_id,object_id,upload_id,process_id,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,clock_timestamp())`, d.ID.String(), r.project.String(), r.id.String(), r.skill.String(), r.revision.String(), d.ObjectID.String(), d.UploadID.String(), process.String())
+	var toolAttempt, backendRequest any
+	if r.execution != nil {
+		call, _ := ctx.Value(installExecutionKey{}).(*installExecutionCall)
+		if !r.matchesExecution(call) {
+			return fault(f.Forbidden)
+		}
+		toolAttempt, backendRequest = call.binding.AttemptID, call.read.RequestID.String()
+	}
+	_, err := x.Exec(ctx, `INSERT INTO agenteam_skill.installation_attempts(attempt_id,project_id,installation_id,skill_id,revision_id,object_id,upload_id,process_id,created_at,actor_kind,tool_attempt_id,backend_request_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,clock_timestamp(),$9,$10,$11)`, d.ID.String(), r.project.String(), r.id.String(), r.skill.String(), r.revision.String(), d.ObjectID.String(), d.UploadID.String(), process.String(), string(r.actorKind()), toolAttempt, backendRequest)
 	if err != nil {
 		return unavailable(err)
 	}
