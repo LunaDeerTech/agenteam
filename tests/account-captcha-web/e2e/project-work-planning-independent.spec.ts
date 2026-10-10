@@ -165,6 +165,7 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
           text: "独验后继解除",
         });
       }
+      const draftTitle = await title(page).inputValue();
       await ipc("archive", { project: domain });
       const [response] = await Promise.all([
         page.waitForResponse(
@@ -181,12 +182,25 @@ test("[independent-recovery] old receipts survive current changes, canceled disc
         data.owner.user_id,
         "TestIndependentProjectWorkPlanningWebRecovery",
       );
+      expect(archived.project).toMatchObject({
+        lifecycle: "archived",
+        version: "3",
+      });
       diagnostic.recordProjectRefresh(response.request(), archived.proof);
       await expect(
         page.getByText("项目已归档，当前内容只读。", { exact: true }),
       ).toBeVisible();
       await expect(button(page, "新建 Milestone")).toBeDisabled();
-      await expect(button(editor(page), "保存修改")).toBeDisabled();
+      await expect(editor(page)).toBeVisible();
+      await expect(title(page)).toHaveValue(draftTitle);
+      await expect(title(page)).toHaveJSProperty("readOnly", true);
+      await expect(
+        editor(page).getByRole("button", {
+          name: "保存修改",
+          exact: true,
+          includeHidden: true,
+        }),
+      ).toHaveCount(0);
 
       const beforeReplay = (await ipc("observe", { project: domain })).facts;
       await button(recovery(page), "查证原命令").click();
