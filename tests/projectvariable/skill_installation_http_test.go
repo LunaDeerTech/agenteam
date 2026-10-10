@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"testing"
 
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
@@ -135,11 +136,11 @@ func TestSkillInstallationOwnerHTTP(t *testing.T) {
  (SELECT count(*) FROM agenteam_skill.installation_attempts WHERE project_id=$1 AND skill_id=$2),
  (SELECT count(*) FROM agenteam_skill.revisions WHERE project_id=$1 AND skill_id=$2 AND installation_id IS NOT NULL),
  (SELECT count(*) FROM agenteam_object.object_references WHERE object_id=$3),
- (SELECT count(*) FROM agenteam_audit.audit_records WHERE project_id=$1 AND action='object.upload_complete' AND resource_id=$3),
+ (SELECT count(*) FROM agenteam_audit.audit_records WHERE project_id=$1 AND action=$4 AND resource_id=$3),
  (SELECT count(*) FROM agenteam_skill.work WHERE project_id=$1 AND phase<>'joined'),
- (SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$3 AND state='active')`, v.project.ID.String(), target.String(), objectID).Scan(&attempts, &revisions, &references, &uploads, &liveWork, &leases)
+ (SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$3 AND state='active')`, v.project.ID.String(), target.String(), objectID, string(ac.ObjectUploadComplete)).Scan(&attempts, &revisions, &references, &uploads, &liveWork, &leases)
 		if err != nil || attempts != 1 || revisions != 1 || references != 1 || uploads != 1 || liveWork != 0 || leases != 0 {
-			t.Fatal("HTTP installation original attempt/publication/Object/Audit tails")
+			t.Fatalf("HTTP installation facts errclass=%T attempts=%d revisions=%d references=%d uploads=%d liveWork=%d leases=%d", err, attempts, revisions, references, uploads, liveWork, leases)
 		}
 		before := skillInstallHTTPFacts(t, v)
 		var lookup skillInstallHTTPReceipt
