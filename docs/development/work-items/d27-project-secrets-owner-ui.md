@@ -38,3 +38,6 @@ Lookup 仅原 command、target_id、update/delete 原 expected_version；沿原 
 首四个测试入口已保存 `3e406c0e`，方法见 [本域 recipe](../../../.agent-state/secret-owner-ui/README.md)。同一真实 Owner 的 create→list/detail→已提交 PATCH 原回执完整读取并关闭后受控502→identity-only原key Lookup→current GET v2→delete；只有测试代理丢响应，不模拟回滚或补第二次 PATCH。默认根仍未绑定 Project initializer，已有数据由显式真实 ports fixture 实际 Drain 后提供。新 normal-only Secret observer 不借 Knowledge requestfailed 例外；提交值清空、材料不回显、same Request/XID/reader/Session Promise/DOM 和完整资源尾均为必要条件。
 
 离线准备：strictTS01 原推断错误 exit2，单类型注解后 type02 exit0；PW list01 exit0 恰1case。native控01 因误写 Session readonly identity exit1，改用正式 leave；修后6模式/30检查 exit0、0 unhandled。所有反控明确使用受控 Fetch/PW，无 Go 编译或实际浏览器/PG；它们不改变上文未验收边界。源码将由未参与实现者进行实际方法审，真实窗口由root另授。
+
+
+私有正式前端 build02 已 exit0（全type+Vite），69文件/981952B；首次 build01 因私有配置相对路径错误退出，保原日志。共享入口基于 root 转入19a donor，原 Knowledge 默认与新增 Secret 两个固定profile复用原 root 监督尾；metadata/Skill数据组保持。新入口5方法按原失败修后分项均通过，受影响旧2source控制通过；这些都是无OS资源的离线方法证明。尚未Go候选/真实窗口，当前不能宣称前后端联调或全资源链成功。

@@ -1,10 +1,10 @@
 # Secret Owner UI 首次真实链准备
 
-当前仅源码和离线方法准备。没有 Go 编译、浏览器、PG 或整个链路 PASS；前端纯控与源码独审见 [D27](../../docs/development/work-items/d27-project-secrets-owner-ui.md)。默认 Project initializer 未绑定，生产 SPA publication STOP 不变。
+当前已有私有正式前端 build，仍仅源码和离线方法准备。没有 Go 编译、浏览器、PG 或整个链路 PASS；前端纯控与源码独审见 [D27](../../docs/development/work-items/d27-project-secrets-owner-ui.md)。默认 Project initializer 未绑定，生产 SPA publication STOP 不变。
 
 ## 固定输入与原链
 
-- Go `^TestProjectSecretOwnerWeb$`，app 包，1 top/0 sub，原测试 120s 含 cleanup；未来 Go test 6m、root driver 540s + TERM60/KILL3、TCP75 和原 7 资源双退役门保持。共享入口由 content 唯一维护，本目录不另建资源监督器。
+- Go `^TestProjectSecretOwnerWeb$`，app 包，1 top/0 sub，原测试 120s 含 cleanup；未来 Go test 6m、root driver 540s + TERM60/KILL3、TCP75 和原 7 资源双退役门保持。本树共享入口已由 root 转交本作者唯一维护；基于其转入的 Installer 19a3fc80，只将既有 Knowledge 浏览器链参数化为两个固定 profile，本目录不另建资源监督器。
 - PW `project-secret-owner.spec.ts [owner] Project Secret lifecycle`，锁定 1.56.1，1 worker、retries0、45s、原 expect5s；只 `--list` 不执行浏览器。Node 原单次 Wait 标记 `SecretOwner Node actual_wait pid=N success=true`，不得根据报告文件替代实际 Wait。
 - `AGENTEAM_SECRET_OWNER_WEB_{DIST,EVIDENCE,INPUT_HASH,SCHEMA_PYTHON}` 都需真实绝对 owned 路径，INPUT_HASH 是本轮闭包 SHA256；`CASE=owner`。Go 原入口还需 `AGENTEAM_AUTH_WEB_RUNTIME`（绝对路径、长度≤45）。Go 为实际 Node 构造同源 ORIGIN/private/Chromium 环境。
 - 新 4 源：`internal/central/app/project_secret_owner_web_test.go`，`tests/account-captcha-web/project-secret-owner.config.js`，同 `e2e/project-secret-owner.{spec,native}.ts`；另本域 `native-controls.cjs` 是离线方法控。
@@ -32,3 +32,13 @@
 可复跑命令：`node .agent-state/secret-owner-ui/native-controls.cjs`。严格 TS 用现 web TypeScript、ES2022/ESNext/bundler/strict/skipLibCheck、DOM/DOM.Iterable/ES2023、`--types node --typeRoots <本树>/web/node_modules/@types`，只选新两个 TS（传递 readonly binding）。日志在 ignored `output/ai/secret-owner-ui/`，原 FAIL 保留。后继 actual 必须 root fresh grant。
 
 work_ui 已实际只读审四方法源（3e406c0e 加单类型行）有限接受，无确认 must-fix；未复跑作者方法控/TS或资源，不升级真实结果。
+
+## 私有构建与共享入口
+
+正式 `npm run build -- --config <本域output>/vite-build.config.mjs --configLoader native --outDir <本域output>/web-dist-01 --emptyOutDir`，私有配置只 import 原 web/vite.config.ts 并覆盖本域 cacheDir。build01 原88880→8bd8f4 exit1：原工作目录为 web，配置误写相对目录，Vite找不到配置；type阶段已完成。修正私有绝对路径、产品0改后 build02 原84472→dcf1b1 exit0（全vue-tsc+Vite2.55s）。69 regular/nlink1文件、981952B；相对manifest SHA256 `8d3a0b3d18028210f7ccb20b33ac51032daf66f04c6889f75f0d51af813288fd`，实际只读单例 AST 定位原 entry/import/export 成功，未修改 dist。详细 manifest/binding 保本域 ignored output。
+
+共享 driver/sup 原 Knowledge UI helper 增可选固定selector，旧默认与 API 名保持；Secret profile 仅 namespace/case/4源/正式Schema/所选Go/已加载单例来源不同。原 metadata/schema/SkillInstallation 三数据组和 Model/Guard/旧业务门不变。所用锁定 PW/TS 借用目录只解析实际工具文件身份；本地Go/生产/dist依旧 regular，首尾重枚举全部 app 同包/前端生产/dist/PW运行包/Node/Python/Chromium/schema。短 nonce/runtime、private modeoff、原 Node+Go Wait、7资源14退役/private/runtime/desc/TCP 双尾与 sameinput AND 不变。
+
+新 `entry-controls.py` 实际调用原 collector/observer/driver main 和 supervisor前置guard；操作系统边为 doubles，无资源。controls01 五项4PASS/1ERROR，原因逆变通用wait行在另一函数亦存在；只加 browser 相邻anchor 后该项通过。受影响旧 metadata/Installer source控各曾FAIL（新增唯一TARGET需排除；原Installer负控replace未命中）；窄修为排唯一Secret literal、先严格逆剥Secret再assert每hunk恰1，分别9940ff/8b0fb8/2ec4e8实际0。其它4新方法沿原d21031实际PASS复用，不重旧全矩阵。完整逆变恢复19a两共享源字节；未知改动、预算变更、缺/多RUN/PASS/NodeWait、失败/错mode/未知selector、缺资源/private/runtime尾，以及源/tool/dist增删改和环境变化均拒。
+
+后继 Go 计划仅在 root 独占cache授权后：固定Go1.27.1、readonly共享GOMODCACHE、GOPROXY/GOSUMDB off、fresh≥5GiB、私有mode=off并去除三telemetry旁路；`go test -tags=integration -race -c` 仅 app 包，新 `output/ai/secret-owner-ui/candidate-01/secret-owner-ui-race.test`，再精确 `-test.list '^TestProjectSecretOwnerWeb$'`。开始前 source/compile输入冻结；原Wait退出后再按新binary枚举最终运行闭包。当前未执行，不用将计划/candidate路径当真实产物。
