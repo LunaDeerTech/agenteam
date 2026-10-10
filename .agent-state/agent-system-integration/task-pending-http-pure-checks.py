@@ -12,37 +12,34 @@ import time
 ROOT = Path('/workspace/agenteam-agent-system-integration')
 GO = "/workspace/toolchains/go1.27.1/bin/go"
 TOPS = {
-    'work': [
-        'TestTaskBusyCompensationRestoresLogicalSlot',
-        'TestTaskBusyCompensationPreservesChangedTasks',
-        'TestTaskBusyCompensationRejectsForeignWitnessAndJoins',
-        'TestTaskBusyCompensationTypedHistoryAndEventProof',
-        'TestTaskTriggerEventStorageArms',
-        'TestTaskTransitionHistoryRemainsReadableWithoutGrant',
-        'TestSchedulerClaimPlanRanksAndStrictHistory',
-        'TestTaskInProgressTitleUpdateAndReplay',
-        'TestTaskInProgressTitlePreservesWriteBoundaries',
-    ],
-    'project': [
-        'TestTaskBusyCompensationProjectGatePausedAndExactSchema',
-        'TestSchedulerClaimProjectEventExactGate',
-    ],
     'scheduler': [
-        'TestSchedulerBusyCodecPreservesLegacyAndRejectsMalformedMarker',
-        'TestSchedulerBusyRequiresRecordedOutcomeAndEnabledProject',
-        'TestSchedulerBusySettlementRequiresWorkProofInOriginalTransaction',
-        'TestSchedulerBusyProofRejectsForeignOrRetiredCalls',
-        'TestSchedulerBusyUnknownUsesObservationWithoutReapply',
-        'TestSchedulerBusyStopWaitsOriginalWorkReturn',
-        'TestSchedulerLaunchKnownRejectionAndUncertainTransport',
+        'TestSchedulerPendingVisitBoundedCursorIncludesAllPending',
+        'TestSchedulerPendingVisitSelectsOnlySupportedOriginalPath',
+        'TestSchedulerPendingVisitRechecksPauseInOriginalWriteTransaction',
+        'TestSchedulerPendingVisitScanFailurePublishesNoCursor',
+        'TestSchedulerPendingVisitRestrictionNeverMintsHandoff',
+        'TestSchedulerPendingVisitStopWaitsBorrowedCallAndPreservesUnknownOwner',
+        'TestSchedulerLaunchMarkerMustCommitBeforeHandoff',
         'TestSchedulerLaunchAssociationAndOriginalKeyRecovery',
+    ],
+    'work/http': [
+        'TestWorkHTTPTaskTransitionAndOriginalLookup',
+        'TestWorkHTTPTaskTransitionStrictIntent',
+        'TestWorkHTTPTaskTransitionBoundaryAndUnknown',
+        'TestWorkHTTPTaskTransitionProjectionAndRoutes',
+        'TestWorkHTTPTaskTransitionStandardSchema',
+        'TestWorkHTTPBindingAndExactRoutes',
+    ],
+    'app': [
+        'TestWorkPlanningTransitionActualCallMustJoin',
+        'TestWorkPlanningPureConstructionAndDrain',
     ],
 }
 SELECTOR = "^(" + "|".join(top for tops in TOPS.values() for top in tops) + ")$"
 PACKAGES = ["./internal/central/" + package for package in TOPS]
 COMMANDS = [
     ("race", [GO, "test", "-mod=readonly", "-p=2", "-race", "-count=1", "-timeout=90s", "-json", "-run", SELECTOR, *PACKAGES]),
-    ("vet", [GO, "vet", "-mod=readonly", "-p=2", "./internal/central/work", "./internal/central/work/contract", "./internal/central/project", "./internal/central/scheduler"]),
+    ("vet", [GO, "vet", "-mod=readonly", "-p=2", "./internal/central/scheduler", "./internal/central/work/http", "./internal/central/app"]),
 ]
 
 
@@ -83,7 +80,7 @@ def race_summary(path):
         "github.com/LunaDeerTech/agenteam/internal/central/" + package + "/" + top: "pass"
         for package, tops in TOPS.items() for top in tops
     }
-    return {"tops": observed, "exact_19_top_pass": observed == expected}
+    return {"tops": observed, "exact_16_top_pass": observed == expected}
 
 
 def main():
@@ -93,7 +90,7 @@ def main():
     cache = args.cache
     if not cache.is_absolute() or not cache.is_dir() or cache.resolve() != cache:
         parser.error("an existing coordinator-assigned absolute cache is required")
-    out = ROOT / "output/ai/task-busy/combined-pure-02"
+    out = ROOT / "output/ai/pending-http/combined-pure-01"
     out.mkdir(parents=True, exist_ok=False)
     out.chmod(0o700)
     runtime = out / "runtime"
@@ -115,6 +112,7 @@ def main():
         "GOMODCACHE": "/workspace/shared/agenteam-deps/go-mod",
         "GOCACHE": str(cache), "GOTMPDIR": str(runtime), "TMPDIR": str(runtime),
         "XDG_CONFIG_HOME": str(config), "GOMAXPROCS": "2", "CGO_ENABLED": "1",
+        "AGENTEAM_WORK_HTTP_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
     })
     # Preserve normal HOME/TLS; fixed offline/private values above override Go state.
     result = {"outer_pid": os.getpid(), "started_utc": utc(), "selector": SELECTOR,
@@ -188,7 +186,7 @@ def main():
             if (phase.get("timeout") or phase.get("interrupted") or phase["actual_wait"] != 0
                     or not phase["group_absent"] or phase.get("unjoined_child") or adopted
                     or not all(phase["group_empty_tail"]) or not all(phase["runtime_empty"])
-                    or phase.get("exact_19_top_pass") is False):
+                    or phase.get("exact_16_top_pass") is False):
                 break
         else:
             result["whole_pass"], code = True, 0
