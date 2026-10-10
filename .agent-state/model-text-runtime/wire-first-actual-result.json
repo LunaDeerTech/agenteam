@@ -1,0 +1,84 @@
+{
+  "scope": "D09 finite text-only Runtime; explicit ConsumerAuthority contract fixture; production consumer unbound",
+  "source_ref": "a6cb5647b1155d5721ca159bee47c1461d6b48dd",
+  "fixture_ref": "299f0138",
+  "candidate_sha256": "7f2e41085a90d9860760d240a16bfde1849ed343bcd3cda460f1ad76ce04444b",
+  "candidate_bytes": 64796106,
+  "input_count": 765,
+  "input_hash": "88cab5b026574712f1fcb25395dc7e1236d88c517d8f766361974ec70d2bd4f7",
+  "selector": "^TestModelTextRuntimePersistentWire$",
+  "test_cases": {
+    "TestModelTextRuntimePersistentWire": {
+      "pass": true,
+      "seconds": 9.77
+    },
+    "json_success": {
+      "pass": true,
+      "seconds": 5.5
+    },
+    "policy_deny": {
+      "pass": true,
+      "seconds": 4.28
+    }
+  },
+  "started_utc": "2026-10-10T10:25:21Z",
+  "finished_utc": "2026-10-10T10:27:11Z",
+  "session": 68511,
+  "terminal_chunk": "a4a99c",
+  "fresh_available_bytes": 5476278272,
+  "actual_waits": {
+    "go": {
+      "pid": 609193,
+      "code": 0
+    },
+    "driver": {
+      "pid": 607325,
+      "code": 0
+    },
+    "supervisor": {
+      "pid": 607304,
+      "code": 0
+    },
+    "outer": {
+      "pid": 607262,
+      "code": 0
+    }
+  },
+  "tail": {
+    "exact_id_resources": 7,
+    "resource_absence_observations": 14,
+    "private_absent_observations": 2,
+    "runtime_empty_observations": 2,
+    "owned_descendant_empty_observations": 2,
+    "supervisor_tcp_empty_observations": 2,
+    "outer_descendant_observations": [
+      [],
+      []
+    ],
+    "outer_adopted_actual_waits": [],
+    "outer_tcp_empty_observations": 2,
+    "inputs_unchanged": true,
+    "inputs_after_count": 765,
+    "stop_count": 0
+  },
+  "whole_pass": true,
+  "resource_window_released": true,
+  "evidence": {
+    "outer_result": "output/ai/model-text-runtime/wire-02-control/result.json",
+    "supervisor_result": "output/ai/model-text-runtime/wire-02-control/supervisor.log",
+    "original_log": "/tmp/mrt02/pg-fba9b372eacb46719cb72c4faa180b8e.log",
+    "preserved_log": "output/ai/model-text-runtime/wire-02-control/original-chain/pg-fba9b372eacb46719cb72c4faa180b8e.log"
+  },
+  "preserved_failures": [
+    "regression-01: capacity gate; zero Go",
+    "regression-02: capacity gate; zero Go",
+    "wire-01: launcher Docker path; zero supervisor/Go/resources"
+  ],
+  "unaccepted": [
+    "production ConsumerAuthority / Agent F1 / default root binding",
+    "SSE and held I/O cancellation / Close timeout",
+    "commit Unknown and real duplicate concurrency",
+    "restart takeover / complete D09",
+    "OpenAI tools STOP and historical Object runtime join STOP unchanged"
+  ]
+}

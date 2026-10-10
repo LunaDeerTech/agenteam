@@ -1,6 +1,6 @@
 # D09 有限 text-only Model Runtime
 
-状态：有限 SPEC 与首 Object/Project 五路径经 cleanup 非作者有限审接受；首边界15top普通/race均实际通过。Runtime九源、00031、Secret router显式分派及两基础test已落盘，首有限8top普通/race与model包vet实际wholePASS；Runtime实际源独审和真实调用尚未完成。基线 main `04455194`，工作树 `/workspace/agenteam-model-text-runtime`、分支 `ai/model-text-runtime`。root 分配本执行者独占迁移 `00031_model_logical_calls.sql`。本卡交付一次真实 attempt 的 logical-call 服务，生产 consumer 与默认根未绑定；不宣称完整 D09、D22 或 Agent F1。
+状态：有限 SPEC、Object/Project 五接缝、Runtime core及必要窄修、首真实两fixture/方法已获 cleanup 非作者有限审接受，入口另获 skills 独审接受。适用pure/race/vet与首真实 `wire-02` 一top两sub已wholePASS，原Wait、7资源和全部尾齐，可按本卡有限范围逐路径交付。基线 main `04455194`，工作树 `/workspace/agenteam-model-text-runtime`、分支 `ai/model-text-runtime`。root分配本执行者独占迁移 `00031_model_logical_calls.sql`；首链实际在新库运行连续00001–31，不冒其它迁移故障矩阵。本卡交付一次真实attempt的文本logical-call服务与显式consumer契约fixture；生产consumer/默认根未绑定，SSE、Unknown、held I/O取消与重启接管未由首链验收，不宣称完整D09、D22或Agent F1。
 
 ## 1. 正式依据、提供方与调用方
 
@@ -167,3 +167,7 @@ cleanup后续实际core窄审发现两项并发错误：活跃重复分支提前
 首真实两fixture与方法初稿保存299f0138后，`candidate-01`原race-c及samebinary精确list均实际0（outer576890/Go576893/list577560原Wait0、runtime/进程组双空），无需编译修正。仅发现`TestModelTextRuntimePersistentWire`（json_success/policy_deny源码两sub），尚未执行其正文或00031真实迁移；候选就绪不构成PG/Secret/Usage/网络接受。方法见任务first-wire-method，独立方法审/精确资源入口/唯一实际窗口仍待完成。
 
 首真实入口与765输入经非作者接受，`wire-01`获单次窗口后在首只读Docker预飞即launch FAIL（outer600305实际1，fresh5477285888B）。实际/usr/local/bin/docker与启动器/usr/bin/docker及冻结PATH不符，supervisor/Go/测试正文/7资源均未启动；不能据此判断00031或业务链结果。原FAIL保留且没有自动retry，后继仅修启动环境并须新授权；scope与candidate不重编。
+
+`wire-02`经启动输入独审与root新单次授权，仅将PATH补入/usr/local/bin并使用fresh目录，产品/fixture/765输入和原candidate7f2e不变。2026-10-10T10:25:21Z–10:27:11Z，session68511→a4a99c，outer607262/supervisor607304/driver607325/Go609193全实际Wait0，启动fresh5476278272B。精确`TestModelTextRuntimePersistentWire`9.77s，两sub json_success5.50s、policy_deny4.28s均PASS；原7资源exact-ID/nonce双退役、private/runtime/desc/TCP双尾、STOP0及765输入前后同88cab，outer无adopted且desc/TCP双空，整轮wholePASS并释放窗口。原日志与outer result保留任务output的wire-02-control（含original-chain副本），最小可恢复事实在`.agent-state/model-text-runtime/wire-first-actual-result.json`。原wire-01启动FAIL与regression-01/02容量FAIL保持，不回填。
+
+本次动态证据只接受同Store真实Account/Owner与test-only Project初始化之后，显式consumer契约fixture→00031 Call/attempt→Secret/System Audit与Usage同Tx→原text adapter/D04 Project策略→Exchange/材料/lease实际退休的一次JSON成功及一次policy拒绝零发送。生产ConsumerAuthority、Agent/F1与默认根均未绑定；SSE、提交Unknown、held I/O取消/Close超期、重复真实并发和恢复另按实际风险补验。不会把fresh Object.Initialize依赖解释为解除历史Object runtime join STOP，也不改变OpenAI tools独立STOP。
