@@ -162,7 +162,7 @@ func TestSchedulerClaimProjectEventExactGate(t *testing.T) {
 	x.lifecycle = c.Archived
 	hasCode(t, x.authority.ValidateInTx(context.Background(), x.store.tx, request, deps), f.ProjectNotActive)
 	x.lifecycle = c.Active
-	for _, schema := range []uint32{1, 4} {
+	for _, schema := range []uint32{1, 5} {
 		bad := details
 		bad.Stage = oc.CurrentAccess
 		bad.Event.Header.SchemaVersion = schema
@@ -226,7 +226,7 @@ func TestTaskBusyCompensationProjectGatePausedAndExactSchema(t *testing.T) {
 		t.Fatal(err)
 	}
 	hasCode(t, x.authority.ValidateInTx(context.Background(), x.store.tx, request, deps), f.Forbidden)
-	d.Event.Header.SchemaVersion = 4
+	d.Event.Header.SchemaVersion = 5
 	d.Stage = oc.CurrentAccess
 	request, err = oc.NewProjectRequest(d)
 	if err != nil {
