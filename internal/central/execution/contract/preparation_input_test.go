@@ -159,7 +159,14 @@ func TestPreparationInputRejectsPartialOrCrossCapture(t *testing.T) {
 		{"skill-other-execution", func(v *ec.PreparationInputFields) { v.Skills.Request.ExecutionID = inputID[i.Execution](t, 90) }},
 		{"mount-stale-agent", func(v *ec.PreparationInputFields) { v.Mounts.AgentVersion = 1 }},
 		{"mount-nil-is-not-empty", func(v *ec.PreparationInputFields) { v.Mounts.Mounts = nil }},
-		{"missing-tool", func(v *ec.PreparationInputFields) { v.Tools = []tc.ExecutionTool{} }},
+		{"nil-tools", func(v *ec.PreparationInputFields) { v.Tools = nil }},
+		{"ordinary-tool-not-allowed", func(v *ec.PreparationInputFields) {
+			d := v.Agent.Fields()
+			d.AllowedToolIDs = []i.ToolID{}
+			var err error
+			v.Agent, err = ac.NewAgentConfig(d)
+			inputOK(t, err)
+		}},
 		{"denied-tool", func(v *ec.PreparationInputFields) {
 			v.Request.Launch.Policy.DeniedToolIDs = []i.ToolID{v.Tools[0].ToolID}
 		}},
@@ -191,6 +198,22 @@ func TestPreparationInputRejectsPartialOrCrossCapture(t *testing.T) {
 	v.Tools = []tc.ExecutionTool{}
 	_, err := ec.NewPreparationInput(v)
 	inputOK(t, err)
+	// The Agent can retain an unregistered ID while the real Registry returns
+	// only current registrations. Keep that config identity through storage.
+	v = inputFixture(t)
+	d := v.Agent.Fields()
+	retained := inputID[i.Tool](t, 90)
+	d.AllowedToolIDs = append(d.AllowedToolIDs, retained)
+	v.Agent, err = ac.NewAgentConfig(d)
+	inputOK(t, err)
+	input, err := ec.NewPreparationInput(v)
+	inputOK(t, err)
+	decoded, err := ec.DecodePreparationInput(input.CanonicalBytes())
+	inputOK(t, err)
+	got := decoded.Fields()
+	if len(got.Tools) != 1 || len(got.Agent.Fields().AllowedToolIDs) != 2 || got.Agent.Fields().AllowedToolIDs[1] != retained {
+		t.Fatal("retained unregistered Tool changed the captured intersection")
+	}
 }
 
 func TestPreparationInputClosedEncodingAndSafeDefaults(t *testing.T) {
