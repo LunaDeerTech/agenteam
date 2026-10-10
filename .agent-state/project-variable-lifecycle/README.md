@@ -38,9 +38,9 @@ python3 -B .agent-state/project-variable-lifecycle/run.py \
 
 独立实例已对 SPEC、核心实际 diff、两PG源与私有namespace入口作有限只读接受；动态纯测试和本次 PG 均由作者运行。此结果只接受 ordinary+Secret 两个本实例服务的精确停止与实际call退出；不证明 foreign process join、真实 Unknown COMMIT代理、完整复合participant、cleanup、生产phase worker 或 production Project Create。原两次准备失败（首Go编译与首input路径枚举）保留，未回填成原轮 PASS。
 
-## 后继单轮 phase：首轮整体 FAIL，测试钩子待修
+## 后继单轮 phase：首轮整体 FAIL，测试钩子已窄修
 
-新增 `^TestProjectLifecycleLocalStopRound$` 使用独立固定产物 `output/ai/project-variable-lifecycle/candidate-phase-01/project-phase-stop.test`；原提供方 candidate01 不覆盖。新候选37,379,760 B，SHA256 `9983dab14e6415a6c5944fc6726c68dc73acf2aed1cdfd0d7cbe793542c761ae`。复用上文 driver，SHA不变；新实际输入439路径，额外显式要求两phase PG源存在，仍初末全闭包重新枚举。
+首轮 `^TestProjectLifecycleLocalStopRound$` 使用独立固定产物 `output/ai/project-variable-lifecycle/candidate-phase-01/project-phase-stop.test`；原提供方 candidate01 不覆盖。首候选37,379,760 B，SHA256 `9983dab14e6415a6c5944fc6726c68dc73acf2aed1cdfd0d7cbe793542c761ae`。复用上文 driver，SHA不变；新实际输入439路径，额外显式要求两phase PG源存在，仍初末全闭包重新枚举。
 
 - `committed-phase-and-local-return`：accepted 是明确上游规范夹具；真实driver在原Project EX事务推进stopping与claim。COMMIT前零provider，确认后才取消原业务调用；业务实际返回及held checkpoint均未退时，原Run/Drain不退出。另一Project隔离，全participant仍required。
 - `rollback-and-frozen-manifest`：原事务真实rollback与缺冻结版本声明均零provider/零claim。
@@ -49,6 +49,8 @@ python3 -B .agent-state/project-variable-lifecycle/run.py \
 新6top/2sub纯race与Project vet对修前核心实际通过；非作者审发现组合checkpoint错误路径可回显provider error，已仅安全包装该路径。修后首次启动fresh空间不足（2,301,857,792 B），原失败ca201c未启动Go，未改判通过。窗口释放后，唯一新privacy canary定向race及Project vet实际0（93546→7784ce）；物理Unknown/原cause保留且private canary不回显。PG候选race-c与精确list实际0（39670→e47133，Go567801/list567945原Wait0、runtime空），仅列出上述top，没有运行PG。
 
 私有入口只增加selector/artifact/3sub的固定映射；旧6个控制方法AST未变，未重跑。新增3个phase方法控实际0（687f49）：真实sup.main、原PG observer与两次inputs均实际调用，OS资源边明确受控；拒绝错artifact/别名/root/native、缺或重复case、FAIL/SKIP、错PID/非零Wait、退役缺失、private残留、缺文件/symlink和输入漂移。共享sup/driver源码与a047efa3逐字相同。控制不是真实PG或独立动态验收。
+
+以下为来源 `1ccbc56b` 的首轮历史命令；当前入口已按下段固定为 candidate02。
 
 ```sh
 python3 -B .agent-state/project-variable-lifecycle/run.py \
@@ -62,4 +64,19 @@ python3 -B .agent-state/project-variable-lifecycle/run.py \
 
 首轮后来按root独占授权实际执行，来源`1ccbc56b`，439输入SHA256 `c26a8d79b20ccc9824d2d94f16e6e987d8bf67b7b2044ba898eee9871b79d6de`。`pg-phase-01` 整体FAIL：top12.07s，第一sub在phase原barrier未命中（5.23s），第二sub回滚断言未成立（0.11s），第三sub fencing PASS（0.14s）。session41634→d62a41实际1，outer/sup578847、driver578850、Go579413均原Wait1；driver19.945s/sup80.542s。两资源精确双退役、private仅owned.json、desc/TCP双空、输入初末一致、STOP0，原exact cases门False保持。环境runtime退出后两次观测空属于后续观测，不补写原门。原日志在ignored `output/ai/project-variable-lifecycle/pg-phase-01/pg-b04f0f5503a746a4a421b5443a5d48b0.log`。
 
-有界源码定位：两个测试after hook错误筛选`CauseDetails.Owner`；实际driver使用`NewJobCause`，正式字段是`Kind=JobCause`、`JobType=project-lifecycle`及原JobID/JobAttemptID，Owner仅属于RecoveryCause。因此phase持有与回滚注入均未被触发。这是测试方法缺口，不能把原FAIL升级成产品PASS。下一步只修两过滤的真实cause身份，保产品/断言/预算，再冻结新候选并另等实际窗口；尚无修后动态结论。
+有界源码定位：两个测试after hook错误筛选`CauseDetails.Owner`；实际driver使用`NewJobCause`，正式字段是`Kind=JobCause`、`JobType=project-lifecycle`及原JobID/JobAttemptID，Owner仅属于RecoveryCause。因此phase持有与回滚注入均未被触发。这是测试方法缺口，不能把原FAIL升级成产品PASS。修后状态见下段；原FAIL不追认，尚无修后动态结论。
+
+
+### 修后 candidate02 准备（尚未编译/未运行）
+
+两处hook已窄修为原`Kind=JobCause`、`JobType=project-lifecycle`、`JobID=OperationID`及合法`JobAttemptID`；非作者实际diff有限接受，产品、全部断言、第三fencing子例与预算均未改。该单源修由root本地保存`6b91f717`，当时两次远端推送失败，不记为已远端。为保留原FAIL产物，run.py仅将PHASE_BINARY字面值改为`output/ai/project-variable-lifecycle/candidate-phase-02/project-phase-stop.test`，复位该唯一字面值后与原entry逐字相同；selector/cases/controls/原sup/driver均不变，不另重跑矩阵。
+
+candidate02尚未生成或列举；新编译须等当前Rename资源原全尾释放并重新满足同启动fresh>=5GiB/privateoff/readonly modules。编译/list实际通过后才使用以下固定入口，并另等root新PG窗口；不会覆盖candidate-phase-01、旧日志或原失败结论。
+
+```sh
+python3 -B .agent-state/project-variable-lifecycle/run.py \
+  --driver "$PWD/output/ai/project-variable-lifecycle/candidate-01/pg-only-driver" \
+  --binary "$PWD/output/ai/project-variable-lifecycle/candidate-phase-02/project-phase-stop.test" \
+  --run '^TestProjectLifecycleLocalStopRound$' \
+  --output "$PWD/output/ai/project-variable-lifecycle/pg-phase-02"
+```

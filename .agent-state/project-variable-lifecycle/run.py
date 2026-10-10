@@ -17,7 +17,7 @@ BINARY = 'output/ai/project-variable-lifecycle/candidate-01/project-variable-lif
 PROBE = 'tests/projectvariable/project_lifecycle_test.go'
 OWN = '.agent-state/project-variable-lifecycle/'
 PHASE_SELECTOR = '^TestProjectLifecycleLocalStopRound$'
-PHASE_BINARY = 'output/ai/project-variable-lifecycle/candidate-phase-01/project-phase-stop.test'
+PHASE_BINARY = 'output/ai/project-variable-lifecycle/candidate-phase-02/project-phase-stop.test'
 PHASE_CASES = {'TestProjectLifecycleLocalStopRound': (
     'committed-phase-and-local-return', 'rollback-and-frozen-manifest',
     'claim-fencing-and-terminal-attempt')}
