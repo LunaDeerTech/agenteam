@@ -238,6 +238,9 @@ func (c *runtimeCall) retireLease(ctx context.Context) error {
 		c.releaseLocal()
 		return nil
 	}
+	if c.agentRetry() {
+		return c.retireAgentCall(ctx)
+	}
 	w, err := c.secretWitness(ctx, sc.ReleaseLeaseUsage)
 	if err != nil {
 		return err

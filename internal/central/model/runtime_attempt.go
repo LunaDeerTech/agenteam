@@ -22,6 +22,12 @@ type runtimeCall struct {
 	mode                                     wire.ResponseMode
 	ctx                                      context.Context
 	cancel                                   context.CancelFunc
+	attemptCtx                               context.Context
+	attemptCancel                            context.CancelFunc
+	requestTimeout, retryBackoff             time.Duration
+	wireFailure                              bool
+	retryPending                             bool
+	retryAnnounced                           bool
 	gate                                     chan struct{}
 	mu                                       sync.Mutex
 	record                                   *runtimeRecord
@@ -111,6 +117,9 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	if err != nil {
 		return nil, err
 	}
+	if request.RetryClass == mc.AgentRetry && s.agentTiming == nil {
+		return nil, fault(f.CapabilityUnsupported)
+	}
 	consumer := runtimeConsumerRequest(request, mc.InvokeConsumer, nil, nil)
 	plan, err := s.authority.discoverConsumer(ctx, consumer)
 	if err != nil {
@@ -120,17 +129,17 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	if err != nil {
 		return nil, err
 	}
-	deadline := time.Now().Add(30 * time.Second)
-	if policy.Deadline.Time().Before(deadline) {
-		deadline = policy.Deadline.Time()
+	cancelDeadline := func() {}
+	if policy.Class == mc.BoundedRetry {
+		deadline := time.Now().Add(30 * time.Second)
+		if policy.Deadline.Time().Before(deadline) {
+			deadline = policy.Deadline.Time()
+		}
+		if !time.Now().Before(deadline) {
+			return nil, unavailable(context.DeadlineExceeded)
+		}
+		ctx, cancelDeadline = context.WithDeadline(ctx, deadline)
 	}
-	if parent, ok := ctx.Deadline(); ok && parent.Before(deadline) {
-		deadline = parent
-	}
-	if !time.Now().Before(deadline) {
-		return nil, unavailable(context.DeadlineExceeded)
-	}
-	ctx, cancelDeadline := context.WithDeadline(ctx, deadline)
 	defer func() {
 		if !transferred {
 			cancelDeadline()
@@ -154,6 +163,10 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 		return nil, err
 	}
 	binding := runtimeBinding{Format: 1, CallID: request.CallID, Consumer: request.Consumer.Clone(), Input: request.Input.Clone(), Initiator: runtimeStableActor(request.Actor), SnapshotID: request.Model.Snapshot.ID, SnapshotDigest: hash(snapshotBytes), PreparationID: p.ID, LeaseID: request.Model.CredentialLease.LeaseID, Owner: request.Model.LeaseOwner.Details(), Policy: policy, Mode: mode}
+	if policy.Class == mc.AgentRetry {
+		timing := s.agentTiming.Fields()
+		binding.Format, binding.AgentTiming = 2, &timing
+	}
 	if err = binding.validate(); err != nil {
 		return nil, err
 	}
@@ -164,6 +177,9 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	value := uc.Invocation{ID: invocation, CallID: request.CallID, AttemptIndex: 1, Consumer: request.Consumer.Clone(), SnapshotID: request.Model.Snapshot.ID, Identity: request.Model.Snapshot.Identity, ProcessID: process, Fence: 1, Dispatch: uc.Reserved, StartedAt: at, Usage: mc.Usage{Source: mc.UnknownUsage}}
 	cancel := func() { cancelDeadline(); stop() }
 	c := &runtimeCall{runtime: s, request: request, mode: mode, ctx: ctx, cancel: cancel, gate: make(chan struct{}, 1), record: &runtimeRecord{binding: binding, digest: hash(raw), value: value, sequence: 1, phase: "accepted", version: 1}}
+	if binding.AgentTiming != nil {
+		c.requestTimeout, c.retryBackoff = binding.AgentTiming.InitialRequestTimeout, binding.AgentTiming.InitialBackoff
+	}
 	c.gate <- struct{}{}
 	transferred, err = c.admit(ctx, consumer, plan)
 	if err != nil {
@@ -173,6 +189,12 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	// has returned. Stop/Drain may cancel it but must join that original work.
 	<-c.gate
 	err = c.start(consumer, plan)
+	for err != nil && c.retryPending && mode == wire.JSONResponse {
+		err = c.nextAgentAttempt(c.ctx)
+	}
+	if mode == wire.SSEResponse && c.retryPending {
+		err = nil
+	}
 	c.finishStart(err)
 	if err != nil {
 		return nil, runtimePortError(err)
@@ -286,7 +308,11 @@ func runtimeDuplicateError(old *runtimeRecord, digest f.Digest) error {
 }
 
 func (c *runtimeCall) start(consumer mc.ConsumerRequest, plan mc.ConsumerDependencies) error {
-	if err := c.persist(c.ctx, uc.ReserveAction, c.record, consumer, plan); err != nil {
+	return c.startRecord(consumer, plan, c.copyRecord())
+}
+
+func (c *runtimeCall) startRecord(consumer mc.ConsumerRequest, plan mc.ConsumerDependencies, desired *runtimeRecord) error {
+	if err := c.persist(c.ctx, uc.ReserveAction, desired, consumer, plan); err != nil {
 		c.mu.Lock()
 		retained := c.pending != nil || c.accepted
 		c.mu.Unlock()
@@ -333,11 +359,15 @@ func (c *runtimeCall) start(consumer mc.ConsumerRequest, plan mc.ConsumerDepende
 	c.handoff = true
 	material := c.material
 	c.mu.Unlock()
-	x, err := c.runtime.deps.Adapter.Start(context.WithValue(c.ctx, runtimeHandoffKey{}, c), wire.Request{Snapshot: c.request.Model.Snapshot, Messages: c.request.Messages, ToolChoice: c.request.ToolChoice, ResponseFormat: c.request.ResponseFormat, Mode: c.mode}, c.callOptions(callContext, material))
+	if c.agentRetry() {
+		c.attemptCtx, c.attemptCancel = context.WithTimeout(c.ctx, c.requestTimeout)
+	}
+	x, err := c.runtime.deps.Adapter.Start(context.WithValue(c.wireContext(), runtimeHandoffKey{}, c), wire.Request{Snapshot: c.request.Model.Snapshot, Messages: c.request.Messages, ToolChoice: c.request.ToolChoice, ResponseFormat: c.request.ResponseFormat, Mode: c.mode}, c.callOptions(callContext, material))
 	c.mu.Lock()
 	c.startReturned, c.exchange = true, x
 	c.mu.Unlock()
 	if err != nil {
+		c.wireFailure = true
 		return c.failStart(c.ctx, err)
 	}
 	return nil
@@ -352,6 +382,9 @@ func (c *runtimeCall) copyRecord() *runtimeRecord {
 }
 
 func (c *runtimeCall) releaseLocal() {
+	if c.attemptCancel != nil {
+		c.attemptCancel()
+	}
 	c.cancel()
 	c.mu.Lock()
 	c.joined = true
@@ -384,11 +417,14 @@ func (c *runtimeCall) close(ctx context.Context) error {
 }
 
 func (c *runtimeCall) technicalActor() (id.Actor, error) {
+	return c.technicalActorFor(c.copyRecord().value.ID)
+}
+func (c *runtimeCall) technicalActorFor(invocation mc.InvocationID) (id.Actor, error) {
 	scope, err := id.InProject(c.request.Consumer.ProjectID)
 	if err != nil {
 		return id.Actor{}, err
 	}
-	return c.runtime.authority.state().auth.ModelRuntime.Actor(c.copyRecord().value.ID.String(), scope)
+	return c.runtime.authority.state().auth.ModelRuntime.Actor(invocation.String(), scope)
 }
 
 func runtimePreflight(ctx context.Context, s *runtimeState, request mc.ModelRequest, invocation mc.InvocationID, consumer mc.ConsumerRequest, plan mc.ConsumerDependencies) (*resolutionPreparation, f.Instant, error) {

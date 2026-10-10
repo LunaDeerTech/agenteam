@@ -125,7 +125,7 @@ func (a *RuntimeAuthority) ValidateInTx(ctx context.Context, tx f.Tx, request uc
 }
 
 func runtimeSameRecord(a, b *runtimeRecord) bool {
-	return a != nil && b != nil && a.digest == b.digest && a.sequence == b.sequence && a.phase == b.phase && a.retired == b.retired && a.version == b.version && resolutionEqual(a.value, b.value)
+	return a != nil && b != nil && a.digest == b.digest && a.sequence == b.sequence && a.phase == b.phase && a.retired == b.retired && a.version == b.version && resolutionEqual(a.cancelledAt, b.cancelledAt) && resolutionEqual(a.value, b.value)
 }
 
 func (c *runtimeCall) persist(ctx context.Context, action uc.InvocationAction, desired *runtimeRecord, consumer mc.ConsumerRequest, consumerPlan mc.ConsumerDependencies) error {
@@ -194,14 +194,26 @@ func (c *runtimeCall) persist(ctx context.Context, action uc.InvocationAction, d
 			return err
 		}
 		if action == uc.ReserveAction {
-			if old != nil {
-				return runtimeDuplicateError(old, desired.digest)
-			}
-			if _, err = loadRuntimeSnapshot(ctx, x, c.request); err != nil {
-				return err
-			}
-			if err = insertRuntimeRecord(ctx, x, desired); err != nil {
-				return err
+			if desired.value.AttemptIndex > 1 {
+				if !runtimeSameRecord(old, c.copyRecord()) {
+					return fault(f.ResourceBusy)
+				}
+				if _, err = loadRuntimeSnapshot(ctx, x, c.request); err != nil {
+					return err
+				}
+				if err = insertRuntimeRetry(ctx, x, old, desired); err != nil {
+					return err
+				}
+			} else {
+				if old != nil {
+					return runtimeDuplicateError(old, desired.digest)
+				}
+				if _, err = loadRuntimeSnapshot(ctx, x, c.request); err != nil {
+					return err
+				}
+				if err = insertRuntimeRecord(ctx, x, desired); err != nil {
+					return err
+				}
 			}
 		} else {
 			if !runtimeSameRecord(old, c.copyRecord()) {

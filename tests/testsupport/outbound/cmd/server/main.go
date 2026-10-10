@@ -25,6 +25,7 @@ type config struct {
 	Mode, Redirect, Body string
 	Size, HeaderBytes    int
 	Wire                 *wireScenario
+	WireSequence         []wireScenario
 }
 type wireScenario struct {
 	Suffix          string
@@ -219,6 +220,13 @@ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 	record := request{Connection: r.Context().Value(connectionKey{}).(int64), Method: r.Method, Host: r.Host, Path: r.URL.Path, Query: r.URL.RawQuery, Body: string(body), Headers: r.Header.Clone(), RequestURI: r.RequestURI}
 	s.mu.Lock()
 	v.Requests = append(v.Requests, record)
+	if len(cfg.WireSequence) != 0 {
+		index := len(v.Requests) - 1
+		if index >= len(cfg.WireSequence) {
+			index = len(cfg.WireSequence) - 1
+		}
+		cfg.Wire = &cfg.WireSequence[index]
+	}
 	s.mu.Unlock()
 	if cfg.Mode == "openai_chat_wire" || cfg.Mode == "openai_embeddings_wire" {
 		serveWire(w, r, cfg.Wire, release)
@@ -303,6 +311,21 @@ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 }
 
 func validWire(cfg *config, id string) bool {
+	if len(cfg.WireSequence) != 0 {
+		if cfg.Mode != "openai_chat_wire" || cfg.Wire != nil || len(cfg.WireSequence) != 2 || cfg.Redirect != "" || cfg.Body != "" || cfg.Size != 0 || cfg.HeaderBytes != 0 {
+			return false
+		}
+		for n := range cfg.WireSequence {
+			one := config{Mode: cfg.Mode, Wire: &cfg.WireSequence[n]}
+			if !validWire(&one, id) || n > 0 && one.Wire.Suffix != cfg.WireSequence[0].Suffix {
+				return false
+			}
+		}
+		// Route validation uses the common immutable suffix; request order selects
+		// the response under the original Requests mutex, without control mutation.
+		cfg.Wire = &cfg.WireSequence[0]
+		return true
+	}
 	if cfg.Mode != "openai_chat_wire" && cfg.Mode != "openai_embeddings_wire" {
 		return cfg.Wire == nil
 	}

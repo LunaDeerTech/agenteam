@@ -18,6 +18,12 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestModelAgentRetryRuntime$': (
+        'tests/model/agent_runtime_test.go',
+        'tests/model/runtime_native_test.go',
+        'tests/testsupport/outbound/fixture.go',
+        'tests/testsupport/outbound/cmd/server/main.go',
+    ),
     '^TestExecutionTaskContext$': (
         'tests/projectvariable/execution_context_test.go',
         'tests/projectvariable/execution_model_environment_capture_test.go',
@@ -103,6 +109,7 @@ METADATA_INPUTS = {
 }
 TARGETS = {
     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+    '^TestModelAgentRetryRuntime$': 'tests/model',
     '^TestProjectLifecycleStopBatchRealGuard$': 'tests/projectvariable',
     '^TestModelTextRuntimePersistentWire$': 'tests/model',
     '^TestKnowledgePlainTextParserIntegration$': 'tests/knowledge',
@@ -168,7 +175,7 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
         raise ValueError('exact configuration family selector required')
     # Include the compiled package's complete fixtures and the original shared
     # support, not just the new top or the unrelated Model test package.
-    paths = set(input_paths(binary)) | set((REPOSITORY / 'tests/projectvariable').glob('*.go'))
+    paths = set(input_paths(binary)) | set((REPOSITORY / TARGETS[selector]).glob('*.go'))
     # Preserve the author's conservative full-internal compile provenance,
     # including other packages' test sources and non-Go package assets.
     paths.update(p for p in (REPOSITORY / 'internal').rglob('*') if p.is_file())

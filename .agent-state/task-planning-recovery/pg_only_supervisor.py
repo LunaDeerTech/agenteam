@@ -199,6 +199,12 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestModelAgentRetryRuntime$': frozenset({
+        'TestModelAgentRetryRuntime',
+        'TestModelAgentRetryRuntime/retry-success-and-execution-lease-reuse',
+        'TestModelAgentRetryRuntime/cancel-prevents-next-attempt',
+        'TestModelAgentRetryRuntime/nonretryable-single-failure',
+    }),
     '^TestExecutionTaskContext$': frozenset({
         'TestExecutionTaskContext',
         'TestExecutionTaskContext/frozen-input-after-owner-updates',

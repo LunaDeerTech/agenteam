@@ -100,6 +100,9 @@ type ScenarioConfig struct {
 	Mode, Redirect, Body string
 	Size, HeaderBytes    int
 	Wire                 *WireScenario
+	// Exactly two responses on the same chat URL; the second repeats. Omitted
+	// keeps the original fixed Wire behavior. Wire and WireSequence are exclusive.
+	WireSequence []WireScenario
 }
 type WireScenario struct {
 	Suffix          string

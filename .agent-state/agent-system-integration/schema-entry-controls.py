@@ -15,7 +15,8 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[2]
 DRIVER = '.agent-state/work-owner-http/root_chain_driver.py'
 SUP = '.agent-state/task-planning-recovery/pg_only_supervisor.py'
-SYSTEM_INPUTS = {'^TestExecutionTaskContext$': ('tests/projectvariable/execution_context_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go', 'tests/projectvariable/execution_capture_providers_test.go', 'tests/projectvariable/agent_configuration_create_test.go'),
+SYSTEM_INPUTS = {'^TestModelAgentRetryRuntime$': ('tests/model/agent_runtime_test.go', 'tests/model/runtime_native_test.go', 'tests/testsupport/outbound/fixture.go', 'tests/testsupport/outbound/cmd/server/main.go'),
+ '^TestExecutionTaskContext$': ('tests/projectvariable/execution_context_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go', 'tests/projectvariable/execution_capture_providers_test.go', 'tests/projectvariable/agent_configuration_create_test.go'),
  '^TestExecutionModelEnvironmentCapture$': ('tests/projectvariable/execution_model_environment_capture_test.go', 'tests/projectvariable/execution_capture_providers_test.go', 'tests/projectvariable/agent_configuration_create_test.go'),
  '^TestExecutionCaptureProviders$': ('tests/projectvariable/execution_capture_providers_test.go', 'tests/projectvariable/agent_configuration_create_test.go'),
  '^TestSchedulerProjectRunner$': ('tests/projectvariable/scheduler_project_runner_test.go',),
@@ -38,7 +39,8 @@ SYSTEM_INPUTS = {'^TestExecutionTaskContext$': ('tests/projectvariable/execution
  '^TestSprintStartHTTP$': ('tests/projectvariable/task_human_http_test.go',),
  '^TestSchedulerLaunchFinalFailure$': ('tests/projectvariable/scheduler_launch_failure_test.go',),
  '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': ('tests/projectvariable/task_technical_resolution_http_test.go', 'tests/projectvariable/task_unblock_atomic_test.go')}
-SYSTEM_CASES = {'^TestExecutionTaskContext$': ('TestExecutionTaskContext', 'TestExecutionTaskContext/frozen-input-after-owner-updates'),
+SYSTEM_CASES = {'^TestModelAgentRetryRuntime$': ('TestModelAgentRetryRuntime', 'TestModelAgentRetryRuntime/retry-success-and-execution-lease-reuse', 'TestModelAgentRetryRuntime/cancel-prevents-next-attempt', 'TestModelAgentRetryRuntime/nonretryable-single-failure'),
+ '^TestExecutionTaskContext$': ('TestExecutionTaskContext', 'TestExecutionTaskContext/frozen-input-after-owner-updates'),
  '^TestExecutionModelEnvironmentCapture$': ('TestExecutionModelEnvironmentCapture', 'TestExecutionModelEnvironmentCapture/complete-input-unknown-recovery', 'TestExecutionModelEnvironmentCapture/missing-provider-rolls-back'),
  '^TestExecutionCaptureProviders$': ('TestExecutionCaptureProviders', 'TestExecutionCaptureProviders/real-providers-roll-back-with-unbound-snapshot'),
  '^TestSchedulerProjectRunner$': ('TestSchedulerProjectRunner', 'TestSchedulerProjectRunner/ordered-todo-and-serial-launch', 'TestSchedulerProjectRunner/paused-pending-recovery-and-join'),
@@ -88,6 +90,7 @@ BASE_SHA = {'.agent-state/work-owner-http/root_chain_driver.py': '776e6306214722
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': 'ce09376d0db54c1ef805974c491836cb854f3e23468e0414b0ef31235d00e589'}
 SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA_INPUTS = {\n',
                                                         'METADATA_INPUTS = {\n'
+                                                        "    '^TestModelAgentRetryRuntime$': (\n        'tests/model/agent_runtime_test.go',\n        'tests/model/runtime_native_test.go',\n        'tests/testsupport/outbound/fixture.go',\n        'tests/testsupport/outbound/cmd/server/main.go',\n    ),\n"
                                                         "    '^TestExecutionTaskContext$': (\n        'tests/projectvariable/execution_context_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n"
                                                         "    '^TestExecutionModelEnvironmentCapture$': (\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n"
                                                         "    '^TestExecutionCaptureProviders$': (\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n"
@@ -150,9 +153,12 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA
                                                         "    '^TestSprintStartHTTP$': (\n"
                                                         '        '
                                                         "'tests/projectvariable/task_human_http_test.go',\n"
-                                                        '    ),\n')],
+                                                        '    ),\n'),
+                                                        ("    **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),\n", "    **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),\n    '^TestModelAgentRetryRuntime$': 'tests/model',\n"),
+                                                        ("    paths = set(input_paths(binary)) | set((REPOSITORY / 'tests/projectvariable').glob('*.go'))\n    # Preserve the author's", "    paths = set(input_paths(binary)) | set((REPOSITORY / TARGETS[selector]).glob('*.go'))\n    # Preserve the author's")],
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {\n',
                                                                 'METADATA_GROUPS = {\n'
+                                                                "    '^TestModelAgentRetryRuntime$': frozenset({\n        'TestModelAgentRetryRuntime',\n        'TestModelAgentRetryRuntime/retry-success-and-execution-lease-reuse',\n        'TestModelAgentRetryRuntime/cancel-prevents-next-attempt',\n        'TestModelAgentRetryRuntime/nonretryable-single-failure',\n    }),\n"
                                                                 "    '^TestExecutionTaskContext$': frozenset({\n        'TestExecutionTaskContext',\n        'TestExecutionTaskContext/frozen-input-after-owner-updates',\n    }),\n"
                                                                 "    '^TestExecutionModelEnvironmentCapture$': frozenset({\n        'TestExecutionModelEnvironmentCapture',\n        'TestExecutionModelEnvironmentCapture/complete-input-unknown-recovery',\n        'TestExecutionModelEnvironmentCapture/missing-provider-rolls-back',\n    }),\n"
                                                                 "    '^TestExecutionCaptureProviders$': frozenset({\n        'TestExecutionCaptureProviders',\n        'TestExecutionCaptureProviders/real-providers-roll-back-with-unbound-snapshot',\n    }),\n"
@@ -412,7 +418,7 @@ class SystemEntryControls(unittest.TestCase):
         for selector,required in SYSTEM_INPUTS.items():
             with tempfile.TemporaryDirectory(prefix='system-union-input-') as tmp:
                 root=Path(tmp).resolve()
-                names=('candidate.test','tests/projectvariable/original_test.go','internal/other/assets/NOTICE','tests/testsupport/original.go',*required)
+                names=('candidate.test',self.driver.TARGETS[selector]+'/original_test.go','internal/other/assets/NOTICE','tests/testsupport/original.go',*required)
                 for name in names:
                     path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_text('source')
                 binary=root/'candidate.test'
@@ -421,7 +427,7 @@ class SystemEntryControls(unittest.TestCase):
                     self.assertEqual(set(paths),{root/name for name in names})
                     inputs={str(p):self.driver.sha(p) for p in paths};args=SimpleNamespace(binary=binary)
                     self.assertTrue(self.sup.metadata_same(inputs,args,self.driver,selector))
-                    added=root/'tests/projectvariable/later_test.go';added.write_text('new')
+                    added=root/self.driver.TARGETS[selector]/'later_test.go';added.write_text('new')
                     self.assertFalse(self.sup.metadata_same(inputs,args,self.driver,selector));added.unlink()
                     for name in required:
                         path=root/name;path.write_text('changed')
@@ -454,7 +460,7 @@ class SystemEntryControls(unittest.TestCase):
             with patch.object(self.driver, 'REPOSITORY', root), \
                     patch.object(self.driver, 'GO', binary), patch.object(self.driver, 'sha', return_value=self.driver.MINIO_SHA):
                 plan = self.driver.configuration(binary, SELECTOR, directory)
-            self.assertEqual(plan['cwd'], str(root / 'tests/projectvariable'))
+            self.assertEqual(plan['cwd'], str(root / self.driver.TARGETS[SELECTOR]))
             self.assertEqual((plan['resources'], plan['test_timeout']), (7, '6m'))
             args = ['driver', '--test-binary', plan['binary'], '--run', SELECTOR, '--directory', str(directory)]
             def original_exec(path, argv, environment):

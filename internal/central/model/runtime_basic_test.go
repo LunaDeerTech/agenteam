@@ -238,7 +238,7 @@ func TestRuntimeStreamFramesAndSafeNestedOutput(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	c := &runtimeCall{ctx: ctx, cancel: cancel, gate: make(chan struct{}, 1), request: r,
-		record: &runtimeRecord{digest: r.Input.Digest, value: uc.Invocation{CallID: r.CallID, ID: mustID[mc.Invocation](t)}}, text: []byte("runtime-private-output-canary")}
+		record: &runtimeRecord{digest: r.Input.Digest, value: uc.Invocation{CallID: r.CallID, ID: mustID[mc.Invocation](t), AttemptIndex: 1}}, text: []byte("runtime-private-output-canary")}
 	c.gate <- struct{}{}
 	stream := &runtimeStream{data: func() *runtimeCall { return c }}
 	frame, err := c.frame(mc.ModelFrame{Kind: "call_cancelled", CancelReason: "cancelled"})

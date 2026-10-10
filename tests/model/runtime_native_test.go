@@ -100,6 +100,13 @@ func requireTextRuntime(t *testing.T, err error) {
 }
 
 func newTextRuntimeFixture(t *testing.T) *textRuntimeFixture {
+	return newTextRuntimeFixtureWithPorts(t, nil, nil)
+}
+
+// Alternate Model-domain consumers retain this fixture's actual Runtime,
+// Secret, Usage, TLS and ProcessGuard graph. Nil preserves the legacy case.
+func newTextRuntimeFixtureWithPorts(t *testing.T, factory func(*textRuntimeConsumer) mc.ConsumerAuthority,
+	runtimeFactory func(model.Store, *model.RuntimeAuthority, model.RuntimeDependencies) (*model.Runtime, error)) *textRuntimeFixture {
 	t.Helper()
 	db := newDatabase(t) // actual continuous 00001..00031, no hand-created call tables
 	raw := openStore(t, db.Config(t, nil))
@@ -135,17 +142,21 @@ func newTextRuntimeFixture(t *testing.T) *textRuntimeFixture {
 		t.Fatal("unbound guard unexpectedly usable")
 	}
 	v.consumer = &textRuntimeConsumer{store: raw, accounts: v.base.accounts, guard: v.guard, issuer: mc.NewPlanIssuer()}
+	var consumer mc.ConsumerAuthority = v.consumer
+	if factory != nil {
+		consumer = factory(v.consumer)
+	}
 	modelActor, _ := id.RegisterService(id.ModelRuntime)
 	secretActor, _ := id.RegisterService(id.SecretService)
 	outboundActor, _ := id.RegisterService(id.OutboundService)
-	authority, err := model.NewRuntimeAuthority(raw, model.RuntimeAuthorizations{Consumers: v.consumer, Process: v.guard, ModelRuntime: modelActor, SecretService: secretActor, OutboundService: outboundActor})
+	authority, err := model.NewRuntimeAuthority(raw, model.RuntimeAuthorizations{Consumers: consumer, Process: v.guard, ModelRuntime: modelActor, SecretService: secretActor, OutboundService: outboundActor})
 	requireTextRuntime(t, err)
 	secretFacts, err := secret.NewProjectAuditAuthority(raw)
 	requireTextRuntime(t, err)
 	v.base.projects, err = project.NewAuthority(raw, project.AuthorityDependencies{Sessions: v.base.accounts, Routes: v.base.accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.SecretProducer: secretFacts, ac.AccessProducer: authority}})
 	requireTextRuntime(t, err)
 	v.consumer.projects = v.base.projects
-	v.base.authority, err = model.NewAuthority(raw, model.Authorizations{Sessions: v.base.accounts, System: v.base.accounts, Projects: v.base.projects, Resolution: &model.ResolutionAuthorizations{Consumers: v.consumer, SecretService: secretActor}})
+	v.base.authority, err = model.NewAuthority(raw, model.Authorizations{Sessions: v.base.accounts, System: v.base.accounts, Projects: v.base.projects, Resolution: &model.ResolutionAuthorizations{Consumers: consumer, SecretService: secretActor}})
 	requireTextRuntime(t, err)
 	v.base.aud, err = audit.New(raw, ck, audit.Authorizations{Sessions: v.base.accounts, System: v.base.accounts, Accounts: v.base.accounts, Projects: v.base.projects, Models: v.base.authority})
 	requireTextRuntime(t, err)
@@ -235,7 +246,10 @@ CREATE TABLE model_runtime_fixture.operations(id uuid PRIMARY KEY,project_id uui
 	v.wire = &wireFixture{net: descriptor, policy: policy, actor: v.base.admin, budget: wire.NewBudget(), transport: wire.Transport{Policy: policy, Trust: trust, Resolver: wireResolver{netip.MustParseAddr(descriptor.PrivateIP)}}}
 	v.wire.adapter = v.wire.newAdapter(t, v.wire.budget)
 	v.reader = &textRuntimeReadTap{CredentialUsageReader: v.base.secrets}
-	v.core, err = model.NewRuntime(raw, authority, model.RuntimeDependencies{Usage: v.ledger, SecretReader: v.reader, SecretUsage: v.base.secrets, Adapter: v.wire.adapter})
+	if runtimeFactory == nil {
+		runtimeFactory = model.NewRuntime
+	}
+	v.core, err = runtimeFactory(raw, authority, model.RuntimeDependencies{Usage: v.ledger, SecretReader: v.reader, SecretUsage: v.base.secrets, Adapter: v.wire.adapter})
 	requireTextRuntime(t, err)
 	requireTextRuntime(t, v.core.Initialize(testContext(t)))
 	return v

@@ -32,7 +32,7 @@ func (c *runtimeCall) confirmMutation(ctx context.Context, m *runtimeMutation) e
 			return err
 		}
 		matched = runtimeSameRecord(actual, m.desired)
-		absent = m.action == uc.ReserveAction && actual == nil || m.action != uc.ReserveAction && runtimeSameRecord(actual, c.copyRecord())
+		absent = m.action == uc.ReserveAction && m.desired.value.AttemptIndex == 1 && actual == nil || (m.action != uc.ReserveAction || m.desired.value.AttemptIndex > 1) && runtimeSameRecord(actual, c.copyRecord())
 		if !matched && !absent {
 			return fault(f.ResourceBusy)
 		}
@@ -51,7 +51,7 @@ func (c *runtimeCall) confirmMutation(ctx context.Context, m *runtimeMutation) e
 		return unknown
 	}
 	request := m.request.Clone()
-	actor, err := c.technicalActor()
+	actor, err := c.technicalActorFor(m.desired.value.ID)
 	if err != nil {
 		return unknown
 	}
