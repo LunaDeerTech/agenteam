@@ -134,13 +134,22 @@ func cleanupWorkJoined(ctx context.Context, x postgres.SQLExecutor, project id.P
 	if err := x.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_skill.work WHERE project_id=$1 AND phase<>'joined')`, project.String()).Scan(&joined); err != nil {
 		return false, unavailable(err)
 	}
-	return joined, nil
+	if !joined {
+		return false, nil
+	}
+	// Both enabled and empty initial sets retain Agent-owned lifetime facts.
+	// Until their real retirement provider exists, block before gate creation,
+	// Object release or physical payload deletion, not at a late FK failure.
+	return agentAssignmentsEmpty(ctx, x, project)
 }
 
 func cleanupAllEmpty(ctx context.Context, x postgres.SQLExecutor, project id.ProjectID) (bool, error) {
 	var empty bool
 	err := x.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_skill.initializations WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.skills WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.revisions WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.cleanup WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.work WHERE project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_skill.object_attempts WHERE project_id=$1)`, project.String()).Scan(&empty)
-	return empty, portError(err)
+	if err != nil || !empty {
+		return empty, portError(err)
+	}
+	return agentAssignmentsEmpty(ctx, x, project)
 }
 
 func insertCleanupGate(ctx context.Context, x postgres.SQLExecutor, r initializationRow, c cleanupRow) error {
