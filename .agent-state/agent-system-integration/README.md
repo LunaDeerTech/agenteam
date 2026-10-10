@@ -167,3 +167,33 @@ with os.fdopen(fd,'w') as out: json.dump(plan,out,indent=2,sort_keys=True); out.
 print('native inputs frozen',len(inputs),'compile inputs preserved',len(before))
 PY
 ```
+
+## Scheduler retry policy 绑定与真实临时拒绝
+
+SOURCE `6d0a6a5c`，本批 pure01 的 15 top race＋5 pkg vet、compile01/list、native01 均 wholePASS。真实 PG `TestSchedulerRetryBinding` 恰 1 top/2 sub（41.10s）：显式配置→Claim-time policy bytes/digest，同 key 换配置重放仍保原 policy；真实 AgentSH holder 使 final AgentEX 产生 PostgreSQL 55P03，原物理 NotCommitted 后返回绑定原请求的 temporary proof，保持 pending/known_not_created、零 Execution/slot；旧 NULL policy 不回填。未接 RetryDue、next_retry writer、自动重发或耗尽处置。
+
+native01 于 2026-10-10 20:05:04–20:07:11 UTC 结束；Go 115332、driver 113656、supervisor 113655、outer 113589 均原 Wait0，七资源 14 次 absent、private/runtime/desc/HOST_TCP 及外层全部双尾关闭，adopted=[]。1,478 输入首尾一致（含全部 768 compile 输入），hash `1e05cbc3b5f75723c19c12bdaaa1a7d92d2b12c72c00df541ec8267bbc477430`。窗口已归还，无在途 Go/资源；原旧 FAIL 不改。
+
+原件：`output/ai/scheduler-retry-binding/combined-pure-01/result.json`、`output/ai/agent-system-integration/scheduler-retry-binding-compile-01/result.json`、`output/ai/agent-system-integration/scheduler-retry-binding-01-control/result.json`；原日志 `/tmp/srb01/pg-b76f134d09ff4a95a3c56b35ea31a9a3.log`。候选 `scheduler-retry-binding-race-01.test` 为 59,518,544 B / SHA256 `a4d40d71ca2d23f2e174102d531d742a1aa112d5caf18a8ecbe7cea23124378b`，原输入与三个 ignored runner 同目录保留。
+
+跨设备恢复沿上一节已保存 recipe（可用 `git show 6d0a6a5c:.agent-state/agent-system-integration/README.md` 取不可变版本），仍从 `148640b8` pure 与 `73387883` compile/native 原源重建，仅代入以下本批常量；不覆盖任何已有运行目录：
+
+- SOURCE=`6d0a6a5c`；namespace `task-unblock`→`scheduler-retry-binding`，纯结果目录 `output/ai/scheduler-retry-binding/combined-pure-01`，候选 `scheduler-retry-binding-race-01.test`，私有 root `/tmp/srb01`。
+- selector=`^TestSchedulerRetryBinding$`；两个 sub 为 `config-bound-claim-and-real-lock-timeout`、`legacy-null-policy-stays-unbound`。compile list 用 `len(listed)==1` 且精确集合 `{'TestSchedulerRetryBinding'}`，保原 `exact_one_top` 名；native input 冻结要求本批 compile `result=='PASS'`，不使用上一批顺序 FAIL 的特例。
+- pure `TOPS` 用下列精确 15 名，`exact_26_top_pass` 改为 `exact_15_top_pass`；vet 仅 `config`、`execution`、`execution/contract`、`execution/internal/launchtemporary`、`scheduler` 五包。原正常环境、5GiB 同进程门、预算、Wait、所有资源双尾及 input 首尾一致门不变。
+
+```python
+TOPS = {
+ 'config': ['TestSchedulerRetryConfigurationAbsentOrExplicit', 'TestSchedulerRetryConfigurationRejectsPartialAndInvalid', 'TestSchedulerRetryConfigurationSnapshotAndValidation', 'TestDefaultsAndImmutableConfig', 'TestLoadNeverReadsIgnoredValues'],
+ 'execution': ['TestLaunchTemporaryRejectionBindingAndSafeProjection', 'TestLaunchTemporaryRejectionRequiresOriginalPhysicalProof', 'TestLaunchTemporaryRejectionDoesNotClassifyOtherPhases', 'TestExecutionLaunchOriginalIdentityReplayAndSlot', 'TestExecutionUnknownLookupDoesNotRepeatLaunch'],
+ 'scheduler': ['TestSchedulerRetryBindingStrictStoredIdentity', 'TestSchedulerRetryBindingInsertPreservesExplicitAndLegacyPair', 'TestSchedulerRetryBindingConstructorAndStoredReplay', 'TestSchedulerRetryBindingUnknownRetainsOriginalObservedPolicy', 'TestSchedulerLaunchRetryPolicyIdentityIsStableAndImmutable'],
+}
+```
+
+仅在分配的资源窗口内顺序执行，compile/list 全部原尾通过后，先按上一节原步骤冻结一次本批 `scheduler-retry-binding-01-inputs.json`，再启动 native：
+
+```sh
+python3 -B output/ai/agent-system-integration/scheduler-retry-binding-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build
+python3 -B output/ai/agent-system-integration/scheduler-retry-binding-compile-01-launcher.py
+python3 -B output/ai/agent-system-integration/scheduler-retry-binding-launcher-01.py
+```
