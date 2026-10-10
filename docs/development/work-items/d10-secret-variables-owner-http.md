@@ -1,6 +1,6 @@
 # D10 Secret Variables Owner HTTP
 
-状态：方案已获 Skills HTTP 有限只读审接受并由 root 授权实施；首片段四产品/四 pure 测试已准备，基础 pure/Schema 按限定版本组合通过，代码独审与真实 HTTP 组合仍待。树 `ai/secret-owner-http` 以已接受的 Owner 库 `f9cc11c6` 为输入；正式连续 00028–30/core 由 coordination 组装，默认 root/Account 装配由 root 指定的统一写者负责。
+状态：方案已获 Skills HTTP 有限只读审接受并由 root 授权实施；首片段四产品/四 pure 测试已准备，基础 pure/Schema 按限定版本组合通过，八技术源已获独立有限静审接受；真实 HTTP 组合仍待。树 `ai/secret-owner-http` 以已接受的 Owner 库 `f9cc11c6` 为输入；正式连续 00028–30/core 由 coordination 组装，默认 root/Account 装配由 root 指定的统一写者负责。
 
 ## 1. 已定契约与最小结果
 
@@ -72,4 +72,10 @@ ordinary HTTP、Account.HTTPBoundary、公共 httpapi、Secret/Project/Account �
 - pure02 整体 FAIL：11 top 中10 top通过，包含24个实际 Secret Schema向量；唯路由测试查了中间件克隆前的外部 Request。仅将该观察改为实际 boundary Request，产品未改；原 FAIL保留。
 - pure03 原路由与新增日志反例两 top race实际通过。结合未变的10 top，基础12 top/9直接子覆盖正常 CRUD/identity-only Lookup、严格拒绝/字节边界、safe receipt/whole-page/HEAD、owned material销毁、原调用/取消callback实际join和实际middleware安全日志。样例端口只证明 HTTP，不证明真实 Session/SQL。
 - 相邻 ordinary HTTP 9 top/8直接子 race实际通过，26个原 Schema向量通过；ordinary源码和共用IO未改。这些是进程内controls，名称含 NativeCapability 的用例也没有socket，不能代native证明。
-- 实际命令与终态见本树[检查点](../../../.agent-state/current.md)。Skills HTTP正在实际diff有限独审；真实 Cookie/CSRF、认证后撤销Session、PG/native与默认root均未验。原 Owner 库30节点与定向独验继续按未变范围复用。
+- 实际命令与终态见本树[检查点](../../../.agent-state/current.md)。Skills HTTP对基础八技术源实际diff有限静审接受，无产品must-fix；真实 Cookie/CSRF、认证后撤销Session、PG/native与默认root均未验。原 Owner 库30节点与定向独验继续按未变范围复用。
+
+## 8. 定向真实方法候选（未执行）
+
+- 新增 `tests/projectvariable/secret_http_fixture_test.go` 与 `secret_http_test.go`，精确 `^TestSecretVariableHTTPBoundary$` 一 top 两直接子。复用真实 Account/Project/D04/Owner fixture：真实 Cookie/CSRF CRUD、GET/HEAD/List、安全历史与同材料显式覆盖；独立子在认证后 Body.Read barrier 调正式 Logout，create/历史 Lookup 均须原领域 Tx 拒绝、清 Cookie、Secret 事实不变。现 fixture 的 Skills 初始化仍为已披露受控能力，HTTP recorder 不证明 native。
+- 新增 `secret_native_test.go`，精确 `^TestSecretHTTPNativeTransport$` 一 top 两直接子，总两 loopback listener。第一子顺序覆盖真实 2s read/Lookup、30s mutation、更早父期限及同连接跨期限复用；第二子真实响应 backpressure，随后断开正在调用的材料写入，核实际 call join 后 Destroy/abort。控制端口不冒真实授权；两 listener/连接/handler 沿原 native helper 实际 join。需独立 native gate 和 root 新窗口，禁止普通离线运行开启。
+- 三测试源已准备并停写，离线编译/精确发现及方法审尚待；没有 PG/native 动态 PASS。产品四路径与公共/共享 IO、harness、默认 root 保持不变。
