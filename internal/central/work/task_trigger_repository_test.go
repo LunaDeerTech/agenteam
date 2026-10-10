@@ -55,10 +55,10 @@ func taskTriggerEventRow(t *testing.T, raw []byte, blocker bool) taskTriggerRow 
 	}
 	if blocker {
 		operation := b.OperationID.String()
-		return taskTriggerRow{b.ID.String(), b.ProjectID.String(), b.TaskID.String(), b.TaskVersion, string(b.Type), []byte(fields["actor"]), (*string)(nil), &operation, b.CorrelationID.String(), []byte(fields["payload"]), b.CreatedAt.Time()}
+		return taskTriggerRow{b.ID.String(), b.ProjectID.String(), b.TaskID.String(), b.TaskVersion, string(b.Type), []byte(fields["actor"]), (*string)(nil), &operation, (*string)(nil), b.CorrelationID.String(), []byte(fields["payload"]), b.CreatedAt.Time()}
 	}
 	operation := e.OperationID.String()
-	return taskTriggerRow{e.ID.String(), e.ProjectID.String(), e.TaskID.String(), e.TaskVersion, string(e.Type), []byte(fields["actor"]), &operation, (*string)(nil), e.CorrelationID.String(), []byte(fields["payload"]), e.CreatedAt.Time()}
+	return taskTriggerRow{e.ID.String(), e.ProjectID.String(), e.TaskID.String(), e.TaskVersion, string(e.Type), []byte(fields["actor"]), &operation, (*string)(nil), (*string)(nil), e.CorrelationID.String(), []byte(fields["payload"]), e.CreatedAt.Time()}
 }
 func TestTaskTriggerEventStorageArms(t *testing.T) {
 	task, _, _ := pureTaskRecord(t)

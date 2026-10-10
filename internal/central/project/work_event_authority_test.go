@@ -56,7 +56,7 @@ func TestTaskBlockerProjectGateBothStagesAndExactTriple(t *testing.T) {
 	x.sessionErr = fault(f.SessionRevoked)
 	hasCode(t, x.a.ValidateInTx(context.Background(), x.store.tx, request, deps), f.SessionRevoked)
 	x.sessionErr = nil
-	for _, kind := range []event.StableName{"work.task_transitioned", "work.task_blocker_changed"} {
+	for _, kind := range []event.StableName{"work.task_transitions_changed", "work.task_blocker_changed"} {
 		d := request.Details()
 		d.Event.Header.EventType = kind
 		r, e := oc.NewProjectRequest(d)
@@ -79,4 +79,45 @@ func TestTaskBlockerProjectGateBothStagesAndExactTriple(t *testing.T) {
 		t.Fatal("Service admitted")
 	}
 	hasCode(t, x.a.ValidateInTx(context.Background(), f.NewTx(), request, deps), f.DependencyUnavailable)
+}
+
+func TestTaskTransitionProjectGateBothStages(t *testing.T) {
+	x := newAuditGateFixture(t, nil)
+	d := blockerProjectRequest(t, x).Details()
+	d.Event.Header.EventType = "work.task_transitioned"
+	request, err := oc.NewProjectRequest(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	deps, err := x.a.Discover(context.Background(), request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, stage := range []oc.Stage{oc.CurrentAccess, oc.NewFact} {
+		d.Stage = stage
+		r, err := oc.NewProjectRequest(d)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = x.a.ValidateInTx(context.Background(), x.store.tx, r, deps); err != nil {
+			t.Fatal(err)
+		}
+	}
+	x.lifecycle = c.Archived
+	d.Stage = oc.NewFact
+	r, err := oc.NewProjectRequest(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	hasCode(t, x.a.ValidateInTx(context.Background(), x.store.tx, r, deps), f.ProjectNotActive)
+	d.Stage = oc.CurrentAccess
+	r, err = oc.NewProjectRequest(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = x.a.ValidateInTx(context.Background(), x.store.tx, r, deps); err != nil {
+		t.Fatal(err)
+	}
+	x.sessionErr = fault(f.SessionRevoked)
+	hasCode(t, x.a.ValidateInTx(context.Background(), x.store.tx, r, deps), f.SessionRevoked)
 }

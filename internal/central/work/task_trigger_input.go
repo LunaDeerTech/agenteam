@@ -167,7 +167,7 @@ type taskTriggerEventIdentity struct {
 }
 
 func decodeTaskTriggerEvent(raw []byte) (taskTriggerEventIdentity, error) {
-	fields, err := taskPrivateObject(raw, c.MaxTaskEventBytes, []string{"id", "project_id", "task_id", "task_version", "type", "actor", "operation_id", "correlation_id", "payload", "created_at"}, nil)
+	fields, err := taskPrivateObject(raw, c.MaxTaskTransitionCommentEventBytes, []string{"id", "project_id", "task_id", "task_version", "type", "actor", "operation_id", "correlation_id", "payload", "created_at"}, nil)
 	if err != nil {
 		return taskTriggerEventIdentity{}, fault(f.InvalidArgument)
 	}
@@ -188,9 +188,14 @@ func decodeTaskTriggerEvent(raw []byte) (taskTriggerEventIdentity, error) {
 			return taskTriggerEventIdentity{}, fault(f.InvalidArgument)
 		}
 		return taskTriggerEventIdentity{e.ID.String(), e.ProjectID, e.TaskID, e.TaskVersion, e.CreatedAt}, nil
+	case string(c.TaskTransitionStateChanged), string(c.TaskTransitionAssigneeChanged), string(c.TaskTransitionComment):
+		var e c.TaskTransitionEvent
+		if e.UnmarshalJSON(raw) != nil {
+			return taskTriggerEventIdentity{}, fault(f.InvalidArgument)
+		}
+		return taskTriggerEventIdentity{e.ID.String(), e.ProjectID, e.TaskID, e.TaskVersion, e.CreatedAt}, nil
 	default:
-		// Future transition history needs its real writer/storage contract before
-		// it can be read here; an unknown event is not silently dropped.
+		// Unknown history is never silently omitted.
 		return taskTriggerEventIdentity{}, fault(f.SchemaUnsupported)
 	}
 }
