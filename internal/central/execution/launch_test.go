@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -33,6 +34,7 @@ type launchControl struct {
 	config                             ac.AgentConfig
 	revoked, stale, wrongAgent         bool
 	discoveries, validations, captures int
+	discoverErr                        error
 }
 type launchStore struct {
 	Store
@@ -201,6 +203,9 @@ func (p *controlledLaunchPlan) RequiredLocks() []f.LockRequest {
 }
 func (x *launchControl) DiscoverLaunch(_ context.Context, actor i.Actor, request c.LaunchRequest) (c.LaunchPlan, error) {
 	x.discoveries++
+	if x.discoverErr != nil {
+		return nil, x.discoverErr
+	}
 	if !actor.Equal(x.actor) {
 		return nil, fault(f.Forbidden)
 	}
@@ -328,6 +333,17 @@ func TestExecutionLaunchRejectsMissingAndStaleOwners(t *testing.T) {
 				t.Fatal("rejection retained launch or slot")
 			}
 		})
+	}
+	for _, sentinel := range []error{context.Canceled, context.DeadlineExceeded} {
+		x := newLaunchControl(t)
+		x.discoverErr = fmt.Errorf("execution-private-material-canary: %w", sentinel)
+		got, err := x.service.Launch(context.Background(), x.actor, x.request)
+		if err != sentinel || !errors.Is(err, sentinel) || strings.Contains(fmt.Sprintf("%+v", err), "execution-private-material-canary") {
+			t.Fatal("wrapped upstream cancellation leaked text or lost its identity")
+		}
+		if got.Execution.ID.Validate() == nil || x.discoveries != 1 || x.validations != 0 || x.captures != 0 || x.store.writes != 0 || len(x.store.rows) != 0 {
+			t.Fatal("cancelled discovery produced identity or continued authorization")
+		}
 	}
 }
 func TestExecutionUnknownLookupDoesNotRepeatLaunch(t *testing.T) {

@@ -49,7 +49,13 @@ func unavailable(err error) error {
 }
 func portError(err error) error {
 	var known *f.Fault
-	if err == nil || errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || errors.As(err, &known) {
+	if errors.Is(err, context.Canceled) {
+		return context.Canceled
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return context.DeadlineExceeded
+	}
+	if err == nil || errors.As(err, &known) {
 		return err
 	}
 	return unavailable(err)
