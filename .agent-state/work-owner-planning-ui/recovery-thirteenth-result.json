@@ -1,0 +1,153 @@
+{
+  "status": "whole-PASS",
+  "scope": "author OriginalRecovery only; other author cases and independent validation remain separate",
+  "input_checkpoint": "903a6622",
+  "selector": "^TestAccountProjectWorkPlanningWebOriginalRecovery$",
+  "session": 85269,
+  "start_utc": "2026-10-10T05:02:22.299167+00:00",
+  "launch": {
+    "outer_pid": 234467,
+    "first_available_bytes": 10803499008,
+    "exec_available_bytes": 10803478528,
+    "minimum_bytes": 5368709120,
+    "daemon_version": "28.4.0",
+    "docker_config_new_empty": true,
+    "prior_owned_absent_observations": 2,
+    "private_xdg_telemetry_off": true,
+    "telemetry_overrides_removed": [
+      "TEST_TELEMETRY_DIR",
+      "GO_TELEMETRY_CHILD",
+      "GO_TELEMETRY_CHILD_UPLOAD"
+    ],
+    "input_count": 677,
+    "input_sha256": "7561932912c61a2676e6c07bb91d354e3f4c5fb34f488d9746a3be1b0741a3a2",
+    "binary_sha256": "a272a4bd0e60a8a4ecd882b39c19970a4e9d72f0ba63309eda7c15e56ff67f5d"
+  },
+  "business": {
+    "playwright_tests_passed": 1,
+    "playwright_seconds": 18.2,
+    "go_top_passed": true,
+    "go_seconds": 29.76,
+    "go_recovery_postconditions_reached": true,
+    "strict_outbox_postcondition": {
+      "response": "response-026.json",
+      "status": 500,
+      "code": "INTERNAL_ERROR",
+      "commit_state": "not_committed"
+    },
+    "body_validation": {
+      "original_bodies": 70,
+      "browser_complete": 67,
+      "original_native_complete_with_pw_failed": 4,
+      "expected_incomplete": 3,
+      "owned_unforwarded_truncations": 1,
+      "failed_without_headers": 0,
+      "all_schema_client_validated": true
+    },
+    "schema_validation": {
+      "status": 0,
+      "signal": null,
+      "stdout": "86\n",
+      "stderr": "",
+      "failed_to_run": false
+    }
+  },
+  "tail": {
+    "go_actual_wait": {
+      "pid": 236610,
+      "code": 0
+    },
+    "driver_actual_wait": {
+      "pid": 234678,
+      "code": 0
+    },
+    "adopted_actual_waits": [
+      {
+        "pid": 236863,
+        "status": 0
+      },
+      {
+        "pid": 236867,
+        "status": 0
+      },
+      {
+        "pid": 236865,
+        "status": 0
+      },
+      {
+        "pid": 236868,
+        "status": 0
+      }
+    ],
+    "node_actual_wait": true,
+    "proxy_and_body_handlers_joined": true,
+    "preparation_joined": true,
+    "default_root_joined": true,
+    "resources": [
+      {
+        "kind": "container",
+        "id": "6ab098630a5c5ba9177d3d8092261f3e7945298350e5533595b6fcc12e5871cd",
+        "label": "agenteam.d05.objectfixture",
+        "nonce": "017bce95d41d5bc4a20252eb376e6717",
+        "absent_observations": 2
+      },
+      {
+        "kind": "network",
+        "id": "28238edf53b06432cba6d5a3ba095fa8b67354acafffb6d406050c257fc54ce6",
+        "label": "agenteam.d05.objectfixture",
+        "nonce": "017bce95d41d5bc4a20252eb376e6717",
+        "absent_observations": 2
+      },
+      {
+        "kind": "container",
+        "id": "c421cc3df4ab1aa82378b2ffd8ee7dc046e9f0ff506af62f76458a4ac7e1f8fb",
+        "label": "agenteam.d04.networkfixture",
+        "nonce": "35cd1fa0971920861f26bb91886e7e3a",
+        "absent_observations": 2
+      },
+      {
+        "kind": "network",
+        "id": "1d521351678eaa66a1264698b14a581482af8e7665ab60ba183cee30ddf1ff57",
+        "label": "agenteam.d04.networkfixture",
+        "nonce": "35cd1fa0971920861f26bb91886e7e3a",
+        "absent_observations": 2
+      },
+      {
+        "kind": "container",
+        "id": "afc63677c6996b7ca10eb1a27b73dc36024e26bfc44337054e3b3fa0e506df77",
+        "label": "agenteam.d03.fixture",
+        "nonce": "50dfc08ecccc80cfc139140c7b462996",
+        "absent_observations": 2
+      },
+      {
+        "kind": "container",
+        "id": "53bc885d291d87705e9cb49587022b58910656e64c3597b5a024779fddbed6d7",
+        "label": "agenteam.d03.fixture",
+        "nonce": "50dfc08ecccc80cfc139140c7b462996",
+        "absent_observations": 2
+      },
+      {
+        "kind": "network",
+        "id": "f21d44fe2f1d9375d4739d38dddcf1d84878857dc93e3dd2b678e7c8c3a273af",
+        "label": "agenteam.d03.fixture",
+        "nonce": "50dfc08ecccc80cfc139140c7b462996",
+        "absent_observations": 2
+      }
+    ],
+    "private_directory_count": 3,
+    "private_absent_observations": 2,
+    "runtime_empty_observations": 2,
+    "descendant_empty_observations": 2,
+    "host_tcp_empty_observations": 2,
+    "exact_top": true,
+    "inputs_unchanged": true,
+    "stop_count": 0,
+    "outer_actual_exit": 0,
+    "outer_terminal_chunk": "301b90",
+    "outer_seconds": 120.494,
+    "window_released": true
+  },
+  "original_log": "/tmp/wui-o13/ui-0a55c72c5bc64299.log",
+  "original_evidence": "output/ai/work-owner-planning-ui/recovery-13-evidence/TestAccountProjectWorkPlanningWebOriginalRecovery",
+  "history": "R08 missing original outer tail and R09-R12 whole failures remain unchanged; no automatic retry"
+}

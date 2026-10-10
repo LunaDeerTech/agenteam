@@ -341,3 +341,5 @@ Recovery13 五技术路径相对53a77ce5离线窄候选已冻结交cleanup实际
 cleanup随后完成53a77ce5五技术实际diff独立窄审并有限接受，无确认must-fix；复用139/143/TS与精确list实际0，未运行控制/浏览器，不升级R12或宣R13动态通过。七路径全停写待root保存和明确授窗。
 
 Recovery13（903a6622）作者原Recovery整轮PASS：session85269，PW1 passed/18.2秒、Go29.76秒，三域恢复/归档/历史与原请求重放/三个Project完整消费联合、schema86及typed原body70、complete与Go持久/续写/唯一事实后验均实际通过；response-026实为严格500/INTERNAL_ERROR/not_committed，修后断言首次动态到达并PASS。outer234467原301b90 actual0/120.494秒；Go236610/driver234678及四Z实际Wait0、Node/proxy/body/preparation/root joins、七资源/三private/runtime/desc/TCP双尾、677输入不变全齐，唯一窗口已释放。原log /tmp/wui-o13/ui-0a55c72c5bc64299.log 与recovery-13-evidence保持原件，仅关闭作者Recovery门；R08缺尾和R09–R12 FAIL不改，不代表planning/blockers/layouts/read/identity或独验已通过。current/卡两路径停写供root保存；下一规划首次reorder接缝尚仅方案审接受，未改技术或自动运行。
+
+R13最小安全结果原件 `.agent-state/work-owner-planning-ui/recovery-thirteenth-result.json` 已保存，只含原预飞/源绑定/业务终态/严格Fault三字段及实际Wait和七资源双尾安全投影；与current、卡三路径全冻结供root保存。
