@@ -19,9 +19,15 @@ type skillWorkID = f.ID[skillWork]
 type workKind string
 
 const (
-	initializationWork workKind = "initialization"
-	packageReaderWork  workKind = "package_reader"
+	initializationWork         workKind = "initialization"
+	packageReaderWork          workKind = "package_reader"
+	installationWork           workKind = "installation"
+	installedPackageReaderWork workKind = "installed_package_reader"
 )
+
+func installedWork(kind workKind) bool {
+	return kind == installationWork || kind == installedPackageReaderWork
+}
 
 type workPhase string
 
@@ -44,7 +50,7 @@ type workFact struct {
 }
 
 func (w workFact) validate() error {
-	if w.id.Validate() != nil || w.project.Validate() != nil || w.skill.Validate() != nil || w.process.Validate() != nil || w.fence.Validate() != nil || w.created.Validate() != nil || (w.kind != initializationWork && w.kind != packageReaderWork) {
+	if w.id.Validate() != nil || w.project.Validate() != nil || w.skill.Validate() != nil || w.process.Validate() != nil || w.fence.Validate() != nil || w.created.Validate() != nil || (w.kind != initializationWork && w.kind != packageReaderWork && !installedWork(w.kind)) {
 		return unavailable(nil)
 	}
 	switch w.phase {

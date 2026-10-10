@@ -116,6 +116,9 @@ func (a *Authority) discoverMaintenance(ctx context.Context, request oc.AccessRe
 	}
 	m, e := loadMaintenanceMapping(ctx, a.state().store, request)
 	if e != nil {
+		if unboundInitializationMapping(e) {
+			return a.discoverInstallationMaintenance(ctx, request)
+		}
 		return oc.AccessDependencies{}, e
 	}
 	return m.dependencies()
@@ -130,6 +133,9 @@ func (a *Authority) validateMaintenance(ctx context.Context, tx f.Tx, request oc
 	}
 	m, e := loadMaintenanceMapping(ctx, x, request)
 	if e != nil {
+		if unboundInitializationMapping(e) {
+			return a.validateInstallationMaintenance(ctx, tx, request, expected)
+		}
 		return e
 	}
 	current, e := m.dependencies()

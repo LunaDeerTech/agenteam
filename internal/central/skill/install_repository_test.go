@@ -142,3 +142,82 @@ func TestInstallationUnknownCommitExposesNoPhysicalPlan(t *testing.T) {
 		t.Fatal("original physical transaction identity lost")
 	}
 }
+
+func TestInstallationObjectAccessRetainsOriginalPackageAndAttempt(t *testing.T) {
+	row := installRepositoryRow(t)
+	actor, err := id.NewHuman(row.user, stateID[id.Session](514))
+	if err != nil {
+		t.Fatal(err)
+	}
+	owner, err := row.owner()
+	if err != nil {
+		t.Fatal(err)
+	}
+	prepared, err := oc.NewPreparedPayload(oc.PreparedDetails{ID: stateID[oc.Payload](515), MediaType: sc.PackageMediaType, Length: int64(row.pkg.size), SHA256: row.pkg.packageDigest})
+	if err != nil {
+		t.Fatal(err)
+	}
+	command := f.CommandMeta{RequestID: stateID[f.Request](516), IdempotencyKey: row.key}
+	reserve, err := oc.NewOwnerAccess(oc.AccessRequestDetails{Operation: oc.ReserveAccess, Actor: actor, Owner: owner, Intent: id.Mutate, Prepared: prepared, Command: &command})
+	if err != nil || installationAccess(row, reserve) != nil {
+		t.Fatal("strict original reservation shape rejected", err)
+	}
+	changed := command
+	changed.IdempotencyKey = "different-original-key"
+	wrong, err := oc.NewOwnerAccess(oc.AccessRequestDetails{Operation: oc.ReserveAccess, Actor: actor, Owner: owner, Intent: id.Mutate, Prepared: prepared, Command: &changed})
+	if err != nil || installationAccess(row, wrong) == nil {
+		t.Fatal("a different original key acquired the reservation", err)
+	}
+	row.phase = installationReserved
+	row.object, row.upload, row.attempt = stateID[oc.StoredObject](517), stateID[oc.Upload](518), stateID[oc.Attempt](519)
+	if installationAccess(row, reserve) == nil {
+		t.Fatal("a reserved command silently restarted preparation/reservation")
+	}
+	attempt, err := oc.NewUploadAttempt(oc.AttemptDetails{ID: row.attempt, ObjectID: row.object, UploadID: row.upload})
+	if err != nil {
+		t.Fatal(err)
+	}
+	publish, err := oc.NewOwnerAccess(oc.AccessRequestDetails{Operation: oc.PublishAccess, Actor: actor, Owner: owner, Intent: id.Mutate, Attempt: attempt})
+	if err != nil || installationAccess(row, publish) != nil {
+		t.Fatal("exact current attempt rejected", err)
+	}
+	row.attempt = stateID[oc.Attempt](520)
+	if installationAccess(row, publish) == nil {
+		t.Fatal("historical attempt became current publication")
+	}
+}
+
+func TestInstallationAdmissionCancellationDoesNotRetireOwnedWork(t *testing.T) {
+	s := testSkillService(t)
+	row := installRepositoryRow(t)
+	call, err := s.beginProjectWork(context.Background(), row.project, installationWork)
+	if err != nil {
+		t.Fatal(err)
+	}
+	work, err := s.newInstallationOwnedWork(row, installationWork, call)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !stoppedKind(pc.Archive, installationWork) || !stoppedKind(pc.Delete, installationWork) || stoppedKind(pc.Archive, installedPackageReaderWork) || !stoppedKind(pc.Delete, installedPackageReaderWork) {
+		t.Fatal("installation/read stop policy escaped the original action")
+	}
+	s.Stop()
+	if call.ctx.Err() != context.Canceled || work.returned || s.Joined() {
+		t.Fatal("cancel was treated as return or join")
+	}
+	expired, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err = s.Drain(expired); !errors.Is(err, context.Canceled) {
+		t.Fatal("drain deadline must retain original unfinished owner", err)
+	}
+	s.end(call)
+	if s.Joined() {
+		t.Fatal("caller end discarded still-owned registration")
+	}
+	// No registration transaction ran in this test. A known refusal can remove
+	// that local pre-registration owner; Unknown must remain for actual join.
+	s.registrationFailed(work, f.NewFault(f.Forbidden, f.NotStarted))
+	if !s.Joined() {
+		t.Fatal("known unregistered owner did not retire")
+	}
+}

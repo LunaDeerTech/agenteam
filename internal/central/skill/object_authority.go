@@ -146,6 +146,9 @@ func (a *Authority) AuthorizeOwnerInTx(ctx context.Context, tx f.Tx, actor id.Ac
 	}
 	row, e := ownerInitialization(ctx, x, owner)
 	if e != nil {
+		if notInitializationOwner(e) {
+			return a.authorizeInstallationInTx(ctx, tx, actor, owner, intent)
+		}
 		return oc.OwnerAuthorization{}, e
 	}
 	if e = a.checkOwnerRow(ctx, tx, actor, *row, intent); e != nil {
@@ -170,6 +173,9 @@ func (a *Authority) AuthorizeOwner(ctx context.Context, actor id.Actor, owner oc
 	}
 	row, e := ownerInitialization(ctx, state.store, owner)
 	if e != nil {
+		if notInitializationOwner(e) {
+			return a.authorizeInstallation(ctx, actor, owner, intent)
+		}
 		return oc.OwnerAuthorization{}, e
 	}
 	locks, e := ownerLocks(*row, actor, intent)
@@ -223,6 +229,18 @@ func (a *Authority) AuthorizeObjectReadInTx(ctx context.Context, tx f.Tx, actor 
 	}
 	row, e := ownerInitialization(ctx, x, owner)
 	if e != nil {
+		if notInitializationOwner(e) {
+			installed, err := ownerInstallation(ctx, x, owner)
+			if err != nil {
+				return oc.OwnerAuthorization{}, err
+			}
+			if installed.phase != installationPublished || installed.object != object {
+				return oc.OwnerAuthorization{}, fault(f.Forbidden)
+			}
+			details := grant.Details()
+			details.ReadObjectID = object
+			return oc.NewOwnerAuthorization(details)
+		}
 		return oc.OwnerAuthorization{}, e
 	}
 	if row.object != object {
@@ -329,6 +347,9 @@ func (a *Authority) Discover(ctx context.Context, request oc.AccessRequest) (oc.
 	}
 	row, e := ownerInitialization(ctx, state.store, d.Owner)
 	if e != nil {
+		if notInitializationOwner(e) {
+			return a.discoverInstallation(ctx, request)
+		}
 		return oc.AccessDependencies{}, e
 	}
 	if e = initializationAccess(*row, request); e != nil {
@@ -363,6 +384,9 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx f.Tx, request oc.Access
 	}
 	row, e := ownerInitialization(ctx, x, d.Owner)
 	if e != nil {
+		if notInitializationOwner(e) {
+			return a.validateInstallation(ctx, tx, request, expected)
+		}
 		return e
 	}
 	if e = a.checkOwnerRow(ctx, tx, d.Actor, *row, d.Intent); e != nil {

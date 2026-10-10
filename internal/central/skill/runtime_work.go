@@ -15,10 +15,77 @@ import (
 // returned is protected by serviceState.mu and means the actual I/O owner has
 // returned, including its Close/Discard tail. A cancelled context never sets it.
 type ownedWork struct {
-	fact     workFact
-	row      initializationRow
-	call     *serviceCall
-	returned bool
+	fact         workFact
+	row          initializationRow
+	installation *installationRow
+	call         *serviceCall
+	returned     bool
+}
+
+func (s *Service) newInstallationOwnedWork(row installationRow, kind workKind, call *serviceCall) (*ownedWork, error) {
+	state := s.state()
+	if state == nil || row.validate() != nil || call == nil || !installedWork(kind) || call.project != row.project || call.kind != kind || call.workID.Validate() != nil {
+		return nil, invalid()
+	}
+	now, err := f.NewInstant(time.Now().UTC().Truncate(time.Microsecond))
+	if err != nil {
+		return nil, unavailable(err)
+	}
+	w := &ownedWork{fact: workFact{id: call.workID, project: row.project, skill: row.skill, process: state.process, kind: kind, phase: workRunning, fence: 1, created: now}, installation: &row, call: call}
+	if err = w.fact.validate(); err != nil {
+		return nil, err
+	}
+	state.mu.Lock()
+	defer state.mu.Unlock()
+	if _, admitted := state.calls[call]; !admitted || state.work[w.fact.id] != nil {
+		return nil, fault(f.InvalidState)
+	}
+	state.work[w.fact.id] = w
+	return w, nil
+}
+
+func (w *ownedWork) parentLocks() ([]f.LockRequest, error) {
+	if installedWork(w.fact.kind) {
+		if w.installation == nil || w.installation.project != w.fact.project || w.installation.skill != w.fact.skill {
+			return nil, unavailable(nil)
+		}
+		return w.installation.locks(f.Exclusive)
+	}
+	if w.installation != nil {
+		return nil, unavailable(nil)
+	}
+	return w.row.locks(f.Exclusive, w.row.object)
+}
+
+func (w *ownedWork) checkpoint() string {
+	if w.installation != nil {
+		return w.installation.key.String()
+	}
+	return string(w.row.request.InitializationKey)
+}
+
+func (w *ownedWork) checkParent(ctx context.Context, x postgres.SQLExecutor) error {
+	if installedWork(w.fact.kind) {
+		if w.installation == nil {
+			return unavailable(nil)
+		}
+		row, err := loadInstallation(ctx, x, w.fact.project, w.installation.key)
+		if err != nil {
+			return err
+		}
+		if row == nil || row.id != w.installation.id || row.project != w.fact.project || row.skill != w.fact.skill || row.revision != w.installation.revision || row.semantic != w.installation.semantic {
+			return unavailable(nil)
+		}
+		return nil
+	}
+	row, err := loadInitialization(ctx, x, w.fact.project)
+	if err != nil {
+		return err
+	}
+	if row == nil || row.request != w.row.request || row.skill != w.fact.skill || row.revision != w.row.revision || row.semantic != w.row.semantic {
+		return unavailable(nil)
+	}
+	return nil
 }
 
 func (s *Service) newOwnedWork(row initializationRow, kind workKind, call *serviceCall) (*ownedWork, error) {
@@ -111,11 +178,11 @@ func (s *Service) retireOwnedWork(ctx context.Context, w *ownedWork) error {
 	if e := ctx.Err(); e != nil {
 		return portError(e)
 	}
-	locks, e := w.row.locks(f.Exclusive, w.row.object)
+	locks, e := w.parentLocks()
 	if e != nil {
 		return e
 	}
-	cause, e := f.NewRecoveryCause("skill-work", w.fact.id.String(), string(w.row.request.InitializationKey))
+	cause, e := f.NewRecoveryCause("skill-work", w.fact.id.String(), w.checkpoint())
 	if e != nil {
 		return e
 	}
@@ -130,12 +197,8 @@ func (s *Service) retireOwnedWork(ctx context.Context, w *ownedWork) error {
 		if e != nil {
 			return portError(e)
 		}
-		row, e := loadInitialization(ctx, x, w.fact.project)
-		if e != nil {
+		if e = w.checkParent(ctx, x); e != nil {
 			return e
-		}
-		if row == nil || row.request != w.row.request || row.skill != w.fact.skill || row.revision != w.row.revision || row.semantic != w.row.semantic {
-			return unavailable(nil)
 		}
 		current, e := loadWork(ctx, x, w.fact.id)
 		if e != nil {

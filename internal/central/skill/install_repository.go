@@ -158,6 +158,9 @@ func loadInstallation(ctx context.Context, x postgres.SQLExecutor, project id.Pr
 func loadInstallationRevision(ctx context.Context, x postgres.SQLExecutor, project id.ProjectID, revision sc.RevisionID) (*installationRow, error) {
 	return scanInstallation(x.QueryRow(ctx, `SELECT `+installationColumns+` FROM agenteam_skill.installations WHERE project_id=$1 AND revision_id=$2`, project.String(), revision.String()))
 }
+func loadInstallationSkill(ctx context.Context, x postgres.SQLExecutor, project id.ProjectID, skill sc.SkillID) (*installationRow, error) {
+	return scanInstallation(x.QueryRow(ctx, `SELECT `+installationColumns+` FROM agenteam_skill.installations WHERE project_id=$1 AND skill_id=$2`, project.String(), skill.String()))
+}
 func scanInstallation(row postgres.Row) (*installationRow, error) {
 	var rid, project, user, key, skill, revision, semantic, pkg, manifestDigest, name, normalized, description, phase, object, upload, attempt, reason string
 	var size, version int64

@@ -87,14 +87,14 @@ func (s *Service) begin(ctx context.Context, initialization bool) (*serviceCall,
 // ID is persisted if work registration succeeds; lifecycle snapshots also see
 // the admitted interval before that transaction has committed.
 func (s *Service) beginProjectWork(ctx context.Context, project id.ProjectID, kind workKind) (*serviceCall, error) {
-	if project.Validate() != nil || kind != initializationWork && kind != packageReaderWork {
+	if project.Validate() != nil || kind != initializationWork && kind != packageReaderWork && !installedWork(kind) {
 		return nil, invalid()
 	}
 	workID, e := f.NewID[skillWork]()
 	if e != nil {
 		return nil, unavailable(e)
 	}
-	return s.admit(ctx, kind == initializationWork, project, workID, kind)
+	return s.admit(ctx, kind == initializationWork || kind == installationWork, project, workID, kind)
 }
 
 func (s *Service) admit(ctx context.Context, initialization bool, project id.ProjectID, workID skillWorkID, kind workKind) (*serviceCall, error) {

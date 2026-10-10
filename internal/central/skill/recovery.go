@@ -86,6 +86,9 @@ func (s *Service) recoverWork(ctx context.Context, workID skillWorkID) (bool, er
 	if w == nil {
 		return false, unavailable(nil)
 	}
+	if installedWork(w.kind) {
+		return s.recoverInstallationWork(ctx, *w)
+	}
 	row, e := loadInitialization(ctx, store, w.project)
 	if e != nil {
 		return false, e
@@ -183,6 +186,95 @@ func (s *Service) recoverWork(ctx context.Context, workID skillWorkID) (bool, er
 		return false, gateErr
 	}
 	if proofErr != nil && !joined {
+		return false, proofErr
+	}
+	if joined && local != nil {
+		s.forgetOwnedWork(local)
+	}
+	return joined, nil
+}
+
+func (s *Service) recoverInstallationWork(ctx context.Context, expected workFact) (bool, error) {
+	state := s.state()
+	store := state.authority.state().store
+	row, err := loadInstallationSkill(ctx, store, expected.project, expected.skill)
+	if err != nil {
+		return false, err
+	}
+	if row == nil || row.project != expected.project || row.skill != expected.skill || !installedWork(expected.kind) {
+		return false, unavailable(nil)
+	}
+	owner := &ownedWork{fact: expected, installation: row}
+	locks, err := owner.parentLocks()
+	if err != nil {
+		return false, err
+	}
+	var local *ownedWork
+	var proofErr error
+	if expected.process == state.process {
+		state.mu.Lock()
+		local = state.work[expected.id]
+		ready := local != nil && local.returned && sameWorkOwner(local.fact, expected)
+		state.mu.Unlock()
+		if !ready {
+			proofErr = fault(f.ResourceBusy)
+		}
+	} else {
+		proofErr = portError(state.processes.ConfirmStopped(ctx, expected.process))
+	}
+	cause, err := f.NewRecoveryCause("skill-work", expected.id.String(), row.key.String())
+	if err != nil {
+		return false, err
+	}
+	joined := false
+	var callbackErr error
+	result := store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) (err error) {
+		defer func() { callbackErr = err }()
+		if err = store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		if err = store.RequireHeldLocks(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		x, err := store.InTx(tx)
+		if err != nil {
+			return portError(err)
+		}
+		if err = owner.checkParent(ctx, x); err != nil {
+			return err
+		}
+		current, err := loadWork(ctx, x, expected.id)
+		if err != nil {
+			return err
+		}
+		if current == nil || !sameWorkOwner(*current, expected) {
+			return fault(f.ResourceBusy)
+		}
+		if current.phase == workJoined {
+			joined = true
+			return nil
+		}
+		if err = advanceRecoveryPass(ctx, x, *current); err != nil {
+			return err
+		}
+		if proofErr != nil {
+			return nil
+		}
+		// Only exact original accounting is retired. This is not a new install,
+		// retry, publication, Object cleanup, or a grant of current User access.
+		if err = joinWork(ctx, x, *current); err != nil {
+			return err
+		}
+		joined = true
+		return nil
+	})
+	if result.State() == f.NotCommitted && callbackErr != nil {
+		return false, callbackErr
+	}
+	if err = commitError(result); err != nil {
+		return false, err
+	}
+	if !joined && proofErr != nil {
 		return false, proofErr
 	}
 	if joined && local != nil {
