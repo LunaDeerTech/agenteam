@@ -50,6 +50,11 @@ func (s *directTextState) callAndFinish(ctx context.Context, run *directTextCall
 		s.retain(run, callErr)
 		return s.receipt(run), run.unresolved
 	}
+	// Model's safe cancellation outcome need not unwrap context.Canceled.
+	// Preserve cancellation from this original run, never from error text.
+	if cancelled := run.ctx.Err(); cancelled != nil && !errors.Is(callErr, cancelled) {
+		callErr = errors.Join(callErr, cancelled)
+	}
 	s.mu.Lock()
 	run.phase = "closing"
 	run.invocation.callError = callErr
@@ -76,6 +81,7 @@ func (s *directTextState) callAndFinish(ctx context.Context, run *directTextCall
 	// startup/Model physical attempt. callError still preserves its cause.
 	run.unresolved = nil
 	run.uncertainty = ""
+	callErr = run.invocation.callError
 	s.mu.Unlock()
 	if callErr == nil && !stableDirectTextResponse(response, run.round.Fields().CallID) {
 		callErr = fault(f.InvalidState)
@@ -107,9 +113,21 @@ func (s *directTextState) drainSession(ctx context.Context, run *directTextCall)
 		return err
 	}
 	if err != nil {
-		return err
+		var outcome *mc.ModelError
+		if directTextUnknown(err) || !errors.As(err, &outcome) || outcome.Validate() != nil {
+			return err
+		}
+		// Close may return the original typed Model outcome after its actual
+		// handle has joined. Retain that outcome without mistaking it for an
+		// unfinished cleanup. Other cleanup errors still require observation.
 	}
 	s.mu.Lock()
+	if err != nil {
+		run.invocation.callError = errors.Join(run.invocation.callError, err)
+	}
+	if cancelled := run.ctx.Err(); cancelled != nil && !errors.Is(run.invocation.callError, cancelled) {
+		run.invocation.callError = errors.Join(run.invocation.callError, cancelled)
+	}
 	run.allJoined = true
 	s.mu.Unlock()
 	return ctx.Err()
