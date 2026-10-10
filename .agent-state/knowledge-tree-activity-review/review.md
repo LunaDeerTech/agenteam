@@ -13,3 +13,9 @@
 作者在002f0824之后冻结两个原Python工具及 `selector-controls.py`。唯一新增 `^TestKnowledgeTreeCommandHTTPUnknown$` 复用原Unknown的三子闭集，保留原四top入口和native入口；新目标仍走原根监督路径及安全日志读取处理。独立 `60e6ab` 运行 `PYTHONDONTWRITEBYTECODE=1 python3 .agent-state/knowledge-tree-http/selector-controls.py --unknown-only`，39控制actual0；RUN/PASS缺漏、重复、FAIL/SKIP、错目标/UTF-8、选择器拒绝与实际main四种明确进程/OS替身均到达，保持原Wait540、reap/desc、七ID十四次观察、TCP双尾及input末验。实际资源全部为替身，没有Go/PG/socket或真实子进程。
 
 同一命令另逐项移除本次新增literal、复用组、expected一行并恢复main原单条件，两Python文件全文逐字等于002f0824；native_driver.go逐字未改。旧三工具逆至7fee的现成控制复用通过，不以整块逆投影代替本次增量检查。Go6m/root540+60+3/TCP75、原输入集合和旧分支均保留。入口有限接受，无确认must-fix；不构成三子真实结果或旧失败返填。
+
+## Mutations＋Unknown 封闭补验入口
+
+固定d504a5ac后冻结的两Python工具与 `selector-controls.py`，仅新增 `^TestKnowledgeTreeCommandHTTP(Mutations|Unknown)$`。复用原Mutations、Unknown三子各自闭集及原expected/main全尾；旧四top、单Unknown、native配置及预算不变。本审不重审Skills负责的精确删除集合/native断言修正，不运行候选或补写原PG01失败。
+
+独立 `d92b65` 实际运行 `PYTHONDONTWRITEBYTECODE=1 python3 .agent-state/knowledge-tree-http/selector-controls.py --recheck-only`：61控制actual0，包括原真实main的四种明确进程/OS替身、日志闭集和坏selector拒绝；没有真实子进程/PG/socket。另只逆去本次新literal/复用组/expected/main条件，两Python全文逐字等于d504a5ac；现成旧三工具逆至7fee控制复用。有限入口接受，无must-fix；不构成2父6子真实行为通过。
