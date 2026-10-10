@@ -42,15 +42,23 @@ func nextDispatch(r *dispatchRecord) (*dispatchRecord, error) {
 	return &v, err
 }
 func sameDispatch(a, b *dispatchRecord) bool {
-	return a != nil && b != nil && a.id == b.id && a.project == b.project && a.agent == b.agent && a.sprint == b.sprint && a.task == b.task && a.digest == b.digest && a.launch.Meta.RequestID == b.launch.Meta.RequestID && a.launch.Meta.IdempotencyKey == b.launch.Meta.IdempotencyKey
+	return a != nil && b != nil && a.id == b.id && a.project == b.project && a.agent == b.agent && a.sprint == b.sprint && a.task == b.task && a.digest == b.digest && a.launch.Meta.RequestID == b.launch.Meta.RequestID && a.launch.Meta.IdempotencyKey == b.launch.Meta.IdempotencyKey && a.retryPolicy == b.retryPolicy
 }
 
 func (s *LaunchHandoff) markSending(ctx context.Context, call *launchCall) (*dispatchRecord, bool, error) {
-	locks, err := handoffLocks(call.project, call.id, "launch_handoff", nil)
+	return s.markAttempt(ctx, call, false)
+}
+
+func (s *LaunchHandoff) markAttempt(ctx context.Context, call *launchCall, retry bool) (*dispatchRecord, bool, error) {
+	name := "launch_handoff"
+	if retry {
+		name = "retry_launch_handoff"
+	}
+	locks, err := handoffLocks(call.project, call.id, name, nil)
 	if err != nil {
 		return nil, false, err
 	}
-	command, _ := handoffCommand(call.project, call.id, "launch_handoff")
+	command, _ := handoffCommand(call.project, call.id, name)
 	cause, _ := f.NewCommandsCause(command)
 	var out *dispatchRecord
 	send := false
@@ -70,12 +78,21 @@ func (s *LaunchHandoff) markSending(ctx context.Context, call *launchCall) (*dis
 			return fault(f.NotFound)
 		}
 		out = r
-		if r.status != Pending || r.outcome != NotSent {
+		if r.status != Pending {
 			return ctx.Err()
 		}
-		// Only the real todo claim is currently bound. Relaunch/review and
-		// subsequent known-rejection retries have no Work writer in this slice.
-		if r.guard == nil || r.launch.Purpose != "task/work" || r.attempts != 0 {
+		if retry {
+			if !retryableTemporary(r) || r.nextRetry.Time().After(time.Now().UTC()) {
+				return ctx.Err()
+			}
+			allowed, err := s.retryProjectInTx(ctx, tx, r, true)
+			if err != nil || !allowed {
+				return err
+			}
+		} else if r.outcome != NotSent {
+			return ctx.Err()
+		}
+		if r.guard == nil || r.launch.Purpose != "task/work" || !retry && r.attempts != 0 || r.attempts == math.MaxInt64 {
 			return fault(f.CapabilityUnsupported)
 		}
 		if err = requirePendingVisitInTx(ctx, tx, s, r, true); err != nil {
@@ -85,7 +102,9 @@ func (s *LaunchHandoff) markSending(ctx context.Context, call *launchCall) (*dis
 		if err != nil {
 			return err
 		}
-		out.outcome, out.attempts, out.nextRetry = Unknown, 1, nil
+		// Preserve the last proven temporary error for diagnostics. Its old
+		// attempt can never authorize this new unknown attempt.
+		out.outcome, out.attempts, out.nextRetry = Unknown, r.attempts+1, nil
 		if err = updateDispatch(ctx, x, out, r.version); err != nil {
 			return err
 		}
@@ -176,6 +195,18 @@ func (s *LaunchHandoff) associate(ctx context.Context, call *launchCall, expecte
 		if r.status != Pending || r.outcome != Unknown || r.version != expected.version {
 			return fault(f.ConfirmationStale)
 		}
+		// A retry-aware driver also protects standalone recovery, including
+		// a new process observing a retry sent by an earlier one. Pausing may
+		// defer association but cannot turn a found Execution into a resend.
+		if s.retryProjects != nil || r.attempts > 1 {
+			allowed, err := s.retryProjectInTx(ctx, tx, r, false)
+			if err != nil {
+				return err
+			}
+			if !allowed {
+				return fault(f.InvalidState)
+			}
+		}
 		if err = requirePendingVisitInTx(ctx, tx, s, r, false); err != nil {
 			return err
 		}
@@ -195,8 +226,11 @@ func (s *LaunchHandoff) associate(ctx context.Context, call *launchCall, expecte
 	return out, nil
 }
 
-func (s *LaunchHandoff) recordRejected(ctx context.Context, call *launchCall, expected *dispatchRecord, busy bool, finalReason wc.TaskLaunchFailureReason) (*dispatchRecord, error) {
+func (s *LaunchHandoff) recordRejected(ctx context.Context, call *launchCall, expected *dispatchRecord, busy bool, finalReason wc.TaskLaunchFailureReason, temporary bool) (*dispatchRecord, error) {
 	if finalReason != "" && (busy || finalReason.Validate() != nil) {
+		return nil, invalid()
+	}
+	if temporary && (busy || finalReason != "") {
 		return nil, invalid()
 	}
 	locks, err := handoffLocks(call.project, call.id, "reject_launch", expected)
@@ -234,6 +268,11 @@ func (s *LaunchHandoff) recordRejected(ctx context.Context, call *launchCall, ex
 			out.failureOccurredAt = cloneInstant(&out.updatedAt)
 			if !pendingFinalFailure(out) {
 				return unavailable(nil)
+			}
+		}
+		if temporary {
+			if err = recordTemporary(out); err != nil {
+				return err
 			}
 		}
 		return updateDispatch(ctx, x, out, r.version)

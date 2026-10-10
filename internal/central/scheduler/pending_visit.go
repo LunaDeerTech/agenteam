@@ -3,6 +3,7 @@ package scheduler
 import (
 	"context"
 	"sync"
+	"time"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -16,6 +17,7 @@ const (
 	PendingVisitLaunch   PendingVisitAction = "launch"
 	PendingVisitBusy     PendingVisitAction = "busy_compensation"
 	PendingVisitFailure  PendingVisitAction = "final_failure"
+	PendingVisitRetry    PendingVisitAction = "retry"
 )
 
 // Action records the attempted path, not successful mutation. On a downstream
@@ -213,8 +215,17 @@ func (s *PendingVisitor) VisitNext(ctx context.Context, p i.ProjectID, after *Di
 	case r.outcome == NotSent && project.Project.CurrentSprintID != nil && project.Project.CurrentSprintID.String() == r.sprint:
 		out.Action = PendingVisitLaunch
 		out.Dispatch, err = s.handoff.LaunchOnce(ctx, p, id)
-		// Other known_not_created remains pending, whether its old retry time
-		// has passed or not. Only the closed typed final marker above settles.
+	case retryableTemporary(r) && s.handoff.retryProjects != nil && !r.nextRetry.Time().After(time.Now().UTC()) && project.Project.CurrentSprintID != nil && project.Project.CurrentSprintID.String() == r.sprint:
+		// A durable checkpoint may resolve the same driver's retained
+		// physical Unknown. Observe it before requesting another send;
+		// RetryDue independently rechecks due/current gates in its own Tx.
+		out.Action = PendingVisitRetry
+		out.Dispatch, err = s.handoff.Lookup(ctx, p, id)
+		if err == nil && out.Dispatch.Summary().Status == Pending {
+			out.Dispatch, err = s.handoff.RetryDue(ctx, p, id)
+		}
+		// Untyped known_not_created remains pending. A legacy retry date or
+		// previous attempt's temporary diagnostic cannot enable this branch.
 	}
 	return out, err
 }

@@ -16,7 +16,7 @@ import (
 
 const dispatchColumns = `id::text,project_id::text,sprint_id::text,task_id::text,agent_id::text,
  launch_request,launch_digest,idempotency_key,request_id::text,status,launch_outcome,version,
- claim_guard,claim_source_sprint_id::text,claim_source_state,claim_source_priority,execution_id::text,attempt_count,next_retry_at,created_at,updated_at,busy_attempt,skip_reason,skipped_at,final_attempt,failure_reason,failure_code,failure_occurred_at,failed_at,retry_policy,retry_policy_digest`
+ claim_guard,claim_source_sprint_id::text,claim_source_state,claim_source_priority,execution_id::text,attempt_count,next_retry_at,created_at,updated_at,busy_attempt,skip_reason,skipped_at,final_attempt,failure_reason,failure_code,failure_occurred_at,failed_at,retry_policy,retry_policy_digest,temporary_attempt,temporary_reason,temporary_code,temporary_occurred_at`
 
 func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	var id, p, s, t, a, key, requestID, status, outcome, digest string
@@ -34,7 +34,10 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	var occurred, failed *time.Time
 	var policyRaw []byte
 	var policyDigest *string
-	if err := row.Scan(&id, &p, &s, &t, &a, &launchRaw, &digest, &key, &requestID, &status, &outcome, &version, &guardRaw, &sourceSprint, &sourceState, &sourcePriority, &execution, &attempts, &retry, &created, &updated, &busy, &reason, &skipped, &finalAttempt, &failureReason, &failureCode, &occurred, &failed, &policyRaw, &policyDigest); err != nil {
+	var temporaryAttempt *int64
+	var temporaryReason, temporaryCode *string
+	var temporaryOccurred *time.Time
+	if err := row.Scan(&id, &p, &s, &t, &a, &launchRaw, &digest, &key, &requestID, &status, &outcome, &version, &guardRaw, &sourceSprint, &sourceState, &sourcePriority, &execution, &attempts, &retry, &created, &updated, &busy, &reason, &skipped, &finalAttempt, &failureReason, &failureCode, &occurred, &failed, &policyRaw, &policyDigest, &temporaryAttempt, &temporaryReason, &temporaryCode, &temporaryOccurred); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
@@ -104,7 +107,7 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	}
 	if retry != nil {
 		v, err := f.NewInstant(*retry)
-		if err != nil || retry.Before(updated) {
+		if err != nil || retry.Before(updated) || retry.Nanosecond()%1000 != 0 {
 			return nil, unavailable(nil)
 		}
 		r.nextRetry = &v
@@ -138,6 +141,21 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 			return nil, unavailable(nil)
 		}
 	}
+	if temporaryAttempt == nil {
+		if temporaryReason != nil || temporaryCode != nil || temporaryOccurred != nil {
+			return nil, unavailable(nil)
+		}
+	} else {
+		if temporaryReason == nil || temporaryCode == nil || temporaryOccurred == nil || temporaryOccurred.IsZero() || temporaryOccurred.Nanosecond()%1000 != 0 {
+			return nil, unavailable(nil)
+		}
+		r.temporaryAttempt, r.temporaryReason, r.temporaryCode = *temporaryAttempt, ec.LaunchTemporaryReason(*temporaryReason), f.Code(*temporaryCode)
+		at, err := f.NewInstant(*temporaryOccurred)
+		if err != nil {
+			return nil, unavailable(nil)
+		}
+		r.temporaryOccurredAt = &at
+	}
 	// Old generic known-not-created rows have no classification. A missing
 	// marker never becomes final failure, even if a safe code looks familiar.
 	if finalAttempt == nil {
@@ -164,6 +182,9 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 		if !pendingFinalFailure(r) && !completedFinalFailure(r) {
 			return nil, unavailable(nil)
 		}
+	}
+	if err := validateRetryRecord(r); err != nil {
+		return nil, err
 	}
 	return r, nil
 }
@@ -244,8 +265,15 @@ func updateDispatch(ctx context.Context, x postgres.SQLExecutor, r *dispatchReco
 	if r.failedAt != nil {
 		failed = r.failedAt.Time()
 	}
-	tag, err := x.Exec(ctx, `UPDATE agenteam_scheduler.dispatches SET status=$3,launch_outcome=$4,execution_id=$5,attempt_count=$6,next_retry_at=$7,version=$8,updated_at=$9,busy_attempt=$11,skip_reason=$12,skipped_at=$13,final_attempt=$14,failure_reason=$15,failure_code=$16,failure_occurred_at=$17,failed_at=$18
- WHERE project_id=$1 AND id=$2 AND version=$10`, r.project.String(), r.id.String(), string(r.status), string(r.outcome), execution, r.attempts, retry, int64(r.version), r.updatedAt.Time(), int64(previous), busy, reason, skipped, finalAttempt, failureReason, failureCode, occurred, failed)
+	var temporaryAttempt, temporaryReason, temporaryCode, temporaryOccurred any
+	if r.temporaryAttempt > 0 {
+		temporaryAttempt, temporaryReason, temporaryCode = r.temporaryAttempt, string(r.temporaryReason), string(r.temporaryCode)
+	}
+	if r.temporaryOccurredAt != nil {
+		temporaryOccurred = r.temporaryOccurredAt.Time()
+	}
+	tag, err := x.Exec(ctx, `UPDATE agenteam_scheduler.dispatches SET status=$3,launch_outcome=$4,execution_id=$5,attempt_count=$6,next_retry_at=$7,version=$8,updated_at=$9,busy_attempt=$11,skip_reason=$12,skipped_at=$13,final_attempt=$14,failure_reason=$15,failure_code=$16,failure_occurred_at=$17,failed_at=$18,temporary_attempt=$19,temporary_reason=$20,temporary_code=$21,temporary_occurred_at=$22
+ WHERE project_id=$1 AND id=$2 AND version=$10`, r.project.String(), r.id.String(), string(r.status), string(r.outcome), execution, r.attempts, retry, int64(r.version), r.updatedAt.Time(), int64(previous), busy, reason, skipped, finalAttempt, failureReason, failureCode, occurred, failed, temporaryAttempt, temporaryReason, temporaryCode, temporaryOccurred)
 	if err != nil {
 		return portError(err)
 	}

@@ -94,13 +94,18 @@ func (s *handoffTestStore) QueryRow(context.Context, string, ...any) postgres.Ro
 	return dispatchTestRow{values: recordValues(s.t, s.staged)}
 }
 func (s *handoffTestStore) Exec(ctx context.Context, query string, args ...any) (pgconn.CommandTag, error) {
-	if !strings.HasPrefix(query, "UPDATE agenteam_scheduler.dispatches SET") || len(args) != 18 || s.staged.version != f.Version(args[9].(int64)) {
+	if !strings.HasPrefix(query, "UPDATE agenteam_scheduler.dispatches SET") || len(args) != 22 || s.staged.version != f.Version(args[9].(int64)) {
 		return pgconn.CommandTag{}, errors.New("unexpected controlled update")
 	}
 	r := *s.staged
 	r.status, r.outcome = Status(args[2].(string)), LaunchOutcome(args[3].(string))
 	r.attempts, r.version = args[5].(int64), f.Version(args[7].(int64))
 	r.updatedAt, _ = f.NewInstant(args[8].(time.Time))
+	r.nextRetry = nil
+	if args[6] != nil {
+		v, _ := f.NewInstant(args[6].(time.Time))
+		r.nextRetry = &v
+	}
 	if args[10] != nil {
 		r.busyAttempt = args[10].(int64)
 	}
@@ -127,6 +132,20 @@ func (s *handoffTestStore) Exec(ctx context.Context, query string, args ...any) 
 	if args[17] != nil {
 		at, _ := f.NewInstant(args[17].(time.Time))
 		r.failedAt = &at
+	}
+	r.temporaryAttempt, r.temporaryReason, r.temporaryCode, r.temporaryOccurredAt = 0, "", "", nil
+	if args[18] != nil {
+		r.temporaryAttempt = args[18].(int64)
+	}
+	if args[19] != nil {
+		r.temporaryReason = ec.LaunchTemporaryReason(args[19].(string))
+	}
+	if args[20] != nil {
+		r.temporaryCode = f.Code(args[20].(string))
+	}
+	if args[21] != nil {
+		at, _ := f.NewInstant(args[21].(time.Time))
+		r.temporaryOccurredAt = &at
 	}
 	if args[4] != nil {
 		v, err := f.ParseID[i.Execution](args[4].(string))
@@ -178,7 +197,7 @@ func (e *handoffTestExecution) proof(ctx context.Context, actor i.Actor, send bo
 func (e *handoffTestExecution) Launch(ctx context.Context, actor i.Actor, request ec.LaunchRequest) (ec.LaunchResult, error) {
 	e.launches++
 	e.lastContext, e.lastActor, e.lastRequest = ctx, actor, request.Clone()
-	if e.store.row.outcome != Unknown || e.store.row.attempts != 1 {
+	if e.store.row.outcome != Unknown || e.store.row.attempts <= 0 {
 		return ec.LaunchResult{}, errors.New("send preceded committed marker")
 	}
 	if err := e.proof(ctx, actor, true); err != nil {
