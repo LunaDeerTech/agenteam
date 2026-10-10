@@ -118,3 +118,64 @@ CREATE TABLE agenteam_agent.commands (
 );
 CREATE TRIGGER commands_immutable BEFORE UPDATE ON agenteam_agent.commands
  FOR EACH ROW EXECUTE FUNCTION agenteam_agent.reject_command_rewrite();
+
+-- Keep every released Audit predicate, including Knowledge, Runner and Secret
+-- additions. Existing actions using resource_kind=agent retain their own rules.
+-- Only the exact new tuple is admitted to the two shared closed lists.
+-- +goose StatementBegin
+DO $agent_audit_guards$
+DECLARE guard_name text; original_guard text;
+BEGIN
+ FOREACH guard_name IN ARRAY ARRAY['audit_records_action_check','audit_records_producer_check'] LOOP
+  SELECT pg_get_expr(conbin,conrelid) INTO STRICT original_guard FROM pg_constraint
+   WHERE conrelid='agenteam_audit.audit_records'::regclass
+    AND conname=guard_name AND contype='c';
+  EXECUTE format('ALTER TABLE agenteam_audit.audit_records DROP CONSTRAINT %I',guard_name);
+  EXECUTE format('ALTER TABLE agenteam_audit.audit_records ADD CONSTRAINT %I CHECK ((%s) OR '
+   || '(producer=''agent'' AND scope=''project'' AND resource_kind=''agent'' '
+   || 'AND action IN (''agent.create'',''agent.update'')))',guard_name,original_guard);
+ END LOOP;
+END;
+$agent_audit_guards$;
+-- +goose StatementEnd
+
+-- +goose StatementBegin
+CREATE FUNCTION agenteam_agent.valid_audit_fields(action text, fields jsonb) RETURNS boolean
+LANGUAGE sql IMMUTABLE PARALLEL SAFE AS $$
+ SELECT CASE WHEN jsonb_typeof(fields)='array' AND action IN ('agent.create','agent.update') THEN
+  jsonb_array_length(fields) BETWEEN 1 AND 13
+  AND NOT EXISTS(SELECT 1 FROM jsonb_array_elements(fields) item WHERE
+   jsonb_typeof(item)<>'string' OR item#>>'{}' NOT IN
+    ('allowed_mount_ids','allowed_secret_variable_ids','allowed_tool_ids','approval_model_ref',
+     'approval_policy','description','display_name','inject_agents_md','instructions','model_ref',
+     'name','reasoning_effort','tag_color'))
+  AND fields=coalesce((SELECT jsonb_agg(item ORDER BY item COLLATE "C") FROM
+   (SELECT DISTINCT item#>>'{}' AS item FROM jsonb_array_elements(fields) item) ordered),'[]'::jsonb)
+  AND (action='agent.update' OR fields=
+   '["allowed_mount_ids","allowed_secret_variable_ids","allowed_tool_ids","approval_model_ref","approval_policy","description","display_name","inject_agents_md","instructions","model_ref","name","reasoning_effort","tag_color"]'::jsonb)
+ ELSE false END
+$$;
+-- +goose StatementEnd
+
+ALTER TABLE agenteam_audit.audit_records ADD CONSTRAINT audit_records_agent_contract CHECK ((
+ (producer<>'agent' AND action NOT IN ('agent.create','agent.update'))
+ OR (producer='agent' AND action IN ('agent.create','agent.update')
+  AND scope='project' AND project_id IS NOT NULL AND actor_kind='human'
+  AND user_id IS NOT NULL AND session_id IS NOT NULL AND outcome='success' AND ordinal=0
+  AND resource_kind='agent' AND resource_id IS NOT NULL AND cause_ref ~ '^sha256:[0-9a-f]{64}$'
+  AND tool_id IS NULL AND execution_id IS NULL AND tool_call_id IS NULL AND operation_id IS NULL
+  AND request_id IS NULL AND approval_id IS NULL AND runner_id IS NULL
+  AND correlation_id IS NULL AND http_trace_id IS NULL
+  AND jsonb_typeof(metadata)='object' AND octet_length(metadata::text)<=4096
+  AND metadata ?& ARRAY['agent_id','version','command_id','changed_fields']
+  AND metadata-ARRAY['agent_id','version','command_id','changed_fields']='{}'::jsonb
+  AND jsonb_typeof(metadata->'agent_id')='string' AND metadata->>'agent_id'=resource_id::text
+  AND jsonb_typeof(metadata->'command_id')='string'
+  AND metadata->>'command_id' ~ '^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+  AND jsonb_typeof(metadata->'version')='string'
+  AND CASE WHEN metadata->>'version' ~ '^[1-9][0-9]{0,18}$'
+   THEN (metadata->>'version')::numeric<=9223372036854775807 ELSE false END
+  AND ((action='agent.create' AND metadata->>'version'='1')
+   OR (action='agent.update' AND metadata->>'version'<>'1'))
+  AND agenteam_agent.valid_audit_fields(action,metadata->'changed_fields'))
+) IS TRUE);
