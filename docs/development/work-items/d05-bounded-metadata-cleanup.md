@@ -168,6 +168,9 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 第三来源 `metadata_cleanup_transfer_cost_test.go` 已将上述transfer补充seed接入独立成本数据库，实际Service小对象只用于取得原gate/metadata/physical SQL。退休PUT形状执行原查询的32/16首批、empty范围、两个full-pending；原外部lease仍被引用的坏序删除必须实际23503/rollback，合法cleanup→staging→transfer→旧candidate→两lease的父DELETE与原延期队列flush单独观测，保其它Project包且回滚恢复。此项不调用Purge消费seed，不据它关闭正式PUT能力或32批次业务。三成本top已 `91195/536ec3` race-c＋精确list actual0（候选见current），尚无真实SQL/计划；第三方法待窄审，两个先前方法仅静态接受。活GET/PUT、download、其它父入边及实际计划后的索引减裁仍须闭合；不得以此组可编或一格通过接受全部22索引。
 
 
+三成本top已按闭集组合映射到原两root工具（控制b3273f actual0），当前已编候选不变；仅新组合额外冻结本test包Go源与3个实际embed SQL，旧10入口/原7资源及所有预算/Wait/TCP/input尾保持。组合方法与业务源均未PG，入口待独立窄审；不以prepared关闭前述剩余成本项。
+
+
 错误遵循现有Fault/CommitResult：输入/结果形状错误InvalidArgument；缺正式provider为DependencyUnbound；当前authority/owner/cause不符Forbidden或原Project gate错误；plan/native映射变化ResourceBusy且整Tx NotCommitted；合法仍活关系为Pending，超过有限完整诊断上限为Pending＋ResourceBusy。已持久的矛盾关系保持安全DependencyUnavailable/InvalidState，不暴露原Locator/SQL/正文。任何Unknown保留原error、cause和attempt；InTx返回Completed本身仍不是CommitResult，不能据它提前删其它事务中的父表。
 
 ## 8. 旧源最小预计写域与验收
