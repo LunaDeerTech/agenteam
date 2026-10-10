@@ -149,6 +149,17 @@ export function installProjectModelSettingsNavigation(
   }
 }
 
+const knowledgeNavigation = new WeakMap<Router, { confirmLeave: () => Promise<boolean> }>()
+export function installKnowledgeNavigation(
+  router: Router,
+  owner: { confirmLeave: () => Promise<boolean> },
+) {
+  knowledgeNavigation.set(router, owner)
+  return () => {
+    if (knowledgeNavigation.get(router) === owner) knowledgeNavigation.delete(router)
+  }
+}
+
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   router.beforeEach(async (to, from) => {
     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
@@ -222,6 +233,13 @@ export function installAuthentication(router: Router, auth: SessionController = 
         return false
       auth.entry.abandon()
     }
+    // Same-component beforeRouteUpdate runs after this global guard. Confirm
+    // before restore can temporarily unmount the page and retire its draft.
+    if (
+      to.fullPath !== from.fullPath &&
+      !((await knowledgeNavigation.get(router)?.confirmLeave()) ?? true)
+    )
+      return false
     if (to.meta.accountEntry) {
       if (auth.state.busy) return false
       if (from.name === 'login') auth.leave()

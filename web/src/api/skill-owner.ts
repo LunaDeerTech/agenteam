@@ -38,7 +38,9 @@ function text(value: unknown, maximum: number, multiline = false): string {
     encoder.encode(result).byteLength <= maximum &&
       !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(result) &&
       !/^\p{White_Space}*$/u.test(result) &&
-      !(multiline ? /[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u : /[\u0000-\u001f\u007f-\u009f]/u).test(result),
+      !(
+        multiline ? /[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u : /[\u0000-\u001f\u007f-\u009f]/u
+      ).test(result),
   )
   return result
 }
@@ -48,14 +50,30 @@ function version(value: unknown): string {
   requireValue(BigInt(result) <= 9223372036854775807n)
   return result
 }
-export function parseSkillMetadata(value: unknown, projectID: string, target?: string): SkillMetadata {
-  const v = shape(value, ['id', 'project_id', 'name', 'normalized_name', 'description', 'protected', 'current_revision', 'version'])
-  const skillID = id(v.id), name = text(v.name, 128)
+export function parseSkillMetadata(
+  value: unknown,
+  projectID: string,
+  target?: string,
+): SkillMetadata {
+  const v = shape(value, [
+    'id',
+    'project_id',
+    'name',
+    'normalized_name',
+    'description',
+    'protected',
+    'current_revision',
+    'version',
+  ])
+  const skillID = id(v.id),
+    name = text(v.name, 128)
   requireValue(
     id(v.project_id) === projectID &&
       (target === undefined || skillID === target) &&
       !/^\p{White_Space}|\p{White_Space}$/u.test(name) &&
-      !/[/\\]/u.test(name) && name !== '.' && name !== '..' &&
+      !/[/\\]/u.test(name) &&
+      name !== '.' &&
+      name !== '..' &&
       typeof v.protected === 'boolean',
   )
   // Full NFC/case-fold name equality is the service's domain validation.
@@ -76,15 +94,26 @@ export function createSkillOwnerAPI(fetcher?: Fetch): SkillOwnerAPI {
   return {
     async list(projectID, signal) {
       const project = captureSkillID(projectID)
-      return request('listProjectSkills', (value) => {
-        const v = shape(value, ['items'])
-        requireValue(Array.isArray(v.items) && v.items.length === 1)
-        return Object.freeze({ items: Object.freeze(v.items.map((item) => parseSkillMetadata(item, project))) })
-      }, { signal, projectID: project })
+      return request(
+        'listProjectSkills',
+        (value) => {
+          const v = shape(value, ['items'])
+          requireValue(Array.isArray(v.items) && v.items.length === 1)
+          return Object.freeze({
+            items: Object.freeze(v.items.map((item) => parseSkillMetadata(item, project))),
+          })
+        },
+        { signal, projectID: project },
+      )
     },
     async get(projectID, skillID, signal) {
-      const project = captureSkillID(projectID), target = captureSkillID(skillID)
-      return request('getProjectSkill', (value) => parseSkillMetadata(value, project, target), { signal, projectID: project, target })
+      const project = captureSkillID(projectID),
+        target = captureSkillID(skillID)
+      return request('getProjectSkill', (value) => parseSkillMetadata(value, project, target), {
+        signal,
+        projectID: project,
+        target,
+      })
     },
   }
 }

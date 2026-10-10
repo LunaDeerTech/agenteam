@@ -65,7 +65,7 @@ Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/d
 
 ## Owner 读取 UI：接口与首条链路
 
-本节为后继 UI SPEC rev1，基线 `33903460`，工作树 `/workspace/agenteam-skills-owner-ui`、分支 `ai/skills-owner-ui`。规格已获 skills_http 非作者描述级有限接受。API/controller/view 与三处导航首稿已落盘，属于待共享接线和自测的 WIP；未运行浏览器，上文已接受的 HTTP、默认根既有数据读取和原 FAIL 边界不变。
+本节为后继 UI SPEC rev1，基线 `33903460`，工作树 `/workspace/agenteam-skills-owner-ui`、分支 `ai/skills-owner-ui`。规格已获 skills_http 非作者描述级有限接受。API/controller/view、三处导航与 Skills 共享接线已落盘并完成下述基础离线检查；未运行浏览器，上文已接受的 HTTP、默认根既有数据读取和原 FAIL 边界不变。
 
 用户从项目设置的“Skills / 项目技能库”进入目录，点击技能查看名称、描述、受保护标记、当前修订及记录版本，可明确重读和返回目录。路由为 `/:username/:project_name/settings/skills/:skill_id?`；详情 ID 只接受 canonical UUID7。目录沿正式 HTTP 恰一项合同，空数组是无效响应，不伪造空库或创建入口。归档项目仍可读取；未初始化、不可访问、读取失败、取消分别显示安全反馈。当前页没有创建、安装、包正文、版本写入、删除或 Agent 分配控件。
 
@@ -95,3 +95,6 @@ Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/d
 基础离线检查聚焦两 GET 原路径/无写材料、八字段/目标/版本/字节限额及坏 JSON，实际 reader 取消尾；控制器/组件覆盖目录→详情→返回、明确重读、未初始化/不可访问、归档读取、切换身份或 Project 后迟到结果拒绝、取消期间原 owner 未释放。路由检查上述两条合法路径和原非法返回目标。使用 Vitest/Vue Test Utils 验证可见行为，不以内部方法镜像或复跑无关矩阵替代功能。
 
 首条真实链为真实登录→当前 Owner 项目→项目设置技能目录→真实详情→刷新，另检查撤销或跨 Owner 不展示旧值及只读不增加业务事实。数据由现有明确 test-only Project 服务沿同 Store/Audit/真实 Skills/Object 初始化，随后由默认 Central 两条正式路由读取；不替换默认服务、不用 SQL 写 ready、不宣称生产 Create。fixture/浏览器接线的新增具体路径另交 root 分配；当前 Go 与共享 driver 不在写域。真实资源由 root 单独授窗，验收保原请求与进程/资源实际退役；不搬用 Work 的 failed/replay/planning 观察特例。正常与失败基础自测完成后尽早交首条联调，不因该切片扩成反复方法开发。
+
+
+UI 首批可调用结果：目录/详情与明确重读、取消、当前身份代次和撤权清屏已接正式两 GET 及原 Session lane。全 vue-tsc、三新测试的最终相关输入（API/state 38项复用＋修后 view 3项）、既有 Knowledge GET client/state 54项与生产 build 均通过。首轮两视图测试 FAIL 为隐藏按钮文案选择和误改 UUID 时间段，已只修刺激，原失败保留于本树恢复摘要。共享输入为 KnowledgeRename `bd7502d2`，其尚待修的新 POST 取消错误传播由原作者处理；Skills 不更改该命令的 Unknown 标准。此处仅接受作者可调用功能与基础自测，非独立源码或真实浏览器验收；第一条真实默认根读取联调尚未执行。
