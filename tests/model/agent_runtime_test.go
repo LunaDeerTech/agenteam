@@ -373,8 +373,8 @@ func TestModelAgentRetryRuntime(t *testing.T) {
 		case <-time.After(10 * time.Second):
 			t.Fatal("cancel did not join original Chat")
 		}
-		agentRuntimeFacts(t, v, request, "cancelled", "provider_unavailable", "failed")
 		agentRuntimeJoined(t, v, key, 1)
+		agentRuntimeFacts(t, v, request, "cancelled", "provider_unavailable", "failed")
 	})
 	t.Run("nonretryable-single-failure", func(t *testing.T) {
 		v, consumer := newAgentRuntimeFixture(t, 100*time.Millisecond)
