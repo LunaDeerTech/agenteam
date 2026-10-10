@@ -128,6 +128,11 @@ export const router = createRouter({
           },
           children: [
             {
+              path: 'secrets',
+              name: 'project-secrets',
+              component: () => import('../views/projects/ProjectSecretsView.vue'),
+            },
+            {
               path: 'general',
               name: 'project-general',
               component: () => import('../views/projects/ProjectGeneralSettings.vue'),
