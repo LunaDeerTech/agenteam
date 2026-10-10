@@ -12,6 +12,10 @@ fixture 复用正式 Account/Project 创建，原 Skills 初始化 receipt 明�
 
 先在本树以固定 Go1.27.1、private actual telemetry off、共享 module cache readonly 和自有 GOCACHE 离线编译两个产物；同进程 fresh >=5GiB。候选 `output/ai/project-variable-lifecycle/candidate-01/project-variable-lifecycle.test` 与 `pg-only-driver`。精确 list 必须只返回上述 top。
 
+当前固定候选 37,225,874 B，SHA256 `73659a6572d3b67a3428cbf2c9ff3544d56be526b4e23f462fcf53f5ea6c2286`；原 driver 的本树 race 构建 19,371,402 B，SHA256 `abc413c74d5438a9c2a03978fc22afdfd54e15d5f7b4cd6684dba75361e464f1`。实际依赖闭包 435 路径。
+
+首轮环境使用独有 `output/ai/project-variable-lifecycle/environment-pg-01`：`go-config/go/telemetry/mode` 内容为 `off`，私有空 `runtime`，`docker/config.json` 为 `{"auths":{}}` 且0600；`DOCKER_HOST=unix:///var/run/docker.sock`，移除 `DOCKER_CONTEXT/DOCKER_CERT_PATH/DOCKER_TLS_VERIFY` 与 telemetry child/test 覆盖变量。固定 `GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off/GOTELEMETRY=off/GOMAXPROCS=2/GOFLAGS=-mod=readonly -p=2`，readonly module 路径 `/workspace/shared/agenteam-deps/go-mod`，本树私有 `output/ai/project-variable-lifecycle/go-build`。PG 固定原 driver 的 `pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc`；不拉新镜像。
+
 ```sh
 python3 -B .agent-state/project-variable-lifecycle/run.py \
   --driver "$PWD/output/ai/project-variable-lifecycle/candidate-01/pg-only-driver" \
