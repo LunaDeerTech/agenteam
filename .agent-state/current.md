@@ -11,18 +11,24 @@
 
 | 执行者 | 工作树 / 分支与已保存输入 | 当前任务和下一步 |
 | --- | --- | --- |
-| `/root/coordination` | 本树 `ai/product-continuation`；组合树 `ai/owner-feature-integration` | 唯一维护两树 current 和全局台账；Skills 独验02完整 PASS，原01 whole FAIL/连接身份未知保留。已组装 Skills HTTP、D05/00028 和 Skills Cleanup 的限定来源，负责共享入口窄并集与最低离线验证；候选尚未交付 main。 |
-| `/root/cleanup` | D05技术 `b3a4ab7d` / history记录 `52a42627`；独立 Work 树 `ai/work-owner-ui-independent` | D05 成本按原固定组合及 history whole PASS 有效，消费者修后02亦 whole PASS，00028适用门槛闭合、待正式组合。当前负责未参与作者的 Work Recovery/Authority 两新探针，候选已就绪，真实未验。 |
-| `/root/secret` | Owner `f9cc11c6`；消费者记录 `92cfb069`；新树 `/workspace/agenteam-secret-owner-http` / `ai/secret-owner-http` | 消费者02一top/两子完整 PASS，原01 owned后代96693引起whole FAIL且身份未知保留。Secret作者30节点和独立1top/2sub有效，00029/30仍待连续前缀装配。现基于f9核Secret Owner HTTP/typed service契约、最小路由/Schema/Account边界方案，尚未编码、接root或运行资源。 |
-| `/root/content` | 正文树 `ai/knowledge-content-http` 修后 `1e5833bc`；组合根片段 `760c4888` | 正文原native PASS有效，PG01 whole FAIL为两GET短正文可正式提前释放lease与fixture假设冲突；仅换两处大于64KiB正文并窄审，PG02原4top/14sub与全部退出尾已whole PASS，记录9b9d1e7c，正文adapter有限接受并进入候选。组合config/resolver与默认root首片段已保存，核心权限/生命周期最小验尚未闭。 |
+| `/root/coordination` | 本树 `ai/product-continuation`；组合树 `ai/owner-feature-integration` | 唯一维护两树 current 和全局台账；Skills 独验02完整 PASS，原01 whole FAIL/连接身份未知保留。已组装 Skills HTTP、D05/00028 和 Skills Cleanup 的限定来源，已将正文与Secret00029/30并入连续候选，负责共享入口窄并集与最低离线验证；根入口已就绪，候选尚未交付 main。 |
+| `/root/cleanup` | D05技术 `b3a4ab7d` / history记录 `52a42627`；独立 Work 树 `ai/work-owner-ui-independent` | D05 成本按原固定组合及 history whole PASS 有效，消费者修后02亦 whole PASS，00028适用门槛闭合、待正式组合。独立 Work Recovery01/Authority01均whole FAIL且完整退出；Recovery只读模板断言已窄修并方法审，修后尚未真人；Authority第二次Owner表单缺失原因未证。 |
+| `/root/secret` | Owner `f9cc11c6`；消费者记录 `92cfb069`；新树 `/workspace/agenteam-secret-owner-http` / `ai/secret-owner-http` | 消费者02一top/两子完整 PASS，原01 owned后代96693引起whole FAIL且身份未知保留。Secret作者30节点和独立1top/2sub有效，00029/30已进入隔离连续候选，未正式main。现Secret Owner HTTP首片段已冻结、离线pure构建中，未接root或运行资源。 |
+| `/root/content` | 正文树 `ai/knowledge-content-http` 修后 `1e5833bc`；组合根片段 `760c4888` | 正文原native PASS有效，PG01 whole FAIL为两GET短正文可正式提前释放lease与fixture假设冲突；仅换两处大于64KiB正文并窄审，PG02原4top/14sub与全部退出尾已whole PASS，记录9b9d1e7c，正文adapter有限接受并进入候选。组合config/resolver、默认root与必要fixture已保存；根单top在完整00030前缀上race-c/list0并获方法审，真实组合尚未RUN。 |
 | `/root/skills_http` | `/workspace/agenteam-skills-owner-http` / `ai/skills-owner-http` / `1e260d55` | 原PG4top/12sub、native3top/6sub与修后独验1top/2sub均完整 PASS，Owner元数据HTTP adapter有限接受；原fixtureFAIL及独验01wholeFAIL保留。对应23路径已进隔离候选，尚未正式main；负责默认root片段有限静审，Project.Create/UI仍未验。 |
-| `/root/work_ui` | `/workspace/agenteam-work-ui` / `ai/work-owner-planning-ui` | R11原whole FAIL、全尾齐且窗口已释放，作者正在有界定位3处observerError；原65409abc严格后验及全部旧FAIL保留。独立Recovery/Authority由cleanup另树推进，整Work规划UI卡未完成，不用局部PW或业务结果升级整轮。 |
+| `/root/work_ui` | `/workspace/agenteam-work-ui` / `ai/work-owner-planning-ui` | R11原whole FAIL、全尾齐且窗口已释放，作者对3处observerError已完成R12方法窄修、8path冻结且独审无must-fix，修后未RUN；原65409abc严格后验及全部旧FAIL保留。独立Recovery/Authority由cleanup另树推进，整Work规划UI卡未完成，不用局部PW或业务结果升级整轮。 |
 
-root 已从正式 main `280a6431` 本地创建 `/workspace/agenteam-feature-integration`、`ai/owner-feature-integration`。这是未交付的隔离组合候选；coordination 为共享 harness 与已验领域路径组装唯一写者，Skills独验门已闭，Skills23路径、D05/00028与Cleanup限定集已组装并做最低离线验证，94路径已保存44b9b311；正文23非共享与三shared第四域已并入，纯控/编译/list通过，等待本批checkpoint。默认root业务构造唯一写者为content，Skills作者只读独审；Git全由root执行，不能整文件覆盖其它域的共享入口。
+root 已从正式 main `280a6431` 本地创建 `/workspace/agenteam-feature-integration`、`ai/owner-feature-integration`。这是未交付的隔离组合候选；coordination 为共享 harness 与已验领域路径组装唯一写者，Skills独验门已闭，Skills23路径、D05/00028与Cleanup限定集已组装并做最低离线验证，94路径已保存44b9b311；正文23非共享与三shared第四域已并入，纯控/编译/list通过并保存edc05688。D04 b724与Owner f9各37路径现已导入，00001..30连续；9个限定pure race、两integration编译、八exact list与Secret入口控制通过，候选等待本批checkpoint。默认root业务构造唯一写者为content，Skills作者只读独审；Git全由root执行，不能整文件覆盖其它域的共享入口。
 
-新独立 Work 树为 `/workspace/agenteam-work-ui-independent`、`ai/work-owner-ui-independent`，基线 `65409abc`；cleanup 独占 Recovery/Authority 独立探针方案及新文件，Work作者保留原树，不写root共享文件。新探针两top候选已就绪，尚未形成真实验收结果。
+新独立 Work 树为 `/workspace/agenteam-work-ui-independent`、`ai/work-owner-ui-independent`，基线 `65409abc`；cleanup 独占 Recovery/Authority 独立探针方案及新文件，Work作者保留原树，不写root共享文件。新探针Recovery01和Authority01原whole FAIL均保留，全尾已齐；不将局部导航或归档事实提升整场景。
 
 表内版本为已保存输入；后续修改及资源终态以各树记录与 root Git 报告为准。候选编译/list、业务子项 PASS 与全尾齐的 whole PASS 分开记账，不自动继承旧实例的资源授权。
+
+## 本次组合与独立 Work 新事实
+
+- Secret八入口并集与默认root exact入口已停写；最终core50/recovery61/Owner182、Skills107/正文157/Cleanup6/D05并集201/root40离线控实际0，artifact/list附加recovery68/Owner189也实际0。67个Go/DDL与来源相同，七个P2/Project保护源与main相同；原离线目录缺失、插入点逆投影FAIL保留在候选current。Secret执行者有限审两Secret共享增量、Skills执行者有限审新root入口均无must-fix，审者未冒动态执行。
+- 独立Recovery01在archived/version3后误要求不存在的Save disabled而FAIL；改为原草稿保留、editor只读、Save精确不存在，原历史/SQL/预算门不变。修后仅方法审/离线发现通过，尚未真人。
+- 独立Authority01：60214/outer157528实际1、125.496s，Go159333/driver157578 Wait1、4Z各Wait0，七ID/三private/runtime/desc/TCP双尾与inputs/exacttop齐。spec361第二次进入Owner设置5秒未见form；首次Owner/Work取消放弃已到，Model/admin/最终Go后验未到，原因未证，不猜产品缺陷或补PASS。
 
 ## 其它保留成果与未完范围
 
@@ -35,7 +41,7 @@ root 已从正式 main `280a6431` 本地创建 `/workspace/agenteam-feature-inte
 
 - 固定 Go1.27.1 为 `/workspace/toolchains/go1.27.1/bin/go`；cleanup 已恢复共享锁模块 `/workspace/shared/agenteam-deps/go-mod`，各执行者使用自己的 GOCACHE，离线 `GOPROXY=off`、`GOSUMDB=off`、`-mod=readonly`。当前实际 Python 为 `/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3`；不再照搬旧缓存/解释器路径。
 - root 调度当前唯一真实 socket 窗口，以兼容既有 PG/browser/native harness 的宿主 TCP 观测；该窗口涵盖运行、原 Go/driver/outer 实际 Wait 及资源退出尾。窗口期间 Git 网络、下载和另一 socket 测试按 root 安排，离线无共享输入冲突的工作继续并行。未获本轮窗口前不启动真实资源。
-- Skills独诊断02与历史消费者02均已原完整终态PASS、释放资源；消费者02记录`92cfb069`，00028消费者门闭，原两项01 whole FAIL及未知身份保留。Knowledge正文PG01、Work R11原whole FAIL均全尾退出；正文PG02 whole PASS已释放；当前root唯一真实窗口为cleanup的新独立Work Recovery单top，Authority尚未运行，未获fresh授权不启动。
+- Skills独诊断02与历史消费者02均已原完整终态PASS、释放资源；消费者02记录`92cfb069`，00028消费者门闭，原两项01 whole FAIL及未知身份保留。Knowledge正文PG01、Work R11原whole FAIL均全尾退出；正文PG02 whole PASS已释放；独立Work Recovery01与Authority01亦whole FAIL全尾退出，当前无真实资源窗口在途；下一优先默认root单top，仍须root fresh grant。
 - 原 Wait、资源 ID/nonce、runtime/private/desc/TCP 等适用终态必须由该轮本人实际结果证明；后验 current-clear 不补原 FAIL，不推测旧失败根因。各树保留必要源码/harness/独特失败输入，可重建日志留忽略的 output。
 - 本轮冲突有限核对已通过：三路径无冲突标记、diff-check/gofmt及137个Markdown本地链接/fragment通过。依赖恢复后 `TestInitializationAuditAuthority` 本人离线实际exit0（project包0.021s），未开资源；不扩大到整包/整产品验收。Skills原独验01整体FAIL与诊断02 whole PASS分列；候选107 HTTP控、6项Cleanup控和199 D05并集控通过，初次离线并集两处hunk位置FAIL经窄移回原块后通过，原失败不回填。
 
