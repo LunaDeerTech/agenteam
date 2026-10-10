@@ -28,12 +28,13 @@ type LaunchHandoffDependencies struct {
 // known rejection leaves pending/known_not_created for the future Work-owned
 // compensation; it never silently marks that Task skipped or failed.
 type LaunchHandoff struct {
-	authority *PendingAuthority
-	deps      LaunchHandoffDependencies
-	mu        sync.Mutex
-	stopped   bool
-	calls     map[DispatchID]*launchCall
-	drained   chan struct{}
+	authority     *PendingAuthority
+	deps          LaunchHandoffDependencies
+	retryProjects ProjectSchedulerGate
+	mu            sync.Mutex
+	stopped       bool
+	calls         map[DispatchID]*launchCall
+	drained       chan struct{}
 }
 type launchContextKey struct{}
 type launchCall struct {
@@ -165,13 +166,17 @@ func (s *LaunchHandoff) Joined() bool {
 // marker was known committed. A marker CommitUnknown issues no handoff and no
 // Launch. A crash in that gap is intentionally recoverable by lookup only.
 func (s *LaunchHandoff) LaunchOnce(ctx context.Context, p i.ProjectID, id DispatchID) (out Dispatch, err error) {
+	return s.launch(ctx, p, id, false)
+}
+
+func (s *LaunchHandoff) launch(ctx context.Context, p i.ProjectID, id DispatchID, retry bool) (out Dispatch, err error) {
 	ctx, call, err := s.begin(ctx, p, id, false)
 	if err != nil {
 		return Dispatch{}, err
 	}
 	retain := false
 	defer func() { s.finish(call, retain, err) }()
-	r, sent, err := s.markSending(ctx, call)
+	r, sent, err := s.markAttempt(ctx, call, retry)
 	if err != nil {
 		_, retain = UnknownAttempt(err)
 		return Dispatch{}, err
@@ -202,6 +207,9 @@ func (s *LaunchHandoff) LaunchOnce(ctx context.Context, p i.ProjectID, id Dispat
 		if !rejected || !final || errors.Is(launchErr, context.Canceled) || errors.Is(launchErr, context.DeadlineExceeded) || !errors.As(launchErr, &originalFault) || originalFault.Code != f.DependencyUnbound {
 			finalReason = ""
 		}
+		temporaryReason, temporary := ec.MatchLaunchTemporaryRejection(launchErr, r.launch.Clone())
+		temporary = rejected && temporary && temporaryReason == ec.LaunchTemporaryLockTimeout && finalReason == "" &&
+			errors.As(launchErr, &originalFault) && originalFault.Code == f.InternalError && originalFault.CommitState == f.NotCommitted
 		launchErr = portError(launchErr)
 		if !rejected {
 			retain = true
@@ -209,7 +217,7 @@ func (s *LaunchHandoff) LaunchOnce(ctx context.Context, p i.ProjectID, id Dispat
 		}
 		var rejection *f.Fault
 		busy := errors.As(launchErr, &rejection) && rejection.Code == f.AgentBusy
-		observed, checkpointErr := s.recordRejected(ctx, call, r, busy, finalReason)
+		observed, checkpointErr := s.recordRejected(ctx, call, r, busy, finalReason, temporary)
 		if checkpointErr != nil {
 			retain = true
 			return Dispatch{}, uncertainLaunch(errors.Join(launchErr, checkpointErr))

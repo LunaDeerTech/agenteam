@@ -115,7 +115,26 @@ func recordValues(t *testing.T, r *dispatchRecord) []any {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return []any{r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), raw, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), string(r.status), string(r.outcome), int64(r.version), guard, gs, gst, gp, execution, r.attempts, retry, r.createdAt.Time(), r.updatedAt.Time(), busy, reason, skipped, finalAttempt, failureReason, failureCode, occurred, failed, policyRaw, policyDigest}
+	var temporaryAttempt *int64
+	var temporaryReason, temporaryCode *string
+	var temporaryOccurred *time.Time
+	if r.temporaryAttempt != 0 {
+		v := r.temporaryAttempt
+		temporaryAttempt = &v
+	}
+	if r.temporaryReason != "" {
+		v := string(r.temporaryReason)
+		temporaryReason = &v
+	}
+	if r.temporaryCode != "" {
+		v := string(r.temporaryCode)
+		temporaryCode = &v
+	}
+	if r.temporaryOccurredAt != nil {
+		v := r.temporaryOccurredAt.Time()
+		temporaryOccurred = &v
+	}
+	return []any{r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), raw, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), string(r.status), string(r.outcome), int64(r.version), guard, gs, gst, gp, execution, r.attempts, retry, r.createdAt.Time(), r.updatedAt.Time(), busy, reason, skipped, finalAttempt, failureReason, failureCode, occurred, failed, policyRaw, policyDigest, temporaryAttempt, temporaryReason, temporaryCode, temporaryOccurred}
 }
 
 type dispatchTestRow struct {
