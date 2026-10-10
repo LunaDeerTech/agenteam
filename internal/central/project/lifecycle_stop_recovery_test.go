@@ -239,7 +239,7 @@ func TestLifecycleStopRecoveryBusyDoesNotStarveUnknownOrLaterWork(t *testing.T) 
 		if cause.Details().JobID == work[1].operation.String() {
 			return physical
 		}
-		return f.NotCommittedResult(unavailable(private))
+		return f.NotCommittedResult(fault(f.DependencyUnavailable).WithCause(private))
 	}
 	r := stopRecoveryForTest(t, store, process)
 	page, err := r.state.visit(context.Background(), work, true)
