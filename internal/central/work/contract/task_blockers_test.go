@@ -141,7 +141,11 @@ func TestTaskBlockerIdentityAndType(t *testing.T) {
 		v := blockerFixture(t, kind)
 		transitionRequireFault(t, v.Validate(), f.DependencyUnbound)
 		transitionRequireFault(t, (TaskBlockerAddedPayload{BlockerID: id, BlockerType: kind}).Validate(), f.DependencyUnbound)
-		transitionRequireFault(t, (TaskBlockerResolvedPayload{BlockerID: id, BlockerType: kind}).Validate(), f.DependencyUnbound)
+		if kind != TaskBlockerTechnical {
+			transitionRequireFault(t, (TaskBlockerResolvedPayload{BlockerID: id, BlockerType: kind}).Validate(), f.DependencyUnbound)
+		} else if (TaskBlockerResolvedPayload{BlockerID: id, BlockerType: kind}).Validate() != nil {
+			t.Fatal("technical transition resolution shape")
+		}
 	}
 }
 
@@ -526,7 +530,11 @@ func TestTaskBlockerRawCapsAndAtomicDecode(t *testing.T) {
 		blockerField(t, v.Validate(), "/blocker_id", "INVALID_BLOCKER_ID")
 		ap := TaskBlockerAddedPayload{BlockerID: base.BlockerID, BlockerType: unsupported}
 		rp := TaskBlockerResolvedPayload{BlockerID: base.BlockerID, BlockerType: unsupported}
-		for _, marshal := range []func() ([]byte, error){ap.MarshalJSON, rp.MarshalJSON, blockerFixture(t, unsupported).MarshalJSON} {
+		marshals := []func() ([]byte, error){ap.MarshalJSON, blockerFixture(t, unsupported).MarshalJSON}
+		if unsupported != TaskBlockerTechnical {
+			marshals = append(marshals, rp.MarshalJSON)
+		}
+		for _, marshal := range marshals {
 			encoded, err := marshal()
 			transitionRequireFault(t, err, f.DependencyUnbound)
 			if encoded != nil {
