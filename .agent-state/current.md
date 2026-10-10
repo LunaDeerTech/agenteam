@@ -30,13 +30,15 @@
 
 真实两case证明：完整preparation input与Skill/Tool引用、Model snapshot/binding及两种用途租约提交后，边界丢回执的Unknown通过原owner只读恢复，不重复provider；缺Mount时原物理NotCommitted且零input/refs/lease，Model prepared intent合法单独保留。本片仅支持既定文本Model profile、实际`InjectAgentsMD=false`及真实head/version验证的empty Mount；00053为环境租约、00054为Execution输入。提交后仍preparing，非sealed Snapshot/Running/Invoke；OpenAI tools动态STOP及生产app/initializer边界不变。
 
+下一有限Context小片已从main `41aa7766`开写：content独占五个新增Context/Task Build路径，skills沿真实00054输入验证Build及current改变后的固定结果；无新DDL，无Go/cache/native活动，尚未动态验收或main交付。Builder仅组装版本化typed Context与独立Prompt components，不拼最终SystemPrompt/Messages，不提交sealed Snapshot/running/Started。启动缺口调查已收口，本轮不重复扩查。
+
 | 执行者 | 当前工作、真实状态与下一步 |
 | --- | --- |
-| content / Model与Mount捕获 | `/workspace/agenteam-task-transition` / `ai/model-capture-binding`：复用原Model Resolver与真实Consumer/Secret usage链，新增主模型capture adapter；Mount仅真实head/version验证后的空集合，非空仍拒绝。 |
-| cleanup / Execution输入提交 | `/workspace/agenteam-skill-install-runtime-source` / `ai/execution-model-capture`：接原preparing claim的Model/Environment/Mount私有证明、完整原Tx输入写入与Unknown/replay观察；00054唯一writer。 |
-| secret / 独立差额审查 | 新源码/方法及最终动态原件已有限接受，无main阻项；不参与接口设计，不外推sealed Snapshot、Running、Tool调用或生产app。 |
-| work_ui / 环境与租约 | `/workspace/agenteam-task-human-http` / `ai/execution-secret-environment`：普通变量与Secret元数据捕获、专用ProjectVariable lease；00053唯一writer，不借Model用途，不扩大旧Purpose闭集。 |
-| skills_http / 组合测试 | `/workspace/agenteam-task-flow-delivery` / `ai/model-environment-capture-delivery`：最终实测源码`67804902`，完整input提交后失回执恢复与缺Mount原子回滚两sub已wholePASS；原资源尾全闭，原容量FAIL及纯测FAIL保留。 |
+| content / Context构造 | `/workspace/agenteam-task-transition` / `ai/execution-context-build`，基main `41aa7766`：实现Task固定input的typed TriggerContext/场景Prompt与ExecutionContext纯组装；五个新增路径唯一writer，旧Model/Mount分支refs保留。 |
+| cleanup / 已交付Execution输入 | `/workspace/agenteam-skill-install-runtime-source` / `ai/execution-model-capture`：00054及原Tx输入/Unknown恢复已随main交付，当前停写；原refs/ignored恢复材料保留。 |
+| secret / 独立差额审查 | 上批源码/方法和最终原件已有限接受；本批独立审Context差额，不参与接口设计，不外推sealed Snapshot、Running、Tool调用或生产app。 |
+| work_ui / 已交付环境与只读协助 | `/workspace/agenteam-task-human-http` / `ai/execution-secret-environment`：00053环境租约已交付，源码停写；仅只读核fixed Spec至模型投影的可复用模块，不扩Context写域。 |
+| skills_http / Context真实组合 | `/workspace/agenteam-task-flow-delivery` / `ai/execution-context-delivery`，基main `41aa7766`：最小真实00054输入→Build→修改current后仍固定Context；当前仅源码实施、未Go。旧Model/Environment分支及全部原PASS/FAIL保留。 |
 | coordination / codec与Prompt | `ai/execution-input-codec`及远端/source refs保留；临时物理树`/workspace/agenteam-execution-input-codec`经owner确认clean、无消费者或独有ignored材料后已由root正常remove（actual0）。四路径源码随main交付，4 top已通过；完整编码仅显式储存接口可取上下文正文，Secret仅引用/lease元数据。 |
 | cleanup / content | `/workspace/agenteam-skill-install` / `ai/skill-install`：Human Install/LookupInstall、普通读取与清理已随main有限交付；domain安装读取重放、原Object/Audit事实及普通清理两sub真实通过，定向pure/race/vet证据按版本复用。旧树已可逆sparse停放，原ignored材料保留；原Project/外人码/素材/Audit查询夹具FAIL保留。真实Source配置装配已进Agent创建链，AgentRun/Runtime实际调用仍未验。 |
 | coordination | 统筹合同、唯一写者及必要恢复说明，不作为参与设计或编码范围的独立验收者。 |
@@ -56,7 +58,7 @@ Object Runtime join、OpenAI tools 独立动态验收、Central SPA concurrent-p
 
 ## 恢复与容量
 
-原四树继续使用上表Model/Execution/Environment/delivery分支，均与旧refs及ignored原件原位保留；本批临时codec树已正常remove，其分支及远端/source refs保留；旧`ai/capture-provider-delivery`已ff并推送正式main `6fef88e8`，原capture-provider refs/ignored全部保留；旧runner/traversal/test/delivery及更早refs保留。上一片Skill/Tool已有限验收并交付main；当前Model/环境/input片已随main `41aa7766`正式交付，delivery已ff/push同一main；仅下述精确生成物按owner授权退休，原FAIL与恢复材料保持。各域discovery/final仍绑定原私有attempt，输入缺项整Tx回滚；完整input提交也不等于sealed Snapshot。原retry、binding、unblock及更早topic，以及ignored PASS/FAIL、候选、输入、结果与日志全部原位保留；四个逐次launcher/app-checks仍只在旧topic。当前无Go/cache/native活动，不扫描或删除恢复材料。
+原四树原位保留：TaskTransition及delivery物理树复用为上表Context两分支，另外两树停写；旧Model/Execution/Environment/delivery refs与ignored原件不动；本批临时codec树已正常remove，其分支及远端/source refs保留；旧`ai/capture-provider-delivery`已ff并推送正式main `6fef88e8`，原capture-provider refs/ignored全部保留；旧runner/traversal/test/delivery及更早refs保留。上一片Skill/Tool已有限验收并交付main；当前Model/环境/input片已随main `41aa7766`正式交付，delivery已ff/push同一main；仅下述精确生成物按owner授权退休，原FAIL与恢复材料保持。各域discovery/final仍绑定原私有attempt，输入缺项整Tx回滚；完整input提交也不等于sealed Snapshot。原retry、binding、unblock及更早topic，以及ignored PASS/FAIL、候选、输入、结果与日志全部原位保留；四个逐次launcher/app-checks仍只在旧topic。当前无Go/cache/native活动，不扫描或删除恢复材料。
 
 当前无Go/cache writer或native在途。本批经owner确证精确退休三个旧成功candidate合计180,326,314 B，以及独立WorkUI旧go-build缓存622,895,104 B；源码、FAIL、shared hot/mod、原inputs/results/logs不动，不据此授权其它清理。此前secret经content明确owner确认，仅退休 `/workspace/agenteam-knowledge-content-http/output/ai/knowledge-content-http/gocache`，生成缓存1,041,469,440 B，actual0/absent=true；一次实际可用6,372,360,192 B，比5GiB多1,003,651,072 B。shared hot/mod及其它cache、FAIL、source、inputs/results/logs、MinIO、refs均未动，当时旧Skills/WorkUI缓存保留，后续仅本段明确的WorkUI旧生成缓存已退休；此前compile02及首次native已wholePASS，原容量FAIL保留。HTTP `857d85`、Work `91e384`、Scheduler `e0fe`三个donor的tracked docs已获owner确认可逆停放，source、refs与原evidence保留；该事实不授权删除其它路径。
 
