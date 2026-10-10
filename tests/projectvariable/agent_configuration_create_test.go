@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -163,15 +164,9 @@ func newAgentCreateFixture(t *testing.T) *agentCreateFixture {
 	t.Helper()
 	var installer *toolruntime.InstallAuthority
 	var process objc.ProcessID
-	p2 := newSkillInstallationFixtureWithAuthority(t, func(store *hookStore, projects *project.Authority, guard *object.ProcessGuard, p objc.ProcessID) (*skill.Authority, error) {
-		process = p
-		var err error
-		installer, err = toolruntime.NewInstallAuthority(store, guard, p)
-		if err != nil {
-			return nil, err
-		}
-		// Also registered on construction failure, before the guard is closed.
-		t.Cleanup(func() {
+	var installerRetired sync.Once
+	retireInstaller := func() {
+		installerRetired.Do(func() {
 			installer.Stop()
 			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 			defer cancel()
@@ -179,8 +174,20 @@ func newAgentCreateFixture(t *testing.T) *agentCreateFixture {
 				t.Error("actual InstallAuthority did not retire", err)
 			}
 		})
+	}
+	p2 := newSkillInstallationFixtureWithAuthority(t, func(store *hookStore, projects *project.Authority, guard *object.ProcessGuard, p objc.ProcessID) (*skill.Authority, error) {
+		process = p
+		var err error
+		installer, err = toolruntime.NewInstallAuthority(store, guard, p)
+		if err != nil {
+			return nil, err
+		}
+		// Construction-failure fallback; the successful composition below
+		// retires this borrower before Runtime releases its original guard.
+		t.Cleanup(retireInstaller)
 		return skill.NewAuthorityWithInstallExecution(store, projects, installer)
 	})
+	t.Cleanup(retireInstaller)
 	source, err := toolruntime.NewInstallSource(installer, p2.service)
 	if err != nil {
 		t.Fatal(err)

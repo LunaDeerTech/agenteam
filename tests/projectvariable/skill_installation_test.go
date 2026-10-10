@@ -168,17 +168,49 @@ func newSkillInstallationFixtureWithAuthority(t *testing.T, factory func(*hookSt
 		_ = backend.Close()
 		t.Fatal(err)
 	}
+	var objectRuntime *object.Runtime
 	t.Cleanup(func() {
-		objects.StopAdmission()
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		defer cancel()
+		if objectRuntime != nil {
+			objectRuntime.StopAdmission()
+			if err := objectRuntime.Drain(ctx); err != nil {
+				t.Error("original Object runtime drain", err)
+				_ = objectRuntime.Force(ctx)
+			}
+			return
+		}
+		objects.StopAdmission()
 		if err := objects.Drain(ctx); err != nil {
 			t.Error("original Object drain", err)
 			_ = objects.Force(ctx)
 		}
 	})
-	if err = objects.Initialize(ctxFor(t)); err != nil {
-		t.Fatal("Object initialize", err)
+	if factory == nil {
+		if err = objects.Initialize(ctxFor(t)); err != nil {
+			t.Fatal("Object initialize", err)
+		}
+	} else {
+		// Only Runtime.Initialize binds the original process claim/guard.
+		// An initialized Object Service alone is not a Runtime Source witness.
+		endpoint, err := object.LoadTransferEndpoint(func(string) (string, bool) { return "", false }, config)
+		if err != nil {
+			t.Fatal(err)
+		}
+		transfers, err := object.NewTransferService(objects, nil, endpoint)
+		if err != nil {
+			t.Fatal(err)
+		}
+		objectRuntime, err = object.NewRuntime(objects, guard, transfers)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = objectRuntime.Initialize(ctxFor(t)); err != nil {
+			t.Fatal("real Object runtime initialize", err)
+		}
+		if bound, err := guard.CurrentProcess(); err != nil || bound != process {
+			t.Fatal("original Runtime did not bind its exact process guard", err)
+		}
 	}
 	bundle, err := skill.AddSkills(ctxFor(t))
 	if err != nil {
