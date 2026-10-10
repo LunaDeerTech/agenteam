@@ -1,0 +1,424 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "agenteam current Human Owner Knowledge content",
+    "version": "1.0.0",
+    "description": "Independent GET/HEAD only. One original 2s budget includes actual ReadDocument, canonical reader Close and transport completion. No download, raw stream, parser or root binding."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/knowledge/documents/{document_id}/content": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "byte_offset",
+          "in": "query",
+          "required": false,
+          "allowEmptyValue": false,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/Progress"
+          },
+          "description": "Canonical unsigned decimal int64 bytes. Default 0; UTF-8 character boundary. No version/Range semantics."
+        },
+        {
+          "name": "max_bytes",
+          "in": "query",
+          "required": false,
+          "allowEmptyValue": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1048576,
+            "default": 65536
+          },
+          "description": "Canonical positive decimal without sign or leading zeros; maximum text UTF-8 bytes, not encoded JSON bytes."
+        }
+      ],
+      "get": {
+        "operationId": "knowledgeOwnerContentGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized complete bounded JSON; HEAD performs the same actual read and Close, but sends no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Content"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "410": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "knowledgeOwnerContentHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized complete bounded JSON; HEAD performs the same actual read and Close, but sends no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "401": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "403": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "404": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "405": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "409": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "410": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "500": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "503": {
+            "$ref": "#/components/responses/HeadProblem"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account session cookie; configured loopback HTTP uses agenteam_local_session. No bearer or caller-supplied Actor."
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Safe Problem, preserving original code and commit state. Read Unknown publishes no candidates and a subsequent GET is not commit confirmation.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "HeadProblem": {
+        "description": "Same Problem status and headers as GET, with no response body."
+      }
+    },
+    "schemas": {
+      "Document": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "parent_document_id",
+          "title",
+          "content_version",
+          "source_kind",
+          "media_type",
+          "status",
+          "indexing_status",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "parent_document_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])",
+            "maxLength": 512
+          },
+          "content_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "source_kind": {
+            "enum": [
+              "text",
+              "file"
+            ]
+          },
+          "media_type": {
+            "enum": [
+              "text/plain",
+              "text/markdown",
+              "application/pdf",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ]
+          },
+          "status": {
+            "const": "active"
+          },
+          "indexing_status": {
+            "enum": [
+              "pending",
+              "processing",
+              "ready",
+              "failed"
+            ]
+          },
+          "created_by": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "user_id"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "human"
+                  },
+                  "user_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "project_id",
+                  "agent_id",
+                  "execution_id"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "agent_run"
+                  },
+                  "project_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "agent_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "execution_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                }
+              }
+            ]
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "source_kind": {
+                  "const": "text"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "media_type": {
+                  "enum": [
+                    "text/plain",
+                    "text/markdown"
+                  ]
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "media_type": {
+                  "enum": [
+                    "application/pdf",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Text": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "next_byte_offset",
+          "truncated"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 1048576,
+            "description": "Valid UTF-8, at most requested max_bytes encoded UTF-8 bytes; no split character."
+          },
+          "next_byte_offset": {
+            "$ref": "./common.json#/components/schemas/Progress"
+          },
+          "truncated": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Content": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "document",
+              "text"
+            ],
+            "properties": {
+              "document": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Document"
+                  },
+                  {
+                    "properties": {
+                      "source_kind": {
+                        "const": "text"
+                      }
+                    }
+                  }
+                ]
+              },
+              "text": {
+                "$ref": "#/components/schemas/Text"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "document",
+              "unavailable"
+            ],
+            "properties": {
+              "document": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Document"
+                  },
+                  {
+                    "properties": {
+                      "source_kind": {
+                        "const": "file"
+                      }
+                    }
+                  }
+                ]
+              },
+              "unavailable": {
+                "const": "dependency_unbound"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
