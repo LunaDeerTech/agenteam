@@ -1,4 +1,4 @@
-# 当前工作：Runner 00026 有限 Linux 验收完成，待原子正式整合
+# 当前工作：Runner 00026 已有限交付；P2/00027 独立装配审查
 
 - 工作树 `/workspace/agenteam-runner-control-delivery`，分支 `ai/runner-control-delivery`；精确正式基线 `4c1db71cf0f86cb6d6330167577944b0466c8664`。本文件是 WIP 恢复入口，不列入最终正式 main 产品提交。Git/index/resolved/checkpoint 仍由 root 操作。
 - 装配来源为作者基线 `f1c94ee520e8153e935fea7e7ed269e7e8b9adca` 到 `101a7b7cdc8a2615d02fc0556c128eb62a223003` 的有限 107 路径差异，另取独立树 `af51e339bcb1a8714c24dbfa05b8cdbe223454ff` 的 `tests/runnercontrol/independent_{fixture,management,unknown}_test.go`，合计 110 路径。精确分组清单在作者树 `.agent-state/runner-control/delivery-scope.json`；不复制 WIP supervisor/driver/review/probe、output/cache、UI 或其他业务。
@@ -69,3 +69,15 @@ CLI入口两must-fix经Vars独立e1da5f的25控（原两红转绿）及f4ab9f作
 root经owner确认已回收旧已PASS的`runnercontrol-default-failures-race-3.test`（33,351,096B）及`runnercontrol-os-signals-race.test`（18,980,155B）；原测试源/日志/结果与失败候选、固定OS probe cmd、当前new-main/CLI两产物均保留。这两个旧二进制若再需要须按原保存source重建，本轮无排队用途。
 
 当前无活命令或真实资源；所有技术与三个正式docs/current保持freeze。此检查点只表示限定验收完成，正式main提交/远端发布由root在独立fresh main release树完成后报告，不提前冒已正式main。
+
+## P2/00027 独立装配审查（非实现）
+
+root已将有限Runner26按111正式路径原子提交为`fb6ab7f492850bf1d3c025a59acbff381312a989`并确认正常main push；本域新任务只独审`/workspace/agenteam-skills-p2-delivery`在该精确基线的P2装配。来源为`eaad50fdb08e248b850a65c74f49d3aabf73b682`和独立`5bb671868ce5b4f9f0ff18fde0a692d432392911`，清单固定fb321664的`.agent-state/skills-cleanup/p2-delivery.md`；不得从带Cleanup/28新实现的当前Skills树复制产品。
+
+本人只写`.agent-state/skills-p2-delivery-review/assembly.py`和本current，不写P2源码/SQL/文档/Git。`python3 -B .agent-state/skills-p2-delivery-review/assembly.py` d154f6 actual0：42新增blob（含独验pure移位）与固定源逐字；共享Object5文件逆去既定hunk逐字回到fb6；技术差异恰47，其它main B02/Variables/Audit/Project/P1/Runner域无差异；commitproxy原正式依赖保留；原迁移1..26逐字，新增27且连续无28。d46c63另核正式26与P2已验前缀同字节；没有SQL执行结论。
+
+装配独审现有限接受，无剩余must-fix。Skills作者33262→25555d实际outer0：Skill race42top183sub、Object定向5top10sub、Project受影响13top57sub均无skip；三包/contract vet0，一次integration race-c0、精确九top发现0。候选33,061,778B，原结果保存在P2树`output/ai/skills-p2-delivery/validation/results.json`。本人d92424只读解析原Go事件，逐package/test核RUN与PASS恰一次、零FAIL/SKIP及九top清单闭合；实际外层终态复用作者25555d，不冒本人执行Go。作者首fresh门通过、整个离线串结束可用量约5.070GB，只证明首门，不冒每段另做fresh检查。
+
+四正式文档最终f800af只读核actual0：README仅P2新增段及provider句校正，其余main段保留；tasks恰D10一行；design §9 P1逐字、无§16/00028；卡保留原4315/P2-01 wholeFAIL、分版本复用与Runtime=nil边界。独审曾要求修正§5把完整participant误称本次注册、Variables误称未来启用的旧表述，Skills已改为后续按实际组合/manifest声明，本P2仅Skills精确Stop、不注册完整participant；README“上述P2”同步纠正。本人首d2d66f因自己的预期字符串漏“完整”而断言失败，修正proof后f800af通过，不计产品或文档缺陷。52b25e/337523恢复核确认两处最终字节和diffcheck仍通过，技术未改。
+
+本次可交付集合为42新增＋5共享技术＋4正式文档＝51路径，WIP current/review不进入正式产品。旧作者/独验PG与真实D05矩阵按固定来源不变语义复用，不重新发起PG/MinIO/native；P2完整Cleanup/生命周期participant/production root/Runtime和00028不在本次范围。本人只完成有限装配、受影响验证证据和文义独审，00027正式提交/发布仍由root完成后报告。自有assembly.py和本current冻结供保存；本人无活命令或真实资源。
