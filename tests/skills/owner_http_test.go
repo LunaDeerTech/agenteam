@@ -155,7 +155,7 @@ func TestSkillOwnerReadHTTPMetadata(t *testing.T) {
 		for _, tc := range []struct {
 			method, suffix, body string
 			status               int
-		}{{"GET", "?", "", 400}, {"GET", "?limit=1", "", 400}, {"GET", "?q=PRIVATE_QUERY_canary", "", 400}, {"GET", "?%6cimit=1&limit=2", "", 400}, {"GET", "/not-id", "", 400}, {"GET", "/", "", 404}, {"GET", "", "x", 400}, {"POST", "", "", 405}} {
+		}{{"GET", "?", "", 400}, {"GET", "?limit=1", "", 400}, {"GET", "?q=PRIVATE_QUERY_canary", "", 400}, {"GET", "?%6cimit=1&limit=2", "", 400}, {"GET", "/not-id", "", 400}, {"GET", "/", "", 400}, {"GET", "/a/b", "", 404}, {"GET", "", "x", 400}, {"POST", "", "", 405}} {
 			r := v.request(t, v.ownerBrowser, tc.method, base+tc.suffix, tc.body, "")
 			r.want(t, tc.status)
 			if bytes.Contains(r.body, []byte("PRIVATE_QUERY_canary")) {

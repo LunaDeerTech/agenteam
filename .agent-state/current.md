@@ -10,6 +10,8 @@
 
 默认 root、真实 Project→Skills 初始化与 Project Skills UI 的后继接缝已写入正式 HTTP 卡，由 root 协调候选装配与界面写者；本树不跨写根装配，也不解除 Object Runtime join 等四停项。
 
+coordination 本轮独审指出真实 PG 方法的一项预期错误：Account `HTTPBoundary.CheckRequest` 先拒绝 `/skills/` 非规范路径，原 PG 表却期望 404。仅修 `owner_http_test.go` 该格为 400，并加入规范但未匹配 `/skills/a/b` 的 404 控制；子例/top 数保持 12/4，产品不变，纯控制的私有 Boundary 局部路由 404 不外推真实 Account。正式卡已明确该优先次序。此为未运行 PG 方法修正，不构造原产品动态 FAIL；PG 候选须从该修订重建并交未参与者复核。
+
 ## 已保存的原环境证据
 
 工作树 `/workspace/agenteam-skills-owner-http`，分支 `ai/skills-owner-http`，基线正式 main `3b7ed9da`。唯一作者 Runner；Git 保存与真实资源窗口由 root 负责。
