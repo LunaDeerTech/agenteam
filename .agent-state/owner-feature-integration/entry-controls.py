@@ -58,7 +58,7 @@ for path in union.PATHS['d05']:
         inverse = inverse[:start] + inverse[end:]
     else:
         start = inverse.index("        if args.run == '^TestObjectMetadataCleanup(ProjectHistoryPlans")
-        end = inverse.index('    skill_selected = ', start)
+        end = inverse.index('    if args.run in CONTENT_GROUPS:', start)
         inverse = inverse[:start] + inverse[end:]
     check(inverse == union.baseline_for(path, 'd05'), 'other domains and entire original source preserved')
 

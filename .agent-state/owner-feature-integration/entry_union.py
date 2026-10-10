@@ -1,4 +1,4 @@
-"""Offline exact-source union for the three accepted, independently owned deltas.
+"""Offline exact-source union for four accepted, independently owned deltas.
 
 Every baseline request first compares the real candidate with the complete
 union. Unknown edits or overlapping replacement hunks fail; no gate is mocked.
@@ -11,7 +11,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[2]
 BASE = '280a6431'
 SOURCES = {'skills_http': '1e260d55', 'd05': '52a42627',
-           'skills_cleanup': '92cfb069'}
+           'skills_cleanup': '92cfb069', 'knowledge_content': '9b9d1e7c'}
 SUP = '.agent-state/task-planning-recovery/pg_only_supervisor.py'
 DRIVER = '.agent-state/work-owner-http/root_chain_driver.py'
 PATHS = {
@@ -19,6 +19,7 @@ PATHS = {
                     '.agent-state/work-owner-http/native_driver.go'),
     'd05': (SUP, DRIVER),
     'skills_cleanup': (SUP, DRIVER),
+    'knowledge_content': (SUP, DRIVER, '.agent-state/work-owner-http/native_driver.go'),
 }
 
 
@@ -67,12 +68,69 @@ def apply_delta(base, changed, current):
     return current
 
 
+def apply_content_delta(path, base, changed, current):
+    """Resolve only the known shared input/gate insertion points explicitly."""
+    if path == DRIVER:
+        return apply_delta(base, changed, current)
+    if path.endswith('native_driver.go'):
+        old_line = next(line for line in base.splitlines(True) if line.startswith('\tif opts.Parse('))
+        new_line = next(line for line in changed.splitlines(True) if line.startswith('\tif opts.Parse('))
+        gate = ' else if contentNative(*selector) {\n\t\tnativeGate = "AGENTEAM_KNOWLEDGE_CONTENT_HTTP_NATIVE"\n\t}'
+        assert changed.count(gate) == 1
+        remainder = changed.replace(new_line, old_line).replace(gate, '')
+        current = apply_delta(base, remainder, current)
+        actual_line = next(line for line in current.splitlines(True) if line.startswith('\tif opts.Parse('))
+        skill_line = next(line for line in source(SOURCES['skills_http'], path).splitlines(True)
+                          if line.startswith('\tif opts.Parse('))
+        assert actual_line in (old_line, skill_line)
+        current = current.replace(actual_line, actual_line.replace(
+            ' && !variableNative(*selector)',
+            ' && !variableNative(*selector) && !contentNative(*selector)'))
+        start, end = current.index('\tnativeGate := '), current.index('\t// Copy inherited')
+        original_gate = current[start:end]
+        known_gates = []
+        for text in (base, source(SOURCES['skills_http'], path)):
+            known_gates.append(text[text.index('\tnativeGate := '):text.index('\t// Copy inherited')])
+        assert original_gate in known_gates and original_gate.endswith('\t}\n')
+        combined_gate = original_gate[:-3] + '\t}' + gate + '\n'
+        return current[:start] + combined_gate + current[end:]
+    assert path == SUP
+    inputs = ('    if args.run in CONTENT_GROUPS:\n'
+              '        inputs.update({str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest() for p in content_inputs(args.run)})\n')
+    old_same = ('            same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest\n'
+                '                       for p, digest in inputs.items())\n')
+    new_same = ('            same = (content_same(inputs, args, adapter) if args.run in CONTENT_GROUPS else\n'
+                '                    all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest\n'
+                '                        for p, digest in inputs.items()))\n')
+    mapping = '        CONTENT_PG: set(CONTENT_GROUPS[CONTENT_PG]),\n'
+    assert changed.count(inputs) == changed.count(new_same) == changed.count(mapping) == 1
+    remainder = changed.replace(inputs, '').replace(new_same, old_same).replace(mapping, '')
+    current = apply_delta(base, remainder, current)
+    expected = current.index('    expected = {\n', current.index('def observe_root_chain('))
+    at = expected + len('    expected = {\n')
+    current = current[:at] + mapping + current[at:]
+    anchor = ('    skill_selected = not args.root_chain and args.run in SKILL_HTTP_CASES\n'
+              if '    skill_selected = ' in current else '    baseline = tcp()\n')
+    assert current.count(anchor) == 1
+    current = current.replace(anchor, inputs + anchor)
+    # Preserve the already selected Skill input check. The original content
+    # conditional belongs inside its else, with identical behavior otherwise.
+    for indent in ('', '    '):
+        prior = ''.join(indent + line for line in old_same.splitlines(True))
+        if current.count(prior) == 1:
+            replacement = ''.join(indent + line for line in new_same.splitlines(True))
+            return current.replace(prior, replacement, 1)
+    raise AssertionError('unrecognized shared input-consistency branch')
+
+
 def combined(path, omit=None):
     base = source(BASE, path)
     current = base
     for domain, ref in SOURCES.items():
         if domain != omit and path in PATHS[domain]:
-            current = apply_delta(base, source(ref, path), current)
+            changed = source(ref, path)
+            current = (apply_content_delta(path, base, changed, current)
+                       if domain == 'knowledge_content' else apply_delta(base, changed, current))
     return current
 
 

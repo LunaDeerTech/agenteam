@@ -28,6 +28,118 @@ def budgets(root_chain):
     return (540, 60) if root_chain else (123, 3)
 
 
+CONTENT_PG = '^TestKnowledgeOwnerContentHTTP(CurrentBytes|CurrentAuthority|ReaderOwnership|ReadTransactions)$'
+CONTENT_NATIVE = '^TestContentHTTPNative(Deadlines|KeepAliveAndClose|BackpressureAndDisconnect)$'
+CONTENT_GROUPS = {
+    CONTENT_PG: {
+        'TestKnowledgeOwnerContentHTTPCurrentBytes': ('utf8_slices_default_head_and_zero_business_facts', 'default_and_maximum_are_utf8_byte_limits', 'real_pdf_docx_have_no_readable_provider', 'deleted_410_missing_foreign_404_and_bodyless_head'),
+        'TestKnowledgeOwnerContentHTTPCurrentAuthority': ('real_account_before_query_and_safe_rejection', 'new_actual_login_then_formal_logout', 'uninitialized_archived_and_deleting_read_gate', 'owner_changed_sql_fact_requires_new_authority'),
+        'TestKnowledgeOwnerContentHTTPReaderOwnership': ('current_owner_after_real_object_open', 'current_deleted_after_real_object_open', 'real_eof_and_d05_close_do_not_finish_held_consumer'),
+        'TestKnowledgeOwnerContentHTTPReadTransactions': ('commit_not_forwarded', 'commit_applied_ack_lost', 'original_select_cancelled_and_transaction_retired'),
+    },
+    CONTENT_NATIVE: {
+        'TestContentHTTPNativeDeadlines': ('read-natural', 'earlier-parent'),
+        'TestContentHTTPNativeKeepAliveAndClose': ('cleared-deadline-keeps-real-connection', 'real-body-close-error-aborts-before-response'),
+        'TestContentHTTPNativeBackpressureAndDisconnect': ('content-write-natural-deadline', 'disconnect-cancels-actual-library-tail'),
+    },
+}
+
+
+def content_schema_python():
+    raw = os.environ.get('AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON', '')
+    path = Path(raw)
+    if not raw or not path.is_absolute() or not path.is_file() or not os.access(path, os.X_OK):
+        raise ValueError('explicit local Schema interpreter required')
+    return path.resolve(strict=True)
+
+
+def content_inputs(selector=None):
+    root = Path(__file__).resolve().parents[2]
+    paths = {Path(__file__).resolve(), root / '.agent-state/work-owner-http/root_chain_driver.py',
+             root / '.agent-state/work-owner-http/native_driver.go',
+             root / '.agent-state/knowledge-content-http/schema-controls.py',
+             root / 'api/openapi/knowledge-content.json', root / 'api/openapi/common.json',
+             root / 'go.mod', root / 'go.sum', Path('/workspace/toolchains/go1.27.1/bin/go'),
+             root / 'internal/central/account/assets/weak-passwords.json',
+             root / 'internal/central/skill/builtin/add-skills/v1/SKILL.md'}
+    for directory in ('internal', 'cmd', 'tests/testsupport'):
+        paths.update(p for p in (root / directory).rglob('*.go') if not p.name.endswith('_test.go'))
+    paths.update((root / 'internal/central/knowledge/contenthttp').glob('*.go'))
+    paths.update((root / 'tests/knowledge').glob('*.go'))
+    paths.update((root / '.agent-state/project-variables-independent/commitproxy').glob('*.go'))
+    paths.update((root / 'db/migrations').glob('*.go'))
+    paths.update((root / 'db/migrations').glob('*.sql'))
+    if selector == CONTENT_PG:
+        paths.add(content_schema_python())
+    return sorted(paths)
+
+
+def content_exact(path, selector):
+    try:
+        output = path.read_text()
+    except (OSError, UnicodeError):
+        return False
+    groups = CONTENT_GROUPS[selector]
+    expected = set(groups) | {parent + '/' + child for parent, children in groups.items() for child in children}
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    passes = re.findall(r'^\s*--- PASS: (\S+) \(', output, re.M)
+    return (len(runs) == len(expected) and set(runs) == expected
+            and len(passes) == len(expected) and set(passes) == expected
+            and re.search(r'^(?:FAIL(?:\s|$)|\s*--- (?:FAIL|SKIP):)', output, re.M) is None)
+
+
+def content_root(directory, log, path, selector):
+    try:
+        observed = observe_root_chain(directory, log, path, selector)
+        output = path.read_text()
+        waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=' + re.escape(selector) + r'$', output, re.M)
+        observed = observed and len(waits) == 1 and waits[0][1] == '0'
+    except (OSError, UnicodeError):
+        observed = False
+    exact = content_exact(path, selector)
+    log.write(f'ROOT content_exact={exact} original_wait={observed}\n')
+    return observed and exact
+
+
+def content_native(directory, log, path, selector):
+    good = False
+    try:
+        output = path.read_text()
+        manifest = directory / 'owned.json'
+        if manifest.is_symlink() or manifest.stat().st_mode & 0o777 != 0o600 or manifest.stat().st_size > 4096:
+            raise ValueError('invalid native owned record')
+        record = json.loads(manifest.read_text())
+        pid = record.get('child_pid')
+        if set(record) != {'kind', 'child_pid'} or record['kind'] != 'work-http-native' or type(pid) is not int or pid <= 0:
+            raise ValueError('invalid native child identity')
+        starts = re.findall(r'^CHILD pid=([1-9][0-9]*) selector=' + re.escape(selector) + r' kind=native-http$', output, re.M)
+        waits = re.findall(r'^CHILD actual_wait pid=([1-9][0-9]*) state=exit status (\d+)$', output, re.M)
+        terminals = re.findall(r'^DRIVER terminal exit=0 elapsed=\d+\.\d+s child_started=true actual_child_wait=true private_removed=true$', output, re.M)
+        runtime = re.findall(r'^NATIVE runtime_empty=true actual_child_wait=true$', output, re.M)
+        tmp = directory / 'tmp'
+        good = (starts == [str(pid)] and waits == [(str(pid), '0')] and len(terminals) == 1
+                and len(runtime) == 1 and not tmp.exists() and not tmp.is_symlink())
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError):
+        pass
+    exact = content_exact(path, selector)
+    log.write(f'NATIVE content_exact={exact} original_wait_private={good}\n')
+    return good and exact
+
+
+def content_same(inputs, args, adapter):
+    # Re-enumerate this exact branch's closure: a newly added or removed source
+    # is drift even if every originally hashed file is otherwise unchanged.
+    try:
+        if args.run == CONTENT_PG and os.environ.get('AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON') != args.content_schema_python:
+            return False
+        paths = {p.resolve() for p in content_inputs(args.run)}
+        paths.update(p.resolve() for p in (adapter.input_paths(args.binary) if adapter is not None else (args.driver, args.binary)))
+        return (paths == {Path(p) for p in inputs}
+                and all(p.is_file() and not p.is_symlink() and hashlib.sha256(p.read_bytes()).hexdigest() == inputs[str(p)] for p in paths))
+    except (OSError, ValueError, TypeError):
+        return False
+
+
 def root_adapter(driver):
     expected = Path(__file__).resolve().parents[2] / '.agent-state/work-owner-http/root_chain_driver.py'
     if driver.resolve() != expected:
@@ -161,6 +273,7 @@ def observe_root_chain(directory, log, log_path, selector):
     else:
         output = log_path.read_text()
     expected = {
+        CONTENT_PG: set(CONTENT_GROUPS[CONTENT_PG]),
         '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|PendingHistoryAndCausePlans)$': {'TestObjectMetadataCleanupLiveTransferAndDownloadPlans', 'TestObjectMetadataCleanupPendingHistoryAndCausePlans'},
         '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans)$': {'TestObjectMetadataCleanupLiveTransferAndDownloadPlans', 'TestObjectMetadataCleanupFinalAnchorForeignKeyPlans', 'TestObjectMetadataCleanupPendingHistoryAndCausePlans'},
         '^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$': {'TestObjectMetadataCleanupProjectHistoryPlans', 'TestObjectMetadataCleanupSkillsIndexPlans', 'TestObjectMetadataCleanupTransferAndForeignKeyPlans'},
@@ -344,6 +457,14 @@ def main():
     adapter = root_adapter(args.driver) if args.root_chain else None
     if adapter is not None and args.run not in adapter.TARGETS:
         parser.error('root mode requires one exact Work root selector')
+    if args.run in CONTENT_GROUPS and args.root_chain != (args.run == CONTENT_PG):
+        parser.error('exact content selector requires its declared mode')
+    if args.run == CONTENT_PG:
+        try:
+            content_schema_python()
+            args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
+        except (OSError, ValueError):
+            parser.error('explicit local content Schema interpreter required')
     args.output.mkdir(parents=True, exist_ok=True)
     stem = 'pg-' + uuid.uuid4().hex
     directory = args.output.resolve() / stem
@@ -361,6 +482,8 @@ def main():
             inputs.update({str(p): adapter.sha(p) for p in adapter.metadata_cost_inputs()})
         if args.run in ('^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans)$', '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|PendingHistoryAndCausePlans)$'):
             inputs.update({str(p): adapter.sha(p) for p in adapter.metadata_remaining_cost_inputs()})
+    if args.run in CONTENT_GROUPS:
+        inputs.update({str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest() for p in content_inputs(args.run)})
     skill_selected = not args.root_chain and args.run in SKILL_HTTP_CASES
     if skill_selected:
         inputs = skill_http_inputs(args.driver, args.binary, args.run)
@@ -450,7 +573,10 @@ def main():
                 remaining = descendants(os.getpid())
                 log.write(f'OWNED runtime_observation={round} descendants={sorted(remaining)}\n')
                 if remaining: code = 1
-            if args.root_chain and not observe_root_chain(directory, log, log_path, args.run):
+            if args.root_chain and not (content_root(directory, log, log_path, args.run)
+                    if args.run == CONTENT_PG else observe_root_chain(directory, log, log_path, args.run)):
+                code = 1
+            if not args.root_chain and args.run == CONTENT_NATIVE and not content_native(directory, log, log_path, args.run):
                 code = 1
             if skill_selected and not observe_skill_http(directory, log, log_path, args.run):
                 code = 1
@@ -475,8 +601,9 @@ def main():
                 except (OSError, ValueError):
                     same = False
             else:
-                same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
-                           for p, digest in inputs.items())
+                same = (content_same(inputs, args, adapter) if args.run in CONTENT_GROUPS else
+                        all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
+                            for p, digest in inputs.items()))
             if not same: code = 1
             if interrupted: code = 1
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')
