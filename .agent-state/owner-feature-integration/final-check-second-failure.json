@@ -1,0 +1,90 @@
+{
+  "source": "bacbb28d",
+  "command": [
+    "sh",
+    "scripts/check-go.sh"
+  ],
+  "outer_pid": 201522,
+  "utc_start": "2026-10-10T04:35:16Z",
+  "fresh_free_bytes": 11646693376,
+  "schema_environment": {
+    "AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_MODEL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_CREDENTIAL_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_MODEL_CONFIGURATION_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_READ_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_PROJECT_VARIABLE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_WORK_HTTP_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_SKILL_HTTP_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_KNOWLEDGE_HTTP_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_USAGE_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "AGENTEAM_USAGE_SCHEMA_NODE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node"
+  },
+  "python": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "python": "3.12.14",
+    "jsonschema": "4.26.0",
+    "referencing": "0.37.0"
+  },
+  "node": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "node": "v24.19.0"
+  },
+  "removed_environment_names": [],
+  "supervisor_sha256": "4e52d7628c43391bbe184ae179097c42ed201185a703cef372bb7ad7bc9fa4e7",
+  "script_pid": 201533,
+  "terminal": 1,
+  "script_exit": 1,
+  "seconds": 103.661,
+  "status": "whole FAIL",
+  "tool_session": 99351,
+  "tool_chunk": "fa31fd",
+  "outer_actual_exit": 1,
+  "failed_packages": [
+    "github.com/LunaDeerTech/agenteam/internal/central/audit/http"
+  ],
+  "passed_packages": 66,
+  "failure_excerpt": [
+    "--- FAIL: TestProjectAuditHTTPPureWireAndMaximumPage (20.15s)",
+    "    project_wire_test.go:393: MAXIMUM_PAGE actual_bytes=598220 records=200 largest_action=object.transfer.revoke largest_record=2949 cursor_bytes=8192 budget=1048576",
+    "    project_wire_test.go:448: REAL_SIGNER_PAGE bytes=590584 token_bytes=556; SQL 201 sentinel/sign-last-row is a separate query/PG acceptance item",
+    "    project_wire_test.go:449: standard schema validation failed: signal: killed ",
+    "FAIL",
+    "FAIL\tgithub.com/LunaDeerTech/agenteam/internal/central/audit/http\t32.825s"
+  ],
+  "unreached_stages": [
+    "go vet ./...",
+    "go vet -tags=integration ./...",
+    "go test -race ./...",
+    "sh scripts/build-go.sh"
+  ],
+  "original_tail": {
+    "descendants": [
+      [],
+      []
+    ],
+    "runtime_empty": [
+      true,
+      true
+    ],
+    "tcp_empty": [
+      true,
+      true
+    ],
+    "tcp_budget_seconds": 75,
+    "diagnostic_end": {
+      "elapsed": 103.661071,
+      "kind": "diagnostic_end",
+      "last_delta": [],
+      "last_delta_count": 0,
+      "last_original_sample": {
+        "elapsed": 103.66099,
+        "sample": 205,
+        "utc_ns": 1791607020231782530
+      },
+      "samples": 205
+    }
+  },
+  "source_scope_note": "Product Go inputs held stable by coordinated writers. No full-repository initial/final input hash gate was implemented in this local script wrapper. Content reported a documentation-only d12-knowledge-documents.md draft moved to the new UI tree and restored during this invocation; no Go test references this work-item path were found. Do not claim initial whole-tree clean or a full-repository byte freeze."
+}

@@ -76,9 +76,13 @@
 - 原监督器survivor/reap/desc双观察及75s TCP双empty代码节点逐字复用；scriptWait1、desc两次[]、task runtime两次空、原TCP两次空均完成。同步诊断539次，末原delta0，diagnostic_end218.964817s。随后包装元数据格式化的`round`循环变量遮蔽内置函数引发TypeError，tool f2412d actual1；此包装FAIL与原结果均保留，原result.json不补terminal、无后验采样回填。窗口已释放，无本人子进程/资源在途。安全摘要首次正则跨行导致包数断言拒绝，改按原FAIL制表符整行提取后恰11包，不改原结果。
 - 最小后续：原领域作者核cmd新required和app真实单例AST路径，先不改生产；归档应保13个原probe字节/路径，以文档Go模块边界避免根`./...`将历史overlay当产品；补齐实际源码枚举的11项Schema Python和Usage Node。修正后将原完整五阶段脚本重新执行，不以失败包子集替代全仓检查。没有自动重试原脚本，也没有因已有根wholePASS跳过最终门；正式main暂不交付。
 
-## 最终检查02准备（未执行）
+## 最终检查02方法准备与实际结果
 
 - 原FAIL和content两fixture窄修已保存bf7a330e；新 `docs/development/agent-team/go.mod` 仅建立无依赖文档归档模块边界，13个原Go归档路径/字节逐一与main280a6431相等（SHA256不变），不加build tag、不改生产筛选；原check-go/build-go和根go.mod/sum逐字未改。
 - 新可恢复入口 `owner-feature-integration/final_check.py` 明示原01仅内联、无逐字wrapper基线；复用当前监督源原survivor拒绝/实际Wait/reap5s/desc双空和TCP75s双空代码片段，task runtime双空保持。元数据用builtins.round，循环改observation；原01缺终态JSON不补。9项离线方法控制实际0，覆盖原FAIL不被后续空尾升级、survivor拒绝、TCP预算/双空和Schema未知映射拒绝；无Go/资源采样。
 - 实际源码闭集11个AGENTEAM_*_SCHEMA_PYTHON逐个映射到 `/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3`，当前resolved python3.12，Python3.12.14/jsonschema4.26.0/referencing0.37.0。Usage另显式设 `AGENTEAM_USAGE_SCHEMA_NODE=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node`，实际Node v24.19.0；本轮不意外跳Usage，变量与源码路径映射见入口常量。
-- 待独立有限审和root fresh窗口后执行：`python3 -B .agent-state/owner-feature-integration/final_check.py --source <冻结提交> --output output/ai/owner-feature-integration/final-check-02`。唯一child仍是原 `sh scripts/check-go.sh` 全部五阶段；Go1.27.1/local/offline/readonlymod、自有cache、同process fresh≥5GiB、私有actual telemetry off、移除fixture/native gates。两普通socket测试阶段需要独占窗口；integration仅vet，已有PG/native矩阵不重跑。未开02，当前无本人compiler或资源。
+- 待独立有限审和root fresh窗口后执行：`python3 -B .agent-state/owner-feature-integration/final_check.py --source <冻结提交> --output output/ai/owner-feature-integration/final-check-02`。唯一child仍是原 `sh scripts/check-go.sh` 全部五阶段；Go1.27.1/local/offline/readonlymod、自有cache、同process fresh≥5GiB、私有actual telemetry off、移除fixture/native gates。两普通socket测试阶段需要独占窗口；integration仅vet，已有PG/native矩阵不重跑。方法冻结后02实际结果见下；当前无本人compiler或资源。
+
+- check02 在bacbb28d上实际99351/outer201522、script201533，于04:35:16Z/fresh11646693376B运行。原完整脚本首普通test仅Audit HTTP最大页Schema子进程signal:killed，top20.15s/包32.825s；其余普通包已完成。Go helper原20秒context与本次耗时吻合，但原日志未打印ctx.Err，不能单凭此认定CPU/p2压力原因。两vet/race/两build因set-e未到。
+- 原script/outer实际1，103.661s；desc/runtime/TCP各双空、205原TCP样本末delta0，元数据正确完成，无wrapper TypeError，窗口已释放。安全原事实在 `owner-feature-integration/final-check-second-failure.json`，不升级原01。该wrapper未实现全仓初末input hash门；content报告运行期将一份d12规划文档草稿搬新UI树并恢复候选，Go源码未变，不能声称初始全仓clean或全仓bytes冻结；限定Go源码搜索无该卡引用。
+- 下一步只允许最多一次无socket原精确Schema top诊断，保持20秒门/fresh磁盘/输入；不自动重跑全仓。原必需vet/race/build仍须有效完成，正式main未交付。
