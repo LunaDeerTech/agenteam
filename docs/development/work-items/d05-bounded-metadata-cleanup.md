@@ -165,6 +165,9 @@ gate从两个各最多31个pending集合合并后再取31，current anchor另占
 共享Skills成本来源另见 `metadata_cleanup_skill_cost_test.go`／`testdata/metadata_cleanup_skill_cost.sql`（仅源码）。其joined SELECT逐字取已验消费源598bc02e的`compressCleanupHistory`，不是本旧基线中尚未存在的Service实现；只测该SQL及00027真实约束成本。成本库保完整五核心互引、1001joined＋低ID running、外域10001joined，最后父DELETE在回滚Tx实际执行并**SET CONSTRAINTS ALL IMMEDIATE**冲刷原deferred队列；记录总耗时／队列耗时，不把DELETE plan未列出的延期trigger编造成逐项耗时，Rollback后核原数据恢复。transfer补充seed `testdata/metadata_cleanup_transfer_cost.sql` 目前尚未接测试：保65目标＋1001外域 retired PUT原staging↔transfer双向FK、candidate和external/source lease；真实SQL、活GET/PUT及FK成本观察仍待接入，不能算成本接受。
 
 
+第三来源 `metadata_cleanup_transfer_cost_test.go` 已将上述transfer补充seed接入独立成本数据库，实际Service小对象只用于取得原gate/metadata/physical SQL。退休PUT形状执行原查询的32/16首批、empty范围、两个full-pending；原外部lease仍被引用的坏序删除必须实际23503/rollback，合法cleanup→staging→transfer→旧candidate→两lease的父DELETE与原延期队列flush单独观测，保其它Project包且回滚恢复。此项不调用Purge消费seed，不据它关闭正式PUT能力或32批次业务。三成本top已 `91195/536ec3` race-c＋精确list actual0（候选见current），尚无真实SQL/计划；第三方法待窄审，两个先前方法仅静态接受。活GET/PUT、download、其它父入边及实际计划后的索引减裁仍须闭合；不得以此组可编或一格通过接受全部22索引。
+
+
 错误遵循现有Fault/CommitResult：输入/结果形状错误InvalidArgument；缺正式provider为DependencyUnbound；当前authority/owner/cause不符Forbidden或原Project gate错误；plan/native映射变化ResourceBusy且整Tx NotCommitted；合法仍活关系为Pending，超过有限完整诊断上限为Pending＋ResourceBusy。已持久的矛盾关系保持安全DependencyUnavailable/InvalidState，不暴露原Locator/SQL/正文。任何Unknown保留原error、cause和attempt；InTx返回Completed本身仍不是CommitResult，不能据它提前删其它事务中的父表。
 
 ## 8. 旧源最小预计写域与验收
