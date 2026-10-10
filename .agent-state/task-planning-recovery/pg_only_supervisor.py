@@ -199,6 +199,68 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestSchedulerLaunchFinalFailure$': frozenset({
+        'TestSchedulerLaunchFinalFailure',
+        'TestSchedulerLaunchFinalFailure/title-preserved-technical-blocker-and-replay',
+        'TestSchedulerLaunchFinalFailure/late-transaction-rollback-and-settlement',
+    }),
+    '^TestAgentConfigurationSchema$': frozenset({
+        'TestAgentConfigurationSchema',
+        'TestAgentConfigurationSchema/fresh-prefix-and-repeat',
+        'TestAgentConfigurationSchema/schema-invariants-and-unbound-dependencies',
+        'TestAgentConfigurationSchema/upgrade-preserves-facts-and-audit-checks',
+    }),
+    '^TestAgentRuntimeSchema$': frozenset({
+        'TestAgentRuntimeSchema',
+        'TestAgentRuntimeSchema/execution-slot-and-unbound-launch',
+        'TestAgentRuntimeSchema/human-compatibility-and-agent-origin',
+        'TestAgentRuntimeSchema/prefix36-upgrade-and-repeat',
+        'TestAgentRuntimeSchema/runtime-attempt-and-terminal',
+    }),
+    '^TestExecutionPreparation$': frozenset({
+        'TestExecutionPreparation',
+        'TestExecutionPreparation/current-owner-task-input',
+        'TestExecutionPreparation/prefix39-upgrade-and-repeat',
+        'TestExecutionPreparation/preparation-claim-and-attempt',
+        'TestExecutionPreparation/project-preparation-gate',
+    }),
+    '^TestAgentConfigurationCreate$': frozenset({
+        'TestAgentConfigurationCreate',
+        'TestAgentConfigurationCreate/default-create-and-replay',
+        'TestAgentConfigurationCreate/final-transaction-rollback',
+    }),
+    '^TestTaskTransitionHuman$': frozenset({
+        'TestTaskTransitionHuman',
+        'TestTaskTransitionHuman/assignment-config-and-replay',
+        'TestTaskTransitionHuman/final-transaction-rollback',
+    }),
+    '^TestSchedulerClaim$': frozenset({
+        'TestSchedulerClaim',
+        'TestSchedulerClaim/final-transaction-rollback',
+        'TestSchedulerClaim/start-sprint-claim-and-replay',
+    }),
+    '^TestSchedulerLaunch$': frozenset({
+        'TestSchedulerLaunch',
+        'TestSchedulerLaunch/association-failure-lookup-recovery',
+        'TestSchedulerLaunch/created-association-and-replay',
+    }),
+    '^TestSchedulerBusyCompensation$': frozenset({
+        'TestSchedulerBusyCompensation',
+        'TestSchedulerBusyCompensation/preserve-user-update',
+        'TestSchedulerBusyCompensation/rollback-restore-and-replay',
+    }),
+    '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$': frozenset({
+        'TestSchedulerPendingVisit',
+        'TestSchedulerPendingVisit/association-rollback-original-lookup',
+        'TestSchedulerPendingVisit/paused-enumeration-and-resume',
+        'TestTaskHumanHTTP',
+        'TestTaskHumanHTTP/owner-csrf-and-new-session-lookup',
+        'TestTaskHumanHTTP/transfer-lookup-replay-and-get',
+    }),
+    '^TestSprintStartHTTP$': frozenset({
+        'TestSprintStartHTTP',
+        'TestSprintStartHTTP/paused-start-get-lookup-replay',
+    }),
     METADATA_ROOT: METADATA_CASES,
     '^TestSkillInstallationPersistentObject$': frozenset({
         'TestSkillInstallationPersistentObject',
@@ -735,6 +797,17 @@ def tcp():
     return rows
 
 
+def tcp_failure_sample(delta, phase):
+    """Project only the last existing observation; never poll or infer ownership."""
+    if phase not in ('supervisor', 'outer'):
+        raise ValueError('exact TCP failure phase required')
+    rows = sorted(delta)
+    return {'phase': phase, 'utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+            'total': len(rows), 'truncated': len(rows) > 32,
+            'rows': [dict(zip(('family', 'localhex', 'remotehex', 'state', 'inode'), row))
+                     for row in rows[:32]]}
+
+
 def descendants(root):
     parents = {}
     for stat in Path('/proc').glob('[0-9]*/stat'):
@@ -972,6 +1045,8 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
+    if any(name in args.run for name in ('AgentConfigurationMetadata', 'AgentConfigurationSchema', 'AgentRuntimeSchema', 'ExecutionPreparation', 'AgentConfigurationCreate', 'TaskTransitionHuman', 'SchedulerClaim', 'SchedulerLaunch', 'SchedulerBusyCompensation', 'SchedulerPendingVisit', 'TaskHumanHTTP', 'SprintStartHTTP')) and (args.run not in METADATA_GROUPS or not args.root_chain):
+        parser.error('System configuration requires one exact original root-chain profile')
     if 'TestSkillInstallation' in args.run and (args.run not in METADATA_GROUPS or not args.root_chain):
         parser.error('Skill installation requires one exact original root-chain profile')
     if any(selector[1:-1] in args.run for selector in METADATA_GROUPS) and (args.run not in METADATA_GROUPS or not args.root_chain):
@@ -1163,7 +1238,7 @@ def main():
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75
-            empty = 0
+            empty, delta = 0, set()
             while time.monotonic() < tail_deadline and empty < 2:
                 delta = tcp() - baseline
                 if not delta:
@@ -1174,7 +1249,11 @@ def main():
                 if empty < 2: time.sleep(.1)
             if empty != 2:
                 code = 1
-                log.write(f'STOP host TCP delta tail not empty: {len(tcp() - baseline)} rows\n')
+                log.write(f'STOP host TCP delta tail not empty: {len(delta)} rows\n')
+                sample = tcp_failure_sample(delta, 'supervisor')
+                log.write('HOST_TCP failure_sample=' + json.dumps(sample, sort_keys=True) + '\n')
+                # stdout is retained in the task's existing private supervisor.log.
+                print(json.dumps({'host_tcp_failure': sample}, sort_keys=True), flush=True)
             if secret_http_selected:
                 try:
                     same = secret_http_inputs(args.driver, args.binary, args.run) == inputs

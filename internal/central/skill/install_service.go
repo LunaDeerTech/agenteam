@@ -15,8 +15,8 @@ import (
 
 // Install publishes an ordinary revision-one Skill from an already validated
 // canonical package. The original caller owns preparation, upload, publication
-// and Discard before its admitted work can retire. Agent execution remains
-// explicitly unbound until a real execution authority is composed.
+// and Discard before its admitted work can retire. AgentRun requires the
+// immutable Runtime provider and its original still-active dispatch handoff.
 func (s *Service) Install(ctx context.Context, actor id.Actor, meta f.CommandMeta, project id.ProjectID, request InstallRequest) (out InstallReceipt, err error) {
 	if meta.Validate() != nil || meta.ExpectedVersion != nil || request.Validate() != nil {
 		return out, invalid()
@@ -31,6 +31,10 @@ func (s *Service) Install(ctx context.Context, actor id.Actor, meta f.CommandMet
 	defer s.end(call)
 	ctx = call.ctx
 	state := s.state()
+	ctx, err = state.authority.bindInstallExecution(ctx, actor, meta, project, request, true)
+	if err != nil {
+		return out, err
+	}
 	row, err := state.authority.planInstallation(ctx, actor, project, meta.IdempotencyKey, request)
 	if err != nil {
 		return out, err
@@ -171,7 +175,7 @@ func (s *Service) Install(ctx context.Context, actor id.Actor, meta f.CommandMet
 }
 
 func sameInstallation(a, b installationRow) bool {
-	return a.id == b.id && a.project == b.project && a.user == b.user && a.key == b.key && a.skill == b.skill && a.revision == b.revision && a.semantic == b.semantic && a.version == b.version && a.phase == b.phase && a.object == b.object && a.upload == b.upload && a.attempt == b.attempt
+	return a.id == b.id && a.project == b.project && a.user == b.user && a.key == b.key && a.skill == b.skill && a.revision == b.revision && a.semantic == b.semantic && a.version == b.version && a.phase == b.phase && a.object == b.object && a.upload == b.upload && a.attempt == b.attempt && sameInstallationOrigin(a.execution, b.execution)
 }
 
 func installationOutcomePending(_ installationRow) error {
@@ -187,10 +191,29 @@ func installationOutcomePending(_ installationRow) error {
 // NotFound is not proof that an earlier unknown transaction rolled back;
 // callers must keep the same key and input for any later Install invocation.
 func (s *Service) LookupInstall(ctx context.Context, actor id.Actor, project id.ProjectID, key f.IdempotencyKey, request InstallRequest) (InstallReceipt, error) {
+	if actor.Validate() == nil && actor.Details().Kind == id.AgentRun {
+		return InstallReceipt{}, fault(f.DependencyUnbound)
+	}
+	return s.lookupInstallation(ctx, actor, project, key, request, nil)
+}
+
+// LookupInstallExecution uses the original Runtime recovery handoff and its
+// physical RequestID. The ordinary Human lookup signature remains unchanged.
+func (s *Service) LookupInstallExecution(ctx context.Context, actor id.Actor, meta f.CommandMeta, project id.ProjectID, request InstallRequest) (InstallReceipt, error) {
+	if meta.Validate() != nil || meta.ExpectedVersion != nil {
+		return InstallReceipt{}, invalid()
+	}
+	if actor.Validate() != nil || actor.Details().Kind != id.AgentRun {
+		return InstallReceipt{}, fault(f.Forbidden)
+	}
+	return s.lookupInstallation(ctx, actor, project, meta.IdempotencyKey, request, &meta)
+}
+
+func (s *Service) lookupInstallation(ctx context.Context, actor id.Actor, project id.ProjectID, key f.IdempotencyKey, request InstallRequest, meta *f.CommandMeta) (InstallReceipt, error) {
 	if project.Validate() != nil || key.Validate() != nil || request.Validate() != nil {
 		return InstallReceipt{}, invalid()
 	}
-	user, err := installationActor(actor)
+	_, err := installationActor(actor)
 	if err != nil {
 		return InstallReceipt{}, err
 	}
@@ -199,8 +222,20 @@ func (s *Service) LookupInstall(ctx context.Context, actor id.Actor, project id.
 		return InstallReceipt{}, err
 	}
 	defer s.end(call)
+	ctx = call.ctx
+	state := s.state()
+	if meta != nil {
+		ctx, err = state.authority.bindInstallExecution(ctx, actor, *meta, project, request, false)
+		if err != nil {
+			return InstallReceipt{}, err
+		}
+	}
 	input := request.data()
-	semantic, err := installSemantic(project, user, input)
+	prototype, err := state.authority.installationInput(ctx, actor, project, key, input)
+	if err != nil {
+		return InstallReceipt{}, err
+	}
+	semantic, err := prototype.semanticDigest()
 	if err != nil {
 		return InstallReceipt{}, err
 	}
@@ -212,15 +247,14 @@ func (s *Service) LookupInstall(ctx context.Context, actor id.Actor, project id.
 	if err != nil {
 		return InstallReceipt{}, err
 	}
-	locks, err := oc.NormalizeAccessLocks([]f.LockRequest{commandLock(command), userLock(user.String(), f.Exclusive), projectLock(project, f.Exclusive), skillLock(input.skill, f.Exclusive)})
+	locks, err := state.authority.installationInputLocks(ctx, actor, project, command, input.skill)
 	if err != nil {
 		return InstallReceipt{}, err
 	}
-	state := s.state()
 	store := state.authority.state().store
 	var receipt InstallReceipt
 	var callbackErr error
-	result := store.WithinTx(call.ctx, cause, func(ctx context.Context, tx f.Tx) (err error) {
+	result := store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) (err error) {
 		defer func() { callbackErr = err }()
 		if err = store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
@@ -242,7 +276,7 @@ func (s *Service) LookupInstall(ctx context.Context, actor id.Actor, project id.
 		if row == nil {
 			return fault(f.NotFound)
 		}
-		if row.user != user {
+		if !row.matchesActor(actor) {
 			return fault(f.Forbidden)
 		}
 		if row.skill != input.skill || row.semantic != semantic {
@@ -293,16 +327,29 @@ func (s *Service) installationTransaction(ctx context.Context, actor id.Actor, r
 	if state == nil {
 		return fault(f.DependencyUnbound)
 	}
-	user, err := installationActor(actor)
+	_, err := installationActor(actor)
 	if err != nil {
 		return err
 	}
-	if row.validate() != nil || user != row.user || work == nil {
+	if row.validate() != nil || !row.matchesActor(actor) || work == nil {
 		return fault(f.Forbidden)
 	}
 	locks, err := row.locks(f.Exclusive)
 	if err != nil {
 		return err
+	}
+	locks, err = state.authority.installExecutionLocks(ctx, actor, row.project, locks)
+	if err != nil {
+		return err
+	}
+	if row.execution != nil {
+		call, e := state.authority.installCall(ctx, actor, row.project)
+		if e != nil {
+			return e
+		}
+		if !row.matchesExecution(call) {
+			return fault(f.Forbidden)
+		}
 	}
 	command, err := row.identity()
 	if err != nil {
@@ -339,7 +386,7 @@ func (s *Service) installationTransaction(ctx context.Context, actor id.Actor, r
 		if err != nil {
 			return err
 		}
-		if current == nil || current.id != row.id || current.user != user || current.semantic != row.semantic || current.skill != row.skill || current.revision != row.revision {
+		if current == nil || current.id != row.id || !current.matchesActor(actor) || current.semantic != row.semantic || current.skill != row.skill || current.revision != row.revision {
 			return fault(f.ResourceBusy)
 		}
 		if mutate {
@@ -360,8 +407,9 @@ func installationActor(actor id.Actor) (id.UserID, error) {
 		return id.UserID{}, invalid()
 	}
 	if actor.Details().Kind == id.AgentRun {
-		// The production Tool/Agent execution witness is not implemented here.
-		return id.UserID{}, fault(f.DependencyUnbound)
+		// Shape only. All Agent side effects still require the private Runtime
+		// handoff through installationOwnerInTx; this is never a grant.
+		return id.UserID{}, nil
 	}
 	if actor.Details().Kind != id.Human {
 		return id.UserID{}, fault(f.Forbidden)
@@ -388,12 +436,16 @@ func (a *Authority) planInstallation(ctx context.Context, actor id.Actor, projec
 	if err := ctx.Err(); err != nil {
 		return installationRow{}, portError(err)
 	}
-	user, err := installationActor(actor)
+	_, err := installationActor(actor)
 	if err != nil {
 		return installationRow{}, err
 	}
 	input := request.data()
-	semantic, err := installSemantic(project, user, input)
+	prototype, err := a.installationInput(ctx, actor, project, key, input)
+	if err != nil {
+		return installationRow{}, err
+	}
+	semantic, err := prototype.semanticDigest()
 	if err != nil {
 		return installationRow{}, err
 	}
@@ -407,7 +459,7 @@ func (a *Authority) planInstallation(ctx context.Context, actor id.Actor, projec
 	}
 	// Project EX freezes the same-domain name catalogue during creation. No
 	// sequential lock extension is used after entering the transaction.
-	locks, err := oc.NormalizeAccessLocks([]f.LockRequest{commandLock(command), userLock(user.String(), f.Exclusive), projectLock(project, f.Exclusive), skillLock(input.skill, f.Exclusive)})
+	locks, err := a.installationInputLocks(ctx, actor, project, command, input.skill)
 	if err != nil {
 		return installationRow{}, err
 	}
@@ -433,7 +485,7 @@ func (a *Authority) planInstallation(ctx context.Context, actor id.Actor, projec
 			return err
 		}
 		if current != nil {
-			if current.user != user {
+			if !current.matchesActor(actor) {
 				return fault(f.Forbidden)
 			}
 			if current.semantic != semantic || current.skill != input.skill {
@@ -468,8 +520,9 @@ func (a *Authority) planInstallation(ctx context.Context, actor id.Actor, projec
 		if err != nil {
 			return unavailable(err)
 		}
-		row = installationRow{id: installation, project: project, user: user, key: key, skill: input.skill, revision: revision,
-			semantic: semantic, pkg: freezeInstallation(input), phase: installationPlanned, version: 1, created: now, updated: now}
+		row = prototype
+		row.id, row.revision, row.semantic = installation, revision, semantic
+		row.phase, row.version, row.created, row.updated = installationPlanned, 1, now, now
 		return insertInstallation(ctx, x, row)
 	})
 	if result.State() == f.NotCommitted && callbackErr != nil {
@@ -491,6 +544,9 @@ func (a *Authority) installationOwnerInTx(ctx context.Context, tx f.Tx, actor id
 	}
 	if intent != id.Read && intent != id.Mutate {
 		return fault(f.Forbidden)
+	}
+	if actor.Details().Kind == id.AgentRun {
+		return a.requireInstallExecution(ctx, tx, actor, project, intent)
 	}
 	grant, err := state.projects.RequireOwnerInTx(ctx, tx, actor, project, intent)
 	if err != nil {

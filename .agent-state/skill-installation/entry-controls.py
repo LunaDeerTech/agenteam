@@ -261,7 +261,15 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('MINIO_SH
                                                                 'args.run)\n'
                                                                 '            if args.run == GUARD_ROOT:\n')]}
 
+def schema_projection(name, source):
+    if "'^TestAgentConfigurationSchema$'" in source:
+        schema = load('formal_system_inverse', '.agent-state/agent-system-integration/schema-entry-controls.py')
+        return schema.inverse(name, source)
+    return source
+
+
 def http_projection(name, source):
+    source = schema_projection(name, source)
     if "'^TestSkillInstallationOwnerHTTP$'" in source:
         http = load('install_http_inverse', '.agent-state/skill-install-owner-http/entry-controls.py')
         return http.inverse(name, source)
@@ -332,7 +340,7 @@ class InstallEntryControls(unittest.TestCase):
             for bad in (good.replace('code=0', 'code=1'), good.replace(wait, ''), good + wait,
                         good.replace('pid=42', 'pid=0'), good + 'FAIL\n'):
                 self.assertFalse(self.sup.metadata_results(bad, selector))
-        self.assertFalse(self.sup.metadata_results(output(), '^TestAgentConfigurationSchema$'))
+        self.assertFalse(self.sup.metadata_results(output(), '^TestUnboundConfigurationSchema$'))
         base = ['supervisor', '--driver', '/unused/driver', '--binary', '/unused/candidate', '--output', '/unused/out', '--run']
         for selector, root in ((SELECTOR, False), (SELECTOR + 'x', True), (TOP, True),
                                ('^' + TOP + '(Extra)?$', True)):
@@ -358,7 +366,7 @@ class InstallEntryControls(unittest.TestCase):
                 args = SimpleNamespace(binary=binary)
                 self.assertTrue(self.sup.metadata_same(inputs, args, self.driver, SELECTOR))
                 with self.assertRaises(ValueError):
-                    self.driver.metadata_inputs(binary, '^TestAgentConfigurationSchema$')
+                    self.driver.metadata_inputs(binary, '^TestUnboundConfigurationSchema$')
                 added = root / 'tests/projectvariable/later_test.go'; added.write_text('later')
                 self.assertFalse(self.sup.metadata_same(inputs, args, self.driver, SELECTOR)); added.unlink()
                 required = root / names[1]; required.unlink()

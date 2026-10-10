@@ -89,6 +89,21 @@ func eventBinding(record *commandRecord, actor i.Actor, summary event.Summary) (
 	return digest(raw), locks, opaque, nil
 }
 func (a *Authority) DiscoverAppend(ctx context.Context, actor i.Actor, summary event.Summary) (oc.Dependencies, error) {
+	if taskBusyEventTriple(summary) {
+		return a.discoverTaskBusyAppend(ctx, actor, summary)
+	}
+	if taskFailureEventTriple(summary) {
+		return a.discoverTaskFailureAppend(ctx, actor, summary)
+	}
+	if schedulerClaimEventTriple(summary) {
+		return a.discoverSchedulerClaimAppend(ctx, actor, summary)
+	}
+	if sprintStartEventTriple(summary) {
+		return a.discoverSprintStartAppend(ctx, actor, summary)
+	}
+	if transitionEventTriple(summary) {
+		return a.discoverTransitionAppend(ctx, actor, summary)
+	}
 	if blockerEventTriple(summary) {
 		return a.discoverBlockerAppend(ctx, actor, summary)
 	}
@@ -135,6 +150,21 @@ func eventProject(summary event.Summary) (c.ProjectID, error) {
 }
 
 func (a *Authority) ValidateAppendInTx(ctx context.Context, tx f.Tx, actor i.Actor, summary event.Summary, deps oc.Dependencies, stage oc.Stage) error {
+	if taskBusyEventTriple(summary) {
+		return a.validateTaskBusyAppendInTx(ctx, tx, actor, summary, deps, stage)
+	}
+	if taskFailureEventTriple(summary) {
+		return a.validateTaskFailureAppendInTx(ctx, tx, actor, summary, deps, stage)
+	}
+	if schedulerClaimEventTriple(summary) {
+		return a.validateSchedulerClaimAppendInTx(ctx, tx, actor, summary, deps, stage)
+	}
+	if sprintStartEventTriple(summary) {
+		return a.validateSprintStartAppendInTx(ctx, tx, actor, summary, deps, stage)
+	}
+	if transitionEventTriple(summary) {
+		return a.validateTransitionAppendInTx(ctx, tx, actor, summary, deps, stage)
+	}
 	if blockerEventTriple(summary) {
 		return a.validateBlockerAppendInTx(ctx, tx, actor, summary, deps, stage)
 	}

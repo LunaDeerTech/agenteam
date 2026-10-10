@@ -77,7 +77,7 @@ func (a *LifecycleAuditAuthority) CheckAppendInTx(ctx context.Context, tx f.Tx, 
 		return unavailable(err)
 	}
 	if meta.InitiatorKind != id.Service {
-		if meta.InitiatorKind == id.Human {
+		if meta.InitiatorKind == id.Human || meta.InitiatorKind == id.AgentRun {
 			return a.checkInstallationDeleteAudit(ctx, tx, entry, key, meta)
 		}
 		return a.delegate.CheckAppendInTx(ctx, tx, entry, key)
@@ -160,10 +160,14 @@ func (a *LifecycleAuditAuthority) checkInstallationDeleteAudit(ctx context.Conte
 		return err
 	}
 	actor, scope := e.Actor.Details(), e.Scope.Details()
-	if scope.Kind != id.ProjectScope || scope.ProjectID != r.project.String() || actor.Kind != id.Service || actor.ServiceName != id.ObjectService || actor.ProjectID != r.project.String() || actor.CauseRef != k.CauseRef || f.Digest(k.CauseRef).Validate() != nil || k.Ordinal != 1 || e.Resource.Details().Kind != ac.ObjectResource || e.Associations != (ac.Associations{}) || e.Outcome != ac.Success || meta.ObjectID != object.String() || meta.InitiatorID != r.user.String() || meta.InitiatorExecutionID != "" || meta.Phase != ac.DeletedPhase || meta.Reason != "" {
+	initiator, execution := r.user.String(), ""
+	if r.execution != nil {
+		initiator, execution = r.execution.agent.String(), r.execution.execution.String()
+	}
+	if scope.Kind != id.ProjectScope || scope.ProjectID != r.project.String() || actor.Kind != id.Service || actor.ServiceName != id.ObjectService || actor.ProjectID != r.project.String() || actor.CauseRef != k.CauseRef || f.Digest(k.CauseRef).Validate() != nil || k.Ordinal != 1 || e.Resource.Details().Kind != ac.ObjectResource || e.Associations != (ac.Associations{}) || e.Outcome != ac.Success || meta.ObjectID != object.String() || meta.InitiatorKind != r.actorKind() || meta.InitiatorID != initiator || meta.InitiatorExecutionID != execution || meta.Phase != ac.DeletedPhase || meta.Reason != "" {
 		return fault(f.Forbidden)
 	}
-	expected, err := ac.ObjectMetadata(ac.ObjectDelete, ac.ObjectMetadataFields{ObjectID: object.String(), InitiatorKind: id.Human, InitiatorID: r.user.String(), MediaType: sc.PackageMediaType, ByteSize: r.pkg.size, Phase: ac.DeletedPhase})
+	expected, err := ac.ObjectMetadata(ac.ObjectDelete, ac.ObjectMetadataFields{ObjectID: object.String(), InitiatorKind: r.actorKind(), InitiatorID: initiator, InitiatorExecutionID: execution, MediaType: sc.PackageMediaType, ByteSize: r.pkg.size, Phase: ac.DeletedPhase})
 	if err != nil || !bytes.Equal(expected.JSON(), e.Metadata.JSON()) {
 		return fault(f.Forbidden)
 	}

@@ -199,6 +199,9 @@ func (a *Authority) eventFact(ctx context.Context, x postgres.SQLExecutor, actor
 		fact.identity = r.identity()
 		fact.opaque = r.id
 		fact.locks = append(fact.locks, userLock(actor.Details().UserID, foundation.Exclusive))
+		if r.plan.Scheduler != nil {
+			fact.locks = append(fact.locks, schedulerLock(project))
+		}
 	case c.LifecycleChangedEventName:
 		fact, e = a.lifecycleEventFact(ctx, x, actor, summary, project)
 		if e != nil {
@@ -267,6 +270,11 @@ func (a *Authority) validateEventFact(ctx context.Context, tx foundation.Tx, act
 		if stage == oc.NewFact && (r.state != "planned" || !reflect.DeepEqual(p.ref, r.plan.Project)) {
 			return fault(foundation.InvalidState)
 		}
+		if stage == oc.NewFact {
+			if e = requireSchedulerPostimage(ctx, x, fact.project, r.plan.Scheduler); e != nil {
+				return e
+			}
+		}
 	}
 	return nil
 }
@@ -314,6 +322,9 @@ func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc
 	if d.Kind == oc.AppendProject && d.Event.Producer == "knowledge" {
 		return a.discoverKnowledgeEvent(request)
 	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "agent" {
+		return a.discoverAgentEvent(ctx, request)
+	}
 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
 		return oc.Dependencies{}, fault(foundation.DependencyUnbound)
 	}
@@ -353,6 +364,9 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx foundation.Tx, request 
 	}
 	if d.Kind == oc.AppendProject && d.Event.Producer == "knowledge" {
 		return a.validateKnowledgeEventInTx(ctx, tx, request, deps)
+	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "agent" {
+		return a.validateAgentEventInTx(ctx, tx, request, deps)
 	}
 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
 		return fault(foundation.DependencyUnbound)

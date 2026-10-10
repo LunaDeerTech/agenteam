@@ -50,7 +50,15 @@ MODE_GUARD = ("    if 'TestSkillInstallation' in args.run and (args.run not in M
               "        parser.error('Skill installation requires one exact original root-chain profile')\n")
 
 
+def schema_projection(name, source):
+    if "'^TestAgentConfigurationSchema$'" in source:
+        schema = load('formal_system_inverse', '.agent-state/agent-system-integration/schema-entry-controls.py')
+        return schema.inverse(name, source)
+    return source
+
+
 def inverse(name, source):
+    source = schema_projection(name, source)
     if name not in BASE_SHA or not isinstance(source, str) or source.count(ADDED[name]) != 1:
         raise ValueError('unknown or duplicated HTTP profile')
     source = source.replace(ADDED[name], '', 1)
@@ -79,7 +87,7 @@ class HTTPEntryControls(unittest.TestCase):
 
     def test_only_closed_profiles_and_existing_inverse_chain(self):
         for name in BASE_SHA:
-            source = (ROOT / name).read_text()
+            source = schema_projection(name, (ROOT / name).read_text())
             ast.parse(source)
             restored = inverse(name, source)
             self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), BASE_SHA[name])

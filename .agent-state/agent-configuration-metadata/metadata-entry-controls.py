@@ -47,7 +47,15 @@ SOURCE_HUNKS = {
     ],
 }
 
+def schema_projection(name, source):
+    if "'^TestAgentConfigurationSchema$'" in source:
+        schema = load('formal_system_inverse', '.agent-state/agent-system-integration/schema-entry-controls.py')
+        return schema.inverse(name, source)
+    return source
+
+
 def installation_projection(name, source):
+    source = schema_projection(name, source)
     if "'^TestSkillInstallationPersistentObject$'" in source:
         install = load('metadata_install_inverse', '.agent-state/skill-installation/entry-controls.py')
         source = install.inverse(name, source)

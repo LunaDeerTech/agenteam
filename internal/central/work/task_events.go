@@ -61,7 +61,7 @@ func validateTaskRecord(r *taskRecord, a i.Actor) error {
 			return internal(nil)
 		}
 		t := r.Receipt.Task
-		if t.State != c.TaskStateBacklog || t.AssigneeAgentID != nil {
+		if !taskPlanningWriteSupported(r.Input, t) {
 			return internal(nil)
 		}
 		if u := r.Input.Update; u != nil && (u.Title != nil && *u.Title != t.Title || u.Description != nil && *u.Description != t.Description || u.Type != nil && *u.Type != t.Type || u.Priority != nil && *u.Priority != t.Priority || u.Plan != nil && *u.Plan != t.Plan) {
@@ -103,7 +103,7 @@ func validateTaskRecord(r *taskRecord, a i.Actor) error {
 		fields = []c.TaskChangedField{c.TaskDescriptionChanged, c.TaskRankChanged, c.TaskPlanChanged, c.TaskPriorityChanged, c.TaskTitleChanged, c.TaskTypeChanged}
 		change = c.TaskCreatedChange
 	} else {
-		if p.Before == nil || p.Before.Validate() != nil || in.Expected == nil || p.Before.Version != *in.Expected || p.Before.State != c.TaskStateBacklog || p.Before.AssigneeAgentID != nil || p.Before.ID != in.Target || p.Before.ProjectID != in.Project || p.Before.SprintID != t.SprintID || p.Before.MilestoneID != t.MilestoneID || t.UpdatedAt.Time().Before(p.Before.UpdatedAt.Time()) {
+		if p.Before == nil || p.Before.Validate() != nil || in.Expected == nil || p.Before.Version != *in.Expected || !taskPlanningWriteSupported(in, *p.Before) || p.Before.ID != in.Target || p.Before.ProjectID != in.Project || p.Before.SprintID != t.SprintID || p.Before.MilestoneID != t.MilestoneID || t.UpdatedAt.Time().Before(p.Before.UpdatedAt.Time()) {
 			return internal(nil)
 		}
 		expected = p.Before.Clone()

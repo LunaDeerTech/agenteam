@@ -269,6 +269,24 @@ func TestProjectAuditVariableWire(t *testing.T) {
 	projectAuditStandardSchema(t, vectors)
 }
 
+func TestProjectAuditSchedulerUpdateStandardSchema(t *testing.T) {
+	p, _ := foundation.ParseID[identity.Project](projectAuditWireID)
+	for _, tc := range projectAuditTestCases() {
+		if tc.action != "project.update" {
+			continue
+		}
+		tc.metadata = strings.Replace(tc.metadata, `["description","name"]`, `["description","name","scheduler_enabled","scheduler_max_concurrency"]`, 1)
+		record := projectAuditTestRecord(t, tc, identity.Human, false)
+		body, err := projectAuditEncodeRecord(context.Background(), p, record.AuditID, record)
+		if err != nil {
+			t.Fatal(err)
+		}
+		projectAuditStandardSchema(t, []projectAuditSchemaVector{{"project.update/scheduler", "ProjectUpdateRecord", body, true}})
+		return
+	}
+	t.Fatal("original Project update vector missing")
+}
+
 func projectAuditStandardSchema(t *testing.T, vectors []projectAuditSchemaVector) {
 	t.Helper()
 	python := os.Getenv("AGENTEAM_PROJECT_AUDIT_SCHEMA_PYTHON")
