@@ -3,7 +3,9 @@
 -- Execution is the sole durable identity/slot owner. Source identities remain
 -- validated through Task/Meeting ports; no cross-domain SQL replaces them.
 CREATE SCHEMA agenteam_execution;
-CREATE DOMAIN agenteam_execution.safe_id AS uuid CHECK
+-- Tool's execution-scope foreign key uses a text-backed safe ID. Keep the
+-- same canonical UUID representation so both sides share text equality.
+CREATE DOMAIN agenteam_execution.safe_id AS text CHECK
  (VALUE::text ~ '^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$');
 
 CREATE TABLE agenteam_execution.executions (
