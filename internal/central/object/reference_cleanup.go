@@ -83,7 +83,13 @@ func (s *Service) ReleaseForCleanupInTx(ctx context.Context, tx foundation.Tx, c
 	}
 	if u.disposition == "revoked" {
 		var exact bool
-		err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND operation_id=$2 AND reason=$3) AND NOT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND (operation_id<>$2 OR reason<>$3))`, id.String(), cause.Details().OperationID.String(), string(cause.Details().Reason)).Scan(&exact)
+		if skillProjectCleanup(cause) {
+			// Older abandoned candidates keep their original causes. Only the
+			// retained published attempt anchors this Project's canonical gate.
+			err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations c JOIN agenteam_object.upload_attempts a ON a.id=c.attempt_id WHERE c.object_id=$1 AND a.object_id=$1 AND a.upload_id=$4 AND a.id=$5 AND c.operation_id=$2 AND c.reason=$3 AND a.cleanup_gate)`, id.String(), cause.Details().OperationID.String(), string(cause.Details().Reason), u.id.String(), u.attempt.String()).Scan(&exact)
+		} else {
+			err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND operation_id=$2 AND reason=$3) AND NOT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND (operation_id<>$2 OR reason<>$3))`, id.String(), cause.Details().OperationID.String(), string(cause.Details().Reason)).Scan(&exact)
+		}
 		if err != nil {
 			return unavailable(err)
 		}
@@ -104,6 +110,10 @@ func (s *Service) ReleaseForCleanupInTx(ctx context.Context, tx foundation.Tx, c
 	}
 	if _, err = x.Exec(ctx, `UPDATE agenteam_object.uploads SET disposition='revoked' WHERE id=$1`, u.id.String()); err != nil {
 		return unavailable(err)
+	}
+	if skillProjectCleanup(cause) {
+		_, err = s.gateSkillObjectBatch(ctx, x, cause, id)
+		return err
 	}
 	return s.gateObject(ctx, x, id, cause.Details().Reason, cause.Details().OperationID.String())
 }

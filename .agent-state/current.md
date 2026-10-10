@@ -2,7 +2,7 @@
 
 - 分支：`ai/owner-feature-integration`；本地树提示 `/workspace/agenteam-feature-integration`，正式基线 `origin/main 280a6431`。这是隔离组合候选，尚未交付 main；不继承基线 current 中的旧进程、代理或任务状态。
 - root 独占全部 Git；coordination 独占本 current、已接受领域的组装及共享 harness；content 独占默认根装配、config、两个新 Object resolver 文件和对应部署文档。真实 PG/native/browser/socket/hostTCP 窗口由 root 唯一调度，离线编译不得启动 native 测试或 Go telemetry。
-- 已保存配置前置 `d0e6edfc`：`internal/central/config/{config.go,config_test.go,knowledge.go,knowledge_test.go}` 与 `internal/central/object/maintenance_owner_resolver{,_test}.go`。由 content 负责验证和后续必需配置兼容；根 app 业务构造尚未完成。
+- 已保存配置前置 `d0e6edfc`：`internal/central/config/{config.go,config_test.go,knowledge.go,knowledge_test.go}` 与 `internal/central/object/maintenance_owner_resolver{,_test}.go`。由 content 负责验证和后续必需配置兼容；根 app 首片段与必要配置 fixture 已保存 `760c4888`，尚未完成权限/生命周期最小真实验；本 current 的领域组合结论不替代 content 的根接线验收。
 
 ## 已组装的 Skills HTTP
 
@@ -22,8 +22,16 @@
 
 ## 下一步和仍未闭合范围
 
-- root 保存本批 23 个 Skills 路径与此 current；以后增量只能并集共享分支和逆投影控制，不能用某领域旧文件覆盖其他消费者。
-- D05 `52a42627` 的 16 产品 + 5 unit + 20 integration + 00028/领域卡/5 恢复源共 48 非共享路径已只读核齐，尚未导入。保留 main P2 的 `contract/authority.go`、`contract/skill_initialization_test.go`、`skill_initialization_test.go`、`transfer_upload.go`，不覆盖 content 新 resolver。成本限定组合和 D05 history 的 whole PASS 可复用；Skills 历史消费者在 `8cef9252` 入口窄修后的 recovery02 已完整 whole PASS（42162→2a973b outer 0/142.715s，Go/driver Wait 0，1 top/2 sub，七资源/三 private/runtime/desc/TCP 双尾和输入一致齐，无 STOP），00028 消费者门已关闭。原 recovery01 whole FAIL 及 96693 身份未知保留，不代表默认 root/全 participant 已完成。
+- root 保存本批 Skills HTTP、D05/00028、Skills Cleanup 与此 current；以后增量只能并集共享分支和逆投影控制，不能用某领域旧文件覆盖其他消费者。
+- D05 `52a42627` 的 16 产品 + 5 unit + 20 integration + 00028/领域卡/5 恢复源共 48 非共享路径已导入；Skills Cleanup 另从 `92cfb069` 导入 11 个领域源（含 2 pure）、5 个 PG 源及入口控制。两个既有 Skill 文件仅各增加 6 行精确 Cleanup 分派，其原 P2 主体不变。保留 main P2 的 `contract/authority.go`、`contract/skill_initialization_test.go`、`skill_initialization_test.go`、`transfer_upload.go`，不覆盖 content 新 resolver。成本限定组合和 D05 history 的 whole PASS 可复用；Skills 历史消费者在 `8cef9252` 入口窄修后的 recovery02 已完整 whole PASS（42162→2a973b outer 0/142.715s，Go/driver Wait 0，1 top/2 sub，七资源/三 private/runtime/desc/TCP 双尾和输入一致齐，无 STOP），00028 消费者门已关闭。原 recovery01 whole FAIL 及 96693 身份未知保留，不代表默认 root/全 participant 已完成。
 - Secret 00029/00030 及对应领域增量尚未导入；必须按 00028→00029→00030 连续前缀组合，原有效领域证据不等于 main 装配完成。
-- Knowledge 正文 HTTP PG01 原 whole FAIL：两 GET fixture 正文可被正式短正文预读提前释放 lease，与测试 live-lease 假设冲突；content 仅修两处正文大于 64KiB，保原门与原 FAIL，等待修后候选和真实窗口。未接受该 HTTP；其原有效 native 证据保留。
-- Work UI recovery11 和新的独立 Recovery/Authority 探针仍未通过；旧 FAIL 不升级。默认根装配/Project 初始化链路由 content 在本树继续，root 再安排最小真实联调。
+- Knowledge 正文 HTTP PG01 原 whole FAIL：两 GET fixture 正文可被正式短正文预读提前释放 lease，与测试 live-lease 假设冲突；content 仅修两处正文大于 64KiB，保原门与原 FAIL，修后 `1e5833bc` PG02 业务 4 top/14 sub 已 PASS，仍等待原完整退出尾，未接受该 HTTP；其原有效 native 证据保留。
+- Work UI recovery11 原 whole FAIL 已完整退出，作者正在定位 observerError；新的独立 Recovery/Authority 两 top 候选就绪但未验，旧 FAIL 不升级。默认根装配/Project 初始化链路由 content 在本树继续，root 再安排最小真实联调。
+
+## D05 / Skills Cleanup 本候选组合检查
+
+- 四 shared 文件按 Skills HTTP、D05 与消费者三个限定增量并集；`.agent-state/owner-feature-integration/entry_union.py` 对当前真实文件的整个来源并集逐字校验，未知改动 fail，再允许各域逆投影。新 `entry-controls.py` 的 199 控实际 exit 0，覆盖六 D05 exact selector、非 exact 拒绝、原七资源双观察、实际输入冻结 AST 的原 if adapter 分支，以及未知预算改动拒绝。组合后的 Skills HTTP 原 107 控、Skills Cleanup 原 6 methods 亦实际 exit 0；9 个 TCP 诊断控制输入未变，复用已通过结果。三份原 D05 cost 控制保留原历史 BASE，未声称它们直接在当前并集运行通过。
+- 初次并集离线控制实际 FAIL：两个增量曾因上下文重复分别插入 Skills HTTP 分支及 later-cost helper，导致 D05 / 消费者输入闭包缺项。仅把原 hunk 移回原 if adapter 和 input_paths，原控制随后通过；没有真实资源测试发生，原失败事实不回填。
+- 仅选 5 个 Object 测试文件和 2 个 Skill Cleanup pure 文件中的 22 top，三包 race 全部 PASS（session74461，Go137548实际 Wait0，50.563s），无 socket/native server。新对象/Skills integration candidate 均只 race-c（20.784s / 29.511s）；六个 D05 exact 入口各 list0，Cleanup 原两 top+历史一 top 恰3、HTTP作者四+独验一恰5，所有原进程实际 Wait0，outer0。未重跑任何已闭 PG/MinIO/native 组合，也未声称候选重新验过 P2 PG。
+- 正式 P2 的两独验源、Object 四关键源和 Project lifecycle 授权继续保留 main 字节。D05/Skills Cleanup 工作卡只增量标有限接受，Skills 设计 §§1–15 保 main，新增已实现的 §16；默认根/完整 participant/Runtime STOP 不升级。
+- 本批源与文档准备 checkpoint，当前无 Go/compiler 或资源在途。可重建日志仍在忽略的 output；必要 shared、两个新的离线恢复源、两入口控制及领域文档全部普通文件。候选未交付 main。

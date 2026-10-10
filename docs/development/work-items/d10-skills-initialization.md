@@ -44,3 +44,14 @@ P1交付真实非空 Add Skills 文本、确定性 ZIP v1、不可变 manifest�
 `skill_verification` 未参与该实现，对固定 `8872110` 的 P1 独立验收通过，未发现阻断缺陷。[正式报告](../agent-team/d10-p1-recovery-verification.md) SHA256 `e0fff9717e5ace0ec3c300206073d29312fc823a2d90b39cd779803e1fc40960`；[持久结果与命令](../agent-team/evidence/d10-p1-recovery/results.json)记录 Go1.27.1 `skill/...` unit/race各13顶层16子例、vet及7项独立race探针全部exit0，编译仓库源与固定输入匹配。首次锁定x/text缓存缺失的setup失败原样保留，独立缓存恢复后通过，未改依赖锁。
 
 P1 证据只覆盖纯包与载体；P2 的服务／PG／真实 Object 接受按上表另计，不由 wrapper Joined 推导 D05 lease 持久释放。原缺失 `/tmp` 草案不是当前迁移来源，正式数据模型为本次原字节 00027。
+
+
+## Cleanup 库的有限接受与组合
+
+Skills Cleanup 库已按固定版本有限接受，正在 `ai/owner-feature-integration` 与正式 main P2 组合；本段不改上方 P2 已交付事实。新增 CleanupAuthority/原子 gate、受原预算约束的物理调用、32 条历史批次、两域最后 anchors 同 Tx 与原 Unknown 恢复；Object access/maintenance 仅增加精确 Cleanup 分派，原 P2 体保留。设计见[§16](d10-skills-initialization-design.md#16-skills-精确-project-cleanuprev2库范围有限接受)，D05 提供[有界 metadata 与共享 00028](d05-bounded-metadata-cleanup.md)，本域不新增 DDL、回写 00027 或删除 FK。
+
+- 复用原 Cleanup02 两 top/五子完整 PASS：当前 gate、真实 reader 历史与有限批次、最后 Object 四 anchors 与 Skill 五核心原子回滚/提交、两种真实 COMMIT Unknown。其产品及旧两 PG 测试正文与当前来源一致，fixture 仅增加可选 configure 回调，旧零参数调用行为保持。
+- Historical02 在 `92cfb069` 所记录输入上完整 PASS：一 top/两子，原 Go/driver/outer 实际 Wait 0，七资源、三 private、runtime/desc/TCP 双尾及输入一致齐。真实同 key 重试保留原 AbandonedAttempt cause；另一个子使用明确历史 SQL fixture 核 65 条非 current 本域映射、32/32/1、原事务回滚及最终事务，不冒称 65 次 native API attempts。原 Historical01 whole FAIL 和未保存身份的后代 PID 96693 保留，后验清空不补其原门。
+- 保留 main 的 `internal/central/skill/p2_independent_test.go` 与 `tests/skills/p2_independent_test.go`，Object P2 四关键路径和 Project lifecycle 授权不回退。当前源码并存兼容不等于在新组合重跑过 P2 PG。
+
+同 Store 的 Project CleanupPhase→Skills→真实 D05/MinIO/Audit 的上述有限链路已闭合；默认根完整 participant、全 Project 生命周期、后台调度与生产部署仍未交付。Object Runtime join 原 STOP 保持。

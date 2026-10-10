@@ -321,6 +321,9 @@ func (a *Authority) Discover(ctx context.Context, request oc.AccessRequest) (oc.
 	if d.Kind == oc.MaintenanceAccess {
 		return a.discoverMaintenance(ctx, request)
 	}
+	if d.Kind == oc.CleanupReleaseAccess || d.Kind == oc.ObjectCleanupAccess {
+		return a.discoverCleanup(ctx, request)
+	}
 	if d.Kind != oc.OwnerAccess && d.Kind != oc.ObjectReadAccess {
 		return oc.AccessDependencies{}, fault(f.DependencyUnbound)
 	}
@@ -351,6 +354,9 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx f.Tx, request oc.Access
 	d := request.Details()
 	if d.Kind == oc.MaintenanceAccess {
 		return a.validateMaintenance(ctx, tx, request, expected)
+	}
+	if d.Kind == oc.CleanupReleaseAccess || d.Kind == oc.ObjectCleanupAccess {
+		return a.validateCleanup(ctx, tx, request, expected)
 	}
 	if d.Kind != oc.OwnerAccess && d.Kind != oc.ObjectReadAccess {
 		return fault(f.DependencyUnbound)

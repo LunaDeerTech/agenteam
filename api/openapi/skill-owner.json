@@ -1,0 +1,444 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Current Human Owner Skill directory and details",
+    "version": "1.0.0",
+    "description": "Independent read-only adapter for the P2 published builtin. Not installed in the default root. No package stream, installation, assignment, pagination or UI. Unknown read transactions do not publish candidates."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/skills": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "skillOwnerDirectoryGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "description": "No query parameters or request body, including a bare question mark. Current Human Session and Project Owner authorization precede protected reads. The original 2s total budget includes actual SQL and HTTP cleanup.",
+        "responses": {
+          "200": {
+            "description": "Complete current-authorized representation. HEAD performs all checks but emits no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Type": {
+                "schema": {
+                  "const": "application/json"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkillDirectory"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "skillOwnerDirectoryHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "description": "No query parameters or request body, including a bare question mark. Current Human Session and Project Owner authorization precede protected reads. The original 2s total budget includes actual SQL and HTTP cleanup.",
+        "responses": {
+          "200": {
+            "description": "Complete current-authorized representation. HEAD performs all checks but emits no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Type": {
+                "schema": {
+                  "const": "application/json"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "401": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "403": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "404": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "405": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "409": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "500": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "503": {
+            "$ref": "#/components/responses/HeadProblem"
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/skills/{skill_id}": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "skill_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "skillOwnerDetailGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "description": "No query parameters or request body, including a bare question mark. Current Human Session and Project Owner authorization precede protected reads. The original 2s total budget includes actual SQL and HTTP cleanup.",
+        "responses": {
+          "200": {
+            "description": "Complete current-authorized representation. HEAD performs all checks but emits no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Type": {
+                "schema": {
+                  "const": "application/json"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkillMetadata"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "skillOwnerDetailHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "description": "No query parameters or request body, including a bare question mark. Current Human Session and Project Owner authorization precede protected reads. The original 2s total budget includes actual SQL and HTTP cleanup.",
+        "responses": {
+          "200": {
+            "description": "Complete current-authorized representation. HEAD performs all checks but emits no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Type": {
+                "schema": {
+                  "const": "application/json"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "401": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "403": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "404": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "405": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "409": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "500": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "503": {
+            "$ref": "#/components/responses/HeadProblem"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account session cookie; configured loopback HTTP uses agenteam_local_session. No bearer or caller-supplied Actor."
+      }
+    },
+    "schemas": {
+      "SkillMetadata": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "name",
+          "normalized_name",
+          "description",
+          "protected",
+          "current_revision",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])",
+            "description": "UTF-8 byte cap and exact normalized_name relation are enforced by the service and adapter."
+          },
+          "normalized_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 384,
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+(?![\\s\\S])"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192,
+            "pattern": "^[^\\u0000-\\u0008\\u000b-\\u001f\\u007f-\\u009f]+(?![\\s\\S])",
+            "not": {
+              "pattern": "^\\s*(?![\\s\\S])"
+            },
+            "description": "UTF-8 byte cap is 8192; LF and TAB are allowed, other control characters are rejected."
+          },
+          "protected": {
+            "type": "boolean"
+          },
+          "current_revision": {
+            "$ref": "./common.json#/components/schemas/Revision"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        }
+      },
+      "SkillDirectory": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/SkillMetadata"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Original Account safe Problem. It does not disclose the request path/query, private cause or dependency error.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+            }
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          "Content-Type": {
+            "schema": {
+              "const": "application/problem+json"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "HeadProblem": {
+        "description": "The same Problem representation headers and length as GET, without a body.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+            }
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          "Content-Type": {
+            "schema": {
+              "const": "application/problem+json"
+            }
+          }
+        }
+      }
+    }
+  }
+}

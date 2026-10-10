@@ -85,6 +85,36 @@ def exact_absent(item, timeout):
     return result.returncode != 0 and missing.search(result.stderr) is not None
 
 
+def skill_cleanup_results(output, selector):
+    # Both exact literals have closed bodies. Parent-only success, a skipped
+    # child, and a duplicate successful run all fail closed.
+    expected = {
+        '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$': {
+            'TestSkillLifecycleCleanupPersistence',
+            'TestSkillLifecycleCleanupPersistence/current_gate_before_irreversible_release',
+            'TestSkillLifecycleCleanupPersistence/actual_physical_audit_and_bounded_history',
+            'TestSkillLifecycleCleanupPersistence/last_object_and_skill_anchors_share_original_transaction',
+            'TestSkillLifecycleCleanupCommitRecovery',
+            'TestSkillLifecycleCleanupCommitRecovery/gate',
+            'TestSkillLifecycleCleanupCommitRecovery/last_two_domain_anchors',
+        },
+        '^TestSkillLifecycleCleanupHistoricalAttempts$': {
+            'TestSkillLifecycleCleanupHistoricalAttempts',
+            'TestSkillLifecycleCleanupHistoricalAttempts/native_retry_preserves_abandoned_cause',
+            'TestSkillLifecycleCleanupHistoricalAttempts/seeded_retained_mapping_history_batches_and_fk_rollback',
+        },
+    }.get(selector)
+    if expected is None:
+        return False
+    runs = re.findall(r'^=== RUN   (\S+)$', output, re.M)
+    passed = re.findall(r'^\s*--- PASS: (\S+) \(', output, re.M)
+    waits = re.findall(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=0 selector='
+                       + re.escape(selector) + r'$', output, re.M)
+    return (len(runs) == len(passed) == len(expected)
+            and set(runs) == set(passed) == expected and len(waits) == 1
+            and re.search(r'^\s*--- (?:FAIL|SKIP):', output, re.M) is None)
+
+
 def observe_root_chain(directory, log, log_path, selector):
     good = True
     try:
@@ -121,8 +151,22 @@ def observe_root_chain(directory, log, log_path, selector):
         if not empty: good = False
         if round == 1: time.sleep(.1)
     log.flush()
-    output = log_path.read_text()
+    if selector in ('^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
+                    '^TestSkillLifecycleCleanupHistoricalAttempts$'):
+        try:
+            output = log_path.read_text()
+        except (OSError, UnicodeDecodeError):
+            log.write('STOP cleanup result log unavailable or invalid UTF-8\n')
+            return False
+    else:
+        output = log_path.read_text()
     expected = {
+        '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|PendingHistoryAndCausePlans)$': {'TestObjectMetadataCleanupLiveTransferAndDownloadPlans', 'TestObjectMetadataCleanupPendingHistoryAndCausePlans'},
+        '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans)$': {'TestObjectMetadataCleanupLiveTransferAndDownloadPlans', 'TestObjectMetadataCleanupFinalAnchorForeignKeyPlans', 'TestObjectMetadataCleanupPendingHistoryAndCausePlans'},
+        '^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$': {'TestObjectMetadataCleanupProjectHistoryPlans', 'TestObjectMetadataCleanupSkillsIndexPlans', 'TestObjectMetadataCleanupTransferAndForeignKeyPlans'},
+        '^TestObjectMetadataCleanupOldAttemptsAndStopHistory$': {'TestObjectMetadataCleanupOldAttemptsAndStopHistory'},
+        '^TestObjectMetadataCleanupIndexMigration$': {'TestObjectMetadataCleanupIndexMigration'},
+        '^TestObjectMetadataCleanup(BoundedHistoryAndFinalTransaction|FinalCommitUnknown)$': {'TestObjectMetadataCleanupBoundedHistoryAndFinalTransaction', 'TestObjectMetadataCleanupFinalCommitUnknown'},
         '^TestWorkOwnerRootActual(Command|Reader)Join$': {'TestWorkOwnerRootActualCommandJoin', 'TestWorkOwnerRootActualReaderJoin'},
         '^TestWorkOwnerHTTPProcessRoutingAndPersistence$': {'TestWorkOwnerHTTPProcessRoutingAndPersistence'},
         '^TestIndependentWorkOwnerRootConfirmationJoin$': {'TestIndependentWorkOwnerRootConfirmationJoin'},
@@ -130,11 +174,18 @@ def observe_root_chain(directory, log, log_path, selector):
         '^TestProjectVariablesHTTPProcessRoutingAndPersistence$': {'TestProjectVariablesHTTPProcessRoutingAndPersistence'},
         '^TestIndependentProjectVariablesProcessConfirmationExit$': {'TestIndependentProjectVariablesProcessConfirmationExit'},
         '^TestIndependentProjectVariablesRootConfirmationForce$': {'TestIndependentProjectVariablesRootConfirmationForce'},
+        '^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$': {'TestSkillLifecycleCleanupPersistence', 'TestSkillLifecycleCleanupCommitRecovery'},
+        '^TestSkillLifecycleCleanupHistoricalAttempts$': {'TestSkillLifecycleCleanupHistoricalAttempts'},
     }.get(selector, set())
     actual = set(re.findall(r'^=== RUN   (Test\w+)$', output, re.M))
     waited = re.search(r'^D03 explicit test actual_wait pid=[1-9][0-9]* code=-?[0-9]+ selector='
                        + re.escape(selector) + r'$', output, re.M) is not None
     log.write(f'ROOT exact_tops={actual == expected} actual_test_wait={waited}\n')
+    if selector in ('^TestSkillLifecycleCleanup(Persistence|CommitRecovery)$',
+                    '^TestSkillLifecycleCleanupHistoricalAttempts$'):
+        complete = skill_cleanup_results(output, selector)
+        log.write(f'ROOT cleanup_exact_run_pass={complete}\n')
+        good = good and complete
     return good and actual == expected and waited
 
 
@@ -164,6 +215,122 @@ def descendants(root):
     return result - {root}
 
 
+
+SKILL_HTTP_PG = '^TestSkillOwnerReadHTTP(Metadata|CurrentAuthority|Transactions|CommitUnknown)$'
+SKILL_HTTP_NATIVE = '^TestSkillOwnerHTTPNative(Deadlines|KeepAliveAndClose|BackpressureAndDisconnect)$'
+SKILL_HTTP_CASES = {
+    SKILL_HTTP_PG: {
+        'TestSkillOwnerReadHTTPMetadata': ('same_current_directory_and_detail_get_head', 'strict_request_and_real_browser_boundary'),
+        'TestSkillOwnerReadHTTPCurrentAuthority': ('foreign_owner_and_admin_no_bypass', 'project_gate_and_missing_publication_are_distinct', 'real_new_session_and_logout', 'current_owner_mapping_rechecked', 'archived_read_then_deleting_gate'),
+        'TestSkillOwnerReadHTTPTransactions': ('reader_first', 'writer_first', 'actual_query_cancel_and_original_tx_join'),
+        'TestSkillOwnerReadHTTPCommitUnknown': ('not_forwarded', 'committed_ack_lost'),
+    },
+    SKILL_HTTP_NATIVE: {
+        'TestSkillOwnerHTTPNativeDeadlines': ('read-natural', 'earlier-parent'),
+        'TestSkillOwnerHTTPNativeKeepAliveAndClose': ('cleared-deadline-keeps-real-connection', 'real-body-close-error-aborts-before-response'),
+        'TestSkillOwnerHTTPNativeBackpressureAndDisconnect': ('summary-write-natural-deadline', 'disconnect-cancels-actual-library-tail'),
+    },
+}
+
+
+def skill_http_inputs(driver, binary, selector):
+    # Exact local test inputs plus the runtime Schema producer/JSON/interpreter.
+    # The immutable precompiled binary represents its other build dependencies;
+    # this is not a repository-wide hash or another build during supervision.
+    root = Path(__file__).resolve().parents[2]
+    paths = {driver.resolve(), binary.resolve(), Path(__file__).resolve(),
+             root / 'go.mod', root / 'go.sum'}
+    paths.update(root / 'internal/central/skill/http' / name for name in ('handler.go', 'wire.go', 'io.go', 'native_test.go'))
+    paths.update((root / 'internal/central/skill/http').glob('*.go'))
+    if selector == SKILL_HTTP_PG:
+        paths.add(root / '.agent-state/task-planning-recovery/pg_only_driver.go')
+        paths.update(root / 'tests/skills' / name for name in ('owner_http_fixture_test.go', 'owner_http_test.go', 'owner_http_transactions_test.go'))
+        paths.update((root / 'tests/skills').glob('*.go'))
+        paths.update((root / '.agent-state/project-variables-independent/commitproxy').glob('*.go'))
+        paths.update((root / 'tests/testsupport/postgres').glob('*.go'))
+        paths.update({root / 'internal/central/skill/http/testdata/schema.py',
+                      root / 'api/openapi/skill-owner.json', root / 'api/openapi/common.json',
+                      Path(sys.executable).resolve()})
+    elif selector == SKILL_HTTP_NATIVE:
+        paths.add(root / '.agent-state/work-owner-http/native_driver.go')
+    else:
+        raise ValueError('unknown Skill HTTP selector')
+    return {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
+
+
+def skill_http_spawn(driver, binary, selector, directory, log):
+    environment = dict(os.environ)
+    if selector == SKILL_HTTP_PG:
+        environment['AGENTEAM_SKILL_HTTP_SCHEMA_PYTHON'] = str(Path(sys.executable).resolve())
+    return subprocess.Popen([str(driver.resolve()), '--test-binary', str(binary.resolve()),
+                             '--run', selector, '--directory', str(directory)],
+                            stdout=log, stderr=subprocess.STDOUT, env=environment)
+
+
+def observe_skill_http(directory, log, log_path, selector):
+    try:
+        output = log_path.read_text()
+        expected = {top for top in SKILL_HTTP_CASES[selector]}
+        expected.update(top + '/' + sub for top, subs in SKILL_HTTP_CASES[selector].items() for sub in subs)
+        runs = re.findall(r'^=== RUN   (Test[^\s]+)$', output, re.M)
+        passes = re.findall(r'^\s*--- PASS: (Test[^\s]+) \([^\r\n]*\)$', output, re.M)
+        good = (set(runs) == expected and len(runs) == len(expected)
+                and set(passes) == expected and len(passes) == len(expected))
+        started = re.findall(r'^CHILD pid=([1-9][0-9]*) selector=' + re.escape(selector)
+                             + (r' kind=native-http' if selector == SKILL_HTTP_NATIVE else '') + r'$', output, re.M)
+        waited = re.findall(r'^CHILD actual_wait pid=([1-9][0-9]*) state=exit status 0$', output, re.M)
+        good = (good and len(started) == 1 and waited == started
+                and len(re.findall(r'^CHILD pid=', output, re.M)) == 1
+                and len(re.findall(r'^CHILD actual_wait ', output, re.M)) == 1
+                and len(re.findall(r'^DRIVER terminal ', output, re.M)) == 1
+                and re.search(r'^\s*--- (?:FAIL|SKIP): ', output, re.M) is None)
+        manifest = directory / 'owned.json'
+        if manifest.is_symlink() or manifest.stat().st_mode & 0o777 != 0o600 or manifest.stat().st_size > 16384:
+            raise ValueError('invalid Skill HTTP ownership record')
+        record = json.loads(manifest.read_bytes())
+        if selector == SKILL_HTTP_PG:
+            if (set(record) != {'nonce', 'network_id', 'container_id'}
+                    or re.fullmatch('[0-9a-f]{32}', record['nonce']) is None
+                    or any(re.fullmatch('[0-9a-f]{64}', record[k]) is None for k in ('network_id', 'container_id'))):
+                raise ValueError('incomplete Skill HTTP PG identities')
+            expected_retire = [(str(n), record['container_id'], record['network_id']) for n in (1, 2)]
+            retired = re.findall(r'^RETIRE observation=([12]) exact_container=([0-9a-f]{64}) exact_network=([0-9a-f]{64}) clean=true$', output, re.M)
+            owned = re.findall(r'^OWNED nonce=([0-9a-f]{32}) container=([0-9a-f]{64}) network=([0-9a-f]{64}) port=[0-9]+ PostgreSQL=[0-9]+ vector=0\.8\.1$', output, re.M)
+            terminal = re.findall(r'^DRIVER terminal exit=0 elapsed=\S+ child_started=true actual_child_wait=true cleanup=true$', output, re.M)
+            good = good and len(re.findall(r'^RETIRE observation=', output, re.M)) == 2 and len(re.findall(r'^OWNED nonce=', output, re.M)) == 1 and retired == expected_retire and owned == [(record['nonce'], record['container_id'], record['network_id'])] and len(terminal) == 1
+        else:
+            if set(record) != {'kind', 'child_pid'} or record['kind'] != 'work-http-native' or type(record['child_pid']) is not int:
+                raise ValueError('invalid Skill HTTP native identity')
+            good = (good and started == [str(record['child_pid'])]
+                    and len(re.findall(r'^NATIVE runtime_empty=true actual_child_wait=true$', output, re.M)) == 1
+                    and len(re.findall(r'^DRIVER terminal exit=0 elapsed=\S+ child_started=true actual_child_wait=true private_removed=true$', output, re.M)) == 1)
+        good = good and not directory.is_symlink() and {p.name for p in directory.iterdir()} == {'owned.json'}
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError):
+        good = False
+    log.write(f'SKILL_HTTP exact_cases_wait_private={good}\n')
+    return good
+
+def survivor_identity(pid):
+    # Failure-only evidence for an already discovered owned descendant. Never
+    # collect argv, environment or full executable paths, or change retirement.
+    result = {'pid': pid, 'comm': None, 'state': None, 'ppid': None,
+              'starttime': None, 'exe_name': None}
+    try:
+        raw = Path(f'/proc/{pid}/stat').read_text()
+        prefix, fields = raw.rsplit(')', 1)
+        tail = fields.split()
+        if int(prefix.split('(', 1)[0]) == pid:
+            result.update(comm=prefix.split('(', 1)[1], state=tail[0],
+                          ppid=int(tail[1]), starttime=int(tail[19]))
+    except (OSError, UnicodeError, ValueError, IndexError):
+        pass
+    try:
+        result['exe_name'] = Path(os.readlink(f'/proc/{pid}/exe')).name
+    except OSError:
+        pass
+    return json.dumps(result, sort_keys=True)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--driver', required=True, type=Path)
@@ -190,6 +357,13 @@ def main():
               for p in (args.driver, args.binary)}
     if adapter is not None:
         inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
+        if args.run == '^TestObjectMetadataCleanup(ProjectHistoryPlans|SkillsIndexPlans|TransferAndForeignKeyPlans)$':
+            inputs.update({str(p): adapter.sha(p) for p in adapter.metadata_cost_inputs()})
+        if args.run in ('^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|FinalAnchorForeignKeyPlans|PendingHistoryAndCausePlans)$', '^TestObjectMetadataCleanup(LiveTransferAndDownloadPlans|PendingHistoryAndCausePlans)$'):
+            inputs.update({str(p): adapter.sha(p) for p in adapter.metadata_remaining_cost_inputs()})
+    skill_selected = not args.root_chain and args.run in SKILL_HTTP_CASES
+    if skill_selected:
+        inputs = skill_http_inputs(args.driver, args.binary, args.run)
     baseline = tcp()
     started = time.monotonic()
     child = None
@@ -203,9 +377,12 @@ def main():
     old = {s: signal.signal(s, stop) for s in (signal.SIGINT, signal.SIGTERM)}
     with log_path.open('w', buffering=1) as log:
         try:
-            child = subprocess.Popen([str(args.driver.resolve()), '--test-binary',
-                str(args.binary.resolve()), '--run', args.run, '--directory', str(directory)],
-                stdout=log, stderr=subprocess.STDOUT)
+            if skill_selected:
+                child = skill_http_spawn(args.driver, args.binary, args.run, directory, log)
+            else:
+                child = subprocess.Popen([str(args.driver.resolve()), '--test-binary',
+                    str(args.binary.resolve()), '--run', args.run, '--directory', str(directory)],
+                    stdout=log, stderr=subprocess.STDOUT)
             nonroot_reap_deadline = None
             try:
                 code = child.wait(timeout=driver_timeout)
@@ -240,6 +417,8 @@ def main():
                 code = 1
                 log.write(f'STOP owned descendants survived driver: {sorted(survivors)}\n')
                 for pid in survivors:
+                    if args.run == '^TestSkillLifecycleCleanupHistoricalAttempts$':
+                        log.write('OWNED survivor_identity=' + survivor_identity(pid) + '\n')
                     try: os.kill(pid, signal.SIGKILL)
                     except ProcessLookupError: pass
             reap_deadline = (time.monotonic() + 5 if args.root_chain else
@@ -273,6 +452,8 @@ def main():
                 if remaining: code = 1
             if args.root_chain and not observe_root_chain(directory, log, log_path, args.run):
                 code = 1
+            if skill_selected and not observe_skill_http(directory, log, log_path, args.run):
+                code = 1
             # The tail is a host delta, not an assertion that every short
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75
@@ -288,8 +469,14 @@ def main():
             if empty != 2:
                 code = 1
                 log.write(f'STOP host TCP delta tail not empty: {len(tcp() - baseline)} rows\n')
-            same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
-                       for p, digest in inputs.items())
+            if skill_selected:
+                try:
+                    same = skill_http_inputs(args.driver, args.binary, args.run) == inputs
+                except (OSError, ValueError):
+                    same = False
+            else:
+                same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
+                           for p, digest in inputs.items())
             if not same: code = 1
             if interrupted: code = 1
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')
