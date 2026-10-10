@@ -37,7 +37,7 @@
 | UiTabs | 字符串 v-model、items（ChoiceOption[]）、label；默认插槽接收 value；方向键、Home / End 自动激活，跳过禁用项；指示线和内容滑动，退出面板 inert，支持快速反向和减少动效 |
 | UiPagination | 数字 v-model、total（页数）、label；上一页、下一页与当前页附近页码，超出范围会修正 |
 
-`TreeNode.expandable` 未传时保留按 `children?.length` 判断的原行为；`true` 支持子级尚未加载的节点，`false` 按叶子处理。展开按钮、键盘、子级可见性和 `aria-expanded` 使用同一判断；业务组件负责按展开动作读取子级。
+`TreeNode.expandable` 未传时保留按 `children?.length` 判断的原行为；`true` 支持子级尚未加载的节点，`false` 按叶子处理。展开按钮、键盘、子级可见性和 `aria-expanded` 使用同一判断；业务组件负责按展开动作读取子级。Knowledge 的只读树封装消费该接口，节点仍可独立选读；父子关系、当前权限和分页由业务层负责，`expandable` 不代表已取得子级目录或授权。
 
 Tree 使用可见节点的方向键、Home / End、Enter / Space；右键展开或进入子节点，左键折叠或回到父节点。标签页需要传入有效初始 value，列表和树节点 ID 必须唯一且稳定。
 

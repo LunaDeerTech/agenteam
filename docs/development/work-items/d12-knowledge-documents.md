@@ -1,6 +1,6 @@
 # D12 Knowledge 文档与文档树
 
-状态：B01 纯契约、[B02 Human canonical/树服务](d12-b02-knowledge-service.md)、[Owner metadata/树 HTTP](d12-knowledge-owner-read-http.md)、[树命令 HTTP](d12-knowledge-owner-tree-http.md)与[有界正文 HTTP](d12-knowledge-owner-content-http.md)已分别完成有限交付；正文卡 §6 记录默认 root 的有限真实组合通过。下一片段为下述 Owner 只读 UI，已有实现与离线检查，真实浏览器及独立验收未完成；D12 整体与既有 STOP 未关闭。下列 B01/C1 段落保留当时记录，后续实际状态以相应子卡为准。
+状态：B01 纯契约、[B02 Human canonical/树服务](d12-b02-knowledge-service.md)、[Owner metadata/树 HTTP](d12-knowledge-owner-read-http.md)、[树命令 HTTP](d12-knowledge-owner-tree-http.md)与[有界正文 HTTP](d12-knowledge-owner-content-http.md)已分别完成有限交付；正文卡 §6 记录默认 root 的有限真实组合通过。下一片段为下述 Owner 只读 UI，已有实现、离线检查及旧后端输入下作者正常链 `read03` 整体通过；新主线组合与独立动态验收未完成；D12 整体与既有 STOP 未关闭。下列 B01/C1 段落保留当时记录，后续实际状态以相应子卡为准。
 
 正式依据：[实施规格](d12-knowledge-documents-design.md)、[D01 资源契约](d01-contracts/resources-skills.md)、[文档领域](../../architecture/knowledge-memory/knowledge-document-domain.md)。规格输入固定 `16595ad1e78e5283dfe85fb812095acde382edd1`。原候选 `/tmp/agenteam-d12-s01-rev2-21if98iv/d12-knowledge-s01-candidate.md` SHA `c1ae54e6a6d4ea111d4e662ba3c75cbd4c7a42d8f7ab2768b3bbbf45309adf23`；独立复核 `/tmp/agenteam-d12-rev2-review-0nxov8_a/report.md` SHA `35c733111d44052d124e7cc731433905794840b4b82b2777da102806ca78acf9`。R01 namespace/OwnerIDs 与 R02 跨包 typed 载体已闭环；静态采纳不代表生产能力通过。
 
@@ -41,7 +41,7 @@ B02 新 canonical/树服务库可依真实稳定端口继续准备；真实 PG/M
 
 本段只落实[知识库布局](../../frontend-design/layouts/knowledge-base.md)和[项目工作台](../../frontend-design/layouts/project-workspace.md)中已有文档的读取部分：当前 Owner 进入项目知识库，分页展开文档树，选择父文档或子文档，查看元数据、祖先路径和当前有界正文。默认不选中文档；空库显示“暂无文档”。普通入口不恢复旧选择，指定文档链接按当前权限重新定位。首片段可独立交付，不等待完整知识库编辑器。
 
-实施使用 root 已创建的独立 `ai/knowledge-owner-ui` 树；前端执行者唯一写本段列出的客户端、会话接缝、组件与页面，配套真实 fixture 由指定后端/测试写者负责，共享 harness 仍由原 owner 集成。客户端、controller、树和页面已在新树实现，沿现有 Session/Project 工作区接入；尚未完成真实 UI 联调。无迁移、新后端契约或生产 root 改动；保留 Object Runtime join、来源获取及其他既有 STOP。
+实施使用 root 已创建的独立 `ai/knowledge-owner-ui` 树；前端执行者唯一写本段列出的客户端、会话接缝、组件与页面，配套真实 fixture 由指定后端/测试写者负责，共享 harness 仍由原 owner 集成。客户端、controller、树和页面已实现，沿现有 Session/Project 工作区接入；作者四 GET 正常链已真实通过，新主线 Account/Secret 根装配合入后的组合仍待验证。无迁移、新后端契约或生产 root 改动；保留 Object Runtime join、来源获取及其他既有 STOP。
 
 ### 四个正式读取接口
 
@@ -81,16 +81,18 @@ B02 新 canonical/树服务库可依真实稳定端口继续准备；真实 PG/M
 
 ### 首条真实链与有界验收
 
-实施先交四方法客户端、Session 接缝和一个可运行页面，完成定向基础检查后尽早联调，不等检索、编辑或全布局完成。建议新增 `internal/central/app/knowledge_owner_web_test.go` 的 integration top `TestKnowledgeOwnerReadWeb`，配 `tests/account-captcha-web/e2e/knowledge-owner-read.spec.ts`，消费实际默认 `bindAccounts` 实例和锁定 Playwright。fixture 沿修后 root 有限组合方法：默认 Project 创建仍返回 `DEPENDENCY_UNBOUND` 且零事实；只在 `_test.go` 显式构造真实 ports 的隔离 Project 服务，复用原 Store/Auditor/Skill 完成准备并实际 Stop/Drain，再由默认 Knowledge.Service 创建含多层树的真实文本。可复用 `rootCompositionProjectFixture` 的测试边界，不把 initializer 重新注入默认根，不插业务 SQL 或造 ready 事实；完整 lifecycle participant、生产 initializer 与 Project Create HTTP 继续未绑定。
+实施先交四方法客户端、Session 接缝和一个可运行页面，完成定向基础检查后尽早联调，不等检索、编辑或全布局完成。已实现 `internal/central/app/knowledge_owner_web_test.go` 的 integration top `TestKnowledgeOwnerReadWeb`，配 `tests/account-captcha-web/e2e/knowledge-owner-read.spec.ts`，消费实际默认 `bindAccounts` 实例和锁定 Playwright。fixture 沿修后 root 有限组合方法：默认 Project 创建仍返回 `DEPENDENCY_UNBOUND` 且零事实；只在 `_test.go` 显式构造真实 ports 的隔离 Project 服务，复用原 Store/Auditor/Skill 完成准备并实际 Stop/Drain，再由默认 Knowledge.Service 创建含多层树的真实文本。可复用 `rootCompositionProjectFixture` 的测试边界，不把 initializer 重新注入默认根，不插业务 SQL 或造 ready 事实；完整 lifecycle participant、生产 initializer 与 Project Create HTTP 继续未绑定。
 
 首个正常 case 从真实登录后的项目入口进入知识库，确认默认未选中，展开父文档、选择子文档、核真实 metadata/祖先及首段 UTF-8 文本，再取下一段核实际 byte offset；同时验证父文档也可选读。先以小 fixture 打通这一次原客户端→Session→HTTP→B02/D05→原响应完整消费→页面发布。沿既有 task-owned 静态 dist/同源反代测试入口与七资源 fixture；它们不是 SPA 生产发布。浏览器、Go/driver/outer、原请求消费和取消尾、领域/root 退役与自有资源/TCP尾全部结束才算该次完成，HTTP 200、native EOF 或截图单独不算 UI 发布。
 
-与本片段风险对应的增量检查限定为：四端点完整/坏尾表示与偏移解析；根/子级 cursor、空树/空正文/tombstone/unavailable；当前 Owner 拒绝与 archived 读取；切换文档/项目或身份、held reader/cancel/finally 时禁止迟到发布及提前放行下一 Cookie 请求。复用未变后端权限/native/root 证据，不重跑其全矩阵。真实浏览器补窄屏 Drawer、键盘选择/展开、焦点恢复、长文本滚动和现有明暗/reduced-motion样式；独立验证者只核新权限、消费/发布和页面接缝。具体 selector、预算、输入和资源窗口由实施者冻结后交 root 调度，当前客户端、Session/controller 和 App 页面已有定向离线检查；真实 Go/browser fixture 尚未实现，未运行新增真实 UI 检查。
+与本片段风险对应的增量检查限定为：四端点完整/坏尾表示与偏移解析；根/子级 cursor、空树/空正文/tombstone/unavailable；当前 Owner 拒绝与 archived 读取；切换文档/项目或身份、held reader/cancel/finally 时禁止迟到发布及提前放行下一 Cookie 请求。复用未变后端权限/native/root 证据，不重跑其全矩阵。真实浏览器补窄屏 Drawer、键盘选择/展开、焦点恢复、长文本滚动和现有明暗/reduced-motion样式；独立验证者只核新权限、消费/发布和页面接缝。精确选择器为 `^TestKnowledgeOwnerReadWeb$`（1 top / 0 sub），锁定 Playwright 1 case / 45s / retry0；Go 120s 含 cleanup，包6m、root540s及原退出/资源/TCP尾沿已有共享入口。Go/browser fixture 已实现，旧输入作者 `read03` 已实际通过；合入新主线后须使用新编 Go 候选执行同一组合，未运行前不沿用旧二进制结论。
 
-### 当前离线实现与未完事项
+### 当前证据与组合待验
 
-四 GET 客户端的 35 项已通过检查按未变输入复用。修后 controller/页面、UiTree 与既有 Session/认证/Project 工作区共 7 个 spec、166 项检查通过，完整类型检查和私有正式构建通过；它们使用实际客户端、Session 和工作区，网络响应受控，不代表真实浏览器消费或后端联调通过。修复包括正式 System users query 的测试 fixture、页面读任务完成时响应式解除 busy、祖先 `403/410` 撤去正文及停止后续链、Drawer 选择关闭的原焦点恢复，以及 `expandable=false` 对键盘/ARIA/旧展开状态的一致处理。原失败与实际命令留在本树 current。
+四个前端测试文件的有效最终证据为：客户端35项、UiTree/公共组件14项、目录失败清层修后state/页面29项，共78项；相关输入未变时复用。既有Session/认证/Project工作区126项兼容检查保持原范围。最初166项组合早于目录返修，不写成修后重新全跑；失败保留在[固定topic恢复记录](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/current.md)。完整类型检查、返修后的私有正式dist构建与有限静审已完成；受控Fetch/jsdom证据不冒真实权限或浏览器。
 
-独审随后定位目录继续页失败或取消时仍保留未标旧的行和 cursor；仅修 controller 清该失败层并保留其他 ready 层，新增根403、子503及持住原尾的 Stop 控。修后 state/页面29项通过，未变兼容证据复用；此前私有构建早于该返修，真实联调前须重建当前源。
+目录继续页失败或取消会清该层行和cursor，保留其他ready层；新增根403、子503及持住原尾的Stop控制。当前67个dist资产来自返修后冻结源，并已由作者 `read03` 真实消费；生产11源、四个前端测试及锁未变，本轮不重复构建或重跑未变矩阵。
 
-后续按上文首条真实链进入有界联调，再由独立作者核新权限、消费/发布与页面接缝。正文服务与默认根的旧有效证据不重复执行；UI 未完成前不将本节写成整 D12、生产 SPA 或创建功能交付。
+作者正常链 `read03` 在方法源 `0f2194c8` 与旧Go候选下整体PASS：12个四GET原请求完成原reader/取消/Close与Session同Promise typed发布、DOM及Schema核对；两observer首次explicit/pending0与全部尾join通过。原Node、Go、driver、outer及七资源/private/runtime/desc/TCP双尾完整退出。首两轮wholeFAIL及其UNKNOWN保持原样，原请求ERR_ABORTED只由第三轮现场观测支持；[安全结果](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/knowledge-owner-ui/read-third-pass.json)与[恢复说明](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/knowledge-owner-ui/README.md)固定到已保存topic，不要求把历史JSON/current导入正式范围。
+
+Skills/coordination已对产品、fixture和消费方法实际差异做有限独立静审；上述离线和正常链动态均由作者执行，不宣称已有独立动态风险验收。当前已合主线Secret根装配及共享入口并集（`26e3928d`），Go依赖有实变，需新race候选/精确入口准备后执行一次同范围组合；当前组合尚待。默认initializer、完整participant、Object Runtime join与来源STOP保持，不扩编辑、parser、Project Create HTTP、整D12或生产SPA。

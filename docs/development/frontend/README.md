@@ -65,7 +65,7 @@ npm run preview --prefix web
 
 `/:username/:project_name/knowledge` 读取当前 Owner 的已有文档，`/knowledge/:document_id` 使用规范 UUIDv7 深链；仅在 Project Resolve→Get 和当前 Human Session 均成立后读子层、metadata、祖先及正文。树展开与选择分开，每层按 cursor 显式继续；祖先是当前路径，不是完整目录快照。正文按正式默认 65536 UTF-8 字节分段，只显示当前段，版本变化清空旧段；Markdown 安全显示源文本，PDF/DOCX 明确不可读，不调用解析、预览或来源获取。
 
-实现复用唯一 Cookie 请求 owner、现有 Project 工作区与 UiTree/Drawer。取消/切换不提前释放原 fetch/body/cancel 尾；新的页面观察与原请求完成分别管理。普通 Owner 无管理员门禁，局部拒绝不污染 System 状态。当前只有定向受控客户端/会话/页面检查，真实 UI fixture/browser 与独立验收尚未完成，具体范围见 [D12 UI 片段](../work-items/d12-knowledge-documents.md#下一独立交付owner-文档树与正文读取-ui实现中未验收)。默认生产 Project initializer 仍未绑定；后续真实测试仅用隔离正式服务准备已有 Project。
+实现复用唯一 Cookie 请求 owner、现有 Project 工作区与 UiTree/Drawer。取消/切换不提前释放原 fetch/body/cancel 尾；新的页面观察与原请求完成分别管理。普通 Owner 无管理员门禁，局部拒绝不污染 System 状态。定向客户端/会话/页面检查及旧后端输入下的作者单正常链 `read03` 已通过，涵盖真实四 GET、树键盘、UTF-8 下一段和窄屏 Drawer；新主线根装配已合入，组合运行与独立动态验收尚待完成，具体范围见 [D12 UI 片段](../work-items/d12-knowledge-documents.md#下一独立交付owner-文档树与正文读取-ui实现中未验收)。默认生产 Project initializer 仍未绑定；真实测试只用隔离正式服务准备已有 Project，并实际 Stop/Drain 后供默认读取服务使用；测试静态托管不代表 SPA 生产发布。
 
 ## Project Owner 工作区
 

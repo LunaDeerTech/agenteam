@@ -1,6 +1,6 @@
 # Knowledge Owner 正常读取链
 
-本目录的方法仅对应 `TestKnowledgeOwnerReadWeb`（integration、app 包、1 top / 0 sub）与锁定 Playwright 的一个 `[read] Knowledge Owner existing-document read` case。前两次真实读取整体 FAIL 保留；第三次 `read-author-03` 作者单正常链整体 PASS，原退出尾完整结束。生产 UI 已存 `da77c639`，当前方法源 `0f2194c8`；这不等于整 D12 或独立风险验收，默认 Project initializer 保持未绑定。
+本目录的方法仅对应 `TestKnowledgeOwnerReadWeb`（integration、app 包、1 top / 0 sub）与锁定 Playwright 的一个 `[read] Knowledge Owner existing-document read` case。前两次真实读取整体 FAIL 保留；第三次 `read-author-03` 作者单正常链整体 PASS，原退出尾完整结束。生产 UI 已存 `da77c639`，当前方法源 `0f2194c8`；这不等于整 D12 或独立风险验收，默认 Project initializer 保持未绑定。现已合主线 `3a7a3fb5` 的 Account/Secret 根装配与共享入口并集（merge `26e3928d`）；该新组合须重新编译 Go 候选并执行一次原正常链，当前尚待。
 
 Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/Object；普通 Owner 来自正式 invitation / inspect / redeem / login。默认 Project Create 的新 target 必须 `DependencyUnbound/NotCommitted` 且零事实；正向准备只使用已有 `rootCompositionProjectFixture` 真实 ports，实际 Stop/Drain/Joined 后才进入浏览器。没有业务 SQL 造 ready 或生产注入。静态 dist 与同源反代只供测试。
 
@@ -12,7 +12,7 @@ Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/O
 - PW：`tests/account-captcha-web/knowledge-owner-read.config.js`、`e2e/knowledge-owner-read.spec.ts`、`e2e/knowledge-owner-read.native.ts`；严格使用仓库 `package-lock.json` 的 Playwright 1.56.1。
 - 方法控制：[native-controls.cjs](native-controls.cjs)，使用实际客户端/Session与受控 Fetch/streams；PW 行为半边为受控输入，不代表真实浏览器。
 - 新私有资产：`output/ai/knowledge-owner-ui/dist-read-01`（44971 actual0，完整 vue-tsc + Vite 8.3.1 / 294 模块）；旧 `dist` 保留，不用于本候选。
-- 已编译候选：`output/ai/knowledge-owner-ui/knowledge-owner-web-race-01.test`（60,147,683 bytes）。固定 Go1.27.1，共享只读 modules、本树私有 GOCACHE；MinIO 为 `output/ai/deps-minio/bin/minio`，由已验证共享固定产物离线复制。
+- read03旧输入候选：`output/ai/knowledge-owner-ui/knowledge-owner-web-race-01.test`（60,147,683 bytes），不能用于新主线组合结论。新组合候选为 `output/ai/knowledge-owner-ui/knowledge-owner-web-race-02.test`（60,984,862 bytes，SHA-256 `fe88b150d4a7d82476697ec96016094fad1ef291cfde83abe1449e90c9f8fa30`）；`26e3928d` 下 race-c 和精确1 top列举已通过。固定 Go1.27.1，共享只读 modules、本树私有 GOCACHE；MinIO 为 `output/ai/deps-minio/bin/minio`，由已验证共享固定产物离线复制。
 - 固定 Schema Python：`/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3`，通过 `AGENTEAM_KNOWLEDGE_OWNER_WEB_SCHEMA_PYTHON` 原样传给浏览器 runner；实际 safe sidecar 对照正式 common/knowledge-owner/knowledge-content Schema。
 
 运行输入为 `AGENTEAM_KNOWLEDGE_OWNER_WEB_{DIST,EVIDENCE,INPUT_HASH,SCHEMA_PYTHON,CASE}`（CASE 仅 `read`）与既有 `AGENTEAM_AUTH_WEB_{RUNTIME,PRIVATE,ORIGIN,CHROMIUM}`。共享 driver/supervisor 由 coordination 单写，D12 独立 exact 入口已保存 `bd970b97`；每次仍需 fresh 授窗，不能借 Work selector 开跑。
@@ -33,17 +33,17 @@ Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/O
 
 `read-author-01` 使用冻结 `bd970b97`、上述候选与当前 dist，session10035 / outer307373。同 process 空闲9,249,374,208 bytes、1448 inputs、私有 telemetry mode=off/去三旁路、空 Docker config 后启动。Go 单 top 59.14s FAIL，原 Node actual Wait success=false、Go code1、driver code1、outer actual1。原安全快照仅定位 `stage=actual-consumption`、page_closed=true、observer_report=false；该阶段内具体等待/断言尚不能从原材料区分，不归因为产品错误。
 
-同次12个原反代完整 GET200 sidecar（含精确下一段 offset=65535）及两张布局截图存在，但没有最终 observer report，未执行后继逐响应联合证明/Schema与根成功断言，不能据此称消费发布或真实链通过。7个资源ID双不存在、private双不存在、runtime双空、descendant双空、4个 adopted child 原 Wait0、host TCP双空；1448输入初末重枚举/摘要一致，原 terminal1 /193.904s，窗口已释放。安全原记录见 [read-first-failure.json](read-first-failure.json)，不复制原凭据、headers或正文。该轮结束时下一步仅只读有界定位45s内原等待与方法覆盖缺口，保持严格 finished/reader/typed/DOM/首 explicit门；当时未授权重试或改实现。
+同次12个原反代完整 GET200 sidecar（含精确下一段 offset=65535）及两张布局截图存在，但没有最终 observer report，未执行后继逐响应联合证明/Schema与根成功断言，不能据此称消费发布或真实链通过。7个资源ID双不存在、private双不存在、runtime双空、descendant双空、4个 adopted child 原 Wait0、host TCP双空；1448输入初末重枚举/摘要一致，原 terminal1 /193.904s，窗口已释放。安全原记录见 [read-first-failure.json](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/knowledge-owner-ui/read-first-failure.json)，不复制原凭据、headers或正文。该轮结束时下一步仅只读有界定位45s内原等待与方法覆盖缺口，保持严格 finished/reader/typed/DOM/首 explicit门；当时未授权重试或改实现。
 
 ## 第二次诊断运行
 
-[诊断计划](read-second-diagnostic-plan.md) 经独立有限审后，仅 spec/native/native-controls 实施；原成功 AND、header→finished与PW tails→同调用双seal顺序不变。64664离线方法249项/0unhandled、57776 strictTS、82407精确PW list（1case）及三源格式均 actual0，实际差异由 coordination 有限接受并保存 `27a46c9e`；Go候选和dist复用。
+[诊断计划](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/knowledge-owner-ui/read-second-diagnostic-plan.md) 经独立有限审后，仅 spec/native/native-controls 实施；原成功 AND、header→finished与PW tails→同调用双seal顺序不变。64664离线方法249项/0unhandled、57776 strictTS、82407精确PW list（1case）及三源格式均 actual0，实际差异由 coordination 有限接受并保存 `27a46c9e`；Go候选和dist复用。
 
 获独占窗口后的 `read-second-diagnostic-02` /session21831 /outer345887，预飞原01七ID与三private双不存在、runtime双空；同process空闲8,365,895,680 bytes、私有modeoff/三旁路清除/空Docker config、1448输入。Go top53.36s FAIL，原Node Waitfalse、Go1、driver1、outer1。页与context仍open时，已同步记录 `phase=pw-tails/pw_pending=4`；Request seq1/4/6/9 header已返、requestfailed=true、无requestfinished、原finished仍未返回。原page-close事件后，这四个finished才reject、原尾join归零，随后page-observers evaluate拒绝。较晚的first_failure为page-observers/closedtrue，不能单凭该首快照倒推最初阻点，必须保留关闭前事件链。
 
 最后已有browser采样发生在observer-idle：12 native行均EOF、read/read-return一致、reader-cancel/release/outer-cancel及实际join计数各1；12 public行fulfilled/settled/current/not_busy且bound1，两observer当时pending0、仍active。该安全样本未保留native摘要/CL/XID跨观察器绑定、完整typed返回对象和DTO等式，最终首次explicit退休/end/join亦未取得；这些保持UNKNOWN，不能称全消费证明齐。请求失败分类与取消来源未捕获，不推定ERR_ABORTED或产品原因。
 
-原7ID双不存在、private双不存在、runtime双空、descendant双空、4 adopted原Wait0、TCP双空、1448输入重枚举/摘要一致；wholeFAIL terminal1/135.099s，窗口已释放。安全原结果见 [read-second-failure.json](read-second-failure.json)。该轮结束时只提出四固定GET原消费闭集方法方案，参考共享同一Request terminal的正常finished一次/failed零次，所有其他真实联合门保留；当时未授权实现或第三次实际运行。
+原7ID双不存在、private双不存在、runtime双空、descendant双空、4 adopted原Wait0、TCP双空、1448输入重枚举/摘要一致；wholeFAIL terminal1/135.099s，窗口已释放。安全原结果见 [read-second-failure.json](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/knowledge-owner-ui/read-second-failure.json)。该轮结束时只提出四固定GET原消费闭集方法方案，参考共享同一Request terminal的正常finished一次/failed零次，所有其他真实联合门保留；当时未授权实现或第三次实际运行。
 
 ## 第三次作者正常链通过
 
@@ -51,4 +51,10 @@ Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/O
 
 `read-author-03` /session25505 /outer409429于UTC07:18:53.594873启动，fresh6,898,204,672 bytes，旧01+02共14ID/6private/2runtime双预飞齐；私有modeoff/去三旁路、空Docker config、原1448输入与67dist。原Node411934 Waittrue，Go411714单top32.59s PASS/Wait0，driver409741 Wait0，outer实际0，4 adopted原Wait0。新LIVE seq1/5/6为ERR_ABORTED失败终态且finished调用0，另9正常终态finished调用1/null；12原Request/native/typed的XID/CL/digest/完整DTO与正文等式、树键盘/UTF8下一段/Drawer、Schema12/status0均通过。两个observer均首次explicit且首次pending0、最终pending0、失败false，publication仍current/notbusy。默认initializer未绑定、显式真实Project fixture已join及文档2/commands2/active readers0由原Go断言通过。
 
-七资源14次absent、private/runtime/desc双空、HOST_TCP双空、初末1448输入重枚举/摘要unchanged=true；wholePASS terminal0/150.043s，窗口已释放。安全记录：[read-third-pass.json](read-third-pass.json)。前两次FAIL及其UNKNOWN不回填，本次只接受作者四GET正常链；不宣称编辑、来源/parser、Project Create HTTP、完整D12或生产SPA已完成。
+七资源14次absent、private/runtime/desc双空、HOST_TCP双空、初末1448输入重枚举/摘要unchanged=true；wholePASS terminal0/150.043s，窗口已释放。安全记录：[read-third-pass.json](https://github.com/LunaDeerTech/agenteam/blob/23f448d7c423dc9b5e872b4fb4ebf16e8b86a784/.agent-state/knowledge-owner-ui/read-third-pass.json)。前两次FAIL及其UNKNOWN不回填，本次只接受作者四GET正常链；不宣称编辑、来源/parser、Project Create HTTP、完整D12或生产SPA已完成。
+
+## 新主线组合准备
+
+已仅重编app integration race候选并核 `-test.list '^TestKnowledgeOwnerReadWeb$'` 恰1 top、PW config `--list` 恰1 case及新driver `--check` 当前输入。使用Go1.27.1、私有telemetry modeoff/去三旁路、只读离线modules与独立runtime；长编译前同process fresh>=5GiB。生产UI/锁/dist未改，复用最终78项及既有兼容/44971构建，不把复用记成新执行。此次42757编译/Go list实际0，原两个子进程Wait0且runtime为空；14897 PW list实际0/恰1 case，56476 driver --check实际0。当前1455输入、67dist，plan未创建runtime/evidence；这些是准备结果，read04仍未运行。
+
+真实运行仍须单次自有窗口：固定Python调用 `.agent-state/task-planning-recovery/pg_only_supervisor.py --root-chain --driver <本树root_chain_driver.py绝对路径> --binary <新候选绝对路径> --run '^TestKnowledgeOwnerReadWeb$' --output <新自有短目录>`，并设置上述D12私有环境。不得复用旧evidence/nonce；原Wait、七资源和输入初末/TCP双尾全部保持。编译/列表/plan检查不等于该组合运行通过；独立动态风险尚未完成。
