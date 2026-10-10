@@ -1,12 +1,12 @@
 # D10 Secret Variables Owner HTTP
 
-状态：方案已获 Skills HTTP 有限只读审接受并由 root 授权实施；首片段四产品/四 pure 测试已准备，基础 pure/Schema 按限定版本组合通过，八技术源已获独立有限静审接受；作者原冻结候选真实 PG 与 native 组合已完整通过，独立动态仍待；后继默认 root 接入源码和纯检查已准备，真实 root 未验。树 `ai/secret-owner-http` 以已接受的 Owner 库 `f9cc11c6` 为输入；正式连续 00028–30/core 由 coordination 组装，默认 root/Account 装配由 root 指定的统一写者负责。
+状态：方案及产品实际差异已获有限独立静审接受；基础 pure/Schema 按限定版本组合通过，作者原冻结候选真实 PG 与 native 组合已完整通过；后继默认 root 接入作者一top两sub也已完整通过，独立动态仍待。树 `ai/secret-owner-http` 以已接受的 Owner 库 `f9cc11c6` 为输入；正式连续 00028–30/core 已交付main，默认root保持Project initializer unbound，未接F1。
 
 ## 1. 已定契约与最小结果
 
 依据 [Secret Owner SPEC](d10-secret-variables-owner.md) §§2–3、7、[现有 OpenAPI](../../../api/openapi/secret-variables.json) 和 [Owner 库工作项](d10-secret-variable-owner-service.md)。正式 main 的 A 合同与 Schema 已交付；本树 SPEC 的旧“未独立审查”页首不是当前状态，不恢复该旧状态到 main。Schema 已明确三条路径，没有需要猜测的 endpoint。
 
-本次交付可注入现成库的独立 Secret HTTP handler，消费既有六 typed 方法，不扩公共 Service/contract，不另造幂等、自动重试或恢复 worker。普通 `/variables` 保留原协议。默认 root、UI、Agent F1、MCP/Runner 和完整 Project 生命周期均另行接入。
+本次交付消费既有六 typed 方法的 Secret HTTP handler，及§11同Store默认root接入，不扩公共 Service/contract，不另造幂等、自动重试或恢复 worker。普通 `/variables` 保留原协议。UI、Agent F1、MCP/Runner 和完整 Project 生命周期仍另行接入。
 
 令 P=`/api/v1/projects/{project_id}/secret-variables`：
 
@@ -43,7 +43,7 @@ read/Lookup 总 2s、mutation 30s，认证前开始并服从更早父期限；�
 
 input/detail/receipt/Lookup 上限 1 MiB、list 5 MiB；核 65536 B value 最坏 escaping。分页默认 50/最大 100、cursor≤8192 B，C name/id keyset、Secret generation/签名交既有库，HTTP 不解签或重建游标。库已验跨类型、换 Session/stale/no-op/replay 按未变范围复用。
 
-handler 不关闭共享库/Store。后继根须绑定同一个 SecretService 的 Stop/Drain；本构造和受控验证不代表默认 root 或完整进程退出通过。
+handler 不关闭共享库/Store。默认根绑定同一个 SecretService 的 Stop/Drain，限定真实根退出证据见§11；本构造和受控验证本身不替代真实进程证据。
 
 ## 5. 明确文件责任
 
@@ -63,7 +63,7 @@ ordinary HTTP、Account.HTTPBoundary、公共 httpapi、Secret/Project/Account �
 3. 单独 native 窗：自然期限、更早父期限、keepalive 清 deadline、disconnect/backpressure，以及 Body/Write/Close/Flush/callback 实际返回；不以纯 ResponseWriter 代 socket 结论。
 4. 未参与实现者有限独审及当前 Session/泄露风险独验。真实轮需 fresh 授权、精确 selector、原预算和实际 Wait/资源/runtime/desc/TCP 全尾；原 FAIL 保留。
 
-当前无阻塞 HTTP shape 的未决产品规则。00028→29→30/core 已随后端 `fb84a892` 进入 main；本任务原 handler 的共享 harness 及作者 PG/native 已完成，尚待独立动态验收；后继默认 root 同 Store 构造与退出绑定已获授权实施，进度见§11。基础离线验证见下一节，PG/native 作者结果见§9–10；默认 root 新输入尚未实际验收。
+当前无阻塞 HTTP shape 的未决产品规则。00028→29→30/core 已随后端 `fb84a892` 进入 main；本任务原 handler 的共享 harness 及作者 PG/native 已完成，尚待独立动态验收；后继默认 root 同 Store 构造与退出绑定作者实际门已闭，见§11。基础离线验证见下一节，PG/native 作者结果见§9–10；完整Project lifecycle/F1仍未交付。
 
 
 ## 7. 基础片段实际验证
@@ -72,7 +72,7 @@ ordinary HTTP、Account.HTTPBoundary、公共 httpapi、Secret/Project/Account �
 - pure02 整体 FAIL：11 top 中10 top通过，包含24个实际 Secret Schema向量；唯路由测试查了中间件克隆前的外部 Request。仅将该观察改为实际 boundary Request，产品未改；原 FAIL保留。
 - pure03 原路由与新增日志反例两 top race实际通过。结合未变的10 top，基础12 top/9直接子覆盖正常 CRUD/identity-only Lookup、严格拒绝/字节边界、safe receipt/whole-page/HEAD、owned material销毁、原调用/取消callback实际join和实际middleware安全日志。样例端口只证明 HTTP，不证明真实 Session/SQL。
 - 相邻 ordinary HTTP 9 top/8直接子 race实际通过，26个原 Schema向量通过；ordinary源码和共用IO未改。这些是进程内controls，名称含 NativeCapability 的用例也没有socket，不能代native证明。
-- 实际命令与终态见本树[检查点](../../../.agent-state/current.md)。Skills HTTP对基础八技术源实际diff有限静审接受，无产品must-fix；本节基础阶段未证明真实 Cookie/CSRF/Session；后继 PG/native 作者结果见§9–10，默认root仍未验。原 Owner 库30节点与定向独验继续按未变范围复用。
+- 实际命令与终态见本树[检查点](../../../.agent-state/current.md)。Skills HTTP对基础八技术源实际diff有限静审接受，无产品must-fix；本节基础阶段未证明真实 Cookie/CSRF/Session；后继 PG/native 作者结果见§9–10，默认root结果见§11。原 Owner 库30节点与定向独验继续按未变范围复用。
 
 ## 8. 定向真实方法
 
@@ -85,18 +85,22 @@ ordinary HTTP、Account.HTTPBoundary、公共 httpapi、Secret/Project/Account �
 
 精确 `^TestSecretVariableHTTPBoundary$` 一 top 两直接子实际通过。真实 Account Cookie/CSRF→Owner/D04/Project/Audit 验证 CRUD/GET/HEAD/List、metadata no-op、显式同材料仍替换、新 Session 历史 Lookup 与原意图重放、值与摘要无泄露；另一子在认证后 Body.Read 调正式 Logout，create/历史 Lookup 均由原领域 Tx 拒绝、清 Cookie且无新增 Secret 事实。fixture Skills 初始化受控范围保持披露，不代表默认 root。
 
-该轮固定候选一次执行，Go/driver/supervisor/outer均实际退出0，PG两自有资源精确ID双退役、私有文件清除、后代/TCP双空、初末输入字节及枚举一致，wholePASS并释放窗口。精确会话/命令与原件位置见本树 current；未重试、未扩大原库30节点。本轮不证明 native 传输（另见§10）；未参与实现者独立动态与后继默认root/F1仍待。
+该轮固定候选一次执行，Go/driver/supervisor/outer均实际退出0，PG两自有资源精确ID双退役、私有文件清除、后代/TCP双空、初末输入字节及枚举一致，wholePASS并释放窗口。精确会话/命令与原件位置见本树 current；未重试、未扩大原库30节点。本轮不证明 native 传输（另见§10）；未参与实现者独立动态/F1仍待，后继默认root结果见§11。
 
 ## 10. native 作者有限组合通过
 
 精确 `^TestSecretHTTPNativeTransport$` 一 top 两直接子、两个 loopback listener实际通过（38.49s）。首子验证原 2s/30s 和更早父期限、同连接跨前次期限复用；GET场景约束拒绝非空正文后的原 Body.Close 排空，不冒正常GET查询耗时。第二子验证实际响应 backpressure、材料写入时TCP断开、取消后等待原调用返回再 Destroy/abort。实际授权仍由§9真实PG组合证明，native受控领域端口只证明传输和材料生命周期。
 
-固定原candidate/native-driver一次执行，session53268→52a3bd、Go/driver/supervisor/outer实际Wait全0；原90s/105s预算和监督尾保持，native runtime/private清除、后代/TCP各双空、初末输入字节及枚举一致、外层runtime双空。wholePASS后窗口释放，无retry；原件位于 `output/ai/secret-owner-http/native-http-author-01`，准确PID/UTC/磁盘见current与result.json。作者PG/native门已闭，独立动态/default root/F1未执行或接入。
+固定原candidate/native-driver一次执行，session53268→52a3bd、Go/driver/supervisor/outer实际Wait全0；原90s/105s预算和监督尾保持，native runtime/private清除、后代/TCP各双空、初末输入字节及枚举一致、外层runtime双空。wholePASS后窗口释放，无retry；原件位于 `output/ai/secret-owner-http/native-http-author-01`，准确PID/UTC/磁盘见current与result.json。作者PG/native门已闭，独立动态/F1未执行或接入；后继默认root结果见§11。
 
-## 11. 默认 root 后继接入（尚未真实验收）
+## 11. 默认 root 接入作者有限组合通过
 
 main 合并基线 `114f5ede` 保留 Project initializer unbound。root 授权本实例独占 `app/account.go`、`security.go` 和新 `project_secret_variables.go`，以及相应纯/进程测试；共享 harness 仍由 coordination 独占。`project_usage.go`、`project_update.go` 和普通变量产品未改。首5技术路径已获 coordination 实际差异有限独审接受并保存 `0ecb9fb8`。
 
 原 Store 与唯一 Project/Variable facts authority构造 immutable SecretWriteAuthority，注入原 D04，继而构造 Secret Owner；原 Catalog 增 Secret event，原同名 producer不重复登记。构造后立即 accounts.install登记，Stop取消自有调用，原Drain成功才Joined；Force和晚install消费原context，不关闭共享Secret/Store。新精确路由与普通变量并存，边界仍是原Account core/PublicOrigin。
 
-作者限定7top pure race已通过（Secret3、ordinary3、Model构造1），实际Wait与runtime齐；只是构造、路由和受控Store调用生命周期证明。新进程测试精确 `^TestProjectSecretVariablesDefaultRoot$` 一top两sub：真实默认root在test-only正式ports创建并已Stop/Drain的既有initialized Project上验证有限CRUD/Lookup与ordinary兼容，并核默认Create仍unbound且零事实；真实BEGIN/backendPID屏障另核Secret读/写/Lookup取消后必须实际返回，Account与guard不能提前退役。固定源 `6d61ca2b` 的 race-c/精确list实际通过，无编译修；只证明候选就绪，未执行业务。coordination 对该测试实际方法有限接受；精确共享入口已由其独占加入并通过离线controls，固定MinIO副本和703输入的 `--check` 实际通过。仍待入口独审与fresh真实窗口；原handler作者证据不扩大为本次合并/接入输入通过。
+作者限定7top pure race已通过（Secret3、ordinary3、Model构造1），实际Wait与runtime齐；只是构造、路由和受控Store调用生命周期证明。新进程测试精确 `^TestProjectSecretVariablesDefaultRoot$` 一top两sub：真实默认root在test-only正式ports创建并已Stop/Drain的既有initialized Project上验证有限CRUD/Lookup与ordinary兼容，并核默认Create仍unbound且零事实；真实BEGIN/backendPID屏障另核Secret读/写/Lookup取消后必须实际返回，Account与guard不能提前退役。固定源 `6d61ca2b` 的 race-c/精确list实际通过，无编译修；coordination 对该测试实际方法有限接受，Skills对共享入口实际差异有限接受；原5离线controls、固定MinIO副本及703输入 `--check` 通过。
+
+root-author-01一次执行实际wholePASS：记录基线 `5715b32c`、入口 `f5d49ffd`、原c0e27d0d候选未重编；session70248→9ba821，精确一top两sub PASS9.78s（5.13s/4.64s），Go302620/driver298525/supervisor298503/outer298502均实际Wait0。原7个nonce/ID资源双退役、私有目录/runtime/后代/TCP双空、typed三case与GoWait、703输入字节及重新枚举、STOP0全门齐；原Go6m/540+60+3s/TCP75s预算未变，完整尾后释放窗口，无retry。原件在 `output/ai/secret-owner-http/root-author-01`，准确UTC/磁盘与命令见current/result.json。
+
+本次接受限作者默认root组合：同Store授权/事实/路由、普通变量兼容、原调用实际join及Account/guard退出顺序。屏障放在真实事务进入后、授权前，只证明被取消调用仍须实际返回，不扩大为该子授权成功；Force动态未包含。默认Project initializer保持unbound，未参与实现者独立动态、完整Project lifecycle和F1仍待；原HTTP作者PG/native按各自冻结输入复用，原FAIL不升级。
