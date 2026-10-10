@@ -7,18 +7,25 @@
 - 最新 main 已包含普通 Variables 后端、Knowledge B02/Owner 只读和树命令 HTTP、Runner Linux/amd64 限定能力/00026、Skills P2/00027。各自范围见[任务台账](../docs/development/agent-team/tasks.md)和正式卡；D05/00028、Secret 存储/00029 与 Owner Service/00030 仍是 WIP，正式迁移按连续前缀和各卡门槛交付。
 - 旧代理 ID、进程、终端和资源授权不继承。当前六个子代理席位动态共享；本轮已恢复任务见下表，不为角色或子树设置永久名额。全部 Git 写操作、分支/worktree 和最终集成由 root 执行，源码/harness 及各树状态由获授权执行者保存。
 
+## 当前门槛（2026-10-10）
+
+- Audit普通包修复已闭：a0d81188的固定audit-repair整包ordinary29.541s/race38.049s，86755→eb96d7、outer231678/script231689 actual0，总107.590s；desc/runtime/TCP各双空，原20s/341向量保持。与已过66普通包、两vet/全race/两build组成适用检查集合；原01/02及两次diagnostic FAIL保留，不称原完整脚本单次PASS。
+- 默认生产initializer规范独审拒绝：D08 §7、D10 §§1/14要求完整participant/guard后才启用，内部默认Create也不豁免。649e6ad3旧根业务/尾PASS保留，但不能作为合规默认创建接受。content独占四app源撤回initializer并重整单top，修后尚未验，禁止改SPEC降门。
+- 当前唯一真实窗口为Work作者R13；root禁止Git网络及其他socket。SecretHTTP入口fb74607c已有限独审、两driver离线race build0，两个原candidate不变，PG/native仍未跑。Knowledge UI首片段f9fde343已保存，未验收。
+- 最新main4d1cf3d2仅新增清理治理三文档，无新产品差异；已精确同步。所有活跃、未完或独有材料树继续保留，只有root按逐对象检查清理。
+
 ## 当前实际任务与唯一写者
 
 | 执行者 | 工作树 / 分支与已保存输入 | 当前任务和下一步 |
 | --- | --- | --- |
-| `/root/coordination` | 本树 `ai/product-continuation`；组合树 `ai/owner-feature-integration` | 唯一维护两树 current 和全局台账；Skills 独验02完整 PASS，原01 whole FAIL/连接身份未知保留。已组装 Skills HTTP、D05/00028 和 Skills Cleanup 的限定来源，已将正文与Secret00029/30并入连续候选，负责共享入口窄并集与最低离线验证；根单top已whole PASS；最终check01 whole FAIL/全尾已释放，归档模块与Schema/wrapper修正已准备，02也whole FAIL/全尾已释放，Audit Schema原20秒单top诊断仍FAIL；候选尚未交付 main。 |
+| `/root/coordination` | 本树 `ai/product-continuation`；组合树 `ai/owner-feature-integration` | 唯一维护两树 current 和全局台账；Skills 独验02完整 PASS，原01 whole FAIL/连接身份未知保留。已组装 Skills HTTP、D05/00028 和 Skills Cleanup 的限定来源，已将正文与Secret00029/30并入连续候选，负责共享入口窄并集与最低离线验证；Audit修后整包ordinary/race与原适用检查集合已闭；旧根业务PASS但生产initializer规范拒绝，待content整改及新单top。负责8卡/backend正式范围收敛；候选尚未交付main。 |
 | `/root/cleanup` | D05技术 `b3a4ab7d` / history记录 `52a42627`；独立 Work 树 `ai/work-owner-ui-independent` | D05 成本按原固定组合及 history whole PASS 有效，消费者修后02亦 whole PASS，00028适用门槛闭合、待正式组合。独立 Work Recovery01/Authority01均whole FAIL且完整退出；Recovery只读模板断言已窄修并方法审，修后尚未真人；Authority第二次Owner表单缺失原因未证。 |
-| `/root/secret` | Owner `f9cc11c6`；消费者记录 `92cfb069`；新树 `/workspace/agenteam-secret-owner-http` / `ai/secret-owner-http` | 消费者02一top/两子完整 PASS，原01 owned后代96693引起whole FAIL且身份未知保留。Secret作者30节点和独立1top/2sub有效，00029/30已进入隔离连续候选，未正式main。现Secret Owner HTTP首片段已冻结、pure及两候选编译/list通过，未接root或运行资源；当前唯一修Audit测试helper安全诊断，不改20秒门/向量/产品。 |
-| `/root/content` | 正文树 `ai/knowledge-content-http` 修后 `1e5833bc`；组合根片段 `760c4888` | 正文原native PASS有效，PG01 whole FAIL为两GET短正文可正式提前释放lease与fixture假设冲突；仅换两处大于64KiB正文并窄审，PG02原4top/14sub与全部退出尾已whole PASS，记录9b9d1e7c，正文adapter有限接受并进入候选。组合config/resolver、默认root与必要fixture已保存；根单top在完整00030前缀上race-c/list0并获方法审，根单top649e6ad3已完整whole PASS（61711/outer177706 actual0、Go179551/driver177729 Wait0，1top/0sub6.63s，全部原双尾/inputsame齐）；两fixture修后普通检查已PASS，完整02只剩Audit Schema whole FAIL；新 /workspace/agenteam-knowledge-owner-ui（ai/knowledge-owner-ui，bacbb28d基线，规划b610已保存）由content独占，最小Knowledge只读UI规划中，未接后端新入口/资源。 |
-| `/root/skills_http` | `/workspace/agenteam-skills-owner-http` / `ai/skills-owner-http` / `1e260d55` | 原PG4top/12sub、native3top/6sub与修后独验1top/2sub均完整 PASS，Owner元数据HTTP adapter有限接受；原fixtureFAIL及独验01wholeFAIL保留。对应23路径已进隔离候选，尚未正式main；默认root片段已有限静审；正在审finalcheck归档模块/环境/监督源，UI仍未验。 |
-| `/root/work_ui` | `/workspace/agenteam-work-ui` / `ai/work-owner-planning-ui` | R11原whole FAIL、全尾齐且窗口已释放，作者对3处observerError已完成R12方法窄修、8path冻结且独审无must-fix，R12仍whole FAIL但原全尾已齐/窗口释放，原因以本树原记录为准；原65409abc严格后验及全部旧FAIL保留。独立Recovery/Authority由cleanup另树推进，整Work规划UI卡未完成，不用局部PW或业务结果升级整轮。 |
+| `/root/secret` | Owner `f9cc11c6`；消费者记录 `92cfb069`；新树 `/workspace/agenteam-secret-owner-http` / `ai/secret-owner-http` | 消费者02一top/两子完整 PASS，原01 owned后代96693引起whole FAIL且身份未知保留。Secret作者30节点和独立1top/2sub有效，00029/30已进入隔离连续候选，未正式main。现Secret Owner HTTP首片段已冻结、pure及两候选编译/list通过，未接root或运行资源；Audit helper等价提效141ad8d3已获实际整包ordinary/racePASS；SecretHTTP入口和两driver就绪，未PG/native，不改20秒门/向量/产品。 |
+| `/root/content` | 正文树 `ai/knowledge-content-http` 修后 `1e5833bc`；组合根片段 `760c4888` | 正文原native PASS有效，PG01 whole FAIL为两GET短正文可正式提前释放lease与fixture假设冲突；仅换两处大于64KiB正文并窄审，PG02原4top/14sub与全部退出尾已whole PASS，记录9b9d1e7c，正文adapter有限接受并进入候选。组合config/resolver、默认root与必要fixture已保存；根单top在完整00030前缀上race-c/list0并获方法审，根单top649e6ad3已完整whole PASS（61711/outer177706 actual0、Go179551/driver177729 Wait0，1top/0sub6.63s，全部原双尾/inputsame齐）；旧根生产initializer因规范门被拒绝，现唯一修四app源撤回并重整单top，未验整改；Audit修后门已闭；新 /workspace/agenteam-knowledge-owner-ui（ai/knowledge-owner-ui，bacbb28d基线，规划b610已保存）由content独占，最小Knowledge只读UI首片段f9fde343已保存，未实际验收。 |
+| `/root/skills_http` | `/workspace/agenteam-skills-owner-http` / `ai/skills-owner-http` / `1e260d55` | 原PG4top/12sub、native3top/6sub与修后独验1top/2sub均完整 PASS，Owner元数据HTTP adapter有限接受；原fixtureFAIL及独验01wholeFAIL保留。对应23路径已进隔离候选，尚未正式main；finalcheck归档/env/监督源与Auditrepair已有限静审；已指出默认initializer的canonical启用门must-fix，正独审content整改，UI仍未验。 |
+| `/root/work_ui` | `/workspace/agenteam-work-ui` / `ai/work-owner-planning-ui` | R11原whole FAIL、全尾齐且窗口已释放，作者对3处observerError已完成R12方法窄修、8path冻结且独审无must-fix，R12仍whole FAIL但原全尾已齐/窗口释放，原因以本树原记录为准；原65409abc严格后验及全部旧FAIL保留。独立Recovery/Authority由cleanup另树推进，当前R13由root授唯一窗口；整Work规划UI卡未完成，不用局部PW或业务结果升级整轮。 |
 
-root 已从正式 main `280a6431` 本地创建 `/workspace/agenteam-feature-integration`、`ai/owner-feature-integration`。这是未交付的隔离组合候选；coordination 为共享 harness 与已验领域路径组装唯一写者，Skills独验门已闭，Skills23路径、D05/00028与Cleanup限定集已组装并做最低离线验证，94路径已保存44b9b311；正文23非共享与三shared第四域已并入，纯控/编译/list通过并保存edc05688。D04 b724与Owner f9各37路径现已导入，00001..30连续；9个限定pure race、两integration编译、八exact list与Secret入口控制通过，整批已保存649e6ad3；根单top有限whole PASS，正式main仍待最终检查通过。默认root业务构造唯一写者为content，Skills作者只读独审；Git全由root执行，不能整文件覆盖其它域的共享入口。
+root 已从正式 main `280a6431` 本地创建 `/workspace/agenteam-feature-integration`、`ai/owner-feature-integration`。这是未交付的隔离组合候选；coordination 为共享 harness 与已验领域路径组装唯一写者，Skills独验门已闭，Skills23路径、D05/00028与Cleanup限定集已组装并做最低离线验证，94路径已保存44b9b311；正文23非共享与三shared第四域已并入，纯控/编译/list通过并保存edc05688。D04 b724与Owner f9各37路径现已导入，00001..30连续；9个限定pure race、两integration编译、八exact list与Secret入口控制通过，整批已保存649e6ad3；旧根单top业务whole PASS保留，但生产initializer规范拒绝，正式main仍待撤回后的适用组合验证和文档收敛。默认root业务构造唯一写者为content，Skills作者只读独审；Git全由root执行，不能整文件覆盖其它域的共享入口。
 
 新独立 Work 树为 `/workspace/agenteam-work-ui-independent`、`ai/work-owner-ui-independent`，基线 `65409abc`；cleanup 独占 Recovery/Authority 独立探针方案及新文件，Work作者保留原树，不写root共享文件。新探针Recovery01和Authority01原whole FAIL均保留，全尾已齐；不将局部导航或归档事实提升整场景。
 
@@ -51,6 +58,6 @@ Object Runtime join、OpenAI tools 独立动态验收、Central SPA concurrent-p
 
 E01 尚未开始。实施前必须冻结确切游戏版本、完整内容分母、权重和关键门槛；最终须使用 agenteam 本身组织任务、Agent/Execution、审核和产物，并以可运行游戏、真实试玩及独立验收证明至少 50% 完整内容覆盖。
 
-## 最终check-go当前阻塞
+## 最终check-go历史结果与当前闭合
 
-原01在普通test阶段11包FAIL（4个旧文档归档overlay、7个真实包的Schema环境/fixture问题），其余强制阶段未到；scriptWait1、desc/runtime/TCP双空后wrapper元数据round影射再TypeError，原whole FAIL/缺JSON终态保留，记录及两fixture修复已保存bf7a330e。coordination新增无依赖文档模块边界并保13归档原字节，核齐11Schema Python+Usage Node，保存复用原75s双空/Wait监督源与9纯控0。完整02已whole FAIL（99351/outer201522/script201533实际1，103.661s，原desc/runtime/TCP双空），唯一Audit Schema失败而66包普通PASS；最多一次精确无socket诊断亦20.13s FAIL，尚未证明性能根因。Secret仅补原helper安全ctx.Err/向量耗时诊断，coordination原剩余两vet/全race67包/两build已whole PASS（61962/outer214126/script214137实际0、290.233s，原全部退出尾齐），ordinary Audit仍未闭；Secret唯一做等价提效，原20秒/341向量保持。Work R12 whole FAIL已全尾释放，当前无窗口在途。
+原01在普通test阶段11包FAIL（4个旧文档归档overlay、7个真实包的Schema环境/fixture问题），其余强制阶段未到；scriptWait1、desc/runtime/TCP双空后wrapper元数据round影射再TypeError，原whole FAIL/缺JSON终态保留，记录及两fixture修复已保存bf7a330e。coordination新增无依赖文档模块边界并保13归档原字节，核齐11Schema Python+Usage Node，保存复用原75s双空/Wait监督源与9纯控0。完整02已whole FAIL（99351/outer201522/script201533实际1，103.661s，原desc/runtime/TCP双空），唯一Audit Schema失败而66包普通PASS；最多一次精确无socket诊断亦20.13s FAIL，尚未证明性能根因。Secret仅补原helper安全ctx.Err/向量耗时诊断，coordination原剩余两vet/全race67包/两build已whole PASS（61962/outer214126/script214137实际0、290.233s，原全部退出尾齐），ordinary Audit随后经141ad8d3等价提效及a0d81188整包ordinary/race原尾全齐后闭合，原20秒/341向量保持。Work R12 whole FAIL保留，当前R13唯一窗口在途；旧根initializer规范整改另待新源码验收。

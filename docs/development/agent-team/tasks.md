@@ -1,5 +1,14 @@
 # 团队任务台账
 
+## 本轮最新验收边界
+
+- 隔离后端候选已组合D05/Skills Cleanup、Skills与Knowledge正文HTTP、D04/SecretOwner库和连续00028..00030；尚未正式main。原领域接受均限各卡固定版本，不带Work UI或新Secret HTTP。
+- 最终检查适用集合已闭：原66普通包、remaining两vet/全race/两cmd build，加修后Audit整个ordinary/race（a0d81188，86755→eb96d7 actual0/107.590s，原desc/runtime/TCP双空）。原完整check01/02与两次diagnostic仍FAIL，不冒单次全仓wholePASS。
+- 默认initializer接缝被独立规范审查拒绝：D08 §7与D10 §§1/14要求完整participant/guard，未开放公开HTTP不豁免内部默认Create。旧649e6ad3根单top业务PASS保留，content正在撤回生产initializer并重整测试，修后未验；不得改SPEC降门或正式放行默认创建。
+- 当前真实独占窗口为Work作者R13；SecretHTTP仅入口fb74607c与两driver编译就绪、PG/native未跑。Knowledge UI首片段f9fde343已保存未验，均为未完分支。main4d1cf3d2仅治理变化；活跃/未完/独有材料树按现owner保留，由root完成验收及main推送后逐对象检查清理。
+
+以下保留固定阶段成果及历史路径；与本轮状态冲突的“仍待”只描述当时版本，当前门槛以上节及各树current为准。
+
 本页只保存全局产品状态、阻塞和下一步；任务分支的最小恢复状态见[分支记录](../../../.agent-state/current.md)。2026-10-09初始核对基线 `e55ad7d1` 仅做文档及文件存在性核对；下表已按后续实际交付与验证更新，不代表当前HEAD的一次全量测试。
 
 长期范围与完成门槛见[开发计划](../development-plan.md)，协作规则见[团队流程](README.md)，环境与缺失输入见[恢复说明](recovery-2026-10-08-environment.md)。历史代理名、ACK、资源授权和 STOP 都是当时记录，不表示本次仍有活动实例、进程或可用测试窗口。
