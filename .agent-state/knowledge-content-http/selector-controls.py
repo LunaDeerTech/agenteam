@@ -43,7 +43,8 @@ a, b = source.index('CONTENT_PG = '), source.index('def root_adapter(driver):')
 inverse = source[:a] + source[b:]
 inverse = remove_once(inverse, '        CONTENT_PG: set(CONTENT_GROUPS[CONTENT_PG]),\n')
 inverse = remove_once(inverse, "    if args.run in CONTENT_GROUPS and args.root_chain != (args.run == CONTENT_PG):\n        parser.error('exact content selector requires its declared mode')\n")
-inverse = remove_once(inverse, '    if args.run in CONTENT_GROUPS:\n        inputs.update({str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest() for p in content_inputs()})\n')
+inverse = remove_once(inverse, "    if args.run == CONTENT_PG:\n        try:\n            content_schema_python()\n            args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']\n        except (OSError, ValueError):\n            parser.error('explicit local content Schema interpreter required')\n")
+inverse = remove_once(inverse, '    if args.run in CONTENT_GROUPS:\n        inputs.update({str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest() for p in content_inputs(args.run)})\n')
 inverse = remove_once(inverse, '            if args.root_chain and not (content_root(directory, log, log_path, args.run)\n                    if args.run == CONTENT_PG else observe_root_chain(directory, log, log_path, args.run)):\n                code = 1\n            if not args.root_chain and args.run == CONTENT_NATIVE and not content_native(directory, log, log_path, args.run):\n                code = 1\n', '            if args.root_chain and not observe_root_chain(directory, log, log_path, args.run):\n                code = 1\n')
 inverse = remove_once(inverse, '            same = (content_same(inputs, args, adapter) if args.run in CONTENT_GROUPS else\n                    all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest\n                        for p, digest in inputs.items()))\n', '            same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest\n                       for p, digest in inputs.items())\n')
 assert inverse == original(SUP)
@@ -107,14 +108,35 @@ with tempfile.TemporaryDirectory(prefix='content-selector-controls-') as name:
         path.unlink()
         assert not sup.content_exact(path, selector)
         checks += 1
-    binary, driver, minio = temp / 'candidate', temp / 'driver', temp / 'minio'
-    for p in (binary, driver, minio):
+    binary, driver, minio, python = temp / 'candidate', temp / 'driver', temp / 'minio', temp / 'python'
+    for p in (binary, driver, minio, python):
         p.write_bytes(b'controlled-never-executed')
         p.chmod(0o700)
     adapter.MINIO = minio
     adapter.MINIO_SHA = hashlib.sha256(minio.read_bytes()).hexdigest()
     assert adapter.configuration(binary, pg, temp / 'fresh')['resources'] == 7
     assert adapter.configuration(binary, pg, temp / 'fresh')['test_timeout'] == '6m'
+    for bad in ('', 'relative/python', str(temp), str(temp / 'missing')):
+        with patch.dict(sup.os.environ, {'AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON': bad}):
+            try:
+                sup.content_inputs(pg)
+            except (OSError, ValueError):
+                checks += 1
+            else:
+                raise AssertionError('invalid Schema interpreter accepted')
+            assert sup.content_inputs(native) == sorted(inputs)
+    with patch.dict(sup.os.environ, {'AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON': str(python)}):
+        assert set(sup.content_inputs(pg)) == inputs | {python}
+        checks += 1
+        python.chmod(0o600)
+        try:
+            sup.content_inputs(pg)
+        except ValueError:
+            checks += 1
+        else:
+            raise AssertionError('non-executable Schema interpreter accepted')
+        finally:
+            python.chmod(0o700)
     for bad in (pg[1:], pg[:-1], pg + 'x', pg + '/.*', '^TestKnowledgeOwnerContentHTTP.*$', '^TestKnowledgeOwnerContentHTTPCurrentBytes$', pg.replace('CurrentBytes|CurrentAuthority', 'CurrentAuthority|CurrentBytes'), native):
         try:
             adapter.configuration(binary, bad, temp / 'fresh')
@@ -124,12 +146,18 @@ with tempfile.TemporaryDirectory(prefix='content-selector-controls-') as name:
             raise AssertionError('unapproved root selector')
     for selector in (pg, native):
         modes = ('valid', 'missing', 'utf8', 'exit2', 'wrong-wait', 'resource', 'private', 'input-add', 'input-delete')
+        if selector == pg:
+            modes += ('python-change', 'python-env', 'python-link')
         for mode in modes:
             trace = {'wait': [], 'desc': 0, 'tcp': 0, 'reap': 0, 'resource': 0}
             fixture = temp / ('sources-' + str(checks))
             fixture.mkdir()
             fixture_input = fixture / 'old.go'
             fixture_input.write_text('explicit input')
+            python.write_bytes(b'controlled interpreter')
+            alias = fixture / 'python-link'
+            alias.symlink_to(python)
+            schema_path = alias if mode == 'python-link' else python
             is_pg = selector == pg
 
             class Child:
@@ -163,6 +191,11 @@ with tempfile.TemporaryDirectory(prefix='content-selector-controls-') as name:
                     trace['wait'].append(timeout)
                     if mode == 'input-add': (fixture / 'new.go').write_text('new source')
                     if mode == 'input-delete': fixture_input.unlink()
+                    if mode == 'python-change': python.write_bytes(b'changed original interpreter')
+                    if mode == 'python-env': sup.os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON'] = str(driver)
+                    if mode == 'python-link':
+                        alias.unlink()
+                        alias.symlink_to(driver)
                     self.returncode = 2 if mode == 'exit2' else 0
                     return self.returncode
 
@@ -189,7 +222,7 @@ with tempfile.TemporaryDirectory(prefix='content-selector-controls-') as name:
             output = temp / ('out-' + str(checks))
             args = ['probe', '--driver', str(driver), '--binary', str(binary), '--run', selector, '--output', str(output)]
             if is_pg: args.append('--root-chain')
-            with patch.object(sys, 'argv', args), patch.object(sup, 'root_adapter', return_value=fake_adapter), patch.object(sup, 'content_inputs', side_effect=lambda: sorted(fixture.glob('*.go'))), patch.object(sup, 'root_record', record), patch.object(sup, 'exact_absent', absent), patch.object(sup.ctypes, 'CDLL', return_value=types.SimpleNamespace(prctl=lambda *_: 0)), patch.object(sup.subprocess, 'Popen', Child), patch.object(sup, 'descendants', descendants), patch.object(sup, 'tcp', tcp), patch.object(sup.os, 'waitpid', reap), patch.object(sup.time, 'sleep'), patch.object(sup.signal, 'signal'), contextlib.redirect_stdout(io.StringIO()):
+            with patch.dict(sup.os.environ, {'AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON': str(schema_path)}), patch.object(sys, 'argv', args), patch.object(sup, 'root_adapter', return_value=fake_adapter), patch.object(sup, 'content_inputs', side_effect=lambda selected=None: sorted(fixture.glob('*.go')) + ([sup.content_schema_python()] if selected == pg else [])), patch.object(sup, 'root_record', record), patch.object(sup, 'exact_absent', absent), patch.object(sup.ctypes, 'CDLL', return_value=types.SimpleNamespace(prctl=lambda *_: 0)), patch.object(sup.subprocess, 'Popen', Child), patch.object(sup, 'descendants', descendants), patch.object(sup, 'tcp', tcp), patch.object(sup.os, 'waitpid', reap), patch.object(sup.time, 'sleep'), patch.object(sup.signal, 'signal'), contextlib.redirect_stdout(io.StringIO()):
                 code = sup.main()
             expected = 0 if mode == 'valid' else 2 if mode == 'exit2' else 1
             assert code == expected, (selector, mode, code)
@@ -197,6 +230,6 @@ with tempfile.TemporaryDirectory(prefix='content-selector-controls-') as name:
             raw = next(output.glob('*.log')).read_bytes()
             for marker in ('actual_driver_wait', 'runtime_observation=1', 'runtime_observation=2', 'delta_empty_observation=1', 'delta_empty_observation=2', 'terminal=' + str(expected)):
                 assert marker.encode() in raw
-            assert ('inputs_unchanged=False' if mode.startswith('input-') else 'inputs_unchanged=True').encode() in raw
+            assert ('inputs_unchanged=False' if mode.startswith(('input-', 'python-')) else 'inputs_unchanged=True').encode() in raw
             checks += 1
 print(f'PASS {checks} controls; PG4/14 and native3/6 exact; old three tools byte-inverse; no child/proc/socket/PG')

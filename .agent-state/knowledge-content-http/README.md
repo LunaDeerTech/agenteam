@@ -11,7 +11,7 @@
 
 原预算不变：PG Go 6m/root 540s+TERM 60s+KILL 3s，native Go 90s/driver 105s/supervisor 123s+3s；原后代、资源双次 absent/private/runtime、actual Wait/reap、host TCP 75s 双次空与输入尾不变。新严格节点/Wait检查失败也继续原完整尾；native 要求原 manifest child 与 Start/actual Wait0 同 PID、原 runtime/private 成功且 tmp 实际不存在。PG 原 test Wait 必须恰一条 code0。
 
-新分支输入包含真实 `tests/knowledge/*.go` fixture/业务来源、contenthttp、现行全部非测试生产 Go/模块/SQL/embed、原完整帧 commitproxy、新 Schema/common 与 schema-controls；根模式继续包含原 Go/MinIO/scripts 输入。结束时重新枚举路径集合再逐一 hash，新增/删除文件、读取错误或原值变化不能通过。此输入比较只是运行一致性，不替代候选编译、源码方法或业务验收。
+新分支输入包含真实 `tests/knowledge/*.go` fixture/业务来源、contenthttp、现行全部非测试生产 Go/模块/SQL/embed、原完整帧 commitproxy、新 Schema/common 与 schema-controls；根模式继续包含原 Go/MinIO/scripts 输入。PG 还冻结实际执行的 Schema Python：初始要求显式绝对文件路径及可执行权限，纳解析后真实文件的字节 hash，并保原环境路径字符串。结束时重新枚举路径集合再逐一 hash、重验该环境路径与实际可执行文件；新增/删除文件、解释器原字节/路径/符号链接目标变化、读取错误不能通过。native 不要求 Schema Python 环境。此输入比较只是运行一致性，不替代候选编译、源码方法或业务验收；不扩成 site-packages/modcache 全依赖快照。
 
 无需 Go/资源的控制：
 
@@ -19,7 +19,7 @@
 PYTHONDONTWRITEBYTECODE=1 python3 -B .agent-state/knowledge-content-http/selector-controls.py
 ```
 
-首实际 `b17961` 通过148项：精确节点删/重/缺/错/skip/非法UTF8、固定配置正负例、实际 supervisor main 的显式 Child/资源/TCP/proc 替身，覆盖错误 Wait/退出码、资源/runtime残留、输入新增/删除与完整尾；三工具逐字逆差异。不调用实际 child/proc/PG/socket，也未证明真正节点可发现。
+首实际 `b17961` 通过148项，但独审 `7d1d04` 确认其未冻结运行时 Schema 解释器，原材料不回填。窄修后 `ace5f7` 通过157项：精确节点删/重/缺/错/skip/非法UTF8、固定配置正负例、实际 supervisor main 的显式 Child/资源/TCP/proc 替身，覆盖错误 Wait/退出码、资源/runtime残留、输入新增/删除、解释器字节/环境/链接目标改变仍走完整尾；三工具逐字逆差异。缺失/相对路径/目录/不可执行解释器在启动前拒绝。不调用实际 child/proc/PG/socket，也未证明真正节点可发现。
 
 候选准备后，真实命令分别如下。下列路径是预定的新候选/输出，当前不能运行；每次必须 root 单独授予真实窗口，首次同进程打印 UTC/statvfs≥5GiB、核新输出及完整固定环境，禁止自动重试或借 pure/compiled 推 PASS。
 

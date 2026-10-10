@@ -45,7 +45,15 @@ CONTENT_GROUPS = {
 }
 
 
-def content_inputs():
+def content_schema_python():
+    raw = os.environ.get('AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON', '')
+    path = Path(raw)
+    if not raw or not path.is_absolute() or not path.is_file() or not os.access(path, os.X_OK):
+        raise ValueError('explicit local Schema interpreter required')
+    return path.resolve(strict=True)
+
+
+def content_inputs(selector=None):
     root = Path(__file__).resolve().parents[2]
     paths = {Path(__file__).resolve(), root / '.agent-state/work-owner-http/root_chain_driver.py',
              root / '.agent-state/work-owner-http/native_driver.go',
@@ -61,6 +69,8 @@ def content_inputs():
     paths.update((root / '.agent-state/project-variables-independent/commitproxy').glob('*.go'))
     paths.update((root / 'db/migrations').glob('*.go'))
     paths.update((root / 'db/migrations').glob('*.sql'))
+    if selector == CONTENT_PG:
+        paths.add(content_schema_python())
     return sorted(paths)
 
 
@@ -120,7 +130,9 @@ def content_same(inputs, args, adapter):
     # Re-enumerate this exact branch's closure: a newly added or removed source
     # is drift even if every originally hashed file is otherwise unchanged.
     try:
-        paths = {p.resolve() for p in content_inputs()}
+        if args.run == CONTENT_PG and os.environ.get('AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON') != args.content_schema_python:
+            return False
+        paths = {p.resolve() for p in content_inputs(args.run)}
         paths.update(p.resolve() for p in (adapter.input_paths(args.binary) if adapter is not None else (args.driver, args.binary)))
         return (paths == {Path(p) for p in inputs}
                 and all(p.is_file() and not p.is_symlink() and hashlib.sha256(p.read_bytes()).hexdigest() == inputs[str(p)] for p in paths))
@@ -280,6 +292,12 @@ def main():
         parser.error('root mode requires one exact Work root selector')
     if args.run in CONTENT_GROUPS and args.root_chain != (args.run == CONTENT_PG):
         parser.error('exact content selector requires its declared mode')
+    if args.run == CONTENT_PG:
+        try:
+            content_schema_python()
+            args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
+        except (OSError, ValueError):
+            parser.error('explicit local content Schema interpreter required')
     args.output.mkdir(parents=True, exist_ok=True)
     stem = 'pg-' + uuid.uuid4().hex
     directory = args.output.resolve() / stem
@@ -294,7 +312,7 @@ def main():
     if adapter is not None:
         inputs = {str(p): adapter.sha(p) for p in adapter.input_paths(args.binary)}
     if args.run in CONTENT_GROUPS:
-        inputs.update({str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest() for p in content_inputs()})
+        inputs.update({str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest() for p in content_inputs(args.run)})
     baseline = tcp()
     started = time.monotonic()
     child = None
