@@ -351,8 +351,17 @@ def runner_cli_inputs(binary, driver):
     if Path.cwd().resolve() != repository:
         raise ValueError('Runner CLI requires the repository cwd')
     adapter = root_adapter(repository / '.agent-state/work-owner-http/root_chain_driver.py')
-    return sorted(set(adapter.input_paths(binary)) | {
+    return sorted(set(adapter.input_paths(binary)) | set((repository / 'tests/process').glob('*.go')) | {
         driver.resolve(), repository / '.agent-state/work-owner-http/native_driver.go'})
+
+
+def runner_cli_same(inputs, binary, driver):
+    try:
+        paths = runner_cli_inputs(binary, driver)
+        return (set(inputs) == {str(p) for p in paths}
+                and all(hashlib.sha256(p.read_bytes()).hexdigest() == inputs[str(p)] for p in paths))
+    except (OSError, ValueError, TypeError):
+        return False
 
 
 def observe_runner_cli(directory, log, log_path):
@@ -539,8 +548,11 @@ def main():
                           'rows': rows, 'delta': failure_delta}
                 log.write(f'STOP host TCP delta tail not empty: {len(failure_delta)} rows\n')
                 save_tcp_failure(log_path, args.run, baseline, baseline_times, tcp_samples, reread, log)
-            same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
-                       for p, digest in inputs.items())
+            if not args.root_chain and args.run == RUNNER_CLI_SELECTOR:
+                same = runner_cli_same(inputs, args.binary, args.driver)
+            else:
+                same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
+                           for p, digest in inputs.items())
             if not same: code = 1
             if interrupted: code = 1
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')

@@ -8,7 +8,7 @@
 
 ## 实际状态与剩余门槛
 
-交付树11个受影响原pure top已实际race通过：69752/32e354→2b36ac，app1.128s、audit/contract1.022s、audit1.019s，Runner构造/当前调用Force/routes、Variables对应三组与两Audit typed分支/解码/授权。固定Go1.27.1/local/off/readonly/-p1和原Runner独占热cache，未递归选native/PG。作者旧树证据仅按不变语义复用；新main尚无实际PG/native根链。
+交付树11个受影响原pure top已实际race通过：69752/32e354→2b36ac，app1.128s、audit/contract1.022s、audit1.019s，Runner构造/当前调用Force/routes、Variables对应三组与两Audit typed分支/解码/授权。固定Go1.27.1/local/off/readonly/-p1和原Runner独占热cache，未递归选native/PG。作者旧树证据仅按不变语义复用；new-main Default 的实际根链已完整通过，精确结果见下；CLI 三回归尚未实际。
 
 作者 migration/management/native/client/device/current-authority、协议/竞争/deadline/identity、B 分次 Crash 恢复与 C 默认 Central 失败原结果见本卡，历史 wholeFAIL 与缺失材料保持。独立 Management 原 Concurrent 三子与 Unknown 两子有限通过，修后 LogoutOrder02 两子完整通过，去重七子；原 Management01 wholeFAIL 不回填。
 
@@ -49,3 +49,13 @@ cwd本树；保继承PATH前置Go1.27.1，AGENTEAM_GO固定该Go，GOTOOLCHAIN=l
 `python3 -B .agent-state/runner-control-delivery/cli-controls.py` 的852f6d实际0：24 observer/实际main外部效果替身控制，缺失/重复/额外/Skip/坏UTF8/错Wait/manifest/private拒绝，source变更和driver失败仍到原完整尾；逆去增量两工具全文等于545d2b33，预算和Default原输入路径不变。没有启动child/socket/PG，不据替身称业务通过。三技术已交Vars独审；native小driver尚未编译，CLI真实组仍待独占freshgrant。Default候选和其业务产品字节未动，supervisor已停止写，可先按原窗口运行Default。
 
 有限正式范围沿既有107＋独验3清单；只读0d1a71核545d2b33相对main4c1恰110正式路径＋原4WIP，missing/unexpected=0。此轮CLI工具/控制也仅WIP，不进入产品提交。剩余必要实际为new-main Default和上述三回归；正式OS三格、作者/独验限定业务及11个共享pure、Vars3top24child可复用。全部实际结束后一次归位card/README/后端文档及交全局writer的tasks单行，不为准备另扩正式范围。
+
+## new-main Default 完整结果及 CLI 闭包返修
+
+仅new-main固定候选eaec…b455、fresh `root-default-processes-main-01` 的唯一实际窗口54801/e7c97c→4d4538完整PASS：首2026-10-10T00:35:52.667447Z可用5,535,948,800B；业务3.30s，Go1405934 actualWait0，driver1403815 actualWait0；原日志`pg-8926e86d689546e0b03599c38a5b5f49.log`的7精确ID双absent、3private双absent、runtime/desc双空、exacttop/GoWait齐。edf960原尾TCP两次delta_empty、inputs_unchanged=True、terminal0/99.895s，原outer实际exit0后已立即释放。作者14016 wholeFAIL永久保持；此结果验证实际delivery双cmd与1..26迁移/Runner流程和组合正常退出，不冒六owner同时held。
+
+CLI独审Vars原9c45fa确认遗漏18个tests/process Go源，d246c0的actualmain替身确认末尾只查旧路径而漏新增动态源码；均保留为原方法红。在上述Default完整尾前未修改其输入，完整释放后仅CLI分支返修：输入并入本package 18 Go源；尾部重新取得同闭包、比较完整路径集合，再逐个hash，发现新增/删除/不可读均安全FAIL。Default/root/generic旧路径逐字不变。`cli-controls.py` 1c26e3 actual0＝27个observer/main控制，含新增/删除/读取异常且继续原尾，逆增量仍全文等于545d2b33；已交Vars复验，尚不提前接受。
+
+小native driver已离线构建：0cf2cc actual0，首2026-10-10T00:35:28.642046Z可用5,540,933,632B，固定Go/local/off/readonly/p1及原Runner热cache；路径`output/ai/runner-control-delivery/runner-cli-native-driver-01`，4,857,247B，SHA256 `ad8626d7b253796f4298499b795ebaaee514d4eccd2a9e091005acd9a2b0fcbe`。eedf30实际编译driver验证7个非精确selector都在资源创建前拒绝；精确selector只走到预先存在目录的Mkdir拒绝，不启动Go或TLS。业务候选不重编；返修只Python输入方法不影响该driver字节。
+
+本轮冻结current、supervisor和cli-controls，原native driver源码/110正式产品不改。CLI仍未执行，等待Vars原两红复验与root新独占fresh窗口；不在Default之后自动启动。最终card/README/backend/tasks待这最后三回归实际完成后一次归位。

@@ -33,6 +33,15 @@ observe_addition = '''            if not args.root_chain and args.run == RUNNER_
                 if not observe_runner_cli(directory, log, log_path):
                     code = 1
 '''
+final_addition = """            if not args.root_chain and args.run == RUNNER_CLI_SELECTOR:
+                same = runner_cli_same(inputs, args.binary, args.driver)
+            else:
+                same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
+                           for p, digest in inputs.items())"""
+original_final = """            same = all((adapter.sha(p) if adapter is not None else hashlib.sha256(Path(p).read_bytes()).hexdigest()) == digest
+                       for p, digest in inputs.items())"""
+assert inverse.count(final_addition) == 1
+inverse = inverse.replace(final_addition, original_final)
 assert inverse.count(input_addition) == inverse.count(observe_addition) == 1
 assert inverse.replace(input_addition, '').replace(observe_addition, '') == original(SUP)
 driver = (ROOT / DRIVER).read_text()
@@ -59,7 +68,8 @@ assert scope['budgets'](False) == (123, 3) and scope['budgets'](True) == (540, 6
 # actual compiled adapter and source; the original list carries cmd/embed/Go.
 adapter = scope['root_adapter'](ROOT / '.agent-state/work-owner-http/root_chain_driver.py')
 inputs = scope['runner_cli_inputs'](ROOT / 'candidate', ROOT / 'native-adapter')
-assert set(inputs) == set(adapter.input_paths(ROOT / 'candidate')) | {ROOT / 'native-adapter', ROOT / DRIVER}
+assert set(inputs) == set(adapter.input_paths(ROOT / 'candidate')) | set((ROOT / 'tests/process').glob('*.go')) | {ROOT / 'native-adapter', ROOT / DRIVER}
+assert set((ROOT / 'tests/process').glob('*.go')) <= set(inputs)
 assert all(ROOT / p in inputs for p in ('go.mod', 'go.sum', 'cmd/agenteam/main.go', 'cmd/agenteam-runner/main.go', 'db/migrations/00026_runner_control.sql'))
 checks = 0
 with tempfile.TemporaryDirectory(prefix='runner-cli-controls-') as name:
@@ -105,11 +115,20 @@ with tempfile.TemporaryDirectory(prefix='runner-cli-controls-') as name:
     # Execute the actual supervisor main with effect doubles, including a
     # failed observer and changed source. The original Wait/reap/TCP/input tail
     # must still run and must retain failure.
-    for mode in ('valid', 'bad-log', 'source-changed', 'driver-failed'):
+    for mode in ('valid', 'bad-log', 'source-changed', 'source-added', 'source-removed', 'source-unreadable', 'driver-failed'):
         out = root / mode
         artifact = root / ('candidate-' + mode); artifact.write_text('frozen')
         native = root / ('driver-' + mode); native.write_text('frozen')
         dynamic = root / ('source-' + mode); dynamic.write_text('frozen')
+        added = root / ('new-source-' + mode); added.write_text('new')
+        input_calls = [0]
+        def input_paths(*_):
+            input_calls[0] += 1
+            if input_calls[0] > 1:
+                if mode == 'source-added': return [artifact, native, dynamic, added]
+                if mode == 'source-removed': return [artifact, native]
+                if mode == 'source-unreadable': raise FileNotFoundError('controlled source read failure')
+            return [artifact, native, dynamic]
         trace = {'wait': [], 'tcp': 0, 'desc': 0, 'reap': 0}
         class Child:
             pid = 456
@@ -138,10 +157,11 @@ with tempfile.TemporaryDirectory(prefix='runner-cli-controls-') as name:
                         'os': fake_os, 'tcp': tcp, 'descendants': desc,
                         'time': types.SimpleNamespace(monotonic=lambda: 1, monotonic_ns=lambda: 1, sleep=lambda _: None),
                         'tcp_evidence_pause': lambda *a: None,
-                        'runner_cli_inputs': lambda *a: [artifact, native, dynamic]}
+                        'runner_cli_inputs': input_paths}
         with patch.dict(scope, replacements), patch.object(sys, 'argv', argv), contextlib.redirect_stdout(io.StringIO()):
             code = scope['main']()
         assert code == (0 if mode == 'valid' else 1)
+        assert input_calls[0] == 2
         assert trace == {'wait': [123], 'tcp': 3, 'desc': 3, 'reap': 1}, trace
         text = next(out.glob('*.log')).read_text()
         assert 'HOST_TCP delta_empty_observation=2' in text and 'SUPERVISOR inputs_unchanged=' in text
