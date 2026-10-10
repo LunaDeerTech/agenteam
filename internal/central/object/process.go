@@ -56,6 +56,25 @@ func (g ProcessGuard) MarshalJSON() ([]byte, error) { return []byte(`"object_pro
 func (*ProcessGuard) UnmarshalJSON([]byte) error    { return invalid() }
 func (g ProcessGuard) LogValue() slog.Value         { return slog.StringValue("object_process_guard") }
 
+// CurrentProcess identifies this bound, still-held guard. It does not pin the
+// guard, prove any other process dead, or replace the owner's actual join. The
+// composition root must retain this guard until all borrowers have joined.
+func (g *ProcessGuard) CurrentProcess() (oc.ProcessID, error) {
+	if g == nil || g.data == nil {
+		return oc.ProcessID{}, failure(foundation.DependencyUnbound, nil)
+	}
+	r := g.state()
+	if r == nil {
+		return oc.ProcessID{}, failure(foundation.DependencyUnbound, nil)
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if !r.bound || r.closed || r.service == nil || r.process.Validate() != nil {
+		return oc.ProcessID{}, unavailable(nil)
+	}
+	return r.process, nil
+}
+
 func OpenProcessGuard(spool *Spool, process oc.ProcessID) (*ProcessGuard, error) {
 	if spool == nil || spool.data == nil || process.Validate() != nil || spool.state().process != process {
 		return nil, invalid()

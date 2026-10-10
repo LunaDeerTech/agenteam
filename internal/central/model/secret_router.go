@@ -10,7 +10,22 @@ import (
 
 type SecretUsageRouter struct {
 	model    *Authority
+	runtime  *RuntimeAuthority
 	fallback sc.UsageAuthority
+}
+
+// NewRuntimeSecretUsageRouter explicitly binds Model read/retirement. The old
+// constructor remains resolution-only and keeps those operations unbound.
+func NewRuntimeSecretUsageRouter(model *Authority, runtime *RuntimeAuthority, fallback sc.UsageAuthority) (*SecretUsageRouter, error) {
+	router, err := NewSecretUsageRouter(model, fallback)
+	if err != nil {
+		return nil, err
+	}
+	if runtime.state() == nil || !sameStore(model.state().store, runtime.state().store) {
+		return nil, fault(f.DependencyUnbound)
+	}
+	router.runtime = runtime
+	return router, nil
 }
 
 func NewSecretUsageRouter(model *Authority, fallback sc.UsageAuthority) (*SecretUsageRouter, error) {
@@ -35,6 +50,12 @@ func (r *SecretUsageRouter) AuthorizeLeaseInTx(ctx context.Context, tx f.Tx, act
 	if resolutionHasApply(ctx) {
 		return r.model.AuthorizeLeaseInTx(ctx, tx, actor, ref, owner, action)
 	}
+	if runtimeHasSecretWitness(ctx) {
+		if r.runtime == nil {
+			return sc.UseGrant{}, fault(f.DependencyUnbound)
+		}
+		return r.runtime.authorizeRuntimeLease(ctx, tx, actor, ref, owner, action)
+	}
 	// No Purpose is present. Preserve the existing authority's decision and
 	// never guess Model versus MCP from an execution owner.
 	return r.fallback.AuthorizeLeaseInTx(ctx, tx, actor, ref, owner, action)
@@ -49,6 +70,9 @@ func (r *SecretUsageRouter) planner(request sc.UsageRequest) (sc.UsagePlanner, e
 		}
 		if request.Action == sc.AcquireLeaseUsage && r.model.state().auth.Resolution != nil {
 			return r.model, nil
+		}
+		if (request.Action == sc.ReadLeaseUsage || request.Action == sc.ReleaseLeaseUsage) && r.runtime != nil {
+			return r.runtime, nil
 		}
 		return nil, fault(f.DependencyUnbound)
 	}
