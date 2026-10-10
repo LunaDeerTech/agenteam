@@ -55,7 +55,7 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 	in := r.Input
 	b := p.Before
 	t := p.After.Task
-	if b.Validate() != nil || p.After.Validate() != nil || b.ProjectID != in.Project || b.ID != in.Task || b.Version != in.Expected || b.State != c.TaskStateBacklog || in.Request.TargetState != c.TaskStateTodo || in.Request.AssigneeAgentID == nil || len(in.Request.AddBlockers) != 0 || len(in.Request.ResolveBlockerIDs) != 0 || len(p.Groups) != 2 || p.Agent.Validate() != nil || p.Agent.ProjectID != in.Project || p.Agent.AgentID != *in.Request.AssigneeAgentID || p.Placement.Milestone != b.MilestoneID || p.Placement.Sprint != b.SprintID || (p.Placement.State != c.Planned && p.Placement.State != c.Current) {
+	if b.Validate() != nil || p.After.Validate() != nil || b.ProjectID != in.Project || b.ID != in.Task || b.Version != in.Expected || transitionEdge(b, in.Request) != nil || len(p.Groups) != 2 || p.Agent.Validate() != nil || p.Agent.ProjectID != in.Project || p.Agent.AgentID != *transitionAgent(b, in.Request) || p.Placement.Milestone != b.MilestoneID || p.Placement.Sprint != b.SprintID || (p.Placement.State != c.Planned && p.Placement.State != c.Current) {
 		return internal(nil)
 	}
 	version, err := transitionNext(int64(b.Version))
@@ -64,7 +64,7 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 	}
 	expected := b.Clone()
 	expected.State = in.Request.TargetState
-	agent := *in.Request.AssigneeAgentID
+	agent := *transitionAgent(b, in.Request)
 	expected.AssigneeAgentID = &agent
 	expected.Version = f.Version(version)
 	expected.UpdatedAt = p.Header.OccurredAt
@@ -144,7 +144,10 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 		return internal(nil)
 	}
 	changed := b.AssigneeAgentID == nil || *b.AssigneeAgentID != agent
-	count := 1
+	if err = validateTransitionResolutions(r); err != nil {
+		return err
+	}
+	count := 1 + len(p.Resolutions)
 	if changed {
 		count++
 	}
@@ -153,6 +156,10 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 	}
 	if len(p.History) != count || len(p.After.TaskEventIDs) != count {
 		return internal(nil)
+	}
+	resolveStart := 1
+	if changed {
+		resolveStart++
 	}
 	for n, h := range p.History {
 		if h.Validate() != nil || h.ID != p.After.TaskEventIDs[n] || h.ProjectID != in.Project || h.TaskID != in.Task || h.TaskVersion != t.Version || h.Actor.UserID != in.User || h.OperationID != r.ID || h.CorrelationID != r.ID || !h.CreatedAt.Time().Equal(t.UpdatedAt.Time()) {
@@ -165,6 +172,11 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 			}
 		case changed && n == 1:
 			if h.Type != c.TaskTransitionAssigneeChanged || h.Payload.AssigneeChanged == nil || !sameValue(h.Payload.AssigneeChanged.FromAgentID, b.AssigneeAgentID) || h.Payload.AssigneeChanged.ToAgentID != agent {
+				return internal(nil)
+			}
+		case n >= resolveStart && n < resolveStart+len(p.Resolutions):
+			v := p.Resolutions[n-resolveStart]
+			if h.Type != c.TaskTransitionBlockerResolved || h.Payload.BlockerResolved == nil || h.Payload.BlockerResolved.BlockerID != v.Before.ID || h.Payload.BlockerResolved.BlockerType != v.Before.Type || h.Payload.BlockerResolved.ResolutionComment != nil {
 				return internal(nil)
 			}
 		default:
@@ -363,6 +375,9 @@ func (a *Authority) validateTransitionAppendInTx(ctx context.Context, tx f.Tx, a
 	return verifyTransitionPostimage(ctx, x, r)
 }
 func verifyTransitionPostimage(ctx context.Context, x postgres.SQLExecutor, r *transitionRecord) error {
+	if err := verifyTransitionResolutions(ctx, x, r); err != nil {
+		return err
+	}
 	p := r.Plan
 	t, err := loadTask(ctx, x, r.Input.Project, r.Input.Task)
 	if err != nil {

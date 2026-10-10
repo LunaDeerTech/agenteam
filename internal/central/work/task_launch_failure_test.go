@@ -287,7 +287,7 @@ func TestTaskLaunchFailureHistoryAndEventRemainSeparate(t *testing.T) {
 	b := r.Blocker
 	meta, _ := json.Marshal(b.Technical)
 	by, _ := json.Marshal(b.SchedulerCreatedBy)
-	row := taskTriggerRow{b.ID.String(), b.ProjectID.String(), b.TaskID.String(), b.Type, b.Description, meta, b.CreatedAt.Time(), by, r.Request.Claim.DispatchID, nil, nil, nil, nil}
+	row := taskTriggerRow{b.ID.String(), b.ProjectID.String(), b.TaskID.String(), b.Type, b.Description, meta, b.CreatedAt.Time(), by, r.Request.Claim.DispatchID, nil, nil, nil, nil, nil}
 	decoded, e := scanBlocker(row)
 	if e != nil || !sameValue(decoded.Value, *b) || decoded.FailureOperation == nil || decoded.CreatedOperation.Validate() == nil {
 		t.Fatal("technical row projection", e)

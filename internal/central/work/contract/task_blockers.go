@@ -322,6 +322,9 @@ func (v TaskBlockerResolvedPayload) Validate() error {
 	if v.ResolutionComment != nil && !taskBlockerText(*v.ResolutionComment, MaxTaskBlockerResolutionCommentBytes, true) {
 		return invalid("/resolution_comment", "INVALID_RESOLUTION_COMMENT")
 	}
+	if v.BlockerType == TaskBlockerTechnical {
+		return nil
+	}
 	return taskBlockerSupported(v.BlockerType)
 }
 func (v TaskBlockerResolvedPayload) Clone() TaskBlockerResolvedPayload {

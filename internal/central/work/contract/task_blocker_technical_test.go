@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 )
 
 func TestTaskTechnicalBlockerReadDoesNotAuthorizeHumanCreate(t *testing.T) {
@@ -53,5 +56,43 @@ func TestTaskTechnicalBlockerReadDoesNotAuthorizeHumanCreate(t *testing.T) {
 	}
 	if bytes.Contains([]byte(fmt.Sprintf("%+v", v)), []byte(id)) {
 		t.Fatal("unsafe default formatting")
+	}
+}
+
+func TestTaskTechnicalBlockerResolvedReadKeepsSchedulerProvenance(t *testing.T) {
+	v := blockerRecordFixture(t, true)
+	v.Type, v.Metadata, v.CreatedBy = TaskBlockerTechnical, TaskBlockerMetadata{}, TaskEventActor{}
+	id := testID[SchedulerClaim](t, 219).String()
+	v.Technical = &TaskBlockerTechnicalMetadata{"scheduler_launch_failed", "scheduler_dispatch", id}
+	v.SchedulerCreatedBy = &SchedulerTaskActor{CauseID: id}
+	for _, comment := range []*string{nil, v.ResolutionComment} {
+		v.ResolutionComment = comment
+		raw, err := json.Marshal(v)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got, err := DecodeTaskBlocker(raw)
+		if err != nil || !reflect.DeepEqual(got, v) {
+			t.Fatal("resolved roundtrip", err)
+		}
+		for _, mutate := range []func(*TaskBlocker){
+			func(x *TaskBlocker) { x.ResolvedBy = nil },
+			func(x *TaskBlocker) { x.ResolvedAt = nil },
+			func(x *TaskBlocker) { x.ResolvedBy.Source = "scheduler" },
+			func(x *TaskBlocker) { at, _ := f.NewInstant(x.CreatedAt.Time().Add(-time.Second)); x.ResolvedAt = &at },
+			func(x *TaskBlocker) { x.SchedulerCreatedBy.CauseID = testID[SchedulerClaim](t, 220).String() },
+		} {
+			x := v.Clone()
+			mutate(&x)
+			if x.Validate() == nil {
+				t.Fatal("invalid resolution/provenance accepted")
+			}
+			if !reflect.DeepEqual(v, got) {
+				t.Fatal("resolution clone aliases")
+			}
+		}
+	}
+	if (TaskBlockerCreate{BlockerID: v.ID, Type: TaskBlockerTechnical, Description: v.Description}).Validate() == nil {
+		t.Fatal("resolved read authorized Human create")
 	}
 }

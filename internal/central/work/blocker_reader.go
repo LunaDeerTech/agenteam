@@ -48,23 +48,24 @@ func (a *Authority) blockerScope(ctx context.Context, tx f.Tx, actor i.Actor, p 
 }
 
 type blockerRow struct {
-	Value             c.TaskBlocker
-	CreatedOperation  c.TaskBlockerCommandID
-	ResolvedOperation *c.TaskBlockerCommandID
-	FailureOperation  *c.SchedulerClaimID
+	Value              c.TaskBlocker
+	CreatedOperation   c.TaskBlockerCommandID
+	ResolvedOperation  *c.TaskBlockerCommandID
+	FailureOperation   *c.SchedulerClaimID
+	ResolvedTransition *c.TaskTransitionCommandID
 }
 
-const blockerColumns = `id::text,project_id::text,task_id::text,type,description,metadata,created_at,created_by,(CASE WHEN type='technical' AND created_operation_id IS NULL THEN failure_operation_id WHEN type<>'technical' AND failure_operation_id IS NULL THEN created_operation_id END)::text,resolved_at,resolved_by,resolution_comment,resolved_operation_id::text`
+const blockerColumns = `id::text,project_id::text,task_id::text,type,description,metadata,created_at,created_by,(CASE WHEN type='technical' AND created_operation_id IS NULL THEN failure_operation_id WHEN type<>'technical' AND failure_operation_id IS NULL THEN created_operation_id END)::text,resolved_at,resolved_by,resolution_comment,resolved_operation_id::text,resolved_transition_operation_id::text`
 
 func scanBlocker(row interface{ Scan(...any) error }) (*blockerRow, error) {
 	var out blockerRow
 	var id, p, t, created string
-	var resolved *string
+	var resolved, transition *string
 	var at time.Time
 	var done *time.Time
 	var metadata, actor, resolver []byte
 	v := &out.Value
-	if e := row.Scan(&id, &p, &t, &v.Type, &v.Description, &metadata, &at, &actor, &created, &done, &resolver, &v.ResolutionComment, &resolved); e != nil {
+	if e := row.Scan(&id, &p, &t, &v.Type, &v.Description, &metadata, &at, &actor, &created, &done, &resolver, &v.ResolutionComment, &resolved, &transition); e != nil {
 		if errors.Is(e, pgx.ErrNoRows) {
 			return nil, nil
 		}
@@ -99,6 +100,13 @@ func scanBlocker(row interface{ Scan(...any) error }) (*blockerRow, error) {
 		}
 		out.ResolvedOperation = &n
 	}
+	if transition != nil {
+		id, err := f.ParseID[c.TaskTransitionCommand](*transition)
+		if err != nil {
+			return nil, internal(err)
+		}
+		out.ResolvedTransition = &id
+	}
 	if v.Type == c.TaskBlockerTechnical {
 		v.SchedulerCreatedBy = new(c.SchedulerTaskActor)
 		e = v.SchedulerCreatedBy.UnmarshalJSON(actor)
@@ -127,7 +135,7 @@ func scanBlocker(row interface{ Scan(...any) error }) (*blockerRow, error) {
 	if e = decodeBlockerMetadata(v, metadata); e != nil {
 		return nil, e
 	}
-	if v.Validate() != nil || (out.ResolvedOperation == nil) != (v.ResolvedAt == nil) {
+	if v.Validate() != nil || (out.ResolvedOperation == nil && out.ResolvedTransition == nil) != (v.ResolvedAt == nil) || out.ResolvedOperation != nil && out.ResolvedTransition != nil || v.Type == c.TaskBlockerTechnical && out.ResolvedOperation != nil {
 		return nil, internal(nil)
 	}
 	raw, e := json.Marshal(v)

@@ -88,17 +88,10 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	if err = c.CheckTaskTransitionRule(c.TaskTransitionRuleInput{FromState: before.State, ToState: in.Request.TargetState, Role: c.TaskTransitionHumanOwner, CurrentAssigneeAgentID: before.AssigneeAgentID}); err != nil {
 		return zero, err
 	}
-	// This first writer owns precisely this public edge. Other formally valid
-	// edges retain their own unbound dependencies instead of borrowing it.
-	if before.State != c.TaskStateBacklog || in.Request.TargetState != c.TaskStateTodo {
-		return zero, fault(f.DependencyUnbound)
+	if err = transitionEdge(before, in.Request); err != nil {
+		return zero, err
 	}
-	if in.Request.AssigneeAgentID == nil {
-		return zero, fault(f.TaskAssigneeRequired)
-	}
-	if len(in.Request.AddBlockers) != 0 || len(in.Request.ResolveBlockerIDs) != 0 {
-		return zero, fault(f.DependencyUnbound)
-	}
+	chosen := transitionAgent(before, in.Request)
 	placement, err := s.state().deps.Structure.ReadPlacementInTx(ctx, tx, actor, in.Project, before.SprintID)
 	if err != nil {
 		return zero, err
@@ -109,21 +102,12 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	if placement.Sprint.State == c.Completed {
 		return zero, field(f.TaskSprintInvalid, "/sprint_id", "COMPLETED_SPRINT")
 	}
-	agent, err := s.state().deps.Agents.RequireCurrentInTx(ctx, tx, actor, in.Project, *in.Request.AssigneeAgentID)
+	agent, err := s.state().deps.Agents.RequireCurrentInTx(ctx, tx, actor, in.Project, *chosen)
 	if err != nil {
 		return zero, portError(err)
 	}
-	if agent.Validate() != nil || agent.ProjectID != in.Project || agent.AgentID != *in.Request.AssigneeAgentID {
+	if agent.Validate() != nil || agent.ProjectID != in.Project || agent.AgentID != *chosen {
 		return zero, internal(nil)
-	}
-	if before.AssigneeAgentID != nil && *before.AssigneeAgentID != agent.AgentID {
-		old, e := s.state().deps.Agents.RequireCurrentInTx(ctx, tx, actor, in.Project, *before.AssigneeAgentID)
-		if e != nil {
-			return zero, portError(e)
-		}
-		if old.Validate() != nil || old.ProjectID != in.Project || old.AgentID != *before.AssigneeAgentID {
-			return zero, internal(nil)
-		}
 	}
 	occupancy, err := s.state().deps.Occupancy.ReadInTx(ctx, tx, in.Project, []string{in.Task.String()})
 	if err != nil {
@@ -145,15 +129,12 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	if len(pending.Pending) != 0 {
 		return zero, fault(f.ResourceBusy)
 	}
-	var blockers int64
-	if err = x.QueryRow(ctx, `SELECT count(*) FROM agenteam_work.task_blockers WHERE project_id=$1 AND task_id=$2 AND resolved_at IS NULL`, in.Project.String(), in.Task.String()).Scan(&blockers); err != nil {
-		return zero, taskSQL(err)
+	if at.Time().Before(before.UpdatedAt.Time()) {
+		at = before.UpdatedAt
 	}
-	if blockers < 0 {
-		return zero, internal(nil)
-	}
-	if blockers > 0 {
-		return zero, field(f.InvalidState, "/task_id", "UNRESOLVED_BLOCKERS")
+	resolutions, at, err := prepareTransitionResolutions(ctx, x, in, at)
+	if err != nil {
+		return zero, err
 	}
 	source := groupForTask(before)
 	target := source
@@ -235,7 +216,7 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 		at = before.UpdatedAt
 	}
 	after.UpdatedAt = at
-	count := 1
+	count := 1 + len(resolutions)
 	changed := before.AssigneeAgentID == nil || *before.AssigneeAgentID != newAgent
 	if changed {
 		count++
@@ -254,6 +235,9 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	if changed {
 		add(c.TaskTransitionAssigneeChanged, c.TaskTransitionFactPayload{AssigneeChanged: &c.TaskAssigneeChangedPayload{FromAgentID: before.AssigneeAgentID, ToAgentID: newAgent}})
 	}
+	for _, v := range resolutions {
+		add(c.TaskTransitionBlockerResolved, c.TaskTransitionFactPayload{BlockerResolved: &c.TaskBlockerResolvedPayload{BlockerID: v.Before.ID, BlockerType: v.Before.Type}})
+	}
 	if in.Request.Comment != nil {
 		add(c.TaskTransitionComment, c.TaskTransitionFactPayload{Comment: &c.TaskCommentPayload{Body: *in.Request.Comment}})
 	}
@@ -270,5 +254,5 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	if err = ctx.Err(); err != nil {
 		return zero, canceled(err)
 	}
-	return transitionPlan{Before: before, After: out, Placement: taskPlacement{placement.Milestone.ID, placement.Sprint.ID, placement.Sprint.State}, Agent: agent, Groups: []taskGroupPlan{{source, oldRows, sourceAfter, oldGen}, {target, rows, ranks.Items, gen}}, QueryGeneration: query, History: history, Source: sp, Target: tp, Header: ev.Header(), Payload: ev.PayloadBytes()}, nil
+	return transitionPlan{Before: before, After: out, Placement: taskPlacement{placement.Milestone.ID, placement.Sprint.ID, placement.Sprint.State}, Agent: agent, Groups: []taskGroupPlan{{source, oldRows, sourceAfter, oldGen}, {target, rows, ranks.Items, gen}}, QueryGeneration: query, History: history, Source: sp, Target: tp, Header: ev.Header(), Payload: ev.PayloadBytes(), Resolutions: resolutions}, nil
 }

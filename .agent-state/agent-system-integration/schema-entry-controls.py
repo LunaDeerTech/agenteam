@@ -30,7 +30,8 @@ SYSTEM_INPUTS = {'^TestAgentConfigurationSchema$': ('tests/projectvariable/agent
  '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$': ('tests/projectvariable/scheduler_pending_visit_test.go',
                                                      'tests/projectvariable/task_human_http_test.go'),
  '^TestSprintStartHTTP$': ('tests/projectvariable/task_human_http_test.go',),
- '^TestSchedulerLaunchFinalFailure$': ('tests/projectvariable/scheduler_launch_failure_test.go',)}
+ '^TestSchedulerLaunchFinalFailure$': ('tests/projectvariable/scheduler_launch_failure_test.go',),
+ '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': ('tests/projectvariable/task_technical_resolution_http_test.go', 'tests/projectvariable/task_unblock_atomic_test.go')}
 SYSTEM_CASES = {'^TestAgentConfigurationSchema$': ('TestAgentConfigurationSchema',
                                     'TestAgentConfigurationSchema/fresh-prefix-and-repeat',
                                     'TestAgentConfigurationSchema/schema-invariants-and-unbound-dependencies',
@@ -69,11 +70,13 @@ SYSTEM_CASES = {'^TestAgentConfigurationSchema$': ('TestAgentConfigurationSchema
  '^TestSprintStartHTTP$': ('TestSprintStartHTTP', 'TestSprintStartHTTP/paused-start-get-lookup-replay'),
  '^TestSchedulerLaunchFinalFailure$': ('TestSchedulerLaunchFinalFailure',
                                        'TestSchedulerLaunchFinalFailure/title-preserved-technical-blocker-and-replay',
-                                       'TestSchedulerLaunchFinalFailure/late-transaction-rollback-and-settlement')}
+                                       'TestSchedulerLaunchFinalFailure/late-transaction-rollback-and-settlement'),
+ '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': ('TestTaskTechnicalResolutionHTTP', 'TestTaskTechnicalResolutionHTTP/resolve-to-todo-lookup-replay', 'TestTaskTechnicalResolutionAtomic', 'TestTaskTechnicalResolutionAtomic/late-transaction-rollback-and-replay')}
 BASE_SHA = {'.agent-state/work-owner-http/root_chain_driver.py': '776e6306214722a1eb9f6ca124c12f5e05a3f71d3daffaf3a155c8cee747009c',
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': 'ce09376d0db54c1ef805974c491836cb854f3e23468e0414b0ef31235d00e589'}
 SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA_INPUTS = {\n',
                                                         'METADATA_INPUTS = {\n'
+                                                        "    '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': (\n        'tests/projectvariable/task_technical_resolution_http_test.go',\n        'tests/projectvariable/task_unblock_atomic_test.go',\n    ),\n"
                                                         "    '^TestSchedulerLaunchFinalFailure$': (\n"
                                                         '        '
                                                         "'tests/projectvariable/scheduler_launch_failure_test.go',\n"
@@ -132,6 +135,7 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA
                                                         '    ),\n')],
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {\n',
                                                                 'METADATA_GROUPS = {\n'
+                                                                "    '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': frozenset({\n        'TestTaskTechnicalResolutionHTTP',\n        'TestTaskTechnicalResolutionHTTP/resolve-to-todo-lookup-replay',\n        'TestTaskTechnicalResolutionAtomic',\n        'TestTaskTechnicalResolutionAtomic/late-transaction-rollback-and-replay',\n    }),\n"
                                                                 "    '^TestSchedulerLaunchFinalFailure$': "
                                                                 'frozenset({\n'
                                                                 "        'TestSchedulerLaunchFinalFailure',\n"
@@ -242,7 +246,7 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA
                                                                 "'SchedulerLaunch', "
                                                                 "'SchedulerBusyCompensation', "
                                                                 "'SchedulerPendingVisit', 'TaskHumanHTTP', "
-                                                                "'SprintStartHTTP')) and (args.run not in "
+                                                                "'SprintStartHTTP', 'TaskTechnicalResolutionHTTP', 'TaskTechnicalResolutionAtomic')) and (args.run not in "
                                                                 'METADATA_GROUPS or not args.root_chain):\n'
                                                                 "        parser.error('System configuration "
                                                                 'requires one exact original root-chain '

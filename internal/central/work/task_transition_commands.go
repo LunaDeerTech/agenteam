@@ -201,7 +201,7 @@ func (s *TaskTransitionService) prepareTransition(ctx context.Context, actor i.A
 			}
 			r.Revision = f.Version(n)
 		}
-		count := 1
+		count := 1 + len(in.Request.ResolveBlockerIDs)
 		if before.AssigneeAgentID == nil || in.Request.AssigneeAgentID != nil && *in.Request.AssigneeAgentID != *before.AssigneeAgentID {
 			count++
 		}
