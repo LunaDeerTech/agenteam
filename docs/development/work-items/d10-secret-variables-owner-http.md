@@ -1,6 +1,6 @@
 # D10 Secret Variables Owner HTTP
 
-状态：方案已获 Skills HTTP 有限只读审接受并由 root 授权实施；首片段四产品/四 pure 测试已准备，基础 pure/Schema 按限定版本组合通过，八技术源已获独立有限静审接受；作者真实 PG 与 native 组合已完整通过，独立动态仍待。树 `ai/secret-owner-http` 以已接受的 Owner 库 `f9cc11c6` 为输入；正式连续 00028–30/core 由 coordination 组装，默认 root/Account 装配由 root 指定的统一写者负责。
+状态：方案已获 Skills HTTP 有限只读审接受并由 root 授权实施；首片段四产品/四 pure 测试已准备，基础 pure/Schema 按限定版本组合通过，八技术源已获独立有限静审接受；作者原冻结候选真实 PG 与 native 组合已完整通过，独立动态仍待；后继默认 root 接入源码和纯检查已准备，真实 root 未验。树 `ai/secret-owner-http` 以已接受的 Owner 库 `f9cc11c6` 为输入；正式连续 00028–30/core 由 coordination 组装，默认 root/Account 装配由 root 指定的统一写者负责。
 
 ## 1. 已定契约与最小结果
 
@@ -63,7 +63,7 @@ ordinary HTTP、Account.HTTPBoundary、公共 httpapi、Secret/Project/Account �
 3. 单独 native 窗：自然期限、更早父期限、keepalive 清 deadline、disconnect/backpressure，以及 Body/Write/Close/Flush/callback 实际返回；不以纯 ResponseWriter 代 socket 结论。
 4. 未参与实现者有限独审及当前 Session/泄露风险独验。真实轮需 fresh 授权、精确 selector、原预算和实际 Wait/资源/runtime/desc/TCP 全尾；原 FAIL 保留。
 
-当前无阻塞 HTTP shape 的未决产品规则。00028→29→30/core 已随后端 `fb84a892` 进入 main；本任务共享 harness 及作者 PG/native 已完成，尚待独立动态验收，以及后继默认 root 同 Store 构造与退出绑定；不跨写上述接入点。基础离线验证见下一节，PG/native 作者结果见§9–10；默认 root 尚未绑定/验收。
+当前无阻塞 HTTP shape 的未决产品规则。00028→29→30/core 已随后端 `fb84a892` 进入 main；本任务原 handler 的共享 harness 及作者 PG/native 已完成，尚待独立动态验收；后继默认 root 同 Store 构造与退出绑定已获授权实施，进度见§11。基础离线验证见下一节，PG/native 作者结果见§9–10；默认 root 新输入尚未实际验收。
 
 
 ## 7. 基础片段实际验证
@@ -92,3 +92,11 @@ ordinary HTTP、Account.HTTPBoundary、公共 httpapi、Secret/Project/Account �
 精确 `^TestSecretHTTPNativeTransport$` 一 top 两直接子、两个 loopback listener实际通过（38.49s）。首子验证原 2s/30s 和更早父期限、同连接跨前次期限复用；GET场景约束拒绝非空正文后的原 Body.Close 排空，不冒正常GET查询耗时。第二子验证实际响应 backpressure、材料写入时TCP断开、取消后等待原调用返回再 Destroy/abort。实际授权仍由§9真实PG组合证明，native受控领域端口只证明传输和材料生命周期。
 
 固定原candidate/native-driver一次执行，session53268→52a3bd、Go/driver/supervisor/outer实际Wait全0；原90s/105s预算和监督尾保持，native runtime/private清除、后代/TCP各双空、初末输入字节及枚举一致、外层runtime双空。wholePASS后窗口释放，无retry；原件位于 `output/ai/secret-owner-http/native-http-author-01`，准确PID/UTC/磁盘见current与result.json。作者PG/native门已闭，独立动态/default root/F1未执行或接入。
+
+## 11. 默认 root 后继接入（尚未真实验收）
+
+main 合并基线 `114f5ede` 保留 Project initializer unbound。root 授权本实例独占 `app/account.go`、`security.go` 和新 `project_secret_variables.go`，以及相应纯/进程测试；共享 harness 仍由 coordination 独占。`project_usage.go`、`project_update.go` 和普通变量产品未改。首5技术路径已获 coordination 实际差异有限独审接受并保存 `0ecb9fb8`。
+
+原 Store 与唯一 Project/Variable facts authority构造 immutable SecretWriteAuthority，注入原 D04，继而构造 Secret Owner；原 Catalog 增 Secret event，原同名 producer不重复登记。构造后立即 accounts.install登记，Stop取消自有调用，原Drain成功才Joined；Force和晚install消费原context，不关闭共享Secret/Store。新精确路由与普通变量并存，边界仍是原Account core/PublicOrigin。
+
+作者限定7top pure race已通过（Secret3、ordinary3、Model构造1），实际Wait与runtime齐；只是构造、路由和受控Store调用生命周期证明。新进程测试精确 `^TestProjectSecretVariablesDefaultRoot$` 一top两sub：真实默认root在test-only正式ports创建并已Stop/Drain的既有initialized Project上验证有限CRUD/Lookup与ordinary兼容，并核默认Create仍unbound且零事实；真实BEGIN/backendPID屏障另核Secret读/写/Lookup取消后必须实际返回，Account与guard不能提前退役。源码准备不等于SQL/socket/root通过，尚待编译、方法独审、精确共享入口与fresh真实窗口；原handler作者证据不扩大为本次合并/接入输入通过。
