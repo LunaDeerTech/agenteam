@@ -1,6 +1,6 @@
 # Knowledge Owner 正常读取链
 
-本目录的方法仅对应 `TestKnowledgeOwnerReadWeb`（integration、app 包、1 top / 0 sub）与锁定 Playwright 的一个 `[read] Knowledge Owner existing-document read` case。离线检查已完成；首真实 `read-author-01` 整体 FAIL、原退出尾已完整结束，尚未验收。生产 UI 已存 `da77c639`，首链最终组合 `bd970b97`；默认 Project initializer 保持未绑定。
+本目录的方法仅对应 `TestKnowledgeOwnerReadWeb`（integration、app 包、1 top / 0 sub）与锁定 Playwright 的一个 `[read] Knowledge Owner existing-document read` case。两次真实读取均整体 FAIL、原退出尾完整结束，尚未验收。生产 UI 已存 `da77c639`，初次组合 `bd970b97`、有界诊断源 `27a46c9e`；默认 Project initializer 保持未绑定。
 
 Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/Object；普通 Owner 来自正式 invitation / inspect / redeem / login。默认 Project Create 的新 target 必须 `DependencyUnbound/NotCommitted` 且零事实；正向准备只使用已有 `rootCompositionProjectFixture` 真实 ports，实际 Stop/Drain/Joined 后才进入浏览器。没有业务 SQL 造 ready 或生产注入。静态 dist 与同源反代只供测试。
 
@@ -34,3 +34,13 @@ Go fixture 使用默认 `bindAccounts` 的实际 Store/Account/Knowledge/Skill/O
 `read-author-01` 使用冻结 `bd970b97`、上述候选与当前 dist，session10035 / outer307373。同 process 空闲9,249,374,208 bytes、1448 inputs、私有 telemetry mode=off/去三旁路、空 Docker config 后启动。Go 单 top 59.14s FAIL，原 Node actual Wait success=false、Go code1、driver code1、outer actual1。原安全快照仅定位 `stage=actual-consumption`、page_closed=true、observer_report=false；该阶段内具体等待/断言尚不能从原材料区分，不归因为产品错误。
 
 同次12个原反代完整 GET200 sidecar（含精确下一段 offset=65535）及两张布局截图存在，但没有最终 observer report，未执行后继逐响应联合证明/Schema与根成功断言，不能据此称消费发布或真实链通过。7个资源ID双不存在、private双不存在、runtime双空、descendant双空、4个 adopted child 原 Wait0、host TCP双空；1448输入初末重枚举/摘要一致，原 terminal1 /193.904s，窗口已释放。安全原记录见 [read-first-failure.json](read-first-failure.json)，不复制原凭据、headers或正文。下一步仅只读有界定位45s内原等待与方法覆盖缺口，保持严格 finished/reader/typed/DOM/首 explicit门；未授权重试或改实现。
+
+## 第二次诊断运行
+
+[诊断计划](read-second-diagnostic-plan.md) 经独立有限审后，仅 spec/native/native-controls 实施；原成功 AND、header→finished与PW tails→同调用双seal顺序不变。64664离线方法249项/0unhandled、57776 strictTS、82407精确PW list（1case）及三源格式均 actual0，实际差异由 coordination 有限接受并保存 `27a46c9e`；Go候选和dist复用。
+
+获独占窗口后的 `read-second-diagnostic-02` /session21831 /outer345887，预飞原01七ID与三private双不存在、runtime双空；同process空闲8,365,895,680 bytes、私有modeoff/三旁路清除/空Docker config、1448输入。Go top53.36s FAIL，原Node Waitfalse、Go1、driver1、outer1。页与context仍open时，已同步记录 `phase=pw-tails/pw_pending=4`；Request seq1/4/6/9 header已返、requestfailed=true、无requestfinished、原finished仍未返回。原page-close事件后，这四个finished才reject、原尾join归零，随后page-observers evaluate拒绝。较晚的first_failure为page-observers/closedtrue，不能单凭该首快照倒推最初阻点，必须保留关闭前事件链。
+
+最后已有browser采样发生在observer-idle：12 native行均EOF、read/read-return一致、reader-cancel/release/outer-cancel及实际join计数各1；12 public行fulfilled/settled/current/not_busy且bound1，两observer当时pending0、仍active。该安全样本未保留native摘要/CL/XID跨观察器绑定、完整typed返回对象和DTO等式，最终首次explicit退休/end/join亦未取得；这些保持UNKNOWN，不能称全消费证明齐。请求失败分类与取消来源未捕获，不推定ERR_ABORTED或产品原因。
+
+原7ID双不存在、private双不存在、runtime双空、descendant双空、4 adopted原Wait0、TCP双空、1448输入重枚举/摘要一致；wholeFAIL terminal1/135.099s，窗口已释放。安全原结果见 [read-second-failure.json](read-second-failure.json)。后继只提出四固定GET原消费闭集方法方案，参考共享同一Request terminal的正常finished一次/failed零次，所有其他真实联合门保留；尚未授权实现或第三次实际运行。

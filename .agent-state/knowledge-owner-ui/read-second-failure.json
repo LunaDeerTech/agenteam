@@ -1,0 +1,862 @@
+{
+  "run": "read-second-diagnostic-02",
+  "source": "27a46c9e05d9b469bfb9fb0527f9e7513527285d",
+  "selector": "^TestKnowledgeOwnerReadWeb$",
+  "result": "FAIL",
+  "started_utc": "2026-10-10T06:38:36.591933Z",
+  "session": 21831,
+  "outer_pid": 345887,
+  "outer_actual_exit": 1,
+  "preflight_free_bytes": 8365895680,
+  "input_count": 1448,
+  "old01_preflight": "7 resource IDs and 3 private directories absent twice; runtime empty twice",
+  "candidate": {
+    "bytes": 60147683,
+    "sha256": "c6d14713436ee201f07883435082b50adbb79f88b68626147210ad1a45b0bc1d"
+  },
+  "go_top_seconds": 53.36,
+  "original_waits": [
+    "knowledge_owner_web_test.go:301: Knowledge Node actual_wait pid=347735 success=false",
+    "D03 explicit test actual_wait pid=347632 code=1 selector=^TestKnowledgeOwnerReadWeb$",
+    "SUPERVISOR actual_driver_wait pid=346005 actual=True code=1",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=347797 status=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=347802 status=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=347799 status=0",
+    "SUPERVISOR knowledge_ui_adopted_actual_wait pid=347800 status=0"
+  ],
+  "resources": [
+    {
+      "round": 1,
+      "kind": "container",
+      "id": "b21af038e183be3be03459b553d3c0930dd01780e74a18cf698dc0d3855364fe",
+      "nonce": "a8a48ddee0ae42db39495a7013817063",
+      "absent": true
+    },
+    {
+      "round": 1,
+      "kind": "network",
+      "id": "40f9884d879e86093c224acc31697c08615e46ffd09e669896eb2d2ba0ff0898",
+      "nonce": "a8a48ddee0ae42db39495a7013817063",
+      "absent": true
+    },
+    {
+      "round": 1,
+      "kind": "container",
+      "id": "619e4ad08c0ee1eae73c134e8250142ce37a711b4a66b6fad9949de7841638c9",
+      "nonce": "e2031112fb2a1250eb81982601258b07",
+      "absent": true
+    },
+    {
+      "round": 1,
+      "kind": "network",
+      "id": "8bc11619999b35ffc5b7611e3d69e9b6ea83625084a4a2216cae46fcfa828943",
+      "nonce": "e2031112fb2a1250eb81982601258b07",
+      "absent": true
+    },
+    {
+      "round": 1,
+      "kind": "container",
+      "id": "b341885fb1e6008b07b60d81c3d9cf67a80639490630f0f1b021f0fc0aa1fe3f",
+      "nonce": "90b883dbe19d4d02e1f68ec2e4d064ac",
+      "absent": true
+    },
+    {
+      "round": 1,
+      "kind": "container",
+      "id": "b1b45c5ce059908aea1e4c2300ba1896507ea4046d9b63529410f8a20635ed52",
+      "nonce": "90b883dbe19d4d02e1f68ec2e4d064ac",
+      "absent": true
+    },
+    {
+      "round": 1,
+      "kind": "network",
+      "id": "718c8b78b6abda08a97d766bb70e04fd4b7b6f587143864553fa502a24245c8c",
+      "nonce": "90b883dbe19d4d02e1f68ec2e4d064ac",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "container",
+      "id": "b21af038e183be3be03459b553d3c0930dd01780e74a18cf698dc0d3855364fe",
+      "nonce": "a8a48ddee0ae42db39495a7013817063",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "network",
+      "id": "40f9884d879e86093c224acc31697c08615e46ffd09e669896eb2d2ba0ff0898",
+      "nonce": "a8a48ddee0ae42db39495a7013817063",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "container",
+      "id": "619e4ad08c0ee1eae73c134e8250142ce37a711b4a66b6fad9949de7841638c9",
+      "nonce": "e2031112fb2a1250eb81982601258b07",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "network",
+      "id": "8bc11619999b35ffc5b7611e3d69e9b6ea83625084a4a2216cae46fcfa828943",
+      "nonce": "e2031112fb2a1250eb81982601258b07",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "container",
+      "id": "b341885fb1e6008b07b60d81c3d9cf67a80639490630f0f1b021f0fc0aa1fe3f",
+      "nonce": "90b883dbe19d4d02e1f68ec2e4d064ac",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "container",
+      "id": "b1b45c5ce059908aea1e4c2300ba1896507ea4046d9b63529410f8a20635ed52",
+      "nonce": "90b883dbe19d4d02e1f68ec2e4d064ac",
+      "absent": true
+    },
+    {
+      "round": 2,
+      "kind": "network",
+      "id": "718c8b78b6abda08a97d766bb70e04fd4b7b6f587143864553fa502a24245c8c",
+      "nonce": "90b883dbe19d4d02e1f68ec2e4d064ac",
+      "absent": true
+    }
+  ],
+  "tail": [
+    "OWNED runtime_observation=1 descendants=[]",
+    "OWNED runtime_observation=2 descendants=[]",
+    "ROOT private_observation=1 absent=True",
+    "ROOT runtime_observation=1 empty=True",
+    "ROOT private_observation=2 absent=True",
+    "ROOT runtime_observation=2 empty=True",
+    "ROOT exact_tops=True actual_test_wait=True",
+    "ROOT knowledge_ui_exact_run_pass_wait=False",
+    "HOST_TCP delta_empty_observation=1",
+    "HOST_TCP delta_empty_observation=2",
+    "SUPERVISOR inputs_unchanged=True terminal=1 elapsed=135.099s"
+  ],
+  "diagnostic": {
+    "sha256": "ba1150d00c1ccb3cc64273c84aeaff8ef0c031b65a6d60ff9097bd8e53ed9415",
+    "bytes": 74674,
+    "overflow": false,
+    "write_failed": false,
+    "open_pw_tail_pending_observed": 4,
+    "blocked_requests_before_page_close": [
+      {
+        "sequence": 1,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/children",
+        "query": "parent_document_id=null&limit=50",
+        "request_id": "01a12489-7174-76c9-a465-4bc0ed6f63b7",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": false,
+        "finished_null": false,
+        "failed": true,
+        "header": "returned",
+        "finished_await": "entered",
+        "tail_joined": false
+      },
+      {
+        "sequence": 4,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-71b5-a87d-dbf27e563fa2/ancestors",
+        "query": "",
+        "request_id": "01a12489-7232-7743-afba-fd9c8d377250",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": false,
+        "finished_null": false,
+        "failed": true,
+        "header": "returned",
+        "finished_await": "entered",
+        "tail_joined": false
+      },
+      {
+        "sequence": 6,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-71b5-a87d-dbf27e563fa2/content",
+        "query": "byte_offset=65535&max_bytes=65536",
+        "request_id": "01a12489-73c5-75c1-a840-c6710c2b2ea2",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": false,
+        "finished_null": false,
+        "failed": true,
+        "header": "returned",
+        "finished_await": "entered",
+        "tail_joined": false
+      },
+      {
+        "sequence": 9,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-70f7-8295-d16afc254ac2/content",
+        "query": "byte_offset=0&max_bytes=65536",
+        "request_id": "01a12489-7471-7369-8dde-9cbf25065a72",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": false,
+        "finished_null": false,
+        "failed": true,
+        "header": "returned",
+        "finished_await": "entered",
+        "tail_joined": false
+      }
+    ],
+    "last_observers": {
+      "observed_at_sequence": 106,
+      "observed_in_phase": "observer-idle",
+      "current_at_failure": "not_observed",
+      "native": {
+        "retired": false,
+        "reason": "active",
+        "pending": 0,
+        "pending_at_retirement": null,
+        "failed": false,
+        "overflow": false,
+        "current": null,
+        "not_busy": null,
+        "row_count": 12,
+        "rows": [
+          {
+            "sequence": 1,
+            "call_id": 1,
+            "bytes": 435,
+            "readers": 1,
+            "reads": 2,
+            "read_returns": 2,
+            "fetch_returned": true,
+            "fetch_rejected": false,
+            "eof": true,
+            "read_rejected": false,
+            "reader_cancel": 1,
+            "reader_cancel_joined": 1,
+            "release": 1,
+            "outer_cancel": 1,
+            "outer_cancel_joined": 1,
+            "owner_error": false
+          },
+          {
+            "sequence": 2,
+            "call_id": 2,
+            "bytes": 469,
+            "readers": 1,
+            "reads": 2,
+            "read_returns": 2,
+            "fetch_returned": true,
+            "fetch_rejected": false,
+            "eof": true,
+            "read_rejected": false,
+            "reader_cancel": 1,
+            "reader_cancel_joined": 1,
+            "release": 1,
+            "outer_cancel": 1,
+            "outer_cancel_joined": 1,
+            "owner_error": false
+          },
+          {
+            "sequence": 3,
+            "call_id": 3,
+            "bytes": 468,
+            "readers": 1,
+            "reads": 2,
+            "read_returns": 2,
+            "fetch_returned": true,
+            "fetch_rejected": false,
+            "eof": true,
+            "read_rejected": false,
+            "reader_cancel": 1,
+            "reader_cancel_joined": 1,
+            "release": 1,
+            "outer_cancel": 1,
+            "outer_cancel_joined": 1,
+            "owner_error": false
+          },
+          {
+            "sequence": 4,
+            "call_id": 4,
+            "bytes": 435,
+            "readers": 1,
+            "reads": 2,
+            "read_returns": 2,
+            "fetch_returned": true,
+            "fetch_rejected": false,
+            "eof": true,
+            "read_rejected": false,
+            "reader_cancel": 1,
+            "reader_cancel_joined": 1,
+            "release": 1,
+            "outer_cancel": 1,
+            "outer_cancel_joined": 1,
+            "owner_error": false
+          },
+          {
+            "sequence": 5,
+            "call_id": 5,
+            "bytes": 66068,
+            "readers": 1,
+            "reads": 2,
+            "read_returns": 2,
+            "fetch_returned": true,
+            "fetch_rejected": false,
+            "eof": true,
+            "read_rejected": false,
+            "reader_cancel": 1,
+            "reader_cancel_joined": 1,
+            "release": 1,
+            "outer_cancel": 1,
+            "outer_cancel_joined": 1,
+            "owner_error": false
+          },
+          {
+            "sequence": 6,
+            "call_id": 6,
+            "bytes": 543,
+            "readers": 1,
+            "reads": 2,
+            "read_returns": 2,
+            "fetch_returned": true,
+            "fetch_rejected": false,
+            "eof": true,
+            "read_rejected": false,
+            "reader_cancel": 1,
+            "reader_cancel_joined": 1,
+            "release": 1,
+            "outer_cancel": 1,
+            "outer_cancel_joined": 1,
+            "owner_error": false
+          },
+          {
+            "sequence": 7,
+            "call_id": 7,
+            "bytes": 434,
+            "readers": 1,
+            "reads": 2,
+            "read_returns": 2,
+            "fetch_returned": true,
+            "fetch_rejected": false,
+            "eof": true,
+            "read_rejected": false,
+            "reader_cancel": 1,
+            "reader_cancel_joined": 1,
+            "release": 1,
+            "outer_cancel": 1,
+            "outer_cancel_joined": 1,
+            "owner_error": false
+          },
+          {
+            "sequence": 8,
+            "call_id": 8,
+            "bytes": 12,
+            "readers": 1,
+            "reads": 2,
+            "read_returns": 2,
+            "fetch_returned": true,
+            "fetch_rejected": false,
+            "eof": true,
+            "read_rejected": false,
+            "reader_cancel": 1,
+            "reader_cancel_joined": 1,
+            "release": 1,
+            "outer_cancel": 1,
+            "outer_cancel_joined": 1,
+            "owner_error": false
+          },
+          {
+            "sequence": 9,
+            "call_id": 9,
+            "bytes": 560,
+            "readers": 1,
+            "reads": 2,
+            "read_returns": 2,
+            "fetch_returned": true,
+            "fetch_rejected": false,
+            "eof": true,
+            "read_rejected": false,
+            "reader_cancel": 1,
+            "reader_cancel_joined": 1,
+            "release": 1,
+            "outer_cancel": 1,
+            "outer_cancel_joined": 1,
+            "owner_error": false
+          },
+          {
+            "sequence": 10,
+            "call_id": 10,
+            "bytes": 468,
+            "readers": 1,
+            "reads": 2,
+            "read_returns": 2,
+            "fetch_returned": true,
+            "fetch_rejected": false,
+            "eof": true,
+            "read_rejected": false,
+            "reader_cancel": 1,
+            "reader_cancel_joined": 1,
+            "release": 1,
+            "outer_cancel": 1,
+            "outer_cancel_joined": 1,
+            "owner_error": false
+          },
+          {
+            "sequence": 11,
+            "call_id": 11,
+            "bytes": 435,
+            "readers": 1,
+            "reads": 2,
+            "read_returns": 2,
+            "fetch_returned": true,
+            "fetch_rejected": false,
+            "eof": true,
+            "read_rejected": false,
+            "reader_cancel": 1,
+            "reader_cancel_joined": 1,
+            "release": 1,
+            "outer_cancel": 1,
+            "outer_cancel_joined": 1,
+            "owner_error": false
+          },
+          {
+            "sequence": 12,
+            "call_id": 12,
+            "bytes": 66068,
+            "readers": 1,
+            "reads": 2,
+            "read_returns": 2,
+            "fetch_returned": true,
+            "fetch_rejected": false,
+            "eof": true,
+            "read_rejected": false,
+            "reader_cancel": 1,
+            "reader_cancel_joined": 1,
+            "release": 1,
+            "outer_cancel": 1,
+            "outer_cancel_joined": 1,
+            "owner_error": false
+          }
+        ]
+      },
+      "publication": {
+        "retired": false,
+        "reason": "active",
+        "pending": 0,
+        "pending_at_retirement": null,
+        "failed": false,
+        "overflow": false,
+        "current": true,
+        "not_busy": true,
+        "row_count": 12,
+        "rows": [
+          {
+            "id": 1,
+            "bound": 1,
+            "fulfilled": true,
+            "rejected": false,
+            "settled": true,
+            "current": true,
+            "not_busy": true
+          },
+          {
+            "id": 2,
+            "bound": 1,
+            "fulfilled": true,
+            "rejected": false,
+            "settled": true,
+            "current": true,
+            "not_busy": true
+          },
+          {
+            "id": 3,
+            "bound": 1,
+            "fulfilled": true,
+            "rejected": false,
+            "settled": true,
+            "current": true,
+            "not_busy": true
+          },
+          {
+            "id": 4,
+            "bound": 1,
+            "fulfilled": true,
+            "rejected": false,
+            "settled": true,
+            "current": true,
+            "not_busy": true
+          },
+          {
+            "id": 5,
+            "bound": 1,
+            "fulfilled": true,
+            "rejected": false,
+            "settled": true,
+            "current": true,
+            "not_busy": true
+          },
+          {
+            "id": 6,
+            "bound": 1,
+            "fulfilled": true,
+            "rejected": false,
+            "settled": true,
+            "current": true,
+            "not_busy": true
+          },
+          {
+            "id": 7,
+            "bound": 1,
+            "fulfilled": true,
+            "rejected": false,
+            "settled": true,
+            "current": true,
+            "not_busy": true
+          },
+          {
+            "id": 8,
+            "bound": 1,
+            "fulfilled": true,
+            "rejected": false,
+            "settled": true,
+            "current": true,
+            "not_busy": true
+          },
+          {
+            "id": 9,
+            "bound": 1,
+            "fulfilled": true,
+            "rejected": false,
+            "settled": true,
+            "current": true,
+            "not_busy": true
+          },
+          {
+            "id": 10,
+            "bound": 1,
+            "fulfilled": true,
+            "rejected": false,
+            "settled": true,
+            "current": true,
+            "not_busy": true
+          },
+          {
+            "id": 11,
+            "bound": 1,
+            "fulfilled": true,
+            "rejected": false,
+            "settled": true,
+            "current": true,
+            "not_busy": true
+          },
+          {
+            "id": 12,
+            "bound": 1,
+            "fulfilled": true,
+            "rejected": false,
+            "settled": true,
+            "current": true,
+            "not_busy": true
+          }
+        ]
+      }
+    },
+    "first_failure": {
+      "phase": "page-observers",
+      "sequence": 122,
+      "completed": [
+        "login",
+        "project-entry",
+        "tree-keyboard",
+        "first-content",
+        "utf8-next",
+        "parent-read",
+        "drawer",
+        "completion-button",
+        "observer-idle",
+        "pw-tails"
+      ],
+      "page_closed": true,
+      "context_closed": false,
+      "observer_report": false,
+      "pw_pending": 0,
+      "write_failed": false,
+      "overflow": false
+    },
+    "phase_close_tail_timeline": [
+      {
+        "sequence": 104,
+        "phase": "completion-button",
+        "kind": "phase-complete"
+      },
+      {
+        "sequence": 105,
+        "phase": "observer-idle",
+        "kind": "phase-enter"
+      },
+      {
+        "sequence": 106,
+        "phase": "observer-idle",
+        "kind": "idle-sample"
+      },
+      {
+        "sequence": 107,
+        "phase": "observer-idle",
+        "kind": "phase-complete"
+      },
+      {
+        "sequence": 108,
+        "phase": "observer-finish",
+        "kind": "phase-enter"
+      },
+      {
+        "sequence": 109,
+        "phase": "pw-tails",
+        "kind": "phase-enter"
+      },
+      {
+        "sequence": 110,
+        "phase": "pw-tails",
+        "kind": "page-close"
+      },
+      {
+        "sequence": 119,
+        "phase": "pw-tails",
+        "kind": "phase-complete"
+      },
+      {
+        "sequence": 120,
+        "phase": "page-observers",
+        "kind": "phase-enter"
+      },
+      {
+        "sequence": 121,
+        "phase": "page-observers",
+        "kind": "finish-reject"
+      },
+      {
+        "sequence": 123,
+        "phase": "pw-tails",
+        "kind": "phase-enter"
+      },
+      {
+        "sequence": 124,
+        "phase": "pw-tails",
+        "kind": "phase-complete"
+      },
+      {
+        "sequence": 125,
+        "phase": "page-observers",
+        "kind": "phase-enter"
+      },
+      {
+        "sequence": 126,
+        "phase": "page-observers",
+        "kind": "context-close"
+      },
+      {
+        "sequence": 127,
+        "phase": "page-observers",
+        "kind": "finish-reject"
+      },
+      {
+        "sequence": 128,
+        "phase": "page-observers",
+        "kind": "cleanup-reject"
+      }
+    ],
+    "final_pw_rows": [
+      {
+        "sequence": 1,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/children",
+        "query": "parent_document_id=null&limit=50",
+        "request_id": "01a12489-7174-76c9-a465-4bc0ed6f63b7",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": false,
+        "finished_null": false,
+        "failed": true,
+        "header": "returned",
+        "finished_await": "rejected",
+        "tail_joined": true
+      },
+      {
+        "sequence": 2,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/children",
+        "query": "parent_document_id=01a12489-5bde-70f7-8295-d16afc254ac2&limit=50",
+        "request_id": "01a12489-71dd-728e-adc7-215f12f84c87",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": true,
+        "finished_null": true,
+        "failed": false,
+        "header": "returned",
+        "finished_await": "null",
+        "tail_joined": true
+      },
+      {
+        "sequence": 3,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-71b5-a87d-dbf27e563fa2",
+        "query": "",
+        "request_id": "01a12489-7212-7fac-924d-a8dc0e98d547",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": true,
+        "finished_null": true,
+        "failed": false,
+        "header": "returned",
+        "finished_await": "null",
+        "tail_joined": true
+      },
+      {
+        "sequence": 4,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-71b5-a87d-dbf27e563fa2/ancestors",
+        "query": "",
+        "request_id": "01a12489-7232-7743-afba-fd9c8d377250",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": false,
+        "finished_null": false,
+        "failed": true,
+        "header": "returned",
+        "finished_await": "rejected",
+        "tail_joined": true
+      },
+      {
+        "sequence": 5,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-71b5-a87d-dbf27e563fa2/content",
+        "query": "byte_offset=0&max_bytes=65536",
+        "request_id": "01a12489-7253-759d-9af4-947d0f6bf530",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": true,
+        "finished_null": true,
+        "failed": false,
+        "header": "returned",
+        "finished_await": "null",
+        "tail_joined": true
+      },
+      {
+        "sequence": 6,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-71b5-a87d-dbf27e563fa2/content",
+        "query": "byte_offset=65535&max_bytes=65536",
+        "request_id": "01a12489-73c5-75c1-a840-c6710c2b2ea2",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": false,
+        "finished_null": false,
+        "failed": true,
+        "header": "returned",
+        "finished_await": "rejected",
+        "tail_joined": true
+      },
+      {
+        "sequence": 7,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-70f7-8295-d16afc254ac2",
+        "query": "",
+        "request_id": "01a12489-744a-7e01-bf81-e6db791843af",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": true,
+        "finished_null": true,
+        "failed": false,
+        "header": "returned",
+        "finished_await": "null",
+        "tail_joined": true
+      },
+      {
+        "sequence": 8,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-70f7-8295-d16afc254ac2/ancestors",
+        "query": "",
+        "request_id": "01a12489-745f-7ff3-8180-e25a66e56c7c",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": true,
+        "finished_null": true,
+        "failed": false,
+        "header": "returned",
+        "finished_await": "null",
+        "tail_joined": true
+      },
+      {
+        "sequence": 9,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-70f7-8295-d16afc254ac2/content",
+        "query": "byte_offset=0&max_bytes=65536",
+        "request_id": "01a12489-7471-7369-8dde-9cbf25065a72",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": false,
+        "finished_null": false,
+        "failed": true,
+        "header": "returned",
+        "finished_await": "rejected",
+        "tail_joined": true
+      },
+      {
+        "sequence": 10,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-71b5-a87d-dbf27e563fa2",
+        "query": "",
+        "request_id": "01a12489-752f-7d70-9d44-e6dcf2a5adb5",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": true,
+        "finished_null": true,
+        "failed": false,
+        "header": "returned",
+        "finished_await": "null",
+        "tail_joined": true
+      },
+      {
+        "sequence": 11,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-71b5-a87d-dbf27e563fa2/ancestors",
+        "query": "",
+        "request_id": "01a12489-7553-7aba-95dc-ed455e9f17d4",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": true,
+        "finished_null": true,
+        "failed": false,
+        "header": "returned",
+        "finished_await": "null",
+        "tail_joined": true
+      },
+      {
+        "sequence": 12,
+        "method": "GET",
+        "path": "/api/v1/projects/01a12489-5ae2-7d5d-bcc5-05de1623bd92/knowledge/documents/01a12489-5bde-71b5-a87d-dbf27e563fa2/content",
+        "query": "byte_offset=0&max_bytes=65536",
+        "request_id": "01a12489-7574-791f-ac97-6acd334e7981",
+        "invalid_request_id": false,
+        "status": 200,
+        "finished": true,
+        "finished_null": true,
+        "failed": false,
+        "header": "returned",
+        "finished_await": "null",
+        "tail_joined": true
+      }
+    ]
+  },
+  "limits": [
+    "The original open-page pw-tails event chain identifies the wait; the later first_failure phase page-observers alone does not identify the earlier wait.",
+    "Native/public snapshots were historical active samples, not first-explicit retirement or final joined reports.",
+    "Native digest/Content-Length/XID binding, returned typed object and full four DTO equality were not retained in this safe sample; remain UNKNOWN.",
+    "Final strict joint proof, Schema validation and root success assertions were NOT_REACHED.",
+    "No ERR_ABORTED classification or cancellation source was captured; remain UNKNOWN."
+  ],
+  "artifacts": {
+    "raw_log": "/tmp/ku-o02/ui-4c950772b21e4570.log",
+    "evidence": "/workspace/agenteam-knowledge-owner-ui/output/ai/knowledge-owner-ui/read-author-02/TestKnowledgeOwnerReadWeb"
+  },
+  "next": "Plan only: four fixed GET original-consumption closure. No implementation/retry authorized."
+}

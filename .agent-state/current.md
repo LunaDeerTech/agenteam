@@ -1,7 +1,7 @@
 # Knowledge Owner 只读 UI
 
 - 分支 `ai/knowledge-owner-ui`，树 `/workspace/agenteam-knowledge-owner-ui`；`0658c54f` 已合正式后端 `fb84a892`，UI 已保存 `da77c639`，首链七源已保存 `15e730da`。root 独占 Git，content 独占本树 UI 下述路径及新首链测试；shared 入口由 coordination 单写。不写 candidate 或旧正文树。
-- API/client/Session 第一片段 `b0c89d6e`、后续页面和目录失败清层修复均已通过对应离线验证及 Skills 有限 actual diff 审。首真实 Go/browser fixture 已实现并通过方法静审、race 编译与精确 list；`read-author-01` 已实际运行且整体 FAIL，原退出尾完整结束，UI 未验收。后端、锁、parser、来源及 STOP 不变。
+- API/client/Session 第一片段 `b0c89d6e`、后续页面和目录失败清层修复均已通过对应离线验证及 Skills 有限 actual diff 审。Go/browser fixture 已实现；`read-author-01` 与诊断源 `27a46c9e` 的 `read-second-diagnostic-02` 均实际整体 FAIL、原退出尾完整结束，UI 未验收。后端、锁、parser、来源及 STOP 不变。
 - 默认 Project initializer 已按 canonical 门禁撤回。修后 root-02 的默认 Create Unbound/零事实、显式测试 fixture 真 ports/Stop/Drain 和默认读取链已正式进入 main；旧 root-01 业务 PASS 仍仅历史事实，不为生产初始化背书。UI 后继 fixture 必须沿修后边界，不重新绑定默认 initializer。
 
 ## 唯一写域与当前结果
@@ -26,7 +26,7 @@
 
 ## 下一步与资源边界
 
-coordination 的 D12 独立入口及初尾闭包已经有限独审并随 `bd970b97` 保存。首真实单 top/case 失败后，当前仅获授权对原安全材料和冻结源码做有界诊断，定位 actual-consumption 内原等待/断言；先保安全结果，再交方法缺口计划，不自动重试或放宽 finished/reader/typed/DOM 门。UI 未验收，不宣称编辑、完整 D12、生产 SPA 或 Project Create HTTP 可用。
+coordination 的 D12 独立入口及初尾闭包已经有限独审并随 `bd970b97` 保存。有界诊断实际源 `27a46c9e` 已有限独审，第二次真实整体FAIL定位到关闭前4个原PW finished尾等待；当前仅获授权提出四固定GET原消费闭集方法方案，不实施或自动重试。正常原finished一次/failed零次必须基于同一Request terminal，原native/public/typed/XID/CL/hash/EOF/cancel/release/outer/DOM与最终首explicit/end/join全门不得用摘要猜齐。UI 未验收，不宣称编辑、完整 D12、生产 SPA 或 Project Create HTTP 可用。
 
 ## 首真实链 fixture 实施准备
 
@@ -37,3 +37,5 @@ root 已授权四新测试源与自有 native controls；生产11源保持 `da77
 ## 首真实原结果
 
 `read-author-01` /source `bd970b97` /session10035 /outer307373：UTC06:11:29.848076Z启动，同 process 空闲9,249,374,208 bytes、1448 inputs、候选 c6d147… 身份一致、私有 modeoff/去三旁路/new empty Docker config。Go原 top59.14s FAIL，Node原Waitfalse、Go1、driver1、outer实际1；原安全快照 stage=actual-consumption/page_closed=true/observer_report=false，具体 conjunct 未分辨。12个原GET200 sidecar及两布局截图只证明相应观察，最终 observer联合/Schema/根成功断言未到达，不能升级为通过。7resource IDs双absent/private双absent/runtime双empty/desc双[]、4 adopted原Wait0、TCP双空，1448输入重枚举与摘要unchanged=true；wholeFAIL terminal1/193.904s，窗口释放、无在途作者命令。安全原件：[read-first-failure.json](knowledge-owner-ui/read-first-failure.json)；源/fixture/selector/预算未改、未retry。
+
+第二次：计划57c5fd03与三源27a46c9e经coord有限独审；64664方法249控/0unhandled、57776严格TS、82407恰1PW list与三源format actual0。`read-second-diagnostic-02` session21831/outer345887于UTC06:38:36.591933Z启动，旧01七ID/3private/runtime双预飞齐，fresh8,365,895,680B/privateoff/emptyDockerconfig/1448输入。Go53.36s FAIL、Nodefalse/Go1/driver1/outer1。原pageopen时phase=pw-tails/pending4，seq1/4/6/9已requestfailed、header返回、无finished；pageclose后四finished reject并join，随后page-observers evaluate拒绝。首快照较晚page-observers不能替代关闭前事件链。最后idle样本的12 native EOF/read/cancel/release/outer与12 public fulfilled/current/not_busy/bound计数已知，但digest/CL/XID绑定、typed实值、最终首次explicit/end/join及失败分类保持UNKNOWN。7IDs14次absent/private/runtime/desc双空、4adopted原Wait0、TCP双空、inputs_unchanged=true，wholeFAIL135.099s；窗口释放、无在途作者命令。最小安全原件：[read-second-failure.json](knowledge-owner-ui/read-second-failure.json)。原01/02均不回填PASS；后继仅方法计划。
