@@ -247,7 +247,7 @@ func newPreparationTaskInput(t *testing.T, v *variableHTTPFixture) (*work.TaskTr
 	if _, err := structure.CreateMilestone(ctxFor(t), v.ownerBrowser.actor, meta(t, "preparation-milestone", nil), v.project.ID, milestone); err != nil {
 		t.Fatal("formal milestone creation")
 	}
-	sprint := wc.CreateSprintRequest{SprintID: id[wc.Sprint](t), MilestoneID: milestone.MilestoneID, Title: "Preparation sprint", Description: "A planned source is readable, not launchable"}
+	sprint := wc.CreateSprintRequest{SprintID: id[pc.Sprint](t), MilestoneID: milestone.MilestoneID, Title: "Preparation sprint", Description: "A planned source is readable, not launchable"}
 	if _, err := structure.CreateSprint(ctxFor(t), v.ownerBrowser.actor, meta(t, "preparation-sprint", nil), v.project.ID, sprint); err != nil {
 		t.Fatal("formal sprint creation")
 	}
