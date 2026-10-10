@@ -21,4 +21,5 @@ Owner 登录 → Project settings → Skills 目录 → Enter 详情 → 显式�
 - 新 Go 源仅 gofmt，未编译；第一次使用不存在的 `/toolchains/...` 路径失败后，实际路径 `/workspace/toolchains/go1.27.1/bin/gofmt` 成功。不是产品执行。
 - [native-controls.cjs](native-controls.cjs) 使用实际观察源、原 Stream/crypto，transport/Session 明确受控；7项 normal/failed/duplicate/held reader/held outer/identity/void 观察控制 actual0、0unhandled（89678→7fb2f4）。不作为浏览器、真实 API 或完整 UI PASS。
 - 现有产品 basic API/state38与视图3、Knowledge GET54保持其原有限证据。共享 client/auth 后继由 root 导入 Rename `22417dae`，Session 未变；新 Knowledge 两POST严格取消改动不扩入本读链。
-- 下一步只做新 harness strict TS/exact list 与独立 actualdiff 审；Go candidate 与真实浏览器仍未运行。
+- harness 同锁 `cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534` 私有离线复制19392→bff603 actual0，实际 Playwright1.56.1/TS5.9.3。strict TS 首15074→1a6b7f actual2仅命令 typeRoots 指向无 Node types 的harness；改为 web/node_modules/@types 后7670→2afe91 actual0，无源变更。精确 list98644→460a9e actual0恰一用例；格式与 gofmt-l 5041e1 actual0。
+- cleanup shared方法已离线ready（其自有6控与旧31控通过），两作者最终source闭包仍待各自枚举；不冒真实联调。下一步非作者 actualdiff 审及 root 安排两 UI appGo 组合候选一次编译；Go candidate 与真实浏览器仍未运行。

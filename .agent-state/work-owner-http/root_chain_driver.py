@@ -16,6 +16,8 @@ GO = Path('/workspace/toolchains/go1.27.1/bin/go')
 MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
+    '^TestSkillOwnerReadWeb$': 'internal/central/app',
+    '^TestKnowledgeOwnerRenameWeb$': 'internal/central/app',
     '^TestKnowledgePlainTextParserIntegration$': 'tests/knowledge',
     '^TestProjectSecretVariablesDefaultRoot$': 'internal/central/app',
     '^TestKnowledgeOwnerReadWeb$': 'internal/central/app',
@@ -164,6 +166,91 @@ def knowledge_ui_input_hash(binary):
     return digest.hexdigest()
 
 
+OWNER_UI = {
+    '^TestSkillOwnerReadWeb$': ('skills-owner-ui', 'AGENTEAM_SKILL_OWNER_WEB',
+                              'read', 'skill-owner-read', ('skill-owner.json',)),
+    '^TestKnowledgeOwnerRenameWeb$': ('knowledge-owner-rename', 'AGENTEAM_KNOWLEDGE_OWNER_RENAME_WEB',
+                                    'rename', 'knowledge-owner-rename',
+                                    ('knowledge-owner.json', 'knowledge-content.json', 'knowledge-tree-commands.json')),
+}
+
+
+def owner_ui_environment(selector):
+    _, prefix, case, _, _ = OWNER_UI[selector]
+    keys = tuple(prefix + '_' + suffix for suffix in ('DIST', 'EVIDENCE', 'SCHEMA_PYTHON', 'CASE'))
+    values = tuple(os.environ.get(key, '') for key in keys)
+    if (values[2] != str(KNOWLEDGE_PYTHON) or values[3] != case
+            or not KNOWLEDGE_PYTHON.is_file() or not os.access(KNOWLEDGE_PYTHON, os.X_OK)
+            or not KNOWLEDGE_NODE.is_file() or not os.access(KNOWLEDGE_NODE, os.X_OK)):
+        raise ValueError('exact Owner UI case and fixed local interpreters required')
+    return dict(zip(keys, values))
+
+
+def owner_ui_assets(selector):
+    name, prefix, _, _, _ = OWNER_UI[selector]
+    owned = REPOSITORY / 'output/ai' / name
+    dist = Path(owner_ui_environment(selector)[prefix + '_DIST'])
+    if (owned.resolve() != owned or not dist.is_absolute() or dist != dist.resolve()
+            or not dist.is_relative_to(owned) or not (dist / 'index.html').is_file()):
+        raise ValueError('owned frozen Owner UI dist required')
+    assets = list(dist.rglob('*'))
+    if any(p.is_symlink() for p in assets):
+        raise ValueError('Owner UI assets must not alias another source')
+    return sorted(p for p in assets if p.is_file())
+
+
+def owner_ui_configuration(selector, directory):
+    values = owner_ui_environment(selector)
+    owner_ui_assets(selector)
+    name, prefix, _, _, _ = OWNER_UI[selector]
+    owned = REPOSITORY / 'output/ai' / name
+    evidence = Path(values[prefix + '_EVIDENCE'])
+    if (len(str(directory / 'runtime')) > 45 or not evidence.is_absolute()
+            or evidence != evidence.resolve() or evidence.exists() or evidence.is_symlink()
+            or not evidence.parent.is_dir() or not evidence.parent.is_relative_to(owned)
+            or evidence.is_relative_to(Path(values[prefix + '_DIST']))):
+        raise ValueError('fresh owned Owner UI evidence and short runtime required')
+    return values
+
+
+def owner_ui_inputs(binary, selector):
+    _, _, _, stem, schemas = OWNER_UI[selector]
+    owner_ui_environment(selector)
+    paths = set(input_paths(binary)) | set(root_composition_inputs()) | set(owner_ui_assets(selector))
+    paths.add(REPOSITORY / 'internal/central/app' / {
+        '^TestSkillOwnerReadWeb$': 'skill_owner_web_test.go',
+        '^TestKnowledgeOwnerRenameWeb$': 'knowledge_owner_rename_web_test.go',
+    }[selector])
+    harness = REPOSITORY / 'tests/account-captcha-web'
+    paths.update(harness / name for name in (stem + '.config.js', 'package.json', 'package-lock.json',
+        'e2e/' + stem + '.spec.ts', 'e2e/' + stem + '.native.ts', 'e2e/knowledge-owner-read.native.ts'))
+    for name in ('@playwright/test', 'playwright', 'playwright-core'):
+        package = harness / 'node_modules' / name
+        paths.add(package / 'package.json')
+        paths.update(p for p in package.rglob('*') if p.is_file() or p.is_symlink())
+    paths.add(harness / 'node_modules/@playwright/test/cli.js')
+    paths.update(p for p in (REPOSITORY / 'web/src').rglob('*')
+                 if p.is_file() and '.spec.' not in p.name and '.test.' not in p.name)
+    paths.update(REPOSITORY / 'web' / name for name in ('package.json', 'package-lock.json',
+        'node_modules/typescript/package.json', 'node_modules/typescript/lib/typescript.js'))
+    paths.update(REPOSITORY / 'api/openapi' / name for name in ('common.json', *schemas))
+    paths.update({KNOWLEDGE_NODE, KNOWLEDGE_PYTHON.resolve(), Path('/usr/bin/chromium'), Path('/usr/lib/chromium/chromium')})
+    paths.update(p for p in Path('/etc/chromium.d').glob('*') if p.is_file() or p.is_symlink())
+    if any(not p.is_file() or p.is_symlink() or p.resolve(strict=True) != p for p in paths):
+        raise ValueError('regular complete Owner UI inputs required')
+    for name in ('@playwright/test', 'playwright', 'playwright-core'):
+        if json.loads((harness / 'node_modules' / name / 'package.json').read_text())['version'] != '1.56.1':
+            raise ValueError('locked Playwright 1.56.1 required')
+    return sorted(paths)
+
+
+def owner_ui_input_hash(binary, selector):
+    digest = hashlib.sha256()
+    for path in owner_ui_inputs(binary, selector):
+        digest.update(str(path).encode() + b'\0' + sha(path).encode() + b'\n')
+    return digest.hexdigest()
+
+
 def metadata_cost_inputs():
     # The selected cost cases embed these SQL seeds in the fixed candidate.
     # Include their package helpers as source provenance; old selectors keep
@@ -201,6 +288,8 @@ def configuration(binary, selector, directory):
             'test_timeout': '6m', 'resources': 7}
     if selector == KNOWLEDGE_UI:
         plan['knowledge_ui'] = knowledge_ui_configuration(directory)
+    if selector in OWNER_UI:
+        plan['owner_ui'] = owner_ui_configuration(selector, directory)
     return plan
 
 
@@ -263,6 +352,15 @@ def main():
         env.update(ui)
         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
                     'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
+                    'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
+    if args.run in OWNER_UI:
+        prepare_history_go_environment(directory, env)
+        ui = plan['owner_ui']
+        prefix = OWNER_UI[args.run][1]
+        Path(ui[prefix + '_EVIDENCE']).mkdir(mode=0o700)
+        env.update(ui)
+        env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
+                    prefix + '_INPUT_HASH': owner_ui_input_hash(args.test_binary, args.run),
                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
     os.chdir(REPOSITORY)
     # No child is started here: the original shell chain replaces this PID.

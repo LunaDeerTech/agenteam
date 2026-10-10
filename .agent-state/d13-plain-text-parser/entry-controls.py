@@ -182,6 +182,8 @@ def inverse(name, source: str) -> str:
     """Remove only the frozen D13 additions; reject any other source change."""
     if name not in SOURCE_HUNKS or not isinstance(source, str):
         raise ValueError('unknown shared source')
+    if 'OWNER_UI' in source:
+        source = load('d13_owner_ui_entry', '.agent-state/skills-owner-ui/entry-controls.py').inverse(name, source)
     restored = reverse_source(source, SOURCE_HUNKS[name])
     if hashlib.sha256(restored.encode()).hexdigest() != BASE_SHA[name]:
         raise ValueError('unrecognized main baseline change')

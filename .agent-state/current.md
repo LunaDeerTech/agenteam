@@ -9,3 +9,4 @@
 - Work Planning06 原 wholeFAIL/完整尾保存在原树 `2d2d5e11`，本树不返修或重跑。
 
 - 新首链四源已落盘，准确入口与原尾见 [Skills recipe](skills-owner-ui/README.md)；两普通 Human/真实 Skills 初始化、两正式 GET、换身份清屏及只读事实门。新原观察控制7项 actual0/0unhandled（89678→7fb2f4），受控半边不冒真实UI。client/auth 已由 root 导入 Rename22417dae，Session unchanged，本文不取得共享写权。
+- 首链 WIP 已由 root 保存 `2e135cfd`。同锁 harness offline依赖19392→bff603/严格TS7670→2afe91/精确PW list98644→460a9e（1case）/格式5041e1均actual0；首TS命令 typeRoots 错误 actual2保留，源未因此改动。cleanup shared方法ready而闭包尚待最终枚举。技术源继续冻结，未 Go compile/browser；首实际轮若FAIL保原完整尾与首gap，不自行重跑。
