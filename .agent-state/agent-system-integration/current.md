@@ -1,4 +1,14 @@
-# 当前有限组合：Human Task 真实配置、指派与回滚通过
+# 当前有限组合：StartSprint 与 Scheduler claim/pending 真实原子链通过
+
+source `ddac1072` 的 `scheduler-claim-01` **wholePASS**（session81708→f4d6e2，2026-10-10 17:30:11–17:32:11 UTC）：`TestSchedulerClaim` 1 top/2 sub 共19.43s（正向9.31s、最终事务回滚10.12s）。真实P2/Agent/Owner配置与todo Task，经正式StartSprint写入当前Sprint/Project，再由实际WorkClaim与Scheduler在同一事务提交Task in_progress、唯一history/schema2 Outbox、Work claim和pending Dispatch；原请求重放与正式pending读取保持原事实。另一sub在原final callback已见完整关联事实后返marker，由真实Store回滚且原physical NotCommitted/cause保留，全部业务快照不变、pending与Dispatch历史为空。完整嵌入迁移实际应用44/45；未SQL种成功，不证明Launch、调度遍历、生产app或完整F1。
+
+前置pure01因ProjectRef.Clone不存在而编译FAIL/0top，原件保留；原作者四行修复后pure02为14top/7sub race与4pkg vet wholePASS并全尾关闭。随后本次compile01 PASS（77181→8e164f），race-c16.130s、唯一top list1.068s；707编译输入不变。候选 `scheduler-claim-race-01.test` 为54,838,821 B，SHA256 `fe32017c1bdbbda07b4c522cd9e1cd5fb0e05ce1788e896e1a535d8cfc1395b6`。PG同进程fresh5,479,571,456 B；Go998327/driver996458/supervisor996457/outer996403全原Wait0，七资源14absence与private/runtime/descendant/TCP及outer双尾闭合，adopted空，1403运行输入初尾一致。窗口与热缓存已交回，本批不再测试。
+
+必要启动源码原字节保存在本目录 [compile launcher](scheduler-claim-compile-01-launcher.py) 和 [native launcher](scheduler-claim-launcher-01.py)。这两份是原实际入口的恢复副本；先恢复到 `output/ai/agent-system-integration/` 下同名位置（native 的根路径按该位置推导），再按获授 source 和新的输出/private 后缀接续，不能直接从本目录运行或覆盖原件。原实际命令为固定 Python `/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 -B` 加上述 output 下对应脚本路径；保存副本未另行运行。内层仍使用既有 tracked driver/supervisor/schema selector，不新增运行框架。
+
+原环境/命令/输入计划 `output/ai/agent-system-integration/scheduler-claim-01-inputs.json`、compile 与 PG 结果、日志均保持原位置；1403 输入初尾 hash 为 `1a4c9e0ad3383890b8110942517cc72fbdd4e152d0d86d62cc64591b08b02c9e`。PG结果 `scheduler-claim-01-control/result.json`，原日志 `/tmp/scl01/pg-0ab7762773f141b9ab15e75bf97c61b0.log`；pure02原结果在 `output/ai/scheduler-claim/combined-pure-02/result.json`，pure01原FAIL同域保留。后继输入须沿原 tracked `metadata_inputs` 对实际候选重新枚举，不复用旧输入作新通过证明。
+
+## Human Task 真实配置、指派与回滚通过
 
 source `9aa572cf` 的 `task-human-03` **wholePASS**（session74233→9a4ca7，2026-10-10 16:26:07–16:28:11 UTC）：原 `TestTaskTransitionHuman` 1 top/2 sub 共28.55s，`assignment-config-and-replay` 19.86s、`final-transaction-rollback` 8.68s。真实 prefix40 Project 创建与旧字段更新，经43升级和repeat后旧Project/Audit/Outbox保持、新scheduler为false/unlimited；随后正式Owner配置true/limit2、真实Agent与Work Task从backlog指派todo，同key重放/Lookup不增事实。最终事务marker使实际Task/history/Outbox/receipt及Activity回滚，原planned意图保留。未SQL种业务成功，不证明CurrentSprint/claim/Launch、默认app或完整F1。
 
