@@ -1,5 +1,7 @@
 # Skills 精确 Project Cleanup 当前检查点
 
+- 2026-10-10 跨域 Knowledge 命令 PG/native 方法静审已收口：六测试源以 d504a5ac 为底，作者窄修 Delete 返回完整升序 ID 集合与 native 背压真实 Timeout / 预算下界后有限接受。原 PG01 whole FAIL、旧 native 未运行保留；修后 Mutations|Unknown 两 top 六子和 native02 尚待实际。本人未编译 / PG / socket，报告见 [限定方法审](knowledge-tree-command-review/report.md)。本域 Cleanup 下一必要补集为非 current attempts 超过两批与已发布 Object 的旧 AbandonedAttempt 原 cause；原 65 reader / 66 joined work 不能代该事实。
+
 - 工作树 `/workspace/agenteam-skills-cleanup`，分支 `ai/skills-cleanup`；正式 base `ce65714aac6eb4995a43fc427a2c77e6497470a7`。root组装76路径，2026-10-09作者只读核对 `9f5153` actual0：eaad50fd 的29个Skill Go/8集成源及4个Object初始化专用源、b37f9a49的22个Object Go/7集成源与26/27/28及D05卡、本Skills树最新两D10卡逐字一致；Project/Audit/Knowledge与main完全保留，无额外产品差异。此核对不是组合编译或动态接受。
 - 本轮唯一writer为Skills agent；写域仅 `internal/central/skill` 必要dispatch/新cleanup实现与测试、`tests/skills` 新组合测试、本域D10卡/design及本文。Object/Project/SQL/App/D04只读；共享缺口交原owner，Git操作由root负责。不改00027 FK，不占00028，不恢复Object Runtime join停项。
 - 目标按已独审§16 rev2：真实CleanupAuthority与Release/Object/Purge opaque plan、当前Project Cleaning gate及精确parent/cause/全锁、原子关闭serving与Release、原预算内真实物理终局/私有Audit、32历史推进及D05四anchor与Skill五核心同Tx最终删除；最终全六表空仍须当前授权/实际调用尾。禁止以unbound/stub或假proof报完整Cleanup。
