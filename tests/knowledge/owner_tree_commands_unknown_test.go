@@ -5,9 +5,11 @@ package knowledge_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"testing"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/knowledge"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
@@ -100,6 +102,7 @@ func TestKnowledgeTreeCommandHTTPUnknown(t *testing.T) {
 	t.Run("original_final_rollback_exposes_in_progress_not_a_receipt", func(t *testing.T) {
 		v := newTreeCommandHTTPFixture(t)
 		d := v.makeDocument(t, nil, "pending title")
+		treeCommandOriginalActivityDue(t, v)
 		key := treeMeta(t).IdempotencyKey
 		body := `{"expected_version":"1","title":"after retry"}`
 		var activity *titleFailActivity
@@ -127,8 +130,62 @@ func TestKnowledgeTreeCommandHTTPUnknown(t *testing.T) {
 		receipt := treeCommandLookupState(t, v.lookup(t, d.ID, "update", body, key), "committed")
 		treeCommandDocument(t, receipt["document"], v.current(t, d.ID))
 		final := v.facts(t)
-		if activity.calls != 2 || final.Commands != pending.Commands || final.Events != pending.Events || final.Outbox != pending.Outbox+1 || final.Audit != pending.Audit || !final.Activity.After(pending.Activity) {
-			t.Fatal("same original pending command retry effects")
+		if activity.calls != 2 {
+			t.Fatalf("original Activity calls: got=%d want=2", activity.calls)
+		}
+		if final.Commands != pending.Commands || final.Events != pending.Events || final.Outbox != pending.Outbox+1 || final.Audit != pending.Audit {
+			t.Fatalf("same original pending command retry counts: commands=%d/%d events=%d/%d outbox=%d/%d audit=%d/%d", final.Commands, pending.Commands, final.Events, pending.Events, final.Outbox, pending.Outbox+1, final.Audit, pending.Audit)
+		}
+		if !final.Activity.After(pending.Activity) {
+			t.Fatal("confirmed retry did not advance the explicitly due original Activity")
 		}
 	})
+}
+
+func treeCommandOriginalActivityDue(t *testing.T, v *treeCommandHTTPFixture) {
+	t.Helper()
+	// Real Login created this Session. Account deliberately coalesces activity
+	// within 60s; unlike the old B02 SQL-session fixture, fresh Login is not due.
+	// Move only this original session's two clock fields together under User EX.
+	// Credentials, identity, expiry policy and all business facts stay original;
+	// rollback/retry must still call the real Account authority in the real Tx.
+	actor := v.ownerBrowser.actor
+	accounts, ok := v.deps.Activity.(*account.Authority)
+	if !ok {
+		t.Fatal("original Account authority unavailable")
+	}
+	key, err := f.UserLock(actor.Details().UserID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cause, err := f.NewRecoveryCause("knowledge.commandhttp.activity-clock", knowledgeID(t), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := v.raw.WithinTx(knowledgeContext(t), cause, func(ctx context.Context, tx f.Tx) error {
+		if err := v.raw.AcquireAll(ctx, tx, []f.LockRequest{{Key: key, Mode: f.Exclusive}}); err != nil {
+			return err
+		}
+		if err := accounts.RequireCurrentSession(ctx, tx, actor); err != nil {
+			return err
+		}
+		e, err := v.raw.InTx(tx)
+		if err != nil {
+			return err
+		}
+		var due bool
+		if err = e.QueryRow(ctx, `UPDATE agenteam_account.sessions
+ SET issued_at=issued_at-interval '2 minutes',last_activity_at=last_activity_at-interval '2 minutes'
+ WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL
+ RETURNING last_activity_at<=clock_timestamp()-interval '60 seconds'`, actor.Details().SessionID, actor.Details().UserID).Scan(&due); err != nil {
+			return err
+		}
+		if !due {
+			return errors.New("original session Activity clock precondition not due")
+		}
+		return accounts.RequireCurrentSession(ctx, tx, actor)
+	})
+	if result.State() != f.Committed {
+		t.Fatal("original session clock fixture did not commit", result.Fault())
+	}
 }
