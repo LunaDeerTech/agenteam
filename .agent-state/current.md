@@ -1,5 +1,13 @@
 # 当前执行检查点
 
+## Execution preparation / Task 组合（2026-10-10，有限范围已通过）
+
+- 当前树为 `/workspace/agenteam-agent-system-integration` / `ai/agent-system-integration`；组合源码 `879a7252` 已远端保存，本轮记录待主线程提交。Execution donor恢复记录 `d0f72300` 与 Task donor恢复记录 `5122c1dc` 已推送，实际源仍分别为 `7fc` 与 `b98`；全局迁移 00040 归 Execution owner。
+- Project 3top race＋vet、Execution 6top/6sub（复用pure01）及Task pure02修后6top race＋两包vet按版本组合通过，共15个新top/3包。原pure01 Task编译FAIL、Project门前vet未启均保留；PG测试typed-ID单行修正后compile02/list通过，不回填旧编译失败。
+- `TestExecutionPreparation` 真实1top4sub、31.31s wholePASS（session42916→1e253c）：DDL40 fresh/repeat、39升级与rollback约束、真实Project preparation gate和当前Owner Task读取/Session撤销通过。原Go/driver/sup/outer全Wait0，七资源及private/runtime/desc/TCP全部退出尾闭合，窗口已释放。
+- 本轮不证明PreparationDriver完整capture、Started、真实Task Launch或F1。完整capture仍须全部实际提供方同Tx参与，缺项拒绝且零input；不持久化部分Snapshot。Task指派/状态写及真实启动来源仍缺，backlog可读不等于可启动。
+- 下一项是已只读接受、尚未实施的install-source/Backend构造解耦：真实同Store/ProcessGuard与每call私有handoff保留全部授权，再装配真实SkillService、adapter、Scope/Risk和BuiltinSource；不能用unbound壳或metadata定义冒可调用Backend。
+- 正式main仍为Human Skill有限交付 `18a27db5`；既有21top/10包vet、32–35与37–39 schema及下述Schema核心/适配器8top/两包vet接受范围保留。UI05wholeFAIL停放、旧STOP、生产initializer/F1未绑定与E01未开始不变，整体约30%仅工程粗估。
 
 ## Tool Schema / Runtime 适配器（2026-10-10，有限范围已通过）
 
@@ -8,7 +16,7 @@
 - 只读 `go list -mod=readonly -deps -test` 两目标包实际 0 后，`adapter-03` 一次执行 `go test -mod=readonly -p=2 -race -count=1 -timeout=90s -json -run <result.selector> ./internal/central/tool/schema ./internal/central/tool/runtime`（核心 5＋适配器 3 个精确 top，5.097s），随后同两包 `go vet -mod=readonly -p=2`（1.023s），均实际 0。原准确 argv/selector：`output/ai/tool-schema/adapter-03/result.json`；日志同目录。
 - session `21601` → `b78eb3`；outer/race/vet `861047/861050/861213` 全 Wait0，阶段 fresh `5,760,057,344/5,751,922,688 B`，group/runtime 双空、adopted=[]，`14:44:16Z` 完整尾关闭并归还热 cache。源码未因本轮测试修改；未运行 PG/native 或旧 Runtime 矩阵。
 
-当前持续开发分支为 `ai/product-continuation`；恢复时须显式查询远端 `ai/*`（本地 fetch 可能只跟踪 main）。本提交仅正式交付已独立验收的共享浮层层级及确认关闭后回焦修复，D27与Blocker服务未完成成果保存在活动任务分支。下方为原恢复历史，最新调度以活动分支检查点为准。
+下方保留继承的原恢复历史与失败材料，其中旧分支、环境容量和执行安排仅代表当时截面；当前树与本批结果以上方摘要为准。
 
 - 目标：从环境中断处恢复产品开发，完成 D01–D28 全部能力及 E01 平台内游戏复刻与真实试玩验收。
 - 状态：进行中；Task Planning 规划库、Agent C1、R1 纯身份已正式交付；完整 D11/D27、平台与 E01 未完成。

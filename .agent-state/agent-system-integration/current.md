@@ -1,4 +1,14 @@
-# 当前有限组合：37–39真实事务通过
+# 当前有限组合：00040 preparation 前置真实 PG 通过
+
+source `879a7252` 的 `TestExecutionPreparation` 首次 PG 为 **wholePASS**：固定 1 top / 4 直接 sub，共 31.31s。四项为 `prefix39-upgrade-and-repeat`（14.52s）、`preparation-claim-and-attempt`（2.25s）、`project-preparation-gate`（7.43s）、`current-owner-task-input`（7.10s）。接受范围仅为 00040 fresh/repeat、保留真实 Project 的39→40升级、原事务内显式回滚的 claim/attempt 约束、真实 initialized/active Project gate，以及正式服务创建的 planned/backlog Task 的当前 Owner 完整输入读取、非 Owner 隐藏拒绝和正式 Logout 后 SessionRevoked。Project fixture 仍使用已披露的持久测试 Skills initializer；SQL 约束候选不交给业务服务，不证明 Driver capture、Snapshot、生产初始化或完整 F1。
+
+`preparation-compile-01` 原 FAIL 保留：session66551→77a741、Go877893/outer877869 实际 Wait1；唯一编译错误是测试使用 `id[wc.Sprint]` 而正式 SprintID 使用 `pc.Sprint` 标记。仅该一行窄修，未改产品/场景/断言。原 group/desc/runtime 双尾闭合、659 输入不变，零 PG。修后 `preparation-compile-02` 实际 PASS（57777→8787a7）：race-c 5.804s、exact list 1.067s且唯一 top；Go878686/list878796/outer878682 原 Wait0，659 编译输入及方法初尾一致、group/desc/runtime 双空。候选 `output/ai/agent-system-integration/preparation-race-02.test` 为 51,070,643 B，SHA256 `23e5c0a415d243d536399735aa79d96050afe1d3dd6efdd465f3bb2f51832c86`。
+
+`preparation-01` 实际全尾闭合（session42916→1e253c，UTC2026-10-10 15:06:34–15:08:44）：同进程 fresh 5,652,774,912 B；Go881124/driver879242/supervisor879241/outer879152 原 Wait全0，supervisor127.209s。7资源14次absent、private/runtime/desc/HOST_TCP双尾和outer descendant/TCP双尾全空，无survivor/adopted；1340运行输入初尾一致并包含659编译输入，SHA256 `ac3ad4364fd8b670f413b66a1988e3a0e114084afa13c430e81266f5d62b1423`。窗口和热缓存已释放，无自动重跑。
+
+必要复现指向：本树既有 `output/ai/agent-system-integration/preparation-compile-02-launcher.py` 与 `preparation-launcher-01.py` 沿原成功37–39方法，只替候选、selector和fresh命名；实际环境/命令在同目录 `preparation-01-inputs.json`，原外层结果在 `preparation-01-control/result.json`，原日志 `/tmp/epr01/pg-53f766fb15a24b839c06eca34c88477e.log`。旧编译失败原件为 `preparation-compile-01/{compile.log,result.json}`。任何复现须使用新的输出/private目录并重新获得唯一资源窗口；不覆盖原件。前37–39的已验范围与方法见[既有 README](README.md)，不重跑或升级其结论。
+
+## 已完成的37–39真实事务
 
 - 当前新候选：`TestAgentRuntimeSchema`，1 top / 4 直接 sub，唯一新增 `tests/projectvariable/agent_runtime_schema_test.go`。范围为36→39/fresh/repeat、Runtime attempt/terminal 与父身份约束、Execution active slot/immutable/cancel-wins及真实公共 Launch 缺 Trigger 拒绝、39后真实 Human 安装与 Agent/Human 来源互斥。SQL合成材料只在强制回滚事务内，不被业务服务消费作授权；不冒真实 Agent/Trigger/ToolCall/Snapshot 正向。
 - 基线为 `2045c8bf` 的已验21top有效补集；00038 的text/uuid复合FK不兼容于源静读发现，原owner在 `87a92951` 改自有safe_id为严格UUIDv7 text domain，root只导入该迁移。原FK/regex/Go均保留；这是已修源码问题，不存在可回填的PG失败或通过。
