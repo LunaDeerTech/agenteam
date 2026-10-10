@@ -239,10 +239,17 @@ func TestAgentExecutionConfigurationOriginalAuthorityAndTransaction(t *testing.T
 	if err != original || executionCalls != 1 || s.reads != 0 {
 		t.Fatal("original typed refusal/state replaced or read started", err)
 	}
+	for _, sentinel := range []error{context.Canceled, context.DeadlineExceeded} {
+		providerErr = fmt.Errorf("private-execution-material-canary: %w", sentinel)
+		_, err = adapter.ReadExecutionConfigurationInTx(ctx, s.tx, r)
+		if !errors.Is(err, sentinel) || err != sentinel || strings.Contains(fmt.Sprintf("%+v", err), "private-execution-material-canary") || s.reads != 0 {
+			t.Fatal("wrapped cancellation leaked dependency text or lost its identity")
+		}
+	}
 	providerErr = nil
 	_, err = adapter.ReadExecutionConfigurationInTx(ctx, s.tx, r)
 	requireCode(t, err, f.NotFound)
-	if executionCalls != 2 || s.reads != 1 {
+	if executionCalls != 4 || s.reads != 1 {
 		t.Fatal("authorized Human did not reach original canonical read")
 	}
 	// Public AgentRun construction is still insufficient in both stages. A

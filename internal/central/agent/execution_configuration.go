@@ -25,8 +25,11 @@ func NewExecutionConfiguration(agents *Authority, executions c.ExecutionIdentity
 }
 
 func executionConfigurationError(err error) error {
-	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
-		return err
+	if errors.Is(err, context.Canceled) {
+		return context.Canceled
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return context.DeadlineExceeded
 	}
 	return portError(err)
 }
