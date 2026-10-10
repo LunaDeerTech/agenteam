@@ -1,5 +1,9 @@
 # Work Owner 任务规划界面检查点
 
+跨域独审恢复点：Knowledge content HTTP 验收入口（作者树 `/workspace/agenteam-knowledge-content-http`，基线入口84b9df74及其解释器窄修）有限接受。独立 probe `.agent-state/knowledge-content-review/entry.py` 只运行 Python 文件/事件控制，不执行候选或启动 Go/PG/socket。原7d1d04以 `--expect-interpreter-gap` 明确复现实际 Schema 解释器字节或env路径变化仍被接收；该旧缺口保留。修后89b77e重取作者157控、a254f7独立16控均实际0，解释器仅PG前置/初尾身份纳入，native不强求Schema环境；原两selector、预算、Wait/资源/desc/TCP尾与旧分支不变。
+
+复核命令：`PYTHONDONTWRITEBYTECODE=1 python3 -B .agent-state/knowledge-content-review/entry.py --root /workspace/agenteam-knowledge-content-http`。探针的driver/candidate及原资源观察是显式替身，不能据此称PG4top14sub/native3top6sub已编译或真实通过；原Work08失败与09排队输入不变。
+
 - 活动分支：`ai/work-owner-planning-ui`；当前隔离工作树 `/workspace/agenteam-work-ui`，正式基线 `f1c94ee520e8153e935fea7e7ed269e7e8b9adca`。所有 Git 写入、分支与工作树操作归 root。
 - 目标：已有初始化 Project 当前 Human Owner 的显式 `/tasks/explore` 规划界面，消费已正式交付的 21 项 Work HTTP 能力。普通 Task Kanban、状态流转、指派、Project 创建和生产 SPA 发布不在本卡范围。
 - 当前结果：recovery08（3e64c6f3/ff12技术、binary14/原dist，原session12016）业务FAIL59.18秒；45秒止于spec707归档后refreshProject的原Project GET `finished()`，未读该JSON，未到最终Work联合/schema/client/Go后验。环境切换后原handle丢失，原Go actualWait1与Node/proxy/body/preparation/root join可从原log核实，但driver/outer实际Wait、原reap/七ID双尾/TCP/input缺失，永久保留。恢复仅按manifest原label/nonce清除残余D05两资源，七ID恢复双absent、3private/runtime双清、MinIO无live；四orphan为PPID1 Z且waitpid ECHILD，不补原PASS。root已结束本轮窗口，无新真实授权；必要安全原件`.agent-state/work-owner-planning-ui/recovery-eighth-failure.json`，普通log继续ignored。
