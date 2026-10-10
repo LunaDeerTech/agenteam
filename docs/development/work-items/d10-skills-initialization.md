@@ -18,7 +18,9 @@ Model未参与者另核9产品/3PG源与cleanup-02原节点/全尾（883f34）�
 
 Secret未参与产品实现者已只读核两子方法，原PUT刺激缺口经独立MinIO完整包读取证明补齐后有限接受；原七资源入口已窄增精确新top、两源输入与一父两子结果门，离线入口控制实际通过。root已仅组合D05 `079b74a5` 修后两Stop SQL，保留原P2四处增量；独立窄静审无确认must-fix，候选race-c与精确一top发现实际通过。历史消费者01原session13802/0bf439 **whole FAIL**：一父两子业务6.01s及原Go/driver Wait0，但监督器报告driver结束后尚有后代96693，随后adopted Wait0，不能升级通过。原七资源/三private/runtime/desc/TCP双尾和input不变均闭合，窗口已释放；[原故障日志](../../../.agent-state/skills-cleanup/history-independent-tail-failure.log)保留，PID角色与原因待离线核证，无自动重试。原cleanup-02最后同Tx及Unknown证据按未变范围复用，消费者独立门及完整生产接入仍未闭合。
 
-离线已证原同名GOTELEMETRY环境变量未实际配置Go telemetry mode，不能据此认定96693角色。入口窄修仅在本轮私有配置中于首次Go前写off、去除覆盖旁路，并在原survivor失败点保留安全身份信息；原FAIL/Wait/资源预算保持。六项离线入口控制通过，尚待限定独审及新窗口实际结果；没有产品或fixture关闭改动，不重编原业务候选。
+离线已证原同名GOTELEMETRY环境变量未实际配置Go telemetry mode，不能据此认定96693角色。入口窄修仅在本轮私有配置中于首次Go前写off、去除覆盖旁路，并在原survivor失败点保留安全身份信息；原FAIL/Wait/资源预算保持。六项离线入口控制通过，Skills HTTP对实际差异有限独审接受；没有产品或fixture关闭改动，不重编原业务候选。
+
+历史消费者02在 `8cef9252` 保存后以同业务候选原一top两子实际 **whole PASS**：session42162/2a973b outer0，业务11.71s（native retry5.55s、mapping history6.16s），Go124655/driver122499 Wait0，supervisor142.715s；七资源/三private/runtime/desc/TCP双尾、精确结果与inputs不变齐，无STOP，实际私有mode为off。独立接受真实旧AbandonedAttempt cause与两candidate物理/Audit、显式65本域mapping历史的32/32/1及原Tx FK回滚、最终两域清空/重构重放；原cleanup-02最后同Tx与Unknown按未变范围复用。原01整体FAIL及PID身份未知不回填；此闭合消费者库必要门，不代表65次原生初始化、完整participant/默认root或Runtime join。
 
 ## 已交付 P1
 

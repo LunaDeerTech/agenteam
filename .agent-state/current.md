@@ -1,5 +1,8 @@
 # Skills 精确 Project Cleanup 当前检查点
 
+- **HistoricalAttempts 独立消费者02 whole PASS，原窗口已完整释放。** Skills HTTP对三入口工具实际差异有限独审接受；root保存 `8cef9252` 后授一次原候选/一top两sub/七资源，不重编。same-process UTC03:34:15.654564、fresh15,033,618,432B，新 `pg-history-independent-02/runtime-env-02`、empty Docker config；session42162→2a973b outer实际0，supervisor122498 terminal0/142.715s。原3 RUN/3 PASS（top11.71s，native retry5.55s、mapping history6.16s），Go124655 Wait0、driver122499 Wait0；七ID双absent、三private双absent、runtime/desc/TCP双空、exact结果门及inputs unchanged全齐，无STOP（原材料只读复核33d8c5）。
+- 原日志为 `output/ai/skills-cleanup-independent/pg-history-independent-02/pg-baa63e0aefb34b10a7dbc9ccc57d505d.log`，owned目录同stem；实际task-private go-config仅留0600的 `go/telemetry/mode=off`，无counter。接受范围为固定Skills库＋D05修后两Stop SQL `079b74a5` 的真实失败GET/同key retry/旧AbandonedAttempt cause及物理清除、唯一Audit；另65本域retained mapping显式兼容fixture的32/32/1、当前anchor保留、真实FK/原Tx回滚、最终两域清空和重构重放。消费者必要独立门已闭，原cleanup-02最后4+5同Tx/Unknown在未变范围复用；未声称65次原生初始化、完整Project/participant/root或Runtime join。**原01 whole FAIL及96693角色未知原样保留，02成功不回填其身份或因果。**
+
 - 消费者入口窄修已准备、尚未真实复跑：固定Go1.27.1源码确认 `GOTELEMETRY` 是不可设的go env投影，环境同名 `off` 不会设mode；本轮private下无mode而有counter/upload.token。此为已证配置缺口，**未证明96693身份或原FAIL因果**。仅HistoricalAttempts在driver原exec前创建本次owned目录下 `go-config/go/telemetry/mode`（0600，`off\n`），设置本轮XDG_CONFIG_HOME并清除TEST_TELEMETRY_DIR/GO_TELEMETRY_CHILD/GO_TELEMETRY_CHILD_UPLOAD；不读写用户全局配置，不改产品/fixture关闭/候选/原预算。mode留在owned目录供核，不污染应清空的runtime。
 - 原survivor FAIL门/kill/actual Wait原样；仅该selector在原失败点追加一次comm/state/ppid/starttime/exe basename，缺失/解析失败记null且继续原退役，不读argv/env/完整exe路径、不后台轮询。`7852d4` Python离线controls实际0（6methods）：真实adapter main在明确exec double下核mode先于exec/0600/去旁路、写失败不exec、旧selector及外部受控配置不变；原main两selector各九格doubles保所有尾并新增survivor身份读取失败仍kill/FAIL，逆投影原旧入口/预算保持。未Go/资源实验；三工具停写交Skills HTTP独立终核，原wholeFAIL不可回填。
 
@@ -13,7 +16,7 @@
 
 - 2026-10-10 跨域 Knowledge 命令 PG/native 方法静审已收口：六测试源以 d504a5ac 为底，作者窄修 Delete 返回完整升序 ID 集合与 native 背压真实 Timeout / 预算下界后有限接受。原 PG01 whole FAIL、旧 native 未运行保留；修后 Mutations|Unknown 两 top 六子和 native02 尚待实际。本人未编译 / PG / socket，报告见 [限定方法审](knowledge-tree-command-review/report.md)。本域 Cleanup 下一必要补集为非 current attempts 超过两批与已发布 Object 的旧 AbandonedAttempt 原 cause；原 65 reader / 66 joined work 不能代该事实。
 
-## 剩余 attempt 历史准备（已真实运行 / 整体 FAIL）
+## 剩余 attempt 历史准备（02 完整 PASS / 01 FAIL 保留）
 
 - Model独立补审883f34核9产品/3PG源与cleanup-02原全尾，有限接受现库与实际2top5子，无新已确认产品mustfix；指出真实旧attempt与超过两批映射仍欠验。root已授权本域补集并明确不得为测试擅绑正式unbound RecoverAttemptAccess。
 - 当前真实边界：ReserveUploadInTx对旧closed candidate自身写AbandonedAttempt+原UploadID，可以同key再发布一个current。D05单command未cleaned上限2，本域一个Project只有一套初始化/Skill/Revision/Object，无法自然在当前端口累计65未退休nativeattempt；D05 history fixture的Recover使用其test-only owner，不移植成Skills授权。
