@@ -104,6 +104,7 @@ func (c *runtimeCall) nextAgentAttempt(ctx context.Context) error {
 	c.exchange, c.materialOwned, c.ioRetired, c.handoff, c.startReturned, c.err = nil, false, false, false, false, nil
 	c.mu.Unlock()
 	c.wireFailure, c.result = false, nil
+	c.completedJSON, c.completedJSONError = nil, nil
 	clear(c.text)
 	c.text = nil
 	return c.startRecord(consumer, plan, &next)
