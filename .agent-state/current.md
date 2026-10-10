@@ -77,4 +77,12 @@ output/ai/knowledge-tree-http/independent/knowledge-tree-commands-independent-ra
 PYTHONDONTWRITEBYTECODE=1 python3 -B .agent-state/knowledge-tree-http/independent-selector-controls.py --artifacts
 ```
 
-首次每个新 build invocation 同 process statvfs≥5,368,709,120B/UTC/bytes 后才启动；私有目录先 mkdir 再 Go version，保继承 Node PATH。编译与 list 不执行 top；目前 `--artifacts` 尚不能通过，因为候选未生成。真实 PG 须 root 另授唯一窗口，不重跑旧四作者 PG 或三 native top；新独立补集尚未通过。
+首次每个新 build invocation 同 process statvfs≥5,368,709,120B/UTC/bytes 后才启动；私有目录先 mkdir 再 Go version，保继承 Node PATH。编译与 list 不执行 top；上述是首轮编译前恢复命令，后继实际结果见下。真实 PG 须 root 另授唯一窗口，不重跑旧四作者 PG 或三 native top；新独立补集尚未通过。
+
+### 独立首候选与原 PG 失败（全尾已释放）
+
+- Model 原真实窗口退役后重新 fresh：`94048/e06555→8d8fdd` actual0，UTC2026-10-10T01:03:28.159194Z/5,439,504,384B，固定上述 env 的唯一修后 race-c 0、精确一 top list 0。候选 `independent/knowledge-tree-commands-independent-race-01.test` 为40,703,589B，SHA256 `4819208c96130ecb5222b828877ba2a418c625280f6c5c061a5f06da77d67802`；尾UTC01:03:34.663451Z/5,391,163,392B。原 compile-01 FAIL 和 fresh78保留；compile-02.log/list-02.log/compile-02-result.json 保留在ignored目录。
+- `49451/3b0b83` 实际 `--artifacts` 28控0（26控制加实际固定MinIO configuration/原候选list），未跑业务。Variables只审入口：063e7b复取26控0，独立e4d398的24控/7 actual-main边界替身0，包含资源/private symlink/runtime未退、错Wait/source漂移/driver2，原尾保持；不评价本业务oracle。输入已保存663c5ca3。
+- root fresh START后原 `29379/8961bd→8ebaef` **whole actual1**，102.833s。启动UTC2026-10-10T01:05:00.943117Z/fresh5,424,054,272B，原4819208c与固定MinIO尺寸/fullSHA及Go1.27.1核齐；新 `/tmp/ktc-independent-pg-01`、`/tmp/ktc-independent-env-01` 当场absent，先mkdir私有四目录再核Go。唯一top运行6.53s，在新test原59行 changed-intent Lookup 后 `refusal published a receipt or private field` FAIL；此前 `treeCommandProblem` 已确认原公开 IdempotencyKeyReused。**Owner变更、B正向与旧Actor回执拒绝均未到，不能据A段计补集通过。**
+- 原Go1443331/driver1441203 actualWait均1；七精确ID各双absent、三private双absent/runtime双empty、owneddesc双[]、TCP两个delta_empty、inputs_unchanged=True、actual_test_wait=True齐，原outer1取得后才释放。本人5a1332核原全部尾，两个PID均不存在；没有重试或第二组。原日志 `/tmp/ktc-independent-pg-01/pg-8a333980e7464079891174384fea2d0f.log`，同stem owned.json保存七ID和private。D05 nonce9ecf6079055afe28a10936e76a3ea8bd、D04 93eae4ab57d2d8b4e10155b864dddf19、D03 f480fce832d37a0aa47cb10f3860431a；不重新生成ID补尾。
+- 原失败静源定位：`api/openapi/common.json` Problem要求公开 `title`，`internal/central/httpapi/problem.go`始终由固定problemKind提供summary；新helper错误把此必需公开字段列成Document泄露字段。仅修该helper：保原code/原title-canary全文拒绝和receipt/document/Object/upload/digest/key禁项，允许且要求非空字符串Problem.title。产品、权限情景、原HTTP/SQL/facts、两个工具及control均不改。返修后源不再与旧4819候选相同，旧FAIL不回填，需新候选并经Variables只对schema/privacy判据窄审；尚未重编或真实复验。

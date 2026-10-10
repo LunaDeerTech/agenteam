@@ -118,7 +118,13 @@ func independentTreeCommandRefusal(t *testing.T, response treeCommandHTTPRespons
 	if json.Unmarshal(response.body, &body) != nil || bytes.Contains(response.body, []byte(privateTitle)) {
 		t.Fatal("refusal exposed original receipt material")
 	}
-	for _, field := range []string{"receipt", "document", "title", "object_id", "upload_id", "semantic_digest", "command_key"} {
+	// common.json Problem requires the public summary "title". It is not a
+	// Document title; the original private title is still rejected above.
+	var summary string
+	if json.Unmarshal(body["title"], &summary) != nil || summary == "" {
+		t.Fatal("refusal omitted the required public Problem title")
+	}
+	for _, field := range []string{"receipt", "document", "object_id", "upload_id", "semantic_digest", "command_key"} {
 		if _, exists := body[field]; exists {
 			t.Fatal("refusal published a receipt or private field")
 		}
