@@ -1,6 +1,6 @@
 # D12 Human Owner 文档树管理命令 HTTP
 
-状态：SPEC rev1 已获 Runner 未参与者有限接受；HTTP 产品、相邻 pure 与安全 Schema 已实现。作者 pure/race 10 top、86 sub、标准 Schema 33 向量及同包 vet 通过；产品已获Runner有限独审，精确入口获Vars有限独审；作者PG首轮整体FAIL（12/13子PASS）及末门未打印分项值的边界保留；合法Session时间前置和删除公开ID集合判据经有限独审后，Mutations＋Unknown定向2top/6sub整轮PASS，原Go/driver/outer Wait、七资源双退役、TCP双采和input全尾齐。结合未变Authority三子与Transactions四子，作者4top/13sub按固定输入组合通过，不称当前HEAD单次全量；native及最终动态独立补集未完成。基线为正式 main `ce65714aac6eb4995a43fc427a2c77e6497470a7`，直接消费已经交付的 [B02 Service](d12-b02-knowledge-service.md)、[文档合同](d12-knowledge-documents-design.md)与 Account HTTP boundary。结果是已有文档的改名、移动、删除范围确认与删除，以及原命令结果查证；不含创建、替换正文、上传、正文读取、下载、UI 或生产 root。
+状态：SPEC rev1 已获 Runner 未参与者有限接受；HTTP 产品、相邻 pure 与安全 Schema 已实现。作者 pure/race 10 top、86 sub、标准 Schema 33 向量及同包 vet 通过；产品已获Runner有限独审，精确入口获Vars有限独审；作者PG首轮整体FAIL（12/13子PASS）及末门未打印分项值的边界保留；合法Session时间前置和删除公开ID集合判据经有限独审后，Mutations＋Unknown定向2top/6sub整轮PASS，原Go/driver/outer Wait、七资源双退役、TCP双采和input全尾齐。结合未变Authority三子与Transactions四子，作者4top/13sub按固定输入组合通过，不称当前HEAD单次全量；作者native三top/六子也已整轮PASS，原Wait/private/desc/TCP/input全尾齐；最终未参与者正在按实际结果与已接受独立风险控制收口，尚未正式交付。基线为正式 main `ce65714aac6eb4995a43fc427a2c77e6497470a7`，直接消费已经交付的 [B02 Service](d12-b02-knowledge-service.md)、[文档合同](d12-knowledge-documents-design.md)与 Account HTTP boundary。结果是已有文档的改名、移动、删除范围确认与删除，以及原命令结果查证；不含创建、替换正文、上传、正文读取、下载、UI 或生产 root。
 
 ## 1. 独立包与装配
 

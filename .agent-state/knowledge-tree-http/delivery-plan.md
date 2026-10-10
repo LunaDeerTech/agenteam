@@ -1,6 +1,6 @@
 # Knowledge 树命令 HTTP 有限交付准备
 
-本文件是装配清单，**不是正式接受记录**。目标是向正式 main `4c1db71cf0f86cb6d6330167577944b0466c8664` 添加独立五 POST adapter；不等待完整 D12，也不接默认 root。当前作者 PG/native 均未执行，候选与产品冻结。
+本文件是装配清单，**不是正式接受记录**。目标是向正式 main `fb6ab7f492850bf1d3c025a59acbff381312a989` 添加独立五 POST adapter；不等待完整 D12，也不接默认 root。作者PG修后限定组合4top/13sub及native3top/6sub均已通过并完成原全尾；原PG01整体FAIL保留，最终未参与者收口及主线装配仍待，候选与产品冻结。
 
 ## 正式候选路径（18）
 
@@ -35,7 +35,8 @@
 
 ## 与正式 main 的闭包
 
-- 只读比较实际 `4c1db71c..HEAD`：B02（排除独立 read/command 子包）、Account、Project、Object、Secret、Audit、Outbox、Foundation、Identity、httpapi、postgres、共享 contract、迁移、go.mod/go.sum、common Schema 与原 commitproxy 均无差异。没有上游 WIP 生产依赖或新 SQL。
+- 原作者对4c1的无共享改动闭包复用；再实际只读核 `4c1db71c..fb6ab7f4`：B02/read HTTP、Account、Project、Object、Secret、Outbox、Foundation、httpapi、postgres及原commitproxy仍逐字不变，前17新路径在目标main均不存在（27e166）。Runner新增共享面仅闭集Audit action/producer分派、限定System的RunnerIdentity注册、gorilla/websocket新依赖、00026和默认app的Runner owner；旧Knowledge分派/身份路径未减，00026沿原实际Audit CHECK加Runner分支。不能继续称整个Audit/Identity/SQL/go.mod逐字未变；本模块不回退这些新增main能力，不新增SQL。
+- main新增默认Runner owner在原Account assembly先于Account/DB收尾，原路由由Runner静态闭集分派后回落；本adapter不import app或Runner、不默认注册，装配保留该owner及原root，不因本候选未消费的binding改动自动重编/重跑旧B02或read动态矩阵。
 - main 的 `internal/central/knowledge/http`、`knowledge-owner.json`、三个 `owner_read_http*` 测试及其专属 helper 保留，不能整目录覆盖。新 commandhttp 不 import read HTTP；两个公开 constructor 都只消费正式 B02 Service/Account HTTPBoundary，没有 mutable 注册或生命周期副作用。
 - 当前五命令精确路由不被已交付 read `HandlesPath` 命中；read 的 collection/detail/children/ancestors/search-titles 也不由 command `HandlesPath` 接收。未来默认 root 分派仍归另项唯一 writer，本次不修改 root/共享 HTTP。
 - 三个 main read PG 源与本五命令 PG 源的直接顶层声明静态集合无同名项；这只是静核。正式装配后仍需一次必要 integration 编译/精确发现确认同包组合，不需据此重跑全部 B02/read 动态矩阵。
@@ -46,9 +47,9 @@
 | --- | --- |
 | 规格与产品 | Runner独立接受；作者纯race 10top/86sub、Schema33及vet已过；独立实际adapter/digest/安全投影/原callback join两top九sub已过。未改输入复用。 |
 | 实际入口 | Vars独立接受：作者132及独立37纯控制，精确PG四top十三sub/native三top六sub、旧入口逆差异/预算/完整尾保持；不代资源运行。 |
-| 作者PG | candidate01已race-c/精确四top发现；真实Account/当前Owner、两锁序、同key/历史token、COMMIT Unknown及最终SQL/全部原资源尾尚未实际。 |
-| 作者native | candidate01/driver已编译、精确三top发现；原2s/更早父期限、keepalive、Close失败、背压与断开实际尾尚未实际；Account/domain明确controlled。 |
-| 新测试独审 | 产品审查不包含后增五PG源及native全部测试设计；两处peer-close收紧和入口已审，仍需未参与者核新增实际矩阵及实际结果。必要独立动态补集按明确剩余风险定，不用私有port纯控代真实权限/事务。 |
+| 作者PG | PG01整轮FAIL保留；未变Authority3/Transactions4与修后candidate03的Mutations3/Unknown3定向整轮PASS组合为4top/13sub。PG03 9527→b8dcb4 actual0/117.055s，全部原Wait、七资源双退役、TCP/input齐；不称当前HEAD一次全量。 |
+| 作者native | candidate02＋原driver的3top/6sub已整轮PASS，52400→0b3bce actual0/67.850s；原2s/更早父期限、keepalive、Close失败、背压Timeout/下界与全Close断开取消、原Wait/private/desc/TCP/input齐。Account/domain明确controlled，不称半关闭或PG权限。 |
+| 新测试独审 | Skills已有限接受五PG与native六源方法及两处判据修正；Knowledge已接受Session时间前置和定向2top入口/61控。两实际原结果已交Skills只读最终收口；Runner实现独审2top9sub按不变范围复用，纯控不代真实权限/事务。 |
 | 主线装配 | root精确复制17新路径＋tasks单行，核上游和已交付read保留；同包integration编译/发现及最终有限审查后发布。两作者窗口PASS可启动装配，不能回填旧失败或直接称完整D12。 |
 
 ## 不进入正式结果的恢复项
@@ -57,10 +58,10 @@
 - Runner独审的 `.agent-state/knowledge-tree-http-review/{risk_test.go,run-risk.py,implementation-review.md}` 已在其远端任务分支保存。运行器绑定作者树/原cache且用overlay，当前不复制进正式 main；源码与有限结论可恢复。后继若确需正式动态独立测试，由独审者提供稳定可移植测试，并相应追加明确路径。
 - 既有失败与未验范围留原 current/卡/日志；没有删除旧结果或重标成功。
 
-## 已准备的作者入口
+## 已完成的作者入口与装配边界
 
-PG：本树原 supervisor `--root-chain`、原 `root_chain_driver.py`、`knowledge-tree-commands-race-01.test`，精确 `^TestKnowledgeTreeCommandHTTP(Mutations|Authority|Transactions|Unknown)$`，新 `/tmp/ktc-pg-01`。实际只读配置预检发现本树固定 MinIO 尚缺，root负责恢复同 SHA immutable 文件；不改配置绕过。原 Go6m/root540+60+3/七资源/TCP75与实际Wait/双尾/input保持。
+PG01原四top首轮整体FAIL保留；修后PG03使用candidate03及唯一 `^TestKnowledgeTreeCommandHTTP(Mutations|Unknown)$`，新 `/tmp/ktc-pg-02`，整轮PASS。原Go6m/root540+60+3/七资源/TCP75及全部原Wait/双尾/input保持；未变Authority/Transactions仅按原实际输入复用。
 
-native：本树原 supervisor、已编 `tree-command-native-driver` 与 `knowledge-tree-commands-native-race-01.test`，精确 `^TestTreeCommandsHTTPNative(ReadDeadlines|KeepAliveAndClose|WriteAndDisconnect)$`；真实启动另设未用 output 并获 fresh grant，原 Go90/driver105/outer123+3/TCP75不变。
+native02使用原driver、精确 `^TestTreeCommandsHTTPNative(ReadDeadlines|KeepAliveAndClose|WriteAndDisconnect)$` 与新 `/tmp/ktc-native-01`，原Go90/driver105/outer123+3/TCP75全部尾齐，整轮PASS。两候选尺寸/SHA、原命令及完整固定env见current；无自动后继执行授权。
 
-两候选尺寸/SHA及完整固定 Go/off/cache 环境见本树 current。任何实际启动均须本人同process fresh ≥5GiB、UTC/bytes flush 与root新授权；没有本文件授权的自动执行。
+最终main装配仍由root唯一writer执行；只复制17新路径并最小增加tasks单行，不覆盖read HTTP或Runner新增root/共享闭集。必要同包integration编译/精确发现与未参与者最终有限审查完成后才正式发布。

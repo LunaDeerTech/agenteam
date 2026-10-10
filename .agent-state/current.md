@@ -1,7 +1,7 @@
 # Knowledge 文档树管理命令 HTTP 接续
 
 - 工作树 `/workspace/agenteam-knowledge-tree-http`，分支 `ai/knowledge-owner-tree-http`，正式基线 `ce65714aac6eb4995a43fc427a2c77e6497470a7`。唯一负责人 `/root/work_ui`；Git/真实资源调度归 root。
-- [SPEC rev1](../docs/development/work-items/d12-knowledge-owner-tree-http.md)已获 Runner 未参与者有限接受。四个 commandhttp 产品源（handler/input/wire/io）、四个相邻纯测试与独立 OpenAPI 已实现；作者 pure/race 10 top、86 sub 与标准 Schema 33 向量通过，同包 vet 通过。实现已获Runner有限独立接受（2top/9sub实际race0），作者PG首轮整体FAIL保留；修后Mutations＋Unknown定向整轮PASS，与未变Authority/Transactions原实际结果组成4top/13sub限定通过。本域native尚未运行，最终动态独立补集未完成。范围为 title-only Update、Move、PrepareDeleteSubtree、DeleteSubtree 与原意图 Lookup 的独立 HTTP adapter。
+- [SPEC rev1](../docs/development/work-items/d12-knowledge-owner-tree-http.md)已获 Runner 未参与者有限接受。四个 commandhttp 产品源（handler/input/wire/io）、四个相邻纯测试与独立 OpenAPI 已实现；作者 pure/race 10 top、86 sub 与标准 Schema 33 向量通过，同包 vet 通过。实现已获Runner有限独立接受（2top/9sub实际race0），作者PG首轮整体FAIL保留；修后Mutations＋Unknown定向整轮PASS，与未变Authority/Transactions原实际结果组成4top/13sub限定通过。本域native三top六sub也已完整PASS；最终未参与者正按实际结果和已接受的独立风险控制收口。范围为 title-only Update、Move、PrepareDeleteSubtree、DeleteSubtree 与原意图 Lookup 的独立 HTTP adapter。
 - 已与 Knowledge read HTTP 负责人确认路由无交叠；新 `internal/central/knowledge/commandhttp` 独立构造、IO/DTO/Schema，不依赖或修改其未验 read 实现。只消费正式 B02/Account；不改领域产品/迁移/共享 root，不含上传、正文或生产生命周期绑定。
 - 唯一新增写域见卡 §6；四个产品源已由 `3a063234` 保存；pure/Schema束已 `f1a1bd45` 保存且技术冻结；后继只新增本域PG/native测试。root已批准原Work缓存上的定向pure/race/vet，首次同进程fresh磁盘≥5GiB才启动；不新增GB cache，不启动 PG/browser/socket。
 - 有限实际结果：pure 第二次实际启动 `19023` / `29d4f9` exit 0（3.543s）；首次 marker 类型名 `oc.Object` 编译失败 `63e42e` exit 1 已以正式 `oc.StoredObject` 修复，后续磁盘不足 `ee2f6f` exit 78 未启动 Go，均不回填。标准 Schema `2cb198` 33 向量无失败；同包 vet `75741` / `85896b` actual 0。没有本域在途命令。
@@ -15,7 +15,7 @@
 - 矩阵限定五POST的真实改名/移动/删除与Lookup、当前Owner/归档/Session、两个Owner锁顺序与同key两Session、实际取消退出，以及原完整COMMIT帧代理的未转发/已提交丢响应和已plan最终回滚的in_progress。SQL效果和安全HTTP投影分别核对；native deadline/connection不由这些capability recorder证明。未知/失败原事实不改写。
 - 该5源及本文已 `7fee6d3c` 保存。首同process UTC23:52:46.748858Z/5,560,705,024B 后原cache实际race-c `6269`→`75e170` actual0，candidate01=40,648,125B/SHA256 `6f9e06baf4437b899fdb373361e222b7793cca90f881830a1da9d0a69c88a226`；同命令实际-list恰四top、actual0。主机后采5,341,958,144B，低于门槛；TMP零子目录，无在途命令。后续native候选仍等待fresh恢复。不执行PG/native/socket，不改已独审产品/纯测试/Schema。
 
-- `internal/central/knowledge/commandhttp/native_test.go` 使用integration tag＋显式native env门，3top/6sub拟验原生慢body/更早父deadline、正常keepalive、原Close失败、响应背压及断开取消原call。两处零响应检查仅接受原Read的EOF或ECONNRESET，timeout不能冒连接关闭。独占监听/连接/Serve/handler均要求原实际尾；Account/domain明确controlled，不能代真实身份/PG/defaultroot。native尚未运行，PG首轮结果见下节。
+- `internal/central/knowledge/commandhttp/native_test.go` 使用integration tag＋显式native env门，3top/6sub拟验原生慢body/更早父deadline、正常keepalive、原Close失败、响应背压及断开取消原call。两处零响应检查仅接受原Read的EOF或ECONNRESET，timeout不能冒连接关闭。独占监听/连接/Serve/handler均要求原实际尾；Account/domain明确controlled，不能代真实身份/PG/defaultroot。native原实际结果见末节，PG首轮结果见下节。
 - native候选与driver已串行离线构建：`79908`→`93cb7f` 原owner实际exit0，race-c、精确list、driver build各actual0。native01 `output/ai/knowledge-tree-http/knowledge-tree-commands-native-race-01.test` 为19,123,996B/SHA256 `91d1db8f3ee3eeba4f4a433504275f35a65060a92fa90970496d565571f77b92`；driver `output/ai/knowledge-tree-http/tree-command-native-driver` 为4,857,367B/SHA256 `359384f465d26acb48ed72a3b878e7553e7b8d96a29ea8b227eedc5bb08fb9a1`。原固定env/cache下，命令为 `go test -c -race -tags=integration -o output/ai/knowledge-tree-http/knowledge-tree-commands-native-race-01.test ./internal/central/knowledge/commandhttp`，该binary `-test.list '^TestTreeCommandsHTTPNative(ReadDeadlines|KeepAliveAndClose|WriteAndDisconnect)$'` 恰3top，继以 `go build -o output/ai/knowledge-tree-http/tree-command-native-driver .agent-state/work-owner-http/native_driver.go`。每次启动Go前同process fresh≥5GiB：UTC00:01:25.001357Z/5,737,144,320B，driver前5,713,465,344B，尾5,708,484,608B；主机净降28,659,712B不全归本构建，TMP零子目录、无在途命令。
 - PG与native的三个精确入口工具及selector-controls已保存并冻结，作者132离线控制及Vars独立37负控均通过、有限接受；旧入口逆投影与原预算不变：PG原Go6m/root540+60+3/7资源/TCP75，native原Go90/driver105/outer123+3/TCP75。候选和list只是准备，须root另授真实窗口，不自动启动。
 
@@ -38,4 +38,10 @@
 
 - `9527`→`b8dcb4` 原outer actual0，117.055s，唯一 `^TestKnowledgeTreeCommandHTTP(Mutations|Unknown)$` 2top/6sub完整PASS；Mutations7.33s、Unknown17.42s。原启动UTC2026-10-10T00:44:40.210078Z，同process available5,450,321,920B≥5GiB，candidate03与固定MinIO尺寸/SHA、继承Node PATH及新输出absent均核齐；全部输入冻结，没有自动重跑或native续跑。
 - Go1417828/driver1416054原actualWait均0；七exact IDs各两轮absent、private双absent/runtime双empty/desc双[]、HOST_TCP两次delta_empty、inputs_unchanged=True，以及exact_tops/tree_commands_exact/actual_test_wait均齐。日志 `/tmp/ktc-pg-02/pg-2cd352f2538145f7bbcd89f675642d9a.log`；本人原terminal与尾核对完成，窗口已释放，无自有在途命令。
-- 原PG01整体FAIL及其末门缺分项值永久保留；本次不回填原值。仅组合未变Authority三子、Transactions四子与本次修后Mutations/Unknown六子，形成作者4top/13sub的固定输入有限通过，不称当前HEAD单次全量。native02与最终未参与者动态补集仍待各自授权/验收；产品、预算、原B02/Account边界不变。
+- 原PG01整体FAIL及其末门缺分项值永久保留；本次不回填原值。仅组合未变Authority三子、Transactions四子与本次修后Mutations/Unknown六子，形成作者4top/13sub的固定输入有限通过，不称当前HEAD单次全量。该次PG结束时native02尚待后继授权，其实际结果见下节；产品、预算、原B02/Account边界不变。
+
+## 作者 native 实际结果
+
+- native02原 `52400`→`0b3bce` outer actual0，67.850s，精确 `^TestTreeCommandsHTTPNative(ReadDeadlines|KeepAliveAndClose|WriteAndDisconnect)$` 3top/6sub完整PASS；Read2.16s、KeepAlive2.11s、Write2.13s，其中新增原Write Timeout与至少3/4预算门实际2.12s通过。原启动UTC2026-10-10T00:49:17.131702Z，同process available5,409,759,232B≥5GiB，native02与原driver尺寸/SHA、继承Node PATH和新 `/tmp/ktc-native-01` absent均核齐，没有重试或PG并跑。
+- child1422975原Wait0、driver1422968原Wait0/7.457s，runtime_empty/private_removed、desc两轮[]、tree_commands_exact、HOST_TCP两次delta_empty及inputs_unchanged=True均齐；本人原terminal与尾 `519485` 已核，窗口释放、无自有在途命令。日志 `/tmp/ktc-native-01/pg-87731d1f665a4a1cbb33325eb9548141.log`。native仅原TCP全Close，Account/domain端口controlled，不能冒half-close或真实PG权限。
+- Skills已收到两轮原日志与PG01不变七子入口，按其六源方法独审、Runner独立2top/9sub实际风险控制与当前作者结果作最终有限收口；不把原PG01整体FAIL改为PASS。交付目标现为正式Runner main `fb6ab7f492850bf1d3c025a59acbff381312a989`，原18路径清单不扩root/SQL；仍须root装配与同包编译，未宣布正式交付。
