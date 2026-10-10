@@ -91,3 +91,19 @@ func (ExecutionModelCaptureFacts) Format(w fmt.State, _ rune) {
 func (ExecutionModelCaptureFacts) LogValue() slog.Value {
 	return slog.StringValue("execution_model_capture_facts")
 }
+
+// Discovery observation settles only the original returned discovery call.
+// It cannot return a usable plan or retry a writer. Pending (including absent
+// records) never proves rollback. ReadOnly certifies an original preflight
+// with no writes; Prepared certifies the exact original durable intention.
+type ModelCaptureObservation string
+
+const (
+	ModelCapturePending  ModelCaptureObservation = "pending"
+	ModelCaptureReadOnly ModelCaptureObservation = "read_only"
+	ModelCapturePrepared ModelCaptureObservation = "prepared"
+)
+
+type ExecutionModelCaptureObserver interface {
+	ObserveExecutionModelDiscovery(context.Context, ExecutionModelCaptureRequest, error) (ModelCaptureObservation, error)
+}
