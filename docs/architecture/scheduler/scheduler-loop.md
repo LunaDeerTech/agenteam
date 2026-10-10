@@ -594,7 +594,7 @@ SystemSchedulerDefaults
 
 ### 14.1 显式 retry policy 库的当前边界
 
-`internal/central/scheduler/retry_policy.go` 已提供冻结的有限库实现，本批纯检查尚未执行。`NewLaunchRetryPolicy(maxAttempts, initialBackoff, maxBackoff)` 必须显式传入三个参数，满足 `maxAttempts≥1` 和 `0<initialBackoff≤maxBackoff`；没有默认值、环境变量或配置加载。不可变值的 `NextDelay(attemptCount)` 把首次 Launch 计为第1次：首次失败延迟为 initial，后续按 `min(initial×2^(attemptCount−1), max)` 计算并安全封顶；达到或超过上限返回无重试额度。零/负 attempt 拒绝，不使用 jitter、时钟、sleep 或 timer worker。
+`internal/central/scheduler/retry_policy.go` 已提供经有限独审的库实现，三个定向 top 已纳入本批组合 race 通过，Scheduler 包 vet 通过。`NewLaunchRetryPolicy(maxAttempts, initialBackoff, maxBackoff)` 必须显式传入三个参数，满足 `maxAttempts≥1` 和 `0<initialBackoff≤maxBackoff`；没有默认值、环境变量或配置加载。不可变值的 `NextDelay(attemptCount)` 把首次 Launch 计为第1次：首次失败延迟为 initial，后续按 `min(initial×2^(attemptCount−1), max)` 计算并安全封顶；达到或超过上限返回无重试额度。零/负 attempt 拒绝，不使用 jitter、时钟、sleep 或 timer worker。
 
 `Identity()` 仅给出固定 `capped_exponential_v1` 算法与三个精确参数（duration 为整数纳秒）的摘要，不证明某个 Dispatch 已持久绑定该 policy。库不识别 Fault/RetryHint，不证明已确认未创建，不把 Unknown 或 AgentBusy 转为耗尽。调用方仍须先取得真实暂时失败分类；无额度也不直接授权修改 Task 或 Dispatch。
 

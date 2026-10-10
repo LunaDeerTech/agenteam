@@ -1,6 +1,6 @@
 # D11 Task transition 与 reviewer 工程规格
 
-> 状态：工程规格、T0a/T0b 纯契约已独立接受。Human `backlog→todo`、真实当前 Agent/占用/调度前置及对应 HTTP 已有限交付；完整流转、AgentRun/reviewer 与生产装配仍未完成。本批新增 Human `blocked→todo` 同事务解除 Blocker 的源码已冻结，纯检查和真实组合验证尚未完成，见 §1.1。
+> 状态：工程规格、T0a/T0b 纯契约已独立接受。Human `backlog→todo`、真实当前 Agent/占用/调度前置及对应 HTTP 已有限交付；新增 Human `blocked→todo` 同事务解除 Blocker 已通过有限源码独审、定向纯检查和真实组合验证，见 §1.1。完整流转、AgentRun/reviewer 与生产装配仍未完成。
 >
 > 前置：[Task planning](d11-task-planning.md) 的规划库已正式交付并独立验收。本卡运行服务还须满足 §13 的真实 Agent/Blocker/执行前置；下述新增纯契约、状态决策及兼容方案可以分别审查，不因整个 Agent/Executor 尚未实现而全部停工。
 >
@@ -35,7 +35,7 @@
 
 前向 `00048_task_unblock.sql` 增加 `resolved_transition_operation_id` 指向原 transition command，并与旧 standalone resolution parent 严格互斥；不改旧迁移或创建来源。新增 plan 仅在存在解除时保存完整 Blocker before/after 与来源，旧 backlog plan/receipt 编码保持兼容。沿原 `work.task_transitioned` schema 1 记录 state、可选 assignee、排序后的 resolutions 和独立 comment；支持读取已解决 technical 不等于允许 Human 创建 technical 或用 standalone 命令解除。
 
-当前仅已冻结实现，尚无本批动态通过结论。最小真实验收分别由现 HTTP 的 TLS 正向/原 key 重放链，以及独立 caller Tx 在 `TransferTaskInTx` 全部写入后返回哨兵的真实 rollback/同 key 恢复链承担；`InTx` receipt 在外层 commit 前只是 tentative。原 planned intent 可保留，Unknown 仍沿原 key/digest Lookup，不自动重发。完整状态矩阵、生产绑定和 Scheduler retry 不由本切片完成。
+本批组合16个定向 top 的 race 与四包 vet 通过；真实 TLS 正向/原 key 重放链及独立 caller Tx 全写后哨兵 rollback/同 key 恢复链，共2 top/2 sub 整轮通过，原进程退出、资源和全部尾门均闭合。`InTx` receipt 在外层 commit 前只是 tentative；rollback 保留原 planned intent 而不发布完成回执。Unknown 仍沿原 key/digest Lookup，不自动重发。完整状态矩阵、生产绑定和 Scheduler retry 不由本切片完成；原准备失败与候选复用依据保留在恢复记录，不改写为编译整轮通过。
 
 ## 2. 完整边表、Actor 与提交不变量
 
