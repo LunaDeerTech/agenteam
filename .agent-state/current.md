@@ -1,7 +1,9 @@
 # D05 bounded metadata cleanup 当前检查点
 
 - 下一有限历史单组入口已保存384551f3：`^TestObjectMetadataCleanupOldAttemptsAndStopHistory$`（1top、无子）。两tools各+1，原8f8658纯控制与预算/全尾复用。但Work静审发现成功出口未核实际deadline、proxy.finished早于原Body.Close/wg.Done；root据此撤销历史测试直接复用旧候选的准备状态，允许窄修及后继新候选。原37180277B/完整SHA保留为旧未修输入，不冒修后源码的已编或业务证据；该top从未真实运行。
-- 历史返修仅 `tests/objects/metadata_cleanup_history_test.go`：首Stop、物理Delete及历史专用Stop循环在原成功返回时核原2s/总3s绝对deadline；本域helper保原40轮/5ms，不改其他已验case的共享fixture。原GET观察改等真实proxy.wg（包含原response.Body.Close及handler尾）再进入后续Stop/Release/Delete，保原2s尾并拒晚成功；既有proxy源码不改。543fdb仅gofmt/static/diffcheck通过，未Go编译或业务；当前冻结交Work返修复核，需另获编译/实际窗。
+- 历史返修仅 `tests/objects/metadata_cleanup_history_test.go`：首Stop、物理Delete及历史专用Stop循环在实际返回时核原2s/总3s绝对deadline；历史循环对允许继续的ResourceBusy同样拒绝晚返（Work复核指出后补齐），本域helper保原40轮/5ms，不改其他已验case的共享fixture。原GET观察改等真实proxy.wg（包含原response.Body.Close及handler尾）再进入后续Stop/Release/Delete，保原2s尾并拒晚成功；既有proxy源码不改。543fdb当时仅gofmt/static/diffcheck通过；最后Busy期限口收紧后Work f6aa82有限接受，无剩余mustfix。后继新候选编译如下，业务仍未运行。
+
+- 新history候选已定向离线编译：45007/56bbe0→8ec389 actualexit0；fixedGo1.27.1、offline/local/readonly/-p1/原Knowledge cache/继承PATH，首sameprocess UTC2026-10-10T00:27:06.689445Z、available5705973760B≥5GiB，300s总限内完成 `go test -mod=readonly -p=1 -tags=integration -race -c -o output/ai/object-metadata-cleanup/metadata-cleanup-history-race.test ./tests/objects`，再该候选 `-test.run=^$ -test.list=^TestObjectMetadataCleanupOldAttemptsAndStopHistory$` 恰一top，两命令actual0。新candidate37,188,152B，SHA256 `08eee6ea8d7e238fb6baff7d3134e6713acc269f549f438a0458d199b2346554`；末00:27:15.656803Z、available5614272512B，全机净变化不归因cache。旧37,180,277B候选保留；没有执行业务/fixture/socket，无命令在途。history后继只能用此修后候选，入口384551f3及原预算/全尾不变。
 
 - 本组范围是65原failed attempt真实恢复、1001已关闭reader之后的第1002 held reader、原Stop/实际join、Release重放保旧cause/nativeAudit唯一。其四EXPLAIN是在方法返回后保留历史但pending已空的观测；不会补活项/五lane/全部FK或22索引成本结论。完整成本矩阵仍按卡§7.2后续准备，当前不改生产/28或其它停止项。
 

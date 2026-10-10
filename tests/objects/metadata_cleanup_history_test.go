@@ -179,8 +179,8 @@ func metadataHistoryStopUntilSettled(t *testing.T, f *objectAuditFixture, actor 
 		report, err := f.service.RequestProjectStop(ctx, actor, cause)
 		returned := time.Now()
 		cancel()
-		if err == nil && (returned.After(deadline) || returned.After(totalDeadline)) {
-			t.Fatal("Stop returned success after its original call or total deadline")
+		if returned.After(deadline) || returned.After(totalDeadline) {
+			t.Fatal("Stop returned after its original call or total deadline")
 		}
 		if err == nil && report.Details().State == oc.ProjectStopped {
 			return
