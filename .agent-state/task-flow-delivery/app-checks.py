@@ -70,11 +70,14 @@ def race_summary(path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--cache", type=Path, required=True)
+    parser.add_argument("--vet-only", action="store_true")
     args = parser.parse_args()
+    commands = COMMANDS[1:] if args.vet_only else COMMANDS
     cache = args.cache
     if not cache.is_absolute() or not cache.is_dir() or cache.resolve() != cache:
         parser.error("an existing coordinator-assigned absolute cache is required")
-    out = ROOT / "output/ai/task-flow-delivery/app-pure-01"
+    out = ROOT / ("output/ai/task-flow-delivery/app-vet-02" if args.vet_only
+                  else "output/ai/task-flow-delivery/app-pure-01")
     out.mkdir(parents=True, exist_ok=False)
     out.chmod(0o700)
     runtime = out / "runtime"
@@ -99,7 +102,7 @@ def main():
         "AGENTEAM_WORK_HTTP_SCHEMA_PYTHON": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
     })
     # Preserve normal HOME/TLS; fixed offline/private values above override Go state.
-    result = {"outer_pid": os.getpid(), "started_utc": utc(), "selector": SELECTOR,
+    result = {"outer_pid": os.getpid(), "started_utc": utc(), "selector": None if args.vet_only else SELECTOR,
               "cache": str(cache), "source": None, "phases": [], "whole_pass": False}
     code = 1
     try:
@@ -107,7 +110,7 @@ def main():
             ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
         if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
             raise OSError(ctypes.get_errno(), "subreaper unavailable")
-        for name, command in COMMANDS:
+        for name, command in commands:
             stat = os.statvfs(ROOT)
             available = stat.f_bavail * stat.f_frsize
             phase = {"name": name, "available_bytes": available, "argv": command}
