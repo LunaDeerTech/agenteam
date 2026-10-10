@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestSchedulerExecution$': frozenset({
+        'TestSchedulerExecution',
+        'TestSchedulerExecution/historical-association-terminal-and-dedup',
+        'TestSchedulerExecution/asynchronous-todo-and-cancel-join',
+    }),
     '^TestExecutionFirstRound$': frozenset({
         'TestExecutionFirstRound',
         'TestExecutionFirstRound/completed-one-turn',
