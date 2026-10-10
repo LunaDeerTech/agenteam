@@ -28,23 +28,42 @@ type InstallSchemaValidator interface {
 	ValidateInstallOutputInTx(context.Context, f.Tx, tc.SpecRef, json.RawMessage) error
 }
 
-type InstallExecutor struct{ data func() installExecutorData }
+type InstallExecutor struct{ data func() *installExecutorData }
 type installExecutorData struct {
-	authority *InstallAuthority
-	schemas   InstallSchemaValidator
-	adapter   *builtin.SkillInstallAdapter
+	core       *Service
+	permission *authorization.Service
+	source     *installSourceState
+	schemas    InstallSchemaValidator
 }
 
-func NewInstallExecutor(authority *InstallAuthority, service builtin.SkillInstallService, schemas InstallSchemaValidator) (*InstallExecutor, error) {
-	if authority == nil || authority.data == nil || nilPort(service) || nilPort(schemas) {
+// NewInstallExecutor consumes the same concrete backend registered by Source.
+// Execution/current authorization and schemas are fixed here, never supplied by
+// a caller DTO or mutable binding. An unavailable Execution provider may prevent
+// constructing this executor without preventing truthful backend registration.
+func NewInstallExecutor(core *Service, permission *authorization.Service, source *InstallSource, schemas InstallSchemaValidator) (*InstallExecutor, error) {
+	if core == nil || core.data == nil || permission == nil || source == nil || source.data == nil || nilPort(schemas) {
 		return nil, fail(f.DependencyUnbound)
 	}
-	adapter, err := builtin.NewSkillInstallAdapter(service, authority)
-	if err != nil {
-		return nil, err
+	backend := source.data()
+	if backend == nil || backend.authority == nil || backend.authority.data == nil || backend.service == nil || backend.adapter == nil {
+		return nil, fail(f.DependencyUnbound)
 	}
-	d := installExecutorData{authority, schemas, adapter}
-	return &InstallExecutor{data: func() installExecutorData { return d }}, nil
+	if !sameInstallInstance(core.data().store, backend.authority.data().store) {
+		return nil, fail(f.InvalidArgument)
+	}
+	d := &installExecutorData{core: core, permission: permission, source: backend, schemas: schemas}
+	return &InstallExecutor{data: func() *installExecutorData { return d }}, nil
+}
+
+func (h *installHandoff) boundExecutor(authority *installAuthorityState) bool {
+	if h == nil || authority == nil || h.issuer != authority || h.executor == nil {
+		return false
+	}
+	e := h.executor
+	return e.core != nil && e.core.data != nil && e.permission != nil && !nilPort(e.schemas) &&
+		e.source != nil && e.source.authority != nil && e.source.authority.data != nil &&
+		e.source.authority.data() == authority && e.source.service != nil && e.source.adapter != nil &&
+		sameInstallInstance(e.core.data().store, authority.store)
 }
 
 // InstallOutcome is the durable observed terminal projection. It is not a
@@ -89,9 +108,9 @@ func (e *InstallExecutor) ExecuteInstall(ctx context.Context, prepared PreparedO
 		return out, err
 	}
 	d := e.data()
-	a := d.authority.data()
+	a := d.source.authority.data()
 	callCtx, cancel := context.WithCancel(ctx)
-	h := &installHandoff{issuer: a, record: r, cancel: cancel, ctx: callCtx, done: make(chan struct{})}
+	h := &installHandoff{issuer: a, executor: d, record: r, cancel: cancel, ctx: callCtx, done: make(chan struct{})}
 	a.mu.Lock()
 	if a.stopped || a.active[r.ID] != nil {
 		stopped := a.stopped
@@ -149,7 +168,7 @@ func (e *InstallExecutor) ExecuteInstall(ctx context.Context, prepared PreparedO
 		return out, err
 	}
 	permissionInput := authorization.InstallInput{Binding: b, Call: call, Fingerprint: r.Fingerprint}
-	permissionPlan, err := a.permission.DiscoverInstall(callCtx, permissionInput)
+	permissionPlan, err := d.permission.DiscoverInstall(callCtx, permissionInput)
 	if err != nil {
 		return out, portError(err)
 	}
@@ -189,7 +208,7 @@ func (e *InstallExecutor) ExecuteInstall(ctx context.Context, prepared PreparedO
 	h.live = true
 	h.mu.Unlock()
 	witnessCtx := context.WithValue(callCtx, installHandoffKey{}, installHandoffContext{a, h})
-	backendResult, backendErr := d.adapter.Execute(witnessCtx, call, request)
+	backendResult, backendErr := d.source.adapter.Execute(witnessCtx, call, request)
 	// The original synchronous adapter, Service and its owned physical cleanup
 	// have actually returned. Stop cannot convert this event into an earlier join.
 	h.mu.Lock()

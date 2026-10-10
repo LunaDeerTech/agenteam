@@ -126,10 +126,16 @@ func (v installTerminal) validate(h *installHandoff) error {
 }
 
 func startInstallAttempt(ctx context.Context, d *installAuthorityState, h *installHandoff, schemas InstallSchemaValidator, raw []byte) f.CommitResult {
-	store := d.core.data().store
+	store := d.store
 	return store.WithinTx(ctx, h.cause, func(ctx context.Context, tx f.Tx) error {
 		x, err := store.InTx(tx)
 		if err != nil {
+			return portError(err)
+		}
+		if !h.boundExecutor(d) {
+			return fail(f.Forbidden)
+		}
+		if _, err = h.executor.core.data().store.InTx(tx); err != nil {
 			return portError(err)
 		}
 		if err = store.AcquireAll(ctx, tx, h.locks); err != nil {
@@ -142,7 +148,7 @@ func startInstallAttempt(ctx context.Context, d *installAuthorityState, h *insta
 		if err != nil || process != d.process {
 			return fail(f.DependencyUnavailable)
 		}
-		if err = d.permission.AuthorizeInstallInTx(ctx, tx, h.input, h.permission); err != nil {
+		if err = h.executor.permission.AuthorizeInstallInTx(ctx, tx, h.input, h.permission); err != nil {
 			return portError(err)
 		}
 		if err = schemas.ValidateInstallInputInTx(ctx, tx, h.binding.Spec, raw); err != nil {
@@ -195,10 +201,16 @@ func requireRunningInstall(ctx context.Context, x postgres.SQLExecutor, d *insta
 }
 
 func finishInstallAttempt(ctx context.Context, d *installAuthorityState, h *installHandoff, schemas InstallSchemaValidator, terminal *installTerminal) f.CommitResult {
-	store := d.core.data().store
+	store := d.store
 	return store.WithinTx(ctx, h.cause, func(ctx context.Context, tx f.Tx) error {
 		x, err := store.InTx(tx)
 		if err != nil {
+			return portError(err)
+		}
+		if !h.boundExecutor(d) {
+			return fail(f.Forbidden)
+		}
+		if _, err = h.executor.core.data().store.InTx(tx); err != nil {
 			return portError(err)
 		}
 		if err = store.AcquireAll(ctx, tx, h.locks); err != nil {
