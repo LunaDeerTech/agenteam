@@ -6,6 +6,7 @@ import (
 	"io"
 	"log/slog"
 	"sync"
+	"time"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
@@ -31,6 +32,7 @@ type runtimeState struct {
 	store                        Store
 	authority                    *RuntimeAuthority
 	deps                         RuntimeDependencies
+	agentTiming                  *mc.AgentRetryTiming
 	mu                           sync.Mutex
 	initializing, ready, stopped bool
 	process                      oc.ProcessID
@@ -44,6 +46,24 @@ type runtimeAdmission struct {
 }
 
 func NewRuntime(store Store, authority *RuntimeAuthority, deps RuntimeDependencies) (*Runtime, error) {
+	return newRuntime(store, authority, deps, nil)
+}
+
+// NewRuntimeWithAgentRetry opts into the explicit Agent text retry profile.
+// It does not supply the consumer authority or bind an Execution runtime.
+func NewRuntimeWithAgentRetry(store Store, authority *RuntimeAuthority, deps RuntimeDependencies, timing mc.AgentRetryTiming) (*Runtime, error) {
+	if timing.Validate() != nil {
+		return nil, fault(f.InvalidArgument)
+	}
+	// The existing text adapter has an overall 120s bound and a 60s idle bound.
+	// Reject an unsupported configured profile before registering this Runtime.
+	if timing.Fields().MaxRequestTimeout > 120*time.Second {
+		return nil, fault(f.CapabilityUnsupported)
+	}
+	return newRuntime(store, authority, deps, &timing)
+}
+
+func newRuntime(store Store, authority *RuntimeAuthority, deps RuntimeDependencies, timing *mc.AgentRetryTiming) (*Runtime, error) {
 	if nilPort(store) || authority.state() == nil || !sameStore(store, authority.state().store) || nilPort(deps.Usage) || nilPort(deps.SecretReader) || nilPort(deps.SecretUsage) || deps.Adapter == nil {
 		return nil, fault(f.DependencyUnbound)
 	}
@@ -53,7 +73,7 @@ func NewRuntime(store Store, authority *RuntimeAuthority, deps RuntimeDependenci
 	if a.runtime != nil {
 		return nil, fault(f.ResourceBusy)
 	}
-	s := &runtimeState{store: store, authority: authority, deps: deps, calls: make(map[mc.CallID]*runtimeCall), admissions: make(map[*runtimeAdmission]struct{})}
+	s := &runtimeState{store: store, authority: authority, deps: deps, agentTiming: timing, calls: make(map[mc.CallID]*runtimeCall), admissions: make(map[*runtimeAdmission]struct{})}
 	a.runtime = s
 	return &Runtime{data: func() *runtimeState { return s }}, nil
 }
