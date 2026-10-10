@@ -32,7 +32,7 @@ func readLocks(a i.Actor, p c.ProjectID) []f.LockRequest {
 	return locks
 }
 func (s *Service) GetVariable(ctx context.Context, a i.Actor, p c.ProjectID, id c.VariableID) (c.Variable, error) {
-	ctx, _, done, e := s.begin(ctx)
+	ctx, _, done, e := s.beginProject(ctx, p, readCall)
 	if e != nil {
 		return c.Variable{}, e
 	}
@@ -136,7 +136,7 @@ func pageToken(keys cursor.Keyring, b cursor.Binding, gen int64, v c.VariableSum
 }
 func (s *Service) ListVariables(ctx context.Context, a i.Actor, p c.ProjectID, q f.PageRequest) (f.Page[c.VariableSummary], error) {
 	empty := f.Page[c.VariableSummary]{}
-	ctx, _, done, e := s.begin(ctx)
+	ctx, _, done, e := s.beginProject(ctx, p, readCall)
 	if e != nil {
 		return empty, e
 	}
