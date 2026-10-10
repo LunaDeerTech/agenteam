@@ -6,6 +6,6 @@
 - 首phase PG候选39670→e47133 race-c/list实际0：Go567801/list567945原Wait0，exact `TestProjectLifecycleLocalStopRound` 恰一top、源3sub，runtime空。固定candidate-phase-01/project-phase-stop.test为37,379,760 B，完整SHA和命令见既有本域README。accepted只是明确上游夹具，stopping/claim由真实引擎写；首轮phase PG已整体FAIL，见下一项。
 - 私有run.py/entry-controls.py/README新增固定phase scope，复用原driver和共享sup全部预算/资源/Wait尾，不写shared。3项新增离线控687f49实际0，实际main/observer/初尾输入调用而OS边受控；旧6方法AST未改不重跑。完整439输入已实枚举，core与PG方法获非作者有限接受，新入口最终独审已有限接受。旧PG通过只代表旧输入。
 - 首phase实际来源1ccbc56b：session41634→d62a41整体FAIL，全尾已释放；top12.07s两FAIL一PASS、Go579413/driver578850/outer578847原Wait1，两资源双退役/private仅owned.json/desc与TCP双空/439inputs相同/STOP0。测试两处after hook误以Recovery.Owner筛真实JobCause，导致phase持有和rollback注入未命中；两过滤已窄修为真实JobCause四项身份，非作者有限接受；原产品/断言未改，不追认PASS。详细原件与安全事实在既有README。
-- 两hook修已由root本地保存6b91f717，远端push当时失败，未声称已远端。入口仅PHASE_BINARY改独立candidate-phase-02路径，逐字复位验证原entry相同；旧selector/cases/controls/预算无改。新candidate02尚未编译/list，等Rename原窗口全尾释放后再同启动fresh门执行，PG02未授权。
+- 两hook修6b91f717当时push失败；修复与入口准备后来随065598c2已保存远端。入口仅PHASE_BINARY改独立candidate-phase-02，逆变原entry逐字相同。新candidate02 race-c/list83514→d45aac实际0，Go586304/list586410原Wait0、exact恰一top，37,381,608 B/SHA4dd8bdb3…1672f6a6，runtime双空。旧selector/cases/controls/预算不变，未重pure/vet，PG02尚未授权/运行。
 - coordination唯一写本树获授4新Project源、3PG源、私有3入口、原卡及本current；不写creation recovery、app、ProjectAudit/Model facts、共享UI harness、迁移或锁文件。00031由Model Runtime独占。全部Git由root执行。
 - 当前无本人Go/真实资源在途。固定Go1.27.1、private实际telemetryoff/去旁路、shared modules只读、自有cache、同启动fresh>=5GiB保持。下一phase PG需新方法/入口冻结与root独占fresh grant；不继承旧窗口，不自动重试。

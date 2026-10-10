@@ -67,11 +67,11 @@ python3 -B .agent-state/project-variable-lifecycle/run.py \
 有界源码定位：两个测试after hook错误筛选`CauseDetails.Owner`；实际driver使用`NewJobCause`，正式字段是`Kind=JobCause`、`JobType=project-lifecycle`及原JobID/JobAttemptID，Owner仅属于RecoveryCause。因此phase持有与回滚注入均未被触发。这是测试方法缺口，不能把原FAIL升级成产品PASS。修后状态见下段；原FAIL不追认，尚无修后动态结论。
 
 
-### 修后 candidate02 准备（尚未编译/未运行）
+### 修后 candidate02 已编译/list通过（真实PG未运行）
 
-两处hook已窄修为原`Kind=JobCause`、`JobType=project-lifecycle`、`JobID=OperationID`及合法`JobAttemptID`；非作者实际diff有限接受，产品、全部断言、第三fencing子例与预算均未改。该单源修由root本地保存`6b91f717`，当时两次远端推送失败，不记为已远端。为保留原FAIL产物，run.py仅将PHASE_BINARY字面值改为`output/ai/project-variable-lifecycle/candidate-phase-02/project-phase-stop.test`，复位该唯一字面值后与原entry逐字相同；selector/cases/controls/原sup/driver均不变，不另重跑矩阵。
+两处hook已窄修为原`Kind=JobCause`、`JobType=project-lifecycle`、`JobID=OperationID`及合法`JobAttemptID`；非作者实际diff有限接受，产品、全部断言、第三fencing子例与预算均未改。该单源修由root本地保存`6b91f717`，当时两次远端推送失败；后来该修复与入口准备已随`065598c2`保存远端，不改写原推送失败事实。为保留原FAIL产物，run.py仅将PHASE_BINARY字面值改为`output/ai/project-variable-lifecycle/candidate-phase-02/project-phase-stop.test`，复位该唯一字面值后与原entry逐字相同；selector/cases/controls/原sup/driver均不变，不另重跑矩阵。
 
-candidate02尚未生成或列举；新编译须等当前Rename资源原全尾释放并重新满足同启动fresh>=5GiB/privateoff/readonly modules。编译/list实际通过后才使用以下固定入口，并另等root新PG窗口；不会覆盖candidate-phase-01、旧日志或原失败结论。
+source `065598c2` 的candidate02现已race-c/list实际通过（83514→d45aac，outer586303、Go586304/list586410原Wait0），compile6.139s、fresh5,634,961,408 B，list前重新fresh5,589,934,080 B，runtime两次空。唯一列举`TestProjectLifecycleLocalStopRound`；新binary37,381,608 B，SHA256 `4dd8bdb36756011224eae6553adb652b78bdd4257ae70d9429e34d2d1672f6a6`。没有运行测试正文、PG或重跑pure/vet。以下固定入口仍待root新PG窗口，不会覆盖candidate-phase-01、旧日志或原失败结论。
 
 ```sh
 python3 -B .agent-state/project-variable-lifecycle/run.py \
