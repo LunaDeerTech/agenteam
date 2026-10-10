@@ -69,3 +69,5 @@ Read首真实组沿同固定产物/402输入，42579→f4ef34 actualouter1/80.22
 返修dfc0de53仅三Secret测试：提前冻结原no-op查询，局部归档fixture使用同statement稳定时间并同Tx重新验真实Project门；旧ordinary/生产/DDL/入口未改，Runner限定静审接受。新完整包race编译95963→ae7f0a actual0，新pure1top2sub d36685 actual0，实际list恰六原top与该pure共7；不代真实SQL。root396f25校验后原子推广9a514c候选（36,744,919B，完整身份见current），退休无旧队列的d52；03bd driver和原日志未变，新403输入/`sql-owner-read-02`尚未执行，read01FAIL与MigrationPASS保持原组合边界。
 
 Read修后同原组69141→d31012完整actualouter0/83.806s，新9a514c/03bd/403输入下六节点全PASS（CurrentAuthority7.45s、Persistence6.60s）：实际当前授权、prepare后Archive、只读生命周期原历史与新写拒绝、CRUD/type名称隔离、删除后新Session/Service恢复及安全输出检查完成。原Go/driver Wait0、PG两ID双退役、private/runtime/desc/TCP与inputs完整尾齐，窗口已释放，详情见current和原read02日志。保留read01FAIL且不回填其未采时间因果；原迁移PASS复用，AtomicFacts/Concurrency和CommitRecovery仍待各自fresh窗口，整库/正式连续迁移交付未完成。
+
+AtomicFacts＋Concurrency原36671→5b10f7完整actualouter0/84.147s，同固定9a514c/03bd/403输入，十节点全PASS（7.61s/5.88s）。四个实际事实边界注错后的精确回滚，以及同key同/异义、同expected更新/删除、ordinary/Secret名称竞争的原backend/锁屏障与调用返回均通过；原Go/driver Wait0、PG两ID双退役、private/runtime/desc/TCP/input完整尾齐，窗口已释放。只剩CommitRecovery五节点真实组待单独授权；旧FAIL/各版本结果保持，不宣称完整Owner或正式前缀交付。
