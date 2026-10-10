@@ -214,7 +214,7 @@ Object Audit 的13源已独立验收并提交推送 `a716ae2a16bc24c115d0207557c
 3. 在该授权事务内按固定 ordinary→Secret 锁序捕获对应本实例原调用指针，锁只包住内存快照，不跨 Commit 或外部 I/O。Archive 捕获 mutation（包括原 confirmation），保留合法 Get/List/Lookup；Delete 捕获本 Project 的 read 和 mutation；其他 Project 与 control 都排除。
 4. 只有原 `WithinTx` 实际返回 Committed，且入口原 ctx 仍有效，RequestStop 才在各服务原 mutex 下标记捕获且仍登记的原 call 为 stop-requested，取消其原 ctx 和已登记 confirmation。NotCommitted/Unknown、授权或锁失败均返回原安全错误和零报告，**零取消、零 stop-requested 标记**；不因重读当前行“看起来存在”改判原 Unknown。
 5. 两个原 confirmation 都在 `context.WithoutCancel` 后登记，故其现有同 mutex 准入必须同时检查 `service.stopped || originalCall.stopRequested`：Stop 先发生时，后来登记的原 confirmation 立即取消；confirmation 先登记时由 RequestStop 取消。保原三秒确认预算、原 CommitResult/Unknown 语义，不能以 lifecycle 取消抹成 committed/not-committed。
-6. RequestStop 不等待 I/O；取消后原 call 仍留在 calls 集合。只有原调用函数（包括同步 confirmation）实际返回并执行原 done，才退出登记。InspectStop 每次重新执行第1–3步的真实当前授权与原 Commit 判据，只读观察原指针是否仍登记，不再取消；仍登记即 PendingCalls>0/LocalJoined=false。即便 ctx 已取消、Tx token 已失效或 SQL 结果已返回，也不提前 join。
+6. RequestStop 不等待 I/O；取消后原 call 仍留在 calls 集合。只有原调用函数（包括同步 confirmation）实际返回并执行原 done，才退出登记。InspectStop 每次重新执行第1–3步的真实当前授权与原 Commit 判据，不再取消；在确认提交后同一双 mutex 下统计当前本实例所有匹配 scope/action 的调用，仍登记即 PendingCalls>0/LocalJoined=false。COMMIT 期间新登记的同范围调用也阻止 LocalJoined，但不能被旧授权快照追认取消。即便 ctx 已取消、Tx token 已失效或 SQL 结果已返回，也不提前 join。
 7. 提供方的每次方法自身登记进两 Service 的 control 调用并沿原 ctx 传播，保证进程级 Stop/Drain 不能越过仍在途的授权事务。现全服务 Stop/Drain 仍覆盖全部调用、仍不关闭共享 Store/D04/Account。不会用全服务 Stop 实现单 Project 停止。
 
 stop-requested 只附在被授权捕获的原 call 上，不永久封闭整个 Project 本地实例；新调用继续经过现有真实 Project gate。首轮不声称本地 map 空能证明 foreign process 死亡；未来完整 participant 必须另落实跨实例事实及原事务终局，不能复用 LocalJoined 直接报告全域 stopped。
@@ -232,3 +232,8 @@ stop-requested 只附在被授权捕获的原 call 上，不永久封闭整个 P
 ### 集中保留的后继缺口
 
 生产 initializer 仍 unbound。后继尚需：D08 lifecycle claim/phase worker；Variables 普通/Secret 的真实 cleanup 与跨进程终局；Skills+已启用 Variables 的完整组合；四个基础真实 adapter 及当前已启用 Work/Knowledge/Usage 等域的停止与清理；最后真实共享 guard。既有 00013 已包含 lifecycle manifest/participants/work_claims，可供独立 D08 推进者消费；本切片不占新迁移、不扩真实 phase authority，不删除 required 项或注册空处理器。Object Runtime join 原 STOP 保持，不能由本实例退出证据解除。
+
+### 本切片当前恢复状态
+
+- 核心 provider 与原调用登记已实现；独立静审有限接受。首纯测试编译因测试比较非 comparable LockKey 失败，原 FAIL 保留；修为正式 Mode/CompareLockKeys 后作者 9 top / 20 sub race 实际通过。
+- 首 PG 候选仅 race-c 与精确单 top list 实际通过；1 top / 3 sub 方法沿上述规范 phase fixture，真实 PG 尚未运行。独有 [恢复入口](../../../.agent-state/project-variable-lifecycle/README.md) 沿原两资源 supervisor/driver，实际授权与退出门不变。
