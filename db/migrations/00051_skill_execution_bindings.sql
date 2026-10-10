@@ -41,15 +41,19 @@ CREATE TABLE agenteam_skill.execution_bindings (
 );
 CREATE INDEX skill_execution_revision_protection ON agenteam_skill.execution_bindings(project_id,skill_id,revision_id);
 
+-- +goose StatementBegin
 CREATE FUNCTION agenteam_skill.immutable_execution_binding() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='immutable Skill execution binding';
-END $$;
+END;
+$$;
+-- +goose StatementEnd
 CREATE TRIGGER skill_execution_head_immutable BEFORE UPDATE ON agenteam_skill.execution_binding_heads
  FOR EACH ROW EXECUTE FUNCTION agenteam_skill.immutable_execution_binding();
 CREATE TRIGGER skill_execution_binding_immutable BEFORE UPDATE ON agenteam_skill.execution_bindings
  FOR EACH ROW EXECUTE FUNCTION agenteam_skill.immutable_execution_binding();
 
+-- +goose StatementBegin
 CREATE FUNCTION agenteam_skill.check_execution_binding_set() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE key_id agenteam_skill.safe_id; expected bigint; actual bigint; seq bigint;
 BEGIN
@@ -64,16 +68,10 @@ BEGIN
   END IF;
  END IF;
  RETURN NULL;
-END $$;
+END;
+$$;
+-- +goose StatementEnd
 CREATE CONSTRAINT TRIGGER skill_execution_head_complete AFTER INSERT OR DELETE ON agenteam_skill.execution_binding_heads
  DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION agenteam_skill.check_execution_binding_set();
 CREATE CONSTRAINT TRIGGER skill_execution_set_complete AFTER INSERT OR DELETE ON agenteam_skill.execution_bindings
  DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION agenteam_skill.check_execution_binding_set();
-
--- +goose Down
-DROP TABLE agenteam_skill.execution_bindings;
-DROP TABLE agenteam_skill.execution_binding_heads;
-DROP FUNCTION agenteam_skill.check_execution_binding_set();
-DROP FUNCTION agenteam_skill.immutable_execution_binding();
-ALTER TABLE agenteam_skill.revisions DROP CONSTRAINT skill_revision_capture_identity;
-ALTER TABLE agenteam_skill.agent_assignments DROP CONSTRAINT skill_assignment_capture_identity;
