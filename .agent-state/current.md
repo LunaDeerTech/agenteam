@@ -1,5 +1,7 @@
 # Registry 配置前置当前恢复点
 
+- 当前有效 regexp2 已统一为 v1.12.0；复用 AgentSystem `f8962895` 的同 core 5＋adapter 3 项 race 与两包 vet 实际 PASS，旧 v1.11 记录保留为原版本结果。
+
 - 树：`/workspace/agenteam-tool-registry`，分支 `ai/tool-registry`，基线 `728cd45a`。Registry 实现归 cleanup；新增 `tool/builtin/skill_install*.go` 六文件归 work_ui，当前均停写。所有 Git 操作归 root。
 - 首四路径已保存 `1d60e34f`，目录/Agent 引用及九项必要纯控已保存 `51d4b299`；两个编码问题修复已保存 `27a42f5e` 并获非作者有限静审接受。canonical bytea/完整回读与严格 Unicode 转义保留；原静态问题事实不升级或回填。
 - 范围与工程契约见 [D18 卡 §10](../docs/development/work-items/d18-tool-name-projection.md#10-registry-配置前置实施中)。Registry 仅 Builtin metadata/current/配置目录及同 Tx Agent refs；无安装 Backend 时 production install-skill 未绑定。NameTable、执行器、既有 tools STOP 不变。

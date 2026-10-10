@@ -3,7 +3,7 @@ module github.com/LunaDeerTech/agenteam
 go 1.27.1
 
 require (
-	github.com/dlclark/regexp2 v1.11.0
+	github.com/dlclark/regexp2 v1.12.0
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/minio/minio-go/v7 v7.3.0
 	github.com/pressly/goose/v3 v3.28.0
