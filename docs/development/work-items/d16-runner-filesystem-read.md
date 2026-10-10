@@ -1,6 +1,6 @@
 # D16 Linux Workspace 文件读取库
 
-状态：有限 SPEC 已获非作者范围接受，首实现与必要测试已冻结待保存、检查和实际源审。当前仅本地库，不提供生产 Runner operation；完整 D16、真实 Mount 和 D18 接入未完成。基线为 main `3a7a3fb5`。
+状态：有限 SPEC 已获非作者范围接受，首实现及本包作者 race/vet 已通过，产品与测试冻结待实际源独审。当前仅本地库，不提供生产 Runner operation；完整 D16、真实 Mount 和 D18 接入未完成。基线为 main `3a7a3fb5`。
 
 ## 1. 依据与交付范围
 
@@ -61,4 +61,13 @@ Drain 先 Stop，等全部登记的原调用完成，再实际关闭 root 副本
 
 ## 6. 当前验证记录
 
-v1 及 Stop/seal、fd 单次关闭两项补充已落为本卡，非作者 Secret 对完整 SPEC 范围有限接受，无 must-fix；6 个本地链接与格式检查通过。首四实现文件和两测试文件已落盘并格式化，尚未编译或运行，也未获实际源独审。测试明确区分真实临时文件 I/O、受控短 pread/消失条目、受控 held 原调用及模拟关闭错误；不把 syscall 替身当 kernel 故障实证。后续结果按有限输入记录，原失败保留。
+v1 及 Stop/seal、fd 单次关闭两项补充已落为本卡，非作者 Secret 对完整 SPEC 范围有限接受，无 must-fix；6 个本地链接与格式检查通过。首四实现文件和两测试文件经 gofmt 并保存为 `446df69c`，该冻结来源在 Linux/amd64、Go1.27.1 上一次执行以下必要命令，均实际退出0：
+
+```sh
+go test -race -count=1 -timeout=60s ./internal/runner/filesystem
+go vet ./internal/runner/filesystem
+```
+
+原 session59851→976c7a，包内 race 1.211s；包含冷编的原 test 55.696s、vet 19.703s。Go428120/431200及 outer428106 均实际 Wait0，总75.409s；同进程启动可用6,106,914,816 B，私有 telemetry off、只读模块 cache、自有构建 cache，原 runtime 两次为空。原可重建日志/result 在 `output/ai/d16-linux-filesystem/check-01/`。没有自动重试或任何 PG/socket/mount/network；本轮没有编译或业务失败。
+
+测试明确区分真实临时文件 I/O、受控短 pread/消失条目、受控 held 原调用及模拟关闭错误；不把 syscall 替身当 kernel 故障实证。原 borrowed fd、contained/escaping symlink、FIFO拒读、UTF-8/原字节、独立offset和目录fd覆盖本地边界。真实子 mount/特殊device、macOS/其它架构以及生产 Mount/RPC 均未验证。当前只完成作者检查，实际源独审尚待；后续结果按有限输入记录，原失败保留。
