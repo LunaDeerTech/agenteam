@@ -48,10 +48,10 @@ func installationOwnerLocks(row installationRow, actor id.Actor, intent id.Acces
 	if row.validate() != nil {
 		return nil, unavailable(nil)
 	}
-	if intent == id.Read && row.phase == installationPublished {
+	if intent == id.Read && row.phase == installationPublished && actor.Details().Kind == id.Human {
 		return oc.NormalizeAccessLocks([]f.LockRequest{userLock(user.String(), f.Shared), projectLock(row.project, f.Shared), skillLock(row.skill, f.Shared), objectLock(row.object, f.Shared)})
 	}
-	if user != row.user || intent != id.Read && intent != id.Mutate {
+	if !row.matchesActor(actor) || intent != id.Read && intent != id.Mutate {
 		return nil, fault(f.Forbidden)
 	}
 	return row.locks(f.Exclusive)
@@ -65,6 +65,19 @@ func (a *Authority) checkInstallationOwner(ctx context.Context, tx f.Tx, actor i
 	locks, err := installationOwnerLocks(row, actor, intent)
 	if err != nil {
 		return err
+	}
+	locks, err = a.installExecutionLocks(ctx, actor, row.project, locks)
+	if err != nil {
+		return err
+	}
+	if actor.Details().Kind == id.AgentRun {
+		call, e := a.installCall(ctx, actor, row.project)
+		if e != nil {
+			return e
+		}
+		if !row.matchesExecution(call) {
+			return fault(f.Forbidden)
+		}
 	}
 	if err = state.store.RequireHeldLocks(ctx, tx, locks); err != nil {
 		return portError(err)
@@ -136,6 +149,10 @@ func (a *Authority) authorizeInstallation(ctx context.Context, actor id.Actor, o
 	if err != nil {
 		return oc.OwnerAuthorization{}, err
 	}
+	locks, err = a.installExecutionLocks(ctx, actor, row.project, locks)
+	if err != nil {
+		return oc.OwnerAuthorization{}, err
+	}
 	command, err := row.identity()
 	if err != nil {
 		return oc.OwnerAuthorization{}, err
@@ -172,17 +189,17 @@ func installationAccess(row installationRow, request oc.AccessRequest) error {
 	if err != nil || !d.Owner.Equal(owner) {
 		return fault(f.Forbidden)
 	}
-	user, err := installationActor(d.Actor)
+	_, err = installationActor(d.Actor)
 	if err != nil {
 		return err
 	}
 	if d.Kind == oc.ObjectReadAccess {
-		if d.Intent != id.Read || row.phase != installationPublished || d.ObjectID != row.object || d.Operation != oc.StatAccess && d.Operation != oc.ReadAccess {
+		if d.Actor.Details().Kind != id.Human || d.Intent != id.Read || row.phase != installationPublished || d.ObjectID != row.object || d.Operation != oc.StatAccess && d.Operation != oc.ReadAccess {
 			return fault(f.Forbidden)
 		}
 		return nil
 	}
-	if d.Kind != oc.OwnerAccess || user != row.user {
+	if d.Kind != oc.OwnerAccess || !row.matchesActor(d.Actor) {
 		return fault(f.Forbidden)
 	}
 	preparedMatches := func() bool {
@@ -244,7 +261,10 @@ func (a *Authority) discoverInstallation(ctx context.Context, request oc.AccessR
 	if err = installationAccess(*row, request); err != nil {
 		return oc.AccessDependencies{}, err
 	}
-	return installationDependencies(*row, request.Details().Actor, request.Details().Intent)
+	if err = a.installationExecutionAccess(ctx, *row, request); err != nil {
+		return oc.AccessDependencies{}, err
+	}
+	return a.executionInstallationDependencies(ctx, *row, request.Details().Actor, request.Details().Intent)
 }
 
 func (a *Authority) validateInstallation(ctx context.Context, tx f.Tx, request oc.AccessRequest, expected oc.AccessDependencies) error {
@@ -263,7 +283,10 @@ func (a *Authority) validateInstallation(ctx context.Context, tx f.Tx, request o
 	if err = installationAccess(*row, request); err != nil {
 		return err
 	}
-	current, err := installationDependencies(*row, d.Actor, d.Intent)
+	if err = a.installationExecutionAccess(ctx, *row, request); err != nil {
+		return err
+	}
+	current, err := a.executionInstallationDependencies(ctx, *row, d.Actor, d.Intent)
 	if err != nil {
 		return err
 	}
