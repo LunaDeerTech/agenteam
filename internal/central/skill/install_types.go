@@ -2,7 +2,6 @@ package skill
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
@@ -109,15 +108,7 @@ func installSemantic(project id.ProjectID, user id.UserID, input installInput) (
 	if project.Validate() != nil || user.Validate() != nil || input.validate() != nil {
 		return "", invalid()
 	}
-	raw, err := json.Marshal(struct {
-		Format, Project, User, Skill, Name, Normalized, Description string
-		Package, Manifest                                           f.Digest
-		Size                                                        f.Progress
-	}{"skill.install.v1", project.String(), user.String(), input.skill.String(), input.name, input.normalized, input.description, input.packageDigest, input.manifestDigest, input.size})
-	if err != nil {
-		return "", unavailable(err)
-	}
-	return sum(raw), nil
+	return installationSemantic(project, user, input.skill, freezeInstallation(input))
 }
 
 // InstallReceipt is emitted only after the original publication transaction is
