@@ -182,6 +182,11 @@ def inverse(name, source: str) -> str:
     """Remove only the frozen D13 additions; reject any other source change."""
     if name not in SOURCE_HUNKS or not isinstance(source, str):
         raise ValueError('unknown shared source')
+    # Model restores the whole accepted main source before the original D13
+    # inverse. Its import defines functions only and does not import this file.
+    if "'^TestModelTextRuntimePersistentWire$'" in source:
+        model_entry = load('d13_model_inverse', '.agent-state/model-text-runtime/entry-controls.py')
+        source = model_entry.inverse(name, source)
     restored = reverse_source(source, SOURCE_HUNKS[name])
     if hashlib.sha256(restored.encode()).hexdigest() != BASE_SHA[name]:
         raise ValueError('unrecognized main baseline change')
@@ -204,7 +209,13 @@ def source_binding():
         current = (ROOT / relative).read_text()
         check(inverse(relative, current).encode() == baseline, 'exact original source restoration')
         reject_inverse(relative, current + '\n# unknown delta\n')
+        # Mutate D13's own fixed hunks after verifying and removing the later
+        # Model delta; its log-read tuple otherwise overlaps this old hunk.
+        if "'^TestModelTextRuntimePersistentWire$'" in current:
+            model_entry = load('d13_model_mutation_base', '.agent-state/model-text-runtime/entry-controls.py')
+            current = model_entry.inverse(relative, current)
         for _, added in hunks:
+            check(current.count(added) == 1, 'D13 mutation hunk occurs exactly once')
             reject_inverse(relative, current.replace(added, '', 1))
             reject_inverse(relative, current + added)
     reject_inverse('unknown.py', (ROOT / DRIVER).read_text())

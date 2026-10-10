@@ -135,7 +135,7 @@ class EntryControls(unittest.TestCase):
         exec(compile(inverse(DRIVER, (ROOT / DRIVER).read_text()), DRIVER, 'exec'), old)
         self.assertEqual(driver.TARGETS[parser_entry.SELECTOR], 'tests/knowledge')
         self.assertEqual({k: v for k, v in driver.TARGETS.items()
-                          if k not in (SELECTOR, parser_entry.SELECTOR)}, old['TARGETS'])
+                          if k not in (SELECTOR, parser_entry.SELECTOR, '^TestModelTextRuntimePersistentWire$')}, old['TARGETS'])
         self.assertEqual(sup.budgets(True), (540, 60))
         self.assertEqual(sup.budgets(False), (123, 3))
 

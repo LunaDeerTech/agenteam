@@ -16,6 +16,7 @@ GO = Path('/workspace/toolchains/go1.27.1/bin/go')
 MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 TARGETS = {
+    '^TestModelTextRuntimePersistentWire$': 'tests/model',
     '^TestKnowledgePlainTextParserIntegration$': 'tests/knowledge',
     '^TestProjectSecretVariablesDefaultRoot$': 'internal/central/app',
     '^TestKnowledgeOwnerReadWeb$': 'internal/central/app',
@@ -71,6 +72,19 @@ def input_paths(binary):
                  'lifecycle_cleanup_history_proxy_test.go'):
         paths.add(REPOSITORY / 'tests/skills' / name)
     paths.add(REPOSITORY / '.agent-state/project-variables-independent/commitproxy/proxy.go')
+    return sorted(paths)
+
+
+def model_runtime_inputs(binary):
+    # The fixed candidate compiles every same-package Model fixture. The two
+    # real wire probes and their declared method remain mandatory inputs.
+    paths = set(input_paths(binary)) | set((REPOSITORY / 'tests/model').glob('*.go'))
+    paths.update(REPOSITORY / name for name in (
+        'tests/model/runtime_persistence_test.go', 'tests/model/runtime_native_test.go',
+        '.agent-state/model-text-runtime/first-wire-method.md',
+        '.agent-state/model-text-runtime/entry-controls.py'))
+    if any(not p.is_file() or p.is_symlink() or p.resolve(strict=True) != p for p in paths):
+        raise ValueError('regular complete Model Runtime inputs required')
     return sorted(paths)
 
 
@@ -255,6 +269,8 @@ def main():
                 'AGENTEAM_FIXTURE_OWNED_RECORD': str(directory / 'owned.json'),
                 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime)})
     if args.run == '^TestSkillLifecycleCleanupHistoricalAttempts$':
+        prepare_history_go_environment(directory, env)
+    if args.run == '^TestModelTextRuntimePersistentWire$':
         prepare_history_go_environment(directory, env)
     if args.run == KNOWLEDGE_UI:
         prepare_history_go_environment(directory, env)
