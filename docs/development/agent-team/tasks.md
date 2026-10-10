@@ -5,7 +5,9 @@
 - root已将 `fb84a892a7d07bb6f82a28c2be7505af47ea9d38` 正式推送main并核exact tip：D05/Skills Cleanup、Skills与Knowledge正文HTTP、D04/SecretOwner库和连续00028..00030已有限交付；不带Work/Knowledge UI或新Secret HTTP，不称完整D04/D05/D08/D10/D12完成。本协调树已35d83f18同步该main，KnowledgeUI基线已0658c54f同步，原未验Model材料保留。
 - 默认生产initializer已撤回并保持unbound，完整participant/guard规则未变。旧649e业务PASS与规范拒绝分别保留；0747修后root02原全部退出尾PASS只接受默认拒绝/13项零事实、显式test-only真实端口fixture退休后的既有数据读取/Avatar/退出。
 - 原66普通包、remaining两vet/全race/两cmd build，加修后Audit整包ordinary/race构成适用最终验证集合；撤回后10pure/43sub、新根及两app vet/两build按变化补验。原check01/02和diagnosticFAIL保留；后继编译记录wrapper的set序列化FAIL不抹除其三命令Wait0，也不后补原runtime/desc门。
-- Work R13记录2b8b9947只闭作者Recovery有限门，独立Recovery/Authority及整卡仍未完成；root已授修后e194a772 Recovery03唯一真实窗口，实际启动/结果待报告，本窗不执行Authority。SecretHTTP作者PG01及native01均已wholePASS（native53268→52a3bd，1top2sub38.49s、总100.561s及全部原尾齐），独立动态/默认根仍未验。KnowledgeUI受控7spec/166项及完整vue-tsc/私有build51976实际0，独立actualdiff与新真实Go/browser链未完；Work planning9writes尚未实跑。各活跃树的owner/用途与历史材料保留原因见本树current。
+- Work R13记录2b8b9947仍只闭作者Recovery门。Planning04（68d146f9）wholeFAIL，第二次Milestone排序的原finished等至45秒，总159.052s、所有原尾齐/STOP0，九类写及Go持久后验未到；Planning05窄计划dd1b已审，实施为offline WIP。独立Recovery03同样wholeFAIL（93510→630857，总197.446s/原双尾齐），末验证超时、晚observerErrors=3不回推首因；Recovery04 WIP、Authority01原FAIL保留，整Work矩阵未闭。
+- SecretHTTP作者PG01/native01原wholePASS基础上，新默认root作者01已wholePASS：70248→9ba821、1top2sub9.78s/总129.960s、原所有Wait0，七资源/private/runtime/desc/TCP双尾及703输入齐。只接受既有Project的Secret CRUD/ordinary兼容与原calls退出门；默认生产initializer仍unbound，独立动态、F1/完整生命周期与新HTTP正式交付未闭。
+- Knowledge UI受控7spec/166项、完整vue-tsc/私有build通过；a76e97c3候选race-c/Go单top及PW单case发现均实际0，首编译/list失败保留。D12入口首8控漏root expected接线被独审拒绝，修后9控含真实observer组合、driver --check实际0并获有限复审、保存bd970b97；root已授首read-author01独占窗口，尚无真实验收终态。原后端有限main交付不替代新UI验收，各线owner/用途及历史材料保留原因见本树current。
 - 临时backend-owner-delivery用途已完成，writer停、status含ignored空、HEAD同远端main，root已普通remove/branch-d且核本地tree/ref与远端分支为空；本批其余五旧库树清理调查停止，因ignored必要历史材料尚未全闭而保留，不批量删除。其余全局STOP与E01未开始保持。
 
 以下固定阶段记录按当时来源保留，旧“仍待”不覆盖本轮正式交付；领域当前范围以main正式卡与本树current为准。
