@@ -1,6 +1,6 @@
 # D22：read-file 成功结果的单次 Transcript 消费
 
-状态：2026-10-11 首片源码与基础控制已分段通过，PG 尚未编译或运行。从初始 Operation 候选 `2d4` 合入上游 `b553` 的完整开发历史与窄修源码：上游 native01/02/03 均 wholeFAIL，原 `d40fc527` codec 红控保留；最新 PG 的两行 `f.Progress` 类型修正已静审，compile04/list 原 35958 实际 0，native04 尚未运行，尚未整体验收。此合并只统一实际编译输入，不构成交付接受，不通过更换 harness 绕过上游未验范围。
+状态：2026-10-11 首片源码与基础控制已分段通过，首次 PG compile/list 已通过，消费 native 尚未运行。从初始 Operation 候选 `2d4` 合入上游 `b553` 的完整开发历史与窄修源码：上游 native01/02/03 均 wholeFAIL，原 `d40fc527` codec 红控保留；最新 PG 的两行 `f.Progress` 类型修正已静审，compile04/list 原 35958 实际 0，native04 正在原窗口运行，尚未整体验收。此合并只统一实际编译输入，不构成交付接受，不通过更换 harness 绕过上游未验范围。
 
 ## 本片边界
 
@@ -40,3 +40,5 @@ Execution 消费者在同一事务取得完整锁、借用真实结果并复核�
 首次基础配方仅完成真实 deps 查询；原保守闭包门将既有 Execution 子包判为未允许依赖而退出 1，race/vet 均未启动，不属于产品控制失败。后继 basic02 原工具 52198 实际退出 1：Tool 2 top/8 sub 与 AgentLoop 3 top 通过，但 Execution 测试以两个变量接收 Lookup 的三个返回值而编译失败，vet 未启动；749 项实际输入前后不变。仅修改该测试的接收变量（6aa 窄修），产品及旧断言未改。
 
 basic03 原工具 67354 实际退出 0：Execution 4 top/8 sub race（PID 719933）实际 0 / 8.606s，5 个相关包 vet（PID 720093）实际 0 / 69.289s，每阶段 749 项输入前后相同。复用前轮未变的 Tool/Loop 5 top，合计 9 top 分段通过；basic02 整体 FAIL 与首 deps 配方退出 1 均保留，不改写为单轮全绿。原件见 `output/ai/execution-tool-result-consumption/checks/basic02/` 与 `basic03/`。
+
+首次 `compile01` 原工具 20575 实际退出 0：Go 728189 采用离线 max1/race-c 编译，实际 0 / 77.557s；原二进制 list 729441 实际 0 / 1.054s，唯一枚举 `TestExecutionToolResultConsumption`。1838 项输入在编译前后及 list 后相同，81 个同包 Go 文件完整纳入；runtime 1839 项仅增加该实际编译产物。原件位于 `output/ai/execution-tool-result-consumption/compile01/`。`native01/` 已静态准备原配方与记录器，预算、7 资源、实际 Wait 与自动 TCP baseline/delta 双空门不变；尚未启动，不能把编译与准备视作 PG 通过。
