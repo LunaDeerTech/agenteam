@@ -1,5 +1,17 @@
 # Skill Assignment ingress 的 PG 方法
 
+## 正式交付与原件保全
+
+完整开发历史已随 main `5c4bdca94955bb283cffa99d48bb27c20893dba8` 合入，root 的原推送工具 32802 实际退出 0。下文 `output/ai/skill-assignment-ingress/` 和 `/workspace/agenteam-skill-assignment-ingress` 均为原运行路径；保全后的输出根为 main `output/ai/retired-20261011/skill-assignment-ingress/`，根内相对路径不变。
+
+已通过同文件系统 `renameat2(RENAME_NOREPLACE)` 无覆盖迁移完整输出：131 个原文件、183,629,449 字节（包含原 130 个运行文件及保全计划本身）。迁移前后路径、SHA256、size、inode、device、mode 及目录身份逐项相同；两份编译 binary、全部成功与失败记录均在。六份 `/tmp/sai01`、`/tmp/sai02` 的 nonce log/request/owned 原件另以 exclusive create 保存至 `retention/external/`，共 14,132 字节，SHA/size 与原件相同，原 `/tmp` 未删除或改写。实际清单与结果见新输出根的 `retention/{manifest-before.json,manifest-after.json,external-copies.json,source-history.json,result.json}`；原 `retention-plan.json` 保持原样，仍是迁移前计划，不替代实际结果。
+
+三个失败输入快照的仓库内文件分别逐 blob 对应 main 可达历史：basic01 的 918 项对应 `141b9b8a`，compile01 的 1,866 项对应 `a9899b85`，native01 的 1,866 项对应 `20fee0c4`；对应三个 wrapper 的原 SHA 也已核合。完整历史合入后再次核对这些提交均为上述 main 的祖先，源码恢复缺口为零，无需重造 patch。native01 的原 binary 位于已迁移的 `compile02/`；Go 工具链、SkillHTTP 热 cache、SkillsMilestoneResume 只读 modules 与 MinIO 保持原位置，不随本树搬移，也不声称纳入 Git 历史。
+
+本片原注册进程已有实际 Wait，七资源及所有退出双尾已闭合；仅对原 PID 的被动存在检查未见保留，不据此声称系统进程全部可见。68 的实际 PG/方法 owner、基础执行 owner、Skill 作者及后继投影作者已分别确认所辖源码/配方无旧树绝对运行路径依赖，principal 也已结束旧原件读取。原树无后续 source/output/binary/cache 依赖及本片后台，正常工作区检查无未提交内容。证据保全已完成，普通 worktree/分支删除仍交 root 执行；此时清理累计仍为 31 个 WorkTree、32 个本地分支、62 个远端引用，未核 legacy 147 与显式保留 1 不变。
+
+## 方法与原验证记录
+
 本片沿用原 [PG supervisor](../task-planning-recovery/pg_only_supervisor.py) 与 [root chain driver](../work-owner-http/root_chain_driver.py)，只新增 metadata 字典项。精确 selector 为 `^TestSkillAssignmentIngress$`，目标包 `tests/projectvariable`，必须实际执行一个 top 和两个 sub：
 
 - `TestSkillAssignmentIngress/active-assignment-and-current-replay`
