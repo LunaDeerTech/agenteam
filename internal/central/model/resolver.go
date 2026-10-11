@@ -89,9 +89,16 @@ func (s *Service) SelectModel(ctx context.Context, actor id.Actor, r mc.Selectio
 }
 
 func (s *Service) DiscoverResolve(ctx context.Context, request mc.ResolveRequest) (mc.ResolutionPlan, error) {
+	return s.discoverResolve(ctx, request, defaultResolutionCapture)
+}
+
+func (s *Service) discoverResolve(ctx context.Context, request mc.ResolveRequest, profile resolutionCaptureProfile) (mc.ResolutionPlan, error) {
 	empty := mc.ResolutionPlan{}
 	r := request.Clone()
 	if e := s.resolutionState(ctx, r); e != nil {
+		return empty, e
+	}
+	if e := profile.requireRequest(r); e != nil {
 		return empty, e
 	}
 	identity, e := resolutionIdentity(r)
@@ -99,6 +106,9 @@ func (s *Service) DiscoverResolve(ctx context.Context, request mc.ResolveRequest
 		return empty, e
 	}
 	row, readErr := loadResolutionPreparation(ctx, s.state().store, identity.Canonical())
+	if row != nil && readErr == nil {
+		readErr = profile.requireDraft(r, row.Draft)
+	}
 	snapshot, e := f.NewID[mc.Snapshot]()
 	if e != nil {
 		return empty, unavailable(e)
@@ -106,14 +116,14 @@ func (s *Service) DiscoverResolve(ctx context.Context, request mc.ResolveRequest
 	if row != nil {
 		snapshot = row.SnapshotID
 	}
-	c := &resolutionCandidate{authority: s.state().authority, request: r, identity: identity, row: row, version: 1}
+	c := &resolutionCandidate{profile: profile, authority: s.state().authority, request: r, identity: identity, row: row, version: 1}
 	if row != nil && row.Phase == "committed" {
 		c.draft = row.Draft
 		if e = loadCommittedResolution(ctx, s.state().store, row); e != nil && readErr == nil {
 			readErr = e
 		}
 	} else {
-		c.draft, e = currentResolutionDraft(ctx, s.state().store, r, snapshot)
+		c.draft, e = currentResolutionDraftForProfile(ctx, s.state().store, r, snapshot, profile)
 		if e != nil && readErr == nil {
 			readErr = e
 		}
@@ -260,6 +270,9 @@ func (s *Service) DiscoverResolve(ctx context.Context, request mc.ResolveRequest
 	return mc.NewResolutionPlan(c.authority.state().resolutionIssuer, d)
 }
 func resolutionDetails(c *resolutionCandidate) (mc.ResolutionPlanDetails, error) {
+	if e := c.profile.requireDraft(c.request, c.draft); e != nil {
+		return mc.ResolutionPlanDetails{}, e
+	}
 	if e := c.draft.validate(); e != nil {
 		return mc.ResolutionPlanDetails{}, e
 	}
@@ -298,7 +311,7 @@ func (a *Authority) validateResolutionConsumer(ctx context.Context, tx f.Tx, c *
 	return portError(a.state().auth.Resolution.Consumers.ValidateInTx(ctx, tx, c.consumerRequest, c.consumer))
 }
 func checkCurrentResolution(ctx context.Context, x postgres.SQLExecutor, c *resolutionCandidate) error {
-	d, e := currentResolutionDraft(ctx, x, c.request, c.draft.Snapshot.ID)
+	d, e := currentResolutionDraftForProfile(ctx, x, c.request, c.draft.Snapshot.ID, c.profile)
 	if e != nil {
 		return e
 	}
@@ -322,9 +335,16 @@ func checkCanonicalResolution(ctx context.Context, x postgres.SQLExecutor, c *re
 // ResolveModelInTx returns a provisional value. The caller must propagate all
 // errors and wait for its outer commit before publishing or using the value.
 func (s *Service) ResolveModelInTx(ctx context.Context, tx f.Tx, request mc.ResolveRequest, plan mc.ResolutionPlan) (mc.ResolvedModel, error) {
+	return s.resolveModelInTx(ctx, tx, request, plan, defaultResolutionCapture)
+}
+
+func (s *Service) resolveModelInTx(ctx context.Context, tx f.Tx, request mc.ResolveRequest, plan mc.ResolutionPlan, profile resolutionCaptureProfile) (mc.ResolvedModel, error) {
 	empty := mc.ResolvedModel{}
 	r := request.Clone()
 	if e := s.resolutionState(ctx, r); e != nil {
+		return empty, e
+	}
+	if e := profile.requireRequest(r); e != nil {
 		return empty, e
 	}
 	b, e := mc.ResolveBinding(r)
@@ -348,7 +368,7 @@ func (s *Service) ResolveModelInTx(ctx context.Context, tx f.Tx, request mc.Reso
 	if e != nil {
 		return empty, e
 	}
-	c := &resolutionCandidate{authority: a, request: r, identity: identity, consumerRequest: q, consumer: d.Consumer, locks: plan.RequiredLocks(), secret: d.Secret}
+	c := &resolutionCandidate{profile: profile, authority: a, request: r, identity: identity, consumerRequest: q, consumer: d.Consumer, locks: plan.RequiredLocks(), secret: d.Secret}
 	if e = a.validateResolutionConsumer(ctx, tx, c); e != nil {
 		return empty, e
 	}
@@ -368,6 +388,9 @@ func (s *Service) ResolveModelInTx(ctx context.Context, tx f.Tx, request mc.Reso
 	}
 	c.row = row
 	c.draft = row.Draft
+	if e = profile.requireDraft(r, c.draft); e != nil {
+		return empty, e
+	}
 	c.version = row.Version
 	if c.mapping() != d.Mapping || c.draft.Snapshot.ID != d.SnapshotID || c.draft.Snapshot.Identity.ProviderID != d.ProviderID || c.draft.Snapshot.Identity.ModelID != d.ModelID || d.ProviderVersion == nil || *d.ProviderVersion != c.draft.ProviderVersion || d.ModelVersion == nil || *d.ModelVersion != c.draft.ModelVersion || !resolutionEqual(d.SelectionVersion, c.draft.Snapshot.SelectionVersion) || c.draft.LeaseID != lease {
 		return empty, fault(f.ResourceBusy)

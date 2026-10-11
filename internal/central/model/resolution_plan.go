@@ -239,6 +239,7 @@ func resolutionConsumerRequest(r mc.ResolveRequest, snapshot mc.SnapshotID, leas
 }
 
 type resolutionCandidate struct {
+	profile         resolutionCaptureProfile
 	authority       *Authority
 	request         mc.ResolveRequest
 	identity        f.CommandIdentity

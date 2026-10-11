@@ -46,7 +46,10 @@ type directTextInvocation struct {
 }
 
 func NewDirectTextDriver(store Store, a *Authority, deps DirectTextDependencies) (*DirectTextDriver, error) {
-	if nilPort(store) || !reflect.TypeOf(store).Comparable() || a == nil || a.state == nil || a.state.store != store || deps.Context == nil || deps.Loop == nil || nilPort(deps.Processes) || nilPort(deps.Projects) || nilPort(deps.Agents) || nilPort(deps.Skills) || nilPort(deps.Events) || !deps.Lifecycle.Valid() || nilPort(deps.Models) || nilPort(deps.Environment) {
+	return newDirectTextDriver(store, a, deps, nil)
+}
+func newDirectTextDriver(store Store, a *Authority, deps DirectTextDependencies, tools *toolCallDependencies) (*DirectTextDriver, error) {
+	if nilPort(store) || !reflect.TypeOf(store).Comparable() || a == nil || a.state == nil || a.state.store != store || deps.Context == nil || (deps.Loop == nil && tools == nil) || nilPort(deps.Processes) || nilPort(deps.Projects) || nilPort(deps.Agents) || nilPort(deps.Skills) || nilPort(deps.Events) || !deps.Lifecycle.Valid() || nilPort(deps.Models) || nilPort(deps.Environment) {
 		return nil, fault(f.DependencyUnbound)
 	}
 	if deps.Mounts != nil && nilPort(deps.Mounts) {
@@ -56,7 +59,7 @@ func NewDirectTextDriver(store Store, a *Authority, deps DirectTextDependencies)
 	if process.Validate() != nil {
 		return nil, fault(f.DependencyUnbound)
 	}
-	return &DirectTextDriver{&directTextState{store: store, authority: a, processes: deps.Processes, process: process, deps: deps, calls: map[i.ExecutionID]*directTextCall{}, changed: make(chan struct{})}}, nil
+	return &DirectTextDriver{&directTextState{store: store, authority: a, processes: deps.Processes, process: process, deps: deps, calls: map[i.ExecutionID]*directTextCall{}, changed: make(chan struct{}), tools: tools}}, nil
 }
 
 // Start consumes the original complete preparation input. It accepts an actual
@@ -94,6 +97,9 @@ func (d *DirectTextDriver) Start(ctx context.Context, execution i.ExecutionID) (
 		return receipt, err
 	}
 	if stored != nil {
+		if s.tools != nil && stored.toolPending != nil && row.summary.Status == c.Running {
+			return directTextReceipt(row, stored), nil
+		}
 		if row.summary.Status.Terminal() && stored.terminal != nil {
 			return directTextReceipt(row, stored), nil
 		}
@@ -154,6 +160,9 @@ func (s *directTextState) readInitial(ctx context.Context, run *directTextCall) 
 			return e
 		}
 		if stored != nil {
+			if (s.tools != nil) != (stored.round.Fields().Input.SchemaVersion == c.ToolCallRoundSchemaVersion) {
+				return fault(f.CapabilityUnsupported)
+			}
 			if len(stored.snapshot.Fields().Context.Input().Fields().Mounts.Mounts) != 0 {
 				input, readErr := loadPreparationInput(ctx, x, run.request.ExecutionID)
 				if readErr != nil {
@@ -228,7 +237,12 @@ func (s *directTextState) prepare(ctx context.Context, run *directTextCall) erro
 	if err != nil {
 		return err
 	}
-	request, err := agentloop.BuildDirectTextRequest(ctx, built, actor, round.String(), call)
+	var request agentloop.DirectTextRequest
+	if s.tools == nil {
+		request, err = agentloop.BuildDirectTextRequest(ctx, built, actor, round.String(), call)
+	} else {
+		request, err = s.buildToolCallRequest(ctx, run, built, actor, round, call)
+	}
 	if err != nil {
 		return portError(err)
 	}
@@ -237,7 +251,14 @@ func (s *directTextState) prepare(ctx context.Context, run *directTextCall) erro
 		return err
 	}
 	mr := request.Request()
-	run.round, err = c.NewDirectTextRound(c.DirectTextRoundFields{ID: round, InputBindingID: binding, ExecutionID: run.request.ExecutionID, SnapshotID: snapshot, StartID: start, CallID: call, ContextDigest: built.Digest(), Input: mr.Input, Messages: mr.Messages, CreatedAt: at})
+	roundFields := c.DirectTextRoundFields{ID: round, InputBindingID: binding, ExecutionID: run.request.ExecutionID, SnapshotID: snapshot, StartID: start, CallID: call, ContextDigest: built.Digest(), Input: mr.Input, Messages: mr.Messages, CreatedAt: at}
+	if s.tools == nil {
+		run.round, err = c.NewDirectTextRound(roundFields)
+	} else {
+		var candidate c.ToolCallRound
+		candidate, err = c.NewToolCallRound(c.ToolCallRoundFields{Round: roundFields, Tool: mr.Tools[0]})
+		run.round = toolExecutionRound{candidate}
+	}
 	if err != nil {
 		return err
 	}
@@ -271,13 +292,20 @@ func (s *directTextState) prepare(ctx context.Context, run *directTextCall) erro
 	if err != nil {
 		return err
 	}
+	if s.tools != nil {
+		locks = append(locks, toolFactsRequest(run.input.input, run.input.input.Fields().Agent).RequiredLocks()...)
+	}
 	locks = append(locks, run.invocation.skillPlan.RequiredLocks()...)
 	locks = append(locks, run.invocation.startPlan.Locks()...)
 	run.locks, err = oc.NormalizeLocks(locks)
 	if err != nil {
 		return err
 	}
-	run.invocation.session, err = s.deps.Loop.Accept(request)
+	if s.tools == nil {
+		run.invocation.session, err = s.deps.Loop.Accept(request)
+	} else {
+		run.invocation.session, err = s.tools.loop.Accept(request)
+	}
 	if err != nil {
 		return portError(err)
 	}
@@ -338,6 +366,11 @@ func (s *directTextState) start(ctx context.Context, run *directTextCall) error 
 		if _, err = s.deps.Agents.ReadExecutionConfigurationInTx(ctx, tx, ac.ExecutionConfigurationRequest{Actor: actor, ProjectID: run.request.Launch.ProjectID, AgentID: run.request.Launch.AgentID, ExecutionID: run.request.ExecutionID, Stage: ac.ExecutionConfigurationCurrent}); err != nil {
 			return portError(err)
 		}
+		if s.tools != nil {
+			if err = s.requireCurrentToolFacts(ctx, tx, run); err != nil {
+				return err
+			}
+		}
 		if err = s.acquireDirectTextMountUse(ctx, tx, run); err != nil {
 			return err
 		}
@@ -374,13 +407,16 @@ func (s *directTextState) retain(run *directTextCall, err error) {
 	s.mu.Unlock()
 }
 func (s *directTextState) receipt(run *directTextCall) c.DirectTextReceipt {
-	if run.snapshot.Validate() != nil || run.round.Validate() != nil {
+	if run.snapshot.Validate() != nil || nilPort(run.round) || run.round.Validate() != nil {
 		return c.DirectTextReceipt{ExecutionID: run.request.ExecutionID}
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	sf, rf := run.snapshot.Fields(), run.round.Fields()
 	through := f.Sequence(1)
+	if run.toolPending {
+		through = 2
+	}
 	if run.terminal != nil && run.summary.Status.Terminal() {
 		through = run.terminal.through
 	}

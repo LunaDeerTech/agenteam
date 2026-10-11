@@ -24,7 +24,8 @@ import (
 // message digest. Explicit Request access includes backend-only Model/lease
 // references; only its Messages are model-visible input.
 type DirectTextRequest struct {
-	data func() (f.Digest, mc.ModelRequest)
+	data     func() (f.Digest, mc.ModelRequest)
+	toolCall bool
 }
 
 func (v DirectTextRequest) Validate() error {

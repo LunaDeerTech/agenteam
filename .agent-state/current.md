@@ -1,12 +1,12 @@
 # 全局协调索引
 
-2026-10-11。main 的本文件当前由 root 指定 variables_review 唯一维护本次正文；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
+2026-10-11。main 的本文件当前由 root 指定 recovery_lead 维护本次集成正文；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
 
 ## 当前开发
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
-| Execution ToolCall 事实 — `ai/execution-tool-call-facts-20261011` | recovery_lead交付；Tool域child runner_read_file；runtime_recovery独审 | 34 个相关 top 与五包 vet 已通过，PG 编译/list 实际 0；首次 native01 原工具40757实际退出1，阻于真实 Model 配置捕获；专用 capture 修复后 Model 26 个 top 分段检查及 vet 已通过，PG compile02 进行中。原 FAIL 保留，尚未形成真实联调验收。00063/00064 迁移归本片，不推断 Tool 执行或其他 STOP 已解。 |
+| Execution ToolCall 事实 — `ai/execution-tool-call-facts-20261011` | recovery_lead 交付；Tool 域 runner_read_file；runtime_recovery 独审 | 本次集成正式交付有限片：原句柄实际 Joined 后同事务写保护参数 / ToolCall / Transcript 与 running/tool-pending；34 + 26 top 分段 race、适用 vet、native03 原两场景 wholePASS 已独立接受。原 unit / Model 控制与 native01/02 FAIL 保留；仅 Model JSONCaller 受控，不含 ToolOperation / Runner 派发或生产 tools。00063/00064 随本片，完整分支历史保留；原树 / output / tmp 等正式保存后保全清理。 |
 | 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 独立树 `/workspace/agenteam-runner-read-file-operation` 已建，基线 `1b10c29c`；Tool 存储基础与 Runner RequestID 接缝正在纯源码实施，尚未测试、未验收，不提前计作执行链已打通。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 

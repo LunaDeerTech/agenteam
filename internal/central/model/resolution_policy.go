@@ -52,6 +52,10 @@ func resolutionProfile(p *providerRecord, m *modelRecord, selection mc.Selection
 // These reads collect candidates only. Callers authorize before exposing any
 // failure and re-read under the complete returned writer/reader union.
 func currentResolutionDraft(ctx context.Context, x postgres.SQLExecutor, r mc.ResolveRequest, snapshot mc.SnapshotID) (resolutionDraft, error) {
+	return currentResolutionDraftForProfile(ctx, x, r, snapshot, defaultResolutionCapture)
+}
+
+func currentResolutionDraftForProfile(ctx context.Context, x postgres.SQLExecutor, r mc.ResolveRequest, snapshot mc.SnapshotID, profile resolutionCaptureProfile) (resolutionDraft, error) {
 	d := resolutionDraft{Format: 1, Snapshot: resolutionSnapshotDTO{Format: 1, ID: snapshot, ProjectID: r.Consumer.ProjectID}}
 	if e := resolutionVariant(r); e != nil {
 		return d, e
@@ -129,7 +133,15 @@ func currentResolutionDraft(ctx context.Context, x postgres.SQLExecutor, r mc.Re
 	if p.Input.CredentialID != "" {
 		d.Snapshot.CredentialProject = p.Project
 	}
-	revision, e := resolutionProfile(p, m, *r.Selection)
+	var revision string
+	if e = profile.requireRequest(r); e != nil {
+		return d, e
+	}
+	if profile == toolFactsResolutionCapture {
+		revision, e = toolFactsResolutionProfile(p, m, *r.Selection)
+	} else {
+		revision, e = resolutionProfile(p, m, *r.Selection)
+	}
 	if e != nil {
 		return d, e
 	}

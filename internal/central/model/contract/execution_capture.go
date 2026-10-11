@@ -68,6 +68,8 @@ type ExecutionModelCapturePlan interface{ RequiredLocks() []f.LockRequest }
 // This slice resolves only AgentGeneration's direct primary Model using the
 // existing supported profile. It grants no invocation/credential-read/retire
 // authority and cannot enable tool-calling, reasoning or AgentRetry runtime.
+// An explicitly constructed ToolCall-facts capture may freeze a distinct
+// configuration-only revision; that revision is never a runtime adapter grant.
 type ExecutionModelCaptureProvider interface {
 	DiscoverExecutionModel(context.Context, ExecutionModelCaptureRequest) (ExecutionModelCapturePlan, error)
 	ResolveExecutionModelInTx(context.Context, f.Tx, ExecutionModelCaptureRequest, ExecutionModelCapturePlan) (ResolvedModel, error)

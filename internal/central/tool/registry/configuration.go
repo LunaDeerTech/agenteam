@@ -28,7 +28,7 @@ type configurationState struct {
 }
 
 func NewConfiguration(r *Registry, owner ac.ToolReferenceOwnerAuthority, installSource string) (*Configuration, error) {
-	if r.data() == nil || nilPort(owner) || len(r.data().sources) == 0 || nilPort(r.data().auth.Sessions) || nilPort(r.data().auth.Projects) {
+	if r.data() == nil || nilPort(owner) || len(r.data().sources)+len(r.data().runners) == 0 || nilPort(r.data().auth.Sessions) || nilPort(r.data().auth.Projects) {
 		return nil, fail(f.DependencyUnbound)
 	}
 	if installSource != "" {
@@ -50,13 +50,14 @@ func (c *Configuration) state() *configurationState {
 }
 
 type currentTool struct {
-	Ref        tc.SpecRef
-	Key        string
-	Definition []byte
-	Binding    tc.BuiltinBinding
-	Scope      tc.ScopeResolverID
-	Risk       tc.RiskClassifierID
-	Class      tc.ToolClass
+	Ref           tc.SpecRef
+	Key           string
+	Definition    []byte
+	Binding       tc.BuiltinBinding
+	RunnerBinding tc.RunnerBinding
+	Scope         tc.ScopeResolverID
+	Risk          tc.RiskClassifierID
+	Class         tc.ToolClass
 }
 
 func (r *Registry) currentTool(ctx context.Context, tx f.Tx, x postgres.SQLExecutor, tool id.ToolID) (currentTool, error) {
@@ -64,7 +65,7 @@ func (r *Registry) currentTool(ctx context.Context, tx f.Tx, x postgres.SQLExecu
 	var revision int64
 	var contract int64
 	var raw []byte
-	err := x.QueryRow(ctx, `SELECT i.stable_key,r.spec_revision,s.definition,r.handler_id,r.contract_revision,r.scope_resolver_id,r.risk_classifier_id,r.class FROM agenteam_tool.identities i JOIN agenteam_tool.registrations r ON r.tool_id=i.tool_id AND r.spec_revision=i.latest_revision JOIN agenteam_tool.spec_revisions s ON s.tool_id=r.tool_id AND s.spec_revision=r.spec_revision WHERE i.tool_id=$1`, tool.String()).Scan(&v.Key, &revision, &raw, &v.Binding.HandlerID, &contract, &v.Scope, &v.Risk, &v.Class)
+	err := x.QueryRow(ctx, `SELECT i.stable_key,r.spec_revision,s.definition,COALESCE(r.handler_id,''),COALESCE(r.contract_revision,0),r.scope_resolver_id,r.risk_classifier_id,r.class FROM agenteam_tool.identities i JOIN agenteam_tool.registrations r ON r.tool_id=i.tool_id AND r.spec_revision=i.latest_revision JOIN agenteam_tool.spec_revisions s ON s.tool_id=r.tool_id AND s.spec_revision=r.spec_revision WHERE i.tool_id=$1`, tool.String()).Scan(&v.Key, &revision, &raw, &v.Binding.HandlerID, &contract, &v.Scope, &v.Risk, &v.Class)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return currentTool{}, fail(f.NotFound)
 	}
@@ -75,6 +76,9 @@ func (r *Registry) currentTool(ctx context.Context, tx f.Tx, x postgres.SQLExecu
 	v.Binding.ContractRevision = f.Version(contract)
 	if v.Ref.Validate() != nil {
 		return currentTool{}, fail(f.InvalidState)
+	}
+	if v.Key == tc.RunnerReadFileKey {
+		return r.currentRunner(ctx, tx, x, v, raw)
 	}
 	v.Definition, err = decodeDefinition(ctx, raw, v.Key)
 	if err != nil {
@@ -96,7 +100,7 @@ func (r *Registry) currentTool(ctx context.Context, tx f.Tx, x postgres.SQLExecu
 	return v, nil
 }
 func sameCurrent(a, b currentTool) bool {
-	return a.Ref == b.Ref && a.Key == b.Key && bytes.Equal(a.Definition, b.Definition) && a.Binding == b.Binding && a.Scope == b.Scope && a.Risk == b.Risk && a.Class == b.Class
+	return a.Ref == b.Ref && a.Key == b.Key && bytes.Equal(a.Definition, b.Definition) && a.Binding == b.Binding && a.RunnerBinding == b.RunnerBinding && a.Scope == b.Scope && a.Risk == b.Risk && a.Class == b.Class
 }
 func baseLocks(actor id.Actor, project id.ProjectID, agent id.AgentID, agentMode f.LockMode) []f.LockRequest {
 	u, _ := f.UserLock(actor.Details().UserID)
