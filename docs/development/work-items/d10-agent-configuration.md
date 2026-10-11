@@ -275,3 +275,13 @@ F1真实PG必须逐项证明：
 所有并发必须用实际caller Tx PID、精确预期key/mode、granted=false与blocker握手后释放/取消，不靠sleep。独立验证者须全文STATIC并各自构造Owner撤权/Ref竞争以及跨ownerModel替换/Unknown两组真实场景；作者tests不能代替独立结论。真实资源/单top预算沿当时明确的私有PG-only fixture与所有权，未获扩展不启动Object/Runner/Provider；需要受阻真实依赖时如实BLOCKED，不削弱断言或复制空实现。离线检查每条≤45秒且GOTOOLCHAIN=local/GOPROXY=off/GOSUMDB=off。
 
 C1 六个纯契约与 §2.3 的 metadata 前置分别按其范围接受。完整 F1 仍未接受，只有全部实际前置、真创建/事实/引用与独立验证通过才可供 Task assignee/reviewer 正向绑定。后继独立树中的 Agent/References 实施或纯测试不由本次 PG 代证；完整 Agent 配置、Skills/Variables、删除、Executor 与完整 D10 的未完成事实保留。
+
+## 9. 已有Agent的模型与审批配置编辑（限定范围）
+
+本片已完成限定验收，随本次提交交付main。在现项目设置的Agent配置编辑表单中，沿真实可用模型目录显式修改主模型、审批策略、审批模型及AGENTS.md注入；只选择受支持的文本聊天配置，已有非空reasoning_effort时不在此修改模型/审批策略，不新增推理强度或完整授权picker。自动审批须显式选择可用审批模型，退出自动审批时明确清空该引用；注入的false保持显式值。原三字段编辑与Create默认规则不变。
+
+复用`PATCH /api/v1/projects/{P}/agents/{A}/configuration`的`{expected_version,request}`与原agent.update Lookup。只保存实际触达的字段，锁定原P/A/version/key及完整presence；changed/no-op、版本冲突和Unknown沿已交规则，Unknown仅查原请求，不用新GET重构历史意图。配置选择不授运行权限，也不改变已存在Execution的固定配置。
+
+三产品/三测试及八path fixture已交付。共同前端44项按原41项、Agent Session两项及补原失败一项累计接受，非单轮44PASS；类型/构建、八项controls与990输入共享Go编译通过。runtime `a4c636f7`的`TestAgentModelPolicyWeb/switch-model-auto-and-clear-approval` native02为22.88s wholePASS：两次PATCH使版本1→2→3，真实模型/审批引用、receipt/event和最终历史原Lookup/SQL/domainGuard闭合；浏览器零Lookup，不外推真实Unknown链。四Wait0、Node成功、七ID14次absence、全部双尾/TCP0及2456输入不变；11请求中9finished，另两GET failed原事实保留且严格联证通过，secret最终业务/资源接受。
+
+cleanup有限接受1440浅色与390深色两图及原键盘/主题/overflow检查；第二次编辑通过显式聚焦后Enter，不宣保存后自动回焦或完整无障碍。原frontend01 FAIL与Agent native01 30.96s FAIL保留：首更新version2已显示，但新增自动回焦断言不符当时契约，第二PATCH及最终后验未到。恢复与分层输入见[组合recipe](../../../.agent-state/agent-system-integration/README.md#agent模型策略与sprint创建组合限定范围)；完整F1、initializer、ready及旧STOP不因此完成。
