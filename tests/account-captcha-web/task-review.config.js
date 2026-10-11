@@ -11,14 +11,23 @@ const cases = [
   "lost-confirmation-lookup-and-session-revocation",
 ];
 if (
-  !origin || !directory || !executablePath || !evidence ||
-  !selected || !cases.includes(selected)
-) throw new Error("OWNED_TASK_REVIEW_FIXTURE_REQUIRED");
+  !origin ||
+  !directory ||
+  !executablePath ||
+  !evidence ||
+  !selected ||
+  !cases.includes(selected)
+)
+  throw new Error("OWNED_TASK_REVIEW_FIXTURE_REQUIRED");
 const url = new URL(origin);
 if (
-  url.protocol !== "http:" || url.hostname !== "127.0.0.1" || !url.port ||
-  url.origin !== origin || ![directory, executablePath, evidence].every(isAbsolute)
-) throw new Error("EXACT_OWNED_TASK_REVIEW_PATHS_REQUIRED");
+  url.protocol !== "http:" ||
+  url.hostname !== "127.0.0.1" ||
+  !url.port ||
+  url.origin !== origin ||
+  ![directory, executablePath, evidence].every(isAbsolute)
+)
+  throw new Error("EXACT_OWNED_TASK_REVIEW_PATHS_REQUIRED");
 
 export default defineConfig({
   testDir: "./e2e",
