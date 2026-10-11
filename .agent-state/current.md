@@ -1,13 +1,12 @@
 # 全局协调索引
 
-2026-10-11。main 的本文件当前由 root 指定 recovery_lead 维护本次结果消费集成入口；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
+2026-10-11。main 的本文件当前由 root 指定 recovery_lead 维护本次结果消费保全入口；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
 
 ## 当前开发
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
-| read-file 结果单次消费 — `ai/execution-tool-result-consumption-20261011` | recovery_lead 交付，runtime_recovery 独审，root 集成 | 本次随 main 合入精确 17 路径的有限已验片：完整成功结果同事务追加原 Execution seq3 / 消费记录 / version，重复与 Unknown 仅观察；9 top 分段 race、5 包 vet、native01 wholePASS 已独立接受。原基础 FAIL 与上游旧 FAIL 保留，生产默认未绑定，无下一 Model 或终态退休。完整历史随本次合入；原输出 / tmp 保全及原树 / 分支清理待正式交付后执行，见[正式卡](../docs/development/work-items/d22-execution-tool-result-consumption.md)。 |
-| 单次 read-file Operation/Attempt 收尾 | skill_package_review 交付，runtime_recovery 独审，root 清理 | main 本地 `c7ad165b` 已合入有限已验片，native04 wholePASS；完整历史和全部运行材料已保全。main 推送及原 WorkTree / 本地 / 远端分支清理仍待 root 执行，不含 Transcript 消费、下一 Model 或生产默认绑定，见[恢复说明](runner-read-file-operation/README.md)与[正式卡](../docs/development/work-items/d18-runner-read-file-operation.md)。 |
+| read-file 结果单次消费 — `ai/execution-tool-result-consumption-20261011` | recovery_lead 交付，runtime_recovery 独审，root 集成 | 本次随 main 合入精确 17 路径的有限已验片：完整成功结果同事务追加原 Execution seq3 / 消费记录 / version，重复与 Unknown 仅观察；9 top 分段 race、5 包 vet、native01 wholePASS 已独立接受。原基础 FAIL 与上游旧 FAIL 保留，生产默认未绑定，无下一 Model 或终态退休。完整历史随本次合入；原 75 个 output 文件与三份 tmp 必需副本已无覆盖保全，原树 / 分支待 root 正式推送后清理，见[恢复说明](execution-tool-result-consumption/README.md)与[正式卡](../docs/development/work-items/d22-execution-tool-result-consumption.md)。 |
 | Skill Assignment ingress — `ai/skill-assignment-ingress-20261011` | skill_package_review 交付；Agent / Execution 分域实施 | 当前真实源码线：Owner assignment 与 Agent 版本 / 引用所有者推进、Skill immutable change、Execution 原事务 queued / no_active 决策。分域源码检查点已保存，组合与真实链尚未验收；不包含 DetermineRoundInput、下一 Model 或 Transcript 应用。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
@@ -15,7 +14,7 @@
 
 ## 保留与清理
 
-- read-file Operation 原 output 已同文件系统无覆盖迁至 main `output/ai/retired-20261011/runner-read-file-operation`：136 个文件、350,560,682 字节的路径 / SHA / size / device / inode / mode 全部保持，四套 compile / native 和 codec 原红均在；四个原 `/tmp` 的 16 个小文件另存逐字副本，原 `/tmp` 未删。23 个开发提交及 1,830 个核对过的历史 blob 已在 main 可达，未见源码恢复缺口；当前作者和其它树核对未发现旧绝对运行路径依赖，详见[恢复说明](runner-read-file-operation/README.md)。main 尚待推送，原树、本地与远端分支仍保留，未计入清理累计。native01 TIME_WAIT 归属未明、native02 未记录 Status、native03 未执行 Lookup / 正常收尾均不由 04 通过回填。
+- read-file Operation 原 output 已同文件系统无覆盖迁至 main `output/ai/retired-20261011/runner-read-file-operation`：136 个文件、350,560,682 字节的路径 / SHA / size / device / inode / mode 全部保持，四套 compile / native 和 codec 原红均在；四个原 `/tmp` 的 16 个小文件另存逐字副本，原 `/tmp` 未删。23 个开发提交及 1,830 个核对过的历史 blob 已在 main 可达，未见源码恢复缺口；当前作者和其它树核对未发现旧绝对运行路径依赖，详见[恢复说明](runner-read-file-operation/README.md)。Operation 已正式推送并实际完成普通 worktree remove、本地分支删除；远端原 tip 精确 lease 删除工具 99189 实际 0，fresh 查询为空、prune 完成，三项均计入下列累计。native01 TIME_WAIT 归属未明、native02 未记录 Status、native03 未执行 Lookup / 正常收尾均不由 04 通过回填。
 
 - Execution ToolCall 持久事实已随 main `95c092bc` 有限交付并推送，native03 wholePASS 独立接受，原全部 FAIL 保留；完整开发历史在 main，126 个 output 原件及三轮 tmp 必需副本已无覆盖保全，见[恢复说明](execution-tool-call-facts/README.md)。原树普通移除、本地 branch -d 成功；远端精确 tip lease 删除实际 0，fresh 查询为空、explicit prune 0、旧树不在列表，三项清理已计入下列总数。不含真实 Model tools HTTP、ToolOperation / Runner 派发或默认生产绑定。
 
@@ -26,7 +25,7 @@
 - ProjectVariablesResume 已随 main `3e28f10a` 有限交付；`66d45ce1` 仅保留完整开发历史、文件树零变化。全部原 output 和三份 tmp 必需副本已无覆盖保全，119 个已提交历史版本 main 可达；早期未提交失败输入缺口如实保留，见[恢复说明](project-variables-resume/README.md)。原树已普通移除，本地 branch -d 实际成功；远端原 tip 精确 lease 删除工具 4661 实际 0，fresh 查询为空、prune 0，三项清理已计入下列总数。
 - ObjectSafe 保留原件与失败。Move 活跃树保留，未核其他树不自动清理。
 - Runner directory 已随 main `4e5e70ce` 有限交付并推送，28 个相关 race top、六包 vet 与真实 PG/WSS 整轮独立接受；原树、本地分支及远端引用均已清理。完整 output 已同文件系统无覆盖迁至 main `output/ai/retired-20261011/runner-directory-adapter/`，其中 `retention/` 保存原 `/tmp/rda01` log/owned/request 的逐字副本和路径映射；原 `/tmp` 保留。本片无失败输入需补恢复差额，上游严格授权替身、生产默认 nil executor/旧 STOP 保留。
-- 已完成清理共 28 个 WorkTree、29 个本地分支、60 个远端引用；其中 27 个额外远端引用为严格 main 祖先，没有对应本地分支或树，另有已删除的本地 work296。root 已确认前述三棵退役树不存在、对应 local/tracking 为空，精确 lease 删除、ls-remote 空结果及 main+ai prune 均实际成功。Directory 普通 worktree remove 成功，branch -d 因非祖先拒绝后仅对已交 squash 分支执行窄 -D；最新 tip 精确 lease 删除、成功空查询、prune 和 local/tracking 空结果均已闭合。另有 D16 filesystem、D18 NameProjection、SearchBenchmark 三个完整 scope 已交且无独占依赖的旧远端引用，经 fresh tip 核对、精确 lease 删除、成功空查询及 prune 后完成清理，没有新增本地分支或树。新增清理 `ai/work-review-runtime-delivery`：tip `f4190ad7` 全部历史经 main 可达，无本地分支、worktree 或活动依赖；root fresh tip 核对后精确 lease 删除成功，ls-remote 成功为空，prune 后远端跟踪引用为空，无需新增恢复材料。原 154 个待核引用现剩 147 个，1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。`ai/skills-milestone-integration` 的全部历史已为 main 祖先、无 local/tree 或活动依赖；root 核定 tip `fc0fb130` 后精确 lease 删除工具 74385 实际 0，fresh 查询为空、prune 完成，已计入上述远端累计。
+- 已完成清理共 29 个 WorkTree、30 个本地分支、61 个远端引用；其中 27 个额外远端引用为严格 main 祖先，没有对应本地分支或树，另有已删除的本地 work296。root 已确认前述三棵退役树不存在、对应 local/tracking 为空，精确 lease 删除、ls-remote 空结果及 main+ai prune 均实际成功。Directory 普通 worktree remove 成功，branch -d 因非祖先拒绝后仅对已交 squash 分支执行窄 -D；最新 tip 精确 lease 删除、成功空查询、prune 和 local/tracking 空结果均已闭合。另有 D16 filesystem、D18 NameProjection、SearchBenchmark 三个完整 scope 已交且无独占依赖的旧远端引用，经 fresh tip 核对、精确 lease 删除、成功空查询及 prune 后完成清理，没有新增本地分支或树。新增清理 `ai/work-review-runtime-delivery`：tip `f4190ad7` 全部历史经 main 可达，无本地分支、worktree 或活动依赖；root fresh tip 核对后精确 lease 删除成功，ls-remote 成功为空，prune 后远端跟踪引用为空，无需新增恢复材料。原 154 个待核引用现剩 147 个，1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。`ai/skills-milestone-integration` 的全部历史已为 main 祖先、无 local/tree 或活动依赖；root 核定 tip `fc0fb130` 后精确 lease 删除工具 74385 实际 0，fresh 查询为空、prune 完成，已计入上述远端累计。
 
 
 - 两条无 local/tree 或活动依赖的旧 remote 已完成 fresh tip 核对、双 exact-lease 原子删除、成功空查询及 prune：`ai/task-timeline-http`（`1e6b3db2809ce0e62de6c8c2042a0eaf3b9b67f5`）完整 6 路径及 6 个提交版本逐字保留于 main 祖先 `bfebd676`；`ai/agent-directory-http`（`235887d2f615ed6bd6863d9c8b4a1b1e548f32d2`）完整 14 路径等于 main 祖先 `2c59cf0d`，跨三提交的 15 个文件版本均可从 main 历史恢复，无需新增材料。
