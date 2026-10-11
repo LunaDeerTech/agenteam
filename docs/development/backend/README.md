@@ -116,7 +116,7 @@ AGENTEAM_MINIO_BINARY=/task-owned/cache/minio GOFLAGS=-p=1 sh scripts/test-accou
 | `AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF` | 无，三项可同时缺省 | Go duration，不小于 initial backoff |
 | `AGENTEAM_CENTRAL_EXECUTION_RUNTIME` | 无，缺省关闭 | ≤64 KiB 的完整闭集 JSON；固定 `direct-text-v1`，启用时必须同时配置上述三个 Launch retry 变量 |
 
-Scheduler retry 三项全部缺省时保持旧启动行为；任一项存在（包括空串）即要求三项完整、合法，不补默认值。`Load` 使用 `NewLaunchRetryPolicy` 统一验证，`Config.SchedulerLaunchRetryPolicy()` 返回不可变 policy 值和是否配置的标志；错误只报告固定字段，不携带解析器输入或原始错误。该 loader、Claim 持久绑定和 Execution 锁超时证明已通过有限独审、15 个定向 top 的 race、五包 vet、编译及真实 PG 的 1 top/2 sub 整轮验证，全部原调用和资源尾闭合；生产 app / Loop 尚未接入。设置变量不启动自动重试，也不补写旧 Dispatch 的 policy。原构造器兼容和到期发送等未完成边界见 [Scheduler policy 说明](../../architecture/scheduler/scheduler-loop.md#141-显式-retry-policy-与已实现前置的边界)。
+Scheduler retry 三项全部缺省时保持旧启动行为；任一项存在（包括空串）即要求三项完整、合法，不补默认值。`Load` 使用 `NewLaunchRetryPolicy` 统一验证，`Config.SchedulerLaunchRetryPolicy()` 返回不可变 policy 值和是否配置的标志；错误只报告固定字段，不携带解析器输入或原始错误。该 loader、Claim 持久绑定和 Execution 锁超时证明已通过有限独审、15 个定向 top 的 race、五包 vet、编译及真实 PG 的 1 top/2 sub 整轮验证，全部原调用和资源尾闭合。retry 三项变量本身不启动运行时，也不补写旧 Dispatch 的 policy；已实现的单轮 direct-text App 接线须另行显式配置 `AGENTEAM_CENTRAL_EXECUTION_RUNTIME`，见[显式运行时装配](../work-items/recovery-project-domain-bindings.md#有限后继显式配置的-central-execution-runtime-装配)。该 opt-in 不表示完整 Loop 或平台 ready 已完成，真实 App 组合验收仍未通过。原构造器兼容与 retry 授权边界见 [Scheduler policy 说明](../../architecture/scheduler/scheduler-loop.md#141-显式-retry-policy-与已实现前置的边界)。
 
 `EXECUTION_RUNTIME` 缺省不改变原启动行为；存在即要求完整配置，空串、`null`、缺字段、未知或重复字段、大小写别名和错误类型均拒绝，无隐含启用开关或数值默认。JSON 顶层严格为以下四项，列出的子字段也全部必填：
 
