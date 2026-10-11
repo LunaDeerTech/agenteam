@@ -26,6 +26,7 @@ import (
 	ob "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	pv "github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
@@ -57,7 +58,7 @@ func newSkillAssignmentIngressFixture(t *testing.T) *skillAssignmentIngressFixtu
 	firstRoundRequire(t, err)
 	current, err := a.agents.GetAgent(ctxFor(t), b.ownerBrowser.actor, b.project.ID, task.agentID)
 	firstRoundRequire(t, err)
-	selected := []i.ProjectVariableID{secret.Fields().Variable.ID}
+	selected := []i.ProjectVariableID{secret.Fields().Variable.Fields().ID}
 	change, err := ag.NewAgentUpdate(ag.AgentUpdateFields{AllowedSecretVariableIDs: &selected})
 	firstRoundRequire(t, err)
 	version := current.Fields().Core.Version
@@ -66,7 +67,7 @@ func newSkillAssignmentIngressFixture(t *testing.T) *skillAssignmentIngressFixtu
 	if updated.Validate() != nil || !reflect.DeepEqual(updated.Fields().Agent.Fields().AllowedSecretVariableIDs, selected) {
 		t.Fatal("formal Agent command did not retain the selected Secret reference")
 	}
-	install, err := skill.NewInstallRequest(ctxFor(t), id[sc.Skill](t), skillInstallationPackage(t))
+	install, err := skill.NewInstallRequest(ctxFor(t), id[pc.Skill](t), skillInstallationPackage(t))
 	firstRoundRequire(t, err)
 	installed, err := a.p2.service.Install(ctxFor(t), b.ownerBrowser.actor, meta(t, "assignment-publish-skill", nil), b.project.ID, install)
 	firstRoundRequire(t, err)
