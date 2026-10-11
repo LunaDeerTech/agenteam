@@ -1,6 +1,6 @@
 # 已提交后继 RoundInput 的只读投影
 
-状态：独立树 `agenteam-next-round-projection`，基线 `71b13d5c`。合同与实现进行中，未编译或运行；上游 68 的真实 PG 验收尚未交付，本片不据其静态合同宣称组合通过。
+状态：独立树 `agenteam-next-round-projection`，基线 `71b13d5c`。合同首片 `31e8a34f` 已保存；Execution reader、Loop 投影和必要控制已落，尚未编译或运行。上游 68 的真实 PG 验收尚未交付，本片不据其静态合同宣称组合通过。
 
 依据：[输入确定点](d01-contracts/execution-orchestration.md#技能变更与下一轮输入确定点)、[68 RoundInput](d22-execution-round-input.md)。本片只把已提交的首个后继输入投影为数据；不发 ModelRequest、不调用下一 Model/Runner，不接生产默认或解除 tools HTTP 及其它原 STOP。
 
@@ -12,4 +12,6 @@
 
 Loop 保留原 system 字节，逐项验证消息角色、CallID、参数和完整 read-file 六字段结果及其绑定；可选 control 与固定最终目录仅用白名单 metadata 作为版本 1 的 user 数据消息。仅含原单 read-file 成功链和固定 ToolSet，不承诺完整多轮模型请求格式或所有工具。
 
-必要控制围绕 canonical/身份/完整内容、无 Control 与有效 Control、回调后原事务失败、取消和实际 join，以及消息/目录克隆与默认脱敏。真实联调需先有上游 68 真实提交，并用本片 reader 读取该提交；不以自造 DTO 冒充 committed 输入。当前不运行 Go、服务或网络。
+Execution 已写 5 个 top：流式三条原消息的完整 canonical 前缀（含晚行/close 错误）、借用结束清除、Stop 等原 Store 返回、回调成功后 Store 尚未返回或 Unknown、默认表示脱敏。SQL 流与 Store 时序为显式受控输入，不冒完整 RoundInput SQL/PG 验收。Loop 的 3 个 top 覆盖无 Control/有效 Control、原参数与 canonical 消息的区别、完整身份/结果/目录及克隆、原 reader 实际返回前不得发布。以上仅源码数量，尚无实际通过结果。
+
+真实联调需先有上游 68 真实提交，并用 `NewRoundProjector(d).Project(ctx,E,next)` 读取该提交；不以自造 DTO 冒充 committed 输入。仅新增本片控制和相应包 vet 由 root 单独排期，不重跑旧基础矩阵。当前不运行 Go、服务或网络。
