@@ -28,7 +28,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/agent"
 	agenthttp "github.com/LunaDeerTech/agenteam/internal/central/agent/http"
-	"github.com/LunaDeerTech/agenteam/internal/central/event"
+	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
