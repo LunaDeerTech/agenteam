@@ -28,6 +28,36 @@ func TestWorkHTTPTaskTransitionStandardSchema(t *testing.T) {
 	}
 	add("TaskTransferBody", []byte(transitionBody(t, false)))
 	add("TaskTransitionLookupRequest", []byte(transitionBody(t, true)))
+	for _, request := range reviewTransitionRequests() {
+		for _, lookup := range []bool{false, true} {
+			body := reviewTransitionBody(t, request, lookup)
+			input, output := "TaskTransferBody", "TaskTransitionMutation"
+			if lookup {
+				input, output = "TaskTransitionLookupRequest", "TaskTransitionLookup"
+			}
+			add(input, []byte(body))
+			h, _, _, p := transitionFixture()
+			p.result.Task.State = request.TargetState
+			if request.AssigneeAgentID != nil {
+				p.result.Task.AssigneeAgentID = ptr(*request.AssigneeAgentID)
+			}
+			w := newTestWriter()
+			if serveTest(h, commandRequest("POST", transitionPath(lookup), body), w) || w.Code != 200 {
+				t.Fatal("actual review HTTP projection failed", lookup, w.Code)
+			}
+			add(output, w.Body.Bytes())
+			for _, field := range []string{"assignee_agent_id", "comment", "reviewer_agent_id"} {
+				bad := wireObject(t, []byte(body))
+				var value any
+				if field == "reviewer_agent_id" {
+					// Use a valid ID so rejection proves the field is unknown.
+					value = p.result.Task.AssigneeAgentID.String()
+				}
+				bad["request"].(map[string]any)[field] = value
+				samples = append(samples, schemaSample{input, bad, false})
+			}
+		}
+	}
 	for _, lookup := range []bool{false, true} {
 		for _, state := range []c.LookupState{c.LookupCommitted, c.LookupInProgress, c.LookupNotObserved} {
 			if !lookup && state != c.LookupCommitted {

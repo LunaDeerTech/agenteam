@@ -55,7 +55,14 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 	in := r.Input
 	b := p.Before
 	t := p.After.Task
-	if b.Validate() != nil || p.After.Validate() != nil || b.ProjectID != in.Project || b.ID != in.Task || b.Version != in.Expected || transitionEdge(b, in.Request) != nil || len(p.Groups) != 2 || p.Agent.Validate() != nil || p.Agent.ProjectID != in.Project || p.Agent.AgentID != *transitionAgent(b, in.Request) || p.Placement.Milestone != b.MilestoneID || p.Placement.Sprint != b.SprintID || (p.Placement.State != c.Planned && p.Placement.State != c.Current) {
+	if b.Validate() != nil || p.After.Validate() != nil || b.ProjectID != in.Project || b.ID != in.Task || b.Version != in.Expected || transitionEdge(b, in.Request) != nil || len(p.Groups) != 2 || p.Placement.Milestone != b.MilestoneID || p.Placement.Sprint != b.SprintID || (p.Placement.State != c.Planned && p.Placement.State != c.Current) {
+		return internal(nil)
+	}
+	if transitionRetainsReviewer(b, in.Request) {
+		if p.Agent != nil {
+			return internal(nil)
+		}
+	} else if p.Agent == nil || p.Agent.Validate() != nil || p.Agent.ProjectID != in.Project || p.Agent.AgentID != *transitionAgent(b, in.Request) {
 		return internal(nil)
 	}
 	version, err := transitionNext(int64(b.Version))

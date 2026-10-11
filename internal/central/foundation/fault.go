@@ -49,6 +49,7 @@ const (
 	TaskVersionConflict     Code = "TASK_VERSION_CONFLICT"
 	TaskStateInvalid        Code = "TASK_STATE_INVALID"
 	TaskAssigneeRequired    Code = "TASK_ASSIGNEE_REQUIRED"
+	CommentRequired         Code = "COMMENT_REQUIRED"
 	TaskSprintInvalid       Code = "TASK_SPRINT_INVALID"
 	TaskTerminalImmutable   Code = "TASK_TERMINAL_IMMUTABLE"
 	BlockerNotFound         Code = "BLOCKER_NOT_FOUND"
@@ -64,7 +65,7 @@ func (c Code) Known() bool {
 		ProjectNotActive, ConfirmationStale, SchemaUnsupported, CapabilityUnsupported,
 		RateLimited, DependencyUnbound, DependencyUnavailable, CommitUnknown, InternalError,
 		PayloadTooLarge, UnsupportedMediaType, ShuttingDown, ObjectPayloadMissing,
-		ObjectIntegrityMismatch, RangeNotSatisfiable, TaskNotFound, TaskVersionConflict, TaskStateInvalid, TaskAssigneeRequired, TaskSprintInvalid, TaskTerminalImmutable, BlockerNotFound, BlockerAlreadyResolved, TaskDependencyCycle:
+		ObjectIntegrityMismatch, RangeNotSatisfiable, TaskNotFound, TaskVersionConflict, TaskStateInvalid, TaskAssigneeRequired, CommentRequired, TaskSprintInvalid, TaskTerminalImmutable, BlockerNotFound, BlockerAlreadyResolved, TaskDependencyCycle:
 		return true
 	}
 	return false

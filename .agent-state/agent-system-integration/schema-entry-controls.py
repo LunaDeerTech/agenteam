@@ -15,7 +15,8 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[2]
 DRIVER = '.agent-state/work-owner-http/root_chain_driver.py'
 SUP = '.agent-state/task-planning-recovery/pg_only_supervisor.py'
-SYSTEM_INPUTS = {'^TestSchedulerRelaunch$': ('tests/projectvariable/scheduler_relaunch_test.go', 'tests/projectvariable/scheduler_execution_test.go', 'tests/projectvariable/execution_first_round_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go'),
+SYSTEM_INPUTS = {'^TestTaskHumanReview$': ('tests/projectvariable/task_review_test.go', 'tests/projectvariable/task_technical_resolution_http_test.go', 'tests/projectvariable/task_human_http_test.go', 'tests/projectvariable/scheduler_relaunch_test.go', 'tests/projectvariable/scheduler_execution_test.go', 'tests/projectvariable/execution_first_round_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go'),
+ '^TestSchedulerRelaunch$': ('tests/projectvariable/scheduler_relaunch_test.go', 'tests/projectvariable/scheduler_execution_test.go', 'tests/projectvariable/execution_first_round_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go'),
  '^TestSchedulerExecution$': ('tests/projectvariable/scheduler_execution_test.go', 'tests/projectvariable/execution_first_round_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go'),
  '^TestExecutionFirstRound$': ('tests/projectvariable/execution_first_round_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go'),
  '^TestModelAgentRetryRuntime$': ('tests/model/agent_runtime_test.go', 'tests/model/runtime_native_test.go', 'tests/testsupport/outbound/fixture.go', 'tests/testsupport/outbound/cmd/server/main.go'),
@@ -42,7 +43,8 @@ SYSTEM_INPUTS = {'^TestSchedulerRelaunch$': ('tests/projectvariable/scheduler_re
  '^TestSprintStartHTTP$': ('tests/projectvariable/task_human_http_test.go',),
  '^TestSchedulerLaunchFinalFailure$': ('tests/projectvariable/scheduler_launch_failure_test.go',),
  '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': ('tests/projectvariable/task_technical_resolution_http_test.go', 'tests/projectvariable/task_unblock_atomic_test.go')}
-SYSTEM_CASES = {'^TestSchedulerRelaunch$': ('TestSchedulerRelaunch', 'TestSchedulerRelaunch/cooldown-restart-and-new-execution', 'TestSchedulerRelaunch/relaunch-failure-atomic-block-and-replay'),
+SYSTEM_CASES = {'^TestTaskHumanReview$': ('TestTaskHumanReview', 'TestTaskHumanReview/completed-work-review-and-done', 'TestTaskHumanReview/review-rework-late-transaction-rollback-and-replay'),
+ '^TestSchedulerRelaunch$': ('TestSchedulerRelaunch', 'TestSchedulerRelaunch/cooldown-restart-and-new-execution', 'TestSchedulerRelaunch/relaunch-failure-atomic-block-and-replay'),
  '^TestSchedulerExecution$': ('TestSchedulerExecution', 'TestSchedulerExecution/historical-association-terminal-and-dedup', 'TestSchedulerExecution/asynchronous-todo-and-cancel-join'),
  '^TestExecutionFirstRound$': ('TestExecutionFirstRound', 'TestExecutionFirstRound/completed-one-turn', 'TestExecutionFirstRound/start-receipt-loss-recovery', 'TestExecutionFirstRound/cancel-joins-current-call'),
  '^TestModelAgentRetryRuntime$': ('TestModelAgentRetryRuntime', 'TestModelAgentRetryRuntime/retry-success-and-execution-lease-reuse', 'TestModelAgentRetryRuntime/cancel-prevents-next-attempt', 'TestModelAgentRetryRuntime/nonretryable-single-failure'),
@@ -96,6 +98,7 @@ BASE_SHA = {'.agent-state/work-owner-http/root_chain_driver.py': '776e6306214722
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': 'ce09376d0db54c1ef805974c491836cb854f3e23468e0414b0ef31235d00e589'}
 SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA_INPUTS = {\n',
                                                         'METADATA_INPUTS = {\n'
+                                                        "    '^TestTaskHumanReview$': (\n        'tests/projectvariable/task_review_test.go',\n        'tests/projectvariable/task_technical_resolution_http_test.go',\n        'tests/projectvariable/task_human_http_test.go',\n        'tests/projectvariable/scheduler_relaunch_test.go',\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n"
                                                         "    '^TestSchedulerRelaunch$': (\n        'tests/projectvariable/scheduler_relaunch_test.go',\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n"
                                                         "    '^TestSchedulerExecution$': (\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n"
                                                         "    '^TestExecutionFirstRound$': (\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n"
@@ -167,6 +170,7 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA
                                                         ("    paths = set(input_paths(binary)) | set((REPOSITORY / 'tests/projectvariable').glob('*.go'))\n    # Preserve the author's", "    paths = set(input_paths(binary)) | set((REPOSITORY / TARGETS[selector]).glob('*.go'))\n    # Preserve the author's")],
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {\n',
                                                                 'METADATA_GROUPS = {\n'
+                                                        "    '^TestTaskHumanReview$': frozenset({\n        'TestTaskHumanReview',\n        'TestTaskHumanReview/completed-work-review-and-done',\n        'TestTaskHumanReview/review-rework-late-transaction-rollback-and-replay',\n    }),\n"
                                                         "    '^TestSchedulerRelaunch$': frozenset({\n        'TestSchedulerRelaunch',\n        'TestSchedulerRelaunch/cooldown-restart-and-new-execution',\n        'TestSchedulerRelaunch/relaunch-failure-atomic-block-and-replay',\n    }),\n"
                                                         "    '^TestSchedulerExecution$': frozenset({\n        'TestSchedulerExecution',\n        'TestSchedulerExecution/historical-association-terminal-and-dedup',\n        'TestSchedulerExecution/asynchronous-todo-and-cancel-join',\n    }),\n"
                                                                 "    '^TestExecutionFirstRound$': frozenset({\n        'TestExecutionFirstRound',\n        'TestExecutionFirstRound/completed-one-turn',\n        'TestExecutionFirstRound/start-receipt-loss-recovery',\n        'TestExecutionFirstRound/cancel-joins-current-call',\n    }),\n"

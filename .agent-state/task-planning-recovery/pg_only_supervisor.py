@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestTaskHumanReview$': frozenset({
+        'TestTaskHumanReview',
+        'TestTaskHumanReview/completed-work-review-and-done',
+        'TestTaskHumanReview/review-rework-late-transaction-rollback-and-replay',
+    }),
     '^TestSchedulerRelaunch$': frozenset({
         'TestSchedulerRelaunch',
         'TestSchedulerRelaunch/cooldown-restart-and-new-execution',

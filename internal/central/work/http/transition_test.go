@@ -81,6 +81,108 @@ func transitionPath(lookup bool) string {
 	return "/tasks/" + testTask().ID.String() + "/transfer"
 }
 
+func reviewTransitionRequests() []c.TaskTransfer {
+	comment := "  Review: 保留原文\r\n\tReady.  "
+	return []c.TaskTransfer{
+		{TargetState: c.TaskStateInReview, AssigneeAgentID: ptr(testID[id.Agent](31)), Comment: &comment},
+		{TargetState: c.TaskStateInReview, AssigneeAgentID: ptr(testID[id.Agent](30)), Comment: &comment},
+		{TargetState: c.TaskStateDone, Comment: &comment},
+		{TargetState: c.TaskStateDone, AssigneeAgentID: ptr(testID[id.Agent](31)), Comment: &comment},
+		{TargetState: c.TaskStateTodo, AssigneeAgentID: ptr(testID[id.Agent](32)), Comment: &comment},
+	}
+}
+
+func reviewTransitionBody(t *testing.T, request c.TaskTransfer, lookup bool) string {
+	t.Helper()
+	v := map[string]any{"expected_version": "1", "request": request}
+	if lookup {
+		v["command"], v["target_id"] = "work.task.transfer", testTask().ID
+	}
+	raw, err := json.Marshal(v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(raw)
+}
+
+func TestWorkHTTPReviewTransitionsAndOriginalLookup(t *testing.T) {
+	// The domain port supplies controlled receipts. This verifies the existing
+	// transport; current state, reviewer eligibility and required presence are
+	// checked by the real Work transition service in its transaction tests.
+	for n, request := range reviewTransitionRequests() {
+		h, _, old, p := transitionFixture()
+		p.result.Task.State = request.TargetState
+		if request.AssigneeAgentID != nil {
+			p.result.Task.AssigneeAgentID = ptr(*request.AssigneeAgentID)
+		}
+		w := newTestWriter()
+		if serveTest(h, commandRequest("POST", transitionPath(false), reviewTransitionBody(t, request, false)), w) || w.Code != 200 || p.writes != 1 || p.lookups != 0 || old.calls != 0 {
+			t.Fatal("review intent did not reach the original transition once", n, w.Code)
+		}
+		if p.request.TargetState != request.TargetState || p.request.Comment == nil || *p.request.Comment != *request.Comment || !sameAgent(p.request.AssigneeAgentID, request.AssigneeAgentID) {
+			t.Fatal("review transport changed assignee presence or comment bytes", n)
+		}
+		original := append([]byte(nil), w.Body.Bytes()...)
+		digest, err := c.TaskTransferDigest(p.actor, p.meta, p.project, p.target, request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		w = newTestWriter()
+		if serveTest(h, commandRequest("POST", transitionPath(true), reviewTransitionBody(t, request, true)), w) || w.Code != 200 || p.writes != 1 || p.lookups != 1 || old.calls != 0 || p.query.SemanticDigest != digest || p.query.IdempotencyKey != p.meta.IdempotencyKey {
+			t.Fatal("review Lookup lost the original intent or invoked another operation", n, w.Code)
+		}
+		found, err := c.DecodeTaskTransitionLookup(w.Body.Bytes())
+		if err != nil || found.Status != c.LookupCommitted || found.Receipt == nil {
+			t.Fatal("review Lookup lost the original committed receipt", n, err)
+		}
+		raw, err := json.Marshal(found.Receipt)
+		if err != nil || !bytes.Equal(raw, original) {
+			t.Fatal("review Lookup changed historical Task or event identities", n, err)
+		}
+		if request.AssigneeAgentID != nil {
+			p.result.Task.AssigneeAgentID = ptr(testID[id.Agent](99))
+			for _, lookup := range []bool{false, true} {
+				w = newTestWriter()
+				aborted := serveTest(h, commandRequest("POST", transitionPath(lookup), reviewTransitionBody(t, request, lookup)), w)
+				if lookup && (aborted || w.Code != 503) || !lookup && (!aborted || w.Body.Len() != 0) {
+					t.Fatal("review response published a different explicitly requested assignee", n, lookup)
+				}
+			}
+		}
+	}
+	for _, lookup := range []bool{false, true} {
+		for _, field := range []string{"assignee_agent_id", "comment", "reviewer_agent_id"} {
+			body := wireObject(t, []byte(reviewTransitionBody(t, reviewTransitionRequests()[0], lookup)))
+			var value any
+			if field == "reviewer_agent_id" {
+				value = testID[id.Agent](31).String()
+			}
+			body["request"].(map[string]any)[field] = value
+			raw, err := json.Marshal(body)
+			if err != nil {
+				t.Fatal(err)
+			}
+			h, _, old, p := transitionFixture()
+			w := newTestWriter()
+			if serveTest(h, commandRequest("POST", transitionPath(lookup), string(raw)), w) || w.Code != 400 || p.writes+p.lookups+old.calls != 0 {
+				t.Fatal("review transport admitted explicit null or a second reviewer field", field, lookup, w.Code)
+			}
+		}
+		h, _, old, p := transitionFixture()
+		request := reviewTransitionRequests()[0]
+		request.Comment = nil
+		p.err = f.NewFault(f.CommentRequired, f.NotStarted).WithCause(fmt.Errorf("private-review-comment-canary"))
+		w := newTestWriter()
+		if serveTest(h, commandRequest("POST", transitionPath(lookup), reviewTransitionBody(t, request, lookup)), w) || w.Code != 409 || p.writes+p.lookups != 1 || old.calls != 0 || strings.Contains(w.Body.String(), "canary") {
+			t.Fatal("required-comment domain rejection lost its safe transport boundary", lookup, w.Code)
+		}
+		problem := wireObject(t, w.Body.Bytes())
+		if problem["code"] != string(f.CommentRequired) || problem["commit_state"] != "not_started" || lookup && p.writes != 0 || !lookup && p.lookups != 0 {
+			t.Fatal("required-comment rejection retried or changed the original result", lookup)
+		}
+	}
+}
+
 func TestWorkHTTPTaskTransitionAndOriginalLookup(t *testing.T) {
 	h, _, old, p := transitionFixture()
 	w := newTestWriter()

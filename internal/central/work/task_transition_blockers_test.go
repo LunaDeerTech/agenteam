@@ -151,7 +151,7 @@ func unblockRecord(t *testing.T) (*transitionRecord, i.Actor) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r.Plan = transitionPlan{Before: before, After: mutation, Placement: taskPlacement{before.MilestoneID, before.SprintID, c.Current}, Agent: ac.AgentRef{ProjectID: in.Project, AgentID: *before.AssigneeAgentID, ConfigVersion: 1}, Groups: []taskGroupPlan{{source, []rankItem{{before.ID.String(), before.ManualRank}}, []rankItem{}, 2}, {target, []rankItem{}, []rankItem{{after.ID.String(), after.ManualRank}}, 1}}, QueryGeneration: 3, History: h, Source: sp, Target: tp, Header: ev.Header(), Payload: ev.PayloadBytes(), Resolutions: resolutions}
+	r.Plan = transitionPlan{Before: before, After: mutation, Placement: taskPlacement{before.MilestoneID, before.SprintID, c.Current}, Agent: &ac.AgentRef{ProjectID: in.Project, AgentID: *before.AssigneeAgentID, ConfigVersion: 1}, Groups: []taskGroupPlan{{source, []rankItem{{before.ID.String(), before.ManualRank}}, []rankItem{}, 2}, {target, []rankItem{}, []rankItem{{after.ID.String(), after.ManualRank}}, 1}}, QueryGeneration: 3, History: h, Source: sp, Target: tp, Header: ev.Header(), Payload: ev.PayloadBytes(), Resolutions: resolutions}
 	if err = validateTransitionRecord(r, actor); err != nil {
 		t.Fatal("unblock record", err)
 	}
@@ -174,7 +174,7 @@ func TestTaskUnblockFrozenResolutionsAndLegacyPlans(t *testing.T) {
 		Payload         json.RawMessage          `json:"payload"`
 	}
 	p := old.Plan
-	legacy, err := json.Marshal(legacyPlan{p.Before, p.After, p.Placement, p.Agent, p.Groups, p.QueryGeneration, p.History, p.Source, p.Target, p.Header, p.Payload})
+	legacy, err := json.Marshal(legacyPlan{p.Before, p.After, p.Placement, *p.Agent, p.Groups, p.QueryGeneration, p.History, p.Source, p.Target, p.Header, p.Payload})
 	if err != nil {
 		t.Fatal(err)
 	}
