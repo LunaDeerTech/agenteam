@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"sync"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/mount"
@@ -24,6 +25,30 @@ type ReadFileDispatchResult struct {
 	Terminal  *p.Response
 }
 
+// ReadFileCall fixes the future wire RequestID before the Operation owner
+// commits its Attempt. Preparing a call does not claim its ticket, enqueue a
+// frame or start background work. Copies share one private consumption state.
+type ReadFileCall struct{ state *readFileCallState }
+
+type readFileCallState struct {
+	mu         sync.Mutex
+	used       bool
+	dispatcher *ReadFileDispatcher
+	ticket     mount.ReadFileTicket
+	requestID  p.ID
+}
+
+func (ReadFileCall) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "read_file_call") }
+func (ReadFileCall) MarshalJSON() ([]byte, error) { return []byte(`"read_file_call"`), nil }
+func (ReadFileCall) LogValue() slog.Value         { return slog.StringValue("read_file_call") }
+
+func (c *ReadFileCall) RequestID() p.ID {
+	if c == nil || c.state == nil {
+		return ""
+	}
+	return c.state.requestID
+}
+
 func (ReadFileDispatchResult) Format(w fmt.State, _ rune) {
 	_, _ = io.WriteString(w, "read_file_dispatch_result")
 }
@@ -41,11 +66,52 @@ func NewReadFileDispatcher(device *DeviceHandler, mounts *mount.ReadFileResolver
 	return &ReadFileDispatcher{device: device, mounts: mounts}, nil
 }
 
+func (d *ReadFileDispatcher) Prepare(ticket mount.ReadFileTicket) (*ReadFileCall, error) {
+	if d == nil || d.device == nil || d.mounts == nil {
+		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
+	if ticket.RunnerID().Validate() != nil {
+		return nil, f.NewFault(f.InvalidArgument, f.NotStarted)
+	}
+	requestID, err := p.NewID()
+	if err != nil {
+		return nil, f.NewFault(f.DependencyUnavailable, f.NotStarted)
+	}
+	return &ReadFileCall{state: &readFileCallState{dispatcher: d, ticket: ticket, requestID: requestID}}, nil
+}
+
+// Dispatch consumes this call even if current admission fails. The trusted
+// Operation owner may invoke it only after the Attempt containing RequestID()
+// has a known committed outcome and its original transaction has returned.
+// An unknown outcome must retain that Attempt without dispatching or retrying.
+func (c *ReadFileCall) Dispatch(ctx context.Context) (ReadFileDispatchResult, error) {
+	if c == nil || c.state == nil {
+		return ReadFileDispatchResult{}, f.NewFault(f.InvalidArgument, f.NotStarted)
+	}
+	s := c.state
+	s.mu.Lock()
+	if s.used {
+		s.mu.Unlock()
+		return ReadFileDispatchResult{}, f.NewFault(f.InvalidState, f.NotStarted)
+	}
+	s.used = true
+	s.mu.Unlock()
+	return s.dispatcher.dispatch(ctx, s.ticket, s.requestID)
+}
+
 func (d *ReadFileDispatcher) Dispatch(ctx context.Context, ticket mount.ReadFileTicket) (ReadFileDispatchResult, error) {
+	call, err := d.Prepare(ticket)
+	if err != nil {
+		return ReadFileDispatchResult{}, err
+	}
+	return call.Dispatch(ctx)
+}
+
+func (d *ReadFileDispatcher) dispatch(ctx context.Context, ticket mount.ReadFileTicket, requestID p.ID) (ReadFileDispatchResult, error) {
 	if d == nil || d.device == nil || d.mounts == nil {
 		return ReadFileDispatchResult{}, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	if ctx == nil || ticket.RunnerID().Validate() != nil {
+	if ctx == nil || ticket.RunnerID().Validate() != nil || !requestID.Valid() {
 		return ReadFileDispatchResult{}, f.NewFault(f.InvalidArgument, f.NotStarted)
 	}
 	d.device.registry.mu.Lock()
@@ -66,6 +132,7 @@ func (d *ReadFileDispatcher) Dispatch(ctx context.Context, ticket mount.ReadFile
 	if err != nil {
 		return ReadFileDispatchResult{}, err
 	}
+	request.RequestID = requestID
 	if deadline, ok := ctx.Deadline(); ok {
 		at, e := p.NewInstant(deadline)
 		if e != nil {
@@ -84,11 +151,9 @@ func (s *controlSession) dispatchReadFile(ctx context.Context, input p.Request) 
 	if ctx == nil || ctx.Err() != nil {
 		return controlResult{}, errControlClosed
 	}
-	requestID, err := p.NewID()
-	if err != nil {
-		return controlResult{}, errControlTransport
+	if !input.RequestID.Valid() {
+		return controlResult{}, errControlProtocol
 	}
-	input.RequestID = requestID
 	message, err := controlMessage(input, input.RequestID, input.OperationID)
 	if err != nil {
 		return controlResult{}, errControlProtocol
@@ -99,6 +164,14 @@ func (s *controlSession) dispatchReadFile(ctx context.Context, input p.Request) 
 	if !s.active || s.closed || !s.readFile {
 		s.mu.Unlock()
 		return controlResult{}, errControlClosed
+	}
+	if _, exists := s.pending[input.RequestID]; exists {
+		s.mu.Unlock()
+		return controlResult{}, errControlProtocol
+	}
+	if _, exists := s.completed[input.RequestID]; exists {
+		s.mu.Unlock()
+		return controlResult{}, errControlProtocol
 	}
 	if len(s.pending) >= p.MaxPendingRequests || len(s.pending)+len(s.completed) >= p.MaxSeenMessages {
 		s.mu.Unlock()
