@@ -244,7 +244,7 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 
 ## 12. Current Sprint 任务创建与指派切片（批 12A）
 
-本批在 §11 已交任务页面上增加两次独立确认，限定已有已初始化 Project 的 Current Sprint。当前 Human Owner 显式填写标题、类型、优先级及可选描述、Plan，调用原 [Task Planning](d11-task-planning.md) Create，成功结果为 `backlog/assignee=null/version=1`；类型、优先级不代选默认值。完整创建回执确认后才进入真实 Task 详情，再由用户明确选择[真实 Agent 目录](d10-agent-configuration.md)中的 Agent，单独确认 `backlog→todo`。指派使用当前 Task 原字符串版本，保留当前资格和完整阻塞检查；说明在此边可省略，不放宽原三条评审边的说明要求。
+本批已随正式产品基线main `295f46b4`交付，在 §11 已交任务页面上增加两次独立确认，限定已有已初始化 Project 的 Current Sprint。当前 Human Owner 显式填写标题、类型、优先级及可选描述、Plan，调用原 [Task Planning](d11-task-planning.md) Create，成功结果为 `backlog/assignee=null/version=1`；类型、优先级不代选默认值。完整创建回执确认后才进入真实 Task 详情，再由用户明确选择[真实 Agent 目录](d10-agent-configuration.md)中的 Agent，单独确认 `backlog→todo`。指派使用当前 Task 原字符串版本，保留当前资格和完整阻塞检查；说明在此边可省略，不放宽原三条评审边的说明要求。
 
 客户端复用 [Work Owner HTTP](d11-work-owner-http.md)：Create 为 `POST /api/v1/projects/{P}/tasks`，原创建 Lookup 为 `POST /api/v1/projects/{P}/task-commands/lookup`；指派仍沿原 Transfer/Lookup。Task UUIDv7 仅在首次提交前生成，原 ID、key、Project、Sprint、完整请求及身份由 Session 私有意图冻结；create 与 transfer 分别持有独立意图和 key，不串联发送。创建结果 Unknown 时在原 Sprint 保留“查询原创建结果”，不依赖尚未确认存在的 Task 详情；只按原 key/request Lookup，`in_progress/not_observed` 不授权重发。返回原创建 Sprint 的入口同时检查当前 Project 归属，不能把原 Sprint ID 拼进另一 Project 的路径。身份、选择与页面代际变化继续隔离迟到结果。
 
