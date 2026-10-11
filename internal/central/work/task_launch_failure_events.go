@@ -14,7 +14,7 @@ import (
 const taskFailureEventPurpose = "work.task-launch-failure.append-v1"
 
 func taskFailureEventTriple(s event.Summary) bool {
-	return s.Producer == c.WorkProducer && s.Header.EventType == c.TaskTransitionedName && s.Header.AggregateType == c.TaskAggregate && s.Header.SchemaVersion == c.TaskLaunchFailureSchemaVersion
+	return s.Producer == c.WorkProducer && s.Header.EventType == c.TaskTransitionedName && s.Header.AggregateType == c.TaskAggregate && (s.Header.SchemaVersion == c.TaskLaunchFailureSchemaVersion || s.Header.SchemaVersion == c.TaskRelaunchFailureSchemaVersion)
 }
 func (a *Authority) failureEventContext(ctx context.Context, actor i.Actor, summary event.Summary) (taskFailureContext, error) {
 	var zero taskFailureContext
@@ -25,17 +25,17 @@ func (a *Authority) failureEventContext(ctx context.Context, actor i.Actor, summ
 		return zero, ctx.Err()
 	}
 	v, ok := ctx.Value(taskFailureContextKey{}).(taskFailureContext)
-	if !ok || v.plan == nil || v.plan.owner == nil || v.plan.owner.deps.Authority != a || a.state() == nil || !sameStore(a.state().store, v.plan.owner.store) || !v.plan.actor.Equal(actor) || claimActor(actor, v.plan.request.Claim) != nil || !taskFailureEventTriple(summary) {
+	if !ok || v.plan == nil || v.plan.owner == nil || v.plan.owner.deps.Authority != a || a.state() == nil || !sameStore(a.state().store, v.plan.owner.store) || !v.plan.actor.Equal(actor) || failureInput(ctx, actor, v.plan.request) != nil || !taskFailureEventTriple(summary) {
 		return zero, fault(f.Forbidden)
 	}
 	p := v.plan
 	if err := validateTaskFailureRecord(&p.record); err != nil {
 		return zero, err
 	}
-	if !p.record.Changed || p.record.Header == nil || p.record.Event == nil {
+	if !p.record.Changed || p.record.Header == nil {
 		return zero, fault(f.Forbidden)
 	}
-	e, err := p.owner.deps.FailureEvents.NewTaskLaunchFailed(*p.record.Header, *p.record.Event)
+	e, err := p.record.event(p.owner.deps.FailureEvents)
 	if err != nil || !sameValue(e.Summary(), summary) {
 		return zero, fault(f.Forbidden)
 	}
@@ -66,7 +66,14 @@ func failureEventDependencies(p *taskFailurePlan, summary event.Summary) (f.Dige
 		Kind    string `json:"kind"`
 		ClaimID string `json:"claim_id"`
 		EventID string `json:"event_id"`
-	}{taskFailureEventPurpose, p.request.Claim.DispatchID, p.record.Header.EventID.String()})
+	}{taskFailureEventPurpose, p.request.DispatchID(), p.record.Header.EventID.String()})
+	if p.request.Relaunch != nil {
+		opaque, err = canonical(struct {
+			Kind       string `json:"kind"`
+			DispatchID string `json:"dispatch_id"`
+			EventID    string `json:"event_id"`
+		}{taskFailureEventPurpose, p.request.DispatchID(), p.record.Header.EventID.String()})
+	}
 	if err != nil {
 		return "", nil, nil, internal(err)
 	}

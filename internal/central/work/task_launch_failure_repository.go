@@ -17,7 +17,9 @@ import (
 type taskFailureRecord struct {
 	Request         c.TaskLaunchFailureRequest `json:"request"`
 	Facts           c.TaskLaunchFailureFacts   `json:"facts"`
-	Claim           schedulerClaimRecord       `json:"claim"`
+	Claim           schedulerClaimRecord       `json:"claim,omitzero"`
+	Relaunch        *taskRelaunchRecord        `json:"relaunch,omitempty"`
+	RelaunchEvent   *c.TaskRelaunchFailed      `json:"relaunch_event,omitempty"`
 	Before          c.Task                     `json:"before"`
 	After           c.Task                     `json:"after"`
 	Sprint          c.Sprint                   `json:"sprint"`
@@ -34,19 +36,31 @@ type taskFailureRecord struct {
 
 // A later title/plan/version is retained. Applicability is the original Task,
 // assignee and source relation, not equality with the claim's old postimage.
-func failureCanBlock(claim *schedulerClaimRecord, before c.Task, sprint c.Sprint) bool {
-	return (before.State == c.TaskStateInProgress || before.State == c.TaskStateBlocked) && before.AssigneeAgentID != nil && *before.AssigneeAgentID == claim.Request.AgentID && before.SprintID == claim.Before.SprintID && before.MilestoneID == claim.Before.MilestoneID && sprint.ID == claim.Before.SprintID && sprint.State != c.Completed
+func failureCanBlock(claim *schedulerClaimRecord, before c.Task, sprint c.Sprint, relaunch ...*taskRelaunchRecord) bool {
+	base := claim.Before
+	if len(relaunch) > 0 && relaunch[0] != nil {
+		base = relaunch[0].Task
+	}
+	return (before.State == c.TaskStateInProgress || before.State == c.TaskStateBlocked) && before.AssigneeAgentID != nil && base.AssigneeAgentID != nil && *before.AssigneeAgentID == *base.AssigneeAgentID && before.SprintID == base.SprintID && before.MilestoneID == base.MilestoneID && sprint.ID == base.SprintID && sprint.State != c.Completed
 }
-func buildTaskFailureRecord(r c.TaskLaunchFailureRequest, facts c.TaskLaunchFailureFacts, claim schedulerClaimRecord, before c.Task, sprint c.Sprint, current *c.SprintID, groups []taskGroupPlan, query int64, blockerID c.TaskBlockerID, historyIDs []c.TaskEventID, eventID event.EventID, at f.Instant) (taskFailureRecord, error) {
+func buildTaskFailureRecord(r c.TaskLaunchFailureRequest, facts c.TaskLaunchFailureFacts, claim schedulerClaimRecord, before c.Task, sprint c.Sprint, current *c.SprintID, groups []taskGroupPlan, query int64, blockerID c.TaskBlockerID, historyIDs []c.TaskEventID, eventID event.EventID, at f.Instant, relaunch ...*taskRelaunchRecord) (taskFailureRecord, error) {
 	var zero taskFailureRecord
-	if r.Validate() != nil || facts.Reason.Validate() != nil || facts.OccurredAt.Validate() != nil || validateSchedulerClaimRecord(&claim) != nil || claim.Request != r.Claim || !sameValue(claim.Guard, facts.Guard) || before.Validate() != nil || before.ProjectID != r.Claim.ProjectID || before.ID != r.Claim.TaskID || before.Version < claim.Guard.ClaimedVersion || sprint.Validate() != nil || sprint.ProjectID != before.ProjectID || sprint.ID != claim.Guard.SourceSprintID || at.Validate() != nil {
+	var origin *taskRelaunchRecord
+	if len(relaunch) > 1 {
 		return zero, internal(nil)
+	}
+	if len(relaunch) == 1 {
+		origin = relaunch[0]
+	}
+	baseline, originErr := taskFailureBaseline(r, facts, claim, origin)
+	if originErr != nil || before.Validate() != nil || before.ProjectID != r.ProjectID() || before.ID != r.TaskID() || before.Version < baseline.Version || sprint.Validate() != nil || sprint.ProjectID != before.ProjectID || sprint.ID != baseline.SprintID || at.Validate() != nil {
+		return zero, internal(originErr)
 	}
 	if current != nil && current.Validate() != nil {
 		return zero, internal(nil)
 	}
-	if before.Version == claim.Guard.ClaimedVersion {
-		expected := claim.After.Clone()
+	if before.Version == baseline.Version {
+		expected := baseline.Clone()
 		expected.ManualRank = before.ManualRank
 		if !sameValue(expected, before) {
 			return zero, internal(nil)
@@ -58,12 +72,12 @@ func buildTaskFailureRecord(r c.TaskLaunchFailureRequest, facts c.TaskLaunchFail
 	if at.Time().Before(facts.OccurredAt.Time()) {
 		at = facts.OccurredAt
 	}
-	rec := taskFailureRecord{Request: r.Clone(), Facts: facts.Clone(), Claim: claim, Before: before.Clone(), After: before.Clone(), Sprint: sprint.Clone(), Groups: []taskGroupPlan{}, History: []c.TaskFailureTaskEvent{}, CreatedAt: at}
+	rec := taskFailureRecord{Request: r.Clone(), Facts: facts.Clone(), Claim: claim, Relaunch: cloneTaskRelaunchRecord(origin), Before: before.Clone(), After: before.Clone(), Sprint: sprint.Clone(), Groups: []taskGroupPlan{}, History: []c.TaskFailureTaskEvent{}, CreatedAt: at}
 	if current != nil {
 		x := *current
 		rec.CurrentSprintID = &x
 	}
-	if !failureCanBlock(&claim, before, sprint) {
+	if !failureCanBlock(&claim, before, sprint, origin) {
 		if len(groups) != 0 || query != 0 || blockerID.Validate() == nil || len(historyIDs) != 0 || eventID.Validate() == nil {
 			return zero, internal(nil)
 		}
@@ -153,12 +167,12 @@ func buildTaskFailureRecord(r c.TaskLaunchFailureRequest, facts c.TaskLaunchFail
 		after.ManualRank = ranks.Rank
 		rec.Groups = []taskGroupPlan{{source, slices.Clone(groups[0].Before), remaining, groups[0].Generation}, {target, slices.Clone(groups[1].Before), ranks.Items, groups[1].Generation}}
 	}
-	id, e := f.ParseID[c.SchedulerClaim](r.Claim.DispatchID)
+	id, e := f.ParseID[c.SchedulerClaim](r.DispatchID())
 	if e != nil {
 		return zero, internal(e)
 	}
-	actor := c.SchedulerTaskActor{CauseID: r.Claim.DispatchID}
-	blocker := c.TaskBlocker{ID: blockerID, ProjectID: before.ProjectID, TaskID: before.ID, Type: c.TaskBlockerTechnical, Description: "Scheduler launch failed.", CreatedAt: at, SchedulerCreatedBy: &actor, Technical: &c.TaskBlockerTechnicalMetadata{Code: "scheduler_launch_failed", Source: "scheduler_dispatch", ReferenceID: r.Claim.DispatchID}}
+	actor := c.SchedulerTaskActor{CauseID: r.DispatchID()}
+	blocker := c.TaskBlocker{ID: blockerID, ProjectID: before.ProjectID, TaskID: before.ID, Type: c.TaskBlockerTechnical, Description: "Scheduler launch failed.", CreatedAt: at, SchedulerCreatedBy: &actor, Technical: &c.TaskBlockerTechnicalMetadata{Code: "scheduler_launch_failed", Source: "scheduler_dispatch", ReferenceID: r.DispatchID()}}
 	history := []c.TaskFailureTaskEvent{{ID: historyIDs[0], ProjectID: before.ProjectID, TaskID: before.ID, TaskVersion: after.Version, Type: "blocker_added", Actor: actor, OperationID: id, CorrelationID: id, Blocker: &c.TaskFailureBlockerAdded{BlockerID: blockerID, BlockerType: c.TaskBlockerTechnical, ReasonCode: c.TaskLaunchFailureHistoryReason}, CreatedAt: at}}
 	if n == 2 {
 		history = append(history, c.TaskFailureTaskEvent{ID: historyIDs[1], ProjectID: before.ProjectID, TaskID: before.ID, TaskVersion: after.Version, Type: "state_changed", Actor: actor, OperationID: id, CorrelationID: id, State: &c.TaskFailureStateChanged{FromState: before.State, ToState: after.State, ReasonCode: c.TaskLaunchFailureHistoryReason}, CreatedAt: at})
@@ -169,8 +183,27 @@ func buildTaskFailureRecord(r c.TaskLaunchFailureRequest, facts c.TaskLaunchFail
 	}
 	header.EventType = c.TaskTransitionedName
 	header.SchemaVersion = c.TaskLaunchFailureSchemaVersion
-	payload := c.TaskLaunchFailed{ClaimID: id, Actor: actor, BlockerID: blockerID, TaskEventIDs: slices.Clone(historyIDs), MilestoneID: before.MilestoneID, SprintID: before.SprintID, AgentID: r.Claim.AgentID, FromState: before.State, ToState: after.State, Reason: facts.Reason, SourcePosition: sourcePosition, TargetPosition: targetPosition}
-	if after.Validate() != nil || blocker.Validate() != nil || payload.Validate() != nil {
+	var payload *c.TaskLaunchFailed
+	var relaunchEvent *c.TaskRelaunchFailed
+	if origin == nil {
+		v := c.TaskLaunchFailed{ClaimID: id, Actor: actor, BlockerID: blockerID, TaskEventIDs: slices.Clone(historyIDs), MilestoneID: before.MilestoneID, SprintID: before.SprintID, AgentID: r.AgentID(), FromState: before.State, ToState: after.State, Reason: facts.Reason, SourcePosition: sourcePosition, TargetPosition: targetPosition}
+		if v.Validate() != nil {
+			return zero, internal(nil)
+		}
+		payload = &v
+	} else {
+		dispatch, e := f.ParseID[f.Request](r.DispatchID())
+		if e != nil {
+			return zero, internal(e)
+		}
+		v := c.TaskRelaunchFailed{DispatchID: dispatch, Origin: c.TaskDispatchRelaunch, Source: origin.source(), Actor: actor, BlockerID: blockerID, TaskEventIDs: slices.Clone(historyIDs), MilestoneID: before.MilestoneID, SprintID: before.SprintID, AgentID: r.AgentID(), FromState: before.State, ToState: after.State, Reason: facts.Reason, SourcePosition: sourcePosition, TargetPosition: targetPosition}
+		if v.Validate() != nil {
+			return zero, internal(nil)
+		}
+		relaunchEvent = &v
+		header.SchemaVersion = c.TaskRelaunchFailureSchemaVersion
+	}
+	if after.Validate() != nil || blocker.Validate() != nil {
 		return zero, internal(nil)
 	}
 	for _, h := range history {
@@ -184,7 +217,8 @@ func buildTaskFailureRecord(r c.TaskLaunchFailureRequest, facts c.TaskLaunchFail
 	rec.Blocker = &blocker
 	rec.History = history
 	rec.Header = &header
-	rec.Event = &payload
+	rec.Event = payload
+	rec.RelaunchEvent = relaunchEvent
 	return rec, nil
 }
 func validateTaskFailureRecord(r *taskFailureRecord) error {
@@ -203,7 +237,7 @@ func validateTaskFailureRecord(r *taskFailureRecord) error {
 	for _, h := range r.History {
 		ids = append(ids, h.ID)
 	}
-	expected, e := buildTaskFailureRecord(r.Request, r.Facts, r.Claim, r.Before, r.Sprint, r.CurrentSprintID, r.Groups, r.QueryGeneration, b, ids, ev, r.CreatedAt)
+	expected, e := buildTaskFailureRecord(r.Request, r.Facts, r.Claim, r.Before, r.Sprint, r.CurrentSprintID, r.Groups, r.QueryGeneration, b, ids, ev, r.CreatedAt, r.Relaunch)
 	if e != nil || !sameValue(expected, *r) {
 		return internal(nil)
 	}
@@ -213,13 +247,22 @@ func (r *taskFailureRecord) UnmarshalJSON(raw []byte) error {
 	if r == nil {
 		return internal(nil)
 	}
-	fields, e := taskPrivateObject(raw, taskPlanCap, []string{"request", "facts", "claim", "before", "after", "sprint", "current_sprint_id", "changed", "groups", "query_generation", "blocker", "history", "event", "header", "created_at"}, []string{"current_sprint_id", "blocker", "event", "header"})
-	if e != nil {
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(raw, &fields) != nil {
 		return internal(nil)
 	}
-	if _, e = taskPrivateObject(fields["request"], taskRequestCap, []string{"Claim", "DispatchVersion", "LaunchAttempt"}, nil); e != nil {
+	_, isRelaunch := fields["relaunch"]
+	keys := []string{"request", "facts", "claim", "before", "after", "sprint", "current_sprint_id", "changed", "groups", "query_generation", "blocker", "history", "event", "header", "created_at"}
+	if isRelaunch {
+		keys[2] = "relaunch"
+		if _, ok := fields["relaunch_event"]; ok {
+			keys = append(keys, "relaunch_event")
+		}
+	}
+	if _, e := taskPrivateObject(raw, taskPlanCap, keys, []string{"current_sprint_id", "blocker", "event", "header"}); e != nil {
 		return internal(nil)
 	}
+	var e error
 	type wire taskFailureRecord
 	var w wire
 	if json.Unmarshal(raw, &w) != nil {
@@ -250,13 +293,20 @@ func requireTaskFailureCapacity(ctx context.Context, x postgres.SQLExecutor, t c
 	}
 	return ctx.Err()
 }
-func planTaskFailureRecord(ctx context.Context, x postgres.SQLExecutor, r c.TaskLaunchFailureRequest, facts c.TaskLaunchFailureFacts, claim schedulerClaimRecord, before c.Task, sprint c.Sprint, current *c.SprintID) (taskFailureRecord, error) {
+func planTaskFailureRecord(ctx context.Context, x postgres.SQLExecutor, r c.TaskLaunchFailureRequest, facts c.TaskLaunchFailureFacts, claim schedulerClaimRecord, before c.Task, sprint c.Sprint, current *c.SprintID, relaunch ...*taskRelaunchRecord) (taskFailureRecord, error) {
+	var origin *taskRelaunchRecord
+	if len(relaunch) > 1 {
+		return taskFailureRecord{}, internal(nil)
+	}
+	if len(relaunch) == 1 {
+		origin = relaunch[0]
+	}
 	groups := []taskGroupPlan{}
 	var query int64
 	var b c.TaskBlockerID
 	ids := []c.TaskEventID{}
 	var ev event.EventID
-	if failureCanBlock(&claim, before, sprint) {
+	if failureCanBlock(&claim, before, sprint, origin) {
 		n := 1
 		if before.State != c.TaskStateBlocked {
 			n = 2
@@ -264,7 +314,7 @@ func planTaskFailureRecord(ctx context.Context, x postgres.SQLExecutor, r c.Task
 			target := source
 			target.State = c.TaskStateBlocked
 			for _, g := range []taskGroup{source, target} {
-				rows, gen, e := loadTaskRanks(ctx, x, r.Claim.ProjectID, g)
+				rows, gen, e := loadTaskRanks(ctx, x, r.ProjectID(), g)
 				if e != nil {
 					return taskFailureRecord{}, e
 				}
@@ -275,7 +325,7 @@ func planTaskFailureRecord(ctx context.Context, x postgres.SQLExecutor, r c.Task
 			return taskFailureRecord{}, e
 		}
 		var e error
-		query, e = loadTaskQueryGeneration(ctx, x, r.Claim.ProjectID)
+		query, e = loadTaskQueryGeneration(ctx, x, r.ProjectID())
 		if e != nil {
 			return taskFailureRecord{}, e
 		}
@@ -308,7 +358,7 @@ func planTaskFailureRecord(ctx context.Context, x postgres.SQLExecutor, r c.Task
 	if e != nil {
 		return taskFailureRecord{}, internal(e)
 	}
-	return buildTaskFailureRecord(r, facts, claim, before, sprint, current, groups, query, b, ids, ev, at)
+	return buildTaskFailureRecord(r, facts, claim, before, sprint, current, groups, query, b, ids, ev, at, origin)
 }
 
 func applyTaskFailureRecord(ctx context.Context, x postgres.SQLExecutor, r *taskFailureRecord) error {
@@ -324,14 +374,20 @@ func applyTaskFailureRecord(ctx context.Context, x postgres.SQLExecutor, r *task
 		bid = r.Blocker.ID.String()
 		eid = r.Header.EventID.String()
 	}
-	if err = taskAffected(x.Exec(ctx, `INSERT INTO agenteam_work.task_launch_failures(id,project_id,task_id,agent_id,request_id,dispatch_version,launch_attempt,reason,failure_occurred_at,changed,before_version,after_version,blocker_id,event_id,record,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`, r.Request.Claim.DispatchID, r.Before.ProjectID.String(), r.Before.ID.String(), r.Request.Claim.AgentID.String(), r.Request.Claim.RequestID.String(), int64(r.Request.DispatchVersion), r.Request.LaunchAttempt, string(r.Facts.Reason), r.Facts.OccurredAt.Time(), r.Changed, int64(r.Before.Version), int64(r.After.Version), bid, eid, raw, r.CreatedAt.Time())); err != nil {
+	query := `INSERT INTO agenteam_work.task_launch_failures(id,project_id,task_id,agent_id,request_id,dispatch_version,launch_attempt,reason,failure_occurred_at,changed,before_version,after_version,blocker_id,event_id,record,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`
+	args := []any{r.Request.DispatchID(), r.Before.ProjectID.String(), r.Before.ID.String(), r.Request.AgentID().String(), r.Request.RequestID().String(), int64(r.Request.DispatchVersion), r.Request.LaunchAttempt, string(r.Facts.Reason), r.Facts.OccurredAt.Time(), r.Changed, int64(r.Before.Version), int64(r.After.Version), bid, eid, raw, r.CreatedAt.Time()}
+	if r.Relaunch != nil {
+		query = `INSERT INTO agenteam_work.task_launch_failures(id,project_id,task_id,agent_id,request_id,dispatch_version,launch_attempt,reason,failure_occurred_at,changed,before_version,after_version,blocker_id,event_id,record,created_at,relaunch_operation_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`
+		args = append(args, r.Request.DispatchID())
+	}
+	if err = taskAffected(x.Exec(ctx, query, args...)); err != nil {
 		return err
 	}
 	if !r.Changed {
 		return nil
 	}
 	t := r.After
-	if err = taskAffected(x.Exec(ctx, `UPDATE agenteam_work.tasks SET state='blocked',manual_rank=$4,version=$5,updated_at=$6 WHERE project_id=$1 AND id=$2 AND version=$3 AND state=$7 AND assignee_agent_id=$8 AND sprint_id=$9 AND priority=$10`, t.ProjectID.String(), t.ID.String(), int64(r.Before.Version), t.ManualRank, int64(t.Version), t.UpdatedAt.Time(), string(r.Before.State), r.Request.Claim.AgentID.String(), t.SprintID.String(), string(t.Priority))); err != nil {
+	if err = taskAffected(x.Exec(ctx, `UPDATE agenteam_work.tasks SET state='blocked',manual_rank=$4,version=$5,updated_at=$6 WHERE project_id=$1 AND id=$2 AND version=$3 AND state=$7 AND assignee_agent_id=$8 AND sprint_id=$9 AND priority=$10`, t.ProjectID.String(), t.ID.String(), int64(r.Before.Version), t.ManualRank, int64(t.Version), t.UpdatedAt.Time(), string(r.Before.State), r.Request.AgentID().String(), t.SprintID.String(), string(t.Priority))); err != nil {
 		return err
 	}
 	for _, g := range r.Groups {
@@ -374,7 +430,7 @@ func applyTaskFailureRecord(ctx context.Context, x postgres.SQLExecutor, r *task
 	if err != nil {
 		return internal(err)
 	}
-	if err = taskAffected(x.Exec(ctx, `INSERT INTO agenteam_work.task_blockers(id,project_id,task_id,type,description,metadata,created_at,created_by,failure_operation_id) VALUES($1,$2,$3,'technical',$4,$5,$6,$7,$8)`, b.ID.String(), b.ProjectID.String(), b.TaskID.String(), b.Description, metadata, b.CreatedAt.Time(), actor, r.Request.Claim.DispatchID)); err != nil {
+	if err = taskAffected(x.Exec(ctx, `INSERT INTO agenteam_work.task_blockers(id,project_id,task_id,type,description,metadata,created_at,created_by,failure_operation_id) VALUES($1,$2,$3,'technical',$4,$5,$6,$7,$8)`, b.ID.String(), b.ProjectID.String(), b.TaskID.String(), b.Description, metadata, b.CreatedAt.Time(), actor, r.Request.DispatchID())); err != nil {
 		return err
 	}
 	for _, h := range r.History {
@@ -411,7 +467,7 @@ func loadTaskFailureRecord(ctx context.Context, x postgres.SQLExecutor, p c.Proj
 		return nil, taskSQL(err)
 	}
 	var r taskFailureRecord
-	if json.Unmarshal(raw, &r) != nil || r.Request.Claim.ProjectID != p || r.Request.Claim.DispatchID != id || r.Before.ID.String() != task || r.Request.Claim.AgentID.String() != agent || r.Request.Claim.RequestID.String() != request || int64(r.Request.DispatchVersion) != dv || r.Request.LaunchAttempt != attempt || string(r.Facts.Reason) != reason || !r.Facts.OccurredAt.Time().Equal(occurred) || r.Changed != changed || int64(r.Before.Version) != before || int64(r.After.Version) != after || !r.CreatedAt.Time().Equal(at) {
+	if json.Unmarshal(raw, &r) != nil || r.Request.ProjectID() != p || r.Request.DispatchID() != id || r.Before.ID.String() != task || r.Request.AgentID().String() != agent || r.Request.RequestID().String() != request || int64(r.Request.DispatchVersion) != dv || r.Request.LaunchAttempt != attempt || string(r.Facts.Reason) != reason || !r.Facts.OccurredAt.Time().Equal(occurred) || r.Changed != changed || int64(r.Before.Version) != before || int64(r.After.Version) != after || !r.CreatedAt.Time().Equal(at) {
 		return nil, internal(nil)
 	}
 	if changed {
@@ -424,19 +480,15 @@ func loadTaskFailureRecord(ctx context.Context, x postgres.SQLExecutor, p c.Proj
 	return &r, nil
 }
 func verifyTaskFailurePostimage(ctx context.Context, x postgres.SQLExecutor, r *taskFailureRecord) error {
-	actual, err := loadTaskFailureRecord(ctx, x, r.Before.ProjectID, r.Request.Claim.DispatchID)
+	actual, err := loadTaskFailureRecord(ctx, x, r.Before.ProjectID, r.Request.DispatchID())
 	if err != nil {
 		return err
 	}
 	if actual == nil || !sameValue(actual, r) {
 		return fault(f.Forbidden)
 	}
-	claim, err := loadSchedulerClaim(ctx, x, r.Before.ProjectID, r.Request.Claim.DispatchID)
-	if err != nil {
+	if err = verifyTaskFailureOrigin(ctx, x, r); err != nil {
 		return err
-	}
-	if claim == nil || !sameValue(*claim, r.Claim) {
-		return fault(f.Forbidden)
 	}
 	t, err := loadTask(ctx, x, r.Before.ProjectID, r.Before.ID)
 	if err != nil {
@@ -463,7 +515,7 @@ func verifyTaskFailurePostimage(ctx context.Context, x postgres.SQLExecutor, r *
 			}
 		}
 	}
-	rows, err := x.Query(ctx, `SELECT `+blockerColumns+` FROM agenteam_work.task_blockers WHERE project_id=$1 AND failure_operation_id=$2 ORDER BY id`, r.Before.ProjectID.String(), r.Request.Claim.DispatchID)
+	rows, err := x.Query(ctx, `SELECT `+blockerColumns+` FROM agenteam_work.task_blockers WHERE project_id=$1 AND failure_operation_id=$2 ORDER BY id`, r.Before.ProjectID.String(), r.Request.DispatchID())
 	if err != nil {
 		return taskSQL(err)
 	}
@@ -484,7 +536,7 @@ func verifyTaskFailurePostimage(ctx context.Context, x postgres.SQLExecutor, r *
 			rows.Close()
 			return e
 		}
-		if b == nil || b.FailureOperation == nil || b.FailureOperation.String() != r.Request.Claim.DispatchID || !sameValue(b.Value, *r.Blocker) {
+		if b == nil || b.FailureOperation == nil || b.FailureOperation.String() != r.Request.DispatchID() || !sameValue(b.Value, *r.Blocker) {
 			rows.Close()
 			return fault(f.Forbidden)
 		}
@@ -501,7 +553,7 @@ func verifyTaskFailurePostimage(ctx context.Context, x postgres.SQLExecutor, r *
 	if err = rows.Err(); err != nil {
 		return taskSQL(err)
 	}
-	history, err := x.Query(ctx, `SELECT id::text,project_id::text,task_id::text,task_version,type,actor,operation_id::text,blocker_operation_id::text,transition_operation_id::text,claim_operation_id::text,compensation_operation_id::text,failure_operation_id::text,correlation_id::text,payload,created_at FROM agenteam_work.task_events WHERE project_id=$1 AND failure_operation_id=$2 ORDER BY id`, r.Before.ProjectID.String(), r.Request.Claim.DispatchID)
+	history, err := x.Query(ctx, `SELECT id::text,project_id::text,task_id::text,task_version,type,actor,operation_id::text,blocker_operation_id::text,transition_operation_id::text,claim_operation_id::text,compensation_operation_id::text,failure_operation_id::text,correlation_id::text,payload,created_at FROM agenteam_work.task_events WHERE project_id=$1 AND failure_operation_id=$2 ORDER BY id`, r.Before.ProjectID.String(), r.Request.DispatchID())
 	if err != nil {
 		return taskSQL(err)
 	}

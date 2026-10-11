@@ -85,37 +85,40 @@ func failureInput(ctx context.Context, actor i.Actor, r c.TaskLaunchFailureReque
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
+	if r.Relaunch != nil {
+		return relaunchInput(ctx, actor, *r.Relaunch)
+	}
 	return claimActor(actor, r.Claim)
 }
 func failureMutationLocks(r c.TaskLaunchFailureRequest, record taskFailureRecord) ([]f.LockRequest, error) {
-	locks, err := claimDiscoveryLocks(r.Claim)
+	locks, err := failureDiscoveryLocks(r)
 	if err != nil {
 		return nil, err
 	}
-	command, err := f.NewCommandIdentity("scheduler", []string{r.Claim.ProjectID.String()}, "task_launch_failure", f.IdempotencyKey("scheduler_failure:"+r.Claim.DispatchID))
+	command, err := f.NewCommandIdentity("scheduler", []string{r.ProjectID().String()}, "task_launch_failure", f.IdempotencyKey("scheduler_failure:"+r.DispatchID()))
 	if err != nil {
 		return nil, err
 	}
 	for n := range locks {
-		if locks[n].Key.Canonical() == taskLock(r.Claim.TaskID.String(), f.Shared).Key.Canonical() {
+		if locks[n].Key.Canonical() == taskLock(r.TaskID().String(), f.Shared).Key.Canonical() {
 			locks[n].Mode = f.Exclusive
 		}
 	}
 	locks = append(locks, commandLock(command))
 	for _, g := range record.Groups {
-		locks = append(locks, taskRankLock(r.Claim.ProjectID, g.Group))
+		locks = append(locks, taskRankLock(r.ProjectID(), g.Group))
 	}
 	return taskNormalize(locks)
 }
 func (s *TaskLaunchFailureService) currentProject(ctx context.Context, tx f.Tx, r c.TaskLaunchFailureRequest) (pc.ProjectRef, error) {
-	p, err := s.projects.RequireSchedulerProjectInTx(ctx, tx, r.Claim.ProjectID)
+	p, err := s.projects.RequireSchedulerProjectInTx(ctx, tx, r.ProjectID())
 	if ctx.Err() != nil {
 		return pc.ProjectRef{}, ctx.Err()
 	}
 	if err != nil {
 		return pc.ProjectRef{}, portError(err)
 	}
-	if p.Project.Validate() != nil || p.Project.ID != r.Claim.ProjectID || p.Config.Validate() != nil {
+	if p.Project.Validate() != nil || p.Project.ID != r.ProjectID() || p.Config.Validate() != nil {
 		return pc.ProjectRef{}, internal(nil)
 	}
 	// Paused is not a preservation result: keep the confirmed-final reservation
@@ -125,33 +128,48 @@ func (s *TaskLaunchFailureService) currentProject(ctx context.Context, tx f.Tx, 
 	}
 	return p.Project, nil
 }
-func (s *TaskLaunchFailureService) readFailureSource(ctx context.Context, tx f.Tx, x postgres.SQLExecutor, r c.TaskLaunchFailureRequest, guard c.TaskClaimGuard) (schedulerClaimRecord, c.Task, c.Sprint, *c.SprintID, error) {
+func (s *TaskLaunchFailureService) readFailureSource(ctx context.Context, tx f.Tx, x postgres.SQLExecutor, r c.TaskLaunchFailureRequest, facts c.TaskLaunchFailureFacts) (schedulerClaimRecord, *taskRelaunchRecord, c.Task, c.Sprint, *c.SprintID, error) {
 	var claim schedulerClaimRecord
+	var relaunch *taskRelaunchRecord
 	var task c.Task
 	var sprint c.Sprint
+	if facts.ValidateFor(r) != nil {
+		return claim, relaunch, task, sprint, nil, fault(f.Forbidden)
+	}
 	project, err := s.currentProject(ctx, tx, r)
 	if err != nil {
-		return claim, task, sprint, nil, err
+		return claim, relaunch, task, sprint, nil, err
 	}
-	original, err := loadSchedulerClaim(ctx, x, r.Claim.ProjectID, r.Claim.DispatchID)
+	if r.Relaunch != nil {
+		relaunch, err = loadTaskRelaunch(ctx, x, r.ProjectID(), r.DispatchID())
+		if err != nil {
+			return claim, relaunch, task, sprint, nil, err
+		}
+		if relaunch == nil || relaunch.Request != *r.Relaunch || facts.Relaunch == nil || relaunch.source() != *facts.Relaunch {
+			return claim, relaunch, task, sprint, nil, fault(f.Forbidden)
+		}
+	} else {
+		original, e := loadSchedulerClaim(ctx, x, r.ProjectID(), r.DispatchID())
+		if e != nil {
+			return claim, relaunch, task, sprint, nil, e
+		}
+		if original == nil || original.Request != r.Claim || !sameValue(original.Guard, facts.Guard) {
+			return claim, relaunch, task, sprint, nil, fault(f.Forbidden)
+		}
+		claim = *original
+	}
+	task, err = loadTask(ctx, x, r.ProjectID(), r.TaskID())
 	if err != nil {
-		return claim, task, sprint, nil, err
+		return claim, relaunch, task, sprint, nil, err
 	}
-	if original == nil || original.Request != r.Claim || !sameValue(original.Guard, guard) {
-		return claim, task, sprint, nil, fault(f.Forbidden)
-	}
-	task, err = loadTask(ctx, x, r.Claim.ProjectID, r.Claim.TaskID)
+	sprint, err = loadSprint(ctx, x, r.ProjectID(), r.SprintID(), project.CurrentSprintID)
 	if err != nil {
-		return claim, task, sprint, nil, err
+		return claim, relaunch, task, sprint, nil, err
 	}
-	sprint, err = loadSprint(ctx, x, r.Claim.ProjectID, original.Guard.SourceSprintID, project.CurrentSprintID)
-	if err != nil {
-		return claim, task, sprint, nil, err
+	if _, err = loadMilestone(ctx, x, r.ProjectID(), sprint.MilestoneID); err != nil {
+		return claim, relaunch, task, sprint, nil, err
 	}
-	if _, err = loadMilestone(ctx, x, r.Claim.ProjectID, sprint.MilestoneID); err != nil {
-		return claim, task, sprint, nil, err
-	}
-	return *original, task, sprint, project.CurrentSprintID, nil
+	return claim, relaunch, task, sprint, project.CurrentSprintID, nil
 }
 func (s *TaskLaunchFailureService) DiscoverTaskLaunchFailure(ctx context.Context, actor i.Actor, r c.TaskLaunchFailureRequest) (c.TaskLaunchFailurePlan, error) {
 	ctx, done, err := s.beginFailure(ctx)
@@ -162,7 +180,7 @@ func (s *TaskLaunchFailureService) DiscoverTaskLaunchFailure(ctx context.Context
 	if err = failureInput(ctx, actor, r); err != nil {
 		return nil, err
 	}
-	locks, err := claimDiscoveryLocks(r.Claim)
+	locks, err := failureDiscoveryLocks(r)
 	if err != nil {
 		return nil, err
 	}
@@ -186,18 +204,18 @@ func (s *TaskLaunchFailureService) DiscoverTaskLaunchFailure(ctx context.Context
 		if e != nil {
 			return portError(e)
 		}
-		claim, before, sprint, current, e := s.readFailureSource(ctx, tx, x, r, facts.Guard)
+		claim, relaunch, before, sprint, current, e := s.readFailureSource(ctx, tx, x, r, facts)
 		if e != nil {
 			return e
 		}
-		existing, e := loadTaskFailureRecord(ctx, x, r.Claim.ProjectID, r.Claim.DispatchID)
+		existing, e := loadTaskFailureRecord(ctx, x, r.ProjectID(), r.DispatchID())
 		if e != nil {
 			return e
 		}
 		if existing != nil {
 			return fault(f.ConfirmationStale)
 		}
-		record, e = planTaskFailureRecord(ctx, x, r, facts, claim, before, sprint, current)
+		record, e = planTaskFailureRecord(ctx, x, r, facts, claim, before, sprint, current, relaunch)
 		return e
 	})
 	if err = taskTxError(ctx, result); err != nil {
@@ -215,7 +233,7 @@ func (s *TaskLaunchFailureService) DiscoverTaskLaunchFailure(ctx context.Context
 	}
 	p := &taskFailurePlan{owner: s, actor: actor, request: r.Clone(), record: record, baseLocks: base, locks: slices.Clone(base)}
 	if record.Changed {
-		ev, e := s.deps.FailureEvents.NewTaskLaunchFailed(*record.Header, *record.Event)
+		ev, e := record.event(s.deps.FailureEvents)
 		if e != nil {
 			return nil, internal(e)
 		}
@@ -239,7 +257,7 @@ func (s *TaskLaunchFailureService) originalPlan(ctx context.Context, actor i.Act
 		return nil, err
 	}
 	p, ok := raw.(*taskFailurePlan)
-	if s == nil || !ok || p == nil || p.owner != s || !p.actor.Equal(actor) || p.request != r || len(p.locks) == 0 {
+	if s == nil || !ok || p == nil || p.owner != s || !p.actor.Equal(actor) || !p.request.Equal(r) || len(p.locks) == 0 {
 		return nil, fault(f.Forbidden)
 	}
 	return p, nil
@@ -252,14 +270,14 @@ func (s *TaskLaunchFailureService) requireCurrent(ctx context.Context, tx f.Tx, 
 	if err != nil {
 		return portError(err)
 	}
-	claim, before, sprint, current, err := s.readFailureSource(ctx, tx, x, p.request, facts.Guard)
+	claim, relaunch, before, sprint, current, err := s.readFailureSource(ctx, tx, x, p.request, facts)
 	if err != nil {
 		return err
 	}
-	if !sameValue(facts, p.record.Facts) || !sameValue(claim, p.record.Claim) || !sameValue(before, p.record.Before) || !sameValue(sprint, p.record.Sprint) || !sameValue(current, p.record.CurrentSprintID) {
+	if !sameValue(facts, p.record.Facts) || !sameTaskFailureOrigin(claim, relaunch, p.record) || !sameValue(before, p.record.Before) || !sameValue(sprint, p.record.Sprint) || !sameValue(current, p.record.CurrentSprintID) {
 		return fault(f.ConfirmationStale)
 	}
-	existing, err := loadTaskFailureRecord(ctx, x, p.request.Claim.ProjectID, p.request.Claim.DispatchID)
+	existing, err := loadTaskFailureRecord(ctx, x, p.request.ProjectID(), p.request.DispatchID())
 	if err != nil {
 		return err
 	}
@@ -273,14 +291,14 @@ func (s *TaskLaunchFailureService) requireCurrent(ctx context.Context, tx f.Tx, 
 		for _, g := range p.record.Groups {
 			groups = append(groups, g.Group)
 		}
-		if err = s.deps.Pending.RequireNoPendingGroupsInTx(ctx, tx, p.request.Claim.ProjectID, pendingGroups(groups...)); err != nil {
+		if err = s.deps.Pending.RequireNoPendingGroupsInTx(ctx, tx, p.request.ProjectID(), pendingGroups(groups...)); err != nil {
 			return portError(err)
 		}
 		if err = requireTaskFailureCapacity(ctx, x, p.record.Before, len(p.record.History)); err != nil {
 			return err
 		}
 		for _, g := range p.record.Groups {
-			rows, gen, e := loadTaskRanks(ctx, x, p.request.Claim.ProjectID, g.Group)
+			rows, gen, e := loadTaskRanks(ctx, x, p.request.ProjectID(), g.Group)
 			if e != nil {
 				return e
 			}
@@ -288,7 +306,7 @@ func (s *TaskLaunchFailureService) requireCurrent(ctx context.Context, tx f.Tx, 
 				return fault(f.ConfirmationStale)
 			}
 		}
-		q, e := loadTaskQueryGeneration(ctx, x, p.request.Claim.ProjectID)
+		q, e := loadTaskQueryGeneration(ctx, x, p.request.ProjectID())
 		if e != nil {
 			return e
 		}
@@ -323,7 +341,7 @@ func (s *TaskLaunchFailureService) ApplyTaskLaunchFailureInTx(ctx context.Contex
 	}
 	applied := &taskFailureApplied{owner: s, plan: p, tx: tx}
 	if p.record.Changed {
-		ev, e := s.deps.FailureEvents.NewTaskLaunchFailed(*p.record.Header, *p.record.Event)
+		ev, e := p.record.event(s.deps.FailureEvents)
 		if e != nil {
 			return nil, internal(e)
 		}
