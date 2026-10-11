@@ -8,6 +8,10 @@
 
 第十accepted SOURCE `2c59cf0d7eee18f968a688b4c7cc003211863ac2`的17/7、单compile两top、A/B四sub全PASS与最终独审保持；当前共享candidate01留存。三作者旧checkpoint与park/clean、ToolRegistry停放事实见current；旧第九FAIL candidate02、所有历史FAIL原件保留，第九全PASS03仅bin已精准退休`05777c`（65,919,007 B/allocated65,925,120 B），source/results/recipe不动。
 
+第十一B已正式交付main `381f6e71e0c11da1145b4ddef7a1574cdc7e64fa`（push `09f929`、exact `3cd699`）：SOURCE `64bdbb6f`的pure5/单包vet、compile/list、native整top两sub22.41s全PASS，全部原Wait/资源尾闭合，窗口已归还。A仍在各自donor实现且未验收，当前0 Go/npm/browser/native窗口；B证据不重跑。
+
+root已普通park指定ExecutionIdentity/ModelTextRuntime九目录（`038ac9`/`1f6f79`，原HEAD clean `bc57cb`/`e1ba20`），并只精准退休第十全PASS candidate01可再生bin（`86e15b`，66,400,625 B/allocated66,408,448 B）；source/recipe/results及全部FAIL不动。bounded后验`9822e2`确认protected保留，前树output原absent不变、后树output仍在，资源子任务关闭。
+
 第十一一次容量读高于5GiB 145,248,256 B，距额外500 MB规划余量缺354,751,744 B，未启动验证。PW1.56.1既有安装必需项与锁metadata一致，root Web安装只缺已有同版本的go-captcha-vue；复用现安装、不额外复制整套或下载，必要窄restore交root。Node v24.19.0实际确认，Chromium路径存在但本批未启动。后续硬门仍实际同进程fresh≥5GiB；完整App runtime/config装配、生产initializer、ready与未完成Work UI范围、全部STOP及约30%粗估不变。恢复映射见[当前执行者](../current.md#当前执行者与保留树)，既有[组合recipe](../agent-system-integration/README.md)不因本次准备冒新验收。
 
 ## 前置阶段记录（历史）

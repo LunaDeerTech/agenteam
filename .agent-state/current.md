@@ -18,7 +18,7 @@
 
 ## 当前并行产品线与执行者
 
-第十一批A为正式七列Work看板与三条Human评审边的UI接线（无后端变更），B为单原ProjectAuthority的RuntimeAccessDeny audit wrapper。完整delivery `ai/work-review-runtime-delivery`基于main `6a6da44e`；UI、browser、Project adapter与真实native由下列作者分别实施。当前仅源码/方法/恢复状态与有限资源准备，0 Go/npm/browser/native窗口；不声称验收通过。第十已交付证据不重测，完整App runtime/config装配、生产initializer、ready、未完成Work UI范围及旧STOP/~30%粗估保持。
+第十一批A为正式七列Work看板与三条Human评审边的UI接线（无后端变更），B为单原ProjectAuthority的RuntimeAccessDeny audit wrapper。完整delivery `ai/work-review-runtime-delivery`基于main `6a6da44e`；UI、browser、Project adapter与真实native由下列作者分别实施。当前仅源码/方法/恢复状态与有限资源准备，0 Go/npm/browser/native窗口；不声称验收通过。第十已交付证据不重测，完整App runtime/config装配、生产initializer、ready、未完成Work UI范围及旧STOP/~30%粗估保持。 第十一B已正式交付main `381f6e71e0c11da1145b4ddef7a1574cdc7e64fa`（push `09f929`、exact `3cd699`）：SOURCE `64bdbb6f`的pure5/单包vet、compile/list、native整top两sub22.41s全PASS，全部原Wait/资源尾闭合，窗口已归还。A仍在各自donor实现且未验收，当前0 Go/npm/browser/native窗口；B证据不重跑。
 
 ### 已完成组合（保留原输入事实）
 
@@ -100,7 +100,7 @@ FeatureIntegration `/workspace/agenteam-feature-integration`（`4d1b605e`）九�
 
 第十资源准备的ToolRegistry `fab8764c`九目录park事实保持（actual0 `4e3323`、后验 `8c7646`）；当时约537 MB仅为规划余量。compile全尾后，root仅精准退休第九全PASS可再生bin `scheduler-review-dispatch-race-03.test`（`05777c`，65,919,007 B/allocated65,925,120 B），原source/recipe/results/inputs及FAIL candidate02完整保留；当前第十共享candidate01不动。交付后三作者Project `5bd7e928`、Manager `9a4a65df`、Agent目录 `235887d2`九目录再次普通sparse park（`bfd445`/`a30f23`/`9e1f0f`，clean后验 `b1d6f0`/`999f0d`/`37d9ca`）；全部ignored/output/state/refs与物理树保留用于恢复和后继，不删除整体旧任务。资源子任务关闭，后续仍以实际同进程fresh≥5GiB为硬门，不沿旧容量快照启动。
 
-第十一资源准备的唯一容量读为5,513,957,376 B，高于5GiB 145,248,256 B，距额外500 MB规划缓冲尚缺354,751,744 B；未据此启动验证或自行清理。independent原`tests/account-captcha-web/node_modules`的PW三包1.56.1及必需项与现锁metadata一致；root原`web/node_modules`与锁一致但缺`go-captcha-vue`，可从既有同2.0.7安装窄恢复，整套依赖不复制/下载。固定Node实际v24.19.0，已批准Chromium两路径存在但本批未启动；准确restore由root执行，后续actual fresh≥5GiB硬门不降。
+第十一资源准备的唯一容量读为5,513,957,376 B，高于5GiB 145,248,256 B，距额外500 MB规划缓冲尚缺354,751,744 B；未据此启动验证或自行清理。independent原`tests/account-captcha-web/node_modules`的PW三包1.56.1及必需项与现锁metadata一致；root原`web/node_modules`与锁一致但缺`go-captcha-vue`，可从既有同2.0.7安装窄恢复，整套依赖不复制/下载。固定Node实际v24.19.0，已批准Chromium两路径存在但本批未启动；准确restore由root执行，后续actual fresh≥5GiB硬门不降。 同批root已据限定metadata普通park ExecutionIdentity/ModelTextRuntime九目录（`038ac9`/`1f6f79`，原HEAD clean `bc57cb`/`e1ba20`），并只精准退休第十全PASS可再生candidate01（`86e15b`，66,400,625 B/allocated66,408,448 B）；全部失败材料、source/recipe/results不动。后验`9822e2`确认protected完整，前树output原absent不变、后树output保留；资源准备关闭，不重复容量探测。
 
 现存热缓存 `/workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build` 仍由root串行分配，各树使用私有XDG/telemetry/runtime；截至第十批所有Go/cache/native调用和资源均已退役，窗口归还root，不沿旧容量快照启动。下次验证前须为编译缓存及候选增量预留余量，同进程fresh≥5GiB硬门不变。SprintStart HTTP、technical-blocker单类失败及Human原子解除已有限验收并随main交付，旧矩阵未重复运行；完整Dispatcher、Task UI和生产绑定仍未完成。解除回todo不自动claim或重开failed Dispatch。显式配置、Claim持久policy、真实锁超时temporary证明及后继checkpoint/next_retry_at/原keyRetryDue/Work耗尽结算均已有限交付。Project串行runner与work-phase relaunch/持久cooldown已有限交付，第九批review自动调度已有限交付，生产app绑定仍未完成；不能用policy额度推断已创建与否或耗尽结算。完整capture仍要求所有原提供方同Tx原子参与，缺项拒绝且零input；显式false不绕过真实目录与初始化。原topic和ignored FAIL/输入/日志按恢复用途保留，本轮不新建归档。
 
