@@ -524,6 +524,10 @@ interface Operation {
 }
 
 export type PersonalIdentity = Readonly<{ userID: string; sessionID: string; epoch: number }>
+export type SessionRestoreResult = Readonly<{
+  user: Readonly<User>
+  session: Readonly<Session>
+}>
 export type SystemInvitationProgress = Readonly<{
   kind: InvitationCommand['kind']
   phase: 'submitting' | 'uncertain' | 'confirmed'
@@ -647,6 +651,7 @@ export function createSessionController(
   let intent: Intent | null = null
   let expectedSession: LoginResult | null = null
   let owner: Operation | null = null
+  let restoration: Promise<SessionRestoreResult | null> | null = null
   let challengeAbort: AbortController | null = null
   const challengeTails = new Set<Promise<void>>()
   let pending = false
@@ -1138,8 +1143,14 @@ export function createSessionController(
     deliveryChannel = result.delivery_channel
     state.phase = 'anonymous'
   }
-  function restore() {
-    return run('restore', async (op) => {
+  function restore(): Promise<SessionRestoreResult | null> {
+    if (owner?.kind === 'restore' && restoration) return restoration
+    let accepted: {
+      op: Operation
+      identity: PersonalIdentity
+      value: SessionRestoreResult
+    } | null = null
+    const original = run('restore', async (op) => {
       state.notice = ''
       state.phase = 'checking'
       // A restored identity is never displayed while its current authority is unknown.
@@ -1173,6 +1184,15 @@ export function createSessionController(
           return
         }
         publish(result)
+        if (personalContext.identity)
+          accepted = {
+            op,
+            identity: personalContext.identity,
+            value: Object.freeze({
+              user: Object.freeze({ ...result.user }),
+              session: Object.freeze({ ...result.session }),
+            }),
+          }
       } catch (e) {
         if (!valid(op)) return
         if (!unavailableSession(e)) throw e
@@ -1186,6 +1206,26 @@ export function createSessionController(
         await bootstrap(op)
       }
     })
+    const restored: Promise<SessionRestoreResult | null> = original
+      .then(() => {
+        // This value belongs to the original strict Session read, not a later
+        // state snapshot. A visible timeout or invalidated identity has no value.
+        if (
+          !accepted ||
+          accepted.op.expired ||
+          accepted.op.abort.signal.aborted ||
+          !sameIdentity(accepted.identity, personalContext.identity) ||
+          personalContext.phase !== 'current' ||
+          state.phase !== 'authenticated'
+        )
+          return null
+        return accepted.value
+      })
+      .finally(() => {
+        if (restoration === restored) restoration = null
+      })
+    restoration = restored
+    return restored
   }
   function newKey() {
     try {
