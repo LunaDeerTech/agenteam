@@ -6,7 +6,7 @@
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
-| Execution ToolCall 事实 — `ai/execution-tool-call-facts-20261011` | recovery_lead 交付；Tool 域 runner_read_file；runtime_recovery 独审 | 本次集成正式交付有限片：原句柄实际 Joined 后同事务写保护参数 / ToolCall / Transcript 与 running/tool-pending；34 + 26 top 分段 race、适用 vet、native03 原两场景 wholePASS 已独立接受。原 unit / Model 控制与 native01/02 FAIL 保留；仅 Model JSONCaller 受控，不含 ToolOperation / Runner 派发或生产 tools。00063/00064 随本片，完整分支历史保留；原树 / output / tmp 等正式保存后保全清理。 |
+| Execution ToolCall 事实 — `ai/execution-tool-call-facts-20261011` | recovery_lead 交付；runtime_recovery 独审 | 已随 main `95c092bc` 有限交付并推送：34 + 26 top 分段 race / 适用 vet / native03 两场景 wholePASS 独立接受，原全部 FAIL 保留；不含 ToolOperation / Runner 派发或生产 tools。完整源码历史在 main，output 及三轮 tmp 必需副本已无覆盖保全，见[恢复说明](execution-tool-call-facts/README.md)；无活跃旧树依赖，待 root 普通 Git 清理。 |
 | 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 独立树 `/workspace/agenteam-runner-read-file-operation` 已建，基线 `1b10c29c`；Tool 存储基础与 Runner RequestID 接缝正在纯源码实施，尚未测试、未验收，不提前计作执行链已打通。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
