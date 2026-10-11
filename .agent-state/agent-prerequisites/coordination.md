@@ -1,14 +1,14 @@
 # Agent F1 前置关系与并行接口建议
 
-## 当前交付与保留树
+## 当前批次与活动树
 
-第十A有界Project发现/Scheduler多P owner与B真实Agent安全目录HTTP已正式交付main `6a6da44e01e6f51d934a6684b9071778313405b4`（push `d80b6f`、exact `eabf0a`）；delivery同tip已push `64bdcb`，root merge `ed5d6745`已push `6cc608`。当前零活动实现、零Go/cache/native窗口，不创建下一批活动。完整App runtime/config装配、生产initializer、ready及Work UI仍未完成，约30%粗估与全部STOP保持。
+第十一批基于已交付main `6a6da44e01e6f51d934a6684b9071778313405b4`开始实施。A为正式七列Work看板及三Human评审边UI（无后端变更），B为单原ProjectAuthority RuntimeAccessDeny audit wrapper；full delivery `ai/work-review-runtime-delivery`保留完整组合。当前0 Go/npm/browser/native窗口，仅源实现、原methods与有限恢复准备，不声称验收。
 
-accepted SOURCE `2c59cf0d7eee18f968a688b4c7cc003211863ac2`：17 top race/七包vet、一次compile/list两top、A/B各native01两sub全部PASS，分别28.40s/26.95s。两组各四原Wait0、七ID14次absence、所有双尾/TCP0/adopted[]、1640输入首尾同（含889编译输入），secret最终有限接受；当前共享candidate01留存，不追加检查。
+唯一写者：work_ui在`/workspace/agenteam-work-ui` / `ai/work-review-ui`写A产品；coordination在independent `ai/work-review-web`写A四新browser paths（拟`TestTaskReviewWeb`两case）；content在TaskTransition `ai/project-runtime-audit`写B adapter/pure；cleanup在Source `ai/runtime-access-audit-native`写新真实fixture和两旧factory窄opt-in接缝。skills_http独占原三methods与两state入口，按actual top/mandatory冻结后适配；secret按冻源有限独审。donor仅窄恢复写入path，运行使用完整delivery，不整树hydrate。
 
-三作者Project `5bd7e928`、Manager `9a4a65df`、Agent目录 `235887d2`均已push。root再次普通sparse park各九目录（`bfd445`/`a30f23`/`9e1f0f`），clean后验 `b1d6f0`/`999f0d`/`37d9ca`；全部ignored/output/state/refs和物理树保留，供唯一原材料恢复及后继复用，不因本slice完成删除整树。
+第十accepted SOURCE `2c59cf0d7eee18f968a688b4c7cc003211863ac2`的17/7、单compile两top、A/B四sub全PASS与最终独审保持；当前共享candidate01留存。三作者旧checkpoint与park/clean、ToolRegistry停放事实见current；旧第九FAIL candidate02、所有历史FAIL原件保留，第九全PASS03仅bin已精准退休`05777c`（65,919,007 B/allocated65,925,120 B），source/results/recipe不动。
 
-ToolRegistry park `4e3323`及protected后验 `8c7646`保持；约537 MB只属当时规划余量。root在compile尾闭后仅精准退休第九全PASS candidate03可再生bin（`05777c`，65,919,007 B/allocated65,925,120 B），原source/results/recipe/inputs保留；第九FAIL candidate02、原compile01/native01 FAIL、第八candidate01/两容量FAIL和全部旧STOP不变。后续硬门仍为实际同进程fresh≥5GiB，当前不新增资源搜索或执行。恢复映射见[当前执行者](../current.md#当前执行者与保留树零活动实现)，复现沿[既有组合recipe](../agent-system-integration/README.md)。
+第十一一次容量读高于5GiB 145,248,256 B，距额外500 MB规划余量缺354,751,744 B，未启动验证。PW1.56.1既有安装必需项与锁metadata一致，root Web安装只缺已有同版本的go-captcha-vue；复用现安装、不额外复制整套或下载，必要窄restore交root。Node v24.19.0实际确认，Chromium路径存在但本批未启动。后续硬门仍实际同进程fresh≥5GiB；完整App runtime/config装配、生产initializer、ready与未完成Work UI范围、全部STOP及约30%粗估不变。恢复映射见[当前执行者](../current.md#当前执行者与保留树)，既有[组合recipe](../agent-system-integration/README.md)不因本次准备冒新验收。
 
 ## 前置阶段记录（历史）
 
