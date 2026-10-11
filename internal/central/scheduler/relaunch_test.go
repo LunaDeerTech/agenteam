@@ -279,7 +279,7 @@ func relaunchRequest(t *testing.T, r *dispatchRecord, n int) wc.TaskRelaunchRequ
 	if err != nil {
 		t.Fatal(err)
 	}
-	sprint, err := f.ParseID[wc.Sprint](r.sprint)
+	sprint, err := f.ParseID[pc.Sprint](r.sprint)
 	if err != nil {
 		t.Fatal(err)
 	}
