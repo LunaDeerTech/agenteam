@@ -2,11 +2,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { createAccountAPI, type SessionView } from '../api/account'
 import type { Fetch, Problem } from '../api/client'
+import { createWorkSprintLifecycleAPI, type SprintStartInput } from '../api/work-sprint-lifecycle'
 import {
-  createWorkSprintLifecycleAPI,
-  type SprintStartInput,
-} from '../api/work-sprint-lifecycle'
-import {createWorkMilestonePlanningAPI, type MilestoneCreateInput} from '../api/work-milestone-planning'
+  createWorkMilestonePlanningAPI,
+  type MilestoneCreateInput,
+} from '../api/work-milestone-planning'
 import { createSessionController, type SessionController } from '../composables/useSession'
 
 const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
@@ -65,10 +65,22 @@ function receipt(value: SprintStartInput) {
 const createPath = `/api/v1/projects/${p}/milestones`,
   createLookupPath = `/api/v1/projects/${p}/structure-commands/lookup`
 function created(input: MilestoneCreateInput) {
-  return { command: 'work.milestone.create', changed: true, sprint: null, event_id: id(14), milestone: {
-    id: input.request.milestone_id, project_id: p, title: input.request.title, description: input.request.description ?? '',
-    manual_rank: '8'.repeat(32), version: '1', created_at: at, updated_at: at,
-  }}
+  return {
+    command: 'work.milestone.create',
+    changed: true,
+    sprint: null,
+    event_id: id(14),
+    milestone: {
+      id: input.request.milestone_id,
+      project_id: p,
+      title: input.request.title,
+      description: input.request.description ?? '',
+      manual_rank: '8'.repeat(32),
+      version: '1',
+      created_at: at,
+      updated_at: at,
+    },
+  }
 }
 const json = (v: unknown, status = 200) =>
   new Response(JSON.stringify(v), {
@@ -124,7 +136,10 @@ async function fixture() {
     throw new Error('Unexpected Sprint request')
   })
   const args: Parameters<typeof createSessionController> = [createAccountAPI(fetch)]
-  args[19] = { sprintLifecycle: createWorkSprintLifecycleAPI(fetch), milestonePlanning: createWorkMilestonePlanningAPI(fetch) }
+  args[19] = {
+    sprintLifecycle: createWorkSprintLifecycleAPI(fetch),
+    milestonePlanning: createWorkMilestonePlanningAPI(fetch),
+  }
   const auth = createSessionController(...args)
   owners.push(auth)
   await auth.restore()
@@ -180,13 +195,18 @@ describe('Milestone Create original Session ownership', () => {
     await expect(
       f.auth.workSprintLifecycle.start(p, s, { expected_version: '1', request: {} }),
     ).rejects.toMatchObject({ kind: 'busy' })
-    await expect(f.auth.workSprintLifecycle.create(p, {milestone_id: id(12), title: 'Blocked Sprint'})).rejects.toMatchObject({kind: 'busy'})
+    await expect(
+      f.auth.workSprintLifecycle.create(p, { milestone_id: id(12), title: 'Blocked Sprint' }),
+    ).rejects.toMatchObject({ kind: 'busy' })
     await f.auth.restore()
     for (const state of ['not_observed', 'in_progress', 'committed'] as const) {
       f.setStatus(state)
       expect(await f.auth.workMilestonePlanning.checkOriginal()).toMatchObject({ state })
       const lookup = f.createLookups().at(-1)![1]
-      expect(JSON.parse(lookup.body as string)).toEqual({ command: 'work.milestone.create', ...body })
+      expect(JSON.parse(lookup.body as string)).toEqual({
+        command: 'work.milestone.create',
+        ...body,
+      })
       expect(lookup.headers).toMatchObject({ 'Idempotency-Key': key })
     }
     expect(f.auth.workMilestonePlanning.progress).toMatchObject({

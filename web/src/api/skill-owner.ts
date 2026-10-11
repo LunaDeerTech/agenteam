@@ -35,9 +35,11 @@ export function captureSkillID(value: unknown): string {
 }
 function cursor(value: unknown): string {
   const result = string(value, 1, 8192)
-  requireValue(encoder.encode(result).byteLength <= 8192 &&
-    !/[\u0000-\u001f\u007f-\u009f]/u.test(result) &&
-    !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(result))
+  requireValue(
+    encoder.encode(result).byteLength <= 8192 &&
+      !/[\u0000-\u001f\u007f-\u009f]/u.test(result) &&
+      !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(result),
+  )
   return result
 }
 export function captureSkillQuery(value: unknown): Readonly<{ limit: number; cursor?: string }> {
@@ -45,8 +47,13 @@ export function captureSkillQuery(value: unknown): Readonly<{ limit: number; cur
     const q = shape(value, [], ['limit', 'cursor'])
     const limit = Object.hasOwn(q, 'limit') ? q.limit : 25
     requireValue(typeof limit === 'number' && Number.isInteger(limit) && limit >= 1 && limit <= 100)
-    return Object.freeze({ limit, ...(Object.hasOwn(q, 'cursor') ? { cursor: cursor(q.cursor) } : {}) })
-  } catch { throw new AccountFailure('invalid-input') }
+    return Object.freeze({
+      limit,
+      ...(Object.hasOwn(q, 'cursor') ? { cursor: cursor(q.cursor) } : {}),
+    })
+  } catch {
+    throw new AccountFailure('invalid-input')
+  }
 }
 function text(value: unknown, maximum: number, multiline = false): string {
   const result = string(value, 1, maximum)
@@ -109,7 +116,8 @@ export function createSkillOwnerAPI(fetcher?: Fetch): SkillOwnerAPI {
   const request = accountTransport(fetcher)
   return {
     async list(projectID, query, signal) {
-      const project = captureSkillID(projectID), q = captureSkillQuery(query)
+      const project = captureSkillID(projectID),
+        q = captureSkillQuery(query)
       return request(
         'listProjectSkills',
         (value) => {
@@ -119,7 +127,10 @@ export function createSkillOwnerAPI(fetcher?: Fetch): SkillOwnerAPI {
           requireValue(items.every((item, index) => index === 0 || items[index - 1]!.id < item.id))
           const next = Object.hasOwn(v, 'next_cursor') ? cursor(v.next_cursor) : undefined
           requireValue(next === undefined || (items.length === q.limit && next !== q.cursor))
-          return Object.freeze({ items: Object.freeze(items), ...(next === undefined ? {} : { next_cursor: next }) })
+          return Object.freeze({
+            items: Object.freeze(items),
+            ...(next === undefined ? {} : { next_cursor: next }),
+          })
         },
         { signal, projectID: project, skillQuery: q },
       )

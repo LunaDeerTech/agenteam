@@ -355,17 +355,22 @@ export function installAuthentication(router: Router, auth: SessionController = 
       if (!failure) taskNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure) agentNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure) projectModelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-      if (!failure) outboundPolicyNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure)
+        outboundPolicyNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure) smtpNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-      if (!failure) accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-      if (!failure) modelSelectionNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure)
+        accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure)
+        modelSelectionNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure) modelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure) providerNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure) invitationNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure) personalNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure && from.meta.authentication && !to.meta.authentication) auth.leave()
       if (!failure) accountEntryNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-    } finally { finishSkillsNavigation(to) }
+    } finally {
+      finishSkillsNavigation(to)
+    }
   })
   router.onError((_error, to) => finishSkillsNavigation(to))
 }

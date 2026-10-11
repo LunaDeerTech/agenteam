@@ -38,7 +38,10 @@ export function useSkillOwner(
   let route: SkillLocation | null = null,
     generation = 0,
     disposed = false
-  const queue = shallowReactive<{ active: number | null; pending: (SkillLocation & { cursor?: string }) | null }>({
+  const queue = shallowReactive<{
+    active: number | null
+    pending: (SkillLocation & { cursor?: string }) | null
+  }>({
     active: null,
     pending: null,
   })
@@ -92,7 +95,11 @@ export function useSkillOwner(
     state.message = ''
     void execute(task, captured, serial)
   }
-  async function execute(task: SkillLocation & { cursor?: string }, captured: Context, serial: number) {
+  async function execute(
+    task: SkillLocation & { cursor?: string },
+    captured: Context,
+    serial: number,
+  ) {
     const current = () =>
       live() &&
       serial === generation &&
@@ -102,12 +109,17 @@ export function useSkillOwner(
     try {
       if (task.skillID === null) {
         const result = await auth.skills.list(captured.projectID, {
-          limit: 25, ...(task.cursor === undefined ? {} : { cursor: task.cursor }),
+          limit: 25,
+          ...(task.cursor === undefined ? {} : { cursor: task.cursor }),
         })
         if (!current()) return
         if (task.cursor !== undefined) {
-          if (state.nextCursor !== task.cursor || (result.items.length > 0 && state.items.length > 0 &&
-            result.items[0]!.id <= state.items[state.items.length - 1]!.id))
+          if (
+            state.nextCursor !== task.cursor ||
+            (result.items.length > 0 &&
+              state.items.length > 0 &&
+              result.items[0]!.id <= state.items[state.items.length - 1]!.id)
+          )
             throw new AccountFailure('invalid-response')
           state.items = Object.freeze([...state.items, ...result.items])
         } else state.items = result.items
@@ -128,15 +140,18 @@ export function useSkillOwner(
         ? '当前技能不存在或不可访问。'
         : e.problem?.code === 'CURSOR_INVALID'
           ? '目录游标已失效，请重新读取技能目录。'
-        : e.problem?.status === 409
-          ? '项目技能库尚未就绪，请稍后重新读取。'
-          : e.kind === 'cancelled'
-            ? '读取已停止，请明确重读。'
-            : e.kind === 'invalid-response'
-              ? '未取得有效的完整响应，请重新读取。'
-              : '本次读取失败，请重新读取。'
+          : e.problem?.status === 409
+            ? '项目技能库尚未就绪，请稍后重新读取。'
+            : e.kind === 'cancelled'
+              ? '读取已停止，请明确重读。'
+              : e.kind === 'invalid-response'
+                ? '未取得有效的完整响应，请重新读取。'
+                : '本次读取失败，请重新读取。'
     } finally {
-      if (queue.active === serial) { queue.active = null; state.loadingMore = false }
+      if (queue.active === serial) {
+        queue.active = null
+        state.loadingMore = false
+      }
       pump()
     }
   }
@@ -182,7 +197,13 @@ export function useSkillOwner(
     busy,
     blocked,
     loadMore() {
-      if (blocked.value || location.value.skillID !== null || state.phase !== 'ready' || !state.nextCursor) return
+      if (
+        blocked.value ||
+        location.value.skillID !== null ||
+        state.phase !== 'ready' ||
+        !state.nextCursor
+      )
+        return
       queue.pending = { ...location.value, cursor: state.nextCursor }
       pump()
     },

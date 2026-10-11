@@ -139,9 +139,14 @@ function fixture(current: string | null = id(3)) {
     workReview: api,
     workMilestonePlanning: {
       progress: null,
-      create: vi.fn(async () => { throw new Error('Unexpected Milestone Create') }),
-      checkOriginal: vi.fn(async () => { throw new Error('Unexpected Milestone Lookup') }),
-      editRejected: vi.fn(), abandon: vi.fn(),
+      create: vi.fn(async () => {
+        throw new Error('Unexpected Milestone Create')
+      }),
+      checkOriginal: vi.fn(async () => {
+        throw new Error('Unexpected Milestone Lookup')
+      }),
+      editRejected: vi.fn(),
+      abandon: vi.fn(),
     },
     workSprintLifecycle: { progress: null },
   } as unknown as SessionController

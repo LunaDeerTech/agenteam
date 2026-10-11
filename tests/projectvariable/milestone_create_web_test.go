@@ -96,10 +96,10 @@ type milestoneCreateIntent struct {
 type milestoneCreateIntentKey struct{}
 type milestoneCreateWeb struct {
 	*sprintStartWeb
-	generation f.Version
-	immutable string
-	created wc.StructureMutation
-	createIntent milestoneCreateIntent
+	generation                                     f.Version
+	immutable                                      string
+	created                                        wc.StructureMutation
+	createIntent                                   milestoneCreateIntent
 	creates, newReads, listReads, emptySprintLists int
 }
 
@@ -144,7 +144,9 @@ func (w *milestoneCreateWeb) prepareEmpty(t *testing.T, ctx context.Context) {
  AND NOT EXISTS(SELECT 1 FROM agenteam_work.sprint_start_commands WHERE project_id=$1::text::uuid)
  AND NOT EXISTS(SELECT 1 FROM agenteam_scheduler.dispatches WHERE project_id=$1::text)
  AND NOT EXISTS(SELECT 1 FROM agenteam_execution.executions WHERE project_id=$1::text)`, w.project.Project.ID.String()).Scan(&empty))
-	if !empty { t.Fatal("first Milestone preparation already has Work facts") }
+	if !empty {
+		t.Fatal("first Milestone preparation already has Work facts")
+	}
 	immutable, err := w.unchanged(ctx)
 	agentAppRequire(t, err)
 	// The original reader uses virtual generation 1 for an absent empty group.
@@ -154,8 +156,8 @@ func (w *milestoneCreateWeb) prepareEmpty(t *testing.T, ctx context.Context) {
 	w.mu.Unlock()
 }
 func (w *milestoneCreateWeb) material(t *testing.T, username string) {
-	raw := jsonBytes(t, map[string]any{"mode":w.mode,"cookie":w.a.p2.base.ownerBrowser.cookie,"project_id":w.project.Project.ID,"project_version":w.project.Project.Version,"route":"/"+username+"/"+w.project.Project.NormalizedName+"/tasks","title":milestoneCreateTitle,"description":milestoneCreateDescription})
-	agentAppRequire(t, os.WriteFile(filepath.Join(w.directory,"milestone-create-material.json"),raw,0600))
+	raw := jsonBytes(t, map[string]any{"mode": w.mode, "cookie": w.a.p2.base.ownerBrowser.cookie, "project_id": w.project.Project.ID, "project_version": w.project.Project.Version, "route": "/" + username + "/" + w.project.Project.NormalizedName + "/tasks", "title": milestoneCreateTitle, "description": milestoneCreateDescription})
+	agentAppRequire(t, os.WriteFile(filepath.Join(w.directory, "milestone-create-material.json"), raw, 0600))
 	clear(raw)
 }
 func (w *milestoneCreateWeb) start(t *testing.T, address string) {
@@ -351,50 +353,67 @@ func (w *milestoneCreateWeb) observeRead(r *http.Request, raw []byte) error {
 	switch r.URL.Path {
 	case variableHTTPPath(p, ""):
 		var project pc.ProjectRef
-		if json.Unmarshal(raw,&project)!=nil || !reflect.DeepEqual(project,w.project.Project) { return errors.New("Milestone Create changed current Project/version") }
+		if json.Unmarshal(raw, &project) != nil || !reflect.DeepEqual(project, w.project.Project) {
+			return errors.New("Milestone Create changed current Project/version")
+		}
 		w.projectReads++
-	case variableHTTPPath(p,"/milestones"):
+	case variableHTTPPath(p, "/milestones"):
 		var page f.Page[map[string]any]
-		if json.Unmarshal(raw,&page)!=nil || page.Items==nil || page.NextCursor!="" { return errors.New("invalid original Milestone page") }
-		expected:=[]map[string]any{}
-		if w.created.Validate()==nil {
-			item,err:=sprintCreateSummary(*w.created.Milestone,"description");if err!=nil{return err}
-			expected=append(expected,item)
+		if json.Unmarshal(raw, &page) != nil || page.Items == nil || page.NextCursor != "" {
+			return errors.New("invalid original Milestone page")
+		}
+		expected := []map[string]any{}
+		if w.created.Validate() == nil {
+			item, err := sprintCreateSummary(*w.created.Milestone, "description")
+			if err != nil {
+				return err
+			}
+			expected = append(expected, item)
 			w.listReads++
 		}
-		if !reflect.DeepEqual(page.Items,expected) { return errors.New("Milestone page lost exact original safe summary") }
-	case variableHTTPPath(p,"/sprints"):
-		if w.created.Validate()!=nil || r.URL.Query().Get("milestone_id")!=w.created.Milestone.ID.String() { return errors.New("Sprint list used an uncreated Milestone") }
+		if !reflect.DeepEqual(page.Items, expected) {
+			return errors.New("Milestone page lost exact original safe summary")
+		}
+	case variableHTTPPath(p, "/sprints"):
+		if w.created.Validate() != nil || r.URL.Query().Get("milestone_id") != w.created.Milestone.ID.String() {
+			return errors.New("Sprint list used an uncreated Milestone")
+		}
 		var page f.Page[map[string]any]
-		if json.Unmarshal(raw,&page)!=nil || page.Items==nil || len(page.Items)!=0 || page.NextCursor!="" { return errors.New("opening Sprint form created a Sprint") }
+		if json.Unmarshal(raw, &page) != nil || page.Items == nil || len(page.Items) != 0 || page.NextCursor != "" {
+			return errors.New("opening Sprint form created a Sprint")
+		}
 		w.emptySprintLists++
 	default:
-		if w.created.Validate()==nil && r.URL.Path==variableHTTPPath(p,"/milestones/"+w.created.Milestone.ID.String()) {
+		if w.created.Validate() == nil && r.URL.Path == variableHTTPPath(p, "/milestones/"+w.created.Milestone.ID.String()) {
 			var item wc.Milestone
-			if json.Unmarshal(raw,&item)!=nil || !reflect.DeepEqual(item,*w.created.Milestone) {return errors.New("Milestone Get differs from original complete receipt")}
+			if json.Unmarshal(raw, &item) != nil || !reflect.DeepEqual(item, *w.created.Milestone) {
+				return errors.New("Milestone Get differs from original complete receipt")
+			}
 			w.newReads++
 		}
 	}
 	return nil
 }
-func (w *milestoneCreateWeb) unchanged(ctx context.Context) (string,error) {
+func (w *milestoneCreateWeb) unchanged(ctx context.Context) (string, error) {
 	var snapshot string
-	err:=w.a.p2.base.raw.QueryRow(ctx,`SELECT jsonb_build_object(
+	err := w.a.p2.base.raw.QueryRow(ctx, `SELECT jsonb_build_object(
  'project',(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$1::text::uuid),
  'sprints',(SELECT jsonb_agg(to_jsonb(s) ORDER BY id) FROM agenteam_work.sprints s WHERE project_id=$1::text::uuid),
  'tasks',(SELECT jsonb_agg(to_jsonb(t) ORDER BY id) FROM agenteam_work.tasks t WHERE project_id=$1::text::uuid),
  'starts',(SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_work.sprint_start_commands c WHERE project_id=$1::text::uuid),
  'dispatches',(SELECT count(*) FROM agenteam_scheduler.dispatches WHERE project_id=$1::text),
- 'executions',(SELECT count(*) FROM agenteam_execution.executions WHERE project_id=$1::text))::text`,w.project.Project.ID.String()).Scan(&snapshot)
-	return snapshot,err
+ 'executions',(SELECT count(*) FROM agenteam_execution.executions WHERE project_id=$1::text))::text`, w.project.Project.ID.String()).Scan(&snapshot)
+	return snapshot, err
 }
 func (w *milestoneCreateWeb) committedFacts(ctx context.Context, in milestoneCreateIntent, result wc.StructureMutation) error {
 	if result.Validate() != nil || result.Command != wc.MilestoneCreate || !result.Changed || result.Milestone == nil || result.Sprint != nil || result.EventID == nil {
 		return errors.New("Create lost its original complete Structure receipt")
 	}
 	v := result.Milestone
-	expected := wc.Milestone{ID:in.request.MilestoneID,ProjectID:w.project.Project.ID,Title:in.request.Title,Description:in.request.Description,ManualRank:v.ManualRank,Version:1,CreatedAt:v.CreatedAt,UpdatedAt:v.CreatedAt}
-	if !reflect.DeepEqual(*v,expected) {return errors.New("Create did not publish exact first Milestone v1")}
+	expected := wc.Milestone{ID: in.request.MilestoneID, ProjectID: w.project.Project.ID, Title: in.request.Title, Description: in.request.Description, ManualRank: v.ManualRank, Version: 1, CreatedAt: v.CreatedAt, UpdatedAt: v.CreatedAt}
+	if !reflect.DeepEqual(*v, expected) {
+		return errors.New("Create did not publish exact first Milestone v1")
+	}
 	actor := w.a.p2.base.ownerBrowser.actor
 	semantic, err := wc.CreateMilestoneDigest(actor, f.CommandMeta{RequestID: in.requestID, IdempotencyKey: in.key}, w.project.Project.ID, in.request)
 	if err != nil {
@@ -415,7 +434,7 @@ func (w *milestoneCreateWeb) committedFacts(ctx context.Context, in milestoneCre
 		After           wc.StructureMutation `json:"after"`
 		GroupBefore     *f.Version           `json:"group_before"`
 		Header          eventc.Header        `json:"header"`
-		Payload         wc.MilestoneChanged     `json:"payload"`
+		Payload         wc.MilestoneChanged  `json:"payload"`
 	}
 	expectedInput := map[string]any{"command": wc.MilestoneCreate, "project_id": w.project.Project.ID, "target_id": v.ID.String(), "actor_user_id": actor.Details().UserID, "expected_version": nil, "create_milestone": in.request, "create_sprint": nil, "update": nil, "reorder_milestone": nil, "reorder_sprint": nil}
 	if json.Unmarshal(requestRaw, &input) != nil || !sprintCreateEqual(input, expectedInput) || json.Unmarshal(receiptRaw, &stored) != nil || !reflect.DeepEqual(stored, result) || json.Unmarshal(planRaw, &plan) != nil || plan.BeforeMilestone != nil || plan.BeforeSprint != nil || plan.GroupBefore == nil || *plan.GroupBefore != w.generation || !reflect.DeepEqual(plan.After, result) || revision < 1 || digest != semantic.String() || user != actor.Details().UserID || eventID != result.EventID.String() {
@@ -437,7 +456,7 @@ func (w *milestoneCreateWeb) committedFacts(ctx context.Context, in milestoneCre
 		return errors.New("Create Outbox differs from original command plan")
 	}
 	var canonical bool
-	err = w.a.p2.base.raw.QueryRow(ctx, `SELECT title=$3 AND description=$4 AND manual_rank=$5 AND version=1 AND created_at=$6 AND updated_at=$6 FROM agenteam_work.milestones WHERE project_id=$1::text::uuid AND id=$2::text::uuid`,w.project.Project.ID.String(),v.ID.String(),v.Title,v.Description,v.ManualRank,v.CreatedAt.Time()).Scan(&canonical)
+	err = w.a.p2.base.raw.QueryRow(ctx, `SELECT title=$3 AND description=$4 AND manual_rank=$5 AND version=1 AND created_at=$6 AND updated_at=$6 FROM agenteam_work.milestones WHERE project_id=$1::text::uuid AND id=$2::text::uuid`, w.project.Project.ID.String(), v.ID.String(), v.Title, v.Description, v.ManualRank, v.CreatedAt.Time()).Scan(&canonical)
 	if err != nil {
 		return err
 	}
@@ -445,7 +464,7 @@ func (w *milestoneCreateWeb) committedFacts(ctx context.Context, in milestoneCre
 		return errors.New("new canonical Milestone differs from receipt")
 	}
 	var facts [9]int64
-	err=w.a.p2.base.raw.QueryRow(ctx,`SELECT
+	err = w.a.p2.base.raw.QueryRow(ctx, `SELECT
  (SELECT count(*) FROM agenteam_work.structure_commands WHERE project_id=$1::text::uuid),
  (SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$1::text::uuid AND producer='work'),
  (SELECT order_generation FROM agenteam_work.milestone_order_groups WHERE project_id=$1::text::uuid),
@@ -454,9 +473,13 @@ func (w *milestoneCreateWeb) committedFacts(ctx context.Context, in milestoneCre
  (SELECT count(*) FROM agenteam_work.sprints WHERE project_id=$1::text::uuid),
  (SELECT count(*) FROM agenteam_work.tasks WHERE project_id=$1::text::uuid),
  (SELECT count(*) FROM agenteam_scheduler.dispatches WHERE project_id=$1::text),
- (SELECT count(*) FROM agenteam_execution.executions WHERE project_id=$1::text)`,w.project.Project.ID.String(),v.ID.String()).Scan(&facts[0],&facts[1],&facts[2],&facts[3],&facts[4],&facts[5],&facts[6],&facts[7],&facts[8])
-	if err!=nil{return err}
-	if facts!=([9]int64{1,1,int64(w.generation)+1,1,1,0,0,0,0}) {return errors.New("Create duplicated facts or created a Sprint/Task/Execution")}
+ (SELECT count(*) FROM agenteam_execution.executions WHERE project_id=$1::text)`, w.project.Project.ID.String(), v.ID.String()).Scan(&facts[0], &facts[1], &facts[2], &facts[3], &facts[4], &facts[5], &facts[6], &facts[7], &facts[8])
+	if err != nil {
+		return err
+	}
+	if facts != ([9]int64{1, 1, int64(w.generation) + 1, 1, 1, 0, 0, 0, 0}) {
+		return errors.New("Create duplicated facts or created a Sprint/Task/Execution")
+	}
 	snapshot, err := w.unchanged(ctx)
 	if err != nil {
 		return err

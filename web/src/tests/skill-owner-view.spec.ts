@@ -102,7 +102,9 @@ describe('Skills view visible interactions', () => {
     const f = await fixture()
     f.state.nextCursor = 'opaque-next'
     await flushPromises()
-    const button = wrapper!.findAll('button').find((node) => node.find('[aria-hidden="false"]').text() === '加载更多技能')!
+    const button = wrapper!
+      .findAll('button')
+      .find((node) => node.find('[aria-hidden="false"]').text() === '加载更多技能')!
     await button.trigger('click')
     expect(f.loadMore).toHaveBeenCalledOnce()
     f.state.loadingMore = true

@@ -82,7 +82,13 @@ onBeforeUnmount(() => owner.dispose())
           </UiCard>
         </li>
       </ul>
-      <UiButton ref="moreButton" v-if="state.nextCursor" :disabled="owner.blocked.value" @click="owner.loadMore()">{{ state.loadingMore ? '正在加载技能' : '加载更多技能' }}</UiButton>
+      <UiButton
+        ref="moreButton"
+        v-if="state.nextCursor"
+        :disabled="owner.blocked.value"
+        @click="owner.loadMore()"
+        >{{ state.loadingMore ? '正在加载技能' : '加载更多技能' }}</UiButton
+      >
     </template>
     <UiCard v-else-if="state.detail">
       <div class="skill-title">

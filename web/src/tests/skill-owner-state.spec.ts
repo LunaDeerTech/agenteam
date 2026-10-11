@@ -405,12 +405,15 @@ describe('Skills current Human owner and page lifetime', () => {
     },
   )
   it('appends ordered pages with the original cursor and rereads from the first page explicitly', async () => {
-    const f = await fixture(), first = Array.from({ length: 25 }, (_, n) => metadata(20 + n))
+    const f = await fixture(),
+      first = Array.from({ length: 25 }, (_, n) => metadata(20 + n))
     const requests: string[] = []
     f.intercept(async (path, init) => {
       if (path.startsWith(`${base}/catalog?`)) {
         requests.push(path)
-        return path === catalog ? json({ items: first, next_cursor: 'original-cursor' }) : json({ items: [metadata(50)] })
+        return path === catalog
+          ? json({ items: first, next_cursor: 'original-cursor' })
+          : json({ items: [metadata(50)] })
       }
       return f.normal(path, init)
     })
@@ -420,7 +423,10 @@ describe('Skills current Human owner and page lifetime', () => {
     expect(f.page.state.nextCursor).toBe('original-cursor')
     f.page.loadMore()
     await flushPromises()
-    expect(f.page.state.items.map((item) => item.id)).toEqual([...first.map((item) => item.id), id(50)])
+    expect(f.page.state.items.map((item) => item.id)).toEqual([
+      ...first.map((item) => item.id),
+      id(50),
+    ])
     expect(f.page.state.nextCursor).toBeUndefined()
     f.page.loadMore()
     expect(requests).toEqual([catalog, `${catalog}&cursor=original-cursor`])
@@ -430,12 +436,15 @@ describe('Skills current Human owner and page lifetime', () => {
     expect(f.page.state.items).toEqual(first)
   })
   it('rejects cross-page duplicates and discards a late page after selecting a detail', async () => {
-    const f = await fixture(), first = Array.from({ length: 25 }, (_, n) => metadata(20 + n)), late = deferred<Response>()
+    const f = await fixture(),
+      first = Array.from({ length: 25 }, (_, n) => metadata(20 + n)),
+      late = deferred<Response>()
     releases.push(() => late.resolve(json({ items: [metadata(50)] })))
     let hold = false
     f.intercept((path, init) => {
       if (path === catalog) return Promise.resolve(json({ items: first, next_cursor: 'next' }))
-      if (path === `${catalog}&cursor=next`) return hold ? late.promise : Promise.resolve(json({ items: [metadata(20)] }))
+      if (path === `${catalog}&cursor=next`)
+        return hold ? late.promise : Promise.resolve(json({ items: [metadata(20)] }))
       return f.normal(path, init)
     })
     f.page.refresh()

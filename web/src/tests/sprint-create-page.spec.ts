@@ -200,9 +200,14 @@ async function fixture(withRouter = false) {
     workReview: reads,
     workMilestonePlanning: {
       progress: null,
-      create: vi.fn(async () => { throw new Error('Unexpected Milestone Create') }),
-      checkOriginal: vi.fn(async () => { throw new Error('Unexpected Milestone Lookup') }),
-      editRejected: vi.fn(), abandon: vi.fn(),
+      create: vi.fn(async () => {
+        throw new Error('Unexpected Milestone Create')
+      }),
+      checkOriginal: vi.fn(async () => {
+        throw new Error('Unexpected Milestone Lookup')
+      }),
+      editRejected: vi.fn(),
+      abandon: vi.fn(),
     },
     workSprintLifecycle: api,
   } as unknown as SessionController

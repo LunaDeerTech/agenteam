@@ -28,12 +28,12 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
- "github.com/LunaDeerTech/agenteam/internal/central/httpapi"
- skillc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+	skillc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
 )
@@ -91,16 +91,20 @@ func TestSkillOwnerReadWeb(t *testing.T) {
 	cfg := guardConfiguration(t, append(guardEnvironment(t, db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin, "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s"))
 	var core *account.Service
 	var owned *resources
- observations := &skillWebObservations{evidence:evidence,inputHash:inputHash,tails:map[string]*skillWebTail{}}
+	observations := &skillWebObservations{evidence: evidence, inputHash: inputHash, tails: map[string]*skillWebTail{}}
 	deps := dependencies{observeAccount: func(v *account.Service) { core = v }, bind: func(c context.Context, cfg config.Config, store database, owner *resources, d *dependencies) error {
 		owned = owner
-		if err := bindAccounts(c, cfg, store, owner, d); err != nil { return err }
-  assembly, ok := owner.accounts().(*accountAssembly)
-  if !ok { return f.NewFault(f.DependencyUnbound, f.NotStarted) }
-  assembly.mu.Lock()
-  assembly.handler = observations.observeHandler(assembly.handler)
-  assembly.mu.Unlock()
-  return nil
+		if err := bindAccounts(c, cfg, store, owner, d); err != nil {
+			return err
+		}
+		assembly, ok := owner.accounts().(*accountAssembly)
+		if !ok {
+			return f.NewFault(f.DependencyUnbound, f.NotStarted)
+		}
+		assembly.mu.Lock()
+		assembly.handler = observations.observeHandler(assembly.handler)
+		assembly.mu.Unlock()
+		return nil
 	}}
 	output := newEventLog()
 	logger, err := logging.New(logging.Central, slog.LevelInfo, output)
@@ -158,7 +162,7 @@ func TestSkillOwnerReadWeb(t *testing.T) {
 	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, _ error) {
 		http.Error(w, "Owned backend unavailable", http.StatusBadGateway)
 	}
-		proxy.ModifyResponse = observations.capture
+	proxy.ModifyResponse = observations.capture
 	server := &http.Server{ReadHeaderTimeout: 5 * time.Second}
 	// Asset paths remain under the actual frozen assets directory.
 	server.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -321,10 +325,10 @@ func TestSkillOwnerReadWeb(t *testing.T) {
 	observations.mu.Lock()
 	observations.project = projectID.String()
 	observations.skill = metadata.ID.String()
- observations.metadata = metadata
- observations.active = true
+	observations.metadata = metadata
+	observations.active = true
 	observations.mu.Unlock()
- payload := map[string]any{"mode":"read", "cookie":owner.cookie, "project_id":projectID.String(), "route":"/"+owner.username+"/skill-read/settings/skills", "skill":metadata, "input_hash":inputHash}
+	payload := map[string]any{"mode": "read", "cookie": owner.cookie, "project_id": projectID.String(), "route": "/" + owner.username + "/skill-read/settings/skills", "skill": metadata, "input_hash": inputHash}
 	raw, err := json.Marshal(payload)
 	check("private transfer", err)
 	check("private material", os.WriteFile(filepath.Join(private, "skill-owner-material.json"), raw, 0600))
@@ -337,18 +341,26 @@ func TestSkillOwnerReadWeb(t *testing.T) {
 	}
 	observations.mu.Lock()
 	observed, observeErr := observations.count, observations.err
- catalogs, details := observations.catalogs, observations.details
- tails := make([]*skillWebTail, 0, len(observations.tails))
- for _, tail := range observations.tails { tails = append(tails,tail) }
+	catalogs, details := observations.catalogs, observations.details
+	tails := make([]*skillWebTail, 0, len(observations.tails))
+	for _, tail := range observations.tails {
+		tails = append(tails, tail)
+	}
 	observations.mu.Unlock()
 	if observeErr != nil || observed == 0 || catalogs != 2 || details != 2 || result["responses"] != float64(observed) || len(tails) != observed {
 		t.Fatal("browser/real response observation count mismatch")
 	}
- for _, tail := range tails {
-  select { case <-tail.done: default: t.Fatal("original Skill App handler still running") }
-  if !tail.returned { t.Fatal("original Skill App handler did not return normally") }
- }
- if factsSnapshot() != before {
+	for _, tail := range tails {
+		select {
+		case <-tail.done:
+		default:
+			t.Fatal("original Skill App handler still running")
+		}
+		if !tail.returned {
+			t.Fatal("original Skill App handler did not return normally")
+		}
+	}
+	if factsSnapshot() != before {
 		t.Fatal("Skills reads changed Project business facts")
 	}
 	for _, secret := range []string{adminRecord.Password, owner.token, owner.password, owner.cookie, other.token, other.password, other.cookie} {
@@ -390,82 +402,147 @@ func TestSkillOwnerReadWeb(t *testing.T) {
 // The passive observer is installed around the original App Account handler,
 // inside its existing Request-ID middleware. It does not create an authority.
 type skillWebObservations struct {
- mu sync.Mutex
- evidence,inputHash,project,skill string
- active bool
- metadata skillc.Metadata
- count,catalogs,details int
- tails map[string]*skillWebTail
- err error
+	mu                                  sync.Mutex
+	evidence, inputHash, project, skill string
+	active                              bool
+	metadata                            skillc.Metadata
+	count, catalogs, details            int
+	tails                               map[string]*skillWebTail
+	err                                 error
 }
 type skillWebTail struct {
- done chan struct{}
- returned bool
- method,uri string
+	done        chan struct{}
+	returned    bool
+	method, uri string
 }
+
 func (o *skillWebObservations) fail() error {
- o.mu.Lock();defer o.mu.Unlock()
- if o.err==nil {o.err=errors.New("closed Skill read observation failed")}
- return o.err
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	if o.err == nil {
+		o.err = errors.New("closed Skill read observation failed")
+	}
+	return o.err
 }
 func (o *skillWebObservations) observeHandler(next http.Handler) http.Handler {
- return http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){
-  o.mu.Lock();active:=o.active;o.mu.Unlock()
-  if !active {next.ServeHTTP(w,r);return}
-  rid:=httpapi.RequestID(r.Context())
-  if r.Method!=http.MethodGet || rid.Validate()!=nil { _=o.fail();http.Error(w,"read-only observation rejected",502);return }
-  tail:=&skillWebTail{done:make(chan struct{}),method:r.Method,uri:r.URL.RequestURI()}
-  o.mu.Lock()
-  if o.tails[rid.String()]!=nil || len(o.tails)>=64 { o.mu.Unlock();_=o.fail();http.Error(w,"duplicate read observation",502);return }
-  o.tails[rid.String()]=tail
-  o.mu.Unlock()
-  defer close(tail.done)
-  next.ServeHTTP(w,r)
-  tail.returned=true
- })
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		o.mu.Lock()
+		active := o.active
+		o.mu.Unlock()
+		if !active {
+			next.ServeHTTP(w, r)
+			return
+		}
+		rid := httpapi.RequestID(r.Context())
+		if r.Method != http.MethodGet || rid.Validate() != nil {
+			_ = o.fail()
+			http.Error(w, "read-only observation rejected", 502)
+			return
+		}
+		tail := &skillWebTail{done: make(chan struct{}), method: r.Method, uri: r.URL.RequestURI()}
+		o.mu.Lock()
+		if o.tails[rid.String()] != nil || len(o.tails) >= 64 {
+			o.mu.Unlock()
+			_ = o.fail()
+			http.Error(w, "duplicate read observation", 502)
+			return
+		}
+		o.tails[rid.String()] = tail
+		o.mu.Unlock()
+		defer close(tail.done)
+		next.ServeHTTP(w, r)
+		tail.returned = true
+	})
 }
 func (o *skillWebObservations) capture(response *http.Response) error {
- o.mu.Lock();active:=o.active;project,skill,metadata:=o.project,o.skill,o.metadata;o.mu.Unlock()
- if !active {return nil}
- if response.Request.Method!=http.MethodGet || response.StatusCode!=200 {return o.fail()}
- raw,readErr:=io.ReadAll(io.LimitReader(response.Body,(2<<20)+1))
- closeErr:=response.Body.Close()
- if readErr!=nil||closeErr!=nil||len(raw)>2<<20||response.ContentLength!=int64(len(raw))||!json.Valid(raw)||response.Header.Get("Cache-Control")!="no-store" {return o.fail()}
- rid,err:=f.ParseID[f.Request](response.Header.Get("X-Request-ID"))
- if err!=nil||rid.String()!=response.Header.Get("X-Request-ID")||len(response.Header.Values("X-Request-ID"))!=1{return o.fail()}
- o.mu.Lock();tail:=o.tails[rid.String()];o.mu.Unlock()
- if tail==nil||tail.method!=response.Request.Method||tail.uri!=response.Request.URL.RequestURI(){return o.fail()}
- select{case <-tail.done:case <-response.Request.Context().Done():return o.fail()}
- if !tail.returned{return o.fail()}
- // Only immutable safe metadata is decoded here. Session bytes are hashed in
- // memory and never written to disk; the browser checks its original safe DTO.
- catalog,detail:=false,false
- path:=response.Request.URL.Path
- prefix:="/api/v1/projects/"+project+"/skills"
- if strings.HasPrefix(path,prefix){
-  if path==prefix+"/catalog"&&response.Request.URL.RawQuery=="limit=25"{
-   var page struct{Items []skillc.Metadata `json:"items"`;NextCursor string `json:"next_cursor,omitempty"`}
-   if skillWebDecode(raw,&page)!=nil||page.Items==nil||len(page.Items)!=1||page.Items[0]!=metadata||page.NextCursor!=""{return o.fail()}
-   catalog=true
-  }else if path==prefix+"/"+skill&&response.Request.URL.RawQuery==""{
-   var item skillc.Metadata
-   if skillWebDecode(raw,&item)!=nil||item!=metadata{return o.fail()}
-   detail=true
-  }else{return o.fail()}
- }
- record:=map[string]any{"input_hash":o.inputHash,"request_id":rid.String(),"method":response.Request.Method,"url_sha256":fmt.Sprintf("%x",sha256.Sum256([]byte(response.Request.URL.RequestURI()))),"status":response.StatusCode,"content_length":len(raw),"body_sha256":fmt.Sprintf("%x",sha256.Sum256(raw)),"original_eof":true,"original_closed":true,"handler_returned":true}
- encoded,err:=json.Marshal(record)
- if err!=nil{return o.fail()}
- if err=os.WriteFile(filepath.Join(o.evidence,"skill-owner-read-read-response-"+rid.String()+".json"),encoded,0600);err!=nil{return o.fail()}
- o.mu.Lock();o.count++;if catalog{o.catalogs++};if detail{o.details++};o.mu.Unlock()
- response.Body=io.NopCloser(bytes.NewReader(raw))
- return nil
+	o.mu.Lock()
+	active := o.active
+	project, skill, metadata := o.project, o.skill, o.metadata
+	o.mu.Unlock()
+	if !active {
+		return nil
+	}
+	if response.Request.Method != http.MethodGet || response.StatusCode != 200 {
+		return o.fail()
+	}
+	raw, readErr := io.ReadAll(io.LimitReader(response.Body, (2<<20)+1))
+	closeErr := response.Body.Close()
+	if readErr != nil || closeErr != nil || len(raw) > 2<<20 || response.ContentLength != int64(len(raw)) || !json.Valid(raw) || response.Header.Get("Cache-Control") != "no-store" {
+		return o.fail()
+	}
+	rid, err := f.ParseID[f.Request](response.Header.Get("X-Request-ID"))
+	if err != nil || rid.String() != response.Header.Get("X-Request-ID") || len(response.Header.Values("X-Request-ID")) != 1 {
+		return o.fail()
+	}
+	o.mu.Lock()
+	tail := o.tails[rid.String()]
+	o.mu.Unlock()
+	if tail == nil || tail.method != response.Request.Method || tail.uri != response.Request.URL.RequestURI() {
+		return o.fail()
+	}
+	select {
+	case <-tail.done:
+	case <-response.Request.Context().Done():
+		return o.fail()
+	}
+	if !tail.returned {
+		return o.fail()
+	}
+	// Only immutable safe metadata is decoded here. Session bytes are hashed in
+	// memory and never written to disk; the browser checks its original safe DTO.
+	catalog, detail := false, false
+	path := response.Request.URL.Path
+	prefix := "/api/v1/projects/" + project + "/skills"
+	if strings.HasPrefix(path, prefix) {
+		if path == prefix+"/catalog" && response.Request.URL.RawQuery == "limit=25" {
+			var page struct {
+				Items      []skillc.Metadata `json:"items"`
+				NextCursor string            `json:"next_cursor,omitempty"`
+			}
+			if skillWebDecode(raw, &page) != nil || page.Items == nil || len(page.Items) != 1 || page.Items[0] != metadata || page.NextCursor != "" {
+				return o.fail()
+			}
+			catalog = true
+		} else if path == prefix+"/"+skill && response.Request.URL.RawQuery == "" {
+			var item skillc.Metadata
+			if skillWebDecode(raw, &item) != nil || item != metadata {
+				return o.fail()
+			}
+			detail = true
+		} else {
+			return o.fail()
+		}
+	}
+	record := map[string]any{"input_hash": o.inputHash, "request_id": rid.String(), "method": response.Request.Method, "url_sha256": fmt.Sprintf("%x", sha256.Sum256([]byte(response.Request.URL.RequestURI()))), "status": response.StatusCode, "content_length": len(raw), "body_sha256": fmt.Sprintf("%x", sha256.Sum256(raw)), "original_eof": true, "original_closed": true, "handler_returned": true}
+	encoded, err := json.Marshal(record)
+	if err != nil {
+		return o.fail()
+	}
+	if err = os.WriteFile(filepath.Join(o.evidence, "skill-owner-read-read-response-"+rid.String()+".json"), encoded, 0600); err != nil {
+		return o.fail()
+	}
+	o.mu.Lock()
+	o.count++
+	if catalog {
+		o.catalogs++
+	}
+	if detail {
+		o.details++
+	}
+	o.mu.Unlock()
+	response.Body = io.NopCloser(bytes.NewReader(raw))
+	return nil
 }
-func skillWebDecode(raw []byte,out any) error {
- decoder:=json.NewDecoder(bytes.NewReader(raw));decoder.DisallowUnknownFields()
- if err:=decoder.Decode(out);err!=nil{return err}
- if decoder.Decode(new(any))!=io.EOF{return errors.New("trailing read representation")}
- return nil
+func skillWebDecode(raw []byte, out any) error {
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(out); err != nil {
+		return err
+	}
+	if decoder.Decode(new(any)) != io.EOF {
+		return errors.New("trailing read representation")
+	}
+	return nil
 }
 
 func skillWebBrowser(t *testing.T, ctx context.Context, private, origin, dist, evidence, inputHash string) map[string]any {

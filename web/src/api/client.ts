@@ -1048,7 +1048,9 @@ type WorkReviewOptions = {
 
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
   function request<T, E extends SkillEndpoint>(
-    endpoint: E, parse: (value: unknown) => T, options: SkillOptions<E>,
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: SkillOptions<E>,
   ): Promise<T>
   function request<T, E extends KnowledgeCommandEndpoint>(
     endpoint: E,
@@ -1199,14 +1201,19 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         if (!uuid7.test(project) || !(options.signal instanceof AbortSignal)) throw new Error()
         path = basePath.replace('{project_id}', project)
         if (list) {
-          const q = shape(options.skillQuery, ['limit'], ['cursor']), limit = q.limit
-          if (typeof limit !== 'number' || !Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error()
+          const q = shape(options.skillQuery, ['limit'], ['cursor']),
+            limit = q.limit
+          if (typeof limit !== 'number' || !Number.isInteger(limit) || limit < 1 || limit > 100)
+            throw new Error()
           const params = new URLSearchParams({ limit: String(limit) })
           if (Object.hasOwn(q, 'cursor')) {
             const cursor = string(q.cursor, 1, 8192)
-            if (new TextEncoder().encode(cursor).byteLength > 8192 ||
+            if (
+              new TextEncoder().encode(cursor).byteLength > 8192 ||
               /[\u0000-\u001f\u007f-\u009f]/u.test(cursor) ||
-              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(cursor)) throw new Error()
+              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(cursor)
+            )
+              throw new Error()
             params.set('cursor', cursor)
           }
           path += '?' + params.toString()
@@ -1215,7 +1222,9 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           if (!uuid7.test(target)) throw new Error()
           path = path.replace('{target}', target)
         }
-      } catch { throw new AccountFailure('invalid-input') }
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
     } else if ((workReviewEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const list = [
@@ -1788,55 +1797,57 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           options.signal,
           lifecycle,
           (skillEndpoints as readonly string[]).includes(endpoint) && success
-            ? endpoint === 'listProjectSkills' ? 100 * 65536 + 8192 + 1024 : 65536
+            ? endpoint === 'listProjectSkills'
+              ? 100 * 65536 + 8192 + 1024
+              : 65536
             : (workReviewEndpoints as readonly string[]).includes(endpoint) && success
-            ? [
-                'agentConfigurationCreate',
-                'agentConfigurationUpdate',
-                'agentConfigurationGet',
-                'agentConfigurationLookup',
-              ].includes(endpoint)
-              ? 512 * 1024
-              : endpoint === 'taskTimeline'
-                ? 4 * 1024 * 1024
-                : endpoint === 'directoryAgents'
-                  ? 13 * 1024 * 1024
-                  : endpoint === 'directoryAgent'
-                    ? 64 * 1024
-                    : [
-                          'reviewMilestones',
-                          'reviewSprints',
-                          'reviewTasks',
-                          'reviewBlockers',
-                        ].includes(endpoint)
-                      ? 5 * 1024 * 1024
-                      : 1024 * 1024
-            : ((knowledgeEndpoints as readonly string[]).includes(endpoint) ||
-                  (knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) &&
-                success
-              ? // Exact complete representation limits of the two Knowledge adapters.
-                endpoint === 'knowledgeContent'
-                ? 7 * 1024 * 1024
-                : 5 * 1024 * 1024
-              : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
-                ? (projectModelReads as readonly string[]).includes(endpoint)
-                  ? 8388608
-                  : 1024
-                : endpoint === 'listOwnerProjects' && success
-                  ? 5 * 1024 * 1024
-                  : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
-                    ? 64 * 1024
-                    : endpoint === 'getSystemRuntimeInformation' && success
-                      ? 16 * 1024
-                      : endpoint === 'listProviders' && success
-                        ? 2 * 1024 * 1024
-                        : (endpoint === 'listSystemAudit' ||
-                              endpoint === 'getSystemAudit' ||
-                              endpoint === 'listProjectAudit' ||
-                              endpoint === 'getProjectAudit') &&
-                            success
-                          ? 1024 * 1024
-                          : 600_000,
+              ? [
+                  'agentConfigurationCreate',
+                  'agentConfigurationUpdate',
+                  'agentConfigurationGet',
+                  'agentConfigurationLookup',
+                ].includes(endpoint)
+                ? 512 * 1024
+                : endpoint === 'taskTimeline'
+                  ? 4 * 1024 * 1024
+                  : endpoint === 'directoryAgents'
+                    ? 13 * 1024 * 1024
+                    : endpoint === 'directoryAgent'
+                      ? 64 * 1024
+                      : [
+                            'reviewMilestones',
+                            'reviewSprints',
+                            'reviewTasks',
+                            'reviewBlockers',
+                          ].includes(endpoint)
+                        ? 5 * 1024 * 1024
+                        : 1024 * 1024
+              : ((knowledgeEndpoints as readonly string[]).includes(endpoint) ||
+                    (knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) &&
+                  success
+                ? // Exact complete representation limits of the two Knowledge adapters.
+                  endpoint === 'knowledgeContent'
+                  ? 7 * 1024 * 1024
+                  : 5 * 1024 * 1024
+                : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
+                  ? (projectModelReads as readonly string[]).includes(endpoint)
+                    ? 8388608
+                    : 1024
+                  : endpoint === 'listOwnerProjects' && success
+                    ? 5 * 1024 * 1024
+                    : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
+                      ? 64 * 1024
+                      : endpoint === 'getSystemRuntimeInformation' && success
+                        ? 16 * 1024
+                        : endpoint === 'listProviders' && success
+                          ? 2 * 1024 * 1024
+                          : (endpoint === 'listSystemAudit' ||
+                                endpoint === 'getSystemAudit' ||
+                                endpoint === 'listProjectAudit' ||
+                                endpoint === 'getProjectAudit') &&
+                              success
+                            ? 1024 * 1024
+                            : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
           (skillEndpoints as readonly string[]).includes(endpoint) ||
             (workReviewEndpoints as readonly string[]).includes(endpoint) ||
