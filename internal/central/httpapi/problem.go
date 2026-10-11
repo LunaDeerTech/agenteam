@@ -68,6 +68,7 @@ var problemKinds = map[foundation.Code]problemKind{
 	foundation.TaskVersionConflict:     {409, "Task version conflict", "The task changed. Read it again before retrying."},
 	foundation.TaskStateInvalid:        {409, "Task state invalid", "The task state does not permit this action."},
 	foundation.TaskAssigneeRequired:    {409, "Task assignee required", "This action requires an assigned agent."},
+	foundation.CommentRequired:         {409, "Comment required", "This action requires a comment."},
 	foundation.TaskSprintInvalid:       {409, "Task sprint invalid", "The task sprint does not permit this action."},
 	foundation.TaskTerminalImmutable:   {409, "Task terminal immutable", "A terminal task cannot be changed."},
 	foundation.BlockerNotFound:         {404, "Blocker not found", "The requested blocker was not found."},
