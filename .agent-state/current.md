@@ -7,6 +7,7 @@
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
 | Agent Secret Variable 白名单 UI — `ai/agent-secret-allowlist-ui-20261011` | variables_review 交付，secret_allowlist_fixture 方法 | 基线 9bc9e13a；普通 Owner 的安全 metadata 选择与 Agent 创建/编辑、原 Unknown 恢复正在独立实现；未验收，不接 Secret 值或运行注入。 |
+| 非空 Mount DirectText — `ai/execution-mount-directtext-20261011` | runtime_recovery 实施，recovery_lead 独审 | 技术候选 d3f64149；native02 两业务子例通过，但原 TCP 差额尾未空，wholeFAIL，尚未集成。原 native01/02 及被动归属材料保留在该任务树 `output/ai/execution-mount-directtext/`，不改变退出门或既有 STOP。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 ## 保留与清理
