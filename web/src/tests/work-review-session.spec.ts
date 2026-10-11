@@ -9,6 +9,11 @@ import {
   type TaskCreateInput,
   type TaskCreateReceipt,
 } from '../api/work-task-planning'
+import {
+  createWorkTaskEditAPI,
+  type TaskUpdateInput,
+  type TaskUpdateReceipt,
+} from '../api/work-task-edit'
 import { createSessionController, type SessionController } from '../composables/useSession'
 
 const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
@@ -157,6 +162,7 @@ async function fixture() {
   args[16] = createWorkReviewAPI(fetch)
   args[17] = createAgentDirectoryAPI(fetch)
   args[18] = createWorkTaskPlanningAPI(fetch)
+  args[19] = { edit: createWorkTaskEditAPI(fetch) }
   const auth = createSessionController(...args)
   owners.push(auth)
   await auth.restore()
@@ -177,6 +183,106 @@ async function fixture() {
 }
 
 describe('Work review original Session ownership', () => {
+  it('keeps edit presence and version through original Lookup and confirms No-op without issuing ready', async () => {
+    const f = await fixture()
+    const updatePath = `/api/v1/projects/${projectID}/tasks/${taskID}`
+    const updateLookup = `/api/v1/projects/${projectID}/task-commands/lookup`
+    let original!: TaskUpdateInput
+    let observed: 'not_observed' | 'committed' = 'not_observed'
+    let lose = true
+    let stored = {
+      ...receipt().task,
+      state: 'backlog' as const,
+      assignee_agent_id: null,
+      version: '4',
+    }
+    function edited(input: TaskUpdateInput, changed: boolean): TaskUpdateReceipt {
+      const task = {
+        ...stored,
+        ...input.request,
+        version: String(BigInt(input.expected_version) + (changed ? 1n : 0n)),
+      }
+      stored = task
+      return changed
+        ? { task, changed: true, task_event_id: id(40), event_ids: [id(42)] }
+        : { task, changed: false, task_event_id: null, event_ids: [] }
+    }
+    f.intercept(async (path, init) => {
+      if (path === updatePath && init.method === 'PATCH') {
+        original = JSON.parse(init.body as string) as TaskUpdateInput
+        return lose ? problem('COMMIT_UNKNOWN', 503, 'unknown') : json(edited(original, false))
+      }
+      if (path === updateLookup)
+        return json({
+          status: observed,
+          receipt: observed === 'committed' ? edited(original, true) : null,
+        })
+      return f.normal(path, init)
+    })
+    const input = { expected_version: '4', request: { title: '原编辑标题', description: '' } }
+    const frozen = JSON.parse(JSON.stringify(input))
+    await expect(f.auth.workReview.startEdit(projectID, taskID, input)).rejects.toMatchObject({
+      problem: { code: 'COMMIT_UNKNOWN' },
+    })
+    input.expected_version = '8'
+    input.request.description = '不得替换原空字符串'
+    expect(f.auth.workReview.progress).toMatchObject({
+      kind: 'edit',
+      phase: 'uncertain',
+      projectID,
+      taskID,
+    })
+    await expect(f.auth.workReview.startEdit(projectID, taskID, input)).rejects.toMatchObject({
+      kind: 'busy',
+    })
+    await expect(f.auth.workReview.startCreate(projectID, createDraft())).rejects.toMatchObject({
+      kind: 'busy',
+    })
+    await expect(
+      f.auth.workReview.startReady(projectID, taskID, {
+        expected_version: '4',
+        request: { target_state: 'todo', assignee_agent_id: id(30) },
+      }),
+    ).rejects.toMatchObject({ kind: 'busy' })
+    await f.auth.workReview.checkOriginal()
+    expect(f.auth.workReview.progress?.phase).toBe('uncertain')
+    observed = 'committed'
+    await f.auth.workReview.checkOriginal()
+    expect(f.auth.workReview.progress).toMatchObject({
+      phase: 'confirmed',
+      receipt: { changed: true, task: { version: '5', description: '' } },
+    })
+    const updates = () =>
+      f.fetch.mock.calls.filter(([path, init]) => path === updatePath && init.method === 'PATCH')
+    const first = updates()[0]![1]
+    expect(updates()).toHaveLength(1)
+    for (const [, request] of f.fetch.mock.calls.filter(([path]) => path === updateLookup)) {
+      expect(JSON.parse(request.body as string)).toEqual({
+        command: 'work.task.update',
+        target_id: taskID,
+        ...frozen,
+      })
+      expect(new Headers(request.headers).get('Idempotency-Key')).toBe(
+        new Headers(first.headers).get('Idempotency-Key'),
+      )
+    }
+    lose = false
+    await f.auth.workReview.startEdit(projectID, taskID, {
+      expected_version: '5',
+      request: { title: '原编辑标题' },
+    })
+    expect(updates()).toHaveLength(2)
+    expect(new Headers(updates()[1]![1].headers).get('Idempotency-Key')).not.toBe(
+      new Headers(first.headers).get('Idempotency-Key'),
+    )
+    expect(f.auth.workReview.progress).toMatchObject({
+      kind: 'edit',
+      phase: 'confirmed',
+      receipt: { changed: false, task: { version: '5' }, task_event_id: null, event_ids: [] },
+    })
+    expect(f.transfers()).toHaveLength(0)
+  })
+
   it('retains the first create ID and intent through body loss, then requires a separate ready command', async () => {
     const f = await fixture()
     const createPath = `/api/v1/projects/${projectID}/tasks`

@@ -65,8 +65,17 @@ const endpoints = {
   reviewLookup: ['POST', '/api/v1/projects/{project_id}/task-transition-commands/lookup', 200],
   taskCreate: ['POST', '/api/v1/projects/{project_id}/tasks', 200],
   taskCreateLookup: ['POST', '/api/v1/projects/{project_id}/task-commands/lookup', 200],
+  taskUpdate: ['PATCH', '/api/v1/projects/{project_id}/tasks/{target}', 200],
+  taskUpdateLookup: ['POST', '/api/v1/projects/{project_id}/task-commands/lookup', 200],
   directoryAgents: ['GET', '/api/v1/projects/{project_id}/agents', 200],
   directoryAgent: ['GET', '/api/v1/projects/{project_id}/agents/{target}', 200],
+  agentConfigurationCreate: ['POST', '/api/v1/projects/{project_id}/agents', 200],
+  agentConfigurationGet: [
+    'GET',
+    '/api/v1/projects/{project_id}/agents/{target}/configuration',
+    200,
+  ],
+  agentConfigurationLookup: ['POST', '/api/v1/projects/{project_id}/agent-commands/lookup', 200],
   knowledgeChildren: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/children', 200],
   knowledgeDocument: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/{target}', 200],
   knowledgeAncestors: [
@@ -939,8 +948,13 @@ type WorkReviewEndpoint =
   | 'reviewLookup'
   | 'taskCreate'
   | 'taskCreateLookup'
+  | 'taskUpdate'
+  | 'taskUpdateLookup'
   | 'directoryAgents'
   | 'directoryAgent'
+  | 'agentConfigurationCreate'
+  | 'agentConfigurationGet'
+  | 'agentConfigurationLookup'
 const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'reviewMilestones',
   'reviewMilestone',
@@ -953,8 +967,13 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'reviewLookup',
   'taskCreate',
   'taskCreateLookup',
+  'taskUpdate',
+  'taskUpdateLookup',
   'directoryAgents',
   'directoryAgent',
+  'agentConfigurationCreate',
+  'agentConfigurationGet',
+  'agentConfigurationLookup',
 ]
 type WorkReviewOptions = {
   signal: AbortSignal
@@ -1526,29 +1545,32 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['Content-Type'] = options.avatar.mediaType
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
-      const maximum = (workReviewEndpoints as readonly string[]).includes(endpoint)
-        ? 1048576
-        : (projectConfigurationWrites as readonly string[]).includes(endpoint)
-          ? 1048576
-          : endpoint === 'createProjectModelCredential' ||
-              endpoint === 'updateProjectModelCredential'
-            ? 409600
-            : endpoint === 'deleteProjectModelCredential' ||
-                endpoint === 'lookupProjectModelCredential'
-              ? 1024
-              : endpoint === 'updateOwnerProject'
-                ? 64 * 1024
-                : endpoint === 'lookupOwnerProject'
+      const maximum =
+        endpoint === 'agentConfigurationCreate' || endpoint === 'agentConfigurationLookup'
+          ? 512 * 1024
+          : (workReviewEndpoints as readonly string[]).includes(endpoint)
+            ? 1048576
+            : (projectConfigurationWrites as readonly string[]).includes(endpoint)
+              ? 1048576
+              : endpoint === 'createProjectModelCredential' ||
+                  endpoint === 'updateProjectModelCredential'
+                ? 409600
+                : endpoint === 'deleteProjectModelCredential' ||
+                    endpoint === 'lookupProjectModelCredential'
                   ? 1024
-                  : endpoint === 'updateOutboundPolicy'
-                    ? 1024 * 1024
-                    : endpoint === 'createModelCredential'
-                      ? 512 * 1024
-                      : endpoint === 'createProvider' ||
-                          endpoint === 'updateProvider' ||
-                          endpoint === 'updateSMTPSettings'
-                        ? 32 * 1024
-                        : 16 * 1024
+                  : endpoint === 'updateOwnerProject'
+                    ? 64 * 1024
+                    : endpoint === 'lookupOwnerProject'
+                      ? 1024
+                      : endpoint === 'updateOutboundPolicy'
+                        ? 1024 * 1024
+                        : endpoint === 'createModelCredential'
+                          ? 512 * 1024
+                          : endpoint === 'createProvider' ||
+                              endpoint === 'updateProvider' ||
+                              endpoint === 'updateSMTPSettings'
+                            ? 32 * 1024
+                            : 16 * 1024
       try {
         body = JSON.stringify(options.body)
       } catch {
@@ -1615,15 +1637,21 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           options.signal,
           lifecycle,
           (workReviewEndpoints as readonly string[]).includes(endpoint) && success
-            ? endpoint === 'directoryAgents'
-              ? 13 * 1024 * 1024
-              : endpoint === 'directoryAgent'
-                ? 64 * 1024
-                : ['reviewMilestones', 'reviewSprints', 'reviewTasks', 'reviewBlockers'].includes(
-                      endpoint,
-                    )
-                  ? 5 * 1024 * 1024
-                  : 1024 * 1024
+            ? [
+                'agentConfigurationCreate',
+                'agentConfigurationGet',
+                'agentConfigurationLookup',
+              ].includes(endpoint)
+              ? 512 * 1024
+              : endpoint === 'directoryAgents'
+                ? 13 * 1024 * 1024
+                : endpoint === 'directoryAgent'
+                  ? 64 * 1024
+                  : ['reviewMilestones', 'reviewSprints', 'reviewTasks', 'reviewBlockers'].includes(
+                        endpoint,
+                      )
+                    ? 5 * 1024 * 1024
+                    : 1024 * 1024
             : (knowledgeEndpoints as readonly string[]).includes(endpoint) && success
               ? // Exact complete representation limits of the two Knowledge adapters.
                 endpoint === 'knowledgeContent'

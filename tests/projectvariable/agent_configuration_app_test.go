@@ -249,15 +249,39 @@ func (h *agentAppHTTP) request(t *testing.T, browser variableHTTPBrowser, method
 
 func runAgentConfigurationApp(t *testing.T, a *agentCreateFixture, task wc.Task, registration, oldProcess string, lost bool) {
 	t.Helper()
-	directory, err := os.MkdirTemp("", "agent-app-")
-	agentAppRequire(t, err)
-	defer func() { agentAppRequire(t, os.RemoveAll(directory)) }()
 	h := &agentAppHTTP{done: make(chan agentAppProxyResult, 1), transport: &http.Transport{Proxy: nil, DisableKeepAlives: true}, lose: lost, createPath: variableHTTPPath(a.p2.project.ID, "/agents")}
 	h.server = httptest.NewUnstartedServer(nil)
 	h.server.Config.ErrorLog = log.New(io.Discard, "", 0)
 	defer h.server.Close()
 	defer h.transport.CloseIdleConnections()
 	origin := "https://" + h.server.Listener.Addr().String()
+	withAgentConfigurationApp(t, a, oldProcess, origin, func(ctx context.Context, address string) {
+		// Retire the HTTP bridge before the shared App owner begins shutdown.
+		defer func() {
+			h.server.Close()
+			h.transport.CloseIdleConnections()
+		}()
+		h.server.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { h.serve(address, w, r) })
+		h.server.StartTLS()
+		if h.server.Client().Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify {
+			t.Fatal("owned TLS verification is disabled")
+		}
+		if agentAppRegistration(t, a) != registration {
+			t.Fatal("App reconciliation rewrote the historical fixed builtin identity")
+		}
+		// The registration is pre-existing; the new Agent must still traverse
+		// this App's current InstallSource/Skill/guard binding.
+		agentConfigurationAppCommands(t, ctx, a, task, h, lost)
+	})
+}
+
+// Both native HTTP and browser exercises use the same public App owner. The
+// callback may only attach HTTP observation; it never supplies domain services.
+func withAgentConfigurationApp(t *testing.T, a *agentCreateFixture, oldProcess, origin string, exercise func(context.Context, string)) {
+	t.Helper()
+	directory, err := os.MkdirTemp("", "agent-app-")
+	agentAppRequire(t, err)
+	defer func() { agentAppRequire(t, os.RemoveAll(directory)) }()
 	cfg := agentConfigurationAppConfig(t, a, directory, origin)
 	if _, enabled := cfg.ExecutionRuntime(); enabled {
 		t.Fatal("Agent configuration test enabled Runtime")
@@ -274,8 +298,6 @@ func runAgentConfigurationApp(t *testing.T, a *agentCreateFixture, task wc.Task,
 	joined := false
 	defer func() {
 		if !joined {
-			h.server.Close()
-			h.transport.CloseIdleConnections()
 			cancel()
 			select {
 			case <-done:
@@ -293,23 +315,38 @@ func runAgentConfigurationApp(t *testing.T, a *agentCreateFixture, task wc.Task,
 	case <-ctx.Done():
 		t.Fatal("real App did not publish its listener")
 	}
-	h.server.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { h.serve(address, w, r) })
-	h.server.StartTLS()
-	if h.server.Client().Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify {
-		t.Fatal("owned TLS verification is disabled")
+	exercise(ctx, address)
+	signals <- syscall.SIGTERM
+	select {
+	case <-done:
+		joined = true
+	case <-ctx.Done():
+		t.Fatal("App did not join original shutdown")
 	}
-	if agentAppRegistration(t, a) != registration {
-		t.Fatal("App reconciliation rewrote the historical fixed builtin identity")
+	agentAppRequire(t, runErr)
+	if !logs.drained() {
+		t.Fatal("App had no original graceful shutdown record")
 	}
-	// The registration is intentionally pre-existing. The new Agent below must
-	// still pass the App's real current InstallSource/Skill/guard binding.
+	var active, executionCount, newStopped int64
+	agentAppRequire(t, a.p2.base.raw.QueryRow(ctx, `SELECT
+ (SELECT count(*) FROM agenteam_object.process_claims WHERE state<>'stopped'),
+ (SELECT count(*) FROM agenteam_execution.executions),
+ (SELECT count(*) FROM agenteam_object.process_claims WHERE process_id<>$1 AND state='stopped' AND stopped_at IS NOT NULL)`, oldProcess).Scan(&active, &executionCount, &newStopped))
+	if active != 0 || executionCount != 0 || newStopped != 1 {
+		t.Fatal("runtime-off App omitted its own guard retirement or launched Execution")
+	}
+	t.Log("Agent Configuration App original public Run and TLS handlers joined; runtime disabled; original create count=1")
+}
+
+func agentConfigurationAppCommands(t *testing.T, ctx context.Context, a *agentCreateFixture, task wc.Task, h *agentAppHTTP, lost bool) {
+	t.Helper()
 	request, _, _ := a.request(t)
 	wire := map[string]json.RawMessage{}
 	agentAppRequire(t, json.Unmarshal(jsonBytes(t, request), &wire))
 	delete(wire, "add_skills_enabled")
 	delete(wire, "install_skill_enabled")
 	rawRequest := jsonBytes(t, wire)
-	request, err = ac.DecodeAgentCreate(rawRequest)
+	request, err := ac.DecodeAgentCreate(rawRequest)
 	agentAppRequire(t, err)
 	key := f.IdempotencyKey("app-agent-create")
 	body := jsonBytes(t, map[string]any{"request": json.RawMessage(rawRequest)})
@@ -429,28 +466,6 @@ func runAgentConfigurationApp(t *testing.T, a *agentCreateFixture, task wc.Task,
 	if creates != 1 {
 		t.Fatal("confirmation loss was retried as another Create")
 	}
-	h.server.Close()
-	h.transport.CloseIdleConnections()
-	signals <- syscall.SIGTERM
-	select {
-	case <-done:
-		joined = true
-	case <-ctx.Done():
-		t.Fatal("App did not join original shutdown")
-	}
-	agentAppRequire(t, runErr)
-	if !logs.drained() {
-		t.Fatal("App had no original graceful shutdown record")
-	}
-	var active, executionCount, newStopped int64
-	agentAppRequire(t, a.p2.base.raw.QueryRow(ctx, `SELECT
- (SELECT count(*) FROM agenteam_object.process_claims WHERE state<>'stopped'),
- (SELECT count(*) FROM agenteam_execution.executions),
- (SELECT count(*) FROM agenteam_object.process_claims WHERE process_id<>$1 AND state='stopped' AND stopped_at IS NOT NULL)`, oldProcess).Scan(&active, &executionCount, &newStopped))
-	if active != 0 || executionCount != 0 || newStopped != 1 {
-		t.Fatal("runtime-off App omitted its own guard retirement or launched Execution")
-	}
-	t.Log("Agent Configuration App original public Run and TLS handlers joined; runtime disabled; original create count=1")
 }
 
 func agentAppProblem(t *testing.T, response variableHTTPResponse, status int, code f.Code) {

@@ -134,6 +134,8 @@ async function observeBrowserIO(
     // hashes and boolean matches can enter the persisted observation.
     const writeInputs = new WeakMap<object, any>();
     let originalCreate: any;
+    let originalAgentCreate: any;
+    const originalEdits: any[] = [];
     const tails = new Set<Promise<void>>();
     const restorers: (() => void)[] = [];
     let retired = false,
@@ -235,6 +237,51 @@ async function observeBrowserIO(
               progress.projectID === originalCreate?.project &&
               progress.taskID === originalCreate?.request?.task_id,
           });
+        } else if (kind === "edit.startEdit") {
+          const original = {
+            call,
+            project: args[0],
+            task: args[1],
+            input: JSON.parse(JSON.stringify(args[2])),
+          };
+          originalEdits.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "edit.startReady") {
+          writeInputs.set(call, {
+            project: args[0],
+            task: args[1],
+            input: JSON.parse(JSON.stringify(args[2])),
+          });
+        } else if (kind === "edit.checkOriginal") {
+          const source = originalEdits.at(-1);
+          const progress = auth.workReview.progress;
+          writeInputs.set(call, {
+            source,
+            current:
+              progress?.kind === "edit" &&
+              progress.phase === "uncertain" &&
+              progress.contextValid === true &&
+              progress.projectID === source?.project &&
+              progress.taskID === source?.task,
+          });
+        } else if (kind === "agent.startCreate") {
+          if (originalAgentCreate) failed = true;
+          originalAgentCreate = {
+            call,
+            project: args[0],
+            fields: JSON.parse(JSON.stringify(args[1])),
+          };
+          writeInputs.set(call, originalAgentCreate);
+        } else if (kind === "agent.checkOriginal") {
+          const progress = auth.agentConfiguration.progress;
+          writeInputs.set(call, {
+            source: originalAgentCreate,
+            current:
+              progress?.phase === "uncertain" &&
+              progress.contextValid === true &&
+              progress.projectID === originalAgentCreate?.project &&
+              progress.agentID === originalAgentCreate?.request?.agent_id,
+          });
         }
         let result: Promise<any>;
         try {
@@ -280,7 +327,13 @@ async function observeBrowserIO(
       });
     }
     host.__taskReviewProof = {
-      consumers(value: any, project: string, intakeWrites: boolean) {
+      consumers(
+        value: any,
+        project: string,
+        intakeWrites: boolean,
+        agentConfiguration: boolean,
+        editTask: string | undefined,
+      ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
         consumer(auth, "restore", "restore", () => "/api/v1/session");
@@ -297,64 +350,140 @@ async function observeBrowserIO(
                   ? "/resolve"
                   : ""),
           );
-        const paths: Record<string, string> = {
-          milestones: "milestones",
-          milestone: "milestones",
-          sprints: "sprints",
-          sprint: "sprints",
-          tasks: "tasks",
-          task: "tasks",
-          blockers: "tasks",
-          agents: "agents",
-          agent: "agents",
-        };
-        for (const method of Object.keys(paths))
-          consumer(auth.workReview, method, "work." + method, (a) => {
-            if (a[0] !== project) throw Error("TASK_REVIEW_CONSUMER_SCOPE");
-            const single = [
-              "milestone",
-              "sprint",
-              "task",
-              "agent",
-              "blockers",
-            ].includes(method);
-            return (
-              "/api/v1/projects/" +
-              project +
-              "/" +
-              paths[method] +
-              (single ? "/" + a[1] : "") +
-              (method === "blockers" ? "/blockers" : "")
-            );
-          });
-        if (intakeWrites) {
-          consumer(
-            auth.workReview,
-            "startCreate",
-            "work.startCreate",
-            (a) => {
-              if (a[0] !== project) throw Error("TASK_INTAKE_CONSUMER_SCOPE");
-              return "/api/v1/projects/" + project + "/tasks";
-            },
-            "POST",
-          );
-          consumer(
-            auth.workReview,
-            "startReady",
-            "work.startReady",
-            (a) => {
-              if (a[0] !== project) throw Error("TASK_INTAKE_CONSUMER_SCOPE");
+        if (!agentConfiguration) {
+          const paths: Record<string, string> = {
+            milestones: "milestones",
+            milestone: "milestones",
+            sprints: "sprints",
+            sprint: "sprints",
+            tasks: "tasks",
+            task: "tasks",
+            blockers: "tasks",
+            agents: "agents",
+            agent: "agents",
+          };
+          for (const method of Object.keys(paths))
+            consumer(auth.workReview, method, "work." + method, (a) => {
+              if (a[0] !== project) throw Error("TASK_REVIEW_CONSUMER_SCOPE");
+              const single = [
+                "milestone",
+                "sprint",
+                "task",
+                "agent",
+                "blockers",
+              ].includes(method);
               return (
-                "/api/v1/projects/" + project + "/tasks/" + a[1] + "/transfer"
+                "/api/v1/projects/" +
+                project +
+                "/" +
+                paths[method] +
+                (single ? "/" + a[1] : "") +
+                (method === "blockers" ? "/blockers" : "")
               );
+            });
+          if (intakeWrites) {
+            consumer(
+              auth.workReview,
+              "startCreate",
+              "work.startCreate",
+              (a) => {
+                if (a[0] !== project) throw Error("TASK_INTAKE_CONSUMER_SCOPE");
+                return "/api/v1/projects/" + project + "/tasks";
+              },
+              "POST",
+            );
+            consumer(
+              auth.workReview,
+              "startReady",
+              "work.startReady",
+              (a) => {
+                if (a[0] !== project) throw Error("TASK_INTAKE_CONSUMER_SCOPE");
+                return (
+                  "/api/v1/projects/" + project + "/tasks/" + a[1] + "/transfer"
+                );
+              },
+              "POST",
+            );
+            consumer(
+              auth.workReview,
+              "checkOriginal",
+              "work.checkOriginal",
+              () => "/api/v1/projects/" + project + "/task-commands/lookup",
+              "POST",
+            );
+          }
+          if (editTask) {
+            for (const [method, httpMethod, suffix] of [
+              ["startEdit", "PATCH", ""],
+              ["startReady", "POST", "/transfer"],
+            ] as const)
+              consumer(
+                auth.workReview,
+                method,
+                "edit." + method,
+                (a) => {
+                  if (a[0] !== project || a[1] !== editTask)
+                    throw Error("TASK_EDIT_CONSUMER_SCOPE");
+                  return (
+                    "/api/v1/projects/" +
+                    project +
+                    "/tasks/" +
+                    editTask +
+                    suffix
+                  );
+                },
+                httpMethod,
+              );
+            consumer(
+              auth.workReview,
+              "checkOriginal",
+              "edit.checkOriginal",
+              () => "/api/v1/projects/" + project + "/task-commands/lookup",
+              "POST",
+            );
+          }
+        } else {
+          // This profile observes only Agent Create, its original Lookup and
+          // the public directory/configuration/model reads used by that page.
+          const paths: Record<string, string> = {
+            list: "/agents",
+            getConfiguration: "/agents",
+            models: "/available-chat-models",
+          };
+          for (const method of Object.keys(paths))
+            consumer(
+              auth.agentConfiguration,
+              method,
+              "agent." + method,
+              (a) => {
+                if (a[0] !== project)
+                  throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
+                return (
+                  "/api/v1/projects/" +
+                  project +
+                  paths[method] +
+                  (method === "getConfiguration"
+                    ? "/" + a[1] + "/configuration"
+                    : "")
+                );
+              },
+            );
+          consumer(
+            auth.agentConfiguration,
+            "startCreate",
+            "agent.startCreate",
+            (a) => {
+              if (a[0] !== project)
+                throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + "/agents";
             },
             "POST",
           );
           consumer(
-            auth.workReview,
+            auth.agentConfiguration,
             "checkOriginal",
-            "work.checkOriginal",
-            () => "/api/v1/projects/" + project + "/task-commands/lookup",
+            "agent.checkOriginal",
+            () => "/api/v1/projects/" + project + "/agent-commands/lookup",
             "POST",
           );
         }
@@ -381,6 +510,8 @@ async function observeBrowserIO(
         for (const restore of restorers.reverse()) restore();
         for (const call of calls) writeInputs.delete(call);
         originalCreate = undefined;
+        originalAgentCreate = undefined;
+        originalEdits.length = 0;
         return this.snapshot();
       },
     };
@@ -525,6 +656,58 @@ async function observeBrowserIO(
               key === original.source.key &&
               equal(parsed, {
                 command: "work.task.create",
+                request: original.source.request,
+              });
+          } else if (call.kind === "edit.startEdit") {
+            matches =
+              originalEdits.every(
+                (old) => old === original || old.key !== key,
+              ) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "edit.startReady") {
+            matches =
+              originalEdits.length > 0 &&
+              originalEdits.every(
+                (old) =>
+                  old.project === original.project &&
+                  old.task === original.task &&
+                  typeof old.key === "string" &&
+                  old.key !== key,
+              ) &&
+              equal(parsed, original.input);
+          } else if (call.kind === "edit.checkOriginal") {
+            matches =
+              original.current &&
+              original.source?.call.rejected === true &&
+              original.source.call.settled === true &&
+              key === original.source.key &&
+              equal(parsed, {
+                command: "work.task.update",
+                target_id: original.source.task,
+                expected_version: original.source.input.expected_version,
+                request: original.source.input.request,
+              });
+          } else if (call.kind === "agent.startCreate") {
+            const { agent_id, ...fields } = parsed.request ?? {};
+            matches =
+              Object.keys(parsed).join() === "request" &&
+              typeof agent_id === "string" &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+                agent_id,
+              ) &&
+              equal(fields, original.fields);
+            if (matches) {
+              original.request = parsed.request;
+              original.key = key;
+            }
+          } else if (call.kind === "agent.checkOriginal") {
+            matches =
+              original.current &&
+              original.source?.call.rejected === true &&
+              original.source.call.settled === true &&
+              key === original.source.key &&
+              equal(parsed, {
+                command: "agent.create",
                 request: original.source.request,
               });
           }
@@ -839,11 +1022,17 @@ export type TaskObservationProfile = {
   dist: string;
   evidence: string;
   inputHash: string;
-  prefix: "task-review" | "task-intake";
+  prefix: "task-review" | "task-intake" | "task-edit" | "agent-configuration";
   endpoint: (request: Request) => string | undefined;
-  cut?: "transfer" | "create";
-  lookupCommand: "work.task.transfer" | "work.task.create";
+  cut?: "transfer" | "create" | "update";
+  lookupCommand:
+    | "work.task.transfer"
+    | "work.task.create"
+    | "work.task.update"
+    | "agent.create";
   intakeWrites?: true;
+  agentConfiguration?: true;
+  editWrites?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -860,8 +1049,8 @@ export function observeReview(page: Page, data: ReviewMaterial) {
 
 // Shared observation machinery only. Each fixture supplies a closed endpoint
 // classifier and at most its one declared committed-response delivery fault.
-// Only the explicitly opted-in Intake fixture can additionally prove its three
-// original writes. GET and all other POST completion rules remain identical.
+// Only explicitly opted-in Intake, Edit or Agent fixtures can additionally prove
+// their closed write sets. Other POST completion rules remain identical.
 export async function observeTaskRequests(
   page: Page,
   data: TaskObservationMaterial,
@@ -873,6 +1062,37 @@ export async function observeTaskRequests(
       profile.lookupCommand !== "work.task.create")
   )
     throw Error("TASK_INTAKE_WRITE_PROFILE_MISMATCH");
+  if (
+    profile.agentConfiguration &&
+    (profile.intakeWrites ||
+      profile.prefix !== "agent-configuration" ||
+      profile.lookupCommand !== "agent.create" ||
+      ![
+        "default-create-config-and-directory",
+        "lost-create-confirmation-only-lookup",
+      ].includes(data.mode))
+  )
+    throw Error("AGENT_CONFIGURATION_PROFILE_MISMATCH");
+  if (
+    profile.editWrites &&
+    (profile.intakeWrites ||
+      profile.agentConfiguration ||
+      profile.prefix !== "task-edit" ||
+      profile.lookupCommand !== "work.task.update" ||
+      !data.task_id ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+        data.task_id,
+      ) ||
+      ![
+        "changed-noop-clear-and-ready",
+        "lost-edit-confirmation-and-ready",
+      ].includes(data.mode) ||
+      profile.cut !==
+        (data.mode === "lost-edit-confirmation-and-ready"
+          ? "update"
+          : undefined))
+  )
+    throw Error("TASK_EDIT_WRITE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -981,7 +1201,13 @@ export async function observeTaskRequests(
     entryHandlers++;
     try {
       await page.evaluate(
-        async ({ binding, project, intakeWrites }) => {
+        async ({
+          binding,
+          project,
+          intakeWrites,
+          agentConfiguration,
+          editTask,
+        }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
           if (typeof useSession !== "function")
@@ -993,12 +1219,16 @@ export async function observeTaskRequests(
             auth,
             project,
             intakeWrites,
+            agentConfiguration,
+            editTask,
           );
         },
         {
           binding,
           project: data.project_id,
           intakeWrites: profile.intakeWrites === true,
+          agentConfiguration: profile.agentConfiguration === true,
+          editTask: profile.editWrites ? data.task_id : undefined,
         },
       );
       await route.continue();
@@ -1056,9 +1286,52 @@ export async function observeTaskRequests(
     );
   }
 
+  function editWrite(entry: Entry) {
+    if (!profile.editWrites) return false;
+    const url = new URL(entry.request.url());
+    if (url.search) return false;
+    const prefix = `/api/v1/projects/${data.project_id}`;
+    const method = entry.request.method();
+    return (
+      (entry.name === "update" &&
+        method === "PATCH" &&
+        url.pathname === `${prefix}/tasks/${data.task_id}`) ||
+      (entry.name === "ready" &&
+        method === "POST" &&
+        url.pathname === `${prefix}/tasks/${data.task_id}/transfer`) ||
+      (entry.name === "lookup" &&
+        method === "POST" &&
+        url.pathname === `${prefix}/task-commands/lookup`)
+    );
+  }
+
+  function agentWrite(entry: Entry) {
+    if (!profile.agentConfiguration || entry.request.method() !== "POST")
+      return false;
+    const url = new URL(entry.request.url());
+    if (url.search) return false;
+    const prefix = `/api/v1/projects/${data.project_id}`;
+    return (
+      (entry.name === "create" && url.pathname === prefix + "/agents") ||
+      (entry.name === "lookup" &&
+        url.pathname === prefix + "/agent-commands/lookup")
+    );
+  }
+  function agentPageRead(entry: Entry) {
+    return (
+      profile.agentConfiguration &&
+      entry.request.method() === "GET" &&
+      ["agent-directory", "agent-configuration", "agent-models"].includes(
+        entry.name,
+      )
+    );
+  }
+
   function joint(entry: Entry, proof: any) {
-    const write = intakeWrite(entry);
-    const method = write ? "POST" : "GET";
+    const edit = editWrite(entry);
+    const write = intakeWrite(entry) || agentWrite(entry) || edit;
+    const method =
+      edit && entry.name === "update" ? "PATCH" : write ? "POST" : "GET";
     expect(entry.request.method()).toBe(method);
     expect(entry.status).toBe(200);
     expect(entry.responseCount).toBe(1);
@@ -1123,11 +1396,22 @@ export async function observeTaskRequests(
     expect(c.typed_digest).toMatch(/^[0-9a-f]{64}$/);
     expect(n.typed_digest).toBe(c.typed_digest);
     if (write) {
-      const kinds: Record<string, string> = {
-        create: "work.startCreate",
-        ready: "work.startReady",
-        lookup: "work.checkOriginal",
-      };
+      const kinds: Record<string, string> = profile.agentConfiguration
+        ? {
+            create: "agent.startCreate",
+            lookup: "agent.checkOriginal",
+          }
+        : edit
+          ? {
+              update: "edit.startEdit",
+              ready: "edit.startReady",
+              lookup: "edit.checkOriginal",
+            }
+          : {
+              create: "work.startCreate",
+              ready: "work.startReady",
+              lookup: "work.checkOriginal",
+            };
       const raw = entry.request.postDataBuffer();
       const key = entry.request.headers()["idempotency-key"];
       expect(raw).not.toBeNull();
@@ -1188,7 +1472,10 @@ export async function observeTaskRequests(
       }
       if (
         state === "failed" &&
-        (entry.request.method() === "GET" || intakeWrite(entry)) &&
+        (entry.request.method() === "GET" ||
+          intakeWrite(entry) ||
+          editWrite(entry) ||
+          agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
       ) {
@@ -1238,9 +1525,14 @@ export async function observeTaskRequests(
       entry.body = JSON.parse(raw.toString("utf8"));
       expect(typeof entry.body).toBe("object");
       expect(entry.body).not.toBeNull();
-      if (intakeWrite(entry)) {
-        // Even genuine requestfinished must match the original public receipt
-        // and committed facts; the additional proof does not replace its tail.
+      if (
+        intakeWrite(entry) ||
+        editWrite(entry) ||
+        agentWrite(entry) ||
+        agentPageRead(entry)
+      ) {
+        // Even genuine requestfinished must match the original public value
+        // and Go proof (including commit for writes); this does not replace its tail.
         const consumed = joint(entry, proof);
         expect(consumed).toEqual(entry.body);
         entry.body = consumed;
@@ -1249,7 +1541,7 @@ export async function observeTaskRequests(
     }
   }
   function receipt(
-    name: "transfer" | "lookup" | "create" | "ready",
+    name: "transfer" | "lookup" | "create" | "ready" | "update",
     index: number,
   ): Record<string, any> {
     const values = entries.filter(
@@ -1268,18 +1560,25 @@ export async function observeTaskRequests(
       .map((entry) => entry.request);
   }
   function originalLookup() {
+    const creation =
+      profile.lookupCommand === "work.task.create" ||
+      profile.lookupCommand === "agent.create";
     const originals = requests(
-      profile.lookupCommand === "work.task.create" ? "create" : "transfer",
+      creation
+        ? "create"
+        : profile.lookupCommand === "work.task.update"
+          ? "update"
+          : "transfer",
     );
     const lookups = requests("lookup");
     expect(originals).toHaveLength(1);
     expect(lookups).toHaveLength(1);
     const sent = originals[0]!.postDataJSON();
     expect(lookups[0]!.postDataJSON()).toEqual(
-      profile.lookupCommand === "work.task.create"
-        ? { command: "work.task.create", request: sent.request }
+      creation
+        ? { command: profile.lookupCommand, request: sent.request }
         : {
-            command: "work.task.transfer",
+            command: profile.lookupCommand,
             target_id: data.task_id,
             expected_version: sent.expected_version,
             request: sent.request,
@@ -1289,6 +1588,19 @@ export async function observeTaskRequests(
       originals[0]!.headers()["idempotency-key"],
     );
     expect(dropped).toBe(1);
+  }
+  function agentRead(
+    name: "agent-directory" | "agent-configuration" | "agent-models",
+  ) {
+    expect(profile.agentConfiguration).toBe(true);
+    const found = entries.filter(
+      (entry) => entry.name === name && entry.checked && entry.body,
+    );
+    expect(
+      found.length,
+      "original Agent page read must complete",
+    ).toBeGreaterThan(0);
+    return found[found.length - 1]!.body as Record<string, any>;
   }
   function agentOption(id: string): string {
     const pages = entries.filter(
@@ -1326,6 +1638,17 @@ export async function observeTaskRequests(
             ? {
                 creates: entries.filter((e) => e.name === "create").length,
                 ready: entries.filter((e) => e.name === "ready").length,
+              }
+            : {}),
+          ...(profile.prefix === "task-edit"
+            ? {
+                updates: entries.filter((e) => e.name === "update").length,
+                ready: entries.filter((e) => e.name === "ready").length,
+              }
+            : {}),
+          ...(profile.agentConfiguration
+            ? {
+                creates: entries.filter((e) => e.name === "create").length,
               }
             : {}),
           lookups: entries.filter((e) => e.name === "lookup").length,
@@ -1397,6 +1720,7 @@ export async function observeTaskRequests(
     originalLookup,
     requests,
     agentOption,
+    agentRead,
     save,
     endDocument,
     retire,

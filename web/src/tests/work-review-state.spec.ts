@@ -15,6 +15,7 @@ import type {
   TaskCreateLookup,
   TaskCreateReceipt,
 } from '../api/work-task-planning'
+import type { TaskUpdateInput, TaskUpdateReceipt, TaskUpdateLookup } from '../api/work-task-edit'
 import { createProjectTasks, type ProjectTasks } from '../composables/useProjectTasks'
 import type { SessionController, WorkReviewProgress } from '../composables/useSession'
 import type { createProjectWorkspace } from '../composables/useProjectWorkspace'
@@ -113,7 +114,15 @@ function fixture(current: string | null = id(3)) {
       task_event_id: id(21),
       event_ids: [id(22)],
     })),
-    checkOriginal: vi.fn(async (): Promise<ReviewLookup | TaskCreateLookup> => ({
+    startEdit: vi.fn(
+      async (_p: string, _t: string, input: TaskUpdateInput): Promise<TaskUpdateReceipt> => ({
+        task: { ...stored, ...input.request },
+        changed: false,
+        task_event_id: null,
+        event_ids: [],
+      }),
+    ),
+    checkOriginal: vi.fn(async (): Promise<ReviewLookup | TaskCreateLookup | TaskUpdateLookup> => ({
       status: 'not_observed',
       receipt: null,
     })),
@@ -159,6 +168,83 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 describe('Work review selection and publication owner', () => {
+  it('keeps edit presence, captured version and late results bound to the original unassigned backlog', async () => {
+    const f = fixture()
+    const backlog: Task = { ...task, state: 'backlog', assignee_agent_id: null }
+    f.setStored(backlog)
+    f.owner.afterNavigation(`/owner/demo/tasks/${id(4)}`)
+    await flushPromises()
+    f.owner.state.sprint = { ...sprint, state: 'planned', started_at: null }
+    expect(f.owner.canEdit.value).toBe(true)
+    f.owner.state.sprint = { ...sprint, state: 'completed', completed_at: time }
+    expect(f.owner.canEdit.value).toBe(false)
+    f.owner.state.sprint = sprint
+    f.owner.state.task = { ...backlog, assignee_agent_id: id(5) }
+    expect(f.owner.canEdit.value).toBe(false)
+    f.owner.state.task = backlog
+    f.owner.openEdit()
+    f.owner.chooseAction('todo')
+    expect(f.owner.draft.action).toBe('')
+    f.owner.touchEdit('plan', backlog.plan)
+    await f.owner.submitEdit()
+    await flushPromises()
+    expect(f.api.startEdit.mock.calls[0]).toEqual([
+      id(1),
+      id(4),
+      { expected_version: '1', request: { plan: '' } },
+    ])
+    expect(f.owner.state.feedback).toContain('任务内容没有变化')
+    expect(f.owner.edit.open).toBe(false)
+    f.owner.openEdit()
+    f.owner.touchEdit('description', '')
+    f.setStored({ ...backlog, version: '2' })
+    await f.owner.refresh()
+    await flushPromises()
+    expect(f.owner.edit.version).toBe('1')
+    expect(f.owner.editStale.value).toBe(true)
+    await f.owner.submitEdit()
+    expect(f.api.startEdit).toHaveBeenCalledTimes(1)
+    const cancelling = f.owner.cancelEdit()
+    f.owner.confirm()
+    await cancelling
+    f.owner.openEdit()
+    expect(f.owner.edit.version).toBe('2')
+    f.owner.touchEdit('title', '原任务的未决编辑')
+    let complete!: (value: TaskUpdateReceipt) => void
+    const held = new Promise<TaskUpdateReceipt>((resolve) => {
+      complete = resolve
+    })
+    f.api.startEdit.mockImplementationOnce(() => held)
+    const lateReceipt: TaskUpdateReceipt = {
+      task: { ...backlog, title: '原任务的未决编辑', version: '3' },
+      changed: true,
+      task_event_id: id(21),
+      event_ids: [id(22)],
+    }
+    const saving = f.owner.submitEdit()
+    try {
+      await flushPromises()
+      expect(f.api.startEdit).toHaveBeenCalledTimes(2)
+      f.owner.afterNavigation(`/owner/demo/tasks/${id(41)}`)
+      await flushPromises()
+    } finally {
+      complete(lateReceipt)
+      await saving
+    }
+    await flushPromises()
+    expect(f.owner.state.task?.id).toBe(id(41))
+    expect(f.owner.state.feedback).toBe('')
+    expect(f.owner.edit.open).toBe(false)
+    f.owner.openEdit()
+    f.owner.touchEdit('title', '旧身份草稿')
+    f.personal.identity = null
+    f.context.value = null
+    await flushPromises()
+    expect(f.owner.edit.title).toBe('')
+    expect(f.owner.edit.open).toBe(false)
+    expect(f.api.startTransfer).not.toHaveBeenCalled()
+  })
+
   it('uses only current Sprint by default, retains manual selection and reads every column in domain order', async () => {
     const f = fixture()
     f.owner.afterNavigation('/owner/demo/tasks')
