@@ -1157,7 +1157,11 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                 : endpoint === 'reviewBlockers'
                   ? ['status']
                   : []
-          const query = shape(options.workQuery, ['limit', ...fields], endpoint === 'taskTimeline' ? ['cursor', 'order', 'types'] : ['cursor'])
+          const query = shape(
+            options.workQuery,
+            ['limit', ...fields],
+            endpoint === 'taskTimeline' ? ['cursor', 'order', 'types'] : ['cursor'],
+          )
           const limit = string(query.limit, 1, 3)
           if (!/^[1-9][0-9]*$/.test(limit) || Number(limit) > 200) throw new Error()
           const params = new URLSearchParams()
@@ -1180,7 +1184,21 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             if (key === 'order' && !['asc', 'desc'].includes(item)) throw new Error()
             if (key === 'types') {
               const kinds = item.split(',')
-              if (new Set(kinds).size !== kinds.length || !kinds.every((kind) => ['task_created', 'fields_updated', 'blocker_added', 'blocker_resolved', 'state_changed', 'assignee_changed', 'comment'].includes(kind))) throw new Error()
+              if (
+                new Set(kinds).size !== kinds.length ||
+                !kinds.every((kind) =>
+                  [
+                    'task_created',
+                    'fields_updated',
+                    'blocker_added',
+                    'blocker_resolved',
+                    'state_changed',
+                    'assignee_changed',
+                    'comment',
+                  ].includes(kind),
+                )
+              )
+                throw new Error()
             }
             if (key === 'status' && !['unresolved', 'resolved', 'all'].includes(item))
               throw new Error()
@@ -1654,15 +1672,18 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
               ? 512 * 1024
               : endpoint === 'taskTimeline'
                 ? 4 * 1024 * 1024
-              : endpoint === 'directoryAgents'
-                ? 13 * 1024 * 1024
-                : endpoint === 'directoryAgent'
-                  ? 64 * 1024
-                  : ['reviewMilestones', 'reviewSprints', 'reviewTasks', 'reviewBlockers'].includes(
-                        endpoint,
-                      )
-                    ? 5 * 1024 * 1024
-                    : 1024 * 1024
+                : endpoint === 'directoryAgents'
+                  ? 13 * 1024 * 1024
+                  : endpoint === 'directoryAgent'
+                    ? 64 * 1024
+                    : [
+                          'reviewMilestones',
+                          'reviewSprints',
+                          'reviewTasks',
+                          'reviewBlockers',
+                        ].includes(endpoint)
+                      ? 5 * 1024 * 1024
+                      : 1024 * 1024
             : (knowledgeEndpoints as readonly string[]).includes(endpoint) && success
               ? // Exact complete representation limits of the two Knowledge adapters.
                 endpoint === 'knowledgeContent'

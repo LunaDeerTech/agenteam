@@ -226,7 +226,12 @@ const canSubmit = computed(
       </p>
       <UiButton type="submit" :disabled="!canSubmit">确认{{ actionLabel }}</UiButton>
     </form>
-    <TaskTimeline :state="owner.timeline" :busy="owner.busy.value" :agent-name="owner.name" @load="owner.loadTimeline" />
+    <TaskTimeline
+      :state="owner.timeline"
+      :busy="owner.busy.value"
+      :agent-name="owner.name"
+      @load="owner.loadTimeline"
+    />
   </div>
 </template>
 <style scoped>

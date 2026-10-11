@@ -96,9 +96,20 @@ export function createProjectTasks(
     detailCurrent: false,
     feedback: '',
   })
-  const timeline = shallowReactive<TaskTimelineState>({ phase: 'idle', items: [], message: '', retryMore: false })
+  const timeline = shallowReactive<TaskTimelineState>({
+    phase: 'idle',
+    items: [],
+    message: '',
+    retryMore: false,
+  })
   function clearTimeline() {
-    Object.assign(timeline, { phase: 'idle', items: [], next: undefined, message: '', retryMore: false })
+    Object.assign(timeline, {
+      phase: 'idle',
+      items: [],
+      next: undefined,
+      message: '',
+      retryMore: false,
+    })
   }
   const columns = reactive(
     Object.fromEntries(taskStates.map((s) => [s, emptyColumn()])) as Record<TaskState, TaskColumn>,
@@ -480,9 +491,13 @@ export function createProjectTasks(
         timeline.phase = 'loading'
         timeline.message = ''
         timeline.retryMore = more
-        return step(() => auth.workReview.events(p, task.id, {
-          limit: 50, order: 'desc', ...(cursor ? { cursor } : {}),
-        }))
+        return step(() =>
+          auth.workReview.events(p, task.id, {
+            limit: 50,
+            order: 'desc',
+            ...(cursor ? { cursor } : {}),
+          }),
+        )
       },
       (page) => {
         if (state.task?.id !== task.id) return
@@ -492,13 +507,21 @@ export function createProjectTasks(
         const chunk = [...page.items].reverse()
         for (let n = 0; n < chunk.length; n++) {
           const item = chunk[n]!
-          if (item.project_id !== task.project_id || item.task_id !== task.id || seen.has(item.id) ||
-            (n > 0 && compareTaskTimelineEvents(chunk[n - 1]!, item) >= 0))
+          if (
+            item.project_id !== task.project_id ||
+            item.task_id !== task.id ||
+            seen.has(item.id) ||
+            (n > 0 && compareTaskTimelineEvents(chunk[n - 1]!, item) >= 0)
+          )
             throw new AccountFailure('invalid-response')
           seen.add(item.id)
         }
-        if ((chunk.length && before.length && compareTaskTimelineEvents(chunk[chunk.length - 1]!, before[0]!) >= 0) ||
-          (page.next_cursor && (!chunk.length || page.next_cursor === cursor)))
+        if (
+          (chunk.length &&
+            before.length &&
+            compareTaskTimelineEvents(chunk[chunk.length - 1]!, before[0]!) >= 0) ||
+          (page.next_cursor && (!chunk.length || page.next_cursor === cursor))
+        )
           throw new AccountFailure('invalid-response')
         timeline.items = Object.freeze([...chunk, ...before])
         timeline.next = page.next_cursor
@@ -506,15 +529,19 @@ export function createProjectTasks(
       },
       (error) => {
         if (state.task?.id !== task.id) return
-        if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        if (
+          error instanceof AccountFailure &&
+          [401, 403, 404].includes(error.problem?.status ?? 0)
+        ) {
           timeline.items = []
           timeline.next = undefined
           timeline.retryMore = false
         }
         timeline.phase = 'error'
-        timeline.message = error instanceof AccountFailure && error.problem?.code === 'CURSOR_INVALID'
-          ? '历史分页已不可用，请重新读取历史。'
-          : explain(error)
+        timeline.message =
+          error instanceof AccountFailure && error.problem?.code === 'CURSOR_INVALID'
+            ? '历史分页已不可用，请重新读取历史。'
+            : explain(error)
       },
     )
   }

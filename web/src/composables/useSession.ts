@@ -38,7 +38,11 @@ import {
   type TaskUpdateReceipt,
   type TaskUpdateLookup,
 } from '../api/work-task-edit'
-import { createWorkTaskTimelineAPI, type WorkTaskTimelineAPI, type TaskTimelineQuery } from '../api/work-task-timeline'
+import {
+  createWorkTaskTimelineAPI,
+  type WorkTaskTimelineAPI,
+  type TaskTimelineQuery,
+} from '../api/work-task-timeline'
 import { createAgentDirectoryAPI, type AgentDirectoryAPI } from '../api/agent-directory'
 import { readonly, shallowReactive } from 'vue'
 import {
