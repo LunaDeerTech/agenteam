@@ -293,3 +293,13 @@ frontend01保留15PASS/1FAIL、唯一TS18047及build未启动的原结果；两�
 六产品/六测试及八path fixture已交付。共同前端44项为分段累计接受，类型/构建、八项controls和990输入共享Go编译通过；标题回焦修复另补15项（12 Sprint＋3 Work，含两项真实remount/Session身份控）及类型/构建，不与前44项累加唯一总数。runtime `38ebc39e`复用Go compile `293f062b`/candidate01及新Sprint frontend02/dist，`TestSprintCreateWeb/plan-another-sprint-with-existing-current` native03为17.41s wholePASS：浏览器恰一次Create、零Lookup/transition，真实planned sibling、最终服务端历史Lookup/完整plan与Outbox均闭合；旧Current、paused、Project/Milestone/Task不变，零Dispatch/Execution且App实际joined。四Wait0、Node成功、七ID14次absence、全部双尾/TCP0与2455输入不变；32请求中29finished，另三GET failed保留且严格联证通过，secret最终业务/资源接受。
 
 cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两图，以及原键盘Milestone选择/确认、UiSelect和新路由标题焦点、主题/reduced-motion与页面横溢≤1px断言；窄图仅看板前列，不外推七列全景或完整无障碍。原frontend01 FAIL、Sprint native01标题label失败（25.97s、零Create/Lookup）及native02真实路由卸载导致标题回焦失败（24.79s、Create1、最终联证/后验未到）保留。创建与§15 Start仍是两次独立确认，不自动启动、完成、rollover、删除或启用Scheduler；正常链不代验真实Unknown native矩阵。恢复见[组合recipe](../../../.agent-state/agent-system-integration/README.md#agent模型策略与sprint创建组合限定范围)，原Planning/Recovery及各批FAIL、initializer/ready和旧STOP不变。
+
+## 17. 空规划结构中创建首个 Milestone（限定范围）
+
+已有 initialized Project 的当前 Human Owner 可在任务入口明确填写标题和可选描述、确认创建首个 Milestone。复用正式 `POST /api/v1/projects/{P}/milestones`，请求为 `{request:{milestone_id,title,description?}}`；Session 首次发送前生成 UUIDv7 ID 与独立 key，保留完整原意图。Unknown 仅可明确使用 `work.milestone.create` 原 request/key Lookup，`in_progress`/`not_observed` 不触发自动重发。确认回执核原 Project/ID、version 1 与完整字段，随后真实重读列表、详情并选择新 Milestone；后续读取失败只恢复读取，不再次创建。
+
+新 Milestone 使已有“新建 Sprint”入口可用，用户仍须单独填写和确认 Sprint。打开或取消该表单不创建 Sprint，不自动设置 Current 或开始执行。切 Project、身份或导航仍受原上下文与未决命令保护；本切片不开放完整 Explore、编辑/排序/Blocker 矩阵。
+
+共用精确 13 文件 80 项前端单元、类型与生产构建通过。`TestMilestoneCreateWeb/first-milestone-and-sprint-entry` 原真实链 22.32s PASS：一次 Milestone Create、零浏览器 Lookup/其他规划写，真实列表/详情重读、持久回执/事件与零 Sprint 创建核对完成。9 个原请求中 8 finished，另一个 GET failed 保留并经原字节、消费与 Go 证明联证；不能写成全部 finished。原 Wait、七资源和全部退出双尾闭合，独立正常业务/资源及 1440 浅色首 Milestone、390 深色 Sprint 入口两图有限接受。
+
+该结果不代验真实 Unknown 浏览器矩阵、完整撤权、全规划 UI 或整个 D11/D27。原 Planning04/05/06、Recovery/Authority 各 FAIL 保持；生产 Project initializer、`ready=false`/503 与旧 STOP 不变。精确输入、命令及原件见[恢复 recipe](../../../.agent-state/agent-system-integration/README.md#skills目录与首milestone恢复交付2026-10-11)。

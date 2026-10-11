@@ -50,6 +50,25 @@ export async function taskScreenshot(page: Page, name: string) {
 }
 
 type Tail = "finished" | "failed" | "closed";
+type SkillsHeaderDiagnostic = {
+  stage:
+    | "joined"
+    | "header_promises"
+    | "request_gate"
+    | "response_id_gate"
+    | "handler_pending"
+    | "accepted";
+  request_fulfilled: boolean;
+  response_fulfilled: boolean;
+  host_present: boolean;
+  host_matches: boolean;
+  authority_present: boolean;
+  authority_matches: boolean;
+  handler_host_matches: boolean;
+  cookie_present: boolean;
+  response_id_present: boolean;
+  response_id_valid: boolean;
+};
 type Entry = {
   seq: number;
   request: Request;
@@ -65,6 +84,8 @@ type Entry = {
   done: Promise<Tail>;
   checked: boolean;
   body?: unknown;
+  headersReady?: Promise<void>;
+  skillsHeaders?: SkillsHeaderDiagnostic;
 };
 
 // Preserve paths and the few non-secret query facts used by these reads. Never
@@ -139,6 +160,7 @@ async function observeBrowserIO(
     const originalAgentEdits: any[] = [];
     let originalSprintStart: any;
     let originalSprintCreate: any;
+    let originalMilestoneCreate: any;
     const tails = new Set<Promise<void>>();
     const restorers: (() => void)[] = [];
     let retired = false,
@@ -307,6 +329,15 @@ async function observeBrowserIO(
               progress.agentID === source?.agent,
           });
         }
+        if (kind === "milestone.create") {
+          if (originalMilestoneCreate) failed = true;
+          originalMilestoneCreate = {
+            call,
+            project: args[0],
+            fields: JSON.parse(JSON.stringify(args[1])),
+          };
+          writeInputs.set(call, originalMilestoneCreate);
+        }
         if (kind === "sprint.create") {
           if (originalSprintCreate) failed = true;
           originalSprintCreate = {
@@ -356,6 +387,16 @@ async function observeBrowserIO(
               current() && (kind === "restore" || before === identity());
             identities.set(call, identity());
             call.not_busy = auth.state.busy === false;
+            if (kind === "milestone.create") {
+              const progress = auth.workMilestonePlanning.progress;
+              call.result_current =
+                progress?.phase === "confirmed" &&
+                progress.contextValid === true &&
+                progress.projectID === originalMilestoneCreate.project &&
+                progress.milestoneID ===
+                  originalMilestoneCreate.request?.milestone_id &&
+                progress.result === value;
+            }
             if (kind === "sprint.create") {
               const progress = auth.workSprintLifecycle.createProgress;
               call.result_current =
@@ -401,6 +442,8 @@ async function observeBrowserIO(
         editAgent: string | undefined,
         startSprint: string | undefined,
         createMilestone: string | undefined,
+        skillsTarget: string | undefined,
+        milestoneCreate: boolean,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -418,7 +461,18 @@ async function observeBrowserIO(
                   ? "/resolve"
                   : ""),
           );
-        if (!agentConfiguration && !editAgent) {
+        if (skillsTarget) {
+          consumer(auth.skills, "list", "skills.list", (a) => {
+            if (a[0] !== project || JSON.stringify(a[1]) !== '{"limit":25}')
+              throw Error("SKILL_CATALOG_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/skills/catalog";
+          });
+          consumer(auth.skills, "get", "skills.get", (a) => {
+            if (a[0] !== project || a[1] !== skillsTarget)
+              throw Error("SKILL_DETAIL_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/skills/" + skillsTarget;
+          });
+        } else if (!agentConfiguration && !editAgent) {
           const paths: Record<string, string> = {
             milestones: "milestones",
             milestone: "milestones",
@@ -599,6 +653,19 @@ async function observeBrowserIO(
             );
           }
         }
+        if (milestoneCreate) {
+          consumer(
+            auth.workMilestonePlanning,
+            "create",
+            "milestone.create",
+            (a) => {
+              if (a[0] !== project)
+                throw Error("MILESTONE_CREATE_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + "/milestones";
+            },
+            "POST",
+          );
+        }
         if (createMilestone) {
           consumer(
             auth.workSprintLifecycle,
@@ -669,6 +736,7 @@ async function observeBrowserIO(
         originalAgentEdits.length = 0;
         originalSprintStart = undefined;
         originalSprintCreate = undefined;
+        originalMilestoneCreate = undefined;
         return this.snapshot();
       },
     };
@@ -887,6 +955,25 @@ async function observeBrowserIO(
                 expected_version: original.source.input.expected_version,
                 request: original.source.input.request,
               });
+          }
+          if (call.kind === "milestone.create") {
+            const request = parsed?.request;
+            matches =
+              Object.keys(parsed).join() === "request" &&
+              request !== null &&
+              typeof request === "object" &&
+              !Array.isArray(request) &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+                request.milestone_id,
+              ) &&
+              equal(request, {
+                ...original.fields,
+                milestone_id: request.milestone_id,
+              });
+            if (matches) {
+              original.key = key;
+              original.request = request;
+            }
           }
           if (call.kind === "sprint.create") {
             const request = parsed?.request;
@@ -1239,6 +1326,7 @@ export type TaskObservationMaterial = {
   agent_id?: string;
   sprint_id?: string;
   milestone_id?: string;
+  skill_id?: string;
 };
 export type TaskObservationProfile = {
   dist: string;
@@ -1253,7 +1341,9 @@ export type TaskObservationProfile = {
     | "agent-model-policy"
     | "task-timeline"
     | "sprint-start"
-    | "sprint-create";
+    | "sprint-create"
+    | "skill-owner-read"
+    | "milestone-create";
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create" | "update" | "start";
   lookupCommand:
@@ -1264,6 +1354,7 @@ export type TaskObservationProfile = {
     | "agent.update"
     | "work.sprint.start"
     | "work.sprint.create"
+    | "work.milestone.create"
     | null;
   intakeWrites?: true;
   agentConfiguration?: true;
@@ -1273,6 +1364,8 @@ export type TaskObservationProfile = {
   agentModelPolicy?: true;
   sprintStartWrites?: true;
   sprintCreateWrites?: true;
+  skillsReads?: true;
+  milestoneCreateWrites?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -1430,6 +1523,43 @@ export async function observeTaskRequests(
       ))
   )
     throw Error("SPRINT_CREATE_PROFILE_MISMATCH");
+  if (
+    profile.skillsReads &&
+    (profile.intakeWrites ||
+      profile.agentConfiguration ||
+      profile.editWrites ||
+      profile.timelineReads ||
+      profile.agentEditWrites ||
+      profile.agentModelPolicy ||
+      profile.sprintStartWrites ||
+      profile.sprintCreateWrites ||
+      profile.prefix !== "skill-owner-read" ||
+      profile.lookupCommand !== null ||
+      profile.cut !== undefined ||
+      data.mode !== "read" ||
+      !data.skill_id ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+        data.skill_id,
+      ))
+  )
+    throw Error("SKILLS_READ_PROFILE_MISMATCH");
+  if (
+    profile.milestoneCreateWrites &&
+    (profile.intakeWrites ||
+      profile.agentConfiguration ||
+      profile.editWrites ||
+      profile.timelineReads ||
+      profile.agentEditWrites ||
+      profile.agentModelPolicy ||
+      profile.sprintStartWrites ||
+      profile.sprintCreateWrites ||
+      profile.skillsReads ||
+      profile.prefix !== "milestone-create" ||
+      profile.lookupCommand !== "work.milestone.create" ||
+      profile.cut !== undefined ||
+      data.mode !== "first-milestone-and-sprint-entry")
+  )
+    throw Error("MILESTONE_CREATE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -1457,6 +1587,9 @@ export async function observeTaskRequests(
         status: entry.status,
         request_id: entry.requestID,
         failure: entry.failure,
+        ...(profile.skillsReads && entry.skillsHeaders
+          ? { skills_headers: { ...entry.skillsHeaders } }
+          : {}),
       });
   };
   const end = (request: Request, state: Tail) => {
@@ -1514,9 +1647,77 @@ export async function observeTaskRequests(
     if (entry.responseCount !== 1)
       observerError = new Error("DUPLICATE_ORIGINAL_RESPONSE");
     entry.status = response.status();
-    const id = response.headers()["x-request-id"];
-    entry.requestID = id && /^[0-9a-f-]{36}$/.test(id) ? id : undefined;
-    event("response", entry);
+    if (profile.skillsReads) {
+      // Observe both original header promises once; retain no credential values.
+      entry.headersReady = Promise.allSettled([
+        entry.request.allHeaders(),
+        response.allHeaders(),
+      ])
+        .then(([sentResult, receivedResult]) => {
+          const sent =
+            sentResult.status === "fulfilled" ? sentResult.value : undefined;
+          const received =
+            receivedResult.status === "fulfilled"
+              ? receivedResult.value
+              : undefined;
+          const origin = new URL(entry.request.url());
+          const id = received?.["x-request-id"];
+          const diagnostic: SkillsHeaderDiagnostic = {
+            stage: "joined",
+            request_fulfilled: sentResult.status === "fulfilled",
+            response_fulfilled: receivedResult.status === "fulfilled",
+            host_present:
+              typeof sent?.host === "string" && sent.host.length > 0,
+            host_matches: sent?.host === origin.host,
+            authority_present:
+              typeof sent?.[":authority"] === "string" &&
+              sent[":authority"].length > 0,
+            authority_matches: sent?.[":authority"] === origin.host,
+            handler_host_matches: false,
+            cookie_present: Boolean(sent?.cookie),
+            response_id_present: typeof id === "string" && id.length > 0,
+            response_id_valid:
+              typeof id === "string" &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+                id,
+              ),
+          };
+          entry.skillsHeaders = diagnostic;
+          // Publish only closed predicates after both original promises retire.
+          // Chromium may omit Host from its header projection. A visible wrong
+          // Host still rejects; the original App handler proves the wire Host
+          // separately, bound to this response's canonical request ID below.
+          if (!diagnostic.request_fulfilled || !diagnostic.response_fulfilled) {
+            diagnostic.stage = "header_promises";
+            event("skills-headers", entry);
+            throw Error("SKILLS_ORIGINAL_HEADERS_FAILED");
+          }
+          if (
+            !diagnostic.cookie_present ||
+            (diagnostic.host_present && !diagnostic.host_matches) ||
+            (diagnostic.authority_present && !diagnostic.authority_matches)
+          ) {
+            diagnostic.stage = "request_gate";
+            event("skills-headers", entry);
+            throw Error("SKILLS_ORIGINAL_REQUEST_HEADERS");
+          }
+          if (!diagnostic.response_id_valid) {
+            diagnostic.stage = "response_id_gate";
+            event("skills-headers", entry);
+            throw Error("SKILLS_ORIGINAL_RESPONSE_ID");
+          }
+          diagnostic.stage = "handler_pending";
+          entry.requestID = id;
+          event("response", entry);
+        })
+        .catch(() => {
+          observerError = new Error("SKILLS_ORIGINAL_HEADERS_FAILED");
+        });
+    } else {
+      const id = response.headers()["x-request-id"];
+      entry.requestID = id && /^[0-9a-f-]{36}$/.test(id) ? id : undefined;
+      event("response", entry);
+    }
   };
   const closed = () =>
     entries
@@ -1548,6 +1749,8 @@ export async function observeTaskRequests(
           editAgent,
           startSprint,
           createMilestone,
+          skillsTarget,
+          milestoneCreate,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -1566,6 +1769,8 @@ export async function observeTaskRequests(
             editAgent,
             startSprint,
             createMilestone,
+            skillsTarget,
+            milestoneCreate,
           );
         },
         {
@@ -1583,6 +1788,8 @@ export async function observeTaskRequests(
           createMilestone: profile.sprintCreateWrites
             ? data.milestone_id
             : undefined,
+          skillsTarget: profile.skillsReads ? data.skill_id : undefined,
+          milestoneCreate: profile.milestoneCreateWrites === true,
         },
       );
       await route.continue();
@@ -1748,18 +1955,46 @@ export async function observeTaskRequests(
           ].includes(entry.name)))
     );
   }
+  function milestoneCreateWrite(entry: Entry) {
+    const url = new URL(entry.request.url());
+    return (
+      profile.milestoneCreateWrites &&
+      entry.name === "create" &&
+      entry.request.method() === "POST" &&
+      url.pathname === `/api/v1/projects/${data.project_id}/milestones` &&
+      !url.search
+    );
+  }
+  function milestonePageRead(entry: Entry) {
+    return (
+      profile.milestoneCreateWrites &&
+      entry.request.method() === "GET" &&
+      ["project", "milestones", "milestone", "sprints", "agents"].includes(
+        entry.name,
+      )
+    );
+  }
+  function skillsPageRead(entry: Entry) {
+    return (
+      profile.skillsReads &&
+      entry.request.method() === "GET" &&
+      ["skills-catalog", "skill"].includes(entry.name)
+    );
+  }
   function joint(entry: Entry, proof: any) {
     const edit = editWrite(entry);
     const agentEdit = agentEditWrite(entry);
     const sprint = sprintWrite(entry);
     const sprintCreate = sprintCreateWrite(entry);
+    const milestoneCreate = milestoneCreateWrite(entry);
     const write =
       intakeWrite(entry) ||
       agentWrite(entry) ||
       edit ||
       agentEdit ||
       sprint ||
-      sprintCreate;
+      sprintCreate ||
+      milestoneCreate;
     const method =
       (edit || agentEdit) && entry.name === "update"
         ? "PATCH"
@@ -1830,33 +2065,39 @@ export async function observeTaskRequests(
     expect(c.typed_digest).toMatch(/^[0-9a-f]{64}$/);
     expect(n.typed_digest).toBe(c.typed_digest);
     if (timelinePageRead(entry)) expect(c.kind).toBe("work.events");
+    if (skillsPageRead(entry))
+      expect(c.kind).toBe(
+        entry.name === "skills-catalog" ? "skills.list" : "skills.get",
+      );
     if (write) {
-      if (sprintCreate) expect(c.result_current).toBe(true);
-      const kinds: Record<string, string> = sprintCreate
-        ? { create: "sprint.create" }
-        : sprint
-          ? { start: "sprint.start", lookup: "sprint.checkOriginal" }
-          : agentEdit
-            ? {
-                update: "agentEdit.startUpdate",
-                lookup: "agentEdit.checkOriginal",
-              }
-            : profile.agentConfiguration
+      if (sprintCreate || milestoneCreate) expect(c.result_current).toBe(true);
+      const kinds: Record<string, string> = milestoneCreate
+        ? { create: "milestone.create" }
+        : sprintCreate
+          ? { create: "sprint.create" }
+          : sprint
+            ? { start: "sprint.start", lookup: "sprint.checkOriginal" }
+            : agentEdit
               ? {
-                  create: "agent.startCreate",
-                  lookup: "agent.checkOriginal",
+                  update: "agentEdit.startUpdate",
+                  lookup: "agentEdit.checkOriginal",
                 }
-              : edit
+              : profile.agentConfiguration
                 ? {
-                    update: "edit.startEdit",
-                    ready: "edit.startReady",
-                    lookup: "edit.checkOriginal",
+                    create: "agent.startCreate",
+                    lookup: "agent.checkOriginal",
                   }
-                : {
-                    create: "work.startCreate",
-                    ready: "work.startReady",
-                    lookup: "work.checkOriginal",
-                  };
+                : edit
+                  ? {
+                      update: "edit.startEdit",
+                      ready: "edit.startReady",
+                      lookup: "edit.checkOriginal",
+                    }
+                  : {
+                      create: "work.startCreate",
+                      ready: "work.startReady",
+                      lookup: "work.checkOriginal",
+                    };
       const raw = entry.request.postDataBuffer();
       const key = entry.request.headers()["idempotency-key"];
       expect(raw).not.toBeNull();
@@ -1896,11 +2137,40 @@ export async function observeTaskRequests(
       })
       .toBe(0);
     if (observerError) throw observerError;
+    await Promise.all(entries.map((entry) => entry.headersReady));
+    if (observerError) throw observerError;
     const proof = await checkpoint();
     for (const entry of entries) {
       if (entry.checked) continue;
       const state = await entry.done;
       const response = await entry.request.response();
+      if (profile.skillsReads) {
+        // Include bootstrap reads as well as catalog/detail: a missing browser
+        // projection is accepted only with this original request's App proof.
+        const record = JSON.parse(
+          readFileSync(
+            join(
+              profile.evidence,
+              `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`,
+            ),
+            "utf8",
+          ),
+        );
+        const url = new URL(entry.request.url());
+        expect(record.input_hash).toBe(profile.inputHash);
+        expect(record.request_id).toBe(entry.requestID);
+        expect(record.method).toBe(entry.request.method());
+        expect(record.url_sha256).toBe(
+          createHash("sha256")
+            .update(url.pathname + url.search)
+            .digest("hex"),
+        );
+        expect(record.request_host_matches).toBe(true);
+        expect(record.handler_returned).toBe(true);
+        expect(entry.skillsHeaders?.stage).toBe("handler_pending");
+        entry.skillsHeaders!.handler_host_matches = true;
+        entry.skillsHeaders!.stage = "accepted";
+      }
       if (
         state === "failed" &&
         profile.cut !== undefined &&
@@ -1923,6 +2193,7 @@ export async function observeTaskRequests(
           agentEditWrite(entry) ||
           sprintWrite(entry) ||
           sprintCreateWrite(entry) ||
+          milestoneCreateWrite(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -1979,10 +2250,13 @@ export async function observeTaskRequests(
         agentEditWrite(entry) ||
         sprintWrite(entry) ||
         sprintCreateWrite(entry) ||
+        milestoneCreateWrite(entry) ||
+        milestonePageRead(entry) ||
         sprintPageRead(entry) ||
         agentWrite(entry) ||
         agentPageRead(entry) ||
-        timelinePageRead(entry)
+        timelinePageRead(entry) ||
+        skillsPageRead(entry)
       ) {
         // Even genuine requestfinished must match the original public value
         // and Go proof (including commit for writes); this does not replace its tail.
@@ -2058,6 +2332,28 @@ export async function observeTaskRequests(
       originals[0]!.headers()["idempotency-key"],
     );
     expect(dropped).toBe(1);
+  }
+  function milestoneRead(
+    name: "project" | "milestones" | "milestone" | "sprints" | "agents",
+  ) {
+    expect(profile.milestoneCreateWrites).toBe(true);
+    const rows = entries.filter((e) => e.name === name && e.checked && e.body);
+    expect(
+      rows.length,
+      "original Milestone public read must complete",
+    ).toBeGreaterThan(0);
+    return rows.at(-1)!.body as Record<string, any>;
+  }
+  function skillsRead(name: "skills-catalog" | "skill", index: number) {
+    expect(profile.skillsReads).toBe(true);
+    const values = entries.filter(
+      (e) => e.name === name && e.checked && e.body,
+    );
+    expect(
+      values[index],
+      "original Skills public read must complete",
+    ).toBeTruthy();
+    return values[index]!.body as Record<string, any>;
   }
   function sprintCreateRead(
     name:
@@ -2181,6 +2477,9 @@ export async function observeTaskRequests(
             request_id: entry.requestID,
             terminal: entry.terminal,
             failure: entry.failure,
+            ...(profile.skillsReads && entry.skillsHeaders
+              ? { skills_headers: { ...entry.skillsHeaders } }
+              : {}),
             checked: entry.checked,
           })),
           request_events: events,
@@ -2203,6 +2502,8 @@ export async function observeTaskRequests(
         timeout: 5_000,
       })
       .toBe(0);
+    await Promise.all(entries.map((entry) => entry.headersReady));
+    if (observerError) throw observerError;
     const snapshot = await checkpoint();
     const end = await page.evaluate(() =>
       (window as any).__taskReviewProof.finish(),
@@ -2240,6 +2541,8 @@ export async function observeTaskRequests(
     agentRead,
     sprintRead,
     sprintCreateRead,
+    skillsRead,
+    milestoneRead,
     timelinePage,
     save,
     endDocument,

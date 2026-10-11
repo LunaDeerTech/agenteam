@@ -155,6 +155,17 @@ async function page() {
     state: shallowReactive({ phase: 'authenticated', busy: false }),
     personalContext: shallowReactive({ identity }),
     workReview: reads,
+    workMilestonePlanning: {
+      progress: null,
+      create: vi.fn(async () => {
+        throw new Error('Unexpected Milestone Create')
+      }),
+      checkOriginal: vi.fn(async () => {
+        throw new Error('Unexpected Milestone Lookup')
+      }),
+      editRejected: vi.fn(),
+      abandon: vi.fn(),
+    },
     workSprintLifecycle: api,
   } as unknown as SessionController
   const readCurrent = vi.fn(async () => {

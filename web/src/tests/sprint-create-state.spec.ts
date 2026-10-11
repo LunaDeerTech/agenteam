@@ -161,6 +161,17 @@ async function fixture() {
     state: shallowReactive({ phase: 'authenticated', busy: false }),
     personalContext: personal,
     workReview: reads,
+    workMilestonePlanning: {
+      progress: null,
+      create: vi.fn(async () => {
+        throw new Error('Unexpected Milestone Create')
+      }),
+      checkOriginal: vi.fn(async () => {
+        throw new Error('Unexpected Milestone Lookup')
+      }),
+      editRejected: vi.fn(),
+      abandon: vi.fn(),
+    },
     workSprintLifecycle: api,
   } as unknown as SessionController
   const workspace = {

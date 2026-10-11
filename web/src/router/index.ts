@@ -148,6 +148,11 @@ export const router = createRouter({
               component: () => import('../views/projects/ProjectGeneralSettings.vue'),
             },
             {
+              path: 'skills/:skill_id?',
+              name: 'project-skills',
+              component: () => import('../views/projects/ProjectSkillsView.vue'),
+            },
+            {
               path: 'agents',
               name: 'project-agents',
               component: () => import('../views/projects/ProjectAgentsView.vue'),

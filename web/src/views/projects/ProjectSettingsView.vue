@@ -9,6 +9,7 @@ const groups = computed(() =>
     ? [
         { label: '项目资料', path: paths.value.settings, leaf: '基本信息' },
         { label: 'Agent', path: paths.value.home + '/settings/agents', leaf: '目录与配置' },
+        { label: 'Skills', path: paths.value.home + '/settings/skills', leaf: '项目技能库' },
         { label: '安全记录', path: paths.value.home + '/settings/audit', leaf: '项目审计' },
         {
           key: 'project-models-providers',

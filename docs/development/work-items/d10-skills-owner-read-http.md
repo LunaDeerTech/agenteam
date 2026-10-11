@@ -1,6 +1,6 @@
 # D10 Skills 当前 Human Owner 目录与详情 HTTP
 
-状态：独立 HTTP adapter 已实现并获未参与者正式有限接受，正在由root限定集成。作者 pure/race 11top/47sub、初Schema21/HEAD18、vet 及后补正式 Account Problem 标准Schema单top32控/HEAD18通过；native3top/6sub、修后PG恢复02的4top/12sub及独立Session撤销诊断02的1top/2sub均取得原完整PASS。PG恢复01因HTTP fixture漏掉正式Account.Initialize而FAIL，独验恢复01因原TCP尾残1row而整体FAIL，两者原件与终态均保留；修后不改产品或放宽断言，新诊断也不反推旧残留归因。基线为正式 main `3b7ed9da`，消费已接受的 [P2 初始化与当前 Owner 读取](d10-skills-initialization.md)及[正式设计](d10-skills-initialization-design.md)。本卡接受只读 HTTP adapter；后续默认根的既有数据读取组合已按末节有限接受，不开放生产 Project.Create、完整生命周期或 UI。
+状态：独立 HTTP adapter、默认根既有数据读取及后继只读 UI 已分别完成限定交付；各自范围见对应小节。作者 pure/race 11top/47sub、初Schema21/HEAD18、vet 及后补正式 Account Problem 标准Schema单top32控/HEAD18通过；native3top/6sub、修后PG恢复02的4top/12sub及独立Session撤销诊断02的1top/2sub均取得原完整PASS。PG恢复01因HTTP fixture漏掉正式Account.Initialize而FAIL，独验恢复01因原TCP尾残1row而整体FAIL，两者原件与终态均保留；修后不改产品或放宽断言，新诊断也不反推旧残留归因。基线为正式 main `3b7ed9da`，消费已接受的 [P2 初始化与当前 Owner 读取](d10-skills-initialization.md)及[正式设计](d10-skills-initialization-design.md)。初期 adapter 验收仅接受只读 HTTP；后继默认根、Human 安装与只读 UI 的独立范围见后文，不开放生产 Project.Create 或完整生命周期。
 
 ## 范围与真实依赖
 
@@ -61,7 +61,7 @@ Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/d
 
 整改后的 `TestKnowledgeSkillsDefaultRootComposition` 原单 top/零 sub 完整 PASS：先证默认 Create 返回 `DEPENDENCY_UNBOUND`/`not_committed`，13 项 Project/Skill/Object/Audit/Event 事实为零；再由显式 test-only Project 服务使用同 Store、原 Audit、真实 Skill/Object 端口建立读取数据，并实际 Stop/Drain/Joined。它不替换默认服务、不以 SQL 写 ready。随后才验证默认 Skills 目录、Knowledge 正文 GET/HEAD、Avatar 维护与原进程退出。用例 7.39s，Go243371/driver241594/outer241447 均实际 Wait0，七资源/private/runtime/desc/TCP 双尾和 inputs 一致齐，总111.577s。该结果接受既有数据的默认读取组合，不接受生产初始化或完整 participant。
 
-后继 Skills UI 应消费本卡八字段和安全 Problem，覆盖当前 Session/Owner、未初始化及归档/Deleting 状态；不附带包正文、安装、分配或 Agent 能力。本批没有 Skills UI，Object Runtime join 等原停止项保持。
+该默认根批次没有 Skills UI。后继只读 UI 的实际交付范围见末节；不附带包正文、安装、分配或 Agent 能力，Object Runtime join 等原停止项保持。
 
 ## Human Owner 普通安装与分页发现：有限交付
 
@@ -74,3 +74,13 @@ Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/d
 本次连续迁移为 00032–00036。32–35 与 schema02 已验来源逐字一致，其 fresh/repeat、旧 31→35 升级及约束验证可复用；36 已由本次真实安装与 HTTP 链实际执行。引入这些表不等于启用 Agent 配置、Registry、Mount 或 F1 服务；本片不导入其未交付实现。Skill 清理对 00034 的 assignment heads/rows 实际查表，任何残留（含 disabled 初始化事实）均阻止完成，不跨域删除 Agent 数据。
 
 生产 Project initializer 继续 unbound，AgentRun 安装仍明确 DependencyUnbound；完整 F1、Agent assignment、可执行 Install Backend、Skill 更新/删除 API、Runner 安装、physical ensure 与旧 Object runtime STOP 均未由本片放开。后续模块必须消费真实绑定，不以空 provider 或本次 Human receipt 替代运行授权。
+
+## 当前 Human Owner 技能目录与详情 UI（限定范围）
+
+已有 initialized Project 的当前 Owner 可从项目设置进入 `/{owner}/{project}/settings/skills`，读取正式分页 catalog，并进入 `.../skills/{skill_id}` 查看八字段 metadata。目录按服务端顺序显示名称、描述、保护状态和修订；详情显示完整描述、规范名、Project/Skill ID、修订与记录版本。页面支持明确重读、停止读取、返回目录及有下一页时加载更多；不读取包正文，不增加安装、分配或执行入口。
+
+调用沿唯一 Session owner 与当前 ProjectWorkspace 读取上下文。身份、Project、路由或读取代际变化使旧请求退役并清空旧结果；只有当前上下文的完整合法响应才能发布。跨 Project/目标、无效 metadata 或坏分页整批拒绝；失权/不可访问清空敏感详情，未就绪与失效 cursor 显示明确重读状态。取消与重读不会产生业务写入。
+
+本次与首 Milestone UI 共用的精确 13 文件 80 项单元测试、类型检查和生产构建通过；真实默认 app、Account、Skill/Object 与 PG 组合中，普通 Owner 完成两次 catalog 和两次详情读取，当前键盘焦点、1440 浅色目录与 390 深色详情得到实际验证。独立源码/方法与两图审查接受该限定链；真实调用及原资源尾均闭合。Go 后验核 Project 范围十类业务事实未变，默认生产 initializer 仍返回 unbound。执行输入、原失败、Host 观察修复和品牌资产修复见[恢复 recipe](../../../.agent-state/agent-system-integration/README.md#skills目录与首milestone恢复交付2026-10-11)。
+
+本次真实浏览器只有正常 builtin 目录/详情链；真实多页、完整撤权/归档/Deleting 矩阵、安装 UI、生产初始化与完整 D10 不由该结果代证。历史 Skills03 FAIL 保持，本次恢复 01 的 Host 投影 FAIL 和恢复 02 的品牌破图分别保留；后继恢复 03 的通过不改写旧记录。

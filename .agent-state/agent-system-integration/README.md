@@ -671,3 +671,32 @@ frontend01格式通过，unit为15PASS/1FAIL，唯一page因fixture恢复context
 原frontend01 FAIL、Agent native01（30.96s，新增自动回焦断言不符原契约）、Sprint native01（25.97s，标题label错配、零Create/Lookup）及native02（24.79s，Create后路由卸载导致标题回焦丢失、最终联证/后验未到）全部保留。原finished/failed事件不改写。公开范围与原意图规则见[D10模型与审批配置](../../docs/development/work-items/d10-agent-configuration.md#9-已有agent的模型与审批配置编辑限定范围)和[D11 Sprint创建](../../docs/development/work-items/d11-work-owner-planning-ui.md#16-已有milestone下创建planned-sprint限定范围)。两片不新增运行权限，不启用Scheduler，不解除initializer、ready或旧STOP。
 
 四个活跃物理树及第五个原Rename/回焦作者树继续HOLD：执行树保组合/原候选，UI保文档与旧材料，independent的Milestone UI `fa87a985`与metadata的Milestone fixture `f9620068`已保存推送且独审接受、动态未跑；唯一锁定PW、依赖和原FAIL不清理。Skills UI `2ee6e334`及fixture `ebcfb3b8`已保存静审、尚无动态结论。沿原固定依赖、fresh容量、独立namespace、输入绑定和真实Wait/资源双尾门恢复，不新建永久归档。
+
+## Skills目录与首Milestone恢复交付（2026-10-11）
+
+以上旧物理树/HOLD 是当时记录，不作为当前布局。此次从已保存 `fc0fb130` 在 `/workspace/agenteam-skills-milestone-resume` 恢复两个产品切片；产品源码未返修，恢复只修私有依赖路径和两处 Skills fixture 观察/资产问题。正式可见行为见 [Skills UI](../../docs/development/work-items/d10-skills-owner-read-http.md#当前-human-owner-技能目录与详情-ui限定范围)与[首 Milestone](../../docs/development/work-items/d11-work-owner-planning-ui.md#17-空规划结构中创建首个-milestone限定范围)。本结果不解除生产 initializer、ready 或旧 STOP。
+
+基础输入为 `fc0fb130` 的前端产品：精确 13 文件 80/80 单元测试、vue-tsc 与 Vite build 通过。测试文件是 `web/src/tests/` 下 `skill-owner-{client,state,view}`、`milestone-create-{page,state}`、`work-milestone-planning-{client,session}`、`sprint-create-state`、`sprint-start-state`、`work-review-{state,session}`、`work-sprint-lifecycle-session`、`session`（均 `.spec.ts`）。锁定 Vitest Node API 使用 `watch:false, cache:false, maxWorkers:2, configLoader:'native'` 并实际 close；类型命令为 `node web/node_modules/vue-tsc/bin/vue-tsc.js --noEmit --project web/tsconfig.json`，Vite Node API 产物为私有 dist。原件 `output/ai/skills-milestone-resume/frontend/{unit-01,type-01,build-01}.log`；同一 dist 以普通复制提供给两个 profile，未重新构建或改写资产。
+
+恢复版本为 Go 1.27.1、Node 24.19.0、锁定 Playwright 1.56.1、TypeScript 5.9.3、Chromium 151.0.7922.173。两个 npm 根私有 `npm ci`，锁文件不变；driver 已改为本树 `web/node_modules` 和 `tests/account-captcha-web/node_modules`，不再依赖旧物理树。PG17/PG16 精确 digest 与 MinIO 原 release/commit/SHA 沿原 driver 门验证；MinIO SHA 为 `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`，环境恢复原件 `output/ai/skills-milestone-resume/platform/environment.json`。平台单独 `data:` 探针受企业策略拒绝的原 FAIL 保留，不能代作 loopback 产品失败；其四个旧 PID1 zombie 不属于本次 native 后代。
+
+必要路径补差的原八 entry controls 为 7 PASS/1 ERROR；仅更新 inverse 所用旧路径源片段后定向 1 PASS，不合称同轮八项全绿。Skills 恢复 01 的四个 GET 虽 200/finished，仍因 Chromium/PW 未投影 Host/:authority 被原观察门拒绝，wholeFAIL 与完整失败尾保留。修复在真实 App handler 核原 `r.Host` 等于 owned origin，以原 canonical response requestID、method、URL 和 input 绑定实际返回证明；两个原 header Promise 仍 join，Cookie/ID 门不变，可见错误 Host/:authority 拒绝，不合成 header。四个 Host 正反控 race PASS、candidate02 重编/list 通过。独立补差审后恢复 02 业务/退出全通过，但两图品牌破图：私有 server 的 flat-only 门拒绝冻结 dist 内真实 `/assets/brand/` 文件。后继仅白名单四个原品牌 SVG，保其它嵌套/穿越拒绝，五正常/五拒绝控制 race PASS；截图前要求当前主题唯一可见品牌图片完成解码。candidate03 重编/list、两次补差的锁定 TS 语法检查与独立方法审均通过。
+
+| 原轮 | 实际结果与边界 | 原件 |
+| --- | --- | --- |
+| Milestone 恢复 01 | Go 22.32s PASS；9 请求/8 finished，原 GET failed 经原严格联证。正常创建与取消 Sprint 入口、资源和两图独立有限接受。 | `output/ai/skills-milestone-resume/native-milestone-01/`；`/tmp/smr-m1/ui-1f53fd31968e4960.log`；`output/ai/milestone-create-web/native-resume-01/` |
+| Skills 恢复 01 | Go 14.93s FAIL，原 Node/Go/driver/supervisor 与外层工具均退出 1；首个 header 观察门拒绝，未完成读取链。 | `output/ai/skills-milestone-resume/native-skills-01/`；`/tmp/smr-s1/ui-7a3209324dcc4a61.log`；`output/ai/skills-owner-ui/native-resume-01/TestSkillOwnerReadWeb/` |
+| Skills 恢复 02 | Go 27.34s PASS；9 请求/9 finished，业务与退出尾通过；两图品牌破图保留，不宣全页视觉接受。 | `output/ai/skills-milestone-resume/native-skills-02/`；`/tmp/smr-s2/ui-2cd23d7b84d7405e.log`；`output/ai/skills-owner-ui/native-resume-02/TestSkillOwnerReadWeb/` |
+| Skills 恢复 03 | Go 21.60s PASS；9 请求/8 finished，首次 Session 原 `net::ERR_ABORTED` 保留并由完整原字节/消费/同 requestID 证明联证；四个 Skills 读与两次 observer 退休齐，新浅深两图独立接受。 | `output/ai/skills-milestone-resume/native-skills-03/`；`/tmp/smr-s3/ui-9effa8ddb61841f7.log`；`output/ai/skills-owner-ui/native-resume-03/TestSkillOwnerReadWeb/` |
+
+四轮均收齐原 Node/Go/driver/supervisor 终态和七资源 14 次 absence、private/runtime/后代/HOST_TCP 双尾，输入未变。成功轮外层工具实际退出分别为会话 60059/96099/2864 的 0，失败轮 6168 为 1；它们是执行者直接观察的工具终态，不从文件反推 wrapper PID。每轮 subreaper 都实际 Wait 了四个自己的 Chrome 后代。恢复 03 supervisor 为 112.085s、外层 113.624s；最终独立审查核业务、资源与截图，限定正常链。恢复 01 FAIL、恢复 02 视觉缺口、历史 Skills03/Planning06 等旧 FAIL 都不回填。真实多页、完整撤权和 Unknown 浏览器矩阵未由本次运行证明。
+
+重现继续使用已提交的原 supervisor/driver，不从忽略目录要求恢复新 harness。先在当前树恢复锁定依赖、私有 Go cache，选择全新输出/短 runtime，取得实际资源窗口；同进程启动前检查至少 5 GiB 空闲。编译使用精确 Go、`GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off GOMAXPROCS=2 CGO_ENABLED=1 GOFLAGS='-mod=readonly -p=2'`，`GOCACHE/GOMODCACHE/GOTMPDIR/XDG_CONFIG_HOME/DOCKER_CONFIG` 指向自有目录：
+
+```sh
+/workspace/toolchains/go1.27.1/bin/go test -tags=integration -race -c -o "$OWNED_OUTPUT/milestone-race.test" ./tests/projectvariable
+/workspace/toolchains/go1.27.1/bin/go test -tags=integration -race -c -o "$OWNED_OUTPUT/skills-race.test" ./internal/central/app
+python3 .agent-state/task-planning-recovery/pg_only_supervisor.py --driver .agent-state/work-owner-http/root_chain_driver.py --binary "$OWNED_OUTPUT/skills-race.test" --run '^TestSkillOwnerReadWeb$' --output "$OWNED_RUNTIME" --root-chain
+```
+
+`OWNED_OUTPUT/OWNED_RUNTIME` 由执行者分配，不复用上述历史路径。Skills 设置 `AGENTEAM_SKILL_OWNER_WEB_DIST/EVIDENCE`，Milestone 设置 `AGENTEAM_MILESTONE_CREATE_WEB_DIST/EVIDENCE` 并换对应 binary 与 `^TestMilestoneCreateWeb$`；dist/evidence 各位于原 profile 的 `output/ai/skills-owner-ui/` 或 `output/ai/milestone-create-web/`，evidence 必须未存在，runtime 满足原短路径门。按原入口精确 list 后运行，不放宽 540s 总预算、原 75s HOST_TCP 尾或依赖/input 门。本次具体 env/命令/fresh 容量在各 native 目录 `invocation.json`，编译与控制日志在 `compile-{01,02,03}/`。输入未变的 Milestone 和前端基础结果没有随 Skills fixture 两次补差重复执行。

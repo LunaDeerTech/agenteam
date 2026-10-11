@@ -23,6 +23,10 @@ import {
   type ReviewInput,
 } from '../api/work-review'
 import { captureSprintCreateDraft, type SprintCreateReceipt } from '../api/work-sprint-lifecycle'
+import {
+  captureMilestoneCreateDraft,
+  type MilestoneCreateReceipt,
+} from '../api/work-milestone-planning'
 import { captureTaskCreateDraft, type TaskCreateDraft } from '../api/work-task-planning'
 import { compareTaskTimelineEvents, type TaskTimelineEvent } from '../api/work-task-timeline'
 import { captureTaskUpdateInput } from '../api/work-task-edit'
@@ -152,6 +156,22 @@ export function createProjectTasks(
     touched: { title: false, description: false, type: false, priority: false, plan: false },
     message: '',
   })
+  const milestoneCreation = reactive({
+    open: false,
+    projectID: '',
+    milestoneID: '',
+    title: '',
+    description: '',
+    message: '',
+    needsRead: false,
+  })
+  let milestoneCreationIdentity = ''
+  const createdMilestoneFocus = shallowRef<Readonly<{
+    projectID: string
+    milestoneID: string
+    identity: string
+    path: string
+  }> | null>(null)
   const sprintCreation = reactive({
     open: false,
     projectID: '',
@@ -191,6 +211,7 @@ export function createProjectTasks(
     generation = 0,
     requested = false,
     disposed = false
+  const projectID = computed(() => workspace.currentReadContext.value?.projectID ?? null)
   const visible = computed(
     () =>
       !!workspace.currentReadContext.value &&
@@ -226,6 +247,59 @@ export function createProjectTasks(
       ? p
       : null
   })
+  const milestonePending = computed(() => {
+    const p = auth.workMilestonePlanning.progress
+    return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
+  })
+  const milestoneProgress = computed(() => {
+    const p = auth.workMilestonePlanning.progress
+    return visible.value && p?.projectID === workspace.currentReadContext.value?.projectID
+      ? p
+      : null
+  })
+  const canCreateMilestone = computed(
+    () =>
+      visible.value &&
+      state.phase === 'ready' &&
+      !state.task &&
+      workspace.detail.project?.lifecycle === 'active' &&
+      !pending.value &&
+      !milestonePending.value &&
+      !sprintPending.value &&
+      !sprintCreatePending.value &&
+      !sprintStart.open &&
+      !sprintStart.needsRead &&
+      !sprintCreation.open &&
+      !sprintCreation.needsRead &&
+      !creation.open &&
+      !edit.open &&
+      !draft.action &&
+      !milestoneCreation.needsRead,
+  )
+  const milestoneCreationFocus = computed(() => {
+    const request = createdMilestoneFocus.value,
+      progress = milestoneProgress.value
+    return request &&
+      !disposed &&
+      visible.value &&
+      !busy.value &&
+      request.identity === identityKey(request.projectID) &&
+      workspace.currentReadContext.value?.projectID === request.projectID &&
+      route.value === request.path &&
+      state.phase === 'ready' &&
+      state.milestone?.id === request.milestoneID &&
+      !state.task &&
+      progress?.phase === 'confirmed' &&
+      progress.contextValid &&
+      progress.milestoneID === request.milestoneID
+      ? request.milestoneID
+      : null
+  })
+  function consumeMilestoneCreationFocus(id: string) {
+    if (milestoneCreationFocus.value !== id) return false
+    createdMilestoneFocus.value = null
+    return true
+  }
   const sprintCreatePending = computed(() => {
     const p = auth.workSprintLifecycle.createProgress
     return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
@@ -276,6 +350,9 @@ export function createProjectTasks(
       !!sprintMilestoneOptions.value.length &&
       !pending.value &&
       !sprintCreatePending.value &&
+      !milestonePending.value &&
+      !milestoneCreation.open &&
+      !milestoneCreation.needsRead &&
       !sprintPending.value &&
       !sprintStart.open &&
       !sprintStart.needsRead &&
@@ -318,6 +395,9 @@ export function createProjectTasks(
       !pending.value &&
       !sprintPending.value &&
       !sprintCreatePending.value &&
+      !milestonePending.value &&
+      !milestoneCreation.open &&
+      !milestoneCreation.needsRead &&
       !sprintCreation.open &&
       !sprintCreation.needsRead &&
       !creation.open &&
@@ -352,6 +432,9 @@ export function createProjectTasks(
       !!pending.value ||
       !!sprintPending.value ||
       !!sprintCreatePending.value ||
+      !!milestonePending.value ||
+      milestoneCreation.open ||
+      milestoneCreation.needsRead ||
       sprintCreation.open ||
       sprintCreation.needsRead ||
       sprintStart.open ||
@@ -367,6 +450,9 @@ export function createProjectTasks(
       !pending.value &&
       !sprintPending.value &&
       !sprintCreatePending.value &&
+      !milestonePending.value &&
+      !milestoneCreation.open &&
+      !milestoneCreation.needsRead &&
       !sprintCreation.open &&
       !sprintCreation.needsRead &&
       !sprintStart.open &&
@@ -384,6 +470,9 @@ export function createProjectTasks(
       !pending.value &&
       !sprintPending.value &&
       !sprintCreatePending.value &&
+      !milestonePending.value &&
+      !milestoneCreation.open &&
+      !milestoneCreation.needsRead &&
       !sprintCreation.open &&
       !sprintCreation.needsRead &&
       !sprintStart.open &&
@@ -414,6 +503,9 @@ export function createProjectTasks(
       !!pending.value ||
       !!sprintPending.value ||
       !!sprintCreatePending.value ||
+      !!milestonePending.value ||
+      milestoneCreation.open ||
+      milestoneCreation.needsRead ||
       sprintCreation.open ||
       sprintCreation.needsRead ||
       sprintStart.open,
@@ -448,6 +540,22 @@ export function createProjectTasks(
       state.sprint?.id === sprint &&
       !state.task
     )
+  }
+  function clearMilestoneCreation() {
+    Object.assign(milestoneCreation, {
+      open: false,
+      projectID: '',
+      milestoneID: '',
+      title: '',
+      description: '',
+      message: '',
+      needsRead: false,
+    })
+    milestoneCreationIdentity = ''
+  }
+  function releaseRejectedMilestone() {
+    if (milestoneProgress.value?.phase === 'rejected' && milestoneProgress.value.contextValid)
+      auth.workMilestonePlanning.editRejected()
   }
   function clearSprintCreation() {
     Object.assign(sprintCreation, {
@@ -512,6 +620,8 @@ export function createProjectTasks(
   }
   function clearData() {
     createdSprintFocus.value = null
+    createdMilestoneFocus.value = null
+    clearMilestoneCreation()
     clearTimeline()
     manualMilestone = null
     state.phase = 'idle'
@@ -860,10 +970,187 @@ export function createProjectTasks(
       await loadColumn(s)
     }
   }
+  function openMilestoneCreation() {
+    const p = workspace.currentReadContext.value?.projectID
+    if (!p || busy.value || !canCreateMilestone.value) return
+    if (
+      auth.workSprintLifecycle.progress?.phase === 'rejected' &&
+      auth.workSprintLifecycle.progress.contextValid
+    )
+      auth.workSprintLifecycle.editRejected()
+    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejectedCreate()
+    clearMilestoneCreation()
+    createdMilestoneFocus.value = null
+    Object.assign(milestoneCreation, { open: true, projectID: p })
+    milestoneCreationIdentity = identityKey(p)
+  }
+  function cancelMilestoneCreation() {
+    if (busy.value || milestonePending.value) return
+    releaseRejectedMilestone()
+    clearMilestoneCreation()
+  }
+  function sameMilestoneCreation(own: number, p: string, identity: string) {
+    return (
+      live(own, p) &&
+      !!identity &&
+      identityKey(p) === identity &&
+      !state.task &&
+      milestoneCreation.projectID === p
+    )
+  }
+  async function rereadCreatedMilestone() {
+    const p = milestoneCreation.projectID,
+      id = milestoneCreation.milestoneID,
+      own = generation,
+      identity = milestoneCreationIdentity
+    if (
+      busy.value ||
+      !milestoneCreation.needsRead ||
+      !id ||
+      !sameMilestoneCreation(own, p, identity)
+    )
+      return
+    let selected = false
+    await read(
+      async (_p, step) => {
+        const milestone = await step(() => auth.workReview.milestone(p, id))
+        const page = await step(() => auth.workReview.milestones(p, { limit: 50 }))
+        const sprints = await step(() => auth.workReview.sprints(p, id, { limit: 50 }))
+        if (milestone.id !== id || milestone.project_id !== p)
+          throw new AccountFailure('invalid-response')
+        return { milestone, page, sprints }
+      },
+      (value) => {
+        if (!sameMilestoneCreation(own, p, identity)) return
+        // Selection comes from current reads, including an off-first-page parent.
+        manualMilestone = id
+        state.milestone = value.milestone
+        state.milestones = value.page.items
+        state.milestoneNext = value.page.next_cursor
+        state.sprints = value.sprints.items
+        state.sprintNext = value.sprints.next_cursor
+        state.sprint = null
+        state.detailCurrent = false
+        for (const column of taskStates) Object.assign(columns[column], emptyColumn())
+        Object.assign(milestoneCreation, {
+          open: false,
+          needsRead: false,
+          message: 'Milestone 已创建；可单独规划 Sprint。',
+        })
+        selected = true
+      },
+      () => {
+        if (sameMilestoneCreation(own, p, identity))
+          milestoneCreation.message =
+            '创建已确认，当前 Milestone 信息读取失败。请重新读取，不要再次创建。'
+      },
+    )
+    if (selected && sameMilestoneCreation(own, p, identity)) {
+      const request = Object.freeze({
+        projectID: p,
+        milestoneID: id,
+        identity,
+        path: `${projectPath()}/tasks`,
+      })
+      createdMilestoneFocus.value = request
+      try {
+        if (route.value !== request.path) await navigate(request.path)
+      } finally {
+        if (createdMilestoneFocus.value === request && route.value !== request.path)
+          createdMilestoneFocus.value = null
+      }
+    }
+  }
+  async function acceptMilestoneCreation(
+    value: MilestoneCreateReceipt,
+    own: number,
+    identity: string,
+  ) {
+    const p = value.milestone.project_id
+    if (!sameMilestoneCreation(own, p, identity)) return
+    Object.assign(milestoneCreation, {
+      open: false,
+      milestoneID: value.milestone.id,
+      needsRead: true,
+      message: '创建已确认，正在读取当前 Milestone。',
+    })
+    await rereadCreatedMilestone()
+  }
+  async function submitMilestoneCreation() {
+    const p = milestoneCreation.projectID,
+      own = generation,
+      identity = milestoneCreationIdentity
+    if (
+      busy.value ||
+      !milestoneCreation.open ||
+      !canCreateMilestone.value ||
+      !sameMilestoneCreation(own, p, identity)
+    )
+      return
+    try {
+      const draft = captureMilestoneCreateDraft({
+        title: milestoneCreation.title,
+        ...(milestoneCreation.description ? { description: milestoneCreation.description } : {}),
+      })
+      releaseRejectedMilestone()
+      const value = await auth.workMilestonePlanning.create(p, draft)
+      const result = 'state' in value ? value.result : value
+      if (result) await acceptMilestoneCreation(result, own, identity)
+    } catch (error) {
+      if (sameMilestoneCreation(own, p, identity))
+        milestoneCreation.message =
+          error instanceof AccountFailure && error.kind === 'invalid-input'
+            ? '请填写合法的 Milestone 标题与描述。'
+            : explain(error)
+    }
+  }
+  async function lookupMilestoneCreation() {
+    const progress = milestoneProgress.value,
+      own = generation
+    if (busy.value || progress?.phase !== 'uncertain' || !progress.contextValid || state.task)
+      return
+    Object.assign(milestoneCreation, {
+      open: false,
+      projectID: progress.projectID,
+      milestoneID: progress.milestoneID,
+    })
+    milestoneCreationIdentity = identityKey(progress.projectID)
+    const identity = milestoneCreationIdentity
+    try {
+      const value = await auth.workMilestonePlanning.checkOriginal()
+      const result = 'state' in value ? value.result : value
+      if (result) await acceptMilestoneCreation(result, own, identity)
+    } catch (error) {
+      if (sameMilestoneCreation(own, progress.projectID, identity))
+        milestoneCreation.message = explain(error)
+    }
+  }
+  async function rereadConfirmedMilestone() {
+    const progress = milestoneProgress.value
+    if (
+      busy.value ||
+      progress?.phase !== 'confirmed' ||
+      !progress.contextValid ||
+      !progress.result ||
+      state.task
+    )
+      return
+    Object.assign(milestoneCreation, {
+      open: false,
+      projectID: progress.projectID,
+      milestoneID: progress.milestoneID,
+      needsRead: true,
+    })
+    milestoneCreationIdentity = identityKey(progress.projectID)
+    await rereadCreatedMilestone()
+  }
   function openSprintCreation() {
     const p = workspace.currentReadContext.value?.projectID
     if (!p || busy.value || !canCreateSprint.value) return
     createdSprintFocus.value = null
+    createdMilestoneFocus.value = null
+    releaseRejectedMilestone()
     if (
       auth.workSprintLifecycle.progress?.phase === 'rejected' &&
       auth.workSprintLifecycle.progress.contextValid
@@ -1041,6 +1328,7 @@ export function createProjectTasks(
     const p = workspace.currentReadContext.value?.projectID,
       sprint = state.sprint
     if (!p || !sprint || !canStartSprint.value || busy.value) return
+    releaseRejectedMilestone()
     if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
       auth.workSprintLifecycle.editRejectedCreate()
     Object.assign(sprintStart, {
@@ -1174,6 +1462,7 @@ export function createProjectTasks(
   }
   async function selectMilestone(id: string) {
     if (busy.value) return
+    createdMilestoneFocus.value = null
     const target = `${projectPath()}/tasks`
     if (route.value === target) {
       if (!(await confirmLeave())) return
@@ -1191,6 +1480,7 @@ export function createProjectTasks(
     }
   }
   async function selectSprint(id: string) {
+    if (!busy.value) createdMilestoneFocus.value = null
     if (!busy.value) await navigate(`${projectPath()}/tasks/sprints/${id}`)
   }
   async function selectTask(id: string) {
@@ -1417,7 +1707,7 @@ export function createProjectTasks(
   function confirmLeave(target?: string): Promise<boolean> {
     if (target === route.value || !dirty.value) return Promise.resolve(true)
     confirmation.message =
-      pending.value || sprintPending.value || sprintCreatePending.value
+      pending.value || sprintPending.value || sprintCreatePending.value || milestonePending.value
         ? '操作结果尚未确认。离开不会重发，返回原 Sprint 或任务后可继续查询原结果。'
         : '离开将放弃尚未提交的工作输入。'
     confirmation.open = true
@@ -1435,11 +1725,19 @@ export function createProjectTasks(
       clearEdit()
       clearSprintStart()
       clearSprintCreation()
+      clearMilestoneCreation()
     }
     resolve?.(yes)
   }
   function afterNavigation(to: string) {
     if (to === route.value) return
+    const milestoneFocus = createdMilestoneFocus.value
+    if (
+      milestoneFocus &&
+      (to !== milestoneFocus.path ||
+        identityKey(milestoneFocus.projectID) !== milestoneFocus.identity)
+    )
+      createdMilestoneFocus.value = null
     const focus = createdSprintFocus.value
     if (focus && (to !== focus.path || identityKey(focus.projectID) !== focus.identity))
       createdSprintFocus.value = null
@@ -1451,6 +1749,7 @@ export function createProjectTasks(
     clearEdit()
     clearSprintStart()
     clearSprintCreation()
+    clearMilestoneCreation()
     clearTimeline()
     state.task = null
     state.detailCurrent = false
@@ -1502,6 +1801,18 @@ export function createProjectTasks(
     creation,
     edit,
     sprintStart,
+    projectID,
+    milestoneCreation,
+    milestonePending,
+    milestoneProgress,
+    canCreateMilestone,
+    milestoneCreationFocus,
+    consumeMilestoneCreationFocus,
+    openMilestoneCreation,
+    cancelMilestoneCreation,
+    submitMilestoneCreation,
+    lookupMilestoneCreation,
+    rereadConfirmedMilestone,
     sprintCreation,
     sprintCreateProgress,
     sprintCreatePending,
