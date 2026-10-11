@@ -1,4 +1,9 @@
-import { expect, type Page, type Request } from "@playwright/test";
+import {
+  expect,
+  type Page,
+  type Request,
+  type Response,
+} from "@playwright/test";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
@@ -44,14 +49,243 @@ export async function taskScreenshot(page: Page, name: string) {
 
 type Tail = "finished" | "failed" | "closed";
 type Entry = {
+  seq: number;
   request: Request;
   name: string;
+  status?: number;
+  requestID?: string;
+  failure?: string;
   terminal?: Tail;
   settle: (state: Tail) => void;
   done: Promise<Tail>;
   checked: boolean;
   body?: unknown;
 };
+
+// Preserve paths and the few non-secret query facts used by these reads. Never
+// persist cursor values, credentials, headers, request bodies or response data.
+function diagnosticURL(value: string): string {
+  const url = new URL(value);
+  const query = new URLSearchParams();
+  for (const [key, item] of url.searchParams) {
+    const safe =
+      (key === "limit" && /^\d{1,3}$/.test(item)) ||
+      (key === "state" &&
+        /^(backlog|todo|in_progress|blocked|in_review|done|cancelled)$/.test(
+          item,
+        )) ||
+      (["sprint_id", "milestone_id"].includes(key) &&
+        /^[0-9a-f-]{36}$/.test(item));
+    query.append(key, safe ? item : "<redacted>");
+  }
+  return `${url.origin}${url.pathname}${query.size ? `?${query}` : ""}`;
+}
+
+type BrowserDiagnostic = {
+  seq: number;
+  at: number;
+  document_at: number;
+  kind: string;
+  fetch?: number;
+  signal?: number;
+  signal_source?: string;
+  request_id?: string;
+  method?: string;
+  url?: string;
+  status?: number;
+  aborted?: boolean;
+  done?: boolean;
+  bytes?: number;
+  error_name?: string;
+  route: string;
+  visibility: string;
+  logout_control: boolean;
+  session_check_control: boolean;
+};
+
+async function observeBrowserIO(
+  page: Page,
+  accept: (event: BrowserDiagnostic) => void,
+) {
+  await page.exposeBinding("__taskReviewDiagnostic", (_source, event) => {
+    accept(event as BrowserDiagnostic);
+  });
+  await page.addInitScript(() => {
+    // These observers return the original fetch/read/cancel promises and the
+    // original Response/reader. They do not consume, clone or replace a body.
+    const send = (
+      window as unknown as {
+        __taskReviewDiagnostic: (event: unknown) => Promise<void>;
+      }
+    ).__taskReviewDiagnostic;
+    let sequence = 0;
+    let nextFetch = 0;
+    let nextSignal = 0;
+    const signals = new WeakMap<AbortSignal, number>();
+    const streams = new WeakMap<ReadableStream, number>();
+    const readers = new WeakMap<ReadableStreamDefaultReader, number>();
+    const safeURL = (value: string) => {
+      const url = new URL(value, location.href);
+      // Browser observations need only the pathname. PW records the bounded
+      // safe query projection separately for each original Request.
+      return `${url.origin}${url.pathname}`;
+    };
+    const errorName = (error: unknown) =>
+      error instanceof Error &&
+      ["AbortError", "TypeError", "Error", "TimeoutError"].includes(error.name)
+        ? error.name
+        : "other";
+    const record = (kind: string, fields: Record<string, unknown> = {}) => {
+      if (sequence >= 2048) return;
+      const controls = [...document.querySelectorAll("button")].map((button) =>
+        button.textContent?.trim(),
+      );
+      try {
+        void send({
+          seq: ++sequence,
+          at: performance.timeOrigin + performance.now(),
+          document_at: performance.timeOrigin,
+          kind,
+          ...fields,
+          route: safeURL(location.href),
+          visibility: document.visibilityState,
+          logout_control: controls.includes("退出登录"),
+          session_check_control: controls.includes("检查当前会话"),
+        }).catch(() => {});
+      } catch {
+        // Closing the diagnostic channel must not alter the original call.
+      }
+    };
+    const originalFetch = window.fetch;
+    window.fetch = function (input, init) {
+      const result = originalFetch.call(this, input, init);
+      const rawURL = input instanceof Request ? input.url : String(input);
+      try {
+        if (!new URL(rawURL, location.href).pathname.startsWith("/api/"))
+          return result;
+      } catch {
+        return result;
+      }
+      const id = ++nextFetch;
+      const signal =
+        init?.signal ?? (input instanceof Request ? input.signal : undefined);
+      if (signal && !signals.has(signal)) signals.set(signal, ++nextSignal);
+      const signalID = signal ? signals.get(signal) : undefined;
+      record("fetch-call", {
+        fetch: id,
+        signal: signalID,
+        signal_source: init?.signal
+          ? "init"
+          : input instanceof Request
+            ? "request"
+            : "none",
+        url: safeURL(rawURL),
+        method:
+          init?.method ?? (input instanceof Request ? input.method : "GET"),
+        aborted: signal?.aborted ?? false,
+      });
+      signal?.addEventListener(
+        "abort",
+        () => record("signal-abort", { fetch: id, signal: signalID }),
+        { once: true },
+      );
+      void result.then(
+        (response) => {
+          if (response.body) streams.set(response.body, id);
+          const requestID = response.headers.get("x-request-id");
+          record("fetch-resolved", {
+            fetch: id,
+            status: response.status,
+            request_id:
+              requestID && /^[0-9a-f-]{36}$/.test(requestID)
+                ? requestID
+                : undefined,
+          });
+        },
+        (error) =>
+          record("fetch-rejected", { fetch: id, error_name: errorName(error) }),
+      );
+      return result;
+    };
+    const originalGetReader = ReadableStream.prototype.getReader;
+    ReadableStream.prototype.getReader = function (...args) {
+      const reader = Reflect.apply(originalGetReader, this, args);
+      const id = streams.get(this);
+      if (id !== undefined) {
+        readers.set(reader, id);
+        record("reader-acquired", { fetch: id });
+        void reader.closed.then(
+          () => record("reader-closed", { fetch: id }),
+          (error: unknown) =>
+            record("reader-closed-rejected", {
+              fetch: id,
+              error_name: errorName(error),
+            }),
+        );
+      }
+      return reader;
+    };
+    const originalRead = ReadableStreamDefaultReader.prototype.read;
+    ReadableStreamDefaultReader.prototype.read = function (...args) {
+      const result = Reflect.apply(originalRead, this, args);
+      const id = readers.get(this);
+      if (id !== undefined) {
+        record("reader-read", { fetch: id });
+        void result.then(
+          (part: ReadableStreamReadResult<Uint8Array>) =>
+            record("reader-read-resolved", {
+              fetch: id,
+              done: part.done,
+              bytes: part.value?.byteLength ?? 0,
+            }),
+          (error: unknown) =>
+            record("reader-read-rejected", {
+              fetch: id,
+              error_name: errorName(error),
+            }),
+        );
+      }
+      return result;
+    };
+    const readerCancel = ReadableStreamDefaultReader.prototype.cancel;
+    ReadableStreamDefaultReader.prototype.cancel = function (...args) {
+      const result = Reflect.apply(readerCancel, this, args);
+      const id = readers.get(this);
+      if (id !== undefined) {
+        record("reader-cancel", { fetch: id });
+        void result.then(
+          () => record("reader-cancel-resolved", { fetch: id }),
+          (error: unknown) =>
+            record("reader-cancel-rejected", {
+              fetch: id,
+              error_name: errorName(error),
+            }),
+        );
+      }
+      return result;
+    };
+    const streamCancel = ReadableStream.prototype.cancel;
+    ReadableStream.prototype.cancel = function (...args) {
+      const result = Reflect.apply(streamCancel, this, args);
+      const id = streams.get(this);
+      if (id !== undefined) {
+        record("stream-cancel", { fetch: id });
+        void result.then(
+          () => record("stream-cancel-resolved", { fetch: id }),
+          (error: unknown) =>
+            record("stream-cancel-rejected", {
+              fetch: id,
+              error_name: errorName(error),
+            }),
+        );
+      }
+      return result;
+    };
+    for (const kind of ["pageshow", "pagehide", "popstate", "visibilitychange"])
+      window.addEventListener(kind, () => record(kind));
+    record("observer-installed");
+  });
+}
 
 // This closed endpoint set includes every real Task/Agent/list/lookup read in
 // the new page. No unmatched request falls back to an unbounded finished().
@@ -97,14 +331,37 @@ function endpoint(request: Request, data: ReviewMaterial): string | undefined {
   throw new Error("UNOBSERVED_TASK_REVIEW_ENDPOINT");
 }
 
-export function observeReview(page: Page, data: ReviewMaterial) {
+export async function observeReview(page: Page, data: ReviewMaterial) {
   const entries: Entry[] = [];
+  const events: Record<string, unknown>[] = [];
+  const browserEvents: BrowserDiagnostic[] = [];
+  let browserEventsTruncated = false;
   let observerError: Error | undefined;
   let dropped = 0;
+  const event = (kind: string, entry: Entry) => {
+    if (events.length < 1024)
+      events.push({
+        kind,
+        at: Date.now(),
+        seq: entry.seq,
+        name: entry.name,
+        method: entry.request.method(),
+        url: diagnosticURL(entry.request.url()),
+        route: diagnosticURL(page.url()),
+        status: entry.status,
+        request_id: entry.requestID,
+        failure: entry.failure,
+      });
+  };
   const end = (request: Request, state: Tail) => {
     const entry = entries.find((item) => item.request === request);
     if (entry && !entry.terminal) {
       entry.terminal = state;
+      entry.failure = request
+        .failure()
+        ?.errorText.replaceAll(data.cookie, "<redacted>")
+        .slice(0, 256);
+      event(state, entry);
       entry.settle(state);
     }
   };
@@ -118,7 +375,16 @@ export function observeReview(page: Page, data: ReviewMaterial) {
       const done = new Promise<Tail>((resolve) => {
         settle = resolve;
       });
-      entries.push({ request, name, settle, done, checked: false });
+      const entry = {
+        seq: entries.length + 1,
+        request,
+        name,
+        settle,
+        done,
+        checked: false,
+      };
+      entries.push(entry);
+      event("request", entry);
     } catch (error) {
       observerError =
         error instanceof Error ? error : new Error("API_OBSERVER_REJECTED");
@@ -126,11 +392,24 @@ export function observeReview(page: Page, data: ReviewMaterial) {
   };
   const finished = (request: Request) => end(request, "finished");
   const failed = (request: Request) => end(request, "failed");
+  const response = (response: Response) => {
+    const entry = entries.find((item) => item.request === response.request());
+    if (!entry) return;
+    entry.status = response.status();
+    const id = response.headers()["x-request-id"];
+    entry.requestID = id && /^[0-9a-f-]{36}$/.test(id) ? id : undefined;
+    event("response", entry);
+  };
   const closed = () => entries.forEach((entry) => end(entry.request, "closed"));
   page.on("request", onRequest);
   page.on("requestfinished", finished);
   page.on("requestfailed", failed);
+  page.on("response", response);
   page.on("close", closed);
+  await observeBrowserIO(page, (event) => {
+    if (browserEvents.length < 4096) browserEvents.push(event);
+    else browserEventsTruncated = true;
+  });
 
   async function verify() {
     if (observerError) throw observerError;
@@ -250,7 +529,7 @@ export function observeReview(page: Page, data: ReviewMaterial) {
     }
     throw new Error("CURRENT_AGENT_DIRECTORY_DID_NOT_INCLUDE_REQUIRED_AGENT");
   }
-  function save() {
+  function save(testStatus?: string) {
     const directory = process.env.AGENTEAM_TASK_REVIEW_WEB_EVIDENCE!;
     mkdirSync(directory, { recursive: true, mode: 0o700 });
     writeFileSync(
@@ -265,6 +544,25 @@ export function observeReview(page: Page, data: ReviewMaterial) {
           all_observed: entries.every((e) => e.checked),
           transitions: entries.filter((e) => e.name === "transfer").length,
           lookups: entries.filter((e) => e.name === "lookup").length,
+          test_status: testStatus,
+          route: diagnosticURL(page.url()),
+          observer_error: observerError?.message,
+          requests: entries.map((entry) => ({
+            seq: entry.seq,
+            name: entry.name,
+            method: entry.request.method(),
+            url: diagnosticURL(entry.request.url()),
+            status: entry.status,
+            request_id: entry.requestID,
+            terminal: entry.terminal,
+            failure: entry.failure,
+            checked: entry.checked,
+          })),
+          request_events: events,
+          browser_events: browserEvents,
+          browser_events_truncated:
+            browserEventsTruncated ||
+            browserEvents.some((event) => event.seq === 2048),
         },
         null,
         2,

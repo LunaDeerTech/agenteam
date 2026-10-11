@@ -1,6 +1,16 @@
 import { test, expect, type Page } from "@playwright/test";
 import { material, observeReview, taskScreenshot } from "./task-review.helpers";
 
+const observations = new WeakMap<
+  Page,
+  Awaited<ReturnType<typeof observeReview>>
+>();
+test.afterEach(async ({ page }, testInfo) => {
+  // Runs even when openTask's original-request assertion fails. The observer
+  // retains only the bounded safe metadata; no body or Session token is saved.
+  observations.get(page)?.save(testInfo.status);
+});
+
 const button = (page: Page, name: string) =>
   page.getByRole("button", { name, exact: true });
 const comment = (page: Page) =>
@@ -50,7 +60,8 @@ async function openTask(page: Page) {
       secure: false,
     },
   ]);
-  const seen = observeReview(page, data);
+  const seen = await observeReview(page, data);
+  observations.set(page, seen);
   await page.goto(data.route);
   await expect(
     page.getByRole("heading", { name: "任务详情", exact: true }),
