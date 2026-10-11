@@ -2,15 +2,19 @@
 
 ## 当前批次与活动树
 
-第十一A/B均已正式交付main `f4190ad7f6a2efdd7dc7b8235f519de0c109d71f`（push `b3321d`、exact `cf939f`，delivery同tip）；root正常merge为`1076170a`并push `afc2d2`。B先前main `381f6e71`的pure5/单包vet、compile/list及两sub22.41s接受保留。当前零活动实现、零Go/Node/browser/native窗口，不开启新批。
+第十一A/B均已正式交付main `f4190ad7f6a2efdd7dc7b8235f519de0c109d71f`（push `b3321d`、exact `cf939f`，delivery同tip）；root正常merge为`1076170a`并push `afc2d2`。B先前main `381f6e71`的pure5/单包vet、compile/list及两sub22.41s接受保留。第十二批已开始源码实现，当前零Go/Node/browser/native运行窗口，新源码尚未验收。
+
+当前第十二批：A 为 Work intake（Current Sprint 内创建与独立 ready），B 为严格 opt-in 的 App Runtime（默认工厂自动发现既有 initialized Project、真实执行与生命周期退出）。完整delivery为 `/workspace/agenteam-task-flow-delivery` / `ai/task-intake-runtime-delivery`；work_ui 在 `agenteam-work-ui` / `ai/task-intake-ui`，cleanup 的 browser 在 `agenteam-work-ui-independent` / `ai/task-intake-web`；B App由coordination在 `agenteam-skill-install-runtime-source` / `ai/central-execution-runtime`，配置由content在 `agenteam-agent-model-prerequisites` / `ai/execution-runtime-config`，Project审计组合由cleanup在 `agenteam-task-transition` / `ai/project-runtime-audit-composition`。上述分支均由 main `f4190ad7`建立并已推送；skills_http 独占真实 App fixture、原methods及实际资源窗口，secret在冻结后有限独审。不得用手动 RunTraversal、假提供方或旧PASS替代本批真实默认工厂链；完整initializer/ready与旧STOP仍保留。
 
 A最终SOURCE `53bd25cb80b2b890edb4df14452fede05edeb5e1`：native06真实1top2sub86.97s，review/done、返工回执截断后的原Lookup和Logout/Session撤销均通过；四原Wait0、两Node实际Wait成功、七ID14次absence、全部双尾/TCP0/adopted[]、2404输入一致，secret有限终核接受。前端06的31控、07的Session20＋WorkReviewSession4、08的body9＋精确旧5及对应format/type/build分别有效，不将31/24/14累加唯一数；auth62/state3按未变输入复用。最终dist08，compile03的898 Go/embed记录与candidate03复用。
 
-恢复来源：UI `/workspace/agenteam-work-ui` / `ai/work-review-ui` @`b15c423f`，Web `/workspace/agenteam-work-ui-independent` / `ai/work-review-web` @`f596c326`均已推送；完整delivery `/workspace/agenteam-task-flow-delivery` / `ai/work-review-runtime-delivery`与main同为`f4190ad7`。原native01–05、compile01、前端FAIL、candidate02/03及旧dist全部保留，不改旧结论；不因局部交付删除原refs、树或唯一原件。
+恢复来源：UI `/workspace/agenteam-work-ui` / `ai/work-review-ui` @`b15c423f`，Web `/workspace/agenteam-work-ui-independent` / `ai/work-review-web` @`f596c326`均已推送；第十一delivery来源 `ai/work-review-runtime-delivery`与该main同为`f4190ad7`，当前活动分支见上文。原native01–05、compile01、前端FAIL、candidate02/03及旧dist全部保留，不改旧结论；不因局部交付删除原refs、树或唯一原件。
 
 原件与命令见[既有组合recipe](../agent-system-integration/README.md#work-评审-ui真实链已通过)；最终为delivery的`output/ai/work-review-web/frontend-08/result.json`、`output/ai/agent-system-integration/task-review-web-06-control/{result.json,supervisor.log}`及PG `/tmp/trw06/ui-008f2459cc554212.log`。只接受本片评审UI与B单Project audit包装；完整App runtime/config、生产initializer、ready、Work Planning和全部STOP仍未完成，约30%粗估不变。
 
-资源窗口已全部归还。既有同锁Web/PW1.56.1/go-captcha-vue只复用原三处软链，固定Node v24.19.0/批准Chromium与`NODE_DISABLE_COMPILE_CACHE=1`；后继仍须实际同进程fresh≥5GiB，旧容量只作规划。此前ExecutionIdentity/ModelTextRuntime普通park与第十PASS可再生bin精确退休事实保留，不涉及任何FAIL材料；B两个作者树`a3eb45b1`/`2f3c67ba`已普通park（`058b86`/`ca8fe6`），后验clean、原HEAD及protected原件仍在（`f44b22`/`1929c0`）。A UI `b15c423f`与Web `f596c326`也已普通park九目录（`07b683`/`6c71de`，clean/原HEAD/protected后验`a4dd33`/`9a6ab8`），原PW依赖及软链仍在；A/B四作者均停止，所有FAIL、refs和树保留。恢复映射见[当前执行者](../current.md#当前执行者与保留树)。
+资源窗口已全部归还。既有同锁Web/PW1.56.1/go-captcha-vue只复用原三处软链，固定Node v24.19.0/批准Chromium与`NODE_DISABLE_COMPILE_CACHE=1`；后继仍须实际同进程fresh≥5GiB，旧容量只作规划。此前ExecutionIdentity/ModelTextRuntime普通park与第十PASS可再生bin精确退休事实保留，不涉及任何FAIL材料；B两个作者树`a3eb45b1`/`2f3c67ba`已普通park（`058b86`/`ca8fe6`），后验clean、原HEAD及protected原件仍在（`f44b22`/`1929c0`）。A UI `b15c423f`与Web `f596c326`也已普通park九目录（`07b683`/`6c71de`，clean/原HEAD/protected后验`a4dd33`/`9a6ab8`），原PW依赖及软链仍在；第十一A/B作者已按原scope停止；第十二仅恢复授权源码路径，所有FAIL、refs和树保留。恢复映射见[当前执行者](../current.md#当前执行者与保留树)。
+
+第十二容量只读规划为 available 5,608,574,976 B，距额外500 MB缓冲尚260,134,144 B；指定两旧树已park，不扩大扫描。root已仅精准退休第十一B全PASS可再生bin `execution-runtime-access-audit-race-01.test`（`ba0da8`，66,467,736 B/allocated66,469,888 B）；原source/recipe/results/inputs/PG与A曾FAIL的candidate02/03全留。该数值不是启动证明，每实际Go/native仍须同进程fresh≥5GiB。
 
 ## 前置阶段记录（历史）
 
