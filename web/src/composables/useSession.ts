@@ -49,6 +49,13 @@ import {
   type ProjectSecretQuery,
 } from '../api/project-secrets'
 import {
+  createProjectUsageAPI,
+  captureProjectUsageID,
+  captureProjectUsageQuery,
+  type ProjectUsageAPI,
+  type ProjectUsageQuery,
+} from '../api/project-usage'
+import {
   createSkillPackageAPI,
   captureSkillRevision,
   type SkillPackageAPI,
@@ -799,6 +806,7 @@ type Action =
   | 'knowledge-read'
   | 'skill-read'
   | 'secret-read'
+  | 'usage-read'
   | 'runtime-information-read'
   | 'invitation-read'
   | 'invitation-write'
@@ -948,6 +956,7 @@ export function createSessionController(
     sprintLifecycle?: WorkSprintLifecycleAPI
     skills?: SkillOwnerAPI
     projectSecrets?: ProjectSecretsAPI
+    projectUsage?: ProjectUsageAPI
     scheduler?: ProjectSchedulerAPI
     skillPackage?: SkillPackageAPI
     knowledgeText?: KnowledgeTextAPI
@@ -960,6 +969,7 @@ export function createSessionController(
   const milestonePlanningAPI = commandAPIs.milestonePlanning ?? createWorkMilestonePlanningAPI()
   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
   const projectSecretsAPI = commandAPIs.projectSecrets ?? createProjectSecretsAPI()
+  const projectUsageAPI = commandAPIs.projectUsage ?? createProjectUsageAPI()
   const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
   const skillPackageAPI = commandAPIs.skillPackage ?? createSkillPackageAPI()
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
@@ -1010,6 +1020,7 @@ export function createSessionController(
     knowledgeRevision = 0,
     skillRevision = 0,
     secretReadRevision = 0,
+    usageReadRevision = 0,
     runtimeInformationRevision = 0
   let invitationReadRevision = 0,
     invitationRevision = 0
@@ -1939,6 +1950,7 @@ export function createSessionController(
       | 'knowledge-read'
       | 'skill-read'
       | 'secret-read'
+      | 'usage-read'
       | 'runtime-information-read'
       | 'invitation-read'
       | 'invitation-write'
@@ -1967,6 +1979,7 @@ export function createSessionController(
       if (isVariableAction(kind)) return variableRevisions[kind]
       if (kind === 'skill-read') return skillRevision
       if (kind === 'secret-read') return secretReadRevision
+      if (kind === 'usage-read') return usageReadRevision
       if (isKnowledgeCommand(kind)) return knowledgeCommandRevisions[kind]
       if (isSprintPlanningAction(kind)) return sprintPlanningRevisions[kind]
       if (isMilestonePlanningAction(kind)) return milestonePlanningRevisions[kind]
@@ -2033,6 +2046,7 @@ export function createSessionController(
         kind === 'knowledge-read' ||
         kind === 'skill-read' ||
         kind === 'secret-read' ||
+        kind === 'usage-read' ||
         isProjectAction(kind) ||
         isProjectAuditAction(kind) ||
         isProjectModelAction(kind)
@@ -2099,31 +2113,36 @@ export function createSessionController(
         return result
       })
       .catch((error: unknown) => {
-        const e = isSchedulerAction(kind) ? schedulerFailure(identity, op, current, error) : isKnowledgeCommand(kind)
-          ? current()
-            ? projectFailure(identity, op, error)
-            : error instanceof AccountFailure
-              ? error
-              : new AccountFailure('transport')
-          : isVariableAction(kind)
-            ? variableFailure(op, current, identity, error)
-            : isSprintPlanningAction(kind) ||
-                isMilestonePlanningAction(kind) ||
-                isSprintLifecycleAction(kind) ||
-                isAgentConfigurationAction(kind) ||
-                isWorkReviewAction(kind)
+        const e = isSchedulerAction(kind)
+          ? schedulerFailure(identity, op, current, error)
+          : isKnowledgeCommand(kind)
+            ? current()
               ? projectFailure(identity, op, error)
-              : kind === 'knowledge-read' || kind === 'skill-read' || kind === 'secret-read'
-                ? knowledgeFailure(current, error)
-                : isProjectModelAction(kind)
-                  ? projectModelFailure(kind, current, error)
-                  : isProjectAuditAction(kind)
-                    ? projectAuditFailure(current, error)
-                    : isProjectAction(kind)
-                      ? projectFailure(identity, op, error)
-                      : kind !== 'personal'
-                        ? systemFailure(identity, op, current, error)
-                        : personalFailure(identity, error)
+              : error instanceof AccountFailure
+                ? error
+                : new AccountFailure('transport')
+            : isVariableAction(kind)
+              ? variableFailure(op, current, identity, error)
+              : isSprintPlanningAction(kind) ||
+                  isMilestonePlanningAction(kind) ||
+                  isSprintLifecycleAction(kind) ||
+                  isAgentConfigurationAction(kind) ||
+                  isWorkReviewAction(kind)
+                ? projectFailure(identity, op, error)
+                : kind === 'knowledge-read' ||
+                    kind === 'skill-read' ||
+                    kind === 'secret-read' ||
+                    kind === 'usage-read'
+                  ? knowledgeFailure(current, error)
+                  : isProjectModelAction(kind)
+                    ? projectModelFailure(kind, current, error)
+                    : isProjectAuditAction(kind)
+                      ? projectAuditFailure(current, error)
+                      : isProjectAction(kind)
+                        ? projectFailure(identity, op, error)
+                        : kind !== 'personal'
+                          ? systemFailure(identity, op, current, error)
+                          : personalFailure(identity, error)
         if (command && personalIntent === command) {
           if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
             command.checked = false
@@ -7375,6 +7394,28 @@ export function createSessionController(
     },
     abandon: clearSecretRead,
   }
+  function clearUsageRead() {
+    ++usageReadRevision
+    if (owner?.kind === 'usage-read') owner.abandon?.()
+  }
+  const projectUsage = {
+    list(projectID: string, query: ProjectUsageQuery) {
+      try {
+        const identity = personalIdentity(),
+          project = captureProjectUsageID(projectID)
+        const captured = captureProjectUsageQuery(query)
+        return runAuthorized(
+          identity,
+          (op) => projectUsageAPI.list(project, captured, op.abort.signal),
+          undefined,
+          'usage-read',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    abandon: clearUsageRead,
+  }
   const skills = {
     download(
       projectID: string,
@@ -8071,6 +8112,7 @@ export function createSessionController(
     projectAudit,
     skills,
     projectSecrets,
+    projectUsage,
     knowledge,
     knowledgeCommands,
     knowledgeText,

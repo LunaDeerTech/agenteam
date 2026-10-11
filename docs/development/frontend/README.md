@@ -81,6 +81,16 @@ npm run preview --prefix web
 
 [限定交付卡](../work-items/d10-project-secrets-read-ui.md)记录分段前端控、133项共享回归和最终类型/构建结果。默认 App 真实链经正式服务准备51项，验证50+1目录、末项独立Get和显式刷新Get；7个请求为6 finished与一个实际Session GET aborted，7份完整联合证明，四个Secrets GET均finished，零浏览器写入/Lookup。服务端随机值、受保护字段和SQL快照留在Go进程；真实键盘焦点、1440浅色/390深色两图、持久事实不变及原Wait/七资源/所有退出尾已独立接受。首次真实焦点FAIL及修复前的控制/构建FAIL保留，不外推创建、改值、删除、Agent授权、真实撤权全矩阵、完整D10、生产Project initializer或SPA发布。
 
+## Project 模型调用记录
+
+当前 Human Owner 可从项目设置“模型与 Provider → 调用记录”进入 `/:username/:project_name/settings/model-usage`，读取近30天调用明细。每页50条，提供下一页、上一页、刷新及本页详情；详情不另发请求。Invocation 的24字段安全 DTO 与分页外壳的2字段分开校验，历史名称按调用时记录展示，nullable计数显示“未知”，零和大int64保持原字符串。
+
+首读/刷新建立一次明确 UTC 时间窗口，翻页沿原窗口和游标；返回上一页会重新读取，成功后清除旧后续页链，后继只取新响应游标，不承诺固定快照。完整页面通过字段、顺序和关联校验后发布。独立 usage-read 绑定当前 Session/Project/路由，checking、失权或换身份清观察；原body/cancel实际退出前仍持有唯一请求owner，迟到结果不发布。
+
+[限定交付卡](../work-items/d09-project-usage-read-ui.md)记录前端定向控、类型/构建及默认 App 真实五次List验收。最终8GET为6 finished和两次已证明完整消费的Usage GET aborted；8份联合证明、只读CDP真实Host/实际detach、账本不变与全部原Wait/七资源/退出尾已独立接受。真实键盘包含详情返回、分页焦点及390px栏目Drawer打开/关闭回焦；三图只证明实际可见范围，完整字段断言由同轮DOM支持。
+
+首轮Host投影缺失、第二轮未打开窄屏菜单的浏览器FAIL和退役晚到事件反例FAIL保留。该页面只读取既有记录，不提供summary、总量估算、费用或Provider请求；测试准备使用正式Writer及受控Facts，不代表生产Runtime producer、生产Project initializer或完整D09已交付。
+
 ## Agent 显示设置
 
 已有 initialized Project 的当前 Human Owner 可在 `/:username/:project_name/settings/agents` 编辑 Agent 的显示名称与标签颜色。表单回填当前配置，仅保存用户编辑的字段；删除输入后保存明确清空，显示名称清空后目录回退标识名。显示名称保留原字节，颜色须为小写 `#rrggbb`；仅空字符串映射清空，空白输入仍按非法值拒绝。
@@ -160,7 +170,7 @@ npm run preview --prefix web
 
 Project 与既有账号/System 操作共用唯一 Cookie 请求 owner；可见超时、取消和离页不提前释放真实 fetch/body/cancel 尾部。同 Session checking 隐藏内容并保留草稿，真正 Session/身份或 CSRF 变化清理旧材料。项目切换、系统导航、history 返回和退出接入原聚合确认，取消保留草稿与焦点；Project 本地确认不擅自清理 System 四用途/会议 Summary 的独立草稿，各域仍由原聚合流程处理。私有请求材料不写入 URL、history、storage 或普通日志。
 
-当前不提供创建、归档、恢复、删除、Owner 转移、会议/任务、Project Model/Usage 等页面或假统计；项目设置的基本信息与只读审计范围分别见本节和下节。系统管理员统一会议 Summary initial/update（含首轮标题），没有 Project override 或复制默认值。
+当前不提供创建、归档、恢复、删除、Owner 转移、会议/任务、Project Model 配置等页面或假统计；项目设置的基本信息与只读审计范围分别见本节和下节。系统管理员统一会议 Summary initial/update（含首轮标题），没有 Project override 或复制默认值。
 
 独立前端启动沿本页“启动与检查”的 `npm run dev --prefix web` 与可选 `AGENTEAM_DEV_API_TARGET` 同源代理；登录后可访问 `/projects`。没有后端连接时不提供假登录或假项目。受影响纯检查及任务自有静态构建入口如下，构建目录由调用方先设置为独占绝对路径：
 

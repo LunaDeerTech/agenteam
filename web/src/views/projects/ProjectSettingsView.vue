@@ -20,6 +20,7 @@ const groups = computed(() =>
           children: [
             { path: paths.value.home + '/settings/model-providers', label: 'Providers' },
             { path: paths.value.home + '/settings/available-models', label: '可用模型' },
+            { path: paths.value.home + '/settings/model-usage', label: '调用记录' },
           ],
         },
       ]

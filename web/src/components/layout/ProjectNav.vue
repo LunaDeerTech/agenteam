@@ -39,7 +39,8 @@ const settingsCurrent = computed(() => {
     (current.suffix === '/settings/general' ||
       current.suffix === '/settings/audit' ||
       current.suffix === '/settings/model-providers' ||
-      current.suffix === '/settings/available-models')
+      current.suffix === '/settings/available-models' ||
+      current.suffix === '/settings/model-usage')
   )
 })
 </script>

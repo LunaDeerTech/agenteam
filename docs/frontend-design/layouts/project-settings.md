@@ -10,7 +10,7 @@
 基本信息                         项目资料表单
 Agent → Agent 列表               Agent 详情和配置分区
 Skills → 项目技能库              导入、版本与 Agent 分配
-模型与 Provider → Providers / 可用模型
+模型与 Provider → Providers / 可用模型 / 调用记录
 MCP → 配置目录 / Connections
 变量与 Secret → Variables / Secrets
 会议 → 会议配置
@@ -68,6 +68,8 @@ Owner 的项目管理入口与 Agent 工具权限分别按 [Skills 架构](../..
 Project Provider 表单：name、protocol、base_url、credential、provider_options、enabled。Model 表单：name、model_id、type（只读 chat）、parameters、request_overwrite、header_overwrite、enabled。列表显示名称、协议 / 类型、enabled 与模型归属。
 
 “可用模型”展示系统与项目两种来源；System 配置只读，Project Owner 不能编辑系统 Provider Credential。删除引用中的 Project chat Model 先选择合法替代，更新受影响 Agent 引用；会议 Summary 只使用系统统一选择，不引用 Project chat Model。
+
+“调用记录”位于 `settings/model-usage`，只读展示近 30 天的真实模型调用历史，支持分页、返回与刷新。模型及 Provider 名称保留调用时记录；Token 未知明确显示为未知，已知零与大整数精确保留。详情使用本页取得的安全记录，不显示提示词、响应、endpoint 或凭据；不以当前页推算总量，也不新增统计图或 Dashboard。刷新重新确定时间窗口，翻页沿用同一窗口；空记录、读取失败和当前无权访问分别反馈。
 
 ## 5. MCP
 

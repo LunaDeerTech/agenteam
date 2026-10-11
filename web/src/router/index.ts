@@ -183,6 +183,11 @@ export const router = createRouter({
               name: 'project-available-models',
               component: () => import('../views/projects/ProjectAvailableModelsView.vue'),
             },
+            {
+              path: 'model-usage',
+              name: 'project-model-usage',
+              component: () => import('../views/projects/ProjectUsageView.vue'),
+            },
           ],
         },
       ],
