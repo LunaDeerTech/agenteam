@@ -263,7 +263,7 @@ func (x *schedulerReviewFixture) requireReviewTerminal(t *testing.T, dispatch sc
  FROM agenteam_execution.executions e JOIN agenteam_execution.preparation_inputs p ON(p.execution_id,p.project_id,p.agent_id)=(e.id,e.project_id,e.agent_id)
  JOIN agenteam_execution.snapshots s ON(s.execution_id,s.id)=(e.id,e.snapshot_id)
  JOIN agenteam_execution.rounds r ON(r.execution_id,r.snapshot_id,r.start_id)=(e.id,s.id,s.start_id)
- WHERE e.id=$2 AND e.project_id=$1 AND e.agent_id=$3 AND e.purpose='task/review' AND e.status='succeeded'
+ WHERE e.id=$2 AND e.project_id=$1 AND e.agent_id=$3 AND e.launch_request->>'purpose'='task/review' AND e.status='succeeded'
  AND r.terminal_status=e.status AND r.terminal_version=e.version AND r.finished_at=e.completed_at AND r.transcript_through=2`,
 		v.base.project.ID.String(), s.ExecutionID.String(), x.human.reviewer.String()).Scan(&inputRaw, &inputDigest, &snapshotRaw, &snapshotDigest, &roundRaw, &roundDigest,
 		&counts[0], &counts[1], &counts[2], &counts[3], &counts[4], &counts[5], &counts[6], &counts[7])
