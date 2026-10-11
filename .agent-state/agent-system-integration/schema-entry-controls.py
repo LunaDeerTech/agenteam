@@ -15,7 +15,8 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[2]
 DRIVER = '.agent-state/work-owner-http/root_chain_driver.py'
 SUP = '.agent-state/task-planning-recovery/pg_only_supervisor.py'
-SYSTEM_INPUTS = {'^TestExecutionRuntimeAccessAudit$': ('tests/projectvariable/execution_runtime_access_audit_test.go', 'tests/projectvariable/execution_first_round_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go'),
+SYSTEM_INPUTS = {'^TestTaskReviewWeb$': ('tests/projectvariable/task_review_web_test.go', 'tests/projectvariable/task_review_test.go', 'tests/account-captcha-web/task-review.config.js', 'tests/account-captcha-web/e2e/task-review.spec.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts'),
+ '^TestExecutionRuntimeAccessAudit$': ('tests/projectvariable/execution_runtime_access_audit_test.go', 'tests/projectvariable/execution_first_round_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go'),
  '^TestAgentDirectoryHTTP$': ('tests/projectvariable/agent_directory_http_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go'),
  '^TestProjectRunnerManager$': ('tests/projectvariable/project_runners_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/scheduler_execution_test.go', 'tests/projectvariable/execution_first_round_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go', 'tests/projectvariable/scheduler_pending_visit_test.go'),
  '^TestSchedulerReviewDispatch$': ('tests/projectvariable/scheduler_review_test.go', 'tests/projectvariable/scheduler_relaunch_test.go', 'tests/projectvariable/task_review_test.go', 'tests/projectvariable/scheduler_execution_test.go', 'tests/projectvariable/scheduler_launch_failure_test.go', 'tests/projectvariable/execution_first_round_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go'),
@@ -47,7 +48,8 @@ SYSTEM_INPUTS = {'^TestExecutionRuntimeAccessAudit$': ('tests/projectvariable/ex
  '^TestSprintStartHTTP$': ('tests/projectvariable/task_human_http_test.go',),
  '^TestSchedulerLaunchFinalFailure$': ('tests/projectvariable/scheduler_launch_failure_test.go',),
  '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': ('tests/projectvariable/task_technical_resolution_http_test.go', 'tests/projectvariable/task_unblock_atomic_test.go')}
-SYSTEM_CASES = {'^TestExecutionRuntimeAccessAudit$': ('TestExecutionRuntimeAccessAudit', 'TestExecutionRuntimeAccessAudit/policy-denial-requires-live-runtime-handoff', 'TestExecutionRuntimeAccessAudit/default-factory-completed-one-turn'),
+SYSTEM_CASES = {'^TestTaskReviewWeb$': ('TestTaskReviewWeb', 'TestTaskReviewWeb/review-complete', 'TestTaskReviewWeb/lost-confirmation-lookup-and-session-revocation'),
+ '^TestExecutionRuntimeAccessAudit$': ('TestExecutionRuntimeAccessAudit', 'TestExecutionRuntimeAccessAudit/policy-denial-requires-live-runtime-handoff', 'TestExecutionRuntimeAccessAudit/default-factory-completed-one-turn'),
  '^TestAgentDirectoryHTTP$': ('TestAgentDirectoryHTTP', 'TestAgentDirectoryHTTP/normal-directory-pagination', 'TestAgentDirectoryHTTP/current-owner-boundary'),
  '^TestProjectRunnerManager$': ('TestProjectRunnerManager', 'TestProjectRunnerManager/candidate-pages-and-project-facts', 'TestProjectRunnerManager/cross-project-capacity-and-borrowed-executor-join'),
  '^TestSchedulerReviewDispatch$': ('TestSchedulerReviewDispatch', 'TestSchedulerReviewDispatch/phase-isolated-review-execution', 'TestSchedulerReviewDispatch/review-failure-atomic-block-and-replay'),
@@ -104,199 +106,14 @@ SYSTEM_CASES = {'^TestExecutionRuntimeAccessAudit$': ('TestExecutionRuntimeAcces
  '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': ('TestTaskTechnicalResolutionHTTP', 'TestTaskTechnicalResolutionHTTP/resolve-to-todo-lookup-replay', 'TestTaskTechnicalResolutionAtomic', 'TestTaskTechnicalResolutionAtomic/late-transaction-rollback-and-replay')}
 BASE_SHA = {'.agent-state/work-owner-http/root_chain_driver.py': '776e6306214722a1eb9f6ca124c12f5e05a3f71d3daffaf3a155c8cee747009c',
  '.agent-state/task-planning-recovery/pg_only_supervisor.py': 'ce09376d0db54c1ef805974c491836cb854f3e23468e0414b0ef31235d00e589'}
-SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA_INPUTS = {\n',
-                                                        'METADATA_INPUTS = {\n'
-                                                        "    '^TestExecutionRuntimeAccessAudit$': (\n        'tests/projectvariable/execution_runtime_access_audit_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n"
-                                                        "    '^TestAgentDirectoryHTTP$': (\n        'tests/projectvariable/agent_directory_http_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n        'tests/projectvariable/skill_installation_test.go',\n        'tests/projectvariable/fixture_test.go',\n    ),\n"
-                                                        "    '^TestProjectRunnerManager$': (\n        'tests/projectvariable/project_runners_test.go',\n        'tests/projectvariable/skill_installation_test.go',\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n        'tests/projectvariable/scheduler_pending_visit_test.go',\n    ),\n"
-                                                        "    '^TestSchedulerReviewDispatch$': (\n        'tests/projectvariable/scheduler_review_test.go',\n        'tests/projectvariable/scheduler_relaunch_test.go',\n        'tests/projectvariable/task_review_test.go',\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/scheduler_launch_failure_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n"
-                                                        "    '^TestTaskHumanReview$': (\n        'tests/projectvariable/task_review_test.go',\n        'tests/projectvariable/task_technical_resolution_http_test.go',\n        'tests/projectvariable/task_human_http_test.go',\n        'tests/projectvariable/scheduler_relaunch_test.go',\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n"
-                                                        "    '^TestSchedulerRelaunch$': (\n        'tests/projectvariable/scheduler_relaunch_test.go',\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n"
-                                                        "    '^TestSchedulerExecution$': (\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n"
-                                                        "    '^TestExecutionFirstRound$': (\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n"
-                                                        "    '^TestModelAgentRetryRuntime$': (\n        'tests/model/agent_runtime_test.go',\n        'tests/model/runtime_native_test.go',\n        'tests/testsupport/outbound/fixture.go',\n        'tests/testsupport/outbound/cmd/server/main.go',\n    ),\n"
-                                                        "    '^TestExecutionTaskContext$': (\n        'tests/projectvariable/execution_context_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n"
-                                                        "    '^TestExecutionModelEnvironmentCapture$': (\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n"
-                                                        "    '^TestExecutionCaptureProviders$': (\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n"
-                                                        "    '^TestSchedulerProjectRunner$': (\n        'tests/projectvariable/scheduler_project_runner_test.go',\n    ),\n"
-                                                        "    '^TestSchedulerBoundedRetry$': (\n        'tests/projectvariable/scheduler_bounded_retry_test.go',\n        'tests/projectvariable/scheduler_busy_compensation_test.go',\n        'tests/projectvariable/scheduler_retry_binding_test.go',\n        'tests/projectvariable/scheduler_launch_failure_test.go',\n    ),\n"
-                                                        "    '^TestSchedulerRetryBinding$': (\n        'tests/projectvariable/scheduler_retry_binding_test.go',\n        'tests/projectvariable/scheduler_claim_test.go',\n    ),\n"
-                                                        "    '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': (\n        'tests/projectvariable/task_technical_resolution_http_test.go',\n        'tests/projectvariable/task_unblock_atomic_test.go',\n    ),\n"
-                                                        "    '^TestSchedulerLaunchFinalFailure$': (\n"
-                                                        '        '
-                                                        "'tests/projectvariable/scheduler_launch_failure_test.go',\n"
-                                                        '    ),\n'
-                                                        "    '^TestAgentConfigurationSchema$': (\n"
-                                                        '        '
-                                                        "'tests/projectvariable/agent_configuration_schema_test.go',\n"
-                                                        '        '
-                                                        "'tests/testsupport/agentconfiguration/assembly.go',\n"
-                                                        '    ),\n'
-                                                        "    '^TestAgentRuntimeSchema$': (\n"
-                                                        '        '
-                                                        "'tests/projectvariable/agent_runtime_schema_test.go',\n"
-                                                        '    ),\n'
-                                                        "    '^TestExecutionPreparation$': (\n"
-                                                        '        '
-                                                        "'tests/projectvariable/execution_preparation_test.go',\n"
-                                                        '    ),\n'
-                                                        "    '^TestAgentConfigurationCreate$': (\n"
-                                                        '        '
-                                                        "'tests/projectvariable/agent_configuration_create_test.go',\n"
-                                                        '        '
-                                                        "'tests/projectvariable/agent_configuration_facts_test.go',\n"
-                                                        '        '
-                                                        "'tests/projectvariable/skill_installation_test.go',\n"
-                                                        '        '
-                                                        "'tests/testsupport/agentconfiguration/assembly.go',\n"
-                                                        '    ),\n'
-                                                        "    '^TestTaskTransitionHuman$': (\n"
-                                                        '        '
-                                                        "'tests/projectvariable/task_transition_scheduler_test.go',\n"
-                                                        '    ),\n'
-                                                        "    '^TestSchedulerClaim$': (\n"
-                                                        '        '
-                                                        "'tests/projectvariable/scheduler_claim_test.go',\n"
-                                                        '    ),\n'
-                                                        "    '^TestSchedulerLaunch$': (\n"
-                                                        '        '
-                                                        "'tests/projectvariable/scheduler_launch_test.go',\n"
-                                                        '    ),\n'
-                                                        "    '^TestSchedulerBusyCompensation$': (\n"
-                                                        '        '
-                                                        "'tests/projectvariable/scheduler_busy_compensation_test.go',\n"
-                                                        '    ),\n'
-                                                        '    '
-                                                        "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$': "
-                                                        '(\n'
-                                                        '        '
-                                                        "'tests/projectvariable/scheduler_pending_visit_test.go',\n"
-                                                        '        '
-                                                        "'tests/projectvariable/task_human_http_test.go',\n"
-                                                        '    ),\n'
-                                                        "    '^TestSprintStartHTTP$': (\n"
-                                                        '        '
-                                                        "'tests/projectvariable/task_human_http_test.go',\n"
-                                                        '    ),\n'),
+SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA_INPUTS = {\n', "METADATA_INPUTS = {\n    '^TestTaskReviewWeb$': (\n        'tests/projectvariable/task_review_web_test.go',\n        'tests/projectvariable/task_review_test.go',\n        'tests/account-captcha-web/task-review.config.js',\n        'tests/account-captcha-web/e2e/task-review.spec.ts',\n        'tests/account-captcha-web/e2e/task-review.helpers.ts',\n    ),\n    '^TestExecutionRuntimeAccessAudit$': (\n        'tests/projectvariable/execution_runtime_access_audit_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n    '^TestAgentDirectoryHTTP$': (\n        'tests/projectvariable/agent_directory_http_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n        'tests/projectvariable/skill_installation_test.go',\n        'tests/projectvariable/fixture_test.go',\n    ),\n    '^TestProjectRunnerManager$': (\n        'tests/projectvariable/project_runners_test.go',\n        'tests/projectvariable/skill_installation_test.go',\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n        'tests/projectvariable/scheduler_pending_visit_test.go',\n    ),\n    '^TestSchedulerReviewDispatch$': (\n        'tests/projectvariable/scheduler_review_test.go',\n        'tests/projectvariable/scheduler_relaunch_test.go',\n        'tests/projectvariable/task_review_test.go',\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/scheduler_launch_failure_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n    '^TestTaskHumanReview$': (\n        'tests/projectvariable/task_review_test.go',\n        'tests/projectvariable/task_technical_resolution_http_test.go',\n        'tests/projectvariable/task_human_http_test.go',\n        'tests/projectvariable/scheduler_relaunch_test.go',\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n    '^TestSchedulerRelaunch$': (\n        'tests/projectvariable/scheduler_relaunch_test.go',\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n    '^TestSchedulerExecution$': (\n        'tests/projectvariable/scheduler_execution_test.go',\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n    '^TestExecutionFirstRound$': (\n        'tests/projectvariable/execution_first_round_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n    ),\n    '^TestModelAgentRetryRuntime$': (\n        'tests/model/agent_runtime_test.go',\n        'tests/model/runtime_native_test.go',\n        'tests/testsupport/outbound/fixture.go',\n        'tests/testsupport/outbound/cmd/server/main.go',\n    ),\n    '^TestExecutionTaskContext$': (\n        'tests/projectvariable/execution_context_test.go',\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n    '^TestExecutionModelEnvironmentCapture$': (\n        'tests/projectvariable/execution_model_environment_capture_test.go',\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n    '^TestExecutionCaptureProviders$': (\n        'tests/projectvariable/execution_capture_providers_test.go',\n        'tests/projectvariable/agent_configuration_create_test.go',\n    ),\n    '^TestSchedulerProjectRunner$': (\n        'tests/projectvariable/scheduler_project_runner_test.go',\n    ),\n    '^TestSchedulerBoundedRetry$': (\n        'tests/projectvariable/scheduler_bounded_retry_test.go',\n        'tests/projectvariable/scheduler_busy_compensation_test.go',\n        'tests/projectvariable/scheduler_retry_binding_test.go',\n        'tests/projectvariable/scheduler_launch_failure_test.go',\n    ),\n    '^TestSchedulerRetryBinding$': (\n        'tests/projectvariable/scheduler_retry_binding_test.go',\n        'tests/projectvariable/scheduler_claim_test.go',\n    ),\n    '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': (\n        'tests/projectvariable/task_technical_resolution_http_test.go',\n        'tests/projectvariable/task_unblock_atomic_test.go',\n    ),\n    '^TestSchedulerLaunchFinalFailure$': (\n        'tests/projectvariable/scheduler_launch_failure_test.go',\n    ),\n    '^TestAgentConfigurationSchema$': (\n        'tests/projectvariable/agent_configuration_schema_test.go',\n        'tests/testsupport/agentconfiguration/assembly.go',\n    ),\n    '^TestAgentRuntimeSchema$': (\n        'tests/projectvariable/agent_runtime_schema_test.go',\n    ),\n    '^TestExecutionPreparation$': (\n        'tests/projectvariable/execution_preparation_test.go',\n    ),\n    '^TestAgentConfigurationCreate$': (\n        'tests/projectvariable/agent_configuration_create_test.go',\n        'tests/projectvariable/agent_configuration_facts_test.go',\n        'tests/projectvariable/skill_installation_test.go',\n        'tests/testsupport/agentconfiguration/assembly.go',\n    ),\n    '^TestTaskTransitionHuman$': (\n        'tests/projectvariable/task_transition_scheduler_test.go',\n    ),\n    '^TestSchedulerClaim$': (\n        'tests/projectvariable/scheduler_claim_test.go',\n    ),\n    '^TestSchedulerLaunch$': (\n        'tests/projectvariable/scheduler_launch_test.go',\n    ),\n    '^TestSchedulerBusyCompensation$': (\n        'tests/projectvariable/scheduler_busy_compensation_test.go',\n    ),\n    '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$': (\n        'tests/projectvariable/scheduler_pending_visit_test.go',\n        'tests/projectvariable/task_human_http_test.go',\n    ),\n    '^TestSprintStartHTTP$': (\n        'tests/projectvariable/task_human_http_test.go',\n    ),\n"),
                                                         ("    **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),\n", "    **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),\n    '^TestModelAgentRetryRuntime$': 'tests/model',\n"),
-                                                        ("    paths = set(input_paths(binary)) | set((REPOSITORY / 'tests/projectvariable').glob('*.go'))\n    # Preserve the author's", "    paths = set(input_paths(binary)) | set((REPOSITORY / TARGETS[selector]).glob('*.go'))\n    # Preserve the author's")],
- '.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {\n',
-                                                                'METADATA_GROUPS = {\n'
-                                                        "    '^TestExecutionRuntimeAccessAudit$': frozenset({\n        'TestExecutionRuntimeAccessAudit',\n        'TestExecutionRuntimeAccessAudit/policy-denial-requires-live-runtime-handoff',\n        'TestExecutionRuntimeAccessAudit/default-factory-completed-one-turn',\n    }),\n"
-                                                                "    '^TestAgentDirectoryHTTP$': frozenset({\n        'TestAgentDirectoryHTTP',\n        'TestAgentDirectoryHTTP/normal-directory-pagination',\n        'TestAgentDirectoryHTTP/current-owner-boundary',\n    }),\n"
-                                                                "    '^TestProjectRunnerManager$': frozenset({\n        'TestProjectRunnerManager',\n        'TestProjectRunnerManager/candidate-pages-and-project-facts',\n        'TestProjectRunnerManager/cross-project-capacity-and-borrowed-executor-join',\n    }),\n"
-                                                        "    '^TestSchedulerReviewDispatch$': frozenset({\n        'TestSchedulerReviewDispatch',\n        'TestSchedulerReviewDispatch/phase-isolated-review-execution',\n        'TestSchedulerReviewDispatch/review-failure-atomic-block-and-replay',\n    }),\n"
-                                                        "    '^TestTaskHumanReview$': frozenset({\n        'TestTaskHumanReview',\n        'TestTaskHumanReview/completed-work-review-and-done',\n        'TestTaskHumanReview/review-rework-late-transaction-rollback-and-replay',\n    }),\n"
-                                                        "    '^TestSchedulerRelaunch$': frozenset({\n        'TestSchedulerRelaunch',\n        'TestSchedulerRelaunch/cooldown-restart-and-new-execution',\n        'TestSchedulerRelaunch/relaunch-failure-atomic-block-and-replay',\n    }),\n"
-                                                        "    '^TestSchedulerExecution$': frozenset({\n        'TestSchedulerExecution',\n        'TestSchedulerExecution/historical-association-terminal-and-dedup',\n        'TestSchedulerExecution/asynchronous-todo-and-cancel-join',\n    }),\n"
-                                                                "    '^TestExecutionFirstRound$': frozenset({\n        'TestExecutionFirstRound',\n        'TestExecutionFirstRound/completed-one-turn',\n        'TestExecutionFirstRound/start-receipt-loss-recovery',\n        'TestExecutionFirstRound/cancel-joins-current-call',\n    }),\n"
-                                                                "    '^TestModelAgentRetryRuntime$': frozenset({\n        'TestModelAgentRetryRuntime',\n        'TestModelAgentRetryRuntime/retry-success-and-execution-lease-reuse',\n        'TestModelAgentRetryRuntime/cancel-prevents-next-attempt',\n        'TestModelAgentRetryRuntime/nonretryable-single-failure',\n    }),\n"
-                                                                "    '^TestExecutionTaskContext$': frozenset({\n        'TestExecutionTaskContext',\n        'TestExecutionTaskContext/frozen-input-after-owner-updates',\n    }),\n"
-                                                                "    '^TestExecutionModelEnvironmentCapture$': frozenset({\n        'TestExecutionModelEnvironmentCapture',\n        'TestExecutionModelEnvironmentCapture/complete-input-unknown-recovery',\n        'TestExecutionModelEnvironmentCapture/missing-provider-rolls-back',\n    }),\n"
-                                                                "    '^TestExecutionCaptureProviders$': frozenset({\n        'TestExecutionCaptureProviders',\n        'TestExecutionCaptureProviders/real-providers-roll-back-with-unbound-snapshot',\n    }),\n"
-                                                                "    '^TestSchedulerProjectRunner$': frozenset({\n        'TestSchedulerProjectRunner',\n        'TestSchedulerProjectRunner/ordered-todo-and-serial-launch',\n        'TestSchedulerProjectRunner/paused-pending-recovery-and-join',\n    }),\n"
-                                                                "    '^TestSchedulerBoundedRetry$': frozenset({\n        'TestSchedulerBoundedRetry',\n        'TestSchedulerBoundedRetry/temporary-due-original-key-created',\n        'TestSchedulerBoundedRetry/temporary-exhaustion-technical-blocker',\n    }),\n"
-                                                                "    '^TestSchedulerRetryBinding$': frozenset({\n        'TestSchedulerRetryBinding',\n        'TestSchedulerRetryBinding/config-bound-claim-and-real-lock-timeout',\n        'TestSchedulerRetryBinding/legacy-null-policy-stays-unbound',\n    }),\n"
-                                                                "    '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': frozenset({\n        'TestTaskTechnicalResolutionHTTP',\n        'TestTaskTechnicalResolutionHTTP/resolve-to-todo-lookup-replay',\n        'TestTaskTechnicalResolutionAtomic',\n        'TestTaskTechnicalResolutionAtomic/late-transaction-rollback-and-replay',\n    }),\n"
-                                                                "    '^TestSchedulerLaunchFinalFailure$': "
-                                                                'frozenset({\n'
-                                                                "        'TestSchedulerLaunchFinalFailure',\n"
-                                                                '        '
-                                                                "'TestSchedulerLaunchFinalFailure/title-preserved-technical-blocker-and-replay',\n"
-                                                                '        '
-                                                                "'TestSchedulerLaunchFinalFailure/late-transaction-rollback-and-settlement',\n"
-                                                                '    }),\n'
-                                                                "    '^TestAgentConfigurationSchema$': "
-                                                                'frozenset({\n'
-                                                                "        'TestAgentConfigurationSchema',\n"
-                                                                '        '
-                                                                "'TestAgentConfigurationSchema/fresh-prefix-and-repeat',\n"
-                                                                '        '
-                                                                "'TestAgentConfigurationSchema/schema-invariants-and-unbound-dependencies',\n"
-                                                                '        '
-                                                                "'TestAgentConfigurationSchema/upgrade-preserves-facts-and-audit-checks',\n"
-                                                                '    }),\n'
-                                                                "    '^TestAgentRuntimeSchema$': "
-                                                                'frozenset({\n'
-                                                                "        'TestAgentRuntimeSchema',\n"
-                                                                '        '
-                                                                "'TestAgentRuntimeSchema/execution-slot-and-unbound-launch',\n"
-                                                                '        '
-                                                                "'TestAgentRuntimeSchema/human-compatibility-and-agent-origin',\n"
-                                                                '        '
-                                                                "'TestAgentRuntimeSchema/prefix36-upgrade-and-repeat',\n"
-                                                                '        '
-                                                                "'TestAgentRuntimeSchema/runtime-attempt-and-terminal',\n"
-                                                                '    }),\n'
-                                                                "    '^TestExecutionPreparation$': "
-                                                                'frozenset({\n'
-                                                                "        'TestExecutionPreparation',\n"
-                                                                '        '
-                                                                "'TestExecutionPreparation/current-owner-task-input',\n"
-                                                                '        '
-                                                                "'TestExecutionPreparation/prefix39-upgrade-and-repeat',\n"
-                                                                '        '
-                                                                "'TestExecutionPreparation/preparation-claim-and-attempt',\n"
-                                                                '        '
-                                                                "'TestExecutionPreparation/project-preparation-gate',\n"
-                                                                '    }),\n'
-                                                                "    '^TestAgentConfigurationCreate$': "
-                                                                'frozenset({\n'
-                                                                "        'TestAgentConfigurationCreate',\n"
-                                                                '        '
-                                                                "'TestAgentConfigurationCreate/default-create-and-replay',\n"
-                                                                '        '
-                                                                "'TestAgentConfigurationCreate/final-transaction-rollback',\n"
-                                                                '    }),\n'
-                                                                "    '^TestTaskTransitionHuman$': "
-                                                                'frozenset({\n'
-                                                                "        'TestTaskTransitionHuman',\n"
-                                                                '        '
-                                                                "'TestTaskTransitionHuman/assignment-config-and-replay',\n"
-                                                                '        '
-                                                                "'TestTaskTransitionHuman/final-transaction-rollback',\n"
-                                                                '    }),\n'
-                                                                "    '^TestSchedulerClaim$': frozenset({\n"
-                                                                "        'TestSchedulerClaim',\n"
-                                                                '        '
-                                                                "'TestSchedulerClaim/final-transaction-rollback',\n"
-                                                                '        '
-                                                                "'TestSchedulerClaim/start-sprint-claim-and-replay',\n"
-                                                                '    }),\n'
-                                                                "    '^TestSchedulerLaunch$': frozenset({\n"
-                                                                "        'TestSchedulerLaunch',\n"
-                                                                '        '
-                                                                "'TestSchedulerLaunch/association-failure-lookup-recovery',\n"
-                                                                '        '
-                                                                "'TestSchedulerLaunch/created-association-and-replay',\n"
-                                                                '    }),\n'
-                                                                "    '^TestSchedulerBusyCompensation$': "
-                                                                'frozenset({\n'
-                                                                "        'TestSchedulerBusyCompensation',\n"
-                                                                '        '
-                                                                "'TestSchedulerBusyCompensation/preserve-user-update',\n"
-                                                                '        '
-                                                                "'TestSchedulerBusyCompensation/rollback-restore-and-replay',\n"
-                                                                '    }),\n'
-                                                                '    '
-                                                                "'^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$': "
-                                                                'frozenset({\n'
-                                                                "        'TestSchedulerPendingVisit',\n"
-                                                                '        '
-                                                                "'TestSchedulerPendingVisit/association-rollback-original-lookup',\n"
-                                                                '        '
-                                                                "'TestSchedulerPendingVisit/paused-enumeration-and-resume',\n"
-                                                                "        'TestTaskHumanHTTP',\n"
-                                                                '        '
-                                                                "'TestTaskHumanHTTP/owner-csrf-and-new-session-lookup',\n"
-                                                                '        '
-                                                                "'TestTaskHumanHTTP/transfer-lookup-replay-and-get',\n"
-                                                                '    }),\n'
-                                                                "    '^TestSprintStartHTTP$': frozenset({\n"
-                                                                "        'TestSprintStartHTTP',\n"
-                                                                '        '
-                                                                "'TestSprintStartHTTP/paused-start-get-lookup-replay',\n"
-                                                                '    }),\n'),
+                                                        ("    paths = set(input_paths(binary)) | set((REPOSITORY / 'tests/projectvariable').glob('*.go'))\n    # Preserve the author's", "    paths = set(input_paths(binary)) | set((REPOSITORY / TARGETS[selector]).glob('*.go'))\n    # Preserve the author's"),
+    ('    paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])\n', '    paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])\n    if selector == TASK_REVIEW_UI:\n        paths.update(task_review_ui_inputs())\n'),
+    ('def knowledge_ui_assets():\n', "TASK_REVIEW_UI = '^TestTaskReviewWeb$'\nTASK_REVIEW_ENV = ('AGENTEAM_TASK_REVIEW_WEB_DIST', 'AGENTEAM_TASK_REVIEW_WEB_EVIDENCE')\nTASK_REVIEW_HARNESS_MODULES = Path('/workspace/agenteam-work-ui-independent/tests/account-captcha-web/node_modules')\nTASK_REVIEW_WEB_MODULES = Path('/workspace/agenteam/web/node_modules')\n\n\ndef task_review_ui_environment():\n    return {key: os.environ.get(key, '') for key in TASK_REVIEW_ENV}\n\n\ndef task_review_ui_assets():\n    owned = (REPOSITORY / 'output/ai/work-review-web').resolve()\n    dist = Path(task_review_ui_environment()[TASK_REVIEW_ENV[0]])\n    if (not dist.is_absolute() or dist != dist.resolve() or not dist.is_relative_to(owned)\n            or not (dist / 'index.html').is_file()):\n        raise ValueError('owned frozen Task Review dist required')\n    assets = list(dist.rglob('*'))\n    if any(p.is_symlink() for p in assets):\n        raise ValueError('Task Review assets must not alias another source')\n    return sorted(p for p in assets if p.is_file())\n\n\ndef task_review_ui_configuration(directory):\n    values = task_review_ui_environment()\n    task_review_ui_assets()\n    evidence = Path(values[TASK_REVIEW_ENV[1]])\n    owned = (REPOSITORY / 'output/ai/work-review-web').resolve()\n    if (len(str(directory / 'runtime')) > 45 or not evidence.is_absolute()\n            or evidence != evidence.resolve() or evidence.exists() or evidence.is_symlink()\n            or not evidence.parent.is_dir() or not evidence.parent.is_relative_to(owned)\n            or evidence.is_relative_to(Path(values[TASK_REVIEW_ENV[0]]))\n            or not KNOWLEDGE_NODE.is_file() or not os.access(KNOWLEDGE_NODE, os.X_OK)):\n        raise ValueError('fresh owned Task Review evidence and short runtime required')\n    return values\n\n\ndef task_review_ui_inputs():\n    paths = set(task_review_ui_assets())\n    harness = REPOSITORY / 'tests/account-captcha-web'\n    modules = harness / 'node_modules'\n    web_modules = REPOSITORY / 'web/node_modules'\n    if (modules.resolve(strict=True) != TASK_REVIEW_HARNESS_MODULES.resolve(strict=True)\n            or web_modules.resolve(strict=True) != TASK_REVIEW_WEB_MODULES.resolve(strict=True)):\n        raise ValueError('approved shared Task Review installations required')\n    paths.update(harness / name for name in ('package.json', 'package-lock.json',\n        'task-review.config.js', 'e2e/task-review.spec.ts', 'e2e/task-review.helpers.ts'))\n    for name in ('@playwright/test', 'playwright', 'playwright-core'):\n        package = (modules / name).resolve(strict=True)\n        if not package.is_relative_to(TASK_REVIEW_HARNESS_MODULES.resolve(strict=True)):\n            raise ValueError('Task Review package escaped approved installation')\n        if json.loads((package / 'package.json').read_text())['version'] != '1.56.1':\n            raise ValueError('locked Playwright 1.56.1 required')\n        paths.update(p for p in package.rglob('*') if p.is_file() or p.is_symlink())\n    typescript = (web_modules / 'typescript').resolve(strict=True)\n    if not typescript.is_relative_to(TASK_REVIEW_WEB_MODULES.resolve(strict=True)):\n        raise ValueError('Task Review compiler escaped approved installation')\n    paths.update(typescript / name for name in ('package.json', 'lib/typescript.js'))\n    paths.update(p for p in (REPOSITORY / 'web/src').rglob('*')\n                 if p.is_file() and '.spec.' not in p.name and '.test.' not in p.name)\n    paths.update(REPOSITORY / 'web' / name for name in\n                 ('package.json', 'package-lock.json', 'index.html', 'vite.config.ts'))\n    paths.update((REPOSITORY / 'web').glob('tsconfig*.json'))\n    paths.update({KNOWLEDGE_NODE, Path('/usr/bin/chromium'), Path('/usr/lib/chromium/chromium')})\n    paths.update(p for p in Path('/etc/chromium.d').glob('*') if p.is_file() or p.is_symlink())\n    if any(not p.is_file() or p.is_symlink() or p.resolve(strict=True) != p for p in paths):\n        raise ValueError('regular complete Task Review browser inputs required')\n    return sorted(paths)\n\n\ndef task_review_ui_input_hash(binary):\n    inputs = {str(p): sha(p) for p in metadata_inputs(binary, TASK_REVIEW_UI)}\n    return hashlib.sha256(json.dumps(inputs, sort_keys=True, separators=(',', ':')).encode()).hexdigest()\n\n\ndef knowledge_ui_assets():\n"),
+    ("    if selector == KNOWLEDGE_UI:\n        plan['knowledge_ui'] = knowledge_ui_configuration(directory)\n", "    if selector == TASK_REVIEW_UI:\n        plan['task_review_ui'] = task_review_ui_configuration(directory)\n    if selector == KNOWLEDGE_UI:\n        plan['knowledge_ui'] = knowledge_ui_configuration(directory)\n"),
+    ('    os.chdir(REPOSITORY)\n', "    if args.run == TASK_REVIEW_UI:\n        ui = plan['task_review_ui']\n        Path(ui['AGENTEAM_TASK_REVIEW_WEB_EVIDENCE']).mkdir(mode=0o700)\n        env.update(ui)\n        env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),\n                    'AGENTEAM_TASK_REVIEW_WEB_INPUT_HASH': task_review_ui_input_hash(args.test_binary),\n                    'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})\n    os.chdir(REPOSITORY)\n")],
+ '.agent-state/task-planning-recovery/pg_only_supervisor.py': [('METADATA_GROUPS = {\n', "METADATA_GROUPS = {\n    '^TestTaskReviewWeb$': frozenset({\n        'TestTaskReviewWeb',\n        'TestTaskReviewWeb/review-complete',\n        'TestTaskReviewWeb/lost-confirmation-lookup-and-session-revocation',\n    }),\n    '^TestExecutionRuntimeAccessAudit$': frozenset({\n        'TestExecutionRuntimeAccessAudit',\n        'TestExecutionRuntimeAccessAudit/policy-denial-requires-live-runtime-handoff',\n        'TestExecutionRuntimeAccessAudit/default-factory-completed-one-turn',\n    }),\n    '^TestAgentDirectoryHTTP$': frozenset({\n        'TestAgentDirectoryHTTP',\n        'TestAgentDirectoryHTTP/normal-directory-pagination',\n        'TestAgentDirectoryHTTP/current-owner-boundary',\n    }),\n    '^TestProjectRunnerManager$': frozenset({\n        'TestProjectRunnerManager',\n        'TestProjectRunnerManager/candidate-pages-and-project-facts',\n        'TestProjectRunnerManager/cross-project-capacity-and-borrowed-executor-join',\n    }),\n    '^TestSchedulerReviewDispatch$': frozenset({\n        'TestSchedulerReviewDispatch',\n        'TestSchedulerReviewDispatch/phase-isolated-review-execution',\n        'TestSchedulerReviewDispatch/review-failure-atomic-block-and-replay',\n    }),\n    '^TestTaskHumanReview$': frozenset({\n        'TestTaskHumanReview',\n        'TestTaskHumanReview/completed-work-review-and-done',\n        'TestTaskHumanReview/review-rework-late-transaction-rollback-and-replay',\n    }),\n    '^TestSchedulerRelaunch$': frozenset({\n        'TestSchedulerRelaunch',\n        'TestSchedulerRelaunch/cooldown-restart-and-new-execution',\n        'TestSchedulerRelaunch/relaunch-failure-atomic-block-and-replay',\n    }),\n    '^TestSchedulerExecution$': frozenset({\n        'TestSchedulerExecution',\n        'TestSchedulerExecution/historical-association-terminal-and-dedup',\n        'TestSchedulerExecution/asynchronous-todo-and-cancel-join',\n    }),\n    '^TestExecutionFirstRound$': frozenset({\n        'TestExecutionFirstRound',\n        'TestExecutionFirstRound/completed-one-turn',\n        'TestExecutionFirstRound/start-receipt-loss-recovery',\n        'TestExecutionFirstRound/cancel-joins-current-call',\n    }),\n    '^TestModelAgentRetryRuntime$': frozenset({\n        'TestModelAgentRetryRuntime',\n        'TestModelAgentRetryRuntime/retry-success-and-execution-lease-reuse',\n        'TestModelAgentRetryRuntime/cancel-prevents-next-attempt',\n        'TestModelAgentRetryRuntime/nonretryable-single-failure',\n    }),\n    '^TestExecutionTaskContext$': frozenset({\n        'TestExecutionTaskContext',\n        'TestExecutionTaskContext/frozen-input-after-owner-updates',\n    }),\n    '^TestExecutionModelEnvironmentCapture$': frozenset({\n        'TestExecutionModelEnvironmentCapture',\n        'TestExecutionModelEnvironmentCapture/complete-input-unknown-recovery',\n        'TestExecutionModelEnvironmentCapture/missing-provider-rolls-back',\n    }),\n    '^TestExecutionCaptureProviders$': frozenset({\n        'TestExecutionCaptureProviders',\n        'TestExecutionCaptureProviders/real-providers-roll-back-with-unbound-snapshot',\n    }),\n    '^TestSchedulerProjectRunner$': frozenset({\n        'TestSchedulerProjectRunner',\n        'TestSchedulerProjectRunner/ordered-todo-and-serial-launch',\n        'TestSchedulerProjectRunner/paused-pending-recovery-and-join',\n    }),\n    '^TestSchedulerBoundedRetry$': frozenset({\n        'TestSchedulerBoundedRetry',\n        'TestSchedulerBoundedRetry/temporary-due-original-key-created',\n        'TestSchedulerBoundedRetry/temporary-exhaustion-technical-blocker',\n    }),\n    '^TestSchedulerRetryBinding$': frozenset({\n        'TestSchedulerRetryBinding',\n        'TestSchedulerRetryBinding/config-bound-claim-and-real-lock-timeout',\n        'TestSchedulerRetryBinding/legacy-null-policy-stays-unbound',\n    }),\n    '^(TestTaskTechnicalResolutionHTTP|TestTaskTechnicalResolutionAtomic)$': frozenset({\n        'TestTaskTechnicalResolutionHTTP',\n        'TestTaskTechnicalResolutionHTTP/resolve-to-todo-lookup-replay',\n        'TestTaskTechnicalResolutionAtomic',\n        'TestTaskTechnicalResolutionAtomic/late-transaction-rollback-and-replay',\n    }),\n    '^TestSchedulerLaunchFinalFailure$': frozenset({\n        'TestSchedulerLaunchFinalFailure',\n        'TestSchedulerLaunchFinalFailure/title-preserved-technical-blocker-and-replay',\n        'TestSchedulerLaunchFinalFailure/late-transaction-rollback-and-settlement',\n    }),\n    '^TestAgentConfigurationSchema$': frozenset({\n        'TestAgentConfigurationSchema',\n        'TestAgentConfigurationSchema/fresh-prefix-and-repeat',\n        'TestAgentConfigurationSchema/schema-invariants-and-unbound-dependencies',\n        'TestAgentConfigurationSchema/upgrade-preserves-facts-and-audit-checks',\n    }),\n    '^TestAgentRuntimeSchema$': frozenset({\n        'TestAgentRuntimeSchema',\n        'TestAgentRuntimeSchema/execution-slot-and-unbound-launch',\n        'TestAgentRuntimeSchema/human-compatibility-and-agent-origin',\n        'TestAgentRuntimeSchema/prefix36-upgrade-and-repeat',\n        'TestAgentRuntimeSchema/runtime-attempt-and-terminal',\n    }),\n    '^TestExecutionPreparation$': frozenset({\n        'TestExecutionPreparation',\n        'TestExecutionPreparation/current-owner-task-input',\n        'TestExecutionPreparation/prefix39-upgrade-and-repeat',\n        'TestExecutionPreparation/preparation-claim-and-attempt',\n        'TestExecutionPreparation/project-preparation-gate',\n    }),\n    '^TestAgentConfigurationCreate$': frozenset({\n        'TestAgentConfigurationCreate',\n        'TestAgentConfigurationCreate/default-create-and-replay',\n        'TestAgentConfigurationCreate/final-transaction-rollback',\n    }),\n    '^TestTaskTransitionHuman$': frozenset({\n        'TestTaskTransitionHuman',\n        'TestTaskTransitionHuman/assignment-config-and-replay',\n        'TestTaskTransitionHuman/final-transaction-rollback',\n    }),\n    '^TestSchedulerClaim$': frozenset({\n        'TestSchedulerClaim',\n        'TestSchedulerClaim/final-transaction-rollback',\n        'TestSchedulerClaim/start-sprint-claim-and-replay',\n    }),\n    '^TestSchedulerLaunch$': frozenset({\n        'TestSchedulerLaunch',\n        'TestSchedulerLaunch/association-failure-lookup-recovery',\n        'TestSchedulerLaunch/created-association-and-replay',\n    }),\n    '^TestSchedulerBusyCompensation$': frozenset({\n        'TestSchedulerBusyCompensation',\n        'TestSchedulerBusyCompensation/preserve-user-update',\n        'TestSchedulerBusyCompensation/rollback-restore-and-replay',\n    }),\n    '^(TestSchedulerPendingVisit|TestTaskHumanHTTP)$': frozenset({\n        'TestSchedulerPendingVisit',\n        'TestSchedulerPendingVisit/association-rollback-original-lookup',\n        'TestSchedulerPendingVisit/paused-enumeration-and-resume',\n        'TestTaskHumanHTTP',\n        'TestTaskHumanHTTP/owner-csrf-and-new-session-lookup',\n        'TestTaskHumanHTTP/transfer-lookup-replay-and-get',\n    }),\n    '^TestSprintStartHTTP$': frozenset({\n        'TestSprintStartHTTP',\n        'TestSprintStartHTTP/paused-start-get-lookup-replay',\n    }),\n"),
                                                                ("    if 'TestSkillInstallation' in args.run",
                                                                 '    if any(name in args.run for name in '
                                                                 "('AgentConfigurationMetadata', "
@@ -358,7 +175,13 @@ SOURCE_HUNKS = {'.agent-state/work-owner-http/root_chain_driver.py': [('METADATA
                                                                 "task's existing private supervisor.log.\n"
                                                                 '                '
                                                                 "print(json.dumps({'host_tcp_failure': "
-                                                                'sample}, sort_keys=True), flush=True)\n')]}
+                                                                'sample}, sort_keys=True), flush=True)\n'),
+    ('def metadata_results(output, selector=METADATA_ROOT):\n', "TASK_REVIEW_UI = '^TestTaskReviewWeb$'\n\n\ndef task_review_browser_waits(output):\n    lines = [line for line in output.splitlines() if 'Task Review Node actual_wait' in line]\n    matches = [re.fullmatch(r'[ \\t]+task_review_web_test\\.go:[1-9][0-9]*: '\n                           r'Task Review Node actual_wait pid=([1-9][0-9]*) success=true', line)\n               for line in lines]\n    return (len(matches) == 2 and all(matches)\n            and len({match[1] for match in matches}) == 2)\n\n\ndef metadata_results(output, selector=METADATA_ROOT):\n"),
+    ('    return (len(runs) == len(cases) and set(runs) == cases\n            and len(results) == len(cases)', '    return (len(runs) == len(cases) and set(runs) == cases\n            and (selector != TASK_REVIEW_UI or task_review_browser_waits(output))\n            and len(results) == len(cases)'),
+    ("    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run == KNOWLEDGE_UI else ('pg-' + uuid.uuid4().hex)\n", "    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI) else ('pg-' + uuid.uuid4().hex)\n"),
+    ('    args.output.mkdir(parents=True, exist_ok=True)\n', "    if args.run == TASK_REVIEW_UI:\n        try:\n            args.task_review_ui_environment = adapter.task_review_ui_configuration(directory)\n        except (OSError, ValueError):\n            parser.error('exact frozen Task Review assets, dependencies and fresh evidence required')\n    args.output.mkdir(parents=True, exist_ok=True)\n"),
+    ('            if args.run == KNOWLEDGE_UI and child.returncode is not None:\n', '            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI) and child.returncode is not None:\n'),
+    ('            if args.run == KNOWLEDGE_UI:\n                same = same and knowledge_ui_same(inputs, args, adapter)\n', '            if args.run == KNOWLEDGE_UI:\n                same = same and knowledge_ui_same(inputs, args, adapter)\n            if args.run == TASK_REVIEW_UI:\n                same = same and adapter.task_review_ui_environment() == args.task_review_ui_environment\n')]}
 
 
 def inverse(name, source):
@@ -388,6 +211,7 @@ def load(name, path):
 
 def output(selector, cases):
     return (''.join('=== RUN   ' + name + '\n--- PASS: ' + name + ' (0.01s)\n' for name in cases)
+            + (''.join('    task_review_web_test.go:123: Task Review Node actual_wait pid=%d success=true\n' % pid for pid in (51, 52)) if selector == '^TestTaskReviewWeb$' else '')
             + 'D03 explicit test actual_wait pid=42 code=0 selector=' + selector + '\n')
 
 
@@ -454,7 +278,8 @@ class SystemEntryControls(unittest.TestCase):
                 for name in names:
                     path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_text('source')
                 binary=root/'candidate.test'
-                with patch.object(self.driver,'REPOSITORY',root),patch.object(self.driver,'input_paths',return_value=[binary]):
+                with patch.object(self.driver,'REPOSITORY',root),patch.object(self.driver,'input_paths',return_value=[binary]), \
+                        patch.object(self.driver,'task_review_ui_inputs',return_value=[]):
                     paths=self.driver.metadata_inputs(binary,selector)
                     self.assertEqual(set(paths),{root/name for name in names})
                     inputs={str(p):self.driver.sha(p) for p in paths};args=SimpleNamespace(binary=binary)
@@ -490,7 +315,10 @@ class SystemEntryControls(unittest.TestCase):
             binary = root / 'candidate.test'; binary.write_text('controlled candidate'); binary.chmod(0o700)
             directory = root / 'owned'
             with patch.object(self.driver, 'REPOSITORY', root), \
-                    patch.object(self.driver, 'GO', binary), patch.object(self.driver, 'sha', return_value=self.driver.MINIO_SHA):
+                    patch.object(self.driver, 'GO', binary), patch.object(self.driver, 'sha', return_value=self.driver.MINIO_SHA), \
+                    patch.object(self.driver, 'task_review_ui_configuration', return_value={
+                        'AGENTEAM_TASK_REVIEW_WEB_DIST': str(root / 'dist'),
+                        'AGENTEAM_TASK_REVIEW_WEB_EVIDENCE': str(root / 'evidence')}):
                 plan = self.driver.configuration(binary, SELECTOR, directory)
             self.assertEqual(plan['cwd'], str(root / self.driver.TARGETS[SELECTOR]))
             self.assertEqual((plan['resources'], plan['test_timeout']), (7, '6m'))
@@ -509,11 +337,39 @@ class SystemEntryControls(unittest.TestCase):
                 raise OriginalExecBoundary()
             with patch.object(sys, 'argv', args), patch.object(self.driver, 'configuration', return_value=plan), \
                     patch.object(self.driver.os, 'chdir'), patch.object(self.driver.os, 'execve', side_effect=original_exec), \
+                    patch.object(self.driver, 'task_review_ui_input_hash', return_value='a'*64), \
                     patch.dict(os.environ, {name: 'must-be-removed' for name in (
                         'TEST_TELEMETRY_DIR', 'GO_TELEMETRY_CHILD', 'GO_TELEMETRY_CHILD_UPLOAD',
                         'AGENTEAM_PROJECT_LIFECYCLE_GUARD_CHILD')}):
                 with self.assertRaises(OriginalExecBoundary):
                     self.driver.main()
+
+
+    def test_task_review_browser_assets_waits_and_environment(self):
+        selector = '^TestTaskReviewWeb$'
+        good = output(selector, SYSTEM_CASES[selector])
+        self.assertTrue(self.sup.task_review_browser_waits(good))
+        for bad in (good.replace('pid=52', 'pid=51'), good.replace('success=true', 'success=false'),
+                    good.replace('    task_review_web_test.go:123: Task Review Node actual_wait pid=52 success=true\n', ''),
+                    good + '    task_review_web_test.go:123: Task Review Node actual_wait pid=53 success=true\n'):
+            self.assertFalse(self.sup.metadata_results(bad, selector))
+        with tempfile.TemporaryDirectory(prefix='trw-') as tmp:
+            root = Path(tmp).resolve()
+            owned = root / 'output/ai/work-review-web'; dist = owned / 'dist'
+            dist.mkdir(parents=True); (dist / 'index.html').write_text('frozen')
+            environment = dict(zip(self.driver.TASK_REVIEW_ENV, (str(dist), str(owned / 'evidence'))))
+            with patch.object(self.driver, 'REPOSITORY', root), patch.dict(os.environ, environment):
+                self.assertEqual(self.driver.task_review_ui_configuration(Path('/tmp/trw/ui-123')), environment)
+                self.assertEqual(self.driver.task_review_ui_assets(), [dist / 'index.html'])
+                with self.assertRaises(ValueError): self.driver.task_review_ui_configuration(root / ('x'*46))
+                (owned / 'evidence').mkdir()
+                with self.assertRaises(ValueError): self.driver.task_review_ui_configuration(Path('/tmp/trw/ui-123'))
+                (owned / 'evidence').rmdir()
+                (dist / 'alias').symlink_to(dist / 'index.html')
+                with self.assertRaises(ValueError): self.driver.task_review_ui_assets()
+                (dist / 'alias').unlink()
+                with patch.dict(os.environ, {self.driver.TASK_REVIEW_ENV[0]: str(root)}):
+                    with self.assertRaises(ValueError): self.driver.task_review_ui_assets()
 
 
     def test_busy_tcp_failure_uses_only_the_last_bounded_snapshot(self):

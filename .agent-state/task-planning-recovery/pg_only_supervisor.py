@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestTaskReviewWeb$': frozenset({
+        'TestTaskReviewWeb',
+        'TestTaskReviewWeb/review-complete',
+        'TestTaskReviewWeb/lost-confirmation-lookup-and-session-revocation',
+    }),
     '^TestExecutionRuntimeAccessAudit$': frozenset({
         'TestExecutionRuntimeAccessAudit',
         'TestExecutionRuntimeAccessAudit/policy-denial-requires-live-runtime-handoff',
@@ -364,6 +369,18 @@ METADATA_GROUPS = {
 }
 
 
+TASK_REVIEW_UI = '^TestTaskReviewWeb$'
+
+
+def task_review_browser_waits(output):
+    lines = [line for line in output.splitlines() if 'Task Review Node actual_wait' in line]
+    matches = [re.fullmatch(r'[ \t]+task_review_web_test\.go:[1-9][0-9]*: '
+                           r'Task Review Node actual_wait pid=([1-9][0-9]*) success=true', line)
+               for line in lines]
+    return (len(matches) == 2 and all(matches)
+            and len({match[1] for match in matches}) == 2)
+
+
 def metadata_results(output, selector=METADATA_ROOT):
     cases = METADATA_GROUPS.get(selector)
     if cases is None:
@@ -372,6 +389,7 @@ def metadata_results(output, selector=METADATA_ROOT):
     results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
     waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
     return (len(runs) == len(cases) and set(runs) == cases
+            and (selector != TASK_REVIEW_UI or task_review_browser_waits(output))
             and len(results) == len(cases)
             and all(state == 'PASS' for state, _ in results)
             and {name for _, name in results} == cases
@@ -1166,7 +1184,7 @@ def main():
             args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
         except (OSError, ValueError):
             parser.error('explicit local content Schema interpreter required')
-    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run == KNOWLEDGE_UI else ('pg-' + uuid.uuid4().hex)
+    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI) else ('pg-' + uuid.uuid4().hex)
     directory = args.output.resolve() / stem
     if args.run == KNOWLEDGE_UI:
         try:
@@ -1174,6 +1192,11 @@ def main():
             args.knowledge_ui_environment = adapter.knowledge_ui_environment()
         except (OSError, ValueError):
             parser.error('exact frozen Knowledge assets, interpreters and fresh evidence required')
+    if args.run == TASK_REVIEW_UI:
+        try:
+            args.task_review_ui_environment = adapter.task_review_ui_configuration(directory)
+        except (OSError, ValueError):
+            parser.error('exact frozen Task Review assets, dependencies and fresh evidence required')
     args.output.mkdir(parents=True, exist_ok=True)
     log_path = args.output / (stem + '.log')
     # Adopt only this supervisor's own descendants, so any unexpected survivor
@@ -1262,7 +1285,7 @@ def main():
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
             else:
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
-            if args.run == KNOWLEDGE_UI and child.returncode is not None:
+            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI) and child.returncode is not None:
                 if not knowledge_ui_reap_exited(log):
                     code = 1
             survivors = descendants(os.getpid())
@@ -1377,6 +1400,8 @@ def main():
                 same = same and parser_same(inputs, args, adapter)
             if args.run == KNOWLEDGE_UI:
                 same = same and knowledge_ui_same(inputs, args, adapter)
+            if args.run == TASK_REVIEW_UI:
+                same = same and adapter.task_review_ui_environment() == args.task_review_ui_environment
             if not same: code = 1
             if interrupted: code = 1
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')
