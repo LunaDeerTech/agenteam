@@ -47,6 +47,7 @@ type handler struct {
 	structureReader c.Reader
 	tasks           c.TaskCommands
 	taskReader      c.TaskReader
+	timelineReader  c.TaskTimelineReader
 	blockers        c.TaskBlockerCommands
 	blockerReader   c.TaskBlockerPageReader
 	boundary        accountBoundary
@@ -59,7 +60,7 @@ func NewHTTPHandler(b Bindings, boundary *account.HTTPBoundary) (http.Handler, e
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
 	h := &handler{structure: b.Structure, structureReader: b.StructureReader,
-		tasks: b.Tasks, taskReader: b.TaskReader, blockers: b.Blockers,
+		tasks: b.Tasks, taskReader: b.TaskReader, timelineReader: b.TaskReader, blockers: b.Blockers,
 		blockerReader: b.BlockerReader, boundary: boundary}
 	if b.Transitions != nil {
 		h.transitions = b.Transitions
@@ -92,6 +93,7 @@ const (
 	taskTransitionLookup
 	sprintStart
 	sprintLifecycleLookup
+	taskEvents
 )
 
 type route struct {
@@ -149,6 +151,8 @@ func parseRoute(path string) route {
 			r.kind = blockers
 		case parts[3] == "transfer":
 			r.kind = taskTransfer
+		case parts[3] == "events":
+			r.kind = taskEvents
 		}
 	case "structure-commands":
 		if len(parts) == 3 && parts[2] == "lookup" {
@@ -195,6 +199,8 @@ func (r route) lookup() bool {
 }
 func (r route) allow() string {
 	switch r.kind {
+	case taskEvents:
+		return "GET, HEAD"
 	case milestones, sprints, tasks, blockers:
 		return "GET, HEAD, POST"
 	case milestone, sprint, task:
@@ -205,6 +211,9 @@ func (r route) allow() string {
 	return ""
 }
 func (r route) pattern() string {
+	if r.kind == taskEvents {
+		return projectPrefix + "{project_id}/tasks/{task_id}/events"
+	}
 	if r.kind == sprintStart {
 		return projectPrefix + "{project_id}/sprints/{sprint_id}/start"
 	}

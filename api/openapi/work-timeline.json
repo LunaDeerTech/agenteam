@@ -1,0 +1,1150 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Project Owner Task Timeline",
+    "version": "0.1.0",
+    "description": "Read-only Work TaskEvent history from an existing initialized Project. Current Account Session and Project Owner are checked every page in the original transaction. Archived/archiving reads follow the existing Project Read gate; pending initialization/deleting and cross-Owner access remain closed. No AgentRun, new writer, authorization, cursor implementation or event store is introduced. A single 2s budget covers authentication, full read/encoding and original body/Flush/deadline cleanup; cancellation or native I/O failure aborts. Query <=32768 raw bytes; unknown, duplicate decoded, empty, malformed UTF-8/percent/NUL, semicolon and bare-question-mark forms are rejected."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/tasks/{task_id}/events": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          },
+          "description": "Single canonical decimal value; no leading zeros."
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          },
+          "description": "Original opaque signed token; binds Owner, Project, Task, normalized types, order and first-page TaskVersion watermark, not Session or limit. Later pages reauthorize the current Session/Owner."
+        },
+        {
+          "name": "types",
+          "in": "query",
+          "style": "form",
+          "explode": false,
+          "schema": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 7,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/TimelineType"
+            }
+          },
+          "description": "One comma-separated query value; omission means all stored kinds. Empty items, duplicates and unknown types are rejected. Default reads never hide unknown/corrupt persisted kinds."
+        },
+        {
+          "name": "order",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "default": "desc"
+          },
+          "description": "Strict created_at then id direction; continuation retains the original watermark."
+        }
+      ],
+      "get": {
+        "operationId": "workOwnerTaskTimelineGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validated current-Owner timeline page.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "description": "Encoded full representation length, also for HEAD.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskTimelinePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Original safe Problem; HEAD sends no body. No raw query, cursor, event text or cause is returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "description": "Encoded full representation length, also for HEAD.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "workOwnerTaskTimelineHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "description": "Performs the same current authorization, full read, validation and encoding as GET, then sends headers only.",
+        "responses": {
+          "200": {
+            "description": "No body; Content-Length equals the complete GET representation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "description": "Encoded full representation length, also for HEAD.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Original safe Problem; HEAD sends no body. No raw query, cursor, event text or cause is returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "description": "Encoded full representation length, also for HEAD.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "$ref": "./work-planning.json#/components/securitySchemes/browserSession"
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Original safe Problem; HEAD sends no body. No raw query, cursor, event text or cause is returned.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "description": "Encoded full representation length, also for HEAD.",
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "TimelineType": {
+        "type": "string",
+        "enum": [
+          "task_created",
+          "fields_updated",
+          "blocker_added",
+          "blocker_resolved",
+          "state_changed",
+          "assignee_changed",
+          "comment"
+        ]
+      },
+      "HumanActor": {
+        "$ref": "./work-planning.json#/components/schemas/TaskEventActor"
+      },
+      "SchedulerActor": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "service_name",
+          "source",
+          "cause_id"
+        ],
+        "properties": {
+          "type": {
+            "const": "system"
+          },
+          "service_name": {
+            "const": "scheduler"
+          },
+          "source": {
+            "const": "scheduler"
+          },
+          "cause_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      },
+      "CreatedPayload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "initial_state",
+          "milestone_id",
+          "sprint_id",
+          "type",
+          "priority"
+        ],
+        "properties": {
+          "initial_state": {
+            "const": "backlog"
+          },
+          "milestone_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "sprint_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "type": {
+            "$ref": "./work-planning.json#/components/schemas/TaskType"
+          },
+          "priority": {
+            "$ref": "./work-planning.json#/components/schemas/TaskPriority"
+          }
+        }
+      },
+      "Position": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sprint_id",
+          "state",
+          "priority",
+          "previous_id",
+          "next_id",
+          "order_generation"
+        ],
+        "properties": {
+          "sprint_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "state": {
+            "const": "backlog"
+          },
+          "priority": {
+            "$ref": "./work-planning.json#/components/schemas/TaskPriority"
+          },
+          "previous_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "next_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "order_generation": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        }
+      },
+      "TypeChange": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from",
+          "to"
+        ],
+        "properties": {
+          "from": {
+            "$ref": "./work-planning.json#/components/schemas/TaskType"
+          },
+          "to": {
+            "$ref": "./work-planning.json#/components/schemas/TaskType"
+          }
+        }
+      },
+      "PriorityChange": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from",
+          "to"
+        ],
+        "properties": {
+          "from": {
+            "$ref": "./work-planning.json#/components/schemas/TaskPriority"
+          },
+          "to": {
+            "$ref": "./work-planning.json#/components/schemas/TaskPriority"
+          }
+        }
+      },
+      "FieldsUpdatedPayload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "changed_fields",
+          "type_change",
+          "priority_change",
+          "position"
+        ],
+        "properties": {
+          "changed_fields": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 6,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "description",
+                "manual_rank",
+                "plan",
+                "priority",
+                "title",
+                "type"
+              ]
+            }
+          },
+          "type_change": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TypeChange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "priority_change": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PriorityChange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "position": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Position"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "changed_fields": {
+                  "contains": {
+                    "const": "type"
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "type_change": {
+                  "$ref": "#/components/schemas/TypeChange"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "type_change": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "changed_fields": {
+                  "contains": {
+                    "const": "priority"
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "priority_change": {
+                  "$ref": "#/components/schemas/PriorityChange"
+                },
+                "position": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Position"
+                    },
+                    {
+                      "properties": {
+                        "next_id": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "priority_change": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "changed_fields": {
+                  "contains": {
+                    "const": "manual_rank"
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "changed_fields": {
+                  "const": [
+                    "manual_rank"
+                  ]
+                },
+                "position": {
+                  "$ref": "#/components/schemas/Position"
+                }
+              }
+            },
+            "else": {
+              "if": {
+                "not": {
+                  "properties": {
+                    "changed_fields": {
+                      "contains": {
+                        "const": "priority"
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "position": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "description": "Changed fields are sorted, unique and consistent with the nullable changes. Go additionally enforces from != to, matching destination priority/position, and no self or duplicate neighbor."
+      },
+      "HumanStatePayload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from_state",
+          "to_state",
+          "reason_code"
+        ],
+        "properties": {
+          "from_state": {
+            "$ref": "./work-planning.json#/components/schemas/TaskState"
+          },
+          "to_state": {
+            "$ref": "./work-planning.json#/components/schemas/TaskState"
+          },
+          "reason_code": {
+            "type": "null"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "from_state": {
+                "const": "backlog"
+              },
+              "to_state": {
+                "enum": [
+                  "todo",
+                  "cancelled"
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "from_state": {
+                "const": "todo"
+              },
+              "to_state": {
+                "enum": [
+                  "blocked",
+                  "cancelled"
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "from_state": {
+                "const": "in_progress"
+              },
+              "to_state": {
+                "enum": [
+                  "in_review",
+                  "blocked",
+                  "cancelled"
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "from_state": {
+                "const": "in_review"
+              },
+              "to_state": {
+                "enum": [
+                  "done",
+                  "todo",
+                  "blocked",
+                  "cancelled"
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "from_state": {
+                "const": "blocked"
+              },
+              "to_state": {
+                "enum": [
+                  "todo",
+                  "cancelled"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "SchedulerStatePayload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from_state",
+          "to_state",
+          "reason_code"
+        ],
+        "properties": {
+          "from_state": {
+            "$ref": "./work-planning.json#/components/schemas/TaskState"
+          },
+          "to_state": {
+            "$ref": "./work-planning.json#/components/schemas/TaskState"
+          },
+          "reason_code": {
+            "enum": [
+              "scheduler_claim",
+              "scheduler_agent_busy_compensation",
+              "scheduler_launch_failed"
+            ]
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "from_state": {
+                "const": "todo"
+              },
+              "to_state": {
+                "const": "in_progress"
+              },
+              "reason_code": {
+                "const": "scheduler_claim"
+              }
+            }
+          },
+          {
+            "properties": {
+              "from_state": {
+                "const": "in_progress"
+              },
+              "to_state": {
+                "const": "todo"
+              },
+              "reason_code": {
+                "const": "scheduler_agent_busy_compensation"
+              }
+            }
+          },
+          {
+            "properties": {
+              "from_state": {
+                "enum": [
+                  "in_progress",
+                  "in_review"
+                ]
+              },
+              "to_state": {
+                "const": "blocked"
+              },
+              "reason_code": {
+                "const": "scheduler_launch_failed"
+              }
+            }
+          }
+        ]
+      },
+      "AssigneePayload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from_agent_id",
+          "to_agent_id"
+        ],
+        "properties": {
+          "from_agent_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "to_agent_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      },
+      "HumanBlockerAddedPayload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "blocker_id",
+          "blocker_type"
+        ],
+        "properties": {
+          "blocker_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "blocker_type": {
+            "enum": [
+              "rely_on",
+              "waiting_for_human"
+            ]
+          }
+        }
+      },
+      "HumanBlockerResolvedPayload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "blocker_id",
+          "blocker_type",
+          "resolution_comment"
+        ],
+        "properties": {
+          "blocker_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "blocker_type": {
+            "enum": [
+              "rely_on",
+              "waiting_for_human",
+              "technical"
+            ]
+          },
+          "resolution_comment": {
+            "oneOf": [
+              {
+                "$ref": "./work-planning.json#/components/schemas/ResolutionComment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "blocker_type": {
+                  "const": "technical"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "resolution_comment": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "FailureBlockerPayload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "blocker_id",
+          "blocker_type",
+          "reason_code"
+        ],
+        "properties": {
+          "blocker_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "blocker_type": {
+            "const": "technical"
+          },
+          "reason_code": {
+            "const": "scheduler_launch_failed"
+          }
+        }
+      },
+      "CommentPayload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "body"
+        ],
+        "properties": {
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768,
+            "not": {
+              "pattern": "[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f]"
+            },
+            "allOf": [
+              {
+                "not": {
+                  "pattern": "^[\\u0009-\\u000d\\u0020\\u0085\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]*$"
+                }
+              }
+            ],
+            "description": "1..32768 UTF-8 bytes with non-whitespace text; tab/LF/CR permitted. Go enforces byte length and Unicode Cc/space rules. No truncation."
+          }
+        }
+      },
+      "TaskTimelineEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "task_id",
+          "task_version",
+          "type",
+          "actor",
+          "operation_id",
+          "correlation_id",
+          "payload",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "task_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "task_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TimelineType"
+          },
+          "actor": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/HumanActor"
+              },
+              {
+                "$ref": "#/components/schemas/SchedulerActor"
+              }
+            ]
+          },
+          "operation_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "correlation_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "payload": {
+            "type": "object"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "type": {
+                "const": "task_created"
+              },
+              "actor": {
+                "$ref": "#/components/schemas/HumanActor"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/CreatedPayload"
+              },
+              "task_version": {
+                "const": "1"
+              }
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "const": "fields_updated"
+              },
+              "actor": {
+                "$ref": "#/components/schemas/HumanActor"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/FieldsUpdatedPayload"
+              }
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "const": "state_changed"
+              },
+              "actor": {
+                "$ref": "#/components/schemas/HumanActor"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/HumanStatePayload"
+              }
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "const": "state_changed"
+              },
+              "actor": {
+                "$ref": "#/components/schemas/SchedulerActor"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/SchedulerStatePayload"
+              }
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "const": "assignee_changed"
+              },
+              "actor": {
+                "$ref": "#/components/schemas/HumanActor"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/AssigneePayload"
+              }
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "const": "blocker_added"
+              },
+              "actor": {
+                "$ref": "#/components/schemas/HumanActor"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/HumanBlockerAddedPayload"
+              }
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "const": "blocker_added"
+              },
+              "actor": {
+                "$ref": "#/components/schemas/SchedulerActor"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/FailureBlockerPayload"
+              }
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "const": "blocker_resolved"
+              },
+              "actor": {
+                "$ref": "#/components/schemas/HumanActor"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/HumanBlockerResolvedPayload"
+              }
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "const": "comment"
+              },
+              "actor": {
+                "$ref": "#/components/schemas/HumanActor"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/CommentPayload"
+              }
+            }
+          }
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "not": {
+                    "const": "task_created"
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "task_version": {
+                  "not": {
+                    "const": "1"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "description": "Original ten-field Work history wire. Six validated stored sources: planning, blocker, Human transition, Scheduler claim, Busy compensation and final launch failure. Go enforces exact source provenance, operation_id=correlation_id, Scheduler cause_id=operation_id, legal payload relationships and family byte caps (comment event 272 KiB; all other events 16 KiB). Historical actor is not a grant. No Outbox envelope, Model/Execution log, Session, or unsupported task_moved/comment-edit data is synthesized."
+      },
+      "TaskTimelinePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/TaskTimelineEvent"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192,
+            "not": {
+              "pattern": "\\u0000"
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "next_cursor"
+              ]
+            },
+            "then": {
+              "properties": {
+                "items": {
+                  "minItems": 1
+                }
+              }
+            }
+          }
+        ],
+        "description": "Complete response <=4 MiB. The full items array, including commas/brackets, is <=4 MiB minus 16 KiB. A byte-short page may contain fewer than limit with next_cursor pointing after the last returned event. Items are never null or truncated. Go validates requested Project/Task/types, unique IDs and strict created_at+id order. Exhaustion omits next_cursor; an empty page never has one."
+      }
+    }
+  }
+}
