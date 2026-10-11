@@ -35,9 +35,10 @@ const relaunchVisitSQL = `SELECT request,request_digest,outcome,remaining,create
 const relaunchHistorySQL = `SELECT ` + dispatchColumns + ` FROM agenteam_scheduler.dispatches WHERE project_id=$1 AND task_id=$2 AND status='launched' AND convert_from(launch_request,'UTF8')::jsonb->>'purpose'='task/work' ORDER BY id COLLATE "C"`
 
 type relaunchIntent struct {
-	Request           wc.TaskRelaunchRequest `json:"request"`
-	Policy            ec.Policy              `json:"policy"`
-	RetryPolicyDigest f.Digest               `json:"retry_policy_digest"`
+	Request wc.TaskRelaunchRequest `json:"request"`
+	Policy  ec.Policy              `json:"policy"`
+	// Empty is the explicit legacy-unbound arm; f.Digest itself rejects empty JSON.
+	RetryPolicyDigest string `json:"retry_policy_digest"`
 }
 type relaunchReceipt struct {
 	raw       []byte
@@ -59,7 +60,7 @@ func encodeRelaunchIntent(request wc.TaskRelaunchRequest, policy ec.Policy, retr
 			return nil, err
 		}
 	}
-	raw, err := json.Marshal(relaunchIntent{request, policy.Clone(), identity})
+	raw, err := json.Marshal(relaunchIntent{request, policy.Clone(), identity.String()})
 	if err != nil || len(raw) > 262144 {
 		return nil, invalid()
 	}
@@ -76,7 +77,7 @@ func loadRelaunchReceipt(ctx context.Context, x postgres.SQLExecutor, request wc
 	if err != nil {
 		return nil, portError(err)
 	}
-	if decodeExact(r.raw, &r.intent, 262144) != nil || r.intent.Request.Validate() != nil || r.intent.Request != request || r.intent.Policy.Validate() != nil || r.intent.RetryPolicyDigest != "" && r.intent.RetryPolicyDigest.Validate() != nil || relaunchDigest(r.raw) != f.Digest(digest) || r.remaining < 0 || r.outcome != "cooldown_skipped" && r.outcome != "dispatch_created" || r.outcome == "dispatch_created" && r.remaining != 0 {
+	if decodeExact(r.raw, &r.intent, 262144) != nil || r.intent.Request.Validate() != nil || r.intent.Request != request || r.intent.Policy.Validate() != nil || r.intent.RetryPolicyDigest != "" && f.Digest(r.intent.RetryPolicyDigest).Validate() != nil || relaunchDigest(r.raw) != f.Digest(digest) || r.remaining < 0 || r.outcome != "cooldown_skipped" && r.outcome != "dispatch_created" || r.outcome == "dispatch_created" && r.remaining != 0 {
 		return nil, unavailable(nil)
 	}
 	if _, err = f.NewInstant(at); err != nil || at.Nanosecond()%1000 != 0 {
@@ -126,7 +127,7 @@ func relaunchReceiptResult(ctx context.Context, x postgres.SQLExecutor, call *re
 		if row.retryPolicy != (LaunchRetryPolicy{}) {
 			identity, _ = row.retryPolicy.Identity()
 		}
-		if identity != r.intent.RetryPolicyDigest {
+		if identity.String() != r.intent.RetryPolicyDigest {
 			return RelaunchVisit{}, fault(f.ConfirmationStale)
 		}
 		v.Dispatch = snapshot(row)
