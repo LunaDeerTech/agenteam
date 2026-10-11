@@ -1,6 +1,6 @@
 # D10 Agent 配置与当前身份事实
 
-状态：**第十四/十六批backend已随正式产品基线main `295f46b4`交付。C1 六个纯契约与§2.3 metadata前置、§2.4 Owner安全目录已分别有限接受；第十四批配置Create/Get/Lookup的公共App TLS真实两链已通过并最终独审接受。第十六批Update仅十九race加两包vet分段接受；第十五批创建UI真实两链验收闭合，已随main `4270a670`交付；第十七批编辑UI仅有限前端验证通过，未纳入本次交付，真实Update/App/browser未验。完整F1与D10不据此视为完成**。下文早期前置保留原范围；typed identity、目录或配置回执不授予运行权限。
+状态：**第十四/十六批backend已随正式产品基线main `295f46b4`交付。C1 六个纯契约与§2.3 metadata前置、§2.4 Owner安全目录已分别有限接受；第十四批配置Create/Get/Lookup的公共App TLS真实两链已通过并最终独审接受。第十五批创建UI真实两链验收闭合，已随main `4270a670`交付；第十六/十七批Update与三字段编辑UI沿SOURCE `510dd29d`完成真实App03及Web01有限验收，随本次文档提交交付main。完整F1与D10不据此视为完成**。下文早期前置保留原范围；typed identity、目录或配置回执不授予运行权限。
 
 第十四批限定已有initialized Project的当前Human Owner：`POST /api/v1/projects/{project_id}/agents`创建、`GET/HEAD /api/v1/projects/{project_id}/agents/{agent_id}/configuration`读取完整配置，以及`POST /api/v1/projects/{project_id}/agent-commands/lookup`查询原agent.create请求与key。完整Config二十字段，安全Directory九字段；默认Install Skill由App真实Skill/InstallSource/Registry图取得身份，显式false保原规则。SOURCE `75e23e9d`的 `TestAgentConfigurationApp` 真实两sub18.42s（9.39/9.03）wholePASS，覆盖runtimeoff公共App TLS默认Create/Get/Lookup/Directory/Assign及丢回执、当前Owner边界；四Wait0、七ID14次absence、全部双尾/TCP0、1663输入一致，secret最终接受。与16组合的十九race top和后继两包vet按原输入分段接受，原pure01容量wholeFAIL保留；本轮Create不代验Update PG、页面或Project初始化。原件入口见[组合recipe](../../../.agent-state/agent-system-integration/README.md#task-intake与agent配置创建有限组合)。
 
@@ -8,7 +8,11 @@
 
 原frontend01二十个不同用例、format15/type/build已通过。runtime SOURCE `7a0224a9`的 `TestAgentConfigurationWeb` native03两sub41.82s wholePASS（正常创建/目录/配置21.37s，真实丢回执后仅原Lookup20.45s）；复用compile SOURCE `8417`的candidate09与原Agent dist01，不混写运行与编译来源。正常链验证一次Create、安全目录九字段及配置二十字段；丢回执链保持一次Create、一次原Lookup，原截断失败不伪记请求成功。四Wait0、两Node实际成功、七ID14次absence、全部双尾/TCP0、2436输入一致，secret最终业务/资源有限接受；cleanup接受本轮7PNG及键盘、主题、overflow有限检查，未把二十字段未同入图的部分算作完整视觉审计。原native01容量FAIL、native02 Lookup绑定FAIL保留。该创建页面验收闭合，已随main `4270a670`交付；原件与恢复入口见[组合recipe](../../../.agent-state/agent-system-integration/README.md#task编辑与agent创建页面有限组合)。
 
-第十六批 Agent Update HTTP/schema 来源`dc902550`已随main `295f46b4`交付并获有限静审接受，十九race top及后继两包vet已分段接受，原pure01容量wholeFAIL保留。第十七批SOURCE `3c17d0a6`已推送，仅编辑真实选中Agent的name、description、instructions：冻结原version及实际触达字段，空描述/指令明确清空，changed与no-op分别校验版本和事件；版本冲突须人工核对重读，Unknown只查询原Project/Agent/key/完整patch，不自动重发。原Create默认语义保持，切换Agent/Project及退出保护草稿并隔离迟到结果。frontend01二十个不同用例（client 6、Session 5、state 5、page 4）、format10、完整类型检查与构建全部通过，四Node原Wait0、全部双尾关闭，并获cleanup独立有限接受；真实Update PG/App及浏览器未验证。完整配置修改UI、删除、运行中授权与 lifecycle 不随上述创建/读取切片开放。生产 Project initializer、平台 ready、完整 F1 与 Object runtime join 等既有停止项保持，旧 metadata、Model/资源与目录的接受结果分别复用，不合并宣称全卡完成。
+第十六批 Agent Update HTTP/schema 来源`dc902550`已随main `295f46b4`交付；原十九race top与后继两包vet分段接受，pure01容量wholeFAIL保留。第十七批仅编辑真实选中Agent的name、description、instructions：冻结原version及实际触达字段，空描述/指令明确清空，changed与no-op分别校验版本和事件；版本冲突须人工核对重读，Unknown只查询原Project/Agent/key/完整patch，不自动重发。原Create默认语义保持，切换Agent/Project及退出保护草稿并隔离迟到结果。
+
+完整SOURCE `510dd29d90fd39a81fff3fabfe4a923d0770b114`的compile02绑定987个Go/embed输入，App03的 `TestAgentConfigurationUpdateApp` 两sub18.77s（9.16/9.62）wholePASS，验证changed/no-op、历史原版本回执Lookup及权限失败零写：409 VersionConflict/IdempotencyKeyReused、404 Owner、403 CSRF、401 SessionRevoked。Web01的 `TestAgentEditWeb` 两sub31.39s（16.95/14.44）wholePASS，正常链三次PATCH分别changed/no-op/清空，丢回执链一次PATCH后仅原Lookup；原截断失败不伪记成功。两轮四原Wait0、七ID14次absence及全部资源双尾闭合，App1672/Web2447输入一致，Web两Node实际成功；secret最终业务/资源有限接受。cleanup接受六PNG的1440浅色、390深色及原键盘、取消回焦、overflow有限检查，二十字段未同时入图，不外推全面视觉或无障碍审计。
+
+原SOURCE `3c17d0a6`的前端二十个用例（client 6、Session 5、state 5、page 4）、format10/type/build及Timeline16项证据按原输入复用；新组合八项controls、类型检查与构建通过。原App01容量FAIL、App02错误Host/cookie导致创建目标403、未进入Update的业务FAIL均保留，不回填。三字段编辑验收闭合，随本次文档提交交付main；原件见[Agent编辑组合recipe](../../../.agent-state/agent-system-integration/README.md#agent配置编辑有限组合)。完整二十字段编辑、删除、运行中授权与lifecycle未由本片开放；生产Project initializer、ready503、完整F1与Object runtime join等既有停止项保持，不合并宣称全卡完成。
 
 本卡拟分成两个可分别验收的结果：**C1 纯 AgentCore 与当前身份端口契约**可在规格接受后先行；**F1 Human Owner 创建、读取、修改真实 Agent 配置，并提供同 caller Tx 的当前身份事实**必须等本卡列出的真实前置闭合后开工。F1 不接受 SQL 手种 Agent、默认成功目录或未绑定初始化作为生产创建路径。C1 完成不解锁 Task 指派；F1 完成也不等于 Executor、Agent 删除、完整 D10 或平台 ready。
 

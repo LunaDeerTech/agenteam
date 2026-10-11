@@ -622,4 +622,17 @@ Web四原Wait0、Node实际成功、七ID14次absence、全部private/runtime/de
 
 Web成功candidate02原为`task-timeline-web-race-02.test`，78,241,136 B，SHA256 `10ab714511caab1b69c8da3df36a9cfc86ddf603bf0f9a7ccecf25bbaed5de32`，绑定同目录`task-timeline-web-compile-02/result.json`；compile02/native03全PASS且零consumer后已精确退休raw（actual `8441f4`退出0），source、recipe、plan及results保留，可按原源码配方重建，未保存为gzip；原PG日志`/tmp/tlw03/ui-0e4ab8434d6d4175.log`。恢复继续沿原methods、immutable输入与独立namespace、固定依赖及唯一资源窗口，不直接重用旧namespace。旧candidate01已无损gzip保存，精确compile映射与独占恢复规程见[前置协调记录](../agent-prerequisites/coordination.md#当前批次与活动树)。
 
-原combined-pure-01断言FAIL、02物理缺包零top FAIL、format01授权文件物理缺失FAIL、Web native01容量零业务FAIL及native02夹具比较FAIL均保留。native02的原HTTP200被fixture中JSONB RawMessage空白与compact字节比较误拒为502；后继比较双方原typed数组经正式wire codec序列化的完整内容，保留事件来源、顺序、页边界及错误门，不改产品。真实浏览器仅覆盖本轮51事件分页链，不宣称六类来源的全部真实生产写矩阵、评论编辑、Execution日志、完整Runtime或ready已完成；17 Agent编辑仍独立未验。
+原combined-pure-01断言FAIL、02物理缺包零top FAIL、format01授权文件物理缺失FAIL、Web native01容量零业务FAIL及native02夹具比较FAIL均保留。native02的原HTTP200被fixture中JSONB RawMessage空白与compact字节比较误拒为502；后继比较双方原typed数组经正式wire codec序列化的完整内容，保留事件来源、顺序、页边界及错误门，不改产品。真实浏览器仅覆盖本轮51事件分页链，不宣称六类来源的全部真实生产写矩阵、评论编辑、Execution日志、完整Runtime或ready已完成；Agent编辑由后继独立组合验收，见下节。
+
+## Agent配置编辑有限组合
+
+本片已完成限定验收，随本次文档提交交付main。完整SOURCE `510dd29d90fd39a81fff3fabfe4a923d0770b114`的compile02/candidate02绑定987个Go/embed输入；原UI二十项及Timeline十六项结果按各自有效输入复用，新组合八项controls、类型检查与构建通过，使用本组合既有`frontend-01/dist`。本片仅开放当前选中Agent的name、description、instructions显式保存、空串清空与原Lookup，未扩展完整配置权限或运行管理。
+
+| 入口 | 实际有限结果 | 原件（App树output/ai/agent-system-integration下） |
+| --- | --- | --- |
+| `TestAgentConfigurationUpdateApp` | App03两sub18.77s wholePASS：`changed-noop-and-original-version`9.16s，`current-owner-and-original-update-lookup`9.62s | `agent-update-app-03-control/result.json` |
+| `TestAgentEditWeb` | Web01两sub31.39s wholePASS：`changed-noop-and-clear`16.95s，`lost-update-confirmation-only-lookup`14.44s | `agent-edit-web-01-control/result.json` |
+
+App树为`/workspace/agenteam-skill-install-runtime-source`。两轮均四原Wait0、七ID14次absence、private/runtime/desc/TCP双尾空、outer无遗留，App1672/Web2447输入首尾同；Web两Node实际成功，secret最终业务/资源有限接受。App验证原版本changed/no-op与历史原回执Lookup，以及409 VersionConflict/IdempotencyKeyReused、404 Owner、403 CSRF、401 SessionRevoked的零写门。Web正常三次PATCH覆盖changed/no-op/清空，丢回执链一次PATCH后仅原key/version/fullpatch Lookup；原首PATCH的ERR_ABORTED事实保留，由同原请求的typed Promise/current身份与DB/TLS完整完成联合证明闭合，预声明截断仍记失败，不由Lookup改写。cleanup接受本轮六PNG及原键盘、取消回焦、主题、overflow有限范围，1440浅色与390深色不代表二十字段同时入图或全面无障碍审计。
+
+原App01容量FAIL、App02创建目标403且Update未进入的17.09s wholeFAIL及其全部原件保留；后者是错误Host/cookie的fixture接线，原日志没有的具体Problem不补写。candidate01 FAIL与candidate02成功raw当前均保留，没有新退休或gzip。资源窗口另精确回收28个可再生旧Go cache对象548,720,640 B，原记录为`output/ai/agent-system-integration/agent-edit-cache-recovery-01/result.json`，未删除FAIL证据。重现须依原compile02结果、immutable输入/方法、独立namespace、固定依赖、fresh容量及原实际Wait/资源退出门，不覆盖既有结果；原PG分别为`/tmp/aupa03/pg-63f85a7297204f65a1711ce7bb9f955d.log`与`/tmp/aew01/ui-616f76af286c4ae4.log`。完整F1、Project initializer、运行管理、平台ready与既有STOP保持。
