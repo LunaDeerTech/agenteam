@@ -199,6 +199,16 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestAgentDirectoryHTTP$': frozenset({
+        'TestAgentDirectoryHTTP',
+        'TestAgentDirectoryHTTP/normal-directory-pagination',
+        'TestAgentDirectoryHTTP/current-owner-boundary',
+    }),
+    '^TestProjectRunnerManager$': frozenset({
+        'TestProjectRunnerManager',
+        'TestProjectRunnerManager/candidate-pages-and-project-facts',
+        'TestProjectRunnerManager/cross-project-capacity-and-borrowed-executor-join',
+    }),
     '^TestSchedulerReviewDispatch$': frozenset({
         'TestSchedulerReviewDispatch',
         'TestSchedulerReviewDispatch/phase-isolated-review-execution',
