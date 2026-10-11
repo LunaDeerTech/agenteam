@@ -3,7 +3,7 @@
   "info": {
     "title": "Project Owner Agent Configuration",
     "version": "0.1.0",
-    "description": "Create, complete configuration read and original create-command Lookup on an existing initialized Project. No Agent update/delete, AgentRun or Tool execution. Real Account cookie/Host/Origin/Fetch-Metadata and unsafe CSRF checks apply; administrators have no cross-Owner bypass. Creation requires the complete real Model/Tool/Mount/Secret/Skill initialization graph, including false defaults and empty arrays. All bodies and representations are bounded by 512 KiB; full Lookup uses the same cap to preserve legal 32 KiB instructions. Strict exact-key JSON rejects unknown/duplicate/case-alias keys, null outside nullable fields, invalid UTF-8/surrogates and trailing values. Byte caps (display 1024, description 8192, instructions 32768), Unicode controls/nonblank display, reserved names, sorted/combined references and cross-field relationships are validated by Go in addition to JSON Schema. No query, bare question mark or Content-Encoding on command routes. Native cancel/deadline/short-write/Close/Flush failure aborts and does not prove noncommit. Unknown retains the original key and intent."
+    "description": "Create, complete configuration read and original create-command Lookup on an existing initialized Project. No Agent update/delete, AgentRun or Tool execution. Real Account cookie/Host/Origin/Fetch-Metadata and unsafe CSRF checks apply; administrators have no cross-Owner bypass. Creation requires the complete real Model/Tool/Mount/Secret/Skill initialization graph, including false defaults and empty arrays. All bodies and representations are bounded by 512 KiB; full Lookup uses the same cap to preserve legal 32 KiB instructions. Strict exact-key JSON rejects unknown/duplicate/case-alias keys, null outside nullable fields, invalid UTF-8/surrogates and trailing values. Byte caps (display 1024, description 8192, instructions 32768), Unicode controls/nonblank display, reserved names, sorted/combined references and cross-field relationships are validated by Go in addition to JSON Schema. No query, bare question mark or Content-Encoding on command routes. Native cancel/deadline/short-write/Close/Flush failure aborts and does not prove noncommit. Unknown retains the original key and intent. Runner declarations extend the same Agent command, with original authorization and atomic Agent/Mount/references/typed facts/receipt. They do not create physical directories or grant execution. Existing AgentConfig fields remain unchanged."
   },
   "paths": {
     "/api/v1/projects/{project_id}/agents": {
@@ -519,7 +519,6 @@
           "inject_agents_md",
           "approval_policy",
           "allowed_tool_ids",
-          "allowed_mount_ids",
           "allowed_secret_variable_ids"
         ],
         "properties": {
@@ -633,6 +632,14 @@
           "install_skill_enabled": {
             "type": "boolean",
             "default": true
+          },
+          "runner_mounts": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "$ref": "#/components/schemas/RunnerMountDeclaration"
+            },
+            "description": "Unique (runner_id,workspace) pairs, preserved original order. Mutually exclusive with allowed_mount_ids; null rejects. Counts toward the original total 256 references and complete JSON 512 KiB cap."
           }
         },
         "allOf": [
@@ -664,6 +671,30 @@
                 }
               }
             }
+          },
+          {
+            "oneOf": [
+              {
+                "required": [
+                  "allowed_mount_ids"
+                ],
+                "not": {
+                  "required": [
+                    "runner_mounts"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "runner_mounts"
+                ],
+                "not": {
+                  "required": [
+                    "allowed_mount_ids"
+                  ]
+                }
+              }
+            ]
           }
         ],
         "description": "Caller generates one AgentID before sending and retains it with the original intent. Omitted description/instructions expand to empty strings; omitted nullable metadata expands to null. Omitted creation-only switches expand to true; explicit false is valid and null is forbidden. Neither false nor empty arrays bypasses any real provider. No trimming or normalization except server-owned normalized_name. The real Registry may append its default install-skill Tool ID when enabled; Skills assignments are separate facts."
@@ -897,9 +928,17 @@
             "items": {
               "$ref": "./common.json#/components/schemas/ID"
             }
+          },
+          "runner_mounts": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "$ref": "#/components/schemas/RunnerMountBinding"
+            },
+            "description": "Present if and only if original request used runner_mounts, including []. Frozen original command allocations match declarations one-for-one and Mount ID set equals agent.allowed_mount_ids. Legacy receipts omit this field unchanged; null rejects."
           }
         },
-        "description": "Original create result, including historical replay: version 1, active, created_at=updated_at, exactly one event. Config fields must match the saved intent, with only the original Registry-resolved install-skill default allowed in the Tool set. No no-op create arm."
+        "description": "Original create result, including historical replay: version 1, active, created_at=updated_at, exactly one event. Config fields must match the saved intent, with only the original Registry-resolved install-skill default allowed in the Tool set. No no-op create arm. Runner declarations return their original frozen mapping, never a current reallocation; new/legacy receipt profile must match the original request."
       },
       "AgentCreateLookupBody": {
         "type": "object",
@@ -1060,9 +1099,27 @@
               "$ref": "./common.json#/components/schemas/ID"
             },
             "description": "Explicit non-null canonical ascending IDs; each set <=128 and all three sets together <=256. Go validates order and the combined bound."
+          },
+          "runner_mounts": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "$ref": "#/components/schemas/RunnerMountDeclaration"
+            },
+            "description": "Unique (runner_id,workspace) pairs, preserved original order. Mutually exclusive with allowed_mount_ids; null rejects. Counts toward the original total 256 references and complete JSON 512 KiB cap."
           }
         },
-        "description": "A presence-preserving patch, not a replacement configuration. Omission leaves a field unchanged; null clears only display_name, tag_color, reasoning_effort and approval_model_ref. Non-null false, empty strings and empty reference arrays are explicit values. Each supplied array fully replaces that set; creation defaults are never reinserted. The domain validates the complete proposed configuration and current references, including Model/approval compatibility. Identity, version, lifecycle, timestamps, Skill assignments and the two creation-only switches are forbidden."
+        "description": "A presence-preserving patch, not a replacement configuration. Omission leaves a field unchanged; null clears only display_name, tag_color, reasoning_effort and approval_model_ref. Non-null false, empty strings and empty reference arrays are explicit values. Each supplied array fully replaces that set; creation defaults are never reinserted. The domain validates the complete proposed configuration and current references, including Model/approval compatibility. Identity, version, lifecycle, timestamps, Skill assignments and the two creation-only switches are forbidden.",
+        "allOf": [
+          {
+            "not": {
+              "required": [
+                "allowed_mount_ids",
+                "runner_mounts"
+              ]
+            }
+          }
+        ]
       },
       "AgentUpdateBody": {
         "type": "object",
@@ -1136,6 +1193,14 @@
             "items": {
               "$ref": "./common.json#/components/schemas/ID"
             }
+          },
+          "runner_mounts": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "$ref": "#/components/schemas/RunnerMountBinding"
+            },
+            "description": "Present if and only if original request used runner_mounts, including []. Frozen original command allocations match declarations one-for-one and Mount ID set equals agent.allowed_mount_ids. Legacy receipts omit this field unchanged; null rejects."
           }
         },
         "allOf": [
@@ -1166,7 +1231,7 @@
             }
           }
         ],
-        "description": "Original update receipt: changed=true has exactly one event and version=caller expected+1; changed=false has no events and retains caller expected. HTTP checks the original Project/Agent and every present patch field. A historical receipt is not replaced with the current configuration; omission never asks HTTP to read current fields."
+        "description": "Original update receipt: changed=true has exactly one event and version=caller expected+1; changed=false has no events and retains caller expected. HTTP checks the original Project/Agent and every present patch field. A historical receipt is not replaced with the current configuration; omission never asks HTTP to read current fields. Runner declarations return their original frozen mapping, never a current reallocation; new/legacy receipt profile must match the original request."
       },
       "AgentUpdateLookup": {
         "oneOf": [
@@ -1217,6 +1282,54 @@
           }
         ],
         "description": "The receipt is validated against the requested command and its complete original intent. in_progress and not_observed retain a null receipt and do not authorize an automatic resend."
+      },
+      "RunnerMountDeclaration": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "runner_id",
+          "workspace"
+        ],
+        "properties": {
+          "runner_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "workspace": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,254}$",
+            "description": "Exact portable single ASCII segment. No trailing dot; first dot-separated segment must not equal CON/PRN/AUX/NUL/COM1..9/LPT1..9 case-insensitively. No normalization or truncation."
+          }
+        }
+      },
+      "RunnerMountBinding": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mount_id",
+          "workspace_id",
+          "runner_id",
+          "workspace"
+        ],
+        "properties": {
+          "mount_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "workspace_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "runner_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "workspace": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,254}$",
+            "description": "Exact portable single ASCII segment. No trailing dot; first dot-separated segment must not equal CON/PRN/AUX/NUL/COM1..9/LPT1..9 case-insensitively. No normalization or truncation."
+          }
+        }
       }
     }
   }

@@ -105,12 +105,9 @@ func (s *Service) LookupAgentCommand(ctx context.Context, actor i.Actor, project
 			out, err = c.NewAgentCommandLookup(c.AgentLookupInProgress, nil)
 			return err
 		}
-		receipt, err := c.DecodeAgentMutation(r.Receipt)
+		receipt, err := commandReceipt(r)
 		if err != nil {
-			return unavailable(err)
-		}
-		if !sameValue(receipt.Fields().Agent, r.After) || receipt.Fields().Changed != (len(r.ChangedFields) > 0) {
-			return unavailable(nil)
+			return err
 		}
 		out, err = c.NewAgentCommandLookup(c.AgentLookupCommitted, &receipt)
 		return err

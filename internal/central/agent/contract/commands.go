@@ -56,20 +56,28 @@ func AgentCommandDigest(actor i.Actor, meta f.CommandMeta, project i.ProjectID, 
 }
 
 type AgentMutationFields struct {
-	Agent    AgentConfig  `json:"agent"`
-	Changed  bool         `json:"changed"`
-	EventIDs []ec.EventID `json:"event_ids"`
+	RunnerMounts *[]RunnerMountBinding `json:"runner_mounts,omitempty"`
+	Agent        AgentConfig           `json:"agent"`
+	Changed      bool                  `json:"changed"`
+	EventIDs     []ec.EventID          `json:"event_ids"`
 }
 type AgentMutation struct{ data func() AgentMutationFields }
 
 func cloneMutation(v AgentMutationFields) AgentMutationFields {
 	v.Agent = v.Agent.Clone()
+	v.RunnerMounts = cloneSlicePtr(v.RunnerMounts)
 	v.EventIDs = slices.Clone(v.EventIDs)
 	return v
 }
 func NewAgentMutation(v AgentMutationFields) (AgentMutation, error) {
 	if v.Agent.Validate() != nil || v.EventIDs == nil || v.Changed && len(v.EventIDs) != 1 || !v.Changed && len(v.EventIDs) != 0 {
 		return AgentMutation{}, invalid("", "INVALID_AGENT_MUTATION")
+	}
+	if v.RunnerMounts != nil {
+		ids, err := RunnerMountIDs(*v.RunnerMounts)
+		if err != nil || !slices.Equal(ids, v.Agent.Fields().AllowedMountIDs) {
+			return AgentMutation{}, invalid("/runner_mounts", "INVALID_AGENT_MUTATION")
+		}
 	}
 	for _, id := range v.EventIDs {
 		if id.Validate() != nil {
@@ -99,7 +107,7 @@ func (v *AgentMutation) UnmarshalJSON(raw []byte) error {
 	if v == nil {
 		return invalid("", "INVALID_ENCODING")
 	}
-	_, err := decodeFields(raw, MaxAgentCoreBytes, []string{"agent", "changed", "event_ids"}, nil, nil)
+	_, err := decodeFields(raw, MaxAgentCoreBytes, []string{"agent", "changed", "event_ids"}, []string{"runner_mounts"}, nil)
 	if err != nil {
 		return err
 	}

@@ -13,6 +13,7 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	rc "github.com/LunaDeerTech/agenteam/internal/central/runner/contract"
 )
 
 type Configuration struct{ state *configurationState }
@@ -20,17 +21,18 @@ type configurationState struct {
 	store    Store
 	projects pc.ProjectAuthority
 	owner    ac.MountReferenceOwnerAuthority
+	runners  rc.ConfigurationCandidates
 }
 
 // NewConfiguration performs no I/O. Every collection, including [], requires
 // the real current Project authority and Agent canonical writer witness.
-// Mount creation/Runner selection and physical ensure are separate unbound
-// capabilities; this provider cannot manufacture a definition for a supplied ID.
+// This compatibility constructor validates existing IDs only. Explicit Runner
+// declarations require NewRunnerMountConfiguration; physical ensure is separate.
 func NewConfiguration(store Store, projects pc.ProjectAuthority, owner ac.MountReferenceOwnerAuthority) (*Configuration, error) {
 	if nilPort(store) || nilPort(projects) || nilPort(owner) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	return &Configuration{state: &configurationState{store, projects, owner}}, nil
+	return &Configuration{state: &configurationState{store: store, projects: projects, owner: owner}}, nil
 }
 
 type planData struct {
@@ -40,6 +42,7 @@ type planData struct {
 	locks       []f.LockRequest
 	before      referenceState
 	definitions []definition
+	bindings    []runnerBindingState
 }
 type configurationPlan struct{ data func() planData }
 
@@ -58,7 +61,8 @@ func (configurationPlan) MarshalJSON() ([]byte, error) {
 }
 func sameChange(a, b ac.MountConfigurationChange) bool {
 	return a.Actor.Equal(b.Actor) && a.ProjectID == b.ProjectID && a.AgentID == b.AgentID && a.Command.Canonical() == b.Command.Canonical() && a.PlanRevision == b.PlanRevision && a.ResultOwnerVersion == b.ResultOwnerVersion &&
-		(a.ExpectedOwnerVersion == nil && b.ExpectedOwnerVersion == nil || a.ExpectedOwnerVersion != nil && b.ExpectedOwnerVersion != nil && *a.ExpectedOwnerVersion == *b.ExpectedOwnerVersion) && slices.Equal(a.Before, b.Before) && slices.Equal(a.After, b.After)
+		(a.ExpectedOwnerVersion == nil && b.ExpectedOwnerVersion == nil || a.ExpectedOwnerVersion != nil && b.ExpectedOwnerVersion != nil && *a.ExpectedOwnerVersion == *b.ExpectedOwnerVersion) && slices.Equal(a.Before, b.Before) && slices.Equal(a.After, b.After) &&
+		(a.RunnerMounts == nil && b.RunnerMounts == nil || a.RunnerMounts != nil && b.RunnerMounts != nil && slices.Equal(*a.RunnerMounts, *b.RunnerMounts))
 }
 func requiredLocks(r ac.MountConfigurationChange, owner ac.MountReferenceOwnerPlan) ([]f.LockRequest, error) {
 	command, _ := f.CommandLock(r.Command)
@@ -137,6 +141,19 @@ func (c *Configuration) DiscoverMountConfiguration(ctx context.Context, change a
 	if err != nil {
 		return nil, portError(err)
 	}
+	if change.RunnerMounts != nil {
+		runnerLocks, err := s.runnerLocks(bindingRunnerIDs(*change.RunnerMounts))
+		if err != nil {
+			return nil, err
+		}
+		if len(locks)+len(runnerLocks) > 512 {
+			return nil, fault(f.InvalidArgument)
+		}
+		locks, err = oc.NormalizeLocks(append(locks, runnerLocks...))
+		if err != nil {
+			return nil, portError(err)
+		}
+	}
 	cause, err := f.NewCommandsCause(change.Command)
 	if err != nil {
 		return nil, fault(f.InvalidArgument)
@@ -160,12 +177,22 @@ func (c *Configuration) DiscoverMountConfiguration(ctx context.Context, change a
 		if err = checkBefore(change, d.before); err != nil {
 			return err
 		}
-		for _, id := range change.After {
-			v, err := loadDefinition(ctx, x, change.ProjectID, change.AgentID, id)
+		if change.RunnerMounts != nil {
+			if err = s.requireRunners(ctx, tx, change.Actor, change.ProjectID, bindingRunnerIDs(*change.RunnerMounts)); err != nil {
+				return err
+			}
+			d.bindings, err = loadRunnerBindingStates(ctx, x, change)
 			if err != nil {
 				return err
 			}
-			d.definitions = append(d.definitions, v)
+		} else {
+			for _, id := range change.After {
+				v, err := loadDefinition(ctx, x, change.ProjectID, change.AgentID, id)
+				if err != nil {
+					return err
+				}
+				d.definitions = append(d.definitions, v)
+			}
 		}
 		return portError(ctx.Err())
 	})
@@ -210,6 +237,18 @@ func (c *Configuration) validatePlan(ctx context.Context, tx f.Tx, r ac.MountCon
 	if before.exists != d.before.exists || before.version != d.before.version || !slices.Equal(before.ids, d.before.ids) {
 		return zero, nil, fault(f.VersionConflict)
 	}
+	if r.RunnerMounts != nil {
+		if err = c.state.requireRunners(ctx, tx, r.Actor, r.ProjectID, bindingRunnerIDs(*r.RunnerMounts)); err != nil {
+			return zero, nil, err
+		}
+		states, err := loadRunnerBindingStates(ctx, x, r)
+		if err != nil {
+			return zero, nil, err
+		}
+		if !slices.EqualFunc(states, d.bindings, sameBindingState) {
+			return zero, nil, fault(f.VersionConflict)
+		}
+	}
 	for _, original := range d.definitions {
 		now, err := loadDefinition(ctx, x, r.ProjectID, r.AgentID, original.ID)
 		if err != nil {
@@ -235,6 +274,11 @@ func (c *Configuration) ApplyMountConfigurationInTx(ctx context.Context, tx f.Tx
 	// or DTO can stand in for the Agent provider's private same-Tx witness.
 	if err = c.state.owner.CheckMountReferenceOwnerAppliedInTx(ctx, tx, change.Clone(), d.owner); err != nil {
 		return portError(err)
+	}
+	for _, binding := range d.bindings {
+		if err = insertBinding(ctx, x, change.ProjectID, change.AgentID, binding); err != nil {
+			return err
+		}
 	}
 	return writeReferences(ctx, x, change, d.before)
 }

@@ -22,6 +22,7 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	"github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
+	runnerservice "github.com/LunaDeerTech/agenteam/internal/central/runner/service"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 	"github.com/LunaDeerTech/agenteam/internal/central/tool/registry"
@@ -60,6 +61,7 @@ type Providers struct {
 	SkillAuthority   *skill.Authority
 	Skills           *skill.AgentInitializer
 	Mounts           *mount.Configuration
+	RunnerCandidates *runnerservice.ConfigurationDirectory
 	Registry         *registry.Registry
 	AuditProjects    ac.ProjectAuthority
 }
@@ -162,7 +164,11 @@ func New(store Store, options Options) (*Assembly, error) {
 	if err != nil {
 		return nil, err
 	}
-	p.Mounts, err = mount.NewConfiguration(store, p.Projects, p.Agents)
+	p.RunnerCandidates, err = runnerservice.NewConfigurationDirectory(store, p.Projects)
+	if err != nil {
+		return nil, err
+	}
+	p.Mounts, err = mount.NewRunnerMountConfiguration(store, p.Projects, p.Agents, p.RunnerCandidates)
 	if err != nil {
 		return nil, err
 	}
@@ -232,6 +238,7 @@ func (a *Assembly) NewService(keys cursor.Keyring, processes oc.ProcessAuthority
 		return nil, err
 	}
 	return agent.New(a.store, agent.Dependencies{
+		RunnerCandidates: p.RunnerCandidates, RunnerCursorKeys: keys,
 		Authority: p.Agents, EventAuthority: p.AgentEvents, Events: journal, Audit: auditor, Activity: p.Accounts,
 		Models: p.ModelReferences, Tools: tools, ToolReferences: tools, Mounts: p.Mounts,
 		Secrets: p.SecretDirectory, SecretReferences: p.SecretReferences, Skills: p.Skills,

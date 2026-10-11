@@ -134,7 +134,16 @@ func configurationUpdateReceiptMatches(value c.AgentMutation, project i.ProjectI
 	// Apply presence to the original receipt itself: every explicit field must
 	// already match, including null/false/empty arrays. Omitted fields remain
 	// historical facts; no current read or creation default fills them in.
-	proposed, err := request.Proposed(receipt.Agent)
+	var proposed c.AgentConfig
+	var err error
+	if (request.Fields().RunnerMounts == nil) != (receipt.RunnerMounts == nil) {
+		return false
+	}
+	if receipt.RunnerMounts != nil {
+		proposed, err = request.ProposedWithRunnerMounts(receipt.Agent, *receipt.RunnerMounts)
+	} else {
+		proposed, err = request.Proposed(receipt.Agent)
+	}
 	if err != nil {
 		return false
 	}
@@ -166,7 +175,16 @@ func configurationReceiptMatches(value c.AgentMutation, project i.ProjectID, req
 	if !receipt.Changed || len(receipt.EventIDs) != 1 || !configurationMatches(receipt.Agent, project, wanted.AgentID) {
 		return false
 	}
+	if (wanted.RunnerMounts == nil) != (receipt.RunnerMounts == nil) {
+		return false
+	}
 	got := receipt.Agent.Fields()
+	if wanted.RunnerMounts != nil {
+		if c.MatchRunnerMountBindings(*wanted.RunnerMounts, *receipt.RunnerMounts, got.AllowedMountIDs) != nil {
+			return false
+		}
+		wanted.AllowedMountIDs = got.AllowedMountIDs
+	}
 	core := got.Core
 	if core.Version != 1 || core.CreatedAt != core.UpdatedAt || core.Name != wanted.Name ||
 		!configurationSame(core.DisplayName, wanted.DisplayName) || !configurationSame(core.TagColor, wanted.TagColor) ||

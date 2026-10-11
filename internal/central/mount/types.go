@@ -1,13 +1,13 @@
 package mount
 
 import (
-	"regexp"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/mount/contract"
 	rc "github.com/LunaDeerTech/agenteam/internal/central/runner/contract"
 )
 
@@ -25,17 +25,8 @@ type definition struct {
 	Version     f.Version
 }
 
-var workspaceSegment = regexp.MustCompile(`^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,254}$`)
-
 func safeWorkspace(s string) bool {
-	if !workspaceSegment.MatchString(s) || strings.HasSuffix(s, ".") {
-		return false
-	}
-	base, _, _ := strings.Cut(strings.ToUpper(s), ".")
-	if base == "CON" || base == "PRN" || base == "AUX" || base == "NUL" {
-		return false
-	}
-	return !(len(base) == 4 && (strings.HasPrefix(base, "COM") || strings.HasPrefix(base, "LPT")) && base[3] >= '1' && base[3] <= '9')
+	return mc.ValidWorkspaceName(s)
 }
 func validText(s string, max int) bool {
 	return len(s) <= max && utf8.ValidString(s) && !strings.ContainsRune(s, 0)

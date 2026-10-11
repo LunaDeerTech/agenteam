@@ -18,10 +18,10 @@ func (p mountOwnerPlan) RequiredLocks() []f.LockRequest {
 	return ownerLocks(p.request.Actor, p.request.ProjectID, p.request.AgentID, p.request.Command)
 }
 func sameMountChange(a, b c.MountConfigurationChange) bool {
-	return a.Actor.Equal(b.Actor) && a.ProjectID == b.ProjectID && a.AgentID == b.AgentID && a.Command.Canonical() == b.Command.Canonical() && a.PlanRevision == b.PlanRevision && sameValue(a.ExpectedOwnerVersion, b.ExpectedOwnerVersion) && a.ResultOwnerVersion == b.ResultOwnerVersion && slices.Equal(a.Before, b.Before) && slices.Equal(a.After, b.After)
+	return a.Actor.Equal(b.Actor) && a.ProjectID == b.ProjectID && a.AgentID == b.AgentID && a.Command.Canonical() == b.Command.Canonical() && a.PlanRevision == b.PlanRevision && sameValue(a.ExpectedOwnerVersion, b.ExpectedOwnerVersion) && a.ResultOwnerVersion == b.ResultOwnerVersion && slices.Equal(a.Before, b.Before) && slices.Equal(a.After, b.After) && sameValue(a.RunnerMounts, b.RunnerMounts)
 }
 func matchesMounts(r *commandRecord, req c.MountConfigurationChange) bool {
-	if r == nil || r.Revision != req.PlanRevision || !sameValue(r.Expected, req.ExpectedOwnerVersion) || r.After.Fields().Core.Version != req.ResultOwnerVersion || !slices.Equal(r.After.Fields().AllowedMountIDs, req.After) {
+	if r == nil || !sameValue(r.RunnerMounts, req.RunnerMounts) || r.Revision != req.PlanRevision || !sameValue(r.Expected, req.ExpectedOwnerVersion) || r.After.Fields().Core.Version != req.ResultOwnerVersion || !slices.Equal(r.After.Fields().AllowedMountIDs, req.After) {
 		return false
 	}
 	if r.Before == nil {

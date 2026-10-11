@@ -14,28 +14,30 @@ import (
 // A nil default option means omission and expands to true. Nullable metadata
 // remains nil. Fields() always returns the expanded defaults and owned copies.
 type AgentCreateFields struct {
-	AgentID                  i.AgentID             `json:"agent_id"`
-	Name                     string                `json:"name"`
-	DisplayName              *string               `json:"display_name"`
-	TagColor                 *string               `json:"tag_color"`
-	Description              string                `json:"description"`
-	Instructions             string                `json:"instructions"`
-	InjectAgentsMD           bool                  `json:"inject_agents_md"`
-	ModelRef                 mc.ModelID            `json:"model_ref"`
-	ReasoningEffort          *string               `json:"reasoning_effort"`
-	ApprovalPolicy           ApprovalPolicy        `json:"approval_policy"`
-	ApprovalModelRef         *mc.ModelID           `json:"approval_model_ref"`
-	AllowedToolIDs           []i.ToolID            `json:"allowed_tool_ids"`
-	AllowedMountIDs          []i.MountID           `json:"allowed_mount_ids"`
-	AllowedSecretVariableIDs []i.ProjectVariableID `json:"allowed_secret_variable_ids"`
-	AddSkillsEnabled         *bool                 `json:"add_skills_enabled"`
-	InstallSkillEnabled      *bool                 `json:"install_skill_enabled"`
+	RunnerMounts             *[]RunnerMountDeclaration `json:"runner_mounts,omitempty"`
+	AgentID                  i.AgentID                 `json:"agent_id"`
+	Name                     string                    `json:"name"`
+	DisplayName              *string                   `json:"display_name"`
+	TagColor                 *string                   `json:"tag_color"`
+	Description              string                    `json:"description"`
+	Instructions             string                    `json:"instructions"`
+	InjectAgentsMD           bool                      `json:"inject_agents_md"`
+	ModelRef                 mc.ModelID                `json:"model_ref"`
+	ReasoningEffort          *string                   `json:"reasoning_effort"`
+	ApprovalPolicy           ApprovalPolicy            `json:"approval_policy"`
+	ApprovalModelRef         *mc.ModelID               `json:"approval_model_ref"`
+	AllowedToolIDs           []i.ToolID                `json:"allowed_tool_ids"`
+	AllowedMountIDs          []i.MountID               `json:"allowed_mount_ids"`
+	AllowedSecretVariableIDs []i.ProjectVariableID     `json:"allowed_secret_variable_ids"`
+	AddSkillsEnabled         *bool                     `json:"add_skills_enabled"`
+	InstallSkillEnabled      *bool                     `json:"install_skill_enabled"`
 }
 type AgentCreate struct{ data func() AgentCreateFields }
 
 func cloneCreate(v AgentCreateFields) AgentCreateFields {
 	v.DisplayName, v.TagColor, v.ReasoningEffort = clonePtr(v.DisplayName), clonePtr(v.TagColor), clonePtr(v.ReasoningEffort)
 	v.ApprovalModelRef = clonePtr(v.ApprovalModelRef)
+	v.RunnerMounts = cloneSlicePtr(v.RunnerMounts)
 	v.AddSkillsEnabled, v.InstallSkillEnabled = clonePtr(v.AddSkillsEnabled), clonePtr(v.InstallSkillEnabled)
 	v.AllowedToolIDs, v.AllowedMountIDs, v.AllowedSecretVariableIDs = slices.Clone(v.AllowedToolIDs), slices.Clone(v.AllowedMountIDs), slices.Clone(v.AllowedSecretVariableIDs)
 	return v
@@ -48,7 +50,14 @@ func NewAgentCreate(v AgentCreateFields) (AgentCreate, error) {
 		(v.ApprovalPolicy == ApprovalAuto) != (v.ApprovalModelRef != nil) || v.ApprovalModelRef != nil && v.ApprovalModelRef.Validate() != nil {
 		return AgentCreate{}, invalid("", "INVALID_AGENT_CREATE")
 	}
-	if err := validateReferences(v.AllowedToolIDs, v.AllowedMountIDs, v.AllowedSecretVariableIDs); err != nil {
+	mounts := v.AllowedMountIDs
+	if v.RunnerMounts != nil {
+		if mounts != nil || ValidateRunnerMountDeclarations(*v.RunnerMounts) != nil || len(v.AllowedToolIDs)+len(*v.RunnerMounts)+len(v.AllowedSecretVariableIDs) > MaxTotalCapabilityReferences {
+			return AgentCreate{}, invalid("/runner_mounts", "INVALID_RUNNER_MOUNTS")
+		}
+		mounts = []i.MountID{}
+	}
+	if err := validateReferences(v.AllowedToolIDs, mounts, v.AllowedSecretVariableIDs); err != nil {
 		return AgentCreate{}, err
 	}
 	v = cloneCreate(v)
@@ -76,15 +85,27 @@ func (v AgentCreate) Validate() error {
 }
 func (v AgentCreate) Clone() AgentCreate { return v }
 func (v AgentCreate) MarshalJSON() ([]byte, error) {
-	return marshalChecked(v.Fields(), v.Validate(), MaxAgentCoreBytes)
+	if v.Fields().RunnerMounts == nil {
+		return marshalChecked(v.Fields(), v.Validate(), MaxAgentCoreBytes)
+	}
+	raw, err := json.Marshal(v.Fields())
+	if err != nil {
+		return nil, err
+	}
+	var fields map[string]json.RawMessage
+	if err = json.Unmarshal(raw, &fields); err != nil {
+		return nil, err
+	}
+	delete(fields, "allowed_mount_ids")
+	return marshalChecked(fields, v.Validate(), MaxAgentCoreBytes)
 }
 func (v *AgentCreate) UnmarshalJSON(raw []byte) error {
 	if v == nil {
 		return invalid("", "INVALID_ENCODING")
 	}
 	_, err := decodeFields(raw, MaxAgentCoreBytes,
-		[]string{"agent_id", "name", "model_ref", "inject_agents_md", "approval_policy", "allowed_tool_ids", "allowed_mount_ids", "allowed_secret_variable_ids"},
-		[]string{"display_name", "tag_color", "description", "instructions", "reasoning_effort", "approval_model_ref", "add_skills_enabled", "install_skill_enabled"},
+		[]string{"agent_id", "name", "model_ref", "inject_agents_md", "approval_policy", "allowed_tool_ids", "allowed_secret_variable_ids"},
+		[]string{"allowed_mount_ids", "runner_mounts", "display_name", "tag_color", "description", "instructions", "reasoning_effort", "approval_model_ref", "add_skills_enabled", "install_skill_enabled"},
 		[]string{"display_name", "tag_color", "reasoning_effort", "approval_model_ref"})
 	if err != nil {
 		return err

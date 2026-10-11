@@ -24,11 +24,18 @@ type MountConfigurationChange struct {
 	ExpectedOwnerVersion *f.Version
 	ResultOwnerVersion   f.Version
 	Before, After        []i.MountID
+	RunnerMounts         *[]RunnerMountBinding
 }
 
 func (r MountConfigurationChange) Validate() error {
 	if !validAgentCommand(r.Actor, r.ProjectID, r.Command) || r.AgentID.Validate() != nil || r.PlanRevision.Validate() != nil || r.ResultOwnerVersion.Validate() != nil || !validReferences(r.Before) || !validReferences(r.After) {
 		return invalid("", "INVALID_MOUNT_CONFIGURATION")
+	}
+	if r.RunnerMounts != nil {
+		ids, err := RunnerMountIDs(*r.RunnerMounts)
+		if err != nil || !slices.Equal(ids, r.After) {
+			return invalid("", "INVALID_MOUNT_CONFIGURATION")
+		}
 	}
 	if r.Command.Command() == "agent.create" {
 		if r.ExpectedOwnerVersion != nil || r.ResultOwnerVersion != 1 || len(r.Before) != 0 {
@@ -42,6 +49,7 @@ func (r MountConfigurationChange) Validate() error {
 func (r MountConfigurationChange) Clone() MountConfigurationChange {
 	r.ExpectedOwnerVersion = clonePtr(r.ExpectedOwnerVersion)
 	r.Before, r.After = slices.Clone(r.Before), slices.Clone(r.After)
+	r.RunnerMounts = cloneSlicePtr(r.RunnerMounts)
 	return r
 }
 

@@ -9,6 +9,7 @@ import (
 
 	c "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
@@ -20,6 +21,8 @@ type ActivityAuthority interface {
 	TouchActivityInTx(context.Context, f.Tx, i.Actor) error
 }
 type Dependencies struct {
+	RunnerCandidates c.RunnerCandidateDirectory
+	RunnerCursorKeys cursor.Keyring
 	Authority        *Authority
 	EventAuthority   *EventAuthority
 	Events           oc.Appender

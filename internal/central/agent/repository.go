@@ -170,6 +170,7 @@ func replaceAllowlist[K any](ctx context.Context, x postgres.SQLExecutor, projec
 }
 
 type commandRecord struct {
+	RunnerMounts        *[]c.RunnerMountBinding
 	ID                  c.AgentCommandID
 	Project             i.ProjectID
 	User                i.UserID
@@ -242,10 +243,10 @@ func loadCommand(ctx context.Context, x postgres.SQLExecutor, project i.ProjectI
 	var id, p, user, target, name, semantic string
 	var expected *int64
 	var revision int64
-	var before, after []byte
+	var before, after, runnerMounts []byte
 	var created time.Time
 	var committed *time.Time
-	err := x.QueryRow(ctx, `SELECT id::text,project_id::text,actor_user_id::text,target_id::text,command_name,semantic_digest,input,expected_version,plan_revision,before_config,after_config,add_skills_enabled,install_skill_enabled,changed_fields,state,receipt,created_at,committed_at FROM agenteam_agent.commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3`, project.String(), string(command), string(key)).Scan(&id, &p, &user, &target, &name, &semantic, &r.Input, &expected, &revision, &before, &after, &r.AddSkillsEnabled, &r.InstallSkillEnabled, &r.ChangedFields, &r.State, &r.Receipt, &created, &committed)
+	err := x.QueryRow(ctx, `SELECT id::text,project_id::text,actor_user_id::text,target_id::text,command_name,semantic_digest,input,expected_version,plan_revision,before_config,after_config,add_skills_enabled,install_skill_enabled,changed_fields,state,receipt,created_at,committed_at,runner_mounts FROM agenteam_agent.commands WHERE project_id=$1 AND command_name=$2 AND idempotency_key=$3`, project.String(), string(command), string(key)).Scan(&id, &p, &user, &target, &name, &semantic, &r.Input, &expected, &revision, &before, &after, &r.AddSkillsEnabled, &r.InstallSkillEnabled, &r.ChangedFields, &r.State, &r.Receipt, &created, &committed, &runnerMounts)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -291,6 +292,16 @@ func loadCommand(ctx context.Context, x postgres.SQLExecutor, project i.ProjectI
 			return nil, unavailable(nil)
 		}
 		r.Committed = &value
+	}
+	if len(runnerMounts) != 0 {
+		var bindings []c.RunnerMountBinding
+		if json.Unmarshal(runnerMounts, &bindings) != nil {
+			return nil, unavailable(nil)
+		}
+		if _, err := c.RunnerMountIDs(bindings); err != nil {
+			return nil, unavailable(nil)
+		}
+		r.RunnerMounts = &bindings
 	}
 	if err := r.validate(); err != nil {
 		return nil, err

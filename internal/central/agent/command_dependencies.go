@@ -60,7 +60,7 @@ func (s *Service) discoverDependencies(ctx context.Context, in commandInput, r *
 		d.modelChange.Before = &before
 	}
 	d.toolChange = c.ToolReferenceChange{Actor: in.actor, ProjectID: r.Project, AgentID: r.Target, Command: r.identity(), PlanRevision: r.Revision, ExpectedOwnerVersion: r.Expected, ResultOwnerVersion: a.Core.Version, Before: b.AllowedToolIDs, After: a.AllowedToolIDs}
-	d.mountChange = c.MountConfigurationChange{Actor: in.actor, ProjectID: r.Project, AgentID: r.Target, Command: r.identity(), PlanRevision: r.Revision, ExpectedOwnerVersion: r.Expected, ResultOwnerVersion: a.Core.Version, Before: b.AllowedMountIDs, After: a.AllowedMountIDs}
+	d.mountChange = c.MountConfigurationChange{RunnerMounts: r.RunnerMounts, Actor: in.actor, ProjectID: r.Project, AgentID: r.Target, Command: r.identity(), PlanRevision: r.Revision, ExpectedOwnerVersion: r.Expected, ResultOwnerVersion: a.Core.Version, Before: b.AllowedMountIDs, After: a.AllowedMountIDs}
 	d.secretRequest = vc.SecretDirectoryRequest{Actor: in.actor, ProjectID: r.Project, Command: r.identity(), IDs: a.AllowedSecretVariableIDs}
 	op := vc.SecretReferenceCreate
 	if r.Before != nil {

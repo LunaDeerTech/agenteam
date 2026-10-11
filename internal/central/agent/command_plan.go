@@ -10,19 +10,22 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	rc "github.com/LunaDeerTech/agenteam/internal/central/runner/contract"
 )
 
 type commandInput struct {
-	actor    i.Actor
-	meta     f.CommandMeta
-	project  i.ProjectID
-	target   i.AgentID
-	name     c.CommandName
-	create   *c.AgentCreate
-	update   *c.AgentUpdate
-	semantic f.Digest
-	identity f.CommandIdentity
-	raw      json.RawMessage
+	runnerMounts *[]c.RunnerMountBinding
+	actor        i.Actor
+	meta         f.CommandMeta
+	project      i.ProjectID
+	target       i.AgentID
+	name         c.CommandName
+	create       *c.AgentCreate
+	update       *c.AgentUpdate
+	semantic     f.Digest
+	identity     f.CommandIdentity
+	raw          json.RawMessage
 }
 
 func (in *commandInput) validate() error {
@@ -96,7 +99,7 @@ func planConfiguration(in commandInput, before *c.AgentConfig, at f.Instant) (c.
 		if before != nil {
 			return c.AgentConfig{}, nil, targetOccupied()
 		}
-		after, err := createConfiguration(in.project, *in.create, at)
+		after, err := createConfigurationWithMounts(in.project, *in.create, at, in.runnerMounts)
 		return after, c.EditableFields(), err
 	}
 	if before == nil {
@@ -109,7 +112,13 @@ func planConfiguration(in commandInput, before *c.AgentConfig, at f.Instant) (c.
 	if b.Lifecycle != c.AgentActive {
 		return c.AgentConfig{}, nil, fault(f.InvalidState)
 	}
-	after, err := in.update.Proposed(*before)
+	var after c.AgentConfig
+	var err error
+	if in.runnerMounts != nil {
+		after, err = in.update.ProposedWithRunnerMounts(*before, *in.runnerMounts)
+	} else {
+		after, err = in.update.Proposed(*before)
+	}
 	if err != nil {
 		return c.AgentConfig{}, nil, err
 	}
@@ -156,7 +165,7 @@ func validateCommandInput(r *commandRecord) error {
 		if r.AddSkillsEnabled == nil || r.InstallSkillEnabled == nil || *r.AddSkillsEnabled != *d.AddSkillsEnabled || *r.InstallSkillEnabled != *d.InstallSkillEnabled {
 			return unavailable(nil)
 		}
-		base, err := createConfiguration(r.Project, request, r.After.Fields().Core.CreatedAt)
+		base, err := createConfigurationWithMounts(r.Project, request, r.After.Fields().Core.CreatedAt, r.RunnerMounts)
 		if err != nil {
 			return unavailable(err)
 		}
@@ -185,7 +194,15 @@ func validateCommandInput(r *commandRecord) error {
 		if err != nil || r.Before == nil {
 			return unavailable(err)
 		}
-		after, err := request.Proposed(*r.Before)
+		if (request.Fields().RunnerMounts == nil) != (r.RunnerMounts == nil) {
+			return unavailable(nil)
+		}
+		var after c.AgentConfig
+		if r.RunnerMounts != nil {
+			after, err = request.ProposedWithRunnerMounts(*r.Before, *r.RunnerMounts)
+		} else {
+			after, err = request.Proposed(*r.Before)
+		}
 		if err != nil {
 			return unavailable(err)
 		}
@@ -201,4 +218,60 @@ func validateCommandInput(r *commandRecord) error {
 		}
 	}
 	return nil
+}
+
+func createConfigurationWithMounts(project i.ProjectID, request c.AgentCreate, at f.Instant, bindings *[]c.RunnerMountBinding) (c.AgentConfig, error) {
+	d := request.Fields()
+	if (d.RunnerMounts == nil) != (bindings == nil) {
+		return c.AgentConfig{}, unavailable(nil)
+	}
+	if bindings != nil {
+		ids, err := c.RunnerMountIDs(*bindings)
+		if err != nil || c.MatchRunnerMountBindings(*d.RunnerMounts, *bindings, ids) != nil {
+			return c.AgentConfig{}, unavailable(nil)
+		}
+		d.RunnerMounts, d.AllowedMountIDs = nil, ids
+		resolved, err := c.NewAgentCreate(d)
+		if err != nil {
+			return c.AgentConfig{}, err
+		}
+		return createConfiguration(project, resolved, at)
+	}
+	return createConfiguration(project, request, at)
+}
+func (in commandInput) mountDeclarations() *[]c.RunnerMountDeclaration {
+	if in.create != nil {
+		return in.create.Fields().RunnerMounts
+	}
+	if in.update != nil {
+		return in.update.Fields().RunnerMounts
+	}
+	return nil
+}
+func (in commandInput) mountPlanRequest(before *c.AgentConfig) c.RunnerMountPlanRequest {
+	d := in.mountDeclarations()
+	var items []c.RunnerMountDeclaration
+	if d != nil {
+		items = slices.Clone(*d)
+	}
+	return c.RunnerMountPlanRequest{Actor: in.actor, ProjectID: in.project, AgentID: in.target, Command: in.identity, ExpectedOwnerVersion: in.meta.ExpectedVersion, Before: before, Declarations: items}.Clone()
+}
+
+func (in commandInput) prepareLocks() ([]f.LockRequest, error) {
+	held := in.locks()
+	if declarations := in.mountDeclarations(); declarations != nil {
+		ids := make([]rc.RunnerID, 0, len(*declarations))
+		for _, d := range *declarations {
+			ids = append(ids, d.RunnerID)
+		}
+		extra, err := rc.ConfigurationCandidateLockRequests(ids)
+		if err != nil {
+			return nil, err
+		}
+		held = append(held, extra...)
+	}
+	if len(held) > 512 {
+		return nil, fault(f.ResourceBusy)
+	}
+	return oc.NormalizeLocks(held)
 }

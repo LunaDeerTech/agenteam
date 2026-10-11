@@ -17,6 +17,7 @@ type NullableChange[T any] struct {
 	Value   *T
 }
 type AgentUpdateFields struct {
+	RunnerMounts             *[]RunnerMountDeclaration
 	Name                     *string
 	DisplayName              NullableChange[string]
 	TagColor                 NullableChange[string]
@@ -49,6 +50,7 @@ func cloneUpdate(v AgentUpdateFields) AgentUpdateFields {
 	v.InjectAgentsMD, v.ModelRef, v.ApprovalPolicy = clonePtr(v.InjectAgentsMD), clonePtr(v.ModelRef), clonePtr(v.ApprovalPolicy)
 	v.DisplayName, v.TagColor, v.ReasoningEffort = cloneNullable(v.DisplayName), cloneNullable(v.TagColor), cloneNullable(v.ReasoningEffort)
 	v.ApprovalModelRef = cloneNullable(v.ApprovalModelRef)
+	v.RunnerMounts = cloneSlicePtr(v.RunnerMounts)
 	v.AllowedToolIDs, v.AllowedMountIDs, v.AllowedSecretVariableIDs = cloneSlicePtr(v.AllowedToolIDs), cloneSlicePtr(v.AllowedMountIDs), cloneSlicePtr(v.AllowedSecretVariableIDs)
 	return v
 }
@@ -63,7 +65,13 @@ func NewAgentUpdate(v AgentUpdateFields) (AgentUpdate, error) {
 		v.AllowedToolIDs != nil && !validReferences(*v.AllowedToolIDs) || v.AllowedMountIDs != nil && !validReferences(*v.AllowedMountIDs) || v.AllowedSecretVariableIDs != nil && !validReferences(*v.AllowedSecretVariableIDs) {
 		return AgentUpdate{}, invalid("", "INVALID_AGENT_UPDATE")
 	}
+	if v.RunnerMounts != nil && (v.AllowedMountIDs != nil || ValidateRunnerMountDeclarations(*v.RunnerMounts) != nil) {
+		return AgentUpdate{}, invalid("/runner_mounts", "INVALID_RUNNER_MOUNTS")
+	}
 	count := 0
+	if v.RunnerMounts != nil {
+		count += len(*v.RunnerMounts)
+	}
 	if v.AllowedToolIDs != nil {
 		count += len(*v.AllowedToolIDs)
 	}
@@ -103,6 +111,7 @@ func updateWire(v AgentUpdateFields) map[string]any {
 	putNullable(m, "approval_model_ref", v.ApprovalModelRef)
 	putValue(m, "allowed_tool_ids", v.AllowedToolIDs)
 	putValue(m, "allowed_mount_ids", v.AllowedMountIDs)
+	putValue(m, "runner_mounts", v.RunnerMounts)
 	putValue(m, "allowed_secret_variable_ids", v.AllowedSecretVariableIDs)
 	return m
 }
@@ -146,7 +155,7 @@ func (v *AgentUpdate) UnmarshalJSON(raw []byte) error {
 	if v == nil {
 		return invalid("", "INVALID_ENCODING")
 	}
-	fields, err := decodeFields(raw, MaxAgentCoreBytes, nil, []string{"name", "display_name", "tag_color", "description", "instructions", "inject_agents_md", "model_ref", "reasoning_effort", "approval_policy", "approval_model_ref", "allowed_tool_ids", "allowed_mount_ids", "allowed_secret_variable_ids"}, coreNullable)
+	fields, err := decodeFields(raw, MaxAgentCoreBytes, nil, []string{"name", "display_name", "tag_color", "description", "instructions", "inject_agents_md", "model_ref", "reasoning_effort", "approval_policy", "approval_model_ref", "allowed_tool_ids", "allowed_mount_ids", "runner_mounts", "allowed_secret_variable_ids"}, coreNullable)
 	if err != nil {
 		return err
 	}
@@ -154,7 +163,7 @@ func (v *AgentUpdate) UnmarshalJSON(raw []byte) error {
 	checks := []error{decodeOptional(fields, "name", &d.Name), decodeNullable(fields, "display_name", &d.DisplayName), decodeNullable(fields, "tag_color", &d.TagColor),
 		decodeOptional(fields, "description", &d.Description), decodeOptional(fields, "instructions", &d.Instructions), decodeOptional(fields, "inject_agents_md", &d.InjectAgentsMD), decodeOptional(fields, "model_ref", &d.ModelRef),
 		decodeNullable(fields, "reasoning_effort", &d.ReasoningEffort), decodeOptional(fields, "approval_policy", &d.ApprovalPolicy), decodeNullable(fields, "approval_model_ref", &d.ApprovalModelRef),
-		decodeOptional(fields, "allowed_tool_ids", &d.AllowedToolIDs), decodeOptional(fields, "allowed_mount_ids", &d.AllowedMountIDs), decodeOptional(fields, "allowed_secret_variable_ids", &d.AllowedSecretVariableIDs)}
+		decodeOptional(fields, "allowed_tool_ids", &d.AllowedToolIDs), decodeOptional(fields, "allowed_mount_ids", &d.AllowedMountIDs), decodeOptional(fields, "runner_mounts", &d.RunnerMounts), decodeOptional(fields, "allowed_secret_variable_ids", &d.AllowedSecretVariableIDs)}
 	for _, err := range checks {
 		if err != nil {
 			return invalid("", "INVALID_ENCODING")
@@ -182,6 +191,9 @@ func (v AgentUpdate) Proposed(base AgentConfig) (AgentConfig, error) {
 		return AgentConfig{}, err
 	}
 	r, d := v.Fields(), base.Fields()
+	if r.RunnerMounts != nil {
+		return AgentConfig{}, invalid("/runner_mounts", "RUNNER_MOUNT_BINDING_REQUIRED")
+	}
 	core := &d.Core
 	if r.Name != nil {
 		core.Name = *r.Name
@@ -227,3 +239,22 @@ func (v AgentUpdate) Proposed(base AgentConfig) (AgentConfig, error) {
 }
 func (AgentUpdate) Format(w fmt.State, _ rune) { _, _ = io.WriteString(w, "agent_update") }
 func (AgentUpdate) LogValue() slog.Value       { return slog.StringValue("agent_update") }
+
+// ProposedWithRunnerMounts binds the original declarations to the frozen plan;
+// callers cannot replace the original request with newly generated identities.
+func (v AgentUpdate) ProposedWithRunnerMounts(base AgentConfig, bindings []RunnerMountBinding) (AgentConfig, error) {
+	d := v.Fields()
+	if d.RunnerMounts == nil {
+		return AgentConfig{}, invalid("/runner_mounts", "RUNNER_MOUNT_BINDING_REQUIRED")
+	}
+	ids, err := RunnerMountIDs(bindings)
+	if err != nil || MatchRunnerMountBindings(*d.RunnerMounts, bindings, ids) != nil {
+		return AgentConfig{}, invalid("/runner_mounts", "RUNNER_MOUNT_BINDING_MISMATCH")
+	}
+	d.RunnerMounts, d.AllowedMountIDs = nil, &ids
+	resolved, err := NewAgentUpdate(d)
+	if err != nil {
+		return AgentConfig{}, err
+	}
+	return resolved.Proposed(base)
+}

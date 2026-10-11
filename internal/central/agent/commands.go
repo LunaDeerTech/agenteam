@@ -146,7 +146,7 @@ func (s *Service) commitCommand(ctx context.Context, in commandInput, prepared *
 			}
 			eventIDs = append(eventIDs, eventReceipt.EventID)
 		}
-		receipt, err := c.NewAgentMutation(c.AgentMutationFields{Agent: r.After, Changed: len(r.ChangedFields) > 0, EventIDs: eventIDs})
+		receipt, err := c.NewAgentMutation(c.AgentMutationFields{RunnerMounts: r.RunnerMounts, Agent: r.After, Changed: len(r.ChangedFields) > 0, EventIDs: eventIDs})
 		if err != nil {
 			return unavailable(err)
 		}

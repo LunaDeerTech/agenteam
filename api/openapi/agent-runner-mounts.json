@@ -1,0 +1,503 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Project Owner Agent Runner Mount Configuration Reads",
+    "version": "0.1.0",
+    "description": "Current Human Project Owner Read, no administrator bypass and no Agent ID prerequisite for candidates. Safe metadata only; offline/incompatible remain durable configuration choices. Two-second original call/I/O deadline, GET/HEAD no body, no-store. Candidate pages limit 1..50/default50 in ID ASC order with Owner/Project/resource/sort-bound signed cursor, current authorization on every page. Mount bindings are a complete same-Tx current Agent/head/refs/definition projection; missing or conflicting mappings fail without partial items. Match agent_version to GetAgentConfig before editing. No root_path, secrets, credentials, hello, physical ensure or execution authority."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/available-runners": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "availableRunnerList",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Only GET and HEAD are supported.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Current Owner directory representation. HEAD executes the identical read and sends no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailableRunnerPage"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 50
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          }
+        ]
+      },
+      "head": {
+        "operationId": "availableRunnerListHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Only GET and HEAD are supported.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Current Owner directory representation. HEAD executes the identical read and sends no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 50
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/agents/{agent_id}/runner-mounts": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "agent_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "agentRunnerMountsGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Only GET and HEAD are supported.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Current Owner directory representation. HEAD executes the identical read and sends no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRunnerMounts"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "agentRunnerMountsGetHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Only GET and HEAD are supported.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Current Owner directory representation. HEAD executes the identical read and sends no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session"
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Safe Problem Details.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "AvailableRunner": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "description",
+          "version",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "status": {
+            "enum": [
+              "online",
+              "offline",
+              "incompatible"
+            ]
+          }
+        }
+      },
+      "AvailableRunnerPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "$ref": "#/components/schemas/AvailableRunner"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          }
+        }
+      },
+      "RunnerMountItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mount_id",
+          "runner_id",
+          "workspace",
+          "name"
+        ],
+        "properties": {
+          "mount_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "runner_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "workspace": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,254}$",
+            "description": "Exact portable single ASCII segment. No trailing dot; first dot-separated segment must not equal CON/PRN/AUX/NUL/COM1..9/LPT1..9 case-insensitively. No normalization or truncation."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        }
+      },
+      "AgentRunnerMounts": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project_id",
+          "agent_id",
+          "agent_version",
+          "items"
+        ],
+        "properties": {
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "agent_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "agent_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "items": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "$ref": "#/components/schemas/RunnerMountItem"
+            }
+          }
+        }
+      }
+    }
+  }
+}

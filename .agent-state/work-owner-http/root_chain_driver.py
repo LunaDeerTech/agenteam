@@ -18,6 +18,15 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestAgentRunnerMountsIntegration$': (
+        'tests/projectvariable/agent_runner_mounts_integration_test.go',
+        'tests/projectvariable/agent_configuration_create_test.go',
+        'tests/projectvariable/agent_configuration_facts_test.go',
+        'tests/projectvariable/skill_installation_test.go',
+        'tests/testsupport/agentconfiguration/assembly.go',
+        'api/openapi/agent-configuration.json',
+        'api/openapi/agent-runner-mounts.json',
+    ),
     '^TestProjectOutboxStopParticipant$': (
         'tests/project/outbox_stop_participant_test.go',
         'tests/project/b03_r3_outbox_inspection_test.go',
@@ -277,6 +286,7 @@ METADATA_INPUTS = {
 }
 TARGETS = {
     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+    '^TestAgentRunnerMountsIntegration$': 'tests/projectvariable',
     '^TestProjectOutboxStopParticipant$': 'tests/project',
     '^TestObjectRuntimeJoin(ConcurrentDrainAndForceBudget|FirstReadWriterBeforeRegistration|ConfirmationFailureRetainsOwnership|ReadyWorkMakesProgress)$': 'tests/objects',
     '^TestObject(RuntimeForceJoinsMainAndTransferIOInOneBudget|RuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|RuntimeBusyDoesNotMaskLaterRecoveryFailure|RuntimeMetadataGateUntilActualProbeAndRecovery|ProjectStopDeleteWaitsForActualIO|ProjectStopCleanupWaitsForActualIOAndCallbacks|CancelProtectsActualSourceUntilJoined)$': 'tests/objects',

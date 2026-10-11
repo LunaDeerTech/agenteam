@@ -67,7 +67,8 @@ func recordMapping(r *commandRecord) (f.Digest, error) {
 		InstallSkillEnabled *bool
 		Input               json.RawMessage
 		ChangedFields       []string
-	}{r.ID, r.identity().Canonical(), r.User, r.Target, r.Semantic, r.Revision, r.Expected, r.Before, r.After, r.AddSkillsEnabled, r.InstallSkillEnabled, r.Input, r.ChangedFields})
+		RunnerMounts        *[]c.RunnerMountBinding `json:"RunnerMounts,omitempty"`
+	}{r.ID, r.identity().Canonical(), r.User, r.Target, r.Semantic, r.Revision, r.Expected, r.Before, r.After, r.AddSkillsEnabled, r.InstallSkillEnabled, r.Input, r.ChangedFields, r.RunnerMounts})
 }
 
 func ownerLocks(actor i.Actor, project i.ProjectID, agent i.AgentID, command f.CommandIdentity) []f.LockRequest {

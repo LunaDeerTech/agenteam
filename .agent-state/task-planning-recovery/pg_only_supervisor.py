@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestAgentRunnerMountsIntegration$': frozenset((
+        'TestAgentRunnerMountsIntegration',
+        'TestAgentRunnerMountsIntegration/owner-http-configuration-and-current-reads',
+        'TestAgentRunnerMountsIntegration/final-rollback-preserves-frozen-identities',
+    )),
     '^TestProjectOutboxStopParticipant$': frozenset((
         'TestProjectOutboxStopParticipant',
         'TestProjectOutboxStopParticipant/nonempty-queue-stop-and-inspect',

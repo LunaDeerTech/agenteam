@@ -594,7 +594,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.skills = &skillWork{service: skills} }) {
 		return context.Canceled
 	}
-	agentConfiguration, err := createAgentConfiguration(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal)
+	agentConfiguration, err := createAgentConfiguration(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal, cfg.CursorKeyring())
 	if err != nil {
 		return err
 	}

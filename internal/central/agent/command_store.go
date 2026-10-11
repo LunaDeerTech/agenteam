@@ -42,7 +42,7 @@ func commandReceipt(r *commandRecord) (c.AgentMutation, error) {
 		}
 		want = append(want, id)
 	}
-	if !sameValue(d.Agent, r.After) || d.Changed != (len(r.ChangedFields) > 0) || !slices.Equal(d.EventIDs, want) {
+	if !sameValue(d.RunnerMounts, r.RunnerMounts) || !sameValue(d.Agent, r.After) || d.Changed != (len(r.ChangedFields) > 0) || !slices.Equal(d.EventIDs, want) {
 		return c.AgentMutation{}, unavailable(nil)
 	}
 	return out, nil
@@ -94,7 +94,15 @@ func insertCommand(ctx context.Context, x postgres.SQLExecutor, r *commandRecord
 	if r.Expected != nil {
 		expected = int64(*r.Expected)
 	}
-	tag, err := x.Exec(ctx, `INSERT INTO agenteam_agent.commands(id,project_id,actor_user_id,target_id,command_name,idempotency_key,semantic_digest,input,expected_version,plan_revision,before_config,after_config,add_skills_enabled,install_skill_enabled,changed_fields,state,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,'planned',$16)`, r.ID.String(), r.Project.String(), r.User.String(), r.Target.String(), string(r.Name), string(r.Key), string(r.Semantic), []byte(r.Input), expected, int64(r.Revision), before, after, r.AddSkillsEnabled, r.InstallSkillEnabled, fields, r.Created.Time())
+	var runnerMounts any
+	if r.RunnerMounts != nil {
+		raw, err := canonical(*r.RunnerMounts)
+		if err != nil {
+			return err
+		}
+		runnerMounts = raw
+	}
+	tag, err := x.Exec(ctx, `INSERT INTO agenteam_agent.commands(id,project_id,actor_user_id,target_id,command_name,idempotency_key,semantic_digest,input,expected_version,plan_revision,before_config,after_config,add_skills_enabled,install_skill_enabled,changed_fields,state,created_at,runner_mounts) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,'planned',$16,$17)`, r.ID.String(), r.Project.String(), r.User.String(), r.Target.String(), string(r.Name), string(r.Key), string(r.Semantic), []byte(r.Input), expected, int64(r.Revision), before, after, r.AddSkillsEnabled, r.InstallSkillEnabled, fields, r.Created.Time(), runnerMounts)
 	if err != nil {
 		return unavailable(err)
 	}
@@ -180,7 +188,11 @@ func (s *Service) prepareCommand(ctx context.Context, in commandInput) (*command
 	var replay *c.AgentMutation
 	cause, _ := f.NewCommandsCause(in.identity)
 	result := s.state.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
-		if err := s.state.store.AcquireAll(ctx, tx, in.locks()); err != nil {
+		held, err := in.prepareLocks()
+		if err != nil {
+			return err
+		}
+		if err := s.state.store.AcquireAll(ctx, tx, held); err != nil {
 			return portError(err)
 		}
 		x, r, out, err := s.currentCommand(ctx, tx, in)
@@ -209,6 +221,41 @@ func (s *Service) prepareCommand(ctx context.Context, in commandInput) (*command
 		if err != nil {
 			return err
 		}
+		if in.mountDeclarations() != nil {
+			// Preserve the original Agent preimage/error ordering before the
+			// declaration planner validates its stronger same-Tx request. A stale
+			// expected version is a conflict, not malformed planner input, and a
+			// missing/occupied Agent must not reach candidate discovery.
+			if in.create != nil {
+				if before != nil {
+					return targetOccupied()
+				}
+			} else {
+				if before == nil {
+					return fault(f.NotFound)
+				}
+				core := before.Fields().Core
+				if core.Version != *in.meta.ExpectedVersion {
+					return fault(f.VersionConflict)
+				}
+				if core.Lifecycle != c.AgentActive {
+					return fault(f.InvalidState)
+				}
+			}
+			planner, ok := s.state.deps.Mounts.(c.RunnerMountPlanner)
+			if !ok || nilPort(planner) {
+				return fault(f.DependencyUnbound)
+			}
+			bindings, err := planner.PlanRunnerMountsInTx(ctx, tx, in.mountPlanRequest(before))
+			if err != nil {
+				return portError(err)
+			}
+			ids, err := c.RunnerMountIDs(bindings)
+			if err != nil || c.MatchRunnerMountBindings(*in.mountDeclarations(), bindings, ids) != nil {
+				return unavailable(nil)
+			}
+			in.runnerMounts = &bindings
+		}
 		after, fields, err := planConfiguration(in, before, at)
 		if err != nil {
 			return err
@@ -221,7 +268,7 @@ func (s *Service) prepareCommand(ctx context.Context, in commandInput) (*command
 		if err != nil {
 			return invalid()
 		}
-		r = &commandRecord{ID: id, Project: in.project, User: user, Target: in.target, Name: in.name, Key: in.meta.IdempotencyKey, Semantic: in.semantic, Input: in.raw, Expected: in.meta.ExpectedVersion, Revision: 1, Before: before, After: after, ChangedFields: fields, State: "planned", Created: at}
+		r = &commandRecord{RunnerMounts: in.runnerMounts, ID: id, Project: in.project, User: user, Target: in.target, Name: in.name, Key: in.meta.IdempotencyKey, Semantic: in.semantic, Input: in.raw, Expected: in.meta.ExpectedVersion, Revision: 1, Before: before, After: after, ChangedFields: fields, State: "planned", Created: at}
 		if in.create != nil {
 			d := in.create.Fields()
 			r.AddSkillsEnabled = d.AddSkillsEnabled

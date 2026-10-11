@@ -9,12 +9,14 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/agent"
 	agenthttp "github.com/LunaDeerTech/agenteam/internal/central/agent/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	"github.com/LunaDeerTech/agenteam/internal/central/mount"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	"github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
+	runnerservice "github.com/LunaDeerTech/agenteam/internal/central/runner/service"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 	"github.com/LunaDeerTech/agenteam/internal/central/tool/builtin"
 	"github.com/LunaDeerTech/agenteam/internal/central/tool/registry"
@@ -68,7 +70,7 @@ type agentConfigurationAssembly struct {
 func createAgentConfiguration(db database, projects *project.Authority, accounts *account.Authority,
 	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
 	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
-	auditor *audit.Service, journal *outbox.Service) (*agentConfigurationAssembly, error) {
+	auditor *audit.Service, journal *outbox.Service, cursorKeys ...cursor.Keyring) (*agentConfigurationAssembly, error) {
 	store, ok := db.(agent.Store)
 	if !ok || runtimeInformationNil(store) || projects == nil || accounts == nil || agents == nil || agentEvents == nil || models == nil || skills == nil || skillAuthority == nil || installer == nil || installer.authority == nil || auditor == nil || journal == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
@@ -108,7 +110,21 @@ func createAgentConfiguration(db database, projects *project.Authority, accounts
 	if err != nil {
 		return nil, err
 	}
-	mounts, err := mount.NewConfiguration(store, projects, agents)
+	runners, err := runnerservice.NewConfigurationDirectory(store, projects)
+	if err != nil {
+		return nil, err
+	}
+	var keys cursor.Keyring
+	if len(cursorKeys) > 1 {
+		return nil, f.NewFault(f.InvalidArgument, f.NotStarted)
+	}
+	if len(cursorKeys) == 1 {
+		keys = cursorKeys[0]
+		if keys.Validate() != nil {
+			return nil, f.NewFault(f.InvalidArgument, f.NotStarted)
+		}
+	}
+	mounts, err := mount.NewRunnerMountConfiguration(store, projects, agents, runners)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +133,7 @@ func createAgentConfiguration(db database, projects *project.Authority, accounts
 		return nil, err
 	}
 	service, err := agent.New(store, agent.Dependencies{
-		Authority: agents, EventAuthority: agentEvents, Events: journal, Audit: auditor, Activity: accounts,
+		RunnerCandidates: runners, RunnerCursorKeys: keys, Authority: agents, EventAuthority: agentEvents, Events: journal, Audit: auditor, Activity: accounts,
 		Models: modelRefs, Tools: tools, ToolReferences: tools, Mounts: mounts,
 		Secrets: secrets, SecretReferences: secretRefs, Skills: initial,
 	})
@@ -224,11 +240,25 @@ func agentConfigurationHandler(a *agentConfigurationAssembly, core *account.Serv
 	if err != nil {
 		return nil, err
 	}
-	return agenthttp.NewConfigurationHTTPHandler(a.service, boundary)
+	commands, err := agenthttp.NewConfigurationHTTPHandler(a.service, boundary)
+	if err != nil {
+		return nil, err
+	}
+	reads, err := agenthttp.NewRunnerMountHTTPHandler(a.service, boundary)
+	if err != nil {
+		return nil, err
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r != nil && r.URL != nil && agenthttp.HandlesRunnerMountPath(r.URL.Path) {
+			reads.ServeHTTP(w, r)
+			return
+		}
+		commands.ServeHTTP(w, r)
+	}), nil
 }
 func agentConfigurationRoutes(existing, commands http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if agenthttp.HandlesConfigurationRequest(r) {
+		if agenthttp.HandlesConfigurationRequest(r) || r != nil && r.URL != nil && agenthttp.HandlesRunnerMountPath(r.URL.Path) {
 			commands.ServeHTTP(w, r)
 			return
 		}
