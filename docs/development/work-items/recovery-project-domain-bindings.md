@@ -326,3 +326,11 @@ PreparationDriver在原claim/process/fence及完整锁计划下，依次取得�
 终态事务由Execution先证明原terminal候选与allJoined，再调用Model execution lease和专用ProjectVariable环境lease的两个真实退休提供方，最后追加对应typed事件；任一失败全部回滚，Unknown不重复退休写入。00057只增加环境lease的单向`released/released_at`资格退休，已退休lease不得被原capture重放重新取得。原lease tuple、环境head/ref及物理FK全部保留，历史引用仍可能阻止Secret或Variable删除，不把使用资格退休解释为可物理清理。
 
 来源`f524b1fe`已完成定向20 top、十三包vet及compile/list。原pure01类型编译FAIL、native01取消FAIL、native02子selector入口FAIL（0业务测试）均保留；取消修复后仅补受影响的1 top/一包vet并重建compile02候选，其余有效通过证据复用。native03的`TestExecutionFirstRound`真实1 top/3 sub整轮wholePASS（39.05s）：正常ExecutionSucceeded且Task仍为in_progress、启动回执丢失后原owner恢复、取消后真实Joined并提交Cancelled与双lease退休均已验证。原四Wait0、七资源14次absence与全部退出双尾闭合，1588输入首尾一致。完整多轮Loop、工具调用、Stream、relaunch/cooldown与生产app/initializer绑定仍未完成，既有STOP保持。结果和可重跑入口继续使用[既有组合说明](../../../.agent-state/agent-system-integration/README.md)。
+
+## 有限后继：Scheduler 关联执行的异步交付
+
+`scheduler.NewProjectRunnerWithExecutions`显式接入`AssociatedExecutor`，旧Runner构造保持原行为。新关联成功后交付原Execution；既有launched记录按固定高水位、稳定ID和有界页补投，完整一轮结束才清游标并重取高水位，持续新增记录不延后旧轮回绕。每条均重读原Dispatch并由真实Execution observer核原key、digest、lineage和ExecutionID；页或交付失败不跳过该条，同一轮同一关联只交付一次，访问与跳过仍按原tick节奏推进。该扫描不以当前Task状态、Sprint或scheduler_enabled过滤已有执行，暂停只阻止新的调度业务。
+
+`execution.NewAssociatedExecutor`固定同Store、Authority与有效Process身份的原PreparationDriver和DirectTextDriver，使用显式`MaxOwned`与`RecoveryInterval`。调用方以独立`Run`建立服务寿命，`Ready`只表示寿命已建立；`Advance`仅准入或观察，不等待捕获、数据库回调或Model响应，也不把DTO当运行授权。后台原调用再次核完整持久关联：created沿真实Preparation→固定input→DirectText推进；preparing缺input且没有本实例原owner时明确deferred，不悄悄重新捕获。Unknown保原driver与精确调用，后继显式访问按间隔最多推动一次原恢复，不更换原Launch或Model调用身份，也不实现跨进程running接管。
+
+Runner的取消与Stop/Drain只覆盖本次遍历及准入调用，不停止共享executor或已接受执行。executor停止时取消自身原调用并等待真实退出；保留Unknown或未终结owner时不能宣称Joined，已完成Model和环境lease仍沿原终态事务退休。Task完成语义、完整多轮Loop、工具调用、Stream、relaunch/cooldown及生产app/initializer绑定均不随接线完成，本片不新增迁移或通用结果读取接口。定向10 top（7项新增、3项原受影响）及三包vet、compile/list、真实Scheduler→Execution的1 top/2 sub均整轮wholePASS；真实旧关联补投与异步取消共37.80s，四原Wait0、七资源14次absence及全部退出尾闭合，1596输入首尾一致。本批无新增FAIL，既有FAIL和STOP保持；结果与重跑方式沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)收口。
