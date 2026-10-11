@@ -7,7 +7,7 @@
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
 | NextRoundProjection 独立树 | root 统筹分域实施；variables_review 编译/运行 | basic01 的 8 top / 42 sub 与 3 包 vet 已获独立接受；native02 原工具 73449 实际 1，安全诊断明确 ENOSPC，仍在目录前置阶段失败、未进入投影业务，全部 Wait/资源/TCP/输入尾已闭合。当前容量 hold，未自动重试；native01 原首因未定及两轮 FAIL 保留，不计真实 PG 通过或下一 Model 已执行。 |
-| Runner write-file WSS — `ai/runner-write-file-wss-20261011` | skill_package_review 统筹 Handler/control；分域作者实施协议与方法 | 基础 12 top / 37 sub race 与 3 包 vet 已通过，compile/list 准备中；尚无真实 WSS/native 通过。wire 512 KiB 与本地 Write 1 MiB 边界分离，known committed、Unknown 不重发及原 STOP 保持。 |
+| Runner write-file WSS — `ai/runner-write-file-wss-20261011` | skill_package_review 统筹 Handler/control及执行；分域作者codec/WSS/方法；runtime_recovery唯一独验 | 固定5d8cf4c4已获有限wholePASS，本次随完整开发历史有限合入main；root提交/推送后才执行原件保全与树/分支清理，目前均待办、不追加清理计数。basic01原31350 actual0：12top37sub（10新+2旧）/三包vet，1493输入一致；compile01原18090 actual0/唯一top/1480输入一致；native01原96046 actual0，sup812703 Wait0/3.395s、Go812704 Wait0/1top1sub1.76s，唯一实际资源marker、desc/private双空、原自动TCP差额双empty、1481输入不变齐。peer.Close修为静态发现，不造动态FAIL。只trustedTLS/WSS boundSession→显式Handler→ManagerWrite/readback/Conflict及原退出，不含Central授权/Operation/enrollment/完整或默认Client.Run/生产接线；详见[本卡](../docs/development/work-items/d15-runner-write-file-adapter.md)。全部执行窗口已释放。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 主目标仍是完成[开发计划](../docs/development/development-plan.md)中的D01–D28/E01，目前尚未完成；任何单片有限验收不代表整体目标或原STOP解除。
