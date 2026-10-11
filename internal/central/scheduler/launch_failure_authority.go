@@ -10,8 +10,16 @@ import (
 )
 
 func failureRequest(r *dispatchRecord) (wc.TaskLaunchFailureRequest, error) {
-	if !pendingFinalFailure(r) || !r.guard.valid() || r.launch.Purpose != "task/work" {
+	if !pendingFinalFailure(r) || !validDispatchOrigin(r) || r.launch.Purpose != "task/work" {
 		return wc.TaskLaunchFailureRequest{}, fault(f.InvalidState)
+	}
+	if r.relaunch != nil {
+		origin := r.relaunch.Request.Clone()
+		request := wc.TaskLaunchFailureRequest{Relaunch: &origin, DispatchVersion: r.version, LaunchAttempt: r.finalAttempt}
+		if request.Validate() != nil {
+			return wc.TaskLaunchFailureRequest{}, unavailable(nil)
+		}
+		return request, nil
 	}
 	task, e1 := f.ParseID[wc.Task](r.task)
 	sprint, e2 := f.ParseID[pc.Sprint](r.sprint)
@@ -31,6 +39,9 @@ func failureGuard(r *dispatchRecord) (wc.TaskClaimGuard, error) {
 	request, err := failureRequest(r)
 	if err != nil {
 		return wc.TaskClaimGuard{}, err
+	}
+	if r.guard == nil {
+		return wc.TaskClaimGuard{}, fault(f.InvalidState)
 	}
 	g := r.guard
 	out := wc.TaskClaimGuard{TaskID: request.Claim.TaskID, ClaimedVersion: g.ClaimedVersion, SourceState: wc.TaskState(g.SourceState), SourceAssigneeID: g.SourceAssigneeID, SourcePriority: wc.TaskPriority(g.SourcePriority), SourceSprintID: request.Claim.CurrentSprintID, SourceOrderGeneration: int64(g.SourceOrderGeneration)}
@@ -64,7 +75,7 @@ func (a *PendingAuthority) requireFailure(ctx context.Context, tx f.Tx, actor i.
 	}
 	s := call.owner
 	s.mu.Lock()
-	live := call.running && call.live && call.request == request
+	live := call.running && call.live && call.request.Equal(request)
 	if applying {
 		live = live && call.stage == failureApplying && call.tx == tx && samePlan(call.plan, plan)
 	} else {
@@ -76,14 +87,14 @@ func (a *PendingAuthority) requireFailure(ctx context.Context, tx f.Tx, actor i.
 	if !live || expected == nil || applying && len(locks) == 0 {
 		return wc.TaskLaunchFailureFacts{}, fault(f.Forbidden)
 	}
-	p := request.Claim.ProjectID
+	p := request.ProjectID()
 	x, err := a.inTx(ctx, tx, p)
 	if err != nil {
 		return wc.TaskLaunchFailureFacts{}, err
 	}
 	if !applying {
-		ak, _ := f.AgentLock(request.Claim.AgentID.String())
-		tk, _ := f.AggregateLock(f.TaskAggregate, request.Claim.TaskID.String())
+		ak, _ := f.AgentLock(request.AgentID().String())
+		tk, _ := f.AggregateLock(f.TaskAggregate, request.TaskID().String())
 		locks = append(pendingLocks(p), f.LockRequest{Key: ak, Mode: f.Shared}, f.LockRequest{Key: tk, Mode: f.Shared})
 	}
 	if err = a.store.RequireHeldLocks(ctx, tx, locks); err != nil {
@@ -97,7 +108,7 @@ func (a *PendingAuthority) requireFailure(ctx context.Context, tx f.Tx, actor i.
 		return wc.TaskLaunchFailureFacts{}, fault(f.ConfirmationStale)
 	}
 	actual, err := failureRequest(r)
-	if err != nil || actual != request {
+	if err != nil || !actual.Equal(request) {
 		return wc.TaskLaunchFailureFacts{}, fault(f.ConfirmationStale)
 	}
 	if err = s.enabled(ctx, tx, p); err != nil {
@@ -106,21 +117,23 @@ func (a *PendingAuthority) requireFailure(ctx context.Context, tx f.Tx, actor i.
 	// Exempt only this exact canonical Dispatch, only during this private
 	// compensation. Public rank guards keep their original no-exemption API.
 	// The source group comes from the durable guard, not caller-supplied SQL.
-	var other bool
-	err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_scheduler.dispatches
+	if r.guard != nil {
+		var other bool
+		err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_scheduler.dispatches
  WHERE project_id=$1 AND status='pending' AND claim_guard IS NOT NULL
  AND claim_source_sprint_id=$2 AND claim_source_state=$3 AND claim_source_priority=$4 AND id<>$5)`, p.String(), r.guard.SourceSprintID, r.guard.SourceState, r.guard.SourcePriority, r.id.String()).Scan(&other)
-	if err != nil {
-		return wc.TaskLaunchFailureFacts{}, portError(err)
-	}
-	if other {
-		return wc.TaskLaunchFailureFacts{}, fault(f.ResourceBusy)
+		if err != nil {
+			return wc.TaskLaunchFailureFacts{}, portError(err)
+		}
+		if other {
+			return wc.TaskLaunchFailureFacts{}, fault(f.ResourceBusy)
+		}
 	}
 	if err = ctx.Err(); err != nil {
 		return wc.TaskLaunchFailureFacts{}, err
 	}
 	s.mu.Lock()
-	live = call.running && call.live && call.record == expected && call.request == request
+	live = call.running && call.live && call.record == expected && call.request.Equal(request)
 	if applying {
 		live = live && call.stage == failureApplying && call.tx == tx && samePlan(call.plan, plan)
 	} else {
@@ -129,6 +142,14 @@ func (a *PendingAuthority) requireFailure(ctx context.Context, tx f.Tx, actor i.
 	s.mu.Unlock()
 	if !live {
 		return wc.TaskLaunchFailureFacts{}, fault(f.Forbidden)
+	}
+	if r.relaunch != nil {
+		source := r.relaunch.Clone()
+		facts := wc.TaskLaunchFailureFacts{Relaunch: &source, Reason: r.failureReason, OccurredAt: *r.failureOccurredAt}
+		if facts.ValidateFor(request) != nil {
+			return wc.TaskLaunchFailureFacts{}, unavailable(nil)
+		}
+		return facts, nil
 	}
 	guard, err := failureGuard(r)
 	if err != nil {

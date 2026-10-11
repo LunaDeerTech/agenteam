@@ -143,6 +143,15 @@ func (s *ProjectRunner) captureTraversal(ctx context.Context) (projectTraversal,
 		}
 	}
 	s.coordinator.mu.Unlock()
+	if relaunch := s.options.Relaunch; relaunch != nil {
+		relaunch.mu.Lock()
+		for id, call := range relaunch.unknown {
+			if call.request.ProjectID == s.options.ProjectID {
+				pending = append(pending, traversalPending{dispatch: id, task: call.request.TaskID})
+			}
+		}
+		relaunch.mu.Unlock()
+	}
 	if len(pending) > 2*wc.MaxProjectTasks {
 		return projectTraversal{}, fault(f.PayloadTooLarge)
 	}

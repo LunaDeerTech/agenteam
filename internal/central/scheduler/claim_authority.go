@@ -100,6 +100,9 @@ func (a *PendingAuthority) RequireSchedulerCurrentIntentInTx(ctx context.Context
 	if ctx == nil {
 		return pc.SchedulerIntent{}, invalid()
 	}
+	if _, ok := ctx.Value(relaunchContextKey{}).(*relaunchCall); ok {
+		return a.relaunchCurrentIntent(ctx, tx, actor, p, agent)
+	}
 	call, _ := ctx.Value(claimContextKey{}).(*claimCall)
 	if call == nil || call.request.ProjectID != p || call.request.AgentID != agent {
 		return pc.SchedulerIntent{}, fault(f.Forbidden)

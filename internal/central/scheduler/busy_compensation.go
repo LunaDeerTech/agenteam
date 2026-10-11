@@ -244,6 +244,10 @@ func (s *BusyCompensator) CompensateAgentBusy(ctx context.Context, p i.ProjectID
 	if completedBusy(r) {
 		return snapshot(r), nil
 	}
+	if validRelaunchOrigin(r) {
+		out, retain, err = s.skipBusyRelaunch(ctx, call, r)
+		return out, err
+	}
 	request, err := busyRequest(r)
 	if err != nil {
 		return Dispatch{}, err
@@ -371,7 +375,7 @@ func (s *BusyCompensator) Lookup(ctx context.Context, p i.ProjectID, id Dispatch
 }
 
 func pendingBusy(r *dispatchRecord) bool {
-	return r != nil && r.status == Pending && r.outcome == KnownNotCreated && r.busyAttempt > 0 && r.busyAttempt == r.attempts && r.guard != nil && r.execution == nil && r.nextRetry == nil && r.skipReason == "" && r.skippedAt == nil
+	return r != nil && r.status == Pending && r.outcome == KnownNotCreated && r.busyAttempt > 0 && r.busyAttempt == r.attempts && validDispatchOrigin(r) && r.execution == nil && r.nextRetry == nil && r.skipReason == "" && r.skippedAt == nil
 }
 func completedBusy(r *dispatchRecord) bool {
 	return r != nil && r.status == Skipped && r.outcome == KnownNotCreated && r.busyAttempt > 0 && r.busyAttempt == r.attempts && r.skipReason == "agent_busy" && r.skippedAt != nil
