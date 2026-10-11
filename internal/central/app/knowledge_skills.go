@@ -15,6 +15,7 @@ import (
 	knowledgecontent "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contenthttp"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
 	knowledgehttp "github.com/LunaDeerTech/agenteam/internal/central/knowledge/http"
+	knowledgetext "github.com/LunaDeerTech/agenteam/internal/central/knowledge/texthttp"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
@@ -153,6 +154,17 @@ func knowledgeSkillHandlers(documents *knowledge.Service, skills *skill.Service,
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
+	text, err := knowledgetext.NewHTTPHandler(documents, boundary)
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+	mutations := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if knowledgetext.HandlesPath(r.URL.Path) {
+			text.ServeHTTP(w, r)
+			return
+		}
+		commands.ServeHTTP(w, r)
+	})
 	content, err := knowledgecontent.NewHTTPHandler(documents, boundary)
 	if err != nil {
 		return nil, nil, nil, nil, err
@@ -161,7 +173,7 @@ func knowledgeSkillHandlers(documents *knowledge.Service, skills *skill.Service,
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
-	return reads, commands, content, packages, nil
+	return reads, mutations, content, packages, nil
 }
 
 func knowledgeSkillRoutes(existing, reads, commands, content, packages http.Handler) http.Handler {
@@ -169,7 +181,7 @@ func knowledgeSkillRoutes(existing, reads, commands, content, packages http.Hand
 		switch {
 		case knowledgehttp.HandlesPath(r.URL.Path):
 			reads.ServeHTTP(w, r)
-		case knowledgecommands.HandlesPath(r.URL.Path):
+		case knowledgecommands.HandlesPath(r.URL.Path), knowledgetext.HandlesPath(r.URL.Path):
 			commands.ServeHTTP(w, r)
 		case knowledgecontent.HandlesPath(r.URL.Path):
 			content.ServeHTTP(w, r)

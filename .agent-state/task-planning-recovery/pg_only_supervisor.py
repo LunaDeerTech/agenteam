@@ -202,6 +202,17 @@ METADATA_GROUPS = {
     '^TestProjectVariablesWeb$': frozenset(('TestProjectVariablesWeb', 'TestProjectVariablesWeb/create-update-and-clear')),
     '^TestMilestoneCreateWeb$': frozenset(('TestMilestoneCreateWeb', 'TestMilestoneCreateWeb/first-milestone-and-sprint-entry')),
     '^TestSkillOwnerReadWeb$': frozenset(('TestSkillOwnerReadWeb',)),
+    '^TestKnowledgeTextHTTP(Publication|CurrentAuthority)$': frozenset((
+        'TestKnowledgeTextHTTPPublication',
+        'TestKnowledgeTextHTTPPublication/text/plain',
+        'TestKnowledgeTextHTTPPublication/text/markdown',
+        'TestKnowledgeTextHTTPCurrentAuthority',
+    )),
+    '^TestKnowledgeTextHTTPDefaultRootComposition$': frozenset((
+        'TestKnowledgeTextHTTPDefaultRootComposition',
+        'TestKnowledgeTextHTTPDefaultRootComposition/text/plain',
+        'TestKnowledgeTextHTTPDefaultRootComposition/text/markdown',
+    )),
     '^TestSprintCreateWeb$': frozenset(('TestSprintCreateWeb', 'TestSprintCreateWeb/plan-another-sprint-with-existing-current')),
     '^TestAgentModelPolicyWeb$': frozenset(('TestAgentModelPolicyWeb', 'TestAgentModelPolicyWeb/switch-model-auto-and-clear-approval')),
     '^TestKnowledgeOwnerRenameWeb$': frozenset(('TestKnowledgeOwnerRenameWeb',)),

@@ -1,0 +1,732 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Knowledge Human Owner canonical text commands",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/knowledge/documents/{document_id}/create-text": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "knowledgeTextCreate",
+        "description": "Current Human Owner only. Original Account Origin/CSRF/Session checks precede routing. One original 2s budget includes input/body Close, authorization, canonical publication and metadata transactions, encoding, native response/flush and cancellation callback join. Complete encoded write JSON at most 1048576 bytes; Lookup at most 1048660 bytes, with its nested original request still at most 1048576 bytes; the extra 84 bytes preserve recovery for every admitted write; valid UTF-8 preserved without trimming or normalization. No queries, duplicate decoded keys, lone surrogates or Content-Encoding. Source is text/plain or text/markdown only. Unknown is retained: query the original key and full original intent; never automatically retry. Existing initialized Projects only; production Project initialization remains unbound.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTextRequest"
+              }
+            }
+          },
+          "x-max-encoded-json-bytes": 1048576
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After browser/current Human authentication, unsupported method.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Complete safe metadata, at most 16 KiB. Historical receipts are not current-body grants. After a confirmed write, read current metadata and body with the existing authorized GET routes.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/{document_id}/replace-text": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "knowledgeTextReplace",
+        "description": "Current Human Owner only. Original Account Origin/CSRF/Session checks precede routing. One original 2s budget includes input/body Close, authorization, canonical publication and metadata transactions, encoding, native response/flush and cancellation callback join. Complete encoded write JSON at most 1048576 bytes; Lookup at most 1048660 bytes, with its nested original request still at most 1048576 bytes; the extra 84 bytes preserve recovery for every admitted write; valid UTF-8 preserved without trimming or normalization. No queries, duplicate decoded keys, lone surrogates or Content-Encoding. Source is text/plain or text/markdown only. Unknown is retained: query the original key and full original intent; never automatically retry. Existing initialized Projects only; production Project initialization remains unbound.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaceTextRequest"
+              }
+            }
+          },
+          "x-max-encoded-json-bytes": 1048576
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After browser/current Human authentication, unsupported method.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Complete safe metadata, at most 16 KiB. Historical receipts are not current-body grants. After a confirmed write, read current metadata and body with the existing authorized GET routes.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/text-commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "knowledgeTextLookup",
+        "description": "Current Human Owner only. Original Account Origin/CSRF/Session checks precede routing. One original 2s budget includes input/body Close, authorization, canonical publication and metadata transactions, encoding, native response/flush and cancellation callback join. Complete encoded write JSON at most 1048576 bytes; Lookup at most 1048660 bytes, with its nested original request still at most 1048576 bytes; the extra 84 bytes preserve recovery for every admitted write; valid UTF-8 preserved without trimming or normalization. No queries, duplicate decoded keys, lone surrogates or Content-Encoding. Source is text/plain or text/markdown only. Unknown is retained: query the original key and full original intent; never automatically retry. Existing initialized Projects only; production Project initialization remains unbound.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LookupRequest"
+              }
+            }
+          },
+          "x-max-encoded-json-bytes": 1048660
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After browser/current Human authentication, unsupported method.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Complete safe metadata, at most 16 KiB. Historical receipts are not current-body grants. After a confirmed write, read current metadata and body with the existing authorized GET routes.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LookupResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Title": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512,
+        "not": {
+          "pattern": "[\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]"
+        }
+      },
+      "Creator": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "user_id"
+            ],
+            "properties": {
+              "kind": {
+                "const": "human"
+              },
+              "user_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "project_id",
+              "agent_id",
+              "execution_id"
+            ],
+            "properties": {
+              "kind": {
+                "const": "agent_run"
+              },
+              "project_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "agent_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "execution_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            }
+          }
+        ]
+      },
+      "Document": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "parent_document_id",
+          "title",
+          "content_version",
+          "source_kind",
+          "media_type",
+          "status",
+          "indexing_status",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "parent_document_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "content_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "source_kind": {
+            "const": "text"
+          },
+          "media_type": {
+            "enum": [
+              "text/plain",
+              "text/markdown"
+            ]
+          },
+          "status": {
+            "const": "active"
+          },
+          "indexing_status": {
+            "enum": [
+              "pending",
+              "processing",
+              "ready",
+              "failed"
+            ]
+          },
+          "created_by": {
+            "$ref": "#/components/schemas/Creator"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        }
+      },
+      "CreateTextRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "parent_document_id",
+          "title",
+          "media_type",
+          "text"
+        ],
+        "properties": {
+          "parent_document_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "media_type": {
+            "enum": [
+              "text/plain",
+              "text/markdown"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "description": "Original valid UTF-8 bytes, including empty text and line endings. The complete encoded request, including JSON escaping and envelope, must fit 1048576 bytes; this is not a Unicode character count."
+          }
+        },
+        "description": "The caller chooses a stable canonical UUIDv7 document_id in the path. Explicit null is root; otherwise the current active parent must belong to this same Project and differ from the target. All checks and publication remain in the Knowledge service."
+      },
+      "ReplaceTextRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "media_type",
+          "text"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "media_type": {
+            "enum": [
+              "text/plain",
+              "text/markdown"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "description": "Original valid UTF-8 bytes, including empty text and line endings. The complete encoded request, including JSON escaping and envelope, must fit 1048576 bytes; this is not a Unicode character count."
+          }
+        },
+        "description": "Replace only the canonical source. Title and parent are untouched. No-op remains the original version; a changed source advances by one. Current service validation remains authoritative."
+      },
+      "LookupRequest": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "document_id",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "const": "create"
+              },
+              "document_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "request": {
+                "$ref": "#/components/schemas/CreateTextRequest"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "document_id",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "const": "update"
+              },
+              "document_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "request": {
+                "$ref": "#/components/schemas/ReplaceTextRequest"
+              }
+            }
+          }
+        ],
+        "description": "Wrap the complete original create/replace request and original target/key. Encoded outer limit 1048660 bytes; nested original request limit 1048576 bytes. The minimal canonical envelope adds exactly 84 bytes."
+      },
+      "DocumentResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document"
+        ],
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          }
+        }
+      },
+      "DocumentReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command",
+          "document",
+          "changed"
+        ],
+        "properties": {
+          "command": {
+            "enum": [
+              "create",
+              "update"
+            ]
+          },
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          },
+          "changed": {
+            "type": "boolean"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "command": {
+                  "const": "create"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "changed": {
+                  "const": true
+                },
+                "document": {
+                  "properties": {
+                    "content_version": {
+                      "const": "1"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "LookupResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "receipt"
+            ],
+            "properties": {
+              "state": {
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              },
+              "receipt": {
+                "type": "null"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "receipt"
+            ],
+            "properties": {
+              "state": {
+                "const": "committed"
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/DocumentReceipt"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "parameters": {
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "$ref": "./common.json#/components/schemas/IdempotencyKey"
+        },
+        "description": "Exactly one original business key; no trimming, automatic generation or replay."
+      },
+      "CSRF": {
+        "name": "X-CSRF-Token",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Original safe Account Problem and CommitState; no internal material. Expired or failed native I/O aborts the connection.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account Session; configured loopback HTTP uses agenteam_local_session. No caller Actor or bearer bypass."
+      }
+    }
+  }
+}

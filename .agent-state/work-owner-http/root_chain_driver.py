@@ -13,7 +13,7 @@ import sys
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 GO = Path('/workspace/toolchains/go1.27.1/bin/go')
-MINIO = REPOSITORY / 'output/ai/deps-minio/bin/minio'
+MINIO = Path('/workspace/agenteam-skills-milestone-resume/output/ai/deps-minio/bin/minio')
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
@@ -21,6 +21,23 @@ METADATA_INPUTS = {
     '^TestProjectVariablesWeb$': ('tests/projectvariable/project_variables_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/project-variables.config.js', 'tests/account-captcha-web/e2e/project-variables.spec.ts', 'tests/account-captcha-web/e2e/project-variables.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
     '^TestMilestoneCreateWeb$': ('tests/projectvariable/milestone_create_web_test.go', 'tests/projectvariable/sprint_create_web_test.go', 'tests/projectvariable/sprint_start_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/milestone-create.config.js', 'tests/account-captcha-web/e2e/milestone-create.spec.ts', 'tests/account-captcha-web/e2e/milestone-create.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
     '^TestSkillOwnerReadWeb$': ('internal/central/app/skill_owner_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/skill-owner-read.config.js', 'tests/account-captcha-web/e2e/skill-owner-read.spec.ts', 'tests/account-captcha-web/e2e/skill-owner-read.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
+    '^TestKnowledgeTextHTTP(Publication|CurrentAuthority)$': (
+        'tests/knowledge/owner_text_http_fixture_test.go',
+        'tests/knowledge/owner_text_http_test.go',
+        'api/openapi/knowledge-text-commands.json',
+        'api/openapi/knowledge-owner.json',
+        'api/openapi/knowledge-content.json',
+        'api/openapi/common.json',
+    ),
+    '^TestKnowledgeTextHTTPDefaultRootComposition$': (
+        'internal/central/app/knowledge_skills.go',
+        'internal/central/app/knowledge_text_http_process_test.go',
+        'internal/central/app/knowledge_skills_process_test.go',
+        'api/openapi/knowledge-text-commands.json',
+        'api/openapi/knowledge-owner.json',
+        'api/openapi/knowledge-content.json',
+        'api/openapi/common.json',
+    ),
     '^TestSprintCreateWeb$': ('tests/projectvariable/sprint_create_web_test.go', 'tests/projectvariable/sprint_start_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/execution_preparation_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/sprint-create.config.js', 'tests/account-captcha-web/e2e/sprint-create.spec.ts', 'tests/account-captcha-web/e2e/sprint-create.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
     '^TestAgentModelPolicyWeb$': ('tests/projectvariable/agent_model_policy_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/agent-model-policy.config.js', 'tests/account-captcha-web/e2e/agent-model-policy.spec.ts', 'tests/account-captcha-web/e2e/agent-model-policy.helpers.ts', 'tests/account-captcha-web/e2e/agent-configuration.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
     '^TestKnowledgeOwnerRenameWeb$': ('internal/central/app/knowledge_owner_rename_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'tests/account-captcha-web/knowledge-owner-rename.config.js', 'tests/account-captcha-web/e2e/knowledge-owner-rename.spec.ts', 'tests/account-captcha-web/e2e/knowledge-owner-rename.native.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/common.json', 'api/openapi/knowledge-owner.json', 'api/openapi/knowledge-content.json', 'api/openapi/knowledge-tree-commands.json'),
@@ -185,6 +202,8 @@ METADATA_INPUTS = {
 }
 TARGETS = {
     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+    '^TestKnowledgeTextHTTP(Publication|CurrentAuthority)$': 'tests/knowledge',
+    '^TestKnowledgeTextHTTPDefaultRootComposition$': 'internal/central/app',
     '^TestKnowledgeOwnerRenameWeb$': 'internal/central/app',
     '^TestSkillOwnerReadWeb$': 'internal/central/app',
     '^TestTaskTimeline(PersistenceAndPaging|AuthorityAndCancellation|IntegrityAndCompatibility)$': 'tests/work',

@@ -484,3 +484,7 @@ T0b补齐Transfer/Lookup与新命令摘要、Human typed history、16KiB严格�
 分页、HTTP权限/恢复/Unknown、自然期限与连接故障、默认根21能力及命令/Reader退出验收均已通过；未参与实现者亲自完成真实网络丢响应恢复、撤销竞争及真实提交确认退出场景。原生传输覆盖GET/Lookup/PATCH，HEAD由pure/schema验证。原失败与修复后的限定证据组合见工作项，不表示一次当前HEAD全量测试。
 
 Project创建HTTP、生产Skills初始化及完整生命周期仍是独立前置；测试专用Skills receipt不证明新账号到Project创建的生产链已就绪。本范围不提供UI、Agent服务、状态转换、生产部署或整个平台ready，也不解除既有停止项。
+
+## Knowledge Owner 文本写入
+
+[有限文本 HTTP 后继](../work-items/d12-knowledge-owner-text-http.md)将已有 canonical 创建、正文替换与原意图 Lookup 接到当前 Owner；[独立 OpenAPI](../../../api/openapi/knowledge-text-commands.json)给出三个 POST 的精确形状。仅支持原 UTF-8 plain/Markdown，完整编码写请求≤1 MiB，Lookup另保留84 B原意图包装预算；确认后沿既有 metadata/content GET 读取当前数据。真实Account/PG/MinIO与测试进程内默认App listener两条限定链已通过并完成原资源尾门；具体方法、范围与接续见正式卡。不开放生产 Project 初始化或解除 Object join 停止项。

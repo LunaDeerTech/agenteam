@@ -18,12 +18,17 @@ Skills/Milestone 的精确命令和原件见[现有组合 recipe](agent-system-i
 
 Skills 恢复01 wholeFAIL、恢复02品牌破图、恢复03最终通过分开记录；平台 `data:` 探针 FAIL、历史 Skills03、Planning/Recovery 与旧 Variables Authority03 FAIL 不回填。Variables 原编译、两项行为复现及 controls 环境遗漏 FAIL 均保留；本正常链不外推删除、Secret、UI 原命令重放、真实权限/Unknown 全矩阵或完整 Variables 生命周期。已完成执行者没有自有活动 fixture/browser，Go 缓存与 native 窗口已释放；旧平台探针四个 PID1 zombie 不属于这些轮次。
 
-## 当前 Knowledge 后继与所有权
+## Knowledge 文本后端有限接受与 UI 后继
 
-- 后端在 `/workspace/agenteam-knowledge-text-owner-http`、分支 `ai/knowledge-text-owner-http-20261011`。`runtime_recovery` 负责文本创建/正文替换/原意图 Lookup 的产品与 OpenAPI，`knowledge_text_fixture` 负责真实 fixture/App 调用；当前工作与验证事实以该树 current 和 [正式卡](https://github.com/LunaDeerTech/agenteam/blob/ai/knowledge-text-owner-http-20261011/docs/development/work-items/d12-knowledge-owner-text-http.md)为准，不由 Variables 结果代证。
-- 前端在 `/workspace/agenteam-knowledge-text-ui`、分支 `ai/knowledge-text-ui-20261011`。`recovery_lead` 负责 plain/Markdown 文本创建与编辑页面、Session/client 知识增量及必要测试，消费已冻结后端 wire；成功后重读当前文档/正文/目录，Unknown 与冲突沿原意图和当前授权处理。该切片仍在实现与联调，不标为已完成。
+当前 Human Owner 的 [plain/Markdown 文本创建、正文替换与原意图 Lookup HTTP](../docs/development/work-items/d12-knowledge-owner-text-http.md)已有限接受并接入默认 App；确认后通过既有 metadata/content GET 重读当前正文。完整 encoded 写请求上限 1 MiB，Lookup 外层另保留 84 B 包装预算且嵌套原请求仍不超过 1 MiB。原 Account/CSRF/Owner 检查、同一 2s 总预算、历史 receipt 与当前读取权限分离规则保持，不增加迁移或依赖。
 
-root 统筹两个后继、独立审查、主线组合及所有 Git；`frontend_checks` 本次只解决主树集成内容，不编辑两个 Knowledge 树或原 Variables 树。全局台账/前端 README 的追加内容交 root 指定收口 owner，避免并行覆盖。源码/输出隔离后可并行开发；仅实际共享可写 Go 缓存和全宿主 TCP/native 窗口由 root 串行分配。资源授权不从旧实例继承，不重复运行输入未变且已接受的正常链。
+固定产品输入 `d74df012` 的作者 texthttp race、integration race 编译及 vet 通过；精确边界问题经独审发现、修复并解除阻断。两个原链选择器 `^TestKnowledgeTextHTTP(Publication|CurrentAuthority)$` 与 `^TestKnowledgeTextHTTPDefaultRootComposition$` 分别 whole PASS（116.941s、95.346s），外层实际退出0；非作者已核业务断言、原test/driver实际Wait、七资源两轮absence、private/runtime/descendants、HOST_TCP双尾及输入不变，并按该范围接受。App为测试进程内默认 `run` 和真实listener，关闭刺激为signal channel SIGTERM；不冒外部Central子进程OS信号。真实Unknown丢响应、撤权竞争及浏览器不由这两条后端链代证；unit-01编译FAIL与unit-02错误字段断言FAIL保持。
+
+后端来源分支 `ai/knowledge-text-owner-http-20261011` 的产品/测试与正式说明保存于 `7e3ea310`；精确命令和原件记录见该提交的 `.agent-state/current.md`。本机输出在 `/workspace/agenteam-knowledge-text-owner-http/output/ai/knowledge-text-owner-http/`，两份原日志为 `native-pg01/pg-e1ff431f64c64470af197cda93f3e705.log` 与 `native-app01/pg-755d80a1e5934e408085964024df2e14.log`。main两harness采用已固定 `b0903417` 的语义组合，保留Skills/Milestone/Variables及Knowledge后端两个profile、私有依赖与全部资源尾门；仅复用适用的原证据，不宣称主线重跑。
+
+前端在 `/workspace/agenteam-knowledge-text-ui`、分支 `ai/knowledge-text-ui-20261011`。`recovery_lead` 负责文本创建/编辑、Session/client知识增量；`frontend_checks` 负责真实browser fixture与限定profile，已消费本后端组合并在继续实现与联调。成功后重读当前文档/正文/目录，Unknown与冲突沿原意图和当前授权处理；该UI切片尚未验收，不标为已完成。
+
+root统筹独立审查、主线组合及全部Git。后端作者无自有活动fixture或Go命令，已交还native窗口；暖Go缓存可由root分配给UI验证者，模块仅只读复用。全局台账/README由root指定唯一收口owner；源码隔离后可并行开发，实际共享可写Go缓存与全宿主TCP窗口按owner交接。资源授权不从旧实例继承，不重复运行输入未变且已接受的正常链。
 
 ## 保留的全局边界
 
