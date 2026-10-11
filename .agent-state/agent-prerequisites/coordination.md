@@ -2,11 +2,13 @@
 
 ## 当前批次与活动树
 
-正式main `af1c8acdb2020a39d00de8e8d042e9b300a0f1d2`的17路径已正式交付并远端exact确认；root正常merge/push（`b1f24ba5`），delivery已ff/push同一main。上一main `dc876501`的53路径及第五批有效20 top/13包vet、compile/list和native03 1 top/3 sub wholePASS不变，原Wait与全部资源尾已关闭。原pure01/native01/native02 FAIL不回填，tools/stream、完整多轮Controller与App自动运行仍未完成。
+正式main `5b0a3eed54b8f0cb007b4450472bb24da1102a74`已交付第七批work-phase `in_progress` relaunch、持久访问计次、Work不可变来源/schema 5及00058，并远端exact确认。root正常merge/push（`3a9c708f`），delivery已ff/push同一main，产品与实测SOURCE `146594e6`一致；前批main `af1c8acd`及其已接受范围保持。
 
-第六批真实Scheduler→AssociatedExecutor已完成定向验证并正式交付：Execution `ai/execution-associated-runtime` / `f8fba80e`、Scheduler `ai/scheduler-execution-handoff`（生产及窄修至`d3e9e979`，测试`82ca114e`）、组合`ai/scheduler-execution-delivery`已ff/push正式main，实测SOURCE为`573d4275`。合同`0c9abd3f`、Execution生产`382acdb1`、两factory与三方法`a1c88f38`已保存；10 top/三包vet、compile/list精确1 top（860输入）与native01 1 top/2 sub（37.80s，1,596输入）均wholePASS。原四Wait0、七资源14次absence及全部退出尾关闭，无新增FAIL，当前0 Go/cache/native，窗口已归还；旧FAIL与全部STOP保持。第七批已进入work-phase `in_progress` relaunch与持久skip实施，尚未动态验证或交付main；review仍Deferred，生产app/initializer及旧STOP不变。
+本批18项独立top/四包vet与compile04/list已接受；native04真实1 top/2 sub、25.59s整轮wholePASS，跨owner计次恢复→新Execution与relaunch最终失败原Tx回滚/重放已验证。四原Wait0、七ID14次absence、全部双尾关闭，1614输入稳定。原pure01/02/03、native01/02/03 FAIL及07候选、输入、日志原位保留。当前0 Go/cache/native、资源及源码写者，窗口归root；约30%粗估、生产initializer/App未绑定与全部旧STOP不变。
 
-第七批三个活动树均复用main `af1c8acd`：Source `ai/scheduler-work-relaunch`（`2079d47f`）、已hydrate的TaskTransition `ai/work-relaunch-origin`（`5ca1752c`）、delivery `ai/scheduler-relaunch-delivery`（`dcdc909d`）。两项Work合同已保存，00058由content唯一汇总，Execution不改；coordination只在Source写新增Scheduler定向测试，skills准备两条真实链。当前0 Go/cache/native，窗口仍归root。第五批新Skill树及其冗余本地/远端ref已清理，13路径实际同main且无独有ignored材料；旧作者树与delivery的FAIL/恢复材料保留。TaskHumanHTTP与AgentSystem按原恢复用途保留；PVLifecycle `0654efe3`本轮也已正常sparse park tracked源码及docs，释放169,775,104 B，protected热缓存/output/state/config完整保留，候选及FAIL未删。实际tree/branch、唯一写者与恢复位置统一见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，结果与重建方法沿正式recipe，不沿下表历史分工安排写入或清理。
+本批唯一完整code tree为`/workspace/agenteam-task-flow-delivery` / `ai/scheduler-relaunch-delivery`（`5b0a3eed`）。Work donor `ai/work-relaunch-origin`（`65642401`）与Scheduler donor `ai/scheduler-work-relaunch`（`615135bb`）均已park，恢复源码须hydrate；旧TaskHumanHTTP（`f8fba80e`）、WorkUI（`2d2`）、independentUI（`b18449e6`）及PVLifecycle（`0654efe3`）也已park，outputs/状态/FAIL/refs保留。independentUI回收164,458,496 B，protected及ignored node_modules存在已验证；仅第六批全PASS候选64,844,964 B已精确退休，07 FAIL候选不删。具体恢复位置见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，方法沿[既有组合recipe](../agent-system-integration/README.md)，不沿下表历史分工安排写入或清理。
+
+下一最小Human Owner review三边仅已有规划、待排程：`in_progress→in_review`、`in_review→done`、`in_review→todo`，复用Work原Transfer原子写与HTTP原Transfer/Lookup，尚未实现；review自动Dispatch、完整多轮/tools/Stream及生产app/initializer不因此完成。
 
 ## 前置阶段记录（历史）
 
