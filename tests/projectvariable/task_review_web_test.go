@@ -88,7 +88,16 @@ type reviewWebDrop struct {
 
 func (*reviewWebDrop) Error() string { return "owned committed review receipt cut" }
 
+type taskWebProfile struct {
+	envPrefix, filePrefix, configName, logName string
+	observe                                    func(*http.Request) error
+	response                                   func(*http.Response) error
+	material                                   func(string) map[string]any
+}
+
 type taskReviewWeb struct {
+	domain                                       *taskTransitionFixture
+	profile                                      taskWebProfile
 	x                                            *taskReviewFixture
 	mode, origin, directory, evidence, inputHash string
 	backend                                      *httptest.Server
@@ -107,8 +116,26 @@ type taskReviewWeb struct {
 
 func newTaskReviewWeb(t *testing.T, x *taskReviewFixture, mode string) *taskReviewWeb {
 	t.Helper()
-	dist, runtime := os.Getenv("AGENTEAM_TASK_REVIEW_WEB_DIST"), os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME")
-	evidence, inputHash := os.Getenv("AGENTEAM_TASK_REVIEW_WEB_EVIDENCE"), os.Getenv("AGENTEAM_TASK_REVIEW_WEB_INPUT_HASH")
+	var w *taskReviewWeb
+	w = newTaskWebShell(t, x.domain, mode, taskWebProfile{
+		envPrefix: "AGENTEAM_TASK_REVIEW_WEB", filePrefix: "task-review", configName: "task-review.config.js", logName: "Task Review",
+		observe:  func(r *http.Request) error { return w.observeRequest(r) },
+		response: func(r *http.Response) error { return w.response(r) },
+		material: func(username string) map[string]any {
+			d, current := x.domain, x.current(t)
+			return map[string]any{"mode": mode, "cookie": d.base.ownerBrowser.cookie, "project_id": d.base.project.ID, "task_id": current.ID, "sprint_id": current.SprintID, "title": current.Title, "version": current.Version, "worker_id": d.agentID, "reviewer_id": x.reviewer, "route": "/" + username + "/" + d.base.project.NormalizedName + "/tasks/" + current.ID.String()}
+		},
+	})
+	w.x = x
+	return w
+}
+
+// The native browser fixtures share the real TLS/router/HTTP lifetime. Only
+// their closed request/response observations and private material differ.
+func newTaskWebShell(t *testing.T, d *taskTransitionFixture, mode string, profile taskWebProfile) *taskReviewWeb {
+	t.Helper()
+	dist, runtime := os.Getenv(profile.envPrefix+"_DIST"), os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME")
+	evidence, inputHash := os.Getenv(profile.envPrefix+"_EVIDENCE"), os.Getenv(profile.envPrefix+"_INPUT_HASH")
 	if !filepath.IsAbs(dist) || !filepath.IsAbs(runtime) || len(runtime) > 45 || !filepath.IsAbs(evidence) || len(inputHash) != 64 || strings.Trim(inputHash, "0123456789abcdef") != "" {
 		t.Fatal("explicit frozen dist, short owned runtime, evidence and input hash required")
 	}
@@ -118,7 +145,7 @@ func newTaskReviewWeb(t *testing.T, x *taskReviewFixture, mode string) *taskRevi
 	directory, err := os.MkdirTemp(runtime, "trw-")
 	firstRoundRequire(t, err)
 	firstRoundRequire(t, os.Chmod(directory, 0700))
-	w := &taskReviewWeb{x: x, mode: mode, directory: directory, evidence: evidence, inputHash: inputHash, tails: map[string]*reviewWebTail{}, serve: make(chan error, 1)}
+	w := &taskReviewWeb{domain: d, profile: profile, mode: mode, directory: directory, evidence: evidence, inputHash: inputHash, tails: map[string]*reviewWebTail{}, serve: make(chan error, 1)}
 	t.Cleanup(func() {
 		w.close(t)
 		if err := os.RemoveAll(directory); err != nil {
@@ -132,12 +159,11 @@ func newTaskReviewWeb(t *testing.T, x *taskReviewFixture, mode string) *taskRevi
 	firstRoundRequire(t, err)
 	t.Cleanup(func() { _ = listener.Close() })
 	w.origin = "http://" + listener.Addr().String()
-	d := x.domain
 	boundary, err := account.NewHTTPBoundary(d.base.core, w.origin)
 	firstRoundRequire(t, err)
 	profiles, err := account.NewProfileService(d.base.core, d.agent.p2.objects)
 	firstRoundRequire(t, err)
-	profile, err := profiles.GetProfile(ctxFor(t), d.base.ownerBrowser.actor)
+	ownerProfile, err := profiles.GetProfile(ctxFor(t), d.base.ownerBrowser.actor)
 	firstRoundRequire(t, err)
 	system, err := account.NewSystemHTTPFacade(d.base.core, d.base.keys)
 	firstRoundRequire(t, err)
@@ -220,14 +246,14 @@ func newTaskReviewWeb(t *testing.T, x *taskReviewFixture, mode string) *taskRevi
 	proxy := httputil.NewSingleHostReverseProxy(target)
 	proxy.Transport = w.transport
 	proxy.ErrorLog = log.New(io.Discard, "", 0)
-	proxy.ModifyResponse = w.response
+	proxy.ModifyResponse = profile.response
 	proxy.ErrorHandler = w.proxyError
 	static := http.FileServer(http.Dir(dist))
 	w.front = &http.Server{ReadHeaderTimeout: 2 * time.Second, ErrorLog: log.New(io.Discard, "", 0), Handler: http.HandlerFunc(func(out http.ResponseWriter, r *http.Request) {
 		w.frontWG.Add(1)
 		defer w.frontWG.Done()
 		if strings.HasPrefix(r.URL.Path, "/api/") {
-			if err := w.observeRequest(r); err != nil {
+			if err := profile.observe(r); err != nil {
 				w.fail(err)
 				http.Error(out, "owned observation failed", 500)
 				return
@@ -247,11 +273,9 @@ func newTaskReviewWeb(t *testing.T, x *taskReviewFixture, mode string) *taskRevi
 		http.ServeFile(out, r, filepath.Join(dist, "index.html"))
 	})}
 	go func() { w.serve <- w.front.Serve(listener) }()
-	current := x.current(t)
-	material := map[string]any{"mode": mode, "cookie": d.base.ownerBrowser.cookie, "project_id": d.base.project.ID, "task_id": current.ID, "sprint_id": current.SprintID, "title": current.Title, "version": current.Version, "worker_id": d.agentID, "reviewer_id": x.reviewer, "route": "/" + profile.User.Username + "/" + d.base.project.NormalizedName + "/tasks/" + current.ID.String()}
-	raw, err := json.Marshal(material)
+	raw, err := json.Marshal(profile.material(ownerProfile.User.Username))
 	firstRoundRequire(t, err)
-	firstRoundRequire(t, os.WriteFile(filepath.Join(directory, "task-review-material.json"), raw, 0600))
+	firstRoundRequire(t, os.WriteFile(filepath.Join(directory, profile.filePrefix+"-material.json"), raw, 0600))
 	clear(raw)
 	return w
 }
@@ -338,25 +362,25 @@ func (w *taskReviewWeb) observeRequest(r *http.Request) error {
 	return nil
 }
 
-func (w *taskReviewWeb) response(r *http.Response) error {
+func (w *taskReviewWeb) completedResponse(r *http.Response) ([]byte, error) {
 	// Read the original verified-TLS response to EOF and close it once. Do not
 	// replace business results; the single declared fault cuts only their delivery.
 	raw, err := io.ReadAll(io.LimitReader(r.Body, (2<<20)+1))
 	closeErr := r.Body.Close()
 	if err != nil || closeErr != nil || len(raw) > 2<<20 || r.ContentLength != int64(len(raw)) || r.TLS == nil || len(r.TLS.VerifiedChains) == 0 {
-		return errors.New("original TLS body/length/close not completed")
+		return nil, errors.New("original TLS body/length/close not completed")
 	}
 	id := r.Header.Get("X-Request-ID")
 	w.mu.Lock()
 	tail := w.tails[id]
 	w.mu.Unlock()
 	if tail == nil {
-		return errors.New("original HTTP handler identity absent")
+		return nil, errors.New("original HTTP handler identity absent")
 	}
 	select {
 	case <-tail.done:
 	case <-r.Request.Context().Done():
-		return r.Request.Context().Err()
+		return nil, r.Request.Context().Err()
 	}
 	// Safe original-response proof. No body, Session token or request header is
 	// persisted; the browser must independently match these exact bytes.
@@ -365,7 +389,7 @@ func (w *taskReviewWeb) response(r *http.Response) error {
 		returned := tail.returned
 		w.mu.Unlock()
 		if !returned {
-			return errors.New("original GET handler did not return")
+			return nil, errors.New("original GET handler did not return")
 		}
 		record := struct {
 			InputHash       string `json:"input_hash"`
@@ -381,16 +405,24 @@ func (w *taskReviewWeb) response(r *http.Response) error {
 		}{w.inputHash, id, r.Request.Method, fmt.Sprintf("%x", sha256.Sum256([]byte(r.Request.URL.RequestURI()))), r.StatusCode, len(raw), fmt.Sprintf("%x", sha256.Sum256(raw)), true, true, returned}
 		encoded, encodeErr := json.Marshal(record)
 		if encodeErr != nil {
-			return encodeErr
+			return nil, encodeErr
 		}
 		if err := os.MkdirAll(w.evidence, 0700); err != nil {
-			return err
+			return nil, err
 		}
-		if err := os.WriteFile(filepath.Join(w.evidence, "task-review-"+w.mode+"-response-"+id+".json"), encoded, 0600); err != nil {
-			return err
+		if err := os.WriteFile(filepath.Join(w.evidence, w.profile.filePrefix+"-"+w.mode+"-response-"+id+".json"), encoded, 0600); err != nil {
+			return nil, err
 		}
 	}
 	r.Body = io.NopCloser(bytes.NewReader(raw))
+	return raw, nil
+}
+
+func (w *taskReviewWeb) response(r *http.Response) error {
+	raw, err := w.completedResponse(r)
+	if err != nil {
+		return err
+	}
 	intent, ok := r.Request.Context().Value(reviewWebIntentKey{}).(reviewWebIntent)
 	if !ok {
 		if strings.HasSuffix(r.Request.URL.Path, "/task-transition-commands/lookup") {
@@ -410,7 +442,7 @@ func (w *taskReviewWeb) response(r *http.Response) error {
 	if r.StatusCode != 200 {
 		return errors.New("browser Transfer did not commit")
 	}
-	requestID, err := f.ParseID[f.Request](id)
+	requestID, err := f.ParseID[f.Request](r.Header.Get("X-Request-ID"))
 	if err != nil {
 		return err
 	}
@@ -500,7 +532,7 @@ func (w *taskReviewWeb) browser(t *testing.T) {
 	firstRoundRequire(t, err)
 	ctx, cancel := context.WithTimeout(ctxFor(t), 60*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "task-review.config.js"))
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, w.profile.configName))
 	cmd.Dir = root
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.WaitDelay = time.Second
@@ -511,7 +543,7 @@ func (w *taskReviewWeb) browser(t *testing.T) {
 			cmd.Env = append(cmd.Env, entry)
 		}
 	}
-	cmd.Env = append(cmd.Env, "TMPDIR="+w.directory, "PLAYWRIGHT_NO_COPY_PROMPT=1", "AGENTEAM_AUTH_WEB_ORIGIN="+w.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+w.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "AGENTEAM_TASK_REVIEW_WEB_DIST="+os.Getenv("AGENTEAM_TASK_REVIEW_WEB_DIST"), "AGENTEAM_TASK_REVIEW_WEB_CASE="+w.mode, "AGENTEAM_TASK_REVIEW_WEB_EVIDENCE="+w.evidence, "AGENTEAM_TASK_REVIEW_WEB_INPUT_HASH="+w.inputHash)
+	cmd.Env = append(cmd.Env, "TMPDIR="+w.directory, "PLAYWRIGHT_NO_COPY_PROMPT=1", "AGENTEAM_AUTH_WEB_ORIGIN="+w.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+w.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", w.profile.envPrefix+"_DIST="+os.Getenv(w.profile.envPrefix+"_DIST"), w.profile.envPrefix+"_CASE="+w.mode, w.profile.envPrefix+"_EVIDENCE="+w.evidence, w.profile.envPrefix+"_INPUT_HASH="+w.inputHash)
 	var output bytes.Buffer
 	cmd.Stdout = &output
 	cmd.Stderr = &output
@@ -531,12 +563,12 @@ func (w *taskReviewWeb) browser(t *testing.T) {
 	}()
 	err = <-done
 	joined = true
-	t.Logf("Task Review Node actual_wait pid=%d success=%t", cmd.Process.Pid, err == nil)
+	t.Logf("%s Node actual_wait pid=%d success=%t", w.profile.logName, cmd.Process.Pid, err == nil)
 	safe := output.String()
 	w.mu.Lock()
 	tokens := append([]string(nil), w.keys...)
 	w.mu.Unlock()
-	tokens = append(tokens, w.x.domain.base.ownerBrowser.cookie, w.x.domain.base.ownerBrowser.csrf)
+	tokens = append(tokens, w.domain.base.ownerBrowser.cookie, w.domain.base.ownerBrowser.csrf)
 	for _, token := range tokens {
 		if token != "" {
 			safe = strings.ReplaceAll(safe, token, "[redacted]")

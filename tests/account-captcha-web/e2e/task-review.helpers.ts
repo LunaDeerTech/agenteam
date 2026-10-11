@@ -693,7 +693,42 @@ function endpoint(request: Request, data: ReviewMaterial): string | undefined {
   throw new Error("UNOBSERVED_TASK_REVIEW_ENDPOINT");
 }
 
-export async function observeReview(page: Page, data: ReviewMaterial) {
+export type TaskObservationMaterial = {
+  mode: string;
+  cookie: string;
+  project_id: string;
+  task_id?: string;
+};
+export type TaskObservationProfile = {
+  dist: string;
+  evidence: string;
+  inputHash: string;
+  prefix: "task-review" | "task-intake";
+  endpoint: (request: Request) => string | undefined;
+  cut?: "transfer" | "create";
+  lookupCommand: "work.task.transfer" | "work.task.create";
+};
+
+export function observeReview(page: Page, data: ReviewMaterial) {
+  return observeTaskRequests(page, data, {
+    dist: process.env.AGENTEAM_TASK_REVIEW_WEB_DIST!,
+    evidence: process.env.AGENTEAM_TASK_REVIEW_WEB_EVIDENCE!,
+    inputHash: process.env.AGENTEAM_TASK_REVIEW_WEB_INPUT_HASH!,
+    prefix: "task-review",
+    endpoint: (request) => endpoint(request, data),
+    cut: data.mode === "review-complete" ? undefined : "transfer",
+    lookupCommand: "work.task.transfer",
+  });
+}
+
+// Shared observation machinery only. Each fixture supplies a closed endpoint
+// classifier and at most its one declared committed-response delivery fault.
+// GET joint proofs and ordinary POST completion rules remain identical.
+export async function observeTaskRequests(
+  page: Page,
+  data: TaskObservationMaterial,
+  profile: TaskObservationProfile,
+) {
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -704,7 +739,7 @@ export async function observeReview(page: Page, data: ReviewMaterial) {
   const retirements: any[] = [];
   const binding = await knowledgeSessionBinding(
     resolve(process.cwd(), "../.."),
-    process.env.AGENTEAM_TASK_REVIEW_WEB_DIST!,
+    profile.dist,
   );
   if (binding.entry === binding.asset)
     throw Error("TASK_REVIEW_ENTRY_IS_SINGLETON");
@@ -743,7 +778,7 @@ export async function observeReview(page: Page, data: ReviewMaterial) {
   };
   const onRequest = (request: Request) => {
     try {
-      const name = endpoint(request, data);
+      const name = profile.endpoint(request);
       if (!name) return;
       if (entries.length >= 192)
         throw new Error("TASK_REVIEW_REQUEST_BOUND_EXCEEDED");
@@ -867,15 +902,13 @@ export async function observeReview(page: Page, data: ReviewMaterial) {
     const record = JSON.parse(
       readFileSync(
         join(
-          process.env.AGENTEAM_TASK_REVIEW_WEB_EVIDENCE!,
-          `task-review-${data.mode}-response-${entry.requestID}.json`,
+          profile.evidence,
+          `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`,
         ),
         "utf8",
       ),
     );
-    expect(record.input_hash).toBe(
-      process.env.AGENTEAM_TASK_REVIEW_WEB_INPUT_HASH,
-    );
+    expect(record.input_hash).toBe(profile.inputHash);
     expect(record.request_id).toBe(entry.requestID);
     expect(record.method).toBe("GET");
     expect(record.status).toBe(200);
@@ -937,8 +970,8 @@ export async function observeReview(page: Page, data: ReviewMaterial) {
       const response = await entry.request.response();
       if (
         state === "failed" &&
-        entry.name === "transfer" &&
-        data.mode !== "review-complete" &&
+        profile.cut !== undefined &&
+        entry.name === profile.cut &&
         dropped === 0
       ) {
         // Go already validated this exact request's committed DB receipt before
@@ -1005,7 +1038,7 @@ export async function observeReview(page: Page, data: ReviewMaterial) {
     }
   }
   function receipt(
-    name: "transfer" | "lookup",
+    name: "transfer" | "lookup" | "create" | "ready",
     index: number,
   ): Record<string, any> {
     const values = entries.filter(
@@ -1018,20 +1051,31 @@ export async function observeReview(page: Page, data: ReviewMaterial) {
     ).toBeTruthy();
     return body!;
   }
+  function requests(name: string): readonly Request[] {
+    return entries
+      .filter((entry) => entry.name === name)
+      .map((entry) => entry.request);
+  }
   function originalLookup() {
-    const transfers = entries.filter((entry) => entry.name === "transfer");
-    const lookups = entries.filter((entry) => entry.name === "lookup");
-    expect(transfers).toHaveLength(1);
+    const originals = requests(
+      profile.lookupCommand === "work.task.create" ? "create" : "transfer",
+    );
+    const lookups = requests("lookup");
+    expect(originals).toHaveLength(1);
     expect(lookups).toHaveLength(1);
-    const sent = transfers[0]!.request.postDataJSON();
-    expect(lookups[0]!.request.postDataJSON()).toEqual({
-      command: "work.task.transfer",
-      target_id: data.task_id,
-      expected_version: sent.expected_version,
-      request: sent.request,
-    });
-    expect(lookups[0]!.request.headers()["idempotency-key"]).toBe(
-      transfers[0]!.request.headers()["idempotency-key"],
+    const sent = originals[0]!.postDataJSON();
+    expect(lookups[0]!.postDataJSON()).toEqual(
+      profile.lookupCommand === "work.task.create"
+        ? { command: "work.task.create", request: sent.request }
+        : {
+            command: "work.task.transfer",
+            target_id: data.task_id,
+            expected_version: sent.expected_version,
+            request: sent.request,
+          },
+    );
+    expect(lookups[0]!.headers()["idempotency-key"]).toBe(
+      originals[0]!.headers()["idempotency-key"],
     );
     expect(dropped).toBe(1);
   }
@@ -1054,19 +1098,25 @@ export async function observeReview(page: Page, data: ReviewMaterial) {
     throw new Error("CURRENT_AGENT_DIRECTORY_DID_NOT_INCLUDE_REQUIRED_AGENT");
   }
   function save(testStatus?: string) {
-    const directory = process.env.AGENTEAM_TASK_REVIEW_WEB_EVIDENCE!;
+    const directory = profile.evidence;
     mkdirSync(directory, { recursive: true, mode: 0o700 });
     writeFileSync(
-      join(directory, `task-review-${data.mode}.json`),
+      join(directory, `${profile.prefix}-${data.mode}.json`),
       JSON.stringify(
         {
           case: data.mode,
-          input_hash: process.env.AGENTEAM_TASK_REVIEW_WEB_INPUT_HASH,
+          input_hash: profile.inputHash,
           original_requests: entries.length,
           finished: entries.filter((e) => e.terminal === "finished").length,
           declared_receipt_cut: dropped,
           all_observed: entries.every((e) => e.checked),
           transitions: entries.filter((e) => e.name === "transfer").length,
+          ...(profile.prefix === "task-intake"
+            ? {
+                creates: entries.filter((e) => e.name === "create").length,
+                ready: entries.filter((e) => e.name === "ready").length,
+              }
+            : {}),
           lookups: entries.filter((e) => e.name === "lookup").length,
           test_status: testStatus,
           route: diagnosticURL(page.url()),
@@ -1134,6 +1184,7 @@ export async function observeReview(page: Page, data: ReviewMaterial) {
     verify,
     receipt,
     originalLookup,
+    requests,
     agentOption,
     save,
     endDocument,
