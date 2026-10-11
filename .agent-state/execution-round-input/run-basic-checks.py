@@ -3,6 +3,8 @@
 Preparation is inert. This does not run PostgreSQL, Runner, Model or HTTP.
 Seven new tops and two related existing authority controls are selected;
 actual race-test and vet dependency closures are captured before execution.
+--build-only reruns the two RoundInput builder controls and the original vet
+scope after the fixture correction; it does not mean compile-only.
 """
 
 import argparse
@@ -38,7 +40,12 @@ COMPAT_TESTS = {
     ],
 }
 TESTS = {package: names + COMPAT_TESTS.get(package, []) for package, names in NEW_TESTS.items()}
-PACKAGES = list(TESTS)
+BUILD_TESTS = {
+    "./internal/central/execution": [
+        "TestExecutionRoundInputSelectionUsesRealCutoffAndReplacement",
+        "TestExecutionRoundInputCodecRejectsChangedProof",
+    ],
+}
 VET_PACKAGES = [
     "./internal/central/skill", "./internal/central/skill/contract",
     "./internal/central/execution", "./internal/central/execution/contract",
@@ -88,7 +95,12 @@ def decode_stream(raw):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--build-only", action="store_true", help="Run only the two RoundInput builder tops and their original subtests; still vet all four packages")
     args = parser.parse_args()
+    tests = BUILD_TESTS if args.build_only else TESTS
+    new_tests = BUILD_TESTS if args.build_only else NEW_TESTS
+    compat_tests = {} if args.build_only else COMPAT_TESTS
+    packages = list(tests)
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=False)
     env = os.environ.copy()
@@ -150,11 +162,11 @@ def main():
     prior = manifest(candidates)
     closures = {}
     paths = {"go.mod", "go.sum"} | protected
-    for stage, flags, packages in [
-        ("deps-race01", ["-race"], PACKAGES),
+    for stage, flags, targets in [
+        ("deps-race01", ["-race"], packages),
         ("deps-vet01", [], VET_PACKAGES),
     ]:
-        run(stage, [GO, "list", *flags, "-deps", "-test", "-json", *packages])
+        run(stage, [GO, "list", *flags, "-deps", "-test", "-json", *targets])
         discovered, local_packages = set(), []
         for row in decode_stream((out / (stage + ".log")).read_text()):
             directory = Path(row.get("Dir", "/"))
@@ -169,11 +181,11 @@ def main():
                     if path.is_relative_to(ROOT):
                         discovered.add(str(path.relative_to(ROOT)))
         paths.update(discovered)
-        closures[stage] = dict(packages=packages, local_packages=local_packages, paths=sorted(discovered))
+        closures[stage] = dict(packages=targets, local_packages=local_packages, paths=sorted(discovered))
     missing = sorted(paths - prior.keys())
     save("deps-closure.json", dict(
         closures=closures, input_count=len(paths), missing_pre_discovery_inputs=missing,
-        new_top_tests=NEW_TESTS, related_old_top_tests=COMPAT_TESTS, vet_packages=VET_PACKAGES,
+        new_top_tests=new_tests, related_old_top_tests=compat_tests, vet_packages=VET_PACKAGES,
     ))
     if missing or not REQUIRED_SOURCES.issubset(paths):
         raise RuntimeError("actual closure missing or reaching unbound source; no test started")
@@ -185,9 +197,9 @@ def main():
     if before != after:
         raise RuntimeError("source changed during dependency discovery; no test started")
 
-    tops = [name for names in TESTS.values() for name in names]
+    tops = [name for names in tests.values() for name in names]
     pattern = "^(" + "|".join(tops) + ")$"
-    run("unit01", [GO, "test", "-race", "-p", "1", "-count=1", "-timeout=10m", "-json", "-run", pattern, *PACKAGES], after)
+    run("unit01", [GO, "test", "-race", "-p", "1", "-count=1", "-timeout=10m", "-json", "-run", pattern, *packages], after)
     passed, started = [], []
     for line in (out / "unit01.log").read_text().splitlines():
         event = json.loads(line)
@@ -195,12 +207,12 @@ def main():
             target = passed if event["Action"] == "pass" else started
             target.append([event["Package"], event["Test"]])
     module = "github.com/LunaDeerTech/agenteam/"
-    required = [[module + package[2:], name] for package, names in TESTS.items() for name in names]
+    required = [[module + package[2:], name] for package, names in tests.items() for name in names]
     actual_tops = [item for item in started if "/" not in item[1]]
     selected = sorted(actual_tops) == sorted(required) and all(passed.count(item) == 1 for item in required)
     save("unit01-selection.json", dict(
         required=required, actual_top_runs=actual_tops, passed=passed,
-        new_top_count=7, related_old_top_count=2, exact_selection_passed=selected,
+        new_top_count=sum(map(len, new_tests.values())), related_old_top_count=sum(map(len, compat_tests.values())), exact_selection_passed=selected,
     ))
     if not selected:
         raise RuntimeError("selected top was missing, extra, duplicated or did not pass")

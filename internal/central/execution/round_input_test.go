@@ -22,7 +22,7 @@ func roundInputSelectionControl(t *testing.T) (*roundInputSource, []sc.RuntimeAs
 	x := newReadFileAuthorityControl(t)
 	r := x.input.Fields().Request
 	digest := c.TriggerInputDigest([]byte("round-input-control"))
-	a := sc.SkillBinding{SkillID: newTestID[pc.Skill](t), RevisionID: newTestID[sc.Revision](t), Revision: 1, AssignmentID: newTestID[sc.Assignment](t), AssignmentSequence: 2, Name: "controlled skill", Description: "", PackageSHA256: digest, EntryPath: sc.EntryPath}
+	a := sc.SkillBinding{SkillID: newTestID[pc.Skill](t), RevisionID: newTestID[sc.Revision](t), Revision: 1, AssignmentID: newTestID[sc.Assignment](t), AssignmentSequence: 2, Name: "controlled skill", Description: "Controlled skill binding.", PackageSHA256: digest, EntryPath: sc.EntryPath}
 	initial := sc.InitialSkillBindings{Request: sc.SkillCaptureRequest{ProjectID: r.Launch.ProjectID, AgentID: r.Launch.AgentID, ExecutionID: r.ExecutionID}, AssignmentSequence: 2, Bindings: []sc.SkillBinding{a}}
 	receipt := c.ToolResultConsumptionReceipt{ExecutionID: r.ExecutionID, RoundID: x.stored.round.Fields().ID, CallID: x.stored.toolPending.call.ID, OperationID: newTestID[tc.Operation](t), AttemptID: newTestID[tc.Attempt](t), Version: 4, TranscriptThrough: 3, MessageDigest: digest, ResultDigest: digest, CreatedAt: x.stored.toolPending.at}
 	source := &roundInputSource{row: &executionRecord{summary: c.Summary{ID: r.ExecutionID, ProjectID: r.Launch.ProjectID, AgentID: r.Launch.AgentID, Version: 4, Status: c.Running}}, original: &x.stored, initial: sc.InitialRoundBindingsRequest{Initial: initial, CaptureAttemptBinding: digest}, receipt: receipt, prefix: digest}
