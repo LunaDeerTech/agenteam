@@ -31,19 +31,20 @@ type LookupEnv func(string) (string, bool)
 
 // Config is immutable after loading. Its zero value is invalid.
 type Config struct {
-	logLevel        slog.Level
-	shutdownTimeout time.Duration
-	httpAddr        string
-	publicOrigin    string
-	database        postgres.Config
-	cursorKeys      cursor.Keyring
-	secretKeys      secret.Keyring
-	outboundTrust   outbound.TrustStore
-	objectRuntime   object.RuntimeConfig
-	accountKeys     account.Keyring
-	knowledgeKeys   kc.ConfirmationKeys
-	accountLog      func() string
-	launchRetry     *scheduler.LaunchRetryPolicy
+	logLevel         slog.Level
+	shutdownTimeout  time.Duration
+	httpAddr         string
+	publicOrigin     string
+	database         postgres.Config
+	cursorKeys       cursor.Keyring
+	secretKeys       secret.Keyring
+	outboundTrust    outbound.TrustStore
+	objectRuntime    object.RuntimeConfig
+	accountKeys      account.Keyring
+	knowledgeKeys    kc.ConfirmationKeys
+	accountLog       func() string
+	launchRetry      *scheduler.LaunchRetryPolicy
+	executionRuntime *ExecutionRuntimeOptions
 }
 
 func (c Config) LogLevel() slog.Level                           { return c.logLevel }
@@ -99,6 +100,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 		case "ACCOUNT_KEYRING", "ACCOUNT_RECOVERY_LOG":
 		case "KNOWLEDGE_CONFIRMATION_KEYRING":
 		case schedulerRetryMaxAttempts, schedulerRetryInitialBackoff, schedulerRetryMaxBackoff:
+		case executionRuntimeSetting:
 		case "OBJECT_DOWNLOAD_KEYRING", "OBJECT_ENDPOINT", "OBJECT_TRANSFER_ENDPOINT", "OBJECT_BUCKET", "OBJECT_ACCESS_KEY", "OBJECT_SECRET_KEY", "OBJECT_TLS_MODE", "OBJECT_CA_FILE", "OBJECT_SPOOL_DIR":
 		case "DATABASE_URL", "DATABASE_TLS_MODE", "DATABASE_CA_FILE", "DATABASE_MAX_CONNS", "DATABASE_CONNECT_TIMEOUT", "DATABASE_STARTUP_TIMEOUT", "DATABASE_LOCK_TIMEOUT":
 		default:
@@ -195,6 +197,13 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
+	c.executionRuntime, err = loadExecutionRuntime(lookup)
+	if err != nil {
+		return Config{}, err
+	}
+	if c.executionRuntime != nil && c.launchRetry == nil {
+		return Config{}, invalid(schedulerRetryMaxAttempts)
+	}
 
 	return c, nil
 }
@@ -238,6 +247,14 @@ func (c Config) Validate() error {
 	}
 	if c.launchRetry != nil && c.launchRetry.Validate() != nil {
 		return invalid("SCHEDULER_LAUNCH_RETRY_*")
+	}
+	if c.executionRuntime != nil {
+		if err := c.executionRuntime.Validate(); err != nil {
+			return err
+		}
+		if c.launchRetry == nil {
+			return invalid(schedulerRetryMaxAttempts)
+		}
 	}
 	return nil
 }
