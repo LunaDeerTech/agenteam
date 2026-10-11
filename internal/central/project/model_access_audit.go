@@ -15,6 +15,13 @@ import (
 // D04 already owns Project SH in its original Audit transaction. In particular,
 // no call/consumer locks or a second transaction may be added by this callback.
 func (a *Authority) checkModelAccessAuditInTx(ctx context.Context, tx f.Tx, entry ac.Entry, key ac.AppendKey) error {
+	return a.checkModelAccessAuditFactsInTx(ctx, tx, entry, key, a.state().auditFacts[ac.AccessProducer])
+}
+
+// Both the original immutable map and the dedicated Runtime audit adapter use
+// the same Project gate. Selecting a provider does not establish its private
+// Invocation/handoff facts; those remain the provider's original-Tx proof.
+func (a *Authority) checkModelAccessAuditFactsInTx(ctx context.Context, tx f.Tx, entry ac.Entry, key ac.AppendKey, provider ac.ProjectFactAuthority) error {
 	e, k := entry.Fields(), key.Details()
 	actor := e.Actor.Details()
 	var metadata struct {
@@ -48,7 +55,6 @@ func (a *Authority) checkModelAccessAuditInTx(ctx context.Context, tx f.Tx, entr
 	if err = pc.CheckOwnerGate(p.ref.Lifecycle, initialization, id.Mutate); err != nil {
 		return err
 	}
-	provider := a.state().auditFacts[ac.AccessProducer]
 	if nilPort(provider) {
 		return fault(f.DependencyUnbound)
 	}
