@@ -397,7 +397,7 @@ func runAgentConfigurationApp(t *testing.T, a *agentCreateFixture, task wc.Task,
 		reply := h.request(t, owner, http.MethodPost, transferPath, jsonBytes(t, map[string]any{"expected_version": task.Version, "request": transfer}), "app-new-agent-task", false)
 		changed, err := wc.DecodeTaskTransitionMutation(reply.body)
 		agentAppRequire(t, err)
-		if reply.status != 200 || !changed.Changed || changed.Task.State != wc.TaskStateTodo || changed.Task.AssigneeAgentID == nil || *changed.Task.AssigneeAgentID != target || changed.Task.Version != task.Version+1 {
+		if reply.status != 200 || changed.Validate() != nil || changed.Task.State != wc.TaskStateTodo || changed.Task.AssigneeAgentID == nil || *changed.Task.AssigneeAgentID != target || changed.Task.Version != task.Version+1 {
 			t.Fatal("new App Agent could not be assigned through original Work HTTP")
 		}
 		var state, assigned string
