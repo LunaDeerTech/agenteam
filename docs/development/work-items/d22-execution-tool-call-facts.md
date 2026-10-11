@@ -1,6 +1,6 @@
 # D22 首轮 ToolCall 持久事实
 
-状态：基于 `226ea38b` 实施；基础与显式 Model 捕获补口已通过限定分段 race / vet。两次真实 PG 均为 FAIL；第二轮已到原 Model Close barrier，持久状态查询的夹具类型错误及异常退休装配正在窄修，尚未验收 ToolCall 写入链。本片止于真实原模型句柄完成并实际 Joined 后的 ToolCall 持久事实和 `tool-pending` 非终态 checkpoint，不声明完整多轮 Agent、ToolOperation、Runner 派发或生产 tools 接入。
+状态：基于 `226ea38b` 的有限片已完成真实 PG 验证并获独立有限验收，等待正式主线集成。基础与显式 Model 捕获补口的分段 race / vet 通过，第三轮原两场景 whole PASS；前两轮 whole FAIL 完整保留。本片止于真实原模型句柄完成并实际 Joined 后的 ToolCall 持久事实和 `tool-pending` 非终态 checkpoint，不声明完整多轮 Agent、ToolOperation、Runner 派发或生产 tools 接入。
 
 正式来源：[Model/Tool 契约](d01-contracts/model-tool.md)、[Execution 编排契约](d01-contracts/execution-orchestration.md)、[Transcript 与 Context](../../architecture/agent-loop/transcript-context.md)。
 
@@ -19,7 +19,7 @@ lead 独占 Execution/Loop、本卡、分支 current 与迁移 `00064_execution_
 
 首条 PG 链只替换 Model 端口，真实 Agent/Execution/Tool Registry/持久化及当前权威不得用原 D15 上游替身替代。必要基础控制覆盖完整响应与原句柄退休、事实幂等、未知提交、当前权限与事务回滚；不扩大成多轮 Tool Runtime 或重新验收旧领域矩阵。
 
-OpenAI tools 独立 A/B STOP、生产 nil/unbound、旧默认 no-tools 均保留；归档 input08 不当作动态通过。不得通过新 driver 恢复停项，也不引入网络故障 probe、新依赖或默认绑定。当前已运行限定 Go 基础检查、离线 Python 方法控制与两次自有隔离 PG native；结果与失败边界见下文。
+OpenAI tools 独立 A/B STOP、生产 nil/unbound、旧默认 no-tools 均保留；归档 input08 不当作动态通过。不得通过新 driver 恢复停项，也不引入网络故障 probe、新依赖或默认绑定。当前已运行限定 Go 基础检查、离线 Python 方法控制与三次自有隔离 PG native；结果与失败边界见下文。
 
 ## 当前实现候选
 
@@ -58,4 +58,18 @@ Model `model01` 精确选择 26 top（3 个新入口和 23 个适用旧入口）
 
 PG `compile02` 原工具 64051 实际 0，Go race-c 89.808 秒，精确 list 1.240 秒只枚举原 top；1808 编译输入前后相同，runtime 仅增加该 binary。`native02` 原工具 24135 实际退出 1，supervisor 672325 实际 1 / 115.080 秒；两个 sub 共 25.41 秒，均在原 Model Close barrier 及请求身份检查之后，`requireNoCall` 聚合 SQL 返回 `DATABASE_SQL_FAILED`，异常清理另报告 `DEPENDENCY_UNBOUND`。原 Go / driver Wait 1，七资源、descendants / private / runtime 双尾、自动 TCP delta 双空及输入未变门完整。原件 `native02/` 全部保留，不能将已到 barrier 当作事实写入通过。
 
-静态定位两个夹具接缝：Outbox `aggregate_id` 是 UUID，Execution ID 是 text，两个跨域计数查询需显式转 UUID；异常取消退休还要求原 RuntimeAuthority 下的真实 Model Runtime registry，当前夹具未装配该依赖。定向修复只由原 PG 作者改该文件，保持计数和真实退出断言，使用正式 Runtime 的构造 / 初始化 / Stop / Drain；不会调用 Runtime.Chat 或 tools HTTP，不删除生产 nil-registry 门，不伪造空 borrowers。修后尚待原两场景真实复验。
+静态定位两个夹具接缝：Outbox `aggregate_id` 是 UUID，Execution ID 是 text，两个跨域计数查询需显式转 UUID；异常取消退休还要求原 RuntimeAuthority 下的真实 Model Runtime registry，当前夹具未装配该依赖。定向修复只由原 PG 作者改该文件，保持计数和真实退出断言，使用正式 Runtime 的构造 / 初始化 / Stop / Drain；不调用 Runtime.Chat 或 tools HTTP，不删除生产 nil-registry 门，不伪造空 borrowers。原 driver / Loop 先实际退出，再退出 Runtime 和传输预算，最后关闭原 Secret / ProcessGuard。
+
+
+## 第三轮有限真实验收
+
+PG 夹具修复后，`compile03` 原工具 60484 实际 0：race-c 27.670 秒、精确 list 1.296 秒，仍只有原 top；1808 项编译输入前后同，相对第二轮仅该 PG 文件改变。原基础 34 top 和 Model 26 top 分段结果、适用 vet 与未变 profile 复用，不重复已通过范围。
+
+`native03` 原工具 52694 实际退出 0，supervisor 679899 实际 0 / 120.995 秒。唯一 `TestExecutionToolCallFacts` 的两 sub 全通过（29.28 秒，分别 13.28 / 16.00 秒）：
+
+- 原 Model JSON 句柄的 Close 被真实 barrier 持有时，不发布 Assistant / ToolCall / 保护参数；实际 Joined 后，同事务写入原完整响应与参数、精确调用身份、Transcript 和 running/tool-pending。真正 COMMIT 后遮蔽回执形成 Unknown，原 owner 只观察原候选，不再次 Begin；当前读取及同事务 Tool 权威使用真实领域配置。
+- held 期间由正式 Owner 撤销 Agent Tool 配置，Joined 后拒绝写入且零 partial；正式恢复配置后，在原事务最后实际 ROLLBACK，仍零 partial；再由原 owner 恢复写入成功，不重发模型调用。历史事实不随当前撤权改写，pending 的 Model / Environment / Mount 引用保持 live，不假退休。
+
+原 Go 681501 / driver 679902 都为 actual Wait 0；七资源双次不存在，descendants / private / runtime 双尾，自动 TCP delta 两次为空，1809 runtime 输入未变和原 metadata 门均成立。原日志 `/tmp/etf03/pg-ea3561fd508d43d9a90e864177d85246.log`，原命令、输入、二进制绑定、Wait 与终态在 `output/ai/execution-tool-call-facts/{compile03,native03}/`。原工具退出由作者亲见，独立审阅不冒称亲自执行。
+
+本轮 Project 创建仍使用旧正式领域测试中的持久 test Skills receipt；Model JSONCaller 为明确受控端口，新增真实 Runtime 只承担原 borrower registry 与退休生命周期，未调用真实模型 HTTP。未验证公开 Cancel 命令、多轮模型交互、ToolOperation / Attempt 写入、Runner 派发、默认生产绑定或整个 D22；原 tools A/B STOP 不变。
