@@ -3,6 +3,7 @@
 package projectvariable_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -23,6 +24,14 @@ func TestTaskTimelineWeb(t *testing.T) {
 	t.Run("recent-older-and-refresh", func(t *testing.T) {
 		d := newTaskTransitionFixture(t)
 		w := newTaskTimelineWeb(t, d)
+		defer func() {
+			w.shell.mu.Lock()
+			failure := w.shell.failure
+			w.shell.mu.Unlock()
+			if failure != nil {
+				t.Error("owned timeline observation failed", failure)
+			}
+		}()
 		w.shell.browser(t)
 		w.shell.close(t)
 		w.verify(t)
@@ -184,7 +193,19 @@ func (w *taskTimelineWeb) response(r *http.Response) error {
 			return errors.New("actual recent timeline page lost its opaque continuation")
 		}
 	}
-	if !reflect.DeepEqual(page.Items, want) {
+	// Planning payloads retain their original JSON bytes. PostgreSQL JSONB
+	// includes insignificant whitespace which the formal HTTP encoder compacts.
+	// Encode both complete typed arrays through that same public wire contract;
+	// retain every field, payload value, comment byte and event position.
+	actualWire, err := json.Marshal(page.Items)
+	if err != nil {
+		return err
+	}
+	wantWire, err := json.Marshal(want)
+	if err != nil {
+		return err
+	}
+	if !bytes.Equal(actualWire, wantWire) {
 		return errors.New("timeline HTTP page differs from original persisted typed facts")
 	}
 	w.shell.mu.Lock()
