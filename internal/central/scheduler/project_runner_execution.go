@@ -13,8 +13,8 @@ import (
 )
 
 // MaxExecutionHandoffPage bounds historical association work in one traversal.
-// A cursor advances through every page and wraps only at the observed end;
-// terminal history cannot permanently hide later created Executions.
+// Each cycle fixes its highest association ID and wraps at that boundary;
+// terminal history and new appends cannot prevent a finite cycle completing.
 const MaxExecutionHandoffPage = 128
 
 // ProjectExecutionVisit observes an already committed Dispatch association.
@@ -68,11 +68,21 @@ func (s *ProjectRunner) visitExecutionPage(ctx context.Context, out *ProjectRunR
 	if s.executionAfter != nil {
 		after = s.executionAfter.String()
 	}
+	var through *DispatchID
+	if s.executionThrough != nil {
+		id := *s.executionThrough
+		through = &id
+	}
 	s.mu.Unlock()
-	page, err := s.captureExecutionPage(ctx, after)
+	page, through, err := s.captureExecutionPage(ctx, after, through)
 	if err != nil {
 		return err
 	}
+	// Publish the cycle boundary only after the original read committed. A
+	// failed admission retains it, so later appends cannot extend this cycle.
+	s.mu.Lock()
+	s.executionThrough = through
+	s.mu.Unlock()
 	more := len(page) > s.executionPageSize
 	if more {
 		page = page[:s.executionPageSize]
@@ -100,6 +110,7 @@ func (s *ProjectRunner) visitExecutionPage(ctx context.Context, out *ProjectRunR
 	if !more {
 		s.mu.Lock()
 		s.executionAfter = nil
+		s.executionThrough = nil
 		s.mu.Unlock()
 	}
 	return nil
