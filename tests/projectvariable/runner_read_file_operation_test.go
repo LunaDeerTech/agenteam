@@ -22,6 +22,7 @@ import (
 	"time"
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
+	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/mount"
@@ -236,10 +237,53 @@ func (c *operationReadFileConnection) consume(raw []byte) {
 }
 
 type operationReadFileFixture struct {
-	facts    *toolFactsFixture
-	device   *runnerhttp.DeviceHandler
-	wire     *operationReadFileWire
-	expected p.ReadFileResult
+	facts             *toolFactsFixture
+	device            *runnerhttp.DeviceHandler
+	wire              *operationReadFileWire
+	expected          p.ReadFileResult
+	expectedCanonical []byte
+	checkpoint        toolFactsIdentity
+}
+
+func (v *operationReadFileFixture) requireReceipt(t *testing.T, receipt ec.DirectTextReceipt) {
+	t.Helper()
+	got, err := v.facts.factsFor(ctxFor(t), v.facts.capture.v.base.raw, v.expectedCanonical, 0)
+	readFileAdapterOK(t, err, "original ToolCall facts before any Operation")
+	if receipt.ExecutionID != v.facts.capture.created.ID || receipt.Status != ec.Running || receipt.TranscriptThrough != 2 || int64(receipt.Version) != got.Version || receipt.SnapshotID.String() != got.Snapshot || receipt.StartID.String() != got.Start || receipt.RoundID.String() != got.Round || receipt.CallID.String() != got.Logical {
+		t.Fatal("public receipt differs from the original nonterminal checkpoint")
+	}
+	_, _, begin, results, closes, joined := v.facts.model.observed()
+	if begin != 1 || results != 1 || closes != 1 || !joined {
+		t.Fatal("original Model call or actual handle close differs")
+	}
+	v.facts.checkBinding(t, got)
+	v.checkpoint = got
+}
+
+func (v *operationReadFileFixture) requireJoined(t *testing.T, before operationReadFileSQL, success bool) {
+	t.Helper()
+	v.facts.driver.Stop()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := v.facts.driver.Drain(ctx); err != nil || !v.facts.driver.Joined() || !v.facts.model.Joined() {
+		t.Fatal("original ToolCall driver/Model handle did not actually join", err)
+	}
+	// The still-running ToolCall and its protected arguments/references must
+	// remain unchanged. This stage has exactly one Operation; count alone does
+	// not replace the original Operation/Attempt/result/wire postconditions.
+	got, err := v.facts.factsFor(ctxFor(t), v.facts.capture.v.base.raw, v.expectedCanonical, 1)
+	readFileAdapterOK(t, err, "original ToolCall facts after Operation and actual join")
+	if got != v.checkpoint {
+		t.Fatal("Operation or join changed the original ToolCall identity")
+	}
+	after := v.sql(t)
+	requireOperationReadFileIdentity(t, before, after)
+	v.requireTerminal(t, after, success)
+	wireCount := 0
+	if success {
+		wireCount = 1
+	}
+	v.requireWire(t, wireCount, after)
 }
 
 // The only controlled business port is the original Model JSON caller. Its
@@ -273,8 +317,12 @@ func newOperationReadFileFixture(t *testing.T, fullResult bool) *operationReadFi
 	facts.model.unhold()
 	completed := toolFactsWait(t, completion)
 	readFileAdapterOK(t, completed.err, "actual ToolCall producer")
-	callFacts := facts.requireReceipt(t, completed.receipt)
-	facts.checkBinding(t, callFacts)
+	v := &operationReadFileFixture{
+		facts:             facts,
+		expected:          p.ReadFileResult{Path: arguments.Path, BytesRead: len(content), EOF: true, Encoding: "utf8", Data: content},
+		expectedCanonical: []byte(fmt.Sprintf(`{"encoding":"utf8","length":%d,"mount_id":%q,"offset":"0","path":"private-tool-call-argument.txt"}`, length, facts.mount.MountID.String())),
+	}
+	v.requireReceipt(t, completed.receipt)
 	root, err := os.Open(rootPath)
 	readFileAdapterOK(t, err, "trusted root descriptor")
 	manager, managerErr := workspace.New(root)
@@ -286,6 +334,7 @@ func newOperationReadFileFixture(t *testing.T, fullResult bool) *operationReadFi
 	wire := &operationReadFileWire{expected: p.ReadFilePayload{WorkspaceName: facts.mount.Workspace, Arguments: arguments}}
 	device, err := runnerhttp.NewDeviceHandler(runners)
 	readFileAdapterOK(t, err, "real device HTTP handler")
+	v.device, v.wire = device, wire
 	server := newReadFileAdapterServer(t, wire.wrap(device), runners)
 	t.Cleanup(func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -342,7 +391,7 @@ func newOperationReadFileFixture(t *testing.T, fullResult bool) *operationReadFi
 		select {
 		case state := <-states:
 			if state == control.Connected {
-				return &operationReadFileFixture{facts: facts, device: device, wire: wire, expected: p.ReadFileResult{Path: arguments.Path, BytesRead: len(content), EOF: true, Encoding: "utf8", Data: content}}
+				return v
 			}
 		case <-runDone:
 			t.Fatal("original Runner returned before authenticated Hello")
@@ -624,7 +673,7 @@ func TestRunnerReadFileOperation(t *testing.T) {
 		if err := authority.Drain(ctx); err != nil || !authority.Joined() {
 			t.Fatal("original Unknown owner did not join after exact durable observation")
 		}
-		v.facts.requireJoined(t)
+		v.requireJoined(t, final, true)
 		t.Log("read_file_operation full_result=65536 wire_requests=1 original_commit_then_unknown=true repeated_lookup_no_send=true")
 	})
 	t.Run("current-mount-clear-rejects-unclaimed", func(t *testing.T) {
@@ -681,7 +730,7 @@ func TestRunnerReadFileOperation(t *testing.T) {
 		if err := authority.Drain(ctx); err != nil || !authority.Joined() {
 			t.Fatal("original unsent call did not actually join")
 		}
-		v.facts.requireJoined(t)
+		v.requireJoined(t, after, false)
 		t.Log("read_file_operation current_mount_clear=true unclaimed_ticket_denied=true wire_requests=0 original_identities_retained=true")
 	})
 }

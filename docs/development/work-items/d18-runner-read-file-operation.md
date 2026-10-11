@@ -1,6 +1,6 @@
 # D18/D22 单 read-file Operation
 
-本片把真实 Execution ToolCall 接到一次 Runner read-file Operation/Attempt，并持久保存可重读的完整结果。独立基础及真实 producer 首片源码已落，尚未编译或运行本片 Tool 控制，不是已交付执行链。初始基线为 main `1b10c29c`；ToolFacts 先以已提交开发依赖接入，随后通过 main `95c092bc` 正式有限交付，原 native01/02 FAIL 与修后03通过事实均保持，不替代本片验证。
+本片把真实 Execution ToolCall 接到一次 Runner read-file Operation/Attempt，并持久保存可重读的完整结果。两组基础检查与两次 PG 编译通过；native01/02均wholeFAIL，第二轮清Mount子场景通过，完整结果子场景仍待诊断修复，不是已交付执行链。初始基线为 main `1b10c29c`；ToolFacts 先以已提交开发依赖接入，随后通过 main `95c092bc` 正式有限交付，原 native01/02 FAIL 与修后03通过事实均保持，不替代本片验证。
 
 正式依据：[Model/Tool 契约](d01-contracts/model-tool.md)、[Execution 契约](d01-contracts/execution-orchestration.md)、[Runner read-file](d15-runner-read-file-adapter.md)。本片止于原 Operation 的持久结果，不包含下一轮 Model、Transcript 注入或自动重试。
 
@@ -26,6 +26,18 @@ Tool lead `skill_package_review` 负责新 contract、private runtime、迁移65
 
 `LookupReadFile` 只经当前 Execution 权限读取原 Operation/Attempt/历史 payload，不重新读当前目标替换历史、不发送或创建新 RID。提交 Unknown 保留原 owner、实际返回事件与有界结果候选；只有精确终态观测且原调用已返回才可解除最终提交的不确定性。显式 `ResolveReadFile` 只为这个仍持有的 owner 重查/保存原事实，绝不调用 Dispatcher；Attempt 提交 Unknown 且当时零派发，只能在查见同一原 Attempt 后记已知未发送，缺行不能证明 rollback。Stop 仅取消原调用；Drain/Joined 不把 Cancel、公开结果或未知提交当退休。首次构造均显式，默认生产装配未改。
 
-独审指出的两处静态缺陷已窄修，尚待实际控制：最终候选只由实际 instance schema mismatch 归一化，metadata/锁/取消错误不改原成功；NotCommitted保原候选，Unknown保本轮确证写意图。Lookup独立登记原调用，Stop禁止新查询，Drain等其原Store调用实际返回；Execute内部历史重读沿已登记owner，停止后只允许显式Resolve结算原保留事实。
+独审指出的两处静态缺陷已窄修并通过适用基础控制：最终候选只由实际 instance schema mismatch 归一化，metadata/锁/取消错误不改原成功；NotCommitted保原候选，Unknown保本轮确证写意图。Lookup独立登记原调用，Stop禁止新查询，Drain等其原Store调用实际返回；Execute内部历史重读沿已登记owner，停止后只允许显式Resolve结算原保留事实。
 
-已有三组 codec、六组 producer 控制源码，覆盖完整65536B结果、原终态/RequestID、borrowed input、实际返回/未知持久状态、候选错误恢复、公开Lookup原Store barrier及默认脱敏，尚未运行。variables_review 的唯一 PG 两子场景已冻结，含真实65536B结果、原事务返回 barrier、Lookup不重放与当前撤权；两旧 fixture 只补正式 seed handoff/透明 wire 观察接口。先做必要基础验证，尽早进入真实 PG + WSS 链，不扩完整矩阵。Model JSON 为唯一明确端口替身，Execution/Tool authority、CurrentMount、ticket、WSS 与 Runner Manager 必须真实。默认生产 nil、全 registry、OpenAI tools A/B 和其他原 STOP 不变。
+Model JSON 为唯一明确端口替身，Execution/Tool authority、CurrentMount、ticket、WSS 与 Runner Manager 使用真实实现。默认生产 nil、全 registry、OpenAI tools A/B 和其他原 STOP 不变。
+
+## 实际验证与保留失败
+
+三接口19个top的race与三包vet通过，666项输入前后相同；Tool runtime/contract的16个top、34个sub及两包vet通过，509项输入前后相同。这些分段基础结果不等于真实整链通过。`compile01` 的PG包race编译及精确list均实际0，1827项输入前后相同，唯一top为 `TestRunnerReadFileOperation`；原二进制、命令与Wait保留于 `output/ai/runner-read-file-operation/compile01/`。
+
+固定 `2d4f07ac` 的 native01 为 **wholeFAIL**。两子场景运行27.38s：完整结果场景在进入Operation前，被复用ToolFacts夹具硬编码的canonical length64断言拒绝；当前Mount清空场景到达新业务后验后，在旧 `requireJoined` 的Operation数必须为0断言失败。后者不记为通过的子场景。Go、driver及outer均实际返回1（原工具32554，supervisor700051，140.340s）；七资源两次absence、private/runtime/descendants双尾及1828项inputs_unchanged齐，但原75s HOST_TCP尾仍有1条TIME_WAIT差额，因此退出门也未全通过。原证据保留于 `output/ai/runner-read-file-operation/native01/`，监督原日志为 `/tmp/rfo01/pg-8c62651ea7e34711ac66556710e69e16.log`；不把事后连接消失改写为原成功。
+
+夹具修正已固定 `2eadbbde` + `872ebdb3`：旧 `facts` 仍严格固定canonical64与Operation0，新增私有 `factsFor` 仅参数化这两项，保留其余SQL、原字节/摘要、身份、事务和引用断言。新PG按各场景独立预期64/65536，首次要求Operation0；原driver实际Stop/Drain后要求Operation1和原ToolCall身份不变，并再次核exact Operation/Attempt/完整结果及实际wire后验。原COMMIT barrier、当前撤权、Lookup先于Stop的次序、两子场景和所有运行门不变。修正经独审后，`compile02` race编译及精确list均实际0，1827项输入前后相同、相对compile01仅两份夹具变更，binary `f934ff93…13b475f2` 单独保留；此前基础结果未重复。独审确认原harness STOP仅使该轮失败，不是永久阻断；native01的TIME_WAIT归属仍未明，不改原FAIL。
+
+固定 `b952cd59` 的 native02 为 **wholeFAIL**，原工具63642亲收actual1，supervisor709384实际1/120.850s。两子场景共30.35s：`current-mount-clear-rejects-unclaimed` PASS15.80s，包含原Attempt提交返回barrier后正式clear、旧未claim票据零wire、原Operation/Attempt身份与退休失败、拒绝新Execute/Lookup及原Join后验；`result-commit-loss-and-observation` FAIL14.56s，在已到Attempt barrier后，Execute返回err=nil而原断言要求COMMIT_UNKNOWN。该失败点尚未记录安全Outcome.Status、最终phase/terminal或hook命中状态，不能推断实际成功、failure或unknown，更不能倒填COMMIT丢回执已触发。原Go711250、driver709385均实际Wait1；七资源14absence、private/runtime/descendants双尾、原HOST_TCP两次delta_empty及1828项inputs_unchanged均通过，整轮仍因业务失败返回1。原件在 `output/ai/runner-read-file-operation/{compile02,native02}/`，监督日志为 `/tmp/rfo02/pg-b0e94d0c377f47909e923553ed067107.log`；本轮TCP通过不解释或覆盖native01差额。
+
+后续只读发现确定的codec矛盾：实际Message解码会重排嵌套JSON对象键，而 `terminalReadFile` 使用完整Payload与struct定序编码的逐字相等作为成功条件，合法协议值可能被降为 `backend_contract_violation`。此为静态产品发现，不能替代native02未保存的分支事实。针对真实Message codec的新反例已固定 `d40fc527`，由Tool作者在另授基础窗口先验证原红再窄修；本文不预记其结果。截至本次记录没有native03，PG原COMMIT_UNKNOWN及完整结果强门不改，原预算、自动baseline、七ID双尾与两轮FAIL均保留。

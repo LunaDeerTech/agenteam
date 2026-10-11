@@ -1,6 +1,6 @@
 # D22：read-file 成功结果的单次 Transcript 消费
 
-状态：2026-10-11 首片源码已成形，尚未编译或运行 Go/PG。基线为 Operation 已提交候选 `2d4`；上游首次 native wholeFAIL（夹具旧阶段断言与原 TCP 门），原件保留，第二轮正在原资源窗口运行，未把开发依赖算作已验收。此片不通过更换 harness 绕过上游未验范围。
+状态：2026-10-11 首片源码已成形，尚未运行本片 race/vet/PG。从初始 Operation 候选 `2d4` 合入上游 `67329a12` 的完整开发历史与窄修源码：上游 native01/02 均 wholeFAIL，原 `d40fc527` codec 红控保留，`67329a12` 窄修正在基础复验，尚未整体验收。此合并只统一实际编译输入，不构成交付接受，不通过更换 harness 绕过上游未验范围。
 
 ## 本片边界
 
@@ -36,3 +36,5 @@ Execution 消费者在同一事务取得完整锁、借用真实结果并复核�
 当前实现提供显式 `NewToolResultConsumer(actual *ToolCallDriver, results ReadFileResultAuthority)`，`Consume` / `Lookup` / `ResolveUnknown` 与 `Stop` / `Drain` / `Joined`；无默认装配。Execution 新纯控为 4 top（其中候选关联 8 sub），尚未执行。Tool 与 AgentLoop 另有作者专属控制，不将静态代码数量写作通过数量。
 
 两原 harness 仅新增 `TestExecutionToolResultConsumption` 的同包输入与精确 2 sub；资源、Wait、预算、自动 TCP baseline/delta 双空门不变。离线 `method01` 使用原门：1 正例、7 反例实际退出 0，剥新增 selector 后两文件完整 AST 与旧有效映射相同，4 项输入前后不变。原命令、PID、日志及结果位于 `output/ai/execution-tool-result-consumption/checks/method01/`；该结果不替代 Go 或真实链验收。
+
+首次基础配方仅完成真实 deps 查询；原保守闭包门将既有 Execution 子包判为未允许依赖而退出 1，race/vet 均未启动，不属于产品控制失败。后继统一覆盖已冻结的 Execution、Tool、AgentLoop 3 包 9 新 top 和 5 个相关包 vet；实际结果待原调用完成后记录。

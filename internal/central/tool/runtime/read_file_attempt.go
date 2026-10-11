@@ -101,10 +101,13 @@ func terminalReadFile(h *readFileHandoff, observed runnerhttp.ReadFileDispatchRe
 			break
 		}
 		ref, raw, err := encodeReadFileStoredResult(h.record.ID, h.attempt, decoded, h.arguments.Arguments)
-		if err != nil || !bytes.Equal(raw, r.Payload) {
+		if err != nil {
 			clear(raw)
 			break
 		}
+		// The real Message codec may reorder JSON object members. The strict
+		// decoder and original arguments bind the value; our explicit encoder
+		// supplies the stable bytes used by the durable result and its digest.
 		v.Outcome, v.Result = "success", &ref
 		return v, raw
 	case p.Failure, p.Cancelled:
