@@ -6,8 +6,8 @@
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
-| Owner Skill 分配 → 同 Tx durable pending ingress | skill_package_review lead；recovery_lead Execution；skill_assignment_agent Agent | 首合同与兼容方案已落，00067 预留；需同时推进 Agent 及四域 refs version，不可只插新表。零 Model/不实现 DetermineRoundInput，尚未工具链或真实 PG。 |
-| 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 独立树 `/workspace/agenteam-runner-read-file-operation` 已建，基线 `1b10c29c`；Tool 存储基础与 Runner RequestID 接缝正在纯源码实施，尚未测试、未验收，不提前计作执行链已打通。 |
+| Owner Skill 分配 → 同 Tx durable pending ingress | skill_package_review lead；recovery_lead Execution；skill_assignment_agent Agent | Agent/Execution/四 owner 源已冻结；Skill producer/current/原命令重放、typed Audit/Event 与 00067 首块源码已落，capture 兼容由独立作者并行。计划事务零业务变更，final 同 Tx 全部提交；零 Model/不实现 DetermineRoundInput，尚未编译或真实 PG。 |
+| 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 原 native04 已 wholePASS 并独立有限接受：真实单次 WSS/Manager 65536B、原 COMMIT 后受控 ackloss/Lookup 零重发、clear 后零 wire；原01–03 wholeFAIL及真实codec反例红保留，不扩下一轮 Model/默认执行。root 负责正式 main 集成与材料保全。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 ## 保留与清理

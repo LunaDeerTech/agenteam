@@ -25,6 +25,10 @@ Assign 接收 SkillID 与显式 enabled；Remove 接收原 AssignmentID。先检
 
 原调用先预收完整锁 union；至少含当前 User、命令、Project SH、ProjectSchedule EX、Agent EX、目标 Skill SH，以及 Agent 各引用 owner 的实际锁。Agent discovery 不以旧 expected_version 拒绝可恢复重放；final 仍重验当前授权、canonical Agent 与原 plan。Agent 提供两个同步 callback，不向 Skill 借出版本推进能力：prepare 在真实授权后先查原 key，已完成重放返回 false；非重放才校 expected，无变化可写新 key 的 no-op receipt 并返回 false；实际变化仅冻结 Skill 变更候选并返回 true。Agent 自己完成 CAS 与四域引用版本推进且全部实际返回后，才调用 finalize(new AgentRef) 写对应 Skill mutation/change/receipt/ingress。四域仅变更所需的检查不能提前阻断合法的已完成历史重放。
 
+正式 Outbox 的 `PrepareAppend` 必须在业务 final Tx 前完成，以预收所有 append 锁。Skill 先将完整原 user/Project/Agent/DTO/expected/key 与稳定候选身份保存为 `planned`，该短事务不写 Agent、四引用域、当前分配、change/ingress、审计或事件；只有原事务已知 Committed 且实际返回才准备 typed event。final Tx 在完整 union 下重验原计划、当前版本、集合与实际 Skill revision，漂移拒绝，不借旧 append plan 写新 body。final 内依次执行 Agent CAS/四 owner、Skill current/change、真实 ingress/ref、Audit、typed Outbox 和 completed receipt；任何一步失败全回滚。planned Unknown 和 final Unknown 均保原意图，仅原 Lookup，不自动重发。
+
+`AssignmentAuthority` 同时提供精确 Skill change/ref 与 Outbox producer 检查；独立 `AssignmentAuditFacts` 可先用于 Project 的显式 producer 装配。新事实必须有本次 active、同 Store/Tx 的私有 Skill writer witness，不能从 planned 行或公开 DTO 推导已完成。审计 action 是 `skill.assign` / `skill.remove`，事件闭集为正式 `skill.assignment_added` / `skill.assignment_removed`；disabled 配置不产生 runtime change，事件不授运行权限。默认 registry/provider 不绑定。
+
 Ingress 不 Acquire 新锁、不另开 Tx、不调用 Model。Agent EX 与 Launch、preparing、终态释放的同 Agent gate 排序。active 的唯一事实是 created/preparing/running/waiting 的 canonical slot；cancel_requested 不等于 free。没有 active 时必须由真实观察得到 `no_active_execution`，不能把 nil provider 或读取错误当空闲。
 
 每个 change_id 的 ingress receipt 不可变：第一次的 queued Execution 或 no_active 决定原样重放，后来启动的新 Execution 不能吸收旧 change。queued 行仅表示 pending，不代表已进入某轮或 waiting 已恢复。
@@ -35,10 +39,10 @@ Ingress 不 Acquire 新锁、不另开 Tx、不调用 Model。Agent EX 与 Launc
 
 旧 `AgentInitializationReceipt` 的 sequence=1、初始 assignment identity 和创建 provenance 保留；不能改写已提交 receipt 或初始 capture digest 来冒充动态配置。旧初始化记录的历史读取与新的当前 assignment 集合读取分开校验。新增 current sequence 与授予/移除事实，不以多出一行破坏原创建 receipt。
 
-当前 `loadAgentInitialization` 与 `loadSkillCaptureSource` 仅支持初始化的 0/1 集合，`execution_binding_heads` 亦限制 binding_count 为 0/1。本片必须同步扩展实际当前集合和新 preparing capture，对所有当前有效分配按 SkillID 唯一排序、捕获合法 current revision 并保护原映射；无动态变更的旧编码保持兼容。历史 Execution capture 不随之后分配漂移，旧 initial-only RoundInput 读取不得被宽松 current 查询替代。新增 pending 的应用、cutoff、skills_added ControlInput 与下一轮 Transcript 留后继正式 DetermineRoundInput 片。
+旧基线 `loadAgentInitialization` 与 `loadSkillCaptureSource` 只支持初始化的 0/1 集合，`execution_binding_heads` 亦限制 binding_count 为 0/1。新 `assignment_current` 指向同域 immutable `assignment_changes` 的完整 canonical 集合；当前读同时逐项比对全部 live grant，seq-1 创建回执单独按历史验证。capture 兼容三源由 `skills_milestone_review` 单独实施，同步扩展新 preparing capture，对所有当前有效分配按 SkillID 唯一排序、捕获合法 current revision 并保护原映射；无动态变更的旧编码保持兼容。历史 Execution capture 不随之后分配漂移，旧 initial-only RoundInput 读取不得被宽松 current 查询替代。新增 pending 的应用、cutoff、skills_added ControlInput 与下一轮 Transcript 留后继正式 DetermineRoundInput 片。
 
 ## 最小真实链与未验证范围
 
 计划先用真实 Owner、Agent、已发布 Skill 和 Execution Launch(created)，不调用 Model：正式 Assign 同时推进版本/序列并写 pending/ref；同 key Lookup 不重复；真实无 active 返回并持久 no_active；sink 失败回滚整个命令。随后检查初始化重放/新 preparing 当前集合与固定历史 capture，及 Remove/重新分配的新 identity。纯替身不代替 Agent 当前授权、Execution slot 或 revision/Object 引用。
 
-目前只有源码/接口准备，没有动态通过结论。工具链和真实 PG 仅由 root 在实际资源窗口安排。原 Object runtime join、OpenAI tools A/B、SPA concurrent-publication、Jina/Image STOP、生产 initializer/默认执行绑定及未完成 Operation/ToolResult 的状态均保持。
+首批 Skill producer、current/命令读取、typed Audit/Event/实际事实 authority 与 00067 已落源码；Agent/Execution/四 owner 源已由各作者冻结，capture 兼容与专属控另域继续。没有动态通过结论。工具链和真实 PG 仅由 root 在实际资源窗口安排。原 Object runtime join、OpenAI tools A/B、SPA concurrent-publication、Jina/Image STOP、生产 initializer/默认执行绑定及未完成 Operation/ToolResult 的状态均保持。

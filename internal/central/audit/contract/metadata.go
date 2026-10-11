@@ -378,6 +378,9 @@ func DecodeMetadata(action Action, raw []byte) (Metadata, error) {
 	if len(raw) > 4096 {
 		return Metadata{}, invalid("metadata")
 	}
+	if SkillAssignmentAction(action) {
+		return decodeSkillAssignmentMetadata(action, raw)
+	}
 	if AgentAction(action) {
 		return decodeAgentMetadata(action, raw)
 	}
