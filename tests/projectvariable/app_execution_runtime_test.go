@@ -323,7 +323,7 @@ func runAppExecutionRuntime(t *testing.T, wire *firstRoundFixture, held bool, ol
 		firstRoundRequire(t, v.base.raw.QueryRow(ctx, `SELECT e.id,s.process_id FROM agenteam_execution.executions e JOIN agenteam_execution.snapshots s ON(s.id,s.execution_id)=(e.snapshot_id,e.id) WHERE e.project_id=$1 AND e.agent_id=$2 AND e.status='running'`, v.base.project.ID.String(), v.agentID.String()).Scan(&executionID, &processID))
 		var live bool
 		firstRoundRequire(t, v.base.raw.QueryRow(ctx, `SELECT p.state='claimed' AND p.stopped_at IS NULL AND NOT l.released AND NOT e.released
-   FROM agenteam_object.process_claims p JOIN agenteam_model.calls c ON c.process_id::text=p.process_id
+   FROM agenteam_object.process_claims p JOIN agenteam_model.calls c ON c.process_id=p.process_id
    JOIN agenteam_secret.secret_leases l ON l.id=c.lease_id
    JOIN agenteam_secret.project_variable_execution_leases e ON e.execution_id=$1
    WHERE p.process_id=$2 AND c.request_data#>>'{Initiator,ExecutionID}'=$1`, executionID, processID).Scan(&live))
@@ -477,7 +477,7 @@ func appExecutionTerminal(t *testing.T, wire *firstRoundFixture, status ec.Statu
  JOIN agenteam_model.invocations i ON i.id=c.invocation_id
  JOIN agenteam_secret.secret_leases l ON l.id=c.lease_id
  JOIN agenteam_secret.project_variable_execution_leases env ON env.execution_id=e.id
- JOIN agenteam_object.process_claims g ON g.process_id=s.process_id
+ JOIN agenteam_object.process_claims g ON g.process_id=s.process_id::uuid
  JOIN agenteam_work.tasks t ON t.id=(e.launch_request#>>'{trigger,task_id}')::uuid
  WHERE e.project_id=$1 AND e.agent_id=$2 AND r.terminal_status=e.status AND r.terminal_version=e.version
  AND r.finished_at=e.completed_at AND e.launch_request->>'purpose'='task/work'`, v.base.project.ID.String(), v.agentID.String()).Scan(&actual, &completed, &process, &inputRaw, &snapshotRaw, &roundRaw, &taskState, &taskVersion, &modelPhase, &retired, &usageFinal, &modelReleased, &environmentReleased, &guardStopped, &guardAt, &executions, &claims, &dispatches, &attempts, &invocations, &transcripts, &events)
