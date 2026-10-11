@@ -20,3 +20,11 @@ lead 独占 Execution/Loop、本卡、分支 current 与迁移 `00064_execution_
 首条 PG 链只替换 Model 端口，真实 Agent/Execution/Tool Registry/持久化及当前权威不得用原 D15 上游替身替代。必要基础控制覆盖完整响应与原句柄退休、事实幂等、未知提交、当前权限与事务回滚；不扩大成多轮 Tool Runtime 或重新验收旧领域矩阵。
 
 OpenAI tools 独立 A/B STOP、生产 nil/unbound、旧默认 no-tools 均保留；归档 input08 不当作动态通过。不得通过新 driver 恢复停项，也不引入网络故障 probe、新依赖或默认绑定。当前未运行 Go、Node、服务或 native。
+
+## 当前实现候选
+
+显式 `NewToolCallDriver` 与 `NewToolCallController` 复用原私有运行者及真实 JSONCall 的 Result/Close/Joined，不放宽旧构造器。迁移 00064 在原 snapshots/rounds/transcript 上前向增加版本 2 和 `tool_pending`，保护参数与调用关系只追加不可改；模型完成后短事务写入完整原参数、规范化摘要、Assistant 和 ToolCall，并保持 running 与引用 live。
+
+驱动的 `ReadToolCall`、`DiscoverToolCall`、`RequireToolCallInTx` 消费已落库事实，使用同 Store/Tx 的完整锁与短期私有 Agent current witness，再核 Tool 当前引用及原捕获版本/attempt/selection。它实现调用事实权威接口，但没有 read-file ToolOperation/Attempt 的生产 writer 或默认 Runtime 消费者。
+
+Tool 子域已有 6 个新基础测试入口，Execution/Loop 增加 6 个入口，覆盖版本分离、原句柄 join、响应关联/闭集参数、私有同事务 witness 及历史/当前事实分离；均为尚未执行的测试源码。独立 PG 作者只写 `tests/projectvariable/execution_tool_call_facts_test.go`，只替换 Model JSON 端口，其他领域调用保持真实。
