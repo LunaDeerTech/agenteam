@@ -1,11 +1,11 @@
 # 当前执行检查点
 
-2026-10-11：Agent 显示名称/标签颜色编辑与显式清空已完成有限独立验收，交 root Git 集成；产品 `04705288`、原 fixture `e3b5877c`。工作树 `/workspace/agenteam-agent-display-settings`、分支 `ai/agent-display-settings-20261011`；唯一内容作者 `agent_display_settings`，root 独占 Git。正式范围、原失败与可重建命令见 [显示设置卡](../docs/development/work-items/d10-agent-display-settings-ui.md)。
+2026-10-11：Task 历史事件单选筛选与双向顺序已完成限定独立验收，待 root 最终 Git 集成；产品/fixture 冻结 `206996e3`。执行树 `/workspace/agenteam-task-history-filters`，分支 `ai/task-history-filters-20261011`；唯一内容作者 `variables_review`，独立 reviewer `recovery_lead`，root 独占 Git。正式行为、原失败、真实链与重建入口见 [Task 历史筛选卡](../docs/development/work-items/d11-task-history-filters-ui.md)。
 
-作者定向 7 文件 / 38 测、格式/稳定类型/构建通过；实际 Session 新字段原意图 Unknown 与页面冲突/清空/刷新有受控证明。原 page01 回填落错对象的 3/5 FAIL 已修并保留；旧 list01 只保原范围，最终 list02 绑定最终 TS，显示行号来自转译 JS。compile-display01 原 Go128984 actual0/108.675s，原 selector list actual0且唯一 TestAgentEditWeb。
+作者 `unit02` 5 文件 27 项、类型/构建通过；原 `unit01` 11 PASS / 1 FAIL 保留，修复仅纠正新增 Transfer Lookup fixture 路径。Go compile01 actual0/75.134s，selector list 仅枚举。编译没有前后源码 manifest，依据冻结候选及期间无源码修改；后续 closure 是编译后运行绑定。
 
-native-display01 原工具3157实际exit0，supervisor137213 actual0/147.996s；1 top / 2 sub46.43s、原两Node/Go/driver及8 adopted Chromium Wait全0，7资源14absence与private/runtime/desc/TCP双尾齐、2483输入完全相同。normal18=17finished+1PATCH200 ERR_ABORTED联合闭合；lost11=10finished+1声明截断，不写全finished。独立reviewer recovery_lead接受实际业务/资源与六PNG可见范围；390颜色/底部操作及Unknown提示未入图部分只由同轮DOM支持。lost是旧字段恢复，不冒新字段真实Unknown矩阵。
+native01 八次真实历史查询及只读持久事实后验通过：25 请求 = 22 finished + 3 原 GET aborted，10 份联合证明，零浏览器写入与 Lookup。原工具 35491 exit0 由作者亲见；supervisor 141878 actual0/135.596s，Go/Node/driver/4 Chrome 原 Wait 与七资源14 absence、private/runtime/descendants/TCP 双尾全齐，2482 运行输入不变。独立 reviewer 已接受原业务、退出及两 PNG 实际可见范围，不外推七类型完整浏览器/权限矩阵或全部 Task 功能。
 
-原件 `output/ai/agent-edit-web/{compile-display01,native-display01,dist-display01}` 及 `/tmp/adw01/ui-ffa0a2551d5848bf.log`；必要源码/测试/recipe均在正式路径和任务卡。当前产品/fixture停写，无后台进程、Go cache writer或自有服务；网络/native及hotcache窗口已明确交 `variables_review` 的 Task 历史筛选。当前待 root 保存的变更仅五个交付文档，Git最终提交/推送以root实际结果为准。
+原件 `output/ai/task-timeline-web/{compile01,native01,dist-filters01}`，原日志 `/tmp/thf01/ui-5681701cb0c84b0f.log`；必要源码、测试与恢复说明均在正式路径。当前产品/fixture 停写，无自有后台、服务或 Go cache writer；native 与 hotcache 窗口已交 root 排定的 Skills 后继。待保存仅五份交付文档，最终提交/推送以 root 实际结果为准。
 
-Skills 包下载（`/workspace/agenteam-skill-package-http`、`/workspace/agenteam-skill-package-ui`）及 Task 历史筛选（`/workspace/agenteam-task-history-filters`）仍为独立未交付工作，不纳入本有限交付；原 Skills browser01 业务 FAIL 及其全尾由对应作者另记。生产 Project initializer、完整participant/F1保持未完成，ready=false/503；Object Runtime join、OpenAI tools、Central SPA concurrent publication、Jina/Image来源STOP保持，不宣完整D01–D28或E01。
+共享文档以 root 指定主线 `93108753` 为底，保留已交付的 [Agent 显示设置](../docs/development/work-items/d10-agent-display-settings-ui.md)与 [Knowledge 文本 UI](../docs/development/work-items/d12-knowledge-text-ui.md)及各自有限验收边界。Skills 包下载仍由独立作者执行，原 browser01 FAIL 保留，不纳入本 Task 交付。生产 Project initializer、完整 participant/F1、ready=false/503 及 Object Runtime join、OpenAI tools、Central SPA concurrent publication、Jina/Image 来源 STOP 保持，不宣完整 D01–D28 或 E01。

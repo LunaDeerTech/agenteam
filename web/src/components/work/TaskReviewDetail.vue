@@ -231,6 +231,7 @@ const canSubmit = computed(
       :busy="owner.busy.value"
       :agent-name="owner.name"
       @load="owner.loadTimeline"
+      @filter="owner.setTimelineFilter"
     />
   </div>
 </template>

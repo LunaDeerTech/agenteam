@@ -266,6 +266,8 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 
 ## 14. 任务详情只读历史
 
+**后继交付：** [历史事件筛选与时间顺序](d11-task-history-filters-ui.md)已完成限定独立验收。当前默认仍读最近 50 条，但直接按新到旧展示，并提供七类型单选和旧到新切换、各自方向的继续读取；条件变化从第一页开始。下述 SOURCE 的正序展示及旧测试计数保留为当时事实，当前显示顺序以新卡为准，不把旧验收扩为新筛选矩阵。
+
 本片已完成限定验收，随本次提交交付main，产品事实锚为SOURCE `b3e6f0bb`。沿现任务详情增加“任务历史”，复用当前Human Owner的Session与TaskReader，调用`GET /api/v1/projects/{P}/tasks/{T}/events`，保持服务端Project/Task权限、版本水位和签名cursor；HTTP同时提供HEAD。首次读取最近50条并按时间正序展示，可“加载较早历史”或“重新读取历史”。七种事件按结构化事实展示，人工评论完整保留换行且仅按纯文本渲染；历史actor不推导成当前权限或伪姓名。每页上限4 MiB，允许完整字节短页；未知kind、非法来源、重复或乱序整页拒绝，不截断后当作成功。
 
 读取仍经过原Session实际owner与串行读，切换Project/Task、身份撤销或页面代际退出后，迟到结果不得发布到新上下文。错误态明确允许重试原读取或重新读取；历史不会确认任何未决写操作，不替代Transfer/Create/Update原key与完整请求Lookup。组件沿主题token、真实Ui控件与键盘操作，使用独立读取状态，不修改Task业务状态。

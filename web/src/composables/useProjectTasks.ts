@@ -28,7 +28,12 @@ import {
   type MilestoneCreateReceipt,
 } from '../api/work-milestone-planning'
 import { captureTaskCreateDraft, type TaskCreateDraft } from '../api/work-task-planning'
-import { compareTaskTimelineEvents, type TaskTimelineEvent } from '../api/work-task-timeline'
+import {
+  compareTaskTimelineEvents,
+  taskTimelineTypes,
+  type TaskTimelineEvent,
+  type TaskTimelineType,
+} from '../api/work-task-timeline'
 import { captureTaskUpdateInput } from '../api/work-task-edit'
 import { agentLabel, type DirectoryAgent } from '../api/agent-directory'
 import { workTaskRoute } from '../router/auth'
@@ -37,6 +42,8 @@ import type { createProjectWorkspace } from './useProjectWorkspace'
 
 type Phase = 'idle' | 'loading' | 'ready' | 'error'
 export type TaskTimelineState = {
+  type: 'all' | TaskTimelineType
+  order: 'asc' | 'desc'
   phase: Phase
   items: readonly TaskTimelineEvent[]
   next?: string
@@ -111,13 +118,16 @@ export function createProjectTasks(
     feedback: '',
   })
   const timeline = shallowReactive<TaskTimelineState>({
+    type: 'all',
+    order: 'desc',
     phase: 'idle',
     items: [],
     message: '',
     retryMore: false,
   })
-  function clearTimeline() {
+  function clearTimeline(resetFilters = false) {
     Object.assign(timeline, {
+      ...(resetFilters ? { type: 'all', order: 'desc' } : {}),
       phase: 'idle',
       items: [],
       next: undefined,
@@ -622,7 +632,7 @@ export function createProjectTasks(
     createdSprintFocus.value = null
     createdMilestoneFocus.value = null
     clearMilestoneCreation()
-    clearTimeline()
+    clearTimeline(true)
     manualMilestone = null
     state.phase = 'idle'
     state.message = ''
@@ -814,9 +824,24 @@ export function createProjectTasks(
       },
     )
   }
+  async function setTimelineFilter(field: 'type' | 'order', value: string) {
+    if (busy.value || !visible.value || !state.task || !state.detailCurrent) return
+    if (field === 'type') {
+      if (value !== 'all' && !taskTimelineTypes.includes(value as TaskTimelineType)) return
+      if (timeline.type === value) return
+      timeline.type = value as TaskTimelineState['type']
+    } else {
+      if (value !== 'asc' && value !== 'desc') return
+      if (timeline.order === value) return
+      timeline.order = value
+    }
+    await loadTimeline()
+  }
   async function loadTimeline(more = false) {
     const task = state.task
     if (!task || !state.detailCurrent) return
+    const { type, order } = timeline
+    const direction = order === 'asc' ? 1 : -1
     const cursor = more ? timeline.next : undefined
     if (more && !cursor) return
     await read(
@@ -828,24 +853,26 @@ export function createProjectTasks(
         return step(() =>
           auth.workReview.events(p, task.id, {
             limit: 50,
-            order: 'desc',
+            order,
+            ...(type === 'all' ? {} : { types: [type] }),
             ...(cursor ? { cursor } : {}),
           }),
         )
       },
       (page) => {
-        if (state.task?.id !== task.id) return
+        if (state.task?.id !== task.id || timeline.type !== type || timeline.order !== order) return
         // Reject inconsistent continuation atomically; never hide duplicate events.
         const before = more ? timeline.items : []
         const seen = new Set(before.map((item) => item.id))
-        const chunk = [...page.items].reverse()
+        const chunk = page.items
         for (let n = 0; n < chunk.length; n++) {
           const item = chunk[n]!
           if (
             item.project_id !== task.project_id ||
             item.task_id !== task.id ||
+            (type !== 'all' && item.type !== type) ||
             seen.has(item.id) ||
-            (n > 0 && compareTaskTimelineEvents(chunk[n - 1]!, item) >= 0)
+            (n > 0 && compareTaskTimelineEvents(chunk[n - 1]!, item) * direction >= 0)
           )
             throw new AccountFailure('invalid-response')
           seen.add(item.id)
@@ -853,16 +880,16 @@ export function createProjectTasks(
         if (
           (chunk.length &&
             before.length &&
-            compareTaskTimelineEvents(chunk[chunk.length - 1]!, before[0]!) >= 0) ||
+            compareTaskTimelineEvents(before[before.length - 1]!, chunk[0]!) * direction >= 0) ||
           (page.next_cursor && (!chunk.length || page.next_cursor === cursor))
         )
           throw new AccountFailure('invalid-response')
-        timeline.items = Object.freeze([...chunk, ...before])
+        timeline.items = Object.freeze([...before, ...chunk])
         timeline.next = page.next_cursor
         timeline.phase = 'ready'
       },
       (error) => {
-        if (state.task?.id !== task.id) return
+        if (state.task?.id !== task.id || timeline.type !== type || timeline.order !== order) return
         if (
           error instanceof AccountFailure &&
           [401, 403, 404].includes(error.problem?.status ?? 0)
@@ -1750,7 +1777,7 @@ export function createProjectTasks(
     clearSprintStart()
     clearSprintCreation()
     clearMilestoneCreation()
-    clearTimeline()
+    clearTimeline(true)
     state.task = null
     state.detailCurrent = false
     state.feedback = ''
@@ -1859,6 +1886,7 @@ export function createProjectTasks(
     loadSprints,
     loadBlockers,
     loadTimeline,
+    setTimelineFilter,
     selectMilestone,
     selectSprint,
     selectTask,

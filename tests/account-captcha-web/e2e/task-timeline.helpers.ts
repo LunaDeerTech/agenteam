@@ -48,9 +48,21 @@ export function timelineMaterial(): TimelineMaterial {
   return value;
 }
 
+const readSteps = [
+  { order: "desc", type: null, page: 0 },
+  { order: "desc", type: null, page: 1 },
+  { order: "desc", type: null, page: 0 },
+  { order: "desc", type: "comment", page: 0 },
+  { order: "desc", type: "blocker_added", page: 0 },
+  { order: "desc", type: null, page: 0 },
+  { order: "asc", type: null, page: 0 },
+  { order: "asc", type: null, page: 1 },
+] as const;
+
 export async function observeTimeline(page: Page, data: TimelineMaterial) {
   const prefix = `/api/v1/projects/${data.project_id}`;
   const eventsPath = `/tasks/${data.task_id}/events`;
+  let eventRequests = 0;
   const classify = (request: Request): string | undefined => {
     const url = new URL(request.url());
     const pathname = url.pathname;
@@ -71,10 +83,16 @@ export async function observeTimeline(page: Page, data: TimelineMaterial) {
     const path = pathname.slice(prefix.length);
     if (path === eventsPath) {
       expect(url.searchParams.getAll("limit")).toEqual(["50"]);
-      expect(url.searchParams.getAll("order")).toEqual(["desc"]);
+      const step = readSteps[eventRequests++];
+      expect(step, "one exact query per expected user action").toBeTruthy();
+      expect(url.searchParams.getAll("order")).toEqual([step!.order]);
+      expect(url.searchParams.getAll("types")).toEqual(
+        step!.type ? [step!.type] : [],
+      );
+      expect(url.searchParams.has("cursor")).toBe(step!.page === 1);
       expect(url.searchParams.getAll("cursor").length).toBeLessThanOrEqual(1);
       for (const key of url.searchParams.keys())
-        expect(["limit", "order", "cursor"]).toContain(key);
+        expect(["limit", "order", "cursor", "types"]).toContain(key);
       if (url.searchParams.has("cursor"))
         expect(url.searchParams.get("cursor")!.length).toBeGreaterThan(0);
       return "events";
@@ -113,40 +131,68 @@ export async function observeTimeline(page: Page, data: TimelineMaterial) {
   });
   return {
     ...seen,
-    requirePages(count: 1 | 2 | 3) {
+    requirePages(count: number) {
+      expect(count).toBeGreaterThan(0);
+      expect(count).toBeLessThanOrEqual(readSteps.length);
       const requests = seen.requests("events");
       expect(requests).toHaveLength(count);
-      const recent = [...data.event_ids.slice(1)].reverse();
       for (let index = 0; index < count; index++) {
+        const step = readSteps[index]!;
         const body = seen.timelinePage(index);
+        const query = new URL(requests[index]!.url()).searchParams;
+        expect(query.get("order")).toBe(step.order);
+        expect(query.get("types")).toBe(step.type);
+        let expectedIDs = [...data.event_ids];
+        if (step.type === "comment") {
+          const original = seen
+            .timelinePage(0)
+            .items.find((item: any) => item.type === "comment");
+          expect(original).toBeTruthy();
+          expectedIDs = [original.id];
+        } else if (step.type === "blocker_added") {
+          expectedIDs = [];
+        }
+        if (step.order === "desc") expectedIDs.reverse();
+        const expectedPage = expectedIDs.slice(
+          step.page * 50,
+          (step.page + 1) * 50,
+        );
+        const more = expectedIDs.length > (step.page + 1) * 50;
         expect(Object.keys(body).sort()).toEqual(
-          index === 1 ? ["items"] : ["items", "next_cursor"],
+          more ? ["items", "next_cursor"] : ["items"],
         );
-        expect(body.items.map((item: any) => item.id)).toEqual(
-          index === 1 ? [data.event_ids[0]] : recent,
-        );
+        expect(body.items.map((item: any) => item.id)).toEqual(expectedPage);
         for (const item of body.items) {
           expect(item.project_id).toBe(data.project_id);
           expect(item.task_id).toBe(data.task_id);
           expect(BigInt(item.task_version) <= BigInt(data.version)).toBe(true);
           expect(item.actor.type).toBe("human");
+          if (step.type) expect(item.type).toBe(step.type);
         }
-        const query = new URL(requests[index]!.url()).searchParams;
-        if (index === 1) {
-          expect(query.get("cursor")).toBe(seen.timelinePage(0).next_cursor);
-          expect(Object.hasOwn(body, "next_cursor")).toBe(false);
-          expect(body.items[0].type).toBe("task_created");
-          expect(body.items[0].task_version).toBe("1");
+        if (step.page === 1) {
+          expect(query.get("cursor")).toBe(
+            seen.timelinePage(index === 1 ? 0 : 6).next_cursor,
+          );
         } else {
           expect(query.has("cursor")).toBe(false);
+        }
+        if (more) {
           expect(typeof body.next_cursor).toBe("string");
           expect(body.next_cursor.length).toBeGreaterThan(0);
-          const comments = body.items.filter(
-            (item: any) => item.type === "comment",
-          );
+        }
+        const comments = body.items.filter(
+          (item: any) => item.type === "comment",
+        );
+        for (const comment of comments) {
+          expect(comment.payload.body).toBe(data.comment);
+          expect(comment.task_version).toBe(data.version);
+        }
+        if (index === 1) {
+          expect(body.items[0].type).toBe("task_created");
+          expect(body.items[0].task_version).toBe("1");
+        }
+        if ([0, 2, 5].includes(index)) {
           expect(comments).toHaveLength(1);
-          expect(comments[0].payload.body).toBe(data.comment);
-          expect(comments[0].task_version).toBe(data.version);
           expect(
             body.items.filter((item: any) => item.type === "fields_updated"),
           ).toHaveLength(47);
@@ -168,6 +214,7 @@ export async function observeTimeline(page: Page, data: TimelineMaterial) {
             to_agent_id: data.worker_id,
           });
         }
+        if (step.type === "comment") expect(comments).toHaveLength(1);
       }
       expect(seen.requests("transfer")).toHaveLength(0);
       expect(seen.requests("lookup")).toHaveLength(0);
@@ -197,6 +244,10 @@ export async function timelineScreenshot(
     .toBe(true);
   const directory = process.env.AGENTEAM_TASK_TIMELINE_WEB_EVIDENCE!;
   mkdirSync(directory, { recursive: true, mode: 0o700 });
+  await page
+    .getByRole("region", { name: "任务历史", exact: true })
+    .locator(".timeline-filters")
+    .scrollIntoViewIfNeeded();
   await page.screenshot({
     path: join(directory, `task-timeline-${data.mode}-${layout}-history.png`),
     fullPage: true,

@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it } from 'vitest'
-import { mount, type VueWrapper } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import TaskTimeline from '../components/work/TaskTimeline.vue'
 import type { TaskTimelineEvent } from '../api/work-task-timeline'
 import type { TaskTimelineState } from '../composables/useProjectTasks'
@@ -39,18 +39,31 @@ let wrapper: VueWrapper | undefined
 function button(label: string) {
   const result = wrapper!
     .findAll('button')
-    .find((node) => node.find('.button-label[aria-hidden="false"]').text() === label)
+    .find(
+      (node) =>
+        node.find('.button-label[aria-hidden="false"]').exists() &&
+        node.find('.button-label[aria-hidden="false"]').text() === label,
+    )
   if (!result) throw new Error(`Missing button ${label}`)
   return result
 }
+beforeEach(() => {
+  // jsdom has no layout; this exposes real UiSelect options to keyboard focus.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+    () => [{ width: 10, height: 10 }] as unknown as DOMRectList,
+  )
+})
 afterEach(() => {
   wrapper?.unmount()
   wrapper = undefined
   document.body.innerHTML = ''
+  vi.restoreAllMocks()
 })
 describe('Task timeline detail presentation', () => {
   it('shows structured facts and complete plain comments with keyboard-accessible identity details', async () => {
     const state: TaskTimelineState = {
+      type: 'all',
+      order: 'desc',
       phase: 'ready',
       items: [comment, claimed, assigned],
       next: 'older-page',
@@ -103,6 +116,8 @@ describe('Task timeline detail presentation', () => {
 
   it('keeps a failed older page separate from accepted history and exposes local retry and empty states', async () => {
     const state: TaskTimelineState = {
+      type: 'all',
+      order: 'desc',
       phase: 'error',
       items: [comment],
       next: 'original-cursor',
@@ -129,8 +144,117 @@ describe('Task timeline detail presentation', () => {
     })
     expect(wrapper.text()).toContain('暂无任务历史。')
     expect(wrapper.find('ol').exists()).toBe(false)
-    expect(wrapper.findAll('button')).toHaveLength(1)
+    expect(wrapper.find('button[aria-label="历史事件类型"]').exists()).toBe(true)
+    expect(wrapper.find('button[aria-label="历史时间顺序"]').exists()).toBe(true)
     await button('重新读取历史').trigger('click')
     expect(wrapper.emitted('load')).toEqual([[true], [false]])
+  })
+
+  it('offers all seven server filters through real keyboard options and restores the selector after reading', async () => {
+    const state: TaskTimelineState = {
+      type: 'all',
+      order: 'desc',
+      phase: 'ready',
+      items: [],
+      message: '',
+      retryMore: false,
+    }
+    wrapper = mount(TaskTimeline, {
+      attachTo: document.body,
+      props: { state, busy: false, agentName: () => 'Agent' },
+    })
+    const trigger = wrapper.get<HTMLButtonElement>('button[aria-label="历史事件类型"]')
+    trigger.element.focus()
+    await trigger.trigger('keydown', { key: 'ArrowDown' })
+    await flushPromises()
+    const options = new DOMWrapper(document.body)
+      .get('[role="listbox"][aria-label="历史事件类型"]')
+      .findAll('[role="option"]')
+    expect(options.map((option) => option.text())).toEqual([
+      '全部事件',
+      '创建任务',
+      '更新任务',
+      '状态变更',
+      '负责人变更',
+      '添加阻塞',
+      '解除阻塞',
+      '评论',
+    ])
+    expect(options[0]!.attributes('aria-selected')).toBe('true')
+    expect(document.activeElement).toBe(options[0]!.element)
+    document.activeElement?.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'End', bubbles: true }),
+    )
+    expect(document.activeElement).toBe(options[7]!.element)
+    ;(document.activeElement as HTMLButtonElement).click()
+    await wrapper.setProps({ state: { ...state, type: 'comment', phase: 'loading' }, busy: true })
+    expect(wrapper.emitted('filter')).toEqual([['type', 'comment']])
+    expect(trigger.attributes('aria-expanded')).toBe('false')
+    expect(trigger.element.disabled).toBe(true)
+    expect(
+      wrapper.get<HTMLButtonElement>('button[aria-label="历史时间顺序"]').element.disabled,
+    ).toBe(true)
+    // A disabled selector can drop focus in a real browser while its body is pending.
+    ;(document.activeElement as HTMLElement).blur()
+    await wrapper.setProps({ state: { ...state, type: 'comment' }, busy: false })
+    expect(document.activeElement).toBe(trigger.element)
+    expect(wrapper.text()).toContain('没有此类型的任务历史。')
+    await trigger.trigger('click')
+    await flushPromises()
+    const selected = new DOMWrapper(document.body).get('[role="option"][aria-selected="true"]')
+    expect(selected.text()).toBe('评论')
+    await selected.trigger('click')
+    expect(wrapper.emitted('filter')).toHaveLength(1)
+    const clear = button('清除事件筛选')
+    ;(clear.element as HTMLButtonElement).focus()
+    await clear.trigger('click')
+    expect(wrapper.emitted('filter')).toEqual([
+      ['type', 'comment'],
+      ['type', 'all'],
+    ])
+    await wrapper.setProps({ state: { ...state, phase: 'loading' }, busy: true })
+    await wrapper.setProps({ state, busy: false })
+    expect(document.activeElement).toBe(wrapper.get('h3').element)
+    expect(wrapper.text()).toContain('暂无任务历史。')
+    expect(wrapper.text()).not.toContain('清除事件筛选')
+  })
+
+  it('changes time direction, labels continuation accurately, and never steals focus from another control', async () => {
+    const state: TaskTimelineState = {
+      type: 'all',
+      order: 'desc',
+      phase: 'ready',
+      items: [comment],
+      next: 'page',
+      message: '',
+      retryMore: false,
+    }
+    wrapper = mount(TaskTimeline, {
+      attachTo: document.body,
+      props: { state, busy: false, agentName: () => 'Agent' },
+    })
+    const trigger = wrapper.get<HTMLButtonElement>('button[aria-label="历史时间顺序"]')
+    trigger.element.focus()
+    await trigger.trigger('keydown', { key: 'ArrowDown' })
+    await flushPromises()
+    expect(document.activeElement?.textContent).toContain('由新到旧')
+    document.activeElement?.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+    )
+    expect(document.activeElement?.textContent).toContain('由旧到新')
+    ;(document.activeElement as HTMLButtonElement).click()
+    await wrapper.setProps({ state: { ...state, order: 'asc', phase: 'loading' }, busy: true })
+    expect(wrapper.emitted('filter')).toEqual([['order', 'asc']])
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    outside.focus()
+    await wrapper.setProps({ state: { ...state, order: 'asc' }, busy: false })
+    expect(document.activeElement).toBe(outside)
+    expect(trigger.text()).toContain('由旧到新')
+    expect(button('加载较新历史').exists()).toBe(true)
+    await button('加载较新历史').trigger('click')
+    expect(wrapper.emitted('load')).toEqual([[true]])
+    await wrapper.setProps({ state, busy: false })
+    expect(button('加载较早历史').exists()).toBe(true)
   })
 })

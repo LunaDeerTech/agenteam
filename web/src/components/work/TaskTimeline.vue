@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { UiButton, UiState } from '../ui'
+import { UiButton, UiField, UiSelect, UiState } from '../ui'
 import { taskLabels } from '../../api/work-review'
 import type { TaskTimelineEvent } from '../../api/work-task-timeline'
 import type { TaskTimelineState } from '../../composables/useProjectTasks'
@@ -9,14 +9,33 @@ const props = defineProps<{
   busy: boolean
   agentName: (id: string | null) => string
 }>()
-const emit = defineEmits<{ load: [more: boolean] }>()
+const emit = defineEmits<{
+  load: [more: boolean]
+  filter: [field: 'type' | 'order', value: string]
+}>()
 const heading = ref<HTMLElement | null>(null)
+const filters = ref<HTMLElement | null>(null)
 let requestedFocus: HTMLElement | null = null
 function request(more: boolean, event: MouseEvent) {
   if (props.busy) return
   const button = event.currentTarget as HTMLElement
   requestedFocus = document.activeElement === button ? button : null
   emit('load', more)
+}
+function filter(field: 'type' | 'order', value: string, event?: MouseEvent) {
+  if (props.busy || props.state[field] === value) return
+  const target = event
+    ? (event.currentTarget as HTMLElement)
+    : filters.value?.querySelector<HTMLElement>(`[data-timeline-filter="${field}"]`)
+  const active = document.activeElement
+  requestedFocus =
+    target &&
+    (active === target ||
+      active?.closest('[role="listbox"]')?.getAttribute('aria-label') ===
+        target.getAttribute('aria-label'))
+      ? target
+      : null
+  emit('filter', field, value)
 }
 watch(
   () => props.state.phase,
@@ -56,6 +75,14 @@ const titles = {
   blocker_resolved: '解除阻塞',
   comment: '评论',
 }
+const typeOptions = [
+  { value: 'all', label: '全部事件' },
+  ...Object.entries(titles).map(([value, label]) => ({ value, label })),
+]
+const orderOptions = [
+  { value: 'desc', label: '由新到旧' },
+  { value: 'asc', label: '由旧到新' },
+]
 function references(item: TaskTimelineEvent): ReadonlyArray<readonly [string, string]> {
   const rows: [string, string][] = [
     ['事件 ID', item.id],
@@ -88,16 +115,45 @@ function references(item: TaskTimelineEvent): ReadonlyArray<readonly [string, st
       <h3 ref="heading" tabindex="-1">任务历史</h3>
       <UiButton :disabled="busy" @click="request(false, $event)">重新读取历史</UiButton>
     </div>
+    <div ref="filters" class="timeline-filters">
+      <UiField class="timeline-filter" label="事件类型" v-slot="field">
+        <UiSelect
+          :id="field.id"
+          label="历史事件类型"
+          data-timeline-filter="type"
+          :model-value="state.type"
+          :options="typeOptions"
+          :disabled="busy"
+          @update:model-value="filter('type', $event)"
+        />
+      </UiField>
+      <UiField class="timeline-filter" label="时间顺序" v-slot="field">
+        <UiSelect
+          :id="field.id"
+          label="历史时间顺序"
+          data-timeline-filter="order"
+          :model-value="state.order"
+          :options="orderOptions"
+          :disabled="busy"
+          @update:model-value="filter('order', $event)"
+        />
+      </UiField>
+      <UiButton v-if="state.type !== 'all'" :disabled="busy" @click="filter('type', 'all', $event)"
+        >清除事件筛选</UiButton
+      >
+    </div>
     <p class="timeline-hint">显示已读取的任务历史；重新读取可查看最新事件。</p>
     <UiState v-if="state.phase === 'loading'" kind="loading" title="正在读取任务历史" />
     <div v-if="state.phase === 'error'" role="alert">
       <p>{{ state.message }}</p>
       <UiButton :disabled="busy" @click="request(state.retryMore, $event)">重试读取历史</UiButton>
     </div>
-    <p v-if="state.phase === 'ready' && !state.items.length">暂无任务历史。</p>
-    <UiButton v-if="state.next" :disabled="busy" @click="request(true, $event)"
-      >加载较早历史</UiButton
-    >
+    <p v-if="state.phase === 'ready' && !state.items.length">
+      {{ state.type === 'all' ? '暂无任务历史。' : '没有此类型的任务历史。' }}
+    </p>
+    <UiButton v-if="state.next" :disabled="busy" @click="request(true, $event)">{{
+      state.order === 'desc' ? '加载较早历史' : '加载较新历史'
+    }}</UiButton>
     <ol v-if="state.items.length" class="timeline-events">
       <li v-for="item in state.items" :key="item.id" class="timeline-event">
         <div class="event-heading">
@@ -173,6 +229,16 @@ function references(item: TaskTimelineEvent): ReadonlyArray<readonly [string, st
 }
 .timeline-heading {
   justify-content: space-between;
+}
+.timeline-filters {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: var(--space);
+}
+.timeline-filter {
+  flex: 1 1 12rem;
+  min-width: 0;
 }
 h3,
 h4 {

@@ -40,6 +40,23 @@ func TestTaskTimelineWeb(t *testing.T) {
 
 type timelineWebRequest struct{ index int }
 type timelineWebRequestKey struct{}
+
+// Each entry is one real browser action, checked before forwarding and again
+// against persisted facts after its original HTTP response fully completes.
+var taskTimelineReadSteps = [...]struct {
+	order, eventType string
+	page             int
+}{
+	{"desc", "", 0}, // Initial recent page.
+	{"desc", "", 1}, // Its original older-page cursor.
+	{"desc", "", 0}, // Explicit refresh.
+	{"desc", "comment", 0},
+	{"desc", "blocker_added", 0}, // Empty in the unchanged 51-event seed.
+	{"desc", "", 0},              // Clear the event filter.
+	{"asc", "", 0},
+	{"asc", "", 1}, // Its original newer-page cursor.
+}
+
 type taskTimelineWeb struct {
 	shell      *taskReviewWeb
 	domain     *taskTransitionFixture
@@ -143,16 +160,32 @@ func (w *taskTimelineWeb) observeRequest(r *http.Request) error {
 	w.shell.mu.Lock()
 	defer w.shell.mu.Unlock()
 	index := w.requested
-	if index >= 3 || index != w.completed || len(q["limit"]) != 1 || q.Get("limit") != "50" ||
-		len(q["order"]) != 1 || q.Get("order") != "desc" {
+	if index >= len(taskTimelineReadSteps) || index != w.completed || len(q["limit"]) != 1 || q.Get("limit") != "50" {
 		return errors.New("timeline request lost the original serialized page contract")
 	}
-	if index == 1 {
-		if len(q) != 3 || len(q["cursor"]) != 1 || w.nextCursor == "" || q.Get("cursor") != w.nextCursor {
-			return errors.New("older timeline request did not reuse the original opaque cursor")
+	step := taskTimelineReadSteps[index]
+	keys := 2
+	if len(q["order"]) != 1 || q.Get("order") != step.order {
+		return errors.New("timeline action did not request its exact time direction")
+	}
+	if step.eventType != "" {
+		keys++
+		if len(q["types"]) != 1 || q.Get("types") != step.eventType {
+			return errors.New("timeline action did not request its exact event filter")
 		}
-	} else if len(q) != 2 {
-		return errors.New("initial or refreshed timeline request retained an old cursor/filter")
+	} else if q.Has("types") {
+		return errors.New("all-events action retained a previous event filter")
+	}
+	if step.page == 1 {
+		keys++
+		if len(q["cursor"]) != 1 || w.nextCursor == "" || q.Get("cursor") != w.nextCursor {
+			return errors.New("timeline continuation did not reuse its own original opaque cursor")
+		}
+	} else if q.Has("cursor") {
+		return errors.New("timeline condition change or refresh retained an old cursor")
+	}
+	if len(q) != keys {
+		return errors.New("timeline request contains an unexpected query field")
 	}
 	w.requested++
 	*r = *r.WithContext(context.WithValue(r.Context(), timelineWebRequestKey{}, timelineWebRequest{index}))
@@ -181,17 +214,33 @@ func (w *taskTimelineWeb) response(r *http.Response) error {
 		return err
 	}
 	want := slices.Clone(w.stored)
-	slices.Reverse(want)
-	if request.index == 1 {
-		want = want[50:]
-		if page.NextCursor != "" {
-			return errors.New("oldest actual timeline page did not end")
+	step := taskTimelineReadSteps[request.index]
+	if step.eventType != "" {
+		filtered := make([]wc.TaskTimelineEvent, 0)
+		for _, event := range want {
+			header, err := event.Header()
+			if err != nil {
+				return err
+			}
+			if string(header.Type) == step.eventType {
+				filtered = append(filtered, event)
+			}
 		}
-	} else {
+		want = filtered
+	}
+	if step.order == "desc" {
+		slices.Reverse(want)
+	}
+	if step.page == 1 {
+		want = want[50:]
+	}
+	if len(want) > 50 {
 		want = want[:50]
 		if page.NextCursor == "" || len(page.NextCursor) > 8192 {
-			return errors.New("actual recent timeline page lost its opaque continuation")
+			return errors.New("actual timeline page lost its opaque continuation")
 		}
+	} else if page.NextCursor != "" {
+		return errors.New("exhausted actual timeline page did not end")
 	}
 	// Planning payloads retain their original JSON bytes. PostgreSQL JSONB
 	// includes insignificant whitespace which the formal HTTP encoder compacts.
@@ -213,7 +262,7 @@ func (w *taskTimelineWeb) response(r *http.Response) error {
 	if request.index != w.completed {
 		return errors.New("timeline responses did not complete in original request order")
 	}
-	if request.index == 0 {
+	if request.index == 0 || request.index == 6 {
 		w.nextCursor = page.NextCursor
 	}
 	w.completed++
@@ -346,8 +395,8 @@ func (w *taskTimelineWeb) verify(t *testing.T) {
 	if failure != nil {
 		t.Fatal("owned timeline observation failed", failure)
 	}
-	if requested != 3 || completed != 3 {
-		t.Fatal("timeline browser did not finish recent, older and refreshed original pages")
+	if requested != len(taskTimelineReadSteps) || completed != len(taskTimelineReadSteps) {
+		t.Fatal("timeline browser did not finish every original filter and time-direction page")
 	}
 	stored, err := w.readFacts(ctxFor(t))
 	firstRoundRequire(t, err)

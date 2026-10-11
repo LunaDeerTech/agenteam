@@ -61,6 +61,24 @@ async function pressHistory(page: Page, name: string) {
   await button.focus();
   await page.keyboard.press("Enter");
 }
+async function selectHistory(page: Page, label: string, value: string) {
+  const trigger = history(page).getByRole("button", {
+    name: label,
+    exact: true,
+  });
+  await expect(trigger).toBeEnabled();
+  await trigger.focus();
+  await page.keyboard.press("ArrowDown");
+  const list = page.getByRole("listbox", { name: label, exact: true });
+  const option = list.getByRole("option", { name: value, exact: true });
+  await expect(option).toBeVisible();
+  await option.focus();
+  await page.keyboard.press("Enter");
+  await expect(list).toHaveCount(0);
+  await expect(history(page)).toHaveAttribute("aria-busy", "false");
+  await expect(trigger).toContainText(value);
+  await expect(trigger).toBeFocused();
+}
 
 test("real persisted history reads recent, older and refreshed pages [recent-older-and-refresh]", async ({
   page,
@@ -97,7 +115,7 @@ test("real persisted history reads recent, older and refreshed pages [recent-old
   await expect(
     history(page).getByRole("button", { name: "加载较早历史", exact: true }),
   ).toBeEnabled();
-  expect(await eventIDs(page)).toEqual(data.event_ids.slice(1));
+  expect(await eventIDs(page)).toEqual([...data.event_ids.slice(1)].reverse());
   await fullComment(page, data.comment);
   await seen.verify();
   seen.requirePages(1);
@@ -111,9 +129,9 @@ test("real persisted history reads recent, older and refreshed pages [recent-old
   await expect(
     history(page).getByRole("heading", { name: "任务历史", exact: true }),
   ).toBeFocused();
-  expect(await eventIDs(page)).toEqual(data.event_ids);
+  expect(await eventIDs(page)).toEqual([...data.event_ids].reverse());
   await expect(
-    items(page).first().getByRole("heading", { name: "创建任务", exact: true }),
+    items(page).last().getByRole("heading", { name: "创建任务", exact: true }),
   ).toBeVisible();
   await fullComment(page, data.comment);
   await seen.verify();
@@ -131,9 +149,59 @@ test("real persisted history reads recent, older and refreshed pages [recent-old
   await expect(
     history(page).getByRole("button", { name: "重新读取历史", exact: true }),
   ).toBeFocused();
-  expect(await eventIDs(page)).toEqual(data.event_ids.slice(1));
+  expect(await eventIDs(page)).toEqual([...data.event_ids.slice(1)].reverse());
   await fullComment(page, data.comment);
   await seen.verify();
   seen.requirePages(3);
+
+  await selectHistory(page, "历史事件类型", "评论");
+  await expect(items(page)).toHaveCount(1);
+  await expect(
+    history(page).getByRole("button", { name: "加载较早历史", exact: true }),
+  ).toHaveCount(0);
+  await fullComment(page, data.comment);
+  await seen.verify();
+  seen.requirePages(4);
+
+  await selectHistory(page, "历史事件类型", "添加阻塞");
+  await expect(items(page)).toHaveCount(0);
+  await expect(
+    history(page).getByText("没有此类型的任务历史。", { exact: true }),
+  ).toBeVisible();
+  await seen.verify();
+  seen.requirePages(5);
+
+  await pressHistory(page, "清除事件筛选");
+  await expect(items(page)).toHaveCount(50);
+  await expect(
+    history(page).getByRole("button", { name: "清除事件筛选", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    history(page).getByRole("heading", { name: "任务历史", exact: true }),
+  ).toBeFocused();
+  expect(await eventIDs(page)).toEqual([...data.event_ids.slice(1)].reverse());
+  await seen.verify();
+  seen.requirePages(6);
+
+  await selectHistory(page, "历史时间顺序", "由旧到新");
+  await expect(items(page)).toHaveCount(50);
+  expect(await eventIDs(page)).toEqual(data.event_ids.slice(0, 50));
+  await expect(
+    history(page).getByRole("button", { name: "加载较早历史", exact: true }),
+  ).toHaveCount(0);
+  await seen.verify();
+  seen.requirePages(7);
+  await pressHistory(page, "加载较新历史");
+  await expect(items(page)).toHaveCount(51);
+  expect(await eventIDs(page)).toEqual(data.event_ids);
+  await expect(
+    history(page).getByRole("button", { name: "加载较新历史", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    history(page).getByRole("heading", { name: "任务历史", exact: true }),
+  ).toBeFocused();
+  await fullComment(page, data.comment);
+  await seen.verify();
+  seen.requirePages(8);
   await timelineScreenshot(page, data, "390-dark");
 });
