@@ -6,6 +6,7 @@
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
+| Agent Secret Variable 白名单 UI — `ai/agent-secret-allowlist-ui-20261011` | variables_review 交付，secret_allowlist_fixture 方法 | 基线 9bc9e13a；普通 Owner 的安全 metadata 选择与 Agent 创建/编辑、原 Unknown 恢复正在独立实现；未验收，不接 Secret 值或运行注入。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 Project Usage 只读 UI 已正式交付并推送 main（066bf），native03 有限业务、视觉及完整退出尾独验接受；原 native01/02 FAIL 保留，不外推完整 D09。

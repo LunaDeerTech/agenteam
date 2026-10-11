@@ -1,0 +1,360 @@
+diff --git a/.agent-state/project-usage-read-ui/profile-controls.mjs b/.agent-state/project-usage-read-ui/profile-controls.mjs
+index 87e064e1e30e0cf289e1dd6060ccaed03dddbd13..bd5cebad52a87d7dd25c2a1816a58fc20c465fb9 100644
+--- a/.agent-state/project-usage-read-ui/profile-controls.mjs
++++ b/.agent-state/project-usage-read-ui/profile-controls.mjs
+@@ -16,108 +16,27 @@ const text = declarations.map(node => node.getText(file)).join("\n");
+ const js = ts.transpileModule(text, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText;
+ const expectPath = pathToFileURL(resolve(root, "tests/account-captcha-web/node_modules/@playwright/test/index.mjs")).href;
+ const { requireUsageReadProfile: profile, requireUsageHostEvidence: host } = await import("data:text/javascript;base64," + Buffer.from(`import { expect } from ${JSON.stringify(expectPath)};\n${js}`).toString("base64"));
+-const candidate = { dist: "/owned/dist", evidence: "/owned/evidence", inputHash: "a".repeat(64), prefix: "project-usage", endpoint() {}, lookupCommand: null, usageReads: true, usageWireHeaders() {} };
++const candidate = { dist: "/owned/dist", evidence: "/owned/evidence", inputHash: "a".repeat(64), prefix: "project-usage", endpoint() {}, lookupCommand: null, usageReads: true };
+ const data = { mode: "paginated-current-read" };
+ profile(candidate, data);
+ profile({ prefix: "project-secrets", secretReads: true }, { mode: "metadata-pagination-and-detail" });
+ profile({ prefix: "sprint-start", sprintStartWrites: true }, { mode: "unchanged-existing" });
+ let rejects = 0;
+-for (const patch of [{ usageReads: undefined }, { usageReads: false }, { usageWireHeaders: undefined }, { usageWireHeaders: true }, { prefix: "project-secrets" }, { lookupCommand: "update" }, { cut: "update" }, { secretReads: true }, { schedulerWrites: true }, { unknownOption: true }]) {
++for (const patch of [{ usageReads: undefined }, { usageReads: false }, { prefix: "project-secrets" }, { lookupCommand: "update" }, { cut: "update" }, { secretReads: true }, { schedulerWrites: true }, { unknownOption: true }]) {
+   assert.throws(() => profile({ ...candidate, ...patch }, data)); rejects++;
+ }
+ assert.throws(() => profile(candidate, { mode: "other" })); rejects++;
+-const wire = { source: "cdp_network_extra_info", cdp_request_id: "9.1", request_id: "01a12c02-d66a-79c4-8cf0-7f8d8a657c4f", method: "GET", status: 200, host_present: true, host_matches: true };
+-const headers = { request_fulfilled: true, response_fulfilled: true, host_present: false, host_matches: false, cookie_present: true, usage_wire: wire };
+-const proof = { request_id: wire.request_id, method: "GET", status: 200, browser_ingress_host_matches: true, downstream_host_matches: true, handler_returned: true, handler_return_source: "app_http_request_log" };
++const headers = { request_fulfilled: true, response_fulfilled: true, host_present: true, host_matches: true, cookie_present: true };
++const proof = { browser_ingress_host_matches: true, downstream_host_matches: true, handler_returned: true, handler_return_source: "app_http_request_log" };
+ host(proof, headers);
+-for (const key of ["request_fulfilled", "response_fulfilled", "cookie_present"]) { assert.throws(() => host(proof, { ...headers, [key]: false })); rejects++; }
++for (const key of Object.keys(headers)) { assert.throws(() => host(proof, { ...headers, [key]: false })); rejects++; }
+ for (const key of Object.keys(proof)) { assert.throws(() => host({ ...proof, [key]: key === "handler_return_source" ? "unspecified" : false }, headers)); rejects++; }
+ assert.throws(() => host({ request_host_matches: true, handler_returned: true }, headers)); rejects++;
+-for (const patch of [{ usage_wire: undefined }, { host_present: true, host_matches: false }, { authority_present: true, authority_matches: false }]) { assert.throws(() => host(proof, { ...headers, ...patch })); rejects++; }
+-for (const key of ["source", "host_present", "host_matches", "request_id", "method", "status"]) { assert.throws(() => host(proof, { ...headers, usage_wire: { ...wire, [key]: false } })); rejects++; }
+-assert.throws(() => profile({ prefix: "project-secrets", usageWireHeaders() {} }, data)); rejects++;
++assert.throws(() => host(proof, { ...headers, host_present: false, host_matches: false, authority_present: true, authority_matches: true })); rejects++;
+ assert.throws(() => host(proof, undefined)); rejects++;
+ assert(source.includes("  requireUsageReadProfile(profile, data);"));
+ assert(source.includes("if (profile.usageReads) requireUsageHostEvidence(record, entry.skillsHeaders);"));
+-assert(source.includes("diagnostic.usage_wire = await profile.usageWireHeaders!"));
+-assert(source.includes("(diagnostic.host_present && !diagnostic.host_matches)"));
++assert(source.includes("(profile.usageReads === true && (!diagnostic.host_present || !diagnostic.host_matches))"));
+ assert(source.includes('if (usageReadEntry(entry)) expect(c.kind).toBe('));
+ assert(source.includes("knowledgeTitleReadEntry(entry) || secretReadEntry(entry) || usageReadEntry(entry) ||"));
+ console.log(JSON.stringify({ actual_shared_guards: true, positive_controls: 4, rejection_controls: rejects, actual_call_sites_retained: true }));
+-
+-const usageSource = readFileSync(resolve(root, "tests/account-captcha-web/e2e/project-usage.helpers.ts"), "utf8");
+-const usageFile = ts.createSourceFile("project-usage.helpers.ts", usageSource, ts.ScriptTarget.Latest, true);
+-const selected = ["createUsageWireState", "observeUsageWire"].map(name => usageFile.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === name));
+-assert(selected.every(Boolean));
+-const usageJS = ts.transpileModule(selected.map(node => node.getText(usageFile)).join("\n") + "\nexport { observeUsageWire };", { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText;
+-const { createUsageWireState, observeUsageWire } = await import("data:text/javascript;base64," + Buffer.from(`import { expect } from ${JSON.stringify(expectPath)}; import { createHash } from "node:crypto";\n${usageJS}`).toString("base64"));
+-const origin = "https://127.0.0.1:44301", url = origin + "/api/v1/session", requestID = wire.request_id;
+-const events = {
+-  request: { requestId: "9.1", request: { url, method: "GET" } },
+-  requestExtra: { requestId: "9.1", headers: { Host: "127.0.0.1:44301", Cookie: "never-retain-me" } },
+-  response: { requestId: "9.1", hasExtraInfo: true, response: { url, status: 200 } },
+-  responseExtra: { requestId: "9.1", statusCode: 200, headers: { "X-Request-ID": requestID, "Set-Cookie": "never-retain-me-either" } },
+-};
+-const expected = { method: "GET", url, status: 200, requestID };
+-function assembled(patch = {}, omitted) {
+-  const state = createUsageWireState(origin);
+-  for (const kind of ["responseExtra", "requestExtra", "response", "request"]) if (kind !== omitted) state.feed(kind, { ...events[kind], ...patch[kind] });
+-  return state;
+-}
+-let wirePositive = 0, wireRejected = 0;
+-for (const order of [["request", "requestExtra", "response", "responseExtra"], ["responseExtra", "requestExtra", "response", "request"]]) {
+-  const state = createUsageWireState(origin);
+-  for (const kind of order) state.feed(kind, events[kind]);
+-  assert.equal(state.match(expected).request_id, requestID); state.complete();
+-  assert(!JSON.stringify(state.snapshot()).includes("never-retain-me")); state.retire(); wirePositive++;
+-}
+-function rejectState(make, expectation = expected) { assert.throws(() => { const state = make(); state.match(expectation); state.complete(); }); wireRejected++; }
+-for (const kind of Object.keys(events)) rejectState(() => assembled({}, kind));
+-for (const patch of [
+-  { request: { redirectResponse: { status: 302 } } },
+-  { request: { request: { url, method: "POST" } } },
+-  { requestExtra: { headers: {} } },
+-  { requestExtra: { headers: { Host: "other.test" } } },
+-  { requestExtra: { headers: { Host: "127.0.0.1:44301", host: "127.0.0.1:44301" } } },
+-  { requestExtra: { headers: { Host: "127.0.0.1:44301\nother" } } },
+-  { requestExtra: { headers: { Host: "127.0.0.1:44301", ":authority": "other.test" } } },
+-  { responseExtra: { headers: { "X-Request-ID": requestID, "x-request-id": requestID } } },
+-  { responseExtra: { headers: { "X-Request-ID": requestID + "\n" + requestID } } },
+-  { responseExtra: { statusCode: 201 } },
+-  { response: { response: { url: url + "?other=1", status: 200 } } },
+-  { response: { hasExtraInfo: false } },
+-  ...["fromDiskCache", "fromPrefetchCache", "fromServiceWorker"].map(key => ({ response: { response: { url, status: 200, [key]: true } } })),
+-]) rejectState(() => assembled(patch));
+-for (const kind of Object.keys(events)) rejectState(() => { const state = assembled(); state.feed(kind, events[kind]); return state; });
+-rejectState(() => { const state = assembled(); state.feed("cached", { requestId: "9.1" }); return state; });
+-rejectState(() => { const state = assembled(); for (const [kind, event] of Object.entries(events)) state.feed(kind, { ...event, requestId: "9.2" }); return state; });
+-for (const patch of [{ url: url + "?x=1" }, { status: 201 }, { method: "POST" }, { requestID: "01a12c02-d70f-7ecf-ab25-2f991a374692" }]) rejectState(() => assembled(), { ...expected, ...patch });
+-rejectState(() => { const state = assembled(); state.match(expected); state.complete(); state.feed("responseExtra", events.responseExtra); return state; });
+-rejectState(() => { const state = assembled(); state.retire(); state.feed("request", events.request); return state; });
+-rejectState(() => { const state = createUsageWireState(origin); for (let i = 0; i < 513; i++) state.feed("request", { requestId: String(i), request: { method: "GET", url: origin + "/assets/a" } }); return state; });
+-const calls = [], listeners = new Map();
+-const session = { on(name, listener) { listeners.set(name, listener); }, off(name) { listeners.delete(name); }, async send(name) { calls.push(name); throw Error("enable controlled failure"); }, async detach() { calls.push("detach"); } };
+-await assert.rejects(() => observeUsageWire({ context: () => ({ newCDPSession: async () => session }) }, origin), /enable controlled failure/);
+-assert.deepEqual(calls, ["Network.enable", "detach"]); assert.equal(listeners.size, 0); wirePositive++;
+-const stableCalls = [], stableListeners = new Map();
+-const stableSession = { on(name, listener) { stableListeners.set(name, listener); }, off(name) { stableListeners.delete(name); }, async send(name) { stableCalls.push(name); }, async detach() { stableCalls.push("detach"); } };
+-const observer = await observeUsageWire({ context: () => ({ newCDPSession: async () => stableSession }) }, origin);
+-const eventNames = { request: "Network.requestWillBeSent", requestExtra: "Network.requestWillBeSentExtraInfo", response: "Network.responseReceived", responseExtra: "Network.responseReceivedExtraInfo" };
+-for (const kind of ["responseExtra", "requestExtra", "request", "response"]) stableListeners.get(eventNames[kind])(events[kind]);
+-assert.equal((await observer.headers(expected)).request_id, requestID); observer.complete(); await observer.close();
+-assert.deepEqual(stableCalls, ["Network.enable", "detach"]); assert.equal(stableListeners.size, 0); assert.equal(observer.snapshot().actual_detach, true); wirePositive++;
+-let finishDetach;
+-const lateListeners = new Map();
+-const lateSession = { on(name, listener) { lateListeners.set(name, listener); }, off(name) { lateListeners.delete(name); }, async send() {}, detach() { return new Promise(resolve => { finishDetach = resolve; }); } };
+-const late = await observeUsageWire({ context: () => ({ newCDPSession: async () => lateSession }) }, origin);
+-for (const [kind, event] of Object.entries(events)) lateListeners.get(eventNames[kind])(event);
+-await late.headers(expected); late.complete(); const closing = late.close();
+-assert.equal(late.snapshot().actual_detach, false); assert.equal(late.snapshot().retired, false);
+-lateListeners.get(eventNames.responseExtra)(events.responseExtra); finishDetach();
+-await assert.rejects(closing, /USAGE_WIRE_DUPLICATE_EVENT/); assert.equal(lateListeners.size, 0); assert.equal(late.snapshot().actual_detach, true); wireRejected++;
+-const failedListeners = new Map();
+-const failedSession = { on(name, listener) { failedListeners.set(name, listener); }, off(name) { failedListeners.delete(name); }, async send() {}, async detach() { throw Error("controlled detach failure"); } };
+-const failedDetach = await observeUsageWire({ context: () => ({ newCDPSession: async () => failedSession }) }, origin);
+-await assert.rejects(() => failedDetach.close(), /USAGE_WIRE_DETACH_FAILED/); assert.equal(failedDetach.snapshot().actual_detach, false); assert.equal(failedListeners.size, 0); wireRejected++;
+-assert(usageSource.includes("usageWireHeaders: wire.headers")); assert(usageSource.includes("finally { await wire.close(); }"));
+-console.log(JSON.stringify({ actual_usage_wire_state_and_lifecycle: true, positive_controls: wirePositive, rejection_controls: wireRejected, source: "cdp_network_extra_info", no_native: true }));
+diff --git a/tests/account-captcha-web/e2e/project-usage.helpers.ts b/tests/account-captcha-web/e2e/project-usage.helpers.ts
+index 3bb9c17fbbc35e351965deaa7c768372f7739276..dca43b16978e885b533f6c7b58ec6c330e2f8274 100644
+--- a/tests/account-captcha-web/e2e/project-usage.helpers.ts
++++ b/tests/account-captcha-web/e2e/project-usage.helpers.ts
+@@ -1,7 +1,6 @@
+ import { expect, type Page, type Request } from "@playwright/test";
+ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+ import { join } from "node:path";
+-import { createHash } from "node:crypto";
+ import { observeTaskRequests } from "./task-review.helpers";
+ 
+ const id = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+@@ -53,113 +52,6 @@ export function usageMaterial(): UsageMaterial {
+   for (const value of [null, "0", "9007199254740993", "9223372036854775807"]) expect(data.items.slice(0, 50).some((row: UsageRow) => row.usage.input_tokens === value)).toBe(true);
+   return data;
+ }
+-
+-// Pure state shared by the real read-only CDP observer and its focused controls.
+-// Only predicates, canonical IDs and hashes survive an event callback.
+-export function createUsageWireState(origin: string) {
+-  const parsedOrigin = new URL(origin);
+-  if (parsedOrigin.origin !== origin || parsedOrigin.protocol !== "https:" || parsedOrigin.hostname !== "127.0.0.1" || !parsedOrigin.port) throw Error("USAGE_WIRE_ORIGIN");
+-  const rows = new Map<string, any>();
+-  let failure: string | undefined, eventCount = 0, closed = false;
+-  const hash = (value: string) => createHash("sha256").update(value).digest("hex");
+-  const header = (headers: Record<string, unknown>, name: string) => {
+-    const keys = Object.keys(headers ?? {}).filter(key => key.toLowerCase() === name);
+-    const value = keys.length === 1 ? headers[keys[0]!] : undefined;
+-    return typeof value === "string" && value.length > 0 && !/[\r\n,]/.test(value) ? value : undefined;
+-  };
+-  const reject = (code: string) => { failure ??= code; throw Error(failure); };
+-  const check = () => { if (failure) throw Error(failure); };
+-  function assembled(row: any) {
+-    if (!row.request?.api) return undefined;
+-    if (row.cached || row.request.redirect || !row.request.sameOrigin || row.request.method !== "GET") reject("USAGE_WIRE_REQUEST");
+-    if (!row.requestExtra || !row.response || !row.responseExtra) return undefined;
+-    if (!row.requestExtra.host_present || !row.requestExtra.host_matches || row.requestExtra.authority_conflict) reject("USAGE_WIRE_HOST");
+-    if (row.response.cache || !row.response.extra || row.response.url_sha256 !== row.request.url_sha256 || row.response.status !== row.responseExtra.status || !row.responseExtra.request_id) reject("USAGE_WIRE_RESPONSE");
+-    return { source: "cdp_network_extra_info" as const, cdp_request_id: row.cdp_request_id, request_id: row.responseExtra.request_id as string, method: row.request.method as string, url_sha256: row.request.url_sha256 as string, status: row.response.status as number, host_present: true as const, host_matches: true as const };
+-  }
+-  function feed(kind: string, event: any) {
+-    try {
+-      check();
+-      if (closed) reject("USAGE_WIRE_EVENT_AFTER_RETIRE");
+-      if (++eventCount > 2048 || typeof event.requestId !== "string" || !event.requestId || event.requestId.length > 256) reject("USAGE_WIRE_EVENT_BOUND");
+-      let row = rows.get(event.requestId);
+-      if (!row) {
+-        if (rows.size >= 512) reject("USAGE_WIRE_ROW_BOUND");
+-        row = { cdp_request_id: event.requestId }; rows.set(event.requestId, row);
+-      }
+-      if (row[kind] !== undefined) reject("USAGE_WIRE_DUPLICATE_EVENT");
+-      if (kind === "request") {
+-        const url = new URL(event.request.url);
+-        row.request = { api: url.pathname.startsWith("/api/"), sameOrigin: url.origin === origin, method: event.request.method, url_sha256: hash(event.request.url), redirect: Boolean(event.redirectResponse) };
+-      } else if (kind === "requestExtra") {
+-        const host = header(event.headers, "host"), authority = header(event.headers, ":authority");
+-        row.requestExtra = { host_present: host !== undefined, host_matches: host === parsedOrigin.host, authority_conflict: Object.keys(event.headers ?? {}).some(key => key.toLowerCase() === ":authority") && authority !== parsedOrigin.host };
+-      } else if (kind === "response") {
+-        row.response = { url_sha256: hash(event.response.url), status: event.response.status, extra: event.hasExtraInfo === true, cache: Boolean(event.response.fromDiskCache || event.response.fromPrefetchCache || event.response.fromServiceWorker) };
+-      } else if (kind === "responseExtra") {
+-        const value = header(event.headers, "x-request-id");
+-        row.responseExtra = { request_id: value && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value) ? value : undefined, status: event.statusCode };
+-      } else if (kind === "cached") row.cached = true;
+-      else reject("USAGE_WIRE_EVENT_KIND");
+-      assembled(row);
+-      const ids = [...rows.values()].filter(item => item.request?.api && item.responseExtra?.request_id).map(item => item.responseExtra.request_id);
+-      if (new Set(ids).size !== ids.length) reject("USAGE_WIRE_DUPLICATE_RID");
+-    } catch (error) {
+-      failure ??= error instanceof Error && /^USAGE_WIRE_/.test(error.message) ? error.message : "USAGE_WIRE_MALFORMED_EVENT";
+-    }
+-  }
+-  return {
+-    feed,
+-    match(expected: { method: string; url: string; status: number; requestID: string }) {
+-      check();
+-      if (closed) reject("USAGE_WIRE_READ_AFTER_RETIRE");
+-      const matches = [...rows.values()].filter(row => row.request?.api && row.responseExtra?.request_id === expected.requestID);
+-      if (matches.length > 1) reject("USAGE_WIRE_AMBIGUOUS_RID");
+-      if (!matches.length) return undefined;
+-      const row = matches[0], proof = assembled(row);
+-      if (!proof) return undefined;
+-      if (proof.method !== expected.method || proof.url_sha256 !== hash(expected.url) || proof.status !== expected.status) reject("USAGE_WIRE_PW_CONFLICT");
+-      row.matched = true; return proof;
+-    },
+-    complete() {
+-      check();
+-      for (const row of rows.values()) if (row.request?.api && (!assembled(row) || !row.matched)) reject("USAGE_WIRE_UNMATCHED_API");
+-      // ExtraInfo without its request event cannot be classified safely.
+-      if ([...rows.values()].some(row => !row.request)) reject("USAGE_WIRE_ORPHAN_EVENT");
+-    },
+-    retire() { closed = true; check(); },
+-    failed(code: string) { failure ??= code; },
+-    snapshot() { return { source: "cdp_network_extra_info", event_count: eventCount, retired: closed, failure, requests: [...rows.values()].filter(row => row.request?.api).map(row => ({ ...row })) }; },
+-  };
+-}
+-
+-async function observeUsageWire(page: Page, origin: string) {
+-  const state = createUsageWireState(origin), session = await page.context().newCDPSession(page);
+-  const names = { request: "Network.requestWillBeSent", requestExtra: "Network.requestWillBeSentExtraInfo", response: "Network.responseReceived", responseExtra: "Network.responseReceivedExtraInfo", cached: "Network.requestServedFromCache" } as const;
+-  const listeners = Object.entries(names).map(([kind, name]) => ({ name, listener: (event: any) => state.feed(kind, event) }));
+-  let detached = false;
+-  async function close() {
+-    if (detached) return;
+-    try { await session.detach(); detached = true; }
+-    catch (error) { state.failed("USAGE_WIRE_DETACH_FAILED"); throw error; }
+-    finally { for (const { name, listener } of listeners) session.off(name, listener); state.retire(); }
+-  }
+-  try {
+-    for (const { name, listener } of listeners) session.on(name, listener);
+-    await session.send("Network.enable");
+-  } catch (error) { try { await close(); } finally { throw error; } }
+-  return {
+-    async headers(expected: { method: string; url: string; status: number; requestID: string }) {
+-      let proof: ReturnType<typeof state.match>;
+-      await expect.poll(() => { proof = state.match(expected); return proof !== undefined; }, { timeout: 5_000 }).toBe(true);
+-      return proof!;
+-    },
+-    complete: () => state.complete(),
+-    close,
+-    snapshot: () => ({ ...state.snapshot(), actual_detach: detached }),
+-  };
+-}
+-
+ export async function observeUsage(page: Page, data: UsageMaterial) {
+   const project = `/api/v1/projects/${data.project_id}`, prefix = project + "/model-usage", lists: Request[] = [];
+   let nextCursor: string | null = null, window: { from: string; to: string } | null = null, completed = false, verified = 0, stage = "entry";
+@@ -185,13 +77,9 @@ export async function observeUsage(page: Page, data: UsageMaterial) {
+     lists.push(request); return "usage";
+   };
+   const evidence = process.env.AGENTEAM_PROJECT_USAGE_WEB_EVIDENCE!;
+-  const wire = await observeUsageWire(page, data.origin);
+-  let seen: Awaited<ReturnType<typeof observeTaskRequests>>;
+-  try { seen = await observeTaskRequests(page, data, { dist: process.env.AGENTEAM_PROJECT_USAGE_WEB_DIST!, evidence, inputHash: data.input_hash, prefix: "project-usage", endpoint: classify, lookupCommand: null, usageReads: true, usageWireHeaders: wire.headers }); }
+-  catch (error) { try { await wire.close(); } finally { throw error; } }
++  const seen = await observeTaskRequests(page, data, { dist: process.env.AGENTEAM_PROJECT_USAGE_WEB_DIST!, evidence, inputHash: data.input_hash, prefix: "project-usage", endpoint: classify, lookupCommand: null, usageReads: true });
+   return {
+     ...seen,
+-    async retire() { try { await seen.retire(); wire.complete(); } finally { await wire.close(); } },
+     stage(value: string) { if (!/^[a-z0-9-]{1,64}$/.test(value)) throw Error("INVALID_USAGE_STAGE"); stage = value; },
+     page(index: number) {
+       expect(verified).toBe(index); expect(lists).toHaveLength(index + 1);
+@@ -202,10 +90,9 @@ export async function observeUsage(page: Page, data: UsageMaterial) {
+       else { expect(typeof body.next_cursor).toBe("string"); expect(Buffer.byteLength(body.next_cursor)).toBeGreaterThan(0); expect(Buffer.byteLength(body.next_cursor)).toBeLessThanOrEqual(8192); }
+       nextCursor = body.next_cursor; verified++;
+     },
+-    async finish() { expect(verified).toBe(5); expect(lists).toHaveLength(5); expect(seen.requests("lookup")).toHaveLength(0); await seen.verify(); await seen.endDocument(); wire.complete(); completed = true; },
++    async finish() { expect(verified).toBe(5); expect(lists).toHaveLength(5); expect(seen.requests("lookup")).toHaveLength(0); await seen.verify(); await seen.endDocument(); completed = true; },
+     save(status: unknown, errors: readonly { stack?: string }[] = []) {
+       seen.save(status as string);
+-      writeFileSync(join(evidence, "project-usage-wire.json"), JSON.stringify(wire.snapshot(), null, 2) + "\n", { mode: 0o600 });
+       writeFileSync(join(evidence, "project-usage-stage.json"), JSON.stringify({ stage, status, lists: lists.length, verified, error_locations: errors.map(error => error.stack?.match(/(?:project-usage\.(?:helpers|spec)|task-review\.helpers)\.ts:[0-9]+:[0-9]+/)?.[0] ?? "unavailable") }), { mode: 0o600 });
+       if (completed && status === "passed") { const proof = JSON.parse(readFileSync(join(evidence, `project-usage-${data.mode}.json`), "utf8")); writeFileSync(join(process.env.AGENTEAM_AUTH_WEB_PRIVATE!, "project-usage-result.json"), JSON.stringify({ completed, input_hash: data.input_hash, original_requests: proof.original_requests, all_observed: proof.all_observed, lookups: proof.lookups, lists: lists.length }), { mode: 0o600 }); }
+     },
+diff --git a/tests/account-captcha-web/e2e/task-review.helpers.ts b/tests/account-captcha-web/e2e/task-review.helpers.ts
+index 389d2ef4d3355eafb437ccc224fb1a081e6d69b8..8af3d620c4885ac11a3f8713f8e9b401d019c565 100644
+--- a/tests/account-captcha-web/e2e/task-review.helpers.ts
++++ b/tests/account-captcha-web/e2e/task-review.helpers.ts
+@@ -50,7 +50,6 @@ export async function taskScreenshot(page: Page, name: string) {
+ }
+ 
+ type Tail = "finished" | "failed" | "closed";
+-export type UsageWireProof = { source: "cdp_network_extra_info"; cdp_request_id: string; request_id: string; method: string; url_sha256: string; status: number; host_present: true; host_matches: true };
+ type SkillsHeaderDiagnostic = {
+   stage:
+     | "joined"
+@@ -69,8 +68,6 @@ type SkillsHeaderDiagnostic = {
+   cookie_present: boolean;
+   response_id_present: boolean;
+   response_id_valid: boolean;
+-  usage_wire?: UsageWireProof;
+-  usage_wire_error?: string;
+ };
+ type Entry = {
+   seq: number;
+@@ -1624,7 +1621,6 @@ export type TaskObservationProfile = {
+   knowledgeTitleReads?: true;
+   secretReads?: true;
+   usageReads?: true;
+-  usageWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
+   schedulerWrites?: true;
+ };
+ 
+@@ -1649,25 +1645,15 @@ export function requireCommittedLookup(value: Record<string, unknown>, structure
+ }
+ 
+ export function requireUsageReadProfile(profile: TaskObservationProfile, data: TaskObservationMaterial) {
+-  if (!profile.usageReads && profile.prefix !== "project-usage") {
+-    if (profile.usageWireHeaders !== undefined) throw Error("PROJECT_USAGE_PROFILE_MISMATCH");
+-    return;
+-  }
+-  const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "usageReads", "usageWireHeaders"];
++  if (!profile.usageReads && profile.prefix !== "project-usage") return;
++  const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "usageReads"];
+   if (profile.usageReads !== true || profile.prefix !== "project-usage" || profile.lookupCommand !== null ||
+-      data.mode !== "paginated-current-read" || typeof profile.usageWireHeaders !== "function" || Object.keys(profile).some(key => !allowed.includes(key)))
++      data.mode !== "paginated-current-read" || Object.keys(profile).some(key => !allowed.includes(key)))
+     throw Error("PROJECT_USAGE_PROFILE_MISMATCH");
+ }
+ export function requireUsageHostEvidence(record: Record<string, unknown>, headers: SkillsHeaderDiagnostic | undefined) {
+   expect(headers?.request_fulfilled && headers.response_fulfilled).toBe(true);
+-  expect(headers?.cookie_present).toBe(true);
+-  if (headers?.host_present) expect(headers.host_matches).toBe(true);
+-  if (headers?.authority_present) expect(headers.authority_matches).toBe(true);
+-  expect(headers?.usage_wire?.source).toBe("cdp_network_extra_info");
+-  expect(headers?.usage_wire?.host_present && headers.usage_wire.host_matches).toBe(true);
+-  expect(headers?.usage_wire?.request_id).toBe(record.request_id);
+-  expect(headers?.usage_wire?.method).toBe(record.method);
+-  expect(headers?.usage_wire?.status).toBe(record.status);
++  expect(headers?.host_present && headers.host_matches && headers.cookie_present).toBe(true);
+   expect(record.browser_ingress_host_matches).toBe(true);
+   expect(record.downstream_host_matches).toBe(true);
+   expect(record.handler_returned).toBe(true);
+@@ -1998,7 +1984,7 @@ export async function observeTaskRequests(
+         entry.request.allHeaders(),
+         response.allHeaders(),
+       ])
+-        .then(async ([sentResult, receivedResult]) => {
++        .then(([sentResult, receivedResult]) => {
+           const sent =
+             sentResult.status === "fulfilled" ? sentResult.value : undefined;
+           const received =
+@@ -2039,6 +2025,7 @@ export async function observeTaskRequests(
+           }
+           if (
+             !diagnostic.cookie_present ||
++            (profile.usageReads === true && (!diagnostic.host_present || !diagnostic.host_matches)) ||
+             (diagnostic.host_present && !diagnostic.host_matches) ||
+             (diagnostic.authority_present && !diagnostic.authority_matches)
+           ) {
+@@ -2051,10 +2038,6 @@ export async function observeTaskRequests(
+             event("skills-headers", entry);
+             throw Error("SKILLS_ORIGINAL_RESPONSE_ID");
+           }
+-          if (profile.usageReads) {
+-            try { diagnostic.usage_wire = await profile.usageWireHeaders!({ method: entry.request.method(), url: entry.request.url(), status: entry.status!, requestID: id! }); }
+-            catch { diagnostic.usage_wire_error = "USAGE_WIRE_HEADERS_FAILED"; throw Error("USAGE_WIRE_HEADERS_FAILED"); }
+-          }
+           diagnostic.stage = "handler_pending";
+           entry.requestID = id;
+           event("response", entry);

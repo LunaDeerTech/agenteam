@@ -1,0 +1,22 @@
+diff --git a/tests/account-captcha-web/e2e/project-usage.spec.ts b/tests/account-captcha-web/e2e/project-usage.spec.ts
+index 097059b7e3f3b5db12b6b52320e8ae67f65d78b1..b1472f11c259bec2695084620fc1807ebc5d39c5 100644
+--- a/tests/account-captcha-web/e2e/project-usage.spec.ts
++++ b/tests/account-captcha-web/e2e/project-usage.spec.ts
+@@ -69,16 +69,6 @@ test("reads exact usage pages, returns and refreshes the current window [paginat
+   seen.stage("explicit-refresh"); await press(page, region.getByRole("button", { name: "刷新调用记录", exact: true }));
+   await assertRows(data.items.slice(0, 50)); await expect(previous).toBeDisabled(); await seen.verify(); seen.page(4);
+   await expect(region.getByRole("textbox")).toHaveCount(0);
+-  seen.stage("narrow-settings-menu");
+-  const menu = page.getByRole("button", { name: "项目设置栏目", exact: true });
+-  await press(page, menu);
+-  const drawer = page.getByRole("dialog", { name: "项目设置栏目", exact: true });
+-  await expect(drawer).toBeVisible();
+-  const usageLink = drawer.getByRole("link", { name: "调用记录", exact: true });
+-  await expect(usageLink).toHaveAttribute("href", data.route);
+-  await expect(usageLink).toHaveAttribute("aria-current", "page");
+-  await page.keyboard.press("Escape");
+-  await expect(drawer).toBeHidden();
+-  await expect(menu).toBeFocused();
++  await expect(page.getByRole("link", { name: "调用记录", exact: true })).toHaveAttribute("href", data.route);
+   seen.stage("retire"); await seen.finish();
+ });

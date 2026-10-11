@@ -1,0 +1,54 @@
+diff --git a/.agent-state/project-usage-read-ui/profile-controls.mjs b/.agent-state/project-usage-read-ui/profile-controls.mjs
+index 830f027637ba883ffc20dfa4e2d5798b6c06fe3b..87e064e1e30e0cf289e1dd6060ccaed03dddbd13 100644
+--- a/.agent-state/project-usage-read-ui/profile-controls.mjs
++++ b/.agent-state/project-usage-read-ui/profile-controls.mjs
+@@ -115,16 +115,6 @@ await late.headers(expected); late.complete(); const closing = late.close();
+ assert.equal(late.snapshot().actual_detach, false); assert.equal(late.snapshot().retired, false);
+ lateListeners.get(eventNames.responseExtra)(events.responseExtra); finishDetach();
+ await assert.rejects(closing, /USAGE_WIRE_DUPLICATE_EVENT/); assert.equal(lateListeners.size, 0); assert.equal(late.snapshot().actual_detach, true); wireRejected++;
+-for (const kind of ["request", "requestExtra"]) {
+-  let finish; const listeners = new Map();
+-  const session = { on(name, listener) { listeners.set(name, listener); }, off(name) { listeners.delete(name); }, async send() {}, detach() { return new Promise(resolve => { finish = resolve; }); } };
+-  const wire = await observeUsageWire({ context: () => ({ newCDPSession: async () => session }) }, origin);
+-  for (const [name, event] of Object.entries(events)) listeners.get(eventNames[name])(event);
+-  await wire.headers(expected); wire.complete(); const closing = wire.close();
+-  listeners.get(eventNames[kind])({ ...events[kind], requestId: "new-late-request" }); finish();
+-  await assert.rejects(closing, /USAGE_WIRE_(UNMATCHED_API|ORPHAN_EVENT)/);
+-  assert.equal(wire.snapshot().actual_detach, true); assert.equal(wire.snapshot().retired, true); assert.equal(listeners.size, 0); wireRejected++;
+-}
+ const failedListeners = new Map();
+ const failedSession = { on(name, listener) { failedListeners.set(name, listener); }, off(name) { failedListeners.delete(name); }, async send() {}, async detach() { throw Error("controlled detach failure"); } };
+ const failedDetach = await observeUsageWire({ context: () => ({ newCDPSession: async () => failedSession }) }, origin);
+diff --git a/tests/account-captcha-web/e2e/project-usage.helpers.ts b/tests/account-captcha-web/e2e/project-usage.helpers.ts
+index 2dd66676a7653919256602abacf8cb6f71d31efe..3bb9c17fbbc35e351965deaa7c768372f7739276 100644
+--- a/tests/account-captcha-web/e2e/project-usage.helpers.ts
++++ b/tests/account-captcha-web/e2e/project-usage.helpers.ts
+@@ -108,12 +108,6 @@ export function createUsageWireState(origin: string) {
+       failure ??= error instanceof Error && /^USAGE_WIRE_/.test(error.message) ? error.message : "USAGE_WIRE_MALFORMED_EVENT";
+     }
+   }
+-  function complete() {
+-    check();
+-    for (const row of rows.values()) if (row.request?.api && (!assembled(row) || !row.matched)) reject("USAGE_WIRE_UNMATCHED_API");
+-    // ExtraInfo without its request event cannot be classified safely.
+-    if ([...rows.values()].some(row => !row.request)) reject("USAGE_WIRE_ORPHAN_EVENT");
+-  }
+   return {
+     feed,
+     match(expected: { method: string; url: string; status: number; requestID: string }) {
+@@ -127,8 +121,13 @@ export function createUsageWireState(origin: string) {
+       if (proof.method !== expected.method || proof.url_sha256 !== hash(expected.url) || proof.status !== expected.status) reject("USAGE_WIRE_PW_CONFLICT");
+       row.matched = true; return proof;
+     },
+-    complete,
+-    retire() { closed = true; complete(); },
++    complete() {
++      check();
++      for (const row of rows.values()) if (row.request?.api && (!assembled(row) || !row.matched)) reject("USAGE_WIRE_UNMATCHED_API");
++      // ExtraInfo without its request event cannot be classified safely.
++      if ([...rows.values()].some(row => !row.request)) reject("USAGE_WIRE_ORPHAN_EVENT");
++    },
++    retire() { closed = true; check(); },
+     failed(code: string) { failure ??= code; },
+     snapshot() { return { source: "cdp_network_extra_info", event_count: eventCount, retired: closed, failure, requests: [...rows.values()].filter(row => row.request?.api).map(row => ({ ...row })) }; },
+   };
