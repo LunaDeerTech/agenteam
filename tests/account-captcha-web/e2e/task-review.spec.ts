@@ -28,7 +28,9 @@ const fact = (page: Page, label: string) =>
     .filter({ has: page.getByText(label, { exact: true }) })
     .locator("dd");
 const uncertain = (page: Page) =>
-  page.getByText(/^提交结果待确认。请查询原操作结果，不要重复提交。$/);
+  page.getByText("提交结果待确认。请查询原操作结果，不要重复提交。", {
+    exact: true,
+  });
 
 async function chooseAgent(page: Page, label: string, option: string) {
   // UiSelect is the existing accessible popover/listbox, not a native select.
