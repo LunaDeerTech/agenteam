@@ -84,14 +84,17 @@ ALTER TABLE agenteam_execution.control_inputs ADD CONSTRAINT execution_control_t
 CREATE FUNCTION agenteam_execution.guard_round_input_pair() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE v record; b jsonb; source jsonb; control jsonb; n bigint;
 BEGIN
- IF TG_TABLE_NAME='transcript_entries' AND NEW.sequence<>4 THEN RETURN NULL; END IF;
+ IF TG_TABLE_NAME='transcript_entries' THEN
+  IF NEW.sequence<>4 THEN RETURN NULL; END IF;
+ END IF;
  SELECT q.*,r.schema_version AS old_schema,r.tool_pending,r.transcript_through AS old_through,
-  r.terminal_status,r.snapshot_id AS old_snapshot,e.version AS current_version,
+  r.terminal_status,r.snapshot_id AS old_snapshot,s.digest AS source_snapshot_digest,e.version AS current_version,
   c.round_id AS source_round,c.checkpoint_version AS source_version,c.transcript_sequence AS source_through,
   c.call_id,c.operation_id,c.attempt_id,c.message_digest,c.result_digest,c.created_at AS source_created
  INTO v FROM agenteam_execution.round_inputs q
  JOIN agenteam_execution.executions e ON e.id=q.execution_id
  JOIN agenteam_execution.rounds r ON r.execution_id=q.execution_id AND r.id=q.predecessor_round_id
+ JOIN agenteam_execution.snapshots s ON s.execution_id=q.execution_id AND s.id=q.snapshot_id
  JOIN agenteam_execution.tool_result_consumptions c ON c.execution_id=q.execution_id
  WHERE q.execution_id=NEW.execution_id;
  IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='missing round input pair'; END IF;
@@ -101,6 +104,7 @@ BEGIN
   AND v.checkpoint_version>v.source_version AND v.current_version>=v.checkpoint_version AND v.created_at>=v.source_created
   AND b->>'schema_version'='1' AND b->>'round_id'=v.id AND b->>'execution_id'=v.execution_id
   AND b->>'snapshot_id'=v.snapshot_id AND b->>'predecessor_round_id'=v.predecessor_round_id
+  AND b->>'snapshot_digest'=v.source_snapshot_digest
   AND b->>'skill_input_binding_id'=v.skill_input_binding_id AND b->>'assignment_cutoff'=v.assignment_cutoff::text
   AND b#>>'{initial_bindings,assignment_sequence}'=v.initial_sequence::text
   AND b#>>'{initial_bindings,request,project_id}'=v.project_id AND b#>>'{initial_bindings,request,agent_id}'=v.agent_id

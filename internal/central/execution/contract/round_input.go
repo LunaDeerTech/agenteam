@@ -96,12 +96,14 @@ func (v RoundInputFields) Validate() error {
 		directory[b.SkillID] = b
 	}
 	applied := make(map[sc.AssignmentChangeID]f.Version)
+	seen := make(map[sc.AssignmentChangeID]bool)
 	ids := make([]sc.AssignmentChangeID, 0)
 	var previous f.Version
 	for _, d := range v.Dispositions {
-		if d.ChangeID.Validate() != nil || d.Sequence <= 1 || d.Sequence > v.AssignmentCutoff || d.Sequence <= previous {
+		if d.ChangeID.Validate() != nil || seen[d.ChangeID] || d.Sequence <= 1 || d.Sequence > v.AssignmentCutoff || d.Sequence <= previous {
 			return invalid()
 		}
+		seen[d.ChangeID] = true
 		previous = d.Sequence
 		switch d.State {
 		case "covered":

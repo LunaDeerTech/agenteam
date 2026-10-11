@@ -1,11 +1,12 @@
-# Skill assignment ingress 工作分支
+# Execution round input 工作分支
 
-2026-10-11。本树 `/workspace/agenteam-skill-assignment-ingress` 从 main `19df3fea` 建立，现合入正式 main `7c874adc`，分支 `ai/skill-assignment-ingress-20261011`。`skill_package_review` 负责本分支正文与 Skill/00067；Execution、Agent 与四引用域按[本卡](../docs/development/work-items/d10-skill-assignment-ingress.md)唯一写者并行。root 负责 Git、集成和资源排期。本片基础已分段通过，真实 PG 尚未编译或运行；下列 main 已交付、完整历史与清理索引原样保留。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
+2026-10-11。本树 `/workspace/agenteam-execution-round-input` 从已含 65/66 与冻结 67 源码的 `2151a43f` 建立，分支 `ai/execution-round-input-20261011`。`skill_assignment_agent` 负责 Execution/00068、本卡与 current；`skills_milestone_review` 独占 Skill validator；root 负责 Git、组合与资源排期。后继输入源码与必要控制在实施，尚未编译/测试/真实 PG；67 的真实 PG 在原树独立验证，其最新方法和结果由 root 后续组合，不在本树复制改造。见[本片边界](../docs/development/work-items/d22-execution-round-input.md)。下列 main 已交付、完整历史与清理索引保留；新片不继承为通过结论。
 
 ## 当前开发
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
+| DetermineRoundInput — `ai/execution-round-input-20261011` | skill_assignment_agent Execution/68；skills_milestone_review Skill | 已落最小合同、68、真实66前驱读取、完整锁/current witness、Determine/Lookup 和必要纯控制；仅源码/gofmt，未运行。旧 Round/66 原行不动；Determine 阶段新增 Model/dispatch 0，fixture 原一次受控首轮。真实 PG 依赖 67 实际验证与 root 窗口；tools HTTP STOP 不变。 |
 | Skill Assignment ingress — `ai/skill-assignment-ingress-20261011` | skill_package_review lead；recovery_lead Execution；skill_assignment_agent Agent | 产品与兼容源均已冻结，`30c31358` 两项 decoder 静态修复的 2 top / 16 sub 已实际通过。basic01（工具82378）32 top / 141 sub PASS，但 Mount 测试替身编译 FAIL；basic02（39722）补齐 Mount 1 top / 9 sub 与原 11 包 vet，918 输入各次不变。合计 33 top / 150 sub 分段通过，原 FAIL 保留。profile01 一正七反实际 0、3 输入不变，窄方法已接受。真实 created / Model0 的 1 top / 2 sub PG 源码在写，尚未编译或运行；不包含 DetermineRoundInput、下一轮或 Transcript 应用。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
