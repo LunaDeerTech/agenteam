@@ -334,3 +334,13 @@ PreparationDriver在原claim/process/fence及完整锁计划下，依次取得�
 `execution.NewAssociatedExecutor`固定同Store、Authority与有效Process身份的原PreparationDriver和DirectTextDriver，使用显式`MaxOwned`与`RecoveryInterval`。调用方以独立`Run`建立服务寿命，`Ready`只表示寿命已建立；`Advance`仅准入或观察，不等待捕获、数据库回调或Model响应，也不把DTO当运行授权。后台原调用再次核完整持久关联：created沿真实Preparation→固定input→DirectText推进；preparing缺input且没有本实例原owner时明确deferred，不悄悄重新捕获。Unknown保原driver与精确调用，后继显式访问按间隔最多推动一次原恢复，不更换原Launch或Model调用身份，也不实现跨进程running接管。
 
 Runner的取消与Stop/Drain只覆盖本次遍历及准入调用，不停止共享executor或已接受执行。executor停止时取消自身原调用并等待真实退出；保留Unknown或未终结owner时不能宣称Joined，已完成Model和环境lease仍沿原终态事务退休。Task完成语义、完整多轮Loop、工具调用、Stream、relaunch/cooldown及生产app/initializer绑定均不随接线完成，本片不新增迁移或通用结果读取接口。定向10 top（7项新增、3项原受影响）及三包vet、compile/list、真实Scheduler→Execution的1 top/2 sub均整轮wholePASS；真实旧关联补投与异步取消共37.80s，四原Wait0、七资源14次absence及全部退出尾闭合，1596输入首尾一致。本批无新增FAIL，既有FAIL和STOP保持；结果与重跑方式沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)收口。
+
+## 有限后继：work 阶段 relaunch 与持久访问计次
+
+`scheduler.NewRelaunchCoordinator`复用原Coordinator、Work当前事实与Execution占用提供方，要求显式非负skip count；经`ProjectRunnerOptions.Relaunch`接入同一Runner，旧构造与未接入行为保持。范围仅为`in_progress`、`task/work`；Work以独立不可变relaunch来源记录当前Task/Sprint/Milestone关系，与新pending Dispatch同Tx提交，不伪造todo ClaimGuard，也不修改Task版本、状态、rank或历史。Launch沿原Handoff与Execution提供方，claim与relaunch两个来源分别重验。
+
+00058保存Scheduler task runtime、原visit回执和Work relaunch来源。计次按Task真正被遍历访问的次数进行，历史Execution补投不计入；首次观察当前phase最近终态Execution时，skip count大于零则同次减一并跳过，只有访问开始时remaining已为零才继续容量及Agent slot检查。显式零不额外等待；pause、pending或active Execution不扣次数。计次与原visit回执同Tx提交，重建owner读取持久剩余数；Unknown保留原visit及原调用，只读核对完整回执，不因未观察到行重复扣减或创建Dispatch。最近关联由Scheduler自域维护，并经原Execution observer核完整key/digest/lineage；旧claim历史以真实Work版本确定顺序，后继只在新的可靠关联事务中前移指针并清除旧cooldown，历史重放不能倒写。
+
+每次新Dispatch仍须原同Store、完整锁和Schedule EX下的当前Project enabled/CurrentSprint、Task版本与assignee、真实Agent资格、无blocker/pending/active、额度及空闲slot。relaunch的已证AgentBusy只关闭原Dispatch为skipped，不恢复Task或重置已耗尽cooldown。已证最终Launch失败沿原原子Finalize处理：Work重读当前适用关系，保留用户后改字段，适用时同Tx写technical blocker、blocked状态、typed历史与schema 5 Outbox事件；已不适用则保留当前Task。旧claim失败记录、FK与codec保持兼容，Unknown和普通未分类错误不冒最终失败。
+
+来源`146594e6`已完成定向18项独立top及四包vet、compile04/list；有效通过证据复用，修复后仅补受影响项。native04真实1 top/2 sub整轮wholePASS（25.59s），验证持久访问计次跨新owner恢复后创建新Dispatch/Execution且Task仍为in_progress，以及relaunch来源的真实最终失败、schema 5事件与原Tx整体回滚、同key正常结算重放。四原Wait0、七资源14次absence及全部退出双尾闭合，1614输入首尾一致。原pure01/02/03及native01/02/03 FAIL均保留。review因正式状态writer缺失继续Deferred；blocked系统reconciliation、完整多轮/tools/Stream及生产app/initializer绑定仍未完成，既有STOP不变。结果与重跑方式继续使用[既有组合说明](../../../.agent-state/agent-system-integration/README.md)。
