@@ -1,14 +1,15 @@
 # Execution 首个后继 RoundInput
 
-状态：独立树 `/workspace/agenteam-execution-round-input`，分支 `ai/execution-round-input-20261011`，组合起点 `2151a43f`。本片源码 `ad458be1` 与夹具窄修 `71b13d5c` 已获有限静态接受；基础 9 top / 52 sub 分段通过及 4 包 vet 通过，原 basic01 wholeFAIL 保留。现组合正式 main `5c4bdca9`，包含 67 native02 wholePASS 的有限交付与完整历史，以及已交 Runner 本地 write-file。68 真实 PG 尚未编译或运行，不能把上游交付或基础检查算作本片真实 PG 通过。
+状态：本片在固定组合 `44ab6534` 完成 compile01 和 native01，唯一主审已接受有限 wholePASS，可按本卡范围交付。独立树 `/workspace/agenteam-execution-round-input`，分支 `ai/execution-round-input-20261011`，组合起点 `2151a43f`；当前包含正式 main `5c4bdca9` 的 67 验收历史及 Runner 本地 write-file。基础 9 top / 52 sub 分段通过及 4 包 vet 通过，原 basic01 wholeFAIL 与夹具窄修保持，不追认为单轮全绿。Git 主线集成、推送及随后材料保全由 root 执行。
 
 依据：[执行编排的输入确定点](d01-contracts/execution-orchestration.md#技能变更与下一轮输入确定点)、[资源与技能](d01-contracts/resources-skills.md#分配目录与读取)。本片只把原 66 已提交结果与 67 durable pending 确定为首个后继输入；不启动 Model、Tool dispatch、waiting resume 或终态退休，不接生产默认，不解除 tools HTTP 及其它既有 STOP。
 
 ## 组合与写域
 
-- `skill_assignment_agent`：Execution `contract/round_input.go`、`round_input*.go`、原 current-authority 分派的窄兼容；前向迁移 `00068` 唯一写者；本卡与本树 current。
+- `skill_assignment_agent`：Execution `contract/round_input.go`、`round_input*.go`、原 current-authority 分派的窄兼容；前向迁移 `00068` 唯一写者。
 - `skills_milestone_review`：Skill `contract/assignment_validation.go`、`assignment_validation.go` 与控制。提供 `NewAssignmentValidation(*skill.Authority)`，仅同原 Store/Tx SQL 事实，不创建 runtime/ref，不读其它域私表。
 - `skills_milestone_review/knowledge_delete_fixture`：`tests/projectvariable/execution_round_input_test.go` 真实组合 fixture 唯一写者；沿原 66 实际消费与 67 正式分配入口接线。
+- `skill_package_review`：PG profile、编译与 native 执行、本卡与 current 最终收口；方法和真实结果由未参与实施的 `runtime_recovery` 独立验收。
 - root：Git 保存/集成、后续测试/native 资源窗与联调作者分配；主审检查完整事务、旧模型兼容与真实验证范围。
 
 `NewRoundInputDeterminer(store, *execution.Authority, RoundInputDependencies)` 显式组合 Project gate、Agent ExecutionConfiguration、历史 InitialRoundBindingsReader 和 Skill RoundAssignmentValidation。它没有 Model/Tool runtime 端口、后台 worker 或全局注册。公开 DTO 不授执行权限。
@@ -33,7 +34,7 @@ removed/disabled/deleted 不主动抹旧上下文和历史保护；保留目录�
 
 RoundInput、dispositions、ControlInput/Transcript 和 Execution version CAS 同事务提交；错误全回滚。旧 capture、Round、Transcript、66 consumption、67 ingress/pending refs 均不更新、不清理。cut 后新增仍保 pending；本片不伪造第三轮前驱来消费它。
 
-## 验证边界与下一步
+## 验证结果与交付范围
 
 基础控制覆盖 selection/cutoff/replacement、旧目录保留、codec/digest/克隆与重复 change 拒绝、foreign Tx/plan/full锁/expired witness、Unknown 不重发和 Stop 等原 Store 返回。它们只证明控制与选择行为，不替代真实 owner、流式 SQL、DDL、回滚或 PG 数据完整性。
 
@@ -50,6 +51,14 @@ python3 -B .agent-state/execution-round-input/run-basic-checks.py --output outpu
 python3 -B .agent-state/execution-round-input/run-basic-checks.py --build-only --output output/ai/execution-round-input/checks/basic02
 ```
 
-真实 PG 方法为 1 top / 2 sub，已完成静态审查，尚未编译或运行；待本次 main 组合固定后由 root 授窗。复用 `newToolResultConsumptionFixture`，在真实 Launch 后、原 Preparing 前正式 Assign A，并通过原 consumer 实际 `Consume` 取得已提交 seq3 checkpoint；随后接真实 Owner、Agent/四引用 owner、已发布 Skill 与正式 Remove/Assign。检验 capture covered 不重复、B 替换 A、同 ID 重放、整体回滚、Unknown 原事实查询，以及 Assign/Determine 两个真实锁提交顺序。不得 SQL seed pending/receipt，不可空 pending 替代主链。Runner 新增六个 Go 文件属已交本地 Write→Read 范围，仅随完整 main 组合进入 PG 编译闭包，不计作 68 运行行为。
+真实 PG 方法为 `TestExecutionRoundInput` 的两个 sub：`assignment-first-replacement-and-replay` 与 `rollback-commit-loss-and-determination-first`，已实际通过。复用 `newToolResultConsumptionFixture`，在真实 Launch 后、原 Preparing 前正式 Assign A，并通过原 consumer 实际 `Consume` 取得已提交 seq3 checkpoint；随后接真实 Owner、Agent/四引用 owner、已发布 Skill 与正式 Remove/Assign。原断言核对 capture covered 不重复、B 替换 A、同 ID 重放、整体回滚、真实提交后受控丢回执的原事实 Lookup，以及 Assign/Determine 两种锁提交顺序。没有 SQL seed pending/receipt 或用空 pending 替代主链。Runner 新增六个 Go 文件属已交本地 Write→Read 范围，仅随完整 main 组合进入 PG 编译闭包，不计作 68 运行行为。
 
-Determine 阶段新增 Model BeginChat/Tool dispatch 均应为 0；整个继承 fixture 原有一次受控首轮 Model，原 Runner WSS/I/O 真实。受控首轮不是 tools HTTP 通过证据。真实工具 HTTP、后续 Model 调用、资源删除成功边界、等待恢复、生产 default 与原 STOP 保留。
+方法 `42117187` 仅给原两份 harness 加闭集字典，原监督函数不变。离线 profile01 原 Python 775973 Wait 0 / 0.405s，1 正例与 7 反例符合预期；剥除新增 selector 后全 AST 和旧有效映射保持，五项方法输入前后相等。薄记录器逐字复用原 67 文件，不增加 cleanup、重试或资源判据，见[运行方法](../../../.agent-state/execution-round-input/README.md)。
+
+compile01 原工具 34561 实际 exit 0：Go 784372 `-race -tags=integration -c` Wait 0 / 87.903s，list 785877 Wait 0 / 1.066s，精确唯一 `TestExecutionRoundInput`。1886 个原输入在编译前、编译后及 list 后逐项相同，包含完整 83 个同包 Go 文件与全部 68 份迁移。87,745,702 字节 binary 与源码绑定见 `compile01/binary.json`；native 输入仅增加该实物 binary，共 1887 项，不以显式 profile 的少数文件替代闭包。
+
+native01 原 outer 30712 由执行作者亲收 actual exit 0，supervisor 787240 Wait 0 / 129.710s；原日志 terminal 0 / 128.869s。一个 top、两个 sub 全 PASS（41.30s，分别 21.17s / 20.13s），Go 788798 与 driver 787241 原 Wait 均为 0。相同七个资源 ID 的十四次 absence、desc/private/runtime 双空、75 秒原门内自动 HOST_TCP baseline delta 两次 empty、1887 输入不变与精确 case/Wait 判据全部闭合。原 540+60 秒预算、Go 6 分钟 timeout 和全部强门均未改变，没有重试、过滤连接或预热基线。唯一主审已独立读取原业务及完整退出尾，接受本轮有限 wholePASS。
+
+实际原件位于 `output/ai/execution-round-input/{compile01,native01}/`，含 original invocation、输入、binary、实际 Wait 与 `tool-terminal.json`；PG 原日志为 `/tmp/eri01/pg-8e344109435c413a85b030440352f6b4.log`。原 basic01 FAIL 完整保留。所有命令、Go/cache 和服务窗口已实际释放；完整历史进入 main 后再按 root 指令保全和清理，当前不提前移动或删除原件。
+
+Determine 阶段新增 Model BeginChat/Tool dispatch 均为 0；每个继承 fixture 原有一次受控首轮 Model 和一次真实 Runner WSS/I/O。交付止于一次非终态后继输入确定，未执行下一 Model，也不将受控首轮记作真实 tools HTTP 通过。真实工具 HTTP、后续 Model 请求投影与调用、资源 deleted 后成功确定、等待恢复、Compaction、终态退休、生产 default 与原 STOP 保留。
