@@ -4,8 +4,11 @@
 
 ## 当前开发
 
+本工作树 `/workspace/agenteam-runner-write-file-wss` 从 main `c34ba3b5` 开始 Runner write-file WSS 窄片；下列全局历史与清理记录沿原 main 保留，不据本片源码状态追加交付或清理计数。
+
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
+| Runner write-file WSS — `ai/runner-write-file-wss-20261011` | skill_package_review Handler/Control/卡；skills_milestone_review codec；knowledge_delete_fixture WSS；recovery_lead 方法；runtime_recovery 独验 | 首实现源码与必要控制已落，尚未运行 Go/WSS。固定 write-file rev1、512KiB strict base64、原1MiB整帧；known committed 保实际 durability/后置固定告警，Write与Drain真实返回后发terminal，Unknown不因取消降级。显式 NewWriteFile，默认生产未绑定；不增Central授权/Operation或借read票据。详见[本卡](../docs/development/work-items/d15-runner-write-file-adapter.md)。root统筹原Go/服务窗口。 |
 | DetermineRoundInput（68）— `ai/execution-round-input-20261011` | skill_assignment_agent Execution/68；skills_milestone_review Skill；skill_package_review PG 执行；runtime_recovery 独验 | 固定44ab：basic01 原19551 wholeFAIL保留，7top/43sub与修后basic02原87193的2top/9sub合计9top/52sub分段通过，4包vet通过。compile01原34561实际0、1886输入一致/唯一top；native01原30712实际0，sup787240 Wait0/129.710s、原log128.869s，1top2sub PASS及1887输入不变、七资源14absence和全部Wait/私有/runtime/desc/TCP双尾齐。唯一主审已接受有限wholePASS，main `bf7c882a` 已推送；81 个完整输出及三份 tmp 原件副本已无覆盖保全至 `output/ai/retired-20261011/execution-round-input`，原 tmp 保留，详见[恢复说明](execution-round-input/README.md)。树/本地分支删除仍待 root，未计入清理数；fresh 远端查询实际为空，此分支从未推送，不增加远端删除数。窗口已释放。止于非终态后继RoundInput；Determine新增Model/dispatch0，原fixture受控Model1+真实WSS1，下一Model/production/toolsHTTP STOP不变。 |
 | NextRoundProjection 独立树 | root 统筹分域实施；variables_review 编译/运行 | basic01 的 8 top / 42 sub 与 3 包 vet 已获独立接受；compile01/list 及 native 配方 prepare 正由 variables_review 执行，尚不计真实 PG 通过，不代表下一 Model 已执行。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |

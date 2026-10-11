@@ -154,6 +154,8 @@ Terminal四variant都必须有request_id/operation_id/outcome；其它字段由�
 
 Runner code与安全文案是协议闭集，不接受任意backend错误字符串；大小写、标点逐字一致。TIMEOUT只有已知期限导致确定失败/取消时可用于failure/cancelled，副作用未确认必须unknown。
 
+显式 `write-file` revision `"1"` 在 wire v1.0 内使用操作专属 success payload：只有真实原子发布已知 committed 且写入完整本次数据，才能返回 `{path,state:"committed",bytes_written,durable,completion_code?}`。success 在此表示已知发布；durable 保留原文件与父目录 fsync 事实，提交后的取消、fsync/close 错误由闭集 completion_code `INTERNAL_ERROR` / `CANCELLED` / `TIMEOUT` 表达，durable=false 必须带该 code。顶层 success 仍无 code/safe_message，其它三个 variant 仍禁止 payload；Unknown 不因取消降为未提交，不自动重放。请求仅 bounded base64 全文件（原始最大512KiB），整帧仍受原1MiB门；实际 Write 与 Handle.Drain 都返回后才可封 terminal。默认生产未绑定，具体构造、限额和验证范围见 [write-file 适配器](d15-runner-write-file-adapter.md)。
+
 | Runner code | safe_message |
 | --- | --- |
 | INVALID_REQUEST | `Invalid request.` |
