@@ -7,7 +7,7 @@
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
 | Execution ToolCall 事实 — `ai/execution-tool-call-facts-20261011` | recovery_lead交付；Tool域child runner_read_file；runtime_recovery独审 | 34 个相关 top 与五包 vet 已通过，PG 编译/list 实际 0；首次 native01 原工具40757实际退出1，阻于真实 Model 配置捕获，专用 capture 修复进行中；原 FAIL 保留，尚未形成真实联调验收。00063/00064 迁移归本片，不推断 Tool 执行或其他 STOP 已解。 |
-| 单次 read-file Operation/Attempt 基础 | root 安排独立树与负责人 | 即将开树，尚未实施或验收；不提前计作执行链已打通。 |
+| 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 独立树 `/workspace/agenteam-runner-read-file-operation` 已建，基线 `1b10c29c`；Tool 存储基础与 Runner RequestID 接缝正在纯源码实施，尚未测试、未验收，不提前计作执行链已打通。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 ## 保留与清理
