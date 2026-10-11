@@ -386,7 +386,13 @@ async function observeBrowserIO(
             consumer(auth.workReview, "events", "work.events", (a) => {
               if (a[0] !== project || a[1] !== timelineTask)
                 throw Error("TASK_TIMELINE_CONSUMER_SCOPE");
-              return "/api/v1/projects/" + project + "/tasks/" + timelineTask + "/events";
+              return (
+                "/api/v1/projects/" +
+                project +
+                "/tasks/" +
+                timelineTask +
+                "/events"
+              );
             });
           if (intakeWrites) {
             consumer(
@@ -1029,7 +1035,12 @@ export type TaskObservationProfile = {
   dist: string;
   evidence: string;
   inputHash: string;
-  prefix: "task-review" | "task-intake" | "task-edit" | "agent-configuration" | "task-timeline";
+  prefix:
+    | "task-review"
+    | "task-intake"
+    | "task-edit"
+    | "agent-configuration"
+    | "task-timeline";
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create" | "update";
   lookupCommand:
@@ -1104,11 +1115,17 @@ export async function observeTaskRequests(
     throw Error("TASK_EDIT_WRITE_PROFILE_MISMATCH");
   if (
     profile.timelineReads &&
-    (profile.intakeWrites || profile.agentConfiguration || profile.editWrites ||
-      profile.prefix !== "task-timeline" || profile.lookupCommand !== null ||
-      profile.cut !== undefined || data.mode !== "recent-older-and-refresh" ||
+    (profile.intakeWrites ||
+      profile.agentConfiguration ||
+      profile.editWrites ||
+      profile.prefix !== "task-timeline" ||
+      profile.lookupCommand !== null ||
+      profile.cut !== undefined ||
+      data.mode !== "recent-older-and-refresh" ||
       !data.task_id ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.task_id))
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+        data.task_id,
+      ))
   )
     throw Error("TASK_TIMELINE_READ_PROFILE_MISMATCH");
   const entries: Entry[] = [];
@@ -1349,10 +1366,13 @@ export async function observeTaskRequests(
   }
 
   function timelinePageRead(entry: Entry) {
-    return profile.timelineReads && entry.name === "events" &&
+    return (
+      profile.timelineReads &&
+      entry.name === "events" &&
       entry.request.method() === "GET" &&
       new URL(entry.request.url()).pathname ===
-        `/api/v1/projects/${data.project_id}/tasks/${data.task_id}/events`;
+        `/api/v1/projects/${data.project_id}/tasks/${data.task_id}/events`
+    );
   }
 
   function joint(entry: Entry, proof: any) {
@@ -1636,8 +1656,13 @@ export async function observeTaskRequests(
   }
   function timelinePage(index: number): Record<string, any> {
     expect(profile.timelineReads).toBe(true);
-    const pages = entries.filter((entry) => timelinePageRead(entry) && entry.checked && entry.body);
-    expect(pages[index], "original Timeline public page must complete").toBeTruthy();
+    const pages = entries.filter(
+      (entry) => timelinePageRead(entry) && entry.checked && entry.body,
+    );
+    expect(
+      pages[index],
+      "original Timeline public page must complete",
+    ).toBeTruthy();
     return pages[index]!.body as Record<string, any>;
   }
   function agentOption(id: string): string {

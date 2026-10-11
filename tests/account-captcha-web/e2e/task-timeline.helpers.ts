@@ -19,7 +19,10 @@ export type TimelineMaterial = {
 export function timelineMaterial(): TimelineMaterial {
   const value: TimelineMaterial = JSON.parse(
     readFileSync(
-      join(process.env.AGENTEAM_AUTH_WEB_PRIVATE!, "task-timeline-material.json"),
+      join(
+        process.env.AGENTEAM_AUTH_WEB_PRIVATE!,
+        "task-timeline-material.json",
+      ),
       "utf8",
     ),
   );
@@ -27,15 +30,19 @@ export function timelineMaterial(): TimelineMaterial {
   expect(value.version).toBe("49");
   expect(value.event_ids).toHaveLength(51);
   expect(new Set(value.event_ids).size).toBe(51);
-  const id = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  const id =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
   for (const item of [
     value.project_id,
     value.task_id,
     value.sprint_id,
     value.worker_id,
     ...value.event_ids,
-  ]) expect(item).toMatch(id);
-  expect(value.route).toMatch(new RegExp(`^/[^/?#]+/[^/?#]+/tasks/${value.task_id}$`));
+  ])
+    expect(item).toMatch(id);
+  expect(value.route).toMatch(
+    new RegExp(`^/[^/?#]+/[^/?#]+/tasks/${value.task_id}$`),
+  );
   expect(value.title.length).toBeGreaterThan(0);
   expect(value.comment).toContain("\n");
   return value;
@@ -59,7 +66,8 @@ export async function observeTimeline(page: Page, data: TimelineMaterial) {
     };
     if (global[pathname]) return global[pathname];
     if (pathname === prefix) return "project";
-    if (!pathname.startsWith(prefix + "/")) throw Error("UNEXPECTED_TIMELINE_SCOPE");
+    if (!pathname.startsWith(prefix + "/"))
+      throw Error("UNEXPECTED_TIMELINE_SCOPE");
     const path = pathname.slice(prefix.length);
     if (path === eventsPath) {
       expect(url.searchParams.getAll("limit")).toEqual(["50"]);
@@ -81,10 +89,13 @@ export async function observeTimeline(page: Page, data: TimelineMaterial) {
     const parts = path.split("/");
     if (
       parts.length === 3 &&
-      /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(parts[2]!)
+      /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+        parts[2]!,
+      )
     ) {
       if (parts[1] === "milestones") return "milestone";
-      if (parts[1] === "sprints" && parts[2] === data.sprint_id) return "sprint";
+      if (parts[1] === "sprints" && parts[2] === data.sprint_id)
+        return "sprint";
       if (parts[1] === "agents" && parts[2] === data.worker_id) return "agent";
       if (parts[1] === "tasks" && parts[2] === data.task_id) return "task";
     }
@@ -130,20 +141,31 @@ export async function observeTimeline(page: Page, data: TimelineMaterial) {
           expect(query.has("cursor")).toBe(false);
           expect(typeof body.next_cursor).toBe("string");
           expect(body.next_cursor.length).toBeGreaterThan(0);
-          const comments = body.items.filter((item: any) => item.type === "comment");
+          const comments = body.items.filter(
+            (item: any) => item.type === "comment",
+          );
           expect(comments).toHaveLength(1);
           expect(comments[0].payload.body).toBe(data.comment);
           expect(comments[0].task_version).toBe(data.version);
-          expect(body.items.filter((item: any) => item.type === "fields_updated")).toHaveLength(47);
-          const state = body.items.filter((item: any) => item.type === "state_changed");
-          const assignee = body.items.filter((item: any) => item.type === "assignee_changed");
+          expect(
+            body.items.filter((item: any) => item.type === "fields_updated"),
+          ).toHaveLength(47);
+          const state = body.items.filter(
+            (item: any) => item.type === "state_changed",
+          );
+          const assignee = body.items.filter(
+            (item: any) => item.type === "assignee_changed",
+          );
           expect(state).toHaveLength(1);
           expect(state[0].payload).toEqual({
-            from_state: "backlog", to_state: "todo", reason_code: null,
+            from_state: "backlog",
+            to_state: "todo",
+            reason_code: null,
           });
           expect(assignee).toHaveLength(1);
           expect(assignee[0].payload).toEqual({
-            from_agent_id: null, to_agent_id: data.worker_id,
+            from_agent_id: null,
+            to_agent_id: data.worker_id,
           });
         }
       }
@@ -161,12 +183,18 @@ export async function timelineScreenshot(
   const [width, theme] = layout.split("-");
   expect(page.viewportSize()?.width).toBe(Number(width));
   await expect(page.locator("html")).toHaveAttribute("data-theme", theme!);
-  expect(await page.evaluate(
-    () => matchMedia("(prefers-reduced-motion: reduce)").matches,
-  )).toBe(true);
-  await expect.poll(() => page.evaluate(
-    () => document.documentElement.scrollWidth <= innerWidth + 1,
-  )).toBe(true);
+  expect(
+    await page.evaluate(
+      () => matchMedia("(prefers-reduced-motion: reduce)").matches,
+    ),
+  ).toBe(true);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth + 1,
+      ),
+    )
+    .toBe(true);
   const directory = process.env.AGENTEAM_TASK_TIMELINE_WEB_EVIDENCE!;
   mkdirSync(directory, { recursive: true, mode: 0o700 });
   await page.screenshot({

@@ -249,7 +249,7 @@ func (w *taskTimelineWeb) readFacts(ctx context.Context) ([]wc.TaskTimelineEvent
 			valid := index == 0 && event.Type == wc.TaskTransitionStateChanged && event.Payload.StateChanged != nil &&
 				event.Payload.StateChanged.FromState == wc.TaskStateBacklog && event.Payload.StateChanged.ToState == wc.TaskStateTodo ||
 				index == 1 && event.Type == wc.TaskTransitionAssigneeChanged && event.Payload.AssigneeChanged != nil &&
-				event.Payload.AssigneeChanged.FromAgentID == nil && event.Payload.AssigneeChanged.ToAgentID == d.agentID ||
+					event.Payload.AssigneeChanged.FromAgentID == nil && event.Payload.AssigneeChanged.ToAgentID == d.agentID ||
 				index == 2 && event.Type == wc.TaskTransitionComment && event.Payload.Comment != nil && event.Payload.Comment.Body == w.comment
 			if !valid {
 				return nil, errors.New("timeline Human state/assignment/comment changed")
