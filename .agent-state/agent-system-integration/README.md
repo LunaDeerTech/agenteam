@@ -636,3 +636,21 @@ Web成功candidate02原为`task-timeline-web-race-02.test`，78,241,136 B，SHA2
 App树为`/workspace/agenteam-skill-install-runtime-source`。两轮均四原Wait0、七ID14次absence、private/runtime/desc/TCP双尾空、outer无遗留，App1672/Web2447输入首尾同；Web两Node实际成功，secret最终业务/资源有限接受。App验证原版本changed/no-op与历史原回执Lookup，以及409 VersionConflict/IdempotencyKeyReused、404 Owner、403 CSRF、401 SessionRevoked的零写门。Web正常三次PATCH覆盖changed/no-op/清空，丢回执链一次PATCH后仅原key/version/fullpatch Lookup；原首PATCH的ERR_ABORTED事实保留，由同原请求的typed Promise/current身份与DB/TLS完整完成联合证明闭合，预声明截断仍记失败，不由Lookup改写。cleanup接受本轮六PNG及原键盘、取消回焦、主题、overflow有限范围，1440浅色与390深色不代表二十字段同时入图或全面无障碍审计。
 
 原App01容量FAIL、App02创建目标403且Update未进入的17.09s wholeFAIL及其全部原件保留；后者是错误Host/cookie的fixture接线，原日志没有的具体Problem不补写。candidate01 FAIL与candidate02成功raw当前均保留，没有新退休或gzip。资源窗口另精确回收28个可再生旧Go cache对象548,720,640 B，原记录为`output/ai/agent-system-integration/agent-edit-cache-recovery-01/result.json`，未删除FAIL证据。重现须依原compile02结果、immutable输入/方法、独立namespace、固定依赖、fresh容量及原实际Wait/资源退出门，不覆盖既有结果；原PG分别为`/tmp/aupa03/pg-63f85a7297204f65a1711ce7bb9f955d.log`与`/tmp/aew01/ui-616f76af286c4ae4.log`。完整F1、Project initializer、运行管理、平台ready与既有STOP保持。
+
+## 已有planned Sprint启动页面
+
+本片真实native01已wholePASS，最终业务/资源有限独审接受，随本次文档提交交付main。沿原Work HTTP的Start与原请求Lookup，不新增后端规则或迁移；页面只在当前Human Owner、active Project、Current为空且显式选择已有planned Sprint时提供“启动 Sprint／确认启动 Sprint”。Session冻结原Project、Sprint、正整数字符串version与key；Unknown仅查询原操作，in_progress/not_observed不授权重发。确认回执保留为历史操作事实，页面仍须真实重读Project→同一Sprint→board；若当前指针已变化或重读失败，显示明确状态和只读恢复入口，不再Start。
+
+启动不改变Scheduler启停状态，不自动创建、完成、rollover或删除Sprint，也不启用Scheduler或提升平台ready。公开Project DTO无scheduler_enabled；页面说明“已暂停的调度保持暂停”，真实paused保留已经本轮PG后验验证，不以页面文案代证。切Project/Sprint或身份退出后，原调用仍实际退出，迟到结果不能发布到新页面。
+
+实际入口`^TestSprintStartWeb$`的native01恰两sub56.83s wholePASS：`paused-start-and-current-board`34.67s，`lost-start-confirmation-only-lookup`22.16s。前者经真实公共App启动后重读当前Project/Sprint与看板，后者真实提交后截断回执、保持Unknown且仅查询原操作；本片不以已有TestSprintStartHTTP通过替代浏览器事实。runtime SOURCE `5a8ccdd244d68319972a28834095608db710c0dc`，Go编译SOURCE `20bb7a253aa14fb6f575b0ddad317b57282df487`/candidate02，使用dist02；后继runtime只含JS格式差，Go摘要修复保留原后验门。四原Wait0、两Node实际成功、七ID14次absence、所有private/runtime/desc/TCP双尾闭合、2448输入一致、outer无遗留；SUP另对八个Chrome实际Wait0。正常链恰一次Start、零Lookup，丢回执链恰一次Start、一次cut与一次原Lookup；真实Project/Sprint各version+1、command1、Outbox1，Scheduler原paused配置、零Dispatch/Execution与原Snapshot保持。secret最终业务/资源有限验收接受，原cut失败事件保留，不由Lookup回填原响应。cleanup有限接受本轮五张PNG：1440×960浅色启动确认、390×844深色Unknown与当前看板，以及原Enter、取消回焦、reduced-motion和页面横溢≤1px断言；看板仅首列与邻列入图，不外推七列末端或完整无障碍。
+
+frontend01格式通过，unit为15PASS/1FAIL，唯一page因fixture恢复contextValid后未等Vue解除DOM disabled而未发出Lookup；type另报TS18047，build未启动。两路径窄修仅补显式非null与nextTick/按钮可用/恰一次Lookup断言，frontend02补原失败case、类型和构建全部通过；原15PASS、format10、八项controls按有效输入复用，compile02通过。原frontend01FAIL不回填，compile01是旧输入的通过记录，不是native失败。
+
+执行树为`/workspace/agenteam-skill-install-runtime-source`。原前端记录在`output/ai/sprint-start-web/frontend-{01,02}/`；native01结果为`output/ai/agent-system-integration/sprint-start-web-01-control/result.json`，PG为`/tmp/ssw01/ui-10a2f04e582244ca.log`。原编译及恢复入口为同树`output/ai/agent-system-integration/sprint-start-compile-{01,02}-launcher.py`与对应`result.json`，保留其原candidate路径、bytes/SHA、Go/embed输入和实际Wait。下列为原编译入口；重现须重新分配窗口和独立输出，不直接覆盖已存在结果：
+
+```sh
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 -B output/ai/agent-system-integration/sprint-start-compile-02-launcher.py
+```
+
+继续使用原固定依赖、独立namespace、实际输入闭包、fresh容量及七资源/原Wait双尾门；已有FAIL目录不覆盖，两个候选raw当前均保留、没有新压缩或退休；复用须按对应原编译记录核定。资源仅回收原授权25个可再生cache对象417,730,560 B，`sprint-start-cache-recovery-01/result.json`保留前置失败与零删除事实，02记录实际成功；未删除源码、日志、FAIL或候选。正式可见范围见[D11 Sprint启动切片](../../docs/development/work-items/d11-work-owner-planning-ui.md#15-已有planned-sprint的显式启动)。
