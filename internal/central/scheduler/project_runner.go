@@ -376,10 +376,10 @@ func (s *ProjectRunner) visitTask(ctx context.Context, entry projectTaskEntry, s
 	if entry.state == "" || sprint == nil || current.Project.CurrentSprintID == nil || *current.Project.CurrentSprintID != *sprint || facts == nil || facts.SprintID != *sprint || facts.State != entry.state {
 		return out, false, nil
 	}
-	if facts.State == wc.TaskStateInProgress && s.options.Relaunch != nil && facts.AssigneeAgentID != nil && !facts.HasUnresolvedBlockers {
+	if (facts.State == wc.TaskStateInProgress || facts.State == wc.TaskStateInReview) && s.options.Relaunch != nil && facts.AssigneeAgentID != nil && !facts.HasUnresolvedBlockers {
 		return s.visitRelaunchTask(ctx, out, *facts), false, nil
 	}
-	// Review and automatic blocked reconciliation remain explicitly deferred.
+	// Automatic blocked reconciliation remains explicitly deferred.
 	if facts.State != wc.TaskStateTodo || facts.AssigneeAgentID == nil || facts.HasUnresolvedBlockers {
 		return out, false, nil
 	}

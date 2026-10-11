@@ -92,7 +92,7 @@ func (s *LaunchHandoff) markAttempt(ctx context.Context, call *launchCall, retry
 		} else if r.outcome != NotSent {
 			return ctx.Err()
 		}
-		if !validDispatchOrigin(r) || r.launch.Purpose != "task/work" || !retry && r.attempts != 0 || r.attempts == math.MaxInt64 {
+		if !validDispatchOrigin(r) || !retry && r.attempts != 0 || r.attempts == math.MaxInt64 {
 			return fault(f.CapabilityUnsupported)
 		}
 		if err = requirePendingVisitInTx(ctx, tx, s, r, true); err != nil {

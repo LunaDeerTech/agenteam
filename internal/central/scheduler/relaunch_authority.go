@@ -9,6 +9,20 @@ import (
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
 
+// Only the real relaunch origin may select review. A todo claim remains work.
+func relaunchTaskState(purpose string) (wc.TaskState, bool) {
+	switch purpose {
+	case "task/work":
+		return wc.TaskStateInProgress, true
+	case "task/review":
+		return wc.TaskStateInReview, true
+	default:
+		return "", false
+	}
+}
+
+func isRelaunchPurpose(purpose string) bool { _, ok := relaunchTaskState(purpose); return ok }
+
 func validRelaunchOrigin(r *dispatchRecord) bool {
 	if r == nil || r.guard != nil || r.relaunch == nil || r.relaunch.Validate() != nil {
 		return false
@@ -17,7 +31,7 @@ func validRelaunchOrigin(r *dispatchRecord) bool {
 	return v.ProjectID == r.project && v.TaskID.String() == r.task && v.AgentID == r.agent && v.CurrentSprintID.String() == r.sprint && v.DispatchID == r.id.String() && v.RequestID == r.launch.Meta.RequestID && v.Purpose == r.launch.Purpose
 }
 func validDispatchOrigin(r *dispatchRecord) bool {
-	return r != nil && (r.guard != nil && r.relaunch == nil && r.guard.valid() || validRelaunchOrigin(r))
+	return r != nil && (r.guard != nil && r.relaunch == nil && r.guard.valid() && r.launch.Purpose == "task/work" || validRelaunchOrigin(r))
 }
 func sameRelaunchSource(a, b *wc.TaskRelaunchSource) bool {
 	if a == nil || b == nil {

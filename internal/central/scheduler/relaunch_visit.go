@@ -206,7 +206,7 @@ func (s *RelaunchCoordinator) VisitRelaunch(ctx context.Context, r wc.TaskRelaun
 		if err != nil {
 			return err
 		}
-		latest, err = loadRelaunchLatest(ctx, x, r.ProjectID, r.TaskID, runtime)
+		latest, err = loadRelaunchLatest(ctx, x, r.ProjectID, r.TaskID, runtime, r.Purpose)
 		return err
 	})
 	if err = commitError(result); err != nil {
@@ -257,7 +257,8 @@ func (s *RelaunchCoordinator) VisitRelaunch(ctx context.Context, r wc.TaskRelaun
 		if err != nil {
 			return portError(err)
 		}
-		if current.ProjectID != r.ProjectID || current.TaskID != r.TaskID || current.SprintID != r.CurrentSprintID || current.Version != r.ExpectedTaskVersion || current.MilestoneID.Validate() != nil || current.Priority.Validate() != nil || current.State != wc.TaskStateInProgress || current.AssigneeAgentID == nil || *current.AssigneeAgentID != r.AgentID || current.HasUnresolvedBlockers {
+		expectedState, supported := relaunchTaskState(r.Purpose)
+		if !supported || current.ProjectID != r.ProjectID || current.TaskID != r.TaskID || current.SprintID != r.CurrentSprintID || current.Version != r.ExpectedTaskVersion || current.MilestoneID.Validate() != nil || current.Priority.Validate() != nil || current.State != expectedState || current.AssigneeAgentID == nil || *current.AssigneeAgentID != r.AgentID || current.HasUnresolvedBlockers {
 			return fault(f.ConfirmationStale)
 		}
 		var pending bool
@@ -289,7 +290,7 @@ func (s *RelaunchCoordinator) VisitRelaunch(ctx context.Context, r wc.TaskRelaun
 		if !sameRelaunchRuntime(runtime, actual) {
 			return fault(f.ConfirmationStale)
 		}
-		latestNow, err := loadRelaunchLatest(ctx, x, r.ProjectID, r.TaskID, actual)
+		latestNow, err := loadRelaunchLatest(ctx, x, r.ProjectID, r.TaskID, actual, r.Purpose)
 		if err != nil {
 			return err
 		}
@@ -305,7 +306,7 @@ func (s *RelaunchCoordinator) VisitRelaunch(ctx context.Context, r wc.TaskRelaun
 				return fault(f.ConfirmationStale)
 			}
 			remaining := s.skipCount
-			if actual != nil && actual.cooldownExecution != nil {
+			if actual != nil && actual.cooldownExecution != nil && actual.cooldownPurpose == r.Purpose && *actual.cooldownExecution == *latestNow.execution {
 				remaining = actual.remaining
 			}
 			if remaining > 0 {
@@ -315,6 +316,7 @@ func (s *RelaunchCoordinator) VisitRelaunch(ctx context.Context, r wc.TaskRelaun
 				}
 				id := *latestNow.execution
 				next.cooldownExecution = &id
+				next.cooldownPurpose = r.Purpose
 				next.remaining = remaining - 1
 				var previous f.Version
 				if actual != nil {
@@ -411,7 +413,7 @@ func sameRelaunchRuntime(a, b *relaunchRuntime) bool {
 	if a == nil || b == nil {
 		return a == nil && b == nil
 	}
-	return a.project == b.project && a.task == b.task && a.latestDispatch == b.latestDispatch && a.latestExecution == b.latestExecution && a.remaining == b.remaining && a.version == b.version && a.updatedAt == b.updatedAt && ((a.cooldownExecution == nil && b.cooldownExecution == nil) || (a.cooldownExecution != nil && b.cooldownExecution != nil && *a.cooldownExecution == *b.cooldownExecution))
+	return a.project == b.project && a.task == b.task && a.latestDispatch == b.latestDispatch && a.latestExecution == b.latestExecution && a.latestReviewDispatch == b.latestReviewDispatch && a.latestReviewExecution == b.latestReviewExecution && a.cooldownPurpose == b.cooldownPurpose && a.remaining == b.remaining && a.version == b.version && a.updatedAt == b.updatedAt && ((a.cooldownExecution == nil && b.cooldownExecution == nil) || (a.cooldownExecution != nil && b.cooldownExecution != nil && *a.cooldownExecution == *b.cooldownExecution))
 }
 
 // ResolveRelaunch only observes the original immutable visit. Absence, changed

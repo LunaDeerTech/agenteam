@@ -20,19 +20,26 @@ import (
 )
 
 type relaunchRuntime struct {
-	project           i.ProjectID
-	task              wc.TaskID
-	latestDispatch    DispatchID
-	latestExecution   i.ExecutionID
-	cooldownExecution *i.ExecutionID
-	remaining         int64
-	version           f.Version
-	updatedAt         f.Instant
+	project               i.ProjectID
+	task                  wc.TaskID
+	latestDispatch        DispatchID
+	latestExecution       i.ExecutionID
+	latestReviewDispatch  DispatchID
+	latestReviewExecution i.ExecutionID
+	cooldownPurpose       string
+	cooldownExecution     *i.ExecutionID
+	remaining             int64
+	version               f.Version
+	updatedAt             f.Instant
 }
 
-const relaunchRuntimeSQL = `SELECT latest_dispatch_id::text,latest_execution_id::text,cooldown_execution_id::text,cooldown_purpose,relaunch_skip_remaining,version,updated_at FROM agenteam_scheduler.task_runtimes WHERE project_id=$1 AND task_id=$2`
+const relaunchRuntimeSQL = `SELECT latest_dispatch_id::text,latest_execution_id::text,cooldown_execution_id::text,cooldown_purpose,relaunch_skip_remaining,version,updated_at,latest_review_dispatch_id::text,latest_review_execution_id::text FROM agenteam_scheduler.task_runtimes WHERE project_id=$1 AND task_id=$2`
 const relaunchVisitSQL = `SELECT request,request_digest,outcome,remaining,created_at FROM agenteam_scheduler.relaunch_visits WHERE project_id=$1 AND task_id=$2 AND id=$3`
 const relaunchHistorySQL = `SELECT ` + dispatchColumns + ` FROM agenteam_scheduler.dispatches WHERE project_id=$1 AND task_id=$2 AND status='launched' AND convert_from(launch_request,'UTF8')::jsonb->>'purpose'='task/work' ORDER BY id COLLATE "C"`
+
+// No review association existed before the review writer. Missing a phase head
+// must still reject unexpected history rather than infer absence or order.
+const relaunchReviewHistorySQL = `SELECT EXISTS(SELECT 1 FROM agenteam_scheduler.dispatches WHERE project_id=$1 AND task_id=$2 AND status='launched' AND convert_from(launch_request,'UTF8')::jsonb->>'purpose'='task/review')`
 
 type relaunchIntent struct {
 	Request wc.TaskRelaunchRequest `json:"request"`
@@ -134,12 +141,51 @@ func relaunchReceiptResult(ctx context.Context, x postgres.SQLExecutor, call *re
 	}
 	return v, ctx.Err()
 }
+
+// latest selects only the requested phase. The original pair keeps work
+// semantics; a review-only row never invents a work predecessor.
+func (r *relaunchRuntime) latest(purpose string) (DispatchID, i.ExecutionID) {
+	if r == nil {
+		return DispatchID{}, i.ExecutionID{}
+	}
+	switch purpose {
+	case "task/work":
+		return r.latestDispatch, r.latestExecution
+	case "task/review":
+		return r.latestReviewDispatch, r.latestReviewExecution
+	default:
+		return DispatchID{}, i.ExecutionID{}
+	}
+}
+func (r *relaunchRuntime) valid() bool {
+	if r == nil || r.project.Validate() != nil || r.task.Validate() != nil || r.version.Validate() != nil || r.updatedAt.Validate() != nil || r.updatedAt.Time().Nanosecond()%1000 != 0 || r.remaining < 0 {
+		return false
+	}
+	anyPair := false
+	for _, purpose := range []string{"task/work", "task/review"} {
+		d, e := r.latest(purpose)
+		if d == (DispatchID{}) && e == (i.ExecutionID{}) {
+			continue
+		}
+		if d.Validate() != nil || e.Validate() != nil {
+			return false
+		}
+		anyPair = true
+	}
+	if !anyPair {
+		return false
+	}
+	if r.cooldownExecution == nil {
+		return r.cooldownPurpose == "" && r.remaining == 0
+	}
+	_, e := r.latest(r.cooldownPurpose)
+	return e.Validate() == nil && r.cooldownExecution.Validate() == nil && e == *r.cooldownExecution
+}
 func loadRelaunchRuntime(ctx context.Context, x postgres.SQLExecutor, p i.ProjectID, t wc.TaskID) (*relaunchRuntime, error) {
-	var d, e string
-	var cooldown, purpose *string
+	var d, e, reviewD, reviewE, cooldown, purpose *string
 	var remaining, version int64
 	var at time.Time
-	err := x.QueryRow(ctx, relaunchRuntimeSQL, p.String(), t.String()).Scan(&d, &e, &cooldown, &purpose, &remaining, &version, &at)
+	err := x.QueryRow(ctx, relaunchRuntimeSQL, p.String(), t.String()).Scan(&d, &e, &cooldown, &purpose, &remaining, &version, &at, &reviewD, &reviewE)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -147,43 +193,67 @@ func loadRelaunchRuntime(ctx context.Context, x postgres.SQLExecutor, p i.Projec
 		return nil, portError(err)
 	}
 	r := &relaunchRuntime{project: p, task: t, remaining: remaining, version: f.Version(version)}
-	r.latestDispatch, err = f.ParseID[DispatchIdentity](d)
-	if err != nil {
-		return nil, unavailable(nil)
-	}
-	r.latestExecution, err = f.ParseID[i.Execution](e)
-	if err != nil {
-		return nil, unavailable(nil)
-	}
-	r.updatedAt, err = f.NewInstant(at)
-	if err != nil || at.Nanosecond()%1000 != 0 || remaining < 0 || r.version.Validate() != nil {
-		return nil, unavailable(nil)
-	}
-	if cooldown == nil {
-		if purpose != nil || remaining != 0 {
-			return nil, unavailable(nil)
+	parsePair := func(d, e *string) (DispatchID, i.ExecutionID, error) {
+		if d == nil && e == nil {
+			return DispatchID{}, i.ExecutionID{}, nil
 		}
-	} else {
-		id, err := f.ParseID[i.Execution](*cooldown)
-		if err != nil || id != r.latestExecution || purpose == nil || *purpose != "task/work" {
+		if d == nil || e == nil {
+			return DispatchID{}, i.ExecutionID{}, unavailable(nil)
+		}
+		id, err := f.ParseID[DispatchIdentity](*d)
+		if err != nil {
+			return DispatchID{}, i.ExecutionID{}, unavailable(nil)
+		}
+		execution, err := f.ParseID[i.Execution](*e)
+		if err != nil {
+			return DispatchID{}, i.ExecutionID{}, unavailable(nil)
+		}
+		return id, execution, nil
+	}
+	if r.latestDispatch, r.latestExecution, err = parsePair(d, e); err != nil {
+		return nil, err
+	}
+	if r.latestReviewDispatch, r.latestReviewExecution, err = parsePair(reviewD, reviewE); err != nil {
+		return nil, err
+	}
+	if r.updatedAt, err = f.NewInstant(at); err != nil {
+		return nil, unavailable(nil)
+	}
+	if cooldown != nil {
+		id, e := f.ParseID[i.Execution](*cooldown)
+		if e != nil {
 			return nil, unavailable(nil)
 		}
 		r.cooldownExecution = &id
 	}
+	if purpose != nil {
+		r.cooldownPurpose = *purpose
+	}
+	if (cooldown == nil) != (purpose == nil) || purpose != nil && *purpose == "" || !r.valid() {
+		return nil, unavailable(nil)
+	}
 	return r, ctx.Err()
 }
 func writeRelaunchRuntime(ctx context.Context, x postgres.SQLExecutor, r *relaunchRuntime, previous f.Version) error {
-	var cooldown, purpose any
+	if !r.valid() {
+		return unavailable(nil)
+	}
+	var d, e, reviewD, reviewE, cooldown, purpose any
+	if r.latestDispatch.Validate() == nil {
+		d, e = r.latestDispatch.String(), r.latestExecution.String()
+	}
+	if r.latestReviewDispatch.Validate() == nil {
+		reviewD, reviewE = r.latestReviewDispatch.String(), r.latestReviewExecution.String()
+	}
 	if r.cooldownExecution != nil {
-		cooldown = r.cooldownExecution.String()
-		purpose = "task/work"
+		cooldown, purpose = r.cooldownExecution.String(), r.cooldownPurpose
 	}
 	var tag pgconn.CommandTag
 	var err error
 	if previous == 0 {
-		tag, err = x.Exec(ctx, `INSERT INTO agenteam_scheduler.task_runtimes(project_id,task_id,latest_dispatch_id,latest_execution_id,cooldown_execution_id,cooldown_purpose,relaunch_skip_remaining,version,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,1,$8)`, r.project.String(), r.task.String(), r.latestDispatch.String(), r.latestExecution.String(), cooldown, purpose, r.remaining, r.updatedAt.Time())
+		tag, err = x.Exec(ctx, `INSERT INTO agenteam_scheduler.task_runtimes(project_id,task_id,latest_dispatch_id,latest_execution_id,cooldown_execution_id,cooldown_purpose,relaunch_skip_remaining,version,updated_at,latest_review_dispatch_id,latest_review_execution_id) VALUES($1,$2,$3,$4,$5,$6,$7,1,$8,$9,$10)`, r.project.String(), r.task.String(), d, e, cooldown, purpose, r.remaining, r.updatedAt.Time(), reviewD, reviewE)
 	} else {
-		tag, err = x.Exec(ctx, `UPDATE agenteam_scheduler.task_runtimes SET latest_dispatch_id=$3,latest_execution_id=$4,cooldown_execution_id=$5,cooldown_purpose=$6,relaunch_skip_remaining=$7,version=$8,updated_at=$9 WHERE project_id=$1 AND task_id=$2 AND version=$10`, r.project.String(), r.task.String(), r.latestDispatch.String(), r.latestExecution.String(), cooldown, purpose, r.remaining, int64(r.version), r.updatedAt.Time(), int64(previous))
+		tag, err = x.Exec(ctx, `UPDATE agenteam_scheduler.task_runtimes SET latest_dispatch_id=$3,latest_execution_id=$4,cooldown_execution_id=$5,cooldown_purpose=$6,relaunch_skip_remaining=$7,version=$8,updated_at=$9,latest_review_dispatch_id=$11,latest_review_execution_id=$12 WHERE project_id=$1 AND task_id=$2 AND version=$10`, r.project.String(), r.task.String(), d, e, cooldown, purpose, r.remaining, int64(r.version), r.updatedAt.Time(), int64(previous), reviewD, reviewE)
 	}
 	if err != nil {
 		return portError(err)
@@ -194,11 +264,11 @@ func writeRelaunchRuntime(ctx context.Context, x postgres.SQLExecutor, r *relaun
 	return ctx.Err()
 }
 func nextRelaunchRuntime(old *relaunchRuntime, p i.ProjectID, t wc.TaskID, latest *dispatchRecord) (*relaunchRuntime, error) {
-	if !validAssociatedDispatch(latest, p) || latest.task != t.String() || latest.launch.Purpose != "task/work" {
+	if !validAssociatedDispatch(latest, p) || latest.task != t.String() || !isRelaunchPurpose(latest.launch.Purpose) {
 		return nil, unavailable(nil)
 	}
 	now := time.Now().UTC().Truncate(time.Microsecond)
-	r := &relaunchRuntime{project: p, task: t, latestDispatch: latest.id, latestExecution: *latest.execution, version: 1}
+	r := &relaunchRuntime{project: p, task: t, version: 1}
 	if old != nil {
 		if old.version == f.Version(math.MaxInt64) {
 			return nil, fault(f.InvalidState)
@@ -209,6 +279,11 @@ func nextRelaunchRuntime(old *relaunchRuntime, p i.ProjectID, t wc.TaskID, lates
 			now = old.updatedAt.Time().Add(time.Microsecond)
 		}
 	}
+	if latest.launch.Purpose == "task/work" {
+		r.latestDispatch, r.latestExecution = latest.id, *latest.execution
+	} else {
+		r.latestReviewDispatch, r.latestReviewExecution = latest.id, *latest.execution
+	}
 	var err error
 	r.updatedAt, err = f.NewInstant(now)
 	return r, err
@@ -217,7 +292,7 @@ func nextRelaunchRuntime(old *relaunchRuntime, p i.ProjectID, t wc.TaskID, lates
 // This write belongs only to a new reliable pending->launched association.
 // Historical launched replay never calls it, so it cannot move the head back.
 func recordRelaunchAssociation(ctx context.Context, x postgres.SQLExecutor, r *dispatchRecord) error {
-	if r.launch.Purpose != "task/work" {
+	if !isRelaunchPurpose(r.launch.Purpose) {
 		return nil
 	}
 	t, err := f.ParseID[wc.Task](r.task)
@@ -232,7 +307,7 @@ func recordRelaunchAssociation(ctx context.Context, x postgres.SQLExecutor, r *d
 	if err != nil {
 		return err
 	}
-	v.latestDispatch, v.latestExecution, v.cooldownExecution, v.remaining = r.id, *r.execution, nil, 0
+	v.cooldownExecution, v.cooldownPurpose, v.remaining = nil, "", 0
 	var previous f.Version
 	if old != nil {
 		previous = old.version
@@ -240,16 +315,30 @@ func recordRelaunchAssociation(ctx context.Context, x postgres.SQLExecutor, r *d
 	return writeRelaunchRuntime(ctx, x, v, previous)
 }
 
-func loadRelaunchLatest(ctx context.Context, x postgres.SQLExecutor, p i.ProjectID, t wc.TaskID, runtime *relaunchRuntime) (*dispatchRecord, error) {
-	if runtime != nil {
-		r, err := loadDispatch(ctx, x, p, runtime.latestDispatch)
+func loadRelaunchLatest(ctx context.Context, x postgres.SQLExecutor, p i.ProjectID, t wc.TaskID, runtime *relaunchRuntime, purpose string) (*dispatchRecord, error) {
+	if !isRelaunchPurpose(purpose) {
+		return nil, invalid()
+	}
+	d, e := runtime.latest(purpose)
+	if d.Validate() == nil {
+		r, err := loadDispatch(ctx, x, p, d)
 		if err != nil {
 			return nil, err
 		}
-		if !validAssociatedDispatch(r, p) || r.task != t.String() || r.launch.Purpose != "task/work" || *r.execution != runtime.latestExecution {
+		if !validAssociatedDispatch(r, p) || r.task != t.String() || r.launch.Purpose != purpose || *r.execution != e {
 			return nil, unavailable(nil)
 		}
 		return r, nil
+	}
+	if purpose == "task/review" {
+		var found bool
+		if err := x.QueryRow(ctx, relaunchReviewHistorySQL, p.String(), t.String()).Scan(&found); err != nil {
+			return nil, portError(err)
+		}
+		if found {
+			return nil, fault(f.DependencyUnbound)
+		}
+		return nil, ctx.Err()
 	}
 	rows, err := x.Query(ctx, relaunchHistorySQL, p.String(), t.String())
 	if err != nil {

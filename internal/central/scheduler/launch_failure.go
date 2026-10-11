@@ -379,7 +379,6 @@ func finalFailureMarker(r *dispatchRecord) bool {
 		!r.failureOccurredAt.Time().Before(r.createdAt.Time()) && !r.failureOccurredAt.Time().After(r.updatedAt.Time()) &&
 		r.outcome == KnownNotCreated && validDispatchOrigin(r) && r.execution == nil && r.nextRetry == nil &&
 		r.busyAttempt == 0 && r.skipReason == "" && r.skippedAt == nil &&
-		r.launch.Purpose == "task/work" &&
 		r.launch.Lineage.RetryOf == nil && r.launch.Lineage.RegenerateOf == nil && r.launch.Lineage.ContributionGeneration == nil && r.launch.Lineage.ContributionAttempt == nil
 }
 func pendingFinalFailure(r *dispatchRecord) bool {
