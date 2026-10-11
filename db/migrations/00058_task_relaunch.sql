@@ -23,7 +23,7 @@ CREATE TABLE agenteam_work.task_scheduler_relaunches (
   AND record ?& ARRAY['request','task','sprint','milestone','created_at']
   AND record-ARRAY['request','task','sprint','milestone','created_at']='{}'::jsonb
   AND record->'request'=jsonb_build_object('ProjectID',project_id::text,'TaskID',task_id::text,'AgentID',agent_id::text,
-   'CurrentSprintID',sprint_id::text,'ExpectedTaskVersion',task_version,'DispatchID',id::text,'RequestID',request_id::text,'Purpose',purpose)
+   'CurrentSprintID',sprint_id::text,'ExpectedTaskVersion',task_version::text,'DispatchID',id::text,'RequestID',request_id::text,'Purpose',purpose)
   AND record->'task'->>'id'=task_id::text AND record->'task'->>'project_id'=project_id::text
   AND record->'task'->>'version'=task_version::text AND record->'task'->>'state'='in_progress'
   AND record->'task'->>'assignee_agent_id'=agent_id::text AND record->'task'->>'sprint_id'=sprint_id::text
@@ -121,7 +121,7 @@ ALTER TABLE agenteam_scheduler.dispatches ADD CONSTRAINT dispatch_relaunch_shape
   AND convert_from(relaunch_source,'UTF8')::jsonb->'Request'=jsonb_build_object(
    'ProjectID',project_id::text,'TaskID',task_id::text,'AgentID',agent_id::text,'CurrentSprintID',sprint_id::text,
    'DispatchID',id::text,'RequestID',request_id::text,'Purpose','task/work',
-   'ExpectedTaskVersion',(convert_from(relaunch_source,'UTF8')::jsonb->'Request'->>'ExpectedTaskVersion')::bigint))
+   'ExpectedTaskVersion',(convert_from(relaunch_source,'UTF8')::jsonb->'Request'->>'ExpectedTaskVersion')::bigint::text))
 ) IS TRUE);
 -- The old permanent/temporary policy proofs are retained verbatim. Only their
 -- required Work parent admits the new explicit relaunch arm.
