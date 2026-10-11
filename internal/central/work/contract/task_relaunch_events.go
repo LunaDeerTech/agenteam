@@ -89,7 +89,8 @@ func (TaskRelaunchFailed) Format(w fmt.State, r rune) { blockerSafeFormat(w, r) 
 func (TaskRelaunchFailed) LogValue() slog.Value       { return blockerSafeLog() }
 
 func (v TaskLaunchFailureEvents) NewTaskRelaunchFailed(h event.Header, p TaskRelaunchFailed) (event.Event, error) {
-	if !v.Valid() || h.Validate() != nil || h.EventType != TaskTransitionedName || h.AggregateType != TaskAggregate || h.SchemaVersion != TaskRelaunchFailureSchemaVersion || h.Scope.Kind != event.ProjectScope || h.Scope.ProjectID != p.Source.Request.ProjectID || h.AggregateID.String() != p.Source.Request.TaskID.String() || h.AggregateVersion == nil || *h.AggregateVersion < 2 || h.AggregateSequence != nil || p.Validate() != nil {
+	project, err := f.ParseID[event.Project](p.Source.Request.ProjectID.String())
+	if err != nil || !v.Valid() || h.Validate() != nil || h.EventType != TaskTransitionedName || h.AggregateType != TaskAggregate || h.SchemaVersion != TaskRelaunchFailureSchemaVersion || h.Scope.Kind != event.ProjectScope || h.Scope.ProjectID != project || h.AggregateID.String() != p.Source.Request.TaskID.String() || h.AggregateVersion == nil || *h.AggregateVersion < 2 || h.AggregateSequence != nil || p.Validate() != nil {
 		return event.Event{}, invalid("", "INVALID_TASK_RELAUNCH_FAILED")
 	}
 	if p.SourcePosition != nil && (p.SourcePosition.ValidateTarget(p.Source.Request.TaskID) != nil || p.TargetPosition.ValidateTarget(p.Source.Request.TaskID) != nil) {
