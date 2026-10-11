@@ -1,0 +1,94 @@
+diff --git a/tests/account-captcha-web/e2e/milestone-edit.spec.ts b/tests/account-captcha-web/e2e/milestone-edit.spec.ts
+index 33b0c059..9b0f1d38 100644
+--- a/tests/account-captcha-web/e2e/milestone-edit.spec.ts
++++ b/tests/account-captcha-web/e2e/milestone-edit.spec.ts
+@@ -1,7 +1,6 @@
+ import { test, expect, type Page } from "@playwright/test";
+ import {
+   observeTaskRequests,
+-  requireCommittedLookup,
+   type TaskObservationProfile,
+ } from "./task-review.helpers";
+ import {
+@@ -13,28 +12,6 @@ import {
+ } from "./milestone-edit.helpers";
+ 
+ test("rejects mixed and incomplete Milestone Edit profiles before browser setup [milestone-edit-profile-controls]", async () => {
+-  expect(() =>
+-    requireCommittedLookup({ state: "committed", result: {} }, true),
+-  ).not.toThrow();
+-  expect(() =>
+-    requireCommittedLookup({ status: "committed", receipt: {} }, true),
+-  ).toThrow();
+-  for (const state of ["in_progress", "not_observed", undefined])
+-    expect(() =>
+-      requireCommittedLookup(
+-        { state, status: "committed", result: null },
+-        true,
+-      ),
+-    ).toThrow();
+-  expect(() =>
+-    requireCommittedLookup({ status: "committed", receipt: {} }),
+-  ).not.toThrow();
+-  expect(() =>
+-    requireCommittedLookup({ state: "committed", result: {} }),
+-  ).toThrow();
+-  expect(() =>
+-    requireCommittedLookup({ status: "in_progress", state: "committed" }),
+-  ).toThrow();
+   const data = {
+     mode: "milestone-edit-normal" as const,
+     cookie: "private-control",
+@@ -124,16 +101,18 @@ async function press(page: Page, name: string) {
+ async function begin(page: Page, data: MilestoneEditMaterial) {
+   await page.setViewportSize({ width: 1440, height: 960 });
+   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+-  await page.context().addCookies([
+-    {
+-      name: "agenteam_local_session",
+-      value: data.cookie,
+-      url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
+-      httpOnly: true,
+-      sameSite: "Lax",
+-      secure: false,
+-    },
+-  ]);
++  await page
++    .context()
++    .addCookies([
++      {
++        name: "agenteam_local_session",
++        value: data.cookie,
++        url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
++        httpOnly: true,
++        sameSite: "Lax",
++        secure: false,
++      },
++    ]);
+   const seen = await observeMilestoneEdit(page, data);
+   return {
+     seen,
+diff --git a/tests/account-captcha-web/e2e/task-review.helpers.ts b/tests/account-captcha-web/e2e/task-review.helpers.ts
+index 4727e0b6..0cc18dff 100644
+--- a/tests/account-captcha-web/e2e/task-review.helpers.ts
++++ b/tests/account-captcha-web/e2e/task-review.helpers.ts
+@@ -1529,10 +1529,6 @@ export function observeReview(page: Page, data: ReviewMaterial) {
+ // classifier and at most its one declared committed-response delivery fault.
+ // Only explicitly opted-in Intake, Edit or Agent fixtures can additionally prove
+ // their closed write sets. Other POST completion rules remain identical.
+-export function requireCommittedLookup(value: Record<string, unknown>, milestoneUpdate = false) {
+-  expect(milestoneUpdate ? value.state : value.status).toBe("committed");
+-}
+-
+ export async function observeTaskRequests(
+   page: Page,
+   data: TaskObservationMaterial,
+@@ -2339,7 +2335,7 @@ export async function observeTaskRequests(
+         expect(source.idempotency_key_sha256).toBe(keyHash);
+       }
+       if (entry.name === "lookup") {
+-        requireCommittedLookup(c.typed, profile.milestoneUpdateWrites === true);
++        expect(c.typed.status).toBe("committed");
+         originalLookup();
+       }
+     }

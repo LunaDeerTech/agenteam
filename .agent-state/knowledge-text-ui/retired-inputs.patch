@@ -1,0 +1,40 @@
+diff --git a/tests/account-captcha-web/e2e/knowledge-text.helpers.ts b/tests/account-captcha-web/e2e/knowledge-text.helpers.ts
+index db6fd38f..a09a8939 100644
+--- a/tests/account-captcha-web/e2e/knowledge-text.helpers.ts
++++ b/tests/account-captcha-web/e2e/knowledge-text.helpers.ts
+@@ -39,11 +39,7 @@ export async function observeKnowledgeText(page:Page,data:KnowledgeTextMaterial)
+   throw Error("UNOBSERVED_KNOWLEDGE_TEXT_ENDPOINT");
+  };
+  const evidence=process.env.AGENTEAM_KNOWLEDGE_TEXT_WEB_EVIDENCE!,inputHash=process.env.AGENTEAM_KNOWLEDGE_TEXT_WEB_INPUT_HASH!;
+- const seen=await observeTaskRequests(page,data,{dist:process.env.AGENTEAM_KNOWLEDGE_TEXT_WEB_DIST!,evidence,inputHash,prefix:"knowledge-text",endpoint:classify,lookupCommand:null,knowledgeTextWrites:true}).catch(error=>{
+-  const code=error instanceof Error && /^[A-Z_]{1,80}$/.test(error.message)?error.message:"OBSERVATION_INSTALL_FAILED";
+-  writeFileSync(join(evidence,"knowledge-text-stage.json"),JSON.stringify({stage:"observation-install",code}),{mode:0o600});
+-  throw error;
+- });
++ const seen=await observeTaskRequests(page,data,{dist:process.env.AGENTEAM_KNOWLEDGE_TEXT_WEB_DIST!,evidence,inputHash,prefix:"knowledge-text",endpoint:classify,lookupCommand:null,knowledgeTextWrites:true});
+  let completed=false,stage="entry";
+  return {...seen,
+   stage(value:string){if(!/^[a-z0-9-]{1,64}$/.test(value))throw Error("INVALID_KNOWLEDGE_STAGE");stage=value;},
+diff --git a/tests/account-captcha-web/e2e/knowledge-text.spec.ts b/tests/account-captcha-web/e2e/knowledge-text.spec.ts
+index b62b1b3b..5bb1113f 100644
+--- a/tests/account-captcha-web/e2e/knowledge-text.spec.ts
++++ b/tests/account-captcha-web/e2e/knowledge-text.spec.ts
+@@ -26,17 +26,7 @@ test("creates and replaces plain root and Markdown child text [create-and-replac
+   seen.stage(index===0?"plain-edit-save":"markdown-edit-save");await press(page,"保存文本");await expect(edit.getByText("保存已确认；已读取当前文档、正文与目录。",{exact:true})).toBeVisible();
+   seen.stage(index===0?"plain-edit-proof":"markdown-edit-proof");await seen.verify();seen.current(index,2);await press(page,"关闭编辑器");await expect(edit).toHaveCount(0);await expect(page.locator(".ui-overlay")).toHaveCount(0);
+   await expect.poll(()=>page.locator("pre.canonical-text").textContent()).toBe(index===0?data.plain_updated:data.markdown_updated);
+-  if(index===1){
+-   seen.stage("narrow-document-drawer");await press(page,"文档树");
+-   const drawer=page.getByRole("dialog",{name:"文档树",exact:true});await expect(drawer).toBeVisible();
+-   const selected=drawer.getByRole("tree",{name:"知识库文档"}).locator(`[data-tree-id="${seen.target(index)}"]`);
+-   await expect(selected).toBeVisible();await expect(selected).toHaveAttribute("aria-selected","true");
+-   await selected.focus();await expect(selected).toBeFocused();await page.keyboard.press("Escape");
+-   await expect(drawer).toHaveCount(0);await expect(page.getByRole("button",{name:"文档树",exact:true})).toBeFocused();
+-  }else{
+-   const selected=page.getByRole("tree",{name:"知识库文档"}).locator(`[data-tree-id="${seen.target(index)}"]`);
+-   await expect(selected).toBeVisible();await expect(selected).toHaveAttribute("aria-selected","true");
+-  }
++  await expect(page.getByRole("tree",{name:"知识库文档"}).locator(`[data-tree-id="${seen.target(index)}"]`)).toBeVisible();
+   if(index===0){await expect(page.locator("html")).toHaveAttribute("data-theme","light");await knowledgeTextScreenshot(page,"1440-light-plain");await page.setViewportSize({width:390,height:844});await page.emulateMedia({colorScheme:"dark",reducedMotion:"reduce"});}
+  }
+  await expect(page.locator("html")).toHaveAttribute("data-theme","dark");expect(await page.evaluate(()=>matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
