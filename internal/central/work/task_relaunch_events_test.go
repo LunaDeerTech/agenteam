@@ -8,7 +8,6 @@ import (
 
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
-	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	c "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
 
@@ -178,7 +177,7 @@ func TestTaskRelaunchFailureSchemaDoesNotRewriteClaimHistory(t *testing.T) {
 		}
 	}
 	wrongProject := header
-	wrongProject.Scope.ProjectID = pureID[i.Project](t, 141)
+	wrongProject.Scope.ProjectID = pureID[event.Project](t, 141)
 	if _, err = factory.NewTaskRelaunchFailed(wrongProject, payload); err == nil {
 		t.Fatal("event crossed Project scope")
 	}
