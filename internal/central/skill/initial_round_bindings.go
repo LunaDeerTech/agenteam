@@ -113,16 +113,16 @@ func loadInitialRoundCapture(ctx context.Context, x postgres.SQLExecutor, r sc.I
 	if project != r.Initial.Request.ProjectID.String() || agent != r.Initial.Request.AgentID.String() || sequence != int64(r.Initial.AssignmentSequence) || attempt != string(r.CaptureAttemptBinding) || count != int64(len(r.Initial.Bindings)) {
 		return empty, fault(f.ConfirmationStale)
 	}
-	if len(raw) == 0 || len(raw) > 256<<10 || count < 0 || count > 1 {
+	if len(raw) == 0 || len(raw) > 256<<10 || count < 0 {
 		return empty, unavailable(nil)
 	}
 	var record skillCaptureRecord
 	d := json.NewDecoder(bytes.NewReader(raw))
 	d.DisallowUnknownFields()
-	if d.Decode(&record) != nil || d.Decode(new(any)) != io.EOF || record.Format != 1 ||
+	if d.Decode(&record) != nil || d.Decode(new(any)) != io.EOF || record.Format != record.Source.format() ||
 		record.Attempt != r.CaptureAttemptBinding || record.SourceDigest != f.Digest(source) ||
 		record.SourceDigest.Validate() != nil || record.Source.InitialSkillID.Validate() != nil ||
-		record.Source.Result.Validate() != nil || !sameInitialRoundRequest(r, sc.InitialRoundBindingsRequest{Initial: record.Source.Result, CaptureAttemptBinding: record.Attempt}) {
+		record.Source.validate() != nil || !sameInitialRoundRequest(r, sc.InitialRoundBindingsRequest{Initial: record.Source.Result, CaptureAttemptBinding: record.Attempt}) {
 		return empty, unavailable(nil)
 	}
 	digest, _, err := captureDigest(record.Source)
@@ -136,19 +136,12 @@ func loadInitialRoundCapture(ctx context.Context, x postgres.SQLExecutor, r sc.I
 }
 
 func validateInitialRoundCapture(ctx context.Context, x postgres.SQLExecutor, r sc.InitialRoundBindingsRequest, record skillCaptureRecord) error {
-	current, err := loadSkillCaptureSource(ctx, x, r.Initial.Request, record.Source.InitialSkillID)
+	err := verifyHistoricalCaptureSource(ctx, x, record.Source)
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
 	if err != nil {
 		return captureError(err)
-	}
-	digest, _, err := captureDigest(current)
-	if err != nil {
-		return err
-	}
-	if digest != record.SourceDigest {
-		return fault(f.ConfirmationStale)
 	}
 	// Reuse the capture writer's complete canonical/row-count/assignment/
 	// revision/Object verification without calling its INSERT path or issuer.
@@ -164,6 +157,108 @@ func validateInitialRoundCapture(ctx context.Context, x postgres.SQLExecutor, r 
 		return fault(f.ConfirmationStale)
 	}
 	return nil
+}
+
+// Historical input is anchored to the immutable initialization/change and
+// exact revision rows. Neither assignment_current nor skills.revision_id is
+// consulted: later configuration cannot replace a captured Round catalogue.
+func verifyHistoricalCaptureSource(ctx context.Context, x postgres.SQLExecutor, s skillCaptureSource) error {
+	if err := s.validate(); err != nil {
+		return err
+	}
+	r := s.Result.Request
+	head, err := loadAgentInitialization(ctx, x, r.ProjectID, r.AgentID)
+	if err != nil {
+		return err
+	}
+	if head == nil || head.command != s.CreationCommand || head.planRevision != s.PlanRevision || head.binding != s.RequestBinding || head.enabled != s.AddSkillsEnabled || head.skill != s.InitialSkillID || head.revision != s.ObservedRevision || head.created != s.HeadCreatedAt {
+		return fault(f.ConfirmationStale)
+	}
+	if s.Assignments == nil && head.enabled && (head.assignment == nil || *head.assignment != s.Result.Bindings[0].AssignmentID) {
+		return fault(f.ConfirmationStale)
+	}
+	publication, err := loadInitialization(ctx, x, r.ProjectID)
+	if err != nil {
+		return err
+	}
+	if publication == nil || publication.phase != initializationPublished || publication.request.CreationID != s.CreationID || publication.request.InitializationKey != s.InitializationKey || publication.version != s.InitializationVersion || publication.semantic != s.InitializationDigest || publication.skill != s.InitialSkillID || publication.revision != s.RevisionID || publication.bundle.revision != s.ObservedRevision || publication.object != s.ObjectID || publication.bundle.packageDigest != s.PackageDigest || publication.bundle.manifestDigest != s.ManifestDigest {
+		return fault(f.ConfirmationStale)
+	}
+	meta := s.Metadata
+	if meta.ID != s.InitialSkillID || meta.ProjectID != r.ProjectID || !meta.Protected || meta.Name != publication.bundle.name || meta.NormalizedName != AddSkillsNormalizedName || meta.Description != publication.bundle.description || meta.CurrentRevision != s.ObservedRevision {
+		return unavailable(nil)
+	}
+	builtin := assignmentRevision{ID: s.RevisionID, SkillID: s.InitialSkillID, ProjectID: r.ProjectID, Revision: s.ObservedRevision, Name: meta.Name, Description: meta.Description, EntryPath: sc.EntryPath, ObjectID: s.ObjectID, ObjectVersion: s.ObjectVersion, ObjectCreatedAt: s.ObjectCreatedAt, PublishedAt: s.PublishedAt, PackageSHA256: s.PackageDigest, ManifestDigest: s.ManifestDigest}
+	if err = verifyCapturedRevision(ctx, x, builtin, s.InitialSkillID, s.CreationID.String()); err != nil {
+		return err
+	}
+	if s.Assignments == nil {
+		return ctx.Err()
+	}
+	state := s.Assignments.State
+	var raw []byte
+	var digest string
+	err = x.QueryRow(ctx, `SELECT state_data,state_digest FROM agenteam_skill.assignment_changes WHERE project_id=$1 AND agent_id=$2 AND assignment_sequence=$3`, state.Project.String(), state.Agent.String(), int64(state.Sequence)).Scan(&raw, &digest)
+	if err != nil {
+		return captureError(err)
+	}
+	var stored assignmentSet
+	if assignmentDecode(raw, &stored, 1<<20) != nil || !sameCaptureAssignments(stored, state) {
+		return unavailable(nil)
+	}
+	want, _, err := captureDigest(state)
+	if err != nil || string(want) != digest {
+		return unavailable(err)
+	}
+	// Removed rows remain immutable history. Do not require removed_at NULL.
+	for _, a := range state.Items {
+		var matching int64
+		err = x.QueryRow(ctx, `SELECT count(*) FROM agenteam_skill.agent_assignments WHERE project_id=$1 AND agent_id=$2 AND id=$3 AND skill_id=$4 AND enabled=$5 AND assignment_sequence=$6 AND created_at=$7`, a.ProjectID.String(), a.AgentID.String(), a.ID.String(), a.SkillID.String(), a.Enabled, int64(a.Sequence), a.CreatedAt.Time()).Scan(&matching)
+		if err != nil {
+			return captureError(err)
+		}
+		if matching != 1 {
+			return unavailable(nil)
+		}
+	}
+	for _, revision := range s.Assignments.Revisions {
+		if revision.SkillID == s.InitialSkillID {
+			if revision != builtin {
+				return unavailable(nil)
+			}
+			continue
+		}
+		if err = verifyCapturedRevision(ctx, x, revision, s.InitialSkillID, s.CreationID.String()); err != nil {
+			return err
+		}
+	}
+	return ctx.Err()
+}
+
+func verifyCapturedRevision(ctx context.Context, x postgres.SQLExecutor, r assignmentRevision, initial sc.SkillID, creation string) error {
+	if r.validate() != nil {
+		return unavailable(nil)
+	}
+	installation, attempt, upload := "", "", ""
+	if r.SkillID != initial {
+		origin, err := loadInstallationRevision(ctx, x, r.ProjectID, r.ID)
+		if err != nil {
+			return err
+		}
+		if origin == nil || origin.phase != installationPublished || origin.skill != r.SkillID || origin.object != r.ObjectID || r.Revision != 1 || origin.pkg.name != r.Name || origin.pkg.description != r.Description || origin.pkg.packageDigest != r.PackageSHA256 || origin.pkg.manifestDigest != r.ManifestDigest {
+			return unavailable(nil)
+		}
+		installation, attempt, upload = origin.id.String(), origin.attempt.String(), origin.upload.String()
+	}
+	var matching int64
+	err := x.QueryRow(ctx, `SELECT count(*) FROM agenteam_skill.revisions r JOIN agenteam_skill.skills s ON s.project_id=r.project_id AND s.id=r.skill_id WHERE r.project_id=$1 AND r.skill_id=$2 AND r.id=$3 AND r.revision=$4 AND r.object_id=$5 AND r.object_version=$6 AND r.object_created_at=$7 AND r.published_at=$8 AND s.serving AND COALESCE(r.installation_id::text,'')=$9 AND (($9='' AND s.protected AND s.creation_id::text=$10 AND s.installation_id IS NULL) OR ($9<>'' AND NOT s.protected AND s.creation_id IS NULL AND s.installation_id::text=$9 AND EXISTS(SELECT 1 FROM agenteam_skill.installation_attempts a WHERE a.project_id=r.project_id AND a.installation_id=r.installation_id AND a.skill_id=r.skill_id AND a.revision_id=r.id AND a.object_id=r.object_id AND a.attempt_id::text=$11 AND a.upload_id::text=$12)))`, r.ProjectID.String(), r.SkillID.String(), r.ID.String(), int64(r.Revision), r.ObjectID.String(), int64(r.ObjectVersion), r.ObjectCreatedAt.Time(), r.PublishedAt.Time(), installation, creation, attempt, upload).Scan(&matching)
+	if err != nil {
+		return captureError(err)
+	}
+	if matching != 1 {
+		return unavailable(nil)
+	}
+	return ctx.Err()
 }
 
 func (p *InitialRoundBindings) DiscoverInitialRoundBindings(ctx context.Context, r sc.InitialRoundBindingsRequest) (sc.InitialRoundBindingsPlan, error) {
@@ -217,7 +312,7 @@ func (p *InitialRoundBindings) DiscoverInitialRoundBindings(ctx context.Context,
 			return nil, err
 		}
 		if pass == 0 {
-			locks, err = captureLocks(r.Initial.Request, &record.Source.InitialSkillID)
+			locks, err = captureSetLocks(r.Initial.Request, assignmentSkills(record.Source.assignmentSet(), record.Source.InitialSkillID))
 			if err != nil {
 				return nil, captureError(err)
 			}
