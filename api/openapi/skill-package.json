@@ -1,0 +1,261 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Current Human Owner immutable Skill package read",
+    "version": "1.0.0",
+    "description": "Bounded complete skill-zip-v1 representation via the existing OpenPackage authority. Does not enable production Project initialization, Agent execution, package mutation or global Object Runtime join."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/skills/{skill_id}/revisions/{revision}/package": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "skill_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "revision",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/Revision"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "skillOwnerPackageGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "description": "Current Human Owner only; fixed positive canonical int64 revision. No request body or query, including bare question mark. Content-Encoding, Range and If-Range are rejected. No partial response or conditional 304; every request rechecks current authorization. One inherited 2s total budget includes Account, original Skill/OpenPackage, Object read/Close, canonical ZIP/size/SHA/manifest validation and HTTP write/flush/callback join. Close errors and Unknown never become success; no ObjectID, storage URL, grant, or Agent/Runner capability is projected.",
+        "responses": {
+          "200": {
+            "description": "Complete original canonical ZIP after current authorization, bounded integrity verification and actual original reader Close. HEAD performs the same work without emitting bytes.",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "const": "application/zip"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "const": "attachment; filename=\"skill-package.zip\""
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*(?![\\s\\S])"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            },
+            "x-max-representation-bytes": 33832982,
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "skillOwnerPackageHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "description": "Current Human Owner only; fixed positive canonical int64 revision. No request body or query, including bare question mark. Content-Encoding, Range and If-Range are rejected. No partial response or conditional 304; every request rechecks current authorization. One inherited 2s total budget includes Account, original Skill/OpenPackage, Object read/Close, canonical ZIP/size/SHA/manifest validation and HTTP write/flush/callback join. Close errors and Unknown never become success; no ObjectID, storage URL, grant, or Agent/Runner capability is projected.",
+        "responses": {
+          "200": {
+            "description": "Complete original canonical ZIP after current authorization, bounded integrity verification and actual original reader Close. HEAD performs the same work without emitting bytes.",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "const": "application/zip"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "const": "attachment; filename=\"skill-package.zip\""
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*(?![\\s\\S])"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              }
+            },
+            "x-max-representation-bytes": 33832982
+          },
+          "400": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "401": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "403": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "404": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "405": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "409": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "500": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "503": {
+            "$ref": "#/components/responses/HeadProblem"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account session cookie; configured loopback HTTP uses agenteam_local_session. No bearer or caller-supplied Actor."
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Original Account safe Problem. It does not disclose the request path/query, private cause or dependency error.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+            }
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          "Content-Type": {
+            "schema": {
+              "const": "application/problem+json"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "HeadProblem": {
+        "description": "The same Problem representation headers and length as GET, without a body.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+            }
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          "Content-Type": {
+            "schema": {
+              "const": "application/problem+json"
+            }
+          }
+        }
+      }
+    }
+  }
+}

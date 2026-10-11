@@ -11,6 +11,7 @@ import {
 import { createAccountAPI, type SessionView } from '../api/account'
 import { createProjectOwnerAPI, type Project } from '../api/project-owner'
 import { createSkillOwnerAPI } from '../api/skill-owner'
+import { createSkillPackageAPI } from '../api/skill-package'
 import { type Fetch } from '../api/client'
 import { createSessionController, type SessionController } from '../composables/useSession'
 import * as sessionModule from '../composables/useSession'
@@ -97,6 +98,8 @@ afterEach(async () => {
   for (const workspace of workspaces.splice(0)) workspace.dispose()
   for (const owner of owners.splice(0)) owner.leave()
   await flushPromises()
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
 })
 async function fixture(lifecycle: Project['lifecycle'] = 'active', bind = true) {
   const project: Project = {
@@ -133,7 +136,7 @@ async function fixture(lifecycle: Project['lifecycle'] = 'active', bind = true) 
   )
   const args: Parameters<typeof createSessionController> = [createAccountAPI(fetch)]
   args[12] = createProjectOwnerAPI(fetch)
-  args[19] = { skills: createSkillOwnerAPI(fetch) }
+  args[19] = { skills: createSkillOwnerAPI(fetch), skillPackage: createSkillPackageAPI(fetch) }
   const auth = createSessionController(...args)
   owners.push(auth)
   await auth.restore()
@@ -231,6 +234,173 @@ async function navigationFixture() {
 }
 
 describe('Skills current Human owner and page lifetime', () => {
+  function saveSpies() {
+    const create = vi.fn(() => 'blob:controlled-skill-package'),
+      revoke = vi.fn()
+    vi.stubGlobal(
+      'URL',
+      class extends URL {
+        static createObjectURL = create
+        static revokeObjectURL = revoke
+      },
+    )
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    return { create, revoke, click }
+  }
+  const packagePath = `${base}/${id(20)}/revisions/1/package`
+  const packageBytes = new Uint8Array([0x50, 0x4b, 3, 4, 1, 2, 3, 4])
+  const packageHeaders = {
+    'Content-Type': 'application/zip',
+    'Content-Length': '8',
+    'Content-Disposition': 'attachment; filename="skill-package.zip"',
+    'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Request-ID': id(99),
+  }
+  const packageResponse = () => new Response(packageBytes, { headers: packageHeaders })
+  it('downloads through the real detail button, Session and transport and exposes no package action in the catalog', async () => {
+    const f = await navigationFixture(),
+      save = saveSpies()
+    try {
+      expect(f.wrapper.text()).not.toContain('下载当前修订')
+      await f.wrapper.get(`a[href="${f.path}/${id(20)}"]`).trigger('click')
+      await flushPromises()
+      f.intercept(async (path, init) =>
+        path === packagePath ? packageResponse() : f.normal(path, init),
+      )
+      await f.wrapper
+        .findAll('button')
+        .find((button) => button.text().includes('下载当前修订'))!
+        .trigger('click')
+      await flushPromises()
+      expect(f.wrapper.text()).toContain('已交给浏览器保存')
+      expect(save.click).toHaveBeenCalledTimes(1)
+      expect(f.fetch.mock.calls.filter(([path]) => path === packagePath)).toHaveLength(1)
+      await f.wrapper.get(`.skills-page a[href="${f.path}"]`).trigger('click')
+      await flushPromises()
+      expect(save.revoke).toHaveBeenCalledWith('blob:controlled-skill-package')
+      expect(f.wrapper.text()).not.toContain('已交给浏览器保存')
+    } finally {
+      await f.close()
+    }
+  })
+  async function detailFixture() {
+    const f = await fixture()
+    f.location.value = { projectPath: '/owner/demo', skillID: id(20) }
+    await flushPromises()
+    return f
+  }
+  it('saves only a complete current revision and revokes its URL when leaving the detail', async () => {
+    const f = await detailFixture(),
+      save = saveSpies()
+    f.intercept(async (path, init) =>
+      path === packagePath ? packageResponse() : f.normal(path, init),
+    )
+    await f.page.downloadPackage()
+    expect(f.page.download.phase).toBe('saved')
+    expect(save.create).toHaveBeenCalledTimes(1)
+    expect(save.create.mock.calls[0]).toHaveLength(1)
+    expect(save.click).toHaveBeenCalledTimes(1)
+    expect(f.fetch.mock.calls.filter(([path]) => path === packagePath)).toHaveLength(1)
+    f.location.value = { projectPath: '/owner/demo', skillID: null }
+    expect(save.revoke).toHaveBeenCalledWith('blob:controlled-skill-package')
+    expect(f.page.download.phase).toBe('idle')
+    await flushPromises()
+  })
+  it('cancels download visibly while retaining the original Cookie owner until reader cancellation joins', async () => {
+    const f = await detailFixture(),
+      save = saveSpies(),
+      tail = deferred<void>()
+    releases.push(() => tail.resolve())
+    const cancel = vi.fn(() => tail.promise)
+    f.intercept(
+      async () =>
+        new Response(
+          new ReadableStream({
+            start(c) {
+              c.enqueue(packageBytes.slice(0, 4))
+            },
+            cancel,
+          }),
+          { headers: packageHeaders },
+        ),
+    )
+    const pending = f.page.downloadPackage()
+    await flushPromises()
+    expect(f.page.download.received).toBe(4)
+    f.page.cancelDownload()
+    await pending
+    expect(f.page.download.message).toContain('取消')
+    expect(f.auth.state.busy).toBe(true)
+    expect(cancel).toHaveBeenCalledTimes(1)
+    await f.page.downloadPackage()
+    expect(f.fetch.mock.calls.filter(([path]) => path === packagePath)).toHaveLength(1)
+    expect(save.create).not.toHaveBeenCalled()
+    tail.resolve()
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+  })
+  it.each(['detail', 'identity', 'project'] as const)(
+    'retires a delayed package on %s change without saving it',
+    async (change) => {
+      const f = await detailFixture(),
+        save = saveSpies(),
+        late = deferred<Response>()
+      releases.push(() => late.resolve(packageResponse()))
+      let signal: AbortSignal | null | undefined
+      f.intercept((path, init) => {
+        if (path === packagePath) {
+          signal = init.signal
+          return late.promise
+        }
+        return f.normal(path, init)
+      })
+      const pending = f.page.downloadPackage()
+      await flushPromises()
+      if (change === 'identity') f.auth.leave()
+      else if (change === 'detail')
+        f.location.value = { projectPath: '/owner/demo', skillID: id(21) }
+      else {
+        f.workspace.afterNavigation('/owner/other/settings/skills')
+      }
+      await flushPromises()
+      expect(signal?.aborted).toBe(true)
+      late.resolve(packageResponse())
+      await pending
+      await flushPromises()
+      expect(save.create).not.toHaveBeenCalled()
+      expect(save.click).not.toHaveBeenCalled()
+      expect(f.page.download.phase).toBe('idle')
+    },
+  )
+  it.each([401, 403, 404])(
+    'clears a currently refused package after %s without retry or save',
+    async (status) => {
+      const f = await detailFixture(),
+        save = saveSpies()
+      f.intercept(async () => problem(status))
+      await f.page.downloadPackage()
+      await flushPromises()
+      expect(f.page.state.detail).toBeNull()
+      expect(save.create).not.toHaveBeenCalled()
+      expect(f.fetch.mock.calls.filter(([path]) => path === packagePath)).toHaveLength(1)
+      expect(f.auth.state.phase).toBe(status === 401 ? 'unavailable' : 'authenticated')
+    },
+  )
+  it('shows safe incomplete-download feedback and retries only after another explicit click', async () => {
+    const f = await detailFixture(),
+      save = saveSpies()
+    f.intercept(async () => new Response(packageBytes.slice(0, 4), { headers: packageHeaders }))
+    await f.page.downloadPackage()
+    expect(f.page.download.phase).toBe('error')
+    expect(f.page.download.message).toContain('未保存')
+    expect(save.create).not.toHaveBeenCalled()
+    expect(f.fetch.mock.calls.filter(([path]) => path === packagePath)).toHaveLength(1)
+    f.intercept(async () => packageResponse())
+    await f.page.downloadPackage()
+    expect(save.click).toHaveBeenCalledTimes(1)
+    expect(f.fetch.mock.calls.filter(([path]) => path === packagePath)).toHaveLength(2)
+  })
   it('does not reread the old Skills route while authentication restores during navigation', async () => {
     const f = await navigationFixture()
     try {

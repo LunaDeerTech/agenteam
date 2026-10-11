@@ -87,6 +87,12 @@ npm run preview --prefix web
 
 [限定交付卡](../work-items/d11-task-history-filters-ui.md)记录受控 5 文件 27 项及类型/构建通过，真实八次历史查询、只读持久事实后验与全部资源退出已独立接受。25 请求为 22 finished 和 3 个原 GET aborted，10 份原请求联合证明；浏览器零写入、零 Lookup。1440 浅色新到旧与 390 深色旧到新两图已独立查看，不外推七类型全部视觉/真实权限矩阵、评论写入或完整 Task 功能。此前历史页反转为正序的行为已由本片明确的双向顺序取代，旧验收记录保留。
 
+## Skill 固定修订包下载
+
+已有 initialized Project 的当前 Human Owner 可在 `/:username/:project_name/settings/skills` 进入详情，下载当前所示 revision 的原包。revision 保持规范正 int64 字符串；一次明确点击发起单次 GET，无 HEAD 预检、自动重试或命令 Lookup。进度和取消反馈沿当前详情；身份、项目、技能或修订变化退役旧请求并清理临时字节与 Object URL，迟到结果不保存。用户可在安全失败反馈后明确重新下载。
+
+前端有界消费完整响应，核成功头、长度上限、实际长度、EOF 与 ZIP 魔数后才交浏览器保存为 `skill-package.zip`；canonical ZIP、manifest 与原摘要完整性由[后端](../work-items/d10-skill-owner-package-http.md)负责。实际下载文件的 SHA/长度已在真实浏览器中与原 HTTP 字节和后端 canonical material 三方核对，正常链七 GET 全 finished、浅色 1440/深色 390 两图及原资源尾均获独立接受。定向 39 测与共享回归 60 测、类型和构建已通过；原 browser01 观察失败、共享测试既有两项 strict TypeScript 诊断及未覆盖范围见[本片任务卡](../work-items/d10-skill-package-ui.md)。该结果不提供安装 UI、历史版本选择器或生产 Project 初始化，也不解除原 Object/SPA STOP。
+
 ## Knowledge Owner 文档 UI
 
 `/:username/:project_name/knowledge` 读取当前 Owner 的已有文档，`/knowledge/:document_id` 使用规范 UUIDv7 深链；仅在 Project Resolve→Get 和当前 Human Session 均成立后读子层、metadata、祖先及正文。树展开与选择分开，每层按 cursor 显式继续；祖先是当前路径，不是完整目录快照。正文按正式默认 65536 UTF-8 字节分段，只显示当前段，版本变化清空旧段；Markdown 安全显示源文本，PDF/DOCX 明确不可读，不调用解析、预览或来源获取。

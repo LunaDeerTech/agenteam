@@ -53,6 +53,9 @@ async function fixture() {
     loadMore = vi.fn()
   supplied.page = {
     state,
+    download: shallowReactive({ phase: 'idle', received: 0, total: 0, message: '' }),
+    downloadPackage: vi.fn(),
+    cancelDownload: vi.fn(),
     visible: computed(() => active.visible),
     blocked: computed(() => active.blocked),
     reading: computed(() => active.reading),

@@ -31,6 +31,12 @@ import {
   type SkillQuery,
 } from '../api/skill-owner'
 import {
+  createSkillPackageAPI,
+  captureSkillRevision,
+  type SkillPackageAPI,
+  type SkillPackageProgress,
+} from '../api/skill-package'
+import {
   createAgentConfigurationAPI,
   captureAgentCreateInput,
   captureAgentUpdateInput,
@@ -879,6 +885,7 @@ export function createSessionController(
     milestonePlanning?: WorkMilestonePlanningAPI
     sprintLifecycle?: WorkSprintLifecycleAPI
     skills?: SkillOwnerAPI
+    skillPackage?: SkillPackageAPI
     knowledgeText?: KnowledgeTextAPI
     knowledgeCommands?: KnowledgeCommandsAPI
   }> = {},
@@ -886,6 +893,7 @@ export function createSessionController(
   const projectVariablesAPI = commandAPIs.projectVariables ?? createProjectVariablesAPI()
   const milestonePlanningAPI = commandAPIs.milestonePlanning ?? createWorkMilestonePlanningAPI()
   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
+  const skillPackageAPI = commandAPIs.skillPackage ?? createSkillPackageAPI()
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
   const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
   const agentConfigurationAPI = commandAPIs.agentConfiguration ?? createAgentConfigurationAPI()
@@ -6734,6 +6742,19 @@ export function createSessionController(
     }
   }
   const skills = {
+    download(
+      projectID: string,
+      skillID: string,
+      revision: string,
+      progress?: SkillPackageProgress,
+    ) {
+      return skillRead(() => {
+        const project = captureSkillID(projectID),
+          target = captureSkillID(skillID),
+          captured = captureSkillRevision(revision)
+        return (signal) => skillPackageAPI.get(project, target, captured, signal, progress)
+      })
+    },
     list(projectID: string, query: SkillQuery = {}) {
       return skillRead(() => {
         const project = captureSkillID(projectID),

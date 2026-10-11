@@ -96,6 +96,35 @@ onBeforeUnmount(() => owner.dispose())
         <UiBadge v-if="state.detail.protected">受保护</UiBadge>
       </div>
       <p class="skill-description">{{ state.detail.description }}</p>
+      <div class="skills-actions">
+        <UiButton :disabled="owner.blocked.value" @click="owner.downloadPackage()">
+          {{ owner.download.phase === 'loading' ? '正在下载技能包' : '下载当前修订' }}
+        </UiButton>
+        <UiButton
+          v-if="owner.download.phase === 'loading'"
+          variant="ghost"
+          @click="owner.cancelDownload()"
+          >取消下载</UiButton
+        >
+      </div>
+      <div v-if="owner.download.phase === 'loading'" class="skill-download" role="status">
+        <progress
+          :value="owner.download.received"
+          :max="owner.download.total || 1"
+          aria-label="技能包下载进度"
+        />
+        <span>{{
+          owner.download.total
+            ? `${Math.floor((owner.download.received / owner.download.total) * 100)}%`
+            : '正在读取技能包'
+        }}</span>
+      </div>
+      <p
+        v-if="owner.download.message"
+        :role="owner.download.phase === 'error' ? 'alert' : 'status'"
+      >
+        {{ owner.download.message }}
+      </p>
       <dl class="skill-facts">
         <div>
           <dt>当前修订</dt>
@@ -162,6 +191,16 @@ onBeforeUnmount(() => owner.dispose())
 .skill-revision,
 dt {
   color: var(--muted);
+}
+.skill-download {
+  display: flex;
+  gap: var(--content-gap);
+  align-items: center;
+  margin-block: var(--content-gap);
+}
+.skill-download progress {
+  max-width: 100%;
+  min-width: 0;
 }
 .skill-facts {
   display: grid;

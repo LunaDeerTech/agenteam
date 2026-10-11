@@ -70,7 +70,9 @@ func resourceRoute(path string) route {
 
 // HandlesPath identifies only this adapter's two structural routes. Identifier
 // validation and current authorization still occur during ServeHTTP.
-func HandlesPath(path string) bool { return resourceRoute(path).matched }
+func HandlesPath(path string) bool {
+	return resourceRoute(path).matched || parsePackageRoute(path).matched
+}
 func (r route) pattern() string {
 	if !r.matched {
 		return ""
@@ -85,6 +87,12 @@ func (r route) pattern() string {
 func (h *handler) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 	if request == nil {
 		panic(http.ErrAbortHandler)
+	}
+	if request.URL != nil {
+		if route := parsePackageRoute(request.URL.Path); route.matched {
+			h.servePackage(w, request, route)
+			return
+		}
 	}
 	ctx, cancel := context.WithTimeout(request.Context(), readBudget)
 	defer cancel()

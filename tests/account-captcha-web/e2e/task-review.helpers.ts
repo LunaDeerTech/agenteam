@@ -129,14 +129,15 @@ type BrowserDiagnostic = {
   session_check_control: boolean;
 };
 
-async function observeBrowserIO(
+export async function observeBrowserIO(
   page: Page,
   accept: (event: BrowserDiagnostic) => void,
+  metadataScope?: { project: string; skill: string },
 ) {
   await page.exposeBinding("__taskReviewDiagnostic", (_source, event) => {
     accept(event as BrowserDiagnostic);
   });
-  await page.addInitScript(() => {
+  await page.addInitScript((metadataScope?: { project: string; skill: string }) => {
     // These observers return the original fetch/read/cancel promises and the
     // original Response/reader. They do not consume, clone or replace a body.
     const send = (
@@ -865,6 +866,18 @@ async function observeBrowserIO(
       } catch {
         return result;
       }
+      if (metadataScope) {
+        // The package fixture reuses this existing JSON observation only for
+        // its closed metadata GET set. Its binary download keeps its separate
+        // original-finished/file-byte gate and never enters this JSON reader.
+        const url = new URL(rawURL, location.href);
+        const method = init?.method ?? (input instanceof Request ? input.method : "GET");
+        const project = "/api/v1/projects/" + metadataScope.project;
+        if (method !== "GET" || url.origin !== location.origin || ![
+          "/api/v1/session", "/api/v1/projects", "/api/v1/projects/resolve",
+          project, project + "/skills/catalog", project + "/skills/" + metadataScope.skill,
+        ].includes(url.pathname)) return result;
+      }
       const id = ++nextFetch;
       if (id > 192) failed = true;
       const url = new URL(rawURL, location.href);
@@ -1366,7 +1379,7 @@ async function observeBrowserIO(
       restorers.push(() => window.removeEventListener(kind, listener));
     }
     record("observer-installed");
-  });
+  }, metadataScope);
 }
 
 // This closed endpoint set includes every real Task/Agent/list/lookup read in

@@ -34,6 +34,15 @@ export function useSkillOwner(
     loadingMore: false,
   })
   const identity = auth.personalContext.identity
+  const download = shallowReactive({
+    phase: 'idle' as 'idle' | 'loading' | 'saved' | 'error',
+    received: 0,
+    total: 0,
+    message: '',
+  })
+  let downloadGeneration = 0,
+    downloadActive = false,
+    packageURL: string | null = null
   const scope = shallowRef<Context | null>(null)
   let route: SkillLocation | null = null,
     generation = 0,
@@ -62,6 +71,7 @@ export function useSkillOwner(
   const busy = computed(() => auth.state.busy || reading.value || queue.pending !== null)
   const blocked = computed(() => !live() || busy.value)
   function clear() {
+    clearDownload()
     state.items = Object.freeze([])
     state.detail = null
     state.message = ''
@@ -69,11 +79,80 @@ export function useSkillOwner(
     state.loadingMore = false
   }
   function retire() {
+    clearDownload()
     ++generation
     queue.pending = null
     const previous = queue.active
     queue.active = null
     if (previous !== null) auth.skills.abandon()
+  }
+  function clearDownload() {
+    ++downloadGeneration
+    if (downloadActive) auth.skills.abandon()
+    downloadActive = false
+    if (packageURL) URL.revokeObjectURL(packageURL)
+    packageURL = null
+    Object.assign(download, { phase: 'idle', received: 0, total: 0, message: '' })
+  }
+  async function downloadPackage() {
+    if (blocked.value || state.phase !== 'ready' || !state.detail || !scope.value) return
+    clearDownload()
+    const document = state.detail,
+      captured = scope.value,
+      serial = downloadGeneration
+    const current = () =>
+      live() &&
+      serial === downloadGeneration &&
+      state.detail === document &&
+      sameContext(captured, scope.value) &&
+      location.value.skillID === document.id
+    downloadActive = true
+    download.phase = 'loading'
+    try {
+      const blob = await auth.skills.download(
+        captured.projectID,
+        document.id,
+        document.current_revision,
+        (received, total) => {
+          if (current()) Object.assign(download, { received, total })
+        },
+      )
+      if (!current()) return
+      packageURL = URL.createObjectURL(blob)
+      const link = window.document.createElement('a')
+      link.href = packageURL
+      link.download = 'skill-package.zip'
+      link.hidden = true
+      window.document.body.append(link)
+      try {
+        link.click()
+      } finally {
+        link.remove()
+      }
+      download.phase = 'saved'
+      download.message = `修订 ${document.current_revision} 已交给浏览器保存。`
+    } catch (error) {
+      if (!current()) return
+      if (packageURL) URL.revokeObjectURL(packageURL)
+      packageURL = null
+      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if ([401, 403, 404].includes(failure.problem?.status ?? 0)) {
+        clear()
+        state.phase = 'unavailable'
+        state.message = '当前技能包不存在或不可访问，请重新确认访问权限。'
+      } else {
+        download.phase = 'error'
+        download.received = download.total = 0
+        download.message =
+          failure.kind === 'cancelled'
+            ? '下载已取消。'
+            : failure.kind === 'invalid-response'
+              ? '未收到完整有效的技能包，未保存文件。请重新下载。'
+              : '本次下载未完成，未保存文件。请稍后重新下载。'
+      }
+    } finally {
+      if (serial === downloadGeneration) downloadActive = false
+    }
   }
   function schedule(next: SkillLocation) {
     retire()
@@ -192,6 +271,12 @@ export function useSkillOwner(
   )
   return {
     state: readonly(state),
+    download: readonly(download),
+    downloadPackage,
+    cancelDownload() {
+      clearDownload()
+      download.message = '下载已取消，请在原请求结束后重新下载。'
+    },
     visible,
     reading,
     busy,

@@ -15,7 +15,7 @@
 
 原普通包、两 vet/全 race/两命令构建及 Audit、默认根整改后的定向复验按相应输入组合接受，不称当前 HEAD 一次完整脚本全绿。原 check01/02、Audit deadline、wrapper 元数据失败、Knowledge read01/read02 和各领域历史 FAIL 均保留；后验清理不补写原终态。部署独立必填 `AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING` 继续有效，见[后端说明](../backend/README.md)。
 
-[Agent 显示设置](../work-items/d10-agent-display-settings-ui.md)的名称/颜色编辑、显式清空、真实正常链及原旧字段丢回执链已有限独立接受，随本次变更交付。[Task 历史筛选与顺序切换](../work-items/d11-task-history-filters-ui.md)的限定只读链也已独立接受，随本次变更交付。Skills 包下载仍在独立执行树，未由本结果交付；所有既有 STOP 与生产未绑定范围保持。
+[Agent 显示设置](../work-items/d10-agent-display-settings-ui.md)的名称/颜色编辑、显式清空、真实正常链及原旧字段丢回执链已有限独立接受，随本次变更交付。[Task 历史筛选与顺序切换](../work-items/d11-task-history-filters-ui.md)的限定只读链也已独立接受，随本次变更交付。[Skill 固定修订包下载](../work-items/d10-skill-package-ui.md)的当前 Owner HTTP 与详情下载正常链已有限独立接受，随本次变更交付；所有既有 STOP 与生产未绑定范围保持。
 
 ## 当前并行所有权
 
@@ -61,6 +61,7 @@
 | [D10 Secret Owner服务](../work-items/d10-secret-variable-owner-service.md) | **typed Owner库与00030已交付**。真实Account/Project当前授权、单final Tx、metadata/receipt、类型/命令/cursor隔离与作者30节点、独立两风险通过。 | 与普通变量共享业务ID/活名称唯一性，响应无value/密文/摘要；Secret HTTP/既有 Project 默认根见后继正式卡；F1 未交付，原 read01FAIL 保留。 |
 | [D10 Secret Owner HTTP](../work-items/d10-secret-variables-owner-http.md) | **三路由HTTP与既有 initialized Project 的默认根接入已正式交付**。同Store当前Owner/Session、唯一facts producer、Catalog事件及Account前原Stop/Drain；作者PG/native/root、独立撤Session读与安全错误补集、完整app ordinary/race接受。 | 普通变量路径与命名空间保持；默认Project initializer仍unbound。原错误/恢复材料保留，F1、完整生命周期、Agent注入与UI不在此范围。 |
 | [D10 Skills目录HTTP与只读UI](../work-items/d10-skills-owner-read-http.md) | **adapter、默认根既有数据读取与当前 Owner 目录/详情 UI 已限定交付**。UI 正常链两次 catalog/两次详情、当前上下文与完整消费、真实无新增业务事实和原退出尾闭合；独立方法/业务/资源及新浅深两图接受。 | 生产 initializer 保持 unbound；完整 participant、安装 UI、Agent/Tool/Runner 与完整 D10 未完成。本轮真实浏览器不代完整撤权、多页或生命周期矩阵；历史 Skills03、恢复01 Host FAIL 与恢复02品牌破图保留。 |
+| [D10 Skill 固定修订包 HTTP/UI](../work-items/d10-skill-package-ui.md) | **当前 Owner 固定 revision GET/HEAD 与详情下载正常链已有限独立接受**。后端 canonical 包/当前授权、原 reader 退出与默认 App 接线分版本验证；浏览器实际点击、完整响应和实际保存文件 SHA/长度一致，7 GET 全 finished、浅深两图及全部原资源尾接受。 | 原 PG01 和 browser01 wholeFAIL 保留；浏览器02未触发 metadata aborted 补证分支，不代真实下载取消、撤权竞争或持久释放 Unknown。生产 initializer、安装 UI、Agent/Tool/Runner 和 Object Runtime join 等原边界保持。 |
 | [D12 Knowledge正文HTTP](../work-items/d12-knowledge-owner-content-http.md) | **有界正文adapter与默认根读取接入已交付**。当前Owner、GET/HEAD、真实reader/事务退出、native与PG有限矩阵闭合；删除正文410保持权限前置。 | 原短正文fixture PG01FAIL保留；只读UI已后继交付；PDF/DOCX parser、下载URL、生产Project创建与全局Object Runtime join未交付。 |
 | [D13固定语料＋离线评分工具](https://github.com/LunaDeerTech/agenteam/blob/b2a7d0abef0b7ca0623c8e2a7c020658948848da/docs/development/work-items/d13-lexical-benchmark.md) | **独立子结果已接受并正式交付main（b2a7d0ab）**。lexical-v2语料语义返修获独立接受，评分工具独立128控通过；原语义/夹具FAIL保留，任务分支关闭。 | 只交付固定语料和可重复离线评分工具；lexical-v2含32篇原创文档/64section、64有答案+8无答案query及4608显式相关性判断。三候选backend真实成绩、索引/查询性能、扩展/字典版本与许可、固定dense leg的hybrid RRF及最终选型仍未验证，不完成D13。 |
 | [D13有界纯文本Parser](../work-items/d13-lexical-benchmark.md) | **限定库与首条真实调用已接受并正式交付**。plain_text:v1保原UTF-8字节/版本来源、有界段句与取消零结果；D12完整DTO适配及真实Close后解析、partial/非plain拒绝、外Owner无输入三子联调wholePASS。 | 纯函数/值适配的非作者审查与作者真实链分列；不冒独立动态验收、自动current发布、索引、chunker/ContextProvider、embedding、Markdown/PDF或完整D13。 |

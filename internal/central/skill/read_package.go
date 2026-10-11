@@ -129,10 +129,13 @@ type packageBody struct {
 	closeErr, tailErr                                   error
 	closeOnce                                           sync.Once
 	stopCancel                                          func() bool
+	cancelDone                                          chan struct{}
 }
 
 func (r *packageBody) installCancellation() {
+	done := make(chan struct{})
 	stop := context.AfterFunc(r.call.ctx, func() {
+		defer close(done)
 		r.closeBody()
 		r.mu.Lock()
 		r.watcherDone = true
@@ -141,6 +144,7 @@ func (r *packageBody) installCancellation() {
 	})
 	r.mu.Lock()
 	r.stopCancel = stop
+	r.cancelDone = done
 	r.mu.Unlock()
 }
 
@@ -185,13 +189,22 @@ func (r *packageBody) Close() error {
 	r.closeBody()
 	r.mu.Lock()
 	stop := r.stopCancel
+	done := r.cancelDone
 	r.mu.Unlock()
 	if stop != nil && stop() {
 		r.mu.Lock()
 		r.watcherDone = true
 		r.mu.Unlock()
+		r.settle()
+		close(done)
+	} else {
+		if stop != nil {
+			// A callback that has started still owns its accounting tail.
+			// Its result must be visible before the public reader caches Close.
+			<-done
+		}
+		r.settle()
 	}
-	r.settle()
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if r.closeErr != nil {

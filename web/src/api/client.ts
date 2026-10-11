@@ -71,6 +71,11 @@ const endpoints = {
   ],
   listProjectSkills: ['GET', '/api/v1/projects/{project_id}/skills/catalog', 200],
   getProjectSkill: ['GET', '/api/v1/projects/{project_id}/skills/{target}', 200],
+  getSkillPackage: [
+    'GET',
+    '/api/v1/projects/{project_id}/skills/{target}/revisions/{revision}/package',
+    200,
+  ],
   knowledgeRename: [
     'POST',
     '/api/v1/projects/{project_id}/knowledge/documents/{target}/rename',
@@ -571,6 +576,77 @@ async function readAvatar(response: Response, signal: AbortSignal, lifecycle: Bo
   }
 }
 
+export type SkillPackageProgress = (received: number, total: number) => void
+export const skillPackageMaximum = 33832982
+async function readSkillPackage(
+  response: Response,
+  signal: AbortSignal,
+  lifecycle: BodyLifecycle,
+  progress?: SkillPackageProgress,
+): Promise<Blob> {
+  const length = response.headers.get('Content-Length')
+  if (
+    response.headers.get('Content-Type') !== 'application/zip' ||
+    response.headers.get('Content-Disposition') !== 'attachment; filename="skill-package.zip"' ||
+    response.headers.get('Cache-Control') !== 'no-store' ||
+    response.headers.get('X-Content-Type-Options') !== 'nosniff' ||
+    response.headers.has('Content-Encoding') ||
+    response.headers.has('Content-Range') ||
+    !uuid7.test(response.headers.get('X-Request-ID') ?? '') ||
+    !length ||
+    !/^[1-9][0-9]{0,7}$/.test(length) ||
+    Number(length) > skillPackageMaximum
+  )
+    throw new AccountFailure('invalid-response')
+  const reader = response.body?.getReader()
+  if (!reader) throw new AccountFailure('invalid-response')
+  const bytes = new Uint8Array(Number(length))
+  let offset = 0,
+    eof = false,
+    cancelled: Promise<void> | undefined
+  const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined))
+  const abort = () => {
+    if (!eof) void cancel()
+  }
+  signal.addEventListener('abort', abort, { once: true })
+  if (signal.aborted) abort()
+  try {
+    progress?.(0, bytes.byteLength)
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (signal.aborted) throw new AccountFailure('cancelled')
+      if (done) {
+        eof = true
+        break
+      }
+      if (offset + value.byteLength > bytes.byteLength) throw new AccountFailure('invalid-response')
+      bytes.set(value, offset)
+      offset += value.byteLength
+      progress?.(offset, bytes.byteLength)
+    }
+    if (
+      offset !== bytes.byteLength ||
+      bytes[0] !== 0x50 ||
+      bytes[1] !== 0x4b ||
+      bytes[2] !== 0x03 ||
+      bytes[3] !== 0x04
+    )
+      throw new AccountFailure('invalid-response')
+    return new Blob([bytes], { type: 'application/zip' })
+  } catch (error) {
+    throw error instanceof AccountFailure
+      ? error
+      : new AccountFailure(signal.aborted ? 'cancelled' : 'invalid-response')
+  } finally {
+    bytes.fill(0)
+    signal.removeEventListener('abort', abort)
+    if (cancelled) await cancelled
+    else if (!eof) await cancel()
+    reader.releaseLock()
+    lifecycle.settled = true
+  }
+}
+
 type RequestOptions = {
   body?: unknown
   csrf?: string
@@ -981,12 +1057,14 @@ type KnowledgeCommandOptions<E extends KnowledgeCommandEndpoint> = {
   ? { target: string }
   : { target?: never })
 
-const skillEndpoints = ['listProjectSkills', 'getProjectSkill'] as const
+const skillEndpoints = ['listProjectSkills', 'getProjectSkill', 'getSkillPackage'] as const
 type SkillEndpoint = (typeof skillEndpoints)[number]
 type SkillWireQuery = Readonly<{ limit: number; cursor?: string }>
 type SkillOptions<E extends SkillEndpoint> = E extends 'listProjectSkills'
   ? { signal: AbortSignal; projectID: string; skillQuery: SkillWireQuery }
-  : { signal: AbortSignal; projectID: string; target: string }
+  : { signal: AbortSignal; projectID: string; target: string } & (E extends 'getSkillPackage'
+      ? { revision: string; progress?: SkillPackageProgress }
+      : {})
 
 const knowledgeEndpoints = [
   'knowledgeChildren',
@@ -1222,6 +1300,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       audit?: AuditWireQuery
       projects?: ProjectWireQuery
       skillQuery?: SkillWireQuery
+      revision?: string
+      progress?: SkillPackageProgress
       knowledgeChildren?: KnowledgeChildrenWire
       knowledgeContent?: KnowledgeContentWire
       projectModels?: ProjectModelWireQuery
@@ -1237,7 +1317,17 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     if ((skillEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const list = endpoint === 'listProjectSkills'
-        shape(options, ['signal', 'projectID', list ? 'skillQuery' : 'target'])
+        const packaged = endpoint === 'getSkillPackage'
+        shape(
+          options,
+          [
+            'signal',
+            'projectID',
+            list ? 'skillQuery' : 'target',
+            ...(packaged ? ['revision'] : []),
+          ],
+          packaged ? ['progress'] : [],
+        )
         const project = string(options.projectID, 36, 36)
         if (!uuid7.test(project) || !(options.signal instanceof AbortSignal)) throw new Error()
         path = basePath.replace('{project_id}', project)
@@ -1262,6 +1352,17 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           const target = string(options.target, 36, 36)
           if (!uuid7.test(target)) throw new Error()
           path = path.replace('{target}', target)
+          if (packaged) {
+            const revision = string(options.revision, 1, 19)
+            if (
+              !/^[1-9][0-9]{0,18}$/.test(revision) ||
+              /[^0-9]/.test(revision) ||
+              BigInt(revision) > 9223372036854775807n ||
+              (options.progress !== undefined && typeof options.progress !== 'function')
+            )
+              throw new Error()
+            path = path.replace('{revision}', revision)
+          }
         }
       } catch {
         throw new AccountFailure('invalid-input')
@@ -1802,6 +1903,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     }
     if (endpoint === 'avatar')
       headers.Accept = 'image/jpeg, image/png, image/webp, application/problem+json'
+    if (endpoint === 'getSkillPackage') headers.Accept = 'application/zip, application/problem+json'
     if (options.csrf !== undefined) headers['X-CSRF-Token'] = options.csrf
     if (options.key !== undefined) headers['Idempotency-Key'] = options.key
     let response: Response
@@ -1836,6 +1938,11 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       }
       if (endpoint === 'avatar' && response.status === 200)
         return parse(await readAvatar(response, options.signal, lifecycle))
+      if (endpoint === 'getSkillPackage' && response.status === 200) {
+        const blob = await readSkillPackage(response, options.signal, lifecycle, options.progress)
+        if (options.signal.aborted) throw new AccountFailure('cancelled')
+        return parse(blob)
+      }
       const contentType = response.headers.get('Content-Type')?.split(';')[0]?.trim().toLowerCase()
       const success = response.status === status
       if (contentType !== (success ? 'application/json' : 'application/problem+json'))

@@ -281,3 +281,69 @@ func TestSkillPackageReaderCancellationBeforeOwnershipTransfer(t *testing.T) {
 		t.Fatal("actual callback return not retired")
 	}
 }
+
+func TestSkillPackageReaderCloseWaitsCanceledAccountingCallback(t *testing.T) {
+	s, _, _, o := packageFixture(t)
+	state := s.state()
+	entered := make(chan struct{})
+	release := make(chan struct{})
+	var armed atomic.Bool
+	var releaseOnce sync.Once
+	unblock := func() { releaseOnce.Do(func() { close(release) }) }
+	defer unblock()
+	// The existing private state getter is the barrier. After OpenPackage has
+	// returned, its cancellation callback reaches finishOwnedWork before asking
+	// for state; its actual accounting result is still unavailable here.
+	s.data = func() *serviceState {
+		if armed.CompareAndSwap(true, false) {
+			close(entered)
+			<-release
+		}
+		return state
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	r, err := s.OpenPackage(ctx, o.actor, o.row.request.ProjectID, o.row.skill, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	armed.Store(true)
+	cancel()
+	select {
+	case <-entered:
+	case <-time.After(time.Second):
+		t.Fatal("original cancellation callback did not reach accounting barrier")
+	}
+	closed := make(chan error, 1)
+	go func() { closed <- r.Close() }()
+	var closeErr error
+	premature := false
+	select {
+	case closeErr = <-closed:
+		premature = true
+	case <-time.After(100 * time.Millisecond):
+		// Bounded negative observation after the original callback has entered
+		// the barrier; cancellation alone must not finish the public Close.
+	}
+	unblock()
+	if !premature {
+		select {
+		case closeErr = <-closed:
+		case <-time.After(time.Second):
+			t.Fatal("Close did not join the released original callback")
+		}
+	}
+	waitPackageCalls(t, s)
+	if err := s.Drain(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if !s.Joined() || !r.Joined() || o.body.closes.Load() != 1 {
+		t.Fatal("original reader/callback did not actually join once")
+	}
+	if premature {
+		t.Fatalf("Close returned before original canceled accounting callback: %v", closeErr)
+	}
+	if !errors.Is(closeErr, context.Canceled) {
+		t.Fatalf("original canceled accounting result lost: %v", closeErr)
+	}
+}
