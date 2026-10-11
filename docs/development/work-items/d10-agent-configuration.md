@@ -1,6 +1,6 @@
 # D10 Agent 配置与当前身份事实
 
-状态：**C1 六个纯契约已接受；Model Selection 与 Secret Directory 的 metadata 前置已实现并通过有限真实联调；完整 F1 仍未接受**。本次新增交付见 §2.3，不含 Agent 服务、引用写入、迁移或生产绑定。后继 F1 实施由独立任务推进，其类型、接口与工程约束须按实际范围验收，不能因其它草稿引用或 metadata 通过而视为完成。`identity.AgentID` 仍只是 typed identity；本次前置不占用迁移号。
+状态：**C1 六个纯契约与 §2.3 的 metadata 前置已接受；Owner 只读 Agent 目录 HTTP 已通过 §2.4 的有限真实验证；完整 F1 与 D10 不据此视为完成**。§2.3 保留此前 metadata 交付范围，§2.4 单独记录后继目录能力；其它类型、接口与生产接入按各自实际范围验收。`identity.AgentID` 仍只是 typed identity，目录也不授予运行权限。
 
 本卡拟分成两个可分别验收的结果：**C1 纯 AgentCore 与当前身份端口契约**可在规格接受后先行；**F1 Human Owner 创建、读取、修改真实 Agent 配置，并提供同 caller Tx 的当前身份事实**必须等本卡列出的真实前置闭合后开工。F1 不接受 SQL 手种 Agent、默认成功目录或未绑定初始化作为生产创建路径。C1 完成不解锁 Task 指派；F1 完成也不等于 Executor、Agent 删除、完整 D10 或平台 ready。
 
@@ -54,6 +54,16 @@ F1 开工前必须已有可供组合的 Model 配置验证与 Agent 引用写入
 Selection 的七个作者 race 测试及两个包 vet、Directory 的四个作者 race 测试及包 vet已经通过；产品、方法及确定的种子修正获非作者源码审接受。真实 `TestAgentConfigurationMetadata` 的 `normal-metadata`、`current-and-stale`、`caller-rollback` 三子项在 metadata04 wholePASS：正式 Account/Project/Model/Secret 服务验证 System/同 Project 模型、两个非 Owner 拒绝、正式 Logout、两域陈旧映射及原 caller 物理回滚，十二类持久事实保持对应预期。原 Go/driver/supervisor/outer Wait、七资源与 private/runtime/descendant/TCP 双尾、输入前后核对均闭合；独立原件核对接受该有限结果，不声称另一次独立动态 PG 验收。metadata01/02/03 和 compile02 的原失败仍保留。
 
 Project 初始化使用明确的持久 test-only Skills receipt，生产 initializer 继续 unbound。本链不创建 Agent，不写 Model/Secret 引用，不证明新 Agent 默认 Skill/Tool 分配、Runtime consumer 授权或完整 F1；00032 及后继 Registry/Skills 迁移不随本次交付。主模型 advertised effort 的纯校验结果也不等于已开放当前生产策略尚不支持的配置。
+
+### 2.4 已交付的 Owner 只读 Agent 目录 HTTP
+
+[目录契约](../../../internal/central/agent/contract/directory.go)与 [OpenAPI](../../../api/openapi/agent-directory.json)固定 `GET/HEAD /api/v1/projects/{project_id}/agents` 及其 `/{agent_id}` 详情。仅返回真实初始化且 active 的 Agent，九字段为 `id/project_id/name/display_name/tag_color/description/version/created_at/updated_at`；Version 沿原十进制字符串，display_name 为空时界面回退 name。分页默认 50、上限 200，固定 `created_at DESC,id DESC`；签名 cursor 绑定 Owner、Project、资源类型和排序，每页重新校验当前 Session/Owner，不承诺跨页快照。
+
+`NewDirectoryReader` 复用同 Store、原 Project 权威及真实 completed-create receipt，Owner 校验先于 Agent 存在性读取。独立只读装配不需要完整 F1 写服务图；默认 app 已接路由并持有 Reader 的 Stop/Drain/Joined，HEAD 执行原读取、保留 GET 的 Content-Length 且无正文，原 SQL/HTTP 调用实际退出后才退休。本片无 DDL，不构造默认成功的初始化或外域提供方。
+
+源码 `2c59cf0d` 的合同、生产、测试与方法获有限独立审查；本域 9 个新增 pure top及旧 app 两项路由兼容检查纳入本批 17 top race／7 包 vet，全部通过，一次组合编译与精确发现两个真实 top 通过（889 输入稳定）。[TestAgentDirectoryHTTP](../../../tests/projectvariable/agent_directory_http_test.go) 两子项 `normal-directory-pagination`、`current-owner-boundary` 真实 TLS／PG wholePASS（26.95s）：正式 P2/Agent 创建、Account Session、同 Store 目录分页/详情/HEAD、跨 Owner 拒绝、跨 Project cursor 拒绝、Logout 撤权及同 Owner 新 Session 续页均通过，无 SQL 成功 seed。Go/driver/supervisor/outer 四个原 Wait 为 0，七资源十四次 absence、全部退出尾闭合，1,640 输入稳定；原结果保留于 delivery 的 `output/ai/agent-system-integration/agent-directory-http-01-control/result.json`。
+
+此结果不包含 Work/Agent 页面、完整 Agent 配置或设置列表、Model/Prompt/Capability/Secret 投影、busy 摘要或运行授权；不替代完整 F1、生产 runtime 绑定或平台 ready 验收，既有停止项保持。
 
 ## 3. 类型、字段与严格 schema
 
