@@ -1,6 +1,6 @@
 # Execution 首个后继 RoundInput
 
-状态：本片在固定组合 `44ab6534` 完成 compile01 和 native01，唯一主审已接受有限 wholePASS，可按本卡范围交付。独立树 `/workspace/agenteam-execution-round-input`，分支 `ai/execution-round-input-20261011`，组合起点 `2151a43f`；当前包含正式 main `5c4bdca9` 的 67 验收历史及 Runner 本地 write-file。基础 9 top / 52 sub 分段通过及 4 包 vet 通过，原 basic01 wholeFAIL 与夹具窄修保持，不追认为单轮全绿。Git 主线集成、推送及随后材料保全由 root 执行。
+状态：本片在固定组合 `44ab6534` 完成 compile01 和 native01，唯一主审已接受有限 wholePASS，已按本卡范围随完整历史 main `bf7c882a` 交付并推送。独立树 `/workspace/agenteam-execution-round-input`，分支 `ai/execution-round-input-20261011`，组合起点 `2151a43f`；当前包含正式 main `5c4bdca9` 的 67 验收历史及 Runner 本地 write-file。基础 9 top / 52 sub 分段通过及 4 包 vet 通过，原 basic01 wholeFAIL 与夹具窄修保持，不追认为单轮全绿。完整原件已按 root 授权无覆盖保全，树/分支清理仍由 root 后续执行。
 
 依据：[执行编排的输入确定点](d01-contracts/execution-orchestration.md#技能变更与下一轮输入确定点)、[资源与技能](d01-contracts/resources-skills.md#分配目录与读取)。本片只把原 66 已提交结果与 67 durable pending 确定为首个后继输入；不启动 Model、Tool dispatch、waiting resume 或终态退休，不接生产默认，不解除 tools HTTP 及其它既有 STOP。
 
@@ -59,6 +59,6 @@ compile01 原工具 34561 实际 exit 0：Go 784372 `-race -tags=integration -c`
 
 native01 原 outer 30712 由执行作者亲收 actual exit 0，supervisor 787240 Wait 0 / 129.710s；原日志 terminal 0 / 128.869s。一个 top、两个 sub 全 PASS（41.30s，分别 21.17s / 20.13s），Go 788798 与 driver 787241 原 Wait 均为 0。相同七个资源 ID 的十四次 absence、desc/private/runtime 双空、75 秒原门内自动 HOST_TCP baseline delta 两次 empty、1887 输入不变与精确 case/Wait 判据全部闭合。原 540+60 秒预算、Go 6 分钟 timeout 和全部强门均未改变，没有重试、过滤连接或预热基线。唯一主审已独立读取原业务及完整退出尾，接受本轮有限 wholePASS。
 
-实际原件位于 `output/ai/execution-round-input/{compile01,native01}/`，含 original invocation、输入、binary、实际 Wait 与 `tool-terminal.json`；PG 原日志为 `/tmp/eri01/pg-8e344109435c413a85b030440352f6b4.log`。原 basic01 FAIL 完整保留。所有命令、Go/cache 和服务窗口已实际释放；完整历史进入 main 后再按 root 指令保全和清理，当前不提前移动或删除原件。
+实际原件位于 `output/ai/execution-round-input/{compile01,native01}/`，含 original invocation、输入、binary、实际 Wait 与 `tool-terminal.json`；PG 原日志为 `/tmp/eri01/pg-8e344109435c413a85b030440352f6b4.log`。原 basic01 FAIL 完整保留。所有命令、Go/cache 和服务窗口已实际释放。完整历史已进入正式 main；上述原输出现已无覆盖迁至 main `output/ai/retired-20261011/execution-round-input/`，81 个文件的路径/SHA/size/inode/device/mode 全等，三份 tmp 必需副本已核合，原 tmp 保留。原失败输入与 wrapper 均由 main 可达历史逐 blob 证明可恢复，详见[恢复说明](../../../.agent-state/execution-round-input/README.md)。树/分支尚未删除，不提前增加清理计数。
 
 Determine 阶段新增 Model BeginChat/Tool dispatch 均为 0；每个继承 fixture 原有一次受控首轮 Model 和一次真实 Runner WSS/I/O。交付止于一次非终态后继输入确定，未执行下一 Model，也不将受控首轮记作真实 tools HTTP 通过。真实工具 HTTP、后续 Model 请求投影与调用、资源 deleted 后成功确定、等待恢复、Compaction、终态退休、生产 default 与原 STOP 保留。
