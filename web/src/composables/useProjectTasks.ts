@@ -15,7 +15,7 @@ import {
 } from '../api/work-review'
 import { agentLabel, type DirectoryAgent } from '../api/agent-directory'
 import { workTaskRoute } from '../router/auth'
-import { useSession, type SessionController } from './useSession'
+import { type SessionController } from './useSession'
 import type { createProjectWorkspace } from './useProjectWorkspace'
 
 type Phase = 'idle' | 'loading' | 'ready' | 'error'
@@ -96,6 +96,7 @@ export function createProjectTasks(
   let resolveLeave: ((value: boolean) => void) | null = null
   const reading = ref(false)
   const route = ref('')
+  let manualMilestone: string | null = null
   let projectKey = '',
     generation = 0,
     requested = false,
@@ -153,6 +154,7 @@ export function createProjectTasks(
     auth.workReview.abandonRead()
   }
   function clearData() {
+    manualMilestone = null
     state.phase = 'idle'
     state.message = ''
     state.milestones = []
@@ -357,11 +359,17 @@ export function createProjectTasks(
           selected.kind === 'task' ? await step(() => auth.workReview.task(p, selected.id!)) : null
         const sid =
           task?.sprint_id ??
-          (selected.kind === 'sprint' ? selected.id : workspace.detail.project?.current_sprint_id)
+          (selected.kind === 'sprint'
+            ? selected.id
+            : manualMilestone
+              ? null
+              : workspace.detail.project?.current_sprint_id)
         const sprint = sid ? await step(() => auth.workReview.sprint(p, sid)) : null
         const milestone = sprint
           ? await step(() => auth.workReview.milestone(p, sprint.milestone_id))
-          : null
+          : manualMilestone
+            ? await step(() => auth.workReview.milestone(p, manualMilestone!))
+            : null
         if (
           task &&
           (!sprint ||
@@ -421,21 +429,22 @@ export function createProjectTasks(
     }
   }
   async function selectMilestone(id: string) {
-    if (busy.value || !(await confirmLeave())) return
-    retire()
-    clearDraft()
-    state.task = null
-    state.detailCurrent = false
-    state.sprint = null
-    state.sprints = []
-    for (const s of taskStates) Object.assign(columns[s], emptyColumn())
-    await read(
-      async (p, step) => step(() => auth.workReview.milestone(p, id)),
-      (value) => {
-        state.milestone = value
-      },
-    )
-    await loadSprints()
+    if (busy.value) return
+    const target = `${projectPath()}/tasks`
+    if (route.value === target) {
+      if (!(await confirmLeave())) return
+      manualMilestone = id
+      clearDraft()
+      await refresh()
+      return
+    }
+    const previous = manualMilestone
+    manualMilestone = id
+    try {
+      await navigate(target)
+    } finally {
+      if (route.value !== target) manualMilestone = previous
+    }
   }
   async function selectSprint(id: string) {
     if (!busy.value) await navigate(`${projectPath()}/tasks/sprints/${id}`)
@@ -526,6 +535,7 @@ export function createProjectTasks(
     if (to === route.value) return
     retire()
     route.value = to
+    if (workTaskRoute(to)?.kind !== 'root') manualMilestone = null
     clearDraft()
     state.task = null
     state.detailCurrent = false
