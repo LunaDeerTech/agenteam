@@ -19,6 +19,18 @@ ROOT = Path(__file__).resolve().parents[2]
 GO = Path("/workspace/toolchains/go1.27.1/bin/go")
 PACKAGES = ["./internal/runner/filesystem", "./internal/runner/workspace"]
 IMPORTS = ["github.com/LunaDeerTech/agenteam/" + p[2:] for p in PACKAGES]
+WRITE_TESTS = (
+    "TestWriteValidationAndSafeProjection",
+    "TestWriteRealRoundTripAndReplacement",
+    "TestWriteNoReplaceRacesAcrossRoots",
+    "TestWriteShortIOPublishesOnlyCompleteFile",
+    "TestWriteRejectsUnsafeTargets",
+    "TestWriteConcurrentNamespaceReplacement",
+    "TestWritePublicationFailureFacts",
+    "TestWriteStopWaitsForActualCallAndKeepsPublication",
+    "TestHandleWriteReadAndIsolation",
+    "TestHandleWriteStopJoinsOriginalRootAndKeepsResult",
+)
 ENV = dict(
     GOTOOLCHAIN="local", GOENV="off", GOWORK="off", GOPROXY="off",
     GOSUMDB="off", GOTELEMETRY="off", GOFLAGS="-mod=readonly -p=1",
@@ -83,6 +95,7 @@ def closure(rows):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True, help="Fresh directory under output/ai/runner-write-file-adapter")
+    parser.add_argument("--write-only", action="store_true", help="Run only the ten existing Write tests; vet still covers both packages")
     args = parser.parse_args()
     out = args.output.resolve()
     if not out.is_relative_to(ROOT / "output/ai/runner-write-file-adapter"):
@@ -102,7 +115,7 @@ def main():
     source = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     save("invocation.json", dict(cwd=str(ROOT), source_head=source, packages=PACKAGES,
          environment_overrides=overrides, script_sha256=sha(__file__), go_sha256=sha(GO),
-         wrapper_pid=os.getpid(), tests="all tests in both packages; no -run selector"))
+         wrapper_pid=os.getpid(), tests=list(WRITE_TESTS) if args.write_only else "all tests in both packages; no -run selector"))
 
     def run(stage, command):
         save(stage + "-invocation.json", dict(command=[str(p) for p in command]))
@@ -135,13 +148,18 @@ def main():
     if code:
         return code
     paths, generated, selected = discovered
+    if args.write_only:
+        selected = [item for item in selected if item[1] in WRITE_TESTS]
+        if {name for _, name in selected} != set(WRITE_TESTS) or len(selected) != len(WRITE_TESTS):
+            raise RuntimeError("the exact ten Write tests were not discovered")
     before = snapshot(paths)
     save("inputs-before.json", before)
     save("selection.json", dict(expected_top_tests=selected, input_count=len(paths),
          generated_test_mains=generated, scope="actual go-list active sources, embeds and module files; no whole-tree scan"))
     if not selected or any(not any(p == package for p, _ in selected) for package in IMPORTS):
         raise RuntimeError("expected package test sources were not discovered")
-    code = run("unit", [GO, "test", "-race", "-count=1", "-p=1", "-timeout=120s", "-json", *PACKAGES])
+    selector = ["-run", "^(" + "|".join(WRITE_TESTS) + ")$"] if args.write_only else []
+    code = run("unit", [GO, "test", "-race", "-count=1", "-p=1", "-timeout=120s", "-json", *selector, *PACKAGES])
     events = []
     for line in (out / "unit.log").read_text().splitlines():
         try:

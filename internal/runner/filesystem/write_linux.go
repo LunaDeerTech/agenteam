@@ -30,8 +30,12 @@ func realLinuxWriteCalls() linuxWriteCalls {
 const writeResolution = resolution | unix.RESOLVE_NO_SYMLINKS
 
 func (r *linuxRoot) writeOpen(parent int, path string, flags int) (int, error) {
+	flags |= unix.O_CLOEXEC | unix.O_NOFOLLOW
+	if flags&unix.O_PATH == 0 {
+		flags |= unix.O_NONBLOCK
+	}
 	fd, err := r.calls.open(parent, path, &unix.OpenHow{
-		Flags: uint64(flags | unix.O_CLOEXEC | unix.O_NOFOLLOW | unix.O_NONBLOCK), Resolve: writeResolution,
+		Flags: uint64(flags), Resolve: writeResolution,
 	})
 	if err != nil {
 		return -1, nativeError(err)
