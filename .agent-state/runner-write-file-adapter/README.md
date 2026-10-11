@@ -4,7 +4,7 @@
 
 ## 原件与源码
 
-本树原件根为 `output/ai/runner-write-file-adapter`，目前未迁移。主线交付后拟无覆盖、同文件系统迁往 main 的 `output/ai/retired-20261011/runner-write-file-adapter`；实际移动与删除须另由 root 协调，不能从本说明推断已执行。
+本片已随完整历史 main `66fe3ab06a245a20d94ba2d02aa5066fd3083bbe` 有限交付并推送。原树的 `output/ai/runner-write-file-adapter` 已通过 `renameat2(RENAME_NOREPLACE)` 无覆盖、同文件系统迁至 main 的 `output/ai/retired-20261011/runner-write-file-adapter`，原路径现已不存在。这里只完成原件迁移，worktree/分支清理仍待 root 实际执行；本任务远端分支未推送，不虚计远端删除。
 
 | 原记录 | 精确源码 | 实际结果 |
 | --- | --- | --- |
@@ -13,11 +13,13 @@
 
 每轮 `invocation.json`、`*-invocation/process/result.json`、原 `.log`、`selection.json` 和三份 `inputs-*.json` 保留实际命令、进程返回与输入。两轮各 1,100 项输入在各自运行前后相同；每轮 33 个仓库内输入已通过 Git 对象内容逐项核对，与该轮历史提交和原 SHA 全部一致。其余是原 Go 工具链、标准库与 module 源，精确位置/SHA 在原输入表中，不能称其由 main 源码恢复。
 
-在完整历史合入 main 后，使用表中提交恢复对应源码与 recorder；无须另存同内容 patch。删除分支前须确认这两提交仍由 main 历史可达。不要以修后代码替换 `basic01` 原输入：它实际只报告 `Unavailable`，未记录系统 errno；O_PATH/NONBLOCK 是后续静态定位，不能补写原动态 EINVAL。
+表中两提交已实际核实为 main `66fe3ab0` 祖先，每轮 33 个仓库内输入又以 main 对象库逐项核对原 SHA，相同；使用这些提交恢复对应源码与 recorder，无须另存同内容 patch。外部 1,067 项中，1,022 项指原 Go 1.27.1 工具链/标准库，45 项指原只读 modules，未移动或冒称仓库历史可恢复。不要以修后代码替换 `basic01` 原输入：它实际只报告 `Unavailable`，未记录系统 errno；O_PATH/NONBLOCK 是后续静态定位，不能补写原动态 EINVAL。
 
-## 保全准备
+## 保全完成
 
-`preservation-plan.json` 逐项列出两个检查目录的 58 个普通文件的相对路径、大小和 SHA-256，原件合计 3,654,282 B；清单自身 11,321 B，SHA-256 `2a8b0520d70a9ecb4f3937fef3d3c00a84d61d2e394b867eea4aac5c2eeb58ce`。清单加原件共 59 文件 / 3,665,603 B，无链接或特殊文件；两轮私有 tmp 目录均已空。它只是本次输出的保全准备，不是新全树输入清单或已移动证明。
+原 `preservation-plan.json` 仍保留准备时事实：两个检查目录 58 个普通文件共 3,654,282 B；清单自身 11,321 B，SHA-256 `2a8b0520d70a9ecb4f3937fef3d3c00a84d61d2e394b867eea4aac5c2eeb58ce`。此次迁移包含该清单共 59 文件 / 3,665,603 B，无链接或特殊文件；两轮私有 tmp 目录均已空。
+
+迁移实际进程 `773786` 原工具退出 0。迁移前记录每个文件/目录完整路径、dev、inode、mode、size 和文件 SHA，迁移后逐项复核相同；原根目录本身 inode 也保持。新增的 `retirement01/{before,after,result}.json` 保存这三份迁移记录，不改写任一原 FAIL 或输入表。当前没有本树 cwd/命令行的可见活进程；`/proc` 不可读或已退出项不冒完全可见，原 recorder/Go/list/vet 的实际 Wait 和 owner 交接仍是退出依据。
 
 没有本树私有 Go/module cache、独立产物 binary、浏览器依赖或外部 `/tmp` 证据。原两次 recorder、Go 和 list/vet 均已实际退出，没有本任务后台持有者。`GOCACHE` 指向保留的 SkillHTTP 热缓存，`GOMODCACHE` 指向保留的 SkillsMilestoneResume 只读模块；保全本片时绝不能迁移或删除这些外部依赖。后继 RoundInput 不需本片运行输入；以后使用本地库应从正式 main 取得源码，不借用本树绝对路径。
 
