@@ -1,6 +1,6 @@
 # Agent 创建与编辑的 Runner 挂载声明
 
-状态：后端候选 `c189c9e7` 已通过下述分段纯控与真实 PG 领域 HTTP / final 回滚链，并获独立有限接受；默认 App 浏览器后继仍在独立实施。基线 `3c7f820d`，承接 [D10 Agent 配置](d10-agent-configuration.md)、[D15 Runner 控制](d15-runner-control.md)、[D16 Workspace](d16-runner-workspace.md) 与 [Agent Workspace](../../architecture/runner/agent-workspace.md)。
+状态：后端候选 `c189c9e7` 已通过下述分段纯控与真实 PG 领域 HTTP / final 回滚链，并获独立有限接受；默认 App 配置 UI 后继已随 main `94a225a2` 正式交付，真实普通 Owner 创建、编辑及 Unknown 恢复的有限验收见 [UI 交付卡](d10-agent-runner-mounts-ui.md)与[原 native02 证据](../../../output/ai/retired-20261011/agent-runner-mounts-ui/native02/)；不外推物理 Runner 执行或完整 D10。基线 `3c7f820d`，承接 [D10 Agent 配置](d10-agent-configuration.md)、[D15 Runner 控制](d15-runner-control.md)、[D16 Workspace](d16-runner-workspace.md) 与 [Agent Workspace](../../architecture/runner/agent-workspace.md)。
 
 ## 已定输入与兼容
 
