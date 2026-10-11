@@ -2,13 +2,15 @@
 
 ## 当前批次与活动树
 
-第九批自动review dispatch/00059已正式交付main `65ec9395615282b4c18ad89e3126d04a9697b1b5`，push `194042`与远端exact `246c14`已确认；delivery同tip已推送，root `ai/product-continuation`的merge `384ed605`已推送。最终accepted SOURCE `a3b72c72b4d8ba26610e7096a99113cf115f36a8`；当前零活动实现、零Go/cache/native与资源窗口，不新增下一批目标。
+第十批已正式开scope：基线main `65ec9395615282b4c18ad89e3126d04a9697b1b5`，root检查点 `b79b5012`。A仅有界Project发现与Scheduler多P owner；B为真实Agent安全目录HTTP前置。生产App runtime完整装配、ready和页面不属于本批。当前源码实际编写，尚无Go/native窗口或第十动态通过结论，约30%粗估及全部STOP不变。
 
-14 top race/三包vet通过，后续仅fixture窄修，原pure复用；compile03/list与native02 wholePASS，真实1 top/2 sub共49.09s，四原Wait0、七ID14次absence、全部双尾/TCP0/adopted[]及1620输入一致，secret最终原件有限接受。原compile01 TextPart类型FAIL、native01后验SQLSTATE42703 FAIL及candidate02完整保留；第八candidate01和两容量FAIL、其余历史材料也不动。Execution成功不自动done；active Human交接、AgentRun写权、多轮/tools/Stream及生产app/initializer与其它STOP不因此完成，约30%粗估不变。
+A：content `/workspace/agenteam-task-transition` / `ai/project-scheduler-discovery`的合同 `1c0721f4`已推送，Reader与三项pure已保存为author `5bd7e928`并push（`791420`），full delivery已借入至`74bd4d74`；cleanup `/workspace/agenteam-skill-install-runtime-source` / `ai/project-runner-manager`基于`65ec9395`，新manager与测试正在写。完整delivery `/workspace/agenteam-task-flow-delivery` / `ai/project-runtime-support-delivery`现组合`815aeb8f`，初始`1a76f587`推送（`5c22ec`）已闭；coordination唯一新`project_runners_test.go`正在写。
 
-Work `/workspace/agenteam-task-transition` / `ai/work-review-dispatch`（`917772a8`）与Scheduler `/workspace/agenteam-skill-install-runtime-source` / `ai/scheduler-review-dispatch`（`78714ad4`）均已推送，九tracked目录再次普通sparse park（actual0 `35775b`/`054b3c`，clean `c495d6`/`c0e582`）。唯一完整delivery `/workspace/agenteam-task-flow-delivery` / `ai/review-dispatch-delivery`及两作者树/refs继续按恢复用途保留，不因有限slice完成删除整树；所有ignored/output/state与FAIL原位保留。
+B：work_ui `ai/agent-directory-http`基于`65ec9395`，合同author `b6a8ae0d`已push（`711420`）并借入full组合`815aeb8f`；独占reader/HTTP/appadapter/OpenAPI。work_ui已确认未建写native并正式交content，后者已启动full新`agent_directory_http_test.go`。旧共享仅`app/account.go`。secret待冻结后有限独审；skills_http只维护两既有入口并等待准确测试范围冻结，不提前新建runner、探资源或重测第九批。
 
-D13/D18/D16此前九目录普通sparse预备及protected保留事实保持，约586 MB仅为当时规划余量，不作为后继启动证明；下次实际调用仍须同进程fresh≥5GiB。当前结果与恢复位置见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，复现沿[既有组合recipe](../agent-system-integration/README.md)，不新增恢复文件或回填旧结果。
+第九accepted SOURCE `a3b72c72b4d8ba26610e7096a99113cf115f36a8`的14 top/三包vet、compile03/list、native02整top两sub49.09s最终接受，所有原Wait和资源尾闭合。原compile01/native01两FAIL、candidate02/03及第八candidate01/两容量FAIL原样保留；Execution成功不自动done，active Human交接、AgentRun写权、多轮/tools/Stream及生产app/initializer未因此完成。
+
+ToolRegistry原规则九目录普通sparse park实际 `4e3323`，后验 `8c7646`确认clean/protected保留；唯一容量读约537 MB高于5GiB，属于规划余量，保留第九candidate03不退休，所有FAIL/output/state/config/refs不动。D13/D18/D16旧park事实保持；后续仍以实际同进程fresh≥5GiB为硬门。恢复映射见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，复现沿[既有组合recipe](../agent-system-integration/README.md)，不新增状态文件。
 
 ## 前置阶段记录（历史）
 
