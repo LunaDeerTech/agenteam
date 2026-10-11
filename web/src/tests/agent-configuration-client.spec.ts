@@ -575,9 +575,9 @@ describe('Owner Agent configuration closed client', () => {
       { approval_policy: 'default', approval_model_ref: model },
       { approval_model_ref: undefined },
     ])
-      await expect(
+      expect(() =>
         api.update(project, agent, { expected_version: '1', request } as never, write),
-      ).rejects.toMatchObject({ kind: 'invalid-input' })
+      ).toThrowError('invalid-input')
     expect(fetcher).not.toHaveBeenCalled()
     const input = captureAgentUpdateInput({
       expected_version: '1',
