@@ -486,19 +486,19 @@ func TestSchedulerRelaunchBusyKeepsTaskAndCooldown(t *testing.T) {
 	}
 	before := r.relaunch.Clone()
 	out, err := owner.CompensateAgentBusy(context.Background(), r.project, r.id)
-	if err != nil || out.Summary().Status != Skipped || out.Summary().SkipReason != "agent_busy" || work.discover != 0 || work.apply != 0 || work.checked != 0 {
+	if err != nil || out.Summary().Status != Skipped || out.Summary().SkipReason != "agent_busy" || work.discover != 0 || work.apply != 0 || work.checked != 0 || store.associationRuntime != nil {
 		t.Fatal("relaunch Busy attempted Work claim restoration", err)
 	}
 	if store.row.relaunch == nil || *store.row.relaunch != before || store.row.guard != nil || store.row.attempts != 1 {
 		t.Fatal("Busy changed the immutable relaunch source")
 	}
 	replay, err := owner.CompensateAgentBusy(context.Background(), r.project, r.id)
-	if err != nil || replay.Summary().Version != out.Summary().Version || work.discover != 0 || work.apply != 0 || work.checked != 0 {
+	if err != nil || replay.Summary().Version != out.Summary().Version || work.discover != 0 || work.apply != 0 || work.checked != 0 || store.associationRuntime != nil {
 		t.Fatal("Busy replay repeated settlement", err)
 	}
-	// This Store's only accepted UPDATE is the original Dispatch CAS. It
-	// rejects Task/rank writes and task_runtime resets, so success also proves
-	// that Busy did not replenish the previous Execution's exhausted cooldown.
+	// The shared Store supports association runtime writes. The explicit nil
+	// checks above prove that neither Busy settlement nor its replay created or
+	// reset cooldown; Task/rank writes remain outside this controlled Store.
 	owner.Stop()
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
