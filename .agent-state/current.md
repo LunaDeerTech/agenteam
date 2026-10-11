@@ -1,15 +1,17 @@
 # 已提交后继 RoundInput 投影工作分支
 
-2026-10-11。本树 `/workspace/agenteam-next-round-projection`，分支 `ai/next-round-projection-20261011`，起点 `71b13d5c`，现组合上游 68 `44ab6534`（已含正式 67 与 Runner 本地 write-file）。`variables_review` 负责 Execution reader/合同/控制，`skills_milestone_review` 负责 AgentLoop 投影；root 统筹 Git、唯一 Go/cache/native 窗口。Projection 合同及两域源码已获有限静态接受，8 个新 top 尚未编译或运行。见[本片边界](../docs/development/work-items/d22-next-round-projection.md)。本地索引不代替 main 的全局协调状态。
+2026-10-11。本树 `/workspace/agenteam-next-round-projection`，分支 `ai/next-round-projection-20261011`，起点 `71b13d5c`，已组合上游 68 `44ab6534`。`variables_review` 负责 Execution reader/合同/控制及本次运行记录，`skills_milestone_review` 负责 AgentLoop；PG 与方法另有单独作者，root 统筹 Git、资源窗口和集成。原运行源码 `c30623db`，产品/基础/方法获有限接受，首次 native01 wholeFAIL，尚未完成真实投影验收。见[本片卡](../docs/development/work-items/d22-next-round-projection.md)。本树索引不覆盖 main 的全局协调状态。
 
 ## 当前开发
 
-- Projection 只按原 E/nextRoundID 读取已提交 RoundInput、原 Snapshot/前驱/三条 Transcript/可选 Control 与固定 ToolSet；原 Store 完整锁、实际返回和 Stop/Drain accounting 不变。Loop 回调纯计算，等待 reader 实际成功返回才发布；无 Model/Runner/HTTP、新授权、当前配置重读或生产默认绑定。原 system 保持，control/目录为白名单 user 数据。
-- [基础脚本](next-round-projection/run-basic-checks.py)已保存并静态检查，仅选本片 8 个新 top 与三包 vet，尚未运行；root 在上游完整验收与组合固定后另授 Go 窗口。独立 PG 作者及方法作者实施中，未编译或运行。
-- 上游 68 已有 9 top / 52 sub 分段与四包 vet 通过，原 basic01 wholeFAIL 保留；首次 native01 原工具 30712 两 sub 主体已 PASS，outer 与退出尾仍在途，尚无 whole 结论。源码已组合不代表动态验收；不把 67 的已交付结果算作本片通过。
-- 主目标 D01–D28/E01 尚未完成。Knowledge Move 原 wholeFAIL、旧 tools HTTP 等 STOP 全部保持。下列保全清理采用 main `53ac76fe` 已确认记录，32 树 / 33 本地 / 63 远端、147 待核及 1 显式保留不变。
+- 本片只投影真实已提交 RoundInput，原参数/结果/三消息与可选 Control 按固定历史绑定，Loop 等原 reader 实际成功返回才发布。无下一 Model、Runner 派发或新授权，原 system 与完整锁/Stop/Drain 保持。
+- basic01 原22796 actual0：8 top / 42 sub race、三包 vet 全过，657 输入六份前后记录同；compile01/list 原97067 actual0，1893→1894 只增实际 binary；prepare 原25484 actual0。原件均在 `output/ai/next-round-projection/`，不重跑旧矩阵。
+- native01 原10165 wholeFAIL / supervisor798335 actual1（76.456s），唯一 top/sub 0.00s 在 fixture 最前 `os.MkdirTemp` 失败，原 errno 未记录，未到 Projection。Go/driver 实际 Wait 1，七资源双缺席、desc/private/runtime 双空、原 TCP delta 双空及输入不变均齐；窗口已释放，不自动重试。PG 作者仅获 helper 失败处安全诊断写权，产品/断言/原预算与门保持。详见[原 PG 方法](next-round-projection/pg-method.md)。
+- 上游 68 已随 main `bf7c882a` 正式有限交付并保全清理；不回退为未交，也不将其通过算作本片通过。主目标 D01–D28/E01 尚未完成；Move 原 wholeFAIL 和所有历史 STOP 保留。
 
 ## 保留与清理
+
+- Execution RoundInput（68）已随完整历史 main `bf7c882a` 有限交付并推送；保全说明 `c34ba3b5` 原推送 50299 实际 0。基础 9 top / 52 sub 分段及 4 包 vet、compile01 与 native01 有限 wholePASS 保持，basic01 原 FAIL 完整保留。81 个 output 文件及三份 tmp 副本已无覆盖保全至 `output/ai/retired-20261011/execution-round-input`，详见[本卡](../docs/development/work-items/d22-execution-round-input.md)及[恢复说明](execution-round-input/README.md)。root 确认最终 `f1fe5484` 为 main 祖先后，普通 worktree remove 与 branch -d 均实际 0（工具 chunk `9dc6b3`）；fresh 远端查询 37217 实际 0 且为空，分支从未推送，故只增加树与本地分支计数。交付止于一次非终态后继 RoundInput，Determine 新增 Model/dispatch 为 0，下一 Model、production 与 tools HTTP 等 STOP 保持。
 
 - Skill Assignment ingress 已随完整历史 main `5c4bdca9` 有限交付，保全说明 `ad023b69` 推送工具 14649 实际 0；native02 原91341 wholePASS 已唯一主审接受，原 basic01、compile01、native01 FAIL 全部保留。131 个完整 output 文件及六份 tmp 副本已保全至 `output/ai/retired-20261011/skill-assignment-ingress`，原 tmp 保留，详见[本卡](../docs/development/work-items/d10-skill-assignment-ingress.md)及[恢复说明](skill-assignment-ingress/README.md)。root 已实际完成普通 worktree remove 和 branch -d，均退出 0；远端首次 exact-lease 删除工具 49505 因无法读取 Git Username 实际 1，fresh 确认原 ref 未变后，同一 exact-lease 后继工具 2276 实际 0，fresh 查询为空、fetch/prune 0。三项已计入下列清理数。范围仍只到真实 Owner Assign/Remove、四 owner 与 typed Audit/Outbox/Ingress 同Tx、历史/回滚/Committed ack-loss 只 Lookup，created / Model0、显式图与 Project test Skills；不含 Preparing 全链、68、下一 Model 或默认绑定。
 
@@ -28,7 +30,7 @@
 - ProjectVariablesResume 已随 main `3e28f10a` 有限交付；`66d45ce1` 仅保留完整开发历史、文件树零变化。全部原 output 和三份 tmp 必需副本已无覆盖保全，119 个已提交历史版本 main 可达；早期未提交失败输入缺口如实保留，见[恢复说明](project-variables-resume/README.md)。原树已普通移除，本地 branch -d 实际成功；远端原 tip 精确 lease 删除工具 4661 实际 0，fresh 查询为空、prune 0，三项清理已计入下列总数。
 - ObjectSafe 保留原件与失败。Move 活跃树保留，未核其他树不自动清理。
 - Runner directory 已随 main `4e5e70ce` 有限交付并推送，28 个相关 race top、六包 vet 与真实 PG/WSS 整轮独立接受；原树、本地分支及远端引用均已清理。完整 output 已同文件系统无覆盖迁至 main `output/ai/retired-20261011/runner-directory-adapter/`，其中 `retention/` 保存原 `/tmp/rda01` log/owned/request 的逐字副本和路径映射；原 `/tmp` 保留。本片无失败输入需补恢复差额，上游严格授权替身、生产默认 nil executor/旧 STOP 保留。
-- 已完成清理共 32 个 WorkTree、33 个本地分支、63 个远端引用；其中 27 个额外远端引用为严格 main 祖先，没有对应本地分支或树，另有已删除的本地 work296。root 已确认前述三棵退役树不存在、对应 local/tracking 为空，精确 lease 删除、ls-remote 空结果及 main+ai prune 均实际成功。Directory 普通 worktree remove 成功，branch -d 因非祖先拒绝后仅对已交 squash 分支执行窄 -D；最新 tip 精确 lease 删除、成功空查询、prune 和 local/tracking 空结果均已闭合。另有 D16 filesystem、D18 NameProjection、SearchBenchmark 三个完整 scope 已交且无独占依赖的旧远端引用，经 fresh tip 核对、精确 lease 删除、成功空查询及 prune 后完成清理，没有新增本地分支或树。新增清理 `ai/work-review-runtime-delivery`：tip `f4190ad7` 全部历史经 main 可达，无本地分支、worktree 或活动依赖；root fresh tip 核对后精确 lease 删除成功，ls-remote 成功为空，prune 后远端跟踪引用为空，无需新增恢复材料。原 154 个待核引用现剩 147 个，1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。`ai/skills-milestone-integration` 的全部历史已为 main 祖先、无 local/tree 或活动依赖；root 核定 tip `fc0fb130` 后精确 lease 删除工具 74385 实际 0，fresh 查询为空、prune 完成，已计入上述远端累计。
+- 已完成清理共 33 个 WorkTree、34 个本地分支、63 个远端引用；其中 27 个额外远端引用为严格 main 祖先，没有对应本地分支或树，另有已删除的本地 work296。root 已确认前述三棵退役树不存在、对应 local/tracking 为空，精确 lease 删除、ls-remote 空结果及 main+ai prune 均实际成功。Directory 普通 worktree remove 成功，branch -d 因非祖先拒绝后仅对已交 squash 分支执行窄 -D；最新 tip 精确 lease 删除、成功空查询、prune 和 local/tracking 空结果均已闭合。另有 D16 filesystem、D18 NameProjection、SearchBenchmark 三个完整 scope 已交且无独占依赖的旧远端引用，经 fresh tip 核对、精确 lease 删除、成功空查询及 prune 后完成清理，没有新增本地分支或树。新增清理 `ai/work-review-runtime-delivery`：tip `f4190ad7` 全部历史经 main 可达，无本地分支、worktree 或活动依赖；root fresh tip 核对后精确 lease 删除成功，ls-remote 成功为空，prune 后远端跟踪引用为空，无需新增恢复材料。原 154 个待核引用现剩 147 个，1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。`ai/skills-milestone-integration` 的全部历史已为 main 祖先、无 local/tree 或活动依赖；root 核定 tip `fc0fb130` 后精确 lease 删除工具 74385 实际 0，fresh 查询为空、prune 完成，已计入上述远端累计。
 
 
 - 两条无 local/tree 或活动依赖的旧 remote 已完成 fresh tip 核对、双 exact-lease 原子删除、成功空查询及 prune：`ai/task-timeline-http`（`1e6b3db2809ce0e62de6c8c2042a0eaf3b9b67f5`）完整 6 路径及 6 个提交版本逐字保留于 main 祖先 `bfebd676`；`ai/agent-directory-http`（`235887d2f615ed6bd6863d9c8b4a1b1e548f32d2`）完整 14 路径等于 main 祖先 `2c59cf0d`，跨三提交的 15 个文件版本均可从 main 历史恢复，无需新增材料。
