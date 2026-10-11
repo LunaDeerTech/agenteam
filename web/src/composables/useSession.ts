@@ -1815,16 +1815,15 @@ export function createSessionController(
         return result
       })
       .catch((error: unknown) => {
-        const e =
-          isKnowledgeCommand(kind)
-            ? current()
-              ? projectFailure(identity, op, error)
-              : error instanceof AccountFailure
-                ? error
-                : new AccountFailure('transport')
-            : isSprintLifecycleAction(kind) ||
-                isAgentConfigurationAction(kind) ||
-                isWorkReviewAction(kind)
+        const e = isKnowledgeCommand(kind)
+          ? current()
+            ? projectFailure(identity, op, error)
+            : error instanceof AccountFailure
+              ? error
+              : new AccountFailure('transport')
+          : isSprintLifecycleAction(kind) ||
+              isAgentConfigurationAction(kind) ||
+              isWorkReviewAction(kind)
             ? projectFailure(identity, op, error)
             : kind === 'knowledge-read'
               ? knowledgeFailure(current, error)

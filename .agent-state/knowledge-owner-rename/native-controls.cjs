@@ -223,26 +223,41 @@ process.on("unhandledRejection", () => unhandled++);
       });
       const originalGet = response.body.getReader.bind(response.body);
       response.body.getReader = function (...args) {
-        const reader = originalGet(...args), read = reader.read, closed = reader.closed;
+        const reader = originalGet(...args),
+          read = reader.read,
+          closed = reader.closed;
         let first = true;
         reader.read = function (...args) {
           assert.equal(this, reader);
           const p = Reflect.apply(read, this, args);
           if (!first) return p;
           first = false;
-          if (mode === "read-reject") return p.then(() => { throw Error("PRIVATE_READ"); });
+          if (mode === "read-reject")
+            return p.then(() => {
+              throw Error("PRIVATE_READ");
+            });
           if (mode === "read-held") {
             entered.resolve();
-            return p.then(async value => { await gate.promise; return value; });
+            return p.then(async (value) => {
+              await gate.promise;
+              return value;
+            });
           }
           return p;
         };
-        if (["closed-held", "closed-reject", "held-first-retirement"].includes(mode)) {
-          Object.defineProperty(reader, "closed", { configurable: true, value: closed.then(() => {
-            if (mode === "closed-reject") throw Error("PRIVATE_CLOSED");
-            entered.resolve();
-            return gate.promise;
-          }) });
+        if (
+          ["closed-held", "closed-reject", "held-first-retirement"].includes(
+            mode,
+          )
+        ) {
+          Object.defineProperty(reader, "closed", {
+            configurable: true,
+            value: closed.then(() => {
+              if (mode === "closed-reject") throw Error("PRIVATE_CLOSED");
+              entered.resolve();
+              return gate.promise;
+            }),
+          });
         }
         return reader;
       };
@@ -310,12 +325,21 @@ process.on("unhandledRejection", () => unhandled++);
         await entered.promise;
         if (mode === "read-held") {
           assert.equal(auth.state.busy, true);
-          assert.equal(__knowledgeRenamePublication.snapshot().rows[0].fulfilled, false);
+          assert.equal(
+            __knowledgeRenamePublication.snapshot().rows[0].fulfilled,
+            false,
+          );
         } else {
           await joined;
           assert.equal(auth.state.busy, false);
-          assert.equal(__knowledgeRenamePublication.snapshot().rows[0].fulfilled, true);
-          assert.equal(__knowledgeRenameNative.snapshot().rows[0].reader_closed, false);
+          assert.equal(
+            __knowledgeRenamePublication.snapshot().rows[0].fulfilled,
+            true,
+          );
+          assert.equal(
+            __knowledgeRenameNative.snapshot().rows[0].reader_closed,
+            false,
+          );
         }
         assert.equal(await observer.idle(), false);
         checks += 3;

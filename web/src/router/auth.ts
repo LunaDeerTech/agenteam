@@ -201,7 +201,10 @@ export function installTaskNavigation(
   }
 }
 const knowledgeNavigation = new WeakMap<Router, { confirmLeave: () => Promise<boolean> }>()
-export function installKnowledgeNavigation(router: Router, owner: { confirmLeave: () => Promise<boolean> }) {
+export function installKnowledgeNavigation(
+  router: Router,
+  owner: { confirmLeave: () => Promise<boolean> },
+) {
   knowledgeNavigation.set(router, owner)
   return () => {
     if (knowledgeNavigation.get(router) === owner) knowledgeNavigation.delete(router)
@@ -211,7 +214,10 @@ export function installKnowledgeNavigation(router: Router, owner: { confirmLeave
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   router.beforeEach(async (to, from) => {
     // Ask before Session revalidation can temporarily unmount the dirty page.
-    if (to.fullPath !== from.fullPath && !((await knowledgeNavigation.get(router)?.confirmLeave()) ?? true))
+    if (
+      to.fullPath !== from.fullPath &&
+      !((await knowledgeNavigation.get(router)?.confirmLeave()) ?? true)
+    )
       return false
     if (
       to.fullPath !== from.fullPath &&

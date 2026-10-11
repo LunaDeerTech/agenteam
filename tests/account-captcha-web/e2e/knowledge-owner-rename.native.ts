@@ -191,8 +191,12 @@ export function installRenameNative(config: {
             release = reader.releaseLock;
           observe(
             reader.closed,
-            () => { row.reader_closed = true; },
-            () => { row.reader_closed_rejected = true; },
+            () => {
+              row.reader_closed = true;
+            },
+            () => {
+              row.reader_closed_rejected = true;
+            },
           );
           let chunks: Uint8Array[] = [];
           replace(reader, "read", function (this: any, ...args: any[]) {

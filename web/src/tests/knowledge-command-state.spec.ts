@@ -352,45 +352,55 @@ describe('Knowledge rename original Session owner and current observations', () 
     ['rename', 'outer'],
     ['lookup', 'reader'],
     ['lookup', 'outer'],
-  ] as const)('keeps %s uncertain when a pre-EOF failure has a rejecting %s cancellation tail', async (action, tail) => {
-    const f = await editFixture()
-    f.editor.state.title = '待查证'
-    if (action === 'lookup') {
-      f.intercept(async () => {
-        throw new Error('controlled transport')
-      })
-      await f.editor.save()
+  ] as const)(
+    'keeps %s uncertain when a pre-EOF failure has a rejecting %s cancellation tail',
+    async (action, tail) => {
+      const f = await editFixture()
+      f.editor.state.title = '待查证'
+      if (action === 'lookup') {
+        f.intercept(async () => {
+          throw new Error('controlled transport')
+        })
+        await f.editor.save()
+        expect(f.editor.progress.value?.phase).toBe('uncertain')
+      }
+      const response = new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new Uint8Array([0xff]))
+          },
+          cancel() {
+            return Promise.reject(new Error('private controlled failure'))
+          },
+        }),
+        { headers: { 'Content-Type': tail === 'reader' ? 'application/json' : 'text/plain' } },
+      )
+      const reader = tail === 'reader' ? response.body!.getReader() : null
+      const acquire = vi.spyOn(response.body!, 'getReader')
+      if (reader) acquire.mockReturnValue(reader as never)
+      const release = reader ? vi.spyOn(reader, 'releaseLock') : null
+      const outer = vi.spyOn(response.body!, 'cancel')
+      const inner = reader ? vi.spyOn(reader, 'cancel') : null
+      f.intercept(async (path, init) =>
+        path.endsWith(action === 'rename' ? '/rename' : '/commands/lookup')
+          ? response
+          : f.normal(path, init),
+      )
+      if (action === 'rename') await f.editor.save()
+      else await f.editor.lookup()
+      await flushPromises()
+      expect(acquire).toHaveBeenCalledTimes(tail === 'reader' ? 1 : 0)
+      if (reader) {
+        expect(inner).toHaveBeenCalledOnce()
+        expect(release).toHaveBeenCalledOnce()
+      }
+      expect(outer).toHaveBeenCalledTimes(tail === 'outer' ? 1 : 0)
       expect(f.editor.progress.value?.phase).toBe('uncertain')
-    }
-    const response = new Response(new ReadableStream<Uint8Array>({
-      start(controller) { controller.enqueue(new Uint8Array([0xff])) },
-      cancel() { return Promise.reject(new Error('private controlled failure')) },
-    }), { headers: { 'Content-Type': tail === 'reader' ? 'application/json' : 'text/plain' } })
-    const reader = tail === 'reader' ? response.body!.getReader() : null
-    const acquire = vi.spyOn(response.body!, 'getReader')
-    if (reader) acquire.mockReturnValue(reader as never)
-    const release = reader ? vi.spyOn(reader, 'releaseLock') : null
-    const outer = vi.spyOn(response.body!, 'cancel')
-    const inner = reader ? vi.spyOn(reader, 'cancel') : null
-    f.intercept(async (path, init) =>
-      path.endsWith(action === 'rename' ? '/rename' : '/commands/lookup')
-        ? response
-        : f.normal(path, init),
-    )
-    if (action === 'rename') await f.editor.save()
-    else await f.editor.lookup()
-    await flushPromises()
-    expect(acquire).toHaveBeenCalledTimes(tail === 'reader' ? 1 : 0)
-    if (reader) {
-      expect(inner).toHaveBeenCalledOnce()
-      expect(release).toHaveBeenCalledOnce()
-    }
-    expect(outer).toHaveBeenCalledTimes(tail === 'outer' ? 1 : 0)
-    expect(f.editor.progress.value?.phase).toBe('uncertain')
-    expect(f.editor.progress.value?.receipt).toBeNull()
-    expect(f.auth.state.busy).toBe(false)
-    expect(f.page.state.document?.title).toBe('父文档')
-  })
+      expect(f.editor.progress.value?.receipt).toBeNull()
+      expect(f.auth.state.busy).toBe(false)
+      expect(f.page.state.document?.title).toBe('父文档')
+    },
+  )
   it('clears current protected observations on local refusal without denying System', async () => {
     const f = await editFixture()
     f.intercept(async () => problem(403, 'FORBIDDEN'))

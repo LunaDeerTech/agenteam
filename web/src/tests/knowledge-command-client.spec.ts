@@ -122,7 +122,9 @@ describe('Knowledge rename and original lookup HTTP contract', () => {
     vi.spyOn(complete.body!, 'getReader').mockReturnValue(reader)
     const innerCancel = vi.spyOn(reader, 'cancel')
     const outerCancel = vi.spyOn(complete.body!, 'cancel')
-    await expect(createKnowledgeCommandsAPI(async () => complete).rename(id(1), id(2), input, write())).resolves.toEqual({ document: row() })
+    await expect(
+      createKnowledgeCommandsAPI(async () => complete).rename(id(1), id(2), input, write()),
+    ).resolves.toEqual({ document: row() })
     expect(innerCancel).not.toHaveBeenCalled()
     expect(outerCancel).not.toHaveBeenCalled()
     let release!: () => void
@@ -137,7 +139,7 @@ describe('Knowledge rename and original lookup HTTP contract', () => {
     })
     const api = createKnowledgeCommandsAPI(async () => response)
     let returned = false
-    const pending = api.rename(id(1), id(2), input, write()).catch(error => {
+    const pending = api.rename(id(1), id(2), input, write()).catch((error) => {
       returned = true
       return error
     })
