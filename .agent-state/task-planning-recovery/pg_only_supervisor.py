@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestExecutionRuntimeAccessAudit$': frozenset({
+        'TestExecutionRuntimeAccessAudit',
+        'TestExecutionRuntimeAccessAudit/policy-denial-requires-live-runtime-handoff',
+        'TestExecutionRuntimeAccessAudit/default-factory-completed-one-turn',
+    }),
     '^TestAgentDirectoryHTTP$': frozenset({
         'TestAgentDirectoryHTTP',
         'TestAgentDirectoryHTTP/normal-directory-pagination',
