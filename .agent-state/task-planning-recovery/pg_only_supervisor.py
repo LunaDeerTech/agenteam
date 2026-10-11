@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestRunnerReadFileOperation$': frozenset((
+        'TestRunnerReadFileOperation',
+        'TestRunnerReadFileOperation/result-commit-loss-and-observation',
+        'TestRunnerReadFileOperation/current-mount-clear-rejects-unclaimed',
+    )),
     '^TestExecutionToolCallFacts$': frozenset((
         'TestExecutionToolCallFacts',
         'TestExecutionToolCallFacts/held-close-unknown-and-binding',
