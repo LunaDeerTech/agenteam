@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestExecutionToolCallFacts$': frozenset((
+        'TestExecutionToolCallFacts',
+        'TestExecutionToolCallFacts/held-close-unknown-and-binding',
+        'TestExecutionToolCallFacts/current-revocation-and-checkpoint-rollback',
+    )),
     '^TestRunnerDirectoryAdapter$': frozenset(('TestRunnerDirectoryAdapter',)),
     '^TestRunnerReadFileAdapter$': frozenset(('TestRunnerReadFileAdapter',)),
     '^TestExecutionMountFirstRound$': frozenset((

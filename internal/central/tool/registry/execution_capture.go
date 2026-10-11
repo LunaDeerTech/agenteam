@@ -248,7 +248,7 @@ func (c *ExecutionCapture) ResolveExecutionToolsInTx(ctx context.Context, tx f.T
 	tools := make([]tc.ExecutionTool, 0, len(mappings))
 	for _, mapping := range mappings {
 		entry := byID[mapping.Reference.ToolID]
-		v := tc.ExecutionTool{ToolID: entry.Ref.ToolID, SpecRevision: entry.Ref.SpecRevision, ModelVisibleName: mapping.ModelVisibleName, BindingSnapshot: tc.BuiltinExecutionBinding{Binding: entry.Binding, ScopeResolverID: entry.Scope, RiskClassifierID: entry.Risk, Class: entry.Class}}
+		v := tc.ExecutionTool{ToolID: entry.Ref.ToolID, SpecRevision: entry.Ref.SpecRevision, ModelVisibleName: mapping.ModelVisibleName, BindingSnapshot: tc.BuiltinExecutionBinding{Binding: entry.Binding, RunnerBinding: entry.RunnerBinding, ScopeResolverID: entry.Scope, RiskClassifierID: entry.Risk, Class: entry.Class}}
 		if err = v.Validate(); err != nil {
 			return nil, fail(f.InvalidState)
 		}

@@ -16,15 +16,16 @@ import (
 // ExecutionCapture adds only current Agent-source/attempt binding around the
 // existing Resolver. It has no worker, network adapter or new persistence.
 type ExecutionCapture struct {
-	models *Service
-	owner  mc.ExecutionModelCaptureAuthority
+	models  *Service
+	owner   mc.ExecutionModelCaptureAuthority
+	profile resolutionCaptureProfile
 }
 
 func NewExecutionCapture(models *Service, owner mc.ExecutionModelCaptureAuthority) (*ExecutionCapture, error) {
 	if models.state() == nil || models.state().authority.state() == nil || models.state().authority.state().auth.Resolution == nil || nilPort(owner) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	return &ExecutionCapture{models, owner}, nil
+	return &ExecutionCapture{models: models, owner: owner}, nil
 }
 
 type executionModelPlan struct {
@@ -144,7 +145,7 @@ func (p *ExecutionCapture) DiscoverExecutionModel(ctx context.Context, r mc.Exec
 	if err != nil {
 		return nil, err
 	}
-	resolution, err := p.models.DiscoverResolve(ctx, request)
+	resolution, err := p.models.discoverResolve(ctx, request, p.profile)
 	if err != nil {
 		var unknown *resolutionDiscoveryUnknown
 		if errors.As(err, &unknown) {
@@ -194,7 +195,7 @@ func (p *ExecutionCapture) ResolveExecutionModelInTx(ctx context.Context, tx f.T
 	if !source.equal(selected.source) {
 		return zero, fault(f.ConfirmationStale)
 	}
-	out, err := p.models.ResolveModelInTx(ctx, tx, selected.resolve, selected.resolution)
+	out, err := p.models.resolveModelInTx(ctx, tx, selected.resolve, selected.resolution, p.profile)
 	if err != nil {
 		return zero, err
 	}

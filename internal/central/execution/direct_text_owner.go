@@ -26,7 +26,7 @@ type directTextCall struct {
 	request                                 c.PreparationRequest
 	input                                   *preparationInputRecord
 	snapshot                                c.DirectTextSnapshot
-	round                                   c.DirectTextRound
+	round                                   executionRound
 	summary                                 c.Summary
 	event                                   event.Event
 	runtimeLocks                            []f.LockRequest
@@ -39,6 +39,8 @@ type directTextCall struct {
 	uncertainty                             string
 	invocation                              *directTextInvocation
 	terminal                                *directTextTerminal
+	toolPending                             bool
+	toolFacts                               *toolCallCandidate
 }
 
 type directTextState struct {
@@ -47,6 +49,7 @@ type directTextState struct {
 	processes oc.ProcessAuthority
 	process   oc.ProcessID
 	deps      DirectTextDependencies
+	tools     *toolCallDependencies
 	mu        sync.Mutex
 	stopped   bool
 	calls     map[i.ExecutionID]*directTextCall
@@ -57,7 +60,7 @@ type directTextState struct {
 // that can be replayed without the original context and live transaction.
 type directTextModelFacts struct {
 	Snapshot  c.DirectTextSnapshot
-	Round     c.DirectTextRound
+	Round     executionRound
 	Summary   c.Summary
 	ProcessID oc.ProcessID
 	Locks     []f.LockRequest
@@ -124,7 +127,7 @@ func (a *Authority) directTextModelScope(ctx context.Context, tx f.Tx, allowClos
 	}
 	s := run.owner
 	s.mu.Lock()
-	ready := run.started && (run.phase == "calling" || allowClosing && run.phase == "closing")
+	ready := run.started && (run.phase == "calling" || run.phase == "tool-pending" || s.tools != nil && run.allJoined && run.phase == "tool-writing" || allowClosing && run.phase == "closing")
 	locks := slices.Clone(run.runtimeLocks)
 	snapshot, round := run.snapshot, run.round
 	s.mu.Unlock()
@@ -257,6 +260,6 @@ func (a *Authority) directTextRetirementScope(ctx context.Context, tx f.Tx) (dir
 	return directTextModelFacts{run.snapshot, run.round, row.summary.Clone(), s.process, locks}, ctx.Err()
 }
 
-func sameDirectText(row *directTextRecord, snapshot c.DirectTextSnapshot, round c.DirectTextRound) bool {
+func sameDirectText(row *directTextRecord, snapshot c.DirectTextSnapshot, round executionRound) bool {
 	return row != nil && row.snapshot.Digest() == snapshot.Digest() && row.round.Digest() == round.Digest() && bytes.Equal(row.snapshot.CanonicalBytes(), snapshot.CanonicalBytes()) && bytes.Equal(row.round.CanonicalBytes(), round.CanonicalBytes())
 }

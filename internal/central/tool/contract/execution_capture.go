@@ -144,11 +144,11 @@ type ExecutionTools interface {
 	ResolveExecutionToolsInTx(context.Context, f.Tx, ExecutionToolCaptureRequest, ExecutionToolPlan) ([]ExecutionTool, error)
 }
 
-// This slice supports actual registered Builtins only. Runner/MCP bindings and
-// leases are not represented by a placeholder Builtin or a successful empty
-// result. Capturing this metadata grants no runtime invocation permission.
+// The legacy type name and Builtin encoding are retained. Exactly one of Binding
+// and RunnerBinding is present. Capturing metadata grants no invocation permission.
 type BuiltinExecutionBinding struct {
-	Binding          BuiltinBinding
+	Binding          BuiltinBinding `json:",omitzero"`
+	RunnerBinding    RunnerBinding  `json:",omitzero"`
 	ScopeResolverID  ScopeResolverID
 	RiskClassifierID RiskClassifierID
 	Class            ToolClass
@@ -162,7 +162,10 @@ type ExecutionTool struct {
 
 func (v ExecutionTool) Validate() error {
 	b := v.BindingSnapshot
-	if (SpecRef{ToolID: v.ToolID, SpecRevision: v.SpecRevision}).Validate() != nil || v.ModelVisibleName != "tool_"+strings.ReplaceAll(v.ToolID.String(), "-", "") || !stablePart(b.Binding.HandlerID) || b.Binding.ContractRevision.Validate() != nil || !stablePart(string(b.ScopeResolverID)) || !stablePart(string(b.RiskClassifierID)) || (b.Class != OrdinaryTool && b.Class != CoreTool) {
+	if (SpecRef{ToolID: v.ToolID, SpecRevision: v.SpecRevision}).Validate() != nil || v.ModelVisibleName != "tool_"+strings.ReplaceAll(v.ToolID.String(), "-", "") || !validBindingChoice(b.Binding, b.RunnerBinding) || !stablePart(string(b.ScopeResolverID)) || !stablePart(string(b.RiskClassifierID)) || (b.Class != OrdinaryTool && b.Class != CoreTool) {
+		return operationInvalid()
+	}
+	if b.RunnerBinding != (RunnerBinding{}) && (b.ScopeResolverID != "runner.read-file" || b.RiskClassifierID != "runner.read-file" || b.Class != OrdinaryTool) {
 		return operationInvalid()
 	}
 	return nil

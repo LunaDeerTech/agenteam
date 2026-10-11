@@ -103,6 +103,9 @@ func projectMessages(ctx context.Context, captured ec.ExecutionContext) ([]mc.Me
 			Workspace: m.Workspace, CapabilityState: "not_captured", Headless: nil, Capabilities: nil,
 		})
 	}
+	for _, tool := range fields.Tools {
+		environment.Tools = append(environment.Tools, tool.ModelVisibleName)
+	}
 	variables := variablesInformation{Variables: []variableInformation{}, Secrets: []secretInformation{}}
 	for _, variable := range fields.Environment.Fields().Variables {
 		v := variable.Fields()

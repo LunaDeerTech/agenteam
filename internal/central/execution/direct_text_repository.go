@@ -13,7 +13,6 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
-	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
@@ -22,10 +21,11 @@ import (
 
 type directTextRecord struct {
 	snapshot       c.DirectTextSnapshot
-	round          c.DirectTextRound
+	round          executionRound
 	startedVersion f.Version
 	startedEvent   event.EventID
 	terminal       *directTextTerminal
+	toolPending    *toolCallCandidate
 }
 type directTextTerminal struct {
 	status          c.Status
@@ -40,7 +40,7 @@ type directTextTerminal struct {
 	plan            oc.AppendPlan
 }
 
-const directTextColumns = `s.content,s.digest,s.execution_id::text,s.project_id::text,s.agent_id::text,s.id::text,s.start_id::text,s.process_id::text,s.input_digest,s.context_digest,s.created_at,s.started_version,s.started_event_id::text,r.content,r.digest,r.id::text,r.input_binding_id::text,r.call_id::text,r.input_digest,r.context_digest,r.created_at,r.transcript_through,r.terminal_status,r.terminal_version,r.terminal_reason,r.terminal_event_id::text,r.response,r.response_digest,r.finished_at`
+const directTextColumns = `s.content,s.digest,s.execution_id::text,s.project_id::text,s.agent_id::text,s.id::text,s.start_id::text,s.process_id::text,s.input_digest,s.context_digest,s.created_at,s.started_version,s.started_event_id::text,r.content,r.digest,r.id::text,r.input_binding_id::text,r.call_id::text,r.input_digest,r.context_digest,r.created_at,r.transcript_through,r.terminal_status,r.terminal_version,r.terminal_reason,r.terminal_event_id::text,r.response,r.response_digest,r.finished_at,r.tool_pending,r.checkpoint_at`
 
 func loadDirectText(ctx context.Context, x postgres.SQLExecutor, execution i.ExecutionID) (*directTextRecord, error) {
 	var snapshotRaw, roundRaw, responseRaw []byte
@@ -49,8 +49,9 @@ func loadDirectText(ctx context.Context, x postgres.SQLExecutor, execution i.Exe
 	var startedVersion, through int64
 	var status, reason, terminalEvent, responseDigest *string
 	var terminalVersion *int64
-	var finished *time.Time
-	err := x.QueryRow(ctx, `SELECT `+directTextColumns+` FROM agenteam_execution.snapshots s JOIN agenteam_execution.rounds r ON (r.execution_id,r.snapshot_id,r.start_id)=(s.execution_id,s.id,s.start_id) WHERE s.execution_id=$1`, execution.String()).Scan(&snapshotRaw, &sd, &e, &p, &a, &snapshotID, &startID, &process, &inputDigest, &contextDigest, &snapshotAt, &startedVersion, &startedEvent, &roundRaw, &rd, &roundID, &bindingID, &callID, &roundInput, &roundContext, &roundAt, &through, &status, &terminalVersion, &reason, &terminalEvent, &responseRaw, &responseDigest, &finished)
+	var finished, checkpoint *time.Time
+	var pending bool
+	err := x.QueryRow(ctx, `SELECT `+directTextColumns+` FROM agenteam_execution.snapshots s JOIN agenteam_execution.rounds r ON (r.execution_id,r.snapshot_id,r.start_id)=(s.execution_id,s.id,s.start_id) WHERE s.execution_id=$1`, execution.String()).Scan(&snapshotRaw, &sd, &e, &p, &a, &snapshotID, &startID, &process, &inputDigest, &contextDigest, &snapshotAt, &startedVersion, &startedEvent, &roundRaw, &rd, &roundID, &bindingID, &callID, &roundInput, &roundContext, &roundAt, &through, &status, &terminalVersion, &reason, &terminalEvent, &responseRaw, &responseDigest, &finished, &pending, &checkpoint)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -61,7 +62,7 @@ func loadDirectText(ctx context.Context, x postgres.SQLExecutor, execution i.Exe
 	if r.snapshot, err = c.DecodeDirectTextSnapshot(snapshotRaw); err != nil {
 		return nil, unavailable(nil)
 	}
-	if r.round, err = c.DecodeDirectTextRound(roundRaw); err != nil {
+	if r.round, err = decodeExecutionRound(roundRaw); err != nil {
 		return nil, unavailable(nil)
 	}
 	if r.startedEvent, err = f.ParseID[event.EventIdentity](startedEvent); err != nil {
@@ -69,15 +70,53 @@ func loadDirectText(ctx context.Context, x postgres.SQLExecutor, execution i.Exe
 	}
 	sv, rv := r.snapshot.Fields(), r.round.Fields()
 	iv := sv.Context.Input().Fields()
-	digest, err := model.TextInputDigest(rv.Messages)
+	digest, err := executionRoundDigest(r.round)
 	if err != nil || startedVersion < 2 || sv.Context.InputDigest() != f.Digest(inputDigest) || sv.Context.Digest() != f.Digest(contextDigest) || r.snapshot.Digest() != f.Digest(sd) || sv.ID.String() != snapshotID || sv.StartID.String() != startID || sv.ProcessID.String() != process || !sv.CreatedAt.Time().Equal(snapshotAt) || e != execution.String() || iv.Request.ExecutionID != execution || iv.Request.Launch.ProjectID.String() != p || iv.Request.Launch.AgentID.String() != a || r.round.Digest() != f.Digest(rd) || rv.ID.String() != roundID || rv.InputBindingID.String() != bindingID || rv.CallID.String() != callID || rv.ExecutionID != execution || rv.SnapshotID != sv.ID || rv.StartID != sv.StartID || rv.ContextDigest != sv.Context.Digest() || roundContext != contextDigest || rv.Input.Digest != digest || string(digest) != roundInput || !rv.CreatedAt.Time().Equal(roundAt) || !rv.CreatedAt.Time().Equal(sv.CreatedAt.Time()) {
 		return nil, unavailable(nil)
 	}
 	if status == nil {
-		if terminalVersion != nil || reason != nil || terminalEvent != nil || responseRaw != nil || responseDigest != nil || finished != nil || through != 1 {
+		if pending {
+			if rv.Input.SchemaVersion != c.ToolCallRoundSchemaVersion || terminalVersion != nil || reason != nil || terminalEvent != nil || finished != nil || checkpoint == nil || through != 2 || responseDigest == nil || c.TriggerInputDigest(responseRaw) != f.Digest(*responseDigest) {
+				return nil, unavailable(nil)
+			}
+			var response mc.ModelResponse
+			if decodeDirectTextJSON(responseRaw, &response) != nil || response.Validate() != nil || response.CallID != rv.CallID || response.FinishReason != "tool_calls" {
+				return nil, unavailable(nil)
+			}
+			at, err := f.NewInstant(*checkpoint)
+			if err != nil || at.Time().Before(sv.CreatedAt.Time()) {
+				return nil, unavailable(nil)
+			}
+			var part *mc.ToolCallPart
+			for _, p := range response.Message.Parts {
+				if p.ToolCall != nil {
+					if part != nil {
+						return nil, unavailable(nil)
+					}
+					v := *p.ToolCall
+					part = &v
+				} else if p.Text == nil {
+					return nil, unavailable(nil)
+				}
+			}
+			if part == nil {
+				return nil, unavailable(nil)
+			}
+			r.toolPending = &toolCallCandidate{response: response, call: *part, at: at}
+			r.toolPending, err = loadToolCallFacts(ctx, x, r)
+			if err != nil {
+				return nil, err
+			}
+			if err = checkDirectTextEntry(ctx, x, execution, rv.ID, 2, "assistant", response.Message, at); err != nil {
+				return nil, err
+			}
+		} else if terminalVersion != nil || reason != nil || terminalEvent != nil || responseRaw != nil || responseDigest != nil || finished != nil || checkpoint != nil || through != 1 {
 			return nil, unavailable(nil)
 		}
 	} else {
+		if pending || checkpoint != nil {
+			return nil, unavailable(nil)
+		}
 		if terminalVersion == nil || reason == nil || terminalEvent == nil || finished == nil || *terminalVersion <= startedVersion {
 			return nil, unavailable(nil)
 		}
@@ -190,7 +229,7 @@ func insertDirectText(ctx context.Context, x postgres.SQLExecutor, run *directTe
 	if tag.RowsAffected() != 1 {
 		return unavailable(nil)
 	}
-	tag, err = x.Exec(ctx, `INSERT INTO agenteam_execution.rounds(id,execution_id,snapshot_id,start_id,input_binding_id,call_id,input_digest,context_digest,schema_version,content,digest,created_at,transcript_through) VALUES($1,$2,$3,$4,$5,$6,$7,$8,1,$9,$10,$11,1)`, r.ID.String(), q.ExecutionID.String(), s.ID.String(), s.StartID.String(), r.InputBindingID.String(), r.CallID.String(), string(r.Input.Digest), string(r.ContextDigest), run.round.CanonicalBytes(), string(run.round.Digest()), r.CreatedAt.Time())
+	tag, err = x.Exec(ctx, `INSERT INTO agenteam_execution.rounds(id,execution_id,snapshot_id,start_id,input_binding_id,call_id,input_digest,context_digest,schema_version,content,digest,created_at,transcript_through) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$12,$9,$10,$11,1)`, r.ID.String(), q.ExecutionID.String(), s.ID.String(), s.StartID.String(), r.InputBindingID.String(), r.CallID.String(), string(r.Input.Digest), string(r.ContextDigest), run.round.CanonicalBytes(), string(run.round.Digest()), r.CreatedAt.Time(), int64(r.Input.SchemaVersion))
 	if err != nil {
 		return unavailable(err)
 	}
@@ -256,6 +295,9 @@ func directTextReceipt(row *executionRecord, stored *directTextRecord) c.DirectT
 	}
 	s, r := stored.snapshot.Fields(), stored.round.Fields()
 	through := f.Sequence(1)
+	if stored.toolPending != nil {
+		through = 2
+	}
 	if stored.terminal != nil {
 		through = stored.terminal.through
 	}
