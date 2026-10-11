@@ -1,10 +1,19 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { UiButton, UiField, UiSelect, UiTextarea, UiState, UiBadge } from '../ui'
 import { taskLabels } from '../../api/work-review'
 import type { ProjectTasks } from '../../composables/useProjectTasks'
+import TaskEditForm from './TaskEditForm.vue'
 const props = defineProps<{ owner: ProjectTasks }>()
 const task = computed(() => props.owner.state.task)
+const editButton = ref<{ $el: HTMLButtonElement } | null>(null)
+async function cancelEdit() {
+  const target = task.value?.id
+  await props.owner.cancelEdit()
+  await nextTick()
+  if (!props.owner.edit.open && props.owner.visible.value && task.value?.id === target)
+    editButton.value?.$el.focus()
+}
 const actionLabel = computed(() =>
   props.owner.draft.action === 'in_review'
     ? '提交评审'
@@ -125,7 +134,19 @@ const canSubmit = computed(
     <p v-if="owner.state.feedback" role="status">{{ owner.state.feedback }}</p>
     <p v-if="owner.state.message" role="alert">{{ owner.state.message }}</p>
     <UiButton :disabled="owner.busy.value" @click="owner.refresh()">重新读取任务</UiButton>
-    <div v-if="!owner.pending.value" class="review-actions">
+    <TaskEditForm
+      v-if="owner.edit.open && !owner.pending.value"
+      :owner="owner"
+      @cancel="cancelEdit"
+    />
+    <div v-if="!owner.pending.value && !owner.edit.open" class="review-actions">
+      <UiButton
+        v-if="task.state === 'backlog' && task.assignee_agent_id === null"
+        ref="editButton"
+        :disabled="owner.busy.value || !owner.canEdit.value || !!owner.draft.action"
+        @click="owner.openEdit()"
+        >编辑任务</UiButton
+      >
       <UiButton
         v-if="task.state === 'backlog'"
         :disabled="owner.busy.value || owner.readOnly.value"
@@ -154,7 +175,7 @@ const canSubmit = computed(
       此任务已结束，保留只读信息。
     </p>
     <form
-      v-if="owner.draft.action && !owner.pending.value"
+      v-if="owner.draft.action && !owner.pending.value && !owner.edit.open"
       class="review-form"
       @submit.prevent="owner.submit()"
     >

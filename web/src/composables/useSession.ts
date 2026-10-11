@@ -21,6 +21,14 @@ import {
   type TaskCreateReceipt,
   type TaskCreateLookup,
 } from '../api/work-task-planning'
+import {
+  createWorkTaskEditAPI,
+  captureTaskUpdateInput,
+  type WorkTaskEditAPI,
+  type TaskUpdateInput,
+  type TaskUpdateReceipt,
+  type TaskUpdateLookup,
+} from '../api/work-task-edit'
 import { createAgentDirectoryAPI, type AgentDirectoryAPI } from '../api/agent-directory'
 import { readonly, shallowReactive } from 'vue'
 import {
@@ -280,9 +288,10 @@ type WorkReviewIntent = {
   | { kind: 'review'; input: ReviewInput }
   | { kind: 'ready'; input: ReadyInput }
   | { kind: 'create'; input: TaskCreateInput }
+  | { kind: 'edit'; input: TaskUpdateInput }
 )
-type WorkCommandReceipt = ReviewReceipt | TaskCreateReceipt
-type WorkCommandLookup = ReviewLookup | TaskCreateLookup
+type WorkCommandReceipt = ReviewReceipt | TaskCreateReceipt | TaskUpdateReceipt
+type WorkCommandLookup = ReviewLookup | TaskCreateLookup | TaskUpdateLookup
 export type WorkReviewProgress = Readonly<{
   kind: WorkReviewIntent['kind']
   projectID: string
@@ -650,6 +659,7 @@ export function createSessionController(
   workReviewAPI: WorkReviewAPI = createWorkReviewAPI(),
   agentDirectoryAPI: AgentDirectoryAPI = createAgentDirectoryAPI(),
   taskPlanningAPI: WorkTaskPlanningAPI = createWorkTaskPlanningAPI(),
+  taskEditAPI: WorkTaskEditAPI = createWorkTaskEditAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -3772,6 +3782,10 @@ export function createSessionController(
           throw new AccountFailure('invalid-input')
         dispatched = true
         const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        if (original.kind === 'edit')
+          return lookup
+            ? taskEditAPI.lookup(original.projectID, original.taskID, original.input, write)
+            : taskEditAPI.update(original.projectID, original.taskID, original.input, write)
         if (original.kind === 'create')
           return lookup
             ? taskPlanningAPI.lookup(original.projectID, original.input, write)
@@ -3910,6 +3924,29 @@ export function createSessionController(
         const input = captureTaskCreateInput({ request: { task_id: taskID, ...draft } })
         const original: WorkReviewIntent = {
           kind: 'create',
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          taskID,
+          key: newKey(),
+          input,
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        workReviewIntent = original
+        return performReview(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    startEdit(projectID: string, taskID: string, value: TaskUpdateInput) {
+      try {
+        const identity = personalIdentity()
+        if (owner || workReviewIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+        const input = captureTaskUpdateInput(value)
+        const original: WorkReviewIntent = {
+          kind: 'edit',
           identity,
           csrf: sessionCSRF,
           projectID,
