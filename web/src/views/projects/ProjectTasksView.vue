@@ -9,9 +9,12 @@ const owner = useProjectTasks(),
   state = owner.state
 const sidebar = ref(false)
 const createButton = ref<{ $el: HTMLButtonElement } | null>(null)
-async function restoreCreateFocus() {
+async function cancelCreation() {
+  const sprintID = state.sprint?.id
+  await owner.cancelCreation()
   await nextTick()
-  if (owner.visible.value && !state.task) createButton.value?.$el.focus()
+  if (!owner.creation.open && owner.visible.value && !state.task && state.sprint?.id === sprintID)
+    createButton.value?.$el.focus()
 }
 const milestoneOptions = computed(() => {
   const rows = [...state.milestones]
@@ -144,7 +147,7 @@ function returnToCreation() {
             <TaskCreateForm
               v-if="owner.creation.open && !owner.pending.value"
               :owner="owner"
-              @closed="restoreCreateFocus" />
+              @cancel="cancelCreation" />
             <TaskBoard
               :columns="owner.columns"
               :busy="owner.busy.value"
