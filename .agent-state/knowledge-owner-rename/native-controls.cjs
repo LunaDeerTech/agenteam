@@ -161,7 +161,7 @@ process.on("unhandledRejection", () => unhandled++);
       context = new EventEmitter();
     const gate = deferred(),
       entered = deferred();
-    let requestHeaderCalls=0,
+    let requestHeaderCalls = 0,
       headerCalls = 0,
       finishedCalls = 0,
       init;
@@ -169,14 +169,24 @@ process.on("unhandledRejection", () => unhandled++);
       url: () => location.origin + requestPath,
       method: () => "POST",
       postData: () => (mode === "wrong-body" ? "{}" : init.body),
-      postDataBuffer: () => Buffer.from(mode === "wrong-body" ? "{}" : init.body),
-      headers: () => { throw Error("PROVISIONAL_HEADERS_NOT_PROOF"); },
+      postDataBuffer: () =>
+        Buffer.from(mode === "wrong-body" ? "{}" : init.body),
+      headers: () => {
+        throw Error("PROVISIONAL_HEADERS_NOT_PROOF");
+      },
       allHeaders() {
-        assert.equal(this,request);
+        assert.equal(this, request);
         requestHeaderCalls++;
-        const result={...Object.fromEntries(new Headers(init.headers)),origin:location.origin};
-        if(mode==="headers-reject")return Promise.reject(Error("PRIVATE_HEADERS"));
-        if(mode==="headers-held"){entered.resolve();return gate.promise.then(()=>result);}
+        const result = {
+          ...Object.fromEntries(new Headers(init.headers)),
+          origin: location.origin,
+        };
+        if (mode === "headers-reject")
+          return Promise.reject(Error("PRIVATE_HEADERS"));
+        if (mode === "headers-held") {
+          entered.resolve();
+          return gate.promise.then(() => result);
+        }
         return Promise.resolve(result);
       },
       failure: () => ({ errorText: "net::ERR_ABORTED" }),
@@ -220,7 +230,9 @@ process.on("unhandledRejection", () => unhandled++);
         page.emit("response", pwResponse);
         if (mode === "duplicate-response") page.emit("response", pwResponse);
         page.emit(
-          ["failed-post","failed-committed-post"].includes(mode) ? "requestfailed" : "requestfinished",
+          ["failed-post", "failed-committed-post"].includes(mode)
+            ? "requestfailed"
+            : "requestfinished",
           request,
         );
       });
@@ -329,10 +341,10 @@ process.on("unhandledRejection", () => unhandled++);
         (value) => ({ value }),
         (error) => ({ error }),
       );
-      if(mode==="headers-held") {
+      if (mode === "headers-held") {
         await entered.promise;
         await joined;
-        assert.equal(await observer.idle(),false);
+        assert.equal(await observer.idle(), false);
         gate.resolve();
         checks++;
       }
@@ -381,9 +393,9 @@ process.on("unhandledRejection", () => unhandled++);
           __knowledgeRenamePublication.snapshot().pending === 0,
       );
       if (mode === "headers-held") {
-        const end=Date.now()+1500;
-        while(!(await observer.idle())) {
-          if(Date.now()>=end)throw Error("HEADER_TAIL_NOT_JOINED");
+        const end = Date.now() + 1500;
+        while (!(await observer.idle())) {
+          if (Date.now() >= end) throw Error("HEADER_TAIL_NOT_JOINED");
           await tick();
         }
       }
@@ -422,11 +434,17 @@ process.on("unhandledRejection", () => unhandled++);
       }
       report ??= await observer.finish();
       assert.equal(headerCalls, 1);
-      assert.equal(requestHeaderCalls,1);
+      assert.equal(requestHeaderCalls, 1);
       checks++;
       assert.equal(
         finishedCalls,
-        ["failed-post", "failed-committed-post", "headers-reject", "wrong-body", "duplicate-response"].includes(mode)
+        [
+          "failed-post",
+          "failed-committed-post",
+          "headers-reject",
+          "wrong-body",
+          "duplicate-response",
+        ].includes(mode)
           ? 0
           : 1,
       );
@@ -441,15 +459,25 @@ process.on("unhandledRejection", () => unhandled++);
           content_length: bytes.length,
           body_sha256: crypto.createHash("sha256").update(bytes).digest("hex"),
         };
-      const committedProof={
-        ...sidecar, kind:"rename", original_eof:true,original_closed:true,
-        app_handler_returned:true,committed_verified:true,
-        request_body_sha256:crypto.createHash("sha256").update(init.body).digest("hex"),
-        idempotency_key_sha256:crypto.createHash("sha256").update(new Headers(init.headers).get("idempotency-key")).digest("hex"),
+      const committedProof = {
+        ...sidecar,
+        kind: "rename",
+        original_eof: true,
+        original_closed: true,
+        app_handler_returned: true,
+        committed_verified: true,
+        request_body_sha256: crypto
+          .createHash("sha256")
+          .update(init.body)
+          .digest("hex"),
+        idempotency_key_sha256: crypto
+          .createHash("sha256")
+          .update(new Headers(init.headers).get("idempotency-key"))
+          .digest("hex"),
       };
       // Controlled evidence, not a DB commit claim. A failed POST without
       // this original-command proof remains the old rejection case.
-      const proof=mode==="failed-post" ? sidecar : committedProof;
+      const proof = mode === "failed-post" ? sidecar : committedProof;
       const complete =
         methods.renameOriginalCompleted(
           report.native,
@@ -461,21 +489,55 @@ process.on("unhandledRejection", () => unhandled++);
         report.pw_pending === 0;
       assert.equal(
         complete,
-        ["normal", "failed-committed-post", "headers-held", "read-held", "closed-held"].includes(mode),
+        [
+          "normal",
+          "failed-committed-post",
+          "headers-held",
+          "read-held",
+          "closed-held",
+        ].includes(mode),
         mode,
       );
       checks++;
-      if(mode==="failed-committed-post") {
-        assert.equal(row.terminal,"failed");assert.equal(row.failure_kind,"net::ERR_ABORTED");assert.equal(row.finished_calls,0);
-        for(const field of ["original_eof","original_closed","app_handler_returned","committed_verified"]) {
-          assert.equal(methods.renameOriginalCompleted(report.native,report.publication,row,{...committedProof,[field]:false}),false);
+      if (mode === "failed-committed-post") {
+        assert.equal(row.terminal, "failed");
+        assert.equal(row.failure_kind, "net::ERR_ABORTED");
+        assert.equal(row.finished_calls, 0);
+        for (const field of [
+          "original_eof",
+          "original_closed",
+          "app_handler_returned",
+          "committed_verified",
+        ]) {
+          assert.equal(
+            methods.renameOriginalCompleted(
+              report.native,
+              report.publication,
+              row,
+              { ...committedProof, [field]: false },
+            ),
+            false,
+          );
           checks++;
         }
-        for(const field of ["request_id","body_sha256","request_body_sha256","idempotency_key_sha256"]) {
-          assert.equal(methods.renameOriginalCompleted(report.native,report.publication,row,{...committedProof,[field]:"0".repeat(64)}),false);
+        for (const field of [
+          "request_id",
+          "body_sha256",
+          "request_body_sha256",
+          "idempotency_key_sha256",
+        ]) {
+          assert.equal(
+            methods.renameOriginalCompleted(
+              report.native,
+              report.publication,
+              row,
+              { ...committedProof, [field]: "0".repeat(64) },
+            ),
+            false,
+          );
           checks++;
         }
-        checks+=3;
+        checks += 3;
       }
       if (mode === "closed-reject") {
         assert(settled.value);

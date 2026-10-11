@@ -235,7 +235,13 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
         expect(record.app_handler_returned).toBe(true);
         expect(record.original_eof).toBe(true);
         expect(record.original_closed).toBe(true);
-        expect(record.request_body_sha256).toBe(createHash("sha256").update(JSON.stringify({expected_version:"1",title:data.title})).digest("hex"));
+        expect(record.request_body_sha256).toBe(
+          createHash("sha256")
+            .update(
+              JSON.stringify({ expected_version: "1", title: data.title }),
+            )
+            .digest("hex"),
+        );
         expect(original.request_headers_calls).toBe(1);
         expect(original.request_headers_state).toBe("returned");
         expect(original.request_headers_joined).toBe(true);
