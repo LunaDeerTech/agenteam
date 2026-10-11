@@ -394,8 +394,8 @@ def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
 
 
 def app_runtime_waits(output):
-    lines = [line for line in output.splitlines() if line.startswith('APP_RUNTIME private_hosts')]
-    matches = [re.fullmatch(r'APP_RUNTIME private_hosts phase=(list|run) pid=([1-9][0-9]*) candidate_sha=([a-f0-9]{64})', line) for line in lines]
+    lines = [line for line in output.splitlines() if line.startswith('APP_RUNTIME ')]
+    matches = [re.fullmatch(r'APP_RUNTIME private_dns phase=(list|run) pid=([1-9][0-9]*) candidate_sha=([a-f0-9]{64})', line) for line in lines]
     waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=0 selector=\^TestAppExecutionRuntime\$$', output, re.M)
     return (len(matches) == 2 and all(matches) and [m[1] for m in matches] == ['list', 'run']
             and matches[0][2] != matches[1][2] and matches[0][3] == matches[1][3]

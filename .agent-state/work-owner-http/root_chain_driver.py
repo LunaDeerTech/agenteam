@@ -418,7 +418,7 @@ import tempfile
 
 def main():
     args = sys.argv[1:]
-    inside = args[:1] == ['--inside-private-hosts']
+    inside = args[:1] == ['--inside-private-dns']
     old = args[1:3] if inside else None
     if inside:
         args = args[3:]
@@ -434,7 +434,7 @@ def main():
     if not inside:
         os.execv(UNSHARE, [UNSHARE, '--user', '--map-root-user', '--mount',
                           '--propagation', 'private', PYTHON, __file__,
-                          '--inside-private-hosts', *current, *args])
+                          '--inside-private-dns', *current, *args])
     if len(old) != 2 or any(a == b for a, b in zip(old, current)):
         raise ValueError('private namespaces required')
     descriptor = Path(os.environ['AGENTEAM_OUTBOUND_FIXTURE'])
@@ -449,30 +449,26 @@ def main():
     if not any(ip in ipaddress.IPv4Network(cidr) for cidr in
                ('10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16')):
         raise ValueError('private fixture address required')
-    hosts = Path('/etc/hosts').read_bytes()
-    if len(hosts) > 65536 or b'\x00' in hosts:
-        raise ValueError('bounded original hosts required')
-    for line in hosts.splitlines():
-        if b'fixture.test' in line.split(b'#', 1)[0].split()[1:]:
-            raise ValueError('fixture alias already exists')
+    if not Path('/etc/resolv.conf').is_file():
+        raise ValueError('fixed resolver configuration required')
     libc = ctypes.CDLL(None, use_errno=True)
     libc.mount.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p,
                           ctypes.c_ulong, ctypes.c_void_p]
     libc.mount.restype = ctypes.c_int
     if libc.mount(None, b'/', None, (1 << 14) | (1 << 18), None) != 0:
         raise ValueError('private propagation required')
-    fd, source = tempfile.mkstemp(prefix='app-hosts-', dir=OWNED)
+    fd, source = tempfile.mkstemp(prefix='app-dns-', dir=OWNED)
     try:
         with os.fdopen(fd, 'wb') as stream:
-            stream.write(hosts + b'\n' + str(ip).encode('ascii') + b' fixture.test\n')
-        if libc.mount(os.fsencode(source), b'/etc/hosts', None, 1 << 12, None) != 0:
-            raise ValueError('private hosts bind failed')
+            stream.write(b'nameserver ' + str(ip).encode('ascii') + b'\n')
+        if libc.mount(os.fsencode(source), b'/etc/resolv.conf', None, 1 << 12, None) != 0:
+            raise ValueError('private DNS bind failed')
     finally:
         os.unlink(source)
     # Descriptor ownership is independently revalidated by the real Go fixture.
     # This marker is observation only, not an authority or a business grant.
-    os.environ['AGENTEAM_APP_RUNTIME_PRIVATE_HOSTS'] = '1'
-    print('APP_RUNTIME private_hosts phase=%s pid=%d candidate_sha=%s' %
+    os.environ['AGENTEAM_APP_RUNTIME_PRIVATE_DNS'] = '1'
+    print('APP_RUNTIME private_dns phase=%s pid=%d candidate_sha=%s' %
           (phase, os.getpid(), DIGEST), file=sys.stderr, flush=True)
     os.execv(str(CANDIDATE), [str(CANDIDATE), *args])
 
@@ -480,7 +476,7 @@ def main():
 try:
     main()
 except (OSError, ValueError, KeyError, TypeError):
-    print('STOP App runtime private hosts setup failed', file=sys.stderr)
+    print('STOP App runtime private DNS setup failed', file=sys.stderr)
     sys.exit(1)
 """
 
@@ -717,7 +713,7 @@ def main():
     if args.run == APP_RUNTIME:
         source = app_runtime_wrapper(args.test_binary, directory)
         if hashlib.sha256(source.encode()).hexdigest() != plan['app_runtime_wrapper_sha']:
-            raise ValueError('private hosts wrapper inputs changed')
+            raise ValueError('private DNS wrapper inputs changed')
         env['AGENTEAM_FIXTURE_TEST_BINARY'] = str(prepare_app_runtime_wrapper(args.test_binary, directory))
     os.chdir(REPOSITORY)
     # No child is started here: the original shell chain replaces this PID.

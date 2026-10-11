@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -55,6 +56,7 @@ type serverState struct {
 	connections map[int64]string
 	next        atomic.Int64
 	nonce       string
+	dns         *fixtureDNS
 }
 type connectionKey struct{}
 
@@ -62,8 +64,22 @@ func main() {
 	cert := flag.String("cert", "", "fixture certificate")
 	key := flag.String("key", "", "fixture key")
 	nonce := flag.String("nonce", "", "fixture nonce")
+	dnsEnabled := flag.Bool("runtime-dns", false, "owned App runtime DNS")
 	flag.Parse()
 	s := &serverState{cases: map[string]*scenario{}, closed: map[int64]bool{}, connections: map[int64]string{}, nonce: *nonce}
+	var dnsErrors <-chan error
+	if *dnsEnabled {
+		address, err := fixtureDNSAddress()
+		if err != nil {
+			os.Exit(1)
+		}
+		s.dns, err = newFixtureDNS(address, 53)
+		if err != nil {
+			os.Exit(1)
+		}
+		dnsErrors = s.dns.errors
+		defer s.dns.Close()
+	}
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 	makeServer := func(addr string, handler http.Handler) *http.Server {
@@ -104,15 +120,22 @@ func main() {
 	go func() { errors <- httpServer.ListenAndServe() }()
 	go func() { errors <- tlsServer.ListenAndServeTLS(*cert, *key) }()
 	go func() { errors <- control.ListenAndServe() }()
+	failed := false
 	select {
 	case <-ctx.Done():
 	case e := <-errors:
-		if e != http.ErrServerClosed {
-			os.Exit(1)
-		}
+		failed = e != http.ErrServerClosed
+	case <-dnsErrors:
+		failed = true
 	}
 	for _, srv := range []*http.Server{httpServer, tlsServer, control} {
 		_ = srv.Close()
+	}
+	if s.dns != nil {
+		_ = s.dns.Close()
+	}
+	if failed {
+		os.Exit(1)
 	}
 }
 func (s *serverState) control(w http.ResponseWriter, r *http.Request) {
@@ -122,6 +145,11 @@ func (s *serverState) control(w http.ResponseWriter, r *http.Request) {
 	}
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	if len(parts) == 1 && parts[0] == "ready" {
+		if s.dns != nil {
+			a, aaaa := s.dns.Counts()
+			w.Header().Set("X-Fixture-DNS-A", strconv.FormatUint(a, 10))
+			w.Header().Set("X-Fixture-DNS-AAAA", strconv.FormatUint(aaaa, 10))
+		}
 		w.WriteHeader(204)
 		return
 	}

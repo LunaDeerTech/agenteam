@@ -9,10 +9,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -26,6 +29,7 @@ import (
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 	"github.com/LunaDeerTech/agenteam/internal/central/work"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
@@ -203,14 +207,24 @@ func appRuntimeSafeLog(raw []byte) []string {
 func runAppExecutionRuntime(t *testing.T, wire *firstRoundFixture, held bool, oldProcess string) {
 	t.Helper()
 	v := wire.capture.v
-	// A private mount namespace supplied by the original runner changes only
-	// name resolution. This is the production SystemResolver and real TLS CA.
+	// The original runner privately binds resolv.conf to this owned D04 DNS.
+	// Use the actual production resolver, which deliberately ignores hosts/NSS.
 	ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
 	defer cancel()
-	addresses, err := net.DefaultResolver.LookupIPAddr(ctx, "fixture.test")
+	firstRoundRequire(t, wire.network.Verify())
+	beforeDNS, err := appRuntimeDNSCounts(ctx, wire)
 	firstRoundRequire(t, err)
-	if os.Getenv("AGENTEAM_APP_RUNTIME_PRIVATE_HOSTS") != "1" || len(addresses) != 1 || addresses[0].IP.String() != wire.network.PrivateIP {
-		t.Fatal("original private hosts binding is absent")
+	resolver, err := outbound.SystemResolver()
+	firstRoundRequire(t, err)
+	addresses, err := resolver.Lookup(ctx, "fixture.test")
+	firstRoundRequire(t, err)
+	if os.Getenv("AGENTEAM_APP_RUNTIME_PRIVATE_DNS") != "1" || len(addresses) != 1 || addresses[0].String() != wire.network.PrivateIP {
+		t.Fatal("original private DNS binding is absent")
+	}
+	preparedDNS, err := appRuntimeDNSCounts(ctx, wire)
+	firstRoundRequire(t, err)
+	if preparedDNS[0] != beforeDNS[0]+1 || preparedDNS[1] != beforeDNS[1]+1 {
+		t.Fatal("production resolver did not complete both owned DNS families")
 	}
 	// This handoff runs after the setup's testing.TempDir cleanup. Own a new
 	// directory explicitly until the actual public App call has returned.
@@ -341,6 +355,16 @@ func runAppExecutionRuntime(t *testing.T, wire *firstRoundFixture, held bool, ol
 		t.Fatal("public App did not join its original stop")
 	}
 	firstRoundRequire(t, runErr)
+	// Read the same server's counters only after the original App has joined;
+	// this observation must not delay its cancellation or refresh its budget.
+	dnsContext, stopDNSObservation := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
+	defer stopDNSObservation()
+	completedDNS, err := appRuntimeDNSCounts(dnsContext, wire)
+	firstRoundRequire(t, err)
+	if completedDNS[0] <= preparedDNS[0] || completedDNS[1] <= preparedDNS[1] {
+		t.Fatal("actual App did not use the owned DNS for both families")
+	}
+	t.Logf("App runtime DNS original_system_resolver=true app_a=%d app_aaaa=%d", completedDNS[0]-preparedDNS[0], completedDNS[1]-preparedDNS[1])
 	status := ec.Succeeded
 	if held {
 		status = ec.Cancelled
@@ -360,6 +384,42 @@ func runAppExecutionRuntime(t *testing.T, wire *firstRoundFixture, held bool, ol
 	if !graceful {
 		t.Fatal("App returned without its original graceful shutdown fact")
 	}
+}
+
+// Counts come from the original nonce-protected fixture control listener. They
+// contain no query text, address, credential or provider request material.
+func appRuntimeDNSCounts(ctx context.Context, wire *firstRoundFixture) ([2]uint64, error) {
+	var counts [2]uint64
+	d := wire.network
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://"+net.JoinHostPort(d.PrivateIP, d.ControlPort)+"/ready", nil)
+	if err != nil {
+		return counts, errors.New("owned DNS counter request invalid")
+	}
+	request.Header.Set("X-Fixture-Nonce", d.Nonce)
+	transport := &http.Transport{Proxy: nil}
+	defer transport.CloseIdleConnections()
+	client := &http.Client{Transport: transport, Timeout: 2 * time.Second}
+	response, err := client.Do(request)
+	if err != nil {
+		return counts, errors.New("owned DNS counters unavailable")
+	}
+	body, readErr := io.ReadAll(io.LimitReader(response.Body, 1))
+	closeErr := response.Body.Close()
+	if readErr != nil || closeErr != nil || response.StatusCode != http.StatusNoContent || len(body) != 0 {
+		return counts, errors.New("owned DNS counter response invalid")
+	}
+	for index, name := range []string{"X-Fixture-DNS-A", "X-Fixture-DNS-AAAA"} {
+		values := response.Header.Values(name)
+		if len(values) != 1 {
+			return counts, errors.New("owned DNS counter missing")
+		}
+		value, err := strconv.ParseUint(values[0], 10, 64)
+		if err != nil || strconv.FormatUint(value, 10) != values[0] {
+			return counts, errors.New("owned DNS counter invalid")
+		}
+		counts[index] = value
+	}
+	return counts, nil
 }
 
 func appExecutionConfig(t *testing.T, wire *firstRoundFixture, directory string) config.Config {

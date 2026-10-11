@@ -115,7 +115,13 @@ func run() (code int) {
 		return fail("outbound network creation failed")
 	}
 	networkID = strings.TrimSpace(string(raw))
-	raw, err = pgfixture.Docker(ctx, "run", "--detach", "--name", name, "--label", netfixture.Label+"="+nonce, "--network", networkID, "--mount", "type=bind,src="+directory+",dst=/fixture,readonly", "--entrypoint", "/fixture/server", pgfixture.Image, "-cert", "/fixture/server.crt", "-key", "/fixture/server.key", "-nonce", nonce)
+	serverArgs := []string{"run", "--detach", "--name", name, "--label", netfixture.Label + "=" + nonce, "--network", networkID, "--mount", "type=bind,src=" + directory + ",dst=/fixture,readonly", "--entrypoint", "/fixture/server", pgfixture.Image, "-cert", "/fixture/server.crt", "-key", "/fixture/server.key", "-nonce", nonce}
+	// Only this exact opt-in whole top requires real SystemResolver DNS. Other
+	// suites retain their original listeners and explicit resolver injection.
+	if *filter == "^TestAppExecutionRuntime$" {
+		serverArgs = append(serverArgs, "-runtime-dns")
+	}
+	raw, err = pgfixture.Docker(ctx, serverArgs...)
 	if err != nil {
 		return fail("outbound container creation failed")
 	}
