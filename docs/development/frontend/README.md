@@ -61,6 +61,18 @@ npm run preview --prefix web
 
 采用 HTML5 History。开发服务器和 Vite preview 支持回退；生产资源托管属于 D28，Central 当前未托管 SPA。非 API 的 History 页面才能回退到 `index.html`，API、缺失资产和服务端错误不能直接回退。认证、个人设置、公开入口、系统目录、邀请、Provider/Model 管理、平台用途、账号安全、SMTP 配置/投递、出站规则、系统审计、运行信息与 Owner 工作区的实际浏览器验收使用自有测试服务器托管冻结候选的生产 dist 并反代完整 Central，不把该测试服务器或 `vite preview` 当作生产部署；开发代理另有静态/类型检查，未单独进行真实 dev-server 浏览器验收。
 
+## 普通 Project Variables
+
+`/:username/:project_name/settings/variables` 提供已有 initialized Project 的普通变量目录、详情、创建和编辑。页面先等待当前 Human Session 与 Project Resolve→Get 授权；普通 Owner 与管理员使用相同的 Owner 边界，正在归档和已归档项目只读。接口沿[普通变量后端契约](../work-items/d10-project-variables-owner-http.md)与[正式 OpenAPI](../../../api/openapi/project-variables.json)，不新增后端写入者或迁移。
+
+目录按每页 50 项显式继续，摘要不含 value；详情显示完整原文。创建、保存都需要明确确认，字段不会自动修剪；编辑仅提交用户明确修改的字段，description/value 的空字符串表示清空。已确认命令的历史 receipt 不直接作为当前详情，必须重新取得当前 Get/List。版本冲突保留输入、字段 presence、目标和旧版本，用户先重读当前值，再明确采用当前版本并重新确认保存；不会自动合并、换版本或重发。
+
+结果不确定时只提供原 key、原完整意图的 Lookup，不自动重发或轮询。同 Session checking 期间隐藏页面内容，Session 内原 Unknown 追踪继续保留；只有当前身份与项目重新成立后才可查询。真实 Session/Project 切换和当前 401/403/404 拒绝清除旧材料。输入与请求材料不进入 URL、storage 或诊断日志。
+
+限定实现已有前端定向检查及类型/构建证据；版本冲突保留输入、同 Session 恢复不丢 Unknown 两项修复已独立复核。[真实 fixture](../../../tests/projectvariable/project_variables_web_test.go) 的 `TestProjectVariablesWeb/create-update-and-clear` 已完成一次 Create、两次 PATCH（含显式空值）及各次完整 Get/List，13 个已观察 API 请求全部 finished，10 份 Variables 证明覆盖初始目录、三次写与三对当前 Get/List；浏览器零 Lookup，服务后验以原 key Lookup 核三条历史 receipt、canonical/Audit/Outbox 与其他域事实不变。原 supervisor 收齐 Node/driver 实际 Wait、七资源及 private/runtime/descendants/TCP 双尾；浏览器覆盖键盘确认、焦点、减少动效和横向溢出，1440 浅色与 390 深色图已独立查看。控制检查首次环境遗漏失败与前端原失败保留，不能写成当前 HEAD 单次全量通过。
+
+本片不含删除、Secret、UI 原命令重放、Agent/Runner 环境注入或完整 Variables 生命周期；正常浏览器链不代真实权限/Unknown 全矩阵。生产 Project initializer 和 Central SPA 发布仍未由此完成，上述限定候选与真实正常链已独立接受，Git 集成由主线程收口。
+
 ## Knowledge Owner 只读 UI
 
 `/:username/:project_name/knowledge` 读取当前 Owner 的已有文档，`/knowledge/:document_id` 使用规范 UUIDv7 深链；仅在 Project Resolve→Get 和当前 Human Session 均成立后读子层、metadata、祖先及正文。树展开与选择分开，每层按 cursor 显式继续；祖先是当前路径，不是完整目录快照。正文按正式默认 65536 UTF-8 字节分段，只显示当前段，版本变化清空旧段；Markdown 安全显示源文本，PDF/DOCX 明确不可读，不调用解析、预览或来源获取。
