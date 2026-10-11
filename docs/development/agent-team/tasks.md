@@ -15,6 +15,8 @@
 
 原普通包、两 vet/全 race/两命令构建及 Audit、默认根整改后的定向复验按相应输入组合接受，不称当前 HEAD 一次完整脚本全绿。原 check01/02、Audit deadline、wrapper 元数据失败、Knowledge read01/read02 和各领域历史 FAIL 均保留；后验清理不补写原终态。部署独立必填 `AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING` 继续有效，见[后端说明](../backend/README.md)。
 
+[Agent 显示设置](../work-items/d10-agent-display-settings-ui.md)的名称/颜色编辑、显式清空、真实正常链及原旧字段丢回执链已有限独立接受，随本次变更交付。Skills 包下载与 Task 历史筛选后继仍在各自执行树，未由本结果交付；所有既有 STOP 与生产未绑定范围保持。
+
 ## 当前并行所有权
 
 六个子代理席位动态复用，全部 Git 和实际资源窗口由 root 调度；当前具体进程/分支恢复读 [current](../../../.agent-state/current.md)，旧实例和窗口授权不继承。
@@ -31,6 +33,7 @@
 | --- | --- | --- |
 | [D01 低层资源身份](../work-items/d01-resource-identities.md) | **R1纯契约已实现并独立验收**。Tool/Mount/ProjectVariable三个canonical marker与Foundation ID alias，四依赖race/vet及独立3顶层6子例通过。 | 仅标量声明与类型消费；Tool/Mount/Variables真实目录、引用保护和Agent F1仍未闭合，普通与Secret共用变量ID且不同CredentialID。 |
 | [D10 Agent 核心与引用](../work-items/d10-agent-configuration.md) | **C1纯契约已交付，Model Selection＋Secret Directory metadata 前置本次有限交付**。两域作者 race/vet、非作者源码/方法审与真实联合 1 top/3 sub wholePASS；当前 Owner、同 Store caller Tx、目录分类、撤权/陈旧映射/回滚与原资源尾闭合。 | Agent canonical 创建/当前事实、完整双角色/Secret 引用、默认 Skills/Registry 及 Task 指派绑定仍须后继真实组合；本次无 Agent 行、引用写入或新迁移，生产 initializer 保持 unbound，完整 F1/D10 未完成。 |
+| [D10 Agent 显示设置 UI](../work-items/d10-agent-display-settings-ui.md) | **显示名称/标签颜色编辑与明确清空已有限独立接受**。原字段省略与 null、版本/原意图恢复、冲突保输入保持；真实设置/no-op/清空后三次当前 Get/List、原旧字段 lost 链、资源全尾与六图可见范围接受。 | 新显示字段真实 Unknown/完整权限矩阵未由旧 lost 子例代证；请求存在已联证的 aborted/cut，非全 finished。完整二十字段编辑、F1/D10、生产 initializer 与原 STOP 保持。 |
 | [D10 普通 Project Variables Owner 后端](https://github.com/LunaDeerTech/agenteam/blob/3cea6076bb01693ead2755826826d189626aa3aa/docs/development/work-items/d10-project-variables-owner-http.md) | **限定后端已实现、独立接受并正式交付main（3cea6076）**。已有初始化Project当前Human Owner可经默认Central HTTP创建、读取、分页、更新、删除普通变量，以原意图Lookup/同key显式重放恢复；迁移00024、原子Audit/Outbox及真实退出均闭合。 | 作者库/HTTP/native/默认根与独立三个风险补集按限定版本组合通过，实际Wait与资源尾齐，原FAIL及独占缺口保留。本协调树已合并该main，Git保存由root负责；不含Secret、Agent白名单/执行注入、Runner环境、UI、Project创建HTTP或完整D10，Object join等停止项不变。 |
 | [D27 普通 Variables UI](../frontend/README.md#普通-project-variables) | **限定候选与真实正常链已独立接受，待 Git 集成**。当前 Owner 的目录/详情、创建、按字段 presence 编辑和原 Unknown Lookup；定向前端/类型/构建通过，两项冲突/Session 恢复修复已独审。原 create-update-and-clear 真实链通过，一次创建、两次更新与当前 Get/List、持久事实、两图及全部原 Wait/资源/TCP 尾齐。 | 复用分段有效证据，保留前端及 controls 原失败；不称一次全量通过。只覆盖普通变量读取、创建和编辑，不含删除、Secret、UI 原命令重放、Agent/Runner 注入、真实权限/Unknown 全矩阵或完整 D27；生产 initializer、SPA 发布及既有 STOP 不变。 |
 | [D10 Secret Variable Owner A 纯合同与 Schema](../work-items/d10-secret-variables-owner.md#11-a-纯合同作者结果) | **限定纯合同已实现并独立接受**。安全材料请求、metadata/receipt、独立命令与 identity-only Lookup、事件及 F1 目录/引用端口、严格独立 OpenAPI 已闭合；作者与独立 race、解码保密/绑定负例及 schema 检查通过，原两处独审失败和修复保留。 | A本身仅证明类型、codec、端口形状与schema；后续D04/Owner库及00029/30见下方独立行。后续 Secret HTTP/既有 Project 默认根已按独立范围交付，真实 F1 与完整 D10 仍未完成。 |

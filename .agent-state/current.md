@@ -1,11 +1,11 @@
 # 当前执行检查点
 
-2026-10-11：正式 main 已交 Skills/Milestone、普通 Variables 与 Knowledge 文本 HTTP（`6cbca34c`）。后继 Knowledge 文本 UI 的有限产品、真实四写正常链和独立验收已完成，交 root 合入；本页不把临时执行树当作 main 身份。正式范围及原命令见 [文本 UI 卡](../docs/development/work-items/d12-knowledge-text-ui.md)与[任务台账](../docs/development/agent-team/tasks.md)。
+2026-10-11：Agent 显示名称/标签颜色编辑与显式清空已完成有限独立验收，交 root Git 集成；产品 `04705288`、原 fixture `e3b5877c`。工作树 `/workspace/agenteam-agent-display-settings`、分支 `ai/agent-display-settings-20261011`；唯一内容作者 `agent_display_settings`，root 独占 Git。正式范围、原失败与可重建命令见 [显示设置卡](../docs/development/work-items/d10-agent-display-settings-ui.md)。
 
-Knowledge 执行树 `/workspace/agenteam-knowledge-text-ui`，分支 `ai/knowledge-text-ui-20261011`；产品输入 `9382b447`，最终 fixture `ef1c8b47`，fresh dist 为 `output/ai/knowledge-text-ui/dist-native02`。native03 外工具原退出 0、129.894s，业务 4 写/两文档 v2、原 Wait/七资源与 private/runtime/descendants/TCP 双尾闭合，独立业务/资源/两图接受。28 请求 =23 finished+5 原 GET aborted，联合消费闭合，browser Lookup 0；不写全请求 finished。当前无本线 native/网络/Go 缓存写占用，产品及 fixture 已停写。
+作者定向 7 文件 / 38 测、格式/稳定类型/构建通过；实际 Session 新字段原意图 Unknown 与页面冲突/清空/刷新有受控证明。原 page01 回填落错对象的 3/5 FAIL 已修并保留；旧 list01 只保原范围，最终 list02 绑定最终 TS，显示行号来自转译 JS。compile-display01 原 Go128984 actual0/108.675s，原 selector list actual0且唯一 TestAgentEditWeb。
 
-原 native01 双 Session bundle、native02 窄屏 fixture 整体 FAIL、前端首次失败及旧 EOF 夹具失败均保留；最终分段前端证据与 fresh 构建清单在 `output/ai/knowledge-text-ui/checks/`，真实原件在 `native03/` 和 `/tmp/ktw03/`。同 Session checking/原命令保留、冲突草稿及真实拒绝清理有受控证明，不外推真实 browser Unknown/撤权全矩阵。已授本作者的正式 README/tasks 内容随本次最小文档交付，本内容 owner 处理文档与冲突，root 独占 Git 集成。
+native-display01 原工具3157实际exit0，supervisor137213 actual0/147.996s；1 top / 2 sub46.43s、原两Node/Go/driver及8 adopted Chromium Wait全0，7资源14absence与private/runtime/desc/TCP双尾齐、2483输入完全相同。normal18=17finished+1PATCH200 ERR_ABORTED联合闭合；lost11=10finished+1声明截断，不写全finished。独立reviewer recovery_lead接受实际业务/资源与六PNG可见范围；390颜色/底部操作及Unknown提示未入图部分只由同轮DOM支持。lost是旧字段恢复，不冒新字段真实Unknown矩阵。
 
-并行未完成后继由 root 统筹：`ai/skill-package-http-20261011` / `/workspace/agenteam-skill-package-http`，owner `runtime_recovery`，处于纯测候选准备；`ai/skill-package-ui-20261011` / `/workspace/agenteam-skill-package-ui`，实现 owner `skills_milestone_review`，处于基础控准备，独立 reviewer 为 `skill_package_review`。两线均不在 Knowledge 已通过声明内。
+原件 `output/ai/agent-edit-web/{compile-display01,native-display01,dist-display01}` 及 `/tmp/adw01/ui-ffa0a2551d5848bf.log`；必要源码/测试/recipe均在正式路径和任务卡。当前产品/fixture停写，无后台进程、Go cache writer或自有服务；网络/native及hotcache窗口已明确交 `variables_review` 的 Task 历史筛选。当前待 root 保存的变更仅五个交付文档，Git最终提交/推送以root实际结果为准。
 
-原 Skills/Milestone 与 Variables 恢复树含唯一 FAIL/native 原件和后继仍在使用的依赖/cache，尚不满足整树删除门槛；本轮 Knowledge 原件同样保留，不清理旧作者远端 refs。生产 Project initializer、完整 participant/F1、ready=false/503 与 Object Runtime join/OpenAI tools/SPA concurrent publication/Jina/Image 显式 STOP 保持；不宣完整 D12、D01–28 或 E01 完成。所有层级 gpt-6-astra/ultra；工具无 service_tier 参数，实际 priority 不冒称已确认。
+Skills 包下载（`/workspace/agenteam-skill-package-http`、`/workspace/agenteam-skill-package-ui`）及 Task 历史筛选（`/workspace/agenteam-task-history-filters`）仍为独立未交付工作，不纳入本有限交付；原 Skills browser01 业务 FAIL 及其全尾由对应作者另记。生产 Project initializer、完整participant/F1保持未完成，ready=false/503；Object Runtime join、OpenAI tools、Central SPA concurrent publication、Jina/Image来源STOP保持，不宣完整D01–D28或E01。

@@ -38,15 +38,29 @@ export function agentEditInputs(data: AgentEditMaterial) {
           expected_version: "1",
           request: {
             name,
+            display_name: "  e\u0301 显示助手😀  ",
+            tag_color: "#12abcf",
             description: "Browser saved Agent description.",
             instructions:
               "Browser saved Agent instructions.\nPreserve the complete text.",
           },
         },
-        { expected_version: "2", request: { name } },
         {
           expected_version: "2",
-          request: { description: "", instructions: "" },
+          request: {
+            name,
+            display_name: "  e\u0301 显示助手😀  ",
+            tag_color: "#12abcf",
+          },
+        },
+        {
+          expected_version: "2",
+          request: {
+            display_name: null,
+            tag_color: null,
+            description: "",
+            instructions: "",
+          },
         },
       ];
 }
@@ -108,6 +122,10 @@ export async function observeAgentEdit(page: Page, data: AgentEditMaterial) {
       !url.search
     )
       return "agent-configuration";
+    if (method === "GET" && path === prefix + "/available-chat-models") {
+      expect([...url.searchParams.entries()]).toEqual([["limit", "50"]]);
+      return "agent-models";
+    }
     // Creation, other Agents, Model/authorization edits and unrelated writes
     // are outside this original Update profile.
     throw Error("UNOBSERVED_AGENT_EDIT_ENDPOINT");

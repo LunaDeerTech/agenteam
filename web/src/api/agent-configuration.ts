@@ -24,6 +24,8 @@ export type AgentCreateFields = Readonly<{
 }>
 export type AgentUpdateFields = Readonly<{
   name?: string
+  display_name?: string | null
+  tag_color?: string | null
   description?: string
   instructions?: string
   model_ref?: string
@@ -235,7 +237,7 @@ export function captureAgentCreateInput(value: unknown): AgentCreateInput {
   })
 }
 
-// Omitted fields remain omitted; an explicit empty description/instructions is a clear.
+// Omission keeps a field; null clears display metadata and empty text clears long text.
 export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
   return input(() => {
     const outer = shape(value, ['expected_version', 'request'])
@@ -244,6 +246,8 @@ export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
       [],
       [
         'name',
+        'display_name',
+        'tag_color',
         'description',
         'instructions',
         'model_ref',
@@ -263,6 +267,10 @@ export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
       expected_version: workVersion(outer.expected_version),
       request: Object.freeze({
         ...(Object.hasOwn(v, 'name') ? { name: name(v.name) } : {}),
+        ...(Object.hasOwn(v, 'display_name')
+          ? { display_name: nullable(v.display_name, (x) => workText(x, 1024, true)) }
+          : {}),
+        ...(Object.hasOwn(v, 'tag_color') ? { tag_color: nullable(v.tag_color, color) } : {}),
         ...(Object.hasOwn(v, 'description') ? { description: workText(v.description, 8192) } : {}),
         ...(Object.hasOwn(v, 'instructions')
           ? { instructions: workText(v.instructions, 32768) }
@@ -295,6 +303,8 @@ function updateReceipt(
   requireValue(version <= 9223372036854775807n && agent.version === String(version))
   for (const key of [
     'name',
+    'display_name',
+    'tag_color',
     'description',
     'instructions',
     'model_ref',

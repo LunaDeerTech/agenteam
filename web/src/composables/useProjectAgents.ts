@@ -14,13 +14,15 @@ import { projectRoute } from '../router/auth'
 import type { SessionController } from './useSession'
 import type { ProjectWorkspace } from './useProjectWorkspace'
 
-type EditField = 'name' | 'description' | 'instructions'
+type EditField = 'name' | 'displayName' | 'tagColor' | 'description' | 'instructions'
 type EditPolicyField = 'model_ref' | 'inject_agents_md' | 'approval_policy' | 'approval_model_ref'
 const initialEdit = () => ({
   open: false,
   agentID: '',
   version: '',
   name: '',
+  displayName: '',
+  tagColor: '',
   description: '',
   instructions: '',
   modelID: '',
@@ -57,7 +59,7 @@ function explain(error: unknown) {
     return 'Agent 配置已有新版本。请取消编辑并重新读取，核对后再保存。'
   if (e.problem?.code === 'CURSOR_INVALID') return '目录已变化，请从第一页重新读取。'
   if (e.kind === 'invalid-input')
-    return '请核对名称、模型和必填配置。名称须为 3–32 位英文字母、数字或连字符。'
+    return '请核对名称、显示名称、标签颜色、模型和必填配置。名称须为 3–32 位英文字母、数字或连字符；显示名称不能全为空白，最多 256 个字符；标签颜色须为小写 #rrggbb。'
   return '未取得完整结果，请在原请求结束后重新读取。'
 }
 // This editor supports the current text-chat configuration profile only.
@@ -447,6 +449,8 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       agentID: a.id,
       version: a.version,
       name: a.name,
+      displayName: a.display_name ?? '',
+      tagColor: a.tag_color ?? '',
       description: a.description,
       instructions: a.instructions,
       modelID: a.model_ref,
@@ -505,6 +509,10 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       a = edit.agentID
     const request: AgentUpdateFields = Object.freeze({
       ...(edit.touched.name ? { name: edit.name } : {}),
+      ...(edit.touched.displayName
+        ? { display_name: edit.displayName === '' ? null : edit.displayName }
+        : {}),
+      ...(edit.touched.tagColor ? { tag_color: edit.tagColor === '' ? null : edit.tagColor } : {}),
       ...(edit.touched.description ? { description: edit.description } : {}),
       ...(edit.touched.instructions ? { instructions: edit.instructions } : {}),
       ...(edit.touched.model_ref ? { model_ref: edit.modelID, reasoning_effort: null } : {}),

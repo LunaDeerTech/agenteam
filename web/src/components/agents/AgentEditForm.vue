@@ -42,13 +42,39 @@ watch(disabled, focusName, { flush: 'post' })
     @submit.prevent="owner.submitEdit()"
   >
     <h2>编辑 Agent 配置</h2>
-    <p>基于版本 {{ owner.edit.version }}，只保存本次编辑的字段。描述和指令可以明确清空。</p>
+    <p>基于版本 {{ owner.edit.version }}，只保存本次编辑的字段；未编辑的字段保持原值。</p>
     <UiField label="Agent 名称" required v-slot="field">
       <UiInput
         :id="field.id"
         :model-value="owner.edit.name"
         :disabled="disabled"
         @update:model-value="owner.touchEdit('name', $event)"
+      />
+    </UiField>
+    <UiField
+      label="显示名称"
+      hint="最多 256 个字符，不能全为空白。删除内容后保存可清空，改用 Agent 名称显示。"
+      v-slot="field"
+    >
+      <UiInput
+        :id="field.id"
+        :model-value="owner.edit.displayName"
+        :disabled="disabled"
+        :aria-describedby="field.describedby"
+        @update:model-value="owner.touchEdit('displayName', $event)"
+      />
+    </UiField>
+    <UiField
+      label="标签颜色"
+      hint="可选，格式为小写 #rrggbb。删除内容后保存可清空标签颜色。"
+      v-slot="field"
+    >
+      <UiInput
+        :id="field.id"
+        :model-value="owner.edit.tagColor"
+        :disabled="disabled"
+        :aria-describedby="field.describedby"
+        @update:model-value="owner.touchEdit('tagColor', $event)"
       />
     </UiField>
     <UiField label="Agent 描述" v-slot="field">

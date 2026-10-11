@@ -73,6 +73,12 @@ npm run preview --prefix web
 
 本片不含删除、Secret、UI 原命令重放、Agent/Runner 环境注入或完整 Variables 生命周期；正常浏览器链不代真实权限/Unknown 全矩阵。生产 Project initializer 和 Central SPA 发布仍未由此完成，上述限定候选与真实正常链已独立接受，Git 集成由主线程收口。
 
+## Agent 显示设置
+
+已有 initialized Project 的当前 Human Owner 可在 `/:username/:project_name/settings/agents` 编辑 Agent 的显示名称与标签颜色。表单回填当前配置，仅保存用户编辑的字段；删除输入后保存明确清空，显示名称清空后目录回退标识名。显示名称保留原字节，颜色须为小写 `#rrggbb`；仅空字符串映射清空，空白输入仍按非法值拒绝。
+
+原版本、原 key/完整 patch、Unknown 只查询及冲突保草稿规则保持。保存先显示已确认回执，用户“刷新 Agent 目录”再取得当前 Get/List；字段不会因模型目录读取失败而被误禁用。产品、真实三次写/清空/回读及原旧字段丢回执链已有有限独立接受，精确请求终态、截图可见范围、原 FAIL 与重建方法见 [显示设置卡](../work-items/d10-agent-display-settings-ui.md)。该结果不代表所有配置字段编辑、完整 F1/D10 或生产 initializer 完成。
+
 ## Knowledge Owner 文档 UI
 
 `/:username/:project_name/knowledge` 读取当前 Owner 的已有文档，`/knowledge/:document_id` 使用规范 UUIDv7 深链；仅在 Project Resolve→Get 和当前 Human Session 均成立后读子层、metadata、祖先及正文。树展开与选择分开，每层按 cursor 显式继续；祖先是当前路径，不是完整目录快照。正文按正式默认 65536 UTF-8 字节分段，只显示当前段，版本变化清空旧段；Markdown 安全显示源文本，PDF/DOCX 明确不可读，不调用解析、预览或来源获取。

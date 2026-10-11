@@ -105,11 +105,19 @@ async function runAgentEdit(page: Page, lost: boolean) {
     version: data.version,
     ...data.initial,
   });
+  expect(initial.display_name).toBeNull();
+  expect(initial.tag_color).toBeNull();
   seen.requireDirectory(initial);
 
   // Cancel the original untouched form; wait for the real parent to restore focus.
   await press(page, "编辑配置");
   await expect(field(page, "Agent 名称")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(field(page, "显示名称")).toBeFocused();
+  await expect(field(page, "显示名称")).toHaveValue("");
+  await page.keyboard.press("Tab");
+  await expect(field(page, "标签颜色")).toBeFocused();
+  await expect(field(page, "标签颜色")).toHaveValue("");
   await expect(button(page, "保存配置")).toBeDisabled();
   await press(page, "取消编辑");
   await expect(form(page)).toHaveCount(0);
@@ -119,7 +127,11 @@ async function runAgentEdit(page: Page, lost: boolean) {
   await expect(field(page, "Agent 名称")).toBeFocused();
   await field(page, "Agent 名称").fill(name);
   await field(page, "Agent 描述").fill(inputs[0]!.request.description!);
-  if (!lost) await field(page, "指令").fill(inputs[0]!.request.instructions!);
+  if (!lost) {
+    await field(page, "显示名称").fill(inputs[0]!.request.display_name!);
+    await field(page, "标签颜色").fill(inputs[0]!.request.tag_color!);
+    await field(page, "指令").fill(inputs[0]!.request.instructions!);
+  }
   await expect(button(page, "保存配置")).toBeEnabled();
   await layout(page, 1440, "light");
   await agentEditScreenshot(page, data, "1440-light-edit-form");
@@ -155,11 +167,40 @@ async function runAgentEdit(page: Page, lost: boolean) {
     ? seen.receipt("lookup", 0).receipt
     : seen.receipt("update", 0);
   seen.requireReceipt(first, 0, initial);
+  async function refreshCurrent(current: Record<string, any>) {
+    const directories = seen.requests("agent-directory").length;
+    const configurations = seen.requests("agent-configuration").length;
+    await press(page, "刷新 Agent 目录");
+    await expect
+      .poll(() => seen.requests("agent-directory").length)
+      .toBe(directories + 1);
+    await expect
+      .poll(() => seen.requests("agent-configuration").length)
+      .toBe(configurations + 1);
+    await expect(button(page, "刷新 Agent 目录")).toBeEnabled();
+    await expect(fact(page, "版本")).toHaveText(current.version);
+    await seen.verify();
+    expect(seen.agentRead("agent-configuration")).toEqual(current);
+    seen.requireDirectory(current);
+  }
   let final = first;
   if (!lost) {
+    expect(first.agent.display_name).toBe("  e\u0301 显示助手😀  ");
+    expect(first.agent.tag_color).toBe("#12abcf");
+    await refreshCurrent(first.agent);
+    expect(await fact(page, "显示名称").textContent()).toBe(
+      first.agent.display_name,
+    );
+    await expect(fact(page, "标签颜色")).toHaveText(first.agent.tag_color);
     await press(page, "编辑配置");
+    await expect(field(page, "显示名称")).toHaveValue(first.agent.display_name);
+    await expect(field(page, "标签颜色")).toHaveValue(first.agent.tag_color);
     await field(page, "Agent 名称").fill(name + "x");
     await field(page, "Agent 名称").fill(name);
+    await field(page, "显示名称").fill("Temporary display");
+    await field(page, "显示名称").fill(first.agent.display_name);
+    await field(page, "标签颜色").fill("#ffffff");
+    await field(page, "标签颜色").fill(first.agent.tag_color);
     await press(page, "保存配置");
     await expect(form(page)).toHaveCount(0);
     await expect(
@@ -170,7 +211,10 @@ async function runAgentEdit(page: Page, lost: boolean) {
     const noop = seen.receipt("update", 1);
     seen.requireReceipt(noop, 1, first.agent);
     expect(noop.agent).toEqual(first.agent);
+    await refreshCurrent(noop.agent);
     await press(page, "编辑配置");
+    await field(page, "显示名称").fill("");
+    await field(page, "标签颜色").fill("");
     await field(page, "Agent 描述").fill("");
     await field(page, "指令").fill("");
     await layout(page, 390, "dark");
@@ -180,6 +224,8 @@ async function runAgentEdit(page: Page, lost: boolean) {
     await expect(fact(page, "版本")).toHaveText("3");
     await expect(fact(page, "描述")).toHaveText("未设置");
     await expect(fact(page, "指令")).toHaveText("未设置");
+    await expect(fact(page, "显示名称")).toHaveText("未设置");
+    await expect(fact(page, "标签颜色")).toHaveText("未设置");
     await seen.verify();
     final = seen.receipt("update", 2);
     seen.requireReceipt(final, 2, noop.agent);
@@ -192,20 +238,12 @@ async function runAgentEdit(page: Page, lost: boolean) {
 
   // Later reads check publication only; original write success was already
   // established from its own public Promise, bytes and committed Go receipt.
-  const directories = seen.requests("agent-directory").length;
-  const configurations = seen.requests("agent-configuration").length;
-  await press(page, "刷新 Agent 目录");
-  await expect
-    .poll(() => seen.requests("agent-directory").length)
-    .toBe(directories + 1);
-  await expect
-    .poll(() => seen.requests("agent-configuration").length)
-    .toBe(configurations + 1);
-  await expect(button(page, "刷新 Agent 目录")).toBeEnabled();
-  await expect(fact(page, "版本")).toHaveText(lost ? "2" : "3");
-  await seen.verify();
-  expect(seen.agentRead("agent-configuration")).toEqual(final.agent);
-  seen.requireDirectory(final.agent);
+  await refreshCurrent(final.agent);
+  await expect(directory.locator("strong")).toHaveText(name);
+  if (!lost) {
+    expect(seen.agentRead("agent-configuration").display_name).toBeNull();
+    expect(seen.agentRead("agent-configuration").tag_color).toBeNull();
+  }
   seen.requireCounts();
   await expect(directory).not.toContainText(initial.instructions);
   await layout(page, 390, "dark");

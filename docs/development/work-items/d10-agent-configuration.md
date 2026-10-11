@@ -14,6 +14,8 @@
 
 原SOURCE `3c17d0a6`的前端二十个用例（client 6、Session 5、state 5、page 4）、format10/type/build及Timeline16项证据按原输入复用；新组合八项controls、类型检查与构建通过。原App01容量FAIL、App02错误Host/cookie导致创建目标403、未进入Update的业务FAIL均保留，不回填。三字段编辑验收闭合，随本次文档提交交付main；原件见[Agent编辑组合recipe](../../../.agent-state/agent-system-integration/README.md#agent配置编辑有限组合)。完整二十字段编辑、删除、运行中授权与lifecycle未由本片开放；生产Project initializer、ready503、完整F1与Object runtime join等既有停止项保持，不合并宣称全卡完成。
 
+后继 [Agent 显示设置](d10-agent-display-settings-ui.md)已有限独立接受：当前 Owner 可编辑 `display_name`/`tag_color` 并明确清空，保留实际触达字段、原版本/原 key 及 Unknown/冲突语义。真实 normal 三次 PATCH 设置、no-op、null 清空后分别取得当前 Get/List；原 lost 子例继续只证明旧 name/description patch。原请求终态、六图可见范围、资源全尾及作者初版回填 FAIL 均以该卡为准，不外推完整二十字段编辑或 F1/D10。
+
 本卡拟分成两个可分别验收的结果：**C1 纯 AgentCore 与当前身份端口契约**可在规格接受后先行；**F1 Human Owner 创建、读取、修改真实 Agent 配置，并提供同 caller Tx 的当前身份事实**必须等本卡列出的真实前置闭合后开工。F1 不接受 SQL 手种 Agent、默认成功目录或未绑定初始化作为生产创建路径。C1 完成不解锁 Task 指派；F1 完成也不等于 Executor、Agent 删除、完整 D10 或平台 ready。
 
 ## 1. 依据与当前事实

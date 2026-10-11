@@ -607,25 +607,25 @@ func (w *agentEditWeb) observe(r *http.Request) error {
 				return errors.New("browser repeated an Update key")
 			}
 		}
-		var want map[string]string
+		var want map[string]any
 		if w.mode == "lost-update-confirmation-only-lookup" {
 			if index != 0 {
 				return errors.New("browser retransmitted an uncertain Update")
 			}
-			want = map[string]string{"name": w.draft.Name + "-edited", "description": ""}
+			want = map[string]any{"name": w.draft.Name + "-edited", "description": ""}
 		} else {
 			switch index {
 			case 0:
-				want = map[string]string{"name": w.draft.Name + "-edited", "description": "Browser saved Agent description.", "instructions": "Browser saved Agent instructions.\nPreserve the complete text."}
+				want = map[string]any{"name": w.draft.Name + "-edited", "display_name": "  e\u0301 显示助手😀  ", "tag_color": "#12abcf", "description": "Browser saved Agent description.", "instructions": "Browser saved Agent instructions.\nPreserve the complete text."}
 			case 1:
-				want = map[string]string{"name": w.draft.Name + "-edited"}
+				want = map[string]any{"name": w.draft.Name + "-edited", "display_name": "  e\u0301 显示助手😀  ", "tag_color": "#12abcf"}
 			case 2:
-				want = map[string]string{"description": "", "instructions": ""}
+				want = map[string]any{"display_name": nil, "tag_color": nil, "description": "", "instructions": ""}
 			default:
 				return errors.New("browser added an undeclared Update")
 			}
 		}
-		var actual map[string]string
+		var actual map[string]any
 		if json.Unmarshal(envelope.Request, &actual) != nil || !reflect.DeepEqual(actual, want) {
 			return errors.New("browser changed the original touched-field patch")
 		}
@@ -748,7 +748,7 @@ func (w *agentEditWeb) observeRead(path string, raw []byte) error {
 			return errors.New("Agent Edit Directory is not the original safe page")
 		}
 		v, core := page.Items[0], current.Fields().Core
-		if v.Validate() != nil || v.ID != w.target || v.ProjectID != w.a.p2.project.ID || v.Version != core.Version || v.Name != core.Name || bytes.Contains(raw, []byte(w.a.modelID.String())) {
+		if v.Validate() != nil || v.ID != w.target || v.ProjectID != w.a.p2.project.ID || v.Version != core.Version || v.Name != core.Name || !reflect.DeepEqual(v.DisplayName, core.DisplayName) || !reflect.DeepEqual(v.TagColor, core.TagColor) || bytes.Contains(raw, []byte(w.a.modelID.String())) {
 			return errors.New("Agent Edit Directory lost current safe metadata")
 		}
 		w.pages++
@@ -826,11 +826,11 @@ func (w *agentEditWeb) verifyBrowser(t *testing.T, ctx context.Context) {
 	if failure != nil {
 		t.Fatal("Agent Edit original observation failed", failure)
 	}
-	wantUpdates, wantChanged, wantLookup := 3, 2, 0
+	wantUpdates, wantChanged, wantLookup, wantReads := 3, 2, 0, 4
 	if w.mode == "lost-update-confirmation-only-lookup" {
-		wantUpdates, wantChanged, wantLookup = 1, 1, 1
+		wantUpdates, wantChanged, wantLookup, wantReads = 1, 1, 1, 2
 	}
-	if updates != wantUpdates || receipts != updates || changed != wantChanged || lookups != wantLookup || cuts != wantLookup || configs < 1 || pages < 1 {
+	if updates != wantUpdates || receipts != updates || changed != wantChanged || lookups != wantLookup || cuts != wantLookup || configs < wantReads || pages < wantReads {
 		t.Fatal("Agent Edit omitted or repeated an original command/read")
 	}
 	wantVersion := int64(1 + wantChanged)
@@ -842,5 +842,8 @@ func (w *agentEditWeb) verifyBrowser(t *testing.T, ctx context.Context) {
 	core := current.Fields().Agent.Fields().Core
 	if core.Name != w.draft.Name+"-edited" || core.Description != "" || (wantLookup == 0 && core.Instructions != "") || (wantLookup == 1 && core.Instructions != w.draft.Instructions) {
 		t.Fatal("Agent Edit final full/omitted/cleared text differs")
+	}
+	if core.DisplayName != nil || core.TagColor != nil {
+		t.Fatal("Agent Edit final display metadata was not explicitly cleared or preserved null")
 	}
 }
