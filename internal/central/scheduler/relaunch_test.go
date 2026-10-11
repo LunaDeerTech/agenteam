@@ -338,6 +338,40 @@ func TestSchedulerRelaunchCooldownPersistsVisits(t *testing.T) {
 	if err != nil || !first.CooldownSkipped || first.Remaining != 1 || first.Dispatch.data != nil || v.store.runtime[4] != int64(1) || v.store.runtimeWrites != 1 || v.store.receiptWrites != 1 || v.work.records != 0 {
 		t.Fatal("first terminal observation must consume one visit without dispatch", err)
 	}
+	// The legacy constructor has no retry policy. Its explicit empty wire arm
+	// must round-trip through the real receipt reader, while bound digests remain
+	// exact and malformed nonempty values cannot become a legacy receipt.
+	bound, err := NewLaunchRetryPolicy(2, time.Second, 2*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	boundDigest, err := bound.Identity()
+	if err != nil {
+		t.Fatal(err)
+	}
+	goodReceipt := append([]any(nil), v.store.receipts[v.request.DispatchID]...)
+	for _, arm := range []struct {
+		policy LaunchRetryPolicy
+		digest string
+	}{{LaunchRetryPolicy{}, ""}, {bound, boundDigest.String()}} {
+		raw, err := encodeRelaunchIntent(v.request, emptyClaimPolicy(), arm.policy)
+		var decoded relaunchIntent
+		if err != nil || decodeExact(raw, &decoded, 262144) != nil || decoded.Request != v.request || decoded.RetryPolicyDigest != arm.digest {
+			t.Fatal("retry policy wire arm did not retain its exact identity", err)
+		}
+		v.store.receipts[v.request.DispatchID] = []any{raw, string(relaunchDigest(raw)), goodReceipt[2], goodReceipt[3], goodReceipt[4]}
+		observed, err := v.owner.VisitRelaunch(context.Background(), v.request, emptyClaimPolicy())
+		if err != nil || !observed.CooldownSkipped || observed.Remaining != 1 || v.store.runtimeWrites != 1 || v.store.receiptWrites != 1 {
+			t.Fatal("retry policy wire arm did not survive receipt replay", err)
+		}
+	}
+	boundRaw := v.store.receipts[v.request.DispatchID][0].([]byte)
+	malformed := []byte(strings.Replace(string(boundRaw), boundDigest.String(), "sha256:bad", 1))
+	v.store.receipts[v.request.DispatchID] = []any{malformed, string(relaunchDigest(malformed)), goodReceipt[2], goodReceipt[3], goodReceipt[4]}
+	if observed, err := v.owner.VisitRelaunch(context.Background(), v.request, emptyClaimPolicy()); err == nil || observed.CooldownSkipped || observed.Dispatch.data != nil || v.store.runtimeWrites != 1 || v.store.receiptWrites != 1 {
+		t.Fatal("malformed nonempty retry digest was accepted as an absent policy", err)
+	}
+	v.store.receipts[v.request.DispatchID] = goodReceipt
 	// Replaying the same completed visit is observation, not another traversal.
 	replay, err := v.owner.VisitRelaunch(context.Background(), v.request, emptyClaimPolicy())
 	if err != nil || !replay.CooldownSkipped || replay.Remaining != 1 || v.store.runtimeWrites != 1 || v.store.receiptWrites != 1 {
