@@ -23,8 +23,7 @@ watch(
     const heading = sprintHeading.value
     if (!heading?.isConnected) return
     heading.focus()
-    if (heading.ownerDocument.activeElement === heading)
-      owner.consumeSprintCreationFocus(id)
+    if (heading.ownerDocument.activeElement === heading) owner.consumeSprintCreationFocus(id)
   },
   { immediate: true, flush: 'post' },
 )

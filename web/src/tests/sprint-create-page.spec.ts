@@ -164,8 +164,12 @@ async function fixture(withRouter = false) {
   let restoration: { entered: () => void; released: Promise<void> } | null = null
   function holdRestoration() {
     let entered!: () => void, release!: () => void
-    const waiting = new Promise<void>((resolve) => { entered = resolve })
-    const released = new Promise<void>((resolve) => { release = resolve })
+    const waiting = new Promise<void>((resolve) => {
+      entered = resolve
+    })
+    const released = new Promise<void>((resolve) => {
+      release = resolve
+    })
     restoration = { entered, released }
     return { waiting, release }
   }
@@ -180,9 +184,13 @@ async function fixture(withRouter = false) {
     held?.entered()
     if (held) await held.released
     sessionState.phase = 'authenticated'
-    if (personal.identity) context.value = {
-      identity: personal.identity, projectID: p, generation: 1, readGeneration: 2,
-    }
+    if (personal.identity)
+      context.value = {
+        identity: personal.identity,
+        projectID: p,
+        generation: 1,
+        readGeneration: 2,
+      }
     return null
   })
   const auth = {
@@ -209,11 +217,13 @@ async function fixture(withRouter = false) {
   if (withRouter) {
     router = createRouter({
       history: createMemoryHistory(),
-      routes: [{
-        path: '/owner/demo/tasks/:tail(.*)*',
-        component: ProjectTasksView,
-        meta: { authentication: true, protected: true, projectWorkspace: true },
-      }],
+      routes: [
+        {
+          path: '/owner/demo/tasks/:tail(.*)*',
+          component: ProjectTasksView,
+          meta: { authentication: true, protected: true, projectWorkspace: true },
+        },
+      ],
     })
     stopNavigation.push(installTaskNavigation(router, owner))
     installAuthentication(router, auth)
@@ -221,7 +231,7 @@ async function fixture(withRouter = false) {
     await router.isReady()
   } else owner.afterNavigation('/owner/demo/tasks')
   const shell = defineComponent({
-    setup: () => () => sessionState.phase === 'authenticated' ? h(RouterView) : null,
+    setup: () => () => (sessionState.phase === 'authenticated' ? h(RouterView) : null),
   })
   const wrapper = mount(withRouter ? shell : ProjectTasksView, {
     attachTo: document.body,
