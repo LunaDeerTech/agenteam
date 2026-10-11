@@ -435,12 +435,25 @@ func (w *sprintStartWeb) observeRead(r *http.Request, raw []byte) error {
 		if r.URL.Query().Get("sprint_id") != w.before.ID.String() {
 			return errors.New("current board read the wrong Sprint")
 		}
-		var page f.Page[wc.Task]
-		if json.Unmarshal(raw, &page) != nil || len(page.Items) > 1 {
+		var page f.Page[map[string]json.RawMessage]
+		if json.Unmarshal(raw, &page) != nil || page.Items == nil || len(page.Items) > 1 || page.NextCursor != "" {
 			return errors.New("current board page invalid")
 		}
 		if r.URL.Query().Get("state") == string(wc.TaskStateBacklog) {
-			if len(page.Items) != 1 || !reflect.DeepEqual(page.Items[0], w.task) {
+			// ListTasks returns the formal 13-field summary. Derive every
+			// expected field from the original Task, omitting only the two
+			// detail-only fields that summarizeTask omits from its HTTP wire.
+			expectedRaw, err := json.Marshal(w.task)
+			if err != nil {
+				return err
+			}
+			var expected map[string]json.RawMessage
+			if err = json.Unmarshal(expectedRaw, &expected); err != nil {
+				return err
+			}
+			delete(expected, "description")
+			delete(expected, "plan")
+			if len(expected) != 13 || len(page.Items) != 1 || !reflect.DeepEqual(page.Items[0], expected) {
 				return errors.New("Start changed or lost the existing backlog Task")
 			}
 			w.boardReads++
