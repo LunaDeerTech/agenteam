@@ -54,6 +54,8 @@ export function string(value: unknown, minimum: number, maximum: number): string
 }
 
 const endpoints = {
+  listProjectSkills: ['GET', '/api/v1/projects/{project_id}/skills/catalog', 200],
+  getProjectSkill: ['GET', '/api/v1/projects/{project_id}/skills/{target}', 200],
   knowledgeRename: [
     'POST',
     '/api/v1/projects/{project_id}/knowledge/documents/{target}/rename',
@@ -946,6 +948,13 @@ type KnowledgeCommandOptions<E extends KnowledgeCommandEndpoint> = {
   key: string
 } & (E extends 'knowledgeRename' ? { target: string } : { target?: never })
 
+const skillEndpoints = ['listProjectSkills', 'getProjectSkill'] as const
+type SkillEndpoint = (typeof skillEndpoints)[number]
+type SkillWireQuery = Readonly<{ limit: number; cursor?: string }>
+type SkillOptions<E extends SkillEndpoint> = E extends 'listProjectSkills'
+  ? { signal: AbortSignal; projectID: string; skillQuery: SkillWireQuery }
+  : { signal: AbortSignal; projectID: string; target: string }
+
 const knowledgeEndpoints = [
   'knowledgeChildren',
   'knowledgeDocument',
@@ -1032,6 +1041,9 @@ type WorkReviewOptions = {
 }
 
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends SkillEndpoint>(
+    endpoint: E, parse: (value: unknown) => T, options: SkillOptions<E>,
+  ): Promise<T>
   function request<T, E extends KnowledgeCommandEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -1128,6 +1140,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       keyof typeof endpoints,
       | KnowledgeCommandEndpoint
       | KnowledgeEndpoint
+      | SkillEndpoint
       | ProjectEndpoint
       | ProjectAuditEndpoint
       | ProjectModelEndpoint
@@ -1159,6 +1172,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       mailJobs?: Readonly<{ cursor?: string }>
       audit?: AuditWireQuery
       projects?: ProjectWireQuery
+      skillQuery?: SkillWireQuery
       knowledgeChildren?: KnowledgeChildrenWire
       knowledgeContent?: KnowledgeContentWire
       projectModels?: ProjectModelWireQuery
@@ -1171,7 +1185,32 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if ((workReviewEndpoints as readonly string[]).includes(endpoint)) {
+    if ((skillEndpoints as readonly string[]).includes(endpoint)) {
+      try {
+        const list = endpoint === 'listProjectSkills'
+        shape(options, ['signal', 'projectID', list ? 'skillQuery' : 'target'])
+        const project = string(options.projectID, 36, 36)
+        if (!uuid7.test(project) || !(options.signal instanceof AbortSignal)) throw new Error()
+        path = basePath.replace('{project_id}', project)
+        if (list) {
+          const q = shape(options.skillQuery, ['limit'], ['cursor']), limit = q.limit
+          if (typeof limit !== 'number' || !Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error()
+          const params = new URLSearchParams({ limit: String(limit) })
+          if (Object.hasOwn(q, 'cursor')) {
+            const cursor = string(q.cursor, 1, 8192)
+            if (new TextEncoder().encode(cursor).byteLength > 8192 ||
+              /[\u0000-\u001f\u007f-\u009f]/u.test(cursor) ||
+              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(cursor)) throw new Error()
+            params.set('cursor', cursor)
+          }
+          path += '?' + params.toString()
+        } else {
+          const target = string(options.target, 36, 36)
+          if (!uuid7.test(target)) throw new Error()
+          path = path.replace('{target}', target)
+        }
+      } catch { throw new AccountFailure('invalid-input') }
+    } else if ((workReviewEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const list = [
           'reviewMilestones',
@@ -1742,7 +1781,9 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           response,
           options.signal,
           lifecycle,
-          (workReviewEndpoints as readonly string[]).includes(endpoint) && success
+          (skillEndpoints as readonly string[]).includes(endpoint) && success
+            ? endpoint === 'listProjectSkills' ? 100 * 65536 + 8192 + 1024 : 65536
+            : (workReviewEndpoints as readonly string[]).includes(endpoint) && success
             ? [
                 'agentConfigurationCreate',
                 'agentConfigurationUpdate',
@@ -1791,7 +1832,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                           ? 1024 * 1024
                           : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
-          (workReviewEndpoints as readonly string[]).includes(endpoint) ||
+          (skillEndpoints as readonly string[]).includes(endpoint) ||
+            (workReviewEndpoints as readonly string[]).includes(endpoint) ||
             (knowledgeCommandEndpoints as readonly string[]).includes(endpoint) ||
             (success &&
               (endpoint === 'listProjectAudit' ||

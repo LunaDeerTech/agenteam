@@ -1,3 +1,4 @@
+import { createSkillOwnerAPI, captureSkillID, captureSkillQuery, type SkillOwnerAPI, type SkillQuery } from '../api/skill-owner'
 import {
   createAgentConfigurationAPI,
   captureAgentCreateInput,
@@ -646,6 +647,7 @@ type Action =
   | 'system'
   | 'audit-read'
   | 'knowledge-read'
+  | 'skill-read'
   | 'runtime-information-read'
   | 'invitation-read'
   | 'invitation-write'
@@ -786,9 +788,11 @@ export function createSessionController(
     taskTimeline?: WorkTaskTimelineAPI
     agentConfiguration?: AgentConfigurationAPI
     sprintLifecycle?: WorkSprintLifecycleAPI
+    skills?: SkillOwnerAPI
     knowledgeCommands?: KnowledgeCommandsAPI
   }> = {},
 ) {
+  const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
   const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
   const agentConfigurationAPI = commandAPIs.agentConfiguration ?? createAgentConfigurationAPI()
@@ -833,6 +837,7 @@ export function createSessionController(
     auditRevision = 0,
     projectAuditRevision = 0,
     knowledgeRevision = 0,
+    skillRevision = 0,
     runtimeInformationRevision = 0
   let invitationReadRevision = 0,
     invitationRevision = 0
@@ -1696,6 +1701,7 @@ export function createSessionController(
       | 'system'
       | 'audit-read'
       | 'knowledge-read'
+      | 'skill-read'
       | 'runtime-information-read'
       | 'invitation-read'
       | 'invitation-write'
@@ -1716,6 +1722,7 @@ export function createSessionController(
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () => {
+      if (kind === 'skill-read') return skillRevision
       if (isKnowledgeCommand(kind)) return knowledgeCommandRevisions[kind]
       if (isSprintLifecycleAction(kind)) return sprintLifecycleRevisions[kind]
       if (isAgentConfigurationAction(kind)) return agentConfigurationRevisions[kind]
@@ -1774,6 +1781,7 @@ export function createSessionController(
         isAgentConfigurationAction(kind) ||
         isWorkReviewAction(kind) ||
         kind === 'knowledge-read' ||
+        kind === 'skill-read' ||
         isProjectAction(kind) ||
         isProjectAuditAction(kind) ||
         isProjectModelAction(kind)
@@ -1850,7 +1858,7 @@ export function createSessionController(
               isAgentConfigurationAction(kind) ||
               isWorkReviewAction(kind)
             ? projectFailure(identity, op, error)
-            : kind === 'knowledge-read'
+            : kind === 'knowledge-read' || kind === 'skill-read'
               ? knowledgeFailure(current, error)
               : isProjectModelAction(kind)
                 ? projectModelFailure(kind, current, error)
@@ -5985,6 +5993,30 @@ export function createSessionController(
       return Promise.reject(error)
     }
   }
+  function skillRead<T>(capture: () => (signal: AbortSignal) => Promise<T>): Promise<T> {
+    try {
+      const identity = personalIdentity(), work = capture()
+      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, 'skill-read')
+    } catch (error) { return Promise.reject(error) }
+  }
+  const skills = {
+    list(projectID: string, query: SkillQuery = {}) {
+      return skillRead(() => {
+        const project = captureSkillID(projectID), captured = captureSkillQuery(query)
+        return (signal) => skillsAPI.list(project, captured, signal)
+      })
+    },
+    get(projectID: string, skillID: string) {
+      return skillRead(() => {
+        const project = captureSkillID(projectID), target = captureSkillID(skillID)
+        return (signal) => skillsAPI.get(project, target, signal)
+      })
+    },
+    abandon() {
+      ++skillRevision
+      if (owner?.kind === 'skill-read') owner.abandon?.()
+    },
+  }
   const knowledge = {
     children(projectID: string, parentID: string | null, query: KnowledgeQuery) {
       return knowledgeRead(() => {
@@ -6634,6 +6666,7 @@ export function createSessionController(
     workSprintLifecycle,
     agentConfiguration,
     projectAudit,
+    skills,
     knowledge,
     knowledgeCommands,
     projectModelSettings,
