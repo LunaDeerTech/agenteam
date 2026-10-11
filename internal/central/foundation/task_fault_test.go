@@ -11,8 +11,8 @@ import (
 )
 
 func TestTaskFaultCodesPreserveSafeProjectionAndCause(t *testing.T) {
-	codes := []Code{TaskNotFound, TaskVersionConflict, TaskStateInvalid, TaskAssigneeRequired, TaskSprintInvalid, TaskTerminalImmutable}
-	wants := []string{"TASK_NOT_FOUND", "TASK_VERSION_CONFLICT", "TASK_STATE_INVALID", "TASK_ASSIGNEE_REQUIRED", "TASK_SPRINT_INVALID", "TASK_TERMINAL_IMMUTABLE"}
+	codes := []Code{TaskNotFound, TaskVersionConflict, TaskStateInvalid, TaskAssigneeRequired, TaskSprintInvalid, TaskTerminalImmutable, CommentRequired}
+	wants := []string{"TASK_NOT_FOUND", "TASK_VERSION_CONFLICT", "TASK_STATE_INVALID", "TASK_ASSIGNEE_REQUIRED", "TASK_SPRINT_INVALID", "TASK_TERMINAL_IMMUTABLE", "COMMENT_REQUIRED"}
 	cause := errors.New("private-task-sql-credential")
 	for n, code := range codes {
 		if string(code) != wants[n] || !code.Known() || code.Safe() != code {
