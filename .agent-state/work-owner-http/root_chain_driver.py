@@ -149,8 +149,10 @@ METADATA_INPUTS = {
     '^TestSkillPackageWeb$': ('internal/central/app/skill_package_web_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/skill-package.config.js', 'tests/account-captcha-web/e2e/skill-package.spec.ts', 'tests/account-captcha-web/e2e/skill-package.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/skill-package.json', 'api/openapi/skill-owner.json', 'api/openapi/common.json'),
     '^TestKnowledgeTextWeb$': ('internal/central/app/knowledge_text_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/knowledge-text.config.js', 'tests/account-captcha-web/e2e/knowledge-text.spec.ts', 'tests/account-captcha-web/e2e/knowledge-text.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/knowledge-text-commands.json', 'api/openapi/knowledge-owner.json', 'api/openapi/knowledge-content.json', 'api/openapi/common.json'),
     '^TestKnowledgeTitleSearchWeb$': ('internal/central/app/knowledge_title_search_web_test.go', 'internal/central/app/knowledge_text_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/knowledge-title-search.config.js', 'tests/account-captcha-web/e2e/knowledge-title-search.spec.ts', 'tests/account-captcha-web/e2e/knowledge-title-search.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/knowledge-text-commands.json', 'api/openapi/knowledge-owner.json', 'api/openapi/knowledge-content.json', 'api/openapi/common.json'),
+    '^TestKnowledgeDeleteWeb$': ('internal/central/app/knowledge_delete_web_test.go', 'internal/central/app/knowledge_text_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/knowledge-delete.config.js', 'tests/account-captcha-web/e2e/knowledge-delete.spec.ts', 'tests/account-captcha-web/e2e/knowledge-delete.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/knowledge-text-commands.json', 'api/openapi/knowledge-tree-commands.json', 'api/openapi/knowledge-owner.json', 'api/openapi/knowledge-content.json', 'api/openapi/common.json'),
     '^TestProjectUsageWeb$': ('tests/model/project_usage_web_test.go', 'tests/model/project_usage_http_fixture_test.go', 'tests/model/project_usage_http_root_test.go', 'tests/model/usage_fixture_test.go', 'tests/account-captcha-web/project-usage.config.js', 'tests/account-captcha-web/e2e/project-usage.spec.ts', 'tests/account-captcha-web/e2e/project-usage.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/project-usage.json', 'api/openapi/project-owner.json', 'api/openapi/common.json'),
     '^TestProjectSecretsWeb$': ('internal/central/app/project_secrets_web_test.go', 'internal/central/app/knowledge_title_search_web_test.go', 'internal/central/app/knowledge_text_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/project-secrets.config.js', 'tests/account-captcha-web/e2e/project-secrets.spec.ts', 'tests/account-captcha-web/e2e/project-secrets.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/secret-variables.json', 'api/openapi/project-owner.json', 'api/openapi/common.json'),
+    '^TestProjectSecretWriteWeb$': ('internal/central/app/project_secret_write_web_test.go', 'internal/central/app/project_secrets_web_test.go', 'internal/central/app/knowledge_title_search_web_test.go', 'internal/central/app/knowledge_text_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/project-secret-write.config.js', 'tests/account-captcha-web/e2e/project-secret-write.spec.ts', 'tests/account-captcha-web/e2e/project-secret-write.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/secret-variables.json', 'api/openapi/project-owner.json', 'api/openapi/common.json'),
     '^TestSkillOwnerPackageHTTP(Publication|CurrentAuthority)$': (
         'tests/skills/owner_package_http_fixture_test.go',
         'tests/skills/owner_package_http_test.go',
@@ -370,7 +372,9 @@ TARGETS = {
     '^TestKnowledgeTextHTTPDefaultRootComposition$': 'internal/central/app',
     '^TestKnowledgeTextWeb$': 'internal/central/app',
     '^TestKnowledgeTitleSearchWeb$': 'internal/central/app',
+    '^TestKnowledgeDeleteWeb$': 'internal/central/app',
     '^TestProjectSecretsWeb$': 'internal/central/app',
+    '^TestProjectSecretWriteWeb$': 'internal/central/app',
     '^TestProjectUsageWeb$': 'tests/model',
     '^TestKnowledgeOwnerRenameWeb$': 'internal/central/app',
     '^TestSkillOwnerReadWeb$': 'internal/central/app',
@@ -450,7 +454,7 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
     # Only the explicitly retained legacy metadata profile includes its
     # historical records. New profiles contain actual compiled/runtime inputs.
     paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])
-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI):
+    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_DELETE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_SECRET_WRITE_UI, PROJECT_USAGE_UI):
         paths.update(task_review_ui_inputs(selector))
     if selector == APP_RUNTIME:
         paths.update(app_runtime_inputs())
@@ -531,7 +535,9 @@ PROJECT_SCHEDULER_UI = '^TestProjectSchedulerWeb$'
 SPRINT_START_UI = '^TestSprintStartWeb$'
 KNOWLEDGE_TEXT_UI = '^TestKnowledgeTextWeb$'
 KNOWLEDGE_TITLE_UI = '^TestKnowledgeTitleSearchWeb$'
+KNOWLEDGE_DELETE_UI = '^TestKnowledgeDeleteWeb$'
 PROJECT_SECRETS_UI = '^TestProjectSecretsWeb$'
+PROJECT_SECRET_WRITE_UI = '^TestProjectSecretWriteWeb$'
 PROJECT_USAGE_UI = '^TestProjectUsageWeb$'
 KNOWLEDGE_RENAME_UI = '^TestKnowledgeOwnerRenameWeb$'
 APP_RUNTIME = '^TestAppExecutionRuntime$'
@@ -554,6 +560,8 @@ SKILL_PACKAGE_ENV = ('AGENTEAM_SKILL_PACKAGE_WEB_DIST', 'AGENTEAM_SKILL_PACKAGE_
 PROJECT_SCHEDULER_ENV = ('AGENTEAM_PROJECT_SCHEDULER_WEB_DIST', 'AGENTEAM_PROJECT_SCHEDULER_WEB_EVIDENCE')
 SPRINT_START_ENV = ('AGENTEAM_SPRINT_START_WEB_DIST', 'AGENTEAM_SPRINT_START_WEB_EVIDENCE')
 KNOWLEDGE_TITLE_ENV = ('AGENTEAM_KNOWLEDGE_TITLE_SEARCH_WEB_DIST', 'AGENTEAM_KNOWLEDGE_TITLE_SEARCH_WEB_EVIDENCE')
+PROJECT_SECRET_WRITE_ENV = ('AGENTEAM_PROJECT_SECRET_WRITE_WEB_DIST', 'AGENTEAM_PROJECT_SECRET_WRITE_WEB_EVIDENCE')
+KNOWLEDGE_DELETE_ENV = ('AGENTEAM_KNOWLEDGE_DELETE_WEB_DIST', 'AGENTEAM_KNOWLEDGE_DELETE_WEB_EVIDENCE')
 PROJECT_SECRETS_ENV = ('AGENTEAM_PROJECT_SECRETS_WEB_DIST', 'AGENTEAM_PROJECT_SECRETS_WEB_EVIDENCE')
 PROJECT_USAGE_ENV = ('AGENTEAM_PROJECT_USAGE_WEB_DIST', 'AGENTEAM_PROJECT_USAGE_WEB_EVIDENCE')
 KNOWLEDGE_TEXT_ENV = ('AGENTEAM_KNOWLEDGE_TEXT_WEB_DIST', 'AGENTEAM_KNOWLEDGE_TEXT_WEB_EVIDENCE')
@@ -606,8 +614,12 @@ def task_review_ui_profile(selector):
         return SPRINT_START_ENV, 'output/ai/sprint-start-web', 'sprint-start'
     if selector == PROJECT_USAGE_UI:
         return PROJECT_USAGE_ENV, 'output/ai/project-usage-read-ui', 'project-usage'
+    if selector == PROJECT_SECRET_WRITE_UI:
+        return PROJECT_SECRET_WRITE_ENV, 'output/ai/project-secrets-write-ui', 'project-secret-write'
     if selector == PROJECT_SECRETS_UI:
         return PROJECT_SECRETS_ENV, 'output/ai/project-secrets-read-ui', 'project-secrets'
+    if selector == KNOWLEDGE_DELETE_UI:
+        return KNOWLEDGE_DELETE_ENV, 'output/ai/knowledge-delete-ui', 'knowledge-delete'
     if selector == KNOWLEDGE_TITLE_UI:
         return KNOWLEDGE_TITLE_ENV, 'output/ai/knowledge-title-search-ui', 'knowledge-title-search'
     if selector == KNOWLEDGE_TEXT_UI:
@@ -919,7 +931,7 @@ def configuration(binary, selector, directory):
             'cwd': str(REPOSITORY / TARGETS[selector]),
             'directory': str(directory), 'runtime': str(directory / 'runtime'),
             'test_timeout': '6m', 'resources': 7}
-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI):
+    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_DELETE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_SECRET_WRITE_UI, PROJECT_USAGE_UI):
         plan['task_review_ui'] = task_review_ui_configuration(directory, selector)
     if selector == APP_RUNTIME:
         app_runtime_inputs()
@@ -997,7 +1009,7 @@ def main():
         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
                     'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI):
+    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_DELETE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_SECRET_WRITE_UI, PROJECT_USAGE_UI):
         ui = plan['task_review_ui']
         names, _, _ = task_review_ui_profile(args.run)
         Path(ui[names[1]]).mkdir(mode=0o700)

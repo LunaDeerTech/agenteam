@@ -198,7 +198,7 @@ async function clickParent() {
 }
 
 function field(label: string) {
-  const item = [...document.querySelectorAll('label')].find((value) =>
+  const item = [...document.querySelectorAll<HTMLLabelElement>('form[aria-label="知识库文本"] label')].find((value) =>
     value.textContent?.includes(label),
   )
   if (!item) throw new Error(`Missing field ${label}`)

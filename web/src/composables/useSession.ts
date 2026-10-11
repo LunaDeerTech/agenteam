@@ -1,4 +1,9 @@
 import {
+  createProjectSecretCommandsAPI, captureProjectSecretCreate, captureProjectSecretUpdate,
+  captureProjectSecretIdentity, type ProjectSecretCommandsAPI, type ProjectSecretIdentity,
+  type ProjectSecretCreate, type ProjectSecretUpdate, type ProjectSecretReceipt, type ProjectSecretLookup,
+} from '../api/project-secret-commands'
+import {
   createSystemRunnersAPI,
   captureRunnerCommand,
   type SystemRunnersAPI,
@@ -8,6 +13,7 @@ import {
   type RunnerMutation,
   type RunnerLookup,
 } from '../api/system-runners'
+import { createKnowledgeDeleteAPI, captureKnowledgeDelete, type KnowledgeDeleteAPI, type KnowledgeDeleteInput, type KnowledgeDeleteReceipt, type KnowledgeDeleteLookup } from '../api/knowledge-delete'
 import { createAgentRunnerMountsAPI, type AgentRunnerMountsAPI } from '../api/agent-runner-mounts'
 import {
   createKnowledgeTitleSearchAPI,
@@ -469,6 +475,24 @@ export type SprintCreateProgress = Readonly<{
   error: string | null
   contextValid: boolean
 }>
+type ProjectSecretAction = 'secret-write' | 'secret-lookup'
+type ProjectSecretIntent = {
+  actor: PersonalIdentity
+  csrf: string
+  key: string
+  identity: ProjectSecretIdentity
+  uncertain: boolean
+  dispatched: boolean
+}
+export type ProjectSecretProgress = Readonly<{
+  identity: ProjectSecretIdentity
+  key: string
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  uncertain: boolean
+  receipt: ProjectSecretReceipt | null
+  observation: 'none' | 'committed' | 'not_observed' | 'failed'
+  contextValid: boolean
+}>
 type ProjectVariableAction = 'variable-read' | 'variable-write' | 'variable-lookup'
 type ProjectVariableIntent = {
   identity: PersonalIdentity
@@ -567,7 +591,7 @@ export type ProjectProgress = Readonly<{
   canRetryOriginal: boolean
 }>
 type KnowledgeCommandAction =
-  'knowledge-rename' | 'knowledge-lookup' | 'knowledge-text-write' | 'knowledge-text-lookup'
+  'knowledge-rename' | 'knowledge-lookup' | 'knowledge-text-write' | 'knowledge-text-lookup' | 'knowledge-delete-preview' | 'knowledge-delete' | 'knowledge-delete-lookup'
 export type KnowledgeCommandProgress = Readonly<{
   projectID: string
   documentID: string
@@ -600,6 +624,8 @@ type KnowledgeTextOriginal = {
   uncertain: boolean
   keyConflict: boolean
 }
+export type KnowledgeDeleteProgress = Omit<KnowledgeCommandProgress, 'receipt'> & Readonly<{ receipt: KnowledgeDeleteReceipt | null }>
+type KnowledgeDeleteOriginal = Omit<KnowledgeCommandIntent, 'payload'> & { payload: { input: KnowledgeDeleteInput | null; body: string | null; ids: readonly string[] | null } }
 type ProjectIntent = {
   targetID: string
   identity: PersonalIdentity
@@ -851,6 +877,7 @@ type Action =
   | MilestonePlanningAction
   | SprintPlanningAction
   | ProjectVariableAction
+  | ProjectSecretAction
   | KnowledgeCommandAction
   | AgentConfigurationAction
   | ProjectAuditAction
@@ -985,10 +1012,12 @@ export function createSessionController(
     sprintLifecycle?: WorkSprintLifecycleAPI
     skills?: SkillOwnerAPI
     projectSecrets?: ProjectSecretsAPI
+    projectSecretCommands?: ProjectSecretCommandsAPI
     projectUsage?: ProjectUsageAPI
     scheduler?: ProjectSchedulerAPI
     skillPackage?: SkillPackageAPI
     knowledgeText?: KnowledgeTextAPI
+    knowledgeDelete?: KnowledgeDeleteAPI
     knowledgeCommands?: KnowledgeCommandsAPI
     knowledgeTitleSearch?: KnowledgeTitleSearchAPI
   }> = {},
@@ -998,6 +1027,7 @@ export function createSessionController(
   const sprintPlanningAPI = commandAPIs.sprintPlanning ?? createWorkSprintPlanningAPI()
   const milestonePlanningAPI = commandAPIs.milestonePlanning ?? createWorkMilestonePlanningAPI()
   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
+  const secretCommandsAPI = commandAPIs.projectSecretCommands ?? createProjectSecretCommandsAPI()
   const projectSecretsAPI = commandAPIs.projectSecrets ?? createProjectSecretsAPI()
   const projectUsageAPI = commandAPIs.projectUsage ?? createProjectUsageAPI()
   const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
@@ -1008,6 +1038,7 @@ export function createSessionController(
   const agentConfigurationAPI = commandAPIs.agentConfiguration ?? createAgentConfigurationAPI()
   const sprintLifecycleAPI = commandAPIs.sprintLifecycle ?? createWorkSprintLifecycleAPI()
   const knowledgeTextAPI = commandAPIs.knowledgeText ?? createKnowledgeTextAPI()
+  const knowledgeDeleteAPI = commandAPIs.knowledgeDelete ?? createKnowledgeDeleteAPI()
   const knowledgeCommandsAPI = commandAPIs.knowledgeCommands ?? createKnowledgeCommandsAPI()
   const knowledgeTitleSearchAPI = commandAPIs.knowledgeTitleSearch ?? createKnowledgeTitleSearchAPI()
   const state = shallowReactive<PublicState>({
@@ -1117,6 +1148,10 @@ export function createSessionController(
   }
   const isSprintLifecycleAction = (kind: Action): kind is SprintLifecycleAction =>
     Object.hasOwn(sprintLifecycleRevisions, kind)
+  const secretCommandRevisions: Record<ProjectSecretAction, number> = { 'secret-write': 0, 'secret-lookup': 0 }
+  const isSecretCommand = (kind: Action): kind is ProjectSecretAction => Object.hasOwn(secretCommandRevisions, kind)
+  let secretIntent: ProjectSecretIntent | null = null
+  const secretCommandState = shallowReactive<{ progress: Omit<ProjectSecretProgress, 'contextValid'> | null }>({ progress: null })
   const variableRevisions: Record<ProjectVariableAction, number> = {
     'variable-read': 0,
     'variable-write': 0,
@@ -1188,6 +1223,9 @@ export function createSessionController(
     'knowledge-lookup': 0,
     'knowledge-text-write': 0,
     'knowledge-text-lookup': 0,
+    'knowledge-delete-preview': 0,
+    'knowledge-delete': 0,
+    'knowledge-delete-lookup': 0,
   }
   const isKnowledgeCommand = (kind: Action): kind is KnowledgeCommandAction =>
     Object.hasOwn(knowledgeCommandRevisions, kind)
@@ -1195,6 +1233,8 @@ export function createSessionController(
   const knowledgeCommandState = shallowReactive<{
     progress: Omit<KnowledgeCommandProgress, 'contextValid' | 'canRetryOriginal'> | null
   }>({ progress: null })
+  let knowledgeDeleteIntent: KnowledgeDeleteOriginal | null = null
+  const knowledgeDeleteState = shallowReactive<{ progress: Omit<KnowledgeDeleteProgress, 'contextValid' | 'canRetryOriginal'> | null }>({ progress: null })
   let knowledgeTextIntent: KnowledgeTextOriginal | null = null
   const knowledgeTextState = shallowReactive<{
     progress: Omit<KnowledgeTextProgress, 'contextValid' | 'canRetryOriginal'> | null
@@ -1379,9 +1419,11 @@ export function createSessionController(
       clearSprintUpdateState()
       clearMilestonePlanningState()
       clearVariableState()
+      clearSecretCommand()
       clearSprintLifecycleState()
       clearKnowledgeCommand()
       clearKnowledgeText()
+      clearKnowledgeDelete()
       clearWorkReviewState()
       clearInvitationState()
       clearRunnerState()
@@ -1453,9 +1495,11 @@ export function createSessionController(
       clearSprintUpdateState()
       clearMilestonePlanningState()
       clearVariableState()
+      clearSecretCommand()
       clearSprintLifecycleState()
       clearKnowledgeCommand()
       clearKnowledgeText()
+      clearKnowledgeDelete()
       clearWorkReviewState()
       ++personalRevision
       personalContext.identity = Object.freeze({
@@ -2013,6 +2057,7 @@ export function createSessionController(
       | MilestonePlanningAction
       | SprintPlanningAction
       | ProjectVariableAction
+  | ProjectSecretAction
       | KnowledgeCommandAction
       | AgentConfigurationAction
       | ProjectAuditAction
@@ -2023,6 +2068,7 @@ export function createSessionController(
       if (isRunnerAction(kind)) return runnerRevisions[kind]
       if (isSchedulerAction(kind)) return schedulerRevisions[kind]
       if (isVariableAction(kind)) return variableRevisions[kind]
+      if (isSecretCommand(kind)) return secretCommandRevisions[kind]
       if (kind === 'skill-read') return skillRevision
       if (kind === 'secret-read') return secretReadRevision
       if (kind === 'usage-read') return usageReadRevision
@@ -2083,6 +2129,7 @@ export function createSessionController(
       (kind === 'personal' ||
         (isSchedulerAction(kind) ||
         isVariableAction(kind) ||
+        isSecretCommand(kind) ||
         isKnowledgeCommand(kind) ||
         isSprintPlanningAction(kind) ||
         isMilestonePlanningAction(kind) ||
@@ -2169,7 +2216,7 @@ export function createSessionController(
                 : new AccountFailure('transport')
             : isVariableAction(kind)
               ? variableFailure(op, current, identity, error)
-              : isSprintPlanningAction(kind) ||
+              : isSecretCommand(kind) || isSprintPlanningAction(kind) ||
                   isMilestonePlanningAction(kind) ||
                   isSprintLifecycleAction(kind) ||
                   isAgentConfigurationAction(kind) ||
@@ -4390,6 +4437,114 @@ export function createSessionController(
       if (!smtpDeliveryIntent || !smtpDelivery.progress?.canRetryOriginal)
         return Promise.reject(new AccountFailure('invalid-input'))
       return performSMTPDelivery(smtpDeliveryIntent)
+    },
+  }
+  function clearSecretCommand() {
+    ++secretCommandRevisions['secret-write']
+    ++secretCommandRevisions['secret-lookup']
+    secretIntent = null
+    secretCommandState.progress = null
+    if (owner && isSecretCommand(owner.kind)) owner.abandon?.()
+  }
+  const secretContext = (original: ProjectSecretIntent) =>
+    projectContext({ identity: original.actor, csrf: original.csrf })
+  function publishSecret(original: ProjectSecretIntent, phase: ProjectSecretProgress['phase'], receipt: ProjectSecretReceipt | null = null, observation: ProjectSecretProgress['observation'] = 'none') {
+    secretCommandState.progress = Object.freeze({ identity: original.identity, key: original.key, phase, uncertain: original.uncertain, receipt, observation })
+  }
+  async function performSecret(original: ProjectSecretIntent, write?: (signal: AbortSignal) => Promise<ProjectSecretReceipt>): Promise<ProjectSecretReceipt | ProjectSecretLookup> {
+    if (owner) throw new AccountFailure('busy')
+    const kind: ProjectSecretAction = write ? 'secret-write' : 'secret-lookup', revision = secretCommandRevisions[kind]
+    const live = () => secretIntent === original && secretContext(original) && revision === secretCommandRevisions[kind]
+    if (!live()) throw new AccountFailure('invalid-input')
+    const lookup = !write
+    try {
+      if (!lookup) publishSecret(original, 'submitting')
+      // Publication can synchronously retire the current Session.
+      if (!live()) throw new AccountFailure('cancelled')
+      const value = await runAuthorized<ProjectSecretReceipt | ProjectSecretLookup>(original.actor, async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        original.dispatched = true
+        return write ? write(op.abort.signal) : secretCommandsAPI.lookup(original.identity, original.csrf, original.key, op.abort.signal)
+      }, undefined, kind)
+      if (!live()) throw new AccountFailure('cancelled')
+      if ('status' in value && value.status === 'not_observed') {
+        original.uncertain = true
+        publishSecret(original, 'uncertain', null, 'not_observed')
+      } else {
+        original.uncertain = false
+        publishSecret(original, 'confirmed', 'status' in value ? value.receipt : value, lookup ? 'committed' : 'none')
+      }
+      if (!live()) throw new AccountFailure('cancelled')
+      return value
+    } catch (error) {
+      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if (secretIntent === original && revision === secretCommandRevisions[kind] && sameIdentity(original.actor, personalContext.identity)) {
+        const p = failure.problem
+        const rejected = !original.dispatched || (!!p && ['not_started', 'not_committed'].includes(p.commit_state) && p.code !== 'IDEMPOTENCY_KEY_REUSED')
+        original.uncertain ||= lookup || !rejected
+        publishSecret(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none')
+      }
+      throw failure
+    }
+  }
+  function startSecret(identity: ProjectSecretIdentity, send: (csrf: string, key: string, signal: AbortSignal) => Promise<ProjectSecretReceipt>): Promise<ProjectSecretReceipt | ProjectSecretLookup> {
+    const actor = personalIdentity()
+    if (owner || secretIntent || personalIntent || pending) throw new AccountFailure('busy')
+    const original: ProjectSecretIntent = { actor, csrf: sessionCSRF, key: newKey(), identity: captureProjectSecretIdentity(identity), uncertain: false, dispatched: false }
+    secretIntent = original
+    return performSecret(original, signal => send(original.csrf, original.key, signal))
+  }
+  const projectSecretCommands = {
+    get progress(): ProjectSecretProgress | null {
+      const progress = secretCommandState.progress
+      if (!progress) return null
+      const contextValid = !!secretIntent && secretContext(secretIntent)
+      return Object.freeze({ ...progress, receipt: contextValid ? progress.receipt : null, contextValid })
+    },
+    create(projectID: string, draft: Omit<ProjectSecretCreate, 'variable_id'>) {
+      try {
+        if (owner || secretIntent || personalIntent || pending) throw new AccountFailure('busy')
+        const value = shape(draft, ['name', 'description', 'value'])
+        const request = captureProjectSecretCreate({ ...value, variable_id: newProjectVariableID() })
+        return startSecret({ kind: 'create', projectID, targetID: request.variable_id }, (csrf, key, signal) => secretCommandsAPI.create(projectID, request, csrf, key, signal))
+      } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
+    },
+    update(projectID: string, targetID: string, expectedVersion: string, draft: ProjectSecretUpdate) {
+      try {
+        const request = captureProjectSecretUpdate(draft)
+        return startSecret({ kind: 'update', projectID, targetID, expectedVersion }, (csrf, key, signal) => secretCommandsAPI.update(projectID, targetID, expectedVersion, request, csrf, key, signal))
+      } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
+    },
+    lookup() {
+      if (!secretIntent?.uncertain || secretCommandState.progress?.phase !== 'uncertain') return Promise.reject(new AccountFailure('invalid-input'))
+      return performSecret(secretIntent)
+    },
+    editRejected() {
+      if (owner || !secretIntent || secretIntent.uncertain || !secretContext(secretIntent) || secretCommandState.progress?.phase !== 'rejected') throw new AccountFailure('busy')
+      clearSecretCommand()
+    },
+    finishConfirmed() {
+      if (owner || secretCommandState.progress?.phase !== 'confirmed') throw new AccountFailure('busy')
+      clearSecretCommand()
+    },
+    abandon() {
+      if (!owner || !isSecretCommand(owner.kind)) {
+        // A synchronous submitting consumer can leave before runAuthorized
+        // acquires its owner. Retire that invocation without dispatching it.
+        if (secretIntent && secretCommandState.progress?.phase === 'submitting') {
+          ++secretCommandRevisions['secret-write']
+          secretIntent.uncertain ||= secretIntent.dispatched
+          publishSecret(secretIntent, secretIntent.uncertain ? 'uncertain' : 'rejected')
+        }
+        return
+      }
+      const retiring = owner
+      ++secretCommandRevisions[retiring.kind as ProjectSecretAction]
+      if (secretIntent && secretCommandState.progress?.phase !== 'confirmed') {
+        secretIntent.uncertain ||= secretIntent.dispatched || retiring.kind === 'secret-lookup'
+        publishSecret(secretIntent, secretIntent.uncertain ? 'uncertain' : 'rejected')
+      }
+      retiring.abandon?.()
     },
   }
   function clearVariableReads() {
@@ -7267,7 +7422,7 @@ export function createSessionController(
     startRename(projectID: string, documentID: string, value: KnowledgeRenameInput) {
       try {
         const identity = personalIdentity()
-        if (owner || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
+        if (owner || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         const input = captureKnowledgeRename(value)
         const original: KnowledgeCommandIntent = {
@@ -7308,6 +7463,220 @@ export function createSessionController(
       clearKnowledgeCommand()
     },
     abandon: clearKnowledgeCommand,
+  }
+  function clearKnowledgeDeletePayload(original: KnowledgeDeleteOriginal | null) {
+    if (original) {
+      original.payload.input = null
+      original.payload.body = null
+      original.payload.ids = null
+    }
+  }
+  function clearKnowledgeDelete() {
+    clearKnowledgeDeletePreview()
+    const retiring =
+      owner && (owner.kind === 'knowledge-delete' || owner.kind === 'knowledge-delete-lookup')
+        ? owner
+        : null
+    ++knowledgeCommandRevisions['knowledge-delete']
+    ++knowledgeCommandRevisions['knowledge-delete-lookup']
+    clearKnowledgeDeletePayload(knowledgeDeleteIntent)
+    knowledgeDeleteIntent = null
+    knowledgeDeleteState.progress = null
+    retiring?.abandon?.()
+  }
+  function publishKnowledgeDelete(
+    original: KnowledgeDeleteOriginal,
+    phase: KnowledgeDeleteProgress['phase'],
+    receipt: KnowledgeDeleteReceipt | null = null,
+    observation: KnowledgeDeleteProgress['observation'] = 'none',
+  ) {
+    knowledgeDeleteState.progress = Object.freeze({
+      projectID: original.projectID,
+      documentID: original.documentID,
+      phase,
+      receipt,
+      observation,
+    })
+  }
+  function performKnowledgeDelete(
+    original: KnowledgeDeleteOriginal,
+    lookup = false,
+  ): Promise<KnowledgeDeleteReceipt | KnowledgeDeleteLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (knowledgeDeleteIntent !== original || !original.payload.input || !projectContext(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: KnowledgeCommandAction = lookup ? 'knowledge-delete-lookup' : 'knowledge-delete'
+    const revision = knowledgeCommandRevisions[kind]
+    const live = () =>
+      knowledgeDeleteIntent === original &&
+      revision === knowledgeCommandRevisions[kind] &&
+      projectContext(original)
+    let dispatched = false
+    if (!lookup) publishKnowledgeDelete(original, 'submitting')
+    return runAuthorized<KnowledgeDeleteReceipt | KnowledgeDeleteLookup>(
+      original.identity,
+      async (op, current) => {
+        const input = original.payload.input
+        if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(input) !== original.payload.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        try {
+          const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+          const result = lookup
+            ? await knowledgeDeleteAPI.lookup(
+                original.projectID,
+                original.documentID,
+                input,
+                write,
+              )
+            : await knowledgeDeleteAPI.remove(
+                original.projectID,
+                original.documentID,
+                input,
+                write,
+              )
+          const receipt = 'state' in result ? result.receipt : result
+          if (receipt && (!original.payload.ids || receipt.deleted_ids.length !== original.payload.ids.length ||
+            receipt.deleted_ids.some((id, index) => id !== original.payload.ids![index])))
+            throw new AccountFailure('invalid-response')
+          return result
+        } finally {
+          if (knowledgeDeleteIntent !== original) clearKnowledgeDeletePayload(original)
+        }
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('state' in value && value.state !== 'committed') {
+          publishKnowledgeDelete(original, 'uncertain', null, value.state)
+          if (!live()) throw new AccountFailure('cancelled')
+          return value
+        }
+        const receipt = 'state' in value ? value.receipt : value
+        publishKnowledgeDelete(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+        if (!live()) throw new AccountFailure('cancelled')
+        clearKnowledgeDeletePayload(original)
+        knowledgeDeleteIntent = null
+        return value
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          knowledgeDeleteIntent === original &&
+          revision === knowledgeCommandRevisions[kind] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          const known =
+            !dispatched ||
+            (!!p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              [
+                'INVALID_ARGUMENT',
+                'VERSION_CONFLICT',
+                'CONFIRMATION_STALE',
+                'INVALID_STATE',
+                'PROJECT_NOT_ACTIVE',
+                'NOT_FOUND',
+                'FORBIDDEN',
+                'RESOURCE_DELETED',
+              ].includes(p.code))
+          original.keyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+          original.uncertain ||= lookup || !known || original.keyConflict
+          publishKnowledgeDelete(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+          )
+        }
+        throw e
+      },
+    )
+  }
+  function clearKnowledgeDeletePreview() {
+    ++knowledgeCommandRevisions['knowledge-delete-preview']
+    if (owner?.kind === 'knowledge-delete-preview') owner.abandon?.()
+  }
+  const knowledgeDelete = {
+    preview(projectID: string, documentID: string) {
+      try {
+        const identity = personalIdentity()
+        const project = captureKnowledgeID(projectID), target = captureKnowledgeID(documentID)
+        if (owner || knowledgeDeleteIntent || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
+        return runAuthorized(identity, (op) => knowledgeDeleteAPI.preview(project, target,
+          { csrfToken: sessionCSRF, signal: op.abort.signal }), undefined, 'knowledge-delete-preview')
+      } catch (error) { return Promise.reject(error) }
+    },
+    cancelPreview: clearKnowledgeDeletePreview,
+    get progress(): KnowledgeDeleteProgress | null {
+      const value = knowledgeDeleteState.progress
+      if (!value) return null
+      const contextValid = !!knowledgeDeleteIntent && projectContext(knowledgeDeleteIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!knowledgeDeleteIntent?.payload.input &&
+          knowledgeDeleteIntent.uncertain &&
+          !knowledgeDeleteIntent.keyConflict &&
+          value.observation === 'not_observed' &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    startDelete(projectID: string, documentID: string, value: KnowledgeDeleteInput, previewIDs: readonly string[]) {
+      try {
+        const identity = personalIdentity()
+        if (owner || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
+        const input = captureKnowledgeDelete(value)
+        if (!Array.isArray(previewIDs) || previewIDs.length === 0) throw new AccountFailure('invalid-input')
+        const ids = Object.freeze(previewIDs.map(captureKnowledgeID).sort())
+        if (!ids.includes(documentID) || ids.some((id, index) => index > 0 && ids[index - 1] === id))
+          throw new AccountFailure('invalid-input')
+        const original: KnowledgeDeleteOriginal = {
+          projectID: captureKnowledgeID(projectID),
+          documentID: captureKnowledgeID(documentID),
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+          payload: { input, body: JSON.stringify(input), ids },
+          uncertain: false,
+          keyConflict: false,
+        }
+        knowledgeDeleteIntent = original
+        return performKnowledgeDelete(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    checkOriginal() {
+      if (!knowledgeDeleteIntent?.uncertain || !projectContext(knowledgeDeleteIntent))
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performKnowledgeDelete(knowledgeDeleteIntent, true)
+    },
+    retryOriginal() {
+      if (!knowledgeDeleteIntent || !knowledgeDelete.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performKnowledgeDelete(knowledgeDeleteIntent)
+    },
+    editRejected() {
+      if (
+        owner ||
+        !knowledgeDeleteIntent ||
+        knowledgeDeleteIntent.uncertain ||
+        knowledgeDeleteState.progress?.phase !== 'rejected' ||
+        !projectContext(knowledgeDeleteIntent)
+      )
+        throw new AccountFailure('invalid-input')
+      clearKnowledgeDelete()
+    },
+    abandon: clearKnowledgeDelete,
   }
   function clearKnowledgeTextPayload(original: KnowledgeTextOriginal | null) {
     if (original) {
@@ -7443,7 +7812,7 @@ export function createSessionController(
     start(projectID: string, value: KnowledgeTextIntent) {
       try {
         const identity = personalIdentity()
-        if (owner || knowledgeTextIntent || knowledgeIntent || personalIntent || pending)
+        if (owner || knowledgeTextIntent || knowledgeIntent || knowledgeDeleteIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         const input = captureKnowledgeText(value)
         const original: KnowledgeTextOriginal = {
@@ -8293,8 +8662,10 @@ export function createSessionController(
     projectAudit,
     skills,
     projectSecrets,
+    projectSecretCommands,
     projectUsage,
     knowledge,
+    knowledgeDelete,
     knowledgeCommands,
     knowledgeText,
     projectModelSettings,

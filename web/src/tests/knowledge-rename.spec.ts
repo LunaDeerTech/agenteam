@@ -221,7 +221,9 @@ describe('Knowledge rename production page', () => {
     })
     button('改名').click()
     await flushPromises()
-    const input = document.querySelector<HTMLInputElement>('input[autocomplete="off"]')!
+    const input = document.querySelector<HTMLInputElement>(
+      'form[aria-label="文档改名"] input[autocomplete="off"]',
+    )!
     input.value = '新文档标题'
     input.dispatchEvent(new Event('input', { bubbles: true }))
     await flushPromises()
@@ -241,7 +243,9 @@ describe('Knowledge rename production page', () => {
     await clickParent()
     button('改名').click()
     await flushPromises()
-    const input = document.querySelector<HTMLInputElement>('input[autocomplete="off"]')!
+    const input = document.querySelector<HTMLInputElement>(
+      'form[aria-label="文档改名"] input[autocomplete="off"]',
+    )!
     input.value = '保留的草稿'
     input.dispatchEvent(new Event('input', { bubbles: true }))
     await flushPromises()
@@ -273,7 +277,9 @@ describe('Knowledge rename production page', () => {
     })
     button('改名').click()
     await flushPromises()
-    const input = document.querySelector<HTMLInputElement>('input[autocomplete="off"]')!
+    const input = document.querySelector<HTMLInputElement>(
+      'form[aria-label="文档改名"] input[autocomplete="off"]',
+    )!
     input.value = '未知原意图'
     input.dispatchEvent(new Event('input', { bubbles: true }))
     await flushPromises()
@@ -309,7 +315,9 @@ describe('Knowledge rename production page', () => {
     expect(f.wrapper.find('h2').text()).toBe('子文档')
     button('改名').click()
     await flushPromises()
-    const nextInput = document.querySelector<HTMLInputElement>('input[autocomplete="off"]')!
+    const nextInput = document.querySelector<HTMLInputElement>(
+      'form[aria-label="文档改名"] input[autocomplete="off"]',
+    )!
     nextInput.value = '新的改名'
     nextInput.dispatchEvent(new Event('input', { bubbles: true }))
     await flushPromises()

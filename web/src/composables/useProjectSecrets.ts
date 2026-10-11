@@ -50,6 +50,7 @@ export function useProjectSecrets(
   let generation = 0,
     disposed = false,
     boundRoute = ''
+  let pendingDetail: string | null = null
   const authorized = () => {
     const identity = auth.personalContext.identity
     return (
@@ -84,14 +85,16 @@ export function useProjectSecrets(
   function retire() {
     ++generation
     queue.pending = null
+    pendingDetail = null
     const active = queue.active
     queue.active = null
     if (active !== null) auth.projectSecrets.abandon()
   }
-  function firstPage() {
+  function firstPage(target?: string) {
     retire()
     clear()
     page.phase = 'waiting'
+    pendingDetail = target ?? null
     queue.pending = { kind: 'page' }
     pump()
   }
@@ -147,6 +150,11 @@ export function useProjectSecrets(
         page.items = items
         page.nextCursor = result.next_cursor
         page.phase = 'ready'
+        if (task.cursor === undefined && pendingDetail) {
+          selected.value = pendingDetail
+          queue.pending = { kind: 'detail', id: pendingDetail }
+          pendingDetail = null
+        }
       } else {
         const result = await auth.projectSecrets.get(captured.projectID, task.id)
         if (!current()) return
@@ -208,8 +216,10 @@ export function useProjectSecrets(
         return
       }
       if (!sameContext(scope.value, context) || boundRoute !== path) {
-        scope.value = context
+        // Publish the route before the reactive scope: synchronous consumers
+        // must never cache a new scope against the retired route.
         boundRoute = path
+        scope.value = context
         firstPage()
       } else pump()
     },
@@ -231,6 +241,16 @@ export function useProjectSecrets(
     },
     refresh() {
       if (!blocked.value) firstPage()
+    },
+    refreshAfterWrite(target: string) {
+      if (!live()) return
+      firstPage(captureProjectSecretID(target))
+    },
+    deny() {
+      retire()
+      clear()
+      page.phase = 'unavailable'
+      page.message = '当前 Secrets 不存在或不可访问，请重新确认访问权限。'
     },
     refreshDetail() {
       if (blocked.value || !selected.value) return

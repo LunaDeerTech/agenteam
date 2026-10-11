@@ -1,0 +1,213 @@
+diff --git a/internal/central/app/knowledge_delete_web_test.go b/internal/central/app/knowledge_delete_web_test.go
+index 892378e6..0a411e27 100644
+--- a/internal/central/app/knowledge_delete_web_test.go
++++ b/internal/central/app/knowledge_delete_web_test.go
+@@ -101,7 +101,6 @@ func knowledgeDeleteWeb(t *testing.T, mode string) {
+ 	origin := "http://" + listener.Addr().String()
+ 	cfg := guardConfiguration(t, append(guardEnvironment(t, db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin, "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s"))
+ 	observations := &knowledgeDeleteObservations{knowledgeTextObservations: &knowledgeTextObservations{evidence: evidence, inputHash: inputHash, origin: origin, tails: map[string]*knowledgeTextTail{}}}
+-	observations.reportFailure = func(stage string) { t.Logf("KnowledgeDelete observer first_failure_stage=%s", stage) }
+ 	var core *account.Service
+ 	var owned *resources
+ 	deps := dependencies{observeAccount: func(v *account.Service) { core = v }, bind: func(c context.Context, cfg config.Config, store database, owner *resources, d *dependencies) error {
+@@ -409,7 +408,6 @@ type knowledgeDeleteIntent struct {
+ // Only this scenario's request intents, SQL facts and current reads are added.
+ type knowledgeDeleteObservations struct {
+ 	*knowledgeTextObservations
+-	reportFailure                                func(string)
+ 	dbMu                                         sync.Mutex
+ 	mode                                         string
+ 	conn                                         *pgx.Conn
+@@ -432,22 +430,6 @@ type knowledgeDeleteDrop struct {
+ 
+ func (*knowledgeDeleteDrop) Error() string { return "declared Knowledge deletion receipt cut" }
+ 
+-// Record only a fixed caller-selected stage. Never log the original error,
+-// request body, confirmation token, key, SQL, or private response material.
+-func (o *knowledgeDeleteObservations) failAt(stage string) error {
+-	o.mu.Lock()
+-	first := o.err == nil
+-	if first {
+-		o.err = errors.New("closed Knowledge text observation failed")
+-	}
+-	err := o.err
+-	o.mu.Unlock()
+-	if first && o.reportFailure != nil {
+-		o.reportFailure(stage)
+-	}
+-	return err
+-}
+-
+ func (o *knowledgeDeleteObservations) observeHandler(next http.Handler) http.Handler {
+ 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+ 		o.mu.Lock()
+@@ -459,14 +441,14 @@ func (o *knowledgeDeleteObservations) observeHandler(next http.Handler) http.Han
+ 		}
+ 		rid := httpapi.RequestID(r.Context())
+ 		if rid.Validate() != nil || r.Host != o.host {
+-			_ = o.failAt("request-identity")
++			_ = o.fail()
+ 			http.Error(w, "request identity", 502)
+ 			return
+ 		}
+ 		tail := &knowledgeTextTail{done: make(chan struct{}), method: r.Method, uri: r.URL.RequestURI()}
+ 		if r.Method == http.MethodGet {
+ 			if o.readRequest(r) != nil {
+-				_ = o.failAt("request-current-read")
++				_ = o.fail()
+ 				http.Error(w, "closed deletion current read", 502)
+ 				return
+ 			}
+@@ -475,7 +457,7 @@ func (o *knowledgeDeleteObservations) observeHandler(next http.Handler) http.Han
+ 			closeErr := r.Body.Close()
+ 			defer clear(raw)
+ 			if r.Method != http.MethodPost || readErr != nil || closeErr != nil || len(raw) > 16<<10 || r.ContentLength != int64(len(raw)) || len(r.Header.Values("Origin")) != 1 || r.Header.Get("Origin") != o.origin || r.Header.Get("Content-Type") != "application/json" || r.Header.Get("X-CSRF-Token") == "" || r.Header.Get("Cookie") == "" || r.URL.RawQuery != "" || r.URL.ForceQuery || o.writeRequest(r, rid, raw) != nil {
+-				_ = o.failAt("request-original-intent")
++				_ = o.fail()
+ 				http.Error(w, "closed deletion original intent", 502)
+ 				return
+ 			}
+@@ -484,7 +466,7 @@ func (o *knowledgeDeleteObservations) observeHandler(next http.Handler) http.Han
+ 		o.mu.Lock()
+ 		if o.tails[rid.String()] != nil || len(o.tails) >= 96 {
+ 			o.mu.Unlock()
+-			_ = o.failAt("request-duplicate")
++			_ = o.fail()
+ 			http.Error(w, "duplicate deletion request", 502)
+ 			return
+ 		}
+@@ -595,51 +577,51 @@ func (o *knowledgeDeleteObservations) capture(response *http.Response) error {
+ 	raw, readErr := io.ReadAll(io.LimitReader(response.Body, (5<<20)+1))
+ 	closeErr := response.Body.Close()
+ 	if readErr != nil || closeErr != nil || len(raw) > 5<<20 || response.ContentLength != int64(len(raw)) || !json.Valid(raw) || response.Header.Get("Cache-Control") != "no-store" {
+-		return o.failAt("response-complete-json")
++		return o.fail()
+ 	}
+ 	rid, err := f.ParseID[f.Request](response.Header.Get("X-Request-ID"))
+ 	if err != nil || rid.String() != response.Header.Get("X-Request-ID") || len(response.Header.Values("X-Request-ID")) != 1 {
+-		return o.failAt("response-request-id")
++		return o.fail()
+ 	}
+ 	o.mu.Lock()
+ 	tail, in := o.tails[rid.String()], o.requests[rid.String()]
+ 	o.mu.Unlock()
+ 	if tail == nil || tail.method != response.Request.Method || tail.uri != response.Request.URL.RequestURI() {
+-		return o.failAt("response-original-tail")
++		return o.fail()
+ 	}
+ 	select {
+ 	case <-tail.done:
+ 	case <-response.Request.Context().Done():
+-		return o.failAt("response-tail-context")
++		return o.fail()
+ 	}
+ 	if !tail.returned {
+-		return o.failAt("response-handler-return")
++		return o.fail()
+ 	}
+ 	currentVerified := false
+ 	if in.kind != "" {
+ 		if response.StatusCode != http.StatusOK {
+-			return o.failAt("response-command-status")
++			return o.fail()
+ 		}
+ 		switch in.kind {
+ 		case "preview":
+ 			if o.preview(response.Request.Context(), raw) != nil {
+-				return o.failAt("response-preview-facts")
++				return o.fail()
+ 			}
+ 		case "delete":
+ 			if o.deleteFacts(response.Request.Context(), in, raw) != nil {
+-				return o.failAt("response-delete-facts")
++				return o.fail()
+ 			}
+ 		case "lookup":
+ 			if o.lookupFacts(response.Request.Context(), raw) != nil {
+-				return o.failAt("response-lookup-facts")
++				return o.fail()
+ 			}
+ 		default:
+-			return o.failAt("response-command-kind")
++			return o.fail()
+ 		}
+ 	} else {
+ 		currentVerified, err = o.currentRead(response, raw)
+ 		if err != nil {
+-			return o.failAt("response-current-facts")
++			return o.fail()
+ 		}
+ 	}
+ 	record := map[string]any{"input_hash": o.inputHash, "request_id": rid.String(), "method": tail.method, "url_sha256": fmt.Sprintf("%x", sha256.Sum256([]byte(tail.uri))), "status": response.StatusCode, "content_length": len(raw), "body_sha256": fmt.Sprintf("%x", sha256.Sum256(raw)), "original_eof": true, "original_closed": true, "handler_returned": true, "request_host_matches": true}
+@@ -659,7 +641,7 @@ func (o *knowledgeDeleteObservations) capture(response *http.Response) error {
+ 		record["current_read_verified"] = true
+ 	}
+ 	if o.writeProof(record) != nil {
+-		return o.failAt("response-proof-write")
++		return o.fail()
+ 	}
+ 	o.mu.Lock()
+ 	o.count++
+@@ -788,17 +770,14 @@ func (o *knowledgeDeleteObservations) lookupFacts(ctx context.Context, raw []byt
+ 	want := map[string]any{"state": "committed", "receipt": map[string]any{"command": "delete-subtree", "root_id": o.root["id"], "changed": true, "deleted_ids": []any{ids[0], ids[1]}, "cleanup_pending": true}}
+ 	var value map[string]any
+ 	if json.Unmarshal(raw, &value) != nil || !reflect.DeepEqual(value, want) {
+-		return o.failAt("lookup-receipt-shape")
++		return errors.New("Lookup differs from the original committed subtree")
+ 	}
+ 	after, err := o.snapshot(ctx)
+ 	o.mu.Lock()
+ 	before := o.after
+ 	o.mu.Unlock()
+ 	if err != nil || before != after {
+-		if err != nil {
+-			return o.failAt("lookup-snapshot-read")
+-		}
+-		return o.failAt("lookup-snapshot-changed")
++		return errors.New("Lookup changed original persisted deletion facts")
+ 	}
+ 	return nil
+ }
+@@ -962,7 +941,7 @@ func (o *knowledgeDeleteObservations) writeProof(record map[string]any) error {
+ func (o *knowledgeDeleteObservations) proxyError(w http.ResponseWriter, _ *http.Request, err error) {
+ 	var drop *knowledgeDeleteDrop
+ 	if !errors.As(err, &drop) {
+-		_ = o.failAt("proxy-upstream")
++		_ = o.fail()
+ 		http.Error(w, "owned Knowledge deletion proxy failed", 502)
+ 		return
+ 	}
+@@ -980,12 +959,12 @@ func (o *knowledgeDeleteObservations) proxyError(w http.ResponseWriter, _ *http.
+ 		closeErr = conn.Close()
+ 	}
+ 	if n != 1 || writeErr != nil || flushErr != nil || hijackErr != nil || conn == nil || closeErr != nil {
+-		_ = o.failAt("cut-delivery")
++		_ = o.fail()
+ 		return
+ 	}
+ 	drop.record["receipt_cut"] = true
+ 	if o.writeProof(drop.record) != nil {
+-		_ = o.failAt("cut-proof-write")
++		_ = o.fail()
+ 		return
+ 	}
+ 	o.mu.Lock()
+diff --git a/tests/account-captcha-web/e2e/knowledge-delete.spec.ts b/tests/account-captcha-web/e2e/knowledge-delete.spec.ts
+index cd14b0f3..24e5e158 100644
+--- a/tests/account-captcha-web/e2e/knowledge-delete.spec.ts
++++ b/tests/account-captcha-web/e2e/knowledge-delete.spec.ts
+@@ -68,12 +68,10 @@ for (const mode of ["delete-normal", "delete-lost"] as const) {
+     await expect(dialog.getByRole("list", { name: "完整删除范围", exact: true })).toHaveCount(0);
+     await expect(dialog.getByRole("button", { name: "查询原删除结果", exact: true })).toHaveCount(0);
+     await seen.verify(); seen.confirmed();
+-    const close = dialog.locator(".dialog-footer").getByRole("button", { name: "关闭", exact: true });
+-    await expect(close).toHaveCount(1);
+-    await press(page, close);
++    await press(page, dialog.getByRole("button", { name: "关闭", exact: true }));
+     await expect(dialog).toHaveCount(0);
+     await expect(page.locator(".knowledge-document > h2")).toBeFocused();
+-    await expect(page.locator(".knowledge-document").getByRole("heading", { name: "文档已删除", exact: true })).toBeVisible();
++    await expect(page.getByText("文档已删除", { exact: true })).toBeVisible();
+     await expect(page.locator("pre.canonical-text")).toHaveCount(0);
+     await page.setViewportSize({ width: 390, height: 844 });
+     await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });

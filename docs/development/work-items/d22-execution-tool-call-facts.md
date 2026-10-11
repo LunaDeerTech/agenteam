@@ -1,6 +1,6 @@
 # D22 首轮 ToolCall 持久事实
 
-状态：基于 `226ea38b` 的有限片已完成真实 PG 验证并获独立有限验收，等待正式主线集成。基础与显式 Model 捕获补口的分段 race / vet 通过，第三轮原两场景 whole PASS；前两轮 whole FAIL 完整保留。本片止于真实原模型句柄完成并实际 Joined 后的 ToolCall 持久事实和 `tool-pending` 非终态 checkpoint，不声明完整多轮 Agent、ToolOperation、Runner 派发或生产 tools 接入。
+状态：基于 `226ea38b` 的有限片已完成真实 PG 验证并获独立有限验收，随本次集成正式交付 main。基础与显式 Model 捕获补口的分段 race / vet 通过，第三轮原两场景 whole PASS；前两轮 whole FAIL 完整保留。本片止于真实原模型句柄完成并实际 Joined 后的 ToolCall 持久事实和 `tool-pending` 非终态 checkpoint，不声明完整多轮 Agent、ToolOperation、Runner 派发或生产 tools 接入。
 
 正式来源：[Model/Tool 契约](d01-contracts/model-tool.md)、[Execution 编排契约](d01-contracts/execution-orchestration.md)、[Transcript 与 Context](../../architecture/agent-loop/transcript-context.md)。
 
