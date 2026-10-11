@@ -63,6 +63,9 @@ func (s *skillVersionStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
 	}
 	return s, nil
 }
+func (*skillVersionStore) Query(context.Context, string, ...any) (*postgres.Rows, error) {
+	return nil, fmt.Errorf("unexpected controlled rows query")
+}
 func (s *skillVersionStore) RequireHeldLocks(_ context.Context, tx f.Tx, locks []f.LockRequest) error {
 	if tx != s.tx || !slices.EqualFunc(s.held, locks, func(a, b f.LockRequest) bool { return f.CompareLockKeys(a.Key, b.Key) == 0 && a.Mode == b.Mode }) {
 		return f.NewFault(f.Forbidden, f.NotStarted)

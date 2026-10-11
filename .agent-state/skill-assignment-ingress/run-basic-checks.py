@@ -83,8 +83,11 @@ def head():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--mount-only", action="store_true", help="Run only the original Mount top; still vet all eleven packages")
     args = parser.parse_args()
-    packages, tops = PACKAGES, TOPS
+    tests = {"./internal/central/mount": TESTS["./internal/central/mount"]} if args.mount_only else TESTS
+    packages = list(tests)
+    tops = [name for names in tests.values() for name in names]
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=False)
     env = os.environ.copy()
@@ -164,7 +167,7 @@ def main():
     save("deps01-closure.json", dict(
         packages=packages, vet_packages=VET_PACKAGES, local_packages=local_packages, input_count=len(paths),
         missing_pre_discovery_inputs=missing,
-        top_tests=TESTS,
+        top_tests=tests,
     ))
     if "db/migrations/00067_skill_assignment_ingress.sql" not in paths:
         raise RuntimeError("actual dependency closure omitted the assignment migration; no test started")
@@ -185,7 +188,7 @@ def main():
         if event.get("Action") == "pass" and event.get("Test"):
             passed.append([event["Package"], event["Test"]])
     module = "github.com/LunaDeerTech/agenteam/"
-    required = [[module + package[2:], name] for package, names in TESTS.items() for name in names]
+    required = [[module + package[2:], name] for package, names in tests.items() for name in names]
     save("unit01-selection.json", dict(required=required, passed=passed, all_required_passed=all(item in passed for item in required)))
     if any(item not in passed for item in required):
         raise RuntimeError("expected selected test did not pass")
