@@ -125,7 +125,7 @@ func TestTaskRelaunchOriginIsDistinctFromTodoClaim(t *testing.T) {
 		func(v *c.TaskLaunchIntent) { v.Origin = c.TaskDispatchTodoClaim },
 		func(v *c.TaskLaunchIntent) { v.ClaimedVersion = claim.After.Version },
 		func(v *c.TaskLaunchIntent) { v.Relaunch = nil },
-		func(v *c.TaskLaunchIntent) { v.Relaunch.Request.Purpose = "task/review" },
+		func(v *c.TaskLaunchIntent) { v.Relaunch.Request.Purpose = "task/unknown" },
 		func(v *c.TaskLaunchIntent) { v.Relaunch.Request.AgentID = pureID[i.Agent](t, 133) },
 	} {
 		bad := intent.Clone()
@@ -202,7 +202,7 @@ func (s *relaunchTestStore) WithinTx(ctx context.Context, cause f.TransactionCau
 }
 func (s *relaunchTestStore) Exec(_ context.Context, query string, args ...any) (pgconn.CommandTag, error) {
 	s.writes++
-	if !strings.HasPrefix(query, "INSERT INTO agenteam_work.task_scheduler_relaunches(") || len(args) != 11 {
+	if !strings.HasPrefix(query, "INSERT INTO agenteam_work.task_scheduler_relaunches(") || len(args) != 12 {
 		s.t.Fatal("relaunch wrote outside its immutable origin")
 	}
 	if s.insertError != nil {
@@ -216,7 +216,7 @@ func (s *relaunchTestStore) Exec(_ context.Context, query string, args ...any) (
 	if err := json.Unmarshal(raw, &record); err != nil {
 		s.t.Fatal("invalid stored origin", err)
 	}
-	if args[0] != record.Request.DispatchID || args[1] != record.Request.ProjectID.String() || args[2] != record.Task.ID.String() || args[3] != record.Request.AgentID.String() || args[4] != record.Sprint.ID.String() || args[5] != record.Milestone.ID.String() || args[6] != record.Request.RequestID.String() || args[7] != int64(record.Task.Version) || args[8] != string(record.source().ReferenceDigest) {
+	if args[0] != record.Request.DispatchID || args[1] != record.Request.ProjectID.String() || args[2] != record.Task.ID.String() || args[3] != record.Request.AgentID.String() || args[4] != record.Sprint.ID.String() || args[5] != record.Milestone.ID.String() || args[6] != record.Request.RequestID.String() || args[7] != int64(record.Task.Version) || args[8] != string(record.source().ReferenceDigest) || args[11] != record.Request.Purpose {
 		s.t.Fatal("origin SQL scalar projection differs from its record")
 	}
 	at, ok := args[10].(time.Time)

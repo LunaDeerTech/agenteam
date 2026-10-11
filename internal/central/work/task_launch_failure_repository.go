@@ -38,10 +38,12 @@ type taskFailureRecord struct {
 // assignee and source relation, not equality with the claim's old postimage.
 func failureCanBlock(claim *schedulerClaimRecord, before c.Task, sprint c.Sprint, relaunch ...*taskRelaunchRecord) bool {
 	base := claim.Before
+	phase := c.TaskStateInProgress // A historical todo claim is always work.
 	if len(relaunch) > 0 && relaunch[0] != nil {
 		base = relaunch[0].Task
+		phase = taskRelaunchState(relaunch[0].Request.Purpose)
 	}
-	return (before.State == c.TaskStateInProgress || before.State == c.TaskStateBlocked) && before.AssigneeAgentID != nil && base.AssigneeAgentID != nil && *before.AssigneeAgentID == *base.AssigneeAgentID && before.SprintID == base.SprintID && before.MilestoneID == base.MilestoneID && sprint.ID == base.SprintID && sprint.State != c.Completed
+	return phase != "" && (before.State == phase || before.State == c.TaskStateBlocked) && before.AssigneeAgentID != nil && base.AssigneeAgentID != nil && *before.AssigneeAgentID == *base.AssigneeAgentID && before.SprintID == base.SprintID && before.MilestoneID == base.MilestoneID && sprint.ID == base.SprintID && sprint.State != c.Completed
 }
 func buildTaskFailureRecord(r c.TaskLaunchFailureRequest, facts c.TaskLaunchFailureFacts, claim schedulerClaimRecord, before c.Task, sprint c.Sprint, current *c.SprintID, groups []taskGroupPlan, query int64, blockerID c.TaskBlockerID, historyIDs []c.TaskEventID, eventID event.EventID, at f.Instant, relaunch ...*taskRelaunchRecord) (taskFailureRecord, error) {
 	var zero taskFailureRecord

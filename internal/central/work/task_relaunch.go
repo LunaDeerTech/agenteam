@@ -100,6 +100,16 @@ func taskRelaunchLocks(r c.TaskRelaunchRequest) ([]f.LockRequest, error) {
 	}
 	return taskNormalize([]f.LockRequest{commandLock(command), projectLock(r.ProjectID, f.Shared), taskScheduleLock(r.ProjectID, f.Exclusive), {Key: ak, Mode: f.Shared}, sprintLock(r.CurrentSprintID.String(), f.Shared), taskLock(r.TaskID.String(), f.Shared)})
 }
+func taskRelaunchState(purpose string) c.TaskState {
+	switch purpose {
+	case "task/work":
+		return c.TaskStateInProgress
+	case "task/review":
+		return c.TaskStateInReview
+	default:
+		return ""
+	}
+}
 func validateRelaunchTask(t c.Task, r c.TaskRelaunchRequest) error {
 	if t.Validate() != nil || t.ProjectID != r.ProjectID || t.ID != r.TaskID {
 		return internal(nil)
@@ -107,7 +117,7 @@ func validateRelaunchTask(t c.Task, r c.TaskRelaunchRequest) error {
 	if t.Version != r.ExpectedTaskVersion {
 		return fault(f.TaskVersionConflict)
 	}
-	if t.State != c.TaskStateInProgress || t.SprintID != r.CurrentSprintID {
+	if t.State != taskRelaunchState(r.Purpose) || t.SprintID != r.CurrentSprintID {
 		return fault(f.InvalidState)
 	}
 	if t.AssigneeAgentID == nil || *t.AssigneeAgentID != r.AgentID {
