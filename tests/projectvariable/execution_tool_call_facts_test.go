@@ -24,8 +24,10 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/mount"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
@@ -37,6 +39,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/tool/registry"
+	"github.com/LunaDeerTech/agenteam/internal/central/usage"
 	"github.com/LunaDeerTech/agenteam/internal/central/work"
 )
 
@@ -164,6 +167,7 @@ func newToolFactsFixture(t *testing.T) *toolFactsFixture {
 	modelCapture, err := model.NewToolCallFactsCapture(modelService, c.authority)
 	firstRoundRequire(t, err)
 	c.models.provider = modelCapture
+	v.bindRetirementRuntime(t, modelAuthority, modelSecrets)
 	var ordinary bool
 	firstRoundRequire(t, b.raw.QueryRow(ctxFor(t), `SELECT role='user' FROM agenteam_account.users WHERE id::text=$1`, b.ownerBrowser.actor.Details().UserID).Scan(&ordinary))
 	if !ordinary {
@@ -272,6 +276,45 @@ func newToolFactsFixture(t *testing.T) *toolFactsFixture {
 	v.model = newToolFactsModel(t, v.mount.MountID)
 	v.driver = v.newDriver(t, builder, modelAuthority, modelSecrets)
 	return v
+}
+
+// Register the real Runtime's borrower registry for lease retirement. It is
+// never the JSONCaller: no Chat, adapter Start, credential read or wire request
+// occurs here. Its original owner retires after the Tool driver/controlled
+// handle and before the shared Secret providers and ProcessGuard.
+func (v *toolFactsFixture) bindRetirementRuntime(t *testing.T, authority *model.RuntimeAuthority, secrets *secret.Service) {
+	t.Helper()
+	c, b := v.capture, v.capture.v.base
+	invocations, err := usage.NewAuthority(b.tracked, usage.Authorizations{Sessions: b.accounts, Projects: c.projectAuthority, Invocations: authority})
+	firstRoundRequire(t, err)
+	ledger, err := usage.New(b.tracked, invocations, usage.Dependencies{Cursors: b.keys})
+	firstRoundRequire(t, err)
+	firstRoundRequire(t, ledger.Initialize(ctxFor(t)))
+	policy, err := outbound.NewPolicyService(b.tracked, b.audit, outbound.Authorizations{Sessions: b.accounts, System: b.accounts})
+	firstRoundRequire(t, err)
+	firstRoundRequire(t, policy.Reload(ctxFor(t)))
+	trust, err := outbound.LoadTrustStore("")
+	firstRoundRequire(t, err)
+	budget := wire.NewBudget()
+	var runtime *model.Runtime
+	t.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if runtime != nil {
+			runtime.StopAdmission()
+			if err := runtime.Drain(ctx); err != nil || !runtime.Joined() {
+				t.Error("original retirement Model Runtime did not join", err)
+			}
+		}
+		if err := budget.Force(ctx); err != nil || !budget.Joined() {
+			t.Error("original unused Model transport budget did not join", err)
+		}
+	})
+	adapter, err := wire.NewOpenAIChat(wire.Transport{Policy: policy, Trust: trust}, budget)
+	firstRoundRequire(t, err)
+	runtime, err = model.NewRuntime(b.tracked, authority, model.RuntimeDependencies{Usage: ledger, SecretReader: secrets, SecretUsage: secrets, Adapter: adapter})
+	firstRoundRequire(t, err)
+	firstRoundRequire(t, runtime.Initialize(ctxFor(t)))
 }
 
 // Reuse the original real Agent providers, changing only the explicitly bound
@@ -417,7 +460,7 @@ func (v *toolFactsFixture) requireNoCall(t *testing.T) {
  (SELECT count(*) FROM agenteam_execution.tool_calls c WHERE c.execution_id=e.id),
  (SELECT count(*) FROM agenteam_execution.transcript_entries t WHERE t.execution_id=e.id AND t.sequence=2),
  (SELECT count(*) FROM agenteam_tool.operations o WHERE o.execution_id=e.id),
- (SELECT count(*) FROM agenteam_outbox.events o WHERE o.aggregate_id=e.id AND o.event_type IN('execution.succeeded','execution.failed','execution.cancelled')),
+ (SELECT count(*) FROM agenteam_outbox.events o WHERE o.aggregate_id=e.id::uuid AND o.event_type IN('execution.succeeded','execution.failed','execution.cancelled')),
  (SELECT count(*) FROM agenteam_mount.execution_use_retirements m WHERE m.execution_id=e.id)
  FROM agenteam_execution.executions e JOIN agenteam_execution.rounds r ON r.execution_id=e.id WHERE e.id=$1`, v.capture.created.ID.String()).Scan(&state, &version, &through, &pending, &arguments, &calls, &transcript, &operations, &terminal, &retired)
 	firstRoundRequire(t, err)
@@ -444,7 +487,7 @@ func (v *toolFactsFixture) facts(ctx context.Context, sql postgres.SQLExecutor) 
  (SELECT count(*) FROM agenteam_execution.tool_call_arguments z WHERE z.execution_id=e.id),
  (SELECT count(*) FROM agenteam_execution.tool_calls z WHERE z.execution_id=e.id),
  (SELECT count(*) FROM agenteam_tool.operations z WHERE z.execution_id=e.id),
- (SELECT count(*) FROM agenteam_outbox.events z WHERE z.aggregate_id=e.id AND z.event_type IN('execution.succeeded','execution.failed','execution.cancelled')),
+ (SELECT count(*) FROM agenteam_outbox.events z WHERE z.aggregate_id=e.id::uuid AND z.event_type IN('execution.succeeded','execution.failed','execution.cancelled')),
  (SELECT count(*) FROM agenteam_mount.execution_references z WHERE z.execution_id=e.id AND z.mount_id::text=$2 AND z.workspace_id::text=$3 AND z.runner_id::text=$4),
  (SELECT count(*) FROM agenteam_mount.execution_use_retirements z WHERE z.execution_id=e.id),
  (SELECT count(*) FROM agenteam_model.snapshot_bindings z JOIN agenteam_secret.secret_leases l ON l.id=z.lease_id WHERE z.owner_kind='execution' AND z.owner_id::text=e.id AND NOT l.released),

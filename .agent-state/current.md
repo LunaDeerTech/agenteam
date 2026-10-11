@@ -7,4 +7,5 @@
 - 原 profile 1 正 / 7 反及旧 AST/maps 保留控制实际 0。PG 首次 race-c/list 已实际 0，1806 项编译输入前后同；native01 两 sub 在真实 Model 捕获的 no-tools 门返回 CAPABILITY_UNSUPPORTED，整轮 actual 1；原 Wait、七资源、TCP 双空和输入门完整，未到 ToolCall 写入验证。
 - PG 唯一替身为 Model JSON 端口。当前无正式 Cancel 写 API，canonical 取消标记仅纯控；生产 no-tools/nil/unbound、旧版本 1、OpenAI tools 独立 A/B 及所有原 STOP 保留。
 
-- 已按 root 授权新增显式 `model.NewToolCallFactsCapture` 候选：只捕获真实 ToolCalls 配置与原 Secret lease，独立 configuration-only revision；默认 Resolver/Capture/Runtime 和 STOP 不变。原计划完整 draft 绑定 revision，历史 prepared/committed 与 Unknown 均拒跨 profile 复用。新增 Model 控制尚未运行；PG 作者只切显式 provider，下一步限定 Model race/vet 再编译原两场景。
+- 显式 `model.NewToolCallFactsCapture` 已由独立主审接受：只捕获真实 ToolCalls 配置与原 Secret lease，独立 configuration-only revision；默认 Resolver/Capture/Runtime 和 STOP 不变。Model 控制实际 26 top 分段通过 / vet 0，原 25 PASS + 1 测试 scaffold FAIL 保留，修后仅补该 1 top。
+- `compile02` / 精确 list 实际 0，1808 编译输入前后同。`native02` 原工具 24135 actual 1，全资源 / Wait / TCP 双空 / 输入尾齐；两个场景已到原 Model Close barrier，在夹具跨域 UUID/text 计数 SQL 失败，异常清理缺真实 Runtime registry。PG 唯一作者正窄修两查询及正式 Runtime 生命周期装配，不调用 tools HTTP。原两轮 whole FAIL 保留，尚不交付 main；源码不涉及生产或迁移返修。

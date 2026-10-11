@@ -1,6 +1,6 @@
 # D22 首轮 ToolCall 持久事实
 
-状态：基于 `226ea38b` 实施；基础 race 与 vet 已分段通过，首次真实 PG 已运行但在 Model 捕获入口失败，显式补口尚待验证。本片止于真实原模型句柄完成并实际 Joined 后的 ToolCall 持久事实和 `tool-pending` 非终态 checkpoint，不声明完整多轮 Agent、ToolOperation、Runner 派发或生产 tools 接入。
+状态：基于 `226ea38b` 实施；基础与显式 Model 捕获补口已通过限定分段 race / vet。两次真实 PG 均为 FAIL；第二轮已到原 Model Close barrier，持久状态查询的夹具类型错误及异常退休装配正在窄修，尚未验收 ToolCall 写入链。本片止于真实原模型句柄完成并实际 Joined 后的 ToolCall 持久事实和 `tool-pending` 非终态 checkpoint，不声明完整多轮 Agent、ToolOperation、Runner 派发或生产 tools 接入。
 
 正式来源：[Model/Tool 契约](d01-contracts/model-tool.md)、[Execution 编排契约](d01-contracts/execution-orchestration.md)、[Transcript 与 Context](../../architecture/agent-loop/transcript-context.md)。
 
@@ -19,7 +19,7 @@ lead 独占 Execution/Loop、本卡、分支 current 与迁移 `00064_execution_
 
 首条 PG 链只替换 Model 端口，真实 Agent/Execution/Tool Registry/持久化及当前权威不得用原 D15 上游替身替代。必要基础控制覆盖完整响应与原句柄退休、事实幂等、未知提交、当前权限与事务回滚；不扩大成多轮 Tool Runtime 或重新验收旧领域矩阵。
 
-OpenAI tools 独立 A/B STOP、生产 nil/unbound、旧默认 no-tools 均保留；归档 input08 不当作动态通过。不得通过新 driver 恢复停项，也不引入网络故障 probe、新依赖或默认绑定。当前已运行限定 Go 基础检查与离线 Python 方法控制；已编译 PG 测试但没有运行服务或 native。
+OpenAI tools 独立 A/B STOP、生产 nil/unbound、旧默认 no-tools 均保留；归档 input08 不当作动态通过。不得通过新 driver 恢复停项，也不引入网络故障 probe、新依赖或默认绑定。当前已运行限定 Go 基础检查、离线 Python 方法控制与两次自有隔离 PG native；结果与失败边界见下文。
 
 ## 当前实现候选
 
@@ -49,4 +49,13 @@ PG 唯一测试的首次 `-race -tags=integration -c -p=1` 编译实际退出 0�
 
 静态定位确认不可满足的原路径：本夹具通过正式 Model 配置启用 `ToolCalls`，而原 `ExecutionCapture` 委托的默认 Resolver 明确拒绝该配置。不得删除原门或伪造 Snapshot。补口采用独立、显式的 `NewToolCallFactsCapture`，复用原真实 Model 配置、同事务计划 / Snapshot / Secret lease；只接受 AgentGeneration 的 direct 选择、文本模态、ToolCalls 且无 parallel / streaming / reasoning。捕获 revision 为 `execution-tool-call-facts-capture-v1`，表示配置捕获，未注册任何 HTTP adapter，也不等于被 STOP 的 tools adapter。
 
-原 resolution identity / semantic / mapping 编码不变，完整 frozen draft 已把独立 revision 纳入 mapping。prepared 和 committed 历史须与调用 profile 一致，不能修改成另一 profile；最终 Resolve 与 Unknown 观察复核原候选、owner 和 revision。公开 `DiscoverResolve` / `ResolveModelInTx`、原 `NewExecutionCapture` 和 `Runtime.Chat` 仍走默认 no-tools 门。该补口尚未执行新增 Model 控制或复验 PG；不放宽原 A/B STOP 或默认生产接入。
+原 resolution identity / semantic / mapping 编码不变，完整 frozen draft 已把独立 revision 纳入 mapping。prepared 和 committed 历史须与调用 profile 一致，不能修改成另一 profile；最终 Resolve 与 Unknown 观察复核原候选、owner 和 revision。公开 `DiscoverResolve` / `ResolveModelInTx`、原 `NewExecutionCapture` 和 `Runtime.Chat` 仍走默认 no-tools 门。该补口的限定 Model 控制已分段通过；第二轮 PG 越过配置捕获并到原 Model Close barrier。不放宽原 A/B STOP 或默认生产接入。
+
+
+## 补口验证与第二轮真实失败
+
+Model `model01` 精确选择 26 top（3 个新入口和 23 个适用旧入口），原工具 55951 实际退出 1：25 PASS，1 项 mapping 对比控制因测试构造了无效 ConsumerDependencies 且忽略编码错误而失败。只修该测试的合法依赖和错误检查，生产源码不变；`model02` 仅重跑该入口实际 0，Model vet 实际 0。129 项限定输入各轮前后相同，轮间只有该测试差额；合计 26 top 分段通过，原 FAIL 不改写。原件在 `checks/model01-*`、`model02-*`、`model-vet01-*`。
+
+PG `compile02` 原工具 64051 实际 0，Go race-c 89.808 秒，精确 list 1.240 秒只枚举原 top；1808 编译输入前后相同，runtime 仅增加该 binary。`native02` 原工具 24135 实际退出 1，supervisor 672325 实际 1 / 115.080 秒；两个 sub 共 25.41 秒，均在原 Model Close barrier 及请求身份检查之后，`requireNoCall` 聚合 SQL 返回 `DATABASE_SQL_FAILED`，异常清理另报告 `DEPENDENCY_UNBOUND`。原 Go / driver Wait 1，七资源、descendants / private / runtime 双尾、自动 TCP delta 双空及输入未变门完整。原件 `native02/` 全部保留，不能将已到 barrier 当作事实写入通过。
+
+静态定位两个夹具接缝：Outbox `aggregate_id` 是 UUID，Execution ID 是 text，两个跨域计数查询需显式转 UUID；异常取消退休还要求原 RuntimeAuthority 下的真实 Model Runtime registry，当前夹具未装配该依赖。定向修复只由原 PG 作者改该文件，保持计数和真实退出断言，使用正式 Runtime 的构造 / 初始化 / Stop / Drain；不会调用 Runtime.Chat 或 tools HTTP，不删除生产 nil-registry 门，不伪造空 borrowers。修后尚待原两场景真实复验。
