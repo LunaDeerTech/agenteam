@@ -71,7 +71,7 @@ npm run preview --prefix web
 
 限定实现已有前端定向检查及类型/构建证据；版本冲突保留输入、同 Session 恢复不丢 Unknown 两项修复已独立复核。[真实 fixture](../../../tests/projectvariable/project_variables_web_test.go) 的 `TestProjectVariablesWeb/create-update-and-clear` 已完成一次 Create、两次 PATCH（含显式空值）及各次完整 Get/List，13 个已观察 API 请求全部 finished，10 份 Variables 证明覆盖初始目录、三次写与三对当前 Get/List；浏览器零 Lookup，服务后验以原 key Lookup 核三条历史 receipt、canonical/Audit/Outbox 与其他域事实不变。原 supervisor 收齐 Node/driver 实际 Wait、七资源及 private/runtime/descendants/TCP 双尾；浏览器覆盖键盘确认、焦点、减少动效和横向溢出，1440 浅色与 390 深色图已独立查看。控制检查首次环境遗漏失败与前端原失败保留，不能写成当前 HEAD 单次全量通过。
 
-本片不含删除、Secret、UI 原命令重放、Agent/Runner 环境注入或完整 Variables 生命周期；正常浏览器链不代真实权限/Unknown 全矩阵。生产 Project initializer 和 Central SPA 发布仍未由此完成，上述限定候选与真实正常链已独立接受，Git 集成由主线程收口。
+本片不含删除、Secret、UI 原命令重放、Agent/Runner 环境注入或完整 Variables 生命周期；正常浏览器链不代真实权限/Unknown 全矩阵。生产 Project initializer 和 Central SPA 发布仍未由此完成；上述有限成果已随 main `3e28f10a` 交付，开发历史与原件的保全及早期失败输入限制见[恢复说明](../../../.agent-state/project-variables-resume/README.md)。
 
 ## Project Secrets 安全目录
 
