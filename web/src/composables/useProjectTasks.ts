@@ -130,6 +130,14 @@ export function createProjectTasks(
       ? p
       : null
   })
+  const creationPending = computed(() => {
+    const p = pending.value
+    return visible.value &&
+      p?.kind === 'create' &&
+      p.projectID === workspace.currentReadContext.value?.projectID
+      ? p
+      : null
+  })
   const creationProgress = computed(() => {
     const p = auth.workReview.progress
     return p?.kind === 'create' &&
@@ -706,6 +714,7 @@ export function createProjectTasks(
     columns,
     draft,
     creation,
+    creationPending,
     creationProgress,
     canCreate,
     confirmation,

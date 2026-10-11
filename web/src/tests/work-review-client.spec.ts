@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { Fetch } from '../api/client'
-import { captureReviewInput, createWorkReviewAPI, type ReviewInput } from '../api/work-review'
+import {
+  captureReviewInput,
+  captureReadyInput,
+  createWorkReviewAPI,
+  type ReviewInput,
+} from '../api/work-review'
 
 const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
 const project = id(1)
@@ -104,9 +109,28 @@ describe('Human review closed client', () => {
       { ...input(), request: { ...input().request, assignee_agent_id: null } },
       { ...input(), request: { ...input().request, reviewer_agent_id: id(20) } },
       { ...input(), request: { ...input().request, target_state: 'in_progress' } },
+      { expected_version: '1', request: { target_state: 'todo', assignee_agent_id: id(20) } },
     ]) {
       await expect(
         Promise.resolve().then(() => api.transfer(project, target, value as never, write)),
+      ).rejects.toMatchObject({ kind: 'invalid-input' })
+    }
+    const ready = {
+      expected_version: '1',
+      request: { target_state: 'todo', assignee_agent_id: id(20) },
+    }
+    // Comment omission belongs only to the separately captured backlog-ready intent.
+    expect(captureReadyInput(ready)).toEqual(ready)
+    for (const request of [
+      { target_state: 'todo' },
+      { target_state: 'todo', assignee_agent_id: null },
+      { ...ready.request, target_state: 'in_review' },
+      { ...ready.request, comment: ' ' },
+    ]) {
+      await expect(
+        Promise.resolve().then(() =>
+          api.ready(project, target, { expected_version: '1', request } as never, write),
+        ),
       ).rejects.toMatchObject({ kind: 'invalid-input' })
     }
     expect(fetcher).not.toHaveBeenCalled()

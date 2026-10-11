@@ -25,8 +25,8 @@ function selectSprint(id: string) {
   sidebar.value = false
 }
 function returnToCreation() {
-  const p = owner.pending.value
-  if (p?.kind === 'create' && p.sprintID) selectSprint(p.sprintID)
+  const p = owner.creationPending.value
+  if (p?.sprintID) selectSprint(p.sprintID)
 }
 </script>
 <template>
@@ -49,9 +49,9 @@ function returnToCreation() {
       </p>
       <UiButton
         v-if="
-          owner.pending.value?.kind === 'create' &&
+          owner.creationPending.value &&
           !owner.creationProgress.value &&
-          owner.pending.value.sprintID
+          owner.creationPending.value.sprintID
         "
         :disabled="owner.busy.value"
         @click="returnToCreation"
