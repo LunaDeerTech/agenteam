@@ -593,3 +593,18 @@ SOURCE `deec8a506b98a77b120446e7e4360740557ac861`的compile07/candidate07与B05�
 ```
 
 上述为已执行入口，不直接复用旧namespace。重现继续按原plan/输入闭包、固定Go/Python与唯一hotcache、fresh容量及七资源实际退出门执行；依赖已初始化Project、真实provider图和显式`AGENTEAM_CENTRAL_EXECUTION_RUNTIME`中的`direct-text-v1`完整配置，不能只传模式字符串替代闭集JSON。准确字段见[Runtime装配](../../docs/development/work-items/recovery-project-domain-bindings.md#有限后继显式配置的-central-execution-runtime-装配)。完整Loop、Tool、Project initializer及ready仍未完成。
+
+## Task编辑与Agent创建页面有限组合
+
+第十三/十五批真实页面验收闭合，待root交付。共享candidate09来自compile SOURCE `8417da7a0d6de6e7813092b106797ba3491e66df`；13 native02沿同SOURCE运行，15 native03沿runtime SOURCE `7a0224a98c724ade5bab956d3f5e2a1d57948353`运行并复用原Agent dist01。后继只修夹具原请求/进度绑定，不重建历史请求或改变页面产品；具体输入闭包与编译字节/SHA以原compile09记录为准。
+
+| 入口 | 实际有限结果 | 原件（delivery的output/ai/agent-system-integration下） |
+| --- | --- | --- |
+| `TestTaskEditWeb` | native02两sub81.74s wholePASS；真实changed/clear/No-op及独立Ready，丢编辑回执后仅原完整patch/key Lookup；业务/资源与8PNG有限视觉接受 | `task-edit-web-02-control/result.json` |
+| `TestAgentConfigurationWeb` | native03两sub41.82s wholePASS：`default-create-config-and-directory`21.37s、`lost-create-confirmation-only-lookup`20.45s；默认Create1及目录9/config20，另一例Create1真截断后仅原Lookup1；业务/资源与7PNG有限视觉接受 | `agent-configuration-web-03-control/result.json` |
+
+两轮均为四原Wait0、两Node实际成功、七ID14次absence、全部private/runtime/desc/TCP双尾闭合、outer无遗留、2436输入一致。原请求完成仍依同request的服务端长度/SHA与提交后验、原body EOF/退役、公开typed消费者原Promise fulfilled且身份current联合证明；预声明截断保留failed，不能借成功Lookup伪写原mutation成功。独立前端13的24项、15的20项及各自format/type/build按原输入复用，不累加成一次全平台验证。
+
+视觉与交互仅接受上述实际截图及同轮键盘、取消回焦、主题、reduced-motion/overflow范围；13截图下半部和Unknown提示有DOM断言支持，15二十字段未同入一图，不外推全面视觉或无障碍审计。13 native01的Ready联证FAIL、15 native01容量FAIL与native02 Lookup绑定FAIL及其全部原件保留；后继通过不回填。重现沿既有immutable输入/方法和独立namespace，仍须固定依赖、fresh容量、原实际Wait和七资源退出门。
+
+当前只交付[Task内容编辑](../../docs/development/work-items/d11-work-owner-planning-ui.md#13-未指派-backlog-task-内容编辑批-13)与[Agent创建页面](../../docs/development/work-items/d10-agent-configuration.md)。16真实Update PG、17编辑页面、Timeline真实PG/浏览器、Project initializer、完整Loop与ready均不由本轮通过替代；旧STOP保持。
