@@ -169,7 +169,7 @@ export function createProjectVariables(auth: SessionController = useSession(), w
       const list = await auth.projectVariables.list(c.projectID, { limit: 50 })
       if (!live(c, serial) || committed !== original) return
       detail.variable = variable; detail.phase = 'ready'; detail.message = ''; selected.value = variable.id
-      page.items = list.items; page.nextCursor = list.next_cursor; page.phase = 'ready'; page.stale = false; page.message = ''; cursor = undefined
+      page.items = list.items; page.nextCursor = list.next_cursor; page.phase = 'ready'; page.stale = false; page.message = ''
       needsRead.value = false; committed = null; auth.projectVariables.finishConfirmed(); message.value = '已确认保存，并重新读取当前变量与目录。'
     } catch (error) { if (live(c, serial)) { const e = asFailure(error); if (!deny(e)) { detail.variable = null; detail.phase = 'error'; detail.message = explanation(e); message.value = '操作已确认，但当前读取未完成。请重读，不要再次提交。' } } }
     finally { if (serial === revision) reading.value = false }
