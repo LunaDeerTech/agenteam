@@ -46,13 +46,10 @@ func TestSchedulerExecution(t *testing.T) {
 		page, err := runner.RunTraversal(ctxFor(t))
 		firstRoundRequire(t, err)
 		x.requireDelivery(t, page, dispatch)
-		original := x.associated(t, dispatch)
 		for n := 0; n < 2; n++ {
-			observed, err := x.executor.Advance(ctxFor(t), x.round.capture.v.base.project.ID, original)
+			repeated, err := runner.RunTraversal(ctxFor(t))
 			firstRoundRequire(t, err)
-			if observed.ExecutionID != original.ExecutionID || observed.ProjectID != x.round.capture.v.base.project.ID {
-				t.Fatal("repeated exact association changed the original Execution identity")
-			}
+			x.requireDelivery(t, repeated, dispatch)
 		}
 		x.awaitTerminal(t, ec.Succeeded)
 		stopSchedulerExecutionRunner(t, runner)
@@ -246,19 +243,6 @@ func (x *schedulerExecutionFixture) bindOriginal(t *testing.T, dispatch schedule
 	// These fields are used only by post-call assertions. Async preparation
 	// uses raw real providers and never reads or writes this fixture record.
 	x.round.capture.created, x.round.capture.request = created, request
-}
-
-func (x *schedulerExecutionFixture) associated(t *testing.T, dispatch scheduler.Dispatch) ec.AssociatedDispatch {
-	t.Helper()
-	s := dispatch.Summary()
-	request, err := dispatch.LaunchRequest()
-	firstRoundRequire(t, err)
-	digest, err := request.Digest()
-	firstRoundRequire(t, err)
-	if s.ExecutionID == nil {
-		t.Fatal("unassociated Dispatch cannot be delivered")
-	}
-	return ec.AssociatedDispatch{ExecutionID: *s.ExecutionID, AgentID: s.AgentID, Key: request.Meta.IdempotencyKey, Digest: digest, DispatchID: s.ID.String()}
 }
 
 func (x *schedulerExecutionFixture) requireDelivery(t *testing.T, result scheduler.ProjectRunResult, dispatch scheduler.Dispatch) {
